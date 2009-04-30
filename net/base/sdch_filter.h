@@ -56,10 +56,6 @@ class SdchFilter : public Filter {
     PASS_THROUGH,  // Non-sdch content being passed without alteration.
   };
 
-  // Update the read_times_ array with time estimates for the number of packets
-  // read so far.
-  void UpdateReadTimes();
-
   // Identify the suggested dictionary, and initialize underlying decompressor.
   Filter::FilterStatus InitializeDictionary();
 
@@ -106,25 +102,6 @@ class SdchFilter : public Filter {
   size_t source_bytes_;
   size_t output_bytes_;
 
-  // The number of packets we've observed over the net.
-  size_t observed_packet_count_;
-
-  // We can't really see when a packet arrives, but we can record how much data
-  // was accounted for in previously noted packets. We use this count to (later)
-  // identify new packets .
-  size_t bytes_observed_in_packets_;
-
-  // Since we don't save all packet times in read_times_, we save the last time
-  // for use in histograms.
-  base::Time final_packet_time_;
-
-  // Record of packet processing times for this filter.  Used only for stats
-  // generations in histograms.  There is one time entry each time the byte
-  // count receieved exceeds the next multiple of 1430 bytes (a common
-  // per-TCP/IP-packet payload size). It is currently only valid for the first
-  // 5 packets.
-  std::vector<base::Time> read_times_;
-
   // Error recovery in content type may add an sdch filter type, in which case
   // we should gracefully perform pass through if the format is incorrect, or
   // an applicable dictionary can't be found.
@@ -134,11 +111,9 @@ class SdchFilter : public Filter {
   // This is used to restrict use of a dictionary to a specific URL or path.
   GURL url_;
 
-  // To facilitate histogramming by individual filters, we store the connect
-  // time for the corresponding HTTP transaction, as well as whether this time
-  // was recalled from a cached entry.  The time is approximate, and may be
-  // bogus if the data was gotten from cache (i.e., it may be LOOOONG ago).
-  const base::Time connect_time_;
+  // To facilitate error recovery, we store whether this content came from a
+  // cache, as we then probably don't have the requsite dictionary, and will
+  // need to induce a meta-refresh.
   const bool was_cached_;
 
   // To facilitate error recovery, allow filter to know if content is text/html

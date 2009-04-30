@@ -10,6 +10,7 @@
 #include "base/file_util.h"
 #include "base/file_version_info.h"
 #include "base/message_loop.h"
+#include "base/rand_util.h"
 #include "base/string_util.h"
 #include "net/base/cookie_monster.h"
 #include "net/base/filter.h"
@@ -63,10 +64,19 @@ URLRequestHttpJob::URLRequestHttpJob(URLRequest* request)
       ALLOW_THIS_IN_INITIALIZER_LIST(
           read_callback_(this, &URLRequestHttpJob::OnReadCompleted)),
       read_in_progress_(false),
-      context_(request->context()) {
+      context_(request->context()),
+      sdch_dictionary_advertised_(false),
+      sdch_test_activated_(false),
+      sdch_test_control_(false) {
 }
 
 URLRequestHttpJob::~URLRequestHttpJob() {
+  DCHECK(!sdch_test_control_ || !sdch_test_activated_);
+  if (sdch_test_control_)
+    RecordPacketStats(SDCH_EXPERIMENT_HOLDBACK);
+  if (sdch_test_activated_)
+    RecordPacketStats(SDCH_EXPERIMENT_DECODE);
+
   if (sdch_dictionary_url_.is_valid()) {
     // Prior to reaching the destructor, request_ has been set to a NULL
     // pointer, so request_->url() is no longer valid in the destructor, and we
@@ -215,8 +225,7 @@ bool URLRequestHttpJob::GetContentEncodings(
 }
 
 bool URLRequestHttpJob::IsSdchResponse() const {
-  return response_info_ &&
-      (request_info_.load_flags & net::LOAD_SDCH_DICTIONARY_ADVERTISED);
+  return sdch_dictionary_advertised_;
 }
 
 bool URLRequestHttpJob::IsRedirectResponse(GURL* location,
@@ -546,29 +555,54 @@ void URLRequestHttpJob::StartTransaction() {
 }
 
 void URLRequestHttpJob::AddExtraHeaders() {
+  // TODO(jar): Consider optimizing away SDCH advertising bytes when the URL is
+  // probably an img or such (and SDCH encoding is not likely).
+  bool advertise_sdch = SdchManager::Global() &&
+      SdchManager::Global()->IsInSupportedDomain(request_->url());
+  std::string avail_dictionaries;
+  if (advertise_sdch) {
+    SdchManager::Global()->GetAvailDictionaryList(request_->url(),
+                                                  &avail_dictionaries);
+
+    // The AllowLatencyExperiment() is only true if we've successfully done a
+    // full SDCH compression recently in this browser session for this host.
+    // Note that for this path, there might be no applicable dictionaries, and
+    // hence we can't participate in the experiment.
+    if (!avail_dictionaries.empty() &&
+        SdchManager::Global()->AllowLatencyExperiment(request_->url())) {
+      // We are participating in the test (or control), and hence we'll
+      // eventually record statistics via either SDCH_EXPERIMENT_DECODE or
+      // SDCH_EXPERIMENT_HOLDBACK, and we'll need some packet timing data.
+      EnablePacketCounting(kSdchPacketHistogramCount);
+      if (base::RandDouble() < .5) {
+        sdch_test_control_ = true;
+        advertise_sdch = false;
+      } else {
+        sdch_test_activated_ = true;
+      }
+    }
+  }
+
   // Supply Accept-Encoding headers first so that it is more likely that they
   // will be in the first transmitted packet.  This can sometimes make it easier
   // to filter and analyze the streams to assure that a proxy has not damaged
   // these headers.  Some proxies deliberately corrupt Accept-Encoding headers.
-  if (!SdchManager::Global() ||
-      !SdchManager::Global()->IsInSupportedDomain(request_->url())) {
+  if (!advertise_sdch) {
     // Tell the server what compression formats we support (other than SDCH).
     request_info_.extra_headers += "Accept-Encoding: gzip,deflate,bzip2\r\n";
   } else {
-    // Supply SDCH related headers, as well as accepting that encoding.
-    // Tell the server what compression formats we support.
+    // Include SDCH in acceptable list.
     request_info_.extra_headers += "Accept-Encoding: "
         "gzip,deflate,bzip2,sdch\r\n";
-
-    // TODO(jar): See if it is worth optimizing away these bytes when the URL is
-    // probably an img or such. (and SDCH encoding is not likely).
-    std::string avail_dictionaries;
-    SdchManager::Global()->GetAvailDictionaryList(request_->url(),
-                                                  &avail_dictionaries);
     if (!avail_dictionaries.empty()) {
       request_info_.extra_headers += "Avail-Dictionary: "
           + avail_dictionaries + "\r\n";
-      request_info_.load_flags |= net::LOAD_SDCH_DICTIONARY_ADVERTISED;
+      sdch_dictionary_advertised_ = true;
+      // Since we're tagging this transaction as advertising a dictionary, we'll
+      // definately employ an SDCH filter (or tentative sdch filter) when we get
+      // a response.  When done, we'll record histograms via SDCH_DECODE or
+      // SDCH_PASSTHROUGH.  Hence we need to record packet arrival times.
+      EnablePacketCounting(kSdchPacketHistogramCount);
     }
   }
 

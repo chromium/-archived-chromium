@@ -67,6 +67,7 @@ class MockFilterContext : public FilterContext {
   // What is the desirable input buffer size for these filters?
   virtual int GetInputStreamBufferSize() const { return buffer_size_; }
 
+  virtual void RecordPacketStats(StatisticSelector statistic) const {}
 
  private:
   int buffer_size_;

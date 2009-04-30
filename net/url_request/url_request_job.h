@@ -10,6 +10,7 @@
 
 #include "base/ref_counted.h"
 #include "base/scoped_ptr.h"
+#include "base/time.h"
 #include "net/base/filter.h"
 #include "net/base/load_states.h"
 
@@ -31,6 +32,13 @@ class URLRequestJobMetrics;
 class URLRequestJob : public base::RefCountedThreadSafe<URLRequestJob>,
                       public FilterContext {
  public:
+  // When histogramming results related to SDCH and/or an SDCH latency test, the
+  // number of packets for which we need to record arrival times so as to
+  // calculate interpacket latencies.  We currently are only looking at the
+  // first few packets, as we're monitoring the impact of the initial TCP
+  // congestion window on stalling of transmissions.
+  static const size_t kSdchPacketHistogramCount = 5;
+
   explicit URLRequestJob(URLRequest* request);
   virtual ~URLRequestJob();
 
@@ -201,6 +209,7 @@ class URLRequestJob : public base::RefCountedThreadSafe<URLRequestJob>,
   virtual int64 GetByteReadCount() const;
   virtual int GetResponseCode() const { return -1; }
   virtual int GetInputStreamBufferSize() const { return kFilterBufSize; }
+  virtual void RecordPacketStats(StatisticSelector statistic) const;
 
  protected:
   // Notifies the job that headers have been received.
@@ -272,6 +281,10 @@ class URLRequestJob : public base::RefCountedThreadSafe<URLRequestJob>,
   // Contains IO performance measurement when profiling is enabled.
   scoped_ptr<URLRequestJobMetrics> metrics_;
 
+  // Facilitate histogramming by turning on packet counting.
+  // If called more than once, the largest value will be used.
+  void EnablePacketCounting(size_t max_packets_timed);
+
  private:
   // Size of filter input buffers used by this class.
   static const int kFilterBufSize;
@@ -290,10 +303,12 @@ class URLRequestJob : public base::RefCountedThreadSafe<URLRequestJob>,
   // have been read.
   void RecordBytesRead(int bytes_read);
 
- private:
   // Called to query whether there is data available in the filter to be read
   // out.
   bool FilterHasData();
+
+  // Record packet arrival times for possible use in histograms.
+  void UpdatePacketReadTimes();
 
   // Indicates that the job is done producing data, either it has completed
   // all the data or an error has been encountered. Set exclusively by
@@ -324,10 +339,47 @@ class URLRequestJob : public base::RefCountedThreadSafe<URLRequestJob>,
   // Expected content size
   int64 expected_content_size_;
 
+  //----------------------------------------------------------------------------
+  // Data used for statistics gathering in some instances.  This data is only
+  // used for histograms etc., and is not required.  It is optionally gathered
+  // based on the settings of several control variables.
+
+  // Enable recording of packet arrival times for histogramming.
+  bool packet_timing_enabled_;
+
+  // TODO(jar): improve the quality of the gathered info by gathering most times
+  // at a lower point in the network stack, assuring we have actual packet
+  // boundaries, rather than approximations.  Also note that input byte count
+  // as gathered here is post-SSL, and post-cache-fetch, and does not reflect
+  // true packet arrival times in such cases.
+
   // Total number of bytes read from network (or cache) and and typically handed
   // to filter to process.  Used to histogram compression ratios, and error
   // recovery scenarios in filters.
   int64 filter_input_byte_count_;
+
+  // The number of bytes that have been accounted for in packets (where some of
+  // those packets may possibly have had their time of arrival recorded).
+  int64 bytes_observed_in_packets_;
+
+  // Limit on the size of the array packet_times_.  This can be set to
+  // zero, and then no packet times will be gathered.
+  size_t max_packets_timed_;
+
+  // Arrival times for some of the first few packets.
+  std::vector<base::Time> packet_times_;
+
+  // The request time may not be available when we are being destroyed, so we
+  // snapshot it early on.
+  base::Time request_time_snapshot_;
+
+  // Since we don't save all packet times in packet_times_, we save the
+  // last time for use in histograms.
+  base::Time final_packet_time_;
+
+  // The count of the number of packets, some of which may not have been timed.
+  // We're ignoring overflow, as 1430 x 2^31 is a LOT of bytes.
+  int observed_packet_count_;
 
   DISALLOW_COPY_AND_ASSIGN(URLRequestJob);
 };

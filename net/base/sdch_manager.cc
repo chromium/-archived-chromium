@@ -85,6 +85,7 @@ SdchManager::~SdchManager() {
 void SdchManager::BlacklistDomain(const GURL& url) {
   if (!global_ )
     return;
+  global_->SetAllowLatencyExperiment(url, false);
 
   std::string domain(StringToLowerASCII(url.host()));
   int count = global_->blacklisted_domains_[domain];
@@ -104,6 +105,7 @@ void SdchManager::BlacklistDomain(const GURL& url) {
 void SdchManager::BlacklistDomainForever(const GURL& url) {
   if (!global_ )
     return;
+  global_->SetAllowLatencyExperiment(url, false);
 
   std::string domain(StringToLowerASCII(url.host()));
   global_->exponential_blacklist_count[domain] = INT_MAX;
@@ -331,8 +333,8 @@ void SdchManager::GenerateHash(const std::string& dictionary_text,
   UrlSafeBase64Encode(first_48_bits, client_hash);
   UrlSafeBase64Encode(second_48_bits, server_hash);
 
-  DCHECK(server_hash->length() == 8);
-  DCHECK(client_hash->length() == 8);
+  DCHECK_EQ(server_hash->length(), 8u);
+  DCHECK_EQ(client_hash->length(), 8u);
 }
 
 // static
@@ -506,4 +508,24 @@ bool SdchManager::Dictionary::DomainMatch(const GURL& gurl,
                                           const std::string& restriction) {
   // TODO(jar): This is not precisely a domain match definition.
   return gurl.DomainIs(restriction.data(), restriction.size());
+}
+
+//------------------------------------------------------------------------------
+// Methods for supporting latency experiments.
+
+bool SdchManager::AllowLatencyExperiment(const GURL& url) const {
+  return allow_latency_experiment_.end() !=
+      allow_latency_experiment_.find(url.host());
+}
+
+void SdchManager::SetAllowLatencyExperiment(const GURL& url, bool enable) {
+  if (enable) {
+    allow_latency_experiment_.insert(url.host());
+    return;
+  }
+  ExperimentSet::iterator it = allow_latency_experiment_.find(url.host());
+  if (allow_latency_experiment_.end() == it)
+    return;  // It was already erased, or never allowed.
+  SdchErrorRecovery(LATENCY_TEST_DISALLOWED);
+  allow_latency_experiment_.erase(it);
 }

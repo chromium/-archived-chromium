@@ -25,11 +25,7 @@ SdchFilter::SdchFilter(const FilterContext& filter_context)
       dest_buffer_excess_index_(0),
       source_bytes_(0),
       output_bytes_(0),
-      observed_packet_count_(0),
-      bytes_observed_in_packets_(0),
-      final_packet_time_(),
       possible_pass_through_(false),
-      connect_time_(filter_context.GetRequestTime()),
       was_cached_(filter_context.IsCachedContent()) {
   bool success = filter_context.GetMimeType(&mime_type_);
   DCHECK(success);
@@ -80,92 +76,20 @@ SdchFilter::~SdchFilter() {
     return;  // We don't need timing stats, and we aready got ratios.
   }
 
-  if (base::Time() == connect_time_ || read_times_.empty()) {
-    // Not a real error, but it is useful to have this tally.
-    // TODO(jar): Remove this stat after SDCH stability is validated.
-    SdchManager::SdchErrorRecovery(SdchManager::MISSING_TIME_STATS);
-    UMA_HISTOGRAM_COUNTS("Sdch.MissingTimeBytesIn",
-         static_cast<int>(filter_context().GetByteReadCount()));
-    UMA_HISTOGRAM_COUNTS("Sdch.MissingTimeVcdiffIn", source_bytes_);
-    return;
-  }
-  // Since read_times_ is not empty, we can assert we have some packets times.
-  DCHECK(final_packet_time_ != base::Time());
-
-  base::TimeDelta duration = final_packet_time_ - connect_time_;
-  // We clip our logging at 10 minutes to prevent anamolous data from being
-  // considered (per suggestion from Jake Brutlag).
-  if (10 < duration.InMinutes()) {
-    SdchManager::SdchErrorRecovery(SdchManager::OVER_10_MINUTES);
-    return;
-  }
-
   switch (decoding_status_) {
     case DECODING_IN_PROGRESS: {
       UMA_HISTOGRAM_PERCENTAGE("Sdch.Network_Decode_Ratio_a", static_cast<int>(
           (filter_context().GetByteReadCount() * 100) / output_bytes_));
-      UMA_HISTOGRAM_CLIPPED_TIMES("Sdch.Network_Decode_Latency_F_a", duration,
-                                  base::TimeDelta::FromMilliseconds(20),
-                                  base::TimeDelta::FromMinutes(10), 100);
-      UMA_HISTOGRAM_CLIPPED_TIMES("Sdch.Network_Decode_1st_To_Last_a",
-                                  final_packet_time_ - read_times_[0],
-                                  base::TimeDelta::FromMilliseconds(20),
-                                  base::TimeDelta::FromMinutes(10), 100);
-      if (read_times_.size() > 4) {
-        UMA_HISTOGRAM_CLIPPED_TIMES("Sdch.Network_Decode_1st_To_2nd_b",
-                                    read_times_[1] - read_times_[0],
-                                    base::TimeDelta::FromMilliseconds(10),
-                                    base::TimeDelta::FromSeconds(3), 100);
-        UMA_HISTOGRAM_CLIPPED_TIMES("Sdch.Network_Decode_2nd_To_3rd_b",
-                                    read_times_[2] - read_times_[1],
-                                    base::TimeDelta::FromMilliseconds(10),
-                                    base::TimeDelta::FromSeconds(3), 100);
-        UMA_HISTOGRAM_CLIPPED_TIMES("Sdch.Network_Decode_3rd_To_4th_b",
-                                    read_times_[3] - read_times_[2],
-                                    base::TimeDelta::FromMilliseconds(10),
-                                    base::TimeDelta::FromSeconds(3), 100);
-        UMA_HISTOGRAM_CLIPPED_TIMES("Sdch.Network_Decode_4th_To_5th_b",
-                                    read_times_[4] - read_times_[3],
-                                    base::TimeDelta::FromMilliseconds(10),
-                                    base::TimeDelta::FromSeconds(3), 100);
-      }
-      UMA_HISTOGRAM_COUNTS_100("Sdch.Network_Decode_Packets_b",
-                               observed_packet_count_);
-      UMA_HISTOGRAM_COUNTS("Sdch.Network_Decode_Bytes_Processed_a",
-          static_cast<int>(filter_context().GetByteReadCount()));
       UMA_HISTOGRAM_COUNTS("Sdch.Network_Decode_Bytes_VcdiffOut_a",
                            output_bytes_);
+      filter_context().RecordPacketStats(FilterContext::SDCH_DECODE);
+
+      // Allow latency experiments to proceed.
+      SdchManager::Global()->SetAllowLatencyExperiment(url_, true);
       return;
     }
     case PASS_THROUGH: {
-      UMA_HISTOGRAM_CLIPPED_TIMES("Sdch.Network_Pass-through_Latency_F_a",
-                                  duration,
-                                  base::TimeDelta::FromMilliseconds(20),
-                                  base::TimeDelta::FromMinutes(10), 100);
-      UMA_HISTOGRAM_CLIPPED_TIMES("Sdch.Network_Pass-through_1st_To_Last_a",
-                                  final_packet_time_ - read_times_[0],
-                                  base::TimeDelta::FromMilliseconds(20),
-                                  base::TimeDelta::FromMinutes(10), 100);
-      if (read_times_.size() > 4) {
-        UMA_HISTOGRAM_CLIPPED_TIMES("Sdch.Network_Pass-through_1st_To_2nd_b",
-                                    read_times_[1] - read_times_[0],
-                                    base::TimeDelta::FromMilliseconds(10),
-                                    base::TimeDelta::FromSeconds(3), 100);
-        UMA_HISTOGRAM_CLIPPED_TIMES("Sdch.Network_Pass-through_2nd_To_3rd_b",
-                                    read_times_[2] - read_times_[1],
-                                    base::TimeDelta::FromMilliseconds(10),
-                                    base::TimeDelta::FromSeconds(3), 100);
-        UMA_HISTOGRAM_CLIPPED_TIMES("Sdch.Network_Pass-through_3rd_To_4th_b",
-                                    read_times_[3] - read_times_[2],
-                                    base::TimeDelta::FromMilliseconds(10),
-                                    base::TimeDelta::FromSeconds(3), 100);
-        UMA_HISTOGRAM_CLIPPED_TIMES("Sdch.Network_Pass-through_4th_To_5th_b",
-                                    read_times_[4] - read_times_[3],
-                                    base::TimeDelta::FromMilliseconds(10),
-                                    base::TimeDelta::FromSeconds(3), 100);
-      }
-      UMA_HISTOGRAM_COUNTS_100("Sdch.Network_Pass-through_Packets_b",
-                               observed_packet_count_);
+      filter_context().RecordPacketStats(FilterContext::SDCH_PASSTHROUGH);
       return;
     }
     case DECODING_UNINITIALIZED: {
@@ -185,33 +109,6 @@ SdchFilter::~SdchFilter() {
       return;
     }
   }  // end of switch.
-}
-
-void SdchFilter::UpdateReadTimes() {
-  if (!next_stream_data_ || (stream_data_len_ == 0)) {
-    // Don't update when we're called to just flush out our internal buffers.
-    return;
-  }
-  const size_t bytes_read_so_far =
-      static_cast<size_t>(filter_context().GetByteReadCount());
-  if (bytes_read_so_far <= bytes_observed_in_packets_) {
-    DCHECK(bytes_read_so_far == bytes_observed_in_packets_);
-    return;  // No new bytes have arrived.
-  }
-
-  // We only save distinct times for the first 5 packets.
-  const size_t kMaxTimesInArray = 5;
-  const size_t kTypicalPacketSize = 1430;
-  final_packet_time_ = base::Time::Now();
-  while (bytes_read_so_far > bytes_observed_in_packets_) {
-    if (++observed_packet_count_ <= kMaxTimesInArray) {
-      read_times_.push_back(final_packet_time_);
-    }
-    bytes_observed_in_packets_ += kTypicalPacketSize;
-  }
-  // Since packets may not be full, we'll remember the number of bytes we've
-  // accounted for in packets thus far.
-  bytes_observed_in_packets_ = bytes_read_so_far;
 }
 
 bool SdchFilter::InitDecoding(Filter::FilterType filter_type) {
@@ -245,15 +142,13 @@ Filter::FilterStatus SdchFilter::ReadFilteredData(char* dest_buffer,
   if (!dest_buffer || available_space <= 0)
     return FILTER_ERROR;
 
-  UpdateReadTimes();
-
   if (WAITING_FOR_DICTIONARY_SELECTION == decoding_status_) {
     FilterStatus status = InitializeDictionary();
     if (FILTER_NEED_MORE_DATA == status)
       return FILTER_NEED_MORE_DATA;
     if (FILTER_ERROR == status) {
       DCHECK(DECODING_ERROR == decoding_status_);
-      DCHECK(0 == dest_buffer_excess_index_);
+      DCHECK_EQ(0u, dest_buffer_excess_index_);
       DCHECK(dest_buffer_excess_.empty());
       // This is where we try very hard to do error recovery, and make this
       // protocol robust in teh face of proxies that do many different things.
@@ -333,12 +228,12 @@ Filter::FilterStatus SdchFilter::ReadFilteredData(char* dest_buffer,
   *dest_len += amount;
   dest_buffer += amount;
   available_space -= amount;
-  DCHECK(available_space >= 0);
+  DCHECK_GE(available_space, 0);
 
   if (available_space <= 0)
     return FILTER_OK;
   DCHECK(dest_buffer_excess_.empty());
-  DCHECK(0 == dest_buffer_excess_index_);
+  DCHECK_EQ(0u, dest_buffer_excess_index_);
 
   if (decoding_status_ != DECODING_IN_PROGRESS) {
     if (META_REFRESH_RECOVERY == decoding_status_) {
@@ -388,7 +283,7 @@ Filter::FilterStatus SdchFilter::ReadFilteredData(char* dest_buffer,
 Filter::FilterStatus SdchFilter::InitializeDictionary() {
   const size_t kServerIdLength = 9;  // Dictionary hash plus null from server.
   size_t bytes_needed = kServerIdLength - dictionary_hash_.size();
-  DCHECK(bytes_needed > 0);
+  DCHECK_GT(bytes_needed, 0u);
   if (!next_stream_data_)
     return FILTER_NEED_MORE_DATA;
   if (static_cast<size_t>(stream_data_len_) < bytes_needed) {
@@ -400,7 +295,7 @@ Filter::FilterStatus SdchFilter::InitializeDictionary() {
   dictionary_hash_.append(next_stream_data_, bytes_needed);
   DCHECK(kServerIdLength == dictionary_hash_.size());
   stream_data_len_ -= bytes_needed;
-  DCHECK(0 <= stream_data_len_);
+  DCHECK_LE(0, stream_data_len_);
   if (stream_data_len_ > 0)
     next_stream_data_ += bytes_needed;
   else

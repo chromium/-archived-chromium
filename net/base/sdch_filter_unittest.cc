@@ -1184,3 +1184,32 @@ TEST_F(SdchFilterTest, PathMatch) {
   EXPECT_FALSE(PathMatch("/ABC", "/abc"));
   EXPECT_FALSE(PathMatch("/abc", "/ABC"));
 }
+
+// The following are only applicable while we have a latency test in the code,
+// and can be removed when that functionality is stripped.
+TEST_F(SdchFilterTest, LatencyTestControls) {
+  GURL url("http://www.google.com");
+  GURL url2("http://www.google2.com");
+
+  // First make sure we default to false.
+  EXPECT_FALSE(sdch_manager_->AllowLatencyExperiment(url));
+  EXPECT_FALSE(sdch_manager_->AllowLatencyExperiment(url2));
+
+  // That we can set each to true.
+  sdch_manager_->SetAllowLatencyExperiment(url, true);
+  EXPECT_TRUE(sdch_manager_->AllowLatencyExperiment(url));
+  EXPECT_FALSE(sdch_manager_->AllowLatencyExperiment(url2));
+
+  sdch_manager_->SetAllowLatencyExperiment(url2, true);
+  EXPECT_TRUE(sdch_manager_->AllowLatencyExperiment(url));
+  EXPECT_TRUE(sdch_manager_->AllowLatencyExperiment(url2));
+
+  // And can reset them to false.
+  sdch_manager_->SetAllowLatencyExperiment(url, false);
+  EXPECT_FALSE(sdch_manager_->AllowLatencyExperiment(url));
+  EXPECT_TRUE(sdch_manager_->AllowLatencyExperiment(url2));
+
+  sdch_manager_->SetAllowLatencyExperiment(url2, false);
+  EXPECT_FALSE(sdch_manager_->AllowLatencyExperiment(url));
+  EXPECT_FALSE(sdch_manager_->AllowLatencyExperiment(url2));
+}

@@ -93,6 +93,18 @@ class URLRequestHttpJob : public URLRequestJob {
   // before us.
   scoped_refptr<URLRequestContext> context_;
 
+  // Indicated if an SDCH dictionary was advertised, and hence an SDCH
+  // compressed response is expected.  We use this to help detect (accidental?)
+  // proxy corruption of a response, which sometimes marks SDCH content as
+  // having no content encoding <oops>.
+  bool sdch_dictionary_advertised_;
+
+  // For SDCH latency experiments, when we are able to do SDCH, we may enable
+  // either an SDCH latency test xor a pass through test.  The following bools
+  // indicate what we decided on for this instance.
+  bool sdch_test_activated_;  // Advertising a dictionary for sdch.
+  bool sdch_test_control_;    // Not even accepting-content sdch.
+
   DISALLOW_COPY_AND_ASSIGN(URLRequestHttpJob);
 };
 

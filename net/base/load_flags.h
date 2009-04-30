@@ -66,16 +66,12 @@ enum {
   // cookies or updating existing ones.
   LOAD_DO_NOT_SAVE_COOKIES = 1 << 13,
 
-  // An SDCH dictionary was advertised, and an SDCH encoded response is
-  // possible.
-  LOAD_SDCH_DICTIONARY_ADVERTISED = 1 << 14,
-
   // Do not resolve proxies. This override is used when downloading PAC files
   // to avoid having a circular dependency.
-  LOAD_BYPASS_PROXY = 1 << 15,
+  LOAD_BYPASS_PROXY = 1 << 14,
 
   // Indicate this request is for a download, as opposed to viewing.
-  LOAD_IS_DOWNLOAD = 1 << 16,
+  LOAD_IS_DOWNLOAD = 1 << 15,
 };
 
 }  // namespace net

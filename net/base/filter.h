@@ -48,6 +48,15 @@
 // or later filters in a chain.
 class FilterContext {
  public:
+  // Enum to control what histograms are emitted near end-of-life of this
+  // instance.
+  enum StatisticSelector {
+    SDCH_DECODE,
+    SDCH_PASSTHROUGH,
+    SDCH_EXPERIMENT_DECODE,
+    SDCH_EXPERIMENT_HOLDBACK,
+  };
+
   virtual ~FilterContext() {}
 
   // What mime type was specified in the header for this data?
@@ -85,6 +94,10 @@ class FilterContext {
   // don't change the input buffer sizes for a linked chain of filters, and the
   // buffer size for input to all filters in a chain is this one constant).
   virtual int GetInputStreamBufferSize() const = 0;
+
+  // The following method forces the context to emit a specific set of
+  // statistics as selected by the argument.
+  virtual void RecordPacketStats(StatisticSelector statistic) const = 0;
 };
 
 //------------------------------------------------------------------------------
@@ -179,6 +192,7 @@ class Filter {
   // advertised in the GET), as well as the mime type of the content.
   static void FixupEncodingTypes(const FilterContext& filter_context,
                                  std::vector<FilterType>* encoding_types);
+
  protected:
   explicit Filter(const FilterContext& filter_context);
 

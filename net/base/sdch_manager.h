@@ -130,13 +130,16 @@ class SdchManager {
     // (i.e., be able to be sure all dictionary advertisements are accounted
     // for).
 
-    UNFLUSHED_CONTENT = 90,   // Possible error in filter chaining.
-    MISSING_TIME_STATS = 91,  // Should never happen.
-    CACHE_DECODED = 92,       // No timing stats recorded.
-    OVER_10_MINUTES = 93,     // No timing stats will be recorded.
-    UNINITIALIZED = 94,       // Filter never even got initialized.
-    PRIOR_TO_DICTIONARY = 95, // We hadn't even parsed a dictionary selector.
-    DECODE_ERROR = 96,        // Something went wrong during decode.
+    UNFLUSHED_CONTENT = 90,    // Possible error in filter chaining.
+    // defunct = 91,           // MISSING_TIME_STATS (Should never happen.)
+    CACHE_DECODED = 92,        // No timing stats recorded.
+    // defunct = 93,           // OVER_10_MINUTES (No timing stats recorded.)
+    UNINITIALIZED = 94,        // Filter never even got initialized.
+    PRIOR_TO_DICTIONARY = 95,  // We hadn't even parsed a dictionary selector.
+    DECODE_ERROR = 96,         // Something went wrong during decode.
+
+    // Problem during the latency test.
+    LATENCY_TEST_DISALLOWED = 100,  // SDCH now failing, but it worked before!
 
     MAX_PROBLEM_CODE  // Used to bound histogram.
   };
@@ -302,8 +305,17 @@ class SdchManager {
   static void GenerateHash(const std::string& dictionary_text,
                            std::string* client_hash, std::string* server_hash);
 
+  // For Latency testing only, we need to know if we've succeeded in doing a
+  // round trip before starting our comparative tests.  If ever we encounter
+  // problems with SDCH, we opt-out of the test unless/until we perform a
+  // complete SDCH decoding.
+  bool AllowLatencyExperiment(const GURL& url) const;
+
+  void SetAllowLatencyExperiment(const GURL& url, bool enable);
+
  private:
-  typedef std::map<const std::string, int> DomainCounter;
+  typedef std::map<std::string, int> DomainCounter;
+  typedef std::set<std::string> ExperimentSet;
 
   // A map of dictionaries info indexed by the hash that the server provides.
   typedef std::map<std::string, Dictionary*> DictionaryMap;
@@ -333,6 +345,10 @@ class SdchManager {
   // Support exponential backoff in number of domain accesses before
   // blacklisting expires.
   DomainCounter exponential_blacklist_count;
+
+  // List of hostnames for which a latency experiment is allowed (because a
+  // round trip test has recently passed).
+  ExperimentSet allow_latency_experiment_;
 
   DISALLOW_COPY_AND_ASSIGN(SdchManager);
 };
