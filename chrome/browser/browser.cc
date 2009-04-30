@@ -1525,15 +1525,6 @@ bool Browser::RunUnloadListenerBeforeClosing(TabContents* contents) {
   return false;
 }
 
-bool Browser::CanCloseContentsAt(int index) {
-  if (tabstrip_model_.count() > 1)
-    return true;
-  // We are closing the last tab for this browser. Make sure to check for
-  // in-progress downloads.
-  // Note that the next call when it returns false will ask the user for
-  // confirmation before closing the browser if the user decides so.
-  return CanCloseWithInProgressDownloads();
-}
 
 ///////////////////////////////////////////////////////////////////////////////
 // Browser, TabStripModelObserver implementation:

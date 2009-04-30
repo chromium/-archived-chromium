@@ -515,9 +515,6 @@ bool TabStripModel::IsNewTabAtEndOfTabStrip(TabContents* contents) const {
 
 bool TabStripModel::InternalCloseTabContentsAt(int index,
                                                bool create_historical_tab) {
-  if (!delegate_->CanCloseContentsAt(index))
-    return false;
-
   TabContents* detached_contents = GetContentsAt(index);
 
   if (delegate_->RunUnloadListenerBeforeClosing(detached_contents))
