@@ -6,10 +6,14 @@
 
 #include "base/gfx/rect.h"
 #include "googleurl/src/gurl.h"
+#ifndef EXCLUDE_SKIA_DEPENDENCIES
 #include "SkBitmap.h"
+#endif
 #include "webkit/glue/dom_operations.h"
 
 namespace IPC {
+
+#ifndef EXCLUDE_SKIA_DEPENDENCIES
 
 namespace {
 
@@ -90,6 +94,7 @@ void ParamTraits<SkBitmap>::Log(const SkBitmap& p, std::wstring* l) {
   l->append(StringPrintf(L"<SkBitmap>"));
 }
 
+#endif  // EXCLUDE_SKIA_DEPENDENCIES
 
 void ParamTraits<GURL>::Write(Message* m, const GURL& p) {
   m->WriteString(p.possibly_invalid_spec());
@@ -109,7 +114,6 @@ bool ParamTraits<GURL>::Read(const Message* m, void** iter, GURL* p) {
 void ParamTraits<GURL>::Log(const GURL& p, std::wstring* l) {
   l->append(UTF8ToWide(p.spec()));
 }
-
 
 void ParamTraits<gfx::Point>::Write(Message* m, const gfx::Point& p) {
   m->WriteInt(p.x());
