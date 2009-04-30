@@ -318,15 +318,15 @@ bool PluginProcessHost::Init(const WebPluginInfo& info,
 
   // build command line for plugin, we have to quote the plugin's path to deal
   // with spaces.
-  std::wstring exe_path;
-  if (!PathService::Get(base::FILE_EXE, &exe_path))
+  const CommandLine& browser_command_line = *CommandLine::ForCurrentProcess();
+  std::wstring exe_path =
+      browser_command_line.GetSwitchValue(switches::kBrowserSubprocessPath);
+  if (exe_path.empty() && !PathService::Get(base::FILE_EXE, &exe_path))
     return false;
 
   CommandLine cmd_line(exe_path);
   if (logging::DialogsAreSuppressed())
     cmd_line.AppendSwitch(switches::kNoErrorDialogs);
-
-  const CommandLine& browser_command_line = *CommandLine::ForCurrentProcess();
 
   // propagate the following switches to the plugin command line (along with
   // any associated values) if present in the browser command line

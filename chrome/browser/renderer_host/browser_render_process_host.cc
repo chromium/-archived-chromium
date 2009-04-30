@@ -220,7 +220,7 @@ bool BrowserRenderProcessHost::Init() {
   // Build command line for renderer, we have to quote the executable name to
   // deal with spaces.
   std::wstring renderer_path =
-      browser_command_line.GetSwitchValue(switches::kRendererPath);
+      browser_command_line.GetSwitchValue(switches::kBrowserSubprocessPath);
   if (renderer_path.empty()) {
     if (!GetRendererPath(&renderer_path)) {
       // Need to reset the channel we created above or others might think the

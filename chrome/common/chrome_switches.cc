@@ -66,8 +66,8 @@ const wchar_t kHomePage[]                      = L"homepage";
 // Causes the process to run as renderer instead of as browser.
 const wchar_t kRendererProcess[]               = L"renderer";
 
-// Path to the exe to run for the renderer subprocess
-const wchar_t kRendererPath[]                  = L"renderer-path";
+// Path to the exe to run for the renderer and plugin subprocesses.
+const wchar_t kBrowserSubprocessPath[]         = L"browser-subprocess-path";
 
 // Causes the process to run as a plugin subprocess.
 const wchar_t kPluginProcess[]                 = L"plugin";

@@ -100,15 +100,16 @@ void InProcessBrowserTest::SetUp() {
   if (command_line->HasSwitch(switches::kSingleProcess))
     RenderProcessHost::set_run_renderer_in_process(true);
 
-  // Explicitly set the path of the exe used for the renderer, otherwise it'll
-  // try to use unit_test.exe.
-  std::wstring renderer_path;
-  PathService::Get(base::FILE_EXE, &renderer_path);
-  FilePath fp_renderer_path = FilePath::FromWStringHack(renderer_path);
-  renderer_path = fp_renderer_path.DirName().ToWStringHack();
-  file_util::AppendToPath(&renderer_path,
+  // Explicitly set the path of the exe used for the renderer and plugin,
+  // otherwise they'll try to use unit_test.exe.
+  std::wstring subprocess_path;
+  PathService::Get(base::FILE_EXE, &subprocess_path);
+  FilePath fp_subprocess_path = FilePath::FromWStringHack(subprocess_path);
+  subprocess_path = fp_subprocess_path.DirName().ToWStringHack();
+  file_util::AppendToPath(&subprocess_path,
                           chrome::kBrowserProcessExecutablePath);
-  command_line->AppendSwitchWithValue(switches::kRendererPath, renderer_path);
+  command_line->AppendSwitchWithValue(switches::kBrowserSubprocessPath,
+                                      subprocess_path);
 
   sandbox::SandboxInterfaceInfo sandbox_info = {0};
   SandboxInitWrapper sandbox_wrapper;
