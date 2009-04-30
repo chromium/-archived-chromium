@@ -2361,7 +2361,7 @@ BUG9798 WIN : LayoutTests/http/tests/misc/url-in-utf7.html = TIMEOUT PASS
 BUG9798 WIN : LayoutTests/http/tests/misc/xhtml.php = TIMEOUT PASS
 BUG9798 WIN : LayoutTests/http/tests/navigation/back-send-referrer.html = TIMEOUT PASS
 BUG9798 WIN : LayoutTests/http/tests/security/dataURL/xss-DENIED-from-data-url-in-foreign-domain-subframe.html = TIMEOUT PASS
-BUG9798 WIN : LayoutTests/http/tests/ssl/verify-ssl-enabled.php = TIMEOUT PASS
+BUG9798 WIN : LayoutTests/http/tests/ssl/verify-ssl-enabled.php = TIMEOUT PASS FAIL
 BUG9798 WIN : LayoutTests/http/tests/uri/css-href.php = TIMEOUT PASS
 BUG9798 WIN : LayoutTests/http/tests/uri/escaped-entity.html = TIMEOUT PASS
 BUG9798 WIN : LayoutTests/http/tests/uri/utf8-path.html = TIMEOUT PASS
@@ -2602,3 +2602,16 @@ BUG11179 DEFER : LayoutTests/http/tests/xmlhttprequest/detaching-frame-2.html = 
 WONTFIX SKIP : LayoutTests/webarchive/adopt-attribute-styled-body-webarchive.html = FAIL
 WONTFIX SKIP : LayoutTests/webarchive/adopt-attribute-styled-node-webarchive.html = FAIL
 WONTFIX SKIP : LayoutTests/webarchive/adopt-inline-styled-node-webarchive.html = FAIL
+
+// Regressions from WebKit Merge 42932:42994
+BUG11239 : LayoutTests/fast/dom/Window/setTimeout-string-argument.html = FAIL
+
+BUG11239 WIN : LayoutTests/fast/forms/textarea-width.html = FAIL
+BUG11239 : LayoutTests/fast/forms/text-control-intrinsic-widths.html = FAIL
+BUG11239 : LayoutTests/fast/forms/textarea-metrics.html = FAIL
+BUG11239 WIN LINUX : LayoutTests/http/tests/security/cross-frame-access-protocol-explicit-domain.html = FAIL
+BUG11239 WIN LINUX : LayoutTests/http/tests/security/cross-frame-access-protocol.html = FAIL
+BUG11239 : LayoutTests/platform/win/accessibility/document-role.html = FAIL
+BUG11239 : LayoutTests/svg/custom/svg-fonts-in-text-controls.html = FAIL
+BUG11239  WIN LINUX : chrome/fast/forms/textarea-metrics.html = FAIL
+BUG11239  WIN LINUX : LayoutTests/http/tests/security/originHeader/origin-header-for-https.html = TIMEOUT
