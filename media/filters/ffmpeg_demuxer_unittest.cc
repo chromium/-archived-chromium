@@ -165,40 +165,6 @@ using namespace media;
 
 namespace {
 
-void InitializeFFmpegMocks() {
-  // Initialize function return codes.
-  g_av_open_input_file = 0;
-  g_av_find_stream_info = 0;
-  g_av_read_frame = 0;
-
-  // Initialize AVFormatContext structure.
-  memset(&g_format, 0, sizeof(g_format));
-
-  // Initialize AVStream structures.
-  for (size_t i = 0; i < kMaxStreams; ++i) {
-    memset(&g_streams[i], 0, sizeof(g_streams[i]));
-    g_streams[i].time_base.den = 1 * base::Time::kMicrosecondsPerSecond;
-    g_streams[i].time_base.num = 1;
-  }
-
-  // Initialize AVCodexContext structures.
-  memset(&g_audio_codec, 0, sizeof(g_audio_codec));
-  g_audio_codec.codec_type = CODEC_TYPE_AUDIO;
-  g_audio_codec.codec_id = CODEC_ID_VORBIS;
-  g_audio_codec.channels = 2;
-  g_audio_codec.sample_rate = 44100;
-
-  memset(&g_video_codec, 0, sizeof(g_video_codec));
-  g_video_codec.codec_type = CODEC_TYPE_VIDEO;
-  g_video_codec.codec_id = CODEC_ID_THEORA;
-  g_video_codec.height = 720;
-  g_video_codec.width = 1280;
-
-  memset(&g_data_codec, 0, sizeof(g_data_codec));
-  g_data_codec.codec_type = CODEC_TYPE_DATA;
-  g_data_codec.codec_id = CODEC_ID_NONE;
-}
-
 // Ref counted object so we can create callbacks to call DemuxerStream::Read().
 class TestReader : public base::RefCountedThreadSafe<TestReader> {
  public:
@@ -250,76 +216,139 @@ class TestReader : public base::RefCountedThreadSafe<TestReader> {
   base::WaitableEvent wait_for_read_;
 };
 
+// Fixture class to facilitate writing tests.  Takes care of setting up the
+// FFmpeg, pipeline and filter host mocks.
+class FFmpegDemuxerTest : public testing::Test {
+ protected:
+  FFmpegDemuxerTest() {}
+  virtual ~FFmpegDemuxerTest() {}
+
+  virtual void SetUp() {
+    InitializeFFmpegMocks();
+
+    // Create an FFmpegDemuxer.
+    factory_ = FFmpegDemuxer::CreateFilterFactory();
+    MediaFormat media_format;
+    media_format.SetAsString(MediaFormat::kMimeType,
+                             mime_type::kApplicationOctetStream);
+    demuxer_ = factory_->Create<Demuxer>(media_format);
+    DCHECK(demuxer_);
+
+    // Prepare a filter host and data source for the demuxer.
+    pipeline_.reset(new MockPipeline());
+    filter_host_.reset(new MockFilterHost<Demuxer>(pipeline_.get(), demuxer_));
+    MockFilterConfig config;
+    data_source_ = new MockDataSource(&config);
+  }
+
+  virtual void TearDown() {
+    // Call Stop() to shut down internal threads.
+    demuxer_->Stop();
+  }
+
+  // Fixture members.
+  scoped_refptr<FilterFactory> factory_;
+  scoped_refptr<Demuxer> demuxer_;
+  scoped_ptr<MockPipeline> pipeline_;
+  scoped_ptr< MockFilterHost<Demuxer> > filter_host_;
+  scoped_refptr<MockDataSource> data_source_;
+
+ private:
+  static void InitializeFFmpegMocks() {
+    // Initialize function return codes.
+    g_av_open_input_file = 0;
+    g_av_find_stream_info = 0;
+    g_av_read_frame = 0;
+
+    // Initialize AVFormatContext structure.
+    memset(&g_format, 0, sizeof(g_format));
+
+    // Initialize AVStream structures.
+    for (size_t i = 0; i < kMaxStreams; ++i) {
+      memset(&g_streams[i], 0, sizeof(g_streams[i]));
+      g_streams[i].time_base.den = 1 * base::Time::kMicrosecondsPerSecond;
+      g_streams[i].time_base.num = 1;
+    }
+
+    // Initialize AVCodexContext structures.
+    memset(&g_audio_codec, 0, sizeof(g_audio_codec));
+    g_audio_codec.codec_type = CODEC_TYPE_AUDIO;
+    g_audio_codec.codec_id = CODEC_ID_VORBIS;
+    g_audio_codec.channels = 2;
+    g_audio_codec.sample_rate = 44100;
+
+    memset(&g_video_codec, 0, sizeof(g_video_codec));
+    g_video_codec.codec_type = CODEC_TYPE_VIDEO;
+    g_video_codec.codec_id = CODEC_ID_THEORA;
+    g_video_codec.height = 720;
+    g_video_codec.width = 1280;
+
+    memset(&g_data_codec, 0, sizeof(g_data_codec));
+    g_data_codec.codec_type = CODEC_TYPE_DATA;
+    g_data_codec.codec_id = CODEC_ID_NONE;
+  }
+
+  DISALLOW_COPY_AND_ASSIGN(FFmpegDemuxerTest);
+};
+
 }  // namespace
 
-// TODO(scherkus): http://crbug.com/10863
-TEST(FFmpegDemuxerTest, DISABLED_InitializeFailure) {
-  InitializeFFmpegMocks();
-
-  // Get FFmpegDemuxer's filter factory.
-  scoped_refptr<FilterFactory> factory = FFmpegDemuxer::CreateFilterFactory();
-
+TEST(FFmpegDemuxerFactoryTest, Create) {
   // Should only accept application/octet-stream type.
+  scoped_refptr<FilterFactory> factory = FFmpegDemuxer::CreateFilterFactory();
   MediaFormat media_format;
   media_format.SetAsString(MediaFormat::kMimeType, "foo/x-bar");
   scoped_refptr<Demuxer> demuxer(factory->Create<Demuxer>(media_format));
   ASSERT_FALSE(demuxer);
+
+  // Try again with application/octet-stream mime type.
   media_format.Clear();
   media_format.SetAsString(MediaFormat::kMimeType,
                            mime_type::kApplicationOctetStream);
   demuxer = factory->Create<Demuxer>(media_format);
   ASSERT_TRUE(demuxer);
+}
 
-  // Prepare a filter host and data source for the demuxer.
-  MockPipeline pipeline;
-  scoped_ptr< MockFilterHost<Demuxer> > filter_host;
-  filter_host.reset(new MockFilterHost<Demuxer>(&pipeline, demuxer));
-  MockFilterConfig config;
-  scoped_refptr<MockDataSource> data_source(new MockDataSource(&config));
-
+TEST_F(FFmpegDemuxerTest, InitializeCouldNotOpen) {
   // Simulate av_open_input_fail failing.
   g_av_open_input_file = AVERROR_IO;
   g_av_find_stream_info = 0;
-  EXPECT_TRUE(demuxer->Initialize(data_source));
-  EXPECT_TRUE(filter_host->WaitForError(DEMUXER_ERROR_COULD_NOT_OPEN));
-  EXPECT_FALSE(filter_host->IsInitialized());
+  EXPECT_TRUE(demuxer_->Initialize(data_source_.get()));
+  EXPECT_TRUE(filter_host_->WaitForError(DEMUXER_ERROR_COULD_NOT_OPEN));
+  EXPECT_FALSE(filter_host_->IsInitialized());
+}
 
+TEST_F(FFmpegDemuxerTest, InitializeCouldNotParse) {
   // Simulate av_find_stream_info failing.
   g_av_open_input_file = 0;
   g_av_find_stream_info = AVERROR_IO;
-  pipeline.Reset(false);
-  demuxer = factory->Create<Demuxer>(media_format);
-  filter_host.reset(new MockFilterHost<Demuxer>(&pipeline, demuxer));
-  EXPECT_TRUE(demuxer->Initialize(data_source));
-  EXPECT_TRUE(filter_host->WaitForError(DEMUXER_ERROR_COULD_NOT_PARSE));
-  EXPECT_FALSE(filter_host->IsInitialized());
 
+  EXPECT_TRUE(demuxer_->Initialize(data_source_.get()));
+  EXPECT_TRUE(filter_host_->WaitForError(DEMUXER_ERROR_COULD_NOT_PARSE));
+  EXPECT_FALSE(filter_host_->IsInitialized());
+}
+
+TEST_F(FFmpegDemuxerTest, InitializeNoStreams) {
   // Simulate media with no parseable streams.
-  InitializeFFmpegMocks();
-  pipeline.Reset(false);
-  demuxer = factory->Create<Demuxer>(media_format);
-  filter_host.reset(new MockFilterHost<Demuxer>(&pipeline, demuxer));
-  EXPECT_TRUE(demuxer->Initialize(data_source));
-  EXPECT_TRUE(filter_host->WaitForError(DEMUXER_ERROR_NO_SUPPORTED_STREAMS));
-  EXPECT_FALSE(filter_host->IsInitialized());
+  EXPECT_TRUE(demuxer_->Initialize(data_source_.get()));
+  EXPECT_TRUE(filter_host_->WaitForError(DEMUXER_ERROR_NO_SUPPORTED_STREAMS));
+  EXPECT_FALSE(filter_host_->IsInitialized());
+}
 
+TEST_F(FFmpegDemuxerTest, InitializeDataStreamOnly) {
   // Simulate media with a data stream but no audio or video streams.
   g_format.nb_streams = 1;
   g_format.streams[0] = &g_streams[0];
   g_streams[0].codec = &g_data_codec;
   g_streams[0].duration = 10;
-  pipeline.Reset(false);
-  demuxer = factory->Create<Demuxer>(media_format);
-  filter_host.reset(new MockFilterHost<Demuxer>(&pipeline, demuxer));
-  EXPECT_TRUE(demuxer->Initialize(data_source));
-  EXPECT_TRUE(filter_host->WaitForError(DEMUXER_ERROR_NO_SUPPORTED_STREAMS));
-  EXPECT_FALSE(filter_host->IsInitialized());
+
+  EXPECT_TRUE(demuxer_->Initialize(data_source_.get()));
+  EXPECT_TRUE(filter_host_->WaitForError(DEMUXER_ERROR_NO_SUPPORTED_STREAMS));
+  EXPECT_FALSE(filter_host_->IsInitialized());
 }
 
-// TODO(scherkus): http://crbug.com/10863
-TEST(FFmpegDemuxerTest, DISABLED_InitializeStreams) {
+TEST_F(FFmpegDemuxerTest, InitializeStreams) {
   // Simulate media with a data stream, a video stream and audio stream.
-  InitializeFFmpegMocks();
   g_format.nb_streams = 3;
   g_format.streams[0] = &g_streams[0];
   g_format.streams[1] = &g_streams[1];
@@ -331,36 +360,21 @@ TEST(FFmpegDemuxerTest, DISABLED_InitializeStreams) {
   g_streams[2].duration = 10;
   g_streams[2].codec = &g_audio_codec;
 
-  // Create our pipeline.
-  MockPipeline pipeline;
-
-  // Create our data source.
-  MockFilterConfig config;
-  scoped_refptr<MockDataSource> data_source = new MockDataSource(&config);
-  MockFilterHost<DataSource> filter_host_a(&pipeline, data_source);
-  EXPECT_TRUE(data_source->Initialize("foo"));
-  EXPECT_TRUE(filter_host_a.IsInitialized());
-
-  // Create our demuxer.
-  scoped_refptr<FilterFactory> factory = FFmpegDemuxer::CreateFilterFactory();
-  scoped_refptr<Demuxer> demuxer
-      = factory->Create<Demuxer>(data_source->media_format());
-  EXPECT_TRUE(demuxer);
-  MockFilterHost<Demuxer> filter_host_b(&pipeline, demuxer);
-  EXPECT_TRUE(demuxer->Initialize(data_source));
-  EXPECT_TRUE(filter_host_b.WaitForInitialized());
-  EXPECT_TRUE(filter_host_b.IsInitialized());
-  EXPECT_EQ(PIPELINE_OK, pipeline.GetError());
+  // Initialize the demuxer.
+  EXPECT_TRUE(demuxer_->Initialize(data_source_.get()));
+  EXPECT_TRUE(filter_host_->WaitForInitialized());
+  EXPECT_TRUE(filter_host_->IsInitialized());
+  EXPECT_EQ(PIPELINE_OK, pipeline_->GetError());
 
   // Since we ignore data streams, the duration should be equal to the video
   // stream's duration.
-  EXPECT_EQ(g_streams[1].duration, pipeline.GetDuration().InMicroseconds());
+  EXPECT_EQ(g_streams[1].duration, pipeline_->GetDuration().InMicroseconds());
 
   // Verify that 2 out of 3 streams were created.
-  EXPECT_EQ(2, demuxer->GetNumberOfStreams());
+  EXPECT_EQ(2, demuxer_->GetNumberOfStreams());
 
   // First stream should be video and support FFmpegDemuxerStream interface.
-  scoped_refptr<DemuxerStream> stream = demuxer->GetStream(0);
+  scoped_refptr<DemuxerStream> stream = demuxer_->GetStream(0);
   scoped_refptr<FFmpegDemuxerStream> ffmpeg_demuxer_stream;
   ASSERT_TRUE(stream);
   std::string mime_type;
@@ -372,23 +386,18 @@ TEST(FFmpegDemuxerTest, DISABLED_InitializeStreams) {
   EXPECT_EQ(&g_streams[1], ffmpeg_demuxer_stream->av_stream());
 
   // Second stream should be audio and support FFmpegDemuxerStream interface.
-  stream = demuxer->GetStream(1);
+  stream = demuxer_->GetStream(1);
   ffmpeg_demuxer_stream = NULL;
   ASSERT_TRUE(stream);
-  EXPECT_TRUE(
-      stream->media_format().GetAsString(MediaFormat::kMimeType, &mime_type));
+  EXPECT_TRUE(stream->media_format().GetAsString(MediaFormat::kMimeType,
+              &mime_type));
   EXPECT_STREQ(mime_type::kFFmpegAudio, mime_type.c_str());
   EXPECT_TRUE(stream->QueryInterface(&ffmpeg_demuxer_stream));
   EXPECT_TRUE(ffmpeg_demuxer_stream);
   EXPECT_EQ(&g_streams[2], ffmpeg_demuxer_stream->av_stream());
 }
 
-// TODO(scherkus): as we keep refactoring and improving our mocks (both FFmpeg
-// and pipeline/filters), try to break this test into two.  Big issue right now
-// is that it takes ~50 lines of code just to set up FFmpegDemuxer.
-//
-// TODO(scherkus): http://crbug.com/10863
-TEST(FFmpegDemuxerTest, DISABLED_ReadAndSeek) {
+TEST_F(FFmpegDemuxerTest, ReadAndSeek) {
   // Prepare some test data.
   const int kPacketData = 0;
   const int kPacketAudio = 1;
@@ -403,7 +412,6 @@ TEST(FFmpegDemuxerTest, DISABLED_ReadAndSeek) {
   // the data stream first forces the audio and video streams to get remapped
   // from indices {1,2} to {0,1} respectively, which covers an important test
   // case.
-  InitializeFFmpegMocks();
   g_format.nb_streams = 3;
   g_format.streams[kPacketData] = &g_streams[0];
   g_format.streams[kPacketAudio] = &g_streams[1];
@@ -415,33 +423,18 @@ TEST(FFmpegDemuxerTest, DISABLED_ReadAndSeek) {
   g_streams[2].duration = 10;
   g_streams[2].codec = &g_video_codec;
 
-  // Create our pipeline.
-  MockPipeline pipeline;
-
-  // Create our data source.
-  MockFilterConfig config;
-  scoped_refptr<MockDataSource> data_source = new MockDataSource(&config);
-  MockFilterHost<DataSource> filter_host_a(&pipeline, data_source);
-  EXPECT_TRUE(data_source->Initialize("foo"));
-  EXPECT_TRUE(filter_host_a.IsInitialized());
-
-  // Create our demuxer.
-  scoped_refptr<FilterFactory> factory = FFmpegDemuxer::CreateFilterFactory();
-  scoped_refptr<Demuxer> demuxer
-      = factory->Create<Demuxer>(data_source->media_format());
-  EXPECT_TRUE(demuxer);
-  MockFilterHost<Demuxer> filter_host_b(&pipeline, demuxer);
-  EXPECT_TRUE(demuxer->Initialize(data_source));
-  EXPECT_TRUE(filter_host_b.WaitForInitialized());
-  EXPECT_TRUE(filter_host_b.IsInitialized());
-  EXPECT_EQ(PIPELINE_OK, pipeline.GetError());
+  // Initialize the demuxer.
+  EXPECT_TRUE(demuxer_->Initialize(data_source_.get()));
+  EXPECT_TRUE(filter_host_->WaitForInitialized());
+  EXPECT_TRUE(filter_host_->IsInitialized());
+  EXPECT_EQ(PIPELINE_OK, pipeline_->GetError());
 
   // Verify both streams were created.
-  EXPECT_EQ(2, demuxer->GetNumberOfStreams());
+  EXPECT_EQ(2, demuxer_->GetNumberOfStreams());
 
   // Get our streams.
-  scoped_refptr<DemuxerStream> audio_stream = demuxer->GetStream(kAudio);
-  scoped_refptr<DemuxerStream> video_stream = demuxer->GetStream(kVideo);
+  scoped_refptr<DemuxerStream> audio_stream = demuxer_->GetStream(kAudio);
+  scoped_refptr<DemuxerStream> video_stream = demuxer_->GetStream(kVideo);
   ASSERT_TRUE(audio_stream);
   ASSERT_TRUE(video_stream);
 
@@ -456,7 +449,7 @@ TEST(FFmpegDemuxerTest, DISABLED_ReadAndSeek) {
   // Attempt a read from the audio stream and run the message loop until done.
   scoped_refptr<TestReader> reader(new TestReader());
   reader->Read(audio_stream);
-  pipeline.RunAllTasks();
+  pipeline_->RunAllTasks();
   EXPECT_TRUE(reader->WaitForRead());
   EXPECT_TRUE(reader->called());
   ASSERT_TRUE(reader->buffer());
@@ -470,7 +463,7 @@ TEST(FFmpegDemuxerTest, DISABLED_ReadAndSeek) {
   // Attempt a read from the video stream and run the message loop until done.
   reader->Reset();
   reader->Read(video_stream);
-  pipeline.RunAllTasks();
+  pipeline_->RunAllTasks();
   EXPECT_TRUE(reader->WaitForRead());
   EXPECT_TRUE(reader->called());
   ASSERT_TRUE(reader->buffer());
@@ -490,7 +483,7 @@ TEST(FFmpegDemuxerTest, DISABLED_ReadAndSeek) {
   // Let's trigger a simple forward seek with no outstanding packets.
   g_expected_seek_timestamp = 1234;
   g_expected_seek_flags = 0;
-  demuxer->Seek(base::TimeDelta::FromMicroseconds(g_expected_seek_timestamp));
+  demuxer_->Seek(base::TimeDelta::FromMicroseconds(g_expected_seek_timestamp));
   EXPECT_TRUE(g_seek_event->TimedWait(base::TimeDelta::FromSeconds(1)));
 
   // The next read from each stream should now be discontinuous, but subsequent
@@ -503,7 +496,7 @@ TEST(FFmpegDemuxerTest, DISABLED_ReadAndSeek) {
   // Audio read #1, should be discontinuous.
   reader = new TestReader();
   reader->Read(audio_stream);
-  pipeline.RunAllTasks();
+  pipeline_->RunAllTasks();
   EXPECT_TRUE(reader->WaitForRead());
   EXPECT_TRUE(reader->called());
   ASSERT_TRUE(reader->buffer());
@@ -514,7 +507,7 @@ TEST(FFmpegDemuxerTest, DISABLED_ReadAndSeek) {
   // Audio read #2, should not be discontinuous.
   reader->Reset();
   reader->Read(audio_stream);
-  pipeline.RunAllTasks();
+  pipeline_->RunAllTasks();
   EXPECT_TRUE(reader->WaitForRead());
   EXPECT_TRUE(reader->called());
   ASSERT_TRUE(reader->buffer());
@@ -529,7 +522,7 @@ TEST(FFmpegDemuxerTest, DISABLED_ReadAndSeek) {
   // Video read #1, should be discontinuous.
   reader->Reset();
   reader->Read(video_stream);
-  pipeline.RunAllTasks();
+  pipeline_->RunAllTasks();
   EXPECT_TRUE(reader->WaitForRead());
   EXPECT_TRUE(reader->called());
   ASSERT_TRUE(reader->buffer());
@@ -540,7 +533,7 @@ TEST(FFmpegDemuxerTest, DISABLED_ReadAndSeek) {
   // Video read #2, should not be discontinuous.
   reader->Reset();
   reader->Read(video_stream);
-  pipeline.RunAllTasks();
+  pipeline_->RunAllTasks();
   EXPECT_TRUE(reader->WaitForRead());
   EXPECT_TRUE(reader->called());
   ASSERT_TRUE(reader->buffer());
@@ -563,7 +556,7 @@ TEST(FFmpegDemuxerTest, DISABLED_ReadAndSeek) {
   // the audio packets preceding the video packet.
   reader = new TestReader();
   reader->Read(video_stream);
-  pipeline.RunAllTasks();
+  pipeline_->RunAllTasks();
   EXPECT_TRUE(reader->WaitForRead());
   EXPECT_TRUE(reader->called());
   ASSERT_TRUE(reader->buffer());
@@ -578,7 +571,7 @@ TEST(FFmpegDemuxerTest, DISABLED_ReadAndSeek) {
   // Trigger the seek.
   g_expected_seek_timestamp = 1234;
   g_expected_seek_flags = 0;
-  demuxer->Seek(base::TimeDelta::FromMicroseconds(g_expected_seek_timestamp));
+  demuxer_->Seek(base::TimeDelta::FromMicroseconds(g_expected_seek_timestamp));
   EXPECT_TRUE(g_seek_event->TimedWait(base::TimeDelta::FromSeconds(1)));
 
   // All outstanding packets should have been freed.
@@ -597,7 +590,7 @@ TEST(FFmpegDemuxerTest, DISABLED_ReadAndSeek) {
   // Attempt a read from the audio stream and run the message loop until done.
   reader = new TestReader();
   reader->Read(audio_stream);
-  pipeline.RunAllTasks();
+  pipeline_->RunAllTasks();
   EXPECT_FALSE(reader->WaitForRead());
   EXPECT_FALSE(reader->called());
   EXPECT_FALSE(reader->buffer());
