@@ -400,6 +400,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\browser\bookmarks\bookmark_codec_unittest.cc"
+				>
+			</File>
+			<File
 				RelativePath="..\..\browser\bookmarks\bookmark_context_menu_test.cc"
 				>
 			</File>
@@ -417,6 +421,14 @@
 			</File>
 			<File
 				RelativePath="..\..\browser\bookmarks\bookmark_html_writer_unittest.cc"
+				>
+			</File>
+			<File
+				RelativePath="..\..\browser\bookmarks\bookmark_model_test_utils.cc"
+				>
+			</File>
+			<File
+				RelativePath="..\..\browser\bookmarks\bookmark_model_test_utils.h"
 				>
 			</File>
 			<File
@@ -564,10 +576,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\browser\autocomplete\search_provider_unittest.cc"
-				>
-			</File>
-			<File
 				RelativePath="..\..\browser\login_prompt_unittest.cc"
 				>
 			</File>
@@ -677,6 +685,10 @@
 			</File>
 			<File
 				RelativePath="..\..\browser\download\save_package_unittest.cc"
+				>
+			</File>
+			<File
+				RelativePath="..\..\browser\autocomplete\search_provider_unittest.cc"
 				>
 			</File>
 			<File
@@ -847,19 +859,19 @@
 					>
 				</File>
 				<File
-					RelativePath="..\..\browser\net\test_url_fetcher_factory.cc"
-					>
-				</File>
-				<File
-					RelativePath="..\..\browser\net\test_url_fetcher_factory.h"
-					>
-				</File>
-				<File
 					RelativePath="..\..\browser\renderer_host\test_render_view_host.cc"
 					>
 				</File>
 				<File
 					RelativePath="..\..\browser\renderer_host\test_render_view_host.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\browser\net\test_url_fetcher_factory.cc"
+					>
+				</File>
+				<File
+					RelativePath="..\..\browser\net\test_url_fetcher_factory.h"
 					>
 				</File>
 				<File

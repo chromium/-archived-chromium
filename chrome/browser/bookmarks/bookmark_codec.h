@@ -9,6 +9,7 @@
 #ifndef CHROME_BROWSER_BOOKMARKS_BOOKMARK_CODEC_H_
 #define CHROME_BROWSER_BOOKMARKS_BOOKMARK_CODEC_H_
 
+#include <set>
 #include <string>
 
 #include "base/basictypes.h"
@@ -20,12 +21,45 @@ class DictionaryValue;
 class ListValue;
 class Value;
 
+// Utility class to help assign unique integer IDs.
+class UniqueIDGenerator {
+ public:
+  UniqueIDGenerator();
+
+  // Checks whether the given ID can be used as a unique ID or not. If it can,
+  // returns the id itself, otherwise generates a new unique id in a simple way
+  // and returns that.
+  // NOTE that if id is 0, a new unique id is returned.
+  int GetUniqueID(int id);
+
+  // Resets the ID generator to initial state.
+  void Reset();
+
+  // Returns the current maximum.
+  int current_max() const { return current_max_; }
+
+ private:
+  // Maximum value we have seen so far.
+  int current_max_;
+  // All IDs assigned so far.
+  std::set<int> assigned_ids_;
+
+  DISALLOW_COPY_AND_ASSIGN(UniqueIDGenerator);
+};
+
 // BookmarkCodec is responsible for encoding/decoding bookmarks into JSON
 // values. BookmarkCodec is used by BookmarkService.
 
 class BookmarkCodec {
  public:
-  BookmarkCodec() {}
+  // Creates an instance of the codec. Encodes/decodes bookmark IDs also if
+  // persist_ids is true. The default constructor will not encode/decode IDs.
+  // During decoding, if persist_ids is true and if the IDs in the file are not
+  // unique, we will reassign IDs to make them unique. There are no guarantees
+  // on how the IDs are reassigned or about doing minimal reassignments to
+  // achieve uniqueness.
+  BookmarkCodec();
+  explicit BookmarkCodec(bool persist_ids);
 
   // Encodes the model to a JSON value. It's up to the caller to delete the
   // returned object. This is invoked to encode the contents of the bookmark bar
@@ -62,6 +96,7 @@ class BookmarkCodec {
   static const wchar_t* kOtherBookmarFolderNameKey;
   static const wchar_t* kVersionKey;
   static const wchar_t* kChecksumKey;
+  static const wchar_t* kIdKey;
   static const wchar_t* kTypeKey;
   static const wchar_t* kNameKey;
   static const wchar_t* kDateAddedKey;
@@ -103,13 +138,20 @@ class BookmarkCodec {
   // instead of taking in a BookmarkNode for efficiency so that we don't convert
   // varous data-types to wide strings multiple times - once for serializing
   // and once for computing the check-sum.
-  void UpdateChecksumWithUrlNode(const std::wstring& title,
+  void UpdateChecksumWithUrlNode(const std::string& id,
+                                 const std::wstring& title,
                                  const std::wstring& url);
-  void UpdateChecksumWithFolderNode(const std::wstring& title);
+  void UpdateChecksumWithFolderNode(const std::string& id,
+                                    const std::wstring& title);
 
   // Initializes/Finalizes the checksum.
   void InitializeChecksum();
   void FinalizeChecksum();
+
+  // Whether to persist IDs or not.
+  bool persist_ids_;
+  // Unique ID generator used during decoding.
+  UniqueIDGenerator id_generator_;
 
   // MD5 context used to compute MD5 hash of all bookmark data.
   MD5Context md5_context_;
@@ -117,7 +159,6 @@ class BookmarkCodec {
   // Checksums.
   std::string computed_checksum_;
   std::string stored_checksum_;
-
 
   DISALLOW_COPY_AND_ASSIGN(BookmarkCodec);
 };

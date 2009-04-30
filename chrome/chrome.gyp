@@ -2244,6 +2244,8 @@
         'browser/bookmarks/bookmark_drag_data_unittest.cc',
         'browser/bookmarks/bookmark_folder_tree_model_unittest.cc',
         'browser/bookmarks/bookmark_html_writer_unittest.cc',
+        'browser/bookmarks/bookmark_model_test_utils.cc',
+        'browser/bookmarks/bookmark_model_test_utils.h',
         'browser/bookmarks/bookmark_model_unittest.cc',
         'browser/bookmarks/bookmark_table_model_unittest.cc',
         'browser/bookmarks/bookmark_utils_unittest.cc',

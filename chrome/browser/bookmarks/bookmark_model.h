@@ -43,13 +43,17 @@ class BookmarkNode : public views::TreeNode<BookmarkNode> {
   friend class BookmarkModel;
   friend class BookmarkCodec;
   friend class history::StarredURLDatabase;
+  FRIEND_TEST(BookmarkCodecTest, PersistIDsTest);
   FRIEND_TEST(BookmarkEditorViewTest, ChangeParentAndURL);
   FRIEND_TEST(BookmarkEditorViewTest, EditURLKeepsPosition);
   FRIEND_TEST(BookmarkModelTest, MostRecentlyAddedEntries);
   FRIEND_TEST(BookmarkModelTest, GetMostRecentlyAddedNodeForURL);
 
  public:
+  // Creates a new node with the given properties. If the ID is not given or is
+  // 0, it is automatically assigned.
   BookmarkNode(BookmarkModel* model, const GURL& url);
+  BookmarkNode(BookmarkModel* model, int id, const GURL& url);
   virtual ~BookmarkNode() {}
 
   // Returns the favicon for the this node. If the favicon has not yet been
@@ -92,14 +96,23 @@ class BookmarkNode : public views::TreeNode<BookmarkNode> {
   // HistoryContentsProvider.
 
  private:
+  // Sets the next ID for bookmark node ID generation.
+  static void SetNextId(int next_id);
+
+  // helper to initialize various fields during construction.
+  void Initialize(BookmarkModel* model, int id);
+
   // Resets the properties of the node from the supplied entry.
   void Reset(const history::StarredEntry& entry);
+
+  // Sets the id to the given value.
+  void set_id(int id) { id_ = id; }
 
   // The model. This is NULL when created by StarredURLDatabase for migration.
   BookmarkModel* model_;
 
   // Unique identifier for this node.
-  const int id_;
+  int id_;
 
   // Whether the favicon has been loaded.
   bool loaded_favicon_;

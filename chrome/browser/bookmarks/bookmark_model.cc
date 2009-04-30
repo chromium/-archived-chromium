@@ -27,6 +27,11 @@ int next_id_ = 1;
 
 }
 
+// static
+void BookmarkNode::SetNextId(int next_id) {
+  next_id_ = next_id;
+}
+
 const SkBitmap& BookmarkNode::GetFavIcon() {
   if (!loaded_favicon_) {
     loaded_favicon_ = true;
@@ -36,14 +41,23 @@ const SkBitmap& BookmarkNode::GetFavIcon() {
 }
 
 BookmarkNode::BookmarkNode(BookmarkModel* model, const GURL& url)
-    : model_(model),
-      id_(next_id_++),
-      loaded_favicon_(false),
-      favicon_load_handle_(0),
-      url_(url),
-      type_(!url.is_empty() ? history::StarredEntry::URL :
-            history::StarredEntry::BOOKMARK_BAR),
-      date_added_(Time::Now()) {
+    : url_(url) {
+  Initialize(model, 0);
+}
+
+BookmarkNode::BookmarkNode(BookmarkModel* model, int id, const GURL& url)
+    : url_(url){
+  Initialize(model, id);
+}
+
+void BookmarkNode::Initialize(BookmarkModel* model, int id) {
+  model_ = model;
+  id_ = id == 0 ? next_id_++ : id;
+  loaded_favicon_ = false;
+  favicon_load_handle_ = 0;
+  type_ = !url_.is_empty() ? history::StarredEntry::URL :
+          history::StarredEntry::BOOKMARK_BAR;
+  date_added_ = Time::Now();
 }
 
 void BookmarkNode::Reset(const history::StarredEntry& entry) {

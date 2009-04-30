@@ -3,8 +3,8 @@
 // found in the LICENSE file.
 
 #include "base/string_util.h"
-#include "chrome/browser/bookmarks/bookmark_model.h"
 #include "chrome/browser/bookmarks/bookmark_codec.h"
+#include "chrome/browser/bookmarks/bookmark_model.h"
 #include "chrome/browser/bookmarks/bookmark_utils.h"
 #include "chrome/common/chrome_constants.h"
 #include "chrome/common/chrome_paths.h"
@@ -116,31 +116,6 @@ class BookmarkModelTest : public testing::Test, public BookmarkModelObserver {
     ASSERT_EQ(removed_count, this->removed_count);
     ASSERT_EQ(changed_count, this->changed_count);
     ASSERT_EQ(reordered_count, reordered_count_);
-  }
-
-  void AssertNodesEqual(BookmarkNode* expected, BookmarkNode* actual) {
-    ASSERT_TRUE(expected);
-    ASSERT_TRUE(actual);
-    EXPECT_EQ(expected->GetTitle(), actual->GetTitle());
-    EXPECT_EQ(expected->GetType(), actual->GetType());
-    EXPECT_TRUE(expected->date_added() == actual->date_added());
-    if (expected->GetType() == history::StarredEntry::URL) {
-      EXPECT_EQ(expected->GetURL(), actual->GetURL());
-    } else {
-      EXPECT_TRUE(expected->date_group_modified() ==
-                  actual->date_group_modified());
-      ASSERT_EQ(expected->GetChildCount(), actual->GetChildCount());
-      for (int i = 0; i < expected->GetChildCount(); ++i)
-        AssertNodesEqual(expected->GetChild(i), actual->GetChild(i));
-    }
-  }
-
-  void AssertModelsEqual(BookmarkModel* expected,
-                         BookmarkModel* actual) {
-    AssertNodesEqual(expected->GetBookmarkBarNode(),
-                     actual->GetBookmarkBarNode());
-    AssertNodesEqual(expected->other_node(),
-                     actual->other_node());
   }
 
   BookmarkModel model;

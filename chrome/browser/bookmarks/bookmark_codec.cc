@@ -13,11 +13,34 @@
 
 using base::Time;
 
+UniqueIDGenerator::UniqueIDGenerator() {
+  Reset();
+}
+
+int UniqueIDGenerator::GetUniqueID(int id) {
+  if (assigned_ids_.find(id) != assigned_ids_.end())
+    id = current_max_ + 1;
+
+  if (id > current_max_)
+    current_max_ = id;
+
+  assigned_ids_.insert(id);
+  return id;
+}
+
+void UniqueIDGenerator::Reset() {
+  current_max_ = 0;
+  assigned_ids_.clear();
+  // 0 should always be considered as an ID that's already generated.
+  assigned_ids_.insert(0);
+}
+
 const wchar_t* BookmarkCodec::kRootsKey = L"roots";
 const wchar_t* BookmarkCodec::kRootFolderNameKey = L"bookmark_bar";
 const wchar_t* BookmarkCodec::kOtherBookmarFolderNameKey = L"other";
 const wchar_t* BookmarkCodec::kVersionKey = L"version";
 const wchar_t* BookmarkCodec::kChecksumKey = L"checksum";
+const wchar_t* BookmarkCodec::kIdKey = L"id";
 const wchar_t* BookmarkCodec::kTypeKey = L"type";
 const wchar_t* BookmarkCodec::kNameKey = L"name";
 const wchar_t* BookmarkCodec::kDateAddedKey = L"date_added";
@@ -29,6 +52,14 @@ const wchar_t* BookmarkCodec::kTypeFolder = L"folder";
 
 // Current version of the file.
 static const int kCurrentVersion = 1;
+
+BookmarkCodec::BookmarkCodec()
+    : persist_ids_(false) {
+}
+
+BookmarkCodec::BookmarkCodec(bool persist_ids)
+    : persist_ids_(persist_ids) {
+}
 
 Value* BookmarkCodec::Encode(BookmarkModel* model) {
   return Encode(model->GetBookmarkBarNode(), model->other_node());
@@ -53,15 +84,22 @@ Value* BookmarkCodec::Encode(BookmarkNode* bookmark_bar_node,
 }
 
 bool BookmarkCodec::Decode(BookmarkModel* model, const Value& value) {
+  id_generator_.Reset();
   stored_checksum_.clear();
   InitializeChecksum();
   bool success = DecodeHelper(model, value);
   FinalizeChecksum();
+  BookmarkNode::SetNextId(id_generator_.current_max() + 1);
   return success;
 }
 
 Value* BookmarkCodec::EncodeNode(BookmarkNode* node) {
   DictionaryValue* value = new DictionaryValue();
+  std::string id;
+  if (persist_ids_) {
+    id = IntToString(node->id());
+    value->SetString(kIdKey, id);
+  }
   const std::wstring& title = node->GetTitle();
   value->SetString(kNameKey, title);
   value->SetString(kDateAddedKey,
@@ -70,13 +108,13 @@ Value* BookmarkCodec::EncodeNode(BookmarkNode* node) {
     value->SetString(kTypeKey, kTypeURL);
     std::wstring url = UTF8ToWide(node->GetURL().possibly_invalid_spec());
     value->SetString(kURLKey, url);
-    UpdateChecksumWithUrlNode(title, url);
+    UpdateChecksumWithUrlNode(id, title, url);
   } else {
     value->SetString(kTypeKey, kTypeFolder);
     value->SetString(kDateModifiedKey,
                      Int64ToWString(node->date_group_modified().
                                     ToInternalValue()));
-    UpdateChecksumWithFolderNode(title);
+    UpdateChecksumWithFolderNode(id, title);
 
     ListValue* child_values = new ListValue();
     value->Set(kChildrenKey, child_values);
@@ -162,6 +200,15 @@ bool BookmarkCodec::DecodeNode(BookmarkModel* model,
                                const DictionaryValue& value,
                                BookmarkNode* parent,
                                BookmarkNode* node) {
+  std::string id_string;
+  int id = 0;
+  if (persist_ids_) {
+    if (value.GetString(kIdKey, &id_string))
+      if (!StringToInt(id_string, &id))
+        return false;
+    id = id_generator_.GetUniqueID(id);
+  }
+
   std::wstring title;
   if (!value.GetString(kNameKey, &title))
     return false;
@@ -185,11 +232,15 @@ bool BookmarkCodec::DecodeNode(BookmarkModel* model,
       return false;
     // TODO(sky): this should ignore the node if not a valid URL.
     if (!node)
-      node = new BookmarkNode(model, GURL(WideToUTF8(url_string)));
+      node = new BookmarkNode(model, id, GURL(WideToUTF8(url_string)));
+    else
+      NOTREACHED();  // In case of a URL type node should always be NULL.
+
+
     if (parent)
       parent->Add(parent->GetChildCount(), node);
     node->type_ = history::StarredEntry::URL;
-    UpdateChecksumWithUrlNode(title, url_string);
+    UpdateChecksumWithUrlNode(id_string, title, url_string);
   } else {
     std::wstring last_modified_date;
     if (!value.GetString(kDateModifiedKey, &last_modified_date))
@@ -202,8 +253,15 @@ bool BookmarkCodec::DecodeNode(BookmarkModel* model,
     if (child_values->GetType() != Value::TYPE_LIST)
       return false;
 
-    if (!node)
-      node = new BookmarkNode(model, GURL());
+    if (!node) {
+      node = new BookmarkNode(model, id, GURL());
+    } else if (persist_ids_) {
+      // If a new node is not created, explicitly assign persisted ID to the
+      // existing node.
+      DCHECK(id != 0);
+      node->set_id(id);
+    }
+
     node->type_ = history::StarredEntry::USER_GROUP;
     node->date_group_modified_ = Time::FromInternalValue(
         StringToInt64(WideToUTF16Hack(last_modified_date)));
@@ -211,7 +269,7 @@ bool BookmarkCodec::DecodeNode(BookmarkModel* model,
     if (parent)
       parent->Add(parent->GetChildCount(), node);
 
-    UpdateChecksumWithFolderNode(title);
+    UpdateChecksumWithFolderNode(id_string, title);
     if (!DecodeChildren(model, *static_cast<ListValue*>(child_values), node))
       return false;
   }
@@ -230,14 +288,18 @@ void BookmarkCodec::UpdateChecksum(const std::wstring& str) {
   MD5Update(&md5_context_, str.data(), str.length() * sizeof(wchar_t));
 }
 
-void BookmarkCodec::UpdateChecksumWithUrlNode(const std::wstring& title,
+void BookmarkCodec::UpdateChecksumWithUrlNode(const std::string& id,
+                                              const std::wstring& title,
                                               const std::wstring& url) {
+  UpdateChecksum(id);
   UpdateChecksum(title);
   UpdateChecksum(kTypeURL);
   UpdateChecksum(url);
 }
 
-void BookmarkCodec::UpdateChecksumWithFolderNode(const std::wstring& title) {
+void BookmarkCodec::UpdateChecksumWithFolderNode(const std::string& id,
+                                                 const std::wstring& title) {
+  UpdateChecksum(id);
   UpdateChecksum(title);
   UpdateChecksum(kTypeFolder);
 }
