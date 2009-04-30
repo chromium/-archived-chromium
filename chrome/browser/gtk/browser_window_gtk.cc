@@ -487,7 +487,7 @@ void BrowserWindowGtk::ShowBookmarkManager() {
 
 void BrowserWindowGtk::ShowBookmarkBubble(const GURL& url,
                                           bool already_bookmarked) {
-  NOTIMPLEMENTED();
+  toolbar_->star()->ShowStarBubble(url, !already_bookmarked);
 }
 
 void BrowserWindowGtk::ShowReportBugDialog() {
