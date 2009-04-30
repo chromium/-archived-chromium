@@ -242,7 +242,10 @@ void FindBarGtk::OnSizeAllocate(GtkWidget* fixed,
                                 FindBarGtk* findbar) {
   // Set the background widget to the size of |fixed|.
   if (findbar->border_->allocation.width != allocation->width) {
-    gtk_widget_set_size_request(findbar->border_, allocation->width, 1);
+    // Typically it's not a good idea to use this function outside of container
+    // implementations, but GtkFixed doesn't do any sizing on its children so
+    // in this case it's safe.
+    gtk_widget_size_allocate(findbar->border_, allocation);
   }
 
   // Reposition |container_|.

@@ -13,11 +13,11 @@ namespace {
 void OnFixedSizeAllocate(GtkWidget* fixed,
                          GtkAllocation* allocation,
                          GtkWidget* child) {
-  gint height;
-  gtk_widget_get_size_request(child, NULL, &height);
   // The size of the GtkFixed has changed. We want |child_| to match widths,
-  // but the height should always be |widget_height_|.
-  gtk_widget_set_size_request(child, allocation->width, height);
+  // but the height should not change.
+  GtkAllocation new_allocation = child->allocation;
+  new_allocation.width = allocation->width;
+  gtk_widget_size_allocate(child, &new_allocation);
 }
 
 }  // namespace
