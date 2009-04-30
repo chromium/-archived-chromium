@@ -45,6 +45,7 @@ class RestoreFocusTask;
 class RootView;
 class ScrollView;
 class Widget;
+class Window;
 
 // ContextMenuController is responsible for showing the context menu for a
 // View. To use a ContextMenuController invoke SetContextMenuController on a
@@ -432,6 +433,9 @@ class View : public AcceleratorTarget {
 
   // Get the Widget that hosts this View, if any.
   virtual Widget* GetWidget() const;
+
+  // Gets the Widget that most closely contains this View, if any.
+  virtual Window* GetWindow() const;
 
   // Get the containing RootView
   virtual RootView* GetRootView();

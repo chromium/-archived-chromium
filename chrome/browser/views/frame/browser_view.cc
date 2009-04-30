@@ -914,8 +914,7 @@ void BrowserView::TabSelectedAt(TabContents* old_contents,
   //             etc not result in sad tab.
   new_contents->DidBecomeSelected();
   if (BrowserList::GetLastActive() == browser_ &&
-      !browser_->tabstrip_model()->closing_all() &&
-      GetWidget()->GetWindow()->IsVisible()) {
+      !browser_->tabstrip_model()->closing_all() && GetWindow()->IsVisible()) {
     // We only restore focus if our window is visible, to avoid invoking blur
     // handlers when we are eventually shown.
     new_contents->view()->RestoreFocus();

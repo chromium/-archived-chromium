@@ -21,6 +21,7 @@
 #include "chrome/views/layout_manager.h"
 #include "chrome/views/widget/root_view.h"
 #include "chrome/views/widget/widget.h"
+#include "chrome/views/window/window.h"
 #if defined(OS_WIN)
 #include "chrome/views/widget/tooltip_manager.h"
 #include "chrome/views/accessibility/view_accessibility_wrapper.h"
@@ -744,6 +745,11 @@ View* View::GetViewForPoint(const gfx::Point& point,
 Widget* View::GetWidget() const {
   // The root view holds a reference to this view hierarchy's Widget.
   return parent_ ? parent_->GetWidget() : NULL;
+}
+
+Window* View::GetWindow() const {
+  Widget* widget = GetWidget();
+  return widget ? widget->GetWindow() : NULL;
 }
 
 // Get the containing RootView
