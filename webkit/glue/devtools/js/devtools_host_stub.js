@@ -185,8 +185,9 @@ RemoteToolsAgentStub.prototype.ExecuteUtilityFunction = function(callId,
           }
         ]
       };
-    } else if (functionName == 'toggleNodeStyle') {
-      alert('toggleNodeStyle ' + args);
+    } else if (functionName == 'toggleNodeStyle' ||
+        functionName == 'applyStyleText') {
+      alert(functionName + '(' + args + ')');
     } else {
       alert('Unexpected utility function:' + functionName);
     }

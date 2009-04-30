@@ -829,9 +829,7 @@ devtools.DomAgent.prototype.getSearchResultNode = function(index) {
  */
 devtools.DomAgent.prototype.getNodePropertiesAsync = function(nodeId,
     path, protoDepth, callback) {
-  var mycallback =
-      goog.bind(this.utilityFunctionCallbackWrapper_, this, callback);
-  var callbackId = devtools.Callback.wrap(mycallback);
+  var callbackId = this.utilityFunctionCallbackWrapper_(callback);
   RemoteToolsAgent.ExecuteUtilityFunction(callbackId,
       'getProperties', nodeId,
       goog.json.serialize([path, protoDepth]));
@@ -845,9 +843,7 @@ devtools.DomAgent.prototype.getNodePropertiesAsync = function(nodeId,
  */
 devtools.DomAgent.prototype.getNodePrototypesAsync = function(nodeId,
     callback) {
-  var mycallback =
-      goog.bind(this.utilityFunctionCallbackWrapper_, this, callback);
-  var callbackId = devtools.Callback.wrap(mycallback);
+  var callbackId = this.utilityFunctionCallbackWrapper_(callback);
   RemoteToolsAgent.ExecuteUtilityFunction(callbackId,
       'getPrototypes', nodeId, '[]');
 };
@@ -861,9 +857,7 @@ devtools.DomAgent.prototype.getNodePrototypesAsync = function(nodeId,
  */
 devtools.DomAgent.prototype.getNodeStylesAsync = function(node,
     authorOnly, callback) {
-  var mycallback =
-      goog.bind(this.utilityFunctionCallbackWrapper_, this, callback);
-  var callbackId = devtools.Callback.wrap(mycallback);
+  var callbackId = this.utilityFunctionCallbackWrapper_(callback);
   RemoteToolsAgent.ExecuteUtilityFunction(callbackId,
       'getStyles',
       node.id_,
@@ -880,9 +874,7 @@ devtools.DomAgent.prototype.getNodeStylesAsync = function(node,
  */
 devtools.DomAgent.prototype.toggleNodeStyleAsync = function(
     style, enabled, name, callback) {
-  var mycallback =
-      goog.bind(this.utilityFunctionCallbackWrapper_, this, callback);
-  var callbackId = devtools.Callback.wrap(mycallback);
+  var callbackId = this.utilityFunctionCallbackWrapper_(callback);
   RemoteToolsAgent.ExecuteUtilityFunction(callbackId,
       'toggleNodeStyle',
       style.nodeId_,
@@ -891,15 +883,38 @@ devtools.DomAgent.prototype.toggleNodeStyleAsync = function(
 
 
 /**
+ * Applies new text to a style.
+ * @param {devtools.CSSStyleDeclaration} style Style to edit.
+ * @param {string} name Property name to edit.
+ * @param {string} styleText Text to set the style from.
+ * @param {Function} callback.
+ */
+devtools.DomAgent.prototype.applyStyleTextAsync = function(
+    style, name, styleText, callback) {
+  var callbackId = this.utilityFunctionCallbackWrapper_(callback);
+  RemoteToolsAgent.ExecuteUtilityFunction(
+      callbackId,
+      'applyStyleText',
+      style.nodeId_,
+      goog.json.serialize([style.id_, name, styleText]));
+};
+
+
+/**
  * Dumps exception if something went wrong in ExecuteUtilityFunction.
+ * @param {Function} callback Callback to wrap.
+ * @return {number} Callback id.
  */
 devtools.DomAgent.prototype.utilityFunctionCallbackWrapper_ =
-    function(callback, result, exception) {
-  if (exception && exception.length) {
-    debugPrint('Exception in ExecuteUtilityFunction styles:' + exception);
-    return;
-  }
-  callback(result);
+    function(callback) {
+  var mycallback = function(result, exception) {
+    if (exception && exception.length) {
+      debugPrint('Exception in ExecuteUtilityFunction styles:' + exception);
+      return;
+    }
+    callback(result);
+  };
+  return devtools.Callback.wrap(mycallback);
 };
 
 

@@ -564,12 +564,29 @@ WebInspector.ScopeChainSidebarPane.TreeElement.prototype.didResolveChildren_ =
  */
 WebInspector.StylePropertyTreeElement.prototype.toggleEnabled =
     function(event) {
-  var disabled = !event.target.checked;
-  var self = this;
-  devtools.tools.getDomAgent().toggleNodeStyleAsync(this.style, !disabled,
+  var enabled = event.target.checked;
+  devtools.tools.getDomAgent().toggleNodeStyleAsync(
+      this.style,
+      enabled,
       this.name,
       function() {
         WebInspector.panels.elements.sidebarPanes.styles.needsUpdate = true;
         WebInspector.panels.elements.updateStyles(true);
+      });
+};
+
+
+/**
+ * @override
+ */
+WebInspector.StylePropertyTreeElement.prototype.applyStyleText = function(
+    styleText, updateInterface) {
+  devtools.tools.getDomAgent().applyStyleTextAsync(this.style, this.name,
+      styleText,
+      function() {
+        if (updateInterface) {
+          WebInspector.panels.elements.sidebarPanes.styles.needsUpdate = true;
+          WebInspector.panels.elements.updateStyles(true);
+        }
       });
 };
