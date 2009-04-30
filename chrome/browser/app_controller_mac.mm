@@ -30,7 +30,7 @@
 - (void)awakeFromNib {
   // Set up the command updater for when there are no windows open
   [self initMenuState];
-  bookmarkMenuBridge_ = new BookmarkMenuBridge();
+  bookmarkMenuBridge_.reset(new BookmarkMenuBridge());
 }
 
 - (void)applicationDidFinishLaunching:(NSNotification*)notify {
@@ -56,8 +56,6 @@
 }
 
 - (void)dealloc {
-  delete bookmarkMenuBridge_;
-  delete menuState_;
   [super dealloc];
 }
 
@@ -110,6 +108,8 @@
       enable = menuState_->IsCommandEnabled(tag) ? YES : NO;
   } else if (action == @selector(quit:)) {
     enable = YES;
+  } else if (action == @selector(showPreferences:)) {
+    enable = YES;
   }
   return enable;
 }
@@ -156,7 +156,7 @@
 }
 
 - (void)initMenuState {
-  menuState_ = new CommandUpdater(NULL);
+  menuState_.reset(new CommandUpdater(NULL));
   menuState_->UpdateCommandEnabled(IDC_NEW_WINDOW, true);
   menuState_->UpdateCommandEnabled(IDC_NEW_INCOGNITO_WINDOW, true);
   menuState_->UpdateCommandEnabled(IDC_OPEN_FILE, true);
@@ -229,6 +229,12 @@ void OpenURLs(const std::vector<GURL>& urls) {
   }
 
   OpenURLs(gurlVector);
+}
+
+// Show the preferences window, or bring it to the front if it's already
+// visible.
+- (IBAction)showPreferences:(id)sender {
+// TODO(pinkerton): more goes here...
 }
 
 @end

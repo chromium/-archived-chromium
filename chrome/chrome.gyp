@@ -1690,6 +1690,7 @@
         'app/nibs/en.lproj/BrowserWindow.xib',
         'app/nibs/en.lproj/FindBar.xib',
         'app/nibs/en.lproj/MainMenu.xib',
+        'app/nibs/en.lproj/Preferences.xib',
         'app/nibs/en.lproj/SaveAccessoryView.xib',
         'app/nibs/en.lproj/TabContents.xib',
         'app/nibs/en.lproj/TabView.xib',
