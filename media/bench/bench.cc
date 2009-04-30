@@ -48,7 +48,13 @@ int main(int argc, const char** argv) {
     return 1;
   }
 
-  media::InitializeMediaLibrary(FilePath());
+  // Initialize our media library (try loading DLLs, etc.) before continuing.
+  // We use an empty file path as the parameter to force searching of the
+  // default locations for necessary DLLs and DSOs.
+  if (media::InitializeMediaLibrary(FilePath()) == false) {
+    std::cerr << "Unable to initialize the media library.";
+    return 1;
+  }
 
   // Retrieve command line options.
   std::string path(WideToUTF8(filenames[0]));
