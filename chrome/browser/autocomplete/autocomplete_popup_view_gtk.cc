@@ -177,15 +177,17 @@ GdkPixbuf* IconForMatch(const AutocompleteMatch& match, bool selected) {
   // TODO(deanm): These would be better as pixmaps someday.
   ResourceBundle& rb = ResourceBundle::GetSharedInstance();
   static GdkPixbuf* o2_globe = rb.GetPixbufNamed(IDR_O2_GLOBE);
-  static GdkPixbuf* o2_globe_s = rb.GetPixbufNamed(IDR_O2_GLOBE_SELECTED);
+  static GdkPixbuf* o2_globe_s = rb.GetPixbufNamed(IDR_O2_GLOBE_SELECTED_DARK);
   static GdkPixbuf* o2_history = rb.GetPixbufNamed(IDR_O2_HISTORY);
-  static GdkPixbuf* o2_history_s = rb.GetPixbufNamed(IDR_O2_HISTORY_SELECTED);
+  static GdkPixbuf* o2_history_s =
+      rb.GetPixbufNamed(IDR_O2_HISTORY_SELECTED_DARK);
   static GdkPixbuf* o2_more = rb.GetPixbufNamed(IDR_O2_MORE);
-  static GdkPixbuf* o2_more_s = rb.GetPixbufNamed(IDR_O2_MORE_SELECTED);
+  static GdkPixbuf* o2_more_s = rb.GetPixbufNamed(IDR_O2_MORE_SELECTED_DARK);
   static GdkPixbuf* o2_search = rb.GetPixbufNamed(IDR_O2_SEARCH);
-  static GdkPixbuf* o2_search_s = rb.GetPixbufNamed(IDR_O2_SEARCH_SELECTED);
+  static GdkPixbuf* o2_search_s =
+      rb.GetPixbufNamed(IDR_O2_SEARCH_SELECTED_DARK);
   static GdkPixbuf* o2_star = rb.GetPixbufNamed(IDR_O2_STAR);
-  static GdkPixbuf* o2_star_s = rb.GetPixbufNamed(IDR_O2_STAR_SELECTED);
+  static GdkPixbuf* o2_star_s = rb.GetPixbufNamed(IDR_O2_STAR_SELECTED_DARK);
 
   if (match.starred)
     return selected ? o2_star_s : o2_star;
