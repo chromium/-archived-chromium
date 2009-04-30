@@ -2601,15 +2601,8 @@ void Browser::BuildPopupWindowHelper(TabContents* source,
     browser->set_maximized_state(MAXIMIZED_STATE_UNMAXIMIZED);
 
   browser->CreateBrowserWindow();
-  // We need to Show before AddNewContents, otherwise AddNewContents will focus
-  // it (via BrowserView::TabSelectedAt calling RestoreFocus), triggering any
-  // onblur="" handlers.
+  browser->tabstrip_model()->AppendTabContents(new_contents, true);
   browser->window()->Show();
-
-  // TODO(beng): See if this can be made to use
-  //             TabStripModel::AppendTabContents.
-  browser->AddNewContents(source, new_contents, NEW_FOREGROUND_TAB,
-                          gfx::Rect(), true);
 }
 
 GURL Browser::GetHomePage() const {

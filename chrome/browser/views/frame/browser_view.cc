@@ -901,9 +901,8 @@ void BrowserView::TabSelectedAt(TabContents* old_contents,
   // We do not store the focus when closing the tab to work-around bug 4633.
   // Some reports seem to show that the focus manager and/or focused view can
   // be garbage at that point, it is not clear why.
-  if (old_contents && !old_contents->is_being_destroyed() &&
-      old_contents->AsWebContents())
-    old_contents->AsWebContents()->view()->StoreFocus();
+  if (old_contents && !old_contents->is_being_destroyed())
+    old_contents->view()->StoreFocus();
 
   // Update various elements that are interested in knowing the current
   // TabContents.
@@ -916,8 +915,10 @@ void BrowserView::TabSelectedAt(TabContents* old_contents,
   new_contents->DidBecomeSelected();
   if (BrowserList::GetLastActive() == browser_ &&
       !browser_->tabstrip_model()->closing_all() &&
-      new_contents->AsWebContents()) {
-    new_contents->AsWebContents()->view()->RestoreFocus();
+      GetWidget()->GetWindow()->IsVisible()) {
+    // We only restore focus if our window is visible, to avoid invoking blur
+    // handlers when we are eventually shown.
+    new_contents->view()->RestoreFocus();
   }
 
   // Update all the UI bits.
