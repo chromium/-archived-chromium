@@ -51,7 +51,7 @@ NineBox::NineBox(int top_left, int top, int top_right, int left, int center,
 NineBox::~NineBox() {
 }
 
-void NineBox::RenderToWidget(GtkWidget* dst) {
+void NineBox::RenderToWidget(GtkWidget* dst) const {
   // TODO(evanm): this is stupid; it should just be implemented with SkBitmaps
   // and convert to a GdkPixbuf at the last second.
 
@@ -61,7 +61,7 @@ void NineBox::RenderToWidget(GtkWidget* dst) {
   // This function paints one row at a time.
   // To make indexing sane, |images| points at the current row of images,
   // so images[0] always refers to the left-most image of the current row.
-  GdkPixbuf** images = &images_[0];
+  GdkPixbuf* const* images = &images_[0];
 
   // The upper-left and lower-right corners of the center square in the
   // rendering of the ninebox.
@@ -113,14 +113,63 @@ void NineBox::RenderToWidget(GtkWidget* dst) {
     DrawPixbuf(dst, images[2], x2, y2);
 }
 
-void NineBox::RenderTopCenterStrip(GtkWidget* dst, int x1, int x2, int y1) {
+void NineBox::RenderTopCenterStrip(GtkWidget* dst, int x1,
+                                   int x2, int y1) const {
   TileImage(dst, images_[1],
             x1, y1,
             x2, y1);
 }
 
+void NineBox::ChangeWhiteToTransparent() {
+  for (int image_idx = 0; image_idx < 9; ++image_idx) {
+    GdkPixbuf* pixbuf = images_[image_idx];
+    if (!pixbuf)
+      continue;
+
+    guchar* pixels = gdk_pixbuf_get_pixels(pixbuf);
+    int rowstride = gdk_pixbuf_get_rowstride(pixbuf);
+
+    for (int i = 0; i < gdk_pixbuf_get_height(pixbuf); ++i) {
+      for (int j = 0; j < gdk_pixbuf_get_width(pixbuf); ++j) {
+         guchar* pixel = &pixels[i * rowstride + j * 4];
+         if (pixel[0] == 0xff && pixel[1] == 0xff && pixel[2] == 0xff) {
+           pixel[3] = 0;
+         }
+      }
+    }
+  }
+}
+
+void NineBox::ContourWidget(GtkWidget* widget) const {
+  int x1 = gdk_pixbuf_get_width(images_[0]);
+  int x2 = widget->allocation.width - gdk_pixbuf_get_width(images_[2]);
+
+  // Paint the left and right sides.
+  GdkBitmap* mask = gdk_pixmap_new(NULL, widget->allocation.width,
+                                   widget->allocation.height, 1);
+  gdk_pixbuf_render_threshold_alpha(images_[0], mask,
+                                    0, 0,
+                                    0, 0, -1, -1,
+                                    1);
+  gdk_pixbuf_render_threshold_alpha(images_[2], mask,
+                                    0, 0,
+                                    x2, 0, -1, -1,
+                                    1);
+
+  // Assume no transparency in the middle rectangle.
+  cairo_t* cr = gdk_cairo_create(mask);
+  cairo_rectangle(cr, x1, 0, x2 - x1, widget->allocation.height);
+  cairo_fill(cr);
+
+  // Mask the widget's window's shape.
+  gtk_widget_shape_combine_mask(widget, mask, 0, 0);
+
+  g_object_unref(mask);
+  cairo_destroy(cr);
+}
+
 void NineBox::TileImage(GtkWidget* dst, GdkPixbuf* src,
-                        int x1, int y1, int x2, int y2) {
+                        int x1, int y1, int x2, int y2) const {
   GdkGC* gc = dst->style->fg_gc[GTK_WIDGET_STATE(dst)];
   const int src_width = gdk_pixbuf_get_width(src);
   const int src_height = gdk_pixbuf_get_height(src);

@@ -72,9 +72,15 @@ class FindBarGtk : public FindBar,
   static void OnButtonPressed(GtkWidget* button, FindBarGtk* find_bar);
 
   // Called when |fixed_| changes sizes. Used to position |container_|.
-  static void OnSizeAllocate(GtkWidget* fixed,
-                             GtkAllocation* allocation,
-                             FindBarGtk* container_);
+  static void OnFixedSizeAllocate(GtkWidget* fixed,
+                                  GtkAllocation* allocation,
+                                  FindBarGtk* findbar);
+
+  // Called when |container_| is allocated.
+  static void OnContainerSizeAllocate(GtkWidget* container,
+                                      GtkAllocation* allocation,
+                                      FindBarGtk* findbar);
+
 
   // GtkFixed containing the find bar widgets.
   OwnedWidgetGtk fixed_;
@@ -87,6 +93,10 @@ class FindBarGtk : public FindBar,
   // A GtkAlignment which holds what the user perceives as the findbar (the text
   // field, the buttons, etc.).
   GtkWidget* container_;
+
+  // This will be set to true after ContourWidget() has been called so we don't
+  // call it twice.
+  bool container_shaped_;
 
   // The widget where text is entered.
   GtkWidget* find_text_;

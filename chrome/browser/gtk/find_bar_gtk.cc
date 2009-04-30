@@ -11,6 +11,7 @@
 #include "chrome/browser/find_bar_controller.h"
 #include "chrome/browser/gtk/browser_window_gtk.h"
 #include "chrome/browser/gtk/custom_button.h"
+#include "chrome/browser/gtk/nine_box.h"
 #include "chrome/browser/gtk/tab_contents_container_gtk.h"
 #include "chrome/browser/tab_contents/web_contents.h"
 #include "chrome/common/gtk_util.h"
@@ -42,9 +43,36 @@ gboolean KeyPressEvent(GtkWindow* window, GdkEventKey* event,
   return FALSE;
 }
 
+// Get the ninebox that draws the background of |container_|. It is also used
+// to change the shape of |container_|. The pointer is shared by all instances
+// of FindBarGtk.
+const NineBox* GetDialogBackground() {
+  static NineBox* dialog_background = NULL;
+  if (!dialog_background) {
+    dialog_background = new NineBox(
+      IDR_FIND_DLG_LEFT_BACKGROUND,
+      IDR_FIND_DLG_MIDDLE_BACKGROUND,
+      IDR_FIND_DLG_RIGHT_BACKGROUND,
+      NULL, NULL, NULL, NULL, NULL, NULL);
+    dialog_background->ChangeWhiteToTransparent();
+  }
+
+  return dialog_background;
 }
 
-FindBarGtk::FindBarGtk(BrowserWindowGtk* browser) {
+// Used to handle custom painting of |container_|.
+gboolean OnExpose(GtkWidget* widget, GdkEventExpose* e, gpointer userdata) {
+  GetDialogBackground()->RenderToWidget(widget);
+  GtkWidget* child = gtk_bin_get_child(GTK_BIN(widget));
+  if (child)
+    gtk_container_propagate_expose(GTK_CONTAINER(widget), child, e);
+  return TRUE;
+}
+
+}  // namespace
+
+FindBarGtk::FindBarGtk(BrowserWindowGtk* browser)
+    : container_shaped_(false) {
   InitWidgets();
 
   // Insert the widget into the browser gtk hierarchy.
@@ -57,7 +85,11 @@ FindBarGtk::FindBarGtk(BrowserWindowGtk* browser) {
   g_signal_connect(find_text_, "key-press-event",
                    G_CALLBACK(KeyPressEvent), this);
   g_signal_connect(widget(), "size-allocate",
-                   G_CALLBACK(OnSizeAllocate), this);
+                   G_CALLBACK(OnFixedSizeAllocate), this);
+  // We can't call ContourWidget() until after |container| has been
+  // allocated, hence we connect to this signal.
+  g_signal_connect(container_, "size-allocate",
+                   G_CALLBACK(OnContainerSizeAllocate), this);
 }
 
 FindBarGtk::~FindBarGtk() {
@@ -73,13 +105,16 @@ void FindBarGtk::InitWidgets() {
   GtkWidget* hbox = gtk_hbox_new(false, 0);
   container_ = gfx::CreateGtkBorderBin(hbox, &kBackgroundColor,
       kBarPadding, kBarPadding, kBarPadding, kBarPadding);
-  fixed_.Own(gtk_fixed_new());
+  gtk_widget_set_app_paintable(container_, TRUE);
+  g_signal_connect(container_, "expose-event",
+                   G_CALLBACK(OnExpose), NULL);
 
   // |fixed_| has to be at least one pixel tall. We color this pixel the same
   // color as the border that separates the toolbar from the web contents.
   // TODO(estade): find a better solution. (Ideally the tool bar shouldn't draw
   // its own border, but the border is part of the background bitmap, so
   // changing that would affect all platforms.)
+  fixed_.Own(gtk_fixed_new());
   border_ = gtk_event_box_new();
   gtk_widget_set_size_request(border_, 1, 1);
   gtk_widget_modify_bg(border_, GTK_STATE_NORMAL, &kBorderColor);
@@ -237,9 +272,9 @@ void FindBarGtk::OnButtonPressed(GtkWidget* button, FindBarGtk* find_bar) {
 }
 
 // static
-void FindBarGtk::OnSizeAllocate(GtkWidget* fixed,
-                                GtkAllocation* allocation,
-                                FindBarGtk* findbar) {
+void FindBarGtk::OnFixedSizeAllocate(GtkWidget* fixed,
+                                     GtkAllocation* allocation,
+                                     FindBarGtk* findbar) {
   // Set the background widget to the size of |fixed|.
   if (findbar->border_->allocation.width != allocation->width) {
     // Typically it's not a good idea to use this function outside of container
@@ -259,5 +294,15 @@ void FindBarGtk::OnSizeAllocate(GtkWidget* fixed,
     return;
   } else {
     gtk_fixed_move(GTK_FIXED(fixed), container, xposition, kVerticalOffset);
+  }
+}
+
+// static
+void FindBarGtk::OnContainerSizeAllocate(GtkWidget* container,
+                                         GtkAllocation* allocation,
+                                         FindBarGtk* findbar) {
+  if (!findbar->container_shaped_) {
+    GetDialogBackground()->ContourWidget(container);
+    findbar->container_shaped_ = true;
   }
 }
