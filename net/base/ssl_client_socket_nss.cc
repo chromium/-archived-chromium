@@ -105,7 +105,6 @@ SSLClientSocketNSS::SSLClientSocketNSS(ClientSocket* transport_socket,
       hostname_(hostname),
       ssl_config_(ssl_config),
       user_callback_(NULL),
-      user_buf_(NULL),
       user_buf_len_(0),
       server_cert_error_(0),
       completed_handshake_(false),
@@ -317,7 +316,7 @@ bool SSLClientSocketNSS::IsConnectedAndIdle() const {
   return ret;
 }
 
-int SSLClientSocketNSS::Read(char* buf, int buf_len,
+int SSLClientSocketNSS::Read(IOBuffer* buf, int buf_len,
                              CompletionCallback* callback) {
   EnterFunction(buf_len);
   DCHECK(completed_handshake_);
@@ -336,7 +335,7 @@ int SSLClientSocketNSS::Read(char* buf, int buf_len,
   return rv;
 }
 
-int SSLClientSocketNSS::Write(const char* buf, int buf_len,
+int SSLClientSocketNSS::Write(IOBuffer* buf, int buf_len,
                            CompletionCallback* callback) {
   EnterFunction(buf_len);
   DCHECK(completed_handshake_);
@@ -344,7 +343,7 @@ int SSLClientSocketNSS::Write(const char* buf, int buf_len,
   DCHECK(!user_callback_);
   DCHECK(!user_buf_);
 
-  user_buf_ = const_cast<char*>(buf);
+  user_buf_ = buf;
   user_buf_len_ = buf_len;
 
   GotoState(STATE_PAYLOAD_WRITE);
@@ -405,6 +404,7 @@ void SSLClientSocketNSS::DoCallback(int rv) {
   // since Run may result in Read being called, clear user_callback_ up front.
   CompletionCallback* c = user_callback_;
   user_callback_ = NULL;
+  user_buf_ = NULL;
   c->Run(rv);
   LeaveFunction("");
 }
@@ -428,12 +428,10 @@ static PRErrorCode MapErrorToNSS(int result) {
   return PR_UNKNOWN_ERROR;
 }
 
-/*
- * Do network I/O between the given buffer and the given socket.
- * Return 0 for EOF,
- * > 0 for bytes transferred immediately,
- * < 0 for error (or the non-error ERR_IO_PENDING).
- */
+// Do network I/O between the given buffer and the given socket.
+// Return 0 for EOF,
+// > 0 for bytes transferred immediately,
+// < 0 for error (or the non-error ERR_IO_PENDING).
 int SSLClientSocketNSS::BufferSend(void) {
   if (transport_send_busy_) return ERR_IO_PENDING;
 
@@ -445,7 +443,9 @@ int SSLClientSocketNSS::BufferSend(void) {
   if (!nb) {
     rv = OK;
   } else {
-    rv = transport_->Write(buf, nb, &buffer_send_callback_);
+    scoped_refptr<IOBuffer> send_buffer = new IOBuffer(nb);
+    memcpy(send_buffer->data(), buf, nb);
+    rv = transport_->Write(send_buffer, nb, &buffer_send_callback_);
     if (rv == ERR_IO_PENDING)
       transport_send_busy_ = true;
     else
@@ -476,11 +476,16 @@ int SSLClientSocketNSS::BufferRecv(void) {
     // buffer too full to read into, so no I/O possible at moment
     rv = ERR_IO_PENDING;
   } else {
-    rv = transport_->Read(buf, nb, &buffer_recv_callback_);
-    if (rv == ERR_IO_PENDING)
+    recv_buffer_ = new IOBuffer(nb);
+    rv = transport_->Read(recv_buffer_, nb, &buffer_recv_callback_);
+    if (rv == ERR_IO_PENDING) {
       transport_recv_busy_ = true;
-    else
+    } else {
+      if (rv > 0)
+        memcpy(buf, recv_buffer_->data(), rv);
       memio_PutReadResult(nss_bufs_, MapErrorToNSS(rv));
+      recv_buffer_ = NULL;
+    }
   }
   LeaveFunction(rv);
   return rv;
@@ -488,6 +493,12 @@ int SSLClientSocketNSS::BufferRecv(void) {
 
 void SSLClientSocketNSS::BufferRecvComplete(int result) {
   EnterFunction(result);
+  if (result > 0) {
+    char *buf;
+    memio_GetReadParams(nss_bufs_, &buf);
+    memcpy(buf, recv_buffer_->data(), result);
+  }
+  recv_buffer_ = NULL;
   memio_PutReadResult(nss_bufs_, result);
   transport_recv_busy_ = false;
   OnIOComplete(result);
@@ -607,9 +618,9 @@ int SSLClientSocketNSS::DoHandshakeRead() {
 
 int SSLClientSocketNSS::DoPayloadRead() {
   EnterFunction(user_buf_len_);
-  int rv = PR_Read(nss_fd_, user_buf_, user_buf_len_);
+  int rv = PR_Read(nss_fd_, user_buf_->data(), user_buf_len_);
   if (rv >= 0) {
-    LogData(user_buf_, rv);
+    LogData(user_buf_->data(), rv);
     user_buf_ = NULL;
     LeaveFunction("");
     return rv;
@@ -627,9 +638,9 @@ int SSLClientSocketNSS::DoPayloadRead() {
 
 int SSLClientSocketNSS::DoPayloadWrite() {
   EnterFunction(user_buf_len_);
-  int rv = PR_Write(nss_fd_, user_buf_, user_buf_len_);
+  int rv = PR_Write(nss_fd_, user_buf_->data(), user_buf_len_);
   if (rv >= 0) {
-    LogData(user_buf_, rv);
+    LogData(user_buf_->data(), rv);
     user_buf_ = NULL;
     LeaveFunction("");
     return rv;

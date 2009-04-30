@@ -349,35 +349,43 @@ bool SSLClientSocketMac::IsConnectedAndIdle() const {
   return completed_handshake_ && transport_->IsConnectedAndIdle();
 }
 
-int SSLClientSocketMac::Read(char* buf, int buf_len,
+int SSLClientSocketMac::Read(IOBuffer* buf, int buf_len,
                              CompletionCallback* callback) {
   DCHECK(completed_handshake_);
   DCHECK(next_state_ == STATE_NONE);
   DCHECK(!user_callback_);
+  DCHECK(!user_buf_);
 
   user_buf_ = buf;
   user_buf_len_ = buf_len;
 
   next_state_ = STATE_PAYLOAD_READ;
   int rv = DoLoop(OK);
-  if (rv == ERR_IO_PENDING)
+  if (rv == ERR_IO_PENDING) {
     user_callback_ = callback;
+  } else {
+    user_buf_ = NULL;
+  }
   return rv;
 }
 
-int SSLClientSocketMac::Write(const char* buf, int buf_len,
+int SSLClientSocketMac::Write(IOBuffer* buf, int buf_len,
                               CompletionCallback* callback) {
   DCHECK(completed_handshake_);
   DCHECK(next_state_ == STATE_NONE);
   DCHECK(!user_callback_);
+  DCHECK(!user_buf_);
 
-  user_buf_ = const_cast<char*>(buf);
+  user_buf_ = buf;
   user_buf_len_ = buf_len;
 
   next_state_ = STATE_PAYLOAD_WRITE;
   int rv = DoLoop(OK);
-  if (rv == ERR_IO_PENDING)
+  if (rv == ERR_IO_PENDING) {
     user_callback_ = callback;
+  } else {
+    user_buf_ = NULL;
+  }
   return rv;
 }
 
@@ -419,6 +427,7 @@ void SSLClientSocketMac::DoCallback(int rv) {
   // since Run may result in Read being called, clear user_callback_ up front.
   CompletionCallback* c = user_callback_;
   user_callback_ = NULL;
+  user_buf_ = NULL;
   c->Run(rv);
 }
 
@@ -498,8 +507,14 @@ int SSLClientSocketMac::DoHandshake() {
 }
 
 int SSLClientSocketMac::DoReadComplete(int result) {
-  if (result < 0)
+  if (result < 0) {
+    read_io_buf_ = NULL;
     return result;
+  }
+
+  char* buffer = &recv_buffer_[recv_buffer_.size() - recv_buffer_tail_slop_];
+  memcpy(buffer, read_io_buf_->data(), result);
+  read_io_buf_ = NULL;
 
   recv_buffer_tail_slop_ -= result;
 
@@ -522,7 +537,7 @@ void SSLClientSocketMac::OnWriteComplete(int result) {
 int SSLClientSocketMac::DoPayloadRead() {
   size_t processed;
   OSStatus status = SSLRead(ssl_context_,
-                            user_buf_,
+                            user_buf_->data(),
                             user_buf_len_,
                             &processed);
 
@@ -547,7 +562,7 @@ int SSLClientSocketMac::DoPayloadRead() {
 int SSLClientSocketMac::DoPayloadWrite() {
   size_t processed;
   OSStatus status = SSLWrite(ssl_context_,
-                             user_buf_,
+                             user_buf_->data(),
                              user_buf_len_,
                              &processed);
 
@@ -660,12 +675,15 @@ OSStatus SSLClientSocketMac::SSLReadCallback(SSLConnectionRef connection,
 
   int rv = 1;  // any old value to spin the loop below
   while (rv > 0 && total_read < *data_length) {
-    rv = us->transport_->Read(&us->recv_buffer_[us->recv_buffer_head_slop_ +
-                                                total_read],
-                              us->recv_buffer_tail_slop_,
+    char* buffer = &us->recv_buffer_[us->recv_buffer_head_slop_ + total_read];
+    us->read_io_buf_ = new IOBuffer(*data_length - total_read);
+    rv = us->transport_->Read(us->read_io_buf_,
+                              *data_length - total_read,
                               &us->io_callback_);
 
-    if (rv > 0) {
+    if (rv >= 0) {
+      memcpy(buffer, us->read_io_buf_->data(), rv);
+      us->read_io_buf_ = NULL;
       total_read += rv;
       us->recv_buffer_tail_slop_ -= rv;
     }
@@ -689,6 +707,8 @@ OSStatus SSLClientSocketMac::SSLReadCallback(SSLConnectionRef connection,
 
   if (rv == ERR_IO_PENDING) {
     us->next_io_state_ = STATE_READ_COMPLETE;
+  } else {
+    us->read_io_buf_ = NULL;
   }
 
   if (rv < 0)
@@ -717,7 +737,9 @@ OSStatus SSLClientSocketMac::SSLWriteCallback(SSLConnectionRef connection,
                             static_cast<const char*>(data) + *data_length);
   int rv;
   do {
-    rv = us->transport_->Write(&us->send_buffer_[0],
+    scoped_refptr<IOBuffer> buffer = new IOBuffer(us->send_buffer_.size());
+    memcpy(buffer->data(), &us->send_buffer_[0], us->send_buffer_.size());
+    rv = us->transport_->Write(buffer,
                                us->send_buffer_.size(),
                                &us->write_callback_);
     if (rv > 0) {

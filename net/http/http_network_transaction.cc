@@ -31,6 +31,10 @@ using base::Time;
 
 namespace net {
 
+void HttpNetworkTransaction::ResponseHeaders::Realloc(size_t new_size) {
+  headers_.reset(static_cast<char*>(realloc(headers_.release(), new_size)));
+}
+
 namespace {
 
 void BuildRequestHeaders(const HttpRequestInfo* request_info,
@@ -142,7 +146,9 @@ HttpNetworkTransaction::HttpNetworkTransaction(HttpNetworkSession* session,
       using_tunnel_(false),
       establishing_tunnel_(false),
       reading_body_from_socket_(false),
+      request_headers_(new RequestHeaders()),
       request_headers_bytes_sent_(0),
+      header_buf_(new ResponseHeaders()),
       header_buf_capacity_(0),
       header_buf_len_(0),
       header_buf_body_offset_(-1),
@@ -671,7 +677,7 @@ int HttpNetworkTransaction::DoWriteHeaders() {
 
   // This is constructed lazily (instead of within our Start method), so that
   // we have proxy info available.
-  if (request_headers_.empty()) {
+  if (request_headers_->headers_.empty()) {
     // Figure out if we can/should add Proxy-Authentication & Authentication
     // headers.
     bool have_proxy_auth =
@@ -693,15 +699,14 @@ int HttpNetworkTransaction::DoWriteHeaders() {
           BuildAuthorizationHeader(HttpAuth::AUTH_SERVER));
 
     if (establishing_tunnel_) {
-      BuildTunnelRequest(request_, authorization_headers, &request_headers_);
+      BuildTunnelRequest(request_, authorization_headers,
+                         &request_headers_->headers_);
     } else {
       if (request_->upload_data)
         request_body_stream_.reset(new UploadDataStream(request_->upload_data));
-      BuildRequestHeaders(request_,
-                          authorization_headers,
-                          request_body_stream_.get(),
-                          using_proxy_,
-                          &request_headers_);
+      BuildRequestHeaders(request_, authorization_headers,
+                          request_body_stream_.get(), using_proxy_,
+                          &request_headers_->headers_);
     }
   }
 
@@ -711,12 +716,12 @@ int HttpNetworkTransaction::DoWriteHeaders() {
     response_.request_time = Time::Now();
   }
 
-  const char* buf = request_headers_.data() + request_headers_bytes_sent_;
-  int buf_len = static_cast<int>(request_headers_.size() -
+  request_headers_->SetDataOffset(request_headers_bytes_sent_);
+  int buf_len = static_cast<int>(request_headers_->headers_.size() -
                                  request_headers_bytes_sent_);
   DCHECK_GT(buf_len, 0);
 
-  return connection_.socket()->Write(buf, buf_len, &io_callback_);
+  return connection_.socket()->Write(request_headers_, buf_len, &io_callback_);
 }
 
 int HttpNetworkTransaction::DoWriteHeadersComplete(int result) {
@@ -724,7 +729,7 @@ int HttpNetworkTransaction::DoWriteHeadersComplete(int result) {
     return HandleIOError(result);
 
   request_headers_bytes_sent_ += result;
-  if (request_headers_bytes_sent_ < request_headers_.size()) {
+  if (request_headers_bytes_sent_ < request_headers_->headers_.size()) {
     next_state_ = STATE_WRITE_HEADERS;
   } else if (!establishing_tunnel_ && request_body_stream_.get() &&
              request_body_stream_->size()) {
@@ -743,11 +748,17 @@ int HttpNetworkTransaction::DoWriteBody() {
 
   const char* buf = request_body_stream_->buf();
   int buf_len = static_cast<int>(request_body_stream_->buf_len());
+  DCHECK(!write_buffer_);
+  write_buffer_ = new IOBuffer(buf_len);
+  memcpy(write_buffer_->data(), buf, buf_len);
 
-  return connection_.socket()->Write(buf, buf_len, &io_callback_);
+  return connection_.socket()->Write(write_buffer_, buf_len, &io_callback_);
 }
 
 int HttpNetworkTransaction::DoWriteBodyComplete(int result) {
+  DCHECK(write_buffer_);
+  write_buffer_ = NULL;
+
   if (result < 0)
     return HandleIOError(result);
 
@@ -767,14 +778,13 @@ int HttpNetworkTransaction::DoReadHeaders() {
   // Grow the read buffer if necessary.
   if (header_buf_len_ == header_buf_capacity_) {
     header_buf_capacity_ += kHeaderBufInitialSize;
-    header_buf_.reset(static_cast<char*>(
-        realloc(header_buf_.release(), header_buf_capacity_)));
+    header_buf_->Realloc(header_buf_capacity_);
   }
 
-  char* buf = header_buf_.get() + header_buf_len_;
   int buf_len = header_buf_capacity_ - header_buf_len_;
+  header_buf_->set_data(header_buf_len_);
 
-  return connection_.socket()->Read(buf, buf_len, &io_callback_);
+  return connection_.socket()->Read(header_buf_, buf_len, &io_callback_);
 }
 
 int HttpNetworkTransaction::HandleConnectionClosedBeforeEndOfHeaders() {
@@ -837,12 +847,12 @@ int HttpNetworkTransaction::DoReadHeadersComplete(int result) {
     // Look for the start of the status line, if it hasn't been found yet.
     if (!has_found_status_line_start()) {
       header_buf_http_offset_ = HttpUtil::LocateStartOfStatusLine(
-          header_buf_.get(), header_buf_len_);
+          header_buf_->headers(), header_buf_len_);
     }
 
     if (has_found_status_line_start()) {
       int eoh = HttpUtil::LocateEndOfHeaders(
-          header_buf_.get(), header_buf_len_, header_buf_http_offset_);
+          header_buf_->headers(), header_buf_len_, header_buf_http_offset_);
       if (eoh == -1) {
         // Prevent growing the headers buffer indefinitely.
         if (header_buf_len_ >= kMaxHeaderBufSize)
@@ -881,12 +891,13 @@ int HttpNetworkTransaction::DoReadBody() {
     return 0;
 
   // We may have some data remaining in the header buffer.
-  if (header_buf_.get() && header_buf_body_offset_ < header_buf_len_) {
+  if (header_buf_->headers() && header_buf_body_offset_ < header_buf_len_) {
     int n = std::min(read_buf_len_, header_buf_len_ - header_buf_body_offset_);
-    memcpy(read_buf_->data(), header_buf_.get() + header_buf_body_offset_, n);
+    memcpy(read_buf_->data(), header_buf_->headers() + header_buf_body_offset_,
+           n);
     header_buf_body_offset_ += n;
     if (header_buf_body_offset_ == header_buf_len_) {
-      header_buf_.reset();
+      header_buf_->Reset();
       header_buf_capacity_ = 0;
       header_buf_len_ = 0;
       header_buf_body_offset_ = -1;
@@ -895,8 +906,7 @@ int HttpNetworkTransaction::DoReadBody() {
   }
 
   reading_body_from_socket_ = true;
-  return connection_.socket()->Read(read_buf_->data(), read_buf_len_,
-                                    &io_callback_);
+  return connection_.socket()->Read(read_buf_, read_buf_len_, &io_callback_);
 }
 
 int HttpNetworkTransaction::DoReadBodyComplete(int result) {
@@ -1120,7 +1130,7 @@ int HttpNetworkTransaction::DidReadResponseHeaders() {
   if (has_found_status_line_start()) {
     headers = new HttpResponseHeaders(
         HttpUtil::AssembleRawHeaders(
-            header_buf_.get(), header_buf_body_offset_));
+            header_buf_->headers(), header_buf_body_offset_));
   } else {
     // Fabricate a status line to to preserve the HTTP/0.9 version.
     // (otherwise HttpResponseHeaders will default it to HTTP/1.0).
@@ -1148,7 +1158,7 @@ int HttpNetworkTransaction::DidReadResponseHeaders() {
         }
         next_state_ = STATE_SSL_CONNECT;
         // Reset for the real request and response headers.
-        request_headers_.clear();
+        request_headers_->headers_.clear();
         request_headers_bytes_sent_ = 0;
         header_buf_len_ = 0;
         header_buf_body_offset_ = 0;
@@ -1188,7 +1198,8 @@ int HttpNetworkTransaction::DidReadResponseHeaders() {
     // If we've already received some bytes after the 1xx response,
     // move them to the beginning of header_buf_.
     if (header_buf_len_) {
-      memmove(header_buf_.get(), header_buf_.get() + header_buf_body_offset_,
+      memmove(header_buf_->headers(),
+              header_buf_->headers() + header_buf_body_offset_,
               header_buf_len_);
     }
     header_buf_body_offset_ = -1;
@@ -1329,7 +1340,7 @@ int HttpNetworkTransaction::HandleIOError(int error) {
 
 void HttpNetworkTransaction::ResetStateForRestart() {
   pending_auth_target_ = HttpAuth::AUTH_NONE;
-  header_buf_.reset();
+  header_buf_->Reset();
   header_buf_capacity_ = 0;
   header_buf_len_ = 0;
   header_buf_body_offset_ = -1;
@@ -1338,7 +1349,7 @@ void HttpNetworkTransaction::ResetStateForRestart() {
   response_body_read_ = 0;
   read_buf_ = NULL;
   read_buf_len_ = 0;
-  request_headers_.clear();
+  request_headers_->headers_.clear();
   request_headers_bytes_sent_ = 0;
   chunked_decoder_.reset();
   // Reset all the members of response_.
@@ -1365,7 +1376,7 @@ void HttpNetworkTransaction::ResetConnectionAndRequestForResend() {
   // first to recreate the SSL tunnel.  2) An empty request_headers_ causes
   // BuildRequestHeaders to be called, which rewinds request_body_stream_ to
   // the beginning of request_->upload_data.
-  request_headers_.clear();
+  request_headers_->headers_.clear();
   request_headers_bytes_sent_ = 0;
   next_state_ = STATE_INIT_CONNECTION;  // Resend the request.
 }

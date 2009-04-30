@@ -220,7 +220,11 @@ TEST_F(SSLClientSocketTest, MAYBE_Read) {
   EXPECT_TRUE(sock->IsConnected());
 
   const char request_text[] = "GET / HTTP/1.0\r\n\r\n";
-  rv = sock->Write(request_text, arraysize(request_text) - 1, &callback);
+  scoped_refptr<net::IOBuffer> request_buffer =
+      new net::IOBuffer(arraysize(request_text) - 1);
+  memcpy(request_buffer->data(), request_text, arraysize(request_text) - 1);
+
+  rv = sock->Write(request_buffer, arraysize(request_text) - 1, &callback);
   EXPECT_TRUE(rv >= 0 || rv == net::ERR_IO_PENDING);
 
   if (rv == net::ERR_IO_PENDING) {
@@ -228,9 +232,9 @@ TEST_F(SSLClientSocketTest, MAYBE_Read) {
     EXPECT_EQ(static_cast<int>(arraysize(request_text) - 1), rv);
   }
 
-  char buf[4096];
+  scoped_refptr<net::IOBuffer> buf = new net::IOBuffer(4096);
   for (;;) {
-    rv = sock->Read(buf, sizeof(buf), &callback);
+    rv = sock->Read(buf, 4096, &callback);
     EXPECT_TRUE(rv >= 0 || rv == net::ERR_IO_PENDING);
 
     if (rv == net::ERR_IO_PENDING)
@@ -272,7 +276,11 @@ TEST_F(SSLClientSocketTest, MAYBE_Read_SmallChunks) {
   }
 
   const char request_text[] = "GET / HTTP/1.0\r\n\r\n";
-  rv = sock->Write(request_text, arraysize(request_text) - 1, &callback);
+  scoped_refptr<net::IOBuffer> request_buffer =
+      new net::IOBuffer(arraysize(request_text) - 1);
+  memcpy(request_buffer->data(), request_text, arraysize(request_text) - 1);
+
+  rv = sock->Write(request_buffer, arraysize(request_text) - 1, &callback);
   EXPECT_TRUE(rv >= 0 || rv == net::ERR_IO_PENDING);
 
   if (rv == net::ERR_IO_PENDING) {
@@ -280,9 +288,9 @@ TEST_F(SSLClientSocketTest, MAYBE_Read_SmallChunks) {
     EXPECT_EQ(static_cast<int>(arraysize(request_text) - 1), rv);
   }
 
-  char buf[1];
+  scoped_refptr<net::IOBuffer> buf = new net::IOBuffer(1);
   for (;;) {
-    rv = sock->Read(buf, sizeof(buf), &callback);
+    rv = sock->Read(buf, 1, &callback);
     EXPECT_TRUE(rv >= 0 || rv == net::ERR_IO_PENDING);
 
     if (rv == net::ERR_IO_PENDING)
@@ -324,7 +332,11 @@ TEST_F(SSLClientSocketTest, MAYBE_Read_Interrupted) {
   }
 
   const char request_text[] = "GET / HTTP/1.0\r\n\r\n";
-  rv = sock->Write(request_text, arraysize(request_text) - 1, &callback);
+  scoped_refptr<net::IOBuffer> request_buffer =
+      new net::IOBuffer(arraysize(request_text) - 1);
+  memcpy(request_buffer->data(), request_text, arraysize(request_text) - 1);
+
+  rv = sock->Write(request_buffer, arraysize(request_text) - 1, &callback);
   EXPECT_TRUE(rv >= 0 || rv == net::ERR_IO_PENDING);
 
   if (rv == net::ERR_IO_PENDING) {
@@ -333,8 +345,8 @@ TEST_F(SSLClientSocketTest, MAYBE_Read_Interrupted) {
   }
 
   // Do a partial read and then exit.  This test should not crash!
-  char buf[512];
-  rv = sock->Read(buf, sizeof(buf), &callback);
+  scoped_refptr<net::IOBuffer> buf = new net::IOBuffer(512);
+  rv = sock->Read(buf, 512, &callback);
   EXPECT_TRUE(rv >= 0 || rv == net::ERR_IO_PENDING);
 
   if (rv == net::ERR_IO_PENDING)

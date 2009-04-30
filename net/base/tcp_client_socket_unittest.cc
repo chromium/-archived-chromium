@@ -103,7 +103,11 @@ TEST_F(TCPClientSocketTest, Read) {
   }
 
   const char request_text[] = "GET / HTTP/1.0\r\n\r\n";
-  rv = sock_->Write(request_text, arraysize(request_text) - 1, &callback);
+  scoped_refptr<net::IOBuffer> request_buffer =
+      new net::IOBuffer(arraysize(request_text) - 1);
+  memcpy(request_buffer->data(), request_text, arraysize(request_text) - 1);
+
+  rv = sock_->Write(request_buffer, arraysize(request_text) - 1, &callback);
   EXPECT_TRUE(rv >= 0 || rv == net::ERR_IO_PENDING);
 
   if (rv == net::ERR_IO_PENDING) {
@@ -111,9 +115,9 @@ TEST_F(TCPClientSocketTest, Read) {
     EXPECT_EQ(rv, static_cast<int>(arraysize(request_text) - 1));
   }
 
-  char buf[4096];
+  scoped_refptr<net::IOBuffer> buf = new net::IOBuffer(4096);
   for (;;) {
-    rv = sock_->Read(buf, sizeof(buf), &callback);
+    rv = sock_->Read(buf, 4096, &callback);
     EXPECT_TRUE(rv >= 0 || rv == net::ERR_IO_PENDING);
 
     if (rv == net::ERR_IO_PENDING)
@@ -136,7 +140,11 @@ TEST_F(TCPClientSocketTest, Read_SmallChunks) {
   }
 
   const char request_text[] = "GET / HTTP/1.0\r\n\r\n";
-  rv = sock_->Write(request_text, arraysize(request_text) - 1, &callback);
+  scoped_refptr<net::IOBuffer> request_buffer =
+      new net::IOBuffer(arraysize(request_text) - 1);
+  memcpy(request_buffer->data(), request_text, arraysize(request_text) - 1);
+
+  rv = sock_->Write(request_buffer, arraysize(request_text) - 1, &callback);
   EXPECT_TRUE(rv >= 0 || rv == net::ERR_IO_PENDING);
 
   if (rv == net::ERR_IO_PENDING) {
@@ -144,9 +152,9 @@ TEST_F(TCPClientSocketTest, Read_SmallChunks) {
     EXPECT_EQ(rv, static_cast<int>(arraysize(request_text) - 1));
   }
 
-  char buf[1];
+  scoped_refptr<net::IOBuffer> buf = new net::IOBuffer(1);
   for (;;) {
-    rv = sock_->Read(buf, sizeof(buf), &callback);
+    rv = sock_->Read(buf, 1, &callback);
     EXPECT_TRUE(rv >= 0 || rv == net::ERR_IO_PENDING);
 
     if (rv == net::ERR_IO_PENDING)
@@ -169,7 +177,11 @@ TEST_F(TCPClientSocketTest, Read_Interrupted) {
   }
 
   const char request_text[] = "GET / HTTP/1.0\r\n\r\n";
-  rv = sock_->Write(request_text, arraysize(request_text) - 1, &callback);
+  scoped_refptr<net::IOBuffer> request_buffer =
+      new net::IOBuffer(arraysize(request_text) - 1);
+  memcpy(request_buffer->data(), request_text, arraysize(request_text) - 1);
+
+  rv = sock_->Write(request_buffer, arraysize(request_text) - 1, &callback);
   EXPECT_TRUE(rv >= 0 || rv == net::ERR_IO_PENDING);
 
   if (rv == net::ERR_IO_PENDING) {
@@ -178,8 +190,8 @@ TEST_F(TCPClientSocketTest, Read_Interrupted) {
   }
 
   // Do a partial read and then exit.  This test should not crash!
-  char buf[512];
-  rv = sock_->Read(buf, sizeof(buf), &callback);
+  scoped_refptr<net::IOBuffer> buf = new net::IOBuffer(512);
+  rv = sock_->Read(buf, 512, &callback);
   EXPECT_TRUE(rv >= 0 || rv == net::ERR_IO_PENDING);
 
   if (rv == net::ERR_IO_PENDING)
@@ -198,13 +210,19 @@ TEST_F(TCPClientSocketTest, FullDuplex_ReadFirst) {
     EXPECT_EQ(rv, net::OK);
   }
 
-  char buf[4096];
-  rv = sock_->Read(buf, sizeof(buf), &callback);
+  const int kBufLen = 4096;
+  scoped_refptr<net::IOBuffer> buf = new net::IOBuffer(kBufLen);
+  rv = sock_->Read(buf, kBufLen, &callback);
   EXPECT_EQ(net::ERR_IO_PENDING, rv);
 
   const char request_text[] = "GET / HTTP/1.0\r\n\r\n";
+  scoped_refptr<net::IOBuffer> request_buffer =
+      new net::IOBuffer(arraysize(request_text) - 1);
+  memcpy(request_buffer->data(), request_text, arraysize(request_text) - 1);
   TestCompletionCallback write_callback;
-  rv = sock_->Write(request_text, arraysize(request_text) - 1, &write_callback);
+
+  rv = sock_->Write(request_buffer, arraysize(request_text) - 1,
+                    &write_callback);
   EXPECT_TRUE(rv >= 0 || rv == net::ERR_IO_PENDING);
 
   if (rv == net::ERR_IO_PENDING) {
@@ -215,7 +233,7 @@ TEST_F(TCPClientSocketTest, FullDuplex_ReadFirst) {
   rv = callback.WaitForResult();
   EXPECT_GE(rv, 0);
   while (rv > 0) {
-    rv = sock_->Read(buf, sizeof(buf), &callback);
+    rv = sock_->Read(buf, kBufLen, &callback);
     EXPECT_TRUE(rv >= 0 || rv == net::ERR_IO_PENDING);
 
     if (rv == net::ERR_IO_PENDING)
@@ -238,12 +256,18 @@ TEST_F(TCPClientSocketTest, FullDuplex_WriteFirst) {
   }
 
   const char request_text[] = "GET / HTTP/1.0\r\n\r\n";
+  scoped_refptr<net::IOBuffer> request_buffer =
+      new net::IOBuffer(arraysize(request_text) - 1);
+  memcpy(request_buffer->data(), request_text, arraysize(request_text) - 1);
   TestCompletionCallback write_callback;
-  rv = sock_->Write(request_text, arraysize(request_text) - 1, &write_callback);
+
+  rv = sock_->Write(request_buffer, arraysize(request_text) - 1,
+                    &write_callback);
   EXPECT_TRUE(rv >= 0 || rv == net::ERR_IO_PENDING);
 
-  char buf[4096];
-  int read_rv = sock_->Read(buf, sizeof(buf), &callback);
+  const int kBufLen = 4096;
+  scoped_refptr<net::IOBuffer> buf = new net::IOBuffer(kBufLen);
+  int read_rv = sock_->Read(buf, kBufLen, &callback);
   EXPECT_TRUE(read_rv >= 0 || read_rv == net::ERR_IO_PENDING);
 
   if (rv == net::ERR_IO_PENDING) {
@@ -254,7 +278,7 @@ TEST_F(TCPClientSocketTest, FullDuplex_WriteFirst) {
   rv = callback.WaitForResult();
   EXPECT_GE(rv, 0);
   while (rv > 0) {
-    rv = sock_->Read(buf, sizeof(buf), &callback);
+    rv = sock_->Read(buf, kBufLen, &callback);
     EXPECT_TRUE(rv >= 0 || rv == net::ERR_IO_PENDING);
 
     if (rv == net::ERR_IO_PENDING)

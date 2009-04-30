@@ -55,6 +55,38 @@ class HttpNetworkTransaction : public HttpTransaction {
  private:
   FRIEND_TEST(HttpNetworkTransactionTest, ResetStateForRestart);
 
+  // This version of IOBuffer lets us use a string as the real storage and
+  // "move" the data pointer inside the string before using it to do actual IO.
+  class RequestHeaders : public net::IOBuffer {
+   public:
+    RequestHeaders() : net::IOBuffer() {}
+    ~RequestHeaders() { data_ = NULL; }
+
+    void SetDataOffset(size_t offset) {
+      data_ = const_cast<char*>(headers_.data()) + offset;
+    }
+
+    // This is intentionally a public member.
+    std::string headers_;
+  };
+
+  // This version of IOBuffer lets us use a malloc'ed buffer as the real storage
+  // and "move" the data pointer inside the buffer before using it to do actual
+  // IO.
+  class ResponseHeaders : public net::IOBuffer {
+   public:
+    ResponseHeaders() : net::IOBuffer() {}
+    ~ResponseHeaders() { data_ = NULL; }
+
+    void set_data(size_t offset) { data_ = headers_.get() + offset; }
+    char* headers() { return headers_.get(); }
+    void Reset() { headers_.reset(); }
+    void Realloc(size_t new_size);
+
+   private:
+    scoped_ptr_malloc<char> headers_;
+  };
+
   void DoCallback(int result);
   void OnIOComplete(int result);
 
@@ -276,15 +308,16 @@ class HttpNetworkTransaction : public HttpTransaction {
 
   SSLConfig ssl_config_;
 
-  std::string request_headers_;
+  scoped_refptr<RequestHeaders> request_headers_;
   size_t request_headers_bytes_sent_;
   scoped_ptr<UploadDataStream> request_body_stream_;
+  scoped_refptr<IOBuffer> write_buffer_;
 
   // The read buffer may be larger than it is full.  The 'capacity' indicates
   // the allocation size of the buffer, and the 'len' indicates how much data
   // is in the buffer already.  The 'body offset' indicates the offset of the
   // start of the response body within the read buffer.
-  scoped_ptr_malloc<char> header_buf_;
+  scoped_refptr<ResponseHeaders> header_buf_;
   int header_buf_capacity_;
   int header_buf_len_;
   int header_buf_body_offset_;

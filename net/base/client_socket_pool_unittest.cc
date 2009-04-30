@@ -43,11 +43,11 @@ class MockClientSocket : public net::ClientSocket {
   }
 
   // Socket methods:
-  virtual int Read(char* buf, int buf_len,
+  virtual int Read(net::IOBuffer* buf, int buf_len,
                    net::CompletionCallback* callback) {
     return net::ERR_FAILED;
   }
-  virtual int Write(const char* buf, int buf_len,
+  virtual int Write(net::IOBuffer* buf, int buf_len,
                     net::CompletionCallback* callback) {
     return net::ERR_FAILED;
   }

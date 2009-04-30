@@ -39,8 +39,8 @@ class SSLClientSocketMac : public SSLClientSocket {
   virtual bool IsConnectedAndIdle() const;
 
   // Socket methods:
-  virtual int Read(char* buf, int buf_len, CompletionCallback* callback);
-  virtual int Write(const char* buf, int buf_len, CompletionCallback* callback);
+  virtual int Read(IOBuffer* buf, int buf_len, CompletionCallback* callback);
+  virtual int Write(IOBuffer* buf, int buf_len, CompletionCallback* callback);
 
  private:
   void DoCallback(int result);
@@ -70,7 +70,7 @@ class SSLClientSocketMac : public SSLClientSocket {
   CompletionCallback* user_callback_;
 
   // Used by both Read and Write functions.
-  char* user_buf_;
+  scoped_refptr<IOBuffer> user_buf_;
   int user_buf_len_;
 
   enum State {
@@ -96,6 +96,10 @@ class SSLClientSocketMac : public SSLClientSocket {
   std::vector<char> recv_buffer_;
   int recv_buffer_head_slop_;
   int recv_buffer_tail_slop_;
+
+  // This buffer holds data for Read() operations on the underlying transport
+  // (ClientSocket::Read()).
+  scoped_refptr<IOBuffer> read_io_buf_;
 };
 
 }  // namespace net

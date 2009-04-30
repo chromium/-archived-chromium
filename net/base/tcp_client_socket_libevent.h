@@ -36,8 +36,8 @@ class TCPClientSocketLibevent : public ClientSocket,
   // Socket methods:
   // Multiple outstanding requests are not supported.
   // Full duplex mode (reading and writing at the same time) is supported
-  virtual int Read(char* buf, int buf_len, CompletionCallback* callback);
-  virtual int Write(const char* buf, int buf_len, CompletionCallback* callback);
+  virtual int Read(IOBuffer* buf, int buf_len, CompletionCallback* callback);
+  virtual int Write(IOBuffer* buf, int buf_len, CompletionCallback* callback);
 
   // Identical to posix system call of same name
   // Needed by ssl_client_socket_nss
@@ -71,11 +71,11 @@ class TCPClientSocketLibevent : public ClientSocket,
   MessageLoopForIO::FileDescriptorWatcher socket_watcher_;
 
   // The buffer used by OnSocketReady to retry Read requests
-  char* read_buf_;
+  scoped_refptr<IOBuffer> read_buf_;
   int read_buf_len_;
 
   // The buffer used by OnSocketReady to retry Write requests
-  const char* write_buf_;
+  scoped_refptr<IOBuffer> write_buf_;
   int write_buf_len_;
 
   // External callback; called when read is complete.

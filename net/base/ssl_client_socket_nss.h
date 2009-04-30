@@ -41,8 +41,8 @@ class SSLClientSocketNSS : public SSLClientSocket {
   virtual bool IsConnectedAndIdle() const;
 
   // Socket methods:
-  virtual int Read(char* buf, int buf_len, CompletionCallback* callback);
-  virtual int Write(const char* buf, int buf_len, CompletionCallback* callback);
+  virtual int Read(IOBuffer* buf, int buf_len, CompletionCallback* callback);
+  virtual int Write(IOBuffer* buf, int buf_len, CompletionCallback* callback);
 
  private:
   void InvalidateSessionIfBadCertificate();
@@ -72,6 +72,7 @@ class SSLClientSocketNSS : public SSLClientSocket {
   CompletionCallbackImpl<SSLClientSocketNSS> buffer_recv_callback_;
   bool transport_send_busy_;
   bool transport_recv_busy_;
+  scoped_refptr<IOBuffer> recv_buffer_;
 
   CompletionCallbackImpl<SSLClientSocketNSS> io_callback_;
   scoped_ptr<ClientSocket> transport_;
@@ -81,7 +82,7 @@ class SSLClientSocketNSS : public SSLClientSocket {
   CompletionCallback* user_callback_;
 
   // Used by both Read and Write functions.
-  char* user_buf_;
+  scoped_refptr<IOBuffer> user_buf_;
   int user_buf_len_;
 
   // Set when handshake finishes.  Value is net error code, see net_errors.h

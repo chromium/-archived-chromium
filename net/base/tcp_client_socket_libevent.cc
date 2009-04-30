@@ -172,7 +172,7 @@ bool TCPClientSocketLibevent::IsConnectedAndIdle() const {
   return true;
 }
 
-int TCPClientSocketLibevent::Read(char* buf,
+int TCPClientSocketLibevent::Read(IOBuffer* buf,
                                   int buf_len,
                                   CompletionCallback* callback) {
   DCHECK_NE(kInvalidSocket, socket_);
@@ -183,7 +183,7 @@ int TCPClientSocketLibevent::Read(char* buf,
   DCHECK_GT(buf_len, 0);
 
   TRACE_EVENT_BEGIN("socket.read", this, "");
-  int nread = read(socket_, buf, buf_len);
+  int nread = read(socket_, buf->data(), buf_len);
   if (nread >= 0) {
     TRACE_EVENT_END("socket.read", this, StringPrintf("%d bytes", nread));
     return nread;
@@ -206,7 +206,7 @@ int TCPClientSocketLibevent::Read(char* buf,
   return ERR_IO_PENDING;
 }
 
-int TCPClientSocketLibevent::Write(const char* buf,
+int TCPClientSocketLibevent::Write(IOBuffer* buf,
                                    int buf_len,
                                    CompletionCallback* callback) {
   DCHECK_NE(kInvalidSocket, socket_);
@@ -217,7 +217,7 @@ int TCPClientSocketLibevent::Write(const char* buf,
   DCHECK_GT(buf_len, 0);
 
   TRACE_EVENT_BEGIN("socket.write", this, "");
-  int nwrite = write(socket_, buf, buf_len);
+  int nwrite = write(socket_, buf->data(), buf_len);
   if (nwrite >= 0) {
     TRACE_EVENT_END("socket.write", this, StringPrintf("%d bytes", nwrite));
     return nwrite;
@@ -309,7 +309,7 @@ void TCPClientSocketLibevent::DidCompleteConnect() {
 
 void TCPClientSocketLibevent::DidCompleteRead() {
   int bytes_transferred;
-  bytes_transferred = read(socket_, read_buf_, read_buf_len_);
+  bytes_transferred = read(socket_, read_buf_->data(), read_buf_len_);
 
   int result;
   if (bytes_transferred >= 0) {
@@ -330,7 +330,7 @@ void TCPClientSocketLibevent::DidCompleteRead() {
 
 void TCPClientSocketLibevent::DidCompleteWrite() {
   int bytes_transferred;
-  bytes_transferred = write(socket_, write_buf_, write_buf_len_);
+  bytes_transferred = write(socket_, write_buf_->data(), write_buf_len_);
 
   int result;
   if (bytes_transferred >= 0) {

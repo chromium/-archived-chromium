@@ -32,8 +32,8 @@ class TCPClientSocketWin : public ClientSocket {
   // Socket methods:
   // Multiple outstanding requests are not supported.
   // Full duplex mode (reading and writing at the same time) is supported
-  virtual int Read(char* buf, int buf_len, CompletionCallback* callback);
-  virtual int Write(const char* buf, int buf_len, CompletionCallback* callback);
+  virtual int Read(IOBuffer* buf, int buf_len, CompletionCallback* callback);
+  virtual int Write(IOBuffer* buf, int buf_len, CompletionCallback* callback);
 
  private:
   class ReadDelegate : public base::ObjectWatcher::Delegate {
@@ -89,6 +89,8 @@ class TCPClientSocketWin : public ClientSocket {
   // The buffers used in Read() and Write().
   WSABUF read_buffer_;
   WSABUF write_buffer_;
+  scoped_refptr<IOBuffer> read_iobuffer_;
+  scoped_refptr<IOBuffer> write_iobuffer_;
 
   // |reader_| handles the signals from |read_watcher_|.
   ReadDelegate reader_;

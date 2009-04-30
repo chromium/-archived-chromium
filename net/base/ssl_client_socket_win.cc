@@ -212,7 +212,6 @@ SSLClientSocketWin::SSLClientSocketWin(ClientSocket* transport_socket,
       hostname_(hostname),
       ssl_config_(ssl_config),
       user_callback_(NULL),
-      user_buf_(NULL),
       user_buf_len_(0),
       next_state_(STATE_NONE),
       creds_(NULL),
@@ -363,7 +362,7 @@ bool SSLClientSocketWin::IsConnectedAndIdle() const {
   return completed_handshake_ && transport_->IsConnectedAndIdle();
 }
 
-int SSLClientSocketWin::Read(char* buf, int buf_len,
+int SSLClientSocketWin::Read(IOBuffer* buf, int buf_len,
                              CompletionCallback* callback) {
   DCHECK(completed_handshake_);
   DCHECK(next_state_ == STATE_NONE);
@@ -373,7 +372,7 @@ int SSLClientSocketWin::Read(char* buf, int buf_len,
   // reading more ciphertext from the transport socket.
   if (bytes_decrypted_ != 0) {
     int len = std::min(buf_len, bytes_decrypted_);
-    memcpy(buf, decrypted_ptr_, len);
+    memcpy(buf->data(), decrypted_ptr_, len);
     decrypted_ptr_ += len;
     bytes_decrypted_ -= len;
     if (bytes_decrypted_ == 0) {
@@ -386,29 +385,37 @@ int SSLClientSocketWin::Read(char* buf, int buf_len,
     return len;
   }
 
+  DCHECK(!user_buf_);
   user_buf_ = buf;
   user_buf_len_ = buf_len;
 
   SetNextStateForRead();
   int rv = DoLoop(OK);
-  if (rv == ERR_IO_PENDING)
+  if (rv == ERR_IO_PENDING) {
     user_callback_ = callback;
+  } else {
+    user_buf_ = NULL;
+  }
   return rv;
 }
 
-int SSLClientSocketWin::Write(const char* buf, int buf_len,
+int SSLClientSocketWin::Write(IOBuffer* buf, int buf_len,
                               CompletionCallback* callback) {
   DCHECK(completed_handshake_);
   DCHECK(next_state_ == STATE_NONE);
   DCHECK(!user_callback_);
 
-  user_buf_ = const_cast<char*>(buf);
+  DCHECK(!user_buf_);
+  user_buf_ = buf;
   user_buf_len_ = buf_len;
 
   next_state_ = STATE_PAYLOAD_ENCRYPT;
   int rv = DoLoop(OK);
-  if (rv == ERR_IO_PENDING)
+  if (rv == ERR_IO_PENDING) {
     user_callback_ = callback;
+  } else {
+    user_buf_ = NULL;
+  }
   return rv;
 }
 
@@ -419,6 +426,7 @@ void SSLClientSocketWin::DoCallback(int rv) {
   // since Run may result in Read being called, clear user_callback_ up front.
   CompletionCallback* c = user_callback_;
   user_callback_ = NULL;
+  user_buf_ = NULL;
   c->Run(rv);
 }
 
@@ -483,7 +491,6 @@ int SSLClientSocketWin::DoHandshakeRead() {
   if (!recv_buffer_.get())
     recv_buffer_.reset(new char[kRecvBufferSize]);
 
-  char* buf = recv_buffer_.get() + bytes_received_;
   int buf_len = kRecvBufferSize - bytes_received_;
 
   if (buf_len <= 0) {
@@ -491,12 +498,23 @@ int SSLClientSocketWin::DoHandshakeRead() {
     return ERR_UNEXPECTED;
   }
 
-  return transport_->Read(buf, buf_len, &io_callback_);
+  DCHECK(!transport_buf_);
+  transport_buf_ = new IOBuffer(buf_len);
+
+  return transport_->Read(transport_buf_, buf_len, &io_callback_);
 }
 
 int SSLClientSocketWin::DoHandshakeReadComplete(int result) {
-  if (result < 0)
+  DCHECK(transport_buf_);
+  if (result < 0) {
+    transport_buf_ = NULL;
     return result;
+  }
+  DCHECK_LE(result, kRecvBufferSize - bytes_received_);
+  char* buf = recv_buffer_.get() + bytes_received_;
+  memcpy(buf, transport_buf_->data(), result);
+  transport_buf_ = NULL;
+
   if (result == 0 && !ignore_ok_result_)
     return ERR_SSL_PROTOCOL_ERROR;  // Incomplete response :(
 
@@ -624,14 +642,19 @@ int SSLClientSocketWin::DoHandshakeWrite() {
   // We should have something to send.
   DCHECK(send_buffer_.pvBuffer);
   DCHECK(send_buffer_.cbBuffer > 0);
+  DCHECK(!transport_buf_);
 
   const char* buf = static_cast<char*>(send_buffer_.pvBuffer) + bytes_sent_;
   int buf_len = send_buffer_.cbBuffer - bytes_sent_;
+  transport_buf_ = new IOBuffer(buf_len);
+  memcpy(transport_buf_->data(), buf, buf_len);
 
-  return transport_->Write(buf, buf_len, &io_callback_);
+  return transport_->Write(transport_buf_, buf_len, &io_callback_);
 }
 
 int SSLClientSocketWin::DoHandshakeWriteComplete(int result) {
+  DCHECK(transport_buf_);
+  transport_buf_ = NULL;
   if (result < 0)
     return result;
 
@@ -703,7 +726,6 @@ int SSLClientSocketWin::DoPayloadRead() {
 
   DCHECK(recv_buffer_.get());
 
-  char* buf = recv_buffer_.get() + bytes_received_;
   int buf_len = kRecvBufferSize - bytes_received_;
 
   if (buf_len <= 0) {
@@ -711,12 +733,28 @@ int SSLClientSocketWin::DoPayloadRead() {
     return ERR_FAILED;
   }
 
-  return transport_->Read(buf, buf_len, &io_callback_);
+  DCHECK(!transport_buf_);
+  transport_buf_ = new IOBuffer(buf_len);
+
+  return transport_->Read(transport_buf_, buf_len, &io_callback_);
 }
 
 int SSLClientSocketWin::DoPayloadReadComplete(int result) {
-  if (result < 0)
+  if (result < 0) {
+    transport_buf_ = NULL;
     return result;
+  }
+  if (transport_buf_) {
+    // This method is called after a state transition following DoPayloadRead(),
+    // or if SetNextStateForRead() was called. We have a transport_buf_ only
+    // in the first case, and we have to transfer the data from transport_buf_
+    // to recv_buffer_.
+    DCHECK_LE(result, kRecvBufferSize - bytes_received_);
+    char* buf = recv_buffer_.get() + bytes_received_;
+    memcpy(buf, transport_buf_->data(), result);
+    transport_buf_ = NULL;
+  }
+
   if (result == 0 && !ignore_ok_result_) {
     // TODO(wtc): Unless we have received the close_notify alert, we need to
     // return an error code indicating that the SSL connection ended
@@ -785,7 +823,7 @@ int SSLClientSocketWin::DoPayloadReadComplete(int result) {
   int len = 0;
   if (bytes_decrypted_ != 0) {
     len = std::min(user_buf_len_, bytes_decrypted_);
-    memcpy(user_buf_, decrypted_ptr_, len);
+    memcpy(user_buf_->data(), decrypted_ptr_, len);
     decrypted_ptr_ += len;
     bytes_decrypted_ -= len;
   }
@@ -845,7 +883,7 @@ int SSLClientSocketWin::DoPayloadEncrypt() {
 
   payload_send_buffer_.reset(new char[alloc_len]);
   memcpy(&payload_send_buffer_[stream_sizes_.cbHeader],
-         user_buf_, message_len);
+         user_buf_->data(), message_len);
 
   SecBuffer buffers[4];
   buffers[0].pvBuffer = payload_send_buffer_.get();
@@ -888,14 +926,19 @@ int SSLClientSocketWin::DoPayloadWrite() {
   // We should have something to send.
   DCHECK(payload_send_buffer_.get());
   DCHECK(payload_send_buffer_len_ > 0);
+  DCHECK(!transport_buf_);
 
   const char* buf = payload_send_buffer_.get() + bytes_sent_;
   int buf_len = payload_send_buffer_len_ - bytes_sent_;
+  transport_buf_ = new IOBuffer(buf_len);
+  memcpy(transport_buf_->data(), buf, buf_len);
 
-  return transport_->Write(buf, buf_len, &io_callback_);
+  return transport_->Write(transport_buf_, buf_len, &io_callback_);
 }
 
 int SSLClientSocketWin::DoPayloadWriteComplete(int result) {
+  DCHECK(transport_buf_);
+  transport_buf_ = NULL;
   if (result < 0)
     return result;
 

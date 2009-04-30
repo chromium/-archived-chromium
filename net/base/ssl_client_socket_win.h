@@ -44,8 +44,8 @@ class SSLClientSocketWin : public SSLClientSocket {
   virtual bool IsConnectedAndIdle() const;
 
   // Socket methods:
-  virtual int Read(char* buf, int buf_len, CompletionCallback* callback);
-  virtual int Write(const char* buf, int buf_len, CompletionCallback* callback);
+  virtual int Read(IOBuffer* buf, int buf_len, CompletionCallback* callback);
+  virtual int Write(IOBuffer* buf, int buf_len, CompletionCallback* callback);
 
  private:
   void DoCallback(int result);
@@ -78,8 +78,11 @@ class SSLClientSocketWin : public SSLClientSocket {
   CompletionCallback* user_callback_;
 
   // Used by both Read and Write functions.
-  char* user_buf_;
+  scoped_refptr<IOBuffer> user_buf_;
   int user_buf_len_;
+
+  // Used to Read and Write using transport_.
+  scoped_refptr<IOBuffer> transport_buf_;
 
   enum State {
     STATE_NONE,

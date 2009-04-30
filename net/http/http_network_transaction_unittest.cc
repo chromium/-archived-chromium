@@ -118,9 +118,9 @@ class MockClientSocket : public SSLClientSocket {
     return connected_;
   }
   // Socket methods:
-  virtual int Read(char* buf, int buf_len,
+  virtual int Read(IOBuffer* buf, int buf_len,
                    CompletionCallback* callback) = 0;
-  virtual int Write(const char* buf, int buf_len,
+  virtual int Write(IOBuffer* buf, int buf_len,
                     CompletionCallback* callback) = 0;
 
 #if defined(OS_LINUX)
@@ -175,14 +175,14 @@ class MockTCPClientSocket : public MockClientSocket {
   }
 
   // Socket methods:
-  virtual int Read(char* buf, int buf_len, CompletionCallback* callback) {
+  virtual int Read(IOBuffer* buf, int buf_len, CompletionCallback* callback) {
     DCHECK(!callback_);
     MockRead& r = data_->reads[read_index_];
     int result = r.result;
     if (r.data) {
       if (r.data_len - read_offset_ > 0) {
         result = std::min(buf_len, r.data_len - read_offset_);
-        memcpy(buf, r.data + read_offset_, result);
+        memcpy(buf->data(), r.data + read_offset_, result);
         read_offset_ += result;
         if (read_offset_ == r.data_len) {
           read_index_++;
@@ -199,7 +199,7 @@ class MockTCPClientSocket : public MockClientSocket {
     return result;
   }
 
-  virtual int Write(const char* buf, int buf_len,
+  virtual int Write(IOBuffer* buf, int buf_len,
                     CompletionCallback* callback) {
     DCHECK(buf);
     DCHECK(buf_len > 0);
@@ -214,7 +214,7 @@ class MockTCPClientSocket : public MockClientSocket {
     int result = w.result;
     if (w.data) {
       std::string expected_data(w.data, w.data_len);
-      std::string actual_data(buf, buf_len);
+      std::string actual_data(buf->data(), buf_len);
       EXPECT_EQ(expected_data, actual_data);
       if (expected_data != actual_data)
         return ERR_UNEXPECTED;
@@ -307,12 +307,12 @@ class MockSSLClientSocket : public MockClientSocket {
   }
 
   // Socket methods:
-  virtual int Read(char* buf, int buf_len, CompletionCallback* callback) {
+  virtual int Read(IOBuffer* buf, int buf_len, CompletionCallback* callback) {
     DCHECK(!callback_);
     return transport_->Read(buf, buf_len, callback);
   }
 
-  virtual int Write(const char* buf, int buf_len,
+  virtual int Write(IOBuffer* buf, int buf_len,
                     CompletionCallback* callback) {
     DCHECK(!callback_);
     return transport_->Write(buf, buf_len, callback);
@@ -2912,7 +2912,7 @@ TEST_F(HttpNetworkTransactionTest, ResetStateForRestart) {
       CreateSession(proxy_service.get()), &mock_socket_factory));
 
   // Setup some state (which we expect ResetStateForRestart() will clear).
-  trans->header_buf_.reset(static_cast<char*>(malloc(10)));
+  trans->header_buf_->Realloc(10);
   trans->header_buf_capacity_ = 10;
   trans->header_buf_len_ = 3;
   trans->header_buf_body_offset_ = 11;
@@ -2921,7 +2921,7 @@ TEST_F(HttpNetworkTransactionTest, ResetStateForRestart) {
   trans->response_body_read_ = 1;
   trans->read_buf_ = new IOBuffer(15);
   trans->read_buf_len_ = 15;
-  trans->request_headers_ = "Authorization: NTLM";
+  trans->request_headers_->headers_ = "Authorization: NTLM";
   trans->request_headers_bytes_sent_ = 3;
 
   // Setup state in response_
@@ -2943,7 +2943,7 @@ TEST_F(HttpNetworkTransactionTest, ResetStateForRestart) {
   trans->ResetStateForRestart();
 
   // Verify that the state that needed to be reset, has been reset.
-  EXPECT_EQ(NULL, trans->header_buf_.get());
+  EXPECT_EQ(NULL, trans->header_buf_->headers());
   EXPECT_EQ(0, trans->header_buf_capacity_);
   EXPECT_EQ(0, trans->header_buf_len_);
   EXPECT_EQ(-1, trans->header_buf_body_offset_);
@@ -2952,7 +2952,7 @@ TEST_F(HttpNetworkTransactionTest, ResetStateForRestart) {
   EXPECT_EQ(0, trans->response_body_read_);
   EXPECT_EQ(NULL, trans->read_buf_.get());
   EXPECT_EQ(0, trans->read_buf_len_);
-  EXPECT_EQ("", trans->request_headers_);
+  EXPECT_EQ("", trans->request_headers_->headers_);
   EXPECT_EQ(0U, trans->request_headers_bytes_sent_);
   EXPECT_EQ(NULL, trans->response_.auth_challenge.get());
   EXPECT_EQ(NULL, trans->response_.headers.get());
