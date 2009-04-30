@@ -2594,20 +2594,8 @@ BUG11178 DEBUG WIN : LayoutTests/transitions/repeated-firing-background-color.ht
 
 BUG11178 MAC : LayoutTests/fast/dom/Document/open-with-pending-load.html = CRASH
 
-// These need new Linux baselines
-BUG11178 LINUX : LayoutTests/svg/custom/use-css-no-effect-on-shadow-tree.svg = FAIL
-BUG11178 LINUX : LayoutTests/svg/custom/use-on-disallowed-foreign-object-1.svg = FAIL
-BUG11178 LINUX : LayoutTests/svg/custom/use-on-disallowed-foreign-object-2.svg = FAIL
-BUG11178 LINUX : LayoutTests/svg/custom/use-on-disallowed-foreign-object-4.svg = FAIL
-BUG11178 LINUX : LayoutTests/svg/custom/use-on-disallowed-foreign-object-5.svg = FAIL
-BUG11178 LINUX : LayoutTests/svg/custom/use-on-disallowed-foreign-object-6.svg = FAIL
-BUG11178 LINUX : LayoutTests/svg/custom/use-on-non-svg-namespaced-element.svg = FAIL
-BUG11178 LINUX : LayoutTests/svg/text/text-gradient-positioning.svg = FAIL
-BUG11178 LINUX : LayoutTests/svg/text/text-repaint-rects.xhtml = FAIL
-
 // New tests from WebKit Merge 42932:42994
 BUG11179 DEFER : LayoutTests/http/tests/xmlhttprequest/detaching-frame-2.html = FAIL
-BUG11179 LINUX : LayoutTests/editing/deleting/type-delete-after-quote.html = FAIL
 
 // Chrome does not support WebArchives (just like Safari for Windows),
 // although we might eventually want to on Mac.
