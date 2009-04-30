@@ -44,22 +44,13 @@ bool GetWindowsFunction::RunImpl() {
 
   // Look for |ids| named parameter as list of id's to fetch.
   if (args_->IsType(Value::TYPE_DICTIONARY)) {
-    Value *ids_value;
-    if ((!static_cast<DictionaryValue*>(args_)->Get(L"ids", &ids_value)) ||
-        (!ids_value->IsType(Value::TYPE_LIST))) {
-      DCHECK(false);
-      return false;
-    }
-
-    ListValue *window_id_list = static_cast<ListValue*>(ids_value);
+    ListValue *window_id_list;
+    const DictionaryValue *args = static_cast<const DictionaryValue*>(args_);
+    EXTENSION_FUNCTION_VALIDATE(args->GetList(L"ids", &window_id_list));
     for (ListValue::iterator id = window_id_list->begin();
          id != window_id_list->end(); ++id) {
       int window_id;
-      if (!(*id)->GetAsInteger(&window_id)) {
-        DCHECK(false);
-        return false;
-      }
-
+      EXTENSION_FUNCTION_VALIDATE((*id)->GetAsInteger(&window_id));
       window_ids.insert(window_id);
     }
   }
@@ -150,12 +141,8 @@ bool CreateWindowFunction::RunImpl() {
 }
 
 bool RemoveWindowFunction::RunImpl() {
-  if (!args_->IsType(Value::TYPE_INTEGER))
-    return false;
-
   int window_id;
-  if (!args_->GetAsInteger(&window_id))
-    return false;
+  EXTENSION_FUNCTION_VALIDATE(args_->GetAsInteger(&window_id));
 
   Browser* target = NULL;
   for (BrowserList::const_iterator browser = BrowserList::begin();
@@ -181,8 +168,7 @@ bool RemoveWindowFunction::RunImpl() {
 
 
 bool GetTabsForWindowFunction::RunImpl() {
-  if (!args_->IsType(Value::TYPE_NULL))
-    return false;
+  EXTENSION_FUNCTION_VALIDATE(args_->IsType(Value::TYPE_NULL));
 
   Browser* browser = dispatcher_->browser();
   if (!browser)
@@ -194,16 +180,14 @@ bool GetTabsForWindowFunction::RunImpl() {
 }
 
 bool CreateTabFunction::RunImpl() {
-  // TODO(aa): Do data-driven validation in JS.
-  if (!args_->IsType(Value::TYPE_DICTIONARY))
-    return false;
+  EXTENSION_FUNCTION_VALIDATE(args_->IsType(Value::TYPE_DICTIONARY));
+  const DictionaryValue *args = static_cast<const DictionaryValue*>(args_);
 
   Browser* browser = BrowserList::GetLastActive();
   if (!browser)
     return false;
 
   TabStripModel *tab_strip = browser->tabstrip_model();
-  const DictionaryValue *args = static_cast<const DictionaryValue*>(args_);
 
   // TODO(rafaelw): handle setting remaining tab properties:
   // -windowId
@@ -242,15 +226,12 @@ bool CreateTabFunction::RunImpl() {
 }
 
 bool GetTabFunction::RunImpl() {
-  if (!args_->IsType(Value::TYPE_INTEGER))
-    return false;
+  int tab_id;
+  EXTENSION_FUNCTION_VALIDATE(args_->GetAsInteger(&tab_id));
 
   Browser* browser = BrowserList::GetLastActive();
   if (!browser)
     return false;
-
-  int tab_id;
-  args_->GetAsInteger(&tab_id);
 
   int tab_index;
   TabStripModel* tab_strip = browser->tabstrip_model();
@@ -263,17 +244,13 @@ bool GetTabFunction::RunImpl() {
 }
 
 bool UpdateTabFunction::RunImpl() {
-  // TODO(aa): Do data-driven validation in JS.
-  if (!args_->IsType(Value::TYPE_DICTIONARY))
-    return false;
+  int tab_id;
+  EXTENSION_FUNCTION_VALIDATE(args_->IsType(Value::TYPE_DICTIONARY));
+  const DictionaryValue *args = static_cast<const DictionaryValue*>(args_);
+  EXTENSION_FUNCTION_VALIDATE(args->GetInteger(L"id", &tab_id));
 
   Browser* browser = BrowserList::GetLastActive();
   if (!browser)
-    return false;
-
-  int tab_id;
-  const DictionaryValue *args = static_cast<const DictionaryValue*>(args_);
-  if (!args->GetInteger(L"id", &tab_id))
     return false;
 
   int tab_index;
@@ -313,16 +290,16 @@ bool UpdateTabFunction::RunImpl() {
 }
 
 bool MoveTabFunction::RunImpl() {
-  if (!args_->IsType(Value::TYPE_DICTIONARY))
-    return false;
+  int tab_id;
+  int new_index;
+  EXTENSION_FUNCTION_VALIDATE(args_->IsType(Value::TYPE_DICTIONARY));
+  const DictionaryValue *args = static_cast<const DictionaryValue*>(args_);
+  EXTENSION_FUNCTION_VALIDATE(args->GetInteger(L"id", &tab_id));
+  EXTENSION_FUNCTION_VALIDATE(args->GetInteger(L"index", &new_index));
+  EXTENSION_FUNCTION_VALIDATE(new_index >= 0);
 
   Browser* browser = BrowserList::GetLastActive();
   if (!browser)
-    return false;
-
-  int tab_id;
-  const DictionaryValue *args = static_cast<const DictionaryValue*>(args_);
-  if (!args->GetInteger(L"id", &tab_id))
     return false;
 
   int tab_index;
@@ -333,13 +310,6 @@ bool MoveTabFunction::RunImpl() {
 
   // TODO(rafaelw): support moving tabs between windows
   // -windowId
-
-  int new_index;
-  bool found_index = args->GetInteger(L"index", &new_index);
-  if (!found_index || new_index < 0) {
-    DCHECK(false);
-    return false;
-  }
 
   // Clamp move location to the last position.
   if (new_index >= tab_strip->count()) {
@@ -357,18 +327,12 @@ bool MoveTabFunction::RunImpl() {
 bool RemoveTabFunction::RunImpl() {
   // TODO(rafaelw): This should have a callback, but it can't because it could
   // close it's own tab.
-
-  if (!args_->IsType(Value::TYPE_INTEGER))
-    return false;
+  int tab_id;
+  EXTENSION_FUNCTION_VALIDATE(args_->GetAsInteger(&tab_id));
 
   Browser* browser = BrowserList::GetLastActive();
   if (!browser)
     return false;
-
-  int tab_id;
-  if (!args_->GetAsInteger(&tab_id)) {
-    return false;
-  }
 
   int tab_index;
   TabStripModel* tab_strip = browser->tabstrip_model();

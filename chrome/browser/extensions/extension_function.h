@@ -14,7 +14,7 @@ class ExtensionFunctionDispatcher;
 class Profile;
 
 #define EXTENSION_FUNCTION_VALIDATE(test) do { \
-    if (!test) { \
+    if (!(test)) { \
       bad_message_ = true; \
       return false; \
     } \
