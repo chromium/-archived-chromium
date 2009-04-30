@@ -6,10 +6,13 @@
 
 #include "chrome/installer/setup/uninstall.h"
 
+#include <shlobj.h>
+
 #include "base/file_util.h"
 #include "base/path_service.h"
 #include "base/registry.h"
 #include "base/string_util.h"
+#include "base/win_util.h"
 #include "chrome/common/result_codes.h"
 #include "chrome/common/chrome_constants.h"
 #include "chrome/common/chrome_paths_internal.h"
@@ -225,19 +228,48 @@ installer_util::InstallStatus IsChromeActiveOrUserCancelled(
 
 installer_util::InstallStatus installer_setup::UninstallChrome(
     const std::wstring& exe_path, bool system_uninstall,
-    const installer::Version& installed_version,
-    bool remove_all, bool force_uninstall) {
+    bool remove_all, bool force_uninstall,
+    const CommandLine& cmd_line, const wchar_t* cmd_params) {
   installer_util::InstallStatus status = installer_util::UNINSTALL_CONFIRMED;
-  if (!force_uninstall) {
+  if (force_uninstall) {
+    // Since --force-uninstall command line option is used, we are going to
+    // do silent uninstall. Try to close all running Chrome instances.
+    CloseAllChromeProcesses();
+  } else { // no --force-uninstall so lets show some UI dialog boxes.
     status = IsChromeActiveOrUserCancelled(system_uninstall);
     if (status != installer_util::UNINSTALL_CONFIRMED &&
         status != installer_util::UNINSTALL_DELETE_PROFILE)
       return status;
-  } else {
-    // Since --force-uninstall command line option is used, we are going to
-    // do silent uninstall. Try to close all running Chrome instances.
-    CloseAllChromeProcesses();
+
+    // Check if we need admin rights to cleanup HKLM. If we do, try to launch
+    // another uninstaller (silent) in elevated mode to do HKLM cleanup.
+    // And continue uninstalling in the current process also to do HKCU cleanup.
+    if (remove_all &&
+        ShellUtil::AdminNeededForRegistryCleanup() &&
+        !::IsUserAnAdmin() &&
+        (win_util::GetWinVersion() >= win_util::WINVERSION_VISTA) &&
+        !cmd_line.HasSwitch(installer_util::switches::kRunAsAdmin)) {
+      std::wstring exe = cmd_line.program();
+      std::wstring params(cmd_params);
+      // Append --run-as-admin flag to let the new instance of setup.exe know
+      // that we already tried to launch ourselves as admin.
+      params.append(L" --");
+      params.append(installer_util::switches::kRunAsAdmin);
+      // Append --force-uninstall to keep it silent.
+      params.append(L" --");
+      params.append(installer_util::switches::kForceUninstall);
+      if (status == installer_util::UNINSTALL_DELETE_PROFILE) {
+        params.append(L" --");
+        params.append(installer_util::switches::kDeleteProfile);
+      }
+      DWORD exit_code = installer_util::UNKNOWN_STATUS;
+      InstallUtil::ExecuteExeAsAdmin(exe, params, &exit_code);
+    }
   }
+
+  // Get the version of installed Chrome (if any)
+  scoped_ptr<installer::Version>
+      installed_version(InstallUtil::GetChromeVersion(system_uninstall));
 
   // Chrome is not in use so lets uninstall Chrome by deleting various files
   // and registry entries. Here we will just make best effort and keep going
@@ -327,30 +359,36 @@ installer_util::InstallStatus installer_setup::UninstallChrome(
     DeleteRegistryKey(hklm_key, reg_path);
     hklm_key.Close();
 
-    // Unregister any dll servers that we may have registered.
-    std::wstring dll_path(installer::GetChromeInstallPath(system_uninstall));
-    file_util::AppendToPath(&dll_path, installed_version.GetString());
+    if (installed_version.get()) {
+      // Unregister any dll servers that we may have registered.
+      std::wstring dll_path(installer::GetChromeInstallPath(system_uninstall));
+      file_util::AppendToPath(&dll_path, installed_version->GetString());
 
-    scoped_ptr<WorkItemList> dll_list(WorkItem::CreateWorkItemList());
-    if (InstallUtil::BuildDLLRegistrationList(dll_path, kDllsToRegister,
-                                              kNumDllsToRegister, false,
-                                              dll_list.get())) {
-      dll_list->Do();
+      scoped_ptr<WorkItemList> dll_list(WorkItem::CreateWorkItemList());
+      if (InstallUtil::BuildDLLRegistrationList(dll_path, kDllsToRegister,
+                                                kNumDllsToRegister, false,
+                                                dll_list.get())) {
+        dll_list->Do();
+      }
     }
   }
 
+  if (!installed_version.get())
+    return installer_util::UNINSTALL_SUCCESSFUL;
+
   // Finally delete all the files from Chrome folder after moving setup.exe
   // and the user's Local State to a temp location.
-  bool delete_profile = (status == installer_util::UNINSTALL_DELETE_PROFILE);
+  bool delete_profile = (status == installer_util::UNINSTALL_DELETE_PROFILE) ||
+      (cmd_line.HasSwitch(installer_util::switches::kDeleteProfile));
   std::wstring local_state_path;
   installer_util::InstallStatus ret = installer_util::UNINSTALL_SUCCESSFUL;
-  if (!DeleteFilesAndFolders(exe_path, system_uninstall, installed_version,
+  if (!DeleteFilesAndFolders(exe_path, system_uninstall, *installed_version,
                              &local_state_path, delete_profile))
     ret = installer_util::UNINSTALL_FAILED;
 
   if (!force_uninstall) {
     LOG(INFO) << "Uninstallation complete. Launching Uninstall survey.";
-    dist->DoPostUninstallOperations(installed_version, local_state_path,
+    dist->DoPostUninstallOperations(*installed_version, local_state_path,
                                     distribution_data);
   }
 

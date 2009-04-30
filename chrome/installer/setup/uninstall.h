@@ -9,6 +9,7 @@
 
 #include <string>
 
+#include "base/command_line.h"
 #include "chrome/installer/util/util_constants.h"
 #include "chrome/installer/util/version.h"
 
@@ -20,14 +21,16 @@ namespace installer_setup {
 // system_uninstall: if true, the function uninstalls Chrome installed system
 //                   wise. otherwise, it uninstalls Chrome installed for the
 //                   current user.
-// installed_version: currently installed version of Chrome.
 // remove_all: Remove all shared files, registry entries as well.
 // force_uninstall: Uninstall without prompting for user confirmation or
 //                  any checks for Chrome running.
+// cmd_line: CommandLine that contains information about the command that
+//           was used to launch current uninstaller.
+// cmd_params: Command line parameters passed to the uninstaller.
 installer_util::InstallStatus UninstallChrome(
     const std::wstring& exe_path, bool system_uninstall,
-    const installer::Version& installed_version,
-    bool remove_all, bool force_uninstall);
+    bool remove_all, bool force_uninstall,
+    const CommandLine& cmd_line, const wchar_t* cmd_params);
 
 }  // namespace installer_setup
 

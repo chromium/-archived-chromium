@@ -11,6 +11,10 @@ namespace switches {
 // Create Desktop and QuickLaunch shortcuts
 const wchar_t kCreateAllShortcuts[] = L"create-all-shortcuts";
 
+// Delete user profile also. This param is useful only when specified with
+// kUninstall && kForceUninstall, otherwise it is silently ignored.
+const wchar_t kDeleteProfile[] = L"delete-profile";
+
 // Disable logging
 const wchar_t kDisableLogging[] = L"disable-logging";
 

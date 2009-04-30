@@ -458,7 +458,8 @@ installer_util::InstallStatus UninstallChrome(const CommandLine& cmd_line,
                                               const installer::Version* version,
                                               bool system_install) {
   LOG(INFO) << "Uninstalling Chome";
-  if (!version) {
+  bool force = cmd_line.HasSwitch(installer_util::switches::kForceUninstall);
+  if (!version && !force) {
     LOG(ERROR) << "No Chrome installation found for uninstall.";
     InstallUtil::WriteInstallerResult(system_install,
                                       installer_util::CHROME_NOT_INSTALLED,
@@ -468,29 +469,9 @@ installer_util::InstallStatus UninstallChrome(const CommandLine& cmd_line,
 
   bool remove_all = !cmd_line.HasSwitch(
       installer_util::switches::kDoNotRemoveSharedItems);
-  bool force = cmd_line.HasSwitch(installer_util::switches::kForceUninstall);
-
-  // Check if we need admin rights to cleanup HKLM. Try to elevate - if it works
-  // exit from this process, if not just continue uninstalling in the current
-  // process itself.
-  if (remove_all &&
-      ShellUtil::AdminNeededForRegistryCleanup() &&
-      !IsUserAnAdmin() &&
-      (win_util::GetWinVersion() >= win_util::WINVERSION_VISTA) &&
-      !cmd_line.HasSwitch(installer_util::switches::kRunAsAdmin)) {
-    std::wstring exe = cmd_line.program();
-    std::wstring params(cmd_params);
-    // Append --run-as-admin flag to let the new instance of setup.exe know
-    // that we already tried to launch ourselves as admin.
-    params.append(L" --");
-    params.append(installer_util::switches::kRunAsAdmin);
-    DWORD exit_code = installer_util::UNKNOWN_STATUS;
-    if (InstallUtil::ExecuteExeAsAdmin(exe, params, &exit_code))
-      return static_cast<installer_util::InstallStatus>(exit_code);
-  }
-
   return installer_setup::UninstallChrome(cmd_line.program(), system_install,
-                                          *version, remove_all, force);
+                                          remove_all, force,
+                                          cmd_line, cmd_params);
 }
 
 installer_util::InstallStatus ShowEULADialog(const std::wstring& inner_frame) {
