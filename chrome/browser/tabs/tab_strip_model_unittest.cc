@@ -22,8 +22,10 @@
 class TabStripDummyDelegate : public TabStripModelDelegate {
  public:
   explicit TabStripDummyDelegate(TabContents* dummy)
-      : dummy_contents_(dummy) {}
+      : dummy_contents_(dummy), can_close_(true) {}
   virtual ~TabStripDummyDelegate() {}
+
+  void set_can_close(bool value) { can_close_ = value; }
 
   // Overridden from TabStripModelDelegate:
   virtual TabContents* AddBlankTab(bool foreground) { return NULL; }
@@ -56,11 +58,15 @@ class TabStripDummyDelegate : public TabStripModelDelegate {
   }
   virtual bool CanRestoreTab() { return false; }
   virtual void RestoreTab() {}
+  virtual bool CanCloseContentsAt(int index) { return can_close_ ; }
 
  private:
   // A dummy TabContents we give to callers that expect us to actually build a
   // Destinations tab for them.
   TabContents* dummy_contents_;
+
+  // Whether tabs can be closed.
+  bool can_close_;
 
   DISALLOW_EVIL_CONSTRUCTORS(TabStripDummyDelegate);
 };
@@ -311,7 +317,15 @@ TEST_F(TabStripModelTest, TestBasicAPI) {
 
   // Test CloseTabContentsAt
   {
-    tabstrip.CloseTabContentsAt(2);
+    // Let's test nothing happens when the delegate veto the close.
+    delegate.set_can_close(false);
+    EXPECT_FALSE(tabstrip.CloseTabContentsAt(2));
+    EXPECT_EQ(3, tabstrip.count());
+    EXPECT_EQ(0, observer.GetStateCount());
+
+    // Now let's close for real.
+    delegate.set_can_close(true);
+    EXPECT_TRUE(tabstrip.CloseTabContentsAt(2));
     EXPECT_EQ(2, tabstrip.count());
 
     EXPECT_EQ(3, observer.GetStateCount());

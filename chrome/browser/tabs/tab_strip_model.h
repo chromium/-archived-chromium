@@ -109,7 +109,7 @@ class TabStripModelDelegate {
   virtual TabContents* AddBlankTab(bool foreground) = 0;
   virtual TabContents* AddBlankTabAt(int index, bool foreground) = 0;
 
-  // Ask for a new TabStripModel to be created and the given tab contents to
+  // Asks for a new TabStripModel to be created and the given tab contents to
   // be added to it. Its size and position are reflected in |window_bounds|.
   // If |dock_info|'s type is other than NONE, the newly created window should
   // be docked as identified by |dock_info|. Returns the Browser object
@@ -128,7 +128,7 @@ class TabStripModelDelegate {
     TAB_TEAROFF_ACTION = 2
   };
 
-  // Determine what drag actions are possible for the specified strip.
+  // Determines what drag actions are possible for the specified strip.
   virtual int GetDragActions() const = 0;
 
   // Creates an appropriate TabContents for the given URL. This is handled by
@@ -144,10 +144,10 @@ class TabStripModelDelegate {
       bool defer_load,
       SiteInstance* instance) const = 0;
 
-  // Return whether some contents can be duplicated.
+  // Returns whether some contents can be duplicated.
   virtual bool CanDuplicateContentsAt(int index) = 0;
 
-  // Duplicate the contents at the provided index and places it into its own
+  // Duplicates the contents at the provided index and places it into its own
   // window.
   virtual void DuplicateContentsAt(int index) = 0;
 
@@ -171,6 +171,9 @@ class TabStripModelDelegate {
 
   // Restores the last closed tab if CanRestoreTab would return true.
   virtual void RestoreTab() = 0;
+
+  // Returns whether some contents can be closed.
+  virtual bool CanCloseContentsAt(int index) = 0;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -254,8 +257,9 @@ class TabStripModel : public NotificationObserver {
   // Closes the TabContents at the specified index. This causes the TabContents
   // to be destroyed, but it may not happen immediately (e.g. if it's a
   // WebContents).
-  // Returns true if the TabContents was closed immediately, false if we are
-  // waiting for a response from an onunload handler.
+  // Returns true if the TabContents was closed immediately, false if it was not
+  // closed (we may be waiting for a response from an onunload handler, or
+  // waiting for the user to confirm closure).
   bool CloseTabContentsAt(int index) {
     return InternalCloseTabContentsAt(index, true);
   }
