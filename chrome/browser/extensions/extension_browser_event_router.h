@@ -45,6 +45,10 @@ class ExtensionBrowserEventRouter : public TabStripModelObserver,
                const NotificationSource& source,
                const NotificationDetails& details);
  private:
+  // Construct and dispatch windows.onCreated event.
+  void BrowserOpened(Browser* browser);
+  // Construct and dispatch windows.onRemoved event.
+  void BrowserClosed(Browser* browser);
   ExtensionBrowserEventRouter();
   friend struct DefaultSingletonTraits<ExtensionBrowserEventRouter>;
 

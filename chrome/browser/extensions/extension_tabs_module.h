@@ -23,6 +23,9 @@ class GetWindowsFunction : public SyncExtensionFunction {
 class CreateWindowFunction : public SyncExtensionFunction {
   virtual bool RunImpl();
 };
+class RemoveWindowFunction : public SyncExtensionFunction {
+  virtual bool RunImpl();
+};
 class GetTabsForWindowFunction : public SyncExtensionFunction {
   virtual bool RunImpl();
 };

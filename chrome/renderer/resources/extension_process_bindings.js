@@ -11,6 +11,7 @@ var chromium;
 (function() {
   native function GetNextCallbackId();
   native function CreateWindow();
+  native function RemoveWindow();
   native function GetWindows();
   native function GetTabsForWindow();
   native function GetTab();
@@ -90,15 +91,15 @@ var chromium;
 
   //----------------------------------------------------------------------------
 
-  // Tabs
-  chromium.tabs = {};
+  // Windows
+  chromium.windows = {};
 
-  chromium.tabs.getWindows = function(windowQuery, callback) {
+  chromium.windows.getWindows = function(windowQuery, callback) {
     validate(arguments, arguments.callee.params);
     sendRequest(GetWindows, windowQuery, callback);
   };
 
-  chromium.tabs.getWindows.params = [
+  chromium.windows.getWindows.params = [
     {
       type: "object",
       properties: {
@@ -113,11 +114,11 @@ var chromium;
     chromium.types.optFun
   ];
   
-  chromium.tabs.createWindow = function(createData, callback) {
+  chromium.windows.createWindow = function(createData, callback) {
     validate(arguments, arguments.callee.params);
     sendRequest(CreateWindow, createData, callback);
   };
-  chromium.tabs.createWindow.params = [
+  chromium.windows.createWindow.params = [
     {
       type: "object",
       properties: {
@@ -131,6 +132,31 @@ var chromium;
     },
     chromium.types.optFun
   ];
+  
+  chromium.windows.removeWindow = function(windowId, callback) {
+    validate(arguments, arguments.callee.params);
+    sendRequest(RemoveWindow, windowId, callback);
+  };
+
+  chromium.windows.removeWindow.params = [
+    chromium.types.pInt,
+    chromium.types.optFun
+  ];
+  
+  // sends (windowId).
+  // *WILL* be followed by tab-attached AND then tab-selection-changed.
+  chromium.windows.onWindowCreated = new chromium.Event("window-created");
+
+  // sends (windowId).
+  // *WILL* be preceded by sequences of tab-removed AND then
+  // tab-selection-changed -- one for each tab that was contained in the window
+  // that closed
+  chromium.windows.onWindowRemoved = new chromium.Event("window-removed");
+
+  //----------------------------------------------------------------------------
+
+  // Tabs
+  chromium.tabs = {};
 
   // TODO(aa): This should eventually take an optional windowId param.
   chromium.tabs.getTabsForWindow = function(callback) {

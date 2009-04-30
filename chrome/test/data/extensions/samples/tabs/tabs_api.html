@@ -7,7 +7,7 @@ tabs = {};
 tabIds = [];
 
 function loadWindowList() {
-  chromium.tabs.getWindows(undefined, function(windowList) {
+  chromium.windows.getWindows(undefined, function(windowList) {
     tabs = {};
     tabIds = [];
     for (var i = 0; i < windowList.length; i++) {
@@ -84,6 +84,16 @@ function clearLog() {
   document.getElementById('log').innerHTML = '';
 }
 
+chromium.windows.onWindowCreated.addListener(function(windowId) {
+  appendToLog('onWindowCreated -- window: ' + windowId);
+  loadWindowList();
+});
+
+chromium.windows.onWindowRemoved.addListener(function(windowId) {
+  appendToLog('onWindowRemoved -- window: ' + windowId);
+  loadWindowList();
+});
+
 chromium.tabs.onTabCreated.addListener(function(data) {
   appendToLog('onTabCreated -- window: ' + data.windowId + ' tab: ' + data.tabId + ' index ' + data.index);
   loadWindowList();
@@ -109,8 +119,8 @@ chromium.tabs.onTabSelectionChanged.addListener(function(data) {
   loadWindowList();
 });
 
-chromium.tabs.onTabRemoved.addListener(function(data) {
-  appendToLog('onTabRemoved -- window: ' + data.windowId + ' tab: ' + data.tabId + ' index ' + data.index);
+chromium.tabs.onTabRemoved.addListener(function(tabId) {
+  appendToLog('onTabRemoved -- tab: ' + tabId);
   loadWindowList();
 });
 
@@ -138,7 +148,7 @@ function createWindow() {
   if (!args.url)
     delete args.url;
 
-  chromium.tabs.createWindow(args);
+  chromium.windows.createWindow(args);
 }
 
 </script>
@@ -181,6 +191,7 @@ function createWindow() {
             <button onclick="chromium.tabs.removeTab(this.jstdata);" jsvalues=".jstdata:id">Close Tab</button>
           </div>
         </div>
+        <button onclick="chromium.windows.removeWindow(this.jstdata);" jsvalues=".jstdata:id">Close Window</button>
       </div>
     </div>
     <div style="background-color: #EEEEBB; margin: 20px; padding: 8px">
@@ -228,7 +239,7 @@ function createWindow() {
       <button onclick="updateAll();">Update All</button>
       <button onclick="moveAll();">Move All</button>
       <button onclick="clearLog();">-->Clear Log</button>
-      <button onclick="chromium.tabs.createWindow();">New Window</button>
+      <button onclick="chromium.windows.createWindow();">New Window</button>
     </div>
     <div id="log" style="background-color: #EEAAEE; margin: 20px; padding: 8px">
     </div>

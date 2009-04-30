@@ -70,10 +70,13 @@ bool GetWindowsFunction::RunImpl() {
   result_.reset(new ListValue());
   for (BrowserList::const_iterator browser = BrowserList::begin();
        browser != BrowserList::end(); ++browser) {
-    if (all_windows || (window_ids.find(ExtensionTabUtil::GetWindowId(*browser))
-        != window_ids.end())) {
-      static_cast<ListValue*>(result_.get())->Append(
+    // Only examine browsers in the current profile.
+    if ((*browser)->profile() == profile()) {
+      if (all_windows || (window_ids.find(ExtensionTabUtil::
+          GetWindowId(*browser)) != window_ids.end())) {
+        static_cast<ListValue*>(result_.get())->Append(
         CreateWindowValue(*browser));
+      }
     }
   }
 
@@ -146,11 +149,42 @@ bool CreateWindowFunction::RunImpl() {
   return true;
 }
 
+bool RemoveWindowFunction::RunImpl() {
+  if (!args_->IsType(Value::TYPE_INTEGER))
+    return false;
+
+  int window_id;
+  if (!args_->GetAsInteger(&window_id))
+    return false;
+
+  Browser* target = NULL;
+  for (BrowserList::const_iterator browser = BrowserList::begin();
+      browser != BrowserList::end(); ++browser) {
+    // Only examine browsers in the current profile.
+    if ((*browser)->profile() == profile()) {
+      if (ExtensionTabUtil::GetWindowId(*browser) == window_id) {
+        target = *browser;
+        break;
+      }
+    }
+  }
+
+  if (target == NULL) {
+    // TODO(rafaelw): need error message.
+    return false;
+  }
+
+  target->CloseWindow();
+
+  return true;
+}
+
+
 bool GetTabsForWindowFunction::RunImpl() {
   if (!args_->IsType(Value::TYPE_NULL))
     return false;
 
-  Browser* browser = BrowserList::GetLastActive();
+  Browser* browser = dispatcher_->browser();
   if (!browser)
     return false;
 

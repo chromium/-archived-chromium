@@ -13,6 +13,8 @@
 #include "chrome/browser/extensions/extension_tabs_module.h"
 #include "chrome/common/notification_service.h"
 
+const char* kOnWindowCreated = "window-created";
+const char* kOnWindowRemoved = "window-removed";
 const char* kOnTabCreated = "tab-created";
 const char* kOnTabMoved = "tab-moved";
 const char* kOnTabSelectionChanged = "tab-selection-changed";
@@ -55,15 +57,41 @@ void ExtensionBrowserEventRouter::Observe(NotificationType type,
     case(NotificationType::BROWSER_OPENED) :
       browser = Source<Browser>(source).ptr();
       browser->tabstrip_model()->AddObserver(this);
+      BrowserOpened(browser);
       break;
     case(NotificationType::BROWSER_CLOSED) :
       browser = Source<Browser>(source).ptr();
       browser->tabstrip_model()->RemoveObserver(this);
+      BrowserClosed(browser);
       break;
     default:
       NOTREACHED();
       break;
   }
+}
+
+void ExtensionBrowserEventRouter::BrowserOpened(Browser* browser) {
+  int window_id = ExtensionTabUtil::GetWindowId(browser);
+
+  ListValue args;
+  args.Append(Value::CreateIntegerValue(window_id));
+
+  std::string json_args;
+  JSONWriter::Write(&args, false, &json_args);
+
+  DispatchEvent(browser->profile(), kOnWindowCreated, json_args);
+}
+
+void ExtensionBrowserEventRouter::BrowserClosed(Browser* browser) {
+  int window_id = ExtensionTabUtil::GetWindowId(browser);
+
+  ListValue args;
+  args.Append(Value::CreateIntegerValue(window_id));
+
+  std::string json_args;
+  JSONWriter::Write(&args, false, &json_args);
+
+  DispatchEvent(browser->profile(), kOnWindowRemoved, json_args);
 }
 
 void ExtensionBrowserEventRouter::TabInsertedAt(TabContents* contents,

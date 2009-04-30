@@ -53,6 +53,7 @@ FactoryRegistry::FactoryRegistry() {
   // Tabs
   factories_["GetWindows"] = &NewExtensionFunction<GetWindowsFunction>;
   factories_["CreateWindow"] = &NewExtensionFunction<CreateWindowFunction>;
+  factories_["RemoveWindow"] = &NewExtensionFunction<RemoveWindowFunction>;
   factories_["GetTabsForWindow"] =
       &NewExtensionFunction<GetTabsForWindowFunction>;
   factories_["GetTab"] = &NewExtensionFunction<GetTabFunction>;
