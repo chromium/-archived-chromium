@@ -118,6 +118,10 @@ class BrowserWindowGtk : public BrowserWindow,
   scoped_ptr<Browser> browser_;
 
  private:
+  // Sets the default size for the window and the the way the user is allowed to
+  // resize it.
+  void SetGeometryHints();
+
   // Connect accelerators that aren't connected to menu items (like ctrl-o,
   // ctrl-l, etc.).
   void ConnectAccelerators();

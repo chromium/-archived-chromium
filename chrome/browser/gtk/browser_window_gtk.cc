@@ -206,7 +206,7 @@ BrowserWindowGtk::BrowserWindowGtk(Browser* browser)
        full_screen_(false),
        method_factory_(this) {
   window_ = GTK_WINDOW(gtk_window_new(GTK_WINDOW_TOPLEVEL));
-  gtk_window_set_default_size(window_, 640, 480);
+  SetGeometryHints();
   g_object_set_data(G_OBJECT(window_), "browser_window_gtk", this);
   g_signal_connect(window_, "delete-event",
                    G_CALLBACK(MainWindowDeleteEvent), this);
@@ -657,6 +657,16 @@ void BrowserWindowGtk::AddFindBar(FindBarGtk* findbar) {
   gtk_box_pack_start(GTK_BOX(content_vbox_), findbar->widget(),
                      FALSE, FALSE, 0);
   gtk_box_reorder_child(GTK_BOX(content_vbox_), findbar->widget(), 2);
+}
+
+void BrowserWindowGtk::SetGeometryHints() {
+  gtk_window_set_default_size(window_, 640, 480);
+
+  // Allow the user to resize us arbitrarily small.
+  GdkGeometry geometry;
+  geometry.min_width = 1;
+  geometry.min_height = 1;
+  gtk_window_set_geometry_hints(window_, NULL, &geometry, GDK_HINT_MIN_SIZE);
 }
 
 void BrowserWindowGtk::ConnectAccelerators() {
