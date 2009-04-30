@@ -88,6 +88,7 @@
         'debug_util_win.cc',
         'directory_watcher.h',
         'directory_watcher_inotify.cc',
+        'directory_watcher_mac.cc',
         'directory_watcher_win.cc',
         'event_recorder.cc',
         'event_recorder.h',
@@ -641,11 +642,7 @@
             '../build/linux/system.gyp:nss',
           ],
         }],
-        ['OS == "mac"', {
-          'sources!': [
-            'directory_watcher_unittest.cc',
-          ],
-        }, {  # OS != "mac"
+        ['OS != "mac"', {
           'sources!': [
             'mac_util_unittest.cc',
           ],
