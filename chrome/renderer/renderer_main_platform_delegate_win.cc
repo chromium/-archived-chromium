@@ -4,8 +4,6 @@
 
 #include "chrome/renderer/renderer_main_platform_delegate.h"
 
-#include <objbase.h>
-
 #include "base/command_line.h"
 #include "chrome/common/chrome_constants.h"
 #include "chrome/common/chrome_switches.h"
@@ -22,11 +20,11 @@ RendererMainPlatformDelegate::~RendererMainPlatformDelegate() {
 }
 
 void RendererMainPlatformDelegate::PlatformInitialize() {
-  CoInitialize(NULL);
+  // Be mindful of what resources you acquire here. They can be used by
+  // malicious code if the renderer gets compromised.
 }
 
 void RendererMainPlatformDelegate::PlatformUninitialize() {
-  CoUninitialize();
 }
 
 bool RendererMainPlatformDelegate::InitSandboxTests(bool no_sandbox) {
