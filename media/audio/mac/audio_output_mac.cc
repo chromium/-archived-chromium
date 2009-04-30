@@ -8,6 +8,28 @@
 #include "base/basictypes.h"
 #include "base/logging.h"
 
+// Overview of operation:
+// 1) An object of PCMQueueOutAudioOutputStream is created by the AudioManager
+// factory: audio_man->MakeAudioStream(). This just fills some structure.
+// 2) Next some thread will call Open(), at that point the underliying OS
+// queue is created and the audio buffers allocated.
+// 3) Then some thread will call Start(source) At this point the source will be
+// called to fill the initial buffers in the context of that same thread.
+// Then the OS queue is started which will create its own thread which
+// periodically will call the source for more data as buffers are being
+// consumed.
+// 4) At some point some thread will call Stop(), which we handle by directly
+// stoping the OS queue.
+// 5) One more callback to the source could be delivered in in the context of
+// the queue's own thread. Data, if any will be discared.
+// 6) The same thread that called stop will call Close() where we cleanup
+// and notifiy the audio manager, which likley will destroy this object.
+
+// TODO(cpu): Remove the constant for this error when snow leopard arrives.
+enum {
+  kAudioQueueErr_EnqueueDuringReset = -66632
+};
+
 PCMQueueOutAudioOutputStream::PCMQueueOutAudioOutputStream(
     AudioManagerMac* manager, int channels, int sampling_rate,
     char bits_per_sample)
@@ -26,18 +48,22 @@ PCMQueueOutAudioOutputStream::PCMQueueOutAudioOutputStream(
   format_.mFormatFlags = kLinearPCMFormatFlagIsPacked |
                          kLinearPCMFormatFlagIsSignedInteger;
   format_.mBitsPerChannel = bits_per_sample;
-  format_.mBytesPerFrame = format_.mBytesPerPacket;
   format_.mChannelsPerFrame = channels;
   format_.mFramesPerPacket = 1;
   format_.mBytesPerPacket = (format_.mBitsPerChannel * channels) / 8;
+  format_.mBytesPerFrame = format_.mBytesPerPacket;
 }
 
 PCMQueueOutAudioOutputStream::~PCMQueueOutAudioOutputStream() {
 }
 
 void PCMQueueOutAudioOutputStream::HandleError(OSStatus err) {
-  if (source_)
-    source_->OnError(this, static_cast<int>(err));
+  // source_ can be set to NULL from another thread. We need to cache its
+  // pointer while we operate here. Note that does not mean that the source
+  // has been destroyed.
+  AudioSourceCallback* source = source_;
+  if (source)
+    source->OnError(this, static_cast<int>(err));
   NOTREACHED() << "error code " << err;
 }
 
@@ -79,16 +105,15 @@ void PCMQueueOutAudioOutputStream::Close() {
     for (size_t ix = 0; ix != kNumBuffers; ++ix) {
       if (buffer_[ix]) {
         err = AudioQueueFreeBuffer(audio_queue_, buffer_[ix]);
-        if (err) {
+        if (err != noErr) {
           HandleError(err);
           break;
         }
       }
     }
     err = AudioQueueDispose(audio_queue_, true);
-    if (err) {
+    if (err != noErr)
       HandleError(err);
-    }
   }
   // Inform the audio manager that we have been closed. This can cause our
   // destruction.
@@ -96,7 +121,18 @@ void PCMQueueOutAudioOutputStream::Close() {
 }
 
 void PCMQueueOutAudioOutputStream::Stop() {
-  // TODO(cpu): Implement.
+  // We request a synchronous stop, so the next call can take some time. In
+  // the windows implementation we block here as well. 
+  source_ = NULL;
+  // We set the source to null to signal to the data queueing thread it can stop
+  // queueing data, however at most one callback might still be in flight which
+  // could attempt to enqueue right after the next call. Rather that trying to
+  // use a lock we rely on the internal Mac queue lock so the enqueue might
+  // succeed or might fail but it won't crash or leave the queue itself in an 
+  // inconsistent state.
+  OSStatus err = AudioQueueStop(audio_queue_, true);
+  if (err != noErr)
+    HandleError(err);
 }
 
 void PCMQueueOutAudioOutputStream::SetVolume(double left_level,
@@ -113,33 +149,63 @@ size_t PCMQueueOutAudioOutputStream::GetNumBuffers() {
   return kNumBuffers;
 }
 
+// Note to future hackers of this function: Do not add locks here because we
+// call out to third party source that might do crazy things including adquire
+// external locks or somehow re-enter here because its legal for them to call
+// some audio functions.
 void PCMQueueOutAudioOutputStream::RenderCallback(void* p_this,
                                                   AudioQueueRef queue,
                                                   AudioQueueBufferRef buffer) {
   PCMQueueOutAudioOutputStream* audio_stream =
       static_cast<PCMQueueOutAudioOutputStream*>(p_this);
-  // Call the audio source to fill the free buffer with data.
+  // Call the audio source to fill the free buffer with data. Not having a
+  // source means that the queue has been closed. This is not an error.
+  AudioSourceCallback* source = audio_stream->source_;
+  if (!source)
+    return;
   size_t capacity = buffer->mAudioDataBytesCapacity;
-  size_t filled = audio_stream->source_->OnMoreData(audio_stream, 
-                                                    buffer->mAudioData,
-                                                    capacity);
+  size_t filled = source->OnMoreData(audio_stream, buffer->mAudioData, capacity);
   if (filled > capacity) {
     // User probably overran our buffer.
     audio_stream->HandleError(0);
     return;
   }
-  // Queue the audio data to the audio driver.
   buffer->mAudioDataByteSize = filled;
+  if (NULL == queue)
+    return;
+  // Queue the audio data to the audio driver.
   OSStatus err = AudioQueueEnqueueBuffer(queue, buffer, 0, NULL);
-  if (err != noErr) 
+  if (err != noErr) {
+    if (err == kAudioQueueErr_EnqueueDuringReset) {
+      // This is the error you get if you try to enqueue a buffer and the
+      // queue has been closed. Not really a problem if indeed the queue
+      // has been closed.
+      if (!audio_stream->source_)
+        return;
+    }
     audio_stream->HandleError(err);
+  }
 }
 
 void PCMQueueOutAudioOutputStream::Start(AudioSourceCallback* callback) {
+  DCHECK(callback);
   OSStatus err = AudioQueueStart(audio_queue_, NULL);
   if (err != noErr) {
     HandleError(err);
     return;
   }
-  // TODO(cpu) : Prefill the avaiable buffers.
+  source_ = callback;    
+  // Ask the source to pre-fill all our buffers before playing.
+  for(size_t ix = 0; ix != kNumBuffers; ++ix) {
+    RenderCallback(this, NULL, buffer_[ix]);
+  }
+  // Queue the buffers to the audio driver, sounds starts now.
+  for(size_t ix = 0; ix != kNumBuffers; ++ix) {
+    err = AudioQueueEnqueueBuffer(audio_queue_, buffer_[ix], 0, NULL);
+    if (err != noErr) { 
+      HandleError(err);
+      return;
+    }
+  }
 }
+

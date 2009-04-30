@@ -54,3 +54,53 @@ TEST(MacAudioTest, PCMWaveStreamOpenAndClose) {
   EXPECT_TRUE(oas->Open(1024));
   oas->Close();
 }
+
+// This test produces actual audio for 1.5 seconds on the default wave device at
+// 44.1K s/sec. Parameters have been chosen carefully so you should not hear
+// pops or noises while the sound is playing. The sound must also be identical
+// to the sound of PCMWaveStreamPlay200HzTone22KssMono test.
+TEST(MacAudioTest, PCMWaveStreamPlay200HzTone44KssMono) {
+  AudioManager* audio_man = AudioManager::GetAudioManager();
+  ASSERT_TRUE(NULL != audio_man);
+  if (!audio_man->HasAudioDevices())
+    return;
+  AudioOutputStream* oas =
+  audio_man->MakeAudioStream(AudioManager::AUDIO_PCM_LINEAR, 1,
+                             AudioManager::kAudioCDSampleRate, 16);
+  ASSERT_TRUE(NULL != oas);
+  
+  SineWaveAudioSource source(SineWaveAudioSource::FORMAT_16BIT_LINEAR_PCM, 1,
+                             200.0, AudioManager::kAudioCDSampleRate);
+  size_t bytes_100_ms = (AudioManager::kAudioCDSampleRate / 10) * 2;
+  
+  EXPECT_TRUE(oas->Open(bytes_100_ms));
+  oas->Start(&source);
+  usleep(1500000);
+  oas->Stop();
+  oas->Close();
+}
+
+// This test produces actual audio for 1.5 seconds on the default wave device at
+// 22K s/sec. Parameters have been chosen carefully so you should not hear pops
+// or noises while the sound is playing. The sound must also be identical to the
+// sound of PCMWaveStreamPlay200HzTone44KssMono test.
+TEST(MacAudioTest, PCMWaveStreamPlay200HzTone22KssMono) {
+  AudioManager* audio_man = AudioManager::GetAudioManager();
+  ASSERT_TRUE(NULL != audio_man);
+  if (!audio_man->HasAudioDevices())
+    return;
+  AudioOutputStream* oas =
+  audio_man->MakeAudioStream(AudioManager::AUDIO_PCM_LINEAR, 1,
+                             AudioManager::kAudioCDSampleRate/2, 16);
+  ASSERT_TRUE(NULL != oas);
+  
+  SineWaveAudioSource source(SineWaveAudioSource::FORMAT_16BIT_LINEAR_PCM, 1,
+                             200.0, AudioManager::kAudioCDSampleRate/2);
+  size_t bytes_100_ms = (AudioManager::kAudioCDSampleRate / 20) * 2;
+  
+  EXPECT_TRUE(oas->Open(bytes_100_ms));
+  oas->Start(&source);
+  usleep(1500000);  
+  oas->Stop();
+  oas->Close();
+}
