@@ -872,7 +872,12 @@ gfx::Rect BrowserToolbarView::GetPopupBounds() const {
   gfx::Rect popup_bounds(origin.x(), origin.y(),
                          star_->width() + location_bar_->width() + go_->width(),
                          0);
-  popup_bounds.set_x(popup_bounds.x());
+  if (UILayoutIsRightToLeft()) {
+    popup_bounds.set_x(
+        popup_bounds.x() - location_bar_->width() - go_->width());
+  } else {
+    popup_bounds.set_x(popup_bounds.x());
+  }
   popup_bounds.set_y(popup_bounds.y());
   popup_bounds.set_width(popup_bounds.width());
   // Inset the bounds a little, since the buttons on either edge of the omnibox
