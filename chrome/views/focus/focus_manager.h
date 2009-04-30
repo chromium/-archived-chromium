@@ -257,16 +257,8 @@ class FocusManager : public NotificationObserver {
   void UnregisterAccelerators(AcceleratorTarget* target);
 
   // Activate the target associated with the specified accelerator if any.
-  // If |prioritary_accelerators_only| is true, only the following accelerators
-  // are allowed:
-  // - a key combination including Ctrl or Alt
-  // - the escape key
-  // - the enter key
-  // - any F key (F1, F2, F3 ...)
-  // - any browser specific keys (as available on special keyboards)
   // Returns true if an accelerator was activated.
-  bool ProcessAccelerator(const Accelerator& accelerator,
-                          bool prioritary_accelerators_only);
+  bool ProcessAccelerator(const Accelerator& accelerator);
 
   // NotificationObserver method.
   void Observe(NotificationType type,

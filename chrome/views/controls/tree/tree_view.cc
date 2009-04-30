@@ -475,7 +475,7 @@ bool TreeView::OnKeyDown(int virtual_key_code) {
                                         win_util::IsShiftPressed(),
                                         win_util::IsCtrlPressed(),
                                         win_util::IsAltPressed()));
-    fm->ProcessAccelerator(accelerator, true);
+    fm->ProcessAccelerator(accelerator);
     return true;
   }
   return false;

@@ -788,13 +788,43 @@ void LocationBarView::KeywordHintView::Layout() {
   }
 }
 
-// We don't translate accelerators for ALT + numpad digit, they are used for
-// entering special characters.
 bool LocationBarView::ShouldLookupAccelerators(const views::KeyEvent& e) {
-  if (!e.IsAltDown())
-    return true;
+  int c = e.GetCharacter();
+  // We don't translate accelerators for ALT + numpad digit, they are used for
+  // entering special characters.
+  if (e.IsAltDown() && win_util::IsNumPadDigit(c, e.IsExtendedKey()))
+    return false;
 
-  return !win_util::IsNumPadDigit(e.GetCharacter(), e.IsExtendedKey());
+  // Skip accelerators for key combinations omnibox wants to crack. This list
+  // should be synced with AutocompleteEditViewWin::OnKeyDownOnlyWritable().
+  //
+  // We cannot return false for all keys because we still need to handle some
+  // accelerators (e.g., F5 for reload the page should work even when the
+  // Omnibox gets focused).
+  switch (c) {
+  case VK_RETURN:
+    return false;
+
+  case VK_UP:
+  case VK_DOWN:
+    return e.IsAltDown();
+
+  case VK_DELETE:
+  case VK_INSERT:
+    return e.IsAltDown() || !e.IsShiftDown();
+
+  case 'X':
+  case 'V':
+    return e.IsAltDown() || !e.IsControlDown();
+
+  case VK_BACK:
+  case VK_TAB:
+  case 0xbb:
+    return false;
+
+  default:
+    return true;
+  }
 }
 
 // ShowInfoBubbleTask-----------------------------------------------------------

@@ -307,18 +307,11 @@ bool FocusManager::OnKeyDown(HWND window, UINT message, WPARAM wparam,
   // really processed a key event. If the key combination matches an
   // accelerator, the accelerator is triggered, otherwise we forward the
   // event to the HWND.
-  int modifiers = 0;
-  if (win_util::IsShiftPressed())
-    modifiers |= Event::EF_SHIFT_DOWN;
-  if (win_util::IsCtrlPressed())
-    modifiers |= Event::EF_CONTROL_DOWN;
-  if (win_util::IsAltPressed())
-    modifiers |= Event::EF_ALT_DOWN;
   Accelerator accelerator(Accelerator(static_cast<int>(virtual_key_code),
                                       win_util::IsShiftPressed(),
                                       win_util::IsCtrlPressed(),
                                       win_util::IsAltPressed()));
-  if (ProcessAccelerator(accelerator, true)) {
+  if (ProcessAccelerator(accelerator)) {
     // If a shortcut was activated for this keydown message, do not
     // propagate the message further.
     return false;
@@ -649,36 +642,26 @@ void FocusManager::UnregisterAccelerators(AcceleratorTarget* target) {
   }
 }
 
-bool FocusManager::ProcessAccelerator(const Accelerator& accelerator,
-                                      bool prioritary_accelerators_only) {
-  if (!prioritary_accelerators_only ||
-      accelerator.IsCtrlDown() || accelerator.IsAltDown() ||
-      accelerator.GetKeyCode() == VK_ESCAPE ||
-      accelerator.GetKeyCode() == VK_RETURN ||
-      (accelerator.GetKeyCode() >= VK_F1 &&
-          accelerator.GetKeyCode() <= VK_F24) ||
-      (accelerator.GetKeyCode() >= VK_BROWSER_BACK &&
-          accelerator.GetKeyCode() <= VK_BROWSER_HOME)) {
-    FocusManager* focus_manager = this;
-    do {
-      AcceleratorTarget* target =
-          focus_manager->GetTargetForAccelerator(accelerator);
-      if (target) {
-        // If there is focused view, we give it a chance to process that
-        // accelerator.
-        if (!focused_view_ ||
-            !focused_view_->OverrideAccelerator(accelerator)) {
-          if (target->AcceleratorPressed(accelerator))
-            return true;
-        }
+bool FocusManager::ProcessAccelerator(const Accelerator& accelerator) {
+  FocusManager* focus_manager = this;
+  do {
+    AcceleratorTarget* target =
+        focus_manager->GetTargetForAccelerator(accelerator);
+    if (target) {
+      // If there is focused view, we give it a chance to process that
+      // accelerator.
+      if (!focused_view_ ||
+          !focused_view_->OverrideAccelerator(accelerator)) {
+        if (target->AcceleratorPressed(accelerator))
+          return true;
       }
+    }
 
-      // When dealing with child windows that have their own FocusManager (such
-      // as ConstrainedWindow), we still want the parent FocusManager to process
-      // the accelerator if the child window did not process it.
-      focus_manager = focus_manager->GetParentFocusManager();
-    } while (focus_manager);
-  }
+    // When dealing with child windows that have their own FocusManager (such
+    // as ConstrainedWindow), we still want the parent FocusManager to process
+    // the accelerator if the child window did not process it.
+    focus_manager = focus_manager->GetParentFocusManager();
+  } while (focus_manager);
   return false;
 }
 

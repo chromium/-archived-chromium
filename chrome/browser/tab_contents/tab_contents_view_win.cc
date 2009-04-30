@@ -358,7 +358,7 @@ void TabContentsViewWin::HandleKeyboardEvent(
       // |this| if the accelerator is a "close tab" one. So we speculatively
       // set the flag and fix it if no event was handled.
       ignore_next_char_event_ = true;
-      if (focus_manager->ProcessAccelerator(accelerator, false)) {
+      if (focus_manager->ProcessAccelerator(accelerator)) {
         // DANGER: |this| could be deleted now!
         return;
       } else {
