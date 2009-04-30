@@ -168,8 +168,6 @@ TEST_F(AutomationProxyTest, GetTabCount) {
   ASSERT_EQ(1, tab_count);
 }
 
-// TODO(port): Port to mac.
-#if defined(OS_WIN) || defined(OS_LINUX)
 TEST_F(AutomationProxyTest, GetActiveTabIndex) {
   scoped_ptr<BrowserProxy> window(automation()->GetBrowserWindow(0));
   ASSERT_TRUE(window.get());
@@ -178,7 +176,6 @@ TEST_F(AutomationProxyTest, GetActiveTabIndex) {
   ASSERT_TRUE(window->GetActiveTabIndex(&active_tab_index));
   ASSERT_EQ(0, active_tab_index);
 }
-#endif
 
 TEST_F(AutomationProxyVisibleTest, AppendTab) {
   scoped_ptr<BrowserProxy> window(automation()->GetBrowserWindow(0));
@@ -401,8 +398,6 @@ class AutomationProxyTest2 : public AutomationProxyVisibleTest {
   std::wstring document2_;
 };
 
-// TODO(port): Port to mac.
-#if defined(OS_WIN) || defined(OS_LINUX)
 TEST_F(AutomationProxyTest2, GetActiveTabIndex) {
   scoped_ptr<BrowserProxy> window(automation()->GetBrowserWindow(0));
   ASSERT_TRUE(window.get());
@@ -432,7 +427,6 @@ TEST_F(AutomationProxyTest2, GetTabTitle) {
   ASSERT_TRUE(tab->GetTabTitle(&title));
   ASSERT_STREQ(L"Title Of Awesomeness", title.c_str());
 }
-#endif
 
 TEST_F(AutomationProxyTest, Cookies) {
   GURL url("http://mojo.jojo.google.com");
@@ -615,8 +609,6 @@ std::wstring CreateJSStringForDOMQuery(const std::wstring& id) {
   return jscript;
 }
 
-// TODO(port): Port to mac.
-#if defined(OS_WIN) || defined(OS_LINUX)
 TEST_F(AutomationProxyTest3, FrameDocumentCanBeAccessed) {
   scoped_ptr<BrowserProxy> window(automation()->GetBrowserWindow(0));
   ASSERT_TRUE(window.get());
@@ -664,7 +656,6 @@ TEST_F(AutomationProxyTest3, FrameDocumentCanBeAccessed) {
   ASSERT_FALSE(tab->ExecuteAndExtractString(xpath1, jscript1, &actual));
 #endif
 }
-#endif  // defined(OS_WIN) || defined(OS_LINUX)
 
 // TODO(port): Need to port constrained_window_proxy.* first.
 #if defined(OS_WIN)
