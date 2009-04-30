@@ -216,8 +216,9 @@ void PluginList::PlatformInit() {
     L"1, 0, 0, 1",
     L"application/x-ms-wmp|application/asx|video/x-ms-asf-plugin|"
         L"application/x-mplayer2|video/x-ms-asf|video/x-ms-wm|audio/x-ms-wma|"
-        L"audio/x-ms-wax|video/x-ms-wmv|video/x-ms-wvx",
-    L"*|*|*|*|asf,asx,*|wm,*|wma,*|wax,*|wmv,*|wvx,*",
+        L"audio/x-ms-wax|video/x-ms-wmv|video/x-ms-wvx|audio/mpeg|video/mpeg",
+    L"*|*|*|*|asf,asx,*|wm,*|wma,*|wax,*|wmv,*|wvx,*|mp2,mp3,mpa,mpeg,mpg|"
+        L"mpeg,mpg,m1v,mpe",
     L"",
     {
       activex_shim::ActiveX_Shim_NP_GetEntryPoints,

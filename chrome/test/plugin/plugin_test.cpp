@@ -225,6 +225,15 @@ TEST_F(ActiveXTest, DISABLED_CustomScripting) {
   TestActiveX(L"activex_custom_scripting.html", kShortWaitTimeout, true);
 }
 
+TEST_F(ActiveXTest, EmbeddedMP3) {
+  TestActiveX(L"mp3_test.html", kLongWaitTimeout, false);
+}
+
+TEST_F(ActiveXTest, EmbeddedMPE) {
+  TestActiveX(L"mpe_test.html", kLongWaitTimeout, false);
+}
+
+
 // The default plugin tests defined below rely on the following webkit
 // functions and the IsPluginProcess function which is defined in the global
 // namespace. Stubbed these out for now.

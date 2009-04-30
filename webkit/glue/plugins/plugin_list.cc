@@ -156,8 +156,6 @@ void PluginList::LoadPlugins(bool refresh) {
 
   base::TimeTicks start_time = base::TimeTicks::Now();
 
-  LoadInternalPlugins();
-
   std::vector<FilePath> directories_to_scan;
   GetPluginDirectories(&directories_to_scan);
 
@@ -174,6 +172,8 @@ void PluginList::LoadPlugins(bool refresh) {
 
   if (webkit_glue::IsDefaultPluginEnabled())
     LoadPlugin(FilePath(kDefaultPluginLibraryName));
+
+  LoadInternalPlugins();
 
   base::TimeTicks end_time = base::TimeTicks::Now();
   base::TimeDelta elapsed = end_time - start_time;
