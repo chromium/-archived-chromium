@@ -72,16 +72,13 @@
               }],
             ],
           }],
-          # TODO(jrg): complete this work once Linux transitions to gyp.
-          # This is untested (--> likely doesn't work).
+          # Linux gyp (into scons) doesn't like target_conditions?
+          # TODO(???): track down why 'target_conditions' doesn't work
+          # on Linux gyp into scons like it does on Mac gyp into xcodeproj.
           ['OS=="linux"', {
             'cflags': [ '-ftest-coverage',
                         '-fprofile-arcs' ],
-            'target_conditions': [
-              ['_type=="executable"', {
-                'link_settings': { 'libraries': [ '-lgcov' ] },
-              }],
-            ],
+            'link_settings': { 'libraries': [ '-lgcov' ] },
           }],
         ]},
       # TODO(jrg): options for code coverage on Windows

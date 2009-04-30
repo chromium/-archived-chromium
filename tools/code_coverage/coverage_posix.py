@@ -5,29 +5,44 @@
 
 """Generate and process code coverage on POSIX systems.
 
-Written for and tested on Mac.
-Not tested on Linux yet.
+Written for and tested on Mac and Linux.  To use this script to
+generate coverage numbers, please run from within a gyp-generated
+project.
+
+All platforms, to set up coverage:
+  cd ...../chromium ; src/tools/gyp/gyp_dogfood -Dcoverage=1 src/build/all.gyp
+
+Run coverage on...
+Mac:
+  ( cd src/chrome ; xcodebuild -configuration Debug -target coverage )
+Linux:
+  ( cd src/chrome ; hammer coverage )
+  # In particular, don't try and run 'coverage' from src/build
+
 
 --directory=DIR: specify directory that contains gcda files, and where
   a "coverage" directory will be created containing the output html.
+  Example name:   ..../chromium/src/xcodebuild/Debug
 
-TODO(jrg): make list of unit tests an arg to this script
+--all_unittests: is present, run all files named *_unittests that we
+  can find.
+
+Strings after all options are considered tests to run.  Test names
+have all text before a ':' stripped to help with gyp compatibility.
+For example, ../base/base.gyp:base_unittests is interpreted as a test
+named "base_unittests".
 """
 
+import glob
 import logging
 import optparse
 import os
+import shutil
 import subprocess
 import sys
 
 class Coverage(object):
   """Doitall class for code coverage."""
-
-  # Unit test files to run.
-  UNIT_TESTS = [
-    'base_unittests',
-    # 'unit_tests,
-    ]
 
   def __init__(self, directory):
     super(Coverage, self).__init__()
@@ -43,6 +58,34 @@ class Coverage(object):
     self.genhtml = os.path.join(self.lcov_directory, 'genhtml')
     self.coverage_info_file = os.path.join(self.directory, 'coverage.info')
     self.ConfirmPlatformAndPaths()
+    self.tests = []
+
+  def FindTests(self, options, args):
+    """Find unit tests to run; set self.tests to this list.
+
+    Obtain instructions from the command line seen in the provided
+    parsed options and post-option args.
+    """
+    # Small tests: can be run in the "chromium" directory.
+    # If asked, run all we can find.
+    if options.all_unittests:
+      self.tests += glob.glob(os.path.join(self.directory, '*_unittests'))
+
+    # If told explicit tests, run those (after stripping the name as
+    # appropriate)
+    for testname in args:
+      if ':' in testname:
+        self.tests += [os.path.join(self.directory, testname.split(':')[1])]
+      else:
+        self.tests += [os.path.join(self.directory, testname)]
+
+    # Needs to be run in the "chrome" directory?
+    # ut = os.path.join(self.directory, 'unit_tests')
+    # if os.path.exists(ut):
+    #  self.tests.append(ut)
+    # Medium tests?
+    # Not sure all of these work yet (e.g. page_cycler_tests)
+    # self.tests += glob.glob(os.path.join(self.directory, '*_tests'))
 
   def ConfirmPlatformAndPaths(self):
     """Confirm OS and paths (e.g. lcov)."""
@@ -70,11 +113,11 @@ class Coverage(object):
     subprocess.call([self.lcov,
                      '--directory', self.directory_parent,
                      '--zerocounters'])
+    shutil.rmtree(os.path.join(self.directory, 'coverage'))
 
   def RunTests(self):
     """Run all unit tests."""
-    for test in self.UNIT_TESTS:
-      fulltest = os.path.join(self.directory, test)
+    for fulltest in self.tests:
       if not os.path.exists(fulltest):
         logging.fatal(fulltest + ' does not exist')
       # TODO(jrg): add timeout?
@@ -113,12 +156,18 @@ def main():
                     dest='directory',
                     default=None,
                     help='Directory of unit test files')
+  parser.add_option('-a',
+                    '--all_unittests',
+                    dest='all_unittests',
+                    default=False,
+                    help='Run all tests we can find (*_unittests)')
   (options, args) = parser.parse_args()
   if not options.directory:
     parser.error('Directory not specified')
 
   coverage = Coverage(options.directory)
   coverage.ClearData()
+  coverage.FindTests(options, args)
   coverage.RunTests()
   coverage.GenerateOutput()
   return 0

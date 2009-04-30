@@ -3000,8 +3000,7 @@
       ]},  # 'targets'
     ],  # OS=="win"
     # TODO(jrg): add in Windows code coverage targets.
-    # Also test on Linux.
-    ['coverage!=0 and OS=="mac"',
+    ['coverage!=0 and OS!="win"',
       { 'targets': [
         {
           'target_name': 'coverage',
@@ -3011,16 +3010,26 @@
           'type': 'none',
           'dependencies': [
             '../base/base.gyp:base_unittests',
+            '../media/media.gyp:media_unittests',
+            '../net/net.gyp:net_unittests',
+            '../printing/printing.gyp:printing_unittests',
           ],
           'actions': [
             {
+              # 'message' for Linux/scons in particular
+              'message': 'Running coverage_posix.py to generate coverage numbers',
               'inputs': [],
               'outputs': [],
               'action_name': 'coverage',
               'action': [ 'python',
                           '../tools/code_coverage/coverage_posix.py',
                           '--directory',
-                          '<(PRODUCT_DIR)' ],
+                          '<(PRODUCT_DIR)',
+			  '--',
+			  '<@(_dependencies)'],
+              # Use outputs of this action as inputs for the main target build.
+              # Seems as a misnomer but makes this happy on Linux (scons).
+              'process_outputs_as_sources': 1,
             },
           ],  # 'actions'
         },
