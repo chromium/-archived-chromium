@@ -15,6 +15,7 @@ class WebCursor;
 class WebViewImpl;
 
 namespace WebCore {
+class HTMLParserQuirks;
 class PopupContainer;
 class SecurityOrigin;
 struct WindowFeatures;
@@ -130,6 +131,8 @@ class ChromeClientImpl : public WebCore::ChromeClientChromium {
   void SetCursorForPlugin(const WebCursor& cursor);
 
   virtual void formStateDidChange(const WebCore::Node*);
+
+  virtual WebCore::HTMLParserQuirks* createHTMLParserQuirks() { return 0; }
 
  private:
   WebViewImpl* webview_;  // weak pointer
