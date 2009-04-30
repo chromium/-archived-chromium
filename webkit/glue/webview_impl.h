@@ -331,11 +331,11 @@ class WebViewImpl : public WebView, public base::RefCounted<WebViewImpl> {
   int32 drag_identity_;
 
   // Valid when drag_target_dispatch_ is true.  Used to override the default
-  // browser drop effect with the effects "copy" or "none".
+  // browser drop effect with the effects "none" or "copy".
   enum DragTargetDropEffect {
-    DROP_EFFECT_DEFAULT = 0,
-    DROP_EFFECT_COPY,
-    DROP_EFFECT_NONE
+    DROP_EFFECT_DEFAULT = -1,
+    DROP_EFFECT_NONE,
+    DROP_EFFECT_COPY
   } drop_effect_;
 
   // When true, the drag data can be dropped onto the current drop target in
