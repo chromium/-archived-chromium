@@ -9,11 +9,38 @@
    fun:setenv$UNIX2003
 }
 {
+   # syslog needs a system suppression on the mac.
+   # See https://bugs.kde.org/show_bug.cgi?id=191192
+   valgrind_bug_191192
+   Memcheck:Param
+   socketcall.sendto(msg)
+   fun:sendto$NOCANCEL$UNIX2003
+   fun:vsyslog
+}
+{
+   # mac ati drivers seem to have problems
+   bug_11280
+   Memcheck:Cond
+   obj:/System/Library/Extensions/ATIRadeonX2000GLDriver.bundle/Contents/MacOS/ATIRadeonX2000GLDriver
+}
+{
    FIXME mac kevent libevent probably needs valgrind hooks
    Memcheck:Param
    kevent(changelist)
    fun:kevent
    fun:event_base_new
+}
+{
+   # Mac system library leak?  Only suppress in tests for now.
+   mac_init_appleevents_leak
+   Memcheck:Leak
+   fun:_Znwm
+   fun:sendSimpleEventToSelf
+   fun:aeInitializeFromHIToolbox
+   fun:INIT_AppleEvents
+   fun:_FirstEventTime
+   ...
+   fun:_ZN7testing4Test3RunEv
 }
 {
    # Mac media_unittests.  See http://crbug.com/9351
@@ -26,6 +53,18 @@
    fun:_ZN9HALSystem16CheckOutInstanceEv
    fun:AudioHardwareGetProperty
    fun:_ZN15AudioManagerMac15HasAudioDevicesEv
+}
+{
+   # Mac test_shell_tests, see http://crbug.com/9561
+   bug_9561
+   Memcheck:Leak
+   fun:malloc_zone_malloc
+   fun:ripc_GetClipState
+   fun:ripc_GetRenderingState
+   fun:ripc_DrawRects
+   fun:CGContextFillRects
+   fun:CGContextFillRect
+   fun:_ZN7WebCore15GraphicsContext8fillRectERKNS_9FloatRectERKNS_5ColorE
 }
 {
    # Mac test_shell_tests; skia leak?  See http://crbug.com/9563
@@ -82,4 +121,54 @@
    Memcheck:Value4
    fun:vCMMVectorConvert8BitRGBToRGB
    fun:_ZNK15CMMConvRGBToRGB7ConvertER8CMM8BitsP14CMMRuntimeInfomm
+}
+{
+   # Mac unit_tests.  See http://crbug.com/11270
+   bug_11270
+   Memcheck:Leak
+   fun:calloc
+   fun:CMSSetLabCLUT
+   fun:create
+   fun:CMSTransformCreate
+   fun:createBase
+   fun:initialize
+   fun:createColorTransform
+   fun:CGColorTransformCreateMutable
+}
+{
+   # Mac unit_tests.  See http://crbug.com/11271
+   bug_11271
+   Memcheck:Leak
+   fun:calloc
+   fun:gldCreateBuffer
+   fun:gldPageoffBuffer
+   fun:gldGetString
+   fun:gldGetString
+   fun:gldGetString
+   fun:gldInitDispatch
+   fun:gldGetQueryInfo
+   fun:gldUpdateDispatch
+   fun:gldInitDispatch
+   fun:gliSetCurrentPluginDispatchTable
+   fun:gliAttachDrawableWithOptions
+   fun:cglSetContextScreen
+   fun:cglSetAnyDrawable
+   fun:CGLSetSurface
+   fun:view_draw
+   fun:view_display_link
+   fun:link_callback
+   fun:_ZN13CVDisplayLink9performIOEP11CVTimeStamp
+   fun:_ZN13CVDisplayLink11runIOThreadEv
+}
+{
+   # Mac unit_tests BookmarkBarControllerTest.ShowHide, http://crbug.com/11286
+   bug_11286
+   Memcheck:Leak
+   fun:calloc
+   fun:_internal_class_createInstanceFromZone
+   fun:_internal_class_createInstance
+   fun:+[NSObject allocWithZone:]
+   fun:+[NSObject alloc]
+   fun:-[BookmarkBarController initWithProfile:contentArea:]
+   fun:_ZN12_GLOBAL__N_125BookmarkBarControllerTestC2Ev
 }
