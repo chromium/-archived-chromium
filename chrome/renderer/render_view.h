@@ -21,7 +21,6 @@
 #include "chrome/renderer/automation/dom_automation_controller.h"
 #include "chrome/renderer/dom_ui_bindings.h"
 #include "chrome/renderer/external_host_bindings.h"
-#include "chrome/renderer/external_js_object.h"
 #include "chrome/renderer/render_widget.h"
 #include "skia/include/SkBitmap.h"
 #include "testing/gtest/include/gtest/gtest_prod.h"
@@ -630,9 +629,6 @@ class RenderView : public RenderWidget,
 
   // Chrome page<->browser messaging CppBoundClass.
   DOMUIBindings dom_ui_bindings_;
-
-  // window.external object for "built-in" JS extensions
-  ExternalJSObject external_js_object_;
 
   // External host exposed through automation controller.
   ExternalHostBindings external_host_bindings_;

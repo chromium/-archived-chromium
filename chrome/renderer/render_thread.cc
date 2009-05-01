@@ -29,6 +29,7 @@
 #include "chrome/renderer/extensions/event_bindings.h"
 #include "chrome/renderer/extensions/extension_process_bindings.h"
 #include "chrome/renderer/extensions/renderer_extension_bindings.h"
+#include "chrome/renderer/external_extension.h"
 #include "chrome/renderer/js_only_v8_extensions.h"
 #include "chrome/renderer/loadtimes_extension_bindings.h"
 #include "chrome/renderer/net/render_dns_master.h"
@@ -326,6 +327,7 @@ void RenderThread::EnsureWebKitInitialized() {
   WebKit::registerExtension(extensions_v8::GearsExtension::Get());
   WebKit::registerExtension(extensions_v8::IntervalExtension::Get());
   WebKit::registerExtension(extensions_v8::LoadTimesExtension::Get());
+  WebKit::registerExtension(extensions_v8::ExternalExtension::Get());
 
   WebKit::registerExtension(ExtensionProcessBindings::Get(),
       WebKit::WebString::fromUTF8(chrome::kExtensionScheme));

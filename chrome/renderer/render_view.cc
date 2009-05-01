@@ -1499,8 +1499,6 @@ void RenderView::BindDOMAutomationController(WebFrame* webframe) {
 }
 
 void RenderView::WindowObjectCleared(WebFrame* webframe) {
-  external_js_object_.set_render_view(this);
-  external_js_object_.BindToJavascript(webframe, L"external");
   if (BindingsPolicy::is_dom_automation_enabled(enabled_bindings_))
     BindDOMAutomationController(webframe);
   if (BindingsPolicy::is_dom_ui_enabled(enabled_bindings_)) {
