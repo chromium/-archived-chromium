@@ -2627,5 +2627,5 @@ BUG11264 WIN : LayoutTests/plugins/netscape-identifier-conversion.html = CRASH
 BUG11322 : LayoutTests/editing/text-iterator/basic-iteration.html = FAIL
 BUG11322 : LayoutTests/fast/dom/HTMLScriptElement/script-for-attribute-unexpected-execution.html = FAIL
 BUG11322 : LayoutTests/fast/forms/multiple-selected-options-innerHTML.html = FAIL
-BUG11322 : LayoutTests/fast/js/regexp-range-bound-ffff.html
+BUG11322 : LayoutTests/fast/js/regexp-range-bound-ffff.html = FAIL
 BUG11322 LINUX : LayoutTests/plugins/embed-attributes-style.html = FAIL
