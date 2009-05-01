@@ -21,17 +21,17 @@ namespace {
 
 // Copies a set of cache files from the data folder to the test folder.
 bool CopyTestCache(const std::wstring& name) {
-  std::wstring path;
+  FilePath path;
   PathService::Get(base::DIR_SOURCE_ROOT, &path);
-  file_util::AppendToPath(&path, L"net");
-  file_util::AppendToPath(&path, L"data");
-  file_util::AppendToPath(&path, L"cache_tests");
-  file_util::AppendToPath(&path, name);
+  path = path.AppendASCII("net");
+  path = path.AppendASCII("data");
+  path = path.AppendASCII("cache_tests");
+  path = path.Append(FilePath::FromWStringHack(name));
 
   std::wstring dest = GetCachePath();
   if (!DeleteCache(dest.c_str()))
     return false;
-  return file_util::CopyDirectory(path, dest, false);
+  return file_util::CopyDirectory(path, FilePath::FromWStringHack(dest), false);
 }
 
 }  // namespace

@@ -17,13 +17,13 @@ using base::TimeDelta;
 namespace {
 
 std::wstring BuildCachePath(const std::wstring& name) {
-  std::wstring path;
+  FilePath path;
   PathService::Get(base::DIR_TEMP, &path);
-  file_util::AppendToPath(&path, name);
+  path = path.Append(FilePath::FromWStringHack(name));
   if (!file_util::PathExists(path))
     file_util::CreateDirectory(path);
 
-  return path;
+  return path.ToWStringHack();
 }
 
 }  // namespace.

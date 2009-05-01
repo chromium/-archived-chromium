@@ -34,12 +34,12 @@ class BZip2FilterUnitTest : public PlatformTest {
     bzip2_encode_buffer_ = NULL;
 
     // Get the path of source data file.
-    std::wstring file_path;
+    FilePath file_path;
     PathService::Get(base::DIR_SOURCE_ROOT, &file_path);
-    file_util::AppendToPath(&file_path, L"net");
-    file_util::AppendToPath(&file_path, L"data");
-    file_util::AppendToPath(&file_path, L"filter_unittests");
-    file_util::AppendToPath(&file_path, L"google.txt");
+    file_path = file_path.AppendASCII("net");
+    file_path = file_path.AppendASCII("data");
+    file_path = file_path.AppendASCII("filter_unittests");
+    file_path = file_path.AppendASCII("google.txt");
 
     // Read data from the file into buffer.
     file_util::ReadFileToString(file_path, &source_buffer_);

@@ -16,7 +16,7 @@
 #include <algorithm>
 #include <string>
 
-#include "base/file_path.h"
+#include "base/file_util.h"
 #include "base/message_loop.h"
 #include "base/path_service.h"
 #include "base/process_util.h"
@@ -539,7 +539,7 @@ TEST_F(URLRequestTest, PostFileTest) {
     TestURLRequest r(server->TestServerPage("echo"), &d);
     r.set_method("POST");
 
-    std::wstring dir;
+    FilePath dir;
     PathService::Get(base::DIR_EXE, &dir);
     file_util::SetCurrentDirectory(dir);
 
@@ -861,14 +861,14 @@ TEST_F(URLRequestTest, BZip2ContentTest_IncrementalHeader) {
 
 #if defined(OS_WIN)
 TEST_F(URLRequestTest, ResolveShortcutTest) {
-  std::wstring app_path;
+  FilePath app_path;
   PathService::Get(base::DIR_SOURCE_ROOT, &app_path);
-  file_util::AppendToPath(&app_path, L"net");
-  file_util::AppendToPath(&app_path, L"data");
-  file_util::AppendToPath(&app_path, L"url_request_unittest");
-  file_util::AppendToPath(&app_path, L"with-headers.html");
+  app_path = app_path.AppendASCII("net");
+  app_path = app_path.AppendASCII("data");
+  app_path = app_path.AppendASCII("url_request_unittest");
+  app_path = app_path.AppendASCII("with-headers.html");
 
-  std::wstring lnk_path = app_path + L".lnk";
+  std::wstring lnk_path = app_path.value() + L".lnk";
 
   HRESULT result;
   IShellLink *shell = NULL;
@@ -883,7 +883,7 @@ TEST_F(URLRequestTest, ResolveShortcutTest) {
   result = shell->QueryInterface(IID_IPersistFile,
                              reinterpret_cast<LPVOID*>(&persist));
   EXPECT_TRUE(SUCCEEDED(result));
-  result = shell->SetPath(app_path.c_str());
+  result = shell->SetPath(app_path.value().c_str());
   EXPECT_TRUE(SUCCEEDED(result));
   result = shell->SetDescription(L"ResolveShortcutTest");
   EXPECT_TRUE(SUCCEEDED(result));
@@ -904,8 +904,9 @@ TEST_F(URLRequestTest, ResolveShortcutTest) {
     MessageLoop::current()->Run();
 
     WIN32_FILE_ATTRIBUTE_DATA data;
-    GetFileAttributesEx(app_path.c_str(), GetFileExInfoStandard, &data);
-    HANDLE file = CreateFile(app_path.c_str(), GENERIC_READ,
+    GetFileAttributesEx(app_path.value().c_str(),
+                        GetFileExInfoStandard, &data);
+    HANDLE file = CreateFile(app_path.value().c_str(), GENERIC_READ,
                              FILE_SHARE_READ, NULL, OPEN_EXISTING,
                              FILE_ATTRIBUTE_NORMAL, NULL);
     EXPECT_NE(INVALID_HANDLE_VALUE, file);
@@ -1707,9 +1708,9 @@ TEST_F(URLRequestTest, InterceptRespectsCancelInRestart) {
 TEST_F(URLRequestTest, MAYBE_FTPGetTestAnonymous) {
   scoped_refptr<FTPTestServer> server = FTPTestServer::CreateServer(L"");
   ASSERT_TRUE(NULL != server.get());
-  std::wstring app_path;
+  FilePath app_path;
   PathService::Get(base::DIR_SOURCE_ROOT, &app_path);
-  app_path.append(L"\\LICENSE");
+  app_path = app_path.AppendASCII("LICENSE");
   TestDelegate d;
   {
     TestURLRequest r(server->TestServerPage("/LICENSE"), &d);
@@ -1732,9 +1733,9 @@ TEST_F(URLRequestTest, MAYBE_FTPGetTest) {
   scoped_refptr<FTPTestServer> server =
       FTPTestServer::CreateServer(L"", "chrome", "chrome");
   ASSERT_TRUE(NULL != server.get());
-  std::wstring app_path;
+  FilePath app_path;
   PathService::Get(base::DIR_SOURCE_ROOT, &app_path);
-  app_path.append(L"\\LICENSE");
+  app_path = app_path.AppendASCII("LICENSE");
   TestDelegate d;
   {
     TestURLRequest r(server->TestServerPage("/LICENSE"), &d);
@@ -1757,9 +1758,9 @@ TEST_F(URLRequestTest, MAYBE_FTPCheckWrongPassword) {
   scoped_refptr<FTPTestServer> server =
       FTPTestServer::CreateServer(L"", "chrome", "wrong_password");
   ASSERT_TRUE(NULL != server.get());
-  std::wstring app_path;
+  FilePath app_path;
   PathService::Get(base::DIR_SOURCE_ROOT, &app_path);
-  app_path.append(L"\\LICENSE");
+  app_path = app_path.AppendASCII("LICENSE");
   TestDelegate d;
   {
     TestURLRequest r(server->TestServerPage("/LICENSE"), &d);
@@ -1782,9 +1783,9 @@ TEST_F(URLRequestTest, MAYBE_FTPCheckWrongUser) {
   scoped_refptr<FTPTestServer> server =
       FTPTestServer::CreateServer(L"", "wrong_user", "chrome");
   ASSERT_TRUE(NULL != server.get());
-  std::wstring app_path;
+  FilePath app_path;
   PathService::Get(base::DIR_SOURCE_ROOT, &app_path);
-  app_path.append(L"\\LICENSE");
+  app_path = app_path.AppendASCII("LICENSE");
   TestDelegate d;
   {
     TestURLRequest r(server->TestServerPage("/LICENSE"), &d);

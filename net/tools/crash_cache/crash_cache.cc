@@ -37,10 +37,10 @@ using disk_cache::RankCrashes;
 
 // Starts a new process, to generate the files.
 int RunSlave(RankCrashes action) {
-  std::wstring exe;
+  FilePath exe;
   PathService::Get(base::FILE_EXE, &exe);
 
-  CommandLine cmdline(exe);
+  CommandLine cmdline(exe.ToWStringHack());
   cmdline.AppendLooseValue(ASCIIToWide(IntToString(action)));
 
   base::ProcessHandle handle;
@@ -300,12 +300,12 @@ int main(int argc, const char* argv[]) {
     return INVALID_ARGUMENT;
   }
 
-  std::wstring path;
+  FilePath path;
   PathService::Get(base::DIR_SOURCE_ROOT, &path);
-  file_util::AppendToPath(&path, L"net");
-  file_util::AppendToPath(&path, L"data");
-  file_util::AppendToPath(&path, L"cache_tests");
-  file_util::AppendToPath(&path, L"new_crashes");
+  path = path.AppendASCII("net");
+  path = path.AppendASCII("data");
+  path = path.AppendASCII("cache_tests");
+  path = path.AppendASCII("new_crashes");
 
-  return SlaveCode(path, action);
+  return SlaveCode(path.ToWStringHack(), action);
 }
