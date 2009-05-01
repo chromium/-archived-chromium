@@ -48,23 +48,24 @@ namespace {
 // construct the map key and for faster comparisons than strcmp.
 class StringKey {
   public:
-    explicit StringKey(const char* str) : _string(str), _length(strlen(str)) {}
-    StringKey() : _string(0), _length(0) {}
+    explicit StringKey(const char* str)
+        : m_string(str), m_length(strlen(str)) {}
+    StringKey() : m_string(0), m_length(0) {}
     explicit StringKey(WTF::HashTableDeletedValueType)
-        : _string(hashTableDeletedValue()), _length(0) { }
+        : m_string(hashTableDeletedValue()), m_length(0) { }
 
     StringKey& operator=(const StringKey& other) {
-        this->_string = other._string;
-        this->_length = other._length;
+        this->m_string = other.m_string;
+        this->m_length = other.m_length;
         return *this;
     }
 
     bool isHashTableDeletedValue() const {
-        return _string == hashTableDeletedValue();
+        return m_string == hashTableDeletedValue();
     }
 
-    const char* _string;
-    size_t _length;
+    const char* m_string;
+    size_t m_length;
   private:
     const char* hashTableDeletedValue() const {
         return reinterpret_cast<const char*>(-1);
@@ -72,23 +73,23 @@ class StringKey {
 };
 
 inline bool operator==(const StringKey& x, const StringKey& y) {
-    if (x._length != y._length) {
+    if (x.m_length != y.m_length) {
         return false;
-    } else if (x._string == y._string) {
+    } else if (x.m_string == y.m_string) {
         return true;
     } else {
         ASSERT(!x.isHashTableDeletedValue() && !y.isHashTableDeletedValue());
-        return memcmp(x._string, y._string, y._length) == 0;
+        return memcmp(x.m_string, y.m_string, y.m_length) == 0;
     }
 }
 
 // Implement WTF::DefaultHash<StringKey>::Hash interface.
 struct StringKeyHash {
     static unsigned hash(const StringKey& key) {
-        // Use the same string hash function as in V8.
+        // Compute string hash.
         unsigned hash = 0;
-        size_t len = key._length;
-        const char* str = key._string;
+        size_t len = key.m_length;
+        const char* str = key.m_string;
         for (size_t i = 0; i < len; i++) {
             char c = str[i];
             hash += c;
@@ -159,7 +160,7 @@ NPIdentifier NPN_GetStringIdentifier(const NPUTF8* name) {
         if (iter != identMap->end())
             return static_cast<NPIdentifier>(iter->second);
 
-        size_t nameLen = key._length;
+        size_t nameLen = key.m_length;
 
         // We never release identifiers, so this dictionary will grow.
         PrivateIdentifier* identifier = static_cast<PrivateIdentifier*>(
@@ -168,7 +169,7 @@ NPIdentifier NPN_GetStringIdentifier(const NPUTF8* name) {
         memcpy(nameStorage, name, nameLen + 1);
         identifier->isString = true;
         identifier->value.string = reinterpret_cast<NPUTF8*>(nameStorage);
-        key._string = nameStorage;
+        key.m_string = nameStorage;
         identMap->set(key, identifier);
         return (NPIdentifier)identifier;
     }
@@ -188,6 +189,19 @@ void NPN_GetStringIdentifiers(const NPUTF8** names, int32_t nameCount,
 
 NPIdentifier NPN_GetIntIdentifier(int32_t intid) {
     // AutoLock safeLock(IntIdentifierMapLock);
+    // Special case for -1 and 0, both cannot be used as key in HashMap.
+    if (intid == 0 || intid == -1) {
+        static PrivateIdentifier* minusOneOrZeroIds[2];
+        PrivateIdentifier* id = minusOneOrZeroIds[intid + 1];
+        if (!id) {
+            id = reinterpret_cast<PrivateIdentifier*>(
+                malloc(sizeof(PrivateIdentifier)));
+            id->isString = false;
+            id->value.number = intid;
+            minusOneOrZeroIds[intid + 1] = id;
+        }
+        return (NPIdentifier)id;
+    }
 
     IntIdentifierMap* identMap = getIntIdentifierMap();
     IntIdentifierMap::iterator iter = identMap->find(intid);
