@@ -382,6 +382,12 @@ Chrome supports. -->
       <message name="IDS_UNINSTALL_DELETE_PROFILE" desc="Text to show user to ask whether to delete all the profile data also during uninstallation.">
         Delete all profile data
       </message>
+      <message name="IDS_DEFAULT_BROWSER_INFOBAR_TEXT" desc="Text to show in the default browser query infobar.">
+        Hooray, you're back! But Google Chrome isn't your default browser.
+      </message>
+      <message name="IDS_DEFAULT_BROWSER_INFOBAR_SHORT_TEXT" desc="More compact text to show in the default browser query infobar.">
+        Google Chrome isn't your default browser.
+      </message>
     </messages>
   </release>
 </grit>
