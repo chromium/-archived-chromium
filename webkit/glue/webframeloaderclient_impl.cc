@@ -460,6 +460,12 @@ bool WebFrameLoaderClient::dispatchDidLoadResourceFromMemoryCache(
   return result;
 }
 
+void WebFrameLoaderClient::dispatchDidLoadResourceByXMLHttpRequest(
+    unsigned long identifier,
+    const ScriptString&) {
+  //TODO(pfeldman): Wire to net_agent.
+}
+
 void WebFrameLoaderClient::dispatchDidHandleOnloadEvents() {
   // During the onload event of a subframe, the subframe can be removed.  In
   // that case, it has no page.  This is covered by
