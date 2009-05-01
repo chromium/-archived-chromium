@@ -307,8 +307,10 @@ function do_tests() {
   // Try to perform no-op location updates for that frame (this should be non-disruptive,
   // and is required because we otherwise blacklist location.* writes).
 
-  schedule_test('blank_location_checks_access()');
-  schedule_test('blank_location_checks_call()');
+  // Temporarily disable these tests to see if it has any effect on
+  // non-determinism.
+  //schedule_test('blank_location_checks_access()');
+  //schedule_test('blank_location_checks_call()');
 
   // Now that we're done with r/w checks, try destructive overwrites of the nested
   // about:blank frame we put in the target window:
