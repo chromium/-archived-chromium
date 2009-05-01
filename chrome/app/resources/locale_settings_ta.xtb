@@ -53,7 +53,7 @@
 <translation id="IDS_IMPORTPROGRESS_DIALOG_HEIGHT_LINES">16</translation>
 <translation id="IDS_IMPORTLOCK_DIALOG_WIDTH_CHARS">50</translation>
 <translation id="IDS_IMPORTLOCK_DIALOG_HEIGHT_LINES">8</translation>
-<translation id="IDS_FIRSTRUNBUBBLE_DIALOG_WIDTH_CHARS">99</translation>
+<translation id="IDS_FIRSTRUNBUBBLE_DIALOG_WIDTH_CHARS">110</translation>
 <translation id="IDS_FIRSTRUNBUBBLE_DIALOG_HEIGHT_LINES">12</translation>
 <translation id="IDS_STATIC_ENCODING_LIST">ISO-8859-1,windows-1252</translation>
 <translation id="IDS_BOOKMARK_MANAGER_DIALOG_WIDTH_CHARS">150</translation>
