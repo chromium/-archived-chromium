@@ -20,7 +20,10 @@
 class UserScriptMasterTest : public testing::Test,
                              public NotificationObserver {
  public:
-  UserScriptMasterTest() : shared_memory_(NULL) {}
+  UserScriptMasterTest()
+      : message_loop_(MessageLoop::TYPE_UI),
+        shared_memory_(NULL) {
+  }
 
   virtual void SetUp() {
     // Name a subdirectory of the temp directory.
@@ -86,9 +89,8 @@ TEST_F(UserScriptMasterTest, NoScripts) {
   ASSERT_EQ(NULL, shared_memory_);
 }
 
-// TODO(shess): Disabled on Mac and Linux because of missing
-// DirectoryWatcher.
-#if defined(OS_WIN)
+// TODO(shess): Disabled on Linux because of missing DirectoryWatcher.
+#if defined(OS_WIN) || defined(OS_MACOSX)
 // Test that we get notified about new scripts after they're added.
 TEST_F(UserScriptMasterTest, NewScripts) {
   scoped_refptr<UserScriptMaster> master(

@@ -261,15 +261,15 @@ UserScriptMaster::~UserScriptMaster() {
   if (script_reloader_)
     script_reloader_->DisownMaster();
 
-// TODO(aa): Enable this when DirectoryWatcher is implemented for linux and mac.
-#if defined(OS_WIN)
+// TODO(aa): Enable this when DirectoryWatcher is implemented for linux.
+#if defined(OS_WIN) || defined(OS_MACOSX)
   STLDeleteElements(&dir_watchers_);
 #endif
 }
 
 void UserScriptMaster::AddWatchedPath(const FilePath& path) {
-// TODO(aa): Enable this when DirectoryWatcher is implemented for linux and mac.
-#if defined(OS_WIN)
+// TODO(aa): Enable this when DirectoryWatcher is implemented for linux.
+#if defined(OS_WIN) || defined(OS_MACOSX)
   DirectoryWatcher* watcher = new DirectoryWatcher();
   watcher->Watch(path, this, true);
   dir_watchers_.push_back(watcher);
