@@ -78,10 +78,6 @@ class BrowserInit {
     // Adds additional startup URLs to the specified vector.
     void AddStartupURLs(std::vector<GURL>* startup_urls) const;
 
-    // Checks whether Chrome is still the default browser (unless the user
-    // previously instructed not to do so) and warns the user if it is not.
-    void CheckDefaultBrowser(Profile* profile);
-
     std::wstring cur_dir_;
     const CommandLine& command_line_;
     Profile* profile_;

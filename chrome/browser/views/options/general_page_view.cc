@@ -581,9 +581,6 @@ void GeneralPageView::ButtonPressed(views::Button* sender) {
   } else if (sender == default_browser_use_as_default_button_) {
     default_browser_worker_->StartSetAsDefaultBrowser();
     UserMetricsRecordAction(L"Options_SetAsDefaultBrowser", NULL);
-    // If the user made Chrome the default browser, then he/she arguably wants
-    // to be notified when that changes.
-    profile()->GetPrefs()->SetBoolean(prefs::kCheckDefaultBrowser, true);
   } else if (sender == default_search_manage_engines_button_) {
     UserMetricsRecordAction(L"Options_ManageSearchEngines", NULL);
     KeywordEditorView::Show(profile());

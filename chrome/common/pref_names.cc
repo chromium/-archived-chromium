@@ -243,10 +243,6 @@ const wchar_t kPrintingPageFooterLeft[] = L"printing.page.footer.left";
 const wchar_t kPrintingPageFooterCenter[] = L"printing.page.footer.center";
 const wchar_t kPrintingPageFooterRight[] = L"printing.page.footer.right";
 
-// Boolean that indicates whether we should check if we are the default browser
-// on start-up.
-const wchar_t kCheckDefaultBrowser[] = L"browser.check_default_browser";
-
 // *************** LOCAL STATE ***************
 // These are attached to the machine/installation
 
