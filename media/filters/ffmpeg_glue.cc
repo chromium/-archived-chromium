@@ -105,7 +105,7 @@ static URLProtocol kFFmpegProtocol = {
 FFmpegGlue::FFmpegGlue() {
   // Register our protocol glue code with FFmpeg.
   avcodec_init();
-  av_register_protocol(&kFFmpegProtocol);
+  register_protocol(&kFFmpegProtocol);
 
   // Now register the rest of FFmpeg.
   av_register_all();
