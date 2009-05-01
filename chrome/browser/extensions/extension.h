@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
+// Copyright (c) 2009 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
@@ -16,6 +16,7 @@
 #include "base/version.h"
 #include "chrome/browser/extensions/user_script_master.h"
 #include "chrome/common/extensions/url_pattern.h"
+#include "chrome/common/page_action.h"
 #include "googleurl/src/gurl.h"
 
 // Represents a Chromium extension.
@@ -24,6 +25,7 @@ class Extension {
   Extension() {}
   explicit Extension(const FilePath& path);
   explicit Extension(const Extension& path);
+  virtual ~Extension();
 
   // The name of the manifest inside an extension.
   static const char kManifestFilename[];
@@ -32,22 +34,28 @@ class Extension {
   static const wchar_t* kContentScriptsKey;
   static const wchar_t* kCssKey;
   static const wchar_t* kDescriptionKey;
+  static const wchar_t* kIconPathKey;
   static const wchar_t* kIdKey;
   static const wchar_t* kJsKey;
   static const wchar_t* kMatchesKey;
   static const wchar_t* kNameKey;
+  static const wchar_t* kPageActionsKey;
   static const wchar_t* kPermissionsKey;
   static const wchar_t* kPluginsDirKey;
   static const wchar_t* kBackgroundKey;
   static const wchar_t* kRunAtKey;
   static const wchar_t* kThemeKey;
   static const wchar_t* kToolstripsKey;
+  static const wchar_t* kTooltipKey;
+  static const wchar_t* kTypeKey;
   static const wchar_t* kVersionKey;
   static const wchar_t* kZipHashKey;
 
   // Some values expected in manifests.
   static const char* kRunAtDocumentStartValue;
   static const char* kRunAtDocumentEndValue;
+  static const char* kPageActionTypeTab;
+  static const char* kPageActionTypePermanent;
 
   // Error messages returned from InitFromValue().
   static const char* kInvalidContentScriptError;
@@ -69,12 +77,18 @@ class Extension {
   static const char* kInvalidToolstripError;
   static const char* kInvalidToolstripsError;
   static const char* kInvalidVersionError;
+  static const char* kInvalidPageActionError;
+  static const char* kInvalidPageActionsListError;
+  static const char* kInvalidPageActionIconPathError;
+  static const char* kInvalidPageActionTooltipError;
+  static const char* kInvalidPageActionTypeValueError;
   static const char* kInvalidPermissionsError;
   static const char* kInvalidPermissionCountWarning;
   static const char* kInvalidPermissionError;
   static const char* kInvalidPermissionSchemeError;
   static const char* kInvalidZipHashError;
   static const char* kMissingFileError;
+  static const char* kMissingPageActionIcon;
 
   // The number of bytes in a legal id.
   static const size_t kIdSize;
@@ -114,6 +128,10 @@ class Extension {
   // as providing a theme.
   FilePath GetThemeResourcePath(const int resource_id);
 
+  // Update the status of the page action with |id| in tab |tab_id| and set the
+  // current page url to |url|.
+  bool UpdatePageAction(std::string id, int tab_id, GURL url);
+
   const FilePath& path() const { return path_; }
   const GURL& url() const { return extension_url_; }
   const std::string& id() const { return id_; }
@@ -123,6 +141,7 @@ class Extension {
   const std::string& name() const { return name_; }
   const std::string& description() const { return description_; }
   const UserScriptList& content_scripts() const { return content_scripts_; }
+  const PageActionMap& page_actions() const { return page_actions_; }
   const FilePath& plugins_dir() const { return plugins_dir_; }
   const GURL& background_url() const { return background_url_; }
   const std::vector<std::string>& toolstrips() const { return toolstrips_; }
@@ -136,6 +155,14 @@ class Extension {
                             int definition_index,
                             std::string* error,
                             UserScript* result);
+
+  // Helper method that loads a PageAction object from a
+  // dictionary in the page_action list of the manifest.
+  bool LoadPageActionHelper(const DictionaryValue* page_action,
+                            int definition_index,
+                            std::string* error,
+                            PageAction* result);
+
   // The absolute path to the directory the extension is stored in.
   FilePath path_;
 
@@ -161,6 +188,9 @@ class Extension {
 
   // Paths to the content scripts the extension contains.
   UserScriptList content_scripts_;
+
+  // A list of page actions.
+  PageActionMap page_actions_;
 
   // Optional absolute path to the directory of NPAPI plugins that the extension
   // contains.

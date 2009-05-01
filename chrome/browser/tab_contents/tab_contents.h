@@ -97,7 +97,7 @@ class TabContents : public PageNavigator,
     INVALIDATE_FAVICON = 4,    // The favicon has changed.
     INVALIDATE_LOAD = 8,       // The loading state has changed.
     INVALIDATE_FEEDLIST = 16,  // The Atom/RSS feed has changed.
-
+    INVALIDATE_PAGE_ACTIONS = 32, // Page action icons have changed.
     // Helper for forcing a refresh.
     INVALIDATE_EVERYTHING = 0xFFFFFFFF
   };

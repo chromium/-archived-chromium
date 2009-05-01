@@ -11,6 +11,7 @@
 #include "base/values.h"
 #include "chrome/browser/extensions/extension_bookmarks_module.h"
 #include "chrome/browser/extensions/extension_function.h"
+#include "chrome/browser/extensions/extension_page_actions_module.h"
 #include "chrome/browser/extensions/extension_tabs_module.h"
 #include "chrome/browser/renderer_host/render_process_host.h"
 #include "chrome/browser/renderer_host/render_view_host.h"
@@ -50,7 +51,7 @@ FactoryRegistry* FactoryRegistry::instance() {
 FactoryRegistry::FactoryRegistry() {
   // Register all functions here.
 
-  // Tabs
+  // Tabs.
   factories_["GetWindows"] = &NewExtensionFunction<GetWindowsFunction>;
   factories_["CreateWindow"] = &NewExtensionFunction<CreateWindowFunction>;
   factories_["RemoveWindow"] = &NewExtensionFunction<RemoveWindowFunction>;
@@ -62,7 +63,11 @@ FactoryRegistry::FactoryRegistry() {
   factories_["MoveTab"] = &NewExtensionFunction<MoveTabFunction>;
   factories_["RemoveTab"] = &NewExtensionFunction<RemoveTabFunction>;
 
-  // Bookmarks
+  // Page Actions.
+  factories_["EnablePageAction"] =
+      &NewExtensionFunction<EnablePageActionFunction>;
+
+  // Bookmarks.
   factories_["GetBookmarks"] = &NewExtensionFunction<GetBookmarksFunction>;
   factories_["GetBookmarkChildren"] =
       &NewExtensionFunction<GetBookmarkChildrenFunction>;

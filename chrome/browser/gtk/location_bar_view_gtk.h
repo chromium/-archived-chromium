@@ -70,6 +70,7 @@ class LocationBarViewGtk : public AutocompleteEditController,
   virtual void FocusLocation();
   virtual void FocusSearch();
   virtual void UpdateFeedIcon();
+  virtual void UpdatePageActions();
   virtual void SaveStateToContents(TabContents* contents);
 
   // Translation between a security level and the background color.  Both the

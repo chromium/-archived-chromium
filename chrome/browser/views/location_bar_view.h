@@ -1,15 +1,17 @@
-// Copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
+// Copyright (c) 2009 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CHROME_BROWSER_VIEWS_LOCATION_BAR_VIEW_H__
-#define CHROME_BROWSER_VIEWS_LOCATION_BAR_VIEW_H__
+#ifndef CHROME_BROWSER_VIEWS_LOCATION_BAR_VIEW_H_
+#define CHROME_BROWSER_VIEWS_LOCATION_BAR_VIEW_H_
 
 #include <string>
+#include <vector>
 
 #include "base/gfx/rect.h"
 #include "chrome/browser/autocomplete/autocomplete_edit.h"
 #include "chrome/browser/autocomplete/autocomplete_edit_view_win.h"
+#include "chrome/browser/icon_manager.h"
 #include "chrome/browser/location_bar.h"
 #include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/browser/toolbar_model.h"
@@ -23,6 +25,7 @@
 class AutocompletePopupPositioner;
 class CommandUpdater;
 class GURL;
+class PageAction;
 class Profile;
 
 /////////////////////////////////////////////////////////////////////////////
@@ -54,7 +57,7 @@ class LocationBarView : public LocationBar,
                   Delegate* delegate,
                   bool popup_window_mode,
                   AutocompletePopupPositioner* popup_positioner);
-  virtual ~LocationBarView() { }
+  virtual ~LocationBarView();
 
   void Init();
 
@@ -124,6 +127,7 @@ class LocationBarView : public LocationBar,
   virtual void FocusLocation();
   virtual void FocusSearch();
   virtual void UpdateFeedIcon();
+  virtual void UpdatePageActions();
   virtual void SaveStateToContents(TabContents* contents);
 
   static const int kVertMargin;
@@ -181,7 +185,7 @@ class LocationBarView : public LocationBar,
 
     Profile* profile_;
 
-    DISALLOW_EVIL_CONSTRUCTORS(SelectedKeywordView);
+    DISALLOW_COPY_AND_ASSIGN(SelectedKeywordView);
   };
 
   // KeywordHintView is used to display a hint to the user when the selected
@@ -221,7 +225,7 @@ class LocationBarView : public LocationBar,
 
     Profile* profile_;
 
-    DISALLOW_EVIL_CONSTRUCTORS(KeywordHintView);
+    DISALLOW_COPY_AND_ASSIGN(KeywordHintView);
   };
 
 
@@ -304,7 +308,7 @@ class LocationBarView : public LocationBar,
 
     ToolbarModel* model_;
 
-    DISALLOW_EVIL_CONSTRUCTORS(SecurityImageView);
+    DISALLOW_COPY_AND_ASSIGN(SecurityImageView);
   };
 
   // RssImageView is used to display the RSS icon when the page has a feed that
@@ -329,6 +333,51 @@ class LocationBarView : public LocationBar,
     ToolbarModel* model_;
 
     DISALLOW_COPY_AND_ASSIGN(RssImageView);
+  };
+
+  // PageActionImageView is used to display the icon for a given PageAction
+  // and notify the extension when the icon is clicked.
+  class PageActionImageView : public LocationBarImageView {
+  public:
+    PageActionImageView(
+        LocationBarView* owner, Profile* profile,
+        const PageAction* page_action);
+    virtual ~PageActionImageView();
+
+    // Overridden from view for the mouse hovering.
+    virtual bool OnMousePressed(const views::MouseEvent& event);
+
+    // Overridden from LocationBarImageView.
+    virtual void ShowInfoBubble();
+
+    // Called to notify the PageAction that it should determine whether to be
+    // visible or hidden.
+    void UpdateVisibility(int tab_id, GURL url);
+
+    // Called when the IconManager has loaded our icon.
+    void OnIconLoaded(IconManager::Handle handle, SkBitmap* icon);
+
+  private:
+    // The location bar view that owns us.
+    LocationBarView* owner_;
+
+    // The current profile (not owned by us).
+    Profile* profile_;
+
+    // The PageAction that this view represents. The PageAction is not owned by
+    // us, it resides in the extension of this particular profile.
+    const PageAction* page_action_;
+
+    // The tab id we are currently showing the icon for.
+    int current_tab_id_;
+
+    // The URL we are currently showing the icon for.
+    GURL current_url_;
+
+    // For canceling an in progress icon request.
+    CancelableRequestConsumerT<int, 0> icon_consumer_;
+
+    DISALLOW_COPY_AND_ASSIGN(PageActionImageView);
   };
 
   // Both Layout and OnChanged call into this. This updates the contents
@@ -370,6 +419,17 @@ class LocationBarView : public LocationBar,
 
   // Sets the RSS icon visibility.
   void SetRssIconVisibility(FeedList* feeds);
+
+  // Delete all page action views that we have created.
+  void DeletePageActionViews();
+
+  // Retrieves a vector of all page actions, irrespective of which
+  // extension they belong to.
+  std::vector<PageAction*> LocationBarView::GetPageActions();
+
+  // Update the views for the Page Actions, to reflect state changes for
+  // PageActions.
+  void RefreshPageActionViews();
 
   // Sets the text that should be displayed in the info label and its associated
   // tooltip text.  Call with an empty string if the info label should be
@@ -439,6 +499,9 @@ class LocationBarView : public LocationBar,
   // The view that shows the RSS icon when the page has an RSS feed.
   RssImageView rss_image_view_;
 
+  // The page action icon views.
+  std::vector<PageActionImageView*> page_action_image_views_;
+
   // A label displayed after the lock icon to show some extra information.
   views::Label info_label_;
 
@@ -453,4 +516,4 @@ class LocationBarView : public LocationBar,
   AutocompletePopupPositioner* popup_positioner_;
 };
 
-#endif // CHROME_BROWSER_VIEWS_LOCATION_BAR_VIEW_H__
+#endif  // CHROME_BROWSER_VIEWS_LOCATION_BAR_VIEW_H_

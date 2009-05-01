@@ -2370,6 +2370,9 @@ void Browser::ProcessPendingUIUpdates() {
     if (flags & TabContents::INVALIDATE_FEEDLIST)
       window()->GetLocationBar()->UpdateFeedIcon();
 
+    if (flags & TabContents::INVALIDATE_PAGE_ACTIONS)
+      window()->GetLocationBar()->UpdatePageActions();
+
     // Updating the URL happens synchronously in ScheduleUIUpdate.
 
     if (flags & TabContents::INVALIDATE_LOAD && GetStatusBubble())

@@ -13,14 +13,15 @@
 #include "chrome/browser/extensions/extension_tabs_module.h"
 #include "chrome/common/notification_service.h"
 
-const char* kOnWindowCreated = "window-created";
-const char* kOnWindowRemoved = "window-removed";
+const char* kOnPageActionExecuted = "page-action-executed";
 const char* kOnTabCreated = "tab-created";
 const char* kOnTabMoved = "tab-moved";
 const char* kOnTabSelectionChanged = "tab-selection-changed";
 const char* kOnTabAttached = "tab-attached";
 const char* kOnTabDetached = "tab-detached";
 const char* kOnTabRemoved = "tab-removed";
+const char* kOnWindowCreated = "window-created";
+const char* kOnWindowRemoved = "window-removed";
 
 ExtensionBrowserEventRouter* ExtensionBrowserEventRouter::GetInstance() {
   return Singleton<ExtensionBrowserEventRouter>::get();
@@ -200,3 +201,24 @@ void ExtensionBrowserEventRouter::TabChangedAt(TabContents* contents,
                                                bool loading_only) { }
 
 void ExtensionBrowserEventRouter::TabStripEmpty() { }
+
+void ExtensionBrowserEventRouter::PageActionExecuted(Profile *profile,
+                                                     std::string page_action_id,
+                                                     int tab_id,
+                                                     std::string url) {
+  ListValue args;
+  DictionaryValue *object_args = new DictionaryValue();
+  object_args->Set(L"pageActionId", Value::CreateStringValue(page_action_id));
+
+  DictionaryValue *data = new DictionaryValue();
+  data->Set(L"tabId", Value::CreateIntegerValue(tab_id));
+  data->Set(L"tabUrl", Value::CreateStringValue(url));
+  object_args->Set(L"data", data);
+
+  args.Append(object_args);
+
+  std::string json_args;
+  JSONWriter::Write(&args, false, &json_args);
+
+  DispatchEvent(profile, kOnPageActionExecuted, json_args);
+}

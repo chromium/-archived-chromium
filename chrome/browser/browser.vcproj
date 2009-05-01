@@ -1974,6 +1974,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\extensions\extension_page_actions_module.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\extensions\extension_page_actions_module.h"
+				>
+			</File>
+			<File
 				RelativePath=".\extensions\extension_protocols.cc"
 				>
 			</File>

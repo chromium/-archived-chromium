@@ -237,3 +237,9 @@ TEST_F(ExtensionAPIClientTest, SetBookmarkTitle) {
                "{\"id\":42,\"title\":\"x\"}");
 }
 
+TEST_F(ExtensionAPIClientTest, EnablePageAction) {
+  ExpectJsPass("chromium.pageActions.enableForTab("
+                   "\"dummy\", {tabId: 0, url: \"http://foo/\"});",
+               "EnablePageAction",
+               "[\"dummy\",{\"tabId\":0,\"url\":\"http://foo/\"}]");
+}

@@ -19,6 +19,7 @@ var chromium;
   native function UpdateTab();
   native function MoveTab();
   native function RemoveTab();
+  native function EnablePageAction();
   native function GetBookmarks();
   native function GetBookmarkChildren();
   native function GetBookmarkTree();
@@ -62,7 +63,7 @@ var chromium;
     }
   }
 
-  // callback handling
+  // Callback handling.
   // TODO(aa): This function should not be publicly exposed. Pass it into V8
   // instead and hold one per-context. See the way event_bindings.js works.
   var callbacks = [];
@@ -91,7 +92,7 @@ var chromium;
 
   //----------------------------------------------------------------------------
 
-  // Windows
+  // Windows.
   chromium.windows = {};
 
   chromium.windows.getWindows = function(windowQuery, callback) {
@@ -237,34 +238,59 @@ var chromium;
     chromium.types.pInt
   ];
 
-  // sends ({tabId, windowId, index}).
-  // will *NOT* be followed by tab-attached - it is implied.
+  // Sends ({tabId, windowId, index}).
+  // Will *NOT* be followed by tab-attached - it is implied.
   // *MAY* be followed by tab-selection-changed.
   chromium.tabs.onTabCreated = new chromium.Event("tab-created");
   
-  // sends ({tabId, windowId, fromIndex, toIndex}).
-  // tabs can only "move" within a window.
+  // Wends ({tabId, windowId, fromIndex, toIndex}).
+  // Tabs can only "move" within a window.
   chromium.tabs.onTabMoved = new chromium.Event("tab-moved");
  
-  // sends ({tabId, windowId, index}).
+  // Sends ({tabId, windowId, index}).
   chromium.tabs.onTabSelectionChanged = 
        new chromium.Event("tab-selection-changed");
    
-  // sends ({tabId, windowId, index}).
+  // Sends ({tabId, windowId, index}).
   // *MAY* be followed by tab-selection-changed.
   chromium.tabs.onTabAttached = new chromium.Event("tab-attached");
   
-  // sends ({tabId, windowId, index}).
+  // Sends ({tabId, windowId, index}).
   // *WILL* be followed by tab-selection-changed.
   chromium.tabs.onTabDetached = new chromium.Event("tab-detached");
   
-  // sends (tabId).
+  // Sends (tabId).
   // *WILL* be followed by tab-selection-changed.
-  // will *NOT* be followed or preceded by tab-detached.
+  // Will *NOT* be followed or preceded by tab-detached.
   chromium.tabs.onTabRemoved = new chromium.Event("tab-removed");
 
   //----------------------------------------------------------------------------
 
+  // PageActions.
+  chromium.pageActions = {};
+
+  chromium.pageActions.enableForTab = function(pageActionId, action) {
+    validate(arguments, arguments.callee.params);
+    sendRequest(EnablePageAction, [pageActionId, action]);
+  }
+
+  chromium.pageActions.enableForTab.params = [  
+    chromium.types.str,
+    {
+      type: "object",
+      properties: {
+        tabId: chromium.types.pInt,
+        url: chromium.types.str
+      },
+      optional: false
+    }
+  ];
+
+  // Sends ({pageActionId, tabId, tabUrl}).
+  chromium.pageActions.onExecute =
+       new chromium.Event("page-action-executed");
+
+  //----------------------------------------------------------------------------
   // Bookmarks
   chromium.bookmarks = {};
 
@@ -401,7 +427,7 @@ var chromium;
 
   //----------------------------------------------------------------------------
 
-  // Self
+  // Self.
   chromium.self = {};
   chromium.self.onConnect = new chromium.Event("channel-connect");
 })();

@@ -22,13 +22,13 @@
 class ExtensionBrowserEventRouter : public TabStripModelObserver,
                                     public NotificationObserver {
  public:
-  // Get Browser-Global instance
+  // Get Browser-Global instance.
   static ExtensionBrowserEventRouter* GetInstance();
 
   // Must be called once. Subsequent calls have no effect.
   void Init();
 
-  // TabStripModelObserver
+  // TabStripModelObserver.
   void TabInsertedAt(TabContents* contents, int index, bool foreground);
   void TabClosingAt(TabContents* contents, int index);
   void TabDetachedAt(TabContents* contents, int index);
@@ -40,7 +40,13 @@ class ExtensionBrowserEventRouter : public TabStripModelObserver,
   void TabChangedAt(TabContents* contents, int index, bool loading_only);
   void TabStripEmpty();
 
-  // NotificationObserver
+  // PageActions.
+  void PageActionExecuted(Profile *profile,
+                          std::string page_action_id,
+                          int tab_id,
+                          std::string url);
+
+  // NotificationObserver.
   void Observe(NotificationType type,
                const NotificationSource& source,
                const NotificationDetails& details);

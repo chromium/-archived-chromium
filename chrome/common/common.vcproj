@@ -650,6 +650,14 @@
 			>
 		</File>
 		<File
+			RelativePath=".\page_action.cc"
+			>
+		</File>
+		<File
+			RelativePath=".\page_action.h"
+			>
+		</File>
+		<File
 			RelativePath=".\page_transition_types.h"
 			>
 		</File>

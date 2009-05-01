@@ -1,10 +1,11 @@
-// Copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
+// Copyright (c) 2009 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
 #include "chrome/browser/extensions/extension.h"
 
 #include "base/file_path.h"
+#include "base/file_util.h"
 #include "base/logging.h"
 #include "base/string_util.h"
 #include "net/base/net_util.h"
@@ -18,21 +19,28 @@ const char Extension::kManifestFilename[] = "manifest.json";
 const wchar_t* Extension::kContentScriptsKey = L"content_scripts";
 const wchar_t* Extension::kCssKey = L"css";
 const wchar_t* Extension::kDescriptionKey = L"description";
+const wchar_t* Extension::kIconPathKey = L"icon";
 const wchar_t* Extension::kIdKey = L"id";
 const wchar_t* Extension::kJsKey = L"js";
 const wchar_t* Extension::kMatchesKey = L"matches";
 const wchar_t* Extension::kNameKey = L"name";
+const wchar_t* Extension::kPageActionsKey = L"page_actions";
 const wchar_t* Extension::kPermissionsKey = L"permissions";
 const wchar_t* Extension::kPluginsDirKey = L"plugins_dir";
 const wchar_t* Extension::kBackgroundKey = L"background";
 const wchar_t* Extension::kRunAtKey = L"run_at";
 const wchar_t* Extension::kThemeKey = L"theme";
 const wchar_t* Extension::kToolstripsKey = L"toolstrips";
+const wchar_t* Extension::kTooltipKey = L"tooltip";
+const wchar_t* Extension::kTypeKey = L"type";
 const wchar_t* Extension::kVersionKey = L"version";
 const wchar_t* Extension::kZipHashKey = L"zip_hash";
 
 const char* Extension::kRunAtDocumentStartValue = "document_start";
 const char* Extension::kRunAtDocumentEndValue = "document_end";
+const char* Extension::kPageActionTypeTab = "tab";
+const char* Extension::kPageActionTypePermanent = "permanent";
+
 
 // Extension-related error messages. Some of these are simple patterns, where a
 // '*' is replaced at runtime with a specific value. This is used instead of
@@ -65,6 +73,16 @@ const char* Extension::kInvalidMatchesError =
     "Required value 'content_scripts[*].matches' is missing or invalid.";
 const char* Extension::kInvalidNameError =
     "Required value 'name' is missing or invalid.";
+const char* Extension::kInvalidPageActionError =
+    "Invalid value for 'page_actions[*]'.";
+const char* Extension::kInvalidPageActionsListError =
+    "Invalid value for 'page_actions'.";
+const char* Extension::kInvalidPageActionIconPathError =
+    "Invalid value for 'page_actions[*].icon'.";
+const char* Extension::kInvalidPageActionTooltipError =
+    "Invalid value for 'page_actions[*].tooltip'.";
+const char* Extension::kInvalidPageActionTypeValueError =
+    "Invalid value for 'page_actions[*].type', expected 'tab' or 'permanent'.";
 const char* Extension::kInvalidPermissionsError =
     "Required value 'permissions' is missing or invalid.";
 const char* Extension::kInvalidPermissionCountWarning =
@@ -90,6 +108,8 @@ const char* Extension::kInvalidZipHashError =
     "Required key 'zip_hash' is missing or invalid.";
 const char* Extension::kMissingFileError =
     "At least one js or css file is required for 'content_scripts[*]'.";
+const char* Extension::kMissingPageActionIcon =
+    "Unable to find 'page_actions[*].icon'";
 
 const size_t Extension::kIdSize = 20;  // SHA1 (160 bits) == 20 bytes
 
@@ -101,9 +121,16 @@ Extension::Extension(const Extension& rhs)
       name_(rhs.name_),
       description_(rhs.description_),
       content_scripts_(rhs.content_scripts_),
+      page_actions_(rhs.page_actions_),
       plugins_dir_(rhs.plugins_dir_),
       zip_hash_(rhs.zip_hash_),
       theme_paths_(rhs.theme_paths_) {
+}
+
+Extension::~Extension() {
+  for (PageActionMap::iterator i = page_actions_.begin();
+       i != page_actions_.end(); ++i)
+    delete i->second;
 }
 
 const std::string Extension::VersionString() const {
@@ -128,6 +155,14 @@ FilePath Extension::GetThemeResourcePath(const int resource_id) {
   if (path.size())
     return path_.AppendASCII(path.c_str());
   return FilePath();
+}
+
+bool Extension::UpdatePageAction(std::string id, int tab_id, GURL url) {
+  if (page_actions_.find(id) == page_actions_.end())
+    return false;
+
+  page_actions_[id]->SetActiveTabIdAndUrl(tab_id, url);
+  return true;
 }
 
 // static
@@ -323,6 +358,74 @@ bool Extension::LoadUserScriptHelper(const DictionaryValue* content_script,
   return true;
 }
 
+// Helper method that loads a PageAction object from a dictionary in the
+// page_action list of the manifest.
+bool Extension::LoadPageActionHelper(const DictionaryValue* page_action,
+                                     int definition_index, std::string* error,
+                                     PageAction* result) {
+  result->set_extension_id(id());
+
+  // Read the page action |icon|.
+  std::string icon;
+  if (!page_action->GetString(kIconPathKey, &icon)) {
+    *error = FormatErrorMessage(kInvalidPageActionIconPathError,
+                                IntToString(definition_index));
+    return false;
+  }
+  FilePath icon_path = path_.AppendASCII(icon);
+  if (!file_util::PathExists(icon_path)) {
+    *error = FormatErrorMessage(kMissingPageActionIcon,
+                                IntToString(definition_index));
+    return false;
+  }
+  result->set_icon_path(icon_path);
+
+  // Read the page action |id|.
+  std::string id;
+  if (!page_action->GetString(kIdKey, &id)) {
+    *error = FormatErrorMessage(kInvalidIdError, IntToString(definition_index));
+    return false;
+  }
+  result->set_id(id);
+
+  // Read the page action |name|.
+  std::string name;
+  if (!page_action->GetString(kNameKey, &name)) {
+    *error = FormatErrorMessage(kInvalidNameError,
+                                IntToString(definition_index));
+    return false;
+  }
+  result->set_name(name);
+
+  // Read the page action |tooltip|.
+  std::string tooltip;
+  if (!page_action->GetString(kTooltipKey, &tooltip)) {
+    *error = FormatErrorMessage(kInvalidPageActionTooltipError,
+                                IntToString(definition_index));
+    return false;
+  }
+  result->set_tooltip(tooltip);
+
+  // Read the page action |type|. It is optional and set to permanent if
+  // missing.
+  std::string type;
+  if (!page_action->GetString(kTypeKey, &type)) {
+    result->set_type(PageAction::PERMANENT);
+  } else if (!LowerCaseEqualsASCII(type, kPageActionTypeTab) &&
+             !LowerCaseEqualsASCII(type, kPageActionTypePermanent)) {
+    *error = FormatErrorMessage(kInvalidPageActionTypeValueError,
+                                IntToString(definition_index));
+    return false;
+  } else {
+    if (LowerCaseEqualsASCII(type, kPageActionTypeTab))
+      result->set_type(PageAction::TAB);
+    else
+      result->set_type(PageAction::PERMANENT);
+  }
+
+  return true;
+}
+
 bool Extension::InitFromValue(const DictionaryValue& source, bool require_id,
                               std::string* error) {
   // Initialize id.
@@ -471,6 +574,31 @@ bool Extension::InitFromValue(const DictionaryValue& source, bool require_id,
         return false;  // Failed to parse script context definition
       script.set_extension_id(id());
       content_scripts_.push_back(script);
+    }
+  }
+
+  // Initialize page actions (optional).
+  if (source.HasKey(kPageActionsKey)) {
+    ListValue* list_value;
+    if (!source.GetList(kPageActionsKey, &list_value)) {
+      *error = kInvalidPageActionsListError;
+      return false;
+    }
+
+    for (size_t i = 0; i < list_value->GetSize(); ++i) {
+      DictionaryValue* page_action_value;
+      if (!list_value->GetDictionary(i, &page_action_value)) {
+        *error = FormatErrorMessage(kInvalidPageActionError,
+                                    IntToString(i));
+        return false;
+      }
+
+      PageAction* page_action = new PageAction();
+      if (!LoadPageActionHelper(page_action_value, i, error, page_action)) {
+        delete page_action;
+        return false;  // Failed to parse page action definition.
+      }
+      page_actions_[page_action->id()] = page_action;
     }
   }
 

@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
+// Copyright (c) 2009 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
@@ -12,6 +12,9 @@
 #include "chrome/browser/browser_list.h"
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/command_updater.h"
+#include "chrome/browser/extensions/extension_browser_event_router.h"
+#include "chrome/browser/extensions/extension_tabs_module.h"
+#include "chrome/browser/extensions/extensions_service.h"
 #include "chrome/browser/profile.h"
 #include "chrome/browser/search_engines/template_url.h"
 #include "chrome/browser/search_engines/template_url_model.h"
@@ -102,6 +105,10 @@ LocationBarView::LocationBarView(Profile* profile,
   }
 }
 
+LocationBarView::~LocationBarView() {
+  DeletePageActionViews();
+}
+
 bool LocationBarView::IsInitialized() const {
   return location_entry_view_ != NULL;
 }
@@ -178,6 +185,7 @@ void LocationBarView::Init() {
 void LocationBarView::Update(const TabContents* tab_for_state_restoring) {
   SetSecurityIcon(model_->GetIcon());
   SetRssIconVisibility(model_->GetFeedList().get());
+  RefreshPageActionViews();
   std::wstring info_text, info_tooltip;
   SkColor text_color;
   model_->GetInfoText(&info_text, &text_color, &info_tooltip);
@@ -189,6 +197,13 @@ void LocationBarView::Update(const TabContents* tab_for_state_restoring) {
 
 void LocationBarView::UpdateFeedIcon() {
   SetRssIconVisibility(model_->GetFeedList().get());
+  Layout();
+  SchedulePaint();
+}
+
+void LocationBarView::UpdatePageActions() {
+  RefreshPageActionViews();
+
   Layout();
   SchedulePaint();
 }
@@ -346,10 +361,18 @@ void LocationBarView::DoLayout(const bool force_layout) {
 
   int entry_width = width() - (kEntryPadding * 2);
 
+  gfx::Size page_action_size;
+  for (size_t i = 0; i < page_action_image_views_.size(); i++) {
+    if (page_action_image_views_[i]->IsVisible()) {
+      page_action_size = page_action_image_views_[i]->GetPreferredSize();
+      entry_width -= (page_action_size.width() + kInnerPadding) *
+                     page_action_image_views_.size();
+    }
+  }
   gfx::Size rss_image_size;
   if (rss_image_view_.IsVisible()) {
     rss_image_size = rss_image_view_.GetPreferredSize();
-    entry_width -= rss_image_size.width();
+    entry_width -= rss_image_size.width() + kInnerPadding;
   }
   gfx::Size security_image_size;
   if (security_image_view_.IsVisible()) {
@@ -383,6 +406,19 @@ void LocationBarView::DoLayout(const bool force_layout) {
   }
   const int info_label_width = info_label_size.width() ?
       info_label_size.width() + kInnerPadding : 0;
+
+  int offset = width() - kEntryPadding - info_label_width -
+      security_image_size.width();
+
+  for (size_t i = 0; i < page_action_image_views_.size(); i++) {
+    if (page_action_image_views_[i]->IsVisible()) {
+      page_action_size = page_action_image_views_[i]->GetPreferredSize();
+      offset -= page_action_size.width();
+      page_action_image_views_[i]->SetBounds(offset, location_y,
+                                             page_action_size.width(),
+                                             location_height);
+    }
+  }
   if (rss_image_view_.IsVisible()) {
     rss_image_view_.SetBounds(width() - kEntryPadding -
                                   info_label_width -
@@ -527,6 +563,64 @@ void LocationBarView::SetRssIconVisibility(FeedList* feeds) {
   bool show_rss = feeds && feeds->list().size() > 0;
   // TODO(finnur): Enable this when we have a good landing page to show feeds.
   rss_image_view_.SetVisible(false);
+}
+
+void LocationBarView::DeletePageActionViews() {
+  if (!page_action_image_views_.empty()) {
+    for (size_t i = 0; i < page_action_image_views_.size(); ++i)
+      RemoveChildView(page_action_image_views_[i]);
+    STLDeleteContainerPointers(page_action_image_views_.begin(),
+                               page_action_image_views_.end());
+    page_action_image_views_.clear();
+  }
+}
+
+std::vector<PageAction*> LocationBarView::GetPageActions() {
+  std::vector<PageAction*> result;
+
+  // Query the extension system to see how many page actions we have.
+  // TODO(finnur): Sort the page icons in some meaningful way.
+  const ExtensionList* extensions =
+      profile_->GetExtensionsService()->extensions();
+  for (ExtensionList::const_iterator iter = extensions->begin();
+       iter != extensions->end(); ++iter) {
+    const PageActionMap& page_actions = (*iter)->page_actions();
+    for (PageActionMap::const_iterator i(page_actions.begin());
+         i != page_actions.end(); ++i) {
+      result.push_back(i->second);
+    }
+  }
+
+  return result;
+}
+
+void LocationBarView::RefreshPageActionViews() {
+  std::vector<PageAction*> page_actions = GetPageActions();
+
+  // On startup we sometimes haven't loaded any extensions. This makes sure
+  // we catch up when the extensions (and any page actions) load.
+  if (page_actions.size() != page_action_image_views_.size()) {
+    DeletePageActionViews();  // Delete the old views (if any).
+
+    page_action_image_views_.resize(page_actions.size());
+
+    for (size_t i = 0; i < page_actions.size(); ++i) {
+      page_action_image_views_[i] =
+          new PageActionImageView(this, profile_, page_actions[i]);
+      page_action_image_views_[i]->SetVisible(false);
+      page_action_image_views_[i]->SetParentOwned(false);
+      AddChildView(page_action_image_views_[i]);
+    }
+  }
+
+  TabContents* contents = delegate_->GetTabContents();
+  if (!page_action_image_views_.empty() && contents) {
+    int tab_id = ExtensionTabUtil::GetTabId(contents);
+    GURL url = GURL(model_->GetText());
+
+    for (size_t i = 0; i < page_action_image_views_.size(); i++)
+      page_action_image_views_[i]->UpdateVisibility(tab_id, url);
+  }
 }
 
 void LocationBarView::SetInfoText(const std::wstring& text,
@@ -840,7 +934,7 @@ class LocationBarView::ShowInfoBubbleTask : public Task {
   LocationBarView::LocationBarImageView* image_view_;
   bool cancelled_;
 
-  DISALLOW_EVIL_CONSTRUCTORS(ShowInfoBubbleTask);
+  DISALLOW_COPY_AND_ASSIGN(ShowInfoBubbleTask);
 };
 
 LocationBarView::ShowInfoBubbleTask::ShowInfoBubbleTask(
@@ -1076,6 +1170,67 @@ void LocationBarView::RssImageView::ShowInfoBubble() {
   std::wstring text = L"Subscribe to this feed";
   SkColor text_color = SK_ColorBLUE;
   ShowInfoBubbleImpl(text, text_color);
+}
+
+// PageActionImageView----------------------------------------------------------
+
+LocationBarView::PageActionImageView::PageActionImageView(
+    LocationBarView* owner,
+    Profile* profile,
+    const PageAction* page_action)
+  : owner_(owner),
+    profile_(profile),
+    page_action_(page_action),
+    LocationBarImageView() {
+  // The first thing we do is try to set the image from the PageAction icon.
+  if (page_action->icon_path().empty()) {
+    NOTREACHED();
+    return;  // Need icon path to continue.
+  }
+
+  IconManager* im = g_browser_process->icon_manager();
+
+  SkBitmap* icon = im->LookupIcon(page_action->icon_path(),
+                                  IconLoader::SMALL);
+  if (icon) {
+    ImageView::SetImage(icon);
+  } else {
+    // Ask the Icon Manager to load the icon (happens on the File thread).
+    IconManager::Handle h = im->LoadIcon(page_action->icon_path(),
+        IconLoader::SMALL, &icon_consumer_,
+        NewCallback(this, &LocationBarView::PageActionImageView::OnIconLoaded));
+  }
+}
+
+LocationBarView::PageActionImageView::~PageActionImageView() {
+  icon_consumer_.CancelAllRequests();
+}
+
+bool LocationBarView::PageActionImageView::OnMousePressed(
+    const views::MouseEvent& event) {
+  // Our PageAction icon was clicked on, notify proper authorities.
+  ExtensionBrowserEventRouter::GetInstance()->PageActionExecuted(
+      profile_, page_action_->id(), current_tab_id_, current_url_.spec());
+  return true;
+}
+
+void LocationBarView::PageActionImageView::ShowInfoBubble() {
+  SkColor text_color = SK_ColorBLACK;
+  ShowInfoBubbleImpl(ASCIIToWide(page_action_->tooltip()), text_color);
+}
+
+void LocationBarView::PageActionImageView::UpdateVisibility(
+    int tab_id, GURL url) {
+  current_tab_id_ = tab_id;
+  current_url_ = url;
+
+  SetVisible(page_action_->IsActive(current_tab_id_, current_url_));
+}
+
+void LocationBarView::PageActionImageView::OnIconLoaded(
+    IconManager::Handle handle, SkBitmap* icon) {
+  ImageView::SetImage(icon);
+  owner_->UpdatePageActions();
 }
 
 bool LocationBarView::OverrideAccelerator(

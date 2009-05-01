@@ -75,7 +75,7 @@ void LocationBarViewGtk::Init() {
   gtk_widget_set_app_paintable(alignment_.get(), TRUE);
   // Have GTK double buffer around the expose signal.
   gtk_widget_set_double_buffered(alignment_.get(), TRUE);
-  g_signal_connect(alignment_.get(), "expose-event", 
+  g_signal_connect(alignment_.get(), "expose-event",
                    G_CALLBACK(&HandleExposeThunk), this);
 
   gtk_container_add(GTK_CONTAINER(alignment_.get()),
@@ -187,6 +187,10 @@ void LocationBarViewGtk::UpdateFeedIcon() {
   FeedList* feeds = toolbar_model_->GetFeedList().get();
   if (feeds && feeds->list().size() > 0)
     NOTIMPLEMENTED();
+}
+
+void LocationBarViewGtk::UpdatePageActions() {
+  NOTIMPLEMENTED();
 }
 
 void LocationBarViewGtk::SaveStateToContents(TabContents* contents) {
