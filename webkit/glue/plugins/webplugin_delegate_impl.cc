@@ -855,31 +855,15 @@ LRESULT CALLBACK WebPluginDelegateImpl::NativeWndProc(
 
   g_current_plugin_instance = delegate;
 
-  switch (message) {
-    case WM_NCDESTROY: {
-      RemoveProp(hwnd, kWebPluginDelegateProperty);
-      ATOM plugin_name_atom = reinterpret_cast  <ATOM>(
-          RemoveProp(hwnd, kPluginNameAtomProperty));
-      if (plugin_name_atom != 0)
-        GlobalDeleteAtom(plugin_name_atom);
-      ClearThrottleQueueForWindow(hwnd);
-      break;
-    }
-    // Flash may flood the message queue with WM_USER+1 message causing 100% CPU
-    // usage.  See https://bugzilla.mozilla.org/show_bug.cgi?id=132759.  We
-    // prevent this by throttling the messages.
-    case WM_USER + 1: {
-      if (delegate->GetQuirks() & PLUGIN_QUIRK_THROTTLE_WM_USER_PLUS_ONE) {
-        WebPluginDelegateImpl::ThrottleMessage(delegate->plugin_wnd_proc_, hwnd,
-                                               message, wparam, lparam);
-        g_current_plugin_instance = last_plugin_instance;
-        return FALSE;
-      }
-      break;
-    }
-    default: {
-      break;
-    }
+  // Flash may flood the message queue with WM_USER+1 message causing 100% CPU
+  // usage.  See https://bugzilla.mozilla.org/show_bug.cgi?id=132759.  We
+  // prevent this by throttling the messages.
+  if (message == WM_USER + 1 &&
+      delegate->GetQuirks() & PLUGIN_QUIRK_THROTTLE_WM_USER_PLUS_ONE) {
+    WebPluginDelegateImpl::ThrottleMessage(delegate->plugin_wnd_proc_, hwnd,
+                                           message, wparam, lparam);
+    g_current_plugin_instance = last_plugin_instance;
+    return FALSE;
   }
 
   delegate->last_message_ = message;
@@ -901,6 +885,16 @@ LRESULT CALLBACK WebPluginDelegateImpl::NativeWndProc(
                                   wparam, lparam);
   delegate->is_calling_wndproc = false;
   g_current_plugin_instance = last_plugin_instance;
+
+  if (message == WM_NCDESTROY) {
+    RemoveProp(hwnd, kWebPluginDelegateProperty);
+    ATOM plugin_name_atom = reinterpret_cast  <ATOM>(
+        RemoveProp(hwnd, kPluginNameAtomProperty));
+    if (plugin_name_atom != 0)
+      GlobalDeleteAtom(plugin_name_atom);
+    ClearThrottleQueueForWindow(hwnd);
+  }
+
   return result;
 }
 
