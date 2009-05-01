@@ -154,7 +154,13 @@ void WebFrameLoaderClient::detachedFromParent2() {
 }
 
 void WebFrameLoaderClient::detachedFromParent3() {
-  // Nothing to do here.
+  // Close down the proxy.  The purpose of this change is to make the
+  // call to ScriptController::clearWindowShell a no-op when called from
+  // Frame::pageDestroyed.  Without this change, this call to clearWindowShell
+  // will cause a crash.  If you remove/modify this, just ensure that you can
+  // go to a page and then navigate to a new page without getting any asserts
+  // or crashes.
+  webframe_->frame()->script()->proxy()->clearForClose();
 }
 
 // This function is responsible for associating the |identifier| with a given
