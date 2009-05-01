@@ -112,8 +112,15 @@ bool PathProvider(int key, FilePath* result) {
       create_dir = true;
       break;
     case chrome::DIR_APP_DICTIONARIES:
+#if defined(OS_LINUX)
+      // We can't write into the EXE dir on Linux, so keep dictionaries
+      // alongside the safe browsing database in the user data dir.
+      if (!PathService::Get(chrome::DIR_USER_DATA, &cur))
+        return false;
+#else
       if (!PathService::Get(base::DIR_EXE, &cur))
         return false;
+#endif
       cur = cur.Append(FILE_PATH_LITERAL("Dictionaries"));
       create_dir = true;
       break;
