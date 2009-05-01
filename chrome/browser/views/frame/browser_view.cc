@@ -251,6 +251,10 @@ class DownloadInProgressConfirmDialogDelegate : public views::DialogDelegate,
     return this;
   }
 
+  virtual std::wstring GetWindowTitle() const {
+    return l10n_util::GetString(IDS_PRODUCT_NAME);
+  }
+
  private:
   Browser* browser_;
   views::Label* label_;
