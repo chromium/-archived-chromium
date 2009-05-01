@@ -133,7 +133,7 @@ void TabContentsViewWin::StartDragging(const WebDropData& drop_data) {
     if (file_name.value().empty()) {
       // Retrieve the name from the URL.
       file_name = FilePath::FromWStringHack(
-          net::GetSuggestedFilename(drop_data.url, L"", L""));
+          net::GetSuggestedFilename(drop_data.url, "", "", L""));
     }
     file_name = file_name.ReplaceExtension(drop_data.file_extension);
     data->SetFileContents(file_name.value(), drop_data.file_contents);

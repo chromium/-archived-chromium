@@ -266,7 +266,8 @@ class RenderView : public RenderWidget,
                                const std::wstring& selection_text,
                                const std::wstring& misspelled_word,
                                int edit_flags,
-                               const std::string& security_info);
+                               const std::string& security_info,
+                               const std::string& frame_charset);
   virtual void StartDragging(WebView* webview,
                              const WebKit::WebDragData& drag_data);
 

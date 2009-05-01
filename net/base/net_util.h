@@ -71,12 +71,20 @@ std::wstring GetHeaderParamValue(const std::wstring& field,
 std::string GetHeaderParamValue(const std::string& field,
                                 const std::string& param_name);
 
-// Return the filename extracted from Content-Disposition header.  Only two
-// formats are supported: a. %-escaped UTF-8 b. RFC 2047.
+// Return the filename extracted from Content-Disposition header. The following
+// formats are tried in order listed below:
 //
-// A non-ASCII param value is just returned as it is (assuming a NativeMB
-// encoding). When a param value is ASCII, but is not in one of two forms
-// supported, it is returned as it is unless it's pretty close to two supported
+// 1. RFC 2047
+// 2. Raw-8bit-characters :
+//    a. UTF-8, b. referrer_charset, c. default os codepage.
+// 3. %-escaped UTF-8.
+//
+// In step 2, if referrer_charset is empty(i.e. unknown), 2b is skipped.
+// In step 3, the fallback charsets tried in step 2 are not tried. We
+// can consider doing that later.
+//
+// When a param value is ASCII, but is not in format #1 or format #3 above,
+// it is returned as it is unless it's pretty close to two supported
 // formats but not well-formed. In that case, an empty string is returned.
 //
 // In any case, a caller must check for the empty return value and resort to
@@ -90,7 +98,8 @@ std::string GetHeaderParamValue(const std::string& field,
 // other caller is a unit test. Need to figure out expose this function only to
 // net_util_unittest.
 //
-std::wstring GetFileNameFromCD(const std::string& header);
+std::wstring GetFileNameFromCD(const std::string& header,
+                               const std::string& referrer_charset);
 
 // Converts the given host name to unicode characters, APPENDING them to the
 // the given output string. This can be called for any host name, if the
@@ -133,14 +142,12 @@ std::wstring StripWWW(const std::wstring& text);
 // Gets the filename from the raw Content-Disposition header (as read from the
 // network).  Otherwise uses the last path component name or hostname from
 // |url|.  Note: it's possible for the suggested filename to be empty (e.g.,
-// file:/// or view-cache:).
+// file:/// or view-cache:). referrer_charset is used as one of charsets
+// to interpret a raw 8bit string in C-D header (after interpreting
+// as UTF-8 fails). See the comment for GetFilenameFromCD for more details.
 std::wstring GetSuggestedFilename(const GURL& url,
                                   const std::string& content_disposition,
-                                  const std::wstring& default_name);
-
-// DEPRECATED: Please use the above version of this method.
-std::wstring GetSuggestedFilename(const GURL& url,
-                                  const std::wstring& content_disposition,
+                                  const std::string& referrer_charset,
                                   const std::wstring& default_name);
 
 // Checks the given port against a list of ports which are restricted by

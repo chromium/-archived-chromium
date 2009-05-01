@@ -111,6 +111,9 @@ struct ContextMenuParams {
 
   // The security info for the resource we are showing the menu on.
   std::string security_info;
+
+  // The character encoding of the frame on which the menu is invoked.
+  std::string frame_charset;
 };
 
 #endif  // WEBKIT_GLUE_CONTEXT_NODE_TYPES_H__

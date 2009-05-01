@@ -1085,8 +1085,10 @@ int DownloadManager::RemoveAllDownloads() {
 // download.
 void DownloadManager::DownloadUrl(const GURL& url,
                                   const GURL& referrer,
+                                  const std::string& referrer_charset,
                                   WebContents* web_contents) {
   DCHECK(web_contents);
+  request_context_->set_referrer_charset(referrer_charset);
   file_manager_->DownloadUrl(url,
                              referrer,
                              web_contents->process()->pid(),
@@ -1179,6 +1181,7 @@ void DownloadManager::GenerateFilename(DownloadCreateInfo* info,
   *generated_name = FilePath::FromWStringHack(
       net::GetSuggestedFilename(GURL(info->url),
                                 info->content_disposition,
+                                info->referrer_charset,
                                 L"download"));
   DCHECK(!generated_name->empty());
 

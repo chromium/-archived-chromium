@@ -18,11 +18,13 @@ class DownloadManagerTest : public testing::Test {
   void GetGeneratedFilename(const std::string& content_disposition,
                             const std::string& url,
                             const std::string& mime_type,
+                            const std::string& referrer_charset,
                             std::wstring* generated_name_string) {
     DownloadCreateInfo info;
     info.content_disposition = content_disposition;
     info.url = GURL(url);
     info.mime_type = mime_type;
+    info.referrer_charset = referrer_charset;
     FilePath generated_name;
     download_manager_->GenerateFilename(&info, &generated_name);
     *generated_name_string = generated_name.ToWStringHack();
@@ -335,7 +337,6 @@ const struct {
    "application/x-tar",
    L"bar.bogus.tar"},
 
-  // TODO(darin): Add some raw 8-bit Content-Disposition tests.
 };
 
 }  // namespace
@@ -343,14 +344,35 @@ const struct {
 // Tests to ensure that the file names we generate from hints from the server
 // (content-disposition, URL name, etc) don't cause security holes.
 TEST_F(DownloadManagerTest, TestDownloadFilename) {
+  std::wstring file_name;
   for (int i = 0; i < arraysize(kGeneratedFiles); ++i) {
-    std::wstring file_name;
     GetGeneratedFilename(kGeneratedFiles[i].disposition,
                          kGeneratedFiles[i].url,
                          kGeneratedFiles[i].mime_type,
+                         "",
+                         &file_name);
+    EXPECT_EQ(kGeneratedFiles[i].expected_name, file_name);
+    GetGeneratedFilename(kGeneratedFiles[i].disposition,
+                         kGeneratedFiles[i].url,
+                         kGeneratedFiles[i].mime_type,
+                         "GBK",
                          &file_name);
     EXPECT_EQ(kGeneratedFiles[i].expected_name, file_name);
   }
+
+  // A couple of cases with raw 8bit characters in C-D.
+  GetGeneratedFilename("attachment; filename=caf\xc3\xa9.png",
+                       "http://www.example.com/images?id=3",
+                       "image/png",
+                       "iso-8859-1",
+                       &file_name);
+  EXPECT_EQ(L"caf\u00e9.png", file_name);
+  GetGeneratedFilename("attachment; filename=caf\xe5.png",
+                       "http://www.example.com/images?id=3",
+                       "image/png",
+                       "windows-1253",
+                       &file_name);
+  EXPECT_EQ(L"caf\u03b5.png", file_name);
 }
 
 namespace {

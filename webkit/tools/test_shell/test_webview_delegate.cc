@@ -525,7 +525,8 @@ void TestWebViewDelegate::ShowContextMenu(WebView* webview,
                                           const std::wstring& selection_text,
                                           const std::wstring& misspelled_word,
                                           int edit_flags,
-                                          const std::string& security_info) {
+                                          const std::string& security_info,
+                                          const std::string& frame_charset) {
   CapturedContextMenuEvent context(node, x, y);
   captured_context_menu_events_.push_back(context);
 }

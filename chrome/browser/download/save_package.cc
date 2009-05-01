@@ -296,8 +296,10 @@ bool SavePackage::GenerateFilename(const std::string& disposition,
                                    const GURL& url,
                                    bool need_html_ext,
                                    FilePath::StringType* generated_name) {
+  // TODO(jungshik): Figure out the referrer charset when having one
+  // makes sense and pass it to GetSuggestedFilename.
   FilePath file_path = FilePath::FromWStringHack(
-      net::GetSuggestedFilename(url, disposition, kDefaultSaveName));
+      net::GetSuggestedFilename(url, disposition, "", kDefaultSaveName));
 
   DCHECK(!file_path.empty());
   FilePath::StringType pure_file_name =

@@ -69,6 +69,9 @@ struct DownloadCreateInfo {
   bool is_dangerous;
   // The original name for a dangerous download.
   FilePath original_name;
+  // The charset of the referring page where the download request comes from.
+  // It's used to construct a suggested filename.
+  std::string referrer_charset;
 };
 
 #endif  // CHROME_BROWSER_DOWNLOAD_TYPES_H_

@@ -668,7 +668,7 @@ static void CreateValidFileNameFromTitle(const GURL& url,
   if (title.empty()) {
     if (url.is_valid()) {
       *validated = net::GetSuggestedFilename(
-          url, std::wstring(), std::wstring());
+          url, std::string(), std::string(), std::wstring());
     } else {
       // Nothing else can be done, just use a default.
       *validated = l10n_util::GetString(IDS_UNTITLED_SHORTCUT_FILE_NAME);

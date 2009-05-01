@@ -198,6 +198,20 @@ ChromeURLRequestContext::ChromeURLRequestContext(Profile* profile)
   accept_charset_ = net::HttpUtil::GenerateAcceptCharsetHeader(
       WideToASCII(prefs_->GetString(prefs::kDefaultCharset)));
 
+  // At this point, we don't know the charset of the referring page
+  // where a url request originates from. This is used to get a suggested
+  // filename from Content-Disposition header made of raw 8bit characters.
+  // Down the road, it can be overriden if it becomes known (for instance,
+  // when download request is made through the context menu in a web page).
+  // At the moment, it'll remain 'undeterministic' when a user
+  // types a URL in the omnibar or click on a download link in a page.
+  // For the latter, we need a change on the webkit-side.
+  // We initialize it to the default charset here and a user will
+  // have an *arguably* better default charset for interpreting a raw 8bit
+  // C-D header field.  It means the native OS codepage fallback in
+  // net_util::GetSuggestedFilename is unlikely to be taken.
+  referrer_charset_ = accept_charset_;
+
   cookie_policy_.SetType(net::CookiePolicy::FromInt(
       prefs_->GetInteger(prefs::kCookieBehavior)));
 

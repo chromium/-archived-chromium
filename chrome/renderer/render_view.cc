@@ -1994,7 +1994,8 @@ void RenderView::ShowContextMenu(WebView* webview,
                                  const std::wstring& selection_text,
                                  const std::wstring& misspelled_word,
                                  int edit_flags,
-                                 const std::string& security_info) {
+                                 const std::string& security_info,
+                                 const std::string& frame_charset) {
   ContextMenuParams params;
   params.node = node;
   params.x = x;
@@ -2010,6 +2011,7 @@ void RenderView::ShowContextMenu(WebView* webview,
       webview->GetFocusedFrame()->SpellCheckEnabled();
   params.edit_flags = edit_flags;
   params.security_info = security_info;
+  params.frame_charset = frame_charset;
   Send(new ViewHostMsg_ContextMenu(routing_id_, params));
 }
 

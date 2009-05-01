@@ -8,6 +8,7 @@
 #include "chrome/browser/download/download_manager.h"
 #include "chrome/browser/renderer_host/resource_dispatcher_host.h"
 #include "net/base/io_buffer.h"
+#include "net/url_request/url_request_context.h"
 
 DownloadResourceHandler::DownloadResourceHandler(ResourceDispatcherHost* rdh,
                                                  int render_process_host_id,
@@ -64,6 +65,7 @@ bool DownloadResourceHandler::OnResponseStarted(int request_id,
   info->mime_type = response->response_head.mime_type;
   info->save_as = save_as_;
   info->is_dangerous = false;
+  info->referrer_charset = request_->context()->referrer_charset();
   download_manager_->file_loop()->PostTask(FROM_HERE,
       NewRunnableMethod(download_manager_,
                         &DownloadFileManager::StartDownload,

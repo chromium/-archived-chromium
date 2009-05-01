@@ -356,6 +356,7 @@ class DownloadManager : public base::RefCountedThreadSafe<DownloadManager>,
   // Download the object at the URL. Used in cases such as "Save Link As..."
   void DownloadUrl(const GURL& url,
                    const GURL& referrer,
+                   const std::string& referrer_encoding,
                    WebContents* web_contents);
 
   // Allow objects to observe the download creation process.

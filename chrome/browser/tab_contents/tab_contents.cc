@@ -1091,7 +1091,7 @@ void TabContents::OnSavePage() {
     DownloadManager* dlm = profile()->GetDownloadManager();
     const GURL& current_page_url = GetURL();
     if (dlm && current_page_url.is_valid())
-      dlm->DownloadUrl(current_page_url, GURL(), AsWC(this));
+      dlm->DownloadUrl(current_page_url, GURL(), "", AsWC(this));
     return;
   }
 

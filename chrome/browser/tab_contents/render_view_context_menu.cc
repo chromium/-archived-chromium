@@ -375,7 +375,8 @@ void RenderViewContextMenu::ExecuteItemCommand(int id) {
                                                   params_.image_url);
       DownloadManager* dlm =
           source_web_contents_->profile()->GetDownloadManager();
-      dlm->DownloadUrl(url, referrer, source_web_contents_);
+      dlm->DownloadUrl(url, referrer, params_.frame_charset,
+                       source_web_contents_);
       break;
     }
 

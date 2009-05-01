@@ -247,17 +247,22 @@ bool DecodeBQEncoding(const std::string& part, RFC2047EncodingType enc_type,
 }
 
 bool DecodeWord(const std::string& encoded_word,
+                const std::string& referrer_charset,
                 bool *is_rfc2047,
                 std::string* output) {
-  // TODO(jungshik) : Revisit this later. Do we want to pass through non-ASCII
-  // strings which can be mozibake?  WinHTTP converts a raw 8bit string
-  // UTF-16 assuming it's in the OS default encoding.
   if (!IsStringASCII(encoded_word)) {
-    // Try falling back to the NativeMB encoding if the raw input is not UTF-8.
+    // Try UTF-8, referrer_charset and the native OS default charset in turn.
     if (IsStringUTF8(encoded_word)) {
       *output = encoded_word;
     } else {
-      *output = WideToUTF8(base::SysNativeMBToWide(encoded_word));
+      std::wstring wide_output;
+      if (!referrer_charset.empty() &&
+          CodepageToWide(encoded_word, referrer_charset.c_str(),
+                         OnStringUtilConversionError::FAIL, &wide_output)) {
+        *output = WideToUTF8(wide_output);
+      } else {
+        *output = WideToUTF8(base::SysNativeMBToWide(encoded_word));
+      }
     }
     *is_rfc2047 = false;
     return true;
@@ -357,7 +362,9 @@ bool DecodeWord(const std::string& encoded_word,
   return false;
 }
 
-bool DecodeParamValue(const std::string& input, std::string* output) {
+bool DecodeParamValue(const std::string& input,
+                      const std::string& referrer_charset,
+                      std::string* output) {
   std::string tmp;
   // Tokenize with whitespace characters.
   StringTokenizer t(input, " \t\n\r");
@@ -378,7 +385,8 @@ bool DecodeParamValue(const std::string& input, std::string* output) {
     // in a single encoded-word. Firefox/Thunderbird do not support
     // it, either.
     std::string decoded;
-    if (!DecodeWord(t.token(), &is_previous_token_rfc2047, &decoded))
+    if (!DecodeWord(t.token(), referrer_charset, &is_previous_token_rfc2047,
+                    &decoded))
       return false;
     tmp.append(decoded);
   }
@@ -683,7 +691,8 @@ std::string GetSpecificHeader(const std::string& headers,
   return GetSpecificHeaderT(headers, name);
 }
 
-std::wstring GetFileNameFromCD(const std::string& header) {
+std::wstring GetFileNameFromCD(const std::string& header,
+                               const std::string& referrer_charset) {
   std::string param_value = GetHeaderParamValue(header, "filename");
   if (param_value.empty()) {
     // Some servers use 'name' parameter.
@@ -692,7 +701,7 @@ std::wstring GetFileNameFromCD(const std::string& header) {
   if (param_value.empty())
     return std::wstring();
   std::string decoded;
-  if (DecodeParamValue(param_value, &decoded))
+  if (DecodeParamValue(param_value, referrer_charset, &decoded))
     return UTF8ToWide(decoded);
   return std::wstring();
 }
@@ -863,8 +872,10 @@ std::wstring StripWWW(const std::wstring& text) {
 
 std::wstring GetSuggestedFilename(const GURL& url,
                                   const std::string& content_disposition,
+                                  const std::string& referrer_charset,
                                   const std::wstring& default_name) {
-  std::wstring filename = GetFileNameFromCD(content_disposition);
+  std::wstring filename = GetFileNameFromCD(content_disposition,
+                                            referrer_charset);
   if (!filename.empty()) {
     // Remove any path information the server may have sent, take the name
     // only.
@@ -899,13 +910,6 @@ std::wstring GetSuggestedFilename(const GURL& url,
 
   file_util::ReplaceIllegalCharacters(&filename, '-');
   return filename;
-}
-
-std::wstring GetSuggestedFilename(const GURL& url,
-                                  const std::wstring& content_disposition,
-                                  const std::wstring& default_name) {
-  return GetSuggestedFilename(
-      url, WideToUTF8(content_disposition), default_name);
 }
 
 bool IsPortAllowedByDefault(int port) {

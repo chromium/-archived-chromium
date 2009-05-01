@@ -889,6 +889,7 @@ struct ParamTraits<ContextMenuParams> {
     WriteParam(m, p.spellcheck_enabled);
     WriteParam(m, p.edit_flags);
     WriteParam(m, p.security_info);
+    WriteParam(m, p.frame_charset);
   }
   static bool Read(const Message* m, void** iter, param_type* p) {
     return
@@ -905,7 +906,8 @@ struct ParamTraits<ContextMenuParams> {
       ReadParam(m, iter, &p->dictionary_suggestions) &&
       ReadParam(m, iter, &p->spellcheck_enabled) &&
       ReadParam(m, iter, &p->edit_flags) &&
-      ReadParam(m, iter, &p->security_info);
+      ReadParam(m, iter, &p->security_info) &&
+      ReadParam(m, iter, &p->frame_charset);
   }
   static void Log(const param_type& p, std::wstring* l) {
     l->append(L"<ContextMenuParams>");

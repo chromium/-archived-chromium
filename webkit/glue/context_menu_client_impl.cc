@@ -177,7 +177,8 @@ WebCore::PlatformMenuDescription
   GURL page_url;
   std::string security_info;
 
-  std::wstring frame_encoding;
+  std::string frame_charset = WideToASCII(
+      webkit_glue::StringToStdWString(selected_frame->loader()->encoding()));
   // Send the frame and page URLs in any case.
   ContextNode frame_node = ContextNode(ContextNode::NONE);
   ContextNode page_node =
@@ -188,8 +189,6 @@ WebCore::PlatformMenuDescription
     frame_node = GetTypeAndURLFromFrame(selected_frame,
                                         &frame_url,
                                         ContextNode(ContextNode::FRAME));
-    frame_encoding = webkit_glue::StringToStdWString(
-        selected_frame->loader()->encoding());
   }
 
   if (r.isSelected()) {
@@ -253,7 +252,8 @@ WebCore::PlatformMenuDescription
                        selection_text_string,
                        misspelled_word_string,
                        edit_flags,
-                       security_info);
+                       security_info,
+                       frame_charset);
   }
   return NULL;
 }

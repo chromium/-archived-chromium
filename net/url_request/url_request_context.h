@@ -70,6 +70,13 @@ class URLRequestContext :
     return EmptyString();
   }
 
+  // In general, referrer_charset is not known when URLRequestContext is
+  // constructed. So, we need a setter.
+  const std::string& referrer_charset() const { return referrer_charset_; }
+  void set_referrer_charset(const std::string& charset) {
+    referrer_charset_ = charset;
+  }
+
  protected:
   friend class base::RefCountedThreadSafe<URLRequestContext>;
 
@@ -85,6 +92,10 @@ class URLRequestContext :
   net::FtpAuthCache ftp_auth_cache_;
   std::string accept_language_;
   std::string accept_charset_;
+  // The charset of the referrer where this request comes from. It's not
+  // used in communication with a server but is used to construct a suggested
+  // filename for file download.
+  std::string referrer_charset_;
 
  private:
   DISALLOW_COPY_AND_ASSIGN(URLRequestContext);

@@ -39,6 +39,7 @@ struct HeaderParamCase {
 
 struct FileNameCDCase {
   const char* header_field;
+  const char* referrer_charset;
   const wchar_t* expected;
 };
 
@@ -58,7 +59,8 @@ struct IDNTestCase {
 
 struct SuggestedFilenameCase {
   const char* url;
-  const wchar_t* content_disp_header;
+  const char* content_disp_header;
+  const char* referrer_charset;
   const wchar_t* default_filename;
   const wchar_t* expected_filename;
 };
@@ -299,75 +301,96 @@ TEST(NetUtilTest, GetHeaderParamValue) {
 TEST(NetUtilTest, GetFileNameFromCD) {
   const FileNameCDCase tests[] = {
     // Test various forms of C-D header fields emitted by web servers.
-    {"content-disposition: inline; filename=\"abcde.pdf\"", L"abcde.pdf"},
-    {"content-disposition: inline; name=\"abcde.pdf\"", L"abcde.pdf"},
-    {"content-disposition: attachment; filename=abcde.pdf", L"abcde.pdf"},
-    {"content-disposition: attachment; name=abcde.pdf", L"abcde.pdf"},
-    {"content-disposition: attachment; filename=abc,de.pdf", L"abc,de.pdf"},
-    {"content-disposition: filename=abcde.pdf", L"abcde.pdf"},
-    {"content-disposition: filename= abcde.pdf", L"abcde.pdf"},
-    {"content-disposition: filename =abcde.pdf", L"abcde.pdf"},
-    {"content-disposition: filename = abcde.pdf", L"abcde.pdf"},
-    {"content-disposition: filename\t=abcde.pdf", L"abcde.pdf"},
-    {"content-disposition: filename \t\t  =abcde.pdf", L"abcde.pdf"},
-    {"content-disposition: name=abcde.pdf", L"abcde.pdf"},
-    {"content-disposition: inline; filename=\"abc%20de.pdf\"", L"abc de.pdf"},
+    {"content-disposition: inline; filename=\"abcde.pdf\"", "", L"abcde.pdf"},
+    {"content-disposition: inline; name=\"abcde.pdf\"", "", L"abcde.pdf"},
+    {"content-disposition: attachment; filename=abcde.pdf", "", L"abcde.pdf"},
+    {"content-disposition: attachment; name=abcde.pdf", "", L"abcde.pdf"},
+    {"content-disposition: attachment; filename=abc,de.pdf", "", L"abc,de.pdf"},
+    {"content-disposition: filename=abcde.pdf", "", L"abcde.pdf"},
+    {"content-disposition: filename= abcde.pdf", "", L"abcde.pdf"},
+    {"content-disposition: filename =abcde.pdf", "", L"abcde.pdf"},
+    {"content-disposition: filename = abcde.pdf", "", L"abcde.pdf"},
+    {"content-disposition: filename\t=abcde.pdf", "", L"abcde.pdf"},
+    {"content-disposition: filename \t\t  =abcde.pdf", "", L"abcde.pdf"},
+    {"content-disposition: name=abcde.pdf", "", L"abcde.pdf"},
+    {"content-disposition: inline; filename=\"abc%20de.pdf\"", "",
+     L"abc de.pdf"},
     // Whitespaces are converted to a space.
-    {"content-disposition: inline; filename=\"abc  \t\nde.pdf\"",
+    {"content-disposition: inline; filename=\"abc  \t\nde.pdf\"", "",
      L"abc    de.pdf"},
     // %-escaped UTF-8
     {"Content-Disposition: attachment; filename=\"%EC%98%88%EC%88%A0%20"
-     "%EC%98%88%EC%88%A0.jpg\"", L"\xc608\xc220 \xc608\xc220.jpg"},
+     "%EC%98%88%EC%88%A0.jpg\"", "", L"\xc608\xc220 \xc608\xc220.jpg"},
     {"Content-Disposition: attachment; filename=\"%F0%90%8C%B0%F0%90%8C%B1"
-     "abc.jpg\"", L"\U00010330\U00010331abc.jpg"},
+     "abc.jpg\"", "", L"\U00010330\U00010331abc.jpg"},
     {"Content-Disposition: attachment; filename=\"%EC%98%88%EC%88%A0 \n"
-     "%EC%98%88%EC%88%A0.jpg\"", L"\xc608\xc220  \xc608\xc220.jpg"},
+     "%EC%98%88%EC%88%A0.jpg\"", "", L"\xc608\xc220  \xc608\xc220.jpg"},
     // RFC 2047 with various charsets and Q/B encodings
     {"Content-Disposition: attachment; filename=\"=?EUC-JP?Q?=B7=DD=BD="
-     "D13=2Epng?=\"", L"\x82b8\x8853" L"3.png"},
+     "D13=2Epng?=\"", "", L"\x82b8\x8853" L"3.png"},
     {"Content-Disposition: attachment; filename==?eUc-Kr?b?v7m8+iAzLnBuZw==?=",
-     L"\xc608\xc220 3.png"},
+     "", L"\xc608\xc220 3.png"},
     {"Content-Disposition: attachment; filename==?utf-8?Q?=E8=8A=B8=E8"
-     "=A1=93_3=2Epng?=", L"\x82b8\x8853 3.png"},
+     "=A1=93_3=2Epng?=", "", L"\x82b8\x8853 3.png"},
     {"Content-Disposition: attachment; filename==?utf-8?Q?=F0=90=8C=B0"
-     "_3=2Epng?=", L"\U00010330 3.png"},
-    {"Content-Disposition: inline; filename=\"=?iso88591?Q?caf=e3_=2epng?=\"",
-     L"caf\x00e3 .png"},
+     "_3=2Epng?=", "", L"\U00010330 3.png"},
+    {"Content-Disposition: inline; filename=\"=?iso88591?Q?caf=e9_=2epng?=\"",
+     "", L"caf\x00e9 .png"},
     // Space after an encode word should be removed.
-    {"Content-Disposition: inline; filename=\"=?iso88591?Q?caf=E3_?= .png\"",
-     L"caf\x00e3 .png"},
+    {"Content-Disposition: inline; filename=\"=?iso88591?Q?caf=E9_?= .png\"",
+     "", L"caf\x00e9 .png"},
     // Two encoded words with different charsets (not very likely to be emitted
     // by web servers in the wild). Spaces between them are removed.
     {"Content-Disposition: inline; filename=\"=?euc-kr?b?v7m8+iAz?="
-     " =?ksc5601?q?=BF=B9=BC=FA=2Epng?=\"", L"\xc608\xc220 3\xc608\xc220.png"},
-    {"Content-Disposition: attachment; filename=\"=?windows-1252?Q?caf=E3?="
-     "  =?iso-8859-7?b?4eI=?= .png\"", L"caf\x00e3\x03b1\x03b2.png"},
-    // Non-ASCII string is passed through (and treated as UTF-8).
-    {"Content-Disposition: attachment; filename=caf\xc3\xa3.png",
-     L"caf\x00e3.png"},
+     " =?ksc5601?q?=BF=B9=BC=FA=2Epng?=\"", "",
+     L"\xc608\xc220 3\xc608\xc220.png"},
+    {"Content-Disposition: attachment; filename=\"=?windows-1252?Q?caf=E9?="
+     "  =?iso-8859-7?b?4eI=?= .png\"", "", L"caf\x00e9\x03b1\x03b2.png"},
+    // Non-ASCII string is passed through and treated as UTF-8 as long as
+    // it's valid as UTF-8 and regardless of |referrer_charset|.
+    {"Content-Disposition: attachment; filename=caf\xc3\xa9.png",
+     "iso-8859-1", L"caf\x00e9.png"},
+    {"Content-Disposition: attachment; filename=caf\xc3\xa9.png",
+     "", L"caf\x00e9.png"},
+    // Non-ASCII/Non-UTF-8 string. Fall back to the referrer charset.
+    {"Content-Disposition: attachment; filename=caf\xe5.png",
+     "windows-1253", L"caf\x03b5.png"},
+#if 0
+    // Non-ASCII/Non-UTF-8 string. Fall back to the native codepage.
+    // TODO(jungshik): We need to set the OS default codepage
+    // to a specific value before testing. On Windows, we can use
+    // SetThreadLocale().
+    {"Content-Disposition: attachment; filename=\xb0\xa1\xb0\xa2.png",
+     "", L"\xac00\xac01.png"},
+#endif
     // Failure cases
     // Invalid hex-digit "G"
-    {"Content-Disposition: attachment; filename==?iiso88591?Q?caf=EG?=", L""},
+    {"Content-Disposition: attachment; filename==?iiso88591?Q?caf=EG?=", "",
+     L""},
     // Incomplete RFC 2047 encoded-word (missing '='' at the end)
-    {"Content-Disposition: attachment; filename==?iso88591?Q?caf=E3?", L""},
+    {"Content-Disposition: attachment; filename==?iso88591?Q?caf=E3?", "", L""},
     // Extra character at the end of an encoded word
-    {"Content-Disposition: attachment; filename==?iso88591?Q?caf=E3?==", L""},
+    {"Content-Disposition: attachment; filename==?iso88591?Q?caf=E3?==",
+     "", L""},
     // Extra token at the end of an encoded word
-    {"Content-Disposition: attachment; filename==?iso88591?Q?caf=E3?=?", L""},
-    {"Content-Disposition: attachment; filename==?iso88591?Q?caf=E3?=?=", L""},
+    {"Content-Disposition: attachment; filename==?iso88591?Q?caf=E3?=?",
+     "", L""},
+    {"Content-Disposition: attachment; filename==?iso88591?Q?caf=E3?=?=",
+     "",  L""},
     // Incomplete hex-escaped chars
     {"Content-Disposition: attachment; filename==?windows-1252?Q?=63=61=E?=",
-     L""},
-    {"Content-Disposition: attachment; filename=%EC%98%88%EC%88%A", L""},
+     "", L""},
+    {"Content-Disposition: attachment; filename=%EC%98%88%EC%88%A", "", L""},
     // %-escaped non-UTF-8 encoding is an "error"
-    {"Content-Disposition: attachment; filename=%B7%DD%BD%D1.png", L""},
+    {"Content-Disposition: attachment; filename=%B7%DD%BD%D1.png", "", L""},
     // Two RFC 2047 encoded words in a row without a space is an error.
     {"Content-Disposition: attachment; filename==?windows-1252?Q?caf=E3?="
-     "=?iso-8859-7?b?4eIucG5nCg==?=", L""},
+     "=?iso-8859-7?b?4eIucG5nCg==?=", "", L""},
   };
   for (size_t i = 0; i < ARRAYSIZE_UNSAFE(tests); ++i) {
     EXPECT_EQ(tests[i].expected,
-              net::GetFileNameFromCD(tests[i].header_field));
+              net::GetFileNameFromCD(tests[i].header_field,
+                                     tests[i].referrer_charset));
   }
 }
 
@@ -669,97 +692,132 @@ TEST(NetUtilTest, StripWWW) {
 TEST(NetUtilTest, GetSuggestedFilename) {
   const SuggestedFilenameCase test_cases[] = {
     {"http://www.google.com/",
-     L"Content-disposition: attachment; filename=test.html",
+     "Content-disposition: attachment; filename=test.html",
+     "",
      L"",
      L"test.html"},
     {"http://www.google.com/",
-     L"Content-disposition: attachment; filename=\"test.html\"",
+     "Content-disposition: attachment; filename=\"test.html\"",
+     "",
      L"",
      L"test.html"},
     {"http://www.google.com/path/test.html",
-     L"Content-disposition: attachment",
+     "Content-disposition: attachment",
+     "",
      L"",
      L"test.html"},
     {"http://www.google.com/path/test.html",
-     L"Content-disposition: attachment;",
+     "Content-disposition: attachment;",
+     "",
      L"",
      L"test.html"},
     {"http://www.google.com/",
-     L"",
+     "",
+     "",
      L"",
      L"www.google.com"},
     {"http://www.google.com/test.html",
-     L"",
+     "",
+     "",
      L"",
      L"test.html"},
     // Now that we use googleurl's ExtractFileName, this case falls back
     // to the hostname. If this behavior is not desirable, we'd better
     // change ExtractFileName (in url_parse).
     {"http://www.google.com/path/",
-     L"",
+     "",
+     "",
      L"",
      L"www.google.com"},
     {"http://www.google.com/path",
-     L"",
+     "",
+     "",
      L"",
      L"path"},
     {"file:///",
-     L"",
+     "",
+     "",
      L"",
      L"download"},
     {"view-cache:",
-     L"",
+     "",
+     "",
      L"",
      L"download"},
     {"http://www.google.com/",
-     L"Content-disposition: attachment; filename =\"test.html\"",
+     "Content-disposition: attachment; filename =\"test.html\"",
+     "",
      L"download",
      L"test.html"},
     {"http://www.google.com/",
-     L"",
+     "",
+     "",
      L"download",
      L"download"},
     {"http://www.google.com/",
-     L"Content-disposition: attachment; filename=\"../test.html\"",
+     "Content-disposition: attachment; filename=\"../test.html\"",
+     "",
      L"",
      L"test.html"},
     {"http://www.google.com/",
-     L"Content-disposition: attachment; filename=\"..\"",
+     "Content-disposition: attachment; filename=\"..\"",
+     "",
      L"download",
      L"download"},
     {"http://www.google.com/test.html",
-     L"Content-disposition: attachment; filename=\"..\"",
+     "Content-disposition: attachment; filename=\"..\"",
+     "",
      L"download",
      L"test.html"},
     // Below is a small subset of cases taken from GetFileNameFromCD test above.
     {"http://www.google.com/",
-     L"Content-Disposition: attachment; filename=\"%EC%98%88%EC%88%A0%20"
-     L"%EC%98%88%EC%88%A0.jpg\"",
+     "Content-Disposition: attachment; filename=\"%EC%98%88%EC%88%A0%20"
+     "%EC%98%88%EC%88%A0.jpg\"",
+     "",
      L"",
      L"\uc608\uc220 \uc608\uc220.jpg"},
     {"http://www.google.com/%EC%98%88%EC%88%A0%20%EC%98%88%EC%88%A0.jpg",
-     L"",
+     "",
+     "",
      L"download",
      L"\uc608\uc220 \uc608\uc220.jpg"},
     {"http://www.google.com/",
-     L"Content-disposition: attachment;",
+     "Content-disposition: attachment;",
+     "",
      L"\uB2E4\uC6B4\uB85C\uB4DC",
      L"\uB2E4\uC6B4\uB85C\uB4DC"},
     {"http://www.google.com/",
-     L"Content-Disposition: attachment; filename=\"=?EUC-JP?Q?=B7=DD=BD="
-     L"D13=2Epng?=\"",
+     "Content-Disposition: attachment; filename=\"=?EUC-JP?Q?=B7=DD=BD="
+     "D13=2Epng?=\"",
+     "",
      L"download",
      L"\u82b8\u88533.png"},
+    {"http://www.example.com/images?id=3",
+     "Content-Disposition: attachment; filename=caf\xc3\xa9.png",
+     "iso-8859-1",
+     L"",
+     L"caf\u00e9.png"},
+    {"http://www.example.com/images?id=3",
+     "Content-Disposition: attachment; filename=caf\xe5.png",
+     "windows-1253",
+     L"",
+     L"caf\u03b5.png"},
+    {"http://www.example.com/file?id=3",
+     "Content-Disposition: attachment; name=\xcf\xc2\xd4\xd8.zip",
+     "GBK",
+     L"",
+     L"\u4e0b\u8f7d.zip"},
     // Invalid C-D header. Extracts filename from url.
     {"http://www.google.com/test.html",
-     L"Content-Disposition: attachment; filename==?iiso88591?Q?caf=EG?=",
+     "Content-Disposition: attachment; filename==?iiso88591?Q?caf=EG?=",
+     "",
      L"",
      L"test.html"},
   };
   for (size_t i = 0; i < ARRAYSIZE_UNSAFE(test_cases); ++i) {
     std::wstring filename = net::GetSuggestedFilename(
         GURL(test_cases[i].url), test_cases[i].content_disp_header,
-        test_cases[i].default_filename);
+        test_cases[i].referrer_charset, test_cases[i].default_filename);
     EXPECT_EQ(std::wstring(test_cases[i].expected_filename), filename);
   }
 }

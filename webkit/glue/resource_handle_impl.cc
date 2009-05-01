@@ -151,12 +151,14 @@ static ResourceResponse MakeResourceResponse(
 
   // TODO(darin): We should leverage HttpResponseHeaders for this, and this
   // should be using the same code as ResourceDispatcherHost.
+  // TODO(jungshik): Figure out the actual value of the referrer charset and
+  // pass it to GetSuggestedFilename.
   std::wstring suggested_filename;
   if (info.headers) {
     std::string disp_val;
     if (info.headers->EnumerateHeader(NULL, "content-disposition", &disp_val)) {
       suggested_filename = net::GetSuggestedFilename(
-          webkit_glue::KURLToGURL(kurl), disp_val, std::wstring());
+          webkit_glue::KURLToGURL(kurl), disp_val, "", std::wstring());
     }
   }
 
