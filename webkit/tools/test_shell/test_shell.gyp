@@ -187,7 +187,8 @@
           'dependencies': [
             '../../../build/linux/system.gyp:gtk',
             '../../../net/net.gyp:net_resources',
-            '../../webkit.gyp:glue', # for webkit_{resources,strings_en-US}.pak
+            '../../webkit.gyp:webkit_resources',
+            '../../webkit.gyp:webkit_strings',
             'test_shell_resources',
           ],
           'actions': [
@@ -459,25 +460,23 @@
         {
           'target_name': 'test_shell_resources',
           'type': 'none',
-          'sources': [
-            'test_shell_resources.grd',
-          ],
-          # This was orignally in grit_resources.rules
-          # NOTE: this version doesn't mimic the Properties specified there.
-          'rules': [
+          'actions': [
             {
-              'rule_name': 'grit',
-              'extension': 'grd',
+              'action_name': 'test_shell_resources',
+              'variables': {
+                'grit_path': '../../../tools/grit/grit.py',
+                'input_path': './test_shell_resources.grd',
+                'out_dir': '<(SHARED_INTERMEDIATE_DIR)/test_shell',
+              },
               'inputs': [
-                '../../../tools/grit/grit.py',
+                '<(input_path)',
               ],
               'outputs': [
-                '<(SHARED_INTERMEDIATE_DIR)/test_shell/grit/<(RULE_INPUT_ROOT).h',
-                '<(SHARED_INTERMEDIATE_DIR)/test_shell/<(RULE_INPUT_ROOT).pak',
+                '<(out_dir)/grit/test_shell_resources.h',
+                '<(out_dir)/test_shell_resources.pak',
               ],
-              'action':
-                ['python', '<@(_inputs)', '-i', '<(RULE_INPUT_PATH)', 'build', '-o', '<(SHARED_INTERMEDIATE_DIR)/test_shell'],
-              'message': 'Generating resources from <(RULE_INPUT_PATH)',
+              'action': ['python', '<(grit_path)', '-i', '<(input_path)', 'build', '-o', '<(out_dir)'],
+              'message': 'Generating resources from <(input_path)',
             },
           ],
           'direct_dependent_settings': {

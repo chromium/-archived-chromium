@@ -4251,28 +4251,59 @@
       'target_name': 'webkit_resources',
       'type': 'none',
       'msvs_guid': '0B469837-3D46-484A-AFB3-C5A6C68730B9',
-      'dependencies': [
-        'webcore',
-        'webkit',
-        '../net/net.gyp:net',
-      ],
-      'rules': [
+      'variables': {
+        'grit_path': '../tools/grit/grit.py',
+        'grit_out_dir': '<(SHARED_INTERMEDIATE_DIR)/webkit',
+      },
+      'actions': [
         {
-          'rule_name': 'grit',
-          'extension': 'grd',
+          'action_name': 'webkit_resources',
+          'variables': {
+            'input_path': 'glue/webkit_resources.grd',
+          },
           'inputs': [
-            '../tools/grit/grit.py',
+            '<(input_path)',
           ],
           'outputs': [
-            '<(SHARED_INTERMEDIATE_DIR)/webkit/grit/<(RULE_INPUT_ROOT).h',
+            '<(grit_out_dir)/grit/webkit_resources.h',
+            '<(grit_out_dir)/webkit_resources.pak',
+            '<(grit_out_dir)/webkit_resources.rc',
           ],
-          'action': ['python', '<@(_inputs)', '-i', '<(RULE_INPUT_PATH)', 'build', '-o', '<(SHARED_INTERMEDIATE_DIR)/webkit'],
+          'action': ['python', '<(grit_path)', '-i', '<(input_path)', 'build', '-o', '<(grit_out_dir)'],
+          'message': 'Generating resources from <(input_path)',
         },
       ],
-      'sources': [
-        # grit rule
-        'glue/webkit_resources.grd',
-        'glue/webkit_strings.grd',
+      'direct_dependent_settings': {
+        'include_dirs': [
+          '<(SHARED_INTERMEDIATE_DIR)/webkit',
+        ],
+      },
+    },
+    {
+      'target_name': 'webkit_strings',
+      'type': 'none',
+      'msvs_guid': '60B43839-95E6-4526-A661-209F16335E0E',
+      'variables': {
+        'grit_path': '../tools/grit/grit.py',
+        'grit_out_dir': '<(SHARED_INTERMEDIATE_DIR)/webkit',
+      },
+      'actions': [
+        {
+          'action_name': 'webkit_strings',
+          'variables': {
+            'input_path': 'glue/webkit_strings.grd',
+          },
+          'inputs': [
+            '<(input_path)',
+          ],
+          'outputs': [
+            '<(grit_out_dir)/grit/webkit_strings.h',
+            '<(grit_out_dir)/webkit_strings_en-US.pak',
+            '<(grit_out_dir)/webkit_strings_en-US.rc',
+          ],
+          'action': ['python', '<(grit_path)', '-i', '<(input_path)', 'build', '-o', '<(grit_out_dir)'],
+          'message': 'Generating resources from <(input_path)',
+        },
       ],
       'direct_dependent_settings': {
         'include_dirs': [
@@ -4289,6 +4320,7 @@
         'webkit',
         '../net/net.gyp:net',
         'webkit_resources',
+        'webkit_strings',
       ],
       'actions': [
         {
@@ -4479,8 +4511,8 @@
         'glue/webmediaplayer_delegate.h',
         'glue/webmediaplayer_impl.cc',
         'glue/webmediaplayer_impl.h',
-	'glue/webmenurunner_mac.h',
-	'glue/webmenurunner_mac.mm',
+        'glue/webmenurunner_mac.h',
+        'glue/webmenurunner_mac.mm',
         'glue/webplugin.h',
         'glue/webplugin_delegate.cc',
         'glue/webplugin_delegate.h',

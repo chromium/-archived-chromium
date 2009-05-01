@@ -9,7 +9,8 @@
       'dependencies': [
         'prebuild/util_prebuild.gyp:installer_util_prebuild',
         '../../chrome.gyp:common',
-        '../../chrome.gyp:resources',
+        '../../chrome.gyp:chrome_resources',
+        '../../chrome.gyp:chrome_strings',
         '../../../net/net.gyp:net_resources',
         '../../../media/media.gyp:media',
         '../../../skia/skia.gyp:skia',

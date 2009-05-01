@@ -42,7 +42,7 @@
       # to run grit would list its own .grd files, but unfortunately some
       # of the static libraries currently have circular dependencies among
       # generated headers.
-      'target_name': 'resources',
+      'target_name': 'chrome_resources',
       'type': 'none',
       'rules': [
         {
@@ -53,18 +53,15 @@
           ],
           'outputs': [
             '<(SHARED_INTERMEDIATE_DIR)/chrome/grit/<(RULE_INPUT_ROOT).h',
+            '<(SHARED_INTERMEDIATE_DIR)/chrome/<(RULE_INPUT_ROOT).pak',
           ],
           'action': ['python', '<@(_inputs)', '-i', '<(RULE_INPUT_PATH)', 'build', '-o', '<(SHARED_INTERMEDIATE_DIR)/chrome'],
           'message': 'Generating resources from <(RULE_INPUT_PATH)',
         },
       ],
       'sources': [
-        # All .grd files under chrome.
-        'app/resources/locale_settings.grd',
+        # Data resources.
         'app/theme/theme_resources.grd',
-        'app/chromium_strings.grd',
-        'app/generated_resources.grd',
-        'app/google_chrome_strings.grd',
         'browser/debugger/resources/debugger_resources.grd',
         'browser/browser_resources.grd',
         'common/common_resources.grd',
@@ -77,10 +74,46 @@
       },
     },
     {
+      # TODO(mark): It would be better if each static library that needed
+      # to run grit would list its own .grd files, but unfortunately some
+      # of the static libraries currently have circular dependencies among
+      # generated headers.
+      'target_name': 'chrome_strings',
+      'type': 'none',
+      'rules': [
+        {
+          'rule_name': 'grit',
+          'extension': 'grd',
+          'inputs': [
+            '../tools/grit/grit.py',
+          ],
+          'outputs': [
+            '<(SHARED_INTERMEDIATE_DIR)/chrome/grit/<(RULE_INPUT_ROOT).h',
+            '<(SHARED_INTERMEDIATE_DIR)/chrome/<(RULE_INPUT_ROOT)_en-US.pak',
+          ],
+          'action': ['python', '<@(_inputs)', '-i', '<(RULE_INPUT_PATH)', 'build', '-o', '<(SHARED_INTERMEDIATE_DIR)/chrome'],
+          'message': 'Generating resources from <(RULE_INPUT_PATH)',
+        },
+      ],
+      'sources': [
+        # Localizable resources.
+        'app/resources/locale_settings.grd',
+        'app/chromium_strings.grd',
+        'app/generated_resources.grd',
+        'app/google_chrome_strings.grd',
+      ],
+      'direct_dependent_settings': {
+        'include_dirs': [
+          '<(SHARED_INTERMEDIATE_DIR)/chrome',
+        ],
+      },
+    },
+    {
       'target_name': 'common',
       'type': '<(library)',
       'dependencies': [
-        'resources',
+        'chrome_resources',
+        'chrome_strings',
         '../base/base.gyp:base',
         '../base/base.gyp:base_gfx',
         '../build/temp_gyp/googleurl.gyp:googleurl',
@@ -361,7 +394,8 @@
       'type': '<(library)',
       'dependencies': [
         'common',
-        'resources',
+        'chrome_resources',
+        'chrome_strings',
         '../media/media.gyp:media',
         '../net/net.gyp:net_resources',
         '../skia/skia.gyp:skia',
@@ -1477,7 +1511,8 @@
       'type': '<(library)',
       'dependencies': [
         'common',
-        'resources',
+        'chrome_resources',
+        'chrome_strings',
         '../media/media.gyp:media',
         '../skia/skia.gyp:skia',
         '../third_party/icu38/icu38.gyp:icui18n',
@@ -1534,7 +1569,8 @@
       'dependencies': [
         'common',
         'plugin',
-        'resources',
+        'chrome_resources',
+        'chrome_strings',
         '../printing/printing.gyp:printing',
         '../skia/skia.gyp:skia',
         '../third_party/icu38/icu38.gyp:icui18n',
@@ -1913,7 +1949,8 @@
         'browser',
         'common',
         'renderer',
-        'resources',
+        'chrome_resources',
+        'chrome_strings',
         '../skia/skia.gyp:skia',
         '../testing/gtest.gyp:gtest',
       ],
@@ -1992,7 +2029,8 @@
       'type': '<(library)',
       'dependencies': [
         'test_support_common',
-        'resources',
+        'chrome_resources',
+        'chrome_strings',
         '../skia/skia.gyp:skia',
         '../testing/gtest.gyp:gtest',
       ],
@@ -2027,7 +2065,8 @@
       'type': '<(library)',
       'dependencies': [
         'test_support_common',
-        'resources',
+        'chrome_resources',
+        'chrome_strings',
         '../skia/skia.gyp:skia',
         '../testing/gtest.gyp:gtest',
       ],
@@ -2080,7 +2119,8 @@
         'app',
         'browser',
         'common',
-        'resources',
+        'chrome_resources',
+        'chrome_strings',
         'test_support_ui',
         '../base/base.gyp:base',
         '../net/net.gyp:net',
@@ -2226,7 +2266,8 @@
         'browser',
         'common',
         'renderer',
-        'resources',
+        'chrome_resources',
+        'chrome_strings',
         'test_support_unit',
         '../printing/printing.gyp:printing',
         '../webkit/webkit.gyp:webkit',
@@ -2534,7 +2575,8 @@
         'app',
         'browser',
         'common',
-        'resources',
+        'chrome_resources',
+        'chrome_strings',
         'test_support_ui',
         '../base/base.gyp:base',
         '../skia/skia.gyp:skia',
@@ -2564,7 +2606,8 @@
       'target_name': 'page_cycler_tests',
       'type': 'executable',
       'dependencies': [
-        'resources',
+        'chrome_resources',
+        'chrome_strings',
         'test_support_ui',
         '../base/base.gyp:base',
         '../skia/skia.gyp:skia',
@@ -2660,7 +2703,8 @@
             'browser',
             'common',
             'renderer',
-            'resources',
+            'chrome_resources',
+            'chrome_strings',
             '../base/base.gyp:base',
             '../base/base.gyp:test_support_base',
             '../skia/skia.gyp:skia',
@@ -2698,7 +2742,8 @@
           'type': '<(library)',
           'dependencies': [
             'common',
-            'resources',
+            'chrome_resources',
+            'chrome_strings',
             '../media/media.gyp:media',
             '../skia/skia.gyp:skia',
             '../third_party/icu38/icu38.gyp:icui18n',
