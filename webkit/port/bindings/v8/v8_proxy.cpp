@@ -456,10 +456,23 @@ ACTIVE_DOM_OBJECT_TYPES(MAKE_CASE)
     Vector<v8::Persistent<v8::Value> > group;
     group.reserveCapacity(next_key_index - i);
     for (; i < next_key_index; ++i) {
+      Node* node = grouper[i].second;
       v8::Persistent<v8::Value> wrapper =
-          getDOMNodeMap().get(grouper[i].second);
+          getDOMNodeMap().get(node);
       if (!wrapper.IsEmpty())
         group.append(wrapper);
+      // If the node is styled and there is a wrapper for the inline
+      // style declaration, we need to keep that style declaration
+      // wrapper alive as well, so we add it to the object group.
+      if (node->isStyledElement()) {
+        StyledElement* element = reinterpret_cast<StyledElement*>(node);
+        CSSStyleDeclaration* style = element->inlineStyleDecl();
+        if (style != NULL) {
+          wrapper = getDOMObjectMap().get(style);
+          if (!wrapper.IsEmpty())
+            group.append(wrapper);
+        }
+      }
     }
 
     if (group.size() > 1)
