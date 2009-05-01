@@ -107,9 +107,10 @@ void TabContentsViewMac::Focus() {
 }
 
 void TabContentsViewMac::SetInitialFocus() {
-  // TODO(port): Set focus in the else case correctly.
   if (web_contents()->FocusLocationBarByDefault())
     web_contents()->delegate()->SetFocusToLocationBar();
+  else
+    [[cocoa_view_.get() window] makeFirstResponder:GetContentNativeView()];
 }
 
 void TabContentsViewMac::StoreFocus() {
