@@ -229,11 +229,13 @@
           ],
         },
         'scons_import_variables': [
+          'AS',
           'CC',
           'CXX',
           'LINK',
         ],
         'scons_propagate_variables': [
+          'AS',
           'CC',
           'CCACHE_DIR',
           'CXX',
