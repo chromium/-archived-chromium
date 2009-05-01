@@ -386,6 +386,7 @@ void ExternalTabContainer::ProcessUnhandledAccelerator(const MSG& msg) {
 void ExternalTabContainer::SetInitialFocus(bool reverse) {
   DCHECK(tab_contents_);
   if (tab_contents_) {
+    static_cast<TabContents*>(tab_contents_)->Focus();
     static_cast<TabContents*>(tab_contents_)->SetInitialFocus(reverse);
   }
 }
