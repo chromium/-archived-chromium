@@ -14,6 +14,7 @@ extern "C" {
 #include <fcntl.h>
 #include <sys/stat.h>
 
+#include "base/eintr_wrapper.h"
 #include "base/message_loop.h"
 #include "chrome/common/ipc_channel.h"
 #include "chrome/common/ipc_message_utils.h"
@@ -122,7 +123,7 @@ MULTIPROCESS_TEST_MAIN(RunTestDescriptorClientSandboxed) {
   struct stat st;
   const int fd = open(kDevZeroPath, O_RDONLY);
   fstat(fd, &st);
-  close(fd);
+  HANDLE_EINTR(close(fd));
 
   // Enable the Sandbox.
   char* error_buff = NULL;
@@ -165,7 +166,7 @@ MULTIPROCESS_TEST_MAIN(RunTestDescriptorClient) {
   struct stat st;
   const int fd = open(kDevZeroPath, O_RDONLY);
   fstat(fd, &st);
-  close(fd);
+  HANDLE_EINTR(close(fd));
 
   return TestDescriptorClient(st.st_ino);
 }

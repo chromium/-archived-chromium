@@ -7,6 +7,7 @@
 #include <errno.h>
 #include <unistd.h>
 
+#include "base/eintr_wrapper.h"
 #include "base/logging.h"
 
 namespace base {
@@ -64,29 +65,16 @@ bool PerformInjectiveMultimap(const InjectiveMultimap& m_in,
 }
 
 bool FileDescriptorTableInjection::Duplicate(int* result, int fd) {
-  do {
-    *result = dup(fd);
-  } while(*result == -1 && errno == EINTR);
-
+  *result = HANDLE_EINTR(dup(fd));
   return *result >= 0;
 }
 
 bool FileDescriptorTableInjection::Move(int src, int dest) {
-  int result;
-
-  do {
-    result = dup2(src, dest);
-  } while (result == -1 && errno == EINTR);
-
-  return result != -1;
+  return HANDLE_EINTR(dup2(src, dest)) != -1;
 }
 
 void FileDescriptorTableInjection::Close(int fd) {
-  int result;
-
-  do {
-    result = close(fd);
-  } while (result == -1 && errno == EINTR);
+  HANDLE_EINTR(close(fd));
 }
 
 }  // namespace base

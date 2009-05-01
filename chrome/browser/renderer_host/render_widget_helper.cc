@@ -4,6 +4,7 @@
 
 #include "chrome/browser/renderer_host/render_widget_helper.h"
 
+#include "base/eintr_wrapper.h"
 #include "base/thread.h"
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/renderer_host/render_process_host.h"
@@ -311,7 +312,7 @@ void RenderWidgetHelper::FreeTransportDIB(TransportDIB::Id dib_id) {
     i = allocated_dibs_.find(dib_id);
 
   if (i != allocated_dibs_.end()) {
-    close(i->second);
+    HANDLE_EINTR(close(i->second));
     allocated_dibs_.erase(i);
   } else {
     DLOG(WARNING) << "Renderer asked us to free unknown transport DIB";
@@ -321,7 +322,7 @@ void RenderWidgetHelper::FreeTransportDIB(TransportDIB::Id dib_id) {
 void RenderWidgetHelper::ClearAllocatedDIBs() {
   for (std::map<TransportDIB::Id, int>::iterator
        i = allocated_dibs_.begin(); i != allocated_dibs_.end(); ++i) {
-    close(i->second);
+    HANDLE_EINTR(close(i->second));
   }
 
   allocated_dibs_.clear();

@@ -9,6 +9,7 @@
 #include <sys/socket.h>
 #include <sys/un.h>
 
+#include "base/eintr_wrapper.h"
 #include "base/logging.h"
 #include "base/string_util.h"
 #include "chrome/common/chrome_constants.h"
@@ -25,7 +26,8 @@ bool ProcessSingleton::NotifyOtherProcess() {
   sockaddr_un addr;
   SetupSocket(&sock, &addr);
 
-  if (connect(sock, reinterpret_cast<sockaddr*>(&addr), sizeof(addr)) < 0 &&
+  if (HANDLE_EINTR(connect(sock, reinterpret_cast<sockaddr*>(&addr),
+                           sizeof(addr))) < 0 &&
       (errno == ENOENT || errno == ECONNREFUSED)) {
     return false;  // Tell the caller there's nobody to notify.
   }

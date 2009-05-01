@@ -9,6 +9,7 @@
 #include <string>
 #include <vector>
 
+#include "base/eintr_wrapper.h"
 #include "base/file_path.h"
 #include "base/string_util.h"
 
@@ -44,7 +45,7 @@ bool CopyFile(const FilePath& from_path, const FilePath& to_path) {
   bool result = true;
 
   while (result) {
-    ssize_t bytes_read = read(infile, &buffer[0], buffer.size());
+    ssize_t bytes_read = HANDLE_EINTR(read(infile, &buffer[0], buffer.size()));
     if (bytes_read < 0) {
       result = false;
       break;
@@ -54,10 +55,10 @@ bool CopyFile(const FilePath& from_path, const FilePath& to_path) {
     // Allow for partial writes
     ssize_t bytes_written_per_read = 0;
     do {
-      ssize_t bytes_written_partial = write(
+      ssize_t bytes_written_partial = HANDLE_EINTR(write(
           outfile,
           &buffer[bytes_written_per_read],
-          bytes_read - bytes_written_per_read);
+          bytes_read - bytes_written_per_read));
       if (bytes_written_partial < 0) {
         result = false;
         break;
@@ -66,9 +67,9 @@ bool CopyFile(const FilePath& from_path, const FilePath& to_path) {
     } while (bytes_written_per_read < bytes_read);
   }
 
-  if (close(infile) < 0)
+  if (HANDLE_EINTR(close(infile)) < 0)
     result = false;
-  if (close(outfile) < 0)
+  if (HANDLE_EINTR(close(outfile)) < 0)
     result = false;
 
   return result;

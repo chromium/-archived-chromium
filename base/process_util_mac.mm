@@ -14,6 +14,7 @@
 
 #include <string>
 
+#include "base/eintr_wrapper.h"
 #include "base/logging.h"
 #include "base/string_util.h"
 #include "base/time.h"
@@ -76,7 +77,7 @@ bool LaunchApp(const std::vector<std::string>& argv,
     retval = false;
   } else {
     if (wait)
-      waitpid(pid, 0, 0);
+      HANDLE_EINTR(waitpid(pid, 0, 0));
 
     if (process_handle)
       *process_handle = pid;

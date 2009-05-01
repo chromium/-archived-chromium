@@ -16,6 +16,7 @@
 #include "third_party/libevent/event.h"
 #endif
 
+#include "base/eintr_wrapper.h"
 #include "net/base/net_util.h"
 #include "net/base/listen_socket.h"
 
@@ -93,7 +94,8 @@ void ListenSocket::Listen() {
 SOCKET ListenSocket::Accept(SOCKET s) {
   sockaddr_in from;
   socklen_t from_len = sizeof(from);
-  SOCKET conn = accept(s, reinterpret_cast<sockaddr*>(&from), &from_len);
+  SOCKET conn =
+      HANDLE_EINTR(accept(s, reinterpret_cast<sockaddr*>(&from), &from_len));
   if (conn != INVALID_SOCKET) {
     net::SetNonBlocking(conn);
   }
@@ -119,7 +121,7 @@ void ListenSocket::Read() {
   char buf[kReadBufSize + 1]; // +1 for null termination
   int len;
   do {
-    len = recv(socket_, buf, kReadBufSize, 0);
+    len = HANDLE_EINTR(recv(socket_, buf, kReadBufSize, 0));
     if (len == SOCKET_ERROR) {
 #if defined(OS_WIN)
       int err = WSAGetLastError();
@@ -188,7 +190,7 @@ void ListenSocket::WatchSocket(WaitState state) {
 }
 
 void ListenSocket::SendInternal(const char* bytes, int len) {
-  int sent = send(socket_, bytes, len, 0);
+  int sent = HANDLE_EINTR(send(socket_, bytes, len, 0));
   if (sent == SOCKET_ERROR) {
 #if defined(OS_WIN)
   int err = WSAGetLastError();

@@ -17,6 +17,7 @@
 #include "base/message_pump_libevent.h"
 #endif
 
+#include "base/eintr_wrapper.h"
 #include "net/base/telnet_server.h"
 
 #if defined(OS_POSIX)
@@ -250,7 +251,7 @@ void TelnetServer::Read() {
   char buf[kReadBufSize + 1];
   int len;
   do {
-    len = recv(socket_, buf, kReadBufSize, 0);
+    len = HANDLE_EINTR(recv(socket_, buf, kReadBufSize, 0));
 
 #if defined(OS_WIN)
     if (len == SOCKET_ERROR) {

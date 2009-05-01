@@ -7,6 +7,7 @@
 #include <errno.h>
 #include <fcntl.h>
 
+#include "eintr_wrapper.h"
 #include "base/logging.h"
 #include "base/scoped_nsautorelease_pool.h"
 #include "base/scoped_ptr.h"
@@ -87,7 +88,7 @@ void MessagePumpLibevent::OnWakeup(int socket, short flags, void* context) {
 
   // Remove and discard the wakeup byte.
   char buf;
-  int nread = read(socket, &buf, 1);
+  int nread = HANDLE_EINTR(read(socket, &buf, 1));
   DCHECK_EQ(nread, 1);
   // Tell libevent to break out of inner loop.
   event_base_loopbreak(that->event_base_);
@@ -272,7 +273,7 @@ void MessagePumpLibevent::Quit() {
 void MessagePumpLibevent::ScheduleWork() {
   // Tell libevent (in a threadsafe way) that it should break out of its loop.
   char buf = 0;
-  int nwrite = write(wakeup_pipe_in_, &buf, 1);
+  int nwrite = HANDLE_EINTR(write(wakeup_pipe_in_, &buf, 1));
   DCHECK(nwrite == 1 || errno == EAGAIN)
       << "[nwrite:" << nwrite << "] [errno:" << errno << "]";
 }

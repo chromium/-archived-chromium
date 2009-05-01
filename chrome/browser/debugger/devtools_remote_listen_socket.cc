@@ -21,6 +21,7 @@
 #include "third_party/libevent/event.h"
 #endif
 
+#include "base/eintr_wrapper.h"
 #include "base/string_util.h"
 #include "chrome/browser/debugger/devtools_remote.h"
 #include "chrome/browser/debugger/devtools_remote_message.h"
@@ -103,7 +104,7 @@ void DevToolsRemoteListenSocket::Read() {
   char buf[kReadBufSize];
   int len;
   do {
-    len = recv(socket_, buf, kReadBufSize, 0);
+    len = HANDLE_EINTR(recv(socket_, buf, kReadBufSize, 0));
     if (len == SOCKET_ERROR) {
 #if defined(OS_WIN)
       int err = WSAGetLastError();

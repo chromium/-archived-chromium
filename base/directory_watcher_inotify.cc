@@ -16,6 +16,7 @@
 #include <utility>
 #include <vector>
 
+#include "base/eintr_wrapper.h"
 #include "base/file_path.h"
 #include "base/hash_tables.h"
 #include "base/lock.h"
@@ -100,11 +101,10 @@ class InotifyReaderTask : public Task {
       FD_SET(shutdown_fd_, &rfds);
 
       // Wait until some inotify events are available.
-      int select_result = select(std::max(inotify_fd_, shutdown_fd_) + 1,
-                                 &rfds, NULL, NULL, NULL);
+      int select_result =
+        HANDLE_EINTR(select(std::max(inotify_fd_, shutdown_fd_) + 1,
+                            &rfds, NULL, NULL, NULL));
       if (select_result < 0) {
-        if (errno == EINTR)
-          continue;
         DLOG(WARNING) << "select failed: " << strerror(errno);
         return;
       }
@@ -114,7 +114,8 @@ class InotifyReaderTask : public Task {
 
       // Adjust buffer size to current event queue size.
       int buffer_size;
-      int ioctl_result = ioctl(inotify_fd_, FIONREAD, &buffer_size);
+      int ioctl_result = HANDLE_EINTR(ioctl(inotify_fd_, FIONREAD,
+                                            &buffer_size));
 
       if (ioctl_result != 0) {
         DLOG(WARNING) << "ioctl failed: " << strerror(errno);
@@ -123,10 +124,8 @@ class InotifyReaderTask : public Task {
 
       std::vector<char> buffer(buffer_size);
 
-      ssize_t bytes_read;
-      do {
-        bytes_read = read(inotify_fd_, &buffer[0], buffer_size);
-      } while (bytes_read < 0 && errno == EINTR);
+      ssize_t bytes_read = HANDLE_EINTR(read(inotify_fd_, &buffer[0],
+                                             buffer_size));
 
       if (bytes_read < 0) {
         DLOG(WARNING) << "read from inotify fd failed: " << strerror(errno);
@@ -188,12 +187,7 @@ InotifyReader::~InotifyReader() {
   if (valid_) {
     // Write to the self-pipe so that the select call in InotifyReaderTask
     // returns.
-    ssize_t bytes_written;
-    do {
-      bytes_written = write(shutdown_pipe_[1], "", 1);
-      if (bytes_written == 0)
-        continue;
-    } while (bytes_written == -1 && errno == EINTR);
+    HANDLE_EINTR(write(shutdown_pipe_[1], "", 1));
     thread_.Stop();
   }
   if (inotify_fd_ >= 0)

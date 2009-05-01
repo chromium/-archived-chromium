@@ -9,12 +9,13 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 
+#include "base/eintr_wrapper.h"
 #include "base/platform_thread.h"
 
 // Return true if the given child is dead. This will also reap the process.
 // Doesn't block.
 static bool IsChildDead(pid_t child) {
-  const int result = waitpid(child, NULL, WNOHANG);
+  const int result = HANDLE_EINTR(waitpid(child, NULL, WNOHANG));
   if (result == -1) {
     NOTREACHED();
   } else if (result > 0) {
@@ -52,10 +53,7 @@ class BackgroundReaper : public PlatformThread::Delegate {
     if (kill(child_, SIGKILL) == 0) {
       // SIGKILL is uncatchable. Since the signal was delivered, we can
       // just wait for the process to die now in a blocking manner.
-      int result;
-      do {
-        result = waitpid(child_, NULL, 0);
-      } while (result == -1 && errno == EINTR);
+      HANDLE_EINTR(waitpid(child_, NULL, 0));
     } else {
       LOG(ERROR) << "While waiting for " << child_ << " to terminate we"
                  << " failed to deliver a SIGKILL signal (" << errno << ").";

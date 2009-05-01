@@ -7,6 +7,7 @@
 #include <fcntl.h>
 #include <math.h>
 
+#include "base/eintr_wrapper.h"
 #include "base/lazy_instance.h"
 #include "base/logging.h"
 #include "base/platform_thread.h"
@@ -177,7 +178,7 @@ void MessagePumpForUI::HandleDispatch() {
   // poll will tell us whether there was data, so this read shouldn't block.
   if (wakeup_gpollfd_.revents & G_IO_IN) {
     char msg;
-    if (read(wakeup_pipe_read_, &msg, 1) != 1 || msg != '!') {
+    if (HANDLE_EINTR(read(wakeup_pipe_read_, &msg, 1)) != 1 || msg != '!') {
       NOTREACHED() << "Error reading from the wakeup pipe.";
     }
   }
@@ -222,7 +223,7 @@ void MessagePumpForUI::ScheduleWork() {
   // variables as we would then need locks all over.  This ensures that if
   // we are sleeping in a poll that we will wake up.
   char msg = '!';
-  if (write(wakeup_pipe_write_, &msg, 1) != 1) {
+  if (HANDLE_EINTR(write(wakeup_pipe_write_, &msg, 1)) != 1) {
     NOTREACHED() << "Could not write to the UI message loop wakeup pipe!";
   }
 }

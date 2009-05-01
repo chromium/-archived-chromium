@@ -6,6 +6,7 @@
 
 #include <fcntl.h>
 
+#include "base/eintr_wrapper.h"
 #include "net/base/net_util.h"
 #include "testing/platform_test.h"
 
@@ -79,8 +80,9 @@ void DevToolsRemoteListenSocketTester::SetUp() {
   client.sin_family = AF_INET;
   client.sin_addr.s_addr = inet_addr(kLoopback);
   client.sin_port = htons(kTestPort);
-  int ret = connect(test_socket_,
-                    reinterpret_cast<sockaddr*>(&client), sizeof(client));
+  int ret = HANDLE_EINTR(connect(test_socket_,
+                                 reinterpret_cast<sockaddr*>(&client),
+                                 sizeof(client)));
   ASSERT_NE(ret, SOCKET_ERROR);
 
   net::SetNonBlocking(test_socket_);
@@ -93,7 +95,7 @@ void DevToolsRemoteListenSocketTester::TearDown() {
 #if defined(OS_WIN)
   closesocket(test_socket_);
 #elif defined(OS_POSIX)
-  close(test_socket_);
+  HANDLE_EINTR(close(test_socket_));
 #endif
   ASSERT_TRUE(NextAction(kDefaultTimeoutMs));
   ASSERT_EQ(ACTION_CLOSE, last_action_.type());
@@ -177,7 +179,7 @@ int DevToolsRemoteListenSocketTester::ClearTestSocket() {
   int len_ret = 0;
   int time_out = 0;
   do {
-    int len = recv(test_socket_, buf, kReadBufSize, 0);
+    int len = HANDLE_EINTR(recv(test_socket_, buf, kReadBufSize, 0));
 #if defined(OS_WIN)
     if (len == SOCKET_ERROR) {
       int err = WSAGetLastError();
@@ -248,7 +250,7 @@ void DevToolsRemoteListenSocketTester::HandleMessage(
 bool DevToolsRemoteListenSocketTester::Send(SOCKET sock,
                                             const std::string& str) {
   int len = static_cast<int>(str.length());
-  int send_len = send(sock, str.data(), len, 0);
+  int send_len = HANDLE_EINTR(send(sock, str.data(), len, 0));
   if (send_len == SOCKET_ERROR) {
     LOG(ERROR) << "send failed: " << errno;
     return false;
@@ -317,14 +319,7 @@ void DevToolsRemoteListenSocketTester::TestServerSend() {
   PlatformThread::Sleep(10);  // sleep for 10ms
   const int buf_len = 200;
   char buf[buf_len+1];
-  int recv_len;
-  do {
-    recv_len = recv(test_socket_, buf, buf_len, 0);
-#if defined(OS_POSIX)
-  } while (recv_len == SOCKET_ERROR && errno == EINTR);
-#else
-  } while (false);
-#endif
+  int recv_len = HANDLE_EINTR(recv(test_socket_, buf, buf_len, 0));
   ASSERT_NE(recv_len, SOCKET_ERROR);
   buf[recv_len] = 0;
   ASSERT_STREQ(buf, kChromeDevToolsHandshake);

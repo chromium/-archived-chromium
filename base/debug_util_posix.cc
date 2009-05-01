@@ -15,6 +15,7 @@
 #include <unistd.h>
 
 #include "base/basictypes.h"
+#include "base/eintr_wrapper.h"
 #include "base/logging.h"
 #include "base/scoped_ptr.h"
 #include "base/string_piece.h"
@@ -85,8 +86,8 @@ bool DebugUtil::BeingDebugged() {
   // This simplifies and speeds up things considerably.
   char buf[1024];
 
-  ssize_t num_read = read(status_fd, buf, sizeof(buf));
-  close(status_fd);
+  ssize_t num_read = HANDLE_EINTR(read(status_fd, buf, sizeof(buf)));
+  HANDLE_EINTR(close(status_fd));
 
   if (num_read <= 0)
     return false;

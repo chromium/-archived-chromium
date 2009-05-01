@@ -6,6 +6,8 @@
 
 #include <unistd.h>
 #include <sys/stat.h>
+
+#include "base/eintr_wrapper.h"
 #include "base/shared_memory.h"
 
 TransportDIB::TransportDIB()
@@ -41,7 +43,7 @@ TransportDIB* TransportDIB::Map(TransportDIB::Handle handle) {
 
   if (!dib->shared_memory_.Map(st.st_size)) {
     delete dib;
-    close(handle.fd);
+    HANDLE_EINTR(close(handle.fd));
     return false;
   }
 

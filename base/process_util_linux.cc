@@ -12,6 +12,7 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 
+#include "base/eintr_wrapper.h"
 #include "base/file_util.h"
 #include "base/logging.h"
 #include "base/string_tokenizer.h"
@@ -55,7 +56,7 @@ bool LaunchApp(const std::vector<std::string>& argv,
     exit(127);
   } else {
     if (wait)
-      waitpid(pid, 0, 0);
+      HANDLE_EINTR(waitpid(pid, 0, 0));
 
     if (process_handle)
       *process_handle = pid;

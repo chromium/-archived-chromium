@@ -16,6 +16,7 @@
 #include <map>
 
 #include "base/command_line.h"
+#include "base/eintr_wrapper.h"
 #include "base/lock.h"
 #include "base/logging.h"
 #include "base/process_util.h"
@@ -139,7 +140,7 @@ bool CreateServerFifo(const std::string &pipe_name, int* server_listen_fd) {
 
   // Make socket non-blocking
   if (fcntl(fd, F_SETFL, O_NONBLOCK) == -1) {
-    close(fd);
+    HANDLE_EINTR(close(fd));
     return false;
   }
 
@@ -157,14 +158,14 @@ bool CreateServerFifo(const std::string &pipe_name, int* server_listen_fd) {
   // Bind the socket.
   if (bind(fd, reinterpret_cast<const sockaddr*>(&unix_addr),
            unix_addr_len) != 0) {
-    close(fd);
+    HANDLE_EINTR(close(fd));
     return false;
   }
 
   // Start listening on the socket.
   const int listen_queue_length = 1;
   if (listen(fd, listen_queue_length) != 0) {
-    close(fd);
+    HANDLE_EINTR(close(fd));
     return false;
   }
 
@@ -176,11 +177,11 @@ bool CreateServerFifo(const std::string &pipe_name, int* server_listen_fd) {
 bool ServerAcceptFifoConnection(int server_listen_fd, int* server_socket) {
   DCHECK(server_socket);
 
-  int accept_fd = accept(server_listen_fd, NULL, 0);
+  int accept_fd = HANDLE_EINTR(accept(server_listen_fd, NULL, 0));
   if (accept_fd < 0)
     return false;
   if (fcntl(accept_fd, F_SETFL, O_NONBLOCK) == -1) {
-    close(accept_fd);
+    HANDLE_EINTR(close(accept_fd));
     return false;
   }
 
@@ -202,7 +203,7 @@ bool ClientConnectToFifo(const std::string &pipe_name, int* client_socket) {
   // Make socket non-blocking
   if (fcntl(fd, F_SETFL, O_NONBLOCK) == -1) {
     LOG(ERROR) << "fcntl failed";
-    close(fd);
+    HANDLE_EINTR(close(fd));
     return false;
   }
 
@@ -215,13 +216,9 @@ bool ClientConnectToFifo(const std::string &pipe_name, int* client_socket) {
   size_t server_unix_addr_len = offsetof(struct sockaddr_un, sun_path) +
       strlen(server_unix_addr.sun_path) + 1;
 
-  int ret_val = -1;
-  do {
-    ret_val = connect(fd, reinterpret_cast<sockaddr*>(&server_unix_addr),
-                      server_unix_addr_len);
-  } while (ret_val == -1 && errno == EINTR);
-  if (ret_val != 0) {
-    close(fd);
+  if (HANDLE_EINTR(connect(fd, reinterpret_cast<sockaddr*>(&server_unix_addr),
+                           server_unix_addr_len)) != 0) {
+    HANDLE_EINTR(close(fd));
     return false;
   }
 
@@ -290,8 +287,8 @@ bool Channel::ChannelImpl::CreatePipe(const std::wstring& channel_id,
       // Set both ends to be non-blocking.
       if (fcntl(pipe_fds[0], F_SETFL, O_NONBLOCK) == -1 ||
           fcntl(pipe_fds[1], F_SETFL, O_NONBLOCK) == -1) {
-        close(pipe_fds[0]);
-        close(pipe_fds[1]);
+        HANDLE_EINTR(close(pipe_fds[0]));
+        HANDLE_EINTR(close(pipe_fds[1]));
         return false;
       }
       pipe_ = pipe_fds[0];
@@ -367,9 +364,7 @@ bool Channel::ChannelImpl::ProcessIncomingMessages() {
       // Read from pipe.
       // recvmsg() returns 0 if the connection has closed or EAGAIN if no data
       // is waiting on the pipe.
-      do {
-        bytes_read = recvmsg(pipe_, &msg, MSG_DONTWAIT);
-      } while (bytes_read == -1 && errno == EINTR);
+      bytes_read = HANDLE_EINTR(recvmsg(pipe_, &msg, MSG_DONTWAIT));
 
       if (bytes_read < 0) {
         if (errno == EAGAIN) {
@@ -388,7 +383,7 @@ bool Channel::ChannelImpl::ProcessIncomingMessages() {
 
     if (client_pipe_ != -1) {
       Singleton<PipeMap>()->Remove(pipe_name_);
-      close(client_pipe_);
+      HANDLE_EINTR(close(client_pipe_));
       client_pipe_ = -1;
     }
 
@@ -427,7 +422,7 @@ bool Channel::ChannelImpl::ProcessIncomingMessages() {
                        << " cmsg_len:" << cmsg->cmsg_len
                        << " fd:" << pipe_;
             for (unsigned i = 0; i < num_wire_fds; ++i)
-              close(wire_fds[i]);
+              HANDLE_EINTR(close(wire_fds[i]));
             return false;
           }
           break;
@@ -500,7 +495,7 @@ bool Channel::ChannelImpl::ProcessIncomingMessages() {
                          << " fds_i:" << fds_i;
             // close the existing file descriptors so that we don't leak them
             for (unsigned i = fds_i; i < num_fds; ++i)
-              close(fds[i]);
+              HANDLE_EINTR(close(fds[i]));
             input_overflow_fds_.clear();
             // abort the connection
             return false;
@@ -564,40 +559,38 @@ bool Channel::ChannelImpl::ProcessOutgoingMessages() {
     DCHECK(amt_to_write != 0);
     const char *out_bytes = reinterpret_cast<const char*>(msg->data()) +
         message_send_bytes_written_;
-    ssize_t bytes_written = -1;
-    do {
-      struct msghdr msgh = {0};
-      struct iovec iov = {const_cast<char*>(out_bytes), amt_to_write};
-      msgh.msg_iov = &iov;
-      msgh.msg_iovlen = 1;
-      char buf[CMSG_SPACE(
-          sizeof(int[FileDescriptorSet::MAX_DESCRIPTORS_PER_MESSAGE]))];
 
-      if (message_send_bytes_written_ == 0 &&
-          !msg->file_descriptor_set()->empty()) {
-        // This is the first chunk of a message which has descriptors to send
-        struct cmsghdr *cmsg;
-        const unsigned num_fds = msg->file_descriptor_set()->size();
+    struct msghdr msgh = {0};
+    struct iovec iov = {const_cast<char*>(out_bytes), amt_to_write};
+    msgh.msg_iov = &iov;
+    msgh.msg_iovlen = 1;
+    char buf[CMSG_SPACE(
+        sizeof(int[FileDescriptorSet::MAX_DESCRIPTORS_PER_MESSAGE]))];
 
-        DCHECK_LE(num_fds, FileDescriptorSet::MAX_DESCRIPTORS_PER_MESSAGE);
+    if (message_send_bytes_written_ == 0 &&
+        !msg->file_descriptor_set()->empty()) {
+      // This is the first chunk of a message which has descriptors to send
+      struct cmsghdr *cmsg;
+      const unsigned num_fds = msg->file_descriptor_set()->size();
 
-        msgh.msg_control = buf;
-        msgh.msg_controllen = CMSG_SPACE(sizeof(int) * num_fds);
-        cmsg = CMSG_FIRSTHDR(&msgh);
-        cmsg->cmsg_level = SOL_SOCKET;
-        cmsg->cmsg_type = SCM_RIGHTS;
-        cmsg->cmsg_len = CMSG_LEN(sizeof(int) * num_fds);
-        msg->file_descriptor_set()->GetDescriptors(
-            reinterpret_cast<int*>(CMSG_DATA(cmsg)));
-        msgh.msg_controllen = cmsg->cmsg_len;
+      DCHECK_LE(num_fds, FileDescriptorSet::MAX_DESCRIPTORS_PER_MESSAGE);
 
-        msg->header()->num_fds = num_fds;
-      }
+      msgh.msg_control = buf;
+      msgh.msg_controllen = CMSG_SPACE(sizeof(int) * num_fds);
+      cmsg = CMSG_FIRSTHDR(&msgh);
+      cmsg->cmsg_level = SOL_SOCKET;
+      cmsg->cmsg_type = SCM_RIGHTS;
+      cmsg->cmsg_len = CMSG_LEN(sizeof(int) * num_fds);
+      msg->file_descriptor_set()->GetDescriptors(
+          reinterpret_cast<int*>(CMSG_DATA(cmsg)));
+      msgh.msg_controllen = cmsg->cmsg_len;
 
-      bytes_written = sendmsg(pipe_, &msgh, MSG_DONTWAIT);
-      if (bytes_written > 0)
-        msg->file_descriptor_set()->CommitAll();
-    } while (bytes_written == -1 && errno == EINTR);
+      msg->header()->num_fds = num_fds;
+    }
+
+    ssize_t bytes_written = HANDLE_EINTR(sendmsg(pipe_, &msgh, MSG_DONTWAIT));
+    if (bytes_written > 0)
+      msg->file_descriptor_set()->CommitAll();
 
     if (bytes_written < 0 && errno != EAGAIN) {
       LOG(ERROR) << "pipe error: " << strerror(errno);
@@ -731,7 +724,7 @@ void Channel::ChannelImpl::Close() {
   server_listen_connection_watcher_.StopWatchingFileDescriptor();
 
   if (server_listen_pipe_ != -1) {
-    close(server_listen_pipe_);
+    HANDLE_EINTR(close(server_listen_pipe_));
     server_listen_pipe_ = -1;
   }
 
@@ -739,12 +732,12 @@ void Channel::ChannelImpl::Close() {
   read_watcher_.StopWatchingFileDescriptor();
   write_watcher_.StopWatchingFileDescriptor();
   if (pipe_ != -1) {
-    close(pipe_);
+    HANDLE_EINTR(close(pipe_));
     pipe_ = -1;
   }
   if (client_pipe_ != -1) {
     Singleton<PipeMap>()->Remove(pipe_name_);
-    close(client_pipe_);
+    HANDLE_EINTR(close(client_pipe_));
     client_pipe_ = -1;
   }
 
@@ -760,7 +753,7 @@ void Channel::ChannelImpl::Close() {
   // Close any outstanding, received file descriptors
   for (std::vector<int>::iterator
        i = input_overflow_fds_.begin(); i != input_overflow_fds_.end(); ++i) {
-    close(*i);
+    HANDLE_EINTR(close(*i));
   }
   input_overflow_fds_.clear();
 }

@@ -14,6 +14,7 @@
 #include <errno.h>
 
 #include "base/basictypes.h"
+#include "base/eintr_wrapper.h"
 #include "base/logging.h"
 #include "base/message_loop.h"
 #include "base/string_util.h"
@@ -51,30 +52,20 @@ int ReadFile(base::PlatformFile file, char* buf, int buf_len) {
   // read(..., 0) returns 0 to indicate end-of-file.
 
   // Loop in the case of getting interrupted by a signal.
-  for (;;) {
-    ssize_t res = read(file, buf, static_cast<size_t>(buf_len));
-    if (res == static_cast<ssize_t>(-1)) {
-      if (errno == EINTR)
-        continue;
-      return MapErrorCode(errno);
-    }
-    return static_cast<int>(res);
-  }
+  ssize_t res = HANDLE_EINTR(read(file, buf, static_cast<size_t>(buf_len)));
+  if (res == static_cast<ssize_t>(-1))
+    return MapErrorCode(errno);
+  return static_cast<int>(res);
 }
 
 // WriteFile() is a simple wrapper around write() that handles EINTR signals and
 // calls MapErrorCode() to map errno to net error codes.  It tries to write to
 // completion.
 int WriteFile(base::PlatformFile file, const char* buf, int buf_len) {
-  while (true) {
-    ssize_t res = write(file, buf, buf_len);
-    if (res == -1) {
-      if (errno == EINTR)
-        continue;
-      return MapErrorCode(errno);
-    }
-    return res;
-  }
+  ssize_t res = HANDLE_EINTR(write(file, buf, buf_len));
+  if (res == -1)
+    return MapErrorCode(errno);
+  return res;
 }
 
 // BackgroundReadTask is a simple task that reads a file and then runs

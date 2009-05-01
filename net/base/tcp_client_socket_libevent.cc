@@ -9,6 +9,7 @@
 #include <netdb.h>
 #include <sys/socket.h>
 
+#include "base/eintr_wrapper.h"
 #include "base/message_loop.h"
 #include "base/string_util.h"
 #include "base/trace_event.h"
@@ -93,7 +94,8 @@ int TCPClientSocketLibevent::Connect(CompletionCallback* callback) {
   if (rv != OK)
     return rv;
 
-  if (!connect(socket_, ai->ai_addr, static_cast<int>(ai->ai_addrlen))) {
+  if (!HANDLE_EINTR(connect(socket_, ai->ai_addr,
+                            static_cast<int>(ai->ai_addrlen)))) {
     TRACE_EVENT_END("socket.connect", this, "");
     // Connected without waiting!
     return OK;
@@ -147,7 +149,7 @@ bool TCPClientSocketLibevent::IsConnected() const {
 
   // Check if connection is alive.
   char c;
-  int rv = recv(socket_, &c, 1, MSG_PEEK);
+  int rv = HANDLE_EINTR(recv(socket_, &c, 1, MSG_PEEK));
   if (rv == 0)
     return false;
   if (rv == -1 && errno != EAGAIN && errno != EWOULDBLOCK)
@@ -163,7 +165,7 @@ bool TCPClientSocketLibevent::IsConnectedAndIdle() const {
   // Check if connection is alive and we haven't received any data
   // unexpectedly.
   char c;
-  int rv = recv(socket_, &c, 1, MSG_PEEK);
+  int rv = HANDLE_EINTR(recv(socket_, &c, 1, MSG_PEEK));
   if (rv >= 0)
     return false;
   if (errno != EAGAIN && errno != EWOULDBLOCK)
@@ -183,7 +185,7 @@ int TCPClientSocketLibevent::Read(IOBuffer* buf,
   DCHECK_GT(buf_len, 0);
 
   TRACE_EVENT_BEGIN("socket.read", this, "");
-  int nread = read(socket_, buf->data(), buf_len);
+  int nread = HANDLE_EINTR(read(socket_, buf->data(), buf_len));
   if (nread >= 0) {
     TRACE_EVENT_END("socket.read", this, StringPrintf("%d bytes", nread));
     return nread;
@@ -217,7 +219,7 @@ int TCPClientSocketLibevent::Write(IOBuffer* buf,
   DCHECK_GT(buf_len, 0);
 
   TRACE_EVENT_BEGIN("socket.write", this, "");
-  int nwrite = write(socket_, buf->data(), buf_len);
+  int nwrite = HANDLE_EINTR(write(socket_, buf->data(), buf_len));
   if (nwrite >= 0) {
     TRACE_EVENT_END("socket.write", this, StringPrintf("%d bytes", nwrite));
     return nwrite;
@@ -309,7 +311,8 @@ void TCPClientSocketLibevent::DidCompleteConnect() {
 
 void TCPClientSocketLibevent::DidCompleteRead() {
   int bytes_transferred;
-  bytes_transferred = read(socket_, read_buf_->data(), read_buf_len_);
+  bytes_transferred = HANDLE_EINTR(read(socket_, read_buf_->data(),
+                                        read_buf_len_));
 
   int result;
   if (bytes_transferred >= 0) {
@@ -330,7 +333,8 @@ void TCPClientSocketLibevent::DidCompleteRead() {
 
 void TCPClientSocketLibevent::DidCompleteWrite() {
   int bytes_transferred;
-  bytes_transferred = write(socket_, write_buf_->data(), write_buf_len_);
+  bytes_transferred = HANDLE_EINTR(write(socket_, write_buf_->data(),
+                                         write_buf_len_));
 
   int result;
   if (bytes_transferred >= 0) {

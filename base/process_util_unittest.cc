@@ -5,6 +5,7 @@
 #define _CRT_SECURE_NO_WARNINGS
 
 #include "base/command_line.h"
+#include "base/eintr_wrapper.h"
 #include "base/file_path.h"
 #include "base/multiprocess_test.h"
 #include "base/path_service.h"
@@ -191,7 +192,7 @@ MULTIPROCESS_TEST_MAIN(ProcessUtilsLeakFDChildProcess) {
   int max_files = GetMaxFilesOpenInProcess();
   for (int i = STDERR_FILENO + 1; i < max_files; i++) {
     if (i != kChildPipe) {
-      if (close(i) != -1) {
+      if (HANDLE_EINTR(close(i)) != -1) {
         LOG(WARNING) << "Leaked FD " << i;
         num_open_files += 1;
       }
@@ -206,9 +207,10 @@ MULTIPROCESS_TEST_MAIN(ProcessUtilsLeakFDChildProcess) {
 #endif  // defined(OS_LINUX)
   num_open_files -= expected_num_open_fds;
 
-  int written = write(write_pipe, &num_open_files, sizeof(num_open_files));
+  int written = HANDLE_EINTR(write(write_pipe, &num_open_files,
+                                   sizeof(num_open_files)));
   DCHECK_EQ(static_cast<size_t>(written), sizeof(num_open_files));
-  close(write_pipe);
+  HANDLE_EINTR(close(write_pipe));
 
   return 0;
 }
@@ -233,12 +235,12 @@ TEST_F(ProcessUtilTest, FDRemapping) {
                                           fd_mapping_vec,
                                           false);
   ASSERT_NE(static_cast<ProcessHandle>(NULL), handle);
-  close(pipe_write_fd);
+  HANDLE_EINTR(close(pipe_write_fd));
 
   // Read number of open files in client process from pipe;
   int num_open_files = -1;
-  ssize_t bytes_read = read(pipe_read_fd, &num_open_files,
-                            sizeof(num_open_files));
+  ssize_t bytes_read =
+      HANDLE_EINTR(read(pipe_read_fd, &num_open_files, sizeof(num_open_files)));
   ASSERT_EQ(bytes_read, static_cast<ssize_t>(sizeof(num_open_files)));
 
   // Make sure 0 fds are leaked to the client.
@@ -246,10 +248,10 @@ TEST_F(ProcessUtilTest, FDRemapping) {
 
   EXPECT_TRUE(WaitForSingleProcess(handle, 1000));
   base::CloseProcessHandle(handle);
-  close(fds[0]);
-  close(sockets[0]);
-  close(sockets[1]);
-  close(dev_null);
+  HANDLE_EINTR(close(fds[0]));
+  HANDLE_EINTR(close(sockets[0]));
+  HANDLE_EINTR(close(sockets[1]));
+  HANDLE_EINTR(close(dev_null));
 }
 
 TEST_F(ProcessUtilTest, GetAppOutput) {

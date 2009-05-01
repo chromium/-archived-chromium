@@ -8,6 +8,7 @@
 #include <fcntl.h>
 
 #include "base/basictypes.h"
+#include "base/eintr_wrapper.h"
 #include "chrome/common/file_descriptor_set_posix.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
@@ -140,8 +141,8 @@ TEST(FileDescriptorSet, DontClose) {
 
   const int duped = dup(fd);
   ASSERT_GE(duped, 0);
-  close(duped);
-  close(fd);
+  HANDLE_EINTR(close(duped));
+  HANDLE_EINTR(close(fd));
 }
 
 TEST(FileDescriptorSet, DoClose) {
@@ -153,5 +154,5 @@ TEST(FileDescriptorSet, DoClose) {
 
   const int duped = dup(fd);
   ASSERT_EQ(duped, -1);
-  close(fd);
+  HANDLE_EINTR(close(fd));
 }

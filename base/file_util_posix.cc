@@ -22,6 +22,7 @@
 #include <fstream>
 
 #include "base/basictypes.h"
+#include "base/eintr_wrapper.h"
 #include "base/file_path.h"
 #include "base/logging.h"
 #include "base/string_util.h"
@@ -335,11 +336,11 @@ bool GetFileCreationLocalTime(const std::string& filename,
 bool ReadFromFD(int fd, char* buffer, size_t bytes) {
   size_t total_read = 0;
   while (total_read < bytes) {
-    ssize_t bytes_read = read(fd, buffer + total_read, bytes - total_read);
-    if (bytes_read > 0)
-      total_read += bytes_read;
-    else if (bytes_read == 0 || errno != EINTR)
+    ssize_t bytes_read =
+        HANDLE_EINTR(read(fd, buffer + total_read, bytes - total_read));
+    if (bytes_read <= 0)
       break;
+    total_read += bytes_read;
   }
   return total_read == bytes;
 }
@@ -453,8 +454,8 @@ int ReadFile(const FilePath& filename, char* data, int size) {
   if (fd < 0)
     return -1;
 
-  int ret_value = read(fd, data, size);
-  close(fd);
+  int ret_value = HANDLE_EINTR(read(fd, data, size));
+  HANDLE_EINTR(close(fd));
   return ret_value;
 }
 
@@ -466,17 +467,17 @@ int WriteFile(const FilePath& filename, const char* data, int size) {
   // Allow for partial writes
   ssize_t bytes_written_total = 0;
   do {
-    ssize_t bytes_written_partial = write(fd,
-                                          data + bytes_written_total,
-                                          size - bytes_written_total);
+    ssize_t bytes_written_partial =
+      HANDLE_EINTR(write(fd, data + bytes_written_total,
+                         size - bytes_written_total));
     if (bytes_written_partial < 0) {
-      close(fd);
+      HANDLE_EINTR(close(fd));
       return -1;
     }
     bytes_written_total += bytes_written_partial;
   } while (bytes_written_total < size);
 
-  close(fd);
+  HANDLE_EINTR(close(fd));
   return bytes_written_total;
 }
 

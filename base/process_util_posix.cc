@@ -17,6 +17,7 @@
 #include <set>
 
 #include "base/basictypes.h"
+#include "base/eintr_wrapper.h"
 #include "base/logging.h"
 #include "base/platform_thread.h"
 #include "base/process_util.h"
@@ -69,7 +70,7 @@ bool KillProcess(ProcessHandle process_id, int exit_code, bool wait) {
     int tries = 60;
     // The process may not end immediately due to pending I/O
     while (tries-- > 0) {
-      int pid = waitpid(process_id, NULL, WNOHANG);
+      int pid = HANDLE_EINTR(waitpid(process_id, NULL, WNOHANG));
       if (pid == process_id)
         break;
 
@@ -139,10 +140,7 @@ void CloseSuperfluousFds(const base::InjectiveMultimap& saved_mapping) {
       if (saved_fds.find(fd) != saved_fds.end())
         continue;
 
-      int result;
-      do {
-        result = close(fd);
-      } while (result == -1 && errno == EINTR);
+      HANDLE_EINTR(close(fd));
     }
     return;
   }
@@ -161,10 +159,7 @@ void CloseSuperfluousFds(const base::InjectiveMultimap& saved_mapping) {
     if (saved_fds.find(fd) != saved_fds.end())
       continue;
 
-    int result;
-    do {
-      result = close(fd);
-    } while (result == -1 && errno == EINTR);
+    HANDLE_EINTR(close(fd));
   }
 }
 
@@ -226,7 +221,7 @@ void RaiseProcessToHighPriority() {
 
 bool DidProcessCrash(bool* child_exited, ProcessHandle handle) {
   int status;
-  const int result = waitpid(handle, &status, WNOHANG);
+  const int result = HANDLE_EINTR(waitpid(handle, &status, WNOHANG));
   if (result == -1) {
     LOG(ERROR) << "waitpid failed pid:" << handle << " errno:" << errno;
     if (child_exited)
@@ -262,11 +257,9 @@ bool DidProcessCrash(bool* child_exited, ProcessHandle handle) {
 
 bool WaitForExitCode(ProcessHandle handle, int* exit_code) {
   int status;
-  while (waitpid(handle, &status, 0) == -1) {
-    if (errno != EINTR) {
-      NOTREACHED();
-      return false;
-    }
+  if (HANDLE_EINTR(waitpid(handle, &status, 0)) == -1) {
+    NOTREACHED();
+    return false;
   }
 
   if (WIFEXITED(status)) {
@@ -305,7 +298,7 @@ int WaitpidWithTimeout(ProcessHandle handle, int wait_milliseconds,
   // This function is used primarily for unit tests, if we want to use it in
   // the application itself it would probably be best to examine other routes.
   int status = -1;
-  pid_t ret_pid = waitpid(handle, &status, WNOHANG);
+  pid_t ret_pid = HANDLE_EINTR(waitpid(handle, &status, WNOHANG));
   static const int64 kQuarterSecondInMicroseconds = kMicrosecondsPerSecond/4;
 
   // If the process hasn't exited yet, then sleep and try again.
@@ -325,7 +318,7 @@ int WaitpidWithTimeout(ProcessHandle handle, int wait_milliseconds,
     // usleep() will return 0 and set errno to EINTR on receipt of a signal
     // such as SIGCHLD.
     usleep(sleep_time_usecs);
-    ret_pid = waitpid(handle, &status, WNOHANG);
+    ret_pid = HANDLE_EINTR(waitpid(handle, &status, WNOHANG));
   }
 
   if (success)
@@ -340,7 +333,7 @@ bool WaitForSingleProcess(ProcessHandle handle, int wait_milliseconds) {
   bool waitpid_success;
   int status;
   if (wait_milliseconds == base::kNoTimeout)
-    waitpid_success = (waitpid(handle, &status, 0) != -1);
+    waitpid_success = (HANDLE_EINTR(waitpid(handle, &status, 0)) != -1);
   else
     status = WaitpidWithTimeout(handle, wait_milliseconds, &waitpid_success);
   if (status != -1) {
@@ -463,16 +456,13 @@ bool GetAppOutput(const CommandLine& cl, std::string* output) {
 
         char buffer[256];
         std::string buf_output;
-        ssize_t bytes_read = 0;
 
         while (true) {
-          bytes_read = read(pipe_fd[0], buffer, sizeof(buffer));
-          if (bytes_read == 0)
+          ssize_t bytes_read =
+              HANDLE_EINTR(read(pipe_fd[0], buffer, sizeof(buffer)));
+          if (bytes_read <= 0)
             break;
-          if (bytes_read == -1 && errno != EINTR)
-            break;
-          if (bytes_read > 0)
-            buf_output.append(buffer, bytes_read);
+          buf_output.append(buffer, bytes_read);
         }
         output->swap(buf_output);
         close(pipe_fd[0]);
