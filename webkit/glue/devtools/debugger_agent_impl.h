@@ -29,8 +29,8 @@ class DebuggerAgentImpl : public DebuggerAgent {
   virtual ~DebuggerAgentImpl();
 
   // Creates utility context with injected js agent.
-  void CreateUtilityContext(WebCore::Document* document,
-                            v8::Persistent<v8::Context>* context);
+  void ResetUtilityContext(WebCore::Document* document,
+                           v8::Persistent<v8::Context>* context);
 
   // DebuggerAgent implementation.
   virtual void DebugBreak();

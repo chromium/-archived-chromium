@@ -78,7 +78,7 @@ void WebDevToolsAgentImpl::Attach() {
   if (doc) {
     // Reuse existing context in case detached/attached.
     if (utility_context_.IsEmpty()) {
-      debugger_agent_impl_->CreateUtilityContext(doc, &utility_context_);
+      debugger_agent_impl_->ResetUtilityContext(doc, &utility_context_);
     }
     dom_agent_impl_->SetDocument(doc);
     net_agent_impl_->SetDocument(doc);
@@ -116,7 +116,7 @@ void WebDevToolsAgentImpl::SetMainFrameDocumentReady(bool ready) {
   } else {
     doc = NULL;
   }
-  debugger_agent_impl_->CreateUtilityContext(doc, &utility_context_);
+  debugger_agent_impl_->ResetUtilityContext(doc, &utility_context_);
   dom_agent_impl_->SetDocument(doc);
   net_agent_impl_->SetDocument(doc);
 }
