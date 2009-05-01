@@ -104,6 +104,13 @@ static v8::Handle<v8::Value> NPObjectInvokeImpl(const v8::Arguments& args, Invok
     case INVOKE_DEFAULT:
         if (npobject->_class->invokeDefault)
             npobject->_class->invokeDefault(npobject, npArgs, argc, &result);
+        // The call might be a construct call on an NPObject.
+        // See http://code.google.com/p/chromium/issues/detail?id=3285
+        //
+        // TODO: when V8 passes in the correct flag args.is_construct_call_,
+        // make a separate NPN_Construct case.
+        else if (npobject->_class->construct)
+            npobject->_class->construct(npobject, npArgs, argc, &result);
         break;
     default:
         break;
@@ -174,7 +181,11 @@ static v8::Handle<v8::Value> NPObjectGetProperty(v8::Local<v8::Object> self,
         v8::Handle<v8::Value> rv = convertNPVariantToV8Object(&result, npobject);
         NPN_ReleaseVariantValue(&result);
         return rv;
-    } else if (key->IsString() && npobject->_class->hasMethod && npobject->_class->hasMethod(npobject, ident)) {
+
+    } else if (key->IsString() &&
+               npobject->_class->hasMethod &&
+               npobject->_class->hasMethod(npobject, ident)) {
+
         PrivateIdentifier* id = static_cast<PrivateIdentifier*>(ident);
         v8::Persistent<v8::FunctionTemplate> desc = static_template_map.get(id);
         // Cache templates using identifier as the key.
