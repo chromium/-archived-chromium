@@ -3,7 +3,7 @@
 <link rel="stylesheet" type="text/css" href="styles.css">
 <script>
 gmail_atom_href = "http://mail.google.com/mail/feed/atom";
-var poll_timeout = 2000;
+var poll_timeout = 1000 * 60;  // 1 minute
 var unreadCount;
 var debug = true;
 
@@ -14,6 +14,8 @@ function gmailNSResolver(prefix) {
 }
 
 function startFlip() {
+  document.getElementById("notLoggedIn").style.display = "none";
+  document.getElementById("loggedIn").style.display = "";
   document.getElementById("unreadCount").className = 'mid-flip';
   setTimeout("midFlip();", 500);
 }
@@ -42,16 +44,20 @@ function requestUnreadFeed() {
     xhr.onreadystatechange = function(){
       console.log("readystate: " + xhr.readyState);
       if (xhr.readyState == 4) {
-  	    console.log("response..");
-        var xmlDoc = xhr.responseXML;
-        var fullCountSet = xmlDoc.evaluate("/gmail:feed/gmail:fullcount", 
-            xmlDoc, gmailNSResolver, XPathResult.ANY_TYPE, null);
-        var fullCountNode = fullCountSet.iterateNext();
-        if (fullCountNode) {
-          updateUnreadCount(fullCountNode.textContent);
-        } else {
-		      console.log("fullcount not found!");
-          console.error("Error: feed retrieved, but no <fullcount> node found");
+        if (xhr.responseXML) {
+          window.clearTimeout(timerId);
+
+          console.log("response..");
+          var xmlDoc = xhr.responseXML;
+          var fullCountSet = xmlDoc.evaluate("/gmail:feed/gmail:fullcount", 
+              xmlDoc, gmailNSResolver, XPathResult.ANY_TYPE, null);
+          var fullCountNode = fullCountSet.iterateNext();
+          if (fullCountNode) {
+            updateUnreadCount(fullCountNode.textContent);
+          } else {
+            console.log("fullcount not found!");
+            console.error("Error: feed retrieved, but no <fullcount> node found");
+          }
         }
 
         window.setTimeout(requestUnreadFeed, poll_timeout);
@@ -59,13 +65,19 @@ function requestUnreadFeed() {
     }
     
     xhr.onerror = function(error) {
-      debugger;
   	  console.log("error: " + error);
       window.setTimeout(requestUnreadFeed, poll_timeout);
     }
 
-    xhr.open("GET", gmail_atom_href);
-    xhr.send({});
+    xhr.open("GET", gmail_atom_href, true);
+    xhr.send(null);
+
+    // Give up after 5 seconds
+    var timerId = window.setTimeout(function() {
+      document.getElementById("loggedIn").style.display = "none";
+      document.getElementById("notLoggedIn").style.display = "";
+      xhr.abort();
+    }, 5000);
   } catch(e) {
     console.log("ex: " + e);
     console.error("exception: " + e);
@@ -79,10 +91,11 @@ function goToInbox() {
 
 </script>
 </head>
-<body onload="requestUnreadFeed();" onclick="goToInbox()">
+<body onload="window.setTimeout(requestUnreadFeed, 0)" onclick="goToInbox()">
   <div class="toolstrip-button">
     <img src="gmail.png" style="width:auto; height:auto">
-    <span>Gmail - Inbox <span style="display: inline-block;" id="unreadCount" class="base-flip" onclick="startFlip();"></span></span>
+    <span id="notLoggedIn" style="display:none;">Login</span>
+    <span id="loggedIn">Gmail - Inbox <span style="display: inline-block;" id="unreadCount" class="base-flip" onclick="startFlip();"></span></span>
   </div>
 </body>
 </html>
