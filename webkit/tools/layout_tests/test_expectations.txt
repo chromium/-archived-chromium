@@ -455,6 +455,7 @@ BUG1124542 DEFER LINUX WIN : LayoutTests/fast/text/capitalize-boundaries.html = 
 // Different button line-heights, our behavior looks wrong.
 BUG1145887 DEFER : LayoutTests/fast/forms/control-restrict-line-height.html = FAIL
 BUG1145887 DEFER : LayoutTests/fast/replaced/table-percent-height.html = FAIL
+BUG1145887 DEFER : LayoutTests/fast/replaced/table-percent-height-text-controls.html = FAIL
 
 
 // -----------------------------------------------------------------
@@ -2621,3 +2622,10 @@ BUG11251 : LayoutTests/fast/forms/textarea-metrics.html = FAIL
 // Regressions from r14994 (pulling in new WebKit)
 BUG11264 WIN : LayoutTests/plugins/getintidentifier-special-values.html = CRASH
 BUG11264 WIN : LayoutTests/plugins/netscape-identifier-conversion.html = CRASH
+
+// Regressions from WebKit Merge 43059:43114
+BUG11322 : LayoutTests/editing/text-iterator/basic-iteration.html = FAIL
+BUG11322 : LayoutTests/fast/dom/HTMLScriptElement/script-for-attribute-unexpected-execution.html = FAIL
+BUG11322 : LayoutTests/fast/forms/multiple-selected-options-innerHTML.html = FAIL
+BUG11322 : LayoutTests/fast/js/regexp-range-bound-ffff.html
+BUG11322 LINUX : LayoutTests/plugins/embed-attributes-style.html = FAIL
