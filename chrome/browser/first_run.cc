@@ -154,11 +154,18 @@ bool WriteEULAtoTempFile(FilePath* eula_path) {
 }  // namespace
 
 bool FirstRun::IsChromeFirstRun() {
+  // A troolean, 0 means not yet set, 1 means set to true, 2 set to false.
+  static int first_run = 0;
+  if (first_run != 0)
+    return first_run == 1;
+
   std::wstring first_run_sentinel;
-  if (!GetFirstRunSentinelFilePath(&first_run_sentinel))
+  if (!GetFirstRunSentinelFilePath(&first_run_sentinel) ||
+      file_util::PathExists(first_run_sentinel)) {
+    first_run = 2;
     return false;
-  if (file_util::PathExists(first_run_sentinel))
-    return false;
+  }
+  first_run = 1;
   return true;
 }
 
