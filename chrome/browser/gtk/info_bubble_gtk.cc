@@ -138,7 +138,7 @@ void InfoBubbleGtk::Init(const gfx::Rect& rect, GtkWidget* content) {
   screen_y_ = rect.y() + rect.height() + kArrowToContentPadding;
 
   window_ = gtk_window_new(GTK_WINDOW_TOPLEVEL);
-  gtk_window_set_decorated(GTK_WINDOW(window_), TRUE);
+  gtk_window_set_decorated(GTK_WINDOW(window_), FALSE);
   gtk_window_set_resizable(GTK_WINDOW(window_), FALSE);
   gtk_widget_set_app_paintable(window_, TRUE);
   // Have GTK double buffer around the expose signal.
