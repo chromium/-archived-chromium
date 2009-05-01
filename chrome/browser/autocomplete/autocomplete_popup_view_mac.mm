@@ -169,10 +169,6 @@ AutocompletePopupModel* AutocompletePopupViewMac::GetModel() {
   return model_.get();
 }
 
-void AutocompletePopupViewMac::StopAutocomplete() {
-  model_->StopAutocomplete();
-}
-
 size_t AutocompletePopupViewMac::ResultRowCount() {
   return model_->result().size();
 }

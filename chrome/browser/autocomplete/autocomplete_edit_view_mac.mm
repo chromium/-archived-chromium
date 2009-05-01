@@ -6,6 +6,7 @@
 
 #include "base/sys_string_conversions.h"
 #include "chrome/browser/autocomplete/autocomplete_edit.h"
+#include "chrome/browser/autocomplete/autocomplete_popup_model.h"
 #include "chrome/browser/autocomplete/autocomplete_popup_view_mac.h"
 
 // Thin Obj-C bridge class that is the delegate of the omnibox field.
@@ -137,7 +138,7 @@ void AutocompleteEditViewMac::UpdatePopup() {
 }
 
 void AutocompleteEditViewMac::ClosePopup() {
-  popup_view_->StopAutocomplete();
+  popup_view_->GetModel()->StopAutocomplete();
 }
 
 void AutocompleteEditViewMac::UpdateAndStyleText(

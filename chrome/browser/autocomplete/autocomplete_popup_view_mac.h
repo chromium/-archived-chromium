@@ -67,7 +67,6 @@ class AutocompletePopupViewMac : public AutocompletePopupView {
 
   // Helpers which forward to model_, otherwise our Objective-C helper
   // object would need model_ to be public:.
-  void StopAutocomplete();
   size_t ResultRowCount();
   const std::wstring& ResultContentsAt(size_t i);
   bool ResultStarredAt(size_t i);
