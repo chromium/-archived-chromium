@@ -101,15 +101,7 @@
       },
       'conditions': [
         ['OS =="linux"', {
-          'sources!': [
-            'filters/ffmpeg_audio_decoder.cc',
-            'filters/ffmpeg_demuxer.cc',
-            'filters/ffmpeg_demuxer.h',
-            'filters/ffmpeg_glue.cc',
-            'filters/ffmpeg_video_decoder.cc',
-          ],
-          'sources/': [ ['exclude', '_(mac|win)\\.cc$'],
-                        ['exclude', '\\.mm?$' ] ],
+          'sources/': [ ['exclude', '_(mac|win)\\.cc$'] ],
         }],
         ['OS =="mac"', {
           'link_settings': {

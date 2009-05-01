@@ -12,12 +12,9 @@
 #include "chrome/renderer/media/video_renderer_impl.h"
 #include "chrome/renderer/render_view.h"
 #include "googleurl/src/gurl.h"
-#if defined(OS_WIN)
-// FFmpeg is not ready for Linux and Mac yet.
 #include "media/filters/ffmpeg_audio_decoder.h"
 #include "media/filters/ffmpeg_demuxer.h"
 #include "media/filters/ffmpeg_video_decoder.h"
-#endif
 #include "media/filters/null_audio_renderer.h"
 #include "third_party/WebKit/WebKit/chromium/public/WebRect.h"
 #include "third_party/WebKit/WebKit/chromium/public/WebSize.h"
@@ -66,12 +63,9 @@ WebMediaPlayerDelegateImpl::WebMediaPlayerDelegateImpl(RenderView* view)
       view_(view),
       tasks_(kLastTaskIndex) {
   // TODO(hclam): Add filter factory for demuxer and decoders.
-#if defined(OS_WIN)
-  // FFmpeg is not ready for Linux and Mac yet.
   filter_factory_->AddFactory(media::FFmpegDemuxer::CreateFilterFactory());
   filter_factory_->AddFactory(media::FFmpegAudioDecoder::CreateFactory());
   filter_factory_->AddFactory(media::FFmpegVideoDecoder::CreateFactory());
-#endif
   if (CommandLine::ForCurrentProcess()->HasSwitch(switches::kDisableAudio)) {
     filter_factory_->AddFactory(
         media::NullAudioRenderer::CreateFilterFactory());

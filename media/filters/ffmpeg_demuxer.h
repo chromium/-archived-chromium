@@ -35,7 +35,6 @@ struct AVBitStreamFilterContext;
 struct AVFormatContext;
 struct AVPacket;
 struct AVStream;
-enum CodecID;
 
 namespace media {
 
