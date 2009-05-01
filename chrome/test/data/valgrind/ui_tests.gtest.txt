@@ -1,0 +1,2 @@
+# Takes too long to valgrind, causes timeouts
+BrowserTest.ThirtyFourTabs
