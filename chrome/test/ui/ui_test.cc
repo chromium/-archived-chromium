@@ -29,14 +29,11 @@
 #include "chrome/test/automation/automation_proxy.h"
 #include "chrome/test/automation/browser_proxy.h"
 #include "chrome/test/automation/tab_proxy.h"
+#include "chrome/test/automation/window_proxy.h"
 #include "chrome/test/chrome_process_util.h"
 #include "googleurl/src/gurl.h"
 #include "net/base/net_util.h"
 
-#if defined(OS_WIN)
-// TODO(port): this just needs to be ported.
-#include "chrome/test/automation/window_proxy.h"
-#endif
 
 using base::TimeTicks;
 
@@ -80,7 +77,8 @@ const wchar_t kExtraChromeFlagsSwitch[] = L"extra-chrome-flags";
 const wchar_t kEnableErrorDialogs[] = L"enable-errdialogs";
 
 // Uncomment this line to have the spawned process wait for the debugger to
-// attach.
+// attach.  This only works on Windows.  On posix systems, you can set the
+// BROWSER_WRAPPER env variable to wrap the browser process.
 // #define WAIT_FOR_DEBUGGER_ON_OPEN 1
 
 bool UITest::DieFileDie(const FilePath& file, bool recurse) {
@@ -365,9 +363,7 @@ void UITest::LaunchBrowser(const CommandLine& arguments, bool clear_profile) {
   // commandline with a special prefix to invoke the special environment.
   const char* browser_wrapper = getenv("BROWSER_WRAPPER");
   if (browser_wrapper) {
-    CommandLine wrapped_command(ASCIIToWide(browser_wrapper));
-    wrapped_command.AppendArguments(command_line, true);
-    command_line = wrapped_command;
+    command_line.PrependWrapper(ASCIIToWide(browser_wrapper));
     LOG(INFO) << "BROWSER_WRAPPER was set, prefixing command_line with "
               << browser_wrapper;
   }
