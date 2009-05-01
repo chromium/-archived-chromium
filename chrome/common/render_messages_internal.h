@@ -535,9 +535,11 @@ IPC_BEGIN_MESSAGES(View)
 
   // Tell the extension process about a new channel that has been opened from a
   // renderer.  source_port_id identifies the port that the extension can
-  // respond to.
-  IPC_MESSAGE_CONTROL1(ViewMsg_ExtensionHandleConnect,
-                       int /* source_port_id */)
+  // respond to.  tab_json is a JSON value for the tab that opened the
+  // connection, if any.
+  IPC_MESSAGE_CONTROL2(ViewMsg_ExtensionHandleConnect,
+                       int /* source_port_id */,
+                       std::string /* tab_json */)
 
   // Send a javascript message to a renderer from the given port.
   IPC_MESSAGE_CONTROL2(ViewMsg_ExtensionHandleMessage,
@@ -1339,15 +1341,16 @@ IPC_BEGIN_MESSAGES(ViewHost)
   // Get a port handle to a currently-running extension process for the
   // extension with the given ID.  If no such extension is found, -1 is
   // returned.  The handle can be used for sending messages to the extension.
-  IPC_SYNC_MESSAGE_CONTROL1_1(ViewHostMsg_OpenChannelToExtension,
+  IPC_SYNC_MESSAGE_CONTROL2_1(ViewHostMsg_OpenChannelToExtension,
+                              int /* routing_id */,
                               std::string /* extension_id */,
                               int /* port_id */)
 
   // Send a message to an extension process.  The handle is the value returned
   // by ViewHostMsg_OpenChannelToExtension.
-  IPC_MESSAGE_CONTROL2(ViewHostMsg_ExtensionPostMessage,
-                       int /* port_id */,
-                       std::string /* message */)
+  IPC_MESSAGE_ROUTED2(ViewHostMsg_ExtensionPostMessage,
+                      int /* port_id */,
+                      std::string /* message */)
 
   // Message to show a popup menu using native cocoa controls (Mac only).
   IPC_MESSAGE_ROUTED1(ViewHostMsg_ShowPopup,

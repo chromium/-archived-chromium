@@ -193,10 +193,6 @@ void ResourceMessageFilter::OnChannelConnected(int32 peer_pid) {
   // Hook AudioRendererHost to this object after channel is connected so it can
   // this object for sending messages.
   audio_renderer_host_->IPCChannelConnected(render_process_id_, handle(), this);
-
-  // Ditto for the ExtensionMessageService.
-  ExtensionMessageService::GetInstance(request_context_.get())->
-      RendererReady(this);
 }
 
 // Called on the IPC thread:
@@ -299,8 +295,6 @@ bool ResourceMessageFilter::OnMessageReceived(const IPC::Message& message) {
 #endif
       IPC_MESSAGE_HANDLER(ViewHostMsg_OpenChannelToExtension,
                           OnOpenChannelToExtension)
-      IPC_MESSAGE_HANDLER(ViewHostMsg_ExtensionPostMessage,
-                          OnExtensionPostMessage)
       IPC_MESSAGE_UNHANDLED(
           handled = false)
     IPC_END_MESSAGE_MAP_EX()
@@ -829,13 +823,7 @@ void ResourceMessageFilter::OnFreeTransportDIB(
 #endif
 
 void ResourceMessageFilter::OnOpenChannelToExtension(
-    const std::string& extension_id, int* port_id) {
+    int routing_id, const std::string& extension_id, int* port_id) {
   *port_id = ExtensionMessageService::GetInstance(request_context_.get())->
-      OpenChannelToExtension(extension_id, this);
-}
-
-void ResourceMessageFilter::OnExtensionPostMessage(
-    int port_id, const std::string& message) {
-  ExtensionMessageService::GetInstance(request_context_.get())->
-      PostMessageFromRenderer(port_id, message, this);
+      OpenChannelToExtension(routing_id, extension_id, this);
 }

@@ -202,8 +202,8 @@ class ResourceMessageFilter : public IPC::ChannelProxy::MessageFilter,
                            TransportDIB::Handle* result);
   void OnFreeTransportDIB(TransportDIB::Id dib_id);
 
-  void OnOpenChannelToExtension(const std::string& extension_id, int* port_id);
-  void OnExtensionPostMessage(int port_id, const std::string& message);
+  void OnOpenChannelToExtension(int routing_id,
+                                const std::string& extension_id, int* port_id);
 
 #if defined(OS_LINUX)
   void SendDelayedReply(IPC::Message* reply_msg);

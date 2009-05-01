@@ -19,11 +19,12 @@ class RendererExtensionBindings {
   static const char* kName;
 
   // Creates an instance of the extension.
-  static v8::Extension* Get(RenderThreadBase* render_thread);
+  static v8::Extension* Get();
 
   // Notify any listeners that a message channel has been opened to this
-  // process.
-  static void HandleConnect(int port_id);
+  // process.  |tab_json| is the info for the tab that initiated this
+  // connection, or "null" if the initiator was not a tab.
+  static void HandleConnect(int port_id, const std::string& tab_json);
 
   // Dispatch the given message sent on this channel.
   static void HandleMessage(const std::string& message, int port_id);

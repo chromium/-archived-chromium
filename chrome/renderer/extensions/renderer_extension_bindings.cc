@@ -10,6 +10,7 @@
 #include "chrome/renderer/extensions/bindings_utils.h"
 #include "chrome/renderer/extensions/event_bindings.h"
 #include "chrome/renderer/render_thread.h"
+#include "chrome/renderer/render_view.h"
 #include "grit/renderer_resources.h"
 
 // Message passing API example (in a content script):
@@ -23,9 +24,6 @@
 // });
 
 namespace {
-
-// We use the generic interface so that unit tests can inject a mock.
-RenderThreadBase* render_thread_ = NULL;
 
 const char* kExtensionDeps[] = { EventBindings::kName };
 
@@ -51,11 +49,15 @@ class ExtensionImpl : public v8::Extension {
   // Creates a new messaging channel to the given extension.
   static v8::Handle<v8::Value> OpenChannelToExtension(
       const v8::Arguments& args) {
+    RenderView* renderview = GetActiveRenderView();
+    if (!renderview)
+      return v8::Undefined();
+
     if (args.Length() >= 1 && args[0]->IsString()) {
       std::string id = *v8::String::Utf8Value(args[0]->ToString());
       int port_id = -1;
-      render_thread_->Send(
-          new ViewHostMsg_OpenChannelToExtension(id, &port_id));
+      renderview->Send(new ViewHostMsg_OpenChannelToExtension(
+          renderview->routing_id(), id, &port_id));
       return v8::Integer::New(port_id);
     }
     return v8::Undefined();
@@ -63,11 +65,15 @@ class ExtensionImpl : public v8::Extension {
 
   // Sends a message along the given channel.
   static v8::Handle<v8::Value> PostMessage(const v8::Arguments& args) {
+    RenderView* renderview = GetActiveRenderView();
+    if (!renderview)
+      return v8::Undefined();
+
     if (args.Length() >= 2 && args[0]->IsInt32() && args[1]->IsString()) {
       int port_id = args[0]->Int32Value();
       std::string message = *v8::String::Utf8Value(args[1]->ToString());
-      render_thread_->Send(
-          new ViewHostMsg_ExtensionPostMessage(port_id, message));
+      renderview->Send(new ViewHostMsg_ExtensionPostMessage(
+          renderview->routing_id(), port_id, message));
     }
     return v8::Undefined();
   }
@@ -78,15 +84,16 @@ class ExtensionImpl : public v8::Extension {
 const char* RendererExtensionBindings::kName =
     "chrome/RendererExtensionBindings";
 
-v8::Extension* RendererExtensionBindings::Get(RenderThreadBase* render_thread) {
-  render_thread_ = render_thread;
+v8::Extension* RendererExtensionBindings::Get() {
   return new ExtensionImpl();
 }
 
-void RendererExtensionBindings::HandleConnect(int port_id) {
+void RendererExtensionBindings::HandleConnect(int port_id,
+                                              const std::string& tab_json) {
   v8::HandleScope handle_scope;
-  v8::Handle<v8::Value> argv[1];
+  v8::Handle<v8::Value> argv[2];
   argv[0] = v8::Integer::New(port_id);
+  argv[1] = v8::String::New(tab_json.c_str());
   EventBindings::CallFunction("chromium.Port.dispatchOnConnect_",
                               arraysize(argv), argv);
 }

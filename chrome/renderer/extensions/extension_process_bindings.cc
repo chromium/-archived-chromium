@@ -70,16 +70,9 @@ class ExtensionImpl : public v8::Extension {
 
   static v8::Handle<v8::Value> StartRequest(const v8::Arguments& args) {
     WebFrame* webframe = WebFrame::RetrieveActiveFrame();
-    DCHECK(webframe) << "There should be an active frame since we just got "
-                        "a native function called.";
-    if (!webframe) return v8::Undefined();
-
-    WebView* webview = webframe->GetView();
-    if (!webview) return v8::Undefined();  // can happen during closing
-
-    RenderView* renderview = static_cast<RenderView*>(webview->GetDelegate());
-    DCHECK(renderview) << "Encountered a WebView without a WebViewDelegate";
-    if (!renderview) return v8::Undefined();
+    RenderView* renderview = GetActiveRenderView();
+    if (!webframe || !renderview)
+      return v8::Undefined();
 
     if (args.Length() != 2 || !args[0]->IsString() || !args[1]->IsInt32())
       return v8::Undefined();

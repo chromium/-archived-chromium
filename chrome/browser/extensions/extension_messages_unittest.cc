@@ -59,7 +59,7 @@ TEST_F(RenderViewTest, ExtensionMessagesOnConnect) {
   ExecuteJavaScript(
     "chromium.self.onConnect.addListener(function (port) {"
     "  port.onMessage.addListener(doOnMessage);"
-    "  port.postMessage({message: 'onconnect'});"
+    "  port.postMessage({message: 'onconnect from ' + port.tab.url});"
     "});"
     "function doOnMessage(msg, port) {"
     "  alert('got: ' + msg.val);"
@@ -69,7 +69,8 @@ TEST_F(RenderViewTest, ExtensionMessagesOnConnect) {
 
   // Simulate a new connection being opened.
   const int kPortId = 0;
-  RendererExtensionBindings::HandleConnect(kPortId);
+  RendererExtensionBindings::HandleConnect(kPortId,
+                                           "{\"url\":\"foo://bar\"}");
 
   // Verify that we handled the new connection by posting a message.
   const IPC::Message* post_msg =
@@ -78,7 +79,7 @@ TEST_F(RenderViewTest, ExtensionMessagesOnConnect) {
   ASSERT_TRUE(post_msg);
   ViewHostMsg_ExtensionPostMessage::Param post_params;
   ViewHostMsg_ExtensionPostMessage::Read(post_msg, &post_params);
-  EXPECT_EQ("{\"message\":\"onconnect\"}", post_params.b);
+  EXPECT_EQ("{\"message\":\"onconnect from foo://bar\"}", post_params.b);
 
   // Now simulate getting a message back from the channel opener.
   render_thread_.sink().ClearMessages();

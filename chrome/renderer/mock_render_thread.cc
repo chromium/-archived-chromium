@@ -92,7 +92,7 @@ void MockRenderThread::OnMsgCreateWidget(int opener_id,
 }
 
 void MockRenderThread::OnMsgOpenChannelToExtension(
-    const std::string& extension_id, int* channel_id) {
+    int routing_id, const std::string& extension_id, int* channel_id) {
   *channel_id = 0;
 }
 

@@ -21,8 +21,6 @@
 // Forward declare static helper functions defined below.
 static DictionaryValue* CreateWindowValue(Browser* browser);
 static ListValue* CreateTabList(Browser* browser);
-static DictionaryValue* CreateTabValue(TabStripModel* tab_strip_model,
-                                       int tab_index);
 static bool GetIndexOfTabId(const TabStripModel* tab_strip, int tab_id,
                             int* tab_index);
 
@@ -37,6 +35,42 @@ int ExtensionTabUtil::GetTabId(const TabContents* tab_contents) {
 
 int ExtensionTabUtil::GetWindowIdOfTab(const TabContents* tab_contents) {
   return tab_contents->controller().window_id().id();
+}
+
+DictionaryValue* ExtensionTabUtil::CreateTabValue(
+    const TabContents* contents) {
+  // Find the tab strip and index of this guy.
+  for (BrowserList::const_iterator it = BrowserList::begin();
+      it != BrowserList::end(); ++it) {
+    TabStripModel* tab_strip = (*it)->tabstrip_model();
+    int tab_index = tab_strip->GetIndexOfTabContents(contents);
+    if (tab_index != -1) {
+      return ExtensionTabUtil::CreateTabValue(contents, tab_strip, tab_index);
+    }
+  }
+
+  // Couldn't find it.  This can happen if the tab is being dragged.
+  return ExtensionTabUtil::CreateTabValue(contents, NULL, -1);
+}
+
+DictionaryValue* ExtensionTabUtil::CreateTabValue(
+    const TabContents* contents, TabStripModel* tab_strip, int tab_index) {
+  DictionaryValue* result = new DictionaryValue();
+  result->SetInteger(L"id", ExtensionTabUtil::GetTabId(contents));
+  result->SetInteger(L"index", tab_index);
+  result->SetInteger(L"windowId", ExtensionTabUtil::GetWindowIdOfTab(contents));
+  result->SetString(L"url", contents->GetURL().spec());
+  result->SetString(L"title", UTF16ToWide(contents->GetTitle()));
+  result->SetBoolean(L"selected",
+                     tab_strip && tab_index == tab_strip->selected_index());
+
+  NavigationEntry* entry = contents->controller().GetActiveEntry();
+  if (entry) {
+    if (entry->favicon().is_valid())
+      result->SetString(L"favIconUrl", entry->favicon().url().spec());
+  }
+
+  return result;
 }
 
 bool GetWindowsFunction::RunImpl() {
@@ -220,7 +254,7 @@ bool CreateTabFunction::RunImpl() {
 
   // Return data about the newly created tab.
   if (has_callback())
-    result_.reset(CreateTabValue(tab_strip, index));
+    result_.reset(ExtensionTabUtil::CreateTabValue(contents, tab_strip, index));
 
   return true;
 }
@@ -239,7 +273,8 @@ bool GetTabFunction::RunImpl() {
   if (!GetIndexOfTabId(tab_strip, tab_id, &tab_index))
     return false;
 
-  result_.reset(CreateTabValue(tab_strip, tab_index));
+  result_.reset(ExtensionTabUtil::CreateTabValue(
+      tab_strip->GetTabContentsAt(tab_index), tab_strip, tab_index));
   return true;
 }
 
@@ -366,31 +401,11 @@ static ListValue* CreateTabList(Browser* browser) {
   ListValue *tab_list = new ListValue();
   TabStripModel* tab_strip = browser->tabstrip_model();
   for (int i = 0; i < tab_strip->count(); ++i) {
-    tab_list->Append(CreateTabValue(tab_strip, i));
+    tab_list->Append(ExtensionTabUtil::CreateTabValue(
+        tab_strip->GetTabContentsAt(i), tab_strip, i));
   }
 
   return tab_list;
-}
-
-static DictionaryValue* CreateTabValue(TabStripModel* tab_strip,
-                                       int tab_index) {
-  TabContents* contents = tab_strip->GetTabContentsAt(tab_index);
-
-  DictionaryValue* result = new DictionaryValue();
-  result->SetInteger(L"id", ExtensionTabUtil::GetTabId(contents));
-  result->SetInteger(L"index", tab_index);
-  result->SetInteger(L"windowId", ExtensionTabUtil::GetWindowIdOfTab(contents));
-  result->SetString(L"url", contents->GetURL().spec());
-  result->SetString(L"title", UTF16ToWide(contents->GetTitle()));
-  result->SetBoolean(L"selected", tab_index == tab_strip->selected_index());
-
-  NavigationEntry* entry = contents->controller().GetActiveEntry();
-  if (entry) {
-    if (entry->favicon().is_valid())
-      result->SetString(L"favIconUrl", entry->favicon().url().spec());
-  }
-
-  return result;
 }
 
 static bool GetIndexOfTabId(const TabStripModel* tab_strip, int tab_id,

@@ -74,7 +74,8 @@ class MockRenderThread : public RenderThreadBase {
                          int* route_id);
 
   // The callee expects to be returned a valid channel_id.
-  void OnMsgOpenChannelToExtension(const std::string& extension_id,
+  void OnMsgOpenChannelToExtension(int routing_id,
+                                   const std::string& extension_id,
                                    int* channel_id);
 
   // The RenderView expects default print settings.

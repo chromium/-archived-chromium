@@ -314,7 +314,7 @@ void RenderThread::EnsureWebKitInitialized() {
     WebKit::registerExtension(JsonJsV8Extension::Get());
     WebKit::registerExtension(JsonSchemaJsV8Extension::Get());
     WebKit::registerExtension(EventBindings::Get());
-    WebKit::registerExtension(RendererExtensionBindings::Get(this));
+    WebKit::registerExtension(RendererExtensionBindings::Get());
   }
 
   if (command_line.HasSwitch(switches::kPlaybackMode) ||
@@ -328,8 +328,9 @@ void RenderThread::EnsureWebKitInitialized() {
   }
 }
 
-void RenderThread::OnExtensionHandleConnect(int port_id) {
-  RendererExtensionBindings::HandleConnect(port_id);
+void RenderThread::OnExtensionHandleConnect(int port_id,
+                                            const std::string& tab_json) {
+  RendererExtensionBindings::HandleConnect(port_id, tab_json);
 }
 
 void RenderThread::OnExtensionHandleMessage(const std::string& message,

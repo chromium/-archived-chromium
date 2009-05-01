@@ -8,13 +8,18 @@
 #include "chrome/browser/extensions/extension_function.h"
 
 class Browser;
+class DictionaryValue;
 class TabContents;
+class TabStripModel;
 
 class ExtensionTabUtil {
  public:
   static int GetWindowId(const Browser* browser);
   static int GetTabId(const TabContents* tab_contents);
   static int GetWindowIdOfTab(const TabContents* tab_contents);
+  static DictionaryValue* CreateTabValue(const TabContents* tab_contents);
+  static DictionaryValue* CreateTabValue(
+      const TabContents* tab_contents, TabStripModel* tab_strip, int tab_index);
 };
 
 class GetWindowsFunction : public SyncExtensionFunction {

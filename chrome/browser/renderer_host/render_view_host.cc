@@ -15,8 +15,9 @@
 #include "chrome/browser/cross_site_request_manager.h"
 #include "chrome/browser/debugger/debugger_wrapper.h"
 #include "chrome/browser/debugger/devtools_manager.h"
-#include "chrome/browser/profile.h"
+#include "chrome/browser/extensions/extension_message_service.h"
 #include "chrome/browser/metrics/user_metrics.h"
+#include "chrome/browser/profile.h"
 #include "chrome/browser/renderer_host/renderer_security_policy.h"
 #include "chrome/browser/renderer_host/render_process_host.h"
 #include "chrome/browser/renderer_host/render_view_host_delegate.h"
@@ -26,13 +27,13 @@
 #include "chrome/browser/tab_contents/site_instance.h"
 #include "chrome/browser/tab_contents/web_contents.h"
 #include "chrome/common/bindings_policy.h"
-#include "chrome/common/render_messages.h"
-#include "chrome/common/resource_bundle.h"
 #include "chrome/common/notification_service.h"
 #include "chrome/common/notification_type.h"
+#include "chrome/common/render_messages.h"
+#include "chrome/common/resource_bundle.h"
 #include "chrome/common/result_codes.h"
-#include "chrome/common/url_constants.h"
 #include "chrome/common/thumbnail_score.h"
+#include "chrome/common/url_constants.h"
 #include "net/base/net_util.h"
 #include "skia/include/SkBitmap.h"
 #include "third_party/WebKit/WebKit/chromium/public/WebFindOptions.h"
@@ -775,6 +776,8 @@ void RenderViewHost::OnMessageReceived(const IPC::Message& msg) {
     IPC_MESSAGE_HANDLER(ViewHostMsg_SelectionChanged, OnMsgSelectionChanged)
     IPC_MESSAGE_HANDLER(ViewHostMsg_PasteFromSelectionClipboard,
                         OnMsgPasteFromSelectionClipboard)
+    IPC_MESSAGE_HANDLER(ViewHostMsg_ExtensionPostMessage,
+                        OnExtensionPostMessage)
     // Have the super handle all other messages.
     IPC_MESSAGE_UNHANDLED(RenderWidgetHost::OnMessageReceived(msg))
   IPC_END_MESSAGE_MAP_EX()
@@ -1367,4 +1370,11 @@ void RenderViewHost::OnExtensionRequest(const std::string& name,
 void RenderViewHost::SendExtensionResponse(int callback_id,
                                            const std::string& response) {
   Send(new ViewMsg_ExtensionResponse(routing_id(), callback_id, response));
+}
+
+void RenderViewHost::OnExtensionPostMessage(
+    int port_id, const std::string& message) {
+  URLRequestContext* context = process()->profile()->GetRequestContext();
+  ExtensionMessageService::GetInstance(context)->
+      PostMessageFromRenderer(port_id, message);
 }

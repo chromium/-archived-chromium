@@ -22,7 +22,7 @@ body {
 
   chromium.onconnect.addListener(function (port) {
     port.onmessage.addListener(doOnMessage);
-    port.postMessage('extension onconnect');
+    port.postMessage('extension onconnect: ' + port.tab.url);
   });
 
   function doOnMessage(msg, port) {

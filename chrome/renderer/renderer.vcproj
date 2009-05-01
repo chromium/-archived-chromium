@@ -193,6 +193,10 @@
 			Name="extensions"
 			>
 			<File
+				RelativePath=".\extensions\bindings_utils.cc"
+				>
+			</File>
+			<File
 				RelativePath=".\extensions\bindings_utils.h"
 				>
 			</File>

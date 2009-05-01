@@ -30,8 +30,12 @@ var chromium = chromium || {};
   chromium.Port.ports_ = {};
 
   // Called by native code when a channel has been opened to this context.
-  chromium.Port.dispatchOnConnect_ = function(portId) {
+  chromium.Port.dispatchOnConnect_ = function(portId, tab) {
     var port = new chromium.Port(portId);
+    if (tab) {
+      tab = goog.json.parse(tab);
+    }
+    port.tab = tab;
     chromium.Event.dispatch_("channel-connect", [port]);
   };
 

@@ -58,7 +58,7 @@ void RenderViewTest::SetUp() {
   WebKit::registerExtension(JsonSchemaJsV8Extension::Get());
   WebKit::registerExtension(EventBindings::Get());
   WebKit::registerExtension(ExtensionProcessBindings::Get());
-  WebKit::registerExtension(RendererExtensionBindings::Get(&render_thread_));
+  WebKit::registerExtension(RendererExtensionBindings::Get());
   EventBindings::SetRenderThread(&render_thread_);
 
   // TODO(aa): Should some of this go to some other inheriting class?

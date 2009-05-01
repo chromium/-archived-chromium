@@ -12,8 +12,8 @@
 #include "base/lock.h"
 #include "chrome/common/notification_observer.h"
 
-class ExtensionView;
-class ListValue;
+class MessageLoop;
+class RenderProcessHost;
 class ResourceMessageFilter;
 class URLRequestContext;
 
@@ -44,33 +44,33 @@ class ExtensionMessageService : public NotificationObserver {
   void AddEventListener(std::string event_name, int render_process_id);
   void RemoveEventListener(std::string event_name, int render_process_id);
 
-  // --- IO thread only:
-
-  // Given an extension's ID, opens a channel between the given renderer "port"
-  // and that extension.  Returns a channel ID to be used for posting messages
-  // between the processes, or -1 if the extension doesn't exist.
-  int OpenChannelToExtension(const std::string& extension_id,
-                             ResourceMessageFilter* source);
-
   // Sends a message from a renderer to the given port.
-  void PostMessageFromRenderer(int port_id, const std::string& message,
-                               ResourceMessageFilter* source);
+  // TODO(mpcomplete): include the source tab.
+  void PostMessageFromRenderer(int port_id, const std::string& message);
 
-  // Called to let us know that a renderer has been started.
-  void RendererReady(ResourceMessageFilter* renderer);
+  // Send an event to every registered extension renderer.
+  void DispatchEventToRenderers(
+      const std::string& event_name, const std::string& event_args);
 
   // NotificationObserver interface.
   void Observe(NotificationType type,
                const NotificationSource& source,
                const NotificationDetails& details);
 
-  // --- UI or IO thread:
+  // --- IO thread only:
 
-  // Send an event to every registered extension renderer.
-  void DispatchEventToRenderers(
-      const std::string& event_name, const std::string& event_args);
+  // Given an extension's ID, opens a channel between the given renderer "port"
+  // and that extension.  Returns a channel ID to be used for posting messages
+  // between the processes, or -1 if the extension doesn't exist.
+  // This runs on the IO thread so that it can be used in a synchronous IPC
+  // message.
+  int OpenChannelToExtension(int routing_id, const std::string& extension_id,
+                             ResourceMessageFilter* source);
 
  private:
+  // The UI message loop, used for posting tasks.
+  MessageLoop* ui_loop_;
+
   // A map of extension ID to the render_process_id that the extension lives in.
   typedef std::map<std::string, int> ProcessIDMap;
   ProcessIDMap process_ids_;
@@ -85,36 +85,35 @@ class ExtensionMessageService : public NotificationObserver {
   typedef std::map<std::string, std::set<int> > ListenerMap;
   ListenerMap listeners_;
 
-  // Protects listeners_ map, since it can be accessed from either the IO or
-  // UI thread.  Be careful not to hold this lock when calling external code
-  // (especially sending messages) to avoid deadlock.
-  Lock listener_lock_;
+  // --- UI thread only:
 
-  // --- IO thread only:
+  // UI-thread specific initialization.  Does nothing if called more than once.
+  void Init();
 
-  // The connection between two renderers.
+  // Handles channel creation and notifies the destination that a channel was
+  // opened.
+  void OpenChannelOnUIThread(int source_routing_id,
+      int source_port_id, int source_process_id,
+      int dest_port_id, int dest_process_id);
+
+  // The connection between two renderers.  It is possible that both ports
+  // refer to the same renderer.
   struct MessageChannel {
-    ResourceMessageFilter* port1;
-    ResourceMessageFilter* port2;
+    RenderProcessHost* port1;
+    RenderProcessHost* port2;
   };
 
   // A map of channel ID to its channel object.
   typedef std::map<int, MessageChannel> MessageChannelMap;
   MessageChannelMap channels_;
 
+  // True if Init has been called.
+  bool initialized_;
+
+  // --- IO thread only:
+
   // For generating unique channel IDs.
   int next_port_id_;
-
-  // A map of render_process_id to its corresponding message filter, which we
-  // use for sending messages.
-  typedef std::map<int, ResourceMessageFilter*> RendererMap;
-  RendererMap renderers_;
-
-  // A unique list of renderers that we are aware of.
-  std::set<ResourceMessageFilter*> renderers_unique_;
-
-  // Set to true when we start observing this notification.
-  bool observing_renderer_shutdown_;
 
   DISALLOW_COPY_AND_ASSIGN(ExtensionMessageService);
 };

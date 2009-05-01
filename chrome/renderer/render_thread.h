@@ -127,7 +127,7 @@ class RenderThread : public RenderThreadBase,
   // Send all histograms to browser.
   void OnGetRendererHistograms();
 
-  void OnExtensionHandleConnect(int channel_id);
+  void OnExtensionHandleConnect(int channel_id, const std::string& tab_json);
   void OnExtensionHandleMessage(const std::string& message, int channel_id);
   void OnExtensionHandleEvent(const std::string event_name,
       const std::string event_data);

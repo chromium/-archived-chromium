@@ -10,6 +10,8 @@
 
 #include <string>
 
+class RenderView;
+
 template<int kResourceId>
 struct StringResourceTemplate {
   StringResourceTemplate()
@@ -24,5 +26,9 @@ const char* GetStringResource() {
   return
       Singleton< StringResourceTemplate<kResourceId> >::get()->resource.c_str();
 }
+
+// Returns the active RenderView, based on which V8 context is active.  It is
+// an error to call this when not in a V8 context.
+RenderView* GetActiveRenderView();
 
 #endif  // CHROME_RENDERER_EXTENSIONS_BINDINGS_UTILS_H_
