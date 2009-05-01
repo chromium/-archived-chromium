@@ -20,7 +20,6 @@ WebWorkerClientProxy::WebWorkerClientProxy(const GURL& url, int route_id)
     : url_(url),
       route_id_(route_id),
       ALLOW_THIS_IN_INITIALIZER_LIST(impl_(WebWorker::create(this))) {
-  AddRef();
   WorkerThread::current()->AddRoute(route_id_, this);
   ChildProcess::current()->AddRefProcess();
 }
@@ -67,18 +66,11 @@ void WebWorkerClientProxy::reportPendingActivity(bool has_pending_activity) {
 
 void WebWorkerClientProxy::workerContextDestroyed() {
   Send(new WorkerHostMsg_WorkerContextDestroyed(route_id_));
-  impl_ = NULL;
 
-  WorkerThread::current()->message_loop()->ReleaseSoon(FROM_HERE, this);
+  delete this;
 }
 
 bool WebWorkerClientProxy::Send(IPC::Message* message) {
-  if (MessageLoop::current() != WorkerThread::current()->message_loop()) {
-    WorkerThread::current()->message_loop()->PostTask(FROM_HERE,
-        NewRunnableMethod(this, &WebWorkerClientProxy::Send, message));
-    return true;
-  }
-
   return WorkerThread::current()->Send(message);
 }
 

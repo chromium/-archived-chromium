@@ -29,6 +29,9 @@ static base::AtExitManager global_at_exit_manager;
 // Stub WebKit Client.
 class WorkerWebKitClientImpl : public webkit_glue::WebKitClientImpl {
  public:
+  explicit WorkerWebKitClientImpl(TestWebWorkerHelper* helper)
+      : helper_(helper) { }
+
   // WebKitClient methods:
   virtual WebKit::WebClipboard* clipboard() {
     NOTREACHED();
@@ -76,6 +79,13 @@ class WorkerWebKitClientImpl : public webkit_glue::WebKitClientImpl {
     NOTREACHED();
     return WebKit::WebString();
   }
+
+  virtual void callOnMainThread(void (*func)()) {
+    helper_->DispatchToMainThread(func);
+  }
+
+ private:
+  TestWebWorkerHelper* helper_;
 };
 
 // WebKit client used in DLL.
@@ -89,7 +99,7 @@ extern "C" {
 WebWorker* API_CALL CreateWebWorker(WebWorkerClient* webworker_client,
                                     TestWebWorkerHelper* webworker_helper) {
   if (!WebKit::webKitClient()) {
-    webkit_client.reset(new WorkerWebKitClientImpl());
+    webkit_client.reset(new WorkerWebKitClientImpl(webworker_helper));
     WebKit::initialize(webkit_client.get());
   }
 

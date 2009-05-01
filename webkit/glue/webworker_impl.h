@@ -29,7 +29,6 @@ class WebWorkerImpl: public WebCore::WorkerObjectProxy,
                      public WebKit::WebWorker {
  public:
   explicit WebWorkerImpl(WebKit::WebWorkerClient* client);
-  virtual ~WebWorkerImpl();
 
   // WebCore::WorkerObjectProxy methods:
   virtual void postMessageToWorkerObject(const WebCore::String& message);
@@ -56,11 +55,53 @@ class WebWorkerImpl: public WebCore::WorkerObjectProxy,
   virtual void postMessageToWorkerContext(const WebKit::WebString& message);
   virtual void workerObjectDestroyed();
 
+  // Executes the given task on the main thread.
+  static void DispatchTaskToMainThread(
+      PassRefPtr<WebCore::ScriptExecutionContext::Task> task);
+
  private:
+  virtual ~WebWorkerImpl();
+
+  // Tasks that are run on the worker thread.
   static void PostMessageToWorkerContextTask(
       WebCore::ScriptExecutionContext* context,
       WebWorkerImpl* this_ptr,
       const WebCore::String& message);
+
+  // Function used to invoke tasks on the main thread.
+  static void InvokeTaskMethod(void* param);
+
+  // Tasks that are run on the main thread.
+  static void PostMessageTask(
+      WebCore::ScriptExecutionContext* context,
+      WebWorkerImpl* this_ptr,
+      WebCore::String message);
+  static void PostExceptionTask(
+      WebCore::ScriptExecutionContext* context,
+      WebWorkerImpl* this_ptr,
+      const WebCore::String& error_message,
+      int line_number,
+      const WebCore::String& source_url);
+  static void PostConsoleMessageTask(
+      WebCore::ScriptExecutionContext* context,
+      WebWorkerImpl* this_ptr,
+      int destination,
+      int source,
+      int level,
+      const WebCore::String& message,
+      int line_number,
+      const WebCore::String& source_url);
+  static void ConfirmMessageTask(
+      WebCore::ScriptExecutionContext* context,
+      WebWorkerImpl* this_ptr,
+      bool has_pending_activity);
+  static void ReportPendingActivityTask(
+      WebCore::ScriptExecutionContext* context,
+      WebWorkerImpl* this_ptr,
+      bool has_pending_activity);
+  static void WorkerContextDestroyedTask(
+      WebCore::ScriptExecutionContext* context,
+      WebWorkerImpl* this_ptr);
 
   WebKit::WebWorkerClient* client_;
   WTF::RefPtr<WebCore::WorkerThread> worker_thread_;

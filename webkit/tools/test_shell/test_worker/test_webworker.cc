@@ -19,21 +19,6 @@ using WebKit::WebURL;
 using WebKit::WebWorker;
 using WebKit::WebWorkerClient;
 
-// We use this class to pass a WebString between threads.  This works by
-// copying to a string16 which is itself safe to pass between threads.
-// TODO(jam): Remove this once all worker callbacks happen on the main thread.
-class ThreadSafeWebString {
- public:
-  explicit ThreadSafeWebString(const WebString& str)
-      : str_(str) {
-  }
-  operator WebString() const {
-    return str_;
-  }
- private:
-  string16 str_;
-};
-
 TestWebWorker::TestWebWorker(WebWorkerClient* client,
                              TestWebWorkerHelper* webworker_helper)
     : webworkerclient_delegate_(client),
@@ -81,32 +66,22 @@ void TestWebWorker::workerObjectDestroyed() {
 }
 
 void TestWebWorker::postMessageToWorkerObject(const WebString& message) {
-  if (webworker_helper_->IsMainThread()) {
-    if (webworkerclient_delegate_)
-      webworkerclient_delegate_->postMessageToWorkerObject(message);
-  } else {
-    webworker_helper_->DispatchToMainThread(
-        InvokeMainThreadMethod, NewRunnableMethod(
-            this, &TestWebWorker::postMessageToWorkerObject,
-            ThreadSafeWebString(message)));
-  }
+  if (!webworkerclient_delegate_)
+    return;
+  // The string was created in the dll's memory space as a result of a postTask.
+  // If we pass it to test shell's memory space, it'll cause problems when GC
+  // occurs.  So duplicate it from the test shell's memory space first.
+  webworkerclient_delegate_->postMessageToWorkerObject(
+      webworker_helper_->DuplicateString(message));
 }
 
 void TestWebWorker::postExceptionToWorkerObject(const WebString& error_message,
                                                 int line_number,
                                                 const WebString& source_url) {
-  if (webworker_helper_->IsMainThread()) {
-    if (webworkerclient_delegate_)
-      webworkerclient_delegate_->postExceptionToWorkerObject(error_message,
-                                                             line_number,
-                                                             source_url);
-  } else {
-    webworker_helper_->DispatchToMainThread(
-        InvokeMainThreadMethod, NewRunnableMethod(
-            this, &TestWebWorker::postExceptionToWorkerObject,
-            ThreadSafeWebString(error_message), line_number,
-            ThreadSafeWebString(source_url)));
-  }
+  if (webworkerclient_delegate_)
+    webworkerclient_delegate_->postExceptionToWorkerObject(error_message,
+                                                           line_number,
+                                                           source_url);
 }
 
 void TestWebWorker::postConsoleMessageToWorkerObject(
@@ -116,63 +91,28 @@ void TestWebWorker::postConsoleMessageToWorkerObject(
     const WebString& message,
     int line_number,
     const WebString& source_url) {
-  if (webworker_helper_->IsMainThread()) {
-    if (webworkerclient_delegate_)
-      webworkerclient_delegate_->postConsoleMessageToWorkerObject(
-          destination_id, source_id, message_level, message, line_number,
-          source_url);
-  } else {
-    webworker_helper_->DispatchToMainThread(
-        InvokeMainThreadMethod, NewRunnableMethod(
-            this, &TestWebWorker::postConsoleMessageToWorkerObject,
-            destination_id, source_id, message_level,
-            ThreadSafeWebString(message), line_number,
-            ThreadSafeWebString(source_url)));
-  }
+  if (webworkerclient_delegate_)
+    webworkerclient_delegate_->postConsoleMessageToWorkerObject(
+        destination_id, source_id, message_level, message, line_number,
+        source_url);
 }
 
 void TestWebWorker::confirmMessageFromWorkerObject(bool has_pending_activity) {
-  if (webworker_helper_->IsMainThread()) {
-    if (webworkerclient_delegate_)
-      webworkerclient_delegate_->confirmMessageFromWorkerObject(
-          has_pending_activity);
-  } else {
-    webworker_helper_->DispatchToMainThread(
-        InvokeMainThreadMethod, NewRunnableMethod(
-            this, &TestWebWorker::confirmMessageFromWorkerObject,
-            has_pending_activity));
-  }
+  if (webworkerclient_delegate_)
+    webworkerclient_delegate_->confirmMessageFromWorkerObject(
+        has_pending_activity);
 }
 
 void TestWebWorker::reportPendingActivity(bool has_pending_activity) {
-  if (webworker_helper_->IsMainThread()) {
-    if (webworkerclient_delegate_)
-      webworkerclient_delegate_->reportPendingActivity(has_pending_activity);
-  } else {
-    webworker_helper_->DispatchToMainThread(
-        InvokeMainThreadMethod, NewRunnableMethod(
-            this, &TestWebWorker::reportPendingActivity,
-            has_pending_activity));
-  }
+  if (webworkerclient_delegate_)
+    webworkerclient_delegate_->reportPendingActivity(has_pending_activity);
 }
 
 void TestWebWorker::workerContextDestroyed() {
-  if (webworker_helper_->IsMainThread()) {
-    if (webworkerclient_delegate_)
-      webworkerclient_delegate_->workerContextDestroyed();
-    Release();    // Releases the reference held for worker context object.
-  } else {
-    webworker_impl_ = NULL;
-    webworker_helper_->DispatchToMainThread(
-        InvokeMainThreadMethod, NewRunnableMethod(
-            this, &TestWebWorker::workerContextDestroyed));
-  }
-}
-
-void TestWebWorker::InvokeMainThreadMethod(void* param) {
-  Task* task = static_cast<Task*>(param);
-  task->Run();
-  delete task;
+  webworker_impl_ = NULL;
+  if (webworkerclient_delegate_)
+    webworkerclient_delegate_->workerContextDestroyed();
+  Release();    // Releases the reference held for worker context object.
 }
 
 #endif

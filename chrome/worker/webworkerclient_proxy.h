@@ -6,7 +6,6 @@
 #define CHROME_WORKER_WEBWORKERCLIENT_PROXY_H_
 
 #include "base/basictypes.h"
-#include "base/ref_counted.h"
 #include "chrome/common/ipc_channel.h"
 #include "googleurl/src/gurl.h"
 #include "third_party/WebKit/WebKit/chromium/public/WebWorkerClient.h"
@@ -21,8 +20,7 @@ class WebWorker;
 // IPCs that are sent to the renderer, where they're converted back to function
 // calls by WebWorkerProxy.
 class WebWorkerClientProxy : public WebKit::WebWorkerClient,
-                             public IPC::Channel::Listener,
-                             public base::RefCounted<WebWorkerClientProxy> {
+                             public IPC::Channel::Listener {
  public:
   WebWorkerClientProxy(const GURL& url, int route_id);
 
@@ -47,7 +45,6 @@ class WebWorkerClientProxy : public WebKit::WebWorkerClient,
   virtual void OnMessageReceived(const IPC::Message& message);
 
  private:
-  friend class base::RefCounted<WebWorkerClientProxy>;
   ~WebWorkerClientProxy ();
 
   bool Send(IPC::Message* message);

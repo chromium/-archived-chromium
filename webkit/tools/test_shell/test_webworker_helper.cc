@@ -19,33 +19,34 @@
 #include "base/file_util.h"
 #include "base/path_service.h"
 #include "third_party/WebKit/WebKit/chromium/public/WebKit.h"
+#include "third_party/WebKit/WebKit/chromium/public/WebKitClient.h"
 
 using WebKit::WebWorker;
 using WebKit::WebWorkerClient;
 
+static TestWebWorkerHelper* g_helper;
+
 WebWorker* TestWebWorkerHelper::CreateWebWorker(WebWorkerClient* client) {
-  TestWebWorkerHelper* loader = new TestWebWorkerHelper();
-  return loader->CreateWebWorker_(client, loader);
+  if (!g_helper)
+    g_helper = new TestWebWorkerHelper();
+  g_helper->worker_count_++;
+  return g_helper->CreateWebWorker_(client, g_helper);
 }
 
 TestWebWorkerHelper::TestWebWorkerHelper() :
 #if defined(OS_WIN)
       module_(NULL),
 #endif
-      CreateWebWorker_(NULL) {
+      CreateWebWorker_(NULL),
+      worker_count_(0) {
   Load();
 }
 
 TestWebWorkerHelper::~TestWebWorkerHelper() {
 }
 
-bool TestWebWorkerHelper::IsMainThread() const {
-  return WTF::isMainThread();
-}
-
-void TestWebWorkerHelper::DispatchToMainThread(WTF::MainThreadFunction* func,
-                                               void* context) {
-  return WTF::callOnMainThread(func, context);
+void TestWebWorkerHelper::DispatchToMainThread(void (*func)()) {
+  WebKit::webKitClient()->callOnMainThread(func);
 }
 
 void TestWebWorkerHelper::Load() {
@@ -84,13 +85,22 @@ void TestWebWorkerHelper::Load() {
 }
 
 void TestWebWorkerHelper::Unload() {
+  DCHECK(worker_count_);
+  worker_count_--;
   // Since this is called from DLL, delay the unloading until it can be
   // invoked from EXE.
   return WTF::callOnMainThread(UnloadHelper, this);
 }
 
+WebKit::WebString TestWebWorkerHelper::DuplicateString(
+    const WebKit::WebString& string) {
+  return WebKit::WebString(string.data(), string.length());
+}
+
 void TestWebWorkerHelper::UnloadHelper(void* param) {
   TestWebWorkerHelper* this_ptr = static_cast<TestWebWorkerHelper*>(param);
+  if (this_ptr->worker_count_)
+    return;
 
 #if defined(OS_WIN)
   if (this_ptr->module_) {
@@ -108,4 +118,5 @@ void TestWebWorkerHelper::UnloadHelper(void* param) {
 #endif
 
   delete this_ptr;
+  g_helper = NULL;
 }

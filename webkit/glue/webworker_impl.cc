@@ -12,6 +12,7 @@
 #include "SecurityOrigin.h"
 #include "WorkerContext.h"
 #include "WorkerThread.h"
+#include <wtf/MainThread.h>
 #include <wtf/Threading.h>
 
 #undef LOG
@@ -106,17 +107,54 @@ void WebWorkerImpl::postMessageToWorkerContext(const WebString& message) {
 void WebWorkerImpl::workerObjectDestroyed() {
 }
 
+void WebWorkerImpl::DispatchTaskToMainThread(
+    PassRefPtr<WebCore::ScriptExecutionContext::Task> task) {
+  return WTF::callOnMainThread(InvokeTaskMethod, task.releaseRef());
+}
+
+void WebWorkerImpl::InvokeTaskMethod(void* param) {
+  WebCore::ScriptExecutionContext::Task* task =
+      static_cast<WebCore::ScriptExecutionContext::Task*>(param);
+  task->performTask(NULL);
+  task->deref();
+}
+
 // WorkerObjectProxy -----------------------------------------------------------
 
 void WebWorkerImpl::postMessageToWorkerObject(const WebCore::String& message) {
-  client_->postMessageToWorkerObject(webkit_glue::StringToWebString(message));
+  DispatchTaskToMainThread(WebCore::createCallbackTask(
+      &PostMessageTask,
+      this,
+      message));
+}
+
+void WebWorkerImpl::PostMessageTask(
+    WebCore::ScriptExecutionContext* context,
+    WebWorkerImpl* this_ptr,
+    WebCore::String message) {
+  this_ptr->client_->postMessageToWorkerObject(
+      webkit_glue::StringToWebString(message));
 }
 
 void WebWorkerImpl::postExceptionToWorkerObject(
     const WebCore::String& error_message,
     int line_number,
     const WebCore::String& source_url) {
-  client_->postExceptionToWorkerObject(
+  DispatchTaskToMainThread(WebCore::createCallbackTask(
+      &PostExceptionTask,
+      this,
+      error_message,
+      line_number,
+      source_url));
+}
+
+void WebWorkerImpl::PostExceptionTask(
+      WebCore::ScriptExecutionContext* context,
+      WebWorkerImpl* this_ptr,
+      const WebCore::String& error_message,
+      int line_number,
+      const WebCore::String& source_url) {
+  this_ptr->client_->postExceptionToWorkerObject(
       webkit_glue::StringToWebString(error_message),
       line_number,
       webkit_glue::StringToWebString(source_url));
@@ -129,28 +167,76 @@ void WebWorkerImpl::postConsoleMessageToWorkerObject(
     const WebCore::String& message,
     int line_number,
     const WebCore::String& source_url) {
-  client_->postConsoleMessageToWorkerObject(
+  DispatchTaskToMainThread(WebCore::createCallbackTask(
+      &PostConsoleMessageTask,
+      this,
       static_cast<int>(destination),
       static_cast<int>(source),
       static_cast<int>(level),
+      message,
+      line_number,
+      source_url));
+}
+
+void WebWorkerImpl::PostConsoleMessageTask(
+    WebCore::ScriptExecutionContext* context,
+    WebWorkerImpl* this_ptr,
+    int destination,
+    int source,
+    int level,
+    const WebCore::String& message,
+    int line_number,
+    const WebCore::String& source_url) {
+  this_ptr->client_->postConsoleMessageToWorkerObject(
+      destination,
+      source,
+      level,
       webkit_glue::StringToWebString(message),
       line_number,
       webkit_glue::StringToWebString(source_url));
 }
 
 void WebWorkerImpl::confirmMessageFromWorkerObject(bool has_pending_activity) {
-  client_->confirmMessageFromWorkerObject(has_pending_activity);
+  DispatchTaskToMainThread(WebCore::createCallbackTask(
+      &ConfirmMessageTask,
+      this,
+      has_pending_activity));
+}
+
+void WebWorkerImpl::ConfirmMessageTask(
+    WebCore::ScriptExecutionContext* context,
+    WebWorkerImpl* this_ptr,
+    bool has_pending_activity) {
+  this_ptr->client_->confirmMessageFromWorkerObject(has_pending_activity);
 }
 
 void WebWorkerImpl::reportPendingActivity(bool has_pending_activity) {
-  client_->reportPendingActivity(has_pending_activity);
+  DispatchTaskToMainThread(WebCore::createCallbackTask(
+      &ReportPendingActivityTask,
+      this,
+      has_pending_activity));
+}
+
+void WebWorkerImpl::ReportPendingActivityTask(
+    WebCore::ScriptExecutionContext* context,
+    WebWorkerImpl* this_ptr,
+    bool has_pending_activity) {
+  this_ptr->client_->reportPendingActivity(has_pending_activity);
 }
 
 void WebWorkerImpl::workerContextDestroyed() {
-  client_->workerContextDestroyed();
+  DispatchTaskToMainThread(WebCore::createCallbackTask(
+      &WorkerContextDestroyedTask,
+      this));
+}
+
+void WebWorkerImpl::WorkerContextDestroyedTask(
+    WebCore::ScriptExecutionContext* context,
+    WebWorkerImpl* this_ptr) {
+  this_ptr->client_->workerContextDestroyed();
 
   // The lifetime of this proxy is controlled by the worker context.
-  delete this;
+  delete this_ptr;
 }
 
 #else

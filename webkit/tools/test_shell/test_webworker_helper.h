@@ -12,12 +12,14 @@
 
 #include "base/basictypes.h"
 #include "base/port.h"
+#include "third_party/WebKit/WebKit/chromium/public/WebString.h"
 
 #include <wtf/MainThread.h>
 
 class TestWebWorkerHelper;
 
 namespace WebKit {
+class WebKitClient;
 class WebWorker;
 class WebWorkerClient;
 }
@@ -32,14 +34,14 @@ class TestWebWorkerHelper {
   static WebKit::WebWorker* CreateWebWorker(WebKit::WebWorkerClient* client);
 
   TestWebWorkerHelper();
-  ~TestWebWorkerHelper();
 
-  virtual bool IsMainThread() const;
-  virtual void DispatchToMainThread(WTF::MainThreadFunction* func,
-                                    void* context);
+  virtual void DispatchToMainThread(void (*func)());
   virtual void Unload();
 
+  virtual WebKit::WebString DuplicateString(const WebKit::WebString& string);
+
  private:
+  ~TestWebWorkerHelper();
   void Load();
   static void UnloadHelper(void* param);
 
@@ -51,6 +53,7 @@ class TestWebWorkerHelper {
 #endif
 
   CreateWebWorkerFunc CreateWebWorker_;
+  int worker_count_;
 
   DISALLOW_COPY_AND_ASSIGN(TestWebWorkerHelper);
 };
