@@ -423,7 +423,7 @@ static const BookmarkList kFirefox2Bookmarks[] = {
    "http://domain/"},
   {false, 0, {},
    L"<Name>",
-   "http://domain.com/q?a=\"er\"&b=%3C%20%20%3E"},
+   "http://domain.com/q?a=%22er%22&b=%3C%20%20%3E"},
   {false, 0, {},
    L"Google Home Page",
    "http://www.google.com/"},
@@ -598,8 +598,7 @@ class FirefoxObserver : public ProfileWriter,
   std::wstring default_keyword_url_;
 };
 
-// http://crbug.com/11142
-TEST_F(ImporterTest, DISABLED_Firefox2Importer) {
+TEST_F(ImporterTest, Firefox2Importer) {
   std::wstring data_path;
   ASSERT_TRUE(PathService::Get(chrome::DIR_TEST_DATA, &data_path));
   file_util::AppendToPath(&data_path, L"firefox2_profile\\*");
