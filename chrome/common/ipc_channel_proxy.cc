@@ -292,13 +292,6 @@ void ChannelProxy::GetClientFileDescriptorMapping(int *src_fd,
   DCHECK(channel); // Channel must have been created first.
   channel->GetClientFileDescriptorMapping(src_fd, dest_fd);
 }
-
-// We assume that IP::Channel::OnClientConnected() is thread-safe.
-void ChannelProxy::OnClientConnected() {
-  Channel *channel = context_.get()->channel_;
-  DCHECK(channel); // Channel must have been created first.
-  channel->OnClientConnected();
-}
 #endif
 
 //-----------------------------------------------------------------------------

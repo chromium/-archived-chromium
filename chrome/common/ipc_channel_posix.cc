@@ -32,14 +32,26 @@
 
 namespace IPC {
 
+// IPC channels on Windows use named pipes (CreateNamedPipe()) with
+// channel ids as the pipe names.  Channels on POSIX use anonymous
+// Unix domain sockets created via socketpair() as pipes.  These don't
+// quite line up.
+//
+// When creating a child subprocess, the parent side of the fork
+// arranges it such that the initial control channel ends up on the
+// magic file descriptor kClientChannelFd in the child.  Future
+// connections (file descriptors) can then be passed via that
+// connection via sendmsg().
+
 //------------------------------------------------------------------------------
 namespace {
 
-// When running as a browser, we install the client socket in a specific file
-// descriptor number (@kClientChannelFd). However, we also have to support the
-// case where we are running unittests in the same process.
+// The PipeMap class works around this quirk related to unit tests:
 //
-// We do not support forking without execing.
+// When running as a server, we install the client socket in a
+// specific file descriptor number (@kClientChannelFd). However, we
+// also have to support the case where we are running unittests in the
+// same process.  (We do not support forking without execing.)
 //
 // Case 1: normal running
 //   The IPC server object will install a mapping in PipeMap from the
@@ -48,7 +60,7 @@ namespace {
 //   the magic slot (@kClientChannelFd). The client will search for the
 //   mapping, but it won't find any since we are in a new process. Thus the
 //   magic fd number is returned. Once the client connects, the server will
-//   close it's copy of the client socket and remove the mapping.
+//   close its copy of the client socket and remove the mapping.
 //
 // Case 2: unittests - client and server in the same process
 //   The IPC server will install a mapping as before. The client will search
@@ -123,7 +135,7 @@ sockaddr_un sizecheck;
 const size_t kMaxPipeNameLength = sizeof(sizecheck.sun_path);
 
 // Creates a Fifo with the specified name ready to listen on.
-bool CreateServerFifo(const std::string &pipe_name, int* server_listen_fd) {
+bool CreateServerFifo(const std::string& pipe_name, int* server_listen_fd) {
   DCHECK(server_listen_fd);
   DCHECK_GT(pipe_name.length(), 0u);
   DCHECK_LT(pipe_name.length(), kMaxPipeNameLength);
@@ -251,22 +263,16 @@ Channel::ChannelImpl::ChannelImpl(const std::wstring& channel_id, Mode mode,
   }
 }
 
-const std::wstring Channel::ChannelImpl::PipeName(
-    const std::wstring& channel_id) const {
-  // TODO(playmobil): This should live in the Chrome user data directory.
-  // TODO(playmobil): Cleanup any stale fifos.
-  return L"/var/tmp/chrome_" + channel_id;
-}
-
 bool Channel::ChannelImpl::CreatePipe(const std::wstring& channel_id,
                                       Mode mode) {
   DCHECK(server_listen_pipe_ == -1 && pipe_ == -1);
-  pipe_name_ = WideToUTF8(PipeName(channel_id));
 
   if (uses_fifo_) {
-    // TODO(playmobil): Should we just change pipe_name to be a normal string
-    // everywhere?
-
+    // This only happens in unit tests; see the comment above PipeMap.
+    // TODO(playmobil): We shouldn't need to create fifos on disk.
+    // TODO(playmobil): If we do, they should be in the user data directory.
+    // TODO(playmobil): Cleanup any stale fifos.
+    pipe_name_ = "/var/tmp/chrome_" + WideToASCII(channel_id);
     if (mode == MODE_SERVER) {
       if (!CreateServerFifo(pipe_name_, &server_listen_pipe_)) {
         return false;
@@ -279,6 +285,7 @@ bool Channel::ChannelImpl::CreatePipe(const std::wstring& channel_id,
     }
   } else {
     // socketpair()
+    pipe_name_ = WideToASCII(channel_id);
     if (mode == MODE_SERVER) {
       int pipe_fds[2];
       if (socketpair(AF_UNIX, SOCK_STREAM, 0, pipe_fds) != 0) {
@@ -657,11 +664,6 @@ void Channel::ChannelImpl::GetClientFileDescriptorMapping(int *src_fd,
   *dest_fd = kClientChannelFd;
 }
 
-void Channel::ChannelImpl::OnClientConnected() {
-  // WARNING: this isn't actually called when a client connects.
-  DCHECK(mode_ == MODE_SERVER);
-}
-
 // Called by libevent when we can read from th pipe without blocking.
 void Channel::ChannelImpl::OnFileCanReadWithoutBlocking(int fd) {
   bool send_server_hello_msg = false;
@@ -741,8 +743,10 @@ void Channel::ChannelImpl::Close() {
     client_pipe_ = -1;
   }
 
-  // Unlink the FIFO
-  unlink(pipe_name_.c_str());
+  if (uses_fifo_) {
+    // Unlink the FIFO
+    unlink(pipe_name_.c_str());
+  }
 
   while (!output_queue_.empty()) {
     Message* m = output_queue_.front();
@@ -788,10 +792,5 @@ bool Channel::Send(Message* message) {
 void Channel::GetClientFileDescriptorMapping(int *src_fd, int *dest_fd) const {
   return channel_impl_->GetClientFileDescriptorMapping(src_fd, dest_fd);
 }
-
-void Channel::OnClientConnected() {
-  return channel_impl_->OnClientConnected();
-}
-
 
 }  // namespace IPC

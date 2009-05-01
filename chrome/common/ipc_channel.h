@@ -95,10 +95,6 @@ class Channel : public Message::Sender {
   // a named FIFO is used as the channel transport mechanism rather than a
   // socketpair() in which case this method returns -1 for both parameters.
   void GetClientFileDescriptorMapping(int *src_fd, int *dest_fd) const;
-
-  // Call this method on the server side of the IPC Channel once a client is
-  // connected in order to close the client side of the socketpair().
-  void OnClientConnected();
 #endif  // defined(OS_POSIX)
 
  private:

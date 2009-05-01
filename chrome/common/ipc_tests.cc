@@ -99,31 +99,26 @@ base::ProcessHandle IPCChannelTest::SpawnChild(ChildType child_type,
     ret = MultiProcessTest::SpawnChild(L"RunTestClient",
                                        fds_to_map,
                                        debug_on_start);
-    channel->OnClientConnected();
     break;
   case TEST_DESCRIPTOR_CLIENT:
     ret = MultiProcessTest::SpawnChild(L"RunTestDescriptorClient",
                                        fds_to_map,
                                        debug_on_start);
-    channel->OnClientConnected();
     break;
   case TEST_DESCRIPTOR_CLIENT_SANDBOXED:
     ret = MultiProcessTest::SpawnChild(L"RunTestDescriptorClientSandboxed",
                                        fds_to_map,
                                        debug_on_start);
-    channel->OnClientConnected();
     break;
   case TEST_REFLECTOR:
     ret = MultiProcessTest::SpawnChild(L"RunReflector",
                                        fds_to_map,
                                        debug_on_start);
-    channel->OnClientConnected();
     break;
   case FUZZER_SERVER:
     ret = MultiProcessTest::SpawnChild(L"RunFuzzServer",
                                        fds_to_map,
                                        debug_on_start);
-    channel->OnClientConnected();
     break;
   default:
     return NULL;
@@ -274,7 +269,6 @@ TEST_F(IPCChannelTest, ChannelProxyTest) {
         L"RunTestClient",
         fds_to_map,
         debug_on_start);
-    chan.OnClientConnected();
 #endif  // defined(OS_POXIX)
 
     ASSERT_TRUE(process_handle);
