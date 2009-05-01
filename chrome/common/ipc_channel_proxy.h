@@ -64,6 +64,10 @@ class ChannelProxy : public Message::Sender {
     // have received the internal Hello message from the peer.
     virtual void OnChannelConnected(int32 peer_pid) {}
 
+    // Called when there is an error on the channel, typically that the channel
+    // has been closed.
+    virtual void OnChannelError() {}
+
     // Called to inform the filter that the IPC channel will be destroyed.
     // OnFilterRemoved is called immediately after this.
     virtual void OnChannelClosing() {}
