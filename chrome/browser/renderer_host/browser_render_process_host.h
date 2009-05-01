@@ -86,6 +86,10 @@ class BrowserRenderProcessHost : public RenderProcessHost,
                        const NotificationSource& source,
                        const NotificationDetails& details);
 
+  // An extension process started or stopped listening to an event.
+  void OnExtensionAddListener(const std::string& event_name);
+  void OnExtensionRemoveListener(const std::string& event_name);
+
  private:
   // Control message handlers.
   void OnPageContents(const GURL& url, int32 page_id,

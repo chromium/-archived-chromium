@@ -9,11 +9,16 @@
 
 #include <string>
 
+class RenderThreadBase;
+
 // This class deals with the javascript bindings related to Event objects.
 class EventBindings {
  public:
   static const char* kName;  // The v8::Extension name, for dependencies.
   static v8::Extension* Get();
+
+  // Allow RenderThread to be mocked out.
+  static void SetRenderThread(RenderThreadBase* thread);
 
   // Calls the given function in each registered context which is listening
   // for events.  The function can be an object property, ie:

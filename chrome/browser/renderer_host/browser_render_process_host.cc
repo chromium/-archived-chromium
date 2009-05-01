@@ -23,6 +23,7 @@
 #include "base/string_util.h"
 #include "base/thread.h"
 #include "chrome/browser/browser_process.h"
+#include "chrome/browser/extensions/extension_message_service.h"
 #include "chrome/browser/extensions/user_script_master.h"
 #include "chrome/browser/history/history.h"
 #include "chrome/browser/plugin_service.h"
@@ -588,6 +589,10 @@ void BrowserRenderProcessHost::OnMessageReceived(const IPC::Message& msg) {
                           OnUpdatedCacheStats)
       IPC_MESSAGE_HANDLER(ViewHostMsg_SuddenTerminationChanged,
                           SuddenTerminationChanged);
+      IPC_MESSAGE_HANDLER(ViewHostMsg_ExtensionAddListener,
+                          OnExtensionAddListener)
+      IPC_MESSAGE_HANDLER(ViewHostMsg_ExtensionRemoveListener,
+                          OnExtensionRemoveListener)
       IPC_MESSAGE_UNHANDLED_ERROR()
     IPC_END_MESSAGE_MAP_EX()
 
@@ -796,4 +801,18 @@ void BrowserRenderProcessHost::Observe(NotificationType type,
       break;
     }
   }
+}
+
+void BrowserRenderProcessHost::OnExtensionAddListener(
+    const std::string& event_name) {
+  URLRequestContext* context = profile()->GetRequestContext();
+  ExtensionMessageService* ems = ExtensionMessageService::GetInstance(context);
+  ems->AddEventListener(event_name, pid());
+}
+
+void BrowserRenderProcessHost::OnExtensionRemoveListener(
+    const std::string& event_name) {
+  URLRequestContext* context = profile()->GetRequestContext();
+  ExtensionMessageService* ems = ExtensionMessageService::GetInstance(context);
+  ems->RemoveEventListener(event_name, pid());
 }

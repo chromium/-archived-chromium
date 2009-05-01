@@ -40,6 +40,10 @@ class ExtensionMessageService : public NotificationObserver {
   void RegisterExtension(const std::string& extension_id,
                          int render_process_id);
 
+  // Add or remove |render_process_pid| as a listener for |event_name|.
+  void AddEventListener(std::string event_name, int render_process_id);
+  void RemoveEventListener(std::string event_name, int render_process_id);
+
   // --- IO thread only:
 
   // Given an extension's ID, opens a channel between the given renderer "port"
@@ -76,6 +80,16 @@ class ExtensionMessageService : public NotificationObserver {
   // code (especially sending messages) to avoid deadlock.
   Lock process_ids_lock_;
 
+  // A map between an event name and a set of process id's that are listening
+  // to that event.
+  typedef std::map<std::string, std::set<int> > ListenerMap;
+  ListenerMap listeners_;
+
+  // Protects listeners_ map, since it can be accessed from either the IO or
+  // UI thread.  Be careful not to hold this lock when calling external code
+  // (especially sending messages) to avoid deadlock.
+  Lock listener_lock_;
+
   // --- IO thread only:
 
   // The connection between two renderers.
@@ -101,6 +115,8 @@ class ExtensionMessageService : public NotificationObserver {
 
   // Set to true when we start observing this notification.
   bool observing_renderer_shutdown_;
+
+  DISALLOW_COPY_AND_ASSIGN(ExtensionMessageService);
 };
 
 #endif  // CHROME_BROWSER_EXTENSIONS_EXTENSION_MESSAGE_SERVICE_H_

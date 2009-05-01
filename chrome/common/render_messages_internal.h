@@ -1296,6 +1296,14 @@ IPC_BEGIN_MESSAGES(ViewHost)
                       std::string /* argument */,
                       int /* callback id */)
 
+  // Notify the browser that this renderer added a listener to an event.
+  IPC_MESSAGE_CONTROL1(ViewHostMsg_ExtensionAddListener,
+                       std::string /* name */)
+
+  // Notify the browser that this renderer removed a listener from an event.
+  IPC_MESSAGE_CONTROL1(ViewHostMsg_ExtensionRemoveListener,
+                       std::string /* name */)
+
 #if defined(OS_MACOSX)
   // On OSX, we cannot allocated shared memory from within the sandbox, so
   // this call exists for the renderer to ask the browser to allocate memory

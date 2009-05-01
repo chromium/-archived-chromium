@@ -59,6 +59,7 @@ void RenderViewTest::SetUp() {
   WebKit::registerExtension(EventBindings::Get());
   WebKit::registerExtension(ExtensionProcessBindings::Get());
   WebKit::registerExtension(RendererExtensionBindings::Get(&render_thread_));
+  EventBindings::SetRenderThread(&render_thread_);
 
   // TODO(aa): Should some of this go to some other inheriting class?
   std::vector<std::string> names;
@@ -79,6 +80,8 @@ void RenderViewTest::TearDown() {
 
   // Run the loop so the release task from the renderwidget executes.
   ProcessPendingMessages();
+
+  EventBindings::SetRenderThread(NULL);
 
   view_ = NULL;
 

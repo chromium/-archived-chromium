@@ -64,10 +64,27 @@ ExtensionMessageService::ExtensionMessageService()
 
 void ExtensionMessageService::RegisterExtension(
     const std::string& extension_id, int render_process_id) {
+  DCHECK(MessageLoop::current()->type() == MessageLoop::TYPE_UI);
   AutoLock lock(process_ids_lock_);
   DCHECK(process_ids_.find(extension_id) == process_ids_.end() ||
          process_ids_[extension_id] == render_process_id);
   process_ids_[extension_id] = render_process_id;
+}
+
+void ExtensionMessageService::AddEventListener(std::string event_name,
+                                               int render_process_id) {
+  DCHECK(MessageLoop::current()->type() == MessageLoop::TYPE_UI);
+  AutoLock lock(listener_lock_);
+  DCHECK(listeners_[event_name].count(render_process_id) == 0);
+  listeners_[event_name].insert(render_process_id);
+}
+
+void ExtensionMessageService::RemoveEventListener(std::string event_name,
+                                                  int render_process_id) {
+  DCHECK(MessageLoop::current()->type() == MessageLoop::TYPE_UI);
+  AutoLock lock(listener_lock_);
+  DCHECK(listeners_[event_name].count(render_process_id) == 1);
+  listeners_[event_name].erase(render_process_id);
 }
 
 int ExtensionMessageService::OpenChannelToExtension(
@@ -138,6 +155,13 @@ void ExtensionMessageService::PostMessageFromRenderer(
 
 void ExtensionMessageService::DispatchEventToRenderers(
     const std::string& event_name, const std::string& event_args) {
+  std::set<int> pids;
+  {
+    AutoLock lock(listener_lock_);
+    pids = listeners_[event_name];
+    if (pids.empty())
+      return;
+  }
   MessageLoop* io_thread = ChromeThread::GetMessageLoop(ChromeThread::IO);
   if (MessageLoop::current() != io_thread) {
     // Do the actual work on the IO thread.
@@ -147,18 +171,19 @@ void ExtensionMessageService::DispatchEventToRenderers(
     return;
   }
 
-  // TODO(mpcomplete): we should only send messages to extension process
-  // renderers.
-  std::set<ResourceMessageFilter*>::iterator renderer;
-  for (renderer = renderers_unique_.begin();
-       renderer != renderers_unique_.end(); ++renderer) {
-    (*renderer)->Send(new ViewMsg_ExtensionHandleEvent(event_name, event_args));
+  // Send the event only to renderers that are listening for it.
+  for (std::set<int>::iterator pid = pids.begin(); pid != pids.end(); ++pid) {
+    RendererMap::iterator renderer = renderers_.find(*pid);
+    if (renderer == renderers_.end())
+      continue;
+    ResourceMessageFilter* filter = renderer->second;
+    filter->Send(new ViewMsg_ExtensionHandleEvent(event_name, event_args));
   }
 }
 
 void ExtensionMessageService::RendererReady(ResourceMessageFilter* renderer) {
   DCHECK(MessageLoop::current() ==
-       ChromeThread::GetMessageLoop(ChromeThread::IO));
+         ChromeThread::GetMessageLoop(ChromeThread::IO));
 
   DCHECK(renderers_.find(renderer->GetProcessId()) == renderers_.end());
   renderers_[renderer->GetProcessId()] = renderer;
@@ -177,7 +202,7 @@ void ExtensionMessageService::Observe(NotificationType type,
                                       const NotificationSource& source,
                                       const NotificationDetails& details) {
   DCHECK(MessageLoop::current() ==
-       ChromeThread::GetMessageLoop(ChromeThread::IO));
+         ChromeThread::GetMessageLoop(ChromeThread::IO));
 
   DCHECK(type.value == NotificationType::RESOURCE_MESSAGE_FILTER_SHUTDOWN);
   ResourceMessageFilter* renderer = Source<ResourceMessageFilter>(source).ptr();

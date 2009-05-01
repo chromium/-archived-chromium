@@ -3,6 +3,7 @@
 // found in the LICENSE file.
 
 #include "chrome/common/render_messages.h"
+#include "chrome/renderer/extensions/event_bindings.h"
 #include "chrome/renderer/extensions/renderer_extension_bindings.h"
 #include "chrome/test/render_view_test.h"
 #include "testing/gtest/include/gtest/gtest.h"

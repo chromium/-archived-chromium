@@ -6,6 +6,7 @@
 #define CHROME_BROWSER_RENDERER_HOST_RENDER_PROCESS_HOST_H_
 
 #include <set>
+#include <string>
 
 #include "base/id_map.h"
 #include "base/process.h"
