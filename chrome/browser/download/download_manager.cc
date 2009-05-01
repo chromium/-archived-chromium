@@ -4,6 +4,7 @@
 
 #include "chrome/browser/download/download_manager.h"
 
+#include "base/command_line.h"
 #include "base/file_util.h"
 #include "base/logging.h"
 #include "base/message_loop.h"
@@ -27,6 +28,7 @@
 #include "chrome/browser/tab_contents/web_contents.h"
 #include "chrome/common/chrome_constants.h"
 #include "chrome/common/chrome_paths.h"
+#include "chrome/common/chrome_switches.h"
 #include "chrome/common/l10n_util.h"
 #include "chrome/common/platform_util.h"
 #include "chrome/common/pref_names.h"
@@ -1224,23 +1226,37 @@ void DownloadManager::OpenDownload(const DownloadItem* download,
 }
 
 void DownloadManager::OpenChromeExtension(const FilePath& full_path) {
-  // Temporary: Ask the user if it's okay to install the extension. This should
-  // be replaced with the actual extension installation UI when it is avaiable.
+  if (CommandLine::ForCurrentProcess()->HasSwitch(
+          switches::kEnableExtensions)) {
+    // Temporary: Ask the user if it's okay to install the extension. This
+    // should be replaced with the actual extension installation UI when it is
+    // avaiable.
 #if defined(OS_WIN)
-  if (win_util::MessageBox(GetActiveWindow(),
-      L"Are you sure you want to install this extension?\n\n"
-      L"This is a temporary message and it will be removed when extensions UI "
-      L"is finalized.",
-      l10n_util::GetString(IDS_PRODUCT_NAME).c_str(), MB_OKCANCEL) == IDOK) {
+    if (win_util::MessageBox(GetActiveWindow(),
+        L"Are you sure you want to install this extension?\n\n"
+        L"This is a temporary message and it will be removed when extensions "
+        L"UI is finalized.",
+        l10n_util::GetString(IDS_PRODUCT_NAME).c_str(), MB_OKCANCEL) == IDOK) {
+      ExtensionsService* extensions_service = profile_->GetExtensionsService();
+      extensions_service->InstallExtension(full_path);
+    }
+#else
+    // TODO(port): Needs CreateChromeWindow.
     ExtensionsService* extensions_service = profile_->GetExtensionsService();
     extensions_service->InstallExtension(full_path);
-  }
-#else
-  // TODO(port): Needs CreateChromeWindow.
-  ExtensionsService* extensions_service = profile_->GetExtensionsService();
-  extensions_service->InstallExtension(full_path);
 #endif
-
+  } else {
+#if defined(OS_WIN)
+    win_util::MessageBox(GetActiveWindow(),
+        L"Extensions are not enabled. Add --enable-extensions to the "
+        L"command-line to enable extensions.\n\n"
+        L"This is a temporary message and it will be removed when extensions "
+        L"UI is finalized.",
+        l10n_util::GetString(IDS_PRODUCT_NAME).c_str(), MB_OK);
+#else
+    // TODO(port): Needs CreateChromeWindow
+#endif
+  }
 }
 
 void DownloadManager::OpenDownloadInShell(const DownloadItem* download,
