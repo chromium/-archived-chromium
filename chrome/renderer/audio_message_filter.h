@@ -55,7 +55,7 @@ class AudioMessageFilter : public IPC::ChannelProxy::MessageFilter {
   virtual void OnChannelClosing();
 
   // Received when browser process wants more audio packet.
-  void OnRequestPacket(int stream_id);
+  void OnRequestPacket(const IPC::Message& msg, int stream_id);
 
   // Received when browser process has created an audio output stream.
   void OnStreamCreated(int stream_id, base::SharedMemoryHandle handle,

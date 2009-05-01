@@ -9,14 +9,26 @@
 #include "base/shared_memory.h"
 #include "base/waitable_event.h"
 #include "chrome/browser/renderer_host/audio_renderer_host.h"
+#include "chrome/common/ipc_logging.h"
 #include "chrome/common/render_messages.h"
 
 namespace {
 
-void RecordIPCAudioLatency(base::TimeDelta latency) {
-  // Create a histogram of minimum 1ms and maximum 1000ms with 100 buckets.
-  static ThreadSafeHistogram histogram("Audio.IPCTransportLatency",
+void RecordRoundTripLatency(base::TimeDelta latency) {
+  static ThreadSafeHistogram histogram("Audio.IPC_RoundTripLatency",
                                        1, 1000, 100);
+  histogram.AddTime(latency);
+}
+
+void RecordReceiveLatency(base::TimeDelta latency) {
+  static ThreadSafeHistogram histogram("Audio.IPC_Browser_ReceiveLatency",
+                                       1, 500, 100);
+  histogram.AddTime(latency);
+}
+
+void RecordProcessTime(base::TimeDelta latency) {
+  static ThreadSafeHistogram histogram("Audio.IPC_Browser_ProcessTime",
+                                       1, 100, 100);
   histogram.AddTime(latency);
 }
 
@@ -152,7 +164,9 @@ void AudioRendererHost::IPCAudioSource::GetVolume() {
 size_t AudioRendererHost::IPCAudioSource::OnMoreData(AudioOutputStream* stream,
                                                      void* dest,
                                                      size_t max_size) {
-  base::TimeTicks tick_start = base::TimeTicks::HighResNow();
+#ifdef IPC_MESSAGE_LOG_ENABLED
+  base::Time tick_start = base::Time::Now();
+#endif
   {
     AutoLock auto_lock(lock_);
     // If we are ever stopped, don't ask for more audio packet from the
@@ -195,7 +209,12 @@ size_t AudioRendererHost::IPCAudioSource::OnMoreData(AudioOutputStream* stream,
 
   size_t copied = SafeCopyBuffer(dest, max_size,
                                  shared_memory_.memory(), last_packet_size);
-  RecordIPCAudioLatency(base::TimeTicks::HighResNow() - tick_start);
+#ifdef IPC_MESSAGE_LOG_ENABLED
+  // The logging to round trip latency doesn't have dependency on IPC logging.
+  // But it's good we use IPC logging to trigger logging of total latency.
+  if (IPC::Logging::current()->Enabled())
+    RecordRoundTripLatency(base::Time::Now() - tick_start);
+#endif
   return copied;
 }
 
@@ -413,6 +432,14 @@ void AudioRendererHost::OnNotifyPacketReady(const IPC::Message& msg,
   } else {
     SendErrorMessage(msg.routing_id(), stream_id, 0);
   }
+#ifdef IPC_MESSAGE_LOG_ENABLED
+  if (IPC::Logging::current()->Enabled()) {
+    RecordReceiveLatency(base::Time::FromInternalValue(msg.received_time()) -
+                         base::Time::FromInternalValue(msg.sent_time()));
+    RecordProcessTime(base::Time::Now() -
+                      base::Time::FromInternalValue(msg.received_time()));
+  }
+#endif
 }
 
 void AudioRendererHost::OnInitialized() {
