@@ -70,8 +70,7 @@ namespace net {
  * ***** END LICENSE BLOCK ***** */
 
 // Discover the endianness by testing processor architecture.
-#if defined(ARCH_CPU_X86) || defined(ARCH_CPU_X86_64) || \
-  defined(ARCH_CPU_ARM_FAMILY)
+#if defined(ARCH_CPU_X86) || defined(ARCH_CPU_X86_64) || defined(ARCH_CPU_ARMEL)
 #define IS_LITTLE_ENDIAN 1
 #undef  IS_BIG_ENDIAN
 #else
