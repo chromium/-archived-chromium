@@ -902,10 +902,14 @@ void AutomationProvider::OnMessageReceived(const IPC::Message& message) {
                                     GetRedirectsFrom)
     IPC_MESSAGE_HANDLER(AutomationMsg_BrowserWindowCount,
                         GetBrowserWindowCount)
+    IPC_MESSAGE_HANDLER(AutomationMsg_NormalBrowserWindowCount,
+                        GetNormalBrowserWindowCount)
     IPC_MESSAGE_HANDLER(AutomationMsg_BrowserWindow, GetBrowserWindow)
     IPC_MESSAGE_HANDLER(AutomationMsg_LastActiveBrowserWindow,
                         GetLastActiveBrowserWindow)
     IPC_MESSAGE_HANDLER(AutomationMsg_ActiveWindow, GetActiveWindow)
+    IPC_MESSAGE_HANDLER(AutomationMsg_FindNormalBrowserWindow,
+                        FindNormalBrowserWindow)
     IPC_MESSAGE_HANDLER(AutomationMsg_IsWindowActive, IsWindowActive)
     IPC_MESSAGE_HANDLER(AutomationMsg_ActivateWindow, ActivateWindow);
 #if defined(OS_WIN)
@@ -1304,6 +1308,11 @@ void AutomationProvider::GetBrowserWindowCount(int* window_count) {
   *window_count = static_cast<int>(BrowserList::size());
 }
 
+void AutomationProvider::GetNormalBrowserWindowCount(int* window_count) {
+  *window_count = static_cast<int>(
+      BrowserList::GetBrowserCountForType(profile_, Browser::TYPE_NORMAL));
+}
+
 void AutomationProvider::GetShowingAppModalDialog(bool* showing_dialog,
                                                   int* dialog_button) {
   AppModalDialog* dialog_delegate = AppModalDialogQueue::active_dialog();
@@ -1338,12 +1347,19 @@ void AutomationProvider::GetBrowserWindow(int index, int* handle) {
   *handle = 0;
   if (index >= 0) {
     BrowserList::const_iterator iter = BrowserList::begin();
-
-  for (; (iter != BrowserList::end()) && (index > 0); ++iter, --index);
+    for (; (iter != BrowserList::end()) && (index > 0); ++iter, --index);
     if (iter != BrowserList::end()) {
       *handle = browser_tracker_->Add(*iter);
     }
   }
+}
+
+void AutomationProvider::FindNormalBrowserWindow(int* handle) {
+  *handle = 0;
+  Browser* browser = BrowserList::FindBrowserWithType(profile_,
+                                                      Browser::TYPE_NORMAL);
+  if (browser)
+    *handle = browser_tracker_->Add(browser);
 }
 
 void AutomationProvider::GetLastActiveBrowserWindow(int* handle) {

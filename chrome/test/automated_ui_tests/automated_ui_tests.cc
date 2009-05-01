@@ -418,44 +418,6 @@ bool AutomatedUITest::ChangeEncoding() {
   return RunCommandAsync((*encodings)[index].encoding_id);
 }
 
-bool AutomatedUITest::CloseActiveTab() {
-  bool return_value = false;
-  BrowserProxy* browser = active_browser();
-  if (browser == NULL) {
-    AddErrorAttribute("browser_window_not_found");
-    return false;
-  }
-  int browser_windows_count;
-  int tab_count;
-  bool is_timeout;
-  browser->GetTabCountWithTimeout(&tab_count,
-                                  action_max_timeout_ms(),
-                                  &is_timeout);
-  automation()->GetBrowserWindowCount(&browser_windows_count);
-  // Avoid quitting the application by not closing the last window.
-  if (tab_count > 1) {
-    return_value = browser->RunCommandAsync(IDC_CLOSE_TAB);
-    // Wait for the tab to close before we continue.
-    if (!browser->WaitForTabCountToBecome(tab_count - 1,
-                                          action_max_timeout_ms())) {
-      AddWarningAttribute("tab_count_failed_to_change");
-      return false;
-    }
-  } else if (tab_count == 1 && browser_windows_count > 1) {
-    return_value = browser->RunCommandAsync(IDC_CLOSE_TAB);
-    // Wait for the window to close before we continue.
-    if (!automation()->WaitForWindowCountToBecome(browser_windows_count - 1,
-                                                  action_max_timeout_ms())) {
-      AddWarningAttribute("window_count_failed_to_change");
-      return false;
-    }
-  } else {
-    AddInfoAttribute("would_have_exited_application");
-    return false;
-  }
-  return return_value;
-}
-
 bool AutomatedUITest::FindInPage() {
   return RunCommandAsync(IDC_FIND);
 }
@@ -481,18 +443,7 @@ bool AutomatedUITest::JavaScriptDebugger() {
 }
 
 bool AutomatedUITest::Navigate() {
-  BrowserProxy* browser = active_browser();
-  if (browser == NULL) {
-    AddErrorAttribute("browser_window_not_found");
-    return false;
-  }
-  bool did_timeout;
-  scoped_ptr<TabProxy> tab(
-      browser->GetActiveTabWithTimeout(action_max_timeout_ms(), &did_timeout));
-  // TODO(devint): This might be masking a bug. I can't think of many
-  // valid cases where we would get a browser window, but not be able
-  // to return an active tab. Yet this has happened and has triggered crashes.
-  // Investigate this.
+  scoped_ptr<TabProxy> tab(GetActiveTab());
   if (tab.get() == NULL) {
     AddErrorAttribute("active_tab_not_found");
     return false;
@@ -502,7 +453,7 @@ bool AutomatedUITest::Navigate() {
     xml_writer_.AddAttribute("url", url);
   }
   GURL test_url(url);
-  did_timeout = false;
+  bool did_timeout = false;
   tab->NavigateToURLWithTimeout(test_url,
                                 command_execution_timeout_ms(),
                                 &did_timeout);
@@ -679,12 +630,7 @@ bool AutomatedUITest::FuzzyTestDialog(int num_actions) {
 }
 
 bool AutomatedUITest::ForceCrash() {
-  BrowserProxy* browser = active_browser();
-  if (browser == NULL) {
-    AddErrorAttribute("browser_window_not_found");
-    return false;
-  }
-  scoped_ptr<TabProxy> tab(browser->GetActiveTab());
+  scoped_ptr<TabProxy> tab(GetActiveTab());
   GURL test_url("about:crash");
   bool did_timeout;
   tab->NavigateToURLWithTimeout(test_url, kDebuggingTimeoutMsec, &did_timeout);

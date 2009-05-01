@@ -25,6 +25,54 @@ void AutomatedUITestBase::SetUp() {
   set_active_browser(automation()->GetBrowserWindow(0));
 }
 
+bool AutomatedUITestBase::CloseActiveTab() {
+  BrowserProxy* browser = active_browser();
+  int tab_count;
+  bool is_timeout;
+  browser->GetTabCountWithTimeout(&tab_count,
+                                  action_max_timeout_ms(),
+                                  &is_timeout);
+
+  if (is_timeout) {
+    LogInfoMessage("get_tab_count_timed_out");
+    return false;
+  }
+
+  if (tab_count > 1) {
+    scoped_ptr<TabProxy> tab(GetActiveTab());
+    // Wait until tab is closed.
+    return tab->Close(true);
+  } else if (tab_count == 1) {
+    // Synchronously close the window if it is not the last window.
+    return CloseActiveWindow();
+  } else {
+    LogInfoMessage("invalid_tab_count");
+    return false;
+  }
+}
+
+bool AutomatedUITestBase::CloseActiveWindow() {
+  int browser_windows_count = 0;
+  if (!automation()->GetNormalBrowserWindowCount(&browser_windows_count))
+    return false;
+  // Avoid quitting the application by not closing the last window.
+  if (browser_windows_count < 2)
+    return false;
+  bool application_closed;
+  CloseBrowser(active_browser(), &application_closed);
+  if (application_closed) {
+    LogErrorMessage("Application closed unexpectedly.");
+    return false;
+  }
+  BrowserProxy* browser = automation()->FindNormalBrowserWindow();
+  if (browser == NULL) {
+    LogErrorMessage("Can't find browser window.");
+    return false;
+  }
+  set_active_browser(browser);
+  return true;
+}
+
 bool AutomatedUITestBase::DuplicateTab() {
   return RunCommand(IDC_DUPLICATE_TAB);
 }
@@ -90,4 +138,19 @@ bool AutomatedUITestBase::RunCommand(int browser_command) {
     return false;
   }
   return true;
+}
+
+TabProxy* AutomatedUITestBase::GetActiveTab() {
+  BrowserProxy* browser = active_browser();
+  if (browser == NULL) {
+    LogErrorMessage("browser_window_not_found");
+    return false;
+  }
+
+  bool did_timeout;
+  TabProxy* tab =
+      browser->GetActiveTabWithTimeout(action_max_timeout_ms(), &did_timeout);
+  if (did_timeout)
+    return NULL;
+  return tab;
 }

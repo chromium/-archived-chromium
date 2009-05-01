@@ -141,11 +141,6 @@ class AutomatedUITest : public AutomatedUITestBase {
   // XML element: <ChangeEncoding/>
   bool ChangeEncoding();
 
-  // Uses accelerator to close the active tab if it isn't the only tab.
-  // Returns false if active tab is the only tab, true otherwise.
-  // XML element: <CloseTab/>
-  bool CloseActiveTab();
-
   // Opens one of the dialogs (chosen randomly) and exercises it.
   // XML element: <Dialog/>
   bool ExerciseDialog();

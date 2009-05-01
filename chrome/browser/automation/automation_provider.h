@@ -132,9 +132,13 @@ class AutomationProvider : public base::RefCounted<AutomationProvider>,
                  int handle,
                  int* response_value);
   void GetBrowserWindowCount(int* window_count);
+  void GetNormalBrowserWindowCount(int* window_count);
   void GetShowingAppModalDialog(bool* showing_dialog, int* dialog_button);
   void ClickAppModalDialogButton(int button, bool* success);
+  // Be aware that the browser window returned might be of non TYPE_NORMAL
+  // or in incognito mode.
   void GetBrowserWindow(int index, int* handle);
+  void FindNormalBrowserWindow(int* handle);
   void GetLastActiveBrowserWindow(int* handle);
   void GetActiveWindow(int* handle);
 #if defined(OS_WIN)

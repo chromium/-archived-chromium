@@ -895,4 +895,14 @@ IPC_BEGIN_MESSAGES(Automation)
   // The return value contains the index, which will be -1 on failure.
   IPC_SYNC_MESSAGE_ROUTED1_1(AutomationMsg_TabIndex, int, int)
 
+  // This message requests the handle (int64 app-unique identifier) of
+  // a valid normal browser window, i.e. normal type and non-incognito mode.
+  // On error, the returned handle value is 0.
+  IPC_SYNC_MESSAGE_ROUTED0_1(AutomationMsg_FindNormalBrowserWindow, int)
+
+  // This message requests the number of normal browser windows, i.e. normal
+  // type and non-incognito mode that the app currently has open.  The return
+  // value is the number of windows.
+  IPC_SYNC_MESSAGE_ROUTED0_1(AutomationMsg_NormalBrowserWindowCount, int)
+
 IPC_END_MESSAGES(Automation)

@@ -21,6 +21,18 @@ class AutomatedUITestBase : public UITest {
   // Actions
 
   // NOTE: This list is sorted alphabetically.
+  // All functions are synchronous unless specified with Async.
+
+  // Close the selected tab in the current browser window. The function will
+  // not try close the tab if it is the only tab of the last normal window, so
+  // the application is not got closed.
+  // Returns true if the tab is closed, false otherwise.
+  bool CloseActiveTab();
+
+  // Close the current browser window if it is not the only window left.
+  // (Closing the last window will get application closed.)
+  // Returns true if the window is closed, false otherwise.
+  bool CloseActiveWindow();
 
   // Duplicates the current tab.
   // Returns true if a duplicated tab is added.
@@ -59,6 +71,11 @@ class AutomatedUITestBase : public UITest {
   }
   BrowserProxy* active_browser() const { return active_browser_.get(); }
 
+  // Get the selected tab within the current active browser window, then
+  // create a corresponding TabProxy and transfer the ownership to caller.
+  // If success return the pointer to the newly created TabProxy and the
+  // caller owns the TabProxy. Return NULL otherwise.
+  TabProxy* GetActiveTab();
  private:
   scoped_ptr<BrowserProxy> active_browser_;
 

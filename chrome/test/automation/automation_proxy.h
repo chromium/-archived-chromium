@@ -94,6 +94,11 @@ class AutomationProxy : public IPC::Channel::Listener,
   // Returns true on success.
   bool WaitForWindowCountToBecome(int target_count, int wait_timeout);
 
+  // Fills the number of open normal browser windows (normal type and
+  // non-incognito mode) into the given variable, returning true on success.
+  // False likely indicates an IPC error.
+  bool GetNormalBrowserWindowCount(int* num_windows);
+
   // Returns whether an app modal dialog window is showing right now (i.e., a
   // javascript alert), and what buttons it contains.
   bool GetShowingAppModalDialog(bool* showing_app_modal_dialog,
@@ -117,6 +122,12 @@ class AutomationProxy : public IPC::Channel::Listener,
   // Use GetBrowserWindowCount to see how many browser windows you can ask for.
   // Window numbers are 0-based.
   BrowserProxy* GetBrowserWindow(int window_index);
+
+  // Finds the first browser window that is not incognito mode and of type
+  // TYPE_NORMAL, and returns its corresponding BrowserProxy, transferring
+  // ownership of the pointer to the caller.
+  // On failure, returns NULL.
+  BrowserProxy* FindNormalBrowserWindow();
 
   // Returns the BrowserProxy for the browser window which was last active,
   // transferring ownership of the pointer to the caller.

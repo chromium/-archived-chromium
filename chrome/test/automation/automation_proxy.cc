@@ -299,6 +299,24 @@ bool AutomationProxy::GetBrowserWindowCount(int* num_windows) {
   return succeeded;
 }
 
+bool AutomationProxy::GetNormalBrowserWindowCount(int* num_windows) {
+  if (!num_windows) {
+    NOTREACHED();
+    return false;
+  }
+
+  bool succeeded = SendWithTimeout(
+      new AutomationMsg_NormalBrowserWindowCount(0, num_windows),
+      command_execution_timeout_ms(), NULL);
+
+  if (!succeeded) {
+    DLOG(ERROR) << "GetNormalWindowCount did not complete in a timely fashion";
+    return false;
+  }
+
+  return succeeded;
+}
+
 bool AutomationProxy::WaitForWindowCountToBecome(int count,
                                                  int wait_timeout) {
   const TimeTicks start = TimeTicks::Now();
@@ -438,7 +456,6 @@ WindowProxy* AutomationProxy::GetActiveWindow() {
   return new WindowProxy(this, tracker_.get(), handle);
 }
 
-
 BrowserProxy* AutomationProxy::GetBrowserWindow(int window_index) {
   int handle = 0;
 
@@ -446,6 +463,21 @@ BrowserProxy* AutomationProxy::GetBrowserWindow(int window_index) {
                                                        &handle),
                        command_execution_timeout_ms(), NULL)) {
     DLOG(ERROR) << "GetBrowserWindow did not complete in a timely fashion";
+    return NULL;
+  }
+
+  if (handle == 0) {
+    return NULL;
+  }
+
+  return new BrowserProxy(this, tracker_.get(), handle);
+}
+
+BrowserProxy* AutomationProxy::FindNormalBrowserWindow() {
+  int handle = 0;
+
+  if (!SendWithTimeout(new AutomationMsg_FindNormalBrowserWindow(0, &handle),
+                       command_execution_timeout_ms(), NULL)) {
     return NULL;
   }
 
