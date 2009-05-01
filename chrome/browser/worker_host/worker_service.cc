@@ -25,7 +25,10 @@ WorkerService* WorkerService::GetInstance() {
   return Singleton<WorkerService>::get();
 }
 
-WorkerService::WorkerService() : next_worker_route_id_(0) {
+WorkerService::WorkerService()
+    : next_worker_route_id_(0),
+      resource_dispatcher_host_(NULL),
+      ui_loop_(NULL) {
   // Receive a notification if the message filter is deleted.
   NotificationService::current()->AddObserver(
       this,
@@ -33,24 +36,33 @@ WorkerService::WorkerService() : next_worker_route_id_(0) {
       NotificationService::AllSources());
 }
 
+void WorkerService::Initialize(ResourceDispatcherHost* rdh,
+                               MessageLoop* ui_loop) {
+  resource_dispatcher_host_ = rdh;
+  ui_loop_ = ui_loop;
+}
+
 WorkerService::~WorkerService() {
 }
 
 bool WorkerService::CreateDedicatedWorker(const GURL &url,
+                                          int renderer_process_id,
                                           int render_view_route_id,
-                                          ResourceMessageFilter* filter,
-                                          int renderer_route_id) {
+                                          IPC::Message::Sender* sender,
+                                          int sender_pid,
+                                          int sender_route_id) {
   WorkerProcessHost* worker = NULL;
 
   if (CommandLine::ForCurrentProcess()->HasSwitch(
           switches::kWebWorkerProcessPerCore)) {
     worker = GetProcessToFillUpCores();
-  } else {
+  } else if (CommandLine::ForCurrentProcess()->HasSwitch(
+                 switches::kWebWorkerShareProcesses)) {
     worker = GetProcessForDomain(url);
   }
 
   if (!worker) {
-    worker = new WorkerProcessHost(filter->resource_dispatcher_host());
+    worker = new WorkerProcessHost(resource_dispatcher_host_);
     if (!worker->Init()) {
       delete worker;
       return false;
@@ -61,17 +73,19 @@ bool WorkerService::CreateDedicatedWorker(const GURL &url,
   // unique among all worker processes.  That way when the worker process sends
   // a wrapped IPC message through us, we know which WorkerProcessHost to give
   // it to.
-  worker->CreateWorker(url, render_view_route_id, ++next_worker_route_id_,
-                       renderer_route_id, filter);
+  worker->CreateWorker(url, renderer_process_id, render_view_route_id,
+                       next_worker_route_id(), sender, sender_pid,
+                       sender_route_id);
 
   return true;
 }
 
-void WorkerService::ForwardMessage(const IPC::Message& message) {
+void WorkerService::ForwardMessage(const IPC::Message& message,
+                                   int sender_pid) {
   for (ChildProcessHost::Iterator iter(ChildProcessInfo::WORKER_PROCESS);
        !iter.Done(); ++iter) {
     WorkerProcessHost* worker = static_cast<WorkerProcessHost*>(*iter);
-    if (worker->FilterMessage(message))
+    if (worker->FilterMessage(message, sender_pid))
       return;
   }
 
@@ -131,10 +145,13 @@ void WorkerService::Observe(NotificationType type,
                             const NotificationDetails& details) {
   DCHECK(type.value == NotificationType::RESOURCE_MESSAGE_FILTER_SHUTDOWN);
   ResourceMessageFilter* filter = Source<ResourceMessageFilter>(source).ptr();
+  NotifySenderShutdown(filter);
+}
 
+void WorkerService::NotifySenderShutdown(IPC::Message::Sender* sender) {
   for (ChildProcessHost::Iterator iter(ChildProcessInfo::WORKER_PROCESS);
        !iter.Done(); ++iter) {
     WorkerProcessHost* worker = static_cast<WorkerProcessHost*>(*iter);
-    worker->RendererShutdown(filter);
+    worker->SenderShutdown(sender);
   }
 }

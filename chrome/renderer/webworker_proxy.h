@@ -11,12 +11,9 @@
 #include "chrome/common/ipc_channel.h"
 #include "third_party/WebKit/WebKit/chromium/public/WebWorker.h"
 
+class ChildThread;
 class GURL;
 class RenderView;
-
-namespace IPC {
-class Message;
-}
 
 // This class provides an implementation of WebWorker that the renderer provides
 // to the glue.  This class converts function calls to IPC messages that are
@@ -26,7 +23,9 @@ class Message;
 class WebWorkerProxy : public WebKit::WebWorker,
                        public IPC::Channel::Listener {
  public:
-  WebWorkerProxy(WebKit::WebWorkerClient* client, int render_view_route_id);
+  WebWorkerProxy(WebKit::WebWorkerClient* client,
+                 ChildThread* child_thread,
+                 int render_view_route_id);
   virtual ~WebWorkerProxy();
 
   // WebWorker implementation.
@@ -45,6 +44,8 @@ class WebWorkerProxy : public WebKit::WebWorker,
 
   // The routing id used to reach WebWorkerClientProxy in the worker process.
   int route_id_;
+
+  ChildThread* child_thread_;
 
   // The routing id for the RenderView that created this worker.
   int render_view_route_id_;

@@ -407,6 +407,10 @@ const wchar_t kEnableWebWorkers[]              = L"enable-web-workers";
 // Causes the worker process allocation to use as many processes as cores.
 const wchar_t kWebWorkerProcessPerCore[]       = L"web-worker-process-per-core";
 
+// Causes workers to run together in one process, depending on their domains.
+// Note this is duplicated in webworkerclient_impl.cc
+const wchar_t kWebWorkerShareProcesses[]       = L"web-worker-share-processes";
+
 // Enables experimental views under gtk.
 const wchar_t kViewsGtk[]                      = L"views-gtk";
 

@@ -12,8 +12,6 @@
 #include "chrome/common/ipc_channel.h"
 #include "googleurl/src/gurl.h"
 
-class ResourceMessageFilter;
-
 class WorkerProcessHost : public ChildProcessHost {
  public:
   WorkerProcessHost(ResourceDispatcherHost* resource_dispatcher_host_);
@@ -24,16 +22,18 @@ class WorkerProcessHost : public ChildProcessHost {
 
   // Creates a worker object in the process.
   void CreateWorker(const GURL& url,
+                    int renderer_process_id,
                     int render_view_route_id,
                     int worker_route_id,
-                    int renderer_route_id,
-                    ResourceMessageFilter* filter);
+                    IPC::Message::Sender* sender,
+                    int sender_pid,
+                    int sender_route_id);
 
   // Returns true iff the given message from a renderer process was forwarded to
   // the worker.
-  bool FilterMessage(const IPC::Message& message);
+  bool FilterMessage(const IPC::Message& message, int sender_pid);
 
-  void RendererShutdown(ResourceMessageFilter* filter);
+  void SenderShutdown(IPC::Message::Sender* sender);
 
  protected:
   friend class WorkerService;
@@ -42,10 +42,12 @@ class WorkerProcessHost : public ChildProcessHost {
   // between the renderer and worker processes.
   struct WorkerInstance {
     GURL url;
+    int renderer_process_id;
     int render_view_route_id;
     int worker_route_id;
-    int renderer_route_id;
-    ResourceMessageFilter* filter;
+    IPC::Message::Sender* sender;
+    int sender_pid;
+    int sender_route_id;
   };
 
   typedef std::list<WorkerInstance> Instances;
@@ -64,6 +66,11 @@ class WorkerProcessHost : public ChildProcessHost {
 
   // Updates the title shown in the task manager.
   void UpdateTitle();
+
+  void OnCreateDedicatedWorker(const GURL& url,
+                               int render_view_route_id,
+                               int* route_id);
+  void OnForwardToWorker(const IPC::Message& message);
 
   Instances instances_;
 

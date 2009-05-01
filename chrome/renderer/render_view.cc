@@ -1910,7 +1910,7 @@ void RenderView::OnMissingPluginStatus(WebPluginDelegate* delegate,
 
 WebWorker* RenderView::CreateWebWorker(WebWorkerClient* client) {
 #if defined(OS_WIN)
-  return new WebWorkerProxy(client, routing_id_);
+  return new WebWorkerProxy(client, RenderThread::current(), routing_id_);
 #else
   // TODO(port): out of process workers
   NOTIMPLEMENTED();

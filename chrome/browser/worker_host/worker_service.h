@@ -9,36 +9,45 @@
 
 #include "base/basictypes.h"
 #include "base/singleton.h"
+#include "chrome/common/ipc_message.h"
 #include "chrome/common/notification_observer.h"
 #include "googleurl/src/gurl.h"
 
-namespace IPC {
-class Message;
-}
 
 class MessageLoop;
 class WorkerProcessHost;
-class ResourceMessageFilter;
+class ResourceDispatcherHost;
 
 class WorkerService : public NotificationObserver {
  public:
   // Returns the WorkerService singleton.
   static WorkerService* GetInstance();
 
+  // Initialize the WorkerService.  OK to be called multiple times.
+  void Initialize(ResourceDispatcherHost* rdh, MessageLoop* ui_loop);
+
   // Creates a dedicated worker.  Returns true on success.
   bool CreateDedicatedWorker(const GURL &url,
+                             int renderer_process_id,
                              int render_view_route_id,
-                             ResourceMessageFilter* filter,
-                             int renderer_route_id);
+                             IPC::Message::Sender* sender,
+                             int sender_pid,
+                             int sender_route_id);
 
-  // Called by ResourceMessageFilter when a message from the renderer comes that
-  // should be forwarded to the worker process.
-  void ForwardMessage(const IPC::Message& message);
+  // Called by the worker creator when a message arrives that should be
+  // forwarded to the worker process.
+  void ForwardMessage(const IPC::Message& message, int sender_pid);
 
   // NotificationObserver interface.
   void Observe(NotificationType type,
                const NotificationSource& source,
                const NotificationDetails& details);
+
+  void NotifySenderShutdown(IPC::Message::Sender* sender);
+
+  MessageLoop* ui_loop() { return ui_loop_; }
+
+  int next_worker_route_id() { return ++next_worker_route_id_; }
 
  private:
   friend struct DefaultSingletonTraits<WorkerService>;
@@ -59,6 +68,8 @@ class WorkerService : public NotificationObserver {
   WorkerProcessHost* GetLeastLoadedWorker();
 
   int next_worker_route_id_;
+  ResourceDispatcherHost* resource_dispatcher_host_;
+  MessageLoop* ui_loop_;
 
   DISALLOW_COPY_AND_ASSIGN(WorkerService);
 };

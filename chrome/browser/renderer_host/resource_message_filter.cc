@@ -193,6 +193,9 @@ void ResourceMessageFilter::OnChannelConnected(int32 peer_pid) {
   // Hook AudioRendererHost to this object after channel is connected so it can
   // this object for sending messages.
   audio_renderer_host_->IPCChannelConnected(render_process_id_, handle(), this);
+
+  WorkerService::GetInstance()->Initialize(
+      resource_dispatcher_host_, ui_loop());
 }
 
 // Called on the IPC thread:
@@ -514,11 +517,12 @@ void ResourceMessageFilter::OnCreateDedicatedWorker(const GURL& url,
                                                     int* route_id) {
   *route_id = render_widget_helper_->GetNextRoutingID();
   WorkerService::GetInstance()->CreateDedicatedWorker(
-      url, render_view_route_id, this, *route_id);
+      url, render_process_id_, render_view_route_id, this, render_process_id_,
+      *route_id);
 }
 
 void ResourceMessageFilter::OnForwardToWorker(const IPC::Message& message) {
-  WorkerService::GetInstance()->ForwardMessage(message);
+  WorkerService::GetInstance()->ForwardMessage(message, render_process_id_);
 }
 
 void ResourceMessageFilter::OnDownloadUrl(const IPC::Message& message,

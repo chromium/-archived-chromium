@@ -13,7 +13,6 @@
 #include "base/string_util.h"
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/renderer_host/render_view_host.h"
-#include "chrome/browser/renderer_host/resource_message_filter.h"
 #include "chrome/browser/worker_host/worker_service.h"
 #include "chrome/common/chrome_switches.h"
 #include "chrome/common/debug_flags.h"
@@ -52,10 +51,13 @@ WorkerProcessHost::WorkerProcessHost(
 }
 
 WorkerProcessHost::~WorkerProcessHost() {
+  WorkerService::GetInstance()->NotifySenderShutdown(this);
+
   // If we crashed, tell the RenderViewHost.
+  MessageLoop* ui_loop = WorkerService::GetInstance()->ui_loop();
   for (Instances::iterator i = instances_.begin(); i != instances_.end(); ++i) {
-    i->filter->ui_loop()->PostTask(FROM_HERE, new WorkerCrashTask(
-        i->filter->GetProcessId(), i->render_view_route_id));
+    ui_loop->PostTask(FROM_HERE, new WorkerCrashTask(
+        i->renderer_process_id, i->render_view_route_id));
   }
 }
 
@@ -71,6 +73,12 @@ bool WorkerProcessHost::Init() {
   cmd_line.AppendSwitchWithValue(switches::kProcessType,
                                  switches::kWorkerProcess);
   cmd_line.AppendSwitchWithValue(switches::kProcessChannelID, channel_id());
+
+  if (CommandLine::ForCurrentProcess()->HasSwitch(
+          switches::kWebWorkerShareProcesses)) {
+    cmd_line.AppendSwitch(switches::kWebWorkerShareProcesses);
+  }
+
   base::ProcessHandle process;
 #if defined(OS_WIN)
   process = sandbox::StartProcess(&cmd_line);
@@ -85,25 +93,31 @@ bool WorkerProcessHost::Init() {
 }
 
 void WorkerProcessHost::CreateWorker(const GURL& url,
+                                     int renderer_process_id,
                                      int render_view_route_id,
                                      int worker_route_id,
-                                     int renderer_route_id,
-                                     ResourceMessageFilter* filter) {
+                                     IPC::Message::Sender* sender,
+                                     int sender_pid,
+                                     int sender_route_id) {
   WorkerInstance instance;
   instance.url = url;
+  instance.renderer_process_id = renderer_process_id;
   instance.render_view_route_id = render_view_route_id;
   instance.worker_route_id = worker_route_id;
-  instance.renderer_route_id = renderer_route_id;
-  instance.filter = filter;
+  instance.sender = sender;
+  instance.sender_pid = sender_pid;
+  instance.sender_route_id = sender_route_id;
   instances_.push_back(instance);
   Send(new WorkerProcessMsg_CreateWorker(url, worker_route_id));
 
   UpdateTitle();
 }
 
-bool WorkerProcessHost::FilterMessage(const IPC::Message& message) {
+bool WorkerProcessHost::FilterMessage(const IPC::Message& message,
+                                      int sender_pid) {
   for (Instances::iterator i = instances_.begin(); i != instances_.end(); ++i) {
-    if (i->renderer_route_id == message.routing_id()) {
+    if (i->sender_pid == sender_pid &&
+        i->sender_route_id == message.routing_id()) {
       IPC::Message* new_message = new IPC::Message(message);
       new_message->set_routing_id(i->worker_route_id);
       Send(new_message);
@@ -121,11 +135,22 @@ URLRequestContext* WorkerProcessHost::GetRequestContext(
 }
 
 void WorkerProcessHost::OnMessageReceived(const IPC::Message& message) {
+  bool handled = true;
+  IPC_BEGIN_MESSAGE_MAP(WorkerProcessHost, message)
+    IPC_MESSAGE_HANDLER(ViewHostMsg_CreateDedicatedWorker,
+                        OnCreateDedicatedWorker)
+    IPC_MESSAGE_HANDLER(ViewHostMsg_ForwardToWorker,
+                        OnForwardToWorker)
+    IPC_MESSAGE_UNHANDLED(handled = false)
+  IPC_END_MESSAGE_MAP_EX()
+  if (handled)
+    return;
+
   for (Instances::iterator i = instances_.begin(); i != instances_.end(); ++i) {
     if (i->worker_route_id == message.routing_id()) {
       IPC::Message* new_message = new IPC::Message(message);
-      new_message->set_routing_id(i->renderer_route_id);
-      i->filter->Send(new_message);
+      new_message->set_routing_id(i->sender_route_id);
+      i->sender->Send(new_message);
 
       if (message.type() == WorkerHostMsg_WorkerContextDestroyed::ID) {
         instances_.erase(i);
@@ -136,9 +161,9 @@ void WorkerProcessHost::OnMessageReceived(const IPC::Message& message) {
   }
 }
 
-void WorkerProcessHost::RendererShutdown(ResourceMessageFilter* filter) {
+void WorkerProcessHost::SenderShutdown(IPC::Message::Sender* sender) {
   for (Instances::iterator i = instances_.begin(); i != instances_.end();) {
-    if (i->filter == filter) {
+    if (i->sender == sender) {
       i = instances_.erase(i);
     } else {
       ++i;
@@ -169,4 +194,18 @@ void WorkerProcessHost::UpdateTitle() {
   }
 
   set_name(ASCIIToWide(display_title));
+}
+
+void WorkerProcessHost::OnCreateDedicatedWorker(const GURL& url,
+                                                int render_view_route_id,
+                                                int* route_id) {
+  DCHECK(instances_.size() == 1);  // Only called when one process per worker.
+  *route_id = WorkerService::GetInstance()->next_worker_route_id();
+  WorkerService::GetInstance()->CreateDedicatedWorker(
+      url, instances_.front().renderer_process_id,
+      instances_.front().render_view_route_id, this, GetProcessId(), *route_id);
+}
+
+void WorkerProcessHost::OnForwardToWorker(const IPC::Message& message) {
+  WorkerService::GetInstance()->ForwardMessage(message, GetProcessId());
 }

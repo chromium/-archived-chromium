@@ -5,6 +5,8 @@
 #include "chrome/worker/worker_webkitclient_impl.h"
 
 #include "base/logging.h"
+#include "chrome/renderer/webworker_proxy.h"
+#include "chrome/worker/worker_thread.h"
 #include "third_party/WebKit/WebKit/chromium/public/WebString.h"
 #include "third_party/WebKit/WebKit/chromium/public/WebURL.h"
 
@@ -54,4 +56,9 @@ void WorkerWebKitClientImpl::prefetchHostName(const WebKit::WebString&) {
 WebKit::WebString WorkerWebKitClientImpl::defaultLocale() {
   NOTREACHED();
   return WebKit::WebString();
+}
+
+WebKit::WebWorker* WorkerWebKitClientImpl::CreateWebWorker(
+    WebKit::WebWorkerClient* client) {
+  return new WebWorkerProxy(client, WorkerThread::current(), 0);
 }
