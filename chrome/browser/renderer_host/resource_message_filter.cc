@@ -264,13 +264,16 @@ bool ResourceMessageFilter::OnMessageReceived(const IPC::Message& message) {
                           OnClipboardWriteObjects)
       IPC_MESSAGE_HANDLER(ViewHostMsg_ClipboardWriteObjectsSync,
                           OnClipboardWriteObjects)
-      IPC_MESSAGE_HANDLER(ViewHostMsg_ClipboardIsFormatAvailable,
-                          OnClipboardIsFormatAvailable)
-      IPC_MESSAGE_HANDLER(ViewHostMsg_ClipboardReadText, OnClipboardReadText)
-      IPC_MESSAGE_HANDLER(ViewHostMsg_ClipboardReadAsciiText,
-                          OnClipboardReadAsciiText)
-      IPC_MESSAGE_HANDLER(ViewHostMsg_ClipboardReadHTML,
-                          OnClipboardReadHTML)
+
+      IPC_MESSAGE_HANDLER_DELAY_REPLY(ViewHostMsg_ClipboardIsFormatAvailable,
+                                      OnClipboardIsFormatAvailable)
+      IPC_MESSAGE_HANDLER_DELAY_REPLY(ViewHostMsg_ClipboardReadText,
+                                      OnClipboardReadText)
+      IPC_MESSAGE_HANDLER_DELAY_REPLY(ViewHostMsg_ClipboardReadAsciiText,
+                                      OnClipboardReadAsciiText)
+      IPC_MESSAGE_HANDLER_DELAY_REPLY(ViewHostMsg_ClipboardReadHTML,
+                                      OnClipboardReadHTML)
+
       IPC_MESSAGE_HANDLER(ViewHostMsg_GetMimeTypeFromExtension,
                           OnGetMimeTypeFromExtension)
       IPC_MESSAGE_HANDLER(ViewHostMsg_GetMimeTypeFromFile,
@@ -555,26 +558,50 @@ void ResourceMessageFilter::OnClipboardWriteObjects(
       new WriteClipboardTask(long_living_objects));
 }
 
+#if !defined(OS_LINUX)
+// On non-Linux platforms, clipboard actions can be performed on the IO thread.
+// On Linux, since the clipboard is linked with GTK, we either have to do this
+// with GTK on the UI thread, or with Xlib on the BACKGROUND_X11 thread. In an
+// ideal world, we would do the latter. However, for now we're going to
+// terminate these calls on the UI thread. This risks deadlock in the case of
+// plugins, but it's better than crashing which is what doing on the IO thread
+// gives us.
+//
+// See resource_message_filter_gtk.cc for the Linux implementation of these
+// functions.
+
 void ResourceMessageFilter::OnClipboardIsFormatAvailable(
-    Clipboard::FormatType format, bool* result) {
-  DCHECK(result);
-  *result = GetClipboardService()->IsFormatAvailable(format);
+    Clipboard::FormatType format, IPC::Message* reply) {
+  const bool result = GetClipboardService()->IsFormatAvailable(format);
+  ViewHostMsg_ClipboardIsFormatAvailable::WriteReplyParams(reply, result);
+  Send(reply);
 }
 
-void ResourceMessageFilter::OnClipboardReadText(string16* result) {
-  GetClipboardService()->ReadText(result);
+void ResourceMessageFilter::OnClipboardReadText(IPC::Message* reply) {
+  string16 result;
+  GetClipboardService()->ReadText(&result);
+  ViewHostMsg_ClipboardReadText::WriteReplyParams(reply, result);
+  Send(reply);
 }
 
-void ResourceMessageFilter::OnClipboardReadAsciiText(std::string* result) {
-  GetClipboardService()->ReadAsciiText(result);
+void ResourceMessageFilter::OnClipboardReadAsciiText(IPC::Message* reply) {
+  std::string result;
+  GetClipboardService()->ReadAsciiText(&result);
+  ViewHostMsg_ClipboardReadAsciiText::WriteReplyParams(reply, result);
+  Send(reply);
 }
 
-void ResourceMessageFilter::OnClipboardReadHTML(string16* markup,
-                                                GURL* src_url) {
+void ResourceMessageFilter::OnClipboardReadHTML(IPC::Message* reply) {
   std::string src_url_str;
-  GetClipboardService()->ReadHTML(markup, &src_url_str);
-  *src_url = GURL(src_url_str);
+  string16 markup;
+  GetClipboardService()->ReadHTML(&markup, &src_url_str);
+  const GURL src_url = GURL(src_url_str);
+
+  ViewHostMsg_ClipboardReadHTML::WriteReplyParams(reply, markup, src_url);
+  Send(reply);
 }
+
+#endif
 
 void ResourceMessageFilter::OnGetMimeTypeFromExtension(
     const FilePath::StringType& ext, std::string* mime_type) {

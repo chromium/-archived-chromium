@@ -151,10 +151,13 @@ class ResourceMessageFilter : public IPC::ChannelProxy::MessageFilter,
   void OnReceiveContextMenuMsg(const IPC::Message& msg);
   // Clipboard messages
   void OnClipboardWriteObjects(const Clipboard::ObjectMap& objects);
-  void OnClipboardIsFormatAvailable(Clipboard::FormatType format, bool* result);
-  void OnClipboardReadText(string16* result);
-  void OnClipboardReadAsciiText(std::string* result);
-  void OnClipboardReadHTML(string16* markup, GURL* src_url);
+
+  void OnClipboardIsFormatAvailable(Clipboard::FormatType format,
+                                    IPC::Message* reply);
+  void OnClipboardReadText(IPC::Message* reply);
+  void OnClipboardReadAsciiText(IPC::Message* reply);
+  void OnClipboardReadHTML(IPC::Message* reply);
+
   void OnGetWindowRect(gfx::NativeViewId window, IPC::Message* reply);
   void OnGetRootWindowRect(gfx::NativeViewId window, IPC::Message* reply);
   void OnGetMimeTypeFromExtension(const FilePath::StringType& ext,
@@ -203,10 +206,15 @@ class ResourceMessageFilter : public IPC::ChannelProxy::MessageFilter,
   void OnExtensionPostMessage(int port_id, const std::string& message);
 
 #if defined(OS_LINUX)
-  void SendBackgroundX11Reply(IPC::Message* reply_msg);
+  void SendDelayedReply(IPC::Message* reply_msg);
   void DoOnGetScreenInfo(gfx::NativeViewId view, IPC::Message* reply_msg);
   void DoOnGetWindowRect(gfx::NativeViewId view, IPC::Message* reply_msg);
   void DoOnGetRootWindowRect(gfx::NativeViewId view, IPC::Message* reply_msg);
+  void DoOnClipboardIsFormatAvailable(Clipboard::FormatType format,
+                                      IPC::Message* reply_msg);
+  void DoOnClipboardReadText(IPC::Message* reply_msg);
+  void DoOnClipboardReadAsciiText(IPC::Message* reply_msg);
+  void DoOnClipboardReadHTML(IPC::Message* reply_msg);
 #endif
 
   // We have our own clipboard service because we want to access the clipboard
