@@ -81,9 +81,6 @@ void ChannelProxy::Context::OnChannelConnected(int32 peer_pid) {
 
 // Called on the IPC::Channel thread
 void ChannelProxy::Context::OnChannelError() {
-  for (size_t i = 0; i < filters_.size(); ++i)
-    filters_[i]->OnChannelError();
-
   // See above comment about using listener_message_loop_ here.
   listener_message_loop_->PostTask(FROM_HERE, NewRunnableMethod(
       this, &Context::OnDispatchError));
