@@ -505,15 +505,19 @@ int SSLClientSocketWin::DoHandshakeRead() {
 }
 
 int SSLClientSocketWin::DoHandshakeReadComplete(int result) {
-  DCHECK(transport_buf_);
   if (result < 0) {
     transport_buf_ = NULL;
     return result;
   }
-  DCHECK_LE(result, kRecvBufferSize - bytes_received_);
-  char* buf = recv_buffer_.get() + bytes_received_;
-  memcpy(buf, transport_buf_->data(), result);
-  transport_buf_ = NULL;
+
+  if (transport_buf_) {
+    // A transition to STATE_HANDSHAKE_READ_COMPLETE is set in multiple places,
+    // not only in DoHandshakeRead(), so we may not have a transport_buf_.
+    DCHECK_LE(result, kRecvBufferSize - bytes_received_);
+    char* buf = recv_buffer_.get() + bytes_received_;
+    memcpy(buf, transport_buf_->data(), result);
+    transport_buf_ = NULL;
+  }
 
   if (result == 0 && !ignore_ok_result_)
     return ERR_SSL_PROTOCOL_ERROR;  // Incomplete response :(
