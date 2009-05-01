@@ -191,17 +191,18 @@ are exported to translation interchange files (e.g. XMB files), etc.
       self.ProcessNode(self.res, output, outfile)
       outfile.close()
 
-      # Now copy from the temp file back to the real output, but only if the
-      # real output doesn't exist or the contents of the file changed.  This
-      # prevents identical headers from being written and .cc files from
-      # recompiling.
+      # Now copy from the temp file back to the real output, but on Windows,
+      # only if the real output doesn't exist or the contents of the file
+      # changed.  This prevents identical headers from being written and .cc
+      # files from recompiling (which is painful on Windows).
       if not os.path.exists(output.GetOutputFilename()):
         os.rename(output.GetOutputFilename() + '.tmp',
                   output.GetOutputFilename())
       else:
         files_match = filecmp.cmp(output.GetOutputFilename(),
             output.GetOutputFilename() + '.tmp')
-        if output.GetType() != 'rc_header' or not files_match:
+        if (output.GetType() != 'rc_header' or not files_match
+            or sys.platform != 'win32'):
           shutil.copy2(output.GetOutputFilename() + '.tmp',
                        output.GetOutputFilename())
         os.remove(output.GetOutputFilename() + '.tmp')
