@@ -1205,7 +1205,7 @@ BUG10351 MAC LINUX : LayoutTests/plugins/embed-attributes-setting.html = CRASH F
 BUG10351 MAC LINUX : LayoutTests/plugins/embed-inside-object.html = TIMEOUT
 BUG10351 MAC LINUX : LayoutTests/plugins/get-empty-url.html = CRASH FAIL
 BUG10351 MAC LINUX : LayoutTests/plugins/get-url-that-the-resource-load-delegate-will-disallow.html = FAIL
-BUG10351 MAC LINUX : LayoutTests/plugins/getintidentifier-special-values.html = CRASH FAIL
+BUG10351 MAC LINUX : LayoutTests/plugins/getintidentifier-special-values.html = FAIL
 BUG10351 MAC LINUX : LayoutTests/plugins/geturl-replace-query.html = TIMEOUT
 BUG10351 MAC LINUX : LayoutTests/plugins/inner-html-display-none.html = FAIL
 BUG10351 MAC LINUX : LayoutTests/plugins/invoke.html = FAIL
@@ -1213,7 +1213,7 @@ BUG10351 MAC LINUX : LayoutTests/plugins/mouse-events.html = FAIL
 BUG10351 MAC LINUX : LayoutTests/plugins/netscape-destroy-plugin-script-objects.html = FAIL
 BUG10351 MAC LINUX : LayoutTests/plugins/netscape-dom-access.html = FAIL
 BUG10351 MAC LINUX : LayoutTests/plugins/netscape-get-property-return-value.html = FAIL
-BUG10351 MAC LINUX : LayoutTests/plugins/netscape-identifier-conversion.html = CRASH FAIL
+BUG10351 MAC LINUX : LayoutTests/plugins/netscape-identifier-conversion.html = FAIL
 BUG10351 MAC LINUX : LayoutTests/plugins/netscape-invoke-default.html = FAIL
 BUG10351 LINUX : LayoutTests/plugins/open-and-close-window-with-plugin.html = FAIL
 BUG10351 MAC LINUX : LayoutTests/plugins/plugin-javascript-access.html = FAIL
@@ -2617,3 +2617,7 @@ BUG11251 : LayoutTests/fast/forms/text-control-intrinsic-widths.html = FAIL
 BUG11251 WIN LINUX : chrome/fast/forms/textarea-metrics.html = FAIL
 BUG11251 : LayoutTests/svg/custom/svg-fonts-in-text-controls.html = FAIL
 BUG11251 : LayoutTests/fast/forms/textarea-metrics.html = FAIL
+
+// Regressions from r14994 (pulling in new WebKit)
+BUG11264 WIN : LayoutTests/plugins/getintidentifier-special-values.html = CRASH
+BUG11264 WIN : LayoutTests/plugins/netscape-identifier-conversion.html = CRASH
