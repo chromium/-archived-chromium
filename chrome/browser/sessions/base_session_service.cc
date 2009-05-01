@@ -38,15 +38,15 @@ void WriteStringToPickle(Pickle& pickle, int* bytes_written, int max_bytes,
   }
 }
 
-// Wide version of WriteStringToPickle.
-void WriteWStringToPickle(Pickle& pickle, int* bytes_written, int max_bytes,
-                          const std::wstring& str) {
-  int num_bytes = str.size() * sizeof(wchar_t);
+// string16 version of WriteStringToPickle.
+void WriteString16ToPickle(Pickle& pickle, int* bytes_written, int max_bytes,
+                           const string16& str) {
+  int num_bytes = str.size() * sizeof(char16);
   if (*bytes_written + num_bytes < max_bytes) {
     *bytes_written += num_bytes;
-    pickle.WriteWString(str);
+    pickle.WriteString16(str);
   } else {
-    pickle.WriteWString(std::wstring());
+    pickle.WriteString16(string16());
   }
 }
 
@@ -158,8 +158,7 @@ SessionCommand* BaseSessionService::CreateUpdateTabNavigationCommand(
   WriteStringToPickle(pickle, &bytes_written, max_state_size,
                       entry.display_url().spec());
 
-  WriteWStringToPickle(pickle, &bytes_written, max_state_size,
-                       UTF16ToWideHack(entry.title()));
+  WriteString16ToPickle(pickle, &bytes_written, max_state_size, entry.title());
 
   if (entry.has_post_data()) {
     // Remove the form data, it may contain sensitive information.

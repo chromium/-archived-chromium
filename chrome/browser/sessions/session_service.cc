@@ -28,12 +28,6 @@
 #include "chrome/common/notification_service.h"
 #include "chrome/common/scoped_vector.h"
 
-// TODO(port): Get rid of this section and finish porting.
-#if defined(OS_WIN)
-#include "chrome/browser/tab_contents/tab_contents.h"
-#include "chrome/common/win_util.h"
-#endif
-
 using base::Time;
 
 // Identifier for commands written to file.
