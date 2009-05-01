@@ -507,10 +507,8 @@ void TabRenderer::OnMouseExited(const views::MouseEvent& e) {
 }
 
 void TabRenderer::ThemeChanged() {
-  if (GetWidget() && GetWidget()->GetWindow()) {
-    LoadTabImages(
-        GetWidget()->GetWindow()->GetNonClientView()->UseNativeFrame());
-  }
+  if (GetWindow())
+    LoadTabImages(GetWindow()->GetNonClientView()->UseNativeFrame());
   View::ThemeChanged();
 }
 
@@ -545,7 +543,7 @@ void TabRenderer::PaintTabBackground(ChromeCanvas* canvas) {
       animation = pulse_animation_.get();
     if (animation->GetCurrentValue() > 0) {
       PaintHoverTabBackground(canvas, animation->GetCurrentValue() *
-          (GetWidget()->GetWindow()->GetNonClientView()->UseNativeFrame() ?
+          (GetWindow()->GetNonClientView()->UseNativeFrame() ?
           kHoverOpacityVista : kHoverOpacity));
     } else {
       PaintInactiveTabBackground(canvas);
