@@ -43,6 +43,7 @@
 // Processor architecture detection.  For more info on what's defined, see:
 //   http://msdn.microsoft.com/en-us/library/b0084kay.aspx
 //   http://www.agner.org/optimize/calling_conventions.pdf
+//   or with gcc, run: "echo | gcc -E -dM -"
 #if defined(_M_X64) || defined(__x86_64__)
 #define ARCH_CPU_X86_FAMILY 1
 #define ARCH_CPU_X86_64 1
@@ -50,6 +51,10 @@
 #elif defined(_M_IX86) || defined(__i386__)
 #define ARCH_CPU_X86_FAMILY 1
 #define ARCH_CPU_X86 1
+#define ARCH_CPU_32_BITS 1
+#elif defined(__ARMEL__)
+#define ARCH_CPU_ARM_FAMILY 1
+#define ARCH_CPU_ARMEL 1
 #define ARCH_CPU_32_BITS 1
 #else
 #error Please add support for your architecture in build/build_config.h
@@ -59,7 +64,8 @@
 #if defined(OS_WIN)
 #define WCHAR_T_IS_UTF16
 #elif defined(OS_POSIX) && defined(COMPILER_GCC) && \
-    defined(__WCHAR_MAX__) && __WCHAR_MAX__ == 0x7fffffff
+    defined(__WCHAR_MAX__) && \
+    (__WCHAR_MAX__ == 0x7fffffff || __WCHAR_MAX__ == 0xffffffff)
 #define WCHAR_T_IS_UTF32
 #else
 #error Please add support for your compiler in build/build_config.h
