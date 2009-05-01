@@ -440,9 +440,9 @@ gboolean AutocompletePopupViewGtk::HandleExpose(GtkWidget* widget,
     // if there is also a description to be shown.
     bool has_description = !match.description.empty();
     int text_width = window_rect.width() - (kIconAreaWidth + kRightPadding);
-    int content_width = has_description ?
+    int allocated_content_width = has_description ?
         text_width * kContentWidthPercentage : text_width;
-    pango_layout_set_width(layout_, content_width * PANGO_SCALE);
+    pango_layout_set_width(layout_, allocated_content_width * PANGO_SCALE);
 
     SetupLayoutForMatch(layout_, match.contents, match.contents_class,
                         &kContentTextColor, std::string());
@@ -464,7 +464,7 @@ gboolean AutocompletePopupViewGtk::HandleExpose(GtkWidget* widget,
 
     if (has_description) {
       pango_layout_set_width(layout_,
-          (text_width - content_width) * PANGO_SCALE);
+          (text_width - actual_content_width) * PANGO_SCALE);
       SetupLayoutForMatch(layout_, match.description, match.description_class,
                           is_selected ? &kDescriptionSelectedTextColor :
                               &kDescriptionTextColor,
