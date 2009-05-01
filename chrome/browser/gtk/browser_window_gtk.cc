@@ -257,13 +257,19 @@ BrowserWindowGtk::BrowserWindowGtk(Browser* browser)
   bookmark_bar_.reset(new BookmarkBarGtk(browser_->profile(), browser_.get()));
   bookmark_bar_->AddBookmarkbarToBox(content_vbox_);
 
+  // This vbox surrounds the render area: find bar, info bars and render view.
+  // The reason is that this area as a whole needs to be grouped in its own
+  // GdkWindow hierarchy so that animations originating inside it (infobar,
+  // download shelf, find bar) are all clipped to that area. This is why
+  // |render_area_vbox_| is packed in |event_box|.
+  render_area_vbox_ = gtk_vbox_new(FALSE, 0);
   infobar_container_.reset(new InfoBarContainerGtk(this));
-  gtk_box_pack_start(GTK_BOX(content_vbox_),
+  gtk_box_pack_start(GTK_BOX(render_area_vbox_),
                      infobar_container_->widget(),
                      FALSE, FALSE, 0);
 
   contents_container_.reset(new TabContentsContainerGtk());
-  contents_container_->AddContainerToBox(content_vbox_);
+  contents_container_->AddContainerToBox(render_area_vbox_);
 
   // Note that calling this the first time is necessary to get the
   // proper control layout.
@@ -272,10 +278,12 @@ BrowserWindowGtk::BrowserWindowGtk(Browser* browser)
 
   status_bubble_.reset(new StatusBubbleGtk(window_));
 
+  GtkWidget* event_box = gtk_event_box_new();
+  gtk_container_add(GTK_CONTAINER(event_box), render_area_vbox_);
+  gtk_container_add(GTK_CONTAINER(content_vbox_), event_box);
   gtk_container_add(GTK_CONTAINER(window_vbox_), content_vbox_);
   gtk_container_add(GTK_CONTAINER(window_), window_vbox_);
-  gtk_widget_show(content_vbox_);
-  gtk_widget_show(window_vbox_);
+  gtk_widget_show_all(window_vbox_);
   browser_->tabstrip_model()->AddObserver(this);
 
   NotificationService* ns = NotificationService::current();
@@ -654,9 +662,9 @@ bool BrowserWindowGtk::ShouldShowWindowIcon() const {
 
 void BrowserWindowGtk::AddFindBar(FindBarGtk* findbar) {
   contents_container_->set_find_bar(findbar);
-  gtk_box_pack_start(GTK_BOX(content_vbox_), findbar->widget(),
+  gtk_box_pack_start(GTK_BOX(render_area_vbox_), findbar->widget(),
                      FALSE, FALSE, 0);
-  gtk_box_reorder_child(GTK_BOX(content_vbox_), findbar->widget(), 2);
+  gtk_box_reorder_child(GTK_BOX(render_area_vbox_), findbar->widget(), 0);
 }
 
 void BrowserWindowGtk::SetGeometryHints() {

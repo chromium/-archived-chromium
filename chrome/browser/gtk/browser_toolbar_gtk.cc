@@ -34,7 +34,7 @@
 namespace {
 
 // Height of the toolbar in pixels.
-const int kToolbarHeight = 38;
+const int kToolbarHeight = 37;
 
 // The amount of space between the bottom of the star and the top of the
 // Omnibox results popup window.  We want a two pixel space between the bottom

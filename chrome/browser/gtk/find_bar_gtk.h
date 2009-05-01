@@ -15,6 +15,7 @@
 class BrowserWindowGtk;
 class CustomDrawButton;
 class FindBarController;
+class SlideAnimatorGtk;
 class TabContentsContainerGtk;
 class WebContents;
 
@@ -68,10 +69,15 @@ class FindBarGtk : public FindBar,
  private:
   void InitWidgets();
 
+  // Returns the child of |fixed_| that holds what the user perceives as the
+  // findbar.
+  GtkWidget* slide_widget();
+
   // Callback for previous, next, and close button.
   static void OnButtonPressed(GtkWidget* button, FindBarGtk* find_bar);
 
-  // Called when |fixed_| changes sizes. Used to position |container_|.
+  // Called when |fixed_| changes sizes. Used to position the dialog (the
+  // "dialog" is the widget hierarchy rooted at |slide_widget_|).
   static void OnFixedSizeAllocate(GtkWidget* fixed,
                                   GtkAllocation* allocation,
                                   FindBarGtk* findbar);
@@ -81,7 +87,6 @@ class FindBarGtk : public FindBar,
                                       GtkAllocation* allocation,
                                       FindBarGtk* findbar);
 
-
   // GtkFixed containing the find bar widgets.
   OwnedWidgetGtk fixed_;
 
@@ -90,8 +95,10 @@ class FindBarGtk : public FindBar,
   // then |container_| would clip to the bounds of |fixed_|.
   GtkWidget* border_;
 
-  // A GtkAlignment which holds what the user perceives as the findbar (the text
-  // field, the buttons, etc.).
+  // The widget that animates the slide-in and -out of the findbar.
+  scoped_ptr<SlideAnimatorGtk> slide_widget_;
+
+  // A GtkAlignment that is the child of |slide_widget_|.
   GtkWidget* container_;
 
   // This will be set to true after ContourWidget() has been called so we don't

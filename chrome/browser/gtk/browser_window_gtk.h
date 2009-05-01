@@ -111,9 +111,14 @@ class BrowserWindowGtk : public BrowserWindow,
 
  protected:
   virtual void DestroyBrowser();
+  // Top level window.
   GtkWindow* window_;
+  // VBox that holds the interior components of the chromium window.
   GtkWidget* window_vbox_;
+  // VBox that holds everything below the tabs.
   GtkWidget* content_vbox_;
+  // VBox that holds everything below the toolbar.
+  GtkWidget* render_area_vbox_;
 
   scoped_ptr<Browser> browser_;
 

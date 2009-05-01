@@ -13,11 +13,13 @@ namespace {
 void OnFixedSizeAllocate(GtkWidget* fixed,
                          GtkAllocation* allocation,
                          GtkWidget* child) {
-  // The size of the GtkFixed has changed. We want |child_| to match widths,
-  // but the height should not change.
-  GtkAllocation new_allocation = child->allocation;
-  new_allocation.width = allocation->width;
-  gtk_widget_size_allocate(child, &new_allocation);
+  if (allocation->width != child->allocation.width) {
+    // The size of the GtkFixed has changed. We want |child_| to match widths,
+    // but the height should not change.
+    GtkAllocation new_allocation = child->allocation;
+    new_allocation.width = allocation->width;
+    gtk_widget_size_allocate(child, &new_allocation);
+  }
 }
 
 }  // namespace
@@ -32,9 +34,6 @@ SlideAnimatorGtk::SlideAnimatorGtk(GtkWidget* child,
       delegate_(delegate),
       fixed_needs_resize_(false) {
   widget_.Own(gtk_fixed_new());
-  // We need to give the GtkFixed its own window so that painting will clip
-  // correctly.
-  gtk_fixed_set_has_window(GTK_FIXED(widget_.get()), TRUE);
   gtk_fixed_put(GTK_FIXED(widget_.get()), child, 0, 0);
   gtk_widget_set_size_request(widget_.get(), -1, 0);
   // We have to manually set the size request for |child_| every time the
@@ -49,6 +48,8 @@ SlideAnimatorGtk::SlideAnimatorGtk(GtkWidget* child,
   // the child.
   g_signal_connect(child, "size-allocate",
                    G_CALLBACK(OnChildSizeAllocate), this);
+
+  child_needs_move_ = (direction == DOWN);
 
   animation_.reset(new SlideAnimation(this));
   // Default tween type is EASE_OUT.
@@ -100,9 +101,13 @@ void SlideAnimatorGtk::AnimationEnded(const Animation* animation) {
 void SlideAnimatorGtk::OnChildSizeAllocate(GtkWidget* child,
                                            GtkAllocation* allocation,
                                            SlideAnimatorGtk* slider) {
-  if (!slider->fixed_needs_resize_)
-    return;
+  if (slider->child_needs_move_) {
+    gtk_fixed_move(GTK_FIXED(slider->widget()), child, 0, -allocation->height);
+    slider->child_needs_move_ = false;
+  }
 
-  slider->fixed_needs_resize_ = false;
-  slider->AnimationProgressed(slider->animation_.get());
+  if (slider->fixed_needs_resize_) {
+    slider->AnimationProgressed(slider->animation_.get());
+    slider->fixed_needs_resize_ = false;
+  }
 }

@@ -5,6 +5,11 @@
 // A helper class for animating the display of native widget content.
 // Currently only handle vertical sliding, but could be extended to handle
 // horizontal slides or other types of animations.
+//
+// NOTE: This does not handle clipping. If you are not careful, you will
+// wind up with visibly overlapping widgets. If you need clipping, you can
+// extend the constructor to take an option to give |fixed| its own GdkWindow
+// (via gtk_fixed_set_has_window).
 
 #ifndef CHROME_BROWSER_GTK_SLIDE_ANIMATOR_GTK_H_
 #define CHROME_BROWSER_GTK_SLIDE_ANIMATOR_GTK_H_
@@ -86,6 +91,12 @@ class SlideAnimatorGtk : public AnimationDelegate {
   // If true, we should resize |widget_| on the next "size-allocate" event that
   // is received by |child_|. See the comment in SlideAnimatorGtk constructor.
   bool fixed_needs_resize_;
+
+  // We need to move the child widget to (0, -height), but we don't know its
+  // height until it has been allocated. This variable will be true until the
+  // child widget has been allocated, at which point we will move it, and then
+  // set this variable to false to indicate it should not be moved again.
+  bool child_needs_move_;
 };
 
 #endif  // CHROME_BROWSER_GTK_SLIDE_ANIMATOR_GTK_H_

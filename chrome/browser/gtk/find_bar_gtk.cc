@@ -12,6 +12,7 @@
 #include "chrome/browser/gtk/browser_window_gtk.h"
 #include "chrome/browser/gtk/custom_button.h"
 #include "chrome/browser/gtk/nine_box.h"
+#include "chrome/browser/gtk/slide_animator_gtk.h"
 #include "chrome/browser/gtk/tab_contents_container_gtk.h"
 #include "chrome/browser/tab_contents/web_contents.h"
 #include "chrome/common/gtk_util.h"
@@ -26,8 +27,9 @@ const GdkColor kBorderColor = GDK_COLOR_RGB(0xbe, 0xc8, 0xd4);
 // Padding around the container.
 const int kBarPadding = 4;
 
-// The vertical positioning of |container_| in |fixed_|.
-const int kVerticalOffset = -1;
+// The height of the findbar dialog, as dictated by the size of the background
+// images.
+const int kFindBarHeight = 32;
 
 gboolean EntryContentsChanged(GtkWindow* window, FindBarGtk* find_bar) {
   find_bar->ContentsChanged();
@@ -86,10 +88,12 @@ FindBarGtk::FindBarGtk(BrowserWindowGtk* browser)
                    G_CALLBACK(KeyPressEvent), this);
   g_signal_connect(widget(), "size-allocate",
                    G_CALLBACK(OnFixedSizeAllocate), this);
-  // We can't call ContourWidget() until after |container| has been
+  // We can't call ContourWidget() until after |container_| has been
   // allocated, hence we connect to this signal.
   g_signal_connect(container_, "size-allocate",
                    G_CALLBACK(OnContainerSizeAllocate), this);
+  g_signal_connect(container_, "expose-event",
+                   G_CALLBACK(OnExpose), NULL);
 }
 
 FindBarGtk::~FindBarGtk() {
@@ -101,26 +105,26 @@ void FindBarGtk::InitWidgets() {
   // buttons (previous result, next result, close).  We wrap the hbox in a gtk
   // alignment and a gtk event box to get the padding and light blue
   // background. We put that event box in a fixed in order to control its
-  // position.
+  // lateral position. We put that fixed in a SlideAnimatorGtk in order to get
+  // the slide effect.
   GtkWidget* hbox = gtk_hbox_new(false, 0);
   container_ = gfx::CreateGtkBorderBin(hbox, &kBackgroundColor,
       kBarPadding, kBarPadding, kBarPadding, kBarPadding);
   gtk_widget_set_app_paintable(container_, TRUE);
-  g_signal_connect(container_, "expose-event",
-                   G_CALLBACK(OnExpose), NULL);
+
+  slide_widget_.reset(new SlideAnimatorGtk(container_,
+                                           SlideAnimatorGtk::DOWN,
+                                           0, false, NULL));
 
   // |fixed_| has to be at least one pixel tall. We color this pixel the same
   // color as the border that separates the toolbar from the web contents.
-  // TODO(estade): find a better solution. (Ideally the tool bar shouldn't draw
-  // its own border, but the border is part of the background bitmap, so
-  // changing that would affect all platforms.)
   fixed_.Own(gtk_fixed_new());
   border_ = gtk_event_box_new();
   gtk_widget_set_size_request(border_, 1, 1);
   gtk_widget_modify_bg(border_, GTK_STATE_NORMAL, &kBorderColor);
 
   gtk_fixed_put(GTK_FIXED(widget()), border_, 0, 0);
-  gtk_fixed_put(GTK_FIXED(widget()), container_, 0, kVerticalOffset);
+  gtk_fixed_put(GTK_FIXED(widget()), slide_widget(), 0, 0);
   gtk_widget_set_size_request(widget(), -1, 0);
 
   close_button_.reset(CustomDrawButton::AddBarCloseButton(hbox));
@@ -158,20 +162,27 @@ void FindBarGtk::InitWidgets() {
   gtk_box_pack_start(GTK_BOX(centering_vbox), border_bin, TRUE, FALSE, 0);
   gtk_box_pack_end(GTK_BOX(hbox), centering_vbox, FALSE, FALSE, 0);
 
-  // We show just the GtkFixed and |border_| (not |container_|).
+  // We show just the GtkFixed and |border_| (but not the dialog).
   gtk_widget_show(widget());
   gtk_widget_show(border_);
 }
 
+GtkWidget* FindBarGtk::slide_widget() {
+  return slide_widget_->widget();
+}
+
 void FindBarGtk::Show() {
-  // TODO(tc): This should be an animated slide in.
-  gtk_widget_show_all(widget());
+  AssureOnTop();
+  gtk_widget_show_all(slide_widget());
   gtk_widget_grab_focus(find_text_);
+  slide_widget_->Open();
 }
 
 void FindBarGtk::Hide(bool animate) {
-  // TODO(tc): Animated slide away.
-  gtk_widget_hide(container_);
+  if (animate)
+    slide_widget_->Close();
+  else
+    gtk_widget_hide(slide_widget());
 }
 
 void FindBarGtk::SetFocusAndSelection() {
@@ -184,7 +195,7 @@ void FindBarGtk::ClearResults(const FindNotificationDetails& results) {
 }
 
 void FindBarGtk::StopAnimation() {
-  // No animation yet, so do nothing.
+  NOTIMPLEMENTED();
 }
 
 void FindBarGtk::MoveWindowIfNecessary(const gfx::Rect& selection_rect,
@@ -204,14 +215,15 @@ void FindBarGtk::UpdateUIForFindResult(const FindNotificationDetails& result,
 gfx::Rect FindBarGtk::GetDialogPosition(gfx::Rect avoid_overlapping_rect) {
   // TODO(estade): Logic for the positioning of the find bar should be factored
   // out of here and browser/views/* and into FindBarController.
-  int xposition = widget()->allocation.width - container_->allocation.width -
-                  50;
+  int xposition = widget()->allocation.width -
+                  slide_widget()->allocation.width - 50;
 
   return gfx::Rect(xposition, 0, 1, 1);
 }
 
 void FindBarGtk::SetDialogPosition(const gfx::Rect& new_pos, bool no_redraw) {
-  gtk_fixed_move(GTK_FIXED(widget()), container_, new_pos.x(), kVerticalOffset);
+  gtk_fixed_move(GTK_FIXED(widget()), slide_widget(), new_pos.x(), 0);
+  gtk_widget_show_all(slide_widget());
 }
 
 bool FindBarGtk::IsFindBarVisible() {
@@ -232,8 +244,8 @@ bool FindBarGtk::GetFindBarWindowInfo(gfx::Point* position,
 }
 
 void FindBarGtk::AssureOnTop() {
-  gtk_widget_hide(container_);
-  gtk_widget_show_all(container_);
+  if (container_->window)
+    gdk_window_raise(container_->window);
 }
 
 void FindBarGtk::ContentsChanged() {
@@ -283,17 +295,16 @@ void FindBarGtk::OnFixedSizeAllocate(GtkWidget* fixed,
     gtk_widget_size_allocate(findbar->border_, allocation);
   }
 
-  // Reposition |container_|.
-  GtkWidget* container = findbar->container_;
-  DCHECK(container);
-  if (!GTK_WIDGET_VISIBLE(container))
+  // Reposition the dialog.
+  GtkWidget* dialog = findbar->slide_widget();
+  if (!GTK_WIDGET_VISIBLE(dialog))
     return;
 
   int xposition = findbar->GetDialogPosition(gfx::Rect()).x();
-  if (xposition == container->allocation.x) {
+  if (xposition == dialog->allocation.x) {
     return;
   } else {
-    gtk_fixed_move(GTK_FIXED(fixed), container, xposition, kVerticalOffset);
+    gtk_fixed_move(GTK_FIXED(fixed), findbar->slide_widget(), xposition, 0);
   }
 }
 
