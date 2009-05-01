@@ -6,6 +6,7 @@
 
 #include "webkit/tools/test_shell/image_decoder_unittest.h"
 
+#include "base/file_path.h"
 #include "base/file_util.h"
 #include "base/md5.h"
 #include "base/path_service.h"
@@ -78,7 +79,9 @@ void VerifyImage(WebCore::ImageDecoder* decoder,
 #endif
 
 void ImageDecoderTest::SetUp() {
-  ASSERT_TRUE(PathService::Get(base::DIR_SOURCE_ROOT, &data_dir_));
+  FilePath data_dir;
+  ASSERT_TRUE(PathService::Get(base::DIR_SOURCE_ROOT, &data_dir));
+  data_dir_ = data_dir.ToWStringHack();
   file_util::AppendToPath(&data_dir_, L"webkit");
   file_util::AppendToPath(&data_dir_, L"data");
   file_util::AppendToPath(&data_dir_, format_ + L"_decoder");

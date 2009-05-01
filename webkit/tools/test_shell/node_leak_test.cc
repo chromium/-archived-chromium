@@ -3,7 +3,7 @@
 // found in the LICENSE file.
 
 #include "base/command_line.h"
-#include "base/file_util.h"
+#include "base/file_path.h"
 #include "base/path_service.h"
 #include "base/string_util.h"
 #include "net/http/http_cache.h"
@@ -37,11 +37,11 @@ class NodeLeakTest : public TestShellTest {
     js_flags += L" --expose-gc";
     webkit_glue::SetJavaScriptFlags(js_flags);
 
-    std::wstring cache_path =
-        parsed_command_line.GetSwitchValue(test_shell::kCacheDir);
+    FilePath cache_path = FilePath::FromWStringHack(
+        parsed_command_line.GetSwitchValue(test_shell::kCacheDir));
     if (cache_path.empty()) {
       PathService::Get(base::DIR_EXE, &cache_path);
-      file_util::AppendToPath(&cache_path, L"cache");
+      cache_path = cache_path.AppendASCII("cache");
     }
 
     if (parsed_command_line.HasSwitch(test_shell::kTestShellTimeOut)) {
@@ -58,7 +58,7 @@ class NodeLeakTest : public TestShellTest {
         parsed_command_line.HasSwitch(test_shell::kPlaybackMode) ?
         net::HttpCache::PLAYBACK : net::HttpCache::NORMAL;
     SimpleResourceLoaderBridge::Init(
-        new TestShellRequestContext(cache_path, mode, false));
+        new TestShellRequestContext(cache_path.ToWStringHack(), mode, false));
 
     TestShellTest::SetUp();
   }

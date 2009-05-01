@@ -8,6 +8,7 @@
 #include "base/basictypes.h"
 #include "base/command_line.h"
 #include "base/event_recorder.h"
+#include "base/file_path.h"
 #include "base/file_util.h"
 #include "base/icu_util.h"
 #include "base/memory_debug.h"
@@ -122,20 +123,21 @@ int main(int argc, char* argv[]) {
       parsed_command_line.HasSwitch(test_shell::kEnableFileCookies))
     net::CookieMonster::EnableFileScheme();
 
-  std::wstring cache_path =
-      parsed_command_line.GetSwitchValue(test_shell::kCacheDir);
+  FilePath cache_path = FilePath::FromWStringHack(
+      parsed_command_line.GetSwitchValue(test_shell::kCacheDir));
   // If the cache_path is empty and it's layout_test_mode, leave it empty
   // so we use an in-memory cache. This makes running multiple test_shells
   // in parallel less flaky.
   if (cache_path.empty() && !layout_test_mode) {
     PathService::Get(base::DIR_EXE, &cache_path);
-    file_util::AppendToPath(&cache_path, L"cache");
+    cache_path = cache_path.AppendASCII("cache");
   }
 
   // Initializing with a default context, which means no on-disk cookie DB,
   // and no support for directory listings.
   SimpleResourceLoaderBridge::Init(
-      new TestShellRequestContext(cache_path, cache_mode, layout_test_mode));
+      new TestShellRequestContext(cache_path.ToWStringHack(),
+                                  cache_mode, layout_test_mode));
 
   // Load ICU data tables
   icu_util::Initialize();
@@ -169,20 +171,20 @@ int main(int argc, char* argv[]) {
   }
 
   // Treat the first loose value as the initial URL to open.
-  std::wstring uri;
+  FilePath uri;
 
   // Default to a homepage if we're interactive.
   if (!layout_test_mode) {
     PathService::Get(base::DIR_SOURCE_ROOT, &uri);
-    file_util::AppendToPath(&uri, L"webkit");
-    file_util::AppendToPath(&uri, L"data");
-    file_util::AppendToPath(&uri, L"test_shell");
-    file_util::AppendToPath(&uri, L"index.html");
+    uri = uri.AppendASCII("webkit");
+    uri = uri.AppendASCII("data");
+    uri = uri.AppendASCII("test_shell");
+    uri = uri.AppendASCII("index.html");
   }
 
   std::vector<std::wstring> loose_values = parsed_command_line.GetLooseValues();
   if (loose_values.size() > 0)
-    uri = loose_values[0];
+    uri = FilePath::FromWStringHack(loose_values[0]);
 
   std::wstring js_flags =
     parsed_command_line.GetSwitchValue(test_shell::kJavaScriptFlags);
@@ -207,7 +209,7 @@ int main(int argc, char* argv[]) {
   StatsTable::set_current(table);
 
   TestShell* shell;
-  if (TestShell::CreateNewWindow(uri, &shell)) {
+  if (TestShell::CreateNewWindow(uri.ToWStringHack(), &shell)) {
     if (record_mode || playback_mode) {
       platform.SetWindowPositionForRecording(shell);
       WebKit::registerExtension(extensions_v8::PlaybackExtension::Get());
@@ -220,10 +222,10 @@ int main(int argc, char* argv[]) {
 
     bool no_events = parsed_command_line.HasSwitch(test_shell::kNoEvents);
     if ((record_mode || playback_mode) && !no_events) {
-      std::wstring script_path = cache_path;
+      FilePath script_path = cache_path;
       // Create the cache directory in case it doesn't exist.
       file_util::CreateDirectory(cache_path);
-      file_util::AppendToPath(&script_path, L"script.log");
+      script_path = script_path.AppendASCII("script.log");
       if (record_mode)
         base::EventRecorder::current()->StartRecording(script_path);
       if (playback_mode)
@@ -259,7 +261,7 @@ int main(int argc, char* argv[]) {
           params.dump_tree = false;
       }
 
-      if (uri.length() == 0) {
+      if (uri.empty()) {
         // Watch stdin for URLs.
         char filenameBuffer[kPathBufSize];
         while (fgets(filenameBuffer, sizeof(filenameBuffer), stdin)) {
@@ -293,7 +295,7 @@ int main(int argc, char* argv[]) {
       } else {
         // TODO(ojan): Provide a way for run-singly tests to pass
         // in a hash and then set params.pixel_hash here.
-        params.test_url = WideToUTF8(uri).c_str();
+        params.test_url = WideToUTF8(uri.ToWStringHack()).c_str();
         TestShell::RunFileTest(params);
       }
 

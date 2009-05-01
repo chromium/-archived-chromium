@@ -66,13 +66,12 @@ class URLRequestTestShellFileJob : public URLRequestFileJob {
 
   static URLRequestJob* InspectorFactory(URLRequest* request,
                                          const std::string& scheme) {
-    std::wstring path;
+    FilePath path;
     PathService::Get(base::DIR_EXE, &path);
-    file_util::AppendToPath(&path, L"resources");
-    file_util::AppendToPath(&path, L"inspector");
-    file_util::AppendToPath(&path, UTF8ToWide(request->url().path()));
-    return new URLRequestTestShellFileJob(request,
-                                          FilePath::FromWStringHack(path));
+    path = path.AppendASCII("resources");
+    path = path.AppendASCII("inspector");
+    path = path.AppendASCII(request->url().path());
+    return new URLRequestTestShellFileJob(request, path);
   }
 
  private:
@@ -583,7 +582,11 @@ void AppendToLog(const char* file, int line, const char* msg) {
 }
 
 bool GetApplicationDirectory(std::wstring *path) {
-  return PathService::Get(base::DIR_EXE, path);
+  bool r;
+  FilePath fp;
+  r = PathService::Get(base::DIR_EXE, &fp);
+  *path = fp.ToWStringHack();
+  return r;
 }
 
 GURL GetInspectorURL() {
@@ -595,7 +598,7 @@ std::string GetUIResourceProtocol() {
 }
 
 bool GetExeDirectory(std::wstring *path) {
-  return PathService::Get(base::DIR_EXE, path);
+  return GetApplicationDirectory(path);
 }
 
 bool SpellCheckWord(const wchar_t* word, int word_len,

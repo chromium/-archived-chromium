@@ -11,14 +11,14 @@ namespace base {
 
 EventRecorder* EventRecorder::current_;  // Our singleton.
 
-bool EventRecorder::StartRecording(const std::wstring& filename) {
+bool EventRecorder::StartRecording(const FilePath& filename) {
   return true;
 }
 
 void EventRecorder::StopRecording() {
 }
 
-bool EventRecorder::StartPlayback(const std::wstring& filename) {
+bool EventRecorder::StartPlayback(const FilePath& filename) {
   return false;
 }
 

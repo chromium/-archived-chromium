@@ -7,6 +7,7 @@
 #include "base/basictypes.h"
 #include "base/command_line.h"
 #include "base/event_recorder.h"
+#include "base/file_path.h"
 #include "base/histogram.h"
 #include "base/path_service.h"
 #include "base/string_util.h"
@@ -97,10 +98,10 @@ void SetOverrideHomePage(const CommandLine& command_line,
                          PrefService* prefs) {
   // If homepage is specified on the command line, canonify & store it.
   if (command_line.HasSwitch(switches::kHomePage)) {
-    std::wstring browser_directory;
+    FilePath browser_directory;
     PathService::Get(base::DIR_CURRENT, &browser_directory);
     std::wstring new_homepage = URLFixerUpper::FixupRelativeFile(
-        browser_directory,
+        browser_directory.ToWStringHack(),
         command_line.GetSwitchValue(switches::kHomePage));
     prefs->transient()->SetString(prefs::kHomePage, new_homepage);
     prefs->transient()->SetBoolean(prefs::kHomePageIsNewTabPage, false);
@@ -250,7 +251,7 @@ bool BrowserInit::LaunchWithProfile::Launch(Profile* profile,
   // If we're recording or playing back, startup the EventRecorder now
   // unless otherwise specified.
   if (!command_line_.HasSwitch(switches::kNoEvents)) {
-    std::wstring script_path;
+    FilePath script_path;
     PathService::Get(chrome::FILE_RECORDED_SCRIPT, &script_path);
 
     bool record_mode = command_line_.HasSwitch(switches::kRecordMode);

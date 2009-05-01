@@ -42,7 +42,7 @@ EventRecorder::~EventRecorder() {
   DCHECK(!is_recording_ && !is_playing_);
 }
 
-bool EventRecorder::StartRecording(const std::wstring& filename) {
+bool EventRecorder::StartRecording(const FilePath& filename) {
   if (journal_hook_ != NULL)
     return false;
   if (is_recording_ || is_playing_)
@@ -93,7 +93,7 @@ void EventRecorder::StopRecording() {
   }
 }
 
-bool EventRecorder::StartPlayback(const std::wstring& filename) {
+bool EventRecorder::StartPlayback(const FilePath& filename) {
   if (journal_hook_ != NULL)
     return false;
   if (is_recording_ || is_playing_)

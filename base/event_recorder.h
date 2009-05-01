@@ -11,6 +11,8 @@
 #endif
 #include "base/basictypes.h"
 
+class FilePath;
+
 namespace base {
 
 // A class for recording and playing back keyboard and mouse input events.
@@ -39,7 +41,7 @@ class EventRecorder {
   // Starts recording events.
   // Will clobber the file if it already exists.
   // Returns true on success, or false if an error occurred.
-  bool StartRecording(const std::wstring& filename);
+  bool StartRecording(const FilePath& filename);
 
   // Stops recording.
   void StopRecording();
@@ -49,7 +51,7 @@ class EventRecorder {
 
   // Plays events previously recorded.
   // Returns true on success, or false if an error occurred.
-  bool StartPlayback(const std::wstring& filename);
+  bool StartPlayback(const FilePath& filename);
 
   // Stops playback.
   void StopPlayback();
