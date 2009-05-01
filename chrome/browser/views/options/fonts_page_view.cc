@@ -100,6 +100,9 @@ class FontDisplayView : public views::View {
   FontDisplayView();
   virtual ~FontDisplayView();
 
+  // This method takes in font size in pixel units, instead of the normal point
+  // unit because users expect the font size number to represent pixels and not
+  // points.
   void SetFontType(const std::wstring& font_name,
                    int font_size);
 
@@ -164,8 +167,9 @@ void FontDisplayView::SetFontType(const std::wstring& font_name,
   // Append the font type and size.
   displayed_text += L", ";
   displayed_text += UTF8ToWide(::StringPrintf("%d", font_size_));
-  displayed_text += L"pt";
-  ChromeFont font = ChromeFont::CreateFont(font_name, font_size);
+  HDC hdc = GetDC(NULL);
+  int font_size_point = MulDiv(font_size, 72, GetDeviceCaps(hdc, LOGPIXELSY));
+  ChromeFont font = ChromeFont::CreateFont(font_name, font_size_point);
   font_text_label_->SetFont(font);
   font_text_label_->SetText(displayed_text);
 }
@@ -221,7 +225,10 @@ FontsPageView::FontsPageView(Profile* profile)
       font_type_being_changed_(NONE),
       OptionsPageView(profile),
       font_changed_(false),
-      default_encoding_changed_(false) {
+      default_encoding_changed_(false),
+      serif_font_size_pixel_(0),
+      sans_serif_font_size_pixel_(0),
+      fixed_width_font_size_pixel_(0) {
   serif_name_.Init(prefs::kWebKitSerifFontFamily, profile->GetPrefs(), NULL);
   serif_size_.Init(prefs::kWebKitDefaultFontSize, profile->GetPrefs(), NULL);
 
@@ -248,15 +255,15 @@ void FontsPageView::ButtonPressed(views::Button* sender) {
   if (sender == serif_font_change_page_button_) {
     font_type_being_changed_ = SERIF;
     font_name = serif_font_display_view_->font_name();
-    font_size = serif_font_display_view_->font_size();
+    font_size = serif_font_size_pixel_;
   } else if (sender == sans_serif_font_change_page_button_) {
     font_type_being_changed_ = SANS_SERIF;
     font_name = sans_serif_font_display_view_->font_name();
-    font_size = sans_serif_font_display_view_->font_size();
+    font_size = sans_serif_font_size_pixel_;
   } else if (sender == fixed_width_font_change_page_button_) {
     font_type_being_changed_ = FIXED_WIDTH;
     font_name = fixed_width_font_display_view_->font_name();
-    font_size = fixed_width_font_display_view_->font_size();
+    font_size = fixed_width_font_size_pixel_;
   } else {
     NOTREACHED();
     return;
@@ -277,20 +284,32 @@ void FontsPageView::ItemChanged(views::ComboBox* combo_box,
   }
 }
 
-void FontsPageView::FontSelected(const ChromeFont& font, void* params) {
+void FontsPageView::FontSelected(const ChromeFont& const_font, void* params) {
+  ChromeFont font(const_font);
   if (ChromeFont(font).FontName().empty())
     return;
   int font_size = ChromeFont(font).FontSize();
+  // Currently we do not have separate font sizes for Serif and Sans Serif.
+  // Therefore, when Serif font size is changed, Sans-Serif font size changes,
+  // and vice versa.
   if (font_type_being_changed_ == SERIF) {
-    serif_font_display_view_->SetFontType(font);
-    sans_serif_font_display_view_->SetFontType(
-        sans_serif_font_display_view_->font_name(), font_size);
-  } else if (font_type_being_changed_ == SANS_SERIF) {
-    sans_serif_font_display_view_->SetFontType(font);
+    sans_serif_font_size_pixel_ = serif_font_size_pixel_ = font_size;
     serif_font_display_view_->SetFontType(
-        serif_font_display_view_->font_name(), font_size);
+        font.FontName(),
+        serif_font_size_pixel_);
+    sans_serif_font_display_view_->SetFontType(
+        sans_serif_font_display_view_->font_name(),
+        sans_serif_font_size_pixel_);
+  } else if (font_type_being_changed_ == SANS_SERIF) {
+    sans_serif_font_size_pixel_ = serif_font_size_pixel_ = font_size;
+    sans_serif_font_display_view_->SetFontType(
+        font.FontName(),
+        sans_serif_font_size_pixel_);
+    serif_font_display_view_->SetFontType(
+        serif_font_display_view_->font_name(),
+        sans_serif_font_size_pixel_);
   } else if (font_type_being_changed_ == FIXED_WIDTH) {
-    fixed_width_font_display_view_->SetFontType(font);
+    fixed_width_font_display_view_->SetFontType(font.FontName(), font_size);
   }
   font_changed_ = true;
 }
@@ -299,11 +318,11 @@ void FontsPageView::SaveChanges() {
   // Set Fonts.
   if (font_changed_) {
     serif_name_.SetValue(serif_font_display_view_->font_name());
-    serif_size_.SetValue(serif_font_display_view_->font_size());
+    serif_size_.SetValue(serif_font_size_pixel_);
     sans_serif_name_.SetValue(sans_serif_font_display_view_->font_name());
-    sans_serif_size_.SetValue(sans_serif_font_display_view_->font_size());
+    sans_serif_size_.SetValue(sans_serif_font_size_pixel_);
     fixed_width_name_.SetValue(fixed_width_font_display_view_->font_name());
-    fixed_width_size_.SetValue(fixed_width_font_display_view_->font_size());
+    fixed_width_size_.SetValue(fixed_width_font_size_pixel_);
   }
   // Set Encoding.
   if (default_encoding_changed_)
@@ -352,19 +371,22 @@ void FontsPageView::InitControlLayout() {
 
 void FontsPageView::NotifyPrefChanged(const std::wstring* pref_name) {
   if (!pref_name || *pref_name == prefs::kWebKitFixedFontFamily) {
+    fixed_width_font_size_pixel_ = fixed_width_size_.GetValue();
     fixed_width_font_display_view_->SetFontType(
         fixed_width_name_.GetValue(),
-        fixed_width_size_.GetValue());
+        fixed_width_font_size_pixel_);
   }
   if (!pref_name || *pref_name == prefs::kWebKitSerifFontFamily) {
+    serif_font_size_pixel_ = serif_size_.GetValue();
     serif_font_display_view_->SetFontType(
         serif_name_.GetValue(),
-        serif_size_.GetValue());
+        serif_font_size_pixel_);
   }
   if (!pref_name || *pref_name == prefs::kWebKitSansSerifFontFamily) {
+    sans_serif_font_size_pixel_ = sans_serif_size_.GetValue();
     sans_serif_font_display_view_->SetFontType(
         sans_serif_name_.GetValue(),
-        sans_serif_size_.GetValue());
+        sans_serif_font_size_pixel_);
   }
 }
 

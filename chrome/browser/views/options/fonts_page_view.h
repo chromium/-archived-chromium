@@ -105,6 +105,9 @@ class FontsPageView : public OptionsPageView,
   IntegerPrefMember serif_size_;
   IntegerPrefMember sans_serif_size_;
   IntegerPrefMember fixed_width_size_;
+  int serif_font_size_pixel_;
+  int sans_serif_font_size_pixel_;
+  int fixed_width_font_size_pixel_;
   StringPrefMember default_encoding_;
   bool font_changed_;
 
