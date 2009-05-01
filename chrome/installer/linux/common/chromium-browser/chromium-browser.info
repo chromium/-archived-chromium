@@ -27,6 +27,3 @@ FULLDESC="Chromium is a browser that combines a minimal design with sophisticate
 # TODO(mmoss) Setup a mailbox for this address
 MAINTNAME="Chromium Linux Team"
 MAINTMAIL="chromium-linux-packager@chromium.org"
-
-# TODO(mmoss) This is the dogfooding config. Need to update for release.
-REPOCONFIG="deb http://dl.google.com/linux/deb.GOOGLER/ testing main"
