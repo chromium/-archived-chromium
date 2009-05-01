@@ -138,7 +138,7 @@ TEST_F(PluginTest, Quicktime) {
   TestPlugin(L"quicktime.html", kShortWaitTimeout);
 }
 
-TEST_F(PluginTest, MediaPlayerNew) {
+TEST_F(PluginTest, DISABLED_MediaPlayerNew) {
   TestPlugin(L"wmp_new.html", kShortWaitTimeout);
 }
 
@@ -225,7 +225,7 @@ TEST_F(ActiveXTest, DISABLED_CustomScripting) {
   TestActiveX(L"activex_custom_scripting.html", kShortWaitTimeout, true);
 }
 
-TEST_F(ActiveXTest, EmbeddedMP3) {
+TEST_F(ActiveXTest, DISABLED_EmbeddedMP3) {
   TestActiveX(L"mp3_test.html", kLongWaitTimeout, false);
 }
 
