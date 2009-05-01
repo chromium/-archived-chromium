@@ -865,17 +865,25 @@ void NavigationController::NavigateToPendingEntry(bool reload) {
 
 void NavigationController::NotifyNavigationEntryCommitted(
     LoadCommittedDetails* details) {
+  details->entry = GetActiveEntry();
+  NotificationDetails notification_details =
+      Details<LoadCommittedDetails>(details);
+
+  // We need to notify the ssl_manager_ before the tab_contents_ so the
+  // location bar will have up-to-date information about the security style
+  // when it wants to draw.  See http://crbug.com/11157
+  ssl_manager_.DidCommitProvisionalLoad(notification_details);
+
   // TODO(pkasting): http://b/1113079 Probably these explicit notification paths
   // should be removed, and interested parties should just listen for the
   // notification below instead.
   tab_contents_->NotifyNavigationStateChanged(
       TabContents::INVALIDATE_EVERYTHING);
 
-  details->entry = GetActiveEntry();
   NotificationService::current()->Notify(
       NotificationType::NAV_ENTRY_COMMITTED,
       Source<NavigationController>(this),
-      Details<LoadCommittedDetails>(details));
+      notification_details);
 }
 
 // static

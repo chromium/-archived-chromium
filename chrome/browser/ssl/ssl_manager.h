@@ -445,6 +445,11 @@ class SSLManager : public NotificationObserver {
                        const NotificationSource& source,
                        const NotificationDetails& details);
 
+  // This entry point is called directly (instead of via the notification
+  // service) because we need more precise control of the order in which folks
+  // are notified of this event.
+  void DidCommitProvisionalLoad(const NotificationDetails& details);
+
   // Called to determine if there were any processed SSL errors from request.
   bool ProcessedSSLErrorFromRequest() const;
 
@@ -498,7 +503,6 @@ class SSLManager : public NotificationObserver {
   // the type we need is in NavigationController which would create a circular
   // header file dependency.
   void DidLoadFromMemoryCache(LoadFromMemoryCacheDetails* details);
-  void DidCommitProvisionalLoad(const NotificationDetails& details);
   void DidFailProvisionalLoadWithError(ProvisionalLoadDetails* details);
   void DidStartResourceResponse(ResourceRequestDetails* details);
   void DidReceiveResourceRedirect(ResourceRedirectDetails* details);

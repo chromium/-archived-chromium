@@ -111,8 +111,6 @@ SSLManager::SSLManager(NavigationController* controller, Delegate* delegate)
     delegate_ = SSLPolicy::GetDefaultPolicy();
 
   // Subscribe to various notifications.
-  registrar_.Add(this, NotificationType::NAV_ENTRY_COMMITTED,
-                 Source<NavigationController>(controller_));
   registrar_.Add(this, NotificationType::FAIL_PROVISIONAL_LOAD_WITH_ERROR,
                  Source<NavigationController>(controller_));
   registrar_.Add(this, NotificationType::RESOURCE_RESPONSE_STARTED,
@@ -530,9 +528,6 @@ void SSLManager::Observe(NotificationType type,
                          const NotificationDetails& details) {
   // Dispatch by type.
   switch (type.value) {
-    case NotificationType::NAV_ENTRY_COMMITTED:
-      DidCommitProvisionalLoad(details);
-      break;
     case NotificationType::FAIL_PROVISIONAL_LOAD_WITH_ERROR:
       DidFailProvisionalLoadWithError(
           Details<ProvisionalLoadDetails>(details).ptr());
