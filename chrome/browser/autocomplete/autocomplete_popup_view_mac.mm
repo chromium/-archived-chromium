@@ -111,6 +111,14 @@ void AutocompletePopupViewMac::UpdatePopupAppearance() {
   if (result.empty()) {
     [[popup_ parentWindow] removeChildWindow:popup_];
     [popup_ orderOut:nil];
+
+    // Break references to table_target_ releasing popup_.
+    NSTableView* table = [popup_ contentView];
+    [table setTarget:nil];
+    [table setDataSource:nil];
+
+    popup_.reset(nil);
+
     return;
   }
 
