@@ -16,10 +16,10 @@ class PageAction {
   PageAction();
   virtual ~PageAction();
 
-  typedef enum PageActionType {
+  typedef enum {
     PERMANENT = 0,
     TAB = 1,
-  };
+  } PageActionType;
 
   std::string id() const { return id_; }
   void set_id(std::string id) { id_ = id; }
