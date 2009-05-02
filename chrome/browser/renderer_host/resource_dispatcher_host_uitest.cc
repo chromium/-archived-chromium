@@ -6,7 +6,7 @@
 #include <string>
 
 #include "base/command_line.h"
-#include "base/file_util.h"
+#include "base/file_path.h"
 #include "base/path_service.h"
 #include "base/string_util.h"
 #include "chrome/browser/automation/url_request_failed_dns_job.h"
@@ -237,7 +237,7 @@ TEST_F(ResourceDispatcherTest, CrossSiteNavigationNonBuffered) {
 
   // Now load a file:// page, which does not use the BufferedEventHandler.
   // Make sure that the page loads and displays a title, and doesn't get stuck.
-  FilePath test_file(FilePath::FromWStringHack(test_data_directory_));
+  FilePath test_file(test_data_directory_);
   test_file = test_file.AppendASCII("title2.html");
   bool timed_out = false;
   tab->NavigateToURLWithTimeout(net::FilePathToFileURL(test_file),

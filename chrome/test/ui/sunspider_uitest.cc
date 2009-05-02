@@ -3,7 +3,6 @@
 // found in the LICENSE file.
 
 #include "base/command_line.h"
-#include "base/file_path.h"
 #include "base/file_util.h"
 #include "base/path_service.h"
 #include "base/string_util.h"
@@ -127,7 +126,7 @@ class SunSpiderReferenceTest : public SunSpiderTest {
     PathService::Get(chrome::DIR_TEST_TOOLS, &dir);
     dir = dir.AppendASCII("reference_build");
     dir = dir.AppendASCII("chrome");
-    browser_directory_ = dir.ToWStringHack();
+    browser_directory_ = dir;
     UITest::SetUp();
   }
 };

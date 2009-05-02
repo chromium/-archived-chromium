@@ -4,7 +4,7 @@
 
 #include <oleacc.h>
 
-#include "base/file_util.h"
+#include "base/file_path.h"
 #include "base/win_util.h"
 #include "chrome/app/chrome_dll_resource.h"
 #include "chrome/common/l10n_util.h"
@@ -140,7 +140,7 @@ TEST_F(AccessibilityTest, DISABLED_TestBackBtnStatusOnNewTab) {
   // Set URL and check button status.
   scoped_ptr<TabProxy> tab1(window->GetTab(0));
   ASSERT_TRUE(tab1.get());
-  FilePath test_file1(FilePath::FromWStringHack(test_data_directory_));
+  FilePath test_file1(test_data_directory_);
   test_file1 = test_file1.AppendASCII("title1.html");
   tab1->NavigateToURL(net::FilePathToFileURL(test_file1));
   Sleep(sleep_timeout_ms());
@@ -167,7 +167,7 @@ TEST_F(AccessibilityTest, DISABLED_TestBackBtnStatusOnNewTab) {
 
   // Add new tab with URL and check status.
   ASSERT_TRUE(window->GetTabCount(&tab_count));
-  FilePath test_file2(FilePath::FromWStringHack(test_data_directory_));
+  FilePath test_file2(test_data_directory_);
   test_file2 = test_file2.AppendASCII("title1.html");
   ASSERT_TRUE(window->AppendTab(net::FilePathToFileURL(test_file2)));
   ASSERT_TRUE(window->WaitForTabCountToBecome(tab_count + 1,
@@ -242,7 +242,7 @@ TEST_F(AccessibilityTest, DISABLED_TestForwardBtnStatusOnNewTab) {
   // Set URL and check button status.
   scoped_ptr<TabProxy> tab1(window->GetTab(0));
   ASSERT_TRUE(tab1.get());
-  FilePath test_file1(FilePath::FromWStringHack(test_data_directory_));
+  FilePath test_file1(test_data_directory_);
   test_file1 = test_file1.AppendASCII("title1.html");
   tab1->NavigateToURL(net::FilePathToFileURL(test_file1));
   Sleep(sleep_timeout_ms());
@@ -275,7 +275,7 @@ TEST_F(AccessibilityTest, DISABLED_TestForwardBtnStatusOnNewTab) {
 
   // Add new tab with URL and check status.
   ASSERT_TRUE(window->GetTabCount(&tab_count));
-  FilePath test_file2(FilePath::FromWStringHack(test_data_directory_));
+  FilePath test_file2(test_data_directory_);
   test_file2 = test_file2.AppendASCII("title1.html");
   ASSERT_TRUE(window->AppendTab(net::FilePathToFileURL(test_file2)));
   ASSERT_TRUE(window->WaitForTabCountToBecome(tab_count + 1,
@@ -328,7 +328,7 @@ TEST_F(AccessibilityTest, DISABLED_TestStarBtnStatusOnNewTab) {
   // Set URL and check button status.
   scoped_ptr<TabProxy> tab1(window->GetTab(0));
   ASSERT_TRUE(tab1.get());
-  FilePath test_file1(FilePath::FromWStringHack(test_data_directory_));
+  FilePath test_file1(test_data_directory_);
   test_file1 = test_file1.AppendASCII("title1.html");
   tab1->NavigateToURL(net::FilePathToFileURL(test_file1));
   Sleep(sleep_timeout_ms());
@@ -346,7 +346,7 @@ TEST_F(AccessibilityTest, DISABLED_TestStarBtnStatusOnNewTab) {
 
   // Add new tab with URL and check status.
   ASSERT_TRUE(window->GetTabCount(&tab_count));
-  FilePath test_file2(FilePath::FromWStringHack(test_data_directory_));
+  FilePath test_file2(test_data_directory_);
   test_file2 = test_file2.AppendASCII("title1.html");
   ASSERT_TRUE(window->AppendTab(net::FilePathToFileURL(test_file2)));
   ASSERT_TRUE(window->WaitForTabCountToBecome(tab_count + 1,

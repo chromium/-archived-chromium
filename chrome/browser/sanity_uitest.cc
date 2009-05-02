@@ -8,16 +8,16 @@
 #include "chrome/test/ui/ui_test.h"
 
 #include "base/basictypes.h"
-#include "base/file_util.h"
+#include "base/file_path.h"
 #include "base/platform_thread.h"
 
 class GoogleTest : public UITest {
  protected:
   GoogleTest() : UITest() {
-    std::wstring test_file = test_data_directory_;
-    file_util::AppendToPath(&test_file, L"google");
-    file_util::AppendToPath(&test_file, L"google.html");
-    homepage_ = test_file;
+    FilePath test_file(test_data_directory_);
+    test_file = test_file.AppendASCII("google");
+    test_file = test_file.AppendASCII("google.html");
+    homepage_ = test_file.ToWStringHack();
   }
 };
 
@@ -33,9 +33,9 @@ TEST_F(GoogleTest, Crash) {
 class ColumnLayout : public UITest {
  protected:
   ColumnLayout() : UITest() {
-    std::wstring test_file = test_data_directory_;
-    file_util::AppendToPath(&test_file, L"columns.html");
-    homepage_ = test_file;
+    FilePath test_file(test_data_directory_);
+    test_file = test_file.AppendASCII("columns.html");
+    homepage_ = test_file.ToWStringHack();
   }
 };
 

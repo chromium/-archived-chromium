@@ -404,10 +404,10 @@ class MemoryReferenceTest : public MemoryTest {
   // override the browser directory that is used by UITest::SetUp to cause it
   // to use the reference build instead.
   void SetUp() {
-    std::wstring dir;
+    FilePath dir;
     PathService::Get(chrome::DIR_TEST_TOOLS, &dir);
-    file_util::AppendToPath(&dir, L"reference_build");
-    file_util::AppendToPath(&dir, L"chrome");
+    dir = dir.AppendASCII("reference_build");
+    dir = dir.AppendASCII("chrome");
     browser_directory_ = dir;
     UITest::SetUp();
   }

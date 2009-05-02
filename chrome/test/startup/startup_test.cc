@@ -2,7 +2,6 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "base/file_path.h"
 #include "base/file_util.h"
 #include "base/path_service.h"
 #include "base/platform_thread.h"
@@ -93,10 +92,10 @@ class StartupReferenceTest : public StartupTest {
   // override the browser directory that is used by UITest::SetUp to cause it
   // to use the reference build instead.
   void SetUp() {
-    std::wstring dir;
+    FilePath dir;
     PathService::Get(chrome::DIR_TEST_TOOLS, &dir);
-    file_util::AppendToPath(&dir, L"reference_build");
-    file_util::AppendToPath(&dir, L"chrome");
+    dir = dir.AppendASCII("reference_build");
+    dir = dir.AppendASCII("chrome");
     browser_directory_ = dir;
   }
 };
@@ -106,13 +105,13 @@ class StartupFileTest : public StartupTest {
   // Load a file on startup rather than about:blank.  This tests a longer
   // startup path, including resource loading and the loading of gears.dll.
   void SetUp() {
-    std::wstring file_url;
+    FilePath file_url;
     ASSERT_TRUE(PathService::Get(chrome::DIR_TEST_DATA, &file_url));
-    file_util::AppendToPath(&file_url, L"empty.html");
+    file_url = file_url.AppendASCII("empty.html");
     ASSERT_TRUE(file_util::PathExists(file_url));
-    launch_arguments_.AppendLooseValue(file_url);
+    launch_arguments_.AppendLooseValue(file_url.ToWStringHack());
 
-    pages_ = WideToUTF8(file_url);
+    pages_ = WideToUTF8(file_url.ToWStringHack());
   }
 };
 

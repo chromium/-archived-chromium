@@ -5,7 +5,6 @@
 #include <string>
 
 #include "base/command_line.h"
-#include "base/file_path.h"
 #include "base/file_util.h"
 #include "base/values.h"
 #include "build/build_config.h"
@@ -28,7 +27,7 @@ public:
     file_util::CreateDirectory(tmp_profile_);
 
     FilePath reference_pref_file =
-        FilePath::FromWStringHack(test_data_directory_)
+        test_data_directory_
             .AppendASCII("profiles")
             .AppendASCII("window_placement")
             .Append(chrome::kLocalStateFilename);

@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "base/file_util.h"
+#include "base/file_path.h"
 #include "base/gfx/native_widget_types.h"
 #include "base/string_util.h"
 #include "base/sys_info.h"
@@ -71,7 +71,7 @@ class VisibleBrowserTest : public UITest {
 // Launch the app on a page with no title, check that the app title was set
 // correctly.
 TEST_F(BrowserTest, NoTitle) {
-  FilePath test_file(FilePath::FromWStringHack(test_data_directory_));
+  FilePath test_file(test_data_directory_);
   test_file = test_file.AppendASCII("title1.html");
 
   NavigateToURL(net::FilePathToFileURL(test_file));
@@ -84,7 +84,7 @@ TEST_F(BrowserTest, NoTitle) {
 // Launch the app, navigate to a page with a title, check that the app title
 // was set correctly.
 TEST_F(BrowserTest, Title) {
-  FilePath test_file(FilePath::FromWStringHack(test_data_directory_));
+  FilePath test_file(test_data_directory_);
   test_file = test_file.AppendASCII("title2.html");
 
   NavigateToURL(net::FilePathToFileURL(test_file));
@@ -101,7 +101,7 @@ TEST_F(BrowserTest, Title) {
 // had a hard limit of 31 processes and this test is mainly directed at
 // verifying that we don't crash when we pass this limit.
 TEST_F(BrowserTest, ThirtyFourTabs) {
-  FilePath test_file(FilePath::FromWStringHack(test_data_directory_));
+  FilePath test_file(test_data_directory_);
   test_file = test_file.AppendASCII("title2.html");
   GURL url(net::FilePathToFileURL(test_file));
   scoped_ptr<BrowserProxy> window(automation()->GetBrowserWindow(0));
@@ -128,7 +128,7 @@ TEST_F(BrowserTest, ThirtyFourTabs) {
 #if defined(OS_WIN)
 // The browser should quit quickly if it receives a WM_ENDSESSION message.
 TEST_F(BrowserTest, WindowsSessionEnd) {
-  FilePath test_file(FilePath::FromWStringHack(test_data_directory_));
+  FilePath test_file(test_data_directory_);
   test_file = test_file.AppendASCII("title1.html");
 
   NavigateToURL(net::FilePathToFileURL(test_file));
@@ -199,7 +199,7 @@ TEST_F(BrowserTest, NullOpenerRedirectForksProcess) {
   scoped_refptr<HTTPTestServer> server =
       HTTPTestServer::CreateServer(kDocRoot, NULL);
   ASSERT_TRUE(NULL != server.get());
-  FilePath test_file(FilePath::FromWStringHack(test_data_directory_));
+  FilePath test_file(test_data_directory_);
   scoped_ptr<BrowserProxy> window(automation()->GetBrowserWindow(0));
   scoped_ptr<TabProxy> tab(window->GetActiveTab());
 
@@ -241,7 +241,7 @@ TEST_F(BrowserTest, OtherRedirectsDontForkProcess) {
   scoped_refptr<HTTPTestServer> server =
       HTTPTestServer::CreateServer(kDocRoot, NULL);
   ASSERT_TRUE(NULL != server.get());
-  FilePath test_file(FilePath::FromWStringHack(test_data_directory_));
+  FilePath test_file(test_data_directory_);
   scoped_ptr<BrowserProxy> window(automation()->GetBrowserWindow(0));
   scoped_ptr<TabProxy> tab(window->GetActiveTab());
 
@@ -281,7 +281,7 @@ TEST_F(BrowserTest, OtherRedirectsDontForkProcess) {
 #if defined(OS_WIN)
 // TODO(estade): need to port GetActiveTabTitle().
 TEST_F(VisibleBrowserTest, WindowOpenClose) {
-  FilePath test_file(FilePath::FromWStringHack(test_data_directory_));
+  FilePath test_file(test_data_directory_);
   test_file = test_file.AppendASCII("window.close.html");
 
   NavigateToURL(net::FilePathToFileURL(test_file));

@@ -4,7 +4,6 @@
 
 #include "base/basictypes.h"
 #include "base/file_path.h"
-#include "base/file_util.h"
 #include "base/platform_thread.h"
 #include "build/build_config.h"
 #include "chrome/test/ui/ui_test.h"
@@ -13,7 +12,7 @@
 class IFrameTest : public UITest {
  protected:
   void NavigateAndVerifyTitle(const char* url, const wchar_t* page_title) {
-    FilePath test_file(FilePath::FromWStringHack(test_data_directory_));
+    FilePath test_file(test_data_directory_);
     test_file = test_file.AppendASCII(url);
 
     NavigateToURL(net::FilePathToFileURL(test_file));
@@ -25,7 +24,6 @@ class IFrameTest : public UITest {
 
     // UITest will check if this crashed.
   }
-
 };
 
 TEST_F(IFrameTest, Crash) {

@@ -199,7 +199,7 @@ class Image {
 class PrintingLayoutTest : public PrintingTest<UITest> {
  public:
   PrintingLayoutTest() {
-    emf_path_ = browser_directory_;
+    emf_path_ = browser_directory_.ToWStringHack();
     file_util::AppendToPath(&emf_path_, L"emf_dumps");
     launch_arguments_.AppendSwitchWithValue(L"debug-print",
                                             L'"' + emf_path_ + L'"');
@@ -238,7 +238,7 @@ class PrintingLayoutTest : public PrintingTest<UITest> {
       return 100.;
     }
 
-    std::wstring verification_file(test_data_directory_);
+    std::wstring verification_file(test_data_directory_.ToWStringHack());
     file_util::AppendToPath(&verification_file, L"printing");
     file_util::AppendToPath(&verification_file, verification_name);
     std::wstring emf(verification_file + L".emf");

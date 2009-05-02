@@ -7,8 +7,10 @@
 
 #include "build/build_config.h"
 
+#include <string>
+
 #include "base/stats_table.h"
-#include "base/file_util.h"
+#include "base/file_path.h"
 #if defined(OS_MACOSX)
 #include "base/mac_util.h"
 #endif
@@ -54,11 +56,11 @@ class WarningHostMapper : public net::HostMapper {
 };
 
 class ChromeTestSuite : public TestSuite {
-public:
+ public:
   ChromeTestSuite(int argc, char** argv) : TestSuite(argc, argv) {
   }
 
-protected:
+ protected:
 
   virtual void Initialize() {
     base::ScopedNSAutoreleasePool autorelease_pool;
@@ -75,14 +77,15 @@ protected:
     // user data directory that lives alongside the current app.
     // NOTE: The user data directory will be erased before each UI test that
     //       uses it, in order to ensure consistency.
-    std::wstring user_data_dir =
+    FilePath user_data_dir = FilePath::FromWStringHack(
         CommandLine::ForCurrentProcess()->GetSwitchValue(
-            switches::kUserDataDir);
+            switches::kUserDataDir));
     if (user_data_dir.empty() &&
       PathService::Get(base::DIR_EXE, &user_data_dir))
-      file_util::AppendToPath(&user_data_dir, L"test_user_data");
+      user_data_dir = user_data_dir.AppendASCII("test_user_data");
     if (!user_data_dir.empty())
-      PathService::Override(chrome::DIR_USER_DATA, user_data_dir);
+      PathService::Override(chrome::DIR_USER_DATA,
+                            user_data_dir.ToWStringHack());
 
 #if defined(OS_MACOSX)
     FilePath path;
@@ -128,4 +131,4 @@ protected:
   net::ScopedHostMapper scoped_host_mapper_;
 };
 
-#endif // CHROME_TEST_UNIT_CHROME_TEST_SUITE_H_
+#endif  // CHROME_TEST_UNIT_CHROME_TEST_SUITE_H_

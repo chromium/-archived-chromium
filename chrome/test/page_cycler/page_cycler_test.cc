@@ -4,7 +4,7 @@
 
 #include "base/basictypes.h"
 #include "base/command_line.h"
-#include "base/file_util.h"
+#include "base/file_path.h"
 #include "base/path_service.h"
 #include "base/process_util.h"
 #include "base/string_util.h"
@@ -149,8 +149,6 @@ class PageCyclerTest : public UITest {
         PrintResult("total_byte", chrome_name,
                     "IO_b" + chrome_name + test_name,
                     total, "kb", true /* important */);
-
-
       }
 
       base::CloseProcessHandle(process_handle);
@@ -171,7 +169,6 @@ class PageCyclerTest : public UITest {
       size_t current_working_set_size;
       if (GetMemoryInfo(*it, &peak_virtual_size, &current_virtual_size,
                         &peak_working_set_size, &current_working_set_size)) {
-
         std::string chrome_name = (*it == browser_process_pid) ? "_b" : "_r";
 
         std::string trace_name(test_name);
@@ -224,10 +221,10 @@ class PageCyclerReferenceTest : public PageCyclerTest {
   // override the browser directory that is used by UITest::SetUp to cause it
   // to use the reference build instead.
   void SetUp() {
-    std::wstring dir;
+    FilePath dir;
     PathService::Get(chrome::DIR_TEST_TOOLS, &dir);
-    file_util::AppendToPath(&dir, L"reference_build");
-    file_util::AppendToPath(&dir, L"chrome");
+    dir = dir.AppendASCII("reference_build");
+    dir = dir.AppendASCII("chrome");
     browser_directory_ = dir;
     UITest::SetUp();
   }

@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "base/file_util.h"
+#include "base/file_path.h"
 #include "base/platform_thread.h"
 #include "base/string_util.h"
 #include "chrome/common/l10n_util.h"
@@ -22,7 +22,7 @@ const wchar_t kDocRoot[] = L"chrome/test/data";
 class SessionHistoryTest : public UITest {
  protected:
   SessionHistoryTest() : UITest() {
-    FilePath path = FilePath::FromWStringHack(test_data_directory_);
+    FilePath path(test_data_directory_);
     path = path.AppendASCII("session_history");
 
     url_prefix_ = UTF8ToWide(net::FilePathToFileURL(path).spec());
@@ -317,7 +317,7 @@ TEST_F(SessionHistoryTest, DISABLED_CrossFrameFormBackForward) {
 
   // history is [blank, bot1, *form, post]
 
-  //ClickLink(L"abot2");
+  // ClickLink(L"abot2");
   GURL bot2("files/session_history/bot2.html");
   ASSERT_TRUE(tab_->NavigateToURL(bot2));
   EXPECT_EQ(L"bot2", GetTabTitle());

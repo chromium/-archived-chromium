@@ -128,7 +128,7 @@ class V8BenchmarkReferenceTest : public V8BenchmarkTest {
     PathService::Get(chrome::DIR_TEST_TOOLS, &dir);
     dir = dir.AppendASCII("reference_build");
     dir = dir.AppendASCII("chrome");
-    browser_directory_ = dir.ToWStringHack();
+    browser_directory_ = dir;
     UITest::SetUp();
   }
 };

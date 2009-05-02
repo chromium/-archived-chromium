@@ -19,8 +19,10 @@ NPAPITester::NPAPITester()
 void NPAPITester::SetUp() {
   // We need to copy our test-plugin into the plugins directory so that
   // the browser can load it.
-  std::wstring plugins_directory = browser_directory_ + L"\\plugins";
-  std::wstring plugin_src = browser_directory_ + L"\\npapi_test_plugin.dll";
+  std::wstring plugins_directory = browser_directory_.ToWStringHack() +
+      L"\\plugins";
+  std::wstring plugin_src = browser_directory_.ToWStringHack() +
+      L"\\npapi_test_plugin.dll";
   plugin_dll_ = plugins_directory + L"\\npapi_test_plugin.dll";
 
   CreateDirectory(plugins_directory.c_str(), NULL);

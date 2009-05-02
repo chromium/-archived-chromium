@@ -193,7 +193,7 @@ class ActiveXTest : public PluginTest {
       RegisterTestControl(false);
   }
   void RegisterTestControl(bool register_server) {
-    std::wstring test_control_path = browser_directory_ +
+    std::wstring test_control_path = browser_directory_.ToWStringHack() +
         L"\\activex_test_control.dll";
     HMODULE h = LoadLibrary(test_control_path.c_str());
     ASSERT_TRUE(h != NULL) << "Failed to load activex_test_control.dll";

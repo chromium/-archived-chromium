@@ -5,7 +5,6 @@
 #include "chrome/test/ui/ui_test.h"
 
 #include "base/command_line.h"
-#include "base/file_path.h"
 #include "base/file_util.h"
 #include "net/base/net_util.h"
 
@@ -48,16 +47,13 @@ TEST_F(ChromeMainTest, ReuseBrowserInstanceWhenOpeningFile) {
   include_testing_id_ = false;
   use_existing_browser_ = true;
 
-  std::wstring test_file = test_data_directory_;
-  file_util::AppendToPath(&test_file, L"empty.html");
+  FilePath test_file = test_data_directory_.AppendASCII("empty.html");
 
   CommandLine command_line(L"");
-  command_line.AppendLooseValue(test_file);
+  command_line.AppendLooseValue(test_file.ToWStringHack());
 
   LaunchBrowser(command_line, false);
 
-  FilePath test_file_path(FilePath::FromWStringHack(test_file));
-
   ASSERT_TRUE(automation()->WaitForURLDisplayed(
-      net::FilePathToFileURL(test_file_path), action_timeout_ms()));
+      net::FilePathToFileURL(test_file), action_timeout_ms()));
 }

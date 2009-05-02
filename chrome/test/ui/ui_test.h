@@ -39,6 +39,7 @@
 class AutomationProxy;
 class BrowserProxy;
 class DictionaryValue;
+class FilePath;
 class GURL;
 class TabProxy;
 
@@ -433,10 +434,8 @@ class UITest : public testing::Test {
 
   // ********* Member variables *********
 
-  std::wstring browser_directory_;      // Path to the browser executable,
-                                        // with no trailing slash
-  std::wstring test_data_directory_;    // Path to the unit test data,
-                                        // with no trailing slash
+  FilePath browser_directory_;          // Path to the browser executable.
+  FilePath test_data_directory_;        // Path to the unit test data.
   CommandLine launch_arguments_;        // Command to launch the browser
   size_t expected_errors_;              // The number of errors expected during
                                         // the run (generally 0).

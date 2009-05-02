@@ -3,7 +3,7 @@
 // found in the LICENSE file.
 
 #include "base/command_line.h"
-#include "base/file_util.h"
+#include "base/file_path.h"
 #include "base/scoped_ptr.h"
 #include "base/string_util.h"
 #include "chrome/app/chrome_dll_resource.h"
@@ -22,8 +22,7 @@ namespace {
 class SessionRestoreUITest : public UITest {
  protected:
   SessionRestoreUITest() : UITest() {
-    FilePath path_prefix = FilePath::FromWStringHack(test_data_directory_)
-        .AppendASCII("session_history");
+    FilePath path_prefix = test_data_directory_.AppendASCII("session_history");
 
     url1 = net::FilePathToFileURL(path_prefix.AppendASCII("bot1.html"));
     url2 = net::FilePathToFileURL(path_prefix.AppendASCII("bot2.html"));

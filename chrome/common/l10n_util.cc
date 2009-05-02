@@ -7,7 +7,6 @@
 #include "chrome/common/l10n_util.h"
 
 #include "base/command_line.h"
-#include "base/file_path.h"
 #include "base/file_util.h"
 #include "base/path_service.h"
 #include "base/scoped_ptr.h"
@@ -229,7 +228,7 @@ std::wstring GetApplicationLocale(const std::wstring& pref_locale) {
   // TODO(pinkerton): break this out into a .mm and ask Cocoa.
   return L"en";
 #else
-  std::wstring locale_path;
+  FilePath locale_path;
   PathService::Get(chrome::DIR_LOCALES, &locale_path);
   std::wstring resolved_locale;
 
@@ -238,24 +237,27 @@ std::wstring GetApplicationLocale(const std::wstring& pref_locale) {
   const std::wstring& lang_arg =
       parsed_command_line.GetSwitchValue(switches::kLang);
   if (!lang_arg.empty()) {
-    if (CheckAndResolveLocale(lang_arg, locale_path, &resolved_locale))
+    if (CheckAndResolveLocale(lang_arg, locale_path.ToWStringHack(),
+                              &resolved_locale))
       return resolved_locale;
   }
 
   // Second, try user prefs.
   if (!pref_locale.empty()) {
-    if (CheckAndResolveLocale(pref_locale, locale_path, &resolved_locale))
+    if (CheckAndResolveLocale(pref_locale, locale_path.ToWStringHack(),
+                              &resolved_locale))
       return resolved_locale;
   }
 
   // Next, try the system locale.
   const std::wstring system_locale = GetSystemLocale();
-  if (CheckAndResolveLocale(system_locale, locale_path, &resolved_locale))
+  if (CheckAndResolveLocale(system_locale, locale_path.ToWStringHack(),
+                            &resolved_locale))
     return resolved_locale;
 
   // Fallback on en-US.
   const std::wstring fallback_locale(L"en-US");
-  if (IsLocaleAvailable(fallback_locale, locale_path))
+  if (IsLocaleAvailable(fallback_locale, locale_path.ToWStringHack()))
     return fallback_locale;
 
   // No locale data file was found; we shouldn't get here.
@@ -479,7 +481,7 @@ TextDirection GetTextDirection() {
 }
 
 TextDirection GetTextDirectionForLocale(const char* locale_name) {
-  UScriptCode scripts[10]; // 10 scripts should be enough for any locale.
+  UScriptCode scripts[10];  // 10 scripts should be enough for any locale.
   UErrorCode error = U_ZERO_ERROR;
   int n = uscript_getCode(locale_name, scripts, 10, &error);
   DCHECK(U_SUCCESS(error) && n > 0);

@@ -5,7 +5,6 @@
 #include "base/basictypes.h"
 #include "base/command_line.h"
 #include "base/file_path.h"
-#include "base/file_util.h"
 #if defined(OS_WIN)
 #include "base/win_util.h"
 #endif
@@ -24,7 +23,7 @@
 class TabRestoreUITest : public UITest {
  public:
   TabRestoreUITest() : UITest() {
-    FilePath path_prefix(FilePath::FromWStringHack(test_data_directory_));
+    FilePath path_prefix(test_data_directory_);
     path_prefix = path_prefix.AppendASCII("session_history");
     url1_ = net::FilePathToFileURL(path_prefix.AppendASCII("bot1.html"));
     url2_ = net::FilePathToFileURL(path_prefix.AppendASCII("bot2.html"));

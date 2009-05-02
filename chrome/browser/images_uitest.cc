@@ -3,17 +3,17 @@
 // found in the LICENSE file.
 
 #include "base/basictypes.h"
-#include "base/file_util.h"
+#include "base/file_path.h"
 #include "base/platform_thread.h"
 #include "chrome/test/ui/ui_test.h"
 
 class ImagesTest : public UITest {
  protected:
   ImagesTest() : UITest() {
-    std::wstring path = test_data_directory_;
-    file_util::AppendToPath(&path, L"animated-gifs.html");
+    FilePath path(test_data_directory_);
+    path = path.AppendASCII("animated-gifs.html");
     launch_arguments_ = CommandLine(L"");
-    launch_arguments_.AppendLooseValue(path);
+    launch_arguments_.AppendLooseValue(path.ToWStringHack());
   }
 };
 

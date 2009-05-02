@@ -9,7 +9,6 @@
 
 #include "base/base_switches.h"
 #include "base/command_line.h"
-#include "base/file_path.h"
 #include "base/file_util.h"
 #include "base/path_service.h"
 #include "base/platform_thread.h"
@@ -235,10 +234,10 @@ void UITest::CloseBrowserAndServer() {
 }
 
 void UITest::LaunchBrowser(const CommandLine& arguments, bool clear_profile) {
-  std::wstring command = browser_directory_;
-  file_util::AppendToPath(&command,
-                          chrome::kBrowserProcessExecutablePath);
-  CommandLine command_line(command);
+  FilePath command = browser_directory_;
+  command = command.Append(FilePath::FromWStringHack(
+      chrome::kBrowserProcessExecutablePath));
+  CommandLine command_line(command.ToWStringHack());
 
   // Add any explict command line flags passed to the process.
   std::wstring extra_chrome_flags =
@@ -767,11 +766,11 @@ bool UITest::CloseBrowser(BrowserProxy* browser,
 
 GURL UITest::GetTestUrl(const std::wstring& test_directory,
                         const std::wstring &test_case) {
-  std::wstring path;
+  FilePath path;
   PathService::Get(chrome::DIR_TEST_DATA, &path);
-  file_util::AppendToPath(&path, test_directory);
-  file_util::AppendToPath(&path, test_case);
-  return net::FilePathToFileURL(FilePath::FromWStringHack(path));
+  path = path.Append(FilePath::FromWStringHack(test_directory));
+  path = path.Append(FilePath::FromWStringHack(test_case));
+  return net::FilePathToFileURL(path);
 }
 
 void UITest::WaitForFinish(const std::string &name,

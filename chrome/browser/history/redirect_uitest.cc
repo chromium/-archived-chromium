@@ -7,7 +7,6 @@
 // here might indicate that WebKit changed the calls our glue layer gets in
 // the case of redirects. It may also mean problems with the history system.
 
-#include "base/file_path.h"
 #include "base/file_util.h"
 #include "base/platform_thread.h"
 #include "base/scoped_ptr.h"
@@ -80,7 +79,7 @@ TEST_F(RedirectTest, ClientEmptyReferer) {
   ASSERT_TRUE(NULL != server.get());
 
   GURL final_url = server->TestServerPageW(std::wstring());
-  FilePath test_file(FilePath::FromWStringHack(test_data_directory_));
+  FilePath test_file(test_data_directory_);
   test_file = test_file.AppendASCII("file_client_redirect.html");
   GURL first_url = net::FilePathToFileURL(test_file);
 
@@ -106,7 +105,7 @@ TEST_F(RedirectTest, ClientEmptyReferer) {
 // Tests to make sure a location change when a pending redirect exists isn't
 // flagged as a redirect.
 TEST_F(RedirectTest, ClientCancelled) {
-  FilePath first_path(FilePath::FromWStringHack(test_data_directory_));
+  FilePath first_path(test_data_directory_);
   first_path = first_path.AppendASCII("cancelled_redirect_test.html");
   ASSERT_TRUE(file_util::AbsolutePath(&first_path));
   GURL first_url = net::FilePathToFileURL(first_path);
@@ -202,7 +201,7 @@ TEST_F(RedirectTest, NoHttpToFile) {
   scoped_refptr<HTTPTestServer> server =
     HTTPTestServer::CreateServer(kDocRoot, NULL);
   ASSERT_TRUE(NULL != server.get());
-  FilePath test_file(FilePath::FromWStringHack(test_data_directory_));
+  FilePath test_file(test_data_directory_);
   test_file = test_file.AppendASCII("http_to_file.html");
   GURL file_url = net::FilePathToFileURL(test_file);
 
@@ -226,7 +225,7 @@ TEST_F(RedirectTest, ClientFragments) {
     HTTPTestServer::CreateServer(kDocRoot, NULL);
   ASSERT_TRUE(NULL != server.get());
 
-  FilePath test_file(FilePath::FromWStringHack(test_data_directory_));
+  FilePath test_file(test_data_directory_);
   test_file = test_file.AppendASCII("ref_redirect.html");
   GURL first_url = net::FilePathToFileURL(test_file);
   std::vector<GURL> redirects;

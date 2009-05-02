@@ -99,36 +99,36 @@ void SetICUDefaultLocale(const std::wstring& locale_string) {
 TEST_F(L10nUtilTest, GetAppLocale) {
   // Use a temporary locale dir so we don't have to actually build the locale
   // dlls for this test.
-  std::wstring orig_locale_dir;
+  FilePath orig_locale_dir;
   PathService::Get(chrome::DIR_LOCALES, &orig_locale_dir);
-  std::wstring new_locale_dir;
-  EXPECT_TRUE(file_util::CreateNewTempDirectory(L"l10n_util_test",
-                                                &new_locale_dir));
-  PathService::Override(chrome::DIR_LOCALES, new_locale_dir);
+  FilePath new_locale_dir;
+  EXPECT_TRUE(file_util::CreateNewTempDirectory(
+      FILE_PATH_LITERAL("l10n_util_test"),
+      &new_locale_dir));
+  PathService::Override(chrome::DIR_LOCALES, new_locale_dir.ToWStringHack());
   // Make fake locale files.
-  const wchar_t* filenames[] = {
-    L"en-US",
-    L"en-GB",
-    L"fr",
-    L"es-419",
-    L"es",
-    L"zh-TW",
-    L"zh-CN",
-    L"he",
-    L"fil",
-    L"nb",
-    L"or",
+  std::string filenames[] = {
+    "en-US",
+    "en-GB",
+    "fr",
+    "es-419",
+    "es",
+    "zh-TW",
+    "zh-CN",
+    "he",
+    "fil",
+    "nb",
+    "or",
   };
 
 #if defined(OS_WIN)
-  static const wchar_t kLocaleFileExtension[] = L".dll";
+  static const char kLocaleFileExtension[] = ".dll";
 #elif defined(OS_POSIX)
-  static const wchar_t kLocaleFileExtension[] = L".pak";
+  static const char kLocaleFileExtension[] = ".pak";
 #endif
   for (size_t i = 0; i < arraysize(filenames); ++i) {
-    std::wstring filename = new_locale_dir;
-    file_util::AppendToPath(&filename, filenames[i]);
-    filename += kLocaleFileExtension;
+    FilePath filename = new_locale_dir.AppendASCII(
+        filenames[i] + kLocaleFileExtension);
     file_util::WriteFile(filename, "", 0);
   }
 
@@ -204,7 +204,7 @@ TEST_F(L10nUtilTest, GetAppLocale) {
 #endif
 
   // Clean up.
-  PathService::Override(chrome::DIR_LOCALES, orig_locale_dir);
+  PathService::Override(chrome::DIR_LOCALES, orig_locale_dir.ToWStringHack());
   file_util::Delete(new_locale_dir, true);
   UErrorCode error_code = U_ZERO_ERROR;
   Locale::setDefault(locale, error_code);

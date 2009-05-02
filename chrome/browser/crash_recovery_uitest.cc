@@ -3,7 +3,6 @@
 // found in the LICENSE file.
 
 #include "base/file_path.h"
-#include "base/file_util.h"
 #include "base/platform_thread.h"
 #include "chrome/test/automation/browser_proxy.h"
 #include "chrome/test/automation/tab_proxy.h"
@@ -53,7 +52,7 @@ TEST_F(CrashRecoveryUITest, LoadInNewTab) {
     return;
 
   // The title of the active tab should change each time this URL is loaded.
-  FilePath test_file(FilePath::FromWStringHack(test_data_directory_));
+  FilePath test_file(test_data_directory_);
   test_file = test_file.AppendASCII("title2.html");
   GURL url(net::FilePathToFileURL(test_file));
 
