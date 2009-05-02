@@ -140,8 +140,8 @@ class KeystrokeListener {
   // If this returns true, then the component handled the keystroke and ate
   // it.
 #if defined(OS_WIN)
-  virtual bool ProcessKeyDown(HWND window, UINT message, WPARAM wparam,
-                              LPARAM lparam) = 0;
+  virtual bool ProcessKeyStroke(HWND window, UINT message, WPARAM wparam,
+                                LPARAM lparam) = 0;
 #endif
 };
 
@@ -183,6 +183,10 @@ class FocusManager : public NotificationObserver {
                  UINT message,
                  WPARAM wparam,
                  LPARAM lparam);
+  bool OnKeyUp(HWND window,
+               UINT message,
+               WPARAM wparam,
+               LPARAM lparam);
   // OnPostActivate is called after WM_ACTIVATE has been propagated to the
   // DefWindowProc.
   bool OnPostActivate(HWND window, int activation_state, int minimized_state);

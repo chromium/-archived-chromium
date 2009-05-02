@@ -339,8 +339,8 @@ bool ExternalTabContainer::IsActive() const {
   return win_util::IsWindowActive(*this);
 }
 
-bool ExternalTabContainer::ProcessKeyDown(HWND window, UINT message,
-                                          WPARAM wparam, LPARAM lparam) {
+bool ExternalTabContainer::ProcessKeyStroke(HWND window, UINT message,
+                                            WPARAM wparam, LPARAM lparam) {
   if (!automation_) {
     return false;
   }
@@ -349,9 +349,16 @@ bool ExternalTabContainer::ProcessKeyDown(HWND window, UINT message,
     // Ctrl-Shift-Tab)
     return false;
   }
-  int flags = HIWORD(lparam);
-  if ((flags & KF_EXTENDED) || (flags & KF_ALTDOWN) ||
-      (wparam >= VK_F1 && wparam <= VK_F24) ||
+
+  unsigned int flags = HIWORD(lparam);
+  bool alt = (flags & KF_ALTDOWN) != 0;
+  if (!alt && (message == WM_SYSKEYUP || message == WM_KEYUP)) {
+    // In case the Alt key is being released.
+    alt = (wparam == VK_MENU);
+  }
+
+  if ((flags & KF_EXTENDED) || alt || (wparam >= VK_F1 && wparam <= VK_F24) ||
+      wparam == VK_ESCAPE || wparam == VK_RETURN ||
       win_util::IsShiftPressed() || win_util::IsCtrlPressed()) {
     // If this is an extended key or if one or more of Alt, Shift and Control
     // are pressed, this might be an accelerator that the external host wants
@@ -365,6 +372,7 @@ bool ExternalTabContainer::ProcessKeyDown(HWND window, UINT message,
     automation_->Send(new AutomationMsg_HandleAccelerator(0, msg));
     return true;
   }
+
   return false;
 }
 

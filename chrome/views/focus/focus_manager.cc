@@ -240,14 +240,14 @@ bool FocusManager::OnKeyDown(HWND window, UINT message, WPARAM wparam,
     return false;
   }
 
-  // First give the registered keystoke handlers a chance a processing
+  // First give the registered keystroke handlers a chance a processing
   // the message
   // Do some basic checking to try to catch evil listeners that change the list
   // from under us.
   KeystrokeListenerList::size_type original_count =
       keystroke_listeners_.size();
   for (int i = 0; i < static_cast<int>(keystroke_listeners_.size()); i++) {
-    if (keystroke_listeners_[i]->ProcessKeyDown(window, message, wparam,
+    if (keystroke_listeners_[i]->ProcessKeyStroke(window, message, wparam,
                                                   lparam)) {
       return false;
     }
@@ -316,6 +316,18 @@ bool FocusManager::OnKeyDown(HWND window, UINT message, WPARAM wparam,
     // propagate the message further.
     return false;
   }
+  return true;
+}
+
+bool FocusManager::OnKeyUp(HWND window, UINT message, WPARAM wparam,
+                           LPARAM lparam) {
+  for (int i = 0; i < static_cast<int>(keystroke_listeners_.size()); ++i) {
+    if (keystroke_listeners_[i]->ProcessKeyStroke(window, message, wparam,
+                                                  lparam)) {
+      return false;
+    }
+  }
+
   return true;
 }
 

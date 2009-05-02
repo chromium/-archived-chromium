@@ -115,9 +115,9 @@ class ExternalTabContainer : public TabContentsDelegate,
   }
 
   // views::KeystrokeListener implementation
-  // This method checks whether this keydown message is needed by the
+  // This method checks whether this key[down|up] message is needed by the
   // external host. If so, it sends it over to the external host
-  virtual bool ProcessKeyDown(HWND window, UINT message, WPARAM wparam,
+  virtual bool ProcessKeyStroke(HWND window, UINT message, WPARAM wparam,
                                 LPARAM lparam);
 
   // Sets the keyboard accelerators needed by the external host

@@ -13,17 +13,28 @@ AcceleratorHandler::AcceleratorHandler() {
 
 bool AcceleratorHandler::Dispatch(const MSG& msg) {
   bool process_message = true;
-  if ((msg.message == WM_KEYDOWN) || (msg.message == WM_SYSKEYDOWN)) {
+
+  if (msg.message >= WM_KEYFIRST && msg.message <= WM_KEYLAST) {
     FocusManager* focus_manager = FocusManager::GetFocusManager(msg.hwnd);
     if (focus_manager) {
-      // FocusManager::OnKeyDown returns false if this message has been
-      // consumed and should not be propogated further
-      if (!focus_manager->OnKeyDown(msg.hwnd, msg.message, msg.wParam,
-                                    msg.lParam)) {
-        process_message = false;
+      // FocusManager::OnKeyDown and OnKeyUp return false if this message has
+      // been consumed and should not be propagated further.
+      switch (msg.message) {
+        case WM_KEYDOWN:
+        case WM_SYSKEYDOWN:
+          process_message = focus_manager->OnKeyDown(msg.hwnd, msg.message,
+              msg.wParam, msg.lParam);
+          break;
+
+        case WM_KEYUP:
+        case WM_SYSKEYUP:
+          process_message = focus_manager->OnKeyUp(msg.hwnd, msg.message,
+              msg.wParam, msg.lParam);
+          break;
       }
     }
   }
+
   if (process_message) {
     TranslateMessage(&msg);
     DispatchMessage(&msg);
