@@ -310,13 +310,12 @@ void RenderWidget::ClearFocus() {
 void RenderWidget::PaintRect(const gfx::Rect& rect,
                              skia::PlatformCanvas* canvas) {
 
+  // Bring the canvas into the coordinate system of the paint rect.
+  canvas->translate(static_cast<SkScalar>(-rect.x()),
+                    static_cast<SkScalar>(-rect.y()));
+
   // If there is a custom background, tile it.
   if (!background_.empty()) {
-    canvas->save();
-
-    SkIRect clipRect = { rect.x(), rect.y(), rect.right(), rect.bottom() };
-    canvas->setClipRegion(SkRegion(clipRect));
-
     SkPaint paint;
     SkShader* shader = SkShader::CreateBitmapShader(background_,
                                                     SkShader::kRepeat_TileMode,
@@ -324,13 +323,7 @@ void RenderWidget::PaintRect(const gfx::Rect& rect,
     paint.setShader(shader)->unref();
     paint.setPorterDuffXfermode(SkPorterDuff::kSrcOver_Mode);
     canvas->drawPaint(paint);
-
-    canvas->restore();
   }
-
-  // Bring the canvas into the coordinate system of the paint rect
-  canvas->translate(static_cast<SkScalar>(-rect.x()),
-                    static_cast<SkScalar>(-rect.y()));
 
   webwidget_->Paint(canvas, rect);
 
