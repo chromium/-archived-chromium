@@ -30,10 +30,15 @@ class NativeButton : public Button {
   void set_font(const ChromeFont& font) { font_ = font; }
   const ChromeFont& font() const { return font_; }
 
-  // Sets/Gets whether or not the button appears as the default button in its
-  // current context.
+  // Sets/Gets whether or not the button appears and behaves as the default
+  // button in its current context.
   void SetIsDefault(bool default_button);
   bool is_default() const { return is_default_; }
+
+  // Sets whether or not the button appears as the default button. This does
+  // not make it behave as the default (i.e. no enter key accelerator is
+  // registered, use SetIsDefault for that).
+  void SetAppearsAsDefault(bool default_button);
 
   void set_minimum_size(const gfx::Size& minimum_size) {
     minimum_size_ = minimum_size;

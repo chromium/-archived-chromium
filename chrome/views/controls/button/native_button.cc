@@ -69,13 +69,15 @@ void NativeButton::SetLabel(const std::wstring& label) {
 void NativeButton::SetIsDefault(bool is_default) {
   if (is_default == is_default_)
     return;
-  is_default_ = is_default;
-
-  if (is_default_)
+  if (is_default)
     AddAccelerator(Accelerator(VK_RETURN, false, false, false));
   else
     RemoveAccelerator(Accelerator(VK_RETURN, false, false, false));
+  SetAppearsAsDefault(is_default);
+}
 
+void NativeButton::SetAppearsAsDefault(bool appears_as_default) {
+  is_default_ = appears_as_default;
   if (native_wrapper_)
     native_wrapper_->UpdateDefault();
 }

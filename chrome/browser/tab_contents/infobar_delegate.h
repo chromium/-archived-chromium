@@ -172,8 +172,10 @@ class ConfirmInfoBarDelegate : public AlertInfoBarDelegate {
  public:
   enum InfoBarButton {
     BUTTON_NONE = 0,
-    BUTTON_OK,
-    BUTTON_CANCEL
+    BUTTON_OK = 1,
+    BUTTON_CANCEL = 2,
+    // Specifies that the OK button should be rendered like a default button.
+    BUTTON_OK_DEFAULT = 4
   };
 
   // Return the buttons to be shown for this InfoBar.
