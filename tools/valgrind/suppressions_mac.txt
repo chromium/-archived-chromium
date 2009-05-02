@@ -43,6 +43,14 @@
    fun:_ZN7testing4Test3RunEv
 }
 {
+   # Mac system library bug?  See http://crbug.com/11327
+   bug_11327
+   Memcheck:Cond
+   fun:_ZN19AudioConverterChain5ResetEv
+   fun:AudioConverterReset
+   obj:/System/Library/Components/CoreAudio.component/Contents/MacOS/CoreAudio
+}
+{
    # Mac media_unittests.  See http://crbug.com/9351
    bug_9351
    Memcheck:Leak
@@ -93,18 +101,6 @@
    fun:_ZN4skia23BitmapPlatformDeviceMac6CreateEP9CGContextiib
 }
 {
-   # Mac test_shell_tests; both test shell and skia leak?  See http://crbug.com/9563
-   bug_9563c
-   Memcheck:Leak
-   fun:malloc
-   fun:stdSmartNewPtr
-   fun:stdSmartNewHandle
-   fun:IOCreateAndOpen
-   fun:ScratchInit
-   fun:CMOpenOrNewAccess
-   fun:CMOpenProfile
-}
-{
    # Mac test_shell_tests.  See http://crbug.com/9563
    bug_9563d
    Memcheck:Leak
@@ -123,7 +119,7 @@
    fun:_ZNK15CMMConvRGBToRGB7ConvertER8CMM8BitsP14CMMRuntimeInfomm
 }
 {
-   # Mac unit_tests.  See http://crbug.com/11270
+   # Mac unit_tests.  Leak in a system thread?  See http://crbug.com/11270
    bug_11270
    Memcheck:Leak
    fun:calloc
@@ -134,6 +130,15 @@
    fun:initialize
    fun:createColorTransform
    fun:CGColorTransformCreateMutable
+}
+{
+   # Mac unit_tests.  Like above, but in our test?  See http://crbug.com/11270
+   bug_11270b
+   Memcheck:Leak
+   fun:calloc
+   fun:CMSSetLabCLUT
+   ...
+   fun:*Test*
 }
 {
    # Mac unit_tests.  See http://crbug.com/11271
@@ -162,6 +167,7 @@
 }
 {
    # Mac unit_tests BookmarkBarControllerTest.ShowHide, http://crbug.com/11286
+   # Only suppress for tests for now.
    bug_11286
    Memcheck:Leak
    fun:calloc
@@ -170,5 +176,19 @@
    fun:+[NSObject allocWithZone:]
    fun:+[NSObject alloc]
    fun:-[BookmarkBarController initWithProfile:contentArea:]
-   fun:_ZN12_GLOBAL__N_125BookmarkBarControllerTestC2Ev
+   ...
+   fun:*Test*
+}
+{
+   # Mac leak in CMOpenOrNewAccess in unit_tests PlatformCanvas_SkLayer_Test, 
+   # ToolbarControllerTest_FocusLocation_Test. See http://crbug.com/11333.
+   # (was: http://crbug.com/9563 )
+   bug_11333
+   Memcheck:Leak
+   fun:malloc
+   fun:stdSmartNewPtr
+   fun:stdSmartNewHandle
+   fun:IOCreateAndOpen
+   fun:ScratchInit
+   fun:CMOpenOrNewAccess
 }
