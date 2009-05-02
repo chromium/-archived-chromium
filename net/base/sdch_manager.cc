@@ -32,7 +32,7 @@ SdchManager* SdchManager::Global() {
 
 // static
 void SdchManager::SdchErrorRecovery(ProblemCodes problem) {
-  static LinearHistogram histogram("Sdch.ProblemCodes_3", MIN_PROBLEM_CODE,
+  static LinearHistogram histogram("Sdch2.ProblemCodes_3", MIN_PROBLEM_CODE,
                                    MAX_PROBLEM_CODE - 1, MAX_PROBLEM_CODE);
   histogram.SetFlags(kUmaTargetedHistogramFlag);
   histogram.Add(problem);
@@ -265,7 +265,7 @@ bool SdchManager::AddSdchDictionary(const std::string& dictionary_text,
     return false;
   }
 
-  UMA_HISTOGRAM_COUNTS("Sdch.Dictionary size loaded", dictionary_text.size());
+  UMA_HISTOGRAM_COUNTS("Sdch2.Dictionary size loaded", dictionary_text.size());
   DLOG(INFO) << "Loaded dictionary with client hash " << client_hash <<
       " and server hash " << server_hash;
   Dictionary* dictionary =
@@ -306,7 +306,7 @@ void SdchManager::GetAvailDictionaryList(const GURL& target_url,
   }
   // Watch to see if we have corrupt or numerous dictionaries.
   if (count > 0)
-    UMA_HISTOGRAM_COUNTS("Sdch.Advertisement_Count", count);
+    UMA_HISTOGRAM_COUNTS("Sdch2.Advertisement_Count", count);
 }
 
 SdchManager::Dictionary::Dictionary(const std::string& dictionary_text,

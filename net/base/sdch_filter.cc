@@ -40,7 +40,7 @@ SdchFilter::~SdchFilter() {
   static int filter_use_count = 0;
   ++filter_use_count;
   if (META_REFRESH_RECOVERY == decoding_status_) {
-    UMA_HISTOGRAM_COUNTS("Sdch.FilterUseBeforeDisabling", filter_use_count);
+    UMA_HISTOGRAM_COUNTS("Sdch2.FilterUseBeforeDisabling", filter_use_count);
   }
 
   if (vcdiff_streaming_decoder_.get()) {
@@ -51,22 +51,22 @@ SdchFilter::~SdchFilter() {
       // Note this will "wear off" quickly enough, and is just meant to assure
       // in some rare case that the user is not stuck.
       SdchManager::BlacklistDomain(url_);
-      UMA_HISTOGRAM_COUNTS("Sdch.PartialBytesIn",
+      UMA_HISTOGRAM_COUNTS("Sdch2.PartialBytesIn",
            static_cast<int>(filter_context().GetByteReadCount()));
-      UMA_HISTOGRAM_COUNTS("Sdch.PartialVcdiffIn", source_bytes_);
-      UMA_HISTOGRAM_COUNTS("Sdch.PartialVcdiffOut", output_bytes_);
+      UMA_HISTOGRAM_COUNTS("Sdch2.PartialVcdiffIn", source_bytes_);
+      UMA_HISTOGRAM_COUNTS("Sdch2.PartialVcdiffOut", output_bytes_);
     }
   }
 
   if (!dest_buffer_excess_.empty()) {
     // Filter chaining error, or premature teardown.
     SdchManager::SdchErrorRecovery(SdchManager::UNFLUSHED_CONTENT);
-    UMA_HISTOGRAM_COUNTS("Sdch.UnflushedBytesIn",
+    UMA_HISTOGRAM_COUNTS("Sdch2.UnflushedBytesIn",
          static_cast<int>(filter_context().GetByteReadCount()));
-    UMA_HISTOGRAM_COUNTS("Sdch.UnflushedBufferSize",
+    UMA_HISTOGRAM_COUNTS("Sdch2.UnflushedBufferSize",
                          dest_buffer_excess_.size());
-    UMA_HISTOGRAM_COUNTS("Sdch.UnflushedVcdiffIn", source_bytes_);
-    UMA_HISTOGRAM_COUNTS("Sdch.UnflushedVcdiffOut", output_bytes_);
+    UMA_HISTOGRAM_COUNTS("Sdch2.UnflushedVcdiffIn", source_bytes_);
+    UMA_HISTOGRAM_COUNTS("Sdch2.UnflushedVcdiffOut", output_bytes_);
   }
 
   if (was_cached_) {
@@ -78,9 +78,9 @@ SdchFilter::~SdchFilter() {
 
   switch (decoding_status_) {
     case DECODING_IN_PROGRESS: {
-      UMA_HISTOGRAM_PERCENTAGE("Sdch.Network_Decode_Ratio_a", static_cast<int>(
+      UMA_HISTOGRAM_PERCENTAGE("Sdch2.Network_Decode_Ratio_a", static_cast<int>(
           (filter_context().GetByteReadCount() * 100) / output_bytes_));
-      UMA_HISTOGRAM_COUNTS("Sdch.Network_Decode_Bytes_VcdiffOut_a",
+      UMA_HISTOGRAM_COUNTS("Sdch2.Network_Decode_Bytes_VcdiffOut_a",
                            output_bytes_);
       filter_context().RecordPacketStats(FilterContext::SDCH_DECODE);
 
