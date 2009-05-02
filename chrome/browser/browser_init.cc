@@ -18,12 +18,14 @@
 #include "chrome/browser/browser_list.h"
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/extensions/extensions_service.h"
+#include "chrome/browser/first_run.h"
 #include "chrome/browser/net/dns_global.h"
 #include "chrome/browser/profile.h"
 #include "chrome/browser/renderer_host/render_process_host.h"
 #include "chrome/browser/search_engines/template_url_model.h"
 #include "chrome/browser/session_startup_pref.h"
 #include "chrome/browser/sessions/session_restore.h"
+#include "chrome/browser/shell_integration.h"
 #include "chrome/browser/tab_contents/infobar_delegate.h"
 #include "chrome/browser/tab_contents/navigation_controller.h"
 #include "chrome/browser/tab_contents/web_contents.h"
@@ -53,6 +55,115 @@
 #endif
 
 namespace {
+
+class SetAsDefaultBrowserTask : public Task {
+ public:
+  SetAsDefaultBrowserTask() { }
+  virtual void Run() {
+    ShellIntegration::SetAsDefaultBrowser();
+  }
+
+ private:
+  DISALLOW_COPY_AND_ASSIGN(SetAsDefaultBrowserTask);
+};
+
+// The delegate for the infobar shown when Chrome is not the default browser.
+class DefaultBrowserInfoBarDelegate : public ConfirmInfoBarDelegate {
+ public:
+  explicit DefaultBrowserInfoBarDelegate(TabContents* contents)
+      : ConfirmInfoBarDelegate(contents),
+        profile_(contents->profile()),
+        action_taken_(false) {
+  }
+
+  // Overridden from ConfirmInfoBarDelegate:
+  virtual void InfoBarClosed() {
+    if (!action_taken_)
+      UMA_HISTOGRAM_COUNTS("DefaultBrowserWarning.Ignored", 1);
+    delete this;
+  }
+
+  virtual std::wstring GetMessageText() const {
+    return l10n_util::GetString(IDS_DEFAULT_BROWSER_INFOBAR_SHORT_TEXT);
+  }
+
+  virtual SkBitmap* GetIcon() const {
+    return ResourceBundle::GetSharedInstance().GetBitmapNamed(
+       IDR_PRODUCT_ICON_32);
+  }
+
+  virtual int GetButtons() const {
+    return BUTTON_OK | BUTTON_CANCEL | BUTTON_OK_DEFAULT;
+  }
+
+  virtual std::wstring GetButtonLabel(InfoBarButton button) const {
+    return button == BUTTON_OK ?
+        l10n_util::GetString(IDS_SET_AS_DEFAULT_INFOBAR_BUTTON_LABEL) :
+        l10n_util::GetString(IDS_DONT_ASK_AGAIN_INFOBAR_BUTTON_LABEL);
+  }
+
+  virtual bool Accept() {
+    action_taken_ = true;
+    UMA_HISTOGRAM_COUNTS("DefaultBrowserWarning.SetAsDefault", 1);
+    g_browser_process->file_thread()->message_loop()->PostTask(FROM_HERE,
+        new SetAsDefaultBrowserTask());
+    return true;
+  }
+
+  virtual bool Cancel() {
+    action_taken_ = true;
+    UMA_HISTOGRAM_COUNTS("DefaultBrowserWarning.DontSetAsDefault", 1);
+    // User clicked "Don't ask me again", remember that.
+    profile_->GetPrefs()->SetBoolean(prefs::kCheckDefaultBrowser, false);
+    return true;
+  }
+
+ private:
+  // The Profile that we restore sessions from.
+  Profile* profile_;
+
+  // Whether the user clicked one of the buttons.
+  bool action_taken_;
+
+  DISALLOW_COPY_AND_ASSIGN(DefaultBrowserInfoBarDelegate);
+};
+
+class NotifyNotDefaultBrowserTask : public Task {
+ public:
+  NotifyNotDefaultBrowserTask() { }
+
+  virtual void Run() {
+    Browser* browser = BrowserList::GetLastActive();
+    if (!browser) {
+      // Reached during ui tests.
+      return;
+    }
+    TabContents* tab = browser->GetSelectedTabContents();
+    // Don't show the info-bar if there are already info-bars showing.
+    if (tab->infobar_delegate_count() > 0)
+      return;
+    tab->AddInfoBar(new DefaultBrowserInfoBarDelegate(tab));
+  }
+
+ private:
+  DISALLOW_COPY_AND_ASSIGN(NotifyNotDefaultBrowserTask);
+};
+
+class CheckDefaultBrowserTask : public Task {
+ public:
+  explicit CheckDefaultBrowserTask(MessageLoop* ui_loop) : ui_loop_(ui_loop) {
+  }
+
+  virtual void Run() {
+    if (!ShellIntegration::IsDefaultBrowser())
+      ui_loop_->PostTask(FROM_HERE, new NotifyNotDefaultBrowserTask());
+  }
+
+ private:
+  MessageLoop* ui_loop_;
+
+  DISALLOW_COPY_AND_ASSIGN(CheckDefaultBrowserTask);
+};
 
 // A delegate for the InfoBar shown when the previous session has crashed. The
 // bar deletes itself automatically after it is closed.
@@ -244,6 +355,8 @@ bool BrowserInit::LaunchWithProfile::Launch(Profile* profile,
         browser = BrowserList::GetLastActive();
       OpenURLsInBrowser(browser, process_startup, urls_to_open);
     }
+    // Check whether we are the default browser.
+    CheckDefaultBrowser(profile);
   } else {
     RecordLaunchModeHistogram(LM_AS_WEBAPP);
   }
@@ -406,6 +519,18 @@ void BrowserInit::LaunchWithProfile::AddStartupURLs(
 #endif
     }
   }
+}
+
+void BrowserInit::LaunchWithProfile::CheckDefaultBrowser(Profile* profile) {
+  // We do not check if we are the default browser if:
+  // - the user said "don't ask me again" on the infobar earlier.
+  // - this is the first launch after the first run flow.
+  if (!profile->GetPrefs()->GetBoolean(prefs::kCheckDefaultBrowser) ||
+      FirstRun::IsChromeFirstRun()) {
+    return;
+  }
+  g_browser_process->file_thread()->message_loop()->PostTask(FROM_HERE,
+      new CheckDefaultBrowserTask(MessageLoop::current()));
 }
 
 bool BrowserInit::ProcessCommandLine(
