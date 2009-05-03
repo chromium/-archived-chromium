@@ -166,7 +166,9 @@ bool Upgrade::SwapNewChromeExeIfPresent() {
   return true;
 }
 
-void OpenFirstRunDialog(Profile* profile) { NOTIMPLEMENTED(); }
+void OpenFirstRunDialog(Profile* profile, ProcessSingleton* process_singleton) {
+  NOTIMPLEMENTED();
+}
 
 //--------------------------------------------------------------------------
 

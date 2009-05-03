@@ -35,7 +35,7 @@ BOOL CALLBACK BrowserWindowEnumeration(HWND window, LPARAM param) {
 
 // Look for a Chrome instance that uses the same profile directory.
 ProcessSingleton::ProcessSingleton(const FilePath& user_data_dir)
-    : window_(NULL), locked_(false) {
+    : window_(NULL), locked_(false), foreground_window_(NULL) {
   // FindWindoEx and Create() should be one atomic operation in order to not
   // have a race condition.
   remote_window_ = FindWindowEx(HWND_MESSAGE, NULL, chrome::kMessageWindowClass,
@@ -160,16 +160,22 @@ void ProcessSingleton::Create() {
 }
 
 LRESULT ProcessSingleton::OnCopyData(HWND hwnd, const COPYDATASTRUCT* cds) {
+  // If locked, it means we are not ready to process this message because
+  // we are probably in a first run critical phase. We must do this before
+  // doing the IsShuttingDown() check since that returns true during first run
+  // (since g_browser_process hasn't been AddRefModule()d yet).
+  if (locked_) {
+    // Attempt to place ourselves in the foreground / flash the task bar.
+    if (IsWindow(foreground_window_))
+      SetForegroundWindow(foreground_window_);
+    return TRUE;
+  }
+
   // Ignore the request if the browser process is already in shutdown path.
   if (!g_browser_process || g_browser_process->IsShuttingDown()) {
     LOG(WARNING) << "Not handling WM_COPYDATA as browser is shutting down";
     return FALSE;
   }
-
-  // If locked, it means we are not ready to process this message because
-  // we are probably in a first run critical phase.
-  if (locked_)
-    return TRUE;
 
   // We should have enough room for the shortest command (min_message_size)
   // and also be a multiple of wchar_t bytes. The shortest command
@@ -249,7 +255,7 @@ LRESULT ProcessSingleton::OnCopyData(HWND hwnd, const COPYDATASTRUCT* cds) {
 }
 
 LRESULT CALLBACK ProcessSingleton::WndProc(HWND hwnd, UINT message,
-                                        WPARAM wparam, LPARAM lparam) {
+                                           WPARAM wparam, LPARAM lparam) {
   switch (message) {
     case WM_COPYDATA:
       return OnCopyData(reinterpret_cast<HWND>(wparam),

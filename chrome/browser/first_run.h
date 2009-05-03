@@ -12,6 +12,7 @@
 
 class FilePath;
 class Profile;
+class ProcessSingleton;
 
 // This class contains the chrome first-run installation actions needed to
 // fully test the custom installer. It also contains the opposite actions to
@@ -122,6 +123,8 @@ class FirstRunBrowserProcess : public BrowserProcessImpl {
 // Show the First Run UI to the user, allowing them to create shortcuts for
 // the app, import their bookmarks and other data from another browser into
 // |profile| and perhaps some other tasks.
-void OpenFirstRunDialog(Profile* profile);
+// |process_singleton| is used to lock the handling of CopyData messages
+// while the First Run UI is visible.
+void OpenFirstRunDialog(Profile* profile, ProcessSingleton* process_singleton);
 
 #endif  // CHROME_BROWSER_FIRST_RUN_H_

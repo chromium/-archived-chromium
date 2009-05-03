@@ -13,6 +13,7 @@
 
 #include "base/basictypes.h"
 #include "base/file_path.h"
+#include "base/gfx/native_widget_types.h"
 
 // ProcessSingleton ----------------------------------------------------------
 //
@@ -42,18 +43,23 @@ class ProcessSingleton {
   // Set ourselves up as the singleton instance.
   void Create();
 
-  // Blocks the dispatch of CopyData messages.
-  void Lock() {
+  // Blocks the dispatch of CopyData messages. foreground_window refers
+  // to the window that should be set to the foreground if a CopyData message
+  // is received while the ProcessSingleton is locked.
+  void Lock(gfx::NativeWindow foreground_window) {
     locked_ = true;
+    foreground_window_ = foreground_window;
   }
 
   // Allows the dispatch of CopyData messages.
   void Unlock() {
     locked_ = false;
+    foreground_window_ = NULL;
   }
 
  private:
   bool locked_;
+  gfx::NativeWindow foreground_window_;
 
 #if defined(OS_WIN)
   // This ugly behemoth handles startup commands sent from another process.
@@ -86,4 +92,4 @@ class ProcessSingleton {
   DISALLOW_COPY_AND_ASSIGN(ProcessSingleton);
 };
 
-#endif  // #ifndef CHROME_BROWSER_PROCESS_SINGLETON_H_
+#endif  // CHROME_BROWSER_PROCESS_SINGLETON_H_

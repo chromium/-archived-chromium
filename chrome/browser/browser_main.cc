@@ -448,11 +448,7 @@ int BrowserMain(const MainFunctionParams& parameters) {
   // preferences are registered, since some of the code that the importer
   // touches reads preferences.
   if (is_first_run && !first_run_ui_bypass) {
-    // We need to avoid dispatching new tabs when we are doing the import
-    // because that will lead to data corruption or a crash. Lock() does that.
-    process_singleton.Lock();
-    OpenFirstRunDialog(profile);
-    process_singleton.Unlock();
+    OpenFirstRunDialog(profile, &process_singleton);
   }
 
   // Sets things up so that if we crash from this point on, a dialog will

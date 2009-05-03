@@ -30,6 +30,7 @@ class CommandLine;
 class DownloadItem;
 class MessageLoop;
 class NavigationController;
+class ProcessSingleton;
 class Profile;
 class RenderViewHostDelegate;
 class SiteInstance;
@@ -83,7 +84,7 @@ class GoogleUpdateSettings {
   DISALLOW_IMPLICIT_CONSTRUCTORS(GoogleUpdateSettings);
 };
 
-void OpenFirstRunDialog(Profile* profile);
+void OpenFirstRunDialog(Profile* profile, ProcessSingleton* process_singleton);
 
 void InstallJankometer(const CommandLine&);
 

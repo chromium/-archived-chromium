@@ -26,6 +26,7 @@
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/hang_monitor/hung_window_detector.h"
 #include "chrome/browser/importer/importer.h"
+#include "chrome/browser/process_singleton.h"
 #include "chrome/browser/profile.h"
 #include "chrome/browser/profile_manager.h"
 #include "chrome/browser/shell_integration.h"
@@ -177,8 +178,8 @@ bool FirstRun::CreateChromeDesktopShortcut() {
   if (!dist)
     return false;
   return ShellUtil::CreateChromeDesktopShortcut(chrome_exe,
-    dist->GetAppDescription(), ShellUtil::CURRENT_USER,
-    false, true); // create if doesn't exist.
+      dist->GetAppDescription(), ShellUtil::CURRENT_USER,
+      false, true);  // create if doesn't exist.
 }
 
 bool FirstRun::CreateChromeQuickLaunchShortcut() {
@@ -186,8 +187,8 @@ bool FirstRun::CreateChromeQuickLaunchShortcut() {
   if (!PathService::Get(base::FILE_EXE, &chrome_exe))
     return false;
   return ShellUtil::CreateChromeQuickLaunchShortcut(chrome_exe,
-    ShellUtil::CURRENT_USER, // create only for current user.
-    true); // create if doesn't exist.
+      ShellUtil::CURRENT_USER,  // create only for current user.
+      true);  // create if doesn't exist.
 }
 
 bool FirstRun::RemoveSentinel() {
@@ -381,14 +382,29 @@ bool Upgrade::SwapNewChromeExeIfPresent() {
   return false;
 }
 
-void OpenFirstRunDialog(Profile* profile) {
-  views::Window::CreateChromeWindow(NULL, gfx::Rect(),
-                                    new FirstRunView(profile))->Show();
+void OpenFirstRunDialog(Profile* profile,
+                        ProcessSingleton* process_singleton) {
+  DCHECK(profile);
+  DCHECK(process_singleton);
+
+  views::Window* first_run_ui = views::Window::CreateChromeWindow(
+      NULL, gfx::Rect(), new FirstRunView(profile));
+  DCHECK(first_run_ui);
+
+  // We need to avoid dispatching new tabs when we are doing the import
+  // because that will lead to data corruption or a crash. Lock() does that.
+  // If a CopyData message does come in while the First Run UI is visible,
+  // then we will attempt to set first_run_ui as the foreground window.
+  process_singleton->Lock(first_run_ui->GetNativeWindow());
+
+  first_run_ui->Show();
+
   // We must now run a message loop (will be terminated when the First Run UI
   // is closed) so that the window can receive messages and we block the
   // browser window from showing up. We pass the accelerator handler here so
   // that keyboard accelerators (Enter, Esc, etc) work in the dialog box.
   MessageLoopForUI::current()->Run(g_browser_process->accelerator_handler());
+  process_singleton->Unlock();
 }
 
 namespace {
