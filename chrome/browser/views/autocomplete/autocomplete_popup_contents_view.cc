@@ -242,7 +242,7 @@ void AutocompleteResultView::Paint(ChromeCanvas* canvas) {
     x = DrawString(canvas, separator, classifications, true, x,
                    text_bounds_.y());
 
-    x = DrawString(canvas, match.description, match.description_class, true, x,
+    DrawString(canvas, match.description, match.description_class, true, x,
                text_bounds_.y());
   }
 }
@@ -251,9 +251,11 @@ void AutocompleteResultView::Layout() {
   icon_bounds_.SetRect(kRowLeftPadding, (height() - icon_size_) / 2,
                        icon_size_, icon_size_);
   int text_x = icon_bounds_.right() + kIconTextSpacing;
-  text_bounds_.SetRect(text_x, (height() - font_.height()) / 2,
-                       bounds().right() - text_x - kRowRightPadding,
-                       font_.height());
+  text_bounds_.SetRect(
+      text_x,
+      std::max(0, (height() - font_.height()) / 2),
+      std::max(0, bounds().right() - text_x - kRowRightPadding),
+      font_.height());
 }
 
 gfx::Size AutocompleteResultView::GetPreferredSize() {
@@ -431,7 +433,10 @@ int AutocompleteResultView::DrawStringFragment(
     int x,
     int y) {
   ChromeFont display_font = GetFragmentFont(style);
-  int string_width = display_font.GetStringWidth(text);
+  // Clamp text width to the available width within the popup so we elide if
+  // necessary.
+  int string_width = std::min(display_font.GetStringWidth(text),
+                              width() - kRowRightPadding - x);
   canvas->DrawStringInt(text, GetFragmentFont(style),
                         GetFragmentTextColor(style), x, y, string_width,
                         display_font.height());
@@ -596,11 +601,7 @@ void AutocompletePopupContentsView::UpdateResultViewsFromResult(
   RemoveAllChildViews(true);
   for (size_t i = 0; i < result.size(); ++i)
     AddChildView(new AutocompleteResultView(this, i, edit_font_));
-
-  // Need to schedule a paint here because if we don't and our result count
-  // hasn't changed since last time we were shown, we may not repaint to
-  // show selection changes.
-  SchedulePaint();
+  Layout();
 }
 
 gfx::Rect AutocompletePopupContentsView::GetPopupBounds() const {
@@ -767,7 +768,7 @@ void AutocompletePopupContentsView::MakeContentsPath(
 
 void AutocompletePopupContentsView::UpdateBlurRegion() {
   // We only support background blurring on Vista with Aero-Glass enabled.
-  if (!win_util::ShouldUseVistaFrame())
+  if (!win_util::ShouldUseVistaFrame() || !GetWidget())
     return;
 
   // Provide a blurred background effect within the contents region of the
