@@ -140,7 +140,9 @@ class NotifyNotDefaultBrowserTask : public Task {
     }
     TabContents* tab = browser->GetSelectedTabContents();
     // Don't show the info-bar if there are already info-bars showing.
-    if (tab->infobar_delegate_count() > 0)
+    // In ChromeBot tests, there might be a race. This line appears to get 
+    // called during shutdown and |tab| can be NULL. 
+    if (!tab || tab->infobar_delegate_count() > 0)
       return;
     tab->AddInfoBar(new DefaultBrowserInfoBarDelegate(tab));
   }
