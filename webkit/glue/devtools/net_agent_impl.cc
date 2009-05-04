@@ -18,6 +18,7 @@
 #include "ResourceError.h"
 #include "ResourceRequest.h"
 #include "ResourceResponse.h"
+#include "ScriptString.h"
 #include "TextEncoding.h"
 #include <wtf/CurrentTime.h>
 #undef LOG
@@ -155,6 +156,7 @@ void NetAgentImpl::DidFinishLoading(
   // Start removing resources from the cache once there are too many of them.
   if (finished_resources_.size() > 200) {
     for (int i = 0; i < 50; ++i) {
+      xml_http_sources_.remove(finished_resources_[i].first);
       delete finished_resources_[i].second;
     }
     finished_resources_.remove(0, 50);
@@ -187,6 +189,12 @@ void NetAgentImpl::DidLoadResourceFromMemoryCache(
   int identifier = last_cached_identifier_--;
 }
 
+void NetAgentImpl::DidLoadResourceByXMLHttpRequest(
+    int identifier,
+    const WebCore::ScriptString& source) {
+  xml_http_sources_.set(identifier, source);
+}
+
 void NetAgentImpl::GetResourceContent(
     int call_id,
     int identifier,
@@ -197,7 +205,10 @@ void NetAgentImpl::GetResourceContent(
 
   String source;
 
-  if (main_loader_.get() && main_loader_->requestURL() == url) {
+  WebCore::ScriptString script = xml_http_sources_.get(identifier);
+  if (!script.isNull()) {
+    source = String(script);
+  } else if (main_loader_.get() && main_loader_->requestURL() == url) {
     RefPtr<SharedBuffer> buffer = main_loader_->mainResourceData();
     String text_encoding_name = document_->inputEncoding();
     if (buffer) {

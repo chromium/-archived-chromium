@@ -20,6 +20,7 @@ class DocumentLoader;
 class HTTPHeaderMap;
 class ResourceError;
 class ResourceResponse;
+class ScriptString;
 class String;
 struct ResourceRequest;
 }
@@ -78,6 +79,10 @@ class NetAgentImpl : public NetAgent {
       const WebCore::ResourceRequest& request,
       const WebCore::ResourceResponse& response,
       int length);
+  void DidLoadResourceByXMLHttpRequest(
+    int identifier,
+    const WebCore::ScriptString& source);
+
 
  private:
   // Serializes headers map into a value.
@@ -89,8 +94,12 @@ class NetAgentImpl : public NetAgent {
   typedef HashMap<int, DictionaryValue*, DefaultHash<int>::Hash,
                   WTF::UnsignedWithZeroKeyHashTraits<int> > ResourcesMap;
   typedef Vector<std::pair<int, DictionaryValue*> > FinishedResources;
+  typedef HashMap<int, WebCore::ScriptString, DefaultHash<int>::Hash,
+                  WTF::UnsignedWithZeroKeyHashTraits<int> > XmlHttpSources;
+
   ResourcesMap pending_resources_;
   FinishedResources finished_resources_;
+  XmlHttpSources xml_http_sources_;
   int last_cached_identifier_;
   bool attached_;
   DISALLOW_COPY_AND_ASSIGN(NetAgentImpl);

@@ -468,8 +468,13 @@ bool WebFrameLoaderClient::dispatchDidLoadResourceFromMemoryCache(
 
 void WebFrameLoaderClient::dispatchDidLoadResourceByXMLHttpRequest(
     unsigned long identifier,
-    const ScriptString&) {
-  //TODO(pfeldman): Wire to net_agent.
+    const ScriptString& source) {
+  NetAgentImpl* net_agent = GetNetAgentImpl();
+  if (net_agent) {
+    net_agent->DidLoadResourceByXMLHttpRequest(
+        identifier,
+        source);
+  }
 }
 
 void WebFrameLoaderClient::dispatchDidHandleOnloadEvents() {
