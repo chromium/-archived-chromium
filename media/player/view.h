@@ -29,8 +29,6 @@
 #include "media/base/yuv_scale.h"
 #include "media/player/wtl_renderer.h"
 
-#include "media/player/movie.h"
-
 #ifdef TESTING
 // Fetch current time as milliseconds.
 // Return as double for high duration and precision.
@@ -45,7 +43,6 @@ static inline double GetTime() {
 extern bool g_enableswscaler;
 extern bool g_enabledraw;
 extern bool g_enabledump_yuv_file;
-extern int g_view_size;
 
 class WtlVideoWindow : public CScrollWindowImpl<WtlVideoWindow> {
  public:
@@ -59,8 +56,10 @@ class WtlVideoWindow : public CScrollWindowImpl<WtlVideoWindow> {
   WtlVideoWindow() {
     size_.cx = 0;
     size_.cy = 0;
+    view_size_ = 1;
     renderer_ = new WtlVideoRenderer(this);
     last_frame_ = NULL;
+    hbmp_ = NULL;
   }
 
   BOOL PreTranslateMessage(MSG* /*msg*/)  {
@@ -162,7 +161,7 @@ class WtlVideoWindow : public CScrollWindowImpl<WtlVideoWindow> {
 
     int scaled_width = clipped_width;
     int scaled_height = clipped_height;
-    switch (g_view_size) {
+    switch (view_size_) {
       case 0:
         scaled_width = clipped_width / 2;
         scaled_height = clipped_height / 2;
@@ -266,7 +265,7 @@ class WtlVideoWindow : public CScrollWindowImpl<WtlVideoWindow> {
 #endif
       CDC dcMem;
       dcMem.CreateCompatibleDC(dc);
-      HBITMAP hBmpOld = dcMem.SelectBitmap(bmp_);
+      HBITMAP hBmpOld = hbmp_ ? hbmp_: dcMem.SelectBitmap(bmp_);
       dc.BitBlt(0, 0, size_.cx, size_.cy, dcMem, 0, 0, SRCCOPY);
       dcMem.SelectBitmap(hBmpOld);
 #ifdef TESTING
@@ -288,11 +287,25 @@ class WtlVideoWindow : public CScrollWindowImpl<WtlVideoWindow> {
     }
   }  // End of DoPaint function.
 
+  void SetViewSize(int view_size) {
+    view_size_ = view_size;
+  }
+
+  int GetViewSize() {
+    return view_size_;
+  }
+
+  void SetBitmap(HBITMAP hbmp) {
+    hbmp_ = hbmp;
+  }
+
   CBitmap bmp_;  // Used by mainfrm.h.
   SIZE size_;  // Used by WtlVideoWindow.
   scoped_refptr<WtlVideoRenderer> renderer_;  // Used by WtlVideoWindow.
 
  private:
+  HBITMAP hbmp_;  // For Images
+  int view_size_;  // View Size. 0=0.5, 1=normal, 2=2x, 3=fit, 4=full
 
   // Draw a frame of YUV to an RGB buffer with scaling.
   // Handles different YUV formats.
@@ -304,7 +317,7 @@ class WtlVideoWindow : public CScrollWindowImpl<WtlVideoWindow> {
                int scaled_width,
                int scaled_height) {
     // Normal size
-    if (g_view_size == 1) {
+    if (view_size_ == 1) {
       if (frame_in.format == media::VideoSurface::YV16) {
         // Temporary cast, til we use uint8 for VideoFrame.
         media::ConvertYV16ToRGB32((const uint8*)frame_in.data[0],

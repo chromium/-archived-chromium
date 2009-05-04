@@ -1,0 +1,111 @@
+// Copyright (c) 2009 The Chromium Authors. All rights reserved.  Use of this
+// source code is governed by a BSD-style license that can be found in the
+// LICENSE file.
+
+#include "base/at_exit.h"
+#include "base/string_util.h"
+#include "media/base/factory.h"
+#include "media/base/pipeline_impl.h"
+#include "media/filters/audio_renderer_impl.h"
+#include "media/filters/ffmpeg_audio_decoder.h"
+#include "media/filters/ffmpeg_demuxer.h"
+#include "media/filters/ffmpeg_video_decoder.h"
+#include "media/filters/file_data_source.h"
+#include "media/filters/null_audio_renderer.h"
+#include "media/player/movie.h"
+#include "media/player/stdafx.h"
+#include "media/player/wtl_renderer.h"
+// view.h must come after wtl_renderer.h.
+#include "media/player/view.h"
+
+using media::AudioRendererImpl;
+using media::FFmpegAudioDecoder;
+using media::FFmpegDemuxer;
+using media::FFmpegVideoDecoder;
+using media::FileDataSource;
+using media::FilterFactoryCollection;
+using media::PipelineImpl;
+
+namespace media {
+
+Movie::Movie()
+    : enable_audio_(true),
+      play_rate_(1.0f),
+      movie_dib_(NULL),
+      movie_hwnd_(0) {
+}
+
+Movie::~Movie() {
+}
+
+bool Movie::IsOpen() {
+  return pipeline_.get() != NULL;
+}
+
+void Movie::SetFrameBuffer(HBITMAP hbmp, HWND hwnd) {
+  movie_dib_ = hbmp;
+  movie_hwnd_ = hwnd;
+}
+
+bool Movie::Open(const wchar_t* url, WtlVideoRenderer* video_renderer) {
+  // Close previous movie.
+  if (pipeline_.get()) {
+    Close();
+  }
+
+  // Create our filter factories.
+  scoped_refptr<FilterFactoryCollection> factories =
+      new FilterFactoryCollection();
+  factories->AddFactory(FileDataSource::CreateFactory());
+  factories->AddFactory(FFmpegAudioDecoder::CreateFactory());
+  factories->AddFactory(FFmpegDemuxer::CreateFilterFactory());
+  factories->AddFactory(FFmpegVideoDecoder::CreateFactory());
+
+  if (enable_audio_) {
+    factories->AddFactory(AudioRendererImpl::CreateFilterFactory());
+  } else {
+    factories->AddFactory(media::NullAudioRenderer::CreateFilterFactory());
+  }
+  factories->AddFactory(
+      new media::InstanceFilterFactory<WtlVideoRenderer>(video_renderer));
+
+  pipeline_.reset(new PipelineImpl());
+
+  // Create and start our pipeline.
+  pipeline_->Start(factories.get(), WideToUTF8(std::wstring(url)), NULL);
+  while (true) {
+    PlatformThread::Sleep(100);
+    if (pipeline_->IsInitialized())
+      break;
+    if (pipeline_->GetError() != media::PIPELINE_OK)
+      return false;
+  }
+  pipeline_->SetPlaybackRate(play_rate_);
+  return true;
+}
+
+void Movie::Play(float rate) {
+  // Begin playback.
+  if (pipeline_.get())
+    pipeline_->SetPlaybackRate(rate);
+  if (rate > 0.0f)
+    play_rate_ = rate;
+}
+
+void Movie::SetAudioEnable(bool enable_audio) {
+  enable_audio_ = enable_audio;
+}
+
+bool Movie::GetAudioEnable() {
+  return enable_audio_;
+}
+
+// Teardown.
+void Movie::Close() {
+  if (pipeline_.get()) {
+    pipeline_->Stop();
+    pipeline_.reset();
+  }
+}
+
+}  // namespace media
