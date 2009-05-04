@@ -77,7 +77,9 @@ class TabStripModelObserver {
   // by the time this message is delivered.
   //
   // If only the loading state was updated, the loading_only flag should be
-  // specified. The tab model will update only the throbber and loading status.
+  // specified. The tab model will update only the throbber, loading status,
+  // and crashed state.
+  //
   // If other things change, set this flag to false to update all state,
   // including the title and favicon. This allows us to start/stop throbbing
   // without updating the title (which may be an ugly URL if the real title

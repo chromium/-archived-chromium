@@ -242,7 +242,6 @@ void TabRenderer::UpdateData(TabContents* contents, bool loading_only) {
     data_.title = UTF16ToWideHack(contents->GetTitle());
     data_.off_the_record = contents->profile()->IsOffTheRecord();
     data_.show_download_icon = contents->IsDownloadShelfVisible();
-    data_.crashed = contents->is_crashed();
     data_.favicon = contents->GetFavIcon();
   }
 
@@ -250,6 +249,11 @@ void TabRenderer::UpdateData(TabContents* contents, bool loading_only) {
   // we display the throbber.
   data_.loading = contents->is_loading();
   data_.show_icon = contents->ShouldDisplayFavIcon();
+
+  // Because the crashed notification comes through the tab contents, it
+  // appears as a loading_only change. This is fine, since the crashed flag is
+  // trivial to update unlike the title and favicon.
+  data_.crashed = contents->is_crashed();
 }
 
 void TabRenderer::UpdateFromModel() {
