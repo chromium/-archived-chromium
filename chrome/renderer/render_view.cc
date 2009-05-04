@@ -1655,13 +1655,6 @@ void RenderView::AddGURLSearchProvider(const GURL& osd_url, bool autodetected) {
                                      autodetected));
 }
 
-void RenderView::UpdateFeedList(scoped_refptr<FeedList> feedlist) {
-  ViewHostMsg_UpdateFeedList_Params params;
-  params.page_id = page_id_;
-  params.feedlist = feedlist;
-  Send(new ViewHostMsg_UpdateFeedList(routing_id_, params));
-}
-
 bool RenderView::RunBeforeUnloadConfirm(WebFrame* webframe,
                                         const std::wstring& message) {
   bool success = false;

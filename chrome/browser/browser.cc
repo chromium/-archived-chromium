@@ -2350,9 +2350,6 @@ void Browser::ProcessPendingUIUpdates() {
       updated_stuff[contents] |= TabContents::INVALIDATE_FAVICON;
     }
 
-    if (flags & TabContents::INVALIDATE_FEEDLIST)
-      window()->GetLocationBar()->UpdateFeedIcon();
-
     if (flags & TabContents::INVALIDATE_PAGE_ACTIONS)
       window()->GetLocationBar()->UpdatePageActions();
 

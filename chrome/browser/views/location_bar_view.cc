@@ -90,7 +90,6 @@ LocationBarView::LocationBarView(Profile* profile,
       keyword_hint_view_(profile),
       type_to_search_view_(l10n_util::GetString(IDS_OMNIBOX_EMPTY_TEXT)),
       security_image_view_(profile, model),
-      rss_image_view_(model),
       popup_window_mode_(popup_window_mode),
       first_run_bubble_(this),
       popup_positioner_(popup_positioner) {
@@ -159,10 +158,6 @@ void LocationBarView::Init() {
   keyword_hint_view_.SetColor(gray);
   keyword_hint_view_.SetParentOwned(false);
 
-  AddChildView(&rss_image_view_);
-  rss_image_view_.SetVisible(false);
-  rss_image_view_.SetParentOwned(false);
-
   AddChildView(&security_image_view_);
   security_image_view_.SetVisible(false);
   security_image_view_.SetParentOwned(false);
@@ -184,19 +179,12 @@ void LocationBarView::Init() {
 
 void LocationBarView::Update(const TabContents* tab_for_state_restoring) {
   SetSecurityIcon(model_->GetIcon());
-  SetRssIconVisibility(model_->GetFeedList().get());
   RefreshPageActionViews();
   std::wstring info_text, info_tooltip;
   SkColor text_color;
   model_->GetInfoText(&info_text, &text_color, &info_tooltip);
   SetInfoText(info_text, text_color, info_tooltip);
   location_entry_->Update(tab_for_state_restoring);
-  Layout();
-  SchedulePaint();
-}
-
-void LocationBarView::UpdateFeedIcon() {
-  SetRssIconVisibility(model_->GetFeedList().get());
   Layout();
   SchedulePaint();
 }
@@ -369,11 +357,6 @@ void LocationBarView::DoLayout(const bool force_layout) {
                      page_action_image_views_.size();
     }
   }
-  gfx::Size rss_image_size;
-  if (rss_image_view_.IsVisible()) {
-    rss_image_size = rss_image_view_.GetPreferredSize();
-    entry_width -= rss_image_size.width() + kInnerPadding;
-  }
   gfx::Size security_image_size;
   if (security_image_view_.IsVisible()) {
     security_image_size = security_image_view_.GetPreferredSize();
@@ -418,15 +401,6 @@ void LocationBarView::DoLayout(const bool force_layout) {
                                              page_action_size.width(),
                                              location_height);
     }
-  }
-  if (rss_image_view_.IsVisible()) {
-    rss_image_view_.SetBounds(width() - kEntryPadding -
-                                  info_label_width -
-                                  security_image_size.width() -
-                                  rss_image_size.width(),
-                              location_y,
-                              rss_image_size.width(),
-                              location_height);
   }
   if (security_image_view_.IsVisible()) {
     security_image_view_.SetBounds(width() - kEntryPadding - info_label_width -
@@ -557,12 +531,6 @@ void LocationBarView::SetSecurityIcon(ToolbarModel::Icon icon) {
       security_image_view_.SetVisible(false);
       break;
   }
-}
-
-void LocationBarView::SetRssIconVisibility(FeedList* feeds) {
-  bool show_rss = feeds && feeds->list().size() > 0;
-  // TODO(finnur): Enable this when we have a good landing page to show feeds.
-  rss_image_view_.SetVisible(false);
 }
 
 void LocationBarView::DeletePageActionViews() {
@@ -1127,51 +1095,6 @@ void LocationBarView::SecurityImageView::ShowInfoBubble() {
   ShowInfoBubbleImpl(text, text_color);
 }
 
-// RssImageView------------------------------------------------------------
-
-// static
-SkBitmap* LocationBarView::RssImageView::rss_icon_ = NULL;
-
-LocationBarView::RssImageView::RssImageView(ToolbarModel* model)
-  : model_(model),
-    LocationBarImageView() {
-  if (!rss_icon_) {
-    ResourceBundle& rb = ResourceBundle::GetSharedInstance();
-    rss_icon_ = rb.GetBitmapNamed(IDR_RSS_ICON);
-  }
-  ImageView::SetImage(rss_icon_);
-}
-
-LocationBarView::RssImageView::~RssImageView() {
-}
-
-bool LocationBarView::RssImageView::OnMousePressed(
-    const views::MouseEvent& event) {
-  NavigationEntry* entry =
-      BrowserList::GetLastActive()->GetSelectedTabContents()->
-      controller().GetActiveEntry();
-  if (!entry) {
-    NOTREACHED();
-    return true;
-  }
-
-  // Navigate to the first item in the feed list.
-  scoped_refptr<FeedList> feeds = model_->GetFeedList();
-  DCHECK(feeds.get() && feeds->list().size() > 0);
-
-  // TODO(finnur): Make this do more than just display the XML in the browser.
-  BrowserList::GetLastActive()->OpenURL(feeds->list()[0].url, GURL(),
-                                        CURRENT_TAB, PageTransition::LINK);
-  return true;
-}
-
-void LocationBarView::RssImageView::ShowInfoBubble() {
-  // TODO(finnur): Get this string from the resources.
-  std::wstring text = L"Subscribe to this feed";
-  SkColor text_color = SK_ColorBLUE;
-  ShowInfoBubbleImpl(text, text_color);
-}
-
 // PageActionImageView----------------------------------------------------------
 
 LocationBarView::PageActionImageView::PageActionImageView(
@@ -1285,4 +1208,3 @@ void LocationBarView::SaveStateToContents(TabContents* contents) {
 void LocationBarView::Revert() {
   location_entry_->RevertAll();
 }
-

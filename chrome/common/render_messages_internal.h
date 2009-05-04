@@ -1334,10 +1334,6 @@ IPC_BEGIN_MESSAGES(ViewHost)
   IPC_MESSAGE_CONTROL1(ViewHostMsg_ForwardToWorker,
                        IPC::Message /* message */)
 
-  // Notification when new feeds have been discovered on the page.
-  IPC_MESSAGE_ROUTED1(ViewHostMsg_UpdateFeedList,
-                      ViewHostMsg_UpdateFeedList_Params)
-
   // Get a port handle to a currently-running extension process for the
   // extension with the given ID.  If no such extension is found, -1 is
   // returned.  The handle can be used for sending messages to the extension.

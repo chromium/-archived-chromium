@@ -69,7 +69,6 @@ class LocationBarViewGtk : public AutocompleteEditController,
   virtual void AcceptInputWithDisposition(WindowOpenDisposition);
   virtual void FocusLocation();
   virtual void FocusSearch();
-  virtual void UpdateFeedIcon();
   virtual void UpdatePageActions();
   virtual void SaveStateToContents(TabContents* contents);
   virtual void Revert();

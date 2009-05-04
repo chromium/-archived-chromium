@@ -1725,25 +1725,6 @@ void TabContents::UpdateTitle(RenderViewHost* rvh,
     NotifyNavigationStateChanged(INVALIDATE_TITLE);
 }
 
-void TabContents::UpdateFeedList(
-    RenderViewHost* rvh, const ViewHostMsg_UpdateFeedList_Params& params) {
-  // We might have an old RenderViewHost sending messages, and we should ignore
-  // those messages.
-  if (rvh != render_view_host())
-    return;
-
-  NavigationEntry* entry = controller_.GetEntryWithPageID(GetSiteInstance(),
-                                                            params.page_id);
-  if (!entry)
-    return;
-
-  entry->set_feedlist(params.feedlist);
-
-  // Broadcast notifications when the UI should be updated.
-  if (entry == controller_.GetEntryAtOffset(0))
-    NotifyNavigationStateChanged(INVALIDATE_FEEDLIST);
-}
-
 void TabContents::UpdateEncoding(RenderViewHost* render_view_host,
                                  const std::wstring& encoding) {
   set_encoding(encoding);

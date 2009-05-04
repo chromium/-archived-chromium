@@ -92,12 +92,11 @@ class TabContents : public PageNavigator,
   // Flags passed to the TabContentsDelegate.NavigationStateChanged to tell it
   // what has changed. Combine them to update more than one thing.
   enum InvalidateTypes {
-    INVALIDATE_URL = 1,        // The URL has changed.
-    INVALIDATE_TITLE = 2,      // The title has changed.
-    INVALIDATE_FAVICON = 4,    // The favicon has changed.
-    INVALIDATE_LOAD = 8,       // The loading state has changed.
-    INVALIDATE_FEEDLIST = 16,  // The Atom/RSS feed has changed.
-    INVALIDATE_PAGE_ACTIONS = 32, // Page action icons have changed.
+    INVALIDATE_URL = 1,           // The URL has changed.
+    INVALIDATE_TITLE = 2,         // The title has changed.
+    INVALIDATE_FAVICON = 4,       // The favicon has changed.
+    INVALIDATE_LOAD = 8,          // The loading state has changed.
+    INVALIDATE_PAGE_ACTIONS = 16, // Page action icons have changed.
     // Helper for forcing a refresh.
     INVALIDATE_EVERYTHING = 0xFFFFFFFF
   };
@@ -735,8 +734,6 @@ class TabContents : public PageNavigator,
   virtual void UpdateTitle(RenderViewHost* render_view_host,
                            int32 page_id,
                            const std::wstring& title);
-  virtual void UpdateFeedList(RenderViewHost* render_view_host,
-                              const ViewHostMsg_UpdateFeedList_Params& params);
   virtual void UpdateEncoding(RenderViewHost* render_view_host,
                               const std::wstring& encoding);
   virtual void UpdateTargetURL(int32 page_id, const GURL& url);

@@ -9,7 +9,6 @@
 #include "googleurl/src/gurl.h"
 #include "skia/ext/bitmap_platform_device.h"
 #include "skia/ext/platform_canvas.h"
-#include "webkit/glue/feed.h"
 
 class WebAppCacheContext;
 class WebDataSource;
@@ -145,10 +144,6 @@ class WebFrame {
 
   // Return the minPrefWidth of the content contained in the current Document
   virtual int GetContentsPreferredWidth() const = 0;
-
-  // Return the list of feeds specified in the document for the frame. If
-  // the page does not have a valid document, an empty list is returned.
-  virtual scoped_refptr<class FeedList> GetFeedList() const = 0;
 
   // Returns the committed data source, which is the last data source that has
   // successfully started loading. Will return NULL if no provisional data

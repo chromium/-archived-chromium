@@ -126,7 +126,6 @@ class LocationBarView : public LocationBar,
   virtual void AcceptInputWithDisposition(WindowOpenDisposition);
   virtual void FocusLocation();
   virtual void FocusSearch();
-  virtual void UpdateFeedIcon();
   virtual void UpdatePageActions();
   virtual void SaveStateToContents(TabContents* contents);
   virtual void Revert();
@@ -312,30 +311,6 @@ class LocationBarView : public LocationBar,
     DISALLOW_COPY_AND_ASSIGN(SecurityImageView);
   };
 
-  // RssImageView is used to display the RSS icon when the page has a feed that
-  // you can subscribe to.
-  //
-  // If a message has been set with SetInfoBubbleText, it displays an info
-  // bubble when the mouse hovers on the image.
-  class RssImageView : public LocationBarImageView {
-  public:
-    explicit RssImageView(ToolbarModel* model);
-    virtual ~RssImageView();
-
-    // Overridden from view for the mouse hovering.
-    virtual bool OnMousePressed(const views::MouseEvent& event);
-
-    virtual void ShowInfoBubble();
-
-  private:
-    // The RSS icon shown when page has a feed.
-    static SkBitmap* rss_icon_;
-
-    ToolbarModel* model_;
-
-    DISALLOW_COPY_AND_ASSIGN(RssImageView);
-  };
-
   // PageActionImageView is used to display the icon for a given PageAction
   // and notify the extension when the icon is clicked.
   class PageActionImageView : public LocationBarImageView {
@@ -418,9 +393,6 @@ class LocationBarView : public LocationBar,
   // Sets the security icon to display.  Note that no repaint is done.
   void SetSecurityIcon(ToolbarModel::Icon icon);
 
-  // Sets the RSS icon visibility.
-  void SetRssIconVisibility(FeedList* feeds);
-
   // Delete all page action views that we have created.
   void DeletePageActionViews();
 
@@ -496,9 +468,6 @@ class LocationBarView : public LocationBar,
 
   // The view that shows the lock/warning when in HTTPS mode.
   SecurityImageView security_image_view_;
-
-  // The view that shows the RSS icon when the page has an RSS feed.
-  RssImageView rss_image_view_;
 
   // The page action icon views.
   std::vector<PageActionImageView*> page_action_image_views_;

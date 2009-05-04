@@ -47,9 +47,6 @@ class LocationBar {
   // focus to it.
   virtual void FocusSearch() = 0;
 
-  // Update the state of the feed icon.
-  virtual void UpdateFeedIcon() = 0;
-
   // Update the state of the page actions.
   virtual void UpdatePageActions() = 0;
 
