@@ -1,7 +1,5 @@
 <script>
-
 var botRoot = "http://build.chromium.org/buildbot/waterfall";
-
 var botUrl = botRoot + "/horizontal_one_box_per_builder";
 
 function updateStatus(status) {
@@ -18,12 +16,6 @@ function updateStatus(status) {
 }
 
 function requestStatus() {
-  var bots = document.getElementById("bots");
-  if (bots) {
-    // TODO(erikkay): this generates "Unsafe JavaScript attempt to access frame
-    // with URL"
-    bots.src = botUrl + "?xxx=" + (new Date()).getTime();
-  }
   var xhr = new XMLHttpRequest();
   try {
     xhr.onreadystatechange = function(state) {
@@ -51,13 +43,52 @@ function requestStatus() {
   setTimeout(requestStatus, 30000);
 }
 
-function statusClick() {
+var hoverTimerId = null;
+var hideTimerId = null;
+
+window.addEventListener("mouseover", function(e) {
+  if (hideTimerId) {
+    hideTimerId = window.clearTimeout(hideTimerId);
+  }
+
+  if (bots.className != "visible" && !hoverTimerId) {
+    hoverTimerId = window.setTimeout(function() {
+      hoverTimerId = null;
+      var bots = document.getElementById("bots");
+      bots.className = "visible";
+      // TODO(erikkay): this generates "Unsafe JavaScript attempt to access
+      // frame with URL".
+      bots.src = botUrl + "?xxx=" + (new Date()).getTime();
+    }, 1000);
+  }
+}, false);
+
+window.addEventListener("mouseout", function(e) {
+  if (hoverTimerId) {
+    hoverTimerId = window.clearTimeout(hoverTimerId);
+  }
+
+  if (bots.className != "" && !hideTimerId) {
+    hideTimerId = window.setTimeout(function() {
+      hideTimerId = null;
+      var bots = document.getElementById("bots");
+      bots.className = "";
+    }, 1000);
+  }
+}, false);
+
+window.addEventListener("click", function() {
   window.open(botRoot);
-}
+}, false);
 
 requestStatus();
 </script>
+
 <style>
+#status {
+  font-weight:bold;
+}
+
 .open {
   color: green;
 }
@@ -68,28 +99,32 @@ requestStatus();
 
 #bots {
   border: none;
-  height: 20px;  /* hardcoded height sucks */
-  width: 435px;  /* hardcoded width sucks */
+  height: 15px;
+  width: 0;
+  -webkit-transition: width .2s linear;
   background-color: transparent;
   display:-webkit-box;
+  margin-left:-5px;
+}
+
+#bots.visible {
+  width: 435px;  /* hardcoded width sucks */
 }
 
 #frame-wrapper {
   /* This is used to get us to vertically center the iframe in the vertical
   space. */
-  display:-webkit-box;
   -webkit-box-align:center;
   /* Also, scooch the frame in a bit, under the button, because the content of
   the frame has some extra built-in left padding. */
-  margin-left:-10px;
+  display:-webkit-box;
 }
 
 </style>
 
-<div class="toolstrip-button" onclick="statusClick();">
+<div class="toolstrip-button">
 <span id="status" class="open">tree: open?</span>
-</div>
-
 <div id="frame-wrapper">
-<iframe scrolling='no' id='bots' src="http://build.chromium.org/buildbot/waterfall/horizontal_one_box_per_builder"></iframe>
+<iframe scrolling="no" id="bots"></iframe>
+</div>
 </div>
