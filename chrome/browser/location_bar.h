@@ -56,6 +56,9 @@ class LocationBar {
   // Saves the state of the location bar to the specified TabContents, so that
   // it can be restored later. (Done when switching tabs).
   virtual void SaveStateToContents(TabContents* contents) = 0;
+
+  // Reverts the location bar.  The bar's permanent text will be shown.
+  virtual void Revert() = 0;
 };
 
 #endif  // CHROME_BROWSER_LOCATION_BAR_H_

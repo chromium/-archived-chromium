@@ -41,6 +41,7 @@ class LocationBarViewMac : public AutocompleteEditController,
   virtual void UpdateFeedIcon() { /* http://crbug.com/8832 */ }
   virtual void UpdatePageActions() { NOTIMPLEMENTED(); }
   virtual void SaveStateToContents(TabContents* contents);
+  virtual void Revert();
 
   virtual void OnAutocompleteAccept(const GURL& url,
       WindowOpenDisposition disposition,

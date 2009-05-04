@@ -40,6 +40,7 @@ class TestLocationBar : public LocationBar {
   virtual void UpdateFeedIcon() {}
   virtual void UpdatePageActions() {}
   virtual void SaveStateToContents(TabContents* contents) {}
+  virtual void Revert() {}
 
  private:
 

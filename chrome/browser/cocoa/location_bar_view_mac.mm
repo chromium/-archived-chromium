@@ -108,3 +108,7 @@ std::wstring LocationBarViewMac::GetTitle() const {
   NOTIMPLEMENTED();
   return std::wstring();
 }
+
+void LocationBarViewMac::Revert() {
+  NOTIMPLEMENTED();
+}

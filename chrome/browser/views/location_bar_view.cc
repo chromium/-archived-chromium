@@ -1281,3 +1281,8 @@ void LocationBarView::FocusSearch() {
 void LocationBarView::SaveStateToContents(TabContents* contents) {
   location_entry_->SaveStateToTab(contents);
 }
+
+void LocationBarView::Revert() {
+  location_entry_->RevertAll();
+}
+

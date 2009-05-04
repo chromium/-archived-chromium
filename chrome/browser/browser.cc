@@ -685,6 +685,11 @@ void Browser::Reload() {
       return;
     }
 
+    // Forcibly reset the location bar, since otherwise it won't discard any
+    // ongoing user edits, since it doesn't realize this is a user-initiated
+    // action.
+    window_->GetLocationBar()->Revert();
+
     // As this is caused by a user action, give the focus to the page.
     current_tab->Focus();
     current_tab->controller().Reload(true);

@@ -197,6 +197,10 @@ void LocationBarViewGtk::SaveStateToContents(TabContents* contents) {
   NOTIMPLEMENTED();
 }
 
+void LocationBarViewGtk::Revert() {
+  NOTIMPLEMENTED();
+}
+
 gboolean LocationBarViewGtk::HandleExpose(GtkWidget* widget,
                                           GdkEventExpose* event) {
   GdkDrawable* drawable = GDK_DRAWABLE(event->window);

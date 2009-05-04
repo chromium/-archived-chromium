@@ -129,6 +129,7 @@ class LocationBarView : public LocationBar,
   virtual void UpdateFeedIcon();
   virtual void UpdatePageActions();
   virtual void SaveStateToContents(TabContents* contents);
+  virtual void Revert();
 
   static const int kVertMargin;
   static const COLORREF kBackgroundColorByLevel[];

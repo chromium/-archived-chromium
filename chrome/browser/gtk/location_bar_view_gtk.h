@@ -72,6 +72,7 @@ class LocationBarViewGtk : public AutocompleteEditController,
   virtual void UpdateFeedIcon();
   virtual void UpdatePageActions();
   virtual void SaveStateToContents(TabContents* contents);
+  virtual void Revert();
 
   // Translation between a security level and the background color.  Both the
   // location bar and edit have to manage and match the background color.
