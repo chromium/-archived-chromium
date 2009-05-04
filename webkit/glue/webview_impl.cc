@@ -100,6 +100,7 @@ MSVC_POP_WARNING();
 #include "webkit/glue/searchable_form_data.h"
 #include "webkit/glue/webdevtoolsagent_impl.h"
 #include "webkit/glue/webdropdata.h"
+#include "webkit/glue/webhistoryitem_impl.h"
 #include "webkit/glue/webkit_glue.h"
 #include "webkit/glue/webpreferences.h"
 #include "webkit/glue/webdevtoolsagent.h"

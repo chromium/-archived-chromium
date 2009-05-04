@@ -205,7 +205,7 @@ class TestWebViewDelegate : public base::RefCounted<TestWebViewDelegate>,
     WebNavigationType type,
     WindowOpenDisposition disposition,
     bool is_redirect);
-  virtual void NavigateBackForwardSoon(int offset);
+  virtual WebHistoryItem* GetHistoryEntryAtOffset(int offset);
   virtual int GetHistoryBackListCount();
   virtual int GetHistoryForwardListCount();
 
@@ -269,8 +269,6 @@ class TestWebViewDelegate : public base::RefCounted<TestWebViewDelegate>,
   void SetCustomPolicyDelegate(bool is_custom, bool is_permissive);
   void WaitForPolicyDelegate();
 
-  void clear_test_shell() { shell_ = NULL; }
-
  protected:
   // Called the title of the page changes.
   // Can be used to update the title of the window.
@@ -303,8 +301,6 @@ class TestWebViewDelegate : public base::RefCounted<TestWebViewDelegate>,
 
   // Get a string suitable for dumping a frame to the console.
   std::wstring GetFrameDescription(WebFrame* webframe);
-
-  void NavigateBackForward(int offset);
 
  private:
   // Causes navigation actions just printout the intended navigation instead

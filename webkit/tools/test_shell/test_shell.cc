@@ -125,7 +125,6 @@ TestShell::~TestShell() {
   CallJSGC();
   CallJSGC();
 
-  delegate_->clear_test_shell();
   webView()->SetDelegate(NULL);
   PlatformCleanUp();
 
