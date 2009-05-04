@@ -1,8 +1,7 @@
-// {{NO_DEPENDENCIES}}
+//{{NO_DEPENDENCIES}}
 // Microsoft Visual C++ generated include file.
 // Used by player_wtl.rc
-// This file is in Microsoft coding style.
-
+//
 #define IDD_ABOUTBOX                    100
 #define IDR_MAINFRAME                   128
 #define IDR_MAINFRAME2                  128
@@ -24,7 +23,6 @@
 #define IDC_FILEDATE                    1011
 #define IDC_FILEATTRIB                  1012
 #define ID_RECENT_BTN                   32777
-#define ID_FILE_LAST                    32804
 #define ID_VIEW_PROPERTIES              32778
 #define ID_VIEW_MEDIADETAILS            32780
 #define ID_PLAY_PLAY                    32781
@@ -35,8 +33,8 @@
 #define ID_OPTIONS_DRAW                 32792
 #define ID_OPTIONS_AUDIO                32793
 #define ID_OPTIONS_DUMPYUVFILE          32794
-#define ID_Menu                         32796
 #define ID_VIEW_HALFSIZE                32795
+#define ID_Menu                         32796
 #define ID_VIEW_NORMALSIZE              32797
 #define ID_VIEW_DOUBLESIZE              32798
 #define ID_VIEW_FITTOSCREEN             32799
@@ -44,8 +42,10 @@
 #define ID_PLAY_HALFSPEED               32801
 #define ID_PLAY_NORMALSPEED             32802
 #define ID_PLAY_DOUBLESPEED             32803
+#define ID_FILE_LAST                    32804
 
 // Next default values for new objects
+// 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        203
@@ -54,4 +54,3 @@
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif
-

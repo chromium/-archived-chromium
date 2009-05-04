@@ -21,7 +21,7 @@
 #include <atlbase.h>
 #include <atlapp.h>
 
-extern CAppModule _Module;
+extern CAppModule g_module;
 
 #include <atlwin.h>
 

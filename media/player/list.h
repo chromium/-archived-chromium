@@ -3,6 +3,7 @@
 // LICENSE file.
 
 // list.h : class for Recent Files list
+// TODO(fbarchard): Remove hungarian notations.
 
 #ifndef MEDIA_PLAYER_LIST_H_
 #define MEDIA_PLAYER_LIST_H_

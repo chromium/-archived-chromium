@@ -1,7 +1,5 @@
 // Microsoft Visual C++ generated resource script.
 //
-// This file is in Microsoft coding style
-
 #include "resource.h"
 
 #define APSTUDIO_READONLY_SYMBOLS
@@ -91,7 +89,6 @@ BEGIN
     POPUP "&File"
     BEGIN
         MENUITEM "&Open...\tCtrl+O",            ID_FILE_OPEN
-        MENUITEM "&Last...\tLast+L",            ID_FILE_LAST
         MENUITEM SEPARATOR
         MENUITEM "&Print...\tCtrl+P",           ID_FILE_PRINT
         MENUITEM "Print Pre&view",              ID_FILE_PRINT_PREVIEW
@@ -101,6 +98,7 @@ BEGIN
         BEGIN
             MENUITEM "(empty)",                     ID_FILE_MRU_FILE1
         END
+        MENUITEM "&Last...\tLast+L",            ID_FILE_LAST
         MENUITEM SEPARATOR
         MENUITEM "E&xit",                       ID_APP_EXIT
     END
@@ -361,7 +359,6 @@ STRINGTABLE
 BEGIN
     ID_FILE_NEW             "Create a new document\nNew"
     ID_FILE_OPEN            "Open a movie\nOpen"
-    ID_FILE_LAST            "Replay last movie\nOpen"
     ID_FILE_CLOSE           "Close movie\nClose"
     ID_FILE_SAVE            "Save the movie\nSave"
     ID_FILE_SAVE_AS         "Save the movie with a new name\nSave As"
@@ -369,6 +366,15 @@ BEGIN
     ID_FILE_PRINT_SETUP     "Change the printer and printing options\nPrint Setup"
     ID_FILE_PRINT           "Print the movie\nPrint"
     ID_FILE_PRINT_PREVIEW   "Display full pages\nPrint Preview"
+END
+
+STRINGTABLE 
+BEGIN
+    ID_VIEW_FULLSCREEN      "Full screen mode."
+    ID_PLAY_HALFSPEED       "Play movie at half normal speed."
+    ID_PLAY_NORMALSPEED     "Play movie at normal speed."
+    ID_PLAY_DOUBLESPEED     "Play movie at twice the normal speed."
+    ID_FILE_LAST            "Replay last movie\nOpen"
 END
 
 STRINGTABLE 
@@ -461,10 +467,6 @@ BEGIN
     ID_VIEW_NORMALSIZE      "View movie at normal size."
     ID_VIEW_DOUBLESIZE      "View movie at twice the normal size."
     ID_VIEW_FITTOSCREEN     "Maximize window to desktop."
-    ID_VIEW_FULLSCREEN      "Full screen mode."
-    ID_PLAY_HALFSPEED       "Play movie at half normal speed."
-    ID_PLAY_NORMALSPEED     "Play movie at normal speed."
-    ID_PLAY_DOUBLESPEED     "Play movie at twice the normal speed."
 END
 
 #endif    // English (U.S.) resources
