@@ -61,7 +61,6 @@
       ],
       'sources': [
         # Data resources.
-        'app/theme/theme_resources.grd',
         'browser/debugger/resources/debugger_resources.grd',
         'browser/browser_resources.grd',
         'common/common_resources.grd',
@@ -101,6 +100,40 @@
         'app/chromium_strings.grd',
         'app/generated_resources.grd',
         'app/google_chrome_strings.grd',
+      ],
+      'direct_dependent_settings': {
+        'include_dirs': [
+          '<(SHARED_INTERMEDIATE_DIR)/chrome',
+        ],
+      },
+    },
+    {
+      # theme_resources also generates a .cc file, so it can't use the rules above.
+      'target_name': 'theme_resources',
+      'type': 'none',
+      'variables': {
+        'grit_path': '../tools/grit/grit.py',
+        'grit_out_dir': '<(SHARED_INTERMEDIATE_DIR)/chrome',
+      },
+      'actions': [
+        {
+          'action_name': 'theme_resources',
+          'variables': {
+            'input_path': 'app/theme/theme_resources.grd',
+          },
+          'inputs': [
+            '<(input_path)',
+          ],
+          'outputs': [
+            '<(grit_out_dir)/grit/theme_resources.h',
+            '<(grit_out_dir)/grit/theme_resources_map.cc',
+            '<(grit_out_dir)/grit/theme_resources_map.h',
+            '<(grit_out_dir)/theme_resources.pak',
+            '<(grit_out_dir)/theme_resources.rc',
+          ],
+          'action': ['python', '<(grit_path)', '-i', '<(input_path)', 'build', '-o', '<(grit_out_dir)'],
+          'message': 'Generating resources from <(input_path)',
+        },
       ],
       'direct_dependent_settings': {
         'include_dirs': [
@@ -398,6 +431,7 @@
         'common',
         'chrome_resources',
         'chrome_strings',
+        'theme_resources',
         '../media/media.gyp:media',
         '../net/net.gyp:net_resources',
         '../skia/skia.gyp:skia',
@@ -2743,6 +2777,7 @@
             'common',
             'chrome_resources',
             'chrome_strings',
+            'theme_resources',
             '../media/media.gyp:media',
             '../skia/skia.gyp:skia',
             '../third_party/icu38/icu38.gyp:icui18n',
