@@ -62,19 +62,6 @@ const  int32 kint32max  = (( int32) 0x7FFFFFFF);
 const  int64 kint64min  = (( int64) GG_LONGLONG(0x8000000000000000));
 const  int64 kint64max  = (( int64) GG_LONGLONG(0x7FFFFFFFFFFFFFFF));
 
-// id for odp categories
-typedef uint32 CatId;
-const CatId kIllegalCatId = static_cast<CatId>(0);
-
-typedef uint32 TermId;
-const TermId kIllegalTermId = static_cast<TermId>(0);
-
-typedef uint32 HostId;
-const HostId kIllegalHostId = static_cast<HostId>(0);
-
-typedef uint32 DomainId;
-const DomainId kIllegalDomainId = static_cast<DomainId>(0);
-
 // A macro to disallow the copy constructor and operator= functions
 // This should be used in the private: declarations for a class
 #define DISALLOW_COPY_AND_ASSIGN(TypeName) \
