@@ -220,6 +220,9 @@ class WebFrameLoaderClient : public WebCore::FrameLoaderClient {
   // otherwise returns NavigationGestureUnknown.
   NavigationGesture NavigationGestureForLastLoad();
 
+  // Called when a dummy back-forward navigation is intercepted.
+  void HandleBackForwardNavigation(const GURL&);
+
   // Returns NetAgent instance if network tracking is enabled.
   NetAgentImpl* GetNetAgentImpl();
 
