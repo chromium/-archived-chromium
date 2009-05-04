@@ -29,6 +29,7 @@ MSVC_POP_WARNING();
 #include "webkit/glue/chrome_client_impl.h"
 
 #include "base/logging.h"
+#include "base/message_loop.h"
 #include "base/gfx/rect.h"
 #include "googleurl/src/gurl.h"
 #include "third_party/WebKit/WebKit/chromium/public/WebInputEvent.h"
@@ -82,7 +83,8 @@ ChromeClientImpl::ChromeClientImpl(WebViewImpl* webview)
       scrollbars_visible_(true),
       menubar_visible_(true),
       resizable_(true),
-      ignore_next_set_cursor_(false) {
+      ignore_next_set_cursor_(false),
+      ALLOW_THIS_IN_INITIALIZER_LIST(task_factory_(this)) {
 }
 
 ChromeClientImpl::~ChromeClientImpl() {
@@ -92,17 +94,47 @@ void ChromeClientImpl::chromeDestroyed() {
   delete this;
 }
 
+void ChromeClientImpl::ClearPendingWindowRect() {
+  has_pending_window_rect_ = false;
+}
+
+void ChromeClientImpl::SetPendingWindowRect(const WebCore::FloatRect& rect) {
+  // Because we may be asynchronously attached to our delegate (where we
+  // do the real SetWindowRect()/GetWindowRect()), we keep a pending
+  // window rect size.  If JS code sets the WindowRect, and then calls
+  // GetWindowRect() before the delegate has asyncronously handled the
+  // Set, the pending rect makes sure that JS gets the right values.
+  //
+  // TODO(mbelshe): There is still a potential race condition here.  Currently
+  // this cache of the pending_window_rect_ is maintained until we return to
+  // the message loop.  We could make the browser send an ACK when it processes
+  // the SetWindowRect change.
+  pending_window_rect_ = rect;
+  if (!has_pending_window_rect_) {
+    // Create a task to clear the pending rect as soon as we
+    // go through our message loop once.
+    MessageLoop::current()->PostTask(FROM_HERE,
+        task_factory_.NewRunnableMethod(
+        &ChromeClientImpl::ClearPendingWindowRect));
+    has_pending_window_rect_ = true;
+  }
+}
+
 void ChromeClientImpl::setWindowRect(const WebCore::FloatRect& r) {
   WebViewDelegate* delegate = webview_->delegate();
   if (delegate) {
     WebCore::IntRect ir(r);
     delegate->SetWindowRect(webview_,
                             gfx::Rect(ir.x(), ir.y(), ir.width(), ir.height()));
+    SetPendingWindowRect(r);
   }
 }
 
 WebCore::FloatRect ChromeClientImpl::windowRect() {
   WebRect rect;
+  if (has_pending_window_rect_)
+    return pending_window_rect_;
+
   if (webview_->delegate()) {
     webview_->delegate()->GetRootWindowRect(webview_, &rect);
   } else {

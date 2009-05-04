@@ -605,12 +605,21 @@ void RenderWidget::Blur(WebWidget* webwidget) {
   Send(new ViewHostMsg_Blur(routing_id_));
 }
 
+void RenderWidget::DoDeferredClose() {
+  Send(new ViewHostMsg_Close(routing_id_));
+}
+
 void RenderWidget::CloseWidgetSoon(WebWidget* webwidget) {
   // If a page calls window.close() twice, we'll end up here twice, but that's
   // OK.  It is safe to send multiple Close messages.
 
-  // Ask the RenderWidgetHost to initiate close.
-  Send(new ViewHostMsg_Close(routing_id_));
+  // Ask the RenderWidgetHost to initiate close.  We could be called from deep
+  // in Javascript.  If we ask the RendwerWidgetHost to close now, the window
+  // could be closed before the JS finishes executing.  So instead, post a
+  // message back to the message loop, which won't run until the JS is
+  // complete, and then the Close message can be sent.
+  MessageLoop::current()->PostTask(FROM_HERE, NewRunnableMethod(
+      this, &RenderWidget::DoDeferredClose));
 }
 
 void RenderWidget::GenerateFullRepaint() {
@@ -630,12 +639,22 @@ void RenderWidget::GetWindowRect(WebWidget* webwidget, WebRect* result) {
   *result = rect;
 }
 
-void RenderWidget::SetWindowRect(WebWidget* webwidget, const WebRect& pos) {
+void RenderWidget::DoDeferredSetWindowRect(const WebRect& pos) {
   if (did_show_) {
     Send(new ViewHostMsg_RequestMove(routing_id_, pos));
   } else {
     initial_pos_ = pos;
   }
+}
+
+void RenderWidget::SetWindowRect(WebWidget* webwidget, const WebRect& pos) {
+  // We could be called from deep in Javascript.  If we ask the
+  // RenderWidgetHost to resize now, the window could be resized while the
+  // JS is still running.  This causes a number of interesting side effects
+  // when manipulating window sizes from Javascript.  Avoid races by posting
+  // a message back to the MessageLoop to do it later.
+  MessageLoop::current()->PostTask(FROM_HERE, NewRunnableMethod(
+      this, &RenderWidget::DoDeferredSetWindowRect, pos));
 }
 
 void RenderWidget::GetRootWindowRect(WebWidget* webwidget, WebRect* result) {
