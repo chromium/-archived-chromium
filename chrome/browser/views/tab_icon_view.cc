@@ -39,7 +39,7 @@ void TabIconView::InitializeIfNeeded() {
         IconUtil::CreateSkBitmapFromHICON(app_icon, gfx::Size(16, 16));
     DestroyIcon(app_icon);
 
-    g_throbber_frames = rb.GetBitmapNamed(IDR_THROBBER);
+    g_throbber_frames = rb.GetBitmapNamed(IDR_VIEWS_THROBBER);
     g_throbber_frames_light = rb.GetBitmapNamed(IDR_THROBBER_LIGHT);
     g_throbber_frame_count = g_throbber_frames->width() /
         g_throbber_frames->height();

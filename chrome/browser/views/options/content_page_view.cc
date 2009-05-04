@@ -160,8 +160,8 @@ void FileDisplayArea::InitClass() {
     bool ui_is_rtl = l10n_util::GetTextDirection() == l10n_util::RIGHT_TO_LEFT;
     ResourceBundle& rb = ResourceBundle::GetSharedInstance();
     default_folder_icon_ = *rb.GetBitmapNamed(ui_is_rtl ?
-                                              IDR_FOLDER_CLOSED_RTL :
-                                              IDR_FOLDER_CLOSED);
+                                              IDR_VIEWS_FOLDER_CLOSED_RTL :
+                                              IDR_VIEWS_FOLDER_CLOSED);
     initialized = true;
   }
 }

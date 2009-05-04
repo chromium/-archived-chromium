@@ -620,10 +620,10 @@ HIMAGELIST TreeView::CreateImageList() {
   // Creates the default image list used for trees.
   SkBitmap* closed_icon =
       ResourceBundle::GetSharedInstance().GetBitmapNamed(
-          (rtl ? IDR_FOLDER_CLOSED_RTL : IDR_FOLDER_CLOSED));
+          (rtl ? IDR_VIEWS_FOLDER_CLOSED_RTL : IDR_VIEWS_FOLDER_CLOSED));
   SkBitmap* opened_icon =
       ResourceBundle::GetSharedInstance().GetBitmapNamed(
-          (rtl ? IDR_FOLDER_OPEN_RTL : IDR_FOLDER_OPEN));
+          (rtl ? IDR_VIEWS_FOLDER_OPEN_RTL : IDR_VIEWS_FOLDER_OPEN));
   int width = closed_icon->width();
   int height = closed_icon->height();
   DCHECK(opened_icon->width() == width && opened_icon->height() == height);

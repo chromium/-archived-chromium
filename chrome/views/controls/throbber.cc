@@ -23,7 +23,7 @@ Throbber::Throbber(int frame_time_ms,
       frames_(NULL),
       frame_time_(TimeDelta::FromMilliseconds(frame_time_ms)) {
   ResourceBundle &rb = ResourceBundle::GetSharedInstance();
-  frames_ = rb.GetBitmapNamed(IDR_THROBBER);
+  frames_ = rb.GetBitmapNamed(IDR_VIEWS_THROBBER);
   DCHECK(frames_->width() > 0 && frames_->height() > 0);
   DCHECK(frames_->width() % frames_->height() == 0);
   frame_count_ = frames_->width() / frames_->height();
@@ -160,7 +160,7 @@ void CheckmarkThrobber::InitClass() {
   static bool initialized = false;
   if (!initialized) {
     ResourceBundle& rb = ResourceBundle::GetSharedInstance();
-    checkmark_ = rb.GetBitmapNamed(IDR_INPUT_GOOD);
+    checkmark_ = rb.GetBitmapNamed(IDR_VIEWS_INPUT_GOOD);
     initialized = true;
   }
 }

@@ -88,7 +88,7 @@ void InitResources() {
 
     // The loading animation image is a strip of states. Each state must be
     // square, so the height must divide the width evenly.
-    loading_animation_frames = rb.GetBitmapNamed(IDR_THROBBER);
+    loading_animation_frames = rb.GetBitmapNamed(IDR_VIEWS_THROBBER);
     DCHECK(loading_animation_frames);
     DCHECK(loading_animation_frames->width() %
            loading_animation_frames->height() == 0);

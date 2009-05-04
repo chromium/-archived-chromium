@@ -348,12 +348,12 @@ void EditKeywordController::UpdateImageView(ImageView* image_view,
     image_view->SetTooltipText(std::wstring());
     image_view->SetImage(
         ResourceBundle::GetSharedInstance().GetBitmapNamed(
-            IDR_INPUT_GOOD));
+            IDR_VIEWS_INPUT_GOOD));
   } else {
     image_view->SetTooltipText(l10n_util::GetString(invalid_message_id));
     image_view->SetImage(
         ResourceBundle::GetSharedInstance().GetBitmapNamed(
-            IDR_INPUT_ALERT));
+            IDR_VIEWS_INPUT_ALERT));
   }
 }
 
