@@ -90,6 +90,11 @@ WebFrameLoaderClient::~WebFrameLoaderClient() {
 }
 
 void WebFrameLoaderClient::frameLoaderDestroyed() {
+  WebViewImpl* webview = webframe_->webview_impl();
+  WebViewDelegate* d = webview->delegate();
+  if (d)
+    d->WillDestroyFrame(webframe_);
+
   // When the WebFrame was created, it had an extra reference given to it on
   // behalf of the Frame.  Since the WebFrame owns us, this extra ref also
   // serves to keep us alive until the FrameLoader is done with us.  The
