@@ -2190,6 +2190,11 @@ void Browser::UpdateCommandsForTabState() {
       SavePackage::IsSavableContents(current_tab->contents_mime_type()) &&
       SavePackage::IsSavableURL(current_tab->GetURL()));
 
+  // Find-in-page
+  command_updater_.UpdateCommandEnabled(IDC_FIND, true);
+  command_updater_.UpdateCommandEnabled(IDC_FIND_NEXT, true);
+  command_updater_.UpdateCommandEnabled(IDC_FIND_PREVIOUS, true);
+
   // Zoom
   command_updater_.UpdateCommandEnabled(IDC_ZOOM_MENU, true);
   command_updater_.UpdateCommandEnabled(IDC_ZOOM_PLUS, true);
