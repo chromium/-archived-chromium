@@ -1164,9 +1164,14 @@ void TextField::AboutToRequestFocusFromTabTraversal(bool reverse) {
   SelectAll();
 }
 
-// We don't translate accelerators for ALT + numpad digit, they are used for
-// entering special characters.
 bool TextField::ShouldLookupAccelerators(const KeyEvent& e) {
+  // TODO(hamaji): Figure out which keyboard combinations we need to add here,
+  //               similar to LocationBarView::ShouldLookupAccelerators.
+  if (e.GetCharacter() == VK_BACK)
+    return false;  // We'll handle BackSpace ourselves.
+
+  // We don't translate accelerators for ALT + NumPad digit, they are used for
+  // entering special characters.
   if (!e.IsAltDown())
     return true;
 
