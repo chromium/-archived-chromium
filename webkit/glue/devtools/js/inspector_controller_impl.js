@@ -38,10 +38,7 @@ devtools.InspectorControllerImpl.prototype.hiddenPanels = function() {
  */
 devtools.InspectorControllerImpl.prototype.addSourceToFrame =
     function(mimeType, source, element) {
-  if (!element.id) {
-    element.id = 'f' + this.frame_element_id_++; 
-  }
-  return DevToolsHost.addSourceToFrame(mimeType, source, element.id);
+  return DevToolsHost.addSourceToFrame(mimeType, source, element);
 };
 
 

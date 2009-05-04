@@ -8,6 +8,7 @@
 
 #include "Document.h"
 #include "DOMWindow.h"
+#include "Frame.h"
 #include "InspectorController.h"
 #include "Node.h"
 #include "Page.h"
@@ -17,8 +18,9 @@
 #include <wtf/Vector.h>
 #undef LOG
 
-#include "base/json_reader.h"
-#include "base/json_writer.h"
+#include "V8Binding.h"
+#include "v8_proxy.h"
+#include "v8_utility.h"
 #include "base/string_util.h"
 #include "base/values.h"
 #include "third_party/WebKit/WebKit/chromium/public/WebScriptSource.h"
@@ -33,13 +35,7 @@
 #include "webkit/glue/webframe.h"
 #include "webkit/glue/webview_impl.h"
 
-using WebCore::CString;
-using WebCore::Document;
-using WebCore::InspectorController;
-using WebCore::Node;
-using WebCore::Page;
-using WebCore::SecurityOrigin;
-using WebCore::String;
+using namespace WebCore;
 using WebKit::WebScriptSource;
 using WebKit::WebString;
 
@@ -81,7 +77,45 @@ class RemoteDebuggerCommandExecutor : public CppBoundClass {
 
 } //  namespace
 
-/*static*/
+// static
+HashMap<WebCore::Page*, WebDevToolsClientImpl*>
+    WebDevToolsClientImpl::page_to_client_;
+
+// static
+v8::Persistent<v8::FunctionTemplate>
+    WebDevToolsClientImpl::host_template_;
+
+// static
+void WebDevToolsClientImpl::InitBoundObject() {
+  if (!host_template_.IsEmpty()) {
+    return;
+  }
+  v8::HandleScope scope;
+  v8::Local<v8::FunctionTemplate> local_template =
+      v8::FunctionTemplate::New(V8Proxy::CheckNewLegal);
+  host_template_ = v8::Persistent<v8::FunctionTemplate>::New(local_template);
+
+  v8::Local<v8::Signature> default_signature =
+      v8::Signature::New(host_template_);
+  v8::Local<v8::ObjectTemplate> proto = host_template_->PrototypeTemplate();
+  proto->Set(
+      v8::String::New("addSourceToFrame"),
+      v8::FunctionTemplate::New(
+          WebDevToolsClientImpl::JsAddSourceToFrame,
+          v8::Handle<v8::Value>(),
+          default_signature),
+      static_cast<v8::PropertyAttribute>(v8::DontDelete));
+  proto->Set(
+      v8::String::New("loaded"),
+      v8::FunctionTemplate::New(
+          WebDevToolsClientImpl::JsLoaded,
+          v8::Handle<v8::Value>(),
+          default_signature),
+      static_cast<v8::PropertyAttribute>(v8::DontDelete));
+  host_template_->SetClassName(v8::String::New("DevToolsHost"));
+}
+
+// static
 WebDevToolsClient* WebDevToolsClient::Create(
     WebView* view,
     WebDevToolsClientDelegate* delegate) {
@@ -93,8 +127,9 @@ WebDevToolsClientImpl::WebDevToolsClientImpl(
     WebDevToolsClientDelegate* delegate)
     : web_view_impl_(web_view_impl),
       delegate_(delegate),
-      loaded_(false) {
-  WebFrame* frame = web_view_impl_->GetMainFrame();
+      loaded_(false),
+      page_(NULL) {
+  WebFrameImpl* frame = web_view_impl_->main_frame();
 
   // Debugger commands should be sent using special method.
   debugger_command_executor_obj_.set(new RemoteDebuggerCommandExecutor(
@@ -105,13 +140,23 @@ WebDevToolsClientImpl::WebDevToolsClientImpl(
   net_agent_obj_.set(new JsNetAgentBoundObj(this, frame, L"RemoteNetAgent"));
   tools_agent_obj_.set(
       new JsToolsAgentBoundObj(this, frame, L"RemoteToolsAgent"));
+  page_ = web_view_impl_->page();
+  page_to_client_.set(page_, this);
+  WebDevToolsClientImpl::InitBoundObject();
 
-  BindToJavascript(frame, L"DevToolsHost");
-  BindMethod("addSourceToFrame", &WebDevToolsClientImpl::JsAddSourceToFrame);
-  BindMethod("loaded", &WebDevToolsClientImpl::JsLoaded);
+  v8::HandleScope scope;
+  v8::Handle<v8::Context> frame_context = V8Proxy::GetContext(frame->frame());
+  v8::Context::Scope frame_scope(frame_context);
+
+  v8::Local<v8::Function> constructor = host_template_->GetFunction();
+  v8::Local<v8::Object> host_obj = SafeAllocation::NewInstance(constructor);
+
+  v8::Handle<v8::Object> global = frame_context->Global();
+  global->Set(v8::String::New("DevToolsHost"), host_obj);
 }
 
 WebDevToolsClientImpl::~WebDevToolsClientImpl() {
+  page_to_client_.remove(page_);
 }
 
 void WebDevToolsClientImpl::DispatchMessageFromAgent(
@@ -137,43 +182,50 @@ void WebDevToolsClientImpl::SendRpcMessage(const std::string& raw_msg) {
   delegate_->SendMessageToAgent(raw_msg);
 }
 
-void WebDevToolsClientImpl::JsAddSourceToFrame(
-    const CppArgumentList& args,
-    CppVariant* result) {
-  std::string mime_type = args[0].ToString();
-  std::string source = args[1].ToString();
-  std::string node_id = args[2].ToString();
-
-  Page* page = web_view_impl_->page();
-  Document* document = page->mainFrame()->document();
-  Node* node = document->getElementById(
-      webkit_glue::StdStringToString(node_id));
-  if (!node) {
-    result->Set(false);
-    return;
+// static
+v8::Handle<v8::Value> WebDevToolsClientImpl::JsAddSourceToFrame(
+    const v8::Arguments& args) {
+  if (args.Length() < 2) {
+    return v8::Undefined();
   }
 
-  bool r = page->inspectorController()->addSourceToFrame(
-      webkit_glue::StdStringToString(mime_type),
-      webkit_glue::StdStringToString(source),
-      node);
-  result->Set(r);
+  v8::TryCatch exception_catcher;
+
+  String mime_type = WebCore::toWebCoreStringWithNullCheck(args[0]);
+  if (mime_type.isEmpty() || exception_catcher.HasCaught()) {
+    return v8::Undefined();
+  }
+  String source_string = WebCore::toWebCoreStringWithNullCheck(args[1]);
+  if (source_string.isEmpty() || exception_catcher.HasCaught()) {
+    return v8::Undefined();
+  }
+  Node* node = V8Proxy::DOMWrapperToNode<Node>(args[2]);
+  if (!node || !node->attached()) {
+  }
+
+  Page* page = V8Proxy::retrieveActiveFrame()->page();
+  InspectorController* inspectorController = page->inspectorController();
+  return WebCore::v8Boolean(inspectorController->
+      addSourceToFrame(mime_type, source_string, node));
 }
 
-void WebDevToolsClientImpl::JsLoaded(
-    const CppArgumentList& args,
-    CppVariant* result) {
-  loaded_ = true;
+// static
+v8::Handle<v8::Value> WebDevToolsClientImpl::JsLoaded(
+    const v8::Arguments& args) {
+  Page* page = V8Proxy::retrieveActiveFrame()->page();
+  WebDevToolsClientImpl* client = page_to_client_.get(page);
+  client->loaded_ = true;
 
   // Grant the devtools page the ability to have source view iframes.
-  Page* page = web_view_impl_->page();
   SecurityOrigin* origin = page->mainFrame()->domWindow()->securityOrigin();
   origin->grantUniversalAccess();
 
-  for (Vector<std::string>::iterator it = pending_incoming_messages_.begin();
-       it != pending_incoming_messages_.end(); ++it) {
-    DispatchMessageFromAgent(*it);
+  for (Vector<std::string>::iterator it =
+           client->pending_incoming_messages_.begin();
+       it != client->pending_incoming_messages_.end();
+       ++it) {
+    client->DispatchMessageFromAgent(*it);
   }
-  pending_incoming_messages_.clear();
-  result->SetNull();
+  client->pending_incoming_messages_.clear();
+  return v8::Undefined();
 }

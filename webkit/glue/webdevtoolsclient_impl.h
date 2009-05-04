@@ -7,13 +7,16 @@
 
 #include <string>
 
+#include <wtf/HashMap.h>
 #include <wtf/OwnPtr.h>
 
+#include "v8.h"
 #include "webkit/glue/cpp_bound_class.h"
 #include "webkit/glue/devtools/devtools_rpc.h"
 #include "webkit/glue/webdevtoolsclient.h"
 
 namespace WebCore {
+class Page;
 class String;
 }
 
@@ -40,8 +43,12 @@ class WebDevToolsClientImpl : public WebDevToolsClient,
   virtual void DispatchMessageFromAgent(const std::string& raw_msg);
 
  private:
-  void JsAddSourceToFrame(const CppArgumentList& args, CppVariant* result);
-  void JsLoaded(const CppArgumentList& args, CppVariant* result);
+  static v8::Handle<v8::Value> JsAddSourceToFrame(const v8::Arguments& args);
+  static v8::Handle<v8::Value> JsLoaded(const v8::Arguments& args);
+  static v8::Persistent<v8::FunctionTemplate> host_template_;
+  static HashMap<WebCore::Page*, WebDevToolsClientImpl*> page_to_client_;
+
+  static void InitBoundObject();
 
   WebViewImpl* web_view_impl_;
   WebDevToolsClientDelegate* delegate_;
@@ -52,6 +59,7 @@ class WebDevToolsClientImpl : public WebDevToolsClient,
   OwnPtr<JsToolsAgentBoundObj> tools_agent_obj_;
   bool loaded_;
   Vector<std::string> pending_incoming_messages_;
+  WebCore::Page* page_;
   DISALLOW_COPY_AND_ASSIGN(WebDevToolsClientImpl);
 };
 
