@@ -6,6 +6,7 @@
 #define CHROME_VIEWS_CONTROLS_MENU_CHROME_MENU_H_
 
 #include <list>
+#include <vector>
 
 #include "base/gfx/point.h"
 #include "base/gfx/rect.h"
@@ -931,9 +932,6 @@ class MenuController : public MessageLoopForUI::Dispatcher {
   int drop_x_;
   int drop_y_;
   int last_drop_operation_;
-
-  // If true, the mouse is over some menu.
-  bool any_menu_contains_mouse_;
 
   // If true, we're in the middle of invoking ShowAt on a submenu.
   bool showing_submenu_;

@@ -653,7 +653,7 @@ class MenuHostRootView : public RootView {
 
 class MenuHost : public WidgetWin {
  public:
-  MenuHost(SubmenuView* submenu)
+  explicit MenuHost(SubmenuView* submenu)
       : closed_(false),
         submenu_(submenu),
         owns_capture_(false) {
@@ -774,7 +774,8 @@ class EmptyMenuMenuItem : public MenuItemView {
   // ID used for EmptyMenuMenuItem.
   static const int kEmptyMenuItemViewID;
 
-  EmptyMenuMenuItem(MenuItemView* parent) : MenuItemView(parent, 0, NORMAL) {
+  explicit EmptyMenuMenuItem(MenuItemView* parent) :
+      MenuItemView(parent, 0, NORMAL) {
     SetTitle(l10n_util::GetString(IDS_MENU_EMPTY_SUBMENU));
     // Set this so that we're not identified as a normal menu item.
     SetID(kEmptyMenuItemViewID);
@@ -1621,8 +1622,6 @@ MenuItemView* MenuController::Run(HWND parent,
     pending_state_.monitor_bounds = gfx::Rect(mi.rcMonitor);
   }
 
-  any_menu_contains_mouse_ = false;
-
   // Set the selection, which opens the initial menu.
   SetSelection(root, true, true);
 
@@ -1777,8 +1776,6 @@ void MenuController::OnMousePressed(SubmenuView* source,
     return;
   }
 
-  any_menu_contains_mouse_ = true;
-
   bool open_submenu = false;
   if (!part.menu) {
     part.menu = source->GetMenuItem();
@@ -1854,7 +1851,6 @@ void MenuController::OnMouseDragged(SubmenuView* source,
       part.menu = source->GetMenuItem();
     SetSelection(part.menu ? part.menu : state_.item, true, false);
   }
-  any_menu_contains_mouse_ = (part.type == MenuPart::MENU_ITEM);
 }
 
 void MenuController::OnMouseReleased(SubmenuView* source,
@@ -1870,7 +1866,6 @@ void MenuController::OnMouseReleased(SubmenuView* source,
   DCHECK(blocking_run_);
   MenuPart part =
       GetMenuPartByScreenCoordinate(source, event.x(), event.y());
-  any_menu_contains_mouse_ = (part.type == MenuPart::MENU_ITEM);
   if (event.IsRightMouseButton() && (part.type == MenuPart::MENU_ITEM &&
                                      part.menu)) {
     // Set the selection immediately, making sure the submenu is only open
@@ -1914,17 +1909,14 @@ void MenuController::OnMouseMoved(SubmenuView* source,
   if (!blocking_run_)
     return;
 
-  any_menu_contains_mouse_ = (part.type == MenuPart::MENU_ITEM);
   if (part.type == MenuPart::MENU_ITEM && part.menu) {
     SetSelection(part.menu, true, false);
-  } else if (!part.is_scroll() && any_menu_contains_mouse_ &&
-             pending_state_.item &&
+  } else if (!part.is_scroll() && pending_state_.item &&
              (!pending_state_.item->HasSubmenu() ||
               !pending_state_.item->GetSubmenu()->IsShowing())) {
     // On exit if the user hasn't selected an item with a submenu, move the
     // selection back to the parent menu item.
     SetSelection(pending_state_.item->GetParentMenuItem(), true, false);
-    any_menu_contains_mouse_ = false;
   }
 }
 
@@ -2209,7 +2201,6 @@ MenuController::MenuController(bool blocking)
       owner_(NULL),
       possible_drag_(false),
       valid_drop_coordinates_(false),
-      any_menu_contains_mouse_(false),
       showing_submenu_(false),
       result_mouse_event_flags_(0) {
 #ifdef DEBUG_MENU
