@@ -685,7 +685,7 @@ void Browser::Reload() {
       return;
     }
 
-	// As this is caused by a user action, give the focus to the page.
+    // As this is caused by a user action, give the focus to the page.
     current_tab->Focus();
     current_tab->controller().Reload(true);
   }
@@ -1031,25 +1031,25 @@ void Browser::OpenCreateShortcutsDialog() {
 void Browser::OpenDebuggerWindow() {
 #ifndef CHROME_DEBUGGER_DISABLED
   UserMetrics::RecordAction(L"Debugger", profile_);
-  TabContents* current_tab = GetSelectedTabContents();
-  if (CommandLine::ForCurrentProcess()->HasSwitch(
-          switches::kEnableOutOfProcessDevTools)) {
-    DevToolsManager* manager = g_browser_process->devtools_manager();
-    manager->OpenDevToolsWindow(current_tab);
-  } else {
-    // Only one debugger instance can exist at a time right now.
-    // TODO(erikkay): need an alert, dialog, something
-    // or better yet, fix the one instance limitation
-    if (!DebuggerWindow::DoesDebuggerExist())
-      debugger_window_ = new DebuggerWindow();
-    debugger_window_->Show(current_tab);
-  }
+  // Only one debugger instance can exist at a time right now.
+  // TODO(erikkay): need an alert, dialog, something
+  // or better yet, fix the one instance limitation
+  if (!DebuggerWindow::DoesDebuggerExist())
+    debugger_window_ = new DebuggerWindow();
+  debugger_window_->Show(GetSelectedTabContents());
 #endif
 }
 
 void Browser::OpenJavaScriptConsole() {
   UserMetrics::RecordAction(L"ShowJSConsole", profile_);
-  GetSelectedTabContents()->render_view_host()->ShowJavaScriptConsole();
+  if (CommandLine::ForCurrentProcess()->HasSwitch(
+          switches::kEnableOutOfProcessDevTools)) {
+    DevToolsManager* manager = g_browser_process->devtools_manager();
+    manager->OpenDevToolsWindow(GetSelectedTabContents());
+  } else {
+    GetSelectedTabContents()->render_view_host()->
+        ShowJavaScriptConsole();
+  }
 }
 
 void Browser::OpenTaskManager() {
@@ -2142,9 +2142,13 @@ void Browser::InitCommandState() {
 
     // Show various bits of UI
 #if defined(OS_WIN)
+    // Command line debugger conflicts with the new oop one.
+    bool oop_devtools = CommandLine::ForCurrentProcess()->HasSwitch(
+        switches::kEnableOutOfProcessDevTools);
     command_updater_.UpdateCommandEnabled(IDC_DEBUGGER,
         // The debugger doesn't work in single process mode.
-        normal_window && !RenderProcessHost::run_renderer_in_process());
+        !oop_devtools && normal_window &&
+            !RenderProcessHost::run_renderer_in_process());
 #endif
     command_updater_.UpdateCommandEnabled(IDC_CLEAR_BROWSING_DATA,
                                           normal_window);
