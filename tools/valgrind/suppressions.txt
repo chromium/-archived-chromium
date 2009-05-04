@@ -174,7 +174,7 @@
    Memcheck:Leak
    ...
    fun:findLockInfo
-   fun:unixOpen
+   ...
    fun:sqlite3OsOpen
 }
 {
@@ -519,10 +519,23 @@
    # See http://crbug.com/11117
    bug_11117
    Memcheck:Leak
-   fun:_Znwj
+   ...
    fun:_ZN3IPC12ChannelProxy4SendEPNS_7MessageE
    ...
    fun:_ZN24RendererWebKitClientImpl24suddenTerminationChangedEb
+}
+{
+   # See http://crbug.com/11130
+   bug_11130
+   Memcheck:Leak
+   fun:_Znwj
+   fun:_Z17NewRunnableMethodIN3IPC12ChannelProxy7ContextEMS2_FvPNS0_7MessageEES4_EP14CancelableTaskPT_T0_RKT1_
+   fun:_ZN3IPC12ChannelProxy4SendEPNS_7MessageE
+   fun:_ZN3IPC11SyncChannel15SendWithTimeoutEPNS_7MessageEi
+   fun:_ZN3IPC11SyncChannel4SendEPNS_7MessageE
+   fun:_ZN11ChildThread4SendEPN3IPC7MessageE
+   fun:_ZN12RenderThread4SendEPN3IPC7MessageE
+   fun:_ZN19AppCacheContextImpl19UnInitializeContextEv
 }
 {
    # See http://crbug.com/11139
