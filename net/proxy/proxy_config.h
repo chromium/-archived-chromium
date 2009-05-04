@@ -27,6 +27,7 @@ class ProxyConfig {
 
   // Used to numerically identify this configuration.
   ID id() const { return id_; }
+  void set_id(int id) { id_ = id; }
 
   // True if the proxy configuration should be auto-detected.
   bool auto_detect;
@@ -103,7 +104,6 @@ class ProxyConfig {
   bool Equals(const ProxyConfig& other) const;
 
  private:
-  static int last_id_;
   int id_;
 };
 

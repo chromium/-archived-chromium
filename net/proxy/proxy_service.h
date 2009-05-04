@@ -118,9 +118,17 @@ class ProxyService {
   // Identifies the proxy configuration.
   ProxyConfig::ID config_id() const { return config_.id(); }
 
+  // Returns true if we have called UpdateConfig() at least once.
+  bool config_has_been_initialized() const {
+    return config_.id() != ProxyConfig::INVALID_ID;
+  }
+
   // Checks to see if the proxy configuration changed, and then updates config_
   // to reference the new configuration.
   void UpdateConfig();
+
+  // Assign |config| as the current configuration.
+  void SetConfig(const ProxyConfig& config);
 
   // Tries to update the configuration if it hasn't been checked in a while.
   void UpdateConfigIfOld();
@@ -174,15 +182,15 @@ class ProxyService {
   scoped_ptr<ProxyResolver> resolver_;
   scoped_ptr<base::Thread> pac_thread_;
 
-  // We store the proxy config and a counter that is incremented each time
+  // We store the proxy config and a counter (ID) that is incremented each time
   // the config changes.
   ProxyConfig config_;
 
+  // Increasing ID to give to the next ProxyConfig that we set.
+  int next_config_id_;
+
   // Indicates that the configuration is bad and should be ignored.
   bool config_is_bad_;
-
-  // false if the ProxyService has not been initialized yet.
-  bool config_has_been_updated_;
 
   // The time when the proxy configuration was last read from the system.
   base::TimeTicks config_last_update_time_;

@@ -183,8 +183,8 @@ ProxyService::ProxyService(ProxyConfigService* config_service,
                            ProxyResolver* resolver)
     : config_service_(config_service),
       resolver_(resolver),
+      next_config_id_(1),
       config_is_bad_(false),
-      config_has_been_updated_(false),
       ALLOW_THIS_IN_INITIALIZER_LIST(proxy_script_fetcher_callback_(
           this, &ProxyService::OnScriptFetchCompletion)),
       fetched_pac_config_id_(ProxyConfig::INVALID_ID),
@@ -539,22 +539,35 @@ void ProxyService::DidCompletePacRequest(int config_id, int result_code) {
 }
 
 void ProxyService::UpdateConfig() {
-  config_has_been_updated_ = true;
+  bool is_first_update = !config_has_been_initialized();
 
   ProxyConfig latest;
-  if (config_service_->GetProxyConfig(&latest) != OK)
+  if (config_service_->GetProxyConfig(&latest) != OK) {
+    if (is_first_update) {
+      // Default to direct-connection if the first fetch fails.
+      LOG(INFO) << "Failed initial proxy configuration fetch.";
+      SetConfig(ProxyConfig());
+    }
     return;
+  }
   config_last_update_time_ = TimeTicks::Now();
 
-  if (latest.Equals(config_))
+  if (!is_first_update && latest.Equals(config_))
     return;
 
-  LOG(INFO) << "New proxy configuration was loaded:\n" << latest;
+  SetConfig(latest);
+}
 
-  config_ = latest;
+void ProxyService::SetConfig(const ProxyConfig& config) {
+  config_ = config;
+
+  // Increment the ID to reflect that the config has changed.
+  config_.set_id(next_config_id_++);
+
+  LOG(INFO) << "New proxy configuration was loaded:\n" << config_;
+
+  // Reset state associated with latest config.
   config_is_bad_ = false;
-
-  // We have a new config, we should clear the list of bad proxies.
   proxy_retry_info_.clear();
 }
 
@@ -563,7 +576,7 @@ void ProxyService::UpdateConfigIfOld() {
   const TimeDelta kProxyConfigMaxAge = TimeDelta::FromSeconds(5);
 
   // Periodically check for a new config.
-  if (!config_has_been_updated_ ||
+  if (!config_has_been_initialized() ||
       (TimeTicks::Now() - config_last_update_time_) > kProxyConfigMaxAge)
     UpdateConfig();
 }
