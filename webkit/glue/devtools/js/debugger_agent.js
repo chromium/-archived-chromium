@@ -34,7 +34,7 @@ devtools.DebuggerAgent = function() {
   /**
    * Information on current stack top frame.
    * See JavaScriptCallFrame.idl.
-   * @type {?Object}
+   * @type {?devtools.CallFrame}
    */
   this.currentCallFrame_ = null;
   
@@ -199,7 +199,7 @@ devtools.DebuggerAgent.prototype.setPauseOnExceptions = function(value) {
 
 /**
  * Current stack top frame.
- * @return {Object}
+ * @return {devtools.CallFrame}
  */
 devtools.DebuggerAgent.prototype.getCurrentCallFrame = function() {
   return this.currentCallFrame_;
@@ -208,17 +208,14 @@ devtools.DebuggerAgent.prototype.getCurrentCallFrame = function() {
 
 /**
  * Sends 'evaluate' request to the debugger.
- * @param {string} expr Expression to evaluate.
+ * @param {Object} arguments Request arguments map.
  * @param {function(devtools.DebuggerMessage)} callback Callback to be called
  *     when response is received.
  */
-devtools.DebuggerAgent.prototype.requestEvaluate = function(expr, callback) {
-  var cmd = new devtools.DebugCommand('evaluate', {
-    'expression': expr,
-    'global':true
-  });
+devtools.DebuggerAgent.prototype.requestEvaluate = function(
+    arguments, callback) {
+  var cmd = new devtools.DebugCommand('evaluate', arguments);
   devtools.DebuggerAgent.sendCommand_(cmd);
-
   this.requestSeqToCallback_[cmd.getSequenceNumber()] = callback;
 };
 
@@ -363,14 +360,10 @@ devtools.DebuggerAgent.prototype.handleBreakEvent_ = function(msg) {
   var body = msg.getBody();
 
   var line = devtools.DebuggerAgent.v8ToWwebkitLineNumber_(body.sourceLine);
-  this.currentCallFrame_ = {
-    'sourceID': body.script.id,
-    'line': line,
-    'script': body.script,
-    'scopeChain': [],
-    'thisObject': {}
-  };
-  
+  this.currentCallFrame_ = new devtools.CallFrame();
+  this.currentCallFrame_.sourceID = body.script.id;
+  this.currentCallFrame_.line = line;
+  this.currentCallFrame_.script = body.script;
   this.requestBacktrace_();
 };
 
@@ -393,13 +386,10 @@ devtools.DebuggerAgent.prototype.handleExceptionEvent_ = function(msg) {
     
     var line = devtools.DebuggerAgent.v8ToWwebkitLineNumber_(body.sourceLine);
     
-    this.currentCallFrame_ = {
-      'sourceID': sourceId,
-      'line': line,
-      'script': body.script,
-      'scopeChain': [],
-      'thisObject': {}
-    };
+    this.currentCallFrame_ = new devtools.CallFrame();
+    this.currentCallFrame_.sourceID = sourceId;
+    this.currentCallFrame_.line = line;
+    this.currentCallFrame_.script = body.script;
     this.requestBacktrace_();
   } else {             
     this.resumeExecution();
@@ -496,6 +486,7 @@ devtools.DebuggerAgent.prototype.handleBacktraceResponse_ = function(msg) {
   for (var i = frames.length - 1; i>=0; i--) {
     var nextFrame = frames[i];
     var f = devtools.DebuggerAgent.formatCallFrame_(nextFrame, script, msg);
+    f.frameNumber = i;
     f.caller = callerFrame;
     callerFrame = f;
   }
@@ -521,12 +512,16 @@ devtools.DebuggerAgent.prototype.invokeCallbackForResponse_ = function(msg) {
 };
 
 
+devtools.DebuggerAgent.prototype.evaluateInCallFrame_ = function(expression) {
+};
+
+
 /**
  * @param {Object} stackFrame Frame json object from 'backtrace' response.
  * @param {Object} script Script json object from 'break' event.
  * @param {devtools.DebuggerMessage} msg Parsed 'backtrace' response.
- * @return {!Object} Object containing information related to the call frame in
- *     the format expected by ScriptsPanel and its panes.
+ * @return {!devtools.CallFrame} Object containing information related to the
+ *     call frame in the format expected by ScriptsPanel and its panes.
  */
 devtools.DebuggerAgent.formatCallFrame_ = function(stackFrame, script, msg) {
   var sourceId = script.id;
@@ -551,16 +546,15 @@ devtools.DebuggerAgent.formatCallFrame_ = function(stackFrame, script, msg) {
   scope['this'] = devtools.DebuggerAgent.formatObject_(thisObject, msg);
   
   var line = devtools.DebuggerAgent.v8ToWwebkitLineNumber_(stackFrame.line);
-  return {
-    'sourceID': sourceId,
-    'line': line,
-    'type': 'function',
-    'functionName': funcName, //stackFrame.text,
-    'caller': null,
-    'localScope': scope,
-    'scopeChain': [scope],
-    'thisObject': thisObject,
-  };
+  var result = new devtools.CallFrame();
+  result.sourceID = sourceId;
+  result.line = line;
+  result.type = 'function';
+  result.functionName = funcName;
+  result.localScope = scope;
+  result.scopeChain = [scope];
+  result.thisObject = thisObject;
+  return result;
 };
 
 
@@ -889,6 +883,54 @@ devtools.BreakpointInfo.prototype.isRemoved = function() {
   return this.removed_;
 };
 
+
+/**
+ * Call stack frame data.
+ * @construnctor
+ */
+devtools.CallFrame = function() {
+  this.sourceID = null;
+  this.line = null;
+  this.type = 'function';
+  this.functionName = null;
+  this.caller = null;
+  this.localScope = null;
+  this.scopeChain = [];
+  this.thisObject = {};
+  this.frameNumber = null;
+};
+
+
+/**
+ * This method is called by
+ * WebInspector.ScriptsPanel.evaluateInSelectedCallFrame. This method issues
+ * asynchronous evaluate request.
+ * @param {string} expression An expression to be evaluated in the context of
+ *     this call frame.
+ * @return {string} User message that the expression is being evaluated.
+ */
+devtools.CallFrame.prototype.evaluate = function(expression) {
+  devtools.tools.getDebuggerAgent().requestEvaluate({
+        'expression': expression,
+        'frame': this.frameNumber,
+        'global': false,
+        'disable_break': false
+      },
+      devtools.CallFrame.handleEvaluateResponse_);
+  return 'evaluating...';
+};
+
+
+/**
+ * Handles 'evaluate' response for a call frame
+ * @param {devtools.DebuggerMessage} response
+ */
+devtools.CallFrame.handleEvaluateResponse_ = function(response) {
+  var body = response.getBody();
+  var value = devtools.DebuggerAgent.formatValue_(body);
+  WebInspector.addMessageToConsole(new WebInspector.ConsoleCommandResult(
+      value, false /* exception */, null /* commandMessage */));
+};
 
 
 /**

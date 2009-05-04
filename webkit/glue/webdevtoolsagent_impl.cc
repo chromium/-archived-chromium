@@ -13,6 +13,7 @@
 #include "Page.h"
 #include "PlatformString.h"
 #include "ScriptValue.h"
+#include "v8_proxy.h"
 #include <wtf/OwnPtr.h>
 #undef LOG
 
@@ -189,6 +190,11 @@ void WebDevToolsAgentImpl::EvaluateJavaScript(int call_id, const String& js) {
   ScriptValue result = page->mainFrame()->loader()->executeScript(js);
   String result_string;
   if (!result.hasNoValue()) {
+    // toString() may need global context.
+    v8::HandleScope scope;
+    v8::Handle<v8::Context> context = WebCore::V8Proxy::GetContext(
+        page->mainFrame());
+    v8::Context::Scope context_scope(context);
     result_string = result.toString(NULL);
   }
   tools_agent_delegate_stub_->DidEvaluateJavaScript(call_id, result_string);

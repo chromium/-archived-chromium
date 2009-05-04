@@ -590,3 +590,23 @@ WebInspector.StylePropertyTreeElement.prototype.applyStyleText = function(
         }
       });
 };
+
+
+/**
+ * @override
+ */
+WebInspector.Console.prototype._evalInInspectedWindow = function(expression) {
+  if (WebInspector.panels.scripts.paused)
+    return WebInspector.panels.scripts.evaluateInSelectedCallFrame(expression);
+
+  var console = this;
+  devtools.tools.evaluateJavaScript(expression, function(response) {
+    // TODO(yurys): send exception information along with the response
+    var exception = false;
+    console.addMessage(new WebInspector.ConsoleCommandResult(
+        response, exception, null /* commandMessage */));
+  });
+  // TODO(yurys): refactor WebInspector.Console so that the result is added into
+  // the command log message.
+  return 'evaluating...';
+};
