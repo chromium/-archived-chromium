@@ -480,6 +480,7 @@ LanguagesPageView::LanguagesPageView(Profile* profile)
       OptionsPageView(profile),
       language_table_edited_(false),
       language_warning_shown_(false),
+      enable_spellcheck_checkbox_clicked_(false),
       spellcheck_language_index_selected_(-1),
       ui_language_index_selected_(-1),
       starting_ui_language_index_(-1) {
@@ -511,10 +512,7 @@ void LanguagesPageView::ButtonPressed(views::Button* sender) {
         new AddLanguageWindowView(this, profile()))->Show();
     language_table_edited_ = true;
   } else if (sender == enable_spellchecking_checkbox_) {
-    if (enable_spellchecking_checkbox_->checked())
-      enable_spellcheck_.SetValue(true);
-    else
-      enable_spellcheck_.SetValue(false);
+      enable_spellcheck_checkbox_clicked_ = true;
   }
 }
 
@@ -844,4 +842,7 @@ void LanguagesPageView::SaveChanges() {
     dictionary_language_.SetValue(ASCIIToWide(dictionary_language_model_->
         GetLocaleFromIndex(spellcheck_language_index_selected_)));
   }
+
+  if (enable_spellcheck_checkbox_clicked_)
+    enable_spellcheck_.SetValue(enable_spellchecking_checkbox_->checked());
 }

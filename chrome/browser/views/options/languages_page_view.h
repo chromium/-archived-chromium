@@ -105,6 +105,7 @@ class LanguagesPageView : public OptionsPageView,
 
   bool language_table_edited_;
   bool language_warning_shown_;
+  bool enable_spellcheck_checkbox_clicked_;
 
   DISALLOW_EVIL_CONSTRUCTORS(LanguagesPageView);
 };
