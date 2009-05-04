@@ -260,7 +260,7 @@ bool BackendImpl::Init() {
   }
 
   init_ = true;
-  if (data_ && !InitExperiment(&data_->header.experiment))
+  if (!InitExperiment(&data_->header.experiment))
     return false;
 
   if (data_->header.experiment > 6)
@@ -937,6 +937,10 @@ bool BackendImpl::InitBackingStore(bool* file_created) {
 
   index_ = new MappedFile();
   data_ = reinterpret_cast<Index*>(index_->Init(index_name, 0));
+  if (!data_) {
+    LOG(ERROR) << "Unable to map Index file";
+    return false;
+  }
   return true;
 }
 
@@ -1402,10 +1406,7 @@ void BackendImpl::UpgradeTo2_1() {
 }
 
 bool BackendImpl::CheckIndex() {
-  if (!data_) {
-    LOG(ERROR) << "Unable to map Index file";
-    return false;
-  }
+  DCHECK(data_);
 
   size_t current_size = index_->GetLength();
   if (current_size < sizeof(Index)) {
