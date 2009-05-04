@@ -189,24 +189,33 @@ class ValgrindAnalyze:
     '''
 
     self._errors = set()
+    badfiles = set()
+    start = time.time()
     for file in files:
-      # Wait up to ten minutes for valgrind to finish writing.
+      # Wait up to three minutes for valgrind to finish writing all files,
+      # but after that, just skip incomplete files and warn.
       f = open(file, "r")
-      ntries = 600
-      for tries in range(0, ntries):
+      found = False
+      firstrun = True
+      while (firstrun or ((time.time() - start) < 180.0)):
+        firstrun = False
         f.seek(0)
         if sum((1 for line in f if '</valgrindoutput>' in line)) > 0:
+          found = True
           break
         time.sleep(1)
       f.close()
-      if tries == ntries-1:
-        logging.error("valgrind never finished?")
-      raw_errors = parse(file).getElementsByTagName("error")
-      for raw_error in raw_errors:
-        # Ignore "possible" leaks for now by default.
-        if (show_all_leaks or
-            getTextOf(raw_error, "kind") != "Leak_PossiblyLost"):
-          self._errors.add(ValgrindError(source_dir, raw_error))
+      if not found:
+        badfiles.add(file)
+      else:
+        raw_errors = parse(file).getElementsByTagName("error")
+        for raw_error in raw_errors:
+          # Ignore "possible" leaks for now by default.
+          if (show_all_leaks or
+              getTextOf(raw_error, "kind") != "Leak_PossiblyLost"):
+            self._errors.add(ValgrindError(source_dir, raw_error))
+    if len(badfiles) > 0:
+      logging.warn("valgrind didn't finish writing %d files?!" % len(badfiles))
 
   def Report(self):
     if self._errors:
