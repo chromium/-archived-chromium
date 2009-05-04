@@ -24,10 +24,6 @@
 class RenderThreadBase;
 struct WebPluginGeometry;
 
-namespace WebKit {
-struct WebRect;
-}
-
 // RenderWidget provides a communication bridge between a WebWidget and
 // a RenderWidgetHost, the latter of which lives in a different process.
 class RenderWidget : public IPC::Channel::Listener,
@@ -123,8 +119,6 @@ class RenderWidget : public IPC::Channel::Listener,
 
   void DoDeferredPaint();
   void DoDeferredScroll();
-  void DoDeferredClose();
-  void DoDeferredSetWindowRect(const WebKit::WebRect& pos);
 
   // This method is called immediately after PaintRect but before the
   // corresponding paint or scroll message is send to the widget host.

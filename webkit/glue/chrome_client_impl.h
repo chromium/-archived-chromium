@@ -6,7 +6,6 @@
 #define WEBKIT_GLUE_CHROME_CLIENT_IMPL_H_
 
 #include "base/compiler_specific.h"
-#include "base/task.h"
 
 MSVC_PUSH_WARNING_LEVEL(0);
 #include "ChromeClientChromium.h"
@@ -136,9 +135,6 @@ class ChromeClientImpl : public WebCore::ChromeClientChromium {
   virtual WebCore::HTMLParserQuirks* createHTMLParserQuirks() { return 0; }
 
  private:
-  void ClearPendingWindowRect();
-  void SetPendingWindowRect(const WebCore::FloatRect& r);
-
   WebViewImpl* webview_;  // weak pointer
   bool toolbars_visible_;
   bool statusbar_visible_;
@@ -147,12 +143,6 @@ class ChromeClientImpl : public WebCore::ChromeClientChromium {
   bool resizable_;
   // Set to true if the next SetCursor is to be ignored.
   bool ignore_next_set_cursor_;
-  // While we are waiting for the browser to update window sizes,
-  // we track the pending size temporarily.
-  bool has_pending_window_rect_;
-  WebCore::FloatRect pending_window_rect_;
-
-  ScopedRunnableMethodFactory<ChromeClientImpl> task_factory_;
 };
 
 #endif  // WEBKIT_GLUE_CHROME_CLIENT_IMPL_H_
