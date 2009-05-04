@@ -18,14 +18,13 @@
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
 #include "grit/generated_resources.h"
+#include "grit/views_strings.h"
 
 // TODO(port): Port these files.
 #if defined(OS_WIN)
 #include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/browser/views/bookmark_manager_view.h"
 #include "chrome/views/window/window.h"
-// TODO(beng): move this stuff to a common location and move it out of this block
-#include "grit/views_strings.h"
 #endif
 
 namespace {
