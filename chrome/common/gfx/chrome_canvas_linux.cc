@@ -58,6 +58,18 @@ void ChromeCanvas::SizeStringInt(const std::wstring& text,
   NOTIMPLEMENTED();
 }
 
+void ChromeCanvas::ApplySkiaMatrixToCairoContext(cairo_t* cr) {
+  const SkMatrix& skia_matrix = getTotalMatrix();
+  cairo_matrix_t cairo_matrix;
+  cairo_matrix_init(&cairo_matrix,
+                    SkScalarToFloat(skia_matrix.getScaleX()),
+                    SkScalarToFloat(skia_matrix.getSkewY()),
+                    SkScalarToFloat(skia_matrix.getSkewX()),
+                    SkScalarToFloat(skia_matrix.getScaleY()),
+                    SkScalarToFloat(skia_matrix.getTranslateX()),
+                    SkScalarToFloat(skia_matrix.getTranslateY()));
+  cairo_set_matrix(cr, &cairo_matrix);
+}
 
 void ChromeCanvas::DrawStringInt(const std::wstring& text,
                                  const ChromeFont& font,
@@ -65,6 +77,10 @@ void ChromeCanvas::DrawStringInt(const std::wstring& text,
                                  int h, int flags) {
   cairo_surface_t* surface = beginPlatformPaint();
   cairo_t* cr = cairo_create(surface);
+  // We're going to draw onto the surface directly. This circumvents the matrix
+  // installed by Skia. Apply the matrix from skia to cairo so they align and
+  // we draw at the right place.
+  ApplySkiaMatrixToCairoContext(cr);
   PangoLayout* layout = pango_cairo_create_layout(cr);
 
   cairo_set_source_rgb(cr,

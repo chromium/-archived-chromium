@@ -95,7 +95,7 @@ class CanvasPaintT : public T {
 
       // Blit the dirty rect to the window.
       cairo_t* cr = gdk_cairo_create(window_);
-      cairo_set_source_surface(cr, surface_, 0.0, 0.0);
+      cairo_set_source_surface(cr, surface_, rectangle_.x, rectangle_.y);
       cairo_rectangle(cr, rectangle_.x, rectangle_.y,
                       rectangle_.width, rectangle_.height);
       cairo_fill(cr);
@@ -115,15 +115,14 @@ class CanvasPaintT : public T {
 
  private:
   void init(bool opaque) {
-    // In order to be most optimal, we could allocate just the damaged rect and
-    // set a translation so it's at the origin.  However, since that would be
-    // ignored when we draw on the cairo surface, this currently won't work.
-    // Allocate the minimal bitmap from the origin to damage rect.
-    if (!T::initialize(rectangle_.x + rectangle_.width,
-                       rectangle_.y + rectangle_.height, opaque, NULL)) {
+    if (!T::initialize(rectangle_.width, rectangle_.height, opaque, NULL)) {
       // Cause a deliberate crash;
       *(char*) 0 = 0;
     }
+
+    // Need to translate so that the dirty region appears at the origin of the
+    // surface.
+    T::translate(-SkIntToScalar(rectangle_.x), -SkIntToScalar(rectangle_.y));
 
     surface_ = T::getTopPlatformDevice().beginPlatformPaint();
   }

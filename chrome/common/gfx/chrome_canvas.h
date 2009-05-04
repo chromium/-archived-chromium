@@ -19,6 +19,10 @@ namespace gfx {
 class Rect;
 }
 
+#if defined(OS_LINUX)
+typedef struct _cairo cairo_t;
+#endif
+
 // ChromeCanvas is the SkCanvas used by Views for all painting. It
 // provides a handful of methods for the common operations used throughout
 // Views. With few exceptions, you should NOT create a ChromeCanvas directly,
@@ -178,6 +182,13 @@ class ChromeCanvas : public skia::PlatformCanvas {
 
   // Extracts a bitmap from the contents of this canvas.
   SkBitmap ExtractBitmap();
+
+#if defined(OS_LINUX)
+  // Applies current matrix on the canvas to the cairo context. This should be
+  // invoked anytime you plan on drawing directly to the cairo context. Be
+  // sure and set the matrix back to the identity when done.
+  void ApplySkiaMatrixToCairoContext(cairo_t* cr);
+#endif
 
   // Compute the size required to draw some text with the provided font.
   // Attempts to fit the text with the provided width and height. Increases
