@@ -494,7 +494,7 @@ class HWNDView {
   void Layout() { NOTIMPLEMENTED(); }
   void SchedulePaint() { NOTIMPLEMENTED(); }
   HWNDView* GetParent() const { NOTIMPLEMENTED(); return NULL; }
-
+  virtual gfx::Size GetPreferredSize() { NOTIMPLEMENTED(); return gfx::Size(); }
   gfx::NativeWindow GetHWND() { NOTIMPLEMENTED(); return 0; }
   void Detach() { NOTIMPLEMENTED(); }
   gfx::Widget* GetWidget() { NOTIMPLEMENTED(); return NULL; }

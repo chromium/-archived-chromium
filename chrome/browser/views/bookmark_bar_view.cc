@@ -535,8 +535,6 @@ void BookmarkBarView::Layout() {
   if (!GetParent())
     return;
 
-  // First layout out the buttons. Any buttons that are placed beyond the
-  // visible region and made invisible.
   int x = kLeftMargin;
   int y = kTopMargin;
   int width = View::width() - kRightMargin - kLeftMargin;
@@ -566,6 +564,22 @@ void BookmarkBarView::Layout() {
               overflow_pref.width() - kButtonPadding -
               bookmarks_separator_pref.width();
 
+  // First, layout extension toolstrips.
+  // We put these always on the left as a temporary hack until we have the
+  // extension bar. Otherwise, people install extensions and they don't see
+  // anything happen and are confused.
+  for (int i = GetBookmarkButtonCount();
+       i < GetBookmarkButtonCount() + num_extension_toolstrips_; ++i) {
+    views::View* child = GetChildViewAt(i);
+    gfx::Size pref = child->GetPreferredSize();
+    int next_x = x + pref.width() + kButtonPadding;
+    child->SetVisible(next_x < max_x);
+    child->SetBounds(x, y, pref.width(), height);
+    x = next_x;
+  }
+
+  // Next, layout out the buttons. Any buttons that are placed beyond the
+  // visible region and made invisible.
   if (GetBookmarkButtonCount() == 0 && model_ && model_->IsLoaded()) {
     gfx::Size pref = instructions_->GetPreferredSize();
     instructions_->SetBounds(
@@ -585,17 +599,6 @@ void BookmarkBarView::Layout() {
       child->SetBounds(x, y, pref.width(), height);
       x = next_x;
     }
-  }
-
-  // Extension toolstrips.
-  for (int i = GetBookmarkButtonCount();
-       i < GetBookmarkButtonCount() + num_extension_toolstrips_; ++i) {
-    views::View* child = GetChildViewAt(i);
-    gfx::Size pref = child->GetPreferredSize();
-    int next_x = x + pref.width() + kButtonPadding;
-    child->SetVisible(next_x < max_x);
-    child->SetBounds(x, y, pref.width(), height);
-    x = next_x;
   }
 
   // Layout the right side of the bar.

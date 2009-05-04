@@ -50,7 +50,7 @@ void ExtensionView::DidChangeBounds(const gfx::Rect& previous,
 void ExtensionView::ShowIfCompletelyLoaded() {
   // We wait to show the ExtensionView until it has loaded and our parent has
   // given us a background. These can happen in different orders.
-  if (host_->did_stop_loading() && render_view_host()->view() &&
+  if (!IsVisible() && host_->did_stop_loading() && render_view_host()->view() &&
       !render_view_host()->view()->background().empty()) {
     SetVisible(true);
     DidContentsPreferredWidthChange(pending_preferred_width_);
@@ -71,7 +71,7 @@ void ExtensionView::DidContentsPreferredWidthChange(const int pref_width) {
   // Size changes will not be honored by lower layers while we are hidden.
   if (!IsVisible()) {
     pending_preferred_width_ = pref_width;
-  } else if (pref_width > 0) {
+  } else if (pref_width > 0 && pref_width != GetPreferredSize().width()) {
     set_preferred_size(gfx::Size(pref_width, height()));
     SizeToPreferredSize();
 
@@ -81,9 +81,8 @@ void ExtensionView::DidContentsPreferredWidthChange(const int pref_width) {
     // containment hierarchy.
     if (GetParent() != NULL && GetParent()->GetParent() != NULL) {
       GetParent()->GetParent()->Layout();
+      GetParent()->GetParent()->SchedulePaint();
     }
-
-    SchedulePaint();
   }
 }
 

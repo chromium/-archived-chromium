@@ -68,8 +68,8 @@ class ExtensionsServiceTestFrontend
     return &extensions_;
   }
 
-  std::vector<FilePath>* installed() {
-    return &installed_;
+  Extension* installed() {
+    return installed_;
   }
 
   // ExtensionsServiceFrontendInterface
@@ -92,8 +92,8 @@ class ExtensionsServiceTestFrontend
     std::stable_sort(extensions_.begin(), extensions_.end(), ExtensionsOrder());
   }
 
-  virtual void OnExtensionInstalled(FilePath path, bool is_update) {
-    installed_.push_back(path);
+  virtual void OnExtensionInstalled(Extension* extension, bool is_update) {
+    installed_ = extension;
   }
 
   void TestInstallExtension(const FilePath& path,
@@ -105,18 +105,18 @@ class ExtensionsServiceTestFrontend
     message_loop_.RunAllPending();
     std::vector<std::string> errors = GetErrors();
     if (should_succeed) {
-      EXPECT_EQ(1u, installed_.size()) << path.value();
+      EXPECT_TRUE(installed_) << path.value();
       EXPECT_EQ(0u, errors.size()) << path.value();
       for (std::vector<std::string>::iterator err = errors.begin();
         err != errors.end(); ++err) {
         LOG(ERROR) << *err;
       }
     } else {
-      EXPECT_EQ(0u, installed_.size()) << path.value();
+      EXPECT_FALSE(installed_) << path.value();
       EXPECT_EQ(1u, errors.size()) << path.value();
     }
 
-    installed_.clear();
+    installed_ = NULL;
     ExtensionErrorReporter::GetInstance()->ClearErrors();
   }
 
@@ -124,7 +124,7 @@ class ExtensionsServiceTestFrontend
  private:
   MessageLoop message_loop_;
   ExtensionList extensions_;
-  std::vector<FilePath> installed_;
+  Extension* installed_;
 };
 
 // make the test a PlatformTest to setup autorelease pools properly on mac

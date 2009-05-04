@@ -13,6 +13,8 @@
 #include "base/thread.h"
 #include "base/values.h"
 #include "net/base/file_stream.h"
+#include "chrome/browser/browser.h"
+#include "chrome/browser/browser_list.h"
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/browsing_instance.h"
 #include "chrome/browser/extensions/extension.h"
@@ -27,8 +29,7 @@
 #include "chrome/common/json_value_serializer.h"
 #include "chrome/common/notification_service.h"
 #include "chrome/common/unzip.h"
-
-#include "chrome/browser/browser_list.h"
+#include "chrome/common/url_constants.h"
 
 #if defined(OS_WIN)
 #include "base/registry.h"
@@ -190,13 +191,22 @@ void ExtensionsService::OnExtensionsLoaded(ExtensionList* new_extensions) {
   delete new_extensions;
 }
 
-void ExtensionsService::OnExtensionInstalled(FilePath path, bool update) {
+void ExtensionsService::OnExtensionInstalled(Extension* extension,
+                                             bool update) {
   NotificationService::current()->Notify(
       NotificationType::EXTENSION_INSTALLED,
       NotificationService::AllSources(),
-      Details<FilePath>(&path));
+      Details<Extension>(extension));
 
-  // TODO(erikkay): Update UI if appropriate.
+  // We open the NTP if the extension has a toolstrip and the bookmark bar is
+  // detached. We noticed that people got confused if something didn't obviously
+  // happen when installing an extension.
+  Browser* browser = BrowserList::GetLastActive();
+  if (browser && browser->window() &&
+      !browser->window()->IsBookmarkBarVisible() &&
+      !extension->toolstrips().empty())
+    browser->AddTabWithURL(GURL(chrome::kChromeUINewTabURL), GURL(),
+                           PageTransition::LINK, true, -1, NULL);
 }
 
 ExtensionView* ExtensionsService::CreateView(Extension* extension,
@@ -755,24 +765,23 @@ void ExtensionsServiceBackend::ReportExtensionInstallError(
 
 void ExtensionsServiceBackend::ReportExtensionInstalled(
     const FilePath& path, bool update) {
+  // After it's installed, load it right away with the same settings.
+  Extension* extension = LoadExtensionCurrentVersion(path);
+  CHECK(extension);
+
   frontend_->GetMessageLoop()->PostTask(FROM_HERE, NewRunnableMethod(
       frontend_,
       &ExtensionsServiceFrontendInterface::OnExtensionInstalled,
-      path,
+      extension,
       update));
 
-  // After it's installed, load it right away with the same settings.
-  LOG(INFO) << "Loading extension " << path.value();
-  Extension* extension = LoadExtensionCurrentVersion(path);
-  if (extension) {
-    // Only one extension, but ReportExtensionsLoaded can handle multiple,
-    // so we need to construct a list.
-    scoped_ptr<ExtensionList> extensions(new ExtensionList);
-    extensions->push_back(extension);
-    LOG(INFO) << "Done.";
-    // Hand off ownership of the loaded extensions to the frontend.
-    ReportExtensionsLoaded(extensions.release());
-  }
+  // Only one extension, but ReportExtensionsLoaded can handle multiple,
+  // so we need to construct a list.
+  scoped_ptr<ExtensionList> extensions(new ExtensionList);
+  extensions->push_back(extension);
+  LOG(INFO) << "Done.";
+  // Hand off ownership of the loaded extensions to the frontend.
+  ReportExtensionsLoaded(extensions.release());
 }
 
 // Some extensions will autoupdate themselves externally from Chrome.  These

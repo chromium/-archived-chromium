@@ -53,7 +53,7 @@ class ExtensionsServiceFrontendInterface
   // Called with results from InstallExtension().
   // |is_update| is true if the installation was an update to an existing
   // installed extension rather than a new installation.
-  virtual void OnExtensionInstalled(FilePath path, bool is_update) = 0;
+  virtual void OnExtensionInstalled(Extension* extension, bool is_update) = 0;
 };
 
 
@@ -76,7 +76,7 @@ class ExtensionsService : public ExtensionsServiceFrontendInterface {
   virtual void InstallExtension(const FilePath& extension_path);
   virtual void LoadExtension(const FilePath& extension_path);
   virtual void OnExtensionsLoaded(ExtensionList* extensions);
-  virtual void OnExtensionInstalled(FilePath path, bool is_update);
+  virtual void OnExtensionInstalled(Extension* extension, bool is_update);
 
   // Creates a new ExtensionView, grouping it in the appropriate SiteInstance
   // (and therefore process) based on the URL and profile.
