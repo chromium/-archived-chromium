@@ -206,6 +206,7 @@ BrowserWindowGtk::BrowserWindowGtk(Browser* browser)
        full_screen_(false),
        method_factory_(this) {
   window_ = GTK_WINDOW(gtk_window_new(GTK_WINDOW_TOPLEVEL));
+  SetWindowIcon();
   SetGeometryHints();
   g_object_set_data(G_OBJECT(window_), "browser_window_gtk", this);
   g_signal_connect(window_, "delete-event",
@@ -675,6 +676,15 @@ void BrowserWindowGtk::SetGeometryHints() {
   geometry.min_width = 1;
   geometry.min_height = 1;
   gtk_window_set_geometry_hints(window_, NULL, &geometry, GDK_HINT_MIN_SIZE);
+}
+
+void BrowserWindowGtk::SetWindowIcon() {
+  ResourceBundle& rb = ResourceBundle::GetSharedInstance();
+  GList* icon_list = NULL;
+  icon_list = g_list_append(icon_list, rb.GetPixbufNamed(IDR_PRODUCT_ICON_32));
+  icon_list = g_list_append(icon_list, rb.GetPixbufNamed(IDR_PRODUCT_LOGO_16));
+  gtk_window_set_icon_list(window_, icon_list);
+  g_list_free(icon_list);
 }
 
 void BrowserWindowGtk::ConnectAccelerators() {

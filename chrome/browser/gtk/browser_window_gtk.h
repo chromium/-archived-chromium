@@ -127,6 +127,9 @@ class BrowserWindowGtk : public BrowserWindow,
   // resize it.
   void SetGeometryHints();
 
+  // Set up the window icon (potentially used in window border or alt-tab list).
+  void SetWindowIcon();
+
   // Connect accelerators that aren't connected to menu items (like ctrl-o,
   // ctrl-l, etc.).
   void ConnectAccelerators();
