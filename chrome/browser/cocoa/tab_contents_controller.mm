@@ -49,8 +49,13 @@
 }
 
 - (void)tabDidChange:(TabContents*)updatedContents {
-  contents_ = updatedContents;
-  [contentsBox_ setContentView:contents_->GetNativeView()];
+  // Calling setContentView: here removes any first responder status
+  // the view may have, so avoid changing the view hierarchy unless
+  // the view is different.
+  if (contents_ != updatedContents) {
+    contents_ = updatedContents;
+    [contentsBox_ setContentView:contents_->GetNativeView()];
+  }
 }
 
 // Return the rect, in WebKit coordinates (flipped), of the window's grow box
