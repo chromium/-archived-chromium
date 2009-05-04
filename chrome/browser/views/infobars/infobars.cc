@@ -21,7 +21,8 @@
 #include "grit/generated_resources.h"
 #include "grit/theme_resources.h"
 
-const double kInfoBarHeight = 37.0;
+// static
+const double InfoBar::kTargetHeight = 37.0;
 
 static const int kVerticalPadding = 3;
 static const int kHorizontalPadding = 3;
@@ -36,8 +37,20 @@ static const int kSeparatorLineHeight = 1;
 static const SkColor kSeparatorColor = SkColorSetRGB(165, 165, 165);
 
 namespace {
+// Returns a centered y-position of a control of height specified in |prefsize|
+// within the standard InfoBar height. Stable during an animation.
+int CenterY(const gfx::Size prefsize) {
+  return std::max((static_cast<int>(InfoBar::kTargetHeight) -
+      prefsize.height()) / 2, 0);
+}
+
+// Returns a centered y-position of a control of height specified in |prefsize|
+// within the standard InfoBar height, adjusted according to the current amount
+// of animation offset the |parent| InfoBar currently has. Changes during an
+// animation.
 int OffsetY(views::View* parent, const gfx::Size prefsize) {
-  return std::max((parent->height() - prefsize.height()) / 2, 0);
+  return CenterY(prefsize) -
+      (static_cast<int>(InfoBar::kTargetHeight) - parent->height());
 }
 }
 
@@ -124,16 +137,15 @@ void InfoBar::Close() {
 // InfoBar, views::View overrides: ---------------------------------------------
 
 gfx::Size InfoBar::GetPreferredSize() {
-  int height = static_cast<int>(kInfoBarHeight * animation_->GetCurrentValue());
+  int height = static_cast<int>(kTargetHeight * animation_->GetCurrentValue());
   return gfx::Size(0, height);
 }
 
 void InfoBar::Layout() {
   gfx::Size button_ps = close_button_->GetPreferredSize();
-  close_button_->SetBounds(width() - kHorizontalPadding - button_ps.width(),
+  close_button_->SetBounds(width() - CloseButtonSpacing() - button_ps.width(),
                            OffsetY(this, button_ps), button_ps.width(),
                            button_ps.height());
-
 }
 
 void InfoBar::ViewHierarchyChanged(bool is_add, views::View* parent,
@@ -150,11 +162,15 @@ void InfoBar::ViewHierarchyChanged(bool is_add, views::View* parent,
 // InfoBar, protected: ---------------------------------------------------------
 
 int InfoBar::GetAvailableWidth() const {
-  return close_button_->x() - kIconLabelSpacing;
+  return close_button_->x() - CloseButtonSpacing();
 }
 
 void InfoBar::RemoveInfoBar() const {
   container_->RemoveDelegate(delegate());
+}
+
+int InfoBar::CloseButtonSpacing() const {
+  return CenterY(close_button_->GetPreferredSize());
 }
 
 // InfoBar, views::ButtonListener implementation: ------------------

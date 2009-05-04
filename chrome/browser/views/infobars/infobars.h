@@ -52,6 +52,10 @@ class InfoBar : public views::View,
   // is called.
   void Close();
 
+  // The target height of the infobar, regardless of what its current height
+  // is (due to animation).
+  static const double kTargetHeight;
+
   // Overridden from views::View:
   virtual gfx::Size GetPreferredSize();
   virtual void Layout();
@@ -69,6 +73,10 @@ class InfoBar : public views::View,
   // Removes our associated InfoBarDelegate from the associated TabContents.
   // (Will lead to this InfoBar being closed).
   void RemoveInfoBar() const;
+
+  // Returns the spacing required between the close button and any adjacent
+  // control.
+  int CloseButtonSpacing() const;
 
   // Overridden from views::ButtonListener:
   virtual void ButtonPressed(views::Button* sender);
