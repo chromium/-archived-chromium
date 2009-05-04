@@ -10,6 +10,7 @@
 #include "chrome/views/window/window.h"
 #include "grit/chromium_strings.h"
 #include "grit/generated_resources.h"
+#include "grit/views_strings.h"
 
 ////////////////////////////////////////////////////////////////////////////////
 // RestartMessageBox, public:

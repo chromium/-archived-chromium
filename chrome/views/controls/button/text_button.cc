@@ -10,8 +10,7 @@
 #include "chrome/common/throb_animation.h"
 #include "chrome/views/controls/button/button.h"
 #include "chrome/views/event.h"
-#include "grit/generated_resources.h"
-#include "grit/theme_resources.h"
+#include "grit/views_resources.h"
 
 #if defined(OS_WIN)
 #include "chrome/common/win_util.h"

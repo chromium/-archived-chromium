@@ -15,7 +15,7 @@
 #include "chrome/common/stl_util-inl.h"
 #include "chrome/views/focus/focus_manager.h"
 #include "chrome/views/widget/widget.h"
-#include "grit/theme_resources.h"
+#include "grit/views_resources.h"
 
 namespace views {
 

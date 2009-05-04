@@ -20,6 +20,7 @@
 #include "chrome/views/window/window.h"
 #include "grit/generated_resources.h"
 #include "grit/theme_resources.h"
+#include "grit/views_resources.h"
 #include "skia/ext/image_operations.h"
 
 static const int kLeftPadding = 16;

@@ -19,6 +19,7 @@
 #include "grit/chromium_strings.h"
 #include "grit/generated_resources.h"
 #include "grit/theme_resources.h"
+#include "grit/views_resources.h"
 
 // An enumeration of bitmap resources used by this window.
 enum {

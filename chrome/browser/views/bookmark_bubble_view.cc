@@ -20,6 +20,7 @@
 #include "chrome/views/controls/text_field.h"
 #include "grit/generated_resources.h"
 #include "grit/theme_resources.h"
+#include "grit/views_strings.h"
 
 using views::ComboBox;
 using views::ColumnSet;

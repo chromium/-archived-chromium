@@ -11,6 +11,7 @@
 #include "chrome/views/window/client_view.h"
 #include "chrome/views/window/window_resources.h"
 #include "grit/theme_resources.h"
+#include "grit/views_resources.h"
 
 // An enumeration of bitmap resources used by this window.
 enum {

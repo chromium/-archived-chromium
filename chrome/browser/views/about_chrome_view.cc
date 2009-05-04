@@ -27,6 +27,7 @@
 #include "grit/generated_resources.h"
 #include "grit/locale_settings.h"
 #include "grit/theme_resources.h"
+#include "grit/views_strings.h"
 #include "webkit/glue/webkit_glue.h"
 
 namespace {

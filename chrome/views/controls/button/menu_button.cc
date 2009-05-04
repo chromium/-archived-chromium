@@ -14,7 +14,7 @@
 #include "chrome/views/event.h"
 #include "chrome/views/widget/root_view.h"
 #include "chrome/views/widget/widget.h"
-#include "grit/generated_resources.h"
+#include "grit/views_strings.h"
 #include "grit/theme_resources.h"
 
 using base::Time;

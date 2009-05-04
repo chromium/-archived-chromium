@@ -8,7 +8,7 @@
 #include "chrome/common/gfx/chrome_canvas.h"
 #include "chrome/common/logging_chrome.h"
 #include "chrome/common/resource_bundle.h"
-#include "grit/theme_resources.h"
+#include "grit/views_resources.h"
 #include "skia/include/SkBitmap.h"
 
 using base::Time;

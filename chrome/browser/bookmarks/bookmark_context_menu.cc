@@ -18,6 +18,7 @@
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
 #include "grit/generated_resources.h"
+#include "grit/views_strings.h"
 
 // TODO(port): Port these files.
 #if defined(OS_WIN)

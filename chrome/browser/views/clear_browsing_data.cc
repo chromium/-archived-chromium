@@ -17,6 +17,7 @@
 #include "chrome/common/pref_service.h"
 #include "grit/generated_resources.h"
 #include "grit/locale_settings.h"
+#include "grit/views_strings.h"
 #include "net/url_request/url_request_context.h"
 
 using base::Time;

@@ -34,6 +34,7 @@
 #include "grit/chromium_strings.h"
 #include "grit/generated_resources.h"
 #include "grit/theme_resources.h"
+#include "grit/views_resources.h"
 #include "net/base/net_util.h"
 
 using base::TimeDelta;

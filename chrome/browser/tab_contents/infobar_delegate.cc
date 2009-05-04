@@ -10,7 +10,7 @@
 #include "chrome/browser/tab_contents/navigation_controller.h"
 #include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/common/l10n_util.h"
-#include "grit/generated_resources.h"
+#include "grit/views_strings.h"
 
 // InfoBarDelegate: ------------------------------------------------------------
 

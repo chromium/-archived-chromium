@@ -23,7 +23,7 @@
 #include "chrome/views/window/native_frame_view.h"
 #include "chrome/views/window/non_client_view.h"
 #include "chrome/views/window/window_delegate.h"
-#include "grit/generated_resources.h"
+#include "grit/views_strings.h"
 
 namespace {
 

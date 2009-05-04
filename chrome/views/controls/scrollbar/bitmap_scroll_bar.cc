@@ -10,7 +10,7 @@
 #include "chrome/views/controls/menu/menu.h"
 #include "chrome/views/controls/scroll_view.h"
 #include "chrome/views/widget/widget.h"
-#include "grit/generated_resources.h"
+#include "grit/views_strings.h"
 #include "skia/include/SkBitmap.h"
 
 #undef min

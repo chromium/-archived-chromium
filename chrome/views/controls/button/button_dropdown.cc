@@ -8,7 +8,7 @@
 #include "chrome/common/l10n_util.h"
 #include "chrome/views/controls/menu/view_menu_delegate.h"
 #include "chrome/views/widget/widget.h"
-#include "grit/generated_resources.h"
+#include "grit/views_strings.h"
 
 namespace views {
 

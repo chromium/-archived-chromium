@@ -9,7 +9,7 @@
 #include "base/logging.h"
 #include "base/string_util.h"
 #include "chrome/common/l10n_util.h"
-#include "grit/generated_resources.h"
+#include "grit/views_strings.h"
 
 namespace views {
 
