@@ -188,10 +188,6 @@ class WebViewDelegate : virtual public WebWidgetDelegate {
   virtual void DocumentElementAvailable(WebFrame* webframe) {
   }
 
-  // Notifies the delegate that the webframe is about to be destroyed.
-  virtual void WillDestroyFrame(WebFrame* webframe) {
-  }
-
   // PolicyDelegate ----------------------------------------------------------
 
   // This method is called to notify the delegate, and let it modify a
