@@ -41,25 +41,25 @@ static const int kHoverAnimationDurationMs = 170;
 TextButtonBorder::TextButtonBorder() {
   ResourceBundle& rb = ResourceBundle::GetSharedInstance();
 
-  hot_set_.top_left = rb.GetBitmapNamed(IDR_VIEWS_TEXTBUTTON_TOP_LEFT_H);
-  hot_set_.top = rb.GetBitmapNamed(IDR_VIEWS_TEXTBUTTON_TOP_H);
-  hot_set_.top_right = rb.GetBitmapNamed(IDR_VIEWS_TEXTBUTTON_TOP_RIGHT_H);
-  hot_set_.left = rb.GetBitmapNamed(IDR_VIEWS_TEXTBUTTON_LEFT_H);
-  hot_set_.center = rb.GetBitmapNamed(IDR_VIEWS_TEXTBUTTON_CENTER_H);
-  hot_set_.right = rb.GetBitmapNamed(IDR_VIEWS_TEXTBUTTON_RIGHT_H);
-  hot_set_.bottom_left = rb.GetBitmapNamed(IDR_VIEWS_TEXTBUTTON_BOTTOM_LEFT_H);
-  hot_set_.bottom = rb.GetBitmapNamed(IDR_VIEWS_TEXTBUTTON_BOTTOM_H);
-  hot_set_.bottom_right = rb.GetBitmapNamed(IDR_VIEWS_TEXTBUTTON_BOTTOM_RIGHT_H);
+  hot_set_.top_left = rb.GetBitmapNamed(IDR_TEXTBUTTON_TOP_LEFT_H);
+  hot_set_.top = rb.GetBitmapNamed(IDR_TEXTBUTTON_TOP_H);
+  hot_set_.top_right = rb.GetBitmapNamed(IDR_TEXTBUTTON_TOP_RIGHT_H);
+  hot_set_.left = rb.GetBitmapNamed(IDR_TEXTBUTTON_LEFT_H);
+  hot_set_.center = rb.GetBitmapNamed(IDR_TEXTBUTTON_CENTER_H);
+  hot_set_.right = rb.GetBitmapNamed(IDR_TEXTBUTTON_RIGHT_H);
+  hot_set_.bottom_left = rb.GetBitmapNamed(IDR_TEXTBUTTON_BOTTOM_LEFT_H);
+  hot_set_.bottom = rb.GetBitmapNamed(IDR_TEXTBUTTON_BOTTOM_H);
+  hot_set_.bottom_right = rb.GetBitmapNamed(IDR_TEXTBUTTON_BOTTOM_RIGHT_H);
 
-  pushed_set_.top_left = rb.GetBitmapNamed(IDR_VIEWS_TEXTBUTTON_TOP_LEFT_P);
-  pushed_set_.top = rb.GetBitmapNamed(IDR_VIEWS_TEXTBUTTON_TOP_P);
-  pushed_set_.top_right = rb.GetBitmapNamed(IDR_VIEWS_TEXTBUTTON_TOP_RIGHT_P);
-  pushed_set_.left = rb.GetBitmapNamed(IDR_VIEWS_TEXTBUTTON_LEFT_P);
-  pushed_set_.center = rb.GetBitmapNamed(IDR_VIEWS_TEXTBUTTON_CENTER_P);
-  pushed_set_.right = rb.GetBitmapNamed(IDR_VIEWS_TEXTBUTTON_RIGHT_P);
-  pushed_set_.bottom_left = rb.GetBitmapNamed(IDR_VIEWS_TEXTBUTTON_BOTTOM_LEFT_P);
-  pushed_set_.bottom = rb.GetBitmapNamed(IDR_VIEWS_TEXTBUTTON_BOTTOM_P);
-  pushed_set_.bottom_right = rb.GetBitmapNamed(IDR_VIEWS_TEXTBUTTON_BOTTOM_RIGHT_P);
+  pushed_set_.top_left = rb.GetBitmapNamed(IDR_TEXTBUTTON_TOP_LEFT_P);
+  pushed_set_.top = rb.GetBitmapNamed(IDR_TEXTBUTTON_TOP_P);
+  pushed_set_.top_right = rb.GetBitmapNamed(IDR_TEXTBUTTON_TOP_RIGHT_P);
+  pushed_set_.left = rb.GetBitmapNamed(IDR_TEXTBUTTON_LEFT_P);
+  pushed_set_.center = rb.GetBitmapNamed(IDR_TEXTBUTTON_CENTER_P);
+  pushed_set_.right = rb.GetBitmapNamed(IDR_TEXTBUTTON_RIGHT_P);
+  pushed_set_.bottom_left = rb.GetBitmapNamed(IDR_TEXTBUTTON_BOTTOM_LEFT_P);
+  pushed_set_.bottom = rb.GetBitmapNamed(IDR_TEXTBUTTON_BOTTOM_P);
+  pushed_set_.bottom_right = rb.GetBitmapNamed(IDR_TEXTBUTTON_BOTTOM_RIGHT_P);
 }
 
 TextButtonBorder::~TextButtonBorder() {
