@@ -697,6 +697,10 @@ void SearchProvider::AddMatchToMap(const std::wstring& query_string,
     match.fill_into_edit.assign(L"?");
     ++search_start;
   }
+  if (is_keyword) {
+    match.fill_into_edit.append(providers_.keyword_provider().keyword() + L" ");
+    match.template_url = &providers_.keyword_provider();
+  }
   match.fill_into_edit.append(query_string);
   // NOTE: All Google suggestions currently start with the original input, but
   // not all Yahoo! suggestions do.

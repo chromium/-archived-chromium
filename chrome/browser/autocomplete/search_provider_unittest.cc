@@ -243,4 +243,11 @@ TEST_F(SearchProviderTest, QueryKeywordProvider) {
   // term keyword.
   AutocompleteMatch match = FindMatchWithDestination(keyword_url_);
   ASSERT_TRUE(!match.destination_url.is_empty());
+
+  // The match should have a TemplateURL.
+  EXPECT_TRUE(match.template_url);
+
+  // The fill into edit should contain the keyword.
+  EXPECT_EQ(keyword_t_url_->keyword() + L" " + keyword_term_,
+            match.fill_into_edit);
 }
