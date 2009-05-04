@@ -515,7 +515,7 @@ int ProxyConfigServiceLinux::GetProxyConfig(ProxyConfig* config) {
   bool ok = false;
   if (env_var_getter_->Getenv("GNOME_DESKTOP_SESSION_ID", &dummy)
       || (env_var_getter_->Getenv("DESKTOP_SESSION", &desktop_session)
-          && desktop_session.compare("gnome"))) {
+          && desktop_session.compare("gnome") == 0)) {
     // Get settings from gconf.
     //
     // I (sdoyon) would have liked to prioritize environment variables

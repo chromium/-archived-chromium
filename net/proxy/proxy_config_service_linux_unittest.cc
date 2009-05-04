@@ -733,4 +733,28 @@ TEST(ProxyConfigServiceLinuxTest, BasicEnvTest) {
   }
 }
 
+// Verify that we fall back on consulting the environment when
+// GNOME-specific environment variables aren't available.
+TEST(ProxyConfigServiceLinuxTest, FallbackOnEnv) {
+  MockEnvironmentVariableGetter* env_getter =
+      new MockEnvironmentVariableGetter;
+  MockGConfSettingGetter* gconf_getter = new MockGConfSettingGetter;
+  ProxyConfigServiceLinux service(env_getter, gconf_getter);
+
+  // Imagine we're:
+  // 1) Running a non-GNOME desktop session:
+  env_getter->values.DESKTOP_SESSION = "default";
+  // 2) Have settings in gconf.
+  gconf_getter->values.mode = "auto";
+  gconf_getter->values.autoconfig_url = "http://incorrect/wpad.dat";
+  // 3) But we have a proxy-specifying environment variable set:
+  env_getter->values.auto_proxy = "http://correct/wpad.dat";
+
+  ProxyConfig config;
+  service.GetProxyConfig(&config);
+
+  // Then we expect the environment variable to win.
+  EXPECT_EQ(GURL(env_getter->values.auto_proxy), config.pac_url);
+}
+
 }  // namespace net
