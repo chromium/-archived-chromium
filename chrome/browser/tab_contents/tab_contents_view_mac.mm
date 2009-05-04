@@ -182,14 +182,14 @@ void TabContentsViewMac::Observe(NotificationType type,
                                  const NotificationSource& source,
                                  const NotificationDetails& details) {
   switch (type.value) {
-    case NotificationType::tab_contents_CONNECTED: {
+    case NotificationType::TAB_CONTENTS_CONNECTED: {
       if (sad_tab_.get()) {
         [sad_tab_.get() removeFromSuperview];
         sad_tab_.reset();
       }
       break;
     }
-    case NotificationType::tab_contents_DISCONNECTED: {
+    case NotificationType::TAB_CONTENTS_DISCONNECTED: {
       SadTabView* view = [[SadTabView alloc] initWithFrame:NSZeroRect];
       sad_tab_.reset(view);
 
