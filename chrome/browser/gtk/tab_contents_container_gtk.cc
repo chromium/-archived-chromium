@@ -48,10 +48,14 @@ void TabContentsContainerGtk::SetTabContents(TabContents* tab_contents) {
       gtk_widget_show_all(widget);
     }
     // We need to make sure that we are below the findbar.
-    GdkWindow* content_gdk_window =
-        tab_contents_->GetContentNativeView()->window;
-    if (content_gdk_window)
-      gdk_window_lower(content_gdk_window);
+    // Sometimes the content native view will be null.
+    // TODO(estade): will this case ever cause findbar occlusion problems?
+    if (tab_contents_->GetContentNativeView()) {
+      GdkWindow* content_gdk_window =
+          tab_contents_->GetContentNativeView()->window;
+      if (content_gdk_window)
+        gdk_window_lower(content_gdk_window);
+    }
   }
 }
 

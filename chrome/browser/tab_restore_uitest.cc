@@ -132,11 +132,7 @@ class TabRestoreUITest : public UITest {
 
 // Close the end tab in the current window, then restore it. The tab should be
 // in its original position, and active.
-#if defined(OS_LINUX)
-TEST_F(TabRestoreUITest, DISABLED_Basic) {
-#else
 TEST_F(TabRestoreUITest, Basic) {
-#endif
   scoped_ptr<BrowserProxy> browser_proxy(automation()->GetBrowserWindow(0));
 
   int starting_tab_count;
@@ -164,11 +160,7 @@ TEST_F(TabRestoreUITest, Basic) {
 
 // Close a tab not at the end of the current window, then restore it. The tab
 // should be in its original position, and active.
-#if defined(OS_LINUX)
-TEST_F(TabRestoreUITest, DISABLED_MiddleTab) {
-#else
 TEST_F(TabRestoreUITest, MiddleTab) {
-#endif
   scoped_ptr<BrowserProxy> browser_proxy(automation()->GetBrowserWindow(0));
 
   int starting_tab_count;
@@ -197,11 +189,7 @@ TEST_F(TabRestoreUITest, MiddleTab) {
 
 // Close a tab, switch windows, then restore the tab. The tab should be in its
 // original window and position, and active.
-#if defined(OS_LINUX)
-TEST_F(TabRestoreUITest, DISABLED_RestoreToDifferentWindow) {
-#else
 TEST_F(TabRestoreUITest, RestoreToDifferentWindow) {
-#endif
   scoped_ptr<BrowserProxy> browser_proxy(automation()->GetBrowserWindow(0));
 
   // This call is virtually guaranteed to pass, assuming that Chromium is the
