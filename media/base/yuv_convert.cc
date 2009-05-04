@@ -77,7 +77,12 @@
 // C++ code provided as a fall back.
 // Compile with /DUSE_MMX=0
 #ifndef USE_MMX
+
+#ifdef ARCH_CPU_ARM_FAMILY
+#define USE_MMX 0
+#else
 #define USE_MMX 1
+#endif
 #endif
 
 namespace media {
@@ -670,4 +675,3 @@ void ConvertYV12ToRGB32Row(const uint8* y_buf,
 
 
 }  // namespace media
-
