@@ -660,7 +660,6 @@ bool BrowserWindowGtk::ShouldShowWindowIcon() const {
 }
 
 void BrowserWindowGtk::AddFindBar(FindBarGtk* findbar) {
-  contents_container_->set_find_bar(findbar);
   gtk_box_pack_start(GTK_BOX(render_area_vbox_), findbar->widget(),
                      FALSE, FALSE, 0);
   gtk_box_reorder_child(GTK_BOX(render_area_vbox_), findbar->widget(), 0);

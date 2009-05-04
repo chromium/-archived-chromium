@@ -10,7 +10,6 @@
 #include "base/basictypes.h"
 #include "chrome/common/notification_observer.h"
 
-class FindBarGtk;
 class RenderViewHost;
 class TabContents;
 
@@ -30,8 +29,6 @@ class TabContentsContainerGtk : public NotificationObserver {
   virtual void Observe(NotificationType type,
                        const NotificationSource& source,
                        const NotificationDetails& details);
-
-  void set_find_bar(FindBarGtk* findbar) { findbar_ = findbar; }
 
  private:
   // Add or remove observers for events that we care about.
@@ -55,10 +52,6 @@ class TabContentsContainerGtk : public NotificationObserver {
   // hierarchy. We then insert and remove TabContents GtkWidgets into this
   // vbox_.
   GtkWidget* vbox_;
-
-  // We have to make sure we are always underneath the findbar, hence this
-  // pointer.
-  FindBarGtk* findbar_;
 
   DISALLOW_COPY_AND_ASSIGN(TabContentsContainerGtk);
 };

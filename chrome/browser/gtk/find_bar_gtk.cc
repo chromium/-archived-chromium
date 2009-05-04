@@ -186,8 +186,6 @@ GtkWidget* FindBarGtk::slide_widget() {
 }
 
 void FindBarGtk::Show() {
-  AssureOnTop();
-  gtk_widget_show_all(slide_widget());
   gtk_widget_grab_focus(find_text_);
   slide_widget_->Open();
 }
@@ -196,7 +194,7 @@ void FindBarGtk::Hide(bool animate) {
   if (animate)
     slide_widget_->Close();
   else
-    gtk_widget_hide(slide_widget());
+    slide_widget_->CloseWithoutAnimation();
 }
 
 void FindBarGtk::SetFocusAndSelection() {
@@ -237,7 +235,7 @@ gfx::Rect FindBarGtk::GetDialogPosition(gfx::Rect avoid_overlapping_rect) {
 
 void FindBarGtk::SetDialogPosition(const gfx::Rect& new_pos, bool no_redraw) {
   gtk_fixed_move(GTK_FIXED(widget()), slide_widget(), new_pos.x(), 0);
-  gtk_widget_show_all(slide_widget());
+  slide_widget_->OpenWithoutAnimation();
 }
 
 bool FindBarGtk::IsFindBarVisible() {
@@ -255,11 +253,6 @@ bool FindBarGtk::GetFindBarWindowInfo(gfx::Point* position,
                                       bool* fully_visible) {
   NOTIMPLEMENTED();
   return false;
-}
-
-void FindBarGtk::AssureOnTop() {
-  if (container_->window)
-    gdk_window_raise(container_->window);
 }
 
 void FindBarGtk::ContentsChanged() {

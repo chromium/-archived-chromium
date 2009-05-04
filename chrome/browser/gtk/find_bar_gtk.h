@@ -61,10 +61,6 @@ class FindBarGtk : public FindBar,
   virtual bool GetFindBarWindowInfo(gfx::Point* position,
                                     bool* fully_visible);
 
-  // Make sure the find bar is foremost on the z axis in the widget hierarchy
-  // by hiding and showing it.
-  void AssureOnTop();
-
  private:
   void InitWidgets();
 

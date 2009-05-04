@@ -61,6 +61,9 @@ class SlideAnimatorGtk : public AnimationDelegate {
   // Slide shut.
   void Close();
 
+  // Immediately hide the widget.
+  void CloseWithoutAnimation();
+
   // Returns whether the widget is visible.
   bool IsShowing();
 

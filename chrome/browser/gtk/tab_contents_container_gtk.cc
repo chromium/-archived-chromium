@@ -5,7 +5,6 @@
 #include "chrome/browser/gtk/tab_contents_container_gtk.h"
 
 #include "base/gfx/native_widget_types.h"
-#include "chrome/browser/gtk/find_bar_gtk.h"
 #include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/browser/renderer_host/render_widget_host_view_gtk.h"
 #include "chrome/common/notification_service.h"
@@ -48,10 +47,11 @@ void TabContentsContainerGtk::SetTabContents(TabContents* tab_contents) {
       gtk_box_pack_end(GTK_BOX(vbox_), widget, TRUE, TRUE, 0);
       gtk_widget_show_all(widget);
     }
-    // We need to make sure that the find bar is on top before any painting
-    // is done.
-    if (tab_contents_->find_ui_active())
-      findbar_->AssureOnTop();
+    // We need to make sure that we are below the findbar.
+    GdkWindow* content_gdk_window =
+        tab_contents_->GetContentNativeView()->window;
+    if (content_gdk_window)
+      gdk_window_lower(content_gdk_window);
   }
 }
 

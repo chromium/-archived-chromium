@@ -71,11 +71,26 @@ void SlideAnimatorGtk::Open() {
 void SlideAnimatorGtk::OpenWithoutAnimation() {
   animation_->Reset(1.0);
   Open();
-  fixed_needs_resize_ = true;
+
+  // This checks to see if |child_| has been allocated yet. If it has been
+  // allocated already, we can go ahead and reposition everything by calling
+  // AnimationProgressed(). If it has not been allocated, we have to delay
+  // this call until it has been allocated (see OnChildSizeAllocate).
+  if (child_->allocation.x != -1) {
+    AnimationProgressed(animation_.get());
+  } else {
+    fixed_needs_resize_ = true;
+  }
 }
 
 void SlideAnimatorGtk::Close() {
   animation_->Hide();
+}
+
+void SlideAnimatorGtk::CloseWithoutAnimation() {
+  animation_->Reset(0.0);
+  animation_->Hide();
+  AnimationProgressed(animation_.get());
 }
 
 bool SlideAnimatorGtk::IsShowing() {
