@@ -51,6 +51,14 @@
    obj:/System/Library/Components/CoreAudio.component/Contents/MacOS/CoreAudio
 }
 {
+   # Mac system library bug?  See http://crbug.com/11327
+   bug_11327b
+   Memcheck:Cond
+   fun:AUNetSendEntry
+   fun:AUNetSendEntry
+   obj:/System/Library/Components/CoreAudio.component/Contents/MacOS/CoreAudio
+}
+{
    # Mac media_unittests.  See http://crbug.com/9351
    bug_9351
    Memcheck:Leak
