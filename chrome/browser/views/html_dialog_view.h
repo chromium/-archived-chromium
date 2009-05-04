@@ -29,11 +29,11 @@ class Window;
 ////////////////////////////////////////////////////////////////////////////////
 class HtmlDialogView
     : public DOMView,
+      public TabContentsDelegate,
       public HtmlDialogUIDelegate,
       public views::WindowDelegate {
  public:
-  HtmlDialogView(Profile* profile,
-                 HtmlDialogUIDelegate* delegate);
+  HtmlDialogView(Browser* parent_browser, HtmlDialogUIDelegate* delegate);
   virtual ~HtmlDialogView();
 
   // Initializes the contents of the dialog (the DOMView and the callbacks).
@@ -57,7 +57,36 @@ class HtmlDialogView
   virtual void GetDialogSize(gfx::Size* size) const;
   virtual std::string GetDialogArgs() const;
   virtual void OnDialogClosed(const std::string& json_retval);
+
+  // Overridden from TabContentsDelegate:
+  virtual void OpenURLFromTab(TabContents* source,
+                              const GURL& url,
+                              const GURL& referrer,
+                              WindowOpenDisposition disposition,
+                              PageTransition::Type transition);
+  virtual void NavigationStateChanged(const TabContents* source,
+                                      unsigned changed_flags);
+  virtual void ReplaceContents(TabContents* source,
+                               TabContents* new_contents);
+  virtual void AddNewContents(TabContents* source,
+                              TabContents* new_contents,
+                              WindowOpenDisposition disposition,
+                              const gfx::Rect& initial_pos,
+                              bool user_gesture);
+  virtual void ActivateContents(TabContents* contents);
+  virtual void LoadingStateChanged(TabContents* source);
+  virtual void CloseContents(TabContents* source);
+  virtual void MoveContents(TabContents* source, const gfx::Rect& pos);
+  virtual bool IsPopup(TabContents* source);
+  virtual void ToolbarSizeChanged(TabContents* source, bool is_animating);
+  virtual void URLStarredChanged(TabContents* source, bool starred);
+  virtual void UpdateTargetURL(TabContents* source, const GURL& url);
+
  private:
+  // The Browser object which created this html dialog; we send all
+  // window opening/navigations to this object.
+  Browser* parent_browser_;
+
   Profile* profile_;
 
   // This view is a delegate to the HTML content since it needs to get notified
