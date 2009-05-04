@@ -143,8 +143,7 @@ class Valgrind(object):
     return True
 
   def RunTestsAndAnalyze(self):
-#self.PrepareForTest()
-
+    self.PrepareForTest()
     self.Execute()
     if self._generate_suppressions:
       logging.info("Skipping analysis to let you look at the raw output...")
@@ -163,10 +162,7 @@ class Valgrind(object):
     retcode = -1
     if self.Setup():
       retcode = self.RunTestsAndAnalyze()
-
-      # Skip cleanup on generate.
-      if not self._generate_suppressions:
-        self.Cleanup()
+      self.Cleanup()
     else:
       logging.error("Setup failed")
     end = datetime.datetime.now()
@@ -208,6 +204,9 @@ class ValgrindLinux(Valgrind):
         proc += ["--trace-children=yes"];
 
       # Either generate suppressions or load them.
+      # TODO(dkegel): enhance valgrind to support generating
+      # suppressions in xml mode.  See
+      # http://bugs.kde.org/show_bug.cgi?id=191189
       if self._generate_suppressions:
         proc += ["--gen-suppressions=all"]
       else:
@@ -222,7 +221,11 @@ class ValgrindLinux(Valgrind):
       if not suppression_count:
         logging.warning("WARNING: NOT USING SUPPRESSIONS!")
 
-      proc += ["--log-file=" + self.TMP_DIR + "/valgrind.%p"]
+      if not self._generate_suppressions:
+        # We don't currently collect suppressions from individual log files,
+        # so let it all go to stdout.  This leads to occasional
+        # corruption; see above TODO.
+        proc += ["--log-file=" + self.TMP_DIR + "/valgrind.%p"]
     # The Valgrind command is constructed.
 
     if self._options.indirect:
@@ -246,15 +249,12 @@ class ValgrindLinux(Valgrind):
     return proc
 
 
-class ValgrindMac(Valgrind):
+class ValgrindMac(ValgrindLinux):
 
   """Valgrind on Mac OS X.
-
-  Valgrind on OS X does not support suppressions (yet).
+  Same as Linux, but currently needs one extra step to run dsymutil.
+  This will go away once we update our valgrind.
   """
-
-  def __init__(self):
-    Valgrind.__init__(self)
 
   def PrepareForTest(self):
     """Runs dsymutil if needed.
@@ -311,42 +311,6 @@ class ValgrindMac(Valgrind):
 
       if saved_test_command:
         os.rename(saved_test_command, test_command)
-
-  def ValgrindCommand(self):
-    """Get the valgrind command to run."""
-    proc = ["valgrind", "--smc-check=all", "--leak-check=full",
-            "--num-callers=30"]
-
-    if self._options.show_all_leaks:
-      proc += ["--show-reachable=yes"];
-
-    # Either generate suppressions or load them.
-    # TODO(nirnimesh): Enable when Analyze() is implemented
-    #if self._generate_suppressions:
-    #  proc += ["--gen-suppressions=all"]
-    #else:
-    #  proc += ["--xml=yes"]
-
-    suppression_count = 0
-    for suppression_file in self._suppressions:
-      if os.path.exists(suppression_file):
-        suppression_count += 1
-        proc += ["--suppressions=%s" % suppression_file]
-
-    if not suppression_count:
-      logging.warning("WARNING: NOT USING SUPPRESSIONS!")
-
-    # TODO(nirnimesh): Enable --log-file when Analyze() is implemented
-    # proc += ["--log-file=" + self.TMP_DIR + "/valgrind.%p"]
-
-    proc += self._args
-    return proc
-
-  def Analyze(self):
-    # TODO(nirnimesh): Implement analysis later. Valgrind on Mac is new so
-    # analysis might not be useful until we have stable output from valgrind
-    return 0
-
 
 if __name__ == "__main__":
   if sys.platform == 'darwin': # Mac
