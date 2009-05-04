@@ -24,10 +24,10 @@ class WebDatabaseTest : public testing::Test {
 
   virtual void SetUp() {
     PathService::Get(chrome::DIR_TEST_DATA, &file_);
-    file_ += FilePath::kSeparators[0];
-    file_ += L"TestWebDatabase";
-    file_ += Int64ToWString(base::Time::Now().ToInternalValue());
-    file_ += L".db";
+    const std::string test_db = "TestWebDatabase" +
+        Int64ToString(base::Time::Now().ToInternalValue()) +
+        ".db";
+    file_ = file_.AppendASCII(test_db);
     file_util::Delete(file_, false);
   }
 
@@ -79,13 +79,13 @@ class WebDatabaseTest : public testing::Test {
     url->set_prepopulate_id(id);
   }
 
-  std::wstring file_;
+  FilePath file_;
 };
 
 TEST_F(WebDatabaseTest, Keywords) {
   WebDatabase db;
 
-  EXPECT_TRUE(db.Init(file_));
+  EXPECT_TRUE(db.Init(file_.ToWStringHack()));
 
   TemplateURL template_url;
   template_url.set_short_name(L"short_name");
@@ -146,7 +146,7 @@ TEST_F(WebDatabaseTest, Keywords) {
 TEST_F(WebDatabaseTest, KeywordMisc) {
   WebDatabase db;
 
-  EXPECT_TRUE(db.Init(file_));
+  EXPECT_TRUE(db.Init(file_.ToWStringHack()));
 
   ASSERT_EQ(0, db.GetDefaulSearchProviderID());
   ASSERT_EQ(0, db.GetBuitinKeywordVersion());
@@ -161,7 +161,7 @@ TEST_F(WebDatabaseTest, KeywordMisc) {
 TEST_F(WebDatabaseTest, UpdateKeyword) {
   WebDatabase db;
 
-  EXPECT_TRUE(db.Init(file_));
+  EXPECT_TRUE(db.Init(file_.ToWStringHack()));
 
   TemplateURL template_url;
   template_url.set_short_name(L"short_name");
@@ -223,7 +223,7 @@ TEST_F(WebDatabaseTest, UpdateKeyword) {
 TEST_F(WebDatabaseTest, KeywordWithNoFavicon) {
   WebDatabase db;
 
-  EXPECT_TRUE(db.Init(file_));
+  EXPECT_TRUE(db.Init(file_.ToWStringHack()));
 
   TemplateURL template_url;
   template_url.set_short_name(L"short_name");
@@ -250,7 +250,7 @@ TEST_F(WebDatabaseTest, KeywordWithNoFavicon) {
 TEST_F(WebDatabaseTest, Logins) {
   WebDatabase db;
 
-  EXPECT_TRUE(db.Init(file_));
+  EXPECT_TRUE(db.Init(file_.ToWStringHack()));
 
   std::vector<PasswordForm*> result;
 
@@ -383,7 +383,7 @@ TEST_F(WebDatabaseTest, Logins) {
 TEST_F(WebDatabaseTest, Autofill) {
   WebDatabase db;
 
-  EXPECT_TRUE(db.Init(file_));
+  EXPECT_TRUE(db.Init(file_.ToWStringHack()));
 
   Time t1 = Time::Now();
 
@@ -515,7 +515,7 @@ static void ClearResults(std::vector<PasswordForm*>* results) {
 TEST_F(WebDatabaseTest, ClearPrivateData_SavedPasswords) {
   WebDatabase db;
 
-  EXPECT_TRUE(db.Init(file_));
+  EXPECT_TRUE(db.Init(file_.ToWStringHack()));
 
   std::vector<PasswordForm*> result;
 
@@ -557,7 +557,7 @@ TEST_F(WebDatabaseTest, ClearPrivateData_SavedPasswords) {
 TEST_F(WebDatabaseTest, BlacklistedLogins) {
   WebDatabase db;
 
-  EXPECT_TRUE(db.Init(file_));
+  EXPECT_TRUE(db.Init(file_.ToWStringHack()));
   std::vector<PasswordForm*> result;
 
   // Verify the database is empty.
@@ -596,7 +596,7 @@ TEST_F(WebDatabaseTest, BlacklistedLogins) {
 TEST_F(WebDatabaseTest, WebAppHasAllImages) {
   WebDatabase db;
 
-  EXPECT_TRUE(db.Init(file_));
+  EXPECT_TRUE(db.Init(file_.ToWStringHack()));
   GURL url("http://google.com/");
 
   // Initial value for unknown web app should be false.
@@ -614,7 +614,7 @@ TEST_F(WebDatabaseTest, WebAppHasAllImages) {
 TEST_F(WebDatabaseTest, WebAppImages) {
   WebDatabase db;
 
-  ASSERT_TRUE(db.Init(file_));
+  ASSERT_TRUE(db.Init(file_.ToWStringHack()));
   GURL url("http://google.com/");
 
   // Web app should initially have no images.

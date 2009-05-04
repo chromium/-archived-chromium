@@ -17,11 +17,11 @@ class TemplateURLParserTest : public testing::Test {
 
   virtual void SetUp() {
     ASSERT_TRUE(PathService::Get(chrome::DIR_TEST_DATA, &full_path_));
-    file_util::AppendToPath(&full_path_, L"osdd");
+    full_path_ = full_path_.AppendASCII("osdd");
     if (!file_util::PathExists(full_path_)) {
       LOG(ERROR) <<
           L"This test can't be run without some non-redistributable data";
-      full_path_.clear();
+      full_path_ = FilePath();
     }
   }
 
@@ -35,12 +35,11 @@ class TemplateURLParserTest : public testing::Test {
   // use a return value due to internally using ASSERT_).
   void ParseFile(const std::wstring& file_name,
                  TemplateURLParser::ParameterFilter* filter) {
-    std::wstring full_path(full_path_);
-    file_util::AppendToPath(&full_path, file_name);
+    FilePath full_path;
     parse_result_ = false;
     ASSERT_TRUE(PathService::Get(chrome::DIR_TEST_DATA, &full_path));
-    file_util::AppendToPath(&full_path, L"osdd");
-    file_util::AppendToPath(&full_path, file_name);
+    full_path = full_path.AppendASCII("osdd");
+    full_path = full_path.Append(FilePath::FromWStringHack(file_name));
     ASSERT_TRUE(file_util::PathExists(full_path));
 
     std::string contents;
@@ -53,7 +52,7 @@ class TemplateURLParserTest : public testing::Test {
   // ParseFile parses the results into this template_url.
   TemplateURL template_url_;
 
-  std::wstring full_path_;
+  FilePath full_path_;
 
   // Result of the parse.
   bool parse_result_;

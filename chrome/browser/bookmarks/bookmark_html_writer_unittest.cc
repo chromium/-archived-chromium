@@ -15,9 +15,8 @@ class BookmarkHTMLWriterTest : public testing::Test {
  protected:
   virtual void SetUp() {
     ASSERT_TRUE(PathService::Get(base::DIR_TEMP, &path_));
-    file_util::AppendToPath(&path_, L"bookmarks.html");
+    path_ = path_.AppendASCII("bookmarks.html");
     file_util::Delete(path_, true);
-
   }
 
   virtual void TearDown() {
@@ -53,7 +52,7 @@ class BookmarkHTMLWriterTest : public testing::Test {
     EXPECT_TRUE(path_count < 3 || entry.path[3] == f3);
   }
 
-  std::wstring path_;
+  FilePath path_;
 };
 
 // Tests bookmark_html_writer by populating a BookmarkModel, writing it out by
@@ -100,19 +99,19 @@ TEST_F(BookmarkHTMLWriterTest, Test) {
   model.AddURLWithCreationTime(f4, 0, url1_title, url1, t1);
 
   // Write to a temp file.
-  bookmark_html_writer::WriteBookmarks(NULL, &model, path_);
+  bookmark_html_writer::WriteBookmarks(NULL, &model, path_.ToWStringHack());
 
   // Read the bookmarks back in.
   std::vector<ProfileWriter::BookmarkEntry> parsed_bookmarks;
-  Firefox2Importer::ImportBookmarksFile(path_, std::set<GURL>(), false,
-                                        L"x", NULL, &parsed_bookmarks, NULL,
-                                        NULL);
+  Firefox2Importer::ImportBookmarksFile(path_.ToWStringHack(), std::set<GURL>(),
+                                        false, L"x", NULL, &parsed_bookmarks,
+                                        NULL, NULL);
 
   // Verify we got back what we wrote.
   ASSERT_EQ(6U, parsed_bookmarks.size());
   // Hardcode the value of IDS_BOOKMARK_BAR_FOLDER_NAME in en-US locale
-  // because all the unit tests are run in en-US locale. 
-  const wchar_t* kBookmarkBarFolderName = L"Bookmarks bar"; 
+  // because all the unit tests are run in en-US locale.
+  const wchar_t* kBookmarkBarFolderName = L"Bookmarks bar";
   AssertBookmarkEntryEquals(parsed_bookmarks[0], false, url1, url1_title, t1,
                             kBookmarkBarFolderName, f1_title, std::wstring());
   AssertBookmarkEntryEquals(parsed_bookmarks[1], false, url2, url2_title, t2,

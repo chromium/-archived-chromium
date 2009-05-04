@@ -39,16 +39,15 @@ class TemplateURLModelTestingProfile : public TestingProfile {
   void SetUp() {
     // Name a subdirectory of the temp directory.
     ASSERT_TRUE(PathService::Get(base::DIR_TEMP, &test_dir_));
-    file_util::AppendToPath(&test_dir_, L"TemplateURLModelTest");
+    test_dir_ = test_dir_.AppendASCII("TemplateURLModelTest");
 
     // Create a fresh, empty copy of this directory.
     file_util::Delete(test_dir_, true);
     file_util::CreateDirectory(test_dir_);
 
-    std::wstring path = test_dir_;
-    file_util::AppendToPath(&path, L"TestDataService.db");
+    FilePath path = test_dir_.AppendASCII("TestDataService.db");
     service_ = new WebDataService;
-    EXPECT_TRUE(service_->InitWithPath(FilePath::FromWStringHack(path)));
+    EXPECT_TRUE(service_->InitWithPath(path));
   }
 
   void TearDown() {
@@ -64,7 +63,7 @@ class TemplateURLModelTestingProfile : public TestingProfile {
 
  private:
   scoped_refptr<WebDataService> service_;
-  std::wstring test_dir_;
+  FilePath test_dir_;
 };
 
 // Trivial subclass of TemplateURLModel that records the last invocation of

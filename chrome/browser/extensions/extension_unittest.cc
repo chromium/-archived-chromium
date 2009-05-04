@@ -2,6 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+#include "base/file_path.h"
 #include "base/string_util.h"
 #include "base/path_service.h"
 #include "chrome/browser/extensions/extension.h"
@@ -24,10 +25,9 @@ TEST(ExtensionTest, InitFromValueInvalid) {
   ExtensionErrorReporter::Init(false);
 
   // Start with a valid extension manifest
-  std::wstring extensions_dir;
-  ASSERT_TRUE(PathService::Get(chrome::DIR_TEST_DATA, &extensions_dir));
-  FilePath extensions_path = FilePath::FromWStringHack(extensions_dir)
-      .AppendASCII("extensions")
+  FilePath extensions_path;
+  ASSERT_TRUE(PathService::Get(chrome::DIR_TEST_DATA, &extensions_path));
+  extensions_path = extensions_path.AppendASCII("extensions")
       .AppendASCII("good")
       .AppendASCII("extension1")
       .AppendASCII("1")

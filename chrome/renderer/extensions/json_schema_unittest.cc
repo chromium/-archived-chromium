@@ -28,10 +28,10 @@ class JsonSchemaTest : public V8UnitTest {
     ExecuteScriptInContext(js, kJsonSchema);
 
     // Add the test functions to the context.
-    std::wstring test_js_file_path;
+    FilePath test_js_file_path;
     ASSERT_TRUE(PathService::Get(chrome::DIR_TEST_DATA, &test_js_file_path));
-    file_util::AppendToPath(&test_js_file_path, L"extensions");
-    file_util::AppendToPath(&test_js_file_path, UTF8ToWide(kJsonSchemaTest));
+    test_js_file_path = test_js_file_path.AppendASCII("extensions");
+    test_js_file_path = test_js_file_path.AppendASCII(kJsonSchemaTest);
     std::string test_js;
     ASSERT_TRUE(file_util::ReadFileToString(test_js_file_path, &test_js));
     ExecuteScriptInContext(test_js, kJsonSchemaTest);

@@ -4,7 +4,6 @@
 //
 // Unit tests for the SafeBrowsing storage system.
 
-#include "base/file_path.h"
 #include "base/file_util.h"
 #include "base/logging.h"
 #include "base/path_service.h"
@@ -1029,15 +1028,15 @@ void PrintStat(const char* name) {
 }
 
 std::wstring GetFullSBDataPath(const std::wstring& path) {
-  std::wstring full_path;
+  FilePath full_path;
   CHECK(PathService::Get(base::DIR_SOURCE_ROOT, &full_path));
-  file_util::AppendToPath(&full_path, L"chrome");
-  file_util::AppendToPath(&full_path, L"test");
-  file_util::AppendToPath(&full_path, L"data");
-  file_util::AppendToPath(&full_path, L"safe_browsing");
-  file_util::AppendToPath(&full_path, path);
+  full_path = full_path.AppendASCII("chrome");
+  full_path = full_path.AppendASCII("test");
+  full_path = full_path.AppendASCII("data");
+  full_path = full_path.AppendASCII("safe_browsing");
+  full_path = full_path.Append(FilePath::FromWStringHack(path));
   CHECK(file_util::PathExists(full_path));
-  return full_path;
+  return full_path.ToWStringHack();
 }
 
 struct ChunksInfo {
