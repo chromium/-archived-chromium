@@ -6,7 +6,7 @@
 
 #include "base/gfx/native_widget_types.h"
 #include "chrome/browser/gtk/find_bar_gtk.h"
-#include "chrome/browser/tab_contents/web_contents.h"
+#include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/browser/renderer_host/render_widget_host_view_gtk.h"
 #include "chrome/common/notification_service.h"
 
@@ -72,15 +72,15 @@ void TabContentsContainerGtk::Observe(NotificationType type,
 
 void TabContentsContainerGtk::AddObservers() {
   DCHECK(tab_contents_);
-  if (tab_contents_->AsWebContents()) {
-    // WebContents can change their RenderViewHost and hence the GtkWidget that
-    // is shown. I'm not entirely sure that we need to observe this event under
-    // GTK, but am putting a stub implementation and a comment saying that if
-    // we crash after that NOTIMPLEMENTED(), we'll need it.
-    NotificationService::current()->AddObserver(
-        this, NotificationType::RENDER_VIEW_HOST_CHANGED,
-        Source<NavigationController>(&tab_contents_->controller()));
-  }
+
+  // TabContents can change their RenderViewHost and hence the GtkWidget that
+  // is shown. I'm not entirely sure that we need to observe this event under
+  // GTK, but am putting a stub implementation and a comment saying that if
+  // we crash after that NOTIMPLEMENTED(), we'll need it.
+  NotificationService::current()->AddObserver(
+      this, NotificationType::RENDER_VIEW_HOST_CHANGED,
+      Source<NavigationController>(&tab_contents_->controller()));
+
   NotificationService::current()->AddObserver(
       this,
       NotificationType::TAB_CONTENTS_DESTROYED,
@@ -89,12 +89,12 @@ void TabContentsContainerGtk::AddObservers() {
 
 void TabContentsContainerGtk::RemoveObservers() {
   DCHECK(tab_contents_);
-  if (tab_contents_->AsWebContents()) {
-    NotificationService::current()->RemoveObserver(
-        this,
-        NotificationType::RENDER_VIEW_HOST_CHANGED,
-        Source<NavigationController>(&tab_contents_->controller()));
-  }
+
+  NotificationService::current()->RemoveObserver(
+      this,
+      NotificationType::RENDER_VIEW_HOST_CHANGED,
+      Source<NavigationController>(&tab_contents_->controller()));
+
   NotificationService::current()->RemoveObserver(
       this,
       NotificationType::TAB_CONTENTS_DESTROYED,

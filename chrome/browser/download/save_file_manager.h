@@ -181,7 +181,7 @@ class SaveFileManager
 
   // Notifications sent from the file thread and run on the UI thread.
 
-  // Lookup the SaveManager for this WebContents' saving profile and inform it
+  // Lookup the SaveManager for this TabContents' saving profile and inform it
   // the saving job has been started.
   void OnStartSave(const SaveFileCreateInfo* info);
   // Update the SavePackage with the current state of a started saving job.

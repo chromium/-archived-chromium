@@ -5,7 +5,7 @@
 #include "chrome/browser/views/html_dialog_view.h"
 
 #include "chrome/browser/browser.h"
-#include "chrome/browser/tab_contents/web_contents.h"
+#include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/views/widget/root_view.h"
 #include "chrome/views/window/window.h"
 
@@ -101,7 +101,7 @@ void HtmlDialogView::InitDialog() {
 
   // Set the delegate. This must be done before loading the page. See
   // the comment above HtmlDialogUI in its header file for why.
-  HtmlDialogUI::GetPropertyAccessor().SetProperty(web_contents_->property_bag(),
+  HtmlDialogUI::GetPropertyAccessor().SetProperty(tab_contents_->property_bag(),
                                                   this);
 
   DOMView::LoadURL(delegate_->GetDialogContentURL());

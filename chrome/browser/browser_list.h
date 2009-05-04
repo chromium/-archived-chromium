@@ -124,7 +124,7 @@ class BrowserList {
   static list_type last_active_browsers_;
 };
 
-class WebContents;
+class TabContents;
 
 // Iterates through all web view hosts in all browser windows. Because the
 // renderers act asynchronously, getting a host through this interface does
@@ -132,36 +132,36 @@ class WebContents;
 // browser windows or tabs while iterating may cause incorrect behavior.
 //
 // Example:
-//   for (WebContentsIterator iterator; !iterator.done(); iterator++) {
-//     WebContents* cur = *iterator;
+//   for (TabContentsIterator iterator; !iterator.done(); iterator++) {
+//     TabContents* cur = *iterator;
 //     -or-
-//     iterator->operationOnWebContents();
+//     iterator->operationOnTabContents();
 //     ...
 //   }
-class WebContentsIterator {
+class TabContentsIterator {
  public:
-  WebContentsIterator();
+  TabContentsIterator();
 
   // Returns true if we are past the last Browser.
   bool done() const {
     return cur_ == NULL;
   }
 
-  // Returns the current WebContents, valid as long as !Done()
-  WebContents* operator->() const {
+  // Returns the current TabContents, valid as long as !Done()
+  TabContents* operator->() const {
     return cur_;
   }
-  WebContents* operator*() const {
+  TabContents* operator*() const {
     return cur_;
   }
 
   // Incrementing operators, valid as long as !Done()
-  WebContents* operator++() { // ++preincrement
+  TabContents* operator++() { // ++preincrement
     Advance();
     return cur_;
   }
-  WebContents* operator++(int) { // postincrement++
-    WebContents* tmp = cur_;
+  TabContents* operator++(int) { // postincrement++
+    TabContents* tmp = cur_;
     Advance();
     return tmp;
   }
@@ -178,10 +178,10 @@ class WebContentsIterator {
   // tab index into the current Browser of the current web view
   int web_view_index_;
 
-  // Current WebContents, or NULL if we're at the end of the list. This can
+  // Current TabContents, or NULL if we're at the end of the list. This can
   // be extracted given the browser iterator and index, but it's nice to cache
   // this since the caller may access the current host many times.
-  WebContents* cur_;
+  TabContents* cur_;
 };
 
 #endif  // CHROME_BROWSER_BROWSER_LIST_H__

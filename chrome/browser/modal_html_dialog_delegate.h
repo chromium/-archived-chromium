@@ -21,7 +21,7 @@ class ModalHtmlDialogDelegate
                           int width, int height,
                           const std::string& json_arguments,
                           IPC::Message* sync_result,
-                          WebContents* contents);
+                          TabContents* contents);
   ~ModalHtmlDialogDelegate();
 
   // Notification service callback.
@@ -39,12 +39,12 @@ class ModalHtmlDialogDelegate
 
  private:
   // Invoked from the destructor or when we receive notification the web
-  // contents has been disconnnected. Removes the observer from the WebContents
+  // contents has been disconnnected. Removes the observer from the TabContents
   // and NULLs out contents_.
   void RemoveObserver();
 
-  // The WebContents that opened the dialog.
-  WebContents* contents_;
+  // The TabContents that opened the dialog.
+  TabContents* contents_;
 
   // The parameters needed to display a modal HTML dialog.
   HtmlDialogUI::HtmlDialogParams params_;

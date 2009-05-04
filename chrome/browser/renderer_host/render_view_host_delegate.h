@@ -28,7 +28,7 @@ class Profile;
 class RenderProcessHost;
 class RenderViewHost;
 class SkBitmap;
-class WebContents;
+class TabContents;
 class WebKeyboardEvent;
 struct ThumbnailScore;
 struct ContextMenuParams;
@@ -56,7 +56,7 @@ struct WebApplicationInfo;
 //  of the RenderViewHost.
 //
 //  This interface currently encompasses every type of message that was
-//  previously being sent by WebContents itself. Some of these notifications
+//  previously being sent by TabContents itself. Some of these notifications
 //  may not be relevant to all users of RenderViewHost and we should consider
 //  exposing a more generic Send function on RenderViewHost and a response
 //  listener here to serve that need.
@@ -158,8 +158,8 @@ class RenderViewHostDelegate {
     return NULL;
   }
 
-  // Return this object cast to a WebContents, if it is one.
-  virtual WebContents* GetAsWebContents() { return NULL; }
+  // Return this object cast to a TabContents, if it is one.
+  virtual TabContents* GetAsTabContents() { return NULL; }
 
   // The RenderView is being constructed (message sent to the renderer process
   // to construct a RenderView).  Now is a good time to send other setup events

@@ -11,7 +11,7 @@
 class GURL;
 class Profile;
 class TemplateURL;
-class WebContents;
+class TabContents;
 
 // TemplateURLFetcher is responsible for downloading OpenSearch description
 // documents, creating a TemplateURL from the OSDD, and adding the TemplateURL

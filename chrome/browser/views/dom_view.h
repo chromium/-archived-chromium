@@ -14,7 +14,7 @@
 
 class Profile;
 class SiteInstance;
-class WebContents;
+class TabContents;
 
 class DOMView : public views::HWNDView {
  public:
@@ -35,7 +35,7 @@ class DOMView : public views::HWNDView {
  protected:
   virtual bool CanProcessTabKeyEvents() { return true; }
 
-  scoped_ptr<WebContents> web_contents_;
+  scoped_ptr<TabContents> tab_contents_;
 
  private:
   bool initialized_;

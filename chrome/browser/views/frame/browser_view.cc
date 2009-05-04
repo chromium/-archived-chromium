@@ -40,7 +40,7 @@
 #include "chrome/browser/views/toolbar_view.h"
 #include "chrome/browser/sessions/tab_restore_service.h"
 #include "chrome/browser/tab_contents/navigation_entry.h"
-#include "chrome/browser/tab_contents/web_contents.h"
+#include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/browser/tab_contents/tab_contents_view.h"
 #include "chrome/browser/window_sizer.h"
 #include "chrome/common/chrome_switches.h"
@@ -335,8 +335,8 @@ void BrowserView::WindowMoved() {
 
 void BrowserView::WindowMoveOrResizeStarted() {
   TabContents* tab_contents = GetSelectedTabContents();
-  if (tab_contents && tab_contents->AsWebContents())
-    tab_contents->AsWebContents()->WindowMoveOrResizeStarted();
+  if (tab_contents)
+    tab_contents->WindowMoveOrResizeStarted();
 }
 
 gfx::Rect BrowserView::GetToolbarBounds() const {
@@ -524,8 +524,8 @@ void BrowserView::Show() {
   // If we do find there are cases where we need to restore the focus on show,
   // that should be added and this should be removed.
   TabContents* selected_tab_contents = GetSelectedTabContents();
-  if (selected_tab_contents && selected_tab_contents->AsWebContents())
-    selected_tab_contents->AsWebContents()->view()->RestoreFocus();
+  if (selected_tab_contents)
+    selected_tab_contents->view()->RestoreFocus();
 
   frame_->Show();
 }

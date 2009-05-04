@@ -11,7 +11,7 @@
 #include "chrome/browser/tab_contents/navigation_entry.h"
 #include "chrome/browser/tab_contents/tab_contents_delegate.h"
 #include "chrome/browser/tab_contents/tab_util.h"
-#include "chrome/browser/tab_contents/web_contents.h"
+#include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/common/notification_service.h"
 
 // TabDownloadState ------------------------------------------------------------
@@ -228,8 +228,8 @@ void DownloadRequestManager::CanDownload(int render_process_host_id,
                                          Callback* callback) {
   DCHECK(!ui_loop_ || MessageLoop::current() == ui_loop_);
 
-  WebContents* originating_tab =
-      tab_util::GetWebContentsByID(render_process_host_id, render_view_id);
+  TabContents* originating_tab =
+      tab_util::GetTabContentsByID(render_process_host_id, render_view_id);
   if (!originating_tab) {
     // The tab was closed, don't allow the download.
     ScheduleNotification(callback, false);

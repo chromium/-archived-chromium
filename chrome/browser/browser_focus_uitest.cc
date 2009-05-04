@@ -6,7 +6,6 @@
 #include "base/ref_counted.h"
 #include "chrome/browser/automation/ui_controls.h"
 #include "chrome/browser/browser.h"
-#include "chrome/browser/tab_contents/web_contents.h"
 #include "chrome/browser/view_ids.h"
 #include "chrome/browser/views/frame/browser_view.h"
 #include "chrome/browser/views/location_bar_view.h"
@@ -266,7 +265,7 @@ IN_PROC_BROWSER_TEST_F(BrowserFocusTest, FocusTraversal) {
       // Let's make sure the focus is on the expected element in the page.
       std::string actual;
       ASSERT_TRUE(ui_test_utils::ExecuteJavaScriptAndExtractString(
-          browser()->GetSelectedTabContents()->AsWebContents(),
+          browser()->GetSelectedTabContents(),
           L"",
           L"window.domAutomationController.send(getFocusedElement());",
           &actual));
@@ -303,7 +302,7 @@ IN_PROC_BROWSER_TEST_F(BrowserFocusTest, FocusTraversal) {
       // Let's make sure the focus is on the expected element in the page.
       std::string actual;
       ASSERT_TRUE(ui_test_utils::ExecuteJavaScriptAndExtractString(
-          browser()->GetSelectedTabContents()->AsWebContents(),
+          browser()->GetSelectedTabContents(),
           L"",
           L"window.domAutomationController.send(getFocusedElement());",
           &actual));

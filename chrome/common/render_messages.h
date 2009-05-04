@@ -223,7 +223,7 @@ struct ViewHostMsg_ScrollRect_Params {
 
 // Parameters structure for ViewMsg_UploadFile.
 struct ViewMsg_UploadFile_Params {
-  // See WebContents::StartFileUpload for a description of these fields.
+  // See TabContents::StartFileUpload for a description of these fields.
   std::wstring file_path;
   std::wstring form;
   std::wstring file;

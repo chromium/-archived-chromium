@@ -11,7 +11,7 @@
 #include "chrome/views/window/dialog_delegate.h"
 
 class MessageBoxView;
-class WebContents;
+class TabContents;
 namespace views {
 class Window;
 }
@@ -46,8 +46,8 @@ class JavascriptMessageBoxDialog : public views::DialogDelegate {
   virtual views::View* GetInitiallyFocusedView();
 
  private:
-  WebContents* web_contents() {
-    return parent_->web_contents();
+  TabContents* tab_contents() {
+    return parent_->tab_contents();
   }
 
   // A pointer to the AppModalDialog that owns us.

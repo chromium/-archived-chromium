@@ -15,7 +15,7 @@
 #include "chrome/browser/search_engines/template_url_model.h"
 #include "chrome/browser/spellchecker.h"
 #include "chrome/browser/tab_contents/navigation_entry.h"
-#include "chrome/browser/tab_contents/web_contents.h"
+#include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/common/chrome_switches.h"
 #include "chrome/common/clipboard_service.h"
 #include "chrome/common/l10n_util.h"
@@ -31,11 +31,11 @@
 #endif
 
 RenderViewContextMenu::RenderViewContextMenu(
-    WebContents* web_contents,
+    TabContents* tab_contents,
     const ContextMenuParams& params)
     : params_(params),
-      source_web_contents_(web_contents),
-      profile_(web_contents->profile()) {
+      source_tab_contents_(tab_contents),
+      profile_(tab_contents->profile()) {
 }
 
 RenderViewContextMenu::~RenderViewContextMenu() {
@@ -203,16 +203,16 @@ bool RenderViewContextMenu::IsItemCommandEnabled(int id) const {
   // Allow Spell Check language items on sub menu for text area context menu.
   if ((id >= IDC_SPELLCHECK_LANGUAGES_FIRST) &&
       (id < IDC_SPELLCHECK_LANGUAGES_LAST)) {
-    return source_web_contents_->profile()->GetPrefs()->GetBoolean(
+    return source_tab_contents_->profile()->GetPrefs()->GetBoolean(
         prefs::kEnableSpellCheck);
   }
 
   switch (id) {
     case IDS_CONTENT_CONTEXT_BACK:
-      return source_web_contents_->controller().CanGoBack();
+      return source_tab_contents_->controller().CanGoBack();
 
     case IDS_CONTENT_CONTEXT_FORWARD:
-      return source_web_contents_->controller().CanGoForward();
+      return source_tab_contents_->controller().CanGoForward();
 
     case IDS_CONTENT_CONTEXT_VIEWPAGESOURCE:
     case IDS_CONTENT_CONTEXT_VIEWFRAMESOURCE:
@@ -247,7 +247,7 @@ bool RenderViewContextMenu::IsItemCommandEnabled(int id) const {
       return params_.image_url.is_valid();
 
     case IDS_CONTENT_CONTEXT_SAVEPAGEAS:
-      return SavePackage::IsSavableURL(source_web_contents_->GetURL());
+      return SavePackage::IsSavableURL(source_tab_contents_->GetURL());
 
     case IDS_CONTENT_CONTEXT_OPENFRAMENEWTAB:
     case IDS_CONTENT_CONTEXT_OPENFRAMENEWWINDOW:
@@ -275,18 +275,18 @@ bool RenderViewContextMenu::IsItemCommandEnabled(int id) const {
       return !!(params_.edit_flags & ContextNode::CAN_SELECT_ALL);
 
     case IDS_CONTENT_CONTEXT_OPENLINKOFFTHERECORD:
-      return !source_web_contents_->profile()->IsOffTheRecord() &&
+      return !source_tab_contents_->profile()->IsOffTheRecord() &&
              params_.link_url.is_valid();
 
     case IDS_CONTENT_CONTEXT_OPENFRAMEOFFTHERECORD:
-      return !source_web_contents_->profile()->IsOffTheRecord() &&
+      return !source_tab_contents_->profile()->IsOffTheRecord() &&
              params_.frame_url.is_valid();
 
     case IDS_CONTENT_CONTEXT_ADD_TO_DICTIONARY:
       return !params_.misspelled_word.empty();
 
     case IDS_CONTENT_CONTEXT_VIEWPAGEINFO:
-      return (source_web_contents_->controller().GetActiveEntry() != NULL);
+      return (source_tab_contents_->controller().GetActiveEntry() != NULL);
 
     case IDS_CONTENT_CONTEXT_RELOAD:
     case IDS_CONTENT_CONTEXT_COPYIMAGE:
@@ -303,7 +303,7 @@ bool RenderViewContextMenu::IsItemCommandEnabled(int id) const {
       return true;
 
     case IDC_CHECK_SPELLING_OF_THIS_FIELD:
-      return source_web_contents_->profile()->GetPrefs()->GetBoolean(
+      return source_tab_contents_->profile()->GetPrefs()->GetBoolean(
           prefs::kEnableSpellCheck);
 
     case IDS_CONTENT_CONTEXT_SAVEFRAMEAS:
@@ -317,7 +317,7 @@ bool RenderViewContextMenu::IsItemCommandEnabled(int id) const {
 bool RenderViewContextMenu::ItemIsChecked(int id) const {
   // Check box for 'Check the Spelling of this field'.
   if (id == IDC_CHECK_SPELLING_OF_THIS_FIELD) {
-    PrefService* prefs = source_web_contents_->profile()->GetPrefs();
+    PrefService* prefs = source_tab_contents_->profile()->GetPrefs();
     return (params_.spellcheck_enabled &&
             prefs->GetBoolean(prefs::kEnableSpellCheck));
   }
@@ -330,7 +330,7 @@ bool RenderViewContextMenu::ItemIsChecked(int id) const {
 
   SpellChecker::Languages languages;
   return SpellChecker::GetSpellCheckLanguages(
-      source_web_contents_->profile(), &languages) ==
+      source_tab_contents_->profile(), &languages) ==
       (id - IDC_SPELLCHECK_LANGUAGES_FIRST);
 }
 
@@ -341,11 +341,11 @@ void RenderViewContextMenu::ExecuteItemCommand(int id) {
     const size_t language_number = id - IDC_SPELLCHECK_LANGUAGES_FIRST;
     SpellChecker::Languages languages;
     SpellChecker::GetSpellCheckLanguages(
-        source_web_contents_->profile(), &languages);
+        source_tab_contents_->profile(), &languages);
     if (language_number < languages.size()) {
       StringPrefMember dictionary_language;
       dictionary_language.Init(prefs::kSpellCheckDictionary,
-          source_web_contents_->profile()->GetPrefs(), NULL);
+          source_tab_contents_->profile()->GetPrefs(), NULL);
       dictionary_language.SetValue(ASCIIToWide(languages[language_number]));
     }
 
@@ -374,9 +374,9 @@ void RenderViewContextMenu::ExecuteItemCommand(int id) {
           (id == IDS_CONTENT_CONTEXT_SAVELINKAS ? params_.link_url :
                                                   params_.image_url);
       DownloadManager* dlm =
-          source_web_contents_->profile()->GetDownloadManager();
+          source_tab_contents_->profile()->GetDownloadManager();
       dlm->DownloadUrl(url, referrer, params_.frame_charset,
-                       source_web_contents_);
+                       source_tab_contents_);
       break;
     }
 
@@ -397,23 +397,23 @@ void RenderViewContextMenu::ExecuteItemCommand(int id) {
       break;
 
     case IDS_CONTENT_CONTEXT_BACK:
-      source_web_contents_->controller().GoBack();
+      source_tab_contents_->controller().GoBack();
       break;
 
     case IDS_CONTENT_CONTEXT_FORWARD:
-      source_web_contents_->controller().GoForward();
+      source_tab_contents_->controller().GoForward();
       break;
 
     case IDS_CONTENT_CONTEXT_SAVEPAGEAS:
-      source_web_contents_->OnSavePage();
+      source_tab_contents_->OnSavePage();
       break;
 
     case IDS_CONTENT_CONTEXT_RELOAD:
-      source_web_contents_->controller().Reload(true);
+      source_tab_contents_->controller().Reload(true);
       break;
 
     case IDS_CONTENT_CONTEXT_PRINT:
-      source_web_contents_->PrintPreview();
+      source_tab_contents_->PrintPreview();
       break;
 
     case IDS_CONTENT_CONTEXT_VIEWPAGESOURCE:
@@ -428,11 +428,11 @@ void RenderViewContextMenu::ExecuteItemCommand(int id) {
     case IDS_CONTENT_CONTEXT_VIEWPAGEINFO: {
 #if defined(OS_WIN)
       NavigationEntry* nav_entry =
-          source_web_contents_->controller().GetActiveEntry();
+          source_tab_contents_->controller().GetActiveEntry();
       PageInfoWindow::CreatePageInfo(
-          source_web_contents_->profile(),
+          source_tab_contents_->profile(),
           nav_entry,
-          source_web_contents_->GetContentNativeView(),
+          source_tab_contents_->GetContentNativeView(),
           PageInfoWindow::SECURITY);
 #else
      // TODO(port): port PageInfoWindow.
@@ -492,44 +492,44 @@ void RenderViewContextMenu::ExecuteItemCommand(int id) {
         ssl.set_security_bits(security_bits);
       }
       PageInfoWindow::CreateFrameInfo(
-          source_web_contents_->profile(),
+          source_tab_contents_->profile(),
           params_.frame_url,
           ssl,
-          source_web_contents_->GetContentNativeView(),
+          source_tab_contents_->GetContentNativeView(),
           PageInfoWindow::SECURITY);
       break;
     }
 
     case IDS_CONTENT_CONTEXT_UNDO:
-      source_web_contents_->render_view_host()->Undo();
+      source_tab_contents_->render_view_host()->Undo();
       break;
 
     case IDS_CONTENT_CONTEXT_REDO:
-      source_web_contents_->render_view_host()->Redo();
+      source_tab_contents_->render_view_host()->Redo();
       break;
 
     case IDS_CONTENT_CONTEXT_CUT:
-      source_web_contents_->render_view_host()->Cut();
+      source_tab_contents_->render_view_host()->Cut();
       break;
 
     case IDS_CONTENT_CONTEXT_COPY:
-      source_web_contents_->render_view_host()->Copy();
+      source_tab_contents_->render_view_host()->Copy();
       break;
 
     case IDS_CONTENT_CONTEXT_PASTE:
-      source_web_contents_->render_view_host()->Paste();
+      source_tab_contents_->render_view_host()->Paste();
       break;
 
     case IDS_CONTENT_CONTEXT_DELETE:
-      source_web_contents_->render_view_host()->Delete();
+      source_tab_contents_->render_view_host()->Delete();
       break;
 
     case IDS_CONTENT_CONTEXT_SELECTALL:
-      source_web_contents_->render_view_host()->SelectAll();
+      source_tab_contents_->render_view_host()->SelectAll();
       break;
 
     case IDS_CONTENT_CONTEXT_SEARCHWEBFOR: {
-      const TemplateURL* const default_provider = source_web_contents_->
+      const TemplateURL* const default_provider = source_tab_contents_->
           profile()->GetTemplateURLModel()->GetDefaultSearchProvider();
       DCHECK(default_provider);  // The context menu should not contain this
                                  // item when there is no provider.
@@ -546,15 +546,15 @@ void RenderViewContextMenu::ExecuteItemCommand(int id) {
     case IDC_SPELLCHECK_SUGGESTION_2:
     case IDC_SPELLCHECK_SUGGESTION_3:
     case IDC_SPELLCHECK_SUGGESTION_4:
-      source_web_contents_->render_view_host()->Replace(
+      source_tab_contents_->render_view_host()->Replace(
           params_.dictionary_suggestions[id - IDC_SPELLCHECK_SUGGESTION_0]);
       break;
 
     case IDC_CHECK_SPELLING_OF_THIS_FIELD:
-      source_web_contents_->render_view_host()->ToggleSpellCheck();
+      source_tab_contents_->render_view_host()->ToggleSpellCheck();
       break;
     case IDS_CONTENT_CONTEXT_ADD_TO_DICTIONARY:
-      source_web_contents_->render_view_host()->AddToDictionary(
+      source_tab_contents_->render_view_host()->AddToDictionary(
           params_.misspelled_word);
       break;
 
@@ -563,10 +563,10 @@ void RenderViewContextMenu::ExecuteItemCommand(int id) {
       // TODO(yusukes): This should be moved to some shared place of commands
       // for the options stuff so that we don't have to do all this work here.
       FontsLanguagesWindowView* window_ = new FontsLanguagesWindowView(
-          source_web_contents_->profile());
+          source_tab_contents_->profile());
       views::Window::CreateChromeWindow(
           platform_util::GetTopLevel(
-              source_web_contents_->GetContentNativeView()),
+              source_tab_contents_->GetContentNativeView()),
           gfx::Rect(), window_)->Show();
       window_->SelectLanguagesTab();
 #else
@@ -588,7 +588,7 @@ bool RenderViewContextMenu::IsDevCommandEnabled(int id) const {
     return true;
 
   NavigationEntry *active_entry =
-      source_web_contents_->controller().GetActiveEntry();
+      source_tab_contents_->controller().GetActiveEntry();
   if (!active_entry)
     return false;
 
@@ -613,7 +613,7 @@ bool RenderViewContextMenu::IsDevCommandEnabled(int id) const {
 
   // Don't enable the web inspector if JavaScript is disabled
   if (id == IDS_CONTENT_CONTEXT_INSPECTELEMENT) {
-    PrefService* prefs = source_web_contents_->profile()->GetPrefs();
+    PrefService* prefs = source_tab_contents_->profile()->GetPrefs();
     if (!prefs->GetBoolean(prefs::kWebKitJavascriptEnabled) ||
         command_line.HasSwitch(switches::kDisableJavaScript))
       return false;
@@ -628,20 +628,20 @@ void RenderViewContextMenu::OpenURL(
     const GURL& url,
     WindowOpenDisposition disposition,
     PageTransition::Type transition) {
-  source_web_contents_->OpenURL(url, GURL(), disposition, transition);
+  source_tab_contents_->OpenURL(url, GURL(), disposition, transition);
 }
 
 void RenderViewContextMenu::CopyImageAt(int x, int y) {
-  source_web_contents_->render_view_host()->CopyImageAt(x, y);
+  source_tab_contents_->render_view_host()->CopyImageAt(x, y);
 }
 
 void RenderViewContextMenu::Inspect(int x, int y) {
   if (CommandLine::ForCurrentProcess()->HasSwitch(
       switches::kEnableOutOfProcessDevTools)) {
     g_browser_process->devtools_manager()->InspectElement(
-        source_web_contents_, x, y);
+        source_tab_contents_, x, y);
   } else {
-    source_web_contents_->render_view_host()->InspectElementAt(x, y);
+    source_tab_contents_->render_view_host()->InspectElementAt(x, y);
   }
 }
 

@@ -81,7 +81,7 @@ class BrowsingHistoryHandler : public DOMMessageHandler,
 
 class HistoryUI : public DOMUI {
  public:
-  explicit HistoryUI(WebContents* contents);
+  explicit HistoryUI(TabContents* contents);
 
   // Return the URL for a given search term.
   static const GURL GetHistoryURLWithSearchText(const std::wstring& text);

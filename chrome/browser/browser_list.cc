@@ -18,7 +18,7 @@
 #if defined(OS_WIN)
 // TODO(port): these can probably all go away, even on win
 #include "chrome/browser/profile.h"
-#include "chrome/browser/tab_contents/web_contents.h"
+#include "chrome/browser/tab_contents/tab_contents.h"
 #endif
 
 
@@ -289,20 +289,20 @@ void BrowserList::RemoveBrowserFrom(Browser* browser, list_type* browser_list) {
     browser_list->erase(remove_browser);
 }
 
-WebContentsIterator::WebContentsIterator()
+TabContentsIterator::TabContentsIterator()
     : browser_iterator_(BrowserList::begin()),
       web_view_index_(-1),
       cur_(NULL) {
     Advance();
   }
 
-void WebContentsIterator::Advance() {
+void TabContentsIterator::Advance() {
   // Unless we're at the beginning (index = -1) or end (iterator = end()),
-  // then the current WebContents should be valid.
+  // then the current TabContents should be valid.
   DCHECK(web_view_index_ || browser_iterator_ == BrowserList::end() ||
     cur_) << "Trying to advance past the end";
 
-  // Update cur_ to the next WebContents in the list.
+  // Update cur_ to the next TabContents in the list.
   for (;;) {
     web_view_index_++;
 
@@ -316,8 +316,8 @@ void WebContentsIterator::Advance() {
       }
     }
 
-    WebContents* next_tab =
-      (*browser_iterator_)->GetTabContentsAt(web_view_index_)->AsWebContents();
+    TabContents* next_tab =
+        (*browser_iterator_)->GetTabContentsAt(web_view_index_);
     if (next_tab) {
       cur_ = next_tab;
       return;

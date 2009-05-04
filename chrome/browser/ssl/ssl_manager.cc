@@ -19,7 +19,6 @@
 #include "chrome/browser/tab_contents/provisional_load_details.h"
 #include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/browser/tab_contents/tab_util.h"
-#include "chrome/browser/tab_contents/web_contents.h"
 #include "chrome/common/l10n_util.h"
 #include "chrome/common/notification_service.h"
 #include "chrome/common/pref_names.h"
@@ -178,12 +177,7 @@ bool SSLManager::SetMaxSecurityStyle(SecurityStyle style) {
 // Delegate API method.
 void SSLManager::AddMessageToConsole(const string16& message,
                                      const WebConsoleMessage::Level& level) {
-  TabContents* tab_contents = controller_->tab_contents();
-  WebContents* web_contents = tab_contents->AsWebContents();
-  if (!web_contents)
-    return;
-
-  web_contents->render_view_host()->AddMessageToConsole(
+  controller_->tab_contents()->render_view_host()->AddMessageToConsole(
       string16(), message, level);
 }
 
@@ -279,10 +273,10 @@ SSLManager::ErrorHandler::ErrorHandler(ResourceDispatcherHost* rdh,
 void SSLManager::ErrorHandler::Dispatch() {
   DCHECK(MessageLoop::current() == ui_loop_);
 
-  TabContents* web_contents =
-      tab_util::GetWebContentsByID(render_process_host_id_, tab_contents_id_);
+  TabContents* tab_contents =
+      tab_util::GetTabContentsByID(render_process_host_id_, tab_contents_id_);
 
-  if (!web_contents) {
+  if (!tab_contents) {
     // We arrived on the UI thread, but the tab we're looking for is no longer
     // here.
     OnDispatchFailed();
@@ -290,12 +284,12 @@ void SSLManager::ErrorHandler::Dispatch() {
   }
 
   // Hand ourselves off to the SSLManager.
-  manager_ = web_contents->controller().ssl_manager();
+  manager_ = tab_contents->controller().ssl_manager();
   OnDispatched();
 }
 
-WebContents* SSLManager::ErrorHandler::GetWebContents() {
-  return tab_util::GetWebContentsByID(render_process_host_id_,
+TabContents* SSLManager::ErrorHandler::GetTabContents() {
+  return tab_util::GetTabContentsByID(render_process_host_id_,
                                       tab_contents_id_);
 }
 

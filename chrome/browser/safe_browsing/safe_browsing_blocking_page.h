@@ -39,7 +39,7 @@ class DictionaryValue;
 class MessageLoop;
 class NavigationController;
 class SafeBrowsingBlockingPageFactory;
-class WebContents;
+class TabContents;
 
 class SafeBrowsingBlockingPage : public InterstitialPage {
  public:
@@ -73,7 +73,7 @@ class SafeBrowsingBlockingPage : public InterstitialPage {
 
   // Don't instanciate this class directly, use ShowBlockingPage instead.
   SafeBrowsingBlockingPage(SafeBrowsingService* service,
-                           WebContents* web_contents,
+                           TabContents* tab_contents,
                            const UnsafeResourceList& unsafe_resources);
 
  private:
@@ -96,7 +96,7 @@ class SafeBrowsingBlockingPage : public InterstitialPage {
   // A list of SafeBrowsingService::UnsafeResource for a tab that the user
   // should be warned about.  They are queued when displaying more than one
   // interstitial at a time.
-  typedef std::map<WebContents*, UnsafeResourceList> UnsafeResourceMap;
+  typedef std::map<TabContents*, UnsafeResourceList> UnsafeResourceMap;
   static UnsafeResourceMap* GetUnsafeResourcesMap();
 
   // Notifies the SafeBrowsingService on the IO thread whether to proceed or not
@@ -140,7 +140,7 @@ class SafeBrowsingBlockingPageFactory {
 
   virtual SafeBrowsingBlockingPage* CreateSafeBrowsingPage(
       SafeBrowsingService* service,
-      WebContents* web_contents,
+      TabContents* tab_contents,
       const SafeBrowsingBlockingPage::UnsafeResourceList& unsafe_resources) = 0;
 };
 

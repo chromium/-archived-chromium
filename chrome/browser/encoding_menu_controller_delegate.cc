@@ -9,7 +9,7 @@
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/character_encoding.h"
 #include "chrome/browser/profile.h"
-#include "chrome/browser/tab_contents/web_contents.h"
+#include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/common/l10n_util.h"
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
@@ -26,9 +26,7 @@ bool EncodingMenuControllerDelegate::IsItemChecked(int id) const {
   TabContents* current_tab = browser_->GetSelectedTabContents();
   if (!current_tab)
     return false;
-  std::wstring encoding;
-  if (current_tab->AsWebContents())
-    encoding = current_tab->AsWebContents()->encoding();
+  std::wstring encoding = current_tab->encoding();
   if (encoding.empty())
     encoding = profile->GetPrefs()->GetString(prefs::kDefaultCharset);
   switch (id) {

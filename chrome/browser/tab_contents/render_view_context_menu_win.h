@@ -12,7 +12,7 @@
 class RenderViewContextMenuWin : public RenderViewContextMenu,
                                  public Menu::Delegate{
  public:
-  RenderViewContextMenuWin(WebContents* web_contents,
+  RenderViewContextMenuWin(TabContents* tab_contents,
                            const ContextMenuParams& params,
                            HWND window);
 

@@ -115,7 +115,7 @@ void RenderWidgetHostViewMac::SetSize(const gfx::Size& size) {
   if (is_hidden_)
     return;
 
-  // TODO(avi): the WebContents object uses this method to size the newly
+  // TODO(avi): the TabContents object uses this method to size the newly
   // created widget to the correct size. At the time of this call, we're not yet
   // in the view hierarchy so |size| ends up being 0x0. However, this works for
   // us because we're using the Cocoa view struture and resizer flags to fix

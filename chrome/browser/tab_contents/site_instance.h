@@ -21,8 +21,8 @@
 // to the other).  We represent instances using the BrowsingInstance class.
 //
 // In --process-per-tab, one SiteInstance is created for each tab (i.e., in the
-// WebContents constructor), unless the tab is created by script (i.e., in
-// WebContents::CreateNewView).  This corresponds to one process per
+// TabContents constructor), unless the tab is created by script (i.e., in
+// TabContents::CreateNewView).  This corresponds to one process per
 // BrowsingInstance.
 //
 // In process-per-site-instance (the current default process model),
@@ -36,7 +36,7 @@
 // throughout the entire profile.  This ensures that only one process will be
 // dedicated to each site.
 //
-// Each NavigationEntry for a WebContents points to the SiteInstance that
+// Each NavigationEntry for a TabContents points to the SiteInstance that
 // rendered it.  Each RenderViewHost also points to the SiteInstance that it is
 // associated with.  A SiteInstance keeps track of the number of these
 // references and deletes itself when the count goes to zero.  This means that

@@ -4,14 +4,14 @@
 
 #include "chrome/browser/views/dom_view.h"
 
-#include "chrome/browser/tab_contents/web_contents.h"
+#include "chrome/browser/tab_contents/tab_contents.h"
 
-DOMView::DOMView() : initialized_(false), web_contents_(NULL) {
+DOMView::DOMView() : initialized_(false), tab_contents_(NULL) {
   SetFocusable(true);
 }
 
 DOMView::~DOMView() {
-  if (web_contents_.get())
+  if (tab_contents_.get())
     Detach();
 }
 
@@ -20,13 +20,13 @@ bool DOMView::Init(Profile* profile, SiteInstance* instance) {
     return true;
 
   initialized_ = true;
-  web_contents_.reset(new WebContents(profile, instance,
+  tab_contents_.reset(new TabContents(profile, instance,
                                       MSG_ROUTING_NONE, NULL));
-  views::HWNDView::Attach(web_contents_->GetNativeView());
+  views::HWNDView::Attach(tab_contents_->GetNativeView());
   return true;
 }
 
 void DOMView::LoadURL(const GURL& url) {
   DCHECK(initialized_);
-  web_contents_->controller().LoadURL(url, GURL(), PageTransition::START_PAGE);
+  tab_contents_->controller().LoadURL(url, GURL(), PageTransition::START_PAGE);
 }

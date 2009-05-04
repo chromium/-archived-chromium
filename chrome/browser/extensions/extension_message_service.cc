@@ -14,8 +14,8 @@
 #include "chrome/browser/renderer_host/render_view_host.h"
 #include "chrome/browser/renderer_host/render_process_host.h"
 #include "chrome/browser/renderer_host/resource_message_filter.h"
+#include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/browser/tab_contents/tab_util.h"
-#include "chrome/browser/tab_contents/web_contents.h"
 #include "chrome/common/notification_service.h"
 #include "chrome/common/render_messages.h"
 #include "chrome/common/stl_util-inl.h"
@@ -163,7 +163,7 @@ void ExtensionMessageService::OpenChannelOnUIThread(
   channels_[GET_CHANNEL_ID(source_port_id)] = channel;
 
   std::string tab_json = "null";
-  WebContents* contents = tab_util::GetWebContentsByID(source_process_id,
+  TabContents* contents = tab_util::GetTabContentsByID(source_process_id,
                                                        source_routing_id);
   if (contents) {
     DictionaryValue* tab_value = ExtensionTabUtil::CreateTabValue(contents);

@@ -7,7 +7,7 @@
 #include "chrome/app/chrome_dll_resource.h"  // IDC_*
 #include "chrome/browser/browser.h"
 #include "chrome/browser/browser_list.h"
-#include "chrome/browser/tab_contents/web_contents.h"
+#include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/browser/tab_contents/tab_contents_view.h"
 #include "chrome/browser/tabs/tab_strip_model.h"
 #import "chrome/browser/cocoa/bookmark_bar_controller.h"
@@ -448,9 +448,8 @@ willPositionSheet:(NSWindow *)sheet
   // We do not store the focus when closing the tab to work-around bug 4633.
   // Some reports seem to show that the focus manager and/or focused view can
   // be garbage at that point, it is not clear why.
-  if (oldContents && !oldContents->is_being_destroyed() &&
-      oldContents->AsWebContents())
-    oldContents->AsWebContents()->view()->StoreFocus();
+  if (oldContents && !oldContents->is_being_destroyed())
+    oldContents->view()->StoreFocus();
 
   // Update various elements that are interested in knowing the current
   // TabContents.
@@ -469,10 +468,8 @@ willPositionSheet:(NSWindow *)sheet
                   filename:NO];
 
   if (BrowserList::GetLastActive() == browser_ &&
-      !browser_->tabstrip_model()->closing_all() &&
-      newContents->AsWebContents()) {
-    newContents->AsWebContents()->view()->RestoreFocus();
-  }
+      !browser_->tabstrip_model()->closing_all())
+    newContents->view()->RestoreFocus();
 
 #if 0
 // TODO(pinkerton):Update as more things become window-specific

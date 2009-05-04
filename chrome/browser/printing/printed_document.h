@@ -112,7 +112,7 @@ class PrintedDocument : public base::RefCountedThreadSafe<PrintedDocument> {
   struct Mutable {
     Mutable(PrintedPagesSource* source);
 
-    // Source that generates the PrintedPage's (i.e. a WebContents). It will be
+    // Source that generates the PrintedPage's (i.e. a TabContents). It will be
     // set back to NULL if the source is deleted before this object.
     PrintedPagesSource* source_;
 

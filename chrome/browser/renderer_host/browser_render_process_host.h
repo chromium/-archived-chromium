@@ -25,7 +25,7 @@ class CommandLine;
 class GURL;
 class RendererMainThread;
 class RenderWidgetHelper;
-class WebContents;
+class TabContents;
 
 namespace gfx {
 class Size;
@@ -42,7 +42,7 @@ class Size;
 //
 // This object communicates back and forth with the RenderProcess object
 // running in the renderer process. Each RenderProcessHost and RenderProcess
-// keeps a list of RenderView (renderer) and WebContents (browser) which
+// keeps a list of RenderView (renderer) and TabContents (browser) which
 // are correlated with IDs. This way, the Views and the corresponding ViewHosts
 // communicate through the two process objects.
 class BrowserRenderProcessHost : public RenderProcessHost,

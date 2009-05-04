@@ -121,7 +121,7 @@ class DebuggerHandler : public DOMMessageHandler {
 
 }  // namespace
 
-DebuggerUI::DebuggerUI(WebContents* contents) : DOMUI(contents) {
+DebuggerUI::DebuggerUI(TabContents* contents) : DOMUI(contents) {
   AddMessageHandler(new DebuggerHandler(this));
 
   DebuggerHTMLSource* html_source = new DebuggerHTMLSource();

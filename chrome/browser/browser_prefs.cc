@@ -21,7 +21,7 @@
 #include "chrome/browser/search_engines/template_url_prepopulate_data.h"
 #include "chrome/browser/session_startup_pref.h"
 #include "chrome/browser/ssl/ssl_manager.h"
-#include "chrome/browser/tab_contents/web_contents.h"
+#include "chrome/browser/tab_contents/tab_contents.h"
 
 #if defined(OS_WIN)  // TODO(port): whittle this down as we port
 #include "chrome/browser/task_manager.h"

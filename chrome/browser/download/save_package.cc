@@ -22,8 +22,8 @@
 #include "chrome/browser/renderer_host/render_view_host.h"
 #include "chrome/browser/renderer_host/render_view_host_delegate.h"
 #include "chrome/browser/renderer_host/resource_dispatcher_host.h"
+#include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/browser/tab_contents/tab_util.h"
-#include "chrome/browser/tab_contents/web_contents.h"
 #include "chrome/common/chrome_paths.h"
 #include "chrome/common/l10n_util.h"
 #include "chrome/common/platform_util.h"
@@ -112,12 +112,12 @@ FilePath::StringType StripOrdinalNumber(
 
 }  // namespace
 
-SavePackage::SavePackage(WebContents* web_content,
+SavePackage::SavePackage(TabContents* web_content,
                          SavePackageType save_type,
                          const FilePath& file_full_path,
                          const FilePath& directory_full_path)
     : file_manager_(NULL),
-      web_contents_(web_content),
+      tab_contents_(web_content),
       download_(NULL),
       saved_main_file_path_(file_full_path),
       saved_main_directory_path_(directory_full_path),
@@ -129,7 +129,7 @@ SavePackage::SavePackage(WebContents* web_content,
       wait_state_(INITIALIZE),
       tab_id_(web_content->process()->pid()) {
   DCHECK(web_content);
-  const GURL& current_page_url = web_contents_->GetURL();
+  const GURL& current_page_url = tab_contents_->GetURL();
   DCHECK(current_page_url.is_valid());
   page_url_ = current_page_url;
   DCHECK(save_type_ == SAVE_AS_ONLY_HTML ||
@@ -140,17 +140,17 @@ SavePackage::SavePackage(WebContents* web_content,
          saved_main_directory_path_.value().length() < kMaxFilePathLength);
 }
 
-SavePackage::SavePackage(WebContents* web_contents)
+SavePackage::SavePackage(TabContents* tab_contents)
     : file_manager_(NULL),
-      web_contents_(web_contents),
+      tab_contents_(tab_contents),
       download_(NULL),
       finished_(false),
       user_canceled_(false),
       disk_error_occurred_(false),
       all_save_items_count_(0),
       wait_state_(INITIALIZE),
-      tab_id_(web_contents->process()->pid()) {
-  const GURL& current_page_url = web_contents_->GetURL();
+      tab_id_(tab_contents->process()->pid()) {
+  const GURL& current_page_url = tab_contents_->GetURL();
   DCHECK(current_page_url.is_valid());
   page_url_ = current_page_url;
 }
@@ -232,7 +232,7 @@ bool SavePackage::Init() {
   wait_state_ = START_PROCESS;
 
   // Initialize the request context and resource dispatcher.
-  Profile* profile = web_contents_->profile();
+  Profile* profile = tab_contents_->profile();
   if (!profile) {
     NOTREACHED();
     return false;
@@ -255,11 +255,11 @@ bool SavePackage::Init() {
   // Create the fake DownloadItem and display the view.
   download_ = new DownloadItem(1, saved_main_file_path_, 0, page_url_,
       FilePath(), Time::Now(), 0, -1, -1, false);
-  download_->set_manager(web_contents_->profile()->GetDownloadManager());
+  download_->set_manager(tab_contents_->profile()->GetDownloadManager());
 #if !defined(OS_MACOSX)
-  DownloadShelf* shelf = web_contents_->GetDownloadShelf();
+  DownloadShelf* shelf = tab_contents_->GetDownloadShelf();
   shelf->AddDownload(new SavePageModel(this, download_));
-  web_contents_->SetDownloadShelfVisible(true);
+  tab_contents_->SetDownloadShelfVisible(true);
 #else
   // TODO(port): Create a download shelf for mac.
   NOTIMPLEMENTED();
@@ -577,8 +577,8 @@ void SavePackage::CheckFinish() {
                         &SaveFileManager::RenameAllFiles,
                         final_names,
                         dir,
-                        web_contents_->process()->pid(),
-                        web_contents_->render_view_host()->routing_id()));
+                        tab_contents_->process()->pid(),
+                        tab_contents_->render_view_host()->routing_id()));
 }
 
 // Successfully finished all items of this SavePackage.
@@ -699,7 +699,7 @@ void SavePackage::SaveCanceled(SaveItem* save_item) {
 // the save source. Parameter process_all_remaining_items indicates whether
 // we need to save all remaining items.
 void SavePackage::SaveNextFile(bool process_all_remaining_items) {
-  DCHECK(web_contents_);
+  DCHECK(tab_contents_);
   DCHECK(waiting_item_queue_.size());
 
   do {
@@ -715,8 +715,8 @@ void SavePackage::SaveNextFile(bool process_all_remaining_items) {
     save_item->Start();
     file_manager_->SaveURL(save_item->url(),
                            save_item->referrer(),
-                           web_contents_->process()->pid(),
-                           web_contents_->render_view_host()->routing_id(),
+                           tab_contents_->process()->pid(),
+                           tab_contents_->render_view_host()->routing_id(),
                            save_item->save_source(),
                            save_item->full_path(),
                            request_context_.get(),
@@ -827,7 +827,7 @@ void SavePackage::GetSerializedHtmlDataForCurrentPageWithLocalLinks() {
   // Get the relative directory name.
   FilePath relative_dir_name = saved_main_directory_path_.BaseName();
 
-  web_contents_->render_view_host()->
+  tab_contents_->render_view_host()->
       GetSerializedHtmlDataForCurrentPageWithLocalLinks(
       saved_links, saved_file_paths, relative_dir_name);
 }
@@ -902,7 +902,7 @@ void SavePackage::GetAllSavableResourceLinksForCurrentPage() {
 
   wait_state_ = RESOURCES_LIST;
   GURL main_page_url(page_url_);
-  web_contents_->render_view_host()->
+  tab_contents_->render_view_host()->
       GetAllSavableResourceLinksForCurrentPage(main_page_url);
 }
 
@@ -1001,12 +1001,12 @@ void SavePackage::GetSaveInfo() {
   SelectFileDialog::FileTypeInfo file_type_info;
   FilePath::StringType default_extension;
   FilePath title =
-      FilePath::FromWStringHack(UTF16ToWideHack(web_contents_->GetTitle()));
+      FilePath::FromWStringHack(UTF16ToWideHack(tab_contents_->GetTitle()));
   FilePath suggested_path =
-      GetSuggestNameForSaveAs(web_contents_->profile()->GetPrefs(), title);
+      GetSuggestNameForSaveAs(tab_contents_->profile()->GetPrefs(), title);
 
   SavePackageParam* save_params =
-      new SavePackageParam(web_contents_->contents_mime_type());
+      new SavePackageParam(tab_contents_->contents_mime_type());
 
   // If the contents can not be saved as complete-HTML, do not show the
   // file filters.
@@ -1039,7 +1039,7 @@ void SavePackage::GetSaveInfo() {
                                     file_type_index,
                                     default_extension,
                                     platform_util::GetTopLevel(
-                                        web_contents_->GetNativeView()),
+                                        tab_contents_->GetNativeView()),
                                     save_params);
   } else {
     // Just use 'suggested_path' instead of opening the dialog prompt.
@@ -1054,7 +1054,7 @@ void SavePackage::ContinueSave(SavePackageParam* param,
                                int index) {
   // Ensure the filename is safe.
   param->saved_main_file_path = final_name;
-  DownloadManager* dlm = web_contents_->profile()->GetDownloadManager();
+  DownloadManager* dlm = tab_contents_->profile()->GetDownloadManager();
   DCHECK(dlm);
   dlm->GenerateSafeFilename(param->current_tab_mime_type,
                             &param->saved_main_file_path);
@@ -1063,7 +1063,7 @@ void SavePackage::ContinueSave(SavePackageParam* param,
   DCHECK(index > 0 && index < 3);
   param->dir = param->saved_main_file_path.DirName();
 
-  PrefService* prefs = web_contents_->profile()->GetPrefs();
+  PrefService* prefs = tab_contents_->profile()->GetPrefs();
   StringPrefMember save_file_path;
   save_file_path.Init(prefs::kSaveFileDefaultDirectory, prefs, NULL);
   // If user change the default saving directory, we will remember it just

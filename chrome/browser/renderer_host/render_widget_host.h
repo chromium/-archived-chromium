@@ -47,35 +47,35 @@ struct ViewHostMsg_ScrollRect_Params;
 // There are two situations in which this object, a RenderWidgetHost, can be
 // instantiated:
 //
-// 1. By a WebContents as the communication conduit for a rendered web page.
-//    The WebContents instantiates a derived class: RenderViewHost.
-// 2. By a WebContents as the communication conduit for a select widget. The
-//    WebContents instantiates the RenderWidgetHost directly.
+// 1. By a TabContents as the communication conduit for a rendered web page.
+//    The TabContents instantiates a derived class: RenderViewHost.
+// 2. By a TabContents as the communication conduit for a select widget. The
+//    TabContents instantiates the RenderWidgetHost directly.
 //
-// For every WebContents there are several objects in play that need to be
+// For every TabContents there are several objects in play that need to be
 // properly destroyed or cleaned up when certain events occur.
 //
-// - WebContents - the TabContents itself, and its associated HWND.
+// - TabContents - the TabContents itself, and its associated HWND.
 // - RenderViewHost - representing the communication conduit with the child
 //   process.
 // - RenderWidgetHostView - the view of the web page content, message handler,
 //   and plugin root.
 //
-// Normally, the WebContents contains a child RenderWidgetHostView that renders
+// Normally, the TabContents contains a child RenderWidgetHostView that renders
 // the contents of the loaded page. It has a WS_CLIPCHILDREN style so that it
 // does no painting of its own.
 //
 // The lifetime of the RenderWidgetHostView is tied to the render process. If
 // the render process dies, the RenderWidgetHostView goes away and all
-// references to it must become NULL. If the WebContents finds itself without a
+// references to it must become NULL. If the TabContents finds itself without a
 // RenderWidgetHostView, it paints Sad Tab instead.
 //
 // RenderViewHost (a RenderWidgetHost subclass) is the conduit used to
-// communicate with the RenderView and is owned by the WebContents. If the
+// communicate with the RenderView and is owned by the TabContents. If the
 // render process crashes, the RenderViewHost remains and restarts the render
 // process if needed to continue navigation.
 //
-// The WebContents is itself owned by the NavigationController in which it
+// The TabContents is itself owned by the NavigationController in which it
 // resides.
 //
 // Some examples of how shutdown works:
@@ -84,7 +84,7 @@ struct ViewHostMsg_ScrollRect_Params;
 // etc) the TabStrip destroys the associated NavigationController, which calls
 // Destroy on each TabContents it owns.
 //
-// For a WebContents, its Destroy method tells the RenderViewHost to
+// For a TabContents, its Destroy method tells the RenderViewHost to
 // shut down the render process and die.
 //
 // When the render process is destroyed it destroys the View: the
@@ -92,19 +92,19 @@ struct ViewHostMsg_ScrollRect_Params;
 //
 // For select popups, the situation is a little different. The RenderWidgetHost
 // associated with the select popup owns the view and itself (is responsible
-// for destroying itself when the view is closed). The WebContents's only
+// for destroying itself when the view is closed). The TabContents's only
 // responsibility is to select popups is to create them when it is told to. When
 // the View is destroyed via an IPC message (for when WebCore destroys the
 // popup, e.g. if the user selects one of the options), or because
 // WM_CANCELMODE is received by the view, the View schedules the destruction of
-// the render process. However in this case since there's no WebContents
+// the render process. However in this case since there's no TabContents
 // container, when the render process is destroyed, the RenderWidgetHost just
 // deletes itself, which is safe because no one else should have any references
-// to it (the WebContents does not).
+// to it (the TabContents does not).
 //
 // It should be noted that the RenderViewHost, not the RenderWidgetHost,
 // handles IPC messages relating to the render process going away, since the
-// way a RenderViewHost (WebContents) handles the process dying is different to
+// way a RenderViewHost (TabContents) handles the process dying is different to
 // the way a select popup does. As such the RenderWidgetHostView handles these
 // messages for select popups. This placement is more out of convenience than
 // anything else. When the view is live, these messages are forwarded to it by

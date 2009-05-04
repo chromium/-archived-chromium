@@ -25,7 +25,7 @@
 #include "chrome/browser/renderer_host/render_view_host.h"
 #include "chrome/browser/ssl/ssl_manager.h"
 #include "chrome/browser/ssl/ssl_blocking_page.h"
-#include "chrome/browser/tab_contents/web_contents.h"
+#include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/browser/tab_contents/tab_contents_view.h"
 #include "chrome/common/chrome_paths.h"
 #include "chrome/common/message_box_flags.h"
@@ -761,7 +761,7 @@ class DocumentPrintedNotificationObserver : public NotificationObserver {
 
 class AutomationInterstitialPage : public InterstitialPage {
  public:
-  AutomationInterstitialPage(WebContents* tab,
+  AutomationInterstitialPage(TabContents* tab,
                              const GURL& url,
                              const std::string& contents)
       : InterstitialPage(tab, true, url),
@@ -1886,12 +1886,10 @@ void AutomationProvider::GetTabProcessID(int handle, int* process_id) {
 
   if (tab_tracker_->ContainsHandle(handle)) {
     *process_id = 0;
-    NavigationController* tab = tab_tracker_->GetResource(handle);
-    if (tab->tab_contents()->AsWebContents()) {
-      WebContents* web_contents = tab->tab_contents()->AsWebContents();
-      if (web_contents->process())
-        *process_id = web_contents->process()->process().pid();
-    }
+    TabContents* tab_contents =
+        tab_tracker_->GetResource(handle)->tab_contents();
+    if (tab_contents->process())
+      *process_id = tab_contents->process()->process().pid();
   }
 }
 
@@ -1905,8 +1903,8 @@ void AutomationProvider::ExecuteJavascript(int handle,
                                            const std::wstring& script,
                                            IPC::Message* reply_message) {
   bool succeeded = false;
-  WebContents* web_contents = GetWebContentsForHandle(handle, NULL);
-  if (web_contents) {
+  TabContents* tab_contents = GetTabContentsForHandle(handle, NULL);
+  if (tab_contents) {
     // Set the routing id of this message with the controller.
     // This routing id needs to be remembered for the reverse
     // communication while sending back the response of
@@ -1919,9 +1917,9 @@ void AutomationProvider::ExecuteJavascript(int handle,
     DCHECK(reply_message_ == NULL);
     reply_message_ = reply_message;
 
-    web_contents->render_view_host()->ExecuteJavascriptInWebFrame(
+    tab_contents->render_view_host()->ExecuteJavascriptInWebFrame(
         frame_xpath, set_automation_id);
-    web_contents->render_view_host()->ExecuteJavascriptInWebFrame(
+    tab_contents->render_view_host()->ExecuteJavascriptInWebFrame(
         frame_xpath, script);
     succeeded = true;
   }
@@ -1935,9 +1933,9 @@ void AutomationProvider::ExecuteJavascript(int handle,
 void AutomationProvider::GetShelfVisibility(int handle, bool* visible) {
   *visible = false;
 
-  WebContents* web_contents = GetWebContentsForHandle(handle, NULL);
-  if (web_contents)
-    *visible = web_contents->IsDownloadShelfVisible();
+  TabContents* tab_contents = GetTabContentsForHandle(handle, NULL);
+  if (tab_contents)
+    *visible = tab_contents->IsDownloadShelfVisible();
 }
 
 void AutomationProvider::GetConstrainedWindowCount(int handle, int* count) {
@@ -2030,15 +2028,12 @@ void AutomationProvider::HandleFindRequest(
                                      reply_message->routing_id(),
                                      reply_message));
 
-  WebContents* web_contents = tab_contents->AsWebContents();
-  if (web_contents) {
-    web_contents->set_current_find_request_id(
-        FindInPageNotificationObserver::kFindInPageRequestId);
-    web_contents->render_view_host()->StartFinding(
-        FindInPageNotificationObserver::kFindInPageRequestId,
-        params.search_string, params.forward, params.match_case,
-        params.find_next);
-  }
+  tab_contents->set_current_find_request_id(
+      FindInPageNotificationObserver::kFindInPageRequestId);
+  tab_contents->render_view_host()->StartFinding(
+      FindInPageNotificationObserver::kFindInPageRequestId,
+      params.search_string, params.forward, params.match_case,
+      params.find_next);
 }
 
 void AutomationProvider::HandleOpenFindInPageRequest(
@@ -2106,12 +2101,12 @@ void AutomationProvider::GetBookmarkBarVisibility(int handle, bool* visible,
 
 void AutomationProvider::HandleInspectElementRequest(
     int handle, int x, int y, IPC::Message* reply_message) {
-  WebContents* web_contents = GetWebContentsForHandle(handle, NULL);
-  if (web_contents) {
+  TabContents* tab_contents = GetTabContentsForHandle(handle, NULL);
+  if (tab_contents) {
     DCHECK(reply_message_ == NULL);
     reply_message_ = reply_message;
 
-    web_contents->render_view_host()->InspectElementAt(x, y);
+    tab_contents->render_view_host()->InspectElementAt(x, y);
     inspect_element_routing_id_ = reply_message->routing_id();
   } else {
     AutomationMsg_InspectElement::WriteReplyParams(reply_message, -1);
@@ -2253,9 +2248,8 @@ void AutomationProvider::ShowInterstitialPage(int tab_handle,
 
     AddNavigationStatusListener<bool>(controller, reply_message, true,
                                       false, false);
-    WebContents* web_contents = tab_contents->AsWebContents();
     AutomationInterstitialPage* interstitial =
-        new AutomationInterstitialPage(web_contents,
+        new AutomationInterstitialPage(tab_contents,
                                        GURL("about:interstitial"),
                                        html_text);
     interstitial->Show();
@@ -2269,9 +2263,9 @@ void AutomationProvider::ShowInterstitialPage(int tab_handle,
 void AutomationProvider::HideInterstitialPage(int tab_handle,
                                               bool* success) {
   *success = false;
-  WebContents* web_contents = GetWebContentsForHandle(tab_handle, NULL);
-  if (web_contents && web_contents->interstitial_page()) {
-    web_contents->interstitial_page()->DontProceed();
+  TabContents* tab_contents = GetTabContentsForHandle(tab_handle, NULL);
+  if (tab_contents && tab_contents->interstitial_page()) {
+    tab_contents->interstitial_page()->DontProceed();
     *success = true;
   }
 }
@@ -2431,10 +2425,9 @@ void AutomationProvider::GetPageType(int handle, bool* success,
     *page_type = entry->page_type();
     *success = true;
     // In order to return the proper result when an interstitial is shown and
-    // no navigation entry were created for it we need to ask the WebContents.
+    // no navigation entry were created for it we need to ask the TabContents.
     if (*page_type == NavigationEntry::NORMAL_PAGE &&
-        tab->tab_contents()->AsWebContents() &&
-        tab->tab_contents()->AsWebContents()->showing_interstitial_page())
+        tab->tab_contents()->showing_interstitial_page())
       *page_type = NavigationEntry::INTERSTITIAL_PAGE;
   } else {
     *success = false;
@@ -2450,7 +2443,7 @@ void AutomationProvider::ActionOnSSLBlockingPage(int handle, bool proceed,
     if (entry->page_type() == NavigationEntry::INTERSTITIAL_PAGE) {
       TabContents* tab_contents = tab->tab_contents();
       InterstitialPage* ssl_blocking_page =
-          InterstitialPage::GetInterstitialPage(tab_contents->AsWebContents());
+          InterstitialPage::GetInterstitialPage(tab_contents);
       if (ssl_blocking_page) {
         if (proceed) {
           AddNavigationStatusListener<bool>(tab, reply_message, true, true,
@@ -2501,14 +2494,14 @@ void AutomationProvider::IsPageMenuCommandEnabled(int browser_handle,
 void AutomationProvider::PrintNow(int tab_handle,
                                   IPC::Message* reply_message) {
   NavigationController* tab = NULL;
-  WebContents* web_contents = GetWebContentsForHandle(tab_handle, &tab);
-  if (web_contents) {
+  TabContents* tab_contents = GetTabContentsForHandle(tab_handle, &tab);
+  if (tab_contents) {
     FindAndActivateTab(tab);
     notification_observer_list_.AddObserver(
         new DocumentPrintedNotificationObserver(this,
                                                 reply_message->routing_id(),
                                                 reply_message));
-    if (web_contents->PrintNow())
+    if (tab_contents->PrintNow())
       return;
   }
   AutomationMsg_PrintNow::WriteReplyParams(reply_message, false);
@@ -2538,8 +2531,7 @@ void AutomationProvider::SavePage(int tab_handle,
       static_cast<SavePackage::SavePackageType>(type);
   DCHECK(save_type >= SavePackage::SAVE_AS_ONLY_HTML &&
          save_type <= SavePackage::SAVE_AS_COMPLETE_HTML);
-  nav->tab_contents()->AsWebContents()->SavePage(
-      file_name, dir_path, save_type);
+  nav->tab_contents()->SavePage(file_name, dir_path, save_type);
 
   *success = true;
 }
@@ -2612,13 +2604,7 @@ void AutomationProvider::OnMessageFromExternalHost(int handle,
       return;
     }
 
-    WebContents* web_contents = tab_contents->AsWebContents();
-    if (!web_contents) {
-      NOTREACHED();
-      return;
-    }
-
-    RenderViewHost* view_host = web_contents->render_view_host();
+    RenderViewHost* view_host = tab_contents->render_view_host();
     if (!view_host) {
       return;
     }
@@ -2628,19 +2614,16 @@ void AutomationProvider::OnMessageFromExternalHost(int handle,
 }
 #endif  // defined(OS_WIN)
 
-WebContents* AutomationProvider::GetWebContentsForHandle(
+TabContents* AutomationProvider::GetTabContentsForHandle(
     int handle, NavigationController** tab) {
-  WebContents* web_contents = NULL;
   if (tab_tracker_->ContainsHandle(handle)) {
     NavigationController* nav_controller = tab_tracker_->GetResource(handle);
     TabContents* tab_contents = nav_controller->tab_contents();
-    if (tab_contents) {
-      web_contents = tab_contents->AsWebContents();
-      if (tab)
-        *tab = nav_controller;
-    }
+    if (tab)
+      *tab = nav_controller;
+    return nav_controller->tab_contents();
   }
-  return web_contents;
+  return NULL;
 }
 
 #if defined(OS_WIN)
@@ -2831,10 +2814,8 @@ void AutomationProvider::GetPageCurrentEncoding(
     Browser* browser = FindAndActivateTab(nav);
     DCHECK(browser);
 
-    if (browser->command_updater()->IsCommandEnabled(IDC_ENCODING_MENU)) {
-      TabContents* tab_contents = nav->tab_contents();
-      *current_encoding = tab_contents->AsWebContents()->encoding();
-    }
+    if (browser->command_updater()->IsCommandEnabled(IDC_ENCODING_MENU))
+      *current_encoding = nav->tab_contents()->encoding();
   }
 }
 

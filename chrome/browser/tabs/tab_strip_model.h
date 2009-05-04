@@ -256,7 +256,7 @@ class TabStripModel : public NotificationObserver {
 
   // Closes the TabContents at the specified index. This causes the TabContents
   // to be destroyed, but it may not happen immediately (e.g. if it's a
-  // WebContents).
+  // TabContents).
   // Returns true if the TabContents was closed immediately, false if it was not
   // closed (we may be waiting for a response from an onunload handler, or
   // waiting for the user to confirm closure).
@@ -446,7 +446,7 @@ class TabStripModel : public NotificationObserver {
 
   // Closes the TabContents at the specified index. This causes the TabContents
   // to be destroyed, but it may not happen immediately (e.g. if it's a
-  // WebContents). If the page in question has an unload event the TabContents
+  // TabContents). If the page in question has an unload event the TabContents
   // will not be destroyed until after the event has completed, which will then
   // call back into this method.
   //

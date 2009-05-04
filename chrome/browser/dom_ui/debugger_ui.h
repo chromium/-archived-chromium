@@ -11,7 +11,7 @@
 
 class DebuggerUI : public DOMUI {
  public:
-  DebuggerUI(WebContents* contents);
+  DebuggerUI(TabContents* contents);
 
  private:
   DISALLOW_COPY_AND_ASSIGN(DebuggerUI);

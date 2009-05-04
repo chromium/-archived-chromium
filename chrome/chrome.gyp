@@ -1166,8 +1166,6 @@
         'browser/tab_contents/tab_contents_view_win.h',
         'browser/tab_contents/tab_util.cc',
         'browser/tab_contents/tab_util.h',
-        'browser/tab_contents/web_contents.cc',
-        'browser/tab_contents/web_contents.h',
         'browser/tab_contents/web_drag_source.cc',
         'browser/tab_contents/web_drag_source.h',
         'browser/tab_contents/web_drop_target.cc',

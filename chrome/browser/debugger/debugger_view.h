@@ -17,9 +17,9 @@
 
 class DebuggerView;
 class DebuggerWindow;
+class TabContents;
 class TabContentsContainerView;
 class Value;
-class WebContents;
 
 class DebuggerView : public views::View,
                      public TabContentsDelegate {
@@ -89,7 +89,7 @@ class DebuggerView : public views::View,
 
   DebuggerWindow* window_;
   ChromeFont font_;
-  WebContents* web_contents_;
+  TabContents* tab_contents_;
   TabContentsContainerView* web_container_;
   std::vector<std::wstring> pending_output_;
   std::vector<std::string> pending_events_;

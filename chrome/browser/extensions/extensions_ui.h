@@ -60,7 +60,7 @@ class ExtensionsDOMHandler : public DOMMessageHandler {
 
 class ExtensionsUI : public DOMUI {
  public:
-  explicit ExtensionsUI(WebContents* contents);
+  explicit ExtensionsUI(TabContents* contents);
 
  private:
   DISALLOW_COPY_AND_ASSIGN(ExtensionsUI);

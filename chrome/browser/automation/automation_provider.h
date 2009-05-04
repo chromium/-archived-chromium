@@ -430,10 +430,10 @@ class AutomationProvider : public base::RefCounted<AutomationProvider>,
 
   void GetWindowTitle(int handle, string16* text);
 
-  // Convert a tab handle into a WebContents. If |tab| is non-NULL a pointer
+  // Convert a tab handle into a TabContents. If |tab| is non-NULL a pointer
   // to the tab is also returned. Returns NULL in case of failure or if the tab
-  // is not of the WebContents type.
-  WebContents* GetWebContentsForHandle(int handle, NavigationController** tab);
+  // is not of the TabContents type.
+  TabContents* GetTabContentsForHandle(int handle, NavigationController** tab);
 
   ExternalTabContainer* GetExternalTabForHandle(int handle);
 

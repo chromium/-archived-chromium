@@ -20,23 +20,23 @@ class RenderViewHostDelegate;
 class RenderWidgetHostView;
 class SiteInstance;
 
-// Manages RenderViewHosts for a WebContents. Normally there is only one and
+// Manages RenderViewHosts for a TabContents. Normally there is only one and
 // it is easy to do. But we can also have transitions of processes (and hence
 // RenderViewHosts) that can get complex.
 class RenderViewHostManager : public NotificationObserver {
  public:
   // Functions implemented by our owner that we need.
   //
-  // TODO(brettw) Clean this up! These are all the functions in WebContents that
+  // TODO(brettw) Clean this up! These are all the functions in TabContents that
   // are required to run this class. The design should probably be better such
   // that these are more clear.
   //
   // There is additional complexity that some of the functions we need in
-  // WebContents are inherited and non-virtual. These are named with
+  // TabContents are inherited and non-virtual. These are named with
   // "RenderManager" so that the duplicate implementation of them will be clear.
   class Delegate {
    public:
-    // See web_contents.h's implementation for more.
+    // See tab_contents.h's implementation for more.
     virtual bool CreateRenderViewForRenderManager(
         RenderViewHost* render_view_host) = 0;
     virtual void BeforeUnloadFiredFromRenderManager(
@@ -69,7 +69,7 @@ class RenderViewHostManager : public NotificationObserver {
                         Delegate* delegate);
   ~RenderViewHostManager();
 
-  // For arguments, see WebContents constructor.
+  // For arguments, see TabContents constructor.
   void Init(Profile* profile,
             SiteInstance* site_instance,
             int routing_id,
@@ -126,7 +126,7 @@ class RenderViewHostManager : public NotificationObserver {
   // Called when a renderer's main frame navigates.
   void DidNavigateMainFrame(RenderViewHost* render_view_host);
 
-  // Allows the WebContents to react when a cross-site response is ready to be
+  // Allows the TabContents to react when a cross-site response is ready to be
   // delivered to a pending RenderViewHost.  We must first run the onunload
   // handler of the old RenderViewHost before we can allow it to proceed.
   void OnCrossSiteResponse(int new_render_process_host_id,
@@ -140,7 +140,7 @@ class RenderViewHostManager : public NotificationObserver {
   void RendererAbortedProvisionalLoad(RenderViewHost* render_view_host);
 
   // Actually implements this RenderViewHostDelegate function for the
-  // WebContents.
+  // TabContents.
   void ShouldClosePage(bool proceed);
 
   // Forwards the message to the RenderViewHost, which is the original one.
@@ -174,7 +174,7 @@ class RenderViewHostManager : public NotificationObserver {
                        const NotificationDetails& details);
 
  private:
-  friend class TestWebContents;
+  friend class TestTabContents;
 
   // Returns whether this tab should transition to a new renderer for
   // cross-site URLs.  Enabled unless we see the --process-per-tab command line

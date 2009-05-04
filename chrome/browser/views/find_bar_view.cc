@@ -8,7 +8,7 @@
 
 #include "base/string_util.h"
 #include "chrome/browser/find_bar_controller.h"
-#include "chrome/browser/tab_contents/web_contents.h"
+#include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/browser/views/find_bar_win.h"
 #include "chrome/browser/view_ids.h"
 #include "chrome/common/l10n_util.h"
@@ -429,7 +429,7 @@ void FindBarView::ButtonPressed(views::Button* sender) {
     case FIND_PREVIOUS_TAG:
     case FIND_NEXT_TAG:
       if (find_text_->GetText().length() > 0) {
-        container_->GetFindBarController()->web_contents()->StartFinding(
+        container_->GetFindBarController()->tab_contents()->StartFinding(
             find_text_->GetText(),
             sender->tag() == FIND_NEXT_TAG);
       }
@@ -455,21 +455,21 @@ void FindBarView::ContentsChanged(views::TextField* sender,
                                   const std::wstring& new_contents) {
   FindBarController* controller = container_->GetFindBarController();
   DCHECK(controller);
-  // We must guard against a NULL web_contents, which can happen if the text
+  // We must guard against a NULL tab_contents, which can happen if the text
   // in the Find box is changed right after the tab is destroyed. Otherwise, it
   // can lead to crashes, as exposed by automation testing in issue 8048.
-  if (!controller->web_contents())
+  if (!controller->tab_contents())
     return;
 
   // When the user changes something in the text box we check the contents and
   // if the textbox contains something we set it as the new search string and
   // initiate search (even though old searches might be in progress).
   if (new_contents.length() > 0) {
-    controller->web_contents()->StartFinding(new_contents, true);
+    controller->tab_contents()->StartFinding(new_contents, true);
   } else {
     // The textbox is empty so we reset.  true = clear selection on page.
-    controller->web_contents()->StopFinding(true);
-    UpdateForResult(controller->web_contents()->find_result(), std::wstring());
+    controller->tab_contents()->StopFinding(true);
+    UpdateForResult(controller->tab_contents()->find_result(), std::wstring());
   }
 }
 
@@ -491,7 +491,7 @@ bool FindBarView::HandleKeystroke(views::TextField* sender, UINT message,
       std::wstring find_string = find_text_->GetText();
       if (find_string.length() > 0) {
         // Search forwards for enter, backwards for shift-enter.
-        container_->GetFindBarController()->web_contents()->StartFinding(
+        container_->GetFindBarController()->tab_contents()->StartFinding(
             find_string,
             GetKeyState(VK_SHIFT) >= 0);
       }

@@ -45,7 +45,7 @@ BrowserWithTestWindowTest::~BrowserWithTestWindowTest() {
 TestRenderViewHost* BrowserWithTestWindowTest::TestRenderViewHostForTab(
     TabContents* tab_contents) {
   return static_cast<TestRenderViewHost*>(
-      tab_contents->AsWebContents()->render_view_host());
+      tab_contents->render_view_host());
 }
 
 void BrowserWithTestWindowTest::AddTab(Browser* browser, const GURL& url) {

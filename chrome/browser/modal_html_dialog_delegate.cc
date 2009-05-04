@@ -6,18 +6,18 @@
 
 #include "chrome/browser/browser_list.h"
 #include "chrome/browser/renderer_host/render_view_host.h"
-#include "chrome/browser/tab_contents/web_contents.h"
+#include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/common/notification_service.h"
 
 ModalHtmlDialogDelegate::ModalHtmlDialogDelegate(
     const GURL& url, int width, int height, const std::string& json_arguments,
-    IPC::Message* sync_result, WebContents* contents)
+    IPC::Message* sync_result, TabContents* contents)
     : contents_(contents),
       sync_response_(sync_result) {
-  // Listen for when the WebContents or its renderer dies.
+  // Listen for when the TabContents or its renderer dies.
   NotificationService::current()->
-      AddObserver(this, NotificationType::WEB_CONTENTS_DISCONNECTED,
-      Source<WebContents>(contents_));
+      AddObserver(this, NotificationType::TAB_CONTENTS_DISCONNECTED,
+      Source<TabContents>(contents_));
 
   // This information is needed to show the dialog HTML content.
   params_.url = url;
@@ -33,8 +33,8 @@ ModalHtmlDialogDelegate::~ModalHtmlDialogDelegate() {
 void ModalHtmlDialogDelegate::Observe(NotificationType type,
                                       const NotificationSource& source,
                                       const NotificationDetails& details) {
-  DCHECK(type == NotificationType::WEB_CONTENTS_DISCONNECTED);
-  DCHECK(Source<WebContents>(source).ptr() == contents_);
+  DCHECK(type == NotificationType::TAB_CONTENTS_DISCONNECTED);
+  DCHECK(Source<TabContents>(source).ptr() == contents_);
   RemoveObserver();
 }
 
@@ -56,7 +56,7 @@ std::string ModalHtmlDialogDelegate::GetDialogArgs() const {
 }
 
 void ModalHtmlDialogDelegate::OnDialogClosed(const std::string& json_retval) {
-  // Our WebContents may have died before this point.
+  // Our TabContents may have died before this point.
   if (contents_ && contents_->render_view_host()) {
     contents_->render_view_host()->ModalHTMLDialogClosed(sync_response_,
                                                          json_retval);
@@ -72,7 +72,7 @@ void ModalHtmlDialogDelegate::RemoveObserver() {
 
   NotificationService::current()->RemoveObserver(
       this,
-      NotificationType::WEB_CONTENTS_DISCONNECTED,
-      Source<WebContents>(contents_));
+      NotificationType::TAB_CONTENTS_DISCONNECTED,
+      Source<TabContents>(contents_));
   contents_ = NULL;  // No longer safe to access.
 }

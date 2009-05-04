@@ -74,7 +74,7 @@ class TabStripDummyDelegate : public TabStripModelDelegate {
 class TabStripModelTest : public RenderViewHostTestHarness {
  public:
   TabContents* CreateTabContents() {
-    return new WebContents(profile(), NULL, 0, NULL);
+    return new TabContents(profile(), NULL, 0, NULL);
   }
 
   // Forwards a URL "load" request through to our dummy TabContents
@@ -957,7 +957,7 @@ TEST_F(TabStripModelTest, AddTabContents_ForgetOpeners) {
 
 // Added for http://b/issue?id=958960
 TEST_F(TabStripModelTest, AppendContentsReselectionTest) {
-  WebContents fake_destinations_tab(profile(), NULL, 0, NULL);
+  TabContents fake_destinations_tab(profile(), NULL, 0, NULL);
   TabStripDummyDelegate delegate(&fake_destinations_tab);
   TabStripModel tabstrip(&delegate, profile());
   EXPECT_TRUE(tabstrip.empty());

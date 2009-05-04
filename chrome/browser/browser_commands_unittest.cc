@@ -87,7 +87,7 @@ TEST_F(BrowserCommandsTest, BookmarkCurrentPage) {
   AddTab(browser(), url1);
   browser()->OpenURL(url1, GURL(), CURRENT_TAB, PageTransition::TYPED);
 
-  // TODO(beng): remove this once we can use WebContentses directly in testing
+  // TODO(beng): remove this once we can use TabContentses directly in testing
   //             instead of the TestTabContents which causes this command not to
   //             be enabled when the tab is added (and selected).
   browser()->command_updater()->UpdateCommandEnabled(IDC_STAR, true);

@@ -50,7 +50,7 @@ class RenderThreadBase {
 // instances live.  The RenderThread supports an API that is used by its
 // consumer to talk indirectly to the RenderViews and supporting objects.
 // Likewise, it provides an API for the RenderViews to talk back to the main
-// process (i.e., their corresponding WebContents).
+// process (i.e., their corresponding TabContents).
 //
 // Most of the communication occurs in the form of IPC messages.  They are
 // routed to the RenderThread according to the routing IDs of the messages.

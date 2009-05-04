@@ -15,8 +15,8 @@
 #include "chrome/browser/renderer_host/render_view_host_factory.h"
 #include "chrome/browser/renderer_host/render_widget_host_view_gtk.h"
 #include "chrome/browser/tab_contents/render_view_context_menu_gtk.h"
+#include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/browser/tab_contents/tab_contents_delegate.h"
-#include "chrome/browser/tab_contents/web_contents.h"
 #include "chrome/common/gtk_util.h"
 
 namespace {
@@ -24,8 +24,8 @@ namespace {
 // Called when the content view gtk widget is tabbed to. We always return true
 // and grab focus if we don't have it. The call to SetInitialFocus(bool)
 // forwards the tab to webkit. We leave focus via TakeFocus().
-// We cast the WebContents to a TabContents because SetInitialFocus is public
-// in TabContents and protected in WebContents.
+// We cast the TabContents to a TabContents because SetInitialFocus is public
+// in TabContents and protected in TabContents.
 gboolean OnFocus(GtkWidget* widget, GtkDirectionType focus,
                  TabContents* tab_contents) {
   if (GTK_WIDGET_HAS_FOCUS(widget))
@@ -39,29 +39,29 @@ gboolean OnFocus(GtkWidget* widget, GtkDirectionType focus,
 
 // Called when the mouse leaves the widget. We notify our delegate.
 gboolean OnLeaveNotify(GtkWidget* widget, GdkEventCrossing* event,
-                       WebContents* web_contents) {
-  if (web_contents->delegate())
-    web_contents->delegate()->ContentsMouseEvent(web_contents, false);
+                       TabContents* tab_contents) {
+  if (tab_contents->delegate())
+    tab_contents->delegate()->ContentsMouseEvent(tab_contents, false);
   return FALSE;
 }
 
 // Called when the mouse moves within the widget. We notify our delegate.
 gboolean OnMouseMove(GtkWidget* widget, GdkEventMotion* event,
-                     WebContents* web_contents) {
-  if (web_contents->delegate())
-    web_contents->delegate()->ContentsMouseEvent(web_contents, true);
+                     TabContents* tab_contents) {
+  if (tab_contents->delegate())
+    tab_contents->delegate()->ContentsMouseEvent(tab_contents, true);
   return FALSE;
 }
 
 }  // namespace
 
 // static
-TabContentsView* TabContentsView::Create(WebContents* web_contents) {
-  return new TabContentsViewGtk(web_contents);
+TabContentsView* TabContentsView::Create(TabContents* tab_contents) {
+  return new TabContentsViewGtk(tab_contents);
 }
 
-TabContentsViewGtk::TabContentsViewGtk(WebContents* web_contents)
-    : TabContentsView(web_contents),
+TabContentsViewGtk::TabContentsViewGtk(TabContents* tab_contents)
+    : TabContentsView(tab_contents),
       vbox_(gtk_vbox_new(FALSE, 0)),
       content_view_(NULL) {
 }
@@ -91,11 +91,11 @@ RenderWidgetHostView* TabContentsViewGtk::CreateViewForWidget(
   view->InitAsChild();
   content_view_ = view->native_view();
   g_signal_connect(content_view_, "focus",
-                   G_CALLBACK(OnFocus), web_contents());
+                   G_CALLBACK(OnFocus), tab_contents());
   g_signal_connect(view->native_view(), "leave-notify-event",
-                   G_CALLBACK(OnLeaveNotify), web_contents());
+                   G_CALLBACK(OnLeaveNotify), tab_contents());
   g_signal_connect(view->native_view(), "motion-notify-event",
-                   G_CALLBACK(OnMouseMove), web_contents());
+                   G_CALLBACK(OnMouseMove), tab_contents());
   gtk_widget_add_events(view->native_view(), GDK_LEAVE_NOTIFY_MASK |
                         GDK_POINTER_MOTION_MASK);
   g_signal_connect(view->native_view(), "button-press-event",
@@ -170,8 +170,8 @@ void TabContentsViewGtk::Focus() {
 }
 
 void TabContentsViewGtk::SetInitialFocus() {
-  if (web_contents()->FocusLocationBarByDefault())
-    web_contents()->delegate()->SetFocusToLocationBar();
+  if (tab_contents()->FocusLocationBarByDefault())
+    tab_contents()->delegate()->SetFocusToLocationBar();
   else
     gtk_widget_grab_focus(content_view_);
 }
@@ -192,7 +192,7 @@ void TabContentsViewGtk::UpdateDragCursor(bool is_drop_target) {
 // This is called when we the renderer asks us to take focus back (i.e., it has
 // iterated past the last focusable element on the page).
 void TabContentsViewGtk::TakeFocus(bool reverse) {
-  web_contents()->delegate()->SetFocusToLocationBar();
+  tab_contents()->delegate()->SetFocusToLocationBar();
 }
 
 void TabContentsViewGtk::HandleKeyboardEvent(
@@ -225,7 +225,7 @@ void TabContentsViewGtk::OnFindReply(int request_id,
 }
 
 void TabContentsViewGtk::ShowContextMenu(const ContextMenuParams& params) {
-  context_menu_.reset(new RenderViewContextMenuGtk(web_contents(), params,
+  context_menu_.reset(new RenderViewContextMenuGtk(tab_contents(), params,
                                                    last_mouse_down_time_));
   context_menu_->Popup();
 }
@@ -237,8 +237,8 @@ void TabContentsViewGtk::StartDragging(const WebDropData& drop_data) {
   // already done with the drag and drop so we don't get stuck
   // thinking we're in mid-drag.
   // TODO(port): remove me when the above NOTIMPLEMENTED is fixed.
-  if (web_contents()->render_view_host())
-    web_contents()->render_view_host()->DragSourceSystemDragEnded();
+  if (tab_contents()->render_view_host())
+    tab_contents()->render_view_host()->DragSourceSystemDragEnded();
 }
 
 gboolean TabContentsViewGtk::OnMouseDown(GtkWidget* widget,

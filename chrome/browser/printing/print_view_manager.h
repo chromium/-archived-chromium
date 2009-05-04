@@ -10,7 +10,7 @@
 #include "chrome/common/notification_observer.h"
 
 class RenderViewHost;
-class WebContents;
+class TabContents;
 struct ViewHostMsg_DidPrintPage_Params;
 
 namespace printing {
@@ -19,12 +19,12 @@ class JobEventDetails;
 class PrintJob;
 class PrintJobWorkerOwner;
 
-// Manages the print commands in relation to a WebContents. WebContents
+// Manages the print commands in relation to a TabContents. TabContents
 // delegates a few printing related commands to this instance.
 class PrintViewManager : public NotificationObserver,
                          public PrintedPagesSource {
  public:
-  PrintViewManager(WebContents& owner);
+  PrintViewManager(TabContents& owner);
   virtual ~PrintViewManager();
 
   // Cancels the print job.
@@ -119,7 +119,7 @@ class PrintViewManager : public NotificationObserver,
   // PrintViewManager is created as an extension of WebContent specialized for
   // printing-related behavior. Still, access to the renderer is needed so a
   // back reference is kept the the "parent object".
-  WebContents& owner_;
+  TabContents& owner_;
 
   DISALLOW_COPY_AND_ASSIGN(PrintViewManager);
 };

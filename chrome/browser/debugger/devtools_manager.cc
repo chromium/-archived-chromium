@@ -8,7 +8,6 @@
 #include "chrome/browser/debugger/devtools_client_host.h"
 #include "chrome/browser/renderer_host/render_view_host.h"
 #include "chrome/browser/tab_contents/tab_contents.h"
-#include "chrome/browser/tab_contents/web_contents.h"
 #include "chrome/common/devtools_messages.h"
 #include "chrome/common/notification_registrar.h"
 #include "chrome/common/notification_type.h"
@@ -26,9 +25,9 @@ DevToolsManager::~DevToolsManager() {
 void DevToolsManager::Observe(NotificationType type,
                               const NotificationSource& source,
                               const NotificationDetails& details) {
-  DCHECK(type == NotificationType::WEB_CONTENTS_DISCONNECTED);
+  DCHECK(type == NotificationType::TAB_CONTENTS_DISCONNECTED);
 
-  if (type == NotificationType::WEB_CONTENTS_DISCONNECTED) {
+  if (type == NotificationType::TAB_CONTENTS_DISCONNECTED) {
     Source<TabContents> src(source);
     DevToolsClientHost* client_host = GetDevToolsClientHostFor(*src.ptr());
     if (!client_host) {
@@ -111,12 +110,8 @@ void DevToolsManager::ForwardToDevToolsAgent(const DevToolsClientHost& from,
 
 void DevToolsManager::ForwardToDevToolsClient(const RenderViewHost& from,
                                               const IPC::Message& message) {
-  TabContents* wc = from.delegate()->GetAsWebContents();
-  if (!wc) {
-    NOTREACHED();
-    return;
-  }
-  DevToolsClientHost* target_host = GetDevToolsClientHostFor(*wc);
+  TabContents* tc = from.delegate()->GetAsTabContents();
+  DevToolsClientHost* target_host = GetDevToolsClientHostFor(*tc);
   if (!target_host) {
     // Client window was closed while there were messages
     // being sent to it.
@@ -187,7 +182,7 @@ void DevToolsManager::StartListening(
     tab_contents_listeners_.reset(new NotificationRegistrar);
     tab_contents_listeners_->Add(
         this,
-        NotificationType::WEB_CONTENTS_DISCONNECTED,
+        NotificationType::TAB_CONTENTS_DISCONNECTED,
         NotificationService::AllSources());
   }
 }

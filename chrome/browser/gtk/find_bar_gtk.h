@@ -17,7 +17,6 @@ class CustomDrawButton;
 class FindBarController;
 class SlideAnimatorGtk;
 class TabContentsContainerGtk;
-class WebContents;
 
 // Currently this class contains both a model and a view.  We may want to
 // eventually pull out the model specific bits and share with Windows.

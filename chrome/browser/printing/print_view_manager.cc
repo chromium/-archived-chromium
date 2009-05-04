@@ -11,7 +11,7 @@
 #include "chrome/browser/printing/printer_query.h"
 #include "chrome/browser/renderer_host/render_view_host.h"
 #include "chrome/browser/tab_contents/navigation_entry.h"
-#include "chrome/browser/tab_contents/web_contents.h"
+#include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/common/gfx/emf.h"
 #include "chrome/common/l10n_util.h"
 #include "chrome/common/notification_service.h"
@@ -22,7 +22,7 @@ using base::TimeDelta;
 
 namespace printing {
 
-PrintViewManager::PrintViewManager(WebContents& owner)
+PrintViewManager::PrintViewManager(TabContents& owner)
     : owner_(owner),
       waiting_to_print_(false),
       inside_inner_message_loop_(false) {
@@ -205,7 +205,7 @@ bool PrintViewManager::RenderAllMissingPagesNow() {
     return true;
   }
 
-  // WebContents is either dying or a second consecutive request to print
+  // TabContents is either dying or a second consecutive request to print
   // happened before the first had time to finish. We need to render all the
   // pages in an hurry if a print_job_ is still pending. No need to wait for it
   // to actually spool the pages, only to have the renderer generate them. Run
@@ -303,7 +303,7 @@ void PrintViewManager::TerminatePrintJob(bool cancel) {
     DCHECK(!print_job_->document() || print_job_->document()->IsComplete() ||
            !waiting_to_print_);
 
-    // WebContents is either dying or navigating elsewhere. We need to render
+    // TabContents is either dying or navigating elsewhere. We need to render
     // all the pages in an hurry if a print job is still pending. This does the
     // trick since it runs a blocking message loop:
     print_job_->Stop();

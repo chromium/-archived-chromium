@@ -9,7 +9,7 @@
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/profile.h"
 #include "chrome/browser/tab_contents/tab_contents.h"
-#include "chrome/browser/tab_contents/web_contents.h"
+#include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/browser/tab_contents/tab_contents_view.h"
 #include "chrome/browser/toolbar_model.h"
 #include "chrome/browser/views/frame/browser_view.h"
@@ -618,7 +618,7 @@ void ConstrainedWindowImpl::ActivateConstrainedWindow() {
     // We could not have a parent focus manager if the ConstrainedWindow is
     // displayed in a tab that is not currently selected.
     // TODO(jcampan): we should store the ConstrainedWindow active events in
-    // that case and replay them when the WebContents becomes selected.
+    // that case and replay them when the TabContents becomes selected.
     focus_manager->StoreFocusedView();
 
     // Give our window the focus so we get keyboard messages.

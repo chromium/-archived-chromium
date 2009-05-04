@@ -6,10 +6,10 @@
 
 #include "base/singleton.h"
 #include "base/values.h"
-#include "chrome/browser/tab_contents/web_contents.h"
+#include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/browser/renderer_host/render_view_host.h"
 
-HtmlDialogUI::HtmlDialogUI(WebContents* web_contents) : DOMUI(web_contents) {
+HtmlDialogUI::HtmlDialogUI(TabContents* tab_contents) : DOMUI(tab_contents) {
 }
 
 HtmlDialogUI::~HtmlDialogUI() {
@@ -62,7 +62,7 @@ void HtmlDialogUI::RenderViewCreated(RenderViewHost* render_view_host) {
   // Pass the arguments to the renderer supplied by the delegate.
   std::string dialog_args;
   HtmlDialogUIDelegate** delegate = GetPropertyAccessor().GetProperty(
-      web_contents()->property_bag());
+      tab_contents()->property_bag());
   if (delegate)
     dialog_args = (*delegate)->GetDialogArgs();
   render_view_host->SetDOMUIProperty("dialogArguments", dialog_args);
@@ -70,7 +70,7 @@ void HtmlDialogUI::RenderViewCreated(RenderViewHost* render_view_host) {
 
 void HtmlDialogUI::OnDialogClosed(const Value* content) {
   HtmlDialogUIDelegate** delegate = GetPropertyAccessor().GetProperty(
-      web_contents()->property_bag());
+      tab_contents()->property_bag());
   if (delegate)
     (*delegate)->OnDialogClosed(GetJsonResponse(content));
 }

@@ -577,7 +577,7 @@ IPC_END_MESSAGES(View)
 
 
 //-----------------------------------------------------------------------------
-// WebContents messages
+// TabContents messages
 // These are messages sent from the renderer to the browser process.
 
 IPC_BEGIN_MESSAGES(ViewHost)
@@ -592,7 +592,7 @@ IPC_BEGIN_MESSAGES(ViewHost)
                               ModalDialogEvent /* modal_dialog_event */)
 
   // Similar to ViewHostMsg_CreateView, except used for sub-widgets, like
-  // <select> dropdowns.  This message is sent to the WebContents that
+  // <select> dropdowns.  This message is sent to the TabContents that
   // contains the widget being created.
   IPC_SYNC_MESSAGE_CONTROL2_1(ViewHostMsg_CreateWidget,
                               int /* opener_id */,

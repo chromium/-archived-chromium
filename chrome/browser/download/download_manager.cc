@@ -25,7 +25,7 @@
 #include "chrome/browser/renderer_host/render_view_host.h"
 #include "chrome/browser/renderer_host/resource_dispatcher_host.h"
 #include "chrome/browser/tab_contents/tab_util.h"
-#include "chrome/browser/tab_contents/web_contents.h"
+#include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/common/chrome_constants.h"
 #include "chrome/common/chrome_paths.h"
 #include "chrome/common/chrome_switches.h"
@@ -638,7 +638,7 @@ void DownloadManager::OnPathExistenceAvailable(DownloadCreateInfo* info) {
     if (!select_file_dialog_.get())
       select_file_dialog_ = SelectFileDialog::Create(this);
 
-    WebContents* contents = tab_util::GetWebContentsByID(
+    TabContents* contents = tab_util::GetTabContentsByID(
         info->render_process_id, info->render_view_id);
     SelectFileDialog::FileTypeInfo file_type_info;
     file_type_info.extensions.resize(1);
@@ -1088,13 +1088,13 @@ int DownloadManager::RemoveAllDownloads() {
 void DownloadManager::DownloadUrl(const GURL& url,
                                   const GURL& referrer,
                                   const std::string& referrer_charset,
-                                  WebContents* web_contents) {
-  DCHECK(web_contents);
+                                  TabContents* tab_contents) {
+  DCHECK(tab_contents);
   request_context_->set_referrer_charset(referrer_charset);
   file_manager_->DownloadUrl(url,
                              referrer,
-                             web_contents->process()->pid(),
-                             web_contents->render_view_host()->routing_id(),
+                             tab_contents->process()->pid(),
+                             tab_contents->render_view_host()->routing_id(),
                              request_context_.get());
 }
 
@@ -1463,10 +1463,10 @@ void DownloadManager::OnCreateDownloadEntryComplete(DownloadCreateInfo info,
   downloads_[download->db_handle()] = download;
 
   // The 'contents' may no longer exist if the user closed the tab before we get
-  // this start completion event. If it does, tell the origin WebContents to
+  // this start completion event. If it does, tell the origin TabContents to
   // display its download shelf.
   TabContents* contents =
-      tab_util::GetWebContentsByID(info.render_process_id, info.render_view_id);
+      tab_util::GetTabContentsByID(info.render_process_id, info.render_view_id);
 
   // If the contents no longer exists, we start the download in the last active
   // browser. This is not ideal but better than fully hiding the download from

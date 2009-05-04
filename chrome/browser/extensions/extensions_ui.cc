@@ -170,7 +170,7 @@ ExtensionsDOMHandler::~ExtensionsDOMHandler() {
 void ExtensionsDOMHandler::Init() {
 }
 
-ExtensionsUI::ExtensionsUI(WebContents* contents) : DOMUI(contents) {
+ExtensionsUI::ExtensionsUI(TabContents* contents) : DOMUI(contents) {
   ExtensionsService *exstension_service = GetProfile()->GetExtensionsService();
 
   ExtensionsDOMHandler* handler = new ExtensionsDOMHandler(this,

@@ -59,7 +59,7 @@ void CreateNPVariant(const NPVariant_Param& param,
                      base::WaitableEvent* modal_dialog_event);
 
 #if defined(OS_WIN)
-// Given a plugin's HWND, returns an event associated with the WebContents
+// Given a plugin's HWND, returns an event associated with the TabContents
 // that's set when inside a messagebox.  This tells the plugin process that
 // the message queue should be pumped (as what would happen if everything was
 // in-process).  This avoids deadlocks when a plugin invokes javascript that

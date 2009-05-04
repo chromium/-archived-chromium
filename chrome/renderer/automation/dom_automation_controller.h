@@ -40,7 +40,7 @@
       |                 |-------->|DAController|<----|
       |                                 |
       |                                 |(5)
-      |---------|WebContents|<----------|
+      |---------|TabContents|<----------|
 
 
    Legends:

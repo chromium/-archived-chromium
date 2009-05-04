@@ -40,7 +40,7 @@
 @end
 
 RenderViewContextMenuMac::RenderViewContextMenuMac(
-    WebContents* web_contents,
+    TabContents* web_contents,
     const ContextMenuParams& params,
     NSView* parent_view)
     : RenderViewContextMenu(web_contents, params),

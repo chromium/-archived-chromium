@@ -6,7 +6,7 @@
 #define CHROME_BROWSER_TAB_CONTENTS_TAB_UTIL_H_
 
 class URLRequest;
-class WebContents;
+class TabContents;
 
 namespace tab_util {
 
@@ -15,10 +15,10 @@ namespace tab_util {
 bool GetTabContentsID(URLRequest* request, int* render_process_host_id,
                       int* routing_id);
 
-// Helper to find the WebContents that originated the given request. Can be
+// Helper to find the TabContents that originated the given request. Can be
 // NULL if the tab has been closed or some other error occurs.
 // Should only be called from the UI thread, since it accesses TabContent.
-WebContents* GetWebContentsByID(int render_process_host_id, int routing_id);
+TabContents* GetTabContentsByID(int render_process_host_id, int routing_id);
 
 }  // namespace tab_util
 

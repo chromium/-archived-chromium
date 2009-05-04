@@ -60,16 +60,16 @@ struct WebApplicationInfo;
 //
 //  The intent of this class is to provide a view-agnostic communication
 //  conduit with a renderer. This is so we can build HTML views not only as
-//  TabContents (see WebContents for an example) but also as views, etc.
+//  TabContents (see TabContents for an example) but also as views, etc.
 //
 //  The exact API of this object needs to be more thoroughly designed. Right
-//  now it mimics what WebContents exposed, which is a fairly large API and may
+//  now it mimics what TabContents exposed, which is a fairly large API and may
 //  contain things that are not relevant to a common subset of views. See also
 //  the comment in render_view_host_delegate.h about the size and scope of the
 //  delegate API.
 //
 //  Right now, the concept of page navigation (both top level and frame) exists
-//  in the WebContents still, so if you instantiate one of these elsewhere, you
+//  in the TabContents still, so if you instantiate one of these elsewhere, you
 //  will not be able to traverse pages back and forward. We need to determine
 //  if we want to bring that and other functionality down into this object so
 //  it can be shared by others.
@@ -599,8 +599,8 @@ class RenderViewHost : public RenderWidgetHost {
   bool navigations_suspended_;
 
   // We only buffer a suspended navigation message while we a pending RVH for a
-  // WebContents.  There will only ever be one suspended navigation, because
-  // WebContents will destroy the pending RVH and create a new one if a second
+  // TabContents.  There will only ever be one suspended navigation, because
+  // TabContents will destroy the pending RVH and create a new one if a second
   // navigation occurs.
   scoped_ptr<ViewMsg_Navigate> suspended_nav_message_;
 

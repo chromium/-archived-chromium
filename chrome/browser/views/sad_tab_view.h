@@ -20,7 +20,7 @@ class SkBitmap;
 //  Note that since this view is not (currently) part of a Container or
 //  RootView hierarchy, it cannot respond to events or contain controls that
 //  do, right now it is used simply to render. Adding an extra Container to
-//  WebContents seemed like a lot of complexity. Ideally, perhaps WebContents'
+//  TabContents seemed like a lot of complexity. Ideally, perhaps TabContents'
 //  view portion would itself become a Container in the future, then event
 //  processing will work.
 //

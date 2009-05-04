@@ -52,7 +52,7 @@ class TabContentsContainerGtk : public NotificationObserver {
   TabContents* tab_contents_;
 
   // We keep a GtkVBox which is inserted into this object's owner's GtkWidget
-  // hierarchy. We then insert and remove WebContents GtkWidgets into this
+  // hierarchy. We then insert and remove TabContents GtkWidgets into this
   // vbox_.
   GtkWidget* vbox_;
 

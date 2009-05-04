@@ -11,7 +11,7 @@
 #include "chrome/browser/chrome_thread.h"
 #include "chrome/browser/renderer_host/render_process_host.h"
 #include "chrome/browser/tab_contents/navigation_entry.h"
-#include "chrome/browser/tab_contents/web_contents.h"
+#include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/common/child_process_host.h"
 #include "chrome/common/url_constants.h"
 
@@ -219,7 +219,7 @@ void MemoryDetails::CollectChildInfoOnUIThread() {
         RenderViewHost* host = static_cast<RenderViewHost*>(widget);
         TabContents* contents = NULL;
         if (host->delegate())
-          contents = host->delegate()->GetAsWebContents();
+          contents = host->delegate()->GetAsTabContents();
         if (!contents)
           continue;
         std::wstring title = UTF16ToWideHack(contents->GetTitle());

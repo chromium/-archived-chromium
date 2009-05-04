@@ -8,17 +8,17 @@
 #include "base/json_writer.h"
 #include "base/string_util.h"
 #include "base/values.h"
-#include "chrome/browser/tab_contents/web_contents.h"
+#include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/common/l10n_util.h"
 #include "chrome/common/stl_util-inl.h"
 
-DOMUI::DOMUI(WebContents* contents)
+DOMUI::DOMUI(TabContents* contents)
     : hide_favicon_(false),
       force_bookmark_bar_visible_(false),
       focus_location_bar_by_default_(false),
       should_hide_url_(false),
       link_transition_type_(PageTransition::LINK),
-      web_contents_(contents) {
+      tab_contents_(contents) {
 }
 
 DOMUI::~DOMUI() {
@@ -85,7 +85,7 @@ void DOMUI::RegisterMessageCallback(const std::string &message,
 }
 
 Profile* DOMUI::GetProfile() {
-  return web_contents()->profile();
+  return tab_contents()->profile();
 }
 
 // DOMUI, protected: ----------------------------------------------------------
@@ -97,7 +97,7 @@ void DOMUI::AddMessageHandler(DOMMessageHandler* handler) {
 // DOMUI, private: ------------------------------------------------------------
 
 void DOMUI::ExecuteJavascript(const std::wstring& javascript) {
-  web_contents()->render_view_host()->ExecuteJavascriptInWebFrame(
+  tab_contents()->render_view_host()->ExecuteJavascriptInWebFrame(
       std::wstring(), javascript);
 }
 

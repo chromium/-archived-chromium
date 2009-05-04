@@ -94,7 +94,7 @@ class TabContentsDelegate {
   virtual bool IsApplication() { return false; }
 
   // Detach the given tab and convert it to a "webapp" view.  The tab must be
-  // a WebContents with a valid WebApp set.
+  // a TabContents with a valid WebApp set.
   virtual void ConvertContentsToApplication(TabContents* source) { }
 
   // Informs the TabContentsDelegate that some of our state has changed

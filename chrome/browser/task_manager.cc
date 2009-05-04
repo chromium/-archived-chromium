@@ -70,8 +70,8 @@ TaskManagerTableModel::TaskManagerTableModel(TaskManager* task_manager)
       new TaskManagerBrowserProcessResourceProvider(task_manager);
   browser_provider->AddRef();
   providers_.push_back(browser_provider);
-  TaskManagerWebContentsResourceProvider* wc_provider =
-      new TaskManagerWebContentsResourceProvider(task_manager);
+  TaskManagerTabContentsResourceProvider* wc_provider =
+      new TaskManagerTabContentsResourceProvider(task_manager);
   wc_provider->AddRef();
   providers_.push_back(wc_provider);
   TaskManagerChildProcessResourceProvider* child_process_provider =

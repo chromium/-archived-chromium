@@ -7,15 +7,15 @@
 
 typedef RenderViewHostTestHarness FindBackendTest;
 
-// This test takes two WebContents objects, searches in both of them and
+// This test takes two TabContents objects, searches in both of them and
 // tests the internal state for find_text and find_prepopulate_text.
 TEST_F(FindBackendTest, InternalState) {
-  // Initial state for the WebContents is blank strings.
+  // Initial state for the TabContents is blank strings.
   EXPECT_EQ(string16(), contents()->find_prepopulate_text());
   EXPECT_EQ(string16(), contents()->find_text());
 
-  // Get another WebContents object ready.
-  TestWebContents contents2(profile_.get(), NULL);
+  // Get another TabContents object ready.
+  TestTabContents contents2(profile_.get(), NULL);
 
   // No search has still been issued, strings should be blank.
   EXPECT_EQ(string16(), contents()->find_prepopulate_text());
@@ -27,7 +27,7 @@ TEST_F(FindBackendTest, InternalState) {
   string16 search_term2 = L" but the economy ";
   string16 search_term3 = L" eated it.       ";
 
-  // Start searching in the first WebContents.
+  // Start searching in the first TabContents.
   contents()->StartFinding(search_term1, true);  // true=forward.
 
   // Pre-populate string should always match between the two, but find_text
@@ -37,7 +37,7 @@ TEST_F(FindBackendTest, InternalState) {
   EXPECT_EQ(search_term1, contents2.find_prepopulate_text());
   EXPECT_EQ(string16(), contents2.find_text());
 
-  // Now search in the other WebContents.
+  // Now search in the other TabContents.
   contents2.StartFinding(search_term2, true);  // true=forward.
 
   // Again, pre-populate string should always match between the two, but
@@ -47,7 +47,7 @@ TEST_F(FindBackendTest, InternalState) {
   EXPECT_EQ(search_term2, contents2.find_prepopulate_text());
   EXPECT_EQ(search_term2, contents2.find_text());
 
-  // Search again in the first WebContents.
+  // Search again in the first TabContents.
   contents()->StartFinding(search_term3, true);  // true=forward.
 
   // Once more, pre-populate string should always match between the two, but

@@ -37,13 +37,13 @@ class HtmlDialogUIDelegate {
 
 // Displays file URL contents inside a modal HTML dialog.
 //
-// This application really should not use WebContents + DOMUI. It should instead
+// This application really should not use TabContents + DOMUI. It should instead
 // just embed a RenderView in a dialog and be done with it.
 //
 // Before loading a URL corresponding to this DOMUI, the caller should set its
-// delegate as a property on the WebContents. This DOMUI will pick it up from
+// delegate as a property on the TabContents. This DOMUI will pick it up from
 // there and call it back. This is a bit of a hack to allow the dialog to pass
-// its delegate to the DOM UI without having nasty accessors on the WebContents.
+// its delegate to the DOM UI without having nasty accessors on the TabContents.
 // The correct design using RVH directly would avoid all of this.
 class HtmlDialogUI : public DOMUI {
  public:
@@ -58,12 +58,12 @@ class HtmlDialogUI : public DOMUI {
     std::string json_input;
   };
 
-  // When created, the property should already be set on the WebContents.
-  HtmlDialogUI(WebContents* web_contents);
+  // When created, the property should already be set on the TabContents.
+  HtmlDialogUI(TabContents* tab_contents);
   virtual ~HtmlDialogUI();
 
   // Returns the PropertyBag accessor object used to write the delegate pointer
-  // into the WebContents (see class-level comment above).
+  // into the TabContents (see class-level comment above).
   static PropertyAccessor<HtmlDialogUIDelegate*>& GetPropertyAccessor();
 
  private:

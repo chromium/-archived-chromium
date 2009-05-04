@@ -79,9 +79,9 @@ class TabContentsView;
 struct ThumbnailScore;
 struct ViewHostMsg_FrameNavigate_Params;
 struct ViewHostMsg_DidPrintPage_Params;
-class WebContents;
+class TabContents;
 
-// Describes what goes in the main content area of a tab. WebContents is
+// Describes what goes in the main content area of a tab. TabContents is
 // the only type of TabContents, and these should be merged together.
 class TabContents : public PageNavigator,
                     public NotificationObserver,
@@ -117,15 +117,6 @@ class TabContents : public PageNavigator,
   // rather than a reference since the PropertyAccessors expect this.
   const PropertyBag* property_bag() const { return &property_bag_; }
   PropertyBag* property_bag() { return &property_bag_; }
-
-  // Returns this object as a WebContents if it is one, and NULL otherwise.
-  // TODO(brettw) this should not be necessary.
-  WebContents* AsWebContents();
-
-  // Const version of above for situations where const TabContents*'s are used.
-  WebContents* AsWebContents() const {
-    return const_cast<TabContents*>(this)->AsWebContents();
-  }
 
   // Returns this object as a DOMUIContents if it is one, and NULL otherwise.
   virtual DOMUIContents* AsDOMUIContents() { return NULL; }
@@ -187,7 +178,7 @@ class TabContents : public PageNavigator,
 
   // The max PageID of any page that this TabContents has loaded.  PageIDs
   // increase with each new page that is loaded by a tab.  If this is a
-  // WebContents, then the max PageID is kept separately on each SiteInstance.
+  // TabContents, then the max PageID is kept separately on each SiteInstance.
   // Returns -1 if no PageIDs have yet been seen.
   int32 GetMaxPageID();
 
@@ -195,7 +186,7 @@ class TabContents : public PageNavigator,
   void UpdateMaxPageID(int32 page_id);
 
   // Returns the site instance associated with the current page. By default,
-  // there is no site instance. WebContents overrides this to provide proper
+  // there is no site instance. TabContents overrides this to provide proper
   // access to its site instance.
   virtual SiteInstance* GetSiteInstance() const;
 
@@ -500,7 +491,7 @@ class TabContents : public PageNavigator,
     current_find_request_id_ = current_find_request_id;
   }
 
-  // Accessor for find_text_. Used to determine if this WebContents has any
+  // Accessor for find_text_. Used to determine if this TabContents has any
   // active searches.
   string16 find_text() const { return find_text_; }
 
@@ -552,7 +543,7 @@ class TabContents : public PageNavigator,
     return contents_mime_type_;
   }
 
-  // Returns true if this WebContents will notify about disconnection.
+  // Returns true if this TabContents will notify about disconnection.
   bool notify_disconnection() const { return notify_disconnection_; }
 
   // Override the encoding and reload the page by sending down
@@ -579,7 +570,7 @@ class TabContents : public PageNavigator,
   // automation purposes.
   friend class AutomationProvider;
 
-  FRIEND_TEST(WebContentsTest, UpdateTitle);
+  FRIEND_TEST(TabContentsTest, UpdateTitle);
 
   // Temporary until the view/contents separation is complete.
   friend class TabContentsView;
@@ -605,12 +596,12 @@ class TabContents : public PageNavigator,
     std::wstring title;
     GURL url;
     // This object receives the GearsCreateShortcutCallback and routes the
-    // message back to the WebContents, if we haven't been deleted.
+    // message back to the TabContents, if we haven't been deleted.
     GearsCreateShortcutCallbackFunctor* callback_functor;
   };
 
-  // TODO(brettw) TestWebContents shouldn't exist!
-  friend class TestWebContents;
+  // TODO(brettw) TestTabContents shouldn't exist!
+  friend class TestTabContents;
 
   RenderWidgetHostView* render_widget_host_view() const {
     return render_manager_.current_view();
@@ -730,9 +721,9 @@ class TabContents : public PageNavigator,
   virtual RenderViewHostDelegate::Save* GetSaveDelegate() const;
   virtual Profile* GetProfile() const;
   virtual ExtensionFunctionDispatcher *CreateExtensionFunctionDispatcher(
-    RenderViewHost* render_view_host,
-    const std::string& extension_id);
-  virtual WebContents* GetAsWebContents();
+      RenderViewHost* render_view_host,
+      const std::string& extension_id);
+  virtual TabContents* GetAsTabContents();
   virtual void RenderViewCreated(RenderViewHost* render_view_host);
   virtual void RenderViewReady(RenderViewHost* render_view_host);
   virtual void RenderViewGone(RenderViewHost* render_view_host);
@@ -875,7 +866,7 @@ class TabContents : public PageNavigator,
 
   // Initializes the given renderer if necessary and creates the view ID
   // corresponding to this view host. If this method is not called and the
-  // process is not shared, then the WebContents will act as though the renderer
+  // process is not shared, then the TabContents will act as though the renderer
   // is not running (i.e., it will render "sad tab"). This method is
   // automatically called from LoadURL.
   //
@@ -953,7 +944,7 @@ class TabContents : public PageNavigator,
   bool waiting_for_response_;
 
   // Indicates the largest PageID we've seen.  This field is ignored if we are
-  // a WebContents, in which case the max page ID is stored separately with
+  // a TabContents, in which case the max page ID is stored separately with
   // each SiteInstance.
   // TODO(brettw) this seems like it can be removed according to the comment.
   int32 max_page_id_;

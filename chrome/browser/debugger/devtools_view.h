@@ -18,7 +18,7 @@ class Message;
 
 class RenderViewHost;
 class TabContentsContainerView;
-class WebContents;
+class TabContents;
 
 class DevToolsView : public views::View,
                      public TabContentsDelegate {
@@ -67,7 +67,7 @@ class DevToolsView : public views::View,
 
   void Init();
 
-  WebContents* web_contents_;
+  TabContents* tab_contents_;
   TabContentsContainerView* web_container_;
 
   DISALLOW_COPY_AND_ASSIGN(DevToolsView);

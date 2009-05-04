@@ -15,7 +15,7 @@
 
 class MessageLoop;
 class NavigationEntry;
-class WebContents;
+class TabContents;
 class TabContentsView;
 
 // This class is a base class for interstitial pages, pages that show some
@@ -27,7 +27,7 @@ class TabContentsView;
 // that when the interstitial shows, the current entry is the target URL.
 //
 // InterstitialPage instances take care of deleting themselves when closed
-// through a navigation, the WebContents closing them or the tab containing them
+// through a navigation, the TabContents closing them or the tab containing them
 // being closed.
 
 enum ResourceRequestAction {
@@ -45,7 +45,7 @@ class InterstitialPage : public NotificationObserver,
   // added to the navigation controller (so the interstitial page appears as a
   // new navigation entry). |new_navigation| should be false when the
   // interstitial was triggered by a loading a sub-resource in a page.
-  InterstitialPage(WebContents* tab, bool new_navigation, const GURL& url);
+  InterstitialPage(TabContents* tab, bool new_navigation, const GURL& url);
   virtual ~InterstitialPage();
 
   // Shows the interstitial page in the tab.
@@ -56,7 +56,7 @@ class InterstitialPage : public NotificationObserver,
 
   // Retrieves the InterstitialPage if any associated with the specified
   // |tab_contents| (used by ui tests).
-  static InterstitialPage* GetInterstitialPage(WebContents* web_contents);
+  static InterstitialPage* GetInterstitialPage(TabContents* tab_contents);
 
   // Sub-classes should return the HTML that should be displayed in the page.
   virtual std::string GetHTMLContents() { return std::string(); }
@@ -108,7 +108,7 @@ class InterstitialPage : public NotificationObserver,
   // |create_navigation_entry| set to true.
   virtual void UpdateEntry(NavigationEntry* entry) { }
 
-  WebContents* tab() const { return tab_; }
+  TabContents* tab() const { return tab_; }
   const GURL& url() const { return url_; }
   RenderViewHost* render_view_host() const { return render_view_host_; }
 
@@ -142,7 +142,7 @@ class InterstitialPage : public NotificationObserver,
   void TakeActionOnResourceDispatcher(ResourceRequestAction action);
 
   // The tab in which we are displayed.
-  WebContents* tab_;
+  TabContents* tab_;
 
   // The URL that is shown when the interstitial is showing.
   GURL url_;
@@ -192,7 +192,7 @@ class InterstitialPage : public NotificationObserver,
 
   // We keep a map of the various blocking pages shown as the UI tests need to
   // be able to retrieve them.
-  typedef std::map<WebContents*,InterstitialPage*> InterstitialPageMap;
+  typedef std::map<TabContents*,InterstitialPage*> InterstitialPageMap;
   static InterstitialPageMap* tab_to_interstitial_page_;
 
   DISALLOW_COPY_AND_ASSIGN(InterstitialPage);

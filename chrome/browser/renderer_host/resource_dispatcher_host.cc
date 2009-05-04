@@ -32,7 +32,7 @@
 #include "chrome/browser/renderer_host/save_file_resource_handler.h"
 #include "chrome/browser/renderer_host/sync_resource_handler.h"
 #include "chrome/browser/tab_contents/tab_util.h"
-#include "chrome/browser/tab_contents/web_contents.h"
+#include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/common/notification_service.h"
 #include "chrome/common/render_messages.h"
 #include "chrome/common/stl_util-inl.h"
@@ -1289,7 +1289,7 @@ class NotificationTask : public Task {
   void Run() {
     // Find the tab associated with this request.
     TabContents* tab_contents =
-        tab_util::GetWebContentsByID(process_id_, tab_contents_id_);
+        tab_util::GetTabContentsByID(process_id_, tab_contents_id_);
 
     if (tab_contents) {
       // Issue the notification.

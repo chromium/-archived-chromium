@@ -7,7 +7,7 @@
 #include "chrome/browser/renderer_host/render_view_host.h"
 #include "chrome/browser/renderer_host/test_render_view_host.h"
 #include "chrome/browser/tab_contents/navigation_entry.h"
-#include "chrome/browser/tab_contents/web_contents.h"
+#include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/common/render_messages.h"
 #include "chrome/test/testing_profile.h"
 #include "testing/gtest/include/gtest/gtest.h"
@@ -69,7 +69,7 @@ class TestSiteInstance : public SiteInstance {
 
 // Test to ensure no memory leaks for SiteInstance objects.
 TEST_F(SiteInstanceTest, SiteInstanceDestructor) {
-  // The existance of these factories will cause WebContents to create our test
+  // The existance of these factories will cause TabContents to create our test
   // one instead of the real one.
   MockRenderProcessHostFactory rph_factory;
   TestRenderViewHostFactory rvh_factory(&rph_factory);
@@ -113,12 +113,12 @@ TEST_F(SiteInstanceTest, SiteInstanceDestructor) {
                                                &siteDeleteCounter,
                                                &browsingDeleteCounter);
   {
-    WebContents contents(profile.get(), instance, MSG_ROUTING_NONE, NULL);
+    TabContents contents(profile.get(), instance, MSG_ROUTING_NONE, NULL);
     EXPECT_EQ(1, siteDeleteCounter);
     EXPECT_EQ(1, browsingDeleteCounter);
   }
 
-  // Make sure that we flush any messages related to the above WebContents
+  // Make sure that we flush any messages related to the above TabContents
   // destruction.
   MessageLoop::current()->RunAllPending();
 

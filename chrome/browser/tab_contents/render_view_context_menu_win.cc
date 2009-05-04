@@ -10,10 +10,10 @@
 #include "grit/generated_resources.h"
 
 RenderViewContextMenuWin::RenderViewContextMenuWin(
-    WebContents* web_contents,
+    TabContents* tab_contents,
     const ContextMenuParams& params,
     HWND owner)
-    : RenderViewContextMenu(web_contents, params),
+    : RenderViewContextMenu(tab_contents, params),
       ALLOW_THIS_IN_INITIALIZER_LIST(menu_(this, Menu::TOPLEFT, owner)),
       sub_menu_(NULL) {
   InitMenu(params.node);

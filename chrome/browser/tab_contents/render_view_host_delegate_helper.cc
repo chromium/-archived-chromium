@@ -13,7 +13,7 @@
 #include "chrome/browser/renderer_host/render_widget_host.h"
 #include "chrome/browser/renderer_host/render_widget_host_view.h"
 #include "chrome/browser/tab_contents/site_instance.h"
-#include "chrome/browser/tab_contents/web_contents.h"
+#include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/browser/tab_contents/tab_contents_view.h"
 #include "chrome/common/chrome_switches.h"
 #include "chrome/common/pref_names.h"
@@ -24,8 +24,8 @@ void RenderViewHostDelegateViewHelper::CreateNewWindow(int route_id,
     SiteInstance* site) {
   // Create the new web contents. This will automatically create the new
   // TabContentsView. In the future, we may want to create the view separately.
-  WebContents* new_contents =
-      new WebContents(profile,
+  TabContents* new_contents =
+      new TabContents(profile,
                       site,
                       route_id,
                       modal_dialog_event);
@@ -51,26 +51,26 @@ RenderWidgetHostView* RenderViewHostDelegateViewHelper::CreateNewWidget(
   return widget_view;
 }
 
-WebContents* RenderViewHostDelegateViewHelper::GetCreatedWindow(int route_id) {
+TabContents* RenderViewHostDelegateViewHelper::GetCreatedWindow(int route_id) {
   PendingContents::iterator iter = pending_contents_.find(route_id);
   if (iter == pending_contents_.end()) {
     DCHECK(false);
     return NULL;
   }
 
-  WebContents* new_web_contents = iter->second;
+  TabContents* new_tab_contents = iter->second;
   pending_contents_.erase(route_id);
 
-  if (!new_web_contents->render_view_host()->view() ||
-      !new_web_contents->process()->channel()) {
+  if (!new_tab_contents->render_view_host()->view() ||
+      !new_tab_contents->process()->channel()) {
     // The view has gone away or the renderer crashed. Nothing to do.
     return NULL;
   }
 
   // TODO(brettw) this seems bogus to reach into here and initialize the host.
-  new_web_contents->render_view_host()->Init();
+  new_tab_contents->render_view_host()->Init();
 
-  return new_web_contents;
+  return new_tab_contents;
 }
 
 RenderWidgetHostView* RenderViewHostDelegateViewHelper::GetCreatedWidget(

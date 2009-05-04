@@ -15,7 +15,7 @@
 #include "chrome/browser/renderer_host/render_widget_host.h"
 #include "chrome/browser/renderer_host/render_widget_host_view.h"
 #include "chrome/browser/tab_contents/site_instance.h"
-#include "chrome/browser/tab_contents/web_contents.h"
+#include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/browser/tab_contents/tab_contents_view.h"
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
@@ -105,7 +105,7 @@ RenderViewHostDelegate::View* ExtensionHost::GetViewDelegate() const {
   // must be const (no good reason for it as far as I can tell) which means you
   // can't return self without doing this const_cast.  Either we need to change
   // the interface, or we need to split out the view delegate into another
-  // object (which is how WebContents works).
+  // object (which is how TabContents works).
   return const_cast<ExtensionHost*>(this);
 }
 
@@ -125,7 +125,7 @@ void ExtensionHost::ShowCreatedWindow(int route_id,
                                       WindowOpenDisposition disposition,
                                       const gfx::Rect& initial_pos,
                                       bool user_gesture) {
-  WebContents* contents = delegate_view_helper_.GetCreatedWindow(route_id);
+  TabContents* contents = delegate_view_helper_.GetCreatedWindow(route_id);
   if (contents) {
     // TODO(erikkay) is it safe to pass in NULL as source?
     GetBrowser()->AddTabContents(contents, disposition, initial_pos,

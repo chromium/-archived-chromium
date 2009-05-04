@@ -527,7 +527,7 @@ void FocusManager::StoreFocusedView() {
     return;
   }
 
-  // TODO (jcampan): when a WebContents containing a popup is closed, the focus
+  // TODO (jcampan): when a TabContents containing a popup is closed, the focus
   // is stored twice causing an assert. We should find a better alternative than
   // removing the view from the storage explicitly.
   view_storage->RemoveView(stored_focused_view_storage_id_);

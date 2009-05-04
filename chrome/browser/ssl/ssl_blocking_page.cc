@@ -13,7 +13,7 @@
 #include "chrome/browser/ssl/ssl_error_info.h"
 #include "chrome/browser/tab_contents/navigation_controller.h"
 #include "chrome/browser/tab_contents/navigation_entry.h"
-#include "chrome/browser/tab_contents/web_contents.h"
+#include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/common/jstemplate_builder.h"
 #include "chrome/common/l10n_util.h"
 #include "chrome/common/notification_service.h"
@@ -43,7 +43,7 @@ void RecordSSLBlockingPageStats(SSLBlockingPageEvent event) {
 // No error happening loading a sub-resource triggers an interstitial so far.
 SSLBlockingPage::SSLBlockingPage(SSLManager::CertError* error,
                                  Delegate* delegate)
-    : InterstitialPage(error->GetWebContents(), true, error->request_url()),
+    : InterstitialPage(error->GetTabContents(), true, error->request_url()),
       error_(error),
       delegate_(delegate),
       delegate_has_been_notified_(false) {
@@ -88,10 +88,9 @@ std::string SSLBlockingPage::GetHTMLContents() {
 }
 
 void SSLBlockingPage::UpdateEntry(NavigationEntry* entry) {
-  WebContents* web = tab()->AsWebContents();
   const net::SSLInfo& ssl_info = error_->ssl_info();
   int cert_id = CertStore::GetSharedInstance()->StoreCert(
-      ssl_info.cert, web->render_view_host()->process()->pid());
+      ssl_info.cert, tab()->render_view_host()->process()->pid());
 
   entry->ssl().set_security_style(SECURITY_STYLE_AUTHENTICATION_BROKEN);
   entry->ssl().set_cert_id(cert_id);
@@ -99,7 +98,7 @@ void SSLBlockingPage::UpdateEntry(NavigationEntry* entry) {
   entry->ssl().set_security_bits(ssl_info.security_bits);
   NotificationService::current()->Notify(
       NotificationType::SSL_VISIBLE_STATE_CHANGED,
-      Source<NavigationController>(&web->controller()),
+      Source<NavigationController>(&tab()->controller()),
       NotificationService::NoDetails());
 }
 

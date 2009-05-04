@@ -14,7 +14,7 @@ class Profile;
 // The TabContents used for the New Tab page.
 class NewTabUI : public DOMUI {
  public:
-  explicit NewTabUI(WebContents* manager);
+  explicit NewTabUI(TabContents* manager);
   ~NewTabUI();
 
   static void RegisterUserPrefs(PrefService* prefs);

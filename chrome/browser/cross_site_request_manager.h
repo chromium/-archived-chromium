@@ -14,7 +14,7 @@
 
 // CrossSiteRequestManager is used to handle bookkeeping for cross-site
 // requests and responses between the UI and IO threads.  Such requests involve
-// a transition from one RenderViewHost to another within WebContents, and
+// a transition from one RenderViewHost to another within TabContents, and
 // involve coordination with ResourceDispatcherHost.
 //
 // CrossSiteRequestManager is a singleton that may be used on any thread.

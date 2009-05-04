@@ -14,7 +14,6 @@
 #include "chrome/browser/tab_contents/provisional_load_details.h"
 #include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/browser/views/tab_contents_container_view.h"
-#include "chrome/browser/tab_contents/web_contents.h"
 #include "chrome/common/chrome_constants.h"
 #include "chrome/common/win_util.h"
 // Included for SetRootViewForHWND.
@@ -68,7 +67,7 @@ bool ExternalTabContainer::Init(Profile* profile, HWND parent,
   DCHECK(focus_manager);
   focus_manager->AddKeystrokeListener(this);
 
-  tab_contents_ = new WebContents(profile, NULL, MSG_ROUTING_NONE, NULL);
+  tab_contents_ = new TabContents(profile, NULL, MSG_ROUTING_NONE, NULL);
   tab_contents_->set_delegate(this);
   tab_contents_->render_view_host()->AllowExternalHostBindings();
 

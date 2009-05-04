@@ -15,7 +15,7 @@ class DOMUITest : public RenderViewHostTestHarness {
   // state, through pending, committed, then another navigation. The first page
   // ID that we should use is passed as a parameter. We'll use the next two
   // values. This must be increasing for the life of the tests.
-  static void DoNavigationTest(WebContents* contents, int page_id) {
+  static void DoNavigationTest(TabContents* contents, int page_id) {
     NavigationController* controller = &contents->controller();
 
     // Start a pending load.
@@ -79,16 +79,16 @@ class DOMUITest : public RenderViewHostTestHarness {
 };
 
 // Tests that the New Tab Page flags are correctly set and propogated by
-// WebContents when we first navigate to a DOM UI page, then to a standard
+// TabContents when we first navigate to a DOM UI page, then to a standard
 // non-DOM-UI page.
 TEST_F(DOMUITest, DOMUIToStandard) {
   DoNavigationTest(contents(), 1);
 
   // Test the case where we're not doing the initial navigation. This is
   // slightly different than the very-first-navigation case since the
-  // SiteInstance will be the same (the original WebContents must still be
+  // SiteInstance will be the same (the original TabContents must still be
   // alive), which will trigger different behavior in RenderViewHostManager.
-  TestWebContents contents2(profile_.get(), NULL);
+  TestTabContents contents2(profile_.get(), NULL);
 
   DoNavigationTest(&contents2, 101);
 }

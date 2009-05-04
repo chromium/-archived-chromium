@@ -23,7 +23,7 @@ TEST_F(RenderViewHostManagerTest, NewTabPageProcesses) {
   NavigateAndCommit(dest);
 
   // Make a second tab.
-  TestWebContents contents2(profile_.get(), NULL);
+  TestTabContents contents2(profile_.get(), NULL);
 
   // Load the two URLs in the second tab. Note that the first navigation creates
   // a RVH that's not pending (since there is no cross-site transition), so

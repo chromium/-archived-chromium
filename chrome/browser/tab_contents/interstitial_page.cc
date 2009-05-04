@@ -13,7 +13,7 @@
 #include "chrome/browser/renderer_host/render_widget_host_view.h"
 #include "chrome/browser/tab_contents/navigation_controller.h"
 #include "chrome/browser/tab_contents/navigation_entry.h"
-#include "chrome/browser/tab_contents/web_contents.h"
+#include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/browser/tab_contents/tab_contents_view.h"
 #include "chrome/common/notification_service.h"
 #include "chrome/views/window/window_delegate.h"
@@ -100,7 +100,7 @@ class InterstitialPage::InterstitialPageRVHViewDelegate
 InterstitialPage::InterstitialPageMap*
     InterstitialPage::tab_to_interstitial_page_ =  NULL;
 
-InterstitialPage::InterstitialPage(WebContents* tab,
+InterstitialPage::InterstitialPage(TabContents* tab,
                                    bool new_navigation,
                                    const GURL& url)
     : tab_(tab),
@@ -446,10 +446,10 @@ void InterstitialPage::InitInterstitialPageMap() {
 
 // static
 InterstitialPage* InterstitialPage::GetInterstitialPage(
-    WebContents* web_contents) {
+    TabContents* tab_contents) {
   InitInterstitialPageMap();
   InterstitialPageMap::const_iterator iter =
-      tab_to_interstitial_page_->find(web_contents);
+      tab_to_interstitial_page_->find(tab_contents);
   if (iter == tab_to_interstitial_page_->end())
     return NULL;
 

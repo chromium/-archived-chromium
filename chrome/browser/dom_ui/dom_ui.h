@@ -20,13 +20,13 @@ class GURL;
 class Profile;
 class RenderViewHost;
 class Value;
-class WebContents;
+class TabContents;
 
 // A DOMUI sets up the datasources and message handlers for a given HTML-based
 // UI. It is contained by a DOMUIManager.
 class DOMUI {
  public:
-  explicit DOMUI(WebContents* contents);
+  explicit DOMUI(TabContents* contents);
   virtual ~DOMUI();
 
   virtual void RenderViewCreated(RenderViewHost* render_view_host) {}
@@ -89,7 +89,7 @@ class DOMUI {
                               const Value& arg1,
                               const Value& arg2);
 
-  WebContents* web_contents() { return web_contents_; }
+  TabContents* tab_contents() { return tab_contents_; }
 
   Profile* GetProfile();
 
@@ -109,8 +109,8 @@ class DOMUI {
   // Execute a string of raw Javascript on the page.
   void ExecuteJavascript(const std::wstring& javascript);
 
-  // Non-owning pointer to the WebContents this DOMUI is associated with.
-  WebContents* web_contents_;
+  // Non-owning pointer to the TabContents this DOMUI is associated with.
+  TabContents* tab_contents_;
 
   // The DOMMessageHandlers we own.
   std::vector<DOMMessageHandler*> handlers_;

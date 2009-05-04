@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "chrome/browser/debugger/debugger_window.h"
+#include "chrome/browser/debugger/debugger_view.h"
 
 #include "base/logging.h"
 #include "base/string_util.h"
@@ -11,7 +11,7 @@
 #include "chrome/browser/browser_list.h"
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/debugger/debugger_shell.h"
-#include "chrome/browser/debugger/debugger_view.h"
+#include "chrome/browser/debugger/debugger_window.h"
 #include "chrome/browser/debugger/debugger_wrapper.h"
 #include "chrome/browser/dom_ui/chrome_url_data_manager.h"
 #include "chrome/browser/renderer_host/render_view_host.h"
@@ -19,7 +19,6 @@
 #include "chrome/browser/view_ids.h"
 #include "chrome/browser/views/standard_layout.h"
 #include "chrome/browser/views/tab_contents_container_view.h"
-#include "chrome/browser/tab_contents/web_contents.h"
 #include "chrome/common/gfx/chrome_canvas.h"
 #include "chrome/common/resource_bundle.h"
 #include "chrome/views/grid_layout.h"
@@ -96,27 +95,27 @@ void DebuggerView::Output(const std::wstring& out) {
 }
 
 void DebuggerView::OnInit() {
-  // We can't create the WebContents until we've actually been put into a real
+  // We can't create the TabContents until we've actually been put into a real
   // view hierarchy somewhere.
   Profile* profile = BrowserList::GetLastActive()->profile();
-  web_contents_ = new WebContents(profile, NULL, MSG_ROUTING_NONE, NULL);
+  tab_contents_ = new TabContents(profile, NULL, MSG_ROUTING_NONE, NULL);
 
-  web_contents_->set_delegate(this);
-  web_container_->SetTabContents(web_contents_);
-  web_contents_->render_view_host()->AllowDOMUIBindings();
+  tab_contents_->set_delegate(this);
+  web_container_->SetTabContents(tab_contents_);
+  tab_contents_->render_view_host()->AllowDOMUIBindings();
 
   GURL contents("chrome-ui://inspector/debugger.html");
-  web_contents_->controller().LoadURL(contents, GURL(),
+  tab_contents_->controller().LoadURL(contents, GURL(),
                                       PageTransition::START_PAGE);
 }
 
 void DebuggerView::OnShow() {
-  web_contents_->Focus();
+  tab_contents_->Focus();
 }
 
 void DebuggerView::OnClose() {
   web_container_->SetTabContents(NULL);
-  delete web_contents_;
+  delete tab_contents_;
 }
 
 void DebuggerView::OpenURLFromTab(TabContents* source,
@@ -149,7 +148,7 @@ void DebuggerView::SendEventToPage(const std::wstring& name,
 }
 
 void DebuggerView::ExecuteJavascript(const std::string& js) {
-  web_contents_->render_view_host()->ExecuteJavascriptInWebFrame(L"",
+  tab_contents_->render_view_host()->ExecuteJavascriptInWebFrame(L"",
       UTF8ToWide(js));
 }
 

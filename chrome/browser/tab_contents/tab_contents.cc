@@ -30,9 +30,9 @@
 #include "chrome/browser/renderer_host/render_widget_host_view.h"
 #include "chrome/browser/renderer_host/web_cache_manager.h"
 #include "chrome/browser/tab_contents/navigation_entry.h"
+#include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/browser/tab_contents/tab_contents_delegate.h"
 #include "chrome/browser/tab_contents/tab_contents_view.h"
-#include "chrome/browser/tab_contents/web_contents.h"
 #include "chrome/browser/search_engines/template_url_fetcher.h"
 #include "chrome/browser/search_engines/template_url_model.h"
 #include "chrome/common/chrome_switches.h"
@@ -86,12 +86,12 @@
 //   it is a download.  If so, it sends a message to the new renderer causing
 //   it to cancel the request, and the download proceeds in the download
 //   thread.  For now, we stay in a PENDING state (with a pending RVH) until
-//   the next DidNavigate event for this WebContents.  This isn't ideal, but it
+//   the next DidNavigate event for this TabContents.  This isn't ideal, but it
 //   doesn't affect any functionality.
 // - After RDH receives a response and determines that it is safe and not a
 //   download, it pauses the response to first run the old page's onunload
 //   handler.  It does this by asynchronously calling the OnCrossSiteResponse
-//   method of WebContents on the UI thread, which sends a ClosePage message
+//   method of TabContents on the UI thread, which sends a ClosePage message
 //   to the current RVH.
 // - Once the onunload handler is finished, a ClosePage_ACK message is sent to
 //   the ResourceDispatcherHost, who unpauses the response.  Data is then sent
@@ -167,9 +167,9 @@ BOOL CALLBACK InvalidateWindow(HWND hwnd, LPARAM lparam) {
 }
 #endif
 
-// TODO(brettw) WebContents should be removed, then this hack is unnecessary.
-WebContents* AsWC(TabContents* tc) {
-  return static_cast<WebContents*>(tc);
+// TODO(brettw) TabContents should be removed, then this hack is unnecessary.
+TabContents* AsWC(TabContents* tc) {
+  return static_cast<TabContents*>(tc);
 }
 
 }  // namespace
@@ -197,8 +197,8 @@ class TabContents::GearsCreateShortcutCallbackFunctor {
   TabContents* contents_;
 };
 
-// TODO(brettw) many of the data members here have casts to WebContents.
-// This object is the same as WebContents and is currently being merged.
+// TODO(brettw) many of the data members here have casts to TabContents.
+// This object is the same as TabContents and is currently being merged.
 // When this merge is done, the casts can be removed.
 TabContents::TabContents(Profile* profile,
                          SiteInstance* site_instance,
@@ -206,20 +206,20 @@ TabContents::TabContents(Profile* profile,
                          base::WaitableEvent* modal_dialog_event)
     : delegate_(NULL),
       controller_(this, profile),
-      view_(TabContentsView::Create(static_cast<WebContents*>(this))),
+      view_(TabContentsView::Create(static_cast<TabContents*>(this))),
       ALLOW_THIS_IN_INITIALIZER_LIST(render_manager_(
-          static_cast<WebContents*>(this),
-          static_cast<WebContents*>(this))),
+          static_cast<TabContents*>(this),
+          static_cast<TabContents*>(this))),
       property_bag_(),
       registrar_(),
-      printing_(*static_cast<WebContents*>(this)),
+      printing_(*static_cast<TabContents*>(this)),
       save_package_(),
       cancelable_consumer_(),
       autofill_manager_(),
       password_manager_(),
       plugin_installer_(),
       ALLOW_THIS_IN_INITIALIZER_LIST(fav_icon_helper_(
-          static_cast<WebContents*>(this))),
+          static_cast<TabContents*>(this))),
       select_file_dialog_(),
       pending_install_(),
       is_loading_(false),
@@ -298,7 +298,7 @@ TabContents::~TabContents() {
   view_->OnContentsDestroy();
 
   NotifyDisconnected();
-  HungRendererWarning::HideForWebContents(AsWC(this));
+  HungRendererWarning::HideForTabContents(AsWC(this));
 
   if (pending_install_.callback_functor)
     pending_install_.callback_functor->Cancel();
@@ -396,11 +396,6 @@ void TabContents::RegisterUserPrefs(PrefService* prefs) {
   prefs->RegisterBooleanPref(prefs::kBlockPopups, false);
 }
 
- // TODO(brettw) Remove WebContents.
-WebContents* TabContents::AsWebContents() {
-    return AsWC(this);
-}
-
 bool TabContents::SupportsURL(GURL* url) {
   // TODO(brettw) remove this function.
   return true;
@@ -471,15 +466,11 @@ int32 TabContents::GetMaxPageID() {
 
 void TabContents::UpdateMaxPageID(int32 page_id) {
   // Ensure both the SiteInstance and RenderProcessHost update their max page
-  // IDs in sync. Only WebContents will also have site instances, except during
+  // IDs in sync. Only TabContents will also have site instances, except during
   // testing.
   if (GetSiteInstance())
     GetSiteInstance()->UpdateMaxPageID(page_id);
-
-  if (AsWebContents())
-    AsWebContents()->process()->UpdateMaxPageID(page_id);
-  else
-    max_page_id_ = std::max(max_page_id_, page_id);
+  process()->UpdateMaxPageID(page_id);
 }
 
 SiteInstance* TabContents::GetSiteInstance() const {
@@ -657,7 +648,7 @@ void TabContents::HideContents() {
   // about the order in which these get called.  In addition to making the code
   // here practically impossible to understand, this also means we end up
   // calling TabContents::WasHidden() twice if callers call both versions of
-  // HideContents() on a WebContents.
+  // HideContents() on a TabContents.
   WasHidden();
 }
 
@@ -1488,16 +1479,16 @@ void TabContents::NotifySwapped() {
   // pointer.  See Bug 1230284.
   notify_disconnection_ = true;
   NotificationService::current()->Notify(
-      NotificationType::WEB_CONTENTS_SWAPPED,
-      Source<WebContents>(AsWC(this)),
+      NotificationType::TAB_CONTENTS_SWAPPED,
+      Source<TabContents>(AsWC(this)),
       NotificationService::NoDetails());
 }
 
 void TabContents::NotifyConnected() {
   notify_disconnection_ = true;
   NotificationService::current()->Notify(
-      NotificationType::WEB_CONTENTS_CONNECTED,
-      Source<WebContents>(AsWC(this)),
+      NotificationType::TAB_CONTENTS_CONNECTED,
+      Source<TabContents>(AsWC(this)),
       NotificationService::NoDetails());
 }
 
@@ -1507,8 +1498,8 @@ void TabContents::NotifyDisconnected() {
 
   notify_disconnection_ = false;
   NotificationService::current()->Notify(
-      NotificationType::WEB_CONTENTS_DISCONNECTED,
-      Source<WebContents>(AsWC(this)),
+      NotificationType::TAB_CONTENTS_DISCONNECTED,
+      Source<TabContents>(AsWC(this)),
       NotificationService::NoDetails());
 }
 
@@ -1598,15 +1589,15 @@ Profile* TabContents::GetProfile() const {
   return profile();
 }
 
-WebContents* TabContents::GetAsWebContents() {
-  return AsWC(this);
-}
-
 ExtensionFunctionDispatcher* TabContents::CreateExtensionFunctionDispatcher(
     RenderViewHost* render_view_host,
     const std::string& extension_id) {
   return delegate()->CreateExtensionFunctionDispatcher(render_view_host,
       extension_id);
+}
+
+TabContents* TabContents::GetAsTabContents() {
+  return this;
 }
 
 void TabContents::RenderViewCreated(RenderViewHost* render_view_host) {
@@ -1656,7 +1647,7 @@ void TabContents::RenderViewGone(RenderViewHost* rvh) {
   view_->Invalidate();
 
   // Hide any visible hung renderer warning for this web contents' process.
-  HungRendererWarning::HideForWebContents(AsWC(this));
+  HungRendererWarning::HideForTabContents(AsWC(this));
 }
 
 void TabContents::DidNavigate(RenderViewHost* rvh,
@@ -1959,7 +1950,7 @@ void TabContents::DomOperationResponse(const std::string& json_string,
                                        int automation_id) {
   DomOperationNotificationDetails details(json_string, automation_id);
   NotificationService::current()->Notify(
-      NotificationType::DOM_OPERATION_RESPONSE, Source<WebContents>(AsWC(this)),
+      NotificationType::DOM_OPERATION_RESPONSE, Source<TabContents>(AsWC(this)),
       Details<DomOperationNotificationDetails>(&details));
 }
 
@@ -2157,7 +2148,7 @@ void TabContents::InspectElementReply(int num_resources) {
   // We have received reply from inspect element request. Notify the
   // automation provider in case we need to notify automation client.
   NotificationService::current()->Notify(
-      NotificationType::DOM_INSPECT_ELEMENT_RESPONSE, Source<WebContents>(AsWC(this)),
+      NotificationType::DOM_INSPECT_ELEMENT_RESPONSE, Source<TabContents>(AsWC(this)),
       Details<int>(&num_resources));
 }
 
@@ -2233,7 +2224,7 @@ void TabContents::ShouldClosePage(bool proceed) {
 
 void TabContents::OnCrossSiteResponse(int new_render_process_host_id,
                                       int new_request_id) {
-  // Allows the WebContents to react when a cross-site response is ready to be
+  // Allows the TabContents to react when a cross-site response is ready to be
   // delivered to a pending RenderViewHost.  We must first run the onunload
   // handler of the old RenderViewHost before we can allow it to proceed.
   render_manager_.OnCrossSiteResponse(new_render_process_host_id,
@@ -2269,11 +2260,11 @@ void TabContents::RendererUnresponsive(RenderViewHost* rvh,
   }
 
   if (render_view_host() && render_view_host()->IsRenderViewLive())
-    HungRendererWarning::ShowForWebContents(AsWC(this));
+    HungRendererWarning::ShowForTabContents(AsWC(this));
 }
 
 void TabContents::RendererResponsive(RenderViewHost* render_view_host) {
-  HungRendererWarning::HideForWebContents(AsWC(this));
+  HungRendererWarning::HideForTabContents(AsWC(this));
 }
 
 void TabContents::LoadStateChanged(const GURL& url,

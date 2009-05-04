@@ -2,20 +2,20 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CHROME_BROWSER_TAB_CONTENTS_TEST_WEB_CONTENTS_H_
-#define CHROME_BROWSER_TAB_CONTENTS_TEST_WEB_CONTENTS_H_
+#ifndef CHROME_BROWSER_TAB_CONTENTS_TEST_tab_contents_H_
+#define CHROME_BROWSER_TAB_CONTENTS_TEST_tab_contents_H_
 
-#include "chrome/browser/tab_contents/web_contents.h"
+#include "chrome/browser/tab_contents/tab_contents.h"
 
 class RenderViewHostFactory;
 class TestRenderViewHost;
 
-// Subclass WebContents to ensure it creates TestRenderViewHosts and does
+// Subclass TabContents to ensure it creates TestRenderViewHosts and does
 // not do anything involving views.
-class TestWebContents : public WebContents {
+class TestTabContents : public TabContents {
  public:
   // The render view host factory will be passed on to the
-  TestWebContents(Profile* profile, SiteInstance* instance);
+  TestTabContents(Profile* profile, SiteInstance* instance);
 
   TestRenderViewHost* pending_rvh();
 
@@ -24,7 +24,7 @@ class TestWebContents : public WebContents {
     return render_manager_.cross_navigation_pending_;
   }
 
-  // Overrides WebContents::ShouldTransitionCrossSite so that we can test both
+  // Overrides TabContents::ShouldTransitionCrossSite so that we can test both
   // alternatives without using command-line switches.
   bool ShouldTransitionCrossSite() { return transition_cross_site; }
 
@@ -51,4 +51,4 @@ class TestWebContents : public WebContents {
   bool transition_cross_site;
 };
 
-#endif  // CHROME_BROWSER_TAB_CONTENTS_TEST_WEB_CONTENTS_H_
+#endif  // CHROME_BROWSER_TAB_CONTENTS_TEST_tab_contents_H_

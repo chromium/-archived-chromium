@@ -10,7 +10,7 @@
 #include "chrome/common/notification_observer.h"
 
 class FindBar;
-class WebContents;
+class TabContents;
 
 class FindBarController : public NotificationObserver {
  public:
@@ -25,12 +25,12 @@ class FindBarController : public NotificationObserver {
   // Ends the current session.
   void EndFindSession();
 
-  // Accessor for the attached WebContents.
-  WebContents* web_contents() const { return web_contents_; }
+  // Accessor for the attached TabContents.
+  TabContents* tab_contents() const { return tab_contents_; }
 
-  // Changes the WebContents that this FindBar is attached to. This occurs when
+  // Changes the TabContents that this FindBar is attached to. This occurs when
   // the user switches tabs in the Browser window. |contents| can be NULL.
-  void ChangeWebContents(WebContents* contents);
+  void ChangeTabContents(TabContents* contents);
 
   // Overridden from NotificationObserver:
   virtual void Observe(NotificationType type,
@@ -42,8 +42,8 @@ class FindBarController : public NotificationObserver {
  private:
   scoped_ptr<FindBar> find_bar_;
 
-  // The WebContents we are currently associated with.  Can be NULL.
-  WebContents* web_contents_;
+  // The TabContents we are currently associated with.  Can be NULL.
+  TabContents* tab_contents_;
 
   DISALLOW_COPY_AND_ASSIGN(FindBarController);
 };

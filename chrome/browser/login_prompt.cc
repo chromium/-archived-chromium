@@ -14,7 +14,7 @@
 #include "chrome/browser/tab_contents/constrained_window.h"
 #include "chrome/browser/tab_contents/navigation_controller.h"
 #include "chrome/browser/tab_contents/tab_util.h"
-#include "chrome/browser/tab_contents/web_contents.h"
+#include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/browser/views/login_view.h"
 #include "chrome/common/chrome_switches.h"
 #include "chrome/common/l10n_util.h"
@@ -107,11 +107,11 @@ class LoginHandlerImpl : public LoginHandler,
     SendNotifications();
   }
 
-  // Returns the WebContents that needs authentication.
-  WebContents* GetWebContentsForLogin() {
+  // Returns the TabContents that needs authentication.
+  TabContents* GetTabContentsForLogin() {
     DCHECK(MessageLoop::current() == ui_loop_);
 
-    return tab_util::GetWebContentsByID(render_process_host_id_,
+    return tab_util::GetTabContentsByID(render_process_host_id_,
                                         tab_contents_id_);
   }
 
@@ -263,7 +263,7 @@ class LoginHandlerImpl : public LoginHandler,
     DCHECK(MessageLoop::current() == ui_loop_);
 
     NotificationService* service = NotificationService::current();
-    WebContents* requesting_contents = GetWebContentsForLogin();
+    TabContents* requesting_contents = GetTabContentsForLogin();
     if (!requesting_contents)
       return;
 
@@ -309,7 +309,7 @@ class LoginHandlerImpl : public LoginHandler,
   PasswordForm password_form_;
 
   // Points to the password manager owned by the TabContents requesting auth.
-  // Can be null if the TabContents is not a WebContents.
+  // Can be null if the TabContents is not a TabContents.
   // This should only be accessed on the ui_loop_.
   PasswordManager* password_manager_;
 
@@ -336,7 +336,7 @@ class LoginDialogTask : public Task {
   }
 
   void Run() {
-    WebContents* parent_contents = handler_->GetWebContentsForLogin();
+    TabContents* parent_contents = handler_->GetTabContentsForLogin();
     if (!parent_contents) {
       // The request was probably cancelled.
       return;
@@ -352,7 +352,7 @@ class LoginDialogTask : public Task {
 
     // Tell the password manager to look for saved passwords.
     PasswordManager* password_manager =
-        parent_contents->AsWebContents()->GetPasswordManager();
+        parent_contents->GetPasswordManager();
     // Set the model for the login view. The model (password manager) is owned
     // by the view's parent TabContents, so natural destruction order means we
     // don't have to worry about calling SetModel(NULL), because the view will

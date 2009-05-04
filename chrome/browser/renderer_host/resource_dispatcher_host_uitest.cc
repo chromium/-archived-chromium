@@ -291,7 +291,7 @@ TEST_F(ResourceDispatcherTest, CrossSiteNavigationErrorPage) {
   // Check that renderer-initiated navigations still work.  In a previous bug,
   // the ResourceDispatcherHost would think that such navigations were
   // cross-site, because we didn't clean up from the previous request.  Since
-  // WebContents was in the NORMAL state, it would ignore the attempt to run
+  // TabContents was in the NORMAL state, it would ignore the attempt to run
   // the onunload handler, and the navigation would fail.
   // (Test by redirecting to javascript:window.location='someURL'.)
   GURL test_url(server->TestServerPageW(L"files/title2.html"));

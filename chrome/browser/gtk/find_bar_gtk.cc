@@ -14,7 +14,7 @@
 #include "chrome/browser/gtk/nine_box.h"
 #include "chrome/browser/gtk/slide_animator_gtk.h"
 #include "chrome/browser/gtk/tab_contents_container_gtk.h"
-#include "chrome/browser/tab_contents/web_contents.h"
+#include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/common/gtk_util.h"
 #include "chrome/common/l10n_util.h"
 #include "grit/generated_resources.h"
@@ -117,7 +117,7 @@ void FindBarGtk::InitWidgets() {
                                            0, false, NULL));
 
   // |fixed_| has to be at least one pixel tall. We color this pixel the same
-  // color as the border that separates the toolbar from the web contents.
+  // color as the border that separates the toolbar from the tab contents.
   fixed_.Own(gtk_fixed_new());
   border_ = gtk_event_box_new();
   gtk_widget_set_size_request(border_, 1, 1);
@@ -249,17 +249,17 @@ void FindBarGtk::AssureOnTop() {
 }
 
 void FindBarGtk::ContentsChanged() {
-  WebContents* web_contents = find_bar_controller_->web_contents();
-  if (!web_contents)
+  TabContents* tab_contents = find_bar_controller_->tab_contents();
+  if (!tab_contents)
     return;
 
   std::string new_contents(gtk_entry_get_text(GTK_ENTRY(find_text_)));
 
   if (new_contents.length() > 0) {
-    web_contents->StartFinding(UTF8ToUTF16(new_contents), true);
+    tab_contents->StartFinding(UTF8ToUTF16(new_contents), true);
   } else {
     // The textbox is empty so we reset.
-    web_contents->StopFinding(true);  // true = clear selection on page.
+    tab_contents->StopFinding(true);  // true = clear selection on page.
   }
 }
 
@@ -275,7 +275,7 @@ void FindBarGtk::OnButtonPressed(GtkWidget* button, FindBarGtk* find_bar) {
              button == find_bar->find_next_button_->widget()) {
     std::string find_text_utf8(
         gtk_entry_get_text(GTK_ENTRY(find_bar->find_text_)));
-    find_bar->find_bar_controller_->web_contents()->StartFinding(
+    find_bar->find_bar_controller_->tab_contents()->StartFinding(
         UTF8ToUTF16(find_text_utf8),
         button == find_bar->find_next_button_->widget());
   } else {

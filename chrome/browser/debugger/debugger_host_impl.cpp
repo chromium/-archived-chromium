@@ -10,7 +10,7 @@
 #include "chrome/browser/debugger/debugger_io.h"
 #include "chrome/browser/debugger/debugger_wrapper.h"
 #include "chrome/browser/renderer_host/render_view_host.h"
-#include "chrome/browser/tab_contents/web_contents.h"
+#include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/common/notification_service.h"
 
 class TabContentsReference : public NotificationObserver {
@@ -134,12 +134,7 @@ void DebuggerHostImpl::OnDebuggerHostMsg(const ListValue* args) {
     NOTREACHED();
     return;
   }
-  const WebContents* web = t->AsWebContents();
-  if (web == NULL) {
-    NOTREACHED();
-    return;
-  }
-  RenderViewHost* host = web->render_view_host();
+  RenderViewHost* host = t->render_view_host();
 
   if (methodName == L"attach") {
     host->DebugAttach();

@@ -8,11 +8,11 @@
 
 #include "chrome/browser/renderer_host/render_view_host.h"
 #include "chrome/browser/tab_contents/tab_util.h"
-#include "chrome/browser/tab_contents/web_contents.h"
+#include "chrome/browser/tab_contents/tab_contents.h"
 
 namespace {
-// Task to notify the WebContents that a cross-site response has begun, so that
-// WebContents can tell the old page to run its onunload handler.
+// Task to notify the TabContents that a cross-site response has begun, so that
+// TabContents can tell the old page to run its onunload handler.
 class CrossSiteNotifyTabTask : public Task {
  public:
   CrossSiteNotifyTabTask(int render_process_host_id,
@@ -48,10 +48,10 @@ class CancelPendingRenderViewTask : public Task {
       render_view_id_(render_view_id) {}
 
   void Run() {
-    WebContents* web_contents =
-        tab_util::GetWebContentsByID(render_process_host_id_, render_view_id_);
-    if (web_contents)
-      web_contents->CrossSiteNavigationCanceled();
+    TabContents* tab_contents =
+        tab_util::GetTabContentsByID(render_process_host_id_, render_view_id_);
+    if (tab_contents)
+      tab_contents->CrossSiteNavigationCanceled();
   }
 
  private:
@@ -174,7 +174,7 @@ bool CrossSiteResourceHandler::OnResponseCompleted(
 }
 
 // We can now send the response to the new renderer, which will cause
-// WebContents to swap in the new renderer and destroy the old one.
+// TabContents to swap in the new renderer and destroy the old one.
 void CrossSiteResourceHandler::ResumeResponse() {
   DCHECK(request_id_ != -1);
   DCHECK(in_cross_site_transition_);

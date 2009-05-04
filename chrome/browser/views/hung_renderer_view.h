@@ -11,12 +11,12 @@ class HungRendererWarningView;
 namespace views {
 class Window;
 }
-class WebContents;
+class TabContents;
 
 class HungRendererWarning {
  public:
-  static void ShowForWebContents(WebContents* contents);
-  static void HideForWebContents(WebContents* contents);
+  static void ShowForTabContents(TabContents* contents);
+  static void HideForTabContents(TabContents* contents);
 
  private:
   friend HungRendererWarningView;

@@ -14,7 +14,7 @@
 #include "chrome/browser/profile.h"
 #include "chrome/browser/renderer_host/resource_dispatcher_host.h"
 #include "chrome/browser/tab_contents/tab_util.h"
-#include "chrome/browser/tab_contents/web_contents.h"
+#include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/common/chrome_paths.h"
 #include "chrome/common/platform_util.h"
 #include "chrome/common/stl_util-inl.h"
@@ -363,7 +363,7 @@ void DownloadFileManager::UpdateInProgressDownloads() {
 
 // Notifications sent from the download thread and run on the UI thread.
 
-// Lookup the DownloadManager for this WebContents' profile and inform it of
+// Lookup the DownloadManager for this TabContents' profile and inform it of
 // a new download.
 // TODO(paulg): When implementing download restart via the Downloads tab,
 //              there will be no 'render_process_id' or 'render_view_id'.
@@ -471,7 +471,7 @@ void DownloadFileManager::RemoveDownload(int id, DownloadManager* manager) {
 // static
 DownloadManager* DownloadFileManager::DownloadManagerFromRenderIds(
     int render_process_id, int render_view_id) {
-  WebContents* contents = tab_util::GetWebContentsByID(render_process_id,
+  TabContents* contents = tab_util::GetTabContentsByID(render_process_id,
                                                        render_view_id);
   if (contents) {
     Profile* profile = contents->profile();

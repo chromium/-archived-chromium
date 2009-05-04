@@ -143,8 +143,8 @@ class HistoryService : public CancelableRequestProvider,
   // IDs are only unique inside a given render process, so we need that to
   // differentiate them. This pointer should not be dereferenced by the history
   // system. Since render view host pointers may be reused (if one gets deleted
-  // and a new one created at the same address), WebContents should notify
-  // us when they are being destroyed through NotifyWebContentsDestruction.
+  // and a new one created at the same address), TabContents should notify
+  // us when they are being destroyed through NotifyTabContentsDestruction.
   //
   // The scope/ids can be NULL if there is no meaningful tracking information
   // that can be performed on the given URL. The 'page_id' should be the ID of

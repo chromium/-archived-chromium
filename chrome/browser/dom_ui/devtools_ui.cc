@@ -8,7 +8,7 @@
 #include "chrome/common/render_messages.h"
 #include "chrome/common/url_constants.h"
 
-DevToolsUI::DevToolsUI(WebContents* contents) : DOMUI(contents) {
+DevToolsUI::DevToolsUI(TabContents* contents) : DOMUI(contents) {
 }
 
 void DevToolsUI::RenderViewCreated(RenderViewHost* render_view_host) {

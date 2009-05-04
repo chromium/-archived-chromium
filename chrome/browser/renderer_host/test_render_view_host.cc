@@ -79,16 +79,16 @@ void RenderViewHostTestHarness::SetUp() {
   if (!profile_.get())
     profile_.reset(new TestingProfile());
 
-  // This will be deleted when the WebContents goes away.
+  // This will be deleted when the TabContents goes away.
   SiteInstance* instance = SiteInstance::CreateSiteInstance(profile_.get());
 
-  contents_.reset(new TestWebContents(profile_.get(), instance));
+  contents_.reset(new TestTabContents(profile_.get(), instance));
 }
 
 void RenderViewHostTestHarness::TearDown() {
   contents_.reset();
 
-  // Make sure that we flush any messages related to WebContents destruction
+  // Make sure that we flush any messages related to TabContents destruction
   // before we destroy the profile.
   MessageLoop::current()->RunAllPending();
 }

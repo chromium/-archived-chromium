@@ -362,7 +362,7 @@ void BrowsingHistoryHandler::Observe(NotificationType type,
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-HistoryUI::HistoryUI(WebContents* contents) : DOMUI(contents) {
+HistoryUI::HistoryUI(TabContents* contents) : DOMUI(contents) {
   AddMessageHandler(new BrowsingHistoryHandler(this));
 
   HistoryUIHTMLSource* html_source = new HistoryUIHTMLSource();

@@ -10,9 +10,8 @@
 #include "chrome/browser/cert_store.h"
 #include "chrome/browser/renderer_host/render_view_host.h"
 #include "chrome/browser/ssl/ssl_error_info.h"
-#include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/browser/tab_contents/navigation_entry.h"
-#include "chrome/browser/tab_contents/web_contents.h"
+#include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/common/jstemplate_builder.h"
 #include "chrome/common/l10n_util.h"
 #include "chrome/common/notification_service.h"
@@ -125,7 +124,7 @@ static void ShowErrorPage(SSLPolicy* policy, SSLManager::CertError* error) {
   std::string html_text(jstemplate_builder::GetTemplateHtml(html, &strings,
                                                             "template_root"));
 
-  WebContents* tab  = error->GetWebContents();
+  TabContents* tab  = error->GetTabContents();
   int cert_id = CertStore::GetSharedInstance()->StoreCert(
       error->ssl_info().cert, tab->render_view_host()->process()->pid());
   std::string security_info =
@@ -217,7 +216,7 @@ void SSLPolicy::OnCertError(SSLManager::CertError* error) {
 
 void SSLPolicy::OnMixedContent(SSLManager::MixedContentHandler* handler) {
   // Get the user's mixed content preference.
-  PrefService* prefs = handler->GetWebContents()->profile()->GetPrefs();
+  PrefService* prefs = handler->GetTabContents()->profile()->GetPrefs();
   FilterPolicy::Type filter_policy =
       FilterPolicy::FromInt(prefs->GetInteger(prefs::kMixedContentFiltering));
 

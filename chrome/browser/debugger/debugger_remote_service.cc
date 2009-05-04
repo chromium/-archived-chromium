@@ -13,7 +13,7 @@
 #include "chrome/browser/debugger/devtools_protocol_handler.h"
 #include "chrome/browser/debugger/devtools_remote_message.h"
 #include "chrome/browser/debugger/inspectable_tab_proxy.h"
-#include "chrome/browser/tab_contents/web_contents.h"
+#include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/common/devtools_messages.h"
 #include "chrome/common/render_messages.h"
 
@@ -83,10 +83,10 @@ void DebuggerRemoteService::HandleMessage(
       if (manager == NULL) {
         response.SetInteger(kResultWide, Result::kDebuggerError);
       }
-      WebContents* web_contents = ToWebContents(tab_uid);
-      if (web_contents != NULL) {
+      TabContents* tab_contents = ToTabContents(tab_uid);
+      if (tab_contents != NULL) {
         DevToolsClientHost* client_host =
-            manager->GetDevToolsClientHostFor(*web_contents);
+            manager->GetDevToolsClientHostFor(*tab_contents);
         if (client_host != NULL) {
           std::string v8_command;
           DictionaryValue* v8_command_value;
@@ -111,9 +111,9 @@ void DebuggerRemoteService::HandleMessage(
     }
   } else if (command == DebuggerRemoteServiceCommand::kEvaluateJavascript) {
     if (tab_uid != -1) {
-      WebContents* web_contents = ToWebContents(tab_uid);
-      if (web_contents != NULL) {
-        RenderViewHost* rvh = web_contents->render_view_host();
+      TabContents* tab_contents = ToTabContents(tab_uid);
+      if (tab_contents != NULL) {
+        RenderViewHost* rvh = tab_contents->render_view_host();
         if (rvh != NULL) {
           std::wstring javascript;
           content->GetString(kDataWide, &javascript);
@@ -156,7 +156,7 @@ void DebuggerRemoteService::SendResponse(const Value& response,
   delegate_->Send(*response_message.get());
 }
 
-WebContents* DebuggerRemoteService::ToWebContents(int32 tab_uid) {
+TabContents* DebuggerRemoteService::ToTabContents(int32 tab_uid) {
   const InspectableTabProxy::ControllersMap& navcon_map =
       delegate_->inspectable_tab_proxy()->controllers_map();
   InspectableTabProxy::ControllersMap::const_iterator it =
@@ -166,7 +166,7 @@ WebContents* DebuggerRemoteService::ToWebContents(int32 tab_uid) {
     if (tab_contents == NULL) {
       return NULL;
     } else {
-      return tab_contents->AsWebContents();
+      return tab_contents;
     }
   } else {
     return NULL;
@@ -207,19 +207,19 @@ void DebuggerRemoteService::AttachTab(const std::string& destination,
     response->SetInteger(kResultWide, Result::kUnknownTab);
     return;
   }
-  WebContents* web_contents = ToWebContents(tab_uid);
-  if (web_contents == NULL) {
+  TabContents* tab_contents = ToTabContents(tab_uid);
+  if (tab_contents == NULL) {
     // No active web contents with tab_uid
     response->SetInteger(kResultWide, Result::kUnknownTab);
     return;
   }
   if (g_browser_process->devtools_manager()->GetDevToolsClientHostFor(
-      *web_contents) == NULL) {
+      *tab_contents) == NULL) {
     DevToolsClientHost* client_host =
         delegate_->inspectable_tab_proxy()->NewClientHost(tab_uid, this);
     DevToolsManager* manager = g_browser_process->devtools_manager();
     if (manager != NULL) {
-      manager->RegisterDevToolsClientHostFor(*web_contents, client_host);
+      manager->RegisterDevToolsClientHostFor(*tab_contents, client_host);
       manager->ForwardToDevToolsAgent(*client_host, DevToolsAgentMsg_Attach());
       response->SetInteger(kResultWide, Result::kOk);
     } else {
@@ -243,15 +243,15 @@ void DebuggerRemoteService::DetachTab(const std::string& destination,
     }
     return;
   }
-  WebContents* web_contents = ToWebContents(tab_uid);
-  if (web_contents == NULL) {
+  TabContents* tab_contents = ToTabContents(tab_uid);
+  if (tab_contents == NULL) {
     // Unknown tab
     resultCode = Result::kUnknownTab;
   } else {
     DevToolsManager* manager = g_browser_process->devtools_manager();
     if (manager != NULL) {
       DevToolsClientHost* client_host =
-          manager->GetDevToolsClientHostFor(*web_contents);
+          manager->GetDevToolsClientHostFor(*tab_contents);
       if (client_host != NULL) {
         manager->ForwardToDevToolsAgent(
             *client_host, DevToolsAgentMsg_Detach());

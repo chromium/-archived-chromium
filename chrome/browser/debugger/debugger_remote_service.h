@@ -16,7 +16,7 @@ class DevToolsProtocolHandler;
 class DevToolsRemoteMessage;
 class DictionaryValue;
 class Value;
-class WebContents;
+class TabContents;
 
 // Contains constants for DebuggerRemoteService tool protocol commands
 // (only V8-related).
@@ -63,7 +63,7 @@ class DebuggerRemoteService : public DevToolsRemoteListener {
 
   void AttachTab(const std::string& destination,
                  DictionaryValue* response);
-  WebContents* ToWebContents(int32 tab_uid);
+  TabContents* ToTabContents(int32 tab_uid);
   void SendResponse(const Value& response,
                     const std::string& tool,
                     const std::string& destination);

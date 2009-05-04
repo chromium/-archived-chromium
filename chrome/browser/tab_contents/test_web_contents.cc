@@ -6,12 +6,12 @@
 
 #include "chrome/browser/renderer_host/test_render_view_host.h"
 
-TestWebContents::TestWebContents(Profile* profile, SiteInstance* instance)
-    : WebContents(profile, instance, MSG_ROUTING_NONE, NULL),
+TestTabContents::TestTabContents(Profile* profile, SiteInstance* instance)
+    : TabContents(profile, instance, MSG_ROUTING_NONE, NULL),
       transition_cross_site(false) {
 }
 
-TestRenderViewHost* TestWebContents::pending_rvh() {
+TestRenderViewHost* TestTabContents::pending_rvh() {
   return static_cast<TestRenderViewHost*>(
       render_manager_.pending_render_view_host_);
 }

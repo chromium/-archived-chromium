@@ -63,7 +63,7 @@ class PrefService;
 class Profile;
 class ResourceDispatcherHost;
 class URLRequestContext;
-class WebContents;
+class TabContents;
 
 namespace base {
 class Thread;
@@ -357,7 +357,7 @@ class DownloadManager : public base::RefCountedThreadSafe<DownloadManager>,
   void DownloadUrl(const GURL& url,
                    const GURL& referrer,
                    const std::string& referrer_encoding,
-                   WebContents* web_contents);
+                   TabContents* tab_contents);
 
   // Allow objects to observe the download creation process.
   void AddObserver(Observer* observer);

@@ -19,7 +19,7 @@
 #include "chrome/browser/safe_browsing/safe_browsing_database.h"
 #include "chrome/browser/tab_contents/navigation_entry.h"
 #include "chrome/browser/tab_contents/tab_util.h"
-#include "chrome/browser/tab_contents/web_contents.h"
+#include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/common/chrome_constants.h"
 #include "chrome/common/chrome_paths.h"
 #include "chrome/common/pref_names.h"
@@ -256,8 +256,8 @@ void SafeBrowsingService::DisplayBlockingPage(const GURL& url,
 void SafeBrowsingService::DoDisplayBlockingPage(
     const UnsafeResource& resource) {
   // The tab might have been closed.
-  WebContents* wc =
-      tab_util::GetWebContentsByID(resource.render_process_host_id,
+  TabContents* wc =
+      tab_util::GetTabContentsByID(resource.render_process_host_id,
                                    resource.render_view_id);
 
   if (!wc) {

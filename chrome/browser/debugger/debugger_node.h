@@ -23,7 +23,7 @@ class Browser;
 class TabContents;
 class DebuggerShell;
 class NotificationService;
-class WebContents;
+class TabContents;
 
 class DebuggerNode : public NotificationObserver {
  public:
@@ -201,13 +201,13 @@ class TabNode : public DebuggerNode {
  private:
 
   static v8::Handle<v8::Value> SendToDebugger(const v8::Arguments& args,
-                                              WebContents* data);
+                                              TabContents* data);
   static v8::Handle<v8::Value> Attach(const v8::Arguments& args,
-                                      WebContents* data);
+                                      TabContents* data);
   static v8::Handle<v8::Value> Detach(const v8::Arguments& args,
-                                      WebContents* data);
+                                      TabContents* data);
   static v8::Handle<v8::Value> Break(const v8::Arguments& args,
-                                     WebContents* data);
+                                     TabContents* data);
 
   virtual ~TabNode();
   TabContents* GetTab();

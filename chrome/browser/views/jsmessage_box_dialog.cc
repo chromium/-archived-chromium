@@ -5,7 +5,7 @@
 #include "chrome/browser/views/jsmessage_box_dialog.h"
 
 #include "chrome/browser/app_modal_dialog.h"
-#include "chrome/browser/tab_contents/web_contents.h"
+#include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/common/l10n_util.h"
 #include "chrome/common/message_box_flags.h"
 #include "chrome/views/controls/message_box_view.h"
@@ -36,7 +36,7 @@ JavascriptMessageBoxDialog::~JavascriptMessageBoxDialog() {
 }
 
 void JavascriptMessageBoxDialog::ShowModalDialog() {
-  HWND root_hwnd = GetAncestor(web_contents()->GetNativeView(),
+  HWND root_hwnd = GetAncestor(tab_contents()->GetNativeView(),
                                GA_ROOT);
   dialog_ = views::Window::CreateChromeWindow(root_hwnd, gfx::Rect(), this);
   dialog_->Show();

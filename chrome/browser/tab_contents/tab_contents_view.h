@@ -19,7 +19,7 @@ class Browser;
 class RenderViewHost;
 class RenderWidgetHost;
 class RenderWidgetHostView;
-class WebContents;
+class TabContents;
 class WebKeyboardEvent;
 
 namespace base {
@@ -27,7 +27,7 @@ class WaitableEvent;
 }
 
 // The TabContentsView is an interface that is implemented by the platform-
-// dependent web contents views. The WebContents uses this interface to talk to
+// dependent web contents views. The TabContents uses this interface to talk to
 // them. View-related messages will also get forwarded directly to this class
 // from RenderViewHost via RenderViewHostDelegate::View.
 //
@@ -35,21 +35,21 @@ class WaitableEvent;
 // that should be the same for all platforms.
 class TabContentsView : public RenderViewHostDelegate::View {
  public:
-  explicit TabContentsView(WebContents* web_contents);
+  explicit TabContentsView(TabContents* tab_contents);
   virtual ~TabContentsView() {}
 
   // Creates the appropriate type of TabContentsView for the current system.
   // The return value is a new heap allocated view with ownership passing to
   // the caller.
-  static TabContentsView* Create(WebContents* web_contents);
+  static TabContentsView* Create(TabContents* tab_contents);
 
-  WebContents* web_contents() const { return web_contents_; }
+  TabContents* tab_contents() const { return tab_contents_; }
 
   virtual void CreateView() = 0;
 
   // Sets up the View that holds the rendered web page, receives messages for
   // it and contains page plugins. The host view should be sized to the current
-  // size of the WebContents.
+  // size of the TabContents.
   virtual RenderWidgetHostView* CreateViewForWidget(
       RenderWidgetHost* render_widget_host) = 0;
 
@@ -77,11 +77,11 @@ class TabContentsView : public RenderViewHostDelegate::View {
     return gfx::Size(rc.width(), rc.height());
   }
 
-  // Called when the WebContents is being destroyed. This should clean up child
+  // Called when the TabContents is being destroyed. This should clean up child
   // windows that are part of the view.
   //
   // TODO(brettw) It seems like this might be able to be done internally as the
-  // window is being torn down without input from the WebContents. Try to
+  // window is being torn down without input from the TabContents. Try to
   // implement functions that way rather than adding stuff here.
   virtual void OnContentsDestroy() = 0;
 
@@ -157,12 +157,12 @@ class TabContentsView : public RenderViewHostDelegate::View {
                                  bool user_gesture);
   virtual void ShowCreatedWidget(int route_id, const gfx::Rect& initial_pos);
 
-  // The WebContents whose contents we display.
-  WebContents* web_contents_;
+  // The TabContents whose contents we display.
+  TabContents* tab_contents_;
 
-  // Tracks created WebContents objects that have not been shown yet. They are
+  // Tracks created TabContents objects that have not been shown yet. They are
   // identified by the route ID passed to CreateNewWindow.
-  typedef std::map<int, WebContents*> PendingContents;
+  typedef std::map<int, TabContents*> PendingContents;
   PendingContents pending_contents_;
 
   // These maps hold on to the widgets that we created on behalf of the

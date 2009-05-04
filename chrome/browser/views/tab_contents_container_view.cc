@@ -11,7 +11,7 @@
 #include "chrome/browser/renderer_host/render_widget_host_view.h"
 #include "chrome/browser/tab_contents/render_view_host_manager.h"
 #include "chrome/browser/tab_contents/tab_contents.h"
-#include "chrome/browser/tab_contents/web_contents.h"
+#include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/browser/view_ids.h"
 #include "chrome/common/notification_service.h"
 #include "chrome/views/widget/root_view.h"
@@ -70,7 +70,7 @@ void TabContentsContainerView::SetTabContents(TabContents* tab_contents) {
 
   // We need to register the tab contents window with the BrowserContainer so
   // that the BrowserContainer is the focused view when the focus is on the
-  // TabContents window (for the WebContents case).
+  // TabContents window (for the TabContents case).
   SetAssociatedFocusView(this);
 
   Attach(tab_contents->GetNativeView());
@@ -128,9 +128,9 @@ void TabContentsContainerView::Focus() {
 void TabContentsContainerView::RequestFocus() {
   // This is a hack to circumvent the fact that a view does not explicitly get
   // a call to set the focus if it already has the focus. This causes a problem
-  // with tabs such as the WebContents that instruct the RenderView that it got
-  // focus when they actually get the focus. When switching from one WebContents
-  // tab that has focus to another WebContents tab that had focus, since the
+  // with tabs such as the TabContents that instruct the RenderView that it got
+  // focus when they actually get the focus. When switching from one TabContents
+  // tab that has focus to another TabContents tab that had focus, since the
   // TabContentsContainerView already has focus, Focus() would not be called and
   // the RenderView would not get notified it got focused.
   // By clearing the focused view before-hand, we ensure Focus() will be called.
@@ -148,12 +148,11 @@ bool TabContentsContainerView::GetAccessibleRole(
 
 bool TabContentsContainerView::ShouldLookupAccelerators(
     const views::KeyEvent& e) {
-  // Don't look-up accelerators if we are showing a non-crashed WebContents.
+  // Don't look-up accelerators if we are showing a non-crashed TabContents.
   // We'll first give the page a chance to process the key events.  If it does
   // not process them, they'll be returned to us and we'll treat them as
   // accelerators then.
-  if (tab_contents_ && !tab_contents_->is_crashed() &&
-      tab_contents_->AsWebContents())
+  if (tab_contents_ && !tab_contents_->is_crashed())
     return false;
   return true;
 }
@@ -174,7 +173,7 @@ void TabContentsContainerView::Observe(NotificationType type,
 }
 
 void TabContentsContainerView::AddObservers() {
-  // WebContents can change their RenderViewHost and hence the HWND that is
+  // TabContents can change their RenderViewHost and hence the HWND that is
   // shown and getting focused.  We need to keep track of that so we install
   // the focus subclass on the shown HWND so we intercept focus change events.
   registrar_.Add(this,

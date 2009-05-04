@@ -30,7 +30,7 @@
 #include "chrome/browser/gtk/toolbar_star_toggle_gtk.h"
 #include "chrome/browser/location_bar.h"
 #include "chrome/browser/renderer_host/render_widget_host_view_gtk.h"
-#include "chrome/browser/tab_contents/web_contents.h"
+#include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/browser/tab_contents/tab_contents_view.h"
 #include "chrome/common/chrome_switches.h"
 #include "chrome/common/notification_service.h"
@@ -574,10 +574,8 @@ void BrowserWindowGtk::TabSelectedAt(TabContents* old_contents,
   new_contents->DidBecomeSelected();
   // TODO(estade): after we manage browser activation, add a check to make sure
   // we are the active browser before calling RestoreFocus().
-  if (!browser_->tabstrip_model()->closing_all() &&
-      new_contents->AsWebContents()) {
-    new_contents->AsWebContents()->view()->RestoreFocus();
-  }
+  if (!browser_->tabstrip_model()->closing_all())
+    new_contents->view()->RestoreFocus();
 
   // Update all the UI bits.
   UpdateTitleBar();

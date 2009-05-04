@@ -23,10 +23,10 @@
 #include "chrome/common/temp_scaffolding_stubs.h"
 #endif
 
-class TestWebContents;
+class TestTabContents;
 
 // This file provides a testing framework for mocking out the RenderProcessHost
-// layer. It allows you to test RenderViewHost, WebContents,
+// layer. It allows you to test RenderViewHost, TabContents,
 // NavigationController, and other layers above that without running an actual
 // renderer process.
 //
@@ -87,8 +87,8 @@ class TestRenderWidgetHostView : public RenderWidgetHostView {
 
 // TestRenderViewHost ----------------------------------------------------------
 
-// TODO(brettw) this should use a TestWebContents which should be generalized
-// from the WebContents test. We will probably also need that class' version of
+// TODO(brettw) this should use a TestTabContents which should be generalized
+// from the TabContents test. We will probably also need that class' version of
 // CreateRenderViewForRenderManager when more complicate tests start using this.
 class TestRenderViewHost : public RenderViewHost {
  public:
@@ -193,7 +193,7 @@ class RenderViewHostTestHarness : public testing::Test {
     return contents_->controller();
   }
 
-  TestWebContents* contents() {
+  TestTabContents* contents() {
     return contents_.get();
   }
 
@@ -234,7 +234,7 @@ class RenderViewHostTestHarness : public testing::Test {
   MockRenderProcessHostFactory rph_factory_;
   TestRenderViewHostFactory rvh_factory_;
 
-  scoped_ptr<TestWebContents> contents_;
+  scoped_ptr<TestTabContents> contents_;
 
   DISALLOW_COPY_AND_ASSIGN(RenderViewHostTestHarness);
 };

@@ -215,23 +215,23 @@ class NotificationType {
     TAB_CLOSED,
 
     // This notification is sent when a render view host has connected to a
-    // renderer process. The source is a Source<WebContents> with a pointer to
-    // the WebContents.  A WEB_CONTENTS_DISCONNECTED notification is
+    // renderer process. The source is a Source<TabContents> with a pointer to
+    // the TabContents.  A TAB_CONTENTS_DISCONNECTED notification is
     // guaranteed before the source pointer becomes junk.  No details are
     // expected.
-    WEB_CONTENTS_CONNECTED,
+    TAB_CONTENTS_CONNECTED,
 
-    // This notification is sent when a WebContents swaps its render view host
+    // This notification is sent when a TabContents swaps its render view host
     // with another one, possibly changing processes. The source is a
-    // Source<WebContents> with a pointer to the WebContents.  A
-    // WEB_CONTENTS_DISCONNECTED notification is guaranteed before the
+    // Source<TabContents> with a pointer to the TabContents.  A
+    // TAB_CONTENTS_DISCONNECTED notification is guaranteed before the
     // source pointer becomes junk.  No details are expected.
-    WEB_CONTENTS_SWAPPED,
+    TAB_CONTENTS_SWAPPED,
 
-    // This message is sent after a WebContents is disconnected from the
-    // renderer process.  The source is a Source<WebContents> with a pointer to
-    // the WebContents (the pointer is usable).  No details are expected.
-    WEB_CONTENTS_DISCONNECTED,
+    // This message is sent after a TabContents is disconnected from the
+    // renderer process.  The source is a Source<TabContents> with a pointer to
+    // the TabContents (the pointer is usable).  No details are expected.
+    TAB_CONTENTS_DISCONNECTED,
 
     // This message is sent when a new InfoBar has been added to a TabContents.
     // The source is a Source<TabContents> with a pointer to the TabContents
@@ -300,7 +300,7 @@ class NotificationType {
     RENDERER_PROCESS_IN_SBOX,
 
     // This is sent to notify that the RenderViewHost displayed in a
-    // WebContents has changed.  Source is the WebContents for which the change
+    // TabContents has changed.  Source is the TabContents for which the change
     // happened, details is the previous RenderViewHost (can be NULL when the
     // first RenderViewHost is set).
     RENDER_VIEW_HOST_CHANGED,
@@ -309,11 +309,11 @@ class NotificationType {
     // the RenderWidgetHost, the details are not used.
     RENDER_WIDGET_HOST_DESTROYED,
 
-    // Notification from WebContents that we have received a response from the
+    // Notification from TabContents that we have received a response from the
     // renderer after using the dom inspector.
     DOM_INSPECT_ELEMENT_RESPONSE,
 
-    // Notification from WebContents that we have received a response from the
+    // Notification from TabContents that we have received a response from the
     // renderer in response to a dom automation controller action.
     DOM_OPERATION_RESPONSE,
 
@@ -323,7 +323,7 @@ class NotificationType {
 
     // This notification is sent when the result of a find-in-page search is
     // available with the browser process. The source is a Source<TabContents>
-    // with a pointer to the WebContents. Details encompass a
+    // with a pointer to the TabContents. Details encompass a
     // FindNotificationDetail object that tells whether the match was found or
     // not found.
     FIND_RESULT_AVAILABLE,

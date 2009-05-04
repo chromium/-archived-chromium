@@ -16,7 +16,6 @@
 #include "chrome/browser/renderer_host/resource_dispatcher_host.h"
 #include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/browser/tab_contents/tab_util.h"
-#include "chrome/browser/tab_contents/web_contents.h"
 #include "chrome/common/chrome_paths.h"
 #include "chrome/common/platform_util.h"
 #include "chrome/common/stl_util-inl.h"
@@ -213,7 +212,7 @@ void SaveFileManager::RemoveSaveFile(int save_id, const GURL& save_url,
 // only on the UI thread.
 SavePackage* SaveFileManager::GetSavePackageFromRenderIds(
     int render_process_id, int render_view_id) {
-  WebContents* contents = tab_util::GetWebContentsByID(render_process_id,
+  TabContents* contents = tab_util::GetTabContentsByID(render_process_id,
                                                        render_view_id);
   if (contents)
     return contents->save_package();

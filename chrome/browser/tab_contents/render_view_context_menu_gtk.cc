@@ -8,7 +8,7 @@
 #include "webkit/glue/context_menu.h"
 
 RenderViewContextMenuGtk::RenderViewContextMenuGtk(
-    WebContents* web_contents,
+    TabContents* web_contents,
     const ContextMenuParams& params,
     guint32 triggering_event_time)
     : RenderViewContextMenu(web_contents, params),

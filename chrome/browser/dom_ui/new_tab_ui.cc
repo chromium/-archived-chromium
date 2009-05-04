@@ -22,7 +22,7 @@
 #include "chrome/browser/search_engines/template_url_model.h"
 #include "chrome/browser/sessions/session_types.h"
 #include "chrome/browser/tab_contents/navigation_entry.h"
-#include "chrome/browser/tab_contents/web_contents.h"
+#include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/browser/search_engines/template_url.h"
 #include "chrome/browser/sessions/tab_restore_service.h"
 #include "chrome/browser/user_data_manager.h"
@@ -688,7 +688,7 @@ void TemplateURLHandler::HandleDoSearch(const Value* content) {
     }
 
     // Load the URL.
-    dom_ui_->web_contents()->OpenURL(url, GURL(), CURRENT_TAB,
+    dom_ui_->tab_contents()->OpenURL(url, GURL(), CURRENT_TAB,
                                      PageTransition::LINK);
     // We've been deleted.
     return;
@@ -893,7 +893,7 @@ RecentlyClosedTabsHandler::~RecentlyClosedTabsHandler() {
 
 void RecentlyClosedTabsHandler::HandleReopenTab(const Value* content) {
   Browser* browser = Browser::GetBrowserForController(
-      &dom_ui_->web_contents()->controller(), NULL);
+      &dom_ui_->tab_contents()->controller(), NULL);
   if (!browser)
     return;
 
@@ -1054,7 +1054,7 @@ void HistoryHandler::HandleSearchHistoryPage(const Value* content) {
 
 #if defined(OS_WIN)
 // TODO(port): include this once history is converted to HTML
-        dom_ui_->web_contents()->controller().LoadURL(
+        dom_ui_->tab_contents()->controller().LoadURL(
             HistoryUI::GetHistoryURLWithSearchText(wstring_value),
             GURL(),
             PageTransition::LINK);
@@ -1117,7 +1117,7 @@ void MetricsHandler::HandleMetrics(const Value* content) {
 ///////////////////////////////////////////////////////////////////////////////
 // NewTabUI
 
-NewTabUI::NewTabUI(WebContents* contents)
+NewTabUI::NewTabUI(TabContents* contents)
     : DOMUI(contents),
       motd_message_id_(0),
       incognito_(false) {
@@ -1139,7 +1139,7 @@ NewTabUI::NewTabUI(WebContents* contents)
     NewTabHTMLSource::set_first_view(false);
   }
 
-  web_contents()->render_view_host()->set_paint_observer(new PaintTimer);
+  tab_contents()->render_view_host()->set_paint_observer(new PaintTimer);
 
   if (GetProfile()->IsOffTheRecord()) {
     incognito_ = true;

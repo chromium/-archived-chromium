@@ -7,7 +7,7 @@
 
 class DOMUI;
 class GURL;
-class WebContents;
+class TabContents;
 
 class DOMUIFactory {
  public:
@@ -23,7 +23,7 @@ class DOMUIFactory {
   // Allocates a new DOMUI object for the given URL, and returns it. If the URL
   // is not a DOM UI URL, then it will return NULL. When non-NULL, ownership of
   // the returned pointer is passed to the caller.
-  static DOMUI* CreateDOMUIForURL(WebContents* web_contents, const GURL& url);
+  static DOMUI* CreateDOMUIForURL(TabContents* tab_contents, const GURL& url);
 
  private:
   // Class is for scoping only.

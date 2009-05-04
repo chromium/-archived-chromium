@@ -5,12 +5,12 @@
 #include "chrome/browser/app_modal_dialog.h"
 
 #include "chrome/browser/app_modal_dialog_queue.h"
-#include "chrome/browser/tab_contents/web_contents.h"
+#include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/common/notification_service.h"
 #include "chrome/common/notification_type.h"
 #include "chrome/common/ipc_message.h"
 
-AppModalDialog::AppModalDialog(WebContents* web_contents,
+AppModalDialog::AppModalDialog(TabContents* tab_contents,
                                const std::wstring& title,
                                int dialog_flags,
                                const std::wstring& message_text,
@@ -18,7 +18,7 @@ AppModalDialog::AppModalDialog(WebContents* web_contents,
                                bool display_suppress_checkbox,
                                bool is_before_unload_dialog,
                                IPC::Message* reply_msg)
-    : web_contents_(web_contents),
+    : tab_contents_(tab_contents),
       title_(title),
       dialog_flags_(dialog_flags),
       message_text_(message_text),
@@ -32,20 +32,20 @@ AppModalDialog::AppModalDialog(WebContents* web_contents,
 void AppModalDialog::Observe(NotificationType type,
                              const NotificationSource& source,
                              const NotificationDetails& details) {
-  if (!web_contents_)
+  if (!tab_contents_)
     return;
 
   if (type == NotificationType::NAV_ENTRY_COMMITTED &&
       Source<NavigationController>(source).ptr() ==
-          &web_contents_->controller())
-    web_contents_ = NULL;
+          &tab_contents_->controller())
+    tab_contents_ = NULL;
 
   if (type == NotificationType::TAB_CONTENTS_DESTROYED &&
       Source<TabContents>(source).ptr() ==
-      static_cast<TabContents*>(web_contents_))
-    web_contents_ = NULL;
+      static_cast<TabContents*>(tab_contents_))
+    tab_contents_ = NULL;
 
-  if (!web_contents_)
+  if (!tab_contents_)
     CloseModalDialog();
 }
 
@@ -59,15 +59,15 @@ void AppModalDialog::InitNotifications() {
 }
 
 void AppModalDialog::ShowModalDialog() {
-  // If the WebContents that created this dialog navigated away before this
+  // If the TabContents that created this dialog navigated away before this
   // dialog became visible, simply show the next dialog if any.
-  if (!web_contents_) {
+  if (!tab_contents_) {
     AppModalDialogQueue::ShowNextDialog();
     delete this;
     return;
   }
 
-  web_contents_->Activate();
+  tab_contents_->Activate();
   CreateAndShowDialog();
 }
 
@@ -80,8 +80,8 @@ void AppModalDialog::OnCancel() {
   // is a temporary workaround.
   AppModalDialogQueue::ShowNextDialog();
 
-  if (web_contents_) {
-    web_contents_->OnJavaScriptMessageBoxClosed(reply_msg_, false,
+  if (tab_contents_) {
+    tab_contents_->OnJavaScriptMessageBoxClosed(reply_msg_, false,
                                                 std::wstring());
   }
 }
@@ -90,11 +90,11 @@ void AppModalDialog::OnAccept(const std::wstring& prompt_text,
                               bool suppress_js_messages) {
   AppModalDialogQueue::ShowNextDialog();
 
-  if (web_contents_) {
-    web_contents_->OnJavaScriptMessageBoxClosed(reply_msg_, true,
+  if (tab_contents_) {
+    tab_contents_->OnJavaScriptMessageBoxClosed(reply_msg_, true,
                                                 prompt_text);
 
     if (suppress_js_messages)
-      web_contents()->set_suppress_javascript_messages(true);
+      tab_contents()->set_suppress_javascript_messages(true);
   }
 }

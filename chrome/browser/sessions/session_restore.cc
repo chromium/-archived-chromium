@@ -14,7 +14,7 @@
 #include "chrome/browser/sessions/session_service.h"
 #include "chrome/browser/sessions/session_types.h"
 #include "chrome/browser/tab_contents/navigation_controller.h"
-#include "chrome/browser/tab_contents/web_contents.h"
+#include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/browser/tab_contents/tab_contents_view.h"
 #include "chrome/common/notification_registrar.h"
 #include "chrome/common/notification_service.h"
@@ -365,10 +365,7 @@ class SessionRestoreImpl : public NotificationObserver {
     browser->window()->Show();
     // TODO(jcampan): http://crbug.com/8123 we should not need to set the
     //                initial focus explicitly.
-    if (browser->GetSelectedTabContents()->AsWebContents()) {
-      browser->GetSelectedTabContents()->AsWebContents()->view()->
-          SetInitialFocus();
-    }
+    browser->GetSelectedTabContents()->view()->SetInitialFocus();
   }
 
   void AppendURLsToBrowser(Browser* browser, const std::vector<GURL>& urls) {

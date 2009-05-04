@@ -31,7 +31,7 @@
 #include "chrome/browser/tab_contents/navigation_controller.h"
 #include "chrome/browser/tab_contents/navigation_entry.h"
 #include "chrome/browser/tab_contents/site_instance.h"
-#include "chrome/browser/tab_contents/web_contents.h"
+#include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/browser/tab_contents/tab_contents_view.h"
 #include "chrome/common/chrome_constants.h"
 #include "chrome/common/chrome_switches.h"
@@ -157,10 +157,9 @@ namespace {
 
 // Returns true if the specified TabContents has unload listeners registered.
 bool TabHasUnloadListener(TabContents* contents) {
-  WebContents* web_contents = contents->AsWebContents();
-  return web_contents && web_contents->notify_disconnection() &&
-      !web_contents->showing_interstitial_page() &&
-      !web_contents->render_view_host()->SuddenTerminationAllowed();
+  return contents->notify_disconnection() &&
+      !contents->showing_interstitial_page() &&
+      !contents->render_view_host()->SuddenTerminationAllowed();
 }
 
 }  // namespace
@@ -323,7 +322,7 @@ void Browser::OpenApplicationWindow(Profile* profile, const GURL& url) {
   browser->window()->Show();
   // TODO(jcampan): http://crbug.com/8123 we should not need to set the initial
   //                focus explicitly.
-  browser->GetSelectedTabContents()->AsWebContents()->view()->SetInitialFocus();
+  browser->GetSelectedTabContents()->view()->SetInitialFocus();
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -573,7 +572,7 @@ TabContents* Browser::AddRestoredTab(
     int tab_index,
     int selected_navigation,
     bool select) {
-  TabContents* new_tab = new WebContents(profile(), NULL,
+  TabContents* new_tab = new TabContents(profile(), NULL,
                                          MSG_ROUTING_NONE, NULL);
   new_tab->controller().RestoreFromState(navigations, selected_navigation);
 
@@ -591,7 +590,7 @@ TabContents* Browser::AddRestoredTab(
 void Browser::ReplaceRestoredTab(
     const std::vector<TabNavigation>& navigations,
     int selected_navigation) {
-  TabContents* replacement = new WebContents(profile(), NULL,
+  TabContents* replacement = new TabContents(profile(), NULL,
                                              MSG_ROUTING_NONE, NULL);
   replacement->controller().RestoreFromState(navigations, selected_navigation);
 
@@ -627,13 +626,12 @@ void Browser::GoBack(WindowOpenDisposition disposition) {
 
   // If we are showing an interstitial, just hide it.
   TabContents* current_tab = GetSelectedTabContents();
-  WebContents* web_contents = current_tab->AsWebContents();
-  if (web_contents && web_contents->interstitial_page()) {
+  if (current_tab->interstitial_page()) {
     // The GoBack() case is a special case when an interstitial is shown because
     // the "previous" page is still available, just hidden by the interstitial.
     // We treat the back as a "Don't proceed", this hides the interstitial and
     // reveals the previous page.
-    web_contents->interstitial_page()->DontProceed();
+    current_tab->interstitial_page()->DontProceed();
     return;
   }
 
@@ -680,17 +678,14 @@ void Browser::Reload() {
   // If we are showing an interstitial, treat this as an OpenURL.
   TabContents* current_tab = GetSelectedTabContents();
   if (current_tab) {
-    WebContents* web_contents = current_tab->AsWebContents();
-    if (web_contents && web_contents->showing_interstitial_page()) {
+    if (current_tab->showing_interstitial_page()) {
       NavigationEntry* entry = current_tab->controller().GetActiveEntry();
       DCHECK(entry);  // Should exist if interstitial is showing.
       OpenURL(entry->url(), GURL(), CURRENT_TAB, PageTransition::RELOAD);
       return;
     }
-  }
 
-  if (current_tab) {
-    // As this is caused by a user action, give the focus to the page.
+	// As this is caused by a user action, give the focus to the page.
     current_tab->Focus();
     current_tab->controller().Reload(true);
   }
@@ -755,7 +750,7 @@ void Browser::NewTab() {
     // The call to AddBlankTab above did not set the focus to the tab as its
     // window was not active, so we have to do it explicitly.
     // See http://crbug.com/6380.
-    b->GetSelectedTabContents()->AsWebContents()->view()->RestoreFocus();
+    b->GetSelectedTabContents()->view()->RestoreFocus();
   }
 }
 
@@ -846,7 +841,7 @@ void Browser::BookmarkCurrentPage() {
 
 void Browser::SavePage() {
   UserMetrics::RecordAction(L"SavePage", profile_);
-  GetSelectedTabContents()->AsWebContents()->OnSavePage();
+  GetSelectedTabContents()->OnSavePage();
 }
 
 void Browser::ViewSource() {
@@ -888,7 +883,7 @@ void Browser::ClosePopups() {
 
 void Browser::Print() {
   UserMetrics::RecordAction(L"PrintPreview", profile_);
-  GetSelectedTabContents()->AsWebContents()->PrintPreview();
+  GetSelectedTabContents()->PrintPreview();
 }
 #endif  // #if defined(OS_WIN)
 
@@ -903,9 +898,9 @@ void Browser::OverrideEncoding(int encoding_id) {
   UserMetrics::RecordAction(L"OverrideEncoding", profile_);
   const std::wstring selected_encoding =
       CharacterEncoding::GetCanonicalEncodingNameByCommandId(encoding_id);
-  WebContents* current_web_contents = GetSelectedTabContents()->AsWebContents();
-  if (!selected_encoding.empty() && current_web_contents)
-     current_web_contents->override_encoding(selected_encoding);
+  TabContents* contents = GetSelectedTabContents();
+  if (!selected_encoding.empty() && contents)
+     contents->override_encoding(selected_encoding);
   // Update the list of recently selected encodings.
   std::wstring new_selected_encoding_list;
   if (CharacterEncoding::UpdateRecentlySelectdEncoding(
@@ -983,20 +978,17 @@ void Browser::FindPrevious() {
 
 void Browser::ZoomIn() {
   UserMetrics::RecordAction(L"ZoomPlus", profile_);
-  GetSelectedTabContents()->AsWebContents()->render_view_host()->Zoom(
-      PageZoom::LARGER);
+  GetSelectedTabContents()->render_view_host()->Zoom(PageZoom::LARGER);
 }
 
 void Browser::ZoomReset() {
   UserMetrics::RecordAction(L"ZoomNormal", profile_);
-  GetSelectedTabContents()->AsWebContents()->render_view_host()->Zoom(
-      PageZoom::STANDARD);
+  GetSelectedTabContents()->render_view_host()->Zoom(PageZoom::STANDARD);
 }
 
 void Browser::ZoomOut() {
   UserMetrics::RecordAction(L"ZoomMinus", profile_);
-  GetSelectedTabContents()->AsWebContents()->render_view_host()->Zoom(
-      PageZoom::SMALLER);
+  GetSelectedTabContents()->render_view_host()->Zoom(PageZoom::SMALLER);
 }
 
 #if defined(OS_WIN)
@@ -1033,35 +1025,31 @@ void Browser::OpenFile() {
 #if defined(OS_WIN)
 void Browser::OpenCreateShortcutsDialog() {
   UserMetrics::RecordAction(L"CreateShortcut", profile_);
-  GetSelectedTabContents()->AsWebContents()->CreateShortcut();
+  GetSelectedTabContents()->CreateShortcut();
 }
 
 void Browser::OpenDebuggerWindow() {
 #ifndef CHROME_DEBUGGER_DISABLED
   UserMetrics::RecordAction(L"Debugger", profile_);
   TabContents* current_tab = GetSelectedTabContents();
-  WebContents* wc = current_tab->AsWebContents();
-  if (wc) {
-    if (CommandLine::ForCurrentProcess()->HasSwitch(
-            switches::kEnableOutOfProcessDevTools)) {
-      DevToolsManager* manager = g_browser_process->devtools_manager();
-      manager->OpenDevToolsWindow(wc);
-    } else {
-      // Only one debugger instance can exist at a time right now.
-      // TODO(erikkay): need an alert, dialog, something
-      // or better yet, fix the one instance limitation
-      if (!DebuggerWindow::DoesDebuggerExist())
-        debugger_window_ = new DebuggerWindow();
-      debugger_window_->Show(current_tab);
-    }
+  if (CommandLine::ForCurrentProcess()->HasSwitch(
+          switches::kEnableOutOfProcessDevTools)) {
+    DevToolsManager* manager = g_browser_process->devtools_manager();
+    manager->OpenDevToolsWindow(current_tab);
+  } else {
+    // Only one debugger instance can exist at a time right now.
+    // TODO(erikkay): need an alert, dialog, something
+    // or better yet, fix the one instance limitation
+    if (!DebuggerWindow::DoesDebuggerExist())
+      debugger_window_ = new DebuggerWindow();
+    debugger_window_->Show(current_tab);
   }
 #endif
 }
 
 void Browser::OpenJavaScriptConsole() {
   UserMetrics::RecordAction(L"ShowJSConsole", profile_);
-  GetSelectedTabContents()->AsWebContents()->render_view_host()->
-      ShowJavaScriptConsole();
+  GetSelectedTabContents()->render_view_host()->ShowJavaScriptConsole();
 }
 
 void Browser::OpenTaskManager() {
@@ -1416,7 +1404,7 @@ TabContents* Browser::CreateTabContentsForURL(
     const GURL& url, const GURL& referrer, Profile* profile,
     PageTransition::Type transition, bool defer_load,
     SiteInstance* instance) const {
-  WebContents* contents = new WebContents(profile, instance,
+  TabContents* contents = new TabContents(profile, instance,
                                           MSG_ROUTING_NONE, NULL);
 
   if (!defer_load) {
@@ -1508,20 +1496,17 @@ void Browser::CreateHistoricalTab(TabContents* contents) {
 }
 
 bool Browser::RunUnloadListenerBeforeClosing(TabContents* contents) {
-  WebContents* web_contents = contents->AsWebContents();
-  if (web_contents) {
-    // If the WebContents is not connected yet, then there's no unload
-    // handler we can fire even if the WebContents has an unload listener.
-    // One case where we hit this is in a tab that has an infinite loop
-    // before load.
-    if (TabHasUnloadListener(contents)) {
-      // If the page has unload listeners, then we tell the renderer to fire
-      // them. Once they have fired, we'll get a message back saying whether
-      // to proceed closing the page or not, which sends us back to this method
-      // with the HasUnloadListener bit cleared.
-      web_contents->render_view_host()->FirePageBeforeUnload();
-      return true;
-    }
+  // If the TabContents is not connected yet, then there's no unload
+  // handler we can fire even if the TabContents has an unload listener.
+  // One case where we hit this is in a tab that has an infinite loop
+  // before load.
+  if (TabHasUnloadListener(contents)) {
+    // If the page has unload listeners, then we tell the renderer to fire
+    // them. Once they have fired, we'll get a message back saying whether
+    // to proceed closing the page or not, which sends us back to this method
+    // with the HasUnloadListener bit cleared.
+    contents->render_view_host()->FirePageBeforeUnload();
+    return true;
   }
   return false;
 }
@@ -1555,7 +1540,7 @@ void Browser::TabInsertedAt(TabContents* contents,
   // able to ack. But we know we can close it.
   NotificationService::current()->AddObserver(
       this,
-      NotificationType::WEB_CONTENTS_DISCONNECTED,
+      NotificationType::TAB_CONTENTS_DISCONNECTED,
       Source<TabContents>(contents));
 }
 
@@ -1577,11 +1562,11 @@ void Browser::TabDetachedAt(TabContents* contents, int index) {
   RemoveScheduledUpdatesFor(contents);
 
   if (find_bar_controller_.get() && index == tabstrip_model_.selected_index())
-    find_bar_controller_->ChangeWebContents(NULL);
+    find_bar_controller_->ChangeTabContents(NULL);
 
   NotificationService::current()->RemoveObserver(
       this,
-      NotificationType::WEB_CONTENTS_DISCONNECTED,
+      NotificationType::TAB_CONTENTS_DISCONNECTED,
       Source<TabContents>(contents));
 }
 
@@ -1624,7 +1609,7 @@ void Browser::TabSelectedAt(TabContents* old_contents,
   }
 
   if (find_bar_controller_.get()) {
-    find_bar_controller_->ChangeWebContents(new_contents->AsWebContents());
+    find_bar_controller_->ChangeTabContents(new_contents);
     find_bar_controller_->find_bar()->MoveWindowIfNecessary(gfx::Rect(),
                                                                 true);
   }
@@ -1696,12 +1681,9 @@ void Browser::OpenURLFromTab(TabContents* source,
   // Don't use this logic when "--process-per-tab" is specified.
   if (!CommandLine::ForCurrentProcess()->HasSwitch(switches::kProcessPerTab)) {
     if (current_tab) {
-      const WebContents* const web_contents = current_tab->AsWebContents();
-      if (web_contents) {
-        const GURL& current_url = web_contents->GetURL();
-        if (SiteInstance::IsSameWebSite(current_url, url))
-          instance = web_contents->GetSiteInstance();
-      }
+      const GURL& current_url = current_tab->GetURL();
+      if (SiteInstance::IsSameWebSite(current_url, url))
+        instance = current_tab->GetSiteInstance();
     }
   }
 
@@ -2017,7 +1999,7 @@ void Browser::Observe(NotificationType type,
                       const NotificationSource& source,
                       const NotificationDetails& details) {
   switch (type.value) {
-    case NotificationType::WEB_CONTENTS_DISCONNECTED:
+    case NotificationType::TAB_CONTENTS_DISCONNECTED:
       if (is_attempting_to_close_browser_) {
         // Need to do this asynchronously as it will close the tab, which is
         // currently on the call stack above us.
@@ -2186,52 +2168,38 @@ void Browser::UpdateCommandsForTabState() {
   command_updater_.UpdateCommandEnabled(IDC_DUPLICATE_TAB,
       CanDuplicateContentsAt(selected_index()));
 
-  // Initialize commands available only for web content.
-  {
-    WebContents* web_contents = current_tab->AsWebContents();
-    bool is_web_contents = web_contents != NULL;
+  // Current navigation entry, may be NULL.
+  NavigationEntry* active_entry = current_tab->controller().GetActiveEntry();
     bool is_source_viewable =
-        is_web_contents &&
         net::IsSupportedNonImageMimeType(
-            web_contents->contents_mime_type().c_str());
+            current_tab->contents_mime_type().c_str());
 
-    // Current navigation entry, may be NULL.
-    NavigationEntry* active_entry = current_tab->controller().GetActiveEntry();
+  // Page-related commands
+  // Only allow bookmarking for web content in normal windows.
+  command_updater_.UpdateCommandEnabled(IDC_STAR, (type() == TYPE_NORMAL));
+  window_->SetStarredState(current_tab->is_starred());
+  // View-source should not be enabled if already in view-source mode or
+  // the source is not viewable.
+  command_updater_.UpdateCommandEnabled(IDC_VIEW_SOURCE,
+      active_entry && !active_entry->IsViewSourceMode() &&
+      is_source_viewable);
+  command_updater_.UpdateCommandEnabled(IDC_PRINT, true);
+  command_updater_.UpdateCommandEnabled(IDC_SAVE_PAGE,
+      SavePackage::IsSavableURL(current_tab->GetURL()));
+  command_updater_.UpdateCommandEnabled(IDC_ENCODING_MENU,
+      SavePackage::IsSavableContents(current_tab->contents_mime_type()) &&
+      SavePackage::IsSavableURL(current_tab->GetURL()));
 
-    // Page-related commands
-    // Only allow bookmarking for web content in normal windows.
-    command_updater_.UpdateCommandEnabled(IDC_STAR,
-        is_web_contents && (type() == TYPE_NORMAL));
-    window_->SetStarredState(is_web_contents && web_contents->is_starred());
-    // View-source should not be enabled if already in view-source mode or
-    // the source is not viewable.
-    command_updater_.UpdateCommandEnabled(IDC_VIEW_SOURCE,
-        is_web_contents && active_entry && !active_entry->IsViewSourceMode() &&
-        is_source_viewable);
-    command_updater_.UpdateCommandEnabled(IDC_PRINT, is_web_contents);
-    command_updater_.UpdateCommandEnabled(IDC_SAVE_PAGE,
-        is_web_contents && SavePackage::IsSavableURL(current_tab->GetURL()));
-    command_updater_.UpdateCommandEnabled(IDC_ENCODING_MENU,
-        is_web_contents &&
-        SavePackage::IsSavableContents(web_contents->contents_mime_type()) &&
-        SavePackage::IsSavableURL(current_tab->GetURL()));
+  // Zoom
+  command_updater_.UpdateCommandEnabled(IDC_ZOOM_MENU, true);
+  command_updater_.UpdateCommandEnabled(IDC_ZOOM_PLUS, true);
+  command_updater_.UpdateCommandEnabled(IDC_ZOOM_NORMAL, true);
+  command_updater_.UpdateCommandEnabled(IDC_ZOOM_MINUS, true);
 
-    // Find-in-page
-    command_updater_.UpdateCommandEnabled(IDC_FIND, is_web_contents);
-    command_updater_.UpdateCommandEnabled(IDC_FIND_NEXT, is_web_contents);
-    command_updater_.UpdateCommandEnabled(IDC_FIND_PREVIOUS, is_web_contents);
-
-    // Zoom
-    command_updater_.UpdateCommandEnabled(IDC_ZOOM_MENU, is_web_contents);
-    command_updater_.UpdateCommandEnabled(IDC_ZOOM_PLUS, is_web_contents);
-    command_updater_.UpdateCommandEnabled(IDC_ZOOM_NORMAL, is_web_contents);
-    command_updater_.UpdateCommandEnabled(IDC_ZOOM_MINUS, is_web_contents);
-
-    // Show various bits of UI
-    command_updater_.UpdateCommandEnabled(IDC_JS_CONSOLE, is_web_contents);
-    command_updater_.UpdateCommandEnabled(IDC_CREATE_SHORTCUTS,
-        is_web_contents && !current_tab->GetFavIcon().isNull());
-  }
+  // Show various bits of UI
+  command_updater_.UpdateCommandEnabled(IDC_JS_CONSOLE, true);
+  command_updater_.UpdateCommandEnabled(IDC_CREATE_SHORTCUTS,
+      !current_tab->GetFavIcon().isNull());
 }
 
 void Browser::UpdateCommandsForFullscreenMode(bool is_fullscreen) {
@@ -2446,7 +2414,7 @@ TabContents* Browser::BuildRestoredTab(
            selected_navigation < static_cast<int>(navigations.size()));
     // Create a NavigationController. This constructor creates the appropriate
     // set of TabContents.
-    TabContents* new_tab = new WebContents(profile_, NULL,
+    TabContents* new_tab = new TabContents(profile_, NULL,
                                            MSG_ROUTING_NONE, NULL);
     new_tab->controller().RestoreFromState(navigations, selected_navigation);
     return new_tab;
@@ -2474,7 +2442,7 @@ void Browser::ProcessPendingTabs() {
   // unload tabs.
   if (!tabs_needing_before_unload_fired_.empty()) {
     TabContents* tab = *(tabs_needing_before_unload_fired_.begin());
-    tab->AsWebContents()->render_view_host()->FirePageBeforeUnload();
+    tab->render_view_host()->FirePageBeforeUnload();
   } else if (!tabs_needing_unload_fired_.empty()) {
     // We've finished firing all beforeunload events and can proceed with unload
     // events.
@@ -2485,7 +2453,7 @@ void Browser::ProcessPendingTabs() {
     // get a perf benefit from that in the cases where the tab hangs in it's
     // unload handler or takes a long time to page in.
     TabContents* tab = *(tabs_needing_unload_fired_.begin());
-    tab->AsWebContents()->render_view_host()->FirePageUnload();
+    tab->render_view_host()->FirePageUnload();
   } else {
     NOTREACHED();
   }
@@ -2505,7 +2473,6 @@ void Browser::CancelWindowClose() {
 
   tabs_needing_before_unload_fired_.clear();
   tabs_needing_unload_fired_.clear();
-
   is_attempting_to_close_browser_ = false;
 }
 
@@ -2623,9 +2590,8 @@ GURL Browser::GetHomePage() const {
 void Browser::FindInPage(bool find_next, bool forward_direction) {
   ShowFindBar();
   if (find_next) {
-    GetSelectedTabContents()->AsWebContents()->StartFinding(
-        string16(),
-        forward_direction);
+    GetSelectedTabContents()->StartFinding(string16(),
+                                           forward_direction);
   }
 }
 

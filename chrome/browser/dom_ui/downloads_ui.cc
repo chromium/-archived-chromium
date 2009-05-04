@@ -509,7 +509,7 @@ std::wstring DownloadsDOMHandler::GetProgressStatusText(
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-DownloadsUI::DownloadsUI(WebContents* contents) : DOMUI(contents) {
+DownloadsUI::DownloadsUI(TabContents* contents) : DOMUI(contents) {
   DownloadManager* dlm = GetProfile()->GetDownloadManager();
 
   DownloadsDOMHandler* handler = new DownloadsDOMHandler(this, dlm);

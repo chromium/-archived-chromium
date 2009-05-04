@@ -16,7 +16,6 @@
 class InspectableTabProxy;
 class DevToolsRemoteListenSocket;
 class DevToolsRemoteMessage;
-class WebContents;
 
 // Dispatches DevToolsRemoteMessages to their appropriate handlers (Tools)
 // based on the value of the Tool message header.

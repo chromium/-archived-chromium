@@ -9,7 +9,7 @@
 #include "chrome/browser/renderer_host/render_widget_host.h"
 #include "chrome/browser/renderer_host/render_widget_host_view_mac.h"
 #include "chrome/browser/tab_contents/render_view_context_menu_mac.h"
-#include "chrome/browser/tab_contents/web_contents.h"
+#include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/common/notification_type.h"
 #include "chrome/common/notification_service.h"
 
@@ -21,16 +21,16 @@
 @end
 
 // static
-TabContentsView* TabContentsView::Create(WebContents* web_contents) {
-  return new TabContentsViewMac(web_contents);
+TabContentsView* TabContentsView::Create(TabContents* tab_contents) {
+  return new TabContentsViewMac(tab_contents);
 }
 
-TabContentsViewMac::TabContentsViewMac(WebContents* web_contents)
-    : TabContentsView(web_contents) {
-  registrar_.Add(this, NotificationType::WEB_CONTENTS_CONNECTED,
-                 Source<WebContents>(web_contents));
-  registrar_.Add(this, NotificationType::WEB_CONTENTS_DISCONNECTED,
-                 Source<WebContents>(web_contents));
+TabContentsViewMac::TabContentsViewMac(TabContents* tab_contents)
+    : TabContentsView(tab_contents) {
+  registrar_.Add(this, NotificationType::TAB_CONTENTS_CONNECTED,
+                 Source<TabContents>(tab_contents));
+  registrar_.Add(this, NotificationType::TAB_CONTENTS_DISCONNECTED,
+                 Source<TabContents>(tab_contents));
 }
 
 TabContentsViewMac::~TabContentsViewMac() {
@@ -63,9 +63,9 @@ gfx::NativeView TabContentsViewMac::GetNativeView() const {
 }
 
 gfx::NativeView TabContentsViewMac::GetContentNativeView() const {
-  if (!web_contents()->render_widget_host_view())
+  if (!tab_contents()->render_widget_host_view())
     return NULL;
-  return web_contents()->render_widget_host_view()->GetPluginNativeView();
+  return tab_contents()->render_widget_host_view()->GetPluginNativeView();
 }
 
 gfx::NativeWindow TabContentsViewMac::GetTopLevelNativeWindow() const {
@@ -83,8 +83,8 @@ void TabContentsViewMac::StartDragging(const WebDropData& drop_data) {
   // already done with the drag and drop so we don't get stuck
   // thinking we're in mid-drag.
   // TODO(port): remove me when the above NOTIMPLEMENTED is fixed.
-  if (web_contents()->render_view_host())
-    web_contents()->render_view_host()->DragSourceSystemDragEnded();
+  if (tab_contents()->render_view_host())
+    tab_contents()->render_view_host()->DragSourceSystemDragEnded();
 }
 
 void TabContentsViewMac::OnContentsDestroy() {
@@ -107,8 +107,8 @@ void TabContentsViewMac::Focus() {
 }
 
 void TabContentsViewMac::SetInitialFocus() {
-  if (web_contents()->FocusLocationBarByDefault())
-    web_contents()->delegate()->SetFocusToLocationBar();
+  if (tab_contents()->FocusLocationBarByDefault())
+    tab_contents()->delegate()->SetFocusToLocationBar();
   else
     [[cocoa_view_.get() window] makeFirstResponder:GetContentNativeView()];
 }
@@ -143,7 +143,7 @@ void TabContentsViewMac::HandleKeyboardEvent(
 }
 
 void TabContentsViewMac::ShowContextMenu(const ContextMenuParams& params) {
-  RenderViewContextMenuMac menu(web_contents(),
+  RenderViewContextMenuMac menu(tab_contents(),
                                 params,
                                 GetNativeView());
 }
@@ -182,14 +182,14 @@ void TabContentsViewMac::Observe(NotificationType type,
                                  const NotificationSource& source,
                                  const NotificationDetails& details) {
   switch (type.value) {
-    case NotificationType::WEB_CONTENTS_CONNECTED: {
+    case NotificationType::tab_contents_CONNECTED: {
       if (sad_tab_.get()) {
         [sad_tab_.get() removeFromSuperview];
         sad_tab_.reset();
       }
       break;
     }
-    case NotificationType::WEB_CONTENTS_DISCONNECTED: {
+    case NotificationType::tab_contents_DISCONNECTED: {
       SadTabView* view = [[SadTabView alloc] initWithFrame:NSZeroRect];
       sad_tab_.reset(view);
 
@@ -222,13 +222,13 @@ void TabContentsViewMac::Observe(NotificationType type,
 }
 
 - (void)mouseEvent:(NSEvent *)theEvent {
-  if (TabContentsView_->web_contents()->delegate()) {
+  if (TabContentsView_->tab_contents()->delegate()) {
     if ([theEvent type] == NSMouseMoved)
-      TabContentsView_->web_contents()->delegate()->
-          ContentsMouseEvent(TabContentsView_->web_contents(), true);
+      TabContentsView_->tab_contents()->delegate()->
+          ContentsMouseEvent(TabContentsView_->tab_contents(), true);
     if ([theEvent type] == NSMouseExited)
-      TabContentsView_->web_contents()->delegate()->
-          ContentsMouseEvent(TabContentsView_->web_contents(), false);
+      TabContentsView_->tab_contents()->delegate()->
+          ContentsMouseEvent(TabContentsView_->tab_contents(), false);
   }
 }
 
@@ -237,15 +237,15 @@ void TabContentsViewMac::Observe(NotificationType type,
 // WebCore.
 
 - (void)cut:(id)sender {
-  TabContentsView_->web_contents()->Cut();
+  TabContentsView_->tab_contents()->Cut();
 }
 
 - (void)copy:(id)sender {
-  TabContentsView_->web_contents()->Copy();
+  TabContentsView_->tab_contents()->Copy();
 }
 
 - (void)paste:(id)sender {
-  TabContentsView_->web_contents()->Paste();
+  TabContentsView_->tab_contents()->Paste();
 }
 
 // Tons of stuff goes here, where we grab events going on in Cocoaland and send

@@ -35,7 +35,7 @@ class Profile;
 class RenderViewHostDelegate;
 class SiteInstance;
 class URLRequest;
-class WebContents;
+class TabContents;
 struct ViewHostMsg_DidPrintPage_Params;
 
 namespace gfx {
@@ -100,7 +100,7 @@ namespace printing {
 
 class PrintViewManager {
  public:
-  PrintViewManager(WebContents&) { }
+  PrintViewManager(TabContents&) { }
   void Stop() { NOTIMPLEMENTED(); }
   void Destroy() { }
   bool OnRenderViewGone(RenderViewHost*) {
@@ -376,7 +376,7 @@ class WebAppLauncher {
 };
 
 //---------------------------------------------------------------------------
-// These stubs are for WebContents
+// These stubs are for TabContents
 
 class WebApp : public base::RefCountedThreadSafe<WebApp> {
  public:
@@ -385,7 +385,7 @@ class WebApp : public base::RefCountedThreadSafe<WebApp> {
   };
   void AddObserver(Observer* obs) { NOTIMPLEMENTED(); }
   void RemoveObserver(Observer* obs) { NOTIMPLEMENTED(); }
-  void SetWebContents(WebContents*) { NOTIMPLEMENTED(); }
+  void SetTabContents(TabContents*) { NOTIMPLEMENTED(); }
   SkBitmap GetFavIcon() {
     NOTIMPLEMENTED();
     return SkBitmap();
@@ -394,14 +394,14 @@ class WebApp : public base::RefCountedThreadSafe<WebApp> {
 
 class HungRendererWarning {
  public:
-  static void HideForWebContents(WebContents*) { NOTIMPLEMENTED(); }
-  static void ShowForWebContents(WebContents*) { NOTIMPLEMENTED(); }
+  static void HideForTabContents(TabContents*) { NOTIMPLEMENTED(); }
+  static void ShowForTabContents(TabContents*) { NOTIMPLEMENTED(); }
 };
 
 class ModalHtmlDialogDelegate : public HtmlDialogUIDelegate {
  public:
   ModalHtmlDialogDelegate(const GURL&, int, int, const std::string&,
-                          IPC::Message*, WebContents*) { }
+                          IPC::Message*, TabContents*) { }
 
    virtual bool IsDialogModal() const { return true; }
    virtual std::wstring GetDialogTitle() const { return std::wstring(); }

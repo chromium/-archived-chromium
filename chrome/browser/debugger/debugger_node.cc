@@ -11,7 +11,7 @@
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/renderer_host/render_process_host.h"
 #include "chrome/browser/renderer_host/render_view_host.h"
-#include "chrome/browser/tab_contents/web_contents.h"
+#include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/browser/debugger/debugger_shell.h"
 #include "chrome/common/notification_service.h"
 
@@ -19,8 +19,8 @@ DebuggerNode::DebuggerNode() : data_(NULL), valid_(true), observing_(false) {
 }
 
 void DebuggerNode::Observe(NotificationType type,
-                        const NotificationSource& source,
-                        const NotificationDetails& details) {
+                           const NotificationSource& source,
+                           const NotificationDetails& details) {
   StopObserving();
   Invalidate();
 }
@@ -43,12 +43,12 @@ void DebuggerNode::StopObserving(NotificationService *service) {
 }
 
 v8::Handle<v8::Value> DebuggerNode::IndexGetter(uint32_t index,
-                                             const v8::AccessorInfo& info) {
+                                                const v8::AccessorInfo& info) {
   return v8::Undefined();
 }
 
 v8::Handle<v8::Value> DebuggerNode::PropGetter(v8::Handle<v8::String> prop,
-                                            const v8::AccessorInfo& info) {
+                                               const v8::AccessorInfo& info) {
   return v8::Undefined();
 }
 
@@ -318,8 +318,8 @@ TabContents* TabNode::GetTab() {
 }
 
 v8::Handle<v8::Value> TabNode::SendToDebugger(const v8::Arguments& args,
-                                              WebContents* web) {
-  RenderViewHost* host = web->render_view_host();
+                                              TabContents* tab) {
+  RenderViewHost* host = tab->render_view_host();
   if (args.Length() == 1) {
     std::wstring cmd;
     v8::Handle<v8::Value> obj;
@@ -331,24 +331,24 @@ v8::Handle<v8::Value> TabNode::SendToDebugger(const v8::Arguments& args,
 }
 
 v8::Handle<v8::Value> TabNode::Attach(const v8::Arguments& args,
-                                      WebContents* web) {
-  RenderViewHost* host = web->render_view_host();
+                                      TabContents* tab) {
+  RenderViewHost* host = tab->render_view_host();
   host->DebugAttach();
   RenderProcessHost* proc = host->process();
   return v8::Int32::New(proc->process().pid());
 }
 
 v8::Handle<v8::Value> TabNode::Detach(const v8::Arguments& args,
-                                      WebContents* web) {
-  RenderViewHost* host = web->render_view_host();
+                                      TabContents* tab) {
+  RenderViewHost* host = tab->render_view_host();
   host->DebugDetach();
   RenderProcessHost* proc = host->process();
   return v8::Int32::New(proc->process().pid());
 }
 
 v8::Handle<v8::Value> TabNode::Break(const v8::Arguments& args,
-                                     WebContents* web) {
-  RenderViewHost* host = web->render_view_host();
+                                     TabContents* tab) {
+  RenderViewHost* host = tab->render_view_host();
   bool force = false;
   if (args.Length() >= 1) {
     force = args[0]->BooleanValue();
@@ -359,29 +359,27 @@ v8::Handle<v8::Value> TabNode::Break(const v8::Arguments& args,
 
 v8::Handle<v8::Value> TabNode::PropGetter(v8::Handle<v8::String> prop,
                                           const v8::AccessorInfo& info) {
-  TabContents* t = GetTab();
-  if (t != NULL) {
-    WebContents* web = t->AsWebContents();
+  TabContents* tab = GetTab();
+  if (tab != NULL) {
     if (prop->Equals(v8::String::New("title"))) {
-      std::wstring title = UTF16ToWideHack(t->GetTitle());
-      std::string title2 = WideToUTF8(title);
-      return v8::String::New(title2.c_str());
-    } else if (web) {
+      std::string title = UTF16ToUTF8(tab->GetTitle());
+      return v8::String::New(title.c_str());
+    } else {
       if (prop->Equals(v8::String::New("attach"))) {
-        FunctionNode<WebContents>* f =
-            new FunctionNode<WebContents>(TabNode::Attach, web);
+        FunctionNode<TabContents>* f =
+            new FunctionNode<TabContents>(TabNode::Attach, tab);
         return f->NewInstance();
       } else if (prop->Equals(v8::String::New("detach"))) {
-        FunctionNode<WebContents>* f =
-            new FunctionNode<WebContents>(TabNode::Detach, web);
+        FunctionNode<TabContents>* f =
+            new FunctionNode<TabContents>(TabNode::Detach, tab);
         return f->NewInstance();
       } else if (prop->Equals(v8::String::New("sendToDebugger"))) {
-        FunctionNode<WebContents>* f =
-            new FunctionNode<WebContents>(TabNode::SendToDebugger, web);
+        FunctionNode<TabContents>* f =
+            new FunctionNode<TabContents>(TabNode::SendToDebugger, tab);
         return f->NewInstance();
       } else if (prop->Equals(v8::String::New("debugBreak"))) {
-        FunctionNode<WebContents>* f =
-            new FunctionNode<WebContents>(TabNode::Break, web);
+        FunctionNode<TabContents>* f =
+            new FunctionNode<TabContents>(TabNode::Break, tab);
         return f->NewInstance();
       }
     }

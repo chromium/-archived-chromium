@@ -23,7 +23,7 @@ class Profile;
 class TabContents;
 class SiteInstance;
 class SkBitmap;
-class WebContents;
+class TabContents;
 class TabContentsCollector;
 class TabNavigation;
 struct ViewHostMsg_FrameNavigate_Params;
@@ -293,7 +293,7 @@ class NavigationController {
   // For use by TabContents ----------------------------------------------------
 
   // Handles updating the navigation state after the renderer has navigated.
-  // This is used by the WebContents. Simpler tab contents types can use
+  // This is used by the TabContents. Simpler tab contents types can use
   // CommitPendingEntry below.
   //
   // If a new entry is created, it will return true and will have filled the
@@ -471,7 +471,7 @@ class NavigationController {
   TabContents* tab_contents_;
 
   // The max restored page ID in this controller, if it was restored.  We must
-  // store this so that WebContents can tell any renderer in charge of one of
+  // store this so that TabContents can tell any renderer in charge of one of
   // the restored entries to update its max page ID.
   int max_restored_page_id_;
 

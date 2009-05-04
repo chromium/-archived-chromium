@@ -180,7 +180,7 @@ void TextDatabaseManager::AddPageTitle(const GURL& url,
   if (found == recent_changes_.end()) {
     // This page is not in our cache of recent pages. This is very much an edge
     // case as normally a title will come in <20 seconds after the page commits,
-    // and WebContents will avoid spamming us with >1 title per page. However,
+    // and TabContents will avoid spamming us with >1 title per page. However,
     // it could come up if your connection is unhappy, and we don't want to
     // miss anything.
     //

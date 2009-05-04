@@ -12,7 +12,7 @@
 #include "chrome/browser/views/bookmark_bar_view.h"
 #include "chrome/browser/views/find_bar_view.h"
 #include "chrome/browser/views/frame/browser_view.h"
-#include "chrome/browser/tab_contents/web_contents.h"
+#include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/browser/tab_contents/tab_contents_view.h"
 #include "chrome/views/focus/external_focus_tracker.h"
 #include "chrome/views/focus/view_storage.h"
@@ -39,7 +39,7 @@ FindBarWin::FindBarWin(BrowserView* browser_view)
   SetFocusChangeListener(parent_hwnd);
 
   // Don't let WidgetWin manage our lifetime. We want our lifetime to
-  // coincide with WebContents.
+  // coincide with TabContents.
   WidgetWin::set_delete_on_destroy(false);
 
   view_ = new FindBarView(this);
@@ -217,11 +217,11 @@ bool FindBarWin::IsFindBarVisible() {
 
 void FindBarWin::MoveWindowIfNecessary(const gfx::Rect& selection_rect,
                                        bool no_redraw) {
-  // We only move the window if one is active for the current WebContents. If we
+  // We only move the window if one is active for the current TabContents. If we
   // don't check this, then SetDialogPosition below will end up making the Find
   // Bar visible.
-  if (!find_bar_controller_->web_contents() ||
-      !find_bar_controller_->web_contents()->find_ui_active()) {
+  if (!find_bar_controller_->tab_contents() ||
+      !find_bar_controller_->tab_contents()->find_ui_active()) {
     return;
   }
 
@@ -253,7 +253,7 @@ bool FindBarWin::MaybeForwardKeystrokeToWebpage(
       return false;
   }
 
-  WebContents* contents = find_bar_controller_->web_contents();
+  TabContents* contents = find_bar_controller_->tab_contents();
   if (!contents)
     return false;
 
@@ -425,7 +425,7 @@ gfx::Rect FindBarWin::GetDialogPosition(gfx::Rect avoid_overlapping_rect) {
     RECT frame_rect = {0}, webcontents_rect = {0};
     ::GetWindowRect(GetParent(), &frame_rect);
     ::GetWindowRect(
-        find_bar_controller_->web_contents()->view()->GetNativeView(),
+        find_bar_controller_->tab_contents()->view()->GetNativeView(),
         &webcontents_rect);
     avoid_overlapping_rect.Offset(0, webcontents_rect.top - frame_rect.top);
   }
@@ -503,7 +503,7 @@ void FindBarWin::SetFocusChangeListener(HWND parent_hwnd) {
 void FindBarWin::RestoreSavedFocus() {
   if (focus_tracker_.get() == NULL) {
     // TODO(brettw) Focus() should be on TabContentsView.
-    find_bar_controller_->web_contents()->Focus();
+    find_bar_controller_->tab_contents()->Focus();
   } else {
     focus_tracker_->FocusLastFocusedExternalView();
   }

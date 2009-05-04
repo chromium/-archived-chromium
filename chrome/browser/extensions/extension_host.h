@@ -13,7 +13,7 @@ class Extension;
 class ExtensionView;
 class RenderWidgetHost;
 class RenderWidgetHostView;
-class WebContents;
+class TabContents;
 struct WebPreferences;
 
 // This class is the browser component of an extension component's RenderView.

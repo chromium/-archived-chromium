@@ -2370,14 +2370,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\tab_contents\web_contents.cc"
-				>
-			</File>
-			<File
-				RelativePath=".\tab_contents\web_contents.h"
-				>
-			</File>
-			<File
 				RelativePath=".\tab_contents\web_drag_source.cc"
 				>
 			</File>

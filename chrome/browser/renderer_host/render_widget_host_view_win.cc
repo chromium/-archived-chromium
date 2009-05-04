@@ -990,14 +990,14 @@ LRESULT RenderWidgetHostViewWin::OnMouseEvent(UINT message, WPARAM wparam,
   }
 
   // TODO(jcampan): I am not sure if we should forward the message to the
-  // WebContents first in the case of popups.  If we do, we would need to
-  // convert the click from the popup window coordinates to the WebContents'
+  // TabContents first in the case of popups.  If we do, we would need to
+  // convert the click from the popup window coordinates to the TabContents'
   // window coordinates. For now we don't forward the message in that case to
   // address bug #907474.
   // Note: GetParent() on popup windows returns the top window and not the
   // parent the window was created with (the parent and the owner of the popup
   // is the first non-child view of the view that was specified to the create
-  // call).  So the WebContents window would have to be specified to the
+  // call).  So the TabContents window would have to be specified to the
   // RenderViewHostHWND as there is no way to retrieve it from the HWND.
   if (!close_on_deactivate_) {  // Don't forward if the container is a popup.
     if (message == WM_LBUTTONDOWN) {
@@ -1020,7 +1020,7 @@ LRESULT RenderWidgetHostViewWin::OnMouseEvent(UINT message, WPARAM wparam,
       case WM_MOUSEMOVE:
       case WM_MOUSELEAVE:
       case WM_RBUTTONDOWN: {
-        // Give the WebContents first crack at the message. It may want to
+        // Give the TabContents first crack at the message. It may want to
         // prevent forwarding to the renderer if some higher level browser
         // functionality is invoked.
         if (SendMessage(GetParent(), message, wparam, lparam) != 0)
@@ -1117,8 +1117,8 @@ LRESULT RenderWidgetHostViewWin::OnWheelEvent(UINT message, WPARAM wparam,
   }
 
   // This is a bit of a hack, but will work for now since we don't want to
-  // pollute this object with WebContents-specific functionality...
-  bool handled_by_webcontents = false;
+  // pollute this object with TabContents-specific functionality...
+  bool handled_by_TabContents = false;
   if (GetParent()) {
     // Use a special reflected message to break recursion. If we send
     // WM_MOUSEWHEEL, the focus manager subclass of web contents will
@@ -1129,12 +1129,12 @@ LRESULT RenderWidgetHostViewWin::OnWheelEvent(UINT message, WPARAM wparam,
     new_message.wParam = wparam;
     new_message.lParam = lparam;
 
-    handled_by_webcontents =
+    handled_by_TabContents =
         !!::SendMessage(GetParent(), views::kReflectedMessage, 0,
                         reinterpret_cast<LPARAM>(&new_message));
   }
 
-  if (!handled_by_webcontents) {
+  if (!handled_by_TabContents) {
     render_widget_host_->ForwardWheelEvent(
         WebInputEventFactory::mouseWheelEvent(m_hWnd, message, wparam,
                                               lparam));

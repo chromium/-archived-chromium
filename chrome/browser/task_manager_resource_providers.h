@@ -11,14 +11,14 @@
 #include "chrome/common/child_process_info.h"
 #include "chrome/common/notification_observer.h"
 
-class WebContents;
+class TabContents;
 
 // These file contains the resource providers used in the task manager.
 
-class TaskManagerWebContentsResource : public TaskManager::Resource {
+class TaskManagerTabContentsResource : public TaskManager::Resource {
  public:
-  explicit TaskManagerWebContentsResource(WebContents* web_contents);
-  ~TaskManagerWebContentsResource();
+  explicit TaskManagerTabContentsResource(TabContents* tab_contents);
+  ~TaskManagerTabContentsResource();
 
   // TaskManagerResource methods:
   std::wstring GetTitle() const;
@@ -26,24 +26,24 @@ class TaskManagerWebContentsResource : public TaskManager::Resource {
   base::ProcessHandle GetProcess() const;
   TabContents* GetTabContents() const;
 
-  // WebContents always provide the network usage.
+  // TabContents always provide the network usage.
   bool SupportNetworkUsage() const { return true; }
   void SetSupportNetworkUsage() { };
 
  private:
-  WebContents* web_contents_;
+  TabContents* tab_contents_;
   base::ProcessHandle process_;
   int pid_;
 
-  DISALLOW_COPY_AND_ASSIGN(TaskManagerWebContentsResource);
+  DISALLOW_COPY_AND_ASSIGN(TaskManagerTabContentsResource);
 };
 
-class TaskManagerWebContentsResourceProvider
+class TaskManagerTabContentsResourceProvider
     : public TaskManager::ResourceProvider,
       public NotificationObserver {
  public:
-  explicit TaskManagerWebContentsResourceProvider(TaskManager* task_manager);
-  virtual ~TaskManagerWebContentsResourceProvider();
+  explicit TaskManagerTabContentsResourceProvider(TaskManager* task_manager);
+  virtual ~TaskManagerTabContentsResourceProvider();
 
   virtual TaskManager::Resource* GetResource(int origin_pid,
                                              int render_process_host_id,
@@ -57,10 +57,10 @@ class TaskManagerWebContentsResourceProvider
                        const NotificationDetails& details);
 
  private:
-  void Add(WebContents* web_contents);
-  void Remove(WebContents* web_contents);
+  void Add(TabContents* tab_contents);
+  void Remove(TabContents* tab_contents);
 
-  void AddToTaskManager(WebContents* web_contents);
+  void AddToTaskManager(TabContents* tab_contents);
 
   // Whether we are currently reporting to the task manager. Used to ignore
   // notifications sent after StopUpdating().
@@ -68,14 +68,14 @@ class TaskManagerWebContentsResourceProvider
 
   TaskManager* task_manager_;
 
-  // Maps the actual resources (the WebContents) to the Task Manager
+  // Maps the actual resources (the TabContents) to the Task Manager
   // resources.
-  std::map<WebContents*, TaskManagerWebContentsResource*> resources_;
+  std::map<TabContents*, TaskManagerTabContentsResource*> resources_;
 
   // A scoped container for notification registries.
   NotificationRegistrar registrar_;
 
-  DISALLOW_COPY_AND_ASSIGN(TaskManagerWebContentsResourceProvider);
+  DISALLOW_COPY_AND_ASSIGN(TaskManagerTabContentsResourceProvider);
 };
 
 class TaskManagerChildProcessResource : public TaskManager::Resource {

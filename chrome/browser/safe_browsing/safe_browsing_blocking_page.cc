@@ -16,7 +16,7 @@
 #include "chrome/browser/tab_contents/navigation_controller.h"
 #include "chrome/browser/tab_contents/navigation_entry.h"
 #include "chrome/browser/tab_contents/tab_util.h"
-#include "chrome/browser/tab_contents/web_contents.h"
+#include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/common/jstemplate_builder.h"
 #include "chrome/common/l10n_util.h"
 #include "chrome/common/resource_bundle.h"
@@ -75,9 +75,9 @@ class SafeBrowsingBlockingPageFactoryImpl
  public:
   SafeBrowsingBlockingPage* CreateSafeBrowsingPage(
       SafeBrowsingService* service,
-      WebContents* web_contents,
+      TabContents* tab_contents,
       const SafeBrowsingBlockingPage::UnsafeResourceList& unsafe_resources) {
-    return new SafeBrowsingBlockingPage(service, web_contents,
+    return new SafeBrowsingBlockingPage(service, tab_contents,
                                         unsafe_resources);
   }
 
@@ -91,9 +91,9 @@ class SafeBrowsingBlockingPageFactoryImpl
 
 SafeBrowsingBlockingPage::SafeBrowsingBlockingPage(
     SafeBrowsingService* sb_service,
-    WebContents* web_contents,
+    TabContents* tab_contents,
     const UnsafeResourceList& unsafe_resources)
-    : InterstitialPage(web_contents,
+    : InterstitialPage(tab_contents,
                        IsMainPage(unsafe_resources),
                        unsafe_resources[0].url),
       sb_service_(sb_service),
@@ -457,10 +457,10 @@ SafeBrowsingBlockingPage::UnsafeResourceMap*
 void SafeBrowsingBlockingPage::ShowBlockingPage(
     SafeBrowsingService* sb_service,
     const SafeBrowsingService::UnsafeResource& unsafe_resource) {
-  WebContents* web_contents = tab_util::GetWebContentsByID(
+  TabContents* tab_contents = tab_util::GetTabContentsByID(
       unsafe_resource.render_process_host_id, unsafe_resource.render_view_id);
 
-  if (!InterstitialPage::GetInterstitialPage(web_contents)) {
+  if (!InterstitialPage::GetInterstitialPage(tab_contents)) {
     // There are no interstitial currently showing in that tab, go ahead and
     // show this interstitial.
     std::vector<SafeBrowsingService::UnsafeResource> resources;
@@ -470,7 +470,7 @@ void SafeBrowsingBlockingPage::ShowBlockingPage(
     if (!factory_)
       factory_ = Singleton<SafeBrowsingBlockingPageFactoryImpl>::get();
     SafeBrowsingBlockingPage* blocking_page =
-        factory_->CreateSafeBrowsingPage(sb_service, web_contents, resources);
+        factory_->CreateSafeBrowsingPage(sb_service, tab_contents, resources);
     blocking_page->Show();
     return;
   }
@@ -479,7 +479,7 @@ void SafeBrowsingBlockingPage::ShowBlockingPage(
   // Note we only expect resources from the page at this point.
   DCHECK(unsafe_resource.resource_type != ResourceType::MAIN_FRAME);
   UnsafeResourceMap* unsafe_resource_map = GetUnsafeResourcesMap();
-  (*unsafe_resource_map)[web_contents].push_back(unsafe_resource);
+  (*unsafe_resource_map)[tab_contents].push_back(unsafe_resource);
 }
 
 // static

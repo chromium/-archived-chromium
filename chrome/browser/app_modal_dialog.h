@@ -21,7 +21,7 @@ typedef GtkWidget* NativeDialog;
 typedef void* NativeDialog;
 #endif
 
-class WebContents;
+class TabContents;
 namespace IPC {
 class Message;
 }
@@ -33,7 +33,7 @@ class AppModalDialog : public NotificationObserver {
  public:
   // A union of data necessary to determine the type of message box to
   // show.  |dialog_flags| is a MessageBox flag.
-  AppModalDialog(WebContents* web_contents,
+  AppModalDialog(TabContents* tab_contents,
                  const std::wstring& title,
                  int dialog_flags,
                  const std::wstring& message_text,
@@ -63,8 +63,8 @@ class AppModalDialog : public NotificationObserver {
 
   /////////////////////////////////////////////////////////////////////////////
   // Getters so NativeDialog can get information about the message box.
-  WebContents* web_contents() {
-    return web_contents_;
+  TabContents* tab_contents() {
+    return tab_contents_;
   }
   int dialog_flags() {
     return dialog_flags_;
@@ -100,7 +100,7 @@ class AppModalDialog : public NotificationObserver {
   NativeDialog dialog_;
 
   // Information about the message box is held in the following variables.
-  WebContents* web_contents_;
+  TabContents* tab_contents_;
   std::wstring title_;
   int dialog_flags_;
   std::wstring message_text_;

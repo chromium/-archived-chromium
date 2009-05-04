@@ -9,13 +9,13 @@
 #include "chrome/browser/browser_list.h"
 #include "chrome/browser/debugger/devtools_client_host.h"
 #include "chrome/browser/profile.h"
-#include "chrome/browser/tab_contents/web_contents.h"
+#include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/browser/views/tab_contents_container_view.h"
 #include "chrome/common/property_bag.h"
 #include "chrome/common/render_messages.h"
 #include "chrome/common/url_constants.h"
 
-DevToolsView::DevToolsView() : web_contents_(NULL) {
+DevToolsView::DevToolsView() : tab_contents_(NULL) {
   web_container_ = new TabContentsContainerView();
   AddChildView(web_container_);
 }
@@ -45,38 +45,38 @@ void DevToolsView::ViewHierarchyChanged(bool is_add,
 }
 
 void DevToolsView::Init() {
-  // We can't create the WebContents until we've actually been put into a real
+  // We can't create the TabContents until we've actually been put into a real
   // view hierarchy somewhere.
   Profile* profile = BrowserList::GetLastActive()->profile();
 
-  web_contents_ = new WebContents(profile, NULL, MSG_ROUTING_NONE, NULL);
-  web_contents_->set_delegate(this);
-  web_container_->SetTabContents(web_contents_);
-  web_contents_->render_view_host()->AllowDOMUIBindings();
+  tab_contents_ = new TabContents(profile, NULL, MSG_ROUTING_NONE, NULL);
+  tab_contents_->set_delegate(this);
+  web_container_->SetTabContents(tab_contents_);
+  tab_contents_->render_view_host()->AllowDOMUIBindings();
 
   // chrome-ui://devtools/devtools.html
   GURL contents(std::string(chrome::kChromeUIDevToolsURL) + "devtools.html");
 
   // this will call CreateRenderView to create renderer process
-  web_contents_->controller().LoadURL(contents, GURL(),
+  tab_contents_->controller().LoadURL(contents, GURL(),
                                       PageTransition::START_PAGE);
 }
 
 void DevToolsView::OnWindowClosing() {
-  DCHECK(web_contents_) << "OnWindowClosing is called twice";
-  if (web_contents_) {
+  DCHECK(tab_contents_) << "OnWindowClosing is called twice";
+  if (tab_contents_) {
     // Detach last (and only) tab.
     web_container_->SetTabContents(NULL);
 
     // Destroy the tab and navigation controller.
-    delete web_contents_;
-    web_contents_ = NULL;
+    delete tab_contents_;
+    tab_contents_ = NULL;
   }
 }
 
 void DevToolsView::SendMessageToClient(const IPC::Message& message) {
-  if (web_contents_) {
-    RenderViewHost* target_host = web_contents_->render_view_host();
+  if (tab_contents_) {
+    RenderViewHost* target_host = tab_contents_->render_view_host();
     IPC::Message* m =  new IPC::Message(message);
     m->set_routing_id(target_host->routing_id());
     target_host->Send(m);
@@ -84,8 +84,8 @@ void DevToolsView::SendMessageToClient(const IPC::Message& message) {
 }
 
 bool DevToolsView::HasRenderViewHost(const RenderViewHost& rvh) const {
-  if (web_contents_) {
-    return (&rvh == web_contents_->render_view_host());
+  if (tab_contents_) {
+    return (&rvh == tab_contents_->render_view_host());
   }
   return false;
 }

@@ -16,8 +16,8 @@
 #include "chrome/browser/renderer_host/render_widget_host_view_win.h"
 #include "chrome/browser/tab_contents/render_view_context_menu_win.h"
 #include "chrome/browser/tab_contents/interstitial_page.h"
+#include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/browser/tab_contents/tab_contents_delegate.h"
-#include "chrome/browser/tab_contents/web_contents.h"
 #include "chrome/browser/tab_contents/web_drag_source.h"
 #include "chrome/browser/tab_contents/web_drop_target.h"
 #include "chrome/browser/views/sad_tab_view.h"
@@ -47,12 +47,12 @@ BOOL CALLBACK DetachPluginWindowsCallback(HWND window, LPARAM param) {
 }  // namespace
 
 // static
-TabContentsView* TabContentsView::Create(WebContents* web_contents) {
-  return new TabContentsViewWin(web_contents);
+TabContentsView* TabContentsView::Create(TabContents* tab_contents) {
+  return new TabContentsViewWin(tab_contents);
 }
 
-TabContentsViewWin::TabContentsViewWin(WebContents* web_contents)
-    : TabContentsView(web_contents),
+TabContentsViewWin::TabContentsViewWin(TabContents* tab_contents)
+    : TabContentsView(tab_contents),
       ignore_next_char_event_(false) {
   last_focused_view_storage_id_ =
       views::ViewStorage::GetSharedInstance()->CreateStorageID();
@@ -77,7 +77,7 @@ void TabContentsViewWin::CreateView() {
 
   // Remove the root view drop target so we can register our own.
   RevokeDragDrop(GetNativeView());
-  drop_target_ = new WebDropTarget(GetNativeView(), web_contents());
+  drop_target_ = new WebDropTarget(GetNativeView(), tab_contents());
 }
 
 RenderWidgetHostView* TabContentsViewWin::CreateViewForWidget(
@@ -104,9 +104,9 @@ gfx::NativeView TabContentsViewWin::GetNativeView() const {
 }
 
 gfx::NativeView TabContentsViewWin::GetContentNativeView() const {
-  if (!web_contents()->render_widget_host_view())
+  if (!tab_contents()->render_widget_host_view())
     return NULL;
-  return web_contents()->render_widget_host_view()->GetPluginNativeView();
+  return tab_contents()->render_widget_host_view()->GetPluginNativeView();
 }
 
 gfx::NativeWindow TabContentsViewWin::GetTopLevelNativeWindow() const {
@@ -153,7 +153,7 @@ void TabContentsViewWin::StartDragging(const WebDropData& drop_data) {
       BookmarkDragData bm_drag_data;
       bm_drag_data.elements.push_back(bm_elt);
 
-      bm_drag_data.Write(web_contents()->profile(), data);
+      bm_drag_data.Write(tab_contents()->profile(), data);
     } else {
       data->SetURL(drop_data.url, drop_data.url_title);
     }
@@ -162,7 +162,7 @@ void TabContentsViewWin::StartDragging(const WebDropData& drop_data) {
     data->SetString(drop_data.plain_text);
 
   scoped_refptr<WebDragSource> drag_source(
-      new WebDragSource(GetNativeView(), web_contents()->render_view_host()));
+      new WebDragSource(GetNativeView(), tab_contents()->render_view_host()));
 
   DWORD effects;
 
@@ -173,8 +173,8 @@ void TabContentsViewWin::StartDragging(const WebDropData& drop_data) {
   DoDragDrop(data, drag_source, DROPEFFECT_COPY | DROPEFFECT_LINK, &effects);
   MessageLoop::current()->SetNestableTasksAllowed(old_state);
 
-  if (web_contents()->render_view_host())
-    web_contents()->render_view_host()->DragSourceSystemDragEnded();
+  if (tab_contents()->render_view_host())
+    tab_contents()->render_view_host()->DragSourceSystemDragEnded();
 }
 
 void TabContentsViewWin::OnContentsDestroy() {
@@ -213,7 +213,7 @@ void TabContentsViewWin::SetPageTitle(const std::wstring& title) {
     // TODO(brettw) this call seems messy the way it reaches into the widget
     // view, and I'm not sure it's necessary. Maybe we should just remove it.
     ::SetWindowText(
-        web_contents()->render_widget_host_view()->GetPluginNativeView(),
+        tab_contents()->render_widget_host_view()->GetPluginNativeView(),
         title.c_str());
   }
 }
@@ -245,8 +245,8 @@ void TabContentsViewWin::Focus() {
 }
 
 void TabContentsViewWin::SetInitialFocus() {
-  if (web_contents()->FocusLocationBarByDefault())
-    web_contents()->delegate()->SetFocusToLocationBar();
+  if (tab_contents()->FocusLocationBarByDefault())
+    tab_contents()->delegate()->SetFocusToLocationBar();
   else
     ::SetFocus(GetNativeView());
 }
@@ -315,7 +315,7 @@ void TabContentsViewWin::UpdateDragCursor(bool is_drop_target) {
 }
 
 void TabContentsViewWin::TakeFocus(bool reverse) {
-  if (!web_contents()->delegate()->TakeFocus(reverse)) {
+  if (!tab_contents()->delegate()->TakeFocus(reverse)) {
     views::FocusManager* focus_manager =
         views::FocusManager::GetFocusManager(GetNativeView());
 
@@ -378,7 +378,7 @@ void TabContentsViewWin::HandleKeyboardEvent(
 }
 
 void TabContentsViewWin::ShowContextMenu(const ContextMenuParams& params) {
-  RenderViewContextMenuWin menu(web_contents(),
+  RenderViewContextMenuWin menu(tab_contents(),
                                 params,
                                 GetNativeView());
 
@@ -401,8 +401,8 @@ void TabContentsViewWin::OnHScroll(int scroll_type, short position,
 void TabContentsViewWin::OnMouseLeave() {
   // Let our delegate know that the mouse moved (useful for resetting status
   // bubble state).
-  if (web_contents()->delegate())
-    web_contents()->delegate()->ContentsMouseEvent(web_contents(), false);
+  if (tab_contents()->delegate())
+    tab_contents()->delegate()->ContentsMouseEvent(tab_contents(), false);
   SetMsgHandled(FALSE);
 }
 
@@ -413,19 +413,19 @@ LRESULT TabContentsViewWin::OnMouseRange(UINT msg,
     case WM_MBUTTONDOWN:
     case WM_RBUTTONDOWN: {
       // Make sure this TabContents is activated when it is clicked on.
-      if (web_contents()->delegate())
-        web_contents()->delegate()->ActivateContents(web_contents());
+      if (tab_contents()->delegate())
+        tab_contents()->delegate()->ActivateContents(tab_contents());
       DownloadRequestManager* drm =
           g_browser_process->download_request_manager();
       if (drm)
-        drm->OnUserGesture(web_contents());
+        drm->OnUserGesture(tab_contents());
       break;
     }
     case WM_MOUSEMOVE:
       // Let our delegate know that the mouse moved (useful for resetting status
       // bubble state).
-      if (web_contents()->delegate()) {
-        web_contents()->delegate()->ContentsMouseEvent(web_contents(), true);
+      if (tab_contents()->delegate()) {
+        tab_contents()->delegate()->ContentsMouseEvent(tab_contents(), true);
       }
       break;
     default:
@@ -436,8 +436,8 @@ LRESULT TabContentsViewWin::OnMouseRange(UINT msg,
 }
 
 void TabContentsViewWin::OnPaint(HDC junk_dc) {
-  if (web_contents()->render_view_host() &&
-      !web_contents()->render_view_host()->IsRenderViewLive()) {
+  if (tab_contents()->render_view_host() &&
+      !tab_contents()->render_view_host()->IsRenderViewLive()) {
     if (!sad_tab_.get())
       sad_tab_.reset(new SadTabView);
     CRect cr;
@@ -485,9 +485,9 @@ void TabContentsViewWin::OnSetFocus(HWND window) {
   //                background from properly taking focus.
   // We NULL-check the render_view_host_ here because Windows can send us
   // messages during the destruction process after it has been destroyed.
-  if (web_contents()->render_widget_host_view()) {
+  if (tab_contents()->render_widget_host_view()) {
     HWND inner_hwnd =
-        web_contents()->render_widget_host_view()->GetPluginNativeView();
+        tab_contents()->render_widget_host_view()->GetPluginNativeView();
     if (::IsWindow(inner_hwnd))
       ::SetFocus(inner_hwnd);
   }
@@ -502,7 +502,7 @@ void TabContentsViewWin::OnWindowPosChanged(WINDOWPOS* window_pos) {
   if (window_pos->flags & SWP_HIDEWINDOW) {
     WasHidden();
   } else {
-    // The WebContents was shown by a means other than the user selecting a
+    // The TabContents was shown by a means other than the user selecting a
     // Tab, e.g. the window was minimized then restored.
     if (window_pos->flags & SWP_SHOWWINDOW)
       WasShown();
@@ -560,21 +560,21 @@ void TabContentsViewWin::ScrollCommon(UINT message, int scroll_type,
 }
 
 void TabContentsViewWin::WasHidden() {
-  web_contents()->HideContents();
+  tab_contents()->HideContents();
 }
 
 void TabContentsViewWin::WasShown() {
-  web_contents()->ShowContents();
+  tab_contents()->ShowContents();
 }
 
 void TabContentsViewWin::WasSized(const gfx::Size& size) {
-  if (web_contents()->interstitial_page())
-    web_contents()->interstitial_page()->SetSize(size);
-  if (web_contents()->render_widget_host_view())
-    web_contents()->render_widget_host_view()->SetSize(size);
+  if (tab_contents()->interstitial_page())
+    tab_contents()->interstitial_page()->SetSize(size);
+  if (tab_contents()->render_widget_host_view())
+    tab_contents()->render_widget_host_view()->SetSize(size);
 
   // TODO(brettw) this function can probably be moved to this class.
-  web_contents()->RepositionSupressedPopupsToFit(size);
+  tab_contents()->RepositionSupressedPopupsToFit(size);
 }
 
 bool TabContentsViewWin::ScrollZoom(int scroll_type) {
@@ -609,8 +609,8 @@ bool TabContentsViewWin::ScrollZoom(int scroll_type) {
 }
 
 void TabContentsViewWin::WheelZoom(int distance) {
-  if (web_contents()->delegate()) {
+  if (tab_contents()->delegate()) {
     bool zoom_in = distance > 0;
-    web_contents()->delegate()->ContentsZoomChange(zoom_in);
+    tab_contents()->delegate()->ContentsZoomChange(zoom_in);
   }
 }

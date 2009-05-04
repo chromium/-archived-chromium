@@ -20,10 +20,10 @@ class WebDropTarget;
 class TabContentsViewWin : public TabContentsView,
                            public views::WidgetWin {
  public:
-  // The corresponding WebContents is passed in the constructor, and manages our
+  // The corresponding TabContents is passed in the constructor, and manages our
   // lifetime. This doesn't need to be the case, but is this way currently
   // because that's what was easiest when they were split.
-  explicit TabContentsViewWin(WebContents* web_contents);
+  explicit TabContentsViewWin(TabContents* tab_contents);
   virtual ~TabContentsViewWin();
 
   // TabContentsView implementation --------------------------------------------
@@ -73,7 +73,7 @@ class TabContentsViewWin : public TabContentsView,
   void ScrollCommon(UINT message, int scroll_type, short position,
                     HWND scrollbar);
 
-  // Handles notifying the WebContents and other operations when the window was
+  // Handles notifying the TabContents and other operations when the window was
   // shown or hidden.
   void WasHidden();
   void WasShown();
@@ -88,7 +88,7 @@ class TabContentsViewWin : public TabContentsView,
 
   // ---------------------------------------------------------------------------
 
-  // A drop target object that handles drags over this WebContents.
+  // A drop target object that handles drags over this TabContents.
   scoped_refptr<WebDropTarget> drop_target_;
 
   // Used to render the sad tab. This will be non-NULL only when the sad tab is

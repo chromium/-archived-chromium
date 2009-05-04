@@ -11,12 +11,12 @@
 #include "webkit/glue/window_open_disposition.h"
 
 class Profile;
-class WebContents;
+class TabContents;
 
 class RenderViewContextMenu {
  public:
   RenderViewContextMenu(
-      WebContents* web_contents,
+      TabContents* tab_contents,
       const ContextMenuParams& params);
 
   virtual ~RenderViewContextMenu();
@@ -86,7 +86,7 @@ class RenderViewContextMenu {
   bool IsDevCommandEnabled(int id) const;
 
   ContextMenuParams params_;
-  WebContents* source_web_contents_;
+  TabContents* source_tab_contents_;
   Profile* profile_;
 
   DISALLOW_COPY_AND_ASSIGN(RenderViewContextMenu);

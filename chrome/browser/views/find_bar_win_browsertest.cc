@@ -8,7 +8,6 @@
 #include "chrome/browser/renderer_host/render_view_host.h"
 #include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/browser/tab_contents/tab_contents_view.h"
-#include "chrome/browser/tab_contents/web_contents.h"
 #include "chrome/browser/views/find_bar_win.h"
 #include "chrome/common/notification_service.h"
 #include "chrome/test/in_process_browser_test.h"
@@ -89,18 +88,14 @@ class FindInPageControllerTest : public InProcessBrowserTest {
                  FindInPageDirection forward,
                  FindInPageCase match_case,
                  bool find_next) {
-    WebContents* web_contents =
-        browser()->GetSelectedTabContents()->AsWebContents();
-    if (web_contents) {
-      web_contents->set_current_find_request_id(
-          FindInPageNotificationObserver::kFindInPageRequestId);
-      web_contents->render_view_host()->StartFinding(
-          FindInPageNotificationObserver::kFindInPageRequestId,
-          search_string, forward == FWD, match_case == CASE_SENSITIVE,
-          find_next);
-      return FindInPageNotificationObserver(web_contents).number_of_matches();
-    }
-    return 0;
+    TabContents* tab_contents = browser()->GetSelectedTabContents();
+    tab_contents->set_current_find_request_id(
+        FindInPageNotificationObserver::kFindInPageRequestId);
+    tab_contents->render_view_host()->StartFinding(
+        FindInPageNotificationObserver::kFindInPageRequestId,
+        search_string, forward == FWD, match_case == CASE_SENSITIVE,
+        find_next);
+    return FindInPageNotificationObserver(tab_contents).number_of_matches();
   }
 };
 
@@ -148,10 +143,10 @@ IN_PROC_BROWSER_TEST_F(FindInPageControllerTest, FindInPageFrames) {
   EXPECT_EQ(0, FindInPage(L"hreggvi\u00F0ur", FWD, CASE_SENSITIVE, false));
 }
 
-std::string FocusedOnPage(WebContents* web_contents) {
+std::string FocusedOnPage(TabContents* tab_contents) {
   std::string result;
   ui_test_utils::ExecuteJavaScriptAndExtractString(
-      web_contents,
+      tab_contents,
       L"",
       L"window.domAutomationController.send(getFocusedElement());",
       &result);
@@ -168,21 +163,20 @@ IN_PROC_BROWSER_TEST_F(FindInPageControllerTest, FindInPageEndState) {
   GURL url = server->TestServerPageW(kEndState);
   ui_test_utils::NavigateToURL(browser(), url);
 
-  WebContents* web_contents =
-      browser()->GetSelectedTabContents()->AsWebContents();
-  ASSERT_TRUE(NULL != web_contents);
+  TabContents* tab_contents = browser()->GetSelectedTabContents();
+  ASSERT_TRUE(NULL != tab_contents);
 
   // Verify that nothing has focus.
-  ASSERT_STREQ("{nothing focused}", FocusedOnPage(web_contents).c_str());
+  ASSERT_STREQ("{nothing focused}", FocusedOnPage(tab_contents).c_str());
 
   // Search for a text that exists within a link on the page.
   EXPECT_EQ(1, FindInPage(L"nk", FWD, IGNORE_CASE, false));
 
   // End the find session, which should set focus to the link.
-  web_contents->StopFinding(false);
+  tab_contents->StopFinding(false);
 
   // Verify that the link is focused.
-  EXPECT_STREQ("link1", FocusedOnPage(web_contents).c_str());
+  EXPECT_STREQ("link1", FocusedOnPage(tab_contents).c_str());
 
   // Search for a text that exists within a link on the page.
   EXPECT_EQ(1, FindInPage(L"Google", FWD, IGNORE_CASE, false));
@@ -190,14 +184,14 @@ IN_PROC_BROWSER_TEST_F(FindInPageControllerTest, FindInPageEndState) {
   // Move the selection to link 1, after searching.
   std::string result;
   ui_test_utils::ExecuteJavaScriptAndExtractString(
-      web_contents,
+      tab_contents,
       L"",
       L"window.domAutomationController.send(selectLink1());",
       &result);
 
   // End the find session.
-  web_contents->StopFinding(false);
+  tab_contents->StopFinding(false);
 
   // Verify that link2 is not focused.
-  EXPECT_STREQ("", FocusedOnPage(web_contents).c_str());
+  EXPECT_STREQ("", FocusedOnPage(tab_contents).c_str());
 }

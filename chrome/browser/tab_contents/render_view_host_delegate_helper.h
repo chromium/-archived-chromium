@@ -21,7 +21,7 @@ class RenderViewHost;
 class RenderWidgetHost;
 class RenderWidgetHostView;
 class SiteInstance;
-class WebContents;
+class TabContents;
 
 // Provides helper methods that provide common implementations of some
 // RenderViewHostDelegate::View methods.
@@ -34,14 +34,14 @@ class RenderViewHostDelegateViewHelper {
                                Profile* profile, SiteInstance* site);
   virtual RenderWidgetHostView* CreateNewWidget(int route_id, bool activatable,
                                                 RenderProcessHost* process);
-  virtual WebContents* GetCreatedWindow(int route_id);
+  virtual TabContents* GetCreatedWindow(int route_id);
   virtual RenderWidgetHostView* GetCreatedWidget(int route_id);
   void RenderWidgetHostDestroyed(RenderWidgetHost* host);
 
  private:
-  // Tracks created WebContents objects that have not been shown yet. They are
+  // Tracks created TabContents objects that have not been shown yet. They are
   // identified by the route ID passed to CreateNewWindow.
-  typedef std::map<int, WebContents*> PendingContents;
+  typedef std::map<int, TabContents*> PendingContents;
   PendingContents pending_contents_;
 
   // These maps hold on to the widgets that we created on behalf of the

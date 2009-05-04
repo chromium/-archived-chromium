@@ -13,7 +13,7 @@
 NavigationEntry* TabNavigation::ToNavigationEntry(int page_id) const {
   NavigationEntry* entry = new NavigationEntry(
       NULL,  // The site instance for restored tabs is sent on navigation
-             // (WebContents::GetSiteInstanceForEntry).
+             // (TabContents::GetSiteInstanceForEntry).
       page_id,
       url_,
       referrer_,

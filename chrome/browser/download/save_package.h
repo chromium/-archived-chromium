@@ -29,9 +29,9 @@ class GURL;
 class MessageLoop;
 class PrefService;
 class Profile;
-class WebContents;
+class TabContents;
 class URLRequestContext;
-class WebContents;
+class TabContents;
 
 namespace base {
 class Thread;
@@ -83,12 +83,12 @@ class SavePackage : public base::RefCountedThreadSafe<SavePackage>,
   // Constructor for user initiated page saving. This constructor results in a
   // SavePackage that will generate and sanitize a suggested name for the user
   // in the "Save As" dialog box.
-  SavePackage(WebContents* web_content);
+  SavePackage(TabContents* web_content);
 
   // This contructor is used only for testing. We can bypass the file and
   // directory name generation / sanitization by providing well known paths
   // better suited for tests.
-  SavePackage(WebContents* web_content,
+  SavePackage(TabContents* web_content,
               SavePackageType save_type,
               const FilePath& file_full_path,
               const FilePath& directory_full_path);
@@ -259,7 +259,7 @@ class SavePackage : public base::RefCountedThreadSafe<SavePackage>,
   // Non-owning pointer for handling file writing on the file thread.
   SaveFileManager* file_manager_;
 
-  WebContents* web_contents_;
+  TabContents* tab_contents_;
 
   // We use a fake DownloadItem here in order to reuse the DownloadItemView.
   // This class owns the pointer.

@@ -10,21 +10,21 @@
 
 class InterstitialDropTarget;
 class RenderViewHost;
-class WebContents;
+class TabContents;
 
 ///////////////////////////////////////////////////////////////////////////////
 //
 // WebDropTarget
 //
-//  A helper object that provides drop capabilities to a WebContents. The
-//  DropTarget handles drags that enter the region of the WebContents by
+//  A helper object that provides drop capabilities to a TabContents. The
+//  DropTarget handles drags that enter the region of the TabContents by
 //  passing on the events to the renderer.
 //
 class WebDropTarget : public BaseDropTarget {
  public:
   // Create a new WebDropTarget associating it with the given HWND and
-  // WebContents.
-  WebDropTarget(HWND source_hwnd, WebContents* contents);
+  // TabContents.
+  WebDropTarget(HWND source_hwnd, TabContents* contents);
   virtual ~WebDropTarget();
 
   void set_is_drop_target(bool is_drop_target) {
@@ -50,8 +50,8 @@ class WebDropTarget : public BaseDropTarget {
                        DWORD effect);
 
  private:
-  // Our associated WebContents.
-  WebContents* web_contents_;
+  // Our associated TabContents.
+  TabContents* tab_contents_;
 
   // We keep track of the render view host we're dragging over.  If it changes
   // during a drag, we need to re-send the DragEnter message.  WARNING:

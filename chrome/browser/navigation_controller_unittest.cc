@@ -1051,7 +1051,7 @@ TEST_F(NavigationControllerTest, RestoreNavigate) {
   navigations.push_back(TabNavigation(0, url, GURL(),
                                       ASCIIToUTF16("Title"), "state",
                                       PageTransition::LINK));
-  WebContents our_contents(profile(), NULL, MSG_ROUTING_NONE, NULL);
+  TabContents our_contents(profile(), NULL, MSG_ROUTING_NONE, NULL);
   NavigationController& our_controller = our_contents.controller();
   our_controller.RestoreFromState(navigations, 0);
   our_controller.GoToIndex(0);

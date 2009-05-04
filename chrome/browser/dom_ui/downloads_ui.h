@@ -9,7 +9,7 @@
 
 class DownloadsUI : public DOMUI {
  public:
-  explicit DownloadsUI(WebContents* contents);
+  explicit DownloadsUI(TabContents* contents);
 
  private:
   DISALLOW_COPY_AND_ASSIGN(DownloadsUI);

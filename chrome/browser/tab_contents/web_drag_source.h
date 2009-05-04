@@ -22,7 +22,7 @@ class RenderViewHost;
 //
 // WebDragSource
 //
-//  An IDropSource implementation for a WebContents. Handles notifications sent
+//  An IDropSource implementation for a TabContents. Handles notifications sent
 //  by an active drag-drop operation as the user mouses over other drop targets
 //  on their system. This object tells Windows whether or not the drag should
 //  continue, and supplies the appropriate cursors.

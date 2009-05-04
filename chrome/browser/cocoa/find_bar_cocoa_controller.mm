@@ -12,7 +12,7 @@
 #import "chrome/browser/cocoa/find_bar_cocoa_controller.h"
 #import "chrome/browser/cocoa/find_bar_bridge.h"
 #import "chrome/browser/cocoa/tab_strip_controller.h"
-#include "chrome/browser/tab_contents/web_contents.h"
+#include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/common/l10n_util.h"
 
 @implementation FindBarCocoaController
@@ -40,14 +40,14 @@
 
 - (IBAction)previousResult:(id)sender {
   if (findBarBridge_)
-    findBarBridge_->GetFindBarController()->web_contents()->StartFinding(
+    findBarBridge_->GetFindBarController()->tab_contents()->StartFinding(
         base::SysNSStringToUTF16([findText_ stringValue]),
         false);
 }
 
 - (IBAction)nextResult:(id)sender {
   if (findBarBridge_)
-    findBarBridge_->GetFindBarController()->web_contents()->StartFinding(
+    findBarBridge_->GetFindBarController()->tab_contents()->StartFinding(
         base::SysNSStringToUTF16([findText_ stringValue]),
         true);
 }
@@ -80,18 +80,18 @@
   if (!findBarBridge_)
     return;
 
-  WebContents* web_contents =
-      findBarBridge_->GetFindBarController()->web_contents();
-  if (!web_contents)
+  TabContents* tab_contents =
+      findBarBridge_->GetFindBarController()->tab_contents();
+  if (!tab_contents)
     return;
 
   string16 findText = base::SysNSStringToUTF16([findText_ stringValue]);
   if (findText.length() > 0) {
-    web_contents->StartFinding(findText, true);
+    tab_contents->StartFinding(findText, true);
   } else {
     // The textbox is empty so we reset.
-    web_contents->StopFinding(true);  // true = clear selection on page.
-    [self updateUIForFindResult:web_contents->find_result()
+    tab_contents->StopFinding(true);  // true = clear selection on page.
+    [self updateUIForFindResult:tab_contents->find_result()
           withText:string16()];
   }
 }

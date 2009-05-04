@@ -36,9 +36,9 @@ static void InitNavigateParams(ViewHostMsg_FrameNavigate_Params* params,
 class TestSafeBrowsingBlockingPage :  public SafeBrowsingBlockingPage {
  public:
   TestSafeBrowsingBlockingPage(SafeBrowsingService* service,
-                               WebContents* web_contents,
+                               TabContents* tab_contents,
                                const UnsafeResourceList& unsafe_resources)
-      : SafeBrowsingBlockingPage(service, web_contents, unsafe_resources) {
+      : SafeBrowsingBlockingPage(service, tab_contents, unsafe_resources) {
   }
 
   // Overriden from InterstitialPage.  Don't create a view.
@@ -55,9 +55,9 @@ class TestSafeBrowsingBlockingPageFactory
 
   virtual SafeBrowsingBlockingPage* CreateSafeBrowsingPage(
       SafeBrowsingService* service,
-      WebContents* web_contents,
+      TabContents* tab_contents,
       const SafeBrowsingBlockingPage::UnsafeResourceList& unsafe_resources) {
-    return new TestSafeBrowsingBlockingPage(service, web_contents,
+    return new TestSafeBrowsingBlockingPage(service, tab_contents,
                                             unsafe_resources);
   }
 };

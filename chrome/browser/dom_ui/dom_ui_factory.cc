@@ -22,23 +22,23 @@
 // web contents and the new_ui. The return value will indiacate whether a DOM UI
 // exists for the given URL.
 //
-// If you want to create a DOM UI, pass non-NULL pointers for both web_contents
+// If you want to create a DOM UI, pass non-NULL pointers for both tab_contents
 // and new_ui. The *new_ui pointer will be filled with the created UI if it
 // succeeds (indicated by a return value of true). The caller owns the *new_ui
 // pointer.
-static bool CreateDOMUI(const GURL& url, WebContents* web_contents,
+static bool CreateDOMUI(const GURL& url, TabContents* tab_contents,
                         DOMUI** new_ui) {
   // Currently, any gears: URL means an HTML dialog.
   if (url.SchemeIs(chrome::kGearsScheme)) {
     if (new_ui)
-      *new_ui = new HtmlDialogUI(web_contents);
+      *new_ui = new HtmlDialogUI(tab_contents);
     return true;
   }
 
 #ifdef CHROME_PERSONALIZATION
   if (Personalization::NeedsDOMUI(url)) {
     if (new_ui)
-      *new_ui = new HtmlDialogUI(web_contents);
+      *new_ui = new HtmlDialogUI(tab_contents);
     return true;
   }
 #endif
@@ -56,7 +56,7 @@ static bool CreateDOMUI(const GURL& url, WebContents* web_contents,
   if (url.host() == chrome::kChromeUINewTabHost ||
       url.SchemeIs(chrome::kChromeInternalScheme)) {
     if (new_ui)
-      *new_ui = new NewTabUI(web_contents);
+      *new_ui = new NewTabUI(tab_contents);
     return true;
   }
 
@@ -64,31 +64,31 @@ static bool CreateDOMUI(const GURL& url, WebContents* web_contents,
   // after the host name.
   if (url.host() == chrome::kChromeUIHistoryHost) {
     if (new_ui)
-      *new_ui = new HistoryUI(web_contents);
+      *new_ui = new HistoryUI(tab_contents);
     return true;
   }
 
   if (url.host() == chrome::kChromeUIDownloadsHost) {
     if (new_ui)
-      *new_ui = new DownloadsUI(web_contents);
+      *new_ui = new DownloadsUI(tab_contents);
     return true;
   }
 
   if (url.host() == chrome::kChromeUIExtensionsHost) {
     if (new_ui)
-      *new_ui = new ExtensionsUI(web_contents);
+      *new_ui = new ExtensionsUI(tab_contents);
     return true;
   }
 
   if (url.host() == chrome::kChromeUIInspectorHost) {
     if (new_ui)
-      *new_ui = new DebuggerUI(web_contents);
+      *new_ui = new DebuggerUI(tab_contents);
     return true;
   }
 
   if (url.host() == chrome::kChromeUIDevToolsHost) {
     if (new_ui)
-      *new_ui = new DevToolsUI(web_contents);
+      *new_ui = new DevToolsUI(tab_contents);
     return true;
   }
 
@@ -107,10 +107,10 @@ bool DOMUIFactory::UseDOMUIForURL(const GURL& url) {
 }
 
 // static
-DOMUI* DOMUIFactory::CreateDOMUIForURL(WebContents* web_contents,
+DOMUI* DOMUIFactory::CreateDOMUIForURL(TabContents* tab_contents,
                                        const GURL& url) {
   DOMUI* dom_ui;
-  if (!CreateDOMUI(url, web_contents, &dom_ui))
+  if (!CreateDOMUI(url, tab_contents, &dom_ui))
     return NULL;
   return dom_ui;
 }

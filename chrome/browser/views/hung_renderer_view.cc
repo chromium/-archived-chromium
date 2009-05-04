@@ -8,7 +8,7 @@
 #include "chrome/browser/renderer_host/render_process_host.h"
 #include "chrome/browser/renderer_host/render_view_host.h"
 #include "chrome/browser/views/standard_layout.h"
-#include "chrome/browser/tab_contents/web_contents.h"
+#include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/common/chrome_constants.h"
 #include "chrome/common/gfx/chrome_canvas.h"
 #include "chrome/common/gfx/path.h"
@@ -35,7 +35,7 @@ class HungPagesTableModel : public views::GroupTableModel {
   HungPagesTableModel();
   virtual ~HungPagesTableModel();
 
-  void InitForWebContents(WebContents* hung_contents);
+  void InitForTabContents(TabContents* hung_contents);
 
   // Overridden from views::GroupTableModel:
   virtual int RowCount();
@@ -45,8 +45,8 @@ class HungPagesTableModel : public views::GroupTableModel {
   virtual void GetGroupRangeForItem(int item, views::GroupRange* range);
 
  private:
-  typedef std::vector<WebContents*> WebContentsVector;
-  WebContentsVector webcontentses_;
+  typedef std::vector<TabContents*> TabContentsVector;
+  TabContentsVector tab_contentses_;
 
   views::TableModelObserver* observer_;
 
@@ -62,11 +62,11 @@ HungPagesTableModel::HungPagesTableModel() : observer_(NULL) {
 HungPagesTableModel::~HungPagesTableModel() {
 }
 
-void HungPagesTableModel::InitForWebContents(WebContents* hung_contents) {
-  webcontentses_.clear();
-  for (WebContentsIterator it; !it.done(); ++it) {
+void HungPagesTableModel::InitForTabContents(TabContents* hung_contents) {
+  tab_contentses_.clear();
+  for (TabContentsIterator it; !it.done(); ++it) {
     if (it->process() == hung_contents->process())
-      webcontentses_.push_back(*it);
+      tab_contentses_.push_back(*it);
   }
   // The world is different.
   if (observer_)
@@ -77,12 +77,12 @@ void HungPagesTableModel::InitForWebContents(WebContents* hung_contents) {
 // HungPagesTableModel, views::GroupTableModel implementation:
 
 int HungPagesTableModel::RowCount() {
-  return static_cast<int>(webcontentses_.size());
+  return static_cast<int>(tab_contentses_.size());
 }
 
 std::wstring HungPagesTableModel::GetText(int row, int column_id) {
   DCHECK(row >= 0 && row < RowCount());
-  std::wstring title = UTF16ToWideHack(webcontentses_.at(row)->GetTitle());
+  std::wstring title = UTF16ToWideHack(tab_contentses_.at(row)->GetTitle());
   if (title.empty())
     title = l10n_util::GetString(IDS_TAB_UNTITLED_TITLE);
   // TODO(xji): Consider adding a special case if the title text is a URL,
@@ -94,7 +94,7 @@ std::wstring HungPagesTableModel::GetText(int row, int column_id) {
 
 SkBitmap HungPagesTableModel::GetIcon(int row) {
   DCHECK(row >= 0 && row < RowCount());
-  return webcontentses_.at(row)->GetFavIcon();
+  return tab_contentses_.at(row)->GetFavIcon();
 }
 
 void HungPagesTableModel::SetObserver(views::TableModelObserver* observer) {
@@ -118,8 +118,8 @@ class HungRendererWarningView : public views::View,
   HungRendererWarningView();
   ~HungRendererWarningView();
 
-  void ShowForWebContents(WebContents* contents);
-  void EndForWebContents(WebContents* contents);
+  void ShowForTabContents(TabContents* contents);
+  void EndForTabContents(TabContents* contents);
 
   // views::WindowDelegate overrides:
   virtual std::wstring GetWindowTitle() const;
@@ -146,8 +146,8 @@ class HungRendererWarningView : public views::View,
   void CreateKillButtonView();
 
   // Returns the bounds the dialog should be displayed at to be meaningfully
-  // associated with the specified WebContents.
-  gfx::Rect GetDisplayBounds(WebContents* contents);
+  // associated with the specified TabContents.
+  gfx::Rect GetDisplayBounds(TabContents* contents);
 
   static void InitClass();
 
@@ -173,9 +173,9 @@ class HungRendererWarningView : public views::View,
   // pages affected by the hang.
   scoped_ptr<HungPagesTableModel> hung_pages_table_model_;
 
-  // The WebContents that we detected had hung in the first place resulting in
+  // The TabContents that we detected had hung in the first place resulting in
   // the display of this view.
-  WebContents* contents_;
+  TabContents* contents_;
 
   // Whether or not we've created controls for ourself.
   bool initialized_;
@@ -215,7 +215,7 @@ HungRendererWarningView::~HungRendererWarningView() {
   hung_pages_table_->SetModel(NULL);
 }
 
-void HungRendererWarningView::ShowForWebContents(WebContents* contents) {
+void HungRendererWarningView::ShowForTabContents(TabContents* contents) {
   DCHECK(contents && window());
   contents_ = contents;
 
@@ -234,21 +234,21 @@ void HungRendererWarningView::ShowForWebContents(WebContents* contents) {
     window()->SetBounds(bounds, frame_hwnd);
 
     // We only do this if the window isn't active (i.e. hasn't been shown yet,
-    // or is currently shown but deactivated for another WebContents). This is
+    // or is currently shown but deactivated for another TabContents). This is
     // because this window is a singleton, and it's possible another active
     // renderer may hang while this one is showing, and we don't want to reset
     // the list of hung pages for a potentially unrelated renderer while this
     // one is showing.
-    hung_pages_table_model_->InitForWebContents(contents);
+    hung_pages_table_model_->InitForTabContents(contents);
     window()->Show();
   }
 }
 
-void HungRendererWarningView::EndForWebContents(WebContents* contents) {
+void HungRendererWarningView::EndForTabContents(TabContents* contents) {
   DCHECK(contents);
   if (contents_ && contents_->process() == contents->process()) {
     window()->Close();
-    // Since we're closing, we no longer need this WebContents.
+    // Since we're closing, we no longer need this TabContents.
     contents_ = NULL;
   }
 }
@@ -397,7 +397,7 @@ void HungRendererWarningView::CreateKillButtonView() {
 }
 
 gfx::Rect HungRendererWarningView::GetDisplayBounds(
-    WebContents* contents) {
+    TabContents* contents) {
   HWND contents_hwnd = contents->GetNativeView();
   CRect contents_bounds;
   GetWindowRect(contents_hwnd, &contents_bounds);
@@ -434,16 +434,16 @@ static HungRendererWarningView* CreateHungRendererWarningView() {
 }
 
 // static
-void HungRendererWarning::ShowForWebContents(WebContents* contents) {
+void HungRendererWarning::ShowForTabContents(TabContents* contents) {
   if (!logging::DialogsAreSuppressed()) {
     if (!instance_)
       instance_ = CreateHungRendererWarningView();
-    instance_->ShowForWebContents(contents);
+    instance_->ShowForTabContents(contents);
   }
 }
 
 // static
-void HungRendererWarning::HideForWebContents(WebContents* contents) {
+void HungRendererWarning::HideForTabContents(TabContents* contents) {
   if (!logging::DialogsAreSuppressed() && instance_)
-    instance_->EndForWebContents(contents);
+    instance_->EndForTabContents(contents);
 }

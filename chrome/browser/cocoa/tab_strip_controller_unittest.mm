@@ -7,7 +7,7 @@
 #include "chrome/browser/cocoa/browser_test_helper.h"
 #import "chrome/browser/cocoa/cocoa_test_helper.h"
 #import "chrome/browser/cocoa/tab_strip_controller.h"
-#include "chrome/browser/tab_contents/web_contents.h"
+#include "chrome/browser/tab_contents/tab_contents.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
 namespace {
@@ -97,7 +97,7 @@ class TabStripControllerTest : public testing::Test {
 };
 
 TEST_F(TabStripControllerTest, GrowBox) {
-  // TODO(pinkerton): Creating a WebContents crashes an unrelated test, even
+  // TODO(pinkerton): Creating a TabContents crashes an unrelated test, even
   // if you don't do anything with it. http://crbug.com/10899
 }
 
@@ -106,24 +106,24 @@ TEST_F(TabStripControllerTest, GrowBox) {
 TEST_F(TabStripControllerTest, AddRemoveTabs) {
   EXPECT_TRUE(model_->empty());
 #if 0
-  // TODO(pinkerton): Creating a WebContents crashes an unrelated test, even
+  // TODO(pinkerton): Creating a TabContents crashes an unrelated test, even
   // if you don't do anything with it. http://crbug.com/10899
   SiteInstance* instance =
       SiteInstance::CreateSiteInstance(browser_helper_.profile());
-  WebContents* tab_contents =
-      new WebContents(browser_helper_.profile(), instance);
+  TabContents* tab_contents =
+      new TabContents(browser_helper_.profile(), instance);
   model_->AppendTabContents(tab_contents, true);
   EXPECT_EQ(model_->count(), 1);
 #endif
 }
 
 TEST_F(TabStripControllerTest, SelectTab) {
-  // TODO(pinkerton): Creating a WebContents crashes an unrelated test, even
+  // TODO(pinkerton): Creating a TabContents crashes an unrelated test, even
   // if you don't do anything with it. http://crbug.com/10899
 }
 
 TEST_F(TabStripControllerTest, RearrangeTabs) {
-  // TODO(pinkerton): Creating a WebContents crashes an unrelated test, even
+  // TODO(pinkerton): Creating a TabContents crashes an unrelated test, even
   // if you don't do anything with it. http://crbug.com/10899
 }
 

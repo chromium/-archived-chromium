@@ -30,10 +30,10 @@ class TabContentsViewMac;
 class TabContentsViewMac : public TabContentsView,
                            public NotificationObserver {
  public:
-  // The corresponding WebContents is passed in the constructor, and manages our
+  // The corresponding TabContents is passed in the constructor, and manages our
   // lifetime. This doesn't need to be the case, but is this way currently
   // because that's what was easiest when they were split.
-  explicit TabContentsViewMac(WebContents* web_contents);
+  explicit TabContentsViewMac(TabContents* web_contents);
   virtual ~TabContentsViewMac();
 
   // TabContentsView implementation --------------------------------------------

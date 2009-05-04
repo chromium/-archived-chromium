@@ -16,7 +16,7 @@
 #include "chrome/browser/views/tabs/hwnd_photobooth.h"
 #include "chrome/browser/views/tabs/tab.h"
 #include "chrome/browser/views/tabs/tab_strip.h"
-#include "chrome/browser/tab_contents/web_contents.h"
+#include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/common/animation.h"
 #include "chrome/common/gfx/chrome_canvas.h"
 #include "chrome/common/notification_service.h"

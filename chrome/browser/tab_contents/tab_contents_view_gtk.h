@@ -13,10 +13,10 @@ class RenderViewContextMenuGtk;
 
 class TabContentsViewGtk : public TabContentsView {
  public:
-  // The corresponding WebContents is passed in the constructor, and manages our
+  // The corresponding TabContents is passed in the constructor, and manages our
   // lifetime. This doesn't need to be the case, but is this way currently
   // because that's what was easiest when they were split.
-  explicit TabContentsViewGtk(WebContents* web_contents);
+  explicit TabContentsViewGtk(TabContents* tab_contents);
   virtual ~TabContentsViewGtk();
 
   // TabContentsView implementation --------------------------------------------

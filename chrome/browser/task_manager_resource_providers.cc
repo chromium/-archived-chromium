@@ -15,7 +15,7 @@
 #include "chrome/browser/renderer_host/render_process_host.h"
 #include "chrome/browser/renderer_host/resource_message_filter.h"
 #include "chrome/browser/tab_contents/tab_util.h"
-#include "chrome/browser/tab_contents/web_contents.h"
+#include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/common/child_process_host.h"
 #include "chrome/common/l10n_util.h"
 #include "chrome/common/notification_service.h"
@@ -28,26 +28,26 @@
 #include "grit/theme_resources.h"
 
 ////////////////////////////////////////////////////////////////////////////////
-// TaskManagerWebContentsResource class
+// TaskManagerTabContentsResource class
 ////////////////////////////////////////////////////////////////////////////////
 
-TaskManagerWebContentsResource::TaskManagerWebContentsResource(
-    WebContents* web_contents)
-    : web_contents_(web_contents) {
-  // We cache the process as when the WebContents is closed the process
+TaskManagerTabContentsResource::TaskManagerTabContentsResource(
+    TabContents* tab_contents)
+    : tab_contents_(tab_contents) {
+  // We cache the process as when the TabContents is closed the process
   // becomes NULL and the TaskManager still needs it.
-  process_ = web_contents_->process()->process().handle();
+  process_ = tab_contents_->process()->process().handle();
   pid_ = base::GetProcId(process_);
 }
 
-TaskManagerWebContentsResource::~TaskManagerWebContentsResource() {
+TaskManagerTabContentsResource::~TaskManagerTabContentsResource() {
 }
 
-std::wstring TaskManagerWebContentsResource::GetTitle() const {
+std::wstring TaskManagerTabContentsResource::GetTitle() const {
   // Fall back on the URL if there's no title.
-  std::wstring tab_title(UTF16ToWideHack(web_contents_->GetTitle()));
+  std::wstring tab_title(UTF16ToWideHack(tab_contents_->GetTitle()));
   if (tab_title.empty()) {
-    tab_title = UTF8ToWide(web_contents_->GetURL().spec());
+    tab_title = UTF8ToWide(tab_contents_->GetURL().spec());
     // Force URL to be LTR.
     if (l10n_util::GetTextDirection() == l10n_util::RIGHT_TO_LEFT)
       l10n_util::WrapStringWithLTRFormatting(&tab_title);
@@ -67,55 +67,55 @@ std::wstring TaskManagerWebContentsResource::GetTitle() const {
   return l10n_util::GetStringF(IDS_TASK_MANAGER_TAB_PREFIX, tab_title);
 }
 
-SkBitmap TaskManagerWebContentsResource::GetIcon() const {
-  return web_contents_->GetFavIcon();
+SkBitmap TaskManagerTabContentsResource::GetIcon() const {
+  return tab_contents_->GetFavIcon();
 }
 
-base::ProcessHandle TaskManagerWebContentsResource::GetProcess() const {
+base::ProcessHandle TaskManagerTabContentsResource::GetProcess() const {
   return process_;
 }
 
-TabContents* TaskManagerWebContentsResource::GetTabContents() const {
-  return static_cast<TabContents*>(web_contents_);
+TabContents* TaskManagerTabContentsResource::GetTabContents() const {
+  return static_cast<TabContents*>(tab_contents_);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-// TaskManagerWebContentsResourceProvider class
+// TaskManagerTabContentsResourceProvider class
 ////////////////////////////////////////////////////////////////////////////////
 
-TaskManagerWebContentsResourceProvider::
-    TaskManagerWebContentsResourceProvider(TaskManager* task_manager)
+TaskManagerTabContentsResourceProvider::
+    TaskManagerTabContentsResourceProvider(TaskManager* task_manager)
     :  updating_(false),
        task_manager_(task_manager) {
 }
 
-TaskManagerWebContentsResourceProvider::
-    ~TaskManagerWebContentsResourceProvider() {
+TaskManagerTabContentsResourceProvider::
+    ~TaskManagerTabContentsResourceProvider() {
 }
 
-TaskManager::Resource* TaskManagerWebContentsResourceProvider::GetResource(
+TaskManager::Resource* TaskManagerTabContentsResourceProvider::GetResource(
     int origin_pid,
     int render_process_host_id,
     int routing_id) {
 
-  WebContents* web_contents =
-      tab_util::GetWebContentsByID(render_process_host_id, routing_id);
-  if (!web_contents)  // Not one of our resource.
+  TabContents* tab_contents =
+      tab_util::GetTabContentsByID(render_process_host_id, routing_id);
+  if (!tab_contents)  // Not one of our resource.
     return NULL;
 
-  if (!web_contents->process()->process().handle()) {
+  if (!tab_contents->process()->process().handle()) {
     // We should not be holding on to a dead tab (it should have been removed
-    // through the NOTIFY_WEB_CONTENTS_DISCONNECTED notification.
+    // through the NOTIFY_TAB_CONTENTS_DISCONNECTED notification.
     NOTREACHED();
     return NULL;
   }
 
-  int pid = web_contents->process()->process().pid();
+  int pid = tab_contents->process()->process().pid();
   if (pid != origin_pid)
     return NULL;
 
-  std::map<WebContents*, TaskManagerWebContentsResource*>::iterator
-      res_iter = resources_.find(web_contents);
+  std::map<TabContents*, TaskManagerTabContentsResource*>::iterator
+      res_iter = resources_.find(tab_contents);
   if (res_iter == resources_.end())
     // Can happen if the tab was closed while a network request was being
     // performed.
@@ -124,43 +124,43 @@ TaskManager::Resource* TaskManagerWebContentsResourceProvider::GetResource(
   return res_iter->second;
 }
 
-void TaskManagerWebContentsResourceProvider::StartUpdating() {
+void TaskManagerTabContentsResourceProvider::StartUpdating() {
   DCHECK(!updating_);
   updating_ = true;
-  // Add all the existing WebContents.
-  for (WebContentsIterator iterator; !iterator.done(); iterator++) {
-    WebContents* web_contents = *iterator;
+  // Add all the existing TabContents.
+  for (TabContentsIterator iterator; !iterator.done(); iterator++) {
+    TabContents* tab_contents = *iterator;
     // Don't add dead tabs or tabs that haven't yet connected.
-    if (web_contents->process()->process().handle() &&
-        web_contents->notify_disconnection())
-      AddToTaskManager(web_contents);
+    if (tab_contents->process()->process().handle() &&
+        tab_contents->notify_disconnection())
+      AddToTaskManager(tab_contents);
   }
   // Then we register for notifications to get new tabs.
-  registrar_.Add(this, NotificationType::WEB_CONTENTS_CONNECTED,
+  registrar_.Add(this, NotificationType::TAB_CONTENTS_CONNECTED,
                  NotificationService::AllSources());
-  registrar_.Add(this, NotificationType::WEB_CONTENTS_SWAPPED,
+  registrar_.Add(this, NotificationType::TAB_CONTENTS_SWAPPED,
                  NotificationService::AllSources());
-  registrar_.Add(this, NotificationType::WEB_CONTENTS_DISCONNECTED,
+  registrar_.Add(this, NotificationType::TAB_CONTENTS_DISCONNECTED,
                  NotificationService::AllSources());
-  // WEB_CONTENTS_DISCONNECTED should be enough to know when to remove a
+  // TAB_CONTENTS_DISCONNECTED should be enough to know when to remove a
   // resource.  This is an attempt at mitigating a crasher that seem to
-  // indicate a resource is still referencing a deleted WebContents
+  // indicate a resource is still referencing a deleted TabContents
   // (http://crbug.com/7321).
   registrar_.Add(this, NotificationType::TAB_CONTENTS_DESTROYED,
                  NotificationService::AllSources());
 
 }
 
-void TaskManagerWebContentsResourceProvider::StopUpdating() {
+void TaskManagerTabContentsResourceProvider::StopUpdating() {
   DCHECK(updating_);
   updating_ = false;
 
   // Then we unregister for notifications to get new tabs.
-  registrar_.Remove(this, NotificationType::WEB_CONTENTS_CONNECTED,
+  registrar_.Remove(this, NotificationType::TAB_CONTENTS_CONNECTED,
                     NotificationService::AllSources());
-  registrar_.Remove(this, NotificationType::WEB_CONTENTS_SWAPPED,
+  registrar_.Remove(this, NotificationType::TAB_CONTENTS_SWAPPED,
                     NotificationService::AllSources());
-  registrar_.Remove(this, NotificationType::WEB_CONTENTS_DISCONNECTED,
+  registrar_.Remove(this, NotificationType::TAB_CONTENTS_DISCONNECTED,
                     NotificationService::AllSources());
   registrar_.Remove(this, NotificationType::TAB_CONTENTS_DESTROYED,
                     NotificationService::AllSources());
@@ -171,41 +171,41 @@ void TaskManagerWebContentsResourceProvider::StopUpdating() {
   resources_.clear();
 }
 
-void TaskManagerWebContentsResourceProvider::AddToTaskManager(
-    WebContents* web_contents) {
-  TaskManagerWebContentsResource* resource =
-      new TaskManagerWebContentsResource(web_contents);
-  resources_[web_contents] = resource;
+void TaskManagerTabContentsResourceProvider::AddToTaskManager(
+    TabContents* tab_contents) {
+  TaskManagerTabContentsResource* resource =
+      new TaskManagerTabContentsResource(tab_contents);
+  resources_[tab_contents] = resource;
   task_manager_->AddResource(resource);
 }
 
-void TaskManagerWebContentsResourceProvider::Add(WebContents* web_contents) {
+void TaskManagerTabContentsResourceProvider::Add(TabContents* tab_contents) {
   if (!updating_)
     return;
 
-  if (!web_contents->process()->process().handle()) {
+  if (!tab_contents->process()->process().handle()) {
     // Don't add sad tabs, we would have no information to show for them since
     // they have no associated process.
     return;
   }
 
-  std::map<WebContents*, TaskManagerWebContentsResource*>::const_iterator
-      iter = resources_.find(web_contents);
+  std::map<TabContents*, TaskManagerTabContentsResource*>::const_iterator
+      iter = resources_.find(tab_contents);
   if (iter != resources_.end()) {
-    // The case may happen that we have added a WebContents as part of the
+    // The case may happen that we have added a TabContents as part of the
     // iteration performed during StartUpdating() call but the notification that
     // it has connected was not fired yet. So when the notification happens, we
     // already know about this tab and just ignore it.
     return;
   }
-  AddToTaskManager(web_contents);
+  AddToTaskManager(tab_contents);
 }
 
-void TaskManagerWebContentsResourceProvider::Remove(WebContents* web_contents) {
+void TaskManagerTabContentsResourceProvider::Remove(TabContents* tab_contents) {
   if (!updating_)
     return;
-  std::map<WebContents*, TaskManagerWebContentsResource*>::iterator
-      iter = resources_.find(web_contents);
+  std::map<TabContents*, TaskManagerTabContentsResource*>::iterator
+      iter = resources_.find(tab_contents);
   if (iter == resources_.end()) {
     // Since TabContents are destroyed asynchronously (see TabContentsCollector
     // in navigation_controller.cc), we can be notified of a tab being removed
@@ -215,7 +215,7 @@ void TaskManagerWebContentsResourceProvider::Remove(WebContents* web_contents) {
   }
 
   // Remove the resource from the Task Manager.
-  TaskManagerWebContentsResource* resource = iter->second;
+  TaskManagerTabContentsResource* resource = iter->second;
   task_manager_->RemoveResource(resource);
   // And from the provider.
   resources_.erase(iter);
@@ -223,25 +223,25 @@ void TaskManagerWebContentsResourceProvider::Remove(WebContents* web_contents) {
   delete resource;
 }
 
-void TaskManagerWebContentsResourceProvider::Observe(NotificationType type,
+void TaskManagerTabContentsResourceProvider::Observe(NotificationType type,
     const NotificationSource& source,
     const NotificationDetails& details) {
   switch (type.value) {
-    case NotificationType::WEB_CONTENTS_CONNECTED:
-      Add(Source<WebContents>(source).ptr());
+    case NotificationType::TAB_CONTENTS_CONNECTED:
+      Add(Source<TabContents>(source).ptr());
       break;
-    case NotificationType::WEB_CONTENTS_SWAPPED:
-      Remove(Source<WebContents>(source).ptr());
-      Add(Source<WebContents>(source).ptr());
+    case NotificationType::TAB_CONTENTS_SWAPPED:
+      Remove(Source<TabContents>(source).ptr());
+      Add(Source<TabContents>(source).ptr());
       break;
     case NotificationType::TAB_CONTENTS_DESTROYED:
       // If this DCHECK is triggered, it could explain http://crbug.com/7321.
-      DCHECK(resources_.find(Source<WebContents>(source).ptr()) ==
+      DCHECK(resources_.find(Source<TabContents>(source).ptr()) ==
              resources_.end()) << "TAB_CONTENTS_DESTROYED with no associated "
-                                  "WEB_CONTENTS_DISCONNECTED";
+                                  "TAB_CONTENTS_DISCONNECTED";
       // Fall through.
-    case NotificationType::WEB_CONTENTS_DISCONNECTED:
-      Remove(Source<WebContents>(source).ptr());
+    case NotificationType::TAB_CONTENTS_DISCONNECTED:
+      Remove(Source<TabContents>(source).ptr());
       break;
     default:
       NOTREACHED() << "Unexpected notification.";

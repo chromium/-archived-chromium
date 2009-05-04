@@ -21,7 +21,7 @@
 #include "chrome/views/widget/widget.h"
 
 class AutomationProvider;
-class WebContents;
+class TabContents;
 class Profile;
 class TabContentsContainerView;
 // This class serves as the container window for an external tab.
@@ -47,7 +47,7 @@ class ExternalTabContainer : public TabContentsDelegate,
   ExternalTabContainer(AutomationProvider* automation);
   ~ExternalTabContainer();
 
-  WebContents* tab_contents() const {
+  TabContents* tab_contents() const {
     return tab_contents_;
   }
 
@@ -144,7 +144,7 @@ class ExternalTabContainer : public TabContentsDelegate,
   void OnFinalMessage(HWND window);
 
  protected:
-  WebContents* tab_contents_;
+  TabContents* tab_contents_;
   scoped_refptr<AutomationProvider> automation_;
 
   NotificationRegistrar registrar_;

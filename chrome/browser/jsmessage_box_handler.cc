@@ -8,7 +8,7 @@
 #include "chrome/browser/app_modal_dialog_queue.h"
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/profile.h"
-#include "chrome/browser/tab_contents/web_contents.h"
+#include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/common/gfx/text_elider.h"
 #include "chrome/common/l10n_util.h"
 #include "chrome/common/message_box_flags.h"
@@ -29,7 +29,7 @@ std::wstring MakeTextSafe(const std::wstring& text) {
   return text;
 }
 
-std::wstring GetWindowTitle(WebContents* web_contents, const GURL& frame_url,
+std::wstring GetWindowTitle(TabContents* tab_contents, const GURL& frame_url,
                             int dialog_flags) {
   bool is_alert = (dialog_flags == MessageBoxFlags::kIsJavascriptAlert);
   if (!frame_url.has_host())
@@ -49,7 +49,7 @@ std::wstring GetWindowTitle(WebContents* web_contents, const GURL& frame_url,
   // TODO(brettw) it should be easier than this to do the correct language
   // handling without getting the accept language from the profile.
   std::wstring base_address = gfx::ElideUrl(clean_url, ChromeFont(), 0,
-      web_contents->profile()->GetPrefs()->GetString(prefs::kAcceptLanguages));
+      tab_contents->profile()->GetPrefs()->GetString(prefs::kAcceptLanguages));
   // Force URL to have LTR directionality.
   if (l10n_util::GetTextDirection() == l10n_util::RIGHT_TO_LEFT)
     l10n_util::WrapStringWithLTRFormatting(&base_address);
@@ -60,27 +60,27 @@ std::wstring GetWindowTitle(WebContents* web_contents, const GURL& frame_url,
 
 }
 
-void RunJavascriptMessageBox(WebContents* web_contents,
+void RunJavascriptMessageBox(TabContents* tab_contents,
                              const GURL& frame_url,
                              int dialog_flags,
                              const std::wstring& message_text,
                              const std::wstring& default_prompt_text,
                              bool display_suppress_checkbox,
                              IPC::Message* reply_msg) {
-  std::wstring title = GetWindowTitle(web_contents, frame_url, dialog_flags);
-  AppModalDialogQueue::AddDialog(new AppModalDialog(web_contents, title,
+  std::wstring title = GetWindowTitle(tab_contents, frame_url, dialog_flags);
+  AppModalDialogQueue::AddDialog(new AppModalDialog(tab_contents, title,
       dialog_flags, MakeTextSafe(message_text), default_prompt_text,
       display_suppress_checkbox, false, reply_msg));
 }
 
-void RunBeforeUnloadDialog(WebContents* web_contents,
+void RunBeforeUnloadDialog(TabContents* tab_contents,
                            const std::wstring& message_text,
                            IPC::Message* reply_msg) {
   std::wstring full_message =
       message_text + L"\n\n" +
       l10n_util::GetString(IDS_BEFOREUNLOAD_MESSAGEBOX_FOOTER);
   AppModalDialogQueue::AddDialog(new AppModalDialog(
-      web_contents, l10n_util::GetString(IDS_BEFOREUNLOAD_MESSAGEBOX_TITLE),
+      tab_contents, l10n_util::GetString(IDS_BEFOREUNLOAD_MESSAGEBOX_TITLE),
       MessageBoxFlags::kIsJavascriptConfirm, MakeTextSafe(message_text),
       std::wstring(), false, true, reply_msg));
 }

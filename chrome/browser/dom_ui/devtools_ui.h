@@ -9,7 +9,7 @@
 
 class DevToolsUI : public DOMUI {
  public:
-  explicit DevToolsUI(WebContents* contents);
+  explicit DevToolsUI(TabContents* contents);
 
   // DOMUI overrides.
   virtual void RenderViewCreated(RenderViewHost* render_view_host);

@@ -25,7 +25,7 @@
 #include "chrome/browser/renderer_host/render_widget_host_view.h"
 #include "chrome/browser/tab_contents/navigation_entry.h"
 #include "chrome/browser/tab_contents/site_instance.h"
-#include "chrome/browser/tab_contents/web_contents.h"
+#include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/common/bindings_policy.h"
 #include "chrome/common/notification_service.h"
 #include "chrome/common/notification_type.h"
@@ -219,7 +219,7 @@ void RenderViewHost::DoNavigate(ViewMsg_Navigate* nav_message) {
   if (navigations_suspended_) {
     // Shouldn't be possible to have a second navigation while suspended, since
     // navigations will only be suspended during a cross-site request.  If a
-    // second navigation occurs, WebContents will cancel this pending RVH
+    // second navigation occurs, TabContents will cancel this pending RVH
     // create a new pending RVH.
     DCHECK(!suspended_nav_message_.get());
     suspended_nav_message_.reset(nav_message);
