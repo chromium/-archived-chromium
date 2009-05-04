@@ -22,10 +22,15 @@
 namespace {
 
 const GdkColor kBackgroundColor = GDK_COLOR_RGB(0xe6, 0xed, 0xf4);
-const GdkColor kBorderColor = GDK_COLOR_RGB(0xbe, 0xc8, 0xd4);
+const GdkColor kFrameBorderColor = GDK_COLOR_RGB(0xbe, 0xc8, 0xd4);
+const GdkColor kTextBorderColor = GDK_COLOR_RGB(0xa6, 0xaf, 0xba);
+const GdkColor kTextBorderColorAA = GDK_COLOR_RGB(0xee, 0xf4, 0xfb);
 
 // Padding around the container.
-const int kBarPadding = 4;
+const int kBarPaddingTopBottom = 4;
+const int kEntryPaddingLeft = 6;
+const int kCloseButtonPaddingLeft = 3;
+const int kBarPaddingRight = 4;
 
 // The height of the findbar dialog, as dictated by the size of the background
 // images.
@@ -109,7 +114,8 @@ void FindBarGtk::InitWidgets() {
   // the slide effect.
   GtkWidget* hbox = gtk_hbox_new(false, 0);
   container_ = gfx::CreateGtkBorderBin(hbox, &kBackgroundColor,
-      kBarPadding, kBarPadding, kBarPadding, kBarPadding);
+      kBarPaddingTopBottom, kBarPaddingTopBottom,
+      kEntryPaddingLeft, kBarPaddingRight);
   gtk_widget_set_app_paintable(container_, TRUE);
 
   slide_widget_.reset(new SlideAnimatorGtk(container_,
@@ -121,13 +127,14 @@ void FindBarGtk::InitWidgets() {
   fixed_.Own(gtk_fixed_new());
   border_ = gtk_event_box_new();
   gtk_widget_set_size_request(border_, 1, 1);
-  gtk_widget_modify_bg(border_, GTK_STATE_NORMAL, &kBorderColor);
+  gtk_widget_modify_bg(border_, GTK_STATE_NORMAL, &kFrameBorderColor);
 
   gtk_fixed_put(GTK_FIXED(widget()), border_, 0, 0);
   gtk_fixed_put(GTK_FIXED(widget()), slide_widget(), 0, 0);
   gtk_widget_set_size_request(widget(), -1, 0);
 
-  close_button_.reset(CustomDrawButton::AddBarCloseButton(hbox));
+  close_button_.reset(
+      CustomDrawButton::AddBarCloseButton(hbox, kCloseButtonPaddingLeft));
   g_signal_connect(G_OBJECT(close_button_->widget()), "clicked",
                    G_CALLBACK(OnButtonPressed), this);
   gtk_widget_set_tooltip_text(close_button_->widget(),
@@ -156,10 +163,17 @@ void FindBarGtk::InitWidgets() {
   // font size.
   gtk_widget_set_size_request(find_text_, -1, 20);
   gtk_entry_set_has_frame(GTK_ENTRY(find_text_), FALSE);
-  GtkWidget* border_bin = gfx::CreateGtkBorderBin(find_text_, &kBorderColor,
+
+  // We fake anti-aliasing by having two borders.
+  GtkWidget* border_bin = gfx::CreateGtkBorderBin(find_text_,
+                                                  &kTextBorderColor,
                                                   1, 1, 1, 0);
+  GtkWidget* border_bin_aa = gfx::CreateGtkBorderBin(border_bin,
+                                                     &kTextBorderColorAA,
+                                                     1, 1, 1, 0);
+
   GtkWidget* centering_vbox = gtk_vbox_new(FALSE, 0);
-  gtk_box_pack_start(GTK_BOX(centering_vbox), border_bin, TRUE, FALSE, 0);
+  gtk_box_pack_start(GTK_BOX(centering_vbox), border_bin_aa, TRUE, FALSE, 0);
   gtk_box_pack_end(GTK_BOX(hbox), centering_vbox, FALSE, FALSE, 0);
 
   // We show just the GtkFixed and |border_| (but not the dialog).

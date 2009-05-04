@@ -59,7 +59,7 @@ class CustomDrawButton {
   // a bar (find bar, download shelf, info bars). The button will be packed in
   // |hbox|.
   // The caller is responsible for destroying the returned CustomDrawButton.
-  static CustomDrawButton* AddBarCloseButton(GtkWidget* hbox);
+  static CustomDrawButton* AddBarCloseButton(GtkWidget* hbox, int padding);
 
  private:
   // Callback for expose, used to draw the custom graphics.

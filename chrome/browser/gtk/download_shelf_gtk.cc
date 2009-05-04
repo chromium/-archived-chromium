@@ -86,7 +86,7 @@ DownloadShelfGtk::DownloadShelfGtk(TabContents* tab_contents)
   gtk_box_pack_start(GTK_BOX(shelf_.get()), padding_bg, FALSE, FALSE, 0);
 
   // Create and pack the close button.
-  close_button_.reset(CustomDrawButton::AddBarCloseButton(hbox_));
+  close_button_.reset(CustomDrawButton::AddBarCloseButton(hbox_, 0));
   g_signal_connect(close_button_->widget(), "clicked",
                    G_CALLBACK(OnButtonClick), this);
 
