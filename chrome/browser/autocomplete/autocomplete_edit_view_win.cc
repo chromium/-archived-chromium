@@ -41,7 +41,6 @@
 #include "chrome/views/focus/focus_util_win.h"
 #include "googleurl/src/url_util.h"
 #include "grit/generated_resources.h"
-#include "grit/views_strings.h"
 #include "skia/ext/skia_utils_win.h"
 
 #pragma comment(lib, "oleacc.lib")  // Needed for accessibility support.

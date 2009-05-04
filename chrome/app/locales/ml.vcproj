@@ -148,10 +148,6 @@
 			>
 		</File>
 		<File
-			RelativePath="$(OutDir)\grit_derived_sources\views_strings_ml.rc"
-			>
-		</File>
-		<File
 			RelativePath="$(OutDir)\grit_derived_sources\webkit_strings_ml.rc"
 			>
 		</File>

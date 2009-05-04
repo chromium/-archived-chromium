@@ -8,6 +8,7 @@
 #include "chrome/common/gfx/chrome_canvas.h"
 #include "chrome/common/l10n_util.h"
 #include "chrome/common/throb_animation.h"
+#include "grit/generated_resources.h"
 #include "skia/ext/image_operations.h"
 
 namespace views {

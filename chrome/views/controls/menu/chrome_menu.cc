@@ -25,7 +25,7 @@
 #include "chrome/views/view_constants.h"
 #include "chrome/views/widget/root_view.h"
 #include "chrome/views/widget/widget_win.h"
-#include "grit/views_strings.h"
+#include "grit/generated_resources.h"
 #include "skia/ext/skia_utils_win.h"
 
 #undef min

@@ -14,6 +14,7 @@
 #include "chrome/common/message_box_flags.h"
 #include "chrome/views/controls/button/checkbox.h"
 #include "chrome/views/window/client_view.h"
+#include "grit/generated_resources.h"
 
 static const int kDefaultMessageWidth = 320;
 

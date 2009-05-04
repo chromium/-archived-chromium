@@ -63,7 +63,6 @@
 #include "grit/chromium_strings.h"
 #include "grit/generated_resources.h"
 #include "grit/theme_resources.h"
-#include "grit/views_strings.h"
 #include "grit/webkit_resources.h"
 
 

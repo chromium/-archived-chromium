@@ -12,7 +12,7 @@
 #include "chrome/common/win_util.h"
 #include "chrome/views/window/client_view.h"
 #include "chrome/views/window/window_delegate.h"
-#include "grit/views_resources.h"
+#include "grit/theme_resources.h"
 
 namespace views {
 

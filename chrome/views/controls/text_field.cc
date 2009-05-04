@@ -26,7 +26,7 @@
 #include "chrome/views/controls/menu/menu.h"
 #include "chrome/views/focus/focus_util_win.h"
 #include "chrome/views/widget/widget.h"
-#include "grit/views_strings.h"
+#include "grit/generated_resources.h"
 #include "skia/ext/skia_utils_win.h"
 
 using gfx::NativeTheme;

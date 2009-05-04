@@ -16,7 +16,6 @@
 #include "chrome/common/gfx/icon_util.h"
 #include "chrome/common/resource_bundle.h"
 #include "grit/theme_resources.h"
-#include "grit/views_resources.h"
 
 static bool g_initialized = false;
 static SkBitmap* g_default_fav_icon = NULL;

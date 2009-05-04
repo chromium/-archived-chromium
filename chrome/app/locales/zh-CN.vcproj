@@ -148,10 +148,6 @@
 			>
 		</File>
 		<File
-			RelativePath="$(OutDir)\grit_derived_sources\views_strings_zh-CN.rc"
-			>
-		</File>
-		<File
 			RelativePath="$(OutDir)\grit_derived_sources\webkit_strings_zh-CN.rc"
 			>
 		</File>
