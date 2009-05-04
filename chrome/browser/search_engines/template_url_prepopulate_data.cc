@@ -495,8 +495,7 @@ const PrepopulatedEngine google = {
       L"{google:originalQueryForSuggestion}sourceid=chrome&ie={inputEncoding}&"
       L"q={searchTerms}",
   "UTF-8",
-  L"{google:baseSuggestURL}search?client=chrome&output=chrome&hl={language}&"
-      L"q={searchTerms}",
+  L"{google:baseSuggestURL}search?client=chrome&hl={language}&q={searchTerms}",
   1,
 };
 
@@ -3186,7 +3185,7 @@ void RegisterUserPrefs(PrefService* prefs) {
 }
 
 int GetDataVersion() {
-  return 20;  // Increment this if you change the above data in ways that mean
+  return 21;  // Increment this if you change the above data in ways that mean
               // users with existing data should get a new version.
 }
 
