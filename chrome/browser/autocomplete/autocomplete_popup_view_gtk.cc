@@ -46,7 +46,7 @@ const int kIconWidth = 16;
 // We want to vertically center the image in the result space.
 const int kIconTopPadding = 4;
 // Space between the left edge (including the border) and the text.
-const int kIconLeftPadding = 6;
+const int kIconLeftPadding = 6 + kBorderThickness;
 // Space between the image and the text.  Would be 6 to line up with the
 // entry, but nudge it a bit more to match with the text in the entry.
 const int kIconRightPadding = 10;

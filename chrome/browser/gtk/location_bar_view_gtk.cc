@@ -24,7 +24,7 @@ namespace {
 
 // We are positioned with a little bit of extra space that we don't use now.
 const int kTopMargin = 1;
-const int kBottomMargin = 2;
+const int kBottomMargin = 1;
 // We don't want to edit control's text to be right against the edge.
 const int kEditLeftRightPadding = 4;
 // We draw a border on the top and bottom (but not on left or right).
