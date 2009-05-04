@@ -36,6 +36,14 @@ devtools.InspectorControllerImpl.prototype.hiddenPanels = function() {
 /**
  * {@inheritDoc}.
  */
+devtools.InspectorController.prototype.search = function(sourceRow, query) {
+  return DevToolsHost.search(sourceRow, query);
+};
+
+
+/**
+ * {@inheritDoc}.
+ */
 devtools.InspectorControllerImpl.prototype.addSourceToFrame =
     function(mimeType, source, element) {
   return DevToolsHost.addSourceToFrame(mimeType, source, element);

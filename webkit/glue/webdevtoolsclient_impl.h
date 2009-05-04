@@ -45,6 +45,7 @@ class WebDevToolsClientImpl : public WebDevToolsClient,
  private:
   static v8::Handle<v8::Value> JsAddSourceToFrame(const v8::Arguments& args);
   static v8::Handle<v8::Value> JsLoaded(const v8::Arguments& args);
+  static v8::Handle<v8::Value> JsSearch(const v8::Arguments& args);
   static v8::Persistent<v8::FunctionTemplate> host_template_;
   static HashMap<WebCore::Page*, WebDevToolsClientImpl*> page_to_client_;
 

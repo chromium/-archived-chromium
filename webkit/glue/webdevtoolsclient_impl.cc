@@ -19,6 +19,7 @@
 #undef LOG
 
 #include "V8Binding.h"
+#include "v8_custom.h"
 #include "v8_proxy.h"
 #include "v8_utility.h"
 #include "base/string_util.h"
@@ -112,6 +113,13 @@ void WebDevToolsClientImpl::InitBoundObject() {
           v8::Handle<v8::Value>(),
           default_signature),
       static_cast<v8::PropertyAttribute>(v8::DontDelete));
+  proto->Set(
+      v8::String::New("search"),
+      v8::FunctionTemplate::New(
+          WebDevToolsClientImpl::JsSearch,
+          v8::Handle<v8::Value>(),
+          default_signature),
+      static_cast<v8::PropertyAttribute>(v8::DontDelete));
   host_template_->SetClassName(v8::String::New("DevToolsHost"));
 }
 
@@ -201,6 +209,7 @@ v8::Handle<v8::Value> WebDevToolsClientImpl::JsAddSourceToFrame(
   }
   Node* node = V8Proxy::DOMWrapperToNode<Node>(args[2]);
   if (!node || !node->attached()) {
+    return v8::Undefined();
   }
 
   Page* page = V8Proxy::retrieveActiveFrame()->page();
@@ -228,4 +237,10 @@ v8::Handle<v8::Value> WebDevToolsClientImpl::JsLoaded(
   }
   client->pending_incoming_messages_.clear();
   return v8::Undefined();
+}
+
+// static
+v8::Handle<v8::Value> WebDevToolsClientImpl::JsSearch(
+    const v8::Arguments& args) {
+  return WebCore::V8Custom::v8InspectorControllerSearchCallback(args);
 }
