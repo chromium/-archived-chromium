@@ -901,6 +901,24 @@ devtools.DomAgent.prototype.applyStyleTextAsync = function(
 
 
 /**
+ * Sets style property with given name to a value.
+ * @param {devtools.DomNode} node Node to edit style for.
+ * @param {string} name Property name to edit.
+ * @param {string} value New value.
+ * @param {Function} callback.
+ */
+devtools.DomAgent.prototype.setStylePropertyAsync = function(
+    node, name, value, callback) {
+  var callbackId = this.utilityFunctionCallbackWrapper_(callback);
+  RemoteToolsAgent.ExecuteUtilityFunction(
+      callbackId,
+      'setStyleProperty',
+      node.id_,
+      goog.json.serialize([name, value]));
+};
+
+
+/**
  * Dumps exception if something went wrong in ExecuteUtilityFunction.
  * @param {Function} callback Callback to wrap.
  * @return {number} Callback id.
@@ -926,17 +944,19 @@ devtools.DomAgent.prototype.utilityFunctionCallbackWrapper_ =
  */
 devtools.CSSStyleDeclaration = function(payload) {
   this.id_ = payload[0];
-  this.__disabledProperties = payload[1];
-  this.__disabledPropertyValues = payload[2];
-  this.__disabledPropertyPriorities = payload[3];
+  this.width = payload[1];
+  this.height = payload[2];
+  this.__disabledProperties = payload[3];
+  this.__disabledPropertyValues = payload[4];
+  this.__disabledPropertyPriorities = payload[5];
 
-  this.length = payload.length - 4;
+  this.length = payload.length - 6;
   this.priority_ = {};
   this.implicit_ = {};
   this.shorthand_ = {};
   this.value_ = {};
 
-  for (var i = 4; i < payload.length; ++i) {
+  for (var i = 6; i < payload.length; ++i) {
     var p = payload[i];
     var name = p[0];
 
@@ -945,7 +965,7 @@ devtools.CSSStyleDeclaration = function(payload) {
     this.shorthand_[name] = p[3];
     this.value_[name] = p[4];
 
-    this[i - 4] = name;
+    this[i - 6] = name;
   }
 };
 

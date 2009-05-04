@@ -203,6 +203,8 @@ devtools.Injected.prototype.serializeStyle_ = function(style, opt_bind) {
   }
   var result = [
     id,
+    style.width,
+    style.height,
     style.__disabledProperties,
     style.__disabledPropertyValues,
     style.__disabledPropertyPriorities
@@ -334,6 +336,20 @@ devtools.Injected.prototype.applyStyleText = function(node, styleId,
     // Set the property on the real style declaration.
     style.setProperty((shorthand || name), value, priority);
   }
+  return true;
+};
+
+
+/**
+ * Sets style property with given name to a value.
+ * @param {Node} node Node to get prorotypes for.
+ * @param {string} name Style element name.
+ * @param {string} value Value.
+ * @return {boolean} True iff style has been edited successfully.
+ */
+devtools.Injected.prototype.setStyleProperty = function(node,
+    name, value) {
+  node.style.setProperty(name, value, "");
   return true;
 };
 

@@ -172,22 +172,23 @@ RemoteToolsAgentStub.prototype.ExecuteUtilityFunction = function(callId,
       result = ['Proto1', 'Proto2', 'Proto3'];
     } else if (functionName == 'getStyles') {
       result = {
-        'computedStyle' : [0, null, null, null, ['display', false, false, '', 'none']],
-        'inlineStyle' : [1, null, null, null, ['display', false, false, '', 'none']],
+        'computedStyle' : [0, '0px', '0px', null, null, null, ['display', false, false, '', 'none']],
+        'inlineStyle' : [1, '0px', '0px', null, null, null, ['display', false, false, '', 'none']],
         'styleAttributes' : {
-           attr: [2, null, null, null, ['display', false, false, '', 'none']]
+           attr: [2, '0px', '0px', null, null, null, ['display', false, false, '', 'none']]
         },
         'matchedCSSRules' : [
           { 'selector' : 'S',
-            'style' : [3, null, null, null, ['display', false, false, '', 'none']],
+            'style' : [3, '0px', '0px', null, null, null, ['display', false, false, '', 'none']],
             'parentStyleSheet' : { 'href' : 'http://localhost',
                                    'ownerNodeName' : 'DIV' }
           }
         ]
       };
     } else if (functionName == 'toggleNodeStyle' ||
-        functionName == 'applyStyleText') {
-      alert(functionName + '(' + args + ')');
+        functionName == 'applyStyleText' ||
+        functionName == 'setStyleProperty') {
+      alert(functionName + '(' + nodeId + ', ' + args + ')');
     } else {
       alert('Unexpected utility function:' + functionName);
     }

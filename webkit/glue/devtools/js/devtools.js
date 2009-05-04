@@ -270,9 +270,39 @@ WebInspector.Console.prototype._evalInInspectedWindow = function(expr) {
  */
 WebInspector.ElementsPanel.prototype.updateStyles = function(forceUpdate) {
   var stylesSidebarPane = this.sidebarPanes.styles;
-  if (!stylesSidebarPane.expanded || !stylesSidebarPane.needsUpdate)
+  if (!stylesSidebarPane.expanded || !stylesSidebarPane.needsUpdate) {
     return;
-   
+  }
+  this.invokeWithStyleSet_(function(node) {
+    stylesSidebarPane.needsUpdate = !!node;
+    stylesSidebarPane.update(node, null, forceUpdate);
+  });
+};
+
+
+/**
+ * @override
+ */
+WebInspector.ElementsPanel.prototype.updateMetrics = function() {
+  var metricsSidebarPane = this.sidebarPanes.metrics;
+  if (!metricsSidebarPane.expanded || !metricsSidebarPane.needsUpdate) {
+    return;
+  }
+  this.invokeWithStyleSet_(function(node) {
+    metricsSidebarPane.needsUpdate = !!node;
+    metricsSidebarPane.update(node);
+  });
+};
+
+
+/**
+ * Temporarily sets style fetched from the inspectable tab to the currently
+ * focused node, invokes updateUI callback and clears the styles.
+ * @param {function(Node):undefined} updateUI Callback to call while styles are
+ *     set.
+ */
+WebInspector.ElementsPanel.prototype.invokeWithStyleSet_ =
+    function(updateUI) {
   var node = this.focusedDOMNode;
   if (node && node.nodeType === Node.TEXT_NODE && node.parentNode)
     node = node.parentNode;
@@ -285,8 +315,7 @@ WebInspector.ElementsPanel.prototype.updateStyles = function(forceUpdate) {
       }
       node.setStyles(styles.computedStyle, styles.inlineStyle,
           styles.styleAttributes, styles.matchedCSSRules);
-      stylesSidebarPane.update(node, null, forceUpdate);
-      stylesSidebarPane.needsUpdate = false;
+      updateUI(node);
       node.clearStyles();
     };
     devtools.tools.getDomAgent().getNodeStylesAsync(
@@ -294,9 +323,37 @@ WebInspector.ElementsPanel.prototype.updateStyles = function(forceUpdate) {
         !Preferences.showUserAgentStyles,
         callback);
   } else {
-    stylesSidebarPane.update(null, null, forceUpdate);
-    stylesSidebarPane.needsUpdate = false;
+    updateUI(null);
   }
+};
+
+
+/**
+ * @override
+ */
+WebInspector.MetricsSidebarPane.prototype.editingCommitted =
+    function(element, userInput, previousContent, context) {
+  if (userInput === previousContent) {
+    // nothing changed, so cancel
+    return this.editingCancelled(element, context);
+  }
+
+  if (context.box !== "position" && (!userInput || userInput === "\u2012")) {
+    userInput = "0px";
+  } else if (context.box === "position" &&
+      (!userInput || userInput === "\u2012")) {
+    userInput = "auto";
+  }
+
+  // Append a "px" unit if the user input was just a number.
+  if (/^\d+$/.test(userInput)) {
+    userInput += "px";
+  }
+  devtools.tools.getDomAgent().setStylePropertyAsync(
+      this.node,
+      context.styleProperty,
+      userInput,
+      WebInspector.updateStylesAndMetrics_);
 };
 
 
@@ -569,10 +626,7 @@ WebInspector.StylePropertyTreeElement.prototype.toggleEnabled =
       this.style,
       enabled,
       this.name,
-      function() {
-        WebInspector.panels.elements.sidebarPanes.styles.needsUpdate = true;
-        WebInspector.panels.elements.updateStyles(true);
-      });
+      WebInspector.updateStylesAndMetrics_);
 };
 
 
@@ -585,10 +639,20 @@ WebInspector.StylePropertyTreeElement.prototype.applyStyleText = function(
       styleText,
       function() {
         if (updateInterface) {
-          WebInspector.panels.elements.sidebarPanes.styles.needsUpdate = true;
-          WebInspector.panels.elements.updateStyles(true);
+          WebInspector.updateStylesAndMetrics_();
         }
       });
+};
+
+
+/**
+ * Forces update of styles and metrics sidebar panes.
+ */
+WebInspector.updateStylesAndMetrics_ = function() {
+  WebInspector.panels.elements.sidebarPanes.metrics.needsUpdate = true;
+  WebInspector.panels.elements.updateMetrics();
+  WebInspector.panels.elements.sidebarPanes.styles.needsUpdate = true;
+  WebInspector.panels.elements.updateStyles(true);
 };
 
 
