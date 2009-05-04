@@ -246,10 +246,6 @@
 			>
 		</File>
 		<File
-			RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\wtf\chromium\MainThreadChromium.cpp"
-			>
-		</File>
-		<File
 			RelativePath="..\..\pending\wtf\MathExtras.h"
 			>
 		</File>

@@ -2499,22 +2499,6 @@
 					Name="skia"
 					>
 					<File
-						RelativePath="..\..\..\third_party\WebKit\WebCore\platform\image-encoders\skia\PNGImageEncoder.cpp"
-						>
-					</File>
-					<File
-						RelativePath="..\..\..\third_party\WebKit\WebCore\platform\image-encoders\skia\PNGImageEncoder.h"
-						>
-					</File>
-				</Filter>
-			</Filter>
-			<Filter
-				Name="image-decoders"
-				>
-				<Filter
-					Name="skia"
-					>
-					<File
 						RelativePath="..\..\..\third_party\WebKit\WebCore\platform\image-decoders\skia\BMPImageDecoder.cpp"
 						>
 					</File>
@@ -2572,6 +2556,14 @@
 					</File>
 					<File
 						RelativePath="..\..\..\third_party\WebKit\WebCore\platform\image-decoders\skia\PNGImageDecoder.h"
+						>
+					</File>
+					<File
+						RelativePath="..\..\..\third_party\WebKit\WebCore\platform\image-encoders\skia\PNGImageEncoder.cpp"
+						>
+					</File>
+					<File
+						RelativePath="..\..\..\third_party\WebKit\WebCore\platform\image-encoders\skia\PNGImageEncoder.h"
 						>
 					</File>
 					<File
@@ -3074,10 +3066,6 @@
 			</File>
 			<File
 				RelativePath="..\..\..\third_party\WebKit\WebCore\css\SVGCSSComputedStyleDeclaration.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\third_party\WebKit\WebCore\css\SVGCSSParser.cpp"
 				>
 			</File>
 			<File
