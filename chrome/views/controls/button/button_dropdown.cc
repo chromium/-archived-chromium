@@ -171,7 +171,7 @@ void ButtonDropDown::ShowDropDownMenu(HWND window) {
 bool ButtonDropDown::GetAccessibleDefaultAction(std::wstring* action) {
   DCHECK(action);
 
-  action->assign(l10n_util::GetString(IDS_ACCACTION_PRESS));
+  action->assign(l10n_util::GetString(IDS_VIEWS_ACCACTION_PRESS));
   return true;
 }
 

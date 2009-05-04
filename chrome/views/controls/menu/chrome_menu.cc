@@ -775,7 +775,7 @@ class EmptyMenuMenuItem : public MenuItemView {
   static const int kEmptyMenuItemViewID;
 
   EmptyMenuMenuItem(MenuItemView* parent) : MenuItemView(parent, 0, NORMAL) {
-    SetTitle(l10n_util::GetString(IDS_MENU_EMPTY_SUBMENU));
+    SetTitle(l10n_util::GetString(IDS_VIEWS_MENU_EMPTY_SUBMENU));
     // Set this so that we're not identified as a normal menu item.
     SetID(kEmptyMenuItemViewID);
     SetEnabled(false);

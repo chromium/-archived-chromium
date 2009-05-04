@@ -110,7 +110,7 @@ void DialogClientView::ShowDialogButtons() {
     std::wstring label =
         dd->GetDialogButtonLabel(MessageBoxFlags::DIALOGBUTTON_OK);
     if (label.empty())
-      label = l10n_util::GetString(IDS_OK);
+      label = l10n_util::GetString(IDS_VIEWS_OK);
     bool is_default_button =
         (dd->GetDefaultDialogButton() & MessageBoxFlags::DIALOGBUTTON_OK) != 0;
     ok_button_ = new DialogButton(this, window(),
@@ -128,9 +128,9 @@ void DialogClientView::ShowDialogButtons() {
         dd->GetDialogButtonLabel(MessageBoxFlags::DIALOGBUTTON_CANCEL);
     if (label.empty()) {
       if (buttons & MessageBoxFlags::DIALOGBUTTON_OK) {
-        label = l10n_util::GetString(IDS_CANCEL);
+        label = l10n_util::GetString(IDS_VIEWS_CANCEL);
       } else {
-        label = l10n_util::GetString(IDS_CLOSE);
+        label = l10n_util::GetString(IDS_VIEWS_CLOSE);
       }
     }
     bool is_default_button =

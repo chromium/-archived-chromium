@@ -557,31 +557,31 @@ void BitmapScrollBar::ShowContextMenu(View* source,
 std::wstring BitmapScrollBar::GetLabel(int id) const {
   switch (id) {
     case ScrollBarContextMenuCommand_ScrollHere:
-      return l10n_util::GetString(IDS_SCROLLBAR_CXMENU_SCROLLHERE);
+      return l10n_util::GetString(IDS_VIEWS_SCROLLBAR_CXMENU_SCROLLHERE);
     case ScrollBarContextMenuCommand_ScrollStart:
       if (IsHorizontal())
-        return l10n_util::GetString(IDS_SCROLLBAR_CXMENU_SCROLLLEFTEDGE);
-      return l10n_util::GetString(IDS_SCROLLBAR_CXMENU_SCROLLHOME);
+        return l10n_util::GetString(IDS_VIEWS_SCROLLBAR_CXMENU_SCROLLLEFTEDGE);
+      return l10n_util::GetString(IDS_VIEWS_SCROLLBAR_CXMENU_SCROLLHOME);
     case ScrollBarContextMenuCommand_ScrollEnd:
       if (IsHorizontal())
-        return l10n_util::GetString(IDS_SCROLLBAR_CXMENU_SCROLLRIGHTEDGE);
-      return l10n_util::GetString(IDS_SCROLLBAR_CXMENU_SCROLLEND);
+        return l10n_util::GetString(IDS_VIEWS_SCROLLBAR_CXMENU_SCROLLRIGHTEDGE);
+      return l10n_util::GetString(IDS_VIEWS_SCROLLBAR_CXMENU_SCROLLEND);
     case ScrollBarContextMenuCommand_ScrollPageUp:
       if (IsHorizontal())
-        return l10n_util::GetString(IDS_SCROLLBAR_CXMENU_SCROLLPAGEUP);
-      return l10n_util::GetString(IDS_SCROLLBAR_CXMENU_SCROLLPAGEUP);
+        return l10n_util::GetString(IDS_VIEWS_SCROLLBAR_CXMENU_SCROLLPAGEUP);
+      return l10n_util::GetString(IDS_VIEWS_SCROLLBAR_CXMENU_SCROLLPAGEUP);
     case ScrollBarContextMenuCommand_ScrollPageDown:
       if (IsHorizontal())
-        return l10n_util::GetString(IDS_SCROLLBAR_CXMENU_SCROLLPAGEDOWN);
-      return l10n_util::GetString(IDS_SCROLLBAR_CXMENU_SCROLLPAGEDOWN);
+        return l10n_util::GetString(IDS_VIEWS_SCROLLBAR_CXMENU_SCROLLPAGEDOWN);
+      return l10n_util::GetString(IDS_VIEWS_SCROLLBAR_CXMENU_SCROLLPAGEDOWN);
     case ScrollBarContextMenuCommand_ScrollPrev:
       if (IsHorizontal())
-        return l10n_util::GetString(IDS_SCROLLBAR_CXMENU_SCROLLLEFT);
-      return l10n_util::GetString(IDS_SCROLLBAR_CXMENU_SCROLLUP);
+        return l10n_util::GetString(IDS_VIEWS_SCROLLBAR_CXMENU_SCROLLLEFT);
+      return l10n_util::GetString(IDS_VIEWS_SCROLLBAR_CXMENU_SCROLLUP);
     case ScrollBarContextMenuCommand_ScrollNext:
       if (IsHorizontal())
-        return l10n_util::GetString(IDS_SCROLLBAR_CXMENU_SCROLLRIGHT);
-      return l10n_util::GetString(IDS_SCROLLBAR_CXMENU_SCROLLDOWN);
+        return l10n_util::GetString(IDS_VIEWS_SCROLLBAR_CXMENU_SCROLLRIGHT);
+      return l10n_util::GetString(IDS_VIEWS_SCROLLBAR_CXMENU_SCROLLDOWN);
   }
   NOTREACHED() << "Invalid BitmapScrollBar Context Menu command!";
   return L"";

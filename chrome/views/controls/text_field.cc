@@ -290,18 +290,18 @@ TextField::Edit::Edit(TextField* parent, bool draw_border)
   text_object_model_ = ole_interface;
 
   context_menu_.reset(new Menu(this, Menu::TOPLEFT, m_hWnd));
-  context_menu_->AppendMenuItemWithLabel(IDS_UNDO,
-                                         l10n_util::GetString(IDS_UNDO));
+  context_menu_->AppendMenuItemWithLabel(IDS_VIEWS_UNDO,
+                                         l10n_util::GetString(IDS_VIEWS_UNDO));
   context_menu_->AppendSeparator();
-  context_menu_->AppendMenuItemWithLabel(IDS_CUT,
-                                         l10n_util::GetString(IDS_CUT));
-  context_menu_->AppendMenuItemWithLabel(IDS_COPY,
-                                         l10n_util::GetString(IDS_COPY));
-  context_menu_->AppendMenuItemWithLabel(IDS_PASTE,
-                                         l10n_util::GetString(IDS_PASTE));
+  context_menu_->AppendMenuItemWithLabel(IDS_VIEWS_CUT,
+                                         l10n_util::GetString(IDS_VIEWS_CUT));
+  context_menu_->AppendMenuItemWithLabel(IDS_VIEWS_COPY,
+                                         l10n_util::GetString(IDS_VIEWS_COPY));
+  context_menu_->AppendMenuItemWithLabel(IDS_VIEWS_PASTE,
+                                         l10n_util::GetString(IDS_VIEWS_PASTE));
   context_menu_->AppendSeparator();
-  context_menu_->AppendMenuItemWithLabel(IDS_SELECT_ALL,
-                                         l10n_util::GetString(IDS_SELECT_ALL));
+  context_menu_->AppendMenuItemWithLabel(IDS_VIEWS_SELECT_ALL,
+                                         l10n_util::GetString(IDS_VIEWS_SELECT_ALL));
 }
 
 TextField::Edit::~Edit() {
@@ -377,14 +377,14 @@ void TextField::Edit::SetBackgroundColor(COLORREF bg_color) {
 
 bool TextField::Edit::IsCommandEnabled(int id) const {
   switch (id) {
-    case IDS_UNDO:       return !parent_->IsReadOnly() && !!CanUndo();
-    case IDS_CUT:        return !parent_->IsReadOnly() &&
-                                !parent_->IsPassword() && !!CanCut();
-    case IDS_COPY:       return !!CanCopy() && !parent_->IsPassword();
-    case IDS_PASTE:      return !parent_->IsReadOnly() && !!CanPaste();
-    case IDS_SELECT_ALL: return !!CanSelectAll();
-    default:             NOTREACHED();
-                         return false;
+    case IDS_VIEWS_UNDO:       return !parent_->IsReadOnly() && !!CanUndo();
+    case IDS_VIEWS_CUT:        return !parent_->IsReadOnly() &&
+                                      !parent_->IsPassword() && !!CanCut();
+    case IDS_VIEWS_COPY:       return !!CanCopy() && !parent_->IsPassword();
+    case IDS_VIEWS_PASTE:      return !parent_->IsReadOnly() && !!CanPaste();
+    case IDS_VIEWS_SELECT_ALL: return !!CanSelectAll();
+    default:                   NOTREACHED();
+                               return false;
   }
 }
 
@@ -392,12 +392,12 @@ void TextField::Edit::ExecuteCommand(int id) {
   ScopedFreeze freeze(this, GetTextObjectModel());
   OnBeforePossibleChange();
   switch (id) {
-    case IDS_UNDO:       Undo();       break;
-    case IDS_CUT:        Cut();        break;
-    case IDS_COPY:       Copy();       break;
-    case IDS_PASTE:      Paste();      break;
-    case IDS_SELECT_ALL: SelectAll();  break;
-    default:             NOTREACHED(); break;
+    case IDS_VIEWS_UNDO:       Undo();       break;
+    case IDS_VIEWS_CUT:        Cut();        break;
+    case IDS_VIEWS_COPY:       Copy();       break;
+    case IDS_VIEWS_PASTE:      Paste();      break;
+    case IDS_VIEWS_SELECT_ALL: SelectAll();  break;
+    default:                   NOTREACHED(); break;
   }
   OnAfterPossibleChange();
 }

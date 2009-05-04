@@ -1270,7 +1270,7 @@ void WindowWin::InitAlwaysOnTopState() {
 
 void WindowWin::AddAlwaysOnTopSystemMenuItem() {
   // The Win32 API requires that we own the text.
-  always_on_top_menu_text_ = l10n_util::GetString(IDS_ALWAYS_ON_TOP);
+  always_on_top_menu_text_ = l10n_util::GetString(IDS_VIEWS_ALWAYS_ON_TOP);
 
   // Let's insert a menu to the window.
   HMENU system_menu = ::GetSystemMenu(GetNativeView(), FALSE);
