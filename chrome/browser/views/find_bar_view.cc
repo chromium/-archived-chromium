@@ -231,7 +231,6 @@ void FindBarView::UpdateForResult(const FindNotificationDetails& result,
     match_count_text_->set_background(
         views::Background::CreateSolidBackground(kBackgroundColorNoMatch));
     match_count_text_->SetColor(kTextColorNoMatch);
-    MessageBeep(MB_OK);
   }
 
   // Make sure Find Next and Find Previous are enabled if we found any matches.

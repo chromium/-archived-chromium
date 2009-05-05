@@ -549,3 +549,9 @@ void FindBarWin::UpdateUIForFindResult(const FindNotificationDetails& result,
   if (result.number_of_matches() > 0)
     focus_tracker_.reset(NULL);
 }
+
+void FindBarWin::AudibleAlertIfNotFound(
+    const FindNotificationDetails& result) {
+  if (result.final_update() && result.number_of_matches() == 0)
+    MessageBeep(MB_OK);
+}
