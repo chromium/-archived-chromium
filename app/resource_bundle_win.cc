@@ -13,6 +13,7 @@
 #include "base/string_piece.h"
 #include "base/win_util.h"
 #include "chrome/common/chrome_paths.h"
+#include "chrome/common/gfx/chrome_font.h"
 #include "chrome/common/l10n_util.h"
 
 namespace {
