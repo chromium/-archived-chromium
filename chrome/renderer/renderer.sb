@@ -19,3 +19,6 @@
 (allow mach-lookup (global-name "com.apple.FontObjectsServer"))  ; 10.5.6
 (allow mach-lookup (global-name "com.apple.FontServer"))  ; 10.6 seed release
 (allow file-read-data (regex #"^/Library/Fonts"))  ; 10.6 seed release
+
+; Needed for IPC on 10.6
+(allow ipc-posix-shm)
