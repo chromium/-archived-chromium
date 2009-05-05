@@ -566,13 +566,7 @@ devtools.DebuggerAgent.formatCallFrame_ = function(stackFrame, script, msg) {
  */
 devtools.DebuggerAgent.formatFunctionCall_ = function(stackFrame, msg) {
   var func = msg.lookup(stackFrame.func.ref);
-  if (func.name) {
-    return func.name;
-  } else {
-    // TODO(yurys): support method name inference(F.m = function() {} should be
-    // a function with name 'm')
-    return '(anonymous function)';
-  }
+  return func.name || func.inferredName || '(anonymous function)';
 };
 
 
