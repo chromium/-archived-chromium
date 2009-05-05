@@ -96,7 +96,8 @@ class RenderWidgetHostViewGtkWidget {
   }
 
   static gboolean OnFocusIn(GtkWidget* widget, GdkEventFocus* focus,
-                          RenderWidgetHostViewGtk* host_view) {
+                            RenderWidgetHostViewGtk* host_view) {
+    host_view->ShowCurrentCursor();
     host_view->GetRenderWidgetHost()->Focus();
     return FALSE;
   }
