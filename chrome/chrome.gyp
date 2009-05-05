@@ -2482,7 +2482,7 @@
         'browser/visitedlink_unittest.cc',
         'browser/webdata/web_database_unittest.cc',
         'browser/window_sizer_unittest.cc',
-        'common/animation_unittest.cc',
+        '../app/animation_unittest.cc',
         'common/bzip2_unittest.cc',
         'common/chrome_plugin_unittest.cc',
         'common/extensions/url_pattern_unittest.cc',
