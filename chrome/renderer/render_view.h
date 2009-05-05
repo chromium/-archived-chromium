@@ -300,7 +300,7 @@ class RenderView : public RenderWidget,
   virtual void ReportFindInPageSelection(int request_id,
                                          int active_match_ordinal,
                                          const WebKit::WebRect& selection);
-  virtual bool WasOpenedByUserGesture(WebView* webview) const;
+  virtual bool WasOpenedByUserGesture() const;
   virtual void SpellCheck(const std::wstring& word, int& misspell_location,
                           int& misspell_length);
   virtual void SetInputMethodState(bool enabled);
@@ -596,10 +596,6 @@ class RenderView : public RenderWidget,
   // Creates DevToolsClient and sets up JavaScript bindings for developer tools
   // UI that is going to be hosted by this RenderView.
   void CreateDevToolsClient();
-
-  void set_opened_by_user_gesture(bool value) {
-    opened_by_user_gesture_ = value;
-  }
 
   // Called by RenderWidget after it paints.
   virtual void DidPaint();

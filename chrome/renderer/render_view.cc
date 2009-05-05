@@ -1804,7 +1804,7 @@ WebView* RenderView::CreateWebView(WebView* webview, bool user_gesture) {
                                         NULL, waitable_event, routing_id_,
                                         prefs, shared_popup_counter_,
                                         routing_id);
-  view->set_opened_by_user_gesture(user_gesture);
+  view->opened_by_user_gesture_ = user_gesture;
 
   // Copy over the alternate error page URL so we can have alt error pages in
   // the new render view (we don't need the browser to send the URL back down).
@@ -1949,7 +1949,7 @@ void RenderView::Show(WebWidget* webwidget, WindowOpenDisposition disposition) {
   // that's okay.  It'll be ignored if disposition is not NEW_POPUP, or the
   // browser process will impose a default position otherwise.
   Send(new ViewHostMsg_ShowView(opener_id_, routing_id_, disposition,
-                                initial_pos_, WasOpenedByUserGesture(NULL)));
+                                initial_pos_, opened_by_user_gesture_));
 }
 
 void RenderView::CloseWidgetSoon(WebWidget* webwidget) {
@@ -2281,7 +2281,7 @@ void RenderView::ReportFindInPageSelection(int request_id,
                                   false));
 }
 
-bool RenderView::WasOpenedByUserGesture(WebView* webview) const {
+bool RenderView::WasOpenedByUserGesture() const {
   return opened_by_user_gesture_;
 }
 

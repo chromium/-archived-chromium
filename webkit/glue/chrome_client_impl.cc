@@ -169,9 +169,9 @@ WebCore::Page* ChromeClientImpl::createWindow(
   if (!delegate)
     return NULL;
 
-  bool userGesture = frame->script()->processingUserGesture();
+  bool user_gesture = frame->script()->processingUserGesture();
   WebViewImpl* new_view = static_cast<WebViewImpl*>(
-      delegate->CreateWebView(webview_, userGesture));
+      delegate->CreateWebView(webview_, user_gesture));
   if (!new_view)
     return NULL;
 
@@ -211,7 +211,7 @@ void ChromeClientImpl::show() {
         !scrollbars_visible_ ||
         !menubar_visible_ ||
         !resizable_ ||
-        !delegate->WasOpenedByUserGesture(webview_);
+        !delegate->WasOpenedByUserGesture();
 
     WindowOpenDisposition disposition = NEW_FOREGROUND_TAB;
     if (as_popup)

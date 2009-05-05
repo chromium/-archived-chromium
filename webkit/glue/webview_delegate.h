@@ -159,7 +159,7 @@ class WebViewDelegate : virtual public WebWidgetDelegate {
   }
 
   // Returns whether this WebView was opened by a user gesture.
-  virtual bool WasOpenedByUserGesture(WebView* webview) const {
+  virtual bool WasOpenedByUserGesture() const {
     return true;
   }
 

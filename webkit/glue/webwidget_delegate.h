@@ -54,8 +54,10 @@ class WebWidgetDelegate {
   // This method is called to instruct the window containing the WebWidget to
   // show itself as the topmost window.  This method is only used after a
   // successful call to CreateWebWidget.  |disposition| indicates how this new
-  // window should be displayed, but generally only means something for WebViews.
-  virtual void Show(WebWidget* webwidget, WindowOpenDisposition disposition) = 0;
+  // window should be displayed, but generally only means something for
+  // WebViews.
+  virtual void Show(WebWidget* webwidget,
+                    WindowOpenDisposition disposition) = 0;
 
   // Used for displaying HTML popup menus on Mac OS X (other platforms will use
   // Show() above). |bounds| represents the positioning on the screen (in WebKit
