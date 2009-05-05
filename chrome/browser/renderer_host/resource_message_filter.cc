@@ -23,7 +23,6 @@
 #include "chrome/common/app_cache/app_cache_dispatcher_host.h"
 #include "chrome/common/chrome_plugin_lib.h"
 #include "chrome/common/chrome_plugin_util.h"
-#include "chrome/common/clipboard_service.h"
 #include "chrome/common/notification_service.h"
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
@@ -98,7 +97,7 @@ class WriteClipboardTask : public Task {
   ~WriteClipboardTask() {}
 
   void Run() {
-    g_browser_process->clipboard_service()->WriteObjects(*objects_.get());
+    g_browser_process->clipboard()->WriteObjects(*objects_.get());
   }
 
  private:
@@ -570,21 +569,21 @@ void ResourceMessageFilter::OnClipboardWriteObjects(
 
 void ResourceMessageFilter::OnClipboardIsFormatAvailable(
     Clipboard::FormatType format, IPC::Message* reply) {
-  const bool result = GetClipboardService()->IsFormatAvailable(format);
+  const bool result = GetClipboard()->IsFormatAvailable(format);
   ViewHostMsg_ClipboardIsFormatAvailable::WriteReplyParams(reply, result);
   Send(reply);
 }
 
 void ResourceMessageFilter::OnClipboardReadText(IPC::Message* reply) {
   string16 result;
-  GetClipboardService()->ReadText(&result);
+  GetClipboard()->ReadText(&result);
   ViewHostMsg_ClipboardReadText::WriteReplyParams(reply, result);
   Send(reply);
 }
 
 void ResourceMessageFilter::OnClipboardReadAsciiText(IPC::Message* reply) {
   std::string result;
-  GetClipboardService()->ReadAsciiText(&result);
+  GetClipboard()->ReadAsciiText(&result);
   ViewHostMsg_ClipboardReadAsciiText::WriteReplyParams(reply, result);
   Send(reply);
 }
@@ -592,7 +591,7 @@ void ResourceMessageFilter::OnClipboardReadAsciiText(IPC::Message* reply) {
 void ResourceMessageFilter::OnClipboardReadHTML(IPC::Message* reply) {
   std::string src_url_str;
   string16 markup;
-  GetClipboardService()->ReadHTML(&markup, &src_url_str);
+  GetClipboard()->ReadHTML(&markup, &src_url_str);
   const GURL src_url = GURL(src_url_str);
 
   ViewHostMsg_ClipboardReadHTML::WriteReplyParams(reply, markup, src_url);
@@ -758,12 +757,12 @@ void ResourceMessageFilter::OnScriptedPrintReply(
 #endif  // OS_WIN
 
 // static
-ClipboardService* ResourceMessageFilter::GetClipboardService() {
+Clipboard* ResourceMessageFilter::GetClipboard() {
   // We have a static instance of the clipboard service for use by all message
   // filters.  This instance lives for the life of the browser processes.
-  static ClipboardService* clipboard_service = new ClipboardService();
+  static Clipboard* clipboard = new Clipboard;
 
-  return clipboard_service;
+  return clipboard;
 }
 
 // Notes about SpellCheck.

@@ -474,10 +474,6 @@
 			>
 		</File>
 		<File
-			RelativePath=".\clipboard_service.h"
-			>
-		</File>
-		<File
 			RelativePath=".\common_glue.cc"
 			>
 		</File>

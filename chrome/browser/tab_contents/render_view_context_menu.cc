@@ -4,6 +4,7 @@
 
 #include "chrome/browser/tab_contents/render_view_context_menu.h"
 
+#include "base/clipboard.h"
 #include "base/command_line.h"
 #include "base/logging.h"
 #include "base/scoped_clipboard_writer.h"
@@ -17,7 +18,6 @@
 #include "chrome/browser/tab_contents/navigation_entry.h"
 #include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/common/chrome_switches.h"
-#include "chrome/common/clipboard_service.h"
 #include "chrome/common/l10n_util.h"
 #include "chrome/common/platform_util.h"
 #include "chrome/common/pref_service.h"
@@ -647,7 +647,7 @@ void RenderViewContextMenu::Inspect(int x, int y) {
 
 void RenderViewContextMenu::WriteTextToClipboard(
     const string16& text) {
-  ClipboardService* clipboard = g_browser_process->clipboard_service();
+  Clipboard* clipboard = g_browser_process->clipboard();
 
   if (!clipboard)
     return;

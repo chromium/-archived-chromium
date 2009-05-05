@@ -272,7 +272,6 @@
         'common/chrome_switches.h',
         'common/classfactory.cc',
         'common/classfactory.h',
-        'common/clipboard_service.h',
         'common/common_glue.cc',
         'common/debug_flags.cc',
         'common/debug_flags.h',

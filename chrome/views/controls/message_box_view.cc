@@ -4,12 +4,12 @@
 
 #include "chrome/views/controls/message_box_view.h"
 
+#include "base/clipboard.h"
 #include "base/message_loop.h"
 #include "base/scoped_clipboard_writer.h"
 #include "base/string_util.h"
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/views/standard_layout.h"
-#include "chrome/common/clipboard_service.h"
 #include "chrome/common/l10n_util.h"
 #include "chrome/common/message_box_flags.h"
 #include "chrome/views/controls/button/checkbox.h"
@@ -95,7 +95,7 @@ bool MessageBoxView::AcceleratorPressed(
   // We only accepts Ctrl-C.
   DCHECK(accelerator.GetKeyCode() == 'C' && accelerator.IsCtrlDown());
 
-  ClipboardService* clipboard = g_browser_process->clipboard_service();
+  Clipboard* clipboard = g_browser_process->clipboard();
   if (!clipboard)
     return false;
 

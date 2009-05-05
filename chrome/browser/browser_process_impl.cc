@@ -4,6 +4,7 @@
 
 #include "chrome/browser/browser_process_impl.h"
 
+#include "base/clipboard.h"
 #include "base/command_line.h"
 #include "base/path_service.h"
 #include "base/thread.h"
@@ -24,7 +25,6 @@
 #include "chrome/browser/safe_browsing/safe_browsing_service.h"
 #include "chrome/common/chrome_paths.h"
 #include "chrome/common/chrome_switches.h"
-#include "chrome/common/clipboard_service.h"
 #include "chrome/common/l10n_util.h"
 #include "chrome/common/notification_service.h"
 #include "chrome/common/pref_names.h"
@@ -112,7 +112,7 @@ BrowserProcessImpl::BrowserProcessImpl(const CommandLine& command_line)
       checked_for_new_frames_(false),
       using_new_frames_(false) {
   g_browser_process = this;
-  clipboard_service_.reset(new ClipboardService);
+  clipboard_.reset(new Clipboard);
   main_notification_service_.reset(new NotificationService);
 
   // Must be created after the NotificationService.

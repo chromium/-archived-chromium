@@ -16,7 +16,7 @@
 #include "base/basictypes.h"
 
 class AutomationProviderList;
-class ClipboardService;
+class Clipboard;
 class DevToolsManager;
 class DownloadRequestManager;
 class GoogleURLTracker;
@@ -79,7 +79,7 @@ class BrowserProcess {
   virtual PrefService* local_state() = 0;
   virtual DebuggerWrapper* debugger_wrapper() = 0;
   virtual DevToolsManager* devtools_manager() = 0;
-  virtual ClipboardService* clipboard_service() = 0;
+  virtual Clipboard* clipboard() = 0;
 
   // Returns the thread that we perform I/O coordination on (network requests,
   // communication with renderers, etc.

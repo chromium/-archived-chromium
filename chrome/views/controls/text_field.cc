@@ -11,12 +11,12 @@
 #include <tom.h>  // For ITextDocument, a COM interface to CRichEditCtrl
 #include <vsstyle.h>
 
+#include "base/clipboard.h"
 #include "base/gfx/native_theme.h"
 #include "base/scoped_clipboard_writer.h"
 #include "base/string_util.h"
 #include "base/win_util.h"
 #include "chrome/browser/browser_process.h"
-#include "chrome/common/clipboard_service.h"
 #include "chrome/common/gfx/insets.h"
 #include "chrome/common/l10n_util.h"
 #include "chrome/common/l10n_util_win.h"
@@ -422,7 +422,7 @@ void TextField::Edit::OnCopy() {
   const std::wstring text(GetSelectedText());
 
   if (!text.empty()) {
-    ScopedClipboardWriter scw(g_browser_process->clipboard_service());
+    ScopedClipboardWriter scw(g_browser_process->clipboard());
     scw.WriteText(text);
   }
 }
@@ -786,7 +786,7 @@ void TextField::Edit::OnPaste() {
   if (parent_->IsReadOnly())
     return;
 
-  ClipboardService* clipboard = g_browser_process->clipboard_service();
+  Clipboard* clipboard = g_browser_process->clipboard();
 
   if (!clipboard->IsFormatAvailable(Clipboard::GetPlainTextWFormatType()))
     return;

@@ -119,9 +119,9 @@ class BrowserProcessImpl : public BrowserProcess, public NonThreadSafe {
     return devtools_manager_.get();
   }
 
-  virtual ClipboardService* clipboard_service() {
+  virtual Clipboard* clipboard() {
     DCHECK(CalledOnValidThread());
-    return clipboard_service_.get();
+    return clipboard_.get();
   }
 
   virtual IconManager* icon_manager() {
@@ -250,7 +250,7 @@ class BrowserProcessImpl : public BrowserProcess, public NonThreadSafe {
   bool created_devtools_manager_;
   scoped_ptr<DevToolsManager> devtools_manager_;
 
-  scoped_ptr<ClipboardService> clipboard_service_;
+  scoped_ptr<Clipboard> clipboard_;
 
   scoped_ptr<AutomationProviderList> automation_provider_list_;
 

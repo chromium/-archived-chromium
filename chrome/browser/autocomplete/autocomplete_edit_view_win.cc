@@ -30,7 +30,6 @@
 #include "chrome/browser/search_engines/template_url_model.h"
 #include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/browser/views/location_bar_view.h"
-#include "chrome/common/clipboard_service.h"
 #include "chrome/common/gfx/chrome_canvas.h"
 #include "chrome/common/gfx/utils.h"
 #include "chrome/common/l10n_util.h"
@@ -1145,7 +1144,7 @@ void AutocompleteEditViewWin::OnCopy() {
   if (text.empty())
     return;
 
-  ScopedClipboardWriter scw(g_browser_process->clipboard_service());
+  ScopedClipboardWriter scw(g_browser_process->clipboard());
   scw.WriteText(text);
 
   // Check if the user is copying the whole address bar.  If they are, we
@@ -2092,7 +2091,7 @@ void AutocompleteEditViewWin::TextChanged() {
 
 std::wstring AutocompleteEditViewWin::GetClipboardText() const {
   // Try text format.
-  ClipboardService* clipboard = g_browser_process->clipboard_service();
+  Clipboard* clipboard = g_browser_process->clipboard();
   if (clipboard->IsFormatAvailable(Clipboard::GetPlainTextWFormatType())) {
     std::wstring text;
     clipboard->ReadText(&text);

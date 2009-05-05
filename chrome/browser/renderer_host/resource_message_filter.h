@@ -31,7 +31,7 @@
 
 class AppCacheDispatcherHost;
 class AudioRendererHost;
-class ClipboardService;
+class Clipboard;
 class Profile;
 class RenderWidgetHelper;
 class SpellChecker;
@@ -217,12 +217,11 @@ class ResourceMessageFilter : public IPC::ChannelProxy::MessageFilter,
   void DoOnClipboardReadHTML(IPC::Message* reply_msg);
 #endif
 
-  // We have our own clipboard service because we want to access the clipboard
-  // on the IO thread instead of forwarding (possibly synchronous) messages to
-  // the UI thread.
-  // This instance of the clipboard service should be accessed only on the IO
+  // We have our own clipboard because we want to access the clipboard on the
+  // IO thread instead of forwarding (possibly synchronous) messages to the UI
+  // thread. This instance of the clipboard should be accessed only on the IO
   // thread.
-  static ClipboardService* GetClipboardService();
+  static Clipboard* GetClipboard();
 
   // The channel associated with the renderer connection. This pointer is not
   // owned by this class.

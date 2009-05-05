@@ -2,9 +2,9 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+#include "base/clipboard.h"
 #include "base/message_loop.h"
 #include "chrome/browser/browser_process.h"
-#include "chrome/common/clipboard_service.h"
 #include "chrome/common/gfx/chrome_canvas.h"
 #include "chrome/common/gfx/path.h"
 #include "chrome/common/notification_service.h"
@@ -603,7 +603,7 @@ TEST_F(ViewTest, TextFieldCutCopyPaste) {
   const std::wstring kReadOnlyText = L"Read only";
   const std::wstring kPasswordText = L"Password! ** Secret stuff **";
 
-  ClipboardService* clipboard = g_browser_process->clipboard_service();
+  Clipboard* clipboard = g_browser_process->clipboard();
 
   WidgetWin* window = new WidgetWin;
   window->Init(NULL, gfx::Rect(0, 0, 100, 100), true);
@@ -715,7 +715,7 @@ class ButtonTest : public NativeButton {
   ButtonTest(ButtonListener* listener, const std::wstring& label)
       : NativeButton(listener, label) {
   }
-  
+
   HWND GetHWND() {
     return static_cast<NativeButtonWin*>(native_wrapper_)->GetHWND();
   }
@@ -725,7 +725,7 @@ class CheckboxTest : public Checkbox {
  public:
   explicit CheckboxTest(const std::wstring& label) : Checkbox(label) {
   }
-  
+
   HWND GetHWND() {
     return static_cast<NativeCheckboxWin*>(native_wrapper_)->GetHWND();
   }
@@ -734,11 +734,11 @@ class CheckboxTest : public Checkbox {
 class ScrollableTestView : public View {
  public:
   ScrollableTestView() { }
-  
+
   virtual gfx::Size GetPreferredSize() {
     return gfx::Size(100, 10000);
   }
-  
+
   virtual void Layout() {
     SizeToPreferredSize();
   }
@@ -763,7 +763,7 @@ class TestViewWithControls : public View {
 class SimpleWindowDelegate : public WindowDelegate {
  public:
   SimpleWindowDelegate(View* contents) : contents_(contents) {  }
-  
+
   virtual void DeleteDelegate() { delete this; }
 
   virtual View* GetContentsView() { return contents_; }
@@ -797,7 +797,7 @@ TEST_F(ViewTest, DISABLED_RerouteMouseWheelTest) {
   // Let's send a mouse-wheel message to the different controls and check that
   // it is rerouted to the window under the mouse (effectively scrolling the
   // scroll-view).
-  
+
   // First to the Window's HWND.
   ::SendMessage(view_with_controls->GetWidget()->GetNativeView(),
                 WM_MOUSEWHEEL, MAKEWPARAM(0, -20), MAKELPARAM(250, 250));
@@ -812,12 +812,12 @@ TEST_F(ViewTest, DISABLED_RerouteMouseWheelTest) {
   ::SendMessage(view_with_controls->checkbox_->GetHWND(),
                 WM_MOUSEWHEEL, MAKEWPARAM(0, -20), MAKELPARAM(250, 250));
   EXPECT_EQ(60, scroll_view->GetVisibleRect().y());
-  
+
   // Then the text-field.
   ::SendMessage(view_with_controls->text_field_->GetNativeComponent(),
                 WM_MOUSEWHEEL, MAKEWPARAM(0, -20), MAKELPARAM(250, 250));
   EXPECT_EQ(80, scroll_view->GetVisibleRect().y());
-  
+
   // Ensure we don't scroll when the mouse is not over that window.
   ::SendMessage(view_with_controls->text_field_->GetNativeComponent(),
                 WM_MOUSEWHEEL, MAKEWPARAM(0, -20), MAKELPARAM(50, 50));

@@ -7,7 +7,6 @@
 #include "base/clipboard.h"
 #include "base/gfx/gtk_native_view_id_manager.h"
 #include "chrome/browser/chrome_thread.h"
-#include "chrome/common/clipboard_service.h"
 #include "chrome/common/render_messages.h"
 #include "chrome/common/x11_util.h"
 
@@ -104,7 +103,7 @@ void ResourceMessageFilter::DoOnGetRootWindowRect(gfx::NativeViewId view,
 // Called on the UI thread.
 void ResourceMessageFilter::DoOnClipboardIsFormatAvailable(
     Clipboard::FormatType format, IPC::Message* reply_msg) {
-  const bool result = GetClipboardService()->IsFormatAvailable(format);
+  const bool result = GetClipboard()->IsFormatAvailable(format);
 
   ViewHostMsg_ClipboardIsFormatAvailable::WriteReplyParams(reply_msg, result);
 
@@ -116,7 +115,7 @@ void ResourceMessageFilter::DoOnClipboardIsFormatAvailable(
 // Called on the UI thread.
 void ResourceMessageFilter::DoOnClipboardReadText(IPC::Message* reply_msg) {
   string16 result;
-  GetClipboardService()->ReadText(&result);
+  GetClipboard()->ReadText(&result);
 
   ViewHostMsg_ClipboardReadText::WriteReplyParams(reply_msg, result);
 
@@ -129,7 +128,7 @@ void ResourceMessageFilter::DoOnClipboardReadText(IPC::Message* reply_msg) {
 void ResourceMessageFilter::DoOnClipboardReadAsciiText(
     IPC::Message* reply_msg) {
   std::string result;
-  GetClipboardService()->ReadAsciiText(&result);
+  GetClipboard()->ReadAsciiText(&result);
 
   ViewHostMsg_ClipboardReadAsciiText::WriteReplyParams(reply_msg, result);
 
@@ -142,7 +141,7 @@ void ResourceMessageFilter::DoOnClipboardReadAsciiText(
 void ResourceMessageFilter::DoOnClipboardReadHTML(IPC::Message* reply_msg) {
   std::string src_url_str;
   string16 markup;
-  GetClipboardService()->ReadHTML(&markup, &src_url_str);
+  GetClipboard()->ReadHTML(&markup, &src_url_str);
   const GURL src_url = GURL(src_url_str);
 
   ViewHostMsg_ClipboardReadHTML::WriteReplyParams(reply_msg, markup, src_url);
