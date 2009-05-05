@@ -2,16 +2,16 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CHROME_COMMON_SLIDE_ANIMATION_H_
-#define CHROME_COMMON_SLIDE_ANIMATION_H_
+#ifndef APP_SLIDE_ANIMATION_H_
+#define APP_SLIDE_ANIMATION_H_
 
-#include "chrome/common/animation.h"
+#include "app/animation.h"
 
 // Slide Animation
 //
 // Used for reversible animations and as a general helper class. Typical usage:
 //
-// #include "chrome/common/slide_animation.h"
+// #include "app/slide_animation.h"
 //
 // class MyClass : public AnimationDelegate {
 //  public:
@@ -95,6 +95,8 @@ class SlideAnimation : public Animation {
   // How long a hover in/out animation will last for. This defaults to
   // kHoverFadeDurationMS, but can be overridden with SetDuration.
   int slide_duration_;
+
+  DISALLOW_COPY_AND_ASSIGN(SlideAnimation);
 };
 
-#endif  // CHROME_COMMON_SLIDE_ANIMATION_H_
+#endif  // APP_SLIDE_ANIMATION_H_

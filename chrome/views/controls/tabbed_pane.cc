@@ -13,7 +13,6 @@
 #include "chrome/common/gfx/chrome_canvas.h"
 #include "chrome/common/gfx/chrome_font.h"
 #include "chrome/common/l10n_util_win.h"
-#include "chrome/common/throb_animation.h"
 #include "chrome/views/background.h"
 #include "chrome/views/fill_layout.h"
 #include "chrome/views/widget/root_view.h"

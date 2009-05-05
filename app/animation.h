@@ -3,8 +3,8 @@
 // found in the LICENSE file.
 // Inspired by NSAnimation
 
-#ifndef CHROME_COMMON_ANIMATION_H__
-#define CHROME_COMMON_ANIMATION_H__
+#ifndef APP_ANIMATION_H_
+#define APP_ANIMATION_H_
 
 #include "base/timer.h"
 
@@ -116,7 +116,7 @@ class Animation {
   // Called when the animation's timer expires, calls Step.
   void Run();
 
-  DISALLOW_EVIL_CONSTRUCTORS(Animation);
+  DISALLOW_COPY_AND_ASSIGN(Animation);
 };
 
-#endif  // CHROME_COMMON_ANIMATION_H__
+#endif  // APP_ANIMATION_H_

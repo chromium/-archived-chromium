@@ -362,14 +362,6 @@
 			>
 		</File>
 		<File
-			RelativePath=".\animation.cc"
-			>
-		</File>
-		<File
-			RelativePath=".\animation.h"
-			>
-		</File>
-		<File
 			RelativePath=".\bindings_policy.h"
 			>
 		</File>
@@ -754,14 +746,6 @@
 			>
 		</File>
 		<File
-			RelativePath=".\slide_animation.cc"
-			>
-		</File>
-		<File
-			RelativePath=".\slide_animation.h"
-			>
-		</File>
-		<File
 			RelativePath=".\sqlite_compiled_statement.cc"
 			>
 		</File>
@@ -783,14 +767,6 @@
 		</File>
 		<File
 			RelativePath=".\task_queue.h"
-			>
-		</File>
-		<File
-			RelativePath=".\throb_animation.cc"
-			>
-		</File>
-		<File
-			RelativePath=".\throb_animation.h"
 			>
 		</File>
 		<File

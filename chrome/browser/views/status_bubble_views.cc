@@ -6,9 +6,9 @@
 
 #include <algorithm>
 
+#include "app/animation.h"
 #include "app/resource_bundle.h"
 #include "base/string_util.h"
-#include "chrome/common/animation.h"
 #include "chrome/common/gfx/chrome_canvas.h"
 #include "chrome/common/gfx/text_elider.h"
 #include "chrome/common/l10n_util.h"

@@ -7,9 +7,9 @@
 
 #include <gtk/gtk.h>
 
+#include "app/animation.h"
 #include "base/scoped_ptr.h"
 #include "chrome/browser/download/download_manager.h"
-#include "chrome/common/animation.h"
 
 class BaseDownloadItemModel;
 class DownloadShelfContextMenuGtk;

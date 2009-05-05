@@ -4,11 +4,8 @@
 
 #include "chrome/views/controls/button/image_button.h"
 
-#include "chrome/app/chrome_dll_resource.h"
+#include "app/throb_animation.h"
 #include "chrome/common/gfx/chrome_canvas.h"
-#include "chrome/common/l10n_util.h"
-#include "chrome/common/throb_animation.h"
-#include "grit/generated_resources.h"
 #include "skia/ext/image_operations.h"
 
 namespace views {

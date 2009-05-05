@@ -5,9 +5,9 @@
 #ifndef CHROME_BROWSER_VIEWS_FULLSCREEN_EXIT_BUBBLE_H__
 #define CHROME_BROWSER_VIEWS_FULLSCREEN_EXIT_BUBBLE_H__
 
+#include "app/slide_animation.h"
 #include "base/scoped_ptr.h"
 #include "chrome/browser/command_updater.h"
-#include "chrome/common/slide_animation.h"
 #include "chrome/views/controls/link.h"
 #include "chrome/views/widget/widget_win.h"
 

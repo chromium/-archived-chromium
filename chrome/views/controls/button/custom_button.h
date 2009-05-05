@@ -5,7 +5,7 @@
 #ifndef CHROME_VIEWS_CONTROLS_BUTTON_CUSTOM_BUTTON_H_
 #define CHROME_VIEWS_CONTROLS_BUTTON_CUSTOM_BUTTON_H_
 
-#include "chrome/common/animation.h"
+#include "app/animation.h"
 #include "chrome/views/controls/button/button.h"
 
 class ThrobAnimation;

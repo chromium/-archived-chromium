@@ -5,8 +5,8 @@
 #ifndef CHROME_BROWSER_VIEWS_DOWNLOAD_STARTED_ANIMATION_H_
 #define CHROME_BROWSER_VIEWS_DOWNLOAD_STARTED_ANIMATION_H_
 
+#include "app/animation.h"
 #include "base/gfx/rect.h"
-#include "chrome/common/animation.h"
 #include "chrome/common/notification_registrar.h"
 #include "chrome/views/controls/image_view.h"
 

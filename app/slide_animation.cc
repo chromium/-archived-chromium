@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "chrome/common/slide_animation.h"
+#include "app/slide_animation.h"
 
 #include <math.h>
 

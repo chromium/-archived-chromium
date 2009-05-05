@@ -4,17 +4,8 @@
 
 #include "chrome/views/controls/button/custom_button.h"
 
+#include "app/throb_animation.h"
 #include "base/keyboard_codes.h"
-#include "chrome/common/drag_drop_types.h"
-#include "chrome/common/gfx/chrome_canvas.h"
-#include "chrome/common/throb_animation.h"
-
-// TODO(erg): Write drag'n'drop for Linux.
-#if defined(OS_WIN)
-#include "base/base_drag_source.h"
-#include "chrome/browser/drag_utils.h"
-#include "chrome/common/os_exchange_data.h"
-#endif
 
 namespace views {
 

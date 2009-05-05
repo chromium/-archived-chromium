@@ -5,7 +5,7 @@
 #ifndef CHROME_BROWSER_VIEWS_INFO_BUBBLE_H_
 #define CHROME_BROWSER_VIEWS_INFO_BUBBLE_H_
 
-#include "chrome/common/slide_animation.h"
+#include "app/slide_animation.h"
 #include "chrome/views/view.h"
 #include "chrome/views/widget/widget_win.h"
 

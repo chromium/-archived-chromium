@@ -5,11 +5,11 @@
 #ifndef CHROME_BROWSER_VIEWS_BOOKMARK_BAR_VIEW_H_
 #define CHROME_BROWSER_VIEWS_BOOKMARK_BAR_VIEW_H_
 
+#include "app/slide_animation.h"
 #include "chrome/browser/bookmarks/bookmark_drag_data.h"
 #include "chrome/browser/bookmarks/bookmark_menu_controller.h"
 #include "chrome/browser/bookmarks/bookmark_model.h"
 #include "chrome/browser/extensions/extensions_service.h"
-#include "chrome/common/slide_animation.h"
 #include "chrome/views/controls/button/menu_button.h"
 #include "chrome/views/controls/label.h"
 #include "chrome/views/controls/menu/menu.h"

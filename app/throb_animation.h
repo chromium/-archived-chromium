@@ -2,10 +2,10 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CHROME_COMMON_THROB_ANIMATION_H_
-#define CHROME_COMMON_THROB_ANIMATION_H_
+#ifndef APP_THROB_ANIMATION_H_
+#define APP_THROB_ANIMATION_H_
 
-#include "chrome/common/slide_animation.h"
+#include "app/slide_animation.h"
 
 // A subclass of SlideAnimation that can continually slide. All of the Animation
 // methods behave like that of SlideAnimation: transition to the next state.
@@ -53,7 +53,7 @@ class ThrobAnimation : public SlideAnimation {
   // Are we throbbing?
   bool throbbing_;
 
-  DISALLOW_EVIL_CONSTRUCTORS(ThrobAnimation);
+  DISALLOW_COPY_AND_ASSIGN(ThrobAnimation);
 };
 
-#endif  // CHROME_COMMON_THROB_ANIMATION_H_
+#endif  // APP_THROB_ANIMATION_H_

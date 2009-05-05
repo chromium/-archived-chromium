@@ -5,10 +5,10 @@
 #ifndef CHROME_BROWSER_VIEWS_FIND_BAR_WIN_H_
 #define CHROME_BROWSER_VIEWS_FIND_BAR_WIN_H_
 
+#include "app/animation.h"
 #include "base/gfx/rect.h"
 #include "chrome/browser/find_bar.h"
 #include "chrome/browser/renderer_host/render_view_host_delegate.h"
-#include "chrome/common/animation.h"
 #include "chrome/views/widget/widget_win.h"
 
 class BrowserView;

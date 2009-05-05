@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "chrome/common/throb_animation.h"
+#include "app/throb_animation.h"
 
 static const int kDefaultThrobDurationMS = 400;
 

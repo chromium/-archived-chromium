@@ -5,10 +5,10 @@
 #ifndef CHROME_BROWSER_VIEWS_TABS_DRAGGED_TAB_VIEW_H_
 #define CHROME_BROWSER_VIEWS_TABS_DRAGGED_TAB_VIEW_H_
 
+#include "app/slide_animation.h"
 #include "base/gfx/point.h"
 #include "base/gfx/size.h"
 #include "base/task.h"
-#include "chrome/common/slide_animation.h"
 #include "chrome/views/view.h"
 #include "skia/include/SkBitmap.h"
 

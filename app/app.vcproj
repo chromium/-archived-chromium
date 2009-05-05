@@ -122,6 +122,14 @@
 	</References>
 	<Files>
 		<File
+			RelativePath=".\animation.cc"
+			>
+		</File>
+		<File
+			RelativePath=".\animation.h"
+			>
+		</File>
+		<File
 			RelativePath=".\resource_bundle.cc"
 			>
 		</File>
@@ -131,6 +139,22 @@
 		</File>
 		<File
 			RelativePath=".\resource_bundle_win.cc"
+			>
+		</File>
+		<File
+			RelativePath=".\slide_animation.cc"
+			>
+		</File>
+		<File
+			RelativePath=".\slide_animation.h"
+			>
+		</File>
+		<File
+			RelativePath=".\throb_animation.cc"
+			>
+		</File>
+		<File
+			RelativePath=".\throb_animation.h"
 			>
 		</File>
 	</Files>

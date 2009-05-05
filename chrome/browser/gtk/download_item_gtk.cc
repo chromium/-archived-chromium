@@ -4,6 +4,7 @@
 
 #include "chrome/browser/gtk/download_item_gtk.h"
 
+#include "app/slide_animation.h"
 #include "base/basictypes.h"
 #include "base/string_util.h"
 #include "chrome/browser/download/download_item_model.h"
@@ -13,7 +14,6 @@
 #include "chrome/browser/gtk/nine_box.h"
 #include "chrome/common/gfx/chrome_font.h"
 #include "chrome/common/gfx/text_elider.h"
-#include "chrome/common/slide_animation.h"
 #include "grit/generated_resources.h"
 #include "grit/theme_resources.h"
 

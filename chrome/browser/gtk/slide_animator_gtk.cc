@@ -4,9 +4,9 @@
 
 #include "chrome/browser/gtk/slide_animator_gtk.h"
 
+#include "app/animation.h"
+#include "app/slide_animation.h"
 #include "base/logging.h"
-#include "chrome/common/animation.h"
-#include "chrome/common/slide_animation.h"
 
 namespace {
 
