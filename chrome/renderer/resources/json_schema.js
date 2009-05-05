@@ -36,12 +36,12 @@
 // - made additionalProperties default to false
 //==============================================================================
 
-var chromium = chromium || {};
+var chrome = chrome || {};
 
 /**
  * Validates an instance against a schema and accumulates errors. Usage:
  *
- * var validator = new chromium.JSONSchemaValidator();
+ * var validator = new chrome.JSONSchemaValidator();
  * validator.validate(inst, schema);
  * if (validator.errors.length == 0)
  *   console.log("Valid!");
@@ -53,11 +53,11 @@ var chromium = chromium || {};
  * the key that had the problem, and the "message" property contains a sentence
  * describing the error.
  */
-chromium.JSONSchemaValidator = function() {
+chrome.JSONSchemaValidator = function() {
   this.errors = [];
 };
 
-chromium.JSONSchemaValidator.messages = {
+chrome.JSONSchemaValidator.messages = {
   invalidEnum: "Value must be one of: [*].",
   propertyRequired: "Property is required.",
   unexpectedProperty: "Unexpected property.",
@@ -80,7 +80,7 @@ chromium.JSONSchemaValidator.messages = {
  * Builds an error message. Key is the property in the |errors| object, and
  * |opt_replacements| is an array of values to replace "*" characters with.
  */
-chromium.JSONSchemaValidator.formatError = function(key, opt_replacements) {
+chrome.JSONSchemaValidator.formatError = function(key, opt_replacements) {
   var message = this.messages[key];
   if (opt_replacements) {
     for (var i = 0; i < opt_replacements.length; i++) {
@@ -95,7 +95,7 @@ chromium.JSONSchemaValidator.formatError = function(key, opt_replacements) {
  * don't explicitly disallow 'function', because we want to allow functions in
  * the input values.
  */
-chromium.JSONSchemaValidator.getType = function(value) {
+chrome.JSONSchemaValidator.getType = function(value) {
   var s = typeof value;
 
   if (s == "object") {
@@ -119,8 +119,8 @@ chromium.JSONSchemaValidator.getType = function(value) {
  * value and will be validated recursively. When this method returns, the
  * |errors| property will contain a list of errors, if any.
  */
-chromium.JSONSchemaValidator.prototype.validate = function(instance, schema,
-                                                           opt_path) {
+chrome.JSONSchemaValidator.prototype.validate = function(instance, schema,
+                                                         opt_path) {
   var path = opt_path || "";
 
   if (!schema) {
@@ -174,9 +174,9 @@ chromium.JSONSchemaValidator.prototype.validate = function(instance, schema,
  * Validates an instance against a choices schema. The instance must match at
  * least one of the provided choices.
  */
-chromium.JSONSchemaValidator.prototype.validateChoices = function(instance,
-                                                                  schema,
-                                                                  path) {
+chrome.JSONSchemaValidator.prototype.validateChoices = function(instance,
+                                                                schema,
+                                                                path) {
   var originalErrors = this.errors;
 
   for (var i = 0; i < schema.choices.length; i++) {
@@ -197,8 +197,8 @@ chromium.JSONSchemaValidator.prototype.validateChoices = function(instance,
  * |errors| property, and returns a boolean indicating whether the instance
  * validates.
  */
-chromium.JSONSchemaValidator.prototype.validateEnum = function(instance, schema,
-                                                               path) {
+chrome.JSONSchemaValidator.prototype.validateEnum = function(instance, schema,
+                                                             path) {
   for (var i = 0; i < schema.enum.length; i++) {
     if (instance === schema.enum[i])
       return true;
@@ -212,8 +212,8 @@ chromium.JSONSchemaValidator.prototype.validateEnum = function(instance, schema,
  * Validates an instance against an object schema and populates the errors
  * property.
  */
-chromium.JSONSchemaValidator.prototype.validateObject = function(instance,
-                                                                 schema, path) {
+chrome.JSONSchemaValidator.prototype.validateObject = function(instance,
+                                                               schema, path) {
   for (var prop in schema.properties) {
     var propPath = path ? path + "." + prop : prop;
     if (schema.properties[prop] == undefined) {
@@ -245,9 +245,9 @@ chromium.JSONSchemaValidator.prototype.validateObject = function(instance,
  * Validates an instance against an array schema and populates the errors
  * property.
  */
-chromium.JSONSchemaValidator.prototype.validateArray = function(instance,
-                                                                schema, path) {
-  var typeOfItems = chromium.JSONSchemaValidator.getType(schema.items);
+chrome.JSONSchemaValidator.prototype.validateArray = function(instance,
+                                                              schema, path) {
+  var typeOfItems = chrome.JSONSchemaValidator.getType(schema.items);
 
   if (typeOfItems == 'object') {
     if (schema.minItems && instance.length < schema.minItems) {
@@ -292,8 +292,8 @@ chromium.JSONSchemaValidator.prototype.validateArray = function(instance,
 /**
  * Validates a string and populates the errors property.
  */
-chromium.JSONSchemaValidator.prototype.validateString = function(instance,
-                                                                 schema, path) {
+chrome.JSONSchemaValidator.prototype.validateString = function(instance,
+                                                               schema, path) {
   if (schema.minLength && instance.length < schema.minLength)
     this.addError(path, "stringMinLength", [schema.minLength]);
 
@@ -308,8 +308,8 @@ chromium.JSONSchemaValidator.prototype.validateString = function(instance,
  * Validates a number and populates the errors property. The instance is
  * assumed to be a number.
  */
-chromium.JSONSchemaValidator.prototype.validateNumber = function(instance,
-                                                                 schema, path) {
+chrome.JSONSchemaValidator.prototype.validateNumber = function(instance,
+                                                               schema, path) {
   if (schema.minimum && instance < schema.minimum)
     this.addError(path, "numberMinValue", [schema.minimum]);
 
@@ -324,9 +324,9 @@ chromium.JSONSchemaValidator.prototype.validateNumber = function(instance,
  * Validates the primitive type of an instance and populates the errors
  * property. Returns true if the instance validates, false otherwise.
  */
-chromium.JSONSchemaValidator.prototype.validateType = function(instance, schema,
-                                                               path) {
-  var actualType = chromium.JSONSchemaValidator.getType(instance);
+chrome.JSONSchemaValidator.prototype.validateType = function(instance, schema,
+                                                             path) {
+  var actualType = chrome.JSONSchemaValidator.getType(instance);
   if (schema.type != actualType && !(schema.type == "number" &&
       actualType == "integer")) {
     this.addError(path, "invalidType", [schema.type, actualType]);
@@ -341,15 +341,15 @@ chromium.JSONSchemaValidator.prototype.validateType = function(instance, schema,
  * |replacements| is an array of values to replace '*' characters in the
  * message.
  */
-chromium.JSONSchemaValidator.prototype.addError = function(path, key,
-                                                           replacements) {
+chrome.JSONSchemaValidator.prototype.addError = function(path, key,
+                                                         replacements) {
   this.errors.push({
     path: path,
-    message: chromium.JSONSchemaValidator.formatError(key, replacements)
+    message: chrome.JSONSchemaValidator.formatError(key, replacements)
   });
 };
 
-// Set up chromium.types with some commonly used types...
+// Set up chrome.types with some commonly used types...
 (function() {
   function extend(base, ext) {
     var result = {};
@@ -381,5 +381,5 @@ chromium.JSONSchemaValidator.prototype.addError = function(path, key,
     };
   };
 
-  chromium.types = types;
+  chrome.types = types;
 })();

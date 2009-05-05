@@ -100,7 +100,7 @@ void ExtensionProcessBindings::SetFunctionNames(
 
 void ExtensionProcessBindings::ExecuteCallbackInFrame(
     WebFrame* frame, int callback_id, const std::string& response) {
-  std::string code = "chromium.dispatchCallback_(";
+  std::string code = "chrome.dispatchCallback_(";
   code += IntToString(callback_id);
   code += ", '";
 

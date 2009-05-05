@@ -15,7 +15,7 @@
 
 // Message passing API example (in a content script):
 // var extension =
-//    new chromium.Extension('00123456789abcdef0123456789abcdef0123456');
+//    new chrome.Extension('00123456789abcdef0123456789abcdef0123456');
 // var port = extension.connect();
 // port.postMessage('Can you hear me now?');
 // port.onmessage.addListener(function(msg, port) {
@@ -94,7 +94,7 @@ void RendererExtensionBindings::HandleConnect(int port_id,
   v8::Handle<v8::Value> argv[2];
   argv[0] = v8::Integer::New(port_id);
   argv[1] = v8::String::New(tab_json.c_str());
-  EventBindings::CallFunction("chromium.Port.dispatchOnConnect_",
+  EventBindings::CallFunction("chrome.Port.dispatchOnConnect_",
                               arraysize(argv), argv);
 }
 
@@ -104,7 +104,7 @@ void RendererExtensionBindings::HandleMessage(const std::string& message,
   v8::Handle<v8::Value> argv[2];
   argv[0] = v8::String::New(message.c_str());
   argv[1] = v8::Integer::New(port_id);
-  EventBindings::CallFunction("chromium.Port.dispatchOnMessage_",
+  EventBindings::CallFunction("chrome.Port.dispatchOnMessage_",
                               arraysize(argv), argv);
 }
 
@@ -115,6 +115,6 @@ void RendererExtensionBindings::HandleEvent(const std::string& event_name,
   argv[0] = v8::String::New(event_name.c_str());
   argv[1] = v8::String::New(args.c_str());
 
-  EventBindings::CallFunction("chromium.Event.dispatchJSON_",
+  EventBindings::CallFunction("chrome.Event.dispatchJSON_",
                               arraysize(argv), argv);
 }

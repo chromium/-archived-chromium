@@ -27,7 +27,7 @@ static const char kUserScriptTail[] = "\n})(window);";
 
 // Creates a convenient reference to a content script's parent extension.
 static const char kInitExtension[] =
-    "chromium.extension = new chromium.Extension('%s')";
+    "chrome.extension = new chrome.Extension('%s')";
 
 UserScriptSlave::UserScriptSlave()
     : shared_memory_(NULL),
@@ -151,7 +151,7 @@ bool UserScriptSlave::InjectScripts(WebFrame* frame,
         sources.insert(sources.begin(),
             WebScriptSource(WebString::fromUTF8(api_js_.as_string())));
       } else {
-        // Setup chromium.self to contain an Extension object with the correct
+        // Setup chrome.self to contain an Extension object with the correct
         // ID.
         sources.insert(sources.begin(),
             WebScriptSource(WebString::fromUTF8(

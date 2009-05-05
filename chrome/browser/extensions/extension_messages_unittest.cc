@@ -14,7 +14,7 @@ TEST_F(RenderViewTest, ExtensionMessagesOpenChannel) {
   render_thread_.sink().ClearMessages();
   LoadHTML("<body></body>");
   ExecuteJavaScript(
-    "var e = new chromium.Extension('foobar');"
+    "var e = new chrome.Extension('foobar');"
     "var port = e.connect();"
     "port.onMessage.addListener(doOnMessage);"
     "port.postMessage({message: 'content ready'});"
@@ -57,7 +57,7 @@ TEST_F(RenderViewTest, ExtensionMessagesOpenChannel) {
 TEST_F(RenderViewTest, ExtensionMessagesOnConnect) {
   LoadHTML("<body></body>");
   ExecuteJavaScript(
-    "chromium.self.onConnect.addListener(function (port) {"
+    "chrome.self.onConnect.addListener(function (port) {"
     "  port.onMessage.addListener(doOnMessage);"
     "  port.postMessage({message: 'onconnect from ' + port.tab.url});"
     "});"

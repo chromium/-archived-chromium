@@ -11,7 +11,7 @@
 
   button.onclick = handleClick;
 
-  chromium.self.onConnect.addListener(function(port) {
+  chrome.self.onConnect.addListener(function(port) {
     port.onMessage.addListener(function(feedUrls) {
       // TODO(aa): When we have the ability to display drop downs, we should let
       // the user pick which feed to subscribe. Right now, we just pick the
@@ -45,7 +45,7 @@
   function handleClick() {
     if (enabled) {
       var url = "http://www.google.com/reader/view/feed/" + feedUrl;
-      chromium.tabs.create({url: url});
+      chrome.tabs.create({url: url});
     }
   }
 </script>

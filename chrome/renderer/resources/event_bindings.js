@@ -7,7 +7,7 @@
 // have your change take effect.
 // -----------------------------------------------------------------------------
 
-var chromium = chromium || {};
+var chrome = chrome || {};
 (function () {
   native function AttachEvent(eventName);
   native function DetachEvent(eventName);
@@ -17,41 +17,41 @@ var chromium = chromium || {};
   // with that name will route through this object's listeners.
   //
   // Example:
-  //   chromium.tabs.onTabChanged = new chromium.Event("tab-changed");
-  //   chromium.tabs.onTabChanged.addListener(function(data) { alert(data); });
-  //   chromium.Event.dispatch_("tab-changed", "hi");
+  //   chrome.tabs.onChanged = new chrome.Event("tab-changed");
+  //   chrome.tabs.onChanged.addListener(function(data) { alert(data); });
+  //   chrome.Event.dispatch_("tab-changed", "hi");
   // will result in an alert dialog that says 'hi'.
-  chromium.Event = function(opt_eventName) {
+  chrome.Event = function(opt_eventName) {
     this.eventName_ = opt_eventName;
     this.listeners_ = [];
   };
 
   // A map of event names to the event object that is registered to that name.
-  chromium.Event.attached_ = {};
+  chrome.Event.attached_ = {};
 
   // Dispatches a named event with the given JSON array, which is deserialized
   // before dispatch. The JSON array is the list of arguments that will be
   // sent with the event callback.
-  chromium.Event.dispatchJSON_ = function(name, args) {
-    if (chromium.Event.attached_[name]) {
+  chrome.Event.dispatchJSON_ = function(name, args) {
+    if (chrome.Event.attached_[name]) {
       if (args) {
         args = goog.json.parse(args);
       }
-      chromium.Event.attached_[name].dispatch.apply(
-          chromium.Event.attached_[name], args);
+      chrome.Event.attached_[name].dispatch.apply(
+          chrome.Event.attached_[name], args);
     }
   };
 
   // Dispatches a named event with the given arguments, supplied as an array.
-  chromium.Event.dispatch_ = function(name, args) {
-    if (chromium.Event.attached_[name]) {
-      chromium.Event.attached_[name].dispatch.apply(
-          chromium.Event.attached_[name], args);
+  chrome.Event.dispatch_ = function(name, args) {
+    if (chrome.Event.attached_[name]) {
+      chrome.Event.attached_[name].dispatch.apply(
+          chrome.Event.attached_[name], args);
     }
   };
 
   // Registers a callback to be called when this event is dispatched.
-  chromium.Event.prototype.addListener = function(cb) {
+  chrome.Event.prototype.addListener = function(cb) {
     this.listeners_.push(cb);
     if (this.listeners_.length == 1) {
       this.attach_();
@@ -59,7 +59,7 @@ var chromium = chromium || {};
   };
 
   // Unregisters a callback.
-  chromium.Event.prototype.removeListener = function(cb) {
+  chrome.Event.prototype.removeListener = function(cb) {
     var idx = this.findListener_(cb);
     if (idx == -1) {
       return;
@@ -72,13 +72,13 @@ var chromium = chromium || {};
   };
 
   // Test if the given callback is registered for this event.
-  chromium.Event.prototype.hasListener = function(cb) {
+  chrome.Event.prototype.hasListener = function(cb) {
     return this.findListeners_(cb) > -1;
   };
 
   // Returns the index of the given callback if registered, or -1 if not
   // found.
-  chromium.Event.prototype.findListener_ = function(cb) {
+  chrome.Event.prototype.findListener_ = function(cb) {
     for (var i = 0; i < this.listeners_.length; i++) {
       if (this.listeners_[i] == cb) {
         return i;
@@ -90,7 +90,7 @@ var chromium = chromium || {};
 
   // Dispatches this event object to all listeners, passing all supplied
   // arguments to this function each listener.
-  chromium.Event.prototype.dispatch = function(varargs) {
+  chrome.Event.prototype.dispatch = function(varargs) {
     var args = Array.prototype.slice.call(arguments);
     for (var i = 0; i < this.listeners_.length; i++) {
       try {
@@ -103,33 +103,33 @@ var chromium = chromium || {};
 
   // Attaches this event object to its name.  Only one object can have a given
   // name.
-  chromium.Event.prototype.attach_ = function() {
+  chrome.Event.prototype.attach_ = function() {
     AttachEvent(this.eventName_);
     this.unloadHandler_ = this.detach_.bind(this);
     window.addEventListener('unload', this.unloadHandler_, false);
     if (!this.eventName_)
       return;
 
-    if (chromium.Event.attached_[this.eventName_]) {
-      throw new Error("chromium.Event '" + this.eventName_ +
+    if (chrome.Event.attached_[this.eventName_]) {
+      throw new Error("chrome.Event '" + this.eventName_ +
                       "' is already attached.");
     }
 
-    chromium.Event.attached_[this.eventName_] = this;
+    chrome.Event.attached_[this.eventName_] = this;
   };
 
   // Detaches this event object from its name.
-  chromium.Event.prototype.detach_ = function() {
+  chrome.Event.prototype.detach_ = function() {
     window.removeEventListener('unload', this.unloadHandler_, false);
     DetachEvent(this.eventName_);
     if (!this.eventName_)
       return;
 
-    if (!chromium.Event.attached_[this.eventName_]) {
-      throw new Error("chromium.Event '" + this.eventName_ +
+    if (!chrome.Event.attached_[this.eventName_]) {
+      throw new Error("chrome.Event '" + this.eventName_ +
                       "' is not attached.");
     }
 
-    delete chromium.Event.attached_[this.eventName_];
+    delete chrome.Event.attached_[this.eventName_];
   };
 })();

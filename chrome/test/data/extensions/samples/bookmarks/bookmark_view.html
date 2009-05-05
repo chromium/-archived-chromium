@@ -29,7 +29,7 @@
 // code that sets up our v8 extensions, and we don't end up with them running.
 //
 // If we noticed this happened, reload ourselves, which should fix it.
-if (!chromium.bookmarks)
+if (!chrome.bookmarks)
   location.reload();
 
 var logEvent = function(name, data) {
@@ -38,23 +38,23 @@ var logEvent = function(name, data) {
   console.log("got event: " + name);
 }
 
-chromium.bookmarks.onBookmarkAdded.addListener(function(data) {
+chrome.bookmarks.onBookmarkAdded.addListener(function(data) {
   logEvent("onBookmarkAdded", data);
 });
 
-chromium.bookmarks.onBookmarkRemoved.addListener(function(data) {
+chrome.bookmarks.onBookmarkRemoved.addListener(function(data) {
   logEvent("onBookmarkRemoved", data);
 });
 
-chromium.bookmarks.onBookmarkChanged.addListener(function(data) {
+chrome.bookmarks.onBookmarkChanged.addListener(function(data) {
   logEvent("onBookmarkChanged", data);
 });
 
-chromium.bookmarks.onBookmarkMoved.addListener(function(data) {
+chrome.bookmarks.onBookmarkMoved.addListener(function(data) {
   logEvent("onBookmarkMoved", data);
 });
 
-chromium.bookmarks.onBookmarkChildrenReordered.addListener(function(data) {
+chrome.bookmarks.onBookmarkChildrenReordered.addListener(function(data) {
   logEvent("onBookmarkChildrenReordered", data);
 });
 
@@ -71,7 +71,7 @@ var toggleBookmark = function(event) {
     return;
   console.log("toggle: " + id);
   //console.dir(event);
-  chromium.bookmarks.get([id], function(bookmark) {
+  chrome.bookmarks.get([id], function(bookmark) {
     //console.log("toggle get");
     console.dir(bookmark[0]);
     if (bookmark[0].childrenIds && bookmark[0].childrenIds.length) {
@@ -80,7 +80,7 @@ var toggleBookmark = function(event) {
         node.removeChild(node.childNodes[1]);
       } else {
         //console.log("before");
-        chromium.bookmarks.get(bookmark[0].childrenIds, function(children) {
+        chrome.bookmarks.get(bookmark[0].childrenIds, function(children) {
           //console.log("toggle expand");
           if (children && children.length) {
             console.dir(children);
@@ -122,14 +122,14 @@ var addBookmarks = function(bookmarks, parent) {
 
 var loadBookmarks = function() {
   var container = document.getElementById('container');
-  chromium.bookmarks.get([], function(results) {
+  chrome.bookmarks.get([], function(results) {
     var root = results[0];
     console.dir(root);
     var rootElement = document.createElement("div");
     rootElement.id = prefix + root.id;
     // root element is empty / invisible, just an id to be looked up
     container.appendChild(rootElement);
-    chromium.bookmarks.get(root.childrenIds, function(children) {
+    chrome.bookmarks.get(root.childrenIds, function(children) {
       addBookmarks(children, rootElement);
     });
   });

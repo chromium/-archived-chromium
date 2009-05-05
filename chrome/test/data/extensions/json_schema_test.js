@@ -8,7 +8,7 @@ function assert(truth) {
 }
 
 function assertValid(type, instance, schema) {
-  var validator = new chromium.JSONSchemaValidator();
+  var validator = new chrome.JSONSchemaValidator();
   validator["validate" + type](instance, schema, "");
   if (validator.errors.length != 0) {
     log("Got unexpected errors");
@@ -18,7 +18,7 @@ function assertValid(type, instance, schema) {
 }
 
 function assertNotValid(type, instance, schema, errors) {
-  var validator = new chromium.JSONSchemaValidator();
+  var validator = new chrome.JSONSchemaValidator();
   validator["validate" + type](instance, schema, "");
   assert(validator.errors.length === errors.length);
   for (var i = 0; i < errors.length; i++) {
@@ -34,7 +34,7 @@ function assertNotValid(type, instance, schema, errors) {
 }
 
 function formatError(key, replacements) {
-  return chromium.JSONSchemaValidator.formatError(key, replacements);
+  return chrome.JSONSchemaValidator.formatError(key, replacements);
 }
 
 function testFormatError() {

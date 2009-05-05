@@ -10,9 +10,9 @@ focusedWindowId = undefined;
 currentWindowId = undefined;
 
 function bootStrap() {
-  chromium.windows.getCurrent(function(currentWindow) {
+  chrome.windows.getCurrent(function(currentWindow) {
     currentWindowId = currentWindow.id;
-    chromium.windows.getFocused(function(focusedWindow) {
+    chrome.windows.getFocused(function(focusedWindow) {
       focusedWindowId = focusedWindow.id;
       loadWindowList();
     });
@@ -20,7 +20,7 @@ function bootStrap() {
 }
 
 function loadWindowList() {
-  chromium.windows.getAll(true, function(windowList) {     
+  chrome.windows.getAll(true, function(windowList) {     
     tabs = {};
     tabIds = [];
     for (var i = 0; i < windowList.length; i++) {
@@ -50,7 +50,7 @@ function updateTabData(id) {
 
 function updateTab(id){
   try {
-    chromium.tabs.update(id, updateTabData(id));
+    chrome.tabs.update(id, updateTabData(id));
   } catch (e) {
     alert(e);
   }
@@ -65,7 +65,7 @@ function moveTabData(id) {
 }
 function moveTab(id) {
   try {
-    chromium.tabs.move(id, moveTabData(id));
+    chrome.tabs.move(id, moveTabData(id));
   } catch (e) {
     alert(e);
   }
@@ -89,7 +89,7 @@ function createTab() {
     delete args.index;
  
   try {
-    chromium.tabs.create(args);
+    chrome.tabs.create(args);
   } catch (e) {
     alert(e);
   }
@@ -98,7 +98,7 @@ function createTab() {
 function updateAll() {
   try {
     for (var i = 0; i < tabIds.length; i++) {
-      chromium.tabs.update(tabIds[i], updateTabData(tabIds[i])); 
+      chrome.tabs.update(tabIds[i], updateTabData(tabIds[i])); 
     }
   } catch(e) {
     alert(e);
@@ -109,7 +109,7 @@ function moveAll() {
   appendToLog('moving all');
   try {
     for (var i = 0; i < tabIds.length; i++) {
-      chromium.tabs.move(tabIds[i], moveTabData(tabIds[i])); 
+      chrome.tabs.move(tabIds[i], moveTabData(tabIds[i])); 
     }
   } catch(e) {
     alert(e);
@@ -125,48 +125,48 @@ function clearLog() {
   document.getElementById('log').innerHTML = '';
 }
 
-chromium.windows.onCreated.addListener(function(windowId) {
+chrome.windows.onCreated.addListener(function(windowId) {
   appendToLog('windows.onCreated -- window: ' + windowId);
   loadWindowList();
 });
 
-chromium.windows.onFocusChanged.addListener(function(windowId) {
+chrome.windows.onFocusChanged.addListener(function(windowId) {
   focusedWindowId = windowId;
   appendToLog('windows.onFocusChanged -- window: ' + windowId);
   loadWindowList();
 });
 
-chromium.windows.onRemoved.addListener(function(windowId) {
+chrome.windows.onRemoved.addListener(function(windowId) {
   appendToLog('windows.onRemoved -- window: ' + windowId);
   loadWindowList();
 });
 
-chromium.tabs.onCreated.addListener(function(tab) {
+chrome.tabs.onCreated.addListener(function(tab) {
   appendToLog('tabs.onCreated -- window: ' + tab.windowId + ' tab: ' + tab.id + ' index ' + tab.index + ' url ' + tab.url);
   loadWindowList();
 });
 
-chromium.tabs.onAttached.addListener(function(tabId, props) {
+chrome.tabs.onAttached.addListener(function(tabId, props) {
   appendToLog('tabs.onAttached -- window: ' + props.newWindowId + ' tab: ' + tabId + ' index ' + props.newPosition);
   loadWindowList();
 });
 
-chromium.tabs.onMoved.addListener(function(tabId, props) {
+chrome.tabs.onMoved.addListener(function(tabId, props) {
   appendToLog('tabs.onMoved -- window: ' + props.windowId + ' tab: ' + tabId + ' from ' + props.fromIndex + ' to ' +  props.toIndex);
   loadWindowList();
 });
 
-chromium.tabs.onDetached.addListener(function(tabId, props) {
+chrome.tabs.onDetached.addListener(function(tabId, props) {
   appendToLog('tabs.onDetached -- window: ' + props.oldWindowId + ' tab: ' + tabId + ' index ' + props.oldPosition);
   loadWindowList();
 });
 
-chromium.tabs.onSelectionChanged.addListener(function(tabId, props) {
+chrome.tabs.onSelectionChanged.addListener(function(tabId, props) {
   appendToLog('tabs.onSelectionChanged -- window: ' + props.windowId + ' tab: ' + tabId);
   loadWindowList();
 });
 
-chromium.tabs.onRemoved.addListener(function(tabId) {
+chrome.tabs.onRemoved.addListener(function(tabId) {
   appendToLog('tabs.onRemoved -- tab: ' + tabId);
   loadWindowList();
 });
@@ -196,15 +196,15 @@ function createWindow() {
     delete args.url;
   
   try {
-    chromium.windows.createWindow(args);
+    chrome.windows.createWindow(args);
   } catch(e) {
     alert(e);
   }
 }
 
 function refreshWindow(windowId) {
-  chromium.windows.get(windowId, function(window) {
-    chromium.tabs.getAllInWindow(window.id, function(tabList) {
+  chrome.windows.get(windowId, function(window) {
+    chrome.tabs.getAllInWindow(window.id, function(tabList) {
       window.tabs = tabList;
       var input = new JsExprContext(window);
       var output = document.getElementById('window_' + window.id);
@@ -216,7 +216,7 @@ function refreshWindow(windowId) {
 }
 
 function refreshTab(tabId) {
-  chromium.tabs.get(tabId, function(tab) {
+  chrome.tabs.get(tabId, function(tab) {
     var input = new JsExprContext(tab);
     var output = document.getElementById('tab_' + tab.id);
     jstProcess(input, output);      
@@ -225,7 +225,7 @@ function refreshTab(tabId) {
 }
 
 function refreshSelectedTab(windowId) {
-  chromium.tabs.getSelected(windowId, function(tab) {
+  chrome.tabs.getSelected(windowId, function(tab) {
     var input = new JsExprContext(tab);
     var output = document.getElementById('tab_' + tab.id);
     jstProcess(input, output);      
@@ -275,11 +275,11 @@ function refreshSelectedTab(windowId) {
                 <div><input type="checkbox" jsvalues="checked:selected; id:'selected_' + id" /> Selected</div>
               </div>
               <button onclick="updateTab(this.jstdata)" jsvalues=".jstdata:id">Update Tab</button>
-              <button onclick="chromium.tabs.remove(this.jstdata);" jsvalues=".jstdata:id">Close Tab</button>
+              <button onclick="chrome.tabs.remove(this.jstdata);" jsvalues=".jstdata:id">Close Tab</button>
             </div>
           </div>
         </div>
-        <button onclick="chromium.windows.removeWindow(this.jstdata);" jsvalues=".jstdata:id">Close Window</button>
+        <button onclick="chrome.windows.removeWindow(this.jstdata);" jsvalues=".jstdata:id">Close Window</button>
         <button onclick="refreshSelectedTab(this.jstdata);" jsvalues=".jstdata:id">Refresh Selected Tab</button>
       </div>
     </div>
@@ -328,10 +328,9 @@ function refreshSelectedTab(windowId) {
       <button onclick="updateAll();">Update All</button>
       <button onclick="moveAll();">Move All</button>
       <button onclick="clearLog();">-->Clear Log</button>
-      <button onclick="chromium.windows.createWindow();">New Window</button>
+      <button onclick="chrome.windows.createWindow();">New Window</button>
     </div>
     <div id="log" style="background-color: #EEAAEE; margin: 20px; padding: 8px">
     </div>
   </body>
 </html>
-

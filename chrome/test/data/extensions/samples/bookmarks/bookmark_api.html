@@ -34,11 +34,11 @@ var testMoveBookmarks2 = function(event) {
     return;
   }
   console.log("testMoveBookmarks2");
-  chromium.bookmarks.get([], function(root) {
+  chrome.bookmarks.get([], function(root) {
     console.log("1");
-    chromium.bookmarks.get(root[0].childrenIds, function(root_children) {
+    chrome.bookmarks.get(root[0].childrenIds, function(root_children) {
       var bookmark_bar = root_children[0];  // bookmarks bar is always first
-      chromium.bookmarks.get(bookmark_bar.childrenIds,
+      chrome.bookmarks.get(bookmark_bar.childrenIds,
                                  function(bar_children) {
         var folder_search = [];
         bar_children.forEach(function(child) {
@@ -50,18 +50,18 @@ var testMoveBookmarks2 = function(event) {
           console.log('moving children out of "folder"');
           var folder = folder_search[0];
           folder.childrenIds.forEach(function(folder_child_id) {
-            chromium.bookmarks.move({'id': folder_child_id,
+            chrome.bookmarks.move({'id': folder_child_id,
                                      'parentId': bookmark_bar.id});
           });
-          chromium.bookmarks.remove({'id': folder.id});
+          chrome.bookmarks.remove({'id': folder.id});
         } else if (folder_search.length == 0) {
           console.log('creating "folder" and moving children into it');
-          chromium.bookmarks.create({'parentId': bookmark_bar.id, 
+          chrome.bookmarks.create({'parentId': bookmark_bar.id, 
                                      'title': 'folder'},
                                       function(folder) {
-            chromium.bookmarks.search("oog", function(oog_search) {
+            chrome.bookmarks.search("oog", function(oog_search) {
               oog_search.forEach(function(oog_match) {
-                chromium.bookmarks.move({'id': oog_match.id,
+                chrome.bookmarks.move({'id': oog_match.id,
                                          'parentId': folder.id})
               });
             });
