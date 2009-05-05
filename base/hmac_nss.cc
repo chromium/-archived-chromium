@@ -42,14 +42,31 @@ struct HMACPlatformData {
   ScopedNSSSymKey sym_key_;
 };
 
-HMAC::HMAC(HashAlgorithm hash_alg, const unsigned char* key, int key_length)
+HMAC::HMAC(HashAlgorithm hash_alg)
     : hash_alg_(hash_alg), plat_(new HMACPlatformData()) {
+  // Only SHA-1 digest is supported now.
   DCHECK(hash_alg_ == SHA1);
+}
 
+bool HMAC::Init(const unsigned char *key, int key_length) {
   base::EnsureNSSInit();
 
+  if (hash_alg_ != SHA1) {
+    NOTREACHED();
+    return false;
+  }
+
+  if (plat_->slot_.get() || plat_->slot_.get()) {
+    // Init must not be called more than twice on the same HMAC object.
+    NOTREACHED();
+    return false;
+  }
+
   plat_->slot_.reset(PK11_GetBestSlot(CKM_SHA_1_HMAC, NULL));
-  CHECK(plat_->slot_.get());
+  if (!plat_->slot_.get()) {
+    NOTREACHED();
+    return false;
+  }
 
   SECItem key_item;
   key_item.type = siBuffer;
@@ -62,7 +79,12 @@ HMAC::HMAC(HashAlgorithm hash_alg, const unsigned char* key, int key_length)
                                           CKA_SIGN,
                                           &key_item,
                                           NULL));
-  CHECK(plat_->sym_key_.get());
+  if (!plat_->sym_key_.get()) {
+    NOTREACHED();
+    return false;
+  }
+
+  return true;
 }
 
 HMAC::~HMAC() {
@@ -71,6 +93,12 @@ HMAC::~HMAC() {
 bool HMAC::Sign(const std::string& data,
                 unsigned char* digest,
                 int digest_length) {
+  if (!plat_->sym_key_.get()) {
+    // Init has not been called before Sign.
+    NOTREACHED();
+    return false;
+  }
+
   SECItem param = { siBuffer, NULL, 0 };
   ScopedNSSContext context(PK11_CreateContextBySymKey(CKM_SHA_1_HMAC,
                                                       CKA_SIGN,

@@ -21,11 +21,25 @@ struct HMACPlatformData {
   HCRYPTKEY hkey_;
 };
 
-HMAC::HMAC(HashAlgorithm hash_alg, const unsigned char* key, int key_length)
+HMAC::HMAC(HashAlgorithm hash_alg)
     : hash_alg_(hash_alg), plat_(new HMACPlatformData()) {
+  // Only SHA-1 digest is supported now.
+  DCHECK(hash_alg_ == SHA1);
+}
+
+bool HMAC::Init(const unsigned char *key, int key_length) {
+  if (plat_->provider_ || plat_->hkey_) {
+    // Init must not be called more than once on the same HMAC object.
+    NOTREACHED();
+    return false;
+  }
+
   if (!CryptAcquireContext(&plat_->provider_, NULL, NULL,
-                           PROV_RSA_FULL, CRYPT_VERIFYCONTEXT))
+                           PROV_RSA_FULL, CRYPT_VERIFYCONTEXT)) {
+    NOTREACHED();
     plat_->provider_ = NULL;
+    return false;
+  }
 
   // This code doesn't work on Win2k because PLAINTEXTKEYBLOB and
   // CRYPT_IPSEC_HMAC_KEY are not supported on Windows 2000.  PLAINTEXTKEYBLOB
@@ -53,20 +67,31 @@ HMAC::HMAC(HashAlgorithm hash_alg, const unsigned char* key, int key_length)
   if (!CryptImportKey(plat_->provider_, &key_blob_storage[0],
                       key_blob_storage.size(), 0, CRYPT_IPSEC_HMAC_KEY,
                       &plat_->hkey_)) {
+    NOTREACHED();
     plat_->hkey_ = NULL;
+    return false;
   }
 
   // Destroy the copy of the key.
   SecureZeroMemory(key_blob->key_data, key_length);
+
+  return true;
 }
 
 HMAC::~HMAC() {
-  if (plat_->hkey_)
-    CryptDestroyKey(plat_->hkey_);
-  if (plat_->hash_)
-    CryptDestroyHash(plat_->hash_);
-  if (plat_->provider_)
-    CryptReleaseContext(plat_->provider_, 0);
+  BOOL ok;
+  if (plat_->hkey_) {
+    ok = CryptDestroyKey(plat_->hkey_);
+    DCHECK(ok);
+  }
+  if (plat_->hash_) {
+    ok = CryptDestroyHash(plat_->hash_);
+    DCHECK(ok);
+  }
+  if (plat_->provider_) {
+    ok = CryptReleaseContext(plat_->provider_, 0);
+    DCHECK(ok);
+  }
 }
 
 bool HMAC::Sign(const std::string& data,

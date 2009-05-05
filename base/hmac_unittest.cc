@@ -51,7 +51,8 @@ TEST(HMACTest, HmacSafeBrowsingResponseTest) {
 
   std::string message_data(kMessage);
 
-  base::HMAC hmac(base::HMAC::SHA1, kClientKey, kKeySize);
+  base::HMAC hmac(base::HMAC::SHA1);
+  ASSERT_TRUE(hmac.Init(kClientKey, kKeySize));
   unsigned char calculated_hmac[kDigestSize];
 
   EXPECT_TRUE(hmac.Sign(message_data, calculated_hmac, kDigestSize));
@@ -119,9 +120,9 @@ TEST(HMACTest, RFC2202TestCases) {
   };
 
   for (size_t i = 0; i < ARRAYSIZE_UNSAFE(cases); ++i) {
-    base::HMAC hmac(base::HMAC::SHA1,
-                    reinterpret_cast<const unsigned char*>(cases[i].key),
-                    cases[i].key_len);
+    base::HMAC hmac(base::HMAC::SHA1);
+    ASSERT_TRUE(hmac.Init(reinterpret_cast<const unsigned char*>(cases[i].key),
+                          cases[i].key_len));
     std::string data_string(cases[i].data, cases[i].data_len);
     unsigned char digest[kDigestSize];
     EXPECT_TRUE(hmac.Sign(data_string, digest, kDigestSize));
@@ -152,8 +153,8 @@ TEST(HMACTest, HMACObjectReuse) {
           "\xBB\xFF\x1A\x91" }
   };
 
-  base::HMAC hmac(base::HMAC::SHA1,
-                  reinterpret_cast<const unsigned char*>(key), key_len);
+  base::HMAC hmac(base::HMAC::SHA1);
+  ASSERT_TRUE(hmac.Init(reinterpret_cast<const unsigned char*>(key), key_len));
   for (size_t i = 0; i < ARRAYSIZE_UNSAFE(cases); ++i) {
     std::string data_string(cases[i].data, cases[i].data_len);
     unsigned char digest[kDigestSize];

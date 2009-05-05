@@ -14,9 +14,22 @@ struct HMACPlatformData {
   std::string key_;
 };
 
-HMAC::HMAC(HashAlgorithm hash_alg, const unsigned char* key, int key_length)
+HMAC::HMAC(HashAlgorithm hash_alg)
     : hash_alg_(hash_alg), plat_(new HMACPlatformData()) {
+  // Only SHA-1 digest is supported now.
+  DCHECK(hash_alg_ == SHA1);
+}
+
+bool HMAC::Init(const unsigned char *key, int key_length) {
+  if (!plat_->key_.empty()) {
+    // Init must not be called more than once on the same HMAC object.
+    NOTREACHED();
+    return false;
+  }
+
   plat_->key_.assign(reinterpret_cast<const char*>(key), key_length);
+
+  return true;
 }
 
 HMAC::~HMAC() {

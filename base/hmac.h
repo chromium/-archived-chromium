@@ -25,12 +25,23 @@ class HMAC {
     SHA1
   };
 
-  HMAC(HashAlgorithm hash_alg, const unsigned char* key, int key_length);
+  explicit HMAC(HashAlgorithm hash_alg);
   ~HMAC();
 
-  // Calculates the HMAC for the message in |data| using the algorithm and key
-  // supplied to the constructor.  The HMAC is returned in |digest|, which
-  // has |digest_length| bytes of storage available.
+  // Initializes this instance using |key| of the length |key_length|. Call Init
+  // only once. It returns false on the second or later calls.
+  bool Init(const unsigned char* key, int key_length);
+
+  // Initializes this instance using |key|. Call Init only once. It returns
+  // false on the second or later calls.
+  bool Init(const std::string& key) {
+    return Init(reinterpret_cast<const unsigned char*>(key.data()),
+                static_cast<int>(key.size()));
+  }
+
+  // Calculates the HMAC for the message in |data| using the algorithm supplied
+  // to the constructor and the key supplied to the Init method. The HMAC is
+  // returned in |digest|, which has |digest_length| bytes of storage available.
   bool Sign(const std::string& data, unsigned char* digest, int digest_length);
 
  private:
