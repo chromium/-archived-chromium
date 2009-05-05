@@ -11,7 +11,6 @@
 #include "chrome/browser/browser.h"
 #include "chrome/browser/gtk/custom_button.h"
 #include "chrome/browser/gtk/tabs/dragged_tab_controller_gtk.h"
-#include "chrome/browser/gtk/tabs/tab_button_gtk.h"
 #include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/common/gfx/chrome_canvas.h"
 #include "chrome/common/l10n_util.h"
@@ -979,7 +978,6 @@ void TabStripGtk::FinishAnimation(TabStripGtk::TabAnimation* animation,
 // static
 gboolean TabStripGtk::OnExpose(GtkWidget* widget, GdkEventExpose* event,
                                TabStripGtk* tabstrip) {
-
   if (gdk_region_empty(event->region))
     return TRUE;
 
