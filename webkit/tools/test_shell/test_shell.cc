@@ -70,7 +70,7 @@ class URLRequestTestShellFileJob : public URLRequestFileJob {
     PathService::Get(base::DIR_EXE, &path);
     path = path.AppendASCII("resources");
     path = path.AppendASCII("inspector");
-    path = path.AppendASCII(request->url().path());
+    path = path.AppendASCII(request->url().path().substr(1));
     return new URLRequestTestShellFileJob(request, path);
   }
 
