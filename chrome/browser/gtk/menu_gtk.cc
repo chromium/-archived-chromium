@@ -247,6 +247,13 @@ void MenuGtk::MenuPositionFunc(GtkMenu* menu,
   gtk_widget_size_request(GTK_WIDGET(menu), &menu_req);
 
   gdk_window_get_origin(widget->window, x, y);
+  GdkScreen *screen = gtk_widget_get_screen(widget);
+  gint monitor = gdk_screen_get_monitor_at_point(screen, *x, *y);
+
+  GdkRectangle screen_rect;
+  gdk_screen_get_monitor_geometry(screen, monitor,
+                                  &screen_rect);
+
   *x += widget->allocation.x;
   *y += widget->allocation.y + widget->allocation.height;
 
@@ -256,11 +263,9 @@ void MenuGtk::MenuPositionFunc(GtkMenu* menu,
   if (!g_object_get_data(G_OBJECT(widget), "left-align-popup"))
     *x += widget->allocation.width - menu_req.width;
 
-  // TODO(erg): Deal with this scrolling off the bottom of the screen.
+  if (*y + menu_req.height >= screen_rect.height)
+    *y -= menu_req.height;
 
-  // Regretfully, we can't rely on push_in to alter the coordinates above to
-  // always make the menu fit on screen. It'd make the above calculations just
-  // work though...
   *push_in = FALSE;
 }
 
