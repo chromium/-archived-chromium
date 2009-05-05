@@ -222,10 +222,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\webhistoryitem.h"
-				>
-			</File>
-			<File
 				RelativePath=".\webmediaplayer.h"
 				>
 			</File>
@@ -639,14 +635,6 @@
 			</File>
 			<File
 				RelativePath=".\webframeloaderclient_impl.h"
-				>
-			</File>
-			<File
-				RelativePath=".\webhistoryitem_impl.cc"
-				>
-			</File>
-			<File
-				RelativePath=".\webhistoryitem_impl.h"
 				>
 			</File>
 			<File
