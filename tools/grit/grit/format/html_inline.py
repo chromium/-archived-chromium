@@ -37,7 +37,7 @@ def ReadFile(input_filename):
   f.close()
   return file_contents
 
-def SrcInline(src_match, base_path, distribution):
+def SrcInlineAsDataURL(src_match, base_path, distribution):
   """regex replace function.
 
   Takes a regex match for src="filename", attempts to read the file
@@ -88,16 +88,47 @@ def InlineFile(input_filename, output_filename):
       distribution = distribution[1:].lower()
 
   def SrcReplace(src_match):
-    """Helper function to provide SrcInline with the base file path"""
-    return SrcInline(src_match, input_filepath, distribution)
+    """Helper function to provide SrcInlineAsDataURL with the base file path"""
+    return SrcInlineAsDataURL(src_match, input_filepath, distribution)
+
+  def InlineFileContents(src_match, pattern):
+    """Helper function to inline external script and css files"""
+    filename = src_match.group('filename')
+
+    if filename.find(':') != -1:
+      # filename is probably a URL, which we don't want to bother inlining
+      return src_match.group(0)
+
+    filename = filename.replace('%DISTRIBUTION%', distribution)
+    filepath = os.path.join(input_filepath, filename)
+
+    return pattern % ReadFile(filepath)
+
+  def InlineScript(src_match):
+    """Helper function to inline external script files"""
+    return InlineFileContents(src_match, '<script>%s</script>')
+
+  def InlineCss(src_match):
+    """Helper function to inline external css files"""
+    return InlineFileContents(src_match, '<style>%s</style>')
+
+  # We need to inline css and js before we inline images so that image
+  # references gets inlined in the css and js
+  flat_text = re.sub('<script .*?src="(?P<filename>[^"\']*)".*?></script>',
+                     InlineScript,
+                     ReadFile(input_filename))
+
+  flat_text = re.sub('<link rel="stylesheet".+?href="(?P<filename>[^"\']*)".*?>',
+                     InlineCss,
+                     flat_text)
 
   # TODO(glen): Make this regex not match src="" text that is not inside a tag
   flat_text = re.sub('src="(?P<filename>[^"\']*)"',
                      SrcReplace,
-                     ReadFile(input_filename))
+                     flat_text)
 
   # TODO(glen): Make this regex not match url('') that is not inside a style
-  flat_text = re.sub('background:[ ]*url\(\'(?P<filename>[^"\']*)\'',
+  flat_text = re.sub('background(?:-image)?:[ ]*url\(\'(?P<filename>[^"\']*)\'',
                      SrcReplace,
                      flat_text)
 
