@@ -117,11 +117,6 @@ TestShell::TestShell()
 }
 
 TestShell::~TestShell() {
-#if defined(OS_WIN)
-  if (m_webViewHost.get())
-    RevokeDragDrop(webViewWnd());
-#endif
-
   // Navigate to an empty page to fire all the destruction logic for the
   // current page.
   LoadURL(L"about:blank");
@@ -130,7 +125,6 @@ TestShell::~TestShell() {
   CallJSGC();
   CallJSGC();
 
-  delegate_->clear_test_shell();
   webView()->SetDelegate(NULL);
   PlatformCleanUp();
 
@@ -468,7 +462,6 @@ void TestShell::ResetTestController() {
   event_sending_controller_->Reset();
 
   // Reset state in the test webview delegate.
-  delegate_->clear_test_shell();
   delegate_ = new TestWebViewDelegate(this);
   webView()->SetDelegate(delegate_);
 }

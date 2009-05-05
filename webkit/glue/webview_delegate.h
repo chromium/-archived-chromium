@@ -53,6 +53,7 @@ class SkBitmap;
 class WebDevToolsAgentDelegate;
 class WebError;
 class WebFrame;
+class WebHistoryItem;
 class WebMediaPlayerDelegate;
 class WebPluginDelegate;
 class WebRequest;
@@ -694,9 +695,10 @@ class WebViewDelegate : virtual public WebWidgetDelegate {
 
   // History Related ---------------------------------------------------------
 
-  // Tells the embedder to navigate back or forward in session history by the
-  // given offset (relative to the current position in session history).
-  virtual void NavigateBackForwardSoon(int offset) {
+  // Returns the session history entry at a distance |offset| relative to the
+  // current entry.  Returns NULL on failure.
+  virtual WebHistoryItem* GetHistoryEntryAtOffset(int offset) {
+    return NULL;
   }
 
   // Returns how many entries are in the back and forward lists, respectively.

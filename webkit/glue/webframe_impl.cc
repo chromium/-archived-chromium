@@ -149,6 +149,7 @@ MSVC_POP_WARNING();
 #include "webkit/glue/webdatasource_impl.h"
 #include "webkit/glue/weberror_impl.h"
 #include "webkit/glue/webframe_impl.h"
+#include "webkit/glue/webhistoryitem_impl.h"
 #include "webkit/glue/weburlrequest_impl.h"
 #include "webkit/glue/webtextinput_impl.h"
 #include "webkit/glue/webview_impl.h"
@@ -650,13 +651,23 @@ void WebFrameImpl::CacheCurrentRequestInfo(WebDataSourceImpl* datasource) {
   // own requests, so the extra data needs to be transferred.
   scoped_refptr<WebRequest::ExtraData> extra;
 
-  // Our extra data may come from a request issued via LoadRequest.
-  if (currently_loading_request_)
+  // Our extra data may come from a request issued via LoadRequest, or a
+  // history navigation from WebCore.
+  if (currently_loading_request_) {
     extra = currently_loading_request_->GetExtraData();
+  } else if (currently_loading_history_item_) {
+    extra = currently_loading_history_item_->GetExtraData();
+    currently_loading_history_item_ = 0;
+  }
 
   // We must only update this if it is valid, or the valid state will be lost.
   if (extra)
     datasource->SetExtraData(extra);
+}
+
+void WebFrameImpl::set_currently_loading_history_item(
+    WebHistoryItemImpl* item) {
+  currently_loading_history_item_ = item;
 }
 
 void WebFrameImpl::StopLoading() {
