@@ -76,7 +76,7 @@ public:
 // Also, not sure what should happen on the mac.  In any case, the code below
 // (minus the Windows bits) compiles fine on my Linux box now.
 // TODO(port): revisit this.
-TEST_F(PreferenceServiceTest, PreservedWindowPlacementIsLoaded) {
+TEST_F(PreferenceServiceTest, DISABLED_PreservedWindowPlacementIsLoaded) {
   // The window should open with the reference profile
   ASSERT_TRUE(LaunchAppWithProfile());
 
