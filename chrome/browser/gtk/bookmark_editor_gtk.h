@@ -13,6 +13,16 @@
 // GTK version of the bookmark editor dialog.
 class BookmarkEditorGtk : public BookmarkEditor,
                           public BookmarkModelObserver {
+  FRIEND_TEST(BookmarkEditorGtkTest, ChangeParent);
+  FRIEND_TEST(BookmarkEditorGtkTest, ChangeParentAndURL);
+  FRIEND_TEST(BookmarkEditorGtkTest, ChangeURLToExistingURL);
+  FRIEND_TEST(BookmarkEditorGtkTest, EditTitleKeepsPosition);
+  FRIEND_TEST(BookmarkEditorGtkTest, EditURLKeepsPosition);
+  FRIEND_TEST(BookmarkEditorGtkTest, ModelsMatch);
+  FRIEND_TEST(BookmarkEditorGtkTest, MoveToNewParent);
+  FRIEND_TEST(BookmarkEditorGtkTest, NewURL);
+  FRIEND_TEST(BookmarkEditorGtkTest, ChangeURLNoTree);
+  FRIEND_TEST(BookmarkEditorGtkTest, ChangeTitleNoTree);
  public:
   BookmarkEditorGtk(GtkWindow* window,
                     Profile* profile,
@@ -60,7 +70,19 @@ class BookmarkEditorGtk : public BookmarkEditor,
   // Returns the title the user has input.
   std::wstring GetInputTitle() const;
 
+  // Invokes ApplyEdits with the selected node.
+  //
+  // TODO(erg): This was copied from the windows version. Both should be
+  // cleaned up so that we don't overload ApplyEdits.
   void ApplyEdits();
+
+  // Applies the edits done by the user. |selected_parent| gives the parent of
+  // the URL being edited.
+  void ApplyEdits(GtkTreeIter* selected_parent);
+
+  // Adds a new group parented on |parent| and sets |child| to point to this
+  // new group.
+  void AddNewGroup(GtkTreeIter* parent, GtkTreeIter* child);
 
   static void OnResponse(GtkDialog* dialog, int response_id,
                          BookmarkEditorGtk* window);
@@ -72,6 +94,8 @@ class BookmarkEditorGtk : public BookmarkEditor,
   static void OnWindowDestroy(GtkWidget* widget, BookmarkEditorGtk* dialog);
   static void OnEntryChanged(GtkEditable* entry, BookmarkEditorGtk* dialog);
 
+  static void OnNewFolderClicked(GtkWidget* button, BookmarkEditorGtk* dialog);
+
   // Profile the entry is from.
   Profile* profile_;
 
@@ -81,7 +105,16 @@ class BookmarkEditorGtk : public BookmarkEditor,
   GtkWidget* url_entry_;
   GtkWidget* close_button_;
   GtkWidget* ok_button_;
-  GtkWidget* folder_tree_;
+  GtkWidget* new_folder_button_;
+  GtkWidget* tree_view_;
+
+  // Helper object that manages the currently selected item in |tree_view_|.
+  GtkTreeSelection* tree_selection_;
+
+  // Our local copy of the bookmark data that we make from the BookmarkModel
+  // that we can modify as much as we want and still discard when the user
+  // clicks Cancel.
+  GtkTreeStore* tree_store_;
 
   // TODO(erg): BookmarkEditorView has an EditorTreeModel object here; convert
   // that into a GObject that implements the interface GtkTreeModel.

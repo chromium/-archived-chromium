@@ -32,6 +32,8 @@
 #include "chrome/common/temp_scaffolding_stubs.h"
 #endif
 
+using base::Time;
+
 namespace {
 
 // A PageNavigator implementation that creates a new Browser. This is used when
@@ -529,6 +531,82 @@ bool DoesBookmarkContainText(BookmarkNode* node, const std::wstring& text) {
     return false;
 
   return (node->is_url() && DoesBookmarkContainWords(node, words));
+}
+
+void ApplyEditsWithNoGroupChange(BookmarkModel* model,
+                                 BookmarkNode* parent,
+                                 BookmarkNode* node,
+                                 const std::wstring& new_title,
+                                 const GURL& new_url,
+                                 BookmarkEditor::Handler* handler) {
+  BookmarkNode* old_parent = node ? node->GetParent() : NULL;
+  const int old_index = old_parent ? old_parent->IndexOfChild(node) : -1;
+
+  if (!node) {
+    node =
+        model->AddURL(parent, parent->GetChildCount(), new_title, new_url);
+
+    if (handler)
+      handler->NodeCreated(node);
+    return;
+  }
+
+  // If we're not showing the tree we only need to modify the node.
+  if (old_index == -1) {
+    NOTREACHED();
+    return;
+  }
+
+  if (new_url != node->GetURL()) {
+    model->AddURLWithCreationTime(old_parent, old_index, new_title,
+                                  new_url, node->date_added());
+    model->Remove(old_parent, old_index + 1);
+  } else {
+    model->SetTitle(node, new_title);
+  }
+}
+
+void ApplyEditsWithPossibleGroupChange(BookmarkModel* model,
+                                       BookmarkNode* new_parent,
+                                       BookmarkNode* node,
+                                       const std::wstring& new_title,
+                                       const GURL& new_url,
+                                       BookmarkEditor::Handler* handler) {
+  BookmarkNode* old_parent = node ? node->GetParent() : NULL;
+  const int old_index = old_parent ? old_parent->IndexOfChild(node) : -1;
+
+  if (node) {
+    Time date_added = node->date_added();
+    if (new_parent == node->GetParent()) {
+      // The parent is the same.
+      if (new_url != node->GetURL()) {
+        model->Remove(old_parent, old_index);
+        BookmarkNode* new_node =
+            model->AddURL(old_parent, old_index, new_title, new_url);
+        new_node->set_date_added(date_added);
+      } else {
+        model->SetTitle(node, new_title);
+      }
+    } else if (new_url != node->GetURL()) {
+      // The parent and URL changed.
+      model->Remove(old_parent, old_index);
+      BookmarkNode* new_node =
+          model->AddURL(new_parent, new_parent->GetChildCount(), new_title,
+                        new_url);
+      new_node->set_date_added(date_added);
+    } else {
+      // The parent and title changed. Move the node and change the title.
+      model->Move(node, new_parent, new_parent->GetChildCount());
+      model->SetTitle(node, new_title);
+    }
+  } else {
+    // We're adding a new URL.
+    node =
+        model->AddURL(new_parent, new_parent->GetChildCount(), new_title,
+                      new_url);
+    if (handler)
+      handler->NodeCreated(node);
+  }
 }
 
 // Formerly in BookmarkBarView

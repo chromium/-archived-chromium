@@ -9,6 +9,7 @@
 
 #include "base/gfx/native_widget_types.h"
 #include "chrome/browser/bookmarks/bookmark_drag_data.h"
+#include "chrome/browser/bookmarks/bookmark_editor.h"
 #include "chrome/browser/history/snippet.h"
 #include "webkit/glue/window_open_disposition.h"
 
@@ -141,6 +142,24 @@ void GetBookmarksContainingText(BookmarkModel* model,
 
 // Returns true if |node|'s url or title contains the string |text|.
 bool DoesBookmarkContainText(BookmarkNode* node, const std::wstring& text);
+
+// Modifies a bookmark node (assuming that there's no magic that needs to be
+// done regarding moving from one folder to another).
+void ApplyEditsWithNoGroupChange(BookmarkModel* model,
+                                 BookmarkNode* parent,
+                                 BookmarkNode* node,
+                                 const std::wstring& new_title,
+                                 const GURL& new_url,
+                                 BookmarkEditor::Handler* handler);
+
+// Modifies a bookmark node assuming that the parent of the node may have
+// changed and the node will need to be removed and reinserted.
+void ApplyEditsWithPossibleGroupChange(BookmarkModel* model,
+                                       BookmarkNode* new_parent,
+                                       BookmarkNode* node,
+                                       const std::wstring& new_title,
+                                       const GURL& new_url,
+                                       BookmarkEditor::Handler* handler);
 
 // Toggles whether the bookmark bar is shown only on the new tab page or on
 // all tabs.  This is a preference modifier, not a visual modifier.

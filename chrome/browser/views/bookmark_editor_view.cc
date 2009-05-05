@@ -7,6 +7,7 @@
 #include "base/basictypes.h"
 #include "base/logging.h"
 #include "base/string_util.h"
+#include "chrome/browser/bookmarks/bookmark_utils.h"
 #include "chrome/browser/history/history.h"
 #include "chrome/browser/profile.h"
 #include "chrome/browser/net/url_fixer_upper.h"
@@ -24,7 +25,6 @@
 #include "grit/generated_resources.h"
 #include "grit/locale_settings.h"
 
-using base::Time;
 using views::Button;
 using views::ColumnSet;
 using views::GridLayout;
@@ -487,30 +487,9 @@ void BookmarkEditorView::ApplyEdits(EditorNode* parent) {
   GURL new_url(GetInputURL());
   std::wstring new_title(GetInputTitle());
 
-  BookmarkNode* old_parent = node_ ? node_->GetParent() : NULL;
-  const int old_index = old_parent ? old_parent->IndexOfChild(node_) : -1;
-
   if (!show_tree_) {
-    if (!node_) {
-      BookmarkNode* node =
-          bb_model_->AddURL(parent_, parent_->GetChildCount(), new_title,
-                            new_url);
-      if (handler_.get())
-        handler_->NodeCreated(node);
-      return;
-    }
-    // If we're not showing the tree we only need to modify the node.
-    if (old_index == -1) {
-      NOTREACHED();
-      return;
-    }
-    if (new_url != node_->GetURL()) {
-      bb_model_->AddURLWithCreationTime(old_parent, old_index, new_title,
-                                        new_url, node_->date_added());
-      bb_model_->Remove(old_parent, old_index + 1);
-    } else {
-      bb_model_->SetTitle(node_, new_title);
-    }
+    bookmark_utils::ApplyEditsWithNoGroupChange(
+        bb_model_, parent_, node_, new_title, new_url, handler_.get());
     return;
   }
 
@@ -519,44 +498,8 @@ void BookmarkEditorView::ApplyEdits(EditorNode* parent) {
   ApplyNameChangesAndCreateNewGroups(
       bb_model_->root_node(), tree_model_->GetRoot(), parent, &new_parent);
 
-  if (!new_parent) {
-    // Bookmarks must be parented.
-    NOTREACHED();
-    return;
-  }
-
-  if (node_) {
-    Time date_added = node_->date_added();
-    if (new_parent == node_->GetParent()) {
-      // The parent is the same.
-      if (new_url != node_->GetURL()) {
-        bb_model_->Remove(old_parent, old_index);
-        BookmarkNode* new_node =
-            bb_model_->AddURL(old_parent, old_index, new_title, new_url);
-        new_node->date_added_ = date_added;
-      } else {
-        bb_model_->SetTitle(node_, new_title);
-      }
-    } else if (new_url != node_->GetURL()) {
-      // The parent and URL changed.
-      bb_model_->Remove(old_parent, old_index);
-      BookmarkNode* new_node =
-          bb_model_->AddURL(new_parent, new_parent->GetChildCount(), new_title,
-                            new_url);
-      new_node->date_added_ = date_added;
-    } else {
-      // The parent and title changed. Move the node and change the title.
-      bb_model_->Move(node_, new_parent, new_parent->GetChildCount());
-      bb_model_->SetTitle(node_, new_title);
-    }
-  } else {
-    // We're adding a new URL.
-    BookmarkNode* node =
-        bb_model_->AddURL(new_parent, new_parent->GetChildCount(), new_title,
-                          new_url);
-    if (handler_.get())
-      handler_->NodeCreated(node);
-  }
+  bookmark_utils::ApplyEditsWithPossibleGroupChange(
+      bb_model_, new_parent, node_, new_title, new_url, handler_.get());
 }
 
 void BookmarkEditorView::ApplyNameChangesAndCreateNewGroups(

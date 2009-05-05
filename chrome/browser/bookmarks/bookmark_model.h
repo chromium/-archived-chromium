@@ -39,13 +39,14 @@ class StarredURLDatabase;
 // star id and type. BookmarkNodes are returned from a BookmarkModel.
 //
 class BookmarkNode : public views::TreeNode<BookmarkNode> {
-  friend class BookmarkEditorView;
   friend class BookmarkModel;
   friend class BookmarkCodec;
   friend class history::StarredURLDatabase;
   FRIEND_TEST(BookmarkCodecTest, PersistIDsTest);
   FRIEND_TEST(BookmarkEditorViewTest, ChangeParentAndURL);
   FRIEND_TEST(BookmarkEditorViewTest, EditURLKeepsPosition);
+  FRIEND_TEST(BookmarkEditorGtkTest, ChangeParentAndURL);
+  FRIEND_TEST(BookmarkEditorGtkTest, EditURLKeepsPosition);
   FRIEND_TEST(BookmarkModelTest, MostRecentlyAddedEntries);
   FRIEND_TEST(BookmarkModelTest, GetMostRecentlyAddedNodeForURL);
 
@@ -80,6 +81,9 @@ class BookmarkNode : public views::TreeNode<BookmarkNode> {
 
   // Returns the time the bookmark/group was added.
   base::Time date_added() const { return date_added_; }
+
+  // Sets the time the bookmark/group was added.
+  void set_date_added(const base::Time& date) { date_added_ = date; }
 
   // Returns the last time the group was modified. This is only maintained
   // for folders (including the bookmark and other folder).

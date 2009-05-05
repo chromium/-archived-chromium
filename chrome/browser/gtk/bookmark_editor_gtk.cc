@@ -10,6 +10,8 @@
 #include "base/gfx/gtk_util.h"
 #include "base/logging.h"
 #include "base/string_util.h"
+#include "chrome/browser/gtk/bookmark_tree_model.h"
+#include "chrome/browser/bookmarks/bookmark_utils.h"
 #include "chrome/browser/history/history.h"
 #include "chrome/browser/profile.h"
 #include "chrome/browser/net/url_fixer_upper.h"
@@ -26,6 +28,7 @@ const GdkColor kErrorColor = GDK_COLOR_RGB(0xFF, 0xBC, 0xBC);
 
 // Preferred width of the tree.
 static const int kTreeWidth = 300;
+static const int kTreeHeight = 150;
 
 }  // namespace
 
@@ -65,9 +68,6 @@ BookmarkEditorGtk::~BookmarkEditorGtk() {
   // The tree model is deleted before the view. Reset the model otherwise the
   // tree will reference a deleted model.
 
-  // TODO(erg): Enable this when we have a |tree_view_|.
-  // if (tree_view_)
-  //   tree_view_->SetModel(NULL);
   bb_model_->RemoveObserver(this);
 }
 
@@ -76,14 +76,28 @@ void BookmarkEditorGtk::Init(GtkWindow* parent_window) {
   DCHECK(bb_model_);
   bb_model_->AddObserver(this);
 
+  // TODO(erg): Redo this entire class as a normal GtkWindow with it's modality
+  // manually set to TRUE because using the stock GtkDialog class gives me
+  // almost no control over the buttons on the bottom.
   dialog_ = gtk_dialog_new_with_buttons(
       l10n_util::GetStringUTF8(IDS_BOOMARK_EDITOR_TITLE).c_str(),
       parent_window,
       GTK_DIALOG_MODAL,
       NULL);
 
-  // TODO(erg): Add "New Folder" button here and insert at correct place; to
-  // the extreme left of the dialog.
+  if (show_tree_) {
+    // We want the New Folder button to not automatically dismiss the dialog so
+    // we have to do that manually. gtk_dialog_add_button() always makes the
+    // button dismiss the dialog box. This isn't 100% accurate to what I want;
+    // see above about redoing this as a GtkWindow.
+    GtkWidget* action_area = GTK_DIALOG(dialog_)->action_area;
+    new_folder_button_ = gtk_button_new_with_label("New Folder");
+    g_signal_connect(new_folder_button_, "clicked",
+                     G_CALLBACK(OnNewFolderClicked), this);
+    gtk_box_pack_start(GTK_BOX(action_area), new_folder_button_,
+                       FALSE, FALSE, 0);
+  }
+
   close_button_ = gtk_dialog_add_button(GTK_DIALOG(dialog_),
                                         GTK_STOCK_CANCEL,
                                         GTK_RESPONSE_REJECT);
@@ -101,6 +115,16 @@ void BookmarkEditorGtk::Init(GtkWindow* parent_window) {
   // ||+- GtkLabel ------+ +- GtkEntry |url_entry_| ---------------+||
   // |||                 | |                                       |||
   // ||+-----------------+ +---------------------------------------+||
+  // |+-------------------------------------------------------------+|
+  // |+- GtkScrollWindow |scroll_window| ---------------------------+|
+  // ||+- GtkTreeView |tree_view_| --------------------------------+||
+  // |||+- GtkTreeViewColumn |name_column| -----------------------+|||
+  // ||||                                                         ||||
+  // ||||                                                         ||||
+  // ||||                                                         ||||
+  // ||||                                                         ||||
+  // |||+---------------------------------------------------------+|||
+  // ||+-----------------------------------------------------------+||
   // |+-------------------------------------------------------------+|
   // +---------------------------------------------------------------+
   GtkWidget* content_area = GTK_DIALOG(dialog_)->vbox;
@@ -147,13 +171,39 @@ void BookmarkEditorGtk::Init(GtkWindow* parent_window) {
 
   gtk_box_pack_start(GTK_BOX(content_area), table, FALSE, FALSE, 0);
 
-  // TODO(erg): Port the windows bookmark tree model and enable this tree view.
-  //
-  // folder_tree_ = gtk_tree_view_new();
-  // gtk_tree_view_set_headers_visible(GTK_TREE_VIEW(folder_tree_), TRUE);
-  // gtk_widget_set_size_request(folder_tree_, kTreeWidth, -1);
-  // gtk_widget_show(folder_tree_);
-  // gtk_box_pack_start(GTK_BOX(content_area), folder_tree_, FALSE, FALSE, 0);
+  if (show_tree_) {
+    GtkTreeIter selected_iter;
+    int selected_id = node_ ? node_->GetParent()->id() : 0;
+    bookmark_utils::BuildTreeStoreFrom(bb_model_, selected_id, &tree_store_,
+                                       &selected_iter);
+
+    // TODO(erg): Figure out how to place icons here.
+    GtkTreeViewColumn* name_column =
+        gtk_tree_view_column_new_with_attributes(
+            "Folder", gtk_cell_renderer_text_new(), "text", 0, NULL);
+
+    tree_view_ = gtk_tree_view_new_with_model(GTK_TREE_MODEL(tree_store_));
+    gtk_tree_view_set_headers_visible(GTK_TREE_VIEW(tree_view_), FALSE);
+    gtk_tree_view_insert_column(GTK_TREE_VIEW(tree_view_), name_column, -1);
+    gtk_widget_set_size_request(tree_view_, kTreeWidth, kTreeHeight);
+
+    tree_selection_ = gtk_tree_view_get_selection(GTK_TREE_VIEW(tree_view_));
+
+    if (selected_id) {
+      GtkTreePath* path = gtk_tree_model_get_path(GTK_TREE_MODEL(tree_store_),
+                                                  &selected_iter);
+      gtk_tree_view_expand_to_path(GTK_TREE_VIEW(tree_view_), path);
+      gtk_tree_selection_select_path(tree_selection_, path);
+      gtk_tree_path_free(path);
+    }
+
+    GtkWidget* scroll_window = gtk_scrolled_window_new(NULL, NULL);
+    gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scroll_window),
+                                   GTK_POLICY_NEVER,
+                                   GTK_POLICY_AUTOMATIC);
+    gtk_container_add(GTK_CONTAINER(scroll_window), tree_view_);
+    gtk_box_pack_start(GTK_BOX(content_area), scroll_window, TRUE, TRUE, 12);
+  }
 
   g_signal_connect(dialog_, "response",
                    G_CALLBACK(OnResponse), this);
@@ -228,10 +278,21 @@ std::wstring BookmarkEditorGtk::GetInputTitle() const {
 }
 
 void BookmarkEditorGtk::ApplyEdits() {
-  // TODO(erg): This is massively simplified because I haven't added a
-  // GtkTreeView to this class yet. Then, this will have to be a copy of
-  // BookmarkEditorView::ApplyEdits().
+  DCHECK(bb_model_->IsLoaded());
 
+  GtkTreeIter currently_selected_iter;
+  if (show_tree_) {
+    if (!gtk_tree_selection_get_selected(tree_selection_, NULL,
+                                         &currently_selected_iter)) {
+      NOTREACHED() << "Something should always be selected";
+      return;
+    }
+  }
+
+  ApplyEdits(&currently_selected_iter);
+}
+
+void BookmarkEditorGtk::ApplyEdits(GtkTreeIter* selected_parent) {
   // We're going to apply edits to the bookmark bar model, which will call us
   // back. Normally when a structural edit occurs we reset the tree model.
   // We don't want to do that here, so we remove ourselves as an observer.
@@ -240,29 +301,33 @@ void BookmarkEditorGtk::ApplyEdits() {
   GURL new_url(GetInputURL());
   std::wstring new_title(GetInputTitle());
 
-  BookmarkNode* old_parent = node_ ? node_->GetParent() : NULL;
-  const int old_index = old_parent ? old_parent->IndexOfChild(node_) : -1;
-
-  if (!node_) {
-    BookmarkNode* node =
-        bb_model_->AddURL(parent_, parent_->GetChildCount(), new_title,
-                          new_url);
-    if (handler_.get())
-      handler_->NodeCreated(node);
+  if (!show_tree_) {
+    bookmark_utils::ApplyEditsWithNoGroupChange(
+        bb_model_, parent_, node_, new_title, new_url, handler_.get());
     return;
   }
-  // If we're not showing the tree we only need to modify the node.
-  if (old_index == -1) {
+
+  // Create the new groups and update the titles.
+  BookmarkNode* new_parent = bookmark_utils::CommitTreeStoreDifferencesBetween(
+      bb_model_, tree_store_, selected_parent);
+
+  if (!new_parent) {
+    // Bookmarks must be parented.
     NOTREACHED();
     return;
   }
-  if (new_url != node_->GetURL()) {
-    bb_model_->AddURLWithCreationTime(old_parent, old_index, new_title,
-                                      new_url, node_->date_added());
-    bb_model_->Remove(old_parent, old_index + 1);
-  } else {
-    bb_model_->SetTitle(node_, new_title);
-  }
+
+  bookmark_utils::ApplyEditsWithPossibleGroupChange(
+      bb_model_, new_parent, node_, new_title, new_url, handler_.get());
+}
+
+void BookmarkEditorGtk::AddNewGroup(GtkTreeIter* parent, GtkTreeIter* child) {
+  gtk_tree_store_append(tree_store_, child, parent);
+  gtk_tree_store_set(
+      tree_store_, child,
+      0, l10n_util::GetStringUTF8(IDS_BOOMARK_EDITOR_NEW_FOLDER_NAME).c_str(),
+      1, 0,
+      -1);
 }
 
 // static
@@ -305,4 +370,27 @@ void BookmarkEditorGtk::OnEntryChanged(GtkEditable* entry,
     gtk_widget_modify_base(dialog->url_entry_, GTK_STATE_NORMAL, NULL);
     gtk_widget_set_sensitive(GTK_WIDGET(dialog->ok_button_), true);
   }
+}
+
+// static
+void BookmarkEditorGtk::OnNewFolderClicked(GtkWidget* button,
+                                           BookmarkEditorGtk* dialog) {
+  // TODO(erg): Make the inserted item here editable and edit it. If that's
+  // impossible (it's probably possible), fall back on the folder editor.
+  GtkTreeIter iter;
+  if (!gtk_tree_selection_get_selected(dialog->tree_selection_,
+                                       NULL,
+                                       &iter)) {
+    NOTREACHED() << "Something should always be selected";
+    return;
+  }
+
+  GtkTreeIter new_item_iter;
+  dialog->AddNewGroup(&iter, &new_item_iter);
+
+  GtkTreePath* path = gtk_tree_model_get_path(
+      GTK_TREE_MODEL(dialog->tree_store_), &new_item_iter);
+  gtk_tree_view_expand_to_path(GTK_TREE_VIEW(dialog->tree_view_), path);
+  gtk_tree_selection_select_path(dialog->tree_selection_, path);
+  gtk_tree_path_free(path);
 }
