@@ -15,6 +15,7 @@ MSVC_PUSH_WARNING_LEVEL(0);
 #include "DocumentLoader.h"
 #include "HistoryItem.h"
 #include "HTMLAppletElement.h"
+#include "HTMLCollection.h"
 #include "HTMLFormElement.h"  // needed by FormState.h
 #include "HTMLFormControlElement.h"
 #include "HTMLInputElement.h"

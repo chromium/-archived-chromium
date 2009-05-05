@@ -1,7 +1,7 @@
 vars = {
   "webkit_trunk":
     "http://svn.webkit.org/repository/webkit/trunk",
-  "webkit_revision": "43114",
+  "webkit_revision": "43242",
 }
 
 
@@ -19,7 +19,7 @@ deps = {
     "http://googletest.googlecode.com/svn/trunk@243",
 
   "src/third_party/WebKit":
-    "/trunk/deps/third_party/WebKit@15331",
+    "/trunk/deps/third_party/WebKit@15337",
 
   "src/third_party/icu38":
     "/trunk/deps/third_party/icu38@13472",

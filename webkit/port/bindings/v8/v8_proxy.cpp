@@ -43,6 +43,7 @@
 #include "V8DOMWindow.h"
 
 #include "ChromiumBridge.h"
+#include "CSSMutableStyleDeclaration.h"
 #include "DOMObjectsInclude.h"
 #include "DocumentLoader.h"
 #include "ScriptController.h"
@@ -2467,7 +2468,7 @@ v8::Local<v8::Object> V8Proxy::InstantiateV8Object(
 {
   // Make a special case for document.all
   if (desc_type == V8ClassIndex::HTMLCOLLECTION &&
-      static_cast<HTMLCollection*>(imp)->type() == HTMLCollection::DocAll) {
+      static_cast<HTMLCollection*>(imp)->type() == DocAll) {
     desc_type = V8ClassIndex::UNDETECTABLEHTMLCOLLECTION;
   }
 

@@ -47,6 +47,7 @@
 #include "V8XPathNSResolver.h"
 #include "V8XPathResult.h"
 
+#include "Attr.h"
 #include "Base64.h"
 #include "CanvasGradient.h"
 #include "CanvasPattern.h"

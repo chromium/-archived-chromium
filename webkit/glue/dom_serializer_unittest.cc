@@ -12,6 +12,7 @@ MSVC_PUSH_WARNING_LEVEL(0);
 #include "Element.h"
 #include "FrameLoader.h"
 #include "FrameView.h"
+#include "HTMLCollection.h"
 #include "HTMLHeadElement.h"
 #include "HTMLMetaElement.h"
 #include "HTMLNames.h"
@@ -485,7 +486,7 @@ TEST_F(DomSerializerTests,
 }
 
 // Test situation of html entities in text when serializing HTML DOM.
-TEST_F(DomSerializerTests, SerialzeHTMLDOMWithEntitiesInText) {
+TEST_F(DomSerializerTests, DISABLED_SerialzeHTMLDOMWithEntitiesInText) {
   FilePath page_file_path = data_dir_;
   page_file_path = page_file_path.AppendASCII("dom_serializer");
   page_file_path = page_file_path.AppendASCII("htmlentities_in_text.htm");
@@ -525,7 +526,7 @@ TEST_F(DomSerializerTests, SerialzeHTMLDOMWithEntitiesInText) {
 
 // Test situation of html entities in attribute value when serializing
 // HTML DOM.
-TEST_F(DomSerializerTests, SerialzeHTMLDOMWithEntitiesInAttributeValue) {
+TEST_F(DomSerializerTests, DISABLED_SerialzeHTMLDOMWithEntitiesInAttributeValue) {
   FilePath page_file_path = data_dir_;
   page_file_path = page_file_path.AppendASCII("dom_serializer");
   page_file_path =
