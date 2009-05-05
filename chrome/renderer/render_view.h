@@ -233,7 +233,9 @@ class RenderView : public RenderWidget,
       WindowOpenDisposition disposition,
       bool is_redirect);
 
-  virtual WebView* CreateWebView(WebView* webview, bool user_gesture);
+  virtual WebView* CreateWebView(WebView* webview,
+                                 bool user_gesture,
+                                 const GURL& creator_url);
   virtual WebWidget* CreatePopupWidget(WebView* webview, bool activatable);
   virtual WebPluginDelegate* CreatePluginDelegate(
       WebView* webview,
@@ -684,6 +686,7 @@ class RenderView : public RenderWidget,
 
   // Used for popups.
   bool opened_by_user_gesture_;
+  GURL creator_url_;
 
   // The alternate error page URL, if one exists.
   GURL alternate_error_page_url_;

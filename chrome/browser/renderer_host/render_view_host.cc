@@ -828,10 +828,13 @@ void RenderViewHost::CreateNewWidget(int route_id, bool activatable) {
 void RenderViewHost::OnMsgShowView(int route_id,
                                    WindowOpenDisposition disposition,
                                    const gfx::Rect& initial_pos,
-                                   bool user_gesture) {
+                                   bool user_gesture,
+                                   const GURL& creator_url) {
   RenderViewHostDelegate::View* view = delegate_->GetViewDelegate();
-  if (view)
-    view->ShowCreatedWindow(route_id, disposition, initial_pos, user_gesture);
+  if (view) {
+    view->ShowCreatedWindow(route_id, disposition, initial_pos, user_gesture,
+                            creator_url);
+  }
 }
 
 void RenderViewHost::OnMsgShowWidget(int route_id,

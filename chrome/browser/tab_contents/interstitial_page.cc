@@ -76,7 +76,8 @@ class InterstitialPage::InterstitialPageRVHViewDelegate
   virtual void ShowCreatedWindow(int route_id,
                                  WindowOpenDisposition disposition,
                                  const gfx::Rect& initial_pos,
-                                 bool user_gesture);
+                                 bool user_gesture,
+                                 const GURL& creator_url);
   virtual void ShowCreatedWidget(int route_id,
                                  const gfx::Rect& initial_pos);
   virtual void ShowContextMenu(const ContextMenuParams& params);
@@ -473,7 +474,7 @@ void InterstitialPage::InterstitialPageRVHViewDelegate::CreateNewWidget(
 
 void InterstitialPage::InterstitialPageRVHViewDelegate::ShowCreatedWindow(
     int route_id, WindowOpenDisposition disposition,
-    const gfx::Rect& initial_pos, bool user_gesture) {
+    const gfx::Rect& initial_pos, bool user_gesture, const GURL& creator_url) {
   NOTREACHED() << "InterstitialPage does not support showing popups yet.";
 }
 

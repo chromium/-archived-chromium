@@ -124,7 +124,8 @@ void ExtensionHost::CreateNewWidget(int route_id, bool activatable) {
 void ExtensionHost::ShowCreatedWindow(int route_id,
                                       WindowOpenDisposition disposition,
                                       const gfx::Rect& initial_pos,
-                                      bool user_gesture) {
+                                      bool user_gesture,
+                                      const GURL& creator_url) {
   TabContents* contents = delegate_view_helper_.GetCreatedWindow(route_id);
   if (contents) {
     // TODO(erikkay) is it safe to pass in NULL as source?

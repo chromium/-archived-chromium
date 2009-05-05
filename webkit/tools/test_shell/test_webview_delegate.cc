@@ -105,7 +105,8 @@ const char* WebNavigationTypeToString(WebNavigationType type) {
 // WebViewDelegate -----------------------------------------------------------
 
 WebView* TestWebViewDelegate::CreateWebView(WebView* webview,
-                                            bool user_gesture) {
+                                            bool user_gesture,
+                                            const GURL& creator_url) {
   return shell_->CreateWebView(webview);
 }
 

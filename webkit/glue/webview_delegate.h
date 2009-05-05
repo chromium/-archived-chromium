@@ -99,8 +99,12 @@ class WebViewDelegate : virtual public WebWidgetDelegate {
   // made visible until the new WebView's Delegate has its Show method called.
   // The returned WebView pointer is assumed to be owned by the host window,
   // and the caller of CreateWebView should not release the given WebView.
-  // user_gesture is true if a user action initiated this call.
-  virtual WebView* CreateWebView(WebView* webview, bool user_gesture) {
+  // |user_gesture| is true if a user action initiated this call.
+  // |creator_url|, if nonempty, holds the security origin of the page creating
+  // this WebView.
+  virtual WebView* CreateWebView(WebView* webview,
+                                 bool user_gesture,
+                                 const GURL& creator_url) {
     return NULL;
   }
 

@@ -35,11 +35,12 @@ void TabContentsView::CreateNewWidget(int route_id, bool activatable) {
 void TabContentsView::ShowCreatedWindow(int route_id,
                                         WindowOpenDisposition disposition,
                                         const gfx::Rect& initial_pos,
-                                        bool user_gesture) {
+                                        bool user_gesture,
+                                        const GURL& creator_url) {
   TabContents* contents = delegate_view_helper_.GetCreatedWindow(route_id);
   if (contents) {
     tab_contents()->AddNewContents(contents, disposition, initial_pos,
-                                   user_gesture);
+                                   user_gesture, creator_url);
   }
 }
 
@@ -65,4 +66,3 @@ void TabContentsView::ShowCreatedWidgetInternal(
                                 initial_pos);
   widget_host_view->GetRenderWidgetHost()->Init();
 }
-

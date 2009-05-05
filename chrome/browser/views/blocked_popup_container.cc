@@ -285,7 +285,7 @@ void BlockedPopupContainer::LaunchPopupIndex(int index) {
 
     // Pass this TabContents back to our owner, forcing the window to be
     // displayed since user_gesture is true.
-    owner_->AddNewContents(contents, NEW_POPUP, bounds, true);
+    owner_->AddNewContents(contents, NEW_POPUP, bounds, true, GURL());
   }
 
   if (blocked_popups_.size() == 0)
@@ -357,7 +357,7 @@ void BlockedPopupContainer::AddNewContents(TabContents* source,
                                            const gfx::Rect& initial_position,
                                            bool user_gesture) {
   owner_->AddNewContents(new_contents, disposition, initial_position,
-                         user_gesture);
+                         user_gesture, GURL());
 }
 
 void BlockedPopupContainer::CloseContents(TabContents* source) {

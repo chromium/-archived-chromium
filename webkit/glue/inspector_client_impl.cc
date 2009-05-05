@@ -62,7 +62,7 @@ Page* WebInspectorClient::createPage() {
   if (!delegate)
     return NULL;
   inspector_web_view_ = static_cast<WebViewImpl*>(
-      delegate->CreateWebView(inspected_web_view_, true));
+      delegate->CreateWebView(inspected_web_view_, true, GURL()));
   if (!inspector_web_view_)
     return NULL;
 

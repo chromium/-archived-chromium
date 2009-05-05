@@ -9,6 +9,7 @@
 MSVC_PUSH_WARNING_LEVEL(0);
 #include "Console.h"
 #include "Cursor.h"
+#include "DocumentLoader.h"
 #include "FloatRect.h"
 #include "FileChooser.h"
 #include "FrameLoadRequest.h"
@@ -170,8 +171,14 @@ WebCore::Page* ChromeClientImpl::createWindow(
     return NULL;
 
   bool user_gesture = frame->script()->processingUserGesture();
+
+  const std::string security_origin(webkit_glue::StringToStdString(
+      frame->document()->securityOrigin()->toString()));
+  GURL creator_url(security_origin);
   WebViewImpl* new_view = static_cast<WebViewImpl*>(
-      delegate->CreateWebView(webview_, user_gesture));
+      delegate->CreateWebView(webview_, user_gesture,
+      (creator_url.is_valid() && creator_url.IsStandard()) ?
+      creator_url : GURL()));
   if (!new_view)
     return NULL;
 

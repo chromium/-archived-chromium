@@ -774,7 +774,8 @@ ConstrainedWindow* TabContents::CreateConstrainedDialog(
 void TabContents::AddNewContents(TabContents* new_contents,
                                  WindowOpenDisposition disposition,
                                  const gfx::Rect& initial_pos,
-                                 bool user_gesture) {
+                                 bool user_gesture,
+                                 const GURL& creator_url) {
   if (!delegate_)
     return;
 

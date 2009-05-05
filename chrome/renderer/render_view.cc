@@ -1773,7 +1773,9 @@ void RenderView::DebuggerOutput(const std::wstring& out) {
   Send(new ViewHostMsg_DebuggerOutput(routing_id_, out));
 }
 
-WebView* RenderView::CreateWebView(WebView* webview, bool user_gesture) {
+WebView* RenderView::CreateWebView(WebView* webview,
+                                   bool user_gesture,
+                                   const GURL& creator_url) {
   // Check to make sure we aren't overloading on popups.
   if (shared_popup_counter_->data > kMaximumNumberOfUnacknowledgedPopups)
     return NULL;
@@ -1805,6 +1807,7 @@ WebView* RenderView::CreateWebView(WebView* webview, bool user_gesture) {
                                         prefs, shared_popup_counter_,
                                         routing_id);
   view->opened_by_user_gesture_ = user_gesture;
+  view->creator_url_ = creator_url;
 
   // Copy over the alternate error page URL so we can have alt error pages in
   // the new render view (we don't need the browser to send the URL back down).
@@ -1949,7 +1952,7 @@ void RenderView::Show(WebWidget* webwidget, WindowOpenDisposition disposition) {
   // that's okay.  It'll be ignored if disposition is not NEW_POPUP, or the
   // browser process will impose a default position otherwise.
   Send(new ViewHostMsg_ShowView(opener_id_, routing_id_, disposition,
-                                initial_pos_, opened_by_user_gesture_));
+      initial_pos_, opened_by_user_gesture_, creator_url_));
 }
 
 void RenderView::CloseWidgetSoon(WebWidget* webwidget) {

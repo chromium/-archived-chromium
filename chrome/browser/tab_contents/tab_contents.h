@@ -332,7 +332,8 @@ class TabContents : public PageNavigator,
   void AddNewContents(TabContents* new_contents,
                       WindowOpenDisposition disposition,
                       const gfx::Rect& initial_pos,
-                      bool user_gesture);
+                      bool user_gesture,
+                      const GURL& creator_url);
 
   // Builds a ConstrainedWindow* for the incoming |new_contents| and
   // adds it to child_windows_.

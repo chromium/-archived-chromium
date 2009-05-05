@@ -77,7 +77,9 @@ class TestWebViewDelegate : public base::RefCounted<TestWebViewDelegate>,
   virtual ~TestWebViewDelegate();
 
   // WebViewDelegate
-  virtual WebView* CreateWebView(WebView* webview, bool user_gesture);
+  virtual WebView* CreateWebView(WebView* webview,
+                                 bool user_gesture,
+                                 const GURL& creator_url);
   virtual WebWidget* CreatePopupWidget(WebView* webview, bool activatable);
   virtual WebPluginDelegate* CreatePluginDelegate(
     WebView* webview,
