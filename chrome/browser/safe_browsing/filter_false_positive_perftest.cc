@@ -30,13 +30,19 @@
 //                    increasing the filter multiplier by 1. The default value
 //                    is 1.
 //  --filter-verbose: Used to print out the hit / miss results per URL.
+//  --filter-csv:     The URL file contains information about the number of
+//                    unique views (the popularity) of each URL. See the format
+//                    description below.
 //
 // Data files:
 //    chrome/test/data/safe_browsing/filter/database
 //    chrome/test/data/safe_browsing/filter/urls
 //
 // database: A normal SafeBrowsing database.
-// urls:     A text file containing a list of URLs, one per line.
+// urls:     A text file containing a list of URLs, one per line. If the option
+//           --filter-csv is specified, the format of each line in the file is
+//           <url>,<weight> where weight is an integer indicating the number of
+//           unique views for the URL.
 
 #include <fstream>
 #include <iostream>
@@ -76,6 +82,7 @@ class ScopedPerfDatabase {
 const wchar_t kFilterVerbose[] = L"filter-verbose";
 const wchar_t kFilterStart[] = L"filter-start";
 const wchar_t kFilterSteps[] = L"filter-steps";
+const wchar_t kFilterCsv[] = L"filter-csv";
 
 // Returns the path to the data used in this test, relative to the top of the
 // source directory.
@@ -92,10 +99,6 @@ FilePath GetFullDataPath() {
 void BuildBloomFilter(int size_multiplier,
                       const std::vector<SBPrefix>& prefixes,
                       BloomFilter** bloom_filter) {
-  std::cout << "Building bloom filter with " << prefixes.size()
-            << " prefixes (size multiplier = " << size_multiplier
-            << ")" << std::endl;
-
   // Create a BloomFilter with the specified size.
   const int key_count = std::max(static_cast<int>(prefixes.size()), 250000);
   const int filter_size = key_count * size_multiplier;
@@ -104,6 +107,11 @@ void BuildBloomFilter(int size_multiplier,
   // Add the prefixes to it.
   for (size_t i = 0; i < prefixes.size(); ++i)
     (*bloom_filter)->Insert(prefixes[i]);
+
+  std::cout << "Bloom filter with prefixes: " << prefixes.size()
+            << ", multiplier: " << size_multiplier
+            << ", size (bytes): " << (*bloom_filter)->size()
+            << std::endl;
 }
 
 // Reads the set of add prefixes contained in a SafeBrowsing database into a
@@ -148,10 +156,11 @@ bool ReadDatabase(const FilePath& path, std::vector<SBPrefix>* prefixes) {
 }
 
 // Generates all legal SafeBrowsing prefixes for the specified URL, and returns
-// the set of Prefixes that exist in the bloom filter.
-void GeneratePrefixHits(const std::string url,
-                        BloomFilter* bloom_filter,
-                        std::vector<SBPrefix>* prefixes) {
+// the set of Prefixes that exist in the bloom filter. The function returns the
+// number of host + path combinations checked.
+int GeneratePrefixHits(const std::string url,
+                       BloomFilter* bloom_filter,
+                       std::vector<SBPrefix>* prefixes) {
   GURL url_check(url);
   std::vector<std::string> hosts;
   if (url_check.HostIsIPAddress()) {
@@ -171,6 +180,8 @@ void GeneratePrefixHits(const std::string url,
         prefixes->push_back(prefix);
     }
   }
+
+  return hosts.size() * paths.size();
 }
 
 // Binary search of sorted prefixes.
@@ -212,30 +223,49 @@ void CalculateBloomFilterFalsePositives(
   // Keep track of stats
   int hits = 0;
   int misses = 0;
+  int weighted_hits = 0;
+  int weighted_misses = 0;
+  int url_count = 0;
+  int prefix_count = 0;
 
   // Print out volumes of data (per URL hit and miss information).
   bool verbose = CommandLine::ForCurrentProcess()->HasSwitch(kFilterVerbose);
+  bool use_weights = CommandLine::ForCurrentProcess()->HasSwitch(kFilterCsv);
 
   std::string url;
   while (std::getline(url_stream, url)) {
+    ++url_count;
+
+    // Handle a format that contains URLs weighted by unique views.
+    int weight = 1;
+    if (use_weights) {
+      std::string::size_type pos = url.find_last_of(",");
+      if (pos != std::string::npos) {
+        weight = StringToInt(std::string(url, pos + 1));
+        url = url.substr(0, pos);
+      }
+    }
+
     // See if the URL is in the bloom filter.
     std::vector<SBPrefix> prefixes;
-    GeneratePrefixHits(url, bloom_filter, &prefixes);
+    prefix_count += GeneratePrefixHits(url, bloom_filter, &prefixes);
 
     // See if the prefix is actually in the database (in-memory prefix list).
     for (size_t i = 0; i < prefixes.size(); ++i) {
       if (IsPrefixInDatabase(prefixes[i], prefix_list)) {
         ++hits;
+        weighted_hits += weight;
         if (verbose) {
           std::cout << "Hit for URL: " << url
-                    << " (Prefix = " << prefixes[i] << ")"
+                    << " (prefix = "   << prefixes[i] << ")"
                     << std::endl;
         }
       } else {
         ++misses;
+        weighted_misses += weight;
         if (verbose) {
           std::cout << "Miss for URL: " << url
-                    << " (Prefix = " << prefixes[i] << ")"
+                    << " (prefix = "    << prefixes[i] << ")"
                     << std::endl;
         }
       }
@@ -243,11 +273,15 @@ void CalculateBloomFilterFalsePositives(
   }
 
   // Print out the results for this test.
-  std::cout << "Multiplier: " << size_multiplier
-            << ", Hits: "     << hits
-            << ", Misses: "   << misses
-            << ", Size: "     << bloom_filter->size()
-            << std::endl;
+  std::cout << "URLs checked: "      << url_count
+            << ", prefix compares: " << prefix_count
+            << ", hits: "            << hits
+            << ", misses: "          << misses;
+  if (use_weights) {
+    std::cout << ", weighted hits: "   << weighted_hits
+              << ", weighted misses: " << weighted_misses;
+  }
+  std::cout << std::endl;
 }
 
 }  // namespace
