@@ -9,11 +9,95 @@
 #include "chrome/browser/autocomplete/autocomplete_edit_view_mac.h"
 #include "chrome/browser/autocomplete/autocomplete_popup_model.h"
 
-// Thin Obj-C bridge class between the target and data source of the
-// popup window's NSTableView and the AutocompletePopupView
-// implementation.
+namespace {
 
-@interface AutocompleteTableTarget : NSObject {
+// Background colors for different states of the popup elements.
+NSColor* BackgroundColor() {
+  return [NSColor controlBackgroundColor];
+}
+NSColor* SelectedBackgroundColor() {
+  return [NSColor selectedControlColor];
+}
+NSColor* HoveredBackgroundColor() {
+  return [NSColor controlColor];
+}
+
+// Return the appropriate icon for the given match.  Derived from the
+// gtk code.
+NSImage* MatchIcon(const AutocompleteMatch& match) {
+  if (match.starred) {
+    return [NSImage imageNamed:@"o2_star.png"];
+  }
+
+  switch (match.type) {
+    case AutocompleteMatch::URL_WHAT_YOU_TYPED:
+    case AutocompleteMatch::NAVSUGGEST: {
+      return [NSImage imageNamed:@"o2_globe.png"];
+    }
+    case AutocompleteMatch::HISTORY_URL:
+    case AutocompleteMatch::HISTORY_TITLE:
+    case AutocompleteMatch::HISTORY_BODY:
+    case AutocompleteMatch::HISTORY_KEYWORD: {
+      return [NSImage imageNamed:@"o2_history.png"];
+    }
+    case AutocompleteMatch::SEARCH_WHAT_YOU_TYPED:
+    case AutocompleteMatch::SEARCH_HISTORY:
+    case AutocompleteMatch::SEARCH_SUGGEST:
+    case AutocompleteMatch::SEARCH_OTHER_ENGINE: {
+      return [NSImage imageNamed:@"o2_search.png"];
+    }
+    case AutocompleteMatch::OPEN_HISTORY_PAGE: {
+      return [NSImage imageNamed:@"o2_more.png"];
+    }
+    default:
+      NOTREACHED();
+      break;
+  }
+
+  return nil;
+}
+
+// Return the text to show for the match, based on the match's
+// contents and description.
+// TODO(shess): Style the runs within the text.
+NSString* MatchText(const AutocompleteMatch& match) {
+  NSString* s = base::SysWideToNSString(match.contents);
+
+  if (!match.description.empty()) {
+    NSString* description = base::SysWideToNSString(match.description);
+
+    // Append an em dash (U-2014) and description.
+    s = [s stringByAppendingFormat:@" %C %@", 0x2014, description];
+  }
+
+  return s;
+}
+
+}  // namespace
+
+// AutocompleteButtonCell overrides how backgrounds are displayed to
+// handle hover versus selected.  So long as we're in there, it also
+// provides some default initialization.
+
+@interface AutocompleteButtonCell : NSButtonCell {
+}
+@end
+
+// AutocompleteMatrix sets up a tracking area to implement hover by
+// highlighting the cell the mouse is over.
+
+@interface AutocompleteMatrix : NSMatrix {
+}
+@end
+
+// Thin Obj-C bridge class between the target of the popup window's
+// AutocompleteMatrix and the AutocompletePopupView implementation.
+
+// TODO(shess): Now that I'm using AutocompleteMatrix, I could instead
+// subvert the target/action stuff and have it message popup_view_
+// directly.
+
+@interface AutocompleteMatrixTarget : NSObject {
  @private
   AutocompletePopupViewMac* popup_view_;  // weak, owns us.
 }
@@ -21,16 +105,6 @@
 
 // Tell popup model via popup_view_ about the selected row.
 - (void)select:sender;
-
-// NSTableDataSource methods, filled from data returned by
-// the popup model via popup_view_.
-- (NSInteger)numberOfRowsInTableView:(NSTableView*)aTableView;
-- (id)tableView:(NSTableView*)aTableView
-objectValueForTableColumn:(NSTableColumn*)aTableColumn
-            row:(int)ri;
-
-// Placeholder for finding the star image.
-- (NSImage*)starImage;
 @end
 
 AutocompletePopupViewMac::AutocompletePopupViewMac(
@@ -41,7 +115,7 @@ AutocompletePopupViewMac::AutocompletePopupViewMac(
     : model_(new AutocompletePopupModel(this, edit_model, profile)),
       edit_view_(edit_view),
       field_(field),
-      table_target_([[AutocompleteTableTarget alloc] initWithPopupView:this]),
+      matrix_target_([[AutocompleteMatrixTarget alloc] initWithPopupView:this]),
       popup_(nil) {
   DCHECK(edit_view);
   DCHECK(edit_model);
@@ -57,26 +131,13 @@ AutocompletePopupViewMac::~AutocompletePopupViewMac() {
   // it can call back to us in the destructor.
   model_.reset();
 
-  // Break references to table_target_ before it is released.
-  NSTableView* table = [popup_ contentView];
-  [table setTarget:nil];
-  [table setDataSource:nil];
+  // Break references to matrix_target_ before it is released.
+  NSMatrix* matrix = [popup_ contentView];
+  [matrix setTarget:nil];
 }
 
 bool AutocompletePopupViewMac::IsOpen() const {
   return [popup_ isVisible] ? true : false;
-}
-
-static NSTableColumn* MakeTableColumn(int tag, Class field_class) {
-  NSNumber* id = [NSNumber numberWithInt:tag];
-  NSTableColumn* col =
-      [[[NSTableColumn alloc] initWithIdentifier:id] autorelease];
-
-  [col setEditable:NO];
-  [col setResizingMask:NSTableColumnNoResizing];
-  [col setDataCell:[[[field_class alloc] init] autorelease]];
-
-  return col;
 }
 
 void AutocompletePopupViewMac::CreatePopupIfNeeded() {
@@ -89,20 +150,12 @@ void AutocompletePopupViewMac::CreatePopupIfNeeded() {
     [popup_ setOpaque:YES];
     [popup_ setHasShadow:YES];
     [popup_ setLevel:NSNormalWindowLevel];
-    
-    NSTableView* table =
-        [[[NSTableView alloc] initWithFrame:NSZeroRect] autorelease];
-    [popup_ setContentView:table];
 
-    [table setTarget:table_target_];
-    [table setAction:@selector(select:)];
-    [table setHeaderView:nil];
-    [table setDataSource:table_target_];
-    [table setIntercellSpacing:NSMakeSize(1.0, 0.0)];
-    
-    [table addTableColumn:MakeTableColumn(0, [NSTextFieldCell class])];
-    [table addTableColumn:MakeTableColumn(1, [NSImageCell class])];
-    [table addTableColumn:MakeTableColumn(2, [NSTextFieldCell class])];
+    AutocompleteMatrix* matrix =
+        [[[AutocompleteMatrix alloc] initWithFrame:NSZeroRect] autorelease];
+    [matrix setTarget:matrix_target_];
+    [matrix setAction:@selector(select:)];
+    [popup_ setContentView:matrix];
   }
 }
 
@@ -112,10 +165,9 @@ void AutocompletePopupViewMac::UpdatePopupAppearance() {
     [[popup_ parentWindow] removeChildWindow:popup_];
     [popup_ orderOut:nil];
 
-    // Break references to table_target_ releasing popup_.
-    NSTableView* table = [popup_ contentView];
-    [table setTarget:nil];
-    [table setDataSource:nil];
+    // Break references to matrix_target_ before releasing popup_.
+    NSMatrix* matrix = [popup_ contentView];
+    [matrix setTarget:nil];
 
     popup_.reset(nil);
 
@@ -132,20 +184,23 @@ void AutocompletePopupViewMac::UpdatePopupAppearance() {
   NSRect r = [field_ bounds];
   r = [field_ convertRectToBase:r];
   r.origin = [[field_ window] convertBaseToScreen:r.origin];
-  
-  // TODO(shess): Derive this from the actual image size, once the
-  // image is in the project.
-  static const int kStarWidth = 25;
 
-  NSArray* cols = [[popup_ contentView] tableColumns];
-  [[cols objectAtIndex:0] setWidth:floor((r.size.width - kStarWidth) / 2)];
-  [[cols objectAtIndex:1] setWidth:kStarWidth];
-  [[cols objectAtIndex:2] setWidth:ceil((r.size.width - kStarWidth) / 2)];
-  
-  [[popup_ contentView] reloadData];
-  [[popup_ contentView] tile];
-  r.size.height = [[popup_ contentView] frame].size.height;
+  AutocompleteMatrix* matrix = [popup_ contentView];
+  [matrix setCellSize:NSMakeSize(r.size.width, [matrix cellSize].height)];
+  [matrix setFrameSize:NSMakeSize(r.size.width, [matrix frame].size.height)];
+
+  size_t rows = model_->result().size();
+  [matrix renewRows:rows columns:1];
+  [matrix sizeToCells];
+  r.size.height = [matrix frame].size.height;
   r.origin.y -= r.size.height + 2;
+
+  for (size_t ii = 0; ii < rows; ++ii) {
+    AutocompleteButtonCell* cell = [matrix cellAtRow:ii column:0];
+    const AutocompleteMatch& match = model_->result().match_at(ii);
+    [cell setImage:MatchIcon(match)];
+    [cell setTitle:MatchText(match)];
+  }
 
   // Update the selection.
   PaintUpdatesNow();
@@ -160,38 +215,128 @@ void AutocompletePopupViewMac::UpdatePopupAppearance() {
 // This is only called by model in SetSelectedLine() after updating
 // everything.  Popup should already be visible.
 void AutocompletePopupViewMac::PaintUpdatesNow() {
-  NSIndexSet* set = [NSIndexSet indexSetWithIndex:model_->selected_line()];
-  NSTableView* table = [popup_ contentView];
-  [table selectRowIndexes:set byExtendingSelection:NO];
+  AutocompleteMatrix* matrix = [popup_ contentView];
+  [matrix selectCellAtRow:model_->selected_line() column:0];
 }
 
 AutocompletePopupModel* AutocompletePopupViewMac::GetModel() {
   return model_.get();
 }
 
-size_t AutocompletePopupViewMac::ResultRowCount() {
-  return model_->result().size();
-}
-
-const std::wstring& AutocompletePopupViewMac::ResultContentsAt(size_t i) {
-  return model_->result().match_at(i).contents;
-}
-
-bool AutocompletePopupViewMac::ResultStarredAt(size_t i) {
-  return model_->result().match_at(i).starred;
-}
-
-const std::wstring& AutocompletePopupViewMac::ResultDescriptionAt(size_t i) {
-  return model_->result().match_at(i).description;
-}
-
 void AutocompletePopupViewMac::AcceptInput() {
-  NSTableView* table = [popup_ contentView];
-  model_->SetSelectedLine([table selectedRow], false);
+  AutocompleteMatrix* matrix = [popup_ contentView];
+  model_->SetSelectedLine([matrix selectedRow], false);
   edit_view_->AcceptInput(CURRENT_TAB, false);
 }
 
-@implementation AutocompleteTableTarget
+@implementation AutocompleteButtonCell
+
+- init {
+  self = [super init];
+  if (self) {
+    [self setImagePosition:NSImageLeft];
+    [self setBordered:NO];
+    [self setButtonType:NSRadioButton];
+
+    // Without this highlighting messes up white areas of images.
+    [self setHighlightsBy:NSNoCellMask];
+  }
+  return self;
+}
+
+- (NSColor*)backgroundColor {
+  if ([self state] == NSOnState) {
+    return SelectedBackgroundColor();
+  } else if ([self isHighlighted]) {
+    return HoveredBackgroundColor();
+  }
+  return BackgroundColor();
+}
+
+@end
+
+@implementation AutocompleteMatrix
+
+// Remove all tracking areas and initialize the one we want.  Removing
+// all might be overkill, but it's unclear why there would be others
+// for the popup window.
+- (void)resetTrackingArea {
+  for (NSTrackingArea* trackingArea in [self trackingAreas]) {
+    [self removeTrackingArea:trackingArea];
+  }
+
+  // TODO(shess): Consider overriding -acceptsFirstMouse: and changing
+  // NSTrackingActiveInActiveApp to NSTrackingActiveAlways.
+  NSTrackingAreaOptions options = NSTrackingMouseEnteredAndExited;
+  options |= NSTrackingMouseMoved;
+  options |= NSTrackingActiveInActiveApp;
+  options |= NSTrackingInVisibleRect;
+
+  NSTrackingArea* trackingArea =
+      [[[NSTrackingArea alloc] initWithRect:[self frame]
+                                    options:options
+                                      owner:self
+                                   userInfo:nil] autorelease];
+  [self addTrackingArea:trackingArea];
+}
+
+- (void)updateTrackingAreas {
+  [self resetTrackingArea];
+  [super updateTrackingAreas];
+}
+
+- initWithFrame:(NSRect)frame {
+  self = [super initWithFrame:frame];
+  if (self) {
+    [self setCellClass:[AutocompleteButtonCell class]];
+
+    [self setIntercellSpacing:NSMakeSize(1.0, 1.0)];
+    [self setDrawsBackground:YES];
+    [self setBackgroundColor:BackgroundColor()];
+    [self renewRows:0 columns:1];
+    [self setAllowsEmptySelection:YES];
+    [self setMode:NSRadioModeMatrix];
+    [self deselectAllCells];
+
+    [self resetTrackingArea];
+  }
+  return self;
+}
+
+- (void)highlightRowAt:(NSInteger)rowIndex {
+  // highlightCell will be nil if rowIndex is out of range, so no cell
+  // will be highlighted.
+  NSCell* highlightCell = [self cellAtRow:rowIndex column:0];
+
+  for (NSCell* cell in [self cells]) {
+    [cell setHighlighted:(cell == highlightCell)];
+  }
+}
+
+- (void)highlightRowUnder:(NSEvent*)theEvent {
+  NSPoint point = [self convertPoint:[theEvent locationInWindow] fromView:nil];
+  NSInteger row, column;
+  if ([self getRow:&row column:&column forPoint:point]) {
+    [self highlightRowAt:row];
+  } else {
+    [self highlightRowAt:-1];
+  }
+}
+
+// Callbacks from NSTrackingArea.
+- (void)mouseEntered:(NSEvent*)theEvent {
+  [self highlightRowUnder:theEvent];
+}
+- (void)mouseMoved:(NSEvent*)theEvent {
+  [self highlightRowUnder:theEvent];
+}
+- (void)mouseExited:(NSEvent*)theEvent {
+  [self highlightRowAt:-1];
+}
+
+@end
+
+@implementation AutocompleteMatrixTarget
 
 - initWithPopupView:(AutocompletePopupViewMac*)view {
   self = [super init];
@@ -199,57 +344,6 @@ void AutocompletePopupViewMac::AcceptInput() {
     popup_view_ = view;
   }
   return self;
-}
-
-- (NSImage*)starImage {
-  // TODO(shess): Figure out a way to share this image with the
-  // toolbar controller.
-  return [NSImage imageNamed:@"starred"];
-}
-
-- (NSInteger)numberOfRowsInTableView:(NSTableView*)aTableView {
-  DCHECK(popup_view_);
-  return static_cast<NSInteger>(popup_view_->ResultRowCount());
-}
-
-- (id)tableView:(NSTableView*)aTableView
-objectValueForTableColumn:(NSTableColumn*)aTableColumn
-            row:(int)ri {
-  int columnIndex = [[aTableColumn identifier] integerValue];
-  size_t rowIndex = static_cast<size_t>(ri);
-  DCHECK(popup_view_);
-  DCHECK_LT(rowIndex, popup_view_->ResultRowCount());
-  DCHECK_LT(columnIndex, 3);
-
-  if (columnIndex == 1) {
-    if (popup_view_->ResultStarredAt(rowIndex)) {
-      return [self starImage];
-    }
-    return nil;
-  }
-
-  NSString* s;
-  if (columnIndex == 0) {
-    s = base::SysWideToNSString(popup_view_->ResultContentsAt(rowIndex));
-  } else {
-    s = base::SysWideToNSString(popup_view_->ResultDescriptionAt(rowIndex));
-  }
-
-  NSMutableParagraphStyle* style =
-      [[[NSMutableParagraphStyle alloc] init] autorelease];
-  [style setLineBreakMode:NSLineBreakByTruncatingTail];
-
-  NSMutableAttributedString* as =
-      [[[NSMutableAttributedString alloc] initWithString:s] autorelease];
-  [as addAttribute:NSParagraphStyleAttributeName value:style
-             range:NSMakeRange(0, [s length])];
-
-  // TODO(shess): There is a ton more styling to be done, here, for
-  // instance URLs different from search suggestions different from secure
-  // URLs, etc.  [See AutocompletePopupViewMac::UpdateAndStyleText().]
-  // Deferring in the interests of getting a minimal implementation in.
-
-  return as;
 }
 
 - (void)select:sender {

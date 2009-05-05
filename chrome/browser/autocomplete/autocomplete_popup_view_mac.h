@@ -19,7 +19,7 @@
 class AutocompletePopupModel;
 class AutocompleteEditModel;
 class AutocompleteEditViewMac;
-@class AutocompleteTableTarget;
+@class AutocompleteMatrixTarget;
 class Profile;
 
 // Implements AutocompletePopupView using a raw NSWindow containing an
@@ -57,7 +57,7 @@ class AutocompletePopupViewMac : public AutocompletePopupView {
   }
   virtual void UpdatePopupAppearance();
   virtual void OnHoverEnabledOrDisabled(bool disabled) { NOTIMPLEMENTED(); }
- 
+
   // This is only called by model in SetSelectedLine() after updating
   // everything.  Popup should already be visible.
   virtual void PaintUpdatesNow();
@@ -65,12 +65,9 @@ class AutocompletePopupViewMac : public AutocompletePopupView {
   // Returns the popup's model.
   virtual AutocompletePopupModel* GetModel();
 
-  // Helpers which forward to model_, otherwise our Objective-C helper
-  // object would need model_ to be public:.
-  size_t ResultRowCount();
-  const std::wstring& ResultContentsAt(size_t i);
-  bool ResultStarredAt(size_t i);
-  const std::wstring& ResultDescriptionAt(size_t i);
+  // Updates model_'s sense of selected line from the UI before
+  // calling edit_view_'s AcceptInput().  Used by internal Objective-C
+  // helper object.
   void AcceptInput();
 
  private:
@@ -82,7 +79,7 @@ class AutocompletePopupViewMac : public AutocompletePopupView {
 
   NSTextField* field_;  // owned by tab controller
 
-  scoped_nsobject<AutocompleteTableTarget> table_target_;
+  scoped_nsobject<AutocompleteMatrixTarget> matrix_target_;
   // TODO(shess): Before checkin review implementation to make sure
   // that popup_'s object hierarchy doesn't keep references to
   // destructed objects.
