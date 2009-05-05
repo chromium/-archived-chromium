@@ -511,6 +511,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\controls\native_view_host.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\controls\native_view_host.h"
+				>
+			</File>
+			<File
 				RelativePath=".\controls\scroll_view.cc"
 				>
 			</File>

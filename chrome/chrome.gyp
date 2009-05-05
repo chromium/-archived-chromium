@@ -2879,6 +2879,8 @@
             'views/controls/native_control.h',
             'views/controls/native_control_win.cc',
             'views/controls/native_control_win.h',
+            'views/controls/native_view_host.cc',
+            'views/controls/native_view_host.h',
             'views/controls/scroll_view.cc',
             'views/controls/scroll_view.h',
             'views/controls/scrollbar/bitmap_scroll_bar.cc',
