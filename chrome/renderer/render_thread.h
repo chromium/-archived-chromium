@@ -160,6 +160,11 @@ class RenderThread : public RenderThreadBase,
 
   scoped_refptr<DevToolsAgentFilter> devtools_agent_filter_;
 
+#if defined(OS_POSIX)
+  scoped_refptr<IPC::ChannelProxy::MessageFilter>
+      suicide_on_channel_error_filter_;
+#endif
+
   // If true, then a GetPlugins call is allowed to rescan the disk.
   bool plugin_refresh_allowed_;
 
