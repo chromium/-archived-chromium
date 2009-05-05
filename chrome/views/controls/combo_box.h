@@ -42,6 +42,7 @@ class ComboBox : public NativeControl {
 
   // Overridden from View.
   virtual gfx::Size GetPreferredSize();
+  virtual bool OverrideAccelerator(const Accelerator& accelerator);
 
   // Overridden from NativeControl
   virtual HWND CreateNativeControl(HWND parent_container);

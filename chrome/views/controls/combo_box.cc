@@ -67,6 +67,19 @@ gfx::Size ComboBox::GetPreferredSize() {
   return gfx::Size(pref_width, pref_height);
 }
 
+// VK_ESCAPE should be handled by this view when the drop down list is active.
+// In other words, the list should be closed instead of the dialog.
+bool ComboBox::OverrideAccelerator(const Accelerator& accelerator) {
+  if (accelerator != Accelerator(VK_ESCAPE, false, false, false))
+    return false;
+
+  HWND hwnd = GetNativeControlHWND();
+  if (!hwnd)
+    return false;
+
+  return ::SendMessage(hwnd, CB_GETDROPPEDSTATE, 0, 0) != 0;
+}
+
 HWND ComboBox::CreateNativeControl(HWND parent_container) {
   HWND r = ::CreateWindowEx(GetAdditionalExStyle(), L"COMBOBOX", L"",
                             WS_CHILD | WS_VSCROLL | CBS_DROPDOWNLIST,

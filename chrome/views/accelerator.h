@@ -58,6 +58,10 @@ class Accelerator {
     return (key_code_ == rhs.key_code_) && (modifiers_ == rhs.modifiers_);
   }
 
+  bool operator !=(const Accelerator& rhs) const {
+    return !(*this == rhs);
+  }
+
   bool IsShiftDown() const {
     return (modifiers_ & Event::EF_SHIFT_DOWN) == Event::EF_SHIFT_DOWN;
   }
