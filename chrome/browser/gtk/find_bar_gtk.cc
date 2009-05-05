@@ -36,20 +36,6 @@ const int kBarPaddingRight = 4;
 // images.
 const int kFindBarHeight = 32;
 
-gboolean EntryContentsChanged(GtkWindow* window, FindBarGtk* find_bar) {
-  find_bar->ContentsChanged();
-  return FALSE;
-}
-
-gboolean KeyPressEvent(GtkWindow* window, GdkEventKey* event,
-                       FindBarGtk* find_bar) {
-  if (GDK_Escape == event->keyval) {
-    find_bar->EscapePressed();
-    return TRUE;
-  }
-  return FALSE;
-}
-
 // Get the ninebox that draws the background of |container_|. It is also used
 // to change the shape of |container_|. The pointer is shared by all instances
 // of FindBarGtk.
@@ -88,9 +74,9 @@ FindBarGtk::FindBarGtk(BrowserWindowGtk* browser)
   // Hook up signals after the widget has been added to the hierarchy so the
   // widget will be realized.
   g_signal_connect(find_text_, "changed",
-                   G_CALLBACK(EntryContentsChanged), this);
+                   G_CALLBACK(OnChanged), this);
   g_signal_connect(find_text_, "key-press-event",
-                   G_CALLBACK(KeyPressEvent), this);
+                   G_CALLBACK(OnKeyPressEvent), this);
   g_signal_connect(widget(), "size-allocate",
                    G_CALLBACK(OnFixedSizeAllocate), this);
   // We can't call ContourWidget() until after |container_| has been
@@ -255,7 +241,7 @@ bool FindBarGtk::GetFindBarWindowInfo(gfx::Point* position,
   return false;
 }
 
-void FindBarGtk::ContentsChanged() {
+void FindBarGtk::FindEntryTextInContents(bool forward_search) {
   TabContents* tab_contents = find_bar_controller_->tab_contents();
   if (!tab_contents)
     return;
@@ -263,15 +249,30 @@ void FindBarGtk::ContentsChanged() {
   std::string new_contents(gtk_entry_get_text(GTK_ENTRY(find_text_)));
 
   if (new_contents.length() > 0) {
-    tab_contents->StartFinding(UTF8ToUTF16(new_contents), true);
+    tab_contents->StartFinding(UTF8ToUTF16(new_contents), forward_search);
   } else {
     // The textbox is empty so we reset.
     tab_contents->StopFinding(true);  // true = clear selection on page.
   }
 }
 
-void FindBarGtk::EscapePressed() {
-  find_bar_controller_->EndFindSession();
+// static
+gboolean FindBarGtk::OnChanged(GtkWindow* window, FindBarGtk* find_bar) {
+  find_bar->FindEntryTextInContents(true);
+  return FALSE;
+}
+
+// static
+gboolean FindBarGtk::OnKeyPressEvent(GtkWindow* window, GdkEventKey* event,
+                                     FindBarGtk* find_bar) {
+  if (GDK_Escape == event->keyval) {
+    find_bar->find_bar_controller_->EndFindSession();
+    return TRUE;
+  } else if (GDK_Return == event->keyval) {
+    find_bar->FindEntryTextInContents(true);
+    return TRUE;
+  }
+  return FALSE;
 }
 
 // static
@@ -280,10 +281,7 @@ void FindBarGtk::OnButtonPressed(GtkWidget* button, FindBarGtk* find_bar) {
     find_bar->find_bar_controller_->EndFindSession();
   } else if (button == find_bar->find_previous_button_->widget() ||
              button == find_bar->find_next_button_->widget()) {
-    std::string find_text_utf8(
-        gtk_entry_get_text(GTK_ENTRY(find_bar->find_text_)));
-    find_bar->find_bar_controller_->tab_contents()->StartFinding(
-        UTF8ToUTF16(find_text_utf8),
+    find_bar->FindEntryTextInContents(
         button == find_bar->find_next_button_->widget());
   } else {
     NOTREACHED();

@@ -23,14 +23,8 @@ class TabContentsContainerGtk;
 class FindBarGtk : public FindBar,
                    public FindBarTesting {
  public:
-  FindBarGtk(BrowserWindowGtk* browser);
+  explicit FindBarGtk(BrowserWindowGtk* browser);
   virtual ~FindBarGtk();
-
-  // Callback when the text in the find box changes.
-  void ContentsChanged();
-
-  // Callback when Escape is pressed.
-  void EscapePressed();
 
   GtkWidget* widget() const { return fixed_.get(); }
 
@@ -67,6 +61,17 @@ class FindBarGtk : public FindBar,
   // Returns the child of |fixed_| that holds what the user perceives as the
   // findbar.
   GtkWidget* slide_widget();
+
+  // Searches for another occurrence of the entry text, moving forward if
+  // |forward_search| is true.
+  void FindEntryTextInContents(bool forward_search);
+
+  // Callback when the entry text changes.
+  static gboolean OnChanged(GtkWindow* window, FindBarGtk* find_bar);
+
+  // Callback for key presses.
+  static gboolean OnKeyPressEvent(GtkWindow* window, GdkEventKey* event,
+                                  FindBarGtk* find_bar);
 
   // Callback for previous, next, and close button.
   static void OnButtonPressed(GtkWidget* button, FindBarGtk* find_bar);
