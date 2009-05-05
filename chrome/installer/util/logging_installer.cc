@@ -7,7 +7,7 @@
 #include "chrome/installer/util/logging_installer.h"
 
 #include "base/command_line.h"
-#include "base/file_util.h"
+#include "base/file_path.h"
 #include "base/logging.h"
 #include "base/path_service.h"
 #include "chrome/installer/util/util_constants.h"
@@ -19,7 +19,6 @@ namespace installer {
 bool installer_logging_ = false;
 
 void InitInstallerLogging(const CommandLine& command_line) {
-
   if (installer_logging_)
     return;
 
@@ -54,11 +53,11 @@ std::wstring GetLogFilePath(const CommandLine& command_line) {
   }
 
   const std::wstring log_filename(L"chrome_installer.log");
-  std::wstring log_path;
+  FilePath log_path;
 
   if (PathService::Get(base::DIR_TEMP, &log_path)) {
-    file_util::AppendToPath(&log_path, log_filename);
-    return log_path;
+    log_path = log_path.Append(log_filename);
+    return log_path.ToWStringHack();
   } else {
     return log_filename;
   }

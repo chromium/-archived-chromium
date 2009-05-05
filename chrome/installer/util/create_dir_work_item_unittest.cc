@@ -19,11 +19,11 @@ namespace {
     virtual void SetUp() {
       // Name a subdirectory of the temp directory.
       ASSERT_TRUE(PathService::Get(base::DIR_TEMP, &test_dir_));
-      file_util::AppendToPath(&test_dir_, L"CreateDirWorkItemTest");
+      test_dir_ = test_dir_.AppendASCII("CreateDirWorkItemTest");
 
       // Create a fresh, empty copy of this directory.
       file_util::Delete(test_dir_, true);
-      CreateDirectory(test_dir_.c_str(), NULL);
+      file_util::CreateDirectoryW(test_dir_);
     }
     virtual void TearDown() {
       // Clean up test directory
@@ -32,12 +32,12 @@ namespace {
     }
 
     // the path to temporary directory used to contain the test operations
-    std::wstring test_dir_;
+    FilePath test_dir_;
   };
 };
 
 TEST_F(CreateDirWorkItemTest, CreatePath) {
-  std::wstring parent_dir(test_dir_);
+  std::wstring parent_dir(test_dir_.ToWStringHack());
   file_util::AppendToPath(&parent_dir, L"a");
   CreateDirectory(parent_dir.c_str(), NULL);
   ASSERT_TRUE(file_util::PathExists(parent_dir));
@@ -64,7 +64,7 @@ TEST_F(CreateDirWorkItemTest, CreatePath) {
 }
 
 TEST_F(CreateDirWorkItemTest, CreateExistingPath) {
-  std::wstring dir_to_create(test_dir_);
+  std::wstring dir_to_create(test_dir_.ToWStringHack());
   file_util::AppendToPath(&dir_to_create, L"aa");
   CreateDirectory(dir_to_create.c_str(), NULL);
   ASSERT_TRUE(file_util::PathExists(dir_to_create));
@@ -84,7 +84,7 @@ TEST_F(CreateDirWorkItemTest, CreateExistingPath) {
 }
 
 TEST_F(CreateDirWorkItemTest, CreateSharedPath) {
-  std::wstring dir_to_create_1(test_dir_);
+  std::wstring dir_to_create_1(test_dir_.ToWStringHack());
   file_util::AppendToPath(&dir_to_create_1, L"aaa");
 
   std::wstring dir_to_create_2(dir_to_create_1);
@@ -117,7 +117,7 @@ TEST_F(CreateDirWorkItemTest, CreateSharedPath) {
 }
 
 TEST_F(CreateDirWorkItemTest, RollbackWithMissingDir) {
-  std::wstring dir_to_create_1(test_dir_);
+  std::wstring dir_to_create_1(test_dir_.ToWStringHack());
   file_util::AppendToPath(&dir_to_create_1, L"aaaa");
 
   std::wstring dir_to_create_2(dir_to_create_1);

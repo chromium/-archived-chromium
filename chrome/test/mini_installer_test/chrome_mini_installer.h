@@ -14,7 +14,7 @@
 #include <string>
 #include <vector>
 
-#include "base/file_util.h"
+#include "base/basictypes.h"
 
 // This structure holds the name and creation time
 // details of all the chrome nightly builds.
@@ -37,7 +37,7 @@ typedef std::vector<file_info> file_info_list;
 // This class has methods to install and uninstall Chrome mini installer.
 class ChromeMiniInstaller {
  public:
-  ChromeMiniInstaller(std::wstring type) {
+  explicit ChromeMiniInstaller(std::wstring type) {
     install_type_ = type;
   }
 
@@ -82,7 +82,7 @@ class ChromeMiniInstaller {
   // Closes First Run UI dialog.
   void CloseFirstRunUIDialog(bool over_install);
 
-  // Close Window whose name is 'window_name', by sending Windows message 
+  // Close Window whose name is 'window_name', by sending Windows message
   // 'message' to it.
   bool CloseWindow(const wchar_t* window_name, UINT message);
 
@@ -175,7 +175,7 @@ class ChromeMiniInstaller {
   // Waits until the given process stops running
   void WaitUntilProcessStopsRunning(const wchar_t* process_name);
 
-  DISALLOW_EVIL_CONSTRUCTORS(ChromeMiniInstaller);
+  DISALLOW_COPY_AND_ASSIGN(ChromeMiniInstaller);
 };
 
 #endif  // CHROME_TEST_MINI_INSTALLER_TEST_CHROME_MINI_INSTALLER_H__

@@ -37,7 +37,6 @@ void AddChromeToMediaPlayerList() {
   // if the operation fails we log the error but still continue
   if (!work_item.get()->Do())
     LOG(ERROR) << "Could not add Chrome to media player inclusion list.";
-
 }
 
 void RegisterChromeOnMachine(std::wstring install_path, int options) {
@@ -89,7 +88,7 @@ bool CreateOrUpdateChromeShortcuts(const std::wstring& exe_path,
                                    const std::wstring& install_path,
                                    const std::wstring& new_version) {
   bool system_install = (options & installer_util::SYSTEM_LEVEL) != 0;
-  std::wstring shortcut_path;
+  FilePath shortcut_path;
   int dir_enum = (system_install) ? base::DIR_COMMON_START_MENU :
                                     base::DIR_START_MENU;
   if (!PathService::Get(dir_enum, &shortcut_path)) {
@@ -101,7 +100,7 @@ bool CreateOrUpdateChromeShortcuts(const std::wstring& exe_path,
   BrowserDistribution* dist = BrowserDistribution::GetDistribution();
   const std::wstring& product_name = dist->GetApplicationName();
   const std::wstring& product_desc = dist->GetAppDescription();
-  file_util::AppendToPath(&shortcut_path, product_name);
+  shortcut_path = shortcut_path.Append(product_name);
 
   // Create/update Chrome link (points to chrome.exe) & Uninstall Chrome link
   // (which points to setup.exe) under this folder only if:
@@ -111,8 +110,8 @@ bool CreateOrUpdateChromeShortcuts(const std::wstring& exe_path,
   //   shortcuts since our install. So on updates we only update if shortcut
   //   already exists)
   bool ret = true;
-  std::wstring chrome_link(shortcut_path);  // Chrome link (launches Chrome)
-  file_util::AppendToPath(&chrome_link, product_name + L".lnk");
+  FilePath chrome_link(shortcut_path);  // Chrome link (launches Chrome)
+  chrome_link = chrome_link.Append(product_name + L".lnk");
   std::wstring chrome_exe(install_path);  // Chrome link target
   file_util::AppendToPath(&chrome_exe, installer_util::kChromeExe);
 
@@ -121,19 +120,22 @@ bool CreateOrUpdateChromeShortcuts(const std::wstring& exe_path,
     if (!file_util::PathExists(shortcut_path))
       file_util::CreateDirectoryW(shortcut_path);
 
-    LOG(INFO) << "Creating shortcut to " << chrome_exe << " at " << chrome_link;
-    ret = ret && ShellUtil::UpdateChromeShortcut(chrome_exe, chrome_link,
+    LOG(INFO) << "Creating shortcut to " << chrome_exe << " at "
+              << chrome_link.value();
+    ret = ret && ShellUtil::UpdateChromeShortcut(chrome_exe,
+                                                 chrome_link.value(),
                                                  product_desc, true);
   } else if (file_util::PathExists(chrome_link)) {
-    LOG(INFO) << "Updating shortcut at " << chrome_link
+    LOG(INFO) << "Updating shortcut at " << chrome_link.value()
               << " to point to " << chrome_exe;
-    ret = ret && ShellUtil::UpdateChromeShortcut(chrome_exe, chrome_link,
+    ret = ret && ShellUtil::UpdateChromeShortcut(chrome_exe,
+                                                 chrome_link.value(),
                                                  product_desc, false);
   }
 
   // Create/update uninstall link
-  std::wstring uninstall_link(shortcut_path);  // Uninstall Chrome link
-  file_util::AppendToPath(&uninstall_link,
+  FilePath uninstall_link(shortcut_path);  // Uninstall Chrome link
+  uninstall_link = uninstall_link.Append(
       dist->GetUninstallLinkName() + L".lnk");
   if ((install_status == installer_util::FIRST_INSTALL_SUCCESS) ||
       (install_status == installer_util::INSTALL_REPAIRED) ||
@@ -151,9 +153,10 @@ bool CreateOrUpdateChromeShortcuts(const std::wstring& exe_path,
       arguments.append(installer_util::switches::kSystemLevel);
     }
 
-    LOG(INFO) << "Creating/updating uninstall link at " << uninstall_link;
+    LOG(INFO) << "Creating/updating uninstall link at "
+              << uninstall_link.value();
     ret = ret && file_util::CreateShortcutLink(setup_exe.c_str(),
-                                               uninstall_link.c_str(),
+                                               uninstall_link.value().c_str(),
                                                NULL,
                                                arguments.c_str(),
                                                NULL, setup_exe.c_str(), 0);

@@ -12,9 +12,9 @@
 #include <msi.h>
 
 #include "base/file_path.h"
-#include "base/file_util.h"
 #include "base/path_service.h"
 #include "base/registry.h"
+#include "base/scoped_ptr.h"
 #include "base/string_util.h"
 #include "base/wmi_util.h"
 #include "chrome/common/json_value_serializer.h"
@@ -128,15 +128,16 @@ void GoogleChromeDistribution::DoPostUninstallOperations(
                                            version_info.dwBuildNumber);
   }
 
-  std::wstring iexplore;
+  FilePath iexplore;
   if (!PathService::Get(base::DIR_PROGRAM_FILES, &iexplore))
     return;
 
-  file_util::AppendToPath(&iexplore, L"Internet Explorer");
-  file_util::AppendToPath(&iexplore, L"iexplore.exe");
+  iexplore = iexplore.AppendASCII("Internet Explorer");
+  iexplore = iexplore.AppendASCII("iexplore.exe");
 
-  std::wstring command = iexplore + L" " + GetUninstallSurveyUrl() + L"&" +
-      kVersionParam + L"=" + kVersion + L"&" + kOSParam + L"=" + os_version;
+  std::wstring command = iexplore.value() + L" " + GetUninstallSurveyUrl() +
+      L"&" + kVersionParam + L"=" + kVersion + L"&" + kOSParam + L"=" +
+      os_version;
 
   std::wstring uninstall_metrics;
   if (ExtractUninstallMetricsFromFile(local_data_path, &uninstall_metrics)) {

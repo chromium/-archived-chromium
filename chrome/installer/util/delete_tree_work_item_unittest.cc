@@ -24,11 +24,11 @@ namespace {
     virtual void SetUp() {
       // Name a subdirectory of the user temp directory.
       ASSERT_TRUE(PathService::Get(base::DIR_TEMP, &test_dir_));
-      file_util::AppendToPath(&test_dir_, L"DeleteTreeWorkItemTest");
+      test_dir_ = test_dir_.AppendASCII("DeleteTreeWorkItemTest");
 
       // Create a fresh, empty copy of this test directory.
       file_util::Delete(test_dir_, true);
-      CreateDirectory(test_dir_.c_str(), NULL);
+      file_util::CreateDirectoryW(test_dir_);
 
       ASSERT_TRUE(file_util::PathExists(test_dir_));
     }
@@ -40,7 +40,7 @@ namespace {
     }
 
     // the path to temporary directory used to contain the test operations
-    std::wstring test_dir_;
+    FilePath test_dir_;
   };
 
   // Simple function to dump some text into a new file.
@@ -60,7 +60,7 @@ namespace {
 // Delete a tree without key path. Everything should be deleted.
 TEST_F(DeleteTreeWorkItemTest, DeleteTreeNoKeyPath) {
   // Create tree to be deleted
-  std::wstring dir_name_delete(test_dir_);
+  std::wstring dir_name_delete(test_dir_.ToWStringHack());
   file_util::AppendToPath(&dir_name_delete, L"to_be_delete");
   CreateDirectory(dir_name_delete.c_str(), NULL);
   ASSERT_TRUE(file_util::PathExists(dir_name_delete));
@@ -107,7 +107,7 @@ TEST_F(DeleteTreeWorkItemTest, DeleteTreeNoKeyPath) {
 // Rollback should bring back everything
 TEST_F(DeleteTreeWorkItemTest, DeleteTree) {
   // Create tree to be deleted
-  std::wstring dir_name_delete(test_dir_);
+  std::wstring dir_name_delete(test_dir_.ToWStringHack());
   file_util::AppendToPath(&dir_name_delete, L"to_be_delete");
   CreateDirectory(dir_name_delete.c_str(), NULL);
   ASSERT_TRUE(file_util::PathExists(dir_name_delete));
@@ -152,7 +152,7 @@ TEST_F(DeleteTreeWorkItemTest, DeleteTree) {
 // Delete a tree with key_path in use. Everything should still be there.
 TEST_F(DeleteTreeWorkItemTest, DeleteTreeInUse) {
   // Create tree to be deleted
-  std::wstring dir_name_delete(test_dir_);
+  std::wstring dir_name_delete(test_dir_.ToWStringHack());
   file_util::AppendToPath(&dir_name_delete, L"to_be_delete");
   CreateDirectory(dir_name_delete.c_str(), NULL);
   ASSERT_TRUE(file_util::PathExists(dir_name_delete));

@@ -6,6 +6,7 @@
 
 #include <algorithm>
 
+#include "base/file_util.h"
 #include "base/path_service.h"
 #include "base/platform_thread.h"
 #include "base/process_util.h"
@@ -368,12 +369,12 @@ void ChromeMiniInstaller::FindChromeShortcut() {
 // This method returns path to either program files
 // or documents and setting based on the install type.
 std::wstring ChromeMiniInstaller::GetChromeInstallDirectoryLocation() {
-  std::wstring path;
+  FilePath path;
   if (install_type_ == mini_installer_constants::kSystemInstall)
     PathService::Get(base::DIR_PROGRAM_FILES, &path);
   else
     PathService::Get(base::DIR_LOCAL_APP_DATA, &path);
-  return path;
+  return path.ToWStringHack();
 }
 
 // This method will create a command line  to run apply tag.
@@ -403,21 +404,21 @@ bool ChromeMiniInstaller::GetCommandForTagging(std::wstring *return_command) {
 
 // Get path for mini_installer.exe.
 std::wstring ChromeMiniInstaller::GetInstallerExePath(const wchar_t* name) {
-  std::wstring installer_path;
+  FilePath installer_path;
   PathService::Get(base::DIR_EXE, &installer_path);
-  file_util::AppendToPath(&installer_path, name);
-  printf("Chrome exe path is %ls\n", installer_path.c_str());
-  return installer_path;
+  installer_path.Append(name);
+  printf("Chrome exe path is %ls\n", installer_path.value().c_str());
+  return installer_path.ToWStringHack();
 }
 
 // This method gets the shortcut path  from startmenu based on install type
 std::wstring ChromeMiniInstaller::GetStartMenuShortcutPath() {
-  std::wstring path_name;
+  FilePath path_name;
   if (install_type_ == mini_installer_constants::kSystemInstall)
     PathService::Get(base::DIR_COMMON_START_MENU, &path_name);
   else
     PathService::Get(base::DIR_START_MENU, &path_name);
-  return path_name;
+  return path_name.ToWStringHack();
 }
 
 // This is a predicate to sort file_info.
@@ -683,8 +684,7 @@ void ChromeMiniInstaller::WaitUntilProcessStopsRunning(
       PlatformThread::Sleep(200);
       timer = timer + 200;
     }
-  }
-  else {
+  } else {
     ASSERT_EQ(0, base::GetProcessCount(process_name, NULL));
   }
 }

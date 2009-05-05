@@ -22,11 +22,11 @@ namespace {
     virtual void SetUp() {
       // Name a subdirectory of the user temp directory.
       ASSERT_TRUE(PathService::Get(base::DIR_TEMP, &test_dir_));
-      file_util::AppendToPath(&test_dir_, L"SetupHelperTest");
+      test_dir_.AppendASCII("SetupHelperTest");
 
       // Create a fresh, empty copy of this test directory.
       file_util::Delete(test_dir_, true);
-      CreateDirectory(test_dir_.c_str(), NULL);
+      file_util::CreateDirectoryW(test_dir_);
       ASSERT_TRUE(file_util::PathExists(test_dir_));
     }
 
@@ -38,7 +38,7 @@ namespace {
     }
 
     // the path to temporary directory used to contain the test operations
-    std::wstring test_dir_;
+    FilePath test_dir_;
   };
 
   // Simple function to dump some text into a new file.
@@ -59,7 +59,7 @@ namespace {
 // should be deleted.
 TEST_F(SetupHelperTest, Delete) {
   // Create a Chrome dir
-  std::wstring chrome_dir(test_dir_);
+  std::wstring chrome_dir(test_dir_.ToWStringHack());
   file_util::AppendToPath(&chrome_dir, L"chrome");
   CreateDirectory(chrome_dir.c_str(), NULL);
   ASSERT_TRUE(file_util::PathExists(chrome_dir));
@@ -118,7 +118,7 @@ TEST_F(SetupHelperTest, Delete) {
 // Delete older version directories, keeping the one in used intact.
 TEST_F(SetupHelperTest, DeleteInUsed) {
   // Create a Chrome dir
-  std::wstring chrome_dir(test_dir_);
+  std::wstring chrome_dir(test_dir_.ToWStringHack());
   file_util::AppendToPath(&chrome_dir, L"chrome");
   CreateDirectory(chrome_dir.c_str(), NULL);
   ASSERT_TRUE(file_util::PathExists(chrome_dir));

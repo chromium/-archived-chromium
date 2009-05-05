@@ -29,10 +29,10 @@ namespace {
 
       // Create a temp directory for test.
       ASSERT_TRUE(PathService::Get(base::DIR_TEMP, &test_dir_));
-      file_util::AppendToPath(&test_dir_, L"WorkItemListTest");
+      test_dir_ = test_dir_.AppendASCII("WorkItemListTest");
       file_util::Delete(test_dir_, true);
       ASSERT_FALSE(file_util::PathExists(test_dir_));
-      CreateDirectory(test_dir_.c_str(), NULL);
+      file_util::CreateDirectoryW(test_dir_);
       ASSERT_TRUE(file_util::PathExists(test_dir_));
     }
 
@@ -46,7 +46,7 @@ namespace {
       ASSERT_TRUE(key.DeleteKey(test_root));
     }
 
-    std::wstring test_dir_;
+    FilePath test_dir_;
   };
 };
 
@@ -55,7 +55,7 @@ TEST_F(WorkItemListTest, ExecutionSuccess) {
   scoped_ptr<WorkItemList> work_item_list(WorkItem::CreateWorkItemList());
   scoped_ptr<WorkItem> work_item;
 
-  std::wstring top_dir_to_create(test_dir_);
+  std::wstring top_dir_to_create(test_dir_.ToWStringHack());
   file_util::AppendToPath(&top_dir_to_create, L"a");
   std::wstring dir_to_create(top_dir_to_create);
   file_util::AppendToPath(&dir_to_create, L"b");
@@ -104,7 +104,7 @@ TEST_F(WorkItemListTest, ExecutionFailAndRollback) {
   scoped_ptr<WorkItemList> work_item_list(WorkItem::CreateWorkItemList());
   scoped_ptr<WorkItem> work_item;
 
-  std::wstring top_dir_to_create(test_dir_);
+  std::wstring top_dir_to_create(test_dir_.ToWStringHack());
   file_util::AppendToPath(&top_dir_to_create, L"a");
   std::wstring dir_to_create(top_dir_to_create);
   file_util::AppendToPath(&dir_to_create, L"b");

@@ -23,16 +23,15 @@ namespace {
     virtual void SetUp() {
       // Name a subdirectory of the user temp directory.
       ASSERT_TRUE(PathService::Get(base::DIR_TEMP, &test_dir_));
-      file_util::AppendToPath(&test_dir_, L"MoveTreeWorkItemTest");
+      test_dir_ = test_dir_.AppendASCII("MoveTreeWorkItemTest");
 
       // Create a fresh, empty copy of this test directory.
       file_util::Delete(test_dir_, true);
-      CreateDirectory(test_dir_.c_str(), NULL);
+      file_util::CreateDirectoryW(test_dir_);
 
       // Create a tempory directory under the test directory.
-      temp_dir_.assign(test_dir_);
-      file_util::AppendToPath(&temp_dir_, L"temp");
-      CreateDirectory(temp_dir_.c_str(), NULL);
+      temp_dir_ = test_dir_.AppendASCII("temp");
+      file_util::CreateDirectoryW(temp_dir_);
 
       ASSERT_TRUE(file_util::PathExists(test_dir_));
       ASSERT_TRUE(file_util::PathExists(temp_dir_));
@@ -45,8 +44,8 @@ namespace {
     }
 
     // the path to temporary directory used to contain the test operations
-    std::wstring test_dir_;
-    std::wstring temp_dir_;
+    FilePath test_dir_;
+    FilePath temp_dir_;
   };
 
   // Simple function to dump some text into a new file.
@@ -78,7 +77,7 @@ namespace {
 // exist.
 TEST_F(MoveTreeWorkItemTest, MoveDirectory) {
   // Create two level deep source dir
-  std::wstring from_dir1(test_dir_);
+  std::wstring from_dir1(test_dir_.ToWStringHack());
   file_util::AppendToPath(&from_dir1, L"From_Dir1");
   CreateDirectory(from_dir1.c_str(), NULL);
   ASSERT_TRUE(file_util::PathExists(from_dir1));
@@ -94,7 +93,7 @@ TEST_F(MoveTreeWorkItemTest, MoveDirectory) {
   ASSERT_TRUE(file_util::PathExists(from_file));
 
   // Generate destination path
-  std::wstring to_dir(test_dir_);
+  std::wstring to_dir(test_dir_.ToWStringHack());
   file_util::AppendToPath(&to_dir, L"To_Dir");
   ASSERT_FALSE(file_util::PathExists(to_dir));
 
@@ -105,7 +104,7 @@ TEST_F(MoveTreeWorkItemTest, MoveDirectory) {
 
   // test Do()
   scoped_ptr<MoveTreeWorkItem> work_item(WorkItem::CreateMoveTreeWorkItem(
-      from_dir1, to_dir, temp_dir_));
+      from_dir1, to_dir, temp_dir_.ToWStringHack()));
   EXPECT_TRUE(work_item->Do());
 
   EXPECT_FALSE(file_util::PathExists(from_dir1));
@@ -124,7 +123,7 @@ TEST_F(MoveTreeWorkItemTest, MoveDirectory) {
 // exists.
 TEST_F(MoveTreeWorkItemTest, MoveDirectoryDestExists) {
   // Create two level deep source dir
-  std::wstring from_dir1(test_dir_);
+  std::wstring from_dir1(test_dir_.ToWStringHack());
   file_util::AppendToPath(&from_dir1, L"From_Dir1");
   CreateDirectory(from_dir1.c_str(), NULL);
   ASSERT_TRUE(file_util::PathExists(from_dir1));
@@ -140,7 +139,7 @@ TEST_F(MoveTreeWorkItemTest, MoveDirectoryDestExists) {
   ASSERT_TRUE(file_util::PathExists(from_file));
 
   // Create destination path
-  std::wstring to_dir(test_dir_);
+  std::wstring to_dir(test_dir_.ToWStringHack());
   file_util::AppendToPath(&to_dir, L"To_Dir");
   CreateDirectory(to_dir.c_str(), NULL);
   ASSERT_TRUE(file_util::PathExists(to_dir));
@@ -157,7 +156,7 @@ TEST_F(MoveTreeWorkItemTest, MoveDirectoryDestExists) {
 
   // test Do()
   scoped_ptr<MoveTreeWorkItem> work_item(WorkItem::CreateMoveTreeWorkItem(
-      from_dir1, to_dir, temp_dir_));
+      from_dir1, to_dir, temp_dir_.ToWStringHack()));
   EXPECT_TRUE(work_item->Do());
 
   EXPECT_FALSE(file_util::PathExists(from_dir1));
@@ -180,7 +179,7 @@ TEST_F(MoveTreeWorkItemTest, MoveDirectoryDestExists) {
 // exist.
 TEST_F(MoveTreeWorkItemTest, MoveAFile) {
   // Create a file inside source dir
-  std::wstring from_dir(test_dir_);
+  std::wstring from_dir(test_dir_.ToWStringHack());
   file_util::AppendToPath(&from_dir, L"From_Dir");
   CreateDirectory(from_dir.c_str(), NULL);
   ASSERT_TRUE(file_util::PathExists(from_dir));
@@ -191,13 +190,13 @@ TEST_F(MoveTreeWorkItemTest, MoveAFile) {
   ASSERT_TRUE(file_util::PathExists(from_file));
 
   // Generate destination file name
-  std::wstring to_file(test_dir_);
+  std::wstring to_file(test_dir_.ToWStringHack());
   file_util::AppendToPath(&to_file, L"To_File");
   ASSERT_FALSE(file_util::PathExists(to_file));
 
   // test Do()
   scoped_ptr<MoveTreeWorkItem> work_item(WorkItem::CreateMoveTreeWorkItem(
-      from_file, to_file, temp_dir_));
+      from_file, to_file, temp_dir_.ToWStringHack()));
   EXPECT_TRUE(work_item->Do());
 
   EXPECT_TRUE(file_util::PathExists(from_dir));
@@ -218,7 +217,7 @@ TEST_F(MoveTreeWorkItemTest, MoveAFile) {
 // exists.
 TEST_F(MoveTreeWorkItemTest, MoveFileDestExists) {
   // Create a file inside source dir
-  std::wstring from_dir(test_dir_);
+  std::wstring from_dir(test_dir_.ToWStringHack());
   file_util::AppendToPath(&from_dir, L"From_Dir");
   CreateDirectory(from_dir.c_str(), NULL);
   ASSERT_TRUE(file_util::PathExists(from_dir));
@@ -229,7 +228,7 @@ TEST_F(MoveTreeWorkItemTest, MoveFileDestExists) {
   ASSERT_TRUE(file_util::PathExists(from_file));
 
   // Create destination path
-  std::wstring to_dir(test_dir_);
+  std::wstring to_dir(test_dir_.ToWStringHack());
   file_util::AppendToPath(&to_dir, L"To_Dir");
   CreateDirectory(to_dir.c_str(), NULL);
   ASSERT_TRUE(file_util::PathExists(to_dir));
@@ -241,7 +240,7 @@ TEST_F(MoveTreeWorkItemTest, MoveFileDestExists) {
 
   // test Do()
   scoped_ptr<MoveTreeWorkItem> work_item(WorkItem::CreateMoveTreeWorkItem(
-      from_file, to_dir, temp_dir_));
+      from_file, to_dir, temp_dir_.ToWStringHack()));
   EXPECT_TRUE(work_item->Do());
 
   EXPECT_TRUE(file_util::PathExists(from_dir));
@@ -263,7 +262,7 @@ TEST_F(MoveTreeWorkItemTest, MoveFileDestExists) {
 // exists and is in use.
 TEST_F(MoveTreeWorkItemTest, MoveFileDestInUse) {
   // Create a file inside source dir
-  std::wstring from_dir(test_dir_);
+  std::wstring from_dir(test_dir_.ToWStringHack());
   file_util::AppendToPath(&from_dir, L"From_Dir");
   CreateDirectory(from_dir.c_str(), NULL);
   ASSERT_TRUE(file_util::PathExists(from_dir));
@@ -274,7 +273,7 @@ TEST_F(MoveTreeWorkItemTest, MoveFileDestInUse) {
   ASSERT_TRUE(file_util::PathExists(from_file));
 
   // Create an executable in destination path by copying ourself to it.
-  std::wstring to_dir(test_dir_);
+  std::wstring to_dir(test_dir_.ToWStringHack());
   file_util::AppendToPath(&to_dir, L"To_Dir");
   CreateDirectory(to_dir.c_str(), NULL);
   ASSERT_TRUE(file_util::PathExists(to_dir));
@@ -297,7 +296,7 @@ TEST_F(MoveTreeWorkItemTest, MoveFileDestInUse) {
 
   // test Do()
   scoped_ptr<MoveTreeWorkItem> work_item(WorkItem::CreateMoveTreeWorkItem(
-      from_file, to_file, temp_dir_));
+      from_file, to_file, temp_dir_.ToWStringHack()));
   EXPECT_TRUE(work_item->Do());
 
   EXPECT_TRUE(file_util::PathExists(from_dir));
@@ -322,7 +321,7 @@ TEST_F(MoveTreeWorkItemTest, MoveFileDestInUse) {
 // Move one file that is in use to destination.
 TEST_F(MoveTreeWorkItemTest, MoveFileInUse) {
   // Create an executable for source by copying ourself to a new source dir.
-  std::wstring from_dir(test_dir_);
+  std::wstring from_dir(test_dir_.ToWStringHack());
   file_util::AppendToPath(&from_dir, L"From_Dir");
   CreateDirectory(from_dir.c_str(), NULL);
   ASSERT_TRUE(file_util::PathExists(from_dir));
@@ -336,7 +335,7 @@ TEST_F(MoveTreeWorkItemTest, MoveFileInUse) {
   ASSERT_TRUE(file_util::PathExists(from_file));
 
   // Create a destination source dir and generate destination file name.
-  std::wstring to_dir(test_dir_);
+  std::wstring to_dir(test_dir_.ToWStringHack());
   file_util::AppendToPath(&to_dir, L"To_Dir");
   CreateDirectory(to_dir.c_str(), NULL);
   ASSERT_TRUE(file_util::PathExists(to_dir));
@@ -356,7 +355,7 @@ TEST_F(MoveTreeWorkItemTest, MoveFileInUse) {
 
   // test Do()
   scoped_ptr<MoveTreeWorkItem> work_item(WorkItem::CreateMoveTreeWorkItem(
-      from_file, to_file, temp_dir_));
+      from_file, to_file, temp_dir_.ToWStringHack()));
   EXPECT_TRUE(work_item->Do());
 
   EXPECT_TRUE(file_util::PathExists(from_dir));

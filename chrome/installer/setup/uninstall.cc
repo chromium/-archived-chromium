@@ -67,7 +67,7 @@ void CloseAllChromeProcesses() {
 // to remove the alternate desktop shortcut. Only one of them should be
 // present in a given install but at this point we don't know which one.
 void DeleteChromeShortcut(bool system_uninstall) {
-  std::wstring shortcut_path;
+  FilePath shortcut_path;
   if (system_uninstall) {
     PathService::Get(base::DIR_COMMON_START_MENU, &shortcut_path);
     if (!ShellUtil::RemoveChromeDesktopShortcut(ShellUtil::CURRENT_USER |
@@ -88,10 +88,10 @@ void DeleteChromeShortcut(bool system_uninstall) {
     LOG(ERROR) << "Failed to get location for shortcut.";
   } else {
     BrowserDistribution* dist = BrowserDistribution::GetDistribution();
-    file_util::AppendToPath(&shortcut_path, dist->GetApplicationName());
-    LOG(INFO) << "Deleting shortcut " << shortcut_path;
+    shortcut_path = shortcut_path.Append(dist->GetApplicationName());
+    LOG(INFO) << "Deleting shortcut " << shortcut_path.value();
     if (!file_util::Delete(shortcut_path, true))
-      LOG(ERROR) << "Failed to delete folder: " << shortcut_path;
+      LOG(ERROR) << "Failed to delete folder: " << shortcut_path.value();
   }
 }
 
@@ -235,7 +235,7 @@ installer_util::InstallStatus installer_setup::UninstallChrome(
     // Since --force-uninstall command line option is used, we are going to
     // do silent uninstall. Try to close all running Chrome instances.
     CloseAllChromeProcesses();
-  } else { // no --force-uninstall so lets show some UI dialog boxes.
+  } else {  // no --force-uninstall so lets show some UI dialog boxes.
     status = IsChromeActiveOrUserCancelled(system_uninstall);
     if (status != installer_util::UNINSTALL_CONFIRMED &&
         status != installer_util::UNINSTALL_DELETE_PROFILE)
