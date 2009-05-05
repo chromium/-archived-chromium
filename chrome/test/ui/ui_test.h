@@ -201,6 +201,14 @@ class UITest : public testing::Test {
   // after the browser process has terminated.
   bool CloseBrowser(BrowserProxy* browser, bool* application_closed) const;
 
+  // Closes the specified browser.  Returns true if the browser was closed.
+  // If this was the last browser window, |application_closed| is set to true
+  // and the function returns after the browser process has terminated.
+  // This call blocks on closing until specified timeout_ms is reached. If
+  // timed out, it returns false with is_timeout set to true.
+  bool CloseBrowserWithTimeout(BrowserProxy* browser, bool* application_closed,
+                               int timeout_ms, bool* is_timeout) const;
+
   // Prints numerical information to stdout in a controlled format, for
   // post-processing. |measurement| is a description of the quantity being
   // measured, e.g. "vm_peak"; |modifier| is provided as a convenience and
