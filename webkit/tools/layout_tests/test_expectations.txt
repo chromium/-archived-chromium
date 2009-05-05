@@ -1818,7 +1818,7 @@ BUG10437 DEFER LINUX : LayoutTests/fast/css-generated-content/hit-test-generated
 BUG10438 MAC LINUX : LayoutTests/plugins/netscape-plugin-setwindow-size-2.html = FAIL
 BUG10438 MAC LINUX : LayoutTests/plugins/netscape-plugin-setwindow-size.html = FAIL
 BUG10438 MAC LINUX : LayoutTests/plugins/destroy-stream-twice.html = TIMEOUT
-BUG10438 LINUX : LayoutTests/fast/dom/location-new-window-no-crash.html = FAIL
+BUG10438 MAC LINUX : LayoutTests/fast/dom/location-new-window-no-crash.html = FAIL
 
 // Crashes sometimes.  Race?  Memory corruption?
 // Might be related to https://bugs.webkit.org/show_bug.cgi?id=22834
@@ -2021,6 +2021,7 @@ BUG10472 DEFER MAC : LayoutTests/svg/css/glyph-orientation-rounding-test.xhtml =
 // baselines, others have more problems.
 BUG10473 LINUX : LayoutTests/fast/forms/placeholder-pseudo-style.html = FAIL
 BUG9158 DEFER LINUX : LayoutTests/fast/forms/placeholder-set-value.html = FAIL
+BUG10473 MAC LINUX : LayoutTests/fast/forms/search-display-none-cancel-button.html = FAIL
 BUG10473 LINUX : LayoutTests/fast/forms/search-placeholder-value-changed.html = FAIL
 BUG10473 LINUX : LayoutTests/fast/forms/searchfield-heights.html = FAIL
 BUG10473 LINUX : LayoutTests/fast/repaint/search-field-cancel.html = FAIL
@@ -2274,6 +2275,7 @@ BUG10859 LINUX : LayoutTests/svg/custom/pointer-events-path.svg = FAIL
 // Needs investigation, perhaps just needs to be re-baselined on all
 // platforms.
 BUG10859 LINUX MAC : LayoutTests/fast/dom/HTMLSelectElement/named-options.html = FAIL
+BUG10861 MAC : LayoutTests/svg/custom/js-late-marker-creation.svg = FAIL
 BUG10861 WIN : LayoutTests/fast/dom/HTMLSelectElement/named-options.html = FAIL
 
 // New tests from WebKit Merge 42671:42725
@@ -2361,6 +2363,10 @@ BUG11123 LINUX : LayoutTests/fast/forms/textarea-scrolled-type.html = FAIL
 BUG11123 LINUX : LayoutTests/fast/overflow/overflow-focus-ring.html = FAIL
 BUG11123 LINUX : LayoutTests/svg/custom/viewport-update2.svg = FAIL
 BUG11123 LINUX : LayoutTests/transitions/mask-transitions.html = FAIL
+
+// Mysteriously started failing right around the v8 scons->gyp change.
+BUG11176 MAC : LayoutTests/fast/css/first-child-pseudo-class.html = FAIL
+BUG11176 WIN : LayoutTests/fast/forms/input-align-image.html = FAIL
 
 // New failures from WebKit Merge 42932:42994
 BUG11178 : LayoutTests/http/tests/security/listener/xss-JSTargetNode-onclick-addEventListener.html = FAIL
