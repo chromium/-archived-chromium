@@ -73,7 +73,7 @@ WebCore::WorkerContextProxy* WebCore::WorkerContextProxy::create(
         frame_loader_client->webframe()->webview_impl()->delegate();
     webworker = webview_delegate->CreateWebWorker(proxy);
   } else {
-    webworker = WebKit::webKitClient()->CreateWebWorker(proxy);
+    webworker = WebKit::webKitClient()->createWorker(proxy);
   }
 
   proxy->set_webworker(webworker);

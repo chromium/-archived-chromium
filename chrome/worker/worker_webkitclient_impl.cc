@@ -58,7 +58,7 @@ WebKit::WebString WorkerWebKitClientImpl::defaultLocale() {
   return WebKit::WebString();
 }
 
-WebKit::WebWorker* WorkerWebKitClientImpl::CreateWebWorker(
+WebKit::WebWorker* WorkerWebKitClientImpl::createWorker(
     WebKit::WebWorkerClient* client) {
   return new WebWorkerProxy(client, WorkerThread::current(), 0);
 }
