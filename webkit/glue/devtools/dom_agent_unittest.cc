@@ -164,11 +164,33 @@ TEST_F(DomAgentTests, ChildNodeInsertedKnownChildren) {
   mock_delegate_->ChildNodeInserted(kBodyElemId, 0, *v.get());
   mock_delegate_->Replay();
 
+  // Blank text should be transparent.
   RefPtr<Text> text = document_->createTextNode("    ");
   body_->appendChild(text, ec_);
 
   RefPtr<Element> div = document_->createElement("DIV", ec_);
   body_->appendChild(div, ec_);
+  mock_delegate_->Verify();
+}
+
+// Tests that "child node inserted" event is being fired after push path to
+// node request.
+TEST_F(DomAgentTests, ChildNodeInsertedAfterPushPathToNode) {
+  RefPtr<Element> div = document_->createElement("DIV", ec_);
+  body_->appendChild(div, ec_);
+
+  dom_agent_->GetDocumentElement();
+  dom_agent_->PushNodePathToClient(div.get());
+  mock_delegate_->Reset();
+
+  // Since children were already requested via path to node, event should have
+  // all the new child data.
+  OwnPtr<Value> v(DevToolsRpc::ParseMessage("[4,1,\"DIV\",\"\",[],0]"));
+  mock_delegate_->ChildNodeInserted(kBodyElemId, 3, *v.get());
+  mock_delegate_->Replay();
+
+  RefPtr<Element> div2 = document_->createElement("DIV", ec_);
+  body_->appendChild(div2, ec_);
   mock_delegate_->Verify();
 }
 

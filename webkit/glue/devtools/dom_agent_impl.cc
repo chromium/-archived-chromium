@@ -293,11 +293,10 @@ int DomAgentImpl::PushNodePathToClient(Node* node_to_select) {
   // element is known to the client
   ASSERT(element);
   path.append(element);
-
   for (int i = path.size() - 1; i >= 0; --i) {
-    element = path.at(i);
-    OwnPtr<Value> children(BuildValueForElementChildren(element, 1));
-    delegate_->SetChildNodes(GetIdForNode(element), *children.get());
+    int node_id = GetIdForNode(path.at(i));
+    ASSERT(node_id);
+    PushChildNodesToClient(node_id);
   }
   return GetIdForNode(node_to_select);
 }

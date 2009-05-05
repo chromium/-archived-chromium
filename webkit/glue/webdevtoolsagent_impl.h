@@ -111,6 +111,8 @@ class WebDevToolsAgentImpl
   OwnPtr<NetAgentImpl> net_agent_impl_;
   Vector<ConsoleMessage> console_log_;
   bool attached_;
+  // TODO(pfeldman): This should not be needed once GC styles issue is fixed
+  // for matching rules.
   v8::Persistent<v8::Context> utility_context_;
   DISALLOW_COPY_AND_ASSIGN(WebDevToolsAgentImpl);
 };

@@ -59,6 +59,7 @@ WebDevToolsAgentImpl::WebDevToolsAgentImpl(
 WebDevToolsAgentImpl::~WebDevToolsAgentImpl() {
   if (!utility_context_.IsEmpty()) {
     utility_context_.Dispose();
+    utility_context_.Clear();
   }
 }
 

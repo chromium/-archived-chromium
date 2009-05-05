@@ -61,11 +61,13 @@ void DebuggerAgentImpl::DebuggerOutput(const std::string& command) {
   webdevtools_agent_->ForceRepaint();
 }
 
+// static
 void DebuggerAgentImpl::ResetUtilityContext(
     Document* document,
     v8::Persistent<v8::Context>* context) {
   if (!context->IsEmpty()) {
     context->Dispose();
+    context->Clear();
   }
   if (!document) {
     return;
