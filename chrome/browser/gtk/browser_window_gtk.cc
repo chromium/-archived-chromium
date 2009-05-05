@@ -195,6 +195,20 @@ gboolean OnKeyPress(GtkWindow* window, GdkEventKey* event, Browser* browser) {
   return TRUE;
 }
 
+gboolean OnButtonPressEvent(GtkWidget* widget, GdkEventButton* event,
+                            Browser* browser) {
+  // TODO(jhawkins): Investigate the possibility of the button numbers being
+  // different for other mice.
+  if (event->button == 8) {
+    browser->GoBack(CURRENT_TAB);
+    return TRUE;
+  } else if (event->button == 9) {
+    browser->GoForward(CURRENT_TAB);
+    return TRUE;
+  }
+  return FALSE;
+}
+
 }  // namespace
 
 // TODO(estade): Break up this constructor into helper functions to improve
@@ -219,6 +233,8 @@ BrowserWindowGtk::BrowserWindowGtk(Browser* browser)
                    G_CALLBACK(MainWindowStateChanged), this);
   g_signal_connect(window_, "key-press-event",
                    G_CALLBACK(OnKeyPress), browser_.get());
+  g_signal_connect(window_, "button-press-event",
+                   G_CALLBACK(OnButtonPressEvent), browser_.get());
   ConnectAccelerators();
   bounds_ = GetInitialWindowBounds(window_);
 
