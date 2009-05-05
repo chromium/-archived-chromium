@@ -33,6 +33,9 @@ class TestDevToolsClientHost : public DevToolsClientHost {
     Close();
   }
 
+  virtual void SetInspectedTabUrl(const std::string& url) {
+  }
+
   virtual void SendMessageToClient(const IPC::Message& message) {
     last_sent_message = &message;
   }

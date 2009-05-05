@@ -3499,6 +3499,11 @@ each locale. -->
         JavaScript Debugger - Running
       </message>
 
+      <!-- Developer Tools -->
+      <message name="IDS_DEVTOOLS_TITLE" desc="Default Developer Tools title bar">
+        Developer Tools - <ph name="URL">$1<ex>http://www.google.com</ex></ph>
+      </message>
+
       <!-- Shortcut Modifiers -->
       <message name="IDS_CONTROL_MODIFIER" desc="Control key shortcut modifier">
         Ctrl+<ph name="KEY_COMBO_NAME">$1<ex>C</ex></ph>

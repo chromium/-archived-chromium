@@ -55,7 +55,7 @@ class DevToolsManager : public NotificationObserver,
 
   // Sends 'Attach' message to the agent using |target_host| in case
   // there is a DevToolsClientHost registered for the |tab_contents|.
-  void SendAttachToAgent(
+  void OnNavigatingToPendingEntry(
       const TabContents& tab_contents,
       RenderViewHost* target_host);
 
@@ -81,7 +81,8 @@ private:
       NavigationController* navigation_controller);
   void StartListening(NavigationController* navigation_controller);
   void StopListening(NavigationController* navigation_controller);
-  void SendDetachToAgent(const TabContents& tab_contents);
+  void SendAttachToAgent(RenderViewHost* target_host);
+  void SendDetachToAgent(RenderViewHost* target_host);
 
   // This object is not NULL iff there is at least one registered
   // DevToolsClientHost.

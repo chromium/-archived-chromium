@@ -7,8 +7,9 @@
 #include "chrome/browser/debugger/devtools_manager.h"
 #include "chrome/browser/debugger/devtools_view.h"
 #include "chrome/browser/debugger/devtools_window.h"
+#include "chrome/common/l10n_util.h"
 #include "chrome/views/window/window.h"
-
+#include "grit/generated_resources.h"
 
 // static
 DevToolsWindow* DevToolsWindow::Create() {
@@ -50,6 +51,13 @@ void DevToolsWindowWin::InspectedTabClosing() {
   }
 }
 
+void DevToolsWindowWin::SetInspectedTabUrl(const std::string& url) {
+  inspected_url_ = url;
+  if (window()) {
+    window()->UpdateWindowTitle();
+  }
+}
+
 void DevToolsWindowWin::SendMessageToClient(const IPC::Message& message) {
   if (tools_view_) {
     tools_view_->SendMessageToClient(message);
@@ -57,7 +65,7 @@ void DevToolsWindowWin::SendMessageToClient(const IPC::Message& message) {
 }
 
 std::wstring DevToolsWindowWin::GetWindowTitle() const {
-  return L"Developer Tools";
+  return l10n_util::GetStringF(IDS_DEVTOOLS_TITLE, UTF8ToWide(inspected_url_));
 }
 
 void DevToolsWindowWin::WindowClosing() {

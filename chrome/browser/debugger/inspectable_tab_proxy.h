@@ -70,6 +70,7 @@ class DevToolsClientHostImpl : public DevToolsClientHost {
 
   // DevToolsClientHost interface
   virtual void InspectedTabClosing();
+  virtual void SetInspectedTabUrl(const std::string& url);
   virtual void SendMessageToClient(const IPC::Message& msg);
 
  private:

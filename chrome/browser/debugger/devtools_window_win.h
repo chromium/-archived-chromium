@@ -25,6 +25,7 @@ class DevToolsWindowWin : public DevToolsWindow,
   virtual bool HasRenderViewHost(const RenderViewHost& rvh) const;
 
   virtual void InspectedTabClosing();
+  virtual void SetInspectedTabUrl(const std::string& url);
   virtual void SendMessageToClient(const IPC::Message& message);
 
  private:
@@ -39,6 +40,7 @@ class DevToolsWindowWin : public DevToolsWindow,
   virtual void DeleteDelegate();
 
   DevToolsView* tools_view_;
+  std::string inspected_url_;
 
   DISALLOW_COPY_AND_ASSIGN(DevToolsWindowWin);
 };

@@ -669,7 +669,8 @@ bool TabContents::NavigateToPendingEntry(bool reload) {
   // Tell DevTools agent that it is attached prior to the navigation.
   DevToolsManager* dev_tools_manager = g_browser_process->devtools_manager();
   if (dev_tools_manager)  // NULL in unit tests.
-    dev_tools_manager->SendAttachToAgent(*this, dest_render_view_host);
+    dev_tools_manager->OnNavigatingToPendingEntry(*this,
+                                                  dest_render_view_host);
 
   // Used for page load time metrics.
   current_load_start_ = base::TimeTicks::Now();

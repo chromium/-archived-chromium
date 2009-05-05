@@ -7,10 +7,12 @@
 #include "chrome/browser/debugger/devtools_window.h"
 #include "chrome/browser/debugger/devtools_client_host.h"
 #include "chrome/browser/renderer_host/render_view_host.h"
+#include "chrome/browser/tab_contents/navigation_entry.h"
 #include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/common/devtools_messages.h"
 #include "chrome/common/notification_registrar.h"
 #include "chrome/common/notification_type.h"
+#include "googleurl/src/gurl.h"
 
 DevToolsManager::DevToolsManager() : tab_contents_listeners_(NULL) {
 }
@@ -63,7 +65,7 @@ void DevToolsManager::RegisterDevToolsClientHostFor(
   client_host->set_close_listener(this);
 
   StartListening(navigation_controller);
-  SendAttachToAgent(tab_contents, tab_contents.render_view_host());
+  SendAttachToAgent(tab_contents.render_view_host());
 }
 
 void DevToolsManager::ForwardToDevToolsAgent(
@@ -153,7 +155,7 @@ void DevToolsManager::ClientHostClosing(DevToolsClientHost* host) {
   if (!tab_contents) {
     return;
   }
-  SendDetachToAgent(*tab_contents);
+  SendDetachToAgent(tab_contents->render_view_host());
   UnregisterDevToolsClientHost(host, controller);
 }
 
@@ -196,17 +198,25 @@ void DevToolsManager::StopListening(
   }
 }
 
-void DevToolsManager::SendAttachToAgent(const TabContents& wc,
-                                        RenderViewHost* target_host) {
-  if (GetDevToolsClientHostFor(wc) && target_host) {
+void DevToolsManager::OnNavigatingToPendingEntry(const TabContents& wc,
+                                                 RenderViewHost* target_host) {
+  DevToolsClientHost* client_host = GetDevToolsClientHostFor(wc);
+  if (client_host) {
+    const NavigationEntry& entry = *wc.controller().pending_entry();
+    client_host->SetInspectedTabUrl(entry.url().possibly_invalid_spec());
+    SendAttachToAgent(target_host);
+  }
+}
+
+void DevToolsManager::SendAttachToAgent(RenderViewHost* target_host) {
+  if (target_host) {
     IPC::Message* m = new DevToolsAgentMsg_Attach();
     m->set_routing_id(target_host->routing_id());
     target_host->Send(m);
   }
 }
 
-void DevToolsManager::SendDetachToAgent(const TabContents& wc) {
-  RenderViewHost* target_host = wc.render_view_host();
+void DevToolsManager::SendDetachToAgent(RenderViewHost* target_host) {
   if (target_host) {
     IPC::Message* m = new DevToolsAgentMsg_Detach();
     m->set_routing_id(target_host->routing_id());
