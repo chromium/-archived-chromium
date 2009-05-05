@@ -5,15 +5,21 @@
 #include "chrome/browser/gtk/tabs/tab_gtk.h"
 
 #include "app/resource_bundle.h"
+#include "chrome/browser/gtk/custom_button.h"
 #include "chrome/browser/gtk/menu_gtk.h"
 #include "chrome/common/gfx/path.h"
 #include "chrome/common/l10n_util.h"
 #include "grit/generated_resources.h"
 #include "grit/theme_resources.h"
 
-static const SkScalar kTabCapWidth = 15;
-static const SkScalar kTabTopCurveWidth = 4;
-static const SkScalar kTabBottomCurveWidth = 3;
+namespace {
+
+// The targets available for drag n' drop.
+GtkTargetEntry target_table[] = {
+  { const_cast<char*>("application/x-chrome-tab"), GTK_TARGET_SAME_APP, 0 }
+};
+
+}  // namespace
 
 class TabGtk::ContextMenuController : public MenuGtk::Delegate {
  public:
@@ -95,17 +101,38 @@ TabGtk::TabGtk(TabDelegate* delegate)
     : TabRendererGtk(),
       delegate_(delegate),
       closing_(false) {
-  ResourceBundle& rb = ResourceBundle::GetSharedInstance();
-  SkBitmap* bitmap = rb.GetBitmapNamed(IDR_TAB_CLOSE);
+  event_box_.Own(gtk_event_box_new());
+  gtk_event_box_set_visible_window(GTK_EVENT_BOX(event_box_.get()), FALSE);
+  gtk_drag_source_set(event_box_.get(), GDK_BUTTON1_MASK,
+                      target_table, G_N_ELEMENTS(target_table),
+                      GDK_ACTION_MOVE);
+  gtk_drag_dest_set(event_box_.get(), GTK_DEST_DEFAULT_DROP,
+                    target_table, G_N_ELEMENTS(target_table),
+                    GDK_ACTION_MOVE);
+  gtk_drag_dest_set_track_motion(event_box_.get(), true);
+  g_signal_connect(G_OBJECT(event_box_.get()), "button-press-event",
+                   G_CALLBACK(OnMousePress), this);
+  g_signal_connect(G_OBJECT(event_box_.get()), "button-release-event",
+                   G_CALLBACK(OnMouseRelease), this);
+  g_signal_connect(G_OBJECT(event_box_.get()), "enter-notify-event",
+                   G_CALLBACK(OnEnterNotify), this);
+  g_signal_connect(G_OBJECT(event_box_.get()), "leave-notify-event",
+                   G_CALLBACK(OnLeaveNotify), this);
+  g_signal_connect_after(G_OBJECT(event_box_.get()), "drag-begin",
+                           G_CALLBACK(&OnDragBegin), this);
+  g_signal_connect_after(G_OBJECT(event_box_.get()), "drag-end",
+                         G_CALLBACK(&OnDragEnd), this);
+  g_signal_connect_after(G_OBJECT(event_box_.get()), "drag-failed",
+                           G_CALLBACK(&OnDragFailed), this);
+  g_signal_connect_after(G_OBJECT(event_box_.get()), "drag-motion",
+                         G_CALLBACK(&OnDragMotion), this);
+  gtk_widget_add_events(event_box_.get(),
+        GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK |
+        GDK_LEAVE_NOTIFY_MASK | GDK_LEAVE_NOTIFY_MASK);
+  gtk_container_add(GTK_CONTAINER(event_box_.get()), TabRendererGtk::widget());
+  gtk_widget_show_all(event_box_.get());
 
-  close_button_.reset(new TabButtonGtk(this));
-  close_button_.get()->SetImage(TabButtonGtk::BS_NORMAL, bitmap);
-  close_button_.get()->SetImage(TabButtonGtk::BS_HOT,
-                                rb.GetBitmapNamed(IDR_TAB_CLOSE_H));
-  close_button_.get()->SetImage(TabButtonGtk::BS_PUSHED,
-                                rb.GetBitmapNamed(IDR_TAB_CLOSE_P));
-  close_button_.get()->set_bounds(
-      gfx::Rect(0, 0, bitmap->width(), bitmap->height()));
+  close_button_.reset(MakeCloseButton());
 }
 
 TabGtk::~TabGtk() {
@@ -116,47 +143,84 @@ TabGtk::~TabGtk() {
     // Invoke this so that we hide the highlight.
     ContextMenuClosed();
   }
+
+  event_box_.Destroy();
 }
 
-bool TabGtk::IsPointInBounds(const gfx::Point& point) {
-  GdkRegion* region = MakeRegionForTab();
-  bool in_bounds = (gdk_region_point_in(region, point.x(), point.y()) == TRUE);
-  gdk_region_destroy(region);
-  return in_bounds;
-}
-
-bool TabGtk::OnMotionNotify(GdkEventMotion* event) {
-  gfx::Point point(event->x, event->y);
-  bool paint = false;
-
-  if (!(event->state & GDK_BUTTON1_MASK))
-    paint = set_hovering(IsPointInBounds(point));
-
-  paint |= close_button_.get()->OnMotionNotify(event);
-  return paint;
-}
-
-bool TabGtk::OnMousePress(const gfx::Point& point) {
-  if (close_button_.get()->IsPointInBounds(point))
-    return close_button_.get()->OnMousePress();
-
-  return false;
-}
-
-void TabGtk::OnMouseRelease(GdkEventButton* event) {
-  close_button_.get()->OnMouseRelease();
-
-  if (event->button == 2) {
-    delegate_->CloseTab(this);
-  } else if (event->button == 3) {
-    ShowContextMenu();
+// static
+gboolean TabGtk::OnMousePress(GtkWidget* widget, GdkEventButton* event,
+                              TabGtk* tab) {
+  if (event->button == 1) {
+    // Store whether or not we were selected just now... we only want to be
+    // able to drag foreground tabs, so we don't start dragging the tab if
+    // it was in the background.
+    bool just_selected = !tab->IsSelected();
+    if (just_selected) {
+      tab->delegate_->SelectTab(tab);
+    }
   }
+
+  return TRUE;
 }
 
-bool TabGtk::OnLeaveNotify() {
-  bool paint = set_hovering(false);
-  paint |= close_button_.get()->OnLeaveNotify();
-  return paint;
+// static
+gboolean TabGtk::OnMouseRelease(GtkWidget* widget, GdkEventButton* event,
+                                TabGtk* tab) {
+  if (event->button == 2) {
+    tab->delegate_->CloseTab(tab);
+  } else if (event->button == 3) {
+    tab->ShowContextMenu();
+  }
+
+  return TRUE;
+}
+
+// static
+gboolean TabGtk::OnEnterNotify(GtkWidget* widget, GdkEventCrossing* event,
+                               TabGtk* tab) {
+  tab->OnMouseEntered();
+  return TRUE;
+}
+
+// static
+gboolean TabGtk::OnLeaveNotify(GtkWidget* widget, GdkEventCrossing* event,
+                               TabGtk* tab) {
+  tab->OnMouseExited();
+  return TRUE;
+}
+
+// static
+void TabGtk::OnDragBegin(GtkWidget* widget, GdkDragContext* context,
+                         TabGtk* tab) {
+  int x, y;
+  gdk_window_get_pointer(tab->event_box_.get()->window, &x, &y, NULL);
+  tab->delegate_->MaybeStartDrag(tab, gfx::Point(x, y));
+}
+
+// static
+void TabGtk::OnDragEnd(GtkWidget* widget, GdkDragContext* context,
+                       TabGtk* tab) {
+  // Notify the drag helper that we're done with any potential drag operations.
+  // Clean up the drag helper, which is re-created on the next mouse press.
+  tab->delegate_->EndDrag(false);
+}
+
+// static
+gboolean TabGtk::OnDragMotion(GtkWidget* widget,
+                              GdkDragContext* context,
+                              guint x, guint y,
+                              guint time,
+                              TabGtk* tab) {
+  tab->delegate_->ContinueDrag(context);
+  return TRUE;
+}
+
+// static
+gboolean TabGtk::OnDragFailed(GtkWidget* widget, GdkDragContext* context,
+                              GtkDragResult result,
+                              TabGtk* tab) {
+  tab->delegate_->EndDrag(true);
+  return TRUE;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -167,50 +231,23 @@ bool TabGtk::IsSelected() const {
 }
 
 void TabGtk::CloseButtonResized(const gfx::Rect& bounds) {
-  close_button_.get()->set_bounds(bounds);
+  gtk_fixed_move(GTK_FIXED(TabRendererGtk::widget()),
+      close_button_.get()->widget(), bounds.x(), bounds.y());
 }
 
-void TabGtk::Paint(ChromeCanvasPaint* canvas) {
-  TabRendererGtk::Paint(canvas);
-  close_button_.get()->Paint(canvas);
-}
+void TabGtk::Paint(GdkEventExpose* event) {
+  TabRendererGtk::Paint(event);
 
-////////////////////////////////////////////////////////////////////////////////
-// TabGtk, TabButtonGtk::Delegate implementation:
-
-GdkRegion* TabGtk::MakeRegionForButton(const TabButtonGtk* button) const {
-  // Use the close button bounds for hit-testing.
-  return NULL;
-}
-
-void TabGtk::OnButtonActivate(const TabButtonGtk* button) {
-  delegate_->CloseTab(this);
+  gtk_container_propagate_expose(GTK_CONTAINER(TabRendererGtk::widget()),
+        close_button_.get()->widget(), event);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 // TabGtk, private:
 
-GdkRegion* TabGtk::MakeRegionForTab()const {
-  int w = width();
-  int h = height();
-  static const int kNumRegionPoints = 9;
-
-  GdkPoint polygon[kNumRegionPoints] = {
-    { 0, h },
-    { kTabBottomCurveWidth, h - kTabBottomCurveWidth },
-    { kTabCapWidth - kTabTopCurveWidth, kTabTopCurveWidth },
-    { kTabCapWidth, 0 },
-    { w - kTabCapWidth, 0 },
-    { w - kTabCapWidth - kTabTopCurveWidth, kTabTopCurveWidth },
-    { w - kTabBottomCurveWidth, h - kTabBottomCurveWidth },
-    { w, h },
-    { 0, h },
-  };
-
-  GdkRegion* region = gdk_region_polygon(polygon, kNumRegionPoints,
-                                         GDK_WINDING_RULE);
-  gdk_region_offset(region, x(), y());
-  return region;
+// static
+void TabGtk::OnCloseButtonClicked(GtkWidget* widget, TabGtk* tab) {
+  tab->delegate_->CloseTab(tab);
 }
 
 void TabGtk::ShowContextMenu() {
@@ -223,4 +260,17 @@ void TabGtk::ShowContextMenu() {
 void TabGtk::ContextMenuClosed() {
   delegate()->StopAllHighlighting();
   menu_controller_.reset();
+}
+
+CustomDrawButton* TabGtk::MakeCloseButton() {
+  CustomDrawButton* button = new CustomDrawButton(IDR_TAB_CLOSE,
+      IDR_TAB_CLOSE_P, IDR_TAB_CLOSE_H, IDR_TAB_CLOSE);
+
+  g_signal_connect(G_OBJECT(button->widget()), "clicked",
+                   G_CALLBACK(OnCloseButtonClicked), this);
+  GTK_WIDGET_UNSET_FLAGS(button->widget(), GTK_CAN_FOCUS);
+  gtk_fixed_put(GTK_FIXED(TabRendererGtk::widget()), button->widget(), 0, 0);
+  gtk_widget_show(button->widget());
+
+  return button;
 }

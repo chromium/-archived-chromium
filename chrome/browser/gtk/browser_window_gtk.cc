@@ -227,7 +227,7 @@ BrowserWindowGtk::BrowserWindowGtk(Browser* browser)
   window_vbox_ = gtk_vbox_new(FALSE, 0);
 
   tabstrip_.reset(new TabStripGtk(browser_->tabstrip_model()));
-  tabstrip_->Init();
+  tabstrip_->Init(bounds_.width());
   tabstrip_->AddTabStripToBox(window_vbox_);
 
   // This vbox surrounds the "content": toolbar+page.

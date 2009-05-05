@@ -6,7 +6,6 @@
 #define CHROME_BROWSER_GTK_TABS_TAB_GTK_H_
 
 #include "base/basictypes.h"
-#include "chrome/browser/gtk/tabs/tab_button_gtk.h"
 #include "chrome/browser/gtk/tabs/tab_renderer_gtk.h"
 #include "chrome/browser/tabs/tab_strip_model.h"
 
@@ -14,8 +13,9 @@ namespace gfx {
 class Path;
 }
 
-class TabGtk : public TabRendererGtk,
-               public TabButtonGtk::Delegate {
+class CustomDrawButton;
+
+class TabGtk : public TabRendererGtk {
  public:
   // An interface implemented by an object that can help this Tab complete
   // various actions. The index parameter is the index of this Tab in the
@@ -48,6 +48,12 @@ class TabGtk : public TabRendererGtk,
         TabStripModel::ContextMenuCommand command_id, TabGtk* tab) = 0;
     virtual void StopAllHighlighting() = 0;
 
+    // Potentially starts a drag for the specified Tab.
+    virtual void MaybeStartDrag(TabGtk* tab, const gfx::Point& point) = 0;
+
+    // Continues dragging a Tab.
+    virtual void ContinueDrag(GdkDragContext* context) = 0;
+
     // Ends dragging a Tab. |canceled| is true if the drag was aborted in a way
     // other than the user releasing the mouse. Returns whether the tab has been
     // destroyed.
@@ -66,53 +72,64 @@ class TabGtk : public TabRendererGtk,
   // Access the delegate.
   TabDelegate* delegate() const { return delegate_; }
 
+  GtkWidget* widget() const { return event_box_.get(); }
+
   // Used to set/check whether this Tab is being animated closed.
   void set_closing(bool closing) { closing_ = closing; }
   bool closing() const { return closing_; }
 
-  // Checks whether |point| is inside the bounds of the tab.
-  bool IsPointInBounds(const gfx::Point& point);
-
   // TabRendererGtk overrides:
   virtual bool IsSelected() const;
   virtual void CloseButtonResized(const gfx::Rect& bounds);
-  virtual void Paint(ChromeCanvasPaint* canvas);
+  virtual void Paint(GdkEventExpose* event);
 
-  // Sent by the tabstrip when the mouse moves within this tab.  Mouse state is
-  // in |event|.  Returns true if the tabstrip needs to be redrawn as a result
-  // of the motion.
-  bool OnMotionNotify(GdkEventMotion* event);
+  // button-press-event handler that handles mouse clicks.
+  static gboolean OnMousePress(GtkWidget* widget, GdkEventButton* event,
+                               TabGtk* tab);
 
-  // Sent by the tabstrip when the mouse clicks within this tab.  Returns true
-  // if the tabstrip needs to be redrawn as a result of the click.
-  bool OnMousePress(const gfx::Point& point);
+  // button-release-event handler that handles mouse click releases.
+  static gboolean OnMouseRelease(GtkWidget* widget, GdkEventButton* event,
+                                 TabGtk* tab);
 
-  // Sent by the tabstrip when the mouse click is released.
-  void OnMouseRelease(GdkEventButton* event);
+  // enter-notify-event handler that signals when the mouse enters the tab.
+  static gboolean OnEnterNotify(GtkWidget* widget, GdkEventCrossing* event,
+                                TabGtk* tab);
 
-  // Sent by the tabstrip when the mouse leaves this tab.  Returns true
-  // if the tabstrip needs to be redrawn as a result of the movement.
-  bool OnLeaveNotify();
+  // leave-notify-event handler that signals when the mouse enters the tab.
+  static gboolean OnLeaveNotify(GtkWidget* widget, GdkEventCrossing* event,
+                                TabGtk* tab);
 
- protected:
-  // TabButtonGtk::Delegate implementation:
-  virtual GdkRegion* MakeRegionForButton(const TabButtonGtk* button) const;
-  virtual void OnButtonActivate(const TabButtonGtk* button);
+  // drag-begin handler that signals when a drag action begins.
+  static void OnDragBegin(GtkWidget* widget, GdkDragContext* context,
+                          TabGtk* tab);
+
+  // drag-end handler that signals when a drag action ends.
+  static void OnDragEnd(GtkWidget* widget, GdkDragContext* context,
+                        TabGtk* tab);
+
+  // drag-motion handler that handles drag movements in the tabstrip.
+  static gboolean OnDragMotion(GtkWidget* widget, GdkDragContext* context,
+                               guint x, guint y, guint time,
+                               TabGtk* tab);
+
+  // drag-failed handler that is emitted when the drag fails.
+  static gboolean OnDragFailed(GtkWidget* widget, GdkDragContext* context,
+                               GtkDragResult result, TabGtk* tab);
 
  private:
   class ContextMenuController;
-
   friend class ContextMenuController;
 
-  // Creates a clickable region of the tab's visual representation. Used for
-  // hit-testing.  Caller is responsible for destroying the region.
-  GdkRegion* MakeRegionForTab() const;
+  // Handles the clicked signal for the close button.
+  static void OnCloseButtonClicked(GtkWidget* widget, TabGtk* tab);
 
   // Shows the context menu.
   void ShowContextMenu();
 
   // Invoked when the context menu closes.
   void ContextMenuClosed();
+
+  CustomDrawButton* MakeCloseButton();
 
   // An instance of a delegate object that can perform various actions based on
   // user gestures.
@@ -124,7 +141,11 @@ class TabGtk : public TabRendererGtk,
   // The context menu controller.
   scoped_ptr<ContextMenuController> menu_controller_;
 
-  scoped_ptr<TabButtonGtk> close_button_;
+  // The close button.
+  scoped_ptr<CustomDrawButton> close_button_;
+
+  // The windowless widget used to collect input events for the tab.
+  OwnedWidgetGtk event_box_;
 
   DISALLOW_COPY_AND_ASSIGN(TabGtk);
 };

@@ -26,13 +26,20 @@ const int kFavIconSize = 16;
 const int kSelectedTitleColor = SK_ColorBLACK;
 const int kUnselectedTitleColor = SkColorSetRGB(64, 64, 64);
 
+// How long the hover state takes.
+const int kHoverDurationMs = 90;
+
+// How opaque to make the hover state (out of 1).
+const double kHoverOpacity = 0.33;
+
+const SkScalar kTabCapWidth = 15;
+const SkScalar kTabTopCurveWidth = 4;
+const SkScalar kTabBottomCurveWidth = 3;
+
 // The vertical and horizontal offset used to position the close button
 // in the tab. TODO(jhawkins): Ask pkasting what the Fuzz is about.
 const int kCloseButtonVertFuzz = 0;
 const int kCloseButtonHorzFuzz = 5;
-
-// How opaque to make the hover state (out of 1).
-const double kHoverOpacity = 0.33;
 
 TabRendererGtk::LoadingAnimation::Data loading_animation_data;
 
@@ -116,6 +123,11 @@ void TabRendererGtk::LoadingAnimation::ValidateLoadingAnimation(
   }
 }
 
+bool TabRendererGtk::IsVisible() {
+  // TODO(jhawkins): Implement this and SetVisible.
+  return true;
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 // TabRendererGtk, public:
 
@@ -125,12 +137,21 @@ TabRendererGtk::TabRendererGtk()
       showing_close_button_(false),
       fav_icon_hiding_offset_(0),
       should_display_crashed_favicon_(false),
-      hovering_(false),
       loading_animation_(&loading_animation_data) {
   InitResources();
+
+  tab_.Own(gtk_fixed_new());
+  gtk_widget_set_app_paintable(tab_.get(), TRUE);
+  g_signal_connect(G_OBJECT(tab_.get()), "expose-event",
+                   G_CALLBACK(OnExpose), this);
+  gtk_widget_show(tab_.get());
+
+  hover_animation_.reset(new SlideAnimation(this));
+  hover_animation_->SetSlideDuration(kHoverDurationMs);
 }
 
 TabRendererGtk::~TabRendererGtk() {
+  tab_.Destroy();
 }
 
 void TabRendererGtk::UpdateData(TabContents* contents, bool loading_only) {
@@ -236,6 +257,7 @@ void TabRendererGtk::LoadTabImages() {
 }
 
 void TabRendererGtk::SetBounds(const gfx::Rect& bounds) {
+  gtk_widget_set_size_request(tab_.get(), bounds.width(), bounds.height());
   bounds_ = bounds;
   Layout();
 }
@@ -247,10 +269,29 @@ std::wstring TabRendererGtk::GetTitle() const {
   return data_.title;
 }
 
+///////////////////////////////////////////////////////////////////////////////
+// TabRendererGtk, AnimationDelegate implementation:
+
+void TabRendererGtk::AnimationProgressed(const Animation* animation) {
+  gtk_widget_queue_draw(tab_.get());
+}
+
+void TabRendererGtk::AnimationCanceled(const Animation* animation) {
+  AnimationEnded(animation);
+}
+
+void TabRendererGtk::AnimationEnded(const Animation* animation) {
+  gtk_widget_queue_draw(tab_.get());
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 // TabRendererGtk, private:
 
-void TabRendererGtk::Paint(ChromeCanvasPaint* canvas) {
+void TabRendererGtk::Paint(GdkEventExpose* event) {
+  ChromeCanvasPaint canvas(event);
+  if (canvas.isEmpty())
+    return;
+
   // Don't paint if we're narrower than we can render correctly. (This should
   // only happen during animations).
   if (width() < GetMinimumUnselectedSize().width())
@@ -265,20 +306,20 @@ void TabRendererGtk::Paint(ChromeCanvasPaint* canvas) {
       show_close_button != showing_close_button_)
     Layout();
 
-  PaintTabBackground(canvas);
+  PaintTabBackground(&canvas);
 
   if (show_icon) {
     if (loading_animation_.animation_state() != ANIMATION_NONE) {
-      PaintLoadingAnimation(canvas);
+      PaintLoadingAnimation(&canvas);
     } else if (!data_.favicon.isNull()) {
-      canvas->DrawBitmapInt(data_.favicon, favicon_bounds_.x(),
-                            favicon_bounds_.y() + fav_icon_hiding_offset_);
+      canvas.DrawBitmapInt(data_.favicon, favicon_bounds_.x(),
+                           favicon_bounds_.y() + fav_icon_hiding_offset_);
     }
   }
 
   if (show_download_icon) {
-    canvas->DrawBitmapInt(*download_icon_,
-                          download_icon_bounds_.x(), download_icon_bounds_.y());
+    canvas.DrawBitmapInt(*download_icon_,
+                         download_icon_bounds_.x(), download_icon_bounds_.y());
   }
 
   // Paint the Title.
@@ -295,15 +336,9 @@ void TabRendererGtk::Paint(ChromeCanvasPaint* canvas) {
 
   SkColor title_color = IsSelected() ? kSelectedTitleColor
                                      : kUnselectedTitleColor;
-  canvas->DrawStringInt(title, *title_font_, title_color, title_bounds_.x(),
-                        title_bounds_.y(), title_bounds_.width(),
-                        title_bounds_.height());
-}
-
-bool TabRendererGtk::set_hovering(bool hovering) {
-  bool paint = (hovering_ != hovering);
-  hovering_ = hovering;
-  return paint;
+  canvas.DrawStringInt(title, *title_font_, title_color, title_bounds_.x(),
+                       title_bounds_.y(), title_bounds_.width(),
+                       title_bounds_.height());
 }
 
 void TabRendererGtk::Layout() {
@@ -340,10 +375,9 @@ void TabRendererGtk::Layout() {
     int close_button_top =
         kTopPadding + kCloseButtonVertFuzz +
         (content_height - close_button_height_) / 2;
-    close_button_bounds_.SetRect(bounds_.x() +
-                                 local_bounds.width() + kCloseButtonHorzFuzz,
-                                 bounds_.y() + close_button_top,
-                                 close_button_width_, close_button_height_);
+    close_button_bounds_.SetRect(local_bounds.width() + kCloseButtonHorzFuzz,
+                                 close_button_top, close_button_width_,
+                                 close_button_height_);
   } else {
     close_button_bounds_.SetRect(0, 0, 0, 0);
   }
@@ -364,7 +398,7 @@ void TabRendererGtk::Layout() {
 
   int title_width;
   if (close_button_bounds_.width() && close_button_bounds_.height()) {
-    title_width = std::max(close_button_bounds_.x() -
+    title_width = std::max(bounds_.x() + close_button_bounds_.x() -
                            kTitleCloseButtonSpacing - title_left, 0);
   } else {
     title_width = std::max(local_bounds.width() - title_left, 0);
@@ -384,9 +418,10 @@ void TabRendererGtk::PaintTabBackground(ChromeCanvasPaint* canvas) {
     PaintActiveTabBackground(canvas);
   } else {
     // Draw our hover state.
-    // TODO(jhawkins): Hover animations.
-    if (hovering_) {
-      PaintHoverTabBackground(canvas, kHoverOpacity);
+    Animation* animation = hover_animation_.get();
+    if (animation->GetCurrentValue() > 0) {
+      PaintHoverTabBackground(canvas,
+                              animation->GetCurrentValue() * kHoverOpacity);
     } else {
       PaintInactiveTabBackground(canvas);
     }
@@ -403,8 +438,8 @@ void TabRendererGtk::PaintInactiveTabBackground(ChromeCanvasPaint* canvas) {
                        width() - tab_inactive_.l_width - tab_inactive_.r_width,
                        height());
   canvas->DrawBitmapInt(*image.image_r,
-                       bounds_.x() + width() - tab_inactive_.r_width,
-                       bounds_.y());
+                        bounds_.x() + width() - tab_inactive_.r_width,
+                        bounds_.y());
 }
 
 void TabRendererGtk::PaintHoverTabBackground(ChromeCanvasPaint* canvas,
@@ -453,7 +488,6 @@ void TabRendererGtk::PaintLoadingAnimation(ChromeCanvasPaint* canvas) {
   // dst_x = x() + width() - kLeftPadding - image_size;
   int dst_x = x() + kLeftPadding;
 
-
   canvas->DrawBitmapInt(*frames, image_offset, 0, image_size,
                         image_size, dst_x, dst_y, image_size, image_size,
                         false);
@@ -479,6 +513,23 @@ bool TabRendererGtk::ShouldShowIcon() const {
 bool TabRendererGtk::ShouldShowCloseBox() const {
   // The selected tab never clips close button.
   return IsSelected() || IconCapacity() >= 3;
+}
+
+// static
+gboolean TabRendererGtk::OnExpose(GtkWidget* widget, GdkEventExpose* event,
+                                  TabRendererGtk* tab) {
+  tab->Paint(event);
+  return TRUE;
+}
+
+void TabRendererGtk::OnMouseEntered() {
+  hover_animation_->SetTweenType(SlideAnimation::EASE_OUT);
+  hover_animation_->Show();
+}
+
+void TabRendererGtk::OnMouseExited() {
+  hover_animation_->SetTweenType(SlideAnimation::EASE_IN);
+  hover_animation_->Hide();
 }
 
 // static

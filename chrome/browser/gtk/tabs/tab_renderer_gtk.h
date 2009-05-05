@@ -7,10 +7,13 @@
 
 #include <gtk/gtk.h>
 
+#include "app/animation.h"
+#include "app/slide_animation.h"
 #include "base/basictypes.h"
 #include "base/gfx/rect.h"
 #include "chrome/common/gfx/chrome_canvas.h"
 #include "chrome/common/gfx/chrome_font.h"
+#include "chrome/common/owned_widget_gtk.h"
 #include "skia/include/SkBitmap.h"
 
 namespace gfx {
@@ -19,7 +22,7 @@ class Size;
 
 class TabContents;
 
-class TabRendererGtk {
+class TabRendererGtk : public AnimationDelegate {
  public:
   // Possible animation states.
   enum AnimationState {
@@ -84,11 +87,13 @@ class TabRendererGtk {
   virtual void CloseButtonResized(const gfx::Rect& bounds);
 
   // Paints the tab into |canvas|.
-  virtual void Paint(ChromeCanvasPaint* canvas);
+  virtual void Paint(GdkEventExpose* event);
 
   // Advance the loading animation to the next frame, or hide the animation if
   // the tab isn't loading.
   void ValidateLoadingAnimation(AnimationState animation_state);
+
+  bool IsVisible();
 
   // Returns the minimum possible size of a single unselected Tab.
   static gfx::Size GetMinimumUnselectedSize();
@@ -114,15 +119,21 @@ class TabRendererGtk {
   // Sets the bounds of the tab.
   void SetBounds(const gfx::Rect& bounds);
 
+  GtkWidget* widget() const { return tab_.get(); }
+
  protected:
   const gfx::Rect& title_bounds() const { return title_bounds_; }
   const gfx::Rect& close_button_bounds() const { return close_button_bounds_; }
 
-  // Sets the hovering status of the tab.  Returns true if a repaint is needed.
-  bool set_hovering(bool hovering);
-
   // Returns the title of the Tab.
   std::wstring GetTitle() const;
+
+  // Called by TabGtk to notify the renderer that the tab is being hovered.
+  void OnMouseEntered();
+
+  // Called by TabGtk to notify the renderer that the tab is no longer being
+  // hovered.
+  void OnMouseExited();
 
  private:
   // Model data. We store this here so that we don't need to ask the underlying
@@ -147,6 +158,11 @@ class TabRendererGtk {
     int r_width;
   };
 
+  // Overridden from AnimationDelegate:
+  virtual void AnimationProgressed(const Animation* animation);
+  virtual void AnimationCanceled(const Animation* animation);
+  virtual void AnimationEnded(const Animation* animation);
+
   // Generates the bounds for the interior items of the tab.
   void Layout();
 
@@ -169,6 +185,10 @@ class TabRendererGtk {
 
   // Returns whether the Tab should display a close button.
   bool ShouldShowCloseBox() const;
+
+  // expose-event handler that redraws the tab.
+  static gboolean OnExpose(GtkWidget* widget, GdkEventExpose* e,
+                           TabRendererGtk* tab);
 
   // TODO(jhawkins): Move to TabResources.
   static void InitResources();
@@ -197,6 +217,9 @@ class TabRendererGtk {
   static int close_button_width_;
   static int close_button_height_;
 
+  // The GtkDrawingArea we draw the tab on.
+  OwnedWidgetGtk tab_;
+
   // Whether we're showing the icon. It is cached so that we can detect when it
   // changes and layout appropriately.
   bool showing_icon_;
@@ -217,8 +240,8 @@ class TabRendererGtk {
   // The bounds of this Tab.
   gfx::Rect bounds_;
 
-  // Set when the mouse is hovering over this tab and the tab is not selected.
-  bool hovering_;
+  // Hover animation.
+  scoped_ptr<SlideAnimation> hover_animation_;
 
   // Contains the loading animation state.
   LoadingAnimation loading_animation_;

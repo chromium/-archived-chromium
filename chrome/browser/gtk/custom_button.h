@@ -9,6 +9,7 @@
 
 #include <string>
 
+#include "base/gfx/rect.h"
 #include "base/scoped_ptr.h"
 #include "chrome/common/owned_widget_gtk.h"
 
@@ -54,6 +55,15 @@ class CustomDrawButton {
   ~CustomDrawButton();
 
   GtkWidget* widget() const { return widget_.get(); }
+
+  gfx::Rect bounds() const {
+      return gfx::Rect(widget_.get()->allocation.x,
+                       widget_.get()->allocation.y,
+                       widget_.get()->allocation.width,
+                       widget_.get()->allocation.height);
+  }
+
+  int width() const { return widget_.get()->allocation.width; }
 
   // This is a convenience function for creating a widget that closes
   // a bar (find bar, download shelf, info bars). The button will be packed in
