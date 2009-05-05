@@ -4,12 +4,12 @@
 
 #include "chrome/browser/tab_contents/navigation_entry.h"
 
+#include "app/resource_bundle.h"
 #include "chrome/browser/tab_contents/navigation_controller.h"
 #include "chrome/common/gfx/text_elider.h"
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
 #include "chrome/common/url_constants.h"
-#include "chrome/common/resource_bundle.h"
 
 // Use this to get a new unique ID for a NavigationEntry during construction.
 // The returned ID is guaranteed to be nonzero (which is the "no ID" indicator).

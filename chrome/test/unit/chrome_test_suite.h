@@ -9,6 +9,7 @@
 
 #include <string>
 
+#include "app/resource_bundle.h"
 #include "base/stats_table.h"
 #include "base/file_path.h"
 #if defined(OS_MACOSX)
@@ -22,7 +23,6 @@
 #include "chrome/browser/browser_process.h"
 #include "chrome/common/chrome_paths.h"
 #include "chrome/common/chrome_switches.h"
-#include "chrome/common/resource_bundle.h"
 #include "chrome/test/testing_browser_process.h"
 #include "net/base/host_resolver_unittest.h"
 #include "net/base/net_util.h"

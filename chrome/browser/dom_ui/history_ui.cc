@@ -4,6 +4,7 @@
 
 #include "chrome/browser/dom_ui/history_ui.h"
 
+#include "app/resource_bundle.h"
 #include "base/message_loop.h"
 #include "base/string_piece.h"
 #include "base/string_util.h"
@@ -19,7 +20,6 @@
 #include "chrome/common/jstemplate_builder.h"
 #include "chrome/common/l10n_util.h"
 #include "chrome/common/notification_service.h"
-#include "chrome/common/resource_bundle.h"
 #include "chrome/common/time_format.h"
 #include "chrome/common/url_constants.h"
 #include "net/base/escape.h"

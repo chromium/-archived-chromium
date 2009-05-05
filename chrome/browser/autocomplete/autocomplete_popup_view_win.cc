@@ -11,6 +11,7 @@
 #include <atlmisc.h>
 #include <cmath>
 
+#include "app/resource_bundle.h"
 #include "base/command_line.h"
 #include "base/string_util.h"
 #include "base/win_util.h"
@@ -29,7 +30,6 @@
 #include "chrome/common/gfx/chrome_font.h"
 #include "chrome/common/l10n_util.h"
 #include "chrome/common/notification_service.h"
-#include "chrome/common/resource_bundle.h"
 #include "chrome/views/view.h"
 #include "grit/theme_resources.h"
 #include "third_party/icu38/public/common/unicode/ubidi.h"

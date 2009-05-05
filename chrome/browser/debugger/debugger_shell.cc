@@ -6,6 +6,7 @@
 
 #include "build/build_config.h"
 
+#include "app/resource_bundle.h"
 #include "base/file_util.h"
 #include "base/path_service.h"
 #include "base/string_util.h"
@@ -18,7 +19,6 @@
 #include "chrome/browser/renderer_host/render_process_host.h"
 #include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/common/chrome_paths.h"
-#include "chrome/common/resource_bundle.h"
 
 #include "grit/debugger_resources.h"
 

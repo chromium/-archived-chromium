@@ -7,10 +7,10 @@
 #include <gtk/gtk.h>
 #include <wchar.h>
 
+#include "app/resource_bundle.h"
 #include "base/file_version_info.h"
 #include "base/gfx/gtk_util.h"
 #include "chrome/common/l10n_util.h"
-#include "chrome/common/resource_bundle.h"
 #include "chrome/common/chrome_constants.h"
 #include "chrome/browser/profile.h"
 #include "grit/chromium_strings.h"

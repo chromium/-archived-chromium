@@ -11,6 +11,7 @@
 
 #include "chrome/browser/first_run.h"
 
+#include "app/resource_bundle.h"
 #include "base/command_line.h"
 #include "base/file_util.h"
 #include "base/logging.h"
@@ -34,7 +35,6 @@
 #include "chrome/common/chrome_constants.h"
 #include "chrome/common/chrome_paths.h"
 #include "chrome/common/pref_service.h"
-#include "chrome/common/resource_bundle.h"
 #include "chrome/common/result_codes.h"
 #include "chrome/installer/util/browser_distribution.h"
 #include "chrome/installer/util/google_update_constants.h"

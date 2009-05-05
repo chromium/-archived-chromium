@@ -4,6 +4,7 @@
 
 #include "chrome/browser/browser_shutdown.h"
 
+#include "app/resource_bundle.h"
 #include "base/file_path.h"
 #include "base/file_util.h"
 #include "base/histogram.h"
@@ -25,7 +26,6 @@
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
 #include "chrome/common/chrome_plugin_lib.h"
-#include "chrome/common/resource_bundle.h"
 #include "net/dns_global.h"
 
 

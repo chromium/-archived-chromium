@@ -1,6 +1,9 @@
 // Copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
+
+#include "chrome/browser/views/options/fonts_page_view.h"
+
 #include <windows.h>
 #include <shlobj.h>
 #include <vsstyle.h>
@@ -8,8 +11,7 @@
 
 #include <vector>
 
-#include "chrome/browser/views/options/fonts_page_view.h"
-
+#include "app/resource_bundle.h"
 #include "base/file_util.h"
 #include "base/gfx/native_theme.h"
 #include "base/string_util.h"
@@ -22,7 +24,6 @@
 #include "chrome/common/l10n_util.h"
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
-#include "chrome/common/resource_bundle.h"
 #include "chrome/views/controls/button/native_button.h"
 #include "chrome/views/controls/text_field.h"
 #include "chrome/views/grid_layout.h"

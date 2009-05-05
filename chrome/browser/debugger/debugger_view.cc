@@ -4,6 +4,7 @@
 
 #include "chrome/browser/debugger/debugger_view.h"
 
+#include "app/resource_bundle.h"
 #include "base/logging.h"
 #include "base/string_util.h"
 #include "base/json_writer.h"
@@ -20,7 +21,6 @@
 #include "chrome/browser/views/standard_layout.h"
 #include "chrome/browser/views/tab_contents_container_view.h"
 #include "chrome/common/gfx/chrome_canvas.h"
-#include "chrome/common/resource_bundle.h"
 #include "chrome/views/grid_layout.h"
 #include "chrome/views/controls/scrollbar/native_scroll_bar.h"
 #include "chrome/views/controls/scroll_view.h"
@@ -162,4 +162,3 @@ bool DebuggerView::AcceleratorPressed(const views::Accelerator& accelerator) {
   window_->window()->Close();
   return true;
 }
-

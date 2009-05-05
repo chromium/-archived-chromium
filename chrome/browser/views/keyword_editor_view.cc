@@ -6,6 +6,7 @@
 
 #include <vector>
 
+#include "app/resource_bundle.h"
 #include "base/gfx/png_decoder.h"
 #include "base/string_util.h"
 #include "chrome/browser/history/history.h"
@@ -18,7 +19,6 @@
 #include "chrome/common/l10n_util.h"
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
-#include "chrome/common/resource_bundle.h"
 #include "chrome/common/stl_util-inl.h"
 #include "chrome/views/background.h"
 #include "chrome/views/grid_layout.h"
@@ -485,15 +485,15 @@ void KeywordEditorView::Init() {
   add_button_ = new views::NativeButton(
       this, l10n_util::GetString(IDS_SEARCH_ENGINES_EDITOR_NEW_BUTTON));
   add_button_->SetEnabled(url_model_->loaded());
-  
+
   edit_button_ = new views::NativeButton(
       this, l10n_util::GetString(IDS_SEARCH_ENGINES_EDITOR_EDIT_BUTTON));
   edit_button_->SetEnabled(false);
-  
+
   remove_button_ = new views::NativeButton(
       this, l10n_util::GetString(IDS_SEARCH_ENGINES_EDITOR_REMOVE_BUTTON));
   remove_button_->SetEnabled(false);
-  
+
   make_default_button_ = new views::NativeButton(
       this,
       l10n_util::GetString(IDS_SEARCH_ENGINES_EDITOR_MAKE_DEFAULT_BUTTON));
@@ -563,7 +563,7 @@ void KeywordEditorView::OnDoubleClick() {
 
 void KeywordEditorView::ButtonPressed(views::Button* sender) {
   if (sender == add_button_) {
-    EditKeywordController* controller = 
+    EditKeywordController* controller =
         new EditKeywordController(GetWidget()->GetNativeView(), NULL, this,
                                   profile_);
     controller->Show();

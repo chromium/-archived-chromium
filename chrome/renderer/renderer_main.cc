@@ -2,6 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+#include "app/resource_bundle.h"
 #include "base/command_line.h"
 #include "base/histogram.h"
 #include "base/message_loop.h"
@@ -18,7 +19,6 @@
 #include "chrome/common/l10n_util.h"
 #include "chrome/common/logging_chrome.h"
 #include "chrome/common/main_function_params.h"
-#include "chrome/common/resource_bundle.h"
 #include "chrome/renderer/renderer_main_platform_delegate.h"
 #include "chrome/renderer/render_process.h"
 #include "grit/chromium_strings.h"

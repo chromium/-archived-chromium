@@ -108,6 +108,35 @@
       },
     },
     {
+      'target_name': 'app_base',
+      'type': '<(library)',
+      'msvs_guid': '4631946D-7D5F-44BD-A5A8-504C0A7033BE',
+      'dependencies': [
+        '../base/base.gyp:base',
+        '../base/base.gyp:base_gfx',
+        '../net/net.gyp:net',
+        '../skia/skia.gyp:skia',
+        '../third_party/icu38/icu38.gyp:icui18n',
+        '../third_party/icu38/icu38.gyp:icuuc',
+      ],
+      'include_dirs': [
+        '..',
+      ],
+      'sources': [
+        # All .cc, .h, and .mm files under app/ except for tests.
+        '../app/resource_bundle.cc',
+        '../app/resource_bundle.h',
+        '../app/resource_bundle_win.cc',
+        '../app/resource_bundle_linux.cc',
+        '../app/resource_bundle_mac.mm',
+      ],
+      'direct_dependent_settings': {
+        'include_dirs': [
+          '..',
+        ],
+      },
+    },
+    {
       # theme_resources also generates a .cc file, so it can't use the rules above.
       'target_name': 'theme_resources',
       'type': 'none',
@@ -145,6 +174,7 @@
       'target_name': 'common',
       'type': '<(library)',
       'dependencies': [
+        'app_base',
         'chrome_resources',
         'chrome_strings',
         '../base/base.gyp:base',
@@ -331,11 +361,6 @@
         'common/ref_counted_util.h',
         'common/render_messages.h',
         'common/render_messages_internal.h',
-        'common/resource_bundle.cc',
-        'common/resource_bundle.h',
-        'common/resource_bundle_linux.cc',
-        'common/resource_bundle_mac.mm',
-        'common/resource_bundle_win.cc',
         'common/resource_dispatcher.cc',
         'common/resource_dispatcher.h',
         'common/result_codes.h',
@@ -388,6 +413,9 @@
           '..',
         ],
       },
+      'export_dependent_settings': [
+        'app_base',
+      ],
       'conditions': [
         ['OS=="linux"', {
           'dependencies': [

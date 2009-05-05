@@ -8,6 +8,7 @@
 
 #include "chrome/browser/download/download_util.h"
 
+#include "app/resource_bundle.h"
 #include "base/base_drag_source.h"
 #include "base/file_util.h"
 #include "base/scoped_clipboard_writer.h"
@@ -20,7 +21,6 @@
 #include "chrome/common/gfx/chrome_canvas.h"
 #include "chrome/common/l10n_util.h"
 #include "chrome/common/os_exchange_data.h"
-#include "chrome/common/resource_bundle.h"
 #include "chrome/views/view.h"
 #include "grit/generated_resources.h"
 #include "grit/locale_settings.h"

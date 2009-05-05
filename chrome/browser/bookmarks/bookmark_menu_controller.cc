@@ -4,6 +4,7 @@
 
 #include "chrome/browser/bookmarks/bookmark_menu_controller.h"
 
+#include "app/resource_bundle.h"
 #include "chrome/browser/bookmarks/bookmark_drag_data.h"
 #include "chrome/browser/bookmarks/bookmark_utils.h"
 #include "chrome/browser/metrics/user_metrics.h"
@@ -13,7 +14,6 @@
 #include "chrome/common/os_exchange_data.h"
 #include "chrome/common/l10n_util.h"
 #include "chrome/common/page_transition_types.h"
-#include "chrome/common/resource_bundle.h"
 #include "grit/generated_resources.h"
 #include "grit/theme_resources.h"
 

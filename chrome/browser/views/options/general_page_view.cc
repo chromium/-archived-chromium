@@ -4,6 +4,7 @@
 
 #include "chrome/browser/views/options/general_page_view.h"
 
+#include "app/resource_bundle.h"
 #include "base/gfx/png_decoder.h"
 #include "base/message_loop.h"
 #include "base/string_util.h"
@@ -27,7 +28,6 @@
 #include "chrome/common/l10n_util.h"
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
-#include "chrome/common/resource_bundle.h"
 #include "chrome/common/url_constants.h"
 #include "chrome/views/controls/button/radio_button.h"
 #include "chrome/views/controls/label.h"

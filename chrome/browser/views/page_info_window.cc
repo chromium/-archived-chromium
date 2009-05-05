@@ -7,6 +7,7 @@
 #include <cryptuiapi.h>
 #pragma comment(lib, "cryptui.lib")
 
+#include "app/resource_bundle.h"
 #include "base/string_util.h"
 #include "base/time_format.h"
 #include "chrome/browser/browser_process.h"
@@ -18,7 +19,6 @@
 #include "chrome/common/l10n_util.h"
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
-#include "chrome/common/resource_bundle.h"
 #include "chrome/common/win_util.h"
 #include "chrome/views/background.h"
 #include "chrome/views/grid_layout.h"

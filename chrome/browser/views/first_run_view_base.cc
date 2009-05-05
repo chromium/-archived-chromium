@@ -4,6 +4,7 @@
 
 #include "chrome/browser/views/first_run_view_base.h"
 
+#include "app/resource_bundle.h"
 #include "base/command_line.h"
 #include "base/path_service.h"
 #include "base/thread.h"
@@ -17,7 +18,6 @@
 #include "chrome/common/l10n_util.h"
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
-#include "chrome/common/resource_bundle.h"
 #include "chrome/views/background.h"
 #include "chrome/views/controls/button/checkbox.h"
 #include "chrome/views/controls/image_view.h"

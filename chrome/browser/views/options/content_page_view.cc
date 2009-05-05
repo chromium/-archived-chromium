@@ -9,6 +9,7 @@
 
 #include "chrome/browser/views/options/content_page_view.h"
 
+#include "app/resource_bundle.h"
 #include "base/file_util.h"
 #include "base/gfx/native_theme.h"
 #include "chrome/browser/browser_process.h"
@@ -21,7 +22,6 @@
 #include "chrome/common/l10n_util.h"
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
-#include "chrome/common/resource_bundle.h"
 #include "chrome/views/controls/button/radio_button.h"
 #include "chrome/views/controls/text_field.h"
 #include "chrome/views/grid_layout.h"

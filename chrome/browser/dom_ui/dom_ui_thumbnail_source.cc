@@ -4,8 +4,8 @@
 
 #include "chrome/browser/dom_ui/dom_ui_thumbnail_source.h"
 
+#include "app/resource_bundle.h"
 #include "chrome/browser/profile.h"
-#include "chrome/common/resource_bundle.h"
 #include "chrome/common/url_constants.h"
 #include "googleurl/src/gurl.h"
 #include "grit/theme_resources.h"
@@ -50,4 +50,3 @@ void DOMUIThumbnailSource::OnThumbnailDataAvailable(
     SendResponse(request_id, default_thumbnail_);
   }
 }
-

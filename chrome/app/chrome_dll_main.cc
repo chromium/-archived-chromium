@@ -26,6 +26,7 @@
 #include <string.h>
 #endif
 
+#include "app/resource_bundle.h"
 #include "base/at_exit.h"
 #include "base/command_line.h"
 #include "base/debug_util.h"
@@ -51,7 +52,6 @@
 #include "chrome/common/chrome_switches.h"
 #include "chrome/common/logging_chrome.h"
 #include "chrome/common/main_function_params.h"
-#include "chrome/common/resource_bundle.h"
 #include "chrome/common/sandbox_init_wrapper.h"
 #if defined(OS_WIN)
 #include "sandbox/src/sandbox.h"

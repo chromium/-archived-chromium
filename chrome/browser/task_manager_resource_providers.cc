@@ -4,6 +4,7 @@
 
 #include "chrome/browser/task_manager_resource_providers.h"
 
+#include "app/resource_bundle.h"
 #include "base/basictypes.h"
 #include "base/file_version_info.h"
 #include "base/message_loop.h"
@@ -19,7 +20,6 @@
 #include "chrome/common/child_process_host.h"
 #include "chrome/common/l10n_util.h"
 #include "chrome/common/notification_service.h"
-#include "chrome/common/resource_bundle.h"
 #include "chrome/common/stl_util-inl.h"
 #if defined(OS_WIN)
 #include "chrome/common/gfx/icon_util.h"

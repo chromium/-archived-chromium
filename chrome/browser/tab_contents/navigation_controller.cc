@@ -4,6 +4,7 @@
 
 #include "chrome/browser/tab_contents/navigation_controller.h"
 
+#include "app/resource_bundle.h"
 #include "base/file_util.h"
 #include "base/logging.h"
 #include "base/string_util.h"
@@ -18,7 +19,6 @@
 #include "chrome/common/navigation_types.h"
 #include "chrome/common/notification_service.h"
 #include "chrome/common/render_messages.h"
-#include "chrome/common/resource_bundle.h"
 #include "chrome/common/url_constants.h"
 #include "webkit/glue/webkit_glue.h"
 

@@ -7,6 +7,7 @@
 #include <string>
 #include <vector>
 
+#include "app/resource_bundle.h"
 #include "base/gfx/native_widget_types.h"
 #include "base/string_util.h"
 #include "base/time.h"
@@ -30,7 +31,6 @@
 #include "chrome/common/notification_service.h"
 #include "chrome/common/notification_type.h"
 #include "chrome/common/render_messages.h"
-#include "chrome/common/resource_bundle.h"
 #include "chrome/common/result_codes.h"
 #include "chrome/common/thumbnail_score.h"
 #include "chrome/common/url_constants.h"

@@ -4,6 +4,7 @@
 
 #include "chrome/browser/renderer_host/render_widget_host_view_win.h"
 
+#include "app/resource_bundle.h"
 #include "base/command_line.h"
 #include "base/gfx/gdi_util.h"
 #include "base/gfx/rect.h"
@@ -25,7 +26,6 @@
 #include "chrome/common/native_web_keyboard_event.h"
 #include "chrome/common/plugin_messages.h"
 #include "chrome/common/render_messages.h"
-#include "chrome/common/resource_bundle.h"
 #include "chrome/common/win_util.h"
 #include "chrome/views/focus/focus_util_win.h"
 // Included for views::kReflectedMessage - TODO(beng): move this to win_util.h!

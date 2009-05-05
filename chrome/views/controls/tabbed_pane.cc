@@ -6,12 +6,12 @@
 
 #include <vssym32.h>
 
+#include "app/resource_bundle.h"
 #include "base/gfx/native_theme.h"
 #include "base/logging.h"
 #include "chrome/common/gfx/chrome_canvas.h"
 #include "chrome/common/gfx/chrome_font.h"
 #include "chrome/common/l10n_util_win.h"
-#include "chrome/common/resource_bundle.h"
 #include "chrome/common/stl_util-inl.h"
 #include "chrome/common/throb_animation.h"
 #include "chrome/views/background.h"

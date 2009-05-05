@@ -4,6 +4,7 @@
 
 #include "chrome/browser/views/constrained_window_impl.h"
 
+#include "app/resource_bundle.h"
 #include "base/gfx/rect.h"
 #include "chrome/app/chrome_dll_resource.h"
 #include "chrome/browser/browser_process.h"
@@ -23,7 +24,6 @@
 #include "chrome/common/notification_service.h"
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
-#include "chrome/common/resource_bundle.h"
 #include "chrome/common/win_util.h"
 #include "chrome/views/controls/button/image_button.h"
 #include "chrome/views/controls/hwnd_view.h"

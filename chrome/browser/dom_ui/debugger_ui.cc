@@ -4,6 +4,7 @@
 
 #include "chrome/browser/dom_ui/debugger_ui.h"
 
+#include "app/resource_bundle.h"
 #include "base/command_line.h"
 #include "base/file_util.h"
 #include "base/string_util.h"
@@ -13,7 +14,6 @@
 #include "chrome/browser/debugger/debugger_wrapper.h"
 #include "chrome/browser/dom_ui/chrome_url_data_manager.h"
 #include "chrome/common/chrome_switches.h"
-#include "chrome/common/resource_bundle.h"
 #include "chrome/common/url_constants.h"
 #include "net/base/mime_util.h"
 

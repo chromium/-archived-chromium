@@ -4,12 +4,12 @@
 
 #include "chrome/browser/views/first_run_customize_view.h"
 
+#include "app/resource_bundle.h"
 #include "chrome/browser/importer/importer.h"
 #include "chrome/browser/first_run.h"
 #include "chrome/browser/metrics/user_metrics.h"
 #include "chrome/browser/views/standard_layout.h"
 #include "chrome/common/l10n_util.h"
-#include "chrome/common/resource_bundle.h"
 #include "chrome/views/controls/button/checkbox.h"
 #include "chrome/views/controls/combo_box.h"
 #include "chrome/views/controls/image_view.h"

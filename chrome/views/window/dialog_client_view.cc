@@ -8,12 +8,12 @@
 #include <uxtheme.h>
 #include <vsstyle.h>
 
+#include "app/resource_bundle.h"
 #include "base/gfx/native_theme.h"
 #include "chrome/browser/views/standard_layout.h"
 #include "chrome/common/gfx/chrome_canvas.h"
 #include "chrome/common/gfx/chrome_font.h"
 #include "chrome/common/l10n_util.h"
-#include "chrome/common/resource_bundle.h"
 #include "chrome/common/win_util.h"
 #include "chrome/views/controls/button/native_button.h"
 #include "chrome/views/window/dialog_delegate.h"

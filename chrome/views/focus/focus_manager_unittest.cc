@@ -8,8 +8,8 @@
 // the events don't go to the Chrome window.
 #include "testing/gtest/include/gtest/gtest.h"
 
+#include "app/resource_bundle.h"
 #include "base/gfx/rect.h"
-#include "chrome/common/resource_bundle.h"
 #include "chrome/views/background.h"
 #include "chrome/views/border.h"
 #include "chrome/views/controls/button/checkbox.h"

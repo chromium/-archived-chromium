@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "chrome/common/resource_bundle.h"
+#include "app/resource_bundle.h"
 
 #include <atlbase.h>
 
@@ -12,9 +12,7 @@
 #include "base/resource_util.h"
 #include "base/string_piece.h"
 #include "base/win_util.h"
-#include "chrome/app/chrome_dll_resource.h"
 #include "chrome/common/chrome_paths.h"
-#include "chrome/common/gfx/chrome_font.h"
 #include "chrome/common/l10n_util.h"
 
 namespace {
@@ -122,11 +120,6 @@ StringPiece ResourceBundle::GetRawDataResource(int resource_id) {
     return StringPiece(static_cast<const char*>(data_ptr), data_size);
   }
   return StringPiece();
-}
-// Loads and returns the global accelerators from the current module.
-HACCEL ResourceBundle::GetGlobalAccelerators() {
-  return ::LoadAccelerators(_AtlBaseModule.GetModuleInstance(),
-                            MAKEINTRESOURCE(IDR_MAINFRAME));
 }
 
 // Loads and returns a cursor from the current module.

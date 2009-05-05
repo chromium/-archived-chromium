@@ -8,6 +8,7 @@
 #include <shlobj.h>
 #include <shobjidl.h>
 
+#include "app/resource_bundle.h"
 #include "base/file_util.h"
 #include "base/gfx/gdi_util.h"
 #include "base/gfx/point.h"
@@ -17,7 +18,6 @@
 #include "chrome/common/gfx/chrome_font.h"
 #include "chrome/common/l10n_util.h"
 #include "chrome/common/os_exchange_data.h"
-#include "chrome/common/resource_bundle.h"
 #include "chrome/common/win_util.h"
 #include "chrome/views/controls/button/text_button.h"
 #include "googleurl/src/gurl.h"

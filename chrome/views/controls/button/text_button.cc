@@ -4,9 +4,9 @@
 
 #include "chrome/views/controls/button/text_button.h"
 
+#include "app/resource_bundle.h"
 #include "chrome/common/gfx/chrome_canvas.h"
 #include "chrome/common/l10n_util.h"
-#include "chrome/common/resource_bundle.h"
 #include "chrome/common/throb_animation.h"
 #include "chrome/views/controls/button/button.h"
 #include "chrome/views/event.h"

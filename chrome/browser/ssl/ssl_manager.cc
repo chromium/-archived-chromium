@@ -4,6 +4,7 @@
 
 #include "chrome/browser/ssl/ssl_manager.h"
 
+#include "app/resource_bundle.h"
 #include "base/message_loop.h"
 #include "base/string_util.h"
 #include "chrome/browser/browser_process.h"
@@ -23,7 +24,6 @@
 #include "chrome/common/notification_service.h"
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
-#include "chrome/common/resource_bundle.h"
 #include "grit/generated_resources.h"
 #include "grit/theme_resources.h"
 #include "net/base/cert_status_flags.h"

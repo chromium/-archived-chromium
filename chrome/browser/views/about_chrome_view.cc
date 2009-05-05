@@ -6,6 +6,7 @@
 
 #include <commdlg.h>
 
+#include "app/resource_bundle.h"
 #include "base/file_version_info.h"
 #include "base/string_util.h"
 #include "base/win_util.h"
@@ -17,7 +18,6 @@
 #include "chrome/browser/views/restart_message_box.h"
 #include "chrome/browser/views/standard_layout.h"
 #include "chrome/common/l10n_util.h"
-#include "chrome/common/resource_bundle.h"
 #include "chrome/common/chrome_constants.h"
 #include "chrome/installer/util/install_util.h"
 #include "chrome/views/controls/text_field.h"

@@ -8,6 +8,7 @@
 
 #include "chrome/browser/views/options/languages_page_view.h"
 
+#include "app/resource_bundle.h"
 #include "base/file_util.h"
 #include "base/string_util.h"
 #include "base/gfx/native_theme.h"
@@ -23,7 +24,6 @@
 #include "chrome/common/l10n_util.h"
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
-#include "chrome/common/resource_bundle.h"
 #include "chrome/views/controls/button/radio_button.h"
 #include "chrome/views/controls/combo_box.h"
 #include "chrome/views/controls/tabbed_pane.h"

@@ -7,10 +7,10 @@
 
 #include "chrome/common/jstemplate_builder.h"
 
+#include "app/resource_bundle.h"
 #include "base/logging.h"
 #include "base/string_util.h"
 #include "chrome/common/json_value_serializer.h"
-#include "chrome/common/resource_bundle.h"
 
 #include "grit/common_resources.h"
 

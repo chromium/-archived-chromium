@@ -108,9 +108,6 @@ class ResourceBundle {
   // Loads and returns an icon from the theme dll.
   HICON LoadThemeIcon(int icon_id);
 
-  // Loads and returns the global accelerators.
-  HACCEL GetGlobalAccelerators();
-
   // Loads and returns a cursor from the app module.
   HCURSOR LoadCursor(int cursor_id);
 #elif defined(OS_LINUX)

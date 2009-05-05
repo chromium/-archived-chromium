@@ -4,12 +4,12 @@
 
 #include "chrome/views/controls/combo_box.h"
 
+#include "app/resource_bundle.h"
 #include "base/gfx/native_theme.h"
 #include "base/gfx/rect.h"
 #include "chrome/common/gfx/chrome_canvas.h"
 #include "chrome/common/gfx/chrome_font.h"
 #include "chrome/common/l10n_util.h"
-#include "chrome/common/resource_bundle.h"
 
 // Limit how small a combobox can be.
 static const int kMinComboboxWidth = 148;

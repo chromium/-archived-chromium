@@ -13,12 +13,12 @@
 #include <wininet.h>
 #endif
 
+#include "app/resource_bundle.h"
 #include "base/clipboard.h"
 #include "base/scoped_clipboard_writer.h"
 #include "base/string_util.h"
 #include "chrome/common/chrome_switches.h"
 #include "chrome/common/render_messages.h"
-#include "chrome/common/resource_bundle.h"
 #include "chrome/plugin/npobject_util.h"
 #include "chrome/renderer/net/render_dns_master.h"
 #include "chrome/renderer/render_process.h"

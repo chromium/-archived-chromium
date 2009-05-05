@@ -4,9 +4,9 @@
 
 #include "chrome/browser/views/download_started_animation.h"
 
+#include "app/resource_bundle.h"
 #include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/common/notification_service.h"
-#include "chrome/common/resource_bundle.h"
 #include "chrome/views/widget/widget_win.h"
 #include "grit/theme_resources.h"
 

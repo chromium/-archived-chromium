@@ -4,6 +4,7 @@
 
 #include "chrome/browser/extensions/extension_host.h"
 
+#include "app/resource_bundle.h"
 #include "chrome/browser/browser.h"
 #include "chrome/browser/browser_list.h"
 #include "chrome/browser/extensions/extension.h"
@@ -19,7 +20,6 @@
 #include "chrome/browser/tab_contents/tab_contents_view.h"
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
-#include "chrome/common/resource_bundle.h"
 
 #include "grit/browser_resources.h"
 #include "grit/generated_resources.h"

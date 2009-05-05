@@ -4,8 +4,8 @@
 
 #include "chrome/browser/gtk/custom_button.h"
 
+#include "app/resource_bundle.h"
 #include "base/basictypes.h"
-#include "chrome/common/resource_bundle.h"
 #include "chrome/browser/gtk/nine_box.h"
 
 #include "grit/theme_resources.h"

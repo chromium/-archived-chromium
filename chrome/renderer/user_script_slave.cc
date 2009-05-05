@@ -4,13 +4,13 @@
 
 #include "chrome/renderer/user_script_slave.h"
 
+#include "app/resource_bundle.h"
 #include "base/histogram.h"
 #include "base/logging.h"
 #include "base/perftimer.h"
 #include "base/pickle.h"
 #include "base/shared_memory.h"
 #include "base/string_util.h"
-#include "chrome/common/resource_bundle.h"
 #include "googleurl/src/gurl.h"
 #include "third_party/WebKit/WebKit/chromium/public/WebScriptSource.h"
 #include "webkit/glue/webframe.h"

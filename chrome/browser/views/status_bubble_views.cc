@@ -6,13 +6,13 @@
 
 #include <algorithm>
 
+#include "app/resource_bundle.h"
 #include "base/string_util.h"
 #include "chrome/common/animation.h"
 #include "chrome/common/gfx/chrome_canvas.h"
 #include "chrome/common/gfx/text_elider.h"
 #include "chrome/common/l10n_util.h"
 #include "chrome/common/l10n_util_win.h"
-#include "chrome/common/resource_bundle.h"
 #include "chrome/views/controls/label.h"
 #include "chrome/views/widget/root_view.h"
 #include "chrome/views/widget/widget_win.h"
@@ -508,7 +508,7 @@ void StatusBubbleViews::SetURL(const GURL& url, const std::wstring& languages) {
   // Set Elided Text corresponding to the GURL object.
   RECT parent_rect;
   ::GetWindowRect(popup_->GetNativeView(), &parent_rect);
-  int text_width = static_cast<int>(parent_rect.right - parent_rect.left - 
+  int text_width = static_cast<int>(parent_rect.right - parent_rect.left -
       (kShadowThickness * 2) - kTextPositionX - kTextHorizPadding - 1);
   url_text_ = gfx::ElideUrl(url, view_->Label::GetFont(), text_width,
                             languages);

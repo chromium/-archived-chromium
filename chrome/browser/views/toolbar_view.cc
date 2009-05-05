@@ -6,6 +6,7 @@
 
 #include <string>
 
+#include "app/resource_bundle.h"
 #include "base/command_line.h"
 #include "base/logging.h"
 #include "base/path_service.h"
@@ -37,7 +38,6 @@
 #include "chrome/common/os_exchange_data.h"
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
-#include "chrome/common/resource_bundle.h"
 #include "chrome/common/win_util.h"
 #ifdef CHROME_PERSONALIZATION
 #include "chrome/personalization/personalization.h"

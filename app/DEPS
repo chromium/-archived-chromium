@@ -1,0 +1,8 @@
+include_rules = [
+  "+net",
+  # TODO(beng): Sever this link once we have extracted all deps from
+  # chrome/common.
+  "+chrome/common",
+  # TODO(beng): Sever this link after glen fixes it.
+  "+chrome/browser/extensions/extension.h",
+]

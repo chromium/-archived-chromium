@@ -4,9 +4,9 @@
 
 #include "chrome/browser/gtk/toolbar_star_toggle_gtk.h"
 
+#include "app/resource_bundle.h"
 #include "base/gfx/rect.h"
 #include "chrome/browser/gtk/bookmark_bubble_gtk.h"
-#include "chrome/common/resource_bundle.h"
 #include "grit/theme_resources.h"
 
 ToolbarStarToggleGtk::ToolbarStarToggleGtk()

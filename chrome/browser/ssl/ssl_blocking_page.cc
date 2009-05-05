@@ -4,6 +4,7 @@
 
 #include "chrome/browser/ssl/ssl_blocking_page.h"
 
+#include "app/resource_bundle.h"
 #include "base/histogram.h"
 #include "base/string_piece.h"
 #include "base/values.h"
@@ -19,7 +20,6 @@
 #include "chrome/common/notification_service.h"
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
-#include "chrome/common/resource_bundle.h"
 #include "grit/browser_resources.h"
 #include "grit/generated_resources.h"
 

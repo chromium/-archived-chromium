@@ -7,12 +7,12 @@
 #include <dwmapi.h>
 #include <shellapi.h>
 
+#include "app/resource_bundle.h"
 #include "chrome/browser/browser_list.h"
 #include "chrome/browser/views/frame/browser_root_view.h"
 #include "chrome/browser/views/frame/browser_view.h"
 #include "chrome/browser/views/frame/glass_browser_frame_view.h"
 #include "chrome/browser/views/frame/opaque_browser_frame_view.h"
-#include "chrome/common/resource_bundle.h"
 #include "chrome/common/win_util.h"
 #include "chrome/views/window/window_delegate.h"
 #include "grit/theme_resources.h"

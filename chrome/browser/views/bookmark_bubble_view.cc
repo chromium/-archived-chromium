@@ -4,6 +4,7 @@
 
 #include "chrome/browser/views/bookmark_bubble_view.h"
 
+#include "app/resource_bundle.h"
 #include "chrome/app/chrome_dll_resource.h"
 #include "chrome/browser/bookmarks/bookmark_editor.h"
 #include "chrome/browser/bookmarks/bookmark_model.h"
@@ -15,7 +16,6 @@
 #include "chrome/common/gfx/chrome_canvas.h"
 #include "chrome/common/l10n_util.h"
 #include "chrome/common/notification_service.h"
-#include "chrome/common/resource_bundle.h"
 #include "chrome/views/controls/button/native_button.h"
 #include "chrome/views/controls/text_field.h"
 #include "grit/generated_resources.h"

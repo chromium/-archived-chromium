@@ -1,4 +1,5 @@
 include_rules = [
+  "+app",
   "+net",
   "+printing",
 

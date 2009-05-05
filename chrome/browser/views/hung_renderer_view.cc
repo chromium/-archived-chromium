@@ -4,6 +4,7 @@
 
 #include "chrome/browser/views/hung_renderer_view.h"
 
+#include "app/resource_bundle.h"
 #include "chrome/browser/browser_list.h"
 #include "chrome/browser/renderer_host/render_process_host.h"
 #include "chrome/browser/renderer_host/render_view_host.h"
@@ -13,7 +14,6 @@
 #include "chrome/common/gfx/chrome_canvas.h"
 #include "chrome/common/gfx/path.h"
 #include "chrome/common/logging_chrome.h"
-#include "chrome/common/resource_bundle.h"
 #include "chrome/common/result_codes.h"
 #include "chrome/views/grid_layout.h"
 #include "chrome/views/controls/button/native_button.h"

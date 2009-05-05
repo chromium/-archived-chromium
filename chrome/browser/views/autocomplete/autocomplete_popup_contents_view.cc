@@ -6,6 +6,7 @@
 
 #include <dwmapi.h>
 
+#include "app/resource_bundle.h"
 #include "chrome/browser/autocomplete/autocomplete_edit_view_win.h"
 #include "chrome/browser/autocomplete/autocomplete_popup_model.h"
 #include "chrome/browser/views/autocomplete/autocomplete_popup_win.h"
@@ -14,7 +15,6 @@
 #include "chrome/common/gfx/insets.h"
 #include "chrome/common/gfx/path.h"
 #include "chrome/common/l10n_util.h"
-#include "chrome/common/resource_bundle.h"
 #include "chrome/common/win_util.h"
 #include "chrome/views/widget/widget.h"
 #include "grit/generated_resources.h"

@@ -4,12 +4,12 @@
 
 #include "chrome/browser/alternate_nav_url_fetcher.h"
 
+#include "app/resource_bundle.h"
 #include "chrome/browser/tab_contents/navigation_controller.h"
 #include "chrome/browser/tab_contents/navigation_entry.h"
 #include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/common/l10n_util.h"
 #include "chrome/common/notification_service.h"
-#include "chrome/common/resource_bundle.h"
 #include "grit/generated_resources.h"
 
 AlternateNavURLFetcher::AlternateNavURLFetcher(

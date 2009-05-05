@@ -4,6 +4,7 @@
 
 #include "chrome/browser/views/frame/browser_view.h"
 
+#include "app/resource_bundle.h"
 #include "base/command_line.h"
 #include "base/file_version_info.h"
 #include "base/time.h"
@@ -51,7 +52,6 @@
 #include "chrome/common/os_exchange_data.h"
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
-#include "chrome/common/resource_bundle.h"
 #include "chrome/common/win_util.h"
 #include "chrome/views/controls/scrollbar/native_scroll_bar.h"
 #include "chrome/views/fill_layout.h"

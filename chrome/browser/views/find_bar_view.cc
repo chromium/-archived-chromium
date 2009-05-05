@@ -6,6 +6,7 @@
 
 #include <algorithm>
 
+#include "app/resource_bundle.h"
 #include "base/string_util.h"
 #include "chrome/browser/find_bar_controller.h"
 #include "chrome/browser/tab_contents/tab_contents.h"
@@ -13,7 +14,6 @@
 #include "chrome/browser/view_ids.h"
 #include "chrome/common/l10n_util.h"
 #include "chrome/common/gfx/chrome_canvas.h"
-#include "chrome/common/resource_bundle.h"
 #include "chrome/views/background.h"
 #include "chrome/views/controls/button/image_button.h"
 #include "chrome/views/controls/label.h"

@@ -5,8 +5,8 @@
 #ifndef CHROME_RENDERER_EXTENSIONS_BINDINGS_UTILS_H_
 #define CHROME_RENDERER_EXTENSIONS_BINDINGS_UTILS_H_
 
+#include "app/resource_bundle.h"
 #include "base/singleton.h"
-#include "chrome/common/resource_bundle.h"
 
 #include <string>
 

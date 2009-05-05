@@ -6,6 +6,7 @@
 
 #include <gdk/gdkkeysyms.h>
 
+#include "app/resource_bundle.h"
 #include "base/base_paths_linux.h"
 #include "base/command_line.h"
 #include "base/gfx/gtk_util.h"
@@ -36,7 +37,6 @@
 #include "chrome/common/notification_service.h"
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
-#include "chrome/common/resource_bundle.h"
 #include "chrome/views/controls/button/text_button.h"
 #include "grit/theme_resources.h"
 

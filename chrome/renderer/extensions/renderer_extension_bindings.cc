@@ -4,9 +4,9 @@
 
 #include "chrome/renderer/extensions/renderer_extension_bindings.h"
 
+#include "app/resource_bundle.h"
 #include "base/basictypes.h"
 #include "chrome/common/render_messages.h"
-#include "chrome/common/resource_bundle.h"
 #include "chrome/renderer/extensions/bindings_utils.h"
 #include "chrome/renderer/extensions/event_bindings.h"
 #include "chrome/renderer/render_thread.h"

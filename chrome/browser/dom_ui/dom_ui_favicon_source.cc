@@ -4,8 +4,8 @@
 
 #include "chrome/browser/dom_ui/dom_ui_favicon_source.h"
 
+#include "app/resource_bundle.h"
 #include "chrome/browser/profile.h"
-#include "chrome/common/resource_bundle.h"
 #include "chrome/common/url_constants.h"
 #include "grit/theme_resources.h"
 
@@ -60,4 +60,3 @@ void DOMUIFavIconSource::OnFavIconDataAvailable(
     SendResponse(request_id, default_favicon_);
   }
 }
-

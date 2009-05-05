@@ -6,6 +6,7 @@
 
 #include <vector>
 
+#include "app/resource_bundle.h"
 #include "base/file_path.h"
 #include "base/string_util.h"
 #include "chrome/browser/browser_process.h"
@@ -15,7 +16,6 @@
 #include "chrome/common/gfx/chrome_canvas.h"
 #include "chrome/common/gfx/text_elider.h"
 #include "chrome/common/l10n_util.h"
-#include "chrome/common/resource_bundle.h"
 #include "chrome/common/win_util.h"
 #include "chrome/views/controls/button/native_button.h"
 #include "chrome/views/controls/menu/menu.h"

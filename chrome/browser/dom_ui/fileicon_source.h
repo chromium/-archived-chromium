@@ -5,8 +5,8 @@
 #ifndef CHROME_BROWSER_DOM_UI_FILEICON_SOURCE_H_
 #define CHROME_BROWSER_DOM_UI_FILEICON_SOURCE_H_
 
+#include "app/resource_bundle.h"
 #include "chrome/browser/dom_ui/chrome_url_data_manager.h"
-#include "chrome/common/resource_bundle.h"
 
 #if defined(OS_WIN)
 #include "chrome/browser/icon_manager.h"

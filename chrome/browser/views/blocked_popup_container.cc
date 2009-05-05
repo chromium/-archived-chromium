@@ -12,6 +12,7 @@
 
 #include <math.h>
 
+#include "app/resource_bundle.h"
 #include "base/string_util.h"
 #include "chrome/browser/extensions/extension_function_dispatcher.h"
 #include "chrome/browser/profile.h"
@@ -21,7 +22,6 @@
 #include "chrome/common/l10n_util.h"
 #include "chrome/common/notification_service.h"
 #include "chrome/common/pref_names.h"
-#include "chrome/common/resource_bundle.h"
 #include "chrome/views/background.h"
 #include "chrome/views/controls/button/image_button.h"
 #include "chrome/views/controls/button/menu_button.h"

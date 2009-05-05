@@ -8,6 +8,7 @@
 
 #include <algorithm>
 
+#include "app/resource_bundle.h"
 #include "base/basictypes.h"
 #include "base/gfx/gtk_util.h"
 #include "base/gfx/rect.h"
@@ -22,7 +23,6 @@
 #include "chrome/browser/search_engines/template_url_model.h"
 #include "chrome/common/gfx/chrome_font.h"
 #include "chrome/common/notification_service.h"
-#include "chrome/common/resource_bundle.h"
 #include "grit/theme_resources.h"
 
 namespace {
@@ -256,13 +256,13 @@ AutocompletePopupViewGtk::AutocompletePopupViewGtk(
                                  GDK_POINTER_MOTION_MASK |
                                  GDK_BUTTON_PRESS_MASK |
                                  GDK_BUTTON_RELEASE_MASK);
-  g_signal_connect(window_, "motion-notify-event", 
+  g_signal_connect(window_, "motion-notify-event",
                    G_CALLBACK(&HandleMotionThunk), this);
-  g_signal_connect(window_, "button-press-event", 
+  g_signal_connect(window_, "button-press-event",
                    G_CALLBACK(&HandleButtonPressThunk), this);
-  g_signal_connect(window_, "button-release-event", 
+  g_signal_connect(window_, "button-release-event",
                    G_CALLBACK(&HandleButtonReleaseThunk), this);
-  g_signal_connect(window_, "expose-event", 
+  g_signal_connect(window_, "expose-event",
                    G_CALLBACK(&HandleExposeThunk), this);
 }
 

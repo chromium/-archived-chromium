@@ -6,6 +6,7 @@
 
 #include <algorithm>
 
+#include "app/resource_bundle.h"
 #include "base/command_line.h"
 #include "base/field_trial.h"
 #include "base/file_util.h"
@@ -45,7 +46,6 @@
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
 #include "chrome/common/result_codes.h"
-#include "chrome/common/resource_bundle.h"
 #include "grit/chromium_strings.h"
 #include "grit/generated_resources.h"
 #include "grit/net_resources.h"

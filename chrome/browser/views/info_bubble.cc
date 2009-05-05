@@ -4,6 +4,7 @@
 
 #include "chrome/browser/views/info_bubble.h"
 
+#include "app/resource_bundle.h"
 #include "base/win_util.h"
 #include "chrome/browser/browser_window.h"
 #include "chrome/browser/views/frame/browser_view.h"
@@ -11,7 +12,6 @@
 #include "chrome/common/gfx/path.h"
 #include "chrome/common/notification_service.h"
 #include "chrome/common/notification_type.h"
-#include "chrome/common/resource_bundle.h"
 #include "chrome/common/win_util.h"
 #include "chrome/views/widget/root_view.h"
 #include "chrome/views/window/window.h"

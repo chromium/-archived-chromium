@@ -4,11 +4,11 @@
 
 #include "chrome/views/window/custom_frame_view.h"
 
+#include "app/resource_bundle.h"
 #include "base/win_util.h"
 #include "chrome/common/gfx/path.h"
 #include "chrome/common/gfx/chrome_canvas.h"
 #include "chrome/common/gfx/chrome_font.h"
-#include "chrome/common/resource_bundle.h"
 #include "chrome/common/win_util.h"
 #include "chrome/views/window/client_view.h"
 #include "chrome/views/window/window_delegate.h"

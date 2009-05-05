@@ -6,6 +6,7 @@
 
 #include <limits>
 
+#include "app/resource_bundle.h"
 #include "base/string_util.h"
 #include "base/base_drag_source.h"
 #include "chrome/browser/bookmarks/bookmark_context_menu.h"
@@ -31,7 +32,6 @@
 #include "chrome/common/page_transition_types.h"
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
-#include "chrome/common/resource_bundle.h"
 #include "chrome/common/win_util.h"
 #include "chrome/views/controls/button/menu_button.h"
 #include "chrome/views/controls/menu/chrome_menu.h"

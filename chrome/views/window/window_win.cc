@@ -6,6 +6,7 @@
 
 #include <shellapi.h>
 
+#include "app/resource_bundle.h"
 #include "base/win_util.h"
 #include "chrome/app/chrome_dll_resource.h"
 #include "chrome/common/gfx/chrome_canvas.h"
@@ -15,7 +16,6 @@
 #include "chrome/common/l10n_util.h"
 #include "chrome/common/notification_service.h"
 #include "chrome/common/pref_service.h"
-#include "chrome/common/resource_bundle.h"
 #include "chrome/common/win_util.h"
 #include "chrome/views/widget/root_view.h"
 #include "chrome/views/window/client_view.h"

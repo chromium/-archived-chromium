@@ -6,6 +6,7 @@
 
 #include "chrome/browser/dom_ui/new_tab_ui.h"
 
+#include "app/resource_bundle.h"
 #include "base/histogram.h"
 #include "base/string_piece.h"
 #include "chrome/browser/bookmarks/bookmark_model.h"
@@ -31,7 +32,6 @@
 #include "chrome/common/notification_service.h"
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
-#include "chrome/common/resource_bundle.h"
 #include "chrome/common/url_constants.h"
 #ifdef CHROME_PERSONALIZATION
 #include "chrome/personalization/personalization.h"

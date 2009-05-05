@@ -4,6 +4,7 @@
 
 #include "chrome/browser/task_manager.h"
 
+#include "app/resource_bundle.h"
 #include "base/process_util.h"
 #include "base/stats_table.h"
 #include "base/string_util.h"
@@ -17,7 +18,6 @@
 #include "chrome/common/l10n_util.h"
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
-#include "chrome/common/resource_bundle.h"
 #include "chrome/views/accelerator.h"
 #include "chrome/views/background.h"
 #include "chrome/views/controls/button/native_button.h"

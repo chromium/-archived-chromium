@@ -4,6 +4,7 @@
 
 #include "chrome/browser/views/bookmark_table_view.h"
 
+#include "app/resource_bundle.h"
 #include "base/base_drag_source.h"
 #include "chrome/browser/bookmarks/bookmark_utils.h"
 #include "chrome/browser/bookmarks/bookmark_model.h"
@@ -15,7 +16,6 @@
 #include "chrome/common/os_exchange_data.h"
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
-#include "chrome/common/resource_bundle.h"
 #include "chrome/views/view_constants.h"
 #include "grit/generated_resources.h"
 

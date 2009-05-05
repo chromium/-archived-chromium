@@ -4,6 +4,7 @@
 
 #include "chrome/browser/views/shelf_item_dialog.h"
 
+#include "app/resource_bundle.h"
 #include "base/gfx/png_decoder.h"
 #include "base/string_util.h"
 #include "chrome/browser/net/url_fixer_upper.h"
@@ -14,7 +15,6 @@
 #include "chrome/common/l10n_util.h"
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
-#include "chrome/common/resource_bundle.h"
 #include "chrome/common/stl_util-inl.h"
 #include "chrome/views/background.h"
 #include "chrome/views/controls/label.h"

@@ -4,6 +4,7 @@
 
 #include "chrome/browser/views/frame/opaque_browser_frame_view.h"
 
+#include "app/resource_bundle.h"
 #include "chrome/browser/views/frame/browser_frame.h"
 #include "chrome/browser/views/frame/browser_view.h"
 #include "chrome/browser/views/tabs/tab_strip.h"
@@ -11,7 +12,6 @@
 #include "chrome/common/gfx/chrome_font.h"
 #include "chrome/common/gfx/path.h"
 #include "chrome/common/l10n_util.h"
-#include "chrome/common/resource_bundle.h"
 #include "chrome/common/win_util.h"
 #include "chrome/views/controls/button/image_button.h"
 #include "chrome/views/widget/root_view.h"

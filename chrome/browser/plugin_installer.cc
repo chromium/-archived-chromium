@@ -4,10 +4,10 @@
 
 #include "chrome/browser/plugin_installer.h"
 
+#include "app/resource_bundle.h"
 #include "base/string_util.h"
 #include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/common/l10n_util.h"
-#include "chrome/common/resource_bundle.h"
 #include "grit/generated_resources.h"
 #include "grit/theme_resources.h"
 #include "webkit/default_plugin/default_plugin_shared.h"

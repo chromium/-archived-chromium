@@ -7,6 +7,7 @@
 #include <string>
 #include <vector>
 
+#include "app/resource_bundle.h"
 #include "base/file_version_info.h"
 #include "base/histogram.h"
 #include "base/platform_thread.h"
@@ -27,7 +28,6 @@
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
 #include "chrome/common/render_messages.h"
-#include "chrome/common/resource_bundle.h"
 #include "chrome/common/url_constants.h"
 #include "chrome/renderer/about_handler.h"
 #include "googleurl/src/gurl.h"

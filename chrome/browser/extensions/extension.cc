@@ -4,6 +4,7 @@
 
 #include "chrome/browser/extensions/extension.h"
 
+#include "app/resource_bundle.h"
 #include "base/file_path.h"
 #include "base/file_util.h"
 #include "base/logging.h"
@@ -11,7 +12,6 @@
 #include "net/base/net_util.h"
 #include "chrome/browser/extensions/extension_error_reporter.h"
 #include "chrome/common/extensions/user_script.h"
-#include "chrome/common/resource_bundle.h"
 #include "chrome/common/url_constants.h"
 
 const char Extension::kManifestFilename[] = "manifest.json";

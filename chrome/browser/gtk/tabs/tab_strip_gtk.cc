@@ -4,6 +4,7 @@
 
 #include "chrome/browser/gtk/tabs/tab_strip_gtk.h"
 
+#include "app/resource_bundle.h"
 #include "base/gfx/gtk_util.h"
 #include "base/gfx/point.h"
 #include "chrome/browser/browser.h"
@@ -11,7 +12,6 @@
 #include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/common/gfx/chrome_canvas.h"
 #include "chrome/common/l10n_util.h"
-#include "chrome/common/resource_bundle.h"
 #include "chrome/common/slide_animation.h"
 #include "grit/generated_resources.h"
 #include "grit/theme_resources.h"

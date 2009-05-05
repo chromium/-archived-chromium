@@ -4,6 +4,7 @@
 
 #include "chrome/browser/views/tabs/tab_strip.h"
 
+#include "app/resource_bundle.h"
 #include "base/gfx/size.h"
 #include "chrome/browser/metrics/user_metrics.h"
 #include "chrome/browser/profile.h"
@@ -19,7 +20,6 @@
 #include "chrome/common/l10n_util.h"
 #include "chrome/common/os_exchange_data.h"
 #include "chrome/common/pref_names.h"
-#include "chrome/common/resource_bundle.h"
 #include "chrome/common/slide_animation.h"
 #include "chrome/common/stl_util-inl.h"
 #include "chrome/common/win_util.h"

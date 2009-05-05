@@ -4,6 +4,7 @@
 
 #include "chrome/browser/browser_init.h"
 
+#include "app/resource_bundle.h"
 #include "base/basictypes.h"
 #include "base/command_line.h"
 #include "base/event_recorder.h"
@@ -37,7 +38,6 @@
 #include "chrome/common/l10n_util.h"
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
-#include "chrome/common/resource_bundle.h"
 #include "chrome/common/result_codes.h"
 #include "grit/chromium_strings.h"
 #include "grit/generated_resources.h"
@@ -140,8 +140,8 @@ class NotifyNotDefaultBrowserTask : public Task {
     }
     TabContents* tab = browser->GetSelectedTabContents();
     // Don't show the info-bar if there are already info-bars showing.
-    // In ChromeBot tests, there might be a race. This line appears to get 
-    // called during shutdown and |tab| can be NULL. 
+    // In ChromeBot tests, there might be a race. This line appears to get
+    // called during shutdown and |tab| can be NULL.
     if (!tab || tab->infobar_delegate_count() > 0)
       return;
     tab->AddInfoBar(new DefaultBrowserInfoBarDelegate(tab));

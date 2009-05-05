@@ -8,6 +8,7 @@
 #include <string>
 #include <vector>
 
+#include "app/resource_bundle.h"
 #include "base/command_line.h"
 #include "base/compiler_specific.h"
 #include "base/gfx/png_encoder.h"
@@ -24,7 +25,6 @@
 #include "chrome/common/message_box_flags.h"
 #include "chrome/common/page_zoom.h"
 #include "chrome/common/render_messages.h"
-#include "chrome/common/resource_bundle.h"
 #include "chrome/common/thumbnail_score.h"
 #include "chrome/common/url_constants.h"
 #include "chrome/renderer/about_handler.h"
