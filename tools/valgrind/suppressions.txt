@@ -307,14 +307,24 @@
    fun:_ZN13TestShellTest5SetUpEv
 }
 {
+   # See also http://www.gnome.org/~johan/gtk.suppression
+   # (which has a smattering of similar pango suppressions)
    pango_font_leak_todo
    Memcheck:Leak
    ...
    fun:FcFontRenderPrepare
    obj:*
    fun:pango_font_map_load_fontset
-   obj:*
-   fun:pango_itemize_with_base_dir
+}
+{
+   # Fontconfig leak, seen in shard 16 of 20 of ui_tests
+   # See https://bugs.freedesktop.org/show_bug.cgi?id=8428
+   # and http://www.gnome.org/~johan/gtk.suppression
+   fontconfig_bug_8428
+   Memcheck:Leak
+   fun:realloc
+   fun:FcPatternObjectInsertElt
+   fun:FcPatternObjectAddWithBinding
 }
 {
    # See http://crbug.com/6522
@@ -348,6 +358,19 @@
    ...
    fun:_ZN3IPC12ChannelProxy7Context14OnChannelErrorEv
    fun:_ZN3IPC7Channel11ChannelImpl28OnFileCanReadWithoutBlockingEi
+}
+{
+   # See http://crbug.com/6547
+   # Found by running 20-sharded ui tests over and over, aways in shard 18
+   # after AutomationProxyTest.AutocompleteParallelProxy
+   bug_6547
+   Memcheck:Leak
+   fun:_Znwj
+   fun:_ZN18ResourceDispatcher12CreateBridgeERKSsRK4GURLS4_S4_S1_S1_S1_iiN12ResourceType4TypeEjii
+   fun:_ZN11webkit_glue20ResourceLoaderBridge6CreateERKSsRK4GURLS5_S5_S2_S2_S2_iiN12ResourceType4TypeEii
+   fun:_ZN7WebCore22ResourceHandleInternal5StartEPN11webkit_glue20ResourceLoaderBridge16SyncLoadResponseE
+   fun:_ZN7WebCore14ResourceHandle5startEPNS_5FrameE
+   fun:_ZN7WebCore14ResourceHandle6createERKNS_15ResourceRequestEPNS_20ResourceHandleClientEPNS_5FrameEbbb
 }
 {
    # See http://crbug.com/9450
@@ -560,11 +583,19 @@
    # See http://crbug.com/11213
    bug_11213
    Memcheck:Leak
-   fun:_Znwj
+   ...
    fun:_ZN7WebCore14ResourceHandle6createERKNS_15ResourceRequestEPNS_20ResourceHandleClientEPNS_5FrameEbbb
    fun:_ZN7WebCore14ResourceLoader4loadERKNS_15ResourceRequestE
    fun:_ZN7WebCore17SubresourceLoader6createEPNS_5FrameEPNS_23SubresourceLoaderClientERKNS_15ResourceRequestEbbb
    fun:_ZN7WebCore6Loader4Host20servePendingRequestsERN3WTF5DequeIPNS_7RequestEEERb
-   fun:_ZN7WebCore6Loader4Host20servePendingRequestsENS0_8PriorityE
-   fun:_ZN7WebCore6Loader4loadEPNS_9DocLoaderEPNS_14CachedResourceEbbb
+}
+{
+   # See http://crbug.com/11462
+   bug_11462
+   Memcheck:Leak
+   fun:_Znwj
+   fun:_ZN27SafeBrowsingProtocolManager21HandleServiceResponseERK4GURLPKci
+   fun:_ZN27SafeBrowsingProtocolManager18OnURLFetchCompleteEPK10URLFetcherRK4GURLRK16URLRequestStatusiRKSt6vectorISsSaISsEERKSs
+   fun:_ZN10URLFetcher4Core21OnCompletedURLRequestERK16URLRequestStatus
+   fun:_ZN14RunnableMethodIN10URLFetcher4CoreEMS1_FvRK16URLRequestStatusE6Tuple1IS2_EE3RunEv
 }
