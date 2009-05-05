@@ -135,6 +135,13 @@
           '..',
         ],
       },
+      'conditions': [
+        ['OS=="linux"', {
+          'dependencies': [
+            '../build/linux/system.gyp:gtk',
+          ],
+        }],
+      ],
     },
     {
       # theme_resources also generates a .cc file, so it can't use the rules above.
