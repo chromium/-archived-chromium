@@ -46,10 +46,6 @@ class LocationBarViewGtk : public AutocompleteEditController,
   // restore saved state that the tab holds.
   void Update(const TabContents* tab_for_state_restoring);
 
-  AutocompleteEditView* location_entry() {
-    return location_entry_.get();
-  }
-
   // Implement the AutocompleteEditController interface.
   virtual void OnAutocompleteAccept(const GURL& url,
       WindowOpenDisposition disposition,
@@ -72,6 +68,9 @@ class LocationBarViewGtk : public AutocompleteEditController,
   virtual void UpdatePageActions();
   virtual void SaveStateToContents(TabContents* contents);
   virtual void Revert();
+  virtual AutocompleteEditView* location_entry() {
+    return location_entry_.get();
+  }
 
   // Translation between a security level and the background color.  Both the
   // location bar and edit have to manage and match the background color.

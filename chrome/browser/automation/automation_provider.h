@@ -16,6 +16,7 @@
 #include <vector>
 
 #include "base/basictypes.h"
+#include "chrome/browser/automation/automation_autocomplete_edit_tracker.h"
 #include "chrome/browser/automation/automation_browser_tracker.h"
 #include "chrome/browser/automation/automation_tab_tracker.h"
 #include "chrome/browser/automation/automation_window_tracker.h"
@@ -30,7 +31,6 @@
 
 #if defined(OS_WIN)
 // TODO(port): enable these.
-#include "chrome/browser/automation/automation_autocomplete_edit_tracker.h"
 #include "chrome/browser/automation/automation_constrained_window_tracker.h"
 enum AutomationMsg_NavigationResponseValues;
 #endif
@@ -459,8 +459,8 @@ class AutomationProvider : public base::RefCounted<AutomationProvider>,
 #if defined(OS_WIN)
   // TODO(port): Enable as trackers get ported.
   scoped_ptr<AutomationConstrainedWindowTracker> cwindow_tracker_;
-  scoped_ptr<AutomationAutocompleteEditTracker> autocomplete_edit_tracker_;
 #endif
+  scoped_ptr<AutomationAutocompleteEditTracker> autocomplete_edit_tracker_;
   scoped_ptr<NavigationControllerRestoredObserver> restore_tracker_;
   LoginHandlerMap login_handler_map_;
   NotificationObserverList notification_observer_list_;

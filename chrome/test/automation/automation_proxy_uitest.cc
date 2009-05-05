@@ -974,7 +974,7 @@ TEST_F(ExternalTabTestType, ExternalTabPostMessage) {
 #endif  // defined(OS_WIN)
 
 // TODO(port): Need to port autocomplete_edit_proxy.* first.
-#if defined(OS_WIN)
+#if defined(OS_WIN) || defined(OS_LINUX)
 TEST_F(AutomationProxyTest, AutocompleteGetSetText) {
   scoped_ptr<BrowserProxy> browser(automation()->GetBrowserWindow(0));
   ASSERT_TRUE(browser.get());
@@ -1035,7 +1035,7 @@ TEST_F(AutomationProxyVisibleTest, AutocompleteMatchesTest) {
   EXPECT_TRUE(edit->GetAutocompleteMatches(&matches));
   EXPECT_FALSE(matches.empty());
 }
-#endif  // defined(OS_WIN)
+#endif  // defined(OS_WIN) || defined(OS_LINUX)
 
 // Disabled because flaky see bug #5314.
 TEST_F(AutomationProxyTest, DISABLED_AppModalDialogTest) {

@@ -2,18 +2,18 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CHROME_BROWSER_AUTOMATION_AUTOMATION_AUTOCOMPLETE_EDIT_TRACKER_H__
-#define CHROME_BROWSER_AUTOMATION_AUTOMATION_AUTOCOMPLETE_EDIT_TRACKER_H__
+#ifndef CHROME_BROWSER_AUTOMATION_AUTOMATION_AUTOCOMPLETE_EDIT_TRACKER_H_
+#define CHROME_BROWSER_AUTOMATION_AUTOMATION_AUTOCOMPLETE_EDIT_TRACKER_H_
 
 #include "chrome/browser/autocomplete/autocomplete_edit.h"
 #include "chrome/browser/autocomplete/autocomplete_edit_view.h"
 #include "chrome/browser/automation/automation_resource_tracker.h"
 
-class AutomationAutocompleteEditTracker:
+class AutomationAutocompleteEditTracker :
     public AutomationResourceTracker<AutocompleteEditView*> {
  public:
   explicit AutomationAutocompleteEditTracker(IPC::Message::Sender* automation)
-      : AutomationResourceTracker(automation) { }
+      : AutomationResourceTracker<AutocompleteEditView*>(automation) { }
 
   virtual ~AutomationAutocompleteEditTracker() {
     ClearAllMappings();
@@ -32,4 +32,4 @@ class AutomationAutocompleteEditTracker:
   }
 };
 
-#endif  // CHROME_BROWSER_AUTOMATION_AUTOMATION_AUTOCOMPLETE_EDIT_TRACKER_H__
+#endif  // CHROME_BROWSER_AUTOMATION_AUTOMATION_AUTOCOMPLETE_EDIT_TRACKER_H_

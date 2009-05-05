@@ -2053,8 +2053,6 @@
           ],
         }, { # OS != "win"
           'sources!': [
-            'test/automation/autocomplete_edit_proxy.cc',
-            'test/automation/autocomplete_edit_proxy.h',
             'test/in_process_browser_test.cc',
             'test/in_process_browser_test.h',
             'test/ui_test_utils.cc',
@@ -2241,7 +2239,6 @@
             'browser/metrics/metrics_service_uitest.cc',
             'test/reliability/page_load_test.cc',
             'test/ui/layout_plugin_uitest.cc',
-            'test/ui/omnibox_uitest.cc',
           ],
         }],
         ['OS=="mac"', {

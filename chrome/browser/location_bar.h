@@ -16,6 +16,7 @@
 #include "chrome/common/page_transition_types.h"
 #include "webkit/glue/window_open_disposition.h"
 
+class AutocompleteEditView;
 class TabContents;
 
 class LocationBar {
@@ -56,6 +57,9 @@ class LocationBar {
 
   // Reverts the location bar.  The bar's permanent text will be shown.
   virtual void Revert() = 0;
+
+  // Returns a pointer to the text entry view.
+  virtual AutocompleteEditView* location_entry() = 0;
 };
 
 #endif  // CHROME_BROWSER_LOCATION_BAR_H_

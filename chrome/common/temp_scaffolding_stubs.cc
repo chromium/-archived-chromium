@@ -39,6 +39,7 @@ void AutomationProvider::GetFocusedViewID(int handle, int* view_id) {
   NOTIMPLEMENTED();
 }
 
+#if defined(OS_MACOSX)
 void AutomationProvider::GetAutocompleteEditForBrowser(
     int browser_handle,
     bool* success,
@@ -46,6 +47,7 @@ void AutomationProvider::GetAutocompleteEditForBrowser(
   *success = false;
   NOTIMPLEMENTED();
 }
+#endif
 
 void AutomationProvider::GetBrowserForWindow(int window_handle,
                                              bool* success,
@@ -78,6 +80,7 @@ void AutomationProvider::PrintNow(int tab_handle,
   NOTIMPLEMENTED();
 }
 
+#if defined(OS_MACOSX)
 void AutomationProvider::GetAutocompleteEditText(int autocomplete_edit_handle,
                                                  bool* success,
                                                  std::wstring* text) {
@@ -113,6 +116,7 @@ void AutomationProvider::OnMessageFromExternalHost(
     const std::string& target) {
   NOTIMPLEMENTED();
 }
+#endif  // defined(OS_MACOSX)
 
 //--------------------------------------------------------------------------
 

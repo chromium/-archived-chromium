@@ -9,9 +9,9 @@
 
 #include "base/scoped_ptr.h"
 #include "chrome/browser/autocomplete/autocomplete_edit.h"
+#include "chrome/browser/autocomplete/autocomplete_edit_view_mac.h"
 #include "chrome/browser/location_bar.h"
 
-class AutocompleteEditViewMac;
 class CommandUpdater;
 class ToolbarModel;
 
@@ -42,6 +42,9 @@ class LocationBarViewMac : public AutocompleteEditController,
   virtual void UpdatePageActions() { NOTIMPLEMENTED(); }
   virtual void SaveStateToContents(TabContents* contents);
   virtual void Revert();
+  virtual AutocompleteEditView* location_entry() {
+    return edit_view_.get();
+  }
 
   virtual void OnAutocompleteAccept(const GURL& url,
       WindowOpenDisposition disposition,

@@ -40,6 +40,9 @@ class TestLocationBar : public LocationBar {
   virtual void UpdatePageActions() {}
   virtual void SaveStateToContents(TabContents* contents) {}
   virtual void Revert() {}
+  virtual AutocompleteEditView* location_entry() {
+    return NULL;
+  }
 
  private:
 

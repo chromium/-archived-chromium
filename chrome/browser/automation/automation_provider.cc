@@ -22,6 +22,7 @@
 #include "chrome/browser/find_bar.h"
 #include "chrome/browser/find_bar_controller.h"
 #include "chrome/browser/find_notification_details.h"
+#include "chrome/browser/location_bar.h"
 #include "chrome/browser/renderer_host/render_view_host.h"
 #include "chrome/browser/ssl/ssl_manager.h"
 #include "chrome/browser/ssl/ssl_blocking_page.h"
@@ -45,10 +46,13 @@
 #include "chrome/browser/external_tab_container.h"
 #include "chrome/browser/login_prompt.h"
 #include "chrome/browser/printing/print_job.h"
-#include "chrome/browser/views/bookmark_bar_view.h"
-#include "chrome/browser/views/location_bar_view.h"
-#include "chrome/views/window/window.h"
 #endif  // defined(OS_WIN)
+
+#if defined(OS_WIN)
+#include "chrome/browser/views/bookmark_bar_view.h"
+#include "chrome/views/widget/widget_win.h"
+#include "chrome/views/window/window.h"
+#endif
 
 using base::Time;
 
@@ -783,10 +787,10 @@ AutomationProvider::AutomationProvider(Profile* profile)
   browser_tracker_.reset(new AutomationBrowserTracker(this));
   tab_tracker_.reset(new AutomationTabTracker(this));
   window_tracker_.reset(new AutomationWindowTracker(this));
-#if defined(OS_WIN)
-  // TODO(port): Enable as the trackers get ported.
   autocomplete_edit_tracker_.reset(
       new AutomationAutocompleteEditTracker(this));
+#if defined(OS_WIN)
+  // TODO(port): Enable as the trackers get ported.
   cwindow_tracker_.reset(new AutomationConstrainedWindowTracker(this));
   new_tab_ui_load_observer_.reset(new NewTabUILoadObserver(this));
 #endif  // defined(OS_WIN)
@@ -2192,8 +2196,7 @@ void AutomationProvider::GetWindowForBrowser(int browser_handle,
   }
 }
 
-#if defined(OS_WIN)
-// TODO(port): Remove windowsisms.
+#if defined(OS_WIN) || defined(OS_LINUX)
 void AutomationProvider::GetAutocompleteEditForBrowser(
     int browser_handle,
     bool* success,
@@ -2203,16 +2206,17 @@ void AutomationProvider::GetAutocompleteEditForBrowser(
 
   if (browser_tracker_->ContainsHandle(browser_handle)) {
     Browser* browser = browser_tracker_->GetResource(browser_handle);
-    BrowserWindowTesting* testing_interface =
-        browser->window()->GetBrowserWindowTesting();
-    LocationBarView* loc_bar_view = testing_interface->GetLocationBarView();
-    AutocompleteEditView* edit_view = loc_bar_view->location_entry();
+    LocationBar* loc_bar = browser->window()->GetLocationBar();
+    AutocompleteEditView* edit_view = loc_bar->location_entry();
     // Add() returns the existing handle for the resource if any.
     *autocomplete_edit_handle = autocomplete_edit_tracker_->Add(edit_view);
     *success = true;
   }
 }
+#endif  // defined(OS_WIN) || defined(OS_LINUX)
 
+#if defined(OS_WIN)
+// TODO(port): Remove windowsisms.
 void AutomationProvider::GetBrowserForWindow(int window_handle,
                                              bool* success,
                                              int* browser_handle) {
@@ -2536,7 +2540,7 @@ void AutomationProvider::SavePage(int tab_handle,
   *success = true;
 }
 
-#if defined(OS_WIN)
+#if defined(OS_WIN) || defined(OS_LINUX)
 // TODO(port): Enable these.
 void AutomationProvider::GetAutocompleteEditText(int autocomplete_edit_handle,
                                                  bool* success,
@@ -2612,7 +2616,7 @@ void AutomationProvider::OnMessageFromExternalHost(int handle,
     view_host->ForwardMessageFromExternalHost(message, origin, target);
   }
 }
-#endif  // defined(OS_WIN)
+#endif  // defined(OS_WIN) || defined(OS_LINUX)
 
 TabContents* AutomationProvider::GetTabContentsForHandle(
     int handle, NavigationController** tab) {

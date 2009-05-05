@@ -110,10 +110,6 @@ class LocationBarView : public LocationBar,
   // Returns the accessibility role.
   bool GetAccessibleRole(AccessibilityTypes::Role* role);
 
-  AutocompleteEditView* location_entry() {
-    return location_entry_.get();
-  }
-
   // Overridden from views::View:
   virtual bool OverrideAccelerator(const views::Accelerator& accelerator);
 
@@ -129,6 +125,9 @@ class LocationBarView : public LocationBar,
   virtual void UpdatePageActions();
   virtual void SaveStateToContents(TabContents* contents);
   virtual void Revert();
+  virtual AutocompleteEditView* location_entry() {
+    return location_entry_.get();
+  }
 
   static const int kVertMargin;
   static const COLORREF kBackgroundColorByLevel[];
