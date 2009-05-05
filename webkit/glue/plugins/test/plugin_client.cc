@@ -17,6 +17,7 @@
 #include "webkit/glue/plugins/test/plugin_npobject_lifetime_test.h"
 #include "webkit/glue/plugins/test/plugin_npobject_proxy_test.h"
 #include "webkit/glue/plugins/test/plugin_window_size_test.h"
+#include "webkit/glue/plugins/test/plugin_windowed_test.h"
 #include "webkit/glue/plugins/test/plugin_windowless_test.h"
 #include "third_party/npapi/bindings/npapi.h"
 #include "third_party/npapi/bindings/npruntime.h"
@@ -153,6 +154,12 @@ NPError NPP_New(NPMIMEType pluginType, NPP instance, uint16 mode,
   } else if (test_name == "private") {
     new_test = new NPAPIClient::PrivateTest(instance,
       NPAPIClient::PluginClient::HostFunctions());
+#if defined(OS_WIN)
+  // TODO(port): plugin_windowed_test.*.
+  } else if (test_name == "hidden_plugin") {
+    new_test = new NPAPIClient::WindowedPluginTest(instance,
+        NPAPIClient::PluginClient::HostFunctions());
+#endif
   } else {
     // If we don't have a test case for this, create a
     // generic one which basically never fails.

@@ -156,3 +156,20 @@ TEST_F(PluginTest, DeleteFrameDuringEvent) {
 
   // No crash means we passed.
 }
+
+#if defined(OS_WIN)
+// Tests that a hidden plugin is not shown.  See http://crbug.com/8927
+TEST_F(PluginTest, HiddenPlugin) {
+  CopyTestPlugin();
+
+  FilePath test_html = data_dir_;
+  test_html = test_html.AppendASCII("plugins");
+  test_html = test_html.AppendASCII("hidden_plugin.html");
+  test_shell_->LoadURL(test_html.ToWStringHack().c_str());
+  test_shell_->WaitTestFinished();
+
+  std::wstring text;
+  test_shell_->webView()->GetMainFrame()->GetContentAsPlainText(10000, &text);
+  ASSERT_EQ(true, StartsWith(text, L"DONE", true));
+}
+#endif

@@ -263,6 +263,14 @@
 			>
 		</File>
 		<File
+			RelativePath=".\plugin_windowed_test.cc"
+			>
+		</File>
+		<File
+			RelativePath=".\plugin_windowed_test.h"
+			>
+		</File>
+		<File
 			RelativePath=".\plugin_windowless_test.cc"
 			>
 		</File>

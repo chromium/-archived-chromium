@@ -111,6 +111,7 @@ class PluginTest {
   // The NPP Identifier for this plugin instance.
   NPP id() { return id_; }
   std::string test_id() { return test_id_; }
+  std::string test_name() { return test_name_; }
 
  private:
   NPP                       id_;
