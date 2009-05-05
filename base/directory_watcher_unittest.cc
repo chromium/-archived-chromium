@@ -56,11 +56,21 @@ class DirectoryWatcherTest : public testing::Test {
     ASSERT_FALSE(file_util::PathExists(test_dir_));
   }
 
-  // Write |content| to a file under the test directory.
-  void WriteTestDirFile(const FilePath::StringType& filename,
-                        const std::string& content) {
-    FilePath path = test_dir_.Append(filename);
-    file_util::WriteFile(path, content.c_str(), content.length());
+  // Write |content| to the |filename|. Returns true on success.
+  bool WriteTestFile(const FilePath& filename,
+                     const std::string& content) {
+    return (file_util::WriteFile(filename, content.c_str(), content.length()) ==
+            static_cast<int>(content.length()));
+  }
+
+  // Create directory |name| under test_dir_. If |sync| is true, runs
+  // SyncIfPOSIX. Returns path to the created directory, including test_dir_.
+  FilePath CreateTestDirDirectoryASCII(const std::string& name, bool sync) {
+    FilePath path(test_dir_.AppendASCII(name));
+    EXPECT_TRUE(file_util::CreateDirectory(path));
+    if (sync)
+      SyncIfPOSIX();
+    return path;
   }
 
   void SetExpectedNumberOfNotifiedDelegates(int n) {
@@ -144,15 +154,14 @@ TEST_F(DirectoryWatcherTest, NewFile) {
   ASSERT_TRUE(watcher.Watch(test_dir_, &delegate, false));
 
   SetExpectedNumberOfNotifiedDelegates(1);
-  WriteTestDirFile(FILE_PATH_LITERAL("test_file"), "some content");
+  ASSERT_TRUE(WriteTestFile(test_dir_.AppendASCII("test_file"), "content"));
   VerifyExpectedNumberOfNotifiedDelegates();
 }
 
 // Verify that modifying a file is caught.
 TEST_F(DirectoryWatcherTest, ModifiedFile) {
   // Write a file to the test dir.
-  WriteTestDirFile(FILE_PATH_LITERAL("test_file"), "some content");
-
+  ASSERT_TRUE(WriteTestFile(test_dir_.AppendASCII("test_file"), "content"));
   SyncIfPOSIX();
 
   DirectoryWatcher watcher;
@@ -161,7 +170,22 @@ TEST_F(DirectoryWatcherTest, ModifiedFile) {
 
   // Now make sure we get notified if the file is modified.
   SetExpectedNumberOfNotifiedDelegates(1);
-  WriteTestDirFile(FILE_PATH_LITERAL("test_file"), "some new content");
+  ASSERT_TRUE(WriteTestFile(test_dir_.AppendASCII("test_file"), "new content"));
+  VerifyExpectedNumberOfNotifiedDelegates();
+}
+
+TEST_F(DirectoryWatcherTest, DeletedFile) {
+  // Write a file to the test dir.
+  ASSERT_TRUE(WriteTestFile(test_dir_.AppendASCII("test_file"), "content"));
+  SyncIfPOSIX();
+
+  DirectoryWatcher watcher;
+  TestDelegate delegate(this);
+  ASSERT_TRUE(watcher.Watch(test_dir_, &delegate, false));
+
+  // Now make sure we get notified if the file is deleted.
+  SetExpectedNumberOfNotifiedDelegates(1);
+  ASSERT_TRUE(file_util::Delete(test_dir_.AppendASCII("test_file"), false));
   VerifyExpectedNumberOfNotifiedDelegates();
 }
 
@@ -178,20 +202,17 @@ TEST_F(DirectoryWatcherTest, Unregister) {
 
   // Write a file to the test dir.
   SetExpectedNumberOfNotifiedDelegates(0);
-  WriteTestDirFile(FILE_PATH_LITERAL("test_file"), "some content");
+  ASSERT_TRUE(WriteTestFile(test_dir_.AppendASCII("test_file"), "content"));
   VerifyExpectedNumberOfNotifiedDelegates();
 }
 
 TEST_F(DirectoryWatcherTest, SubDirRecursive) {
-  FilePath subdir(FILE_PATH_LITERAL("SubDir"));
-  ASSERT_TRUE(file_util::CreateDirectory(test_dir_.Append(subdir)));
+  FilePath subdir(CreateTestDirDirectoryASCII("SubDir", true));
 
 #if defined(OS_LINUX)
   // TODO(port): Recursive watches are not implemented on Linux.
   return;
 #endif  // !defined(OS_WIN)
-
-  SyncIfPOSIX();
 
   // Verify that modifications to a subdirectory are noticed by recursive watch.
   TestDelegate delegate(this);
@@ -199,8 +220,7 @@ TEST_F(DirectoryWatcherTest, SubDirRecursive) {
   ASSERT_TRUE(watcher.Watch(test_dir_, &delegate, true));
   // Write a file to the subdir.
   SetExpectedNumberOfNotifiedDelegates(1);
-  FilePath test_path = subdir.AppendASCII("test_file");
-  WriteTestDirFile(test_path.value(), "some content");
+  ASSERT_TRUE(WriteTestFile(subdir.AppendASCII("test_file"), "some content"));
   VerifyExpectedNumberOfNotifiedDelegates();
 }
 
@@ -212,13 +232,11 @@ TEST_F(DirectoryWatcherTest, SubDirNonRecursive) {
     return;
 #endif  // defined(OS_WIN)
 
-  FilePath subdir(FILE_PATH_LITERAL("SubDir"));
-  ASSERT_TRUE(file_util::CreateDirectory(test_dir_.Append(subdir)));
+  FilePath subdir(CreateTestDirDirectoryASCII("SubDir", false));
 
   // Create a test file before the test. On Windows we get a notification
   // when creating a file in a subdir even with a non-recursive watch.
-  FilePath test_path = subdir.AppendASCII("test_file");
-  WriteTestDirFile(test_path.value(), "some content");
+  ASSERT_TRUE(WriteTestFile(subdir.AppendASCII("test_file"), "some content"));
 
   SyncIfPOSIX();
 
@@ -230,7 +248,7 @@ TEST_F(DirectoryWatcherTest, SubDirNonRecursive) {
 
   // Modify the test file. There should be no notifications.
   SetExpectedNumberOfNotifiedDelegates(0);
-  WriteTestDirFile(test_path.value(), "some other content");
+  ASSERT_TRUE(WriteTestFile(subdir.AppendASCII("test_file"), "other content"));
   VerifyExpectedNumberOfNotifiedDelegates();
 }
 
@@ -260,7 +278,7 @@ TEST_F(DirectoryWatcherTest, DeleteDuringNotify) {
   Deleter deleter(watcher, &loop_);  // Takes ownership of watcher.
   ASSERT_TRUE(watcher->Watch(test_dir_, &deleter, false));
 
-  WriteTestDirFile(FILE_PATH_LITERAL("test_file"), "some content");
+  ASSERT_TRUE(WriteTestFile(test_dir_.AppendASCII("test_file"), "content"));
   loop_.Run();
 
   // We win if we haven't crashed yet.
@@ -275,7 +293,7 @@ TEST_F(DirectoryWatcherTest, MultipleWatchersSingleFile) {
   ASSERT_TRUE(watcher2.Watch(test_dir_, &delegate2, false));
 
   SetExpectedNumberOfNotifiedDelegates(2);
-  WriteTestDirFile(FILE_PATH_LITERAL("test_file"), "some content");
+  ASSERT_TRUE(WriteTestFile(test_dir_.AppendASCII("test_file"), "content"));
   VerifyExpectedNumberOfNotifiedDelegates();
 }
 
@@ -285,11 +303,8 @@ TEST_F(DirectoryWatcherTest, MultipleWatchersDifferentFiles) {
   TestDelegate delegates[kNumberOfWatchers] = {this, this, this, this, this};
   FilePath subdirs[kNumberOfWatchers];
   for (int i = 0; i < kNumberOfWatchers; i++) {
-    subdirs[i] = FilePath(FILE_PATH_LITERAL("Dir")).AppendASCII(IntToString(i));
-    ASSERT_TRUE(file_util::CreateDirectory(test_dir_.Append(subdirs[i])));
-
-    ASSERT_TRUE(watchers[i].Watch(test_dir_.Append(subdirs[i]), &delegates[i],
-                                  false));
+    subdirs[i] = CreateTestDirDirectoryASCII("Dir" + IntToString(i), false);
+    ASSERT_TRUE(watchers[i].Watch(subdirs[i], &delegates[i], false));
   }
   for (int i = 0; i < kNumberOfWatchers; i++) {
     // Verify that we only get modifications from one watcher (each watcher has
@@ -299,14 +314,83 @@ TEST_F(DirectoryWatcherTest, MultipleWatchersDifferentFiles) {
       delegates[j].reset();
 
     // Write a file to the subdir.
-    FilePath test_path = subdirs[i].AppendASCII("test_file");
     SetExpectedNumberOfNotifiedDelegates(1);
-    WriteTestDirFile(test_path.value(), "some content");
+    ASSERT_TRUE(WriteTestFile(subdirs[i].AppendASCII("test_file"), "content"));
     VerifyExpectedNumberOfNotifiedDelegates();
 
     loop_.RunAllPending();
   }
 }
+
+#if defined(OS_WIN) || defined(OS_MACOSX)
+// TODO(phajdan.jr): Enable when support for Linux recursive watches is added.
+
+TEST_F(DirectoryWatcherTest, WatchCreatedDirectory) {
+  TestDelegate delegate(this);
+  DirectoryWatcher watcher;
+  ASSERT_TRUE(watcher.Watch(test_dir_, &delegate, true));
+
+  SetExpectedNumberOfNotifiedDelegates(1);
+  FilePath subdir(CreateTestDirDirectoryASCII("SubDir", true));
+  VerifyExpectedNumberOfNotifiedDelegates();
+
+  delegate.reset();
+
+  // Write a file to the subdir.
+  SetExpectedNumberOfNotifiedDelegates(1);
+  ASSERT_TRUE(WriteTestFile(subdir.AppendASCII("test_file"), "some content"));
+  VerifyExpectedNumberOfNotifiedDelegates();
+}
+
+TEST_F(DirectoryWatcherTest, RecursiveWatchDeletedSubdirectory) {
+  FilePath subdir(CreateTestDirDirectoryASCII("SubDir", true));
+
+  TestDelegate delegate(this);
+  DirectoryWatcher watcher;
+  ASSERT_TRUE(watcher.Watch(test_dir_, &delegate, true));
+
+  // Write a file to the subdir.
+  SetExpectedNumberOfNotifiedDelegates(1);
+  ASSERT_TRUE(WriteTestFile(subdir.AppendASCII("test_file"), "some content"));
+  VerifyExpectedNumberOfNotifiedDelegates();
+
+  delegate.reset();
+
+  SetExpectedNumberOfNotifiedDelegates(1);
+  ASSERT_TRUE(file_util::Delete(subdir, true));
+  VerifyExpectedNumberOfNotifiedDelegates();
+}
+
+TEST_F(DirectoryWatcherTest, MoveFileAcrossWatches) {
+  FilePath subdir1(CreateTestDirDirectoryASCII("SubDir1", true));
+  FilePath subdir2(CreateTestDirDirectoryASCII("SubDir2", true));
+
+  TestDelegate delegate1(this), delegate2(this);
+  DirectoryWatcher watcher1, watcher2;
+  ASSERT_TRUE(watcher1.Watch(subdir1, &delegate1, true));
+  ASSERT_TRUE(watcher2.Watch(subdir2, &delegate2, true));
+
+  SetExpectedNumberOfNotifiedDelegates(1);
+  ASSERT_TRUE(WriteTestFile(subdir1.AppendASCII("file"), "some content"));
+  SyncIfPOSIX();
+  VerifyExpectedNumberOfNotifiedDelegates();
+
+  delegate1.reset();
+  delegate2.reset();
+
+  SetExpectedNumberOfNotifiedDelegates(2);
+  ASSERT_TRUE(file_util::Move(subdir1.AppendASCII("file"),
+                              subdir2.AppendASCII("file")));
+  VerifyExpectedNumberOfNotifiedDelegates();
+
+  delegate1.reset();
+  delegate2.reset();
+
+  SetExpectedNumberOfNotifiedDelegates(1);
+  ASSERT_TRUE(WriteTestFile(subdir2.AppendASCII("file"), "other content"));
+  VerifyExpectedNumberOfNotifiedDelegates();
+}
+#endif  // defined(OS_WIN) || defined(OS_MACOSX)
 
 // Verify that watching a directory that doesn't exist fails, but doesn't
 // asssert.
