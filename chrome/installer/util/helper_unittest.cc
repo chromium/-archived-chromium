@@ -22,7 +22,7 @@ namespace {
     virtual void SetUp() {
       // Name a subdirectory of the user temp directory.
       ASSERT_TRUE(PathService::Get(base::DIR_TEMP, &test_dir_));
-      test_dir_.AppendASCII("SetupHelperTest");
+      test_dir_ = test_dir_.AppendASCII("SetupHelperTest");
 
       // Create a fresh, empty copy of this test directory.
       file_util::Delete(test_dir_, true);
