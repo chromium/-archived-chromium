@@ -1918,7 +1918,6 @@ BUG10457 DEBUG WIN : LayoutTests/fast/js/large-expressions.html = FAIL
 // These tests were rebaselined with failure long ago. We shouldn't do this, and
 // instead work upstream to improve tests so that they don't fail.
 BUG10458 DEFER LINUX : LayoutTests/fast/forms/textarea-appearance-wrap.html = FAIL
-BUG10458 DEFER WIN LINUX : LayoutTests/fast/forms/textarea-hard-linewrap.html = FAIL
 // Linux-only failures
 BUG10458 LINUX : LayoutTests/editing/inserting/6633727.html = FAIL
 BUG10458 LINUX : LayoutTests/fast/block/float/overlapping-floats-with-overflow-hidden.html = FAIL
