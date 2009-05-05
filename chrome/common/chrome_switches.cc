@@ -297,6 +297,11 @@ const wchar_t kEnableWatchdog[]                = L"enable-watchdog";
 // whether or not it's actually the first run.
 const wchar_t kFirstRun[]                      = L"first-run";
 
+// Bypass the First Run experience when the browser is started, regardless of
+// whether or not it's actually the first run. Overrides kFirstRun in case
+// you're for some reason tempted to pass them both.
+const wchar_t kNoFirstRun[]                    = L"no-first-run";
+
 // Enable histograming of tasks served by MessageLoop. See about:histograms/Loop
 // for results, which show frequency of messages on each thread, including APC
 // count, object signalling count, etc.

@@ -326,8 +326,11 @@ int BrowserMain(const MainFunctionParams& parameters) {
 
     // If we are running in App mode, we do not want to show the importer
     // (first run) UI.
-    if (!first_run_ui_bypass && parsed_command_line.HasSwitch(switches::kApp))
+    if (!first_run_ui_bypass &&
+        (parsed_command_line.HasSwitch(switches::kApp) ||
+         parsed_command_line.HasSwitch(switches::kNoFirstRun))) {
       first_run_ui_bypass = true;
+    }
   }
 
   if (!parsed_command_line.HasSwitch(switches::kNoErrorDialogs)) {
