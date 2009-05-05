@@ -2048,7 +2048,7 @@ BUG10475 DEFER WIN LINUX : LayoutTests/fast/forms/range-thumb-height-percentage.
 
 DEFER SKIP BUG9613 : LayoutTests/fast/dom/clientWidthAfterDocumentIsRemoved.html = PASS
 
-BUG10476 WIN : LayoutTests/editing/selection/5136696.html = FAIL PASS
+BUG10476 WIN LINUX : LayoutTests/editing/selection/5136696.html = FAIL PASS
 BUG10476 : LayoutTests/http/tests/xmlhttprequest/redirect-cross-origin-post.html = FAIL PASS
 
 // Merge WebKit 42133:42199 regressions
@@ -2246,7 +2246,7 @@ BUG9992 WIN LINUX : LayoutTests/fast/text/shadow-no-blur.html = FAIL
 // Regressions from WebKit merge 43264:42403, unknown cause(s)
 BUG10055 LINUX DEBUG : LayoutTests/editing/execCommand/paste-1.html = FAIL PASS
 BUG10055 MAC : LayoutTests/fast/events/updateLayoutForHitTest.html = FAIL
-BUG10055 LINUX DEBUG : LayoutTests/svg/text/text-tselect-02-f.svg = FAIL
+BUG10055 LINUX : LayoutTests/svg/text/text-tselect-02-f.svg = FAIL
 
 // This test was changed upstream in http://trac.webkit.org/changeset/42447
 // to include window.showModalDialog, which we give as undefined.
@@ -2609,7 +2609,8 @@ BUG11483 WIN : LayoutTests/fast/overflow/overflow-focus-ring.html = FAIL
 BUG11483 : LayoutTests/fast/repaint/4776765.html = FAIL
 BUG11483 : LayoutTests/fast/repaint/selection-after-delete.html = FAIL
 BUG11483 : LayoutTests/fast/repaint/selection-after-remove.html = FAIL
-BUG11483 : LayoutTests/fast/workers/worker-replace-global-constructor.html = FAIL
+BUG11483 : LayoutTests/fast/workers/worker-replace-global-constructor.html = FAIL CRASH
 BUG11483 : LayoutTests/svg/text/foreignObject-repaint.xml = FAIL
 BUG11483 : LayoutTests/svg/transforms/animated-path-inside-transformed-html.xhtml = FAIL
 BUG11482 : LayoutTests/svg/custom/polyline-points-crash.html = CRASH
+BUG11502 WIN : LayoutTests/svg/css/glyph-orientation-rounding-test.xhtml = CRASH
