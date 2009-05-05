@@ -84,8 +84,6 @@
         'filters/ffmpeg_video_decoder.cc',
         'filters/ffmpeg_video_decoder.h',
         'filters/file_data_source.cc',
-        'filters/file_data_source.cc',
-        'filters/file_data_source.h',
         'filters/file_data_source.h',
         'filters/null_audio_renderer.cc',
         'filters/null_audio_renderer.h',
