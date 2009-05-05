@@ -197,7 +197,7 @@ void RenderViewHost::NavigateToEntry(const NavigationEntry& entry,
   RendererSecurityPolicy::GetInstance()->GrantRequestURL(
       process()->pid(), params.url);
 
-  DoNavigate(new ViewMsg_Navigate(routing_id(), params));
+  DoNavigate(entry.url(), new ViewMsg_Navigate(routing_id(), params));
 }
 
 void RenderViewHost::NavigateToURL(const GURL& url) {
@@ -210,10 +210,11 @@ void RenderViewHost::NavigateToURL(const GURL& url) {
   RendererSecurityPolicy::GetInstance()->GrantRequestURL(
       process()->pid(), params.url);
 
-  DoNavigate(new ViewMsg_Navigate(routing_id(), params));
+  DoNavigate(url, new ViewMsg_Navigate(routing_id(), params));
 }
 
-void RenderViewHost::DoNavigate(ViewMsg_Navigate* nav_message) {
+void RenderViewHost::DoNavigate(const GURL& url,
+                                ViewMsg_Navigate* nav_message) {
   // Only send the message if we aren't suspended at the start of a cross-site
   // request.
   if (navigations_suspended_) {
@@ -234,7 +235,11 @@ void RenderViewHost::DoNavigate(ViewMsg_Navigate* nav_message) {
     // with the throbber starting because the DOMUI (which controls whether the
     // favicon is displayed) happens synchronously. If the start loading
     // messages was asynchronous, then the default favicon would flash in.
-    delegate_->DidStartLoading(this);
+    //
+    // WebKit doesn't send throb notifications for JavaScript URLs, so we
+    // don't want to either.
+    if (!url.SchemeIs(chrome::kJavaScriptScheme))
+      delegate_->DidStartLoading(this);
   }
 }
 

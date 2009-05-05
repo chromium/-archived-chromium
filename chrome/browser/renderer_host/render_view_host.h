@@ -547,7 +547,10 @@ class RenderViewHost : public RenderWidgetHost {
   // Helper function to send a navigation message.  If a cross-site request is
   // in progress, we may be suspended while waiting for the onbeforeunload
   // handler, so this function might buffer the message rather than sending it.
-  void DoNavigate(ViewMsg_Navigate* nav_message);
+  //
+  // The URL parameter should match the one in the message. It's provided so
+  // that we don't have to decode the message to check it.
+  void DoNavigate(const GURL& url, ViewMsg_Navigate* nav_message);
 
  private:
   friend class TestRenderViewHost;
