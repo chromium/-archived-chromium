@@ -4,6 +4,7 @@
 
 #include "chrome/browser/gtk/bookmark_bar_gtk.h"
 
+#include "app/l10n_util.h"
 #include "app/resource_bundle.h"
 #include "base/gfx/gtk_util.h"
 #include "chrome/browser/bookmarks/bookmark_context_menu.h"
@@ -15,7 +16,6 @@
 #include "chrome/browser/profile.h"
 #include "chrome/common/gfx/text_elider.h"
 #include "chrome/common/gtk_util.h"
-#include "chrome/common/l10n_util.h"
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
 #include "grit/generated_resources.h"

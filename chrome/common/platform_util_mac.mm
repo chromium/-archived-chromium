@@ -6,11 +6,11 @@
 
 #import <Cocoa/Cocoa.h>
 
+#include "app/l10n_util.h"
 #include "base/file_path.h"
 #include "base/logging.h"
 #include "base/sys_string_conversions.h"
 #include "chrome/browser/cocoa/tab_window_controller.h"
-#include "chrome/common/l10n_util.h"
 #include "grit/generated_resources.h"
 
 namespace platform_util {

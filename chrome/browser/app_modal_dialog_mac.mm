@@ -6,8 +6,8 @@
 
 #import <Cocoa/Cocoa.h>
 
+#include "app/l10n_util.h"
 #include "base/sys_string_conversions.h"
-#include "chrome/common/l10n_util.h"
 #include "chrome/common/message_box_flags.h"
 #include "grit/generated_resources.h"
 

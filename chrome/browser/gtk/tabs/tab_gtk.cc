@@ -4,11 +4,11 @@
 
 #include "chrome/browser/gtk/tabs/tab_gtk.h"
 
+#include "app/l10n_util.h"
 #include "app/resource_bundle.h"
 #include "chrome/browser/gtk/custom_button.h"
 #include "chrome/browser/gtk/menu_gtk.h"
 #include "chrome/common/gfx/path.h"
-#include "chrome/common/l10n_util.h"
 #include "grit/generated_resources.h"
 #include "grit/theme_resources.h"
 

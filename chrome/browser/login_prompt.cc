@@ -4,6 +4,7 @@
 
 #include "chrome/browser/login_prompt.h"
 
+#include "app/l10n_util.h"
 #include "base/command_line.h"
 #include "base/lock.h"
 #include "base/message_loop.h"
@@ -17,7 +18,6 @@
 #include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/browser/views/login_view.h"
 #include "chrome/common/chrome_switches.h"
-#include "chrome/common/l10n_util.h"
 #include "chrome/common/notification_service.h"
 #include "chrome/views/window/dialog_delegate.h"
 #include "grit/generated_resources.h"

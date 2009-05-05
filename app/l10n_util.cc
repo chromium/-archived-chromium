@@ -4,7 +4,7 @@
 
 #include "build/build_config.h"
 
-#include "chrome/common/l10n_util.h"
+#include "app/l10n_util.h"
 
 #include "app/resource_bundle.h"
 #include "base/command_line.h"

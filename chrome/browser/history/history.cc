@@ -24,6 +24,7 @@
 
 #include "chrome/browser/history/history.h"
 
+#include "app/l10n_util.h"
 #include "base/file_util.h"
 #include "base/message_loop.h"
 #include "base/path_service.h"
@@ -41,7 +42,6 @@
 #include "chrome/browser/profile.h"
 #include "chrome/browser/visitedlink_master.h"
 #include "chrome/common/chrome_constants.h"
-#include "chrome/common/l10n_util.h"
 #include "chrome/common/notification_service.h"
 #include "chrome/common/thumbnail_score.h"
 #include "chrome/common/url_constants.h"

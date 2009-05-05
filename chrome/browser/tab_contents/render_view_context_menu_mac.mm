@@ -4,10 +4,10 @@
 
 #include "chrome/browser/tab_contents/render_view_context_menu_mac.h"
 
+#include "app/l10n_util.h"
 #include "base/compiler_specific.h"
 #include "base/sys_string_conversions.h"
 #include "chrome/browser/profile.h"
-#include "chrome/common/l10n_util.h"
 #include "grit/generated_resources.h"
 
 // Obj-C bridge class that is the target of all items in the context menu.

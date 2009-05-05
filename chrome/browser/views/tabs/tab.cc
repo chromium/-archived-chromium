@@ -4,11 +4,11 @@
 
 #include "chrome/browser/views/tabs/tab.h"
 
+#include "app/l10n_util.h"
 #include "app/resource_bundle.h"
 #include "base/gfx/size.h"
 #include "chrome/common/gfx/chrome_canvas.h"
 #include "chrome/common/gfx/path.h"
-#include "chrome/common/l10n_util.h"
 #include "chrome/views/controls/menu/chrome_menu.h"
 #include "chrome/views/widget/tooltip_manager.h"
 #include "chrome/views/widget/widget.h"

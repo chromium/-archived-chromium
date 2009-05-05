@@ -4,6 +4,7 @@
 
 #include "chrome/browser/views/bookmark_editor_view.h"
 
+#include "app/l10n_util.h"
 #include "base/basictypes.h"
 #include "base/logging.h"
 #include "base/string_util.h"
@@ -12,7 +13,6 @@
 #include "chrome/browser/profile.h"
 #include "chrome/browser/net/url_fixer_upper.h"
 #include "chrome/browser/views/standard_layout.h"
-#include "chrome/common/l10n_util.h"
 #include "chrome/views/background.h"
 #include "chrome/views/focus/focus_manager.h"
 #include "chrome/views/grid_layout.h"

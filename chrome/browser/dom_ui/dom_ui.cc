@@ -4,13 +4,13 @@
 
 #include "chrome/browser/dom_ui/dom_ui.h"
 
+#include "app/l10n_util.h"
 #include "base/json_reader.h"
 #include "base/json_writer.h"
 #include "base/stl_util-inl.h"
 #include "base/string_util.h"
 #include "base/values.h"
 #include "chrome/browser/tab_contents/tab_contents.h"
-#include "chrome/common/l10n_util.h"
 
 DOMUI::DOMUI(TabContents* contents)
     : hide_favicon_(false),

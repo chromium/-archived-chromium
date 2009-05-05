@@ -4,6 +4,7 @@
 
 #include "chrome/browser/views/external_protocol_dialog.h"
 
+#include "app/l10n_util.h"
 #include "base/histogram.h"
 #include "base/registry.h"
 #include "base/string_util.h"
@@ -12,7 +13,6 @@
 #include "chrome/browser/external_protocol_handler.h"
 #include "chrome/browser/tab_contents/tab_util.h"
 #include "chrome/browser/tab_contents/tab_contents.h"
-#include "chrome/common/l10n_util.h"
 #include "chrome/common/message_box_flags.h"
 #include "chrome/views/controls/message_box_view.h"
 #include "chrome/views/window/window.h"

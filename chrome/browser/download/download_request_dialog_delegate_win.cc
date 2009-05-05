@@ -4,9 +4,9 @@
 
 #include "chrome/browser/download/download_request_dialog_delegate_win.h"
 
+#include "app/l10n_util.h"
 #include "chrome/browser/tab_contents/constrained_window.h"
 #include "chrome/browser/tab_contents/tab_contents.h"
-#include "chrome/common/l10n_util.h"
 #include "chrome/common/message_box_flags.h"
 #include "chrome/views/controls/message_box_view.h"
 #include "grit/generated_resources.h"

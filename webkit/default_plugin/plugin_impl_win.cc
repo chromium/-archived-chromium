@@ -399,10 +399,10 @@ LRESULT PluginInstallerImpl::OnEraseBackGround(UINT message, WPARAM wparam,
 // Use ICU in order to determine whether the locale is right-to-left.
 //
 // TODO(idana) bug# 1246452: there is already code in
-// chrome/common/l10n_util.h/cc that uses ICU to determine the locale
-// direction. We don't currently use this code since code in WebKit should not
-// depend on code in Chrome. We can fix this by pulling (at least part of) the
-// l10n_util functionality up into the Base module.
+// app/l10n_util.h/cc that uses ICU to determine the locale direction. We don't
+// currently use this code since code in WebKit should not depend on code in
+// Chrome. We can fix this by pulling (at least part of) the l10n_util
+// functionality up into the Base module.
 bool PluginInstallerImpl::IsRTLLayout() const {
   const Locale& locale = Locale::getDefault();
   const char* lang = locale.getLanguage();

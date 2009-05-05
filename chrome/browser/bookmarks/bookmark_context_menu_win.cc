@@ -4,7 +4,7 @@
 
 #include "chrome/browser/bookmarks/bookmark_context_menu.h"
 
-#include "chrome/common/l10n_util.h"
+#include "app/l10n_util.h"
 
 void BookmarkContextMenu::RunMenuAt(int x, int y) {
   if (!model_->IsLoaded()) {

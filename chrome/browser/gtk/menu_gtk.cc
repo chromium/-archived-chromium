@@ -4,10 +4,10 @@
 
 #include "chrome/browser/gtk/menu_gtk.h"
 
+#include "app/l10n_util.h"
 #include "base/logging.h"
 #include "base/string_util.h"
 #include "chrome/common/gtk_util.h"
-#include "chrome/common/l10n_util.h"
 #include "skia/include/SkBitmap.h"
 
 MenuGtk::MenuGtk(MenuGtk::Delegate* delegate,

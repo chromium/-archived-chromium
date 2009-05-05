@@ -4,6 +4,7 @@
 
 #include "chrome/browser/search_engines/template_url.h"
 
+#include "app/l10n_util.h"
 #include "base/logging.h"
 #include "base/string_util.h"
 #include "chrome/browser/browser_process.h"
@@ -11,7 +12,6 @@
 #include "chrome/browser/google_url_tracker.h"
 #include "chrome/browser/search_engines/template_url_model.h"
 #include "chrome/common/gfx/favicon_size.h"
-#include "chrome/common/l10n_util.h"
 #include "net/base/escape.h"
 
 // The TemplateURLRef has any number of terms that need to be replaced. Each of

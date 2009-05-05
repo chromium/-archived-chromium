@@ -4,10 +4,10 @@
 
 #include <oleacc.h>
 
+#include "app/l10n_util.h"
 #include "base/file_path.h"
 #include "base/win_util.h"
 #include "chrome/app/chrome_dll_resource.h"
-#include "chrome/common/l10n_util.h"
 #include "chrome/test/accessibility/accessibility_util.h"
 #include "chrome/test/ui/ui_test.h"
 #include "chrome/test/automation/browser_proxy.h"

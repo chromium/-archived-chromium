@@ -4,8 +4,8 @@
 
 #include "chrome/views/controls/button/button_dropdown.h"
 
+#include "app/l10n_util.h"
 #include "base/message_loop.h"
-#include "chrome/common/l10n_util.h"
 #include "chrome/views/controls/menu/view_menu_delegate.h"
 #include "chrome/views/widget/widget.h"
 #include "grit/generated_resources.h"

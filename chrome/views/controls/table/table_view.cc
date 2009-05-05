@@ -7,13 +7,13 @@
 #include <algorithm>
 #include <windowsx.h>
 
+#include "app/l10n_util_win.h"
 #include "app/resource_bundle.h"
 #include "base/string_util.h"
 #include "base/win_util.h"
 #include "chrome/common/gfx/chrome_canvas.h"
 #include "chrome/common/gfx/favicon_size.h"
 #include "chrome/common/gfx/icon_util.h"
-#include "chrome/common/l10n_util_win.h"
 #include "chrome/common/win_util.h"
 #include "chrome/views/controls/hwnd_view.h"
 #include "SkBitmap.h"

@@ -4,9 +4,9 @@
 
 #include "chrome/browser/views/importer_view.h"
 
+#include "app/l10n_util.h"
 #include "chrome/browser/browser_list.h"
 #include "chrome/browser/views/standard_layout.h"
-#include "chrome/common/l10n_util.h"
 #include "chrome/views/controls/button/checkbox.h"
 #include "chrome/views/controls/label.h"
 #include "chrome/views/grid_layout.h"

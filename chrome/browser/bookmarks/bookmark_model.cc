@@ -4,6 +4,7 @@
 
 #include "chrome/browser/bookmarks/bookmark_model.h"
 
+#include "app/l10n_util.h"
 #include "base/gfx/png_decoder.h"
 #include "base/scoped_vector.h"
 #include "build/build_config.h"
@@ -11,7 +12,6 @@
 #include "chrome/browser/bookmarks/bookmark_storage.h"
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/profile.h"
-#include "chrome/common/l10n_util.h"
 #include "chrome/common/notification_service.h"
 #include "grit/generated_resources.h"
 

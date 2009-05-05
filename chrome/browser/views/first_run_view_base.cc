@@ -4,6 +4,7 @@
 
 #include "chrome/browser/views/first_run_view_base.h"
 
+#include "app/l10n_util.h"
 #include "app/resource_bundle.h"
 #include "base/command_line.h"
 #include "base/path_service.h"
@@ -15,7 +16,6 @@
 #include "chrome/browser/shell_integration.h"
 #include "chrome/browser/views/standard_layout.h"
 #include "chrome/common/chrome_switches.h"
-#include "chrome/common/l10n_util.h"
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
 #include "chrome/views/background.h"

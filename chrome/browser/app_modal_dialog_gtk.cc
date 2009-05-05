@@ -6,11 +6,11 @@
 
 #include <gtk/gtk.h>
 
+#include "app/l10n_util.h"
 #include "base/logging.h"
 #include "base/string_util.h"
 #include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/browser/tab_contents/tab_contents_view.h"
-#include "chrome/common/l10n_util.h"
 #include "chrome/common/message_box_flags.h"
 #include "grit/generated_resources.h"
 

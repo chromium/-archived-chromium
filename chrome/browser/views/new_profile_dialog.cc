@@ -6,10 +6,10 @@
 
 #include <string>
 
+#include "app/l10n_util.h"
 #include "base/logging.h"
 #include "base/file_util.h"
 #include "chrome/browser/user_data_manager.h"
-#include "chrome/common/l10n_util.h"
 #include "chrome/common/message_box_flags.h"
 #include "chrome/views/controls/message_box_view.h"
 #include "chrome/views/controls/text_field.h"

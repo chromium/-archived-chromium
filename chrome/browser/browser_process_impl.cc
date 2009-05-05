@@ -4,6 +4,7 @@
 
 #include "chrome/browser/browser_process_impl.h"
 
+#include "app/l10n_util.h"
 #include "base/clipboard.h"
 #include "base/command_line.h"
 #include "base/path_service.h"
@@ -25,7 +26,6 @@
 #include "chrome/browser/safe_browsing/safe_browsing_service.h"
 #include "chrome/common/chrome_paths.h"
 #include "chrome/common/chrome_switches.h"
-#include "chrome/common/l10n_util.h"
 #include "chrome/common/notification_service.h"
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"

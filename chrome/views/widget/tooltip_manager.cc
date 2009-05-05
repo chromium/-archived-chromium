@@ -6,10 +6,10 @@
 
 #include <limits>
 
+#include "app/l10n_util.h"
+#include "app/l10n_util_win.h"
 #include "base/logging.h"
 #include "base/message_loop.h"
-#include "chrome/common/l10n_util.h"
-#include "chrome/common/l10n_util_win.h"
 #include "chrome/common/gfx/text_elider.h"
 #include "chrome/common/win_util.h"
 #include "chrome/views/view.h"

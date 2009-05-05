@@ -1,8 +1,17 @@
 include_rules = [
+  "+grit",
   "+net",
-  # TODO(beng): Sever this link once we have extracted all deps from
+  # TODO(beng): Sever these links once we have extracted all deps from
   # chrome/common.
-  "+chrome/common",
-  # TODO(beng): Sever this link after glen fixes it.
+  "+chrome/common/chrome_paths.h",
+  "+chrome/common/chrome_switches.h",
+  "+chrome/common/gfx/chrome_canvas.h",
+  "+chrome/common/gfx/chrome_font.h",
+  "+chrome/common/gtk_util.h",
+  
+  # TODO(beng): l10n_util_unittest.cc:
+  "+chrome/test/data/resource.h",  
+  
+  # TODO(beng): resource_bundle.cc: Sever this link after glen fixes it.
   "+chrome/browser/extensions/extension.h",
 ]

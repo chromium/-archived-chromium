@@ -4,6 +4,7 @@
 
 #include "chrome/browser/task_manager.h"
 
+#include "app/l10n_util.h"
 #include "app/resource_bundle.h"
 #include "base/process_util.h"
 #include "base/stats_table.h"
@@ -15,7 +16,6 @@
 #include "chrome/browser/task_manager_resource_providers.h"
 #include "chrome/browser/tab_contents/tab_util.h"
 #include "chrome/browser/views/standard_layout.h"
-#include "chrome/common/l10n_util.h"
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
 #include "chrome/views/accelerator.h"

@@ -6,12 +6,12 @@
 
 #include <string>
 
+#include "app/l10n_util.h"
 #include "base/logging.h"
 #include "base/string_util.h"
 #include "chrome/browser/user_data_manager.h"
 #include "chrome/browser/views/new_profile_dialog.h"
 #include "chrome/browser/views/standard_layout.h"
-#include "chrome/common/l10n_util.h"
 #include "chrome/views/controls/combo_box.h"
 #include "chrome/views/controls/label.h"
 #include "chrome/views/controls/message_box_view.h"

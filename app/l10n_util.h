@@ -5,8 +5,8 @@
 // This file contains utility functions for dealing with localized
 // content.
 
-#ifndef CHROME_COMMON_L10N_UTIL_H_
-#define CHROME_COMMON_L10N_UTIL_H_
+#ifndef APP_L10N_UTIL_H_
+#define APP_L10N_UTIL_H_
 
 #include "build/build_config.h"
 
@@ -367,4 +367,4 @@ class BiDiLineIterator {
 
 }
 
-#endif  // CHROME_COMMON_L10N_UTIL_H_
+#endif  // APP_L10N_UTIL_H_

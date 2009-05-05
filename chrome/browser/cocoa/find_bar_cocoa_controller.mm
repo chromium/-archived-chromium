@@ -4,6 +4,7 @@
 
 #import <Cocoa/Cocoa.h>
 
+#include "app/l10n_util.h"
 #include "base/mac_util.h"
 #include "base/sys_string_conversions.h"
 #include "grit/generated_resources.h"
@@ -13,7 +14,6 @@
 #import "chrome/browser/cocoa/find_bar_bridge.h"
 #import "chrome/browser/cocoa/tab_strip_controller.h"
 #include "chrome/browser/tab_contents/tab_contents.h"
-#include "chrome/common/l10n_util.h"
 
 @implementation FindBarCocoaController
 

@@ -4,13 +4,13 @@
 
 #include "chrome/browser/download/download_shelf.h"
 
+#include "app/l10n_util.h"
 #include "base/file_util.h"
 #include "chrome/browser/dom_ui/downloads_ui.h"
 #include "chrome/browser/download/download_item_model.h"
 #include "chrome/browser/download/download_manager.h"
 #include "chrome/browser/metrics/user_metrics.h"
 #include "chrome/browser/tab_contents/tab_contents.h"
-#include "chrome/common/l10n_util.h"
 #include "chrome/common/url_constants.h"
 #include "grit/generated_resources.h"
 

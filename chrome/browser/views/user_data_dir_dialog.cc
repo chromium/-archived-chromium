@@ -2,9 +2,9 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+#include "app/l10n_util.h"
 #include "base/logging.h"
 #include "chrome/browser/views/user_data_dir_dialog.h"
-#include "chrome/common/l10n_util.h"
 #include "chrome/common/message_box_flags.h"
 #include "chrome/views/controls/message_box_view.h"
 #include "chrome/views/widget/widget.h"

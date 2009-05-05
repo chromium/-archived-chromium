@@ -4,10 +4,10 @@
 
 #include "chrome/browser/debugger/devtools_window_win.h"
 
+#include "app/l10n_util.h"
 #include "chrome/browser/debugger/devtools_manager.h"
 #include "chrome/browser/debugger/devtools_view.h"
 #include "chrome/browser/debugger/devtools_window.h"
-#include "chrome/common/l10n_util.h"
 #include "chrome/views/window/window.h"
 #include "grit/generated_resources.h"
 

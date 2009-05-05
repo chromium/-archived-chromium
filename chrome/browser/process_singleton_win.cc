@@ -4,6 +4,7 @@
 
 #include "chrome/browser/process_singleton.h"
 
+#include "app/l10n_util.h"
 #include "base/base_paths.h"
 #include "base/command_line.h"
 #include "base/process_util.h"
@@ -14,7 +15,6 @@
 #include "chrome/browser/profile_manager.h"
 #include "chrome/common/chrome_constants.h"
 #include "chrome/common/chrome_paths.h"
-#include "chrome/common/l10n_util.h"
 #include "chrome/common/result_codes.h"
 #include "chrome/common/win_util.h"
 #include "grit/chromium_strings.h"

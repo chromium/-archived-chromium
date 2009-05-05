@@ -7,11 +7,11 @@
 #include <algorithm>
 #include <vector>
 
+#include "app/l10n_util.h"
 #include "base/string_util.h"
 #include "chrome/browser/profile.h"
 #include "chrome/browser/search_engines/template_url.h"
 #include "chrome/browser/search_engines/template_url_model.h"
-#include "chrome/common/l10n_util.h"
 #include "grit/generated_resources.h"
 #include "net/base/escape.h"
 #include "net/base/net_util.h"

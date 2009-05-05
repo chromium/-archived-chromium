@@ -6,6 +6,7 @@
 
 #include "chrome/browser/views/options/cookies_view.h"
 
+#include "app/l10n_util.h"
 #include "app/resource_bundle.h"
 #include "base/string_util.h"
 #include "base/time_format.h"
@@ -13,7 +14,6 @@
 #include "chrome/browser/views/standard_layout.h"
 #include "chrome/common/gfx/chrome_canvas.h"
 #include "chrome/common/gfx/color_utils.h"
-#include "chrome/common/l10n_util.h"
 #include "chrome/common/win_util.h"
 #include "chrome/views/border.h"
 #include "chrome/views/grid_layout.h"

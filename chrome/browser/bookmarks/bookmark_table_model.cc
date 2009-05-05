@@ -6,11 +6,11 @@
 
 #include <limits>
 
+#include "app/l10n_util.h"
 #include "app/resource_bundle.h"
 #include "base/string_util.h"
 #include "base/time_format.h"
 #include "chrome/browser/bookmarks/bookmark_utils.h"
-#include "chrome/common/l10n_util.h"
 #include "googleurl/src/gurl.h"
 #include "grit/generated_resources.h"
 #include "grit/theme_resources.h"

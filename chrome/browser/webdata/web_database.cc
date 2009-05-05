@@ -8,13 +8,13 @@
 #include <limits>
 #include <vector>
 
+#include "app/l10n_util.h"
 #include "base/gfx/png_decoder.h"
 #include "base/gfx/png_encoder.h"
 #include "base/string_util.h"
 #include "base/time.h"
 #include "chrome/browser/history/history_database.h"
 #include "chrome/browser/search_engines/template_url.h"
-#include "chrome/common/l10n_util.h"
 #include "webkit/glue/password_form.h"
 
 // Encryptor is the *wrong* way of doing things; we need to turn it into a

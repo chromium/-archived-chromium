@@ -4,10 +4,10 @@
 
 #include "chrome/browser/bookmarks/bookmark_codec.h"
 
+#include "app/l10n_util.h"
 #include "base/string_util.h"
 #include "base/values.h"
 #include "chrome/browser/bookmarks/bookmark_model.h"
-#include "chrome/common/l10n_util.h"
 #include "googleurl/src/gurl.h"
 #include "grit/generated_resources.h"
 
@@ -313,4 +313,3 @@ void BookmarkCodec::FinalizeChecksum() {
   MD5Final(&digest, &md5_context_);
   computed_checksum_ = MD5DigestToBase16(digest);
 }
-

@@ -4,6 +4,7 @@
 
 #include "chrome/browser/ssl/ssl_manager.h"
 
+#include "app/l10n_util.h"
 #include "app/resource_bundle.h"
 #include "base/message_loop.h"
 #include "base/string_util.h"
@@ -20,7 +21,6 @@
 #include "chrome/browser/tab_contents/provisional_load_details.h"
 #include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/browser/tab_contents/tab_util.h"
-#include "chrome/common/l10n_util.h"
 #include "chrome/common/notification_service.h"
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"

@@ -4,6 +4,7 @@
 
 #include "chrome/browser/dom_ui/chrome_url_data_manager.h"
 
+#include "app/l10n_util.h"
 #include "base/file_util.h"
 #include "base/message_loop.h"
 #include "base/path_service.h"
@@ -12,7 +13,6 @@
 #include "base/values.h"
 #include "chrome/browser/browser_process.h"
 #include "chrome/common/chrome_paths.h"
-#include "chrome/common/l10n_util.h"
 #include "chrome/common/ref_counted_util.h"
 #include "chrome/common/url_constants.h"
 #include "googleurl/src/url_util.h"

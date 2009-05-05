@@ -4,6 +4,7 @@
 
 #include "chrome/browser/views/options/general_page_view.h"
 
+#include "app/l10n_util.h"
 #include "app/resource_bundle.h"
 #include "base/gfx/png_decoder.h"
 #include "base/message_loop.h"
@@ -25,7 +26,6 @@
 #include "chrome/browser/views/standard_layout.h"
 #include "chrome/browser/dom_ui/new_tab_ui.h"
 #include "chrome/common/chrome_constants.h"
-#include "chrome/common/l10n_util.h"
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
 #include "chrome/common/url_constants.h"

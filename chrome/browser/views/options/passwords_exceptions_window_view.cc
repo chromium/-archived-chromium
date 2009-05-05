@@ -4,9 +4,9 @@
 
 #include "chrome/browser/views/options/passwords_exceptions_window_view.h"
 
+#include "app/l10n_util.h"
 #include "chrome/browser/views/options/passwords_page_view.h"
 #include "chrome/browser/views/options/exceptions_page_view.h"
-#include "chrome/common/l10n_util.h"
 #include "grit/generated_resources.h"
 
 // static

@@ -4,6 +4,7 @@
 
 #include "chrome/browser/extensions/extensions_ui.h"
 
+#include "app/l10n_util.h"
 #include "app/resource_bundle.h"
 #include "base/thread.h"
 #include "chrome/browser/browser_process.h"
@@ -12,7 +13,6 @@
 #include "chrome/browser/profile.h"
 #include "chrome/common/extensions/url_pattern.h"
 #include "chrome/common/jstemplate_builder.h"
-#include "chrome/common/l10n_util.h"
 #include "chrome/common/url_constants.h"
 #include "net/base/net_util.h"
 

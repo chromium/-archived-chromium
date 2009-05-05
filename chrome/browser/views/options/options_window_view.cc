@@ -4,6 +4,7 @@
 
 #include "chrome/browser/options_window.h"
 
+#include "app/l10n_util.h"
 #include "app/resource_bundle.h"
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/profile.h"
@@ -11,7 +12,6 @@
 #include "chrome/browser/views/options/content_page_view.h"
 #include "chrome/browser/views/options/general_page_view.h"
 #include "chrome/common/chrome_constants.h"
-#include "chrome/common/l10n_util.h"
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
 #ifdef CHROME_PERSONALIZATION

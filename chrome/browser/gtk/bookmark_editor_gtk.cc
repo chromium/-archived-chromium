@@ -6,6 +6,7 @@
 
 #include <gtk/gtk.h>
 
+#include "app/l10n_util.h"
 #include "base/basictypes.h"
 #include "base/gfx/gtk_util.h"
 #include "base/logging.h"
@@ -15,7 +16,6 @@
 #include "chrome/browser/history/history.h"
 #include "chrome/browser/profile.h"
 #include "chrome/browser/net/url_fixer_upper.h"
-#include "chrome/common/l10n_util.h"
 #include "googleurl/src/gurl.h"
 #include "grit/chromium_strings.h"
 #include "grit/generated_resources.h"

@@ -4,9 +4,9 @@
 
 #include "chrome/browser/ssl/ssl_error_info.h"
 
+#include "app/l10n_util.h"
 #include "base/string_util.h"
 #include "chrome/browser/cert_store.h"
-#include "chrome/common/l10n_util.h"
 #include "chrome/common/time_format.h"
 #include "googleurl/src/gurl.h"
 #include "grit/chromium_strings.h"

@@ -4,6 +4,7 @@
 
 #include "chrome/browser/gtk/tabs/tab_strip_gtk.h"
 
+#include "app/l10n_util.h"
 #include "app/resource_bundle.h"
 #include "app/slide_animation.h"
 #include "base/gfx/gtk_util.h"
@@ -13,7 +14,6 @@
 #include "chrome/browser/gtk/tabs/dragged_tab_controller_gtk.h"
 #include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/common/gfx/chrome_canvas.h"
-#include "chrome/common/l10n_util.h"
 #include "grit/generated_resources.h"
 #include "grit/theme_resources.h"
 

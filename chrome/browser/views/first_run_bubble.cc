@@ -4,6 +4,7 @@
 
 #include "chrome/browser/views/first_run_bubble.h"
 
+#include "app/l10n_util.h"
 #include "app/resource_bundle.h"
 #include "base/win_util.h"
 #include "chrome/browser/browser.h"
@@ -13,7 +14,6 @@
 #include "chrome/browser/profile.h"
 #include "chrome/browser/search_engines/template_url_model.h"
 #include "chrome/browser/views/standard_layout.h"
-#include "chrome/common/l10n_util.h"
 #include "chrome/views/event.h"
 #include "chrome/views/controls/button/native_button.h"
 #include "chrome/views/controls/label.h"

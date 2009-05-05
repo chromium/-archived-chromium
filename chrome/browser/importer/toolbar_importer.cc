@@ -6,10 +6,10 @@
 
 #include <limits>
 
+#include "app/l10n_util.h"
 #include "base/string_util.h"
 #include "base/rand_util.h"
 #include "chrome/browser/first_run.h"
-#include "chrome/common/l10n_util.h"
 #include "chrome/common/libxml_utils.h"
 #include "grit/generated_resources.h"
 #include "net/base/cookie_monster.h"

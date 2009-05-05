@@ -6,6 +6,8 @@
 
 #include <locale>
 
+#include "app/l10n_util.h"
+#include "app/l10n_util_win.h"
 #include "base/base_drag_source.h"
 #include "base/base_drop_target.h"
 #include "base/basictypes.h"
@@ -32,8 +34,6 @@
 #include "chrome/browser/views/location_bar_view.h"
 #include "chrome/common/gfx/chrome_canvas.h"
 #include "chrome/common/gfx/utils.h"
-#include "chrome/common/l10n_util.h"
-#include "chrome/common/l10n_util_win.h"
 #include "chrome/common/notification_service.h"
 #include "chrome/common/os_exchange_data.h"
 #include "chrome/common/win_util.h"

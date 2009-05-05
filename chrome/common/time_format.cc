@@ -6,6 +6,7 @@
 
 #include <vector>
 
+#include "app/l10n_util.h"
 #include "base/logging.h"
 #include "base/scoped_ptr.h"
 #include "base/singleton.h"
@@ -13,7 +14,6 @@
 #include "base/string_util.h"
 #include "base/time.h"
 #include "base/time_format.h"
-#include "chrome/common/l10n_util.h"
 #include "grit/generated_resources.h"
 #include "unicode/datefmt.h"
 #include "unicode/locid.h"

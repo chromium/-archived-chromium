@@ -4,6 +4,7 @@
 
 #include "chrome/browser/gtk/download_shelf_gtk.h"
 
+#include "app/l10n_util.h"
 #include "app/resource_bundle.h"
 #include "base/gfx/gtk_util.h"
 #include "chrome/browser/download/download_item_model.h"
@@ -12,7 +13,6 @@
 #include "chrome/browser/gtk/link_button_gtk.h"
 #include "chrome/browser/gtk/slide_animator_gtk.h"
 #include "chrome/browser/tab_contents/tab_contents.h"
-#include "chrome/common/l10n_util.h"
 #include "grit/generated_resources.h"
 #include "grit/theme_resources.h"
 

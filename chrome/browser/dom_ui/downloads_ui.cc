@@ -4,6 +4,7 @@
 
 #include "chrome/browser/dom_ui/downloads_ui.h"
 
+#include "app/l10n_util.h"
 #include "base/gfx/png_encoder.h"
 #include "base/string_piece.h"
 #include "base/thread.h"
@@ -19,7 +20,6 @@
 #include "chrome/browser/metrics/user_metrics.h"
 #include "chrome/browser/profile.h"
 #include "chrome/common/jstemplate_builder.h"
-#include "chrome/common/l10n_util.h"
 #include "chrome/common/time_format.h"
 #include "chrome/common/url_constants.h"
 #include "grit/browser_resources.h"

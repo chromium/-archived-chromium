@@ -2,6 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+#include "app/l10n_util.h"
 #include "base/command_line.h"
 #include "base/path_service.h"
 #include "base/string16.h"
@@ -9,7 +10,6 @@
 #include "build/build_config.h"
 #include "chrome/common/chrome_paths.h"
 #include "chrome/common/chrome_switches.h"
-#include "chrome/common/l10n_util.h"
 #include "chrome/plugin/npobject_util.h"
 #include "googleurl/src/url_util.h"
 #include "webkit/glue/webkit_glue.h"

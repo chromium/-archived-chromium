@@ -6,6 +6,7 @@
 
 #include "chrome/common/os_exchange_data.h"
 
+#include "app/l10n_util.h"
 #include "base/clipboard_util.h"
 #include "base/file_util.h"
 #include "base/logging.h"
@@ -13,7 +14,6 @@
 #include "base/scoped_handle.h"
 #include "base/stl_util-inl.h"
 #include "base/string_util.h"
-#include "chrome/common/l10n_util.h"
 #include "chrome/common/win_util.h"
 #include "googleurl/src/gurl.h"
 #include "grit/generated_resources.h"

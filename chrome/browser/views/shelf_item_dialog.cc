@@ -4,6 +4,7 @@
 
 #include "chrome/browser/views/shelf_item_dialog.h"
 
+#include "app/l10n_util.h"
 #include "app/resource_bundle.h"
 #include "base/gfx/png_decoder.h"
 #include "base/stl_util-inl.h"
@@ -13,7 +14,6 @@
 #include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/browser/views/standard_layout.h"
 #include "chrome/common/gfx/text_elider.h"
-#include "chrome/common/l10n_util.h"
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
 #include "chrome/views/background.h"

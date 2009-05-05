@@ -4,9 +4,9 @@
 
 #include "chrome/views/controls/native_control_win.h"
 
+#include "app/l10n_util_win.h"
 #include "base/logging.h"
 #include "base/win_util.h"
-#include "chrome/common/l10n_util_win.h"
 
 namespace views {
 

@@ -988,10 +988,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\common\l10n_util_unittest.cc"
-				>
-			</File>
-			<File
 				RelativePath="..\..\common\mru_cache_unittest.cc"
 				>
 			</File>
@@ -1097,6 +1093,10 @@
 			>
 			<File
 				RelativePath="..\..\..\app\animation_unittest.cc"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\app\l10n_util_unittest.cc"
 				>
 			</File>
 		</Filter>

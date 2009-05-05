@@ -8,6 +8,8 @@
 #include <uxtheme.h>
 #include <Vssym32.h>
 
+#include "app/l10n_util.h"
+#include "app/l10n_util_win.h"
 #include "base/base_drag_source.h"
 #include "base/gfx/native_theme.h"
 #include "base/message_loop.h"
@@ -18,8 +20,6 @@
 #include "chrome/browser/drag_utils.h"
 #include "chrome/common/gfx/chrome_canvas.h"
 #include "chrome/common/gfx/color_utils.h"
-#include "chrome/common/l10n_util.h"
-#include "chrome/common/l10n_util_win.h"
 #include "chrome/common/os_exchange_data.h"
 #include "chrome/views/border.h"
 #include "chrome/views/view_constants.h"

@@ -6,6 +6,7 @@
 
 #include <gdk/gdkkeysyms.h>
 
+#include "app/l10n_util.h"
 #include "app/resource_bundle.h"
 #include "base/logging.h"
 #include "base/base_paths_linux.h"
@@ -22,7 +23,6 @@
 #include "chrome/browser/gtk/toolbar_star_toggle_gtk.h"
 #include "chrome/browser/net/url_fixer_upper.h"
 #include "chrome/browser/profile.h"
-#include "chrome/common/l10n_util.h"
 #include "chrome/common/notification_details.h"
 #include "chrome/common/notification_type.h"
 #include "chrome/common/pref_names.h"

@@ -4,8 +4,8 @@
 
 #include "chrome/browser/views/uninstall_dialog.h"
 
+#include "app/l10n_util.h"
 #include "base/message_loop.h"
-#include "chrome/common/l10n_util.h"
 #include "chrome/common/result_codes.h"
 #include "chrome/common/message_box_flags.h"
 #include "chrome/views/controls/message_box_view.h"
@@ -59,5 +59,3 @@ UninstallDialog::UninstallDialog(int& user_selection)
 UninstallDialog::~UninstallDialog() {
   MessageLoop::current()->Quit();
 }
-
-

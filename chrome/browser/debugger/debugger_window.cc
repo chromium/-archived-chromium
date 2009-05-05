@@ -4,6 +4,7 @@
 
 #include "chrome/browser/debugger/debugger_window.h"
 
+#include "app/l10n_util.h"
 #include "base/string_util.h"
 #include "base/values.h"
 #include "chrome/browser/browser_process.h"
@@ -12,7 +13,6 @@
 #include "chrome/browser/debugger/debugger_wrapper.h"
 #include "chrome/browser/tab_contents/constrained_window.h"
 #include "chrome/browser/tab_contents/tab_contents.h"
-#include "chrome/common/l10n_util.h"
 #include "grit/generated_resources.h"
 
 DebuggerWindow::DebuggerWindow() : window_(NULL),

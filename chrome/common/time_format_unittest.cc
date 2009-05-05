@@ -4,9 +4,9 @@
 
 #include <time.h>
 
+#include "app/l10n_util.h"
 #include "base/basictypes.h"
 #include "base/time.h"
-#include "chrome/common/l10n_util.h"
 #include "chrome/common/time_format.h"
 #include "testing/gtest/include/gtest/gtest.h"
 

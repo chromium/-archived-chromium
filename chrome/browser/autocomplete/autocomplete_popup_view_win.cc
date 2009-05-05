@@ -11,6 +11,7 @@
 #include <atlmisc.h>
 #include <cmath>
 
+#include "app/l10n_util.h"
 #include "app/resource_bundle.h"
 #include "base/command_line.h"
 #include "base/string_util.h"
@@ -28,7 +29,6 @@
 #include "chrome/common/chrome_switches.h"
 #include "chrome/common/gfx/chrome_canvas.h"
 #include "chrome/common/gfx/chrome_font.h"
-#include "chrome/common/l10n_util.h"
 #include "chrome/common/notification_service.h"
 #include "chrome/views/view.h"
 #include "grit/theme_resources.h"

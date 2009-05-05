@@ -7,11 +7,11 @@
 
 #include <vector>
 
+#include "app/l10n_util.h"
 #include "base/string_util.h"
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/profile.h"
 #include "chrome/browser/spellcheck_worditerator.h"
-#include "chrome/common/l10n_util.h"
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_member.h"
 

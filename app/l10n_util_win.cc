@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "chrome/common/l10n_util.h"
-#include "chrome/common/l10n_util_win.h"
+#include "app/l10n_util.h"
+#include "app/l10n_util_win.h"
 
 #include <algorithm>
 #include <windowsx.h>
@@ -91,7 +91,7 @@ bool NeedOverrideDefaultUIFont(std::wstring* override_font_family,
     return false;
   if (override_font_family && font_size_scaler) {
     override_font_family->swap(ui_font_family);
-    *font_size_scaler = scaler100 / 100.0; 
+    *font_size_scaler = scaler100 / 100.0;
   }
   return true;
 }

@@ -4,13 +4,13 @@
 
 #include "chrome/browser/views/options/advanced_page_view.h"
 
+#include "app/l10n_util.h"
 #include "base/string_util.h"
 #include "base/values.h"
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/views/options/advanced_contents_view.h"
 #include "chrome/browser/views/standard_layout.h"
 #include "chrome/common/chrome_constants.h"
-#include "chrome/common/l10n_util.h"
 #include "chrome/common/message_box_flags.h"
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"

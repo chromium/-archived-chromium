@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CHROME_COMMON_L10N_UTIL_WIN_H_
-#define CHROME_COMMON_L10N_UTIL_WIN_H_
+#ifndef APP_L10N_UTIL_WIN_H_
+#define APP_L10N_UTIL_WIN_H_
 
 #include <windows.h>
 
@@ -28,7 +28,7 @@ void HWNDSetRTLLayout(HWND hwnd);
 
 // See http://blogs.msdn.com/oldnewthing/archive/2005/09/15/467598.aspx
 // and  http://blogs.msdn.com/oldnewthing/archive/2006/06/26/647365.aspx
-// as to why we need these three functions. 
+// as to why we need these three functions.
 
 // Return true if the default font (we get from Windows) is not suitable
 // to use in the UI of the current UI (e.g. Malayalam, Bengali). If
@@ -48,4 +48,4 @@ void AdjustUIFontForWindow(HWND hwnd);
 
 }  // namespace l10n_util
 
-#endif  // CHROME_COMMON_L10N_UTIL_WIN_H_
+#endif  // APP_L10N_UTIL_WIN_H_

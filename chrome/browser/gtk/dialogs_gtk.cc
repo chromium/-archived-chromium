@@ -6,12 +6,12 @@
 #include <map>
 #include <set>
 
+#include "app/l10n_util.h"
 #include "base/file_path.h"
 #include "base/logging.h"
 #include "base/string_util.h"
 #include "base/sys_string_conversions.h"
 #include "chrome/browser/shell_dialogs.h"
-#include "chrome/common/l10n_util.h"
 #include "grit/generated_resources.h"
 
 // Implementation of SelectFileDialog that shows a Gtk common dialog for

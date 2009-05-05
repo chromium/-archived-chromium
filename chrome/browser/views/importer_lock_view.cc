@@ -4,9 +4,9 @@
 
 #include "chrome/browser/views/importer_lock_view.h"
 
+#include "app/l10n_util.h"
 #include "chrome/browser/importer/importer.h"
 #include "chrome/browser/views/standard_layout.h"
-#include "chrome/common/l10n_util.h"
 #include "chrome/views/controls/label.h"
 #include "chrome/views/window/window.h"
 #include "grit/chromium_strings.h"

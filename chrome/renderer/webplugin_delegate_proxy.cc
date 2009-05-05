@@ -10,6 +10,7 @@
 #include <atlbase.h>
 #endif
 
+#include "app/l10n_util.h"
 #include "app/resource_bundle.h"
 #include "base/logging.h"
 #include "base/ref_counted.h"
@@ -18,7 +19,6 @@
 #include "base/gfx/native_widget_types.h"
 #include "chrome/app/chrome_dll_resource.h"
 #include "chrome/common/gfx/chrome_canvas.h"
-#include "chrome/common/l10n_util.h"
 #include "chrome/common/plugin_messages.h"
 #include "chrome/common/render_messages.h"
 #include "chrome/plugin/npobject_proxy.h"

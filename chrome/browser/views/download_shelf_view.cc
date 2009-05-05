@@ -6,6 +6,7 @@
 
 #include <algorithm>
 
+#include "app/l10n_util.h"
 #include "app/resource_bundle.h"
 #include "base/logging.h"
 #include "chrome/browser/download/download_item_model.h"
@@ -14,7 +15,6 @@
 #include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/browser/views/download_item_view.h"
 #include "chrome/common/gfx/chrome_canvas.h"
-#include "chrome/common/l10n_util.h"
 #include "chrome/views/background.h"
 #include "chrome/views/controls/button/image_button.h"
 #include "chrome/views/controls/image_view.h"

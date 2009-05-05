@@ -4,10 +4,10 @@
 
 #include "chrome/browser/views/clear_browsing_data.h"
 
+#include "app/l10n_util.h"
 #include "chrome/browser/profile.h"
 #include "chrome/browser/search_engines/template_url_model.h"
 #include "chrome/browser/views/standard_layout.h"
-#include "chrome/common/l10n_util.h"
 #include "chrome/views/background.h"
 #include "chrome/views/controls/button/checkbox.h"
 #include "chrome/views/controls/label.h"

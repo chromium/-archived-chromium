@@ -4,9 +4,9 @@
 
 #include "chrome/browser/views/jsmessage_box_dialog.h"
 
+#include "app/l10n_util.h"
 #include "chrome/browser/app_modal_dialog.h"
 #include "chrome/browser/tab_contents/tab_contents.h"
-#include "chrome/common/l10n_util.h"
 #include "chrome/common/message_box_flags.h"
 #include "chrome/views/controls/message_box_view.h"
 #include "chrome/views/window/window.h"

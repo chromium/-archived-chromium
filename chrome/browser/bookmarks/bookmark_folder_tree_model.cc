@@ -4,8 +4,8 @@
 
 #include "chrome/browser/bookmarks/bookmark_folder_tree_model.h"
 
+#include "app/l10n_util.h"
 #include "app/resource_bundle.h"
-#include "chrome/common/l10n_util.h"
 #include "grit/generated_resources.h"
 #include "grit/theme_resources.h"
 

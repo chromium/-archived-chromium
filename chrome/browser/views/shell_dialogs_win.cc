@@ -12,13 +12,13 @@
 #include <algorithm>
 #include <set>
 
+#include "app/l10n_util.h"
 #include "base/file_util.h"
 #include "base/registry.h"
 #include "base/string_util.h"
 #include "base/thread.h"
 #include "chrome/browser/browser_process.h"
 #include "chrome/common/gfx/chrome_font.h"
-#include "chrome/common/l10n_util.h"
 #include "chrome/common/win_util.h"
 #include "grit/generated_resources.h"
 

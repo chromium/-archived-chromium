@@ -16,8 +16,8 @@
 #include <unicode/uchar.h>
 #include <vector>
 
+#include "app/l10n_util.h"
 #include "base/logging.h"
-#include "chrome/common/l10n_util.h"
 #if defined(OS_WIN)
 // TODO(port): remove the ifdef when native_control.h is ported.
 #include "chrome/views/controls/native_control.h"

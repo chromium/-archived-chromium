@@ -6,11 +6,11 @@
 
 #include <limits>
 
+#include "app/l10n_util.h"
 #include "base/logging.h"
 #include "base/process_util.h"
 #include "base/rand_util.h"
 #include "base/string_util.h"
-#include "chrome/common/l10n_util.h"
 #include "grit/generated_resources.h"
 
 std::wstring ChildProcessInfo::GetTypeNameInEnglish(

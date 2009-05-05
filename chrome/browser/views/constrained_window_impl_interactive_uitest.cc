@@ -4,10 +4,10 @@
 
 #include <string>
 
+#include "app/l10n_util.h"
 #include "base/file_path.h"
 #include "chrome/browser/view_ids.h"
 #include "chrome/common/chrome_constants.h"
-#include "chrome/common/l10n_util.h"
 #include "chrome/test/automation/automation_constants.h"
 #include "chrome/test/automation/browser_proxy.h"
 #include "chrome/test/automation/constrained_window_proxy.h"

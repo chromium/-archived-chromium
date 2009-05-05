@@ -4,6 +4,7 @@
 
 #include "chrome/browser/tab_contents/render_view_context_menu.h"
 
+#include "app/l10n_util.h"
 #include "base/clipboard.h"
 #include "base/command_line.h"
 #include "base/logging.h"
@@ -18,7 +19,6 @@
 #include "chrome/browser/tab_contents/navigation_entry.h"
 #include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/common/chrome_switches.h"
-#include "chrome/common/l10n_util.h"
 #include "chrome/common/platform_util.h"
 #include "chrome/common/pref_service.h"
 #include "chrome/common/url_constants.h"

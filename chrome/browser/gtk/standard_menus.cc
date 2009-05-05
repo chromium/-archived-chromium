@@ -7,9 +7,9 @@
 #include <gtk/gtk.h>
 #include <gdk/gdkkeysyms.h>
 
+#include "app/l10n_util.h"
 #include "base/basictypes.h"
 #include "chrome/app/chrome_dll_resource.h"
-#include "chrome/common/l10n_util.h"
 #include "grit/chromium_strings.h"
 #include "grit/generated_resources.h"
 

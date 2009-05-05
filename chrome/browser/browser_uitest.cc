@@ -2,6 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+#include "app/l10n_util.h"
 #include "base/file_path.h"
 #include "base/gfx/native_widget_types.h"
 #include "base/string_util.h"
@@ -9,7 +10,6 @@
 #include "base/values.h"
 #include "chrome/app/chrome_dll_resource.h"
 #include "chrome/common/chrome_constants.h"
-#include "chrome/common/l10n_util.h"
 #include "chrome/common/platform_util.h"
 #include "chrome/common/pref_names.h"
 #include "chrome/test/automation/browser_proxy.h"

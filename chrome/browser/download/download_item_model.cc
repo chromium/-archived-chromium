@@ -4,10 +4,10 @@
 
 #include "chrome/browser/download/download_item_model.h"
 
+#include "app/l10n_util.h"
 #include "base/string_util.h"
 #include "chrome/browser/download/download_manager.h"
 #include "chrome/browser/download/save_package.h"
-#include "chrome/common/l10n_util.h"
 #include "chrome/common/time_format.h"
 #include "grit/generated_resources.h"
 

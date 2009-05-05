@@ -4,6 +4,7 @@
 
 #include "chrome/browser/browser.h"
 
+#include "app/l10n_util.h"
 #include "base/command_line.h"
 #include "base/idle_timer.h"
 #include "base/logging.h"
@@ -35,7 +36,6 @@
 #include "chrome/browser/tab_contents/tab_contents_view.h"
 #include "chrome/common/chrome_constants.h"
 #include "chrome/common/chrome_switches.h"
-#include "chrome/common/l10n_util.h"
 #include "chrome/common/notification_service.h"
 #include "chrome/common/page_transition_types.h"
 #include "chrome/common/pref_names.h"

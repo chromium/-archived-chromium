@@ -9,9 +9,9 @@
 
 #include <algorithm>
 
+#include "app/l10n_util_win.h"
 #include "base/logging.h"
 #include "base/win_util.h"
-#include "chrome/common/l10n_util_win.h"
 #include "grit/generated_resources.h"
 #include "grit/locale_settings.h"
 

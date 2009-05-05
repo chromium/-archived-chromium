@@ -130,6 +130,22 @@
 			>
 		</File>
 		<File
+			RelativePath=".\l10n_util.cc"
+			>
+		</File>
+		<File
+			RelativePath=".\l10n_util.h"
+			>
+		</File>
+		<File
+			RelativePath=".\l10n_util_win.cc"
+			>
+		</File>
+		<File
+			RelativePath=".\l10n_util_win.h"
+			>
+		</File>
+		<File
 			RelativePath=".\resource_bundle.cc"
 			>
 		</File>

@@ -6,12 +6,12 @@
 
 #include "chrome/browser/back_forward_menu_model.h"
 
+#include "app/l10n_util.h"
 #include "chrome/browser/browser.h"
 #include "chrome/browser/metrics/user_metrics.h"
 #include "chrome/browser/tab_contents/navigation_controller.h"
 #include "chrome/browser/tab_contents/navigation_entry.h"
 #include "chrome/browser/tab_contents/tab_contents.h"
-#include "chrome/common/l10n_util.h"
 #include "chrome/common/url_constants.h"
 #include "grit/generated_resources.h"
 #include "net/base/registry_controlled_domain.h"

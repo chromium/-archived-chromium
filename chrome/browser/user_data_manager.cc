@@ -8,6 +8,7 @@
 
 #include <string>
 
+#include "app/l10n_util.h"
 #include "base/file_util.h"
 #include "base/logging.h"
 #include "base/message_loop.h"
@@ -18,7 +19,6 @@
 #include "chrome/common/chrome_constants.h"
 #include "chrome/common/chrome_paths.h"
 #include "chrome/common/chrome_switches.h"
-#include "chrome/common/l10n_util.h"
 #include "chrome/installer/util/browser_distribution.h"
 #include "grit/chromium_strings.h"
 

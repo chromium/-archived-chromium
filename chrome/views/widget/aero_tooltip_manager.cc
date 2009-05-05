@@ -2,16 +2,16 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+#include "chrome/views/widget/aero_tooltip_manager.h"
+
 #include <windows.h>
 #include <atlbase.h>
 #include <atlapp.h>  // for GET_X/Y_LPARAM
 #include <commctrl.h>
 #include <shlobj.h>
 
-#include "chrome/views/widget/aero_tooltip_manager.h"
-
+#include "app/l10n_util_win.h"
 #include "base/message_loop.h"
-#include "chrome/common/l10n_util_win.h"
 
 namespace views {
 

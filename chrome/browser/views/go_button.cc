@@ -4,12 +4,12 @@
 
 #include "chrome/browser/views/go_button.h"
 
+#include "app/l10n_util.h"
 #include "base/message_loop.h"
 #include "chrome/app/chrome_dll_resource.h"
 #include "chrome/browser/browser.h"
 #include "chrome/browser/views/event_utils.h"
 #include "chrome/browser/views/location_bar_view.h"
-#include "chrome/common/l10n_util.h"
 #include "grit/generated_resources.h"
 
 ////////////////////////////////////////////////////////////////////////////////

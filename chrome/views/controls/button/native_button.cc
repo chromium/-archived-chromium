@@ -4,8 +4,8 @@
 
 #include "chrome/views/controls/button/native_button.h"
 
+#include "app/l10n_util.h"
 #include "base/logging.h"
-#include "chrome/common/l10n_util.h"
 
 namespace views {
 

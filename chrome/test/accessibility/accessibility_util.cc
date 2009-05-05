@@ -4,9 +4,9 @@
 
 #include "chrome/test/accessibility/accessibility_util.h"
 
+#include "app/l10n_util.h"
 #include "base/win_util.h"
 #include "chrome/browser/view_ids.h"
-#include "chrome/common/l10n_util.h"
 #include "chrome/test/accessibility/constants.h"
 #include "grit/chromium_strings.h"
 #include "grit/generated_resources.h"

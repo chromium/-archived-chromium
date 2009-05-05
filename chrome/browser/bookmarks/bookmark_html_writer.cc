@@ -4,6 +4,7 @@
 
 #include "chrome/browser/bookmarks/bookmark_html_writer.h"
 
+#include "app/l10n_util.h"
 #include "base/file_path.h"
 #include "base/file_util.h"
 #include "base/message_loop.h"
@@ -15,7 +16,6 @@
 #include "chrome/browser/bookmarks/bookmark_codec.h"
 #include "chrome/browser/bookmarks/bookmark_model.h"
 #include "chrome/browser/history/history_types.h"
-#include "chrome/common/l10n_util.h"
 #include "grit/generated_resources.h"
 #include "net/base/escape.h"
 #include "net/base/file_stream.h"

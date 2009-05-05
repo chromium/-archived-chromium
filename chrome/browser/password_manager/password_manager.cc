@@ -4,12 +4,12 @@
 
 #include "chrome/browser/password_manager/password_manager.h"
 
+#include "app/l10n_util.h"
 #include "app/resource_bundle.h"
 #include "base/stl_util-inl.h"
 #include "base/string_util.h"
 #include "chrome/browser/profile.h"
 #include "chrome/browser/tab_contents/tab_contents.h"
-#include "chrome/common/l10n_util.h"
 #include "chrome/common/notification_registrar.h"
 #include "chrome/common/notification_service.h"
 #include "chrome/common/pref_names.h"

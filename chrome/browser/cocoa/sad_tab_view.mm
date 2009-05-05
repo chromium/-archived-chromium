@@ -4,8 +4,8 @@
 
 #include "chrome/browser/cocoa/sad_tab_view.h"
 
+#include "app/l10n_util.h"
 #include "base/sys_string_conversions.h"
-#include "chrome/common/l10n_util.h"
 #include "grit/generated_resources.h"
 
 static const int kSadTabOffset = -64;

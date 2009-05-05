@@ -6,6 +6,7 @@
 
 #include "chrome/browser/safe_browsing/safe_browsing_blocking_page.h"
 
+#include "app/l10n_util.h"
 #include "app/resource_bundle.h"
 #include "base/histogram.h"
 #include "base/string_util.h"
@@ -19,7 +20,6 @@
 #include "chrome/browser/tab_contents/tab_util.h"
 #include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/common/jstemplate_builder.h"
-#include "chrome/common/l10n_util.h"
 #include "chrome/common/url_constants.h"
 #include "grit/browser_resources.h"
 #include "grit/generated_resources.h"

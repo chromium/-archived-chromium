@@ -4,12 +4,12 @@
 
 #include "chrome/browser/views/options/fonts_languages_window_view.h"
 
+#include "app/l10n_util.h"
 #include "app/resource_bundle.h"
 #include "chrome/browser/profile.h"
 #include "chrome/browser/views/options/fonts_page_view.h"
 #include "chrome/browser/views/options/languages_page_view.h"
 #include "chrome/common/chrome_constants.h"
-#include "chrome/common/l10n_util.h"
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
 #include "chrome/views/window/window.h"

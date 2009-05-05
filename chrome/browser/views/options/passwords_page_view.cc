@@ -4,10 +4,10 @@
 
 #include "chrome/browser/views/options/passwords_page_view.h"
 
+#include "app/l10n_util.h"
 #include "base/string_util.h"
 #include "chrome/browser/profile.h"
 #include "chrome/browser/views/standard_layout.h"
-#include "chrome/common/l10n_util.h"
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
 #include "chrome/views/background.h"

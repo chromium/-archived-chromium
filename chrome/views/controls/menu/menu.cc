@@ -12,14 +12,14 @@
 #include <atlmisc.h>
 #include <string>
 
+#include "app/l10n_util.h"
+#include "app/l10n_util_win.h"
 #include "base/gfx/rect.h"
 #include "base/logging.h"
 #include "base/stl_util-inl.h"
 #include "base/string_util.h"
 #include "chrome/common/gfx/chrome_canvas.h"
 #include "chrome/common/gfx/chrome_font.h"
-#include "chrome/common/l10n_util.h"
-#include "chrome/common/l10n_util_win.h"
 #include "chrome/views/accelerator.h"
 
 const SkBitmap* Menu::Delegate::kEmptyIcon = 0;

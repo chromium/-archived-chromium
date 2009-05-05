@@ -6,6 +6,7 @@
 
 #include <math.h>
 
+#include "app/l10n_util.h"
 #include "app/resource_bundle.h"
 #include "base/logging.h"
 #include "base/string_util.h"
@@ -13,7 +14,6 @@
 #include "chrome/common/gfx/chrome_font.h"
 #include "chrome/common/gfx/insets.h"
 #include "chrome/common/gfx/text_elider.h"
-#include "chrome/common/l10n_util.h"
 #include "chrome/views/background.h"
 
 namespace views {

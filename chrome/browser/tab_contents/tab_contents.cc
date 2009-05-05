@@ -4,6 +4,7 @@
 
 #include "chrome/browser/tab_contents/tab_contents.h"
 
+#include "app/l10n_util.h"
 #include "app/resource_bundle.h"
 #include "base/file_version_info.h"
 #include "base/process_util.h"
@@ -37,7 +38,6 @@
 #include "chrome/browser/search_engines/template_url_fetcher.h"
 #include "chrome/browser/search_engines/template_url_model.h"
 #include "chrome/common/chrome_switches.h"
-#include "chrome/common/l10n_util.h"
 #include "chrome/common/notification_service.h"
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"

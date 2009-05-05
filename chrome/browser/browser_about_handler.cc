@@ -7,6 +7,7 @@
 #include <string>
 #include <vector>
 
+#include "app/l10n_util.h"
 #include "app/resource_bundle.h"
 #include "base/file_version_info.h"
 #include "base/histogram.h"
@@ -24,7 +25,6 @@
 #include "chrome/browser/renderer_host/render_process_host.h"
 #include "chrome/browser/renderer_host/render_view_host.h"
 #include "chrome/common/jstemplate_builder.h"
-#include "chrome/common/l10n_util.h"
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
 #include "chrome/common/render_messages.h"

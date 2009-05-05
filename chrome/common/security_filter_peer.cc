@@ -4,11 +4,11 @@
 
 #include "chrome/common/security_filter_peer.h"
 
+#include "app/l10n_util.h"
 #include "app/resource_bundle.h"
 #include "base/gfx/png_encoder.h"
 #include "base/gfx/size.h"
 #include "base/string_util.h"
-#include "chrome/common/l10n_util.h"
 #include "grit/generated_resources.h"
 #include "grit/renderer_resources.h"
 #include "net/base/net_errors.h"

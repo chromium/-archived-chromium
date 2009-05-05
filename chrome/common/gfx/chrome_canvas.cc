@@ -6,11 +6,11 @@
 
 #include <limits>
 
+#include "app/l10n_util.h"
 #include "base/gfx/rect.h"
 #include "base/logging.h"
 #include "skia/include/SkShader.h"
 #include "chrome/common/gfx/chrome_font.h"
-#include "chrome/common/l10n_util.h"
 
 bool ChromeCanvas::GetClipRect(gfx::Rect* r) {
   SkRect clip;

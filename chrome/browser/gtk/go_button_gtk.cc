@@ -3,12 +3,13 @@
 // found in the LICENSE file.
 
 #include "chrome/browser/gtk/go_button_gtk.h"
+
+#include "app/l10n_util.h"
 #include "base/logging.h"
 #include "base/message_loop.h"
 #include "chrome/app/chrome_dll_resource.h"
 #include "chrome/browser/browser.h"
 #include "chrome/browser/gtk/location_bar_view_gtk.h"
-#include "chrome/common/l10n_util.h"
 #include "grit/generated_resources.h"
 #include "grit/theme_resources.h"
 

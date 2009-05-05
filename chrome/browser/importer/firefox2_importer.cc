@@ -4,6 +4,7 @@
 
 #include "chrome/browser/importer/firefox2_importer.h"
 
+#include "app/l10n_util.h"
 #include "base/file_path.h"
 #include "base/file_util.h"
 #include "base/path_service.h"
@@ -13,7 +14,6 @@
 #include "chrome/browser/importer/mork_reader.h"
 #include "chrome/browser/search_engines/template_url.h"
 #include "chrome/browser/search_engines/template_url_parser.h"
-#include "chrome/common/l10n_util.h"
 #include "chrome/common/time_format.h"
 #include "chrome/common/url_constants.h"
 #include "grit/generated_resources.h"

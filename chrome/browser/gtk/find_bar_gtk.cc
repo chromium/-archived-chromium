@@ -6,6 +6,7 @@
 
 #include <gdk/gdkkeysyms.h>
 
+#include "app/l10n_util.h"
 #include "base/gfx/gtk_util.h"
 #include "base/string_util.h"
 #include "chrome/browser/find_bar_controller.h"
@@ -16,7 +17,6 @@
 #include "chrome/browser/gtk/tab_contents_container_gtk.h"
 #include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/common/gtk_util.h"
-#include "chrome/common/l10n_util.h"
 #include "grit/generated_resources.h"
 
 namespace {

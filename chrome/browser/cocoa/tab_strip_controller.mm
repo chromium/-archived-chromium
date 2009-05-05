@@ -4,6 +4,7 @@
 
 #import "chrome/browser/cocoa/tab_strip_controller.h"
 
+#include "app/l10n_util.h"
 #include "base/sys_string_conversions.h"
 #include "chrome/app/chrome_dll_resource.h"
 #include "chrome/browser/browser.h"
@@ -16,7 +17,6 @@
 #import "chrome/browser/cocoa/tab_view.h"
 #include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/browser/tabs/tab_strip_model.h"
-#include "chrome/common/l10n_util.h"
 #include "grit/generated_resources.h"
 
 @implementation TabStripController

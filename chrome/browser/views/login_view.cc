@@ -6,9 +6,9 @@
 
 #include "chrome/browser/views/login_view.h"
 
+#include "app/l10n_util.h"
 #include "base/message_loop.h"
 #include "chrome/browser/views/standard_layout.h"
-#include "chrome/common/l10n_util.h"
 #include "chrome/views/grid_layout.h"
 #include "chrome/views/controls/label.h"
 #include "chrome/views/controls/text_field.h"

@@ -4,6 +4,7 @@
 
 #include "chrome/browser/ssl/ssl_policy.h"
 
+#include "app/l10n_util.h"
 #include "app/resource_bundle.h"
 #include "base/singleton.h"
 #include "base/string_piece.h"
@@ -14,7 +15,6 @@
 #include "chrome/browser/tab_contents/navigation_entry.h"
 #include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/common/jstemplate_builder.h"
-#include "chrome/common/l10n_util.h"
 #include "chrome/common/notification_service.h"
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"

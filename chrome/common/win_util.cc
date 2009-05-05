@@ -11,6 +11,8 @@
 #include <shellapi.h>
 #include <shlobj.h>
 
+#include "app/l10n_util.h"
+#include "app/l10n_util_win.h"
 #include "base/file_util.h"
 #include "base/gfx/gdi_util.h"
 #include "base/gfx/png_encoder.h"
@@ -19,8 +21,6 @@
 #include "base/scoped_handle.h"
 #include "base/string_util.h"
 #include "base/win_util.h"
-#include "chrome/common/l10n_util.h"
-#include "chrome/common/l10n_util_win.h"
 #include "grit/generated_resources.h"
 #include "net/base/mime_util.h"
 

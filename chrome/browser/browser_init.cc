@@ -4,6 +4,7 @@
 
 #include "chrome/browser/browser_init.h"
 
+#include "app/l10n_util.h"
 #include "app/resource_bundle.h"
 #include "base/basictypes.h"
 #include "base/command_line.h"
@@ -35,7 +36,6 @@
 #include "chrome/common/chrome_constants.h"
 #include "chrome/common/chrome_paths.h"
 #include "chrome/common/chrome_switches.h"
-#include "chrome/common/l10n_util.h"
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
 #include "chrome/common/result_codes.h"

@@ -4,6 +4,7 @@
 
 #include "chrome/browser/printing/print_view_manager.h"
 
+#include "app/l10n_util.h"
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/printing/print_job.h"
 #include "chrome/browser/printing/print_job_manager.h"
@@ -13,7 +14,6 @@
 #include "chrome/browser/tab_contents/navigation_entry.h"
 #include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/common/gfx/emf.h"
-#include "chrome/common/l10n_util.h"
 #include "chrome/common/notification_service.h"
 #include "chrome/common/render_messages.h"
 #include "grit/generated_resources.h"

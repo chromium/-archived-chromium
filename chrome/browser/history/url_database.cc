@@ -7,8 +7,8 @@
 #include <algorithm>
 #include <limits>
 
+#include "app/l10n_util.h"
 #include "base/string_util.h"
-#include "chrome/common/l10n_util.h"
 #include "chrome/common/sqlite_utils.h"
 #include "googleurl/src/gurl.h"
 

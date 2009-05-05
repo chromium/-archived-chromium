@@ -4,6 +4,7 @@
 
 #include "chrome/browser/autocomplete/search_provider.h"
 
+#include "app/l10n_util.h"
 #include "base/message_loop.h"
 #include "base/string_util.h"
 #include "chrome/browser/autocomplete/keyword_provider.h"
@@ -13,7 +14,6 @@
 #include "chrome/browser/profile.h"
 #include "chrome/browser/search_engines/template_url_model.h"
 #include "chrome/common/json_value_serializer.h"
-#include "chrome/common/l10n_util.h"
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
 #include "chrome/common/url_constants.h"

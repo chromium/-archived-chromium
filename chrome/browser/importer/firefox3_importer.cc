@@ -6,12 +6,12 @@
 
 #include <set>
 
+#include "app/l10n_util.h"
 #include "base/file_util.h"
 #include "base/scoped_ptr.h"
 #include "base/string_util.h"
 #include "chrome/browser/importer/firefox2_importer.h"
 #include "chrome/browser/importer/firefox_importer_utils.h"
-#include "chrome/common/l10n_util.h"
 #include "chrome/common/time_format.h"
 #include "grit/generated_resources.h"
 

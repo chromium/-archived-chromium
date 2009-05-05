@@ -4,6 +4,7 @@
 
 #include "chrome/browser/bookmarks/bookmark_utils.h"
 
+#include "app/l10n_util.h"
 #include "base/basictypes.h"
 #include "base/string_util.h"
 #include "base/time.h"
@@ -16,7 +17,6 @@
 #include "chrome/browser/tab_contents/page_navigator.h"
 #include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/common/drag_drop_types.h"
-#include "chrome/common/l10n_util.h"
 #include "chrome/common/notification_service.h"
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
