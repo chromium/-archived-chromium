@@ -425,6 +425,12 @@ BUG8941 DEFER MAC : LayoutTests/http/tests/xmlhttprequest/web-apps/013.html = FA
 BUG1316221 DEFER LINUX WIN : LayoutTests/css2.1/t1202-counter-04-b.html = FAIL
 BUG1316221 DEFER LINUX WIN : LayoutTests/css2.1/t1202-counters-04-b.html = FAIL
 
+// The max length doesn't appear to be applied correctly (or the test needs	
+// changing), and furthermore, the over- and under-lines aren't placed	
+// properly over the "x".	
+BUG1124513 DEFER LINUX WIN : LayoutTests/fast/forms/input-text-maxlength.html = FAIL	
+BUG1124513 DEFER LINUX WIN : LayoutTests/fast/forms/input-text-paste-maxlength.html = FAIL	
+
 // This is a real bug, but not one we're fixing for Beta.
 BUG628529 DEFER LINUX : LayoutTests/fast/text/stroking-decorations.html = FAIL
 BUG628529 DEFER LINUX WIN : LayoutTests/fast/text/stroking.html = FAIL
@@ -1236,6 +1242,7 @@ BUG10353 LINUX : LayoutTests/fast/events/mouse-click-events.html = FAIL
 BUG10353 DEFER WIN LINUX : LayoutTests/fast/forms/listbox-deselect-scroll.html = FAIL
 BUG10353 DEFER WIN LINUX : LayoutTests/fast/forms/listbox-selection-2.html = FAIL
 BUG10353 DEFER WIN LINUX : LayoutTests/fast/forms/select-item-background-clip.html = FAIL
+BUG10353 DEFER WIN LINUX : LayoutTests/fast/forms/textarea-rows-cols.html = FAIL
 // Linux pixeltest failure: We, with Windows, are failing to repaint correctly
 BUG10353 WIN LINUX : LayoutTests/fast/repaint/overflow-outline-repaint.html = FAIL
 BUG10353 WIN : LayoutTests/fast/repaint/overflow-scroll-delete.html = FAIL
@@ -1811,7 +1818,7 @@ BUG10437 DEFER LINUX : LayoutTests/fast/css-generated-content/hit-test-generated
 BUG10438 MAC LINUX : LayoutTests/plugins/netscape-plugin-setwindow-size-2.html = FAIL
 BUG10438 MAC LINUX : LayoutTests/plugins/netscape-plugin-setwindow-size.html = FAIL
 BUG10438 MAC LINUX : LayoutTests/plugins/destroy-stream-twice.html = TIMEOUT
-BUG10438 WIN LINUX : LayoutTests/fast/dom/location-new-window-no-crash.html = FAIL
+BUG10438 LINUX : LayoutTests/fast/dom/location-new-window-no-crash.html = FAIL
 
 // Crashes sometimes.  Race?  Memory corruption?
 // Might be related to https://bugs.webkit.org/show_bug.cgi?id=22834
@@ -1909,7 +1916,7 @@ BUG10457 DEBUG WIN : LayoutTests/fast/js/large-expressions.html = FAIL
 // Perhaps just needs new baseline?
 // These tests were rebaselined with failure long ago. We shouldn't do this, and
 // instead work upstream to improve tests so that they don't fail.
-BUG10458 DEFER WIN LINUX : LayoutTests/fast/forms/textarea-appearance-wrap.html = FAIL
+BUG10458 DEFER LINUX : LayoutTests/fast/forms/textarea-appearance-wrap.html = FAIL
 BUG10458 DEFER WIN LINUX : LayoutTests/fast/forms/textarea-hard-linewrap.html = FAIL
 // Linux-only failures
 BUG10458 LINUX : LayoutTests/editing/inserting/6633727.html = FAIL
@@ -2046,6 +2053,7 @@ BUG10476 : LayoutTests/http/tests/xmlhttprequest/redirect-cross-origin-post.html
 // Merge WebKit 42133:42199 regressions
 BUG10477 WIN LINUX : LayoutTests/fast/repaint/reflection-repaint-test.html = FAIL
 BUG10477 WIN LINUX : LayoutTests/fast/repaint/transform-layout-repaint.html = FAIL
+BUG10477 WIN LINUX : LayoutTests/fast/events/context-no-deselect.html = FAIL
 BUG10477 : LayoutTests/fast/xmlhttprequest/xmlhttprequest-nonexistent-file.html = FAIL
 BUG10477 WIN LINUX : LayoutTests/http/tests/navigation/success200-frames-loadsame.html = FAIL
 BUG10477 : LayoutTests/http/tests/navigation/onload-navigation-iframe-2.html = TIMEOUT
@@ -2230,8 +2238,8 @@ BUG9962 MAC : LayoutTests/http/tests/security/XFrameOptions/x-frame-options-pare
 BUG9962 MAC : LayoutTests/http/tests/security/XFrameOptions/x-frame-options-parent-same-origin-deny.html = FAIL
 
 // Regressions from WebKit merge 43264:42403, possibly due to r42375.
-BUG9992 WIN LINUX : LayoutTests/fast/repaint/box-shadow-h.html = FAIL
-BUG9992 WIN LINUX : LayoutTests/fast/repaint/box-shadow-v.html = FAIL
+BUG9992 LINUX : LayoutTests/fast/repaint/box-shadow-h.html = FAIL
+BUG9992 LINUX : LayoutTests/fast/repaint/box-shadow-v.html = FAIL
 BUG9992 WIN LINUX : LayoutTests/fast/text/shadow-no-blur.html = FAIL
 
 // Regressions from WebKit merge 43264:42403, unknown cause(s)
@@ -2250,6 +2258,8 @@ BUG11122 LINUX : LayoutTests/fast/forms/caret-rtl.html = FAIL
 // New tests from WebKit Merge 42609:42671
 DEFER BUG4363 : LayoutTests/fast/layers/video-layer.html = FAIL
 BUG10760 LINUX : LayoutTests/fast/forms/input-text-scroll-left-on-blur.html = FAIL
+BUG10760 LINUX : LayoutTests/fast/inline/25277-2.html = FAIL	
+BUG10760 LINUX : LayoutTests/fast/inline/25277.html = FAIL
 BUG10760 MAC : LayoutTests/svg/custom/marker-overflow-clip.svg = FAIL
 BUG10760 LINUX : LayoutTests/svg/custom/focus-ring.svg = FAIL
 BUG10760 MAC LINUX : LayoutTests/svg/custom/marker-child-changes.svg = PASS FAIL
@@ -2352,9 +2362,6 @@ BUG11123 LINUX : LayoutTests/fast/overflow/overflow-focus-ring.html = FAIL
 BUG11123 LINUX : LayoutTests/svg/custom/viewport-update2.svg = FAIL
 BUG11123 LINUX : LayoutTests/transitions/mask-transitions.html = FAIL
 
-// Mysteriously started failing right around the v8 scons->gyp change.
-BUG11176 WIN : LayoutTests/fast/forms/input-align-image.html = FAIL
-      
 // New failures from WebKit Merge 42932:42994
 BUG11178 : LayoutTests/http/tests/security/listener/xss-JSTargetNode-onclick-addEventListener.html = FAIL
 BUG11178 : LayoutTests/http/tests/security/listener/xss-JSTargetNode-onclick-shortcut.html = FAIL
