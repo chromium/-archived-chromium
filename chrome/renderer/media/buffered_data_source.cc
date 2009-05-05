@@ -57,6 +57,7 @@ BufferedResourceLoader::BufferedResourceLoader(int route_id,
       first_byte_position_(first_byte_position),
       last_byte_position_(last_byte_position),
       render_loop_(RenderThread::current()->message_loop()) {
+  AddRef();
 }
 
 BufferedResourceLoader::~BufferedResourceLoader() {
@@ -369,22 +370,26 @@ void BufferedResourceLoader::OnReceivedData(const char* data, int len) {
 void BufferedResourceLoader::OnCompletedRequest(
     const URLRequestStatus& status, const std::string& security_info) {
   SignalComplete();
+
   // After the response has completed, we don't need the bridge any more.
   bridge_.reset();
 
   if (async_start_)
     InvokeAndResetStartCallback(status.os_error());
+  Release();
 }
 
 /////////////////////////////////////////////////////////////////////////////
 // BufferedResourceLoader, private
 void BufferedResourceLoader::AppendToBuffer(const uint8* data, size_t size) {
-  Buffer* buffer = new Buffer(size);
+  scoped_ptr<Buffer> buffer(new Buffer(size));
   memcpy(buffer->data.get(), data, size);
   {
     AutoLock auto_lock(lock_);
-    buffers_.push_back(buffer);
-    buffered_bytes_ += size;
+    if (!stopped_) {
+      buffers_.push_back(buffer.release());
+      buffered_bytes_ += size;
+    }
   }
   buffer_event_.Signal();
 }
@@ -424,7 +429,9 @@ void BufferedResourceLoader::OnStart() {
 
 void BufferedResourceLoader::OnDestroy() {
   DCHECK(MessageLoop::current() == render_loop_);
-  bridge_.reset();
+  if (bridge_.get()) {
+    bridge_->Cancel();
+  }
 }
 
 void BufferedResourceLoader::OnEnableDeferLoading() {
@@ -547,15 +554,25 @@ size_t BufferedDataSource::Read(uint8* data, size_t size) {
         AutoLock auto_lock(lock_);
         if (stopped_)
           return DataSource::kReadError;
-        old_resource_loader = buffered_resource_loader_;
-        buffered_resource_loader_ =
+
+        // Save the reference to the old resource loader, if we have a local
+        // reference, use this local reference instead of creating a new one.
+        if (resource_loader)
+          old_resource_loader = resource_loader;
+        else
+          old_resource_loader = buffered_resource_loader_;
+
+        // Create a new resource loader.
+        resource_loader =
             new BufferedResourceLoader(delegate_->view()->routing_id(),
                                        url_, position_,
                                        kPositionNotSpecified);
-        resource_loader = buffered_resource_loader_;
+        buffered_resource_loader_ = resource_loader;
       }
-      if (old_resource_loader)
+      if (old_resource_loader) {
         old_resource_loader->Stop();
+        old_resource_loader = NULL;
+      }
       if (resource_loader) {
         if (net::OK != resource_loader->Start(NULL)) {
           // We have started a new request but failed, report that.
