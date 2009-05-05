@@ -8,10 +8,10 @@
 #include <vector>
 
 #include "base/scoped_ptr.h"
+#include "base/stl_util-inl.h"
 #include "chrome/browser/views/options/options_page_view.h"
 #include "chrome/browser/webdata/web_data_service.h"
 #include "chrome/common/gfx/text_elider.h"
-#include "chrome/common/stl_util-inl.h"
 #include "chrome/views/controls/button/native_button.h"
 #include "chrome/views/controls/label.h"
 #include "chrome/views/controls/table/table_view.h"

@@ -6,6 +6,7 @@
 
 #include "base/file_util.h"
 #include "base/path_service.h"
+#include "base/stl_util-inl.h"
 #include "base/string_util.h"
 #include "base/task.h"
 #include "build/build_config.h"
@@ -17,7 +18,6 @@
 #include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/common/chrome_paths.h"
 #include "chrome/common/platform_util.h"
-#include "chrome/common/stl_util-inl.h"
 #include "googleurl/src/gurl.h"
 #include "net/base/io_buffer.h"
 #include "net/base/net_util.h"

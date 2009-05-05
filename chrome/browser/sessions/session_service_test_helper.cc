@@ -4,11 +4,11 @@
 
 #include "chrome/browser/sessions/session_service_test_helper.h"
 
+#include "base/scoped_vector.h"
 #include "chrome/browser/sessions/session_backend.h"
 #include "chrome/browser/sessions/session_id.h"
 #include "chrome/browser/sessions/session_service.h"
 #include "chrome/browser/sessions/session_types.h"
-#include "chrome/common/scoped_vector.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
 using base::Time;

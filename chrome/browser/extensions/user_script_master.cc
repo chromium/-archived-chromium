@@ -10,9 +10,9 @@
 #include "base/file_util.h"
 #include "base/path_service.h"
 #include "base/pickle.h"
+#include "base/stl_util-inl.h"
 #include "base/string_util.h"
 #include "chrome/common/notification_service.h"
-#include "chrome/common/stl_util-inl.h"
 #include "chrome/common/url_constants.h"
 #include "net/base/net_util.h"
 

@@ -10,6 +10,7 @@
 
 #include "base/message_loop.h"
 #include "base/scoped_ptr.h"
+#include "base/stl_util-inl.h"
 #include "base/time.h"
 #include "chrome/browser/cert_store.h"
 #include "chrome/browser/cross_site_request_manager.h"
@@ -35,7 +36,6 @@
 #include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/common/notification_service.h"
 #include "chrome/common/render_messages.h"
-#include "chrome/common/stl_util-inl.h"
 #include "net/base/auth.h"
 #include "net/base/cert_status_flags.h"
 #include "net/base/load_flags.h"

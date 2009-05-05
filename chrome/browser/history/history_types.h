@@ -13,10 +13,10 @@
 #include "base/basictypes.h"
 #include "base/gfx/rect.h"
 #include "base/stack_container.h"
+#include "base/stl_util-inl.h"
 #include "base/time.h"
 #include "chrome/browser/history/snippet.h"
 #include "chrome/common/page_transition_types.h"
-#include "chrome/common/stl_util-inl.h"
 #include "googleurl/src/gurl.h"
 
 namespace history {

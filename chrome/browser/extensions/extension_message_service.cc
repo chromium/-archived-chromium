@@ -6,6 +6,7 @@
 
 #include "base/json_writer.h"
 #include "base/singleton.h"
+#include "base/stl_util-inl.h"
 #include "base/values.h"
 #include "chrome/browser/chrome_thread.h"
 #include "chrome/browser/extensions/extension.h"
@@ -18,7 +19,6 @@
 #include "chrome/browser/tab_contents/tab_util.h"
 #include "chrome/common/notification_service.h"
 #include "chrome/common/render_messages.h"
-#include "chrome/common/stl_util-inl.h"
 
 // Since we have 2 ports for every channel, we just index channels by half the
 // port ID.
@@ -215,7 +215,7 @@ void ExtensionMessageService::Observe(NotificationType type,
 
   DCHECK(type.value == NotificationType::RENDERER_PROCESS_TERMINATED ||
          type.value == NotificationType::RENDERER_PROCESS_CLOSED);
-  
+
   RenderProcessHost* renderer = Source<RenderProcessHost>(source).ptr();
 
   {

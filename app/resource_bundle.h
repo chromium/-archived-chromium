@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CHROME_COMMON_RESOURCE_BUNDLE_H__
-#define CHROME_COMMON_RESOURCE_BUNDLE_H__
+#ifndef APP_RESOURCE_BUNDLE_H_
+#define APP_RESOURCE_BUNDLE_H_
 
 #include "build/build_config.h"
 
@@ -22,7 +22,7 @@
 
 #if defined(OS_LINUX) || defined(OS_MACOSX)
 namespace base {
-  class DataPack;
+class DataPack;
 };
 #endif
 #if defined(OS_LINUX)
@@ -200,4 +200,4 @@ class ResourceBundle {
   DISALLOW_EVIL_CONSTRUCTORS(ResourceBundle);
 };
 
-#endif // CHROME_COMMON_RESOURCE_BUNDLE_H__
+#endif // APP_RESOURCE_BUNDLE_H_

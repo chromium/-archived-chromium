@@ -6,12 +6,12 @@
 
 #include "base/logging.h"
 #include "base/message_loop.h"
+#include "base/stl_util-inl.h"
 #include "base/string_util.h"
 #include "base/thread.h"
 #include "chrome/common/json_value_serializer.h"
 #include "chrome/common/l10n_util.h"
 #include "chrome/common/notification_service.h"
-#include "chrome/common/stl_util-inl.h"
 #include "grit/generated_resources.h"
 
 namespace {

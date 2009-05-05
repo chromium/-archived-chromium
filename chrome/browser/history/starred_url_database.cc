@@ -7,6 +7,8 @@
 #include "base/file_util.h"
 #include "base/logging.h"
 #include "base/json_writer.h"
+#include "base/scoped_vector.h"
+#include "base/stl_util-inl.h"
 #include "base/string_util.h"
 #include "base/values.h"
 #include "chrome/browser/bookmarks/bookmark_codec.h"
@@ -14,10 +16,8 @@
 #include "chrome/browser/history/history.h"
 #include "chrome/browser/history/query_parser.h"
 #include "chrome/browser/meta_table_helper.h"
-#include "chrome/common/scoped_vector.h"
 #include "chrome/common/sqlite_compiled_statement.h"
 #include "chrome/common/sqlite_utils.h"
-#include "chrome/common/stl_util-inl.h"
 
 using base::Time;
 

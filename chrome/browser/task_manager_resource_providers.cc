@@ -9,6 +9,7 @@
 #include "base/file_version_info.h"
 #include "base/message_loop.h"
 #include "base/process_util.h"
+#include "base/stl_util-inl.h"
 #include "base/string_util.h"
 #include "chrome/app/chrome_dll_resource.h"
 #include "chrome/browser/browser_process.h"
@@ -20,7 +21,6 @@
 #include "chrome/common/child_process_host.h"
 #include "chrome/common/l10n_util.h"
 #include "chrome/common/notification_service.h"
-#include "chrome/common/stl_util-inl.h"
 #if defined(OS_WIN)
 #include "chrome/common/gfx/icon_util.h"
 #endif  // defined(OS_WIN)

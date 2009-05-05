@@ -11,12 +11,12 @@
 #include "base/logging.h"
 #include "base/message_loop.h"
 #include "base/platform_thread.h"
+#include "base/stl_util-inl.h"
 #include "base/string_util.h"
 #include "base/thread.h"
 #include "base/waitable_event.h"
 #include "chrome/common/ipc_message.h"
 #include "chrome/common/ipc_sync_channel.h"
-#include "chrome/common/stl_util-inl.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
 

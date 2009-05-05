@@ -10,7 +10,8 @@
 
 #include "base/basictypes.h"
 #include "base/scoped_ptr.h"
-#include "chrome/common/scoped_vector.h"
+#include "base/scoped_vector.h"
+#include "base/stl_util-inl.h"
 #include "chrome/views/controls/tree/tree_model.h"
 
 namespace views {

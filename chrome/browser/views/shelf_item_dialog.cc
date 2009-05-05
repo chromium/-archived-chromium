@@ -6,6 +6,7 @@
 
 #include "app/resource_bundle.h"
 #include "base/gfx/png_decoder.h"
+#include "base/stl_util-inl.h"
 #include "base/string_util.h"
 #include "chrome/browser/net/url_fixer_upper.h"
 #include "chrome/browser/profile.h"
@@ -15,7 +16,6 @@
 #include "chrome/common/l10n_util.h"
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
-#include "chrome/common/stl_util-inl.h"
 #include "chrome/views/background.h"
 #include "chrome/views/controls/label.h"
 #include "chrome/views/controls/text_field.h"

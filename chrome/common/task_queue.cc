@@ -2,9 +2,9 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "chrome/common/stl_util-inl.h"
-
 #include "chrome/common/task_queue.h"
+
+#include "base/stl_util-inl.h"
 
 TaskQueue::TaskQueue() {
 }

@@ -8,6 +8,7 @@
 
 #include "app/resource_bundle.h"
 #include "base/gfx/png_decoder.h"
+#include "base/stl_util-inl.h"
 #include "base/string_util.h"
 #include "chrome/browser/history/history.h"
 #include "chrome/browser/profile.h"
@@ -19,7 +20,6 @@
 #include "chrome/common/l10n_util.h"
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
-#include "chrome/common/stl_util-inl.h"
 #include "chrome/views/background.h"
 #include "chrome/views/grid_layout.h"
 #include "chrome/views/controls/button/native_button.h"

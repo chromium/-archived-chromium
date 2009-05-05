@@ -7,7 +7,7 @@
 #include "chrome/browser/command_updater.h"
 
 #include "base/logging.h"
-#include "chrome/common/stl_util-inl.h"
+#include "base/stl_util-inl.h"
 
 CommandUpdater::CommandUpdater(CommandUpdaterDelegate* handler)
     : delegate_(handler) {

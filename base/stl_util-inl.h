@@ -1,14 +1,12 @@
-//
 // Copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
-//
+
 // STL utility functions.  Usually, these replace built-in, but slow(!),
 // STL functions with more efficient versions.
-//
 
-#ifndef CHROME_COMMON_STL_UTIL_INL_H__
-#define CHROME_COMMON_STL_UTIL_INL_H__
+#ifndef BASE_STL_UTIL_INL_H_
+#define BASE_STL_UTIL_INL_H_
 
 #include <string.h>  // for memcpy
 #include <functional>
@@ -449,4 +447,4 @@ std::vector<T> SetToVector(const std::set<T>& values) {
   return result;
 }
 
-#endif  // CHROME_COMMON_STL_UTIL_INL_H__
+#endif  // BASE_STL_UTIL_INL_H_

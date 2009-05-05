@@ -6,8 +6,8 @@
 
 #include <algorithm>
 
+#include "base/stl_util-inl.h"
 #include "chrome/common/notification_service.h"
-#include "chrome/common/stl_util-inl.h"
 
 namespace views {
 

@@ -8,7 +8,7 @@
 
 #include "base/file_util.h"
 #include "base/histogram.h"
-#include "chrome/common/scoped_vector.h"
+#include "base/scoped_vector.h"
 
 using base::TimeTicks;
 

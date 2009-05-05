@@ -11,6 +11,7 @@
 #include "base/file_path.h"
 #include "base/lock.h"
 #include "base/scoped_ptr.h"
+#include "base/scoped_vector.h"
 #include "base/task.h"
 #include "chrome/browser/history/archived_database.h"
 #include "chrome/browser/history/download_types.h"
@@ -23,7 +24,6 @@
 #include "chrome/browser/history/thumbnail_database.h"
 #include "chrome/browser/history/visit_tracker.h"
 #include "chrome/common/mru_cache.h"
-#include "chrome/common/scoped_vector.h"
 #include "testing/gtest/include/gtest/gtest_prod.h"
 
 class BookmarkService;

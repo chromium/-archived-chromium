@@ -6,6 +6,7 @@
 
 #include <algorithm>
 
+#include "base/stl_util-inl.h"
 #include "base/string_util.h"
 #include "chrome/browser/metrics/user_metrics.h"
 #include "chrome/browser/profile.h"
@@ -14,7 +15,6 @@
 #include "chrome/browser/tab_contents/navigation_controller.h"
 #include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/common/notification_service.h"
-#include "chrome/common/stl_util-inl.h"
 #include "chrome/common/url_constants.h"
 
 namespace {

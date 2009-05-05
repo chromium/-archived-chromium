@@ -2,12 +2,13 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CHROME_BROWSER_COMMON_SCOPED_VECTOR_H__
-#define CHROME_BROWSER_COMMON_SCOPED_VECTOR_H__
+#ifndef BASE_SCOPED_VECTOR_H_
+#define BASE_SCOPED_VECTOR_H_
 
 #include <vector>
 
-#include "chrome/common/stl_util-inl.h"
+#include "base/logging.h"
+#include "base/stl_util-inl.h"
 
 // ScopedVector wraps a vector deleting the elements from its
 // destructor.
@@ -45,7 +46,7 @@ class ScopedVector {
  private:
   std::vector<T*> v;
 
-  DISALLOW_EVIL_CONSTRUCTORS(ScopedVector);
+  DISALLOW_COPY_AND_ASSIGN(ScopedVector);
 };
 
-#endif // CHROME_BROWSER_COMMON_SCOPED_VECTOR_H__
+#endif // BASE_SCOPED_VECTOR_H_

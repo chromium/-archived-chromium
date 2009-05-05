@@ -4,11 +4,11 @@
 
 #include "base/file_path.h"
 #include "base/file_util.h"
+#include "base/stl_util-inl.h"
 #include "base/string_util.h"
 #include "base/path_service.h"
 #include "base/time.h"
 #include "chrome/browser/sessions/session_backend.h"
-#include "chrome/common/stl_util-inl.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
 namespace {

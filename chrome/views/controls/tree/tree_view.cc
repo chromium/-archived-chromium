@@ -7,12 +7,12 @@
 #include <shellapi.h>
 
 #include "app/resource_bundle.h"
+#include "base/stl_util-inl.h"
 #include "base/win_util.h"
 #include "chrome/common/gfx/chrome_canvas.h"
 #include "chrome/common/gfx/icon_util.h"
 #include "chrome/common/l10n_util.h"
 #include "chrome/common/l10n_util_win.h"
-#include "chrome/common/stl_util-inl.h"
 #include "chrome/views/focus/focus_manager.h"
 #include "chrome/views/widget/widget.h"
 #include "grit/theme_resources.h"

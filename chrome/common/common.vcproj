@@ -750,10 +750,6 @@
 			>
 		</File>
 		<File
-			RelativePath=".\scoped_vector.h"
-			>
-		</File>
-		<File
 			RelativePath=".\security_filter_peer.cc"
 			>
 		</File>
@@ -783,10 +779,6 @@
 		</File>
 		<File
 			RelativePath=".\sqlite_utils.h"
-			>
-		</File>
-		<File
-			RelativePath=".\stl_util-inl.h"
 			>
 		</File>
 		<File

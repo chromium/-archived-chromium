@@ -6,7 +6,8 @@
 #define CHROME_BROWSER_PASSWORD_FORM_MANAGER_H__
 
 #include "build/build_config.h"
-#include "chrome/common/stl_util-inl.h"
+
+#include "base/stl_util-inl.h"
 #include "chrome/browser/webdata/web_data_service.h"
 #include "webkit/glue/password_form.h"
 

@@ -11,6 +11,7 @@
 #include "base/file_util.h"
 #include "base/message_loop.h"
 #include "base/pickle.h"
+#include "base/scoped_vector.h"
 #include "base/thread.h"
 #include "chrome/browser/browser_init.h"
 #include "chrome/browser/browser_list.h"
@@ -26,7 +27,6 @@
 #include "chrome/browser/tab_contents/navigation_entry.h"
 #include "chrome/common/notification_details.h"
 #include "chrome/common/notification_service.h"
-#include "chrome/common/scoped_vector.h"
 
 using base::Time;
 

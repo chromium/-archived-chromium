@@ -11,9 +11,9 @@
 #include "base/lock.h"
 #include "base/message_loop.h"
 #include "base/ref_counted.h"
+#include "base/scoped_vector.h"
 #include "base/thread.h"
 #include "chrome/browser/webdata/web_database.h"
-#include "chrome/common/scoped_vector.h"
 #include "webkit/glue/autofill_form.h"
 
 #if defined(OS_WIN)

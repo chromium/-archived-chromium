@@ -4,6 +4,8 @@
 
 #include "base/file_util.h"
 #include "base/path_service.h"
+#include "base/scoped_vector.h"
+#include "base/stl_util-inl.h"
 #include "base/string_util.h"
 #include "base/time.h"
 #include "chrome/browser/sessions/session_backend.h"
@@ -12,8 +14,6 @@
 #include "chrome/browser/sessions/session_types.h"
 #include "chrome/browser/tab_contents/navigation_entry.h"
 #include "chrome/common/chrome_paths.h"
-#include "chrome/common/scoped_vector.h"
-#include "chrome/common/stl_util-inl.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
 class SessionServiceTest : public testing::Test {

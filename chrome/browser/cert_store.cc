@@ -7,11 +7,11 @@
 #include <algorithm>
 #include <functional>
 
+#include "base/stl_util-inl.h"
 #include "chrome/browser/renderer_host/render_process_host.h"
 #include "chrome/browser/renderer_host/render_view_host.h"
 #include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/common/notification_service.h"
-#include "chrome/common/stl_util-inl.h"
 
 template <typename T>
 struct MatchSecond {

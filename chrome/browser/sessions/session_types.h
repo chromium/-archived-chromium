@@ -9,11 +9,11 @@
 #include <vector>
 
 #include "base/gfx/rect.h"
+#include "base/stl_util-inl.h"
 #include "base/string16.h"
 #include "chrome/browser/browser.h"
 #include "chrome/browser/sessions/session_id.h"
 #include "chrome/common/page_transition_types.h"
-#include "chrome/common/stl_util-inl.h"
 #include "googleurl/src/gurl.h"
 
 class NavigationEntry;

@@ -5,9 +5,9 @@
 #include "chrome/renderer/dom_ui_bindings.h"
 
 #include "base/json_writer.h"
+#include "base/stl_util-inl.h"
 #include "base/values.h"
 #include "chrome/common/render_messages.h"
-#include "chrome/common/stl_util-inl.h"
 
 DOMBoundBrowserObject::~DOMBoundBrowserObject() {
   STLDeleteContainerPointers(properties_.begin(), properties_.end());

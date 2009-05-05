@@ -6,7 +6,7 @@
 
 #include "base/file_util.h"
 #include "base/scoped_ptr.h"
-#include "chrome/common/stl_util-inl.h"
+#include "base/stl_util-inl.h"
 #include "SkBitmap.h"
 #include "SkCanvas.h"
 

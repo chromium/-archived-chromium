@@ -4,7 +4,7 @@
 
 #include "chrome/browser/printing/page_range.h"
 
-#include "chrome/common/stl_util-inl.h"
+#include "base/stl_util-inl.h"
 
 namespace printing {
 

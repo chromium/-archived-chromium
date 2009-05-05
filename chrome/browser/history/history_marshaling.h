@@ -8,10 +8,10 @@
 #ifndef CHROME_BROWSER_HISTORY_HISTORY_MARSHALING_H__
 #define CHROME_BROWSER_HISTORY_HISTORY_MARSHALING_H__
 
+#include "base/scoped_vector.h"
 #include "chrome/browser/cancelable_request.h"
 #include "chrome/browser/history/history.h"
 #include "chrome/browser/history/page_usage_data.h"
-#include "chrome/common/scoped_vector.h"
 
 namespace history {
 

@@ -2,19 +2,19 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+#include "chrome/browser/sessions/tab_restore_service.h"
+
 #include <algorithm>
 #include <iterator>
 
-#include "chrome/browser/sessions/tab_restore_service.h"
-
+#include "base/scoped_vector.h"
+#include "base/stl_util-inl.h"
 #include "chrome/browser/browser_list.h"
 #include "chrome/browser/profile.h"
 #include "chrome/browser/sessions/session_service.h"
 #include "chrome/browser/sessions/session_command.h"
 #include "chrome/browser/tab_contents/navigation_controller.h"
 #include "chrome/browser/tab_contents/navigation_entry.h"
-#include "chrome/common/scoped_vector.h"
-#include "chrome/common/stl_util-inl.h"
 
 using base::Time;
 

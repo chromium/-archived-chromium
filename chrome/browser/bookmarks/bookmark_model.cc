@@ -5,6 +5,7 @@
 #include "chrome/browser/bookmarks/bookmark_model.h"
 
 #include "base/gfx/png_decoder.h"
+#include "base/scoped_vector.h"
 #include "build/build_config.h"
 #include "chrome/browser/bookmarks/bookmark_utils.h"
 #include "chrome/browser/bookmarks/bookmark_storage.h"
@@ -12,7 +13,6 @@
 #include "chrome/browser/profile.h"
 #include "chrome/common/l10n_util.h"
 #include "chrome/common/notification_service.h"
-#include "chrome/common/scoped_vector.h"
 #include "grit/generated_resources.h"
 
 using base::Time;

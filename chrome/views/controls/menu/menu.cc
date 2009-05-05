@@ -14,13 +14,13 @@
 
 #include "base/gfx/rect.h"
 #include "base/logging.h"
-#include "chrome/views/accelerator.h"
+#include "base/stl_util-inl.h"
 #include "base/string_util.h"
 #include "chrome/common/gfx/chrome_canvas.h"
 #include "chrome/common/gfx/chrome_font.h"
 #include "chrome/common/l10n_util.h"
 #include "chrome/common/l10n_util_win.h"
-#include "chrome/common/stl_util-inl.h"
+#include "chrome/views/accelerator.h"
 
 const SkBitmap* Menu::Delegate::kEmptyIcon = 0;
 
@@ -151,7 +151,7 @@ class MenuHostWindow : public CWindowImpl<MenuHostWindow, CWindow,
       // Draw the label.
       RECT rect = lpdis->rcItem;
       rect.top += kItemTopMargin;
-      // Should we add kIconWidth only when icon.width() != 0 ? 
+      // Should we add kIconWidth only when icon.width() != 0 ?
       rect.left += kItemLeftMargin + kIconWidth;
       rect.right -= kItemRightMargin;
       UINT format = DT_TOP | DT_SINGLELINE;
@@ -164,11 +164,11 @@ class MenuHostWindow : public CWindowImpl<MenuHostWindow, CWindow,
       HGDIOBJ old_font = static_cast<HFONT>(SelectObject(hDC, font.hfont()));
       int fontsize = font.FontSize();
 
-      // If an accelerator is specified (with a tab delimiting the rest
-      // of the label from the accelerator), we have to justify 
-      // the fist part on the left and the accelerator on the right. 
-      // TODO(jungshik):  This will break in RTL UI. Currently, he/ar
-      // use the window system UI font and will not hit here. 
+      // If an accelerator is specified (with a tab delimiting the rest of the
+      // label from the accelerator), we have to justify the fist part on the
+      // left and the accelerator on the right.
+      // TODO(jungshik): This will break in RTL UI. Currently, he/ar use the
+      //                 window system UI font and will not hit here.
       std::wstring label = data->label;
       std::wstring accel;
       std::wstring::size_type tab_pos = label.find(L'\t');

@@ -7,13 +7,13 @@
 #include "base/basictypes.h"
 #include "base/file_util.h"
 #include "base/path_service.h"
+#include "base/stl_util-inl.h"
 #include "base/string_util.h"
 #if defined(OS_WIN)
 #include "base/win_util.h"
 #endif
 #include "chrome/common/chrome_paths.h"
 #include "chrome/common/l10n_util.h"
-#include "chrome/common/stl_util-inl.h"
 #if !defined(OS_MACOSX)
 #include "chrome/test/data/resource.h"
 #endif

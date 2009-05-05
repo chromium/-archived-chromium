@@ -7,10 +7,10 @@
 #include "chrome/browser/history/query_parser.h"
 
 #include "base/logging.h"
+#include "base/scoped_vector.h"
 #include "base/string_util.h"
 #include "base/word_iterator.h"
 #include "chrome/common/l10n_util.h"
-#include "chrome/common/scoped_vector.h"
 #include "unicode/uscript.h"
 
 namespace {

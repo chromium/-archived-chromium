@@ -5,13 +5,13 @@
 #include "chrome/browser/sessions/base_session_service.h"
 
 #include "base/pickle.h"
+#include "base/stl_util-inl.h"
 #include "base/thread.h"
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/profile.h"
 #include "chrome/browser/sessions/session_backend.h"
 #include "chrome/browser/sessions/session_types.h"
 #include "chrome/browser/tab_contents/navigation_entry.h"
-#include "chrome/common/stl_util-inl.h"
 #include "webkit/glue/webkit_glue.h"
 
 // InternalGetCommandsRequest -------------------------------------------------
