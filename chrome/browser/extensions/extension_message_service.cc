@@ -81,7 +81,7 @@ void ExtensionMessageService::Init() {
       NotificationType::RENDERER_PROCESS_TERMINATED,
       NotificationService::AllSources());
   NotificationService::current()->AddObserver(this,
-      NotificationType::RENDERER_PROCESS_CRASHED,
+      NotificationType::RENDERER_PROCESS_CLOSED,
       NotificationService::AllSources());
 }
 
@@ -214,7 +214,8 @@ void ExtensionMessageService::Observe(NotificationType type,
   DCHECK_EQ(MessageLoop::current()->type(), MessageLoop::TYPE_UI);
 
   DCHECK(type.value == NotificationType::RENDERER_PROCESS_TERMINATED ||
-         type.value == NotificationType::RENDERER_PROCESS_CRASHED);
+         type.value == NotificationType::RENDERER_PROCESS_CLOSED);
+  
   RenderProcessHost* renderer = Source<RenderProcessHost>(source).ptr();
 
   {

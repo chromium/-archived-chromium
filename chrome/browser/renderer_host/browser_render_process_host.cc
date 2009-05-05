@@ -673,11 +673,12 @@ void BrowserRenderProcessHost::OnChannelError() {
   DCHECK(channel_.get());
 
   bool child_exited;
-  if (base::DidProcessCrash(&child_exited, process_.handle())) {
-    NotificationService::current()->Notify(
-        NotificationType::RENDERER_PROCESS_CRASHED,
-        Source<RenderProcessHost>(this), NotificationService::NoDetails());
-  }
+  bool did_crash = base::DidProcessCrash(&child_exited, process_.handle());
+
+  NotificationService::current()->Notify(
+      NotificationType::RENDERER_PROCESS_CLOSED,
+      Source<RenderProcessHost>(this),
+      Details<bool>(&did_crash));
 
   // POSIX: If the process crashed, then the kernel closed the socket for it
   // and so the child has already died by the time we get here. Since

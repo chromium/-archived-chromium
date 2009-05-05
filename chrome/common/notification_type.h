@@ -284,9 +284,12 @@ class NotificationType {
     // RenderProcessHost that corresponds to the process.
     RENDERER_PROCESS_TERMINATED,
 
-    // Indicates that a render process has crashed.  The source will be the
-    // corresponding RenderProcessHost.
-    RENDERER_PROCESS_CRASHED,
+    // Indicates that a render process was closed (meaning it exited, but the
+    // RenderProcessHost might be reused).  The source will be the corresponding
+    // RenderProcessHost.  The details will be a bool which is true if the
+    // process crashed.  This may get sent along with
+    // RENDERER_PROCESS_TERMINATED.
+    RENDERER_PROCESS_CLOSED,
 
     // Indicates that a render process has become unresponsive for a period of
     // time. The source will be the RenderWidgetHost that corresponds to the
