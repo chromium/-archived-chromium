@@ -125,6 +125,7 @@ class AlertInfoBar : public InfoBar {
       : InfoBar(delegate) {
     std::wstring text = delegate->GetMessageText();
     GtkWidget* label = gtk_label_new(WideToUTF8(text).c_str());
+    gtk_widget_modify_fg(label, GTK_STATE_NORMAL, &gfx::kGdkBlack);
     gtk_box_pack_start(GTK_BOX(hbox_), label, FALSE, FALSE, 0);
   }
 };
@@ -150,12 +151,16 @@ class LinkInfoBar : public InfoBar {
     if (link_offset == std::wstring::npos) {
       gtk_box_pack_end(GTK_BOX(hbox_), link_button_->widget(), FALSE, FALSE, 0);
       GtkWidget* label = gtk_label_new(WideToUTF8(display_text).c_str());
+      gtk_widget_modify_fg(label, GTK_STATE_NORMAL, &gfx::kGdkBlack);
       gtk_box_pack_start(GTK_BOX(hbox_), label, FALSE, FALSE, 0);
     } else {
       GtkWidget* initial_label = gtk_label_new(
           WideToUTF8(display_text.substr(0, link_offset)).c_str());
       GtkWidget* trailing_label = gtk_label_new(
           WideToUTF8(display_text.substr(link_offset)).c_str());
+
+      gtk_widget_modify_fg(initial_label, GTK_STATE_NORMAL, &gfx::kGdkBlack);
+      gtk_widget_modify_fg(trailing_label, GTK_STATE_NORMAL, &gfx::kGdkBlack);
 
       // We don't want any spacing between the elements, so we pack them into
       // this hbox that doesn't use kElementPadding.
