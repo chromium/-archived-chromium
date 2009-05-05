@@ -27,6 +27,7 @@
 #include "media/base/filters.h"
 #include "media/base/yuv_convert.h"
 #include "media/base/yuv_scale.h"
+#include "media/player/movie.h"
 #include "media/player/wtl_renderer.h"
 
 #ifdef TESTING
@@ -39,10 +40,6 @@ static inline double GetTime() {
   return perf_time.QuadPart * 1000.0 / perf_hz.QuadPart;  // Convert to ms.
 }
 #endif
-
-extern bool g_enableswscaler;
-extern bool g_enabledraw;
-extern bool g_enabledump_yuv_file;
 
 class WtlVideoWindow : public CScrollWindowImpl<WtlVideoWindow> {
  public:
@@ -182,7 +179,8 @@ class WtlVideoWindow : public CScrollWindowImpl<WtlVideoWindow> {
     }
 
     // Append each frame to end of file.
-    if (g_enabledump_yuv_file) {
+    bool enable_dump_yuv_file = media::Movie::get()->GetDumpYuvFileEnable();
+    if (enable_dump_yuv_file) {
       DumpYUV(frame_in);
     }
 
@@ -191,8 +189,10 @@ class WtlVideoWindow : public CScrollWindowImpl<WtlVideoWindow> {
     double yuvtimestart = GetTime();             // Start timer.
 #endif
 
-    if (g_enabledraw) {
-      if (g_enableswscaler) {
+    bool enable_draw = media::Movie::get()->GetDrawEnable();
+    if (enable_draw) {
+      bool enable_swscaler = media::Movie::get()->GetSwscalerEnable();
+      if (enable_swscaler) {
         uint8* data_out[3];
         int stride_out[3];
         data_out[0] = movie_dib_bits;

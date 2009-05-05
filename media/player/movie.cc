@@ -2,6 +2,10 @@
 // source code is governed by a BSD-style license that can be found in the
 // LICENSE file.
 
+#ifdef _OPENMP
+#include <omp.h>
+#endif
+
 #include "base/at_exit.h"
 #include "base/string_util.h"
 #include "media/base/factory.h"
@@ -30,6 +34,12 @@ namespace media {
 
 Movie::Movie()
     : enable_audio_(true),
+      enable_swscaler_(false),
+      enable_draw_(true),
+      enable_dump_yuv_file_(false),
+      enable_pause_(false),
+      enable_openmp_(false),
+      max_threads_(0),
       play_rate_(1.0f),
       movie_dib_(NULL),
       movie_hwnd_(0) {
@@ -87,9 +97,25 @@ bool Movie::Open(const wchar_t* url, WtlVideoRenderer* video_renderer) {
 void Movie::Play(float rate) {
   // Begin playback.
   if (pipeline_.get())
-    pipeline_->SetPlaybackRate(rate);
+    pipeline_->SetPlaybackRate(enable_pause_ ? 0.0f : rate);
   if (rate > 0.0f)
     play_rate_ = rate;
+}
+
+// Get playback rate.
+float Movie::GetPlayRate() {
+  return play_rate_;
+}
+
+// Set playback pause.
+void Movie::SetPause(bool pause) {
+  enable_pause_ = pause;
+  Play(play_rate_);
+}
+
+// Get playback pause state.
+bool Movie::GetPause() {
+  return enable_pause_;
 }
 
 void Movie::SetAudioEnable(bool enable_audio) {
@@ -98,6 +124,46 @@ void Movie::SetAudioEnable(bool enable_audio) {
 
 bool Movie::GetAudioEnable() {
   return enable_audio_;
+}
+
+void Movie::SetDrawEnable(bool enable_draw) {
+  enable_draw_ = enable_draw;
+}
+
+bool Movie::GetDrawEnable() {
+  return enable_draw_;
+}
+
+void Movie::SetSwscalerEnable(bool enable_swscaler) {
+  enable_swscaler_ = enable_swscaler;
+}
+
+bool Movie::GetSwscalerEnable() {
+  return enable_swscaler_;
+}
+
+void Movie::SetDumpYuvFileEnable(bool enable_dump_yuv_file) {
+  enable_dump_yuv_file_ = enable_dump_yuv_file;
+}
+
+bool Movie::GetDumpYuvFileEnable() {
+  return enable_dump_yuv_file_;
+}
+
+// Enable/Disable OpenMP.
+void Movie::SetOpenMpEnable(bool enable_openmp) {
+#ifdef _OPENMP
+  if (!max_threads_)
+    max_threads_ = omp_get_max_threads();
+
+  enable_openmp_ = enable_openmp;
+  omp_set_num_threads(enable_openmp_ ? max_threads_ : 1);
+#endif
+}
+
+// Get Enable/Disable OpenMP state.
+bool Movie::GetOpenMpEnable() {
+  return enable_openmp_;
 }
 
 // Teardown.

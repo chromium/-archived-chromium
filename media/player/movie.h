@@ -26,11 +26,14 @@ class Movie : public Singleton<Movie> {
   // Set playback rate.
   void Play(float rate);
 
-  // Enable/Disable audio.
-  void SetAudioEnable(bool enable_audio);
+  // Set playback rate.
+  float GetPlayRate();
 
-  // Get Enable/Disable audio state.
-  bool GetAudioEnable();
+  // Set playback pause.
+  void SetPause(bool pause);
+
+  // Get playback pause state.
+  bool GetPause();
 
   // Set buffer to render into.
   void SetFrameBuffer(HBITMAP hbmp, HWND hwnd);
@@ -41,6 +44,36 @@ class Movie : public Singleton<Movie> {
   // Query if movie is currently open.
   bool IsOpen();
 
+  // Enable/Disable audio.
+  void SetAudioEnable(bool enable_audio);
+
+  // Get Enable/Disable audio state.
+  bool GetAudioEnable();
+
+  // Enable/Disable draw.
+  void SetDrawEnable(bool enable_draw);
+
+  // Get Enable/Disable draw state.
+  bool GetDrawEnable();
+
+  // Enable/Disable swscaler.
+  void SetSwscalerEnable(bool enable_swscaler);
+
+  // Get Enable/Disable swscaler state.
+  bool GetSwscalerEnable();
+
+  // Enable/Disable dump yuv file.
+  void SetDumpYuvFileEnable(bool enable_dump_yuv_file);
+
+  // Get Enable/Disable dump yuv file state.
+  bool GetDumpYuvFileEnable();
+
+  // Enable/Disable OpenMP.
+  void SetOpenMpEnable(bool enable_openmp);
+
+  // Get Enable/Disable OpenMP state.
+  bool GetOpenMpEnable();
+
  private:
   // Only allow Singleton to create and delete Movie.
   friend struct DefaultSingletonTraits<Movie>;
@@ -48,10 +81,17 @@ class Movie : public Singleton<Movie> {
   virtual ~Movie();
 
   scoped_ptr<PipelineImpl> pipeline_;
+
+  bool enable_audio_;
+  bool enable_swscaler_;
+  bool enable_draw_;
+  bool enable_dump_yuv_file_;
+  bool enable_pause_;
+  bool enable_openmp_;
+  int max_threads_;
+  float play_rate_;
   HBITMAP movie_dib_;
   HWND movie_hwnd_;
-  bool enable_audio_;
-  float play_rate_;
 
   DISALLOW_COPY_AND_ASSIGN(Movie);
 };

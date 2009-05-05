@@ -33,8 +33,8 @@
 #define ID_OPTIONS_DRAW                 32792
 #define ID_OPTIONS_AUDIO                32793
 #define ID_OPTIONS_DUMPYUVFILE          32794
-#define ID_VIEW_HALFSIZE                32795
-#define ID_Menu                         32796
+#define ID_Menu                         32795
+#define ID_VIEW_HALFSIZE                32796
 #define ID_VIEW_NORMALSIZE              32797
 #define ID_VIEW_DOUBLESIZE              32798
 #define ID_VIEW_FITTOSCREEN             32799
