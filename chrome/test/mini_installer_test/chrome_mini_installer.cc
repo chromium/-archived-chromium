@@ -406,7 +406,7 @@ bool ChromeMiniInstaller::GetCommandForTagging(std::wstring *return_command) {
 std::wstring ChromeMiniInstaller::GetInstallerExePath(const wchar_t* name) {
   FilePath installer_path;
   PathService::Get(base::DIR_EXE, &installer_path);
-  installer_path.Append(name);
+  installer_path = installer_path.Append(name);
   printf("Chrome exe path is %ls\n", installer_path.value().c_str());
   return installer_path.ToWStringHack();
 }
