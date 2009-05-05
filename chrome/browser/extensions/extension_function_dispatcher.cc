@@ -51,13 +51,21 @@ FactoryRegistry* FactoryRegistry::instance() {
 FactoryRegistry::FactoryRegistry() {
   // Register all functions here.
 
-  // Tabs.
-  factories_["GetWindows"] = &NewExtensionFunction<GetWindowsFunction>;
+  // Windows
+  factories_["GetWindow"] = &NewExtensionFunction<GetWindowFunction>;
+  factories_["GetCurrentWindow"] =
+      &NewExtensionFunction<GetCurrentWindowFunction>;
+  factories_["GetFocusedWindow"] =
+      &NewExtensionFunction<GetFocusedWindowFunction>;
+  factories_["GetAllWindows"] = &NewExtensionFunction<GetAllWindowsFunction>;
   factories_["CreateWindow"] = &NewExtensionFunction<CreateWindowFunction>;
   factories_["RemoveWindow"] = &NewExtensionFunction<RemoveWindowFunction>;
-  factories_["GetTabsForWindow"] =
-      &NewExtensionFunction<GetTabsForWindowFunction>;
+  
+  // Tabs
   factories_["GetTab"] = &NewExtensionFunction<GetTabFunction>;
+  factories_["GetSelectedTab"] = &NewExtensionFunction<GetSelectedTabFunction>;
+  factories_["GetAllTabsInWindow"] =
+      &NewExtensionFunction<GetAllTabsInWindowFunction>;
   factories_["CreateTab"] = &NewExtensionFunction<CreateTabFunction>;
   factories_["UpdateTab"] = &NewExtensionFunction<UpdateTabFunction>;
   factories_["MoveTab"] = &NewExtensionFunction<MoveTabFunction>;

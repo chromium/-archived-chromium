@@ -45,7 +45,7 @@
   function handleClick() {
     if (enabled) {
       var url = "http://www.google.com/reader/view/feed/" + feedUrl;
-      chromium.tabs.createTab({url: url});
+      chromium.tabs.create({url: url});
     }
   }
 </script>

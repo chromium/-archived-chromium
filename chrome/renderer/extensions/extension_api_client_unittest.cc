@@ -75,7 +75,7 @@ TEST_F(ExtensionAPIClientTest, CallbackDispatching) {
     "         'incorrect result');"
     "  console.log('pass')"
     "}"
-    "chromium.tabs.createTab({}, callback);"
+    "chromium.tabs.create({}, callback);"
   );
 
   EXPECT_EQ("", GetConsoleMessage());
@@ -102,72 +102,210 @@ TEST_F(ExtensionAPIClientTest, CallbackDispatching) {
 // extension functions. We test both error and success conditions, but do not
 // test errors exhaustively as json schema code is well tested by itself.
 
-TEST_F(ExtensionAPIClientTest, GetTabsForWindow) {
-  ExpectJsFail("chromium.tabs.getTabsForWindow(42, function(){});",
+// Window API tests
+
+TEST_F(ExtensionAPIClientTest, GetWindow) {
+  ExpectJsFail("chromium.windows.get(32, function(){}, 20);",
                "Uncaught Error: Too many arguments.");
 
-  ExpectJsPass("chromium.tabs.getTabsForWindow(function(){})",
-               "GetTabsForWindow", "null");
+  ExpectJsFail("chromium.windows.get(32);",
+               "Uncaught Error: Parameter 1 is required.");
+
+  ExpectJsFail("chromium.windows.get('abc', function(){});",
+               "Uncaught Error: Invalid value for argument 0. "
+               "Expected 'integer' but got 'string'.");
+
+  ExpectJsFail("chromium.windows.get(1, 1);",
+               "Uncaught Error: Invalid value for argument 1. "
+               "Expected 'function' but got 'integer'.");
+
+  ExpectJsPass("chromium.windows.get(2, function(){})",
+               "GetWindow", "2");
 }
 
-TEST_F(ExtensionAPIClientTest, GetTab) {
-  ExpectJsFail("chromium.tabs.getTab(null, function(){});",
+TEST_F(ExtensionAPIClientTest, GetCurentWindow) {
+  ExpectJsFail("chromium.windows.getCurrent(function(){}, 20);",
+               "Uncaught Error: Too many arguments.");
+
+  ExpectJsFail("chromium.windows.getCurrent();",
                "Uncaught Error: Parameter 0 is required.");
 
-  ExpectJsPass("chromium.tabs.getTab(42)", "GetTab", "42");
+  ExpectJsFail("chromium.windows.getCurrent('abc');",
+               "Uncaught Error: Invalid value for argument 0. "
+               "Expected 'function' but got 'string'.");
+
+  ExpectJsPass("chromium.windows.getCurrent(function(){})",
+               "GetCurrentWindow", "null");
+}
+
+TEST_F(ExtensionAPIClientTest, GetFocusedWindow) {
+  ExpectJsFail("chromium.windows.getFocused(function(){}, 20);",
+               "Uncaught Error: Too many arguments.");
+
+  ExpectJsFail("chromium.windows.getFocused();",
+               "Uncaught Error: Parameter 0 is required.");
+
+  ExpectJsFail("chromium.windows.getFocused('abc');",
+               "Uncaught Error: Invalid value for argument 0. "
+               "Expected 'function' but got 'string'.");
+
+  ExpectJsPass("chromium.windows.getFocused(function(){})",
+               "GetFocusedWindow", "null");
+}
+
+TEST_F(ExtensionAPIClientTest, GetAllWindows) {
+  ExpectJsFail("chromium.windows.getAll(true, function(){}, 20);",
+               "Uncaught Error: Too many arguments.");
+
+  ExpectJsFail("chromium.windows.getAll(1, function(){});",
+               "Uncaught Error: Invalid value for argument 0. "
+               "Expected 'boolean' but got 'integer'.");
+
+  ExpectJsPass("chromium.windows.getAll(true, function(){})",
+               "GetAllWindows", "true");
+
+  ExpectJsPass("chromium.windows.getAll(null, function(){})",
+               "GetAllWindows", "null");
+
+  ExpectJsPass("chromium.windows.getAll(undefined, function(){})",
+               "GetAllWindows", "null");
+}
+
+// Tab API tests
+
+TEST_F(ExtensionAPIClientTest, GetTab) {
+  ExpectJsFail("chromium.tabs.get(32, function(){}, 20);",
+               "Uncaught Error: Too many arguments.");
+
+  ExpectJsFail("chromium.tabs.get(32);",
+               "Uncaught Error: Parameter 1 is required.");
+
+  ExpectJsFail("chromium.tabs.get('abc', function(){});",
+               "Uncaught Error: Invalid value for argument 0. "
+               "Expected 'integer' but got 'string'.");
+
+  ExpectJsFail("chromium.tabs.get(1, 1);",
+               "Uncaught Error: Invalid value for argument 1. "
+               "Expected 'function' but got 'integer'.");
+
+  ExpectJsPass("chromium.tabs.get(2, function(){})",
+               "GetTab", "2");
+}
+
+TEST_F(ExtensionAPIClientTest, GetSelectedTab) {
+  ExpectJsFail("chromium.tabs.getSelected(32, function(){}, 20);",
+               "Uncaught Error: Too many arguments.");
+
+  ExpectJsFail("chromium.tabs.getSelected(32);",
+               "Uncaught Error: Parameter 1 is required.");
+
+  ExpectJsFail("chromium.tabs.getSelected('abc', function(){});",
+               "Uncaught Error: Invalid value for argument 0. "
+               "Expected 'integer' but got 'string'.");
+
+  ExpectJsFail("chromium.tabs.getSelected(1, 1);",
+               "Uncaught Error: Invalid value for argument 1. "
+               "Expected 'function' but got 'integer'.");
+
+  ExpectJsPass("chromium.tabs.getSelected(2, function(){})",
+               "GetSelectedTab", "2");
+
+  ExpectJsPass("chromium.tabs.getSelected(null, function(){})",
+               "GetSelectedTab", "null");
+}
+
+
+TEST_F(ExtensionAPIClientTest, GetAllTabsInWindow) {
+  ExpectJsFail("chromium.tabs.getAllInWindow(42, function(){}, 'asd');",
+               "Uncaught Error: Too many arguments.");
+
+  ExpectJsFail("chromium.tabs.getAllInWindow(32);",
+               "Uncaught Error: Parameter 1 is required.");
+
+  ExpectJsFail("chromium.tabs.getAllInWindow(1, 1);",
+               "Uncaught Error: Invalid value for argument 1. "
+               "Expected 'function' but got 'integer'.");
+
+  ExpectJsFail("chromium.tabs.getAllInWindow('asd', function(){});",
+               "Uncaught Error: Invalid value for argument 0. "
+               "Expected 'integer' but got 'string'.");
+
+  ExpectJsPass("chromium.tabs.getAllInWindow(32, function(){})",
+               "GetAllTabsInWindow", "32");
+
+  ExpectJsPass("chromium.tabs.getAllInWindow(undefined, function(){})",
+               "GetAllTabsInWindow", "null");
 }
 
 TEST_F(ExtensionAPIClientTest, CreateTab) {
-  ExpectJsFail("chromium.tabs.createTab({windowId: 'foo'}, function(){});",
+  ExpectJsFail("chromium.tabs.create({windowId: 'foo'}, function(){});",
                "Uncaught Error: Invalid value for argument 0. Property "
                "'windowId': Expected 'integer' but got 'string'.");
-  ExpectJsFail("chromium.tabs.createTab({url: 42}, function(){});",
+  ExpectJsFail("chromium.tabs.create({url: 42}, function(){});",
                "Uncaught Error: Invalid value for argument 0. Property "
                "'url': Expected 'string' but got 'integer'.");
-  ExpectJsFail("chromium.tabs.createTab({foo: 42}, function(){});",
+  ExpectJsFail("chromium.tabs.create({foo: 42}, function(){});",
                "Uncaught Error: Invalid value for argument 0. Property "
                "'foo': Unexpected property.");
 
-  ExpectJsPass("chromium.tabs.createTab({"
+  ExpectJsPass("chromium.tabs.create({"
                "  url:'http://www.google.com/',"
                "  selected:true,"
+               "  index: 2,"
                "  windowId:4"
                "})",
                "CreateTab",
                "{\"url\":\"http://www.google.com/\","
                "\"selected\":true,"
+               "\"index\":2,"
                "\"windowId\":4}");
 }
 
 TEST_F(ExtensionAPIClientTest, UpdateTab) {
-  ExpectJsFail("chromium.tabs.updateTab({id: null});",
-               "Uncaught Error: Invalid value for argument 0. Property "
-               "'id': Property is required.");
-  ExpectJsFail("chromium.tabs.updateTab({id: 42, windowId: 'foo'});",
-               "Uncaught Error: Invalid value for argument 0. Property "
-               "'windowId': Expected 'integer' but got 'string'.");
-  ExpectJsFail("chromium.tabs.updateTab({id: 42, url: 42});",
-               "Uncaught Error: Invalid value for argument 0. Property "
+  ExpectJsFail("chromium.tabs.update(null);",
+               "Uncaught Error: Parameter 0 is required.");
+  ExpectJsFail("chromium.tabs.update(42, {selected: 'foo'});",
+               "Uncaught Error: Invalid value for argument 1. Property "
+               "'selected': Expected 'boolean' but got 'string'.");
+  ExpectJsFail("chromium.tabs.update(42, {url: 42});",
+               "Uncaught Error: Invalid value for argument 1. Property "
                "'url': Expected 'string' but got 'integer'.");
 
-  ExpectJsPass("chromium.tabs.updateTab({"
-               "  id:42,"
+  ExpectJsPass("chromium.tabs.update(42, {"
                "  url:'http://www.google.com/',"
-               "  selected:true,"
-               "  windowId:4"
+               "  selected:true"
                "})",
                "UpdateTab",
-               "{\"id\":42,"
-               "\"url\":\"http://www.google.com/\","
-               "\"selected\":true,"
-               "\"windowId\":4}");
+               "[42,"
+               "{\"url\":\"http://www.google.com/\","
+               "\"selected\":true}]");
+}
+
+TEST_F(ExtensionAPIClientTest, MoveTab) {
+  ExpectJsFail("chromium.tabs.move(null);",
+               "Uncaught Error: Parameter 0 is required.");
+  ExpectJsFail("chromium.tabs.move(42, {index: 'foo'});",
+               "Uncaught Error: Invalid value for argument 1. Property "
+               "'index': Expected 'integer' but got 'string'.");
+  ExpectJsFail("chromium.tabs.move(42, {index: 3, windowId: 'foo'});",
+               "Uncaught Error: Invalid value for argument 1. Property "
+               "'windowId': Expected 'integer' but got 'string'.");
+
+  ExpectJsPass("chromium.tabs.move(42, {"
+               "  index:3,"
+               "  windowId:21"
+               "})",
+               "MoveTab",
+               "[42,"
+               "{\"index\":3,"
+               "\"windowId\":21}]");
 }
 
 TEST_F(ExtensionAPIClientTest, RemoveTab) {
-  ExpectJsFail("chromium.tabs.removeTab('foobar', function(){});",
+  ExpectJsFail("chromium.tabs.remove('foobar', function(){});",
                "Uncaught Error: Too many arguments.");
 
-  ExpectJsPass("chromium.tabs.removeTab(21)", "RemoveTab", "21");
+  ExpectJsPass("chromium.tabs.remove(21)", "RemoveTab", "21");
 }
 
 // Bookmark API tests

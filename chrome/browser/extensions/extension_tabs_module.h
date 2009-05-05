@@ -22,7 +22,17 @@ class ExtensionTabUtil {
       const TabContents* tab_contents, TabStripModel* tab_strip, int tab_index);
 };
 
-class GetWindowsFunction : public SyncExtensionFunction {
+// Windows
+class GetWindowFunction : public SyncExtensionFunction {
+  virtual bool RunImpl();
+};
+class GetCurrentWindowFunction : public SyncExtensionFunction {
+  virtual bool RunImpl();
+};
+class GetFocusedWindowFunction : public SyncExtensionFunction {
+  virtual bool RunImpl();
+};
+class GetAllWindowsFunction : public SyncExtensionFunction {
   virtual bool RunImpl();
 };
 class CreateWindowFunction : public SyncExtensionFunction {
@@ -31,13 +41,18 @@ class CreateWindowFunction : public SyncExtensionFunction {
 class RemoveWindowFunction : public SyncExtensionFunction {
   virtual bool RunImpl();
 };
-class GetTabsForWindowFunction : public SyncExtensionFunction {
+
+// Tabs
+class GetTabFunction : public SyncExtensionFunction {
+  virtual bool RunImpl();
+};
+class GetSelectedTabFunction : public SyncExtensionFunction {
+  virtual bool RunImpl();
+};
+class GetAllTabsInWindowFunction : public SyncExtensionFunction {
   virtual bool RunImpl();
 };
 class CreateTabFunction : public SyncExtensionFunction {
-  virtual bool RunImpl();
-};
-class GetTabFunction : public SyncExtensionFunction {
   virtual bool RunImpl();
 };
 class UpdateTabFunction : public SyncExtensionFunction {

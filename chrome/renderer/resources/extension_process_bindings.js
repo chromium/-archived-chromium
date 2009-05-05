@@ -10,11 +10,15 @@
 var chromium;
 (function() {
   native function GetNextCallbackId();
+  native function GetWindow();
+  native function GetCurrentWindow();
+  native function GetFocusedWindow();
   native function CreateWindow();
   native function RemoveWindow();
-  native function GetWindows();
-  native function GetTabsForWindow();
+  native function GetAllWindows();
   native function GetTab();
+  native function GetSelectedTab();
+  native function GetAllTabsInWindow();
   native function CreateTab();
   native function UpdateTab();
   native function MoveTab();
@@ -95,24 +99,42 @@ var chromium;
   // Windows.
   chromium.windows = {};
 
-  chromium.windows.getWindows = function(windowQuery, callback) {
+  chromium.windows.get = function(windowId, callback) {
     validate(arguments, arguments.callee.params);
-    sendRequest(GetWindows, windowQuery, callback);
+    sendRequest(GetWindow, windowId, callback);
   };
 
-  chromium.windows.getWindows.params = [
-    {
-      type: "object",
-      properties: {
-        ids: {
-          type: "array",
-          items: chromium.types.pInt,
-          minItems: 1
-        }
-      },
-      optional: true
-    },
-    chromium.types.optFun
+  chromium.windows.get.params = [
+    chromium.types.pInt,
+    chromium.types.fun
+  ];
+  
+  chromium.windows.getCurrent = function(callback) {
+    validate(arguments, arguments.callee.params);
+    sendRequest(GetCurrentWindow, null, callback);
+  };
+
+  chromium.windows.getCurrent.params = [
+    chromium.types.fun
+  ];
+  
+  chromium.windows.getFocused = function(callback) {
+    validate(arguments, arguments.callee.params);
+    sendRequest(GetFocusedWindow, null, callback);
+  };
+
+  chromium.windows.getFocused.params = [
+    chromium.types.fun
+  ];
+
+  chromium.windows.getAll = function(populate, callback) {
+    validate(arguments, arguments.callee.params);
+    sendRequest(GetAllWindows, populate, callback);
+  };
+
+  chromium.windows.getAll.params = [
+    chromium.types.optBool,
+    chromium.types.fun
   ];
   
   chromium.windows.createWindow = function(createData, callback) {
@@ -146,49 +168,64 @@ var chromium;
   
   // sends (windowId).
   // *WILL* be followed by tab-attached AND then tab-selection-changed.
-  chromium.windows.onWindowCreated = new chromium.Event("window-created");
+  chromium.windows.onCreated = new chromium.Event("window-created");
 
   // sends (windowId).
   // *WILL* be preceded by sequences of tab-removed AND then
   // tab-selection-changed -- one for each tab that was contained in the window
   // that closed
-  chromium.windows.onWindowRemoved = new chromium.Event("window-removed");
+  chromium.windows.onRemoved = new chromium.Event("window-removed");
+  
+  // sends (windowId).
+  chromium.windows.onFocusChanged =
+        new chromium.Event("window-focus-changed");
 
   //----------------------------------------------------------------------------
 
   // Tabs
   chromium.tabs = {};
 
-  // TODO(aa): This should eventually take an optional windowId param.
-  chromium.tabs.getTabsForWindow = function(callback) {
-    validate(arguments, arguments.callee.params);
-    sendRequest(GetTabsForWindow, null, callback);
-  };
-
-  chromium.tabs.getTabsForWindow.params = [
-    chromium.types.optFun
-  ];
-
-  chromium.tabs.getTab = function(tabId, callback) {
+  chromium.tabs.get = function(tabId, callback) {
     validate(arguments, arguments.callee.params);
     sendRequest(GetTab, tabId, callback);
   };
 
-  chromium.tabs.getTab.params = [
+  chromium.tabs.get.params = [
     chromium.types.pInt,
-    chromium.types.optFun
+    chromium.types.fun
+  ];
+  
+  chromium.tabs.getSelected = function(windowId, callback) {
+    validate(arguments, arguments.callee.params);
+    sendRequest(GetSelectedTab, windowId, callback);
+  };
+
+  chromium.tabs.getSelected.params = [
+    chromium.types.optPInt,
+    chromium.types.fun
   ];
 
-  chromium.tabs.createTab = function(tab, callback) {  
+  chromium.tabs.getAllInWindow = function(windowId, callback) {
+    validate(arguments, arguments.callee.params);
+    sendRequest(GetAllTabsInWindow, windowId, callback);
+  };
+
+  chromium.tabs.getAllInWindow.params = [
+    chromium.types.optPInt,
+    chromium.types.fun
+  ];
+
+  chromium.tabs.create = function(tab, callback) {  
     validate(arguments, arguments.callee.params);
     sendRequest(CreateTab, tab, callback);
   };
 
-  chromium.tabs.createTab.params = [
+  chromium.tabs.create.params = [
     {
       type: "object",
       properties: {
         windowId: chromium.types.optPInt,
+        index: chromium.types.optPInt,
         url: chromium.types.optStr,
         selected: chromium.types.optBool
       }
@@ -196,73 +233,74 @@ var chromium;
     chromium.types.optFun
   ];
 
-  chromium.tabs.updateTab = function(tab) {
+  chromium.tabs.update = function(tabId, updates, callback) {
     validate(arguments, arguments.callee.params);
-    sendRequest(UpdateTab, tab);
+    sendRequest(UpdateTab, [tabId, updates], callback);
   };
 
-  chromium.tabs.updateTab.params = [
+  chromium.tabs.update.params = [
+    chromium.types.pInt,
     {
       type: "object",
       properties: {
-        id: chromium.types.pInt,
-        windowId: chromium.types.optPInt,
         url: chromium.types.optStr,
         selected: chromium.types.optBool
       }
-    }
+    },
+    chromium.types.optFun
   ];
 
-  chromium.tabs.moveTab = function(tab) {
+  chromium.tabs.move = function(tabId, moveProps, callback) {
     validate(arguments, arguments.callee.params);
-    sendRequest(MoveTab, tab);
+    sendRequest(MoveTab, [tabId, moveProps], callback);
   };
 
-  chromium.tabs.moveTab.params = [
+  chromium.tabs.move.params = [
+    chromium.types.pInt,
     {
       type: "object",
       properties: {
-        id: chromium.types.pInt,
         windowId: chromium.types.optPInt,
         index: chromium.types.pInt
       }
-    }
+    },
+    chromium.types.optFun
   ];
   
-  chromium.tabs.removeTab = function(tabId) {
+  chromium.tabs.remove = function(tabId) {
     validate(arguments, arguments.callee.params);
     sendRequest(RemoveTab, tabId);
   };
 
-  chromium.tabs.removeTab.params = [
+  chromium.tabs.remove.params = [
     chromium.types.pInt
   ];
 
-  // Sends ({tabId, windowId, index}).
+  // Sends ({Tab}).
   // Will *NOT* be followed by tab-attached - it is implied.
   // *MAY* be followed by tab-selection-changed.
-  chromium.tabs.onTabCreated = new chromium.Event("tab-created");
+  chromium.tabs.onCreated = new chromium.Event("tab-created");
   
-  // Wends ({tabId, windowId, fromIndex, toIndex}).
+  // Sends (tabId, {windowId, fromIndex, toIndex}).
   // Tabs can only "move" within a window.
-  chromium.tabs.onTabMoved = new chromium.Event("tab-moved");
+  chromium.tabs.onMoved = new chromium.Event("tab-moved");
  
-  // Sends ({tabId, windowId, index}).
-  chromium.tabs.onTabSelectionChanged = 
+  // Sends (tabId, {windowId}).
+  chromium.tabs.onSelectionChanged = 
        new chromium.Event("tab-selection-changed");
    
-  // Sends ({tabId, windowId, index}).
+  // Sends (tabId, {newWindowId, newPosition}).
   // *MAY* be followed by tab-selection-changed.
-  chromium.tabs.onTabAttached = new chromium.Event("tab-attached");
+  chromium.tabs.onAttached = new chromium.Event("tab-attached");
   
-  // Sends ({tabId, windowId, index}).
+  // Sends (tabId, {oldWindowId, oldPosition}).
   // *WILL* be followed by tab-selection-changed.
-  chromium.tabs.onTabDetached = new chromium.Event("tab-detached");
+  chromium.tabs.onDetached = new chromium.Event("tab-detached");
   
   // Sends (tabId).
   // *WILL* be followed by tab-selection-changed.
   // Will *NOT* be followed or preceded by tab-detached.
-  chromium.tabs.onTabRemoved = new chromium.Event("tab-removed");
+  chromium.tabs.onRemoved = new chromium.Event("tab-removed");
 
   //----------------------------------------------------------------------------
 

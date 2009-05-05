@@ -11,6 +11,7 @@
 
 #include "base/basictypes.h"
 #include "base/singleton.h"
+#include "chrome/browser/browser_list.h"
 #include "chrome/browser/tabs/tab_strip_model.h"
 #include "chrome/common/notification_observer.h"
 
@@ -20,7 +21,7 @@
 // events from windows/tabs within a profile to extension processes in the same
 // profile.
 class ExtensionBrowserEventRouter : public TabStripModelObserver,
-                                    public NotificationObserver {
+                                    public BrowserList::Observer {
  public:
   // Get Browser-Global instance.
   static ExtensionBrowserEventRouter* GetInstance();
@@ -28,7 +29,12 @@ class ExtensionBrowserEventRouter : public TabStripModelObserver,
   // Must be called once. Subsequent calls have no effect.
   void Init();
 
-  // TabStripModelObserver.
+  // BrowserList::Observer
+  virtual void OnBrowserAdded(const Browser* browser);
+  virtual void OnBrowserRemoving(const Browser* browser);
+  virtual void OnBrowserSetLastActive(const Browser* browser);
+
+  // TabStripModelObserver
   void TabInsertedAt(TabContents* contents, int index, bool foreground);
   void TabClosingAt(TabContents* contents, int index);
   void TabDetachedAt(TabContents* contents, int index);
@@ -51,10 +57,8 @@ class ExtensionBrowserEventRouter : public TabStripModelObserver,
                const NotificationSource& source,
                const NotificationDetails& details);
  private:
-  // Construct and dispatch windows.onCreated event.
-  void BrowserOpened(Browser* browser);
-  // Construct and dispatch windows.onRemoved event.
-  void BrowserClosed(Browser* browser);
+  // "Synthetic" event. Called from TabInsertedAt if new tab is detected.
+  void TabCreatedAt(TabContents* contents, int index, bool foreground);
   ExtensionBrowserEventRouter();
   friend struct DefaultSingletonTraits<ExtensionBrowserEventRouter>;
 

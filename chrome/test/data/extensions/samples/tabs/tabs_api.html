@@ -6,16 +6,32 @@
 tabs = {};
 tabIds = [];
 
+focusedWindowId = undefined;
+currentWindowId = undefined;
+
+function bootStrap() {
+  chromium.windows.getCurrent(function(currentWindow) {
+    currentWindowId = currentWindow.id;
+    chromium.windows.getFocused(function(focusedWindow) {
+      focusedWindowId = focusedWindow.id;
+      loadWindowList();
+    });
+  });
+}
+
 function loadWindowList() {
-  chromium.windows.getWindows(undefined, function(windowList) {
+  chromium.windows.getAll(true, function(windowList) {     
     tabs = {};
     tabIds = [];
     for (var i = 0; i < windowList.length; i++) {
-        for (var j = 0; j < windowList[i].tabs.length; j++) {
-            tabIds[tabIds.length] = windowList[i].tabs[j].id;
-            tabs[windowList[i].tabs[j].id] = windowList[i].tabs[j];
-        }
-    }
+      windowList[i].current = (windowList[i].id == currentWindowId);
+      windowList[i].focused = (windowList[i].id == focusedWindowId);
+      
+      for (var j = 0; j < windowList[i].tabs.length; j++) {
+        tabIds[tabIds.length] = windowList[i].tabs[j].id;
+        tabs[windowList[i].tabs[j].id] = windowList[i].tabs[j];
+      }
+    }   
     
     var input = new JsExprContext(windowList);
     var output = document.getElementById('windowList');
@@ -25,9 +41,7 @@ function loadWindowList() {
 
 function updateTabData(id) {
   var retval = {
-    id: id, 
     url: document.getElementById('url_' + id).value,
-    windowId: parseInt(document.getElementById('windowId_' + id).value),
     selected: document.getElementById('selected_' + id).value ? true : false
   }
   
@@ -35,22 +49,31 @@ function updateTabData(id) {
 }
 
 function updateTab(id){
-  chromium.tabs.updateTab(updateTabData(id));
+  try {
+    chromium.tabs.update(id, updateTabData(id));
+  } catch (e) {
+    alert(e);
+  }
 }
+  
 
 function moveTabData(id) {
 	return {
-	 'id': id,
-     'index': parseInt(document.getElementById('index_' + id).value),
-     'windowId': parseInt(document.getElementById('windowId_' + id).value)
+    'index': parseInt(document.getElementById('index_' + id).value),
+    'windowId': parseInt(document.getElementById('windowId_' + id).value)
   }
 }
 function moveTab(id) {
-  chromium.tabs.moveTab(moveTabData(id));
+  try {
+    chromium.tabs.move(id, moveTabData(id));
+  } catch (e) {
+    alert(e);
+  }
 }
 
 function createTabData(id) {
   return {
+    'index': parseInt(document.getElementById('index_' + id).value),
     'windowId': parseInt(document.getElementById('windowId_' + id).value),
     'url': document.getElementById('url_' + id).value,
     'selected': document.getElementById('selected_' + id).value ? true : false  
@@ -58,20 +81,38 @@ function createTabData(id) {
 }
 
 function createTab() {
-  chromium.tabs.createTab(createTabData('new'));
+  var args = createTabData('new')
+
+  if (!isInt(args.windowId))
+    delete args.windowId;
+  if (!isInt(args.index))
+    delete args.index;
+ 
+  try {
+    chromium.tabs.create(args);
+  } catch (e) {
+    alert(e);
+  }
 }
 
 function updateAll() {
- 
-  for (var i = 0; i < tabIds.length; i++) {
-    chromium.tabs.updateTab(updateTabData(tabIds[i])); 
+  try {
+    for (var i = 0; i < tabIds.length; i++) {
+      chromium.tabs.update(tabIds[i], updateTabData(tabIds[i])); 
+    }
+  } catch(e) {
+    alert(e);
   }
 }
 
 function moveAll() {
   appendToLog('moving all');
-  for (var i = 0; i < tabIds.length; i++) {
-    chromium.tabs.moveTab(moveTabData(tabIds[i])); 
+  try {
+    for (var i = 0; i < tabIds.length; i++) {
+      chromium.tabs.move(tabIds[i], moveTabData(tabIds[i])); 
+    }
+  } catch(e) {
+    alert(e);
   }
 }
 
@@ -84,43 +125,49 @@ function clearLog() {
   document.getElementById('log').innerHTML = '';
 }
 
-chromium.windows.onWindowCreated.addListener(function(windowId) {
-  appendToLog('onWindowCreated -- window: ' + windowId);
+chromium.windows.onCreated.addListener(function(windowId) {
+  appendToLog('windows.onCreated -- window: ' + windowId);
   loadWindowList();
 });
 
-chromium.windows.onWindowRemoved.addListener(function(windowId) {
-  appendToLog('onWindowRemoved -- window: ' + windowId);
+chromium.windows.onFocusChanged.addListener(function(windowId) {
+  focusedWindowId = windowId;
+  appendToLog('windows.onFocusChanged -- window: ' + windowId);
   loadWindowList();
 });
 
-chromium.tabs.onTabCreated.addListener(function(data) {
-  appendToLog('onTabCreated -- window: ' + data.windowId + ' tab: ' + data.tabId + ' index ' + data.index);
+chromium.windows.onRemoved.addListener(function(windowId) {
+  appendToLog('windows.onRemoved -- window: ' + windowId);
   loadWindowList();
 });
 
-chromium.tabs.onTabAttached.addListener(function(data) {
-  appendToLog('onTabAttached -- window: ' + data.windowId + ' tab: ' + data.tabId + ' index ' + data.index);
+chromium.tabs.onCreated.addListener(function(tab) {
+  appendToLog('tabs.onCreated -- window: ' + tab.windowId + ' tab: ' + tab.id + ' index ' + tab.index + ' url ' + tab.url);
   loadWindowList();
 });
 
-chromium.tabs.onTabMoved.addListener(function(data) {
-  appendToLog('onTabMoved -- window: ' + data.windowId + ' tab: ' + data.tabId + ' from ' + data.fromIndex + ' to ' +  data.toIndex);
+chromium.tabs.onAttached.addListener(function(tabId, props) {
+  appendToLog('tabs.onAttached -- window: ' + props.newWindowId + ' tab: ' + tabId + ' index ' + props.newPosition);
   loadWindowList();
 });
 
-chromium.tabs.onTabDetached.addListener(function(data) {
-  appendToLog('onTabDetached -- window: ' + data.windowId + ' tab: ' + data.tabId + ' index ' + data.index);
+chromium.tabs.onMoved.addListener(function(tabId, props) {
+  appendToLog('tabs.onMoved -- window: ' + props.windowId + ' tab: ' + tabId + ' from ' + props.fromIndex + ' to ' +  props.toIndex);
   loadWindowList();
 });
 
-chromium.tabs.onTabSelectionChanged.addListener(function(data) {
-  appendToLog('onTabSelectionChanged -- window: ' + data.windowId + ' tab: ' + data.tabId + ' index ' + data.index);
+chromium.tabs.onDetached.addListener(function(tabId, props) {
+  appendToLog('tabs.onDetached -- window: ' + props.oldWindowId + ' tab: ' + tabId + ' index ' + props.oldPosition);
   loadWindowList();
 });
 
-chromium.tabs.onTabRemoved.addListener(function(tabId) {
-  appendToLog('onTabRemoved -- tab: ' + tabId);
+chromium.tabs.onSelectionChanged.addListener(function(tabId, props) {
+  appendToLog('tabs.onSelectionChanged -- window: ' + props.windowId + ' tab: ' + tabId);
+  loadWindowList();
+});
+
+chromium.tabs.onRemoved.addListener(function(tabId) {
+  appendToLog('tabs.onRemoved -- tab: ' + tabId);
   loadWindowList();
 });
 
@@ -147,15 +194,51 @@ function createWindow() {
     delete args.height;
   if (!args.url)
     delete args.url;
+  
+  try {
+    chromium.windows.createWindow(args);
+  } catch(e) {
+    alert(e);
+  }
+}
 
-  chromium.windows.createWindow(args);
+function refreshWindow(windowId) {
+  chromium.windows.get(windowId, function(window) {
+    chromium.tabs.getAllInWindow(window.id, function(tabList) {
+      window.tabs = tabList;
+      var input = new JsExprContext(window);
+      var output = document.getElementById('window_' + window.id);
+      jstProcess(input, output);
+      
+      appendToLog('window refreshed -- windowId: ' + window.id + ' tab count:' + window.tabs.length);
+    });
+  });
+}
+
+function refreshTab(tabId) {
+  chromium.tabs.get(tabId, function(tab) {
+    var input = new JsExprContext(tab);
+    var output = document.getElementById('tab_' + tab.id);
+    jstProcess(input, output);      
+    appendToLog('tab refreshed -- tabId: ' + tab.id + ' url:' + tab.url);
+  });
+}
+
+function refreshSelectedTab(windowId) {
+  chromium.tabs.getSelected(windowId, function(tab) {
+    var input = new JsExprContext(tab);
+    var output = document.getElementById('tab_' + tab.id);
+    jstProcess(input, output);      
+    appendToLog('selected tab refreshed -- tabId: ' + tab.id + ' url:' + tab.url);
+  });
 }
 
 </script>
 </head>
-  <body onload="loadWindowList();">
+  <body onload="bootStrap();">
     <div id="windowList">
-      <div style="background-color: #AAEEEE; margin: 4px; padding: 8px; margin: 20px" jsselect="$this">
+      <div style="background-color: #AAEEEE; margin: 4px; padding: 8px; margin: 20px" jsselect="$this" 
+          jsvalues="id:'window_' + id">
         <div style="font-style: italic; width: 80px; display: inline-block"> 
           Window: <span jscontent="id"></span>
         </div>
@@ -165,33 +248,39 @@ function createWindow() {
           width: <input style="width: 60px" type="text" jsvalues="value:$this.width;id:'width_' + id" />
           height: <input style="width: 60px" type="text" jsvalues="value:$this.height;id:'height_' + id" />
           <input type="checkbox" jsvalues="checked:focused; id:'focused_' + id" /> Focused
+          <input type="checkbox" jsvalues="checked:current; id:'current_' + id" /> Current
+          <button onclick="refreshWindow(this.jstdata);" jsvalues=".jstdata:id">Refresh</button>
         </div>
         <div id="tabList">
-          <div style="background-color: #EEEEEE; margin: 8px; padding: 4px" jsselect="tabs">
-            <div style="margin: 8px">
-              <div style="font-style: italic; width: 80px; display: inline-block" jscontent="'TabId: ' + id"></div>
-              <div style="width: 300px; display: inline-block"> 
-                index: <input style="width: 20px" type="text" jsvalues="value:$this.index;id:'index_' + id" />
-                windowId: <input style="width: 20px" type="text" jsvalues="value:windowId;id:'windowId_' + id" />
-                <button onclick="moveTab(this.jstdata);" jsvalues=".jstdata:id">Move</button>
+          <div jsselect="tabs">
+            <div style="background-color: #EEEEEE; margin: 8px; padding: 4px"  jsvalues="id:'tab_' + id">
+              <div style="margin: 8px">
+                <div style="font-style: italic; width: 80px; display: inline-block" jscontent="'TabId: ' + id"></div>
+                <div style="width: 300px; display: inline-block"> 
+                  index: <input style="width: 20px" type="text" jsvalues="value:$this.index;id:'index_' + id" />
+                  windowId: <input style="width: 20px" type="text" jsvalues="value:windowId;id:'windowId_' + id" />
+                  <button onclick="moveTab(this.jstdata);" jsvalues=".jstdata:id">Move</button>
+                  <button onclick="refreshTab(this.jstdata);" jsvalues=".jstdata:id">Refresh</button>
+                </div>
               </div>
+              <div style="margin: 8px">
+                <div>
+                  <div style="width: 40px; display:inline-block">title:</div>
+                  <input style="width: 90%" type="text" jsvalues="value:title;id:'title_' + id" />
+                </div>
+                <div>
+                  <div style="width: 40px; display:inline-block">url:</div>
+                  <input style="width: 90%" type="text" jsvalues="value:url;id:'url_' + id" />
+                </div>
+                <div><input type="checkbox" jsvalues="checked:selected; id:'selected_' + id" /> Selected</div>
+              </div>
+              <button onclick="updateTab(this.jstdata)" jsvalues=".jstdata:id">Update Tab</button>
+              <button onclick="chromium.tabs.remove(this.jstdata);" jsvalues=".jstdata:id">Close Tab</button>
             </div>
-            <div style="margin: 8px">
-              <div>
-                <div style="width: 40px; display:inline-block">title:</div>
-                <input style="width: 90%" type="text" jsvalues="value:title;id:'title_' + id" />
-              </div>
-              <div>
-                <div style="width: 40px; display:inline-block">url:</div>
-                <input style="width: 90%" type="text" jsvalues="value:url;id:'url_' + id" />
-              </div>
-              <div><input type="checkbox" jsvalues="checked:selected; id:'selected_' + id" /> Selected</div>
-            </div>
-            <button onclick="updateTab(this.jstdata)" jsvalues=".jstdata:id">Update Tab</button>
-            <button onclick="chromium.tabs.removeTab(this.jstdata);" jsvalues=".jstdata:id">Close Tab</button>
           </div>
         </div>
         <button onclick="chromium.windows.removeWindow(this.jstdata);" jsvalues=".jstdata:id">Close Window</button>
+        <button onclick="refreshSelectedTab(this.jstdata);" jsvalues=".jstdata:id">Refresh Selected Tab</button>
       </div>
     </div>
     <div style="background-color: #EEEEBB; margin: 20px; padding: 8px">
