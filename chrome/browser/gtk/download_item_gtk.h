@@ -13,6 +13,7 @@
 
 class BaseDownloadItemModel;
 class DownloadShelfContextMenuGtk;
+class DownloadShelfGtk;
 class NineBox;
 class SlideAnimation;
 
@@ -20,8 +21,8 @@ class DownloadItemGtk : public DownloadItem::Observer,
                         public AnimationDelegate {
  public:
   // DownloadItemGtk takes ownership of |download_item_model|.
-  DownloadItemGtk(BaseDownloadItemModel* download_item_model,
-                  GtkWidget* parent_shelf, GtkWidget* bounding_widget);
+  DownloadItemGtk(DownloadShelfGtk* parent_shelf,
+                  BaseDownloadItemModel* download_item_model);
 
   // We put |hbox_| in |parent_shelf| and rely on |parent_shelf| recursively
   // destroying its children. Hence we do nothing in the destructor.
@@ -58,6 +59,9 @@ class DownloadItemGtk : public DownloadItem::Observer,
   static NineBox* menu_nine_box_prelight_;
   static NineBox* menu_nine_box_active_;
 
+  // The shelf on which we are displayed.
+  DownloadShelfGtk* parent_shelf_;
+
   // The widget that contains the body and menu dropdown.
   GtkWidget* hbox_;
 
@@ -81,12 +85,13 @@ class DownloadItemGtk : public DownloadItem::Observer,
   // The download item model we represent.
   scoped_ptr<BaseDownloadItemModel> download_model_;
 
-  // The shelf we show ourselves on. We do not own this widget.
-  GtkWidget* parent_shelf_;
-
   // This is the leftmost widget on |parent_shelf_| that is not a download item.
   // We do not want to overlap it.
   GtkWidget* bounding_widget_;
+
+  // The ID of the handler for the parent shelf's "size-allocate" event. We save
+  // it so we can disconnect when we are destroyed.
+  gulong resize_handler_id_;
 
   // The animation when this item is first added to the shelf.
   scoped_ptr<SlideAnimation> new_item_animation_;

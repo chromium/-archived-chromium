@@ -10,6 +10,7 @@
 #include "chrome/browser/download/download_item_model.h"
 #include "chrome/browser/download/download_manager.h"
 #include "chrome/browser/download/download_shelf.h"
+#include "chrome/browser/gtk/download_shelf_gtk.h"
 #include "chrome/browser/gtk/menu_gtk.h"
 #include "chrome/browser/gtk/nine_box.h"
 #include "chrome/common/gfx/chrome_font.h"
@@ -135,12 +136,11 @@ NineBox* DownloadItemGtk::menu_nine_box_normal_ = NULL;
 NineBox* DownloadItemGtk::menu_nine_box_prelight_ = NULL;
 NineBox* DownloadItemGtk::menu_nine_box_active_ = NULL;
 
-DownloadItemGtk::DownloadItemGtk(BaseDownloadItemModel* download_model,
-                                 GtkWidget* parent_shelf,
-                                 GtkWidget* bounding_widget)
-    : download_model_(download_model),
-      parent_shelf_(parent_shelf),
-      bounding_widget_(bounding_widget) {
+DownloadItemGtk::DownloadItemGtk(DownloadShelfGtk* parent_shelf,
+                                 BaseDownloadItemModel* download_model)
+    : parent_shelf_(parent_shelf),
+      download_model_(download_model),
+      bounding_widget_(parent_shelf->GetRightBoundingWidget()) {
   InitNineBoxes();
 
   body_ = gtk_button_new();
@@ -185,15 +185,16 @@ DownloadItemGtk::DownloadItemGtk(BaseDownloadItemModel* download_model,
                     reinterpret_cast<void*>(true));
   gtk_widget_set_size_request(menu_button_, kMenuButtonWidth, 0);
 
+  GtkWidget* shelf_hbox = parent_shelf->GetHBox();
   hbox_ = gtk_hbox_new(FALSE, 0);
   gtk_box_pack_start(GTK_BOX(hbox_), body_, FALSE, FALSE, 0);
   gtk_box_pack_start(GTK_BOX(hbox_), menu_button_, FALSE, FALSE, 0);
-  gtk_box_pack_start(GTK_BOX(parent_shelf), hbox_, FALSE, FALSE, 0);
+  gtk_box_pack_start(GTK_BOX(shelf_hbox), hbox_, FALSE, FALSE, 0);
   // Insert as the leftmost item.
-  gtk_box_reorder_child(GTK_BOX(parent_shelf), hbox_, 1);
+  gtk_box_reorder_child(GTK_BOX(shelf_hbox), hbox_, 1);
 
-  g_signal_connect(G_OBJECT(parent_shelf_), "size-allocate",
-                   G_CALLBACK(OnShelfResized), this);
+  resize_handler_id_ = g_signal_connect(G_OBJECT(shelf_hbox), "size-allocate",
+                                        G_CALLBACK(OnShelfResized), this);
 
   download_model_->download()->AddObserver(this);
 
@@ -204,11 +205,31 @@ DownloadItemGtk::DownloadItemGtk(BaseDownloadItemModel* download_model,
 }
 
 DownloadItemGtk::~DownloadItemGtk() {
+  g_signal_handler_disconnect(parent_shelf_->GetHBox(), resize_handler_id_);
+  gtk_widget_destroy(hbox_);
   download_model_->download()->RemoveObserver(this);
 }
 
 void DownloadItemGtk::OnDownloadUpdated(DownloadItem* download) {
   DCHECK_EQ(download, download_model_->download());
+
+  switch (download->state()) {
+    case DownloadItem::REMOVING:
+      parent_shelf_->RemoveDownloadItem(this);  // This will delete us!
+      return;
+    case DownloadItem::CANCELLED:
+    case DownloadItem::COMPLETE:
+    case DownloadItem::IN_PROGRESS:
+      // TODO(estade): adjust download progress animation appropriately, once
+      // we have download progress animations.
+      NOTIMPLEMENTED();
+      break;
+    default:
+      NOTREACHED();
+  }
+
+  // Now update the status label. We may have already removed it; if so, we
+  // do nothing.
   if (!status_label_) {
     return;
   }

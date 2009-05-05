@@ -130,13 +130,33 @@ DownloadShelfGtk::~DownloadShelfGtk() {
 }
 
 void DownloadShelfGtk::AddDownload(BaseDownloadItemModel* download_model_) {
-  download_items_.push_back(new DownloadItemGtk(download_model_, hbox_,
-                                                link_hbox_));
+  download_items_.push_back(new DownloadItemGtk(this, download_model_));
   slide_widget_->Open();
 }
 
 bool DownloadShelfGtk::IsShowing() const {
   return slide_widget_->IsShowing();
+}
+
+void DownloadShelfGtk::RemoveDownloadItem(DownloadItemGtk* download_item) {
+  DCHECK(download_item);
+  std::vector<DownloadItemGtk*>::iterator i =
+      find(download_items_.begin(), download_items_.end(), download_item);
+  DCHECK(i != download_items_.end());
+  download_items_.erase(i);
+  delete download_item;
+  if (download_items_.empty()) {
+    slide_widget_->CloseWithoutAnimation();
+    tab_contents_->SetDownloadShelfVisible(false);
+  }
+}
+
+GtkWidget* DownloadShelfGtk::GetRightBoundingWidget() const {
+  return link_hbox_;
+}
+
+GtkWidget* DownloadShelfGtk::GetHBox() const {
+  return hbox_;
 }
 
 // static

@@ -30,6 +30,15 @@ class DownloadShelfGtk : public DownloadShelf {
   virtual bool IsShowing() const;
 
  private:
+  // Remove |download_item| from the download shelf and delete it.
+  void RemoveDownloadItem(DownloadItemGtk* download_item);
+
+  // Get the leftmost non-download item widget on the shelf.
+  GtkWidget* GetRightBoundingWidget() const;
+
+  // Get the hbox download items ought to pack themselves into.
+  GtkWidget* GetHBox() const;
+
   static void OnButtonClick(GtkWidget* button, DownloadShelfGtk* toolbar);
 
   // The top level widget of the shelf.
@@ -57,6 +66,8 @@ class DownloadShelfGtk : public DownloadShelf {
 
   // The download items we have added to our shelf.
   std::vector<DownloadItemGtk*> download_items_;
+
+  friend class DownloadItemGtk;
 };
 
 #endif  // CHROME_BROWSER_GTK_DOWNLOAD_SHELF_GTK_H_
