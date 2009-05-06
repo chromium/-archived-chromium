@@ -42,9 +42,6 @@ const wchar_t kRendererStartupDialog[]         = L"renderer-startup-dialog";
 // Causes the plugin process to display a dialog on launch.
 const wchar_t kPluginStartupDialog[]           = L"plugin-startup-dialog";
 
-// Causes the test shell process to display a dialog on launch.
-const wchar_t kTestShellStartupDialog[]        = L"testshell-startup-dialog";
-
 // Specifies a command that should be used to launch the plugin process.  Useful
 // for running the plugin process through purify or quantify.  Ex:
 //   --plugin-launcher="path\to\purify /Run=yes"
@@ -127,10 +124,6 @@ const wchar_t kParentProfile[]                 = L"parent-profile";
 
 // Specifies that the associated value should be launched in "application" mode.
 const wchar_t kApp[]                           = L"app";
-
-// Specifies the file that should be uploaded to the provided application. This
-// switch is expected to be used with --app option.
-const wchar_t kAppUploadFile[]                 = L"upload-file";
 
 // Specifies if the dom_automation_controller_ needs to be bound in the
 // renderer. This binding happens on per-frame basis and hence can potentially

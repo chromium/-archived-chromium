@@ -20,7 +20,6 @@ extern const wchar_t kBrowserCrashTest[];
 extern const wchar_t kRendererCrashTest[];
 extern const wchar_t kRendererStartupDialog[];
 extern const wchar_t kPluginStartupDialog[];
-extern const wchar_t kTestShellStartupDialog[];
 extern const wchar_t kPluginLauncher[];
 
 extern const wchar_t kProcessChannelID[];
@@ -44,7 +43,6 @@ extern const wchar_t kDiskCacheDir[];
 extern const wchar_t kEnableUserDataDirProfiles[];
 extern const wchar_t kParentProfile[];
 extern const wchar_t kApp[];
-extern const wchar_t kAppUploadFile[];
 extern const wchar_t kDomAutomationController[];
 extern const wchar_t kPluginPath[];
 extern const wchar_t kUserAgent[];
