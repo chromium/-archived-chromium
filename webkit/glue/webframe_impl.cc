@@ -142,6 +142,7 @@ MSVC_POP_WARNING();
 #include "third_party/WebKit/WebKit/chromium/public/WebScriptSource.h"
 #include "third_party/WebKit/WebKit/chromium/public/WebSize.h"
 #include "webkit/glue/alt_error_page_resource_fetcher.h"
+#include "webkit/glue/chrome_client_impl.h"
 #include "webkit/glue/dom_operations.h"
 #include "webkit/glue/dom_operations_private.h"
 #include "webkit/glue/glue_serialize.h"
@@ -381,10 +382,8 @@ WebFrameImpl::~WebFrameImpl() {
 // WebFrame -------------------------------------------------------------------
 
 void WebFrameImpl::InitMainFrame(WebViewImpl* webview_impl) {
-  webview_impl_ = webview_impl;
-
   RefPtr<Frame> frame =
-      Frame::create(webview_impl_->page(), 0, &frame_loader_client_);
+      Frame::create(webview_impl->page(), 0, &frame_loader_client_);
   frame_ = frame.get();
 
   // Add reference on behalf of FrameLoader.  See comments in
@@ -477,7 +476,7 @@ void WebFrameImpl::InternalLoadRequest(const WebRequest* request,
       current_item = HistoryItem::create();
       current_item->setLastVisitWasFailure(true);
       frame_->loader()->setCurrentHistoryItem(current_item);
-      webview_impl_->SetCurrentHistoryItem(current_item.get());
+      GetWebViewImpl()->SetCurrentHistoryItem(current_item.get());
     }
 
     frame_->loader()->goToItem(request_impl->history_item().get(),
@@ -568,7 +567,7 @@ bool WebFrameImpl::GetPreviousHistoryState(std::string* history_state) const {
   // only get saved to history when it becomes the previous item.  The caller
   // is expected to query the history state after a navigation occurs, after
   // the desired history item has become the previous entry.
-  RefPtr<HistoryItem> item = webview_impl_->GetPreviousHistoryItem();
+  RefPtr<HistoryItem> item = GetWebViewImpl()->GetPreviousHistoryItem();
   if (!item)
     return false;
 
@@ -769,7 +768,7 @@ bool WebFrameImpl::GetInViewSourceMode() const {
 }
 
 WebView* WebFrameImpl::GetView() const {
-  return webview_impl_;
+  return GetWebViewImpl();
 }
 
 std::string WebFrameImpl::GetSecurityOrigin() const {
@@ -1010,6 +1009,7 @@ bool WebFrameImpl::Find(int request_id,
 
 int WebFrameImpl::OrdinalOfFirstMatchForFrame(WebFrameImpl* frame) const {
   int ordinal = 0;
+  WebViewImpl* web_view = GetWebViewImpl();
   WebFrameImpl* const main_frame_impl =
     static_cast<WebFrameImpl*>(GetView()->GetMainFrame());
   // Iterate from the main frame up to (but not including) |frame| and
@@ -1017,7 +1017,7 @@ int WebFrameImpl::OrdinalOfFirstMatchForFrame(WebFrameImpl* frame) const {
   for (WebFrameImpl* it = main_frame_impl;
        it != frame;
        it = static_cast<WebFrameImpl*>(
-           webview_impl_->GetNextFrameAfter(it, true))) {
+           web_view->GetNextFrameAfter(it, true))) {
     if (it->last_match_count_ > 0)
       ordinal += it->last_match_count_;
   }
@@ -1464,9 +1464,11 @@ void WebFrameImpl::CreateFrameView() {
 
   frame_->setView(0);
 
+  WebViewImpl* web_view = GetWebViewImpl();
+
   WebCore::FrameView* view;
   if (is_main_frame) {
-    IntSize size = webkit_glue::WebSizeToIntSize(webview_impl_->size());
+    IntSize size = webkit_glue::WebSizeToIntSize(web_view->size());
     view = new FrameView(frame_, size);
   } else {
     view = new FrameView(frame_);
@@ -1474,7 +1476,7 @@ void WebFrameImpl::CreateFrameView() {
 
   frame_->setView(view);
 
-  if (webview_impl_->GetIsTransparent())
+  if (web_view->GetIsTransparent())
     view->setTransparent(true);
 
   // TODO(darin): The Mac code has a comment about this possibly being
@@ -1499,6 +1501,19 @@ void WebFrameImpl::CreateFrameView() {
 WebFrameImpl* WebFrameImpl::FromFrame(WebCore::Frame* frame) {
   return static_cast<WebFrameLoaderClient*>(
       frame->loader()->client())->webframe();
+}
+
+WebViewImpl* WebFrameImpl::GetWebViewImpl() const {
+  if (!frame_ || !frame_->page())
+    return NULL;
+
+  // There are cases where a Frame may outlive its associated Page.  Get the
+  // WebViewImpl by accessing it indirectly through the Frame's Page so that we
+  // don't have to worry about cleaning up the WebFrameImpl -> WebViewImpl
+  // pointer. WebCore already clears the Frame's Page pointer when the Page is
+  // destroyed by the WebViewImpl.
+  return static_cast<ChromeClientImpl*>(
+      frame_->page()->chrome()->client())->webview();
 }
 
 // WebFrame --------------------------------------------------------------------
@@ -1580,7 +1595,6 @@ bool WebFrameImpl::IsLoading() {
 
 void WebFrameImpl::Closing() {
   alt_error_page_fetcher_.reset();
-  webview_impl_ = NULL;
   frame_ = NULL;
 }
 
@@ -1609,14 +1623,14 @@ void WebFrameImpl::DidFail(const ResourceError& error, bool was_provisional) {
   // Make sure we never show errors in view source mode.
   SetInViewSourceMode(false);
 
-  WebViewDelegate* delegate = webview_impl_->delegate();
+  WebViewImpl* web_view = GetWebViewImpl();
+  WebViewDelegate* delegate = web_view->delegate();
   if (delegate) {
     WebErrorImpl web_error(error);
     if (was_provisional) {
-      delegate->DidFailProvisionalLoadWithError(webview_impl_, web_error,
-                                                this);
+      delegate->DidFailProvisionalLoadWithError(web_view, web_error, this);
     } else {
-      delegate->DidFailLoadWithError(webview_impl_, web_error, this);
+      delegate->DidFailLoadWithError(web_view, web_error, this);
     }
   }
 }
@@ -1638,7 +1652,7 @@ void WebFrameImpl::LoadAlternateHTMLErrorPage(const WebRequest* request,
 
   WebErrorImpl weberror_impl(error);
   alt_error_page_fetcher_.reset(
-      new AltErrorPageResourceFetcher(webview_impl_, weberror_impl, this,
+      new AltErrorPageResourceFetcher(GetWebViewImpl(), weberror_impl, this,
                                       error_page_url));
 }
 
@@ -1713,7 +1727,6 @@ PassRefPtr<Frame> WebFrameImpl::CreateChildFrame(
   RefPtr<Frame> child_frame = Frame::create(
       frame_->page(), owner_element, &webframe->frame_loader_client_);
   webframe->frame_ = child_frame.get();
-  webframe->webview_impl_ = webview_impl_;
 
   child_frame->tree()->setName(request.frameName());
 

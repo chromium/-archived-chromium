@@ -640,7 +640,7 @@ void WebPluginImpl::setFrameRect(const WebCore::IntRect& rect) {
   // containing window.  We ask our delegate to reposition us accordingly.
   WebCore::Frame* frame = element_->document()->frame();
   WebFrameImpl* webframe = WebFrameImpl::FromFrame(frame);
-  WebViewImpl* webview = webframe->webview_impl();
+  WebViewImpl* webview = webframe->GetWebViewImpl();
   // It is valid for this function to be invoked in code paths where the
   // the webview is closed.
   if (!webview->delegate()) {
@@ -1325,7 +1325,7 @@ bool WebPluginImpl::ReinitializePluginForResponse(
   if (!web_frame)
     return false;
 
-  WebViewImpl* web_view = web_frame->webview_impl();
+  WebViewImpl* web_view = web_frame->GetWebViewImpl();
   if (!web_view)
     return false;
 

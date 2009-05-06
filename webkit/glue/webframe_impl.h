@@ -216,9 +216,7 @@ class WebFrameImpl : public WebFrame, public base::RefCounted<WebFrameImpl> {
 
   static WebFrameImpl* FromFrame(WebCore::Frame* frame);
 
-  WebViewImpl* webview_impl() const {
-    return webview_impl_;
-  }
+  WebViewImpl* GetWebViewImpl() const;
 
   WebCore::FrameView* frameview() const {
     return frame_ ? frame_->view() : NULL;
@@ -302,9 +300,6 @@ class WebFrameImpl : public WebFrame, public base::RefCounted<WebFrameImpl> {
   // This is a factory for creating cancelable tasks for this frame that run
   // asynchronously in order to scope string matches during a find operation.
   ScopedRunnableMethodFactory<WebFrameImpl> scope_matches_factory_;
-
-  // This is a weak pointer to our containing WebViewImpl.
-  WebViewImpl* webview_impl_;
 
   // This is a weak pointer to our corresponding WebCore frame.  A reference to
   // ourselves is held while frame_ is valid.  See our Closing method.

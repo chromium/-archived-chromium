@@ -885,7 +885,7 @@ Frame* WebViewImpl::GetFocusedWebCoreFrame() {
 
 // static
 WebViewImpl* WebViewImpl::FromPage(WebCore::Page* page) {
-  return WebFrameImpl::FromFrame(page->mainFrame())->webview_impl();
+  return WebFrameImpl::FromFrame(page->mainFrame())->GetWebViewImpl();
 }
 
 // WebView --------------------------------------------------------------------
