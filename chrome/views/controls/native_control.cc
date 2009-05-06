@@ -12,7 +12,6 @@
 #include "app/l10n_util_win.h"
 #include "base/logging.h"
 #include "base/win_util.h"
-#include "chrome/common/notification_service.h"
 #include "chrome/views/background.h"
 #include "chrome/views/border.h"
 #include "chrome/views/controls/hwnd_view.h"

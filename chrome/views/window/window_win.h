@@ -5,7 +5,6 @@
 #ifndef CHROME_VIEWS_WINDOW_WINDOW_WIN_H__
 #define CHROME_VIEWS_WINDOW_WINDOW_WIN_H__
 
-#include "chrome/common/notification_registrar.h"
 #include "chrome/views/widget/widget_win.h"
 #include "chrome/views/window/client_view.h"
 #include "chrome/views/window/non_client_view.h"
@@ -30,8 +29,7 @@ class WindowDelegate;
 //
 ///////////////////////////////////////////////////////////////////////////////
 class WindowWin : public WidgetWin,
-                  public Window,
-                  public NotificationObserver {
+                  public Window {
  public:
   virtual ~WindowWin();
 
@@ -91,11 +89,6 @@ class WindowWin : public WidgetWin,
   virtual ClientView* GetClientView() const;
   virtual gfx::NativeWindow GetNativeWindow() const;
 
-  // NotificationObserver overrides:
-  virtual void Observe(NotificationType type,
-                       const NotificationSource& source,
-                       const NotificationDetails& details);
-
  protected:
   friend Window;
 
@@ -110,11 +103,6 @@ class WindowWin : public WidgetWin,
 
   // Sizes the window to the default size specified by its ClientView.
   virtual void SizeWindowToDefault();
-
-  // Returns true if the WindowWin is considered to be an "app window" - i.e.
-  // any window which when it is the last of its type closed causes the
-  // application to exit.
-  virtual bool IsAppWindow() const { return false; }
 
   // Shows the system menu at the specified screen point.
   void RunSystemMenu(const gfx::Point& point);
@@ -310,9 +298,6 @@ class WindowWin : public WidgetWin,
   // used to catch updates to the rect and work area and react accordingly.
   HMONITOR last_monitor_;
   gfx::Rect last_monitor_rect_, last_work_area_;
-
-  // Hold onto notifications.
-  NotificationRegistrar notification_registrar_;
 
   DISALLOW_COPY_AND_ASSIGN(WindowWin);
 };

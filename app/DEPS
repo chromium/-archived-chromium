@@ -1,4 +1,6 @@
 include_rules = [
+  # TODO(beng): Modify this link to be more specific about what resource
+  #             headers are included once app gets its own strings.
   "+grit",
   "+net",
   # TODO(beng): Sever these links once we have extracted all deps from

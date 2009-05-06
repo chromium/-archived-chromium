@@ -197,10 +197,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\widget\hwnd_notification_source.h"
-				>
-			</File>
-			<File
 				RelativePath=".\widget\root_view.cc"
 				>
 				<FileConfiguration

@@ -67,12 +67,8 @@ void BrowserList::RemoveBrowser(Browser* browser) {
 
   // If the last Browser object was destroyed, make sure we try to close any
   // remaining dependent windows too.
-  if (browsers_.empty()) {
-    NotificationService::current()->Notify(
-        NotificationType::ALL_APPWINDOWS_CLOSED,
-        NotificationService::AllSources(),
-        NotificationService::NoDetails());
-  }
+  if (browsers_.empty())
+    AllBrowsersClosed();
 
   g_browser_process->ReleaseModule();
 }

@@ -6,8 +6,8 @@
 
 #include <algorithm>
 
+#include "base/logging.h"
 #include "base/stl_util-inl.h"
-#include "chrome/common/notification_service.h"
 
 namespace views {
 
@@ -38,8 +38,6 @@ ViewStorage* ViewStorage::GetSharedInstance() {
 }
 
 ViewStorage::ViewStorage() : view_storage_next_id_(0) {
-  NotificationService::current()->AddObserver(
-      this, NotificationType::VIEW_REMOVED, NotificationService::AllSources());
 }
 
 ViewStorage::~ViewStorage() {
@@ -126,6 +124,21 @@ void ViewStorage::RemoveView(int storage_id) {
   EraseView(storage_id, false);
 }
 
+void ViewStorage::ViewRemoved(View* parent, View* removed) {
+  // Let's first retrieve the ids for that view.
+  std::map<View*, std::vector<int>*>::iterator ids_iter =
+      view_to_ids_.find(removed);
+
+  if (ids_iter == view_to_ids_.end()) {
+    // That view is not in the view storage.
+    return;
+  }
+
+  std::vector<int>* ids = ids_iter->second;
+  DCHECK(!ids->empty());
+  EraseView((*ids)[0], true);
+}
+
 void ViewStorage::EraseView(int storage_id, bool remove_all_ids) {
   // Remove the view from id_to_view_location_.
   std::map<int, ViewLocationInfo*>::iterator location_iter =
@@ -164,25 +177,6 @@ void ViewStorage::EraseView(int storage_id, bool remove_all_ids) {
     delete ids;
     view_to_ids_.erase(ids_iter);
   }
-}
-
-void ViewStorage::Observe(NotificationType type,
-                          const NotificationSource& source,
-                          const NotificationDetails& details) {
-  DCHECK(type == NotificationType::VIEW_REMOVED);
-
-  // Let's first retrieve the ids for that view.
-  std::map<View*, std::vector<int>*>::iterator ids_iter =
-      view_to_ids_.find(Source<View>(source).ptr());
-
-  if (ids_iter == view_to_ids_.end()) {
-    // That view is not in the view storage.
-    return;
-  }
-
-  std::vector<int>* ids = ids_iter->second;
-  DCHECK(!ids->empty());
-  EraseView((*ids)[0], true);
 }
 
 }  // namespace views

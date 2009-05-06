@@ -6,7 +6,6 @@
 #define CHROME_VIEWS_FOCUS_VIEW_STORAGE_H_
 
 #include "base/singleton.h"
-#include "chrome/common/notification_observer.h"
 #include "chrome/views/view.h"
 
 // This class is a simple storage place for storing/retrieving views.  It is
@@ -26,7 +25,7 @@ namespace views {
 
 struct ViewLocationInfo;
 
-class ViewStorage : public NotificationObserver {
+class ViewStorage {
  public:
   // Returns the global ViewStorage instance.
   // It is guaranted to be non NULL.
@@ -44,16 +43,14 @@ class ViewStorage : public NotificationObserver {
   // Removes the view associated with |storage_id| if any.
   void RemoveView(int storage_id);
 
+  // Notifies the ViewStorage that a view was removed from its parent somewhere.
+  void ViewRemoved(View* parent, View* removed);
+
  private:
   friend struct DefaultSingletonTraits<ViewStorage>;
 
   ViewStorage();
   ~ViewStorage();
-
-  // NotificationObserver method.
-  void Observe(NotificationType type,
-               const NotificationSource& source,
-               const NotificationDetails& details);
 
   // Removes the view associated with |storage_id|. If |remove_all_ids| is true,
   // all other mapping pointing to the same view are removed as well.
