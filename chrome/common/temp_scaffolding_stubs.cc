@@ -121,6 +121,7 @@ void AutomationProvider::OnMessageFromExternalHost(
 
 //--------------------------------------------------------------------------
 
+#if defined(OS_LINUX)
 bool ShellIntegration::SetAsDefaultBrowser() {
   NOTIMPLEMENTED();
   return true;
@@ -130,6 +131,7 @@ bool ShellIntegration::IsDefaultBrowser() {
   NOTIMPLEMENTED();
   return true;
 }
+#endif
 
 //--------------------------------------------------------------------------
 

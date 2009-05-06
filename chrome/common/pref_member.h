@@ -18,7 +18,8 @@
 // update if either the pref changes or if my_string_.SetValue is called.
 //
 // An optional observer can be passed into the Init method which can be used to
-// notify MyClass of changes.
+// notify MyClass of changes. Note that if you use SetValue(), the observer
+// will not be notified.
 
 #ifndef CHROME_COMMON_PREF_MEMBER_H_
 #define CHROME_COMMON_PREF_MEMBER_H_

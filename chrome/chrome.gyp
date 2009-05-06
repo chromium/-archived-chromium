@@ -1189,6 +1189,7 @@
         'browser/shell_dialogs.h',
         'browser/shell_integration.cc',
         'browser/shell_integration.h',
+        'browser/shell_integration_mac.mm',
         'browser/spellcheck_worditerator.cc',
         'browser/spellcheck_worditerator.h',
         'browser/spellchecker.cc',
@@ -1493,6 +1494,9 @@
             '../third_party/GTM/AppKit/GTMNSBezierPath+RoundRect.m',
             '../third_party/GTM/AppKit/GTMNSColor+Luminance.m',
             '../third_party/GTM/AppKit/GTMTheme.m',
+            # Build necessary Mozilla sources
+            '../third_party/mozilla/include/NSWorkspace+Utils.h',
+            '../third_party/mozilla/include/NSWorkspace+Utils.m',
           ],
           'include_dirs': [
             '../third_party/GTM',

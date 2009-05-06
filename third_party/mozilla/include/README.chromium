@@ -31,3 +31,7 @@ nsIPluginManager.h
 nsIPluginManager2.h
 nsplugindefs.h
 nspluginroot.h
+
+The following files come from mozilla/camino and are not part of the Gecko SDK:
+
+NSWorkspace+Utils.h/m

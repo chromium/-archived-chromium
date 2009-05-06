@@ -65,6 +65,7 @@ extern const wchar_t kDnsStartupPrefetchList[];
 extern const wchar_t kDnsHostReferralList[];
 extern const wchar_t kIpcDisabledMessages[];
 extern const wchar_t kShowHomeButton[];
+extern const wchar_t kShowPageOptionsButtons[];
 extern const wchar_t kRecentlySelectedEncoding[];
 extern const wchar_t kDeleteBrowsingHistory[];
 extern const wchar_t kDeleteDownloadHistory[];

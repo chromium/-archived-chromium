@@ -8,6 +8,7 @@
 #import "chrome/browser/cocoa/preferences_window_controller.h"
 #include "chrome/browser/cocoa/browser_test_helper.h"
 #include "chrome/browser/cocoa/cocoa_test_helper.h"
+#include "chrome/common/pref_names.h"
 #include "testing/gtest/include/gtest/gtest.h"
 #include "testing/platform_test.h"
 
@@ -31,9 +32,13 @@ namespace {
 class PrefsControllerTest : public PlatformTest {
  public:
   PrefsControllerTest() {
+    // Since this is a platform-specific preference, it's not registered by
+    // any of the shared code. We have to register it ourselves.
     PrefService* prefs = browser_helper_.profile()->GetPrefs();
+    prefs->RegisterBooleanPref(prefs::kShowPageOptionsButtons, false);
+
     pref_controller_.reset([[PreferencesWindowController alloc]
-                              initWithPrefs:prefs]);
+                              initWithProfile:browser_helper_.profile()]);
     EXPECT_TRUE(pref_controller_.get());
   }
 
@@ -46,8 +51,7 @@ class PrefsControllerTest : public PlatformTest {
 // making sure we get the notification when it's closed.
 TEST_F(PrefsControllerTest, ShowAndClose) {
 #if 0
-// TODO(pinkerton): this works locally, but fails on the buildbot. Need to
-// investigate.
+// TODO(pinkerton): this crashes deep w/in performClose:. Need to investigate.
   [pref_controller_ showPreferences:nil];
   EXPECT_TRUE([[pref_controller_ window] isVisible]);
 

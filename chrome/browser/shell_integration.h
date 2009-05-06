@@ -19,7 +19,7 @@ class ShellIntegration {
   // text editor and ftp links with a FTP client).
   static bool IsDefaultBrowser();
 
-  // Returns true if IE is likely to be the default browser for the current
+  // Returns true if Firefox is likely to be the default browser for the current
   // user. This method is very fast so it can be invoked in the UI thread.
   static bool IsFirefoxDefaultBrowser();
 };

@@ -15,6 +15,8 @@
 #import "chrome/browser/cocoa/bookmark_menu_bridge.h"
 #import "chrome/browser/cocoa/preferences_window_controller.h"
 #include "chrome/browser/command_updater.h"
+#include "chrome/common/pref_names.h"
+#include "chrome/common/pref_service.h"
 #include "chrome/browser/profile_manager.h"
 #include "chrome/common/temp_scaffolding_stubs.h"
 
@@ -28,12 +30,16 @@
 
 @implementation AppController
 
+// This method is called very early in application startup (ie, before
+// the profile is loaded or any preferences have been registered). Defer any
+// user-data initialization until -applicationDidFinishLaunching:.
 - (void)awakeFromNib {
   // Set up the command updater for when there are no windows open
   [self initMenuState];
-  bookmarkMenuBridge_.reset(new BookmarkMenuBridge());
 }
 
+// This is called after profiles have been loaded and preferences registered.
+// It is safe to access the default profile here.
 - (void)applicationDidFinishLaunching:(NSNotification*)notify {
   // Hold an extra ref to the BrowserProcess singleton so it doesn't go away
   // when all the browser windows get closed. We'll release it on quit which
@@ -54,6 +60,12 @@
           andSelector:@selector(openFiles:withReply:)
         forEventClass:kCoreEventClass
            andEventID:kAEOpenDocuments];
+
+  bookmarkMenuBridge_.reset(new BookmarkMenuBridge());
+
+  // Register any Mac-specific preferences.
+  PrefService* prefs = [self defaultProfile]->GetPrefs();
+  prefs->RegisterBooleanPref(prefs::kShowPageOptionsButtons, false);
 }
 
 - (void)dealloc {
@@ -243,9 +255,8 @@ void OpenURLs(const std::vector<GURL>& urls) {
 // visible.
 - (IBAction)showPreferences:(id)sender {
   if (!prefsController_.get()) {
-    PrefService* prefs = [self defaultProfile]->GetPrefs();
     prefsController_.reset([[PreferencesWindowController alloc]
-                              initWithPrefs:prefs]);
+                              initWithProfile:[self defaultProfile]]);
     // Watch for a notification of when it goes away so that we can destroy
     // the controller.
     [[NSNotificationCenter defaultCenter]
