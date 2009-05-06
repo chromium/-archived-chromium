@@ -21,6 +21,13 @@ DictionaryValue* ReadJSONPrefs(const std::string& data) {
   return static_cast<DictionaryValue*>(root.release());
 }
 
+DictionaryValue* GetPrefsFromFile(const std::wstring& master_prefs_path) {
+  std::string json_data;
+  if (!file_util::ReadFileToString(master_prefs_path, &json_data))
+    return NULL;
+  return ReadJSONPrefs(json_data);
+}
+
 bool GetBooleanPref(const DictionaryValue* prefs, const std::wstring& name) {
   bool value = false;
   prefs->GetBoolean(name, &value);
@@ -67,18 +74,13 @@ const wchar_t kAltShortcutText[] = L"alternate_shortcut_text";
 int ParseDistributionPreferences(const std::wstring& master_prefs_path) {
   if (!file_util::PathExists(master_prefs_path))
     return MASTER_PROFILE_NOT_FOUND;
-
   LOG(INFO) << "master profile found";
-  std::string json_data;
-  if (!file_util::ReadFileToString(master_prefs_path, &json_data))
-    return MASTER_PROFILE_ERROR;
 
-  scoped_ptr<DictionaryValue> json_root(ReadJSONPrefs(json_data));
+  scoped_ptr<DictionaryValue> json_root(GetPrefsFromFile(master_prefs_path));
   if (!json_root.get())
     return MASTER_PROFILE_ERROR;
 
   int parse_result = 0;
-
   DictionaryValue* distro = NULL;
   if (json_root->GetDictionary(L"distribution", &distro)) {
     if (GetBooleanPref(distro, kDistroSkipFirstRunPref))
@@ -109,6 +111,27 @@ int ParseDistributionPreferences(const std::wstring& master_prefs_path) {
       parse_result |= MASTER_PROFILE_ALT_SHORTCUT_TXT;
   }
   return parse_result;
+}
+
+std::vector<std::wstring> ParseFirstRunTabs(
+    const std::wstring& master_prefs_path) {
+  std::vector<std::wstring> launch_tabs;
+  scoped_ptr<DictionaryValue> json_root(GetPrefsFromFile(master_prefs_path));
+  if (!json_root.get())
+    return launch_tabs;
+  ListValue* tabs_list = NULL;
+  if (!json_root->GetList(L"first_run_tabs", &tabs_list))
+    return launch_tabs;
+  for (size_t i = 0; i < tabs_list->GetSize(); ++i) {
+    Value* entry;
+    std::wstring tab_entry;
+    if (!tabs_list->Get(i, &entry) || !entry->GetAsString(&tab_entry)) {
+      NOTREACHED();
+      break;
+    }
+    launch_tabs.push_back(tab_entry);
+  }
+  return launch_tabs;
 }
 
 }  // installer_util

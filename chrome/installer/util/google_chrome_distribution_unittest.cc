@@ -300,3 +300,28 @@ TEST(MasterPreferences, ParseDistroParams) {
   EXPECT_TRUE(result & installer_util::MASTER_PROFILE_ALT_SHORTCUT_TXT);
   EXPECT_TRUE(file_util::Delete(prefs, false));
 }
+
+TEST(MasterPreferences, FirstRunTabs) {
+  std::wstring prefs;
+  ASSERT_TRUE(file_util::CreateTemporaryFileName(&prefs));
+  const char text[] =
+    "{ \n"
+    "  \"distribution\": { \n"
+    "     \"something here\": true\n"
+    "  },\n"
+    "  \"first_run_tabs\": [\n"
+    "     \"http://google.com/f1\",\n"
+    "     \"https://google.com/f2\",\n"
+    "     \"new_tab_page\"\n"
+    "  ]\n"
+    "} \n";
+
+  EXPECT_TRUE(file_util::WriteFile(prefs, text, sizeof(text)));
+  typedef std::vector<std::wstring> TabsVector;
+  TabsVector tabs = installer_util::ParseFirstRunTabs(prefs);
+  ASSERT_EQ(3, tabs.size());
+  EXPECT_EQ(L"http://google.com/f1", tabs[0]);
+  EXPECT_EQ(L"https://google.com/f2", tabs[1]);
+  EXPECT_EQ(L"new_tab_page", tabs[2]);
+  EXPECT_TRUE(file_util::Delete(prefs, false));
+}

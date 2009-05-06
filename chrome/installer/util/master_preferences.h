@@ -9,6 +9,7 @@
 #define CHROME_INSTALLER_UTIL_MASTER_PREFERENCES_H__
 
 #include <string>
+#include <vector>
 
 namespace installer_util {
 
@@ -83,6 +84,10 @@ enum MasterPrefResult {
 //   "bookmark_bar": {
 //      "show_on_all_tabs": true
 //   },
+//   "first_run_tabs": [
+//      "http://gmail.com",
+//      "https://igoogle.com"
+//   ],
 //   "homepage": "http://example.org",
 //   "homepage_is_newtabpage": false
 // }
@@ -92,6 +97,23 @@ enum MasterPrefResult {
 // This function parses the 'distribution' entry and returns a combination
 // of MasterPrefResult.
 int ParseDistributionPreferences(const std::wstring& master_prefs_path);
+
+// As part of the master preferences an optional section indicates the tabs
+// to open during first run. An example is the following:
+//
+//  { 
+//    "first_run_tabs": [
+//       "http://google.com/f1",
+//       "https://google.com/f2"
+//    ]
+//  }
+//
+// Note that the entries are usually urls but they don't have to.
+//
+// This function retuns the list as a vector of strings. If the master
+// preferences file does not contain such list the vector is empty.
+std::vector<std::wstring> ParseFirstRunTabs(
+    const std::wstring& master_prefs_path);
 
 }
 
