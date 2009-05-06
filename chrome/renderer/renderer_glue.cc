@@ -209,7 +209,7 @@ void ClipboardReadHTML(string16* markup, GURL* url) {
 
 GURL GetInspectorURL() {
   return GURL(std::string(chrome::kChromeUIScheme) +
-              "//inspector/inspector.html");
+              "://inspector/inspector.html");
 }
 
 std::string GetUIResourceProtocol() {
