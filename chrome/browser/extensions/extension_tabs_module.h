@@ -18,8 +18,15 @@ class ExtensionTabUtil {
   static int GetTabId(const TabContents* tab_contents);
   static int GetWindowIdOfTab(const TabContents* tab_contents);
   static DictionaryValue* CreateTabValue(const TabContents* tab_contents);
-  static DictionaryValue* CreateTabValue(
-      const TabContents* tab_contents, TabStripModel* tab_strip, int tab_index);
+  static DictionaryValue* CreateTabValue(const TabContents* tab_contents,
+                                         TabStripModel* tab_strip,
+                                         int tab_index);
+  // Any out parameter (|browser|, |tab_strip|, |contents|, & |tab_index|) may
+  // be NULL and will not be set within the function.
+  static bool GetTabById(int tab_id, Profile* profile, Browser** browser,
+                         TabStripModel** tab_strip,
+                         TabContents** contents,
+                         int* tab_index);
 };
 
 // Windows
