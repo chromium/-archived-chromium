@@ -49,9 +49,15 @@
     # Yes(1) means include release.vsprops.
     # Once all vsprops settings are migrated into gyp, this can go away.
     'msvs_use_common_release%': 1,
+
+    # The architecture that we're building on.
+    'target_arch%': 'ia32',
   },
   'target_defaults': {
     'conditions': [
+      ['target_arch=="arm"', {
+        'defines': ['__ARMEL__'],
+      }],
       ['branding=="Chrome"', {
         'defines': ['GOOGLE_CHROME_BUILD'],
       }, {  # else: branding!="Chrome"
@@ -137,55 +143,18 @@
     },
   },
   'conditions': [
-    [ 'OS=="linux"', {
+    ['OS=="linux"', {
       'target_defaults': {
-        'asflags': [
-          # Needed so that libs with .s files (e.g. libicudata.a)
-          # are compatible with the general 32-bit-ness.
-          '-32',
-        ],
         # Enable -Werror by default, but put it in a variable so it can
         # be disabled in ~/.gyp/include.gypi on the valgrind builders.
         'variables': {
           'werror%': '-Werror',
         },
-        # All floating-point computations on x87 happens in 80-bit
-        # precision.  Because the C and C++ language standards allow
-        # the compiler to keep the floating-point values in higher
-        # precision than what's specified in the source and doing so
-        # is more efficient than constantly rounding up to 64-bit or
-        # 32-bit precision as specified in the source, the compiler,
-        # especially in the optimized mode, tries very hard to keep
-        # values in x87 floating-point stack (in 80-bit precision)
-        # as long as possible. This has important side effects, that
-        # the real value used in computation may change depending on
-        # how the compiler did the optimization - that is, the value
-        # kept in 80-bit is different than the value rounded down to
-        # 64-bit or 32-bit. There are possible compiler options to make
-        # this behavior consistent (e.g. -ffloat-store would keep all
-        # floating-values in the memory, thus force them to be rounded
-        # to its original precision) but they have significant runtime
-        # performance penalty.
-        #
-        # -mfpmath=sse -msse2 makes the compiler use SSE instructions
-        # which keep floating-point values in SSE registers in its
-        # native precision (32-bit for single precision, and 64-bit for
-        # double precision values). This means the floating-point value
-        # used during computation does not change depending on how the
-        # compiler optimized the code, since the value is always kept
-        # in its specified precision.
         'cflags': [
-          '-m32',
-          '-pthread',
-          '-march=pentium4',
-          '-fno-exceptions',
-          '-msse2',
-          '-mfpmath=sse',
-          '-Wall',
-          '<(werror)',  # See note above about the werror variable.
+           '<(werror)',  # See note above about the werror variable.
+           '-pthread',
         ],
         'ldflags': [
-          '-m32',
           '-pthread',
         ],
         'scons_variable_settings': {
@@ -288,6 +257,56 @@
             'cflags': ['-g'],
           },
         },
+        'conditions': [
+          [ 'target_arch=="arm"', {
+            'cflags': [
+              '-fno-exceptions',
+              '-Wall',
+            ],
+          }, { # else: target_arch != "arm"
+            'asflags': [
+              # Needed so that libs with .s files (e.g. libicudata.a)
+              # are compatible with the general 32-bit-ness.
+              '-32',
+            ],
+            # All floating-point computations on x87 happens in 80-bit
+            # precision.  Because the C and C++ language standards allow
+            # the compiler to keep the floating-point values in higher
+            # precision than what's specified in the source and doing so
+            # is more efficient than constantly rounding up to 64-bit or
+            # 32-bit precision as specified in the source, the compiler,
+            # especially in the optimized mode, tries very hard to keep
+            # values in x87 floating-point stack (in 80-bit precision)
+            # as long as possible. This has important side effects, that
+            # the real value used in computation may change depending on
+            # how the compiler did the optimization - that is, the value
+            # kept in 80-bit is different than the value rounded down to
+            # 64-bit or 32-bit. There are possible compiler options to make
+            # this behavior consistent (e.g. -ffloat-store would keep all
+            # floating-values in the memory, thus force them to be rounded
+            # to its original precision) but they have significant runtime
+            # performance penalty.
+            #
+            # -mfpmath=sse -msse2 makes the compiler use SSE instructions
+            # which keep floating-point values in SSE registers in its
+            # native precision (32-bit for single precision, and 64-bit for
+            # double precision values). This means the floating-point value
+            # used during computation does not change depending on how the
+            # compiler optimized the code, since the value is always kept
+            # in its specified precision.
+            'cflags': [
+              '-m32',
+              '-march=pentium4',
+              '-fno-exceptions',
+              '-msse2',
+              '-mfpmath=sse',
+              '-Wall',
+            ],
+            'ldflags': [
+              '-m32',
+            ],
+          }],
+        ],
       },
     }],
     ['OS=="mac"', {
