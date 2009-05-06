@@ -5,10 +5,31 @@
 #include "chrome/renderer/renderer_main_platform_delegate.h"
 
 #include "base/command_line.h"
+#include "base/gfx/native_theme.h"
 #include "chrome/common/chrome_constants.h"
 #include "chrome/common/chrome_switches.h"
 #include "chrome/test/injection_test_dll.h"
 #include "sandbox/src/sandbox.h"
+
+namespace {
+
+// In order to have Theme support, we need to connect to the theme service.
+// This needs to be done before we lock down the renderer. Officially this
+// can be done with OpenThemeData() but it fails unless you pass a valid
+// window at least the first time. Interestingly, the very act of creating a
+// window also sets the connection to the theme service.
+void EnableThemeSupportForRenderer() {
+  HWND window = ::CreateWindowExW(0, L"Static", L"", WS_POPUP | WS_DISABLED,
+                                  CW_USEDEFAULT, 0, 0, 0,  HWND_MESSAGE, NULL, 
+                                  ::GetModuleHandleA(NULL), NULL);
+  if (!window) {
+    DLOG(WARNING) << "failed to enable theme support";
+    return;
+  }
+  ::DestroyWindow(window);
+}
+
+}  // namespace
 
 RendererMainPlatformDelegate::RendererMainPlatformDelegate(
     const MainFunctionParams& parameters)
@@ -22,6 +43,7 @@ RendererMainPlatformDelegate::~RendererMainPlatformDelegate() {
 void RendererMainPlatformDelegate::PlatformInitialize() {
   // Be mindful of what resources you acquire here. They can be used by
   // malicious code if the renderer gets compromised.
+  EnableThemeSupportForRenderer();
 }
 
 void RendererMainPlatformDelegate::PlatformUninitialize() {
