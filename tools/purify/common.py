@@ -29,6 +29,7 @@ import datetime
 import logging
 import optparse
 import os
+import signal
 import subprocess
 import sys
 import tempfile
@@ -68,7 +69,8 @@ def RunSubprocess(proc, timeout=0, detach=False):
         on Windows.  This is used by Purify subprocesses on buildbot which
         seem to get confused by the parent console that buildbot sets up.
   """
-  logging.info("running %s" % (" ".join(proc)))
+
+  logging.info("running %s, timeout %d sec" % (" ".join(proc), timeout))
   if detach:
     # see MSDN docs for "Process Creation Flags"
     DETACHED_PROCESS = 0x8
@@ -94,9 +96,11 @@ def RunSubprocess(proc, timeout=0, detach=False):
   while p.poll() is None and not did_timeout:
     if not detach:
       line = p.stdout.readline()
-      while line:
+      while line and not did_timeout:
         _print_line(line)
         line = p.stdout.readline()
+        if timeout > 0:
+          did_timeout = time.time() > wait_until
     else:
       # When we detach, blocking on reading stdout doesn't work, so we sleep
       # a short time and poll.
@@ -118,7 +122,11 @@ def RunSubprocess(proc, timeout=0, detach=False):
     logging.info("process ended, did not time out")
 
   if did_timeout:
-    subprocess.call(["taskkill", "/T", "/F", "/PID", str(p.pid)])
+    if sys.platform == "win32":
+      subprocess.call(["taskkill", "/T", "/F", "/PID", str(p.pid)])
+    else:
+      # Does this kill all children, too?
+      os.kill(p.pid, signal.SIGINT)
     logging.error("KILLED %d" % p.pid)
     # Give the process a chance to actually die before continuing
     # so that cleanup can happen safely.
@@ -325,7 +333,7 @@ class Rational(object):
       logging.info("clearing instrumentation cache %s" % self._cache_dir)
       if os.path.isdir(self._cache_dir):
         for cfile in os.listdir(self._cache_dir):
-          file = os.path.join(self._cache_dir, cfile);
+          file = os.path.join(self._cache_dir, cfile)
           if os.path.isfile(file):
             try:
               os.remove(file)
