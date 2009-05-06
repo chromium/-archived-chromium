@@ -4395,7 +4395,7 @@
         'glue/plugins/webplugin_delegate_impl.cc',
         'glue/plugins/webplugin_delegate_impl.h',
         'glue/plugins/webplugin_delegate_impl_gtk.cc',
-        'glue/plugins/webplugin_delegate_impl_mac.cc',
+        'glue/plugins/webplugin_delegate_impl_mac.mm',
         'glue/alt_404_page_resource_fetcher.cc',
         'glue/alt_404_page_resource_fetcher.h',
         'glue/alt_error_page_resource_fetcher.cc',
