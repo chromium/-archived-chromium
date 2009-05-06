@@ -499,7 +499,8 @@ struct CommandNotification {
 
 const struct CommandNotification command_notifications[] = {
   {IDC_DUPLICATE_TAB, NotificationType::TAB_PARENTED},
-  {IDC_NEW_TAB, NotificationType::TAB_PARENTED}
+  {IDC_NEW_TAB, NotificationType::TAB_PARENTED},
+  {IDC_RESTORE_TAB, NotificationType::TAB_PARENTED}
 };
 
 }  // namespace

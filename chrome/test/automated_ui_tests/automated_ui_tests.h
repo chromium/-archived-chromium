@@ -254,11 +254,6 @@ class AutomatedUITest : public AutomatedUITestBase {
   // XML element: <Reload/>
   bool ReloadPage();
 
-  // Restores a previously closed tab.
-  // Returns true if call to activate the accelerator is successful.
-  // XML element: <RestoreTab/>
-  bool RestoreTab();
-
   // Activates the next tab on the active browser window.
   // XML element: <SelectNextTab/>
   bool SelectNextTab();

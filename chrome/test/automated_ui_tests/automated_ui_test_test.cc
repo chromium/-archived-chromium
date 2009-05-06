@@ -4,6 +4,7 @@
 
 #include "chrome/test/automated_ui_tests/automated_ui_test_base.h"
 #include "chrome/test/automation/browser_proxy.h"
+#include "chrome/test/automation/tab_proxy.h"
 #include "chrome/test/ui/ui_test.h"
 
 TEST_F(AutomatedUITestBase, NewTab) {
@@ -28,6 +29,23 @@ TEST_F(AutomatedUITestBase, DuplicateTab) {
   DuplicateTab();
   active_browser()->GetTabCount(&tab_count);
   ASSERT_EQ(3, tab_count);
+}
+
+TEST_F(AutomatedUITestBase, RestoreTab) {
+  int tab_count;
+  active_browser()->GetTabCount(&tab_count);
+  ASSERT_EQ(1, tab_count);
+  NewTab();
+  active_browser()->GetTabCount(&tab_count);
+  ASSERT_EQ(2, tab_count);
+  GURL test_url("about:blank");
+  GetActiveTab()->NavigateToURL(test_url);
+  CloseActiveTab();
+  active_browser()->GetTabCount(&tab_count);
+  ASSERT_EQ(1, tab_count);
+  RestoreTab();
+  active_browser()->GetTabCount(&tab_count);
+  ASSERT_EQ(2, tab_count);
 }
 
 TEST_F(AutomatedUITestBase, OpenBrowserWindow) {

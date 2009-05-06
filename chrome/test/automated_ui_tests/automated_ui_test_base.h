@@ -50,6 +50,10 @@ class AutomatedUITestBase : public UITest {
   // caller owns previous_browser.
   bool OpenAndActivateNewBrowserWindow(BrowserProxy** previous_browser);
 
+  // Restores a previously closed tab.
+  // Returns true if the tab is successfully restored.
+  bool RestoreTab();
+
   // Runs the specified browser command in the current active browser.
   // See browser_commands.cc for the list of commands.
   // Returns true if the call is successfully dispatched.

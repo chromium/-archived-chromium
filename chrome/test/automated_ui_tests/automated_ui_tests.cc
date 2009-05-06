@@ -529,10 +529,6 @@ bool AutomatedUITest::ReloadPage() {
   return RunCommandAsync(IDC_RELOAD);
 }
 
-bool AutomatedUITest::RestoreTab() {
-  return RunCommandAsync(IDC_RESTORE_TAB);
-}
-
 bool AutomatedUITest::SelectNextTab() {
   return RunCommandAsync(IDC_SELECT_NEXT_TAB);
 }

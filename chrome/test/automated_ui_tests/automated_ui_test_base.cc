@@ -112,6 +112,10 @@ bool AutomatedUITestBase::NewTab() {
   return RunCommand(IDC_NEW_TAB);
 }
 
+bool AutomatedUITestBase::RestoreTab() {
+  return RunCommand(IDC_RESTORE_TAB);
+}
+
 bool AutomatedUITestBase::RunCommandAsync(int browser_command) {
   BrowserProxy* browser = active_browser();
   if (NULL == browser) {
