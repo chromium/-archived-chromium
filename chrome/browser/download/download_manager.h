@@ -372,6 +372,10 @@ class DownloadManager : public base::RefCountedThreadSafe<DownloadManager>,
   void OnSearchComplete(HistoryService::Handle handle,
                         std::vector<int64>* results);
 
+  // Display a new download in the appropriate browser UI.
+  void ShowDownloadInBrowser(const DownloadCreateInfo& info,
+                             DownloadItem* download);
+
   // Opens a download. For Chrome extensions call
   // ExtensionsServices::InstallExtension, for everything else call
   // OpenDownloadInShell.

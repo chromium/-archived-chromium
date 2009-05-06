@@ -1462,23 +1462,8 @@ void DownloadManager::OnCreateDownloadEntryComplete(DownloadCreateInfo info,
   DCHECK(downloads_.find(download->db_handle()) == downloads_.end());
   downloads_[download->db_handle()] = download;
 
-  // The 'contents' may no longer exist if the user closed the tab before we get
-  // this start completion event. If it does, tell the origin TabContents to
-  // display its download shelf.
-  TabContents* contents =
-      tab_util::GetTabContentsByID(info.render_process_id, info.render_view_id);
-
-  // If the contents no longer exists, we start the download in the last active
-  // browser. This is not ideal but better than fully hiding the download from
-  // the user.
-  if (!contents) {
-    Browser* last_active = BrowserList::GetLastActive();
-    if (last_active)
-      contents = last_active->GetSelectedTabContents();
-  }
-
-  if (contents)
-    contents->OnStartDownload(download);
+  // Show in the appropropriate browser UI.
+  ShowDownloadInBrowser(info, download);
 
   // Inform interested objects about the new download.
   FOR_EACH_OBSERVER(Observer, observers_, ModelChanged());
@@ -1512,6 +1497,35 @@ void DownloadManager::OnSearchComplete(HistoryService::Handle handle,
   }
 
   requestor->SetDownloads(searched_downloads);
+}
+
+void DownloadManager::ShowDownloadInBrowser(const DownloadCreateInfo& info,
+                                            DownloadItem* download) {
+  // Extension downloading skips the shelf.  This is a temporary fix until
+  // we can modularize the download system and develop specific extensiona
+  // install UI.
+  FilePath::StringType extension = info.path.Extension();
+  // Ignore the leading period.
+  if (extension.find(chrome::kExtensionFileExtension) == 1)
+    return;
+
+  // The 'contents' may no longer exist if the user closed the tab before we get
+  // this start completion event. If it does, tell the origin TabContents to
+  // display its download shelf.
+  TabContents* contents =
+      tab_util::GetTabContentsByID(info.render_process_id, info.render_view_id);
+
+  // If the contents no longer exists, we start the download in the last active
+  // browser. This is not ideal but better than fully hiding the download from
+  // the user.
+  if (!contents) {
+    Browser* last_active = BrowserList::GetLastActive();
+    if (last_active)
+      contents = last_active->GetSelectedTabContents();
+  }
+
+  if (contents)
+    contents->OnStartDownload(download);
 }
 
 // Clears the last download path, used to initialize "save as" dialogs.
