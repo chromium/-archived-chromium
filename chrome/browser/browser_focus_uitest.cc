@@ -6,9 +6,12 @@
 #include "base/ref_counted.h"
 #include "chrome/browser/automation/ui_controls.h"
 #include "chrome/browser/browser.h"
+#include "chrome/browser/renderer_host/render_widget_host_view.h"
+#include "chrome/browser/tab_contents/interstitial_page.h"
 #include "chrome/browser/view_ids.h"
 #include "chrome/browser/views/frame/browser_view.h"
 #include "chrome/browser/views/location_bar_view.h"
+#include "chrome/common/chrome_paths.h"
 #include "chrome/views/focus/focus_manager.h"
 #include "chrome/views/view.h"
 #include "chrome/views/window/window.h"
@@ -24,6 +27,7 @@ const int kActionDelayMs = 500;
 const wchar_t kSimplePage[] = L"files/focus/page_with_focus.html";
 const wchar_t kStealFocusPage[] = L"files/focus/page_steals_focus.html";
 const wchar_t kTypicalPage[] = L"files/focus/typical_page.html";
+const wchar_t kTypicalPageName[] = L"typical_page.html";
 
 class BrowserFocusTest : public InProcessBrowserTest {
  public:
@@ -33,6 +37,62 @@ class BrowserFocusTest : public InProcessBrowserTest {
   }
 };
 
+class TestInterstitialPage : public InterstitialPage {
+ public:
+  TestInterstitialPage(TabContents* tab, bool new_navigation, const GURL& url)
+      : InterstitialPage(tab, new_navigation, url),
+        waiting_for_dom_response_(false) {
+    std::wstring file_path;
+    bool r = PathService::Get(chrome::DIR_TEST_DATA, &file_path);
+    EXPECT_TRUE(r);
+    file_util::AppendToPath(&file_path, L"focus");
+    file_util::AppendToPath(&file_path, kTypicalPageName);
+    r = file_util::ReadFileToString(file_path, &html_contents_);
+    EXPECT_TRUE(r);
+  }
+
+  virtual std::string GetHTMLContents() {
+    return html_contents_;
+  }
+
+  virtual void DomOperationResponse(const std::string& json_string,
+                                    int automation_id) {
+    if (waiting_for_dom_response_) {
+      dom_response_ = json_string;
+      waiting_for_dom_response_ = false;
+      MessageLoop::current()->PostTask(FROM_HERE, new MessageLoop::QuitTask());
+      return;
+    }
+    InterstitialPage::DomOperationResponse(json_string, automation_id);
+  }
+
+  std::string GetFocusedElement() {
+    std::wstring script = L"window.domAutomationController.setAutomationId(0);"
+        L"window.domAutomationController.send(getFocusedElement());";
+
+    render_view_host()->ExecuteJavascriptInWebFrame(L"", script);
+    DCHECK(!waiting_for_dom_response_);
+    waiting_for_dom_response_ = true;
+    ui_test_utils::RunMessageLoop();
+    // Remove the JSON extra quotes.
+    if (dom_response_.size() >= 2 && dom_response_[0] == '"' &&
+        dom_response_[dom_response_.size() - 1] == '"') {
+      dom_response_ = dom_response_.substr(1, dom_response_.size() - 2);
+    }
+    return dom_response_;
+  }
+
+  bool HasFocus() {
+    return render_view_host()->view()->HasFocus();
+  }
+
+ private:
+  std::string html_contents_;
+
+  bool waiting_for_dom_response_;
+  std::string dom_response_;
+
+};
 }  // namespace
 
 IN_PROC_BROWSER_TEST_F(BrowserFocusTest, DISABLED_BrowsersRememberFocus) {
@@ -227,7 +287,7 @@ IN_PROC_BROWSER_TEST_F(BrowserFocusTest, LocationBarLockFocus) {
   EXPECT_EQ(location_bar, focus_manager->GetFocusedView());
 }
 
-// Focus traversal
+// Focus traversal on a regular page.
 IN_PROC_BROWSER_TEST_F(BrowserFocusTest, FocusTraversal) {
   HTTPTestServer* server = StartHTTPServer();
 
@@ -315,6 +375,142 @@ IN_PROC_BROWSER_TEST_F(BrowserFocusTest, FocusTraversal) {
     MessageLoop::current()->PostTask(FROM_HERE, new MessageLoop::QuitTask());
     ui_test_utils::RunMessageLoop();
   }
+}
+
+// Focus traversal while an interstitial is showing.
+IN_PROC_BROWSER_TEST_F(BrowserFocusTest, FocusTraversalOnInterstitial) {
+  HTTPTestServer* server = StartHTTPServer();
+
+  // First we navigate to our test page.
+  GURL url = server->TestServerPageW(kSimplePage);
+  ui_test_utils::NavigateToURL(browser(), url);
+
+  HWND hwnd = reinterpret_cast<HWND>(browser()->window()->GetNativeHandle());
+  BrowserView* browser_view = BrowserView::GetBrowserViewForHWND(hwnd);
+  views::FocusManager* focus_manager =
+      views::FocusManager::GetFocusManager(hwnd);
+
+  // Focus should be on the page.
+  EXPECT_EQ(browser_view->GetContentsView(), focus_manager->GetFocusedView());
+
+  // Let's show an interstitial.
+  TestInterstitialPage* interstitial_page =
+      new TestInterstitialPage(browser()->GetSelectedTabContents(),
+                               true, GURL("http://interstitial.com"));
+  interstitial_page->Show();
+  // Give some time for the interstitial to show.
+  MessageLoop::current()->PostDelayedTask(FROM_HERE,
+                                          new MessageLoop::QuitTask(),
+                                          1000);
+  ui_test_utils::RunMessageLoop();
+
+  // Click on the location bar.
+  LocationBarView* location_bar = browser_view->GetLocationBarView();
+  ui_controls::MoveMouseToCenterAndPress(location_bar,
+                                         ui_controls::LEFT,
+                                         ui_controls::DOWN | ui_controls::UP,
+                                         new MessageLoop::QuitTask());
+  ui_test_utils::RunMessageLoop();
+
+  const char* kExpElementIDs[] = {
+    "",  // Initially no element in the page should be focused
+         // (the location bar is focused).
+    "textEdit", "searchButton", "luckyButton", "googleLink", "gmailLink",
+    "gmapLink"
+  };
+
+  // Test forward focus traversal.
+  for (int i = 0; i < 2; ++i) {
+    // Location bar should be focused.
+    EXPECT_EQ(location_bar, focus_manager->GetFocusedView());
+
+    // Now let's press tab to move the focus.
+    for (int j = 0; j < 7; ++j) {
+      // Let's make sure the focus is on the expected element in the page.
+      std::string actual = interstitial_page->GetFocusedElement();
+      ASSERT_STREQ(kExpElementIDs[j], actual.c_str());
+
+      ui_controls::SendKeyPressNotifyWhenDone(L'\t', false, false, false,
+                                              new MessageLoop::QuitTask());
+      ui_test_utils::RunMessageLoop();
+      // Ideally, we wouldn't sleep here and instead would use the event
+      // processed ack notification from the renderer.  I am reluctant to create
+      // a new notification/callback for that purpose just for this test.
+      ::Sleep(kActionDelayMs);
+    }
+
+    // At this point the renderer has sent us a message asking to advance the
+    // focus (as the end of the focus loop was reached in the renderer).
+    // We need to run the message loop to process it.
+    MessageLoop::current()->PostTask(FROM_HERE, new MessageLoop::QuitTask());
+    ui_test_utils::RunMessageLoop();
+  }
+
+  // Now let's try reverse focus traversal.
+  for (int i = 0; i < 2; ++i) {
+    // Location bar should be focused.
+    EXPECT_EQ(location_bar, focus_manager->GetFocusedView());
+
+    // Now let's press shift-tab to move the focus in reverse.
+    for (int j = 0; j < 7; ++j) {
+      ui_controls::SendKeyPressNotifyWhenDone(L'\t', false, true, false,
+                                              new MessageLoop::QuitTask());
+      ui_test_utils::RunMessageLoop();
+      ::Sleep(kActionDelayMs);
+
+      // Let's make sure the focus is on the expected element in the page.
+      std::string actual = interstitial_page->GetFocusedElement();
+      ASSERT_STREQ(kExpElementIDs[6 - j], actual.c_str());
+    }
+
+    // At this point the renderer has sent us a message asking to advance the
+    // focus (as the end of the focus loop was reached in the renderer).
+    // We need to run the message loop to process it.
+    MessageLoop::current()->PostTask(FROM_HERE, new MessageLoop::QuitTask());
+    ui_test_utils::RunMessageLoop();
+  }
+}
+
+// Focus stays on page with interstitials.
+IN_PROC_BROWSER_TEST_F(BrowserFocusTest, InterstitialFocus) {
+  HTTPTestServer* server = StartHTTPServer();
+
+  // First we navigate to our test page.
+  GURL url = server->TestServerPageW(kSimplePage);
+  ui_test_utils::NavigateToURL(browser(), url);
+
+  HWND hwnd = reinterpret_cast<HWND>(browser()->window()->GetNativeHandle());
+  BrowserView* browser_view = BrowserView::GetBrowserViewForHWND(hwnd);
+  views::FocusManager* focus_manager =
+      views::FocusManager::GetFocusManager(hwnd);
+
+  // Page should have focus.
+  EXPECT_EQ(browser_view->GetContentsView(), focus_manager->GetFocusedView());
+  EXPECT_TRUE(browser()->GetSelectedTabContents()->render_view_host()->view()->
+      HasFocus());
+
+  // Let's show an interstitial.
+  TestInterstitialPage* interstitial_page =
+      new TestInterstitialPage(browser()->GetSelectedTabContents(),
+                               true, GURL("http://interstitial.com"));
+  interstitial_page->Show();
+  // Give some time for the interstitial to show.
+  MessageLoop::current()->PostDelayedTask(FROM_HERE,
+                                          new MessageLoop::QuitTask(),
+                                          1000);
+  ui_test_utils::RunMessageLoop();
+
+  // The interstitial should have focus now.
+  EXPECT_EQ(browser_view->GetContentsView(), focus_manager->GetFocusedView());
+  EXPECT_TRUE(interstitial_page->HasFocus());
+
+  // Hide the interstitial.
+  interstitial_page->DontProceed();
+
+  // Focus should be back on the original page.
+  EXPECT_EQ(browser_view->GetContentsView(), focus_manager->GetFocusedView());
+  EXPECT_TRUE(browser()->GetSelectedTabContents()->render_view_host()->view()->
+      HasFocus());
 }
 
 // Make sure Find box can request focus, even when it is already open.

@@ -77,6 +77,12 @@ class InterstitialPage : public NotificationObserver,
 
   bool action_taken() const { return action_taken_; }
 
+  // Sets the focus to the interstitial.
+  void Focus();
+
+  // Sets the focus to the interstitial.  Called when tab traversing.
+  void SetInitialFocus(bool reverse);
+
  protected:
   // NotificationObserver method:
   virtual void Observe(NotificationType type,

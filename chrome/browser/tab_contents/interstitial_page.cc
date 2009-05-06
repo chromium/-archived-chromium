@@ -351,6 +351,15 @@ void InterstitialPage::SetSize(const gfx::Size& size) {
 #endif
 }
 
+void InterstitialPage::Focus() {
+  // Focus the native window.
+  render_view_host_->view()->Focus();
+}
+
+void InterstitialPage::SetInitialFocus(bool reverse) {
+  render_view_host_->SetInitialFocus(reverse);
+}
+
 Profile* InterstitialPage::GetProfile() const {
   return tab_->profile();
 }
@@ -369,6 +378,10 @@ void InterstitialPage::DidNavigate(
   // The RenderViewHost has loaded its contents, we can show it now.
   render_view_host_->view()->Show();
   tab_->set_interstitial_page(this);
+
+  // If the page has focus, focus the interstitial.
+  if (tab_->render_view_host()->view()->HasFocus())
+    Focus();
 
   // Notify the tab we are not loading so the throbber is stopped. It also
   // causes a NOTIFY_LOAD_STOP notification, that the AutomationProvider (used
