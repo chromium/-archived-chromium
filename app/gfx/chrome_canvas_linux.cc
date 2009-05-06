@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "chrome/common/gfx/chrome_canvas.h"
+#include "app/gfx/chrome_canvas.h"
 
 #include <pango/pango.h>
 
