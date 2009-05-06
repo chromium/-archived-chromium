@@ -213,9 +213,10 @@ gboolean HandleCustomAccelerator(guint keyval, GdkModifierType modifier,
 gboolean OnKeyPress(GtkWindow* window, GdkEventKey* event, Browser* browser) {
   TabContents* current_tab_contents =
       browser->tabstrip_model()->GetSelectedTabContents();
-  // If there is no current tab contents or it is not focused then let the
-  // default GtkWindow key handler run.
-  if (!current_tab_contents ||
+  // If there is no current tab contents or its view is gone (if the renderview
+  // crashed) or it is not focused then let the default GtkWindow key handler
+  // run.
+  if (!current_tab_contents || !current_tab_contents->GetContentNativeView() ||
       !gtk_widget_is_focus(current_tab_contents->GetContentNativeView())) {
     return HandleCustomAccelerator(event->keyval,
         static_cast<GdkModifierType>(event->state), browser);

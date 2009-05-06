@@ -11,6 +11,7 @@
 #include "base/gfx/point.h"
 #include "base/gfx/rect.h"
 #include "chrome/browser/gtk/browser_window_gtk.h"
+#include "chrome/browser/gtk/sad_tab_gtk.h"
 #include "chrome/browser/renderer_host/render_view_host.h"
 #include "chrome/browser/renderer_host/render_view_host_factory.h"
 #include "chrome/browser/renderer_host/render_widget_host_view_gtk.h"
@@ -18,6 +19,8 @@
 #include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/browser/tab_contents/tab_contents_delegate.h"
 #include "chrome/common/gtk_util.h"
+#include "chrome/common/notification_source.h"
+#include "chrome/common/notification_type.h"
 
 namespace {
 
@@ -62,8 +65,11 @@ TabContentsView* TabContentsView::Create(TabContents* tab_contents) {
 
 TabContentsViewGtk::TabContentsViewGtk(TabContents* tab_contents)
     : TabContentsView(tab_contents),
-      vbox_(gtk_vbox_new(FALSE, 0)),
-      content_view_(NULL) {
+      vbox_(gtk_vbox_new(FALSE, 0)) {
+  registrar_.Add(this, NotificationType::TAB_CONTENTS_CONNECTED,
+                 Source<TabContents>(tab_contents));
+  registrar_.Add(this, NotificationType::TAB_CONTENTS_DISCONNECTED,
+                 Source<TabContents>(tab_contents));
 }
 
 TabContentsViewGtk::~TabContentsViewGtk() {
@@ -89,19 +95,19 @@ RenderWidgetHostView* TabContentsViewGtk::CreateViewForWidget(
   RenderWidgetHostViewGtk* view =
       new RenderWidgetHostViewGtk(render_widget_host);
   view->InitAsChild();
-  content_view_ = view->native_view();
-  g_signal_connect(content_view_, "focus",
+  gfx::NativeView content_view = view->native_view();
+  g_signal_connect(content_view, "focus",
                    G_CALLBACK(OnFocus), tab_contents());
-  g_signal_connect(view->native_view(), "leave-notify-event",
+  g_signal_connect(content_view, "leave-notify-event",
                    G_CALLBACK(OnLeaveNotify), tab_contents());
-  g_signal_connect(view->native_view(), "motion-notify-event",
+  g_signal_connect(content_view, "motion-notify-event",
                    G_CALLBACK(OnMouseMove), tab_contents());
-  gtk_widget_add_events(view->native_view(), GDK_LEAVE_NOTIFY_MASK |
+  gtk_widget_add_events(content_view, GDK_LEAVE_NOTIFY_MASK |
                         GDK_POINTER_MOTION_MASK);
-  g_signal_connect(view->native_view(), "button-press-event",
+  g_signal_connect(content_view, "button-press-event",
                    G_CALLBACK(OnMouseDown), this);
   gfx::RemoveAllChildren(vbox_.get());
-  gtk_box_pack_start(GTK_BOX(vbox_.get()), content_view_, TRUE, TRUE, 0);
+  gtk_box_pack_start(GTK_BOX(vbox_.get()), content_view, TRUE, TRUE, 0);
   return view;
 }
 
@@ -110,8 +116,11 @@ gfx::NativeView TabContentsViewGtk::GetNativeView() const {
 }
 
 gfx::NativeView TabContentsViewGtk::GetContentNativeView() const {
-  return content_view_;
+  if (!tab_contents()->render_widget_host_view())
+    return NULL;
+  return tab_contents()->render_widget_host_view()->GetPluginNativeView();
 }
+
 
 gfx::NativeWindow TabContentsViewGtk::GetTopLevelNativeWindow() const {
   GtkWidget* window = gtk_widget_get_ancestor(GetNativeView(), GTK_TYPE_WINDOW);
@@ -135,12 +144,13 @@ void TabContentsViewGtk::OnContentsDestroy() {
 void TabContentsViewGtk::SetPageTitle(const std::wstring& title) {
   // Set the window name to include the page title so it's easier to spot
   // when debugging (e.g. via xwininfo -tree).
-  if (content_view_ && content_view_->window)
-    gdk_window_set_title(content_view_->window, WideToUTF8(title).c_str());
+  gfx::NativeView content_view = GetContentNativeView();
+  if (content_view && content_view->window)
+    gdk_window_set_title(content_view->window, WideToUTF8(title).c_str());
 }
 
 void TabContentsViewGtk::Invalidate() {
-  NOTIMPLEMENTED();
+  gtk_widget_queue_draw(sad_tab_->widget());
 }
 
 void TabContentsViewGtk::SizeContents(const gfx::Size& size) {
@@ -173,7 +183,7 @@ void TabContentsViewGtk::SetInitialFocus() {
   if (tab_contents()->FocusLocationBarByDefault())
     tab_contents()->delegate()->SetFocusToLocationBar();
   else
-    gtk_widget_grab_focus(content_view_);
+    gtk_widget_grab_focus(GetContentNativeView());
 }
 
 void TabContentsViewGtk::StoreFocus() {
@@ -222,6 +232,30 @@ void TabContentsViewGtk::OnFindReply(int request_id,
                                      int active_match_ordinal,
                                      bool final_update) {
   NOTIMPLEMENTED();
+}
+
+void TabContentsViewGtk::Observe(NotificationType type,
+                                 const NotificationSource& source,
+                                 const NotificationDetails& details) {
+  switch (type.value) {
+    case NotificationType::TAB_CONTENTS_CONNECTED: {
+      // No need to remove the SadTabGtk's widget from the container since
+      // the new RenderWidgetHostViewGtk instance already removed all the
+      // vbox's children.
+      sad_tab_.reset();
+      break;
+    }
+    case NotificationType::TAB_CONTENTS_DISCONNECTED: {
+      sad_tab_.reset(new SadTabGtk);
+      gtk_box_pack_start(
+          GTK_BOX(vbox_.get()), sad_tab_->widget(), TRUE, TRUE, 0);
+      gtk_widget_show(sad_tab_->widget());
+      break;
+    }
+    default:
+      NOTREACHED() << "Got a notification we didn't register for.";
+      break;
+  }
 }
 
 void TabContentsViewGtk::ShowContextMenu(const ContextMenuParams& params) {

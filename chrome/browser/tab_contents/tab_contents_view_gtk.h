@@ -7,11 +7,15 @@
 
 #include "base/scoped_ptr.h"
 #include "chrome/browser/tab_contents/tab_contents_view.h"
+#include "chrome/common/notification_observer.h"
+#include "chrome/common/notification_registrar.h"
 #include "chrome/common/owned_widget_gtk.h"
 
 class RenderViewContextMenuGtk;
+class SadTabGtk;
 
-class TabContentsViewGtk : public TabContentsView {
+class TabContentsViewGtk : public TabContentsView,
+                           public NotificationObserver {
  public:
   // The corresponding TabContents is passed in the constructor, and manages our
   // lifetime. This doesn't need to be the case, but is this way currently
@@ -55,6 +59,13 @@ class TabContentsViewGtk : public TabContentsView {
                            const gfx::Rect& selection_rect,
                            int active_match_ordinal,
                            bool final_update);
+
+  // NotificationObserver implementation ---------------------------------------
+
+  virtual void Observe(NotificationType type,
+                       const NotificationSource& source,
+                       const NotificationDetails& details);
+
  private:
   // We keep track of the timestamp of the latest mousedown event.
   static gboolean OnMouseDown(GtkWidget* widget,
@@ -63,9 +74,6 @@ class TabContentsViewGtk : public TabContentsView {
   // The native widget for the tab.
   OwnedWidgetGtk vbox_;
 
-  // The native widget for the contents of the tab. We do not own this widget.
-  GtkWidget* content_view_;
-
   // The context menu is reset every time we show it, but we keep a pointer to
   // between uses so that it won't go out of scope before we're done with it.
   scoped_ptr<RenderViewContextMenuGtk> context_menu_;
@@ -73,6 +81,11 @@ class TabContentsViewGtk : public TabContentsView {
   // The event time for the last mouse down we handled. We need this to properly
   // show context menus.
   guint32 last_mouse_down_time_;
+
+  // Used to get notifications about renderers coming and going.
+  NotificationRegistrar registrar_;
+
+  scoped_ptr<SadTabGtk> sad_tab_;
 
   DISALLOW_COPY_AND_ASSIGN(TabContentsViewGtk);
 };

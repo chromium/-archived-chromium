@@ -291,7 +291,7 @@ void RenderWidgetHostViewGtk::DidScrollRect(const gfx::Rect& rect, int dx,
 }
 
 void RenderWidgetHostViewGtk::RenderViewGone() {
-  NOTIMPLEMENTED();
+  Destroy();
 }
 
 void RenderWidgetHostViewGtk::Destroy() {
@@ -374,7 +374,7 @@ void RenderWidgetHostViewGtk::ShowCurrentCursor() {
     return;
 
   GdkCursor* gdk_cursor;
-  switch(current_cursor_.GetCursorType()) {
+  switch (current_cursor_.GetCursorType()) {
     case GDK_CURSOR_IS_PIXMAP:
       // TODO(port): WebKit bug https://bugs.webkit.org/show_bug.cgi?id=16388 is
       // that calling gdk_window_set_cursor repeatedly is expensive.  We should

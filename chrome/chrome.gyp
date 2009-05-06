@@ -880,6 +880,8 @@
         'browser/gtk/menu_gtk.h',
         'browser/gtk/nine_box.cc',
         'browser/gtk/nine_box.h',
+        'browser/gtk/sad_tab_gtk.cc',
+        'browser/gtk/sad_tab_gtk.h',
         'browser/gtk/slide_animator_gtk.cc',
         'browser/gtk/slide_animator_gtk.h',
         'browser/gtk/standard_menus.cc',
