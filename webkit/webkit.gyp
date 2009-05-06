@@ -324,9 +324,6 @@
       'sources!': [
         # GLib/GTK, even though its name doesn't really indicate.
         '../third_party/WebKit/JavaScriptCore/wtf/GOwnPtr.cpp',
-
-        'build/precompiled_webkit.cc',
-        'build/precompiled_webkit.h',
       ],
       'sources/': [
         ['exclude', '(Default|Gtk|Mac|None|Qt|Win|Wx)\\.(cpp|mm)$'],
@@ -369,6 +366,11 @@
           'include_dirs!': [
             '<(SHARED_INTERMEDIATE_DIR)/webkit',
           ],
+        }, { # OS != "win"
+          'sources!': [
+            'build/precompiled_webkit.cc',
+            'build/precompiled_webkit.h',
+           ],
         }],
         ['OS=="linux"', {
           'defines': ['WTF_USE_PTHREADS=1'],
@@ -624,6 +626,7 @@
       ],
       'include_dirs': [
         '<(INTERMEDIATE_DIR)',
+        '<(SHARED_INTERMEDIATE_DIR)/webkit',
         '<(SHARED_INTERMEDIATE_DIR)/webkit/bindings',
         'port/bindings/v8',
         '<@(webcore_include_dirs)',
@@ -3931,6 +3934,7 @@
       ],
       'direct_dependent_settings': {
         'include_dirs': [
+          '<(SHARED_INTERMEDIATE_DIR)/webkit',
           '<(SHARED_INTERMEDIATE_DIR)/webkit/bindings',
           'port/bindings/v8',
           '<@(webcore_include_dirs)',
@@ -4613,6 +4617,18 @@
         {
           'destination': '<(PRODUCT_DIR)/resources/inspector',
           'files': [
+            'glue/devtools/js/base.js',
+            'glue/devtools/js/debugger_agent.js',
+            'glue/devtools/js/devtools.html',
+            'glue/devtools/js/devtools.js',
+            'glue/devtools/js/devtools_callback.js',
+            'glue/devtools/js/devtools_host_stub.js',
+            'glue/devtools/js/dom_agent.js',
+            'glue/devtools/js/inject.js',
+            'glue/devtools/js/inspector_controller.js',
+            'glue/devtools/js/inspector_controller_impl.js',
+            'glue/devtools/js/json.js',
+            'glue/devtools/js/net_agent.js',
             'inspector/debugger.css',
             'inspector/debugger.html',
             'inspector/DebuggerConsole.js',

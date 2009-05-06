@@ -181,14 +181,21 @@
       },
       'conditions': [
         ['OS=="win"', {
-          'sources': [ '<@(test_shell_windows_resource_files)' ],
+          'sources': [
+            '<@(test_shell_windows_resource_files)',
+            # TODO:  It would be nice to have these pulled in
+            # automatically from direct_dependent_settings in
+            # their various targets (net.gyp:net_resources, etc.),
+            # but that causes errors in other targets when
+            # resulting .res files get referenced multiple times.
+            '<(SHARED_INTERMEDIATE_DIR)/net/net_resources.rc',
+            '<(SHARED_INTERMEDIATE_DIR)/webkit/webkit_resources.rc',
+            '<(SHARED_INTERMEDIATE_DIR)/webkit/webkit_strings_en-US.rc',
+          ],
         }],
         ['OS=="linux"', {
           'dependencies': [
             '../../../build/linux/system.gyp:gtk',
-            '../../../net/net.gyp:net_resources',
-            '../../webkit.gyp:webkit_resources',
-            '../../webkit.gyp:webkit_strings',
             'test_shell_resources',
           ],
           'actions': [
@@ -238,6 +245,12 @@
               'action': ['python', '<(repack_path)', '<@(_outputs)', '<@(pak_inputs)'],
               'process_outputs_as_mac_bundle_resources': 1,
             },
+          ]
+        }, { # OS != "mac"
+          'dependencies': [
+            '../../../net/net.gyp:net_resources',
+            '../../webkit.gyp:webkit_resources',
+            '../../webkit.gyp:webkit_strings',
           ]
         }],
       ],
