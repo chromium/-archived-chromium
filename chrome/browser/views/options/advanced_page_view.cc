@@ -22,6 +22,7 @@
 #include "chrome/views/window/window.h"
 #include "grit/chromium_strings.h"
 #include "grit/generated_resources.h"
+#include "grit/locale_settings.h"
 
 namespace {
 
@@ -64,13 +65,14 @@ class ResetDefaultsConfirmBox : public views::DialogDelegate {
  private:
   ResetDefaultsConfirmBox(HWND parent_hwnd, AdvancedPageView* page_view)
       : advanced_page_view_(page_view) {
-    const int kDialogWidth = 400;
+    int dialog_width = views::Window::GetLocalizedContentsWidth(
+        IDS_OPTIONS_RESET_CONFIRM_BOX_WIDTH_CHARS);
     // Also deleted when the window closes.
     message_box_view_ = new MessageBoxView(
         MessageBoxFlags::kFlagHasMessage | MessageBoxFlags::kFlagHasOKButton,
         l10n_util::GetString(IDS_OPTIONS_RESET_MESSAGE).c_str(),
         std::wstring(),
-        kDialogWidth);
+        dialog_width);
     views::Window::CreateChromeWindow(parent_hwnd, gfx::Rect(), this)->Show();
   }
   virtual ~ResetDefaultsConfirmBox() { }

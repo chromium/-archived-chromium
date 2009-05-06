@@ -360,6 +360,12 @@
         23
       </message>
 
+      <!-- The width of the Options Reset confirmation box, in characters (see -->
+      <!-- above for defn of character width) -->
+      <message name="IDS_OPTIONS_RESET_CONFIRM_BOX_WIDTH_CHARS" use_name_for_id="true">
+        80
+      </message>
+
       <!-- The width and height of the Bug Reporting dialog box in characters and lines -->
       <!-- (See above). -->
       <message name="IDS_BUGREPORT_DIALOG_WIDTH_CHARS" use_name_for_id="true">
