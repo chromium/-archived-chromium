@@ -95,6 +95,12 @@ void ChromeCanvas::DrawStringInt(const std::wstring& text,
   pango_layout_set_width(layout, w * PANGO_SCALE);
   pango_layout_set_height(layout, h * PANGO_SCALE);
 
+  if (flags & TEXT_ALIGN_CENTER) {
+    pango_layout_set_alignment(layout, PANGO_ALIGN_CENTER);
+  } else if (flags & TEXT_ALIGN_RIGHT) {
+    pango_layout_set_alignment(layout, PANGO_ALIGN_RIGHT);
+  }
+
   std::string utf8 = WideToUTF8(text);
   pango_layout_set_text(layout, utf8.data(), utf8.size());
 
