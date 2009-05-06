@@ -2363,6 +2363,7 @@ BUG11123 LINUX : LayoutTests/svg/custom/viewport-update2.svg = FAIL
 BUG11123 LINUX : LayoutTests/transitions/mask-transitions.html = FAIL
 
 // Mysteriously started failing right around the v8 scons->gyp change.
+BUG11176 MAC : LayoutTests/fast/css/first-child-pseudo-class.html = FAIL PASS
 BUG11176 WIN : LayoutTests/fast/forms/input-align-image.html = FAIL PASS
 
 // New failures from WebKit Merge 42932:42994
@@ -2390,6 +2391,7 @@ WONTFIX SKIP : LayoutTests/webarchive/adopt-inline-styled-node-webarchive.html =
 // Regressions from WebKit Merge 42932:42994
 BUG11239 : LayoutTests/fast/dom/Window/setTimeout-string-argument.html = FAIL
 BUG11239 : LayoutTests/platform/win/accessibility/document-role.html = FAIL
+BUG11239 MAC : LayoutTests/svg/custom/js-late-marker-and-object-creation.svg = FAIL PASS
 
 // Regressions from WebKit Merge 42932:42994 due to text metric changes.
 BUG11251 WIN : LayoutTests/fast/forms/textarea-width.html = FAIL
@@ -2566,7 +2568,6 @@ BUG11483 LINUX : LayoutTests/editing/selection/table-caret-2.html = FAIL
 BUG11483 LINUX : LayoutTests/editing/selection/table-caret-3.html = FAIL
 BUG11483 LINUX : LayoutTests/editing/selection/wrapped-line-caret-1.html = FAIL
 BUG11483 LINUX : LayoutTests/editing/selection/wrapped-line-caret-2.html = FAIL
-BUG11483 LINUX : LayoutTests/editing/spelling/spellcheck-attribute.html = FAIL
 BUG11483 LINUX : LayoutTests/editing/style/4916887.html = FAIL
 BUG11483 LINUX : LayoutTests/editing/style/5017613-1.html = FAIL
 BUG11483 LINUX : LayoutTests/editing/style/5017613-2.html = FAIL
@@ -2596,6 +2597,7 @@ BUG11483 LINUX : LayoutTests/fast/repaint/selection-after-delete.html = FAIL
 BUG11483 LINUX : LayoutTests/fast/repaint/selection-after-remove.html = FAIL
 
 // Other regresssions from WebKit Merge 43114:43242
+BUG11483 WIN LINUX : LayoutTests/editing/spelling/spellcheck-attribute.html = FAIL
 BUG11483 : LayoutTests/editing/pasteboard/copy-paste-float.html = FAIL
 BUG11483 : LayoutTests/fast/workers/worker-replace-global-constructor.html = FAIL CRASH
 BUG11483 WIN LINUX : LayoutTests/svg/text/foreignObject-repaint.xml = FAIL
