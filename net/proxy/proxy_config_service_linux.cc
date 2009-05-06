@@ -513,6 +513,8 @@ int ProxyConfigServiceLinux::GetProxyConfig(ProxyConfig* config) {
   // Note: KDE_FULL_SESSION is a corresponding env var to recognize KDE.
   std::string dummy, desktop_session;
   bool ok = false;
+#if 0  // gconf temporarily disabled because of races.
+       // See http://crbug.com/11442.
   if (env_var_getter_->Getenv("GNOME_DESKTOP_SESSION_ID", &dummy)
       || (env_var_getter_->Getenv("DESKTOP_SESSION", &desktop_session)
           && desktop_session.compare("gnome") == 0)) {
@@ -543,6 +545,7 @@ int ProxyConfigServiceLinux::GetProxyConfig(ProxyConfig* config) {
       // actually changed.
     }
   }
+#endif  // 0 (gconf disabled)
   // An implementation for KDE settings would be welcome here.
   if (!ok) {
     ok = GetConfigFromEnv(config);

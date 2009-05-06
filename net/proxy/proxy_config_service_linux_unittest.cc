@@ -205,6 +205,7 @@ class MockGConfSettingGetter
 // Builds an identifier for each test in an array.
 #define TEST_DESC(desc) StringPrintf("at line %d <%s>", __LINE__, desc)
 
+#if 0  // gconf temporarily disabled.
 TEST(ProxyConfigServiceLinuxTest, BasicGConfTest) {
   MockEnvironmentVariableGetter* env_getter =
       new MockEnvironmentVariableGetter;
@@ -466,6 +467,7 @@ TEST(ProxyConfigServiceLinuxTest, BasicGConfTest) {
     EXPECT_EQ(tests[i].proxy_rules, config.proxy_rules);
   }
 }
+#endif  // 0 (gconf disabled)
 
 TEST(ProxyConfigServiceLinuxTest, BasicEnvTest) {
   MockEnvironmentVariableGetter* env_getter =

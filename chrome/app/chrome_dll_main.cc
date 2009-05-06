@@ -449,8 +449,11 @@ int ChromeMain(int argc, const char** argv) {
     // gdk_threads_enter/leave(). Similar issue with the clipboard
     // (estade@ deanm@).
     g_type_init();
+#if 0  // gconf temporarily disabled because of races.
+       // See http://crbug.com/11442.
     g_thread_init(NULL);
     gdk_threads_init();
+#endif  // 0 (gconf disabled)
     // gtk_init() can change |argc| and |argv|, but nobody else uses them.
     gtk_init(&argc, const_cast<char***>(&argv));
     SetUpGLibLogHandler();
