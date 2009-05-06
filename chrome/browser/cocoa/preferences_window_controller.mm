@@ -164,7 +164,7 @@ class PrefObserverBridge : public NotificationObserver {
   } else if ([key isEqualToString:@"enableRestoreButtons"]) {
     paths = [paths setByAddingObject:@"restoreOnStartupIndex"];
   } else if ([key isEqualToString:@"isDefaultBrowser"]) {
-    paths = [paths setByAddingObject:@"isDefaultBrowser"];
+    paths = [paths setByAddingObject:@"defaultBrowser"];
   }
   return paths;
 }
