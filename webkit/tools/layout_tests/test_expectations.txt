@@ -813,7 +813,8 @@ BUG992321 DEFER LINUX WIN : LayoutTests/svg/custom/path-textPath-simulation.svg 
 // is a total of 100 lines. Apple expects it to be occupying Y=150 as
 // well. The specification isn't very specific on which behavior is correct,
 // but I feel like ours makes more sense.
-BUG992321 DEFER : LayoutTests/svg/custom/stroke-width-click.svg = FAIL
+// The crash started occuring after the WebKit merge 43242:43321
+BUG992321 DEFER : LayoutTests/svg/custom/stroke-width-click.svg = FAIL CRASH
 
 // These tests all pass simplified diff, but fail full text diffs due to
 // positions and/or widths that deviate from Apple's expectations by varying
@@ -2402,8 +2403,8 @@ WIN LINUX : LayoutTests/editing/deleting/delete-select-all-001.html = FAIL
 WIN LINUX : LayoutTests/editing/execCommand/19089.html = FAIL
 WIN LINUX : LayoutTests/editing/execCommand/remove-formatting-2.html = FAIL
 WIN LINUX : LayoutTests/editing/pasteboard/5027857.html = FAIL
-WIN LINUX : LayoutTests/editing/pasteboard/paste-blockquote-before-blockquote.html = FAIL
-WIN LINUX : LayoutTests/editing/pasteboard/paste-double-nested-blockquote-before-blockquote.html = FAIL
+WIN LINUX MAC : LayoutTests/editing/pasteboard/paste-blockquote-before-blockquote.html = FAIL
+WIN LINUX MAC : LayoutTests/editing/pasteboard/paste-double-nested-blockquote-before-blockquote.html = FAIL
 WIN LINUX : LayoutTests/editing/pasteboard/paste-pre-002.html = FAIL
 WIN LINUX : LayoutTests/editing/style/block-style-004.html = FAIL
 WIN LINUX : LayoutTests/editing/style/block-style-005.html = FAIL
@@ -2411,3 +2412,6 @@ WIN LINUX : LayoutTests/editing/style/block-style-006.html = FAIL
 WIN LINUX : LayoutTests/fast/forms/select-dirty-parent-pref-widths.html = FAIL
 WIN LINUX : LayoutTests/svg/transforms/text-with-pattern-inside-transformed-html.xhtml = FAIL
 WIN LINUX : LayoutTests/svg/transforms/text-with-pattern-with-svg-transform.svg = FAIL
+
+WIN : LayoutTests/http/tests/xmlhttprequest/detaching-frame-2.html = TIMEOUT
+LINUX : LayoutTests/transitions/mask-transitions.html = FAIL
