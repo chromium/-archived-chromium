@@ -566,14 +566,6 @@
 			>
 		</File>
 		<File
-			RelativePath=".\os_exchange_data.cc"
-			>
-		</File>
-		<File
-			RelativePath=".\os_exchange_data.h"
-			>
-		</File>
-		<File
 			RelativePath=".\page_action.cc"
 			>
 		</File>
