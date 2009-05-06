@@ -15,12 +15,13 @@
 #include "chrome/views/window/window_delegate.h"
 
 // NOTE: For more information about the objects and files in this directory,
-//       view: https://sites.google.com/a/google.com/the-chrome-project/developers/design-documents/browser-window
+// view: http://dev.chromium.org/developers/design-documents/browser-window
 
 class BookmarkBarView;
 class Browser;
 class BrowserToolbarView;
 class EncodingMenuControllerDelegate;
+class ExtensionShelf;
 class FullscreenExitBubble;
 class HtmlDialogUIDelegate;
 class InfoBarContainer;
@@ -270,9 +271,11 @@ class BrowserView : public BrowserWindow,
   void LayoutTabContents(int top, int bottom);
   // Layout the Download Shelf, returns the coordinate of the top of the\
   // control, for laying out the previous control.
-  int LayoutDownloadShelf();
+  int LayoutDownloadShelf(int bottom);
   // Layout the Status Bubble.
   void LayoutStatusBubble(int top);
+  // Layout the Extension Bottom Bar
+  int LayoutExtensionShelf();
 
   // Prepare to show the Bookmark Bar for the specified TabContents. Returns
   // true if the Bookmark Bar can be shown (i.e. it's supported for this
@@ -396,6 +399,9 @@ class BrowserView : public BrowserWindow,
 
   // The timer used to update frames for the Loading Animation.
   base::RepeatingTimer<BrowserView> loading_animation_timer_;
+
+  // A bottom bar for showing extensions.
+  ExtensionShelf* extension_shelf_;
 
   DISALLOW_COPY_AND_ASSIGN(BrowserView);
 };

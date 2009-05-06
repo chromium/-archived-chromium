@@ -294,34 +294,6 @@ class BookmarkFolderButton : public views::MenuButton {
   DISALLOW_COPY_AND_ASSIGN(BookmarkFolderButton);
 };
 
-// ExtensionToolstrip -------------------------------------------------------
-
-// A simple container with a border for an ExtensionView.
-class ExtensionToolstrip : public views::View {
- public:
-  ExtensionToolstrip(Extension* extension, const GURL& url, Browser* browser)
-      : view_(browser->profile()->GetExtensionsService()->CreateView(
-          extension, url, browser)) {
-    AddChildView(view_);
-  }
-
-  ExtensionView* view() { return view_; }
-
-  virtual gfx::Size GetPreferredSize() {
-    return view_->GetPreferredSize();
-  }
-
-  virtual void DidChangeBounds(const gfx::Rect& previous,
-                               const gfx::Rect& current) {
-    view_->SetBounds(GetLocalBounds(false));
-  }
-
- private:
-  ExtensionView* view_;
-
-  DISALLOW_COPY_AND_ASSIGN(ExtensionToolstrip);
-};
-
 // DropInfo -------------------------------------------------------------------
 
 // Tracks drops on the BookmarkBarView.
@@ -429,8 +401,7 @@ BookmarkBarView::BookmarkBarView(Profile* profile, Browser* browser)
       overflow_button_(NULL),
       instructions_(NULL),
       bookmarks_separator_view_(NULL),
-      throbbing_view_(NULL),
-      num_extension_toolstrips_(0) {
+      throbbing_view_(NULL) {
   SetID(VIEW_ID_BOOKMARK_BAR);
   Init();
   SetProfile(profile);
@@ -460,14 +431,6 @@ void BookmarkBarView::SetProfile(Profile* profile) {
   // Cancels the current cancelable.
   NotifyModelChanged();
 
-  // Remove the current buttons and extension toolstrips.
-  for (int i = GetBookmarkButtonCount() + num_extension_toolstrips_ - 1;
-       i >= 0; --i) {
-    View* child = GetChildViewAt(i);
-    RemoveChildView(child);
-    delete child;
-  }
-
   profile_ = profile;
 
   if (model_)
@@ -483,18 +446,6 @@ void BookmarkBarView::SetProfile(Profile* profile) {
   ns->AddObserver(this, NotificationType::BOOKMARK_BUBBLE_HIDDEN, ns_source);
   ns->AddObserver(this, NotificationType::BOOKMARK_BAR_VISIBILITY_PREF_CHANGED,
                   NotificationService::AllSources());
-  ns->AddObserver(this, NotificationType::EXTENSIONS_LOADED,
-                  NotificationService::AllSources());
-
-  // Add any already-loaded extensions now, since we missed the notification for
-  // those.
-  if (profile_->GetExtensionsService()) {  // null in unit tests
-    if (AddExtensionToolstrips(
-          profile_->GetExtensionsService()->extensions())) {
-      Layout();
-      SchedulePaint();
-    }
-  }
 
   model_ = profile_->GetBookmarkModel();
   model_->AddObserver(this);
@@ -563,20 +514,6 @@ void BookmarkBarView::Layout() {
   const int max_x = width - other_bookmarked_pref.width() - kButtonPadding -
               overflow_pref.width() - kButtonPadding -
               bookmarks_separator_pref.width();
-
-  // First, layout extension toolstrips.
-  // We put these always on the left as a temporary hack until we have the
-  // extension bar. Otherwise, people install extensions and they don't see
-  // anything happen and are confused.
-  for (int i = GetBookmarkButtonCount();
-       i < GetBookmarkButtonCount() + num_extension_toolstrips_; ++i) {
-    views::View* child = GetChildViewAt(i);
-    gfx::Size pref = child->GetPreferredSize();
-    int next_x = x + pref.width() + kButtonPadding;
-    child->SetVisible(next_x < max_x);
-    child->SetBounds(x, y, pref.width(), height);
-    x = next_x;
-  }
 
   // Next, layout out the buttons. Any buttons that are placed beyond the
   // visible region and made invisible.
@@ -694,13 +631,6 @@ void BookmarkBarView::Paint(ChromeCanvas* canvas) {
     canvas->drawRoundRect(rect,
                           SkDoubleToScalar(roundness),
                           SkDoubleToScalar(roundness), border_paint);
-
-    SkRect toolstrip_background_rect = {
-        rect.fLeft + 1 + kNewtabBarRoundness,
-        rect.fTop + 1,
-        rect.fLeft + 1 + kNewtabBarRoundness + 1,
-        rect.fBottom - 1};
-    InitToolstripBackground(canvas, toolstrip_background_rect);
   } else {
     SkPaint paint;
     paint.setShader(skia::CreateGradientShader(0,
@@ -711,51 +641,6 @@ void BookmarkBarView::Paint(ChromeCanvas* canvas) {
 
     canvas->FillRectInt(kTopBorderColor, 0, 0, width(), 1);
     canvas->FillRectInt(kBottomBorderColor, 0, height() - 1, width(), 1);
-
-    SkRect toolstrip_background_rect = {
-        SkIntToScalar(0),
-        SkIntToScalar(1),
-        SkIntToScalar(1),
-        SkIntToScalar(height() - 2)};
-    InitToolstripBackground(canvas, toolstrip_background_rect);
-  }
-}
-
-void BookmarkBarView::InitToolstripBackground(ChromeCanvas* canvas,
-                                              const SkRect& subset) {
-  if (!toolstrip_background_.empty())
-    return;
-
-  const SkBitmap& bookmarkbar_background =
-      canvas->getDevice()->accessBitmap(false);
-
-  // Extract the correct subset of the toolstrip background into a bitmap. We
-  // must use a temporary here because extractSubset() returns a bitmap that
-  // references pixels in the original one and we want to actually make a copy
-  // that will have a long lifetime.
-  SkBitmap temp;
-  temp.setConfig(bookmarkbar_background.config(),
-                 static_cast<int>(subset.width()),
-                 static_cast<int>(subset.height()));
-
-  SkRect mapped_subset = subset;
-  bool result = canvas->getTotalMatrix().mapRect(&mapped_subset);
-  DCHECK(result);
-
-  SkIRect isubset;
-  mapped_subset.round(&isubset);
-  result = bookmarkbar_background.extractSubset(&temp, isubset);
-  if (!result)
-    return;
-
-  temp.copyTo(&toolstrip_background_, temp.config());
-  DCHECK(toolstrip_background_.readyToDraw());
-
-  // Tell all current toolstrips about the new background
-  for (int i = GetBookmarkButtonCount();
-       i < GetBookmarkButtonCount() + num_extension_toolstrips_; ++i) {
-    static_cast<ExtensionToolstrip*>(GetChildViewAt(i))->view()->SetBackground(
-        toolstrip_background_);
   }
 }
 
@@ -956,17 +841,12 @@ int BookmarkBarView::GetToolbarOverlap(bool return_max) {
 void BookmarkBarView::AnimationProgressed(const Animation* animation) {
   if (browser_)
     browser_->ToolbarSizeChanged(true);
-
-  // Clear the toolstrip background so that we recreate it next time around the
-  // paint loop.
-  toolstrip_background_.reset();
 }
 
 void BookmarkBarView::AnimationEnded(const Animation* animation) {
   if (browser_)
     browser_->ToolbarSizeChanged(false);
 
-  toolstrip_background_.reset();
   SchedulePaint();
 }
 
@@ -1052,8 +932,8 @@ MenuButton* BookmarkBarView::CreateOverflowButton() {
 int BookmarkBarView::GetBookmarkButtonCount() {
   // We contain at least four non-bookmark button views: recently bookmarked,
   // bookmarks separator, chevrons (for overflow), the instruction
-  // label, as well as any ExtensionViews displaying toolstrips.
-  return GetChildViewCount() - 4 - num_extension_toolstrips_;
+  // label.
+  return GetChildViewCount() - 4;
 }
 
 void BookmarkBarView::Loaded(BookmarkModel* model) {
@@ -1419,39 +1299,7 @@ void BookmarkBarView::Observe(NotificationType type,
       StopThrobbing(false);
       bubble_url_ = GURL();
       break;
-
-    case NotificationType::EXTENSIONS_LOADED: {
-      const ExtensionList* extensions = Details<ExtensionList>(details).ptr();
-      if (AddExtensionToolstrips(extensions)) {
-        Layout();
-        SchedulePaint();
-      }
-      break;
-    }
   }
-}
-
-bool BookmarkBarView::AddExtensionToolstrips(const ExtensionList* extensions) {
-  bool added_toolstrip = false;
-  for (ExtensionList::const_iterator extension = extensions->begin();
-       extension != extensions->end(); ++extension) {
-    for (std::vector<std::string>::const_iterator toolstrip_path =
-         (*extension)->toolstrips().begin();
-         toolstrip_path != (*extension)->toolstrips().end(); ++toolstrip_path) {
-      ExtensionToolstrip* toolstrip =
-          new ExtensionToolstrip(*extension,
-                                 (*extension)->GetResourceURL(*toolstrip_path),
-                                 browser_);
-      int index = GetBookmarkButtonCount() + num_extension_toolstrips_;
-      if (!toolstrip_background_.empty())
-        toolstrip->view()->SetBackground(toolstrip_background_);
-      AddChildView(index, toolstrip);
-      added_toolstrip = true;
-      ++num_extension_toolstrips_;
-    }
-  }
-
-  return added_toolstrip;
 }
 
 void BookmarkBarView::RemoveNotificationObservers() {

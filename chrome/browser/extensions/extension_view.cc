@@ -45,6 +45,9 @@ void ExtensionView::DidChangeBounds(const gfx::Rect& previous,
   // We can't send size zero because RenderWidget DCHECKs that.
   if (render_view_host()->view() && !current.IsEmpty())
     render_view_host()->view()->SetSize(gfx::Size(width(), height()));
+  // Layout is where the HWND is properly positioned.
+  // TODO(erikkay) - perhaps this should be in HWNDView
+  Layout();
 }
 
 void ExtensionView::ShowIfCompletelyLoaded() {
@@ -75,13 +78,11 @@ void ExtensionView::DidContentsPreferredWidthChange(const int pref_width) {
     set_preferred_size(gfx::Size(pref_width, height()));
     SizeToPreferredSize();
 
-    // TODO(rafaelw): This assumes that the extension view is a child of an
-    // ExtensionToolstrip, which is a child of the BookmarkBarView. There should
-    // be a way to do this where the ExtensionView doesn't have to know it's
-    // containment hierarchy.
-    if (GetParent() != NULL && GetParent()->GetParent() != NULL) {
-      GetParent()->GetParent()->Layout();
-      GetParent()->GetParent()->SchedulePaint();
+    // TODO(erikkay) There should be a way to do this where the ExtensionView
+    // doesn't have to know it's containment hierarchy.
+    if (GetParent() != NULL) {
+      GetParent()->Layout();
+      GetParent()->SchedulePaint();
     }
   }
 }

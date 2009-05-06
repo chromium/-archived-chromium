@@ -1990,6 +1990,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\extensions\extension_shelf.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\extensions\extension_shelf.h"
+				>
+			</File>
+			<File
 				RelativePath=".\extensions\extension_tabs_module.cc"
 				>
 			</File>

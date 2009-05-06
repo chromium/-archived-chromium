@@ -870,8 +870,10 @@ void Browser::ShowFindBar() {
 
 bool Browser::SupportsWindowFeature(WindowFeature feature) const {
   unsigned int features = FEATURE_INFOBAR | FEATURE_DOWNLOADSHELF;
-  if (type() == TYPE_NORMAL)
-     features |= FEATURE_BOOKMARKBAR;
+  if (type() == TYPE_NORMAL) {
+    features |= FEATURE_BOOKMARKBAR;
+    features |= FEATURE_EXTENSIONSHELF;
+  }
   if (!window_ || !window_->IsFullscreen()) {
     if (type() == TYPE_NORMAL)
       features |= FEATURE_TABSTRIP | FEATURE_TOOLBAR;

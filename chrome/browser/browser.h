@@ -60,7 +60,8 @@ class Browser : public TabStripModelDelegate,
     FEATURE_LOCATIONBAR = 8,
     FEATURE_BOOKMARKBAR = 16,
     FEATURE_INFOBAR = 32,
-    FEATURE_DOWNLOADSHELF = 64
+    FEATURE_DOWNLOADSHELF = 64,
+    FEATURE_EXTENSIONSHELF = 128
   };
 
   // Maximized state on creation.

@@ -197,16 +197,6 @@ void ExtensionsService::OnExtensionInstalled(Extension* extension,
       NotificationType::EXTENSION_INSTALLED,
       NotificationService::AllSources(),
       Details<Extension>(extension));
-
-  // We open the NTP if the extension has a toolstrip and the bookmark bar is
-  // detached. We noticed that people got confused if something didn't obviously
-  // happen when installing an extension.
-  Browser* browser = BrowserList::GetLastActive();
-  if (browser && browser->window() &&
-      !browser->window()->IsBookmarkBarVisible() &&
-      !extension->toolstrips().empty())
-    browser->AddTabWithURL(GURL(chrome::kChromeUINewTabURL), GURL(),
-                           PageTransition::LINK, true, -1, false, NULL);
 }
 
 Extension* ExtensionsService::GetExtensionByID(std::string id) {

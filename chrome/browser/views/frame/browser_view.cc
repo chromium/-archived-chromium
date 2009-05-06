@@ -19,6 +19,7 @@
 #include "chrome/browser/browser_list.h"
 #include "chrome/browser/download/download_manager.h"
 #include "chrome/browser/encoding_menu_controller_delegate.h"
+#include "chrome/browser/extensions/extension_shelf.h"
 #include "chrome/browser/find_bar_controller.h"
 #include "chrome/browser/view_ids.h"
 #include "chrome/browser/views/about_chrome_view.h"
@@ -284,7 +285,8 @@ BrowserView::BrowserView(Browser* browser)
       initialized_(false),
       ignore_layout_(false),
       hung_window_detector_(&hung_plugin_action_),
-      ticker_(0) {
+      ticker_(0),
+      extension_shelf_(NULL) {
   InitClass();
   browser_->tabstrip_model()->AddObserver(this);
 }
@@ -1214,7 +1216,8 @@ void BrowserView::Layout() {
   int top = LayoutTabStrip();
   top = LayoutToolbar(top);
   top = LayoutBookmarkAndInfoBars(top);
-  int bottom = LayoutDownloadShelf();
+  int bottom = LayoutExtensionShelf();
+  bottom = LayoutDownloadShelf(bottom);
   LayoutTabContents(top, bottom);
   // This must be done _after_ we lay out the TabContents since this code calls
   // back into us to find the bounding box the find bar must be laid out within,
@@ -1272,6 +1275,12 @@ void BrowserView::Init() {
   AddChildView(contents_container_);
 
   status_bubble_.reset(new StatusBubbleViews(GetWidget()));
+
+  if (CommandLine::ForCurrentProcess()->HasSwitch(
+      switches::kEnableExtensions)) {
+    extension_shelf_ = new ExtensionShelf(browser_.get());
+    AddChildView(extension_shelf_);
+  }
 
   InitSystemMenu();
 }
@@ -1366,8 +1375,7 @@ void BrowserView::LayoutTabContents(int top, int bottom) {
   contents_container_->SetBounds(0, top, width(), bottom - top);
 }
 
-int BrowserView::LayoutDownloadShelf() {
-  int bottom = height();
+int BrowserView::LayoutDownloadShelf(int bottom) {
   if (active_download_shelf_) {
     bool visible = browser_->SupportsWindowFeature(
         Browser::FEATURE_DOWNLOADSHELF);
@@ -1390,6 +1398,21 @@ void BrowserView::LayoutStatusBubble(int top) {
   ConvertPointToView(this, GetParent(), &origin);
   status_bubble_->SetBounds(origin.x(), origin.y(), width() / 3,
                             kStatusBubbleHeight);
+}
+
+int BrowserView::LayoutExtensionShelf() {
+  int bottom = height();
+  if (extension_shelf_) {
+    bool visible = browser_->SupportsWindowFeature(
+        Browser::FEATURE_EXTENSIONSHELF);
+    int height =
+        visible ? extension_shelf_->GetPreferredSize().height() : 0;
+    extension_shelf_->SetVisible(visible);
+    extension_shelf_->SetBounds(0, bottom - height, width(), height);
+    extension_shelf_->Layout();
+    bottom -= height;
+  }
+  return bottom;
 }
 
 bool BrowserView::MaybeShowBookmarkBar(TabContents* contents) {

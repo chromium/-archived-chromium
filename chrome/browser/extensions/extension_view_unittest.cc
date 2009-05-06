@@ -5,6 +5,7 @@
 #include "base/ref_counted.h"
 #include "chrome/browser/browser.h"
 #include "chrome/browser/renderer_host/render_view_host.h"
+#include "chrome/browser/extensions/extension_shelf.h"
 #include "chrome/browser/extensions/extension_error_reporter.h"
 #include "chrome/browser/extensions/extension_host.h"
 #include "chrome/browser/extensions/extensions_service.h"
@@ -104,4 +105,33 @@ IN_PROC_BROWSER_TEST_F(ExtensionViewTest, Index) {
   MockExtensionHost host(extension, url,
       browser()->profile()->GetExtensionsService()->GetSiteInstanceForURL(url));
   EXPECT_TRUE(host.got_message());
+}
+
+// Tests that the ExtensionShelf initializes properly, notices that
+// an extension loaded and has a view available, and then sets that up
+// properly.
+IN_PROC_BROWSER_TEST_F(ExtensionViewTest, BottomBar) {
+  // When initialized, there are no extension views and the preferred height
+  // should be zero.
+  scoped_ptr<ExtensionShelf> shelf(new ExtensionShelf(browser()));
+  ASSERT_FALSE(shelf->HasExtensionViews());
+  ASSERT_EQ(shelf->GetPreferredSize().height(), 0);
+
+  // Get the path to our extension.
+  FilePath path;
+  ASSERT_TRUE(PathService::Get(chrome::DIR_TEST_DATA, &path));
+  path = path.AppendASCII("extensions").
+      AppendASCII("good").AppendASCII("extension1").AppendASCII("1");
+  ASSERT_TRUE(file_util::DirectoryExists(path));  // sanity check
+
+  // Wait for the extension to load and grab a pointer to it.
+  TestExtensionLoader loader(browser()->profile());
+  Extension* extension = loader.Load(kExtensionId, path);
+  ASSERT_TRUE(extension);
+  GURL url = Extension::GetResourceURL(extension->url(), "toolstrip1.html");
+
+  // There should now be two extension views and preferred height of the view
+  // should be non-zero.
+  ASSERT_TRUE(shelf->HasExtensionViews());
+  ASSERT_NE(shelf->GetPreferredSize().height(), 0);
 }
