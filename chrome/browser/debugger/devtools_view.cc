@@ -6,11 +6,14 @@
 
 #include <string>
 
+#include "base/command_line.h"
 #include "chrome/browser/browser_list.h"
 #include "chrome/browser/debugger/devtools_client_host.h"
+#include "chrome/browser/debugger/devtools_manager.h"
 #include "chrome/browser/profile.h"
 #include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/browser/views/tab_contents_container_view.h"
+#include "chrome/common/chrome_switches.h"
 #include "chrome/common/property_bag.h"
 #include "chrome/common/render_messages.h"
 #include "chrome/common/url_constants.h"
@@ -60,6 +63,32 @@ void DevToolsView::Init() {
   // this will call CreateRenderView to create renderer process
   tab_contents_->controller().LoadURL(contents, GURL(),
                                       PageTransition::START_PAGE);
+
+  // If each DevTools front end has its own renderer process allow to inspect
+  // DevTools windows.
+  if (CommandLine::ForCurrentProcess()->HasSwitch(switches::kProcessPerTab)) {
+    views::Accelerator accelerator('J', true /* shift_down */,
+                                   true /* ctrl_down */, false /* alt_down */);
+    views::FocusManager* focus_manager = GetFocusManager();
+    DCHECK(focus_manager);
+    focus_manager->RegisterAccelerator(accelerator, this);
+  }
+}
+
+bool DevToolsView::AcceleratorPressed(const views::Accelerator& accelerator) {
+  // TODO(yurys): get rid of this hack and pull the accelerator from the
+  // resources
+  views::Accelerator la('J', true /* shift_down */, true /* ctrl_down */,
+                        false /* alt_down */);
+  if (!tab_contents_) {
+    return false;
+  }
+  if (!(la == accelerator)) {
+    return false;
+  }
+  DevToolsManager* manager = g_browser_process->devtools_manager();
+  manager->OpenDevToolsWindow(tab_contents_);
+  return true;
 }
 
 void DevToolsView::OnWindowClosing() {
