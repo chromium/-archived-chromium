@@ -116,17 +116,21 @@ gboolean HandleExpose(GtkWidget* widget,
 }  // namespace
 
 // static
-InfoBubbleGtk* InfoBubbleGtk::Show(const gfx::Rect& rect, GtkWidget* content) {
+InfoBubbleGtk* InfoBubbleGtk::Show(const gfx::Rect& rect,
+                                   GtkWidget* content,
+                                   InfoBubbleGtkDelegate* delegate) {
   InfoBubbleGtk* bubble = new InfoBubbleGtk();
   bubble->Init(rect, content);
+  bubble->set_delegate(delegate);
   return bubble;
 }
 
 InfoBubbleGtk::InfoBubbleGtk()
-    : window_(NULL),
+    : delegate_(NULL),
+      window_(NULL),
       screen_x_(0),
-      screen_y_(0),
-      closed_(false) {
+      screen_y_(0) {
+      
 }
 
 InfoBubbleGtk::~InfoBubbleGtk() {
@@ -173,18 +177,30 @@ void InfoBubbleGtk::Init(const gfx::Rect& rect, GtkWidget* content) {
                    G_CALLBACK(&HandleConfigureThunk), this);
   g_signal_connect(window_, "button-press-event",
                    G_CALLBACK(&HandleButtonPressThunk), this);
+  g_signal_connect(window_, "destroy",
+                   G_CALLBACK(&HandleDestroyThunk), this);
 
   gtk_widget_show_all(window_);
+  // Make sure our window has focus, is brought to the top, etc.
   gtk_window_present(GTK_WINDOW(window_));
+  // We add a GTK (application level) grab.  This means we will get all
+  // keyboard and mouse events for our application, even if they were delivered
+  // on another window.  This allows us to close when the user clicks outside
+  // of the info bubble.  We don't use an X grab since that would steal
+  // keystrokes from your window manager, prevent you from interacting with
+  // other applications, etc.
   gtk_grab_add(window_);
 }
 
-void InfoBubbleGtk::Close() {
-  DCHECK(!closed_);
+void InfoBubbleGtk::Close(bool closed_by_escape) {
+  // Notify the delegate that we're about to close.  This gives the chance
+  // to save state / etc from the hosted widget before it's destroyed.
+  if (delegate_)
+    delegate_->InfoBubbleClosing(this, closed_by_escape);
+
   DCHECK(window_);
   gtk_widget_destroy(window_);
-  window_ = NULL;
-  closed_ = true;
+  // |this| has been deleted, see HandleDestroy.
 }
 
 gboolean InfoBubbleGtk::HandleConfigure(GdkEventConfigure* event) {
@@ -205,4 +221,12 @@ gboolean InfoBubbleGtk::HandleButtonPress(GdkEventButton* event) {
   // Otherwise we had a click outside of our window, close ourself.
   Close();
   return TRUE;
+}
+
+gboolean InfoBubbleGtk::HandleDestroy() {
+  // We are self deleting, we have a destroy signal setup to catch when we
+  // destroy the widget manually, or the window was closed via X.  This will
+  // delete the InfoBubbleGtk object.
+  delete this;
+  return FALSE;  // Propagate.
 }
