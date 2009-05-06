@@ -98,7 +98,28 @@ class ScopedDIRClose {
 typedef scoped_ptr_malloc<DIR, ScopedDIRClose> ScopedDIR;
 
 void CloseSuperfluousFds(const base::InjectiveMultimap& saved_mapping) {
+#if defined(OS_LINUX)
+  static const rlim_t kSystemDefaultMaxFds = 8192;
+  static const char fd_dir[] = "/proc/self/fd";
+#elif defined(OS_MACOSX)
+  static const rlim_t kSystemDefaultMaxFds = 256;
+  static const char fd_dir[] = "/dev/fd";
+#endif
   std::set<int> saved_fds;
+
+  // Get the maximum number of FDs possible.
+  struct rlimit nofile;
+  rlim_t max_fds;
+  if (getrlimit(RLIMIT_NOFILE, &nofile)) {
+    // getrlimit failed. Take a best guess.
+    max_fds = kSystemDefaultMaxFds;
+    DLOG(ERROR) << "getrlimit(RLIMIT_NOFILE) failed: " << errno;
+  } else {
+    max_fds = nofile.rlim_cur;
+  }
+
+  if (max_fds > INT_MAX)
+    max_fds = INT_MAX;
 
   // Don't close stdin, stdout and stderr
   saved_fds.insert(STDIN_FILENO);
@@ -110,32 +131,13 @@ void CloseSuperfluousFds(const base::InjectiveMultimap& saved_mapping) {
     saved_fds.insert(i->dest);
   }
 
-#if defined(OS_LINUX)
-  static const char fd_dir[] = "/proc/self/fd";
-#elif defined(OS_MACOSX)
-  static const char fd_dir[] = "/dev/fd";
-#endif
-
   ScopedDIR dir_closer(opendir(fd_dir));
   DIR *dir = dir_closer.get();
   if (NULL == dir) {
     DLOG(ERROR) << "Unable to open " << fd_dir;
 
-    // Fallback case
-    struct rlimit nofile;
-    rlim_t num_fds;
-    if (getrlimit(RLIMIT_NOFILE, &nofile)) {
-      // getrlimit failed. Take a best guess.
-      num_fds = 8192;
-      DLOG(ERROR) << "getrlimit(RLIMIT_NOFILE) failed: " << errno;
-    } else {
-      num_fds = nofile.rlim_cur;
-    }
-
-    if (num_fds > INT_MAX)
-      num_fds = INT_MAX;
-
-    for (rlim_t i = 0; i < num_fds; ++i) {
+    // Fallback case: Try every possible fd.
+    for (rlim_t i = 0; i < max_fds; ++i) {
       const int fd = static_cast<int>(i);
       if (saved_fds.find(fd) != saved_fds.end())
         continue;
@@ -154,12 +156,17 @@ void CloseSuperfluousFds(const base::InjectiveMultimap& saved_mapping) {
     char *endptr;
     errno = 0;
     const long int fd = strtol(ent->d_name, &endptr, 10);
-    if (ent->d_name[0] == 0 || *endptr || fd < 0 || fd >= INT_MAX || errno)
+    if (ent->d_name[0] == 0 || *endptr || fd < 0 || errno)
       continue;
     if (saved_fds.find(fd) != saved_fds.end())
       continue;
 
-    HANDLE_EINTR(close(fd));
+    // When running under Valgrind, Valgrind opens several FDs for its
+    // own use and will complain if we try to close them.  All of
+    // these FDs are >= |max_fds|, so we can check against that here
+    // before closing.  See https://bugs.kde.org/show_bug.cgi?id=191758
+    if (fd < static_cast<int>(max_fds))
+      HANDLE_EINTR(close(fd));
   }
 }
 
