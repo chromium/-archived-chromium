@@ -24,6 +24,7 @@
 #include "chrome/views/controls/link.h"
 #include "chrome/views/controls/menu/menu.h"
 #include "chrome/views/widget/widget.h"
+#include "chrome/views/window/dialog_delegate.h"
 #include "chrome/views/window/window.h"
 #include "grit/chromium_strings.h"
 #include "grit/generated_resources.h"
@@ -680,6 +681,7 @@ bool TaskManagerTableModel::GetProcessMetricsForRows(
 
 class TaskManagerContents : public views::View,
                             public views::ButtonListener,
+                            public views::DialogDelegate,
                             public views::TableViewObserver,
                             public views::LinkController,
                             public views::ContextMenuController,
@@ -699,6 +701,18 @@ class TaskManagerContents : public views::View,
 
   // ButtonListener implementation.
   virtual void ButtonPressed(views::Button* sender);
+
+  // views::DialogDelegate
+  virtual bool CanResize() const;
+  virtual bool CanMaximize() const;
+  virtual bool IsAlwaysOnTop() const;
+  virtual bool HasAlwaysOnTopMenu() const;
+  virtual std::wstring GetWindowTitle() const;
+  virtual std::wstring GetWindowName() const;
+  virtual int GetDialogButtons() const;
+  virtual void WindowClosing();
+  virtual void DeleteDelegate();
+  virtual views::View* GetContentsView();
 
   // views::TableViewObserver implementation.
   virtual void OnSelectionChanged();
@@ -905,6 +919,51 @@ void TaskManagerContents::ButtonPressed(views::Button* sender) {
     task_manager_->KillSelectedProcesses();
 }
 
+// DialogDelegate implementation.
+bool TaskManagerContents::CanResize() const {
+  return true;
+}
+
+bool TaskManagerContents::CanMaximize() const {
+  return true;
+}
+
+bool TaskManagerContents::IsAlwaysOnTop() const {
+  return true;
+}
+
+bool TaskManagerContents::HasAlwaysOnTopMenu() const {
+  return true;
+};
+
+std::wstring TaskManagerContents::GetWindowTitle() const {
+  return l10n_util::GetString(IDS_TASK_MANAGER_TITLE);
+}
+
+std::wstring TaskManagerContents::GetWindowName() const {
+  return prefs::kTaskManagerWindowPlacement;
+}
+
+int TaskManagerContents::GetDialogButtons() const {
+  return MessageBoxFlags::DIALOGBUTTON_NONE;
+}
+
+void TaskManagerContents::WindowClosing() {
+  // Remove the view from its parent to trigger the contents'
+  // ViewHierarchyChanged notification to unhook the extra buttons from the
+  // non-client view.
+  GetParent()->RemoveChildView(this);
+  task_manager_->Close();
+}
+
+void TaskManagerContents::DeleteDelegate() {
+  ReleaseWindow();
+}
+
+views::View* TaskManagerContents::GetContentsView() {
+  return this;
+}
+
 // views::TableViewObserver implementation.
 void TaskManagerContents::OnSelectionChanged() {
   kill_button_->SetEnabled(!task_manager_->BrowserProcessIsSelected() &&
@@ -973,12 +1032,13 @@ TaskManager::~TaskManager() {
 // static
 void TaskManager::Open() {
   TaskManager* task_manager = GetInstance();
-  if (task_manager->window()) {
-    task_manager->window()->Activate();
+  if (task_manager->contents_->window()) {
+    task_manager->contents_->window()->Activate();
   } else {
-    views::Window::CreateChromeWindow(NULL, gfx::Rect(), task_manager);
+    views::Window::CreateChromeWindow(NULL, gfx::Rect(),
+                                      task_manager->contents_.get());
     task_manager->table_model_->StartUpdating();
-    task_manager->window()->Show();
+    task_manager->contents_->window()->Show();
   }
 }
 
@@ -1059,51 +1119,6 @@ void TaskManager::AddResource(Resource* resource) {
 
 void TaskManager::RemoveResource(Resource* resource) {
   table_model_->RemoveResource(resource);
-}
-
-// DialogDelegate implementation:
-bool TaskManager::CanResize() const {
-  return true;
-}
-
-bool TaskManager::CanMaximize() const {
-  return true;
-}
-
-bool TaskManager::IsAlwaysOnTop() const {
-  return true;
-}
-
-bool TaskManager::HasAlwaysOnTopMenu() const {
-  return true;
-};
-
-std::wstring TaskManager::GetWindowTitle() const {
-  return l10n_util::GetString(IDS_TASK_MANAGER_TITLE);
-}
-
-std::wstring TaskManager::GetWindowName() const {
-  return prefs::kTaskManagerWindowPlacement;
-}
-
-int TaskManager::GetDialogButtons() const {
-  return MessageBoxFlags::DIALOGBUTTON_NONE;
-}
-
-void TaskManager::WindowClosing() {
-  // Remove the view from its parent to trigger the contents'
-  // ViewHierarchyChanged notification to unhook the extra buttons from the
-  // non-client view.
-  contents_->GetParent()->RemoveChildView(contents_.get());
-  Close();
-}
-
-void TaskManager::DeleteDelegate() {
-  ReleaseWindow();
-}
-
-views::View* TaskManager::GetContentsView() {
-  return contents_.get();
 }
 
 // static

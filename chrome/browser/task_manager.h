@@ -21,7 +21,6 @@
 // TODO(port): Port or produce equivalent.
 #include "chrome/views/controls/table/group_table_view.h"
 #endif  // defined(OS_WIN)
-#include "chrome/views/window/dialog_delegate.h"
 #include "net/url_request/url_request_job_tracker.h"
 #include "testing/gtest/include/gtest/gtest_prod.h"
 
@@ -47,7 +46,7 @@ class ProcessMetrics;
 }
 
 // This class is a singleton.
-class TaskManager : public views::DialogDelegate {
+class TaskManager {
  public:
   // A resource represents one row in the task manager.
   // Resources from similar processes are grouped together by the task manager.
@@ -130,18 +129,6 @@ class TaskManager : public views::DialogDelegate {
   // on the ResourceProviders.
   void AddResource(Resource* resource);
   void RemoveResource(Resource* resource);
-
-  // views::DialogDelegate methods:
-  virtual bool CanResize() const;
-  virtual bool CanMaximize() const;
-  virtual bool IsAlwaysOnTop() const;
-  virtual bool HasAlwaysOnTopMenu() const;
-  virtual std::wstring GetWindowTitle() const;
-  virtual std::wstring GetWindowName() const;
-  virtual int GetDialogButtons() const;
-  virtual void WindowClosing();
-  virtual void DeleteDelegate();
-  virtual views::View* GetContentsView();
 
  private:
   FRIEND_TEST(TaskManagerTest, Basic);
