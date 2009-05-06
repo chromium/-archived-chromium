@@ -130,7 +130,6 @@ bool ExternalTabContainer::Uninitialize(HWND window) {
 }
 
 void ExternalTabContainer::OnFinalMessage(HWND window) {
-  Uninitialize(window);
   delete this;
 }
 
@@ -142,6 +141,11 @@ LRESULT ExternalTabContainer::OnSize(UINT, WPARAM, LPARAM, BOOL& handled) {
                    client_rect.top, client_rect.right - client_rect.left,
                    client_rect.bottom - client_rect.top, SWP_NOZORDER);
   }
+  return 0;
+}
+
+LRESULT ExternalTabContainer::OnDestroy(UINT, WPARAM, LPARAM, BOOL& handled) {
+  Uninitialize(m_hWnd);
   return 0;
 }
 

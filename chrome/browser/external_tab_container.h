@@ -40,6 +40,7 @@ class ExternalTabContainer : public TabContentsDelegate,
  public:
   BEGIN_MSG_MAP(ExternalTabContainer)
     MESSAGE_HANDLER(WM_SIZE, OnSize)
+    MESSAGE_HANDLER(WM_DESTROY, OnDestroy)
   END_MSG_MAP()
 
   DECLARE_WND_CLASS(chrome::kExternalTabWindowClass)
@@ -140,7 +141,7 @@ class ExternalTabContainer : public TabContentsDelegate,
 
  protected:
   LRESULT OnSize(UINT, WPARAM, LPARAM, BOOL& handled);
-  void OnDestroy();
+  LRESULT OnDestroy(UINT, WPARAM, LPARAM, BOOL& handled);
   void OnFinalMessage(HWND window);
 
  protected:
