@@ -1817,7 +1817,6 @@ BUG10437 DEFER LINUX : LayoutTests/fast/css-generated-content/hit-test-generated
 BUG10438 MAC LINUX : LayoutTests/plugins/netscape-plugin-setwindow-size-2.html = FAIL
 BUG10438 MAC LINUX : LayoutTests/plugins/netscape-plugin-setwindow-size.html = FAIL
 BUG10438 MAC LINUX : LayoutTests/plugins/destroy-stream-twice.html = TIMEOUT
-BUG10438 LINUX : LayoutTests/fast/dom/location-new-window-no-crash.html = FAIL
 BUG10438 MAC : LayoutTests/fast/dom/location-new-window-no-crash.html = CRASH FAIL
 
 // Crashes sometimes.  Race?  Memory corruption?
@@ -2238,8 +2237,6 @@ BUG9962 MAC : LayoutTests/http/tests/security/XFrameOptions/x-frame-options-pare
 BUG9962 MAC : LayoutTests/http/tests/security/XFrameOptions/x-frame-options-parent-same-origin-deny.html = FAIL
 
 // Regressions from WebKit merge 43264:42403, possibly due to r42375.
-BUG9992 LINUX : LayoutTests/fast/repaint/box-shadow-h.html = FAIL
-BUG9992 LINUX : LayoutTests/fast/repaint/box-shadow-v.html = FAIL
 BUG9992 WIN LINUX : LayoutTests/fast/text/shadow-no-blur.html = FAIL
 
 // Regressions from WebKit merge 43264:42403, unknown cause(s)
@@ -2267,10 +2264,6 @@ BUG10760 MAC LINUX : LayoutTests/svg/custom/marker-viewBox-changes.svg = PASS FA
 BUG10760 MAC : LayoutTests/svg/custom/marker-changes.svg = PASS FAIL
 BUG10760 MAC : LayoutTests/svg/W3C-SVG-1.1/painting-marker-02-f.svg = PASS FAIL
 
-// Need rebaselining for Mac and Linux, from WebKit Merge 42671:42725
-// Wrong output on linux.
-BUG10859 LINUX : LayoutTests/svg/custom/pointer-events-path.svg = FAIL
-
 // Needs investigation, perhaps just needs to be re-baselined on all
 // platforms.
 BUG10859 LINUX MAC : LayoutTests/fast/dom/HTMLSelectElement/named-options.html = FAIL
@@ -2284,39 +2277,21 @@ BUG10861 WIN : LayoutTests/security/block-test.html = FAIL
 BUG10861 WIN : LayoutTests/http/tests/plugins/post-url-file.html = PASS
 BUG10861 MAC : LayoutTests/http/tests/plugins/post-url-file.html = TIMEOUT
 BUG10861 LINUX MAC : LayoutTests/security/set-form-autocomplete-attribute.html = TIMEOUT PASS
-BUG10861 LINUX : LayoutTests/fast/dynamic/001.html = FAIL
 
 // New failures from WebKit merge 42725:42805
-// The following tests needs rebaseline on LINUX and MAC since
+// The following tests needs rebaseline on LINUX since
 // WebKit change http://trac.webkit.org/changeset/42751
 // changed the name of SVG image in the dump from "RenderImage"
 // to "RenderSVGImage".
-BUG10998 LINUX : LayoutTests/svg/W3C-SVG-1.1/color-prof-01-f.svg = FAIL
-BUG10998 LINUX : LayoutTests/svg/W3C-SVG-1.1/coords-viewattr-02-b.svg = FAIL
-BUG10998 LINUX : LayoutTests/svg/W3C-SVG-1.1/filters-conv-01-f.svg = FAIL
-BUG10998 LINUX : LayoutTests/svg/W3C-SVG-1.1/filters-diffuse-01-f.svg = FAIL
-BUG10998 LINUX : LayoutTests/svg/W3C-SVG-1.1/filters-light-01-f.svg = FAIL
-BUG10998 LINUX : LayoutTests/svg/W3C-SVG-1.1/filters-specular-01-f.svg = FAIL
-BUG10998 LINUX : LayoutTests/svg/W3C-SVG-1.1/masking-path-04-b.svg = FAIL
-BUG10998 LINUX : LayoutTests/svg/W3C-SVG-1.1/struct-image-01-t.svg = FAIL
-BUG10998 LINUX : LayoutTests/svg/W3C-SVG-1.1/struct-image-03-t.svg = FAIL
-BUG10998 LINUX : LayoutTests/svg/W3C-SVG-1.1/struct-image-04-t.svg = FAIL
-BUG10998 LINUX : LayoutTests/svg/W3C-SVG-1.1/struct-image-05-b.svg = FAIL
-BUG10998 LINUX : LayoutTests/svg/W3C-SVG-1.1/struct-image-06-t.svg = FAIL
-BUG10998 LINUX : LayoutTests/svg/W3C-SVG-1.1/struct-image-08-t.svg = FAIL
-BUG10998 LINUX : LayoutTests/svg/W3C-SVG-1.1/struct-image-09-t.svg = FAIL
-BUG10998 LINUX : LayoutTests/svg/W3C-SVG-1.1/struct-image-10-t.svg = FAIL
-BUG10998 LINUX : LayoutTests/svg/custom/image-with-transform-clip-filter.svg = FAIL
 BUG10998 LINUX : LayoutTests/svg/W3C-SVG-1.1/animate-elem-39-t.svg = FAIL
 BUG10998 LINUX : LayoutTests/svg/custom/image-parent-translation.xhtml = FAIL
 BUG10998 LINUX : LayoutTests/svg/custom/text-image-opacity.svg = FAIL
 
 // New failures from WebKit merge 42725:42805
-// The following tests needs rebaseline on LINUX and MAC because of
+// The following tests needs rebaseline on MAC because of
 // WebKit change http://trac.webkit.org/changeset/42732
-BUG10999 LINUX : LayoutTests/fast/css-generated-content/positioned-background-hit-test-crash.html = FAIL
-BUG10999 LINUX MAC : LayoutTests/editing/selection/click-in-margins-inside-editable-div.html = FAIL
-BUG10999 LINUX MAC : LayoutTests/editing/selection/click-in-padding-with-multiple-line-boxes.html = FAIL
+BUG10999 MAC : LayoutTests/editing/selection/click-in-margins-inside-editable-div.html = FAIL
+BUG10999 MAC : LayoutTests/editing/selection/click-in-padding-with-multiple-line-boxes.html = FAIL
 
 // New failures from WebKit merge 42725:42805
 // Because of WebKit change http://trac.webkit.org/changeset/42740,
@@ -2359,8 +2334,6 @@ BUG11123 LINUX : LayoutTests/fast/css/nested-layers-with-hover.html = FAIL
 BUG11123 LINUX : LayoutTests/fast/forms/textarea-scrollbar.html = FAIL
 BUG11123 LINUX : LayoutTests/fast/forms/textarea-scrolled-type.html = FAIL
 BUG11123 LINUX : LayoutTests/fast/overflow/overflow-focus-ring.html = FAIL
-BUG11123 LINUX : LayoutTests/svg/custom/viewport-update2.svg = FAIL
-BUG11123 LINUX : LayoutTests/transitions/mask-transitions.html = FAIL
 
 // Mysteriously started failing right around the v8 scons->gyp change.
 BUG11176 MAC : LayoutTests/fast/css/first-child-pseudo-class.html = FAIL PASS
@@ -2407,194 +2380,12 @@ BUG11264 WIN : LayoutTests/plugins/netscape-identifier-conversion.html = CRASH P
 // Regressions from WebKit Merge 43059:43114
 BUG11322 : LayoutTests/editing/text-iterator/basic-iteration.html = FAIL
 BUG11322 : LayoutTests/fast/js/regexp-range-bound-ffff.html = FAIL
-BUG11322 LINUX : LayoutTests/plugins/embed-attributes-style.html = FAIL
 
 BUG11469 MAC : LayoutTests/fast/repaint/outline-shrinking.html = CRASH PASS
 
 // Regresssions from WebKit Merge 43114:43242 that just need to be re-baselined.
-BUG11483 LINUX : LayoutTests/editing/deleting/4845371.html = FAIL
-BUG11483 LINUX : LayoutTests/editing/deleting/4866671.html = FAIL
-BUG11483 LINUX : LayoutTests/editing/deleting/4875189.html = FAIL
-BUG11483 LINUX : LayoutTests/editing/deleting/5026848-1.html = FAIL
-BUG11483 LINUX : LayoutTests/editing/deleting/5026848-2.html = FAIL
-BUG11483 LINUX : LayoutTests/editing/deleting/5026848-3.html = FAIL
-BUG11483 LINUX : LayoutTests/editing/deleting/5032066.html = FAIL
-BUG11483 LINUX : LayoutTests/editing/deleting/5091898.html = FAIL
-BUG11483 LINUX : LayoutTests/editing/deleting/5099303.html = FAIL
-BUG11483 LINUX : LayoutTests/editing/deleting/5115601.html = FAIL
-BUG11483 LINUX : LayoutTests/editing/deleting/5126166.html = FAIL
-BUG11483 LINUX : LayoutTests/editing/deleting/5156801-2.html = FAIL
-BUG11483 LINUX : LayoutTests/editing/deleting/5168598.html = FAIL
-BUG11483 LINUX : LayoutTests/editing/deleting/5272440.html = FAIL
-BUG11483 LINUX : LayoutTests/editing/deleting/5300379.html = FAIL
-BUG11483 LINUX : LayoutTests/editing/deleting/5390681.html = FAIL
-BUG11483 LINUX : LayoutTests/editing/deleting/5408255.html = FAIL
-BUG11483 LINUX : LayoutTests/editing/deleting/5433862-2.html = FAIL
-BUG11483 LINUX : LayoutTests/editing/deleting/5483370.html = FAIL
-BUG11483 LINUX : LayoutTests/editing/deleting/delete-at-start-or-end.html = FAIL
-BUG11483 LINUX : LayoutTests/editing/deleting/delete-block-table.html = FAIL
-BUG11483 LINUX : LayoutTests/editing/deleting/delete-hr.html = FAIL
-BUG11483 LINUX : LayoutTests/editing/deleting/delete-mixed-editable-content-001.html = FAIL
-BUG11483 LINUX : LayoutTests/editing/deleting/delete-to-select-table.html = FAIL
-BUG11483 LINUX : LayoutTests/editing/deleting/merge-endOfParagraph.html = FAIL
-BUG11483 LINUX : LayoutTests/editing/deleting/merge-no-br.html = FAIL
-BUG11483 LINUX : LayoutTests/editing/deleting/merge-whitespace-pre.html = FAIL
-BUG11483 LINUX : LayoutTests/editing/execCommand/4641880-1.html = FAIL
-BUG11483 LINUX : LayoutTests/editing/execCommand/4641880-2.html = FAIL
-BUG11483 LINUX : LayoutTests/editing/execCommand/4747450.html = FAIL
-BUG11483 LINUX : LayoutTests/editing/execCommand/4786404-1.html = FAIL
-BUG11483 LINUX : LayoutTests/editing/execCommand/4786404-2.html = FAIL
-BUG11483 LINUX : LayoutTests/editing/execCommand/4916402.html = FAIL
-BUG11483 LINUX : LayoutTests/editing/execCommand/4916541.html = FAIL
-BUG11483 LINUX : LayoutTests/editing/execCommand/4916583.html = FAIL
-BUG11483 LINUX : LayoutTests/editing/execCommand/4920488.html = FAIL
-BUG11483 LINUX : LayoutTests/editing/execCommand/4920742-1.html = FAIL
-BUG11483 LINUX : LayoutTests/editing/execCommand/4924441.html = FAIL
-BUG11483 LINUX : LayoutTests/editing/execCommand/5049671.html = FAIL
-BUG11483 LINUX : LayoutTests/editing/execCommand/5080333-1.html = FAIL
-BUG11483 LINUX : LayoutTests/editing/execCommand/5080333-2.html = FAIL
 BUG11483 LINUX : LayoutTests/editing/execCommand/5119244.html = FAIL
-BUG11483 LINUX : LayoutTests/editing/execCommand/5120591.html = FAIL
-BUG11483 LINUX : LayoutTests/editing/execCommand/5136770.html = FAIL
-BUG11483 LINUX : LayoutTests/editing/execCommand/5142012-1.html = FAIL
-BUG11483 LINUX : LayoutTests/editing/execCommand/5142012-2.html = FAIL
-BUG11483 LINUX : LayoutTests/editing/execCommand/5142012-3.html = FAIL
-BUG11483 LINUX : LayoutTests/editing/execCommand/5144139-1.html = FAIL
-BUG11483 LINUX : LayoutTests/editing/execCommand/5164796.html = FAIL
-BUG11483 LINUX : LayoutTests/editing/execCommand/5207369.html = FAIL
-BUG11483 LINUX : LayoutTests/editing/execCommand/5210032.html = FAIL
-BUG11483 LINUX : LayoutTests/editing/execCommand/5432254-1.html = FAIL
-BUG11483 LINUX : LayoutTests/editing/execCommand/5432254-2.html = FAIL
-BUG11483 LINUX : LayoutTests/editing/execCommand/5481523.html = FAIL
-BUG11483 LINUX : LayoutTests/editing/execCommand/5569741.html = FAIL
-BUG11483 LINUX : LayoutTests/editing/execCommand/5573879.html = FAIL
-BUG11483 LINUX : LayoutTests/editing/execCommand/5700414-1.html = FAIL
-BUG11483 LINUX : LayoutTests/editing/execCommand/5700414-2.html = FAIL
-BUG11483 LINUX : LayoutTests/editing/execCommand/insert-list-empty-div.html = FAIL
-BUG11483 LINUX : LayoutTests/editing/inserting/12882.html = FAIL
-BUG11483 LINUX : LayoutTests/editing/inserting/4840662.html = FAIL
-BUG11483 LINUX : LayoutTests/editing/inserting/4875189-1.html = FAIL
-BUG11483 LINUX : LayoutTests/editing/inserting/4875189-2.html = FAIL
-BUG11483 LINUX : LayoutTests/editing/inserting/4959067.html = FAIL
-BUG11483 LINUX : LayoutTests/editing/inserting/4960120-2.html = FAIL
-BUG11483 LINUX : LayoutTests/editing/inserting/5002441.html = FAIL
-BUG11483 LINUX : LayoutTests/editing/inserting/5058163-2.html = FAIL
-BUG11483 LINUX : LayoutTests/editing/inserting/5156401-2.html = FAIL
-BUG11483 LINUX : LayoutTests/editing/inserting/5549929-2.html = FAIL
-BUG11483 LINUX : LayoutTests/editing/inserting/5549929-3.html = FAIL
-BUG11483 LINUX : LayoutTests/editing/inserting/5607069-2.html = FAIL
-BUG11483 LINUX : LayoutTests/editing/inserting/5607069-3.html = FAIL
-BUG11483 LINUX : LayoutTests/editing/inserting/editable-html-element.html = FAIL
-BUG11483 LINUX : LayoutTests/editing/inserting/editable-inline-element.html = FAIL
-BUG11483 LINUX : LayoutTests/editing/inserting/edited-whitespace-1.html = FAIL
-BUG11483 LINUX : LayoutTests/editing/inserting/editing-empty-divs.html = FAIL
-BUG11483 LINUX : LayoutTests/editing/inserting/typing-tab-designmode-forms.html = FAIL
-BUG11483 LINUX : LayoutTests/editing/pasteboard/4806874.html = FAIL
-BUG11483 LINUX : LayoutTests/editing/pasteboard/4861080.html = FAIL
-BUG11483 LINUX : LayoutTests/editing/pasteboard/4944770-1.html = FAIL
-BUG11483 LINUX : LayoutTests/editing/pasteboard/4944770-2.html = FAIL
-BUG11483 LINUX : LayoutTests/editing/pasteboard/4947130.html = FAIL
-BUG11483 LINUX : LayoutTests/editing/pasteboard/4989774.html = FAIL
-BUG11483 LINUX : LayoutTests/editing/pasteboard/5027857.html = FAIL
-BUG11483 LINUX : LayoutTests/editing/pasteboard/5032095.html = FAIL
-BUG11483 LINUX : LayoutTests/editing/pasteboard/5065605.html = FAIL
-BUG11483 LINUX : LayoutTests/editing/pasteboard/5071074-2.html = FAIL
-BUG11483 LINUX : LayoutTests/editing/pasteboard/5071074.html = FAIL
-BUG11483 LINUX : LayoutTests/editing/pasteboard/5075944-2.html = FAIL
-BUG11483 LINUX : LayoutTests/editing/pasteboard/5075944-3.html = FAIL
-BUG11483 LINUX : LayoutTests/editing/pasteboard/5075944.html = FAIL
-BUG11483 LINUX : LayoutTests/editing/pasteboard/5134759.html = FAIL
-BUG11483 LINUX : LayoutTests/editing/pasteboard/5156401-1.html = FAIL
-BUG11483 LINUX : LayoutTests/editing/pasteboard/5247341.html = FAIL
-BUG11483 LINUX : LayoutTests/editing/pasteboard/5387578.html = FAIL
-BUG11483 LINUX : LayoutTests/editing/pasteboard/5478250.html = FAIL
-BUG11483 LINUX : LayoutTests/editing/pasteboard/5483567.html = FAIL
-BUG11483 LINUX : LayoutTests/editing/pasteboard/5601583-1.html = FAIL
-BUG11483 LINUX : LayoutTests/editing/pasteboard/copy-paste-bidi.html = FAIL
-BUG11483 LINUX : LayoutTests/editing/pasteboard/input-field-1.html = FAIL
-BUG11483 LINUX : LayoutTests/editing/pasteboard/merge-after-delete-1.html = FAIL
-BUG11483 LINUX : LayoutTests/editing/pasteboard/merge-after-delete-2.html = FAIL
-BUG11483 LINUX : LayoutTests/editing/pasteboard/merge-after-delete.html = FAIL
-BUG11483 LINUX : LayoutTests/editing/pasteboard/merge-start-blockquote.html = FAIL
-BUG11483 LINUX : LayoutTests/editing/pasteboard/paste-unrendered-select.html = FAIL
-BUG11483 LINUX : LayoutTests/editing/pasteboard/prevent-block-nesting-01.html = FAIL
-BUG11483 LINUX : LayoutTests/editing/pasteboard/select-element-1.html = FAIL
-BUG11483 LINUX : LayoutTests/editing/selection/13804.html = FAIL
-BUG11483 LINUX : LayoutTests/editing/selection/14971.html = FAIL
-BUG11483 LINUX : LayoutTests/editing/selection/4397952.html = FAIL
-BUG11483 LINUX : LayoutTests/editing/selection/4818145.html = FAIL
-BUG11483 LINUX : LayoutTests/editing/selection/4866671.html = FAIL
-BUG11483 LINUX : LayoutTests/editing/selection/4889598.html = FAIL
-BUG11483 LINUX : LayoutTests/editing/selection/4895428-1.html = FAIL
-BUG11483 LINUX : LayoutTests/editing/selection/4895428-2.html = FAIL
-BUG11483 LINUX : LayoutTests/editing/selection/4895428-3.html = FAIL
-BUG11483 LINUX : LayoutTests/editing/selection/4895428-4.html = FAIL
-BUG11483 LINUX : LayoutTests/editing/selection/4932260-1.html = FAIL
-BUG11483 LINUX : LayoutTests/editing/selection/4932260-2.html = FAIL
-BUG11483 LINUX : LayoutTests/editing/selection/4932260-3.html = FAIL
-BUG11483 LINUX : LayoutTests/editing/selection/4947387.html = FAIL
-BUG11483 LINUX : LayoutTests/editing/selection/4960116.html = FAIL
-BUG11483 LINUX : LayoutTests/editing/selection/4975120.html = FAIL
-BUG11483 LINUX : LayoutTests/editing/selection/4983858.html = FAIL
-BUG11483 LINUX : LayoutTests/editing/selection/5007143-2.html = FAIL
-BUG11483 LINUX : LayoutTests/editing/selection/5007143.html = FAIL
-BUG11483 LINUX : LayoutTests/editing/selection/5057506-2.html = FAIL
-BUG11483 LINUX : LayoutTests/editing/selection/5057506.html = FAIL
-BUG11483 LINUX : LayoutTests/editing/selection/5076323-1.html = FAIL
-BUG11483 LINUX : LayoutTests/editing/selection/5076323-2.html = FAIL
-BUG11483 LINUX : LayoutTests/editing/selection/5076323-3.html = FAIL
-BUG11483 LINUX : LayoutTests/editing/selection/5081257-1.html = FAIL
-BUG11483 LINUX : LayoutTests/editing/selection/5081257-2.html = FAIL
-BUG11483 LINUX : LayoutTests/editing/selection/5099303.html = FAIL
-BUG11483 LINUX : LayoutTests/editing/selection/5109817.html = FAIL
-BUG11483 LINUX : LayoutTests/editing/selection/5195166-1.html = FAIL
-BUG11483 LINUX : LayoutTests/editing/selection/5195166-2.html = FAIL
-BUG11483 LINUX : LayoutTests/editing/selection/5234383-1.html = FAIL
-BUG11483 LINUX : LayoutTests/editing/selection/5234383-2.html = FAIL
-BUG11483 LINUX : LayoutTests/editing/selection/5240265.html = FAIL
-BUG11483 LINUX : LayoutTests/editing/selection/5333725.html = FAIL
-BUG11483 LINUX : LayoutTests/editing/selection/addRange.html = FAIL
-BUG11483 LINUX : LayoutTests/editing/selection/caret-before-select.html = FAIL
-BUG11483 LINUX : LayoutTests/editing/selection/contains-boundaries.html = FAIL
-BUG11483 LINUX : LayoutTests/editing/selection/drag-select-1.html = FAIL
-BUG11483 LINUX : LayoutTests/editing/selection/editable-html-element.html = FAIL
-BUG11483 LINUX : LayoutTests/editing/selection/inline-closest-leaf-child.html = FAIL
-BUG11483 LINUX : LayoutTests/editing/selection/mixed-editability-6.html = FAIL
-BUG11483 LINUX : LayoutTests/editing/selection/mixed-editability-7.html = FAIL
-BUG11483 LINUX : LayoutTests/editing/selection/move-by-sentence-linebreak.html = FAIL
-BUG11483 LINUX : LayoutTests/editing/selection/select-all-005.html = FAIL
-BUG11483 LINUX : LayoutTests/editing/selection/table-caret-1.html = FAIL
-BUG11483 LINUX : LayoutTests/editing/selection/table-caret-2.html = FAIL
-BUG11483 LINUX : LayoutTests/editing/selection/table-caret-3.html = FAIL
-BUG11483 LINUX : LayoutTests/editing/selection/wrapped-line-caret-1.html = FAIL
-BUG11483 LINUX : LayoutTests/editing/selection/wrapped-line-caret-2.html = FAIL
-BUG11483 LINUX : LayoutTests/editing/style/4916887.html = FAIL
-BUG11483 LINUX : LayoutTests/editing/style/5017613-1.html = FAIL
-BUG11483 LINUX : LayoutTests/editing/style/5017613-2.html = FAIL
-BUG11483 LINUX : LayoutTests/editing/style/5046875-1.html = FAIL
-BUG11483 LINUX : LayoutTests/editing/style/5046875-2.html = FAIL
-BUG11483 LINUX : LayoutTests/editing/style/5065910.html = FAIL
-BUG11483 LINUX : LayoutTests/editing/style/5084241.html = FAIL
-BUG11483 LINUX : LayoutTests/editing/style/5228141.html = FAIL
-BUG11483 LINUX : LayoutTests/editing/style/5279521.html = FAIL
-BUG11483 LINUX : LayoutTests/editing/style/font-family-with-space.html = FAIL
-BUG11483 LINUX : LayoutTests/editing/style/fontsize-1.html = FAIL
-BUG11483 LINUX : LayoutTests/editing/style/highlight.html = FAIL
-BUG11483 LINUX : LayoutTests/editing/style/non-inheritable-styles.html = FAIL
-BUG11483 LINUX : LayoutTests/editing/undo/5378473.html = FAIL
-BUG11483 LINUX : LayoutTests/fast/events/label-focus.html = FAIL
-BUG11483 LINUX : LayoutTests/fast/forms/input-appearance-focus.html = FAIL
-BUG11483 LINUX : LayoutTests/fast/forms/input-text-click-inside.html = FAIL
-BUG11483 LINUX : LayoutTests/fast/forms/input-text-click-outside.html = FAIL
 BUG11483 LINUX : LayoutTests/fast/forms/input-text-double-click.html = FAIL
-BUG11483 LINUX : LayoutTests/fast/forms/input-text-drag-down.html = FAIL
-BUG11483 LINUX : LayoutTests/fast/forms/input-text-option-delete.html = FAIL
-BUG11483 LINUX : LayoutTests/fast/forms/input-text-self-emptying-click.html = FAIL
-BUG11483 LINUX : LayoutTests/fast/forms/textfield-drag-into-disabled.html = FAIL
-BUG11483 LINUX : LayoutTests/fast/forms/textfield-overflow.html = FAIL
-BUG11483 LINUX : LayoutTests/fast/repaint/4776765.html = FAIL
-BUG11483 LINUX : LayoutTests/fast/repaint/selection-after-delete.html = FAIL
-BUG11483 LINUX : LayoutTests/fast/repaint/selection-after-remove.html = FAIL
 
 // Other regresssions from WebKit Merge 43114:43242
 BUG11483 WIN LINUX : LayoutTests/editing/spelling/spellcheck-attribute.html = FAIL
