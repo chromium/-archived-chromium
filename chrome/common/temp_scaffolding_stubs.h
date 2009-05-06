@@ -392,12 +392,6 @@ class WebApp : public base::RefCountedThreadSafe<WebApp> {
   }
 };
 
-class HungRendererWarning {
- public:
-  static void HideForTabContents(TabContents*) { NOTIMPLEMENTED(); }
-  static void ShowForTabContents(TabContents*) { NOTIMPLEMENTED(); }
-};
-
 class ModalHtmlDialogDelegate : public HtmlDialogUIDelegate {
  public:
   ModalHtmlDialogDelegate(const GURL&, int, int, const std::string&,

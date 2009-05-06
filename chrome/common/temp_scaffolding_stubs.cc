@@ -13,6 +13,7 @@
 #include "chrome/browser/download/download_request_dialog_delegate.h"
 #include "chrome/browser/download/download_request_manager.h"
 #include "chrome/browser/first_run.h"
+#include "chrome/browser/hung_renderer_dialog.h"
 #include "chrome/browser/memory_details.h"
 #include "chrome/browser/rlz/rlz.h"
 #include "chrome/browser/shell_integration.h"
@@ -299,5 +300,13 @@ void TaskManager::AddResource(Resource* resource) {
 }
 
 void TaskManager::RemoveResource(Resource* resource) {
+  NOTIMPLEMENTED();
+}
+
+void HungRendererDialog::HideForTabContents(TabContents*) {
+  NOTIMPLEMENTED();
+}
+
+void HungRendererDialog::ShowForTabContents(TabContents*) {
   NOTIMPLEMENTED();
 }

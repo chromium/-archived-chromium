@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "chrome/browser/views/hung_renderer_view.h"
+#include "chrome/browser/hung_renderer_dialog.h"
 
 #include "app/gfx/chrome_canvas.h"
 #include "app/resource_bundle.h"
@@ -25,6 +25,13 @@
 #include "grit/chromium_strings.h"
 #include "grit/generated_resources.h"
 #include "grit/theme_resources.h"
+
+class HungRendererDialogView;
+
+namespace {
+// We only support showing one of these at a time per app.
+HungRendererDialogView* g_instance = NULL;
+}
 
 ///////////////////////////////////////////////////////////////////////////////
 // HungPagesTableModel
@@ -108,14 +115,14 @@ void HungPagesTableModel::GetGroupRangeForItem(int item,
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-// HungRendererWarningView
+// HungRendererDialogView
 
-class HungRendererWarningView : public views::View,
-                                public views::DialogDelegate,
-                                public views::ButtonListener {
+class HungRendererDialogView : public views::View,
+                               public views::DialogDelegate,
+                               public views::ButtonListener {
  public:
-  HungRendererWarningView();
-  ~HungRendererWarningView();
+  HungRendererDialogView();
+  ~HungRendererDialogView();
 
   void ShowForTabContents(TabContents* contents);
   void EndForTabContents(TabContents* contents);
@@ -182,11 +189,11 @@ class HungRendererWarningView : public views::View,
   // An amusing icon image.
   static SkBitmap* frozen_icon_;
 
-  DISALLOW_EVIL_CONSTRUCTORS(HungRendererWarningView);
+  DISALLOW_EVIL_CONSTRUCTORS(HungRendererDialogView);
 };
 
 // static
-SkBitmap* HungRendererWarningView::frozen_icon_ = NULL;
+SkBitmap* HungRendererDialogView::frozen_icon_ = NULL;
 
 // The distance in pixels from the top of the relevant contents to place the
 // warning window.
@@ -197,9 +204,9 @@ static const int kTableViewWidth = 300;
 static const int kTableViewHeight = 100;
 
 ///////////////////////////////////////////////////////////////////////////////
-// HungRendererWarningView, public:
+// HungRendererDialogView, public:
 
-HungRendererWarningView::HungRendererWarningView()
+HungRendererDialogView::HungRendererDialogView()
     : frozen_icon_view_(NULL),
       info_label_(NULL),
       hung_pages_table_(NULL),
@@ -210,11 +217,11 @@ HungRendererWarningView::HungRendererWarningView()
   InitClass();
 }
 
-HungRendererWarningView::~HungRendererWarningView() {
+HungRendererDialogView::~HungRendererDialogView() {
   hung_pages_table_->SetModel(NULL);
 }
 
-void HungRendererWarningView::ShowForTabContents(TabContents* contents) {
+void HungRendererDialogView::ShowForTabContents(TabContents* contents) {
   DCHECK(contents && window());
   contents_ = contents;
 
@@ -243,7 +250,7 @@ void HungRendererWarningView::ShowForTabContents(TabContents* contents) {
   }
 }
 
-void HungRendererWarningView::EndForTabContents(TabContents* contents) {
+void HungRendererDialogView::EndForTabContents(TabContents* contents) {
   DCHECK(contents);
   if (contents_ && contents_->process() == contents->process()) {
     window()->Close();
@@ -253,18 +260,18 @@ void HungRendererWarningView::EndForTabContents(TabContents* contents) {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-// HungRendererWarningView, views::DialogDelegate implementation:
+// HungRendererDialogView, views::DialogDelegate implementation:
 
-std::wstring HungRendererWarningView::GetWindowTitle() const {
+std::wstring HungRendererDialogView::GetWindowTitle() const {
   return l10n_util::GetString(IDS_PRODUCT_NAME);
 }
 
-void HungRendererWarningView::WindowClosing() {
+void HungRendererDialogView::WindowClosing() {
   // We are going to be deleted soon, so make sure our instance is destroyed.
-  HungRendererWarning::instance_ = NULL;
+  g_instance = NULL;
 }
 
-int HungRendererWarningView::GetDialogButtons() const {
+int HungRendererDialogView::GetDialogButtons() const {
   // We specifically don't want a CANCEL button here because that code path is
   // also called when the window is closed by the user clicking the X button in
   // the window's titlebar, and also if we call Window::Close. Rather, we want
@@ -274,18 +281,18 @@ int HungRendererWarningView::GetDialogButtons() const {
   return MessageBoxFlags::DIALOGBUTTON_OK;
 }
 
-std::wstring HungRendererWarningView::GetDialogButtonLabel(
+std::wstring HungRendererDialogView::GetDialogButtonLabel(
     MessageBoxFlags::DialogButton button) const {
   if (button == MessageBoxFlags::DIALOGBUTTON_OK)
     return l10n_util::GetString(IDS_BROWSER_HANGMONITOR_RENDERER_WAIT);
   return std::wstring();
 }
 
-views::View* HungRendererWarningView::GetExtraView() {
+views::View* HungRendererDialogView::GetExtraView() {
   return kill_button_container_;
 }
 
-bool HungRendererWarningView::Accept(bool window_closing) {
+bool HungRendererDialogView::Accept(bool window_closing) {
   // Don't do anything if we're being called only because the dialog is being
   // destroyed and we don't supply a Cancel function...
   if (window_closing)
@@ -297,14 +304,14 @@ bool HungRendererWarningView::Accept(bool window_closing) {
   return true;
 }
 
-views::View* HungRendererWarningView::GetContentsView() {
+views::View* HungRendererDialogView::GetContentsView() {
   return this;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-// HungRendererWarningView, views::ButtonListener implementation:
+// HungRendererDialogView, views::ButtonListener implementation:
 
-void HungRendererWarningView::ButtonPressed(views::Button* sender) {
+void HungRendererDialogView::ButtonPressed(views::Button* sender) {
   if (sender == kill_button_) {
     // Kill the process.
     HANDLE process = contents_->process()->process().handle();
@@ -313,19 +320,19 @@ void HungRendererWarningView::ButtonPressed(views::Button* sender) {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-// HungRendererWarningView, views::View overrides:
+// HungRendererDialogView, views::View overrides:
 
-void HungRendererWarningView::ViewHierarchyChanged(bool is_add,
-                                                   views::View* parent,
-                                                   views::View* child) {
+void HungRendererDialogView::ViewHierarchyChanged(bool is_add,
+                                                  views::View* parent,
+                                                  views::View* child) {
   if (!initialized_ && is_add && child == this && GetWidget())
     Init();
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-// HungRendererWarningView, private:
+// HungRendererDialogView, private:
 
-void HungRendererWarningView::Init() {
+void HungRendererDialogView::Init() {
   frozen_icon_view_ = new views::ImageView;
   frozen_icon_view_->SetImage(frozen_icon_);
 
@@ -372,7 +379,7 @@ void HungRendererWarningView::Init() {
   initialized_ = true;
 }
 
-void HungRendererWarningView::CreateKillButtonView() {
+void HungRendererDialogView::CreateKillButtonView() {
   kill_button_ = new views::NativeButton(
       this, l10n_util::GetString(IDS_BROWSER_HANGMONITOR_RENDERER_END));
 
@@ -395,7 +402,7 @@ void HungRendererWarningView::CreateKillButtonView() {
   layout->AddView(kill_button_);
 }
 
-gfx::Rect HungRendererWarningView::GetDisplayBounds(
+gfx::Rect HungRendererDialogView::GetDisplayBounds(
     TabContents* contents) {
   HWND contents_hwnd = contents->GetNativeView();
   CRect contents_bounds;
@@ -411,7 +418,7 @@ gfx::Rect HungRendererWarningView::GetDisplayBounds(
 }
 
 // static
-void HungRendererWarningView::InitClass() {
+void HungRendererDialogView::InitClass() {
   static bool initialized = false;
   if (!initialized) {
     ResourceBundle& rb = ResourceBundle::GetSharedInstance();
@@ -421,28 +428,26 @@ void HungRendererWarningView::InitClass() {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-// HungRendererWarning
+// HungRendererDialog
 
-// static
-HungRendererWarningView* HungRendererWarning::instance_ = NULL;
 
-static HungRendererWarningView* CreateHungRendererWarningView() {
-  HungRendererWarningView* cv = new HungRendererWarningView;
+static HungRendererDialogView* CreateHungRendererDialogView() {
+  HungRendererDialogView* cv = new HungRendererDialogView;
   views::Window::CreateChromeWindow(NULL, gfx::Rect(), cv);
   return cv;
 }
 
 // static
-void HungRendererWarning::ShowForTabContents(TabContents* contents) {
+void HungRendererDialog::ShowForTabContents(TabContents* contents) {
   if (!logging::DialogsAreSuppressed()) {
-    if (!instance_)
-      instance_ = CreateHungRendererWarningView();
-    instance_->ShowForTabContents(contents);
+    if (!g_instance)
+      g_instance = CreateHungRendererDialogView();
+    g_instance->ShowForTabContents(contents);
   }
 }
 
 // static
-void HungRendererWarning::HideForTabContents(TabContents* contents) {
-  if (!logging::DialogsAreSuppressed() && instance_)
-    instance_->EndForTabContents(contents);
+void HungRendererDialog::HideForTabContents(TabContents* contents) {
+  if (!logging::DialogsAreSuppressed() && g_instance)
+    g_instance->EndForTabContents(contents);
 }

@@ -630,10 +630,6 @@
 			>
 		</File>
 		<File
-			RelativePath=".\hung_renderer_view.h"
-			>
-		</File>
-		<File
 			RelativePath=".\hwnd_html_view.cc"
 			>
 		</File>

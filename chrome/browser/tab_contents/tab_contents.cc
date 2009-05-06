@@ -24,6 +24,7 @@
 #include "chrome/browser/download/download_shelf.h"
 #include "chrome/browser/gears_integration.h"
 #include "chrome/browser/google_util.h"
+#include "chrome/browser/hung_renderer_dialog.h"
 #include "chrome/browser/jsmessage_box_handler.h"
 #include "chrome/browser/load_from_memory_cache_details.h"
 #include "chrome/browser/load_notification_details.h"
@@ -43,6 +44,7 @@
 #include "chrome/common/pref_service.h"
 #include "chrome/common/render_messages.h"
 #include "chrome/common/url_constants.h"
+#include "grit/generated_resources.h"
 #include "grit/locale_settings.h"
 #include "net/base/mime_util.h"
 #include "net/base/net_errors.h"
@@ -54,11 +56,8 @@
 #include "chrome/browser/tab_contents/infobar_delegate.h"
 #include "chrome/browser/views/blocked_popup_container.h"
 #include "chrome/browser/views/download_started_animation.h"
-#include "chrome/browser/views/hung_renderer_view.h"  // TODO(brettw) delete me.
 #include "chrome/views/controls/scrollbar/native_scroll_bar.h"
 #endif
-
-#include "grit/generated_resources.h"
 
 // Cross-Site Navigations
 //
@@ -296,7 +295,7 @@ TabContents::~TabContents() {
   view_->OnContentsDestroy();
 
   NotifyDisconnected();
-  HungRendererWarning::HideForTabContents(AsWC(this));
+  HungRendererDialog::HideForTabContents(AsWC(this));
 
   if (pending_install_.callback_functor)
     pending_install_.callback_functor->Cancel();
@@ -1663,7 +1662,7 @@ void TabContents::RenderViewGone(RenderViewHost* rvh) {
   view_->Invalidate();
 
   // Hide any visible hung renderer warning for this web contents' process.
-  HungRendererWarning::HideForTabContents(AsWC(this));
+  HungRendererDialog::HideForTabContents(AsWC(this));
 }
 
 void TabContents::DidNavigate(RenderViewHost* rvh,
@@ -2257,11 +2256,11 @@ void TabContents::RendererUnresponsive(RenderViewHost* rvh,
   }
 
   if (render_view_host() && render_view_host()->IsRenderViewLive())
-    HungRendererWarning::ShowForTabContents(AsWC(this));
+    HungRendererDialog::ShowForTabContents(AsWC(this));
 }
 
 void TabContents::RendererResponsive(RenderViewHost* render_view_host) {
-  HungRendererWarning::HideForTabContents(AsWC(this));
+  HungRendererDialog::HideForTabContents(AsWC(this));
 }
 
 void TabContents::LoadStateChanged(const GURL& url,

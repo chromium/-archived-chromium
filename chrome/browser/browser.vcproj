@@ -2599,6 +2599,10 @@
 			>
 		</File>
 		<File
+			RelativePath=".\hung_renderer_dialog.h"
+			>
+		</File>
+		<File
 			RelativePath=".\modal_html_dialog_delegate.cc"
 			>
 		</File>
