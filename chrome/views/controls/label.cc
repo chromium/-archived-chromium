@@ -162,8 +162,8 @@ void Label::Paint(ChromeCanvas* canvas) {
     focus_rect.set_width(w);
     focus_rect.set_height(h);
     focus_rect.Inset(-kFocusBorderPadding, -kFocusBorderPadding);
-    canvas->DrawFocusRect(focus_rect.x(), focus_rect.y(), focus_rect.width(),
-                          focus_rect.height());
+    canvas->DrawFocusRect(MirroredLeftPointForRect(focus_rect), focus_rect.y(),
+                          focus_rect.width(), focus_rect.height());
   }
 }
 
