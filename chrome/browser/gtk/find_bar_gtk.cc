@@ -172,6 +172,8 @@ GtkWidget* FindBarGtk::slide_widget() {
 }
 
 void FindBarGtk::Show() {
+  if (container_->window)
+    gdk_window_raise(container_->window);
   gtk_widget_grab_focus(find_text_);
   slide_widget_->Open();
 }
