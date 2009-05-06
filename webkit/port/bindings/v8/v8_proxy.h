@@ -172,8 +172,7 @@ class V8Proxy {
   };
 
   explicit V8Proxy(Frame* frame)
-      : m_frame(frame), m_event_listeners("m_event_listeners"),
-        m_xhr_listeners("m_xhr_listeners"), m_inlineCode(false),
+      : m_frame(frame), m_inlineCode(false),
         m_timerCallback(false), m_recursion(0) { }
 
   ~V8Proxy();
