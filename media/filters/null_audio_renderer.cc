@@ -57,9 +57,13 @@ void NullAudioRenderer::ThreadMain() {
       sleep_in_milliseconds =
           floor(bytes / static_cast<float>(bytes_per_millisecond_));
       sleep_in_milliseconds /= playback_rate_;
+    } else {
+      // If paused, sleep for 10 milliseconds before polling again.
+      sleep_in_milliseconds = 10.0f;
     }
 
-    PlatformThread::Sleep(static_cast<int>(sleep_in_milliseconds));
+    // Sleep for at least one millisecond so we don't spin the CPU.
+    PlatformThread::Sleep(std::max(1, static_cast<int>(sleep_in_milliseconds)));
   }
 }
 
