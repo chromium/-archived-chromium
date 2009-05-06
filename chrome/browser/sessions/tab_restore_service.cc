@@ -353,8 +353,8 @@ void TabRestoreService::PopulateTab(Tab* tab,
   // Browser may be NULL during unit tests.
   if (browser) {
     tab->browser_id = browser->session_id().id();
-    tab->tabstrip_index =
-        browser->tabstrip_model()->GetIndexOfController(controller);
+    tab->tabstrip_index = browser->tabstrip_model()->GetIndexOfTabContents(
+        controller->tab_contents());
   }
 }
 

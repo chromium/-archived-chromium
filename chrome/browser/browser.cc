@@ -1179,7 +1179,8 @@ Browser* Browser::GetBrowserForController(
     const NavigationController* controller, int* index_result) {
   BrowserList::const_iterator it;
   for (it = BrowserList::begin(); it != BrowserList::end(); ++it) {
-    int index = (*it)->tabstrip_model_.GetIndexOfController(controller);
+    int index = (*it)->tabstrip_model_.GetIndexOfTabContents(
+        controller->tab_contents());
     if (index != TabStripModel::kNoTab) {
       if (index_result)
         *index_result = index;
@@ -2272,7 +2273,7 @@ void Browser::ScheduleUIUpdate(const TabContents* source,
     // this for any tab so they start & stop quickly, but the source can be
     // NULL, so we have to check for that.
     tabstrip_model_.UpdateTabContentsStateAt(
-        tabstrip_model_.GetIndexOfController(&source->controller()), true);
+        tabstrip_model_.GetIndexOfTabContents(source), true);
   }
 
   // If the only updates were synchronously handled above, we're done.
@@ -2346,7 +2347,7 @@ void Browser::ProcessPendingUIUpdates() {
 
     if (flags & TabContents::INVALIDATE_TAB) {
       tabstrip_model_.UpdateTabContentsStateAt(
-          tabstrip_model_.GetIndexOfController(&contents->controller()), false);
+          tabstrip_model_.GetIndexOfTabContents(contents), false);
       window_->UpdateTitleBar();
 
       if (contents == GetSelectedTabContents()) {

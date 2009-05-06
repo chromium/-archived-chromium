@@ -878,7 +878,7 @@ void AutomationProvider::RemoveLoginHandler(NavigationController* tab) {
 int AutomationProvider::GetIndexForNavigationController(
     const NavigationController* controller, const Browser* parent) const {
   DCHECK(parent);
-  return parent->GetIndexOfController(controller);
+  return parent->GetIndexOfTabContents(controller->tab_contents());
 }
 
 void AutomationProvider::OnMessageReceived(const IPC::Message& message) {
@@ -1784,7 +1784,8 @@ void AutomationProvider::GetTabIndex(int handle, int* tabstrip_index) {
   if (tab_tracker_->ContainsHandle(handle)) {
     NavigationController* tab = tab_tracker_->GetResource(handle);
     Browser* browser = Browser::GetBrowserForController(tab, NULL);
-    *tabstrip_index = browser->tabstrip_model()->GetIndexOfController(tab);
+    *tabstrip_index = browser->tabstrip_model()->GetIndexOfTabContents(
+        tab->tab_contents());
   }
 }
 
