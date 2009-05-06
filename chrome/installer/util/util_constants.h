@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
+// Copyright (c) 2006-2009 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 //
@@ -80,6 +80,7 @@ extern const wchar_t kLogFile[];
 extern const wchar_t kMakeChromeDefault[];
 extern const wchar_t kRegisterChromeBrowser[];
 extern const wchar_t kRenameChromeExe[];
+extern const wchar_t kRemoveChromeRegistration[];
 extern const wchar_t kRunAsAdmin[];
 extern const wchar_t kSystemLevel[];
 extern const wchar_t kUninstall[];

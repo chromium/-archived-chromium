@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
+// Copyright (c) 2006-2009 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 //
@@ -9,11 +9,19 @@
 
 #include <string>
 
+#include <shlobj.h>
+
 #include "base/command_line.h"
 #include "chrome/installer/util/util_constants.h"
 #include "chrome/installer/util/version.h"
 
 namespace installer_setup {
+// This function removes all Chrome registration related keys. It returns true
+// if successful, otherwise false. The error code is set in |exit_code|.
+// |root| is the registry root (HKLM|HKCU)
+bool DeleteChromeRegistrationKeys(HKEY root,
+                                  installer_util::InstallStatus& exit_code);
+
 // This function uninstalls Chrome.
 //
 // exe_path: Path to the executable (setup.exe) as it will be copied

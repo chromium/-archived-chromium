@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
+// Copyright (c) 2006-2009 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
@@ -278,22 +278,6 @@ void CopyPreferenceFileForFirstRun(int options, const CommandLine& cmd_line) {
   }
 }
 
-// This method is temporary and only called by UpdateChromeOpenCmd() below.
-void ReplaceRegistryValue(const std::wstring& reg_key,
-                          const std::wstring& old_val,
-                          const std::wstring& new_val) {
-  RegKey key;
-  std::wstring value;
-  if (key.Open(HKEY_CLASSES_ROOT, reg_key.c_str(), KEY_READ) &&
-      key.ReadValue(NULL, &value) && (old_val == value)) {
-    std::wstring key_path = L"Software\\Classes\\" + reg_key;
-    if (key.Open(HKEY_CURRENT_USER, key_path.c_str(), KEY_WRITE))
-      key.WriteValue(NULL, new_val.c_str());
-    if (key.Open(HKEY_LOCAL_MACHINE, key_path.c_str(), KEY_WRITE))
-      key.WriteValue(NULL, new_val.c_str());
-  }
-}
-
 bool CheckPreInstallConditions(const installer::Version* installed_version,
                                int options,
                                installer_util::InstallStatus& status) {
@@ -501,6 +485,49 @@ installer_util::InstallStatus ShowEULADialog(const std::wstring& inner_frame) {
   return installer_util::EULA_ACCEPTED;
 }
 
+// This method processes any command line options that make setup.exe do
+// various tasks other than installation (renaming chrome.exe, showing eula
+// among others). This function returns true if any such command line option
+// has been found and processed (so setup.exe should exit at that point).
+bool HandleNonInstallCmdLineOptions(const CommandLine& cmd_line,
+                                    bool system_install,
+                                    int& exit_code) {
+  if (cmd_line.HasSwitch(installer_util::switches::kShowEula)) {
+    // Check if we need to show the EULA. If it is passed as a command line
+    // then the dialog is shown and regardless of the outcome setup exits here.
+    std::wstring inner_frame = 
+        cmd_line.GetSwitchValue(installer_util::switches::kShowEula);
+    exit_code = ShowEULADialog(inner_frame);
+    if (installer_util::EULA_REJECTED != exit_code)
+      GoogleUpdateSettings::SetEULAConsent(true);
+    return true;;
+  } else if (cmd_line.HasSwitch(
+      installer_util::switches::kRegisterChromeBrowser)) {
+    // If --register-chrome-browser option is specified, register all
+    // Chrome protocol/file associations as well as register it as a valid
+    // browser for Start Menu->Internet shortcut. This option should only
+    // be used when setup.exe is launched with admin rights. We do not
+    // make any user specific changes in this option.
+    std::wstring chrome_exe(cmd_line.GetSwitchValue(
+        installer_util::switches::kRegisterChromeBrowser));
+    exit_code = ShellUtil::AddChromeToSetAccessDefaults(chrome_exe, true);
+    return true;
+  } else if (cmd_line.HasSwitch(installer_util::switches::kRenameChromeExe)) {
+    // If --rename-chrome-exe is specified, we want to rename the executables
+    // and exit.
+    exit_code = RenameChromeExecutables(system_install);
+    return true;
+  } else if (cmd_line.HasSwitch(
+      installer_util::switches::kRemoveChromeRegistration)) {
+    installer_util::InstallStatus tmp = installer_util::UNKNOWN_STATUS;
+    installer_setup::DeleteChromeRegistrationKeys(HKEY_LOCAL_MACHINE, tmp);
+    exit_code = tmp;
+    return true;
+  }
+
+  return false;
+}
+
 }  // namespace
 
 int WINAPI wWinMain(HINSTANCE instance, HINSTANCE prev_instance,
@@ -536,33 +563,10 @@ int WINAPI wWinMain(HINSTANCE instance, HINSTANCE prev_instance,
     return installer_util::OS_ERROR;
   }
 
-  // Check if we need to show the EULA. If it is passed as a command line
-  // then the dialog is shown and regardless of the outcome setup exits here.
-  if (parsed_command_line.HasSwitch(installer_util::switches::kShowEula)) {
-    std::wstring inner_frame = 
-        parsed_command_line.GetSwitchValue(installer_util::switches::kShowEula);
-    installer_util::InstallStatus eula = ShowEULADialog(inner_frame);
-    if (installer_util::EULA_REJECTED != eula)
-      GoogleUpdateSettings::SetEULAConsent(true);
-    return eula;
-  }
-
-  // If --register-chrome-browser option is specified, register all
-  // Chrome protocol/file associations as well as register it as a valid
-  // browser for Start Menu->Internet shortcut. This option should only
-  // be used when setup.exe is launched with admin rights. We do not
-  // make any user specific changes in this option.
-  if (parsed_command_line.HasSwitch(
-      installer_util::switches::kRegisterChromeBrowser)) {
-    std::wstring chrome_exe(parsed_command_line.GetSwitchValue(
-        installer_util::switches::kRegisterChromeBrowser));
-    return ShellUtil::AddChromeToSetAccessDefaults(chrome_exe, true);
-  // If --rename-chrome-exe is specified, we want to rename the executables
-  // and exit.
-  } else if (parsed_command_line.HasSwitch(
-      installer_util::switches::kRenameChromeExe)) {
-    return RenameChromeExecutables(system_install);
-  }
+  int exit_code = 0;
+  if (HandleNonInstallCmdLineOptions(parsed_command_line, system_install,
+                                     exit_code))
+    return exit_code;
 
   if (system_install && !IsUserAnAdmin()) {
     if (win_util::GetWinVersion() >= win_util::WINVERSION_VISTA &&

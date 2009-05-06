@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
+// Copyright (c) 2006-2009 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
@@ -56,6 +56,9 @@ const wchar_t kRegisterChromeBrowser[] = L"register-chrome-browser";
 // Renames chrome.exe to old_chrome.exe and renames new_chrome.exe to chrome.exe
 // to support in-use updates. Also deletes opv key.
 const wchar_t kRenameChromeExe[] = L"rename-chrome-exe";
+
+// Removes Chrome registration from current machine. Requires admin rights.
+const wchar_t kRemoveChromeRegistration[] = L"remove-chrome-registration";
 
 // When we try to relaunch setup.exe as admin on Vista, we append this command
 // line flag so that we try the launch only once.
