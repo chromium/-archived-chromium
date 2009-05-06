@@ -8,11 +8,11 @@
 #include "chrome/browser/views/options/options_group_view.h"
 
 #include "app/gfx/chrome_canvas.h"
+#include "app/gfx/chrome_font.h"
 #include "app/l10n_util.h"
 #include "app/resource_bundle.h"
 #include "base/gfx/native_theme.h"
 #include "chrome/browser/views/standard_layout.h"
-#include "chrome/common/gfx/chrome_font.h"
 #include "chrome/views/grid_layout.h"
 #include "chrome/views/controls/label.h"
 #include "chrome/views/controls/separator.h"

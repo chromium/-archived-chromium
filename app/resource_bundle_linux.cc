@@ -6,6 +6,7 @@
 
 #include <gtk/gtk.h>
 
+#include "app/gfx/chrome_font.h"
 #include "app/l10n_util.h"
 #include "base/base_paths.h"
 #include "base/data_pack.h"
@@ -17,7 +18,6 @@
 #include "base/string_piece.h"
 #include "base/string_util.h"
 #include "chrome/common/chrome_paths.h"
-#include "chrome/common/gfx/chrome_font.h"
 #include "chrome/common/gtk_util.h"
 #include "SkBitmap.h"
 

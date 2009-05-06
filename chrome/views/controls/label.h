@@ -5,7 +5,7 @@
 #ifndef CHROME_VIEWS_CONTROLS_LABEL_H_
 #define CHROME_VIEWS_CONTROLS_LABEL_H_
 
-#include "chrome/common/gfx/chrome_font.h"
+#include "app/gfx/chrome_font.h"
 #include "chrome/views/view.h"
 #include "googleurl/src/gurl.h"
 #include "skia/include/SkColor.h"

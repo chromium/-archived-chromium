@@ -9,6 +9,7 @@
 #include <shobjidl.h>
 
 #include "app/gfx/chrome_canvas.h"
+#include "app/gfx/chrome_font.h"
 #include "app/l10n_util.h"
 #include "app/resource_bundle.h"
 #include "base/file_util.h"
@@ -16,7 +17,6 @@
 #include "base/gfx/point.h"
 #include "base/string_util.h"
 #include "chrome/browser/views/bookmark_bar_view.h"
-#include "chrome/common/gfx/chrome_font.h"
 #include "chrome/common/os_exchange_data.h"
 #include "chrome/common/win_util.h"
 #include "chrome/views/controls/button/text_button.h"

@@ -7,11 +7,11 @@
 #include <shellapi.h>
 
 #include "app/gfx/chrome_canvas.h"
+#include "app/gfx/chrome_font.h"
 #include "app/l10n_util.h"
 #include "app/resource_bundle.h"
 #include "base/win_util.h"
 #include "chrome/app/chrome_dll_resource.h"
-#include "chrome/common/gfx/chrome_font.h"
 #include "chrome/common/gfx/icon_util.h"
 #include "chrome/common/gfx/path.h"
 #include "chrome/common/notification_service.h"

@@ -8,6 +8,7 @@
 
 #include <algorithm>
 
+#include "app/gfx/chrome_font.h"
 #include "app/resource_bundle.h"
 #include "base/basictypes.h"
 #include "base/gfx/gtk_util.h"
@@ -21,7 +22,6 @@
 #include "chrome/browser/profile.h"
 #include "chrome/browser/search_engines/template_url.h"
 #include "chrome/browser/search_engines/template_url_model.h"
-#include "chrome/common/gfx/chrome_font.h"
 #include "chrome/common/notification_service.h"
 #include "grit/theme_resources.h"
 

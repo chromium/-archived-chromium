@@ -1096,6 +1096,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\..\app\gfx\chrome_font_unittest.cc"
+				>
+			</File>
+			<File
 				RelativePath="..\..\..\app\l10n_util_unittest.cc"
 				>
 			</File>

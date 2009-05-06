@@ -12,11 +12,11 @@
 
 #include <string>
 
+#include "app/gfx/chrome_font.h"
 #include "base/scoped_ptr.h"
 #include "base/win_util.h"
 #include "chrome/browser/autocomplete/autocomplete.h"
 #include "chrome/browser/autocomplete/autocomplete_popup_view.h"
-#include "chrome/common/gfx/chrome_font.h"
 #include "webkit/glue/window_open_disposition.h"
 
 class AutocompletePopupModel;

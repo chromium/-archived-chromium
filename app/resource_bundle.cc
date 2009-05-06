@@ -4,12 +4,12 @@
 
 #include "app/resource_bundle.h"
 
+#include "app/gfx/chrome_font.h"
 #include "base/gfx/png_decoder.h"
 #include "base/logging.h"
 #include "base/string_piece.h"
 #include "net/base/file_stream.h"
 #include "net/base/net_errors.h"
-#include "chrome/common/gfx/chrome_font.h"
 #include "SkBitmap.h"
 
 ResourceBundle* ResourceBundle::g_shared_instance_ = NULL;

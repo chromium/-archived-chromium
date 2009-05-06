@@ -2,9 +2,9 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+#include "app/gfx/chrome_font.h"
 #include "base/file_path.h"
 #include "base/string_util.h"
-#include "chrome/common/gfx/chrome_font.h"
 #include "chrome/common/gfx/text_elider.h"
 #include "googleurl/src/gurl.h"
 #include "testing/gtest/include/gtest/gtest.h"

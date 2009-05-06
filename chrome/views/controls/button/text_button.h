@@ -5,7 +5,7 @@
 #ifndef CHROME_VIEWS_CONTROLS_BUTTON_TEXT_BUTTON_H_
 #define CHROME_VIEWS_CONTROLS_BUTTON_TEXT_BUTTON_H_
 
-#include "chrome/common/gfx/chrome_font.h"
+#include "app/gfx/chrome_font.h"
 #include "chrome/views/border.h"
 #include "chrome/views/controls/button/custom_button.h"
 #include "skia/include/SkBitmap.h"

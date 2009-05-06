@@ -6,10 +6,10 @@
 
 #include <pango/pango.h>
 
+#include "app/gfx/chrome_font.h"
 #include "base/gfx/rect.h"
 #include "base/logging.h"
 #include "base/string_util.h"
-#include "chrome/common/gfx/chrome_font.h"
 
 namespace {
 

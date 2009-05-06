@@ -5,8 +5,6 @@ include_rules = [
   # chrome/common.
   "+chrome/common/chrome_paths.h",
   "+chrome/common/chrome_switches.h",
-  "+chrome/common/gfx/chrome_canvas.h",
-  "+chrome/common/gfx/chrome_font.h",
   "+chrome/common/gtk_util.h",
   
   # TODO(beng): l10n_util_unittest.cc:

@@ -12,6 +12,7 @@
 #include <vector>
 
 #include "app/gfx/chrome_canvas.h"
+#include "app/gfx/chrome_font.h"
 #include "app/l10n_util.h"
 #include "app/resource_bundle.h"
 #include "base/file_util.h"
@@ -21,7 +22,6 @@
 #include "chrome/browser/character_encoding.h"
 #include "chrome/browser/shell_dialogs.h"
 #include "chrome/browser/views/standard_layout.h"
-#include "chrome/common/gfx/chrome_font.h"
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
 #include "chrome/views/controls/button/native_button.h"

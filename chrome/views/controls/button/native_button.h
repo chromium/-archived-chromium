@@ -5,7 +5,7 @@
 #ifndef CHROME_VIEWS_CONTROLS_BUTTON_NATIVE_BUTTON_H_
 #define CHROME_VIEWS_CONTROLS_BUTTON_NATIVE_BUTTON_H_
 
-#include "chrome/common/gfx/chrome_font.h"
+#include "app/gfx/chrome_font.h"
 #include "chrome/views/controls/button/button.h"
 #include "chrome/views/controls/button/native_button_wrapper.h"
 

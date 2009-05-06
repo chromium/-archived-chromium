@@ -136,6 +136,14 @@
 				RelativePath=".\gfx\chrome_canvas_win.cc"
 				>
 			</File>
+			<File
+				RelativePath=".\gfx\chrome_font.h"
+				>
+			</File>
+			<File
+				RelativePath=".\gfx\chrome_font_win.cc"
+				>
+			</File>
 		</Filter>
 		<File
 			RelativePath=".\animation.cc"

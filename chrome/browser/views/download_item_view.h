@@ -18,12 +18,12 @@
 
 #include <string>
 
+#include "app/gfx/chrome_font.h"
 #include "app/slide_animation.h"
 #include "base/basictypes.h"
 #include "base/scoped_ptr.h"
 #include "base/time.h"
 #include "base/timer.h"
-#include "chrome/common/gfx/chrome_font.h"
 #include "chrome/browser/cancelable_request.h"
 #include "chrome/browser/download/download_manager.h"
 #include "chrome/browser/icon_manager.h"

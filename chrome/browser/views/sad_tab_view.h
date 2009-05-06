@@ -5,7 +5,7 @@
 #ifndef CHROME_BROWSER_VIEWS_SAD_TAB_H_
 #define CHROME_BROWSER_VIEWS_SAD_TAB_H_
 
-#include "chrome/common/gfx/chrome_font.h"
+#include "app/gfx/chrome_font.h"
 #include "chrome/views/view.h"
 
 class SkBitmap;

@@ -7,7 +7,7 @@
 
 #include <windows.h>
 
-#include "chrome/common/gfx/chrome_font.h"
+#include "app/gfx/chrome_font.h"
 #include "chrome/views/background.h"
 #include "chrome/views/controls/button/text_button.h"
 #include "base/time.h"

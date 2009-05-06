@@ -4,7 +4,7 @@
 
 #include "chrome/views/controls/link.h"
 
-#include "chrome/common/gfx/chrome_font.h"
+#include "app/gfx/chrome_font.h"
 #include "chrome/views/event.h"
 
 namespace views {

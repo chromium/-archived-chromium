@@ -5,7 +5,7 @@
 #ifndef CHROME_VIEWS_WINDOW_DIALOG_CLIENT_VIEW_H_
 #define CHROME_VIEWS_WINDOW_DIALOG_CLIENT_VIEW_H_
 
-#include "chrome/common/gfx/chrome_font.h"
+#include "app/gfx/chrome_font.h"
 #include "chrome/views/focus/focus_manager.h"
 #include "chrome/views/controls/button/button.h"
 #include "chrome/views/window/client_view.h"

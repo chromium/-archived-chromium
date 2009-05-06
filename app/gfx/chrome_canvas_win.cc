@@ -6,10 +6,10 @@
 
 #include <limits>
 
+#include "app/gfx/chrome_font.h"
 #include "app/l10n_util.h"
 #include "base/gfx/rect.h"
 #include "skia/include/SkShader.h"
-#include "chrome/common/gfx/chrome_font.h"
 
 namespace {
 

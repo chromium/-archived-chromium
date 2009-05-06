@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CHROME_COMMON_GFX_CHROME_FONT_H_
-#define CHROME_COMMON_GFX_CHROME_FONT_H_
+#ifndef APP_GFX_CHROME_FONT_H_
+#define APP_GFX_CHROME_FONT_H_
 
 #include "build/build_config.h"
 
@@ -234,4 +234,4 @@ class ChromeFont {
 
 };
 
-#endif  // CHROME_COMMON_GFX_CHROME_FONT_H_
+#endif  // APP_GFX_CHROME_FONT_H_

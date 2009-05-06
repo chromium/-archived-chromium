@@ -6,6 +6,7 @@
 
 #include <atlbase.h>
 
+#include "app/gfx/chrome_font.h"
 #include "app/l10n_util.h"
 #include "base/file_util.h"
 #include "base/logging.h"
@@ -14,7 +15,6 @@
 #include "base/string_piece.h"
 #include "base/win_util.h"
 #include "chrome/common/chrome_paths.h"
-#include "chrome/common/gfx/chrome_font.h"
 
 namespace {
 

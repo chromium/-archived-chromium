@@ -8,12 +8,12 @@
 #include <list>
 #include <vector>
 
+#include "app/gfx/chrome_font.h"
 #include "base/gfx/point.h"
 #include "base/gfx/rect.h"
 #include "base/message_loop.h"
 #include "base/task.h"
 #include "chrome/common/drag_drop_types.h"
-#include "chrome/common/gfx/chrome_font.h"
 #include "chrome/views/controls/menu/controller.h"
 #include "chrome/views/view.h"
 #include "skia/include/SkBitmap.h"

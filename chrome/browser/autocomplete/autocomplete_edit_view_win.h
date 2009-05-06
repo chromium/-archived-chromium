@@ -12,12 +12,12 @@
 #include <atlmisc.h>
 #include <tom.h>  // For ITextDocument, a COM interface to CRichEditCtrl.
 
+#include "app/gfx/chrome_font.h"
 #include "base/scoped_ptr.h"
 #include "chrome/browser/autocomplete/autocomplete.h"
 #include "chrome/browser/autocomplete/autocomplete_edit_view.h"
 #include "chrome/browser/toolbar_model.h"
 #include "chrome/browser/views/autocomplete/autocomplete_popup_contents_view.h"
-#include "chrome/common/gfx/chrome_font.h"
 #include "chrome/common/page_transition_types.h"
 #include "chrome/views/controls/menu/menu.h"
 #include "webkit/glue/window_open_disposition.h"
