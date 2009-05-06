@@ -16,13 +16,16 @@
 namespace {
 
 // Margins around the content.
-static const int kTopMargin = 1;
+static const int kTopMargin = 2;
 static const int kBottomMargin = 2;
-static const int kLeftMargin = 1;
-static const int kRightMargin = 1;
+static const int kLeftMargin = 0;
+static const int kRightMargin = 0;
 
-// Padding between extension toolstrips.
+// Padding on left and right side of an extension toolstrip.
 static const int kToolstripPadding = 2;
+
+// Width of the toolstrip divider.
+static const int kToolstripDividerWidth = 2;
 
 // Preferred height of the ExtensionShelf.
 static const int kShelfHeight = 29;
@@ -30,7 +33,7 @@ static const int kShelfHeight = 29;
 // Colors for the ExtensionShelf.
 static const SkColor kBackgroundColor = SkColorSetRGB(230, 237, 244);
 static const SkColor kBorderColor = SkColorSetRGB(201, 212, 225);
-static const SkColor kSeparatorHighlightColor = SkColorSetRGB(247, 250, 253);
+static const SkColor kDividerHighlightColor = SkColorSetRGB(247, 250, 253);
 
 // TODO(erikkay) convert back to a gradient when Glen figures out the
 // specs.
@@ -82,10 +85,10 @@ void ExtensionShelf::Paint(ChromeCanvas* canvas) {
 
   int count = GetChildViewCount();
   for (int i = 0; i < count; ++i) {
-    int right = GetChildViewAt(i)->bounds().right();
+    int right = GetChildViewAt(i)->bounds().right() + kToolstripPadding;
     int h = height() - 2;
     canvas->FillRectInt(kBorderColor, right, 1, 1, h);
-    canvas->FillRectInt(kSeparatorHighlightColor, right + 1, 1, 1, h);
+    canvas->FillRectInt(kDividerHighlightColor, right + 1, 1, 1, h);
   }
 
   SkRect background_rect = {
@@ -113,13 +116,14 @@ void ExtensionShelf::Layout() {
 
   int count = GetChildViewCount();
   for (int i = 0; i < count; ++i) {
+    x += kToolstripPadding;  // left padding
     views::View* child = GetChildViewAt(i);
     gfx::Size pref = child->GetPreferredSize();
-    int next_x = x + pref.width() + kToolstripPadding;
+    int next_x = x + pref.width() + kToolstripPadding;  // right padding
     child->SetVisible(next_x < max_x);
     child->SetBounds(x, y, pref.width(), content_height);
     child->Layout();
-    x = next_x;
+    x = next_x + kToolstripDividerWidth;
   }
 }
 
