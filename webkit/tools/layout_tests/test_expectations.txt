@@ -2398,20 +2398,21 @@ BUG11482 : LayoutTests/svg/custom/polyline-points-crash.html = CRASH
 BUG11502 WIN : LayoutTests/svg/css/glyph-orientation-rounding-test.xhtml = CRASH PASS
 
 // Regressions from WebKit merge 43242:43321
-WIN LINUX : LayoutTests/editing/deleting/delete-br-011.html = FAIL
-WIN LINUX : LayoutTests/editing/deleting/delete-select-all-001.html = FAIL
-WIN LINUX : LayoutTests/editing/execCommand/19089.html = FAIL
-WIN LINUX : LayoutTests/editing/execCommand/remove-formatting-2.html = FAIL
-WIN LINUX : LayoutTests/editing/pasteboard/5027857.html = FAIL
-WIN LINUX MAC : LayoutTests/editing/pasteboard/paste-blockquote-before-blockquote.html = FAIL
-WIN LINUX MAC : LayoutTests/editing/pasteboard/paste-double-nested-blockquote-before-blockquote.html = FAIL
-WIN LINUX : LayoutTests/editing/pasteboard/paste-pre-002.html = FAIL
-WIN LINUX : LayoutTests/editing/style/block-style-004.html = FAIL
-WIN LINUX : LayoutTests/editing/style/block-style-005.html = FAIL
-WIN LINUX : LayoutTests/editing/style/block-style-006.html = FAIL
-WIN LINUX : LayoutTests/fast/forms/select-dirty-parent-pref-widths.html = FAIL
-WIN LINUX : LayoutTests/svg/transforms/text-with-pattern-inside-transformed-html.xhtml = FAIL
-WIN LINUX : LayoutTests/svg/transforms/text-with-pattern-with-svg-transform.svg = FAIL
+BUG_DARIN WIN LINUX : LayoutTests/editing/deleting/delete-br-011.html = FAIL
+BUG_DARIN WIN LINUX : LayoutTests/editing/deleting/delete-select-all-001.html = FAIL
+BUG_DARIN WIN LINUX : LayoutTests/editing/execCommand/19089.html = FAIL
+BUG_DARIN WIN LINUX : LayoutTests/editing/execCommand/remove-formatting-2.html = FAIL
+BUG_DARIN WIN LINUX : LayoutTests/editing/pasteboard/5027857.html = FAIL
+BUG_DARIN WIN LINUX : LayoutTests/editing/pasteboard/paste-pre-002.html = FAIL
+BUG_DARIN WIN LINUX : LayoutTests/editing/style/block-style-004.html = FAIL
+BUG_DARIN WIN LINUX : LayoutTests/editing/style/block-style-005.html = FAIL
+BUG_DARIN WIN LINUX : LayoutTests/editing/style/block-style-006.html = FAIL
+BUG_DARIN WIN LINUX : LayoutTests/fast/forms/select-dirty-parent-pref-widths.html = FAIL
+BUG_DARIN WIN LINUX : LayoutTests/svg/transforms/text-with-pattern-inside-transformed-html.xhtml = FAIL
+BUG_DARIN WIN LINUX : LayoutTests/svg/transforms/text-with-pattern-with-svg-transform.svg = FAIL
 
-WIN : LayoutTests/http/tests/xmlhttprequest/detaching-frame-2.html = TIMEOUT
-LINUX : LayoutTests/transitions/mask-transitions.html = FAIL
+BUG_DARIN MAC : LayoutTests/editing/pasteboard/paste-blockquote-before-blockquote.html = FAIL
+BUG_DARIN MAC : LayoutTests/editing/pasteboard/paste-double-nested-blockquote-before-blockquote.html = FAIL
+
+BUG_DARIN WIN : LayoutTests/http/tests/xmlhttprequest/detaching-frame-2.html = TIMEOUT
+BUG_DARIN LINUX : LayoutTests/transitions/mask-transitions.html = FAIL
