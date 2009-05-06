@@ -281,9 +281,6 @@ void PluginInstallerImpl::URLNotify(const char* url, NPReason reason) {
       DisplayStatus(IDS_DEFAULT_PLUGIN_NO_PLUGIN_AVAILABLE_MSG);
     }
   }
-
-  default_plugin::g_browser->destroystream(instance_, plugin_install_stream_,
-                                           NPRES_DONE);
 }
 
 int16 PluginInstallerImpl::NPP_HandleEvent(void* event) {
