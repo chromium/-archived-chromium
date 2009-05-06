@@ -168,8 +168,10 @@ BrowserProcessImpl::~BrowserProcessImpl() {
 
   // Shutdown DNS prefetching now to ensure that network stack objects
   // living on the IO thread get destroyed before the IO thread goes away.
-  io_thread_->message_loop()->PostTask(FROM_HERE,
-      NewRunnableFunction(chrome_browser_net::EnsureDnsPrefetchShutdown));
+  if (io_thread_.get()) {
+    io_thread_->message_loop()->PostTask(FROM_HERE,
+        NewRunnableFunction(chrome_browser_net::EnsureDnsPrefetchShutdown));
+  }
 
 #if defined(OS_LINUX)
   // The IO thread must outlive the BACKGROUND_X11 thread.

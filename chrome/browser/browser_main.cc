@@ -350,6 +350,10 @@ int BrowserMain(const MainFunctionParams& parameters) {
   ProfileManager* profile_manager = browser_process->profile_manager();
   Profile* profile = profile_manager->GetDefaultProfile(user_data_dir);
   if (!profile) {
+    // Ideally, we should be able to run w/o access to disk.  For now, we
+    // prompt the user to pick a different user-data-dir and restart chrome
+    // with the new dir.
+    // http://code.google.com/p/chromium/issues/detail?id=11510
 #if defined(OS_WIN)
     user_data_dir = FilePath::FromWStringHack(
         UserDataDirDialog::RunUserDataDirDialog(user_data_dir.ToWStringHack()));
@@ -358,9 +362,6 @@ int BrowserMain(const MainFunctionParams& parameters) {
     user_data_dir = FilePath("/tmp");
 #endif
 #if defined(OS_WIN) || defined(OS_LINUX)
-    // Flush the message loop which lets the UserDataDirDialog close.
-    MessageLoop::current()->Run();
-
     if (!parameters.ui_task && browser_shutdown::delete_resources_on_shutdown) {
       // Only delete the resources if we're not running tests. If we're running
       // tests the resources need to be reused as many places in the UI cache

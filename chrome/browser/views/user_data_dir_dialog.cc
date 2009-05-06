@@ -92,7 +92,6 @@ void UserDataDirDialog::FileSelected(const FilePath& path,
                                      int index, void* params) {
   user_data_dir_ = path.ToWStringHack();
   is_blocking_ = false;
-  window()->Close();
 }
 
 void UserDataDirDialog::FileSelectionCanceled(void* params) {
