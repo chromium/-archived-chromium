@@ -9,8 +9,11 @@
 #include "app/l10n_util.h"
 #include "base/file_path.h"
 #include "base/logging.h"
+#include "base/message_loop.h"
+#include "base/thread.h"
 #include "base/string_util.h"
 #include "base/sys_string_conversions.h"
+#include "chrome/browser/browser_process.h"
 #include "chrome/browser/shell_dialogs.h"
 #include "grit/generated_resources.h"
 
@@ -101,16 +104,35 @@ class SelectFileDialogImpl : public SelectFileDialog {
   // The set of all parent windows for which we are currently running dialogs.
   std::set<GtkWindow*> parents_;
 
+  // The type of dialog we are showing the user.
+  Type type_;
+
+  // These two variables track where the user last saved a file or opened a
+  // file so that we can display future dialogs with the same starting path.
+  static FilePath* last_saved_path_;
+  static FilePath* last_opened_path_;
+
   DISALLOW_COPY_AND_ASSIGN(SelectFileDialogImpl);
 };
 
+FilePath* SelectFileDialogImpl::last_saved_path_ = NULL;
+FilePath* SelectFileDialogImpl::last_opened_path_ = NULL;
+
 // static
 SelectFileDialog* SelectFileDialog::Create(Listener* listener) {
+  DCHECK(MessageLoop::current() !=
+         g_browser_process->io_thread()->message_loop());
+  DCHECK(MessageLoop::current() !=
+         g_browser_process->file_thread()->message_loop());
   return new SelectFileDialogImpl(listener);
 }
 
 SelectFileDialogImpl::SelectFileDialogImpl(Listener* listener)
     : listener_(listener) {
+  if (!last_saved_path_) {
+    last_saved_path_ = new FilePath();
+    last_opened_path_ = new FilePath();
+  }
 }
 
 SelectFileDialogImpl::~SelectFileDialogImpl() {
@@ -134,6 +156,7 @@ void SelectFileDialogImpl::SelectFile(
     const FilePath::StringType& default_extension,
     gfx::NativeWindow owning_window,
     void* params) {
+  type_ = type;
   // TODO(estade): on windows, owning_window may be null. But I'm not sure when
   // that's used and how to deal with it here. For now, don't allow it.
   DCHECK(owning_window);
@@ -213,15 +236,21 @@ void SelectFileDialogImpl::AddFilters(GtkFileChooser* chooser) {
 }
 
 void SelectFileDialogImpl::FileSelected(GtkWidget* dialog,
-    const FilePath& path) {
-  void* params = PopParamsForDialog(dialog);
+                                        const FilePath& path) {
+  if (type_ == SELECT_SAVEAS_FILE) {
+    *last_saved_path_ = path.DirName();
+  } else {
+    DCHECK_EQ(type_, SELECT_OPEN_FILE);
+    *last_opened_path_ = path.DirName();
+  }
+
   if (listener_) {
     GtkFileFilter* selected_filter =
         gtk_file_chooser_get_filter(GTK_FILE_CHOOSER(dialog));
     GSList* filters = gtk_file_chooser_list_filters(GTK_FILE_CHOOSER(dialog));
     int idx = g_slist_index(filters, selected_filter);
     g_slist_free(filters);
-    listener_->FileSelected(path, idx + 1, params);
+    listener_->FileSelected(path, idx + 1, PopParamsForDialog(dialog));
   }
   RemoveParentForDialog(dialog);
   gtk_widget_destroy(dialog);
@@ -229,9 +258,10 @@ void SelectFileDialogImpl::FileSelected(GtkWidget* dialog,
 
 void SelectFileDialogImpl::MultiFilesSelected(GtkWidget* dialog,
     const std::vector<FilePath>& files) {
-  void* params = PopParamsForDialog(dialog);
+  *last_opened_path_ = files[0].DirName();
+
   if (listener_)
-    listener_->MultiFilesSelected(files, params);
+    listener_->MultiFilesSelected(files, PopParamsForDialog(dialog));
   RemoveParentForDialog(dialog);
   gtk_widget_destroy(dialog);
 }
@@ -255,6 +285,10 @@ GtkWidget* SelectFileDialogImpl::CreateFileOpenDialog(const std::string& title,
                                   NULL);
 
   AddFilters(GTK_FILE_CHOOSER(dialog));
+  if (!last_opened_path_->empty()) {
+    gtk_file_chooser_set_current_folder(GTK_FILE_CHOOSER(dialog),
+                                        last_opened_path_->value().c_str());
+  }
   gtk_file_chooser_set_select_multiple(GTK_FILE_CHOOSER(dialog), FALSE);
   g_signal_connect(G_OBJECT(dialog), "response",
                    G_CALLBACK(OnSelectSingleFileDialogResponse), this);
@@ -272,6 +306,10 @@ GtkWidget* SelectFileDialogImpl::CreateMultiFileOpenDialog(
                                   NULL);
 
   AddFilters(GTK_FILE_CHOOSER(dialog));
+  if (!last_opened_path_->empty()) {
+    gtk_file_chooser_set_current_folder(GTK_FILE_CHOOSER(dialog),
+                                        last_opened_path_->value().c_str());
+  }
   gtk_file_chooser_set_select_multiple(GTK_FILE_CHOOSER(dialog), TRUE);
   g_signal_connect(G_OBJECT(dialog), "response",
                    G_CALLBACK(OnSelectMultiFileDialogResponse), this);
@@ -290,8 +328,13 @@ GtkWidget* SelectFileDialogImpl::CreateSaveAsDialog(const std::string& title,
   AddFilters(GTK_FILE_CHOOSER(dialog));
   // Since we expect that the file will not already exist, we use
   // set_current_folder() followed by set_current_name().
-  gtk_file_chooser_set_current_folder(GTK_FILE_CHOOSER(dialog),
-      default_path.DirName().value().c_str());
+  if (last_saved_path_->empty()) {
+    gtk_file_chooser_set_current_folder(GTK_FILE_CHOOSER(dialog),
+        default_path.DirName().value().c_str());
+  } else {
+    gtk_file_chooser_set_current_folder(GTK_FILE_CHOOSER(dialog),
+                                        last_saved_path_->value().c_str());
+  }
   gtk_file_chooser_set_current_name(GTK_FILE_CHOOSER(dialog),
       default_path.BaseName().value().c_str());
   gtk_file_chooser_set_select_multiple(GTK_FILE_CHOOSER(dialog), FALSE);
