@@ -141,7 +141,7 @@
         '../app/gfx/favicon_size.h',
         '../app/gfx/icon_util.cc',
         '../app/gfx/icon_util.h',
-        '../app/gfx/insets.h',        
+        '../app/gfx/insets.h',
         '../app/gfx/path_gtk.cc',
         '../app/gfx/path_win.cc',
         '../app/gfx/path.h',
@@ -149,7 +149,7 @@
         '../app/l10n_util.h',
         '../app/l10n_util_posix.cc',
         '../app/l10n_util_win.cc',
-        '../app/l10n_util_win.h',        
+        '../app/l10n_util_win.h',
         '../app/message_box_flags.h',
         '../app/os_exchange_data.cc',
         '../app/os_exchange_data.h',
@@ -171,6 +171,9 @@
       'conditions': [
         ['OS=="linux"', {
           'dependencies': [
+            # chrome_font_gtk.cc uses fontconfig.
+            # TODO(evanm): I think this is wrong; it should just use GTK.
+            '../build/linux/system.gyp:fontconfig',
             '../build/linux/system.gyp:gtk',
           ],
         }],
@@ -183,7 +186,7 @@
             '../app/os_exchange_data.cc',
             '../app/os_exchange_data.h',
           ],
-        }],        
+        }],
       ],
     },
     {
