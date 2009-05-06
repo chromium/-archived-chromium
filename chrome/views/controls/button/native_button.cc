@@ -32,10 +32,10 @@ NativeButton::NativeButton(ButtonListener* listener)
 NativeButton::NativeButton(ButtonListener* listener, const std::wstring& label)
     : Button(listener),
       native_wrapper_(NULL),
-      label_(label),
       is_default_(false),
       ignore_minimum_size_(false),
       minimum_size_(50, 14) {
+  SetLabel(label);  // SetLabel takes care of label layout in RTL UI.
   // The min size in DLUs comes from
   // http://msdn.microsoft.com/library/default.asp?url=/library/en-us/dnwue/html/ch14e.asp
   InitBorder();
