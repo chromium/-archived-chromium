@@ -306,6 +306,10 @@ class TabStripModel : public NotificationObserver {
   // is not in this TabStripModel.
   int GetIndexOfTabContents(const TabContents* contents) const;
 
+  // Returns the index of the specified NavigationController, or -1 if it is
+  // not in this TabStripModel.
+  int GetIndexOfController(const NavigationController* controller) const;
+
   // Notify any observers that the TabContents at the specified index has
   // changed in some way. Loading only specifies whether only the loading state
   // has changed.

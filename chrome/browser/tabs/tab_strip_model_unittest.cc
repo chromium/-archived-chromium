@@ -372,6 +372,8 @@ TEST_F(TabStripModelTest, TestBasicAPI) {
     EXPECT_EQ(contents1, tabstrip.GetTabContentsAt(1));
     EXPECT_EQ(0, tabstrip.GetIndexOfTabContents(contents2));
     EXPECT_EQ(1, tabstrip.GetIndexOfTabContents(contents1));
+    EXPECT_EQ(0, tabstrip.GetIndexOfController(&contents2->controller()));
+    EXPECT_EQ(1, tabstrip.GetIndexOfController(&contents1->controller()));
   }
 
   // Test UpdateTabContentsStateAt

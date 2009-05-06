@@ -197,8 +197,8 @@ class Browser : public TabStripModelDelegate,
 
   int tab_count() const { return tabstrip_model_.count(); }
   int selected_index() const { return tabstrip_model_.selected_index(); }
-  int GetIndexOfTabContents(const TabContents* contents) const {
-    return tabstrip_model_.GetIndexOfTabContents(contents);
+  int GetIndexOfController(const NavigationController* controller) const {
+    return tabstrip_model_.GetIndexOfController(controller);
   }
   TabContents* GetTabContentsAt(int index) const {
     return tabstrip_model_.GetTabContentsAt(index);
