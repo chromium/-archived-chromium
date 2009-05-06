@@ -4,11 +4,11 @@
 
 #include "chrome/browser/views/frame/browser_root_view.h"
 
+#include "app/drag_drop_types.h"
+#include "app/os_exchange_data.h"
 #include "chrome/browser/views/frame/browser_view.h"
 #include "chrome/browser/views/frame/browser_frame.h"
 #include "chrome/browser/views/tabs/tab_strip.h"
-#include "chrome/common/drag_drop_types.h"
-#include "chrome/common/os_exchange_data.h"
 
 BrowserRootView::BrowserRootView(views::Widget* widget)
     : views::RootView(widget),

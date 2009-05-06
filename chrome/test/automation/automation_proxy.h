@@ -7,6 +7,7 @@
 
 #include <string>
 
+#include "app/message_box_flags.h"
 #include "base/basictypes.h"
 #include "base/process_util.h"
 #include "base/scoped_ptr.h"
@@ -16,7 +17,6 @@
 #include "chrome/common/ipc_channel_proxy.h"
 #include "chrome/common/ipc_message.h"
 #include "chrome/common/ipc_sync_channel.h"
-#include "chrome/common/message_box_flags.h"
 #include "chrome/test/automation/automation_handle_tracker.h"
 #include "chrome/test/automation/automation_messages.h"
 

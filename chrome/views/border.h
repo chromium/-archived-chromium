@@ -5,7 +5,7 @@
 #ifndef CHROME_VIEWS_BORDER_H_
 #define CHROME_VIEWS_BORDER_H_
 
-#include "chrome/common/gfx/insets.h"
+#include "app/gfx/insets.h"
 #include "chrome/views/view.h"
 #include "SkColor.h"
 

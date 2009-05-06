@@ -144,6 +144,30 @@
 				RelativePath=".\gfx\chrome_font_win.cc"
 				>
 			</File>
+			<File
+				RelativePath=".\gfx\favicon_size.h"
+				>
+			</File>
+			<File
+				RelativePath=".\gfx\icon_util.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\gfx\icon_util.h"
+				>
+			</File>
+			<File
+				RelativePath=".\gfx\insets.h"
+				>
+			</File>
+			<File
+				RelativePath=".\gfx\path.h"
+				>
+			</File>
+			<File
+				RelativePath=".\gfx\path_win.cc"
+				>
+			</File>
 		</Filter>
 		<File
 			RelativePath=".\animation.cc"
@@ -151,6 +175,14 @@
 		</File>
 		<File
 			RelativePath=".\animation.h"
+			>
+		</File>
+		<File
+			RelativePath=".\drag_drop_types.cc"
+			>
+		</File>
+		<File
+			RelativePath=".\drag_drop_types.h"
 			>
 		</File>
 		<File
@@ -167,6 +199,18 @@
 		</File>
 		<File
 			RelativePath=".\l10n_util_win.h"
+			>
+		</File>
+		<File
+			RelativePath=".\message_box_flags.h"
+			>
+		</File>
+		<File
+			RelativePath=".\os_exchange_data.cc"
+			>
+		</File>
+		<File
+			RelativePath=".\os_exchange_data.h"
 			>
 		</File>
 		<File

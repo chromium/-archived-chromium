@@ -4,6 +4,12 @@
 
 #include "chrome/browser/bookmarks/bookmark_drag_data.h"
 
+// TODO(port): Port this file.
+#if defined(OS_WIN)
+#include "app/os_exchange_data.h"
+#else
+#include "chrome/common/temp_scaffolding_stubs.h"
+#endif
 #include "base/basictypes.h"
 #include "base/pickle.h"
 #include "base/string_util.h"
@@ -11,12 +17,6 @@
 #include "chrome/browser/profile.h"
 #include "chrome/common/url_constants.h"
 
-// TODO(port): Port this file.
-#if defined(OS_WIN)
-#include "chrome/common/os_exchange_data.h"
-#else
-#include "chrome/common/temp_scaffolding_stubs.h"
-#endif
 
 #if defined(OS_WIN)
 static CLIPFORMAT clipboard_format = 0;

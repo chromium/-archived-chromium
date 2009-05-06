@@ -7,6 +7,7 @@
 #include <windows.h>
 #include <shellapi.h>
 
+#include "app/gfx/icon_util.h"
 #include "base/file_util.h"
 #include "base/gfx/size.h"
 #include "base/message_loop.h"
@@ -15,7 +16,6 @@
 #include "base/task.h"
 #include "base/thread.h"
 #include "chrome/browser/browser_process.h"
-#include "chrome/common/gfx/icon_util.h"
 
 #include "SkBitmap.h"
 

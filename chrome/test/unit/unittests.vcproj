@@ -960,10 +960,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\common\gfx\icon_util_unittest.cc"
-				>
-			</File>
-			<File
 				RelativePath="..\..\common\ipc_message_unittest.cc"
 				>
 			</File>
@@ -993,10 +989,6 @@
 			</File>
 			<File
 				RelativePath="..\..\common\notification_service_unittest.cc"
-				>
-			</File>
-			<File
-				RelativePath="..\..\common\os_exchange_data_unittest.cc"
 				>
 			</File>
 			<File
@@ -1100,7 +1092,15 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\..\app\gfx\icon_util_unittest.cc"
+				>
+			</File>
+			<File
 				RelativePath="..\..\..\app\l10n_util_unittest.cc"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\app\os_exchange_data_unittest.cc"
 				>
 			</File>
 		</Filter>

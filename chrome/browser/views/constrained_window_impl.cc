@@ -6,6 +6,7 @@
 
 #include "app/gfx/chrome_canvas.h"
 #include "app/gfx/chrome_font.h"
+#include "app/gfx/path.h"
 #include "app/l10n_util.h"
 #include "app/resource_bundle.h"
 #include "base/gfx/rect.h"
@@ -19,7 +20,6 @@
 #include "chrome/browser/views/frame/browser_view.h"
 #include "chrome/browser/window_sizer.h"
 #include "chrome/common/chrome_constants.h"
-#include "chrome/common/gfx/path.h"
 #include "chrome/common/gfx/text_elider.h"
 #include "chrome/common/notification_service.h"
 #include "chrome/common/pref_names.h"

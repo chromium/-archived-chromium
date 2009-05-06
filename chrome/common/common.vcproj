@@ -165,22 +165,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\gfx\favicon_size.h"
-				>
-			</File>
-			<File
-				RelativePath=".\gfx\icon_util.cc"
-				>
-			</File>
-			<File
-				RelativePath=".\gfx\icon_util.h"
-				>
-			</File>
-			<File
-				RelativePath=".\gfx\insets.h"
-				>
-			</File>
-			<File
 				RelativePath=".\gfx\path.h"
 				>
 			</File>
@@ -466,14 +450,6 @@
 			>
 		</File>
 		<File
-			RelativePath=".\drag_drop_types.cc"
-			>
-		</File>
-		<File
-			RelativePath=".\drag_drop_types.h"
-			>
-		</File>
-		<File
 			RelativePath=".\env_vars.cc"
 			>
 		</File>
@@ -531,10 +507,6 @@
 		</File>
 		<File
 			RelativePath=".\main_function_params.h"
-			>
-		</File>
-		<File
-			RelativePath=".\message_box_flags.h"
 			>
 		</File>
 		<File

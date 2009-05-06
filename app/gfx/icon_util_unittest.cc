@@ -6,7 +6,7 @@
 #include <atlapp.h>
 #include <atlmisc.h>
 
-#include "chrome/common/gfx/icon_util.h"
+#include "app/gfx/icon_util.h"
 #include "base/gfx/size.h"
 #include "base/scoped_ptr.h"
 #include "base/file_util.h"

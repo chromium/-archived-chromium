@@ -4,7 +4,7 @@
 
 #include <shlobj.h>
 
-#include "chrome/common/os_exchange_data.h"
+#include "app/os_exchange_data.h"
 
 #include "app/l10n_util.h"
 #include "base/clipboard_util.h"

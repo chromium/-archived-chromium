@@ -8,11 +8,11 @@
 
 #include "app/gfx/chrome_canvas.h"
 #include "app/gfx/chrome_font.h"
+#include "app/gfx/insets.h"
 #include "app/l10n_util.h"
 #include "app/resource_bundle.h"
 #include "base/logging.h"
 #include "base/string_util.h"
-#include "chrome/common/gfx/insets.h"
 #include "chrome/common/gfx/text_elider.h"
 #include "chrome/views/background.h"
 

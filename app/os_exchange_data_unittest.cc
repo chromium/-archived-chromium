@@ -5,12 +5,12 @@
 #include <atlbase.h>
 #include <shlobj.h>
 
+#include "app/os_exchange_data.h"
 #include "base/clipboard_util.h"
 #include "base/pickle.h"
 #include "base/ref_counted.h"
 #include "base/scoped_handle.h"
 #include "base/string_util.h"
-#include "chrome/common/os_exchange_data.h"
 #include "chrome/common/win_util.h"
 #include "googleurl/src/gurl.h"
 #include "testing/gtest/include/gtest/gtest.h"

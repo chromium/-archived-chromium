@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "chrome/common/drag_drop_types.h"
+#include "app/drag_drop_types.h"
 
 #include <oleidl.h>
 

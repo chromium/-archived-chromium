@@ -4,8 +4,8 @@
 
 #include "chrome/views/widget/root_view_drop_target.h"
 
+#include "app/drag_drop_types.h"
 #include "base/gfx/point.h"
-#include "chrome/common/drag_drop_types.h"
 #include "chrome/views/widget/root_view.h"
 #include "chrome/views/widget/widget.h"
 

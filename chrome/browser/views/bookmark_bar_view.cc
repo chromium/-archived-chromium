@@ -8,6 +8,7 @@
 
 #include "app/gfx/chrome_canvas.h"
 #include "app/l10n_util.h"
+#include "app/os_exchange_data.h"
 #include "app/resource_bundle.h"
 #include "base/string_util.h"
 #include "base/base_drag_source.h"
@@ -28,7 +29,6 @@
 #include "chrome/browser/views/event_utils.h"
 #include "chrome/common/gfx/text_elider.h"
 #include "chrome/common/notification_service.h"
-#include "chrome/common/os_exchange_data.h"
 #include "chrome/common/page_transition_types.h"
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"

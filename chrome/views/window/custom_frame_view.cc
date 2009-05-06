@@ -6,9 +6,9 @@
 
 #include "app/gfx/chrome_canvas.h"
 #include "app/gfx/chrome_font.h"
+#include "app/gfx/path.h"
 #include "app/resource_bundle.h"
 #include "base/win_util.h"
-#include "chrome/common/gfx/path.h"
 #include "chrome/common/win_util.h"
 #include "chrome/views/window/client_view.h"
 #include "chrome/views/window/window_delegate.h"

@@ -7,8 +7,8 @@
 #import <Cocoa/Cocoa.h>
 
 #include "app/l10n_util.h"
+#include "app/message_box_flags.h"
 #include "base/sys_string_conversions.h"
-#include "chrome/common/message_box_flags.h"
 #include "grit/generated_resources.h"
 
 // Helper object that receives the notification that the dialog/sheet is

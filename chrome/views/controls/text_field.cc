@@ -11,6 +11,7 @@
 #include <tom.h>  // For ITextDocument, a COM interface to CRichEditCtrl
 #include <vsstyle.h>
 
+#include "app/gfx/insets.h"
 #include "app/l10n_util.h"
 #include "app/l10n_util_win.h"
 #include "base/clipboard.h"
@@ -19,8 +20,6 @@
 #include "base/string_util.h"
 #include "base/win_util.h"
 #include "chrome/browser/browser_process.h"
-#include "chrome/common/gfx/insets.h"
-#include "chrome/common/logging_chrome.h"
 #include "chrome/common/win_util.h"
 #include "chrome/views/controls/hwnd_view.h"
 #include "chrome/views/controls/menu/menu.h"

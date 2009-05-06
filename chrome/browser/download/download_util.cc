@@ -10,6 +10,7 @@
 
 #include "app/gfx/chrome_canvas.h"
 #include "app/l10n_util.h"
+#include "app/os_exchange_data.h"
 #include "app/resource_bundle.h"
 #include "base/base_drag_source.h"
 #include "base/file_util.h"
@@ -19,7 +20,6 @@
 #include "chrome/browser/download/download_item_model.h"
 #include "chrome/browser/download/download_manager.h"
 #include "chrome/browser/drag_utils.h"
-#include "chrome/common/os_exchange_data.h"
 #include "chrome/views/view.h"
 #include "grit/generated_resources.h"
 #include "grit/locale_settings.h"

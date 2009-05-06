@@ -4,10 +4,10 @@
 
 #include "chrome/views/controls/button/menu_button.h"
 
+#include "app/drag_drop_types.h"
 #include "app/gfx/chrome_canvas.h"
 #include "app/l10n_util.h"
 #include "app/resource_bundle.h"
-#include "chrome/common/drag_drop_types.h"
 #include "chrome/common/win_util.h"
 #include "chrome/views/controls/button/button.h"
 #include "chrome/views/controls/menu/view_menu_delegate.h"

@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CHROME_COMMON_MESSAGE_BOX_FLAGS_H_
-#define CHROME_COMMON_MESSAGE_BOX_FLAGS_H_
+#ifndef APP_MESSAGE_BOX_FLAGS_H_
+#define APP_MESSAGE_BOX_FLAGS_H_
 
 #include "base/basictypes.h"
 
@@ -54,4 +54,4 @@ class MessageBoxFlags {
   DISALLOW_COPY_AND_ASSIGN(MessageBoxFlags);
 };
 
-#endif  // CHROME_COMMON_MESSAGE_BOX_FLAGS_H_
+#endif  // APP_MESSAGE_BOX_FLAGS_H_

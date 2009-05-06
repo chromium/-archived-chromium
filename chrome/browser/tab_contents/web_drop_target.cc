@@ -7,11 +7,11 @@
 
 #include "chrome/browser/tab_contents/web_drop_target.h"
 
+#include "app/os_exchange_data.h"
 #include "base/clipboard_util.h"
 #include "base/gfx/point.h"
 #include "chrome/browser/renderer_host/render_view_host.h"
 #include "chrome/browser/tab_contents/tab_contents.h"
-#include "chrome/common/os_exchange_data.h"
 #include "googleurl/src/gurl.h"
 #include "net/base/net_util.h"
 #include "webkit/glue/webdropdata.h"

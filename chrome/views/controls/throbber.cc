@@ -7,7 +7,6 @@
 #include "app/gfx/chrome_canvas.h"
 #include "app/resource_bundle.h"
 #include "base/time.h"
-#include "chrome/common/logging_chrome.h"
 #include "grit/theme_resources.h"
 #include "skia/include/SkBitmap.h"
 

@@ -7,6 +7,7 @@
 #include <map>
 #include <set>
 
+#include "app/gfx/favicon_size.h"
 #include "app/l10n_util.h"
 #include "base/file_util.h"
 #include "base/gfx/png_encoder.h"
@@ -28,7 +29,6 @@
 #include "chrome/browser/shell_integration.h"
 #include "chrome/browser/tab_contents/site_instance.h"
 #include "chrome/browser/webdata/web_data_service.h"
-#include "chrome/common/gfx/favicon_size.h"
 #include "chrome/common/notification_service.h"
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"

@@ -8,7 +8,9 @@
 #include <string>
 #include <vector>
 
+#include "app/gfx/favicon_size.h"
 #include "app/l10n_util.h"
+#include "app/message_box_flags.h"
 #include "app/resource_bundle.h"
 #include "base/command_line.h"
 #include "base/compiler_specific.h"
@@ -19,10 +21,8 @@
 #include "build/build_config.h"
 #include "chrome/common/bindings_policy.h"
 #include "chrome/common/chrome_switches.h"
-#include "chrome/common/gfx/favicon_size.h"
 #include "chrome/common/gfx/color_utils.h"
 #include "chrome/common/jstemplate_builder.h"
-#include "chrome/common/message_box_flags.h"
 #include "chrome/common/page_zoom.h"
 #include "chrome/common/render_messages.h"
 #include "chrome/common/thumbnail_score.h"

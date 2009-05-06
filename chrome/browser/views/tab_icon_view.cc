@@ -8,13 +8,13 @@
 #include <shellapi.h>
 
 #include "app/gfx/chrome_canvas.h"
+#include "app/gfx/favicon_size.h"
+#include "app/gfx/icon_util.h"
 #include "app/resource_bundle.h"
 #include "base/file_util.h"
 #include "base/path_service.h"
 #include "chrome/app/chrome_dll_resource.h"
 #include "chrome/browser/tab_contents/tab_contents.h"
-#include "chrome/common/gfx/favicon_size.h"
-#include "chrome/common/gfx/icon_util.h"
 #include "grit/theme_resources.h"
 
 static bool g_initialized = false;

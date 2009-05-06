@@ -4,6 +4,7 @@
 
 #include "chrome/browser/automation/automation_provider.h"
 
+#include "app/message_box_flags.h"
 #include "base/file_version_info.h"
 #include "base/message_loop.h"
 #include "base/path_service.h"
@@ -29,7 +30,6 @@
 #include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/browser/tab_contents/tab_contents_view.h"
 #include "chrome/common/chrome_paths.h"
-#include "chrome/common/message_box_flags.h"
 #include "chrome/common/notification_registrar.h"
 #include "chrome/common/platform_util.h"
 #include "chrome/common/pref_service.h"

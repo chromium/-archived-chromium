@@ -6,12 +6,12 @@
 
 #include "app/gfx/chrome_canvas.h"
 #include "app/gfx/chrome_font.h"
+#include "app/gfx/path.h"
 #include "app/l10n_util.h"
 #include "app/resource_bundle.h"
 #include "chrome/browser/views/frame/browser_frame.h"
 #include "chrome/browser/views/frame/browser_view.h"
 #include "chrome/browser/views/tabs/tab_strip.h"
-#include "chrome/common/gfx/path.h"
 #include "chrome/common/win_util.h"
 #include "chrome/views/controls/button/image_button.h"
 #include "chrome/views/widget/root_view.h"

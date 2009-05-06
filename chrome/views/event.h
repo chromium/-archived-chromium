@@ -12,7 +12,6 @@
 #endif
 
 #include "base/gfx/point.h"
-#include "webkit/glue/window_open_disposition.h"
 
 class OSExchangeData;
 
@@ -99,10 +98,6 @@ class Event {
   // Convert the state member on a GdkEvent to views::Event flags
   static int GetFlagsFromGdkState(int state);
 #endif
-
-  // Convert WebInputEvent::Modifiers flags to views::Event flags.
-  // Note that this only deals with keyboard modifiers.
-  static int ConvertWebInputEventFlags(int web_input_event_flags);
 
  protected:
   Event(EventType type, int flags);

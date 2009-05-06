@@ -5,9 +5,6 @@
 #include "chrome/views/event.h"
 
 #include "chrome/views/view.h"
-#include "third_party/WebKit/WebKit/chromium/public/WebInputEvent.h"
-
-using WebKit::WebInputEvent;
 
 namespace views {
 
@@ -19,18 +16,6 @@ Event::Event(EventType type, int flags)
       time_stamp_(0),
 #endif
       flags_(flags) {
-}
-
-// static
-int Event::ConvertWebInputEventFlags(int web_input_event_flags) {
-  int r = 0;
-  if (web_input_event_flags & WebInputEvent::ShiftKey)
-    r |= EF_SHIFT_DOWN;
-  if (web_input_event_flags & WebInputEvent::ControlKey)
-    r |= EF_CONTROL_DOWN;
-  if (web_input_event_flags & WebInputEvent::AltKey)
-    r |= EF_ALT_DOWN;
-  return r;
 }
 
 LocatedEvent::LocatedEvent(const LocatedEvent& model, View* from, View* to)

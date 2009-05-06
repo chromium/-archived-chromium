@@ -4,10 +4,10 @@
 
 #include "chrome/views/widget/root_view.h"
 
+#include "app/drag_drop_types.h"
 #include "app/gfx/chrome_canvas.h"
 #include "base/base_drag_source.h"
 #include "base/logging.h"
-#include "chrome/common/drag_drop_types.h"
 #include "chrome/views/widget/root_view_drop_target.h"
 
 namespace views {

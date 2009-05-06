@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CHROME_COMMON_DRAG_DROP_TYPES_H_
-#define CHROME_COMMON_DRAG_DROP_TYPES_H_
+#ifndef APP_DRAG_DROP_TYPES_H_
+#define APP_DRAG_DROP_TYPES_H_
 
 #include "base/basictypes.h"
 
@@ -20,4 +20,4 @@ class DragDropTypes {
   static int DropEffectToDragOperation(uint32 effect);
 };
 
-#endif  // CHROME_COMMON_DRAG_DROP_TYPES_H_
+#endif  // APP_DRAG_DROP_TYPES_H_

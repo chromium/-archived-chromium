@@ -4,16 +4,16 @@
 
 #include "chrome/browser/views/bookmark_table_view.h"
 
+#include "app/drag_drop_types.h"
 #include "app/gfx/chrome_canvas.h"
 #include "app/gfx/chrome_font.h"
+#include "app/os_exchange_data.h"
 #include "app/resource_bundle.h"
 #include "base/base_drag_source.h"
 #include "chrome/browser/bookmarks/bookmark_utils.h"
 #include "chrome/browser/bookmarks/bookmark_model.h"
 #include "chrome/browser/bookmarks/bookmark_table_model.h"
 #include "chrome/browser/profile.h"
-#include "chrome/common/drag_drop_types.h"
-#include "chrome/common/os_exchange_data.h"
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
 #include "chrome/views/view_constants.h"

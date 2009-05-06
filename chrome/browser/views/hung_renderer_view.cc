@@ -12,7 +12,6 @@
 #include "chrome/browser/views/standard_layout.h"
 #include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/common/chrome_constants.h"
-#include "chrome/common/gfx/path.h"
 #include "chrome/common/logging_chrome.h"
 #include "chrome/common/result_codes.h"
 #include "chrome/views/grid_layout.h"

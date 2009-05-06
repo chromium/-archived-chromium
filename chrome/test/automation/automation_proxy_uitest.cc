@@ -4,6 +4,7 @@
 
 #include <string>
 
+#include "app/message_box_flags.h"
 #include "base/command_line.h"
 #include "base/file_path.h"
 #include "base/string_util.h"
@@ -13,7 +14,6 @@
 #include "chrome/common/chrome_constants.h"
 #include "chrome/common/chrome_switches.h"
 #include "chrome/common/json_value_serializer.h"
-#include "chrome/common/message_box_flags.h"
 #include "chrome/test/automation/constrained_window_proxy.h"
 #include "chrome/test/automation/browser_proxy.h"
 #include "chrome/test/automation/tab_proxy.h"

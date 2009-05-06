@@ -6,11 +6,11 @@
 
 #include <gtk/gtk.h>
 
+#include "app/gfx/path.h"
 #include "base/basictypes.h"
 #include "base/gfx/gtk_util.h"
 #include "base/gfx/rect.h"
 #include "base/logging.h"
-#include "chrome/common/gfx/path.h"
 
 namespace {
 

@@ -4,7 +4,14 @@
 
 #include "chrome/browser/bookmarks/bookmark_utils.h"
 
+#include "app/drag_drop_types.h"
 #include "app/l10n_util.h"
+// TODO(port): Port these files.
+#if defined(OS_WIN)
+#include "app/os_exchange_data.h"
+#else
+#include "chrome/common/temp_scaffolding_stubs.h"
+#endif
 #include "base/basictypes.h"
 #include "base/string_util.h"
 #include "base/time.h"
@@ -16,7 +23,6 @@
 #include "chrome/browser/profile.h"
 #include "chrome/browser/tab_contents/page_navigator.h"
 #include "chrome/browser/tab_contents/tab_contents.h"
-#include "chrome/common/drag_drop_types.h"
 #include "chrome/common/notification_service.h"
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
@@ -24,13 +30,6 @@
 #include "chrome/views/event.h"
 #include "grit/chromium_strings.h"
 #include "grit/generated_resources.h"
-
-// TODO(port): Port these files.
-#if defined(OS_WIN)
-#include "chrome/common/os_exchange_data.h"
-#else
-#include "chrome/common/temp_scaffolding_stubs.h"
-#endif
 
 using base::Time;
 

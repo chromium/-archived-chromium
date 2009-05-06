@@ -5,9 +5,9 @@
 #include "chrome/browser/views/repost_form_warning_view.h"
 
 #include "app/l10n_util.h"
+#include "app/message_box_flags.h"
 #include "chrome/browser/browser_list.h"
 #include "chrome/browser/tab_contents/navigation_controller.h"
-#include "chrome/common/message_box_flags.h"
 #include "chrome/common/notification_service.h"
 #include "chrome/views/controls/message_box_view.h"
 #include "chrome/views/window/window.h"

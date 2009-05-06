@@ -10,6 +10,7 @@
 #include "chrome/browser/browser_main_win.h"
 
 #include "app/l10n_util.h"
+#include "app/message_box_flags.h"
 #include "base/command_line.h"
 #include "base/path_service.h"
 #include "base/win_util.h"
@@ -18,7 +19,6 @@
 #include "chrome/browser/views/uninstall_dialog.h"
 #include "chrome/common/chrome_switches.h"
 #include "chrome/common/env_vars.h"
-#include "chrome/common/message_box_flags.h"
 #include "chrome/common/result_codes.h"
 #include "chrome/installer/util/helper.h"
 #include "chrome/installer/util/install_util.h"

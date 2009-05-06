@@ -5,7 +5,7 @@
 #ifndef CHROME_VIEWS_WINDOW_DIALOG_DELEGATE_H_
 #define CHROME_VIEWS_WINDOW_DIALOG_DELEGATE_H_
 
-#include "chrome/common/message_box_flags.h"
+#include "app/message_box_flags.h"
 #include "chrome/views/window/dialog_client_view.h"
 #include "chrome/views/window/window_delegate.h"
 

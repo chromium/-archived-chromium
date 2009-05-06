@@ -6,8 +6,10 @@
 
 #include <string>
 
+#include "app/drag_drop_types.h"
 #include "app/gfx/chrome_canvas.h"
 #include "app/l10n_util.h"
+#include "app/os_exchange_data.h"
 #include "app/resource_bundle.h"
 #include "base/command_line.h"
 #include "base/logging.h"
@@ -33,9 +35,7 @@
 #include "chrome/browser/view_ids.h"
 #include "chrome/common/chrome_constants.h"
 #include "chrome/common/chrome_switches.h"
-#include "chrome/common/drag_drop_types.h"
 #include "chrome/common/notification_service.h"
-#include "chrome/common/os_exchange_data.h"
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
 #include "chrome/common/win_util.h"

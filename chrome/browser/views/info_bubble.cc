@@ -5,11 +5,11 @@
 #include "chrome/browser/views/info_bubble.h"
 
 #include "app/gfx/chrome_canvas.h"
+#include "app/gfx/path.h"
 #include "app/resource_bundle.h"
 #include "base/win_util.h"
 #include "chrome/browser/browser_window.h"
 #include "chrome/browser/views/frame/browser_view.h"
-#include "chrome/common/gfx/path.h"
 #include "chrome/common/notification_service.h"
 #include "chrome/common/notification_type.h"
 #include "chrome/common/win_util.h"

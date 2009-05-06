@@ -6,13 +6,13 @@
 
 #include <algorithm>
 
+#include "app/drag_drop_types.h"
 #include "app/gfx/chrome_canvas.h"
 #if defined(OS_WIN)
 #include "base/base_drag_source.h"
 #endif
 #include "base/logging.h"
 #include "base/message_loop.h"
-#include "chrome/common/drag_drop_types.h"
 #include "chrome/common/notification_service.h"
 #if defined(OS_WIN)
 #include "chrome/views/widget/root_view_drop_target.h"

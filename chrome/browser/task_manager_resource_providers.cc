@@ -4,6 +4,9 @@
 
 #include "chrome/browser/task_manager_resource_providers.h"
 
+#if defined(OS_WIN)
+#include "app/gfx/icon_util.h"
+#endif  // defined(OS_WIN)
 #include "app/l10n_util.h"
 #include "app/resource_bundle.h"
 #include "base/basictypes.h"
@@ -21,9 +24,6 @@
 #include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/common/child_process_host.h"
 #include "chrome/common/notification_service.h"
-#if defined(OS_WIN)
-#include "chrome/common/gfx/icon_util.h"
-#endif  // defined(OS_WIN)
 #include "grit/generated_resources.h"
 #include "grit/theme_resources.h"
 

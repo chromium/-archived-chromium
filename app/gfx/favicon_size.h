@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CHROME_COMMON_GFX_FAVICON_SIZE_H__
-#define CHROME_COMMON_GFX_FAVICON_SIZE_H__
+#ifndef APP_GFX_FAVICON_SIZE_H_
+#define APP_GFX_FAVICON_SIZE_H_
 
 #include "base/compiler_specific.h"
 
@@ -30,4 +30,4 @@ void calc_favicon_target_size(int* width, int* height) {
   }
 }
 
-#endif // CHROME_COMMON_GFX_FAVICON_SIZE_H__
+#endif // APP_GFX_FAVICON_SIZE_H_

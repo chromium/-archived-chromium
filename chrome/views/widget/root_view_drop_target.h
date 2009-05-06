@@ -9,8 +9,8 @@
 #include <atlapp.h>
 #include <atlmisc.h>
 
+#include "app/os_exchange_data.h"
 #include "base/base_drop_target.h"
-#include "chrome/common/os_exchange_data.h"
 
 namespace gfx {
 class Point;

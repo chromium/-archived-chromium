@@ -5,7 +5,7 @@
 #include "chrome/browser/views/restart_message_box.h"
 
 #include "app/l10n_util.h"
-#include "chrome/common/message_box_flags.h"
+#include "app/message_box_flags.h"
 #include "chrome/views/controls/message_box_view.h"
 #include "chrome/views/window/window.h"
 #include "grit/chromium_strings.h"

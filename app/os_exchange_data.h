@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CHROME_COMMON_OS_EXCHANGE_DATA_H__
-#define CHROME_COMMON_OS_EXCHANGE_DATA_H__
+#ifndef APP_OS_EXCHANGE_DATA_H_
+#define APP_OS_EXCHANGE_DATA_H_
 
 #include <atlbase.h>
 #include <objidl.h>
@@ -141,4 +141,4 @@ class OSExchangeData : public IDataObject {
   DISALLOW_EVIL_CONSTRUCTORS(OSExchangeData);
 };
 
-#endif  // #ifndef CHROME_COMMON_OS_EXCHANGE_DATA_H__
+#endif  // #ifndef APP_OS_EXCHANGE_DATA_H_
