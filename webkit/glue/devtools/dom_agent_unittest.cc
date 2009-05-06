@@ -59,14 +59,14 @@ class DomAgentTests : public TestShellTest {
     test_shell_->ResetTestController();
     GURL file_url = net::FilePathToFileURL(data_dir_);
     WebFrame* main_frame = test_shell_->webView()->GetMainFrame();
-    main_frame->LoadHTMLString("<html> <body>  </body> </html>",
+    main_frame->LoadHTMLString("<html> <head> </head> <body>  </body> </html>",
         file_url);
     WebFrameImpl* main_frame_impl = static_cast<WebFrameImpl*>(main_frame);
 
     document_ = main_frame_impl->frame()->document();
     Node* html = document_->documentElement();
-    body_ = static_cast<Element*>(html->firstChild());
-
+    head_ = static_cast<Element*>(html->firstChild());
+    body_ = static_cast<Element*>(head_->nextSibling());
     mock_delegate_.set(new MockDomAgentDelegate());
     dom_agent_.set(new DomAgentImpl(mock_delegate_.get()));
     dom_agent_->SetDocument(document_.get());
@@ -80,7 +80,8 @@ class DomAgentTests : public TestShellTest {
   }
 
   static const int kHtmlElemId = 1;
-  static const int kBodyElemId = 2;
+  static const int kHeadElemId = 2;
+  static const int kBodyElemId = 3;
   enum {
     kCallIdAny = 0,
     kCallId1,
@@ -90,6 +91,7 @@ class DomAgentTests : public TestShellTest {
   };
 
   RefPtr<Document> document_;
+  RefPtr<Element> head_;
   RefPtr<Element> body_;
   OwnPtr<DomAgentImpl> dom_agent_;
   ExceptionCode ec_;
@@ -381,7 +383,7 @@ TEST_F(DomAgentTests, PushPathToUnknownNode) {
 }
 
 // Tests that "GetChildNodes" crosses frame owner boundaries.
-TEST_F(DomAgentTests, DISABLED_GetChildNodesOfFrameOwner) {
+TEST_F(DomAgentTests, GetChildNodesOfFrameOwner) {
   RefPtr<Element> iframe = document_->createElement("IFRAME", ec_);
   body_->appendChild(iframe, ec_);
 
@@ -390,13 +392,13 @@ TEST_F(DomAgentTests, DISABLED_GetChildNodesOfFrameOwner) {
   dom_agent_->GetChildNodes(kCallId3, kBodyElemId);
   mock_delegate_->Reset();
 
-  // Expecting HTML child with single (body) child.
-  OwnPtr<Value> v(DevToolsRpc::ParseMessage("[[4,1,\"HTML\",\"\",[],1]]"));
-  mock_delegate_->SetChildNodes(3, *v.get());
+  // Expecting HTML child with two (head, body) children.
+  OwnPtr<Value> v(DevToolsRpc::ParseMessage("[[5,1,\"HTML\",\"\",[],2]]"));
+  mock_delegate_->SetChildNodes(4, *v.get());
   mock_delegate_->DidGetChildNodes(kCallId4);
   mock_delegate_->Replay();
 
-  dom_agent_->GetChildNodes(kCallId4, 3);
+  dom_agent_->GetChildNodes(kCallId4, 4);
   mock_delegate_->Verify();
 }
 
@@ -417,7 +419,7 @@ TEST_F(DomAgentTests, SendPathToNodeOverFrameOwner) {
   OwnPtr<Value> v2(DevToolsRpc::ParseMessage("[[5,1,\"HTML\",\"\",[],2]]"));
   OwnPtr<Value> v3(DevToolsRpc::ParseMessage(
       "[[6,1,\"HEAD\",\"\",[],0],[7,1,\"BODY\",\"\",[],0]]"));
-  mock_delegate_->SetChildNodes(2, *v1.get());
+  mock_delegate_->SetChildNodes(3, *v1.get());
   mock_delegate_->SetChildNodes(4, *v2.get());
   mock_delegate_->SetChildNodes(5, *v3.get());
   mock_delegate_->Replay();
@@ -427,27 +429,27 @@ TEST_F(DomAgentTests, SendPathToNodeOverFrameOwner) {
 }
 
 // Tests that "child node inserted" event is being fired.
-TEST_F(DomAgentTests, DISABLED_ChildNodeInsertUnderFrameOwner) {
+TEST_F(DomAgentTests, ChildNodeInsertUnderFrameOwner) {
   RefPtr<Element> iframe = document_->createElement("IFRAME", ec_);
   body_->appendChild(iframe, ec_);
   HTMLFrameOwnerElement* frame_owner =
       static_cast<HTMLFrameOwnerElement*>(iframe.get());
   Node* inner_body = frame_owner->contentDocument()->firstChild()->
-      firstChild();
+      firstChild()->nextSibling();
 
   dom_agent_->GetDocumentElement();
   dom_agent_->GetChildNodes(kCallIdAny, kHtmlElemId);
   dom_agent_->GetChildNodes(kCallIdAny, kBodyElemId);
-  dom_agent_->GetChildNodes(kCallIdAny, 3);  // IFrame children
-  dom_agent_->GetChildNodes(kCallIdAny, 4);  // IFrame html's children
-  dom_agent_->GetChildNodes(kCallIdAny, 5);  // IFrame body's children
+  dom_agent_->GetChildNodes(kCallIdAny, 4);  // IFrame children
+  dom_agent_->GetChildNodes(kCallIdAny, 5);  // IFrame html's children
+  dom_agent_->GetChildNodes(kCallIdAny, 7);  // IFrame body's children
   mock_delegate_->Reset();
 
   // There should be an event fired in case parent node is known to client,
   // Since children were already requested, event should have all the
   // new child data.
-  OwnPtr<Value> v(DevToolsRpc::ParseMessage("[6,1,\"DIV\",\"\",[],0]"));
-  mock_delegate_->ChildNodeInserted(5, 0, *v.get());
+  OwnPtr<Value> v(DevToolsRpc::ParseMessage("[8,1,\"DIV\",\"\",[],0]"));
+  mock_delegate_->ChildNodeInserted(7, 0, *v.get());
   mock_delegate_->Replay();
 
   RefPtr<Element> new_div = document_->createElement("DIV", ec_);
