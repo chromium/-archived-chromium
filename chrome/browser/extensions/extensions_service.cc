@@ -206,7 +206,7 @@ void ExtensionsService::OnExtensionInstalled(Extension* extension,
       !browser->window()->IsBookmarkBarVisible() &&
       !extension->toolstrips().empty())
     browser->AddTabWithURL(GURL(chrome::kChromeUINewTabURL), GURL(),
-                           PageTransition::LINK, true, -1, NULL);
+                           PageTransition::LINK, true, -1, false, NULL);
 }
 
 ExtensionView* ExtensionsService::CreateView(Extension* extension,

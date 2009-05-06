@@ -201,13 +201,9 @@ bool CreateWindowFunction::RunImpl() {
   }
 
   Browser *new_window = Browser::Create(dispatcher_->profile());
-  if (url->is_valid()) {
-    new_window->AddTabWithURL(*(url.get()),
-                              GURL(), PageTransition::LINK,
-                              true, -1, NULL);
-  } else {
-    new_window->NewTab();
-  }
+  new_window->AddTabWithURL(*(url.get()), GURL(), PageTransition::LINK, true,
+                            -1, false, NULL);
+
   new_window->window()->SetBounds(bounds);
   new_window->window()->Show();
 
@@ -315,7 +311,7 @@ bool CreateTabFunction::RunImpl() {
   // -favIconUrl
 
   std::string url_string;
-  scoped_ptr<GURL> url;
+  scoped_ptr<GURL> url(new GURL());
   if (args->HasKey(kUrlKey)) {
     EXTENSION_FUNCTION_VALIDATE(args->GetString(kUrlKey, &url_string));
     url.reset(new GURL(url_string));
@@ -346,7 +342,7 @@ bool CreateTabFunction::RunImpl() {
   }
 
   TabContents* contents = browser->AddTabWithURL(*(url.get()), GURL(),
-      PageTransition::LINK, selected, index, NULL);
+      PageTransition::LINK, selected, index, true, NULL);
   index = tab_strip->GetIndexOfTabContents(contents);
 
   // Return data about the newly created tab.

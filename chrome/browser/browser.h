@@ -216,11 +216,13 @@ class Browser : public TabStripModelDelegate,
   // Tab adding/showing functions /////////////////////////////////////////////
 
   // Add a new tab with the specified URL. If instance is not null, its process
-  // will be used to render the tab.
+  // will be used to render the tab. |force_index| is passed through to
+  // TabStripModel::AddTabContents and it's meaning is documented with it's
+  // declaration.
   TabContents* AddTabWithURL(
       const GURL& url, const GURL& referrer,
       PageTransition::Type transition, bool foreground, int index,
-      SiteInstance* instance);
+      bool force_index, SiteInstance* instance);
 
   // Add a new tab, given a NavigationController. A TabContents appropriate to
   // display the last committed entry is created and returned.

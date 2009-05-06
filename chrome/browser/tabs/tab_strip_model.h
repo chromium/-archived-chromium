@@ -372,12 +372,13 @@ class TabStripModel : public NotificationObserver {
   // Command level API /////////////////////////////////////////////////////////
 
   // Adds a TabContents at the best position in the TabStripModel given the
-  // specified insertion index, transition, etc. Ultimately, the insertion
-  // index of the TabContents is left up to the Order Controller associated
-  // with this TabStripModel, so the final insertion index may differ from
-  // |index|.
+  // specified insertion index, transition, etc. If |force_index|
+  // is false, the insertion index of the TabContents is left up to the Order
+  // Controller associated with this TabStripModel, so the final insertion index
+  // may differ from |index|.
   void AddTabContents(TabContents* contents,
                       int index,
+                      bool force_index,
                       PageTransition::Type transition,
                       bool foreground);
 

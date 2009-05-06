@@ -122,7 +122,7 @@ IN_PROC_BROWSER_TEST_F(BrowserFocusTest, TabsRememberFocus) {
 
   // Create several tabs.
   for (int i = 0; i < 4; ++i) {
-    browser()->AddTabWithURL(url, GURL(), PageTransition::TYPED, true, -1,
+    browser()->AddTabWithURL(url, GURL(), PageTransition::TYPED, true, -1, false,
                              NULL);
   }
 

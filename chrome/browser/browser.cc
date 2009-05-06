@@ -307,7 +307,8 @@ void Browser::OpenURLOffTheRecord(Profile* profile, const GURL& url) {
   if (!browser)
     browser = Browser::Create(off_the_record_profile);
   // TODO(eroman): should we have referrer here?
-  browser->AddTabWithURL(url, GURL(), PageTransition::LINK, true, -1, NULL);
+  browser->AddTabWithURL(url, GURL(), PageTransition::LINK, true, -1, false,
+                         NULL);
   browser->window()->Show();
 }
 
@@ -318,7 +319,7 @@ void Browser::OpenApplicationWindow(Profile* profile, const GURL& url) {
 
   Browser* browser = Browser::CreateForApp(app_name, profile, false);
   browser->AddTabWithURL(url, GURL(), PageTransition::START_PAGE, true, -1,
-                         NULL);
+                         false, NULL);
   browser->window()->Show();
   // TODO(jcampan): http://crbug.com/8123 we should not need to set the initial
   //                focus explicitly.
@@ -511,7 +512,8 @@ void Browser::InProgressDownloadResponse(bool cancel_downloads) {
 
 TabContents* Browser::AddTabWithURL(
     const GURL& url, const GURL& referrer, PageTransition::Type transition,
-    bool foreground, int index, SiteInstance* instance) {
+    bool foreground, int index, bool force_index,
+    SiteInstance* instance) {
   TabContents* contents = NULL;
   if (type_ == TYPE_NORMAL || tabstrip_model()->empty()) {
     GURL url_to_load = url;
@@ -519,7 +521,8 @@ TabContents* Browser::AddTabWithURL(
       url_to_load = GetHomePage();
     contents = CreateTabContentsForURL(url_to_load, referrer, profile_,
                                        transition, false, instance);
-    tabstrip_model_.AddTabContents(contents, index, transition, foreground);
+    tabstrip_model_.AddTabContents(contents, index, force_index,
+                                   transition, foreground);
     // By default, content believes it is not hidden.  When adding contents
     // in the background, tell it that it's hidden.
     if (!foreground)
@@ -529,7 +532,7 @@ TabContents* Browser::AddTabWithURL(
     // open this URL in, creating one if none exists.
     Browser* b = GetOrCreateTabbedBrowser();
     contents = b->AddTabWithURL(url, referrer, transition, foreground, index,
-                                instance);
+                                force_index, instance);
     b->window()->Show();
   }
   return contents;
@@ -539,7 +542,7 @@ TabContents* Browser::AddTabWithURL(
 TabContents* Browser::AddTabWithNavigationController(
     NavigationController* ctrl, PageTransition::Type type) {
   TabContents* tc = ctrl->tab_contents();
-  tabstrip_model_.AddTabContents(tc, -1, type, true);
+  tabstrip_model_.AddTabContents(tc, -1, false, type, true);
   return tc;
 }
 
@@ -615,7 +618,8 @@ void Browser::ShowSingleDOMUITab(const GURL& url) {
   }
 
   // Otherwise, just create a new tab.
-  AddTabWithURL(url, GURL(), PageTransition::AUTO_BOOKMARK, true, -1, NULL);
+  AddTabWithURL(url, GURL(), PageTransition::AUTO_BOOKMARK, true, -1,
+                false, NULL);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -640,7 +644,7 @@ void Browser::GoBack(WindowOpenDisposition disposition) {
     if (disposition == NEW_FOREGROUND_TAB ||
         disposition == NEW_BACKGROUND_TAB) {
       TabContents* cloned = GetSelectedTabContents()->Clone();
-      tabstrip_model_.AddTabContents(cloned, -1,
+      tabstrip_model_.AddTabContents(cloned, -1, false,
                                      PageTransition::LINK,
                                      disposition == NEW_FOREGROUND_TAB);
       controller = &cloned->controller();
@@ -660,7 +664,7 @@ void Browser::GoForward(WindowOpenDisposition disp) {
     NavigationController* controller = 0;
     if (disp == NEW_FOREGROUND_TAB || disp == NEW_BACKGROUND_TAB) {
       TabContents* cloned = GetSelectedTabContents()->Clone();
-      tabstrip_model_.AddTabContents(cloned, -1,
+      tabstrip_model_.AddTabContents(cloned, -1, false,
                                      PageTransition::LINK,
                                      disp == NEW_FOREGROUND_TAB);
       controller = &cloned->controller();
@@ -1141,7 +1145,7 @@ void Browser::OpenAboutChromeDialog() {
 void Browser::OpenHelpTab() {
   GURL help_url(WideToASCII(l10n_util::GetString(IDS_HELP_CONTENT_URL)));
   AddTabWithURL(help_url, GURL(), PageTransition::AUTO_BOOKMARK, true, -1,
-                NULL);
+                false, NULL);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -1375,7 +1379,7 @@ TabContents* Browser::AddBlankTab(bool foreground) {
 
 TabContents* Browser::AddBlankTabAt(int index, bool foreground) {
   return AddTabWithURL(GURL(chrome::kChromeUINewTabURL), GURL(),
-                       PageTransition::TYPED, foreground, index, NULL);
+                       PageTransition::TYPED, foreground, index, false, NULL);
 }
 
 Browser* Browser::CreateNewStripWithContents(TabContents* detached_contents,
@@ -1441,7 +1445,7 @@ void Browser::DuplicateContentsAt(int index) {
     // the new tab to appear in index position 2, not 6).
     if (tabstrip_model_.selected_index() != index)
       tabstrip_model_.SelectTabContentsAt(index, true);
-    tabstrip_model_.AddTabContents(new_contents, index + 1,
+    tabstrip_model_.AddTabContents(new_contents, index + 1, false,
                                    PageTransition::LINK, true);
   } else {
     Browser* browser = NULL;
@@ -1725,7 +1729,7 @@ void Browser::OpenURLFromTab(TabContents* source,
   } else if (disposition == NEW_WINDOW) {
     Browser* browser = Browser::Create(profile_);
     new_contents = browser->AddTabWithURL(url, referrer, transition, true, -1,
-                                          instance);
+                                          false, instance);
     browser->window()->Show();
   } else if ((disposition == CURRENT_TAB) && current_tab) {
     tabstrip_model_.TabNavigating(current_tab, transition);
@@ -1747,7 +1751,7 @@ void Browser::OpenURLFromTab(TabContents* source,
     return;
   } else if (disposition != SUPPRESS_OPEN) {
     new_contents = AddTabWithURL(url, referrer, transition,
-                                 disposition != NEW_BACKGROUND_TAB, -1,
+                                 disposition != NEW_BACKGROUND_TAB, -1, false,
                                  instance);
   }
 
@@ -1794,7 +1798,7 @@ void Browser::AddNewContents(TabContents* source,
     // AddTabContents method does.
     if (type_ & TYPE_APP)
       transition = PageTransition::START_PAGE;
-    b->tabstrip_model()->AddTabContents(new_contents, -1, transition, true);
+    b->tabstrip_model()->AddTabContents(new_contents, -1, false, transition, true);
     b->window()->Show();
     return;
   }
@@ -1807,7 +1811,7 @@ void Browser::AddNewContents(TabContents* source,
                             initial_pos, user_gesture);
     browser->window()->Show();
   } else if (disposition != SUPPRESS_OPEN) {
-    tabstrip_model_.AddTabContents(new_contents, -1, PageTransition::LINK,
+    tabstrip_model_.AddTabContents(new_contents, -1, false, PageTransition::LINK,
                                    disposition == NEW_FOREGROUND_TAB);
   }
 }

@@ -339,7 +339,7 @@ IN_PROC_BROWSER_TEST_F(SSLUITest, TestMixedContentsTwoTabs) {
   TabContents* tab2 = browser()->AddTabWithURL(url,
                                                GURL(),
                                                PageTransition::TYPED, true, 0,
-                                               NULL);
+                                               false, NULL);
   ui_test_utils::WaitForNavigation(&(tab2->controller()));
 
   // The new tab has mixed content.
@@ -478,7 +478,7 @@ IN_PROC_BROWSER_TEST_F(SSLUITest, TestCloseTabWithUnsafePopup) {
   TabContents* tab2 = browser()->AddTabWithURL(url,
                                                GURL(),
                                                PageTransition::TYPED,
-                                               true, 0, NULL);
+                                               true, 0, false, NULL);
   ui_test_utils::WaitForNavigation(&(tab2->controller()));
 
   // Close the first tab.

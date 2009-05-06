@@ -698,8 +698,8 @@ int TabStrip::OnPerformDrop(const DropTargetEvent& event) {
         model_->delegate()->CreateTabContentsForURL(
             url, GURL(), model_->profile(), PageTransition::TYPED, false,
             NULL);
-    model_->AddTabContents(contents, drop_index, PageTransition::GENERATED,
-                           true);
+    model_->AddTabContents(contents, drop_index, false,
+                           PageTransition::GENERATED, true);
   } else {
     UserMetrics::RecordAction(L"Tab_DropURLOnTab", model_->profile());
 

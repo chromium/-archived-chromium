@@ -102,8 +102,13 @@ void TabStripModel::InsertTabContentsAt(int index,
   FOR_EACH_OBSERVER(TabStripModelObserver, observers_,
       TabInsertedAt(contents, index, foreground));
 
-  if (foreground)
+  if (foreground) {
     ChangeSelectedContentsFrom(selected_contents, index, false);
+  } else if (index <= selected_index_) {
+    // If a tab is inserted before the current selected index that is not
+    // foreground, |selected_index| needs to be incremented.
+    ++selected_index_;
+  }
 }
 
 void TabStripModel::ReplaceNavigationControllerAt(
@@ -327,9 +332,10 @@ bool TabStripModel::ShouldResetGroupOnSelect(TabContents* contents) const {
 
 void TabStripModel::AddTabContents(TabContents* contents,
                                    int index,
+                                   bool force_index,
                                    PageTransition::Type transition,
                                    bool foreground) {
-  if (transition == PageTransition::LINK) {
+  if (transition == PageTransition::LINK && !force_index) {
     // Only try to be clever if we're opening a LINK.
     index = order_controller_->DetermineInsertionIndex(
         contents, transition, foreground);
