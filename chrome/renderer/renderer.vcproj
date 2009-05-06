@@ -161,6 +161,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\media\simple_data_source.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\media\simple_data_source.h"
+				>
+			</File>
+			<File
 				RelativePath=".\media\video_renderer_impl.cc"
 				>
 			</File>

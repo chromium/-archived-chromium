@@ -431,6 +431,16 @@ const wchar_t kEnableOmnibox2[]                = L"enable-omnibox2";
 // Replaces the audio IPC layer for <audio> and <video> with a mock audio
 // device, useful when using remote desktop or machines without sound cards.
 // This is temporary until we fix the underlying problem.
+//
+// TODO(scherkus): remove --disable-audio when we have a proper fallback
+// mechanism.
 const wchar_t kDisableAudio[]                  = L"disable-audio";
+
+// Replaces the buffered data source for <audio> and <video> with a simplified
+// resource loader that downloads the entire resource into memory.
+//
+// TODO(scherkus): remove --simple-data-source when our media resource loading
+// is cleaned up and playback testing completed.
+const wchar_t kSimpleDataSource[]              = L"simple-data-source";
 
 }  // namespace switches

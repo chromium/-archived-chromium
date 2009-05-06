@@ -272,6 +272,7 @@ bool BrowserRenderProcessHost::Init() {
     switches::kEnableExtensions,
     switches::kEnableOutOfProcessDevTools,
     switches::kDisableAudio,
+    switches::kSimpleDataSource,
   };
 
   for (size_t i = 0; i < arraysize(switch_names); ++i) {

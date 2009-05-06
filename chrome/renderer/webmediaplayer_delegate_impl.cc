@@ -9,6 +9,7 @@
 #include "chrome/renderer/media/audio_renderer_impl.h"
 #include "chrome/renderer/media/data_source_impl.h"
 #include "chrome/renderer/media/buffered_data_source.h"
+#include "chrome/renderer/media/simple_data_source.h"
 #include "chrome/renderer/media/video_renderer_impl.h"
 #include "chrome/renderer/render_view.h"
 #include "googleurl/src/gurl.h"
@@ -65,22 +66,29 @@ WebMediaPlayerDelegateImpl::WebMediaPlayerDelegateImpl(RenderView* view)
       web_media_player_(NULL),
       view_(view),
       tasks_(kLastTaskIndex) {
-  // TODO(hclam): Add filter factory for demuxer and decoders.
+  // Add in any custom filter factories first.
+  const CommandLine* cmd_line = CommandLine::ForCurrentProcess();
+  if (cmd_line->HasSwitch(switches::kDisableAudio)) {
+    filter_factory_->AddFactory(
+        media::NullAudioRenderer::CreateFilterFactory());
+  }
+  if (cmd_line->HasSwitch(switches::kSimpleDataSource)) {
+    filter_factory_->AddFactory(
+        SimpleDataSource::CreateFactory(view->routing_id()));
+  }
+
 #if defined(OS_WIN)
   // FFmpeg is not ready for Linux and Mac yet.
   filter_factory_->AddFactory(media::FFmpegDemuxer::CreateFilterFactory());
   filter_factory_->AddFactory(media::FFmpegAudioDecoder::CreateFactory());
   filter_factory_->AddFactory(media::FFmpegVideoDecoder::CreateFactory());
 #endif
-  if (CommandLine::ForCurrentProcess()->HasSwitch(switches::kDisableAudio)) {
-    filter_factory_->AddFactory(
-        media::NullAudioRenderer::CreateFilterFactory());
-  } else {
-    filter_factory_->AddFactory(
-        AudioRendererImpl::CreateFactory(view_->audio_message_filter()));
-  }
-  filter_factory_->AddFactory(VideoRendererImpl::CreateFactory(this));
+
+  // Add in the default filter factories.
+  filter_factory_->AddFactory(
+      AudioRendererImpl::CreateFactory(view_->audio_message_filter()));
   filter_factory_->AddFactory(BufferedDataSource::CreateFactory(this));
+  filter_factory_->AddFactory(VideoRendererImpl::CreateFactory(this));
 }
 
 WebMediaPlayerDelegateImpl::~WebMediaPlayerDelegateImpl() {
