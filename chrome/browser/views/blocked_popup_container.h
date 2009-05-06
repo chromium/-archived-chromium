@@ -104,19 +104,39 @@ class BlockedPopupContainer : public ConstrainedWindow,
 
   // Adds a Tabbed contents to this container. |bounds| are the window bounds
   // requested by the popup window.
-  void AddTabContents(TabContents* blocked_contents, const gfx::Rect& bounds);
+  void AddTabContents(TabContents* blocked_contents,
+                      const gfx::Rect& bounds,
+                      const std::string& host);
+
+  // Called when a popup from whitelisted host |host| is opened, so we can show
+  // the "stop whitelisting" UI.
+  void OnPopupOpenedFromWhitelistedHost(const std::string& host);
 
   // Creates a window from blocked popup |index|.
   void LaunchPopupIndex(int index);
 
   // Returns the number of blocked popups
-  int GetTabContentsCount() const;
+  int GetBlockedPopupCount() const;
 
-  // Returns the string to display to the user in the menu for item |index|.
-  std::wstring GetDisplayStringForItem(int index);
+  // Returns the URL and title for popup |index|, used to construct a string for
+  // display.
+  void GetURLAndTitleForPopup(int index,
+                              std::wstring* url,
+                              std::wstring* title) const;
+
+  // Returns the names of hosts showing popups.
+  std::vector<std::wstring> GetHosts() const;
+
+  // Returns true if host |index| is whitelisted.  Returns false if |index| is
+  // invalid.
+  bool IsHostWhitelisted(int index) const;
+
+  // If host |index| is currently whitelisted, un-whitelists it.  Otherwise,
+  // whitelists it and opens all blocked popups from it.
+  void ToggleWhitelistingForHost(int index);
 
   // Deletes all popups and hides the interface parts.
-  void CloseAllPopups();
+  void CloseAll();
 
   // Called to force this container to never show itself again.
   void set_dismissed() { has_been_dismissed_ = true; }
@@ -168,7 +188,7 @@ class BlockedPopupContainer : public ConstrainedWindow,
   virtual void CloseContents(TabContents* source);
 
   // Changes the opening rectangle associated with |source|.
-  virtual void MoveContents(TabContents* source, const gfx::Rect& pos);
+  virtual void MoveContents(TabContents* source, const gfx::Rect& new_bounds);
 
   // Always returns true.
   virtual bool IsPopup(TabContents* source);
@@ -207,6 +227,22 @@ class BlockedPopupContainer : public ConstrainedWindow,
   virtual void OnSize(UINT param, const CSize& size);
 
  private:
+  struct BlockedPopup {
+    BlockedPopup(TabContents* tab_contents,
+                 const gfx::Rect& bounds,
+                 const std::string& host)
+        : tab_contents(tab_contents), bounds(bounds), host(host) {
+    }
+
+    TabContents* tab_contents;
+    gfx::Rect bounds;
+    std::string host;
+  };
+  typedef std::vector<BlockedPopup> BlockedPopups;
+
+  // string is hostname.  bool is whitelisted status.
+  typedef std::map<std::string, bool> PopupHosts;
+
   // Creates a container for a certain TabContents.
   BlockedPopupContainer(TabContents* owner, Profile* profile);
 
@@ -225,14 +261,26 @@ class BlockedPopupContainer : public ConstrainedWindow,
   // change.
   void SetPosition();
 
-  // Deletes each contents in |blocked_popups_|.
-  void CloseEachTabContents();
+  // Deletes all local state.
+  void ClearData();
+
+  // Helper function to convert a host index (which the view uses) into an
+  // iterator into |popup_hosts_|.  Returns popup_hosts_.end() if |index| is
+  // invalid.
+  PopupHosts::const_iterator ConvertHostIndexToIterator(int index) const;
+  
+  // If the popup at |i| is the last one associated with its host, removes the
+  // host from the host list.
+  void EraseHostIfNeeded(BlockedPopups::iterator i);
 
   // The TabContents that owns and constrains this BlockedPopupContainer.
   TabContents* owner_;
 
-  // The TabContents and initial positions of all blocked popups.
-  std::vector<std::pair<TabContents*, gfx::Rect> > blocked_popups_;
+  // Information about all blocked popups.
+  BlockedPopups blocked_popups_;
+
+  // Information about all popup hosts.
+  PopupHosts popup_hosts_;
 
   // Our associated view object.
   BlockedPopupContainerView* container_view_;

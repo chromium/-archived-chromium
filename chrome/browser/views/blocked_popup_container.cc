@@ -179,12 +179,26 @@ void BlockedPopupContainerView::ButtonPressed(views::Button* sender) {
     launch_menu_.reset(new Menu(this, Menu::TOPLEFT,
                                 container_->GetNativeView()));
 
-    int item_count = container_->GetTabContentsCount();
-    for (int i = 0; i < item_count; ++i) {
-      std::wstring label = container_->GetDisplayStringForItem(i);
+    // Set items 1 .. popup_count as individual popups.
+    int popup_count = container_->GetBlockedPopupCount();
+    for (int i = 0; i < popup_count; ++i) {
+      std::wstring url, title;
+      container_->GetURLAndTitleForPopup(i, &url, &title);
       // We can't just use the index into container_ here because Menu reserves
       // the value 0 as the nop command.
-      launch_menu_->AppendMenuItem(i + 1, label, Menu::NORMAL);
+      launch_menu_->AppendMenuItem(i + 1,
+          l10n_util::GetStringF(IDS_POPUP_TITLE_FORMAT, url, title),
+          Menu::NORMAL);
+    }
+
+    // Set items (kImpossibleNumberOfPopups + 1) ..
+    // (kImpossibleNumberOfPopups + 1 + hosts.size()) as hosts.
+    std::vector<std::wstring> hosts(container_->GetHosts());
+    if (!hosts.empty() && (popup_count > 0))
+      launch_menu_->AppendSeparator();
+    for (size_t i = 0; i < hosts.size(); ++i) {
+      launch_menu_->AppendMenuItem(kImpossibleNumberOfPopups + i + 1,
+          l10n_util::GetStringF(IDS_POPUP_HOST_FORMAT, hosts[i]), Menu::NORMAL);
     }
 
     launch_menu_->AppendSeparator();
@@ -198,7 +212,7 @@ void BlockedPopupContainerView::ButtonPressed(views::Button* sender) {
     launch_menu_->RunMenuAt(cursor_position.x, cursor_position.y);
   } else if (sender == close_button_) {
     container_->set_dismissed();
-    container_->CloseAllPopups();
+    container_->CloseAll();
   }
 }
 
@@ -206,15 +220,20 @@ bool BlockedPopupContainerView::IsItemChecked(int id) const {
   if (id == kNotifyMenuItem)
     return container_->GetShowBlockedPopupNotification();
 
+  if (id > kImpossibleNumberOfPopups)
+    return container_->IsHostWhitelisted(id - kImpossibleNumberOfPopups - 1);
+
   return false;
 }
 
 void BlockedPopupContainerView::ExecuteCommand(int id) {
   if (id == kNotifyMenuItem) {
     container_->ToggleBlockedPopupNotification();
-  } else {
+  } else if (id > kImpossibleNumberOfPopups) {
     // Decrement id since all index based commands have 1 added to them. (See
     // ButtonPressed() for detail).
+    container_->ToggleWhitelistingForHost(id - kImpossibleNumberOfPopups - 1);
+  } else {
     container_->LaunchPopupIndex(id - 1);
   }
 }
@@ -252,70 +271,127 @@ bool BlockedPopupContainer::GetShowBlockedPopupNotification() {
 }
 
 void BlockedPopupContainer::AddTabContents(TabContents* blocked_contents,
-                                           const gfx::Rect& bounds) {
+                                           const gfx::Rect& bounds,
+                                           const std::string& host) {
   if (has_been_dismissed_) {
     // We simply bounce this popup without notice.
     delete blocked_contents;
     return;
   }
 
-  if (blocked_popups_.size() > kImpossibleNumberOfPopups) {
+  if (blocked_popups_.size() >= kImpossibleNumberOfPopups) {
     delete blocked_contents;
-    LOG(INFO) << "Warning: Renderer is sending more popups to us then should be"
+    LOG(INFO) << "Warning: Renderer is sending more popups to us than should be"
         " possible. Renderer compromised?";
     return;
   }
 
   blocked_contents->set_delegate(this);
-  blocked_popups_.push_back(std::make_pair(blocked_contents, bounds));
-  container_view_->UpdatePopupCountLabel();
+  blocked_popups_.push_back(BlockedPopup(blocked_contents, bounds, host));
 
+  PopupHosts::iterator i(popup_hosts_.find(host));
+  if (i == popup_hosts_.end())
+    popup_hosts_[host] = false;
+  else
+    DCHECK(!i->second);  // This host was already reported as whitelisted!
+
+  container_view_->UpdatePopupCountLabel();
   ShowSelf();
 }
 
-void BlockedPopupContainer::LaunchPopupIndex(int index) {
-  if (static_cast<size_t>(index) < blocked_popups_.size()) {
-    TabContents* contents = blocked_popups_[index].first;
-    gfx::Rect bounds = blocked_popups_[index].second;
-    blocked_popups_.erase(blocked_popups_.begin() + index);
-    container_view_->UpdatePopupCountLabel();
+void BlockedPopupContainer::OnPopupOpenedFromWhitelistedHost(
+    const std::string& host) {
+  if (has_been_dismissed_)
+    return;
 
-    contents->set_delegate(NULL);
-    contents->DisassociateFromPopupCount();
-
-    // Pass this TabContents back to our owner, forcing the window to be
-    // displayed since user_gesture is true.
-    owner_->AddNewContents(contents, NEW_POPUP, bounds, true, GURL());
+  PopupHosts::const_iterator i(popup_hosts_.find(host));
+  if (i == popup_hosts_.end()) {
+    popup_hosts_[host] = true;
+    ShowSelf();
+  } else {
+    DCHECK(i->second);  // This host was already reported as not whitelisted!
   }
-
-  if (blocked_popups_.size() == 0)
-    CloseAllPopups();
 }
 
-int BlockedPopupContainer::GetTabContentsCount() const {
+void BlockedPopupContainer::LaunchPopupIndex(int index) {
+  if (static_cast<size_t>(index) >= blocked_popups_.size())
+    return;
+  
+  BlockedPopups::iterator i(blocked_popups_.begin() + index);
+  TabContents* contents = i->tab_contents;
+  gfx::Rect bounds(i->bounds);
+  EraseHostIfNeeded(i);
+  blocked_popups_.erase(i);
+
+  contents->set_delegate(NULL);
+  contents->DisassociateFromPopupCount();
+
+  // Pass this TabContents back to our owner, forcing the window to be
+  // displayed since user_gesture is true.
+  owner_->AddNewContents(contents, NEW_POPUP, bounds, true, GURL());
+
+  container_view_->UpdatePopupCountLabel();
+  if (blocked_popups_.empty() && popup_hosts_.empty())
+    HideSelf();
+}
+
+int BlockedPopupContainer::GetBlockedPopupCount() const {
   return blocked_popups_.size();
 }
 
-std::wstring BlockedPopupContainer::GetDisplayStringForItem(int index) {
-  const GURL& url = blocked_popups_[index].first->GetURL().GetOrigin();
-
-  std::wstring label = l10n_util::GetStringF(
-      IDS_POPUP_TITLE_FORMAT,
-      UTF8ToWide(url.possibly_invalid_spec()),
-      UTF16ToWideHack(blocked_popups_[index].first->GetTitle()));
-  return label;
+void BlockedPopupContainer::GetURLAndTitleForPopup(int index,
+                                                   std::wstring* url,
+                                                   std::wstring* title) const {
+  DCHECK(url);
+  DCHECK(title);
+  TabContents* tab_contents = blocked_popups_[index].tab_contents;
+  const GURL& tab_contents_url = tab_contents->GetURL().GetOrigin();
+  *url = UTF8ToWide(tab_contents_url.possibly_invalid_spec());
+  *title = UTF16ToWideHack(tab_contents->GetTitle());
 }
 
-void BlockedPopupContainer::CloseAllPopups() {
-  CloseEachTabContents();
-  owner_->PopupNotificationVisibilityChanged(false);
-  container_view_->UpdatePopupCountLabel();
+std::vector<std::wstring> BlockedPopupContainer::GetHosts() const {
+  std::vector<std::wstring> hosts;
+  for (PopupHosts::const_iterator i(popup_hosts_.begin());
+       i != popup_hosts_.end(); ++i)
+    hosts.push_back(UTF8ToWide(i->first));
+  return hosts;
+}
+
+bool BlockedPopupContainer::IsHostWhitelisted(int index) const {
+  PopupHosts::const_iterator i(ConvertHostIndexToIterator(index));
+  return (i == popup_hosts_.end()) ? false : i->second;
+}
+
+void BlockedPopupContainer::ToggleWhitelistingForHost(int index) {
+  PopupHosts::const_iterator i(ConvertHostIndexToIterator(index));
+  const std::string& host = i->first;
+  bool should_whitelist = !i->second;
+  owner_->SetWhitelistForHost(host, should_whitelist);
+  if (should_whitelist) {
+    for (int j = blocked_popups_.size() - 1; j >= 0; --j) {
+      if (blocked_popups_[j].host == host)
+        LaunchPopupIndex(j);
+    }
+  } else {
+    // TODO(pkasting): Should we have some kind of handle to the open popups, so
+    // we can hide them all here?
+    popup_hosts_.erase(host);  // Can't use |i| because it's a const_iterator.
+    if (blocked_popups_.empty() && popup_hosts_.empty())
+      HideSelf();
+  }
+  // At this point i is invalid, since the item it points to was deleted (on
+  // both conditional arms).
+}
+
+void BlockedPopupContainer::CloseAll() {
+  ClearData();
   HideSelf();
 }
 
 // Overridden from ConstrainedWindow:
 void BlockedPopupContainer::CloseConstrainedWindow() {
-  CloseEachTabContents();
+  ClearData();
 
   // Broadcast to all observers of NOTIFY_CWINDOW_CLOSED.
   // One example of such an observer is AutomationCWindowTracker in the
@@ -335,7 +411,7 @@ void BlockedPopupContainer::RepositionConstrainedWindowTo(
 
 std::wstring BlockedPopupContainer::GetWindowTitle() const {
   return l10n_util::GetStringF(IDS_POPUPS_BLOCKED_COUNT,
-                               IntToWString(GetTabContentsCount()));
+                               IntToWString(GetBlockedPopupCount()));
 }
 
 const gfx::Rect& BlockedPopupContainer::GetCurrentBounds() const {
@@ -361,25 +437,27 @@ void BlockedPopupContainer::AddNewContents(TabContents* source,
 }
 
 void BlockedPopupContainer::CloseContents(TabContents* source) {
-  for (std::vector<std::pair<TabContents*, gfx::Rect> >::iterator it =
-           blocked_popups_.begin(); it != blocked_popups_.end(); ++it) {
-    if (it->first == source) {
-      it->first->set_delegate(NULL);
+  for (BlockedPopups::iterator it = blocked_popups_.begin();
+       it != blocked_popups_.end(); ++it) {
+    if (it->tab_contents == source) {
+      it->tab_contents->set_delegate(NULL);
+      EraseHostIfNeeded(it);
       blocked_popups_.erase(it);
+      container_view_->UpdatePopupCountLabel();
       break;
     }
   }
 
-  if (blocked_popups_.size() == 0)
-    CloseAllPopups();
+  if (blocked_popups_.empty())
+    HideSelf();
 }
 
 void BlockedPopupContainer::MoveContents(TabContents* source,
-                                         const gfx::Rect& position) {
-  for (std::vector<std::pair<TabContents*, gfx::Rect> >::iterator it =
-           blocked_popups_.begin(); it != blocked_popups_.end(); ++it) {
-    if (it->first == source) {
-      it->second = position;
+                                         const gfx::Rect& new_bounds) {
+  for (BlockedPopups::iterator it = blocked_popups_.begin();
+       it != blocked_popups_.end(); ++it) {
+    if (it->tab_contents == source) {
+      it->bounds = new_bounds;
       break;
     }
   }
@@ -402,18 +480,14 @@ ExtensionFunctionDispatcher* BlockedPopupContainer::
 
 // Overridden from Animation:
 void BlockedPopupContainer::AnimateToState(double state) {
-  if (in_show_animation_)
-    visibility_percentage_ = state;
-  else
-    visibility_percentage_ = 1 - state;
-
+  visibility_percentage_ = in_show_animation_ ? state : (1 - state);
   SetPosition();
 }
 
 // Override from views::WidgetWin:
 void BlockedPopupContainer::OnFinalMessage(HWND window) {
   owner_->WillClose(this);
-  CloseEachTabContents();
+  ClearData();
   WidgetWin::OnFinalMessage(window);
 }
 
@@ -449,6 +523,7 @@ void BlockedPopupContainer::HideSelf() {
   in_show_animation_ = false;
   Animation::SetDuration(kHideAnimationDurationMS);
   Animation::Start();
+  owner_->PopupNotificationVisibilityChanged(false);
 }
 
 void BlockedPopupContainer::ShowSelf() {
@@ -458,6 +533,7 @@ void BlockedPopupContainer::ShowSelf() {
     Animation::SetDuration(kShowAnimationDurationMS);
     Animation::Start();
   }
+  owner_->PopupNotificationVisibilityChanged(true);
 }
 
 void BlockedPopupContainer::SetPosition() {
@@ -481,12 +557,37 @@ void BlockedPopupContainer::SetPosition() {
   }
 }
 
-void BlockedPopupContainer::CloseEachTabContents() {
-  while (!blocked_popups_.empty()) {
-    blocked_popups_.back().first->set_delegate(NULL);
-    delete blocked_popups_.back().first;
-    blocked_popups_.pop_back();
+void BlockedPopupContainer::ClearData() {
+  for (BlockedPopups::iterator i(blocked_popups_.begin());
+       i != blocked_popups_.end(); ++i) {
+    TabContents* tab_contents = i->tab_contents;
+    tab_contents->set_delegate(NULL);
+    delete tab_contents;
   }
 
   blocked_popups_.clear();
+  popup_hosts_.clear();
+}
+
+BlockedPopupContainer::PopupHosts::const_iterator
+    BlockedPopupContainer::ConvertHostIndexToIterator(int index) const {
+  if (static_cast<size_t>(index) >= popup_hosts_.size())
+    return popup_hosts_.end();
+  // If only there was a std::map::const_iterator::operator +=() ...
+  PopupHosts::const_iterator i(popup_hosts_.begin());
+  for (int j = 0; j < index; ++j)
+    ++i;
+  return i;
+}
+
+void BlockedPopupContainer::EraseHostIfNeeded(BlockedPopups::iterator i) {
+  const std::string& host = i->host;
+  if (host.empty())
+    return;
+  for (BlockedPopups::const_iterator j(blocked_popups_.begin());
+       j != blocked_popups_.end(); ++j) {
+    if ((j != i) && (j->host == host))
+      return;
+  }
+  popup_hosts_.erase(host);
 }

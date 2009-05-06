@@ -3716,6 +3716,9 @@ each locale. -->
       <message name="IDS_POPUP_TITLE_FORMAT" desc="Order of URL - Title on the popup">
         <ph name="URL">$1</ph> - <ph name="WINDOW_TITLE">$2</ph>
       </message>
+      <message name="IDS_POPUP_HOST_FORMAT" desc="Checkable menu item to always allow popups from a particular hostname">
+        Always show pop-ups from <ph name="URL">$1</ph>
+      </message>
 
       <!-- Multiple download warning-->
       <message name="IDS_MULTI_DOWNLOAD_WARNING" desc="Warning invoked if multiple downloads are attempted without user interaction.">

@@ -418,8 +418,8 @@ void RenderView::OnMessageReceived(const IPC::Message& message) {
                         OnDisassociateFromPopupCount)
     IPC_MESSAGE_HANDLER(ViewMsg_AutofillSuggestions,
                         OnReceivedAutofillSuggestions)
-    IPC_MESSAGE_HANDLER(ViewMsg_PopupNotificationVisiblityChanged,
-                        OnPopupNotificationVisiblityChanged)
+    IPC_MESSAGE_HANDLER(ViewMsg_PopupNotificationVisibilityChanged,
+                        OnPopupNotificationVisibilityChanged)
     IPC_MESSAGE_HANDLER(ViewMsg_MoveOrResizeStarted, OnMoveOrResizeStarted)
     IPC_MESSAGE_HANDLER(ViewMsg_ExtensionResponse, OnExtensionResponse)
     IPC_MESSAGE_HANDLER(ViewMsg_ClearFocusedNode, OnClearFocusedNode)
@@ -1698,7 +1698,7 @@ void RenderView::OnReceivedAutofillSuggestions(
                                         default_suggestion_index);
 }
 
-void RenderView::OnPopupNotificationVisiblityChanged(bool visible) {
+void RenderView::OnPopupNotificationVisibilityChanged(bool visible) {
   popup_notification_visible_ = visible;
 }
 
@@ -1956,7 +1956,7 @@ void RenderView::Show(WebWidget* webwidget, WindowOpenDisposition disposition) {
 }
 
 void RenderView::CloseWidgetSoon(WebWidget* webwidget) {
-  if (popup_notification_visible_ == false)
+  if (!popup_notification_visible_)
     RenderWidget::CloseWidgetSoon(webwidget);
 }
 

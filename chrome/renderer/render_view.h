@@ -557,7 +557,7 @@ class RenderView : public RenderWidget,
       int default_suggestions_index);
 
   // Message that the popup notification has been shown or hidden.
-  void OnPopupNotificationVisiblityChanged(bool visible);
+  void OnPopupNotificationVisibilityChanged(bool visible);
 
   // Handles messages posted from automation.
   void OnMessageFromExternalHost(const std::string& message,
@@ -765,7 +765,7 @@ class RenderView : public RenderWidget,
 
   // We need to prevent windows from closing themselves with a window.close()
   // call while a blocked popup notification is being displayed. We cannot
-  // synchronously querry the Browser process. We cannot wait for the Browser
+  // synchronously query the Browser process. We cannot wait for the Browser
   // process to send a message to us saying that a blocked popup notification
   // is being displayed. We instead assume that when we create a window off
   // this RenderView, that it is going to be blocked until we get a message

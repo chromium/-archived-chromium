@@ -1092,7 +1092,7 @@ void RenderViewHost::DisassociateFromPopupCount() {
 }
 
 void RenderViewHost::PopupNotificationVisibilityChanged(bool visible) {
-  Send(new ViewMsg_PopupNotificationVisiblityChanged(routing_id(), visible));
+  Send(new ViewMsg_PopupNotificationVisibilityChanged(routing_id(), visible));
 }
 
 void RenderViewHost::OnMsgGoToEntryAtOffset(int offset) {

@@ -496,7 +496,7 @@ IPC_BEGIN_MESSAGES(View)
   // Sent by the Browser process to alert a window about whether a blocked
   // popup notification is visible. The renderer assumes every new window is a
   // blocked popup until notified otherwise.
-  IPC_MESSAGE_ROUTED1(ViewMsg_PopupNotificationVisiblityChanged,
+  IPC_MESSAGE_ROUTED1(ViewMsg_PopupNotificationVisibilityChanged,
                       bool /* Whether it is visible */)
 
   // Sent by AudioRendererHost to renderer to request an audio packet.

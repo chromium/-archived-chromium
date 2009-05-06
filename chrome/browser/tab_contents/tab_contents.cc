@@ -791,16 +791,25 @@ void TabContents::AddNewContents(TabContents* new_contents,
     return;
 
 #if defined(OS_WIN)
+  bool constrain_popup = false;
   if ((disposition == NEW_POPUP) && !user_gesture &&
       !CommandLine::ForCurrentProcess()->HasSwitch(
           switches::kDisablePopupBlocking)) {
-    // Unrequested popups from normal pages are constrained.
-    TabContents* popup_owner = this;
+    // Unrequested popups from normal pages are constrained unless they're in
+    // the whitelist.
+    std::string host;
+    if (creator_url.is_valid())
+      host = creator_url.host();
+    constrain_popup = true;  // TODO(pkasting): Add whitelist
+
     TabContents* our_owner = delegate_->GetConstrainingContents(this);
-    if (our_owner)
-      popup_owner = our_owner;
-    popup_owner->AddConstrainedPopup(new_contents, initial_pos);
-  } else {
+    TabContents* popup_owner = our_owner ? our_owner : this;
+    if (constrain_popup)
+      popup_owner->AddConstrainedPopup(new_contents, initial_pos, host);
+    else
+      popup_owner->OnPopupOpenedFromWhitelistedHost(host);
+  }
+  if (!constrain_popup) {
     new_contents->DisassociateFromPopupCount();
 
     delegate_->AddNewContents(this, new_contents, disposition, initial_pos,
@@ -816,28 +825,9 @@ void TabContents::AddNewContents(TabContents* new_contents,
 }
 
 #if defined(OS_WIN)
-void TabContents::AddConstrainedPopup(TabContents* new_contents,
-                                      const gfx::Rect& initial_pos) {
-  if (!blocked_popups_) {
-    CRect client_rect;
-    GetClientRect(GetNativeView(), &client_rect);
-    gfx::Point anchor_position(
-        client_rect.Width() -
-          views::NativeScrollBar::GetVerticalScrollBarWidth(),
-        client_rect.Height());
-
-    blocked_popups_ = BlockedPopupContainer::Create(
-        this, profile(), anchor_position);
-    child_windows_.push_back(blocked_popups_);
-  }
-
-  blocked_popups_->AddTabContents(new_contents, initial_pos);
-  PopupNotificationVisibilityChanged(ShowingBlockedPopupNotification());
-}
-
 void TabContents::CloseAllSuppressedPopups() {
   if (blocked_popups_)
-    blocked_popups_->CloseAllPopups();
+    blocked_popups_->CloseAll();
 }
 #endif
 
@@ -1142,6 +1132,12 @@ bool TabContents::IsActiveEntry(int32 page_id) {
           active_entry->page_id() == page_id);
 }
 
+#if defined(OS_WIN)
+void TabContents::SetWhitelistForHost(const std::string& host, bool whitelist) {
+  // TODO(pkasting): Add whitelist
+}
+#endif
+
 // Notifies the RenderWidgetHost instance about the fact that the page is
 // loading, or done loading and calls the base implementation.
 void TabContents::SetIsLoading(bool is_loading,
@@ -1174,6 +1170,33 @@ void TabContents::SetIsLoading(bool is_loading,
 }
 
 #if defined(OS_WIN)
+void TabContents::CreateBlockedPopupContainerIfNecessary() {
+  if (blocked_popups_)
+    return;
+
+  CRect client_rect;
+  GetClientRect(GetNativeView(), &client_rect);
+  gfx::Point anchor_position(
+      client_rect.Width() - views::NativeScrollBar::GetVerticalScrollBarWidth(),
+      client_rect.Height());
+  blocked_popups_ = BlockedPopupContainer::Create(this, profile(),
+                                                  anchor_position);
+  child_windows_.push_back(blocked_popups_);
+}
+
+void TabContents::AddConstrainedPopup(TabContents* new_contents,
+                                      const gfx::Rect& initial_pos,
+                                      const std::string& host) {
+  CreateBlockedPopupContainerIfNecessary();
+  blocked_popups_->AddTabContents(new_contents, initial_pos, host);
+  PopupNotificationVisibilityChanged(ShowingBlockedPopupNotification());
+}
+
+void TabContents::OnPopupOpenedFromWhitelistedHost(const std::string& host) {
+  CreateBlockedPopupContainerIfNecessary();
+  blocked_popups_->OnPopupOpenedFromWhitelistedHost(host);
+}
+
 // TODO(brettw) This should be on the TabContentsView.
 void TabContents::RepositionSupressedPopupsToFit(const gfx::Size& new_size) {
   // TODO(erg): There's no way to detect whether scroll bars are
@@ -1192,7 +1215,7 @@ void TabContents::RepositionSupressedPopupsToFit(const gfx::Size& new_size) {
 
 bool TabContents::ShowingBlockedPopupNotification() const {
   return blocked_popups_ != NULL &&
-      blocked_popups_->GetTabContentsCount() != 0;
+      blocked_popups_->GetBlockedPopupCount() != 0;
 }
 #endif  // defined(OS_WIN)
 

@@ -341,11 +341,6 @@ class TabContents : public PageNavigator,
                       bool user_gesture,
                       const GURL& creator_url);
 
-  // Builds a ConstrainedWindow* for the incoming |new_contents| and
-  // adds it to child_windows_.
-  void AddConstrainedPopup(TabContents* new_contents,
-                           const gfx::Rect& initial_pos);
-
   // Closes all constrained windows that represent web popups that have not yet
   // been activated by the user and are as such auto-positioned in the bottom
   // right of the screen. This is a quick way for users to "clean up" a flurry
@@ -570,6 +565,9 @@ class TabContents : public PageNavigator,
     render_view_host()->WindowMoveOrResizeStarted();
   }
 
+  // Sets popup whitelisting state for |host| to |whitelist|.
+  void SetWhitelistForHost(const std::string& host, bool whitelist);
+
  private:
   friend class NavigationController;
   // Used to access the child_windows_ (ConstrainedWindowList) for testing
@@ -619,10 +617,27 @@ class TabContents : public PageNavigator,
   void SetIsLoading(bool is_loading,
                     LoadNotificationDetails* details);
 
+  // Constructs |blocked_popups_| if need be.
+  void CreateBlockedPopupContainerIfNecessary();
+
+  // Adds the incoming |new_contents| to the |blocked_popups_| container.
+  void AddConstrainedPopup(TabContents* new_contents,
+                           const gfx::Rect& initial_pos,
+                           const std::string& host);
+
+  // Notifies the |blocked_popups_| container that a popup has been opened from
+  // a particular whitelisted host.
+  void OnPopupOpenedFromWhitelistedHost(const std::string& host);
+
   // Called by a derived class when the TabContents is resized, causing
   // suppressed constrained web popups to be repositioned to the new bounds
   // if necessary.
   void RepositionSupressedPopupsToFit(const gfx::Size& new_size);
+
+  // Whether we have a notification AND the notification owns popups windows.
+  // (We keep the notification object around even when it's not shown since it
+  // determines whether to show itself).
+  bool ShowingBlockedPopupNotification() const;
 
   // Releases the download shelf. This method is used by MigrateShelfFrom.
   void ReleaseDownloadShelf();
@@ -634,11 +649,6 @@ class TabContents : public PageNavigator,
 
   typedef std::vector<ConstrainedWindow*> ConstrainedWindowList;
   ConstrainedWindowList child_windows_;
-
-  // Whether we have a notification AND the notification owns popups windows.
-  // (We keep the notification object around even when it's not shown since it
-  // determines whether to show itself).
-  bool ShowingBlockedPopupNotification() const;
 
   // Expires InfoBars that need to be expired, according to the state carried
   // in |details|, in response to a new NavigationEntry being committed (the
