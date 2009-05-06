@@ -34,7 +34,7 @@ extern const char kAboutBlankURL[];
 extern const char kAboutCacheURL[];
 extern const char kAboutMemoryURL[];
 
-// chrome-ui: URLs (including schemes). Should be kept in sync with the
+// chrome: URLs (including schemes). Should be kept in sync with the
 // components below.
 extern const char kChromeUIDevToolsURL[];
 extern const char kChromeUIDownloadsURL[];
@@ -45,7 +45,7 @@ extern const char kChromeUIInspectorURL[];
 extern const char kChromeUINetworkURL[];
 extern const char kChromeUINewTabURL[];
 
-// chrome-ui components of URLs. Should be kept in sync with the full URLs
+// chrome components of URLs. Should be kept in sync with the full URLs
 // above.
 extern const char kChromeUIDevToolsHost[];
 extern const char kChromeUIDialogHost[];

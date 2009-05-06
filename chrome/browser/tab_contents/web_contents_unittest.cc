@@ -214,7 +214,7 @@ TEST_F(TabContentsTest, UpdateTitle) {
 
 // Test view source mode for the new tabs page.
 TEST_F(TabContentsTest, NTPViewSource) {
-  const char kUrl[] = "view-source:chrome-ui://newtab/";
+  const char kUrl[] = "view-source:chrome://newtab/";
   const GURL kGURL(kUrl);
 
   process()->sink().ClearMessages();

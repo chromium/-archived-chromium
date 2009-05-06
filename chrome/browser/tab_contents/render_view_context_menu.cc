@@ -239,7 +239,7 @@ bool RenderViewContextMenu::IsItemCommandEnabled(int id) const {
       // in a new tab as they should. Disabling this context menu option for
       // now, as a quick hack, before we resolve this issue (Issue = 2608).
       // TODO (sidchat): Enable this option once this issue is resolved.
-      if (params_.image_url.scheme() == "chrome-ui")
+      if (params_.image_url.scheme() == chrome::kChromeUIScheme)
         return false;
       return true;
 

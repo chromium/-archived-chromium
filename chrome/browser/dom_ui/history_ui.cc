@@ -367,7 +367,7 @@ HistoryUI::HistoryUI(TabContents* contents) : DOMUI(contents) {
 
   HistoryUIHTMLSource* html_source = new HistoryUIHTMLSource();
 
-  // Set up the chrome-ui://history/ source.
+  // Set up the chrome://history/ source.
   g_browser_process->io_thread()->message_loop()->PostTask(FROM_HERE,
       NewRunnableMethod(&chrome_url_data_manager,
           &ChromeURLDataManager::AddDataSource,

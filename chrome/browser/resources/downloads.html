@@ -501,7 +501,7 @@ Download.prototype.update = function(download) {
     this.danger_.style.display = 'block';
     this.safe_.style.display = 'none';
   } else {
-    this.nodeImg_.src = 'chrome-ui://fileicon/' + this.filePath_;
+    this.nodeImg_.src = 'chrome://fileicon/' + this.filePath_;
 
     if (this.state_ == Download.States.COMPLETE) {
       this.nodeFileLink_.innerHTML = this.fileName_;

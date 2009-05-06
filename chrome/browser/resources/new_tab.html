@@ -180,7 +180,7 @@ html[dir='rtl'] #mostvisited td {
   -webkit-transition:all 0.12s;
 }
 .thumbnail-title {
-  background-image:url(chrome-ui://favicon/);
+  background-image:url(chrome://favicon/);
   display:block;
   background-repeat:no-repeat;
   background-size:16px;
@@ -377,8 +377,8 @@ document.addEventListener('DOMContentLoaded', handleDOMContentLoaded);
   <div id="mostvisitedsection" class="section">
     <div id="mostvisited" style="position:relative;">
       <div>
-	<span class="section-title non-edit-visible" jscontent="mostvisited"></span>
-	<span class="section-title edit-visible" jseval="this.innerHTML = $this.editmodeheading;"></span>
+        <span class="section-title non-edit-visible" jscontent="mostvisited"></span>
+        <span class="section-title edit-visible" jseval="this.innerHTML = $this.editmodeheading;"></span>
       </div>
       <div id="mostvisitedintro" style="display:none;">
         <div class="most-visited-text" style="position:absolute;" jseval="this.innerHTML = $this.mostvisitedintro;"></div>
@@ -422,9 +422,9 @@ document.addEventListener('DOMContentLoaded', handleDOMContentLoaded);
        onClick="enterEditMode(); return false">
       <span jscontent="editthumbnails"></span></a>
     <button type="button" class="edit-visible" onClick="exitEditMode();"
-	    jscontent="doneediting"></button>
+            jscontent="doneediting"></button>
     <button type="button" class="edit-visible" onClick="cancelEdits();"
-	    jscontent="cancelediting"></button>
+            jscontent="cancelediting"></button>
     <a href="#"
        class="manage edit-visible"
        onClick="restoreThumbnails(); return false">
@@ -448,7 +448,7 @@ document.addEventListener('DOMContentLoaded', handleDOMContentLoaded);
       <form onsubmit="chrome.send('searchHistoryPage', [this.search.value]); return false;">
         <input type="text" class="hint"
                name="search"
-               style="background-image:url(chrome-ui://favicon/);"
+               style="background-image:url(chrome://favicon/);"
                jsvalues="placeholder:searchhistory">
       </form>
       <div id='searches-entries'></div>
@@ -513,7 +513,7 @@ function makeMostVisitedDOM(page, number) {
       <div class="thumbnail-title disabled-on-edit"
            style="background-image:url(faviconurl);direction:ltr">gmail.com</div>
       <img class="thumbnail disabled-on-edit"
-	   style="background-image:url(thumbnailurl);" />
+           style="background-image:url(thumbnailurl);" />
     </a>
   */
   var root;
@@ -532,12 +532,12 @@ function makeMostVisitedDOM(page, number) {
   /* Create the thumbnail */
   var img_thumbnail = DOM('img', {className:'thumbnail disabled-on-edit'});
   img_thumbnail.setAttribute('onload', "logEvent('image loaded');");
-  img_thumbnail.src = 'chrome-ui://thumb/' + page.url;
+  img_thumbnail.src = 'chrome://thumb/' + page.url;
 
   /* Create the title */
   var div_title = DOM('div', {className:'thumbnail-title disabled-on-edit'});
   div_title.style.backgroundImage =
-      'url("chrome-ui://favicon/' + page.url + '")';
+      'url("chrome://favicon/' + page.url + '")';
   /* Set the title's directionality independently of the overall page
      directionality. We need to do this since a purely LTR title should always
      have it's direction set as ltr. We only set the title direction to rtl if
@@ -634,7 +634,7 @@ function makeSearchURL(url) {
   /* The HTML we want looks like this:
      <form>
      <input type="text" class="hint"
-            style="background-image:url(chrome-ui://favicon/"+url+");"
+            style="background-image:url(chrome://favicon/"+url+");"
             placeholder="Search Wikipedia">
      </form>
   */
@@ -646,10 +646,10 @@ function makeSearchURL(url) {
 
   if (url.favIconURL) {
     input.style.backgroundImage =
-      'url("chrome-ui://favicon/iconurl/' + url.favIconURL + '")';
+      'url("chrome://favicon/iconurl/' + url.favIconURL + '")';
   } else {
     input.style.backgroundImage =
-      'url("chrome-ui://favicon/http://' + url.short_name + '")';
+      'url("chrome://favicon/http://' + url.short_name + '")';
   }
 
   var form = DOM('form');
@@ -701,7 +701,7 @@ function renderRecentlyBookmarked(entries) {
           chrome.send("metrics", ["NTP_Bookmark" + i])
           }, false);
       link.style.backgroundImage =
-          'url("chrome-ui://favicon/' + entry.url + '")';
+          'url("chrome://favicon/' + entry.url + '")';
       /* Set the bookmark title's directionality independently of the page, see
          comment about setting div_title.style.direction above for details.
       */
@@ -753,7 +753,7 @@ function renderRecentlyClosedTabs(entries) {
         for (var windowIndex = 0; windowIndex < entry.tabs.length; windowIndex++) {
           var tab = entry.tabs[windowIndex];
           var tabImg = DOM('img', {
-              src:'url("chrome-ui://favicon/' + tab.url + '")',
+              src:'url("chrome://favicon/' + tab.url + '")',
               width:16,
               height:16});
           tabImg.onmousedown = function() { return false; }
@@ -814,7 +814,7 @@ function createRecentBookmark(tagName, data) {
   var link = DOM(tagName, {className:'recent-bookmark', title:data.title});
   if (tagName == 'a')
     link.href = data.url;
-  link.style.backgroundImage = 'url("chrome-ui://favicon/' + data.url + '")';
+  link.style.backgroundImage = 'url("chrome://favicon/' + data.url + '")';
   /* Set the title's directionality independently of the page, see comment
      about setting div_title.style.direction above for details.
   */

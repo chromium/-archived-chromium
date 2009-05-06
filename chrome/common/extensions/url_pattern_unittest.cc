@@ -70,13 +70,13 @@ TEST(URLPatternTest, Match3) {
 // odd schemes and normalization
 TEST(URLPatternTest, Match4) {
   URLPattern pattern;
-  EXPECT_TRUE(pattern.Parse("chrome-ui://thinger/*"));
-  EXPECT_EQ("chrome-ui", pattern.scheme());
+  EXPECT_TRUE(pattern.Parse("chrome://thinger/*"));
+  EXPECT_EQ("chrome", pattern.scheme());
   EXPECT_EQ("thinger", pattern.host());
   EXPECT_FALSE(pattern.match_subdomains());
   EXPECT_EQ("/*", pattern.path());
-  EXPECT_TRUE(pattern.MatchesUrl(GURL("chrome-ui://thinger/foobar")));
-  EXPECT_TRUE(pattern.MatchesUrl(GURL("CHROME-UI://thinger/")));
+  EXPECT_TRUE(pattern.MatchesUrl(GURL("chrome://thinger/foobar")));
+  EXPECT_TRUE(pattern.MatchesUrl(GURL("CHROME://thinger/")));
   EXPECT_FALSE(pattern.MatchesUrl(GURL("http://thinger/")));
 }
 

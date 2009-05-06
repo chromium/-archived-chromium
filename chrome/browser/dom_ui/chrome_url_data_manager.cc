@@ -30,7 +30,7 @@
 
 // The URL scheme used for internal chrome resources.
 // TODO(glen): Choose a better location for this.
-static const char kChromeURLScheme[] = "chrome-ui";
+static const char kChromeURLScheme[] = "chrome";
 
 // The single global instance of ChromeURLDataManager.
 ChromeURLDataManager chrome_url_data_manager;
@@ -105,7 +105,7 @@ void RegisterURLRequestChromeJob() {
   if (PathService::Get(chrome::DIR_INSPECTOR, &inspector_dir)) {
     // TODO(yurys): remove "inspector" source when new developer tools support
     // all features of in-process Web Inspector and Console Debugger. For the
-    // time being we need to serve the same content from chrome-ui://inspector
+    // time being we need to serve the same content from chrome://inspector
     // for the Console Debugger and in-process Web Inspector.
     chrome_url_data_manager.AddFileSource("inspector", inspector_dir);
     chrome_url_data_manager.AddFileSource(chrome::kChromeUIDevToolsHost,
@@ -145,7 +145,7 @@ void ChromeURLDataManager::URLToRequest(const GURL& url,
     return;
   }
 
-  // Our input looks like: chrome-ui://source_name/extra_bits?foo .
+  // Our input looks like: chrome://source_name/extra_bits?foo .
   // So the url's "host" is our source, and everything after the host is
   // the path.
   source_name->assign(url.host());

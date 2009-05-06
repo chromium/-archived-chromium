@@ -1919,8 +1919,8 @@ void TabContents::RequestOpenURL(const GURL& url, const GURL& referrer,
     // generated suggestions).
     //
     // Note also that we hide the referrer for DOM UI pages. We don't really
-    // want web sites to see a referrer of "chrome-ui://blah" (and some
-    // chrome-ui URLs might have search terms or other stuff we don't want to
+    // want web sites to see a referrer of "chrome://blah" (and some
+    // chrome: URLs might have search terms or other stuff we don't want to
     // send to the site), so we send no referrer.
     OpenURL(url, GURL(), disposition,
             render_manager_.dom_ui()->link_transition_type());

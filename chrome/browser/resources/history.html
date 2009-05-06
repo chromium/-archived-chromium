@@ -127,7 +127,7 @@ Page.prototype.getTitleDOM_ = function() {
   var link = document.createElement('a');
   link.href = this.url_;
   link.style.backgroundImage =
-      'url(chrome-ui://favicon/' + encodeURIForCSS(this.url_) + ')';
+      'url(chrome://favicon/' + encodeURIForCSS(this.url_) + ')';
   link.appendChild(document.createTextNode(this.title_));
   this.highlightNodeContent_(link);
 
@@ -553,7 +553,7 @@ HistoryView.prototype.displayNavBar_ = function() {
  */
 HistoryView.prototype.createPageNavHTML_ = function(page, name) {
   var hashString = PageState.getHashString(this.model_.getSearchText(), page);
-  return '<a href="chrome-ui://history/' +
+  return '<a href="chrome://history/' +
               (hashString ? '#' + hashString : '') +
               '"' +
             'class="page-navigation"' +

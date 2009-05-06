@@ -317,9 +317,9 @@ void RenderThread::EnsureWebKitInitialized() {
   webkit_client_.reset(new RendererWebKitClientImpl);
   WebKit::initialize(webkit_client_.get());
 
-  // chrome-ui pages should not be accessible by normal content, and should
+  // chrome: pages should not be accessible by normal content, and should
   // also be unable to script anything but themselves (to help limit the damage
-  // that a corrupt chrome-ui page could cause).
+  // that a corrupt chrome: page could cause).
   WebString chrome_ui_scheme(ASCIIToUTF16(chrome::kChromeUIScheme));
   WebKit::registerURLSchemeAsLocal(chrome_ui_scheme);
   WebKit::registerURLSchemeAsNoAccess(chrome_ui_scheme);

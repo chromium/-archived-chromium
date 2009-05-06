@@ -19,6 +19,7 @@
 #include "base/string_util.h"
 #include "chrome/common/chrome_switches.h"
 #include "chrome/common/render_messages.h"
+#include "chrome/common/url_constants.h"
 #include "chrome/plugin/npobject_util.h"
 #include "chrome/renderer/net/render_dns_master.h"
 #include "chrome/renderer/render_process.h"
@@ -207,11 +208,12 @@ void ClipboardReadHTML(string16* markup, GURL* url) {
 }
 
 GURL GetInspectorURL() {
-  return GURL("chrome-ui://inspector/inspector.html");
+  return GURL(std::string(chrome::kChromeUIScheme) +
+              "//inspector/inspector.html");
 }
 
 std::string GetUIResourceProtocol() {
-  return "chrome-ui";
+  return "chrome";
 }
 
 bool GetPlugins(bool refresh, std::vector<WebPluginInfo>* plugins) {

@@ -10,7 +10,7 @@
 // subset of URL syntax:
 //
 // <url-pattern> := <scheme>://<host><path>
-// <scheme> := 'http' | 'https' | 'file' | 'ftp' | 'chrome-ui'
+// <scheme> := 'http' | 'https' | 'file' | 'ftp' | 'chrome'
 // <host> := '*' | '*.' <anychar except '/' and '*'>+
 // <path> := '/' <any chars>
 //
@@ -21,7 +21,7 @@
 // - http://*/*
 // - http://*/foo*
 // - https://*.google.com/foo*bar
-// - chrome-ui://foo/bar
+// - chrome://foo/bar
 // - file://monkey*
 // - http://127.0.0.1/*
 //

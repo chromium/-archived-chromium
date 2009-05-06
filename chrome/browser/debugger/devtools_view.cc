@@ -54,7 +54,7 @@ void DevToolsView::Init() {
   web_container_->SetTabContents(tab_contents_);
   tab_contents_->render_view_host()->AllowDOMUIBindings();
 
-  // chrome-ui://devtools/devtools.html
+  // chrome://devtools/devtools.html
   GURL contents(std::string(chrome::kChromeUIDevToolsURL) + "devtools.html");
 
   // this will call CreateRenderView to create renderer process

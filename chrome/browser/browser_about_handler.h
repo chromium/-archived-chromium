@@ -11,7 +11,7 @@ class GURL;
 
 // Decides whether the given URL will be handled by the browser about handler
 // and returns true if so. On true, it may also modify the given URL to be the
-// final form (we fix up most "about:" URLs to be "chrome-ui:" because WebKit
+// final form (we fix up most "about:" URLs to be "chrome:" because WebKit
 // handles all "about:" URLs as "about:blank.
 //
 // This is used by BrowserURLHandler.

@@ -76,7 +76,7 @@ ChromeURLDataManager::DataSource* about_source = NULL;
 // time that about memory is being computed.
 std::string GetAboutMemoryRedirectResponse() {
   return "<meta http-equiv=\"refresh\" "
-      "content=\"0;chrome-ui://about/memory\">";
+      "content=\"0;chrome://about/memory\">";
 }
 
 class AboutSource : public ChromeURLDataManager::DataSource {
@@ -612,20 +612,20 @@ bool WillHandleBrowserAboutURL(GURL* url) {
   // Special case about:memory to go through a redirect before ending up on
   // the final page. See GetAboutMemoryRedirectResponse above for why.
   if (LowerCaseEqualsASCII(url->path(), kMemoryPath)) {
-    *url = GURL("chrome-ui://about/memory-redirect");
+    *url = GURL("chrome://about/memory-redirect");
     return true;
   }
 
-  // Rewrite the about URL to use chrome-ui. WebKit treats all about URLS the
+  // Rewrite the about URL to use chrome:. WebKit treats all about URLS the
   // same (blank page), so if we want to display content, we need another
   // scheme.
-  std::string about_url = "chrome-ui://about/";
+  std::string about_url = "chrome://about/";
   about_url.append(url->path());
   *url = GURL(about_url);
   return true;
 }
 
-// This function gets called with the fixed-up chrome-ui URLs, so we have to
+// This function gets called with the fixed-up chrome: URLs, so we have to
 // compare against those instead of "about:blah".
 bool HandleNonNavigationAboutURL(const GURL& url) {
   // About:network and IPC and currently buggy, so we disable it for official
