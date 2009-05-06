@@ -156,7 +156,6 @@ void UITest::TearDown() {
   }
   EXPECT_EQ(expected_errors_, assertions.size()) << failures;
 
-#if defined(OS_WIN)
   // Check for crashes during the test
   FilePath crash_dump_path;
   PathService::Get(chrome::DIR_CRASH_DUMPS, &crash_dump_path);
@@ -170,11 +169,6 @@ void UITest::TearDown() {
     error_msg += kFailedNoCrashService;
   }
   EXPECT_EQ(expected_crashes_, actual_crashes) << error_msg;
-#else
-  // TODO(port): we don't catch crashes, nor have CountFilesCreatedAfter.
-  // http://code.google.com/p/chromium/issues/detail?id=9833
-  NOTIMPLEMENTED() << " bug 9833 and crash catching.";
-#endif
 }
 
 // Pick up the various test time out values from the command line.

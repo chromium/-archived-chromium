@@ -193,7 +193,7 @@ TEST_F(ResourceDispatcherTest, CrossSiteOnunloadCookie) {
   ASSERT_STREQ("foo", value_result.c_str());
 }
 
-#if !defined(OS_MACOSX)
+#if defined(OS_WIN)
 // Tests that the onbeforeunload and onunload logic is shortcutted if the old
 // renderer is gone.  In that case, we don't want to wait for the old renderer
 // to run the handlers.
@@ -202,6 +202,8 @@ TEST_F(ResourceDispatcherTest, CrossSiteOnunloadCookie) {
 // Unfortunately, if the app isn't stripped of debug symbols, this takes about
 // five minutes to complete and isn't conducive to quick turnarounds. As we
 // don't currently strip the app on the build bots, this is bad times.
+// TODO(albertb): We need to disable this on Linux as well since
+// crash_service.exe hasn't been ported yet.
 TEST_F(ResourceDispatcherTest, CrossSiteAfterCrash) {
   // This test only works in multi-process mode
   if (in_process_renderer())
