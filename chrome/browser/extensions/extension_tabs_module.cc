@@ -38,7 +38,7 @@ const wchar_t* kTabsKey = L"tabs";
 // Forward declare static helper functions defined below.
 static DictionaryValue* CreateWindowValue(Browser* browser, bool populate_tabs);
 static ListValue* CreateTabList(Browser* browser);
-static Browser *GetBrowserInProfileWithId(Profile* profile,
+static Browser* GetBrowserInProfileWithId(Profile* profile,
                                           const int window_id);
 
 // ExtensionTabUtil
@@ -96,7 +96,7 @@ bool ExtensionTabUtil::GetTabById(int tab_id, Profile* profile,
                                   TabStripModel** tab_strip,
                                   TabContents** contents,
                                   int* tab_index) {
-  Browser *target_browser;
+  Browser* target_browser;
   TabStripModel* target_tab_strip;
   TabContents* target_contents;
   for (BrowserList::const_iterator iter = BrowserList::begin();
@@ -123,7 +123,7 @@ bool ExtensionTabUtil::GetTabById(int tab_id, Profile* profile,
   return false;
 }
 
-static bool GetWindowFunctionHelper(Browser *browser, Profile* profile,
+static bool GetWindowFunctionHelper(Browser* browser, Profile* profile,
                             scoped_ptr<Value>* result) {
   // TODO(rafaelw): need "not found" error message.
   if (browser == NULL || browser->profile() != profile)
@@ -140,7 +140,7 @@ bool GetWindowFunction::RunImpl() {
   int window_id;
   EXTENSION_FUNCTION_VALIDATE(args_->GetAsInteger(&window_id));
 
-  Browser *target = GetBrowserInProfileWithId(profile(), window_id);
+  Browser* target = GetBrowserInProfileWithId(profile(), window_id);
   return GetWindowFunctionHelper(target, profile(), &result_);
 }
 
@@ -230,7 +230,7 @@ bool CreateWindowFunction::RunImpl() {
     }
   }
 
-  Browser *new_window = Browser::Create(dispatcher_->profile());
+  Browser* new_window = Browser::Create(dispatcher_->profile());
   new_window->AddTabWithURL(*(url.get()), GURL(), PageTransition::LINK, true,
                             -1, false, NULL);
 
@@ -274,7 +274,7 @@ bool RemoveWindowFunction::RunImpl() {
 
 bool GetSelectedTabFunction::RunImpl() {
   int window_id;
-  Browser *browser;
+  Browser* browser;
   // windowId defaults to "current" window.
   if (!args_->IsType(Value::TYPE_NULL)) {
     EXTENSION_FUNCTION_VALIDATE(args_->GetAsInteger(&window_id));
@@ -297,7 +297,7 @@ bool GetSelectedTabFunction::RunImpl() {
 
 bool GetAllTabsInWindowFunction::RunImpl() {
   int window_id;
-  Browser *browser;
+  Browser* browser;
   // windowId defaults to "current" window.
   if (!args_->IsType(Value::TYPE_NULL)) {
     EXTENSION_FUNCTION_VALIDATE(args_->GetAsInteger(&window_id));
@@ -317,10 +317,10 @@ bool GetAllTabsInWindowFunction::RunImpl() {
 
 bool CreateTabFunction::RunImpl() {
   EXTENSION_FUNCTION_VALIDATE(args_->IsType(Value::TYPE_DICTIONARY));
-  const DictionaryValue *args = static_cast<const DictionaryValue*>(args_);
+  const DictionaryValue* args = static_cast<const DictionaryValue*>(args_);
 
   int window_id;
-  Browser *browser;
+  Browser* browser;
   // windowId defaults to "current" window.
   if (args->HasKey(kWindowIdKey)) {
     EXTENSION_FUNCTION_VALIDATE(args->GetInteger(kWindowIdKey, &window_id));
@@ -333,7 +333,7 @@ bool CreateTabFunction::RunImpl() {
     // TODO(rafaelw): return a "no 'current' browser" error.
     return false;
 
-  TabStripModel *tab_strip = browser->tabstrip_model();
+  TabStripModel* tab_strip = browser->tabstrip_model();
 
   // TODO(rafaelw): handle setting remaining tab properties:
   // -title
@@ -384,7 +384,7 @@ bool GetTabFunction::RunImpl() {
   int tab_id;
   EXTENSION_FUNCTION_VALIDATE(args_->GetAsInteger(&tab_id));
 
-  TabStripModel *tab_strip = NULL;
+  TabStripModel* tab_strip = NULL;
   TabContents* contents = NULL;
   int tab_index = -1;
   // TODO(rafaelw): return "tab_id not found" error.
@@ -400,12 +400,12 @@ bool GetTabFunction::RunImpl() {
 bool UpdateTabFunction::RunImpl() {
   int tab_id;
   EXTENSION_FUNCTION_VALIDATE(args_->IsType(Value::TYPE_LIST));
-  const ListValue *args = static_cast<const ListValue*>(args_);
+  const ListValue* args = static_cast<const ListValue*>(args_);
   EXTENSION_FUNCTION_VALIDATE(args->GetInteger(0, &tab_id));
-  DictionaryValue *update_props;
+  DictionaryValue* update_props;
   EXTENSION_FUNCTION_VALIDATE(args->GetDictionary(1, &update_props));
 
-  TabStripModel *tab_strip = NULL;
+  TabStripModel* tab_strip = NULL;
   TabContents* contents = NULL;
   int tab_index = -1;
   // TODO(rafaelw): return "tab_id not found" error.
@@ -449,33 +449,62 @@ bool UpdateTabFunction::RunImpl() {
 bool MoveTabFunction::RunImpl() {
   int tab_id;
   EXTENSION_FUNCTION_VALIDATE(args_->IsType(Value::TYPE_LIST));
-  const ListValue *args = static_cast<const ListValue*>(args_);
+  const ListValue* args = static_cast<const ListValue*>(args_);
   EXTENSION_FUNCTION_VALIDATE(args->GetInteger(0, &tab_id));
-  DictionaryValue *update_props;
+  DictionaryValue* update_props;
   EXTENSION_FUNCTION_VALIDATE(args->GetDictionary(1, &update_props));
 
   int new_index;
   EXTENSION_FUNCTION_VALIDATE(update_props->GetInteger(kIndexKey, &new_index));
   EXTENSION_FUNCTION_VALIDATE(new_index >= 0);
 
-  TabStripModel *tab_strip = NULL;
+  Browser* source_browser = NULL;
+  TabStripModel* source_tab_strip = NULL;
   int tab_index = -1;
   // TODO(rafaelw): return "tab_id not found" error.
-  if (!ExtensionTabUtil::GetTabById(tab_id, profile(), NULL, &tab_strip,
-                                    NULL, &tab_index))
+  if (!ExtensionTabUtil::GetTabById(tab_id, profile(), &source_browser,
+                                    &source_tab_strip, NULL,
+                                    &tab_index))
     return false;
 
-  // TODO(rafaelw): support moving tabs between windows
-  // -windowId
+  if (update_props->HasKey(kWindowIdKey)) {
+    int window_id;
+    EXTENSION_FUNCTION_VALIDATE(update_props->GetInteger(kWindowIdKey,
+        &window_id));
+    Browser* target_browser = GetBrowserInProfileWithId(profile(), window_id);
+    // TODO(rafaelw): return "window_id not found" error.
+    if (!target_browser) 
+      return false;
 
+    // If windowId is different from the current window, move between windows.
+    if (ExtensionTabUtil::GetWindowId(target_browser) !=
+        ExtensionTabUtil::GetWindowId(source_browser)) {
+      TabStripModel* target_tab_strip = target_browser->tabstrip_model();
+      TabContents *contents = source_tab_strip->DetachTabContentsAt(tab_index);
+      // TODO(rafaelw): return a "tab not found" error.
+      if (!contents)
+        return false;
+      
+      // Clamp move location to the last position.
+      // This is ">" because it can append to a new index position.
+      if (new_index > target_tab_strip->count())
+        new_index = target_tab_strip->count();
+
+      target_tab_strip->InsertTabContentsAt(new_index, contents,
+          false, true);
+
+      return true;
+    } 
+  }
+ 
+  // Perform a simple within-window move.
   // Clamp move location to the last position.
-  if (new_index >= tab_strip->count()) {
-    new_index = tab_strip->count() - 1;
-  }
-
-  if (new_index != tab_index) {
-    tab_strip->MoveTabContentsAt(tab_index, new_index, false);
-  }
+  // This is ">=" because the move must be to an existing location.
+  if (new_index >= source_tab_strip->count())
+    new_index = source_tab_strip->count() - 1;
+    
+  if (new_index != tab_index)
+    source_tab_strip->MoveTabContentsAt(tab_index, new_index, false);
 
   return true;
 }
@@ -487,7 +516,7 @@ bool RemoveTabFunction::RunImpl() {
   int tab_id;
   EXTENSION_FUNCTION_VALIDATE(args_->GetAsInteger(&tab_id));
 
-  Browser *browser = NULL;
+  Browser* browser = NULL;
   TabContents* contents = NULL;
   // TODO(rafaelw): return "tab_id not found" error.
   if (!ExtensionTabUtil::GetTabById(tab_id, profile(), &browser, NULL,
@@ -522,7 +551,7 @@ static DictionaryValue* CreateWindowValue(Browser* browser,
 }
 
 static ListValue* CreateTabList(Browser* browser) {
-  ListValue *tab_list = new ListValue();
+  ListValue* tab_list = new ListValue();
   TabStripModel* tab_strip = browser->tabstrip_model();
   for (int i = 0; i < tab_strip->count(); ++i) {
     tab_list->Append(ExtensionTabUtil::CreateTabValue(
@@ -532,7 +561,7 @@ static ListValue* CreateTabList(Browser* browser) {
   return tab_list;
 }
 
-static Browser *GetBrowserInProfileWithId(Profile* profile,
+static Browser* GetBrowserInProfileWithId(Profile* profile,
                                           const int window_id) {
   for (BrowserList::const_iterator browser = BrowserList::begin();
       browser != BrowserList::end(); ++browser) {
