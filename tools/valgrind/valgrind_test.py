@@ -73,6 +73,9 @@ class Valgrind(object):
     self._parser.add_option("", "--track_origins", action="store_true",
                             default=False,
                             help="Show whence uninit bytes came.  30% slower.")
+    self._parser.add_option("", "--generate_dsym", action="store_true",
+                            default=False,
+                            help="Generate .dSYM file on Mac if needed. Slow!")
     self._parser.add_option("", "--generate_suppressions", action="store_true",
                             default=False,
                             help="Skip analysis and generate suppressions")
@@ -300,17 +303,22 @@ class ValgrindMac(ValgrindLinux):
         shutil.copyfile(dsym_file, test_command)
 
     if needs_dsymutil:
-      # Remove the .dSYM bundle if it exists.
-      shutil.rmtree(dsym_bundle, True)
+      if self._options.generate_dsym:
+        # Remove the .dSYM bundle if it exists.
+        shutil.rmtree(dsym_bundle, True)
 
-      dsymutil_command = ['dsymutil', test_command]
+        dsymutil_command = ['dsymutil', test_command]
 
-      # dsymutil is crazy slow.  Let it run for up to a half hour.  I hope
-      # that's enough.
-      common.RunSubprocess(dsymutil_command, 30 * 60)
+        # dsymutil is crazy slow.  Let it run for up to a half hour.  I hope
+        # that's enough.
+        common.RunSubprocess(dsymutil_command, 30 * 60)
 
-      if saved_test_command:
-        os.rename(saved_test_command, test_command)
+        if saved_test_command:
+          os.rename(saved_test_command, test_command)
+      else:
+        logging.info("No real .dSYM for test_command.  Line numbers will "
+                     "not be shown.  Either tell xcode to generate .dSYM "
+                     "file, or use --generate_dsym option to this tool.")
 
 if __name__ == "__main__":
   if sys.platform == 'darwin': # Mac

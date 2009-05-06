@@ -146,6 +146,8 @@ class ChromeTests:
       cmd.append("--show_all_leaks")
     if self._options.track_origins:
       cmd.append("--track_origins")
+    if self._options.generate_dsym:
+      cmd.append("--generate_dsym")
     if self._options.generate_suppressions:
       cmd.append("--generate_suppressions")
     if self._options.custom_valgrind_command:
@@ -365,8 +367,9 @@ def _main(_):
   parser.add_option("", "--track_origins", action="store_true",
                     default=False,
                     help="Show whence uninit bytes came.  30% slower.")
-  parser.add_option("", "--no-reinstrument", action="store_true", default=False,
-                    help="Don't force a re-instrumentation for ui_tests")
+  parser.add_option("", "--generate_dsym", action="store_true",
+                    default=False,
+                    help="Generate .dSYM file on Mac if needed. Slow!")
   parser.add_option("", "--generate_suppressions", action="store_true",
                     default=False,
                     help="Skip analysis and generate suppressions")
@@ -377,7 +380,7 @@ def _main(_):
   # The CPU is mostly idle, so perhaps we can raise this when
   # we figure out how to run them more efficiently.
   parser.add_option("-n", "--num_tests", default=60, type="int",
-                    help="for layout tests: number of subtests per run.  0 for all.")
+                    help="for layout tests: # of subtests per run.  0 for all.")
 
   options, args = parser.parse_args()
 
