@@ -902,6 +902,38 @@ TEST_F(TabContentsTest, ShowInterstitialThenNavigate) {
   EXPECT_EQ(TestInterstitialPage::CANCELED, state);
 }
 
+// Test navigating to a page that shows an interstitial, then going back.
+TEST_F(TabContentsTest, ShowInterstitialThenGoBack) {
+  // Navigate to a page so we have a navigation entry in the controller.
+  GURL url1("http://www.google.com");
+  rvh()->SendNavigate(1, url1);
+  EXPECT_EQ(1, controller().entry_count());
+
+  // Show interstitial.
+  TestInterstitialPage::InterstitialState state =
+      TestInterstitialPage::UNDECIDED;
+  bool deleted = false;
+  GURL interstitial_url("http://interstitial");
+  TestInterstitialPage* interstitial =
+      new TestInterstitialPage(contents(), true, interstitial_url,
+                               &state, &deleted);
+  TestInterstitialPageStateGuard state_guard(interstitial);
+  interstitial->Show();
+  interstitial->TestDidNavigate(2, interstitial_url);
+
+  // While the interstitial is showing, go back.
+  controller().GoBack();
+  rvh()->SendNavigate(1, url1);
+
+  // Make sure we are back to the original page and that the interstitial is
+  // gone.
+  EXPECT_TRUE(deleted);
+  EXPECT_EQ(TestInterstitialPage::CANCELED, state);
+  NavigationEntry* entry = controller().GetActiveEntry();
+  ASSERT_TRUE(entry);
+  EXPECT_EQ(url1.spec(), entry->url().spec());
+}
+
 // Test navigating to a page that shows an interstitial, then close the tab.
 TEST_F(TabContentsTest, ShowInterstitialThenCloseTab) {
   // Show interstitial.
@@ -1116,4 +1148,48 @@ TEST_F(TabContentsTest, InterstitialCrasher) {
   // The interstitial should have been dismissed.
   EXPECT_TRUE(deleted);
   EXPECT_EQ(TestInterstitialPage::CANCELED, state);
+}
+
+// Tests that showing an interstitial as a result of a browser initiated
+// navigation while an interstitial is showing does not remove the pending
+// entry (see http://crbug.com/9791).
+TEST_F(TabContentsTest, NewInterstitialDoesNotCancelPendingEntry) {
+  const char kUrl[] = "http://www.badguys.com/";
+  const GURL kGURL(kUrl);
+
+  // Start a navigation to a page
+  contents()->controller().LoadURL(kGURL, GURL(), PageTransition::TYPED);
+
+  // Simulate that navigation triggering an interstitial.
+  TestInterstitialPage::InterstitialState state =
+      TestInterstitialPage::UNDECIDED;
+  bool deleted = false;
+  TestInterstitialPage* interstitial =
+      new TestInterstitialPage(contents(), true, kGURL, &state, &deleted);
+  TestInterstitialPageStateGuard state_guard(interstitial);
+  interstitial->Show();
+  interstitial->TestDidNavigate(1, kGURL);
+
+  // Initiate a new navigation from the browser that also triggers an
+  // interstitial.
+  contents()->controller().LoadURL(kGURL, GURL(), PageTransition::TYPED);
+  TestInterstitialPage::InterstitialState state2 =
+      TestInterstitialPage::UNDECIDED;
+  bool deleted2 = false;
+  TestInterstitialPage* interstitial2 =
+      new TestInterstitialPage(contents(), true, kGURL, &state, &deleted);
+  TestInterstitialPageStateGuard state_guard2(interstitial2);
+  interstitial2->Show();
+  interstitial2->TestDidNavigate(1, kGURL);
+
+  // Make sure we still have an entry.
+  NavigationEntry* entry = contents()->controller().pending_entry();
+  ASSERT_TRUE(entry);
+  EXPECT_EQ(kUrl, entry->url().spec());
+
+  // And that the first interstitial is gone, but not the second.
+  EXPECT_TRUE(deleted);
+  EXPECT_EQ(TestInterstitialPage::CANCELED, state);
+  EXPECT_FALSE(deleted2);
+  EXPECT_EQ(TestInterstitialPage::UNDECIDED, state2);
 }
