@@ -391,6 +391,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\..\skia\ext\skia_utils_unittest.cc"
+				>
+			</File>
+			<File
 				RelativePath=".\keyboard_unittest.cc"
 				>
 			</File>

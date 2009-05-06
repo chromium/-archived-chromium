@@ -382,6 +382,7 @@
       'sources': [
         '../../../skia/ext/convolver_unittest.cc',
         '../../../skia/ext/image_operations_unittest.cc',
+        '../../../skia/ext/skia_utils_unittest.cc',
         '../../../skia/ext/platform_canvas_unittest.cc',
         '../../../skia/ext/vector_canvas_unittest.cc',
         '../../glue/bookmarklet_unittest.cc',
@@ -446,6 +447,7 @@
         }, {  # else: OS!=win
           'sources!': [
             '../../../skia/ext/image_operations_unittest.cc',
+            '../../../skia/ext/skia_utils_unittest.cc',
             '../../../skia/ext/vector_canvas_unittest.cc',
             '../webcore_unit_tests/UniscribeHelper_unittest.cpp',
             '../webcore_unit_tests/TransparencyWin_unittest.cpp',
