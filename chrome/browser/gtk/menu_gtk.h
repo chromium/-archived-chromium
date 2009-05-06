@@ -7,6 +7,7 @@
 
 #include <gtk/gtk.h>
 #include <string>
+#include <vector>
 
 #include "chrome/browser/gtk/standard_menus.h"
 #include "chrome/common/owned_widget_gtk.h"
@@ -48,6 +49,10 @@ class MenuGtk {
 
   // These methods are used to build the menu dynamically.
   void AppendMenuItemWithLabel(int command_id, const std::string& label);
+  void AppendMenuItemWithIcon(int command_id, const std::string& label,
+                              const SkBitmap& icon);
+  MenuGtk* AppendSubMenuWithIcon(int command_id, const std::string& label,
+                                 const SkBitmap& icon);
   void AppendSeparator();
 
   // Displays the menu. |timestamp| is the time of activation. The popup is
@@ -67,6 +72,11 @@ class MenuGtk {
   // Closes the menu.
   void Cancel();
 
+  // Sets an icon for an item with a given item_id. This method searches both
+  // this MenuGtk object and all child submenus. Returns false if the item with
+  // |item_id| is not found.
+  bool SetIcon(const SkBitmap& icon, int item_id);
+
   // Change windows accelerator style to GTK style. (GTK uses _ for
   // accelerators.  Windows uses & with && as an escape for &.)
   static std::string ConvertAcceleratorsFromWindowsStyle(
@@ -79,9 +89,17 @@ class MenuGtk {
                    const MenuCreateMaterial* menu_data,
                    GtkAccelGroup* accel_group);
 
+  // Builds a GtkImageMenuItem.
+  GtkWidget* BuildMenuItemWithImage(const std::string& label,
+                                    const SkBitmap& icon);
+
   // A function that creates a GtkMenu from |delegate_|. This function is not
   // recursive and does not support sub-menus.
   void BuildMenuFromDelegate();
+
+  // Helper method that sets properties on a GtkMenuItem and then adds it to
+  // our internal |menu_|.
+  void AddMenuItemWithId(GtkWidget* menu_item, int id);
 
   // Callback for when a menu item is clicked. Used when the menu is created
   // via a MenuCreateMaterial.
@@ -116,6 +134,10 @@ class MenuGtk {
   // gtk_menu_popup() does not appear to take ownership of popup menus, so
   // MenuGtk explicitly manages the lifetime of the menu.
   OwnedWidgetGtk menu_;
+
+  // MenuGtk instances of submenus; we keep references to these objects just to
+  // clean up during our destructor.
+  std::vector<MenuGtk*> children_;
 };
 
 #endif  // CHROME_BROWSER_GTK_MENU_GTK_H_

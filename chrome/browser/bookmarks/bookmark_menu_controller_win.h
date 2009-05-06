@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CHROME_BROWSER_BOOKMARKS_BOOKMARK_MENU_CONTROLLER_H_
-#define CHROME_BROWSER_BOOKMARKS_BOOKMARK_MENU_CONTROLLER_H_
+#ifndef CHROME_BROWSER_BOOKMARKS_BOOKMARK_MENU_CONTROLLER_WIN_H_
+#define CHROME_BROWSER_BOOKMARKS_BOOKMARK_MENU_CONTROLLER_WIN_H_
 
 #include <map>
 
@@ -142,4 +142,4 @@ class BookmarkMenuController : public BaseBookmarkModelObserver,
   DISALLOW_COPY_AND_ASSIGN(BookmarkMenuController);
 };
 
-#endif  // CHROME_BROWSER_BOOKMARKS_BOOKMARK_MENU_CONTROLLER_H_
+#endif  // CHROME_BROWSER_BOOKMARKS_BOOKMARK_MENU_CONTROLLER_WIN_H_

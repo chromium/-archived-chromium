@@ -8,6 +8,7 @@
 #include "app/resource_bundle.h"
 #include "base/gfx/gtk_util.h"
 #include "chrome/browser/bookmarks/bookmark_context_menu.h"
+#include "chrome/browser/bookmarks/bookmark_menu_controller_gtk.h"
 #include "chrome/browser/bookmarks/bookmark_utils.h"
 #include "chrome/browser/browser.h"
 #include "chrome/browser/gtk/custom_button.h"
@@ -353,6 +354,8 @@ GtkWidget* BookmarkBarGtk::CreateBookmarkButton(
 
 GtkToolItem* BookmarkBarGtk::CreateBookmarkToolItem(BookmarkNode* node) {
   GtkWidget* button = CreateBookmarkButton(node);
+  g_object_set_data(G_OBJECT(button), "left-align-popup",
+                    reinterpret_cast<void*>(true));
 
   GtkToolItem* item = gtk_tool_item_new();
   gtk_container_add(GTK_CONTAINER(item), button);
@@ -537,7 +540,14 @@ gboolean BookmarkBarGtk::OnFolderButtonReleased(GtkWidget* sender,
   DCHECK(node);
   DCHECK(bar->page_navigator_);
 
-  NOTIMPLEMENTED() << "Flesh this out once I can make folders.";
+  bar->current_menu_.reset(
+      new BookmarkMenuController(bar->browser_, bar->profile_,
+                                 bar->page_navigator_,
+                                 GTK_WINDOW(gtk_widget_get_toplevel(sender)),
+                                 node,
+                                 0,
+                                 false));
+  bar->current_menu_->Popup(sender, event->button, event->time);
 
   // Allow other handlers to run so the button state is updated correctly.
   return FALSE;

@@ -6,9 +6,35 @@
 
 #include "app/l10n_util.h"
 #include "base/logging.h"
+#include "base/stl_util-inl.h"
 #include "base/string_util.h"
 #include "chrome/common/gtk_util.h"
 #include "skia/include/SkBitmap.h"
+
+namespace {
+
+struct SetIconState {
+  bool found;
+  const SkBitmap* icon;
+  int id;
+};
+
+void SetIconImpl(GtkWidget* widget, void* raw) {
+  SetIconState* data = reinterpret_cast<SetIconState*>(raw);
+  int this_id =
+      reinterpret_cast<int>(g_object_get_data(G_OBJECT(widget), "menu-id"));
+
+  if (this_id == data->id) {
+    GdkPixbuf* pixbuf = gfx::GdkPixbufFromSkBitmap(data->icon);
+    gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(widget),
+                                  gtk_image_new_from_pixbuf(pixbuf));
+    g_object_unref(pixbuf);
+
+    data->found = true;
+  }
+}
+
+}  // namespace
 
 MenuGtk::MenuGtk(MenuGtk::Delegate* delegate,
                  const MenuCreateMaterial* menu_data,
@@ -28,6 +54,7 @@ MenuGtk::MenuGtk(MenuGtk::Delegate* delegate, bool load)
 }
 
 MenuGtk::~MenuGtk() {
+  STLDeleteElements(&children_);
   menu_.Destroy();
   if (dummy_accel_group_)
     g_object_unref(dummy_accel_group_);
@@ -36,15 +63,28 @@ MenuGtk::~MenuGtk() {
 void MenuGtk::AppendMenuItemWithLabel(int command_id,
                                       const std::string& label) {
   GtkWidget* menu_item = gtk_menu_item_new_with_label(label.c_str());
+  AddMenuItemWithId(menu_item, command_id);
+}
 
-  g_object_set_data(G_OBJECT(menu_item), "menu-id",
-                    reinterpret_cast<void*>(command_id));
+void MenuGtk::AppendMenuItemWithIcon(int command_id,
+                                     const std::string& label,
+                                     const SkBitmap& icon) {
+  GtkWidget* menu_item = BuildMenuItemWithImage(label, icon);
+  AddMenuItemWithId(menu_item, command_id);
+}
 
-  g_signal_connect(G_OBJECT(menu_item), "activate",
-                   G_CALLBACK(OnMenuItemActivatedById), this);
+MenuGtk* MenuGtk::AppendSubMenuWithIcon(int command_id,
+                                        const std::string& label,
+                                        const SkBitmap& icon) {
+  GtkWidget* menu_item = BuildMenuItemWithImage(label, icon);
 
-  gtk_widget_show(menu_item);
-  gtk_menu_shell_append(GTK_MENU_SHELL(menu_.get()), menu_item);
+  MenuGtk* submenu = new MenuGtk(delegate_, false);
+  gtk_menu_item_set_submenu(GTK_MENU_ITEM(menu_item), submenu->menu_.get());
+  children_.push_back(submenu);
+
+  AddMenuItemWithId(menu_item, command_id);
+
+  return submenu;
 }
 
 void MenuGtk::AppendSeparator() {
@@ -80,6 +120,25 @@ void MenuGtk::PopupAsContext(guint32 event_time) {
 
 void MenuGtk::Cancel() {
   gtk_menu_popdown(GTK_MENU(menu_.get()));
+}
+
+bool MenuGtk::SetIcon(const SkBitmap& icon, int item_id) {
+  // First search items in this menu.
+  SetIconState state;
+  state.found = false;
+  state.icon = &icon;
+  state.id = item_id;
+  gtk_container_foreach(GTK_CONTAINER(menu_.get()), SetIconImpl, &state);
+  if (state.found)
+    return true;
+
+  for (std::vector<MenuGtk*>::iterator it = children_.begin();
+       it != children_.end(); ++it) {
+    if ((*it)->SetIcon(icon, item_id))
+      return true;
+  }
+
+  return false;
 }
 
 // static
@@ -178,6 +237,18 @@ void MenuGtk::BuildMenuIn(GtkWidget* menu,
   }
 }
 
+GtkWidget* MenuGtk::BuildMenuItemWithImage(const std::string& label,
+                                           const SkBitmap& icon) {
+  GtkWidget* menu_item = gtk_image_menu_item_new_with_label(label.c_str());
+
+  GdkPixbuf* pixbuf = gfx::GdkPixbufFromSkBitmap(&icon);
+  gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(menu_item),
+                                gtk_image_new_from_pixbuf(pixbuf));
+  g_object_unref(pixbuf);
+
+  return menu_item;
+}
+
 void MenuGtk::BuildMenuFromDelegate() {
   // Note that the menu IDs start at 1, not 0.
   for (int i = 1; i <= delegate_->GetItemCount(); ++i) {
@@ -186,26 +257,25 @@ void MenuGtk::BuildMenuFromDelegate() {
     if (delegate_->IsItemSeparator(i)) {
       menu_item = gtk_separator_menu_item_new();
     } else if (delegate_->HasIcon(i)) {
-      menu_item = gtk_image_menu_item_new_with_label(
-          delegate_->GetLabel(i).c_str());
       const SkBitmap* icon = delegate_->GetIcon(i);
-      GdkPixbuf* pixbuf = gfx::GdkPixbufFromSkBitmap(icon);
-      GtkWidget* widget = gtk_image_new_from_pixbuf(pixbuf);
-      gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(menu_item), widget);
-      g_object_unref(pixbuf);
+      menu_item = BuildMenuItemWithImage(delegate_->GetLabel(i), *icon);
     } else {
       menu_item = gtk_menu_item_new_with_label(delegate_->GetLabel(i).c_str());
     }
 
-    g_object_set_data(G_OBJECT(menu_item), "menu-id",
-                      reinterpret_cast<void*>(i));
-
-    g_signal_connect(G_OBJECT(menu_item), "activate",
-                     G_CALLBACK(OnMenuItemActivatedById), this);
-
-    gtk_widget_show(menu_item);
-    gtk_menu_shell_append(GTK_MENU_SHELL(menu_.get()), menu_item);
+    AddMenuItemWithId(menu_item, i);
   }
+}
+
+void MenuGtk::AddMenuItemWithId(GtkWidget* menu_item, int id) {
+  g_object_set_data(G_OBJECT(menu_item), "menu-id",
+                    reinterpret_cast<void*>(id));
+
+  g_signal_connect(G_OBJECT(menu_item), "activate",
+                   G_CALLBACK(OnMenuItemActivatedById), this);
+
+  gtk_widget_show(menu_item);
+  gtk_menu_shell_append(GTK_MENU_SHELL(menu_.get()), menu_item);
 }
 
 // static

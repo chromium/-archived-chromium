@@ -14,6 +14,7 @@
 #include "chrome/browser/bookmarks/bookmark_model.h"
 
 class BookmarkContextMenu;
+class BookmarkMenuController;
 class Browser;
 class CustomContainerButton;
 class PageNavigator;
@@ -200,6 +201,10 @@ class BookmarkBarGtk : public BookmarkModelObserver {
   // The last displayed right click menu, or NULL if no menus have been
   // displayed yet.
   scoped_ptr<BookmarkContextMenu> current_context_menu_;
+
+  // The last displayed left click menu, or NULL if no menus have been
+  // displayed yet.
+  scoped_ptr<BookmarkMenuController> current_menu_;
 };
 
 #endif  // CHROME_BROWSER_GTK_BOOKMARK_BAR_GTK_H_
