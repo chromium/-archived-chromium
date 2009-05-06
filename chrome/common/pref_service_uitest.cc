@@ -76,7 +76,7 @@ public:
 // Also, not sure what should happen on the mac.  In any case, the code below
 // (minus the Windows bits) compiles fine on my Linux box now.
 // TODO(port): revisit this.
-TEST_F(PreferenceServiceTest, DISABLED_PreservedWindowPlacementIsLoaded) {
+TEST_F(PreferenceServiceTest, PreservedWindowPlacementIsLoaded) {
   // The window should open with the reference profile
   ASSERT_TRUE(LaunchAppWithProfile());
 
@@ -104,31 +104,31 @@ TEST_F(PreferenceServiceTest, DISABLED_PreservedWindowPlacementIsLoaded) {
   // Retrieve the expected rect values from "Preferences"
   int bottom = 0;
   std::wstring kBrowserWindowPlacement(prefs::kBrowserWindowPlacement);
-  ASSERT_TRUE(root_dict->GetInteger(kBrowserWindowPlacement + L".bottom",
+  EXPECT_TRUE(root_dict->GetInteger(kBrowserWindowPlacement + L".bottom",
       &bottom));
-  ASSERT_EQ(bottom, window_placement.rcNormalPosition.bottom);
+  EXPECT_EQ(bottom, window_placement.rcNormalPosition.bottom);
 
   int top = 0;
-  ASSERT_TRUE(root_dict->GetInteger(kBrowserWindowPlacement + L".top",
+  EXPECT_TRUE(root_dict->GetInteger(kBrowserWindowPlacement + L".top",
       &top));
-  ASSERT_EQ(top, window_placement.rcNormalPosition.top);
+  EXPECT_EQ(top, window_placement.rcNormalPosition.top);
 
   int left = 0;
-  ASSERT_TRUE(root_dict->GetInteger(kBrowserWindowPlacement + L".left",
+  EXPECT_TRUE(root_dict->GetInteger(kBrowserWindowPlacement + L".left",
       &left));
-  ASSERT_EQ(left, window_placement.rcNormalPosition.left);
+  EXPECT_EQ(left, window_placement.rcNormalPosition.left);
 
   int right = 0;
-  ASSERT_TRUE(root_dict->GetInteger(kBrowserWindowPlacement + L".right",
+  EXPECT_TRUE(root_dict->GetInteger(kBrowserWindowPlacement + L".right",
       &right));
-  ASSERT_EQ(right, window_placement.rcNormalPosition.right);
+  EXPECT_EQ(right, window_placement.rcNormalPosition.right);
 
   // Find if launched window is maximized
   bool is_window_maximized = (window_placement.showCmd == SW_MAXIMIZE);
 
   bool is_maximized = false;
-  ASSERT_TRUE(root_dict->GetBoolean(kBrowserWindowPlacement + L".maximized",
+  EXPECT_TRUE(root_dict->GetBoolean(kBrowserWindowPlacement + L".maximized",
       &is_maximized));
-  ASSERT_EQ(is_maximized, is_window_maximized);
+  EXPECT_EQ(is_maximized, is_window_maximized);
 }
 #endif
