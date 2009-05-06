@@ -13,5 +13,8 @@ include_rules = [
   # TODO(beng): resource_bundle.cc: Sever this link after glen fixes it.
   "+chrome/browser/extensions/extension.h",
 
+  # TODO(beng): os_exchange_data[_unittest].cc, icon_util.cc:
+  "+chrome/common/win_util.h",
+
   "+skia",
 ]
