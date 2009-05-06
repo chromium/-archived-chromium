@@ -14,7 +14,6 @@
 #include "app/resource_bundle.h"
 #include "base/gfx/native_theme.h"
 #include "chrome/browser/views/standard_layout.h"
-#include "chrome/common/win_util.h"
 #include "chrome/views/controls/button/native_button.h"
 #include "chrome/views/window/dialog_delegate.h"
 #include "chrome/views/window/window.h"

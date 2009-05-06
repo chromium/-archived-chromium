@@ -14,7 +14,6 @@
 #include "app/resource_bundle.h"
 #include "base/string_util.h"
 #include "base/win_util.h"
-#include "chrome/common/win_util.h"
 #include "chrome/views/controls/hwnd_view.h"
 #include "SkBitmap.h"
 #include "SkColorFilter.h"

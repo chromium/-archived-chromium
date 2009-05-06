@@ -15,7 +15,6 @@
 #include "base/win_util.h"
 #include "chrome/app/chrome_dll_resource.h"
 #include "chrome/common/notification_service.h"
-#include "chrome/common/pref_service.h"
 #include "chrome/common/win_util.h"
 #include "chrome/views/widget/root_view.h"
 #include "chrome/views/window/client_view.h"
