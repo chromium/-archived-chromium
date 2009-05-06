@@ -1310,8 +1310,6 @@ void BookmarkBarView::RemoveNotificationObservers() {
   ns->RemoveObserver(this,
                      NotificationType::BOOKMARK_BAR_VISIBILITY_PREF_CHANGED,
                      NotificationService::AllSources());
-  ns->RemoveObserver(this, NotificationType::EXTENSIONS_LOADED,
-                     NotificationService::AllSources());
 }
 
 void BookmarkBarView::NotifyModelChanged() {
