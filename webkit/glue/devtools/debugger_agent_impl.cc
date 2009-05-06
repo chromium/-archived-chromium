@@ -11,7 +11,6 @@
 #include "Document.h"
 #include "Node.h"
 #include "Page.h"
-#include "PageGroupLoadDeferrer.h"
 #undef LOG
 
 #include "grit/webkit_resources.h"
@@ -31,7 +30,6 @@ using WebCore::DOMWindow;
 using WebCore::Document;
 using WebCore::Node;
 using WebCore::Page;
-using WebCore::PageGroupLoadDeferrer;
 using WebCore::String;
 using WebCore::V8ClassIndex;
 using WebCore::V8Custom;
@@ -156,29 +154,6 @@ String DebuggerAgentImpl::ExecuteUtilityFunction(
     v8::Handle<v8::String> res_json = v8::Handle<v8::String>::Cast(res_obj);
     return WebCore::toWebCoreString(res_json);
   }
-}
-
-void DebuggerAgentImpl::RunWithDeferredMessages(
-    const HashSet<DebuggerAgentImpl*>& agents,
-    WebDevToolsAgent::MessageLoopDispatchHandler handler) {
-  Vector<PageGroupLoadDeferrer*> deferrers;
-  // 1. Disable active objects and input events.
-  for (HashSet<DebuggerAgentImpl*>::const_iterator ag_it = agents.begin();
-       ag_it != agents.end(); ++ag_it) {
-    DebuggerAgentImpl* agent = *ag_it;
-    deferrers.append(new PageGroupLoadDeferrer(agent->GetPage(), true));
-    agent->web_view()->SetIgnoreInputEvents(true);
-  }
-
-  // 2. Process messages.
-  handler();
-
-  // 3. Bring things back.
-  for (HashSet<DebuggerAgentImpl*>::const_iterator ag_it = agents.begin();
-       ag_it != agents.end(); ++ag_it) {
-    (*ag_it)->web_view()->SetIgnoreInputEvents(false);
-  }
-  deleteAllValues(deferrers);
 }
 
 WebCore::Page* DebuggerAgentImpl::GetPage() {

@@ -57,6 +57,7 @@ WebDevToolsAgentImpl::WebDevToolsAgentImpl(
 }
 
 WebDevToolsAgentImpl::~WebDevToolsAgentImpl() {
+  DebuggerAgentManager::OnWebViewClosed(web_view_impl_);
   if (!utility_context_.IsEmpty()) {
     utility_context_.Dispose();
     utility_context_.Clear();

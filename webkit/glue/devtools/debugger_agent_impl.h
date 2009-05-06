@@ -47,10 +47,6 @@ class DebuggerAgentImpl : public DebuggerAgent {
       const WebCore::String& json_args,
       WebCore::String* exception);
 
-  static void RunWithDeferredMessages(
-      const HashSet<DebuggerAgentImpl*>& agents,
-      WebDevToolsAgent::MessageLoopDispatchHandler handler);
-
   WebCore::Page* GetPage();
   WebDevToolsAgentImpl* webdevtools_agent() { return webdevtools_agent_; };
 

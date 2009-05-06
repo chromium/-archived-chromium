@@ -5,6 +5,7 @@
 #include "config.h"
 
 #include "Frame.h"
+#include "PageGroupLoadDeferrer.h"
 #include "v8_proxy.h"
 #include <wtf/HashSet.h>
 #undef LOG
@@ -16,6 +17,7 @@
 #include "webkit/glue/devtools/debugger_agent_impl.h"
 #include "webkit/glue/devtools/debugger_agent_manager.h"
 #include "webkit/glue/webdevtoolsagent_impl.h"
+#include "webkit/glue/webview_impl.h"
 
 #if USE(V8)
 #include "v8/include/v8-debug.h"
@@ -26,6 +28,9 @@ WebDevToolsAgent::MessageLoopDispatchHandler
 
 // static
 bool DebuggerAgentManager::in_host_dispatch_handler_ = false;
+
+// static
+DebuggerAgentManager::DeferrersMap DebuggerAgentManager::page_deferrers_;
 
 namespace {
 
@@ -59,17 +64,49 @@ void DebuggerAgentManager::V8DebugMessageHandler(const uint16_t* message,
 }
 
 void DebuggerAgentManager::V8DebugHostDispatchHandler() {
+  if (!DebuggerAgentManager::message_loop_dispatch_handler_ ||
+      !attached_agents_) {
+    return;
+  }
   if (in_host_dispatch_handler_) {
     return;
   }
   in_host_dispatch_handler_ = true;
-  if (DebuggerAgentManager::message_loop_dispatch_handler_
-      && attached_agents_) {
-    DebuggerAgentImpl::RunWithDeferredMessages(
-        *attached_agents_,
-        message_loop_dispatch_handler_);
+
+  Vector<WebViewImpl*> views;
+  // 1. Disable active objects and input events.
+  for (AttachedAgentsSet::iterator it = attached_agents_->begin();
+       it != attached_agents_->end();
+       ++it) {
+    DebuggerAgentImpl* agent = *it;
+    page_deferrers_.set(
+        agent->web_view(),
+        new WebCore::PageGroupLoadDeferrer(agent->GetPage(), true));
+    views.append(agent->web_view());
+    agent->web_view()->SetIgnoreInputEvents(true);
   }
+
+  // 2. Process messages.
+  DebuggerAgentManager::message_loop_dispatch_handler_();
+
+  // 3. Bring things back.
+  for (Vector<WebViewImpl*>::iterator it = views.begin();
+       it != views.end();
+       ++it) {
+    if (page_deferrers_.contains(*it)) {
+      // The view was not closed during the dispatch.
+      (*it)->SetIgnoreInputEvents(false);
+    }
+  }
+  deleteAllValues(page_deferrers_);
+  page_deferrers_.clear();
+
   in_host_dispatch_handler_ = false;
+  if (!attached_agents_) {
+    // Remove handlers if all agents were detached within host dispatch.
+    v8::Debug::SetMessageHandler(NULL);
+    v8::Debug::SetHostDispatchHandler(NULL);
+  }
 }
 
 // static
@@ -101,10 +138,17 @@ void DebuggerAgentManager::DebugDetach(DebuggerAgentImpl* debugger_agent) {
   DCHECK(attached_agents_->contains(debugger_agent));
   attached_agents_->remove(debugger_agent);
   if (attached_agents_->isEmpty()) {
-    v8::Debug::SetMessageHandler(NULL);
-    v8::Debug::SetHostDispatchHandler(NULL);
     delete attached_agents_;
     attached_agents_ = NULL;
+    // Note that we do not empty handlers while in dispatch - we schedule
+    // continue and do removal once we are out of the dispatch.
+    if (!in_host_dispatch_handler_) {
+      v8::Debug::SetMessageHandler(NULL);
+      v8::Debug::SetHostDispatchHandler(NULL);
+    } else if (FindAgentForCurrentV8Context() == debugger_agent) {
+      // Force continue just in case to handle close while on a breakpoint.
+      SendContinueCommandToV8();
+    }
   }
 #endif
 }
@@ -141,9 +185,7 @@ void DebuggerAgentManager::DebuggerOutput(const std::string& out,
   if (!agent) {
     // Autocontinue execution on break and exception  events if there is no
     // handler.
-    std::wstring continue_cmd(
-        L"{\"seq\":1,\"type\":\"request\",\"command\":\"continue\"}");
-    SendCommandToV8(continue_cmd, new CallerIdWrapper());
+    SendContinueCommandToV8();
     return;
   }
   agent->DebuggerOutput(out);
@@ -163,6 +205,14 @@ void DebuggerAgentManager::SetMessageLoopDispatchHandler(
 }
 
 // static
+void DebuggerAgentManager::OnWebViewClosed(WebViewImpl* webview) {
+  if (page_deferrers_.contains(webview)) {
+    delete page_deferrers_.get(webview);
+    page_deferrers_.remove(webview);
+  }
+}
+
+// static
 void DebuggerAgentManager::SendCommandToV8(const std::wstring& cmd,
                                            v8::Debug::ClientData* data) {
 #if USE(V8)
@@ -170,6 +220,12 @@ void DebuggerAgentManager::SendCommandToV8(const std::wstring& cmd,
                          cmd.length(),
                          data);
 #endif
+}
+
+void DebuggerAgentManager::SendContinueCommandToV8() {
+  std::wstring continue_cmd(
+      L"{\"seq\":1,\"type\":\"request\",\"command\":\"continue\"}");
+  SendCommandToV8(continue_cmd, new CallerIdWrapper());
 }
 
 // static

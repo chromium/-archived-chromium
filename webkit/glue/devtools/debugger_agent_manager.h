@@ -12,8 +12,13 @@
 #include "v8/include/v8-debug.h"
 #include "webkit/glue/webdevtoolsagent.h"
 
+namespace WebCore {
+class PageGroupLoadDeferrer;
+}
+
 class DebuggerAgentImpl;
 class DictionaryValue;
+class WebViewImpl;
 
 // There is single v8 instance per render process. Also there may be several
 // RenderViews and consequently devtools agents in the process that want to talk
@@ -42,6 +47,8 @@ class DebuggerAgentManager {
   static void SetMessageLoopDispatchHandler(
       WebDevToolsAgent::MessageLoopDispatchHandler handler);
 
+  static void OnWebViewClosed(WebViewImpl* webview);
+
  private:
   DebuggerAgentManager();
   ~DebuggerAgentManager();
@@ -54,6 +61,7 @@ class DebuggerAgentManager {
                              v8::Debug::ClientData* caller_data);
   static void SendCommandToV8(const std::wstring& cmd,
                               v8::Debug::ClientData* data);
+  static void SendContinueCommandToV8();
 
   static DebuggerAgentImpl* FindAgentForCurrentV8Context();
   static DebuggerAgentImpl* FindDebuggerAgentForToolsAgent(
@@ -65,6 +73,9 @@ class DebuggerAgentManager {
   static WebDevToolsAgent::MessageLoopDispatchHandler
       message_loop_dispatch_handler_;
   static bool in_host_dispatch_handler_;
+  typedef HashMap<WebViewImpl*, WebCore::PageGroupLoadDeferrer*>
+      DeferrersMap;
+  static DeferrersMap page_deferrers_;
 
   DISALLOW_COPY_AND_ASSIGN(DebuggerAgentManager);
 };
