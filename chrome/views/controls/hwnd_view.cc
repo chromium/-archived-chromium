@@ -4,7 +4,7 @@
 
 #include "chrome/views/controls/hwnd_view.h"
 
-#include "chrome/common/gfx/chrome_canvas.h"
+#include "app/gfx/chrome_canvas.h"
 #include "chrome/common/win_util.h"
 #include "chrome/views/focus/focus_manager.h"
 #include "chrome/views/widget/widget.h"

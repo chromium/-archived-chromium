@@ -4,7 +4,7 @@
 
 #include "chrome/views/controls/button/checkbox.h"
 
-#include "chrome/common/gfx/chrome_canvas.h"
+#include "app/gfx/chrome_canvas.h"
 #include "chrome/views/controls/label.h"
 
 namespace views {

@@ -6,12 +6,12 @@
 
 #include <dwmapi.h>
 
+#include "app/gfx/chrome_canvas.h"
 #include "app/l10n_util.h"
 #include "app/resource_bundle.h"
 #include "chrome/browser/autocomplete/autocomplete_edit_view_win.h"
 #include "chrome/browser/autocomplete/autocomplete_popup_model.h"
 #include "chrome/browser/views/autocomplete/autocomplete_popup_win.h"
-#include "chrome/common/gfx/chrome_canvas.h"
 #include "chrome/common/gfx/color_utils.h"
 #include "chrome/common/gfx/insets.h"
 #include "chrome/common/gfx/path.h"

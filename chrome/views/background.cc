@@ -4,8 +4,8 @@
 
 #include "chrome/views/background.h"
 
+#include "app/gfx/chrome_canvas.h"
 #include "base/logging.h"
-#include "chrome/common/gfx/chrome_canvas.h"
 #include "chrome/views/painter.h"
 #include "chrome/views/view.h"
 #include "skia/ext/skia_utils_win.h"

@@ -4,6 +4,7 @@
 
 #include "chrome/browser/views/location_bar_view.h"
 
+#include "app/gfx/chrome_canvas.h"
 #include "app/l10n_util.h"
 #include "app/resource_bundle.h"
 #include "base/path_service.h"
@@ -25,7 +26,6 @@
 #include "chrome/browser/views/info_bubble.h"
 #include "chrome/browser/views/first_run_bubble.h"
 #include "chrome/browser/views/page_info_window.h"
-#include "chrome/common/gfx/chrome_canvas.h"
 #include "chrome/common/win_util.h"
 #include "chrome/views/background.h"
 #include "chrome/views/border.h"

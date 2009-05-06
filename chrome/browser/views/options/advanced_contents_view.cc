@@ -12,6 +12,7 @@
 #include <vsstyle.h>
 #include <vssym32.h>
 
+#include "app/gfx/chrome_canvas.h"
 #include "app/resource_bundle.h"
 #include "base/file_util.h"
 #include "base/path_service.h"
@@ -29,7 +30,6 @@
 #include "chrome/browser/views/restart_message_box.h"
 #include "chrome/browser/views/standard_layout.h"
 #include "chrome/common/filter_policy.h"
-#include "chrome/common/gfx/chrome_canvas.h"
 #include "chrome/common/pref_member.h"
 #include "chrome/common/pref_names.h"
 #include "chrome/installer/util/google_update_settings.h"

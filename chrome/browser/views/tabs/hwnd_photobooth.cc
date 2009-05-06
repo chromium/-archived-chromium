@@ -2,10 +2,10 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+#include "app/gfx/chrome_canvas.h"
 #include "base/gfx/point.h"
 #include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/browser/views/tabs/hwnd_photobooth.h"
-#include "chrome/common/gfx/chrome_canvas.h"
 #include "chrome/views/widget/widget_win.h"
 #include "skia/include/SkBitmap.h"
 

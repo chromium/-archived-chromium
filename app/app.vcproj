@@ -121,6 +121,22 @@
 	<References>
 	</References>
 	<Files>
+		<Filter
+			Name="gfx"
+			>
+			<File
+				RelativePath=".\gfx\chrome_canvas.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\gfx\chrome_canvas.h"
+				>
+			</File>
+			<File
+				RelativePath=".\gfx\chrome_canvas_win.cc"
+				>
+			</File>
+		</Filter>
 		<File
 			RelativePath=".\animation.cc"
 			>

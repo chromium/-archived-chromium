@@ -4,6 +4,7 @@
 
 #include "chrome/browser/renderer_host/render_widget_host_view_win.h"
 
+#include "app/gfx/chrome_canvas.h"
 #include "app/l10n_util.h"
 #include "app/l10n_util_win.h"
 #include "app/resource_bundle.h"
@@ -22,7 +23,6 @@
 #include "chrome/browser/renderer_host/render_widget_host.h"
 #include "chrome/common/chrome_constants.h"
 #include "chrome/common/chrome_switches.h"
-#include "chrome/common/gfx/chrome_canvas.h"
 #include "chrome/common/native_web_keyboard_event.h"
 #include "chrome/common/plugin_messages.h"
 #include "chrome/common/render_messages.h"

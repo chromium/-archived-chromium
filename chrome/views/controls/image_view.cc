@@ -4,8 +4,8 @@
 
 #include "chrome/views/controls/image_view.h"
 
+#include "app/gfx/chrome_canvas.h"
 #include "base/logging.h"
-#include "chrome/common/gfx/chrome_canvas.h"
 
 namespace views {
 

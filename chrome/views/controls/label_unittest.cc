@@ -2,9 +2,9 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+#include "app/gfx/chrome_canvas.h"
 #include "app/l10n_util.h"
 #include "base/string_util.h"
-#include "chrome/common/gfx/chrome_canvas.h"
 #include "chrome/views/border.h"
 #include "chrome/views/controls/label.h"
 #include "testing/gtest/include/gtest/gtest.h"

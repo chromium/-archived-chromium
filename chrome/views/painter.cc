@@ -4,9 +4,9 @@
 
 #include "chrome/views/painter.h"
 
+#include "app/gfx/chrome_canvas.h"
 #include "app/resource_bundle.h"
 #include "base/logging.h"
-#include "chrome/common/gfx/chrome_canvas.h"
 #include "skia/include/SkBitmap.h"
 #include "skia/include/SkGradientShader.h"
 

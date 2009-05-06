@@ -4,6 +4,7 @@
 
 #include "chrome/browser/views/tabs/tab_strip.h"
 
+#include "app/gfx/chrome_canvas.h"
 #include "app/l10n_util.h"
 #include "app/resource_bundle.h"
 #include "app/slide_animation.h"
@@ -18,7 +19,6 @@
 #include "chrome/browser/views/tabs/tab.h"
 #include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/common/drag_drop_types.h"
-#include "chrome/common/gfx/chrome_canvas.h"
 #include "chrome/common/gfx/path.h"
 #include "chrome/common/os_exchange_data.h"
 #include "chrome/common/pref_names.h"

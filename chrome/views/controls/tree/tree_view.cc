@@ -6,12 +6,12 @@
 
 #include <shellapi.h>
 
+#include "app/gfx/chrome_canvas.h"
 #include "app/l10n_util.h"
 #include "app/l10n_util_win.h"
 #include "app/resource_bundle.h"
 #include "base/stl_util-inl.h"
 #include "base/win_util.h"
-#include "chrome/common/gfx/chrome_canvas.h"
 #include "chrome/common/gfx/icon_util.h"
 #include "chrome/views/focus/focus_manager.h"
 #include "chrome/views/widget/widget.h"

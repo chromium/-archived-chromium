@@ -4,12 +4,12 @@
 
 #include "chrome/plugin/webplugin_proxy.h"
 
+#include "app/gfx/chrome_canvas.h"
 #include "base/scoped_handle.h"
 #include "base/shared_memory.h"
 #include "base/singleton.h"
 #include "base/waitable_event.h"
 #include "build/build_config.h"
-#include "chrome/common/gfx/chrome_canvas.h"
 #include "chrome/common/plugin_messages.h"
 #include "chrome/common/url_constants.h"
 #include "chrome/plugin/npobject_proxy.h"

@@ -5,18 +5,17 @@
 #include "chrome/views/view.h"
 
 #include <algorithm>
-
 #ifndef NDEBUG
 #include <iostream>
 #endif
 
+#include "app/gfx/chrome_canvas.h"
 #include "app/l10n_util.h"
 #include "base/logging.h"
 #include "base/message_loop.h"
 #include "base/scoped_handle.h"
 #include "base/string_util.h"
 #include "chrome/common/drag_drop_types.h"
-#include "chrome/common/gfx/chrome_canvas.h"
 #include "chrome/views/background.h"
 #include "chrome/views/layout_manager.h"
 #include "chrome/views/widget/root_view.h"

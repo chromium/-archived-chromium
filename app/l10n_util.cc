@@ -6,6 +6,7 @@
 
 #include "app/l10n_util.h"
 
+#include "app/gfx/chrome_canvas.h"
 #include "app/resource_bundle.h"
 #include "base/command_line.h"
 #include "base/file_util.h"
@@ -17,7 +18,6 @@
 #include "base/sys_string_conversions.h"
 #include "chrome/common/chrome_paths.h"
 #include "chrome/common/chrome_switches.h"
-#include "chrome/common/gfx/chrome_canvas.h"
 #include "unicode/uscript.h"
 
 // TODO(playmobil): remove this undef once SkPostConfig.h is fixed.

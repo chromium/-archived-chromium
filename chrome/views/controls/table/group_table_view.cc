@@ -4,9 +4,9 @@
 
 #include "chrome/views/controls/table/group_table_view.h"
 
+#include "app/gfx/chrome_canvas.h"
 #include "base/message_loop.h"
 #include "base/task.h"
-#include "chrome/common/gfx/chrome_canvas.h"
 
 namespace views {
 

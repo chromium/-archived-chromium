@@ -6,12 +6,12 @@
 
 #include <vssym32.h>
 
+#include "app/gfx/chrome_canvas.h"
 #include "app/l10n_util_win.h"
 #include "app/resource_bundle.h"
 #include "base/gfx/native_theme.h"
 #include "base/logging.h"
 #include "base/stl_util-inl.h"
-#include "chrome/common/gfx/chrome_canvas.h"
 #include "chrome/common/gfx/chrome_font.h"
 #include "chrome/views/background.h"
 #include "chrome/views/fill_layout.h"

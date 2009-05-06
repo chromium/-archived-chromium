@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CHROME_COMMON_GFX_CHROME_CANVAS_H_
-#define CHROME_COMMON_GFX_CHROME_CANVAS_H_
+#ifndef APP_GFX_CHROME_CANVAS_H_
+#define APP_GFX_CHROME_CANVAS_H_
 
 #if defined(OS_WIN)
 #include <windows.h>
@@ -214,4 +214,4 @@ class ChromeCanvas : public skia::PlatformCanvas {
 typedef skia::CanvasPaintT<ChromeCanvas> ChromeCanvasPaint;
 #endif
 
-#endif  // CHROME_COMMON_GFX_CHROME_CANVAS_H_
+#endif  // APP_GFX_CHROME_CANVAS_H_

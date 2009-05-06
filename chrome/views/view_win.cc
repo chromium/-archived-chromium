@@ -4,10 +4,10 @@
 
 #include "chrome/views/view.h"
 
+#include "app/gfx/chrome_canvas.h"
 #include "base/scoped_handle.h"
 #include "base/string_util.h"
 #include "chrome/common/drag_drop_types.h"
-#include "chrome/common/gfx/chrome_canvas.h"
 #include "chrome/common/gfx/path.h"
 #include "chrome/common/os_exchange_data.h"
 #include "chrome/views/accessibility/view_accessibility_wrapper.h"

@@ -8,6 +8,7 @@
 #include <set>
 
 #include "app/animation.h"
+#include "app/gfx/chrome_canvas.h"
 #include "app/resource_bundle.h"
 #include "chrome/browser/browser_window.h"
 #include "chrome/browser/extensions/extension_function_dispatcher.h"
@@ -19,7 +20,6 @@
 #include "chrome/browser/views/tabs/tab.h"
 #include "chrome/browser/views/tabs/tab_strip.h"
 #include "chrome/browser/tab_contents/tab_contents.h"
-#include "chrome/common/gfx/chrome_canvas.h"
 #include "chrome/common/notification_service.h"
 #include "chrome/views/event.h"
 #include "chrome/views/widget/root_view.h"

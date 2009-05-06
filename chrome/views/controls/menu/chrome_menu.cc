@@ -8,6 +8,7 @@
 #include <uxtheme.h>
 #include <Vssym32.h>
 
+#include "app/gfx/chrome_canvas.h"
 #include "app/l10n_util.h"
 #include "app/l10n_util_win.h"
 #include "base/base_drag_source.h"
@@ -18,7 +19,6 @@
 #include "base/win_util.h"
 // TODO(beng): (Cleanup) remove this browser dep.
 #include "chrome/browser/drag_utils.h"
-#include "chrome/common/gfx/chrome_canvas.h"
 #include "chrome/common/gfx/color_utils.h"
 #include "chrome/common/os_exchange_data.h"
 #include "chrome/views/border.h"

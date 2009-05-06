@@ -9,6 +9,7 @@
 
 #include "chrome/browser/views/options/content_page_view.h"
 
+#include "app/gfx/chrome_canvas.h"
 #include "app/l10n_util.h"
 #include "app/resource_bundle.h"
 #include "base/file_util.h"
@@ -19,7 +20,6 @@
 #include "chrome/browser/views/options/options_group_view.h"
 #include "chrome/browser/views/options/passwords_exceptions_window_view.h"
 #include "chrome/browser/views/standard_layout.h"
-#include "chrome/common/gfx/chrome_canvas.h"
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
 #include "chrome/views/controls/button/radio_button.h"

@@ -11,6 +11,7 @@
 #include <atlmisc.h>
 #include <cmath>
 
+#include "app/gfx/chrome_canvas.h"
 #include "app/l10n_util.h"
 #include "app/resource_bundle.h"
 #include "base/command_line.h"
@@ -27,7 +28,6 @@
 #include "chrome/browser/views/autocomplete/autocomplete_popup_contents_view.h"
 #include "chrome/browser/views/location_bar_view.h"
 #include "chrome/common/chrome_switches.h"
-#include "chrome/common/gfx/chrome_canvas.h"
 #include "chrome/common/gfx/chrome_font.h"
 #include "chrome/common/notification_service.h"
 #include "chrome/views/view.h"

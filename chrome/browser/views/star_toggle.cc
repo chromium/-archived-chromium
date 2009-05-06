@@ -4,9 +4,9 @@
 
 #include "chrome/browser/views/star_toggle.h"
 
+#include "app/gfx/chrome_canvas.h"
 #include "app/resource_bundle.h"
 #include "chrome/app/chrome_dll_resource.h"
-#include "chrome/common/gfx/chrome_canvas.h"
 #include "grit/theme_resources.h"
 
 StarToggle::StarToggle(Delegate* delegate)

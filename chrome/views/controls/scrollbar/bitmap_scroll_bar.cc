@@ -4,9 +4,9 @@
 
 #include "chrome/views/controls/scrollbar/bitmap_scroll_bar.h"
 
+#include "app/gfx/chrome_canvas.h"
 #include "app/l10n_util.h"
 #include "base/message_loop.h"
-#include "chrome/common/gfx/chrome_canvas.h"
 #include "chrome/views/controls/menu/menu.h"
 #include "chrome/views/controls/scroll_view.h"
 #include "chrome/views/widget/widget.h"

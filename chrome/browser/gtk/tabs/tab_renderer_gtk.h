@@ -8,10 +8,10 @@
 #include <gtk/gtk.h>
 
 #include "app/animation.h"
+#include "app/gfx/chrome_canvas.h"
 #include "app/slide_animation.h"
 #include "base/basictypes.h"
 #include "base/gfx/rect.h"
-#include "chrome/common/gfx/chrome_canvas.h"
 #include "chrome/common/gfx/chrome_font.h"
 #include "chrome/common/owned_widget_gtk.h"
 #include "skia/include/SkBitmap.h"

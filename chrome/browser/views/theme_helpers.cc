@@ -8,7 +8,7 @@
 #include <atlapp.h>
 #include <atltheme.h>
 
-#include "chrome/common/gfx/chrome_canvas.h"
+#include "app/gfx/chrome_canvas.h"
 #include "base/logging.h"
 #include "skia/ext/bitmap_platform_device_win.h"
 #include "SkGradientShader.h"

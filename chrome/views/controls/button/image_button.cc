@@ -4,8 +4,8 @@
 
 #include "chrome/views/controls/button/image_button.h"
 
+#include "app/gfx/chrome_canvas.h"
 #include "app/throb_animation.h"
-#include "chrome/common/gfx/chrome_canvas.h"
 #include "skia/ext/image_operations.h"
 
 namespace views {

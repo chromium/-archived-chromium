@@ -6,6 +6,7 @@
 
 #include <windows.h>
 
+#include "app/gfx/chrome_canvas.h"
 #include "chrome/browser/bookmarks/bookmark_drag_data.h"
 #include "chrome/browser/browser.h"  // TODO(beng): this dependency is awful.
 #include "chrome/browser/browser_process.h"
@@ -21,7 +22,6 @@
 #include "chrome/browser/tab_contents/web_drag_source.h"
 #include "chrome/browser/tab_contents/web_drop_target.h"
 #include "chrome/browser/views/sad_tab_view.h"
-#include "chrome/common/gfx/chrome_canvas.h"
 #include "chrome/common/os_exchange_data.h"
 #include "chrome/common/url_constants.h"
 #include "chrome/views/focus/view_storage.h"

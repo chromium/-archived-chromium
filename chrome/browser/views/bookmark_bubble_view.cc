@@ -4,6 +4,7 @@
 
 #include "chrome/browser/views/bookmark_bubble_view.h"
 
+#include "app/gfx/chrome_canvas.h"
 #include "app/l10n_util.h"
 #include "app/resource_bundle.h"
 #include "chrome/app/chrome_dll_resource.h"
@@ -14,7 +15,6 @@
 #include "chrome/browser/profile.h"
 #include "chrome/browser/views/info_bubble.h"
 #include "chrome/browser/views/standard_layout.h"
-#include "chrome/common/gfx/chrome_canvas.h"
 #include "chrome/common/notification_service.h"
 #include "chrome/views/controls/button/native_button.h"
 #include "chrome/views/controls/text_field.h"

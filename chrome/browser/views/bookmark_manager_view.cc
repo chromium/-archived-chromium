@@ -6,6 +6,7 @@
 
 #include <algorithm>
 
+#include "app/gfx/chrome_canvas.h"
 #include "base/thread.h"
 #include "chrome/browser/bookmarks/bookmark_folder_tree_model.h"
 #include "chrome/browser/bookmarks/bookmark_html_writer.h"
@@ -21,7 +22,6 @@
 #include "chrome/browser/views/bookmark_folder_tree_view.h"
 #include "chrome/browser/views/bookmark_table_view.h"
 #include "chrome/browser/views/standard_layout.h"
-#include "chrome/common/gfx/chrome_canvas.h"
 #include "chrome/common/gfx/color_utils.h"
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"

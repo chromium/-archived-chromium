@@ -2,6 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+#include "app/gfx/chrome_canvas.h"
 #include "base/basictypes.h"
 #include "base/keyboard_codes.h"
 #include "base/scoped_ptr.h"
@@ -9,7 +10,6 @@
 #include "build/build_config.h"
 #include "chrome/browser/renderer_host/backing_store.h"
 #include "chrome/browser/renderer_host/test_render_view_host.h"
-#include "chrome/common/gfx/chrome_canvas.h"
 #include "chrome/common/render_messages.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
