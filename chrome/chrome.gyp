@@ -3097,7 +3097,8 @@
           'target_name': 'interactive_ui_tests',
           'type': 'executable',
           'dependencies': [
-            'resources',
+            'chrome_resources',
+            'chrome_strings',
             'test_support_common',
             'test_support_ui',
             'third_party/hunspell/hunspell.gyp:hunspell',
@@ -3138,7 +3139,8 @@
           'target_name': 'plugin_tests',
           'type': 'executable',
           'dependencies': [
-            'resources',
+            'chrome_resources',
+            'chrome_strings',
             'test_support_common',
             'test_support_ui',
             '../skia/skia.gyp:skia',
@@ -3167,7 +3169,8 @@
           'target_name': 'selenium_tests',
           'type': 'executable',
           'dependencies': [
-            'resources',
+            'chrome_resources',
+            'chrome_strings',
             'test_support_common',
             'test_support_ui',
             '../skia/skia.gyp:skia',
