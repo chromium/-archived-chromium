@@ -6,6 +6,7 @@
 
 #import <Foundation/Foundation.h>
 
+#include "app/l10n_util.h"
 #include "base/base_paths.h"
 #include "base/data_pack.h"
 #include "base/file_path.h"
@@ -17,7 +18,6 @@
 #include "base/string_util.h"
 #include "chrome/common/chrome_paths.h"
 #include "chrome/common/gfx/chrome_font.h"
-#include "chrome/common/l10n_util.h"
 
 
 ResourceBundle::~ResourceBundle() {
