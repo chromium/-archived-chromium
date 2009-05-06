@@ -164,6 +164,7 @@ void DownloadShelfGtk::OnButtonClick(GtkWidget* button,
                                      DownloadShelfGtk* shelf) {
   if (button == shelf->close_button_->widget()) {
     shelf->slide_widget_->Close();
+    shelf->tab_contents_->SetDownloadShelfVisible(false);
   } else {
     // The link button was clicked.
     shelf->ShowAllDownloads();

@@ -93,10 +93,9 @@ class TabContents : public PageNavigator,
   // what has changed. Combine them to update more than one thing.
   enum InvalidateTypes {
     INVALIDATE_URL = 1,           // The URL has changed.
-    INVALIDATE_TITLE = 2,         // The title has changed.
-    INVALIDATE_FAVICON = 4,       // The favicon has changed.
-    INVALIDATE_LOAD = 8,          // The loading state has changed.
-    INVALIDATE_PAGE_ACTIONS = 16, // Page action icons have changed.
+    INVALIDATE_TAB = 2,           // The tab (favicon, title, etc.) has changed
+    INVALIDATE_LOAD = 4,          // The loading state has changed.
+    INVALIDATE_PAGE_ACTIONS = 8,  // Page action icons have changed.
     // Helper for forcing a refresh.
     INVALIDATE_EVERYTHING = 0xFFFFFFFF
   };

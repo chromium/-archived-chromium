@@ -97,10 +97,6 @@ class TabContentsDelegate {
   // a TabContents with a valid WebApp set.
   virtual void ConvertContentsToApplication(TabContents* source) { }
 
-  // Informs the TabContentsDelegate that some of our state has changed
-  // for this tab.
-  virtual void ContentsStateChanged(TabContents* source) {}
-
   // Return whether this tab contents should have a URL bar. Only web contents
   // opened with a minimal chrome and their popups can be displayed without a
   // URL bar.

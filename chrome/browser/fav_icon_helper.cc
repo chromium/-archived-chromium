@@ -122,10 +122,7 @@ void FavIconHelper::UpdateFavIcon(NavigationEntry* entry,
     return;
 
   entry->favicon().set_bitmap(image);
-  if (tab_contents_->delegate()) {
-    tab_contents_->delegate()->NavigationStateChanged(
-        tab_contents_, TabContents::INVALIDATE_FAVICON);
-  }
+  tab_contents_->NotifyNavigationStateChanged(TabContents::INVALIDATE_TAB);
 }
 
 NavigationEntry* FavIconHelper::GetEntry() {

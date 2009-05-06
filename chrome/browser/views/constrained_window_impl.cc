@@ -683,11 +683,6 @@ void ConstrainedWindowImpl::InitAsDialog(const gfx::Rect& initial_bounds) {
   ActivateConstrainedWindow();
 }
 
-void ConstrainedWindowImpl::UpdateUI(unsigned int changed_flags) {
-  if (changed_flags & TabContents::INVALIDATE_TITLE)
-    UpdateWindowTitle();
-}
-
 ////////////////////////////////////////////////////////////////////////////////
 // ConstrainedWindowImpl, views::WidgetWin overrides:
 

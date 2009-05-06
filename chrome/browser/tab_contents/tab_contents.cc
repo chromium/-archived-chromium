@@ -580,8 +580,7 @@ void TabContents::SetIsCrashed(bool state) {
     return;
 
   is_crashed_ = state;
-  if (delegate_)
-    delegate_->ContentsStateChanged(this);
+  NotifyNavigationStateChanged(INVALIDATE_TAB);
 }
 
 void TabContents::NotifyNavigationStateChanged(unsigned changed_flags) {
@@ -932,8 +931,7 @@ void TabContents::SetDownloadShelfVisible(bool visible) {
     }
     shelf_visible_ = visible;
 
-    if (delegate_)
-      delegate_->ContentsStateChanged(this);
+    NotifyNavigationStateChanged(INVALIDATE_TAB);
   }
 
   // SetShelfVisible can force-close the shelf, so make sure we lay out
@@ -1724,7 +1722,7 @@ void TabContents::UpdateTitle(RenderViewHost* rvh,
 
   // Broadcast notifications when the UI should be updated.
   if (entry == controller_.GetEntryAtOffset(0))
-    NotifyNavigationStateChanged(INVALIDATE_TITLE);
+    NotifyNavigationStateChanged(INVALIDATE_TAB);
 }
 
 void TabContents::UpdateEncoding(RenderViewHost* render_view_host,
@@ -2257,7 +2255,7 @@ void TabContents::LoadStateChanged(const GURL& url,
   if (load_state_ == net::LOAD_STATE_READING_RESPONSE)
     SetNotWaitingForResponse();
   if (is_loading())
-    NotifyNavigationStateChanged(INVALIDATE_LOAD | INVALIDATE_FAVICON);
+    NotifyNavigationStateChanged(INVALIDATE_LOAD | INVALIDATE_TAB);
 }
 
 void TabContents::OnDidGetApplicationInfo(

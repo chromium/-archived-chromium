@@ -1918,12 +1918,6 @@ void Browser::ConvertContentsToApplication(TabContents* contents) {
   browser->window()->Show();
 }
 
-void Browser::ContentsStateChanged(TabContents* source) {
-  int index = tabstrip_model_.GetIndexOfTabContents(source);
-  if (index != TabStripModel::kNoTab)
-    tabstrip_model_.UpdateTabContentsStateAt(index, true);
-}
-
 bool Browser::ShouldDisplayURLField() {
   return !IsApplication();
 }
@@ -2338,18 +2332,6 @@ void Browser::ProcessPendingUIUpdates() {
       updated_stuff[contents] = flags;
     }
 
-    // Updates to the title or favicon require a tab repaint. However, the
-    // inverse is not true since updates to the title also update the window
-    // title.
-    bool invalidate_tab = false;
-    if (flags & TabContents::INVALIDATE_TITLE ||
-        flags & TabContents::INVALIDATE_FAVICON) {
-      invalidate_tab = true;
-
-      // Anything that repaints the tab means the favicon is updated.
-      updated_stuff[contents] |= TabContents::INVALIDATE_FAVICON;
-    }
-
     if (flags & TabContents::INVALIDATE_PAGE_ACTIONS)
       window()->GetLocationBar()->UpdatePageActions();
 
@@ -2358,7 +2340,7 @@ void Browser::ProcessPendingUIUpdates() {
     if (flags & TabContents::INVALIDATE_LOAD && GetStatusBubble())
       GetStatusBubble()->SetStatus(GetSelectedTabContents()->GetStatusText());
 
-    if (invalidate_tab) {  // INVALIDATE_TITLE or INVALIDATE_FAVICON.
+    if (flags & TabContents::INVALIDATE_TAB) {
       tabstrip_model_.UpdateTabContentsStateAt(
           tabstrip_model_.GetIndexOfController(&contents->controller()), false);
       window_->UpdateTitleBar();

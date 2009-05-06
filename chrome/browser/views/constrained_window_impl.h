@@ -64,9 +64,6 @@ class ConstrainedWindowImpl : public ConstrainedWindow,
   // views::View client area.
   void InitAsDialog(const gfx::Rect& initial_bounds);
 
-  // Updates the portions of the UI as specified in |changed_flags|.
-  void UpdateUI(unsigned int changed_flags);
-
   // The TabContents that owns and constrains this ConstrainedWindow.
   TabContents* owner_;
 
