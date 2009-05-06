@@ -1,10 +1,10 @@
 /*
  *  Copyright (C) 2000 Harri Porten (porten@kde.org)
  *  Copyright (C) 2001 Peter Kelly (pmk@post.com)
- *  Copyright (C) 2004-2006 Apple Computer, Inc.
+ *  Copyright (C) 2004, 2005, 2006 Apple Computer, Inc.
  *  Copyright (C) 2006 James G. Speth (speth@end.com)
  *  Copyright (C) 2006 Samuel Weinig (sam@webkit.org)
- *  Copyright 2007, 2008 Google Inc. All Rights Reserved.
+ *  Copyright (C) 2007, 2008 Google Inc. All Rights Reserved.
  *
  *  This library is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Lesser General Public
@@ -154,27 +154,6 @@ ACCESSOR_GETTER(DocumentImplementation) {
   info.Holder()->SetInternalField(kDocumentImplementationIndex, wrapper);
 
   return wrapper;
-}
-
-
-ACCESSOR_GETTER(DocumentLocation) {
-  Document* imp = V8Proxy::DOMWrapperToNative<Document>(info.Holder());
-  if (!imp->frame())
-    return v8::Null();
-
-  DOMWindow* window = imp->frame()->domWindow();
-  return V8Proxy::ToV8Object(V8ClassIndex::LOCATION, window->location());
-}
-
-
-ACCESSOR_SETTER(DocumentLocation) {
-  Document* imp = V8Proxy::DOMWrapperToNative<Document>(info.Holder());
-  if (!imp->frame())
-    return;
-
-  DOMWindow* window = imp->frame()->domWindow();
-  // WindowSetLocation does security checks.  // XXXMB- verify!
-  WindowSetLocation(window, ToWebCoreString(value));
 }
 
 

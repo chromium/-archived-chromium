@@ -3053,6 +3053,10 @@
 			>
 		</File>
 		<File
+			RelativePath="..\..\port\bindings\v8\V8DocumentLocationCustom.cpp"
+			>
+		</File>
+		<File
 			RelativePath="..\..\..\third_party\WebKit\WebCore\bindings\v8\V8DOMMap.cpp"
 			>
 		</File>

@@ -1115,6 +1115,7 @@
         'port/bindings/v8/ScriptController.cpp',
         'port/bindings/v8/ScriptController.h',
         'port/bindings/v8/V8CanvasPixelArrayCustom.cpp',
+        'port/bindings/v8/V8DocumentLocationCustom.cpp',
         'port/bindings/v8/V8MessagePortCustom.cpp',
         'port/bindings/v8/V8SVGPODTypeWrapper.h',
         'port/bindings/v8/dom_wrapper_map.h',
