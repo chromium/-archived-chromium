@@ -45,7 +45,7 @@ class FindBarGtk : public FindBar,
   virtual void SetFindText(const string16& find_text);
   virtual void UpdateUIForFindResult(const FindNotificationDetails& result,
                                      const string16& find_text);
-  virtual void AudibleAlertIfNotFound(const FindNotificationDetails& result);
+  virtual void AudibleAlert();
   virtual gfx::Rect GetDialogPosition(gfx::Rect avoid_overlapping_rect);
   virtual void SetDialogPosition(const gfx::Rect& new_pos, bool no_redraw);
   virtual bool IsFindBarVisible();

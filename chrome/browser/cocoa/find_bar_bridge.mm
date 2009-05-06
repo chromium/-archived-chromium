@@ -38,8 +38,7 @@ void FindBarBridge::UpdateUIForFindResult(const FindNotificationDetails& result,
   [cocoa_controller_ updateUIForFindResult:result withText:find_text];
 }
 
-void FindBarBridge::AudibleAlertIfNotFound(
-    const FindNotificationDetails& result) {
+void FindBarBridge::AudibleAlert() {
   // TODO(rohitrao): Beep beep, beep beep, Yeah!
 }
 

@@ -210,8 +210,8 @@ void FindBarGtk::UpdateUIForFindResult(const FindNotificationDetails& result,
                                        const string16& find_text) {
 }
 
-void FindBarGtk::AudibleAlertIfNotFound(const FindNotificationDetails& result) {
-  // TODO(estade): Beep beep, beep beep, Yeah!
+void FindBarGtk::AudibleAlert() {
+  gtk_widget_error_bell(widget());
 }
 
 gfx::Rect FindBarGtk::GetDialogPosition(gfx::Rect avoid_overlapping_rect) {

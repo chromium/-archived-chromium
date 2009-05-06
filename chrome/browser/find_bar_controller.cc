@@ -121,7 +121,10 @@ void FindBarController::Observe(NotificationType type,
     if (Source<TabContents>(source).ptr() == tab_contents_) {
       find_bar_->UpdateUIForFindResult(tab_contents_->find_result(),
                                        tab_contents_->find_text());
-      find_bar_->AudibleAlertIfNotFound(tab_contents_->find_result());
+      if (tab_contents_->find_result().final_update() &&
+          tab_contents_->find_result().number_of_matches() == 0) {
+        find_bar_->AudibleAlert();
+      }
     }
   } else if (type == NotificationType::NAV_ENTRY_COMMITTED) {
     NavigationController* source_controller =

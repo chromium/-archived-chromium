@@ -60,9 +60,8 @@ class FindBar {
   virtual void UpdateUIForFindResult(const FindNotificationDetails& result,
                                      const string16& find_text) = 0;
 
-  // Play an audible alert if no match was found.
-  virtual void AudibleAlertIfNotFound(
-      const FindNotificationDetails& result) = 0;
+  // No match was found; play an audible alert.
+  virtual void AudibleAlert() = 0;
 
   // Returns the rectangle representing where to position the find bar. It uses
   // GetDialogBounds and positions itself within that, either to the left (if an
