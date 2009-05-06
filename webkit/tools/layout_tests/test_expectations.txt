@@ -2354,7 +2354,7 @@ BUG11178 DEBUG WIN : LayoutTests/transitions/repeated-firing-background-color.ht
 BUG11178 MAC : LayoutTests/fast/dom/Document/open-with-pending-load.html = CRASH
 
 // New tests from WebKit Merge 42932:42994
-BUG11179 DEFER : LayoutTests/http/tests/xmlhttprequest/detaching-frame-2.html = FAIL
+BUG11179 DEFER : LayoutTests/http/tests/xmlhttprequest/detaching-frame-2.html = FAIL TIMEOUT
 
 // Chrome does not support WebArchives (just like Safari for Windows),
 // although we might eventually want to on Mac.
@@ -2414,5 +2414,4 @@ BUG_DARIN WIN LINUX : LayoutTests/svg/transforms/text-with-pattern-with-svg-tran
 BUG_DARIN MAC : LayoutTests/editing/pasteboard/paste-blockquote-before-blockquote.html = FAIL
 BUG_DARIN MAC : LayoutTests/editing/pasteboard/paste-double-nested-blockquote-before-blockquote.html = FAIL
 
-BUG_DARIN WIN : LayoutTests/http/tests/xmlhttprequest/detaching-frame-2.html = TIMEOUT
 BUG_DARIN LINUX : LayoutTests/transitions/mask-transitions.html = FAIL
