@@ -502,7 +502,7 @@ BUG820185 DEFER : LayoutTests/fast/invalid/residual-style.html = FAIL
 // Tests that clicking the "x" box in a search field clears it; we don't
 // currently have such a box except on Mac (where it's part of the native
 // widget).
-BUG10272 DEFER WIN LINUX : LayoutTests/fast/forms/search-abs-pos-cancel-button.html = FAIL
+BUG10272 DEFER WIN LINUX : LayoutTests/fast/forms/search-abs-pos-cancel-button.html = FAIL PASS
 
 // -----------------------------------------------------------------
 // Other
@@ -660,7 +660,7 @@ BUG1042838 DEFER : LayoutTests/http/tests/security/local-user-CSS-from-remote.ht
 // FAIL results from an extra newline at the top of the results
 // the checked in results do not include the PASS text.
 // May only need re-baselining?
-BUG1126050 DEFER : LayoutTests/http/tests/navigation/changing-frame-hierarchy-in-onload.html = FAIL
+BUG1126050 DEFER : LayoutTests/http/tests/navigation/changing-frame-hierarchy-in-onload.html = FAIL PASS
 
 // This test has hover effects that change the font size. This test also
 // moves the mouse around, resulting in a layout that dances around.
@@ -1749,7 +1749,7 @@ BUG5248 MAC : LayoutTests/http/tests/security/cross-frame-access-protocol-explic
 BUG5248 MAC : LayoutTests/http/tests/security/cross-frame-access-protocol.html = FAIL
 
 // New tests from merge 41181:41217
-BUG10431 DEFER LINUX WIN : LayoutTests/fast/dom/getBoundingClientRect-getClientRects-relative-to-viewport.html = FAIL
+BUG10431 DEFER LINUX WIN : LayoutTests/fast/dom/getBoundingClientRect-getClientRects-relative-to-viewport.html = FAIL PASS
 
 // Regressions from merge 41181:41217
 // Upstream regression. https://bugs.webkit.org/show_bug.cgi?id=24248
@@ -1801,8 +1801,7 @@ BUG10435 MAC : LayoutTests/editing/pasteboard/copy-standalone-image.html = FAIL
 BUG10435 MAC : LayoutTests/editing/selection/designmode-no-caret.html = FAIL
 BUG10435 DEBUG WIN MAC : LayoutTests/fast/dom/jsDevicePixelRatio.html = CRASH PASS
 BUG10435 MAC : LayoutTests/animations/animation-controller-drt-api.html = TIMEOUT PASS
-BUG10435 DEBUG WIN : LayoutTests/editing/selection/move-by-line-001.html = FAIL
-BUG10435 DEBUG MAC : LayoutTests/editing/selection/move-by-line-001.html = FAIL PASS
+BUG10435 DEBUG MAC WIN : LayoutTests/editing/selection/move-by-line-001.html = FAIL PASS
 
 // New test added in the 41286:41362 merge. Not clear whether we pass.
 BUG8404 DEFER LINUX WIN : LayoutTests/fast/layers/inline-dirty-z-order-lists.html = FAIL
@@ -2366,7 +2365,7 @@ BUG11123 LINUX : LayoutTests/transitions/mask-transitions.html = FAIL
 
 // Mysteriously started failing right around the v8 scons->gyp change.
 BUG11176 MAC : LayoutTests/fast/css/first-child-pseudo-class.html = FAIL
-BUG11176 WIN : LayoutTests/fast/forms/input-align-image.html = FAIL
+BUG11176 WIN : LayoutTests/fast/forms/input-align-image.html = FAIL PASS
 
 // New failures from WebKit Merge 42932:42994
 BUG11178 : LayoutTests/http/tests/security/listener/xss-JSTargetNode-onclick-addEventListener.html = FAIL
@@ -2377,7 +2376,7 @@ BUG11178 : LayoutTests/http/tests/security/listener/xss-window-onclick-addEventL
 BUG11178 : LayoutTests/http/tests/security/listener/xss-window-onclick-shortcut.html = FAIL
 BUG11178 : chrome/http/tests/security/listener/xss-inactive-closure.html = FAIL
 BUG11178 WIN MAC : LayoutTests/http/tests/security/xss-eval.html = FAIL
-BUG11178 DEBUG WIN : LayoutTests/transitions/repeated-firing-background-color.html = FAIL
+BUG11178 DEBUG WIN : LayoutTests/transitions/repeated-firing-background-color.html = FAIL PASS
 
 BUG11178 MAC : LayoutTests/fast/dom/Document/open-with-pending-load.html = CRASH
 
@@ -2392,8 +2391,6 @@ WONTFIX SKIP : LayoutTests/webarchive/adopt-inline-styled-node-webarchive.html =
 
 // Regressions from WebKit Merge 42932:42994
 BUG11239 : LayoutTests/fast/dom/Window/setTimeout-string-argument.html = FAIL
-BUG11239 WIN LINUX : LayoutTests/http/tests/security/cross-frame-access-protocol-explicit-domain.html = FAIL
-BUG11239 WIN LINUX : LayoutTests/http/tests/security/cross-frame-access-protocol.html = FAIL
 BUG11239 : LayoutTests/platform/win/accessibility/document-role.html = FAIL
 BUG11239 MAC : LayoutTests/svg/custom/js-late-marker-and-object-creation.svg = FAIL
 
@@ -2405,8 +2402,8 @@ BUG11251 WIN LINUX : LayoutTests/svg/custom/svg-fonts-in-text-controls.html = FA
 BUG11251 WIN LINUX : LayoutTests/fast/forms/textarea-metrics.html = FAIL
 
 // Regressions from r14994 (pulling in new WebKit)
-BUG11264 WIN : LayoutTests/plugins/getintidentifier-special-values.html = CRASH
-BUG11264 WIN : LayoutTests/plugins/netscape-identifier-conversion.html = CRASH
+BUG11264 WIN : LayoutTests/plugins/getintidentifier-special-values.html = CRASH PASS
+BUG11264 WIN : LayoutTests/plugins/netscape-identifier-conversion.html = CRASH PASS
 
 // Regressions from WebKit Merge 43059:43114
 BUG11322 : LayoutTests/editing/text-iterator/basic-iteration.html = FAIL
@@ -2613,4 +2610,4 @@ BUG11483 : LayoutTests/fast/workers/worker-replace-global-constructor.html = FAI
 BUG11483 : LayoutTests/svg/text/foreignObject-repaint.xml = FAIL
 BUG11483 : LayoutTests/svg/transforms/animated-path-inside-transformed-html.xhtml = FAIL
 BUG11482 : LayoutTests/svg/custom/polyline-points-crash.html = CRASH
-BUG11502 WIN : LayoutTests/svg/css/glyph-orientation-rounding-test.xhtml = CRASH
+BUG11502 WIN : LayoutTests/svg/css/glyph-orientation-rounding-test.xhtml = CRASH PASS
