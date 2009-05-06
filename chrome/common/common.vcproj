@@ -165,14 +165,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\gfx\path.h"
-				>
-			</File>
-			<File
-				RelativePath=".\gfx\path_win.cc"
-				>
-			</File>
-			<File
 				RelativePath=".\gfx\text_elider.cc"
 				>
 			</File>
