@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
+// Copyright (c) 2009 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
@@ -32,18 +32,17 @@
 #include "chrome/browser/renderer_host/render_widget_host_view.h"
 #include "chrome/browser/renderer_host/web_cache_manager.h"
 #include "chrome/browser/tab_contents/navigation_entry.h"
-#include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/browser/tab_contents/tab_contents_delegate.h"
 #include "chrome/browser/tab_contents/tab_contents_view.h"
 #include "chrome/browser/search_engines/template_url_fetcher.h"
 #include "chrome/browser/search_engines/template_url_model.h"
 #include "chrome/common/chrome_switches.h"
 #include "chrome/common/notification_service.h"
+#include "chrome/common/page_action.h"
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
 #include "chrome/common/render_messages.h"
 #include "chrome/common/url_constants.h"
-//#include "grit/generated_resources.h"
 #include "grit/locale_settings.h"
 #include "net/base/mime_util.h"
 #include "net/base/net_errors.h"
@@ -253,7 +252,6 @@ TabContents::TabContents(Profile* profile,
 #endif
       last_javascript_message_dismissal_(),
       suppress_javascript_messages_(false) {
-
   pending_install_.page_id = 0;
   pending_install_.callback_functor = NULL;
 
@@ -582,6 +580,21 @@ void TabContents::SetIsCrashed(bool state) {
   is_crashed_ = state;
   NotifyNavigationStateChanged(INVALIDATE_TAB);
 }
+
+void TabContents::EnablePageAction(const PageAction* page_action) {
+  DCHECK(page_action);
+
+  if (IsPageActionEnabled(page_action))
+    return;  // Already enabled.
+
+  enabled_page_actions_.insert(page_action);
+}
+
+bool TabContents::IsPageActionEnabled(const PageAction* page_action) {
+  DCHECK(page_action);
+  return enabled_page_actions_.end() != enabled_page_actions_.find(page_action);
+}
+
 
 void TabContents::NotifyNavigationStateChanged(unsigned changed_flags) {
   if (delegate_)
@@ -1153,7 +1166,7 @@ void TabContents::SetIsLoading(bool is_loading,
 
   NotificationType type = is_loading ? NotificationType::LOAD_START :
       NotificationType::LOAD_STOP;
-  NotificationDetails det = NotificationService::NoDetails();;
+  NotificationDetails det = NotificationService::NoDetails();
   if (details)
       det = Details<LoadNotificationDetails>(details);
   NotificationService::current()->Notify(type,
@@ -1313,6 +1326,9 @@ void TabContents::DidNavigateMainFramePostCommit(
 
   // Get the favicon, either from history or request it from the net.
   fav_icon_helper_.FetchFavIcon(details.entry->url());
+
+  // Disable all page actions.
+  enabled_page_actions_.clear();
 
   // Close constrained popups if necessary.
   MaybeCloseChildWindows(details.previous_url, details.entry->url());

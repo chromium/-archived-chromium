@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
+// Copyright (c) 2009 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
@@ -8,6 +8,7 @@
 #include "build/build_config.h"
 
 #include <map>
+#include <set>
 #include <string>
 #include <vector>
 
@@ -67,6 +68,7 @@ class DOMUIContents;
 class DownloadItem;
 class DownloadShelf;
 class LoadNotificationDetails;
+class PageAction;
 class PasswordManager;
 class PluginInstaller;
 class Profile;
@@ -244,6 +246,11 @@ class TabContents : public PageNavigator,
   // also notify the delegate when the flag is changed.
   bool is_crashed() const { return is_crashed_; }
   void SetIsCrashed(bool state);
+
+  // Adds a page action to the list of page actions that are active in this tab.
+  void EnablePageAction(const PageAction* page_action);
+  // Checks to see if the PageAction should be visible in this tab.
+  bool IsPageActionEnabled(const PageAction* page_action);
 
   // Whether the tab is in the process of being destroyed.
   // Added as a tentative work-around for focus related bug #4633.  This allows
@@ -1024,6 +1031,13 @@ class TabContents : public PageNavigator,
   // matches, the find selection rectangle, etc. The UI can access this
   // information to build its presentation.
   FindNotificationDetails find_result_;
+
+  // Data for Page Actions -----------------------------------------------------
+
+  // A set of page actions that are enabled in this tab. This list is cleared
+  // every time the mainframe navigates and populated by the PageAction
+  // extension API.
+  std::set<const PageAction*> enabled_page_actions_;
 
   // Data for misc internal state ----------------------------------------------
 

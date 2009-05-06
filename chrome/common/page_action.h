@@ -45,11 +45,6 @@ class PageAction {
     tooltip_ = tooltip;
   }
 
-  // Sets the active tab and url for this PageAction.
-  void SetActiveTabIdAndUrl(int tab_id, const GURL& url);
-  // Returns true if the PageAction is active in the specified |tab_id| & |url|.
-  bool IsActive(int tab_id, const GURL& url) const;
-
  private:
   // The id for the PageAction, for example: "RssPageAction".
   std::string id_;
@@ -69,12 +64,6 @@ class PageAction {
 
   // The tooltip to show when the mouse hovers over the icon of the page action.
   std::string tooltip_;
-
-  // The url of the page which the PageAction is currently active in.
-  GURL active_url_;
-
-  // The tab ID for which the PageAction is currently active in.
-  int active_tab_id_;
 };
 
 typedef std::map<std::string, PageAction*> PageActionMap;

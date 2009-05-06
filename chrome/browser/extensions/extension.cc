@@ -157,12 +157,12 @@ FilePath Extension::GetThemeResourcePath(const int resource_id) {
   return FilePath();
 }
 
-bool Extension::UpdatePageAction(std::string id, int tab_id, GURL url) {
-  if (page_actions_.find(id) == page_actions_.end())
-    return false;
+const PageAction* Extension::GetPageAction(std::string id) const {
+  PageActionMap::const_iterator it = page_actions_.find(id);
+  if (it == page_actions_.end())
+    return NULL;
 
-  page_actions_[id]->SetActiveTabIdAndUrl(tab_id, url);
-  return true;
+  return it->second;
 }
 
 // static
@@ -360,9 +360,10 @@ bool Extension::LoadUserScriptHelper(const DictionaryValue* content_script,
 
 // Helper method that loads a PageAction object from a dictionary in the
 // page_action list of the manifest.
-bool Extension::LoadPageActionHelper(const DictionaryValue* page_action,
-                                     int definition_index, std::string* error,
-                                     PageAction* result) {
+PageAction* Extension::LoadPageActionHelper(
+    const DictionaryValue* page_action, int definition_index,
+    std::string* error) {
+  scoped_ptr<PageAction> result(new PageAction());
   result->set_extension_id(id());
 
   // Read the page action |icon|.
@@ -370,13 +371,13 @@ bool Extension::LoadPageActionHelper(const DictionaryValue* page_action,
   if (!page_action->GetString(kIconPathKey, &icon)) {
     *error = FormatErrorMessage(kInvalidPageActionIconPathError,
                                 IntToString(definition_index));
-    return false;
+    return NULL;
   }
   FilePath icon_path = path_.AppendASCII(icon);
   if (!file_util::PathExists(icon_path)) {
     *error = FormatErrorMessage(kMissingPageActionIcon,
                                 IntToString(definition_index));
-    return false;
+    return NULL;
   }
   result->set_icon_path(icon_path);
 
@@ -384,7 +385,7 @@ bool Extension::LoadPageActionHelper(const DictionaryValue* page_action,
   std::string id;
   if (!page_action->GetString(kIdKey, &id)) {
     *error = FormatErrorMessage(kInvalidIdError, IntToString(definition_index));
-    return false;
+    return NULL;
   }
   result->set_id(id);
 
@@ -393,7 +394,7 @@ bool Extension::LoadPageActionHelper(const DictionaryValue* page_action,
   if (!page_action->GetString(kNameKey, &name)) {
     *error = FormatErrorMessage(kInvalidNameError,
                                 IntToString(definition_index));
-    return false;
+    return NULL;
   }
   result->set_name(name);
 
@@ -402,7 +403,7 @@ bool Extension::LoadPageActionHelper(const DictionaryValue* page_action,
   if (!page_action->GetString(kTooltipKey, &tooltip)) {
     *error = FormatErrorMessage(kInvalidPageActionTooltipError,
                                 IntToString(definition_index));
-    return false;
+    return NULL;
   }
   result->set_tooltip(tooltip);
 
@@ -415,7 +416,7 @@ bool Extension::LoadPageActionHelper(const DictionaryValue* page_action,
              !LowerCaseEqualsASCII(type, kPageActionTypePermanent)) {
     *error = FormatErrorMessage(kInvalidPageActionTypeValueError,
                                 IntToString(definition_index));
-    return false;
+    return NULL;
   } else {
     if (LowerCaseEqualsASCII(type, kPageActionTypeTab))
       result->set_type(PageAction::TAB);
@@ -423,7 +424,7 @@ bool Extension::LoadPageActionHelper(const DictionaryValue* page_action,
       result->set_type(PageAction::PERMANENT);
   }
 
-  return true;
+  return result.release();
 }
 
 bool Extension::InitFromValue(const DictionaryValue& source, bool require_id,
@@ -593,11 +594,10 @@ bool Extension::InitFromValue(const DictionaryValue& source, bool require_id,
         return false;
       }
 
-      PageAction* page_action = new PageAction();
-      if (!LoadPageActionHelper(page_action_value, i, error, page_action)) {
-        delete page_action;
+      PageAction* page_action =
+          LoadPageActionHelper(page_action_value, i, error);
+      if (!page_action)
         return false;  // Failed to parse page action definition.
-      }
       page_actions_[page_action->id()] = page_action;
     }
   }

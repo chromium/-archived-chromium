@@ -96,6 +96,10 @@ class ExtensionsServiceTestFrontend
     installed_ = extension;
   }
 
+  virtual Extension* GetExtensionByID(std::string id) {
+    return NULL;
+  }
+
   void TestInstallExtension(const FilePath& path,
                             ExtensionsServiceBackend* backend,
                             bool should_succeed) {

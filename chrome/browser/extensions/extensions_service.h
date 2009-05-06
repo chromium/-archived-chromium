@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
+// Copyright (c) 2009 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
@@ -32,7 +32,7 @@ typedef std::vector<Extension*> ExtensionList;
 class ExtensionsServiceFrontendInterface
     : public base::RefCountedThreadSafe<ExtensionsServiceFrontendInterface> {
  public:
-  virtual ~ExtensionsServiceFrontendInterface(){}
+  virtual ~ExtensionsServiceFrontendInterface() {}
 
   // The message loop to invoke the frontend's methods on.
   virtual MessageLoop* GetMessageLoop() = 0;
@@ -54,6 +54,9 @@ class ExtensionsServiceFrontendInterface
   // |is_update| is true if the installation was an update to an existing
   // installed extension rather than a new installation.
   virtual void OnExtensionInstalled(Extension* extension, bool is_update) = 0;
+
+  // Lookup an extension by |id|.
+  virtual Extension* GetExtensionByID(std::string id) = 0;
 };
 
 
@@ -77,6 +80,7 @@ class ExtensionsService : public ExtensionsServiceFrontendInterface {
   virtual void LoadExtension(const FilePath& extension_path);
   virtual void OnExtensionsLoaded(ExtensionList* extensions);
   virtual void OnExtensionInstalled(Extension* extension, bool is_update);
+  virtual Extension* GetExtensionByID(std::string id);
 
   // Creates a new ExtensionView, grouping it in the appropriate SiteInstance
   // (and therefore process) based on the URL and profile.
@@ -132,7 +136,7 @@ class ExtensionsServiceBackend
     : public base::RefCountedThreadSafe<ExtensionsServiceBackend> {
  public:
   explicit ExtensionsServiceBackend(const FilePath& install_directory)
-      : install_directory_(install_directory) {};
+      : install_directory_(install_directory) {}
 
   // Loads extensions from the install directory. The extensions are assumed to
   // be unpacked in directories that are direct children of the specified path.

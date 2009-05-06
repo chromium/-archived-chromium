@@ -583,11 +583,10 @@ void LocationBarView::RefreshPageActionViews() {
 
   TabContents* contents = delegate_->GetTabContents();
   if (!page_action_image_views_.empty() && contents) {
-    int tab_id = ExtensionTabUtil::GetTabId(contents);
     GURL url = GURL(model_->GetText());
 
     for (size_t i = 0; i < page_action_image_views_.size(); i++)
-      page_action_image_views_[i]->UpdateVisibility(tab_id, url);
+      page_action_image_views_[i]->UpdateVisibility(contents, url);
   }
 }
 
@@ -1143,11 +1142,13 @@ void LocationBarView::PageActionImageView::ShowInfoBubble() {
 }
 
 void LocationBarView::PageActionImageView::UpdateVisibility(
-    int tab_id, GURL url) {
-  current_tab_id_ = tab_id;
+    TabContents* contents, GURL url) {
+  // Save this off so we can pass it back to the extension when the action gets
+  // executed. See PageActionImageView::OnMousePressed.
+  current_tab_id_ = ExtensionTabUtil::GetTabId(contents);
   current_url_ = url;
 
-  SetVisible(page_action_->IsActive(current_tab_id_, current_url_));
+  SetVisible(contents->IsPageActionEnabled(page_action_));
 }
 
 void LocationBarView::PageActionImageView::OnIconLoaded(

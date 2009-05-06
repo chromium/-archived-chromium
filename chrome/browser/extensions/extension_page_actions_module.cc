@@ -10,6 +10,7 @@
 #include "chrome/browser/extensions/extension.h"
 #include "chrome/browser/extensions/extension_tabs_module.h"
 #include "chrome/browser/extensions/extensions_service.h"
+#include "chrome/browser/tab_contents/navigation_entry.h"
 
 bool EnablePageActionFunction::RunImpl() {
   EXTENSION_FUNCTION_VALIDATE(args_->IsType(Value::TYPE_LIST));
@@ -25,39 +26,33 @@ bool EnablePageActionFunction::RunImpl() {
   std::string url;
   EXTENSION_FUNCTION_VALIDATE(action->GetString(L"url", &url));
 
-  Browser* browser = BrowserList::GetLastActive();
-  if (!browser)
+  // Find the TabContents that contains this tab id.
+  TabContents* contents = NULL;
+  ExtensionTabUtil::GetTabById(tab_id, profile(), NULL, NULL, &contents, NULL);
+  if (!contents)
     return false;
 
-  // HACK: We need to figure out the tab index from the tab_id (pending).
-  // For now we only support page actions in the first tab in the strip (tab 0).
-  int tab_index = 0;
-
-  TabStripModel* tab_strip = browser->tabstrip_model();
-  TabContents* contents = tab_strip->GetTabContentsAt(tab_index);
-
-  // Not needed when we stop hard-coding the tab index.
-  tab_id = ExtensionTabUtil::GetTabId(contents);
+  // Make sure the URL hasn't changed.
+  // TODO(finnur): Add an error message here when there is a way to.
+  if (url != contents->controller().GetActiveEntry()->url().spec())
+    return false;
 
   // Find our extension.
   Extension* extension = NULL;
-  if (profile()->GetExtensionsService()) {
-    const ExtensionList* extensions =
-        profile()->GetExtensionsService()->extensions();
-    for (ExtensionList::const_iterator iter = extensions->begin();
-        iter != extensions->end(); ++iter) {
-      if ((*iter)->id() == extension_id()) {
-        extension = (*iter);
-        break;  // Found our extension.
-      }
-    }
-  }
-
-  if (!extension ||
-      !extension->UpdatePageAction(page_action_id, tab_id, GURL(url)))
+  ExtensionsService* service = profile()->GetExtensionsService();
+  if (service)
+    extension = service->GetExtensionByID(extension_id());
+  else
+    NOTREACHED();
+  if (!extension)
     return false;
 
-  // Broadcast notifications when the UI should be updated.
+  const PageAction* page_action = extension->GetPageAction(page_action_id);
+  if (!page_action)
+    return false;
+
+  // Set visible and broadcast notifications that the UI should be updated.
+  contents->EnablePageAction(page_action);
   contents->NotifyNavigationStateChanged(TabContents::INVALIDATE_PAGE_ACTIONS);
 
   return true;

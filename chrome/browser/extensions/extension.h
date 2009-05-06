@@ -128,9 +128,8 @@ class Extension {
   // as providing a theme.
   FilePath GetThemeResourcePath(const int resource_id);
 
-  // Update the status of the page action with |id| in tab |tab_id| and set the
-  // current page url to |url|.
-  bool UpdatePageAction(std::string id, int tab_id, GURL url);
+  // Retrieves a page action by |id|.
+  const PageAction* GetPageAction(std::string id) const;
 
   const FilePath& path() const { return path_; }
   const GURL& url() const { return extension_url_; }
@@ -158,10 +157,9 @@ class Extension {
 
   // Helper method that loads a PageAction object from a
   // dictionary in the page_action list of the manifest.
-  bool LoadPageActionHelper(const DictionaryValue* page_action,
-                            int definition_index,
-                            std::string* error,
-                            PageAction* result);
+  PageAction* LoadPageActionHelper(const DictionaryValue* page_action,
+                                   int definition_index,
+                                   std::string* error);
 
   // The absolute path to the directory the extension is stored in.
   FilePath path_;

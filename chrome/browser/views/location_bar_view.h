@@ -326,8 +326,9 @@ class LocationBarView : public LocationBar,
     virtual void ShowInfoBubble();
 
     // Called to notify the PageAction that it should determine whether to be
-    // visible or hidden.
-    void UpdateVisibility(int tab_id, GURL url);
+    // visible or hidden. |contents| is the TabContents that is active, |url|
+    // is the current page URL.
+    void UpdateVisibility(TabContents* contents, GURL url);
 
     // Called when the IconManager has loaded our icon.
     void OnIconLoaded(IconManager::Handle handle, SkBitmap* icon);

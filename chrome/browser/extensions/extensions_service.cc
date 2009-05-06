@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
+// Copyright (c) 2009 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
@@ -207,6 +207,15 @@ void ExtensionsService::OnExtensionInstalled(Extension* extension,
       !extension->toolstrips().empty())
     browser->AddTabWithURL(GURL(chrome::kChromeUINewTabURL), GURL(),
                            PageTransition::LINK, true, -1, false, NULL);
+}
+
+Extension* ExtensionsService::GetExtensionByID(std::string id) {
+  for (ExtensionList::const_iterator iter = extensions_.begin();
+       iter != extensions_.end(); ++iter) {
+    if ((*iter)->id() == id)
+      return *iter;
+  }
+  return NULL;
 }
 
 ExtensionView* ExtensionsService::CreateView(Extension* extension,
@@ -576,7 +585,6 @@ bool ExtensionsServiceBackend::CheckCurrentVersion(
 
 bool ExtensionsServiceBackend::InstallDirSafely(const FilePath& source_dir,
                                                 const FilePath& dest_dir) {
-
   if (file_util::PathExists(dest_dir)) {
     // By the time we get here, it should be safe to assume that this directory
     // is not currently in use (it's not the current active version).
@@ -631,7 +639,6 @@ bool ExtensionsServiceBackend::SetCurrentVersion(const FilePath& dest_dir,
   if (stream.Open(current_version, flags) != 0)
     return false;
   if (stream.Write(version.c_str(), version.size(), NULL) < 0) {
-
     // Restore the old CurrentVersion.
     if (file_util::PathExists(current_version_old)) {
       if (!file_util::Move(current_version_old, current_version)) {
