@@ -395,8 +395,14 @@ void GlassBrowserFrameView::StartThrobber() {
 }
 
 void GlassBrowserFrameView::StopThrobber() {
-  if (throbber_running_)
+  if (throbber_running_) {
     throbber_running_ = false;
+
+    // This will reset the small icon which we set in the throbber code.
+    // Windows will then pick up the default icon from the window class.
+    SendMessage(frame_->GetNativeView(), WM_SETICON,
+                static_cast<WPARAM>(ICON_SMALL), NULL);
+  }
 }
 
 void GlassBrowserFrameView::DisplayNextThrobberFrame() {
