@@ -190,7 +190,7 @@ void LocationBarViewGtk::SaveStateToContents(TabContents* contents) {
 }
 
 void LocationBarViewGtk::Revert() {
-  NOTIMPLEMENTED();
+  location_entry_->RevertAll();
 }
 
 gboolean LocationBarViewGtk::HandleExpose(GtkWidget* widget,
