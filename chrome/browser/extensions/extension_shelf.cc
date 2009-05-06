@@ -7,6 +7,7 @@
 #include "base/logging.h"
 #include "chrome/browser/browser.h"
 #include "chrome/browser/extensions/extension.h"
+#include "chrome/browser/extensions/extension_process_manager.h"
 #include "chrome/browser/extensions/extension_view.h"
 #include "chrome/browser/extensions/extensions_service.h"
 #include "chrome/browser/profile.h"
@@ -150,14 +151,15 @@ void ExtensionShelf::Observe(NotificationType type,
 
 bool ExtensionShelf::AddExtensionViews(const ExtensionList* extensions) {
   bool added_toolstrip = false;
-  ExtensionsService* service = browser_->profile()->GetExtensionsService();
+  ExtensionProcessManager* manager =
+      browser_->profile()->GetExtensionProcessManager();
   for (ExtensionList::const_iterator extension = extensions->begin();
        extension != extensions->end(); ++extension) {
     for (std::vector<std::string>::const_iterator toolstrip_path =
          (*extension)->toolstrips().begin();
          toolstrip_path != (*extension)->toolstrips().end(); ++toolstrip_path) {
       ExtensionView* toolstrip =
-          service->CreateView(*extension,
+          manager->CreateView(*extension,
                               (*extension)->GetResourceURL(*toolstrip_path),
                               browser_);
       if (!background_.empty())

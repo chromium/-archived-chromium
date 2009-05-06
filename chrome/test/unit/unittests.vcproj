@@ -512,6 +512,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\browser\extensions\extension_process_manager_unittest.cc"
+				>
+			</File>
+			<File
 				RelativePath="..\..\browser\extensions\extension_ui_unittest.cc"
 				>
 			</File>

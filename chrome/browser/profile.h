@@ -22,6 +22,7 @@
 class BookmarkModel;
 class ChromeURLRequestContext;
 class DownloadManager;
+class ExtensionProcessManager;
 class ExtensionsService;
 class HistoryService;
 class NavigationController;
@@ -113,6 +114,10 @@ class Profile {
   // profile.  The UserScriptMaster is lazily created the first time
   // that this method is called.
   virtual UserScriptMaster* GetUserScriptMaster() = 0;
+
+  // Retrieves a pointer to the ExtensionProcessManager associated with this
+  // profile.  The instance is created at startup.
+  virtual ExtensionProcessManager* GetExtensionProcessManager() = 0;
 
   // Retrieves a pointer to the SSLHostState associated with this profile.
   // The SSLHostState is lazily created the first time that this method is
@@ -277,6 +282,7 @@ class ProfileImpl : public Profile,
   virtual UserScriptMaster* GetUserScriptMaster();
   virtual SSLHostState* GetSSLHostState();
   virtual ExtensionsService* GetExtensionsService();
+  virtual ExtensionProcessManager* GetExtensionProcessManager();
   virtual HistoryService* GetHistoryService(ServiceAccessType sat);
   virtual WebDataService* GetWebDataService(ServiceAccessType sat);
   virtual PrefService* GetPrefs();
@@ -335,10 +341,10 @@ class ProfileImpl : public Profile,
   void InitializeSpellChecker(bool need_to_broadcast);
 
   FilePath path_;
-  bool off_the_record_;
   scoped_ptr<VisitedLinkMaster> visited_link_master_;
   scoped_refptr<ExtensionsService> extensions_service_;
   scoped_refptr<UserScriptMaster> user_script_master_;
+  scoped_ptr<ExtensionProcessManager> extension_process_manager_;
   scoped_ptr<SSLHostState> ssl_host_state_;
   scoped_ptr<PrefService> prefs_;
   scoped_ptr<TemplateURLFetcher> template_url_fetcher_;

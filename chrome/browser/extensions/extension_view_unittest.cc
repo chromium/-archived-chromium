@@ -8,6 +8,7 @@
 #include "chrome/browser/extensions/extension_shelf.h"
 #include "chrome/browser/extensions/extension_error_reporter.h"
 #include "chrome/browser/extensions/extension_host.h"
+#include "chrome/browser/extensions/extension_process_manager.h"
 #include "chrome/browser/extensions/extensions_service.h"
 #include "chrome/browser/extensions/test_extension_loader.h"
 #include "chrome/browser/tab_contents/site_instance.h"
@@ -103,7 +104,8 @@ IN_PROC_BROWSER_TEST_F(ExtensionViewTest, Index) {
 
   // Start the extension process and wait for it to show a javascript alert.
   MockExtensionHost host(extension, url,
-      browser()->profile()->GetExtensionsService()->GetSiteInstanceForURL(url));
+      browser()->profile()->GetExtensionProcessManager()->
+          GetSiteInstanceForURL(url));
   EXPECT_TRUE(host.got_message());
 }
 

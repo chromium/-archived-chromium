@@ -7,7 +7,6 @@
 
 #include <string>
 #include <vector>
-#include <list>
 
 #include "base/file_path.h"
 #include "base/message_loop.h"
@@ -16,10 +15,7 @@
 #include "base/values.h"
 
 class Browser;
-class BrowsingInstance;
 class Extension;
-class ExtensionHost;
-class ExtensionView;
 class ExtensionsServiceBackend;
 class GURL;
 class Profile;
@@ -82,19 +78,6 @@ class ExtensionsService : public ExtensionsServiceFrontendInterface {
   virtual void OnExtensionInstalled(Extension* extension, bool is_update);
   virtual Extension* GetExtensionByID(std::string id);
 
-  // Creates a new ExtensionView, grouping it in the appropriate SiteInstance
-  // (and therefore process) based on the URL and profile.
-  ExtensionView* CreateView(Extension* extension,
-                            const GURL& url,
-                            Browser* browser);
-
-  // Creates a new UI-less extension instance.  Like CreateView, but not
-  // displayed anywhere.
-  void CreateBackgroundHost(Extension* extension, const GURL& url);
-
-  // Returns the SiteInstance that the given URL belongs to.
-  SiteInstance* GetSiteInstanceForURL(const GURL& url);
-
   // The name of the file that the current active version number is stored in.
   static const char* kCurrentVersionFileName;
 
@@ -117,14 +100,6 @@ class ExtensionsService : public ExtensionsServiceFrontendInterface {
 
   // The user script master for this profile.
   scoped_refptr<UserScriptMaster> user_script_master_;
-
-  // The BrowsingInstance shared by all extensions in this profile.  This
-  // controls process grouping.
-  scoped_refptr<BrowsingInstance> browsing_instance_;
-
-  // The list of running viewless background extensions.
-  typedef std::list<ExtensionHost*> ExtensionHostList;
-  ExtensionHostList background_hosts_;
 
   DISALLOW_COPY_AND_ASSIGN(ExtensionsService);
 };

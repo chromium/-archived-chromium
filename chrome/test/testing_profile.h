@@ -80,6 +80,9 @@ class TestingProfile : public Profile {
   virtual UserScriptMaster* GetUserScriptMaster() {
     return NULL;
   }
+  virtual ExtensionProcessManager* GetExtensionProcessManager() {
+    return NULL;
+  }
   virtual SSLHostState* GetSSLHostState() {
     return NULL;
   }

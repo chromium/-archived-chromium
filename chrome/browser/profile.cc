@@ -15,6 +15,7 @@
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/download/download_manager.h"
 #include "chrome/browser/extensions/extension_error_reporter.h"
+#include "chrome/browser/extensions/extension_process_manager.h"
 #include "chrome/browser/extensions/extensions_service.h"
 #include "chrome/browser/extensions/user_script_master.h"
 #include "chrome/browser/history/history.h"
@@ -87,6 +88,9 @@ class OffTheRecordProfileImpl : public Profile,
         start_time_(Time::Now()) {
     request_context_ = ChromeURLRequestContext::CreateOffTheRecord(this);
     request_context_->AddRef();
+
+    extension_process_manager_.reset(new ExtensionProcessManager(this));
+
     // Register for browser close notifications so we can detect when the last
     // off-the-record window is closed, in which case we can clean our states
     // (cookies, downloads...).
@@ -143,6 +147,10 @@ class OffTheRecordProfileImpl : public Profile,
 
   virtual UserScriptMaster* GetUserScriptMaster() {
     return profile_->GetUserScriptMaster();
+  }
+
+  virtual ExtensionProcessManager* GetExtensionProcessManager() {
+    return extension_process_manager_.get();
   }
 
   virtual SSLHostState* GetSSLHostState() {
@@ -338,6 +346,9 @@ class OffTheRecordProfileImpl : public Profile,
   // the user visited while OTR.
   scoped_ptr<SSLHostState> ssl_host_state_;
 
+  // Extensions run in a different context in incognito mode.
+  scoped_ptr<ExtensionProcessManager> extension_process_manager_;
+
   // Time we were started.
   Time start_time_;
 
@@ -346,7 +357,6 @@ class OffTheRecordProfileImpl : public Profile,
 
 ProfileImpl::ProfileImpl(const FilePath& path)
     : path_(path),
-      off_the_record_(false),
       request_context_(NULL),
       media_request_context_(NULL),
       history_service_created_(false),
@@ -360,6 +370,8 @@ ProfileImpl::ProfileImpl(const FilePath& path)
   create_session_service_timer_.Start(
       TimeDelta::FromMilliseconds(kCreateSessionServiceDelayMS), this,
       &ProfileImpl::EnsureSessionServiceCreated);
+
+  extension_process_manager_.reset(new ExtensionProcessManager(this));
 
   PrefService* prefs = GetPrefs();
   prefs->AddPrefObserver(prefs::kSpellCheckDictionary, this);
@@ -561,6 +573,10 @@ ExtensionsService* ProfileImpl::GetExtensionsService() {
 
 UserScriptMaster* ProfileImpl::GetUserScriptMaster() {
   return user_script_master_.get();
+}
+
+ExtensionProcessManager* ProfileImpl::GetExtensionProcessManager() {
+  return extension_process_manager_.get();
 }
 
 SSLHostState* ProfileImpl::GetSSLHostState() {
