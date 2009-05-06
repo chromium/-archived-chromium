@@ -106,13 +106,32 @@ const struct AcceleratorMapping {
   int command_id;
   GdkModifierType modifier_type;
 } kAcceleratorMap[] = {
+  // Focus.
   { GDK_k, IDC_FOCUS_SEARCH, GDK_CONTROL_MASK },
   { GDK_l, IDC_FOCUS_LOCATION, GDK_CONTROL_MASK },
   { GDK_d, IDC_FOCUS_LOCATION, GDK_MOD1_MASK },
-  { GDK_o, IDC_OPEN_FILE, GDK_CONTROL_MASK },
+  { GDK_F6, IDC_FOCUS_LOCATION, GdkModifierType(0) },
+
+  // Tab/window controls.
   { GDK_Page_Down, IDC_SELECT_NEXT_TAB, GDK_CONTROL_MASK },
   { GDK_Page_Up, IDC_SELECT_PREVIOUS_TAB, GDK_CONTROL_MASK },
   { GDK_w, IDC_CLOSE_TAB, GDK_CONTROL_MASK },
+  { GDK_t, IDC_RESTORE_TAB,
+    GdkModifierType(GDK_CONTROL_MASK | GDK_SHIFT_MASK) },
+  { GDK_1, IDC_SELECT_TAB_0, GDK_CONTROL_MASK },
+  { GDK_2, IDC_SELECT_TAB_1, GDK_CONTROL_MASK },
+  { GDK_3, IDC_SELECT_TAB_2, GDK_CONTROL_MASK },
+  { GDK_4, IDC_SELECT_TAB_3, GDK_CONTROL_MASK },
+  { GDK_5, IDC_SELECT_TAB_4, GDK_CONTROL_MASK },
+  { GDK_6, IDC_SELECT_TAB_5, GDK_CONTROL_MASK },
+  { GDK_7, IDC_SELECT_TAB_6, GDK_CONTROL_MASK },
+  { GDK_8, IDC_SELECT_TAB_7, GDK_CONTROL_MASK },
+  { GDK_9, IDC_SELECT_LAST_TAB, GDK_CONTROL_MASK },
+  { GDK_w, IDC_CLOSE_TAB, GDK_CONTROL_MASK },
+  { GDK_F4, IDC_CLOSE_TAB, GDK_CONTROL_MASK },
+  { GDK_F4, IDC_CLOSE_WINDOW, GDK_MOD1_MASK },
+
+  // Zoom level.
   { GDK_plus, IDC_ZOOM_PLUS,
     GdkModifierType(GDK_CONTROL_MASK | GDK_SHIFT_MASK) },
   { GDK_equal, IDC_ZOOM_PLUS, GDK_CONTROL_MASK },
@@ -120,12 +139,25 @@ const struct AcceleratorMapping {
   { GDK_minus, IDC_ZOOM_MINUS, GDK_CONTROL_MASK },
   { GDK_underscore, IDC_ZOOM_MINUS,
     GdkModifierType(GDK_CONTROL_MASK | GDK_SHIFT_MASK) },
+
+  // Find in page.
   { GDK_g, IDC_FIND_NEXT, GDK_CONTROL_MASK },
   { GDK_F3, IDC_FIND_NEXT, GdkModifierType(0) },
   { GDK_g, IDC_FIND_PREVIOUS,
     GdkModifierType(GDK_CONTROL_MASK | GDK_SHIFT_MASK) },
   { GDK_F3, IDC_FIND_PREVIOUS, GDK_SHIFT_MASK },
+
+  // Navigation.
+  { GDK_Home, IDC_HOME, GDK_MOD1_MASK },
+  { GDK_Escape, IDC_STOP, GdkModifierType(0) },
+
+  // Miscellany.
+  { GDK_d, IDC_STAR, GDK_CONTROL_MASK },
+  { GDK_o, IDC_OPEN_FILE, GDK_CONTROL_MASK },
   { GDK_F11, IDC_FULLSCREEN, GdkModifierType(0) },
+  { GDK_u, IDC_VIEW_SOURCE, GDK_CONTROL_MASK },
+  { GDK_p, IDC_PRINT, GDK_CONTROL_MASK },
+  { GDK_Escape, IDC_TASK_MANAGER, GDK_SHIFT_MASK },
 };
 
 int GetCommandId(guint accel_key, GdkModifierType modifier) {

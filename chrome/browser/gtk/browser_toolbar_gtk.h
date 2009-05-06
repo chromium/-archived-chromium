@@ -90,7 +90,7 @@ class BrowserToolbarGtk : public CommandUpdater::CommandObserver,
       const std::string& localized_tooltip,
       OwnedWidgetGtk* owner);
 
-  // Adds a keyboard accelerator which trigers a button. (i.e., Ctrl+R is now
+  // Adds a keyboard accelerator which triggers a button (e.g., ctrl+r is now
   // equivalent to a reload click).
   void AddAcceleratorToButton(
       const scoped_ptr<CustomDrawButton>& button,

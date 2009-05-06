@@ -112,10 +112,14 @@ void BrowserToolbarGtk::Init(Profile* profile,
               IDR_BACK_D,
               l10n_util::GetStringUTF8(IDS_TOOLTIP_BACK)));
   AddAcceleratorToButton(back_, GDK_Left, GDK_MOD1_MASK);
+  // TODO(estade): I ran into some problems with backspace in the find bar when
+  // I enabled this accelerator. Figure it out and re-enable the shortcut.
+  // AddAcceleratorToButton(back_, GDK_BackSpace, 0);
   forward_.reset(BuildBackForwardButton(IDR_FORWARD, IDR_FORWARD_P,
                  IDR_FORWARD_H, IDR_FORWARD_D,
                  l10n_util::GetStringUTF8(IDS_TOOLTIP_FORWARD)));
   AddAcceleratorToButton(forward_, GDK_Right, GDK_MOD1_MASK);
+  AddAcceleratorToButton(forward_, GDK_BackSpace, GDK_SHIFT_MASK);
 
   // TODO(estade): These blank labels are kind of ghetto. Padding should be
   // handled differently (via spacing parameters or padding widgets that use
