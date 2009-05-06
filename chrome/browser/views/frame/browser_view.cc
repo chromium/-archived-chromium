@@ -50,7 +50,6 @@
 #include "chrome/browser/tab_contents/tab_contents_view.h"
 #include "chrome/browser/window_sizer.h"
 #include "chrome/common/chrome_switches.h"
-#include "chrome/common/hwnd_notification_source.h"
 #include "chrome/common/notification_service.h"
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
@@ -58,6 +57,7 @@
 #include "chrome/views/controls/scrollbar/native_scroll_bar.h"
 #include "chrome/views/fill_layout.h"
 #include "chrome/views/view.h"
+#include "chrome/views/widget/hwnd_notification_source.h"
 #include "chrome/views/widget/root_view.h"
 #include "chrome/views/window/non_client_view.h"
 #include "chrome/views/window/window_win.h"
@@ -1665,9 +1665,4 @@ BrowserWindow* BrowserWindow::CreateBrowserWindow(Browser* browser) {
 // static
 FindBar* BrowserWindow::CreateFindBar(Browser* browser) {
   return new FindBarWin(static_cast<BrowserView*>(browser->window()));
-}
-
-// static
-void BrowserList::AllBrowsersClosed() {
-  views::Window::CloseAllSecondaryWindows();
 }

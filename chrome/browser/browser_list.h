@@ -115,9 +115,6 @@ class BrowserList {
   // Returns true if at least one off the record session is active.
   static bool IsOffTheRecordSessionActive();
 
-  // Called when the last browser is closed.
-  static void AllBrowsersClosed();
-
  private:
   // Helper method to remove a browser instance from a list of browsers
   static void RemoveBrowserFrom(Browser* browser, list_type* browser_list);

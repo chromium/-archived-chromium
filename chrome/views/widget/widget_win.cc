@@ -9,12 +9,14 @@
 #include "base/string_util.h"
 #include "base/win_util.h"
 #include "chrome/app/chrome_dll_resource.h"
+#include "chrome/common/notification_service.h"
 #include "chrome/common/win_util.h"
 #include "chrome/views/accessibility/view_accessibility.h"
 #include "chrome/views/controls/native_control_win.h"
 #include "chrome/views/fill_layout.h"
 #include "chrome/views/focus/focus_util_win.h"
 #include "chrome/views/widget/aero_tooltip_manager.h"
+#include "chrome/views/widget/hwnd_notification_source.h"
 #include "chrome/views/widget/root_view.h"
 #include "chrome/views/window/window_win.h"
 
@@ -465,6 +467,12 @@ void WidgetWin::OnCaptureChanged(HWND hwnd) {
 }
 
 void WidgetWin::OnClose() {
+  // WARNING: this method is NOT called for all WidgetWins. If you need to do
+  // cleanup code before WidgetWin is destroyed, put it in OnDestroy.
+  NotificationService::current()->Notify(
+      NotificationType::WINDOW_CLOSED, Source<HWND>(hwnd_),
+      NotificationService::NoDetails());
+
   Close();
 }
 

@@ -13,6 +13,7 @@
 #include <vector>
 #include <map>
 
+#include "chrome/common/notification_observer.h"
 #include "chrome/views/accelerator.h"
 
 // The FocusManager class is used to handle focus traversal, store/restore
@@ -151,7 +152,7 @@ class FocusChangeListener {
   virtual void FocusWillChange(View* focused_before, View* focused_now) = 0;
 };
 
-class FocusManager {
+class FocusManager : public NotificationObserver {
  public:
 #if defined(OS_WIN)
   // Creates a FocusManager for the specified window. Top level windows
@@ -263,10 +264,10 @@ class FocusManager {
   // Returns true if an accelerator was activated.
   bool ProcessAccelerator(const Accelerator& accelerator);
 
-  // Called by a RootView when a view within its hierarchy is removed from its
-  // parent. This will only be called by a RootView in a hierarchy of Widgets
-  // that this FocusManager is attached to the parent Widget of.
-  void ViewRemoved(View* parent, View* removed);
+  // NotificationObserver method.
+  void Observe(NotificationType type,
+               const NotificationSource& source,
+               const NotificationDetails& details);
 
   void AddKeystrokeListener(KeystrokeListener* listener);
   void RemoveKeystrokeListener(KeystrokeListener* listener);

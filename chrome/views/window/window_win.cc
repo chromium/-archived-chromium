@@ -14,6 +14,7 @@
 #include "app/resource_bundle.h"
 #include "base/win_util.h"
 #include "chrome/app/chrome_dll_resource.h"
+#include "chrome/common/notification_service.h"
 #include "chrome/common/win_util.h"
 #include "chrome/views/widget/root_view.h"
 #include "chrome/views/window/client_view.h"
@@ -428,6 +429,19 @@ gfx::NativeWindow WindowWin::GetNativeWindow() const {
   return GetNativeView();
 }
 
+////////////////////////////////////////////////////////////////////////////////
+// WindowWin, NotificationObserver implementation:
+
+void WindowWin::Observe(NotificationType type,
+                        const NotificationSource& source,
+                        const NotificationDetails& details) {
+  // This window is closed when the last app window is closed.
+  DCHECK(type == NotificationType::ALL_APPWINDOWS_CLOSED);
+  // Only registered as an observer when we're not an app window.
+  // XXX DCHECK(!IsAppWindow());
+  Close();
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 // WindowWin, protected:
 
@@ -493,7 +507,20 @@ void WindowWin::Init(HWND parent, const gfx::Rect& bounds) {
 
   GetMonitorAndRects(bounds.ToRECT(), &last_monitor_, &last_monitor_rect_,
                      &last_work_area_);
+
+  if (!IsAppWindow()) {
+    notification_registrar_.Add(
+        this,
+        NotificationType::ALL_APPWINDOWS_CLOSED,
+        NotificationService::AllSources());
+  }
+
   ResetWindowRegion(false);
+
+  NotificationService::current()->Notify(
+      NotificationType::WINDOW_CREATED,
+      Source<WindowWin>(this),
+      NotificationService::NoDetails());
 }
 
 void WindowWin::SizeWindowToDefault() {
@@ -1414,33 +1441,6 @@ void WindowWin::InitClass() {
     resize_cursors_[RC_NWSE] = LoadCursor(NULL, IDC_SIZENWSE);
     initialized = true;
   }
-}
-
-namespace {
-// static
-static BOOL CALLBACK WindowCallbackProc(HWND hwnd, LPARAM lParam) {
-  WidgetWin* widget = reinterpret_cast<WidgetWin*>(
-      win_util::GetWindowUserData(hwnd));
-  if (!widget)
-    return TRUE;
-
-  // If the toplevel HWND is a Window, close it if it's identified as a
-  // secondary window.
-  Window* window = widget->GetWindow();
-  if (window) {
-    if (!window->IsAppWindow())
-      window->Close();
-  } else {
-    // If it's not a Window, then close it anyway since it probably is
-    // secondary.
-    widget->Close();
-  }
-  return TRUE;
-}
-}  // namespace
-
-void Window::CloseAllSecondaryWindows() {
-  EnumThreadWindows(GetCurrentThreadId(), WindowCallbackProc, 0);
 }
 
 }  // namespace views

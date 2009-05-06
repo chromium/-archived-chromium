@@ -39,11 +39,6 @@ class Window {
   static gfx::Size GetLocalizedContentsSize(int col_resource_id,
                                             int row_resource_id);
 
-  // Closes all windows that aren't identified as "app windows" via
-  // IsAppWindow. Called during application shutdown when the last "app window"
-  // is closed.
-  static void CloseAllSecondaryWindows();
-
   // Retrieves the window's bounds, including its frame.
   virtual gfx::Rect GetBounds() const = 0;
 
@@ -52,7 +47,7 @@ class Window {
 
   // Sizes and/or places the window to the specified bounds, size or position.
   virtual void SetBounds(const gfx::Rect& bounds) = 0;
-
+  
   // As above, except the window is inserted after |other_window| in the window
   // Z-order. If this window is not yet visible, other_window's monitor  is used
   // as the constraining rectangle, rather than this window's monitor.
@@ -89,11 +84,6 @@ class Window {
   // Accessors for fullscreen state.
   virtual void SetFullscreen(bool fullscreen) = 0;
   virtual bool IsFullscreen() const = 0;
-
-  // Returns true if the Window is considered to be an "app window" - i.e.
-  // any window which when it is the last of its type closed causes the
-  // application to exit.
-  virtual bool IsAppWindow() const { return false; }
 
   // Toggles the enable state for the Close button (and the Close menu item in
   // the system menu).
