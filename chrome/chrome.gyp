@@ -2774,6 +2774,8 @@
           'type': 'none',
           'dependencies': [
             'app',
+            '../breakpad/breakpad.gyp:dump_syms',
+            '../breakpad/breakpad.gyp:symupload',
           ],
           'actions': [
             {

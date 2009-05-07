@@ -89,6 +89,44 @@
       }
     },
     {
+      'target_name': 'dump_syms',
+      'type': 'executable',
+      'include_dirs': [
+        'src/common/mac',
+      ],
+      'dependencies': [
+        'breakpad_utilities',
+      ],
+      'sources': [
+        'src/common/mac/dwarf/bytereader.cc',
+        'src/common/mac/dwarf/dwarf2reader.cc',
+        'src/common/mac/dwarf/functioninfo.cc',
+        'src/common/mac/dump_syms.mm',
+        'src/tools/mac/dump_syms/dump_syms_tool.mm',
+      ],
+      'link_settings': {
+        'libraries': [
+          '$(SDKROOT)/System/Library/Frameworks/Foundation.framework',
+        ],
+      }
+    },
+    {
+      'target_name': 'symupload',
+      'type': 'executable',
+      'include_dirs': [
+        'src/common/mac',
+      ],
+      'sources': [
+        'src/common/mac/HTTPMultipartUpload.m',
+        'src/tools/mac/symupload/symupload.m',
+      ],
+      'link_settings': {
+        'libraries': [
+          '$(SDKROOT)/System/Library/Frameworks/Foundation.framework',
+        ],
+      }
+    },
+    {
       'target_name': 'breakpad',
       'type': '<(library)',
       'dependencies': [
