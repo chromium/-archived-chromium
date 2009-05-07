@@ -4,7 +4,7 @@
 # Copyright (C) 2006 Samuel Weinig <sam.weinig@gmail.com>
 # Copyright (C) 2006 Alexey Proskuryakov <ap@webkit.org>
 # Copyright (C) 2006 Apple Computer, Inc.
-# Copyright (C) 2007 Google Inc.
+# Copyright (C) 2007, 2008, 2009 Google Inc.
 #
 # This file is part of the KDE project
 #
@@ -1620,6 +1620,7 @@ sub IsRefPtrType
     return 1 if $type eq "CSSStyleDeclaration";
     return 1 if $type eq "CSSValue";
     return 1 if $type eq "CSSRuleList";
+    return 1 if $type eq "Database";
     return 1 if $type eq "Document";
     return 1 if $type eq "DocumentFragment";
     return 1 if $type eq "DocumentType";
@@ -1694,6 +1695,7 @@ sub GetNativeType
       return $type 
     }
     
+    return "int" if $type eq "int";
     return "int" if $type eq "short" or $type eq "unsigned short";
     return "int" if $type eq "long" or $type eq "unsigned long";
     return "unsigned long long" if $type eq "unsigned long long";
@@ -1708,6 +1710,7 @@ sub GetNativeType
     return "double" if $type eq "SVGNumber";
     return "SVGPaint::SVGPaintType" if $type eq "SVGPaintType";
     return "DOMTimeStamp" if $type eq "DOMTimeStamp";
+    return "unsigned" if $type eq "unsigned int";
     return "unsigned" if $type eq "RGBColor";
     return "Node*" if $type eq "EventTarget" and $isParameter;
 
