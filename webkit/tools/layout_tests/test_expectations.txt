@@ -13,7 +13,6 @@
 // DEBUG : LayoutTests/fast/js/no-good.js = TIMEOUT PASS
 // DEBUG SKIP : LayoutTests/fast/js/no-good.js = TIMEOUT PASS
 // LINUX DEBUG SKIP : LayoutTests/fast/js/no-good.js = TIMEOUT PASS
-// DEFER LINUX WIN : LayoutTests/fast/js/no-good.js = TIMEOUT PASS
 // BUG1234 DEBUG MAC : LayoutTests/fast/js/no-good.js = TIMEOUT PASS
 //
 // BUG[0-9]+: See this bug for more information. Every test that isn't marked
@@ -21,7 +20,6 @@
 // SKIP: Doesn't run the test.
 // SLOW: The test takes a long time to run, but does not timeout indefinitely.
 // WONTFIX: For tests that we never intend to pass on a given platform.
-// DEFER: Test does not count in our statistics for the current release.
 // DEBUG: Expectations apply only to the debug build.
 // RELEASE: Expectations apply only to release build.
 // LINUX/WIN/MAC: Expectations apply only to these platforms.
@@ -36,10 +34,9 @@
 //
 // Notes:
 // -A test cannot be both SLOW and TIMEOUT
-// -A test cannot be both DEFER and WONTFIX
 // -A test can be included twice, but not via the same path.
 // -If a test is included twice, then the more precise path wins.
-// -CRASH tests cannot be DEFER or WONTFIX
+// -CRASH tests cannot be WONTFIX
 
 // -----------------------------------------------------------------
 // SLOW TESTS
@@ -375,43 +372,43 @@ WONTFIX SKIP : LayoutTests/transforms/3d = FAIL
 
 // Copying with no selection is sometimes supposed to work
 // Also skipped by Apple on Windows (rdar://problem/5015941)
-BUG1124548 DEFER : LayoutTests/editing/execCommand/copy-without-selection.html = FAIL
+BUG1124548 : LayoutTests/editing/execCommand/copy-without-selection.html = FAIL
 
 // onload race condition due to poorly designed test.
 // Works fine when run stand-alone.  Not needed for Beta.
 // Also skipped by Apple on Windows, due to intermittent failure
 // (rdar://5313536)
-BUG10270 DEFER WIN LINUX : LayoutTests/fast/dom/frame-loading-via-document-write.html = TIMEOUT FAIL
+BUG10270 WIN LINUX : LayoutTests/fast/dom/frame-loading-via-document-write.html = TIMEOUT FAIL
 
 // WebKit's CSS counters are somewhat broken, thus expected results are failures
 // Our high-precision timers make these tests flakey.
 // We could fork these tests, but we'll just unfork them as soon as
 // our high-precision timers are public.
-BUG877986 DEFER WIN LINUX : LayoutTests/css2.1/t1204-increment-00-c-o.html = FAIL
-BUG877986 DEFER WIN LINUX : LayoutTests/css2.1/t1204-increment-01-c-o.html = FAIL
-BUG877986 DEFER WIN LINUX : LayoutTests/css2.1/t1204-increment-02-c-o.html = FAIL
-BUG877986 DEFER WIN LINUX : LayoutTests/css2.1/t1204-reset-00-c-o.html = FAIL
-BUG877986 DEFER WIN LINUX : LayoutTests/css2.1/t1204-reset-01-c-o.html = FAIL
+BUG877986 WIN LINUX : LayoutTests/css2.1/t1204-increment-00-c-o.html = FAIL
+BUG877986 WIN LINUX : LayoutTests/css2.1/t1204-increment-01-c-o.html = FAIL
+BUG877986 WIN LINUX : LayoutTests/css2.1/t1204-increment-02-c-o.html = FAIL
+BUG877986 WIN LINUX : LayoutTests/css2.1/t1204-reset-00-c-o.html = FAIL
+BUG877986 WIN LINUX : LayoutTests/css2.1/t1204-reset-01-c-o.html = FAIL
 
 // This are failing for different reasons under our new lighttpd configuration
 // TODO(deanm): Address all of these via lighttpd if possible, otherwise fork.
 // Maybe flaky and need to be forked?
 // Difference in caching headers
-BUG1234761 DEFER : LayoutTests/http/tests/xmlhttprequest/cache-override.html = FAIL
+BUG1234761 : LayoutTests/http/tests/xmlhttprequest/cache-override.html = FAIL
 // LightTPD doesn't accept unknown HTTP methods
-BUG1234761 DEFER SKIP : LayoutTests/http/tests/xmlhttprequest/methods-lower-case.html = TIMEOUT CRASH
-BUG1234761 DEFER : LayoutTests/http/tests/xmlhttprequest/methods-async.html = FAIL TIMEOUT
-BUG1234761 DEFER WIN LINUX MAC : LayoutTests/http/tests/xmlhttprequest/access-control-basic-allow-preflight-cache-invalidation-by-method.html = FAIL TIMEOUT PASS
+BUG1234761 SKIP : LayoutTests/http/tests/xmlhttprequest/methods-lower-case.html = TIMEOUT CRASH
+BUG1234761 : LayoutTests/http/tests/xmlhttprequest/methods-async.html = FAIL TIMEOUT
+BUG1234761 WIN LINUX MAC : LayoutTests/http/tests/xmlhttprequest/access-control-basic-allow-preflight-cache-invalidation-by-method.html = FAIL TIMEOUT PASS
 // LightTPD doesn't accept unknown HTTP methods and passes CGIs a Content-Type
 // even when a request didn't send the header.
-BUG1234761 DEFER : LayoutTests/http/tests/xmlhttprequest/methods.html = FAIL TIMEOUT CRASH
+BUG1234761 : LayoutTests/http/tests/xmlhttprequest/methods.html = FAIL TIMEOUT CRASH
 // This passes when run in Chrome. It appears to be because of a difference
 // in how lighttpd serves up the svn resource image (or the image
 // contained in the svg image).
-BUG1234761 DEFER : LayoutTests/http/tests/security/canvas-remote-read-svg-image.html = FAIL
+BUG1234761 : LayoutTests/http/tests/security/canvas-remote-read-svg-image.html = FAIL
 // Another lighttpd quirk.
-BUG8941 DEFER LINUX WIN : LayoutTests/http/tests/xmlhttprequest/web-apps/013.html = FAIL
-BUG8941 DEFER MAC : LayoutTests/http/tests/xmlhttprequest/web-apps/013.html = FAIL TIMEOUT
+BUG8941 LINUX WIN : LayoutTests/http/tests/xmlhttprequest/web-apps/013.html = FAIL
+BUG8941 MAC : LayoutTests/http/tests/xmlhttprequest/web-apps/013.html = FAIL TIMEOUT
 
 // -----------------------------------------------------------------
 // TEXT
@@ -422,40 +419,40 @@ BUG8941 DEFER MAC : LayoutTests/http/tests/xmlhttprequest/web-apps/013.html = FA
 
 // These fail now that we use the same font code path in test_shell
 // as in Chrome
-BUG1316221 DEFER LINUX WIN : LayoutTests/css2.1/t1202-counter-04-b.html = FAIL
-BUG1316221 DEFER LINUX WIN : LayoutTests/css2.1/t1202-counters-04-b.html = FAIL
+BUG1316221 LINUX WIN : LayoutTests/css2.1/t1202-counter-04-b.html = FAIL
+BUG1316221 LINUX WIN : LayoutTests/css2.1/t1202-counters-04-b.html = FAIL
 
 // The max length doesn't appear to be applied correctly (or the test needs	
 // changing), and furthermore, the over- and under-lines aren't placed	
 // properly over the "x".	
-BUG1124513 DEFER LINUX WIN : LayoutTests/fast/forms/input-text-maxlength.html = FAIL	
-BUG1124513 DEFER LINUX WIN : LayoutTests/fast/forms/input-text-paste-maxlength.html = FAIL	
+BUG1124513 LINUX WIN : LayoutTests/fast/forms/input-text-maxlength.html = FAIL	
+BUG1124513 LINUX WIN : LayoutTests/fast/forms/input-text-paste-maxlength.html = FAIL	
 
 // This is a real bug, but not one we're fixing for Beta.
-BUG628529 DEFER LINUX : LayoutTests/fast/text/stroking-decorations.html = FAIL
-BUG628529 DEFER LINUX WIN : LayoutTests/fast/text/stroking.html = FAIL
+BUG628529 LINUX : LayoutTests/fast/text/stroking-decorations.html = FAIL
+BUG628529 LINUX WIN : LayoutTests/fast/text/stroking.html = FAIL
 
 // Incrorect results, in incorrect international font metrics.
 // Fixing these overrides does not help us to Beta, deffering
-BUG1124522 DEFER LINUX WIN : LayoutTests/fast/text/atsui-multiple-renderers.html = FAIL
-BUG1124522 DEFER LINUX WIN : LayoutTests/fast/text/atsui-pointtooffset-calls-cg.html = FAIL
+BUG1124522 LINUX WIN : LayoutTests/fast/text/atsui-multiple-renderers.html = FAIL
+BUG1124522 LINUX WIN : LayoutTests/fast/text/atsui-pointtooffset-calls-cg.html = FAIL
 
 // This test checks that we hack around a bug in helvetica.  We fail to.
-BUG1143382 DEFER LINUX WIN : LayoutTests/fast/text/wide-zero-width-space.html = FAIL
+BUG1143382 LINUX WIN : LayoutTests/fast/text/wide-zero-width-space.html = FAIL
 
 // Font-size differences in international text cause the wrong character
 // to be under the (x,y) click location used by the test.  See bug
 // on faking international font sizes like we do for Latin fonts.
-BUG850411 DEFER LINUX WIN : LayoutTests/fast/text/atsui-rtl-override-selection.html = FAIL
+BUG850411 LINUX WIN : LayoutTests/fast/text/atsui-rtl-override-selection.html = FAIL
 
 // More missing international text overides, not needed for Beta.
 // Capitalization results match Safari, even if "not fully correct"
-BUG1124542 DEFER LINUX WIN : LayoutTests/fast/text/capitalize-boundaries.html = FAIL
+BUG1124542 LINUX WIN : LayoutTests/fast/text/capitalize-boundaries.html = FAIL
 
 // Different button line-heights, our behavior looks wrong.
-BUG1145887 DEFER LINUX WIN : LayoutTests/fast/forms/control-restrict-line-height.html = FAIL
-BUG1145887 DEFER LINUX WIN : LayoutTests/fast/replaced/table-percent-height.html = FAIL
-BUG1145887 DEFER LINUX WIN : LayoutTests/fast/replaced/table-percent-height-text-controls.html = FAIL
+BUG1145887 LINUX WIN : LayoutTests/fast/forms/control-restrict-line-height.html = FAIL
+BUG1145887 LINUX WIN : LayoutTests/fast/replaced/table-percent-height.html = FAIL
+BUG1145887 LINUX WIN : LayoutTests/fast/replaced/table-percent-height-text-controls.html = FAIL
 
 
 // -----------------------------------------------------------------
@@ -468,7 +465,7 @@ BUG1145887 DEFER LINUX WIN : LayoutTests/fast/replaced/table-percent-height-text
 // Implicit expectation in this test is that you can "set query" on a data URL,
 // and it should replace the first "?" substring. This makes absolutely no
 // sense.
-BUG1089231 DEFER : LayoutTests/fast/events/stopPropagation-submit.html = FAIL
+BUG1089231 : LayoutTests/fast/events/stopPropagation-submit.html = FAIL
 
 // -----------------------------------------------------------------
 // Workers
@@ -479,7 +476,7 @@ BUG10271 SKIP : LayoutTests/fast/workers/stress-js-execution.html = TIMEOUT FAIL
 BUG10271 SKIP : LayoutTests/fast/workers/worker-timeout.html = TIMEOUT FAIL
 BUG10271 SKIP : LayoutTests/http/tests/workers = TIMEOUT FAIL
 BUG10271 SKIP : LayoutTests/http/tests/xmlhttprequest/workers = TIMEOUT FAIL
-BUG10271 DEFER MAC LINUX : LayoutTests/fast/events/dispatchEvent-crash.html = CRASH FAIL
+BUG10271 MAC LINUX : LayoutTests/fast/events/dispatchEvent-crash.html = CRASH FAIL
 
 // -----------------------------------------------------------------
 // PENDING TESTS (forked to pending/, need to be sent upstream)
@@ -489,20 +486,20 @@ BUG10271 DEFER MAC LINUX : LayoutTests/fast/events/dispatchEvent-crash.html = CR
 // races. Pending versions have these fixed.
 // Upstreaming pending test needs work.
 // See https://bugs.webkit.org/show_bug.cgi?id=21536
-BUG972450 DEFER : LayoutTests/fast/repaint/bugzilla-6473.html = PASS FAIL
+BUG972450 : LayoutTests/fast/repaint/bugzilla-6473.html = PASS FAIL
 
 // -----------------------------------------------------------------
 // Tests deferred until we provide support for a particular feature.
 // -----------------------------------------------------------------
 
 // These tests rely on the keygen tag, which we haven't wired up.
-BUG802185 DEFER : LayoutTests/fast/html/keygen.html = FAIL
-BUG820185 DEFER : LayoutTests/fast/invalid/residual-style.html = FAIL
+BUG802185 : LayoutTests/fast/html/keygen.html = FAIL
+BUG820185 : LayoutTests/fast/invalid/residual-style.html = FAIL
 
 // Tests that clicking the "x" box in a search field clears it; we don't
 // currently have such a box except on Mac (where it's part of the native
 // widget).
-BUG10272 DEFER WIN LINUX : LayoutTests/fast/forms/search-abs-pos-cancel-button.html = FAIL PASS
+BUG10272 WIN LINUX : LayoutTests/fast/forms/search-abs-pos-cancel-button.html = FAIL PASS
 
 // -----------------------------------------------------------------
 // Other
@@ -510,10 +507,10 @@ BUG10272 DEFER WIN LINUX : LayoutTests/fast/forms/search-abs-pos-cancel-button.h
 
 // Vertical scrollbar created when there is no overflow.
 // See also https://bugs.webkit.org/show_bug.cgi?id=24434 .
-BUG1055396 DEFER LINUX WIN : LayoutTests/fast/forms/textarea-scrollbar-height.html = FAIL
+BUG1055396 LINUX WIN : LayoutTests/fast/forms/textarea-scrollbar-height.html = FAIL
 
 // Image with border="1" drawn without the border.
-BUG1064038 DEFER LINUX WIN : LayoutTests/fast/forms/image-border.html = FAIL
+BUG1064038 LINUX WIN : LayoutTests/fast/forms/image-border.html = FAIL
 
 // Pixeltest failure: Form control metrics incorrect
 BUG10273 LINUX : LayoutTests/http/tests/navigation/javascriptlink-frames.html = FAIL PASS
@@ -521,93 +518,93 @@ BUG10273 LINUX : LayoutTests/http/tests/navigation/javascriptlink-frames.html = 
 // Mac Safari under certain circumstances automatically places
 // a caret in editable document even when none was requested programatically.
 // We don't intend to copy this feature (at least not for Beta).
-BUG742182 BUG845388 DEFER LINUX WIN : LayoutTests/editing/selection/designmode-no-caret.html = FAIL
+BUG742182 BUG845388 LINUX WIN : LayoutTests/editing/selection/designmode-no-caret.html = FAIL
 
 // Platform-specific: simulates command-{arrow} input to modify selection
 // Our Event-Sender isn't robust enough to support this.
 // Not required for Beta.  This may also be related to known home/end issues
 // which are intended to be fixed for Beta.
-BUG742182 BUG845388 BUG960092 DEFER LINUX WIN : LayoutTests/editing/selection/move-begin-end.html = FAIL
+BUG742182 BUG845388 BUG960092 LINUX WIN : LayoutTests/editing/selection/move-begin-end.html = FAIL
 
 // The end result looks right, but the event messages differ.
-BUG845400 DEFER : LayoutTests/editing/pasteboard/paste-xml.xhtml = FAIL
+BUG845400 : LayoutTests/editing/pasteboard/paste-xml.xhtml = FAIL
 
 // Directionality of mixed-direction text in selected choice should
 // match that in the <select> option lists.
 // Low priority, unclear if test expectations are correct (see bug)
-BUG849411 DEFER : LayoutTests/fast/forms/select-writing-direction-natural.html = FAIL
+BUG849411 : LayoutTests/fast/forms/select-writing-direction-natural.html = FAIL
 
 // requires support for layoutTestController.encodeHostName()
-BUG850875 DEFER : LayoutTests/fast/encoding/idn-security.html = FAIL
+BUG850875 : LayoutTests/fast/encoding/idn-security.html = FAIL
 
 // These layout tests to see if link colors change after visiting a page. They
 // does this by using layoutTestController.keepWebHistory() to turn on a
 // temporary web history. layoutTestController.keepWebHistory() is not
 // implemented in test shell.
 // This is a test tool problem, not a Chrome problem.
-BUG852346 DEFER : LayoutTests/fast/history/clicked-link-is-visited.html = FAIL
-BUG842346 DEFER : LayoutTests/fast/history/subframe-is-visited.html = FAIL
+BUG852346 : LayoutTests/fast/history/clicked-link-is-visited.html = FAIL
+BUG842346 : LayoutTests/fast/history/subframe-is-visited.html = FAIL
 
 // We don't support NPN_Enumerate, but don't know of any plugin
 // which depends on that functionality.  So we ignore this for beta.
-BUG849056 DEFER : LayoutTests/plugins/netscape-enumerate.html = FAIL
+BUG849056 : LayoutTests/plugins/netscape-enumerate.html = FAIL
 
 // This tests the screen's pixel depth, which we don't set on the buildbots
 // so it depends on the users settings.  Making this a broken test for us.
 // The test must be fixed to not depend on user settings and rebaselined.  post-beta.
-BUG10274 DEFER : LayoutTests/fast/dom/Window/window-screen-properties.html = FAIL PASS
+BUG10274 : LayoutTests/fast/dom/Window/window-screen-properties.html = FAIL PASS
 
 // Expectations for this test changed upstream. We should fix this test, but
 // it doesn't need to block the current release
-BUG10275 DEFER : LayoutTests/http/tests/security/cross-frame-access-put.html = FAIL
+BUG10275 : LayoutTests/http/tests/security/cross-frame-access-put.html = FAIL
 
 // We don't support support window.resizeTo (nor is it planned for Beta)
-BUG982602 DEFER : LayoutTests/fast/dom/Window/window-resize-and-move-arguments.html = FAIL
+BUG982602 : LayoutTests/fast/dom/Window/window-resize-and-move-arguments.html = FAIL
 
 // Test expects that when focus is in an iframe and page-up is hit, the parent
 // document is also scrolled
 // IE and FF also "fail" this test.
-BUG10276 DEFER : LayoutTests/fast/frames/iframe-scroll-page-up-down.html = FAIL
+BUG10276 : LayoutTests/fast/frames/iframe-scroll-page-up-down.html = FAIL
 
 // TODO(joshia): Need some changes to the test shell in order to support
 // Java applet related unit tests. So disable the following for now.
-BUG879449 DEFER : LayoutTests/fast/replaced/applet-disabled-positioned.html = FAIL
-BUG879449 DEFER : LayoutTests/fast/replaced/applet-rendering-java-disabled.html = FAIL
+BUG879449 : LayoutTests/fast/replaced/applet-disabled-positioned.html = FAIL
+BUG879449 : LayoutTests/fast/replaced/applet-rendering-java-disabled.html = FAIL
 
 // Due to differences in error pages. Needs re-baselining.
-BUG1204878 DEFER : LayoutTests/http/tests/navigation/post-goback1.html = FAIL
+BUG1204878 : LayoutTests/http/tests/navigation/post-goback1.html = FAIL
 
 // Since we don't have Aqua-themed controls, don't ignore the
 // box-shadow properties of controls that request Aqua theming.  But since Aqua
 // controls are rare on the web, defer this fix.
-BUG1130795 DEFER WIN LINUX : LayoutTests/fast/forms/box-shadow-override.html = FAIL
+BUG1130795 WIN LINUX : LayoutTests/fast/forms/box-shadow-override.html = FAIL
 
 // These tests are not valid: the so-called expected results are not known to
 // be correct.
 // TODO(ojan): They are *our* tests.
 // It seems silly to skip our own tests when we can change/delete them.
 // I'm marking them as deferred for now, but we should do something with them.
-BUG849072 DEFER SKIP : chrome/http/mime = PASS
+BUG849072 SKIP : chrome/http/mime = PASS
 
 // We don't support the storage APIs.  Some of the them hang.
-BUG4360 DEFER SKIP : LayoutTests/storage = PASS
+BUG4360 SKIP : LayoutTests/storage = PASS
 BUG4360 SKIP : LayoutTests/fast/js/exceptions-thrown-in-callbacks.html = PASS
 
 // Fails due to storage APIs not implemented.  Might be worth re-baselining
 // temporarily so the rest of the conditions are still tested.
-BUG1124568 DEFER : LayoutTests/fast/dom/Window/window-function-name-getter-precedence.html = FAIL
+BUG1124568 : LayoutTests/fast/dom/Window/window-function-name-getter-precedence.html = FAIL
 
 // These tests are disabled until <audio> and <video> tags are supported.
-BUG4363 DEFER SKIP : LayoutTests/media = TIMEOUT
-BUG4363 DEFER SKIP : LayoutTests/fast/media = PASS FAIL
-BUG4363 DEFER : LayoutTests/http/tests/media = FAIL
-BUG4363 DEFER : LayoutTests/http/tests/security/local-video-poster-from-remote.html = FAIL TIMEOUT
-BUG4363 DEFER SLOW : LayoutTests/http/tests/security/local-video-source-from-remote.html = FAIL
-BUG4363 DEFER SLOW : LayoutTests/http/tests/security/local-video-src-from-remote.html = FAIL
-BUG4363 DEFER : LayoutTests/fast/dom/Window/custom-constructors.html = FAIL
+BUG4363 SKIP : LayoutTests/media = TIMEOUT
+BUG4363 SKIP : LayoutTests/fast/media = PASS FAIL
+BUG4363 : LayoutTests/http/tests/media = FAIL
+BUG4363 : LayoutTests/http/tests/security/local-video-poster-from-remote.html = FAIL TIMEOUT
+BUG4363 SLOW : LayoutTests/http/tests/security/local-video-source-from-remote.html = FAIL
+BUG4363 SLOW : LayoutTests/http/tests/security/local-video-src-from-remote.html = FAIL
+BUG4363 : LayoutTests/fast/dom/Window/custom-constructors.html = FAIL
 
 // Function arguments object is copied for each access.
-BUG941049 DEFER : LayoutTests/fast/js/kde/function_arguments.html = FAIL
+BUG941049 : LayoutTests/fast/js/kde/function_arguments.html = FAIL
 
 // Need a setAuthorAndUserStylesEnabled method in
 // layoutTestController. Now we have preference to enable/disable user
@@ -618,7 +615,7 @@ BUG941049 DEFER : LayoutTests/fast/js/kde/function_arguments.html = FAIL
 // LayoutTests/fast/css/display-none-inline-style-change-crash.html   somehow
 // the message is dumped after the #EOF, which causes an additional
 // error in the header of the following test.
-BUG973468 DEFER SKIP : LayoutTests/fast/css/disabled-author-styles.html = FAIL
+BUG973468 SKIP : LayoutTests/fast/css/disabled-author-styles.html = FAIL
 
 // It looks like the upstream test is incorrectly using font-family: Times
 // instead of font-family: times new roman.  This broke when we recently moved
@@ -628,9 +625,9 @@ BUG10277 LINUX : LayoutTests/fast/css/font-face-default-font.html = FAIL
 
 // We don't support dynamic fonts on Linux.
 // Once we have the sandbox working, we should re-evaluate this.
-BUG10278 DEFER LINUX : LayoutTests/fast/css/font-face-remote.html = FAIL
-BUG10278 DEFER LINUX : LayoutTests/fast/css/font-face-implicit-local-font.html = FAIL
-BUG10278 DEFER LINUX : LayoutTests/fast/css/font-face-unicode-range.html = FAIL
+BUG10278 LINUX : LayoutTests/fast/css/font-face-remote.html = FAIL
+BUG10278 LINUX : LayoutTests/fast/css/font-face-implicit-local-font.html = FAIL
+BUG10278 LINUX : LayoutTests/fast/css/font-face-unicode-range.html = FAIL
 
 // The v8 bindings allow shadowing of all properties on the global
 // object.  If you use 'var prop = value' you will get a new variable
@@ -645,77 +642,77 @@ BUG10278 DEFER LINUX : LayoutTests/fast/css/font-face-unicode-range.html = FAIL
 // what the resolution was.
 // window-property-shadowing-name.html has also been affected by
 // r8532 and now fails.
-BUG10279 DEFER : LayoutTests/fast/dom/Window/window-property-shadowing-name.html = TIMEOUT FAIL
-BUG10279 DEFER : LayoutTests/fast/js/var-declarations-shadowing.html = FAIL
+BUG10279 : LayoutTests/fast/dom/Window/window-property-shadowing-name.html = TIMEOUT FAIL
+BUG10279 : LayoutTests/fast/js/var-declarations-shadowing.html = FAIL
 
 // User stylesheets not currently supported by chrome.
 // Webkit supports them by doing filesystem operations directly.
 // This is disallowed in a sandboxed renderer. The test fails in
 // test_shell.exe because the necessary filesystem stubs are notImplemented(),
 // and would need to be proxied through the browser
-BUG1042838 DEFER : LayoutTests/http/tests/security/local-user-CSS-from-remote.html = FAIL
+BUG1042838 : LayoutTests/http/tests/security/local-user-CSS-from-remote.html = FAIL
 
 // Extra space at end of test results.  Since this is a crash test, a
 // FAIL here is just as good as running the test normally.
 // FAIL results from an extra newline at the top of the results
 // the checked in results do not include the PASS text.
 // May only need re-baselining?
-BUG1126050 DEFER : LayoutTests/http/tests/navigation/changing-frame-hierarchy-in-onload.html = FAIL PASS
+BUG1126050 : LayoutTests/http/tests/navigation/changing-frame-hierarchy-in-onload.html = FAIL PASS
 
 // This test has hover effects that change the font size. This test also
 // moves the mouse around, resulting in a layout that dances around.
 // Depending upon when the snapshot is taken we get different results.
-BUG10280 DEFER WIN LINUX : LayoutTests/fast/inline/dirtyLinesForInline.html = FAIL PASS
+BUG10280 WIN LINUX : LayoutTests/fast/inline/dirtyLinesForInline.html = FAIL PASS
 // -----------------------------------------------------------------
 // SVG TESTS
 // -----------------------------------------------------------------
 
 // These are regressions from 1.0, but deemed DEFERable for 2.0.
-BUG8635 DEFER LINUX WIN : LayoutTests/svg/custom/pattern-y-offset.svg = FAIL
-BUG8635 DEFER LINUX WIN : LayoutTests/svg/batik/paints/patternRegions.svg = FAIL
-BUG8635 DEFER LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/masking-mask-01-b.svg = FAIL
-BUG8635 DEFER LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/struct-use-01-t.svg = FAIL
-BUG8635 DEFER LINUX WIN : LayoutTests/svg/custom/pattern-cycle-detection.svg = FAIL
+BUG8635 LINUX WIN : LayoutTests/svg/custom/pattern-y-offset.svg = FAIL
+BUG8635 LINUX WIN : LayoutTests/svg/batik/paints/patternRegions.svg = FAIL
+BUG8635 LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/masking-mask-01-b.svg = FAIL
+BUG8635 LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/struct-use-01-t.svg = FAIL
+BUG8635 LINUX WIN : LayoutTests/svg/custom/pattern-cycle-detection.svg = FAIL
 
-BUG5641 DEFER LINUX WIN : LayoutTests/svg/batik/text/textEffect.svg = FAIL
-BUG5641 DEFER LINUX WIN : LayoutTests/svg/batik/text/textEffect3.svg = FAIL
+BUG5641 LINUX WIN : LayoutTests/svg/batik/text/textEffect.svg = FAIL
+BUG5641 LINUX WIN : LayoutTests/svg/batik/text/textEffect3.svg = FAIL
 
-BUG8763 DEFER LINUX WIN : LayoutTests/svg/custom/use-on-g-containing-foreignObject-and-image.svg = FAIL
+BUG8763 LINUX WIN : LayoutTests/svg/custom/use-on-g-containing-foreignObject-and-image.svg = FAIL
 
-BUG10281 DEFER WIN LINUX : LayoutTests/svg/W3C-SVG-1.1/struct-image-02-b.svg = FAIL
-BUG10281 DEFER WIN LINUX : LayoutTests/svg/W3C-SVG-1.1/struct-image-07-t.svg = FAIL
-BUG10281 DEFER WIN LINUX : LayoutTests/svg/W3C-SVG-1.1/struct-symbol-01-b.svg = FAIL
+BUG10281 WIN LINUX : LayoutTests/svg/W3C-SVG-1.1/struct-image-02-b.svg = FAIL
+BUG10281 WIN LINUX : LayoutTests/svg/W3C-SVG-1.1/struct-image-07-t.svg = FAIL
+BUG10281 WIN LINUX : LayoutTests/svg/W3C-SVG-1.1/struct-symbol-01-b.svg = FAIL
 
 // Radial gradient on text not rendered.
-BUG10282 DEFER WIN LINUX : LayoutTests/svg/W3C-SVG-1.1/pservers-grad-11-b.svg = FAIL
+BUG10282 WIN LINUX : LayoutTests/svg/W3C-SVG-1.1/pservers-grad-11-b.svg = FAIL
 
 // Radial gradients with offset focal points are not implemented in Skia.
 // See comment in WebCore/platform/graphics/skia/GradientSkia.cpp
-BUG10283 DEFER WIN LINUX : LayoutTests/svg/W3C-SVG-1.1/pservers-grad-13-b.svg = FAIL
+BUG10283 WIN LINUX : LayoutTests/svg/W3C-SVG-1.1/pservers-grad-13-b.svg = FAIL
 
 // Merge 39744:39829 - regression
-BUG10284 DEFER RELEASE : LayoutTests/svg/custom/path-bad-data.svg = FAIL
+BUG10284 RELEASE : LayoutTests/svg/custom/path-bad-data.svg = FAIL
 
 // Upstream dumprendertree changes caused the expected to change.
 // Now our baseline is out of date, and we differ from Mac expected on the
 // caret position in the last line of the text output.
-BUG10285 DEFER WIN LINUX : LayoutTests/svg/custom/foreignObject-crash-on-hover.xml = FAIL
+BUG10285 WIN LINUX : LayoutTests/svg/custom/foreignObject-crash-on-hover.xml = FAIL
 
 // Merge 39744:39913? - regressions
-BUG10286 DEFER : LayoutTests/svg/W3C-SVG-1.1/animate-elem-02-t.svg = FAIL PASS
+BUG10286 : LayoutTests/svg/W3C-SVG-1.1/animate-elem-02-t.svg = FAIL PASS
 
-BUG10287 DEFER WIN LINUX : LayoutTests/svg/W3C-SVG-1.1/coords-units-01-b.svg = FAIL PASS
+BUG10287 WIN LINUX : LayoutTests/svg/W3C-SVG-1.1/coords-units-01-b.svg = FAIL PASS
 
-BUG10288 DEFER WIN LINUX : LayoutTests/svg/batik/text/verticalText.svg = FAIL
+BUG10288 WIN LINUX : LayoutTests/svg/batik/text/verticalText.svg = FAIL
 
-BUG10289 DEFER WIN LINUX : LayoutTests/svg/batik/masking/maskRegions.svg = FAIL
+BUG10289 WIN LINUX : LayoutTests/svg/batik/masking/maskRegions.svg = FAIL
 
-BUG10290 DEFER WIN LINUX : LayoutTests/svg/custom/image-small-width-height.svg = FAIL
+BUG10290 WIN LINUX : LayoutTests/svg/custom/image-small-width-height.svg = FAIL
 
 // Bug in Skia, see https://bugs.webkit.org/show_bug.cgi?id=24534 .
-BUG10291 DEFER WIN LINUX : LayoutTests/svg/W3C-SVG-1.1/pservers-grad-06-b.svg = FAIL
-BUG10291 DEFER WIN LINUX : LayoutTests/svg/batik/paints/patternRegionA.svg = FAIL
-BUG10291 DEFER WIN LINUX : LayoutTests/svg/W3C-SVG-1.1/pservers-pattern-01-b.svg = FAIL
+BUG10291 WIN LINUX : LayoutTests/svg/W3C-SVG-1.1/pservers-grad-06-b.svg = FAIL
+BUG10291 WIN LINUX : LayoutTests/svg/batik/paints/patternRegionA.svg = FAIL
+BUG10291 WIN LINUX : LayoutTests/svg/W3C-SVG-1.1/pservers-pattern-01-b.svg = FAIL
 
 // -----------------------------------------------------------------
 // End SVG Regressions
@@ -736,14 +733,14 @@ BUG10294 LINUX : LayoutTests/fast/frames/onlyCommentInIFrame.html = FAIL
 BUG10295 MAC : LayoutTests/fast/dom/prototype-chain.html = FAIL
 
 // Font differences, requiring overriden metrics, not a real bug, not fixing for Beta
-BUG10296 DEFER LINUX : LayoutTests/fast/text/international/bidi-AN-after-L.html = FAIL
-BUG10296 DEFER MAC : LayoutTests/fast/text/international/bidi-menulist.html = FAIL
-BUG10296 DEFER LINUX : LayoutTests/fast/text/international/bidi-neutral-run.html = FAIL
-BUG10296 DEFER LINUX : LayoutTests/fast/text/international/thai-line-breaks.html = FAIL
+BUG10296 LINUX : LayoutTests/fast/text/international/bidi-AN-after-L.html = FAIL
+BUG10296 MAC : LayoutTests/fast/text/international/bidi-menulist.html = FAIL
+BUG10296 LINUX : LayoutTests/fast/text/international/bidi-neutral-run.html = FAIL
+BUG10296 LINUX : LayoutTests/fast/text/international/thai-line-breaks.html = FAIL
 BUG10296 LINUX : LayoutTests/fast/transforms/transform-on-inline.html = FAIL
 BUG10296 LINUX : LayoutTests/fast/transforms/transform-table-row.html = FAIL
 BUG10296 LINUX : LayoutTests/svg/batik/paints/patternPreserveAspectRatioA.svg = CRASH FAIL
-BUG10296 DEFER MAC : LayoutTests/svg/batik/text/textFeatures.svg = FAIL PASS
+BUG10296 MAC : LayoutTests/svg/batik/text/textFeatures.svg = FAIL PASS
 // Needs to be rebaselined.
 BUG10296 LINUX : LayoutTests/svg/custom/deep-dynamic-updates.svg = CRASH FAIL
 BUG10296 LINUX : LayoutTests/svg/custom/foreign-object-skew.svg = FAIL
@@ -751,22 +748,22 @@ BUG10296 LINUX : LayoutTests/svg/W3C-SVG-1.1/animate-elem-33-t.svg = FAIL
 BUG10296 LINUX : LayoutTests/svg/W3C-SVG-1.1/pservers-grad-17-b.svg = FAIL
 BUG10296 LINUX : LayoutTests/svg/custom/gradient-stroke-width.svg = FAIL
 BUG10296 LINUX : LayoutTests/svg/custom/dominant-baseline-hanging.svg = FAIL
-BUG10296 DEFER MAC LINUX : LayoutTests/svg/batik/text/textDecoration2.svg = FAIL PASS
+BUG10296 MAC LINUX : LayoutTests/svg/batik/text/textDecoration2.svg = FAIL PASS
 BUG10296 LINUX : LayoutTests/svg/batik/text/textLength.svg = FAIL
-BUG10296 DEFER MAC LINUX : LayoutTests/svg/batik/text/textProperties.svg = FAIL PASS
+BUG10296 MAC LINUX : LayoutTests/svg/batik/text/textProperties.svg = FAIL PASS
 BUG10296 LINUX : LayoutTests/svg/custom/gradient-stop-corner-cases.svg = FAIL
 BUG10296 LINUX : LayoutTests/svg/custom/pattern-deep-referencing.svg = FAIL
 BUG10296 LINUX : LayoutTests/svg/custom/text-dom-01-f.svg = FAIL
-BUG10296 DEFER LINUX : LayoutTests/svg/hixie/perf/007.xml = FAIL
-BUG10296 DEFER LINUX : LayoutTests/svg/hixie/text/003a.xml = FAIL
-BUG10296 DEFER LINUX : LayoutTests/svg/hixie/viewbox/preserveAspectRatio/001.xml = FAIL
-BUG10296 DEFER LINUX : LayoutTests/svg/hixie/viewbox/preserveAspectRatio/002.xml = FAIL
-BUG10296 DEFER LINUX : LayoutTests/svg/W3C-SVG-1.1/animate-elem-36-t.svg = FAIL
+BUG10296 LINUX : LayoutTests/svg/hixie/perf/007.xml = FAIL
+BUG10296 LINUX : LayoutTests/svg/hixie/text/003a.xml = FAIL
+BUG10296 LINUX : LayoutTests/svg/hixie/viewbox/preserveAspectRatio/001.xml = FAIL
+BUG10296 LINUX : LayoutTests/svg/hixie/viewbox/preserveAspectRatio/002.xml = FAIL
+BUG10296 LINUX : LayoutTests/svg/W3C-SVG-1.1/animate-elem-36-t.svg = FAIL
 BUG10296 LINUX : LayoutTests/svg/W3C-SVG-1.1/animate-elem-40-t.svg = FAIL
 BUG10296 LINUX : LayoutTests/svg/W3C-SVG-1.1/animate-elem-41-t.svg = FAIL
 BUG10296 LINUX : LayoutTests/svg/W3C-SVG-1.1/animate-elem-81-t.svg = FAIL PASS
 BUG10296 LINUX : LayoutTests/svg/W3C-SVG-1.1/pservers-grad-14-b.svg = FAIL
-BUG10296 DEFER MAC LINUX : LayoutTests/svg/W3C-SVG-1.1/text-text-03-b.svg = FAIL PASS
+BUG10296 MAC LINUX : LayoutTests/svg/W3C-SVG-1.1/text-text-03-b.svg = FAIL PASS
 
 // Pixel test passes. Texts differ by 1 on SVGRenderText bounding box.
 BUG10297 LINUX : LayoutTests/svg/custom/scrolling-embedded-svg-file-image-repaint-problem.html = FAIL
@@ -784,13 +781,13 @@ BUG10299 LINUX : LayoutTests/svg/custom/pointer-events-text.svg = FAIL
 // or might be expected and that we should either go with the buildbot output
 // or change the test upstream to specify explicitly what font to use.
 // The mask part of this test is totally wrong.
-BUG3244 DEFER LINUX WIN : LayoutTests/fast/backgrounds/svg-as-background-6.html = FAIL
+BUG3244 LINUX WIN : LayoutTests/fast/backgrounds/svg-as-background-6.html = FAIL
 
 // The failures listed below have never passed in Chromium and need to be
 // investigated, categorized, and (one hopes) fixed.
 
 // The following tests fail because SVG animation is not yet implemented
-BUG992321 DEFER LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/animate-elem-78-t.svg = FAIL
+BUG992321 LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/animate-elem-78-t.svg = FAIL
 
 // These test fail full text diff (but not simplified diff) most likely due
 // to differing implementations of SVG fonts. They may or may not represent
@@ -798,14 +795,14 @@ BUG992321 DEFER LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/animate-elem-78-t.svg = 
 
 // pixeltest failure: font baseline should be on the path, not the centerline
 // There's no baseline at all for this!
-BUG992321 DEFER SKIP : LayoutTests/svg/batik/text/smallFonts.svg = FAIL
-BUG992321 DEFER : LayoutTests/svg/batik/text/textBiDi.svg = FAIL
+BUG992321 SKIP : LayoutTests/svg/batik/text/smallFonts.svg = FAIL
+BUG992321 : LayoutTests/svg/batik/text/textBiDi.svg = FAIL
 
 // pixeltest failure: font baseline should be on the path, not the centerline
-BUG992321 DEFER LINUX WIN : LayoutTests/svg/batik/text/textOnPath.svg = FAIL
+BUG992321 LINUX WIN : LayoutTests/svg/batik/text/textOnPath.svg = FAIL
 // pixeltest failure: font baseline should be on the path, not the centerline
-BUG992321 DEFER LINUX WIN : LayoutTests/svg/batik/text/verticalTextOnPath.svg = FAIL
-BUG992321 DEFER LINUX WIN : LayoutTests/svg/custom/path-textPath-simulation.svg = FAIL
+BUG992321 LINUX WIN : LayoutTests/svg/batik/text/verticalTextOnPath.svg = FAIL
+BUG992321 LINUX WIN : LayoutTests/svg/custom/path-textPath-simulation.svg = FAIL
 
 // This test fails because of an oddity in stroke width calculation. A
 // line is stroked horizontally from Y=100 with stroke width 100, we consider
@@ -814,24 +811,24 @@ BUG992321 DEFER LINUX WIN : LayoutTests/svg/custom/path-textPath-simulation.svg 
 // well. The specification isn't very specific on which behavior is correct,
 // but I feel like ours makes more sense.
 // The crash started occuring after the WebKit merge 43242:43321
-BUG992321 DEFER : LayoutTests/svg/custom/stroke-width-click.svg = FAIL CRASH
+BUG992321 : LayoutTests/svg/custom/stroke-width-click.svg = FAIL CRASH
 
 // These tests all pass simplified diff, but fail full text diffs due to
 // positions and/or widths that deviate from Apple's expectations by varying
 // degrees. These are almost certainly nonbugs, but won't be rebased until
 // we can say for sure.
 // The red marker is not drawing the same way as the mac.
-BUG992321 DEFER LINUX WIN : LayoutTests/svg/custom/marker-changes.svg = PASS FAIL
+BUG992321 LINUX WIN : LayoutTests/svg/custom/marker-changes.svg = PASS FAIL
 // 11 numbers differ, by an absolute total of 4.69
-BUG992321 DEFER : LayoutTests/svg/custom/use-on-symbol-inside-pattern.svg = FAIL
+BUG992321 : LayoutTests/svg/custom/use-on-symbol-inside-pattern.svg = FAIL
 // There are gaps in the whiskers of the tiger
-BUG992321 DEFER LINUX WIN : LayoutTests/svg/hixie/perf/001.xml = FAIL
-BUG992321 DEFER LINUX WIN : LayoutTests/svg/hixie/perf/002.xml = FAIL
+BUG992321 LINUX WIN : LayoutTests/svg/hixie/perf/001.xml = FAIL
+BUG992321 LINUX WIN : LayoutTests/svg/hixie/perf/002.xml = FAIL
 // 1 numbers differ, by an absolute total of 1.00
-BUG992321 DEFER LINUX WIN : LayoutTests/svg/hixie/text/003.html = FAIL
+BUG992321 LINUX WIN : LayoutTests/svg/hixie/text/003.html = FAIL
 
 // SVG combined with font metrics.
-BUG992321 DEFER LINUX : LayoutTests/svg/hixie/text/001-broken.xml = FAIL
+BUG992321 LINUX : LayoutTests/svg/hixie/text/001-broken.xml = FAIL
 
 // This is an interesting one.
 // The test has an error which causes it to output a message to the console.
@@ -846,25 +843,25 @@ BUG992321 DEFER LINUX : LayoutTests/svg/hixie/text/001-broken.xml = FAIL
 // failure in any way and nothing needs to be done to fix it. I'm leaving it
 // in tests_fixable in case we change the test shell's webview delegate to
 // ignore console messages while doing a pixel dump
-BUG992321 DEFER : LayoutTests/svg/custom/clip-path-referencing-use2.svg = FAIL PASS
+BUG992321 : LayoutTests/svg/custom/clip-path-referencing-use2.svg = FAIL PASS
 
 // These flakily fail image diffs.  Punting on SVG for now.
 // Note that the "expected" images checked in are not necessarily correct.
 // pixeltest failure: font baseline should be on the path, not the centerline
-BUG1107191 DEFER : LayoutTests/svg/batik/text/textStyles.svg = FAIL PASS
+BUG1107191 : LayoutTests/svg/batik/text/textStyles.svg = FAIL PASS
 
 // These two tests have a highlight color that is different from the Mac,
 // which is normal because selection color is different between Mac and
 // Windows, but even so it still doesn't look identical because there is still
 // some problem with the fill color for the text.
-BUG10300 DEFER WIN LINUX : LayoutTests/svg/text/text-deco-01-b.svg = FAIL
+BUG10300 WIN LINUX : LayoutTests/svg/text/text-deco-01-b.svg = FAIL
 BUG10300 MAC LINUX : LayoutTests/svg/text/text-text-08-b.svg = FAIL PASS
 
 // SVG masks aren't quite working yet.
 // Might also be related to https://bugs.webkit.org/show_bug.cgi?id=21910
 // New tests. We should fix these, but they don't need to block the current release
-BUG3244 DEFER LINUX WIN : LayoutTests/fast/backgrounds/svg-as-mask.html = FAIL
-BUG3244 DEFER LINUX WIN : LayoutTests/fast/backgrounds/animated-svg-as-mask.html = FAIL
+BUG3244 LINUX WIN : LayoutTests/fast/backgrounds/svg-as-mask.html = FAIL
+BUG3244 LINUX WIN : LayoutTests/fast/backgrounds/animated-svg-as-mask.html = FAIL
 
 // Needs rebaseline.
 BUG10301 LINUX : LayoutTests/svg/W3C-SVG-1.1/animate-elem-34-t.svg = FAIL
@@ -876,7 +873,7 @@ BUG10303 LINUX : LayoutTests/svg/custom/pattern-rotate.svg = FAIL
 // The pattern we generate appears to be scaled incorrectly.
 // Expectations for this test changed upstream. We should fix this test, but
 // it doesn't need to block the current release
-BUG10303 DEFER WIN LINUX : LayoutTests/svg/custom/pointer-events-image.svg = FAIL
+BUG10303 WIN LINUX : LayoutTests/svg/custom/pointer-events-image.svg = FAIL
 
 
 // I find it hard to care too much about SVG failures.
@@ -911,20 +908,20 @@ BUG10304 LINUX : LayoutTests/svg/W3C-SVG-1.1/fonts-elem-05-t.svg = FAIL
 BUG10304 LINUX : LayoutTests/svg/W3C-SVG-1.1/fonts-elem-06-t.svg = FAIL
 BUG10304 LINUX : LayoutTests/svg/W3C-SVG-1.1/fonts-elem-07-b.svg = FAIL
 // Our gradients are wrong here.
-BUG10304 DEFER WIN LINUX : LayoutTests/svg/W3C-SVG-1.1/pservers-grad-08-b.svg = FAIL
+BUG10304 WIN LINUX : LayoutTests/svg/W3C-SVG-1.1/pservers-grad-08-b.svg = FAIL
 BUG10304 LINUX : LayoutTests/svg/carto.net/button.svg = FAIL
 
 // New tests. We should fix these, but they don't need to block the current release
-BUG10305 DEFER WIN LINUX : LayoutTests/svg/custom/getscreenctm-in-mixed-content2.xhtml = FAIL
-BUG10305 DEFER WIN LINUX : LayoutTests/svg/custom/use-instanceRoot-as-event-target.xhtml = FAIL
-BUG10305 DEFER : LayoutTests/svg/custom/use-instanceRoot-event-listeners.xhtml = FAIL
+BUG10305 WIN LINUX : LayoutTests/svg/custom/getscreenctm-in-mixed-content2.xhtml = FAIL
+BUG10305 WIN LINUX : LayoutTests/svg/custom/use-instanceRoot-as-event-target.xhtml = FAIL
+BUG10305 : LayoutTests/svg/custom/use-instanceRoot-event-listeners.xhtml = FAIL
 
 BUG10306 LINUX : LayoutTests/svg/carto.net/combobox.svg = FAIL
 
 // These have been failing for as long as we've had SVG support and were
 // incorrectly removed during a merge.
-BUG10307 DEFER WIN LINUX : LayoutTests/svg/W3C-SVG-1.1/filters-example-01-b.svg = FAIL
-BUG10307 DEFER WIN LINUX : LayoutTests/svg/W3C-SVG-1.1/struct-group-03-t.svg = FAIL
+BUG10307 WIN LINUX : LayoutTests/svg/W3C-SVG-1.1/filters-example-01-b.svg = FAIL
+BUG10307 WIN LINUX : LayoutTests/svg/W3C-SVG-1.1/struct-group-03-t.svg = FAIL
 
 BUG10308 LINUX : LayoutTests/svg/dynamic-updates/SVGEllipseElement-svgdom-cx-prop.html = CRASH PASS
 
@@ -937,7 +934,7 @@ BUG10310 LINUX : LayoutTests/svg/W3C-SVG-1.1/masking-opacity-01-b.svg = FAIL
 
 // Fixed upstream, see https://bugs.webkit.org/show_bug.cgi?id=21910.
 // However, we need to support focal point for radial gradients.
-BUG8696 DEFER LINUX WIN : LayoutTests/fast/backgrounds/svg-as-background-3.html = FAIL
+BUG8696 LINUX WIN : LayoutTests/fast/backgrounds/svg-as-background-3.html = FAIL
 
 //
 // -----------------------------------------------------------------
@@ -947,37 +944,37 @@ BUG8696 DEFER LINUX WIN : LayoutTests/fast/backgrounds/svg-as-background-3.html 
 // This fails because of differences between how CG and Skia tests for
 // a point in a path. See
 // http://code.google.com/p/chromium/issues/detail?id=7465 for details.
-BUG10311 DEFER WIN LINUX : LayoutTests/fast/canvas/pointInPath.html = FAIL
+BUG10311 WIN LINUX : LayoutTests/fast/canvas/pointInPath.html = FAIL
 
 // Following tests are failing because Chrome does not allow file url
 // to access non-file urls.
 // TODO(port): mac is passing these, does that mean something is wrong?
-BUG1026885 DEFER LINUX WIN : LayoutTests/editing/selection/4960137.html = FAIL
+BUG1026885 LINUX WIN : LayoutTests/editing/selection/4960137.html = FAIL
 
 // These fail the pixel tests in debug mode because they have
 // unpainted space (filled red in Debug but not in Release).
 // https://bugs.webkit.org/show_bug.cgi?id=8423
-BUG1115062 DEFER : LayoutTests/tables/mozilla_expected_failures/bugs/bug178855.xml = FAIL PASS
-BUG1115062 DEFER WIN MAC DEBUG : LayoutTests/fast/flexbox/flex-hang.html = FAIL PASS
+BUG1115062 : LayoutTests/tables/mozilla_expected_failures/bugs/bug178855.xml = FAIL PASS
+BUG1115062 WIN MAC DEBUG : LayoutTests/fast/flexbox/flex-hang.html = FAIL PASS
 
 // Fails on webkit windows as well.
-BUG1166644 DEFER WIN LINUX : LayoutTests/fast/events/attempt-scroll-with-no-scrollbars.html = FAIL
+BUG1166644 WIN LINUX : LayoutTests/fast/events/attempt-scroll-with-no-scrollbars.html = FAIL
 
 // The test may require a proper version of Java 6 RC 10 plugin
 // installed to run.
-BUG10313 DEFER : LayoutTests/plugins/bindings-test.html = FAIL
+BUG10313 : LayoutTests/plugins/bindings-test.html = FAIL
 
 // These tests don't work on the open source buildbot because no font covers
 // U+2798 (Heavy SE Arrow) and U+2799 (Heavy Rightwards Arrow). See bug #2304.
-BUG10314 DEFER WIN : LayoutTests/css2.1/t0805-c5519-brdr-r-01-e.html = FAIL
-BUG10314 DEFER WIN : LayoutTests/css2.1/t0905-c5525-fltblck-00-d-ag.html = FAIL
-BUG10314 DEFER WIN LINUX : LayoutTests/css2.1/t0905-c414-flt-fit-01-d-g.html = FAIL
-BUG10314 DEFER WIN LINUX : LayoutTests/css2.1/t0905-c5525-flthw-00-c-g.html = FAIL
-BUG10314 DEFER WIN LINUX : LayoutTests/css2.1/t0905-c5526-flthw-00-c-g.html = FAIL
+BUG10314 WIN : LayoutTests/css2.1/t0805-c5519-brdr-r-01-e.html = FAIL
+BUG10314 WIN : LayoutTests/css2.1/t0905-c5525-fltblck-00-d-ag.html = FAIL
+BUG10314 WIN LINUX : LayoutTests/css2.1/t0905-c414-flt-fit-01-d-g.html = FAIL
+BUG10314 WIN LINUX : LayoutTests/css2.1/t0905-c5525-flthw-00-c-g.html = FAIL
+BUG10314 WIN LINUX : LayoutTests/css2.1/t0905-c5526-flthw-00-c-g.html = FAIL
 
 // No glyph for U+FFFD (Replacement Character : black diamond with
 // question mark) in them
-BUG10315 DEFER WIN LINUX : LayoutTests/fast/encoding/invalid-UTF-8.html = FAIL
+BUG10315 WIN LINUX : LayoutTests/fast/encoding/invalid-UTF-8.html = FAIL
 
 // HTTPS tests fail on the open source buildbot with error "cross-site
 // not access allowed".  See bug # 2306
@@ -987,14 +984,14 @@ BUG10316 MAC : LayoutTests/http/tests/ssl/verify-ssl-enabled.php = FAIL PASS
 // they're all timing out.  TODO(tc): Upstream changes to the test so they
 // fail quickly if window.applicationCache is undefined (then we don't have to
 // skip them).
-BUG2844 DEFER SKIP : LayoutTests/http/tests/appcache = TIMEOUT FAIL
+BUG2844 SKIP : LayoutTests/http/tests/appcache = TIMEOUT FAIL
 
 // V8 failures as a result of the WebKit merge.
 // http://code.google.com/p/v8/issues/detail?id=92
 
 // v8: A setter that is added to a prototype after the inline cache is
 // recorded will not be called.
-BUG1344252 DEFER : LayoutTests/fast/js/pic/cached-prototype-setter.html = FAIL
+BUG1344252 : LayoutTests/fast/js/pic/cached-prototype-setter.html = FAIL
 
 // We have the wrong shadow for "This".
 // It appears we're not obeying the "transparent" fill color.
@@ -1003,28 +1000,28 @@ BUG10317 LINUX : LayoutTests/fast/css/shadow-multiple.html = FAIL
 // Problems with getImageData and toDataURL.
 // We should fix this test, but it wasn't passing for the 1.0 release, so
 // it doesn't need to block the current release
-BUG2972 DEFER LINUX WIN : LayoutTests/fast/canvas/canvas-getImageData.html = FAIL
+BUG2972 LINUX WIN : LayoutTests/fast/canvas/canvas-getImageData.html = FAIL
 
 // We're much closer now. To fully pass this we need encoders for jpg
 // and gif, which is a low priority.
-BUG10318 DEFER WIN LINUX : LayoutTests/fast/canvas/toDataURL-supportedTypes.html = FAIL
+BUG10318 WIN LINUX : LayoutTests/fast/canvas/toDataURL-supportedTypes.html = FAIL
 
 // More tests that fail because of masks not working properly.
 // New tests. We should fix these, but they don't need to block the current release
-BUG10319 DEFER WIN LINUX : LayoutTests/fast/backgrounds/mask-composite.html = FAIL
-BUG10319 DEFER WIN LINUX : LayoutTests/fast/backgrounds/repeat/mask-negative-offset-repeat.html = FAIL
-BUG10319 DEFER WIN LINUX : LayoutTests/fast/borders/block-mask-overlay-image.html = FAIL
-BUG10319 DEFER WIN LINUX : LayoutTests/fast/borders/inline-mask-overlay-image.html = FAIL
+BUG10319 WIN LINUX : LayoutTests/fast/backgrounds/mask-composite.html = FAIL
+BUG10319 WIN LINUX : LayoutTests/fast/backgrounds/repeat/mask-negative-offset-repeat.html = FAIL
+BUG10319 WIN LINUX : LayoutTests/fast/borders/block-mask-overlay-image.html = FAIL
+BUG10319 WIN LINUX : LayoutTests/fast/borders/inline-mask-overlay-image.html = FAIL
 
 // This test finishes while in the middle of a CSS animation. This is
 // intentional, but it makes pixel results unreliable.
 // http://bugs.webkit.org/show_bug.cgi?id=21491
 // CSS animations should not block our next release.
-BUG10320 DEFER SKIP : LayoutTests/transitions/opacity-transition-zindex.html = PASS
+BUG10320 SKIP : LayoutTests/transitions/opacity-transition-zindex.html = PASS
 
 // Issue 3273: TextInputController::firstRectForCharacterRange not implemented
 // http://code.google.com/p/chromium/issues/detail?id=3273
-BUG10321 DEFER : LayoutTests/editing/selection/move-left-right.html = FAIL
+BUG10321 : LayoutTests/editing/selection/move-left-right.html = FAIL
 
 // Regression from the 41362:41402 merge.
 BUG8402 MAC : LayoutTests/fast/forms/drag-out-of-textarea.html = FAIL PASS
@@ -1032,7 +1029,7 @@ BUG8402 MAC : LayoutTests/fast/forms/drag-out-of-textarea.html = FAIL PASS
 // This test fails because (in Chromium) it includes the full path to the
 // subframe URL.  Need to teach dumpResourceLoadCallbacks() about relative
 // URLs.
-BUG8407 DEFER : LayoutTests/fast/loader/main-document-url-for-non-http-loads.html = FAIL
+BUG8407 : LayoutTests/fast/loader/main-document-url-for-non-http-loads.html = FAIL
 
 // ----------------------------------------------------------------------------
 // NEW FOR THE MERGE
@@ -1043,38 +1040,38 @@ BUG8407 DEFER : LayoutTests/fast/loader/main-document-url-for-non-http-loads.htm
 
 // Accessibility is off in the browser, and accessibility is not a priority
 // for the current release.
-BUG10322 DEFER : LayoutTests/accessibility = FAIL
+BUG10322 : LayoutTests/accessibility = FAIL
 // Border radius not anti-aliased.
 // New test. We should fix it, but it doesn't need to block the current release
-BUG10322 DEFER WIN : LayoutTests/fast/borders/fieldsetBorderRadius.html = FAIL
+BUG10322 WIN : LayoutTests/fast/borders/fieldsetBorderRadius.html = FAIL
 // Linux pixeltest failure: radial gradients don't have offset focal point
-BUG10322 DEFER WIN LINUX : LayoutTests/fast/gradients/generated-gradients.html = FAIL
+BUG10322 WIN LINUX : LayoutTests/fast/gradients/generated-gradients.html = FAIL
 // Linux pixeltest failure: radial gradients don't have offset focal point
 // New test. We should fix it, but it doesn't need to block the current release
-BUG10322 DEFER WIN LINUX : LayoutTests/fast/gradients/simple-gradients.html = FAIL
+BUG10322 WIN LINUX : LayoutTests/fast/gradients/simple-gradients.html = FAIL
 // This test isn't hanging, it just takes 12-13 seconds to run.
 BUG10322 SLOW : LayoutTests/http/tests/misc/acid3.html = FAIL
 
 // Expectations for this test changed upstream. We should fix this test, but
 // it doesn't need to block the current release
-BUG10323 DEFER : LayoutTests/http/tests/xmlhttprequest/xmlhttprequest-no-content-length-onProgress.html = FAIL
+BUG10323 : LayoutTests/http/tests/xmlhttprequest/xmlhttprequest-no-content-length-onProgress.html = FAIL
 
 // Times out because this uses dom storage which we don't implement.
-BUG4360 DEFER SKIP : LayoutTests/security/autocomplete-cleared-on-back.html = TIMEOUT
+BUG4360 SKIP : LayoutTests/security/autocomplete-cleared-on-back.html = TIMEOUT
 
 // Post-MERGE failures: these will all need to be fixed one day
 
 // Linux pixeltest failure: caret is in the wrong place
 // Upstream WebKit also skips this test and Safari with latest WebKit shows
 // same behavior as Chromium. Not required for beta so marking as deferred.
-BUG10324 DEFER WIN LINUX : LayoutTests/editing/selection/caret-rtl-2.html = FAIL
+BUG10324 WIN LINUX : LayoutTests/editing/selection/caret-rtl-2.html = FAIL
 
 // This test assumes we're using unix paths and looks for a file:///test
 // path.  We correctly return file:///C:/test on Windows.  We should fix
 // upstream
 // Expectations for this test changed upstream. We should fix this test, but
 // it doesn't need to block the current release
-BUG10325 DEFER WIN : LayoutTests/fast/dom/resource-locations-in-created-html-document.html = FAIL
+BUG10325 WIN : LayoutTests/fast/dom/resource-locations-in-created-html-document.html = FAIL
 
 BUG10326 : LayoutTests/http/tests/messaging/cross-domain-message-event-dispatch.html = TIMEOUT FAIL PASS
 // See recent changes to test_shell_win.
@@ -1082,24 +1079,24 @@ BUG10326 LINUX : LayoutTests/http/tests/navigation/metaredirect-basic.html = FAI
 
 // GURL/KURL difference in handling of "http:".
 // New test. We should fix it, but it doesn't need to block the current release
-BUG7386 DEFER : LayoutTests/http/tests/security/postMessage/invalid-origin-throws-exception.html = FAIL
+BUG7386 : LayoutTests/http/tests/security/postMessage/invalid-origin-throws-exception.html = FAIL
 
 // Linux pixeltest failure: Font mismatch
 BUG10327 LINUX : LayoutTests/tables/mozilla_expected_failures/bugs/bug14007-2.html = FAIL
 
 // This test seems to fail on the builders but not locally.
 // New test. We should fix it, but it doesn't need to block the current release
-BUG10328 DEFER WIN LINUX : LayoutTests/fast/css/font-face-multiple-faces.html = FAIL
+BUG10328 WIN LINUX : LayoutTests/fast/css/font-face-multiple-faces.html = FAIL
 
 // Got flakey (both debug and release) around r3581 (ananta).
 // New test. We should fix it, but it doesn't need to block the current release
-BUG10329 DEFER WIN : LayoutTests/http/tests/plugins/geturlnotify-from-npp-destroystream.html = FAIL PASS
+BUG10329 WIN : LayoutTests/http/tests/plugins/geturlnotify-from-npp-destroystream.html = FAIL PASS
 
 // This test is timing sensitive and sometimes fails.  However, other tests
 // in the LayoutTests/animations/ directory are timing sensitive in the same
 // way.  Maybe this is just flaky because it's animating faster?
 // Doesn't need to block our next release.
-BUG10330 DEFER : LayoutTests/animations/big-rotation.html = FAIL PASS
+BUG10330 : LayoutTests/animations/big-rotation.html = FAIL PASS
 
 // Uses ahem font and expects line heights to match some pixel value.
 // We should be able to pass this -- not sure what's wrong.
@@ -1221,18 +1218,18 @@ BUG10667 MAC : pending/plugins/iframe-shims.html = FAIL CRASH
 
 // We don't draw the spelling markers at all in test shell, and it's a low
 // priority, so I'm DEFERing.
-BUG10352 DEFER WIN LINUX : LayoutTests/editing/spelling/inline_spelling_markers.html = FAIL
+BUG10352 WIN LINUX : LayoutTests/editing/spelling/inline_spelling_markers.html = FAIL
 // New test. We should fix it, but it doesn't need to block the current release
-BUG10352 DEFER : LayoutTests/fast/js/arguments.html = FAIL
+BUG10352 : LayoutTests/fast/js/arguments.html = FAIL
 // New test. We should fix it, but it doesn't need to block the current release
-BUG10352 DEFER : LayoutTests/fast/js/primitive-method-this.html = FAIL
+BUG10352 : LayoutTests/fast/js/primitive-method-this.html = FAIL
 // See bug http://code.google.com/p/chromium/issues/detail?id=7868,
 // not urgent for current release.
-BUG10352 DEFER : LayoutTests/http/tests/plugins/local-geturl-from-remote.html = FAIL
+BUG10352 : LayoutTests/http/tests/plugins/local-geturl-from-remote.html = FAIL
 // These two depend on which webkit features are enabled.  For instance, it checks
 // if the Audio constructor is available which is only the case if AUDIO is enabled.
-BUG10352 DEFER : LayoutTests/fast/dom/constructors-cached-navigate.html = FAIL
-BUG10352 DEFER LINUX MAC : LayoutTests/fast/dom/constructors-cached.html = FAIL
+BUG10352 : LayoutTests/fast/dom/constructors-cached-navigate.html = FAIL
+BUG10352 LINUX MAC : LayoutTests/fast/dom/constructors-cached.html = FAIL
 
 // MERGE REGRESSIONS 36102:37604
 
@@ -1240,10 +1237,10 @@ BUG10353 LINUX : LayoutTests/fast/events/mouse-click-events.html = FAIL
 // These tests are wrong because of:
 // https://bugs.webkit.org/show_bug.cgi?id=24161. This is not
 // important for current release.
-BUG10353 DEFER WIN LINUX : LayoutTests/fast/forms/listbox-deselect-scroll.html = FAIL
-BUG10353 DEFER WIN LINUX : LayoutTests/fast/forms/listbox-selection-2.html = FAIL
-BUG10353 DEFER WIN LINUX : LayoutTests/fast/forms/select-item-background-clip.html = FAIL
-BUG10353 DEFER WIN LINUX : LayoutTests/fast/forms/textarea-rows-cols.html = FAIL
+BUG10353 WIN LINUX : LayoutTests/fast/forms/listbox-deselect-scroll.html = FAIL
+BUG10353 WIN LINUX : LayoutTests/fast/forms/listbox-selection-2.html = FAIL
+BUG10353 WIN LINUX : LayoutTests/fast/forms/select-item-background-clip.html = FAIL
+BUG10353 WIN LINUX : LayoutTests/fast/forms/textarea-rows-cols.html = FAIL
 // Linux pixeltest failure: We, with Windows, are failing to repaint correctly
 BUG10353 WIN LINUX : LayoutTests/fast/repaint/overflow-outline-repaint.html = FAIL
 BUG10353 WIN : LayoutTests/fast/repaint/overflow-scroll-delete.html = FAIL
@@ -1264,19 +1261,19 @@ BUG10353 DEBUG MAC : LayoutTests/http/tests/misc/dns-prefetch-control.html = TIM
 // important - we might even want to ignore it.
 // New tests. We should fix these, but they doesn't need to block the current
 // release
-BUG10354 DEFER WIN LINUX : LayoutTests/fast/layers/opacity-transforms.html = FAIL
-BUG10354 DEFER : LayoutTests/plugins/netscape-construct.html = FAIL
+BUG10354 WIN LINUX : LayoutTests/fast/layers/opacity-transforms.html = FAIL
+BUG10354 : LayoutTests/plugins/netscape-construct.html = FAIL
 
 // MERGE 37604:38097 REGRESSIONS
 // New test. We should fix it, but it doesn't need to block the current release
-BUG10355 DEFER : LayoutTests/http/tests/security/originHeader/origin-header-for-empty.html = TIMEOUT FAIL PASS
+BUG10355 : LayoutTests/http/tests/security/originHeader/origin-header-for-empty.html = TIMEOUT FAIL PASS
 
 BUG10356 MAC : LayoutTests/http/tests/security/originHeader/origin-header-for-https.html = TIMEOUT FAIL
 
 // MERGE 38389:38450
 // WebKit regression: https://bugs.webkit.org/show_bug.cgi?id=20342
 // Fails upstream, deferring for now.
-BUG10357 DEFER : LayoutTests/fast/dom/cssTarget-crash.html = TIMEOUT
+BUG10357 : LayoutTests/fast/dom/cssTarget-crash.html = TIMEOUT
 
 // MERGE 38500:39550: New tests
 // Missing expected results
@@ -1288,19 +1285,19 @@ BUG10359 MAC : LayoutTests/fast/css/getComputedStyle/computed-style-without-rend
 // MERGE 38625:38653: New tests
 BUG10360 MAC : LayoutTests/fast/css/getComputedStyle/computed-style.html = FAIL
 // New test. We should fix it, but it doesn't need to block the current release
-BUG10360 DEFER WIN LINUX : LayoutTests/fast/repaint/change-transform.html = FAIL
+BUG10360 WIN LINUX : LayoutTests/fast/repaint/change-transform.html = FAIL
 
 // MERGE 38653:38729: New tests
 // New test. We should fix it, but it doesn't need to block the current release
-BUG10361 DEFER WIN LINUX : LayoutTests/fast/repaint/outline-child-repaint.html = FAIL
+BUG10361 WIN LINUX : LayoutTests/fast/repaint/outline-child-repaint.html = FAIL
 // New test. We should fix it, but it doesn't need to block the current release
-BUG10361 DEFER : LayoutTests/http/tests/misc/single-character-pi-stylesheet.xhtml = FAIL
+BUG10361 : LayoutTests/http/tests/misc/single-character-pi-stylesheet.xhtml = FAIL
 
 // MERGE 38729:38760: Regressions
 BUG10362 LINUX : LayoutTests/editing/pasteboard/subframe-dragndrop-1.html = FAIL
 
 // Windows is missing the green box.
-BUG8729 DEFER WIN : LayoutTests/http/tests/multipart/invalid-image-data.html = FAIL
+BUG8729 WIN : LayoutTests/http/tests/multipart/invalid-image-data.html = FAIL
 
 // This is a repaint test. When it passes, the pixel results will show a white
 // background for only the last couple of lines, instead of the whole
@@ -1492,15 +1489,15 @@ BUG10384 MAC : LayoutTests/fast/dom/Window/window-open-self-from-other-frame.htm
 // WebKit Merge 38850:38900 new tests
 
 // New test. We should fix it, but it doesn't need to block the current release
-BUG10385 DEFER : LayoutTests/fast/dom/dom-constructors.html = FAIL
+BUG10385 : LayoutTests/fast/dom/dom-constructors.html = FAIL
 
 // WebKit Merge 39050:39100 failures:
 // New test. We should fix it, but it doesn't need to block the current release
-BUG10386 DEFER WIN LINUX : LayoutTests/fast/repaint/transform-repaint-descendants.html = FAIL
+BUG10386 WIN LINUX : LayoutTests/fast/repaint/transform-repaint-descendants.html = FAIL
 
 // WebKit Merge 39100:39141 new tests:
 // New test. We should fix it, but it doesn't need to block the current release
-BUG10387 DEFER SKIP : LayoutTests/http/tests/xmlhttprequest/xmlhttprequest-image-not-loaded-svg.svg = FAIL
+BUG10387 SKIP : LayoutTests/http/tests/xmlhttprequest/xmlhttprequest-image-not-loaded-svg.svg = FAIL
 
 // Windows pixeltest failure: alpha=0.5 red does not come out blended.
 // Linux pixeltest failure: alpha=0.5 red (1,0,0) atop yellow (1,1,0) is
@@ -1514,12 +1511,12 @@ BUG10388 LINUX : LayoutTests/fast/layers/layer-visibility-sublayer.html = FAIL P
 // Repaint tests, so the expected output should look like the
 // Mac where everything is dark gray.
 // We should fix these, but they're new tests. Don't need to block next release
-BUG10389 DEFER WIN LINUX : LayoutTests/fast/repaint/table-cell-collapsed-border.html = FAIL
-BUG10389 DEFER WIN LINUX : LayoutTests/fast/repaint/transform-absolute-child.html = FAIL
-BUG10389 DEFER WIN LINUX : LayoutTests/fast/canvas/canvas-as-image-incremental-repaint.html = FAIL
-BUG10389 DEFER WIN LINUX : LayoutTests/fast/canvas/canvas-incremental-repaint.html = FAIL
-BUG10389 DEFER WIN LINUX : LayoutTests/fast/repaint/create-layer-repaint.html = FAIL
-BUG10389 DEFER WIN LINUX : LayoutTests/fast/repaint/reflection-redraw.html = FAIL
+BUG10389 WIN LINUX : LayoutTests/fast/repaint/table-cell-collapsed-border.html = FAIL
+BUG10389 WIN LINUX : LayoutTests/fast/repaint/transform-absolute-child.html = FAIL
+BUG10389 WIN LINUX : LayoutTests/fast/canvas/canvas-as-image-incremental-repaint.html = FAIL
+BUG10389 WIN LINUX : LayoutTests/fast/canvas/canvas-incremental-repaint.html = FAIL
+BUG10389 WIN LINUX : LayoutTests/fast/repaint/create-layer-repaint.html = FAIL
+BUG10389 WIN LINUX : LayoutTests/fast/repaint/reflection-redraw.html = FAIL
 
 // Linux pixeltest failure: Failing to rotate the form control
 BUG10390 LINUX : LayoutTests/fast/transforms/transformed-focused-text-input.html = FAIL
@@ -1538,23 +1535,23 @@ BUG8291 LINUX WIN : LayoutTests/fast/css/beforeSelectorOnCodeElement.html = CRAS
 // we don't support.  Needs more investigation.
 // Expectations for this test changed upstream. We should fix this test, but
 // it doesn't need to block the current release
-BUG10393 DEFER : LayoutTests/http/tests/security/feed-urls-from-remote.html = FAIL PASS
+BUG10393 : LayoutTests/http/tests/security/feed-urls-from-remote.html = FAIL PASS
 
 // Skipped as this tests window.sessionStorage, which we don't
 // support. Enable once we turn on DOM_STORAGE.
-BUG4360 DEFER SKIP : LayoutTests/http/tests/navigation/post-goback-repost-policy.html = TIMEOUT
+BUG4360 SKIP : LayoutTests/http/tests/navigation/post-goback-repost-policy.html = TIMEOUT
 
 // Probably just needs to be rebaselined.  We generate the png before the
 // image in the iframe loads so its dimensions are 0x0.
 // TODO(tc): Failing on buildbots
-BUG10394 DEFER WIN LINUX : LayoutTests/fast/events/standalone-image-drag-to-editable.html = FAIL
+BUG10394 WIN LINUX : LayoutTests/fast/events/standalone-image-drag-to-editable.html = FAIL
 
 // Missing expected results.  Probably going to fail anyway, since
 // chromium does not support webarchive format.
 // Doesn't need to block the next release. So defer.
-BUG10395 DEFER SKIP : LayoutTests/svg/webarchive/svg-cursor-subresources.svg = FAIL
-BUG10395 DEFER SKIP : LayoutTests/webarchive/test-css-url-resources-in-stylesheets.html = FAIL
-BUG10395 DEFER SKIP : LayoutTests/webarchive/test-css-url-resources-inline-styles.html = FAIL
+BUG10395 SKIP : LayoutTests/svg/webarchive/svg-cursor-subresources.svg = FAIL
+BUG10395 SKIP : LayoutTests/webarchive/test-css-url-resources-in-stylesheets.html = FAIL
+BUG10395 SKIP : LayoutTests/webarchive/test-css-url-resources-inline-styles.html = FAIL
 
 // Merge 39309:39335 Regressions (RenderButton::setupInnerStyle regression).
 BUG5737 LINUX : LayoutTests/fast/box-sizing/percentage-height.html = FAIL
@@ -1563,9 +1560,9 @@ BUG5737 LINUX : LayoutTests/fast/forms/input-first-letter.html = FAIL
 
 // These test the behavior of the (x) in type=search inputs.  We haven't
 // implemented this yet (should we on win/linux?).
-BUG5701 DEFER WIN LINUX : LayoutTests/fast/forms/search-cancel-button-style-sharing.html = FAIL
-BUG5701 DEFER WIN LINUX : LayoutTests/fast/forms/search-rtl.html = FAIL
-BUG5701 DEFER WIN LINUX : LayoutTests/fast/forms/search-transformed.html = FAIL
+BUG5701 WIN LINUX : LayoutTests/fast/forms/search-cancel-button-style-sharing.html = FAIL
+BUG5701 WIN LINUX : LayoutTests/fast/forms/search-rtl.html = FAIL
+BUG5701 WIN LINUX : LayoutTests/fast/forms/search-transformed.html = FAIL
 
 // Merge 39369:39410: new test. Ran correctly and was baselined on Win32.
 BUG10396 MAC : LayoutTests/fast/reflections/reflection-overflow-hidden.html = FAIL PASS
@@ -1575,27 +1572,27 @@ BUG10397 LINUX : LayoutTests/fast/transforms/transformed-document-element.html =
 
 // Merge 39606:39660 - new tests
 // New test. We should fix it, but it doesn't need to block the current release
-BUG10398 DEFER SKIP : LayoutTests/fast/events/pointer-events-2.html = FAIL
-BUG10398 DEFER SKIP : LayoutTests/fast/events/pointer-events.html = FAIL
+BUG10398 SKIP : LayoutTests/fast/events/pointer-events-2.html = FAIL
+BUG10398 SKIP : LayoutTests/fast/events/pointer-events.html = FAIL
 
 // Merge 39744:39829 - new tests
 // New test. We should fix it, but it doesn't need to block the current release
-BUG10399 DEFER WIN LINUX : LayoutTests/fast/canvas/canvas-incremental-repaint-2.html = FAIL
+BUG10399 WIN LINUX : LayoutTests/fast/canvas/canvas-incremental-repaint-2.html = FAIL
 BUG10399 MAC : LayoutTests/fast/encoding/char-encoding-mac.html = FAIL
 // New test. We should fix it, but it doesn't need to block the current release
-BUG10399 DEFER WIN LINUX : LayoutTests/fast/repaint/transform-disable-layoutstate.html = FAIL
+BUG10399 WIN LINUX : LayoutTests/fast/repaint/transform-disable-layoutstate.html = FAIL
 
 // Merge 39830:39880 - new tests
 // New test. We should fix it, but it doesn't need to block the current release
-BUG10401 DEFER : LayoutTests/plugins/npruntime.html = TIMEOUT FAIL
+BUG10401 : LayoutTests/plugins/npruntime.html = TIMEOUT FAIL
 
 // Expectations for this test changed upstream. We should fix this test, but
 // it doesn't need to block the current release
-BUG10402 DEFER WIN LINUX : LayoutTests/fast/events/init-events.html = FAIL
+BUG10402 WIN LINUX : LayoutTests/fast/events/init-events.html = FAIL
 
 // Merge 39894:39913 - new test.
 // New test. We should fix it, but it doesn't need to block the current release
-BUG6735 DEFER : LayoutTests/plugins/netscape-throw-exception.html = FAIL
+BUG6735 : LayoutTests/plugins/netscape-throw-exception.html = FAIL
 
 // Merge 39744:39913? - regressions
 BUG10403 LINUX : LayoutTests/http/tests/misc/uncacheable-script-repeated.html = TIMEOUT PASS
@@ -1617,7 +1614,7 @@ BUG10406 LINUX : LayoutTests/svg/custom/path-getTotalLength.svg = FAIL PASS
 // Merge 40059:40086 -- regressions
 // Expectations for this test changed upstream. We should fix this test, but
 // it doesn't need to block the current release
-BUG10407 DEFER : LayoutTests/transitions/hang-with-bad-transition-list.html = TIMEOUT FAIL PASS
+BUG10407 : LayoutTests/transitions/hang-with-bad-transition-list.html = TIMEOUT FAIL PASS
 
 // Popup-menu doesn't draw in layout tests
 BUG10408 MAC : LayoutTests/fast/forms/menulist-no-overflow.html = FAIL
@@ -1627,7 +1624,7 @@ BUG10409 MAC : LayoutTests/fast/forms/002.html = FAIL
 BUG10409 MAC LINUX : LayoutTests/svg/custom/clip-path-units-changes.svg = FAIL
 
 // We disallow file:// urls from doing XHR to data:.
-DEFER BUG9275 : LayoutTests/fast/encoding/char-decoding.html = FAIL
+BUG9275 : LayoutTests/fast/encoding/char-decoding.html = FAIL
 
 // Flakey tests
 BUG10410 LINUX : LayoutTests/transitions/shorthand-transitions.html = FAIL PASS
@@ -1637,27 +1634,27 @@ BUG10411 : LayoutTests/svg/custom/gradient-stop-style-change.svg = FAIL PASS
 
 // The 7th column should not be top aligned.
 // New test. We should fix it, but it doesn't need to block the current release
-BUG10412 DEFER WIN LINUX : LayoutTests/fast/table/vertical-align-baseline.html = FAIL
+BUG10412 WIN LINUX : LayoutTests/fast/table/vertical-align-baseline.html = FAIL
 
 // Merge 40165:40297 -- regressions
 // New test. We should fix it, but it doesn't need to block the current release
-BUG10413 DEFER WIN LINUX : LayoutTests/fast/repaint/dynamic-table-vertical-alignment-change.html = FAIL
+BUG10413 WIN LINUX : LayoutTests/fast/repaint/dynamic-table-vertical-alignment-change.html = FAIL
 // New test. We should fix it, but it doesn't need to block the current release
-BUG10413 DEFER WIN LINUX : LayoutTests/fast/repaint/inline-color-change.html = FAIL
+BUG10413 WIN LINUX : LayoutTests/fast/repaint/inline-color-change.html = FAIL
 // New test. We should fix it, but it doesn't need to block the current release
-BUG10413 DEFER : LayoutTests/http/tests/misc/SVGFont-delayed-load.html = FAIL
+BUG10413 : LayoutTests/http/tests/misc/SVGFont-delayed-load.html = FAIL
 // Expectations for this test changed upstream. We should fix this test, but
 // it doesn't need to block the current release
-BUG10413 DEFER : LayoutTests/http/tests/uri/resolve-encoding-relative.html = FAIL
+BUG10413 : LayoutTests/http/tests/uri/resolve-encoding-relative.html = FAIL
 
 // Merge 40314:40364 -- new tests
 // See comment above LayoutTests/editing/spelling/inline_spelling_markers.html
 // for why this is disabled.
-BUG10414 DEFER WIN LINUX : LayoutTests/editing/spelling/spelling-linebreak.html = FAIL
+BUG10414 WIN LINUX : LayoutTests/editing/spelling/spelling-linebreak.html = FAIL
 
 // Merge 40364:40409 -- new test
 // New test. We should fix it, but it doesn't need to block the current release
-BUG10415 DEFER WIN LINUX : LayoutTests/svg/custom/pattern-with-transformation.svg = FAIL
+BUG10415 WIN LINUX : LayoutTests/svg/custom/pattern-with-transformation.svg = FAIL
 
 // Merge 40364:40409 -- fails after http://trac.webkit.org/changeset/40379
 // ASSERTs in Debug after this change: http://trac.webkit.org/changeset/40372
@@ -1671,7 +1668,7 @@ BUG10417 LINUX : LayoutTests/svg/W3C-SVG-1.1/text-fonts-02-t.svg = FAIL
 BUG10417 LINUX : LayoutTests/svg/text/text-fonts-02-t.svg = FAIL
 
 // New test. We should fix it, but it doesn't need to block the current release
-BUG10418 DEFER : LayoutTests/transitions/zero-duration-with-non-zero-delay-end.html = FAIL PASS
+BUG10418 : LayoutTests/transitions/zero-duration-with-non-zero-delay-end.html = FAIL PASS
 BUG10418 SLOW MAC : LayoutTests/fast/events/click-count.html = FAIL PASS
 BUG10418 MAC : LayoutTests/fast/dom/Window/timeout-callback-scope.html = CRASH PASS
 BUG10418 : LayoutTests/animations/change-keyframes.html = FAIL PASS
@@ -1682,7 +1679,7 @@ BUG10419 LINUX : LayoutTests/svg/text/text-path-01-b.svg = FAIL
 
 // We could fix this test for us and upstream it if the test shell user agent
 // would let us differentiate test_shell and WebKit DumpTreeNode.
-BUG7482 DEFER : LayoutTests/http/tests/misc/timer-vs-loading.html = FAIL PASS TIMEOUT
+BUG7482 : LayoutTests/http/tests/misc/timer-vs-loading.html = FAIL PASS TIMEOUT
 
 // Regressions from WebKit merge 40722:40785
 //
@@ -1692,7 +1689,7 @@ BUG10420 LINUX : LayoutTests/fast/transforms/matrix-02.html = FAIL
 BUG10420 LINUX : LayoutTests/svg/W3C-SVG-1.1/text-text-07-t.svg = CRASH FAIL PASS
 // Misc failures:
 // New test. We should fix it, but it doesn't need to block the current release
-BUG10420 DEFER WIN LINUX : LayoutTests/fast/forms/option-mouseevents.html = FAIL
+BUG10420 WIN LINUX : LayoutTests/fast/forms/option-mouseevents.html = FAIL
 BUG10420 LINUX : LayoutTests/svg/W3C-SVG-1.1/types-basicDOM-01-b.svg = FAIL
 BUG10420 LINUX : LayoutTests/svg/custom/use-transform.svg = FAIL
 BUG10420 LINUX : LayoutTests/fast/clip/007.html = CRASH PASS
@@ -1750,20 +1747,20 @@ BUG5248 MAC : LayoutTests/http/tests/security/cross-frame-access-protocol-explic
 BUG5248 MAC : LayoutTests/http/tests/security/cross-frame-access-protocol.html = FAIL
 
 // New tests from merge 41181:41217
-BUG10431 DEFER LINUX WIN : LayoutTests/fast/dom/getBoundingClientRect-getClientRects-relative-to-viewport.html = FAIL PASS
+BUG10431 LINUX WIN : LayoutTests/fast/dom/getBoundingClientRect-getClientRects-relative-to-viewport.html = FAIL PASS
 
 // Regressions from merge 41181:41217
 // Upstream regression. https://bugs.webkit.org/show_bug.cgi?id=24248
 // Defer until fixed upstream.
-BUG10432 DEFER WIN LINUX : LayoutTests/fast/overflow/004.html = FAIL
+BUG10432 WIN LINUX : LayoutTests/fast/overflow/004.html = FAIL
 // These need to be rebaselined.
 BUG10432 LINUX : LayoutTests/fast/overflow/hidden-scrollbar-resize.html = FAIL
 BUG10432 LINUX : LayoutTests/fast/overflow/hit-test-overflow-controls.html = FAIL
 
 // Regressions from merge 41217:41268
 // New tests
-BUG10433 DEFER : LayoutTests/fast/dom/Window/webkitConvertPoint.html = FAIL
-BUG10433 DEFER WIN LINUX : LayoutTests/fast/gradients/background-clipped.html = FAIL
+BUG10433 : LayoutTests/fast/dom/Window/webkitConvertPoint.html = FAIL
+BUG10433 WIN LINUX : LayoutTests/fast/gradients/background-clipped.html = FAIL
 
 // Regressions from merge 41217:41268
 // Other failures
@@ -1805,14 +1802,14 @@ BUG10435 MAC : LayoutTests/animations/animation-controller-drt-api.html = TIMEOU
 BUG10435 DEBUG MAC WIN : LayoutTests/editing/selection/move-by-line-001.html = FAIL PASS
 
 // New test added in the 41286:41362 merge. Not clear whether we pass.
-BUG8404 DEFER LINUX WIN : LayoutTests/fast/layers/inline-dirty-z-order-lists.html = FAIL
+BUG8404 LINUX WIN : LayoutTests/fast/layers/inline-dirty-z-order-lists.html = FAIL
 
 // New with the 41420:41447 merge, but rebaselining is not the right answer.
 // See https://bugs.webkit.org/show_bug.cgi?id=24467 for details.
-BUG10436 DEFER WIN LINUX : LayoutTests/fast/block/float/nested-clearance.html = FAIL
+BUG10436 WIN LINUX : LayoutTests/fast/block/float/nested-clearance.html = FAIL
 
 // New tests added in the 41420:41447 merge that fail (just needs a new baseline):
-BUG10437 DEFER LINUX : LayoutTests/fast/css-generated-content/hit-test-generated-content.html = FAIL
+BUG10437 LINUX : LayoutTests/fast/css-generated-content/hit-test-generated-content.html = FAIL
 
 // From webkit merge 41447:41498
 BUG10438 MAC LINUX : LayoutTests/plugins/netscape-plugin-setwindow-size-2.html = FAIL
@@ -1830,20 +1827,20 @@ BUG10440 MAC LINUX : LayoutTests/security/block-test.html = FAIL
 // Flakey. Not clear when it started, but it was before 3/9/09.
 // This test also started failing with the merge of March 25th 2009
 BUG10441 LINUX : LayoutTests/fast/clip/outline-overflowClip.html = CRASH FAIL PASS
-BUG10441 DEFER : LayoutTests/transitions/transition-end-event-transform.html = FAIL PASS
+BUG10441 : LayoutTests/transitions/transition-end-event-transform.html = FAIL PASS
 
 // Timing out starting 03/10/09
 BUG10442 MAC : LayoutTests/fast/dom/navigator-detached-no-crash.html = TIMEOUT PASS
 
 // Added 3/10/09.
-BUG10443 DEFER WIN : LayoutTests/transitions/transition-end-event-multiple-01.html = FAIL PASS
-BUG10443 DEFER WIN : LayoutTests/transitions/transition-end-event-create.html = FAIL PASS
-BUG10443 DEFER WIN : LayoutTests/transitions/transition-end-event-window.html = FAIL PASS
-BUG10443 DEFER WIN : LayoutTests/transitions/transition-end-event-attributes.html = FAIL PASS
+BUG10443 WIN : LayoutTests/transitions/transition-end-event-multiple-01.html = FAIL PASS
+BUG10443 WIN : LayoutTests/transitions/transition-end-event-create.html = FAIL PASS
+BUG10443 WIN : LayoutTests/transitions/transition-end-event-window.html = FAIL PASS
+BUG10443 WIN : LayoutTests/transitions/transition-end-event-attributes.html = FAIL PASS
 BUG9071 WIN LINUX : LayoutTests/editing/selection/drag-to-contenteditable-iframe.html = FAIL PASS
 
 // http://code.google.com/p/chromium/issues/detail?id=8733
-BUG10444 DEFER WIN LINUX : LayoutTests/fast/repaint/transform-replaced-shadows.html = FAIL
+BUG10444 WIN LINUX : LayoutTests/fast/repaint/transform-replaced-shadows.html = FAIL
 
 // Added 3/11/09
 BUG10445 LINUX : LayoutTests/fast/compact/001.html = CRASH PASS
@@ -1873,23 +1870,23 @@ BUG10452 MAC : LayoutTests/fast/html/body-offset-properties.html = CRASH PASS
 BUG10452 DEBUG WIN : LayoutTests/fast/dom/HTMLElement/innerHTML-selection-crash.html = CRASH PASS
 
 // Newly added test from 41613:41660
-BUG9155 DEFER MAC LINUX WIN : LayoutTests/fast/canvas/canvas-gradient-addStop-error.html = FAIL
+BUG9155 MAC LINUX WIN : LayoutTests/fast/canvas/canvas-gradient-addStop-error.html = FAIL
 
 // Newly added test from 41613:41660 -- relies on ScriptCallStack::state() -- dglazkov should fix.
-BUG9156 DEFER MAC LINUX WIN : LayoutTests/fast/js/console-non-string-values.html = FAIL
+BUG9156 MAC LINUX WIN : LayoutTests/fast/js/console-non-string-values.html = FAIL
 
 // New failures from 41613:41660 -- They likely just need to be rebaselined
 // for Mac and Linux, since that is what was done for Windows.
-BUG9157 DEFER LINUX : LayoutTests/fast/layers/normal-flow-hit-test.html = FAIL
+BUG9157 LINUX : LayoutTests/fast/layers/normal-flow-hit-test.html = FAIL
 
 // New failures from 41660:41709
 // Newly added tests.
-BUG9159 DEFER LINUX WIN : LayoutTests/editing/pasteboard/5089327.html = FAIL
-BUG9160 DEFER MAC : LayoutTests/fast/dom/Window/window-lookup-precedence.html = FAIL
-BUG9161 DEFER MAC LINUX WIN : LayoutTests/fast/forms/basic-textareas.html = FAIL
-BUG9163 DEFER LINUX WIN : LayoutTests/http/tests/xmlhttprequest/access-control-basic-whitelist-request-headers.html = FAIL
-BUG9163 DEFER MAC : LayoutTests/http/tests/xmlhttprequest/access-control-basic-whitelist-request-headers.html = FAIL TIMEOUT
-BUG9163 DEFER MAC LINUX WIN : LayoutTests/http/tests/xmlhttprequest/xmlhttprequest-missing-file-exception.html = FAIL
+BUG9159 LINUX WIN : LayoutTests/editing/pasteboard/5089327.html = FAIL
+BUG9160 MAC : LayoutTests/fast/dom/Window/window-lookup-precedence.html = FAIL
+BUG9161 MAC LINUX WIN : LayoutTests/fast/forms/basic-textareas.html = FAIL
+BUG9163 LINUX WIN : LayoutTests/http/tests/xmlhttprequest/access-control-basic-whitelist-request-headers.html = FAIL
+BUG9163 MAC : LayoutTests/http/tests/xmlhttprequest/access-control-basic-whitelist-request-headers.html = FAIL TIMEOUT
+BUG9163 MAC LINUX WIN : LayoutTests/http/tests/xmlhttprequest/xmlhttprequest-missing-file-exception.html = FAIL
 // Unknown what change caused these to fail.
 
 // Merge 41709:41733
@@ -1916,7 +1913,7 @@ BUG10457 DEBUG WIN : LayoutTests/fast/js/large-expressions.html = FAIL
 // Perhaps just needs new baseline?
 // These tests were rebaselined with failure long ago. We shouldn't do this, and
 // instead work upstream to improve tests so that they don't fail.
-BUG10458 DEFER LINUX : LayoutTests/fast/forms/textarea-appearance-wrap.html = FAIL
+BUG10458 LINUX : LayoutTests/fast/forms/textarea-appearance-wrap.html = FAIL
 // Linux-only failures
 BUG10458 LINUX : LayoutTests/editing/inserting/6633727.html = FAIL
 BUG10458 LINUX : LayoutTests/fast/block/float/overlapping-floats-with-overflow-hidden.html = FAIL
@@ -1942,30 +1939,30 @@ BUG10461 MAC : LayoutTests/fast/images/animated-svg-as-image.html = TIMEOUT PASS
 BUG10461 SKIP : LayoutTests/platform/mac/fast/text/international/Geeza-Pro-vertical-metrics-adjustment.html = PASS
 
 // Merge 41860:41906 New tests
-BUG10462 DEFER WIN LINUX : LayoutTests/fast/replaced/percent-height-in-anonymous-block-in-table.html = FAIL
-BUG10462 DEFER WIN LINUX : LayoutTests/http/tests/misc/generated-content-inside-table.html = FAIL
+BUG10462 WIN LINUX : LayoutTests/fast/replaced/percent-height-in-anonymous-block-in-table.html = FAIL
+BUG10462 WIN LINUX : LayoutTests/http/tests/misc/generated-content-inside-table.html = FAIL
 
 // New failures from merge
-BUG10463 DEFER WIN LINUX : LayoutTests/editing/selection/hit-test-anonymous.html = FAIL
-BUG10463 DEFER LINUX : LayoutTests/fast/clip/016.html = FAIL
-BUG10463 DEFER WIN LINUX : LayoutTests/fast/css/clip-zooming.html = FAIL
-BUG10463 DEFER WIN : LayoutTests/fast/forms/input-appearance-height.html = FAIL
-BUG10463 DEFER WIN LINUX : LayoutTests/fast/forms/listbox-hit-test-zoomed.html = FAIL
-BUG10463 DEFER WIN LINUX : LayoutTests/fast/forms/search-zoomed.html = FAIL
-BUG10463 DEFER WIN : LayoutTests/fast/forms/slider-mouse-events.html = FAIL
-BUG10463 DEFER WIN : LayoutTests/fast/forms/slider-onchange-event.html = FAIL
-BUG10463 DEFER WIN : LayoutTests/fast/forms/slider-padding.html = FAIL
-BUG10463 DEFER WIN : LayoutTests/fast/forms/slider-thumb-shared-style.html = FAIL
-BUG10463 DEFER WIN : LayoutTests/fast/forms/slider-transformed.html = FAIL
-BUG10463 DEFER WIN LINUX : LayoutTests/fast/forms/slider-zoomed.html = FAIL
-BUG10463 DEFER WIN : LayoutTests/svg/W3C-SVG-1.1/animate-elem-36-t.svg = FAIL
-BUG10463 DEFER WIN : LayoutTests/svg/W3C-SVG-1.1/animate-elem-39-t.svg = FAIL
-SLOW BUG10463 DEFER WIN : LayoutTests/svg/carto.net/scrollbar.svg = FAIL
-BUG10463 DEFER WIN LINUX : LayoutTests/svg/carto.net/selectionlist.svg = CRASH FAIL
-BUG10463 DEFER WIN : LayoutTests/svg/custom/focus-ring.svg = FAIL
-BUG10463 DEFER WIN : LayoutTests/svg/custom/image-parent-translation.xhtml = FAIL
-BUG10463 DEFER WIN LINUX : LayoutTests/svg/custom/js-update-image.svg = FAIL
-BUG10463 DEFER WIN : LayoutTests/svg/custom/text-image-opacity.svg = FAIL
+BUG10463 WIN LINUX : LayoutTests/editing/selection/hit-test-anonymous.html = FAIL
+BUG10463 LINUX : LayoutTests/fast/clip/016.html = FAIL
+BUG10463 WIN LINUX : LayoutTests/fast/css/clip-zooming.html = FAIL
+BUG10463 WIN : LayoutTests/fast/forms/input-appearance-height.html = FAIL
+BUG10463 WIN LINUX : LayoutTests/fast/forms/listbox-hit-test-zoomed.html = FAIL
+BUG10463 WIN LINUX : LayoutTests/fast/forms/search-zoomed.html = FAIL
+BUG10463 WIN : LayoutTests/fast/forms/slider-mouse-events.html = FAIL
+BUG10463 WIN : LayoutTests/fast/forms/slider-onchange-event.html = FAIL
+BUG10463 WIN : LayoutTests/fast/forms/slider-padding.html = FAIL
+BUG10463 WIN : LayoutTests/fast/forms/slider-thumb-shared-style.html = FAIL
+BUG10463 WIN : LayoutTests/fast/forms/slider-transformed.html = FAIL
+BUG10463 WIN LINUX : LayoutTests/fast/forms/slider-zoomed.html = FAIL
+BUG10463 WIN : LayoutTests/svg/W3C-SVG-1.1/animate-elem-36-t.svg = FAIL
+BUG10463 WIN : LayoutTests/svg/W3C-SVG-1.1/animate-elem-39-t.svg = FAIL
+SLOW BUG10463 WIN : LayoutTests/svg/carto.net/scrollbar.svg = FAIL
+BUG10463 WIN LINUX : LayoutTests/svg/carto.net/selectionlist.svg = CRASH FAIL
+BUG10463 WIN : LayoutTests/svg/custom/focus-ring.svg = FAIL
+BUG10463 WIN : LayoutTests/svg/custom/image-parent-translation.xhtml = FAIL
+BUG10463 WIN LINUX : LayoutTests/svg/custom/js-update-image.svg = FAIL
+BUG10463 WIN : LayoutTests/svg/custom/text-image-opacity.svg = FAIL
 
 // Adding more failures after the last merge:
 BUG10464 WIN : LayoutTests/http/tests/misc/uncacheable-script-repeated.html = CRASH PASS
@@ -1976,50 +1973,50 @@ BUG10464 WIN LINUX : LayoutTests/transitions/interrupt-zero-duration.html = FAIL
 // Merge WebKit: 41944:41999
 // All these seem to be the same issue. None of them is crashing when run separately.
 // But if a previous test time-outs, the following 1-2 tests crash the test_shell.
-BUG9371 DEFER WIN : LayoutTests/http/tests/misc/cached-scripts.html = CRASH
-BUG9371 DEFER WIN : LayoutTests/http/tests/misc/canvas-pattern-from-incremental-image.html = CRASH
-BUG9371 DEFER WIN : LayoutTests/http/tests/security/originHeader/origin-header-for-post.html = CRASH
-BUG9371 DEFER WIN LINUX MAC : LayoutTests/http/tests/security/postMessage/data-url-sends-null-origin.html = CRASH
-BUG9371 DEFER WIN LINUX MAC : LayoutTests/http/tests/xmlhttprequest/status-after-abort.html = CRASH
+BUG9371 WIN : LayoutTests/http/tests/misc/cached-scripts.html = CRASH
+BUG9371 WIN : LayoutTests/http/tests/misc/canvas-pattern-from-incremental-image.html = CRASH
+BUG9371 WIN : LayoutTests/http/tests/security/originHeader/origin-header-for-post.html = CRASH
+BUG9371 WIN LINUX MAC : LayoutTests/http/tests/security/postMessage/data-url-sends-null-origin.html = CRASH
+BUG9371 WIN LINUX MAC : LayoutTests/http/tests/xmlhttprequest/status-after-abort.html = CRASH
 
 // New tests, need Chromium baseline.
-BUG10465 DEFER WIN LINUX : LayoutTests/compositing/direct-image-compositing.html = FAIL
-BUG10465 DEFER WIN LINUX : LayoutTests/fast/borders/border-image-border-radius.html = FAIL
-BUG10465 DEFER WIN LINUX : LayoutTests/fast/clip/overflow-border-radius-clip.html = FAIL
+BUG10465 WIN LINUX : LayoutTests/compositing/direct-image-compositing.html = FAIL
+BUG10465 WIN LINUX : LayoutTests/fast/borders/border-image-border-radius.html = FAIL
+BUG10465 WIN LINUX : LayoutTests/fast/clip/overflow-border-radius-clip.html = FAIL
   
 // Need rebaseline, see  WebKit 41993.
-BUG10466 DEFER WIN LINUX : LayoutTests/fast/css/getComputedStyle/computed-style-without-renderer.html = FAIL
-BUG10466 DEFER WIN LINUX : LayoutTests/fast/css/getComputedStyle/computed-style.html = FAIL
-BUG10466 DEFER WIN LINUX : LayoutTests/svg/css/getComputedStyle-basic.xhtml = FAIL
+BUG10466 WIN LINUX : LayoutTests/fast/css/getComputedStyle/computed-style-without-renderer.html = FAIL
+BUG10466 WIN LINUX : LayoutTests/fast/css/getComputedStyle/computed-style.html = FAIL
+BUG10466 WIN LINUX : LayoutTests/svg/css/getComputedStyle-basic.xhtml = FAIL
   
 // Needs rebaseline. See WebKit 41972.
-BUG10467 DEFER WIN LINUX : LayoutTests/fast/forms/slider-thumb-stylability.html = FAIL
+BUG10467 WIN LINUX : LayoutTests/fast/forms/slider-thumb-stylability.html = FAIL
 
 // Needs rebaseline. See WebKit 41948
-BUG10468 DEFER MAC WIN LINUX : LayoutTests/fast/replaced/border-radius-clip.html = FAIL CRASH
+BUG10468 MAC WIN LINUX : LayoutTests/fast/replaced/border-radius-clip.html = FAIL CRASH
   
 // New test, needs baseline. See WebKit 41978 (brettw)
-BUG10469 DEFER WIN LINUX : LayoutTests/fast/text/complex-text-opacity.html = FAIL
+BUG10469 WIN LINUX : LayoutTests/fast/text/complex-text-opacity.html = FAIL
   
 // Needs rebaseline. See WebKit 41980
-BUG10470 DEFER WIN LINUX : LayoutTests/fast/transforms/transforms-with-zoom.html = FAIL
+BUG10470 WIN LINUX : LayoutTests/fast/transforms/transforms-with-zoom.html = FAIL
   
 // Merge WebKit: 41944:41999, Linux failures.
-BUG10471 DEFER LINUX : LayoutTests/fast/events/tabindex-focus-blur-all.html = FAIL
-BUG10471 DEFER LINUX : LayoutTests/fast/forms/focus2.html = FAIL
-BUG10471 DEFER LINUX : LayoutTests/fast/forms/slider-mouse-events.html = FAIL
-BUG10471 DEFER LINUX : LayoutTests/fast/forms/slider-onchange-event.html = FAIL
-BUG10471 DEFER LINUX : LayoutTests/fast/forms/slider-padding.html = FAIL
-BUG10471 DEFER LINUX : LayoutTests/fast/forms/slider-thumb-shared-style.html = FAIL
-BUG10471 DEFER LINUX : LayoutTests/fast/forms/slider-transformed.html = FAIL
+BUG10471 LINUX : LayoutTests/fast/events/tabindex-focus-blur-all.html = FAIL
+BUG10471 LINUX : LayoutTests/fast/forms/focus2.html = FAIL
+BUG10471 LINUX : LayoutTests/fast/forms/slider-mouse-events.html = FAIL
+BUG10471 LINUX : LayoutTests/fast/forms/slider-onchange-event.html = FAIL
+BUG10471 LINUX : LayoutTests/fast/forms/slider-padding.html = FAIL
+BUG10471 LINUX : LayoutTests/fast/forms/slider-thumb-shared-style.html = FAIL
+BUG10471 LINUX : LayoutTests/fast/forms/slider-transformed.html = FAIL
 
 // Mac flaky failures.
-BUG10472 DEFER MAC : LayoutTests/svg/css/glyph-orientation-rounding-test.xhtml = FAIL PASS
+BUG10472 MAC : LayoutTests/svg/css/glyph-orientation-rounding-test.xhtml = FAIL PASS
 
 // <input type="search">; various failures, some tests may simply need new
 // baselines, others have more problems.
 BUG10473 LINUX : LayoutTests/fast/forms/placeholder-pseudo-style.html = FAIL
-BUG9158 DEFER LINUX : LayoutTests/fast/forms/placeholder-set-value.html = FAIL
+BUG9158 LINUX : LayoutTests/fast/forms/placeholder-set-value.html = FAIL
 BUG10473 LINUX : LayoutTests/fast/forms/search-display-none-cancel-button.html = FAIL
 BUG10473 LINUX : LayoutTests/fast/forms/search-placeholder-value-changed.html = FAIL
 BUG10473 LINUX : LayoutTests/fast/forms/searchfield-heights.html = FAIL
@@ -2027,8 +2024,8 @@ BUG10473 LINUX : LayoutTests/fast/repaint/search-field-cancel.html = FAIL
 BUG10473 LINUX : LayoutTests/fast/replaced/width100percent-searchfield.html = FAIL
 
 // Merge WebKit: 41999:42026, new tests.
-BUG10474 DEFER WIN LINUX : LayoutTests/compositing/overflow/ancestor-overflow.html = FAIL
-BUG10474 DEFER WIN LINUX : LayoutTests/compositing/overflow/parent-overflow.html = FAIL
+BUG10474 WIN LINUX : LayoutTests/compositing/overflow/ancestor-overflow.html = FAIL
+BUG10474 WIN LINUX : LayoutTests/compositing/overflow/parent-overflow.html = FAIL
 
 // Merge WebKit: 42026:42115 regressions
 
@@ -2040,12 +2037,12 @@ BUG9704 : LayoutTests/http/tests/navigation/onload-navigation-iframe-timeout.htm
 BUG9704 : LayoutTests/http/tests/navigation/onload-navigation-iframe.html = TIMEOUT CRASH
 
 // Merge WebKit: 42026:42115 new tests
-BUG10475 DEFER WIN LINUX : LayoutTests/fast/block/positioning/negative-rel-position.html = FAIL
+BUG10475 WIN LINUX : LayoutTests/fast/block/positioning/negative-rel-position.html = FAIL
 // This test isn't just slow -- sometimes it times out indefinitely.
-BUG10475 DEFER : LayoutTests/http/tests/xmlhttprequest/redirect-cross-origin-tripmine.html = FAIL TIMEOUT
-BUG10475 DEFER WIN LINUX : LayoutTests/fast/forms/range-thumb-height-percentage.html = FAIL
+BUG10475 : LayoutTests/http/tests/xmlhttprequest/redirect-cross-origin-tripmine.html = FAIL TIMEOUT
+BUG10475 WIN LINUX : LayoutTests/fast/forms/range-thumb-height-percentage.html = FAIL
 
-DEFER SKIP BUG9613 : LayoutTests/fast/dom/clientWidthAfterDocumentIsRemoved.html = PASS
+SKIP BUG9613 : LayoutTests/fast/dom/clientWidthAfterDocumentIsRemoved.html = PASS
 
 BUG10476 WIN LINUX : LayoutTests/editing/selection/5136696.html = FAIL PASS
 BUG10476 : LayoutTests/http/tests/xmlhttprequest/redirect-cross-origin-post.html = FAIL PASS
@@ -2062,16 +2059,16 @@ BUG10477 : LayoutTests/http/tests/navigation/onload-navigation-iframe-2.html = T
 BUG10478 MAC : LayoutTests/fast/events/standalone-image-drag-to-editable.html = FAIL PASS
 
 // These tests were affected by rolling out WebKit i8n patches.
-DEFER BUG9768 LINUX WIN : LayoutTests/fast/block/positioning/047.html = FAIL
-DEFER BUG9768 WIN : LayoutTests/fast/css/rtl-ordering.html = FAIL
-DEFER BUG9768 WIN : LayoutTests/fast/forms/select-initial-position.html = FAIL
-DEFER BUG9768 WIN : LayoutTests/fast/forms/select-visual-hebrew.html = FAIL
-DEFER BUG9768 WIN : LayoutTests/fast/forms/visual-hebrew-text-field.html = FAIL
-DEFER BUG9768 LINUX WIN : LayoutTests/fast/text/cg-fallback-bolding.html = FAIL
-DEFER BUG9768 LINUX WIN : LayoutTests/fast/text/international/001.html = FAIL
-DEFER BUG9768 LINUX WIN : LayoutTests/fast/text/international/002.html = FAIL
-DEFER BUG9768 LINUX WIN : LayoutTests/fast/text/international/003.html = FAIL
-DEFER BUG9768 LINUX WIN : LayoutTests/fast/text/international/wrap-CJK-001.html = FAIL
+BUG9768 LINUX WIN : LayoutTests/fast/block/positioning/047.html = FAIL
+BUG9768 WIN : LayoutTests/fast/css/rtl-ordering.html = FAIL
+BUG9768 WIN : LayoutTests/fast/forms/select-initial-position.html = FAIL
+BUG9768 WIN : LayoutTests/fast/forms/select-visual-hebrew.html = FAIL
+BUG9768 WIN : LayoutTests/fast/forms/visual-hebrew-text-field.html = FAIL
+BUG9768 LINUX WIN : LayoutTests/fast/text/cg-fallback-bolding.html = FAIL
+BUG9768 LINUX WIN : LayoutTests/fast/text/international/001.html = FAIL
+BUG9768 LINUX WIN : LayoutTests/fast/text/international/002.html = FAIL
+BUG9768 LINUX WIN : LayoutTests/fast/text/international/003.html = FAIL
+BUG9768 LINUX WIN : LayoutTests/fast/text/international/wrap-CJK-001.html = FAIL
 
 // Merge WebKit 42200:42244 regressions
 BUG9786 : LayoutTests/fast/dom/Window/dom-access-from-closure-iframe.html = FAIL
@@ -2254,7 +2251,7 @@ BUG10530 : LayoutTests/fast/dom/Window/window-function-frame-getter-precedence.h
 BUG11122 LINUX : LayoutTests/fast/forms/caret-rtl.html = FAIL
 
 // New tests from WebKit Merge 42609:42671
-DEFER BUG4363 : LayoutTests/fast/layers/video-layer.html = FAIL
+BUG4363 : LayoutTests/fast/layers/video-layer.html = FAIL
 BUG10760 LINUX : LayoutTests/fast/forms/input-text-scroll-left-on-blur.html = FAIL
 BUG10760 LINUX : LayoutTests/fast/inline/25277-2.html = FAIL	
 BUG10760 LINUX : LayoutTests/fast/inline/25277.html = FAIL
@@ -2355,7 +2352,7 @@ BUG11178 DEBUG WIN : LayoutTests/transitions/repeated-firing-background-color.ht
 BUG11178 MAC : LayoutTests/fast/dom/Document/open-with-pending-load.html = CRASH
 
 // New tests from WebKit Merge 42932:42994
-BUG11179 DEFER : LayoutTests/http/tests/xmlhttprequest/detaching-frame-2.html = FAIL TIMEOUT
+BUG11179 : LayoutTests/http/tests/xmlhttprequest/detaching-frame-2.html = FAIL TIMEOUT
 
 // Chrome does not support WebArchives (just like Safari for Windows),
 // although we might eventually want to on Mac.
