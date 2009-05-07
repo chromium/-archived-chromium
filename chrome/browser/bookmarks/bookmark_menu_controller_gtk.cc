@@ -4,11 +4,13 @@
 
 #include "chrome/browser/bookmarks/bookmark_menu_controller_gtk.h"
 
+#include "app/l10n_util.h"
+#include "app/resource_bundle.h"
 #include "base/string_util.h"
 #include "chrome/browser/bookmarks/bookmark_context_menu.h"
 #include "chrome/browser/profile.h"
 #include "chrome/browser/tab_contents/page_navigator.h"
-#include "app/resource_bundle.h"
+#include "grit/generated_resources.h"
 #include "grit/theme_resources.h"
 #include "webkit/glue/window_open_disposition.h"
 
@@ -50,7 +52,8 @@ void BookmarkMenuController::BookmarkNodeFavIconLoaded(BookmarkModel* model,
 }
 
 bool BookmarkMenuController::IsCommandEnabled(int id) const {
-  return true;
+  // -1 is reserved for empty.
+  return id != -1;
 }
 
 void BookmarkMenuController::ExecuteCommand(int id) {
@@ -97,5 +100,10 @@ void BookmarkMenuController::BuildMenu(BookmarkNode* parent,
       NOTREACHED();
     }
     menu_id_to_node_map_[id] = node;
+  }
+
+  if (parent->GetChildCount() == 0) {
+    menu->AppendMenuItemWithLabel(
+        -1, l10n_util::GetStringUTF8(IDS_MENU_EMPTY_SUBMENU));
   }
 }
