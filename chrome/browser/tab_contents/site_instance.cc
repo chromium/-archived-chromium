@@ -94,6 +94,12 @@ SiteInstance* SiteInstance::CreateSiteInstance(Profile* profile) {
 }
 
 /*static*/
+SiteInstance* SiteInstance::CreateSiteInstanceForURL(Profile* profile,
+                                                     const GURL& url) {
+  return (new BrowsingInstance(profile))->GetSiteInstanceForURL(url);
+}
+
+/*static*/
 GURL SiteInstance::GetSiteForURL(const GURL& url) {
   // URLs with no host should have an empty site.
   GURL site;

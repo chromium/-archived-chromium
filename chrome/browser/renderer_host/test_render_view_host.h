@@ -198,7 +198,16 @@ class RenderViewHostTestHarness : public testing::Test {
   }
 
   TestRenderViewHost* rvh() {
-    return reinterpret_cast<TestRenderViewHost*>(contents_->render_view_host());
+    return static_cast<TestRenderViewHost*>(contents_->render_view_host());
+  }
+
+  TestRenderViewHost* pending_rvh() {
+    return static_cast<TestRenderViewHost*>(
+        contents_->render_manager()->pending_render_view_host());
+  }
+
+  TestRenderViewHost* active_rvh() {
+    return pending_rvh() ? pending_rvh() : rvh();
   }
 
   TestingProfile* profile() {

@@ -374,13 +374,13 @@ SiteInstance* RenderViewHostManager::GetSiteInstanceForEntry(
     return curr_instance;
   } else if (ShouldSwapProcessesForNavigation(curr_entry, &entry)) {
     // When we're swapping, we need to force the site instance AND browsing
-    // instance to be new ones. This addresses special cases where we use a
-    // single BrowsingInstance for all pages of a certain type (e.g., New Tab
+    // instance to be different ones. This addresses special cases where we use
+    // a single BrowsingInstance for all pages of a certain type (e.g., New Tab
     // Pages), keeping them in the same process. When you navigate away from
-    // that page, we want to explicity ignore that BrowsingInstance and make a
-    // new process.
-    return SiteInstance::CreateSiteInstance(
-        delegate_->GetControllerForRenderManager().profile());
+    // that page, we want to explicity ignore that BrowsingInstance and group
+    // this page into the appropriate SiteInstance for its URL.
+    return SiteInstance::CreateSiteInstanceForURL(
+        delegate_->GetControllerForRenderManager().profile(), dest_url);
   } else {
     // Start the new renderer in a new SiteInstance, but in the current
     // BrowsingInstance.  It is important to immediately give this new

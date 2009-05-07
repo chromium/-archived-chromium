@@ -110,6 +110,13 @@ class SiteInstance : public base::RefCounted<SiteInstance>,
   // Darin suggests.
   static SiteInstance* CreateSiteInstance(Profile* profile);
 
+  // Factory method to get the appropriate SiteInstance for the given URL, in
+  // a new BrowsingInstance.  Use this instead of CreateSiteInstance when you
+  // know the URL, since it allows special site grouping rules to be applied
+  // (for example, to group chrome-ui pages into the same instance).
+  static SiteInstance* CreateSiteInstanceForURL(Profile* profile,
+                                                const GURL& url);
+
   // Returns the site for the given URL, which includes only the scheme and
   // registered domain.  Returns an empty GURL if the URL has no host.
   static GURL GetSiteForURL(const GURL& url);

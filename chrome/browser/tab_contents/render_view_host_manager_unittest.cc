@@ -7,7 +7,17 @@
 #include "testing/gtest/include/gtest/gtest.h"
 
 class RenderViewHostManagerTest : public RenderViewHostTestHarness {
-
+ public:
+  void NavigateActiveAndCommit(const GURL& url) {
+    // Note: we navigate the active RenderViewHost because previous navigations
+    // won't have committed yet, so NavigateAndCommit does the wrong thing
+    // for us.
+    controller().LoadURL(url, GURL(), 0);
+    active_rvh()->SendNavigate(
+        static_cast<MockRenderProcessHost*>(active_rvh()->process())->
+            max_page_id() + 1,
+        url);
+  }
 };
 
 // Tests that when you navigate from the New TabPage to another page, and
@@ -19,8 +29,8 @@ TEST_F(RenderViewHostManagerTest, NewTabPageProcesses) {
   GURL dest("http://www.google.com/");
 
   // Navigate our first tab to the new tab page and then to the destination.
-  NavigateAndCommit(ntp);
-  NavigateAndCommit(dest);
+  NavigateActiveAndCommit(ntp);
+  NavigateActiveAndCommit(dest);
 
   // Make a second tab.
   TestTabContents contents2(profile_.get(), NULL);
@@ -36,9 +46,20 @@ TEST_F(RenderViewHostManagerTest, NewTabPageProcesses) {
       pending_render_view_host())->SendNavigate(101, dest);
 
   // The two RVH's should be different in every way.
-  EXPECT_NE(rvh()->process(), contents2.render_view_host()->process());
-  EXPECT_NE(rvh()->site_instance(),
+  EXPECT_NE(active_rvh()->process(), contents2.render_view_host()->process());
+  EXPECT_NE(active_rvh()->site_instance(),
       contents2.render_view_host()->site_instance());
-  EXPECT_NE(rvh()->site_instance()->browsing_instance(),
+  EXPECT_NE(active_rvh()->site_instance()->browsing_instance(),
       contents2.render_view_host()->site_instance()->browsing_instance());
+
+  // Navigate both to the new tab page, and verify that they share a
+  // SiteInstance.
+  NavigateActiveAndCommit(ntp);
+
+  contents2.controller().LoadURL(ntp, GURL(), PageTransition::LINK);
+  static_cast<TestRenderViewHost*>(contents2.render_manager()->
+     pending_render_view_host())->SendNavigate(102, ntp);
+
+  EXPECT_EQ(active_rvh()->site_instance(),
+      contents2.render_view_host()->site_instance());
 }
