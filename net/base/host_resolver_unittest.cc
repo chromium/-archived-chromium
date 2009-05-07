@@ -124,13 +124,17 @@ TEST_F(HostResolverTest, CanceledAsynchronousLookup) {
   EXPECT_FALSE(callback_called_);
 }
 
-TEST_F(HostResolverTest, NumericAddresses) {
+TEST_F(HostResolverTest, NumericIPv4Address) {
   // Stevens says dotted quads with AI_UNSPEC resolve to a single sockaddr_in.
+
+  scoped_refptr<RuleBasedHostMapper> mapper = new RuleBasedHostMapper();
+  mapper->AllowDirectLookup("*");
+  ScopedHostMapper scoped_mapper(mapper.get());
 
   net::HostResolver host_resolver;
   net::AddressList adrlist;
   const int kPortnum = 5555;
-  int err = host_resolver.Resolve("127.0.0.1", kPortnum, &adrlist, NULL);
+  int err = host_resolver.Resolve("127.1.2.3", kPortnum, &adrlist, NULL);
   EXPECT_EQ(net::OK, err);
 
   const struct addrinfo* ainfo = adrlist.head();
@@ -140,7 +144,54 @@ TEST_F(HostResolverTest, NumericAddresses) {
   const struct sockaddr* sa = ainfo->ai_addr;
   const struct sockaddr_in* sa_in = (const struct sockaddr_in*) sa;
   EXPECT_TRUE(htons(kPortnum) == sa_in->sin_port);
-  EXPECT_TRUE(htonl(0x7f000001) == sa_in->sin_addr.s_addr);
+  EXPECT_TRUE(htonl(0x7f010203) == sa_in->sin_addr.s_addr);
 }
 
-} // namespace
+TEST_F(HostResolverTest, NumericIPv6Address) {
+  scoped_refptr<RuleBasedHostMapper> mapper = new RuleBasedHostMapper();
+  mapper->AllowDirectLookup("*");
+  ScopedHostMapper scoped_mapper(mapper.get());
+
+  // Resolve a plain IPv6 address.  Don't worry about [brackets], because
+  // the caller should have removed them.
+  net::HostResolver host_resolver;
+  net::AddressList adrlist;
+  const int kPortnum = 5555;
+  int err = host_resolver.Resolve("2001:db8::1", kPortnum, &adrlist, NULL);
+  // On computers without IPv6 support, getaddrinfo cannot convert IPv6
+  // address literals to addresses (getaddrinfo returns EAI_NONAME).  So this
+  // test has to allow host_resolver.Resolve to fail.
+  if (err == net::ERR_NAME_NOT_RESOLVED)
+    return;
+  EXPECT_EQ(net::OK, err);
+
+  const struct addrinfo* ainfo = adrlist.head();
+  EXPECT_EQ(static_cast<addrinfo*>(NULL), ainfo->ai_next);
+  EXPECT_EQ(sizeof(struct sockaddr_in6), ainfo->ai_addrlen);
+
+  const struct sockaddr* sa = ainfo->ai_addr;
+  const struct sockaddr_in6* sa_in6 = (const struct sockaddr_in6*) sa;
+  EXPECT_TRUE(htons(kPortnum) == sa_in6->sin6_port);
+
+  const uint8 expect_addr[] = {
+    0x20, 0x01, 0x0d, 0xb8, 0x00, 0x00, 0x00, 0x00,
+    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01
+  };
+  for (int i = 0; i < 16; i++) {
+    EXPECT_EQ(expect_addr[i], sa_in6->sin6_addr.s6_addr[i]);
+  }
+}
+
+TEST_F(HostResolverTest, EmptyHost) {
+  scoped_refptr<RuleBasedHostMapper> mapper = new RuleBasedHostMapper();
+  mapper->AllowDirectLookup("*");
+  ScopedHostMapper scoped_mapper(mapper.get());
+
+  net::HostResolver host_resolver;
+  net::AddressList adrlist;
+  const int kPortnum = 5555;
+  int err = host_resolver.Resolve("", kPortnum, &adrlist, NULL);
+  EXPECT_EQ(net::ERR_NAME_NOT_RESOLVED, err);
+}
+
+}  // namespace
