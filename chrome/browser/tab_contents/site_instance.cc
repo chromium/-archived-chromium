@@ -96,7 +96,10 @@ SiteInstance* SiteInstance::CreateSiteInstance(Profile* profile) {
 /*static*/
 SiteInstance* SiteInstance::CreateSiteInstanceForURL(Profile* profile,
                                                      const GURL& url) {
-  return (new BrowsingInstance(profile))->GetSiteInstanceForURL(url);
+  // This BrowsingInstance may be deleted if it returns an existing
+  // SiteInstance.
+  scoped_refptr<BrowsingInstance> instance(new BrowsingInstance(profile));
+  return instance->GetSiteInstanceForURL(url);
 }
 
 /*static*/
