@@ -150,7 +150,8 @@ class TestPageHandler(BaseHTTPServer.BaseHTTPRequestHandler):
       # no extension.
       return self._default_mime_type
 
-    return self._mime_types.get(extension, self._default_mime_type)
+    # extension starts with a dot, so we need to remove it
+    return self._mime_types.get(extension[1:], self._default_mime_type)
 
   def KillHandler(self):
     """This request handler kills the server, for use when we're done"
