@@ -105,7 +105,7 @@ gfx::Rect BrowserWindowCocoa::GetNormalBounds() const {
   NSRect frame = [window_ frame];
   NSScreen* screen = [window_ screen];
   gfx::Rect bounds(frame.origin.x, 0, frame.size.width, frame.size.height);
-  bounds.set_y([screen frame].size.height + frame.size.height + frame.origin.y);
+  bounds.set_y([screen frame].size.height - frame.origin.y - frame.size.height);
   return bounds;
 }
 
