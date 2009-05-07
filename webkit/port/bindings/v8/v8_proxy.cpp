@@ -1545,6 +1545,12 @@ v8::Persistent<v8::FunctionTemplate> V8Proxy::GetTemplate(
     case V8ClassIndex::DOMPARSER:
       desc->SetCallHandler(USE_CALLBACK(DOMParserConstructor));
       break;
+    case V8ClassIndex::HTMLIMAGEELEMENT:
+      desc->SetCallHandler(USE_CALLBACK(HTMLImageElementConstructor));
+      break;
+    case V8ClassIndex::HTMLOPTIONELEMENT:
+      desc->SetCallHandler(USE_CALLBACK(HTMLOptionElementConstructor));
+      break;
     case V8ClassIndex::WEBKITCSSMATRIX:
       desc->SetCallHandler(USE_CALLBACK(WebKitCSSMatrixConstructor));
       break;

@@ -997,7 +997,7 @@ sub GenerateBatchedAttributeData
       $hasCustomSetter = 1;
 
       # Handle the special case of window.top being marked upstream as Replaceable.
-      # TODO(dglazkov): Investigate why Replaceable is not marked as ReadOnly
+      # TODO(dglazkov): Investigate why [Replaceable] is not marked as ReadOnly
       # upstream and reach parity.
       if (!($interfaceName eq "DOMWindow" and $attrName eq "top")) {
         $propAttr .= "|v8::ReadOnly";

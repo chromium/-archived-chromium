@@ -319,6 +319,8 @@ DECLARE_CALLBACK(DOMWindowClearTimeout)
 DECLARE_CALLBACK(DOMWindowClearInterval)
 
 DECLARE_CALLBACK(DOMParserConstructor)
+DECLARE_CALLBACK(HTMLImageElementConstructor)
+DECLARE_CALLBACK(HTMLOptionElementConstructor)
 DECLARE_CALLBACK(MessageChannelConstructor)
 DECLARE_CALLBACK(WebKitCSSMatrixConstructor)
 DECLARE_CALLBACK(WebKitPointConstructor)
