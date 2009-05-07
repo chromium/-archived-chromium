@@ -74,7 +74,6 @@
 #include "HTMLCanvasElement.h"
 #include "HTMLDocument.h"
 #include "HTMLEmbedElement.h"
-#include "HTMLFormElement.h"
 #include "HTMLFrameElement.h"
 #include "HTMLFrameElementBase.h"
 #include "HTMLFrameSetElement.h"
@@ -154,17 +153,6 @@ ACCESSOR_GETTER(DocumentImplementation) {
   info.Holder()->SetInternalField(kDocumentImplementationIndex, wrapper);
 
   return wrapper;
-}
-
-
-INDEXED_PROPERTY_GETTER(HTMLFormElement) {
-  INC_STATS("DOM.HTMLFormElement.IndexedPropertyGetter");
-  HTMLFormElement* form =
-      V8Proxy::DOMWrapperToNode<HTMLFormElement>(info.Holder());
-
-  RefPtr<Node> result = form->elements()->item(index);
-  if (!result) return v8::Handle<v8::Value>();
-  return V8Proxy::NodeToV8Object(result.get());
 }
 
 
@@ -995,16 +983,6 @@ CALLBACK_FUNC_DECL(DOMWindowNOP)
     return v8::Undefined();
 }
 
-
-CALLBACK_FUNC_DECL(HTMLFormElementSubmit) {
-  INC_STATS("DOM.HTMLFormElement.submit()");
-
-  HTMLFormElement* form =
-    V8Proxy::DOMWrapperToNative<HTMLFormElement>(args.Holder());
-
-  form->submit(0, false, false);
-  return v8::Undefined();
-}
 
 static String EventNameFromAttributeName(const String& name) {
   ASSERT(name.startsWith("on"));
