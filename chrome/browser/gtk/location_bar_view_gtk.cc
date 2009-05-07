@@ -6,6 +6,7 @@
 
 #include <string>
 
+#include "app/resource_bundle.h"
 #include "base/basictypes.h"
 #include "base/gfx/gtk_util.h"
 #include "base/logging.h"
@@ -30,6 +31,10 @@ const int kEditLeftRightPadding = 4;
 // We draw a border on the top and bottom (but not on left or right).
 const int kBorderThickness = 1;
 
+// Padding around the security icon.
+const int kSecurityIconPaddingLeft = 4;
+const int kSecurityIconPaddingRight = 2;
+
 // TODO(deanm): Eventually this should be painted with the background png
 // image, but for now we get pretty close by just drawing a solid border.
 const GdkColor kBorderColor = GDK_COLOR_RGB(0xbe, 0xc8, 0xd4);
@@ -45,7 +50,8 @@ const GdkColor LocationBarViewGtk::kBackgroundColorByLevel[3] = {
 
 LocationBarViewGtk::LocationBarViewGtk(CommandUpdater* command_updater,
     ToolbarModel* toolbar_model, AutocompletePopupPositioner* popup_positioner)
-    : profile_(NULL),
+    : security_icon_(NULL),
+      profile_(NULL),
       command_updater_(command_updater),
       toolbar_model_(toolbar_model),
       popup_positioner_(popup_positioner),
@@ -67,10 +73,7 @@ void LocationBarViewGtk::Init() {
   location_entry_->Init();
 
   alignment_.Own(gtk_alignment_new(0.0, 0.0, 1.0, 1.0));
-  gtk_alignment_set_padding(GTK_ALIGNMENT(alignment_.get()),
-                            kTopMargin + kBorderThickness,
-                            kBottomMargin + kBorderThickness,
-                            kEditLeftRightPadding, kEditLeftRightPadding);
+  UpdateAlignmentPadding();
   // We will paint for the alignment, to paint the background and border.
   gtk_widget_set_app_paintable(alignment_.get(), TRUE);
   // Have GTK double buffer around the expose signal.
@@ -87,6 +90,7 @@ void LocationBarViewGtk::SetProfile(Profile* profile) {
 }
 
 void LocationBarViewGtk::Update(const TabContents* contents) {
+  SetSecurityIcon(toolbar_model_->GetIcon());
   location_entry_->Update(contents);
   // The security level (background color) could have changed, etc.
   gtk_widget_queue_draw(alignment_.get());
@@ -207,6 +211,10 @@ gboolean LocationBarViewGtk::HandleExpose(GtkWidget* widget,
       alloc_rect->width,
       alloc_rect->height - kTopMargin - kBottomMargin};
 
+  // Some of our calculations are a bit sloppy.  Since we draw on our parent
+  // window, set a clip to make sure that we don't draw outside.
+  gdk_gc_set_clip_rectangle(gc, &inner_rect);
+
   // Draw our 1px border.  TODO(deanm): Maybe this would be cleaner as an
   // overdrawn stroked rect with a clip to the allocation?
   gdk_gc_set_rgb_fg_color(gc, &kBorderColor);
@@ -230,7 +238,57 @@ gboolean LocationBarViewGtk::HandleExpose(GtkWidget* widget,
                      inner_rect.width,
                      inner_rect.height - (kBorderThickness * 2));
 
+  // If we have an SSL icon, draw it vertically centered on the right side.
+  if (security_icon_) {
+    int icon_width = gdk_pixbuf_get_width(security_icon_);
+    int icon_height = gdk_pixbuf_get_height(security_icon_);
+    int icon_x = inner_rect.x + inner_rect.width -
+        kBorderThickness - icon_width - kSecurityIconPaddingRight;
+    int icon_y = inner_rect.y +
+        ((inner_rect.height - icon_height) / 2);
+    gdk_draw_pixbuf(drawable, gc, security_icon_,
+                    0, 0, icon_x, icon_y, -1, -1,
+                    GDK_RGB_DITHER_NONE, 0, 0);
+  }
+
   g_object_unref(gc);
 
   return FALSE;  // Continue propagating the expose.
+}
+
+void LocationBarViewGtk::UpdateAlignmentPadding() {
+  // When we have an icon, increase our right padding to make space for it.
+  int right_padding = security_icon_ ? gdk_pixbuf_get_width(security_icon_) +
+      kSecurityIconPaddingLeft + kSecurityIconPaddingRight :
+      kEditLeftRightPadding;
+
+  gtk_alignment_set_padding(GTK_ALIGNMENT(alignment_.get()),
+                            kTopMargin + kBorderThickness,
+                            kBottomMargin + kBorderThickness,
+                            kEditLeftRightPadding, right_padding);
+}
+
+void LocationBarViewGtk::SetSecurityIcon(ToolbarModel::Icon icon) {
+  static ResourceBundle& rb = ResourceBundle::GetSharedInstance();
+  static GdkPixbuf* kLockIcon = rb.GetPixbufNamed(IDR_LOCK);
+  static GdkPixbuf* kWarningIcon = rb.GetPixbufNamed(IDR_WARNING);
+
+  switch (icon) {
+    case ToolbarModel::LOCK_ICON:
+      security_icon_ = kLockIcon;
+      break;
+    case ToolbarModel::WARNING_ICON:
+      security_icon_ = kWarningIcon;
+      break;
+    case ToolbarModel::NO_ICON:
+      security_icon_ = NULL;
+      break;
+    default:
+      NOTREACHED();
+      security_icon_ = NULL;
+      break;
+  }
+
+  // Make sure there is room for the icon.
+  UpdateAlignmentPadding();
 }

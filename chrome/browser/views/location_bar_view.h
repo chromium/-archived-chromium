@@ -53,7 +53,7 @@ class LocationBarView : public LocationBar,
 
   LocationBarView(Profile* profile,
                   CommandUpdater* command_updater,
-                  ToolbarModel* model_,
+                  ToolbarModel* model,
                   Delegate* delegate,
                   bool popup_window_mode,
                   AutocompletePopupPositioner* popup_positioner);

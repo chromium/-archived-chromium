@@ -82,11 +82,20 @@ class LocationBarViewGtk : public AutocompleteEditController,
     return reinterpret_cast<LocationBarViewGtk*>(userdata)->
         HandleExpose(widget, event);
   }
-
   gboolean HandleExpose(GtkWidget* widget, GdkEventExpose* event);
+
+  // Calculate and set what the padding should be around the location entry.
+  // For example, we will increase the right padding to make room for an icon.
+  void UpdateAlignmentPadding();
+
+  // Set the SSL icon we should be showing.
+  void SetSecurityIcon(ToolbarModel::Icon icon);
 
   // The outermost widget we want to be hosted.
   OwnedWidgetGtk alignment_;
+
+  // The current SSL icon we are showing, or NULL.
+  GdkPixbuf* security_icon_;
 
   scoped_ptr<AutocompleteEditViewGtk> location_entry_;
 
