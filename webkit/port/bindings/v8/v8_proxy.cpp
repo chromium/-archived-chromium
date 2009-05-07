@@ -1901,12 +1901,6 @@ bool V8Proxy::CanAccessPrivate(DOMWindow* target_window)
     if (!origin_window)
         return false;
 
-    // JS may be attempting to access the "window" object, which should be
-    // valid, even if the document hasn't been constructed yet.
-    // If the document doesn't exist yet allow JS to access the window object.
-    if (!origin_window->document())
-        return true;
-
     const SecurityOrigin* active_security_origin = origin_window->securityOrigin();
     const SecurityOrigin* target_security_origin = target_window->securityOrigin();
 
