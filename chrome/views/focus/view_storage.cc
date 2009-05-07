@@ -6,8 +6,8 @@
 
 #include <algorithm>
 
+#include "base/logging.h"
 #include "base/stl_util-inl.h"
-#include "chrome/common/notification_service.h"
 
 namespace views {
 
@@ -38,8 +38,6 @@ ViewStorage* ViewStorage::GetSharedInstance() {
 }
 
 ViewStorage::ViewStorage() : view_storage_next_id_(0) {
-  NotificationService::current()->AddObserver(
-      this, NotificationType::VIEW_REMOVED, NotificationService::AllSources());
 }
 
 ViewStorage::~ViewStorage() {
@@ -54,7 +52,7 @@ int ViewStorage::CreateStorageID() {
   return view_storage_next_id_++;
 }
 
-void ViewStorage::StoreView(int storage_id, View* view) {
+int ViewStorage::StoreView(int storage_id, View* view) {
   DCHECK(view);
   std::map<int, ViewLocationInfo*>::iterator iter =
       id_to_view_location_.find(storage_id);
@@ -92,6 +90,7 @@ void ViewStorage::StoreView(int storage_id, View* view) {
     ids = id_iter->second;
   }
   ids->push_back(storage_id);
+  return storage_id;
 }
 
 View* ViewStorage::RetrieveView(int storage_id) {
@@ -124,6 +123,21 @@ View* ViewStorage::RetrieveView(int storage_id) {
 
 void ViewStorage::RemoveView(int storage_id) {
   EraseView(storage_id, false);
+}
+
+void ViewStorage::ViewRemoved(View* parent, View* removed) {
+  // Let's first retrieve the ids for that view.
+  std::map<View*, std::vector<int>*>::iterator ids_iter =
+      view_to_ids_.find(removed);
+
+  if (ids_iter == view_to_ids_.end()) {
+    // That view is not in the view storage.
+    return;
+  }
+
+  std::vector<int>* ids = ids_iter->second;
+  DCHECK(!ids->empty());
+  EraseView((*ids)[0], true);
 }
 
 void ViewStorage::EraseView(int storage_id, bool remove_all_ids) {
@@ -164,25 +178,6 @@ void ViewStorage::EraseView(int storage_id, bool remove_all_ids) {
     delete ids;
     view_to_ids_.erase(ids_iter);
   }
-}
-
-void ViewStorage::Observe(NotificationType type,
-                          const NotificationSource& source,
-                          const NotificationDetails& details) {
-  DCHECK(type == NotificationType::VIEW_REMOVED);
-
-  // Let's first retrieve the ids for that view.
-  std::map<View*, std::vector<int>*>::iterator ids_iter =
-      view_to_ids_.find(Source<View>(source).ptr());
-
-  if (ids_iter == view_to_ids_.end()) {
-    // That view is not in the view storage.
-    return;
-  }
-
-  std::vector<int>* ids = ids_iter->second;
-  DCHECK(!ids->empty());
-  EraseView((*ids)[0], true);
 }
 
 }  // namespace views

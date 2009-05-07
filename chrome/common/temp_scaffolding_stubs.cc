@@ -312,3 +312,8 @@ void HungRendererDialog::HideForTabContents(TabContents*) {
 void HungRendererDialog::ShowForTabContents(TabContents*) {
   NOTIMPLEMENTED();
 }
+
+void BrowserList::AllBrowsersClosed() {
+  // TODO(port): Close any dependent windows if necessary when the last browser
+  //             window is closed.
+}

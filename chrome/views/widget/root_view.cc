@@ -13,11 +13,12 @@
 #endif
 #include "base/logging.h"
 #include "base/message_loop.h"
-#include "chrome/common/notification_service.h"
 #if defined(OS_WIN)
+#include "chrome/views/focus/view_storage.h"
 #include "chrome/views/widget/root_view_drop_target.h"
 #endif
 #include "chrome/views/widget/widget.h"
+#include "chrome/views/window/window.h"
 
 namespace views {
 
@@ -261,10 +262,24 @@ void RootView::ViewHierarchyChanged(bool is_add, View* parent, View* child) {
     if (default_keyboard_handler_ == child) {
       default_keyboard_handler_ = NULL;
     }
-    NotificationService::current()->Notify(
-        NotificationType::VIEW_REMOVED,
-        Source<View>(child),
-        Details<View>(parent));
+
+    // For a given widget hierarchy, focus is tracked by a FocusManager attached
+    // to our nearest enclosing Window. <-- Important Assumption!
+    // We may not have access to our window if this function is called as a
+    // result of teardown during the deletion of the RootView and its hierarchy,
+    // so we don't bother notifying the FocusManager in that case because it
+    // will have already been destroyed (the Widget that contains us is
+    // NCDESTROY'ed which in turn destroys the focus manager _before_ the
+    // RootView is deleted.)
+#if defined(OS_WIN)
+    Window* window = GetWindow();
+    if (window) {
+      FocusManager* focus_manager =
+          FocusManager::GetFocusManager(window->GetNativeWindow());
+      focus_manager->ViewRemoved(parent, child);
+    }
+    ViewStorage::GetSharedInstance()->ViewRemoved(parent, child);
+#endif
   }
 }
 

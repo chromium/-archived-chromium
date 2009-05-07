@@ -16,6 +16,7 @@
 #include "chrome/views/controls/scroll_view.h"
 #include "chrome/views/controls/text_field.h"
 #include "chrome/views/event.h"
+#include "chrome/views/focus/view_storage.h"
 #include "chrome/views/view.h"
 #include "chrome/views/widget/root_view.h"
 #include "chrome/views/widget/widget_win.h"
@@ -430,96 +431,77 @@ TEST_F(ViewTest, DISABLED_Painting) {
   window.DestroyWindow();
 }
 */
-typedef std::vector<View*> ViewList;
-
-class RemoveViewObserver : public NotificationObserver {
-public:
-  RemoveViewObserver() { }
-
-  void Observe(NotificationType type, const NotificationSource& source,
-    const NotificationDetails& details) {
-      ASSERT_TRUE(type == NotificationType::VIEW_REMOVED);
-      removed_views_.push_back(Source<views::View>(source).ptr());
-  }
-
-  bool WasRemoved(views::View* view) {
-    return std::find(removed_views_.begin(), removed_views_.end(), view) !=
-        removed_views_.end();
-  }
-
-  ViewList removed_views_;
-
-};
 
 TEST_F(ViewTest, RemoveNotification) {
-  scoped_ptr<RemoveViewObserver> observer(new RemoveViewObserver);
-
-  NotificationService::current()->AddObserver(
-      observer.get(),
-      NotificationType::VIEW_REMOVED,
-      NotificationService::AllSources());
-
+  views::ViewStorage* vs = views::ViewStorage::GetSharedInstance();
   views::WidgetWin* window = new views::WidgetWin;
   views::RootView* root_view = window->GetRootView();
 
   View* v1 = new View;
+  int s1 = vs->StoreView(vs->CreateStorageID(), v1);
   root_view->AddChildView(v1);
   View* v11 = new View;
+  int s11 = vs->StoreView(vs->CreateStorageID(), v11);
   v1->AddChildView(v11);
   View* v111 = new View;
+  int s111 = vs->StoreView(vs->CreateStorageID(), v111);
   v11->AddChildView(v111);
   View* v112 = new View;
+  int s112 = vs->StoreView(vs->CreateStorageID(), v112);
   v11->AddChildView(v112);
   View* v113 = new View;
+  int s113 = vs->StoreView(vs->CreateStorageID(), v113);
   v11->AddChildView(v113);
   View* v1131 = new View;
+  int s1131 = vs->StoreView(vs->CreateStorageID(), v1131);
   v113->AddChildView(v1131);
   View* v12 = new View;
+  int s12 = vs->StoreView(vs->CreateStorageID(), v12);
   v1->AddChildView(v12);
 
   View* v2 = new View;
+  int s2 = vs->StoreView(vs->CreateStorageID(), v2);
   root_view->AddChildView(v2);
   View* v21 = new View;
+  int s21 = vs->StoreView(vs->CreateStorageID(), v21);
   v2->AddChildView(v21);
   View* v211 = new View;
+  int s211 = vs->StoreView(vs->CreateStorageID(), v211);
   v21->AddChildView(v211);
 
   // Try removing a leaf view.
   v21->RemoveChildView(v211);
-  EXPECT_EQ(1, observer->removed_views_.size());
-  EXPECT_TRUE(observer->WasRemoved(v211));
+  EXPECT_EQ(NULL, vs->RetrieveView(s211));
   delete v211;  // We won't use this one anymore.
 
   // Now try removing a view with a hierarchy of depth 1.
-  observer->removed_views_.clear();
   v11->RemoveChildView(v113);
-  EXPECT_EQ(observer->removed_views_.size(), 2);
-  EXPECT_TRUE(observer->WasRemoved(v113) && observer->WasRemoved(v1131));
+  EXPECT_EQ(NULL, vs->RetrieveView(s113));
+  EXPECT_EQ(NULL, vs->RetrieveView(s1131));
   delete v113;  // We won't use this one anymore.
 
   // Now remove even more.
-  observer->removed_views_.clear();
   root_view->RemoveChildView(v1);
-  EXPECT_EQ(observer->removed_views_.size(), 5);
-  EXPECT_TRUE(observer->WasRemoved(v1) &&
-              observer->WasRemoved(v11) && observer->WasRemoved(v12) &&
-              observer->WasRemoved(v111)  && observer->WasRemoved(v112));
+  EXPECT_EQ(NULL, vs->RetrieveView(s1));
+  EXPECT_EQ(NULL, vs->RetrieveView(s11));
+  EXPECT_EQ(NULL, vs->RetrieveView(s12));
+  EXPECT_EQ(NULL, vs->RetrieveView(s111));
+  EXPECT_EQ(NULL, vs->RetrieveView(s112));
 
   // Put v1 back for more tests.
   root_view->AddChildView(v1);
-  observer->removed_views_.clear();
+  vs->StoreView(s1, v1);
 
   // Now delete the root view (deleting the window will trigger a delete of the
   // RootView) and make sure we are notified that the views were removed.
   delete window;
-  EXPECT_EQ(observer->removed_views_.size(), 7);
-  EXPECT_TRUE(observer->WasRemoved(v1) && observer->WasRemoved(v2) &&
-              observer->WasRemoved(v11) && observer->WasRemoved(v12) &&
-              observer->WasRemoved(v21) &&
-              observer->WasRemoved(v111)  && observer->WasRemoved(v112));
-
-  NotificationService::current()->RemoveObserver(observer.get(),
-      NotificationType::VIEW_REMOVED, NotificationService::AllSources());
+  EXPECT_EQ(NULL, vs->RetrieveView(s1));
+  EXPECT_EQ(NULL, vs->RetrieveView(s12));
+  EXPECT_EQ(NULL, vs->RetrieveView(s11));
+  EXPECT_EQ(NULL, vs->RetrieveView(s12));
+  EXPECT_EQ(NULL, vs->RetrieveView(s21));
+  EXPECT_EQ(NULL, vs->RetrieveView(s111));
+  EXPECT_EQ(NULL, vs->RetrieveView(s112));
 }
 
 namespace {
