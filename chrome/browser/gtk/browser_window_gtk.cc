@@ -197,6 +197,34 @@ gboolean HandleCustomAccelerator(guint keyval, GdkModifierType modifier,
   return FALSE;
 }
 
+// Handle accelerators that we don't want the native widget to be able to
+// override.
+gboolean PreHandleAccelerator(guint keyval, GdkModifierType modifier,
+                              Browser* browser) {
+  // Filter modifier to only include accelerator modifiers.
+  modifier = static_cast<GdkModifierType>(
+      modifier & gtk_accelerator_get_default_mod_mask());
+  switch (keyval) {
+    case GDK_Page_Down:
+      if (GDK_CONTROL_MASK == modifier) {
+        browser->ExecuteCommand(IDC_SELECT_NEXT_TAB);
+        return TRUE;
+      }
+      break;
+
+    case GDK_Page_Up:
+      if (GDK_CONTROL_MASK == modifier) {
+        browser->ExecuteCommand(IDC_SELECT_PREVIOUS_TAB);
+        return TRUE;
+      }
+      break;
+
+    default:
+      break;
+  }
+  return FALSE;
+}
+
 // Let the focused widget have first crack at the key event so we don't
 // override their accelerators.
 gboolean OnKeyPress(GtkWindow* window, GdkEventKey* event, Browser* browser) {
@@ -207,10 +235,12 @@ gboolean OnKeyPress(GtkWindow* window, GdkEventKey* event, Browser* browser) {
   // The current tab might not have a render view if it crashed.
   if (!current_tab_contents || !current_tab_contents->GetContentNativeView() ||
       !gtk_widget_is_focus(current_tab_contents->GetContentNativeView())) {
-    gboolean handled = HandleCustomAccelerator(event->keyval,
-        GdkModifierType(event->state), browser);
-    if (handled)
+    if (HandleCustomAccelerator(event->keyval,
+        GdkModifierType(event->state), browser) ||
+        PreHandleAccelerator(event->keyval,
+        GdkModifierType(event->state), browser)) {
       return TRUE;
+    }
   }
 
   if (!gtk_window_propagate_key_event(window, event)) {
