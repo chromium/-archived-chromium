@@ -6,7 +6,6 @@
 #include "chrome/renderer/media/simple_data_source.h"
 #include "chrome/renderer/render_thread.h"
 #include "chrome/renderer/render_view.h"
-#include "chrome/renderer/webmediaplayer_delegate_impl.h"
 #include "media/base/filter_host.h"
 #include "net/base/load_flags.h"
 #include "net/http/http_response_headers.h"

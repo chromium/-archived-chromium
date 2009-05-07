@@ -9,7 +9,6 @@
 #include "chrome/common/extensions/url_pattern.h"
 #include "chrome/renderer/media/buffered_data_source.h"
 #include "chrome/renderer/render_view.h"
-#include "chrome/renderer/webmediaplayer_delegate_impl.h"
 #include "chrome/renderer/render_thread.h"
 #include "media/base/filter_host.h"
 #include "net/base/load_flags.h"
@@ -36,7 +35,7 @@ bool IsSchemeSupported(const GURL& url) {
 
 /////////////////////////////////////////////////////////////////////////////
 // BufferedResourceLoader
-BufferedResourceLoader::BufferedResourceLoader(int route_id,
+BufferedResourceLoader::BufferedResourceLoader(int32 routing_id,
                                                const GURL& url,
                                                int64 first_byte_position,
                                                int64 last_byte_position)
@@ -52,7 +51,7 @@ BufferedResourceLoader::BufferedResourceLoader(int route_id,
       completed_(false),
       range_requested_(false),
       async_start_(false),
-      route_id_(route_id),
+      routing_id_(routing_id),
       url_(url),
       first_byte_position_(first_byte_position),
       last_byte_position_(last_byte_position),
@@ -109,7 +108,7 @@ int BufferedResourceLoader::Start(net::CompletionCallback* start_callback) {
       //                    app_cache_context()->context_id()
       // For now don't service media resource requests from the appcache.
       WebAppCacheContext::kNoAppCacheContextId,
-      route_id_));
+      routing_id_));
 
   // We may receive stop signal while we are inside this method, it's because
   // Start() may get called on demuxer thread while Stop() is called on
@@ -458,8 +457,8 @@ void BufferedResourceLoader::InvokeAndResetStartCallback(int error) {
 
 //////////////////////////////////////////////////////////////////////////////
 // BufferedDataSource
-BufferedDataSource::BufferedDataSource(WebMediaPlayerDelegateImpl* delegate)
-    : delegate_(delegate),
+BufferedDataSource::BufferedDataSource(int routing_id)
+    : routing_id_(routing_id),
       stopped_(false),
       position_(0),
       total_bytes_(kPositionNotSpecified),
@@ -505,8 +504,7 @@ bool BufferedDataSource::Initialize(const std::string& url) {
     AutoLock auto_lock(lock_);
     if (!stopped_) {
       buffered_resource_loader_ = new BufferedResourceLoader(
-          delegate_->view()->routing_id(),
-          url_, kPositionNotSpecified, kPositionNotSpecified);
+          routing_id_, url_, kPositionNotSpecified, kPositionNotSpecified);
       resource_loader = buffered_resource_loader_;
     }
   }
@@ -564,8 +562,7 @@ size_t BufferedDataSource::Read(uint8* data, size_t size) {
 
         // Create a new resource loader.
         resource_loader =
-            new BufferedResourceLoader(delegate_->view()->routing_id(),
-                                       url_, position_,
+            new BufferedResourceLoader(routing_id_, url_, position_,
                                        kPositionNotSpecified);
         buffered_resource_loader_ = resource_loader;
       }

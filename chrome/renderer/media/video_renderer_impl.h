@@ -17,12 +17,12 @@
 #include "base/gfx/platform_canvas.h"
 #include "base/gfx/rect.h"
 #include "base/gfx/size.h"
-#include "chrome/renderer/webmediaplayer_delegate_impl.h"
+#include "chrome/renderer/webmediaplayer_impl.h"
 #include "media/base/buffers.h"
 #include "media/base/factory.h"
 #include "media/base/filters.h"
 #include "media/filters/video_renderer_base.h"
-#include "webkit/glue/webmediaplayer_delegate.h"
+#include "third_party/WebKit/WebKit/chromium/public/WebMediaPlayer.h"
 
 class VideoRendererImpl : public media::VideoRendererBase {
  public:
@@ -39,10 +39,9 @@ class VideoRendererImpl : public media::VideoRendererBase {
   virtual void Paint(skia::PlatformCanvas* canvas, const gfx::Rect& dest_rect);
 
   // Static method for creating factory for this object.
-  static media::FilterFactory* CreateFactory(
-      WebMediaPlayerDelegateImpl* delegate) {
-    return new media::FilterFactoryImpl1<
-        VideoRendererImpl, WebMediaPlayerDelegateImpl*>(delegate);
+  static media::FilterFactory* CreateFactory(WebMediaPlayerImpl* delegate) {
+    return new media::FilterFactoryImpl1<VideoRendererImpl,
+                                         WebMediaPlayerImpl*>(delegate);
   }
 
  private:
@@ -56,11 +55,11 @@ class VideoRendererImpl : public media::VideoRendererBase {
   virtual void OnPaintNeeded();
 
   friend class media::FilterFactoryImpl1<VideoRendererImpl,
-                                         WebMediaPlayerDelegateImpl*>;
+                                         WebMediaPlayerImpl*>;
 
   // Constructor and destructor are private.  Only the filter factory is
   // allowed to create instances.
-  explicit VideoRendererImpl(WebMediaPlayerDelegateImpl* delegate);
+  explicit VideoRendererImpl(WebMediaPlayerImpl* delegate);
   virtual ~VideoRendererImpl() {}
 
   // Internal method used by the Paint method to convert the specified video
@@ -68,7 +67,7 @@ class VideoRendererImpl : public media::VideoRendererBase {
   void CopyToCurrentFrame(media::VideoFrame* video_frame);
 
   // Pointer to our parent object that is called to request repaints.
-  WebMediaPlayerDelegateImpl* delegate_;
+  WebMediaPlayerImpl* delegate_;
 
   // An RGB bitmap used to convert the video frames.
   SkBitmap bitmap_;

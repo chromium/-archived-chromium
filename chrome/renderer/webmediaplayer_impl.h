@@ -1,8 +1,8 @@
-// Copyright (c) 2008 The Chromium Authors. All rights reserved.  Use of this
-// source code is governed by a BSD-style license that can be found in the
-// LICENSE file.
+// Copyright (c) 2008-2009 The Chromium Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style license that can be found
+// in the LICENSE file.
 //
-// Delegate calls from WebCore::MediaPlayerPrivate to google's video player.
+// Delegate calls from WebCore::MediaPlayerPrivate to Chrome's video player.
 // It contains PipelineImpl which is the actual media player pipeline, it glues
 // the media player pipeline, data source, audio renderer and renderer.
 // PipelineImpl would creates multiple threads and access some public methods
@@ -40,19 +40,22 @@
 // at destruction of this class we will need to unhook it from destruction event
 // list of the main thread.
 
-#ifndef CHROME_RENDERER_WEBMEDIAPLAYER_DELEGATE_IMPL_H_
-#define CHROME_RENDERER_WEBMEDIAPLAYER_DELEGATE_IMPL_H_
+#ifndef CHROME_RENDERER_WEBMEDIAPLAYER_IMPL_H_
+#define CHROME_RENDERER_WEBMEDIAPLAYER_IMPL_H_
 
 #include <vector>
 
+#include "base/gfx/platform_canvas.h"
 #include "base/lock.h"
 #include "base/message_loop.h"
 #include "media/base/filters.h"
 #include "media/base/pipeline_impl.h"
-#include "webkit/glue/webmediaplayer_delegate.h"
+#include "third_party/WebKit/WebKit/chromium/public/WebMediaPlayer.h"
+#include "third_party/WebKit/WebKit/chromium/public/WebMediaPlayerClient.h"
 
 class AudioRendererImpl;
 class DataSourceImpl;
+class GURL;
 class RenderView;
 class VideoRendererImpl;
 
@@ -60,103 +63,97 @@ namespace media {
 class FilterFactoryCollection;
 }
 
-// This typedef is used for WebMediaPlayerDelegateImpl::PostTask() and
+// This typedef is used for WebMediaPlayerImpl::PostTask() and
 // NotifyWebMediaPlayerTask in the source file.
-typedef void (webkit_glue::WebMediaPlayer::*WebMediaPlayerMethod)();
+typedef void (WebKit::WebMediaPlayerClient::*WebMediaPlayerClientMethod)();
 
-class WebMediaPlayerDelegateImpl : public webkit_glue::WebMediaPlayerDelegate,
-                                   public MessageLoop::DestructionObserver {
+class WebMediaPlayerImpl : public WebKit::WebMediaPlayer,
+                           public MessageLoop::DestructionObserver {
  public:
-  explicit WebMediaPlayerDelegateImpl(RenderView* view);
-  virtual ~WebMediaPlayerDelegateImpl();
+  WebMediaPlayerImpl(RenderView* view, WebKit::WebMediaPlayerClient* client);
+  virtual ~WebMediaPlayerImpl();
 
-  // Implementations of WebMediaPlayerDelegate, theses following methods are
-  // called from the WebKit, essentially lives inside the main thread.
-  virtual void Initialize(webkit_glue::WebMediaPlayer* media_player);
-
-  virtual void Load(const GURL& url);
-  virtual void CancelLoad();
+  virtual void load(const WebKit::WebURL& url);
+  virtual void cancelLoad();
 
   // Playback controls.
-  virtual void Play();
-  virtual void Pause();
-  virtual void Stop();
-  virtual void Seek(float seconds);
-  virtual void SetEndTime(float seconds);
-  virtual void SetPlaybackRate(float rate);
-  virtual void SetVolume(float volume);
-  virtual void SetVisible(bool visible);
-  virtual bool IsTotalBytesKnown();
+  virtual void play();
+  virtual void pause();
+  virtual void stop();
+  virtual void seek(float seconds);
+  virtual void setEndTime(float seconds);
+  virtual void setRate(float rate);
+  virtual void setVolume(float volume);
+  virtual void setVisible(bool visible);
+  virtual bool setAutoBuffer(bool autoBuffer);
+  virtual bool totalBytesKnown();
+  virtual float maxTimeBuffered() const;
+  virtual float maxTimeSeekable() const;
 
   // Methods for painting.
-  virtual void SetSize(const WebKit::WebSize& size);
+  virtual void setSize(const WebKit::WebSize& size);
 
-  virtual void Paint(skia::PlatformCanvas *canvas,
-                     const WebKit::WebRect& rect);
+  virtual void paint(WebKit::WebCanvas* canvas, const WebKit::WebRect& rect);
 
   // True if a video is loaded.
-  virtual bool IsVideo() const;
+  virtual bool hasVideo() const;
 
-  // Dimension of the video.
-  virtual size_t GetWidth() const;
-  virtual size_t GetHeight() const;
+  // Dimensions of the video.
+  virtual WebKit::WebSize naturalSize() const;
 
   // Getters of playback state.
-  virtual bool IsPaused() const;
-  virtual bool IsSeeking() const;
-  virtual float GetDuration() const;
-  virtual float GetCurrentTime() const;
-  virtual float GetPlayBackRate() const;
-  virtual float GetVolume() const;
-  virtual float GetMaxTimeBuffered() const;
-  virtual float GetMaxTimeSeekable() const;
+  virtual bool paused() const;
+  virtual bool seeking() const;
+  virtual float duration() const;
+  virtual float currentTime() const;
 
   // Get rate of loading the resource.
-  virtual int32 GetDataRate() const;
+  virtual int32 dataRate() const;
 
   // Internal states of loading and network.
   // TODO(hclam): Ask the pipeline about the state rather than having reading
   // them from members which would cause race conditions.
-  virtual webkit_glue::WebMediaPlayer::NetworkState GetNetworkState() const {
+  virtual WebKit::WebMediaPlayer::NetworkState networkState() const {
     return network_state_;
   }
-  virtual webkit_glue::WebMediaPlayer::ReadyState GetReadyState() const {
+  virtual WebKit::WebMediaPlayer::ReadyState readyState() const {
     return ready_state_;
   }
 
-  virtual int64 GetBytesLoaded() const;
-  virtual int64 GetTotalBytes() const;
+  virtual unsigned long long bytesLoaded() const;
+  virtual unsigned long long totalBytes() const;
 
-  // As we are closing the tab or even the browser, main_loop_ is destroyed
+  // As we are closing the tab or even the browser, |main_loop_| is destroyed
   // even before this object gets destructed, so we need to know when
-  // main_loop_ is being destroyed and we can stop posting repaint task
+  // |main_loop_| is being destroyed and we can stop posting repaint task
   // to it.
   virtual void WillDestroyCurrentMessageLoop();
 
-  // Callbacks.
+  // Notification callback for initialization from |pipeline_|. |successful| is
+  // true if the pipeline initialization is successful otherwise false.
   void DidInitializePipeline(bool successful);
 
-  // Called from tasks posted to main_loop_ from this object to remove
+  // Called from tasks posted to |main_loop_| from this object to remove
   // reference of them.
   void DidTask(CancelableTask* task);
 
   // Public methods to be called from renderers and data source so that
-  // WebMediaPlayerDelegateImpl has references to them.
+  // WebMediaPlayerImpl has references to them.
   void SetVideoRenderer(VideoRendererImpl* video_renderer);
 
-  // Called from VideoRenderer to fire a repaint task to main_loop_.
+  // Called from VideoRenderer to fire a repaint task to |main_loop_|.
   void PostRepaintTask();
 
   // Inline getters.
-  webkit_glue::WebMediaPlayer* web_media_player() { return web_media_player_; }
+  WebKit::WebMediaPlayerClient* client() { return client_; }
   RenderView* view() { return view_; }
 
  private:
   // Methods for posting tasks and cancelling tasks. This method may lives in
   // the main thread or the media threads.
-  void PostTask(int index, WebMediaPlayerMethod method);
+  void PostTask(int index, WebMediaPlayerClientMethod method);
 
-  // Cancel all tasks currently lives in |main_loop_|.
+  // Cancel all tasks currently live in |main_loop_|.
   void CancelAllTasks();
 
   // Indexes for tasks.
@@ -169,12 +166,12 @@ class WebMediaPlayerDelegateImpl : public webkit_glue::WebMediaPlayerDelegate,
   };
 
   // TODO(hclam): get rid of these members and read from the pipeline directly.
-  webkit_glue::WebMediaPlayer::NetworkState network_state_;
-  webkit_glue::WebMediaPlayer::ReadyState ready_state_;
+  WebKit::WebMediaPlayer::NetworkState network_state_;
+  WebKit::WebMediaPlayer::ReadyState ready_state_;
 
   // Message loops for posting tasks between Chrome's main thread. Also used
   // for DCHECKs so methods calls won't execute in the wrong thread.
-  MessageLoop* main_loop_;
+  MessageLoop* |main_loop_|;
 
   // A collection of factories for creating filters.
   scoped_refptr<media::FilterFactoryCollection> filter_factory_;
@@ -187,7 +184,7 @@ class WebMediaPlayerDelegateImpl : public webkit_glue::WebMediaPlayerDelegate,
   // from WebKit.
   scoped_refptr<VideoRendererImpl> video_renderer_;
 
-  webkit_glue::WebMediaPlayer* web_media_player_;
+  WebKit::WebMediaPlayerClient* client_;
   RenderView* view_;
 
   // List of tasks for holding pointers to all tasks currently in the
@@ -197,7 +194,7 @@ class WebMediaPlayerDelegateImpl : public webkit_glue::WebMediaPlayerDelegate,
   typedef std::vector<CancelableTask*> CancelableTaskList;
   CancelableTaskList tasks_;
 
-  DISALLOW_COPY_AND_ASSIGN(WebMediaPlayerDelegateImpl);
+  DISALLOW_COPY_AND_ASSIGN(WebMediaPlayerImpl);
 };
 
-#endif  // ifndef CHROME_RENDERER_WEBMEDIAPLAYER_DELEGATE_IMPL_H_
+#endif  // CHROME_RENDERER_WEBMEDIAPLAYER_IMPL_H_

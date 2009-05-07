@@ -184,6 +184,14 @@
 					>
 				</File>
 				<File
+					RelativePath="..\..\..\third_party\WebKit\WebKit\chromium\public\WebMediaPlayer.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\..\third_party\WebKit\WebKit\chromium\public\WebMediaPlayerClient.h"
+					>
+				</File>
+				<File
 					RelativePath="..\..\..\third_party\WebKit\WebKit\chromium\public\WebPluginListBuilder.h"
 					>
 				</File>

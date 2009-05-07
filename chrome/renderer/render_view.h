@@ -74,6 +74,8 @@ struct FileUploadData;
 namespace WebKit {
 class WebDragData;
 struct WebFindOptions;
+class WebMediaPlayer;
+class WebMediaPlayerClient;
 }
 
 // We need to prevent a page from trying to create infinite popups. It is not
@@ -244,7 +246,8 @@ class RenderView : public RenderWidget,
       const std::string& clsid,
       std::string* actual_mime_type);
   virtual WebKit::WebWorker* CreateWebWorker(WebKit::WebWorkerClient* client);
-  virtual webkit_glue::WebMediaPlayerDelegate* CreateMediaPlayerDelegate();
+  virtual WebKit::WebMediaPlayer* CreateWebMediaPlayer(
+      WebKit::WebMediaPlayerClient* client);
   virtual void OnMissingPluginStatus(WebPluginDelegate* delegate, int status);
   virtual void OpenURL(WebView* webview, const GURL& url,
                        const GURL& referrer,

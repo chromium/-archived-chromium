@@ -5,7 +5,7 @@
 #include "chrome/renderer/media/video_renderer_impl.h"
 #include "media/base/yuv_convert.h"
 
-VideoRendererImpl::VideoRendererImpl(WebMediaPlayerDelegateImpl* delegate)
+VideoRendererImpl::VideoRendererImpl(WebMediaPlayerImpl* delegate)
     : delegate_(delegate),
       last_converted_frame_(NULL) {
   // TODO(hclam): decide whether to do the following line in this thread or

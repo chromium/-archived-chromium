@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "chrome/renderer/webmediaplayer_delegate_impl.h"
+#include "chrome/renderer/webmediaplayer_impl.h"
 
 #include "base/command_line.h"
 #include "chrome/common/chrome_switches.h"
@@ -22,6 +22,7 @@
 #include "media/filters/null_audio_renderer.h"
 #include "third_party/WebKit/WebKit/chromium/public/WebRect.h"
 #include "third_party/WebKit/WebKit/chromium/public/WebSize.h"
+#include "third_party/WebKit/WebKit/chromium/public/WebURL.h"
 
 using WebKit::WebRect;
 using WebKit::WebSize;
@@ -31,39 +32,40 @@ using WebKit::WebSize;
 
 class NotifyWebMediaPlayerTask : public CancelableTask {
  public:
-  NotifyWebMediaPlayerTask(WebMediaPlayerDelegateImpl* delegate,
-                           WebMediaPlayerMethod method)
-      : delegate_(delegate),
+  NotifyWebMediaPlayerTask(WebMediaPlayerImpl* media_player,
+                           WebMediaPlayerClientMethod method)
+      : media_player_(media_player),
         method_(method) {}
 
   virtual void Run() {
-    if (delegate_) {
-      (delegate_->web_media_player()->*(method_))();
-      delegate_->DidTask(this);
+    if (media_player_) {
+      (media_player_->client()->*(method_))();
+      media_player_->DidTask(this);
     }
   }
 
   virtual void Cancel() {
-    delegate_ = NULL;
+    media_player_ = NULL;
   }
 
  private:
-  WebMediaPlayerDelegateImpl* delegate_;
-  WebMediaPlayerMethod method_;
+  WebMediaPlayerImpl* media_player_;
+  WebMediaPlayerClientMethod method_;
 
   DISALLOW_COPY_AND_ASSIGN(NotifyWebMediaPlayerTask);
 };
 
 /////////////////////////////////////////////////////////////////////////////
-// WebMediaPlayerDelegateImpl implementation
+// WebMediaPlayerImpl implementation
 
-WebMediaPlayerDelegateImpl::WebMediaPlayerDelegateImpl(RenderView* view)
-    : network_state_(webkit_glue::WebMediaPlayer::EMPTY),
-      ready_state_(webkit_glue::WebMediaPlayer::HAVE_NOTHING),
+WebMediaPlayerImpl::WebMediaPlayerImpl(RenderView* view,
+                                       WebKit::WebMediaPlayerClient* client)
+    : network_state_(WebKit::WebMediaPlayer::Empty),
+      ready_state_(WebKit::WebMediaPlayer::HaveNothing),
       main_loop_(NULL),
       filter_factory_(new media::FilterFactoryCollection()),
       video_renderer_(NULL),
-      web_media_player_(NULL),
+      client_(client),
       view_(view),
       tasks_(kLastTaskIndex) {
   // Add in any custom filter factories first.
@@ -87,57 +89,48 @@ WebMediaPlayerDelegateImpl::WebMediaPlayerDelegateImpl(RenderView* view)
   // Add in the default filter factories.
   filter_factory_->AddFactory(
       AudioRendererImpl::CreateFactory(view_->audio_message_filter()));
-  filter_factory_->AddFactory(BufferedDataSource::CreateFactory(this));
+  filter_factory_->AddFactory(
+      BufferedDataSource::CreateFactory(view->routing_id()));
   filter_factory_->AddFactory(VideoRendererImpl::CreateFactory(this));
+
+  DCHECK(client_);
+
+  // Saves the current message loop.
+  DCHECK(!main_loop_);
+  main_loop_ = MessageLoop::current();
+
+  // Also we want to be notified of |main_loop_| destruction.
+  main_loop_->AddDestructionObserver(this);
 }
 
-WebMediaPlayerDelegateImpl::~WebMediaPlayerDelegateImpl() {
+WebMediaPlayerImpl::~WebMediaPlayerImpl() {
   pipeline_.Stop();
 
-  // Cancel all tasks posted on the main_loop_.
+  // Cancel all tasks posted on the |main_loop_|.
   CancelAllTasks();
 
-  // After cancelling all tasks, we are sure there will be no calls to
-  // web_media_player_, so we are safe to delete it.
-  if (web_media_player_) {
-    delete web_media_player_;
-  }
-
-  // Finally tell the main_loop_ we don't want to be notified of destruction
+  // Finally tell the |main_loop_| we don't want to be notified of destruction
   // event.
   if (main_loop_) {
     main_loop_->RemoveDestructionObserver(this);
   }
 }
 
-void WebMediaPlayerDelegateImpl::Initialize(
-    webkit_glue::WebMediaPlayer* media_player) {
-  DCHECK(!web_media_player_);
-  web_media_player_ = media_player;
-
-  // Saves the current message loop.
-  DCHECK(!main_loop_);
-  main_loop_ = MessageLoop::current();
-
-  // Also we want to be notified of main_loop_ destruction.
-  main_loop_->AddDestructionObserver(this);
-}
-
-void WebMediaPlayerDelegateImpl::Load(const GURL& url) {
+void WebMediaPlayerImpl::load(const WebKit::WebURL& url) {
   DCHECK(main_loop_ && MessageLoop::current() == main_loop_);
 
   // Initialize the pipeline
   pipeline_.Start(filter_factory_.get(), url.spec(),
-      NewCallback(this, &WebMediaPlayerDelegateImpl::DidInitializePipeline));
+      NewCallback(this, &WebMediaPlayerImpl::DidInitializePipeline));
 }
 
-void WebMediaPlayerDelegateImpl::CancelLoad() {
+void WebMediaPlayerImpl::cancelLoad() {
   DCHECK(main_loop_ && MessageLoop::current() == main_loop_);
 
   // TODO(hclam): Calls to render_view_ to stop resource load
 }
 
-void WebMediaPlayerDelegateImpl::Play() {
+void WebMediaPlayerImpl::play() {
   DCHECK(main_loop_ && MessageLoop::current() == main_loop_);
 
   // TODO(hclam): We should restore the previous playback rate rather than
@@ -145,20 +138,20 @@ void WebMediaPlayerDelegateImpl::Play() {
   pipeline_.SetPlaybackRate(1.0f);
 }
 
-void WebMediaPlayerDelegateImpl::Pause() {
+void WebMediaPlayerImpl::pause() {
   DCHECK(main_loop_ && MessageLoop::current() == main_loop_);
 
   pipeline_.SetPlaybackRate(0.0f);
 }
 
-void WebMediaPlayerDelegateImpl::Stop() {
+void WebMediaPlayerImpl::stop() {
   DCHECK(main_loop_ && MessageLoop::current() == main_loop_);
 
   // We can fire Stop() multiple times.
   pipeline_.Stop();
 }
 
-void WebMediaPlayerDelegateImpl::Seek(float seconds) {
+void WebMediaPlayerImpl::seek(float seconds) {
   DCHECK(main_loop_ && MessageLoop::current() == main_loop_);
 
   pipeline_.Seek(base::TimeDelta::FromSeconds(static_cast<int64>(seconds)));
@@ -168,42 +161,48 @@ void WebMediaPlayerDelegateImpl::Seek(float seconds) {
   //
   // TODO(scherkus): add a seek completion callback to the pipeline.
   PostTask(kTimeChangedTaskIndex,
-           &webkit_glue::WebMediaPlayer::NotifyTimeChange);
+           &WebKit::WebMediaPlayerClient::timeChanged);
 }
 
-void WebMediaPlayerDelegateImpl::SetEndTime(float seconds) {
+void WebMediaPlayerImpl::setEndTime(float seconds) {
   DCHECK(main_loop_ && MessageLoop::current() == main_loop_);
 
   // TODO(hclam): add method call when it has been implemented.
   return;
 }
 
-void WebMediaPlayerDelegateImpl::SetPlaybackRate(float rate) {
+void WebMediaPlayerImpl::setRate(float rate) {
   DCHECK(main_loop_ && MessageLoop::current() == main_loop_);
 
   pipeline_.SetPlaybackRate(rate);
 }
 
-void WebMediaPlayerDelegateImpl::SetVolume(float volume) {
+void WebMediaPlayerImpl::setVolume(float volume) {
   DCHECK(main_loop_ && MessageLoop::current() == main_loop_);
 
   pipeline_.SetVolume(volume);
 }
 
-void WebMediaPlayerDelegateImpl::SetVisible(bool visible) {
+void WebMediaPlayerImpl::setVisible(bool visible) {
   DCHECK(main_loop_ && MessageLoop::current() == main_loop_);
 
   // TODO(hclam): add appropriate method call when pipeline has it implemented.
   return;
 }
 
-bool WebMediaPlayerDelegateImpl::IsTotalBytesKnown() {
+bool WebMediaPlayerImpl::setAutoBuffer(bool autoBuffer) {
+  DCHECK(main_loop_ && MessageLoop::current() == main_loop_);
+
+  return false;
+}
+
+bool WebMediaPlayerImpl::totalBytesKnown() {
   DCHECK(main_loop_ && MessageLoop::current() == main_loop_);
 
   return pipeline_.GetTotalBytes() != 0;
 }
 
-bool WebMediaPlayerDelegateImpl::IsVideo() const {
+bool WebMediaPlayerImpl::hasVideo() const {
   DCHECK(main_loop_ && MessageLoop::current() == main_loop_);
 
   size_t width, height;
@@ -211,73 +210,52 @@ bool WebMediaPlayerDelegateImpl::IsVideo() const {
   return width != 0 && height != 0;
 }
 
-size_t WebMediaPlayerDelegateImpl::GetWidth() const {
+WebKit::WebSize WebMediaPlayerImpl::naturalSize() const {
   DCHECK(main_loop_ && MessageLoop::current() == main_loop_);
 
   size_t width, height;
   pipeline_.GetVideoSize(&width, &height);
-  return width;
+  return WebKit::WebSize(width, height);
 }
 
-size_t WebMediaPlayerDelegateImpl::GetHeight() const {
-  DCHECK(main_loop_ && MessageLoop::current() == main_loop_);
-
-  size_t width, height;
-  pipeline_.GetVideoSize(&width, &height);
-  return height;
-}
-
-bool WebMediaPlayerDelegateImpl::IsPaused() const {
+bool WebMediaPlayerImpl::paused() const {
   DCHECK(main_loop_ && MessageLoop::current() == main_loop_);
 
   return pipeline_.GetPlaybackRate() == 0.0f;
 }
 
-bool WebMediaPlayerDelegateImpl::IsSeeking() const {
+bool WebMediaPlayerImpl::seeking() const {
   DCHECK(main_loop_ && MessageLoop::current() == main_loop_);
 
   return tasks_[kTimeChangedTaskIndex] != NULL;
 }
 
-float WebMediaPlayerDelegateImpl::GetDuration() const {
+float WebMediaPlayerImpl::duration() const {
   DCHECK(main_loop_ && MessageLoop::current() == main_loop_);
 
   return static_cast<float>(pipeline_.GetDuration().InSecondsF());
 }
 
-float WebMediaPlayerDelegateImpl::GetCurrentTime() const {
+float WebMediaPlayerImpl::currentTime() const {
   DCHECK(main_loop_ && MessageLoop::current() == main_loop_);
 
   return static_cast<float>(pipeline_.GetTime().InSecondsF());
 }
 
-
-float WebMediaPlayerDelegateImpl::GetPlayBackRate() const {
-  DCHECK(main_loop_ && MessageLoop::current() == main_loop_);
-
-  return pipeline_.GetPlaybackRate();
-}
-
-float WebMediaPlayerDelegateImpl::GetVolume() const {
-  DCHECK(main_loop_ && MessageLoop::current() == main_loop_);
-
-  return pipeline_.GetVolume();
-}
-
-int WebMediaPlayerDelegateImpl::GetDataRate() const {
+int WebMediaPlayerImpl::dataRate() const {
   DCHECK(main_loop_ && MessageLoop::current() == main_loop_);
 
   // TODO(hclam): Add this method call if pipeline has it in the interface.
   return 0;
 }
 
-float WebMediaPlayerDelegateImpl::GetMaxTimeBuffered() const {
+float WebMediaPlayerImpl::maxTimeBuffered() const {
   DCHECK(main_loop_ && MessageLoop::current() == main_loop_);
 
   return static_cast<float>(pipeline_.GetBufferedTime().InSecondsF());
 }
 
-float WebMediaPlayerDelegateImpl::GetMaxTimeSeekable() const {
+float WebMediaPlayerImpl::maxTimeSeekable() const {
   DCHECK(main_loop_ && MessageLoop::current() == main_loop_);
 
   // TODO(scherkus): move this logic down into the pipeline.
@@ -290,19 +268,19 @@ float WebMediaPlayerDelegateImpl::GetMaxTimeSeekable() const {
   return static_cast<float>(duration * (buffered_bytes / total_bytes));
 }
 
-int64 WebMediaPlayerDelegateImpl::GetBytesLoaded() const {
+unsigned long long WebMediaPlayerImpl::bytesLoaded() const {
   DCHECK(main_loop_ && MessageLoop::current() == main_loop_);
 
   return pipeline_.GetBufferedBytes();
 }
 
-int64 WebMediaPlayerDelegateImpl::GetTotalBytes() const {
+unsigned long long WebMediaPlayerImpl::totalBytes() const {
   DCHECK(main_loop_ && MessageLoop::current() == main_loop_);
 
   return pipeline_.GetTotalBytes();
 }
 
-void WebMediaPlayerDelegateImpl::SetSize(const WebSize& size) {
+void WebMediaPlayerImpl::setSize(const WebSize& size) {
   DCHECK(main_loop_ && MessageLoop::current() == main_loop_);
 
   if (video_renderer_) {
@@ -311,42 +289,43 @@ void WebMediaPlayerDelegateImpl::SetSize(const WebSize& size) {
   }
 }
 
-void WebMediaPlayerDelegateImpl::Paint(skia::PlatformCanvas *canvas,
-                                       const WebRect& rect) {
+void WebMediaPlayerImpl::paint(skia::PlatformCanvas* canvas,
+                               const WebRect& rect) {
+  DCHECK(main_loop_ && MessageLoop::current() == main_loop_);
+
   if (video_renderer_) {
     video_renderer_->Paint(canvas, rect);
   }
 }
 
-void WebMediaPlayerDelegateImpl::WillDestroyCurrentMessageLoop() {
+void WebMediaPlayerImpl::WillDestroyCurrentMessageLoop() {
   pipeline_.Stop();
 }
 
-void WebMediaPlayerDelegateImpl::DidInitializePipeline(bool successful) {
+void WebMediaPlayerImpl::DidInitializePipeline(bool successful) {
   if (successful) {
-    // Since we have initialized the pipeline, we should be able to play it.
-    // And we skip LOADED_METADATA state and starting with LOADED_FIRST_FRAME.
-    ready_state_ = webkit_glue::WebMediaPlayer::HAVE_ENOUGH_DATA;
-    network_state_ = webkit_glue::WebMediaPlayer::LOADED;
+    // Since we have initialized the pipeline, say we have everything.
+    // TODO(hclam): change this to report the correct status.
+    ready_state_ = WebKit::WebMediaPlayer::HaveEnoughData;
+    network_state_ = WebKit::WebMediaPlayer::Loaded;
   } else {
     // TODO(hclam): should use pipeline_.GetError() to determine the state
     // properly and reports error using MediaError.
-    ready_state_ = webkit_glue::WebMediaPlayer::HAVE_NOTHING;
-    network_state_ = webkit_glue::WebMediaPlayer::NETWORK_ERROR;
+    ready_state_ = WebKit::WebMediaPlayer::HaveNothing;
+    network_state_ = WebKit::WebMediaPlayer::NetworkError;
   }
 
   PostTask(kNetworkStateTaskIndex,
-           &webkit_glue::WebMediaPlayer::NotifyNetworkStateChange);
+           &WebKit::WebMediaPlayerClient::networkStateChanged);
   PostTask(kReadyStateTaskIndex,
-           &webkit_glue::WebMediaPlayer::NotifyReadyStateChange);
+           &WebKit::WebMediaPlayerClient::readyStateChanged);
 }
 
-void WebMediaPlayerDelegateImpl::SetVideoRenderer(
-    VideoRendererImpl* video_renderer) {
+void WebMediaPlayerImpl::SetVideoRenderer(VideoRendererImpl* video_renderer) {
   video_renderer_ = video_renderer;
 }
 
-void WebMediaPlayerDelegateImpl::DidTask(CancelableTask* task) {
+void WebMediaPlayerImpl::DidTask(CancelableTask* task) {
   AutoLock auto_lock(task_lock_);
 
   for (size_t i = 0; i < tasks_.size(); ++i) {
@@ -358,7 +337,7 @@ void WebMediaPlayerDelegateImpl::DidTask(CancelableTask* task) {
   NOTREACHED();
 }
 
-void WebMediaPlayerDelegateImpl::CancelAllTasks() {
+void WebMediaPlayerImpl::CancelAllTasks() {
   AutoLock auto_lock(task_lock_);
   // Loop through the list of tasks and cancel tasks that are still alive.
   for (size_t i = 0; i < tasks_.size(); ++i) {
@@ -367,18 +346,18 @@ void WebMediaPlayerDelegateImpl::CancelAllTasks() {
   }
 }
 
-void WebMediaPlayerDelegateImpl::PostTask(int index,
-                                          WebMediaPlayerMethod method) {
+void WebMediaPlayerImpl::PostTask(int index,
+                                  WebMediaPlayerClientMethod method) {
   DCHECK(main_loop_);
 
   AutoLock auto_lock(task_lock_);
-  if(!tasks_[index]) {
+  if (!tasks_[index]) {
     CancelableTask* task = new NotifyWebMediaPlayerTask(this, method);
     tasks_[index] = task;
     main_loop_->PostTask(FROM_HERE, task);
   }
 }
 
-void WebMediaPlayerDelegateImpl::PostRepaintTask() {
-  PostTask(kRepaintTaskIndex, &webkit_glue::WebMediaPlayer::Repaint);
+void WebMediaPlayerImpl::PostRepaintTask() {
+  PostTask(kRepaintTaskIndex, &WebKit::WebMediaPlayerClient::repaint);
 }

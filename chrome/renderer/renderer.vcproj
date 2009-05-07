@@ -153,14 +153,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\media\data_source_impl.cc"
-				>
-			</File>
-			<File
-				RelativePath=".\media\data_source_impl.h"
-				>
-			</File>
-			<File
 				RelativePath=".\media\simple_data_source.cc"
 				>
 			</File>
@@ -438,11 +430,11 @@
 			>
 		</File>
 		<File
-			RelativePath=".\webmediaplayer_delegate_impl.cc"
+			RelativePath=".\webmediaplayer_impl.cc"
 			>
 		</File>
 		<File
-			RelativePath=".\webmediaplayer_delegate_impl.h"
+			RelativePath=".\webmediaplayer_impl.h"
 			>
 		</File>
 		<File

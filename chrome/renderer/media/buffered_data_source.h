@@ -20,8 +20,6 @@
 #include "webkit/glue/resource_loader_bridge.h"
 #include "googleurl/src/gurl.h"
 
-class WebMediaPlayerDelegateImpl;
-
 /////////////////////////////////////////////////////////////////////////////
 // BufferedResourceLoader
 // This class works inside demuxer thread and render thread. It contains a
@@ -32,7 +30,7 @@ class BufferedResourceLoader :
     public base::RefCountedThreadSafe<BufferedResourceLoader>,
     public webkit_glue::ResourceLoaderBridge::Peer {
  public:
-  BufferedResourceLoader(int route_id,
+  BufferedResourceLoader(int32 routing_id,
                          const GURL& url,
                          int64 first_byte_position,
                          int64 last_byte_position);
@@ -139,7 +137,7 @@ class BufferedResourceLoader :
   bool range_requested_;
   bool async_start_;
 
-  int route_id_;
+  int32 routing_id_;
   GURL url_;
   int64 first_byte_position_;
   int64 last_byte_position_;
@@ -161,10 +159,8 @@ class BufferedDataSource : public media::DataSource {
  public:
   // Methods called from pipeline thread
   // Static methods for creating this class.
-  static media::FilterFactory* CreateFactory(
-      WebMediaPlayerDelegateImpl* delegate) {
-    return new media::FilterFactoryImpl1<BufferedDataSource,
-        WebMediaPlayerDelegateImpl*>(delegate);
+  static media::FilterFactory* CreateFactory(int32 routing_id) {
+    return new media::FilterFactoryImpl1<BufferedDataSource, int32>(routing_id);
   }
   virtual bool Initialize(const std::string& url);
 
@@ -182,8 +178,7 @@ class BufferedDataSource : public media::DataSource {
   const media::MediaFormat& media_format();
 
  private:
-  friend class media::FilterFactoryImpl1<BufferedDataSource,
-                                         WebMediaPlayerDelegateImpl*>;
+  friend class media::FilterFactoryImpl1<BufferedDataSource, int32>;
   // Call to filter host to trigger an error, be sure not to call this method
   // while the lock is acquired.
   void HandleError(media::PipelineError error);
@@ -194,17 +189,13 @@ class BufferedDataSource : public media::DataSource {
   void InitialRequestStarted(int error);
   void OnInitialRequestStarted(int error);
 
-  explicit BufferedDataSource(WebMediaPlayerDelegateImpl* delegate);
+  explicit BufferedDataSource(int32 routing_id);
   virtual ~BufferedDataSource();
 
   media::MediaFormat media_format_;
   GURL url_;
 
-  // Pointer to the delegate which provides access to RenderView, this is set
-  // in construction and can be accessed in all threads safely.
-  // TODO(hclam): get rid of this and save the routing id and pointer to
-  // ResourceDispatcher.
-  WebMediaPlayerDelegateImpl* delegate_;
+  int32 routing_id_;
 
   // A common lock for protecting members accessed by multiple threads.
   Lock lock_;

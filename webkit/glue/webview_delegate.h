@@ -41,6 +41,8 @@ namespace WebKit {
 class WebDragData;
 class WebWorker;
 class WebWorkerClient;
+class WebMediaPlayer;
+class WebMediaPlayerClient;
 struct WebPoint;
 struct WebRect;
 }
@@ -134,7 +136,8 @@ class WebViewDelegate : virtual public WebWidgetDelegate {
   }
 
   // Called when a WebMediaPlayerDelegate is needed.
-  virtual webkit_glue::WebMediaPlayerDelegate* CreateMediaPlayerDelegate() {
+  virtual WebKit::WebMediaPlayer* CreateWebMediaPlayer(
+      WebKit::WebMediaPlayerClient* client) {
     return NULL;
   }
 

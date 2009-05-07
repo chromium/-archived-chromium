@@ -39,7 +39,7 @@
 #include "chrome/renderer/renderer_logging.h"
 #include "chrome/renderer/user_script_slave.h"
 #include "chrome/renderer/visitedlink_slave.h"
-#include "chrome/renderer/webmediaplayer_delegate_impl.h"
+#include "chrome/renderer/webmediaplayer_impl.h"
 #include "chrome/renderer/webplugin_delegate_proxy.h"
 #include "chrome/renderer/webworker_proxy.h"
 #include "grit/generated_resources.h"
@@ -1872,11 +1872,12 @@ WebPluginDelegate* RenderView::CreatePluginDelegate(
 #endif
 }
 
-webkit_glue::WebMediaPlayerDelegate* RenderView::CreateMediaPlayerDelegate() {
+WebKit::WebMediaPlayer* RenderView::CreateWebMediaPlayer(
+    WebKit::WebMediaPlayerClient* client) {
 #if defined(OS_WIN)
-  return new WebMediaPlayerDelegateImpl(this);
+  return new WebMediaPlayerImpl(this, client);
 #else
-  // TODO(port)
+  // TODO(port): media player is not functional other than on Windows.
   NOTIMPLEMENTED();
   return NULL;
 #endif

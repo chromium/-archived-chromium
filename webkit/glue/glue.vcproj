@@ -226,14 +226,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\webmediaplayer.h"
-				>
-			</File>
-			<File
-				RelativePath=".\webmediaplayer_delegate.h"
-				>
-			</File>
-			<File
 				RelativePath=".\webplugin.h"
 				>
 			</File>
@@ -666,11 +658,11 @@
 				>
 			</File>
 			<File
-				RelativePath=".\webmediaplayer_impl.cc"
+				RelativePath=".\webmediaplayerclient_impl.cc"
 				>
 			</File>
 			<File
-				RelativePath=".\webmediaplayer_impl.h"
+				RelativePath=".\webmediaplayerclient_impl.h"
 				>
 			</File>
 			<File
