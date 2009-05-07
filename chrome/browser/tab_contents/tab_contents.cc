@@ -678,10 +678,12 @@ bool TabContents::NavigateToPendingEntry(bool reload) {
     return false;  // Unable to create the desired render view host.
 
   // Tell DevTools agent that it is attached prior to the navigation.
-  DevToolsManager* dev_tools_manager = g_browser_process->devtools_manager();
-  if (dev_tools_manager)  // NULL in unit tests.
-    dev_tools_manager->OnNavigatingToPendingEntry(*this,
-                                                  dest_render_view_host);
+  DevToolsManager* devtools_manager = g_browser_process->devtools_manager();
+  if (devtools_manager)  // NULL in unit tests.
+    devtools_manager->OnNavigatingToPendingEntry(
+        render_view_host(),
+        dest_render_view_host,
+        controller_.pending_entry()->url());
 
   // Used for page load time metrics.
   current_load_start_ = base::TimeTicks::Now();

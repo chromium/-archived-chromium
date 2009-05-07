@@ -87,7 +87,7 @@ bool DevToolsView::AcceleratorPressed(const views::Accelerator& accelerator) {
     return false;
   }
   DevToolsManager* manager = g_browser_process->devtools_manager();
-  manager->OpenDevToolsWindow(tab_contents_);
+  manager->OpenDevToolsWindow(tab_contents_->render_view_host());
   return true;
 }
 

@@ -1053,14 +1053,8 @@ void Browser::OpenDebuggerWindow() {
 
 void Browser::OpenJavaScriptConsole() {
   UserMetrics::RecordAction(L"ShowJSConsole", profile_);
-  if (CommandLine::ForCurrentProcess()->HasSwitch(
-          switches::kEnableOutOfProcessDevTools)) {
-    DevToolsManager* manager = g_browser_process->devtools_manager();
-    manager->OpenDevToolsWindow(GetSelectedTabContents());
-  } else {
-    GetSelectedTabContents()->render_view_host()->
-        ShowJavaScriptConsole();
-  }
+  GetSelectedTabContents()->render_view_host()->
+      ShowJavaScriptConsole();
 }
 
 void Browser::OpenTaskManager() {

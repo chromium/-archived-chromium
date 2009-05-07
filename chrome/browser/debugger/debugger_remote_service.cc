@@ -86,14 +86,14 @@ void DebuggerRemoteService::HandleMessage(
       TabContents* tab_contents = ToTabContents(tab_uid);
       if (tab_contents != NULL) {
         DevToolsClientHost* client_host =
-            manager->GetDevToolsClientHostFor(*tab_contents);
+            manager->GetDevToolsClientHostFor(tab_contents->render_view_host());
         if (client_host != NULL) {
           std::string v8_command;
           DictionaryValue* v8_command_value;
           content->GetDictionary(kDataWide, &v8_command_value);
           JSONWriter::Write(v8_command_value, false, &v8_command);
           g_browser_process->devtools_manager()->ForwardToDevToolsAgent(
-              *client_host, DevToolsAgentMsg_DebuggerCommand(v8_command));
+              client_host, DevToolsAgentMsg_DebuggerCommand(v8_command));
           send_response = false;
           // Do not send response right now as the JSON will be received from
           // the V8 debugger asynchronously
@@ -213,14 +213,15 @@ void DebuggerRemoteService::AttachTab(const std::string& destination,
     response->SetInteger(kResultWide, Result::kUnknownTab);
     return;
   }
+  RenderViewHost* target_host = tab_contents->render_view_host();
   if (g_browser_process->devtools_manager()->GetDevToolsClientHostFor(
-      *tab_contents) == NULL) {
+      target_host) == NULL) {
     DevToolsClientHost* client_host =
         delegate_->inspectable_tab_proxy()->NewClientHost(tab_uid, this);
     DevToolsManager* manager = g_browser_process->devtools_manager();
     if (manager != NULL) {
-      manager->RegisterDevToolsClientHostFor(*tab_contents, client_host);
-      manager->ForwardToDevToolsAgent(*client_host, DevToolsAgentMsg_Attach());
+      manager->RegisterDevToolsClientHostFor(target_host, client_host);
+      manager->ForwardToDevToolsAgent(client_host, DevToolsAgentMsg_Attach());
       response->SetInteger(kResultWide, Result::kOk);
     } else {
       response->SetInteger(kResultWide, Result::kDebuggerError);
@@ -251,10 +252,10 @@ void DebuggerRemoteService::DetachTab(const std::string& destination,
     DevToolsManager* manager = g_browser_process->devtools_manager();
     if (manager != NULL) {
       DevToolsClientHost* client_host =
-          manager->GetDevToolsClientHostFor(*tab_contents);
+          manager->GetDevToolsClientHostFor(tab_contents->render_view_host());
       if (client_host != NULL) {
         manager->ForwardToDevToolsAgent(
-            *client_host, DevToolsAgentMsg_Detach());
+            client_host, DevToolsAgentMsg_Detach());
         client_host->InspectedTabClosing();
         resultCode = Result::kOk;
       } else {

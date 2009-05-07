@@ -8,6 +8,7 @@
 #include <vector>
 
 #include "app/resource_bundle.h"
+#include "base/command_line.h"
 #include "base/gfx/native_widget_types.h"
 #include "base/string_util.h"
 #include "base/time.h"
@@ -32,6 +33,7 @@
 #include "chrome/common/notification_type.h"
 #include "chrome/common/render_messages.h"
 #include "chrome/common/result_codes.h"
+#include "chrome/common/chrome_switches.h"
 #include "chrome/common/thumbnail_score.h"
 #include "chrome/common/url_constants.h"
 #include "net/base/net_util.h"
@@ -558,14 +560,27 @@ void RenderViewHost::CopyImageAt(int x, int y) {
 }
 
 void RenderViewHost::InspectElementAt(int x, int y) {
-  RendererSecurityPolicy::GetInstance()->GrantInspectElement(process()->pid());
-  Send(new ViewMsg_InspectElement(routing_id(), x, y));
+  if (CommandLine::ForCurrentProcess()->HasSwitch(
+          switches::kEnableOutOfProcessDevTools)) {
+    DevToolsManager* manager = g_browser_process->devtools_manager();
+    manager->InspectElement(this, x, y);
+  } else {
+    RendererSecurityPolicy::GetInstance()->
+        GrantInspectElement(process()->pid());
+    Send(new ViewMsg_InspectElement(routing_id(), x, y));
+  }
 }
 
 void RenderViewHost::ShowJavaScriptConsole() {
-  RendererSecurityPolicy::GetInstance()->GrantInspectElement(process()->pid());
-
-  Send(new ViewMsg_ShowJavaScriptConsole(routing_id()));
+  if (CommandLine::ForCurrentProcess()->HasSwitch(
+          switches::kEnableOutOfProcessDevTools)) {
+    DevToolsManager* manager = g_browser_process->devtools_manager();
+    manager->OpenDevToolsWindow(this);
+  } else {
+    RendererSecurityPolicy::GetInstance()->
+        GrantInspectElement(process()->pid());
+    Send(new ViewMsg_ShowJavaScriptConsole(routing_id()));
+  }
 }
 
 void RenderViewHost::DragSourceEndedAt(
@@ -1218,11 +1233,11 @@ void RenderViewHost::DidDebugAttach() {
 }
 
 void RenderViewHost::OnForwardToDevToolsAgent(const IPC::Message& message) {
-  g_browser_process->devtools_manager()->ForwardToDevToolsAgent(*this, message);
+  g_browser_process->devtools_manager()->ForwardToDevToolsAgent(this, message);
 }
 
 void RenderViewHost::OnForwardToDevToolsClient(const IPC::Message& message) {
-  g_browser_process->devtools_manager()->ForwardToDevToolsClient(*this,
+  g_browser_process->devtools_manager()->ForwardToDevToolsClient(this,
                                                                  message);
 }
 
@@ -1351,6 +1366,9 @@ void RenderViewHost::OnDebugDisconnect() {
     debugger_attached_ = false;
     g_browser_process->debugger_wrapper()->OnDebugDisconnect();
   }
+  DevToolsManager* devtools_manager = g_browser_process->devtools_manager();
+  if (devtools_manager)  // NULL in tests
+    devtools_manager->UnregisterDevToolsClientHostFor(this);
 }
 
 void RenderViewHost::ForwardMessageFromExternalHost(const std::string& message,

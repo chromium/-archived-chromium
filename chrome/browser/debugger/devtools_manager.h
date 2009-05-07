@@ -7,86 +7,65 @@
 
 #include <map>
 
-#include "base/basictypes.h"
-#include "base/scoped_ptr.h"
 #include "chrome/browser/debugger/devtools_client_host.h"
-#include "chrome/common/notification_service.h"
 
 namespace IPC {
 class Message;
 }
 
-class DevToolsClientHost;
-class NavigationController;
-class NotificationRegistrar;
+class GURL;
 class RenderViewHost;
-class TabContents;
 
 // This class is a singleton that manages DevToolsClientHost instances and
 // routes messages between developer tools clients and agents.
-class DevToolsManager : public NotificationObserver,
-                        public DevToolsClientHost::CloseListener {
+class DevToolsManager : public DevToolsClientHost::CloseListener {
  public:
   DevToolsManager();
   virtual ~DevToolsManager();
 
-  // Returns DevToolsClientHost registered for |tab_contents| or NULL if
-  // there is no alive DevToolsClientHost registered for |tab_contents|.
-  DevToolsClientHost* GetDevToolsClientHostFor(const TabContents& tab_contents);
+  // Returns DevToolsClientHost registered for |inspected_rvh| or NULL if
+  // there is no alive DevToolsClientHost registered for |inspected_rvh|.
+  DevToolsClientHost* GetDevToolsClientHostFor(RenderViewHost* inspected_rvh);
 
-  // Registers new DevToolsClientHost for |tab_contents|. There must be no
-  // other DevToolsClientHosts registered for the TabContents at the moment.
-  void RegisterDevToolsClientHostFor(TabContents& tab_contents,
+  // Registers new DevToolsClientHost for |inspected_rvh|. There must be no
+  // other DevToolsClientHosts registered for the RenderViewHost at the moment.
+  void RegisterDevToolsClientHostFor(RenderViewHost* inspected_rvh,
                                      DevToolsClientHost* client_host);
+  void UnregisterDevToolsClientHostFor(RenderViewHost* inspected_rvh);
 
-  void ForwardToDevToolsAgent(const RenderViewHost& client_rvh,
+  void ForwardToDevToolsAgent(RenderViewHost* client_rvh,
                               const IPC::Message& message);
-  void ForwardToDevToolsAgent(const DevToolsClientHost& from,
+  void ForwardToDevToolsAgent(DevToolsClientHost* from,
                               const IPC::Message& message);
-  void ForwardToDevToolsClient(const RenderViewHost& from,
+  void ForwardToDevToolsClient(RenderViewHost* inspected_rvh,
                                const IPC::Message& message);
 
-  void OpenDevToolsWindow(TabContents* wc);
+  void OpenDevToolsWindow(RenderViewHost* inspected_rvh);
 
   // Starts element inspection in the devtools client.
   // Creates one by means of OpenDevToolsWindow if no client
   // exists.
-  void InspectElement(TabContents* tab_contents, int x, int y);
+  void InspectElement(RenderViewHost* inspected_rvh, int x, int y);
 
-  // Sends 'Attach' message to the agent using |target_host| in case
-  // there is a DevToolsClientHost registered for the |tab_contents|.
-  void OnNavigatingToPendingEntry(
-      const TabContents& tab_contents,
-      RenderViewHost* target_host);
+  // Sends 'Attach' message to the agent using |dest_rvh| in case
+  // there is a DevToolsClientHost registered for the |inspected_rvh|.
+  void OnNavigatingToPendingEntry(RenderViewHost* inspected_rvh,
+                                  RenderViewHost* dest_rvh,
+                                  const GURL& gurl);
 
 private:
-  // NotificationObserver override.
-  virtual void Observe(NotificationType type,
-                       const NotificationSource& source,
-                       const NotificationDetails& details);
-
   // DevToolsClientHost::CloseListener override.
   // This method will remove all references from the manager to the
   // DevToolsClientHost and unregister all listeners related to the
   // DevToolsClientHost.
   virtual void ClientHostClosing(DevToolsClientHost* host);
 
-  // Returns NavigationController for the tab that is inspected by devtools
+  // Returns RenderViewHost for the tab that is inspected by devtools
   // client hosted by DevToolsClientHost.
-  NavigationController* GetDevToolsAgentNavigationController(
-      const DevToolsClientHost& client_host);
+  RenderViewHost* GetInspectedRenderViewHost(DevToolsClientHost* client_host);
 
-  void UnregisterDevToolsClientHost(
-      DevToolsClientHost* client_host,
-      NavigationController* navigation_controller);
-  void StartListening(NavigationController* navigation_controller);
-  void StopListening(NavigationController* navigation_controller);
-  void SendAttachToAgent(RenderViewHost* target_host);
-  void SendDetachToAgent(RenderViewHost* target_host);
-
-  // This object is not NULL iff there is at least one registered
-  // DevToolsClientHost.
-  scoped_ptr<NotificationRegistrar> tab_contents_listeners_;
+  void SendAttachToAgent(RenderViewHost* inspected_rvh);
+  void SendDetachToAgent(RenderViewHost* inspected_rvh);
 
   // These two maps are for tracking dependencies between inspected tabs and
   // their DevToolsClientHosts. They are usful for routing devtools messages
@@ -96,13 +75,13 @@ private:
   //
   // DevToolsManager start listening to DevToolsClientHosts when they are put
   // into these maps and removes them when they are closing.
-  typedef std::map<const NavigationController*,
-                   DevToolsClientHost*> ClientHostMap;
-  ClientHostMap navcontroller_to_client_host_;
+  typedef std::map<RenderViewHost*, DevToolsClientHost*>
+      InspectedRvhToClientHostMap;
+  InspectedRvhToClientHostMap inspected_rvh_to_client_host_;
 
-  typedef std::map<const DevToolsClientHost*,
-                   NavigationController*> NavControllerMap;
-  NavControllerMap client_host_to_navcontroller_;
+  typedef std::map<DevToolsClientHost*, RenderViewHost*>
+      ClientHostToInspectedRvhMap;
+  ClientHostToInspectedRvhMap client_host_to_inspected_rvh_;
 
   DISALLOW_COPY_AND_ASSIGN(DevToolsManager);
 };
