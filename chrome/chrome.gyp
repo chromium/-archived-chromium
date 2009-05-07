@@ -2961,7 +2961,6 @@
             'views/widget/accelerator_handler.h',
             'views/widget/aero_tooltip_manager.cc',
             'views/widget/aero_tooltip_manager.h',
-            'views/widget/hwnd_notification_source.h',
             'views/widget/root_view.cc',
             'views/widget/root_view.h',
             'views/widget/root_view_drop_target.cc',
