@@ -2394,7 +2394,6 @@ BUG11483 WIN LINUX : LayoutTests/editing/spelling/spellcheck-attribute.html = FA
 BUG11483 : LayoutTests/editing/pasteboard/copy-paste-float.html = FAIL
 BUG11483 : LayoutTests/fast/workers/worker-replace-global-constructor.html = FAIL CRASH
 BUG11483 WIN LINUX : LayoutTests/svg/text/foreignObject-repaint.xml = FAIL
-BUG11483 WIN LINUX : LayoutTests/svg/transforms/animated-path-inside-transformed-html.xhtml = FAIL
 BUG11482 : LayoutTests/svg/custom/polyline-points-crash.html = CRASH
 BUG11502 WIN : LayoutTests/svg/css/glyph-orientation-rounding-test.xhtml = CRASH PASS
 
@@ -2403,6 +2402,4 @@ BUG_DARIN LINUX : LayoutTests/editing/pasteboard/5027857.html = FAIL
 BUG_DARIN LINUX : LayoutTests/editing/pasteboard/paste-pre-002.html = FAIL
 
 // Regressions from WebKit merge 43242:43321.
-BUG_DARIN WIN LINUX : LayoutTests/svg/transforms/text-with-pattern-inside-transformed-html.xhtml = FAIL
-BUG_DARIN WIN LINUX : LayoutTests/svg/transforms/text-with-pattern-with-svg-transform.svg = FAIL
 BUG_DARIN LINUX : LayoutTests/transitions/mask-transitions.html = FAIL PASS
