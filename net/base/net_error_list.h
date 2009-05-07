@@ -243,5 +243,12 @@ NET_ERROR(REQUEST_RANGE_NOT_SATISFIABLE, -328)
 // The cache does not have the requested entry.
 NET_ERROR(CACHE_MISS, -400)
 
+// Unable to read from the disk cache.
+NET_ERROR(CACHE_READ_FAILURE, -401)
+
+// The network transaction factory of the cache was not able to create a new
+// transaction.
+NET_ERROR(CACHE_CANNOT_CREATE_NETWORK_TRANSACTION, -402)
+
 // The server's response was insecure (e.g. there was a cert error).
 NET_ERROR(INSECURE_RESPONSE, -501)

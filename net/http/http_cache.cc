@@ -688,7 +688,7 @@ int HttpCache::Transaction::BeginNetworkRequest() {
 
   network_trans_.reset(cache_->network_layer_->CreateTransaction());
   if (!network_trans_.get())
-    return net::ERR_FAILED;
+    return net::ERR_CACHE_CANNOT_CREATE_NETWORK_TRANSACTION;
 
   int rv = network_trans_->Start(request_, &network_info_callback_);
   if (rv != ERR_IO_PENDING)
@@ -785,7 +785,7 @@ int HttpCache::Transaction::ReadResponseInfoFromEntry() {
   DCHECK(entry_);
 
   if (!HttpCache::ReadResponseInfo(entry_->disk_entry, &response_))
-    return ERR_FAILED;
+    return ERR_CACHE_READ_FAILURE;
 
   // If the cache object is used for media file, we want the file handle of
   // response data.
