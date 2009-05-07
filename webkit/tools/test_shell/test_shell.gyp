@@ -334,6 +334,8 @@
         '../../glue/plugins/test/plugin_npobject_lifetime_test.cc',
         '../../glue/plugins/test/plugin_npobject_lifetime_test.h',
         '../../glue/plugins/test/plugin_npobject_proxy_test.cc',
+        '../../glue/plugins/test/plugin_windowed_test.cc',
+        '../../glue/plugins/test/plugin_windowed_test.h',
         '../../glue/plugins/test/plugin_npobject_proxy_test.h',
         '../../glue/plugins/test/plugin_private_test.cc',
         '../../glue/plugins/test/plugin_private_test.h',
@@ -363,6 +365,7 @@
             # The windowed/windowless APIs are necessarily
             # platform-specific.
             '../../glue/plugins/test/plugin_window_size_test.cc',
+            '../../glue/plugins/test/plugin_windowed_test.cc',
             '../../glue/plugins/test/plugin_windowless_test.cc',
 
             # Seems windows specific.
