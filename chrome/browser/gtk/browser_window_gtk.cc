@@ -197,24 +197,26 @@ gboolean HandleCustomAccelerator(guint keyval, GdkModifierType modifier,
   return FALSE;
 }
 
-// Usually accelerators are checked before propagating the key event, but if the
-// focus is on the render area we want to reverse the order of things to allow
-// webkit to handle key events like ctrl-l.
+// Let the focused widget have first crack at the key event so we don't
+// override their accelerators.
 gboolean OnKeyPress(GtkWindow* window, GdkEventKey* event, Browser* browser) {
+  // If a widget besides the native view is focused, we have to try to handle
+  // the custom accelerators before letting it handle them.
   TabContents* current_tab_contents =
       browser->tabstrip_model()->GetSelectedTabContents();
-  // If there is no current tab contents or its view is gone (if the renderview
-  // crashed) or it is not focused then let the default GtkWindow key handler
-  // run.
+  // The current tab might not have a render view if it crashed.
   if (!current_tab_contents || !current_tab_contents->GetContentNativeView() ||
       !gtk_widget_is_focus(current_tab_contents->GetContentNativeView())) {
-    return HandleCustomAccelerator(event->keyval,
-        static_cast<GdkModifierType>(event->state), browser);
+    gboolean handled = HandleCustomAccelerator(event->keyval,
+        GdkModifierType(event->state), browser);
+    if (handled)
+      return TRUE;
   }
 
-  // If the content area is focused, let it handle the key event.
-  gboolean result = gtk_window_propagate_key_event(window, event);
-  DCHECK(result);
+  if (!gtk_window_propagate_key_event(window, event)) {
+    static_cast<BrowserWindowGtk*>(browser->window())->HandleAccelerator(
+        event->keyval, GdkModifierType(event->state));
+  }
   return TRUE;
 }
 
@@ -760,5 +762,6 @@ gboolean BrowserWindowGtk::OnGtkAccelerator(GtkAccelGroup* accel_group,
 }
 
 void BrowserWindowGtk::ExecuteBrowserCommand(int id) {
-  browser_->ExecuteCommand(id);
+  if (browser_->command_updater()->IsCommandEnabled(id))
+    browser_->ExecuteCommand(id);
 }

@@ -13,6 +13,7 @@
 #include "chrome/browser/autocomplete/autocomplete_edit.h"
 #include "chrome/browser/autocomplete/autocomplete_popup_model.h"
 #include "chrome/browser/autocomplete/autocomplete_popup_view_gtk.h"
+#include "chrome/browser/gtk/browser_window_gtk.h"
 #include "chrome/browser/gtk/location_bar_view_gtk.h"
 #include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/browser/toolbar_model.h"
@@ -352,6 +353,24 @@ void AutocompleteEditViewGtk::HandleEndUserAction() {
 
 gboolean AutocompleteEditViewGtk::HandleKeyPress(GtkWidget* widget,
                                                  GdkEventKey* event) {
+  GdkModifierType modifier = GdkModifierType(
+      event->state & gtk_accelerator_get_default_mod_mask());
+
+  // We want to let the browser handle ctrl-pgup and ctrl-pgdn.
+  if ((event->keyval == GDK_Page_Up || event->keyval == GDK_Page_Down) &&
+      modifier == GDK_CONTROL_MASK) {
+    GtkWidget* window = gtk_widget_get_toplevel(widget);
+    if (!window) {
+      NOTREACHED();
+    } else {
+      BrowserWindowGtk* browser_window = static_cast<BrowserWindowGtk*>(
+          g_object_get_data(G_OBJECT(window), "browser_window_gtk"));
+      browser_window->HandleAccelerator(event->keyval,
+          static_cast<GdkModifierType>(event->state));
+      return TRUE;
+    }
+  }
+
   // This is very similar to the special casing of the return key in the
   // GtkTextView key_press default handler.  TODO(deanm): We do however omit
   // some IME related code, this might become a problem if an IME wants to
