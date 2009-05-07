@@ -992,8 +992,17 @@ sub GenerateBatchedAttributeData
       # Replaceable accessor is put on instance template with ReadOnly attribute.
       $getter = "${interfaceName}Internal::${attrName}AttrGetter";
       $setter = "0";
-      $propAttr .= "|v8::ReadOnly";
-      
+
+      # Mark to avoid duplicate v8::ReadOnly flags in output.
+      $hasCustomSetter = 1;
+
+      # Handle the special case of window.top being marked upstream as Replaceable.
+      # TODO(dglazkov): Investigate why Replaceable is not marked as ReadOnly
+      # upstream and reach parity.
+      if (!($interfaceName eq "DOMWindow" and $attrName eq "top")) {
+        $propAttr .= "|v8::ReadOnly";
+      }
+
     # Normal
     } else {
       $getter = "${interfaceName}Internal::${attrName}AttrGetter";
