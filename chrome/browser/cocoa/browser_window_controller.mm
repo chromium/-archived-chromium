@@ -82,13 +82,23 @@ willPositionSheet:(NSWindow *)sheet
     // Retain it per the comment in the header.
     window_.reset([[self window] retain]);
 
+    // Since we don't have a standard resize control, Cocoa won't enable the
+    // zoom (green) button on the titlebar for us. Grab it and enable it
+    // manually. Note that when launched from XCode, the doesn't work for the
+    // first window (and only the first window). There's some activation
+    // wonkiness there, since XCode stays active and the menus don't switch
+    // either. It always works when launched from the Finder.
+    NSButton* zoomButton =
+        [[self window] standardWindowButton:NSWindowZoomButton];
+    [zoomButton setEnabled:YES];
+
     // Register ourselves for frame changed notifications from the
     // tabContentArea.
     [[NSNotificationCenter defaultCenter]
-      addObserver:self
-      selector:@selector(tabContentAreaFrameChanged:)
-      name:nil
-      object:[self tabContentArea]];
+        addObserver:self
+           selector:@selector(tabContentAreaFrameChanged:)
+               name:nil
+             object:[self tabContentArea]];
 
     // Get the most appropriate size for the window. The window shim will handle
     // flipping the coordinates for us so we can use it to save some code.
@@ -161,8 +171,8 @@ willPositionSheet:(NSWindow *)sheet
   // Instead we use call it after a zero-length delay, which gets us back
   // to the main event loop.
   [self performSelector:@selector(autorelease)
-              withObject:nil
-              afterDelay:0];
+             withObject:nil
+             afterDelay:0];
 }
 
 // Called when the user wants to close a window or from the shutdown process.
@@ -193,6 +203,23 @@ willPositionSheet:(NSWindow *)sheet
 // Called right after our window became the main window.
 - (void)windowDidBecomeMain:(NSNotification *)notification {
   BrowserList::SetLastActive(browser_.get());
+}
+
+// Called when the user clicks the zoom button (or selects it from the Window
+// menu). Zoom to the appropriate size based on the content.
+- (NSRect)windowWillUseStandardFrame:(NSWindow*)window
+                        defaultFrame:(NSRect)frame {
+#if 0
+  // TODO(pinkerton): find a way to get the intrinsic size from WebCore over
+  // IPC. Patch coming in another CL to use this new API on TabContents.
+  // Need to enforce a minimum width as well (google.com has a very small
+  // intrinsic width).
+  TabContents* contents = browser_->tabstrip_model()->GetSelectedTabContents();
+  int intrinsicWidth = contents->preferred_width();
+  frame.size.width = intrinsicWidth;
+#endif
+
+  return frame;
 }
 
 // Update a toggle state for an NSMenuItem if modified.
