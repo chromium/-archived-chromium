@@ -248,6 +248,7 @@ NSView* SelectFileDialogImpl::GetAccessoryView(const FileTypeInfo* file_types,
                               topLevelObjects:&objects];
   if (!success)
     return nil;
+  [objects makeObjectsPerformSelector:@selector(release)];
 
   // This is a one-object nib, but IB insists on creating a second object, the
   // NSApplication. I don't know why.
