@@ -2387,6 +2387,7 @@ BUG11483 LINUX : LayoutTests/editing/execCommand/5119244.html = FAIL
 BUG11483 LINUX : LayoutTests/fast/forms/input-text-double-click.html = FAIL
 
 // Other regresssions from WebKit Merge 43114:43242
+BUG11483 LINUX : LayoutTests/editing/spelling/spellcheck-attribute.html = FAIL
 BUG11483 : LayoutTests/editing/pasteboard/copy-paste-float.html = FAIL
 BUG11483 : LayoutTests/fast/workers/worker-replace-global-constructor.html = FAIL CRASH
 BUG11482 : LayoutTests/svg/custom/polyline-points-crash.html = CRASH
