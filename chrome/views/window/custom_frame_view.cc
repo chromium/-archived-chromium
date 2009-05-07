@@ -8,9 +8,14 @@
 #include "app/gfx/chrome_font.h"
 #include "app/gfx/path.h"
 #include "app/resource_bundle.h"
+#if defined(OS_WIN)
 #include "base/win_util.h"
 #include "chrome/common/win_util.h"
+#endif
 #include "chrome/views/window/client_view.h"
+#if defined(OS_LINUX)
+#include "chrome/views/window/hit_test.h"
+#endif
 #include "chrome/views/window/window_delegate.h"
 #include "grit/theme_resources.h"
 
@@ -686,7 +691,12 @@ void CustomFrameView::InitClass() {
     active_resources_ = new ActiveWindowResources;
     inactive_resources_ = new InactiveWindowResources;
 
+#if defined(OS_WIN)
     title_font_ = new ChromeFont(win_util::GetWindowTitleFont());
+#elif defined(OS_LINUX)
+    // TODO: need to resolve what font this is.
+    title_font_ = new ChromeFont();
+#endif
 
     initialized = true;
   }

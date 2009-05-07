@@ -269,12 +269,6 @@ DownloadRequestDialogDelegate* DownloadRequestDialogDelegate::Create(
   return NULL;
 }
 
-views::Window* CreateInputWindow(gfx::NativeWindow parent_hwnd,
-                                 InputWindowDelegate* delegate) {
-  NOTIMPLEMENTED();
-  return new views::Window();
-}
-
 namespace download_util {
 
 void DragDownload(const DownloadItem* download, SkBitmap* icon) {

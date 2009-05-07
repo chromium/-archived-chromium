@@ -6,13 +6,11 @@
 #define CHROME_VIEWS_EVENT_H_
 
 #include "base/basictypes.h"
-
-#if defined(OS_LINUX)
-#include <gdk/gdk.h>
-#endif
-
 #include "base/gfx/point.h"
 
+#if defined(OS_LINUX)
+typedef struct _GdkEventKey GdkEventKey;
+#endif
 class OSExchangeData;
 
 namespace views {
@@ -218,7 +216,7 @@ class MouseEvent : public LocatedEvent {
   }
 
  private:
-  DISALLOW_EVIL_CONSTRUCTORS(MouseEvent);
+  DISALLOW_COPY_AND_ASSIGN(MouseEvent);
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -235,7 +233,7 @@ class KeyEvent : public Event {
   // Create a new key event
   KeyEvent(EventType type, int ch, int repeat_count, int message_flags);
 #elif defined(OS_LINUX)
-  KeyEvent(GdkEventKey* event);
+  explicit KeyEvent(GdkEventKey* event);
 #endif
 
   int GetCharacter() const {

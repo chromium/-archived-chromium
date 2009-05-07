@@ -6,35 +6,60 @@
 
 #include "chrome/views/fill_layout.h"
 #include "chrome/views/widget/root_view.h"
+#include "chrome/views/window/window_gtk.h"
 
 namespace views {
 
-WidgetGtk::WidgetGtk()
-    : widget_(NULL),
+// Returns the position of a widget on screen.
+static void GetWidgetPositionOnScreen(GtkWidget* widget, int* x, int *y) {
+  GtkWidget* parent = widget;
+  while (parent) {
+    if (GTK_IS_WINDOW(widget)) {
+      int window_x, window_y;
+      gtk_window_get_position(GTK_WINDOW(widget), &window_x, &window_y);
+      *x += window_x;
+      *y += window_y;
+      return;
+    }
+    // Not a window.
+    *x += widget->allocation.x;
+    *y += widget->allocation.y;
+    parent = gtk_widget_get_parent(parent);
+  }
+}
+
+WidgetGtk::WidgetGtk(Type type)
+    : type_(type),
+      widget_(NULL),
+      child_widget_parent_(NULL),
       is_mouse_down_(false),
       last_mouse_event_was_move_(false) {
 }
 
 WidgetGtk::~WidgetGtk() {
-  gtk_widget_unref(widget_);
-
+  if (widget_) {
+    // TODO: make sure this is right.
+    gtk_widget_destroy(widget_);
+    child_widget_parent_ = widget_ = NULL;
+  }
   // MessageLoopForUI::current()->RemoveObserver(this);
 }
 
 void WidgetGtk::Init(const gfx::Rect& bounds,
                      bool has_own_focus_manager) {
-
   // Force creation of the RootView if it hasn't been created yet.
   GetRootView();
 
   // Make container here.
-  widget_ = gtk_drawing_area_new();
-  gtk_drawing_area_size(GTK_DRAWING_AREA(widget_), 100, 100);
-  gtk_widget_show(widget_);
+  CreateGtkWidget();
 
   // Make sure we receive our motion events.
-  gtk_widget_set_events(widget_,
-                        gtk_widget_get_events(widget_) |
+
+  // We register everything on the parent of all widgets. At a minimum we need
+  // painting to happen on the parent (otherwise painting doesn't work at all),
+  // and similarly we need mouse release events on the parent as windows don't
+  // get mouse releases.
+  gtk_widget_add_events(child_widget_parent_,
                         GDK_ENTER_NOTIFY_MASK |
                         GDK_LEAVE_NOTIFY_MASK |
                         GDK_BUTTON_PRESS_MASK |
@@ -47,36 +72,35 @@ void WidgetGtk::Init(const gfx::Rect& bounds,
 
   // TODO(port): if(has_own_focus_manager) block
 
-  SetViewForNative(widget_, this);
   SetRootViewForWidget(widget_, root_view_.get());
 
   // MessageLoopForUI::current()->AddObserver(this);
 
-  g_signal_connect_after(G_OBJECT(widget_), "size_allocate",
+  g_signal_connect_after(G_OBJECT(child_widget_parent_), "size_allocate",
                          G_CALLBACK(CallSizeAllocate), NULL);
-  g_signal_connect(G_OBJECT(widget_), "expose_event",
+  g_signal_connect(G_OBJECT(child_widget_parent_), "expose_event",
                    G_CALLBACK(CallPaint), NULL);
-  g_signal_connect(G_OBJECT(widget_), "enter_notify_event",
+  g_signal_connect(G_OBJECT(child_widget_parent_), "enter_notify_event",
                    G_CALLBACK(CallEnterNotify), NULL);
-  g_signal_connect(G_OBJECT(widget_), "leave_notify_event",
+  g_signal_connect(G_OBJECT(child_widget_parent_), "leave_notify_event",
                    G_CALLBACK(CallLeaveNotify), NULL);
-  g_signal_connect(G_OBJECT(widget_), "motion_notify_event",
+  g_signal_connect(G_OBJECT(child_widget_parent_), "motion_notify_event",
                    G_CALLBACK(CallMotionNotify), NULL);
-  g_signal_connect(G_OBJECT(widget_), "button_press_event",
+  g_signal_connect(G_OBJECT(child_widget_parent_), "button_press_event",
                    G_CALLBACK(CallButtonPress), NULL);
-  g_signal_connect(G_OBJECT(widget_), "button_release_event",
+  g_signal_connect(G_OBJECT(child_widget_parent_), "button_release_event",
                    G_CALLBACK(CallButtonRelease), NULL);
-  g_signal_connect(G_OBJECT(widget_), "focus_in_event",
+  g_signal_connect(G_OBJECT(child_widget_parent_), "focus_in_event",
                    G_CALLBACK(CallFocusIn), NULL);
-  g_signal_connect(G_OBJECT(widget_), "focus_out_event",
+  g_signal_connect(G_OBJECT(child_widget_parent_), "focus_out_event",
                    G_CALLBACK(CallFocusOut), NULL);
-  g_signal_connect(G_OBJECT(widget_), "key_press_event",
+  g_signal_connect(G_OBJECT(child_widget_parent_), "key_press_event",
                    G_CALLBACK(CallKeyPress), NULL);
-  g_signal_connect(G_OBJECT(widget_), "key_release_event",
+  g_signal_connect(G_OBJECT(child_widget_parent_), "key_release_event",
                    G_CALLBACK(CallKeyRelease), NULL);
-  g_signal_connect(G_OBJECT(widget_), "scroll_event",
+  g_signal_connect(G_OBJECT(child_widget_parent_), "scroll_event",
                    G_CALLBACK(CallScroll), NULL);
-  g_signal_connect(G_OBJECT(widget_), "visibility_notify_event",
+  g_signal_connect(G_OBJECT(child_widget_parent_), "visibility_notify_event",
                    G_CALLBACK(CallVisibilityNotify), NULL);
 
   // TODO(erg): Ignore these signals for now because they're such a drag.
@@ -91,8 +115,23 @@ void WidgetGtk::Init(const gfx::Rect& bounds,
   //                  G_CALLBACK(drag_data_received_event_cb), NULL);
 }
 
+void WidgetGtk::AddChild(GtkWidget* child) {
+  gtk_container_add(GTK_CONTAINER(child_widget_parent_), child);
+}
+
+void WidgetGtk::RemoveChild(GtkWidget* child) {
+  gtk_container_remove(GTK_CONTAINER(child_widget_parent_), child);
+}
+
+void WidgetGtk::PositionChild(GtkWidget* child, int x, int y, int w, int h) {
+  GtkAllocation alloc = { x, y, w, h };
+  gtk_widget_size_allocate(child, &alloc);
+  gtk_fixed_move(GTK_FIXED(child_widget_parent_), child, x, y);
+}
+
 void WidgetGtk::SetContentsView(View* view) {
-  DCHECK(view && widget_) << "Can't be called until after the HWND is created!";
+  DCHECK(view && widget_)
+      << "Can't be called until after the HWND is created!";
   // The ContentsView must be set up _after_ the window is created so that its
   // Widget pointer is valid.
   root_view_->SetLayoutManager(new FillLayout);
@@ -100,26 +139,34 @@ void WidgetGtk::SetContentsView(View* view) {
     root_view_->RemoveAllChildViews(true);
   root_view_->AddChildView(view);
 
-  // TODO(erg): Terrible hack to work around lack of real sizing mechanics for
-  // now.
-  root_view_->SetBounds(0, 0, 100, 100);
-  root_view_->Layout();
-  root_view_->SchedulePaint();
-  NOTIMPLEMENTED();
+  DCHECK(widget_);  // Widget must have been created by now.
+
+  OnSizeAllocate(widget_, &(widget_->allocation));
 }
 
 void WidgetGtk::GetBounds(gfx::Rect* out, bool including_frame) const {
-  if (including_frame) {
-    NOTIMPLEMENTED();
-    *out = gfx::Rect();
-    return;
+  DCHECK(widget_);
+
+  int x = 0, y = 0, w, h;
+  if (GTK_IS_WINDOW(widget_)) {
+    gtk_window_get_position(GTK_WINDOW(widget_), &x, &y);
+    gtk_window_get_size(GTK_WINDOW(widget_), &w, &h);
+  } else {
+    // TODO: make sure this is right. Docs indicate gtk_window_get_position
+    // returns a value useful to the window manager, which may not be the same
+    // as the actual location on the screen.
+    GetWidgetPositionOnScreen(widget_, &x, &y);
+    w = widget_->allocation.width;
+    h = widget_->allocation.height;
   }
 
-  // TODO(erg): Not sure how to implement this. gtk_widget_size_request()
-  // returns a widget's requested size--not it's actual size. The system of
-  // containers and such do auto sizing tricks to make everything work within
-  // the constraints and requested sizes...
-  NOTIMPLEMENTED();
+  if (including_frame) {
+    // TODO: Docs indicate it isn't possible to get at this value. We may need
+    // to turn off all decorations so that the frame is always of a 0x0 size.
+    NOTIMPLEMENTED();
+  }
+
+  return out->SetRect(x, y, w, h);
 }
 
 gfx::NativeView WidgetGtk::GetNativeView() const {
@@ -127,7 +174,6 @@ gfx::NativeView WidgetGtk::GetNativeView() const {
 }
 
 void WidgetGtk::PaintNow(const gfx::Rect& update_rect) {
-  // TODO(erg): This is woefully incomplete and is a straw man implementation.
   gtk_widget_queue_draw_area(widget_, update_rect.x(), update_rect.y(),
                              update_rect.width(), update_rect.height());
 }
@@ -145,8 +191,9 @@ bool WidgetGtk::IsVisible() const {
 }
 
 bool WidgetGtk::IsActive() const {
-  NOTIMPLEMENTED();
-  return false;
+  // If this only applies to windows, it shouldn't be in widget.
+  DCHECK(GTK_IS_WINDOW(widget_));
+  return gtk_window_is_active(GTK_WINDOW(widget_));
 }
 
 TooltipManager* WidgetGtk::GetTooltipManager() {
@@ -157,6 +204,43 @@ TooltipManager* WidgetGtk::GetTooltipManager() {
 bool WidgetGtk::GetAccelerator(int cmd_id, Accelerator* accelerator) {
   NOTIMPLEMENTED();
   return false;
+}
+
+Window* WidgetGtk::GetWindow() {
+  return GetWindowImpl(widget_);
+}
+
+const Window* WidgetGtk::GetWindow() const {
+  return GetWindowImpl(widget_);
+}
+
+void WidgetGtk::CreateGtkWidget() {
+  if (type_ == TYPE_CHILD) {
+    child_widget_parent_ = widget_ = gtk_fixed_new();
+    SetViewForNative(widget_, this);
+  } else {
+    widget_ = gtk_window_new(
+        type_ == TYPE_WINDOW ? GTK_WINDOW_TOPLEVEL : GTK_WINDOW_POPUP);
+    gtk_window_set_decorated(GTK_WINDOW(widget_), false);
+    // We'll take care of positioning our window.
+    gtk_window_set_position(GTK_WINDOW(widget_), GTK_WIN_POS_NONE);
+    SetWindowForNative(widget_, static_cast<WindowGtk*>(this));
+    SetViewForNative(widget_, this);
+
+    child_widget_parent_ = gtk_fixed_new();
+    gtk_fixed_set_has_window(GTK_FIXED(child_widget_parent_), true);
+    gtk_container_add(GTK_CONTAINER(widget_), child_widget_parent_);
+    gtk_widget_show(child_widget_parent_);
+
+    SetViewForNative(child_widget_parent_, this);
+  }
+  gtk_widget_show(widget_);
+}
+
+void WidgetGtk::OnSizeAllocate(GtkWidget* widget, GtkAllocation* allocation) {
+  root_view_->SetBounds(0, 0, allocation->width, allocation->height);
+  root_view_->Layout();
+  root_view_->SchedulePaint();
 }
 
 gboolean WidgetGtk::OnMotionNotify(GtkWidget* widget, GdkEventMotion* event) {
@@ -178,7 +262,8 @@ gboolean WidgetGtk::OnMotionNotify(GtkWidget* widget, GdkEventMotion* event) {
 }
 
 gboolean WidgetGtk::OnButtonPress(GtkWidget* widget, GdkEventButton* event) {
-  return ProcessMousePressed(event);
+  ProcessMousePressed(event);
+  return true;
 }
 
 gboolean WidgetGtk::OnButtonRelease(GtkWidget* widget, GdkEventButton* event) {
@@ -186,9 +271,8 @@ gboolean WidgetGtk::OnButtonRelease(GtkWidget* widget, GdkEventButton* event) {
   return true;
 }
 
-gboolean WidgetGtk::OnPaint(GtkWidget* widget, GdkEventExpose* event) {
+void WidgetGtk::OnPaint(GtkWidget* widget, GdkEventExpose* event) {
   root_view_->OnPaint(event);
-  return true;
 }
 
 gboolean WidgetGtk::OnEnterNotify(GtkWidget* widget, GdkEventCrossing* event) {
@@ -213,16 +297,42 @@ gboolean WidgetGtk::OnKeyRelease(GtkWidget* widget, GdkEventKey* event) {
   return root_view_->ProcessKeyEvent(key_event);
 }
 
+// static
+WindowGtk* WidgetGtk::GetWindowForNative(GtkWidget* widget) {
+  gpointer user_data = g_object_get_data(G_OBJECT(widget), "chrome-window");
+  return static_cast<WindowGtk*>(user_data);
+}
+
+// static
+void WidgetGtk::SetWindowForNative(GtkWidget* widget, WindowGtk* window) {
+  g_object_set_data(G_OBJECT(widget), "chrome-window", window);
+}
+
 RootView* WidgetGtk::CreateRootView() {
   return new RootView(this);
 }
 
 bool WidgetGtk::ProcessMousePressed(GdkEventButton* event) {
   last_mouse_event_was_move_ = false;
+  // TODO: move this code into a common place. Also need support for
+  // double/triple click.
+  int flags = Event::GetFlagsFromGdkState(event->state);
+  switch (event->button) {
+    case 1:
+      flags |= Event::EF_LEFT_BUTTON_DOWN;
+      break;
+    case 2:
+      flags |= Event::EF_MIDDLE_BUTTON_DOWN;
+      break;
+    case 3:
+      flags |= Event::EF_MIDDLE_BUTTON_DOWN;
+      break;
+    default:
+      // We only deal with 1-3.
+      break;
+  }
   MouseEvent mouse_pressed(Event::ET_MOUSE_PRESSED,
-                           event->x, event->y,
-//                         (dbl_click ? MouseEvent::EF_IS_DOUBLE_CLICK : 0) |
-                           Event::GetFlagsFromGdkState(event->state));
+                           event->x, event->y, flags);
   if (root_view_->OnMousePressed(mouse_pressed)) {
     is_mouse_down_ = true;
     // TODO(port): Enable this once I figure out what capture is.
@@ -288,10 +398,9 @@ void WidgetGtk::CallSizeAllocate(GtkWidget* widget, GtkAllocation* allocation) {
 
 gboolean WidgetGtk::CallPaint(GtkWidget* widget, GdkEventExpose* event) {
   WidgetGtk* widget_gtk = GetViewForNative(widget);
-  if (!widget_gtk)
-    return false;
-
-  return widget_gtk->OnPaint(widget, event);
+  if (widget_gtk)
+    widget_gtk->OnPaint(widget, event);
+  return false;  // False indicates other widgets should get the event as well.
 }
 
 gboolean WidgetGtk::CallEnterNotify(GtkWidget* widget, GdkEventCrossing* event) {
@@ -381,6 +490,19 @@ gboolean WidgetGtk::CallVisibilityNotify(GtkWidget* widget,
     return false;
 
   return widget_gtk->OnVisibilityNotify(widget, event);
+}
+
+// Returns the first ancestor of |widget| that is a window.
+// static
+Window* WidgetGtk::GetWindowImpl(GtkWidget* widget) {
+  GtkWidget* parent = widget;
+  while (parent) {
+    WindowGtk* window = GetWindowForNative(widget);
+    if (window)
+      return window;
+    parent = gtk_widget_get_parent(parent);
+  }
+  return NULL;
 }
 
 }

@@ -4,6 +4,8 @@
 
 #include "chrome/views/widget/root_view.h"
 
+#include <gtk/gtk.h>
+
 #include "app/gfx/chrome_canvas.h"
 #include "base/logging.h"
 #include "skia/include/SkColor.h"

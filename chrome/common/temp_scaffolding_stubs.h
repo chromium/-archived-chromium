@@ -234,11 +234,13 @@ class MenuItemView {
 class MenuDelegate {
 };
 
+#if !defined(OS_LINUX)
 class Window {
  public:
   void Show() { NOTIMPLEMENTED(); }
   virtual void Close() { NOTIMPLEMENTED(); }
 };
+#endif
 
 }  // namespace views
 
@@ -276,9 +278,6 @@ class Menu {
   void AppendSeparator() { NOTIMPLEMENTED(); }
   void AppendDelegateMenuItem(int item_id) { NOTIMPLEMENTED(); }
 };
-
-views::Window* CreateInputWindow(gfx::NativeWindow parent_hwnd,
-                                 InputWindowDelegate* delegate);
 
 class BookmarkManagerView {
  public:

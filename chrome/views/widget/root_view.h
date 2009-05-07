@@ -5,18 +5,16 @@
 #ifndef CHROME_VIEWS_WIDGET_ROOT_VIEW_H_
 #define CHROME_VIEWS_WIDGET_ROOT_VIEW_H_
 
-#include "build/build_config.h"
+#include <string>
 
-#if defined(OS_LINUX)
-#include <gtk/gtk.h>
-#endif
-
-#if defined(OS_WIN)
 #include "base/ref_counted.h"
-#endif
-
+#include "build/build_config.h"
 #include "chrome/views/focus/focus_manager.h"
 #include "chrome/views/view.h"
+
+#if defined(OS_LINUX)
+typedef struct _GdkEventExpose GdkEventExpose;
+#endif
 
 namespace views {
 

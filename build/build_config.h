@@ -19,6 +19,10 @@
 #define OS_MACOSX 1
 #elif defined(__linux__)
 #define OS_LINUX 1
+// Use TOOLKIT_GTK on linux if TOOLKIT_VIEWS isn't defined.
+#if !defined(TOOLKIT_VIEWS)
+#define TOOLKIT_GTK
+#endif
 #elif defined(_WIN32)
 #define OS_WIN 1
 #else

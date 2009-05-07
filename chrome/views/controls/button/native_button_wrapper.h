@@ -12,6 +12,7 @@ namespace views {
 class Checkbox;
 class NativeButton;
 class RadioButton;
+class View;
 
 // A specialization of NativeControlWrapper that hosts a platform-native button.
 class NativeButtonWrapper {
