@@ -2398,9 +2398,12 @@ BUG11483 WIN LINUX : LayoutTests/svg/transforms/animated-path-inside-transformed
 BUG11482 : LayoutTests/svg/custom/polyline-points-crash.html = CRASH
 BUG11502 WIN : LayoutTests/svg/css/glyph-orientation-rounding-test.xhtml = CRASH PASS
 
-// Regressions from WebKit merge 43242:43321
+// Regressions from WebKit merge 43242:43321.  These just need to re-baselining:
+BUG_DARIN LINUX : LayoutTests/editing/pasteboard/5027857.html = FAIL
+BUG_DARIN LINUX : LayoutTests/editing/pasteboard/paste-pre-002.html = FAIL
+
+// Regressions from WebKit merge 43242:43321.
 BUG_DARIN WIN LINUX : LayoutTests/fast/forms/select-dirty-parent-pref-widths.html = FAIL
 BUG_DARIN WIN LINUX : LayoutTests/svg/transforms/text-with-pattern-inside-transformed-html.xhtml = FAIL
 BUG_DARIN WIN LINUX : LayoutTests/svg/transforms/text-with-pattern-with-svg-transform.svg = FAIL
-
-BUG_DARIN LINUX : LayoutTests/transitions/mask-transitions.html = FAIL
+BUG_DARIN LINUX : LayoutTests/transitions/mask-transitions.html = FAIL PASS
