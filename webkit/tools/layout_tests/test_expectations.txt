@@ -2327,9 +2327,8 @@ BUG11176 MAC : LayoutTests/fast/css/first-child-pseudo-class.html = FAIL PASS
 BUG11176 LINUX MAC WIN : LayoutTests/fast/forms/input-align-image.html = FAIL PASS
 
 // New failures from WebKit Merge 42932:42994
-BUG11178 DEBUG WIN : LayoutTests/transitions/repeated-firing-background-color.html = FAIL PASS
-
-BUG11178 MAC : LayoutTests/fast/dom/Document/open-with-pending-load.html = CRASH
+BUG11604 DEBUG WIN : LayoutTests/transitions/repeated-firing-background-color.html = FAIL PASS
+BUG11604 MAC : LayoutTests/fast/dom/Document/open-with-pending-load.html = CRASH
 
 // New tests from WebKit Merge 42932:42994
 BUG11179 : LayoutTests/http/tests/xmlhttprequest/detaching-frame-2.html = FAIL TIMEOUT
