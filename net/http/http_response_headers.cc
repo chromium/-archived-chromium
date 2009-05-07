@@ -141,8 +141,9 @@ void HttpResponseHeaders::Persist(Pickle* pickle, PersistOptions options) {
     StringToLowerASCII(&header_name);
 
     if (filter_headers.find(header_name) == filter_headers.end()) {
-      // Includes terminator null due to the + 1.
-      blob.append(parsed_[i].name_begin, parsed_[k].value_end + 1);
+      // Make sure there is a null after the value.
+      blob.append(parsed_[i].name_begin, parsed_[k].value_end);
+      blob.push_back('\0');
     }
 
     i = k;

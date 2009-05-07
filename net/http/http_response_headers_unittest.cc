@@ -423,6 +423,26 @@ TEST(HttpResponseHeadersTest, Persist) {
       "HTTP/1.1 200 OK\n"
       "Bar: 1\n"
     },
+    // Test LWS at the end of a header.
+    { net::HttpResponseHeaders::PERSIST_ALL,
+      "HTTP/1.1 200 OK\n"
+      "Content-Length: 450   \n"
+      "Content-Encoding: gzip\n",
+
+      "HTTP/1.1 200 OK\n"
+      "Content-Length: 450\n"
+      "Content-Encoding: gzip\n"
+    },
+    // Test LWS at the end of a header.
+    { net::HttpResponseHeaders::PERSIST_RAW,
+      "HTTP/1.1 200 OK\n"
+      "Content-Length: 450   \n"
+      "Content-Encoding: gzip\n",
+
+      "HTTP/1.1 200 OK\n"
+      "Content-Length: 450\n"
+      "Content-Encoding: gzip\n"
+    },
   };
 
   for (size_t i = 0; i < ARRAYSIZE_UNSAFE(tests); ++i) {
