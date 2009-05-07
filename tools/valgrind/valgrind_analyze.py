@@ -13,6 +13,7 @@ import os
 import sys
 import time
 from xml.dom.minidom import parse
+from xml.parsers.expat import ExpatError
 
 # These are functions (using C++ mangled names) that we look for in stack
 # traces. We don't show stack frames while pretty printing when they are below
@@ -208,12 +209,30 @@ class ValgrindAnalyze:
       if not found:
         badfiles.add(file)
       else:
-        raw_errors = parse(file).getElementsByTagName("error")
-        for raw_error in raw_errors:
-          # Ignore "possible" leaks for now by default.
-          if (show_all_leaks or
-              getTextOf(raw_error, "kind") != "Leak_PossiblyLost"):
-            self._errors.add(ValgrindError(source_dir, raw_error))
+        try:
+          raw_errors = parse(file).getElementsByTagName("error")
+          for raw_error in raw_errors:
+            # Ignore "possible" leaks for now by default.
+            if (show_all_leaks or
+                getTextOf(raw_error, "kind") != "Leak_PossiblyLost"):
+              self._errors.add(ValgrindError(source_dir, raw_error))
+        except ExpatError, e:
+          logging.warn("could not parse %s: %s" % (file, e))
+          lineno = e.lineno - 1
+          context_lines = 5
+          context_start = max(0, lineno - context_lines)
+          context_end = lineno + context_lines + 1
+          context_file = open(file, "r")
+          for i in range(0, context_start):
+            context_file.readline()
+          for i in range(context_start, context_end):
+            context_data = context_file.readline().rstrip()
+            if i != lineno:
+              logging.warn("  %s" % context_data)
+            else:
+              logging.warn("> %s" % context_data)
+          context_file.close()
+          continue
     if len(badfiles) > 0:
       logging.warn("valgrind didn't finish writing %d files?!" % len(badfiles))
 
