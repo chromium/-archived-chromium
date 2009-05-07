@@ -16,6 +16,7 @@
 #include "third_party/WebKit/WebKit/chromium/public/WebSize.h"
 #include "third_party/WebKit/WebKit/chromium/public/WebString.h"
 #include "third_party/WebKit/WebKit/chromium/public/WebURL.h"
+#include "webkit/glue/glue_util.h"
 #include "webkit/glue/webframe_impl.h"
 #include "webkit/glue/webview.h"
 #include "webkit/glue/webview_delegate.h"
@@ -25,6 +26,7 @@
 #include "GraphicsContext.h"
 #include "HTMLMediaElement.h"
 #include "IntSize.h"
+#include "KURL.h"
 #include "MediaPlayer.h"
 #include "NotImplemented.h"
 #include "PlatformContextSkia.h"
@@ -99,9 +101,7 @@ void WebMediaPlayerClientImpl::load(const String& url) {
   WebFrame* webFrame = WebFrameImpl::FromFrame(frame);
   WebViewDelegate* d = webFrame->GetView()->GetDelegate();
   m_webMediaPlayer = d->CreateWebMediaPlayer(this);
-  // TODO(hclam): Is there a simpler way to convert from WebCore::String to
-  // WebKit::WebURL?
-  m_webMediaPlayer->load(WebKit::WebURL(GURL(WebString::fromUTF8(url.utf8()))));
+  m_webMediaPlayer->load(webkit_glue::KURLToWebURL(KURL(url)));
 }
 
 void WebMediaPlayerClientImpl::cancelLoad() {
