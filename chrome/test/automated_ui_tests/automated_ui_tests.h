@@ -154,10 +154,6 @@ class AutomatedUITest : public AutomatedUITestBase {
   // XML element: <Forward/>
   bool ForwardButton();
 
-  // Opens and focuses an OffTheRecord browser window.
-  // XML element: <GoOffTheRecord/>
-  bool GoOffTheRecord();
-
   // Navigates to the Home page.
   // Returns true if call to activate the accelerator is successful.
   // XML element: <Home/>

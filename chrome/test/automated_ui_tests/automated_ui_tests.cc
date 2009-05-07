@@ -426,10 +426,6 @@ bool AutomatedUITest::ForwardButton() {
   return RunCommandAsync(IDC_FORWARD);
 }
 
-bool AutomatedUITest::GoOffTheRecord() {
-  return RunCommandAsync(IDC_NEW_INCOGNITO_WINDOW);
-}
-
 bool AutomatedUITest::Home() {
   return RunCommandAsync(IDC_HOME);
 }

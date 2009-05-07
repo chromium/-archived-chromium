@@ -2,6 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+#include "chrome/app/chrome_dll_resource.h"
 #include "chrome/test/automated_ui_tests/automated_ui_test_base.h"
 #include "chrome/test/automation/browser_proxy.h"
 #include "chrome/test/automation/tab_proxy.h"
@@ -46,6 +47,50 @@ TEST_F(AutomatedUITestBase, RestoreTab) {
   RestoreTab();
   active_browser()->GetTabCount(&tab_count);
   ASSERT_EQ(2, tab_count);
+}
+
+TEST_F(AutomatedUITestBase, CloseTab) {
+  int num_browser_windows;
+  int tab_count;
+  NewTab();
+  automation()->GetBrowserWindowCount(&num_browser_windows);
+  ASSERT_EQ(1, num_browser_windows);
+  active_browser()->GetTabCount(&tab_count);
+  ASSERT_EQ(2, tab_count);
+
+  ASSERT_TRUE(OpenAndActivateNewBrowserWindow(NULL));
+  NewTab();
+  NewTab();
+  active_browser()->GetTabCount(&tab_count);
+  ASSERT_EQ(3, tab_count);
+  automation()->GetBrowserWindowCount(&num_browser_windows);
+  ASSERT_EQ(2, num_browser_windows);
+
+  ASSERT_TRUE(CloseActiveTab());
+  active_browser()->GetTabCount(&tab_count);
+  ASSERT_EQ(2, tab_count);
+  ASSERT_TRUE(CloseActiveTab());
+  active_browser()->GetTabCount(&tab_count);
+  ASSERT_EQ(1, tab_count);
+  num_browser_windows = 0;
+  automation()->GetBrowserWindowCount(&num_browser_windows);
+  ASSERT_EQ(2, num_browser_windows);
+
+  // The browser window is closed by closing this tab.
+  ASSERT_TRUE(CloseActiveTab());
+  automation()->GetBrowserWindowCount(&num_browser_windows);
+  ASSERT_EQ(1, num_browser_windows);
+  // Active_browser_ is now the first created window.
+  active_browser()->GetTabCount(&tab_count);
+  ASSERT_EQ(2, tab_count);
+  ASSERT_TRUE(CloseActiveTab());
+  active_browser()->GetTabCount(&tab_count);
+  ASSERT_EQ(1, tab_count);
+
+  // The last tab should not be closed.
+  ASSERT_FALSE(CloseActiveTab());
+  active_browser()->GetTabCount(&tab_count);
+  ASSERT_EQ(1, tab_count);
 }
 
 TEST_F(AutomatedUITestBase, OpenBrowserWindow) {
@@ -131,46 +176,68 @@ TEST_F(AutomatedUITestBase, CloseBrowserWindow) {
   ASSERT_FALSE(CloseActiveWindow());
 }
 
-TEST_F(AutomatedUITestBase, CloseTab) {
+TEST_F(AutomatedUITestBase, IncognitoWindow) {
   int num_browser_windows;
-  int tab_count;
-  NewTab();
+  int num_normal_browser_windows;
   automation()->GetBrowserWindowCount(&num_browser_windows);
   ASSERT_EQ(1, num_browser_windows);
-  active_browser()->GetTabCount(&tab_count);
-  ASSERT_EQ(2, tab_count);
+  automation()->GetNormalBrowserWindowCount(&num_normal_browser_windows);
+  ASSERT_EQ(1, num_normal_browser_windows);
 
-  ASSERT_TRUE(OpenAndActivateNewBrowserWindow(NULL));
-  NewTab();
-  NewTab();
-  active_browser()->GetTabCount(&tab_count);
-  ASSERT_EQ(3, tab_count);
+  ASSERT_TRUE(GoOffTheRecord());
+  ASSERT_TRUE(GoOffTheRecord());
   automation()->GetBrowserWindowCount(&num_browser_windows);
-  ASSERT_EQ(2, num_browser_windows);
+  ASSERT_EQ(3, num_browser_windows);
+  automation()->GetNormalBrowserWindowCount(&num_normal_browser_windows);
+  ASSERT_EQ(1, num_normal_browser_windows);
 
-  ASSERT_TRUE(CloseActiveTab());
-  active_browser()->GetTabCount(&tab_count);
-  ASSERT_EQ(2, tab_count);
-  ASSERT_TRUE(CloseActiveTab());
-  active_browser()->GetTabCount(&tab_count);
-  ASSERT_EQ(1, tab_count);
-  num_browser_windows = 0;
+  // There is only one normal window so it will not be closed.
+  ASSERT_FALSE(CloseActiveWindow());
   automation()->GetBrowserWindowCount(&num_browser_windows);
-  ASSERT_EQ(2, num_browser_windows);
+  ASSERT_EQ(3, num_browser_windows);
+  automation()->GetNormalBrowserWindowCount(&num_normal_browser_windows);
+  ASSERT_EQ(1, num_normal_browser_windows);
 
-  // The browser window is closed by closing this tab.
-  ASSERT_TRUE(CloseActiveTab());
+  set_active_browser(automation()->GetBrowserWindow(0));
+  ASSERT_TRUE(RunCommand(IDC_CLOSE_WINDOW));
+  set_active_browser(automation()->GetBrowserWindow(0));
+  ASSERT_TRUE(RunCommand(IDC_CLOSE_WINDOW));
   automation()->GetBrowserWindowCount(&num_browser_windows);
   ASSERT_EQ(1, num_browser_windows);
-  // Active_browser_ is now the first created window.
-  active_browser()->GetTabCount(&tab_count);
-  ASSERT_EQ(2, tab_count);
-  ASSERT_TRUE(CloseActiveTab());
-  active_browser()->GetTabCount(&tab_count);
-  ASSERT_EQ(1, tab_count);
+}
 
-  // The last tab should not be closed.
-  ASSERT_FALSE(CloseActiveTab());
-  active_browser()->GetTabCount(&tab_count);
-  ASSERT_EQ(1, tab_count);
+TEST_F(AutomatedUITestBase, OpenCloseBrowserWindowWithAccelerator) {
+  // Note: we don't use RunCommand(IDC_OPEN/CLOSE_WINDOW) to open/close
+  // browser window in automated ui tests. Instead we use
+  // OpenAndActivateNewBrowserWindow and CloseActiveWindow.
+  // There are other parts of UI test that use the accelerators. This is
+  // a unit test for those usage.
+  ASSERT_TRUE(RunCommand(IDC_NEW_WINDOW));
+  int num_browser_windows;
+  automation()->GetBrowserWindowCount(&num_browser_windows);
+  ASSERT_EQ(2, num_browser_windows);
+  ASSERT_TRUE(RunCommand(IDC_NEW_WINDOW));
+  ASSERT_TRUE(RunCommand(IDC_NEW_WINDOW));
+  ASSERT_TRUE(RunCommand(IDC_NEW_WINDOW));
+  ASSERT_TRUE(RunCommand(IDC_NEW_WINDOW));
+  ASSERT_TRUE(RunCommand(IDC_NEW_WINDOW));
+  automation()->GetBrowserWindowCount(&num_browser_windows);
+  ASSERT_EQ(7, num_browser_windows);
+
+  set_active_browser(automation()->GetBrowserWindow(0));
+  ASSERT_TRUE(RunCommand(IDC_CLOSE_WINDOW));
+  automation()->GetBrowserWindowCount(&num_browser_windows);
+  ASSERT_EQ(6, num_browser_windows);
+  set_active_browser(automation()->GetBrowserWindow(0));
+  ASSERT_TRUE(RunCommand(IDC_CLOSE_WINDOW));
+  set_active_browser(automation()->GetBrowserWindow(0));
+  ASSERT_TRUE(RunCommand(IDC_CLOSE_WINDOW));
+  set_active_browser(automation()->GetBrowserWindow(0));
+  ASSERT_TRUE(RunCommand(IDC_CLOSE_WINDOW));
+  set_active_browser(automation()->GetBrowserWindow(0));
+  ASSERT_TRUE(RunCommand(IDC_CLOSE_WINDOW));
+  set_active_browser(automation()->GetBrowserWindow(0));
+  ASSERT_TRUE(RunCommand(IDC_CLOSE_WINDOW));
+  automation()->GetBrowserWindowCount(&num_browser_windows);
+  ASSERT_EQ(1, num_browser_windows);
 }

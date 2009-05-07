@@ -415,16 +415,25 @@ class TabClosedNotificationObserver : public TabStripNotificationObserver {
                 NotificationType::TAB_CLOSING,
             automation,
             routing_id),
-         reply_message_(reply_message) {
+         reply_message_(reply_message),
+         for_browser_command_(false) {
   }
 
   virtual void ObserveTab(NavigationController* controller) {
-    AutomationMsg_CloseTab::WriteReplyParams(reply_message_, true);
+    if (for_browser_command_)
+      AutomationMsg_WindowExecuteCommand::WriteReplyParams(reply_message_,
+                                                           true);
+    else
+      AutomationMsg_CloseTab::WriteReplyParams(reply_message_, true);
     automation_->Send(reply_message_);
   }
 
+  void set_for_browser_command(bool for_browser_command) {
+    for_browser_command_ = for_browser_command;
+  }
  protected:
   IPC::Message* reply_message_;
+  bool for_browser_command_;
 };
 
 class BrowserOpenedNotificationObserver : public NotificationObserver {
@@ -432,7 +441,8 @@ class BrowserOpenedNotificationObserver : public NotificationObserver {
   BrowserOpenedNotificationObserver(AutomationProvider* automation,
                                     IPC::Message* reply_message)
       : automation_(automation),
-        reply_message_(reply_message) {
+        reply_message_(reply_message),
+        for_browser_command_(false) {
     registrar_.Add(this, NotificationType::BROWSER_OPENED,
                    NotificationService::AllSources());
   }
@@ -444,6 +454,9 @@ class BrowserOpenedNotificationObserver : public NotificationObserver {
                        const NotificationSource& source,
                        const NotificationDetails& details) {
     if (type == NotificationType::BROWSER_OPENED) {
+      if (for_browser_command_)
+        AutomationMsg_WindowExecuteCommand::WriteReplyParams(reply_message_,
+                                                             true);
       automation_->Send(reply_message_);
       delete this;
     } else {
@@ -451,10 +464,14 @@ class BrowserOpenedNotificationObserver : public NotificationObserver {
     }
   }
 
+  void set_for_browser_command(bool for_browser_command) {
+    for_browser_command_ = for_browser_command;
+  }
  private:
   AutomationProvider* automation_;
   IPC::Message* reply_message_;
   NotificationRegistrar registrar_;
+  bool for_browser_command_;
 };
 
 class BrowserClosedNotificationObserver : public NotificationObserver {
@@ -465,7 +482,8 @@ class BrowserClosedNotificationObserver : public NotificationObserver {
                                     IPC::Message* reply_message)
       : automation_(automation),
         routing_id_(routing_id),
-        reply_message_(reply_message) {
+        reply_message_(reply_message),
+        for_browser_command_(false) {
     NotificationService::current()->AddObserver(this,
         NotificationType::BROWSER_CLOSED, Source<Browser>(browser));
   }
@@ -476,17 +494,25 @@ class BrowserClosedNotificationObserver : public NotificationObserver {
     DCHECK(type == NotificationType::BROWSER_CLOSED);
     Details<bool> close_app(details);
     DCHECK(reply_message_ != NULL);
-    AutomationMsg_CloseBrowser::WriteReplyParams(reply_message_, true,
-                                                 *(close_app.ptr()));
+    if (for_browser_command_)
+      AutomationMsg_WindowExecuteCommand::WriteReplyParams(reply_message_,
+                                                           true);
+    else
+      AutomationMsg_CloseBrowser::WriteReplyParams(reply_message_, true,
+                                                   *(close_app.ptr()));
     automation_->Send(reply_message_);
     reply_message_ = NULL;
     delete this;
   }
 
+  void set_for_browser_command(bool for_browser_command) {
+    for_browser_command_ = for_browser_command;
+  }
  private:
   AutomationProvider* automation_;
   int32 routing_id_;
   IPC::Message* reply_message_;
+  bool for_browser_command_;
 };
 
 namespace {
@@ -500,6 +526,8 @@ struct CommandNotification {
 const struct CommandNotification command_notifications[] = {
   {IDC_DUPLICATE_TAB, NotificationType::TAB_PARENTED},
   {IDC_NEW_TAB, NotificationType::TAB_PARENTED},
+  // Returns as soon as the restored tab is created. To further wait until
+  // the content page is loaded, use WaitForTabToBeRestored.
   {IDC_RESTORE_TAB, NotificationType::TAB_PARENTED}
 };
 
@@ -507,21 +535,50 @@ const struct CommandNotification command_notifications[] = {
 
 class ExecuteBrowserCommandObserver : public NotificationObserver {
  public:
-  ExecuteBrowserCommandObserver(AutomationProvider* automation,
-                                IPC::Message* reply_message)
-      : automation_(automation),
-        reply_message_(reply_message) {
-  }
-
   ~ExecuteBrowserCommandObserver() {
   }
 
-  bool Register(int command) {
-    if (!GetNotificationType(command, &notification_type_))
-      return false;
-    registrar_.Add(this, notification_type_,
-                   NotificationService::AllSources());
-    return true;
+  static bool CreateAndRegisterObserver(AutomationProvider* automation,
+                                        Browser* browser,
+                                        int command,
+                                        IPC::Message* reply_message) {
+    bool result = true;
+    switch (command) {
+      case IDC_NEW_WINDOW:
+      case IDC_NEW_INCOGNITO_WINDOW: {
+        BrowserOpenedNotificationObserver* observer =
+            new BrowserOpenedNotificationObserver(automation,
+                                                  reply_message);
+        observer->set_for_browser_command(true);
+        break;
+      }
+      case IDC_CLOSE_WINDOW: {
+        BrowserClosedNotificationObserver* observer =
+            new BrowserClosedNotificationObserver(browser, automation,
+                                                  reply_message->routing_id(),
+                                                  reply_message);
+        observer->set_for_browser_command(true);
+        break;
+      }
+      case IDC_CLOSE_TAB: {
+        TabClosedNotificationObserver* observer =
+            new TabClosedNotificationObserver(browser, automation,
+                                              reply_message->routing_id(),
+                                              true, reply_message);
+        observer->set_for_browser_command(true);
+        break;
+      }
+      default: {
+        ExecuteBrowserCommandObserver* observer =
+            new ExecuteBrowserCommandObserver(automation, reply_message);
+        if (!observer->Register(command)) {
+          delete observer;
+          result = false;
+        }
+        break;
+      }
+    }
+    return result;
   }
 
   virtual void Observe(NotificationType type,
@@ -538,6 +595,20 @@ class ExecuteBrowserCommandObserver : public NotificationObserver {
   }
 
  private:
+  ExecuteBrowserCommandObserver(AutomationProvider* automation,
+                                IPC::Message* reply_message)
+      : automation_(automation),
+        reply_message_(reply_message) {
+  }
+
+  bool Register(int command) {
+    if (!GetNotificationType(command, &notification_type_))
+      return false;
+    registrar_.Add(this, notification_type_,
+                   NotificationService::AllSources());
+    return true;
+  }
+
   bool GetNotificationType(int command, NotificationType::Type* type) {
     if (!type)
       return false;
@@ -1423,13 +1494,11 @@ void AutomationProvider::ExecuteBrowserCommand(
     Browser* browser = browser_tracker_->GetResource(handle);
     if (browser->command_updater()->SupportsCommand(command) &&
         browser->command_updater()->IsCommandEnabled(command)) {
-      ExecuteBrowserCommandObserver* observer =
-          new ExecuteBrowserCommandObserver(this, reply_message);
-      if (observer->Register(command))
+      if (ExecuteBrowserCommandObserver::CreateAndRegisterObserver(
+          this, browser, command, reply_message)) {
         browser->ExecuteCommand(command);
-      else
-        delete observer;
-      return;
+        return;
+      }
     }
   }
   AutomationMsg_WindowExecuteCommand::WriteReplyParams(reply_message, false);

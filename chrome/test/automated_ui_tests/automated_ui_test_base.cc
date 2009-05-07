@@ -39,9 +39,7 @@ bool AutomatedUITestBase::CloseActiveTab() {
   }
 
   if (tab_count > 1) {
-    scoped_ptr<TabProxy> tab(GetActiveTab());
-    // Wait until tab is closed.
-    return tab->Close(true);
+    return RunCommand(IDC_CLOSE_TAB);
   } else if (tab_count == 1) {
     // Synchronously close the window if it is not the last window.
     return CloseActiveWindow();
@@ -75,6 +73,10 @@ bool AutomatedUITestBase::CloseActiveWindow() {
 
 bool AutomatedUITestBase::DuplicateTab() {
   return RunCommand(IDC_DUPLICATE_TAB);
+}
+
+bool AutomatedUITestBase::GoOffTheRecord() {
+  return RunCommand(IDC_NEW_INCOGNITO_WINDOW);
 }
 
 bool AutomatedUITestBase::OpenAndActivateNewBrowserWindow(

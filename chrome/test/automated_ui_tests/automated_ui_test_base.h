@@ -38,6 +38,9 @@ class AutomatedUITestBase : public UITest {
   // Returns true if a duplicated tab is added.
   bool DuplicateTab();
 
+  // Opens an OffTheRecord browser window.
+  bool GoOffTheRecord();
+
   // Opens a new tab in the active window using an accelerator.
   // Returns true if a new tab is successfully opened.
   bool NewTab();
