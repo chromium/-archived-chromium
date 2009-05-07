@@ -425,9 +425,9 @@ void _NPN_UnregisterObject(NPObject* obj) {
           list->remove(obj);
         }
     }
-    ForgetV8ObjectForNPObject(obj);
 
     g_live_objects.remove(obj);
+    ForgetV8ObjectForNPObject(obj);
 }
 
 bool _NPN_IsAlive(NPObject* obj) {
