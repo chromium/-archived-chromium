@@ -445,6 +445,7 @@ int BrowserMain(const MainFunctionParams& parameters) {
     return ResultCodes::MACHINE_LEVEL_INSTALL_EXISTS;
 
   process_singleton.Create();
+  BrowserInit browser_init;
 
   // Show the First Run UI if this is the first time Chrome has been run on
   // this computer, or we're being compelled to do so by a command line flag.
@@ -604,26 +605,28 @@ int BrowserMain(const MainFunctionParams& parameters) {
 #endif
 
   HandleErrorTestParameters(parsed_command_line);
-
   RecordBreakpadStatusUMA(metrics);
-
-  // Start up the extensions service.
-  // This should happen before ProcessCommandLine.
+  // Start up the extensions service. This should happen before Start().
   profile->InitExtensions();
 
-  // Call Recycle() here as late as possible, just before going into the main
-  // loop. We can't do it any earlier, as ProcessCommandLine() will add things
-  // to it in the act of creating the initial browser window.
   int result_code = ResultCodes::NORMAL_EXIT;
   if (parameters.ui_task) {
-    if (pool) pool->Recycle();
+    // We are in test mode. Run one task and enter the main message loop.
+    if (pool)
+      pool->Recycle();
     MessageLoopForUI::current()->PostTask(FROM_HERE, parameters.ui_task);
     RunUIMessageLoop(browser_process.get());
-  } else if (BrowserInit::ProcessCommandLine(parsed_command_line,
-                                             std::wstring(), true, profile,
-                                             &result_code)) {
-    if (pool) pool->Recycle();
-    RunUIMessageLoop(browser_process.get());
+  } else {
+    // We are in regular browser boot sequence. Open initial stabs and enter
+    // the main message loop.
+    if (browser_init.Start(parsed_command_line, std::wstring(), profile,
+                           &result_code)) {
+      // Call Recycle() here as late as possible, before going into the loop
+      // because Start() will add things to it while creating the main window.
+      if (pool)
+        pool->Recycle();
+      RunUIMessageLoop(browser_process.get());
+    }
   }
 
   Platform::WillTerminate();

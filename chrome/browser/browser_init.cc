@@ -285,9 +285,36 @@ void RecordLaunchModeHistogram(LaunchMode mode) {
   UMA_HISTOGRAM_COUNTS_100("Launch.Modes", bucket);
 }
 
-}  // namespace
-
 static bool in_startup = false;
+
+bool LaunchBrowser(const CommandLine& command_line, Profile* profile,
+                   const std::wstring& cur_dir, bool process_startup,
+                   int* return_code) {
+  in_startup = process_startup;
+  DCHECK(profile);
+#ifdef FRAME_WINDOW
+  FrameWindow::Show(profile);
+  return true;
+#endif
+
+  // Continue with the off-the-record profile from here on if --incognito
+  if (command_line.HasSwitch(switches::kIncognito))
+    profile = profile->GetOffTheRecordProfile();
+
+  BrowserInit::LaunchWithProfile lwp(cur_dir, command_line);
+  bool launched = lwp.Launch(profile, process_startup);
+  in_startup = false;
+
+  if (!launched) {
+    LOG(ERROR) << "launch error";
+    if (return_code)
+      *return_code = ResultCodes::INVALID_CMDLINE_URL;
+    return false;
+  }
+  return true;
+}
+
+}  // namespace
 
 // static
 bool BrowserInit::InProcessStartup() {
@@ -632,16 +659,6 @@ bool BrowserInit::ProcessCommandLine(
   return true;
 }
 
-bool BrowserInit::LaunchBrowser(const CommandLine& command_line,
-                                Profile* profile, const std::wstring& cur_dir,
-                                bool process_startup, int* return_code) {
-  in_startup = process_startup;
-  bool result = LaunchBrowserImpl(command_line, profile, cur_dir,
-                                  process_startup, return_code);
-  in_startup = false;
-  return result;
-}
-
 template <class AutomationProviderClass>
 void BrowserInit::CreateAutomationProvider(const std::wstring& channel_id,
                                            Profile* profile,
@@ -655,32 +672,4 @@ void BrowserInit::CreateAutomationProvider(const std::wstring& channel_id,
       g_browser_process->InitAutomationProviderList();
   DCHECK(list);
   list->AddProvider(automation);
-}
-
-bool BrowserInit::LaunchBrowserImpl(const CommandLine& command_line,
-                                    Profile* profile,
-                                    const std::wstring& cur_dir,
-                                    bool process_startup,
-                                    int* return_code) {
-  DCHECK(profile);
-
-#ifdef FRAME_WINDOW
-  FrameWindow::Show(profile);
-  return true;
-#endif
-
-  // Continue with the off-the-record profile from here on if --incognito
-  if (command_line.HasSwitch(switches::kIncognito))
-    profile = profile->GetOffTheRecordProfile();
-
-  LaunchWithProfile lwp(cur_dir, command_line);
-  bool launched = lwp.Launch(profile, process_startup);
-  if (!launched) {
-    LOG(ERROR) << "launch error";
-    if (return_code != NULL)
-      *return_code = ResultCodes::INVALID_CMDLINE_URL;
-    return false;
-  }
-
-  return true;
 }
