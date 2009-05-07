@@ -10,7 +10,7 @@
 
 // Tests that the bindings for opening a channel to an extension and sending
 // and receiving messages through that channel all works.
-TEST_F(RenderViewTest, ExtensionMessagesOpenChannel) {
+TEST_F(RenderViewTest, DISABLED_ExtensionMessagesOpenChannel) {
   render_thread_.sink().ClearMessages();
   LoadHTML("<body></body>");
   ExecuteJavaScript(
@@ -54,7 +54,7 @@ TEST_F(RenderViewTest, ExtensionMessagesOpenChannel) {
 
 // Tests that the bindings for handling a new channel connection and sending
 // and receiving messages through that channel all works.
-TEST_F(RenderViewTest, ExtensionMessagesOnConnect) {
+TEST_F(RenderViewTest, DISABLED_ExtensionMessagesOnConnect) {
   LoadHTML("<body></body>");
   ExecuteJavaScript(
     "chrome.self.onConnect.addListener(function (port) {"
