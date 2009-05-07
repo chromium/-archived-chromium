@@ -51,7 +51,7 @@ AutofillForm* AutofillForm::CreateAutofillForm(
 
     WebCore::HTMLInputElement* input_element =
         static_cast<WebCore::HTMLInputElement*>(form_element);
-    if (!input_element->isEnabled())
+    if (!input_element->isEnabledFormControl())
       continue;
 
     // Ignore all input types except TEXT.

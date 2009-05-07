@@ -712,7 +712,7 @@ bool EditorClientImpl::Autofill(WebCore::HTMLInputElement* input_element,
   autofill_factory_.RevokeAll();
 
   // Let's try to trigger autofill for that field, if applicable.
-  if (!input_element->isEnabled() || !input_element->isTextField() ||
+  if (!input_element->isEnabledFormControl() || !input_element->isTextField() ||
       input_element->isPasswordField() || !input_element->autoComplete()) {
     return false;
   }

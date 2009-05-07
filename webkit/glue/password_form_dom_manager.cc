@@ -192,7 +192,7 @@ void PasswordFormDomManager::FindPasswordFormFields(
 
     WebCore::HTMLInputElement* input_element =
         static_cast<WebCore::HTMLInputElement*>(form_element);
-    if (!input_element->isEnabled())
+    if (!input_element->isEnabledFormControl())
       continue;
 
     if ((fields->passwords.size() < kMaxPasswords) &&
@@ -213,7 +213,7 @@ void PasswordFormDomManager::FindPasswordFormFields(
 
       WebCore::HTMLInputElement* input_element =
         static_cast<WebCore::HTMLInputElement*>(form_element);
-      if (!input_element->isEnabled())
+      if (!input_element->isEnabledFormControl())
         continue;
 
       if ((input_element->inputType() == WebCore::HTMLInputElement::TEXT) &&
