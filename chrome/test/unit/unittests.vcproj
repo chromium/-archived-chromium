@@ -964,6 +964,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\common\important_file_writer_unittest.cc"
+				>
+			</File>
+			<File
 				RelativePath="..\..\common\ipc_message_unittest.cc"
 				>
 			</File>
