@@ -149,6 +149,9 @@ class RenderViewHostDelegate {
   // Retrieves the profile to be used.
   virtual Profile* GetProfile() const = 0;
 
+  // Gets the URL that is currently being displayed, if there is one.
+  virtual const GURL& GetURL() const = 0;
+
   // Create a new browser window to be sized, shown and contents managed
   // by the caller.
   virtual ExtensionFunctionDispatcher *CreateExtensionFunctionDispatcher(

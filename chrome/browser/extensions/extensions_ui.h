@@ -6,14 +6,27 @@
 #define CHROME_BROWSER_EXTENSIONS_EXTENSIONS_UI_H_
 
 #include <string>
+#include <vector>
 
 #include "base/values.h"
 #include "chrome/browser/dom_ui/chrome_url_data_manager.h"
 #include "chrome/browser/dom_ui/dom_ui.h"
 #include "chrome/browser/extensions/extensions_service.h"
+#include "googleurl/src/gurl.h"
 
 class GURL;
 class UserScript;
+
+// Information about a page running in an extension, for example a toolstrip,
+// a background page, or a tab contents.
+struct ExtensionPage {
+  ExtensionPage(const GURL& url, int render_process_id, int render_view_id)
+    : url(url), render_process_id(render_process_id),
+      render_view_id(render_view_id) {}
+  GURL url;
+  int render_process_id;
+  int render_view_id;
+};
 
 class ExtensionsUIHTMLSource : public ChromeURLDataManager::DataSource {
  public:
@@ -40,17 +53,25 @@ class ExtensionsDOMHandler : public DOMMessageHandler {
   void Init();
 
   // Extension Detail JSON Struct for page. (static for ease of testing).
-  static DictionaryValue*
-      CreateExtensionDetailValue(const Extension *extension);
+  static DictionaryValue* CreateExtensionDetailValue(
+      const Extension *extension,
+      const std::vector<ExtensionPage>&);
 
   // ContentScript JSON Struct for page. (static for ease of testing).
-  static DictionaryValue*
-      CreateContentScriptDetailValue(const UserScript& script,
-                                     const FilePath& extension_path);
+  static DictionaryValue* CreateContentScriptDetailValue(
+      const UserScript& script,
+      const FilePath& extension_path);
 
  private:
   // Callback for "requestExtensionsData" message.
   void HandleRequestExtensionsData(const Value* value);
+
+  // Callback for "inspect" message.
+  void HandleInspectMessage(const Value* value);
+
+  // Helper that lists the current active html pages for an extension.
+  std::vector<ExtensionPage> GetActivePagesForExtension(
+      const std::string& extension_id);
 
   // Our model.
   scoped_refptr<ExtensionsService> extensions_service_;

@@ -41,7 +41,7 @@ class ExtensionHost : public RenderViewHostDelegate,
   // RenderViewHostDelegate
   // TODO(mpcomplete): GetProfile is unused.
   virtual Profile* GetProfile() const { return NULL; }
-  virtual void RenderViewCreated(RenderViewHost* render_view_host);
+  virtual const GURL& GetURL() const { return url_; }
   virtual void DidContentsPreferredWidthChange(const int pref_width);
   virtual WebPreferences GetWebkitPrefs();
   virtual void RunJavaScriptMessage(
@@ -93,6 +93,9 @@ class ExtensionHost : public RenderViewHostDelegate,
 
   // Whether the RenderWidget has reported that it has stopped loading.
   bool did_stop_loading_;
+
+  // The URL being hosted.
+  GURL url_;
 
   DISALLOW_COPY_AND_ASSIGN(ExtensionHost);
 };

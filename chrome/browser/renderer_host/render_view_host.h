@@ -93,6 +93,9 @@ class RenderViewHost : public RenderWidgetHost {
 
   SiteInstance* site_instance() const { return instance_; }
   RenderViewHostDelegate* delegate() const { return delegate_; }
+  ExtensionFunctionDispatcher* extension_function_dispatcher() const  {
+    return extension_function_dispatcher_.get();
+  }
 
   // Set up the RenderView child process.
   virtual bool CreateRenderView();
@@ -616,6 +619,8 @@ class RenderViewHost : public RenderWidgetHost {
   bool are_javascript_messages_suppressed_;
 
   // Handles processing IPC messages request extension functions be executed.
+  // This changes during navigation and may be NULL if the current content is
+  // not an extension.
   scoped_ptr<ExtensionFunctionDispatcher> extension_function_dispatcher_;
 
   // True if the render view can be shut down suddenly.

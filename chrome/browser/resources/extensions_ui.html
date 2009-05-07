@@ -11,6 +11,7 @@
 var extensionDataFormat = {
   "extensions": [
     {
+      "id": "0000000000000000000000000000000000000000",
       "name": "Extension Name",
       "description": "Extension long format description",
       "version": "1.0.231",
@@ -25,9 +26,26 @@ var extensionDataFormat = {
           "css": ["script2_file1.css", "script2_file2.css"],
           "matches": ["http://*/*", "http://other.com/*"]
         }
+      ],
+      // TODO(aa): It would be nice to also render what type of view each one
+      // is, like 'toolstrip', 'background', etc. Eventually, if we can also
+      // debug and inspect content scripts, maybe we don't need to list the
+      // components, just the views.
+      "views": [
+        {
+          "path": "toolstrip.html",
+          "renderViewId": 1,
+          "renderProcessId": 1
+        },
+        {
+          "path": "background.html",
+          "renderViewId": 2,
+          "renderProcessId": 1
+        }
       ]
     },
     {
+      "id": "0000000000000000000000000000000000000001",
       "name": "Extension Name",
       "description": "Extension long format description",
       "version": "1.0.231",
@@ -41,6 +59,13 @@ var extensionDataFormat = {
           "js": ["script2_file1.js", "script2_file2.js"],
           "css": ["script2_file1.css", "script2_file2.css"],
           "matches": ["http://*/*", "http://other.com/*"]
+        }
+      ],
+      "views": [
+        {
+          "path": "foo/bar/toolstrip.html",
+          "renderViewId": 3,
+          "renderProcessId": 1
         }
       ]
     }
@@ -65,9 +90,9 @@ function showExtensionsData(extensionsData) {
 }
 
 /*
- * Asks the C++ ExtensionDOMHandler to inspect the installed extensions and
- * return detailed data about the configuration. The ExtensionDOMHandler
- * should reply to returnExtensionsData() (below).
+ * Asks the C++ ExtensionDOMHandler to get details about the installed
+ * extensions and return detailed data about the configuration. The
+ * ExtensionDOMHandler should reply to returnExtensionsData() (below).
  */
 function requestExtensionsData() {
   chrome.send("requestExtensionsData", []);
@@ -79,6 +104,18 @@ function returnExtensionsData(extensionsData) {
   // insert localized strings happens prior to this call which runs during the
   // body.onload event, causes a flickering.
   document.getElementById('body-container').style.display = "inline";
+}
+
+/**
+ * Tell the C++ ExtensionDOMHandler to inspect the page detailed in |viewData|.
+ */
+function sendInspectMessage(viewData) {
+  // TODO(aa): This is ghetto, but DOMUIBindings doesn't support sending
+  // anything other than arrays of strings, and this is all going to get
+  // replaced with V8 extensions soon anyway.
+  chrome.send('inspect', [
+    String(viewData.renderProcessId), String(viewData.renderViewId)
+  ]);
 }
 </script>
 <style>
@@ -191,6 +228,7 @@ th.enabled {
             <div class="extension-name" jscontent="name">
                 sExtension Name</div>
             <dl>
+              <dd>Id: <span jscontent="id">0000000000000000000000000000000000000000</span></dd>
               <dd>
                 <span jscontent="description">Extension Description</span>
               </dd>
@@ -227,6 +265,22 @@ th.enabled {
                   </td>
                 </tr>
               </tbody>
+            </table>
+
+            <table>
+              <thead>
+                <tr><th colspan="2">Active Views</th></tr>
+              </thead>
+              <tbody>
+                <tr jsselect="views">
+                  <td width="100%"><span jscontent="path"></span></td>
+                  <td width="1" align="right"><button
+                    jsvalues=".extensionView:$this"
+                    onclick="sendInspectMessage(this.extensionView);"
+                  >Inspect</button></td>
+                  <!-- TODO(aa): Debug link -->
+                 </tr>
+               </tbody>
             </table>
           </div>
         </div>

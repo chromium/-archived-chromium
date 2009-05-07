@@ -173,7 +173,7 @@ class TabContents : public PageNavigator,
   // Returns the current navigation properties, which if a navigation is
   // pending may be provisional (e.g., the navigation could result in a
   // download, in which case the URL would revert to what it was previously).
-  const GURL& GetURL() const;
+  virtual const GURL& GetURL() const;
   virtual const string16& GetTitle() const;
 
   // The max PageID of any page that this TabContents has loaded.  PageIDs

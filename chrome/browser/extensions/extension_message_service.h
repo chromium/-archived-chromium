@@ -10,6 +10,7 @@
 #include <string>
 
 #include "base/lock.h"
+#include "chrome/browser/renderer_host/render_process_host.h"
 #include "chrome/common/notification_observer.h"
 
 class MessageLoop;
@@ -35,6 +36,9 @@ class ExtensionMessageService : public NotificationObserver {
   ExtensionMessageService();
 
   // --- UI thread only:
+
+  // Gets the process for the specified extension.
+  RenderProcessHost* GetProcessForExtension(const std::string& extension_id);
 
   // Register an extension and its corresponding renderer process.
   void RegisterExtension(const std::string& extension_id,
@@ -68,6 +72,10 @@ class ExtensionMessageService : public NotificationObserver {
                              ResourceMessageFilter* source);
 
  private:
+  // Gets the process ID for the specified etension.
+  // NOTE: this can be called from any thread.
+  int GetProcessIdForExtension(const std::string& extension_id);
+
   // The UI message loop, used for posting tasks.
   MessageLoop* ui_loop_;
 

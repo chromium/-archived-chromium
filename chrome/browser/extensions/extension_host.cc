@@ -43,6 +43,7 @@ SiteInstance* ExtensionHost::site_instance() const {
 
 void ExtensionHost::CreateRenderView(const GURL& url,
                                      RenderWidgetHostView* host_view) {
+  url_ = url;
   render_view_host_->set_view(host_view);
   render_view_host_->CreateRenderView();
   render_view_host_->NavigateToURL(url);
@@ -51,12 +52,6 @@ void ExtensionHost::CreateRenderView(const GURL& url,
 void ExtensionHost::DidContentsPreferredWidthChange(const int pref_width) {
   if (view_)
     view_->DidContentsPreferredWidthChange(pref_width);
-}
-
-void ExtensionHost::RenderViewCreated(RenderViewHost* rvh) {
-  URLRequestContext* context = rvh->process()->profile()->GetRequestContext();
-  ExtensionMessageService::GetInstance(context)->RegisterExtension(
-      extension_->id(), rvh->process()->pid());
 }
 
 WebPreferences ExtensionHost::GetWebkitPrefs() {

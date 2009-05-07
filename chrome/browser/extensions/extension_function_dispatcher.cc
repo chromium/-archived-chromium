@@ -11,8 +11,10 @@
 #include "base/values.h"
 #include "chrome/browser/extensions/extension_bookmarks_module.h"
 #include "chrome/browser/extensions/extension_function.h"
+#include "chrome/browser/extensions/extension_message_service.h"
 #include "chrome/browser/extensions/extension_page_actions_module.h"
 #include "chrome/browser/extensions/extension_tabs_module.h"
+#include "chrome/browser/profile.h"
 #include "chrome/browser/renderer_host/render_process_host.h"
 #include "chrome/browser/renderer_host/render_view_host.h"
 #include "chrome/common/result_codes.h"
@@ -121,6 +123,12 @@ ExtensionFunctionDispatcher::ExtensionFunctionDispatcher(
   : render_view_host_(render_view_host),
     browser_(browser),
     extension_id_(extension_id) {
+  RenderProcessHost* process = render_view_host_->process();
+  ExtensionMessageService* message_service = 
+      ExtensionMessageService::GetInstance(profile()->GetRequestContext());
+  DCHECK(process);
+  DCHECK(message_service);
+  message_service->RegisterExtension(extension_id, process->pid());
 }
 
 void ExtensionFunctionDispatcher::HandleRequest(const std::string& name,

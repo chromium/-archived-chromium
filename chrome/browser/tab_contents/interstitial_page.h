@@ -91,6 +91,7 @@ class InterstitialPage : public NotificationObserver,
 
   // RenderViewHostDelegate implementation:
   virtual Profile* GetProfile() const;
+  virtual const GURL& GetURL() const { return url_; }
   virtual WebPreferences GetWebkitPrefs() {
     return WebPreferences();
   }

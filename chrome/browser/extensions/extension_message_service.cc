@@ -13,7 +13,6 @@
 #include "chrome/browser/extensions/extension_tabs_module.h"
 #include "chrome/browser/extensions/extension_view.h"
 #include "chrome/browser/renderer_host/render_view_host.h"
-#include "chrome/browser/renderer_host/render_process_host.h"
 #include "chrome/browser/renderer_host/resource_message_filter.h"
 #include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/browser/tab_contents/tab_util.h"
@@ -112,6 +111,30 @@ void ExtensionMessageService::RemoveEventListener(std::string event_name,
   listeners_[event_name].erase(render_process_id);
 }
 
+int ExtensionMessageService::GetProcessIdForExtension(
+    const std::string& extension_id) {
+  AutoLock lock(process_ids_lock_);
+  ProcessIDMap::iterator process_id_it = process_ids_.find(
+      StringToLowerASCII(extension_id));
+  if (process_id_it == process_ids_.end())
+    return -1;
+  return process_id_it->second;
+}
+
+RenderProcessHost* ExtensionMessageService::GetProcessForExtension(
+    const std::string& extension_id) {
+  DCHECK_EQ(MessageLoop::current()->type(), MessageLoop::TYPE_UI);
+
+  int process_id = GetProcessIdForExtension(extension_id);
+  if (process_id == -1)
+    return NULL;
+
+  RenderProcessHost* host = RenderProcessHost::FromID(process_id);
+  DCHECK(host);
+
+  return host;
+}
+
 int ExtensionMessageService::OpenChannelToExtension(
     int routing_id, const std::string& extension_id,
     ResourceMessageFilter* source) {
@@ -119,15 +142,9 @@ int ExtensionMessageService::OpenChannelToExtension(
             ChromeThread::GetMessageLoop(ChromeThread::IO));
 
   // Lookup the targeted extension process.
-  int process_id;
-  {
-    AutoLock lock(process_ids_lock_);
-    ProcessIDMap::iterator process_id_it = process_ids_.find(
-        StringToLowerASCII(extension_id));
-    if (process_id_it == process_ids_.end())
-      return -1;
-    process_id = process_id_it->second;
-  }
+  int process_id = GetProcessIdForExtension(extension_id);
+  if (process_id == -1)
+    return -1;
 
   DCHECK(initialized_);
 

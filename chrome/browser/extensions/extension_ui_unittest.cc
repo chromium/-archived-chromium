@@ -21,7 +21,9 @@ namespace {
     return static_cast<DictionaryValue*>(value);
   }
 
-  static bool CompareExpectedAndActualOutput(const FilePath& extension_path,
+  static bool CompareExpectedAndActualOutput(
+      const FilePath& extension_path,
+      const std::vector<ExtensionPage>& pages,
       const FilePath& expected_output_path) {
     // TODO(rafaelw): Using the extension_path passed in above, causes this
     // unit test to fail on linux. The Values come back valid, but the
@@ -48,7 +50,7 @@ namespace {
 
     // Produce test output.
     scoped_ptr<DictionaryValue> actual_output_data(
-        ExtensionsDOMHandler::CreateExtensionDetailValue(&extension));
+        ExtensionsDOMHandler::CreateExtensionDetailValue(&extension, pages));
 
     // Compare the outputs.
     return expected_output_data->Equals(actual_output_data.get());
@@ -68,12 +70,18 @@ TEST(ExtensionUITest, GenerateExtensionsJSONData) {
       .AppendASCII("extension1")
       .AppendASCII("1");
 
+  std::vector<ExtensionPage> pages;
+  pages.push_back(ExtensionPage(GURL("chrome-extension://foo/bar.html"),
+                                42, 88));
+  pages.push_back(ExtensionPage(GURL("chrome-extension://hot/dog.html"),
+                                0, 0));
+
   expected_output_path = data_test_dir_path.AppendASCII("extensions")
       .AppendASCII("ui")
       .AppendASCII("create_extension_detail_value_expected_output")
       .AppendASCII("good-extension1.json");
 
-  EXPECT_TRUE(CompareExpectedAndActualOutput(extension_path,
+  EXPECT_TRUE(CompareExpectedAndActualOutput(extension_path, pages,
       expected_output_path)) << extension_path.value();
 
   // Test Extension2
@@ -87,7 +95,10 @@ TEST(ExtensionUITest, GenerateExtensionsJSONData) {
       .AppendASCII("create_extension_detail_value_expected_output")
       .AppendASCII("good-extension2.json");
 
-  EXPECT_TRUE(CompareExpectedAndActualOutput(extension_path,
+  // It's OK to have duplicate URLs, so long as the IDs are different.
+  pages[1].url = pages[0].url;
+
+  EXPECT_TRUE(CompareExpectedAndActualOutput(extension_path, pages,
       expected_output_path)) << extension_path.value();
 
   // Test Extension3
@@ -101,6 +112,8 @@ TEST(ExtensionUITest, GenerateExtensionsJSONData) {
       .AppendASCII("create_extension_detail_value_expected_output")
       .AppendASCII("good-extension3.json");
 
-  EXPECT_TRUE(CompareExpectedAndActualOutput(extension_path,
+  pages.clear();
+
+  EXPECT_TRUE(CompareExpectedAndActualOutput(extension_path, pages,
       expected_output_path)) << extension_path.value();
 }

@@ -6,11 +6,15 @@
 
 #include "app/l10n_util.h"
 #include "app/resource_bundle.h"
+#include "base/string_util.h"
 #include "base/thread.h"
 #include "chrome/browser/browser_process.h"
+#include "chrome/browser/extensions/extension_message_service.h"
 #include "chrome/browser/extensions/extensions_service.h"
 #include "chrome/browser/extensions/extension_error_reporter.h"
 #include "chrome/browser/profile.h"
+#include "chrome/browser/renderer_host/render_widget_host.h"
+#include "chrome/browser/renderer_host/render_view_host.h"
 #include "chrome/common/extensions/url_pattern.h"
 #include "chrome/common/jstemplate_builder.h"
 #include "chrome/common/url_constants.h"
@@ -59,6 +63,8 @@ ExtensionsDOMHandler::ExtensionsDOMHandler(DOMUI* dom_ui,
     : DOMMessageHandler(dom_ui), extensions_service_(extension_service) {
   dom_ui_->RegisterMessageCallback("requestExtensionsData",
       NewCallback(this, &ExtensionsDOMHandler::HandleRequestExtensionsData));
+  dom_ui_->RegisterMessageCallback("inspect",
+      NewCallback(this, &ExtensionsDOMHandler::HandleInspectMessage));
 }
 
 void ExtensionsDOMHandler::HandleRequestExtensionsData(const Value* value) {
@@ -69,7 +75,8 @@ void ExtensionsDOMHandler::HandleRequestExtensionsData(const Value* value) {
   const ExtensionList* extensions = extensions_service_->extensions();
   for (ExtensionList::const_iterator extension = extensions->begin();
        extension != extensions->end(); ++extension) {
-     extensions_list->Append(CreateExtensionDetailValue(*extension));
+         extensions_list->Append(CreateExtensionDetailValue(
+          *extension, GetActivePagesForExtension((*extension)->id())));
   }
   results.Set(L"extensions", extensions_list);
 
@@ -84,6 +91,28 @@ void ExtensionsDOMHandler::HandleRequestExtensionsData(const Value* value) {
   results.Set(L"errors", errors_list);
 
   dom_ui_->CallJavascriptFunction(L"returnExtensionsData", results);
+}
+
+void ExtensionsDOMHandler::HandleInspectMessage(const Value* value) {
+  std::string render_process_id_str;
+  std::string render_view_id_str;
+  int render_process_id;
+  int render_view_id;
+  CHECK(value->IsType(Value::TYPE_LIST));
+  const ListValue* list = static_cast<const ListValue*>(value);
+  CHECK(list->GetSize() == 2);
+  CHECK(list->GetString(0, &render_process_id_str));
+  CHECK(list->GetString(1, &render_view_id_str));
+  CHECK(StringToInt(render_process_id_str, &render_process_id));
+  CHECK(StringToInt(render_view_id_str, &render_view_id));
+  RenderViewHost* host = RenderViewHost::FromID(render_process_id,
+                                                render_view_id);
+  if (!host) {
+    // This can happen if the host has gone away since the page was displayed.
+    return;
+  }
+
+  host->InspectElementAt(0, 0);
 }
 
 static void CreateScriptFileDetailValue(
@@ -132,9 +161,10 @@ DictionaryValue* ExtensionsDOMHandler::CreateContentScriptDetailValue(
 
 // Static
 DictionaryValue* ExtensionsDOMHandler::CreateExtensionDetailValue(
-    const Extension *extension) {
+    const Extension *extension, const std::vector<ExtensionPage>& pages) {
   DictionaryValue* extension_data = new DictionaryValue();
 
+  extension_data->SetString(L"id", extension->id());
   extension_data->SetString(L"name", extension->name());
   extension_data->SetString(L"description", extension->description());
   extension_data->SetString(L"version", extension->version()->GetString());
@@ -159,7 +189,52 @@ DictionaryValue* ExtensionsDOMHandler::CreateExtensionDetailValue(
   }
   extension_data->Set(L"permissions", permission_list);
 
+  // Add views
+  ListValue* views = new ListValue;
+  for (std::vector<ExtensionPage>::const_iterator iter = pages.begin();
+       iter != pages.end(); ++iter) {
+    DictionaryValue* view_value = new DictionaryValue;
+    view_value->SetString(L"path",
+        iter->url.path().substr(1, std::string::npos));  // no leading slash
+    view_value->SetInteger(L"renderViewId", iter->render_view_id);
+    view_value->SetInteger(L"renderProcessId", iter->render_process_id);
+    views->Append(view_value);
+  }
+  extension_data->Set(L"views", views);
+
   return extension_data;
+}
+
+std::vector<ExtensionPage> ExtensionsDOMHandler::GetActivePagesForExtension(
+    const std::string& extension_id) {
+  std::vector<ExtensionPage> result;
+
+  ExtensionMessageService* ems = ExtensionMessageService::GetInstance(
+      dom_ui_->GetProfile()->GetRequestContext());
+  RenderProcessHost* process_host = ems->GetProcessForExtension(extension_id);
+  if (!process_host)
+    return result;
+
+  RenderProcessHost::listeners_iterator iter;
+  for (iter = process_host->listeners_begin();
+       iter != process_host->listeners_end(); ++iter) {
+    // NOTE: This is a bit dangerous.  We know that for now, listeners are
+    // always RenderWidgetHosts.  But in theory, they don't have to be.
+    RenderWidgetHost* widget = static_cast<RenderWidgetHost*>(iter->second);
+    if (!widget->IsRenderView())
+      continue;
+
+    RenderViewHost* view = static_cast<RenderViewHost*>(widget);
+    ExtensionFunctionDispatcher* efd = view->extension_function_dispatcher();
+    if (efd && efd->extension_id() == extension_id) {
+      ExtensionPage page(view->delegate()->GetURL(),
+                         process_host->pid(),
+                         view->routing_id());
+      result.push_back(page);
+    }
+  }
+
+  return result;
 }
 
 ExtensionsDOMHandler::~ExtensionsDOMHandler() {
