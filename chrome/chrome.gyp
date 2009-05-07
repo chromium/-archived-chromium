@@ -1694,8 +1694,6 @@
         'renderer/media/audio_renderer_impl.h',
         'renderer/media/buffered_data_source.cc',
         'renderer/media/buffered_data_source.h',
-        'renderer/media/data_source_impl.cc',
-        'renderer/media/data_source_impl.h',
         'renderer/media/simple_data_source.cc',
         'renderer/media/simple_data_source.h',
         'renderer/media/video_renderer_impl.cc',

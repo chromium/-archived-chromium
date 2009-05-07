@@ -7,7 +7,6 @@
 #include "base/command_line.h"
 #include "chrome/common/chrome_switches.h"
 #include "chrome/renderer/media/audio_renderer_impl.h"
-#include "chrome/renderer/media/data_source_impl.h"
 #include "chrome/renderer/media/buffered_data_source.h"
 #include "chrome/renderer/media/simple_data_source.h"
 #include "chrome/renderer/media/video_renderer_impl.h"

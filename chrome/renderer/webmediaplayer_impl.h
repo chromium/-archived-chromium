@@ -171,7 +171,7 @@ class WebMediaPlayerImpl : public WebKit::WebMediaPlayer,
 
   // Message loops for posting tasks between Chrome's main thread. Also used
   // for DCHECKs so methods calls won't execute in the wrong thread.
-  MessageLoop* |main_loop_|;
+  MessageLoop* main_loop_;
 
   // A collection of factories for creating filters.
   scoped_refptr<media::FilterFactoryCollection> filter_factory_;
