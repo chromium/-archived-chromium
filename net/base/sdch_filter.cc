@@ -78,8 +78,10 @@ SdchFilter::~SdchFilter() {
 
   switch (decoding_status_) {
     case DECODING_IN_PROGRESS: {
-      UMA_HISTOGRAM_PERCENTAGE("Sdch2.Network_Decode_Ratio_a", static_cast<int>(
-          (filter_context().GetByteReadCount() * 100) / output_bytes_));
+      if (output_bytes_)
+        UMA_HISTOGRAM_PERCENTAGE("Sdch2.Network_Decode_Ratio_a",
+            static_cast<int>(
+                (filter_context().GetByteReadCount() * 100) / output_bytes_));
       UMA_HISTOGRAM_COUNTS("Sdch2.Network_Decode_Bytes_VcdiffOut_a",
                            output_bytes_);
       filter_context().RecordPacketStats(FilterContext::SDCH_DECODE);
