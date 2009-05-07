@@ -439,10 +439,11 @@ int LocationBarView::TextDisplayWidth() {
   // 2. The leftmost position for a text if the layout and the alignment of the
   // text are both right-to-left.
   //
-  // But the are two problems:
+  // But there are two problems:
   // 1. In our current RTL UI, text in Omnibox is right aligned, but the layout
-  // is left-to-right. Please see http://crbug.com/6573 for detail information.
-  // 2. In both LTR and RTL UI , there is the following problem in
+  // is left-to-right. Please see http://crbug.com/6573 for detailed
+  // information.
+  // 2. In both LTR and RTL UI, there is the following problem in
   // PosFromChar(), which I do not know the reason.
   // location_entry_->PosFromChar(location_entry_->GetTextLength()) might
   // return 0. For example, type 'h' in omnibox which should display the first
