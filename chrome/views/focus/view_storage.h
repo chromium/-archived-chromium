@@ -34,9 +34,8 @@ class ViewStorage {
   // Returns a unique storage id that can be used to store/retrieve views.
   int CreateStorageID();
 
-  // Associates |view| with the specified |storage_id|. Returns the
-  // |storage_id|.
-  int StoreView(int storage_id, View* view);
+  // Associates |view| with the specified |storage_id|.
+  void StoreView(int storage_id, View* view);
 
   // Returns the view associated with |storage_id| if any, NULL otherwise.
   View* RetrieveView(int storage_id);
@@ -46,6 +45,10 @@ class ViewStorage {
 
   // Notifies the ViewStorage that a view was removed from its parent somewhere.
   void ViewRemoved(View* parent, View* removed);
+
+#ifdef UNIT_TEST
+  size_t view_count() const { return view_to_ids_.size(); }
+#endif
 
  private:
   friend struct DefaultSingletonTraits<ViewStorage>;

@@ -52,7 +52,7 @@ int ViewStorage::CreateStorageID() {
   return view_storage_next_id_++;
 }
 
-int ViewStorage::StoreView(int storage_id, View* view) {
+void ViewStorage::StoreView(int storage_id, View* view) {
   DCHECK(view);
   std::map<int, ViewLocationInfo*>::iterator iter =
       id_to_view_location_.find(storage_id);
@@ -90,7 +90,6 @@ int ViewStorage::StoreView(int storage_id, View* view) {
     ids = id_iter->second;
   }
   ids->push_back(storage_id);
-  return storage_id;
 }
 
 View* ViewStorage::RetrieveView(int storage_id) {

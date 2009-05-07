@@ -438,50 +438,65 @@ TEST_F(ViewTest, RemoveNotification) {
   views::RootView* root_view = window->GetRootView();
 
   View* v1 = new View;
-  int s1 = vs->StoreView(vs->CreateStorageID(), v1);
+  int s1 = vs->CreateStorageID();
+  vs->StoreView(s1, v1);
   root_view->AddChildView(v1);
   View* v11 = new View;
-  int s11 = vs->StoreView(vs->CreateStorageID(), v11);
+  int s11 = vs->CreateStorageID();
+  vs->StoreView(s11, v11);
   v1->AddChildView(v11);
   View* v111 = new View;
-  int s111 = vs->StoreView(vs->CreateStorageID(), v111);
+  int s111 = vs->CreateStorageID();
+  vs->StoreView(s111, v111);
   v11->AddChildView(v111);
   View* v112 = new View;
-  int s112 = vs->StoreView(vs->CreateStorageID(), v112);
+  int s112 = vs->CreateStorageID();
+  vs->StoreView(s112, v112);
   v11->AddChildView(v112);
   View* v113 = new View;
-  int s113 = vs->StoreView(vs->CreateStorageID(), v113);
+  int s113 = vs->CreateStorageID();
+  vs->StoreView(s113, v113);
   v11->AddChildView(v113);
   View* v1131 = new View;
-  int s1131 = vs->StoreView(vs->CreateStorageID(), v1131);
+  int s1131 = vs->CreateStorageID();
+  vs->StoreView(s1131, v1131);
   v113->AddChildView(v1131);
   View* v12 = new View;
-  int s12 = vs->StoreView(vs->CreateStorageID(), v12);
+  int s12 = vs->CreateStorageID();
+  vs->StoreView(s12, v12);
   v1->AddChildView(v12);
 
   View* v2 = new View;
-  int s2 = vs->StoreView(vs->CreateStorageID(), v2);
+  int s2 = vs->CreateStorageID();
+  vs->StoreView(s2, v2);
   root_view->AddChildView(v2);
   View* v21 = new View;
-  int s21 = vs->StoreView(vs->CreateStorageID(), v21);
+  int s21 = vs->CreateStorageID();
+  vs->StoreView(s21, v21);
   v2->AddChildView(v21);
   View* v211 = new View;
-  int s211 = vs->StoreView(vs->CreateStorageID(), v211);
+  int s211 = vs->CreateStorageID();
+  vs->StoreView(s211, v211);
   v21->AddChildView(v211);
+
+  size_t stored_views = vs->view_count();
 
   // Try removing a leaf view.
   v21->RemoveChildView(v211);
+  EXPECT_EQ(stored_views - 1, vs->view_count());
   EXPECT_EQ(NULL, vs->RetrieveView(s211));
   delete v211;  // We won't use this one anymore.
 
   // Now try removing a view with a hierarchy of depth 1.
   v11->RemoveChildView(v113);
+  EXPECT_EQ(stored_views - 3, vs->view_count());
   EXPECT_EQ(NULL, vs->RetrieveView(s113));
   EXPECT_EQ(NULL, vs->RetrieveView(s1131));
   delete v113;  // We won't use this one anymore.
 
   // Now remove even more.
   root_view->RemoveChildView(v1);
+  EXPECT_EQ(stored_views - 8, vs->view_count());
   EXPECT_EQ(NULL, vs->RetrieveView(s1));
   EXPECT_EQ(NULL, vs->RetrieveView(s11));
   EXPECT_EQ(NULL, vs->RetrieveView(s12));
@@ -495,6 +510,7 @@ TEST_F(ViewTest, RemoveNotification) {
   // Now delete the root view (deleting the window will trigger a delete of the
   // RootView) and make sure we are notified that the views were removed.
   delete window;
+  EXPECT_EQ(stored_views - 10, vs->view_count());
   EXPECT_EQ(NULL, vs->RetrieveView(s1));
   EXPECT_EQ(NULL, vs->RetrieveView(s12));
   EXPECT_EQ(NULL, vs->RetrieveView(s11));
