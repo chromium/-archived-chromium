@@ -38,7 +38,7 @@ void StatusBubbleGtk::SetStatus(const std::wstring& status) {
 }
 
 void StatusBubbleGtk::SetURL(const GURL& url, const std::wstring& languages) {
-  SetStatus(url.spec());
+  SetStatus(url.possibly_invalid_spec());
 }
 
 void StatusBubbleGtk::Hide() {
