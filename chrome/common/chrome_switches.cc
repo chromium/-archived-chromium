@@ -409,9 +409,6 @@ const wchar_t kWebWorkerProcessPerCore[]       = L"web-worker-process-per-core";
 // Note this is duplicated in webworkerclient_impl.cc
 const wchar_t kWebWorkerShareProcesses[]       = L"web-worker-share-processes";
 
-// Enables experimental views under gtk.
-const wchar_t kViewsGtk[]                      = L"views-gtk";
-
 // Enables the bookmark menu.
 const wchar_t kBookmarkMenu[]                  = L"bookmark-menu";
 

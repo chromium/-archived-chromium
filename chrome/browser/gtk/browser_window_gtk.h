@@ -14,7 +14,6 @@
 #include "chrome/browser/browser_window.h"
 #include "chrome/browser/tabs/tab_strip_model.h"
 #include "chrome/common/notification_observer.h"
-#include "chrome/views/widget/widget_gtk.h"
 
 class BookmarkBarGtk;
 class BrowserToolbarGtk;
@@ -190,9 +189,6 @@ class BrowserWindowGtk : public BrowserWindow,
   // When it goes out of scope during our destruction, |method_factory_| will
   // cancel its pending tasks (which depend on us still existing).
   ScopedRunnableMethodFactory<BrowserWindowGtk> method_factory_;
-
-  // Experiment with using views for gtk.
-  scoped_ptr<views::WidgetGtk> experimental_widget_;
 
   // The timer used to update frames for the Loading Animation.
   base::RepeatingTimer<BrowserWindowGtk> loading_animation_timer_;

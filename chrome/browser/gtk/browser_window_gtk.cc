@@ -8,7 +8,6 @@
 
 #include "app/resource_bundle.h"
 #include "base/base_paths_linux.h"
-#include "base/command_line.h"
 #include "base/gfx/gtk_util.h"
 #include "base/logging.h"
 #include "base/message_loop.h"
@@ -33,11 +32,9 @@
 #include "chrome/browser/renderer_host/render_widget_host_view_gtk.h"
 #include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/browser/tab_contents/tab_contents_view.h"
-#include "chrome/common/chrome_switches.h"
 #include "chrome/common/notification_service.h"
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
-#include "chrome/views/controls/button/text_button.h"
 #include "grit/theme_resources.h"
 
 namespace {
@@ -46,13 +43,6 @@ namespace {
 const int kLoadingAnimationFrameTimeMs = 30;
 
 const GdkColor kBorderColor = GDK_COLOR_RGB(0xbe, 0xc8, 0xd4);
-
-class DummyButtonListener : public views::ButtonListener {
- public:
-  virtual void ButtonPressed(views::Button* sender) {
-    DLOG(ERROR) << "Button Pressed!";
-  }
-};
 
 gboolean MainWindowConfigured(GtkWindow* window, GdkEventConfigure* event,
                               BrowserWindowGtk* browser_win) {
@@ -285,20 +275,6 @@ BrowserWindowGtk::BrowserWindowGtk(Browser* browser)
   gtk_widget_set_double_buffered(content_vbox_, FALSE);
   g_signal_connect(G_OBJECT(content_vbox_), "expose-event",
                    G_CALLBACK(&OnContentAreaExpose), this);
-
-  // Temporary hack hidden behind a command line option to add one of the
-  // experimental ViewsGtk objects to the Gtk hierarchy.
-  const CommandLine& parsed_command_line = *CommandLine::ForCurrentProcess();
-  if (parsed_command_line.HasSwitch(switches::kViewsGtk)) {
-    experimental_widget_.reset(new views::WidgetGtk());
-    experimental_widget_->Init(gfx::Rect(), false);
-    experimental_widget_->SetContentsView(
-        new views::TextButton(new DummyButtonListener, L"Button"));
-
-    gtk_box_pack_start(GTK_BOX(content_vbox_),
-                       experimental_widget_->GetNativeView(),
-                       false, false, 2);
-  }
 
   toolbar_.reset(new BrowserToolbarGtk(browser_.get()));
   toolbar_->Init(browser_->profile(), window_);
