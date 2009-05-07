@@ -6,3 +6,7 @@ WatchdogTest.AlarmTest
 # Valgrind bug: https://bugs.kde.org/show_bug.cgi?id=189661
 TimerTest.RepeatingTimer
 TimerTest.RepeatingTimer_Cancel
+
+# Crashes occasionally, see http://crbug.com/7477
+ObserverListThreadSafeTest.CrossThreadObserver 
+ObserverListThreadSafeTest.CrossThreadNotifications
