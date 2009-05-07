@@ -156,18 +156,64 @@ SkBitmap* AutocompleteResultView::icon_more_selected_ = NULL;
 int AutocompleteResultView::icon_size_ = 0;
 bool AutocompleteResultView::initialized_ = false;
 
-// This class implements a utility used for mirroring x-coordinates when the
-// application language is a right-to-left one.
+// This class is a utility class which mirrors an x position, calculates the
+// index of the i-th run of a text, and calculates the index of the i-th
+// fragment of a run.
+// To render a styled text, we split a text into fragments and draw each
+// fragment with the specified style. Unfortunately, it is not trivial to
+// implement the above steps in a mirrored window.
+// When we split a URL "www.google.com" into three fragments ('www.', 'google',
+// and '.com') and draw them in a mirrored window as shown in the following
+// steps, the output text becomes ".comgooglewww.".
+// 1. Draw 'www.'
+//      +-----------------+ +-----------------+
+//      |LTR window       | |       RTL window|
+//      +-----------------+ +-----------------+
+//      |www.             | |             www.|
+//      +-----------------+ +-----------------+
+// 2. Draw 'google'
+//      +-----------------+ +-----------------+
+//      |LTR window       | |       RTL window|
+//      +-----------------+ +-----------------+
+//      |www.google       | |       googlewww.|
+//      +-----------------+ +-----------------+
+// 3. Draw '.com'
+//      +-----------------+ +-----------------+
+//      |LTR window       | |       RTL window|
+//      +-----------------+ +-----------------+
+//      |www.google.com   | |   .comgooglewww.|
+//      +-----------------+ +-----------------+
+// To fix this fragment-ordering problem, we should swap the run indices and
+// fragment indices when rendering in a mirrred coordinate as listed below.
+// 1. Draw 'www.' for LTR (or ".com" for RTL)
+//      +-----------------+ +-----------------+
+//      |LTR window       | |       RTL window|
+//      +-----------------+ +-----------------+
+//      |www.             | |             .com|
+//      +-----------------+ +-----------------+
+// 2. Draw 'google'
+//      +-----------------+ +-----------------+
+//      |LTR window       | |       RTL window|
+//      +-----------------+ +-----------------+
+//      |www.google       | |       google.com|
+//      +-----------------+ +-----------------+
+// 3. Draw '.com' for LTR (or "www." for RTL)
+//      +-----------------+ +-----------------+
+//      |LTR window       | |       RTL window|
+//      +-----------------+ +-----------------+
+//      |www.google.com   | |   www.google.com|
+//      +-----------------+ +-----------------+
+// This class encapsulates the above steps for AutocompleteResultView.
 class AutocompleteResultView::MirroringContext {
  public:
-  MirroringContext() : min_x_(0), center_x_(0), max_x_(0), enabled_(false) { }
+  MirroringContext() : min_x_(0), center_x_(0), max_x_(0), mirrored_(false) { }
 
-  // Initializes the bounding region used for mirroring coordinates.
+  // Initializes a mirroring context with the bounding region of a text.
   // This class uses the center of this region as an axis for calculating
   // mirrored coordinates.
-  void Initialize(int x1, int x2, bool enabled);
+  int Initialize(int x1, int x2, bool enabled);
 
-  // Return the "left" side of the specified region.
+  // Returns the "left" side of the specified region.
   // When the application language is a right-to-left one, this function
   // calculates the mirrored coordinates of the input region and returns the
   // left side of the mirrored region.
@@ -175,30 +221,45 @@ class AutocompleteResultView::MirroringContext {
   // Initialize() function.
   int GetLeft(int x1, int x2) const;
 
-  // Returns whether or not we are mirroring the x coordinate.
-  bool enabled() const {
-    return enabled_;
+  // Returns the index of the i-th run of a text.
+  // When we split a text into runs, we need to write each run in the LTR
+  // (or RTL) order if UI language is LTR (or RTL), respectively.
+  int GetRun(int i, int size) const {
+    return mirrored_ ? (size - i - 1) : i;
+  }
+
+  // Returns the index of the i-th text fragment of a run.
+  // When we split a run into fragments, we need to write each fragment in the
+  // LTR (or RTL) order if UI language is LTR (or RTL), respectively.
+  size_t GetClassification(size_t i, size_t size, bool run_rtl) const {
+    return (mirrored_ != run_rtl) ? (size - i - 1) : i;
+  }
+
+  // Returns whether or not the x coordinate is mirrored.
+  bool mirrored() const {
+    return mirrored_;
   }
 
  private:
   int min_x_;
   int center_x_;
   int max_x_;
-  bool enabled_;
+  bool mirrored_;
 
-  DISALLOW_EVIL_CONSTRUCTORS(MirroringContext);
+  DISALLOW_COPY_AND_ASSIGN(MirroringContext);
 };
 
-void AutocompleteResultView::MirroringContext::Initialize(int x1, int x2,
-                                                          bool enabled) {
+int AutocompleteResultView::MirroringContext::Initialize(int x1, int x2,
+                                                         bool mirrored) {
   min_x_ = std::min(x1, x2);
   max_x_ = std::max(x1, x2);
   center_x_ = min_x_ + (max_x_ - min_x_) / 2;
-  enabled_ = enabled;
+  mirrored_ = mirrored;
+  return x1;
 }
 
 int AutocompleteResultView::MirroringContext::GetLeft(int x1, int x2) const {
-  return enabled_ ?
+  return mirrored_ ?
       (center_x_ + (center_x_ - std::max(x1, x2))) : std::min(x1, x2);
 }
 
@@ -228,7 +289,13 @@ void AutocompleteResultView::Paint(ChromeCanvas* canvas) {
   const AutocompleteMatch& match = model_->GetMatchAtIndex(model_index_);
 
   // Paint the text.
-  x = MirroredLeftPointForRect(text_bounds_);
+  // Initialize the |mirroring_context_| with the left and right positions.
+  // The DrawString() function uses this |mirroring_context_| to calculate the
+  // position of an input text.
+  bool text_mirroring = View::UILayoutIsRightToLeft();
+  int text_left = MirroredLeftPointForRect(text_bounds_);
+  int text_right = text_mirroring ? x - kIconTextSpacing : text_bounds_.right();
+  x = mirroring_context_->Initialize(text_left, text_right, text_mirroring);
   x = DrawString(canvas, match.contents, match.contents_class, false, x,
                  text_bounds_.y());
 
@@ -353,22 +420,11 @@ int AutocompleteResultView::DrawString(
   if (!text.length())
     return x;
 
-  // Check whether or not this text is a URL string.
-  // A URL string is basically in English with possible included words in
-  // Arabic or Hebrew. For such case, ICU provides a special algorithm and we
-  // should use it.
-  bool url = false;
-  for (ACMatchClassifications::const_iterator i = classifications.begin();
-       i != classifications.end(); ++i) {
-    if (i->style & ACMatchClassification::URL)
-      url = true;
-  }
-
   // Initialize a bidirectional line iterator of ICU and split the text into
   // visual runs. (A visual run is consecutive characters which have the same
   // display direction and should be displayed at once.)
   l10n_util::BiDiLineIterator bidi_line;
-  if (!bidi_line.Open(text, mirroring_context_->enabled(), url))
+  if (!bidi_line.Open(text, mirroring_context_->mirrored(), false))
     return x;
   const int runs = bidi_line.CountRuns();
 
@@ -382,7 +438,6 @@ int AutocompleteResultView::DrawString(
   // 1. Create a local display context for each run;
   // 2. Render the run into the local display context, and;
   // 3. Copy the local display context to the one of the popup window.
-  int run_x = x;
   for (int run = 0; run < runs; ++run) {
     int run_start = 0;
     int run_length = 0;
@@ -399,21 +454,23 @@ int AutocompleteResultView::DrawString(
     // Note that for URLs we always traverse the runs from lower to higher
     // indexes because the return order of runs for a URL always matches the
     // physical order of the context.
-    int current_run =
-        (mirroring_context_->enabled() && !url) ? (runs - run - 1) : run;
+    int current_run = mirroring_context_->GetRun(run, runs);
     const UBiDiDirection run_direction = bidi_line.GetVisualRun(current_run,
                                                                 &run_start,
                                                                 &run_length);
     const int run_end = run_start + run_length;
 
-    // Split this run with the given classifications and draw the fragments
-    // into the local display context.
-    for (ACMatchClassifications::const_iterator i = classifications.begin();
-         i != classifications.end(); ++i) {
-      const int text_start = std::max(run_start, static_cast<int>(i->offset));
-      const int text_end = std::min(run_end, (i != classifications.end() - 1) ?
-          static_cast<int>((i + 1)->offset) : run_end);
-      int style = i->style;
+    // Split this run with the given classifications and draw the fragments.
+    for (size_t classification = 0; classification < classifications.size();
+         ++classification) {
+      size_t i = mirroring_context_->GetClassification(
+          classification, classifications.size(), run_direction == UBIDI_RTL);
+      size_t text_start = std::max(static_cast<size_t>(run_start),
+                                   classifications[i].offset);
+      size_t text_end = std::min(static_cast<size_t>(run_end),
+          i < classifications.size() - 1 ?
+          classifications[i + 1].offset : run_end);
+      int style = classifications[i].style;
       if (force_dim)
         style |= ACMatchClassification::DIM;
       if (text_start < text_end) {
@@ -437,9 +494,10 @@ int AutocompleteResultView::DrawStringFragment(
   // necessary.
   int string_width = std::min(display_font.GetStringWidth(text),
                               width() - kRowRightPadding - x);
+  int string_left = mirroring_context_->GetLeft(x, x + string_width);
   canvas->DrawStringInt(text, GetFragmentFont(style),
-                        GetFragmentTextColor(style), x, y, string_width,
-                        display_font.height());
+                        GetFragmentTextColor(style), string_left, y,
+                        string_width, display_font.height());
   return string_width;
 }
 
