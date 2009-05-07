@@ -170,10 +170,10 @@ void PluginList::LoadPlugins(bool refresh) {
   for (size_t i = 0; i < extra_plugin_paths_.size(); ++i)
     LoadPlugin(extra_plugin_paths_[i]);
 
+  LoadInternalPlugins();
+
   if (webkit_glue::IsDefaultPluginEnabled())
     LoadPlugin(FilePath(kDefaultPluginLibraryName));
-
-  LoadInternalPlugins();
 
   base::TimeTicks end_time = base::TimeTicks::Now();
   base::TimeDelta elapsed = end_time - start_time;
