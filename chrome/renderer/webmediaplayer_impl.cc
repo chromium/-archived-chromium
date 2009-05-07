@@ -288,6 +288,8 @@ void WebMediaPlayerImpl::setSize(const WebSize& size) {
   }
 }
 
+// TODO(hclam): enable this for mac.
+#if WEBKIT_USING_SKIA
 void WebMediaPlayerImpl::paint(skia::PlatformCanvas* canvas,
                                const WebRect& rect) {
   DCHECK(main_loop_ && MessageLoop::current() == main_loop_);
@@ -296,6 +298,7 @@ void WebMediaPlayerImpl::paint(skia::PlatformCanvas* canvas,
     video_renderer_->Paint(canvas, rect);
   }
 }
+#endif
 
 void WebMediaPlayerImpl::WillDestroyCurrentMessageLoop() {
   pipeline_.Stop();

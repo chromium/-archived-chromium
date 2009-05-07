@@ -270,10 +270,13 @@ void WebMediaPlayerClientImpl::setSize(const IntSize& size) {
 
 void WebMediaPlayerClientImpl::paint(GraphicsContext* context,
                                      const IntRect& rect) {
+// TODO(hclam): enable this for mac.
+#if WEBKIT_USING_SKIA
   if (m_webMediaPlayer)
     m_webMediaPlayer->paint(
         context->platformContext()->canvas(),
         WebRect(rect.x(), rect.y(), rect.width(), rect.height()));
+#endif
 }
 
 void WebMediaPlayerClientImpl::setAutobuffer(bool autoBuffer) {
