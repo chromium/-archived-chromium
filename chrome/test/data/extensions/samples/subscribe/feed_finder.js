@@ -14,6 +14,6 @@ function find() {
     while (item = result.iterateNext())
       feeds.push(item.href);
 
-    chromium.extension.connect().postMessage(feeds);
+    chrome.extension.connect().postMessage(feeds);
   }
 }
