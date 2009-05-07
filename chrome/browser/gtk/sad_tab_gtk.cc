@@ -110,14 +110,18 @@ gboolean SadTabGtk::OnExpose(GtkWidget* widget, GdkEventExpose* event) const {
                        ChromeCanvas::TEXT_ALIGN_CENTER);
 
   // Paint the explanatory message.
-  canvas.DrawStringInt(sad_tab_constants.message,
-                       sad_tab_constants.message_font,
-                       kMessageTextColor,
-                       0,
-                       message_y_,
-                       width_,
-                       sad_tab_constants.message_font.height(),
-                       ChromeCanvas::TEXT_ALIGN_CENTER);
+  canvas.DrawStringInt(
+      sad_tab_constants.message,
+      sad_tab_constants.message_font,
+      kMessageTextColor,
+      0,
+      message_y_,
+      width_,
+      99999,  // Let the height be large, and we'll clip if needed.
+      ChromeCanvas::TEXT_ALIGN_CENTER |
+      ChromeCanvas::MULTI_LINE |
+      ChromeCanvas::TEXT_VALIGN_TOP);
+
   return TRUE;
 }
 
