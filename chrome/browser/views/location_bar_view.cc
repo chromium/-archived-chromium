@@ -433,12 +433,53 @@ int LocationBarView::TopMargin() const {
 }
 
 int LocationBarView::TextDisplayWidth() {
-  POINT last_char_position =
-      location_entry_->PosFromChar(location_entry_->GetTextLength());
+  // location_entry_->PosFromChar(location_entry_->GetTextLength()) returns
+  // 1. The rightmost position for LTR UI, in which the layout and the
+  // alignment are both left-to-right. Or
+  // 2. The leftmost position for a text if the layout and the alignment of the
+  // text are both right-to-left.
+  //
+  // But the are two problems:
+  // 1. In our current RTL UI, text in Omnibox is right aligned, but the layout
+  // is left-to-right. Please see http://crbug.com/6573 for detail information.
+  // 2. In both LTR and RTL UI , there is the following problem in
+  // PosFromChar(), which I do not know the reason.
+  // location_entry_->PosFromChar(location_entry_->GetTextLength()) might
+  // return 0. For example, type 'h' in omnibox which should display the first
+  // matched list, say "http://www.google.com/", with "ttp://www.google.com/"
+  // highlighted, in omnibox. location_entry_->GetTextLength() returns 22,
+  // which is the length of "http://www.google.com/". But
+  // location_entry_->PosFromChar(i) returns 0 when i is greater than 1.
+  // location_entry_->PosFromChar(i) should return the right position after the
+  // last character when i is greater than 22.
+  //
+  // Due to the above 2 problems, we do not use
+  // location_entry_->PosFromChar(location_entry_->GetTextLength()) to compute
+  // text display width. Instead, we compute and compare each character's
+  // position to find out the leftmost position for RTL UI, or the rightmost
+  // position for LTR UI.
   POINT scroll_position;
   location_entry_->GetScrollPos(&scroll_position);
-  const int position_x = last_char_position.x + scroll_position.x;
-  return UILayoutIsRightToLeft() ? width() - position_x : position_x;
+
+  int max_text_length = location_entry_->GetTextLength();
+  if (UILayoutIsRightToLeft()) {
+    int leftmost_position = location_entry_->PosFromChar(0).x;
+    for (int i = 1; i <= max_text_length; ++i) {
+      int x = location_entry_->PosFromChar(i).x;
+      if (x && x < leftmost_position)
+        leftmost_position = x;
+    }
+    return location_entry_view_->width() - leftmost_position -
+           scroll_position.x;
+  } else {
+    int rightmost_position = location_entry_->PosFromChar(max_text_length).x;
+    for (int i = 0; i < max_text_length; ++i) {
+      int x = location_entry_->PosFromChar(i).x;
+      if (x > rightmost_position)
+        rightmost_position = x;
+    }
+    return rightmost_position + scroll_position.x;
+  }
 }
 
 bool LocationBarView::UsePref(int pref_width, int text_width, int max_width) {
