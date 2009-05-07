@@ -170,9 +170,6 @@ class UnloadTest : public UITest {
   }
 };
 
-// TODO(port): these tests fail on linux because they leave a renderer process
-// lying around which holds onto the user data directory.
-#if defined(OS_WIN)
 // Navigate to a page with an infinite unload handler.
 // Then two two async crosssite requests to ensure
 // we don't get confused and think we're closing the tab.
@@ -228,7 +225,6 @@ TEST_F(UnloadTest, CrossSiteInfiniteBeforeUnloadSync) {
   NavigateToNolistenersFileTwice();
   ASSERT_TRUE(IsBrowserRunning());
 }
-#endif
 
 // Tests closing the browser on a page with no unload listeners registered.
 TEST_F(UnloadTest, BrowserCloseNoUnloadListeners) {
@@ -278,7 +274,6 @@ TEST_F(UnloadTest, BrowserCloseTwoSecondBeforeUnload) {
 
 // TODO(estade): On linux, the renderer process doesn't seem to quit and pegs
 // CPU.
-#if defined(OS_WIN)
 // Tests closing the browser on a page with an unload listener registered where
 // the unload handler has an infinite loop.
 TEST_F(UnloadTest, BrowserCloseInfiniteUnload) {
@@ -318,7 +313,6 @@ TEST_F(UnloadTest, BrowserCloseInfiniteBeforeUnloadAlert) {
   LoadUrlAndQuitBrowser(INFINITE_BEFORE_UNLOAD_ALERT_HTML,
                         L"infinitebeforeunloadalert");
 }
-#endif  // defined(OS_WIN)
 
 // Tests closing the browser on a page with an unload listener registered where
 // the unload handler has an 2 second long loop followed by an alert.
