@@ -118,17 +118,24 @@ void ExtensionFunctionDispatcher::GetAllFunctionNames(
 
 ExtensionFunctionDispatcher::ExtensionFunctionDispatcher(
     RenderViewHost* render_view_host,
-    Browser* browser,
+    Delegate* delegate,
     const std::string& extension_id)
   : render_view_host_(render_view_host),
-    browser_(browser),
+    delegate_(delegate),
     extension_id_(extension_id) {
+  DCHECK(delegate);
   RenderProcessHost* process = render_view_host_->process();
   ExtensionMessageService* message_service = 
       ExtensionMessageService::GetInstance(profile()->GetRequestContext());
   DCHECK(process);
   DCHECK(message_service);
   message_service->RegisterExtension(extension_id, process->pid());
+}
+
+Browser* ExtensionFunctionDispatcher::GetBrowser() {
+  Browser* retval = delegate_->GetBrowser();
+  DCHECK(retval);
+  return retval;
 }
 
 void ExtensionFunctionDispatcher::HandleRequest(const std::string& name,

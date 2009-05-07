@@ -21,7 +21,8 @@ struct WebPreferences;
 // privileges available to extensions.  It may have a view to be shown in the
 // in the browser UI, or it may be hidden.
 class ExtensionHost : public RenderViewHostDelegate,
-                      public RenderViewHostDelegate::View {
+                      public RenderViewHostDelegate::View,
+                      public ExtensionFunctionDispatcher::Delegate {
  public:
   ExtensionHost(Extension* extension, SiteInstance* site_instance);
   ~ExtensionHost();
@@ -74,10 +75,11 @@ class ExtensionHost : public RenderViewHostDelegate,
   virtual void HandleKeyboardEvent(const NativeWebKeyboardEvent& event);
 
  private:
+  // ExtensionFunctionDispatcher::Delegate
   // If this ExtensionHost has a view, this returns the Browser that view is a
   // part of.  If this is a global background page, we use the active Browser
   // instead.
-  Browser* GetBrowser();
+  virtual Browser* GetBrowser();
 
   // The extension that we're hosting in this view.
   Extension* extension_;

@@ -145,7 +145,8 @@ bool GetWindowFunction::RunImpl() {
 }
 
 bool GetCurrentWindowFunction::RunImpl() {
-  return GetWindowFunctionHelper(dispatcher_->browser(), profile(), &result_);
+  return GetWindowFunctionHelper(dispatcher_->GetBrowser(), profile(),
+                                 &result_);
 }
 
 bool GetFocusedWindowFunction::RunImpl() {
@@ -190,20 +191,15 @@ bool CreateWindowFunction::RunImpl() {
     }
   }
 
-  // Try to get the browser associated with view that this call came from, so
-  // its position can be set relative to its browser window.
-  Browser* browser = dispatcher_->browser();
-  if (browser == NULL)
-    browser = BrowserList::GetLastActiveWithProfile(dispatcher_->profile());
-
   // Try to position the new browser relative its originating browser window.
   gfx::Rect empty_bounds;
   gfx::Rect bounds;
   bool maximized;
   // The call offsets the bounds by kWindowTilePixels (defined in WindowSizer to
   // be 10).
-  WindowSizer::GetBrowserWindowBounds(std::wstring(), empty_bounds, browser,
-      &bounds, &maximized);
+  WindowSizer::GetBrowserWindowBounds(std::wstring(), empty_bounds,
+                                      dispatcher_->GetBrowser(), &bounds,
+                                      &maximized);
 
   // Any part of the bounds can optionally be set by the caller.
   if (args_->IsType(Value::TYPE_DICTIONARY)) {
@@ -280,12 +276,8 @@ bool GetSelectedTabFunction::RunImpl() {
     EXTENSION_FUNCTION_VALIDATE(args_->GetAsInteger(&window_id));
     browser = GetBrowserInProfileWithId(profile(), window_id);
   } else {
-    browser = dispatcher_->browser();
+    browser = dispatcher_->GetBrowser();
   }
-
-  if (!browser)
-    // TODO(rafaelw): return a "no 'current' browser" error.
-    return false;
 
   TabStripModel* tab_strip = browser->tabstrip_model();
   result_.reset(ExtensionTabUtil::CreateTabValue(
@@ -303,12 +295,8 @@ bool GetAllTabsInWindowFunction::RunImpl() {
     EXTENSION_FUNCTION_VALIDATE(args_->GetAsInteger(&window_id));
     browser = GetBrowserInProfileWithId(profile(), window_id);
   } else {
-    browser = dispatcher_->browser();
+    browser = dispatcher_->GetBrowser();
   }
-
-  if (!browser)
-    // TODO(rafaelw): return a "no 'current' browser" error.
-    return false;
 
   result_.reset(CreateTabList(browser));
 
@@ -326,12 +314,8 @@ bool CreateTabFunction::RunImpl() {
     EXTENSION_FUNCTION_VALIDATE(args->GetInteger(kWindowIdKey, &window_id));
     browser = GetBrowserInProfileWithId(profile(), window_id);
   } else {
-    browser = dispatcher_->browser();
+    browser = dispatcher_->GetBrowser();
   }
-
-  if (!browser)
-    // TODO(rafaelw): return a "no 'current' browser" error.
-    return false;
 
   TabStripModel* tab_strip = browser->tabstrip_model();
 

@@ -13,6 +13,7 @@
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/browser_window.h"
 #include "chrome/browser/command_updater.h"
+#include "chrome/browser/extensions/extension_function_dispatcher.h"
 #include "chrome/browser/sessions/session_id.h"
 #include "chrome/browser/shell_dialogs.h"
 #include "chrome/browser/tab_contents/tab_contents.h"
@@ -43,7 +44,8 @@ class Browser : public TabStripModelDelegate,
                 public PageNavigator,
                 public CommandUpdater::CommandUpdaterDelegate,
                 public NotificationObserver,
-                public SelectFileDialog::Listener {
+                public SelectFileDialog::Listener,
+                public ExtensionFunctionDispatcher::Delegate {
  public:
   enum Type {
     TYPE_NORMAL = 0,
@@ -500,6 +502,11 @@ class Browser : public TabStripModelDelegate,
   virtual void Observe(NotificationType type,
                        const NotificationSource& source,
                        const NotificationDetails& details);
+
+  // Overridden from ExtensionFunctionDispatcher::Delegate
+  virtual Browser* GetBrowser() {
+    return this;
+  }
 
   // Command and state updating ///////////////////////////////////////////////
 

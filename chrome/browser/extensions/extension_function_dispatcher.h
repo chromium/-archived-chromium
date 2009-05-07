@@ -21,11 +21,16 @@ class RenderViewHostDelegate;
 // appropriate handler. It lives entirely on the UI thread.
 class ExtensionFunctionDispatcher {
  public:
+  class Delegate {
+   public:
+    virtual Browser* GetBrowser() = 0;
+  };
+
   // Gets a list of all known extension function names.
   static void GetAllFunctionNames(std::vector<std::string>* names);
 
   ExtensionFunctionDispatcher(RenderViewHost* render_view_host,
-                              Browser* browser,
+                              Delegate* delegate,
                               const std::string& extension_id);
 
   // Handle a request to execute an extension function.
@@ -35,7 +40,9 @@ class ExtensionFunctionDispatcher {
   // Send a response to a function.
   void SendResponse(ExtensionFunction* api);
 
-  Browser* browser() { return browser_; }
+  // Gets the browser extension functions should operate relative to. For
+  // example, for positioning windows, or alert boxes, or creating tabs.
+  Browser* GetBrowser();
 
   // Handle a malformed message.  Possibly the result of an attack, so kill
   // the renderer.
@@ -50,7 +57,7 @@ class ExtensionFunctionDispatcher {
  private:
   RenderViewHost* render_view_host_;
 
-  Browser* browser_;
+  Delegate* delegate_;
 
   std::string extension_id_;
 };

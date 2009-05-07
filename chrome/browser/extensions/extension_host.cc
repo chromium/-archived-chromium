@@ -91,8 +91,7 @@ void ExtensionHost::DidStopLoading(RenderViewHost* render_view_host) {
 ExtensionFunctionDispatcher* ExtensionHost::
     CreateExtensionFunctionDispatcher(RenderViewHost *render_view_host,
                                       const std::string& extension_id) {
-  return new ExtensionFunctionDispatcher(render_view_host, GetBrowser(),
-                                         extension_id);
+  return new ExtensionFunctionDispatcher(render_view_host, this, extension_id);
 }
 
 RenderViewHostDelegate::View* ExtensionHost::GetViewDelegate() const {
@@ -159,7 +158,7 @@ void ExtensionHost::HandleKeyboardEvent(const NativeWebKeyboardEvent& event) {
 Browser* ExtensionHost::GetBrowser() {
   if (view_)
     return view_->browser();
-  Browser* browser = BrowserList::FindBrowserWithProfile(
+  Browser* browser = BrowserList::GetLastActiveWithProfile(
       render_view_host()->process()->profile());
   // TODO(mpcomplete): what this verifies doesn't actually happen yet.
   CHECK(browser) << "ExtensionHost running in Profile with no Browser active."
