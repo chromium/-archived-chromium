@@ -81,7 +81,7 @@ public:
                   IconRequestCallback* callback);
 
   // IconLoader::Delegate interface.
-  virtual bool OnSkBitmapLoaded(IconLoader* source, SkBitmap* result);
+  virtual bool OnBitmapLoaded(IconLoader* source, SkBitmap* result);
 
 private:
   struct CacheKey {

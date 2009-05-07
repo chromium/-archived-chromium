@@ -48,8 +48,8 @@ IconManager::Handle IconManager::LoadIcon(
   IconRequest* request = new IconRequest(callback);
   AddRequest(request, consumer);
 
-  IconLoader* loader =
-      IconLoader::CreateIconLoaderForFileResource(path, size, this);
+  IconLoader* loader = IconLoader::Create(path, size, this);
+  loader->AddRef();
   loader->Start();
   ClientRequest client_request = { request, path, size };
   requests_[loader] = client_request;
@@ -58,11 +58,12 @@ IconManager::Handle IconManager::LoadIcon(
 
 // IconLoader::Delegate implementation -----------------------------------------
 
-bool IconManager::OnSkBitmapLoaded(IconLoader* source, SkBitmap* result) {
-  scoped_ptr<IconLoader> scoped_source(source);
+bool IconManager::OnBitmapLoaded(IconLoader* source, SkBitmap* result) {
+  ClientRequests::iterator rit = requests_.find(source);
+  // Balances the AddRef() in LoadIcon().
+  source->Release();
 
   // Look up our client state.
-  ClientRequests::iterator rit = requests_.find(source);
   if (rit == requests_.end()) {
     NOTREACHED();
     return false;  // Return false to indicate result should be deleted.
