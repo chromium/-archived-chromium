@@ -2268,9 +2268,6 @@ BUG10760 MAC : LayoutTests/svg/W3C-SVG-1.1/painting-marker-02-f.svg = PASS FAIL
 BUG10859 LINUX MAC : LayoutTests/fast/dom/HTMLSelectElement/named-options.html = FAIL
 BUG10861 WIN : LayoutTests/fast/dom/HTMLSelectElement/named-options.html = FAIL
 
-// New tests from WebKit Merge 42671:42725
-BUG10861 WIN LINUX MAC :  LayoutTests/fast/dom/xmlhttprequest-constructor-in-detached-document.html = CRASH
-
 // New failures from WebKit Merge 42671:42725
 BUG10861 WIN : LayoutTests/security/block-test.html = FAIL
 BUG10861 WIN : LayoutTests/http/tests/plugins/post-url-file.html = PASS

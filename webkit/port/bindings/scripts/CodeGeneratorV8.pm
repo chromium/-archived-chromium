@@ -442,10 +442,11 @@ END
     return WorkerContextExecutionProxy::retrieve()->GetConstructor(type);
 END
   } else {
-    push(@implContentDecls, "    return V8Proxy::retrieve()->GetConstructor(type);");
+    push(@implContentDecls, "    return v8::Undefined();");
   }
 
   push(@implContentDecls, <<END);
+
   }
 
 END
