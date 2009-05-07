@@ -27,12 +27,6 @@ BookmarkMenuController::BookmarkMenuController(Browser* browser,
   menu_.reset(new MenuGtk(this, false));
   int next_menu_id = 1;
   BuildMenu(node, start_child_index, menu_.get(), &next_menu_id);
-
-  // TODO(erg): Add the BuildOtherFolderMenu() to handle the overflow case from
-  // the chevron on the bookmark bar.
-  //
-  //  if (show_other_folder)
-  //    BuildOtherFolderMenu(&next_menu_id);
 }
 
 BookmarkMenuController::~BookmarkMenuController() {

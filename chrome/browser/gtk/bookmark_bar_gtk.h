@@ -107,6 +107,8 @@ class BookmarkBarGtk : public BookmarkModelObserver {
   GtkWidget* CreateBookmarkButton(BookmarkNode* node);
   GtkToolItem* CreateBookmarkToolItem(BookmarkNode* node);
 
+  void ConnectFolderButtonEvents(GtkWidget* widget);
+
   std::string BuildTooltip(BookmarkNode* node);
 
   // Finds the BookmarkNode from the model associated with |button|.

@@ -126,8 +126,7 @@ void BookmarkBarGtk::Init(Profile* profile) {
                      FALSE, FALSE, 0);
 
   other_bookmarks_button_ = gtk_chrome_button_new();
-  g_signal_connect(other_bookmarks_button_, "button-press-event",
-                   G_CALLBACK(&OnButtonPressed), this);
+  ConnectFolderButtonEvents(other_bookmarks_button_);
   gtk_button_set_label(
       GTK_BUTTON(other_bookmarks_button_),
       l10n_util::GetStringUTF8(IDS_BOOMARK_BAR_OTHER_BOOKMARKED).c_str());
@@ -326,28 +325,8 @@ GtkWidget* BookmarkBarGtk::CreateBookmarkButton(
   g_signal_connect(G_OBJECT(button), "drag-end",
                    G_CALLBACK(&OnButtonDragEnd), this);
 
-
-  if (node->is_url()) {
-    // Connect to 'button-release-event' instead of 'clicked' because we need
-    // access to the modifier keys and we do different things on each
-    // button.
-    g_signal_connect(G_OBJECT(button), "button-press-event",
-                     G_CALLBACK(OnButtonPressed), this);
-    g_signal_connect(G_OBJECT(button), "button-release-event",
-                     G_CALLBACK(OnButtonReleased), this);
-    GTK_WIDGET_UNSET_FLAGS(button, GTK_CAN_FOCUS);
-  } else {
-    // TODO(erg): This button can also be a drop target.
-
-    // Connect to 'button-release-event' instead of 'clicked' because we need
-    // access to the modifier keys and we do different things on each
-    // button.
-    g_signal_connect(G_OBJECT(button), "button-press-event",
-                     G_CALLBACK(OnButtonPressed), this);
-    g_signal_connect(G_OBJECT(button), "button-release-event",
-                     G_CALLBACK(OnFolderButtonReleased), this);
-    GTK_WIDGET_UNSET_FLAGS(button, GTK_CAN_FOCUS);
-  }
+  ConnectFolderButtonEvents(button);
+  GTK_WIDGET_UNSET_FLAGS(button, GTK_CAN_FOCUS);
 
   return button;
 }
@@ -364,6 +343,16 @@ GtkToolItem* BookmarkBarGtk::CreateBookmarkToolItem(BookmarkNode* node) {
   return item;
 }
 
+void BookmarkBarGtk::ConnectFolderButtonEvents(GtkWidget* widget) {
+  // Connect to 'button-release-event' instead of 'clicked' because we need
+  // access to the modifier keys and we do different things on each
+  // button.
+  g_signal_connect(G_OBJECT(widget), "button-press-event",
+                   G_CALLBACK(OnButtonPressed), this);
+  g_signal_connect(G_OBJECT(widget), "button-release-event",
+                   G_CALLBACK(OnFolderButtonReleased), this);
+}
+
 std::string BookmarkBarGtk::BuildTooltip(BookmarkNode* node) {
   // TODO(erg): Actually build the tooltip. For now, we punt and just return
   // the URL.
@@ -371,7 +360,7 @@ std::string BookmarkBarGtk::BuildTooltip(BookmarkNode* node) {
 }
 
 BookmarkNode* BookmarkBarGtk::GetNodeForToolButton(GtkWidget* widget) {
-  // First check to see if |button| is the special cased.
+  // First check to see if |button| is special cased.
   if (widget == other_bookmarks_button_)
     return model_->other_node();
   else if (widget == bookmark_toolbar_.get())
