@@ -58,26 +58,26 @@
         ],
       },
     },
-   {
+    {
       'target_name': 'courgette_tool',
       'type': 'executable',
       'msvs_guid': '4EA8CE12-9C6F-45E5-9D08-720383FE3685',
       'sources': [
         'courgette_tool.cc',
         #'memory_monitor.cc',
-       ],
+      ],
       'dependencies': [
         'courgette_lib',
         '../../base/base.gyp:base',
       ],
     },
-   {
+    {
       'target_name': 'courgette_minimal_tool',
       'type': 'executable',
       'msvs_guid': 'EB79415F-2F17-4BDC-AADD-4CA4C2D21B73',
       'sources': [
         'courgette_minimal_tool.cc',
-       ],
+      ],
       'dependencies': [
         'courgette_lib',
         '../../base/base.gyp:base',
@@ -96,20 +96,20 @@
         'image_info_unittest.cc',
         'run_all_unittests.cc',
         'streams_unittest.cc',
-       ],
+      ],
       'dependencies': [
         'courgette_lib',
         '../../base/base.gyp:base',
         '../../testing/gtest.gyp:gtest',
       ],
     },
-   {
+    {
       'target_name': 'courgette_fuzz',
       'type': 'executable',
       'msvs_guid': '57C27529-8CA9-4FC3-9C02-DA05B172F785',
       'sources': [
         'encoded_program_fuzz_unittest.cc',
-       ],
+      ],
       'dependencies': [
         'courgette_lib',
         '../../base/base.gyp:base',
