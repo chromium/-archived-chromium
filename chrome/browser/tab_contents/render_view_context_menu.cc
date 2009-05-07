@@ -127,10 +127,14 @@ void RenderViewContextMenu::AppendSearchProvider() {
   const TemplateURL* const default_provider =
       profile_->GetTemplateURLModel()->GetDefaultSearchProvider();
   if (default_provider != NULL) {
-    std::wstring label(l10n_util::GetStringF(IDS_CONTENT_CONTEXT_SEARCHWEBFOR,
-                       default_provider->short_name(),
-                       l10n_util::TruncateString(params_.selection_text, 50)));
-    AppendMenuItem(IDS_CONTENT_CONTEXT_SEARCHWEBFOR, label);
+    std::wstring selection_text =
+        l10n_util::TruncateString(params_.selection_text, 50);
+    if (!selection_text.empty()) {
+      std::wstring label(l10n_util::GetStringF(IDS_CONTENT_CONTEXT_SEARCHWEBFOR,
+                         default_provider->short_name(),
+                         selection_text));
+      AppendMenuItem(IDS_CONTENT_CONTEXT_SEARCHWEBFOR, label);
+    }
   }
 }
 
