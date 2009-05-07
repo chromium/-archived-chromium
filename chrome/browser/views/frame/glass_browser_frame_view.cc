@@ -127,12 +127,20 @@ GlassBrowserFrameView::~GlassBrowserFrameView() {
 
 gfx::Rect GlassBrowserFrameView::GetBoundsForTabStrip(
     TabStrip* tabstrip) const {
+  int minimize_button_offset = frame_->GetMinimizeButtonOffset();
   int tabstrip_x = browser_view_->ShouldShowOffTheRecordAvatar() ?
       (otr_avatar_bounds_.right() + kOTRSideSpacing) :
       NonClientBorderThickness();
-  int tabstrip_width = frame_->GetMinimizeButtonOffset() - tabstrip_x -
-      (frame_->IsMaximized() ?
-      kNewTabCaptionMaximizedSpacing : kNewTabCaptionRestoredSpacing);
+  // minimize_button_offset assumes LTR layout since the window controls
+  // themselves are not flipped, so we need to adjust the tabstrip's x
+  // position for them in RTL languages.
+  if (UILayoutIsRightToLeft())
+    tabstrip_x += (width() - minimize_button_offset);
+  int tabstrip_width = minimize_button_offset - tabstrip_x -
+      (frame_->IsMaximized() ? kNewTabCaptionMaximizedSpacing
+                             : kNewTabCaptionRestoredSpacing);
+  if (UILayoutIsRightToLeft())
+    tabstrip_width += tabstrip_x;
   return gfx::Rect(tabstrip_x, NonClientTopBorderHeight(),
                    std::max(0, tabstrip_width), tabstrip->GetPreferredHeight());
 }
