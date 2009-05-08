@@ -4,6 +4,9 @@
 
 #include "base/logging.h"
 #include "views/window/client_view.h"
+#if defined(OS_LINUX)
+#include "chrome/views/window/hit_test.h"
+#endif
 #include "views/window/window.h"
 #include "views/window/window_delegate.h"
 

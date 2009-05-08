@@ -17,21 +17,37 @@ class Rect;
 namespace views {
 
 class View;
+class WindowGtk;
 
+// Widget implementation for GTK.
 class WidgetGtk : public Widget {
  public:
-  static WidgetGtk* Construct() {
-    // This isn't used, but exists to force WidgetGtk to be instantiable.
-    return new WidgetGtk;
-  }
+  // Type of widget.
+  enum Type {
+    // Used for popup type windows (bubbles, menus ...).
+    TYPE_POPUP,
+    // A top level window.
+    TYPE_WINDOW,
 
-  WidgetGtk();
+    // A child widget.
+    TYPE_CHILD
+  };
+
+  explicit WidgetGtk(Type type);
   virtual ~WidgetGtk();
 
-  // Initializes this widget and returns the gtk drawing area for the caller to
-  // add to its hierarchy. (We can't pass in the parent to this method because
-  // there are no standard adding semantics in gtk...)
+  // Initializes this widget.
   void Init(const gfx::Rect& bounds, bool has_own_focus_manager);
+
+  void AddChild(GtkWidget* child);
+  void RemoveChild(GtkWidget* child);
+
+  // Positions a child GtkWidget at the specified location and bounds.
+  void PositionChild(GtkWidget* child, int x, int y, int w, int h);
+
+  // Parent GtkWidget all children are added to. This is not necessarily
+  // the same as returned by GetNativeView.
+  GtkWidget* child_widget_parent() const { return child_widget_parent_; }
 
   virtual void SetContentsView(View* view);
 
@@ -44,10 +60,12 @@ class WidgetGtk : public Widget {
   virtual bool IsActive() const;
   virtual TooltipManager* GetTooltipManager();
   virtual bool GetAccelerator(int cmd_id, Accelerator* accelerator);
+  virtual Window* GetWindow();
+  virtual const Window* GetWindow() const;
 
  protected:
-  virtual void OnSizeAllocate(GtkWidget* widget, GtkAllocation* allocation) {}
-  virtual gboolean OnPaint(GtkWidget* widget, GdkEventExpose* event);
+  virtual void OnSizeAllocate(GtkWidget* widget, GtkAllocation* allocation);
+  virtual void OnPaint(GtkWidget* widget, GdkEventExpose* event);
   virtual gboolean OnEnterNotify(GtkWidget* widget, GdkEventCrossing* event);
   virtual gboolean OnLeaveNotify(GtkWidget* widget, GdkEventCrossing* event);
   virtual gboolean OnMotionNotify(GtkWidget* widget, GdkEventMotion* event);
@@ -68,6 +86,10 @@ class WidgetGtk : public Widget {
                                       GdkEventVisibility* event) {
     return false;
   }
+
+  // Sets and retrieves the WidgetGtk in the userdata section of the widget.
+  static WindowGtk* GetWindowForNative(GtkWidget* widget);
+  static void SetWindowForNative(GtkWidget* widget, WindowGtk* window);
 
  private:
   virtual RootView* CreateRootView();
@@ -99,8 +121,18 @@ class WidgetGtk : public Widget {
   static gboolean CallVisibilityNotify(GtkWidget* widget,
                                        GdkEventVisibility* event);
 
-  // Our native view.
+  static Window* GetWindowImpl(GtkWidget* widget);
+
+  // Creates the GtkWidget.
+  void CreateGtkWidget();
+
+  const Type type_;
+
+  // Our native views. If we're a window/popup, then widget_ is the window and
+  // child_widget_parent_ is a GtkFixed. If we're not a window/popup, then
+  // widget_ and child_widget_parent_ are a GtkFixed.
   GtkWidget* widget_;
+  GtkWidget* child_widget_parent_;
 
   // The root of the View hierarchy attached to this window.
   scoped_ptr<RootView> root_view_;
@@ -118,6 +150,8 @@ class WidgetGtk : public Widget {
   // Coordinates of the last mouse move event, in screen coordinates.
   int last_mouse_move_x_;
   int last_mouse_move_y_;
+
+  DISALLOW_COPY_AND_ASSIGN(WidgetGtk);
 };
 
 }  // namespace views

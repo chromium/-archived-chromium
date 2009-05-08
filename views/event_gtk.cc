@@ -4,6 +4,8 @@
 
 #include "views/event.h"
 
+#include <gdk/gdk.h>
+
 namespace views {
 
 KeyEvent::KeyEvent(GdkEventKey* event)

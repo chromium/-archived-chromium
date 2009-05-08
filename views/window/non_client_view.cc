@@ -4,9 +4,14 @@
 
 #include "views/window/non_client_view.h"
 
+#if defined(OS_WIN)
 #include "chrome/common/win_util.h"
+#endif
 #include "views/widget/root_view.h"
 #include "views/widget/widget.h"
+#if defined(OS_LINUX)
+#include "views/window/hit_test.h"
+#endif
 #include "views/window/window.h"
 
 namespace views {
@@ -27,7 +32,11 @@ static const int kClientViewIndex = 1;
 NonClientView::NonClientView(Window* frame)
     : frame_(frame),
       client_view_(NULL),
+#if defined(OS_WIN)
       use_native_frame_(win_util::ShouldUseVistaFrame()) {
+#else
+      use_native_frame_(false) {
+#endif
 }
 
 NonClientView::~NonClientView() {

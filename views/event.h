@@ -6,12 +6,11 @@
 #define VIEWS_EVENT_H_
 
 #include "base/basictypes.h"
+#include "base/gfx/point.h"
 
 #if defined(OS_LINUX)
-#include <gdk/gdk.h>
+typedef struct _GdkEventKey GdkEventKey;
 #endif
-
-#include "base/gfx/point.h"
 
 class OSExchangeData;
 
@@ -218,7 +217,7 @@ class MouseEvent : public LocatedEvent {
   }
 
  private:
-  DISALLOW_EVIL_CONSTRUCTORS(MouseEvent);
+  DISALLOW_COPY_AND_ASSIGN(MouseEvent);
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -235,7 +234,7 @@ class KeyEvent : public Event {
   // Create a new key event
   KeyEvent(EventType type, int ch, int repeat_count, int message_flags);
 #elif defined(OS_LINUX)
-  KeyEvent(GdkEventKey* event);
+  explicit KeyEvent(GdkEventKey* event);
 #endif
 
   int GetCharacter() const {
@@ -259,7 +258,7 @@ class KeyEvent : public Event {
   int repeat_count_;
   int message_flags_;
 
-  DISALLOW_EVIL_CONSTRUCTORS(KeyEvent);
+  DISALLOW_COPY_AND_ASSIGN(KeyEvent);
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -284,7 +283,7 @@ class MouseWheelEvent : public LocatedEvent {
  private:
   int offset_;
 
-  DISALLOW_EVIL_CONSTRUCTORS(MouseWheelEvent);
+  DISALLOW_COPY_AND_ASSIGN(MouseWheelEvent);
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -316,7 +315,7 @@ class DropTargetEvent : public LocatedEvent {
   const OSExchangeData& data_;
   int source_operations_;
 
-  DISALLOW_EVIL_CONSTRUCTORS(DropTargetEvent);
+  DISALLOW_COPY_AND_ASSIGN(DropTargetEvent);
 };
 
 }  // namespace views

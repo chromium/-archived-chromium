@@ -148,6 +148,7 @@ class WindowDelegate {
   void ReleaseWindow();
 
  private:
+  friend class WindowGtk;
   friend class WindowWin;
   // This is a little unusual. We use a scoped_ptr here because it's
   // initialized to NULL automatically. We do this because we want to allow
