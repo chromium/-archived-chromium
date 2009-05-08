@@ -67,9 +67,9 @@ void SafeBrowsingService::Initialize(MessageLoop* io_loop) {
 // Start up SafeBrowsing objects. This can be called at browser start, or when
 // the user checks the "Enable SafeBrowsing" option in the Advanced options UI.
 void SafeBrowsingService::Start() {
-  DCHECK(!db_thread_.get());
-  db_thread_.reset(new base::Thread("Chrome_SafeBrowsingThread"));
-  if (!db_thread_->Start())
+  DCHECK(!safe_browsing_thread_.get());
+  safe_browsing_thread_.reset(new base::Thread("Chrome_SafeBrowsingThread"));
+  if (!safe_browsing_thread_->Start())
     return;
 
   // Retrieve client MAC keys.
@@ -86,7 +86,7 @@ void SafeBrowsingService::Start() {
       this, &SafeBrowsingService::OnIOInitialize, MessageLoop::current(),
       client_key, wrapped_key));
 
-  db_thread_->message_loop()->PostTask(FROM_HERE, NewRunnableMethod(
+  safe_browsing_thread_->message_loop()->PostTask(FROM_HERE, NewRunnableMethod(
       this, &SafeBrowsingService::OnDBInitialize));
 }
 
@@ -113,7 +113,7 @@ void SafeBrowsingService::OnIOInitialize(MessageLoop* notify_loop,
 }
 
 void SafeBrowsingService::OnDBInitialize() {
-  DCHECK(MessageLoop::current() == db_thread_->message_loop());
+  DCHECK(MessageLoop::current() == safe_browsing_thread_->message_loop());
   GetDatabase();
 }
 
@@ -129,12 +129,12 @@ void SafeBrowsingService::OnIOShutdown() {
   delete protocol_manager_;
   protocol_manager_ = NULL;
 
-  if (db_thread_.get())
-    db_thread_->message_loop()->DeleteSoon(FROM_HERE, database_);
+  if (safe_browsing_thread_.get())
+    safe_browsing_thread_->message_loop()->DeleteSoon(FROM_HERE, database_);
 
   // Flush the database thread. Any in-progress database check results will be
   // ignored and cleaned up below.
-  db_thread_.reset(NULL);
+  safe_browsing_thread_.reset(NULL);
 
   database_ = NULL;
   database_loaded_ = false;
@@ -361,7 +361,7 @@ void SafeBrowsingService::OnCheckDone(SafeBrowsingCheck* check) {
 }
 
 SafeBrowsingDatabase* SafeBrowsingService::GetDatabase() {
-  DCHECK(MessageLoop::current() == db_thread_->message_loop());
+  DCHECK(MessageLoop::current() == safe_browsing_thread_->message_loop());
   if (database_)
     return database_;
 
@@ -458,7 +458,7 @@ void SafeBrowsingService::UpdateStarted() {
   DCHECK(enabled_);
   DCHECK(!update_in_progress_);
   update_in_progress_ = true;
-  db_thread_->message_loop()->PostTask(FROM_HERE, NewRunnableMethod(
+  safe_browsing_thread_->message_loop()->PostTask(FROM_HERE, NewRunnableMethod(
       this, &SafeBrowsingService::GetAllChunksFromDatabase));
 }
 
@@ -467,13 +467,15 @@ void SafeBrowsingService::UpdateFinished(bool update_succeeded) {
   DCHECK(enabled_);
   if (update_in_progress_) {
     update_in_progress_ = false;
-    db_thread_->message_loop()->PostTask(FROM_HERE, NewRunnableMethod(
-        this, &SafeBrowsingService::DatabaseUpdateFinished, update_succeeded));
+    safe_browsing_thread_->message_loop()->PostTask(FROM_HERE,
+        NewRunnableMethod(this,
+                          &SafeBrowsingService::DatabaseUpdateFinished,
+                          update_succeeded));
   }
 }
 
 void SafeBrowsingService::DatabaseUpdateFinished(bool update_succeeded) {
-  DCHECK(MessageLoop::current() == db_thread_->message_loop());
+  DCHECK(MessageLoop::current() == safe_browsing_thread_->message_loop());
   if (GetDatabase())
     GetDatabase()->UpdateFinished(update_succeeded);
 }
@@ -515,7 +517,7 @@ void SafeBrowsingService::OnNewMacKeys(const std::string& client_key,
 }
 
 void SafeBrowsingService::ChunkInserted() {
-  DCHECK(MessageLoop::current() == db_thread_->message_loop());
+  DCHECK(MessageLoop::current() == safe_browsing_thread_->message_loop());
   io_loop_->PostTask(FROM_HERE, NewRunnableMethod(
       this, &SafeBrowsingService::OnChunkInserted));
 }
@@ -551,12 +553,12 @@ void SafeBrowsingService::RegisterPrefs(PrefService* prefs) {
 void SafeBrowsingService::ResetDatabase() {
   DCHECK(MessageLoop::current() == io_loop_);
   resetting_ = true;
-  db_thread_->message_loop()->PostTask(FROM_HERE, NewRunnableMethod(
+  safe_browsing_thread_->message_loop()->PostTask(FROM_HERE, NewRunnableMethod(
       this, &SafeBrowsingService::OnResetDatabase));
 }
 
 void SafeBrowsingService::OnResetDatabase() {
-  DCHECK(MessageLoop::current() == db_thread_->message_loop());
+  DCHECK(MessageLoop::current() == safe_browsing_thread_->message_loop());
   GetDatabase()->ResetDatabase();
   io_loop_->PostTask(FROM_HERE, NewRunnableMethod(
       this, &SafeBrowsingService::OnResetComplete));
@@ -575,14 +577,14 @@ void SafeBrowsingService::HandleChunk(const std::string& list,
                                       std::deque<SBChunk>* chunks) {
   DCHECK(MessageLoop::current() == io_loop_);
   DCHECK(enabled_);
-  db_thread_->message_loop()->PostTask(FROM_HERE, NewRunnableMethod(
+  safe_browsing_thread_->message_loop()->PostTask(FROM_HERE, NewRunnableMethod(
       this, &SafeBrowsingService::HandleChunkForDatabase, list, chunks));
 }
 
 void SafeBrowsingService::HandleChunkForDatabase(
     const std::string& list_name,
     std::deque<SBChunk>* chunks) {
-  DCHECK(MessageLoop::current() == db_thread_->message_loop());
+  DCHECK(MessageLoop::current() == safe_browsing_thread_->message_loop());
 
   GetDatabase()->InsertChunks(list_name, chunks);
 }
@@ -591,20 +593,20 @@ void SafeBrowsingService::HandleChunkDelete(
     std::vector<SBChunkDelete>* chunk_deletes) {
   DCHECK(MessageLoop::current() == io_loop_);
   DCHECK(enabled_);
-  db_thread_->message_loop()->PostTask(FROM_HERE, NewRunnableMethod(
+  safe_browsing_thread_->message_loop()->PostTask(FROM_HERE, NewRunnableMethod(
       this, &SafeBrowsingService::DeleteChunks, chunk_deletes));
 }
 
 void SafeBrowsingService::DeleteChunks(
     std::vector<SBChunkDelete>* chunk_deletes) {
-  DCHECK(MessageLoop::current() == db_thread_->message_loop());
+  DCHECK(MessageLoop::current() == safe_browsing_thread_->message_loop());
 
   GetDatabase()->DeleteChunks(chunk_deletes);
 }
 
 // Database worker function.
 void SafeBrowsingService::GetAllChunksFromDatabase() {
-  DCHECK(MessageLoop::current() == db_thread_->message_loop());
+  DCHECK(MessageLoop::current() == safe_browsing_thread_->message_loop());
   bool database_error = true;
   std::vector<SBListChunkRanges> lists;
   if (GetDatabase()) {
@@ -650,7 +652,7 @@ void SafeBrowsingService::LogPauseDelay(TimeDelta time) {
 void SafeBrowsingService::CacheHashResults(
   const std::vector<SBPrefix>& prefixes,
   const std::vector<SBFullHashResult>& full_hashes) {
-  DCHECK(MessageLoop::current() == db_thread_->message_loop());
+  DCHECK(MessageLoop::current() == safe_browsing_thread_->message_loop());
   GetDatabase()->CacheHashResults(prefixes, full_hashes);
 }
 
@@ -663,13 +665,13 @@ void SafeBrowsingService::OnSuspend(base::SystemMonitor*) {
 // exacerbate.
 void SafeBrowsingService::OnResume(base::SystemMonitor*) {
   if (enabled_) {
-    ChromeThread::GetMessageLoop(ChromeThread::DB)->PostTask(FROM_HERE,
-      NewRunnableMethod(this, &SafeBrowsingService::HandleResume));
+    safe_browsing_thread_->message_loop()->PostTask(FROM_HERE,
+        NewRunnableMethod(this, &SafeBrowsingService::HandleResume));
   }
 }
 
 void SafeBrowsingService::HandleResume() {
-  DCHECK(MessageLoop::current() == db_thread_->message_loop());
+  DCHECK(MessageLoop::current() == safe_browsing_thread_->message_loop());
   // We don't call GetDatabase() here, since we want to avoid unnecessary calls
   // to Open, Reset, etc, or reload the bloom filter while we're coming out of
   // a suspended state.
