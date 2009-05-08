@@ -19,9 +19,7 @@ class NativeViewHost : public View {
   NativeViewHost();
   virtual ~NativeViewHost();
 
-  void set_preferred_size(const gfx::Size& size) { preferred_size_ = size; }
-
-  // Returns the preferred size set via set_preferred_size.
+  void SetPreferredSize(const gfx::Size& size);
   virtual gfx::Size GetPreferredSize();
 
   // Overriden to invoke Layout.

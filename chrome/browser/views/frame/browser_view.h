@@ -250,6 +250,8 @@ class BrowserView : public BrowserWindow,
   virtual void ViewHierarchyChanged(bool is_add,
                                     views::View* parent,
                                     views::View* child);
+  virtual void ChildPreferredSizeChanged(View* child);
+
  private:
   // Browser window related initializations.
   void Init();

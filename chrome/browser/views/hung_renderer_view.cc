@@ -347,7 +347,7 @@ void HungRendererDialogView::Init() {
   hung_pages_table_ = new views::GroupTableView(
       hung_pages_table_model_.get(), columns, views::ICON_AND_TEXT, true,
       false, true);
-  hung_pages_table_->set_preferred_size(
+  hung_pages_table_->SetPreferredSize(
     gfx::Size(kTableViewWidth, kTableViewHeight));
 
   CreateKillButtonView();

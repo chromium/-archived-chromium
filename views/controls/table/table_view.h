@@ -420,7 +420,7 @@ class TableView : public NativeControl,
   // Sometimes we may want to size the TableView to a specific width and
   // height.
   virtual gfx::Size GetPreferredSize();
-  void set_preferred_size(const gfx::Size& size) { preferred_size_ = size; }
+  void SetPreferredSize(const gfx::Size& size);
 
   // Is the table sorted?
   bool is_sorted() const { return !sort_descriptors_.empty(); }

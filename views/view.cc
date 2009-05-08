@@ -171,6 +171,11 @@ void View::SizeToPreferredSize() {
     SetBounds(x(), y(), prefsize.width(), prefsize.height());
 }
 
+void View::PreferredSizeChanged() {
+  if (parent_)
+    parent_->ChildPreferredSizeChanged(this);
+}
+
 gfx::Size View::GetMinimumSize() {
   return GetPreferredSize();
 }

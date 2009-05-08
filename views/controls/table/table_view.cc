@@ -1372,6 +1372,11 @@ gfx::Size TableView::GetPreferredSize() {
   return preferred_size_;
 }
 
+void TableView::SetPreferredSize(const gfx::Size& size) {
+  preferred_size_ = size;
+  PreferredSizeChanged();
+}
+
 void TableView::UpdateListViewCache0(int start, int length, bool add) {
   if (is_sorted()) {
     if (add)

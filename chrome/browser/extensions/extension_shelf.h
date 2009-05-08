@@ -31,6 +31,10 @@ class ExtensionShelf : public views::View,
   bool AddExtensionViews(const ExtensionList* extensions);
   bool HasExtensionViews();
 
+ protected:
+  // View
+  virtual void ChildPreferredSizeChanged(View* child);
+
  private:
   // Inits the background bitmap.
   void InitBackground(ChromeCanvas* canvas, const SkRect& subset);

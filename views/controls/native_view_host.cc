@@ -27,6 +27,11 @@ gfx::Size NativeViewHost::GetPreferredSize() {
   return preferred_size_;
 }
 
+void NativeViewHost::SetPreferredSize(const gfx::Size& size) {
+  preferred_size_ = size;
+  PreferredSizeChanged();
+}
+
 void NativeViewHost::Layout() {
   if (!native_view_)
     return;

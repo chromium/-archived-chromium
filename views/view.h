@@ -1056,6 +1056,13 @@ class View : public AcceleratorTarget {
   // invoked for that view as well as all the children recursively.
   virtual void VisibilityChanged(View* starting_from, bool is_visible);
 
+  // Called when the preferred size of a child view changed.  This gives the
+  // parent an opportunity to do a fresh layout if that makes sense.
+  virtual void ChildPreferredSizeChanged(View* child) {}
+
+  // Simply calls ChildPreferredSizeChanged on the parent if there is one.
+  virtual void PreferredSizeChanged();
+
   // Views must invoke this when the tooltip text they are to display changes.
   void TooltipTextChanged();
 

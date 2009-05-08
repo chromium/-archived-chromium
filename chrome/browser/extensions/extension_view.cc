@@ -74,15 +74,7 @@ void ExtensionView::DidContentsPreferredWidthChange(const int pref_width) {
   if (!IsVisible()) {
     pending_preferred_width_ = pref_width;
   } else if (pref_width > 0 && pref_width != GetPreferredSize().width()) {
-    set_preferred_size(gfx::Size(pref_width, height()));
-    SizeToPreferredSize();
-
-    // TODO(erikkay) There should be a way to do this where the ExtensionView
-    // doesn't have to know it's containment hierarchy.
-    if (GetParent() != NULL) {
-      GetParent()->Layout();
-      GetParent()->SchedulePaint();
-    }
+    SetPreferredSize(gfx::Size(pref_width, height()));
   }
 }
 

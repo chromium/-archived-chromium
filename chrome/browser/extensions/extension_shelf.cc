@@ -106,6 +106,10 @@ gfx::Size ExtensionShelf::GetPreferredSize() {
   return gfx::Size(0, 0);
 }
 
+void ExtensionShelf::ChildPreferredSizeChanged(View* child) {
+  Layout();
+}
+
 void ExtensionShelf::Layout() {
   if (!GetParent())
     return;
@@ -126,6 +130,7 @@ void ExtensionShelf::Layout() {
     child->Layout();
     x = next_x + kToolstripDividerWidth;
   }
+  SchedulePaint();
 }
 
 void ExtensionShelf::Observe(NotificationType type,
@@ -134,13 +139,7 @@ void ExtensionShelf::Observe(NotificationType type,
   switch (type.value) {
     case NotificationType::EXTENSIONS_LOADED: {
       const ExtensionList* extensions = Details<ExtensionList>(details).ptr();
-      if (AddExtensionViews(extensions)) {
-        Layout();
-        SchedulePaint();
-        // TODO(erikkay) come up with a better way to notify parents
-        if (GetParent())
-          GetParent()->Layout();
-      }
+      AddExtensionViews(extensions);
       break;
     }
     default:
@@ -150,6 +149,7 @@ void ExtensionShelf::Observe(NotificationType type,
 }
 
 bool ExtensionShelf::AddExtensionViews(const ExtensionList* extensions) {
+  bool had_views = HasExtensionViews();
   bool added_toolstrip = false;
   ExtensionProcessManager* manager =
       browser_->profile()->GetExtensionProcessManager();
@@ -167,6 +167,11 @@ bool ExtensionShelf::AddExtensionViews(const ExtensionList* extensions) {
       AddChildView(toolstrip);
       added_toolstrip = true;
     }
+  }
+  if (added_toolstrip) {
+    SchedulePaint();
+    if (!had_views)
+      PreferredSizeChanged();
   }
   return added_toolstrip;
 }

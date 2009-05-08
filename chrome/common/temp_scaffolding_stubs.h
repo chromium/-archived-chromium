@@ -479,7 +479,7 @@ class HWNDView {
   int width() { NOTIMPLEMENTED(); return 0; }
   int height() { NOTIMPLEMENTED(); return 0; }
   void InitHidden() { NOTIMPLEMENTED(); }
-  void set_preferred_size(const gfx::Size& size) { NOTIMPLEMENTED(); }
+  void SetPreferredSize(const gfx::Size& size) { NOTIMPLEMENTED(); }
   virtual void SetBackground(const SkBitmap&) { NOTIMPLEMENTED(); }
   virtual void SetVisible(bool flag) { NOTIMPLEMENTED(); }
   void SizeToPreferredSize() { NOTIMPLEMENTED(); }

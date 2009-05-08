@@ -1239,6 +1239,10 @@ void BrowserView::ViewHierarchyChanged(bool is_add,
   }
 }
 
+void BrowserView::ChildPreferredSizeChanged(View* child) {
+  Layout();
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 // BrowserView, private:
 

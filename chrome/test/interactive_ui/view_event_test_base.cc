@@ -16,7 +16,11 @@ class TestView : public views::View {
  public:
   TestView() {}
 
-  void set_preferred_size(const gfx::Size& size) { preferred_size_ = size; }
+  void SetPreferredSize(const gfx::Size& size) {
+    preferred_size_ = size;
+    PreferredSizeChanged();
+  }
+
   gfx::Size GetPreferredSize() {
     if (!preferred_size_.IsEmpty())
       return preferred_size_;
@@ -72,7 +76,7 @@ views::View* ViewEventTestBase::GetContentsView() {
     // Wrap the real view (as returned by CreateContentsView) in a View so
     // that we can customize the preferred size.
     TestView* test_view = new TestView();
-    test_view->set_preferred_size(GetPreferredSize());
+    test_view->SetPreferredSize(GetPreferredSize());
     test_view->AddChildView(CreateContentsView());
     content_view_ = test_view;
   }
