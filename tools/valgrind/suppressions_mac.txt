@@ -132,21 +132,6 @@
    Memcheck:Leak
    fun:calloc
    fun:CMSSetLabCLUT
-   fun:create
-   fun:CMSTransformCreate
-   fun:createBase
-   fun:initialize
-   fun:createColorTransform
-   fun:CGColorTransformCreateMutable
-}
-{
-   # Mac unit_tests.  Like above, but in our test?  See http://crbug.com/11270
-   bug_11270b
-   Memcheck:Leak
-   fun:calloc
-   fun:CMSSetLabCLUT
-   ...
-   fun:*Test*
 }
 {
    # Mac unit_tests.  See http://crbug.com/11271
