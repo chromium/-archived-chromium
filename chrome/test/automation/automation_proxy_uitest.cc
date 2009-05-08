@@ -872,12 +872,13 @@ class AutomationProxyForExternalTab : public AutomationProxy {
     IPC_END_MESSAGE_MAP()
   }
 
-  void OnDidNavigate(int navigation_type, int relative_offset,
+  void OnDidNavigate(int tab_handle, int navigation_type, int relative_offset,
                      const GURL& url) {
     navigate_complete_ = true;
   }
 
-  void OnForwardMessageToExternalHost(const std::string& message,
+  void OnForwardMessageToExternalHost(int tab_handle,
+                                      const std::string& message,
                                       const std::string& origin,
                                       const std::string& target) {
     messages_received_++;

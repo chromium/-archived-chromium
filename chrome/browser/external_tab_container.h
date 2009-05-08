@@ -52,6 +52,11 @@ class ExternalTabContainer : public TabContentsDelegate,
     return tab_contents_;
   }
 
+  // Temporary hack so we can send notifications back
+  void set_tab_handle(int handle) {
+    tab_handle_ = handle;
+  }
+
   bool Init(Profile* profile, HWND parent, const gfx::Rect& dimensions,
             unsigned int style);
 
@@ -159,6 +164,7 @@ class ExternalTabContainer : public TabContentsDelegate,
   TabContentsContainerView* tab_contents_container_;
 
  private:
+  int tab_handle_;
   // A failed navigation like a 404 is followed in chrome with a success
   // navigation for the 404 page. We need to ignore the next navigation
   // to avoid confusing the clients of the external tab. This member variable

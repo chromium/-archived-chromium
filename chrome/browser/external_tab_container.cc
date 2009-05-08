@@ -33,6 +33,7 @@ ExternalTabContainer::ExternalTabContainer(
       external_accel_table_(NULL),
       external_accel_entry_count_(0),
       tab_contents_container_(NULL),
+      tab_handle_(0),
       ignore_next_load_notification_(false) {
 }
 
@@ -161,7 +162,8 @@ void ExternalTabContainer::OpenURLFromTab(TabContents* source,
     case NEW_BACKGROUND_TAB:
     case NEW_WINDOW:
       if (automation_) {
-        automation_->Send(new AutomationMsg_OpenURL(0, url, disposition));
+        automation_->Send(new AutomationMsg_OpenURL(0, tab_handle_,
+                                                    url, disposition));
       }
       break;
     default:
@@ -172,8 +174,8 @@ void ExternalTabContainer::OpenURLFromTab(TabContents* source,
 void ExternalTabContainer::NavigationStateChanged(const TabContents* source,
                                                   unsigned changed_flags) {
   if (automation_) {
-    automation_->Send(
-        new AutomationMsg_NavigationStateChanged(0, changed_flags));
+    automation_->Send(new AutomationMsg_NavigationStateChanged(0, tab_handle_,
+                                                               changed_flags));
   }
 }
 
@@ -217,7 +219,7 @@ void ExternalTabContainer::UpdateTargetURL(TabContents* source,
   if (automation_) {
     std::wstring url_string = CA2W(url.spec().c_str());
     automation_->Send(
-        new AutomationMsg_UpdateTargetUrl(0, url_string));
+        new AutomationMsg_UpdateTargetUrl(0, tab_handle_, url_string));
   }
 }
 
@@ -233,8 +235,8 @@ void ExternalTabContainer::ForwardMessageToExternalHost(
     const std::string& target) {
   if(automation_) {
     automation_->Send(
-        new AutomationMsg_ForwardMessageToExternalHost(0, message, origin,
-                                                       target));
+        new AutomationMsg_ForwardMessageToExternalHost(0, tab_handle_,
+            message, origin, target));
   }
 }
 
@@ -245,7 +247,7 @@ bool ExternalTabContainer::TakeFocus(bool reverse) {
     DCHECK(focus_manager);
     if (focus_manager) {
       focus_manager->ClearFocus();
-      automation_->Send(new AutomationMsg_TabbedOut(0,
+      automation_->Send(new AutomationMsg_TabbedOut(0, tab_handle_,
           win_util::IsShiftPressed()));
     }
   }
@@ -267,7 +269,8 @@ void ExternalTabContainer::Observe(NotificationType type,
         const LoadNotificationDetails* load =
             Details<LoadNotificationDetails>(details).ptr();
         if (PageTransition::IsMainFrame(load->origin())) {
-          automation_->Send(new AutomationMsg_TabLoaded(0, load->url()));
+          automation_->Send(new AutomationMsg_TabLoaded(0, tab_handle_,
+                                                        load->url()));
         }
         break;
       }
@@ -283,7 +286,7 @@ void ExternalTabContainer::Observe(NotificationType type,
         if (commit->http_status_code >= kHttpClientErrorStart &&
             commit->http_status_code <= kHttpServerErrorEnd) {
           automation_->Send(new AutomationMsg_NavigationFailed(
-              0, commit->http_status_code, commit->entry->url()));
+              0, tab_handle_, commit->http_status_code, commit->entry->url()));
 
           ignore_next_load_notification_ = true;
         } else {
@@ -291,7 +294,7 @@ void ExternalTabContainer::Observe(NotificationType type,
           // will still make the computation come out right (navigating to the
           // 0th entry will be +1).
           automation_->Send(new AutomationMsg_DidNavigate(
-              0, commit->type,
+              0, tab_handle_, commit->type,
               commit->previous_entry_index -
                   tab_contents_->controller().last_committed_entry_index(),
               commit->entry->url()));
@@ -302,7 +305,7 @@ void ExternalTabContainer::Observe(NotificationType type,
       const ProvisionalLoadDetails* load_details =
           Details<ProvisionalLoadDetails>(details).ptr();
       automation_->Send(new AutomationMsg_NavigationFailed(
-          0, load_details->error_code(), load_details->url()));
+          0, tab_handle_, load_details->error_code(), load_details->url()));
 
       ignore_next_load_notification_ = true;
       break;
@@ -372,7 +375,7 @@ bool ExternalTabContainer::ProcessKeyStroke(HWND window, UINT message,
     msg.message = message;
     msg.wParam = wparam;
     msg.lParam = lparam;
-    automation_->Send(new AutomationMsg_HandleAccelerator(0, msg));
+    automation_->Send(new AutomationMsg_HandleAccelerator(0, tab_handle_, msg));
     return true;
   }
 

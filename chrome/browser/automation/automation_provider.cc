@@ -2401,6 +2401,7 @@ void AutomationProvider::CreateExternalTab(HWND parent,
   TabContents* tab_contents = external_tab_container->tab_contents();
   if (tab_contents) {
     *tab_handle = tab_tracker_->Add(&tab_contents->controller());
+    external_tab_container->set_tab_handle(*tab_handle);
     *tab_container_window = *external_tab_container;
   } else {
     delete external_tab_container;

@@ -450,16 +450,19 @@ IPC_BEGIN_MESSAGES(Automation)
   //         (see TabContents::InvalidateTypes)
   // Response:
   //   None expected
-  IPC_MESSAGE_ROUTED1(AutomationMsg_NavigationStateChanged, int)
+  IPC_MESSAGE_ROUTED2(AutomationMsg_NavigationStateChanged,
+                      int, // tab handle
+                      int) // TabContents::InvalidateTypes
 
   // This message is an outgoing message from Chrome to an external host.
   // It is a notification that the target URL has changed (the target URL
   // is the URL of the link that the user is hovering on)
   // Request:
+  //   -int: The tab handle
   //   -std::wstring: The new target URL
   // Response:
   //   None expected
-  IPC_MESSAGE_ROUTED1(AutomationMsg_UpdateTargetUrl, std::wstring)
+  IPC_MESSAGE_ROUTED2(AutomationMsg_UpdateTargetUrl, int, std::wstring)
 
   // This message notifies the AutomationProvider to show the specified html
   // text in an interstitial page in the tab with given handle. The first
@@ -514,12 +517,13 @@ IPC_BEGIN_MESSAGES(Automation)
   // This message is an outgoing message from Chrome to an external host.
   // It is a request to process a keyboard accelerator.
   // Request:
+  //   -int: Tab handle
   //   -MSG: The keyboard message
   // Response:
   //   None expected
   // TODO(sanjeevr): Ideally we need to add a response from the external
   // host saying whether it processed the accelerator
-  IPC_MESSAGE_ROUTED1(AutomationMsg_HandleAccelerator, MSG)
+  IPC_MESSAGE_ROUTED2(AutomationMsg_HandleAccelerator, int, MSG)
 
   // This message is sent by the container of an externally hosted tab to
   // reflect any accelerator keys that it did not process. This gives the
@@ -535,11 +539,12 @@ IPC_BEGIN_MESSAGES(Automation)
   // Sent by the external tab to the host to notify that the user has tabbed
   // out of the tab.
   // Request:
+  //   - int: Tab handle
   //   - bool: |reverse| set to true when shift-tabbing out of the tab, false
   //    otherwise.
   // Response:
   //   None expected
-  IPC_MESSAGE_ROUTED1(AutomationMsg_TabbedOut, bool)
+  IPC_MESSAGE_ROUTED2(AutomationMsg_TabbedOut, int, bool)
 
   // Sent by the external tab host to ask focus to be set to either the first
   // or last element on the page.
@@ -555,12 +560,13 @@ IPC_BEGIN_MESSAGES(Automation)
   // This message is an outgoing message from Chrome to an external host.
   // It is a request to open a url
   // Request:
+  //   -int: Tab handle
   //   -GURL: The URL to open
   //   -int: The WindowOpenDisposition that specifies where the URL should
   //         be opened (new tab, new window etc).
   // Response:
   //   None expected
-  IPC_MESSAGE_ROUTED2(AutomationMsg_OpenURL, GURL, int)
+  IPC_MESSAGE_ROUTED3(AutomationMsg_OpenURL, int, GURL, int)
 
   // This message requests the provider to wait until the specified tab has
   // finished restoring after session restore.
@@ -573,6 +579,7 @@ IPC_BEGIN_MESSAGES(Automation)
   // This message is an outgoing message from Chrome to an external host.
   // It is a notification that a navigation happened
   // Request:
+  //   -int: Tab handle
   //   -int : Indicates the type of navigation (see the NavigationType enum)
   //   -int:  If this was not a new navigation, then this value indicates the
   //          relative offset of the navigation. A positive offset means a
@@ -580,7 +587,7 @@ IPC_BEGIN_MESSAGES(Automation)
   //          and 0 means this was a redirect
   // Response:
   //   None expected
-  IPC_MESSAGE_ROUTED3(AutomationMsg_DidNavigate, int, int, GURL)
+  IPC_MESSAGE_ROUTED4(AutomationMsg_DidNavigate, int, int, int, GURL)
 
   // This message requests the different security states of the page displayed
   // in the specified tab.
@@ -746,7 +753,8 @@ IPC_BEGIN_MESSAGES(Automation)
                       std::string /* target */)
 
   // A message for an external host.
-  IPC_MESSAGE_ROUTED3(AutomationMsg_ForwardMessageToExternalHost,
+  IPC_MESSAGE_ROUTED4(AutomationMsg_ForwardMessageToExternalHost,
+                      int, // handle
                       std::string /* message */,
                       std::string /* origin */,
                       std::string /* target */)
@@ -869,11 +877,12 @@ IPC_BEGIN_MESSAGES(Automation)
   // This message is an outgoing message from Chrome to an external host.
   // It is a notification that a navigation failed
   // Request:
+  //   -int : Tab handle
   //   -int : The status code.
   //   -GURL:  The URL we failed to navigate to.
   // Response:
   //   None expected
-  IPC_MESSAGE_ROUTED2(AutomationMsg_NavigationFailed, int, GURL)
+  IPC_MESSAGE_ROUTED3(AutomationMsg_NavigationFailed, int, int, GURL)
 
 #if defined(OS_WIN)
   // This message is an outgoing message from an automation client to Chrome.
@@ -889,7 +898,9 @@ IPC_BEGIN_MESSAGES(Automation)
                              string16 /* title text */ )
 
   // Tab load complete
-  IPC_MESSAGE_ROUTED1(AutomationMsg_TabLoaded, GURL)
+  IPC_MESSAGE_ROUTED2(AutomationMsg_TabLoaded,
+                      int,  // tab handle
+                      GURL)
 
   // This message requests the tabstrip index of the tab with the given handle.
   // The return value contains the index, which will be -1 on failure.
