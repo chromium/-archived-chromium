@@ -109,7 +109,6 @@ RenderWidgetHostView* TabContentsViewGtk::CreateViewForWidget(
                         GDK_POINTER_MOTION_MASK);
   g_signal_connect(content_view, "button-press-event",
                    G_CALLBACK(OnMouseDown), this);
-  gfx::RemoveAllChildren(vbox_.get());
   gtk_box_pack_start(GTK_BOX(vbox_.get()), content_view, TRUE, TRUE, 0);
   return view;
 }

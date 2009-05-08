@@ -309,6 +309,7 @@ void RenderWidgetHostViewGtk::Destroy() {
   // does the right thing, automatically removing ourselves from our parent
   // container.
   view_.Destroy();
+  delete this;
 }
 
 void RenderWidgetHostViewGtk::SetTooltipText(const std::wstring& tooltip_text) {

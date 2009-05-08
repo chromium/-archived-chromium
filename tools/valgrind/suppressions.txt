@@ -439,21 +439,6 @@
    fun:_ZN22RendererSecurityPolicy15GrantRequestURLEiRK4GURL
 }
 {
-   # see http://crbug.com/10747
-   bug_10747
-   Memcheck:Leak
-   fun:_Znwj
-   fun:_ZN18WebContentsViewGtk19CreateViewForWidgetEP16RenderWidgetHost
-   fun:_ZN11WebContents32CreateRenderViewForRenderManagerEP14RenderViewHost
-}
-{
-   # one more from http://crbug.com/10747
-   bug_10747b
-   Memcheck:Leak
-   fun:_Znwj
-   fun:_ZN18TabContentsViewGtk19CreateViewForWidgetEP16RenderWidgetHost
-}
-{
    # see http://crbug.com/10748
    bug_10748
    Memcheck:Leak
