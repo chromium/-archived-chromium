@@ -50,16 +50,19 @@ class StartupTest : public UITest {
             FilePath::FromWStringHack(chrome::kBrowserProcessExecutablePath)));
         ASSERT_TRUE(EvictFileFromSystemCacheWrapper(chrome_exe));
 #if defined(OS_WIN)
-        // TODO(port): these files do not exist on other platforms.
-        // Decide what to do.
-
+        // chrome.dll is windows specific.
         FilePath chrome_dll(dir_app.Append(FILE_PATH_LITERAL("chrome.dll")));
         ASSERT_TRUE(EvictFileFromSystemCacheWrapper(chrome_dll));
+#endif
 
+#if defined(OS_WIN)
+        // TODO(port): Re-enable once gears is working on mac/linux.
         FilePath gears_dll;
         ASSERT_TRUE(PathService::Get(chrome::FILE_GEARS_PLUGIN, &gears_dll));
         ASSERT_TRUE(EvictFileFromSystemCacheWrapper(gears_dll));
-#endif  // defined(OS_WIN)
+#else
+        NOTIMPLEMENTED() << "gears not enabled yet";
+#endif
       }
 
       UITest::SetUp();
@@ -95,7 +98,13 @@ class StartupReferenceTest : public StartupTest {
     FilePath dir;
     PathService::Get(chrome::DIR_TEST_TOOLS, &dir);
     dir = dir.AppendASCII("reference_build");
+#if defined(OS_WIN)
     dir = dir.AppendASCII("chrome");
+#elif defined(OS_LINUX)
+    dir = dir.AppendASCII("chrome_linux");
+#elif defined(OS_MACOSX)
+    dir = dir.AppendASCII("chrome_mac");
+#endif
     browser_directory_ = dir;
   }
 };
@@ -119,13 +128,13 @@ TEST_F(StartupTest, Perf) {
   RunStartupTest("warm", "t", false /* not cold */, true /* important */);
 }
 
-#if defined(OS_WIN)
-// TODO(port): Enable reference tests on other platforms.
-
+#if defined(OS_WIN) || defined(OS_LINUX)
+// TODO(port): We need a mac reference build checked in for this.
 TEST_F(StartupReferenceTest, Perf) {
   RunStartupTest("warm", "t_ref", false /* not cold */,
                  true /* important */);
 }
+#endif
 
 // TODO(mpcomplete): Should we have reference timings for all these?
 
@@ -133,6 +142,8 @@ TEST_F(StartupTest, PerfCold) {
   RunStartupTest("cold", "t", true /* cold */, false /* not important */);
 }
 
+#if defined(OS_WIN)
+// TODO(port): Enable gears tests on linux/mac once gears is working.
 TEST_F(StartupFileTest, PerfGears) {
   RunStartupTest("warm", "gears", false /* not cold */,
                  false /* not important */);
@@ -142,7 +153,6 @@ TEST_F(StartupFileTest, PerfColdGears) {
   RunStartupTest("cold", "gears", true /* cold */,
                  false /* not important */);
 }
-
-#endif  // defined(OS_WIN)
+#endif
 
 }  // namespace
