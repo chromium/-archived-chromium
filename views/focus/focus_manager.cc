@@ -7,7 +7,6 @@
 #include "base/histogram.h"
 #include "base/logging.h"
 #include "base/win_util.h"
-#include "chrome/browser/renderer_host/render_widget_host_view_win.h"
 #include "views/accelerator.h"
 #include "views/focus/focus_manager.h"
 #include "views/focus/view_storage.h"

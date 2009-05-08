@@ -6,8 +6,6 @@
 #include "app/gfx/path.h"
 #include "base/clipboard.h"
 #include "base/message_loop.h"
-#include "chrome/browser/browser_process.h"
-#include "chrome/common/notification_service.h"
 #include "testing/gtest/include/gtest/gtest.h"
 #include "views/background.h"
 #include "views/controls/button/checkbox.h"
@@ -601,7 +599,7 @@ TEST_F(ViewTest, TextFieldCutCopyPaste) {
   const std::wstring kReadOnlyText = L"Read only";
   const std::wstring kPasswordText = L"Password! ** Secret stuff **";
 
-  Clipboard* clipboard = g_browser_process->clipboard();
+  Clipboard clipboard;
 
   WidgetWin* window = new WidgetWin;
   window->Init(NULL, gfx::Rect(0, 0, 100, 100), true);
@@ -628,7 +626,7 @@ TEST_F(ViewTest, TextFieldCutCopyPaste) {
   ::SendMessage(normal->GetNativeComponent(), WM_CUT, 0, 0);
 
   string16 result;
-  clipboard->ReadText(&result);
+  clipboard.ReadText(&result);
   EXPECT_EQ(kNormalText, result);
   normal->SetText(kNormalText);  // Let's revert to the original content.
 
@@ -636,7 +634,7 @@ TEST_F(ViewTest, TextFieldCutCopyPaste) {
   read_only->SelectAll();
   ::SendMessage(read_only->GetNativeComponent(), WM_CUT, 0, 0);
   result.clear();
-  clipboard->ReadText(&result);
+  clipboard.ReadText(&result);
   // Cut should have failed, so the clipboard content should not have changed.
   EXPECT_EQ(kNormalText, result);
 
@@ -644,7 +642,7 @@ TEST_F(ViewTest, TextFieldCutCopyPaste) {
   password->SelectAll();
   ::SendMessage(password->GetNativeComponent(), WM_CUT, 0, 0);
   result.clear();
-  clipboard->ReadText(&result);
+  clipboard.ReadText(&result);
   // Cut should have failed, so the clipboard content should not have changed.
   EXPECT_EQ(kNormalText, result);
 
@@ -657,19 +655,19 @@ TEST_F(ViewTest, TextFieldCutCopyPaste) {
   read_only->SelectAll();
   ::SendMessage(read_only->GetNativeComponent(), WM_COPY, 0, 0);
   result.clear();
-  clipboard->ReadText(&result);
+  clipboard.ReadText(&result);
   EXPECT_EQ(kReadOnlyText, result);
 
   normal->SelectAll();
   ::SendMessage(normal->GetNativeComponent(), WM_COPY, 0, 0);
   result.clear();
-  clipboard->ReadText(&result);
+  clipboard.ReadText(&result);
   EXPECT_EQ(kNormalText, result);
 
   password->SelectAll();
   ::SendMessage(password->GetNativeComponent(), WM_COPY, 0, 0);
   result.clear();
-  clipboard->ReadText(&result);
+  clipboard.ReadText(&result);
   // We don't let you copy from a password field, clipboard should not have
   // changed.
   EXPECT_EQ(kNormalText, result);

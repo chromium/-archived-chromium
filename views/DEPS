@@ -1,12 +1,37 @@
 include_rules = [
   "+app",
-  "+chrome/app",
-  "+chrome/app/theme",
-  "+chrome/browser",
-  "+chrome/browser/views",
-  "+chrome/common",
-  "+grit",  # For generated headers
   "+skia/ext",
   "+skia/include",
-  "+webkit/glue",
+  
+  # TODO(beng): sever these dependencies into chrome by either refactoring or
+  #             moving code into app/
+  
+  # view.h
+  "+chrome/common/accessibility_types.h",
+  
+  # view_unittest.cc
+  "+chrome/browser/browser_process.h",
+  
+  # label.cc
+  "+chrome/common/gfx/text_elider.h",
+  
+  # message_box_view.cc
+  "+chrome/browser/views/standard_layout.h",
+  
+  # text_field.cc
+  "+chrome/common/win_util.h",
+  
+  # widget_win.cc
+  "+chrome/app/chrome_dll_resource.h",
+  
+  # window_delegate.cc
+  "+chrome/common/pref_service.h",
+  
+  # chrome_menu.cc
+  "+chrome/browser/drag_utils.h",
+  "+chrome/common/gfx/color_utils.h",
+
+  # TODO(beng): swap these with app/views specific generated resources.
+  "+grit/generated_resources.h",
+  "+grit/theme_resources.h",
 ]
