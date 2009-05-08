@@ -4,9 +4,9 @@
 
 #include "chrome/browser/cocoa/status_bubble_mac.h"
 
+#include "app/gfx/text_elider.h"
 #include "base/string_util.h"
 #include "base/sys_string_conversions.h"
-#include "chrome/common/gfx/text_elider.h"
 #include "googleurl/src/gurl.h"
 #import "third_party/GTM/AppKit/GTMNSBezierPath+RoundRect.h"
 
