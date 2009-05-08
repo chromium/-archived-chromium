@@ -289,6 +289,18 @@
             '../npapi_layout_test_plugin/npapi_layout_test_plugin.def',
             '../npapi_layout_test_plugin/npapi_layout_test_plugin.rc',
           ],
+        }, { # OS == "win"
+          # The old VS build would explicitly copy the .dll into the
+          # plugins subdirectory like this.  It might be possible to
+          # use the 'product_dir' setting to build directly into
+          # plugins/ (as is done on Linux), but we'd need to verify
+          # that nothing breaks first.
+          'copies': [
+            {
+              'destination': '<(PRODUCT_DIR)/plugins',
+              'files': ['<(PRODUCT_DIR)/npapi_layout_test_plugin.dll'],
+            },
+          ],
         }],
         ['OS=="mac"', {
           'link_settings': {
