@@ -79,61 +79,6 @@ class RemoteDebuggerCommandExecutor : public CppBoundClass {
 } //  namespace
 
 // static
-HashMap<WebCore::Page*, WebDevToolsClientImpl*>
-    WebDevToolsClientImpl::page_to_client_;
-
-// static
-v8::Persistent<v8::FunctionTemplate>
-    WebDevToolsClientImpl::host_template_;
-
-// static
-void WebDevToolsClientImpl::InitBoundObject() {
-  if (!host_template_.IsEmpty()) {
-    return;
-  }
-  v8::HandleScope scope;
-  v8::Local<v8::FunctionTemplate> local_template =
-      v8::FunctionTemplate::New(V8Proxy::CheckNewLegal);
-  host_template_ = v8::Persistent<v8::FunctionTemplate>::New(local_template);
-
-  v8::Local<v8::Signature> default_signature =
-      v8::Signature::New(host_template_);
-  v8::Local<v8::ObjectTemplate> proto = host_template_->PrototypeTemplate();
-  InitProtoFunction(proto,
-                    "addSourceToFrame",
-                    WebDevToolsClientImpl::JsAddSourceToFrame,
-                    default_signature);
-  InitProtoFunction(proto,
-                    "loaded",
-                    WebDevToolsClientImpl::JsLoaded,
-                    default_signature);
-  InitProtoFunction(proto,
-                    "search",
-                    WebCore::V8Custom::v8InspectorControllerSearchCallback,
-                    default_signature);
-  InitProtoFunction(proto,
-                    "activateWindow",
-                    WebDevToolsClientImpl::JsActivateWindow,
-                    default_signature);
-  host_template_->SetClassName(v8::String::New("DevToolsHost"));
-}
-
-// static
-void WebDevToolsClientImpl::InitProtoFunction(
-    v8::Handle<v8::ObjectTemplate> proto,
-    const char* name,
-    v8::InvocationCallback callback,
-    v8::Handle<v8::Signature> signature) {
-  proto->Set(
-      v8::String::New(name),
-      v8::FunctionTemplate::New(
-          callback,
-          v8::Handle<v8::Value>(),
-          signature),
-      static_cast<v8::PropertyAttribute>(v8::DontDelete));
-}
-
-// static
 WebDevToolsClient* WebDevToolsClient::Create(
     WebView* view,
     WebDevToolsClientDelegate* delegate) {
@@ -145,8 +90,7 @@ WebDevToolsClientImpl::WebDevToolsClientImpl(
     WebDevToolsClientDelegate* delegate)
     : web_view_impl_(web_view_impl),
       delegate_(delegate),
-      loaded_(false),
-      page_(NULL) {
+      loaded_(false) {
   WebFrameImpl* frame = web_view_impl_->main_frame();
 
   // Debugger commands should be sent using special method.
@@ -158,8 +102,6 @@ WebDevToolsClientImpl::WebDevToolsClientImpl(
   net_agent_obj_.set(new JsNetAgentBoundObj(this, frame, L"RemoteNetAgent"));
   tools_agent_obj_.set(
       new JsToolsAgentBoundObj(this, frame, L"RemoteToolsAgent"));
-  page_ = web_view_impl_->page();
-  page_to_client_.set(page_, this);
   WebDevToolsClientImpl::InitBoundObject();
 
   v8::HandleScope scope;
@@ -174,7 +116,40 @@ WebDevToolsClientImpl::WebDevToolsClientImpl(
 }
 
 WebDevToolsClientImpl::~WebDevToolsClientImpl() {
-  page_to_client_.remove(page_);
+  host_template_.Dispose();
+  v8_this_.Dispose();
+}
+
+void WebDevToolsClientImpl::InitBoundObject() {
+  v8::HandleScope scope;
+  v8::Local<v8::FunctionTemplate> local_template =
+      v8::FunctionTemplate::New(V8Proxy::CheckNewLegal);
+  host_template_ = v8::Persistent<v8::FunctionTemplate>::New(local_template);
+  v8_this_ = v8::Persistent<v8::External>::New(v8::External::New(this));
+
+  InitProtoFunction("addSourceToFrame",
+                    WebDevToolsClientImpl::JsAddSourceToFrame);
+  InitProtoFunction("loaded",
+                    WebDevToolsClientImpl::JsLoaded);
+  InitProtoFunction("search",
+                    WebCore::V8Custom::v8InspectorControllerSearchCallback);
+  InitProtoFunction("activateWindow",
+                    WebDevToolsClientImpl::JsActivateWindow);
+  host_template_->SetClassName(v8::String::New("DevToolsHost"));
+}
+
+void WebDevToolsClientImpl::InitProtoFunction(
+    const char* name,
+    v8::InvocationCallback callback) {
+  v8::Local<v8::Signature> signature = v8::Signature::New(host_template_);
+  v8::Local<v8::ObjectTemplate> proto = host_template_->PrototypeTemplate();
+  proto->Set(
+      v8::String::New(name),
+      v8::FunctionTemplate::New(
+          callback,
+          v8_this_,
+          signature),
+      static_cast<v8::PropertyAttribute>(v8::DontDelete));
 }
 
 void WebDevToolsClientImpl::DispatchMessageFromAgent(
@@ -231,11 +206,12 @@ v8::Handle<v8::Value> WebDevToolsClientImpl::JsAddSourceToFrame(
 // static
 v8::Handle<v8::Value> WebDevToolsClientImpl::JsLoaded(
     const v8::Arguments& args) {
-  Page* page = V8Proxy::retrieveActiveFrame()->page();
-  WebDevToolsClientImpl* client = page_to_client_.get(page);
+  WebDevToolsClientImpl* client = static_cast<WebDevToolsClientImpl*>(
+      v8::External::Cast(*args.Data())->Value());
   client->loaded_ = true;
 
   // Grant the devtools page the ability to have source view iframes.
+  Page* page = V8Proxy::retrieveActiveFrame()->page();
   SecurityOrigin* origin = page->mainFrame()->domWindow()->securityOrigin();
   origin->grantUniversalAccess();
 
@@ -252,8 +228,8 @@ v8::Handle<v8::Value> WebDevToolsClientImpl::JsLoaded(
 // static
 v8::Handle<v8::Value> WebDevToolsClientImpl::JsActivateWindow(
     const v8::Arguments& args) {
-  Page* page = V8Proxy::retrieveActiveFrame()->page();
-  WebDevToolsClientImpl* client = page_to_client_.get(page);
+  WebDevToolsClientImpl* client = static_cast<WebDevToolsClientImpl*>(
+      v8::External::Cast(*args.Data())->Value());
   client->delegate_->ActivateWindow();
   return v8::Undefined();
 }
