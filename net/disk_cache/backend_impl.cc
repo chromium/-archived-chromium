@@ -140,18 +140,8 @@ bool DelayedCacheCleanup(const std::wstring& full_path) {
 // should be discarded.
 bool InitExperiment(int* stored_value) {
   if (*stored_value <= 2) {
-    // Setup the new experiment.
-    srand(static_cast<int>(Time::Now().ToInternalValue()));
-    int option = rand() % 10;
-
-    // Values used by the current experiment are 5 through 8, with 8 used for
-    // empty caches (not set here).
-    if (option > 1) {
-      // 80% will be out of the experiment.
-      *stored_value = 5;
-    } else {
-      *stored_value = option + 6;
-    }
+    // Not taking part of this experiment.
+    *stored_value = 5;
     return true;
   }
 
@@ -897,12 +887,6 @@ bool BackendImpl::CreateBackingStore(disk_cache::File* file) {
 
   IndexHeader header;
   header.table_len = DesiredIndexTableLen(max_size_);
-
-  // New caches will go to group 8 on this experiment.
-  header.experiment = 8;
-  // We need file version 2.1 for the new eviction algorithm.
-  header.version = 0x20001;
-
   header.create_time = Time::Now().ToInternalValue();
 
   if (!file->Write(&header, sizeof(header), 0))
