@@ -214,6 +214,9 @@
           'INCLUDE_SERVER_ARGS',
           'INCLUDE_SERVER_PORT',
           'LINK',
+          'CHROME_BUILD_TYPE',
+          'CHROMIUM_BUILD',
+          'OFFICIAL_BUILD',
         ],
         'configurations': {
           'Debug': {
