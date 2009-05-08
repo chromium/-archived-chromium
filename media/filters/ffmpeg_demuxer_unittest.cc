@@ -291,8 +291,6 @@ class FFmpegDemuxerTest : public testing::Test {
   DISALLOW_COPY_AND_ASSIGN(FFmpegDemuxerTest);
 };
 
-}  // namespace
-
 TEST(FFmpegDemuxerFactoryTest, Create) {
   // Should only accept application/octet-stream type.
   scoped_refptr<FilterFactory> factory = FFmpegDemuxer::CreateFilterFactory();
@@ -599,3 +597,5 @@ TEST_F(FFmpegDemuxerTest, ReadAndSeek) {
   reader = NULL;
   EXPECT_TRUE(PacketQueue::get()->WaitForOutstandingPackets(0));
 }
+
+}  // namespace
