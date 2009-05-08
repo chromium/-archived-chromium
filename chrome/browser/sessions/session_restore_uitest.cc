@@ -43,10 +43,11 @@ class SessionRestoreUITest : public UITest {
     scoped_ptr<BrowserProxy> browser_proxy(
         automation()->GetBrowserWindow(window_index));
     ASSERT_TRUE(browser_proxy.get());
-    ASSERT_TRUE(browser_proxy->ApplyAccelerator(IDC_CLOSE_WINDOW));
+    ASSERT_TRUE(browser_proxy->RunCommand(IDC_CLOSE_WINDOW));
+    int window_count;
+    automation()->GetBrowserWindowCount(&window_count);
+    ASSERT_EQ(initial_count - 1, window_count);
     browser_proxy.reset();
-    ASSERT_TRUE(automation()->WaitForWindowCountToBecome(initial_count - 1,
-                                                         action_timeout_ms()));
   }
 
   void AssertOneWindowWithOneTab() {
@@ -249,11 +250,10 @@ TEST_F(SessionRestoreUITest, ClosedTabStaysClosed) {
   ASSERT_TRUE(GetActiveTabURL() == url1);
 }
 
-// This test is failing on win2k.
-//
+#if defined(OS_WIN)
 // Creates a browser, goes incognito, closes browser, launches and make sure
 // we don't restore.
-TEST_F(SessionRestoreUITest, DISABLED_DontRestoreWhileIncognito) {
+TEST_F(SessionRestoreUITest, DontRestoreWhileIncognito) {
   NavigateToURL(url1);
 
   // Make sure we have one window.
@@ -263,9 +263,11 @@ TEST_F(SessionRestoreUITest, DISABLED_DontRestoreWhileIncognito) {
 
   scoped_ptr<BrowserProxy> browser_proxy(automation()->GetBrowserWindow(0));
 
-  // Create an off the record window and wait for it to appear.
-  ASSERT_TRUE(browser_proxy->ApplyAccelerator(IDC_NEW_INCOGNITO_WINDOW));
-  ASSERT_TRUE(automation()->WaitForWindowCountToBecome(2, action_timeout_ms()));
+  // Create an off the record window.
+  ASSERT_TRUE(browser_proxy->RunCommand(IDC_NEW_INCOGNITO_WINDOW));
+  int window_count;
+  automation()->GetBrowserWindowCount(&window_count);
+  ASSERT_EQ(2, window_count);
 
   // Close the first window.
   CloseWindow(0, 2);
@@ -293,21 +295,19 @@ TEST_F(SessionRestoreUITest, DISABLED_DontRestoreWhileIncognito) {
   ASSERT_TRUE(url != url1);
 }
 
-// This test is failing because of ipc_chanel errors when launched the second
-// time.
-//
 // Creates two windows, closes one, restores, make sure only one window open.
-TEST_F(SessionRestoreUITest, DISABLED_TwoWindowsCloseOneRestoreOnlyOne) {
+TEST_F(SessionRestoreUITest, TwoWindowsCloseOneRestoreOnlyOne) {
   NavigateToURL(url1);
 
   // Make sure we have one window.
-  int initial_window_count;
-  ASSERT_TRUE(automation()->GetBrowserWindowCount(&initial_window_count) &&
-              initial_window_count == 1);
+  int window_count;
+  ASSERT_TRUE(automation()->GetBrowserWindowCount(&window_count) &&
+              window_count == 1);
 
   // Open a second window.
   ASSERT_TRUE(automation()->OpenNewBrowserWindow(true));
-  ASSERT_TRUE(automation()->WaitForWindowCountToBecome(2, action_timeout_ms()));
+  ASSERT_TRUE(automation()->GetBrowserWindowCount(&window_count) &&
+              window_count == 2);
 
   // Close it.
   CloseWindow(1, 2);
@@ -321,7 +321,8 @@ TEST_F(SessionRestoreUITest, DISABLED_TwoWindowsCloseOneRestoreOnlyOne) {
   ASSERT_TRUE(GetActiveTabURL() == url1);
 }
 
-// This test is disabled because it's triggering a bug in chrome_plugin_host.
+// This test is disabled due to a regression: the url after restore is
+// "about:blank" instead of url1.
 //
 // Launches an app window, closes tabbed browser, launches and makes sure
 // we restore the tabbed browser url.
@@ -352,15 +353,13 @@ TEST_F(SessionRestoreUITest,
   ASSERT_EQ(url1, url);
 }
 
-// TODO(sky): bug 1200852, this test is flakey, so I'm disabling.
-//
 // Make sure after a restore the number of processes matches that of the number
 // of processes running before the restore. This creates a new tab so that
 // we should have two new tabs running.  (This test will pass in both
 // process-per-site and process-per-site-instance, because we treat the new tab
 // as a special case in process-per-site-instance so that it only ever uses one
 // process.)
-TEST_F(SessionRestoreUITest, DISABLED_ShareProcessesOnRestore) {
+TEST_F(SessionRestoreUITest, ShareProcessesOnRestore) {
   if (in_process_renderer()) {
     // No point in running this test in single process mode.
     return;
@@ -372,22 +371,23 @@ TEST_F(SessionRestoreUITest, DISABLED_ShareProcessesOnRestore) {
   ASSERT_TRUE(browser_proxy->GetTabCount(&tab_count));
 
   // Create two new tabs.
-  ASSERT_TRUE(browser_proxy->ApplyAccelerator(IDC_NEW_TAB));
-  ASSERT_TRUE(browser_proxy->WaitForTabCountToBecome(tab_count + 1,
-                                                     action_timeout_ms()));
-  ASSERT_TRUE(browser_proxy->GetTabCount(&tab_count));
+  ASSERT_TRUE(browser_proxy->RunCommand(IDC_NEW_TAB));
+  int new_tab_count;
+  ASSERT_TRUE(browser_proxy->GetTabCount(&new_tab_count));
+  ASSERT_EQ(++tab_count, new_tab_count);
   scoped_ptr<TabProxy> last_tab(browser_proxy->GetTab(tab_count - 1));
   ASSERT_TRUE(last_tab.get() != NULL);
   // Do a reload to ensure new tab page has loaded.
   ASSERT_TRUE(last_tab->Reload());
-  ASSERT_TRUE(browser_proxy->ApplyAccelerator(IDC_NEW_TAB));
-  ASSERT_TRUE(browser_proxy->WaitForTabCountToBecome(tab_count + 1,
-                                                     action_timeout_ms()));
-  ASSERT_TRUE(browser_proxy->GetTabCount(&tab_count));
+
+  ASSERT_TRUE(browser_proxy->RunCommand(IDC_NEW_TAB));
+  ASSERT_TRUE(browser_proxy->GetTabCount(&new_tab_count));
+  ASSERT_EQ(++tab_count, new_tab_count);
   last_tab.reset(browser_proxy->GetTab(tab_count - 1));
   ASSERT_TRUE(last_tab.get() != NULL);
   // Do a reload to ensure new tab page has loaded.
   ASSERT_TRUE(last_tab->Reload());
+
   int expected_process_count = GetBrowserProcessCount();
   int expected_tab_count = tab_count;
 
@@ -412,3 +412,4 @@ TEST_F(SessionRestoreUITest, DISABLED_ShareProcessesOnRestore) {
 
   ASSERT_EQ(expected_process_count, GetBrowserProcessCount());
 }
+#endif
