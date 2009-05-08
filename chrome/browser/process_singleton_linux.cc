@@ -64,8 +64,6 @@ void ProcessSingleton::SetupSocket(int* sock, struct sockaddr_un* addr) {
     LOG(FATAL) << "socket() failed: " << strerror(errno);
 
   addr->sun_family = AF_UNIX;
-  if (socket_path_.value().length() > sizeof(addr->sun_path) - 1)
-    LOG(FATAL) << "Socket path too long: " << socket_path_.value();
   base::strlcpy(addr->sun_path, socket_path_.value().c_str(),
                 sizeof(addr->sun_path));
 }
