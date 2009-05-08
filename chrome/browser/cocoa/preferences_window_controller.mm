@@ -4,6 +4,7 @@
 
 #import "chrome/browser/cocoa/preferences_window_controller.h"
 
+#include "app/l10n_util.h"
 #include "base/mac_util.h"
 #include "base/string_util.h"
 #include "base/sys_string_conversions.h"
@@ -18,6 +19,8 @@
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
 #include "chrome/common/url_constants.h"
+#include "grit/chromium_strings.h"
+#include "grit/generated_resources.h"
 
 NSString* const kUserDoneEditingPrefsNotification =
     @"kUserDoneEditingPrefsNotification";
@@ -165,28 +168,12 @@ class PrefObserverBridge : public NotificationObserver {
     paths = [paths setByAddingObject:@"restoreOnStartupIndex"];
   } else if ([key isEqualToString:@"isDefaultBrowser"]) {
     paths = [paths setByAddingObject:@"defaultBrowser"];
+  } else if ([key isEqualToString:@"defaultBrowserTextColor"]) {
+    paths = [paths setByAddingObject:@"defaultBrowser"];
+  } else if ([key isEqualToString:@"defaultBrowserText"]) {
+    paths = [paths setByAddingObject:@"defaultBrowser"];
   }
   return paths;
-}
-
-// Called when the user clicks the button to make Chromium the default
-// browser. Registers http and https.
-- (IBAction)makeDefaultBrowser:(id)sender {
-  ShellIntegration::SetAsDefaultBrowser();
-
-  // Tickle KVO so that the UI updates.
-  [self setDefaultBrowser:YES];
-}
-
-// A stub setter so that we can trick KVO into thinking the UI needs
-// to be updated.
-- (void)setDefaultBrowser:(BOOL)ignore {
-  // Do nothing.
-}
-
-// Returns if Chromium is the default browser.
-- (BOOL)isDefaultBrowser {
-  return ShellIntegration::IsDefaultBrowser() ? YES : NO;
 }
 
 //-------------------------------------------------------------------------
@@ -361,6 +348,49 @@ enum { kHomepageNewTabPage, kHomepageURL };
   else
     [self recordUserAction:L"Options_Homepage_HidePageOptionsButtons"];
   showPageOptionButtons_.SetValue(value ? true : false);
+}
+
+// Called when the user clicks the button to make Chromium the default
+// browser. Registers http and https.
+- (IBAction)makeDefaultBrowser:(id)sender {
+  ShellIntegration::SetAsDefaultBrowser();
+  [self recordUserAction:L"Options_SetAsDefaultBrowser"];
+  // If the user made Chrome the default browser, then he/she arguably wants
+  // to be notified when that changes.
+  prefs_->SetBoolean(prefs::kCheckDefaultBrowser, true);
+
+  // Tickle KVO so that the UI updates.
+  [self setDefaultBrowser:YES];
+}
+
+// A stub setter so that we can trick KVO into thinking the UI needs
+// to be updated.
+- (void)setDefaultBrowser:(BOOL)ignore {
+  // Do nothing.
+}
+
+// Returns if Chromium is the default browser.
+- (BOOL)isDefaultBrowser {
+  return ShellIntegration::IsDefaultBrowser() ? YES : NO;
+}
+
+// Returns the text color of the "chromium is your default browser" text (green
+// for yes, red for no).
+- (NSColor*)defaultBrowserTextColor {
+  return [self isDefaultBrowser] ?
+    [NSColor colorWithCalibratedRed:0.0 green:135.0/255.0 blue:0 alpha:1.0] :
+    [NSColor colorWithCalibratedRed:135.0/255.0 green:0 blue:0 alpha:1.0];
+}
+
+// Returns the text for the "chromium is your default browser" string dependent
+// on if Chromium actually is or not.
+- (NSString*)defaultBrowserText {
+  BOOL isDefault = [self isDefaultBrowser];
+  int stringId = isDefault ? IDS_OPTIONS_DEFAULTBROWSER_DEFAULT :
+      IDS_OPTIONS_DEFAULTBROWSER_NOTDEFAULT;
+  std::wstring text =
+      l10n_util::GetStringF(stringId, l10n_util::GetString(IDS_PRODUCT_NAME));
+  return base::SysWideToNSString(text);
 }
 
 //-------------------------------------------------------------------------

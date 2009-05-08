@@ -8,7 +8,7 @@
 		<string key="IBDocument.HIToolboxVersion">352.00</string>
 		<object class="NSMutableArray" key="IBDocument.EditedObjectIDs">
 			<bool key="EncodedWithXMLCoder">YES</bool>
-			<integer value="5"/>
+			<integer value="39"/>
 		</object>
 		<object class="NSArray" key="IBDocument.PluginDependencies">
 			<bool key="EncodedWithXMLCoder">YES</bool>
@@ -1141,22 +1141,26 @@ AAMAAAABAAEAAAFTAAMAAAAEAAAFwgAAAAAACAAIAAgACAABAAEAAQABA</bytes>
 												<int key="NSTitlePosition">0</int>
 												<bool key="NSTransparent">NO</bool>
 											</object>
-											<object class="NSTextField" id="886397425">
+											<object class="NSTextField" id="402804707">
 												<reference key="NSNextResponder" ref="412364894"/>
 												<int key="NSvFlags">268</int>
-												<string key="NSFrame">{{168, 10}, {242, 17}}</string>
+												<string key="NSFrame">{{168, 13}, {306, 14}}</string>
 												<reference key="NSSuperview" ref="412364894"/>
 												<bool key="NSEnabled">YES</bool>
-												<object class="NSTextFieldCell" key="NSCell" id="245266980">
+												<object class="NSTextFieldCell" key="NSCell" id="448510798">
 													<int key="NSCellFlags">68288064</int>
 													<int key="NSCellFlags2">272630784</int>
 													<string key="NSContents">Chromium is not the default browser.</string>
-													<reference key="NSSupport" ref="445696277"/>
-													<reference key="NSControlView" ref="886397425"/>
+													<object class="NSFont" key="NSSupport">
+														<string key="NSName">LucidaGrande</string>
+														<double key="NSSize">1.100000e+01</double>
+														<int key="NSfFlags">16</int>
+													</object>
+													<reference key="NSControlView" ref="402804707"/>
 													<reference key="NSBackgroundColor" ref="592613688"/>
 													<object class="NSColor" key="NSTextColor">
 														<int key="NSColorSpace">1</int>
-														<bytes key="NSRGB">MSAwIDAAA</bytes>
+														<bytes key="NSRGB">MCAwIDAAA</bytes>
 													</object>
 												</object>
 											</object>
@@ -1643,7 +1647,7 @@ AAMAAAABAAEAAAFTAAMAAAAEAAAFwgAAAAAACAAIAAgACAABAAEAAQABA</bytes>
 										</object>
 										<string key="NSFrame">{{10, 33}, {513, 453}}</string>
 									</object>
-									<string key="NSLabel">Minor Tweaks</string>
+									<string key="NSLabel">User Data</string>
 									<reference key="NSColor" ref="592613688"/>
 									<reference key="NSTabView" ref="838559838"/>
 								</object>
@@ -2505,22 +2509,6 @@ ZGVkIGZpbGVzIGRvbid0IG9wZW4gYXV0b21hdGljYWxseS4</string>
 				</object>
 				<object class="IBConnectionRecord">
 					<object class="IBBindingConnection" key="connection">
-						<string key="label">hidden: isDefaultBrowser</string>
-						<reference key="source" ref="886397425"/>
-						<reference key="destination" ref="1001"/>
-						<object class="NSNibBindingConnector" key="connector">
-							<reference key="NSSource" ref="886397425"/>
-							<reference key="NSDestination" ref="1001"/>
-							<string key="NSLabel">hidden: isDefaultBrowser</string>
-							<string key="NSBinding">hidden</string>
-							<string key="NSKeyPath">isDefaultBrowser</string>
-							<int key="NSNibBindingConnectorVersion">2</int>
-						</object>
-					</object>
-					<int key="connectionID">312</int>
-				</object>
-				<object class="IBConnectionRecord">
-					<object class="IBBindingConnection" key="connection">
 						<string key="label">enabled: isDefaultBrowser</string>
 						<reference key="source" ref="192681043"/>
 						<reference key="destination" ref="1001"/>
@@ -2538,6 +2526,42 @@ ZGVkIGZpbGVzIGRvbid0IG9wZW4gYXV0b21hdGljYWxseS4</string>
 						</object>
 					</object>
 					<int key="connectionID">315</int>
+				</object>
+				<object class="IBConnectionRecord">
+					<object class="IBBindingConnection" key="connection">
+						<string key="label">value: defaultBrowserText</string>
+						<reference key="source" ref="402804707"/>
+						<reference key="destination" ref="1001"/>
+						<object class="NSNibBindingConnector" key="connector">
+							<reference key="NSSource" ref="402804707"/>
+							<reference key="NSDestination" ref="1001"/>
+							<string key="NSLabel">value: defaultBrowserText</string>
+							<string key="NSBinding">value</string>
+							<string key="NSKeyPath">defaultBrowserText</string>
+							<object class="NSDictionary" key="NSOptions">
+								<string key="NS.key.0">NSAllowsEditingMultipleValuesSelection</string>
+								<boolean value="NO" key="NS.object.0" id="6"/>
+							</object>
+							<int key="NSNibBindingConnectorVersion">2</int>
+						</object>
+					</object>
+					<int key="connectionID">322</int>
+				</object>
+				<object class="IBConnectionRecord">
+					<object class="IBBindingConnection" key="connection">
+						<string key="label">textColor: defaultBrowserTextColor</string>
+						<reference key="source" ref="402804707"/>
+						<reference key="destination" ref="1001"/>
+						<object class="NSNibBindingConnector" key="connector">
+							<reference key="NSSource" ref="402804707"/>
+							<reference key="NSDestination" ref="1001"/>
+							<string key="NSLabel">textColor: defaultBrowserTextColor</string>
+							<string key="NSBinding">textColor</string>
+							<string key="NSKeyPath">defaultBrowserTextColor</string>
+							<int key="NSNibBindingConnectorVersion">2</int>
+						</object>
+					</object>
+					<int key="connectionID">323</int>
 				</object>
 			</object>
 			<object class="IBMutableOrderedSet" key="objectRecords">
@@ -2821,7 +2845,7 @@ ZGVkIGZpbGVzIGRvbid0IG9wZW4gYXV0b21hdGljYWxseS4</string>
 							<reference ref="325467010"/>
 							<reference ref="982570975"/>
 							<reference ref="192681043"/>
-							<reference ref="886397425"/>
+							<reference ref="402804707"/>
 						</object>
 						<reference key="parent" ref="1024664267"/>
 					</object>
@@ -3671,17 +3695,17 @@ ZGVkIGZpbGVzIGRvbid0IG9wZW4gYXV0b21hdGljYWxseS4</string>
 					</object>
 					<object class="IBObjectRecord">
 						<int key="objectID">304</int>
-						<reference key="object" ref="886397425"/>
+						<reference key="object" ref="402804707"/>
 						<object class="NSMutableArray" key="children">
 							<bool key="EncodedWithXMLCoder">YES</bool>
-							<reference ref="245266980"/>
+							<reference ref="448510798"/>
 						</object>
 						<reference key="parent" ref="412364894"/>
 					</object>
 					<object class="IBObjectRecord">
 						<int key="objectID">305</int>
-						<reference key="object" ref="245266980"/>
-						<reference key="parent" ref="886397425"/>
+						<reference key="object" ref="448510798"/>
+						<reference key="parent" ref="402804707"/>
 					</object>
 				</object>
 			</object>
@@ -3935,7 +3959,7 @@ ZGVkIGZpbGVzIGRvbid0IG9wZW4gYXV0b21hdGljYWxseS4</string>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
 					<string>{{712, 586}, {559, 515}}</string>
 					<string>{{712, 586}, {559, 515}}</string>
-					<boolean value="NO"/>
+					<reference ref="6"/>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
@@ -4030,7 +4054,7 @@ ZGVkIGZpbGVzIGRvbid0IG9wZW4gYXV0b21hdGljYWxseS4</string>
 				</object>
 			</object>
 			<nil key="sourceID"/>
-			<int key="maxID">315</int>
+			<int key="maxID">325</int>
 		</object>
 		<object class="IBClassDescriber" key="IBDocument.Classes">
 			<object class="NSMutableArray" key="referencedPartialClassDescriptions">
