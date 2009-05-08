@@ -1487,9 +1487,9 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "tcmalloc", "..\third_party\
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "app", "..\app\app.vcproj", "{4631946D-7D5F-44BD-A5A8-504C0A7033BE}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "courgette_lib", "..\third_party\courgette\courgette_lib.vcproj", "{9A72A362-E617-4205-B9F2-43C6FB280FA1}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "courgette_lib", "..\courgette\courgette_lib.vcproj", "{9A72A362-E617-4205-B9F2-43C6FB280FA1}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "courgette_fuzz", "..\third_party\courgette\courgette_fuzz.vcproj", "{57C27529-8CA9-4FC3-9C02-DA05B172F785}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "courgette_fuzz", "..\courgette\courgette_fuzz.vcproj", "{57C27529-8CA9-4FC3-9C02-DA05B172F785}"
 	ProjectSection(ProjectDependencies) = postProject
 		{1832A374-8A74-4F9E-B536-69A699B3E165} = {1832A374-8A74-4F9E-B536-69A699B3E165}
 		{8C27D792-2648-4F5E-9ED0-374276327308} = {8C27D792-2648-4F5E-9ED0-374276327308}
@@ -1498,7 +1498,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "courgette_fuzz", "..\third_
 		{F22022F0-2D3B-5610-4E80-C674A8E01C5A} = {F22022F0-2D3B-5610-4E80-C674A8E01C5A}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "courgette_unittests", "..\third_party\courgette\courgette_unittests.vcproj", "{24309F1A-4035-46F9-A3D8-F47DC4BCC2B8}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "courgette_unittests", "..\courgette\courgette_unittests.vcproj", "{24309F1A-4035-46F9-A3D8-F47DC4BCC2B8}"
 	ProjectSection(ProjectDependencies) = postProject
 		{1832A374-8A74-4F9E-B536-69A699B3E165} = {1832A374-8A74-4F9E-B536-69A699B3E165}
 		{8C27D792-2648-4F5E-9ED0-374276327308} = {8C27D792-2648-4F5E-9ED0-374276327308}
@@ -1507,7 +1507,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "courgette_unittests", "..\t
 		{F22022F0-2D3B-5610-4E80-C674A8E01C5A} = {F22022F0-2D3B-5610-4E80-C674A8E01C5A}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "courgette_tool", "..\third_party\courgette\courgette_tool.vcproj", "{4EA8CE12-9C6F-45E5-9D08-720383FE3685}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "courgette", "..\courgette\courgette.vcproj", "{4EA8CE12-9C6F-45E5-9D08-720383FE3685}"
 	ProjectSection(ProjectDependencies) = postProject
 		{1832A374-8A74-4F9E-B536-69A699B3E165} = {1832A374-8A74-4F9E-B536-69A699B3E165}
 		{8C27D792-2648-4F5E-9ED0-374276327308} = {8C27D792-2648-4F5E-9ED0-374276327308}
@@ -1515,7 +1515,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "courgette_tool", "..\third_
 		{F22022F0-2D3B-5610-4E80-C674A8E01C5A} = {F22022F0-2D3B-5610-4E80-C674A8E01C5A}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "courgette_minimal_tool", "..\third_party\courgette\courgette_minimal_tool.vcproj", "{EB79415F-2F17-4BDC-AADD-4CA4C2D21B73}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "courgette_minimal_tool", "..\courgette\courgette_minimal_tool.vcproj", "{EB79415F-2F17-4BDC-AADD-4CA4C2D21B73}"
 	ProjectSection(ProjectDependencies) = postProject
 		{1832A374-8A74-4F9E-B536-69A699B3E165} = {1832A374-8A74-4F9E-B536-69A699B3E165}
 		{8C27D792-2648-4F5E-9ED0-374276327308} = {8C27D792-2648-4F5E-9ED0-374276327308}
