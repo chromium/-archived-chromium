@@ -542,9 +542,19 @@ void BlockedPopupContainer::SetPosition() {
   int real_height = static_cast<int>(size.height() * visibility_percentage_);
   int real_y = anchor_point_.y() - real_height;
 
-  // Size this window to the bottom left corner starting at the anchor point.
   if (real_height > 0) {
-    SetWindowPos(HWND_TOP, base_x, real_y, size.width(), real_height, 0);
+    int x;
+    if (l10n_util::GetTextDirection() == l10n_util::LEFT_TO_RIGHT) {
+      // Size this window using the anchor point as top-right corner.
+      x = base_x;
+    } else {
+      // Size this window to the bottom left corner of top client window. In
+      // Chrome, scrollbars always appear on the right, even for a RTL page or
+      // when the UI is RTL (see http://crbug.com/6113 for more detail). Thus 0
+      // is always a safe value for x-axis.
+      x = 0;
+    }
+    SetWindowPos(HWND_TOP, x, real_y, size.width(), real_height, 0);
     container_view_->SchedulePaint();
   } else {
     SetWindowPos(HWND_TOP, 0, 0, 0, 0,
