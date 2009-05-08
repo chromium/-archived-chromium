@@ -4346,6 +4346,7 @@
       ],
       'include_dirs': [
         '<(INTERMEDIATE_DIR)',
+        '<(SHARED_INTERMEDIATE_DIR)/webkit',
       ],
       'sources': [
         # This list contains all .h, .cc, and .mm files in glue except for
@@ -4613,6 +4614,7 @@
     {
       'target_name': 'inspector_resources',
       'type': 'none',
+      'msvs_guid': '5330F8EE-00F5-D65C-166E-E3150171055D',
       'copies': [
         {
           'destination': '<(PRODUCT_DIR)/resources/inspector',

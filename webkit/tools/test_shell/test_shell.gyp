@@ -39,6 +39,7 @@
         '../../webkit.gyp:webkit',
         '../../webkit.gyp:inspector_resources',
       ],
+      'msvs_guid': '77C32787-1B96-CB84-B905-7F170629F0AC',
       'sources': [
         'mac/DumpRenderTreePasteboard.h',
         'mac/DumpRenderTreePasteboard.m',
@@ -527,9 +528,12 @@
             '../../../third_party/npapi/npapi.gyp:npapi',
             '../../webkit.gyp:glue',
             '../../webkit.gyp:webkit',
+            # For simple_clipboard_impl.cc
+            'test_shell_common',
           ],
           'sources': [
             'test_worker/test_webworker.cc',
+            'test_worker/test_webworker.h',
             'test_worker/test_worker_main.cc',
             'test_worker/test_worker.def',
           ],
