@@ -2405,7 +2405,10 @@ void RenderView::OnZoom(int function) {
 }
 
 void RenderView::OnInsertText(const string16& text) {
-  WebTextInput* text_input = webview()->GetMainFrame()->GetTextInput();
+  WebFrame* frame = webview()->GetFocusedFrame();
+  if (!frame)
+    return;
+  WebTextInput* text_input = frame->GetTextInput();
   if (text_input)
     text_input->InsertText(UTF16ToUTF8(text));
 }
@@ -2469,11 +2472,10 @@ void RenderView::DidChangeSelection(bool is_empty_selection) {
 #if defined(OS_LINUX)
   if (!is_empty_selection) {
     Send(new ViewHostMsg_SelectionChanged(routing_id_,
-         webview()->GetMainFrame()->GetSelection(false)));
+         webview()->GetFocusedFrame()->GetSelection(false)));
   }
 #endif
 }
-
 
 void RenderView::DownloadUrl(const GURL& url, const GURL& referrer) {
   Send(new ViewHostMsg_DownloadUrl(routing_id_, url, referrer));
