@@ -299,6 +299,7 @@ void TaskManager::RemoveResource(Resource* resource) {
   NOTIMPLEMENTED();
 }
 
+#if defined(OS_MACOSX)
 void HungRendererDialog::HideForTabContents(TabContents*) {
   NOTIMPLEMENTED();
 }
@@ -306,6 +307,7 @@ void HungRendererDialog::HideForTabContents(TabContents*) {
 void HungRendererDialog::ShowForTabContents(TabContents*) {
   NOTIMPLEMENTED();
 }
+#endif
 
 void BrowserList::AllBrowsersClosed() {
   // TODO(port): Close any dependent windows if necessary when the last browser

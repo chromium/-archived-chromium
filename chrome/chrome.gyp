@@ -871,6 +871,7 @@
         'browser/gtk/go_button_gtk.h',
         'browser/gtk/gtk_chrome_button.cc',
         'browser/gtk/gtk_chrome_button.h',
+        'browser/gtk/hung_renderer_dialog_gtk.cc',
         'browser/gtk/info_bubble_gtk.cc',
         'browser/gtk/info_bubble_gtk.h',
         'browser/gtk/infobar_container_gtk.cc',
