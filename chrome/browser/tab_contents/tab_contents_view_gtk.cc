@@ -210,14 +210,10 @@ void TabContentsViewGtk::HandleKeyboardEvent(
   // This may be an accelerator. Try to pass it on to our browser window
   // to handle.
   GtkWindow* window = GetTopLevelNativeWindow();
-  // It's possible to not be associated with a window at the time when we're
-  // handling the keyboard event (e.g., the user opened a new tab in the time).
-  // What we really want to do is get whatever currently has focus and have
-  // that handle the accelerator.  TODO(tc): Consider walking
-  // gtk_window_list_toplevels to find what has focus and if that's a browser
-  // window, forward the event.
-  if (!window)
+  if (!window) {
+    NOTREACHED();
     return;
+  }
 
   BrowserWindowGtk* browser_window = static_cast<BrowserWindowGtk*>(
       g_object_get_data(G_OBJECT(window), "browser_window_gtk"));
