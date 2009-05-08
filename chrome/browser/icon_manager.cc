@@ -19,14 +19,8 @@ IconManager::~IconManager() {
 
 SkBitmap* IconManager::LookupIcon(const FilePath& file_name,
                                   IconLoader::IconSize size) {
-  FilePath path = file_name;
-  FilePath::StringType extension = file_util::GetFileExtensionFromPath(path);
-#if defined(OS_WIN)
-  if (extension != L"exe" && extension != L"dll" && extension != L"ico")
-    path = FilePath(L'.' + extension);
-#endif
-
-  IconMap::iterator it = icon_cache_.find(CacheKey(path, size));
+  IconGroupID group = GetGroupIDFromFilepath(file_name);
+  IconMap::iterator it = icon_cache_.find(CacheKey(group, size));
   if (it != icon_cache_.end())
     return it->second;
 
@@ -38,20 +32,14 @@ IconManager::Handle IconManager::LoadIcon(
     IconLoader::IconSize size,
     CancelableRequestConsumerBase* consumer,
     IconRequestCallback* callback) {
-  FilePath path = file_name;
-  FilePath::StringType extension = file_util::GetFileExtensionFromPath(path);
-#if defined(OS_WIN)
-  if (extension != L"exe" && extension != L"dll" && extension != L"ico")
-    path = FilePath(L'.' + extension);
-#endif
-
+  IconGroupID group = GetGroupIDFromFilepath(file_name);
   IconRequest* request = new IconRequest(callback);
   AddRequest(request, consumer);
 
-  IconLoader* loader = IconLoader::Create(path, size, this);
+  IconLoader* loader = new IconLoader(group, size, this);
   loader->AddRef();
   loader->Start();
-  ClientRequest client_request = { request, path, size };
+  ClientRequest client_request = { request, group, size };
   requests_[loader] = client_request;
   return request->handle();
 }
@@ -77,7 +65,7 @@ bool IconManager::OnBitmapLoaded(IconLoader* source, SkBitmap* result) {
 
   // Cache the bitmap. Watch out: |result| or the cached bitmap may be NULL to
   // indicate a current or past failure.
-  CacheKey key(client_request.file_name, client_request.size);
+  CacheKey key(client_request.group, client_request.size);
   IconMap::iterator it = icon_cache_.find(key);
   if (it != icon_cache_.end() && result && it->second) {
     it->second->swap(*result);
@@ -96,14 +84,14 @@ bool IconManager::OnBitmapLoaded(IconLoader* source, SkBitmap* result) {
   return true;  // Indicates we took ownership of result.
 }
 
-IconManager::CacheKey::CacheKey(const FilePath& file_name,
+IconManager::CacheKey::CacheKey(const IconGroupID& group,
                                 IconLoader::IconSize size)
-    : file_name(file_name),
+    : group(group),
       size(size) {
 }
 
 bool IconManager::CacheKey::operator<(const CacheKey &other) const {
-  if (file_name != other.file_name)
-    return file_name < other.file_name;
+  if (group != other.group)
+    return group < other.group;
   return size < other.size;
 }

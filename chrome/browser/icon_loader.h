@@ -11,6 +11,16 @@
 #include "base/file_path.h"
 #include "base/ref_counted.h"
 
+#if defined(OS_WIN)
+// On Windows, we group files by their extension, with several exceptions:
+// .dll, .exe, .ico. See IconManager.h for explanation.
+typedef std::wstring IconGroupID;
+#elif defined(OS_POSIX)
+// On POSIX, we group files by MIME type.
+typedef std::string IconGroupID;
+#endif
+
+class MessageLoop;
 class SkBitmap;
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -35,18 +45,29 @@ class IconLoader : public base::RefCountedThreadSafe<IconLoader> {
     virtual bool OnBitmapLoaded(IconLoader* source, SkBitmap* result) = 0;
   };
 
-  IconLoader() { }
+  IconLoader(const IconGroupID& group, IconSize size, Delegate* delegate);
 
-  virtual ~IconLoader() { }
+  virtual ~IconLoader();
 
   // Start reading the icon on the file thread.
-  virtual void Start() = 0;
-
-  // Factory method for returning a platform specific IconLoad.
-  static IconLoader* Create(const FilePath& path, IconSize size,
-                            Delegate* delegate);
+  void Start();
 
  private:
+  void ReadIcon();
+
+  void NotifyDelegate();
+
+  // The message loop object of the thread in which we notify the delegate.
+  MessageLoop* target_message_loop_;
+
+  IconGroupID group_;
+
+  IconSize icon_size_;
+
+  SkBitmap* bitmap_;
+
+  Delegate* delegate_;
+
   DISALLOW_COPY_AND_ASSIGN(IconLoader);
 };
 

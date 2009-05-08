@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "chrome/browser/icon_loader_win.h"
+#include "chrome/browser/icon_loader.h"
 
 #include <windows.h>
 #include <shellapi.h>
@@ -11,34 +11,8 @@
 #include "base/gfx/size.h"
 #include "base/message_loop.h"
 #include "base/thread.h"
-#include "chrome/browser/browser_process.h"
-#include "skia/include/SkBitmap.h"
 
-IconLoader* IconLoader::Create(const FilePath& path, IconSize size,
-                               Delegate* delegate) {
-  return new IconLoaderWin(path, size, delegate);
-}
-
-IconLoaderWin::IconLoaderWin(const FilePath& path, IconSize size,
-                             Delegate* delegate)
-    : path_(path),
-      icon_size_(size),
-      bitmap_(NULL),
-      delegate_(delegate) {
-}
-
-IconLoaderWin::~IconLoaderWin() {
-  delete bitmap_;
-}
-
-void IconLoaderWin::Start() {
-  target_message_loop_ = MessageLoop::current();
-
-  g_browser_process->file_thread()->message_loop()->PostTask(FROM_HERE,
-      NewRunnableMethod(this, &IconLoaderWin::ReadIcon));
-}
-
-void IconLoaderWin::ReadIcon() {
+void IconLoader::ReadIcon() {
   int size = 0;
   switch (icon_size_) {
     case IconLoader::SMALL:
@@ -54,7 +28,7 @@ void IconLoaderWin::ReadIcon() {
       NOTREACHED();
   }
   SHFILEINFO file_info = { 0 };
-  if (!SHGetFileInfo(path_.value().c_str(), FILE_ATTRIBUTE_NORMAL, &file_info,
+  if (!SHGetFileInfo(group_.c_str(), FILE_ATTRIBUTE_NORMAL, &file_info,
                      sizeof(SHFILEINFO),
                      SHGFI_ICON | size | SHGFI_USEFILEATTRIBUTES))
     return;
@@ -71,10 +45,5 @@ void IconLoaderWin::ReadIcon() {
   bitmap_ = IconUtil::CreateSkBitmapFromHICON(file_info.hIcon, icon_size);
 
   target_message_loop_->PostTask(FROM_HERE,
-      NewRunnableMethod(this, &IconLoaderWin::NotifyDelegate));
-}
-
-void IconLoaderWin::NotifyDelegate() {
-  delegate_->OnBitmapLoaded(this, bitmap_);
-  bitmap_ = NULL;
+      NewRunnableMethod(this, &IconLoader::NotifyDelegate));
 }

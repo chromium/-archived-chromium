@@ -378,6 +378,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\icon_loader.cc"
+				>
+			</File>
+			<File
 				RelativePath=".\icon_loader.h"
 				>
 			</File>
@@ -386,15 +390,15 @@
 				>
 			</File>
 			<File
-				RelativePath=".\icon_loader_win.h"
-				>
-			</File>
-			<File
 				RelativePath=".\icon_manager.cc"
 				>
 			</File>
 			<File
 				RelativePath=".\icon_manager.h"
+				>
+			</File>
+			<File
+				RelativePath=".\icon_manager_win.cc"
 				>
 			</File>
 			<File

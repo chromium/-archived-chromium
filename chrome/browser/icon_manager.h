@@ -25,6 +25,9 @@
 // file extension and the results will be cached per extension. That way, all
 // .mp3 files will share one icon, but all .exe files will have their own icon.
 //
+// POSIX files don't have associated icons. We query the OS by the file's
+// mime type.
+//
 // The IconManager can be queried in two ways:
 //   1. A quick, synchronous check of its caches which does not touch the disk:
 //      IconManager::LookupIcon()
@@ -47,14 +50,15 @@
 #include <string>
 
 #include "base/hash_tables.h"
-#include "chrome/browser/icon_loader.h"
 #include "chrome/browser/cancelable_request.h"
+#include "chrome/browser/icon_loader.h"
 
+class FilePath;
 class SkBitmap;
 
 class IconManager : public IconLoader::Delegate,
                     public CancelableRequestProvider {
-public:
+ public:
   IconManager();
   ~IconManager();
 
@@ -83,14 +87,18 @@ public:
   // IconLoader::Delegate interface.
   virtual bool OnBitmapLoaded(IconLoader* source, SkBitmap* result);
 
-private:
+  // Get the identifying string for the given file. The implementation
+  // is in icon_manager_[platform].cc.
+  static IconGroupID GetGroupIDFromFilepath(const FilePath& path);
+
+ private:
   struct CacheKey {
-    CacheKey(const FilePath& file_name, IconLoader::IconSize size);
+    CacheKey(const IconGroupID& group, IconLoader::IconSize size);
 
     // Used as a key in the map below, so we need this comparator.
     bool operator<(const CacheKey &other) const;
 
-    FilePath file_name;
+    IconGroupID group;
     IconLoader::IconSize size;
   };
 
@@ -100,12 +108,12 @@ private:
   typedef CancelableRequest<IconRequestCallback> IconRequest;
   typedef struct {
     scoped_refptr<IconRequest> request;
-    FilePath file_name;
+    IconGroupID group;
     IconLoader::IconSize size;
   } ClientRequest;
 
   // Asynchronous requests that have not yet been completed.
-  typedef base::hash_map<IconLoader*, ClientRequest> ClientRequests;
+  typedef std::map<IconLoader*, ClientRequest> ClientRequests;
   ClientRequests requests_;
 
   DISALLOW_COPY_AND_ASSIGN(IconManager);
