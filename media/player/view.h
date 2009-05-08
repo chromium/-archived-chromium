@@ -54,6 +54,7 @@ class WtlVideoWindow : public CScrollWindowImpl<WtlVideoWindow> {
     size_.cx = 0;
     size_.cy = 0;
     view_size_ = 1;
+    view_rotate_ = media::ROTATE_0;
     renderer_ = new WtlVideoRenderer(this);
     last_frame_ = NULL;
     hbmp_ = NULL;
@@ -295,6 +296,56 @@ class WtlVideoWindow : public CScrollWindowImpl<WtlVideoWindow> {
     return view_size_;
   }
 
+  void SetViewRotate(int view_rotate) {
+    switch (view_rotate) {
+      default:
+      case 0:
+        view_rotate_  = media::ROTATE_0;
+        break;
+      case 1:
+        view_rotate_  = media::ROTATE_90;
+        break;
+      case 2:
+        view_rotate_  = media::ROTATE_180;
+        break;
+      case 3:
+        view_rotate_  = media::ROTATE_270;
+        break;
+      case 4:
+        view_rotate_  = media::MIRROR_ROTATE_0;
+        break;
+      case 5:
+        view_rotate_  = media::MIRROR_ROTATE_180;
+        break;
+    }
+  }
+
+  int GetViewRotate() {
+    int view_rotate = 0;
+    switch (view_rotate_) {
+      default:
+      case media::ROTATE_0:
+        view_rotate  = 0;
+        break;
+      case media::ROTATE_90:
+        view_rotate  = 1;
+        break;
+      case media::ROTATE_180:
+        view_rotate  = 2;
+        break;
+      case media::ROTATE_270:
+        view_rotate  = 3;
+        break;
+      case media::MIRROR_ROTATE_0:
+        view_rotate  = 4;
+        break;
+      case media::MIRROR_ROTATE_180:
+        view_rotate  = 5;
+        break;
+    }
+    return view_rotate;
+  }
+
   void SetBitmap(HBITMAP hbmp) {
     hbmp_ = hbmp;
   }
@@ -307,6 +358,9 @@ class WtlVideoWindow : public CScrollWindowImpl<WtlVideoWindow> {
   HBITMAP hbmp_;  // For Images
   int view_size_;  // View Size. 0=0.5, 1=normal, 2=2x, 3=fit, 4=full
 
+  // View Rotate 0-5 for ID_VIEW_ROTATE0 to ID_VIEW_MIRROR_VERTICAL
+  media::Rotate view_rotate_;
+
   // Draw a frame of YUV to an RGB buffer with scaling.
   // Handles different YUV formats.
   void DrawYUV(const media::VideoSurface &frame_in,
@@ -316,53 +370,30 @@ class WtlVideoWindow : public CScrollWindowImpl<WtlVideoWindow> {
                int clipped_height,
                int scaled_width,
                int scaled_height) {
-    // Normal size
-    if (view_size_ == 1) {
-      if (frame_in.format == media::VideoSurface::YV16) {
-        // Temporary cast, til we use uint8 for VideoFrame.
-        media::ConvertYV16ToRGB32((const uint8*)frame_in.data[0],
-                                  (const uint8*)frame_in.data[1],
-                                  (const uint8*)frame_in.data[2],
-                                  movie_dib_bits,
-                                  clipped_width, clipped_height,
-                                  frame_in.strides[0],
-                                  frame_in.strides[1],
-                                  dibrowbytes);
-      } else {
-        // Temporary cast, til we use uint8 for VideoFrame.
-        media::ConvertYV12ToRGB32((const uint8*)frame_in.data[0],
-                                  (const uint8*)frame_in.data[1],
-                                  (const uint8*)frame_in.data[2],
-                                  movie_dib_bits,
-                                  clipped_width, clipped_height,
-                                  frame_in.strides[0],
-                                  frame_in.strides[1],
-                                  dibrowbytes);
-      }
+    if (frame_in.format == media::VideoSurface::YV16) {
+      // Temporary cast, til we use uint8 for VideoFrame.
+      media::ScaleYV16ToRGB32(frame_in.data[0],
+                              frame_in.data[1],
+                              frame_in.data[2],
+                              movie_dib_bits,
+                              clipped_width, clipped_height,
+                              scaled_width, scaled_height,
+                              frame_in.strides[0],
+                              frame_in.strides[1],
+                              dibrowbytes,
+                              view_rotate_);
     } else {
-      if (frame_in.format == media::VideoSurface::YV16) {
-        // Temporary cast, til we use uint8 for VideoFrame.
-        media::ScaleYV16ToRGB32((const uint8*)frame_in.data[0],
-                                  (const uint8*)frame_in.data[1],
-                                  (const uint8*)frame_in.data[2],
-                                  movie_dib_bits,
-                                  clipped_width, clipped_height,
-                                  scaled_width, scaled_height,
-                                  frame_in.strides[0],
-                                  frame_in.strides[1],
-                                  dibrowbytes);
-      } else {
-        // Temporary cast, til we use uint8 for VideoFrame.
-        media::ScaleYV12ToRGB32((const uint8*)frame_in.data[0],
-                                  (const uint8*)frame_in.data[1],
-                                  (const uint8*)frame_in.data[2],
-                                  movie_dib_bits,
-                                  clipped_width, clipped_height,
-                                  scaled_width, scaled_height,
-                                  frame_in.strides[0],
-                                  frame_in.strides[1],
-                                  dibrowbytes);
-      }
+      // Temporary cast, til we use uint8 for VideoFrame.
+      media::ScaleYV12ToRGB32(frame_in.data[0],
+                              frame_in.data[1],
+                              frame_in.data[2],
+                              movie_dib_bits,
+                              clipped_width, clipped_height,
+                              scaled_width, scaled_height,
+                              frame_in.strides[0],
+                              frame_in.strides[1],
+                              dibrowbytes,
+                              view_rotate_);
     }
   }
 

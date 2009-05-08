@@ -20,37 +20,74 @@ static void ScaleYV12ToRGB32Row(const uint8* y_buf,
                                 const uint8* u_buf,
                                 const uint8* v_buf,
                                 uint8* rgb_buf,
-                                size_t width,
-                                size_t scaled_width);
+                                int width,
+                                int scaled_width);
 static void HalfYV12ToRGB32Row(const uint8* y_buf,
                                const uint8* u_buf,
                                const uint8* v_buf,
                                uint8* rgb_buf,
-                               size_t width);
+                               int width);
+
+extern "C" void ConvertYV12ToRGB32Row(const uint8* y_buf,
+                                      const uint8* u_buf,
+                                      const uint8* v_buf,
+                                      uint8* rgb_buf,
+                                      size_t width);
 
 // Scale a frame of YV12 (aka YUV420) to 32 bit ARGB.
 void ScaleYV12ToRGB32(const uint8* y_buf,
                       const uint8* u_buf,
                       const uint8* v_buf,
                       uint8* rgb_buf,
-                      size_t width,
-                      size_t height,
-                      size_t scaled_width,
-                      size_t scaled_height,
+                      int width,
+                      int height,
+                      int scaled_width,
+                      int scaled_height,
                       int y_pitch,
                       int uv_pitch,
-                      int rgb_pitch) {
+                      int rgb_pitch,
+                      Rotate view_rotate) {
+  // Rotations that start at right side of image
+  if ((view_rotate == ROTATE_180) ||
+      (view_rotate == ROTATE_270) ||
+      (view_rotate == MIRROR_ROTATE_0) ||
+      (view_rotate == MIRROR_ROTATE_90)) {
+    y_buf += width - 1;
+    u_buf += width / 2 - 1;
+    v_buf += width / 2 - 1;
+    width = -width;
+  }
+  // Rotations that start at bottom of image
+  if ((view_rotate == ROTATE_90) ||
+      (view_rotate == ROTATE_180) ||
+      (view_rotate == MIRROR_ROTATE_90) ||
+      (view_rotate == MIRROR_ROTATE_180)) {
+    y_buf += (height - 1) * y_pitch;
+    u_buf += (height / 2 - 1) * uv_pitch;
+    v_buf += (height / 2 - 1) * uv_pitch;
+    height = -height;
+  }
+  // Only these rotations are implemented.
+  DCHECK((view_rotate == ROTATE_0) ||
+         (view_rotate == ROTATE_180) ||
+         (view_rotate == MIRROR_ROTATE_0) ||
+         (view_rotate == MIRROR_ROTATE_180));
+
 #ifdef _OPENMP
 #pragma omp parallel for
 #endif
-  for (int y = 0; y < static_cast<int>(scaled_height); ++y) {
+  for (int y = 0; y < scaled_height; ++y) {
     uint8* dest_pixel = rgb_buf + y * rgb_pitch;
     int scaled_y = (y * height / scaled_height);
+
     const uint8* y_ptr = y_buf + scaled_y * y_pitch;
     const uint8* u_ptr = u_buf + scaled_y / 2 * uv_pitch;
     const uint8* v_ptr = v_buf + scaled_y / 2 * uv_pitch;
 
-    if (scaled_width == (width / 2)) {
+    if (scaled_width == width) {
+      ConvertYV12ToRGB32Row(y_ptr, u_ptr, v_ptr,
+                            dest_pixel, scaled_width);
+    } else if (scaled_width == (width / 2)) {
       HalfYV12ToRGB32Row(y_ptr, u_ptr, v_ptr,
                          dest_pixel, scaled_width);
     } else {
@@ -65,17 +102,43 @@ void ScaleYV16ToRGB32(const uint8* y_buf,
                       const uint8* u_buf,
                       const uint8* v_buf,
                       uint8* rgb_buf,
-                      size_t width,
-                      size_t height,
-                      size_t scaled_width,
-                      size_t scaled_height,
+                      int width,
+                      int height,
+                      int scaled_width,
+                      int scaled_height,
                       int y_pitch,
                       int uv_pitch,
-                      int rgb_pitch) {
+                      int rgb_pitch,
+                      Rotate view_rotate) {
+  // Rotations that start at right side of image
+  if ((view_rotate == ROTATE_180) ||
+      (view_rotate == ROTATE_270) ||
+      (view_rotate == MIRROR_ROTATE_0) ||
+      (view_rotate == MIRROR_ROTATE_90)) {
+    y_buf += width - 1;
+    u_buf += width / 2 - 1;
+    v_buf += width / 2 - 1;
+    width = -width;
+  }
+  // Rotations that start at bottom of image
+  if ((view_rotate == ROTATE_90) ||
+      (view_rotate == ROTATE_180) ||
+      (view_rotate == MIRROR_ROTATE_90) ||
+      (view_rotate == MIRROR_ROTATE_180)) {
+    y_buf += (height - 1) * y_pitch;
+    u_buf += (height - 1) * uv_pitch;
+    v_buf += (height - 1) * uv_pitch;
+    height = -height;
+  }
+  // Only these rotations are implemented.
+  DCHECK((view_rotate == ROTATE_0) ||
+         (view_rotate == ROTATE_180) ||
+         (view_rotate == MIRROR_ROTATE_0) ||
+         (view_rotate == MIRROR_ROTATE_180));
 #ifdef _OPENMP
 #pragma omp parallel for
 #endif
-  for (int y = 0; y < static_cast<int>(scaled_height); ++y) {
+  for (int y = 0; y < scaled_height; ++y) {
     uint8* dest_pixel = rgb_buf + y * rgb_pitch;
     int scaled_y = (y * height / scaled_height);
     const uint8* y_ptr = y_buf + scaled_y * y_pitch;
@@ -171,9 +234,9 @@ static uint8 g_rgb_clip_table[kClipOverflow
 // Therefore source range is -128 to 384.
 // Output clips to unsigned 0 to 255.
 static inline uint32 clip(int32 value) {
-  DCHECK(((value >> 8) + kClipOverflow) >= 0);
-  DCHECK(((value >> 8) + kClipOverflow) <
-         (kClipOverflow + kClipTableSize + kClipOverflow));
+//  DCHECK(((value >> 8) + kClipOverflow) >= 0);
+//  DCHECK(((value >> 8) + kClipOverflow) <
+//         (kClipOverflow + kClipTableSize + kClipOverflow));
   return static_cast<uint32>(g_rgb_clip_table[((value) >> 8) + kClipOverflow]);
 }
 
@@ -186,11 +249,11 @@ static void ScaleYV12ToRGB32Row(const uint8* y_buf,
                            const uint8* u_buf,
                            const uint8* v_buf,
                            uint8* rgb_buf,
-                           size_t width,
-                           size_t scaled_width) {
+                           int width,
+                           int scaled_width) {
   int scaled_dx = width * 16 / scaled_width;
   int scaled_x = 0;
-  for (int32 x = 0; x < static_cast<int32>(scaled_width); ++x) {
+  for (int32 x = 0; x < scaled_width; ++x) {
     uint8 u = u_buf[scaled_x >> 5];
     uint8 v = v_buf[scaled_x >> 5];
     int32 d = static_cast<int32>(u) - 128;
@@ -233,8 +296,8 @@ static void HalfYV12ToRGB32Row(const uint8* y_buf,
                         const uint8* u_buf,
                         const uint8* v_buf,
                         uint8* rgb_buf,
-                        size_t width) {
-  for (int32 x = 0; x < static_cast<int32>(width); ++x) {
+                        int width) {
+  for (int32 x = 0; x < width; ++x) {
     uint8 u = u_buf[x];
     uint8 v = v_buf[x];
     int32 d = static_cast<int32>(u) - 128;
