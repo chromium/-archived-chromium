@@ -2983,7 +2983,6 @@
             '../views/window/dialog_client_view.h',
             '../views/window/dialog_delegate.cc',
             '../views/window/dialog_delegate.h',
-            '../views/window/hit_test.h',
             '../views/window/native_frame_view.cc',
             '../views/window/native_frame_view.h',
             '../views/window/window.h',
