@@ -241,13 +241,13 @@ gboolean OnKeyPress(GtkWindow* window, GdkEventKey* event, Browser* browser) {
         GdkModifierType(event->state), browser)) {
       return TRUE;
     }
-  }
 
-  if (!gtk_window_propagate_key_event(window, event)) {
-    static_cast<BrowserWindowGtk*>(browser->window())->HandleAccelerator(
-        event->keyval, GdkModifierType(event->state));
+    return gtk_window_propagate_key_event(window, event);
+  } else {
+    bool rv = gtk_window_propagate_key_event(window, event);
+    DCHECK(rv);
+    return TRUE;
   }
-  return TRUE;
 }
 
 gboolean OnButtonPressEvent(GtkWidget* widget, GdkEventButton* event,

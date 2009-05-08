@@ -276,7 +276,6 @@ CustomDrawButton* BrowserToolbarGtk::BuildToolbarButton(
                               localized_tooltip.c_str());
   g_signal_connect(G_OBJECT(button->widget()), "clicked",
                    G_CALLBACK(OnButtonClick), this);
-  GTK_WIDGET_UNSET_FLAGS(button->widget(), GTK_CAN_FOCUS);
 
   gtk_box_pack_start(GTK_BOX(toolbar_), button->widget(), FALSE, FALSE, 0);
   return button;
@@ -290,7 +289,6 @@ ToolbarStarToggleGtk* BrowserToolbarGtk::BuildStarButton(
                               localized_tooltip.c_str());
   g_signal_connect(G_OBJECT(button->widget()), "clicked",
                    G_CALLBACK(OnButtonClick), this);
-  GTK_WIDGET_UNSET_FLAGS(button->widget(), GTK_CAN_FOCUS);
 
   gtk_box_pack_start(GTK_BOX(toolbar_), button->widget(), FALSE, FALSE, 0);
   return button;
@@ -391,7 +389,6 @@ CustomDrawButton* BrowserToolbarGtk::BuildBackForwardButton(
                    G_CALLBACK(OnBackForwardPressEvent), this);
   g_signal_connect(G_OBJECT(button->widget()), "clicked",
                    G_CALLBACK(OnButtonClick), this);
-  GTK_WIDGET_UNSET_FLAGS(button->widget(), GTK_CAN_FOCUS);
 
   gtk_box_pack_start(GTK_BOX(toolbar_), button->widget(), FALSE, FALSE, 0);
   // Popup the menu as left-aligned relative to this widget rather than the

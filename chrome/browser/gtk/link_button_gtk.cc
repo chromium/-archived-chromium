@@ -79,6 +79,7 @@ gboolean LinkButtonGtk::OnLeave(GtkWidget* widget,
   return FALSE;
 }
 
+// TODO(estade): we need some visual indication when this widget is focused.
 // static
 gboolean LinkButtonGtk::OnExpose(GtkWidget* widget,
                                  GdkEventExpose* event,

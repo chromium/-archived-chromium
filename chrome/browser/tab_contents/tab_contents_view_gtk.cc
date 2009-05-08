@@ -24,15 +24,17 @@
 
 namespace {
 
-// Called when the content view gtk widget is tabbed to. We always return true
+// Called when the content view gtk widget is tabbed to, or after the call to
+// gtk_widget_child_focus() in TakeFocus(). We return true
 // and grab focus if we don't have it. The call to SetInitialFocus(bool)
-// forwards the tab to webkit. We leave focus via TakeFocus().
-// We cast the TabContents to a TabContents because SetInitialFocus is public
-// in TabContents and protected in TabContents.
+// forwards the "move focus forward" effect to webkit.
 gboolean OnFocus(GtkWidget* widget, GtkDirectionType focus,
                  TabContents* tab_contents) {
+  // If we already have focus, let the next widget have a shot at it. We will
+  // reach this situation after the call to gtk_widget_child_focus() in
+  // TakeFocus().
   if (GTK_WIDGET_HAS_FOCUS(widget))
-    return TRUE;
+    return FALSE;
 
   gtk_widget_grab_focus(widget);
   bool reverse = focus == GTK_DIR_TAB_BACKWARD;
@@ -177,13 +179,16 @@ bool TabContentsViewGtk::GetFindBarWindowInfo(gfx::Point* position,
 }
 
 void TabContentsViewGtk::Focus() {
+  GtkWidget* widget = GetContentNativeView();
+  if (widget)
+    gtk_widget_grab_focus(widget);
 }
 
 void TabContentsViewGtk::SetInitialFocus() {
   if (tab_contents()->FocusLocationBarByDefault())
     tab_contents()->delegate()->SetFocusToLocationBar();
   else
-    gtk_widget_grab_focus(GetContentNativeView());
+    Focus();
 }
 
 void TabContentsViewGtk::StoreFocus() {
@@ -202,7 +207,8 @@ void TabContentsViewGtk::UpdateDragCursor(bool is_drop_target) {
 // This is called when we the renderer asks us to take focus back (i.e., it has
 // iterated past the last focusable element on the page).
 void TabContentsViewGtk::TakeFocus(bool reverse) {
-  tab_contents()->delegate()->SetFocusToLocationBar();
+  gtk_widget_child_focus(GTK_WIDGET(GetTopLevelNativeWindow()),
+      reverse ? GTK_DIR_TAB_BACKWARD : GTK_DIR_TAB_FORWARD);
 }
 
 void TabContentsViewGtk::HandleKeyboardEvent(

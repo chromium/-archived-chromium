@@ -14,15 +14,16 @@ ToolbarStarToggleGtk::ToolbarStarToggleGtk()
       is_starred_(false),
       unstarred_(IDR_STAR, IDR_STAR_P, IDR_STAR_H, IDR_STAR_D),
       starred_(IDR_STARRED, IDR_STARRED_P, IDR_STARRED_H, 0) {
-   gtk_widget_set_size_request(widget_.get(),
-                              gdk_pixbuf_get_width(unstarred_.pixbufs(0)),
-                              gdk_pixbuf_get_height(unstarred_.pixbufs(0)));
+  gtk_widget_set_size_request(widget_.get(),
+                             gdk_pixbuf_get_width(unstarred_.pixbufs(0)),
+                             gdk_pixbuf_get_height(unstarred_.pixbufs(0)));
 
-   gtk_widget_set_app_paintable(widget_.get(), TRUE);
-   // We effectively double-buffer by virtue of having only one image...
-   gtk_widget_set_double_buffered(widget_.get(), FALSE);
-   g_signal_connect(G_OBJECT(widget_.get()), "expose-event",
-                    G_CALLBACK(OnExpose), this);
+  gtk_widget_set_app_paintable(widget_.get(), TRUE);
+  // We effectively double-buffer by virtue of having only one image...
+  gtk_widget_set_double_buffered(widget_.get(), FALSE);
+  g_signal_connect(G_OBJECT(widget_.get()), "expose-event",
+                   G_CALLBACK(OnExpose), this);
+  GTK_WIDGET_UNSET_FLAGS(widget_.get(), GTK_CAN_FOCUS);
 }
 
 ToolbarStarToggleGtk::~ToolbarStarToggleGtk() {

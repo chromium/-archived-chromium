@@ -235,6 +235,9 @@ bool FindBarGtk::IsFindBarVisible() {
 }
 
 void FindBarGtk::RestoreSavedFocus() {
+  // TODO(estade): We should save focus and restore its previous location if we
+  // don't find any matches in our search.
+  find_bar_controller_->tab_contents()->Focus();
 }
 
 FindBarTesting* FindBarGtk::GetFindBarTesting() {

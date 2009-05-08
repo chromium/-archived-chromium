@@ -56,6 +56,7 @@ CustomDrawButton::CustomDrawButton(
     int depressed_id)
     : button_base_(normal_id, active_id, highlight_id, depressed_id) {
   widget_.Own(gtk_button_new());
+  GTK_WIDGET_UNSET_FLAGS(widget_.get(), GTK_CAN_FOCUS);
 
   gtk_widget_set_size_request(widget_.get(),
                               gdk_pixbuf_get_width(button_base_.pixbufs(0)),
