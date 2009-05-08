@@ -66,6 +66,10 @@ class BookmarkBarGtk : public BookmarkModelObserver {
   // Helper function which generates GtkToolItems for |bookmark_toolbar_|.
   void CreateAllBookmarkButtons(BookmarkNode* node);
 
+  // Sets the visibility of the instructional text based on whether there are
+  // any bookmarks in |node|. |node| is assumed to be the bookmarks bar node.
+  void SetInstructionState(BookmarkNode* boomarks_bar_node);
+
   // Helper function which destroys all the bookmark buttons in the GtkToolbar.
   void RemoveAllBookmarkButtons();
 

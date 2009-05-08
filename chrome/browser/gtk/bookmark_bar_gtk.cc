@@ -202,6 +202,8 @@ void BookmarkBarGtk::BookmarkNodeAdded(BookmarkModel* model,
   gtk_toolbar_insert(GTK_TOOLBAR(bookmark_toolbar_.get()),
                      CreateBookmarkToolItem(parent->GetChild(index)),
                      index);
+
+  SetInstructionState(parent);
 }
 
 void BookmarkBarGtk::BookmarkNodeRemoved(BookmarkModel* model,
@@ -217,6 +219,8 @@ void BookmarkBarGtk::BookmarkNodeRemoved(BookmarkModel* model,
       GTK_TOOLBAR(bookmark_toolbar_.get()), index));
   gtk_container_remove(GTK_CONTAINER(bookmark_toolbar_.get()),
                        to_remove);
+
+  SetInstructionState(parent);
 }
 
 void BookmarkBarGtk::BookmarkNodeChanged(BookmarkModel* model,
@@ -256,7 +260,11 @@ void BookmarkBarGtk::CreateAllBookmarkButtons(BookmarkNode* node) {
     gtk_toolbar_insert(GTK_TOOLBAR(bookmark_toolbar_.get()), item, -1);
   }
 
-  show_instructions_ = (node->GetChildCount() == 0);
+  SetInstructionState(node);
+}
+
+void BookmarkBarGtk::SetInstructionState(BookmarkNode* boomarks_bar_node) {
+  show_instructions_ = (boomarks_bar_node->GetChildCount() == 0);
   if (show_instructions_) {
     gtk_widget_show(instructions_);
   } else {
