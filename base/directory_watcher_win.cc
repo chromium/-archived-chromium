@@ -51,7 +51,7 @@ bool DirectoryWatcherImpl::Watch(const FilePath& path,
       path.value().c_str(),
       recursive,
       FILE_NOTIFY_CHANGE_FILE_NAME | FILE_NOTIFY_CHANGE_SIZE |
-      FILE_NOTIFY_CHANGE_LAST_WRITE);
+      FILE_NOTIFY_CHANGE_LAST_WRITE | FILE_NOTIFY_CHANGE_DIR_NAME);
   if (handle_ == INVALID_HANDLE_VALUE)
     return false;
 

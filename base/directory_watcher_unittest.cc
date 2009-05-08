@@ -332,15 +332,13 @@ TEST_F(DirectoryWatcherTest, WatchCreatedDirectory) {
 
   SetExpectedNumberOfNotifiedDelegates(1);
   FilePath subdir(CreateTestDirDirectoryASCII("SubDir", true));
-  // Create a file inside the subdir to force Windows to fire notifications.
-  ASSERT_TRUE(WriteTestFile(subdir.AppendASCII("test_file"), "some content"));
   VerifyExpectedNumberOfNotifiedDelegates();
 
   delegate.reset();
 
   // Verify that changes inside the subdir are noticed.
   SetExpectedNumberOfNotifiedDelegates(1);
-  ASSERT_TRUE(WriteTestFile(subdir.AppendASCII("test_file"), "other content"));
+  ASSERT_TRUE(WriteTestFile(subdir.AppendASCII("test_file"), "some content"));
   VerifyExpectedNumberOfNotifiedDelegates();
 }
 
