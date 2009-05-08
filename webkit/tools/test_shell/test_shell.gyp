@@ -260,7 +260,15 @@
               'action': ['python', '<(repack_path)', '<@(_outputs)', '<@(pak_inputs)'],
               'process_outputs_as_mac_bundle_resources': 1,
             },
-          ]
+          ],
+          'copies': [
+            {
+              'destination': '<(PRODUCT_DIR)/TestShell.app/Contents/PlugIns/',
+              'files': [
+                '<(PRODUCT_DIR)/TestNetscapePlugIn.plugin/',
+              ],
+            },
+          ],
         }, { # OS != "mac"
           'dependencies': [
             '../../../net/net.gyp:net_resources',
@@ -323,6 +331,8 @@
         #  ],
         }],
         ['OS=="mac"', {
+          'product_name': 'TestNetscapePlugIn',
+          'product_extension': 'plugin',
           'link_settings': {
             'libraries': [
               '$(SDKROOT)/System/Library/Frameworks/Carbon.framework',

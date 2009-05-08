@@ -1201,7 +1201,7 @@ BUG10351 MAC LINUX : LayoutTests/plugins/netscape-get-property-return-value.html
 BUG10351 MAC LINUX : LayoutTests/plugins/netscape-identifier-conversion.html = FAIL
 BUG10351 MAC LINUX : LayoutTests/plugins/netscape-invoke-default.html = FAIL
 BUG10351 LINUX : LayoutTests/plugins/open-and-close-window-with-plugin.html = FAIL
-BUG10351 MAC LINUX : LayoutTests/plugins/plugin-javascript-access.html = FAIL
+BUG10351 LINUX : LayoutTests/plugins/plugin-javascript-access.html = FAIL
 BUG10351 MAC LINUX : LayoutTests/plugins/plugin-remove-subframe.html = FAIL
 BUG10351 MAC LINUX : LayoutTests/plugins/return-error-from-new-stream-doesnt-invoke-destroy-stream.html = TIMEOUT
 BUG10667 LINUX MAC : chrome/plugins/get-file-url.html = CRASH TIMEOUT
