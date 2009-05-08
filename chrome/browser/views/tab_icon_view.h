@@ -5,7 +5,7 @@
 #ifndef CHROME_BROWSER_VIEW_TAB_ICON_VIEW_H_
 #define CHROME_BROWSER_VIEW_TAB_ICON_VIEW_H_
 
-#include "chrome/views/view.h"
+#include "views/view.h"
 
 class SkBitmap;
 class TabContents;

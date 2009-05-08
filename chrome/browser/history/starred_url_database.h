@@ -12,8 +12,8 @@
 #include "base/file_path.h"
 #include "chrome/browser/history/history_types.h"
 #include "chrome/browser/history/url_database.h"
-#include "chrome/views/controls/tree/tree_node_model.h"
 #include "testing/gtest/include/gtest/gtest_prod.h"
+#include "views/controls/tree/tree_node_model.h"
 
 struct sqlite3;
 class SqliteStatementCache;

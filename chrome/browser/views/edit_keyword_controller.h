@@ -10,10 +10,10 @@
 #ifndef CHROME_BROWSER_VIEWS_EDIT_KEYWORD_CONTROLLER_H_
 #define CHROME_BROWSER_VIEWS_EDIT_KEYWORD_CONTROLLER_H_
 
-#include <Windows.h>
+#include <windows.h>
 
-#include "chrome/views/controls/text_field.h"
-#include "chrome/views/window/dialog_delegate.h"
+#include "views/controls/text_field.h"
+#include "views/window/dialog_delegate.h"
 
 namespace views {
 class Label;

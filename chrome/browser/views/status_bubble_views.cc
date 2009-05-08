@@ -13,16 +13,16 @@
 #include "app/resource_bundle.h"
 #include "base/string_util.h"
 #include "chrome/common/gfx/text_elider.h"
-#include "chrome/views/controls/label.h"
-#include "chrome/views/widget/root_view.h"
-#include "chrome/views/widget/widget_win.h"
 #include "googleurl/src/gurl.h"
 #include "grit/generated_resources.h"
 #include "grit/theme_resources.h"
 #include "net/base/net_util.h"
-#include "SkPaint.h"
-#include "SkPath.h"
-#include "SkRect.h"
+#include "skia/include/SkPaint.h"
+#include "skia/include/SkPath.h"
+#include "skia/include/corecg/SkRect.h"
+#include "views/controls/label.h"
+#include "views/widget/root_view.h"
+#include "views/widget/widget_win.h"
 
 // The color of the background bubble.
 static const SkColor kBubbleColor = SkColorSetRGB(222, 234, 248);

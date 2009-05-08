@@ -25,8 +25,8 @@
 #include "chrome/test/automation/tab_proxy.h"
 #include "chrome/test/automation/window_proxy.h"
 #include "chrome/test/ui/ui_test.h"
-#include "chrome/views/view.h"
 #include "googleurl/src/gurl.h"
+#include "views/view.h"
 
 namespace {
 

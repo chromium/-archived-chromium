@@ -6,8 +6,8 @@
 #define CHROME_BROWSER_VIEWS_HWND_HTML_VIEW_H_
 
 #include "googleurl/src/gurl.h"
-#include "chrome/views/controls/hwnd_view.h"
 #include "skia/include/SkBitmap.h"
+#include "views/controls/hwnd_view.h"
 
 class RenderViewHost;
 class RenderViewHostDelegate;

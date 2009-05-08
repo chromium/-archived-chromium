@@ -55,16 +55,16 @@
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
 #include "chrome/common/win_util.h"
-#include "chrome/views/controls/scrollbar/native_scroll_bar.h"
-#include "chrome/views/fill_layout.h"
-#include "chrome/views/view.h"
-#include "chrome/views/widget/root_view.h"
-#include "chrome/views/window/non_client_view.h"
-#include "chrome/views/window/window_win.h"
 #include "grit/chromium_strings.h"
 #include "grit/generated_resources.h"
 #include "grit/theme_resources.h"
 #include "grit/webkit_resources.h"
+#include "views/controls/scrollbar/native_scroll_bar.h"
+#include "views/fill_layout.h"
+#include "views/view.h"
+#include "views/widget/root_view.h"
+#include "views/window/non_client_view.h"
+#include "views/window/window_win.h"
 
 
 using base::TimeDelta;

@@ -7,11 +7,10 @@
 #include "chrome/browser/extensions/extension_host.h"
 #include "chrome/browser/renderer_host/render_view_host.h"
 #include "chrome/browser/renderer_host/render_widget_host_view.h"
-#include "chrome/views/widget/widget.h"
-
 #if defined(OS_WIN)
 #include "chrome/browser/renderer_host/render_widget_host_view_win.h"
 #endif
+#include "views/widget/widget.h"
 
 ExtensionView::ExtensionView(ExtensionHost* host, Browser* browser,
                              const GURL& content_url)

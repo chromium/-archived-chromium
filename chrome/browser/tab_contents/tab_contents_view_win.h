@@ -8,7 +8,7 @@
 #include "base/gfx/size.h"
 #include "base/scoped_ptr.h"
 #include "chrome/browser/tab_contents/tab_contents_view.h"
-#include "chrome/views/widget/widget_win.h"
+#include "views/widget/widget_win.h"
 
 class SadTabView;
 struct WebDropData;

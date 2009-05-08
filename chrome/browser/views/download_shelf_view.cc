@@ -15,11 +15,11 @@
 #include "chrome/browser/tab_contents/navigation_entry.h"
 #include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/browser/views/download_item_view.h"
-#include "chrome/views/background.h"
-#include "chrome/views/controls/button/image_button.h"
-#include "chrome/views/controls/image_view.h"
 #include "grit/generated_resources.h"
 #include "grit/theme_resources.h"
+#include "views/background.h"
+#include "views/controls/button/image_button.h"
+#include "views/controls/image_view.h"
 
 // Max number of download views we'll contain. Any time a view is added and
 // we already have this many download views, one is removed.

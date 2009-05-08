@@ -8,8 +8,8 @@
 #include "app/message_box_flags.h"
 #include "chrome/browser/tab_contents/constrained_window.h"
 #include "chrome/browser/tab_contents/tab_contents.h"
-#include "chrome/views/controls/message_box_view.h"
 #include "grit/generated_resources.h"
+#include "views/controls/message_box_view.h"
 
 // static
 DownloadRequestDialogDelegate* DownloadRequestDialogDelegate::Create(

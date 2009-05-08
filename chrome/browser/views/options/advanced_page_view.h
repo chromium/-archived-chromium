@@ -6,7 +6,7 @@
 #define CHROME_BROWSER_VIEWS_OPTIONS_ADVANCED_PAGE_VIEW_H_
 
 #include "chrome/browser/views/options/options_page_view.h"
-#include "chrome/views/controls/button/button.h"
+#include "views/controls/button/button.h"
 
 class AdvancedOptionsListModel;
 class AdvancedScrollViewContainer;

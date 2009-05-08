@@ -7,8 +7,8 @@
 #include "app/resource_bundle.h"
 #include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/common/notification_service.h"
-#include "chrome/views/widget/widget_win.h"
 #include "grit/theme_resources.h"
+#include "views/widget/widget_win.h"
 
 // How long to spend moving downwards and fading out after waiting.
 static const int kMoveTimeMs = 600;

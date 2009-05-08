@@ -6,8 +6,8 @@
 #define CHROME_BROWSER_TAB_CONTENTS_RENDER_VIEW_CONTEXT_MENU_WIN_H_
 
 #include "chrome/browser/tab_contents/render_view_context_menu.h"
-#include "chrome/views/accelerator.h"
-#include "chrome/views/controls/menu/menu.h"
+#include "views/accelerator.h"
+#include "views/controls/menu/menu.h"
 
 class RenderViewContextMenuWin : public RenderViewContextMenu,
                                  public Menu::Delegate{

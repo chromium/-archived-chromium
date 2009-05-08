@@ -8,7 +8,7 @@
 #include "app/animation.h"
 #include "base/gfx/rect.h"
 #include "chrome/common/notification_registrar.h"
-#include "chrome/views/controls/image_view.h"
+#include "views/controls/image_view.h"
 
 namespace views {
 class WidgetWin;

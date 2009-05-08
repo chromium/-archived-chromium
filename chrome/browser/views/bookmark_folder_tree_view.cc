@@ -11,8 +11,8 @@
 #include "chrome/browser/bookmarks/bookmark_model.h"
 #include "chrome/browser/bookmarks/bookmark_folder_tree_model.h"
 #include "chrome/browser/profile.h"
-#include "chrome/views/view_constants.h"
 #include "grit/generated_resources.h"
+#include "views/view_constants.h"
 
 void BookmarkFolderTreeView::DropInfo::Scrolled() {
   view_->UpdateDropInfo();

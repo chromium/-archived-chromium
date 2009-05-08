@@ -15,12 +15,12 @@
 #include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/browser/tabs/tab_strip_model.h"
 #include "chrome/common/win_util.h"
-#include "chrome/views/widget/widget.h"
-#include "chrome/views/window/non_client_view.h"
-#include "chrome/views/window/window.h"
 #include "grit/generated_resources.h"
 #include "grit/theme_resources.h"
 #include "skia/ext/image_operations.h"
+#include "views/widget/widget.h"
+#include "views/window/non_client_view.h"
+#include "views/window/window.h"
 
 static const int kLeftPadding = 16;
 static const int kTopPadding = 6;

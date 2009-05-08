@@ -10,10 +10,10 @@
 #include "chrome/browser/views/standard_layout.h"
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
-#include "chrome/views/background.h"
-#include "chrome/views/controls/button/native_button.h"
-#include "chrome/views/grid_layout.h"
 #include "grit/generated_resources.h"
+#include "views/background.h"
+#include "views/controls/button/native_button.h"
+#include "views/grid_layout.h"
 
 using views::ColumnSet;
 using views::GridLayout;

@@ -9,7 +9,7 @@
 #include "chrome/browser/autocomplete/autocomplete.h"
 #include "chrome/browser/autocomplete/autocomplete_popup_model.h"
 #include "chrome/browser/autocomplete/autocomplete_popup_view.h"
-#include "chrome/views/view.h"
+#include "views/view.h"
 #include "webkit/glue/window_open_disposition.h"
 
 class AutocompleteEditModel;

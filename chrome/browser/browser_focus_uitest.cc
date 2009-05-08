@@ -12,11 +12,11 @@
 #include "chrome/browser/views/frame/browser_view.h"
 #include "chrome/browser/views/location_bar_view.h"
 #include "chrome/common/chrome_paths.h"
-#include "chrome/views/focus/focus_manager.h"
-#include "chrome/views/view.h"
-#include "chrome/views/window/window.h"
 #include "chrome/test/in_process_browser_test.h"
 #include "chrome/test/ui_test_utils.h"
+#include "views/focus/focus_manager.h"
+#include "views/view.h"
+#include "views/window/window.h"
 
 namespace {
 

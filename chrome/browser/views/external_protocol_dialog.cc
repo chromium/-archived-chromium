@@ -14,10 +14,10 @@
 #include "chrome/browser/external_protocol_handler.h"
 #include "chrome/browser/tab_contents/tab_util.h"
 #include "chrome/browser/tab_contents/tab_contents.h"
-#include "chrome/views/controls/message_box_view.h"
-#include "chrome/views/window/window.h"
 #include "grit/chromium_strings.h"
 #include "grit/generated_resources.h"
+#include "views/controls/message_box_view.h"
+#include "views/window/window.h"
 
 namespace {
 

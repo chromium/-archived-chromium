@@ -14,9 +14,9 @@
 
 #include "base/basictypes.h"
 #include "base/task.h"
-#include "chrome/views/controls/menu/menu.h"
-#include "chrome/views/event.h"
-#include "chrome/views/view.h"
+#include "views/controls/menu/menu.h"
+#include "views/event.h"
+#include "views/view.h"
 
 class BaseDownloadItemModel;
 class DownloadItem;

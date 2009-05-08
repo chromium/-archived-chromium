@@ -16,10 +16,10 @@
 #include "chrome/browser/views/info_bubble.h"
 #include "chrome/browser/views/standard_layout.h"
 #include "chrome/common/notification_service.h"
-#include "chrome/views/controls/button/native_button.h"
-#include "chrome/views/controls/text_field.h"
 #include "grit/generated_resources.h"
 #include "grit/theme_resources.h"
+#include "views/controls/button/native_button.h"
+#include "views/controls/text_field.h"
 
 using views::ComboBox;
 using views::ColumnSet;

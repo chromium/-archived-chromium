@@ -6,8 +6,8 @@
 #define CHROME_BROWSER_EXTERNAL_PROTOCOL_DIALOG_H__
 
 #include "base/time.h"
-#include "chrome/views/window/dialog_delegate.h"
 #include "googleurl/src/gurl.h"
+#include "views/window/dialog_delegate.h"
 
 class MessageBoxView;
 class TabContents;

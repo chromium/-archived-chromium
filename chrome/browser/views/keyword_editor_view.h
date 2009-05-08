@@ -9,10 +9,10 @@
 #include <map>
 
 #include "chrome/browser/search_engines/template_url_model.h"
-#include "chrome/views/controls/button/button.h"
-#include "chrome/views/controls/table/table_view.h"
-#include "chrome/views/view.h"
-#include "chrome/views/window/dialog_delegate.h"
+#include "views/controls/button/button.h"
+#include "views/controls/table/table_view.h"
+#include "views/view.h"
+#include "views/window/dialog_delegate.h"
 
 namespace views {
 class Label;

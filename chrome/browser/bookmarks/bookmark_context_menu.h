@@ -13,7 +13,7 @@
 
 // TODO(port): Port this file.
 #if defined(OS_WIN)
-#include "chrome/views/controls/menu/chrome_menu.h"
+#include "views/controls/menu/chrome_menu.h"
 #elif defined(OS_LINUX)
 #include "chrome/browser/gtk/menu_gtk.h"
 #else

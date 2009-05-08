@@ -50,8 +50,8 @@
 
 #if defined(OS_WIN)
 #include "chrome/browser/views/bookmark_bar_view.h"
-#include "chrome/views/widget/widget_win.h"
-#include "chrome/views/window/window.h"
+#include "views/widget/widget_win.h"
+#include "views/window/window.h"
 #endif
 
 using base::Time;

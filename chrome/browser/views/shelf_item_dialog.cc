@@ -16,16 +16,16 @@
 #include "chrome/common/gfx/text_elider.h"
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
-#include "chrome/views/background.h"
-#include "chrome/views/controls/label.h"
-#include "chrome/views/controls/text_field.h"
-#include "chrome/views/focus/focus_manager.h"
-#include "chrome/views/grid_layout.h"
-#include "chrome/views/widget/widget.h"
 #include "grit/generated_resources.h"
 #include "grit/locale_settings.h"
 #include "grit/theme_resources.h"
 #include "net/base/net_util.h"
+#include "views/background.h"
+#include "views/controls/label.h"
+#include "views/controls/text_field.h"
+#include "views/focus/focus_manager.h"
+#include "views/grid_layout.h"
+#include "views/widget/widget.h"
 
 using base::Time;
 using base::TimeDelta;

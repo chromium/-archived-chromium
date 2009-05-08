@@ -8,8 +8,8 @@
 #include "app/slide_animation.h"
 #include "base/scoped_ptr.h"
 #include "chrome/browser/command_updater.h"
-#include "chrome/views/controls/link.h"
-#include "chrome/views/widget/widget_win.h"
+#include "views/controls/link.h"
+#include "views/widget/widget_win.h"
 
 // FullscreenExitBubble is responsible for showing a bubble atop the screen in
 // fullscreen mode, telling users how to exit and providing a click target.

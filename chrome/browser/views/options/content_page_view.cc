@@ -22,14 +22,14 @@
 #include "chrome/browser/views/standard_layout.h"
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
-#include "chrome/views/controls/button/radio_button.h"
-#include "chrome/views/controls/text_field.h"
-#include "chrome/views/grid_layout.h"
-#include "chrome/views/widget/widget.h"
 #include "grit/generated_resources.h"
 #include "grit/theme_resources.h"
 #include "skia/ext/skia_utils_win.h"
 #include "skia/include/SkBitmap.h"
+#include "views/controls/button/radio_button.h"
+#include "views/controls/text_field.h"
+#include "views/grid_layout.h"
+#include "views/widget/widget.h"
 
 namespace {
 

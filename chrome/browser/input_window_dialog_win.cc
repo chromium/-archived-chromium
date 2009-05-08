@@ -8,11 +8,11 @@
 #include "base/message_loop.h"
 #include "base/task.h"
 #include "chrome/browser/views/standard_layout.h"
-#include "chrome/views/grid_layout.h"
-#include "chrome/views/controls/label.h"
-#include "chrome/views/controls/text_field.h"
-#include "chrome/views/window/dialog_delegate.h"
-#include "chrome/views/window/window.h"
+#include "views/grid_layout.h"
+#include "views/controls/label.h"
+#include "views/controls/text_field.h"
+#include "views/window/dialog_delegate.h"
+#include "views/window/window.h"
 #include "grit/generated_resources.h"
 
 // Width to make the text field, in pixels.

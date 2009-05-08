@@ -7,9 +7,9 @@
 
 #include "base/singleton.h"
 #include "chrome/common/ipc_logging.h"
-#include "chrome/views/controls/button/button.h"
-#include "chrome/views/controls/table/table_view.h"
-#include "chrome/views/window/dialog_delegate.h"
+#include "views/controls/button/button.h"
+#include "views/controls/table/table_view.h"
+#include "views/window/dialog_delegate.h"
 
 #if defined(OS_WIN) && defined(IPC_MESSAGE_LOG_ENABLED)
 

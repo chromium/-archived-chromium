@@ -86,8 +86,8 @@
 #include "base/gfx/gdi_util.h"
 #include "base/gfx/native_theme.h"
 #include "chrome/common/gfx/emf.h"
-#include "chrome/views/controls/message_box_view.h"
 #include "skia/ext/vector_canvas.h"
+#include "views/controls/message_box_view.h"
 #endif
 
 using base::Time;

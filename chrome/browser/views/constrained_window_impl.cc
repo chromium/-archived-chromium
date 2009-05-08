@@ -25,16 +25,16 @@
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
 #include "chrome/common/win_util.h"
-#include "chrome/views/controls/button/image_button.h"
-#include "chrome/views/controls/hwnd_view.h"
-#include "chrome/views/focus/focus_manager.h"
-#include "chrome/views/window/client_view.h"
-#include "chrome/views/window/non_client_view.h"
-#include "chrome/views/window/window_resources.h"
 #include "grit/chromium_strings.h"
 #include "grit/generated_resources.h"
 #include "grit/theme_resources.h"
 #include "net/base/net_util.h"
+#include "views/controls/button/image_button.h"
+#include "views/controls/hwnd_view.h"
+#include "views/focus/focus_manager.h"
+#include "views/window/client_view.h"
+#include "views/window/non_client_view.h"
+#include "views/window/window_resources.h"
 
 using base::TimeDelta;
 

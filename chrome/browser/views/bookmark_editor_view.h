@@ -9,12 +9,12 @@
 
 #include "chrome/browser/bookmarks/bookmark_editor.h"
 #include "chrome/browser/bookmarks/bookmark_model.h"
-#include "chrome/views/controls/button/button.h"
-#include "chrome/views/controls/menu/menu.h"
-#include "chrome/views/controls/text_field.h"
-#include "chrome/views/controls/tree/tree_node_model.h"
-#include "chrome/views/controls/tree/tree_view.h"
-#include "chrome/views/window/dialog_delegate.h"
+#include "views/controls/button/button.h"
+#include "views/controls/menu/menu.h"
+#include "views/controls/text_field.h"
+#include "views/controls/tree/tree_node_model.h"
+#include "views/controls/tree/tree_view.h"
+#include "views/window/dialog_delegate.h"
 
 namespace views {
 class NativeButton;

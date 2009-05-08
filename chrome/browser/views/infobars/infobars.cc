@@ -11,15 +11,15 @@
 #include "base/message_loop.h"
 #include "chrome/browser/views/event_utils.h"
 #include "chrome/browser/views/infobars/infobar_container.h"
-#include "chrome/views/background.h"
-#include "chrome/views/controls/button/image_button.h"
-#include "chrome/views/controls/button/native_button.h"
-#include "chrome/views/controls/image_view.h"
-#include "chrome/views/controls/label.h"
-#include "chrome/views/focus/external_focus_tracker.h"
-#include "chrome/views/widget/widget.h"
 #include "grit/generated_resources.h"
 #include "grit/theme_resources.h"
+#include "views/background.h"
+#include "views/controls/button/image_button.h"
+#include "views/controls/button/native_button.h"
+#include "views/controls/image_view.h"
+#include "views/controls/label.h"
+#include "views/focus/external_focus_tracker.h"
+#include "views/widget/widget.h"
 
 // static
 const double InfoBar::kTargetHeight = 37.0;

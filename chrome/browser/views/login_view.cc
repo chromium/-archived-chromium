@@ -9,11 +9,11 @@
 #include "app/l10n_util.h"
 #include "base/message_loop.h"
 #include "chrome/browser/views/standard_layout.h"
-#include "chrome/views/grid_layout.h"
-#include "chrome/views/controls/label.h"
-#include "chrome/views/controls/text_field.h"
-#include "chrome/views/widget/root_view.h"
 #include "grit/generated_resources.h"
+#include "views/grid_layout.h"
+#include "views/controls/label.h"
+#include "views/controls/text_field.h"
+#include "views/widget/root_view.h"
 
 namespace views {
 

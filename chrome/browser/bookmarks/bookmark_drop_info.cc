@@ -9,8 +9,8 @@
 #endif
 
 #include "base/basictypes.h"
-#include "chrome/views/event.h"
-#include "chrome/views/view_constants.h"
+#include "views/event.h"
+#include "views/view_constants.h"
 
 BookmarkDropInfo::BookmarkDropInfo(gfx::NativeWindow wnd, int top_margin)
     : source_operations_(0),

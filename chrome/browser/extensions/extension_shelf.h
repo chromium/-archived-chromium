@@ -8,7 +8,7 @@
 #include "chrome/browser/extensions/extensions_service.h"
 #include "app/gfx/chrome_canvas.h"
 #include "chrome/common/notification_observer.h"
-#include "chrome/views/view.h"
+#include "views/view.h"
 
 class Browser;
 

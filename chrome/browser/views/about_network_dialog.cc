@@ -8,13 +8,13 @@
 #include "base/thread.h"
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/views/standard_layout.h"
-#include "chrome/views/grid_layout.h"
-#include "chrome/views/controls/button/text_button.h"
-#include "chrome/views/controls/text_field.h"
-#include "chrome/views/window/window.h"
 #include "net/url_request/url_request.h"
 #include "net/url_request/url_request_job.h"
 #include "net/url_request/url_request_job_tracker.h"
+#include "views/grid_layout.h"
+#include "views/controls/button/text_button.h"
+#include "views/controls/text_field.h"
+#include "views/window/window.h"
 
 namespace {
 

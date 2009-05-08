@@ -19,10 +19,10 @@
 #include "chrome/browser/views/login_view.h"
 #include "chrome/common/chrome_switches.h"
 #include "chrome/common/notification_service.h"
-#include "chrome/views/window/dialog_delegate.h"
 #include "grit/generated_resources.h"
 #include "net/base/auth.h"
 #include "net/url_request/url_request.h"
+#include "views/window/dialog_delegate.h"
 
 using namespace std;
 using views::LoginView;

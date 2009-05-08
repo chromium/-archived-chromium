@@ -16,9 +16,9 @@
 #include "chrome/browser/views/tab_contents_container_view.h"
 #include "chrome/common/chrome_constants.h"
 #include "chrome/common/win_util.h"
-// Included for SetRootViewForHWND.
-#include "chrome/views/widget/widget_win.h"
 #include "chrome/test/automation/automation_messages.h"
+// Included for SetRootViewForHWND.
+#include "views/widget/widget_win.h"
 
 static const wchar_t kWindowObjectKey[] = L"ChromeWindowObject";
 

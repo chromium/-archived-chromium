@@ -7,8 +7,8 @@
 
 #include "base/gfx/rect.h"
 #include "chrome/browser/status_bubble.h"
-#include "chrome/views/widget/widget.h"
-#include "chrome/views/widget/widget_win.h"
+#include "views/widget/widget.h"
+#include "views/widget/widget_win.h"
 
 class GURL;
 

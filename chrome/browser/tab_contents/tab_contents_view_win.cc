@@ -24,9 +24,9 @@
 #include "chrome/browser/tab_contents/web_drop_target.h"
 #include "chrome/browser/views/sad_tab_view.h"
 #include "chrome/common/url_constants.h"
-#include "chrome/views/focus/view_storage.h"
-#include "chrome/views/widget/root_view.h"
 #include "net/base/net_util.h"
+#include "views/focus/view_storage.h"
+#include "views/widget/root_view.h"
 #include "webkit/glue/plugins/webplugin_delegate_impl.h"
 #include "webkit/glue/webdropdata.h"
 

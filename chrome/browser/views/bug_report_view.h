@@ -6,11 +6,11 @@
 #define CHROME_BROWSER_VIEWS_BUG_REPORT_VIEW_H_
 
 #include "chrome/browser/net/url_fetcher.h"
-#include "chrome/views/controls/combo_box.h"
-#include "chrome/views/controls/text_field.h"
-#include "chrome/views/view.h"
-#include "chrome/views/window/dialog_delegate.h"
 #include "googleurl/src/gurl.h"
+#include "views/controls/combo_box.h"
+#include "views/controls/text_field.h"
+#include "views/view.h"
+#include "views/window/dialog_delegate.h"
 
 namespace views {
 class Checkbox;

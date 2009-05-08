@@ -33,15 +33,15 @@
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
 #include "chrome/common/win_util.h"
-#include "chrome/views/controls/button/menu_button.h"
-#include "chrome/views/controls/menu/chrome_menu.h"
-#include "chrome/views/view_constants.h"
-#include "chrome/views/widget/tooltip_manager.h"
-#include "chrome/views/widget/widget.h"
-#include "chrome/views/window/window.h"
 #include "grit/generated_resources.h"
 #include "grit/theme_resources.h"
 #include "skia/ext/skia_utils.h"
+#include "views/controls/button/menu_button.h"
+#include "views/controls/menu/chrome_menu.h"
+#include "views/view_constants.h"
+#include "views/widget/tooltip_manager.h"
+#include "views/widget/widget.h"
+#include "views/window/window.h"
 
 using views::CustomButton;
 using views::DropTargetEvent;

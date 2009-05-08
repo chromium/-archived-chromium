@@ -7,8 +7,8 @@
 
 #include "chrome/browser/bookmarks/bookmark_drag_data.h"
 #include "chrome/browser/bookmarks/bookmark_drop_info.h"
-#include "chrome/views/controls/menu/menu.h"
-#include "chrome/views/controls/table/table_view.h"
+#include "views/controls/menu/menu.h"
+#include "views/controls/table/table_view.h"
 
 class BookmarkModel;
 class BookmarkNode;

@@ -6,11 +6,11 @@
 #define CHROME_BROWSER_VIEWS_CLEAR_BROWSING_DATA_H__
 
 #include "chrome/browser/browsing_data_remover.h"
-#include "chrome/views/controls/button/button.h"
-#include "chrome/views/controls/combo_box.h"
-#include "chrome/views/controls/label.h"
-#include "chrome/views/view.h"
-#include "chrome/views/window/dialog_delegate.h"
+#include "views/controls/button/button.h"
+#include "views/controls/combo_box.h"
+#include "views/controls/label.h"
+#include "views/view.h"
+#include "views/window/dialog_delegate.h"
 
 namespace views {
 class Checkbox;

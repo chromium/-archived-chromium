@@ -22,13 +22,12 @@
 #include "chrome/browser/views/standard_layout.h"
 #include "chrome/browser/views/tab_contents_container_view.h"
 #include "chrome/common/url_constants.h"
-#include "chrome/views/grid_layout.h"
-#include "chrome/views/controls/scrollbar/native_scroll_bar.h"
-#include "chrome/views/controls/scroll_view.h"
-#include "chrome/views/controls/text_field.h"
-#include "chrome/views/view.h"
-
 #include "grit/debugger_resources.h"
+#include "views/grid_layout.h"
+#include "views/controls/scrollbar/native_scroll_bar.h"
+#include "views/controls/scroll_view.h"
+#include "views/controls/text_field.h"
+#include "views/view.h"
 
 DebuggerView::DebuggerView(DebuggerWindow* window)
     : window_(window), output_ready_(false) {

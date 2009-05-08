@@ -13,11 +13,11 @@
 #include "app/resource_bundle.h"
 #include "base/gfx/native_theme.h"
 #include "chrome/browser/views/standard_layout.h"
-#include "chrome/views/grid_layout.h"
-#include "chrome/views/controls/label.h"
-#include "chrome/views/controls/separator.h"
 #include "grit/locale_settings.h"
 #include "grit/generated_resources.h"
+#include "views/grid_layout.h"
+#include "views/controls/label.h"
+#include "views/controls/separator.h"
 
 static const int kLeftColumnWidthChars = 20;
 static const int kOptionsGroupViewColumnSpacing = 30;

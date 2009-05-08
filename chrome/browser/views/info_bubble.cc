@@ -13,9 +13,9 @@
 #include "chrome/common/notification_service.h"
 #include "chrome/common/notification_type.h"
 #include "chrome/common/win_util.h"
-#include "chrome/views/widget/root_view.h"
-#include "chrome/views/window/window.h"
 #include "grit/theme_resources.h"
+#include "views/widget/root_view.h"
+#include "views/window/window.h"
 
 using views::View;
 

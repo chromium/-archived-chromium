@@ -6,7 +6,7 @@
 #define CHROME_BROWSER_VIEWS_LOGIN_VIEW_H__
 
 #include "base/task.h"
-#include "chrome/views/view.h"
+#include "views/view.h"
 
 namespace views {
 class Label;

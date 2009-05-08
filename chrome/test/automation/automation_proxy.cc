@@ -18,10 +18,9 @@
 #include "chrome/test/automation/browser_proxy.h"
 #include "chrome/test/automation/tab_proxy.h"
 #include "chrome/test/automation/window_proxy.h"
-
 #if defined(OS_WIN)
 // TODO(port): Enable when dialog_delegate is ported.
-#include "chrome/views/window/dialog_delegate.h"
+#include "views/window/dialog_delegate.h"
 #endif
 
 using base::TimeDelta;

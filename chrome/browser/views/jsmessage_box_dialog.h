@@ -8,7 +8,7 @@
 #include <string>
 
 #include "chrome/browser/app_modal_dialog.h"
-#include "chrome/views/window/dialog_delegate.h"
+#include "views/window/dialog_delegate.h"
 
 class MessageBoxView;
 class TabContents;

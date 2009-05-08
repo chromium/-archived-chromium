@@ -10,11 +10,11 @@
 #include "chrome/browser/bookmarks/bookmark_menu_controller_win.h"
 #include "chrome/browser/bookmarks/bookmark_model.h"
 #include "chrome/browser/extensions/extensions_service.h"
-#include "chrome/views/controls/button/menu_button.h"
-#include "chrome/views/controls/label.h"
-#include "chrome/views/controls/menu/menu.h"
-#include "chrome/views/controls/menu/view_menu_delegate.h"
-#include "chrome/views/view.h"
+#include "views/controls/button/menu_button.h"
+#include "views/controls/label.h"
+#include "views/controls/menu/menu.h"
+#include "views/controls/menu/view_menu_delegate.h"
+#include "views/view.h"
 #include "skia/include/corecg/SkRect.h"
 
 class Browser;

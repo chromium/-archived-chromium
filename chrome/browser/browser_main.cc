@@ -89,12 +89,12 @@
 #include "chrome/installer/util/install_util.h"
 #include "chrome/installer/util/shell_util.h"
 #include "chrome/installer/util/version.h"
-#include "chrome/views/widget/accelerator_handler.h"
 #include "net/base/net_util.h"
 #include "net/base/sdch_manager.h"
 #include "net/base/winsock_init.h"
 #include "net/http/http_network_layer.h"
 #include "sandbox/src/sandbox.h"
+#include "views/widget/accelerator_handler.h"
 
 #endif  // defined(OS_WIN)
 

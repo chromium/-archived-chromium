@@ -1,0 +1,12 @@
+include_rules = [
+  "+app",
+  "+chrome/app",
+  "+chrome/app/theme",
+  "+chrome/browser",
+  "+chrome/browser/views",
+  "+chrome/common",
+  "+grit",  # For generated headers
+  "+skia/ext",
+  "+skia/include",
+  "+webkit/glue",
+]

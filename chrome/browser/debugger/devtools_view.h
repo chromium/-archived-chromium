@@ -10,7 +10,7 @@
 #include "base/basictypes.h"
 #include "base/gfx/size.h"
 #include "chrome/browser/tab_contents/tab_contents_delegate.h"
-#include "chrome/views/view.h"
+#include "views/view.h"
 
 namespace IPC {
 class Message;

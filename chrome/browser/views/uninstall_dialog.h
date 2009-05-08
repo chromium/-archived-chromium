@@ -6,7 +6,7 @@
 #define CHROME_BROWSER_VIEWS_UNINSTALL_DIALOG_H_
 
 #include "base/basictypes.h"
-#include "chrome/views/window/dialog_delegate.h"
+#include "views/window/dialog_delegate.h"
 
 class MessageBoxView;
 

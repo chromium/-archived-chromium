@@ -17,12 +17,12 @@
 #include "chrome/browser/views/download_shelf_view.h"
 #include "chrome/common/gfx/text_elider.h"
 #include "chrome/common/win_util.h"
-#include "chrome/views/controls/button/native_button.h"
-#include "chrome/views/controls/menu/menu.h"
-#include "chrome/views/widget/root_view.h"
-#include "chrome/views/widget/widget.h"
 #include "grit/generated_resources.h"
 #include "grit/theme_resources.h"
+#include "views/controls/button/native_button.h"
+#include "views/controls/menu/menu.h"
+#include "views/widget/root_view.h"
+#include "views/widget/widget.h"
 
 using base::TimeDelta;
 

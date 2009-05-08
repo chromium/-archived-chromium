@@ -6,10 +6,10 @@
 #define CHROME_BROWSER_VIEWS_PAGE_INFO_WINDOW_H__
 
 #include "chrome/browser/tab_contents/navigation_entry.h"
-#include "chrome/views/controls/button/button.h"
-#include "chrome/views/window/dialog_delegate.h"
-#include "chrome/views/window/window.h"
 #include "googleurl/src/gurl.h"
+#include "views/controls/button/button.h"
+#include "views/window/dialog_delegate.h"
+#include "views/window/window.h"
 
 // The page info window displays information regarding the current page,
 // including security information.

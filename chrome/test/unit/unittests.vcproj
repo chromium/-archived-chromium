@@ -1044,27 +1044,27 @@
 			Name="views"
 			>
 			<File
-				RelativePath="..\..\views\focus\focus_manager_unittest.cc"
+				RelativePath="..\..\..\views\focus\focus_manager_unittest.cc"
 				>
 			</File>
 			<File
-				RelativePath="..\..\views\grid_layout_unittest.cc"
+				RelativePath="..\..\..\views\grid_layout_unittest.cc"
 				>
 			</File>
 			<File
-				RelativePath="..\..\views\controls\label_unittest.cc"
+				RelativePath="..\..\..\views\controls\label_unittest.cc"
 				>
 			</File>
 			<File
-				RelativePath="..\..\views\controls\table\table_view_unittest.cc"
+				RelativePath="..\..\..\views\controls\table\table_view_unittest.cc"
 				>
 			</File>
 			<File
-				RelativePath="..\..\views\controls\tree\tree_node_iterator_unittest.cc"
+				RelativePath="..\..\..\views\controls\tree\tree_node_iterator_unittest.cc"
 				>
 			</File>
 			<File
-				RelativePath="..\..\views\view_unittest.cc"
+				RelativePath="..\..\..\views\view_unittest.cc"
 				>
 			</File>
 		</Filter>

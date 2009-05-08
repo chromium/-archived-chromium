@@ -7,7 +7,7 @@
 
 #include "app/gfx/chrome_font.h"
 #include "base/basictypes.h"
-#include "chrome/views/view.h"
+#include "views/view.h"
 
 class SkBitmap;
 

@@ -6,7 +6,7 @@
 
 #include "base/logging.h"
 #include "chrome/browser/views/jsmessage_box_dialog.h"
-#include "chrome/views/window/window.h"
+#include "views/window/window.h"
 
 AppModalDialog::~AppModalDialog() {
 }

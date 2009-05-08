@@ -30,9 +30,9 @@
 #include "chrome/browser/views/location_bar_view.h"
 #include "chrome/common/chrome_switches.h"
 #include "chrome/common/notification_service.h"
-#include "chrome/views/view.h"
 #include "grit/theme_resources.h"
 #include "third_party/icu38/public/common/unicode/ubidi.h"
+#include "views/view.h"
 
 // Padding between text and the star indicator, in pixels.
 static const int kStarPadding = 4;

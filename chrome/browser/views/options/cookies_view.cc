@@ -15,17 +15,17 @@
 #include "chrome/browser/views/standard_layout.h"
 #include "chrome/common/gfx/color_utils.h"
 #include "chrome/common/win_util.h"
-#include "chrome/views/border.h"
-#include "chrome/views/grid_layout.h"
-#include "chrome/views/controls/label.h"
-#include "chrome/views/controls/button/native_button.h"
-#include "chrome/views/controls/text_field.h"
-#include "chrome/views/controls/table/table_view.h"
 #include "grit/generated_resources.h"
 #include "grit/locale_settings.h"
 #include "grit/theme_resources.h"
 #include "net/base/cookie_monster.h"
 #include "net/url_request/url_request_context.h"
+#include "views/border.h"
+#include "views/grid_layout.h"
+#include "views/controls/label.h"
+#include "views/controls/button/native_button.h"
+#include "views/controls/text_field.h"
+#include "views/controls/table/table_view.h"
 
 // static
 views::Window* CookiesView::instance_ = NULL;

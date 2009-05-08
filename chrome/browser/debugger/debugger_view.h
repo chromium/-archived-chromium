@@ -12,8 +12,8 @@
 
 #include "base/gfx/size.h"
 #include "chrome/browser/tab_contents/tab_contents_delegate.h"
-#include "chrome/views/view.h"
-#include "chrome/views/controls/text_field.h"
+#include "views/view.h"
+#include "views/controls/text_field.h"
 
 class DebuggerView;
 class DebuggerWindow;

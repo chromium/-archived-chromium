@@ -21,10 +21,10 @@
 #include "chrome/browser/views/tabs/tab_strip.h"
 #include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/common/notification_service.h"
-#include "chrome/views/event.h"
-#include "chrome/views/widget/root_view.h"
 #include "grit/theme_resources.h"
 #include "skia/include/SkBitmap.h"
+#include "views/event.h"
+#include "views/widget/root_view.h"
 
 static const int kHorizontalMoveThreshold = 16; // pixels
 

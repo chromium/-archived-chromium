@@ -7,8 +7,8 @@
 
 #include "base/gfx/size.h"
 #include "chrome/browser/find_notification_details.h"
-#include "chrome/views/controls/button/button.h"
-#include "chrome/views/controls/text_field.h"
+#include "views/controls/button/button.h"
+#include "views/controls/text_field.h"
 
 class FindBarWin;
 

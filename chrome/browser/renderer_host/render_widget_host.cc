@@ -13,7 +13,7 @@
 #include "chrome/browser/renderer_host/render_widget_host_view.h"
 #include "chrome/common/notification_service.h"
 #include "chrome/common/render_messages.h"
-#include "chrome/views/view.h"
+#include "views/view.h"
 #include "webkit/glue/webcursor.h"
 #include "webkit/glue/webtextdirection.h"
 

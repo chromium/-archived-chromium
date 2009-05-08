@@ -22,11 +22,11 @@
 #include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/common/notification_service.h"
 #include "chrome/common/pref_names.h"
-#include "chrome/views/background.h"
-#include "chrome/views/controls/button/image_button.h"
-#include "chrome/views/controls/button/menu_button.h"
 #include "grit/generated_resources.h"
 #include "grit/theme_resources.h"
+#include "views/background.h"
+#include "views/controls/button/image_button.h"
+#include "views/controls/button/menu_button.h"
 
 namespace {
 // Menu item ID for the "Notify me when a popup is blocked" checkbox. (All
@@ -316,7 +316,7 @@ void BlockedPopupContainer::OnPopupOpenedFromWhitelistedHost(
 void BlockedPopupContainer::LaunchPopupIndex(int index) {
   if (static_cast<size_t>(index) >= blocked_popups_.size())
     return;
-  
+
   BlockedPopups::iterator i(blocked_popups_.begin() + index);
   TabContents* contents = i->tab_contents;
   gfx::Rect bounds(i->bounds);

@@ -20,13 +20,13 @@
 #include "chrome/browser/views/standard_layout.h"
 #include "chrome/common/chrome_constants.h"
 #include "chrome/installer/util/install_util.h"
-#include "chrome/views/controls/text_field.h"
-#include "chrome/views/controls/throbber.h"
-#include "chrome/views/window/window.h"
 #include "grit/chromium_strings.h"
 #include "grit/generated_resources.h"
 #include "grit/locale_settings.h"
 #include "grit/theme_resources.h"
+#include "views/controls/text_field.h"
+#include "views/controls/throbber.h"
+#include "views/window/window.h"
 #include "webkit/glue/webkit_glue.h"
 
 namespace {

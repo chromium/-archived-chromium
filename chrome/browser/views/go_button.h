@@ -7,7 +7,7 @@
 
 #include "base/basictypes.h"
 #include "base/task.h"
-#include "chrome/views/controls/button/image_button.h"
+#include "views/controls/button/image_button.h"
 
 class Browser;
 class LocationBarView;

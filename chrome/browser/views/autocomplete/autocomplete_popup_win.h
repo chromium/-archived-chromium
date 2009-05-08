@@ -5,7 +5,7 @@
 #ifndef CHROME_BROWSER_VIEWS_AUTOCOMPLETE_AUTOCOMPLETE_POPUP_WIN_H_
 #define CHROME_BROWSER_VIEWS_AUTOCOMPLETE_AUTOCOMPLETE_POPUP_WIN_H_
 
-#include "chrome/views/widget/widget_win.h"
+#include "views/widget/widget_win.h"
 
 class AutocompleteEditViewWin;
 class AutocompletePopupContentsView;

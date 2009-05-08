@@ -12,8 +12,8 @@
 #include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/common/notification_registrar.h"
 #include "chrome/common/notification_service.h"
-#include "chrome/views/widget/accelerator_handler.h"
 #include "googleurl/src/gurl.h"
+#include "views/widget/accelerator_handler.h"
 
 namespace ui_test_utils {
 

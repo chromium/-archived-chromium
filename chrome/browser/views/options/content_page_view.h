@@ -8,8 +8,8 @@
 #include "chrome/browser/views/options/options_page_view.h"
 #include "chrome/browser/shell_dialogs.h"
 #include "chrome/common/pref_member.h"
-#include "chrome/views/controls/button/button.h"
-#include "chrome/views/view.h"
+#include "views/controls/button/button.h"
+#include "views/view.h"
 
 namespace views {
 class Checkbox;

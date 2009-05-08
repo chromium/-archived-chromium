@@ -17,10 +17,10 @@
 #include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/browser/toolbar_model.h"
 #include "chrome/browser/views/info_bubble.h"
-#include "chrome/views/controls/hwnd_view.h"
-#include "chrome/views/controls/image_view.h"
-#include "chrome/views/controls/label.h"
-#include "chrome/views/painter.h"
+#include "views/controls/hwnd_view.h"
+#include "views/controls/image_view.h"
+#include "views/controls/label.h"
+#include "views/painter.h"
 
 class AutocompletePopupPositioner;
 class CommandUpdater;

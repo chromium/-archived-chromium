@@ -6,8 +6,8 @@
 #define CHROME_BROWSER_VIEWS_INFO_BUBBLE_H_
 
 #include "app/slide_animation.h"
-#include "chrome/views/view.h"
-#include "chrome/views/widget/widget_win.h"
+#include "views/view.h"
+#include "views/widget/widget_win.h"
 
 // InfoBubble is used to display an arbitrary view above all other windows.
 // Think of InfoBubble as a tooltip that allows you to embed an arbitrary view

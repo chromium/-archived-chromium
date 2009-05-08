@@ -7,11 +7,11 @@
 
 #include "base/gfx/rect.h"
 #include "chrome/browser/views/info_bubble.h"
-#include "chrome/views/controls/button/button.h"
-#include "chrome/views/controls/combo_box.h"
-#include "chrome/views/controls/link.h"
-#include "chrome/views/view.h"
 #include "googleurl/src/gurl.h"
+#include "views/controls/button/button.h"
+#include "views/controls/combo_box.h"
+#include "views/controls/link.h"
+#include "views/view.h"
 
 class Profile;
 

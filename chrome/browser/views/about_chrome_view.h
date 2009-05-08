@@ -6,11 +6,11 @@
 #define CHROME_BROWSER_VIEWS_ABOUT_CHROME_VIEW_H_
 
 #include "chrome/browser/google_update.h"
-#include "chrome/views/controls/image_view.h"
-#include "chrome/views/controls/label.h"
-#include "chrome/views/controls/link.h"
-#include "chrome/views/view.h"
-#include "chrome/views/window/dialog_delegate.h"
+#include "views/controls/image_view.h"
+#include "views/controls/label.h"
+#include "views/controls/link.h"
+#include "views/view.h"
+#include "views/window/dialog_delegate.h"
 
 namespace views {
 class TextField;

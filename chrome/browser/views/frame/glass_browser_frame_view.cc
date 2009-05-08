@@ -8,9 +8,9 @@
 #include "app/resource_bundle.h"
 #include "chrome/browser/views/frame/browser_view.h"
 #include "chrome/browser/views/tabs/tab_strip.h"
-#include "chrome/views/window/client_view.h"
-#include "chrome/views/window/window_resources.h"
 #include "grit/theme_resources.h"
+#include "views/window/client_view.h"
+#include "views/window/window_resources.h"
 
 // An enumeration of bitmap resources used by this window.
 enum {

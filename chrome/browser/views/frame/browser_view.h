@@ -11,8 +11,8 @@
 #include "chrome/browser/hang_monitor/hung_window_detector.h"
 #include "chrome/browser/tabs/tab_strip_model.h"
 #include "chrome/browser/views/frame/browser_frame.h"
-#include "chrome/views/window/client_view.h"
-#include "chrome/views/window/window_delegate.h"
+#include "views/window/client_view.h"
+#include "views/window/window_delegate.h"
 
 // NOTE: For more information about the objects and files in this directory,
 // view: http://dev.chromium.org/developers/design-documents/browser-window

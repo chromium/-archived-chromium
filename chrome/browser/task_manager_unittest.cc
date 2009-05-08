@@ -6,10 +6,10 @@
 
 #include <string>
 
-#include "chrome/views/controls/table/table_view.h"
 #include "grit/chromium_strings.h"
 #include "grit/generated_resources.h"
 #include "testing/gtest/include/gtest/gtest.h"
+#include "views/controls/table/table_view.h"
 
 namespace {
 

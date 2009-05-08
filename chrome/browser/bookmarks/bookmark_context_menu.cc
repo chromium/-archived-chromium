@@ -23,7 +23,7 @@
 #if defined(OS_WIN)
 #include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/browser/views/bookmark_manager_view.h"
-#include "chrome/views/window/window.h"
+#include "views/window/window.h"
 #endif
 
 namespace {

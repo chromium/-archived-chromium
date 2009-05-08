@@ -14,9 +14,9 @@
 
 // TODO(port): Port these files.
 #if defined(OS_WIN)
-#include "chrome/views/controls/hwnd_view.h"
+#include "views/controls/hwnd_view.h"
 #else
-#include "chrome/views/view.h"
+#include "views/view.h"
 #include "chrome/common/temp_scaffolding_stubs.h"
 #endif
 

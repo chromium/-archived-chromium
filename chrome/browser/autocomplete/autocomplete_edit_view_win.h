@@ -19,7 +19,7 @@
 #include "chrome/browser/toolbar_model.h"
 #include "chrome/browser/views/autocomplete/autocomplete_popup_contents_view.h"
 #include "chrome/common/page_transition_types.h"
-#include "chrome/views/controls/menu/menu.h"
+#include "views/controls/menu/menu.h"
 #include "webkit/glue/window_open_disposition.h"
 
 class AutocompletePopupModel;

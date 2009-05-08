@@ -4,12 +4,12 @@
 
 
 #include "chrome/browser/view_ids.h"
-#include "chrome/views/view.h"
 #include "chrome/test/automation/browser_proxy.h"
 #include "chrome/test/automation/window_proxy.h"
 #include "chrome/test/automation/tab_proxy.h"
 #include "chrome/test/ui/ui_test.h"
 #include "net/url_request/url_request_unittest.h"
+#include "views/view.h"
 
 namespace {
 

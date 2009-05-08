@@ -19,9 +19,9 @@
 #include "base/string_util.h"
 #include "chrome/browser/views/bookmark_bar_view.h"
 #include "chrome/common/win_util.h"
-#include "chrome/views/controls/button/text_button.h"
 #include "googleurl/src/gurl.h"
 #include "grit/theme_resources.h"
+#include "views/controls/button/text_button.h"
 
 namespace drag_utils {
 

@@ -11,16 +11,16 @@
 #include "chrome/browser/metrics/user_metrics.h"
 #include "chrome/browser/views/first_run_customize_view.h"
 #include "chrome/browser/views/standard_layout.h"
-#include "chrome/views/controls/button/checkbox.h"
-#include "chrome/views/controls/image_view.h"
-#include "chrome/views/controls/label.h"
-#include "chrome/views/controls/throbber.h"
-#include "chrome/views/controls/separator.h"
-#include "chrome/views/window/window.h"
 #include "grit/chromium_strings.h"
 #include "grit/generated_resources.h"
 #include "grit/locale_settings.h"
 #include "grit/theme_resources.h"
+#include "views/controls/button/checkbox.h"
+#include "views/controls/image_view.h"
+#include "views/controls/label.h"
+#include "views/controls/throbber.h"
+#include "views/controls/separator.h"
+#include "views/window/window.h"
 
 namespace {
 

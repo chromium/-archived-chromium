@@ -27,12 +27,12 @@
 #include "chrome/browser/views/first_run_bubble.h"
 #include "chrome/browser/views/page_info_window.h"
 #include "chrome/common/win_util.h"
-#include "chrome/views/background.h"
-#include "chrome/views/border.h"
-#include "chrome/views/widget/root_view.h"
-#include "chrome/views/widget/widget.h"
 #include "grit/generated_resources.h"
 #include "grit/theme_resources.h"
+#include "views/background.h"
+#include "views/border.h"
+#include "views/widget/root_view.h"
+#include "views/widget/widget.h"
 
 using views::View;
 

@@ -2,6 +2,7 @@ include_rules = [
   "+app",
   "+net",
   "+printing",
+  "+views",
 
   # The subdirectories in chrome/ will manually allow their own include
   # directories in chrome/ so we disallow all of them.

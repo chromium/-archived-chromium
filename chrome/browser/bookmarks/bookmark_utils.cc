@@ -26,10 +26,10 @@
 #include "chrome/common/notification_service.h"
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
-#include "chrome/views/controls/tree/tree_node_iterator.h"
-#include "chrome/views/event.h"
 #include "grit/chromium_strings.h"
 #include "grit/generated_resources.h"
+#include "views/controls/tree/tree_node_iterator.h"
+#include "views/event.h"
 
 using base::Time;
 

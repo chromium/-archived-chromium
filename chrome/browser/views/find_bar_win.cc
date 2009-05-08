@@ -14,11 +14,11 @@
 #include "chrome/browser/views/frame/browser_view.h"
 #include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/browser/tab_contents/tab_contents_view.h"
-#include "chrome/views/focus/external_focus_tracker.h"
-#include "chrome/views/focus/view_storage.h"
-#include "chrome/views/controls/scrollbar/native_scroll_bar.h"
-#include "chrome/views/widget/root_view.h"
-#include "chrome/views/widget/widget_win.h"
+#include "views/focus/external_focus_tracker.h"
+#include "views/focus/view_storage.h"
+#include "views/controls/scrollbar/native_scroll_bar.h"
+#include "views/widget/root_view.h"
+#include "views/widget/widget_win.h"
 
 // The minimum space between the FindInPage window and the search result.
 static const int kMinFindWndDistanceFromSelection = 5;

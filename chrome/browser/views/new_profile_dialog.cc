@@ -11,13 +11,13 @@
 #include "base/logging.h"
 #include "base/file_util.h"
 #include "chrome/browser/user_data_manager.h"
-#include "chrome/views/controls/message_box_view.h"
-#include "chrome/views/controls/text_field.h"
-#include "chrome/views/view.h"
-#include "chrome/views/window/window.h"
 #include "grit/chromium_strings.h"
 #include "grit/generated_resources.h"
 #include "grit/locale_settings.h"
+#include "views/controls/message_box_view.h"
+#include "views/controls/text_field.h"
+#include "views/view.h"
+#include "views/window/window.h"
 
 // static
 void NewProfileDialog::RunDialog() {

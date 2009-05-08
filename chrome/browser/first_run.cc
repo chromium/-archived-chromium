@@ -43,13 +43,10 @@
 #include "chrome/installer/util/master_preferences.h"
 #include "chrome/installer/util/shell_util.h"
 #include "chrome/installer/util/util_constants.h"
-#include "chrome/views/widget/accelerator_handler.h"
-#include "chrome/views/window/window.h"
-
 #include "google_update_idl.h"
-
 #include "grit/locale_settings.h"
-
+#include "views/widget/accelerator_handler.h"
+#include "views/window/window.h"
 
 namespace {
 

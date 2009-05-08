@@ -19,7 +19,7 @@
 #include "chrome/browser/tab_contents/tab_contents.h"
 #if defined(OS_WIN)
 // TODO(port): Port or produce equivalent.
-#include "chrome/views/controls/table/group_table_view.h"
+#include "views/controls/table/group_table_view.h"
 #endif  // defined(OS_WIN)
 #include "net/url_request/url_request_job_tracker.h"
 #include "testing/gtest/include/gtest/gtest_prod.h"

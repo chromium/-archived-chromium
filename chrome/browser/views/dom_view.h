@@ -9,8 +9,8 @@
 #define CHROME_BROWSER_VIEWS_DOM_VIEW_H_
 
 #include "base/scoped_ptr.h"
-#include "chrome/views/controls/hwnd_view.h"
 #include "googleurl/src/gurl.h"
+#include "views/controls/hwnd_view.h"
 
 class Profile;
 class SiteInstance;

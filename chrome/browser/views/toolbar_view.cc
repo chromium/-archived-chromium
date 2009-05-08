@@ -42,17 +42,17 @@
 #ifdef CHROME_PERSONALIZATION
 #include "chrome/personalization/personalization.h"
 #endif
-#include "chrome/views/background.h"
-#include "chrome/views/controls/button/button_dropdown.h"
-#include "chrome/views/controls/hwnd_view.h"
-#include "chrome/views/controls/label.h"
-#include "chrome/views/widget/tooltip_manager.h"
-#include "chrome/views/window/non_client_view.h"
-#include "chrome/views/window/window.h"
 #include "grit/chromium_strings.h"
 #include "grit/generated_resources.h"
 #include "grit/theme_resources.h"
 #include "net/base/net_util.h"
+#include "views/background.h"
+#include "views/controls/button/button_dropdown.h"
+#include "views/controls/hwnd_view.h"
+#include "views/controls/label.h"
+#include "views/widget/tooltip_manager.h"
+#include "views/window/non_client_view.h"
+#include "views/window/window.h"
 
 static const int kControlHorizOffset = 4;
 static const int kControlVertOffset = 6;

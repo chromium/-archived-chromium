@@ -26,15 +26,15 @@
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
 #include "chrome/common/win_util.h"
-#include "chrome/views/grid_layout.h"
-#include "chrome/views/controls/button/menu_button.h"
-#include "chrome/views/controls/label.h"
-#include "chrome/views/controls/single_split_view.h"
-#include "chrome/views/widget/widget.h"
-#include "chrome/views/window/window.h"
 #include "grit/generated_resources.h"
 #include "grit/locale_settings.h"
 #include "skia/ext/skia_utils.h"
+#include "views/grid_layout.h"
+#include "views/controls/button/menu_button.h"
+#include "views/controls/label.h"
+#include "views/controls/single_split_view.h"
+#include "views/widget/widget.h"
+#include "views/window/window.h"
 
 
 // If non-null, there is an open editor and this is the window it is contained

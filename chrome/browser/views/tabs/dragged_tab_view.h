@@ -9,8 +9,8 @@
 #include "base/gfx/point.h"
 #include "base/gfx/size.h"
 #include "base/task.h"
-#include "chrome/views/view.h"
 #include "skia/include/SkBitmap.h"
+#include "views/view.h"
 
 namespace views {
 class WidgetWin;

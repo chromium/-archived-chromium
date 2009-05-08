@@ -6,7 +6,7 @@
 #define CHROME_BROWSER_VIEWS_OPTIONS_LANGUAGE_COMBOBOX_MODEL_H_
 
 #include "chrome/browser/profile.h"
-#include "chrome/views/controls/combo_box.h"
+#include "views/controls/combo_box.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 // LanguageComboboxModel

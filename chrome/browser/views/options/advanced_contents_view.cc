@@ -33,17 +33,17 @@
 #include "chrome/common/pref_member.h"
 #include "chrome/common/pref_names.h"
 #include "chrome/installer/util/google_update_settings.h"
-#include "chrome/views/background.h"
-#include "chrome/views/controls/button/checkbox.h"
-#include "chrome/views/controls/combo_box.h"
-#include "chrome/views/controls/scroll_view.h"
-#include "chrome/views/grid_layout.h"
-#include "chrome/views/widget/widget.h"
 #include "grit/chromium_strings.h"
 #include "grit/generated_resources.h"
 #include "grit/locale_settings.h"
 #include "net/base/ssl_config_service.h"
 #include "net/base/cookie_policy.h"
+#include "views/background.h"
+#include "views/controls/button/checkbox.h"
+#include "views/controls/combo_box.h"
+#include "views/controls/scroll_view.h"
+#include "views/grid_layout.h"
+#include "views/widget/widget.h"
 
 using views::GridLayout;
 using views::ColumnSet;

@@ -7,12 +7,12 @@
 
 #include "chrome/browser/cancelable_request.h"
 #include "chrome/browser/history/history.h"
-#include "chrome/views/controls/button/native_button.h"
-#include "chrome/views/controls/table/table_view.h"
-#include "chrome/views/controls/text_field.h"
-#include "chrome/views/view.h"
-#include "chrome/views/window/dialog_delegate.h"
-#include "chrome/views/window/window.h"
+#include "views/controls/button/native_button.h"
+#include "views/controls/table/table_view.h"
+#include "views/controls/text_field.h"
+#include "views/view.h"
+#include "views/window/dialog_delegate.h"
+#include "views/window/window.h"
 
 namespace views {
 class Button;

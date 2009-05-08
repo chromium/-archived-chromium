@@ -5,7 +5,7 @@
 #ifndef CHROME_BROWSER_VIEWS_OPTIONS_OPTIONS_GROUP_VIEW_H__
 #define CHROME_BROWSER_VIEWS_OPTIONS_OPTIONS_GROUP_VIEW_H__
 
-#include "chrome/views/view.h"
+#include "views/view.h"
 
 namespace views {
 class Label;

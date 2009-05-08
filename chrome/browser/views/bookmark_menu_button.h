@@ -8,8 +8,8 @@
 #include "base/timer.h"
 #include "chrome/browser/bookmarks/bookmark_drag_data.h"
 #include "chrome/browser/bookmarks/bookmark_menu_controller_win.h"
-#include "chrome/views/controls/button/menu_button.h"
-#include "chrome/views/controls/menu/view_menu_delegate.h"
+#include "views/controls/button/menu_button.h"
+#include "views/controls/menu/view_menu_delegate.h"
 
 class BookmarkModel;
 class Browser;

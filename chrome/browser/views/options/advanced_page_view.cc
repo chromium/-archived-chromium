@@ -14,15 +14,15 @@
 #include "chrome/common/chrome_constants.h"
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
-#include "chrome/views/controls/message_box_view.h"
-#include "chrome/views/controls/button/native_button.h"
-#include "chrome/views/controls/scroll_view.h"
-#include "chrome/views/grid_layout.h"
-#include "chrome/views/window/dialog_delegate.h"
-#include "chrome/views/window/window.h"
 #include "grit/chromium_strings.h"
 #include "grit/generated_resources.h"
 #include "grit/locale_settings.h"
+#include "views/controls/message_box_view.h"
+#include "views/controls/button/native_button.h"
+#include "views/controls/scroll_view.h"
+#include "views/grid_layout.h"
+#include "views/window/dialog_delegate.h"
+#include "views/window/window.h"
 
 namespace {
 

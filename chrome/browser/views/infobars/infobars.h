@@ -7,8 +7,8 @@
 
 #include "app/animation.h"
 #include "chrome/browser/tab_contents/infobar_delegate.h"
-#include "chrome/views/controls/button/button.h"
-#include "chrome/views/controls/link.h"
+#include "views/controls/button/button.h"
+#include "views/controls/link.h"
 
 class InfoBarContainer;
 class SlideAnimation;

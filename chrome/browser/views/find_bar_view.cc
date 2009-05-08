@@ -14,12 +14,12 @@
 #include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/browser/views/find_bar_win.h"
 #include "chrome/browser/view_ids.h"
-#include "chrome/views/background.h"
-#include "chrome/views/controls/button/image_button.h"
-#include "chrome/views/controls/label.h"
 #include "grit/generated_resources.h"
 #include "grit/theme_resources.h"
 #include "skia/include/SkGradientShader.h"
+#include "views/background.h"
+#include "views/controls/button/image_button.h"
+#include "views/controls/label.h"
 
 // The amount of whitespace to have before the find button.
 static const int kWhiteSpaceAfterMatchCountLabel = 3;

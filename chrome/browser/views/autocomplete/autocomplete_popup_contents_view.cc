@@ -16,11 +16,11 @@
 #include "chrome/browser/views/autocomplete/autocomplete_popup_win.h"
 #include "chrome/common/gfx/color_utils.h"
 #include "chrome/common/win_util.h"
-#include "chrome/views/widget/widget.h"
 #include "grit/generated_resources.h"
 #include "grit/theme_resources.h"
 #include "skia/include/SkShader.h"
 #include "third_party/icu38/public/common/unicode/ubidi.h"
+#include "views/widget/widget.h"
 
 // Colors for various components of the view.
 static const SkColor kBackgroundColor =

@@ -27,9 +27,9 @@
 #include "chrome/browser/cancelable_request.h"
 #include "chrome/browser/download/download_manager.h"
 #include "chrome/browser/icon_manager.h"
-#include "chrome/views/event.h"
-#include "chrome/views/controls/button/button.h"
-#include "chrome/views/view.h"
+#include "views/event.h"
+#include "views/controls/button/button.h"
+#include "views/view.h"
 
 namespace views {
 class Label;

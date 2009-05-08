@@ -14,14 +14,14 @@
 #include "chrome/browser/profile.h"
 #include "chrome/browser/search_engines/template_url_model.h"
 #include "chrome/browser/views/standard_layout.h"
-#include "chrome/views/event.h"
-#include "chrome/views/controls/button/native_button.h"
-#include "chrome/views/controls/label.h"
-#include "chrome/views/focus/focus_manager.h"
-#include "chrome/views/window/window.h"
 #include "grit/chromium_strings.h"
 #include "grit/generated_resources.h"
 #include "grit/locale_settings.h"
+#include "views/event.h"
+#include "views/controls/button/native_button.h"
+#include "views/controls/label.h"
+#include "views/focus/focus_manager.h"
+#include "views/window/window.h"
 
 namespace {
 

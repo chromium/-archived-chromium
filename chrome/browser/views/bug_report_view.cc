@@ -18,16 +18,16 @@
 #include "chrome/browser/views/standard_layout.h"
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
-#include "chrome/views/controls/button/checkbox.h"
-#include "chrome/views/controls/label.h"
-#include "chrome/views/grid_layout.h"
-#include "chrome/views/window/client_view.h"
-#include "chrome/views/window/window.h"
 #include "grit/chromium_strings.h"
 #include "grit/generated_resources.h"
 #include "grit/locale_settings.h"
 #include "net/base/escape.h"
 #include "unicode/locid.h"
+#include "views/controls/button/checkbox.h"
+#include "views/controls/label.h"
+#include "views/grid_layout.h"
+#include "views/window/client_view.h"
+#include "views/window/window.h"
 
 using views::ColumnSet;
 using views::GridLayout;

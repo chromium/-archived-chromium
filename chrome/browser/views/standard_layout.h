@@ -5,7 +5,7 @@
 #ifndef CHROME_BROWSER_VIEWS_STANDARD_LAYOUT_H__
 #define CHROME_BROWSER_VIEWS_STANDARD_LAYOUT_H__
 
-#include "chrome/views/grid_layout.h"
+#include "views/grid_layout.h"
 
 //
 // This file contains some constants we use to implement our standard panel

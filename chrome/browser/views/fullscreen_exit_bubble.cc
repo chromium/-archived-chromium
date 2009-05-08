@@ -9,8 +9,8 @@
 #include "app/l10n_util_win.h"
 #include "app/resource_bundle.h"
 #include "chrome/app/chrome_dll_resource.h"
-#include "chrome/views/widget/root_view.h"
 #include "grit/generated_resources.h"
+#include "views/widget/root_view.h"
 
 // FullscreenExitView ----------------------------------------------------------
 

@@ -37,10 +37,10 @@
 #include "chrome/common/gfx/utils.h"
 #include "chrome/common/notification_service.h"
 #include "chrome/common/win_util.h"
-#include "chrome/views/focus/focus_util_win.h"
 #include "googleurl/src/url_util.h"
 #include "grit/generated_resources.h"
 #include "skia/ext/skia_utils_win.h"
+#include "views/focus/focus_util_win.h"
 
 #pragma comment(lib, "oleacc.lib")  // Needed for accessibility support.
 

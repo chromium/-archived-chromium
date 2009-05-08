@@ -6,11 +6,11 @@
 #include "app/message_box_flags.h"
 #include "base/logging.h"
 #include "chrome/browser/views/user_data_dir_dialog.h"
-#include "chrome/views/controls/message_box_view.h"
-#include "chrome/views/widget/widget.h"
-#include "chrome/views/window/window.h"
 #include "grit/chromium_strings.h"
 #include "grit/generated_resources.h"
+#include "views/controls/message_box_view.h"
+#include "views/widget/widget.h"
+#include "views/window/window.h"
 
 // static
 std::wstring UserDataDirDialog::RunUserDataDirDialog(

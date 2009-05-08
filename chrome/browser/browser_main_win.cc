@@ -23,11 +23,11 @@
 #include "chrome/installer/util/helper.h"
 #include "chrome/installer/util/install_util.h"
 #include "chrome/installer/util/shell_util.h"
-#include "chrome/views/controls/message_box_view.h"
-#include "chrome/views/widget/accelerator_handler.h"
-#include "chrome/views/window/window.h"
 #include "grit/chromium_strings.h"
 #include "grit/generated_resources.h"
+#include "views/controls/message_box_view.h"
+#include "views/widget/accelerator_handler.h"
+#include "views/window/window.h"
 
 // Displays a warning message if the user is running chrome on windows 2000.
 // Returns true if the OS is win2000, false otherwise.

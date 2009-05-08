@@ -19,8 +19,8 @@
 #include "chrome/test/automation/tab_proxy.h"
 #include "chrome/test/automation/window_proxy.h"
 #include "chrome/test/ui/ui_test.h"
-#include "chrome/views/event.h"
 #include "net/base/net_util.h"
+#include "views/event.h"
 
 class AutomationProxyTest : public UITest {
  protected:

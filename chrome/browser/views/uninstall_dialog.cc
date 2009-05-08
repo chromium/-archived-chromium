@@ -8,9 +8,9 @@
 #include "app/message_box_flags.h"
 #include "base/message_loop.h"
 #include "chrome/common/result_codes.h"
-#include "chrome/views/controls/message_box_view.h"
-#include "chrome/views/window/window.h"
 #include "grit/chromium_strings.h"
+#include "views/controls/message_box_view.h"
+#include "views/window/window.h"
 
 // static
 void UninstallDialog::ShowUninstallDialog(int& user_selection) {

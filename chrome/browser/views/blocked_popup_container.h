@@ -18,10 +18,10 @@
 #include "chrome/browser/tab_contents/constrained_window.h"
 #include "chrome/browser/tab_contents/tab_contents_delegate.h"
 #include "chrome/common/pref_member.h"
-#include "chrome/views/controls/button/button.h"
-#include "chrome/views/controls/menu/menu.h"
-#include "chrome/views/view.h"
-#include "chrome/views/widget/widget_win.h"
+#include "views/controls/button/button.h"
+#include "views/controls/menu/menu.h"
+#include "views/view.h"
+#include "views/widget/widget_win.h"
 
 class BlockedPopupContainer;
 class Profile;
@@ -268,7 +268,7 @@ class BlockedPopupContainer : public ConstrainedWindow,
   // iterator into |popup_hosts_|.  Returns popup_hosts_.end() if |index| is
   // invalid.
   PopupHosts::const_iterator ConvertHostIndexToIterator(int index) const;
-  
+
   // If the popup at |i| is the last one associated with its host, removes the
   // host from the host list.
   void EraseHostIfNeeded(BlockedPopups::iterator i);

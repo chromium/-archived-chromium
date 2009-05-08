@@ -16,9 +16,9 @@
 #include "chrome/common/chrome_constants.h"
 #include "chrome/common/notification_observer.h"
 #include "chrome/common/notification_registrar.h"
-#include "chrome/views/focus/focus_manager.h"
-#include "chrome/views/widget/root_view.h"
-#include "chrome/views/widget/widget.h"
+#include "views/focus/focus_manager.h"
+#include "views/widget/root_view.h"
+#include "views/widget/widget.h"
 
 class AutomationProvider;
 class TabContents;

@@ -8,16 +8,16 @@
 #include "chrome/browser/profile.h"
 #include "chrome/browser/search_engines/template_url_model.h"
 #include "chrome/browser/views/standard_layout.h"
-#include "chrome/views/background.h"
-#include "chrome/views/controls/button/checkbox.h"
-#include "chrome/views/controls/label.h"
-#include "chrome/views/controls/throbber.h"
-#include "chrome/views/window/window.h"
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
 #include "grit/generated_resources.h"
 #include "grit/locale_settings.h"
 #include "net/url_request/url_request_context.h"
+#include "views/background.h"
+#include "views/controls/button/checkbox.h"
+#include "views/controls/label.h"
+#include "views/controls/throbber.h"
+#include "views/window/window.h"
 
 using base::Time;
 using base::TimeDelta;

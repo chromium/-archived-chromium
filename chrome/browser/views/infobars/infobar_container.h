@@ -6,7 +6,7 @@
 #define CHROME_BROWSER_VIEWS_INFOBARS_INFOBAR_CONTAINER_H_
 
 #include "chrome/common/notification_observer.h"
-#include "chrome/views/view.h"
+#include "views/view.h"
 
 class BrowserView;
 class InfoBarDelegate;

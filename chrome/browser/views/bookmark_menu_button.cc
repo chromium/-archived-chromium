@@ -11,8 +11,8 @@
 #include "chrome/browser/browser.h"
 #include "chrome/browser/profile.h"
 #include "chrome/browser/view_ids.h"
-#include "chrome/views/widget/widget.h"
 #include "grit/theme_resources.h"
+#include "views/widget/widget.h"
 
 BookmarkMenuButton::BookmarkMenuButton(Browser* browser)
     : views::MenuButton(NULL, std::wstring(), NULL, false),

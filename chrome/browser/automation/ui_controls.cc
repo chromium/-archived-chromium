@@ -8,7 +8,7 @@
 #include "base/message_loop.h"
 #include "base/ref_counted.h"
 #include "base/task.h"
-#include "chrome/views/view.h"
+#include "views/view.h"
 
 namespace ui_controls {
 

@@ -18,7 +18,7 @@
 #include "chrome/installer/util/google_update_constants.h"
 #include "chrome/installer/util/helper.h"
 #include "chrome/installer/util/install_util.h"
-#include "chrome/views/window/window.h"
+#include "views/window/window.h"
 #include "google_update_idl_i.c"
 
 using views::Window;

@@ -34,7 +34,7 @@
 #if defined(OS_WIN)
 // TODO(port): Port these files.
 #include "chrome/browser/load_notification_details.h"
-#include "chrome/views/controls/link.h"
+#include "views/controls/link.h"
 #else
 #include "chrome/common/temp_scaffolding_stubs.h"
 #endif
