@@ -1,7 +1,7 @@
 vars = {
   "webkit_trunk":
     "http://svn.webkit.org/repository/webkit/trunk",
-  "webkit_revision": "43371",
+  "webkit_revision": "43401",
 }
 
 
@@ -19,7 +19,7 @@ deps = {
     "http://googletest.googlecode.com/svn/trunk@243",
 
   "src/third_party/WebKit":
-    "/trunk/deps/third_party/WebKit@15591",
+    "/trunk/deps/third_party/WebKit@15639",
 
   "src/third_party/icu38":
     "/trunk/deps/third_party/icu38@13472",
@@ -33,6 +33,12 @@ deps = {
 
   "src/webkit/data/layout_tests/LayoutTests":
     Var("webkit_trunk") + "/LayoutTests@" + Var("webkit_revision"),
+
+  "src/third_party/WebKit/JavaScriptCore":
+    Var("webkit_trunk") + "/JavaScriptCore@" + Var("webkit_revision"),
+
+  "src/third_party/WebKit/WebCore":
+    Var("webkit_trunk") + "/WebCore@" + Var("webkit_revision"),
 
   "src/third_party/WebKit/WebKitLibraries":
     Var("webkit_trunk") + "/WebKitLibraries@" + Var("webkit_revision"),
