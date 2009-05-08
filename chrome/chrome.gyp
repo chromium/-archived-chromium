@@ -88,7 +88,10 @@
           ],
           'outputs': [
             '<(SHARED_INTERMEDIATE_DIR)/chrome/grit/<(RULE_INPUT_ROOT).h',
+            '<(SHARED_INTERMEDIATE_DIR)/chrome/<(RULE_INPUT_ROOT)_da.pak',
             '<(SHARED_INTERMEDIATE_DIR)/chrome/<(RULE_INPUT_ROOT)_en-US.pak',
+            '<(SHARED_INTERMEDIATE_DIR)/chrome/<(RULE_INPUT_ROOT)_he.pak',
+            '<(SHARED_INTERMEDIATE_DIR)/chrome/<(RULE_INPUT_ROOT)_zh-TW.pak',
           ],
           'action': ['python', '<@(_inputs)', '-i', '<(RULE_INPUT_PATH)', 'build', '-o', '<(SHARED_INTERMEDIATE_DIR)/chrome'],
           'message': 'Generating resources from <(RULE_INPUT_PATH)',
@@ -1877,7 +1880,11 @@
             },
             {
               'destination': '<(PRODUCT_DIR)/locales',
-              'files': ['<(INTERMEDIATE_DIR)/repack/en-US.pak'],
+              'files': ['<(INTERMEDIATE_DIR)/repack/da.pak',
+                        '<(INTERMEDIATE_DIR)/repack/en-US.pak',
+                        '<(INTERMEDIATE_DIR)/repack/he.pak',
+                        '<(INTERMEDIATE_DIR)/repack/zh-TW.pak',
+                        ],
             },
             {
               'destination': '<(PRODUCT_DIR)/themes',
@@ -1994,8 +2001,37 @@
             },
             {
               # TODO(mark): Make this work with more languages than the
-              # hardcoded en-US.
-              'action_name': 'repack_locale',
+              # hardcoded da, en-US, he, zh-TW.
+              'action_name': 'repack_locale_da',
+              'variables': {
+                'pak_inputs': [
+                  '<(SHARED_INTERMEDIATE_DIR)/chrome/generated_resources_da.pak',
+                  '<(SHARED_INTERMEDIATE_DIR)/chrome/chromium_strings_da.pak',
+                  '<(SHARED_INTERMEDIATE_DIR)/chrome/locale_settings_da.pak',
+                  '<(SHARED_INTERMEDIATE_DIR)/webkit/webkit_strings_da.pak',
+                ],
+              },
+              'inputs': [
+                '<(repack_path)',
+                '<@(pak_inputs)',
+              ],
+              'conditions': [
+                ['OS=="mac"', {
+                  'outputs': [
+                    '<(INTERMEDIATE_DIR)/repack/da.lproj/locale.pak',
+                  ],
+                }, {  # else: OS!="mac"
+                  'outputs': [
+                    '<(INTERMEDIATE_DIR)/repack/da.pak',
+                  ],
+                }],
+              ],
+              'action': ['python', '<(repack_path)', '<@(_outputs)', '<@(pak_inputs)'],
+            },
+            {
+              # TODO(mark): Make this work with more languages than the
+              # hardcoded da, en-US, he, zh-TW.
+              'action_name': 'repack_locale_en_us',
               'variables': {
                 'pak_inputs': [
                   '<(SHARED_INTERMEDIATE_DIR)/chrome/generated_resources_en-US.pak',
@@ -2021,6 +2057,64 @@
               ],
               'action': ['python', '<(repack_path)', '<@(_outputs)', '<@(pak_inputs)'],
               'process_outputs_as_mac_bundle_resources': 1,
+            },
+            {
+              # TODO(mark): Make this work with more languages than the
+              # hardcoded da, en-US, he, zh-TW.
+              'action_name': 'repack_locale_he',
+              'variables': {
+                'pak_inputs': [
+                  '<(SHARED_INTERMEDIATE_DIR)/chrome/generated_resources_he.pak',
+                  '<(SHARED_INTERMEDIATE_DIR)/chrome/chromium_strings_he.pak',
+                  '<(SHARED_INTERMEDIATE_DIR)/chrome/locale_settings_he.pak',
+                  '<(SHARED_INTERMEDIATE_DIR)/webkit/webkit_strings_he.pak',
+                ],
+              },
+              'inputs': [
+                '<(repack_path)',
+                '<@(pak_inputs)',
+              ],
+              'conditions': [
+                ['OS=="mac"', {
+                  'outputs': [
+                    '<(INTERMEDIATE_DIR)/repack/he.lproj/locale.pak',
+                  ],
+                }, {  # else: OS!="mac"
+                  'outputs': [
+                    '<(INTERMEDIATE_DIR)/repack/he.pak',
+                  ],
+                }],
+              ],
+              'action': ['python', '<(repack_path)', '<@(_outputs)', '<@(pak_inputs)'],
+            },
+            {
+              # TODO(mark): Make this work with more languages than the
+              # hardcoded da, en-US, he, zh-TW.
+              'action_name': 'repack_locale_zh_tw',
+              'variables': {
+                'pak_inputs': [
+                  '<(SHARED_INTERMEDIATE_DIR)/chrome/generated_resources_zh-TW.pak',
+                  '<(SHARED_INTERMEDIATE_DIR)/chrome/chromium_strings_zh-TW.pak',
+                  '<(SHARED_INTERMEDIATE_DIR)/chrome/locale_settings_zh-TW.pak',
+                  '<(SHARED_INTERMEDIATE_DIR)/webkit/webkit_strings_zh-TW.pak',
+                ],
+              },
+              'inputs': [
+                '<(repack_path)',
+                '<@(pak_inputs)',
+              ],
+              'conditions': [
+                ['OS=="mac"', {
+                  'outputs': [
+                    '<(INTERMEDIATE_DIR)/repack/zh.lproj/locale.pak',
+                  ],
+                }, {  # else: OS!="mac"
+                  'outputs': [
+                    '<(INTERMEDIATE_DIR)/repack/zh-TW.pak',
+                  ],
+                }],
+              ],
+              'action': ['python', '<(repack_path)', '<@(_outputs)', '<@(pak_inputs)'],
             },
           ],
           'sources!': [
