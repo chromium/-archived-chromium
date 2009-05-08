@@ -141,6 +141,20 @@
             '../../../build/temp_gyp/breakpad.gyp:breakpad_handler',
             '../../default_plugin/default_plugin.gyp:default_plugin',
           ],
+          # TODO(bradnelson):  
+          # This should really be done in the 'npapi_layout_test_plugin'
+          # target, but the current VS generator handles 'copies'
+          # settings as AdditionalDependencies, which means that
+          # when it's over there, it tries to do the copy *before*
+          # the file is built, instead of after.  We work around this
+          # by attaching the copy here, since it depends on that
+          # target.
+          'copies': [
+            {
+              'destination': '<(PRODUCT_DIR)/plugins',
+              'files': ['<(PRODUCT_DIR)/npapi_layout_test_plugin.dll'],
+            },
+          ],
         }, {  # else: OS!=win
           'sources/': [
             ['exclude', '_win\\.cc$'],
@@ -289,18 +303,24 @@
             '../npapi_layout_test_plugin/npapi_layout_test_plugin.def',
             '../npapi_layout_test_plugin/npapi_layout_test_plugin.rc',
           ],
-        }, { # OS == "win"
-          # The old VS build would explicitly copy the .dll into the
-          # plugins subdirectory like this.  It might be possible to
-          # use the 'product_dir' setting to build directly into
-          # plugins/ (as is done on Linux), but we'd need to verify
-          # that nothing breaks first.
-          'copies': [
-            {
-              'destination': '<(PRODUCT_DIR)/plugins',
-              'files': ['<(PRODUCT_DIR)/npapi_layout_test_plugin.dll'],
-            },
-          ],
+        # TODO(bradnelson):
+        # This copy should really live here, as a post-build step,
+        # but it's currently being implemented via
+        # AdditionalDependencies, which tries to do the copy before
+        # the file is built...
+        #
+        #}, { # OS == "win"
+        #  # The old VS build would explicitly copy the .dll into the
+        #  # plugins subdirectory like this.  It might be possible to
+        #  # use the 'product_dir' setting to build directly into
+        #  # plugins/ (as is done on Linux), but we'd need to verify
+        #  # that nothing breaks first.
+        #  'copies': [
+        #    {
+        #      'destination': '<(PRODUCT_DIR)/plugins',
+        #      'files': ['<(PRODUCT_DIR)/npapi_layout_test_plugin.dll'],
+        #    },
+        #  ],
         }],
         ['OS=="mac"', {
           'link_settings': {
