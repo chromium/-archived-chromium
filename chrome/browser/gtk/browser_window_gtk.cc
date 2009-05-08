@@ -623,6 +623,9 @@ void BrowserWindowGtk::TabSelectedAt(TabContents* old_contents,
                                      bool user_gesture) {
   DCHECK(old_contents != new_contents);
 
+  if (old_contents && !old_contents->is_being_destroyed())
+    old_contents->view()->StoreFocus();
+
   // Update various elements that are interested in knowing the current
   // TabContents.
   infobar_container_->ChangeTabContents(new_contents);
