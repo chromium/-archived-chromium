@@ -45,6 +45,8 @@
 CAppModule g_module;
 
 int Run(wchar_t* cmd_line, int cmd_show) {
+  base::AtExitManager exit_manager;
+
   CMessageLoop the_loop;
   g_module.AddMessageLoop(&the_loop);
 
@@ -55,8 +57,6 @@ int Run(wchar_t* cmd_line, int cmd_show) {
   }
 
   wnd_main.ShowWindow(cmd_show);
-
-  base::AtExitManager exit_manager;
 
   wchar_t* url = NULL;
   if (cmd_line && *cmd_line) {
