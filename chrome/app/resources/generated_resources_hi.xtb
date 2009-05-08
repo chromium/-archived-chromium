@@ -71,6 +71,7 @@
 <translation id="2994458892329442723">प्लग-इन सक्रिय करें</translation>
 <translation id="1669397342410349095">फ़िशिंग रिपोर्ट वेबसाइट ...</translation>
 <translation id="1674989413181946727">पूरे कंप्यूटर में लागू SSL सेटिंग्स :</translation>
+<translation id="1773709998578631869">आपके <ph name="DOWNLOAD_COUNT"/> डाउनलोड जारी हैं. यदि आप Google Chrome अभी बंद करते हैं, तो ये डाउनलोड रद्द कर दिए जाएंगे.</translation>
 <translation id="8703575177326907206"><ph name="DOMAIN"/> से आपका कनेक्शन एन्क्रिप्ट नहीं किया गया है.</translation>
 <translation id="1644574205037202324">इतिहास</translation>
 <translation id="2518917559152314023">&amp;जोड़ें ...</translation>
@@ -89,6 +90,7 @@
 <translation id="7751559664766943798">हमेशा बुकमार्क बार दिखाएँ</translation>
 <translation id="7511635910912978956"><ph name="NUMBER_FEW"/> घंटे शेष</translation>
 <translation id="1720675772864601791">असुरक्षित चित्र अनुमत करें</translation>
+<translation id="2167276631610992935">JavaScript</translation>
 <translation id="5233638681132016545">नया टैब</translation>
 <translation id="5210365745912300556">टैब बंद करें</translation>
 <translation id="8806796506533854282">एक नया प्रोफ़ाइल नाम दर्ज करें</translation>
@@ -112,6 +114,7 @@
 <translation id="5912378097832178659">खोज इंजन &amp;संपादित करें ...</translation>
 <translation id="4813345808229079766">कनेक्शन</translation>
 <translation id="411666854932687641">गोपनीय स्मृति</translation>
+<translation id="119944043368869598">सभी डाउनलोड साफ़ करें</translation>
 <translation id="4200983522494130825">नया &amp;टैब</translation>
 <translation id="5455790498993699893"><ph name="ACTIVE_MATCH"/><ph name="TOTAL_MATCHCOUNT"/> में से</translation>
 <translation id="2303544859777878640">भाषाएँ :</translation>
@@ -146,6 +149,7 @@
 <translation id="8507996248087185956"><ph name="NUMBER_DEFAULT"/> मिनट</translation>
 <translation id="5296476177639202243">क्वेरी <ph name="SEARCH_TEXT"/>से कोई बुकमार्क मेल नहीं खाते.</translation>
 <translation id="939736085109172342">नया फ़ोल्डर</translation>
+<translation id="2009541932026160416">थंबनेल निकालने के लिए <ph name="CROSS_IMAGE"/> क्लिक करें</translation>
 <translation id="5641560969478423183">सर्वर का प्रमाणपत्र URL से मेल नहीं खाता</translation>
 <translation id="121827551500866099">सभी डाउनलोड दिखाएँ ...</translation>
 <translation id="3115147772012638511">कैश के लिए प्रतीक्षा कर रहा है...</translation>
@@ -190,6 +194,7 @@
 <translation id="9189691339671500905">ऑम्निबॉक्स में उपयोग किया जाने वाला खोज इंजन सेट करें.</translation>
 <translation id="4571852245489094179">बुकमार्क और सेटिंग्स आयात करें</translation>
 <translation id="6514771739083339959">होम पेज:</translation>
+<translation id="4421917670248123270">डाउनलोड बंद और रद्द करें</translation>
 <translation id="5605623530403479164">अन्य खोज इंजन</translation>
 <translation id="5710435578057952990">इस वेबसाइट की पहचान सत्यापित नहीं की गई है.</translation>
 <translation id="5287240709317226393">कुकीज़ प्रदर्शित करें</translation>
@@ -201,6 +206,7 @@
 <translation id="4999762576397546063">Ctrl+<ph name="KEY_COMBO_NAME"/></translation>
 <translation id="3369624026883419694">होस्ट हल हो रहा है...</translation>
 <translation id="3967132639560659870">इस पृष्ठ पर कई SSL त्रुटियाँ मौजूद हैं :</translation>
+<translation id="175196451752279553">बंद किए गए टैब पु&amp;न: खोलें</translation>
 <translation id="5039804452771397117">अनुमति दें</translation>
 <translation id="2266011376676382776">पृष्ठ अप्रतिसादी</translation>
 <translation id="1805966933547717780">http://www.google.com/chrome/help/</translation>
@@ -239,6 +245,7 @@
 <translation id="358344266898797651">सेल्टिक</translation>
 <translation id="5055518462594137986">इस प्रकार के सभी लिंक्स के लिए मेरा चयन याद रखें.</translation>
 <translation id="2870560284913253234">साइट</translation>
+<translation id="4164507027399414915">सभी निकाले गए थंबनेल को पुनर्स्थापित करें</translation>
 <translation id="7543025879977230179"><ph name="PRODUCT_NAME"/>विकल्प</translation>
 <translation id="2648845569394238430">खोजें :</translation>
 <translation id="2175607476662778685">त्वरित लॉन्च बार</translation>
@@ -285,6 +292,7 @@
 <translation id="8887733174653581061">हमेशा सबसे ऊपर</translation>
 <translation id="610886263749567451">JavaScript सतर्क</translation>
 <translation id="8413126021676339697">संपूर्ण इतिहास प्रदर्शित करें</translation>
+<translation id="8860923508273563464">डाउनलोड समाप्त होने की प्रतीक्षा करें</translation>
 <translation id="1823768272150895732">फ़ॉन्ट</translation>
 <translation id="4475552974751346499">डाउनलोड खोजें</translation>
 <translation id="1111153019813902504">हाल के बुकमार्क</translation>
@@ -340,6 +348,7 @@
 <translation id="1181037720776840403">हटाएँ</translation>
 <translation id="59174027418879706">सक्षम किया गया</translation>
 <translation id="8141503649579618569"><ph name="DOWNLOAD_RECEIVED"/>/<ph name="DOWNLOAD_TOTAL"/>, <ph name="TIME_LEFT"/></translation>
+<translation id="2534091581909016888"><ph name="SITE"/></translation>
 <translation id="6659594942844771486">टैब</translation>
 <translation id="5452592754878692665">Google गीयर्स सेटिंग्स बदलें</translation>
 <translation id="5316814419223884568">सीधे यहाँ से खोज करें</translation>
@@ -424,6 +433,7 @@
 <translation id="4002066346123236978">शीर्षक</translation>
 <translation id="9015241028623917394">वर्तमान पृष्ठ नियंत्रित करें</translation>
 <translation id="7861215335140947162">&amp;डाउनलोड</translation>
+<translation id="5460429403253574028">थंबनेल निकालें</translation>
 <translation id="2505402373176859469"><ph name="RECEIVED_AMOUNT"/><ph name="TOTAL_SIZE"/>में से</translation>
 <translation id="6644512095122093795">पासवर्ड सहेजने की पेशकश करें</translation>
 <translation id="5384051050210890146">विश्वस्नीय SSL प्रमाणपत्र.</translation>
@@ -575,6 +585,7 @@
 <translation id="9170848237812810038">&amp;वापिस करें</translation>
 <translation id="8135557862853121765"><ph name="NUM_KILOBYTES"/>K</translation>
 <translation id="4444364671565852729"><ph name="PRODUCT_NAME"/> को <ph name="VERSION"/> तक अपडेट किया गया है</translation>
+<translation id="6483805311199035658"><ph name="FILE"/> खोली जा रही है...</translation>
 <translation id="9154176715500758432">इस पृष्ठ पर रहें</translation>
 <translation id="5875565123733157100">बग प्रकार</translation>
 <translation id="2440604414813129000">&amp;स्रोत देखें</translation>

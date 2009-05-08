@@ -11,6 +11,7 @@
 <translation id="8970027151245482499">「Google 瀏覽器」並未安裝或找不到安裝目錄，請再次下載「Google 瀏覽器」。</translation>
 <translation id="7958215378280655655">如果您重設 Google 瀏覽器選項的話，您之前所做的變更將返回預設設定。您確定要重設瀏覽器選項嗎?</translation>
 <translation id="4281844954008187215">服務條款</translation>
+<translation id="2197898401230534722">刪除所有設定檔資料</translation>
 <translation id="1137776625614346046">「常用網頁」區域會顯示您經常使用的網站。 使用 Google 瀏覽器一段時間後，每次您新增分頁時都會看到常用網頁。 您可以在<ph name="BEGIN_LINK"/>開始使用網頁<ph name="END_LINK"/>上瞭解更多關於此功能與其他功能的資訊。</translation>
 <translation id="4728575227883772061">安裝因不明錯誤而失敗。如果「Google 瀏覽器」目前正在執行中，請將其關閉然後再試一次。</translation>
 <translation id="4149882025268051530">安裝程式無法解壓縮封存檔案，請再次下載「Google 瀏覽器」。</translation>
@@ -41,6 +42,7 @@
 <translation id="2874156562296220396">「Google 瀏覽器」的開發仰賴 <ph name="BEGIN_LINK_CHROMIUM"/>Chromium<ph name="END_LINK_CHROMIUM"/> 開放原始碼計畫與其他<ph name="BEGIN_LINK_OSS"/>開放原始碼軟體<ph name="END_LINK_OSS"/>的協助才得以完成。</translation>
 <translation id="6921913858457830952">Google 瀏覽器已準備好完成您的安裝。</translation>
 <translation id="7100330187273168372">Google 瀏覽器無法讀取或寫入資料目錄:\n\n<ph name="USER_DATA_DIRECTORY"/></translation>
+<translation id="2290095356545025170">您是否確定要解除安裝「Google 瀏覽器」？</translation>
 <translation id="5941830788786076944">將 Google 瀏覽器設為我的預設瀏覽器</translation>
 <translation id="4127951844153999091">在這個情況下，憑證所列的網址與瀏覽器嘗試前往的網址不符。憑證不符的其中一個可能原因是，攻擊者欄截了您的通訊，並且出示另一個網站的憑證。另一個可能的原因是，伺服器已設定為不同的網站傳回相同的憑證 (其中包括您嘗試造訪的網站)，而這個憑證可能對其中一些網站無效。Google 瀏覽器可以確定您已經到達 &lt;strong&gt;<ph name="DOMAIN2"/>&lt;/strong&gt;，但是無法驗證這與您嘗試前往的 &lt;strong&gt;<ph name="DOMAIN"/>&lt;/strong&gt; 是同一個網站。如果您繼續，瀏覽器將不再檢查任何名稱不符的情況。一般而言，建議您就此停住。</translation>
 <translation id="2712549016134575851">偵測到與其他已安裝的應用程式互相衝突。</translation>

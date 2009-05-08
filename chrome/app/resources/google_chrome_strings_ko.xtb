@@ -11,6 +11,7 @@
 <translation id="8970027151245482499">Google 크롬이 설치되지 않았거나 설치 디렉토리를 찾지 못했습니다. Google 크롬을 다시 다운로드하세요.</translation>
 <translation id="7958215378280655655">Google 크롬 옵션을 재설정하면 변경했던 모든 사항이 기본 설정으로 되돌아갑니다. 크롬 옵션을 재설정하시겠습니까?</translation>
 <translation id="4281844954008187215">서비스 약관</translation>
+<translation id="2197898401230534722">모든 프로필 데이터 삭제</translation>
 <translation id="1137776625614346046">'자주 방문한 페이지'에는 가장 자주 이용하는 사이트가 표시됩니다. 크롬을 어느 정도 사용한 다음에는 새 탭을 열 때마다 자주 방문한 페이지를 볼 수 있습니다. <ph name="BEGIN_LINK"/>시작 페이지<ph name="END_LINK"/>에서 '자주 방문한 페이지' 및 기타 기능에 대해 자세히 알아보세요.</translation>
 <translation id="4728575227883772061">확인되지 않은 오류로 설치에 실패했습니다. Google 크롬이 실행 중인 경우 종료한 후 다시 실행하세요.</translation>
 <translation id="4149882025268051530">설치 프로그램이 보관 파일 압축 풀기에 실패했습니다. Google 크롬을 다시 다운로드하세요.</translation>
@@ -41,6 +42,7 @@
 <translation id="2874156562296220396">Google 크롬은 <ph name="BEGIN_LINK_CHROMIUM"/>Chromium<ph name="END_LINK_CHROMIUM"/> 오픈소스 프로젝트를 비롯한 여러 <ph name="BEGIN_LINK_OSS"/>오픈소스 소프트웨어<ph name="END_LINK_OSS"/>에 기초해 만들어진 브라우저입니다.</translation>
 <translation id="6921913858457830952">Google 크롬 설치가 곧 완료됩니다.</translation>
 <translation id="7100330187273168372">Google 크롬에서 다음 데이터 디렉토리에 읽고 쓸 수 없습니다.\n\n<ph name="USER_DATA_DIRECTORY"/></translation>
+<translation id="2290095356545025170">Google 크롬을 제거하시겠습니까?</translation>
 <translation id="5941830788786076944">Google 크롬을 기본 브라우저로</translation>
 <translation id="4127951844153999091">이 경우 인증서에 나와 있는 주소가 귀하의 브라우저에서 이동하려는 웹사이트 주소와 일치하지 않습니다. 이러한 현상은 다른 웹사이트에 인증서를 제출하는 해커가 귀하의 통신을 방해해 불일치가 발생한 것이 원인일 수 있습니다. 또한 모든 사이트에 유효하지 않을 수 있는 인증서 하나가 귀하가 방문하려는 웹사이트를 포함한 여러 개의 웹사이트에 대해 반환되도록 서버가 설정된 것이 원인일 수도 있습니다. Google 크롬은 귀하가 &lt;strong&gt;<ph name="DOMAIN2"/>&lt;/strong&gt;에 도달했음을 알려줄 수 있지만 해당 사이트가 귀하가 도달하려는 &lt;strong&gt;<ph name="DOMAIN"/>&lt;/strong&gt;과(와) 같은 사이트임을 확인할 수는 없습니다. 계속 진행할 경우 크롬은 이름 불일치를 더 이상 확인하지 않습니다. 일반적으로 이 시점에는 이전으로 진행하지 않는 것이 좋습니다.</translation>
 <translation id="2712549016134575851">설치된 다른 웹 애플리케이션과의 충돌이 감지되었습니다.</translation>

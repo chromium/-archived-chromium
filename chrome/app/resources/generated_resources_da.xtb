@@ -71,6 +71,7 @@
 <translation id="2994458892329442723">Aktiver plugins</translation>
 <translation id="1669397342410349095">Rapporter phishing-websted</translation>
 <translation id="1674989413181946727">SSL-indstillinger for hele computeren:</translation>
+<translation id="1773709998578631869">Du har <ph name="DOWNLOAD_COUNT"/> download(s) i gang. Hvis du lukker Google Chrome nu, annulleres disse downloads.</translation>
 <translation id="8703575177326907206">Din forbindelse til <ph name="DOMAIN"/> er ikke krypteret.</translation>
 <translation id="1644574205037202324">Historik</translation>
 <translation id="2518917559152314023">T&amp;ilføj ...</translation>
@@ -89,6 +90,7 @@
 <translation id="7751559664766943798">Vis altid bogmærkelinjen</translation>
 <translation id="7511635910912978956"><ph name="NUMBER_FEW"/> timer tilbage</translation>
 <translation id="1720675772864601791">Tillad usikre billeder</translation>
+<translation id="2167276631610992935">Javascript</translation>
 <translation id="5233638681132016545">Ny fane</translation>
 <translation id="5210365745912300556">Luk fanen</translation>
 <translation id="8806796506533854282">Angiv et nyt profilnavn</translation>
@@ -112,6 +114,7 @@
 <translation id="5912378097832178659">&amp;Rediger søgemaskiner ...</translation>
 <translation id="4813345808229079766">Forbindelse</translation>
 <translation id="411666854932687641">Privat hukommelse</translation>
+<translation id="119944043368869598">Ryd alle</translation>
 <translation id="4200983522494130825">Ny &amp;fane</translation>
 <translation id="5455790498993699893"><ph name="ACTIVE_MATCH"/> af <ph name="TOTAL_MATCHCOUNT"/></translation>
 <translation id="2303544859777878640">Sprog:</translation>
@@ -146,6 +149,7 @@
 <translation id="8507996248087185956"><ph name="NUMBER_DEFAULT"/> minutter</translation>
 <translation id="5296476177639202243">Ingen bogmærker svarer til forespørgslen '<ph name="SEARCH_TEXT"/>'.</translation>
 <translation id="939736085109172342">Ny mappe</translation>
+<translation id="2009541932026160416">Klik på <ph name="CROSS_IMAGE"/> for at fjerne miniaturen</translation>
 <translation id="5641560969478423183">Serverens certifikat passer ikke til webadressen</translation>
 <translation id="121827551500866099">Vis alle downloads ...</translation>
 <translation id="3115147772012638511">Venter på cache ...</translation>
@@ -190,6 +194,7 @@
 <translation id="9189691339671500905">Angiv søgemaskine, der bruges i omnifeltet.</translation>
 <translation id="4571852245489094179">Importer bogmærker og indstillinger</translation>
 <translation id="6514771739083339959">Startside:</translation>
+<translation id="4421917670248123270">Luk, og annuller downloads</translation>
 <translation id="5605623530403479164">Andre søgemaskiner</translation>
 <translation id="5710435578057952990">Dette websteds identitet er ikke blevet bekræftet.</translation>
 <translation id="5287240709317226393">Vis cookies</translation>
@@ -201,6 +206,7 @@
 <translation id="4999762576397546063">Ctrl+<ph name="KEY_COMBO_NAME"/></translation>
 <translation id="3369624026883419694">Identificer vært ...</translation>
 <translation id="3967132639560659870">Der er flere SSL-fejl på denne side:</translation>
+<translation id="175196451752279553">G&amp;enåbn lukkede faner</translation>
 <translation id="5039804452771397117">Tillad</translation>
 <translation id="2266011376676382776">Siden svarer ikke</translation>
 <translation id="1805966933547717780">http://www.google.com/chrome/help/</translation>
@@ -239,6 +245,7 @@
 <translation id="358344266898797651">Keltisk</translation>
 <translation id="5055518462594137986">Husk mine valg for alle links af denne type.</translation>
 <translation id="2870560284913253234">Websted</translation>
+<translation id="4164507027399414915">Gendan alle fjernede miniaturer</translation>
 <translation id="7543025879977230179"><ph name="PRODUCT_NAME"/> – Valgmuligheder</translation>
 <translation id="2648845569394238430">Søg:</translation>
 <translation id="2175607476662778685">Hurtig start</translation>
@@ -285,6 +292,7 @@
 <translation id="8887733174653581061">Altid øverst</translation>
 <translation id="610886263749567451">JavaScript-advarsel</translation>
 <translation id="8413126021676339697">Vis hele historikken</translation>
+<translation id="8860923508273563464">Vent på, at igangværende downloads afsluttes</translation>
 <translation id="1823768272150895732">Skrifttype</translation>
 <translation id="4475552974751346499">Søg i downloads</translation>
 <translation id="1111153019813902504">Seneste bogmærker</translation>
@@ -340,6 +348,7 @@
 <translation id="1181037720776840403">Slet</translation>
 <translation id="59174027418879706">Aktiveret</translation>
 <translation id="8141503649579618569"><ph name="DOWNLOAD_RECEIVED"/> af <ph name="DOWNLOAD_TOTAL"/>, <ph name="TIME_LEFT"/></translation>
+<translation id="2534091581909016888"><ph name="SITE"/></translation>
 <translation id="6659594942844771486">Fane</translation>
 <translation id="5452592754878692665">Skift indstillinger for Google Gears</translation>
 <translation id="5316814419223884568">Søg direkte herfra</translation>
@@ -425,6 +434,7 @@
 <translation id="4002066346123236978">Titel</translation>
 <translation id="9015241028623917394">Handlinger for aktuel side</translation>
 <translation id="7861215335140947162">&amp;Downloads</translation>
+<translation id="5460429403253574028">Fjern miniaturer</translation>
 <translation id="2505402373176859469"><ph name="RECEIVED_AMOUNT"/> af <ph name="TOTAL_SIZE"/></translation>
 <translation id="6644512095122093795">Få tilbudt at gemme adgangskoder</translation>
 <translation id="5384051050210890146">Vælg troværdige SSL-certifikater.</translation>
@@ -576,6 +586,7 @@
 <translation id="9170848237812810038">&amp;Fortryd</translation>
 <translation id="8135557862853121765"><ph name="NUM_KILOBYTES"/>K</translation>
 <translation id="4444364671565852729"><ph name="PRODUCT_NAME"/> er blevet opdateret til <ph name="VERSION"/></translation>
+<translation id="6483805311199035658">Åbner <ph name="FILE"/> ...</translation>
 <translation id="9154176715500758432">Bliv på denne side</translation>
 <translation id="5875565123733157100">Fejltype:</translation>
 <translation id="2440604414813129000">Vis &amp;kilde</translation>

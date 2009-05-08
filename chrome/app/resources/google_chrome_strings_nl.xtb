@@ -11,6 +11,7 @@
 <translation id="8970027151245482499">Google Chrome is niet geïnstalleerd of de installatiedirectory is niet gevonden. Download Google Chrome opnieuw.</translation>
 <translation id="7958215378280655655">Wanneer u Chrome-opties herstelt worden wijzigingen die u heeft aangebracht weer teruggezet naar de oorspronkelijke instellingen. Wilt u de Chrome-opties herstellen?</translation>
 <translation id="4281844954008187215">Servicevoorwaarden</translation>
+<translation id="2197898401230534722">Alle profielgegevens verwijderen</translation>
 <translation id="1137776625614346046">Het gedeelte 'Meest bezocht' bevat de websites die u het vaakst bezoekt. Als u Google Chrome een tijdje gebruikt, worden uw meestbezochte sites weergegeven wanneer u een nieuw tabblad opent. U kunt meer informatie hierover en over andere functies raadplegen op de pagina <ph name="BEGIN_LINK"/>Aan de slag<ph name="END_LINK"/>.</translation>
 <translation id="4728575227883772061">De installatie is mislukt wegens een onbekende fout. Als Google Chrome momenteel actief is, sluit u het programma af en probeert u het opnieuw.</translation>
 <translation id="4149882025268051530">Het installatieprogramma kan het archief niet uitpakken. Download Google Chrome opnieuw.</translation>
@@ -41,6 +42,7 @@
 <translation id="2874156562296220396">Google Chrome wordt mogelijk gemaakt door het open-source project <ph name="BEGIN_LINK_CHROMIUM"/>Chromium<ph name="END_LINK_CHROMIUM"/> en andere <ph name="BEGIN_LINK_OSS"/>open-source software<ph name="END_LINK_OSS"/>.</translation>
 <translation id="6921913858457830952">U kunt nu uw installatie van Google Chrome voltooien.</translation>
 <translation id="7100330187273168372">Google Chrome kan deze datadirectory niet lezen of beschrijven:\n\n<ph name="USER_DATA_DIRECTORY"/></translation>
+<translation id="2290095356545025170">Weet u zeker dat u Google Chrome wilt verwijderen?</translation>
 <translation id="5941830788786076944">Google Chrome instellen als mijn standaardbrowser</translation>
 <translation id="4127951844153999091">In dit geval komt het adres in het certificaat niet overeen met het adres van de website dat uw browser probeerde te bezoeken. Dit kan komen omdat uw communicatie wordt onderschept door een hacker die een certificaat voor een andere website retourneert, waardoor de adressen niet overeenkomen. Een andere mogelijkheid is dat de server is ingesteld op het retourneren van hetzelfde certificaat voor meerdere websites, inclusief de site die u probeert te bezoeken, hoewel dat certificaat niet geldig is voor al deze websites. Google Chrome kan garanderen dat u &lt;strong&gt;<ph name="DOMAIN2"/>&lt;/strong&gt; heeft bereikt, maar kan niet verifiëren of dat dezelfde site is als &lt;strong&gt;<ph name="DOMAIN"/>&lt;/strong&gt;, die u wilde bezoeken. Als u doorgaat, controleert Chrome niet verder op verschillen tussen namen. Over het algemeen is het beter hier niet verder te gaan.</translation>
 <translation id="2712549016134575851">Er is een conflict gedetecteerd met een andere geïnstalleerde toepassing.</translation>

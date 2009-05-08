@@ -11,6 +11,7 @@
 <translation id="8970027151245482499">Google Chrome nije instaliran ili nije pronađen direktorij za instalaciju. Ponovno preuzmite program Google Chrome.</translation>
 <translation id="7958215378280655655">Kada ponovno postavite Google Chrome opcije, sve promjene koje ste napravili vratit će se na zadane postavke. Želite li vratiti zadane Chrome opcije?</translation>
 <translation id="4281844954008187215">Uvjeti upotrebe usluge</translation>
+<translation id="2197898401230534722">Izbriši sve podatke o profilu</translation>
 <translation id="1137776625614346046">Područje &quot;Najposjećenije&quot; prikazuje web lokacije koje najčešće koristite. Nakon što neko vrijeme budete koristili Google Chrome, prilikom svakog otvaranja nove kartice vidjet ćete Vaše najposjećenije stranice. Više pojedinosti o ovom i drugim značajkama možete saznati na <ph name="BEGIN_LINK"/>stranici Prvi koraci<ph name="END_LINK"/>.</translation>
 <translation id="4728575227883772061">Instalacija nije uspjela zbog nepoznate pogreške. Ako je program Google Chrome trenutno otvoren, zatvorite ga i pokušajte ponovno.</translation>
 <translation id="4149882025268051530">Program za instalaciju nije dekomprimirao arhivu. Ponovno preuzmite program Google Chrome.</translation>
@@ -41,6 +42,7 @@
 <translation id="2874156562296220396">Google Chrome omogućili su <ph name="BEGIN_LINK_CHROMIUM"/>Chromium<ph name="END_LINK_CHROMIUM"/>, projekt utemeljen na otvorenom kôdu i drugi <ph name="BEGIN_LINK_OSS"/>softveri utemeljeni na otvorenom kôdu <ph name="END_LINK_OSS"/>.</translation>
 <translation id="6921913858457830952">Google Chrome se sprema dovršiti Vašu instalaciju.</translation>
 <translation id="7100330187273168372">Google Chrome ne može čitati iz svojeg podatkovnog direktorija niti u njega pisati:\n\n<ph name="USER_DATA_DIRECTORY"/></translation>
+<translation id="2290095356545025170">Jeste li sigurni da želite deinstalirati Google Chrome?</translation>
 <translation id="5941830788786076944">Neka Google Chrome bude zadani preglednik.</translation>
 <translation id="4127951844153999091">U tom slučaju adresa navedena u potvrdi ne odgovara adresi web lokacije na koju je pokušao otići Vaš preglednik. Jedan od mogućih razloga je taj da Vaše komunikacije presreće napadač koji prikazuje potvrdu za drugu web lokaciju, zbog čega dolazi do nepodudaranja. Drugi je mogući razlog taj što je poslužitelj postavljen tako da vraća istu potvrdu za više web lokacija, uključujući i za onu koju pokušavate posjetiti, iako ta potvrda nije valjana za sve te web lokacije. Google Chrome može sa sigurnošću reći da ste pristupili domeni &lt;strong&gt;<ph name="DOMAIN2"/>&lt;/strong&gt;, ali ne može provjeriti da je ta web lokacija ista kao &lt;strong&gt;<ph name="DOMAIN"/>&lt;/strong&gt; kojoj ste htjeli pristupiti. Ako nastavite, Chrome neće provjeravati dodatna nepodudaranja naziva. Općenito govoreći, najbolje je da ne nastavite.</translation>
 <translation id="2712549016134575851">Otkriven je sukob s drugom instaliranom aplikacijom.</translation>

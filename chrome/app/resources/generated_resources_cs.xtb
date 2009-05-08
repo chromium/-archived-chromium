@@ -71,6 +71,7 @@
 <translation id="2994458892329442723">Povolit pluginy</translation>
 <translation id="1669397342410349095">Oznámit phishingové webové stránky...</translation>
 <translation id="1674989413181946727">Nastavení SSL v počítači:</translation>
+<translation id="1773709998578631869">V současné době probíhá stahování (celkem <ph name="DOWNLOAD_COUNT"/>). Pokud aplikaci Google Chrome nyní ukončíte, bude toto stahování zrušeno.</translation>
 <translation id="8703575177326907206">Vaše spojení se serverem <ph name="DOMAIN"/> není šifrované.</translation>
 <translation id="1644574205037202324">Historie</translation>
 <translation id="2518917559152314023">Přidat...</translation>
@@ -89,6 +90,7 @@
 <translation id="7751559664766943798">Vždy zobrazovat lištu záložek</translation>
 <translation id="7511635910912978956">Zbývá: <ph name="NUMBER_FEW"/> hod</translation>
 <translation id="1720675772864601791">Povolit nezabezpečené obrázky</translation>
+<translation id="2167276631610992935">JavaScript</translation>
 <translation id="5233638681132016545">Nová karta</translation>
 <translation id="5210365745912300556">Zavřít kartu</translation>
 <translation id="8806796506533854282">Zadejte nový název profilu</translation>
@@ -112,6 +114,7 @@
 <translation id="5912378097832178659">Upravit vyhledávače...</translation>
 <translation id="4813345808229079766">Spojení</translation>
 <translation id="411666854932687641">Privátní paměť</translation>
+<translation id="119944043368869598">Vymazat vše</translation>
 <translation id="4200983522494130825">Nová karta</translation>
 <translation id="5455790498993699893"><ph name="ACTIVE_MATCH"/> z <ph name="TOTAL_MATCHCOUNT"/></translation>
 <translation id="2303544859777878640">Jazyky:</translation>
@@ -146,6 +149,7 @@
 <translation id="8507996248087185956"><ph name="NUMBER_DEFAULT"/> minut</translation>
 <translation id="5296476177639202243">Dotazu <ph name="SEARCH_TEXT"/> neodpovídají žádné záložky.</translation>
 <translation id="939736085109172342">Nová složka</translation>
+<translation id="2009541932026160416">Kliknutím na tlačítko <ph name="CROSS_IMAGE"/> odeberete miniaturu.</translation>
 <translation id="5641560969478423183">Certifikát serveru neodpovídá adrese URL</translation>
 <translation id="121827551500866099">Zobrazit veškeré stahování...</translation>
 <translation id="3115147772012638511">Čekání na mezipaměť</translation>
@@ -190,6 +194,7 @@
 <translation id="9189691339671500905">Zadat používaný vyhledávač do omniboxu.</translation>
 <translation id="4571852245489094179">Importovat záložky a nastavení</translation>
 <translation id="6514771739083339959">Domovská stránka:</translation>
+<translation id="4421917670248123270">Ukončit a zrušit stahování</translation>
 <translation id="5605623530403479164">Jiné vyhledávače</translation>
 <translation id="5710435578057952990">Identita těchto webových stránek nebyla ověřena.</translation>
 <translation id="5287240709317226393">Zobrazit soubory cookie</translation>
@@ -201,6 +206,7 @@
 <translation id="4999762576397546063">Ctrl+<ph name="KEY_COMBO_NAME"/></translation>
 <translation id="3369624026883419694">Rozpoznávání hostitele...</translation>
 <translation id="3967132639560659870">Na této stránce se vyskytlo několik chyb SSL:</translation>
+<translation id="175196451752279553">Znovu ot&amp;evřít zavřenou kartu</translation>
 <translation id="5039804452771397117">Povolit</translation>
 <translation id="2266011376676382776">Stránka nereaguje/stránky nereagují</translation>
 <translation id="1805966933547717780">http://www.google.cz/chrome/help/</translation>
@@ -239,6 +245,7 @@
 <translation id="358344266898797651">Keltské jazyky</translation>
 <translation id="5055518462594137986">Zapamatovat moji volbu pro všechny odkazy tohoto typu.</translation>
 <translation id="2870560284913253234">Stránky</translation>
+<translation id="4164507027399414915">Obnovit všechny odebrané miniatury</translation>
 <translation id="7543025879977230179"><ph name="PRODUCT_NAME"/> Možnosti</translation>
 <translation id="2648845569394238430">Vyhledat:</translation>
 <translation id="2175607476662778685">panel Snadné spuštění</translation>
@@ -285,6 +292,7 @@
 <translation id="8887733174653581061">Vždy navrchu</translation>
 <translation id="610886263749567451">JavaScript - výstraha</translation>
 <translation id="8413126021676339697">Zobrazit celou historii</translation>
+<translation id="8860923508273563464">Počkat na dokončení stahování</translation>
 <translation id="1823768272150895732">Písmo</translation>
 <translation id="4475552974751346499">Vyhledat stahování</translation>
 <translation id="1111153019813902504">Záložky z nedávné doby</translation>
@@ -340,6 +348,7 @@
 <translation id="1181037720776840403">Odstranit</translation>
 <translation id="59174027418879706">Povoleno</translation>
 <translation id="8141503649579618569"><ph name="DOWNLOAD_RECEIVED"/>/<ph name="DOWNLOAD_TOTAL"/>, <ph name="TIME_LEFT"/></translation>
+<translation id="2534091581909016888"><ph name="SITE"/></translation>
 <translation id="6659594942844771486">Karta</translation>
 <translation id="5452592754878692665">Změnit nastavení Google Gears</translation>
 <translation id="5316814419223884568">Vyhledávat přímo odsud</translation>
@@ -424,6 +433,7 @@
 <translation id="4002066346123236978">Název</translation>
 <translation id="9015241028623917394">Ovládání aktuální stránky</translation>
 <translation id="7861215335140947162">Stahování</translation>
+<translation id="5460429403253574028">Odebrat miniatury</translation>
 <translation id="2505402373176859469"><ph name="RECEIVED_AMOUNT"/> z <ph name="TOTAL_SIZE"/></translation>
 <translation id="6644512095122093795">Nabídnout uložení hesel</translation>
 <translation id="5384051050210890146">Vybrat důvěryhodné certifikáty SSL.</translation>
@@ -575,6 +585,7 @@
 <translation id="9170848237812810038">Z&amp;pět</translation>
 <translation id="8135557862853121765"><ph name="NUM_KILOBYTES"/>K</translation>
 <translation id="4444364671565852729"><ph name="PRODUCT_NAME"/> byl aktualizován na verzi <ph name="VERSION"/>.</translation>
+<translation id="6483805311199035658">Otevírání souboru <ph name="FILE"/>...</translation>
 <translation id="9154176715500758432">Zůstat na této stránce</translation>
 <translation id="5875565123733157100">Typ chyby:</translation>
 <translation id="2440604414813129000">Zobrazit zdrojový kód</translation>

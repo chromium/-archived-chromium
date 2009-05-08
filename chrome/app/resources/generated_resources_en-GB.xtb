@@ -68,6 +68,7 @@
 <translation id="2994458892329442723">Enable plug-ins</translation>
 <translation id="1669397342410349095">Report phishing website...</translation>
 <translation id="1674989413181946727">Computer-wide SSL settings:</translation>
+<translation id="1773709998578631869">You have <ph name="DOWNLOAD_COUNT"/> download(s) in progress. If you close Google Chrome now, these downloads will be cancelled.</translation>
 <translation id="8703575177326907206">Your connection to <ph name="DOMAIN"/> is not encrypted.</translation>
 <translation id="1644574205037202324">History</translation>
 <translation id="2518917559152314023">A&amp;dd...</translation>
@@ -86,6 +87,7 @@
 <translation id="7751559664766943798">Always show bookmarks bar</translation>
 <translation id="7511635910912978956"><ph name="NUMBER_FEW"/> hours left</translation>
 <translation id="1720675772864601791">Allow insecure images</translation>
+<translation id="2167276631610992935">JavaScript</translation>
 <translation id="5233638681132016545">New tab</translation>
 <translation id="5210365745912300556">Close tab</translation>
 <translation id="5948410903763073882">Alt+<ph name="KEY_COMBO_NAME"/></translation>
@@ -108,6 +110,7 @@
 <translation id="5912378097832178659">&amp;Edit search engines...</translation>
 <translation id="4813345808229079766">Connection</translation>
 <translation id="411666854932687641">Private Memory</translation>
+<translation id="119944043368869598">Clear all</translation>
 <translation id="4200983522494130825">New &amp;tab</translation>
 <translation id="5455790498993699893"><ph name="ACTIVE_MATCH"/> of <ph name="TOTAL_MATCHCOUNT"/></translation>
 <translation id="2303544859777878640">Languages:</translation>
@@ -135,6 +138,7 @@
 <translation id="8494979374722910010">The attempt to connect to the server failed.</translation>
 <translation id="8507996248087185956"><ph name="NUMBER_DEFAULT"/> mins</translation>
 <translation id="939736085109172342">New folder</translation>
+<translation id="2009541932026160416">Click <ph name="CROSS_IMAGE"/> to remove the thumbnail</translation>
 <translation id="5641560969478423183">Server's certificate does not match the URL</translation>
 <translation id="121827551500866099">Show all downloads...</translation>
 <translation id="3115147772012638511">Waiting for cache...</translation>
@@ -177,6 +181,7 @@
 <translation id="9189691339671500905">Set the search engine used in the omnibox.</translation>
 <translation id="4571852245489094179">Import Bookmarks and Settings</translation>
 <translation id="6514771739083339959">Homepage:</translation>
+<translation id="4421917670248123270">Close and cancel downloads</translation>
 <translation id="5605623530403479164">Other search engines</translation>
 <translation id="5710435578057952990">The identity of this website has not been verified.</translation>
 <translation id="5287240709317226393">Show cookies</translation>
@@ -188,6 +193,7 @@
 <translation id="4999762576397546063">Ctrl+<ph name="KEY_COMBO_NAME"/></translation>
 <translation id="3369624026883419694">Resolving host...</translation>
 <translation id="3967132639560659870">There are several SSL errors on this page:</translation>
+<translation id="175196451752279553">R&amp;eopen closed tab</translation>
 <translation id="5039804452771397117">Allow</translation>
 <translation id="2266011376676382776">Page(s) Unresponsive</translation>
 <translation id="1805966933547717780">http://www.google.com/chrome/help/</translation>
@@ -225,6 +231,7 @@
 <translation id="358344266898797651">Celtic</translation>
 <translation id="5055518462594137986">Remember my choice for all links of this type.</translation>
 <translation id="2870560284913253234">Site</translation>
+<translation id="4164507027399414915">Restore all removed thumbnails</translation>
 <translation id="7543025879977230179"><ph name="PRODUCT_NAME"/> Options</translation>
 <translation id="2648845569394238430">Search:</translation>
 <translation id="2175607476662778685">Quick launch bar</translation>
@@ -268,6 +275,7 @@
 <translation id="8887733174653581061">Always on top</translation>
 <translation id="610886263749567451">JavaScript Alert</translation>
 <translation id="8413126021676339697">Show full history</translation>
+<translation id="8860923508273563464">Wait for downloads to finish</translation>
 <translation id="1823768272150895732">Font</translation>
 <translation id="4475552974751346499">Search downloads</translation>
 <translation id="1111153019813902504">Recent bookmarks</translation>
@@ -321,6 +329,7 @@
 <translation id="1181037720776840403">Remove</translation>
 <translation id="59174027418879706">Enabled</translation>
 <translation id="8141503649579618569"><ph name="DOWNLOAD_RECEIVED"/>/<ph name="DOWNLOAD_TOTAL"/>, <ph name="TIME_LEFT"/></translation>
+<translation id="2534091581909016888"><ph name="SITE"/></translation>
 <translation id="6659594942844771486">Tab</translation>
 <translation id="5452592754878692665">Change Google Gears settings</translation>
 <translation id="5316814419223884568">Search from right here</translation>
@@ -400,6 +409,7 @@
 <translation id="4002066346123236978">Title</translation>
 <translation id="9015241028623917394">Control the current page</translation>
 <translation id="7861215335140947162">&amp;Downloads</translation>
+<translation id="5460429403253574028">Remove thumbnails</translation>
 <translation id="2505402373176859469"><ph name="RECEIVED_AMOUNT"/> of <ph name="TOTAL_SIZE"/></translation>
 <translation id="6644512095122093795">Offer to save passwords</translation>
 <translation id="5384051050210890146">Select trusted SSL certificates.</translation>
@@ -547,6 +557,7 @@
 <translation id="9170848237812810038">&amp;Undo</translation>
 <translation id="8135557862853121765"><ph name="NUM_KILOBYTES"/>K</translation>
 <translation id="4444364671565852729"><ph name="PRODUCT_NAME"/> has been updated to <ph name="VERSION"/></translation>
+<translation id="6483805311199035658">Opening <ph name="FILE"/>...</translation>
 <translation id="9154176715500758432">Stay on this Page</translation>
 <translation id="5875565123733157100">Bug type:</translation>
 <translation id="2440604414813129000">View s&amp;ource</translation>

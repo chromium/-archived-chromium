@@ -11,6 +11,7 @@
 <translation id="8970027151245482499">Google Chrome ni nameščen ali pa mu ni uspelo najti namestitvenega imenika. Ponovno prenesite program Google Chrome.</translation>
 <translation id="7958215378280655655">Ko ponastavite možnosti za Google Chrome, se bodo vse spremembe, ki ste jih naredili, povrnile na privzete nastavitve. Ali želite ponastaviti možnosti za Chrome?</translation>
 <translation id="4281844954008187215">Pogoji storitve</translation>
+<translation id="2197898401230534722">Izbriši vse podatke profilov</translation>
 <translation id="1137776625614346046">V področju »Najpogosteje obiskane« so prikazane spletne strani, ki jih najpogosteje uporabljate. Ko boste Google Chrome uporabljali nekaj časa, boste najpogosteje obiskane spletne strani videli vedno, ko boste odpri nov zavihek. Več o tej in drugih funkcijah si lahko preberete na <ph name="BEGIN_LINK"/>strani Kako začeti<ph name="END_LINK"/>.</translation>
 <translation id="4728575227883772061">Namestitev ni bila izvedena zaradi nedoločene napake. Če je Google Chrome trenutno vklopljen, ga zaprite in poskusite znova.</translation>
 <translation id="4149882025268051530">Namestitvenemu programu ni uspelo razširiti arhiva. Ponovno prenesite program Google Chrome.</translation>
@@ -41,6 +42,7 @@
 <translation id="2874156562296220396">Brskalnik Google Chrome omogoča odprtokodni projekt <ph name="BEGIN_LINK_CHROMIUM"/>Chromium<ph name="END_LINK_CHROMIUM"/> in druga <ph name="BEGIN_LINK_OSS"/>odprtokodna programska oprema<ph name="END_LINK_OSS"/>.</translation>
 <translation id="6921913858457830952">Google Chrome je pripravljen, da dokonča namestitev.</translation>
 <translation id="7100330187273168372">Google Chrome ne more prebrati ali pisati v imenik s podatki:\n\n<ph name="USER_DATA_DIRECTORY"/></translation>
+<translation id="2290095356545025170">Ali ste prepričani, da želite odstraniti Google Chrome?</translation>
 <translation id="5941830788786076944">Nastavi Google Chrome kot privzeti brskalnik</translation>
 <translation id="4127951844153999091">V tem primeru se naslov, ki je naveden na certifikatu, ne ujema z naslovom spletnega mesta, na katero je poskušal priti vaš brskalnik. Eden od možnih razlogov za to je, da je vašo komunikacijo prestregel napadalec, ki je predložil certifikat za drugo spletno mesto, zaradi česar je prišlo do neskladja. Drugi razlog je lahko ta, da je strežnik nastavljen tako, da vrne isti certifikat za več različnih spletnih mest, vključno s tem, ki ga želite obiskati, čeprav certifikat za vsa ta spletna mesta ni veljaven. Google Chrome lahko potrdi, da ste prišli na &lt;strong&gt;<ph name="DOMAIN2"/>&lt;/strong&gt;, vendar pa ne more preveriti, ali gre za isto spletno mesto kot &lt;strong&gt;<ph name="DOMAIN"/>&lt;/strong&gt;, na katero ste želeli priti. Če nadaljujete, Chrome ne bo preveril nadaljnjih neskladij glede imen. Na splošno vam priporočamo, da ne nadaljujete.</translation>
 <translation id="2712549016134575851">Zaznan je bil spor z drugo nameščeno aplikacijo.</translation>

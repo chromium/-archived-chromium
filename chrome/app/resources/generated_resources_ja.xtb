@@ -71,6 +71,7 @@
 <translation id="2994458892329442723">プラグインを有効にする</translation>
 <translation id="1669397342410349095">フィッシング サイトを報告...</translation>
 <translation id="1674989413181946727">コンピュータ共通の SSL 設定:</translation>
+<translation id="1773709998578631869">現在 <ph name="DOWNLOAD_COUNT"/> 件のダウンロードが進行中です。Google Chrome を終了すると、ダウンロードはキャンセルされます。</translation>
 <translation id="8703575177326907206"><ph name="DOMAIN"/> への接続は暗号化されていません。</translation>
 <translation id="1644574205037202324">履歴</translation>
 <translation id="2518917559152314023">追加(&amp;D)...</translation>
@@ -89,6 +90,7 @@
 <translation id="7751559664766943798">ブックマーク バーを常に表示</translation>
 <translation id="7511635910912978956">残り <ph name="NUMBER_FEW"/> 時間</translation>
 <translation id="1720675772864601791">セキュリティで保護されていない画像を許可</translation>
+<translation id="2167276631610992935">Javascript</translation>
 <translation id="5233638681132016545">新しいタブ</translation>
 <translation id="5210365745912300556">タブを閉じる</translation>
 <translation id="8806796506533854282">新しいプロフィール名を入力</translation>
@@ -112,6 +114,7 @@
 <translation id="5912378097832178659">検索エンジンの編集(&amp;E)...</translation>
 <translation id="4813345808229079766">接続</translation>
 <translation id="411666854932687641">専有メモリ</translation>
+<translation id="119944043368869598">すべてクリア</translation>
 <translation id="4200983522494130825">新しいタブ(&amp;T)</translation>
 <translation id="5455790498993699893"><ph name="ACTIVE_MATCH"/> / <ph name="TOTAL_MATCHCOUNT"/></translation>
 <translation id="2303544859777878640">言語:</translation>
@@ -146,6 +149,7 @@
 <translation id="8507996248087185956"><ph name="NUMBER_DEFAULT"/> 分</translation>
 <translation id="5296476177639202243">「<ph name="SEARCH_TEXT"/>」に一致するブックマークはありません。</translation>
 <translation id="939736085109172342">新しいフォルダ</translation>
+<translation id="2009541932026160416"><ph name="CROSS_IMAGE"/> をクリックしてサムネイルを削除</translation>
 <translation id="5641560969478423183">サーバーの証明書が URL に一致しません</translation>
 <translation id="121827551500866099">すべてのダウンロードを表示</translation>
 <translation id="3115147772012638511">キャッシュを待機しています...</translation>
@@ -190,6 +194,7 @@
 <translation id="9189691339671500905">マルチボックスで使用する検索エンジンを指定します。</translation>
 <translation id="4571852245489094179">ブックマークと設定のインポート</translation>
 <translation id="6514771739083339959">ホームページ:</translation>
+<translation id="4421917670248123270">ダウンロードをキャンセルして終了</translation>
 <translation id="5605623530403479164">その他の検索エンジン</translation>
 <translation id="5710435578057952990">このウェブサイトの ID は確認されていません。</translation>
 <translation id="5287240709317226393">Cookie を表示</translation>
@@ -201,6 +206,7 @@
 <translation id="4999762576397546063">Ctrl+<ph name="KEY_COMBO_NAME"/></translation>
 <translation id="3369624026883419694">ホストを解決しています...</translation>
 <translation id="3967132639560659870">このページにある SSL エラー:</translation>
+<translation id="175196451752279553">閉じたタブを開く(&amp;R)</translation>
 <translation id="5039804452771397117">許可</translation>
 <translation id="2266011376676382776">ページ応答なし</translation>
 <translation id="1805966933547717780">http://www.google.com/chrome/help/</translation>
@@ -239,6 +245,7 @@
 <translation id="358344266898797651">ケルト語</translation>
 <translation id="5055518462594137986">このようなリンクの設定をすべて保存する</translation>
 <translation id="2870560284913253234">サイト</translation>
+<translation id="4164507027399414915">削除されたサムネイルをすべて復元</translation>
 <translation id="7543025879977230179"><ph name="PRODUCT_NAME"/> オプション</translation>
 <translation id="2648845569394238430">検索:</translation>
 <translation id="2175607476662778685">クイック起動バー</translation>
@@ -295,6 +302,7 @@
 <translation id="8887733174653581061">常に上部に表示する</translation>
 <translation id="610886263749567451">Javascript のアラート</translation>
 <translation id="8413126021676339697">全履歴を表示</translation>
+<translation id="8860923508273563464">ダウンロード完了後に終了</translation>
 <translation id="1823768272150895732">フォント</translation>
 <translation id="4475552974751346499">ダウンロード検索</translation>
 <translation id="1111153019813902504">最近追加したブックマーク</translation>
@@ -350,6 +358,7 @@
 <translation id="1181037720776840403">削除</translation>
 <translation id="59174027418879706">有効</translation>
 <translation id="8141503649579618569"><ph name="DOWNLOAD_RECEIVED"/>/<ph name="DOWNLOAD_TOTAL"/> (<ph name="TIME_LEFT"/>)</translation>
+<translation id="2534091581909016888"><ph name="SITE"/></translation>
 <translation id="6659594942844771486">Tab</translation>
 <translation id="5452592754878692665">Gears の設定変更</translation>
 <translation id="5316814419223884568">ここで検索もできます</translation>
@@ -434,6 +443,7 @@
 <translation id="4002066346123236978">タイトル</translation>
 <translation id="9015241028623917394">ページ メニュー</translation>
 <translation id="7861215335140947162">ダウンロード(&amp;D)</translation>
+<translation id="5460429403253574028">サムネイルを削除</translation>
 <translation id="2505402373176859469"><ph name="TOTAL_SIZE"/> 中 <ph name="RECEIVED_AMOUNT"/></translation>
 <translation id="6644512095122093795">パスワードを保存できるようにする</translation>
 <translation id="5384051050210890146">信頼できる SSL 証明書を選択してください。</translation>
@@ -585,6 +595,7 @@
 <translation id="9170848237812810038">取消(&amp;U)</translation>
 <translation id="8135557862853121765"><ph name="NUM_KILOBYTES"/>K</translation>
 <translation id="4444364671565852729"><ph name="PRODUCT_NAME"/> を <ph name="VERSION"/> にアップデートしました</translation>
+<translation id="6483805311199035658"><ph name="FILE"/> を開いています...</translation>
 <translation id="9154176715500758432">このページにとどまる</translation>
 <translation id="5875565123733157100">問題の種類:</translation>
 <translation id="2440604414813129000">ソースを表示(&amp;O)</translation>

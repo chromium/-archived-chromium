@@ -11,6 +11,7 @@
 <translation id="8970027151245482499">Google Chrome nav instalēts, vai tam neizdevās atrast instalācijas katalogu. Lūdzu, vēlreiz lejupielādējiet Google Chrome.</translation>
 <translation id="7958215378280655655">Atjaunojot Google Chrome iespējas, jebkuras veiktās izmaiņas, tiks atgrieztas noklusējuma iestatījumos. Vai vēlaties atiestatīt Chrome iespējas?</translation>
 <translation id="4281844954008187215">Google pakalpojumu noteikumi</translation>
+<translation id="2197898401230534722">Dzēst visus profila datus</translation>
 <translation id="1137776625614346046">&quot;Visapmeklētākais&quot; apgabals rāda vietnes, ko jūs izmantojat visbiežāk. Lietojot Google Chrome ilgāku laiku, kad tiks atvērta jauna cilne, varēsiet redzēt savas visapmeklētākās vietnes. Par šo un citām funkcijām varat uzzināt vairāk <ph name="BEGIN_LINK"/>lapā Darba uzsākšana<ph name="END_LINK"/>.</translation>
 <translation id="4728575227883772061">Instalācija neizdevās nenoteiktas kļūdas dēļ. Ja Google Chrome pašlaik darbojas, lūdzu, aizveriet to un mēģiniet vēlreiz.</translation>
 <translation id="4149882025268051530">Instalētājam neizdevās atarhivēt arhīvu. Lūdzu, vēlreiz lejupielādējiet Google Chrome.</translation>
@@ -41,6 +42,7 @@
 <translation id="2874156562296220396">Pakalpojumu Google Chrome nodrošina <ph name="BEGIN_LINK_CHROMIUM"/>Chromium<ph name="END_LINK_CHROMIUM"/> atklātā pirmkoda projekts un <ph name="BEGIN_LINK_OSS"/>atklātā pirmkoda programmatūra<ph name="END_LINK_OSS"/>.</translation>
 <translation id="6921913858457830952">Google Chrome ir gatavs pabeigt instalēšanu.</translation>
 <translation id="7100330187273168372">Google Chrome nevar nolasīt un ierakstīt savu datu direktorijā:\n\n<ph name="USER_DATA_DIRECTORY"/></translation>
+<translation id="2290095356545025170">Vai tiešām vēlaties atinstalēt Google Chrome?</translation>
 <translation id="5941830788786076944">Izveidot Google Chrome par noklusējuma pārlūku</translation>
 <translation id="4127951844153999091">Šādā gadījumā, sertifikātā minētā adrese neatbilst tai tīmekļa lapas adresei, kurai centās piekļūt jūsu pārlūks. Viens iemesls šim ir tas, ka jūsu savienojumus pārtver uzbrucējs, kas piedāvā sertifikātu citai tīmekļa vietnei, kas var radīt neatbilstību. Cits iespējams iemesls ir tas, ka serveris ir iestatīts tā, lai atgrieztu vienu sertifikātu vairākām vietnēm, tai skaitā tām, kuram centāties piekļūt, pat ja sertifikāts nav derīgs šīm tīmekļa vietnēm. Google Chrome var apgalvot, ka esat sasniedzis &lt;strong&gt;<ph name="DOMAIN2"/>&lt;/strong&gt;, bet nevar apstiprināt, ka tā ir &lt;strong&gt; vietne<ph name="DOMAIN"/>&lt;/strong&gt;, kuru centāties sasniegt. Ja jūs turpināsiet, Chrome nepārbaudīs tālākas nosaukumu neprecizitātes. Kopumā būtu labāk nedoties tālāk par šo punktu.</translation>
 <translation id="2712549016134575851">Atklāts konflikts ar citu instalētu lietojumprogrammu.</translation>

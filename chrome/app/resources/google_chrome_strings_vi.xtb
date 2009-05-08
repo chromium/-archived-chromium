@@ -11,6 +11,7 @@
 <translation id="8970027151245482499">Google Chrome chưa được cài đặt hoặc không tìm được thư mục cài đặt. Vui lòng tải xuống lại Google Chrome.</translation>
 <translation id="7958215378280655655">Khi đặt lại tuỳ chọn Google Chrome, bất kỳ thay đổi nào bạn đã thực hiện sẽ được chuyển thành thiết lập mặc định. Bạn có muốn Đặt lại tuỳ chọn Chrome không?</translation>
 <translation id="4281844954008187215">Điều khoản Dịch vụ</translation>
+<translation id="2197898401230534722">Xoá tất cả dữ liệu tiểu sử</translation>
 <translation id="1137776625614346046">Vùng &quot;Truy cập nhiều nhất&quot; hiển thị các trang web mà bạn thường sử dụng nhất. Sau khi sử dụng Google Chrome một lúc, bạn sẽ thấy các trang web được truy cập nhiều nhất mỗi khi mở tab mới. Bạn có thể tìm hiểu thêm về điều này và các tính năng khác trên <ph name="BEGIN_LINK"/>trang Bắt đầu<ph name="END_LINK"/>.</translation>
 <translation id="4728575227883772061">Không cài đặt được do lỗi chưa xác định. Nếu Google Chrome hiện đang chạy, vui lòng đóng Google Chrome và thử lại.</translation>
 <translation id="4149882025268051530">Trình cài đặt không thể giải nén lưu trữ được. Vui lòng tải xuống lại Google Chrome.</translation>
@@ -41,6 +42,7 @@
 <translation id="2874156562296220396">Google Chrome được xây dựng bằng dự án nguồn mở <ph name="BEGIN_LINK_CHROMIUM"/>Chromium<ph name="END_LINK_CHROMIUM"/> và <ph name="BEGIN_LINK_OSS"/>phần mềm nguồn mở<ph name="END_LINK_OSS"/> khác.</translation>
 <translation id="6921913858457830952">Google Chrome sẵn sàng hoàn tất việc cài đặt của bạn.</translation>
 <translation id="7100330187273168372">Google Chrome không thể đọc và ghi lên thư mục dữ liệu:\n\n<ph name="USER_DATA_DIRECTORY"/></translation>
+<translation id="2290095356545025170">Bạn có chắc chắn muốn gỡ cài đặt Google Chrome không?</translation>
 <translation id="5941830788786076944">Chọn Google Chrome làm trình duyệt mặc định</translation>
 <translation id="4127951844153999091">Trong trường hợp này, địa chỉ được liệt kê trong chứng chỉ không phù hợp với địa chỉ của trang web mà trình duyệt của bạn cố truy cập. Một nguyên nhân có thể xảy ra là giao tiếp của bạn đang bị kẻ tấn công, người đang biểu thị chứng chỉ cho trang web khác, chặn lại gây ra lỗi không khớp. Một nguyên nhân khác có thể là do máy chủ được thiết lập trả về cùng một chứng chỉ cho nhiều trang web, kể cả trang web mà bạn cố truy cập, mặc dù chứng chỉ đó không có giá trị cho tất cả trang web đó. Google Chrome có thể chắc chắn rằng bạn đã tiếp cận &lt;strong&gt;<ph name="DOMAIN2"/>&lt;/strong&gt;, nhưng không thể xác minh đó là trang web tương tự như &lt;strong&gt;<ph name="DOMAIN"/>&lt;/strong&gt; mà bạn dự định tiếp cận. Nếu bạn tiếp tục, Chrome sẽ không kiểm tra thêm bất kỳ tên không khớp nào nữa. Nói chung, tốt nhất là không tiến hành trước điểm này.</translation>
 <translation id="2712549016134575851">Đã phát hiện thấy xung đột với một ứng dụng đã cài đặt khác.</translation>

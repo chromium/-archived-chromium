@@ -71,6 +71,7 @@
 <translation id="2994458892329442723">Omogući dodatke</translation>
 <translation id="1669397342410349095">Prijava web lokacije za krađu identiteta...</translation>
 <translation id="1674989413181946727">SSL postavke za cijelo računalo:</translation>
+<translation id="1773709998578631869">Broj preuzimanja u tijeku: <ph name="DOWNLOAD_COUNT"/>. Ako sada zatvorite Google Chrome, preuzimanja će se prekinuti.</translation>
 <translation id="8703575177326907206">Vaša veza s <ph name="DOMAIN"/> nije šifrirana.</translation>
 <translation id="1644574205037202324">Povijest</translation>
 <translation id="2518917559152314023">Do&amp;daj...</translation>
@@ -89,6 +90,7 @@
 <translation id="7751559664766943798">Uvijek prikaži traku oznake</translation>
 <translation id="7511635910912978956">Preostali sati: <ph name="NUMBER_FEW"/></translation>
 <translation id="1720675772864601791">Dopusti nesigurne slike</translation>
+<translation id="2167276631610992935">Javascript</translation>
 <translation id="5233638681132016545">Nova kartica</translation>
 <translation id="5210365745912300556">Zatvori karticu</translation>
 <translation id="8806796506533854282">Unesite novi naziv profila</translation>
@@ -112,6 +114,7 @@
 <translation id="5912378097832178659">&amp;Uredi tražilicu...</translation>
 <translation id="4813345808229079766">Veza</translation>
 <translation id="411666854932687641">Privatna memorija</translation>
+<translation id="119944043368869598">Očisti sve</translation>
 <translation id="4200983522494130825">Nova &amp;kartica</translation>
 <translation id="5455790498993699893"><ph name="ACTIVE_MATCH"/> od <ph name="TOTAL_MATCHCOUNT"/></translation>
 <translation id="2303544859777878640">Jezici:</translation>
@@ -146,6 +149,7 @@
 <translation id="8507996248087185956">Broj minuta: <ph name="NUMBER_DEFAULT"/></translation>
 <translation id="5296476177639202243">Nema oznaka koje odgovaraju upitu '<ph name="SEARCH_TEXT"/>'.</translation>
 <translation id="939736085109172342">Nova mapa</translation>
+<translation id="2009541932026160416">Kliknite <ph name="CROSS_IMAGE"/> za uklanjanje minijature</translation>
 <translation id="5641560969478423183">Potvrda poslužitelja ne podudara se s URL-om</translation>
 <translation id="121827551500866099">Prikaži sva preuzimanja...</translation>
 <translation id="3115147772012638511">Čekanje predmemorije...</translation>
@@ -190,6 +194,7 @@
 <translation id="9189691339671500905">Postavite tražilicu korištenu u okviru cijelog teksta.</translation>
 <translation id="4571852245489094179">Uvoz oznaka i postavki</translation>
 <translation id="6514771739083339959">Početna stranica:</translation>
+<translation id="4421917670248123270">Zatvori i otkaži preuzimanja</translation>
 <translation id="5605623530403479164">Ostale tražilice</translation>
 <translation id="5710435578057952990">Identitet ove web lokacije nije ovjeren.</translation>
 <translation id="5287240709317226393">Pokaži kolačiće</translation>
@@ -201,6 +206,7 @@
 <translation id="4999762576397546063">Ctrl+<ph name="KEY_COMBO_NAME"/></translation>
 <translation id="3369624026883419694">Traženje domaćina...</translation>
 <translation id="3967132639560659870">Na ovoj je stranici nekoliko SSL pogrešaka:</translation>
+<translation id="175196451752279553">P&amp;onovo otvori zatvorenu karticu</translation>
 <translation id="5039804452771397117">Dopusti</translation>
 <translation id="2266011376676382776">Stranica ne reagira</translation>
 <translation id="1805966933547717780">http://www.google.com/chrome/help/</translation>
@@ -239,6 +245,7 @@
 <translation id="358344266898797651">keltski</translation>
 <translation id="5055518462594137986">Zapamti moj odabir za sve veze tog tipa.</translation>
 <translation id="2870560284913253234">Web lokacija</translation>
+<translation id="4164507027399414915">Vrati sve uklonjene minijature</translation>
 <translation id="7543025879977230179"><ph name="PRODUCT_NAME"/> Opcije</translation>
 <translation id="2648845569394238430">Pretraži:</translation>
 <translation id="2175607476662778685">Traka za brzo pokretanje</translation>
@@ -285,6 +292,7 @@
 <translation id="8887733174653581061">Uvijek na vrhu</translation>
 <translation id="610886263749567451">JavaScript upozorenje</translation>
 <translation id="8413126021676339697">Pokaži cijelu povijest</translation>
+<translation id="8860923508273563464">Pričekaj da se preuzimanja završe</translation>
 <translation id="1823768272150895732">Font</translation>
 <translation id="4475552974751346499">Pretraži preuzimanja</translation>
 <translation id="1111153019813902504">Najnovije oznake</translation>
@@ -340,6 +348,7 @@
 <translation id="1181037720776840403">Ukloni</translation>
 <translation id="59174027418879706">Omogućeno</translation>
 <translation id="8141503649579618569"><ph name="DOWNLOAD_RECEIVED"/>/<ph name="DOWNLOAD_TOTAL"/>, <ph name="TIME_LEFT"/></translation>
+<translation id="2534091581909016888"><ph name="SITE"/></translation>
 <translation id="6659594942844771486">Kartica</translation>
 <translation id="5452592754878692665">Promijenite postavke za Google Gears</translation>
 <translation id="5316814419223884568">Pretraži odavde</translation>
@@ -424,6 +433,7 @@
 <translation id="4002066346123236978">Naslov</translation>
 <translation id="9015241028623917394">Kontroliraj trenutnu stranicu</translation>
 <translation id="7861215335140947162">&amp;Preuzimanje</translation>
+<translation id="5460429403253574028">Ukloni minijature</translation>
 <translation id="2505402373176859469"><ph name="RECEIVED_AMOUNT"/> od <ph name="TOTAL_SIZE"/></translation>
 <translation id="6644512095122093795">Ponudi spremanje zaporki</translation>
 <translation id="5384051050210890146">Odaberite pouzdane SSL potvrde.</translation>
@@ -575,6 +585,7 @@
 <translation id="9170848237812810038">&amp;Poništi</translation>
 <translation id="8135557862853121765"><ph name="NUM_KILOBYTES"/>KB</translation>
 <translation id="4444364671565852729"><ph name="PRODUCT_NAME"/> je ažuriran na verziju <ph name="VERSION"/></translation>
+<translation id="6483805311199035658">Otvaranje datoteke <ph name="FILE"/>...</translation>
 <translation id="9154176715500758432">Ostani na ovoj stranici</translation>
 <translation id="5875565123733157100">Vrsta pogreške:</translation>
 <translation id="2440604414813129000">Pogledaj i&amp;zvor</translation>

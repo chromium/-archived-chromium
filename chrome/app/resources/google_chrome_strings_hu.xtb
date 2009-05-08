@@ -11,6 +11,7 @@
 <translation id="8970027151245482499">A Google Chrome nincs telepítve, vagy nem sikerült megtalálnia a telepítés könyvtárát. Kérjük, töltse le újra a Google Chrome böngészőt.</translation>
 <translation id="7958215378280655655">Amikor alaphelyzetbe állítja a Google Chrome opcióit, a rendszer visszaállítja az eredeti beállításokat. Vissza szeretné állítani a Chrome beállításait?</translation>
 <translation id="4281844954008187215">Általános Szerződési Feltételek</translation>
+<translation id="2197898401230534722">Összes profiladat törlése</translation>
 <translation id="1137776625614346046">A &quot;Leggyakrabban látogatott webhelyek&quot; rész alatt a leggyakrabban használt webhelyek láthatók. Amikor már egy ideje használja a Google Chrome-ot, a legtöbbször látogatott oldalak meg fognak jelenni minden újonnan megnyitott lapon. További információ erről és a többi funkcióról a <ph name="BEGIN_LINK"/>Kezdő lépések oldalán<ph name="END_LINK"/> található.</translation>
 <translation id="4728575227883772061">A telepítés váratlan hiba miatt nem sikerült. Ha a Google Chrome jelenleg fut, zárja be, majd próbálkozzon újra.</translation>
 <translation id="4149882025268051530">Nem sikerült a telepítőnek kibontani a tömörített állományt. Kérjük, töltse le újra a Google Chrome böngészőt.</translation>
@@ -41,6 +42,7 @@
 <translation id="2874156562296220396">A Google Chrome a <ph name="BEGIN_LINK_CHROMIUM"/>Chromium<ph name="END_LINK_CHROMIUM"/> nyílt forráskódú projektnek és további <ph name="BEGIN_LINK_OSS"/>nyílt forráskódú szoftvereknek<ph name="END_LINK_OSS"/> köszönhetően jött létre.</translation>
 <translation id="6921913858457830952">A Google Chrome készenáll a telepítés befejezésére.</translation>
 <translation id="7100330187273168372">A Google Chrome nem tud beleírni és nem tudja olvasni a következő mappát:\n\n<ph name="USER_DATA_DIRECTORY"/></translation>
+<translation id="2290095356545025170">Biztos benne, hogy eltávolítja a Google Chrome-ot?</translation>
 <translation id="5941830788786076944">A Google Chrome beállítása alapértelmezett böngészőként</translation>
 <translation id="4127951844153999091">Ebben az esetben a tanúsítványban szereplő cím nem egyezik meg azzal a címmel, amelyet a böngészője megpróbált megnyitni. Ennek egyik lehetséges oka, hogy a kommunikációját egy támadó nyomon követi, aki egy másik webhely tanúsítványát mutatja fel, és ez eltéréseket okoz. Másik lehetséges ok, hogy a szervert úgy állították be, hogy több webhelynek (köztük annak, amelyet épp meg szeretett volna látogatni) is ugyanazt a tanúsítványt mutassa fel, holott nem érvényes az ottani összes webhelyre. A Google Chrome megállapította, hogy ezt az oldalt érte el: &lt;strong&gt;<ph name="DOMAIN2"/>&lt;/strong&gt;, azonban nem tudja megállíapítani pontosan, hogy ez ugyanaz a webhely-e, mint a &lt;strong&gt;<ph name="DOMAIN"/>&lt;/strong&gt;, amelyet megpróbált elérni. Ha folytatja, a Chrome nem ellenőrzi többé a nevek nem egyezését. Általánosságban: ennél a pontnál nem szabad tovább folytatni a műveletet.</translation>
 <translation id="2712549016134575851">A rendszer ütközést észlelt egy másik telepített alkalmazással.</translation>

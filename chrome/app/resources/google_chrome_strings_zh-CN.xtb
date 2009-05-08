@@ -11,6 +11,7 @@
 <translation id="8970027151245482499">未安装谷歌浏览器或无法找到安装目录。请重新下载谷歌浏览器。</translation>
 <translation id="7958215378280655655">如果您重置谷歌浏览器选项，您所做的所有更改将还原为默认设置。您是否还希望执行此操作？</translation>
 <translation id="4281844954008187215">服务条款</translation>
+<translation id="2197898401230534722">删除所有个人资料数据</translation>
 <translation id="1137776625614346046">“最常访问的网站”区域显示您最常访问的网站。 使用谷歌浏览器一段时间后，只要打开新的标签页，您就会看到最常访问的网站。 您可在<ph name="BEGIN_LINK"/>使用入门页<ph name="END_LINK"/>了解有关此功能和其他功能的详情。</translation>
 <translation id="4728575227883772061">未知错误导致安装失败。如果谷歌浏览器正在运行，请将其关闭，然后重试。</translation>
 <translation id="4149882025268051530">安装程序无法解压缩存档文件。请重新下载谷歌浏览器。</translation>
@@ -41,6 +42,7 @@
 <translation id="2874156562296220396">谷歌浏览器的诞生离不开 <ph name="BEGIN_LINK_CHROMIUM"/>Chromium<ph name="END_LINK_CHROMIUM"/> 开源项目以及其他<ph name="BEGIN_LINK_OSS"/>开源软件<ph name="END_LINK_OSS"/>。</translation>
 <translation id="6921913858457830952">谷歌浏览器已准备好完成安装。</translation>
 <translation id="7100330187273168372">谷歌浏览器无法对其以下位置的数据目录进行读写操作：\n\n<ph name="USER_DATA_DIRECTORY"/></translation>
+<translation id="2290095356545025170">确定要卸载谷歌浏览器吗？</translation>
 <translation id="5941830788786076944">将谷歌浏览器设为默认浏览器</translation>
 <translation id="4127951844153999091">这种情况下，证书所列地址与您的浏览器设法访问的网址不匹配。 发生这一情况的一个可能原因是：您的通信为攻击者所拦截，攻击者提供了其他网站的证书，从而导致不匹配。 另一个可能的原因是服务器被设置为为包括您试图访问的网站在内的多个网站返回同一证书，尽管此证书并不是对所有这些网站都有效。 谷歌浏览器确定您已访问到 &lt;strong&gt;<ph name="DOMAIN2"/>&lt;/strong&gt;，但不能验证该网站就是您要访问的网站 &lt;strong&gt;<ph name="DOMAIN"/>&lt;/strong&gt;。 如果您继续，谷歌浏览器将不会进一步检查任何名称的不匹配。 一般而言，最好不要绕开这一点。</translation>
 <translation id="2712549016134575851">检测到与另一个已安装的应用程序存在冲突。</translation>

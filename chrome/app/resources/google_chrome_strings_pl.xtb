@@ -11,6 +11,7 @@
 <translation id="8970027151245482499">Przeglądarka Google Chrome nie jest zainstalowana lub znalezienie katalogu instalacyjnego nie powiodło się. Pobierz Google Chrome ponownie.</translation>
 <translation id="7958215378280655655">W przypadku zresetowania opcji przeglądarki Chrome wszystkie wprowadzone zmiany zostaną przywrócone do wartości domyślnych. Czy chcesz zresetować opcje przeglądarki Chrome?</translation>
 <translation id="4281844954008187215">Warunki korzystania z usługi</translation>
+<translation id="2197898401230534722">Usuń wszystkie dane profilu</translation>
 <translation id="1137776625614346046">Obszar Najczęściej odwiedzane zawiera najczęściej używane witryny. Po pewnym okresie używania przeglądarki Chrome, kiedy otworzysz nową kartę, wyświetlą się Twoje najczęściej odwiedzane witryny. Bardziej szczegółowe informacje na temat tych i pozostałych funkcji znajdują się na stronie <ph name="BEGIN_LINK"/>Pierwsze kroki<ph name="END_LINK"/>.</translation>
 <translation id="4728575227883772061">Instalacja nie powiodła się z powodu nieokreślonego błędu. Jeśli Google Chrome jest aktualnie uruchomiony, zamknij aplikację i spróbuj ponownie.</translation>
 <translation id="4149882025268051530">Instalator nie może prawidłowo rozpakować archiwum. Pobierz Google Chrome ponownie.</translation>
@@ -41,6 +42,7 @@
 <translation id="2874156562296220396">Stworzenie przeglądarki Google Chrome było możliwe dzięki projektowi open source <ph name="BEGIN_LINK_CHROMIUM"/>Chromium<ph name="END_LINK_CHROMIUM"/> i innym <ph name="BEGIN_LINK_OSS"/>programom o otwartym kodzie źródłowym<ph name="END_LINK_OSS"/>.</translation>
 <translation id="6921913858457830952">Przeglądarka Chrome jest gotowa do ukończenia instalacji.</translation>
 <translation id="7100330187273168372">Google Chrome nie może odczytać ani zapisać danych w katalogu:\n\n <ph name="USER_DATA_DIRECTORY"/></translation>
+<translation id="2290095356545025170">Czy na pewno chcesz odinstalować przeglądarkę Google Chrome?</translation>
 <translation id="5941830788786076944">Ustaw Google Chrome jako domyślną przeglądarkę</translation>
 <translation id="4127951844153999091">W tym przypadku adres zawarty w certyfikacie nie jest zgodny z adresem witryny wpisanym w przeglądarce. Jednym z powodów takiej sytuacji może być przechwycenie komunikacji przez intruza, który przedstawia certyfikat innej witryny, co powoduje niezgodność. Inną przyczyną może być konfiguracja serwera zwracająca ten sam certyfikat dla wielu witryn (w tym witryny, którą chcesz wyświetlić) nawet w przypadku, gdy certyfikat nie jest ważny dla wszystkich witryn. Google Chrome może potwierdzić, że otwarty został adres &lt;strong&gt;<ph name="DOMAIN2"/>&lt;/strong&gt;, ale nie może zweryfikować, że jest to witryna &lt;strong&gt;<ph name="DOMAIN"/>&lt;/strong&gt;, która miała zostać wyświetlona. Jeśli przejdziesz dalej, aplikacja Chrome nie będzie sprawdzać kolejnych niezgodności nazw. Ogólnie nie zalecamy kontynuowania pracy na tej stronie.</translation>
 <translation id="2712549016134575851">Wykryto konflikt z inną zainstalowaną aplikacją.</translation>

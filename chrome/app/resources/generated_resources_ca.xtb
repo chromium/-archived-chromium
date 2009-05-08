@@ -71,6 +71,7 @@
 <translation id="2994458892329442723">Habilita complements</translation>
 <translation id="1669397342410349095">Denuncia el lloc web de pesca...</translation>
 <translation id="1674989413181946727">Configuració de SSL a tot l'equip:</translation>
+<translation id="1773709998578631869">Teniu <ph name="DOWNLOAD_COUNT"/> baixades en curs. Si tanqueu Google Chrome ara, aquestes baixades es cancel·laran.</translation>
 <translation id="8703575177326907206">La teva connexió a <ph name="DOMAIN"/> no està xifrada.</translation>
 <translation id="1644574205037202324">Historial</translation>
 <translation id="2518917559152314023">A&amp;fegeix...</translation>
@@ -89,6 +90,7 @@
 <translation id="7751559664766943798">Mostra sempre la barra d'adreces d'interès</translation>
 <translation id="7511635910912978956"><ph name="NUMBER_FEW"/> hores restants</translation>
 <translation id="1720675772864601791">Permet imatges no segures</translation>
+<translation id="2167276631610992935">JavaScript</translation>
 <translation id="5233638681132016545">Pestanya nova</translation>
 <translation id="5210365745912300556">Tanca la pestanya</translation>
 <translation id="8806796506533854282">Introdueix un nom nou per al perfil</translation>
@@ -112,6 +114,7 @@
 <translation id="5912378097832178659">&amp;Edita els motors de cerca...</translation>
 <translation id="4813345808229079766">Connexió</translation>
 <translation id="411666854932687641">Memòria privada</translation>
+<translation id="119944043368869598">Esborra-ho tot</translation>
 <translation id="4200983522494130825">Pes&amp;tanya nova</translation>
 <translation id="5455790498993699893"><ph name="ACTIVE_MATCH"/> de <ph name="TOTAL_MATCHCOUNT"/></translation>
 <translation id="2303544859777878640">Idiomes:</translation>
@@ -146,6 +149,7 @@
 <translation id="8507996248087185956"><ph name="NUMBER_DEFAULT"/> minuts</translation>
 <translation id="5296476177639202243">No hi ha adreces d'interès que coincideixin amb la consulta &quot;<ph name="SEARCH_TEXT"/>&quot;.</translation>
 <translation id="939736085109172342">Carpeta nova</translation>
+<translation id="2009541932026160416">Feu clic <ph name="CROSS_IMAGE"/> per eliminar la miniatura</translation>
 <translation id="5641560969478423183">El certificat del servidor no coincideix amb l'URL</translation>
 <translation id="121827551500866099">Mostra totes les baixades...</translation>
 <translation id="3115147772012638511">Esperant la memòria cau...</translation>
@@ -190,6 +194,7 @@
 <translation id="9189691339671500905">Estableix el motor de cerca utilitzat al quadre de text.</translation>
 <translation id="4571852245489094179">Importa les adreces d'interès i la configuració</translation>
 <translation id="6514771739083339959">Pàgina d'inici:</translation>
+<translation id="4421917670248123270">Tanca i cancel·la les baixades</translation>
 <translation id="5605623530403479164">Altres motors de cerca</translation>
 <translation id="5710435578057952990">La identitat d'aquest lloc web no ha estat verificada.</translation>
 <translation id="5287240709317226393">Mostra les galetes</translation>
@@ -201,6 +206,7 @@
 <translation id="4999762576397546063">Ctrl+<ph name="KEY_COMBO_NAME"/></translation>
 <translation id="3369624026883419694">Resolent l'amfitrió...</translation>
 <translation id="3967132639560659870">Hi ha diversos errors SSL en aquesta pàgina:</translation>
+<translation id="175196451752279553">T&amp;orna a obrir la pestanya tancada</translation>
 <translation id="5039804452771397117">Permet</translation>
 <translation id="2266011376676382776">Pàgines sense resposta</translation>
 <translation id="1805966933547717780">http://www.google.com/chrome/help/</translation>
@@ -239,6 +245,7 @@
 <translation id="358344266898797651">Cèltic</translation>
 <translation id="5055518462594137986">Recorda la meva selecció per a tots els enllaços d'aquest tipus.</translation>
 <translation id="2870560284913253234">Lloc</translation>
+<translation id="4164507027399414915">Restaura totes les miniatures eliminades</translation>
 <translation id="7543025879977230179">Opcions de <ph name="PRODUCT_NAME"/></translation>
 <translation id="2648845569394238430">Cerca:</translation>
 <translation id="2175607476662778685">Barra d'inici ràpid</translation>
@@ -285,6 +292,7 @@
 <translation id="8887733174653581061">Sempre a dalt</translation>
 <translation id="610886263749567451">Alerta de Javascript</translation>
 <translation id="8413126021676339697">Mostra l'historial complet</translation>
+<translation id="8860923508273563464">Espera que finalitzin les baixades</translation>
 <translation id="1823768272150895732">Tipus de lletra</translation>
 <translation id="4475552974751346499">Cerca baixades</translation>
 <translation id="1111153019813902504">Adreces d'interès recents</translation>
@@ -340,6 +348,7 @@
 <translation id="1181037720776840403">Elimina</translation>
 <translation id="59174027418879706">Habilitat</translation>
 <translation id="8141503649579618569"><ph name="DOWNLOAD_RECEIVED"/>/<ph name="DOWNLOAD_TOTAL"/>, <ph name="TIME_LEFT"/></translation>
+<translation id="2534091581909016888"><ph name="SITE"/></translation>
 <translation id="6659594942844771486">Pestanya</translation>
 <translation id="5452592754878692665">Canvia la configuració de Google Gears</translation>
 <translation id="5316814419223884568">Cerca a partir d'aquí</translation>
@@ -424,6 +433,7 @@
 <translation id="4002066346123236978">Títol</translation>
 <translation id="9015241028623917394">Controla la pàgina actual</translation>
 <translation id="7861215335140947162">&amp;Baixades</translation>
+<translation id="5460429403253574028">Elimina les miniatures</translation>
 <translation id="2505402373176859469"><ph name="RECEIVED_AMOUNT"/> de <ph name="TOTAL_SIZE"/></translation>
 <translation id="6644512095122093795">Ofereix desar contrasenyes</translation>
 <translation id="5384051050210890146">Selecciona certificats de SSL de confiança.</translation>
@@ -575,6 +585,7 @@
 <translation id="9170848237812810038">&amp;Desfés</translation>
 <translation id="8135557862853121765"><ph name="NUM_KILOBYTES"/>.000</translation>
 <translation id="4444364671565852729"><ph name="PRODUCT_NAME"/> s'ha actualitzat a la versió <ph name="VERSION"/></translation>
+<translation id="6483805311199035658">S'està obrint <ph name="FILE"/>...</translation>
 <translation id="9154176715500758432">Roman en aquesta pàgina</translation>
 <translation id="5875565123733157100">Tipus d'error:</translation>
 <translation id="2440604414813129000">Visualitza l'&amp;origen</translation>

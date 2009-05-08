@@ -71,6 +71,7 @@
 <translation id="2994458892329442723">تمكين المكوّنات الإضافية</translation>
 <translation id="1669397342410349095">الإبلاغ عن موقع تصيّد...</translation>
 <translation id="1674989413181946727">إعدادات SSL في الكمبيوتر:</translation>
+<translation id="1773709998578631869">جارٍ الآن تنزيل عدد <ph name="DOWNLOAD_COUNT"/> من التنزيلات. إذا أغلقت Google Chrome الآن، فسيتم إلغاء هذه التنزيلات.</translation>
 <translation id="8703575177326907206">الاتصال بالموقع <ph name="DOMAIN"/> غير محميّ بنظام تشفير.</translation>
 <translation id="1644574205037202324">السجلّ</translation>
 <translation id="2518917559152314023">إ&amp;ضافة...</translation>
@@ -89,6 +90,7 @@
 <translation id="7751559664766943798">عرض شريط الإشارات دائماً</translation>
 <translation id="7511635910912978956">عدد الساعات المتبقية: <ph name="NUMBER_FEW"/></translation>
 <translation id="1720675772864601791">السماح بالصور غير الآمنة</translation>
+<translation id="2167276631610992935">جافا سكريبت</translation>
 <translation id="5233638681132016545">علامة تبويب جديدة</translation>
 <translation id="5210365745912300556">إغلاق علامة التبويب</translation>
 <translation id="8806796506533854282">أدخل اسمًا جديدًا للملف الشخصي</translation>
@@ -112,6 +114,7 @@
 <translation id="5912378097832178659">تع&amp;ديل محرّكات البحث...</translation>
 <translation id="4813345808229079766">اتصال</translation>
 <translation id="411666854932687641">ذاكرة خاصة</translation>
+<translation id="119944043368869598">مسح الجميع</translation>
 <translation id="4200983522494130825">علا&amp;مة تبويب جديدة</translation>
 <translation id="5455790498993699893"><ph name="ACTIVE_MATCH"/> من <ph name="TOTAL_MATCHCOUNT"/></translation>
 <translation id="2303544859777878640">اللغات:</translation>
@@ -146,6 +149,7 @@
 <translation id="8507996248087185956">عدد الدقائق: <ph name="NUMBER_DEFAULT"/></translation>
 <translation id="5296476177639202243">لا توجد إشارات مرجعية تطابق طلب البحث '<ph name="SEARCH_TEXT"/>'.</translation>
 <translation id="939736085109172342">مجلّد جديد</translation>
+<translation id="2009541932026160416">انقر على <ph name="CROSS_IMAGE"/> لإزالة الصورة المصغرة</translation>
 <translation id="5641560969478423183">لا تتطابق شهادة الخادم مع عنوان URL</translation>
 <translation id="121827551500866099">عرض جميع  الملفّات المحمّلة...</translation>
 <translation id="3115147772012638511">في انتظار ذاكرة التخزين المؤقت ...</translation>
@@ -190,6 +194,7 @@
 <translation id="9189691339671500905">تعيّين محرّك البحث المستخدم في شريط العناوين.</translation>
 <translation id="4571852245489094179">استيراد الإشارات والإعدادات</translation>
 <translation id="6514771739083339959">الصفحة الرئيسية:</translation>
+<translation id="4421917670248123270">الإغلاق وإلغاء التنزيلات</translation>
 <translation id="5605623530403479164">محرّكات البحث الأخرى</translation>
 <translation id="5710435578057952990">لم  يتمّ التحقق من هوية هذا الموقع.</translation>
 <translation id="5287240709317226393">عرض ملفّات تعريف الارتباط</translation>
@@ -201,6 +206,7 @@
 <translation id="4999762576397546063">Ctrl+<ph name="KEY_COMBO_NAME"/></translation>
 <translation id="3369624026883419694">إثبات هوية المضيف...</translation>
 <translation id="3967132639560659870">تحتوي هذه الصفحة على العديد من اخطاء SSL:</translation>
+<translation id="175196451752279553">إ&amp;عادة فتح علامات التبويب المغلقة</translation>
 <translation id="5039804452771397117">سماح</translation>
 <translation id="2266011376676382776">الصفحة (الصفحات) غير المستجيبة</translation>
 <translation id="1805966933547717780">http://www.google.com/chrome/help/</translation>
@@ -239,6 +245,7 @@
 <translation id="358344266898797651">السلتيّة</translation>
 <translation id="5055518462594137986">تطبيق هذه الخيارات على جميع الرّوابط المماثلة.</translation>
 <translation id="2870560284913253234">الموقع</translation>
+<translation id="4164507027399414915">استعادة جميع الصور المصغرة التي تمت إزالتها</translation>
 <translation id="7543025879977230179">خيارات <ph name="PRODUCT_NAME"/></translation>
 <translation id="2648845569394238430">البحث عن:</translation>
 <translation id="2175607476662778685">شريط التشغيل السريع</translation>
@@ -295,6 +302,7 @@
 <translation id="8887733174653581061">جعل النافذة في المقدّمة دائمًا</translation>
 <translation id="610886263749567451">تنبيه جافا سكريبت</translation>
 <translation id="8413126021676339697">عرض السجلّ بكامله</translation>
+<translation id="8860923508273563464">الرجاء الانتظار لحين انتهاء التنزيلات</translation>
 <translation id="1823768272150895732">الخطّ</translation>
 <translation id="4475552974751346499">البحث في الملفّات المحمّلة</translation>
 <translation id="1111153019813902504">الإشارات الجديدة</translation>
@@ -350,6 +358,7 @@
 <translation id="1181037720776840403">إزالة</translation>
 <translation id="59174027418879706">تمّ تمكين المكوّنات الإضافية</translation>
 <translation id="8141503649579618569"><ph name="DOWNLOAD_RECEIVED"/>/<ph name="DOWNLOAD_TOTAL"/>‏، <ph name="TIME_LEFT"/></translation>
+<translation id="2534091581909016888"><ph name="SITE"/></translation>
 <translation id="6659594942844771486">علامة تبويب</translation>
 <translation id="5452592754878692665">تغيير إعدادات Google Gears</translation>
 <translation id="5316814419223884568">ابدأ البحث من هنا</translation>
@@ -434,6 +443,7 @@
 <translation id="4002066346123236978">العنوان</translation>
 <translation id="9015241028623917394">التحكّم في الصفحة الحالية</translation>
 <translation id="7861215335140947162">&amp;الملفاّت المحمّلة</translation>
+<translation id="5460429403253574028">إزالة الصور المصغرة</translation>
 <translation id="2505402373176859469"><ph name="RECEIVED_AMOUNT"/> من <ph name="TOTAL_SIZE"/></translation>
 <translation id="6644512095122093795">اقتراح حفظ كلمات المرور</translation>
 <translation id="5384051050210890146">اختيار شهادات SSL الموثوق بها.</translation>
@@ -585,6 +595,7 @@
 <translation id="9170848237812810038">&amp;إلغاء</translation>
 <translation id="8135557862853121765"><ph name="NUM_KILOBYTES"/> ‏                 كيلوبايت</translation>
 <translation id="4444364671565852729">تم تحديث <ph name="PRODUCT_NAME"/> إلى الإصدار <ph name="VERSION"/></translation>
+<translation id="6483805311199035658">جارٍ فتح <ph name="FILE"/>...</translation>
 <translation id="9154176715500758432">البقاء في هذه الصفحة</translation>
 <translation id="5875565123733157100">نوع الخلل:</translation>
 <translation id="2440604414813129000">عرض الم&amp;صدر</translation>

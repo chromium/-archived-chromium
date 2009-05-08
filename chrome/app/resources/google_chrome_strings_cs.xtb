@@ -11,6 +11,7 @@
 <translation id="8970027151245482499">Google Chrome není nainstalován nebo se nepodařilo nalézt instalační adresář. Stáhněte prosím Google Chrome ještě jednou.</translation>
 <translation id="7958215378280655655">Resetujete-li možnosti aplikace Google Chrome, všechny změny, které jste provedli se vrátí do výchozího nastavení. Přejete si resetovat možnosti aplikace Chrome?</translation>
 <translation id="4281844954008187215">Smluvní podmínky</translation>
+<translation id="2197898401230534722">Smazat všechna data profilu</translation>
 <translation id="1137776625614346046">Oblast Nejnavštěvovanější zobrazuje webové stránky, které navštěvujete nejčastěji. Až budete aplikaci Google Chrome nějakou dobu používat, zobrazí se vám nejčastěji navštěvované weby, kdykoli otevřete novou kartu. Další informace o této a ostatních funkcích se dozvíte na stránce <ph name="BEGIN_LINK"/>Začínáme<ph name="END_LINK"/>.</translation>
 <translation id="4728575227883772061">Došlo k nespecifikované chybě, instalace se nezdařila. Pokud je Google Chrome právě spuštěný, zavřete jej prosím a zkuste to znovu.</translation>
 <translation id="4149882025268051530">Instalačnímu programu se nepodařilo rozbalit archiv. Stáhněte prosím Google Chrome ještě jednou.</translation>
@@ -41,6 +42,7 @@
 <translation id="2874156562296220396">Google Chrome staví na projektu s otevřeným zdrojovým kódem <ph name="BEGIN_LINK_CHROMIUM"/>Chromium<ph name="END_LINK_CHROMIUM"/> a využívá i další <ph name="BEGIN_LINK_OSS"/>otevřený software<ph name="END_LINK_OSS"/>.</translation>
 <translation id="6921913858457830952">Aplikace Chrome je připravena dokončit instalaci.</translation>
 <translation id="7100330187273168372">Aplikace Google Chrome nemůže číst ani zapisovat do svého datového adresáře:\n\n<ph name="USER_DATA_DIRECTORY"/></translation>
+<translation id="2290095356545025170">Opravdu chcete odinstalovat aplikaci Google Chrome?</translation>
 <translation id="5941830788786076944">Nastavit Google Chrome jako výchozí prohlížeč</translation>
 <translation id="4127951844153999091">V tomto případě adresa uvedená v certifikátu neodpovídá adrese webových stránek, na které se váš prohlížeč pokoušel přejít. Jedním z možných důvodů je, že vaše komunikace zachycuje útočník, který předkládá certifikát pro jiné webové stránky, a způsobuje tak neshodu. Dalším možným důvodem je, že server je nastaven tak, aby překládal stejný certifikát pro více různých webů, včetně toho, který se pokoušíte navštívit, byť takový certifikát není pro všechny takové weby platný. Aplikace Google Chrome může potvrdit, že jste se dostali na server &lt;strong&gt;<ph name="DOMAIN2"/>&lt;/strong&gt;, ale nemůže potvrdit, že se jedná o stránku &lt;strong&gt;<ph name="DOMAIN"/>&lt;/strong&gt;, které jste chtěli dosáhnout. Pokud budete pokračovat, nebude aplikace Chrome žádné další neshody jmen kontrolovat. Obecně by bylo nejlepší nepostupovat dále za tento bod.</translation>
 <translation id="2712549016134575851">Byl detekován konflikt s jinou nainstalovanou aplikací.</translation>

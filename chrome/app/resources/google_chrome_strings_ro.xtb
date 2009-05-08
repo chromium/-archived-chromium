@@ -11,6 +11,7 @@
 <translation id="8970027151245482499">Google Chrome nu este instalat sau nu a putut găsi directorul de instalare. Descărcaţi din nou Google Chrome.</translation>
 <translation id="7958215378280655655">Când resetaţi opţiunile Google Chrome, toate modificările efectuate vor fi readuse la setările prestabilite. Doriţi să resetaţi opţiunile Chrome?</translation>
 <translation id="4281844954008187215">Condiţii de furnizare a serviciilor</translation>
+<translation id="2197898401230534722">Ştergeţi toate datele de profil</translation>
 <translation id="1137776625614346046">Zona „Cele mai vizitate” arată site-urile Web pe care le utilizaţi cel mai frecvent. După ce veţi utiliza o perioadă Google Chrome, veţi vedea site-urile cele mai vizitate, ori de câte ori deschideţi o filă nouă. Puteţi afla mai multe despre aceasta şi despre alte funcţii pe <ph name="BEGIN_LINK"/>pagina Noţiuni de bază<ph name="END_LINK"/>.</translation>
 <translation id="4728575227883772061">Instalarea a eşuat din cauza unei erori necunoscute. Dacă Google Chrome rulează în acest moment, închideţi-l şi încercaţi din nou.</translation>
 <translation id="4149882025268051530">Programul de instalare nu a putut decomprima arhiva. Descărcaţi din nou Google Chrome.</translation>
@@ -41,6 +42,7 @@
 <translation id="2874156562296220396">Google Chrome există ca urmare a proiectului open source <ph name="BEGIN_LINK_CHROMIUM"/>Chromium<ph name="END_LINK_CHROMIUM"/> şi a altor <ph name="BEGIN_LINK_OSS"/>produse software open source<ph name="END_LINK_OSS"/>.</translation>
 <translation id="6921913858457830952">Google Chrome este gata să finalizeze instalarea.</translation>
 <translation id="7100330187273168372">Google Chrome nu poate citi sau scrie în directorul propriu de date:\n\n<ph name="USER_DATA_DIRECTORY"/></translation>
+<translation id="2290095356545025170">Sunteţi sigur că doriţi să dezinstalaţi Google Chrome?</translation>
 <translation id="5941830788786076944">Setaţi Google Chrome ca browser prestabilit</translation>
 <translation id="4127951844153999091">În acest caz, adresa afişată în certificat nu se potriveşte cu adresa site-ului la care a încercat să ajungă browser-ul dvs. Un motiv posibil pentru aceasta este interceptarea comunicaţiilor dvs. de către un atacator, care prezintă un certificat pentru un alt site Web, ceea ce ar provoca o nepotrivire. Un alt motiv posibil este că serverul este setat să returneze acelaşi certificat pentru mai multe site-uri Web, inclusiv cel pe care încercaţi să-l accesaţi, chiar dacă acel certificat nu este valabil pentru toate acele site-uri. Google Chrome poate confirma că aţi accesat &lt;strong&gt;<ph name="DOMAIN2"/>&lt;/strong&gt;, dar nu poate verifica dacă este acelaşi site ca şi &lt;strong&gt;<ph name="DOMAIN"/>&lt;/strong&gt; pe care aţi intenţionat să-l accesaţi. Dacă mergeţi mai departe, Chrome nu va mai verifica nicio altă nepotrivire de nume. În general, cel mai bine este să nu mergeţi mai departe.</translation>
 <translation id="2712549016134575851">S-a detectat un conflict cu o altă aplicaţie instalată.</translation>

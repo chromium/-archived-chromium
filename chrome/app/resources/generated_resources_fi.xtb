@@ -71,6 +71,7 @@
 <translation id="2994458892329442723">Aktivoi laajennukset</translation>
 <translation id="1669397342410349095">Ilmoita tietojenkalastelusivusta...</translation>
 <translation id="1674989413181946727">Tietokoneen SSL-asetukset:</translation>
+<translation id="1773709998578631869">Käynnissä on <ph name="DOWNLOAD_COUNT"/> lataus(ta). Jos suljet Google Chromen nyt, lataukset peruutetaan.</translation>
 <translation id="8703575177326907206">Yhteyttäsi verkkotunnukseen <ph name="DOMAIN"/> ei ole salattu.</translation>
 <translation id="1644574205037202324">Historia</translation>
 <translation id="2518917559152314023">&amp;Lisää...</translation>
@@ -89,6 +90,7 @@
 <translation id="7751559664766943798">Näytä kirjanmerkkipalkki aina</translation>
 <translation id="7511635910912978956"><ph name="NUMBER_FEW"/> tuntia jäljellä</translation>
 <translation id="1720675772864601791">Salli suojaamattomat kuvat</translation>
+<translation id="2167276631610992935">JavaScript</translation>
 <translation id="5233638681132016545">Uusi välilehti</translation>
 <translation id="5210365745912300556">Sulje välilehti</translation>
 <translation id="8806796506533854282">Kirjoita uuden profiilin nimi</translation>
@@ -112,6 +114,7 @@
 <translation id="5912378097832178659">&amp;Muokkaa hakukoneita...</translation>
 <translation id="4813345808229079766">Yhteys</translation>
 <translation id="411666854932687641">Yksityinen muisti</translation>
+<translation id="119944043368869598">Tyhjennä kaikki</translation>
 <translation id="4200983522494130825">Uusi &amp;välilehti</translation>
 <translation id="5455790498993699893"><ph name="ACTIVE_MATCH"/> / <ph name="TOTAL_MATCHCOUNT"/></translation>
 <translation id="2303544859777878640">Kielet:</translation>
@@ -146,6 +149,7 @@
 <translation id="8507996248087185956"><ph name="NUMBER_DEFAULT"/> minuuttia</translation>
 <translation id="5296476177639202243">Yksikään kirjanmerkki ei vastaa kyselyä <ph name="SEARCH_TEXT"/>.</translation>
 <translation id="939736085109172342">Uusi kansio</translation>
+<translation id="2009541932026160416">Poista pikkukuva napsauttamalla <ph name="CROSS_IMAGE"/></translation>
 <translation id="5641560969478423183">Palvelimen varmenne ei vastaa URL-osoitetta</translation>
 <translation id="121827551500866099">Näytä kaikki lataukset...</translation>
 <translation id="3115147772012638511">Odotetaan välimuistia...</translation>
@@ -190,6 +194,7 @@
 <translation id="9189691339671500905">Määritä osoitekentässä käytetty hakukone.</translation>
 <translation id="4571852245489094179">Tuo kirjanmerkit ja asetukset</translation>
 <translation id="6514771739083339959">Oma etusivu:</translation>
+<translation id="4421917670248123270">Sulje ja peruuta lataukset</translation>
 <translation id="5605623530403479164">Muut hakukoneet</translation>
 <translation id="5710435578057952990">Tämän sivuston identiteettiä ei ole vahvistettu.</translation>
 <translation id="5287240709317226393">Näytä evästeet</translation>
@@ -201,6 +206,7 @@
 <translation id="4999762576397546063">Ctrl+<ph name="KEY_COMBO_NAME"/></translation>
 <translation id="3369624026883419694">Jäsennetään palvelinta...</translation>
 <translation id="3967132639560659870">Sivulla on useita SSL-virheitä:</translation>
+<translation id="175196451752279553">A&amp;vaa suljettu välilehti uudelleen</translation>
 <translation id="5039804452771397117">Salli</translation>
 <translation id="2266011376676382776">Sivu ei vastaa</translation>
 <translation id="1805966933547717780">http://www.google.com/chrome/help/</translation>
@@ -239,6 +245,7 @@
 <translation id="358344266898797651">kelttiläinen</translation>
 <translation id="5055518462594137986">Muista valintani kaikkien tämäntyyppisten linkkien osalta.</translation>
 <translation id="2870560284913253234">Sivusto</translation>
+<translation id="4164507027399414915">Palauta kaikki poistetut pikkukuvat</translation>
 <translation id="7543025879977230179"><ph name="PRODUCT_NAME"/>-asetukset</translation>
 <translation id="2648845569394238430">Haku:</translation>
 <translation id="2175607476662778685">Pikakäynnistysvalikko</translation>
@@ -285,6 +292,7 @@
 <translation id="8887733174653581061">Aina ylhäällä</translation>
 <translation id="610886263749567451">JavaScript-ilmoitus</translation>
 <translation id="8413126021676339697">Näytä koko selaushistoria</translation>
+<translation id="8860923508273563464">Odota, että lataukset valmistuvat</translation>
 <translation id="1823768272150895732">Kirjasin</translation>
 <translation id="4475552974751346499">Haku latauksista</translation>
 <translation id="1111153019813902504">Uusimmat kirjanmerkit</translation>
@@ -340,6 +348,7 @@
 <translation id="1181037720776840403">Poista</translation>
 <translation id="59174027418879706">Aktivoitu</translation>
 <translation id="8141503649579618569"><ph name="DOWNLOAD_RECEIVED"/>/<ph name="DOWNLOAD_TOTAL"/>, <ph name="TIME_LEFT"/></translation>
+<translation id="2534091581909016888"><ph name="SITE"/></translation>
 <translation id="6659594942844771486">Välilehti</translation>
 <translation id="5452592754878692665">Muuta Google Gears -asetuksia</translation>
 <translation id="5316814419223884568">Hae tästä</translation>
@@ -424,6 +433,7 @@
 <translation id="4002066346123236978">Otsikko</translation>
 <translation id="9015241028623917394">Hallinnoi nykyistä sivua</translation>
 <translation id="7861215335140947162">&amp;Lataukset</translation>
+<translation id="5460429403253574028">Poista pikkukuvat</translation>
 <translation id="2505402373176859469"><ph name="RECEIVED_AMOUNT"/> / <ph name="TOTAL_SIZE"/></translation>
 <translation id="6644512095122093795">Tarjoa salasanojen tallentamista</translation>
 <translation id="5384051050210890146">Valitse luotettavia SSL-varmenteita.</translation>
@@ -575,6 +585,7 @@
 <translation id="9170848237812810038">K&amp;umoa</translation>
 <translation id="8135557862853121765"><ph name="NUM_KILOBYTES"/>K</translation>
 <translation id="4444364671565852729"><ph name="PRODUCT_NAME"/> on päivitetty versioon <ph name="VERSION"/></translation>
+<translation id="6483805311199035658">Avataan tiedostoa <ph name="FILE"/>...</translation>
 <translation id="9154176715500758432">Pysy tällä sivulla</translation>
 <translation id="5875565123733157100">Virhetyyppi:</translation>
 <translation id="2440604414813129000">Näytä a&amp;lkuperä</translation>
