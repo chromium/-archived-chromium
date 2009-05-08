@@ -2359,6 +2359,7 @@
       'target_name': 'unit_tests',
       'type': 'executable',
       'dependencies': [
+        'app',
         'browser',
         'common',
         'renderer',
