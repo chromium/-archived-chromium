@@ -4,6 +4,9 @@
 
 #include "chrome/browser/tab_contents/render_view_context_menu.h"
 
+#if defined(OS_WIN)
+#include "app/win_util.h"
+#endif
 #include "app/l10n_util.h"
 #include "base/clipboard.h"
 #include "base/command_line.h"
@@ -26,7 +29,6 @@
 #if defined(OS_WIN)
 #include "chrome/browser/views/options/fonts_languages_window_view.h"
 #include "chrome/browser/views/page_info_window.h"
-#include "chrome/common/win_util.h"
 #endif
 
 RenderViewContextMenu::RenderViewContextMenu(

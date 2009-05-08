@@ -11,7 +11,6 @@
 #include "base/string_util.h"
 #include "chrome/browser/download/save_types.h"
 #if defined(OS_WIN)
-#include "chrome/common/win_util.h"
 #include "chrome/common/win_safe_util.h"
 #endif
 

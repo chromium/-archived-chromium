@@ -9,9 +9,6 @@ include_rules = [
   # message_box_view.cc, text_field.cc, window_delegate.cc
   "+chrome/browser/browser_process.h",
   
-  # text_field.cc
-  "+chrome/common/win_util.h",
-  
   # widget_win.cc
   "+chrome/app/chrome_dll_resource.h",
   

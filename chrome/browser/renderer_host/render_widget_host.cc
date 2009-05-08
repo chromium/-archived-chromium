@@ -20,7 +20,6 @@
 #if defined(OS_WIN)
 #include "base/gfx/gdi_util.h"
 #include "chrome/app/chrome_dll_resource.h"
-#include "chrome/common/win_util.h"
 #endif  // defined(OS_WIN)
 
 using base::Time;

@@ -24,7 +24,6 @@
 #include "chrome/browser/views/bookmark_table_view.h"
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
-#include "chrome/common/win_util.h"
 #include "grit/generated_resources.h"
 #include "grit/locale_settings.h"
 #include "skia/ext/skia_utils.h"

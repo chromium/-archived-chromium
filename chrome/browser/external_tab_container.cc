@@ -4,6 +4,7 @@
 
 #include "chrome/browser/external_tab_container.h"
 
+#include "app/win_util.h"
 #include "base/logging.h"
 #include "base/win_util.h"
 #include "chrome/browser/automation/automation_provider.h"
@@ -15,7 +16,6 @@
 #include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/browser/views/tab_contents_container_view.h"
 #include "chrome/common/chrome_constants.h"
-#include "chrome/common/win_util.h"
 #include "chrome/test/automation/automation_messages.h"
 // Included for SetRootViewForHWND.
 #include "views/widget/widget_win.h"

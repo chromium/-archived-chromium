@@ -35,7 +35,6 @@
 
 #if defined(OS_WIN)
 #include "chrome/common/gfx/emf.h"
-#include "chrome/common/win_util.h"
 #endif
 
 // Proxy for WebPluginResourceClient.  The object owns itself after creation,

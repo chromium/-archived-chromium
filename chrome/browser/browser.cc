@@ -60,6 +60,7 @@
 #include <windows.h>
 #include <shellapi.h>
 
+#include "app/win_util.h"
 #include "chrome/browser/automation/ui_controls.h"
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/browser_url_handler.h"
@@ -75,8 +76,6 @@
 #include "chrome/browser/views/location_bar_view.h"
 #include "chrome/browser/window_sizer.h"
 #include "chrome/common/child_process_host.h"
-#include "chrome/common/win_util.h"
-
 #endif  // OS_WIN
 
 using base::TimeDelta;

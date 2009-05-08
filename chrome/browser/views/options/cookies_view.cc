@@ -13,7 +13,6 @@
 #include "base/string_util.h"
 #include "base/time_format.h"
 #include "chrome/browser/profile.h"
-#include "chrome/common/win_util.h"
 #include "grit/generated_resources.h"
 #include "grit/locale_settings.h"
 #include "grit/theme_resources.h"

@@ -69,6 +69,7 @@
 #include <windows.h>
 #include <shellapi.h>
 
+#include "app/win_util.h"
 #include "base/registry.h"
 #include "base/win_util.h"
 #include "chrome/browser/browser.h"
@@ -83,7 +84,6 @@
 #include "chrome/browser/rlz/rlz.h"
 #include "chrome/browser/views/user_data_dir_dialog.h"
 #include "chrome/common/env_vars.h"
-#include "chrome/common/win_util.h"
 #include "chrome/installer/util/google_update_settings.h"
 #include "chrome/installer/util/helper.h"
 #include "chrome/installer/util/install_util.h"

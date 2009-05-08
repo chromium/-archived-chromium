@@ -5,7 +5,7 @@
 #include "views/window/non_client_view.h"
 
 #if defined(OS_WIN)
-#include "chrome/common/win_util.h"
+#include "app/win_util.h"
 #endif
 #include "views/widget/root_view.h"
 #include "views/widget/widget.h"

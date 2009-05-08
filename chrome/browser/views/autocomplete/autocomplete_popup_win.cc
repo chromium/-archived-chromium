@@ -5,10 +5,10 @@
 #include "chrome/browser/views/autocomplete/autocomplete_popup_win.h"
 
 #include "app/gfx/insets.h"
+#include "app/win_util.h"
 #include "chrome/browser/autocomplete/autocomplete_edit_view_win.h"
 #include "chrome/browser/autocomplete/autocomplete_popup_model.h"
 #include "chrome/browser/views/autocomplete/autocomplete_popup_contents_view.h"
-#include "chrome/common/win_util.h"
 
 ////////////////////////////////////////////////////////////////////////////////
 // AutocompletePopupWin, public:

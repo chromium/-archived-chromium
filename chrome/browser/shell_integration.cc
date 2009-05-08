@@ -2,12 +2,13 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+#include "chrome/browser/shell_integration.h"
+
 #include <windows.h>
 #include <shlobj.h>
 #include <shobjidl.h>
 
-#include "chrome/browser/shell_integration.h"
-
+#include "app/win_util.h"
 #include "base/command_line.h"
 #include "base/file_util.h"
 #include "base/message_loop.h"
@@ -17,7 +18,6 @@
 #include "base/task.h"
 #include "base/win_util.h"
 #include "chrome/common/chrome_constants.h"
-#include "chrome/common/win_util.h"
 #include "chrome/installer/util/browser_distribution.h"
 #include "chrome/installer/util/create_reg_key_work_item.h"
 #include "chrome/installer/util/set_reg_value_work_item.h"

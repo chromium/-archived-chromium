@@ -13,6 +13,7 @@
 #include <algorithm>
 
 #include "app/l10n_util.h"
+#include "app/win_util.h"
 #include "base/file_util.h"
 #include "base/registry.h"
 #include "base/string_util.h"
@@ -23,7 +24,6 @@
 #include "chrome/browser/search_engines/template_url_model.h"
 #include "chrome/common/time_format.h"
 #include "chrome/common/url_constants.h"
-#include "chrome/common/win_util.h"
 #include "googleurl/src/gurl.h"
 #include "grit/generated_resources.h"
 

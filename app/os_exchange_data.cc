@@ -14,7 +14,6 @@
 #include "base/scoped_handle.h"
 #include "base/stl_util-inl.h"
 #include "base/string_util.h"
-#include "chrome/common/win_util.h"
 #include "googleurl/src/gurl.h"
 #include "grit/generated_resources.h"
 #include "net/base/net_util.h"

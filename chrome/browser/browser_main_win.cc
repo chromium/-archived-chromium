@@ -2,15 +2,14 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "chrome/common/win_util.h"
-
-#include <shellapi.h>
-#include <windows.h>
-
 #include "chrome/browser/browser_main_win.h"
+
+#include <windows.h>
+#include <shellapi.h>
 
 #include "app/l10n_util.h"
 #include "app/message_box_flags.h"
+#include "app/win_util.h"
 #include "base/command_line.h"
 #include "base/path_service.h"
 #include "base/win_util.h"

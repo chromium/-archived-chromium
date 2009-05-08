@@ -18,7 +18,6 @@
 #include "breakpad/src/client/windows/sender/crash_report_sender.h"
 #include "chrome/common/chrome_constants.h"
 #include "chrome/common/chrome_paths.h"
-#include "chrome/common/win_util.h"
 
 // TODO(cpu): Bug 1169078. There is a laundry list of things to do for this
 // application. They will be addressed as they are required.

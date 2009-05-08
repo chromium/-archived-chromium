@@ -9,8 +9,8 @@
 #include "app/gfx/path.h"
 #include "app/resource_bundle.h"
 #if defined(OS_WIN)
+#include "app/win_util.h"
 #include "base/win_util.h"
-#include "chrome/common/win_util.h"
 #endif
 #include "grit/theme_resources.h"
 #include "views/window/client_view.h"

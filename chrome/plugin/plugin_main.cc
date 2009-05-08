@@ -2,6 +2,11 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+#include "build/build_config.h"
+
+#if defined(OS_WIN)
+#include "app/win_util.h"
+#endif
 #include "base/command_line.h"
 #include "base/message_loop.h"
 #include "base/string_util.h"
@@ -15,7 +20,6 @@
 #include "chrome/plugin/plugin_thread.h"
 
 #if defined(OS_WIN)
-#include "chrome/common/win_util.h"
 #include "chrome/test/injection_test_dll.h"
 #include "sandbox/src/sandbox.h"
 #endif

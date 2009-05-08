@@ -43,9 +43,9 @@
 #include "webkit/glue/plugins/plugin_constants_win.h"
 
 #if defined(OS_WIN)
+#include "app/win_util.h"
 #include "base/win_util.h"
 #include "chrome/browser/sandbox_policy.h"
-#include "chrome/common/win_util.h"
 #include "sandbox/src/sandbox.h"
 #endif
 

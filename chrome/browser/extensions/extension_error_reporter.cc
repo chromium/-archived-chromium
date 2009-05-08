@@ -4,11 +4,10 @@
 
 #include "chrome/browser/extensions/extension_error_reporter.h"
 
-#include "base/string_util.h"
-
 #if defined(OS_WIN)
-#include "chrome/common/win_util.h"
+#include "app/win_util.h"
 #endif
+#include "base/string_util.h"
 
 // No AddRef required when using ExtensionErrorReporter with RunnableMethod.
 // This is okay since the ExtensionErrorReporter is a singleton that lives until

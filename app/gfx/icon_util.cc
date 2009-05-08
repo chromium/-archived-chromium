@@ -4,10 +4,10 @@
 
 #include "app/gfx/icon_util.h"
 
+#include "app/win_util.h"
 #include "base/file_util.h"
 #include "base/gfx/size.h"
 #include "base/logging.h"
-#include "chrome/common/win_util.h"
 #include "skia/ext/image_operations.h"
 #include "skia/include/SkBitmap.h"
 

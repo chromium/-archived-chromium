@@ -8,8 +8,10 @@
 
 #if defined(OS_WIN)
 #include <shlobj.h>
-#endif
 
+#include "app/win_util.h"
+#include "base/registry.h"
+#endif
 #include "base/file_util.h"
 #include "base/logging.h"
 #include "base/string_util.h"
@@ -20,10 +22,6 @@
 #include "googleurl/src/gurl.h"
 #include "net/base/base64.h"
 
-#if defined(OS_WIN)
-#include "base/registry.h"
-#include "chrome/common/win_util.h"
-#endif
 
 namespace {
 

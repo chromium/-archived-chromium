@@ -9,6 +9,9 @@
 
 #include "app/gfx/favicon_size.h"
 #include "app/l10n_util.h"
+#if defined(OS_WIN)
+#include "app/win_util.h"
+#endif
 #include "base/file_util.h"
 #include "base/gfx/png_encoder.h"
 #include "base/string_util.h"
@@ -39,7 +42,6 @@
 // TODO(port): Port these files.
 #if defined(OS_WIN)
 #include "chrome/browser/views/importer_lock_view.h"
-#include "chrome/common/win_util.h"
 #include "views/window/window.h"
 #endif
 

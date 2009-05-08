@@ -4,6 +4,7 @@
 
 #include "chrome/browser/sandbox_policy.h"
 
+#include "app/win_util.h"
 #include "base/command_line.h"
 #include "base/debug_util.h"
 #include "base/file_util.h"
@@ -21,7 +22,6 @@
 #include "chrome/common/debug_flags.h"
 #include "chrome/common/ipc_logging.h"
 #include "chrome/common/notification_service.h"
-#include "chrome/common/win_util.h"
 #include "sandbox/src/sandbox.h"
 #include "webkit/glue/plugins/plugin_list.h"
 

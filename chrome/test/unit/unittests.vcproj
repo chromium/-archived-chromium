@@ -1028,10 +1028,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\common\win_util_unittest.cc"
-				>
-			</File>
-			<File
 				RelativePath="..\..\common\worker_thread_ticker_unittest.cc"
 				>
 			</File>
@@ -1110,6 +1106,28 @@
 			<File
 				RelativePath="..\..\..\app\gfx\text_elider_unittest.cc"
 				>
+			</File>
+			<File
+				RelativePath="..\..\..\app\win_util_unittest.cc"
+				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						ObjectFile="$(IntDir)\$(InputName)1.obj"
+						XMLDocumentationFileName="$(IntDir)\$(InputName)1.xdc"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						ObjectFile="$(IntDir)\$(InputName)1.obj"
+						XMLDocumentationFileName="$(IntDir)\$(InputName)1.xdc"
+					/>
+				</FileConfiguration>
 			</File>
 		</Filter>
 	</Files>

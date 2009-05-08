@@ -26,7 +26,6 @@
 #include "chrome/common/native_web_keyboard_event.h"
 #include "chrome/common/plugin_messages.h"
 #include "chrome/common/render_messages.h"
-#include "chrome/common/win_util.h"
 #include "grit/webkit_resources.h"
 #include "skia/ext/skia_utils_win.h"
 #include "third_party/WebKit/WebKit/chromium/public/WebInputEvent.h"

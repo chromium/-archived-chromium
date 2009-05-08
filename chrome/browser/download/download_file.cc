@@ -24,7 +24,7 @@
 #include "net/url_request/url_request_context.h"
 
 #if defined(OS_WIN)
-#include "chrome/common/win_util.h"
+#include "app/win_util.h"
 #include "chrome/common/win_safe_util.h"
 #elif defined(OS_MACOSX)
 #include "chrome/common/quarantine_mac.h"

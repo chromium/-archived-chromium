@@ -11,7 +11,6 @@
 #include "chrome/common/chrome_switches.h"
 #include "chrome/common/logging_chrome.h"
 #include "chrome/common/main_function_params.h"
-#include "chrome/common/win_util.h"
 #include "chrome/worker/worker_thread.h"
 
 #if defined(OS_WIN)

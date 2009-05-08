@@ -8,18 +8,12 @@ include_rules = [
   "+chrome/common/chrome_paths.h",
   "+chrome/common/chrome_switches.h",
   "+chrome/common/gtk_util.h",
-  # text_elider.cc
-  "+chrome/common/pref_names.h",
-  "+chrome/common/pref_service.h",
-    
+
   # TODO(beng): l10n_util_unittest.cc:
   "+chrome/test/data/resource.h",  
   
   # TODO(beng): resource_bundle.cc: Sever this link after glen fixes it.
   "+chrome/browser/extensions/extension.h",
-
-  # TODO(beng): os_exchange_data[_unittest].cc, icon_util.cc:
-  "+chrome/common/win_util.h",
 
   "+skia",
 ]

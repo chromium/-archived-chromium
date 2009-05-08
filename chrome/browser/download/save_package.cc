@@ -38,11 +38,6 @@
 #include "net/url_request/url_request_context.h"
 #include "webkit/glue/dom_serializer_delegate.h"
 
-#if defined(OS_WIN)
-#include "base/win_util.h"
-#include "chrome/common/win_util.h"
-#endif
-
 using base::Time;
 
 // This structure is for storing parameters which we will use to create a

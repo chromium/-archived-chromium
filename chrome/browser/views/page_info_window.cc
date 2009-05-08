@@ -9,6 +9,7 @@
 
 #include "app/l10n_util.h"
 #include "app/resource_bundle.h"
+#include "app/win_util.h"
 #include "base/string_util.h"
 #include "base/time_format.h"
 #include "chrome/browser/browser_process.h"
@@ -18,7 +19,6 @@
 #include "chrome/browser/ssl/ssl_manager.h"
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
-#include "chrome/common/win_util.h"
 #include "grit/generated_resources.h"
 #include "grit/locale_settings.h"
 #include "grit/theme_resources.h"

@@ -734,14 +734,6 @@
 			>
 		</File>
 		<File
-			RelativePath=".\win_util.cc"
-			>
-		</File>
-		<File
-			RelativePath=".\win_util.h"
-			>
-		</File>
-		<File
 			RelativePath=".\worker_thread_ticker.cc"
 			>
 		</File>

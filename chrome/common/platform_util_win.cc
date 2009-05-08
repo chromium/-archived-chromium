@@ -11,12 +11,12 @@
 #include <shellapi.h>
 #include <shlobj.h>
 
+#include "app/win_util.h"
 #include "base/file_path.h"
 #include "base/file_util.h"
 #include "base/gfx/native_widget_types.h"
 #include "base/logging.h"
 #include "base/string_util.h"
-#include "chrome/common/win_util.h"
 
 namespace platform_util {
 

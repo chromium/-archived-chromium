@@ -5,6 +5,9 @@
 #include "chrome/plugin/webplugin_proxy.h"
 
 #include "app/gfx/chrome_canvas.h"
+#if defined(OS_WIN)
+#include "app/win_util.h"
+#endif
 #include "base/scoped_handle.h"
 #include "base/shared_memory.h"
 #include "base/singleton.h"
@@ -22,7 +25,6 @@
 
 #if defined(OS_WIN)
 #include "base/gfx/gdi_util.h"
-#include "chrome/common/win_util.h"
 #endif
 
 typedef std::map<CPBrowsingContext, WebPluginProxy*> ContextMap;

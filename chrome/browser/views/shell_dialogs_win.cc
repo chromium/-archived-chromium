@@ -14,12 +14,12 @@
 
 #include "app/gfx/chrome_font.h"
 #include "app/l10n_util.h"
+#include "app/win_util.h"
 #include "base/file_util.h"
 #include "base/registry.h"
 #include "base/string_util.h"
 #include "base/thread.h"
 #include "chrome/browser/browser_process.h"
-#include "chrome/common/win_util.h"
 #include "grit/generated_resources.h"
 
 // Helpers to show certain types of Windows shell dialogs in a way that doesn't

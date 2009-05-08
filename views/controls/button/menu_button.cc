@@ -8,7 +8,7 @@
 #include "app/gfx/chrome_canvas.h"
 #include "app/l10n_util.h"
 #include "app/resource_bundle.h"
-#include "chrome/common/win_util.h"
+#include "app/win_util.h"
 #include "grit/generated_resources.h"
 #include "grit/theme_resources.h"
 #include "views/controls/button/button.h"

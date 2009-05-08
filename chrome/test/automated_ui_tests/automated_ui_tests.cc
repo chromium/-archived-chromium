@@ -19,7 +19,6 @@
 #include "chrome/common/chrome_paths.h"
 #include "chrome/common/env_vars.h"
 #include "chrome/common/libxml_utils.h"
-#include "chrome/common/win_util.h"
 #include "chrome/test/automated_ui_tests/automated_ui_tests.h"
 #include "chrome/test/automation/browser_proxy.h"
 #include "chrome/test/automation/tab_proxy.h"

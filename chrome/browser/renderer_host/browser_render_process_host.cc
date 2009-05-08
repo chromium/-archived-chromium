@@ -11,6 +11,9 @@
 
 #include <algorithm>
 
+#if defined(OS_WIN)
+#include "app/win_util.h"
+#endif
 #include "base/command_line.h"
 #include "base/linked_ptr.h"
 #include "base/logging.h"
@@ -57,7 +60,6 @@ using WebKit::WebCache;
 // Once the above TODO is finished, then this block is all Windows-specific
 // files.
 #include "base/win_util.h"
-#include "chrome/common/win_util.h"
 #include "chrome/browser/sandbox_policy.h"
 #include "sandbox/src/sandbox.h"
 #elif defined(OS_POSIX)

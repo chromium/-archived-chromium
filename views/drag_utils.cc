@@ -17,7 +17,6 @@
 #include "base/gfx/gdi_util.h"
 #include "base/gfx/point.h"
 #include "base/string_util.h"
-#include "chrome/common/win_util.h"
 #include "googleurl/src/gurl.h"
 #include "grit/theme_resources.h"
 #include "views/controls/button/text_button.h"

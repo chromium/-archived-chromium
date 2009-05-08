@@ -257,6 +257,14 @@
 			RelativePath=".\throb_animation.h"
 			>
 		</File>
+		<File
+			RelativePath=".\win_util.cc"
+			>
+		</File>
+		<File
+			RelativePath=".\win_util.h"
+			>
+		</File>
 	</Files>
 	<Globals>
 	</Globals>

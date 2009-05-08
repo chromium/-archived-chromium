@@ -13,6 +13,9 @@
 
 #include <algorithm>
 
+#if defined(OS_WIN)
+#include "app/win_util.h"
+#endif
 #include "base/file_util.h"
 #include "base/logging.h"
 #include "base/message_loop.h"
@@ -25,9 +28,6 @@
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/history/history.h"
 #include "chrome/browser/profile.h"
-#if defined(OS_WIN)
-#include "chrome/common/win_util.h"
-#endif
 
 using file_util::ScopedFILE;
 using file_util::OpenFile;
@@ -95,7 +95,7 @@ class AsyncWriter : public Task {
 
     // The write may not make it to the kernel (stdlib may buffer the write)
     // until the next fseek/fclose call.  If we crash, it's easy for our used
-    // item count to be out of sync with the number of hashes we write. 
+    // item count to be out of sync with the number of hashes we write.
     // Protect against this by calling fflush.
     int ret = fflush(file);
     DCHECK_EQ(0, ret);

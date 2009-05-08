@@ -10,8 +10,8 @@
 #include "base/pickle.h"
 #include "base/ref_counted.h"
 #include "base/scoped_handle.h"
+#include "base/scoped_ptr.h"
 #include "base/string_util.h"
-#include "chrome/common/win_util.h"
 #include "googleurl/src/gurl.h"
 #include "testing/gtest/include/gtest/gtest.h"
 

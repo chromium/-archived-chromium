@@ -7,8 +7,6 @@
 #include "base/file_path.h"
 #include "base/string_util.h"
 #include "base/sys_string_conversions.h"
-#include "chrome/common/pref_names.h"
-#include "chrome/common/pref_service.h"
 #include "googleurl/src/gurl.h"
 #include "net/base/escape.h"
 #include "net/base/net_util.h"

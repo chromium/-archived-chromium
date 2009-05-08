@@ -42,11 +42,11 @@
 #include "net/url_request/url_request_context.h"
 
 #if defined(OS_WIN)
+#include "app/win_util.h"
 // TODO(port): some of these need porting.
 #include "base/registry.h"
 #include "base/win_util.h"
 #include "chrome/browser/download/download_util.h"
-#include "chrome/common/win_util.h"
 #endif
 
 #if defined(OS_LINUX)

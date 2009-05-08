@@ -8,11 +8,11 @@
 
 #include "chrome/common/win_safe_util.h"
 
+#include "app/win_util.h"
 #include "base/file_path.h"
 #include "base/logging.h"
 #include "base/path_service.h"
 #include "base/string_util.h"
-#include "chrome/common/win_util.h"
 
 namespace win_util {
 

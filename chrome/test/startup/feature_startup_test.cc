@@ -4,13 +4,13 @@
 
 #include <windows.h>
 
+#include "app/win_util.h"
 #include "base/file_util.h"
 #include "base/path_service.h"
 #include "base/perftimer.h"
 #include "base/time.h"
 #include "chrome/app/chrome_dll_resource.h"
 #include "chrome/common/chrome_paths.h"
-#include "chrome/common/win_util.h"
 #include "chrome/test/automation/browser_proxy.h"
 #include "chrome/test/ui/ui_test.h"
 #include "net/base/net_util.h"

@@ -169,6 +169,8 @@
         '../app/slide_animation.h',
         '../app/throb_animation.cc',
         '../app/throb_animation.h',
+        '../app/win_util.cc',
+        '../app/win_util.h',                
       ],
       'direct_dependent_settings': {
         'include_dirs': [
@@ -419,8 +421,6 @@
         'common/webkit_param_traits.h',
         'common/win_safe_util.cc',
         'common/win_safe_util.h',
-        'common/win_util.cc',
-        'common/win_util.h',
         'common/worker_thread_ticker.cc',
         'common/worker_thread_ticker.h',
         'common/x11_util.cc',
@@ -2633,7 +2633,7 @@
         'common/resource_dispatcher_unittest.cc',
         'common/time_format_unittest.cc',
         'common/unzip_unittest.cc',
-        'common/win_util_unittest.cc',
+        '../app/win_util_unittest.cc',
         'common/worker_thread_ticker_unittest.cc',
         'renderer/extensions/extension_api_client_unittest.cc',
         'renderer/extensions/greasemonkey_api_unittest.cc',

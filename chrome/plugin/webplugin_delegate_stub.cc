@@ -21,7 +21,6 @@
 
 #if defined(OS_WIN)
 #include "chrome/common/gfx/emf.h"
-#include "chrome/common/win_util.h"
 #endif
 
 class FinishDestructionTask : public Task {
