@@ -40,6 +40,8 @@
         '../third_party/npapi/npapi.gyp:*',
         '../third_party/sqlite/sqlite.gyp:*',
         '../third_party/zlib/zlib.gyp:*',
+        '../webkit/tools/test_shell/test_shell.gyp:test_shell',
+        '../webkit/tools/test_shell/test_shell.gyp:test_shell_tests',
         'temp_gyp/googleurl.gyp:*',
       ],
       'conditions': [
@@ -87,8 +89,6 @@
           'type': 'none',
           'dependencies': [
             '../chrome/chrome.gyp:image_diff',
-            '../webkit/tools/test_shell/test_shell.gyp:test_shell',
-            '../webkit/tools/test_shell/test_shell.gyp:test_shell_tests',
           ],
         },
       ],

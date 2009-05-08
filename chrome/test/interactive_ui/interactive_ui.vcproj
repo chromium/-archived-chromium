@@ -308,7 +308,7 @@
 				>
 			</File>
 			<File
-				RelativePath="$(OutDir)\grit_derived_sources\webkit_resources.rc"
+				RelativePath="$(OutDir)\obj\global_intermediate\webkit\webkit_resources.rc"
 				>
 			</File>
 			<File
