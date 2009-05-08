@@ -484,8 +484,8 @@ class BrowserClosedNotificationObserver : public NotificationObserver {
         routing_id_(routing_id),
         reply_message_(reply_message),
         for_browser_command_(false) {
-    NotificationService::current()->AddObserver(this,
-        NotificationType::BROWSER_CLOSED, Source<Browser>(browser));
+    registrar_.Add(this, NotificationType::BROWSER_CLOSED,
+                   Source<Browser>(browser));
   }
 
   virtual void Observe(NotificationType type,
@@ -512,6 +512,7 @@ class BrowserClosedNotificationObserver : public NotificationObserver {
   AutomationProvider* automation_;
   int32 routing_id_;
   IPC::Message* reply_message_;
+  NotificationRegistrar registrar_;
   bool for_browser_command_;
 };
 
