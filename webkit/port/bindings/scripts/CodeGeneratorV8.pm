@@ -2047,7 +2047,7 @@ sub NativeToJSValue
       return "V8Proxy::ToV8Object(V8ClassIndex::RGBCOLOR, new RGBColor($value))";
     }
     
-    if ($type eq "WorkerLocation" or $type eq "WorkerNavigator") {
+    if ($type eq "WorkerContext" or $type eq "WorkerLocation" or $type eq "WorkerNavigator") {
       $implIncludes{"WorkerContextExecutionProxy.h"} = 1;
       my $classIndex = uc($type);
 
