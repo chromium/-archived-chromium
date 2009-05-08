@@ -45,6 +45,10 @@ void DevToolsClient::SendDebuggerCommandToAgent(const std::string& command) {
   Send(DevToolsAgentMsg_DebuggerCommand(command));
 }
 
+void DevToolsClient::ActivateWindow() {
+  render_view_->TakeFocus(render_view_->webview(), false);
+}
+
 void DevToolsClient::OnRpcMessage(const std::string& raw_msg) {
   web_tools_client_->DispatchMessageFromAgent(raw_msg);
 }

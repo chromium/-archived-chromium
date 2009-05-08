@@ -43,9 +43,13 @@ class WebDevToolsClientImpl : public WebDevToolsClient,
   virtual void DispatchMessageFromAgent(const std::string& raw_msg);
 
  private:
+  static void InitProtoFunction(v8::Handle<v8::ObjectTemplate> proto,
+                                const char* name,
+                                v8::InvocationCallback callback,
+                                v8::Handle<v8::Signature> signature);
   static v8::Handle<v8::Value> JsAddSourceToFrame(const v8::Arguments& args);
   static v8::Handle<v8::Value> JsLoaded(const v8::Arguments& args);
-  static v8::Handle<v8::Value> JsSearch(const v8::Arguments& args);
+  static v8::Handle<v8::Value> JsActivateWindow(const v8::Arguments& args);
   static v8::Persistent<v8::FunctionTemplate> host_template_;
   static HashMap<WebCore::Page*, WebDevToolsClientImpl*> page_to_client_;
 

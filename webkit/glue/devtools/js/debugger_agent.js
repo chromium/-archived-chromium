@@ -494,6 +494,7 @@ devtools.DebuggerAgent.prototype.handleBacktraceResponse_ = function(msg) {
   this.currentCallFrame_ = f;
   
   WebInspector.pausedScript();
+  DevToolsHost.activateWindow();
 };
 
 

@@ -99,28 +99,38 @@ void WebDevToolsClientImpl::InitBoundObject() {
   v8::Local<v8::Signature> default_signature =
       v8::Signature::New(host_template_);
   v8::Local<v8::ObjectTemplate> proto = host_template_->PrototypeTemplate();
-  proto->Set(
-      v8::String::New("addSourceToFrame"),
-      v8::FunctionTemplate::New(
-          WebDevToolsClientImpl::JsAddSourceToFrame,
-          v8::Handle<v8::Value>(),
-          default_signature),
-      static_cast<v8::PropertyAttribute>(v8::DontDelete));
-  proto->Set(
-      v8::String::New("loaded"),
-      v8::FunctionTemplate::New(
-          WebDevToolsClientImpl::JsLoaded,
-          v8::Handle<v8::Value>(),
-          default_signature),
-      static_cast<v8::PropertyAttribute>(v8::DontDelete));
-  proto->Set(
-      v8::String::New("search"),
-      v8::FunctionTemplate::New(
-          WebDevToolsClientImpl::JsSearch,
-          v8::Handle<v8::Value>(),
-          default_signature),
-      static_cast<v8::PropertyAttribute>(v8::DontDelete));
+  InitProtoFunction(proto,
+                    "addSourceToFrame",
+                    WebDevToolsClientImpl::JsAddSourceToFrame,
+                    default_signature);
+  InitProtoFunction(proto,
+                    "loaded",
+                    WebDevToolsClientImpl::JsLoaded,
+                    default_signature);
+  InitProtoFunction(proto,
+                    "search",
+                    WebCore::V8Custom::v8InspectorControllerSearchCallback,
+                    default_signature);
+  InitProtoFunction(proto,
+                    "activateWindow",
+                    WebDevToolsClientImpl::JsActivateWindow,
+                    default_signature);
   host_template_->SetClassName(v8::String::New("DevToolsHost"));
+}
+
+// static
+void WebDevToolsClientImpl::InitProtoFunction(
+    v8::Handle<v8::ObjectTemplate> proto,
+    const char* name,
+    v8::InvocationCallback callback,
+    v8::Handle<v8::Signature> signature) {
+  proto->Set(
+      v8::String::New(name),
+      v8::FunctionTemplate::New(
+          callback,
+          v8::Handle<v8::Value>(),
+          signature),
+      static_cast<v8::PropertyAttribute>(v8::DontDelete));
 }
 
 // static
@@ -240,7 +250,10 @@ v8::Handle<v8::Value> WebDevToolsClientImpl::JsLoaded(
 }
 
 // static
-v8::Handle<v8::Value> WebDevToolsClientImpl::JsSearch(
+v8::Handle<v8::Value> WebDevToolsClientImpl::JsActivateWindow(
     const v8::Arguments& args) {
-  return WebCore::V8Custom::v8InspectorControllerSearchCallback(args);
+  Page* page = V8Proxy::retrieveActiveFrame()->page();
+  WebDevToolsClientImpl* client = page_to_client_.get(page);
+  client->delegate_->ActivateWindow();
+  return v8::Undefined();
 }
