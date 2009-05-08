@@ -79,16 +79,26 @@
   ],
   'conditions': [
     ['OS=="mac"', {
-      # Target to build everything needed for layout tests to cut down
-      # on what the layout test bots have to build.
       'targets': [
         {
+          # Target to build everything needed for layout tests to cut down
+          # on what the layout test bots have to build.
           'target_name': 'build_for_layout_tests',
           'type': 'none',
           'dependencies': [
             '../chrome/chrome.gyp:image_diff',
             '../webkit/tools/test_shell/test_shell.gyp:test_shell',
             '../webkit/tools/test_shell/test_shell.gyp:test_shell_tests',
+          ],
+        },
+        {
+          # Target to build everything plus the dmg.  We don't put the dmg
+          # in the All target because developer really don't need it.
+          'target_name': 'all_and_dmg',
+          'type': 'none',
+          'dependencies': [
+            'All',
+            '../chrome/chrome.gyp:build_app_dmg',
           ],
         },
       ],
