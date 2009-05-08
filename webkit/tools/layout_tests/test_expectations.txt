@@ -2666,3 +2666,5 @@ BUG_DGLAZKOV WIN LINUX : chrome/fast/forms/basic-textareas.html = FAIL
 BUG_DGLAZKOV MAC : LayoutTests/fast/forms/text-control-intrinsic-widths.html = FAIL
 BUG_DGLAZKOV MAC : LayoutTests/http/tests/security/cross-frame-access-call.html = FAIL
 
+// This needs to be rebaselined.  See http://trac.webkit.org/changeset/43378
+BUG11669 LINUX : LayoutTests/fast/layers/remove-only-this-layer-update.html = FAIL
