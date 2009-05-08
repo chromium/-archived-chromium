@@ -15,28 +15,28 @@ layer at (0,0) size 800x600
             text run at (360,0) width 275: "Native popup with size=\"1\" wraps options"
         RenderText {#text} at (635,0) size 4x19
           text run at (635,0) width 4: "."
-      RenderBlock {P} at (0,36) size 784x20
-        RenderText {#text} at (0,0) size 33x19
-          text run at (0,0) width 33: "With "
+      RenderBlock {P} at (0,36) size 784x24
+        RenderText {#text} at (0,2) size 33x19
+          text run at (0,2) width 33: "With "
         RenderInline {TT} at (0,0) size 64x16
-          RenderText {#text} at (33,3) size 64x16
-            text run at (33,3) width 64: "size=\"1\""
-        RenderText {#text} at (97,0) size 7x19
-          text run at (97,0) width 7: ": "
-        RenderMenuList {SELECT} at (104,0) size 100x20 [bgcolor=#FFFFFF] [border: (1px solid #000000)]
+          RenderText {#text} at (33,5) size 64x16
+            text run at (33,5) width 64: "size=\"1\""
+        RenderText {#text} at (97,2) size 7x19
+          text run at (97,2) width 7: ": "
+        RenderMenuList {SELECT} at (104,2) size 100x20 [bgcolor=#FFFFFF] [border: (1px solid #000000)]
           RenderBlock (anonymous) at (1,1) size 98x18
             RenderText at (4,1) size 188x16
               text run at (4,1) width 188: "Very long option that does not fit"
         RenderText {#text} at (0,0) size 0x0
-      RenderBlock {P} at (0,72) size 784x20
-        RenderText {#text} at (0,0) size 52x19
-          text run at (0,0) width 52: "Without "
+      RenderBlock {P} at (0,76) size 784x24
+        RenderText {#text} at (0,2) size 52x19
+          text run at (0,2) width 52: "Without "
         RenderInline {TT} at (0,0) size 32x16
-          RenderText {#text} at (52,3) size 32x16
-            text run at (52,3) width 32: "size"
-        RenderText {#text} at (84,0) size 7x19
-          text run at (84,0) width 7: ": "
-        RenderMenuList {SELECT} at (91,0) size 100x20 [bgcolor=#FFFFFF] [border: (1px solid #000000)]
+          RenderText {#text} at (52,5) size 32x16
+            text run at (52,5) width 32: "size"
+        RenderText {#text} at (84,2) size 7x19
+          text run at (84,2) width 7: ": "
+        RenderMenuList {SELECT} at (91,2) size 100x20 [bgcolor=#FFFFFF] [border: (1px solid #000000)]
           RenderBlock (anonymous) at (1,1) size 98x18
             RenderText at (4,1) size 188x16
               text run at (4,1) width 188: "Very long option that does not fit"
