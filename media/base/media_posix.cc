@@ -24,7 +24,7 @@ extern "C" {
 
 int (*av_get_bits_per_sample_format_ptr)(enum SampleFormat sample_fmt);
 int av_get_bits_per_sample_format(enum SampleFormat sample_fmt) {
-  return av_get_bits_per_sample_format(sample_fmt);
+  return av_get_bits_per_sample_format_ptr(sample_fmt);
 }
 
 void (*avcodec_init_ptr)(void) = NULL;
@@ -99,10 +99,27 @@ int av_read_frame(AVFormatContext* s, AVPacket* pkt) {
   return av_read_frame_ptr(s, pkt);
 }
 
+int (*av_seek_frame_ptr)(AVFormatContext* s, int stream_index,
+                         int64_t timestamp, int flags) = NULL;
+int av_seek_frame(AVFormatContext* s, int stream_index,
+                  int64_t timestamp, int flags) {
+  return av_seek_frame_ptr(s, stream_index, timestamp, flags);
+}
+
+int (*av_register_protocol_ptr)(URLProtocol* protocol) = NULL;
+int av_register_protocol(URLProtocol* protocol) {
+  return av_register_protocol_ptr(protocol);
+}
+
 
 void* (*av_malloc_ptr)(unsigned int size) = NULL;
 void* av_malloc(unsigned int size) {
   return av_malloc_ptr(size);
+}
+
+void (*av_free_ptr)(void* ptr) = NULL;
+void av_free(void* ptr) {
+  return av_free_ptr(ptr);
 }
 
 }  // extern "C"
@@ -210,13 +227,23 @@ bool InitializeMediaLibrary(const FilePath& module_dir) {
   av_read_frame_ptr =
       reinterpret_cast<int (*)(AVFormatContext*, AVPacket*)>(
           dlsym(libs[FILE_LIBAVFORMAT], "av_read_frame"));
+  av_seek_frame_ptr =
+      reinterpret_cast<int (*)(AVFormatContext*, int, int64_t, int)>(
+          dlsym(libs[FILE_LIBAVFORMAT], "av_seek_frame"));
+  av_register_protocol_ptr =
+      reinterpret_cast<int (*)(URLProtocol*)>(
+          dlsym(libs[FILE_LIBAVFORMAT], "av_register_protocol"));
 
   av_malloc_ptr =
       reinterpret_cast<void* (*)(unsigned int)>(
           dlsym(libs[FILE_LIBAVUTIL], "av_malloc"));
+  av_free_ptr =
+      reinterpret_cast<void (*)(void*)>(
+          dlsym(libs[FILE_LIBAVUTIL], "av_free"));
 
   // Check that all the symbols were loaded correctly before returning true.
-  if (avcodec_init_ptr &&
+  if (av_get_bits_per_sample_format_ptr &&
+      avcodec_init_ptr &&
       avcodec_find_decoder_ptr &&
       avcodec_thread_init_ptr &&
       avcodec_open_ptr &&
@@ -228,8 +255,11 @@ bool InitializeMediaLibrary(const FilePath& module_dir) {
       av_open_input_file_ptr &&
       av_find_stream_info_ptr &&
       av_read_frame_ptr &&
+      av_seek_frame_ptr &&
+      av_register_protocol_ptr &&
 
-      av_malloc_ptr) {
+      av_malloc_ptr &&
+      av_free_ptr) {
     return true;
   }
 

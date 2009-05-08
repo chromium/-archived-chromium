@@ -4,5 +4,5 @@ EXPORTS
   av_open_input_file
   av_read_frame
   av_register_all
+  av_register_protocol
   av_seek_frame
-  register_protocol

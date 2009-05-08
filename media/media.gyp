@@ -99,13 +99,6 @@
       },
       'conditions': [
         ['OS =="linux"', {
-          'sources!': [
-            'filters/ffmpeg_audio_decoder.cc',
-            'filters/ffmpeg_demuxer.cc',
-            'filters/ffmpeg_demuxer.h',
-            'filters/ffmpeg_glue.cc',
-            'filters/ffmpeg_video_decoder.cc',
-          ],
           'sources/': [ ['exclude', '_(mac|win)\\.cc$'],
                         ['exclude', '\\.mm?$' ] ],
         }],
@@ -116,12 +109,8 @@
               '$(SDKROOT)/System/Library/Frameworks/CoreAudio.framework',
             ],
           },
-          'sources!': [
-            'filters/ffmpeg_audio_decoder.cc',
-            'filters/ffmpeg_glue.cc',
-            'filters/ffmpeg_video_decoder.cc',
+          'sources/': [ ['exclude', '_(linux|win)\\.cc$'],
           ],
-          'sources/': [ ['exclude', '_(linux|win)\\.cc$'] ],
         }],
         [ 'OS == "win"', {
           'sources/': [ ['exclude', '_(linux|mac|posix)\\.cc$'],

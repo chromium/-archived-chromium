@@ -77,7 +77,11 @@ void FFmpegAudioDecoder::OnDecode(Buffer* input) {
                                      input->GetData(),
                                      input->GetDataSize());
 
-  if (result < 0 || output_buffer_size > kOutputBufferSize) {
+  // TODO(ajwong): Consider if kOutputBufferSize should just be an int instead
+  // of a size_t.
+  if (result < 0 ||
+      output_buffer_size < 0 ||
+      static_cast<size_t>(output_buffer_size) > kOutputBufferSize) {
     host_->Error(PIPELINE_ERROR_DECODE);
   } else if (result == 0) {
     // TODO(scherkus): does this mark EOS? Do we want to fulfill a read request

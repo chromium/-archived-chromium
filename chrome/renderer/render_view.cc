@@ -1874,13 +1874,7 @@ WebPluginDelegate* RenderView::CreatePluginDelegate(
 
 WebKit::WebMediaPlayer* RenderView::CreateWebMediaPlayer(
     WebKit::WebMediaPlayerClient* client) {
-#if defined(OS_WIN)
   return new WebMediaPlayerImpl(this, client);
-#else
-  // TODO(port): media player is not functional other than on Windows.
-  NOTIMPLEMENTED();
-  return NULL;
-#endif
 }
 
 void RenderView::OnMissingPluginStatus(WebPluginDelegate* delegate,

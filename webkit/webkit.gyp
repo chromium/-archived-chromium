@@ -19,6 +19,7 @@
       'ENABLE_SVG_USE=1',
       'ENABLE_SVG_FOREIGN_OBJECT=1',
       'ENABLE_SVG_FONTS=1',
+      'ENABLE_VIDEO=1',
       'ENABLE_WORKERS=1',
     ],
     'non_feature_defines': [
@@ -106,9 +107,6 @@
         ],
       }],
       ['OS=="win"', {
-        'feature_defines': [
-          'ENABLE_VIDEO=1'
-        ],
         'non_feature_defines': [
           'CRASH=__debugbreak',
           # Match Safari and Mozilla on Windows.
@@ -119,10 +117,6 @@
           '../third_party/WebKit/WebCore/platform/graphics/win',
           '../third_party/WebKit/WebCore/platform/text/win',
           '../third_party/WebKit/WebCore/platform/win',
-        ],
-      }, {  # else: OS!="win"
-        'feature_defines': [
-          'ENABLE_VIDEO=0'
         ],
       }],
     ],
@@ -4144,9 +4138,6 @@
           'sources/': [
             ['exclude', 'Win\\.cpp$'],
             ['exclude', '/(Windows|Uniscribe)[^/]*\\.cpp$']
-          ],
-          'sources!': [
-            '../third_party/WebKit/WebCore/platform/graphics/MediaPlayer.cpp',
           ],
         }],
       ],

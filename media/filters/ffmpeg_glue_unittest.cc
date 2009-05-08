@@ -19,7 +19,7 @@ void avcodec_init() {
   g_avcodec_init = true;
 }
 
-int register_protocol(URLProtocol* protocol) {
+int av_register_protocol(URLProtocol* protocol) {
   EXPECT_FALSE(g_protocol);
   g_protocol = protocol;
   return 0;
