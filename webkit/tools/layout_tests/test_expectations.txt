@@ -1213,6 +1213,7 @@ BUG10667 LINUX MAC : chrome/plugins/refcount-leaks.html = FAIL
 BUG10667 LINUX MAC : chrome/plugins/return-npobject.html = FAIL
 BUG10667 LINUX MAC : chrome/plugins/script-object-invoke.html = FAIL
 BUG10667 MAC : pending/plugins/iframe-shims.html = FAIL CRASH
+BUG10667 MAC : LayoutTests/plugins/return-error-from-new-stream-callback-in-full-frame-plugin.htm = TIMEOUT
 
 // NEW FOR MERGE 36102:37604
 
