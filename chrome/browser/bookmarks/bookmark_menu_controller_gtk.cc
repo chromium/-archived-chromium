@@ -14,6 +14,8 @@
 #include "grit/theme_resources.h"
 #include "webkit/glue/window_open_disposition.h"
 
+const int kEmptyId = -1;
+
 BookmarkMenuController::BookmarkMenuController(Browser* browser,
                                                Profile* profile,
                                                PageNavigator* navigator,
@@ -52,8 +54,7 @@ void BookmarkMenuController::BookmarkNodeFavIconLoaded(BookmarkModel* model,
 }
 
 bool BookmarkMenuController::IsCommandEnabled(int id) const {
-  // -1 is reserved for empty.
-  return id != -1;
+  return id != kEmptyId;
 }
 
 void BookmarkMenuController::ExecuteCommand(int id) {
@@ -104,6 +105,6 @@ void BookmarkMenuController::BuildMenu(BookmarkNode* parent,
 
   if (parent->GetChildCount() == 0) {
     menu->AppendMenuItemWithLabel(
-        -1, l10n_util::GetStringUTF8(IDS_MENU_EMPTY_SUBMENU));
+        kEmptyId, l10n_util::GetStringUTF8(IDS_MENU_EMPTY_SUBMENU));
   }
 }

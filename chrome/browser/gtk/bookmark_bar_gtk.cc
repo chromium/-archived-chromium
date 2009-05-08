@@ -325,7 +325,19 @@ GtkWidget* BookmarkBarGtk::CreateBookmarkButton(
   g_signal_connect(G_OBJECT(button), "drag-end",
                    G_CALLBACK(&OnButtonDragEnd), this);
 
-  ConnectFolderButtonEvents(button);
+  if (node->is_url()) {
+    // Connect to 'button-release-event' instead of 'clicked' because we need
+    // access to the modifier keys and we do different things on each
+    // button.
+    g_signal_connect(G_OBJECT(button), "button-press-event",
+                     G_CALLBACK(OnButtonPressed), this);
+    g_signal_connect(G_OBJECT(button), "button-release-event",
+                     G_CALLBACK(OnButtonReleased), this);
+  } else {
+    // TODO(erg): This button can also be a drop target.
+    ConnectFolderButtonEvents(button);
+  }
+
   GTK_WIDGET_UNSET_FLAGS(button, GTK_CAN_FOCUS);
 
   return button;
