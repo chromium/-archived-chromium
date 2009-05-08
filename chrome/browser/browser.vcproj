@@ -1291,18 +1291,6 @@
 			</File>
 		</Filter>
 		<Filter
-			Name="Drag &amp; Drop"
-			>
-			<File
-				RelativePath=".\drag_utils.cc"
-				>
-			</File>
-			<File
-				RelativePath=".\drag_utils.h"
-				>
-			</File>
-		</Filter>
-		<Filter
 			Name="Tabs"
 			>
 			<File

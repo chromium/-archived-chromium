@@ -20,8 +20,8 @@
 
 #include "base/gfx/rect.h"
 #include "base/scoped_ptr.h"
-#include "chrome/common/accessibility_types.h"
 #include "views/accelerator.h"
+#include "views/accessibility/accessibility_types.h"
 #include "views/background.h"
 #include "views/border.h"
 

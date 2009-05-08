@@ -7,13 +7,13 @@
 #include "app/l10n_util.h"
 #include "base/string_util.h"
 #include "chrome/browser/profile.h"
-#include "chrome/browser/views/standard_layout.h"
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
 #include "grit/generated_resources.h"
 #include "views/background.h"
 #include "views/controls/button/native_button.h"
 #include "views/grid_layout.h"
+#include "views/standard_layout.h"
 
 using views::ColumnSet;
 using views::GridLayout;

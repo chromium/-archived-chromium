@@ -2,22 +2,20 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "build/build_config.h"
+#include "app/gfx/color_utils.h"
 
 #include <math.h>
 #if defined(OS_WIN)
 #include <windows.h>
 #endif
 
-#include "chrome/common/gfx/color_utils.h"
-
 #include "base/basictypes.h"
 #include "base/logging.h"
-#include "skia/include/SkBitmap.h"
-
+#include "build/build_config.h"
 #if defined(OS_WIN)
 #include "skia/ext/skia_utils_win.h"
 #endif
+#include "skia/include/SkBitmap.h"
 
 namespace color_utils {
 

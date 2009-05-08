@@ -3,10 +3,10 @@
 // found in the LICENSE file.
 
 #include "app/gfx/chrome_font.h"
+#include "app/gfx/text_elider.h"
 #include "base/file_path.h"
 #include "base/string_util.h"
 #include "base/sys_string_conversions.h"
-#include "chrome/common/gfx/text_elider.h"
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
 #include "googleurl/src/gurl.h"

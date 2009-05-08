@@ -6,11 +6,11 @@
 
 #include "app/l10n_util.h"
 #include "chrome/browser/importer/importer.h"
-#include "chrome/browser/views/standard_layout.h"
 #include "grit/chromium_strings.h"
 #include "grit/generated_resources.h"
 #include "grit/locale_settings.h"
 #include "views/controls/label.h"
+#include "views/standard_layout.h"
 #include "views/window/window.h"
 
 using views::ColumnSet;

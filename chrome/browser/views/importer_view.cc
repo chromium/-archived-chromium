@@ -6,12 +6,12 @@
 
 #include "app/l10n_util.h"
 #include "chrome/browser/browser_list.h"
-#include "chrome/browser/views/standard_layout.h"
 #include "grit/generated_resources.h"
 #include "grit/locale_settings.h"
 #include "views/controls/button/checkbox.h"
 #include "views/controls/label.h"
 #include "views/grid_layout.h"
+#include "views/standard_layout.h"
 #include "views/window/window.h"
 
 using views::ColumnSet;

@@ -9,6 +9,7 @@
 #include <Vssym32.h>
 
 #include "app/gfx/chrome_canvas.h"
+#include "app/gfx/color_utils.h"
 #include "app/l10n_util.h"
 #include "app/l10n_util_win.h"
 #include "app/os_exchange_data.h"
@@ -18,12 +19,10 @@
 #include "base/task.h"
 #include "base/timer.h"
 #include "base/win_util.h"
-// TODO(beng): (Cleanup) remove this browser dep.
-#include "chrome/browser/drag_utils.h"
-#include "chrome/common/gfx/color_utils.h"
 #include "grit/generated_resources.h"
 #include "skia/ext/skia_utils_win.h"
 #include "views/border.h"
+#include "views/drag_utils.h"
 #include "views/view_constants.h"
 #include "views/widget/root_view.h"
 #include "views/widget/widget_win.h"

@@ -4,11 +4,11 @@
 
 #include "chrome/browser/printing/page_overlays.h"
 
+#include "app/gfx/text_elider.h"
 #include "base/logging.h"
 #include "base/string_util.h"
 #include "chrome/browser/printing/printed_document.h"
 #include "chrome/browser/printing/printed_page.h"
-#include "chrome/common/gfx/text_elider.h"
 
 namespace {
 

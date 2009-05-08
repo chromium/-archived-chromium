@@ -125,6 +125,10 @@
 			Name="accessibility"
 			>
 			<File
+				RelativePath=".\accessibility\accessibility_types.h"
+				>
+			</File>
+			<File
 				RelativePath=".\accessibility\view_accessibility.cc"
 				>
 			</File>
@@ -776,6 +780,14 @@
 			>
 		</File>
 		<File
+			RelativePath=".\drag_utils.cc"
+			>
+		</File>
+		<File
+			RelativePath=".\drag_utils.h"
+			>
+		</File>
+		<File
 			RelativePath=".\event.cc"
 			>
 		</File>
@@ -841,6 +853,10 @@
 		</File>
 		<File
 			RelativePath=".\repeat_controller.h"
+			>
+		</File>
+		<File
+			RelativePath=".\standard_layout.h"
 			>
 		</File>
 		<File

@@ -10,7 +10,6 @@
 #include "chrome/browser/first_run.h"
 #include "chrome/browser/metrics/user_metrics.h"
 #include "chrome/browser/views/first_run_customize_view.h"
-#include "chrome/browser/views/standard_layout.h"
 #include "grit/chromium_strings.h"
 #include "grit/generated_resources.h"
 #include "grit/locale_settings.h"
@@ -20,6 +19,7 @@
 #include "views/controls/label.h"
 #include "views/controls/throbber.h"
 #include "views/controls/separator.h"
+#include "views/standard_layout.h"
 #include "views/window/window.h"
 
 namespace {

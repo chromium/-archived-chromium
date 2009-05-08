@@ -7,6 +7,7 @@
 #include <vector>
 
 #include "app/gfx/chrome_canvas.h"
+#include "app/gfx/text_elider.h"
 #include "app/l10n_util.h"
 #include "app/resource_bundle.h"
 #include "base/file_path.h"
@@ -15,7 +16,6 @@
 #include "chrome/browser/download/download_item_model.h"
 #include "chrome/browser/download/download_util.h"
 #include "chrome/browser/views/download_shelf_view.h"
-#include "chrome/common/gfx/text_elider.h"
 #include "chrome/common/win_util.h"
 #include "grit/generated_resources.h"
 #include "grit/theme_resources.h"

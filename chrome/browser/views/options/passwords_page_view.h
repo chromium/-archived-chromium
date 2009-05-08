@@ -7,11 +7,11 @@
 
 #include <vector>
 
+#include "app/gfx/text_elider.h"
 #include "base/scoped_ptr.h"
 #include "base/stl_util-inl.h"
 #include "chrome/browser/views/options/options_page_view.h"
 #include "chrome/browser/webdata/web_data_service.h"
-#include "chrome/common/gfx/text_elider.h"
 #include "views/controls/button/native_button.h"
 #include "views/controls/label.h"
 #include "views/controls/table/table_view.h"

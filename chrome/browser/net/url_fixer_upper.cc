@@ -2,14 +2,14 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include <algorithm>
-
 #include "chrome/browser/net/url_fixer_upper.h"
 
+#include <algorithm>
+
+#include "app/gfx/text_elider.h"
 #include "base/file_util.h"
 #include "base/logging.h"
 #include "base/string_util.h"
-#include "chrome/common/gfx/text_elider.h"
 #include "chrome/common/url_constants.h"
 #include "googleurl/src/gurl.h"
 #include "googleurl/src/url_file.h"

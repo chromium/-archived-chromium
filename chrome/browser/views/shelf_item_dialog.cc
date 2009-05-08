@@ -4,6 +4,7 @@
 
 #include "chrome/browser/views/shelf_item_dialog.h"
 
+#include "app/gfx/text_elider.h"
 #include "app/l10n_util.h"
 #include "app/resource_bundle.h"
 #include "base/gfx/png_decoder.h"
@@ -12,8 +13,6 @@
 #include "chrome/browser/net/url_fixer_upper.h"
 #include "chrome/browser/profile.h"
 #include "chrome/browser/tab_contents/tab_contents.h"
-#include "chrome/browser/views/standard_layout.h"
-#include "chrome/common/gfx/text_elider.h"
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
 #include "grit/generated_resources.h"
@@ -25,6 +24,7 @@
 #include "views/controls/text_field.h"
 #include "views/focus/focus_manager.h"
 #include "views/grid_layout.h"
+#include "views/standard_layout.h"
 #include "views/widget/widget.h"
 
 using base::Time;

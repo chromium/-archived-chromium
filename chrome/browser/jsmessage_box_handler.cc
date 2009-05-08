@@ -4,6 +4,7 @@
 
 #include "chrome/browser/jsmessage_box_handler.h"
 
+#include "app/gfx/text_elider.h"
 #include "app/l10n_util.h"
 #include "app/message_box_flags.h"
 #include "build/build_config.h"
@@ -11,7 +12,6 @@
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/profile.h"
 #include "chrome/browser/tab_contents/tab_contents.h"
-#include "chrome/common/gfx/text_elider.h"
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
 #include "googleurl/src/gurl.h"

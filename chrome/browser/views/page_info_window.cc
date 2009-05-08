@@ -16,7 +16,6 @@
 #include "chrome/browser/history/history.h"
 #include "chrome/browser/profile.h"
 #include "chrome/browser/ssl/ssl_manager.h"
-#include "chrome/browser/views/standard_layout.h"
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
 #include "chrome/common/win_util.h"
@@ -32,6 +31,7 @@
 #include "views/controls/image_view.h"
 #include "views/controls/label.h"
 #include "views/controls/separator.h"
+#include "views/standard_layout.h"
 
 using base::Time;
 

@@ -12,7 +12,6 @@
 #include "chrome/browser/history/history.h"
 #include "chrome/browser/profile.h"
 #include "chrome/browser/net/url_fixer_upper.h"
-#include "chrome/browser/views/standard_layout.h"
 #include "googleurl/src/gurl.h"
 #include "grit/chromium_strings.h"
 #include "grit/generated_resources.h"
@@ -22,6 +21,7 @@
 #include "views/grid_layout.h"
 #include "views/controls/button/native_button.h"
 #include "views/controls/label.h"
+#include "views/standard_layout.h"
 #include "views/widget/widget.h"
 #include "views/window/window.h"
 

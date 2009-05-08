@@ -23,7 +23,6 @@
 #include "chrome/browser/shell_integration.h"
 #include "chrome/browser/views/keyword_editor_view.h"
 #include "chrome/browser/views/options/options_group_view.h"
-#include "chrome/browser/views/standard_layout.h"
 #include "chrome/browser/dom_ui/new_tab_ui.h"
 #include "chrome/common/chrome_constants.h"
 #include "chrome/common/pref_names.h"
@@ -38,6 +37,7 @@
 #include "views/controls/table/table_view.h"
 #include "views/controls/text_field.h"
 #include "views/grid_layout.h"
+#include "views/standard_layout.h"
 
 namespace {
 

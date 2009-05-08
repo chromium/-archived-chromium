@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CHROME_COMMON_ACCESSIBILITY_TYPES_H_
-#define CHROME_COMMON_ACCESSIBILITY_TYPES_H_
+#ifndef VIEWS_ACCESSIBILITY_ACCESSIBILITY_TYPES_H_
+#define VIEWS_ACCESSIBILITY_ACCESSIBILITY_TYPES_H_
 
 ////////////////////////////////////////////////////////////////////////////////
 //
@@ -45,4 +45,4 @@ class AccessibilityTypes {
   ~AccessibilityTypes() {}
 };
 
-#endif  // CHROME_COMMON_ACCESSIBILITY_TYPES_H_
+#endif  // VIEWS_ACCESSIBILITY_ACCESSIBILITY_TYPES_H_

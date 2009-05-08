@@ -19,7 +19,6 @@
 #include "chrome/browser/renderer_host/render_view_host.h"
 #include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/browser/view_ids.h"
-#include "chrome/browser/views/standard_layout.h"
 #include "chrome/browser/views/tab_contents_container_view.h"
 #include "chrome/common/url_constants.h"
 #include "grit/debugger_resources.h"
@@ -27,6 +26,7 @@
 #include "views/controls/scrollbar/native_scroll_bar.h"
 #include "views/controls/scroll_view.h"
 #include "views/controls/text_field.h"
+#include "views/standard_layout.h"
 #include "views/view.h"
 
 DebuggerView::DebuggerView(DebuggerWindow* window)

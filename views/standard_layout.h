@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CHROME_BROWSER_VIEWS_STANDARD_LAYOUT_H__
-#define CHROME_BROWSER_VIEWS_STANDARD_LAYOUT_H__
+#ifndef VIEWS_STANDARD_LAYOUT_H_
+#define VIEWS_STANDARD_LAYOUT_H_
 
 #include "views/grid_layout.h"
 
@@ -74,4 +74,4 @@ static views::GridLayout* CreatePanelGridLayout(views::View* host) {
   return layout;
 }
 
-#endif  // CHROME_BROWSER_VIEWS_STANDARD_LAYOUT_H__
+#endif  // VIEWS_STANDARD_LAYOUT_H_

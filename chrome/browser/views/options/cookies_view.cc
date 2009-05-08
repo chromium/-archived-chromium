@@ -7,13 +7,12 @@
 #include "chrome/browser/views/options/cookies_view.h"
 
 #include "app/gfx/chrome_canvas.h"
+#include "app/gfx/color_utils.h"
 #include "app/l10n_util.h"
 #include "app/resource_bundle.h"
 #include "base/string_util.h"
 #include "base/time_format.h"
 #include "chrome/browser/profile.h"
-#include "chrome/browser/views/standard_layout.h"
-#include "chrome/common/gfx/color_utils.h"
 #include "chrome/common/win_util.h"
 #include "grit/generated_resources.h"
 #include "grit/locale_settings.h"
@@ -26,6 +25,7 @@
 #include "views/controls/button/native_button.h"
 #include "views/controls/text_field.h"
 #include "views/controls/table/table_view.h"
+#include "views/standard_layout.h"
 
 // static
 views::Window* CookiesView::instance_ = NULL;

@@ -21,7 +21,6 @@
 #include "chrome/browser/spellchecker.h"
 #include "chrome/browser/views/options/language_combobox_model.h"
 #include "chrome/browser/views/restart_message_box.h"
-#include "chrome/browser/views/standard_layout.h"
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
 #include "grit/chromium_strings.h"
@@ -34,6 +33,7 @@
 #include "views/controls/tabbed_pane.h"
 #include "views/controls/text_field.h"
 #include "views/grid_layout.h"
+#include "views/standard_layout.h"
 #include "views/widget/widget.h"
 #include "views/window/window.h"
 

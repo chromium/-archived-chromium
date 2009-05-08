@@ -7,6 +7,7 @@
 #include <limits>
 
 #include "app/gfx/chrome_canvas.h"
+#include "app/gfx/text_elider.h"
 #include "app/l10n_util.h"
 #include "app/os_exchange_data.h"
 #include "app/resource_bundle.h"
@@ -15,7 +16,6 @@
 #include "chrome/browser/bookmarks/bookmark_context_menu.h"
 #include "chrome/browser/bookmarks/bookmark_utils.h"
 #include "chrome/browser/browser.h"
-#include "chrome/browser/drag_utils.h"
 #include "chrome/browser/extensions/extension.h"
 #include "chrome/browser/extensions/extension_view.h"
 #include "chrome/browser/extensions/extensions_service.h"
@@ -27,7 +27,6 @@
 #include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/browser/view_ids.h"
 #include "chrome/browser/views/event_utils.h"
-#include "chrome/common/gfx/text_elider.h"
 #include "chrome/common/notification_service.h"
 #include "chrome/common/page_transition_types.h"
 #include "chrome/common/pref_names.h"
@@ -38,6 +37,7 @@
 #include "skia/ext/skia_utils.h"
 #include "views/controls/button/menu_button.h"
 #include "views/controls/menu/chrome_menu.h"
+#include "views/drag_utils.h"
 #include "views/view_constants.h"
 #include "views/widget/tooltip_manager.h"
 #include "views/widget/widget.h"

@@ -13,7 +13,6 @@
 #include "chrome/browser/search_engines/template_url.h"
 #include "chrome/browser/search_engines/template_url_model.h"
 #include "chrome/browser/views/keyword_editor_view.h"
-#include "chrome/browser/views/standard_layout.h"
 #include "googleurl/src/gurl.h"
 #include "grit/generated_resources.h"
 #include "grit/theme_resources.h"
@@ -21,6 +20,7 @@
 #include "views/controls/image_view.h"
 #include "views/controls/table/table_view.h"
 #include "views/grid_layout.h"
+#include "views/standard_layout.h"
 #include "views/window/window.h"
 
 using views::GridLayout;

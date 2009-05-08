@@ -7,6 +7,7 @@
 #include <commdlg.h>
 
 #include "app/gfx/chrome_canvas.h"
+#include "app/gfx/color_utils.h"
 #include "app/l10n_util.h"
 #include "app/resource_bundle.h"
 #include "base/file_version_info.h"
@@ -14,10 +15,8 @@
 #include "base/win_util.h"
 #include "base/word_iterator.h"
 #include "chrome/browser/browser_list.h"
-#include "chrome/common/gfx/color_utils.h"
 #include "chrome/browser/metrics/user_metrics.h"
 #include "chrome/browser/views/restart_message_box.h"
-#include "chrome/browser/views/standard_layout.h"
 #include "chrome/common/chrome_constants.h"
 #include "chrome/installer/util/install_util.h"
 #include "grit/chromium_strings.h"
@@ -26,6 +25,7 @@
 #include "grit/theme_resources.h"
 #include "views/controls/text_field.h"
 #include "views/controls/throbber.h"
+#include "views/standard_layout.h"
 #include "views/window/window.h"
 #include "webkit/glue/webkit_glue.h"
 

@@ -6,6 +6,7 @@
 
 #include <algorithm>
 
+#include "app/gfx/text_elider.h"
 #include "base/basictypes.h"
 #include "base/histogram.h"
 #include "base/message_loop.h"
@@ -15,7 +16,6 @@
 #include "chrome/browser/history/history_database.h"
 #include "chrome/browser/net/url_fixer_upper.h"
 #include "chrome/browser/profile.h"
-#include "chrome/common/gfx/text_elider.h"
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
 #include "chrome/common/sqlite_utils.h"

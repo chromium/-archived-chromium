@@ -7,6 +7,7 @@
 #include <set>
 
 #include "app/gfx/chrome_font.h"
+#include "app/gfx/text_elider.h"
 #include "base/message_loop.h"
 #include "base/time.h"
 #include "chrome/browser/printing/page_number.h"
@@ -14,7 +15,6 @@
 #include "chrome/browser/printing/printed_pages_source.h"
 #include "chrome/browser/printing/printed_page.h"
 #include "chrome/common/gfx/emf.h"
-#include "chrome/common/gfx/text_elider.h"
 #include "chrome/common/time_format.h"
 #include "chrome/common/notification_service.h"
 #include "chrome/common/win_util.h"

@@ -11,10 +11,10 @@
 #include "base/scoped_clipboard_writer.h"
 #include "base/string_util.h"
 #include "chrome/browser/browser_process.h"
-#include "chrome/browser/views/standard_layout.h"
-#include "views/controls/button/checkbox.h"
-#include "views/window/client_view.h"
 #include "grit/generated_resources.h"
+#include "views/controls/button/checkbox.h"
+#include "views/standard_layout.h"
+#include "views/window/client_view.h"
 
 static const int kDefaultMessageWidth = 320;
 

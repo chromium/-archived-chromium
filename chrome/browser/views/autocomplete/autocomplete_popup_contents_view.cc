@@ -7,6 +7,7 @@
 #include <dwmapi.h>
 
 #include "app/gfx/chrome_canvas.h"
+#include "app/gfx/color_utils.h"
 #include "app/gfx/insets.h"
 #include "app/gfx/path.h"
 #include "app/l10n_util.h"
@@ -14,7 +15,6 @@
 #include "chrome/browser/autocomplete/autocomplete_edit_view_win.h"
 #include "chrome/browser/autocomplete/autocomplete_popup_model.h"
 #include "chrome/browser/views/autocomplete/autocomplete_popup_win.h"
-#include "chrome/common/gfx/color_utils.h"
 #include "chrome/common/win_util.h"
 #include "grit/generated_resources.h"
 #include "grit/theme_resources.h"

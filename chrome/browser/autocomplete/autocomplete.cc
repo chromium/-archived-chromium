@@ -6,6 +6,7 @@
 
 #include <algorithm>
 
+#include "app/gfx/text_elider.h"
 #include "app/l10n_util.h"
 #include "base/basictypes.h"
 #include "base/string_util.h"
@@ -18,7 +19,6 @@
 #include "chrome/browser/external_protocol_handler.h"
 #include "chrome/browser/net/url_fixer_upper.h"
 #include "chrome/browser/profile.h"
-#include "chrome/common/gfx/text_elider.h"
 #include "chrome/common/notification_service.h"
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"

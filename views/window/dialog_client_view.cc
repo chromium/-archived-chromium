@@ -13,9 +13,9 @@
 #include "app/l10n_util.h"
 #include "app/resource_bundle.h"
 #include "base/gfx/native_theme.h"
-#include "chrome/browser/views/standard_layout.h"
 #include "grit/generated_resources.h"
 #include "views/controls/button/native_button.h"
+#include "views/standard_layout.h"
 #include "views/window/dialog_delegate.h"
 #include "views/window/window.h"
 

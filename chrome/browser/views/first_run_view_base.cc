@@ -14,7 +14,6 @@
 #include "chrome/browser/first_run.h"
 #include "chrome/browser/metrics/user_metrics.h"
 #include "chrome/browser/shell_integration.h"
-#include "chrome/browser/views/standard_layout.h"
 #include "chrome/common/chrome_switches.h"
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
@@ -27,6 +26,7 @@
 #include "views/controls/label.h"
 #include "views/controls/throbber.h"
 #include "views/controls/separator.h"
+#include "views/standard_layout.h"
 #include "views/window/client_view.h"
 #include "views/window/window.h"
 

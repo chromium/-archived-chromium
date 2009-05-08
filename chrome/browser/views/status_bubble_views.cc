@@ -7,12 +7,12 @@
 #include <algorithm>
 
 #include "app/gfx/chrome_canvas.h"
+#include "app/gfx/text_elider.h"
 #include "app/l10n_util.h"
 #include "app/l10n_util_win.h"
 #include "app/animation.h"
 #include "app/resource_bundle.h"
 #include "base/string_util.h"
-#include "chrome/common/gfx/text_elider.h"
 #include "googleurl/src/gurl.h"
 #include "grit/generated_resources.h"
 #include "grit/theme_resources.h"

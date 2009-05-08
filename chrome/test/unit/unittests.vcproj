@@ -1016,10 +1016,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\common\gfx\text_elider_unittest.cc"
-				>
-			</File>
-			<File
 				RelativePath="..\..\common\time_format_unittest.cc"
 				>
 			</File>
@@ -1109,6 +1105,10 @@
 			</File>
 			<File
 				RelativePath="..\..\..\app\os_exchange_data_unittest.cc"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\app\gfx\text_elider_unittest.cc"
 				>
 			</File>
 		</Filter>

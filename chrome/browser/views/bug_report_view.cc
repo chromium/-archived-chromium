@@ -15,7 +15,6 @@
 #include "chrome/browser/tab_contents/navigation_controller.h"
 #include "chrome/browser/tab_contents/navigation_entry.h"
 #include "chrome/browser/tab_contents/tab_contents.h"
-#include "chrome/browser/views/standard_layout.h"
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
 #include "grit/chromium_strings.h"
@@ -26,6 +25,7 @@
 #include "views/controls/button/checkbox.h"
 #include "views/controls/label.h"
 #include "views/grid_layout.h"
+#include "views/standard_layout.h"
 #include "views/window/client_view.h"
 #include "views/window/window.h"
 

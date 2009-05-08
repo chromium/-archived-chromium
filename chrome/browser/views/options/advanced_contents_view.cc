@@ -28,7 +28,6 @@
 #include "chrome/browser/views/options/cookies_view.h"
 #include "chrome/browser/views/options/language_combobox_model.h"
 #include "chrome/browser/views/restart_message_box.h"
-#include "chrome/browser/views/standard_layout.h"
 #include "chrome/common/filter_policy.h"
 #include "chrome/common/pref_member.h"
 #include "chrome/common/pref_names.h"
@@ -43,6 +42,7 @@
 #include "views/controls/combo_box.h"
 #include "views/controls/scroll_view.h"
 #include "views/grid_layout.h"
+#include "views/standard_layout.h"
 #include "views/widget/widget.h"
 
 using views::GridLayout;

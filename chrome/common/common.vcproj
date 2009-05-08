@@ -149,27 +149,11 @@
 			Name="gfx"
 			>
 			<File
-				RelativePath=".\gfx\color_utils.cc"
-				>
-			</File>
-			<File
-				RelativePath=".\gfx\color_utils.h"
-				>
-			</File>
-			<File
 				RelativePath=".\gfx\emf.cc"
 				>
 			</File>
 			<File
 				RelativePath=".\gfx\emf.h"
-				>
-			</File>
-			<File
-				RelativePath=".\gfx\text_elider.cc"
-				>
-			</File>
-			<File
-				RelativePath=".\gfx\text_elider.h"
 				>
 			</File>
 			<File
@@ -313,10 +297,6 @@
 				>
 			</File>
 		</Filter>
-		<File
-			RelativePath=".\accessibility_types.h"
-			>
-		</File>
 		<File
 			RelativePath=".\bindings_policy.h"
 			>

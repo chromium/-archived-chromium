@@ -26,7 +26,6 @@
 #include "chrome/browser/autocomplete/keyword_provider.h"
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/command_updater.h"
-#include "chrome/browser/drag_utils.h"
 #include "chrome/browser/metrics/user_metrics.h"
 #include "chrome/browser/net/url_fixer_upper.h"
 #include "chrome/browser/profile.h"
@@ -40,6 +39,7 @@
 #include "googleurl/src/url_util.h"
 #include "grit/generated_resources.h"
 #include "skia/ext/skia_utils_win.h"
+#include "views/drag_utils.h"
 #include "views/focus/focus_util_win.h"
 
 #pragma comment(lib, "oleacc.lib")  // Needed for accessibility support.

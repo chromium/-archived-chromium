@@ -19,7 +19,6 @@
 #include "chrome/browser/views/options/fonts_languages_window_view.h"
 #include "chrome/browser/views/options/options_group_view.h"
 #include "chrome/browser/views/options/passwords_exceptions_window_view.h"
-#include "chrome/browser/views/standard_layout.h"
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
 #include "grit/generated_resources.h"
@@ -29,6 +28,7 @@
 #include "views/controls/button/radio_button.h"
 #include "views/controls/text_field.h"
 #include "views/grid_layout.h"
+#include "views/standard_layout.h"
 #include "views/widget/widget.h"
 
 namespace {

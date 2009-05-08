@@ -19,7 +19,6 @@
 #include "chrome/browser/browser.h"
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/character_encoding.h"
-#include "chrome/browser/drag_utils.h"
 #include "chrome/browser/metrics/user_metrics.h"
 #include "chrome/browser/profile.h"
 #include "chrome/browser/tab_contents/navigation_controller.h"
@@ -50,6 +49,7 @@
 #include "views/controls/button/button_dropdown.h"
 #include "views/controls/hwnd_view.h"
 #include "views/controls/label.h"
+#include "views/drag_utils.h"
 #include "views/widget/tooltip_manager.h"
 #include "views/window/non_client_view.h"
 #include "views/window/window.h"
@@ -829,7 +829,8 @@ void BrowserToolbarView::WriteDragData(views::View* sender,
 
   drag_utils::SetURLAndDragImage(tab_->GetURL(),
                                  UTF16ToWideHack(tab_->GetTitle()),
-                                 tab_->GetFavIcon(), data);
+                                 tab_->GetFavIcon(),
+                                 data);
 }
 
 TabContents* BrowserToolbarView::GetTabContents() {

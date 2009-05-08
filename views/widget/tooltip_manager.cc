@@ -6,11 +6,11 @@
 
 #include <limits>
 
+#include "app/gfx/text_elider.h"
 #include "app/l10n_util.h"
 #include "app/l10n_util_win.h"
 #include "base/logging.h"
 #include "base/message_loop.h"
-#include "chrome/common/gfx/text_elider.h"
 #include "chrome/common/win_util.h"
 #include "views/view.h"
 #include "views/widget/root_view.h"

@@ -10,7 +10,6 @@
 #include "base/values.h"
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/views/options/advanced_contents_view.h"
-#include "chrome/browser/views/standard_layout.h"
 #include "chrome/common/chrome_constants.h"
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
@@ -21,6 +20,7 @@
 #include "views/controls/button/native_button.h"
 #include "views/controls/scroll_view.h"
 #include "views/grid_layout.h"
+#include "views/standard_layout.h"
 #include "views/window/dialog_delegate.h"
 #include "views/window/window.h"
 

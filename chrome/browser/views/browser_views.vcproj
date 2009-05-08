@@ -786,10 +786,6 @@
 			>
 		</File>
 		<File
-			RelativePath=".\standard_layout.h"
-			>
-		</File>
-		<File
 			RelativePath=".\star_toggle.cc"
 			>
 		</File>

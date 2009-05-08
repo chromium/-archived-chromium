@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "chrome/browser/drag_utils.h"
+#include "views/drag_utils.h"
 
 #include <objidl.h>
 #include <shlobj.h>
@@ -17,7 +17,6 @@
 #include "base/gfx/gdi_util.h"
 #include "base/gfx/point.h"
 #include "base/string_util.h"
-#include "chrome/browser/views/bookmark_bar_view.h"
 #include "chrome/common/win_util.h"
 #include "googleurl/src/gurl.h"
 #include "grit/theme_resources.h"
@@ -93,7 +92,7 @@ void SetURLAndDragImage(const GURL& url,
   // Create a button to render the drag image for us.
   views::TextButton button(NULL,
                            title.empty() ? UTF8ToWide(url.spec()) : title);
-  button.set_max_width(BookmarkBarView::kMaxButtonWidth);
+  button.set_max_width(kLinkDragImageMaxWidth);
   if (icon.isNull()) {
     button.SetIcon(*ResourceBundle::GetSharedInstance().GetBitmapNamed(
                    IDR_DEFAULT_FAVICON));

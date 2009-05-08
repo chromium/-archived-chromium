@@ -7,13 +7,13 @@
 #include "base/string_util.h"
 #include "base/thread.h"
 #include "chrome/browser/browser_process.h"
-#include "chrome/browser/views/standard_layout.h"
 #include "net/url_request/url_request.h"
 #include "net/url_request/url_request_job.h"
 #include "net/url_request/url_request_job_tracker.h"
 #include "views/grid_layout.h"
 #include "views/controls/button/text_button.h"
 #include "views/controls/text_field.h"
+#include "views/standard_layout.h"
 #include "views/window/window.h"
 
 namespace {

@@ -2,10 +2,10 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CHROME_COMMON_GFX_COLOR_UTILS_H__
-#define CHROME_COMMON_GFX_COLOR_UTILS_H__
+#ifndef APP_GFX_COLOR_UTILS_H_
+#define APP_GFX_COLOR_UTILS_H_
 
-#include "SkColor.h"
+#include "skia/include/SkColor.h"
 
 class SkBitmap;
 
@@ -60,4 +60,4 @@ SkColor GetSysSkColor(int which);
 
 } // namespace color_utils
 
-#endif  // #ifndef CHROME_COMMON_GFX_COLOR_UTILS_H__
+#endif  // #ifndef APP_GFX_COLOR_UTILS_H_

@@ -9,7 +9,6 @@
 #include "chrome/browser/importer/importer.h"
 #include "chrome/browser/first_run.h"
 #include "chrome/browser/metrics/user_metrics.h"
-#include "chrome/browser/views/standard_layout.h"
 #include "grit/chromium_strings.h"
 #include "grit/generated_resources.h"
 #include "grit/locale_settings.h"
@@ -19,6 +18,7 @@
 #include "views/controls/image_view.h"
 #include "views/controls/label.h"
 #include "views/controls/throbber.h"
+#include "views/standard_layout.h"
 #include "views/window/window.h"
 
 FirstRunCustomizeView::FirstRunCustomizeView(Profile* profile,

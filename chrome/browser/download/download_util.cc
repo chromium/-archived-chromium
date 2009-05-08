@@ -19,13 +19,13 @@
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/download/download_item_model.h"
 #include "chrome/browser/download/download_manager.h"
-#include "chrome/browser/drag_utils.h"
 #include "grit/generated_resources.h"
 #include "grit/locale_settings.h"
 #include "grit/theme_resources.h"
 #include "skia/ext/image_operations.h"
 #include "skia/include/SkPath.h"
 #include "skia/include/SkShader.h"
+#include "views/drag_utils.h"
 #include "views/view.h"
 
 namespace download_util {

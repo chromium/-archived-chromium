@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CHROME_BROWSER_DRAG_UTILS_H__
-#define CHROME_BROWSER_DRAG_UTILS_H__
+#ifndef VIEWS_DRAG_UTILS_H_
+#define VIEWS_DRAG_UTILS_H_
 
 #include <objidl.h>
 #include <string>
@@ -42,4 +42,4 @@ void SetDragImageOnDataObject(const ChromeCanvas& canvas,
 
 } // namespace drag_utils
 
-#endif  // #ifndef CHROME_BROWSER_DRAG_UTILS_H__
+#endif  // #ifndef VIEWS_DRAG_UTILS_H_

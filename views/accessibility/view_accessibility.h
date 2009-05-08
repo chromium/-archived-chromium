@@ -127,12 +127,12 @@ class ATL_NO_VTABLE ViewAccessibility
   // Helper function which sets applicable states of view.
   void SetState(VARIANT* msaa_state, views::View* view);
 
-  // Returns a conversion from the Role (as defined in
-  // chrome/common/accessibility_types.h) to an MSAA role.
+  // Returns a conversion from the Role (as defined in accessibility_types.h)
+  // to an MSAA role.
   long MSAARole(AccessibilityTypes::Role role);
 
-  // Returns a conversion from the State (as defined in
-  // chrome/common/accessibility_types.h) to MSAA states set.
+  // Returns a conversion from the State (as defined in accessibility_types.h)
+  // to MSAA states set.
   long MSAAState(AccessibilityTypes::State state);
 
   // Member View needed for view-specific calls.

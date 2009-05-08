@@ -8,7 +8,10 @@ include_rules = [
   "+chrome/common/chrome_paths.h",
   "+chrome/common/chrome_switches.h",
   "+chrome/common/gtk_util.h",
-  
+  # text_elider.cc
+  "+chrome/common/pref_names.h",
+  "+chrome/common/pref_service.h",
+    
   # TODO(beng): l10n_util_unittest.cc:
   "+chrome/test/data/resource.h",  
   
