@@ -77,12 +77,7 @@ class CMainFrame : public CFrameWindowImpl<CMainFrame>,
     UIEnable(ID_VIEW_FITTOSCREEN, false);  // Not currently implemented.
     UIEnable(ID_VIEW_FULLSCREEN, false);  // Not currently implemented.
     UIEnable(ID_VIEW_PROPERTIES, bEnable);
-    UIEnable(ID_VIEW_ROTATE0, true);
-    UIEnable(ID_VIEW_ROTATE90, false);
-    UIEnable(ID_VIEW_ROTATE180, true);
-    UIEnable(ID_VIEW_ROTATE270, false);
-    UIEnable(ID_VIEW_MIRROR_HORIZONTAL, true);
-    UIEnable(ID_VIEW_MIRROR_VERTICAL, true);
+
     UIEnable(ID_PLAY_PLAY_PAUSE, bMovieOpen);   // if no movie open.
     UIEnable(ID_PLAY_HALFSPEED, true);
     UIEnable(ID_PLAY_NORMALSPEED, true);
@@ -212,8 +207,6 @@ class CMainFrame : public CFrameWindowImpl<CMainFrame>,
     COMMAND_RANGE_HANDLER_EX(ID_VIEW_HALFSIZE, ID_VIEW_FULLSCREEN, OnViewSize)
     COMMAND_ID_HANDLER_EX(ID_VIEW_TOOLBAR, OnViewToolBar)
     COMMAND_ID_HANDLER_EX(ID_VIEW_STATUS_BAR, OnViewStatusBar)
-    COMMAND_RANGE_HANDLER_EX(ID_VIEW_ROTATE0, ID_VIEW_MIRROR_VERTICAL,
-                             OnViewRotate)
     COMMAND_ID_HANDLER_EX(ID_VIEW_PROPERTIES, OnViewProperties)
     COMMAND_ID_HANDLER_EX(ID_PLAY_PLAY_PAUSE, OnPlayPlayPause)
     COMMAND_RANGE_HANDLER_EX(ID_PLAY_HALFSPEED, ID_PLAY_DOUBLESPEED,
@@ -243,12 +236,6 @@ class CMainFrame : public CFrameWindowImpl<CMainFrame>,
     UPDATE_ELEMENT(ID_VIEW_FULLSCREEN, UPDUI_MENUPOPUP)
     UPDATE_ELEMENT(ID_VIEW_TOOLBAR, UPDUI_MENUPOPUP)
     UPDATE_ELEMENT(ID_VIEW_STATUS_BAR, UPDUI_MENUPOPUP)
-    UPDATE_ELEMENT(ID_VIEW_ROTATE0, UPDUI_MENUPOPUP)
-    UPDATE_ELEMENT(ID_VIEW_ROTATE90, UPDUI_MENUPOPUP)
-    UPDATE_ELEMENT(ID_VIEW_ROTATE180, UPDUI_MENUPOPUP)
-    UPDATE_ELEMENT(ID_VIEW_ROTATE270, UPDUI_MENUPOPUP)
-    UPDATE_ELEMENT(ID_VIEW_MIRROR_HORIZONTAL, UPDUI_MENUPOPUP)
-    UPDATE_ELEMENT(ID_VIEW_MIRROR_VERTICAL, UPDUI_MENUPOPUP)
     UPDATE_ELEMENT(ID_VIEW_PROPERTIES, UPDUI_MENUPOPUP | UPDUI_TOOLBAR)
     UPDATE_ELEMENT(ID_PLAY_PLAY_PAUSE, UPDUI_MENUPOPUP | UPDUI_TOOLBAR)
     UPDATE_ELEMENT(ID_PLAY_HALFSPEED, UPDUI_MENUPOPUP)
@@ -273,22 +260,10 @@ class CMainFrame : public CFrameWindowImpl<CMainFrame>,
   }
 
   void UpdateSpeedUICheck() {
-    if (media::Movie::get()) {
-      float play_rate = media::Movie::get()->GetPlayRate();
-      UISetCheck(ID_PLAY_HALFSPEED,   (play_rate == 0.5f));
-      UISetCheck(ID_PLAY_NORMALSPEED, (play_rate == 1.0f));
-      UISetCheck(ID_PLAY_DOUBLESPEED, (play_rate == 2.0f));
-    }
-  }
-
-  void UpdateRotateUICheck() {
-    int view_rotate = m_view.GetViewRotate();
-    UISetCheck(ID_VIEW_ROTATE0,           (view_rotate == 0));
-    UISetCheck(ID_VIEW_ROTATE90,          (view_rotate == 1));
-    UISetCheck(ID_VIEW_ROTATE180,         (view_rotate == 2));
-    UISetCheck(ID_VIEW_ROTATE270,         (view_rotate == 3));
-    UISetCheck(ID_VIEW_MIRROR_HORIZONTAL, (view_rotate == 4));
-    UISetCheck(ID_VIEW_MIRROR_VERTICAL,   (view_rotate == 5));
+    float play_rate = media::Movie::get()->GetPlayRate();
+    UISetCheck(ID_PLAY_HALFSPEED,   (play_rate == 0.5f));
+    UISetCheck(ID_PLAY_NORMALSPEED, (play_rate == 1.0f));
+    UISetCheck(ID_PLAY_DOUBLESPEED, (play_rate == 2.0f));
   }
 
   int OnCreate(LPCREATESTRUCT /*lpCreateStruct*/) {
@@ -337,7 +312,6 @@ class CMainFrame : public CFrameWindowImpl<CMainFrame>,
     UISetCheck(ID_PLAY_NORMALSPEED, 1);
     UISetCheck(ID_VIEW_TOOLBAR, 1);
     UISetCheck(ID_VIEW_STATUS_BAR, 1);
-    UISetCheck(ID_VIEW_ROTATE0, 1);
     UISetCheck(ID_OPTIONS_OPENMP, 0);
     UISetCheck(ID_OPTIONS_DRAW, 1);
     UISetCheck(ID_OPTIONS_AUDIO, 1);
@@ -416,9 +390,9 @@ class CMainFrame : public CFrameWindowImpl<CMainFrame>,
   void OnFileOpen(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wnd*/) {
     CFileDialog dlg(TRUE, L"bmp", NULL,
         OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT,
-        L"Movie Files (*.mp4;*.ogg;*.ogv)\0"
-        L"*.mp4;*.ogg;*.ogv\0"
-        L"Audio Files (*.mp3;*.m4a)\0*.mp3;*.m4a\0All Files (*.*)\0*.*\0",
+        L"Movie Files (*.mp4;*.mov;*.mkv;*.flv;*.avi;*.264)\0"
+        L"*.mp4;*.mov;*.mkv;*.flv;*.avi;*.264\0"
+        L"Bitmap Files (*.bmp)\0*.bmp\0All Files (*.*)\0*.*\0",
         m_hWnd);
     if (dlg.DoModal() == IDOK) {
       MovieOpenFile(dlg.m_szFileName);
@@ -560,12 +534,6 @@ class CMainFrame : public CFrameWindowImpl<CMainFrame>,
   void OnViewSize(UINT /*uNotifyCode*/, int nID, CWindow /*wnd*/) {
     m_view.SetViewSize(nID - ID_VIEW_HALFSIZE);
     UpdateSizeUICheck();
-    UpdateLayout();
-  }
-
-  void OnViewRotate(UINT /*uNotifyCode*/, int nID, CWindow /*wnd*/) {
-    m_view.SetViewRotate(nID - ID_VIEW_ROTATE0);
-    UpdateRotateUICheck();
     UpdateLayout();
   }
 

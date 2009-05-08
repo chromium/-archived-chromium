@@ -68,8 +68,7 @@ TEST(YuvScaleTest, Basic) {
                           kScaledWidth, kScaledHeight,           // Dimensions
                           kWidth,                                // YStride
                           kWidth / 2,                            // UvStride
-                          kScaledWidth * kBpp,                   // RgbStride
-                          media::ROTATE_0);
+                          kScaledWidth * kBpp);                  // RgbStride
 
   unsigned int rgb_hash = hash(rgb_scaled_bytes, size_of_rgb_scaled);
 
@@ -107,8 +106,7 @@ TEST(YV16ScaleTest, Basic) {
                           kScaledWidth, kScaledHeight,           // Dimensions
                           kWidth,                                // YStride
                           kWidth / 2,                            // UvStride
-                          kScaledWidth * kBpp,                   // RgbStride
-                          media::ROTATE_0);
+                          kScaledWidth * kBpp);                  // RgbStride
 
   unsigned int rgb_hash = hash(rgb_scaled_bytes, size_of_rgb_scaled);
 
