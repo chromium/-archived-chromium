@@ -4316,9 +4316,10 @@
       'type': '<(library)',
       'msvs_guid': 'C66B126D-0ECE-4CA2-B6DC-FA780AFBBF09',
       'dependencies': [
+        '../net/net.gyp:net',
+        'inspector_resources',
         'webcore',
         'webkit',
-        '../net/net.gyp:net',
         'webkit_resources',
         'webkit_strings',
       ],
