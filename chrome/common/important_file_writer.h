@@ -35,6 +35,18 @@ class Thread;
 // http://valhenson.livejournal.com/37921.html
 class ImportantFileWriter : public NonThreadSafe {
  public:
+  // Used by ScheduleSave to lazily provide the data to be saved. Allows us
+  // to also batch data serializations.
+  class DataSerializer {
+   public:
+    virtual ~DataSerializer() {}
+
+    // Should put serialized string in |data| and return true on successful
+    // serialization. Will be called on the same thread on which
+    // ImportantFileWriter has been created.
+    virtual bool SerializeData(std::string* data) = 0;
+  };
+
   // Initialize the writer.
   // |path| is the name of file to write. Disk operations will be executed on
   // |backend_thread|, or current thread if |backend_thread| is NULL.
@@ -42,20 +54,30 @@ class ImportantFileWriter : public NonThreadSafe {
   // All non-const methods, ctor and dtor must be called on the same thread.
   ImportantFileWriter(const FilePath& path, const base::Thread* backend_thread);
 
-  // On destruction all pending writes are executed on |backend_thread|.
+  // You have to ensure that there are no pending writes at the moment
+  // of destruction.
   ~ImportantFileWriter();
 
   FilePath path() const { return path_; }
+
+  // Returns true if there is a scheduled write pending which has not yet
+  // been started.
+  bool HasPendingWrite() const;
 
   // Save |data| to target filename. Does not block. If there is a pending write
   // scheduled by ScheduleWrite, it is cancelled.
   void WriteNow(const std::string& data);
 
-  // Schedule saving |data| to target filename. Data will be saved to disk after
-  // the commit interval. If an other ScheduleWrite is issued before that, only
-  // one write to disk will happen - with the more recent data. This operation
-  // does not block.
-  void ScheduleWrite(const std::string& data);
+  // Schedule a save to target filename. Data will be serialized and saved
+  // to disk after the commit interval. If another ScheduleWrite is issued
+  // before that, only one serialization and write to disk will happen, and
+  // the most recent |serializer| will be used. This operation does not block.
+  // |serializer| should remain valid through the lifetime of
+  // ImportantFileWriter.
+  void ScheduleWrite(DataSerializer* serializer);
+
+  // Serialize data pending to be saved and execute write on backend thread.
+  void DoScheduledWrite();
 
   base::TimeDelta commit_interval() const {
     return commit_interval_;
@@ -66,9 +88,6 @@ class ImportantFileWriter : public NonThreadSafe {
   }
 
  private:
-  // If there is a data scheduled to write, issue a disk operation.
-  void CommitPendingData();
-
   // Path being written to.
   const FilePath path_;
 
@@ -78,8 +97,8 @@ class ImportantFileWriter : public NonThreadSafe {
   // Timer used to schedule commit after ScheduleWrite.
   base::OneShotTimer<ImportantFileWriter> timer_;
 
-  // Data scheduled to save.
-  std::string data_;
+  // Serializer which will provide the data to be saved.
+  DataSerializer* serializer_;
 
   // Time delta after which scheduled data will be written to disk.
   base::TimeDelta commit_interval_;

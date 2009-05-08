@@ -339,24 +339,6 @@ class BookmarkModel : public NotificationObserver, public BookmarkService {
   // This does NOT delete the node.
   void RemoveNode(BookmarkNode* node, std::set<GURL>* removed_urls);
 
-  // Callback from BookmarkStorage that it has finished loading. This method
-  // may be hit twice. In particular, on construction BookmarkModel asks
-  // BookmarkStorage to load the bookmarks. BookmarkStorage invokes this method
-  // with loaded_from_history false and file_exists indicating whether the
-  // bookmarks file exists. If the file doesn't exist, we query history. When
-  // history calls us back (OnHistoryDone) we then ask BookmarkStorage to load
-  // from the migration file. BookmarkStorage again invokes this method, but
-  // with |loaded_from_history| true.
-  void OnBookmarkStorageLoadedBookmarks(bool file_exists,
-                                        bool loaded_from_history);
-
-  // Used for migrating bookmarks from history to standalone file.
-  //
-  // Callback from history that it is done with an empty request. This is used
-  // if there is no bookmarks file. Once done, we attempt to load from the
-  // temporary file creating during migration.
-  void OnHistoryDone();
-
   // Invoked when loading is finished. Sets loaded_ and notifies observers.
   void DoneLoading();
 
@@ -443,11 +425,6 @@ class BookmarkModel : public NotificationObserver, public BookmarkService {
 
   // Reads/writes bookmarks to disk.
   scoped_refptr<BookmarkStorage> store_;
-
-  // Have we installed a listener on the NotificationService for
-  // NOTIFY_HISTORY_LOADED? A listener is installed if the bookmarks file
-  // doesn't exist and the history service hasn't finished loading.
-  bool waiting_for_history_load_;
 
   base::WaitableEvent loaded_signal_;
 

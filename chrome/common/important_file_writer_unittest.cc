@@ -24,6 +24,20 @@ std::string GetFileContent(const FilePath& path) {
   return content;
 }
 
+class DataSerializer : public ImportantFileWriter::DataSerializer {
+ public:
+  explicit DataSerializer(const std::string& data) : data_(data) {
+  }
+
+  virtual bool SerializeData(std::string* output) {
+    output->assign(data_);
+    return true;
+  }
+
+ private:
+  const std::string data_;
+};
+
 }  // namespace
 
 class ImportantFileWriterTest : public testing::Test {
@@ -65,10 +79,26 @@ TEST_F(ImportantFileWriterTest, WithBackendThread) {
 TEST_F(ImportantFileWriterTest, ScheduleWrite) {
   ImportantFileWriter writer(file_, NULL);
   writer.set_commit_interval(base::TimeDelta::FromMilliseconds(25));
-  writer.ScheduleWrite("foo");
+  EXPECT_FALSE(writer.HasPendingWrite());
+  DataSerializer serializer("foo");
+  writer.ScheduleWrite(&serializer);
+  EXPECT_TRUE(writer.HasPendingWrite());
   MessageLoop::current()->PostDelayedTask(FROM_HERE,
                                           new MessageLoop::QuitTask(), 100);
   MessageLoop::current()->Run();
+  EXPECT_FALSE(writer.HasPendingWrite());
+  ASSERT_TRUE(file_util::PathExists(writer.path()));
+  EXPECT_EQ("foo", GetFileContent(writer.path()));
+}
+
+TEST_F(ImportantFileWriterTest, DoScheduledWrite) {
+  ImportantFileWriter writer(file_, NULL);
+  EXPECT_FALSE(writer.HasPendingWrite());
+  DataSerializer serializer("foo");
+  writer.ScheduleWrite(&serializer);
+  EXPECT_TRUE(writer.HasPendingWrite());
+  writer.DoScheduledWrite();
+  EXPECT_FALSE(writer.HasPendingWrite());
   ASSERT_TRUE(file_util::PathExists(writer.path()));
   EXPECT_EQ("foo", GetFileContent(writer.path()));
 }
@@ -76,21 +106,13 @@ TEST_F(ImportantFileWriterTest, ScheduleWrite) {
 TEST_F(ImportantFileWriterTest, BatchingWrites) {
   ImportantFileWriter writer(file_, NULL);
   writer.set_commit_interval(base::TimeDelta::FromMilliseconds(25));
-  writer.ScheduleWrite("foo");
-  writer.ScheduleWrite("bar");
-  writer.ScheduleWrite("baz");
+  DataSerializer foo("foo"), bar("bar"), baz("baz");
+  writer.ScheduleWrite(&foo);
+  writer.ScheduleWrite(&bar);
+  writer.ScheduleWrite(&baz);
   MessageLoop::current()->PostDelayedTask(FROM_HERE,
                                           new MessageLoop::QuitTask(), 100);
   MessageLoop::current()->Run();
   ASSERT_TRUE(file_util::PathExists(writer.path()));
   EXPECT_EQ("baz", GetFileContent(writer.path()));
-}
-
-TEST_F(ImportantFileWriterTest, WriteOnDestruction) {
-  {
-    ImportantFileWriter writer(file_, NULL);
-    writer.ScheduleWrite("foo");
-  }
-  ASSERT_TRUE(file_util::PathExists(file_));
-  EXPECT_EQ("foo", GetFileContent(file_));
 }

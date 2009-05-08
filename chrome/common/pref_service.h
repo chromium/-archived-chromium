@@ -32,7 +32,8 @@ namespace base {
 class Thread;
 }
 
-class PrefService : public NonThreadSafe {
+class PrefService : public NonThreadSafe,
+                    public ImportantFileWriter::DataSerializer {
  public:
 
   // A helper class to store all the information associated with a preference.
@@ -96,7 +97,7 @@ class PrefService : public NonThreadSafe {
   bool SavePersistentPrefs();
 
   // Serializes the data and schedules save using ImportantFileWriter.
-  bool ScheduleSavePersistentPrefs();
+  void ScheduleSavePersistentPrefs();
 
   DictionaryValue* transient() { return transient_.get(); }
 
@@ -191,6 +192,9 @@ class PrefService : public NonThreadSafe {
   // preference is not registered.
   const Preference* FindPreference(const wchar_t* pref_name) const;
 
+  // ImportantFileWriter::DataSerializer
+  virtual bool SerializeData(std::string* output);
+
  private:
   // Add a preference to the PreferenceMap.  If the pref already exists, return
   // false.  This method takes ownership of |pref|.
@@ -207,10 +211,6 @@ class PrefService : public NonThreadSafe {
   // is different from the current value.
   void FireObserversIfChanged(const wchar_t* pref_name,
                               const Value* old_value);
-
-  // Serializes stored data to string. |output| is modified only
-  // if serialization was successful. Returns true on success.
-  bool SerializePrefData(std::string* output) const;
 
   scoped_ptr<DictionaryValue> persistent_;
   scoped_ptr<DictionaryValue> transient_;

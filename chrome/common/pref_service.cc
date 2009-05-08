@@ -84,6 +84,9 @@ PrefService::~PrefService() {
   STLDeleteContainerPairSecondPointers(pref_observers_.begin(),
                                        pref_observers_.end());
   pref_observers_.clear();
+
+  if (writer_.HasPendingWrite())
+    writer_.DoScheduledWrite();
 }
 
 bool PrefService::ReloadPersistentPrefs() {
@@ -111,22 +114,16 @@ bool PrefService::SavePersistentPrefs() {
   DCHECK(CalledOnValidThread());
 
   std::string data;
-  if (!SerializePrefData(&data))
+  if (!SerializeData(&data))
     return false;
 
   writer_.WriteNow(data);
   return true;
 }
 
-bool PrefService::ScheduleSavePersistentPrefs() {
+void PrefService::ScheduleSavePersistentPrefs() {
   DCHECK(CalledOnValidThread());
-
-  std::string data;
-  if (!SerializePrefData(&data))
-    return false;
-
-  writer_.ScheduleWrite(data);
-  return true;
+  writer_.ScheduleWrite(this);
 }
 
 void PrefService::RegisterBooleanPref(const wchar_t* path,
@@ -644,7 +641,7 @@ void PrefService::FireObservers(const wchar_t* path) {
   }
 }
 
-bool PrefService::SerializePrefData(std::string* output) const {
+bool PrefService::SerializeData(std::string* output) {
   // TODO(tc): Do we want to prune webkit preferences that match the default
   // value?
   JSONStringValueSerializer serializer(output);

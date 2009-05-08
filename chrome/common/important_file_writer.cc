@@ -86,22 +86,27 @@ ImportantFileWriter::ImportantFileWriter(const FilePath& path,
                                          const base::Thread* backend_thread)
     : path_(path),
       backend_thread_(backend_thread),
+      serializer_(NULL),
       commit_interval_(TimeDelta::FromMilliseconds(kDefaultCommitIntervalMs)) {
   DCHECK(CalledOnValidThread());
 }
 
 ImportantFileWriter::~ImportantFileWriter() {
+  // We're usually a member variable of some other object, which also tends
+  // to be our serializer. It may not be safe to call back to the parent object
+  // being destructed.
+  DCHECK(!HasPendingWrite());
+}
+
+bool ImportantFileWriter::HasPendingWrite() const {
   DCHECK(CalledOnValidThread());
-  if (timer_.IsRunning()) {
-    timer_.Stop();
-    CommitPendingData();
-  }
+  return timer_.IsRunning();
 }
 
 void ImportantFileWriter::WriteNow(const std::string& data) {
   DCHECK(CalledOnValidThread());
 
-  if (timer_.IsRunning())
+  if (HasPendingWrite())
     timer_.Stop();
 
   Task* task = new WriteToDiskTask(path_, data);
@@ -113,16 +118,32 @@ void ImportantFileWriter::WriteNow(const std::string& data) {
   }
 }
 
-void ImportantFileWriter::ScheduleWrite(const std::string& data) {
+void ImportantFileWriter::ScheduleWrite(DataSerializer* serializer) {
   DCHECK(CalledOnValidThread());
 
-  data_ = data;
+  DCHECK(serializer);
+  serializer_ = serializer;
+
+  if (!MessageLoop::current()) {
+    // Happens in unit tests.
+    DoScheduledWrite();
+    return;
+  }
+
   if (!timer_.IsRunning()) {
     timer_.Start(commit_interval_, this,
-                 &ImportantFileWriter::CommitPendingData);
+                 &ImportantFileWriter::DoScheduledWrite);
   }
 }
 
-void ImportantFileWriter::CommitPendingData() {
-  WriteNow(data_);
+void ImportantFileWriter::DoScheduledWrite() {
+  DCHECK(serializer_);
+  std::string data;
+  if (serializer_->SerializeData(&data)) {
+    WriteNow(data);
+  } else {
+    LOG(WARNING) << "failed to serialize data to be saved in "
+                 << path_.value();
+  }
+  serializer_ = NULL;
 }

@@ -109,7 +109,6 @@ BookmarkModel::BookmarkModel(Profile* profile)
       bookmark_bar_node_(NULL),
       other_node_(NULL),
       observers_(ObserverList<BookmarkModelObserver>::NOTIFY_EXISTING_ONLY),
-      waiting_for_history_load_(false),
       loaded_signal_(TRUE, FALSE)
 {
   // Create the bookmark bar and other bookmarks folders. These always exist.
@@ -133,11 +132,6 @@ BookmarkModel::~BookmarkModel() {
   if (profile_ && store_.get()) {
     NotificationService::current()->RemoveObserver(
         this, NotificationType::FAVICON_CHANGED, Source<Profile>(profile_));
-  }
-
-  if (waiting_for_history_load_) {
-    NotificationService::current()->RemoveObserver(
-        this, NotificationType::HISTORY_LOADED, Source<Profile>(profile_));
   }
 
   FOR_EACH_OBSERVER(BookmarkModelObserver, observers_,
@@ -167,7 +161,7 @@ void BookmarkModel::Load() {
 
   // Load the bookmarks. BookmarkStorage notifies us when done.
   store_ = new BookmarkStorage(profile_, this);
-  store_->LoadBookmarks(false);
+  store_->LoadBookmarks();
 }
 
 BookmarkNode* BookmarkModel::GetParentForNewNodes() {
@@ -437,65 +431,9 @@ void BookmarkModel::RemoveNode(BookmarkNode* node,
     RemoveNode(node->GetChild(i), removed_urls);
 }
 
-void BookmarkModel::OnBookmarkStorageLoadedBookmarks(
-    bool file_exists,
-    bool loaded_from_history) {
-  if (loaded_) {
-    NOTREACHED();
-    return;
-  }
-
-  LOG(INFO) << "Loaded bookmarks, file_exists=" << file_exists <<
-      " from_history=" << loaded_from_history;
-
-  if (file_exists || loaded_from_history || !profile_ ||
-      !profile_->GetHistoryService(Profile::EXPLICIT_ACCESS)) {
-    // The file exists, we're loaded.
-    DoneLoading();
-
-    if (loaded_from_history) {
-      // We were just populated from the historical file. Schedule a save so
-      // that the main file is up to date.
-      store_->ScheduleSave();
-    }
-    return;
-  }
-
-  // The file doesn't exist. This means one of two things:
-  // 1. A clean profile.
-  // 2. The user is migrating from an older version where bookmarks were saved
-  //    in history.
-  // We assume step 2. If history had the bookmarks, history will write the
-  // bookmarks to a file for us. We need to wait until history has finished
-  // loading before reading from that file.
-  HistoryService* history =
-      profile_->GetHistoryService(Profile::EXPLICIT_ACCESS);
-  if (!history->backend_loaded()) {
-    // The backend isn't finished loading. Wait for it.
-    LOG(INFO) << " waiting for history to finish";
-
-    waiting_for_history_load_ = true;
-    NotificationService::current()->AddObserver(
-        this, NotificationType::HISTORY_LOADED, Source<Profile>(profile_));
-  } else {
-    OnHistoryDone();
-  }
-}
-
-void BookmarkModel::OnHistoryDone() {
-  if (loaded_) {
-    NOTREACHED();
-    return;
-  }
-
-  LOG(INFO) << " history done, reloading";
-
-  // If the bookmarks were stored in the db the db will have migrated them to
-  // a file now. Try loading from the file.
-  store_->LoadBookmarks(true);
-}
-
 void BookmarkModel::DoneLoading() {
+  DCHECK(!loaded_);
+
   {
     AutoLock url_lock(url_lock_);
     // Update nodes_ordered_by_url_set_ from the nodes.
@@ -714,18 +652,6 @@ void BookmarkModel::Observe(NotificationType type,
           FOR_EACH_OBSERVER(BookmarkModelObserver, observers_,
                             BookmarkNodeChanged(this, node));
         }
-      }
-      break;
-    }
-
-    case NotificationType::HISTORY_LOADED: {
-      if (waiting_for_history_load_) {
-        waiting_for_history_load_ = false;
-        NotificationService::current()->RemoveObserver(
-            this,NotificationType::HISTORY_LOADED, Source<Profile>(profile_));
-        OnHistoryDone();
-      } else {
-        NOTREACHED();
       }
       break;
     }
