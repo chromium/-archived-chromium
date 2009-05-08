@@ -2305,13 +2305,6 @@ BUG11001 LINUX MAC WIN : LayoutTests/http/tests/history/back-to-post.php = TIMEO
 // Reasons unknown..
 BUG11012 LINUX MAC : LayoutTests/http/tests/security/xss-DENIED-xml-external-entity.xhtml = FAIL
 
-// Temporarily disable worker tests that fail after
-// http://src.chromium.org/viewvc/chrome?view=rev&revision=14461
-BUG11011 WIN : LayoutTests/fast/workers/worker-event-listener.html = TIMEOUT PASS
-BUG11011 WIN : LayoutTests/fast/workers/worker-gc.html = TIMEOUT PASS
-// The following failure was filed in BUG9798, used to be FAIL and PASS.
-BUG11011 WIN : LayoutTests/fast/workers/worker-terminate.html = TIMEOUT FAIL PASS
-
 // New failures from WebKit Merge 42805:42932
 BUG11121 LINUX WIN : LayoutTests/fast/repaint/layer-outline-horizontal.html = FAIL
 BUG11121 LINUX WIN : LayoutTests/fast/repaint/layer-outline.html = FAIL
@@ -2372,7 +2365,6 @@ BUG11483 LINUX : LayoutTests/editing/spelling/spellcheck-attribute.html = FAIL
 BUG11483 LINUX : LayoutTests/svg/text/foreignObject-repaint.xml = FAIL
 
 // Other regresssions from WebKit Merge 43114:43242
-BUG11483 : LayoutTests/fast/workers/worker-replace-global-constructor.html = FAIL CRASH
 BUG11482 : LayoutTests/svg/custom/polyline-points-crash.html = CRASH
 BUG11502 WIN : LayoutTests/svg/css/glyph-orientation-rounding-test.xhtml = CRASH PASS
 
