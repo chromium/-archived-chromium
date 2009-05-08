@@ -16,6 +16,7 @@
 #include "chrome/browser/browser_shutdown.h"
 #include "chrome/browser/browser_window.h"
 #include "chrome/browser/character_encoding.h"
+#include "chrome/browser/debugger/debugger_host.h"
 #include "chrome/browser/debugger/devtools_manager.h"
 #include "chrome/browser/download/download_manager.h"
 #include "chrome/browser/find_bar.h"
@@ -1045,8 +1046,12 @@ void Browser::OpenDebuggerWindow() {
   // Only one debugger instance can exist at a time right now.
   // TODO(erikkay): need an alert, dialog, something
   // or better yet, fix the one instance limitation
-  if (!DebuggerWindow::DoesDebuggerExist())
-    debugger_window_ = new DebuggerWindow();
+  DebuggerHost* host = DebuggerWindow::GetAnyExistingDebugger();
+  if (host) {
+    host->ShowWindow();
+    return;
+  }
+  debugger_window_ = new DebuggerWindow();
   debugger_window_->Show(GetSelectedTabContents());
 #endif
 }
@@ -2111,6 +2116,14 @@ void Browser::InitCommandState() {
   // Show various bits of UI
   command_updater_.UpdateCommandEnabled(IDC_OPEN_FILE, true);
   command_updater_.UpdateCommandEnabled(IDC_CREATE_SHORTCUTS, false);
+#if defined(OS_WIN)
+  // Command line debugger conflicts with the new oop one.
+  bool oop_devtools = CommandLine::ForCurrentProcess()->HasSwitch(
+      switches::kEnableOutOfProcessDevTools);
+  command_updater_.UpdateCommandEnabled(IDC_DEBUGGER,
+      // The debugger doesn't work in single process mode.
+      !oop_devtools && !RenderProcessHost::run_renderer_in_process());
+#endif
   command_updater_.UpdateCommandEnabled(IDC_TASK_MANAGER, true);
   command_updater_.UpdateCommandEnabled(IDC_SELECT_PROFILE, true);
   command_updater_.UpdateCommandEnabled(IDC_SHOW_HISTORY, true);
@@ -2142,15 +2155,6 @@ void Browser::InitCommandState() {
         normal_window && !profile_->IsOffTheRecord());
 
     // Show various bits of UI
-#if defined(OS_WIN)
-    // Command line debugger conflicts with the new oop one.
-    bool oop_devtools = CommandLine::ForCurrentProcess()->HasSwitch(
-        switches::kEnableOutOfProcessDevTools);
-    command_updater_.UpdateCommandEnabled(IDC_DEBUGGER,
-        // The debugger doesn't work in single process mode.
-        !oop_devtools && normal_window &&
-            !RenderProcessHost::run_renderer_in_process());
-#endif
     command_updater_.UpdateCommandEnabled(IDC_CLEAR_BROWSING_DATA,
                                           normal_window);
   }

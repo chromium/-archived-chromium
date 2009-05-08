@@ -9,6 +9,7 @@
 #include "views/window/window.h"
 #include "views/window/window_delegate.h"
 
+class DebuggerHost;
 class DebuggerView;
 class ListValue;
 class TabContents;
@@ -20,7 +21,7 @@ class DebuggerWindow : public DebuggerInputOutput,
   virtual ~DebuggerWindow();
 
   // returns true if a debugger has already been instantiated
-  static bool DoesDebuggerExist();
+  static DebuggerHost* GetAnyExistingDebugger();
 
   // Show the window
   void Show(TabContents* tab);
@@ -35,6 +36,7 @@ class DebuggerWindow : public DebuggerInputOutput,
   virtual void Start(DebuggerHost* debugger);
   virtual void SetDebuggerReady(bool ready);
   virtual void SetDebuggerBreak(bool brk);
+  virtual bool ShowWindow();
 
   // Note that this method will take ownership of argv.
   virtual void CallFunctionInPage(const std::wstring& name,

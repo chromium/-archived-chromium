@@ -183,3 +183,8 @@ TabContents* DebuggerHostImpl::GetTabContentsBeingDebugged() const {
     return NULL;
   }
 }
+
+bool DebuggerHostImpl::ShowWindow() {
+  return io_->ShowWindow();
+}
+

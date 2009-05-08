@@ -45,6 +45,9 @@ public:
   virtual void CallFunctionInPage(const std::wstring& name,
                                   ListValue* argv) {}
 
+  // Shows the debugger UI and returns true if it has any.
+  virtual bool ShowWindow() { return false; }
+
 protected:
   DebuggerHost* debugger_;
 

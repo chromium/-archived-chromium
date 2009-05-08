@@ -34,8 +34,9 @@ class DebuggerHostImpl : public DebuggerHost {
   // Handles messages from debugger UI.
   virtual void OnDebuggerHostMsg(const ListValue* args);
 
- private:
+  virtual bool ShowWindow();
 
+ private:
   TabContents* GetTabContentsBeingDebugged() const;
 
   scoped_refptr<DebuggerInputOutput> io_;

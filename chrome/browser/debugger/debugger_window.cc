@@ -24,20 +24,17 @@ DebuggerWindow::DebuggerWindow() : window_(NULL),
 DebuggerWindow::~DebuggerWindow() {
 }
 
-bool DebuggerWindow::DoesDebuggerExist() {
+DebuggerHost* DebuggerWindow::GetAnyExistingDebugger() {
   DebuggerWrapper* wrapper = g_browser_process->debugger_wrapper();
   if (!wrapper)
-    return false;
-  return wrapper->GetDebugger() != NULL;
+    return NULL;
+  return wrapper->GetDebugger();
 }
 
 void DebuggerWindow::Show(TabContents* tab) {
 #ifndef CHROME_DEBUGGER_DISABLED
-  if (window_) {
-    window_->Show();
-    view_->OnShow();
+  if (ShowWindow())
     return;
-  }
   view_ = new DebuggerView(this);
   window_ = views::Window::CreateChromeWindow(NULL, gfx::Rect(), this);
   window_->Show();
@@ -135,6 +132,17 @@ void DebuggerWindow::CallFunctionInPage(const std::wstring& name,
   } else {
     delete argv;
   }
+}
+
+bool DebuggerWindow::ShowWindow() {
+#ifndef CHROME_DEBUGGER_DISABLED
+  if (window_) {
+    window_->Show();
+    view_->OnShow();
+    return true;
+  }
+#endif
+  return false;
 }
 
 ///////////////////////////////////////////////////////////////////

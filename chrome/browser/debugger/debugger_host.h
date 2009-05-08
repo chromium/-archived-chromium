@@ -34,6 +34,10 @@ class DebuggerHost : public base::RefCountedThreadSafe<DebuggerHost> {
 
   // Handles messages from debugger UI.
   virtual void OnDebuggerHostMsg(const ListValue* args) {}
+
+  // Shows the debugger UI and returns true if it has any.
+  virtual bool ShowWindow() { return false; }
+
  private:
 
   DISALLOW_COPY_AND_ASSIGN(DebuggerHost);
