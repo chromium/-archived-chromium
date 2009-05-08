@@ -39,8 +39,6 @@
 #include "chrome/common/child_process_info.h"
 #include "chrome/common/logging_chrome.h"
 #include "chrome/common/notification_service.h"
-#include "chrome/common/pref_names.h"
-#include "chrome/common/pref_service.h"
 #include "chrome/common/process_watcher.h"
 #include "chrome/common/render_messages.h"
 #include "chrome/common/result_codes.h"
@@ -131,11 +129,6 @@ BrowserRenderProcessHost::BrowserRenderProcessHost(Profile* profile)
             this, &BrowserRenderProcessHost::ClearTransportDIBCache)) {
   widget_helper_ = new RenderWidgetHelper();
 
-  PrefService* prefs = profile->GetPrefs();
-  prefs->AddPrefObserver(prefs::kBlockPopups, this);
-  widget_helper_->set_block_popups(
-      profile->GetPrefs()->GetBoolean(prefs::kBlockPopups));
-
   NotificationService::current()->AddObserver(this,
       NotificationType::USER_SCRIPTS_LOADED,
       NotificationService::AllSources());
@@ -172,8 +165,6 @@ BrowserRenderProcessHost::~BrowserRenderProcessHost() {
   if (process_.handle() && !run_renderer_in_process()) {
     ProcessWatcher::EnsureProcessTerminated(process_.handle());
   }
-
-  profile()->GetPrefs()->RemovePrefObserver(prefs::kBlockPopups, this);
 
   NotificationService::current()->RemoveObserver(this,
       NotificationType::USER_SCRIPTS_LOADED, NotificationService::AllSources());
@@ -779,17 +770,6 @@ void BrowserRenderProcessHost::Observe(NotificationType type,
                                        const NotificationSource& source,
                                        const NotificationDetails& details) {
   switch (type.value) {
-    case NotificationType::PREF_CHANGED: {
-      std::wstring* pref_name_in = Details<std::wstring>(details).ptr();
-      DCHECK(Source<PrefService>(source).ptr() == profile()->GetPrefs());
-      if (*pref_name_in == prefs::kBlockPopups) {
-        widget_helper_->set_block_popups(
-            profile()->GetPrefs()->GetBoolean(prefs::kBlockPopups));
-      } else {
-        NOTREACHED() << "unexpected pref change notification" << *pref_name_in;
-      }
-      break;
-    }
     case NotificationType::USER_SCRIPTS_LOADED: {
       base::SharedMemory* shared_memory =
           Details<base::SharedMemory>(details).ptr();

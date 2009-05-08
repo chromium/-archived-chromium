@@ -565,9 +565,6 @@ class TabContents : public PageNavigator,
     render_view_host()->WindowMoveOrResizeStarted();
   }
 
-  // Sets popup whitelisting state for |host| to |whitelist|.
-  void SetWhitelistForHost(const std::string& host, bool whitelist);
-
  private:
   friend class NavigationController;
   // Used to access the child_windows_ (ConstrainedWindowList) for testing
@@ -621,13 +618,9 @@ class TabContents : public PageNavigator,
   void CreateBlockedPopupContainerIfNecessary();
 
   // Adds the incoming |new_contents| to the |blocked_popups_| container.
-  void AddConstrainedPopup(TabContents* new_contents,
-                           const gfx::Rect& initial_pos,
-                           const std::string& host);
-
-  // Notifies the |blocked_popups_| container that a popup has been opened from
-  // a particular whitelisted host.
-  void OnPopupOpenedFromWhitelistedHost(const std::string& host);
+  void AddPopup(TabContents* new_contents,
+                const gfx::Rect& initial_pos,
+                const std::string& host);
 
   // Called by a derived class when the TabContents is resized, causing
   // suppressed constrained web popups to be repositioned to the new bounds

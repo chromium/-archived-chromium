@@ -644,40 +644,24 @@ class WebContentSection : public AdvancedSection,
  protected:
   // OptionsPageView overrides:
   virtual void InitControlLayout();
-  virtual void NotifyPrefChanged(const std::wstring* pref_name);
 
  private:
   // Controls for this section:
-  views::Checkbox* popup_blocked_notification_checkbox_;
   views::Label* gears_label_;
   views::NativeButton* gears_settings_button_;
-
-  BooleanPrefMember disable_popup_blocked_notification_pref_;
 
   DISALLOW_COPY_AND_ASSIGN(WebContentSection);
 };
 
 WebContentSection::WebContentSection(Profile* profile)
-    : popup_blocked_notification_checkbox_(NULL),
-      gears_label_(NULL),
+    : gears_label_(NULL),
       gears_settings_button_(NULL),
       AdvancedSection(profile,
           l10n_util::GetString(IDS_OPTIONS_ADVANCED_SECTION_TITLE_CONTENT)) {
 }
 
 void WebContentSection::ButtonPressed(views::Button* sender) {
-  if (sender == popup_blocked_notification_checkbox_) {
-    bool notification_disabled =
-        popup_blocked_notification_checkbox_->checked();
-    if (notification_disabled) {
-      UserMetricsRecordAction(L"Options_BlockAllPopups_Disable",
-                              profile()->GetPrefs());
-    } else {
-      UserMetricsRecordAction(L"Options_BlockAllPopups_Enable",
-                              profile()->GetPrefs());
-    }
-    disable_popup_blocked_notification_pref_.SetValue(!notification_disabled);
-  } else if (sender == gears_settings_button_) {
+  if (sender == gears_settings_button_) {
     UserMetricsRecordAction(L"Options_GearsSettings", NULL);
     GearsSettingsPressed(GetAncestor(GetWidget()->GetNativeView(), GA_ROOT));
   }
@@ -685,10 +669,6 @@ void WebContentSection::ButtonPressed(views::Button* sender) {
 
 void WebContentSection::InitControlLayout() {
   AdvancedSection::InitControlLayout();
-
-  popup_blocked_notification_checkbox_ = new views::Checkbox(
-      l10n_util::GetString(IDS_OPTIONS_SHOWPOPUPBLOCKEDNOTIFICATION));
-  popup_blocked_notification_checkbox_->set_listener(this);
 
   if (l10n_util::GetTextDirection() == l10n_util::LEFT_TO_RIGHT) {
     gears_label_ = new views::Label(
@@ -710,25 +690,10 @@ void WebContentSection::InitControlLayout() {
   contents_->SetLayoutManager(layout);
 
   const int col_id = 0;
-  AddWrappingColumnSet(layout, col_id);
-  const int two_col_id = 1;
-  AddTwoColumnSet(layout, two_col_id);
+  AddTwoColumnSet(layout, col_id);
 
-  AddWrappingCheckboxRow(layout, popup_blocked_notification_checkbox_,
-                         col_id, true);
   AddTwoColumnRow(layout, gears_label_, gears_settings_button_, false,
-                  two_col_id, false);
-
-  // Init member prefs so we can update the controls if prefs change.
-  disable_popup_blocked_notification_pref_.Init(prefs::kBlockPopups,
-                                                profile()->GetPrefs(), this);
-}
-
-void WebContentSection::NotifyPrefChanged(const std::wstring* pref_name) {
-  if (!pref_name || *pref_name == prefs::kBlockPopups) {
-    popup_blocked_notification_checkbox_->SetChecked(
-        !disable_popup_blocked_notification_pref_.GetValue());
-  }
+                  col_id, false);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

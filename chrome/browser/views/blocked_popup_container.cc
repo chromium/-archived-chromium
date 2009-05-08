@@ -21,19 +21,12 @@
 #include "chrome/browser/profile.h"
 #include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/common/notification_service.h"
-#include "chrome/common/pref_names.h"
 #include "grit/generated_resources.h"
 #include "grit/theme_resources.h"
 #include "views/background.h"
 #include "views/controls/button/image_button.h"
-#include "views/controls/button/menu_button.h"
 
 namespace {
-// Menu item ID for the "Notify me when a popup is blocked" checkbox. (All
-// other menu IDs are positive and should be base 1 indexes into the vector of
-// blocked popups.)
-const int kNotifyMenuItem = -1;
-
 // A number larger than the internal popup count on the Renderer; meant for
 // preventing a compromised renderer from exhausting GDI memory by spawning
 // infinite windows.
@@ -57,9 +50,10 @@ const int kShowAnimationDurationMS = 200;
 const int kHideAnimationDurationMS = 120;
 const int kFramerate = 25;
 
-// views::MenuButton requires that the largest string be passed in to its
-// constructor to reserve space. "99" should preallocate enough space for all
-// numbers.
+// So that the MenuButton doesn't change its size as its text changes, during
+// construction we feed it the strings it will be displaying, so it can set the
+// max text width to the right value.  "99" should preallocate enough space for
+// all numbers we'd show.
 const int kWidestNumber = 99;
 
 // Rounded corner radius (in pixels).
@@ -95,6 +89,9 @@ BlockedPopupContainerView::BlockedPopupContainerView(
       l10n_util::GetStringF(IDS_POPUPS_BLOCKED_COUNT,
                             IntToWString(kWidestNumber)),
       NULL, true);
+  // Now set the text to the other possible display string so that the button
+  // will update its max text width (in case this string is longer).
+  popup_count_label_->SetText(l10n_util::GetString(IDS_POPUPS_UNBLOCKED));
   popup_count_label_->set_alignment(views::TextButton::ALIGN_CENTER);
   AddChildView(popup_count_label_);
 
@@ -110,14 +107,18 @@ BlockedPopupContainerView::BlockedPopupContainerView(
   AddChildView(close_button_);
 
   set_background(views::Background::CreateStandardPanelBackground());
-  UpdatePopupCountLabel();
+  UpdateLabel();
 }
 
 BlockedPopupContainerView::~BlockedPopupContainerView() {
 }
 
-void BlockedPopupContainerView::UpdatePopupCountLabel() {
-  popup_count_label_->SetText(container_->GetWindowTitle());
+void BlockedPopupContainerView::UpdateLabel() {
+  size_t blocked_popups = container_->GetBlockedPopupCount();
+  popup_count_label_->SetText((blocked_popups > 0) ?
+      l10n_util::GetStringF(IDS_POPUPS_BLOCKED_COUNT,
+                            UintToWString(blocked_popups)) :
+      l10n_util::GetString(IDS_POPUPS_UNBLOCKED));
   Layout();
   SchedulePaint();
 }
@@ -180,8 +181,8 @@ void BlockedPopupContainerView::ButtonPressed(views::Button* sender) {
                                 container_->GetNativeView()));
 
     // Set items 1 .. popup_count as individual popups.
-    int popup_count = container_->GetBlockedPopupCount();
-    for (int i = 0; i < popup_count; ++i) {
+    size_t popup_count = container_->GetBlockedPopupCount();
+    for (size_t i = 0; i < popup_count; ++i) {
       std::wstring url, title;
       container_->GetURLAndTitleForPopup(i, &url, &title);
       // We can't just use the index into container_ here because Menu reserves
@@ -201,12 +202,6 @@ void BlockedPopupContainerView::ButtonPressed(views::Button* sender) {
           l10n_util::GetStringF(IDS_POPUP_HOST_FORMAT, hosts[i]), Menu::NORMAL);
     }
 
-    launch_menu_->AppendSeparator();
-    launch_menu_->AppendMenuItem(
-        kNotifyMenuItem,
-        l10n_util::GetString(IDS_OPTIONS_SHOWPOPUPBLOCKEDNOTIFICATION),
-        Menu::NORMAL);
-
     CPoint cursor_position;
     ::GetCursorPos(&cursor_position);
     launch_menu_->RunMenuAt(cursor_position.x, cursor_position.y);
@@ -217,24 +212,24 @@ void BlockedPopupContainerView::ButtonPressed(views::Button* sender) {
 }
 
 bool BlockedPopupContainerView::IsItemChecked(int id) const {
-  if (id == kNotifyMenuItem)
-    return container_->GetShowBlockedPopupNotification();
-
-  if (id > kImpossibleNumberOfPopups)
-    return container_->IsHostWhitelisted(id - kImpossibleNumberOfPopups - 1);
+  if (id > kImpossibleNumberOfPopups) {
+    return container_->IsHostWhitelisted(static_cast<size_t>(
+        id - kImpossibleNumberOfPopups - 1));
+  }
 
   return false;
 }
 
 void BlockedPopupContainerView::ExecuteCommand(int id) {
-  if (id == kNotifyMenuItem) {
-    container_->ToggleBlockedPopupNotification();
-  } else if (id > kImpossibleNumberOfPopups) {
+  DCHECK(id > 0);
+  size_t id_size_t = static_cast<size_t>(id);
+  if (id_size_t > kImpossibleNumberOfPopups) {
     // Decrement id since all index based commands have 1 added to them. (See
     // ButtonPressed() for detail).
-    container_->ToggleWhitelistingForHost(id - kImpossibleNumberOfPopups - 1);
+    container_->ToggleWhitelistingForHost(
+        id_size_t - kImpossibleNumberOfPopups - 1);
   } else {
-    container_->LaunchPopupIndex(id - 1);
+    container_->LaunchPopupAtIndex(id_size_t - 1);
   }
 }
 
@@ -257,89 +252,90 @@ BlockedPopupContainer::BlockedPopupContainer(TabContents* owner,
       has_been_dismissed_(false),
       in_show_animation_(false),
       visibility_percentage_(0) {
-  block_popup_pref_.Init(
-      prefs::kBlockPopups, profile->GetPrefs(), NULL);
 }
 
-void BlockedPopupContainer::ToggleBlockedPopupNotification() {
-  bool current = block_popup_pref_.GetValue();
-  block_popup_pref_.SetValue(!current);
-}
-
-bool BlockedPopupContainer::GetShowBlockedPopupNotification() {
-  return !block_popup_pref_.GetValue();
-}
-
-void BlockedPopupContainer::AddTabContents(TabContents* blocked_contents,
+void BlockedPopupContainer::AddTabContents(TabContents* tab_contents,
                                            const gfx::Rect& bounds,
                                            const std::string& host) {
+  bool whitelisted = false;  // TODO: Check if host is on whitelist.
+
+  // Show whitelisted popups immediately.
+  if (whitelisted)
+    owner_->AddNewContents(tab_contents, NEW_POPUP, bounds, true, GURL());
+
   if (has_been_dismissed_) {
-    // We simply bounce this popup without notice.
-    delete blocked_contents;
+    // Don't want to show any other UI.
+    if (!whitelisted)
+      delete tab_contents;  // Discard blocked popups entirely.
     return;
   }
 
-  if (blocked_popups_.size() >= kImpossibleNumberOfPopups) {
-    delete blocked_contents;
-    LOG(INFO) << "Warning: Renderer is sending more popups to us than should be"
-        " possible. Renderer compromised?";
-    return;
+  if (whitelisted) {
+    // Listen for this popup's destruction, so if the user closes it manually,
+    // we'll know to stop caring about it.
+    registrar_.Add(this, NotificationType::TAB_CONTENTS_DESTROYED,
+                   Source<TabContents>(tab_contents));
+
+    unblocked_popups_[tab_contents] = host;
+  } else {
+    if (blocked_popups_.size() >= kImpossibleNumberOfPopups) {
+      delete tab_contents;
+      LOG(INFO) << "Warning: Renderer is sending more popups to us than should "
+          "be possible. Renderer compromised?";
+      return;
+    }
+    blocked_popups_.push_back(BlockedPopup(tab_contents, bounds, host));
+
+    tab_contents->set_delegate(this);
   }
 
-  blocked_contents->set_delegate(this);
-  blocked_popups_.push_back(BlockedPopup(blocked_contents, bounds, host));
-
-  PopupHosts::iterator i(popup_hosts_.find(host));
+  PopupHosts::const_iterator i(popup_hosts_.find(host));
   if (i == popup_hosts_.end())
-    popup_hosts_[host] = false;
+    popup_hosts_[host] = whitelisted;
   else
     DCHECK(!i->second);  // This host was already reported as whitelisted!
 
-  container_view_->UpdatePopupCountLabel();
-  ShowSelf();
-}
-
-void BlockedPopupContainer::OnPopupOpenedFromWhitelistedHost(
-    const std::string& host) {
-  if (has_been_dismissed_)
-    return;
-
-  PopupHosts::const_iterator i(popup_hosts_.find(host));
-  if (i == popup_hosts_.end()) {
-    popup_hosts_[host] = true;
-    ShowSelf();
-  } else {
-    DCHECK(i->second);  // This host was already reported as not whitelisted!
+  // Update UI.
+  container_view_->UpdateLabel();
+  SetWindowPos(HWND_TOP, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_SHOWWINDOW);
+  if (!Animation::IsAnimating() && visibility_percentage_ < 1.0) {
+    in_show_animation_ = true;
+    Animation::SetDuration(kShowAnimationDurationMS);
+    Animation::Start();
   }
+  owner_->PopupNotificationVisibilityChanged(true);
 }
 
-void BlockedPopupContainer::LaunchPopupIndex(int index) {
-  if (static_cast<size_t>(index) >= blocked_popups_.size())
+void BlockedPopupContainer::LaunchPopupAtIndex(size_t index) {
+  if (index >= blocked_popups_.size())
     return;
 
+  // Open the popup.
   BlockedPopups::iterator i(blocked_popups_.begin() + index);
-  TabContents* contents = i->tab_contents;
-  gfx::Rect bounds(i->bounds);
-  EraseHostIfNeeded(i);
-  blocked_popups_.erase(i);
+  TabContents* tab_contents = i->tab_contents;
+  tab_contents->set_delegate(NULL);
+  owner_->AddNewContents(tab_contents, NEW_POPUP, i->bounds, true, GURL());
 
-  contents->set_delegate(NULL);
-  contents->DisassociateFromPopupCount();
+  const std::string& host = i->host;
+  if (!host.empty()) {
+    // Listen for this popup's destruction, so if the user closes it manually,
+    // we'll know to stop caring about it.
+    registrar_.Add(this, NotificationType::TAB_CONTENTS_DESTROYED,
+                   Source<TabContents>(tab_contents));
 
-  // Pass this TabContents back to our owner, forcing the window to be
-  // displayed since user_gesture is true.
-  owner_->AddNewContents(contents, NEW_POPUP, bounds, true, GURL());
+    // Add the popup to the unblocked list.  (Do this before the below call!)
+    unblocked_popups_[tab_contents] = i->host;
+  }
 
-  container_view_->UpdatePopupCountLabel();
-  if (blocked_popups_.empty() && popup_hosts_.empty())
-    HideSelf();
+  // Remove the popup from the blocked list.
+  EraseDataForPopupAndUpdateUI(i);
 }
 
-int BlockedPopupContainer::GetBlockedPopupCount() const {
+size_t BlockedPopupContainer::GetBlockedPopupCount() const {
   return blocked_popups_.size();
 }
 
-void BlockedPopupContainer::GetURLAndTitleForPopup(int index,
+void BlockedPopupContainer::GetURLAndTitleForPopup(size_t index,
                                                    std::wstring* url,
                                                    std::wstring* title) const {
   DCHECK(url);
@@ -358,30 +354,48 @@ std::vector<std::wstring> BlockedPopupContainer::GetHosts() const {
   return hosts;
 }
 
-bool BlockedPopupContainer::IsHostWhitelisted(int index) const {
+bool BlockedPopupContainer::IsHostWhitelisted(size_t index) const {
   PopupHosts::const_iterator i(ConvertHostIndexToIterator(index));
   return (i == popup_hosts_.end()) ? false : i->second;
 }
 
-void BlockedPopupContainer::ToggleWhitelistingForHost(int index) {
+void BlockedPopupContainer::ToggleWhitelistingForHost(size_t index) {
   PopupHosts::const_iterator i(ConvertHostIndexToIterator(index));
   const std::string& host = i->first;
   bool should_whitelist = !i->second;
-  owner_->SetWhitelistForHost(host, should_whitelist);
+  popup_hosts_[host] = should_whitelist;
+  // TODO: Update whitelist pref.
+
   if (should_whitelist) {
-    for (int j = blocked_popups_.size() - 1; j >= 0; --j) {
+    // Open the popups in order.
+    for (size_t j = 0; j < blocked_popups_.size(); ) {
       if (blocked_popups_[j].host == host)
-        LaunchPopupIndex(j);
+        LaunchPopupAtIndex(j);  // This shifts the rest of the entries down.
+      else
+        ++j;
     }
   } else {
-    // TODO(pkasting): Should we have some kind of handle to the open popups, so
-    // we can hide them all here?
-    popup_hosts_.erase(host);  // Can't use |i| because it's a const_iterator.
-    if (blocked_popups_.empty() && popup_hosts_.empty())
-      HideSelf();
+    for (UnblockedPopups::iterator i(unblocked_popups_.begin());
+         i != unblocked_popups_.end(); ) {
+      TabContents* tab_contents = i->first;
+      TabContentsDelegate* delegate = tab_contents->delegate();
+      if ((i->second == host) && delegate->IsPopup(tab_contents)) {
+        // Convert the popup back into a blocked popup.
+        delegate->DetachContents(tab_contents);
+        tab_contents->set_delegate(this);
+
+        // Add the popup to the blocked list.  (Do this before the below call!)
+        gfx::Rect bounds;
+        tab_contents->GetContainerBounds(&bounds);
+        blocked_popups_.push_back(BlockedPopup(tab_contents, bounds, host));
+
+        // Remove the popup from the unblocked list.
+        i = EraseDataForPopupAndUpdateUI(i);
+      } else {
+        ++i;
+      }
+    }
   }
-  // At this point i is invalid, since the item it points to was deleted (on
-  // both conditional arms).
 }
 
 void BlockedPopupContainer::CloseAll() {
@@ -409,15 +423,6 @@ void BlockedPopupContainer::RepositionConstrainedWindowTo(
   SetPosition();
 }
 
-std::wstring BlockedPopupContainer::GetWindowTitle() const {
-  return l10n_util::GetStringF(IDS_POPUPS_BLOCKED_COUNT,
-                               IntToWString(GetBlockedPopupCount()));
-}
-
-const gfx::Rect& BlockedPopupContainer::GetCurrentBounds() const {
-  return bounds_;
-}
-
 // Overridden from TabContentsDelegate:
 void BlockedPopupContainer::OpenURLFromTab(TabContents* source,
                                            const GURL& url,
@@ -439,17 +444,14 @@ void BlockedPopupContainer::AddNewContents(TabContents* source,
 void BlockedPopupContainer::CloseContents(TabContents* source) {
   for (BlockedPopups::iterator it = blocked_popups_.begin();
        it != blocked_popups_.end(); ++it) {
-    if (it->tab_contents == source) {
-      it->tab_contents->set_delegate(NULL);
-      EraseHostIfNeeded(it);
-      blocked_popups_.erase(it);
-      container_view_->UpdatePopupCountLabel();
+    TabContents* tab_contents = it->tab_contents;
+    if (tab_contents == source) {
+      tab_contents->set_delegate(NULL);
+      EraseDataForPopupAndUpdateUI(it);
+      delete tab_contents;
       break;
     }
   }
-
-  if (blocked_popups_.empty())
-    HideSelf();
 }
 
 void BlockedPopupContainer::MoveContents(TabContents* source,
@@ -478,13 +480,23 @@ ExtensionFunctionDispatcher* BlockedPopupContainer::
   return new ExtensionFunctionDispatcher(render_view_host, NULL, extension_id);
 }
 
-// Overridden from Animation:
+// private:
+
 void BlockedPopupContainer::AnimateToState(double state) {
   visibility_percentage_ = in_show_animation_ ? state : (1 - state);
   SetPosition();
 }
 
-// Override from views::WidgetWin:
+void BlockedPopupContainer::Observe(NotificationType type,
+                                    const NotificationSource& source,
+                                    const NotificationDetails& details) {
+  DCHECK(type == NotificationType::TAB_CONTENTS_DESTROYED);
+  TabContents* tab_contents = Source<TabContents>(source).ptr();
+  UnblockedPopups::iterator i(unblocked_popups_.find(tab_contents));
+  DCHECK(i != unblocked_popups_.end());
+  EraseDataForPopupAndUpdateUI(i);
+}
+
 void BlockedPopupContainer::OnFinalMessage(HWND window) {
   owner_->WillClose(this);
   ClearData();
@@ -502,8 +514,6 @@ void BlockedPopupContainer::OnSize(UINT param, const CSize& size) {
   ChangeSize(param, size);
 }
 
-// private:
-
 void BlockedPopupContainer::Init(const gfx::Point& initial_anchor) {
   container_view_ = new BlockedPopupContainerView(this);
   container_view_->SetVisible(true);
@@ -512,11 +522,6 @@ void BlockedPopupContainer::Init(const gfx::Point& initial_anchor) {
   WidgetWin::Init(owner_->GetNativeView(), gfx::Rect(), false);
   SetContentsView(container_view_);
   RepositionConstrainedWindowTo(initial_anchor);
-
-  if (GetShowBlockedPopupNotification())
-    ShowSelf();
-  else
-    has_been_dismissed_ = true;
 }
 
 void BlockedPopupContainer::HideSelf() {
@@ -524,16 +529,6 @@ void BlockedPopupContainer::HideSelf() {
   Animation::SetDuration(kHideAnimationDurationMS);
   Animation::Start();
   owner_->PopupNotificationVisibilityChanged(false);
-}
-
-void BlockedPopupContainer::ShowSelf() {
-  SetWindowPos(HWND_TOP, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_SHOWWINDOW);
-  if (!Animation::IsAnimating() && visibility_percentage_ < 1.0) {
-    in_show_animation_ = true;
-    Animation::SetDuration(kShowAnimationDurationMS);
-    Animation::Start();
-  }
-  owner_->PopupNotificationVisibilityChanged(true);
 }
 
 void BlockedPopupContainer::SetPosition() {
@@ -564,30 +559,95 @@ void BlockedPopupContainer::ClearData() {
     tab_contents->set_delegate(NULL);
     delete tab_contents;
   }
-
   blocked_popups_.clear();
+
+  registrar_.RemoveAll();
+  unblocked_popups_.clear();
+
   popup_hosts_.clear();
 }
 
 BlockedPopupContainer::PopupHosts::const_iterator
-    BlockedPopupContainer::ConvertHostIndexToIterator(int index) const {
-  if (static_cast<size_t>(index) >= popup_hosts_.size())
+    BlockedPopupContainer::ConvertHostIndexToIterator(size_t index) const {
+  if (index >= popup_hosts_.size())
     return popup_hosts_.end();
   // If only there was a std::map::const_iterator::operator +=() ...
   PopupHosts::const_iterator i(popup_hosts_.begin());
-  for (int j = 0; j < index; ++j)
+  for (size_t j = 0; j < index; ++j)
     ++i;
   return i;
 }
 
-void BlockedPopupContainer::EraseHostIfNeeded(BlockedPopups::iterator i) {
+void BlockedPopupContainer::EraseDataForPopupAndUpdateUI(
+    BlockedPopups::iterator i) {
+  // Erase the host if this is the last popup for that host.
   const std::string& host = i->host;
-  if (host.empty())
-    return;
-  for (BlockedPopups::const_iterator j(blocked_popups_.begin());
-       j != blocked_popups_.end(); ++j) {
-    if ((j != i) && (j->host == host))
-      return;
+  if (!host.empty()) {
+    bool should_erase_host = true;
+    for (BlockedPopups::const_iterator j(blocked_popups_.begin());
+         j != blocked_popups_.end(); ++j) {
+      if ((j != i) && (j->host == host)) {
+        should_erase_host = false;
+        break;
+      }
+    }
+    if (should_erase_host) {
+      for (UnblockedPopups::const_iterator j(unblocked_popups_.begin());
+           j != unblocked_popups_.end(); ++j) {
+        if (j->second == host) {
+          should_erase_host = false;
+          break;
+        }
+      }
+      if (should_erase_host)
+        popup_hosts_.erase(host);
+    }
   }
-  popup_hosts_.erase(host);
+
+  // Erase the popup and update the UI.
+  blocked_popups_.erase(i);
+  if (blocked_popups_.empty() && unblocked_popups_.empty())
+    HideSelf();
+  else
+    container_view_->UpdateLabel();
+}
+
+BlockedPopupContainer::UnblockedPopups::iterator
+    BlockedPopupContainer::EraseDataForPopupAndUpdateUI(
+    UnblockedPopups::iterator i) {
+  // Stop listening for this popup's destruction.
+  registrar_.Remove(this, NotificationType::TAB_CONTENTS_DESTROYED,
+                    Source<TabContents>(i->first));
+
+  // Erase the host if this is the last popup for that host.
+  const std::string& host = i->second;
+  if (!host.empty()) {
+    bool should_erase_host = true;
+    for (UnblockedPopups::const_iterator j(unblocked_popups_.begin());
+         j != unblocked_popups_.end(); ++j) {
+      if ((j != i) && (j->second == host)) {
+        should_erase_host = false;
+        break;
+      }
+    }
+    if (should_erase_host) {
+      for (BlockedPopups::const_iterator j(blocked_popups_.begin());
+           j != blocked_popups_.end(); ++j) {
+        if (j->host == host) {
+          should_erase_host = false;
+          break;
+        }
+      }
+      if (should_erase_host)
+        popup_hosts_.erase(host);
+    }
+  }
+
+  // Erase the popup and update the UI.
+  UnblockedPopups::iterator next_popup = unblocked_popups_.erase(i);
+  if (blocked_popups_.empty() && unblocked_popups_.empty())
+    HideSelf();
+  else
+    container_view_->UpdateLabel();
+  return next_popup;
 }

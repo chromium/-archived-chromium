@@ -64,13 +64,18 @@ class TabContentsDelegate {
   // in screen coordinates.
   virtual void MoveContents(TabContents* source, const gfx::Rect& pos) = 0;
 
+  // Causes the delegate to detach |source| and clean up any internal data
+  // pointing to it.  After this call ownership of |source| passes to the
+  // caller, and it is safe to call "source->set_delegate(someone_else);".
+  virtual void DetachContents(TabContents* source) { }
+
   // Called to determine if the TabContents is contained in a popup window.
   virtual bool IsPopup(TabContents* source) = 0;
 
-  // Returns the tab which contains the specified tab content if it is
-  // constrained, NULL otherwise.
+  // If |source| is constrained, returns the tab containing it.  Otherwise
+  // returns |source|.
   virtual TabContents* GetConstrainingContents(TabContents* source) {
-    return NULL;
+    return source;
   }
 
   // Notification that some of our content has changed size as

@@ -1855,6 +1855,12 @@ void Browser::MoveContents(TabContents* source, const gfx::Rect& pos) {
   window_->SetBounds(pos);
 }
 
+void Browser::DetachContents(TabContents* source) {
+  int index = tabstrip_model_.GetIndexOfTabContents(source);
+  if (index >= 0)
+    tabstrip_model_.DetachTabContentsAt(index);
+}
+
 bool Browser::IsPopup(TabContents* source) {
   // A non-tabbed BROWSER is an unconstrained popup.
   return (type() & TYPE_POPUP);
@@ -1904,15 +1910,11 @@ bool Browser::IsApplication() const {
 }
 
 void Browser::ConvertContentsToApplication(TabContents* contents) {
-  int index = tabstrip_model_.GetIndexOfTabContents(contents);
-  if (index < 0)
-    return;
-
   const GURL& url = contents->controller().GetActiveEntry()->url();
   std::wstring app_name = ComputeApplicationNameFromURL(url);
   RegisterAppPrefs(app_name);
 
-  tabstrip_model_.DetachTabContentsAt(index);
+  DetachContents(contents);
   Browser* browser = Browser::CreateForApp(app_name, profile_, false);
   browser->tabstrip_model()->AppendTabContents(contents, true);
   browser->window()->Show();

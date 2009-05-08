@@ -3069,10 +3069,6 @@ each locale. -->
         Change Google Gears settings
       </message>
 
-      <message name="IDS_OPTIONS_SHOWPOPUPBLOCKEDNOTIFICATION" desc="The label of the checkbox that toggles the 'Notify me when a popup is blocked' option">
-        Notify me when a pop-up is blocked
-      </message>
-
       <message name="IDS_OPTIONS_CERTIFICATES_LABEL" desc="The info label for the 'Manage certificates' button">
         Select trusted SSL certificates.
       </message>
@@ -3710,8 +3706,11 @@ each locale. -->
       <message name="IDS_BLOCKED_POPUP" desc="Text on a blocked popup's window titlebar.">
         Blocked Pop-up
       </message>
-      <message name="IDS_POPUPS_BLOCKED_COUNT" desc="Message on the blocked popup window">
+      <message name="IDS_POPUPS_BLOCKED_COUNT" desc="Message on the blocked popup window when there are blocked popups">
         Pop-ups Blocked: <ph name="COUNT">$1<ex>2</ex></ph>
+      </message>
+      <message name="IDS_POPUPS_UNBLOCKED" desc="Message on the blocked popup window when there are only whitelisted popups">
+        Manage pop-ups
       </message>
       <message name="IDS_POPUP_TITLE_FORMAT" desc="Order of URL - Title on the popup">
         <ph name="URL">$1</ph> - <ph name="WINDOW_TITLE">$2</ph>

@@ -170,10 +170,6 @@ const wchar_t kDefaultSearchProviderName[] = L"default_search_provider.name";
 // The id of the default search provider.
 const wchar_t kDefaultSearchProviderID[] = L"default_search_provider.id";
 
-// Boolean of whether or not popups should be completely blocked (true), or
-// just opened "minimized" (default, false).
-const wchar_t kBlockPopups[] = L"browser.block_popups";
-
 // Boolean which specifies whether we should ask the user if we should download
 // a file (true) or just download it automatically.
 const wchar_t kPromptForDownload[] = L"download.prompt_for_download";

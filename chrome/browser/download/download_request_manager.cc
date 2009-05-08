@@ -241,11 +241,10 @@ void DownloadRequestManager::CanDownload(int render_process_host_id,
 void DownloadRequestManager::CanDownloadImpl(
     TabContents* originating_tab,
     Callback* callback) {
+  // If the tab requesting the download is a constrained popup that is not
+  // shown, treat the request as if it came from the parent.
   TabContents* effective_tab = originating_tab;
-  if (effective_tab->delegate() &&
-      effective_tab->delegate()->GetConstrainingContents(effective_tab)) {
-    // The tab requesting the download is a constrained popup that is not
-    // shown, treat the request as if it came from the parent.
+  if (effective_tab->delegate()) {
     effective_tab =
         effective_tab->delegate()->GetConstrainingContents(effective_tab);
   }

@@ -105,7 +105,6 @@ void AdvancedPageView::ResetToDefaults() {
   const wchar_t* kUserPrefs[] = {
     prefs::kAcceptLanguages,
     prefs::kAlternateErrorPagesEnabled,
-    prefs::kBlockPopups,
     prefs::kCookieBehavior,
     prefs::kDefaultCharset,
     prefs::kDnsPrefetchingEnabled,

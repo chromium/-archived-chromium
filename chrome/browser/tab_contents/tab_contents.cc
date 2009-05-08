@@ -389,8 +389,6 @@ void TabContents::RegisterUserPrefs(PrefService* prefs) {
                                       IDS_USES_UNIVERSAL_DETECTOR);
   prefs->RegisterLocalizedStringPref(prefs::kStaticEncodings,
                                      IDS_STATIC_ENCODING_LIST);
-
-  prefs->RegisterBooleanPref(prefs::kBlockPopups, false);
 }
 
 bool TabContents::SupportsURL(GURL* url) {
@@ -799,27 +797,16 @@ void TabContents::AddNewContents(TabContents* new_contents,
       !CommandLine::ForCurrentProcess()->HasSwitch(
           switches::kDisablePopupBlocking)) {
     // Unrequested popups from normal pages are constrained unless they're in
-    // the whitelist.
-    std::string host;
-    if (creator_url.is_valid())
-      host = creator_url.host();
-    constrain_popup = true;  // TODO(pkasting): Add whitelist
-
-    TabContents* our_owner = delegate_->GetConstrainingContents(this);
-    TabContents* popup_owner = our_owner ? our_owner : this;
-    if (constrain_popup)
-      popup_owner->AddConstrainedPopup(new_contents, initial_pos, host);
-    else
-      popup_owner->OnPopupOpenedFromWhitelistedHost(host);
-  }
-  if (!constrain_popup) {
+    // the whitelist.  The popup owner will handle checking this.
+    delegate_->GetConstrainingContents(this)->AddPopup(new_contents,
+        initial_pos,
+        creator_url.is_valid() ? creator_url.host() : std::string());
+  } else {
     new_contents->DisassociateFromPopupCount();
-
     delegate_->AddNewContents(this, new_contents, disposition, initial_pos,
                               user_gesture);
-
-    PopupNotificationVisibilityChanged(ShowingBlockedPopupNotification());
   }
+  PopupNotificationVisibilityChanged(ShowingBlockedPopupNotification());
 #else
   // TODO(port): implement the popup blocker stuff
   delegate_->AddNewContents(this, new_contents, disposition, initial_pos,
@@ -959,15 +946,9 @@ void TabContents::ToolbarSizeChanged(bool is_animating) {
 
 void TabContents::OnStartDownload(DownloadItem* download) {
   DCHECK(download);
-  TabContents* tab_contents = this;
 
-// TODO(port): port contraining contents.
-#if defined(OS_WIN)
   // Download in a constrained popup is shown in the tab that opened it.
-  TabContents* constraining_tab = delegate()->GetConstrainingContents(this);
-  if (constraining_tab)
-    tab_contents = constraining_tab;
-#endif
+  TabContents* tab_contents = delegate()->GetConstrainingContents(this);
 
   // GetDownloadShelf creates the download shelf if it was not yet created.
   tab_contents->GetDownloadShelf()->AddDownload(
@@ -1135,12 +1116,6 @@ bool TabContents::IsActiveEntry(int32 page_id) {
           active_entry->page_id() == page_id);
 }
 
-#if defined(OS_WIN)
-void TabContents::SetWhitelistForHost(const std::string& host, bool whitelist) {
-  // TODO(pkasting): Add whitelist
-}
-#endif
-
 // Notifies the RenderWidgetHost instance about the fact that the page is
 // loading, or done loading and calls the base implementation.
 void TabContents::SetIsLoading(bool is_loading,
@@ -1187,17 +1162,11 @@ void TabContents::CreateBlockedPopupContainerIfNecessary() {
   child_windows_.push_back(blocked_popups_);
 }
 
-void TabContents::AddConstrainedPopup(TabContents* new_contents,
-                                      const gfx::Rect& initial_pos,
-                                      const std::string& host) {
+void TabContents::AddPopup(TabContents* new_contents,
+                           const gfx::Rect& initial_pos,
+                           const std::string& host) {
   CreateBlockedPopupContainerIfNecessary();
   blocked_popups_->AddTabContents(new_contents, initial_pos, host);
-  PopupNotificationVisibilityChanged(ShowingBlockedPopupNotification());
-}
-
-void TabContents::OnPopupOpenedFromWhitelistedHost(const std::string& host) {
-  CreateBlockedPopupContainerIfNecessary();
-  blocked_popups_->OnPopupOpenedFromWhitelistedHost(host);
 }
 
 // TODO(brettw) This should be on the TabContentsView.
@@ -2032,7 +2001,7 @@ void TabContents::RunJavaScriptMessage(
   bool suppress_this_message = suppress_javascript_messages_;
   if (delegate())
     suppress_this_message |=
-        (delegate()->GetConstrainingContents(this) != NULL);
+        (delegate()->GetConstrainingContents(this) != this);
 
   *did_suppress_message = suppress_this_message;
 

@@ -17,8 +17,9 @@
 #include "base/gfx/rect.h"
 #include "chrome/browser/tab_contents/constrained_window.h"
 #include "chrome/browser/tab_contents/tab_contents_delegate.h"
-#include "chrome/common/pref_member.h"
+#include "chrome/common/notification_registrar.h"
 #include "views/controls/button/button.h"
+#include "views/controls/button/menu_button.h"
 #include "views/controls/menu/menu.h"
 #include "views/view.h"
 #include "views/widget/widget_win.h"
@@ -30,8 +31,6 @@ class TextButton;
 
 namespace views {
 class ImageButton;
-class Menu;
-class MenuButton;
 }
 
 // The view presented to the user notifying them of the number of popups
@@ -44,7 +43,9 @@ class BlockedPopupContainerView : public views::View,
   ~BlockedPopupContainerView();
 
   // Sets the label on the menu button
-  void UpdatePopupCountLabel();
+  void UpdateLabel();
+
+  std::wstring label() const { return popup_count_label_->text(); }
 
   // Overridden from views::View:
 
@@ -84,10 +85,11 @@ class BlockedPopupContainerView : public views::View,
 // Takes ownership of TabContents that are unrequested popup windows and
 // presents an interface to the user for launching them. (Or never showing them
 // again).
-class BlockedPopupContainer : public ConstrainedWindow,
+class BlockedPopupContainer : public Animation,
+                              public ConstrainedWindow,
+                              public NotificationObserver,
                               public TabContentsDelegate,
-                              public views::WidgetWin,
-                              public Animation {
+                              public views::WidgetWin {
  public:
   virtual ~BlockedPopupContainer();
 
@@ -96,31 +98,21 @@ class BlockedPopupContainer : public ConstrainedWindow,
   static BlockedPopupContainer* Create(
       TabContents* owner, Profile* profile, const gfx::Point& initial_anchor);
 
-  // Toggles the preference to display this notification.
-  void ToggleBlockedPopupNotification();
-
-  // Gets the current state of the show blocked popup notification preference.
-  bool GetShowBlockedPopupNotification();
-
-  // Adds a Tabbed contents to this container. |bounds| are the window bounds
-  // requested by the popup window.
-  void AddTabContents(TabContents* blocked_contents,
+  // Adds a popup to this container. |bounds| are the window bounds requested by
+  // the popup window.
+  void AddTabContents(TabContents* tab_contents,
                       const gfx::Rect& bounds,
                       const std::string& host);
 
-  // Called when a popup from whitelisted host |host| is opened, so we can show
-  // the "stop whitelisting" UI.
-  void OnPopupOpenedFromWhitelistedHost(const std::string& host);
-
-  // Creates a window from blocked popup |index|.
-  void LaunchPopupIndex(int index);
+  // Shows the blocked popup at index |index|.
+  void LaunchPopupAtIndex(size_t index);
 
   // Returns the number of blocked popups
-  int GetBlockedPopupCount() const;
+  size_t GetBlockedPopupCount() const;
 
   // Returns the URL and title for popup |index|, used to construct a string for
   // display.
-  void GetURLAndTitleForPopup(int index,
+  void GetURLAndTitleForPopup(size_t index,
                               std::wstring* url,
                               std::wstring* title) const;
 
@@ -129,11 +121,11 @@ class BlockedPopupContainer : public ConstrainedWindow,
 
   // Returns true if host |index| is whitelisted.  Returns false if |index| is
   // invalid.
-  bool IsHostWhitelisted(int index) const;
+  bool IsHostWhitelisted(size_t index) const;
 
   // If host |index| is currently whitelisted, un-whitelists it.  Otherwise,
   // whitelists it and opens all blocked popups from it.
-  void ToggleWhitelistingForHost(int index);
+  void ToggleWhitelistingForHost(size_t index);
 
   // Deletes all popups and hides the interface parts.
   void CloseAll();
@@ -156,8 +148,10 @@ class BlockedPopupContainer : public ConstrainedWindow,
   virtual void DidBecomeSelected() { }
 
   // Debugging accessors only called from the unit tests.
-  virtual std::wstring GetWindowTitle() const;
-  virtual const gfx::Rect& GetCurrentBounds() const;
+  virtual std::wstring GetWindowTitle() const {
+    return container_view_->label();
+  }
+  virtual const gfx::Rect& GetCurrentBounds() const { return bounds_; }
 
   // Overridden from TabContentsDelegate:
 
@@ -210,22 +204,6 @@ class BlockedPopupContainer : public ConstrainedWindow,
       RenderViewHost* render_view_host,
       const std::string& extension_id);
 
-  // Overridden from Animation:
-
-  // Changes the visibility percentage of the BlockedPopupContainer. This is
-  // called while animating in or out.
-  virtual void AnimateToState(double state);
-
- protected:
-  // Overridden from views::ContainerWin:
-
-  // Alerts our |owner_| that we are closing ourselves. Cleans up any remaining
-  // blocked popups.
-  virtual void OnFinalMessage(HWND window);
-
-  // Makes the top corners of the window rounded during resizing events.
-  virtual void OnSize(UINT param, const CSize& size);
-
  private:
   struct BlockedPopup {
     BlockedPopup(TabContents* tab_contents,
@@ -240,11 +218,33 @@ class BlockedPopupContainer : public ConstrainedWindow,
   };
   typedef std::vector<BlockedPopup> BlockedPopups;
 
+  // TabContents is the popup contents.  string is opener hostname.
+  typedef std::map<TabContents*, std::string> UnblockedPopups;
+
   // string is hostname.  bool is whitelisted status.
   typedef std::map<std::string, bool> PopupHosts;
 
   // Creates a container for a certain TabContents.
   BlockedPopupContainer(TabContents* owner, Profile* profile);
+
+  // Overridden from Animation:
+  // Changes the visibility percentage of the BlockedPopupContainer. This is
+  // called while animating in or out.
+  virtual void AnimateToState(double state);
+
+  // Overridden from notificationObserver:
+  virtual void Observe(NotificationType type,
+                       const NotificationSource& source,
+                       const NotificationDetails& details);
+
+  // Overridden from views::WidgetWin:
+
+  // Alerts our |owner_| that we are closing ourselves. Cleans up any remaining
+  // blocked popups.
+  virtual void OnFinalMessage(HWND window);
+
+  // Makes the top corners of the window rounded during resizing events.
+  virtual void OnSize(UINT param, const CSize& size);
 
   // Initializes our Views and positions us to the lower right corner of the
   // browser window.
@@ -252,9 +252,6 @@ class BlockedPopupContainer : public ConstrainedWindow,
 
   // Hides the UI portion of the container.
   void HideSelf();
-
-  // Shows the UI portion of the container.
-  void ShowSelf();
 
   // Sets our position, based on our |anchor_point_| and on our
   // |visibility_percentage_|. This method is called whenever either of those
@@ -267,28 +264,35 @@ class BlockedPopupContainer : public ConstrainedWindow,
   // Helper function to convert a host index (which the view uses) into an
   // iterator into |popup_hosts_|.  Returns popup_hosts_.end() if |index| is
   // invalid.
-  PopupHosts::const_iterator ConvertHostIndexToIterator(int index) const;
+  PopupHosts::const_iterator ConvertHostIndexToIterator(size_t index) const;
 
-  // If the popup at |i| is the last one associated with its host, removes the
-  // host from the host list.
-  void EraseHostIfNeeded(BlockedPopups::iterator i);
+  // Removes the popup at |i| from the blocked popup list.  If this popup's host
+  // is not otherwised referenced on either popup list, removes the host from
+  // the host list.  Updates the view's label to match the new state.
+  void EraseDataForPopupAndUpdateUI(BlockedPopups::iterator i);
+
+  // Same as above, but works on the unblocked popup list, and returns the
+  // iterator that results from calling erase().
+  UnblockedPopups::iterator EraseDataForPopupAndUpdateUI(
+      UnblockedPopups::iterator i);
 
   // The TabContents that owns and constrains this BlockedPopupContainer.
   TabContents* owner_;
 
+  // Registrar to handle notifications we care about.
+  NotificationRegistrar registrar_;
+
   // Information about all blocked popups.
   BlockedPopups blocked_popups_;
+
+  // Information about all unblocked popups.
+  UnblockedPopups unblocked_popups_;
 
   // Information about all popup hosts.
   PopupHosts popup_hosts_;
 
   // Our associated view object.
   BlockedPopupContainerView* container_view_;
-
-  // Link to the block popups preference. Used to both determine whether we
-  // should show ourself to the user and to toggle whether we should show this
-  // notification to the user.
-  BooleanPrefMember block_popup_pref_;
 
   // Once the container is hidden, this is set to prevent it from reappearing.
   bool has_been_dismissed_;

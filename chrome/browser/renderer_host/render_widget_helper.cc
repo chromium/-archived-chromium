@@ -51,7 +51,6 @@ RenderWidgetHelper::RenderWidgetHelper()
 #elif defined(OS_POSIX)
       event_(false /* auto-reset */, false),
 #endif
-      block_popups_(false),
       resource_dispatcher_host_(NULL) {
 }
 
@@ -208,14 +207,6 @@ void RenderWidgetHelper::CreateNewWindow(int opener_id,
                                          base::ProcessHandle render_process,
                                          int* route_id,
                                          ModalDialogEvent* modal_dialog_event) {
-  if (!user_gesture && block_popups_) {
-    *route_id = MSG_ROUTING_NONE;
-#if defined(OS_WIN)
-    modal_dialog_event->event = NULL;
-#endif
-    return;
-  }
-
   *route_id = GetNextRoutingID();
 
   ModalDialogEvent modal_dialog_event_internal;

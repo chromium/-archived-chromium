@@ -95,9 +95,6 @@ class RenderWidgetHelper :
   // Gets the next available routing id.  This is thread safe.
   int GetNextRoutingID();
 
-  // Sets whether popup blocking is enabled or not.
-  void set_block_popups(bool block) { block_popups_ = block; }
-
 
   // UI THREAD ONLY -----------------------------------------------------------
 
@@ -196,9 +193,6 @@ class RenderWidgetHelper :
 
   // The next routing id to use.
   base::AtomicSequenceNumber next_routing_id_;
-
-  // Whether popup blocking is enabled or not.
-  bool block_popups_;
 
   ResourceDispatcherHost* resource_dispatcher_host_;
 
