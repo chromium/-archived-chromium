@@ -668,9 +668,6 @@ void OpaqueBrowserFrameView::PaintToolbarBackground(ChromeCanvas* canvas) {
 
   SkBitmap* toolbar_left =
       tp->GetBitmapNamed(IDR_CONTENT_TOP_LEFT_CORNER);
-  canvas->DrawBitmapInt(*toolbar_left,
-                        toolbar_bounds.x() - toolbar_left->width(),
-                        toolbar_bounds.y());
 
   // Gross hack: We split the toolbar images into two pieces, since sometimes
   // (popup mode) the toolbar isn't tall enough to show the whole image.  The
@@ -757,7 +754,6 @@ void OpaqueBrowserFrameView::PaintRestoredClientEdge(ChromeCanvas* canvas) {
         client_area_bounds.right(), top_edge_y,
         top_right->width(), height, false);
   }
-
 
   int client_area_bottom =
       std::max(client_area_top, height() - NonClientBorderThickness());

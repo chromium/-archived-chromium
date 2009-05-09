@@ -456,20 +456,19 @@ void BrowserThemeProvider::NotifyThemeChanged() {
 void BrowserThemeProvider::LoadThemePrefs() {
   PrefService* prefs = profile_->GetPrefs();
 
-  // Our prefs already have the extension path baked in, so we don't need
-  // to provide it.
-  SetImageData(prefs->GetMutableDictionary(prefs::kCurrentThemeImages),
-               FilePath());
-  SetColorData(prefs->GetMutableDictionary(prefs::kCurrentThemeColors));
-  SetTintData(prefs->GetMutableDictionary(prefs::kCurrentThemeTints));
-  GenerateFrameColors();
-  GenerateFrameImages();
-
   // TODO(glen): Figure out if any custom prefs were loaded, and if so
   //    UMA-log the fact that a theme was loaded.
   if (prefs->HasPrefPath(prefs::kCurrentThemeImages) ||
       prefs->HasPrefPath(prefs::kCurrentThemeColors) ||
       prefs->HasPrefPath(prefs::kCurrentThemeTints)) {
+    // Our prefs already have the extension path baked in, so we don't need
+    // to provide it.
+    SetImageData(prefs->GetMutableDictionary(prefs::kCurrentThemeImages),
+                 FilePath());
+    SetColorData(prefs->GetMutableDictionary(prefs::kCurrentThemeColors));
+    SetTintData(prefs->GetMutableDictionary(prefs::kCurrentThemeTints));
+    GenerateFrameColors();
+    GenerateFrameImages();
     UserMetrics::RecordAction(L"Themes_loaded", profile_);
   }
 }
