@@ -90,7 +90,7 @@ BrowserThemeProvider::BrowserThemeProvider()
     : rb_(ResourceBundle::GetSharedInstance()) {
   static bool initialized = false;
   if (!initialized) {
-    for (int i = 0; i < sizeof(kToolbarButtonIDs); ++i) {
+    for (unsigned int i = 0; i < sizeof(kToolbarButtonIDs); ++i) {
       button_images_[kToolbarButtonIDs[i]] = true;
     }
     frame_tints_[IDR_THEME_FRAME] = TINT_FRAME;
@@ -222,7 +222,11 @@ SkBitmap* BrowserThemeProvider::LoadThemeBitmap(int id) {
   if (images_.count(id)) {
     // First check to see if we have a registered theme extension and whether
     // it can handle this resource.
+#ifdef OS_WIN
     FilePath path = FilePath(UTF8ToWide(images_[id]));
+#else
+    FilePath path = FilePath(images_[id]);
+#endif
     if (!path.empty()) {
       net::FileStream file;
       int flags = base::PLATFORM_FILE_OPEN | base::PLATFORM_FILE_READ;

@@ -237,13 +237,14 @@ void TabRendererGtk::LoadTabImages() {
   tab_inactive_.l_width = tab_inactive_.image_l->width();
   tab_inactive_.r_width = tab_inactive_.image_r->width();
 
-  tab_hover_.image_l = rb.GetBitmapNamed(IDR_TAB_HOVER_LEFT);
-  tab_hover_.image_c = rb.GetBitmapNamed(IDR_TAB_HOVER_CENTER);
-  tab_hover_.image_r = rb.GetBitmapNamed(IDR_TAB_HOVER_RIGHT);
+  // TODO: Generate these images http://crbug.com/11679
+  tab_hover_.image_l = rb.GetBitmapNamed(IDR_TAB_ACTIVE_LEFT);
+  tab_hover_.image_c = rb.GetBitmapNamed(IDR_TAB_ACTIVE_CENTER);
+  tab_hover_.image_r = rb.GetBitmapNamed(IDR_TAB_ACTIVE_RIGHT);
 
-  tab_inactive_otr_.image_l = rb.GetBitmapNamed(IDR_TAB_INACTIVE_LEFT_OTR);
-  tab_inactive_otr_.image_c = rb.GetBitmapNamed(IDR_TAB_INACTIVE_CENTER_OTR);
-  tab_inactive_otr_.image_r = rb.GetBitmapNamed(IDR_TAB_INACTIVE_RIGHT_OTR);
+  tab_inactive_otr_.image_l = rb.GetBitmapNamed(IDR_TAB_INACTIVE_LEFT);
+  tab_inactive_otr_.image_c = rb.GetBitmapNamed(IDR_TAB_INACTIVE_CENTER);
+  tab_inactive_otr_.image_r = rb.GetBitmapNamed(IDR_TAB_INACTIVE_RIGHT);
 
   // tab_[hover,inactive_otr] width are not used and are initialized to 0
   // during static initialization.
