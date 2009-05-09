@@ -64,6 +64,8 @@ void NonClientView::WindowClosing() {
 }
 
 void NonClientView::SetUseNativeFrame(bool use_native_frame) {
+  if (use_native_frame == use_native_frame_)
+    return;
   use_native_frame_ = use_native_frame;
   SetFrameView(frame_->CreateFrameViewForWindow());
   GetRootView()->ThemeChanged();
