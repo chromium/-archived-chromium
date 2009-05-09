@@ -348,24 +348,8 @@ Extension* ExtensionsServiceBackend::LoadExtension(
     return NULL;
   }
 
-  // Validate that claimed image resources actually exist.
-  DictionaryValue* images_value = extension->GetThemeImages();
-  if (images_value) {
-    DictionaryValue::key_iterator iter = images_value->begin_keys();
-    while (iter != images_value->end_keys()) {
-      std::string val;
-      images_value->GetString(*iter, &val);
-      const FilePath& path = extension->path().AppendASCII(val);
-      if (!file_util::PathExists(path)) {
-        ReportExtensionLoadError(extension_path,
-          StringPrintf("Could not load '%s' for theme.",
-          WideToUTF8(path.ToWStringHack()).c_str()));
-        return NULL;
-      }
-      ++iter;
-    }
-  }
-  // Validate that claimed script resources actually exist.
+  // TODO(glen): Add theme resource validation here. http://crbug.com/11678
+  // Validate that claimed script resources actually exist. 
   for (size_t i = 0; i < extension->content_scripts().size(); ++i) {
     const UserScript& script = extension->content_scripts()[i];
 

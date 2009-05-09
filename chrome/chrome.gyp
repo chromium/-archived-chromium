@@ -618,6 +618,8 @@
         'browser/browser_process_impl.h',
         'browser/browser_shutdown.cc',
         'browser/browser_shutdown.h',
+        'browser/browser_theme_provider.cc',
+        'browser/browser_theme_provider.h',
         'browser/browser_trial.cc',
         'browser/browser_trial.h',
         'browser/browser_url_handler.cc',
@@ -3386,8 +3388,8 @@
                           '../tools/code_coverage/coverage_posix.py',
                           '--directory',
                           '<(PRODUCT_DIR)',
-			  '--',
-			  '<@(_dependencies)'],
+        '--',
+        '<@(_dependencies)'],
               # Use outputs of this action as inputs for the main target build.
               # Seems as a misnomer but makes this happy on Linux (scons).
               'process_outputs_as_sources': 1,
