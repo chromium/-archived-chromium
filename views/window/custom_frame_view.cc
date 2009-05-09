@@ -83,33 +83,33 @@ CustomFrameView::CustomFrameView(Window* frame)
       frame_(frame) {
   InitClass();
 
-  ThemeProvider* tp = GetThemeProvider();
+  ResourceBundle& rb = ResourceBundle::GetSharedInstance();
 
   // Close button images will be set in LayoutWindowControls().
   AddChildView(close_button_);
 
   restore_button_->SetImage(CustomButton::BS_NORMAL,
-      tp->GetBitmapNamed(IDR_RESTORE));
+      rb.GetBitmapNamed(IDR_RESTORE));
   restore_button_->SetImage(CustomButton::BS_HOT,
-      tp->GetBitmapNamed(IDR_RESTORE_H));
+      rb.GetBitmapNamed(IDR_RESTORE_H));
   restore_button_->SetImage(CustomButton::BS_PUSHED,
-      tp->GetBitmapNamed(IDR_RESTORE_P));
+      rb.GetBitmapNamed(IDR_RESTORE_P));
   AddChildView(restore_button_);
 
   maximize_button_->SetImage(CustomButton::BS_NORMAL,
-      tp->GetBitmapNamed(IDR_MAXIMIZE));
+      rb.GetBitmapNamed(IDR_MAXIMIZE));
   maximize_button_->SetImage(CustomButton::BS_HOT,
-      tp->GetBitmapNamed(IDR_MAXIMIZE_H));
+      rb.GetBitmapNamed(IDR_MAXIMIZE_H));
   maximize_button_->SetImage(CustomButton::BS_PUSHED,
-      tp->GetBitmapNamed(IDR_MAXIMIZE_P));
+      rb.GetBitmapNamed(IDR_MAXIMIZE_P));
   AddChildView(maximize_button_);
 
   minimize_button_->SetImage(CustomButton::BS_NORMAL,
-      tp->GetBitmapNamed(IDR_MINIMIZE));
+      rb.GetBitmapNamed(IDR_MINIMIZE));
   minimize_button_->SetImage(CustomButton::BS_HOT,
-      tp->GetBitmapNamed(IDR_MINIMIZE_H));
+      rb.GetBitmapNamed(IDR_MINIMIZE_H));
   minimize_button_->SetImage(CustomButton::BS_PUSHED,
-      tp->GetBitmapNamed(IDR_MINIMIZE_P));
+      rb.GetBitmapNamed(IDR_MINIMIZE_P));
   AddChildView(minimize_button_);
 
   should_show_minmax_buttons_ = frame_->GetDelegate()->CanMaximize();
@@ -296,30 +296,30 @@ int CustomFrameView::TitleCoordinates(int* title_top_spacing,
 
 void CustomFrameView::PaintRestoredFrameBorder(ChromeCanvas* canvas) {
   // Window frame mode.
-  ThemeProvider* tp = GetThemeProvider();
+  ResourceBundle& rb = ResourceBundle::GetSharedInstance();
 
   SkBitmap* theme_frame;
   SkColor frame_color;
 
   if (frame_->IsActive()) {
-    theme_frame = tp->GetBitmapNamed(IDR_THEME_FRAME);
+    theme_frame = rb.GetBitmapNamed(IDR_THEME_FRAME);
     frame_color = ResourceBundle::frame_color;
   } else {
-    theme_frame = tp->GetBitmapNamed(IDR_THEME_FRAME_INACTIVE);
+    theme_frame = rb.GetBitmapNamed(IDR_THEME_FRAME_INACTIVE);
     frame_color = ResourceBundle::frame_color_inactive;
   }
 
-  SkBitmap* top_left_corner = tp->GetBitmapNamed(IDR_WINDOW_TOP_LEFT_CORNER);
+  SkBitmap* top_left_corner = rb.GetBitmapNamed(IDR_WINDOW_TOP_LEFT_CORNER);
   SkBitmap* top_right_corner =
-    tp->GetBitmapNamed(IDR_WINDOW_TOP_RIGHT_CORNER);
-  SkBitmap* top_edge = tp->GetBitmapNamed(IDR_WINDOW_TOP_CENTER);
-  SkBitmap* right_edge = tp->GetBitmapNamed(IDR_WINDOW_RIGHT_SIDE);
-  SkBitmap* left_edge = tp->GetBitmapNamed(IDR_WINDOW_LEFT_SIDE);
+      rb.GetBitmapNamed(IDR_WINDOW_TOP_RIGHT_CORNER);
+  SkBitmap* top_edge = rb.GetBitmapNamed(IDR_WINDOW_TOP_CENTER);
+  SkBitmap* right_edge = rb.GetBitmapNamed(IDR_WINDOW_RIGHT_SIDE);
+  SkBitmap* left_edge = rb.GetBitmapNamed(IDR_WINDOW_LEFT_SIDE);
   SkBitmap* bottom_left_corner =
-    tp->GetBitmapNamed(IDR_WINDOW_BOTTOM_LEFT_CORNER);
+      rb.GetBitmapNamed(IDR_WINDOW_BOTTOM_LEFT_CORNER);
   SkBitmap* bottom_right_corner =
-    tp->GetBitmapNamed(IDR_WINDOW_BOTTOM_RIGHT_CORNER);
-  SkBitmap* bottom_edge = tp->GetBitmapNamed(IDR_WINDOW_BOTTOM_CENTER);
+      rb.GetBitmapNamed(IDR_WINDOW_BOTTOM_RIGHT_CORNER);
+  SkBitmap* bottom_edge = rb.GetBitmapNamed(IDR_WINDOW_BOTTOM_CENTER);
 
   // Fill with the frame color first so we have a constant background for
   // areas not covered by the theme image.
@@ -373,15 +373,15 @@ void CustomFrameView::PaintRestoredFrameBorder(ChromeCanvas* canvas) {
 
 void CustomFrameView::PaintMaximizedFrameBorder(
     ChromeCanvas* canvas) {
-  ThemeProvider* tp = GetThemeProvider();
+  ResourceBundle& rb = ResourceBundle::GetSharedInstance();
 
-  SkBitmap* top_edge = tp->GetBitmapNamed(IDR_WINDOW_TOP_CENTER);
+  SkBitmap* top_edge = rb.GetBitmapNamed(IDR_WINDOW_TOP_CENTER);
   canvas->TileImageInt(*top_edge, 0, FrameBorderThickness(), width(),
                        top_edge->height());
 
   // The bottom of the titlebar actually comes from the top of the Client Edge
   // graphic, with the actual client edge clipped off the bottom.
-  SkBitmap* titlebar_bottom = tp->GetBitmapNamed(IDR_APP_TOP_CENTER);
+  SkBitmap* titlebar_bottom = rb.GetBitmapNamed(IDR_APP_TOP_CENTER);
   int edge_height = titlebar_bottom->height() - kClientEdgeThickness;
   canvas->TileImageInt(*titlebar_bottom, 0,
       frame_->GetClientView()->y() - edge_height, width(), edge_height);
@@ -405,17 +405,17 @@ void CustomFrameView::PaintRestoredClientEdge(ChromeCanvas* canvas) {
   gfx::Rect client_area_bounds = frame_->GetClientView()->bounds();
   int client_area_top = client_area_bounds.y();
 
-  ThemeProvider* tp = GetThemeProvider();
-  SkBitmap* top_left = tp->GetBitmapNamed(IDR_APP_TOP_LEFT);
-  SkBitmap* top = tp->GetBitmapNamed(IDR_APP_TOP_CENTER);
-  SkBitmap* top_right = tp->GetBitmapNamed(IDR_APP_TOP_RIGHT);
-  SkBitmap* right = tp->GetBitmapNamed(IDR_CONTENT_RIGHT_SIDE);
+  ResourceBundle& rb = ResourceBundle::GetSharedInstance();
+  SkBitmap* top_left = rb.GetBitmapNamed(IDR_APP_TOP_LEFT);
+  SkBitmap* top = rb.GetBitmapNamed(IDR_APP_TOP_CENTER);
+  SkBitmap* top_right = rb.GetBitmapNamed(IDR_APP_TOP_RIGHT);
+  SkBitmap* right = rb.GetBitmapNamed(IDR_CONTENT_RIGHT_SIDE);
   SkBitmap* bottom_right =
-      tp->GetBitmapNamed(IDR_CONTENT_BOTTOM_RIGHT_CORNER);
-  SkBitmap* bottom = tp->GetBitmapNamed(IDR_CONTENT_BOTTOM_CENTER);
+      rb.GetBitmapNamed(IDR_CONTENT_BOTTOM_RIGHT_CORNER);
+  SkBitmap* bottom = rb.GetBitmapNamed(IDR_CONTENT_BOTTOM_CENTER);
   SkBitmap* bottom_left =
-      tp->GetBitmapNamed(IDR_CONTENT_BOTTOM_LEFT_CORNER);
-  SkBitmap* left = tp->GetBitmapNamed(IDR_CONTENT_LEFT_SIDE);
+      rb.GetBitmapNamed(IDR_CONTENT_BOTTOM_LEFT_CORNER);
+  SkBitmap* left = rb.GetBitmapNamed(IDR_CONTENT_LEFT_SIDE);
 
   // Top.
   // This next calculation is necessary because the top center bitmap is shorter
@@ -514,14 +514,14 @@ void CustomFrameView::LayoutWindowControls() {
     pushed_part = IDR_CLOSE_SA_P;
   }
 
-  ThemeProvider* tp = GetThemeProvider();
+  ResourceBundle& rb = ResourceBundle::GetSharedInstance();
 
   close_button_->SetImage(CustomButton::BS_NORMAL,
-                          tp->GetBitmapNamed(normal_part));
+                          rb.GetBitmapNamed(normal_part));
   close_button_->SetImage(CustomButton::BS_HOT,
-                          tp->GetBitmapNamed(hot_part));
+                          rb.GetBitmapNamed(hot_part));
   close_button_->SetImage(CustomButton::BS_PUSHED,
-                          tp->GetBitmapNamed(pushed_part));
+                          rb.GetBitmapNamed(pushed_part));
 }
 
 void CustomFrameView::LayoutTitleBar() {
