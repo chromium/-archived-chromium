@@ -522,7 +522,7 @@ bool Extension::InitFromValue(const DictionaryValue& source, bool require_id,
     }
     is_theme_ = true;
 
-    theme_images_ = new DictionaryValue;
+    theme_images_ = NULL;
     DictionaryValue* images_value;
     if (theme_value->GetDictionary(kThemeImagesKey, &images_value)) {
       // Validate that the images are all strings
@@ -538,7 +538,7 @@ bool Extension::InitFromValue(const DictionaryValue& source, bool require_id,
       theme_images_ = static_cast<DictionaryValue*>(images_value->DeepCopy());
     }
 
-    theme_colors_ = new DictionaryValue;
+    theme_colors_ = NULL;
     DictionaryValue* colors_value;
     if (theme_value->GetDictionary(kThemeColorsKey, &colors_value)) {
       // Validate that the colors are all three-item lists
@@ -560,7 +560,7 @@ bool Extension::InitFromValue(const DictionaryValue& source, bool require_id,
       theme_colors_ = static_cast<DictionaryValue*>(colors_value->DeepCopy());
     }
 
-    theme_tints_ = new DictionaryValue;
+    theme_tints_ = NULL;
     DictionaryValue* tints_value;
     if (theme_value->GetDictionary(kThemeTintsKey, &tints_value)) {
       // Validate that the tints are all reals.
