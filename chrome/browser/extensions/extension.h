@@ -124,9 +124,9 @@ class Extension {
     return GetResourcePath(path(), relative_path);
   }
 
-  DictionaryValue* GetThemeImages() { return theme_images_; }
-  DictionaryValue* GetThemeColors() { return theme_colors_; }
-  DictionaryValue* GetThemeTints() { return theme_tints_; }
+  DictionaryValue* GetThemeImages() const { return theme_images_.get(); }
+  DictionaryValue* GetThemeColors() const { return theme_colors_.get(); }
+  DictionaryValue* GetThemeTints() const { return theme_tints_.get(); }
   bool IsTheme() { return is_theme_; }
 
   // Initialize the extension from a parsed manifest.
@@ -214,13 +214,13 @@ class Extension {
   std::string zip_hash_;
 
   // A map of resource id's to relative file paths.
-  DictionaryValue* theme_images_;
+  scoped_ptr<DictionaryValue> theme_images_;
 
   // A map of color names to colors.
-  DictionaryValue* theme_colors_;
+  scoped_ptr<DictionaryValue> theme_colors_;
 
   // A map of color names to colors.
-  DictionaryValue* theme_tints_;
+  scoped_ptr<DictionaryValue> theme_tints_;
 
   // Whether the extension is a theme - if it is, certain things are disabled.
   bool is_theme_;

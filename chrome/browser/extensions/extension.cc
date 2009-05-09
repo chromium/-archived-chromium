@@ -137,10 +137,10 @@ Extension::Extension(const Extension& rhs)
       page_actions_(rhs.page_actions_),
       plugins_dir_(rhs.plugins_dir_),
       zip_hash_(rhs.zip_hash_),
-      theme_images_(rhs.theme_images_),
-      theme_colors_(rhs.theme_colors_),
-      theme_tints_(rhs.theme_tints_),
       is_theme_(rhs.is_theme_) {
+  theme_images_.reset(rhs.GetThemeImages());
+  theme_colors_.reset(rhs.GetThemeColors());
+  theme_tints_.reset(rhs.GetThemeTints());
 }
 
 Extension::~Extension() {
@@ -522,7 +522,6 @@ bool Extension::InitFromValue(const DictionaryValue& source, bool require_id,
     }
     is_theme_ = true;
 
-    theme_images_ = NULL;
     DictionaryValue* images_value;
     if (theme_value->GetDictionary(kThemeImagesKey, &images_value)) {
       // Validate that the images are all strings
@@ -535,10 +534,10 @@ bool Extension::InitFromValue(const DictionaryValue& source, bool require_id,
         }
         ++iter;
       }
-      theme_images_ = static_cast<DictionaryValue*>(images_value->DeepCopy());
+      theme_images_.reset(
+          static_cast<DictionaryValue*>(images_value->DeepCopy()));
     }
 
-    theme_colors_ = NULL;
     DictionaryValue* colors_value;
     if (theme_value->GetDictionary(kThemeColorsKey, &colors_value)) {
       // Validate that the colors are all three-item lists
@@ -557,10 +556,10 @@ bool Extension::InitFromValue(const DictionaryValue& source, bool require_id,
         }
         ++iter;
       }
-      theme_colors_ = static_cast<DictionaryValue*>(colors_value->DeepCopy());
+      theme_colors_.reset(
+          static_cast<DictionaryValue*>(colors_value->DeepCopy()));
     }
 
-    theme_tints_ = NULL;
     DictionaryValue* tints_value;
     if (theme_value->GetDictionary(kThemeTintsKey, &tints_value)) {
       // Validate that the tints are all reals.
@@ -568,7 +567,7 @@ bool Extension::InitFromValue(const DictionaryValue& source, bool require_id,
       while (iter != tints_value->end_keys()) {
         ListValue* tint_list;
         double hue = 0;
-        if (!tints_value->GetList(*iter, &tint_list) &&
+        if (!tints_value->GetList(*iter, &tint_list) ||
             tint_list->GetSize() != 3 ||
             !tint_list->GetReal(0, &hue) ||
             !tint_list->GetReal(1, &hue) ||
@@ -578,7 +577,8 @@ bool Extension::InitFromValue(const DictionaryValue& source, bool require_id,
         }
         ++iter;
       }
-      theme_tints_ = static_cast<DictionaryValue*>(tints_value->DeepCopy());
+      theme_tints_.reset(
+          static_cast<DictionaryValue*>(tints_value->DeepCopy()));
     }
     return true;
   }
