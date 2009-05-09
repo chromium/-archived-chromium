@@ -748,13 +748,13 @@ void RenderWidgetHostViewWin::OnPaint(HDC dc) {
 
 void RenderWidgetHostViewWin::DrawBackground(const RECT& dirty_rect,
                                              CPaintDC* dc) {
-  const RECT& dc_rect = dc->m_ps.rcPaint;
   if (!background_.empty()) {
     ChromeCanvas canvas(dirty_rect.right - dirty_rect.left,
                         dirty_rect.bottom - dirty_rect.top,
                         true);  // opaque
-
     canvas.TranslateInt(-dirty_rect.left, -dirty_rect.top);
+
+    const RECT& dc_rect = dc->m_ps.rcPaint;
     canvas.TileImageInt(background_, 0, 0,
                         dc_rect.right - dc_rect.left,
                         dc_rect.bottom - dc_rect.top);
@@ -763,7 +763,7 @@ void RenderWidgetHostViewWin::DrawBackground(const RECT& dirty_rect,
                                             dirty_rect.top, NULL);
   } else {
     HBRUSH white_brush = reinterpret_cast<HBRUSH>(GetStockObject(WHITE_BRUSH));
-    dc->FillRect(&dc_rect, white_brush);
+    dc->FillRect(&dirty_rect, white_brush);
   }
 }
 
