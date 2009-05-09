@@ -30,6 +30,9 @@ const wchar_t* Extension::kPluginsDirKey = L"plugins_dir";
 const wchar_t* Extension::kBackgroundKey = L"background_page";
 const wchar_t* Extension::kRunAtKey = L"run_at";
 const wchar_t* Extension::kThemeKey = L"theme";
+const wchar_t* Extension::kThemeImagesKey = L"images";
+const wchar_t* Extension::kThemeColorsKey = L"colors";
+const wchar_t* Extension::kThemeTintsKey = L"tints";
 const wchar_t* Extension::kToolstripsKey = L"toolstrips";
 const wchar_t* Extension::kTooltipKey = L"tooltip";
 const wchar_t* Extension::kTypeKey = L"type";
@@ -110,6 +113,16 @@ const char* Extension::kMissingFileError =
     "At least one js or css file is required for 'content_scripts[*]'.";
 const char* Extension::kMissingPageActionIcon =
     "Unable to find 'page_actions[*].icon'";
+const char* Extension::kInvalidThemeError =
+    "Invalid value for 'theme'.";
+const char* Extension::kInvalidThemeImagesError =
+    "Invalid value for theme images - images must be strings.";
+const char* Extension::kInvalidThemeImagesMissingError =
+    "Am image specified in the theme is missing.";
+const char* Extension::kInvalidThemeColorsError =
+    "Invalid value for theme colors - colors must be integers";
+const char* Extension::kInvalidThemeTintsError =
+    "Invalid value for theme images - tints must be decimal numbers.";
 
 const size_t Extension::kIdSize = 20;  // SHA1 (160 bits) == 20 bytes
 
@@ -124,7 +137,10 @@ Extension::Extension(const Extension& rhs)
       page_actions_(rhs.page_actions_),
       plugins_dir_(rhs.plugins_dir_),
       zip_hash_(rhs.zip_hash_),
-      theme_paths_(rhs.theme_paths_) {
+      theme_images_(rhs.theme_images_),
+      theme_colors_(rhs.theme_colors_),
+      theme_tints_(rhs.theme_tints_),
+      is_theme_(rhs.is_theme_) {
 }
 
 Extension::~Extension() {
@@ -147,14 +163,6 @@ GURL Extension::GetResourceURL(const GURL& extension_url,
   DCHECK(StartsWithASCII(ret_val.spec(), extension_url.spec(), false));
 
   return ret_val;
-}
-
-FilePath Extension::GetThemeResourcePath(const int resource_id) {
-  std::wstring id = IntToWString(resource_id);
-  std::string path = theme_paths_[id];
-  if (path.size())
-    return path_.AppendASCII(path.c_str());
-  return FilePath();
 }
 
 const PageAction* Extension::GetPageAction(std::string id) const {
@@ -500,6 +508,81 @@ bool Extension::InitFromValue(const DictionaryValue& source, bool require_id,
     }
   }
 
+  // Initialize themes. If a theme is included, no other items may be processed
+  // (we currently don't want people bundling themes and extension stuff
+  // together).
+  //
+  // TODO(glen): Error if other items *are* included.
+  is_theme_ = false;
+  if (source.HasKey(kThemeKey)) {
+    DictionaryValue* theme_value;
+    if (!source.GetDictionary(kThemeKey, &theme_value)) {
+      *error = kInvalidThemeError;
+      return false;
+    }
+    is_theme_ = true;
+
+    theme_images_ = new DictionaryValue;
+    DictionaryValue* images_value;
+    if (theme_value->GetDictionary(kThemeImagesKey, &images_value)) {
+      // Validate that the images are all strings
+      DictionaryValue::key_iterator iter = images_value->begin_keys();
+      while (iter != images_value->end_keys()) {
+        std::string val;
+        if (!images_value->GetString(*iter, &val)) {
+          *error = kInvalidThemeImagesError;
+          return false;
+        }
+        ++iter;
+      }
+      theme_images_ = static_cast<DictionaryValue*>(images_value->DeepCopy());
+    }
+
+    theme_colors_ = new DictionaryValue;
+    DictionaryValue* colors_value;
+    if (theme_value->GetDictionary(kThemeColorsKey, &colors_value)) {
+      // Validate that the colors are all three-item lists
+      DictionaryValue::key_iterator iter = colors_value->begin_keys();
+      while (iter != colors_value->end_keys()) {
+        std::string val;
+        int color = 0;
+        ListValue* color_list;
+        if (!colors_value->GetList(*iter, &color_list) ||
+            color_list->GetSize() != 3 ||
+            !color_list->GetInteger(0, &color) ||
+            !color_list->GetInteger(1, &color) ||
+            !color_list->GetInteger(2, &color)) {
+          *error = kInvalidThemeColorsError;
+          return false;
+        }
+        ++iter;
+      }
+      theme_colors_ = static_cast<DictionaryValue*>(colors_value->DeepCopy());
+    }
+
+    theme_tints_ = new DictionaryValue;
+    DictionaryValue* tints_value;
+    if (theme_value->GetDictionary(kThemeTintsKey, &tints_value)) {
+      // Validate that the tints are all reals.
+      DictionaryValue::key_iterator iter = tints_value->begin_keys();
+      while (iter != tints_value->end_keys()) {
+        ListValue* tint_list;
+        double hue = 0;
+        if (!tints_value->GetList(*iter, &tint_list) &&
+            tint_list->GetSize() != 3 ||
+            !tint_list->GetReal(0, &hue) ||
+            !tint_list->GetReal(1, &hue) ||
+            !tint_list->GetReal(2, &hue)) {
+          *error = kInvalidThemeTintsError;
+          return false;
+        }
+        ++iter;
+      }
+      theme_tints_ = static_cast<DictionaryValue*>(tints_value->DeepCopy());
+    }
+    return true;
+  }
+
   // Initialize plugins dir (optional).
   if (source.HasKey(kPluginsDirKey)) {
     std::string plugins_dir;
@@ -535,22 +618,6 @@ bool Extension::InitFromValue(const DictionaryValue& source, bool require_id,
         return false;
       }
       toolstrips_.push_back(toolstrip);
-    }
-  }
-
-  if (source.HasKey(kThemeKey)) {
-    DictionaryValue* dict_value;
-    if (source.GetDictionary(kThemeKey, &dict_value)) {
-      DictionaryValue::key_iterator iter = dict_value->begin_keys();
-      while (iter != dict_value->end_keys()) {
-        std::string val;
-        if (dict_value->GetString(*iter, &val)) {
-          std::wstring id = *iter;
-          theme_paths_[id] = val;
-        }
-        ++iter;
-      }
-      ResourceBundle::GetSharedInstance().SetThemeExtension(*this);
     }
   }
 

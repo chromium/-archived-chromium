@@ -18,6 +18,7 @@
 #include "chrome/common/extensions/url_pattern.h"
 #include "chrome/common/page_action.h"
 #include "googleurl/src/gurl.h"
+#include "SkColor.h"
 
 // Represents a Chromium extension.
 class Extension {
@@ -45,6 +46,9 @@ class Extension {
   static const wchar_t* kBackgroundKey;
   static const wchar_t* kRunAtKey;
   static const wchar_t* kThemeKey;
+  static const wchar_t* kThemeImagesKey;
+  static const wchar_t* kThemeColorsKey;
+  static const wchar_t* kThemeTintsKey;
   static const wchar_t* kToolstripsKey;
   static const wchar_t* kTooltipKey;
   static const wchar_t* kTypeKey;
@@ -87,6 +91,11 @@ class Extension {
   static const char* kInvalidPermissionError;
   static const char* kInvalidPermissionSchemeError;
   static const char* kInvalidZipHashError;
+  static const char* kInvalidThemeError;
+  static const char* kInvalidThemeImagesMissingError;
+  static const char* kInvalidThemeImagesError;
+  static const char* kInvalidThemeColorsError;
+  static const char* kInvalidThemeTintsError;
   static const char* kMissingFileError;
   static const char* kMissingPageActionIcon;
 
@@ -115,18 +124,16 @@ class Extension {
     return GetResourcePath(path(), relative_path);
   }
 
+  DictionaryValue* GetThemeImages() { return theme_images_; }
+  DictionaryValue* GetThemeColors() { return theme_colors_; }
+  DictionaryValue* GetThemeTints() { return theme_tints_; }
+  bool IsTheme() { return is_theme_; }
+
   // Initialize the extension from a parsed manifest.
   // If |require_id| is true, will return an error if the "id" key is missing
   // from the value.
   bool InitFromValue(const DictionaryValue& value, bool require_id,
                      std::string* error);
-
-  // Returns an absolute path to a resource inside of an extension if the
-  // extension has a theme defined with the given |resource_id|.  Otherwise
-  // the path will be empty.  Note that this method is not static as it is
-  // only intended to be called on an extension which has registered itself
-  // as providing a theme.
-  FilePath GetThemeResourcePath(const int resource_id);
 
   // Retrieves a page action by |id|.
   const PageAction* GetPageAction(std::string id) const;
@@ -207,7 +214,16 @@ class Extension {
   std::string zip_hash_;
 
   // A map of resource id's to relative file paths.
-  std::map<const std::wstring, std::string> theme_paths_;
+  DictionaryValue* theme_images_;
+
+  // A map of color names to colors.
+  DictionaryValue* theme_colors_;
+
+  // A map of color names to colors.
+  DictionaryValue* theme_tints_;
+
+  // Whether the extension is a theme - if it is, certain things are disabled.
+  bool is_theme_;
 
   // The sites this extension has permission to talk to (using XHR, etc).
   std::vector<URLPattern> permissions_;

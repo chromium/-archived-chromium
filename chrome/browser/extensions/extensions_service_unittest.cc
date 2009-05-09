@@ -66,8 +66,17 @@ class ExtensionsServiceTestFrontend
     return &extensions_;
   }
 
+  void ClearInstalledReinstalled() {
+    installed_ = NULL;
+    reinstalled_id_ = std::string();
+  }
+
   Extension* installed() {
     return installed_;
+  }
+
+  std::string reinstalled_id() {
+    return reinstalled_id_;
   }
 
   // ExtensionsServiceFrontendInterface
@@ -92,6 +101,10 @@ class ExtensionsServiceTestFrontend
 
   virtual void OnExtensionInstalled(Extension* extension, bool is_update) {
     installed_ = extension;
+  }
+
+  virtual void OnExtensionVersionReinstalled(const std::string& id) {
+    reinstalled_id_ = id;
   }
 
   virtual Extension* GetExtensionByID(std::string id) {
@@ -122,11 +135,11 @@ class ExtensionsServiceTestFrontend
     ExtensionErrorReporter::GetInstance()->ClearErrors();
   }
 
-
  private:
   MessageLoop message_loop_;
   ExtensionList extensions_;
   Extension* installed_;
+  std::string reinstalled_id_;
 };
 
 // make the test a PlatformTest to setup autorelease pools properly on mac
@@ -277,9 +290,6 @@ TEST_F(ExtensionsServiceTest, InstallExtension) {
   frontend->TestInstallExtension(path, backend, true);
   // TODO(erikkay): verify the contents of the installed extension.
 
-  // Installing the same extension twice should fail.
-  frontend->TestInstallExtension(path, backend, false);
-
   // 0-length extension file.
   path = extensions_path.AppendASCII("not_an_extension.crx");
   frontend->TestInstallExtension(path, backend, false);
@@ -298,6 +308,65 @@ TEST_F(ExtensionsServiceTest, InstallExtension) {
 
   // TODO(erikkay): add more tests for many of the failure cases.
   // TODO(erikkay): add tests for upgrade cases.
+}
+
+TEST_F(ExtensionsServiceTest, ReinstallExtension) {
+  // In this test, we install two extensions, verify that they both install
+  // correctly, then install the first extension again and verify that it was
+  // not installed, and that VersionReinstalled was called instead.
+  FilePath extensions_path;
+  ASSERT_TRUE(PathService::Get(chrome::DIR_TEST_DATA, &extensions_path));
+  extensions_path = extensions_path.AppendASCII("extensions");
+
+  FilePath install_dir;
+  file_util::CreateNewTempDirectory(FILE_PATH_LITERAL("ext_test"),
+      &install_dir);
+  scoped_refptr<ExtensionsServiceBackend> backend(
+      new ExtensionsServiceBackend(install_dir));
+  scoped_refptr<ExtensionsServiceTestFrontend> frontend(
+      new ExtensionsServiceTestFrontend);
+
+  FilePath path = extensions_path.AppendASCII("good.crx");
+  FilePath path2 = extensions_path.AppendASCII("theme.crx");
+
+  // Verify that our extensions are valid.
+  ASSERT_TRUE(file_util::PathExists(path));
+  ASSERT_TRUE(file_util::PathExists(path2));
+
+  frontend->ClearInstalledReinstalled();
+  // Install an extension.
+  backend->InstallExtension(path,
+      scoped_refptr<ExtensionsServiceFrontendInterface>(frontend.get()));
+  frontend->GetMessageLoop()->RunAllPending();
+  std::vector<std::string> errors = GetErrors();
+
+  // Verify that it was installed.
+  EXPECT_TRUE(frontend->installed()) << path.value();
+  EXPECT_EQ(0u, errors.size()) << path.value();
+
+  // Install our second extension.
+  frontend->ClearInstalledReinstalled();
+  backend->InstallExtension(path2,
+      scoped_refptr<ExtensionsServiceFrontendInterface>(frontend.get()));
+  frontend->GetMessageLoop()->RunAllPending();
+  errors = GetErrors();
+
+  // Verify that it was installed without reinstall getting called.
+  EXPECT_TRUE(frontend->installed()) << path2.value();
+  EXPECT_TRUE(frontend->reinstalled_id().empty());
+  EXPECT_EQ(0u, errors.size()) << path.value();
+
+  // Install the first extension again.
+  frontend->ClearInstalledReinstalled();
+  backend->InstallExtension(path,
+      scoped_refptr<ExtensionsServiceFrontendInterface>(frontend.get()));
+  frontend->GetMessageLoop()->RunAllPending();
+  errors = GetErrors();
+
+  // Verify that reinstall was called and installed was not.
+  EXPECT_FALSE(frontend->installed()) << path.value();
+  EXPECT_FALSE(frontend->reinstalled_id().empty()) << path.value();
+  EXPECT_EQ(0u, errors.size()) << path.value();
 }
 
 TEST_F(ExtensionsServiceTest, LoadExtension) {

@@ -34,7 +34,6 @@ static const SkColor kBackgroundColorTop = SkColorSetRGB(255, 242, 183);
 static const SkColor kBackgroundColorBottom = SkColorSetRGB(250, 230, 145);
 
 static const int kSeparatorLineHeight = 1;
-static const SkColor kSeparatorColor = SkColorSetRGB(165, 165, 165);
 
 namespace {
 // Returns a centered y-position of a control of height specified in |prefsize|
@@ -70,7 +69,7 @@ class InfoBarBackground : public views::Background {
     gradient_background_->Paint(canvas, view);
 
     // Now paint the separator line.
-    canvas->FillRectInt(kSeparatorColor, 0,
+    canvas->FillRectInt(ResourceBundle::toolbar_separator_color, 0,
                         view->height() - kSeparatorLineHeight, view->width(),
                         kSeparatorLineHeight);
   }

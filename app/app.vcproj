@@ -250,6 +250,10 @@
 			>
 		</File>
 		<File
+			RelativePath=".\theme_provider.h"
+			>
+		</File>
+		<File
 			RelativePath=".\throb_animation.cc"
 			>
 		</File>

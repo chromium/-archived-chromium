@@ -24,6 +24,7 @@ namespace views {
 
 class RootView;
 class TooltipManager;
+class DefaultThemeProvider;
 class Window;
 
 bool SetRootViewForHWND(HWND hwnd, RootView* root_view);
@@ -235,9 +236,11 @@ class WidgetWin : public Widget,
   virtual gfx::NativeView GetNativeView() const;
   virtual void PaintNow(const gfx::Rect& update_rect);
   virtual RootView* GetRootView();
+  virtual Widget* GetRootWidget() const;
   virtual bool IsVisible() const;
   virtual bool IsActive() const;
   virtual TooltipManager* GetTooltipManager();
+  virtual ThemeProvider* GetThemeProvider() const;
   virtual Window* GetWindow();
   virtual const Window* GetWindow() const;
 
@@ -626,6 +629,8 @@ class WidgetWin : public Widget,
 
   // Instance of accessibility information and handling for MSAA root
   CComPtr<IAccessible> accessibility_root_;
+
+  scoped_ptr<DefaultThemeProvider> default_theme_provider_;
 
   // Our hwnd.
   HWND hwnd_;

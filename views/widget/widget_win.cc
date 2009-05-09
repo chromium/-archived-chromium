@@ -15,6 +15,7 @@
 #include "views/fill_layout.h"
 #include "views/focus/focus_util_win.h"
 #include "views/widget/aero_tooltip_manager.h"
+#include "views/widget/default_theme_provider.h"
 #include "views/widget/root_view.h"
 #include "views/window/window_win.h"
 
@@ -166,6 +167,8 @@ void WidgetWin::Init(HWND parent, const gfx::Rect& bounds,
   // Force creation of the RootView if it hasn't been created yet.
   GetRootView();
 
+  default_theme_provider_.reset(new DefaultThemeProvider());
+
   // Ensures the parent we have been passed is valid, otherwise CreateWindowEx
   // will fail.
   if (parent && !::IsWindow(parent)) {
@@ -293,6 +296,11 @@ RootView* WidgetWin::GetRootView() {
   return root_view_.get();
 }
 
+Widget* WidgetWin::GetRootWidget() const {
+  return reinterpret_cast<WidgetWin*>(
+      win_util::GetWindowUserData(GetAncestor(hwnd_, GA_ROOT)));
+}
+
 bool WidgetWin::IsVisible() const {
   return !!::IsWindowVisible(GetNativeView());
 }
@@ -303,6 +311,16 @@ bool WidgetWin::IsActive() const {
 
 TooltipManager* WidgetWin::GetTooltipManager() {
   return tooltip_manager_.get();
+}
+
+ThemeProvider* WidgetWin::GetThemeProvider() const {
+  Widget* widget = GetRootWidget();
+  if (widget) {
+    ThemeProvider* provider = widget->GetDialogThemeProvider();
+    if (provider)
+      return provider;
+  }
+  return default_theme_provider_.get();
 }
 
 Window* WidgetWin::GetWindow() {

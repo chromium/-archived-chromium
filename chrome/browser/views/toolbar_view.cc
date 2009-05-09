@@ -23,6 +23,7 @@
 #include "chrome/browser/profile.h"
 #include "chrome/browser/tab_contents/navigation_controller.h"
 #include "chrome/browser/tab_contents/navigation_entry.h"
+#include "chrome/browser/browser_theme_provider.h"
 #include "chrome/browser/user_data_manager.h"
 #include "chrome/browser/views/bookmark_menu_button.h"
 #include "chrome/browser/views/dom_view.h"
@@ -138,86 +139,49 @@ void BrowserToolbarView::SetProfile(Profile* profile) {
 }
 
 void BrowserToolbarView::CreateLeftSideControls() {
-  ResourceBundle &rb = ResourceBundle::GetSharedInstance();
-
   back_ = new views::ButtonDropDown(this, back_menu_model_.get());
   back_->set_triggerable_event_flags(views::Event::EF_LEFT_BUTTON_DOWN |
                                   views::Event::EF_MIDDLE_BUTTON_DOWN);
   back_->set_tag(IDC_BACK);
   back_->SetImageAlignment(views::ImageButton::ALIGN_RIGHT,
                            views::ImageButton::ALIGN_TOP);
-  back_->SetImage(views::CustomButton::BS_NORMAL, rb.GetBitmapNamed(IDR_BACK));
-  back_->SetImage(views::CustomButton::BS_HOT, rb.GetBitmapNamed(IDR_BACK_H));
-  back_->SetImage(views::CustomButton::BS_PUSHED,
-                  rb.GetBitmapNamed(IDR_BACK_P));
-  back_->SetImage(views::CustomButton::BS_DISABLED,
-                  rb.GetBitmapNamed(IDR_BACK_D));
   back_->SetTooltipText(l10n_util::GetString(IDS_TOOLTIP_BACK));
   back_->SetAccessibleName(l10n_util::GetString(IDS_ACCNAME_BACK));
   back_->SetID(VIEW_ID_BACK_BUTTON);
-  AddChildView(back_);
 
   forward_ = new views::ButtonDropDown(this, forward_menu_model_.get());
   forward_->set_triggerable_event_flags(views::Event::EF_LEFT_BUTTON_DOWN |
-                                     views::Event::EF_MIDDLE_BUTTON_DOWN);
+                                        views::Event::EF_MIDDLE_BUTTON_DOWN);
   forward_->set_tag(IDC_FORWARD);
-  forward_->SetImage(views::CustomButton::BS_NORMAL,
-                     rb.GetBitmapNamed(IDR_FORWARD));
-  forward_->SetImage(views::CustomButton::BS_HOT,
-                     rb.GetBitmapNamed(IDR_FORWARD_H));
-  forward_->SetImage(views::CustomButton::BS_PUSHED,
-                     rb.GetBitmapNamed(IDR_FORWARD_P));
-  forward_->SetImage(views::CustomButton::BS_DISABLED,
-                     rb.GetBitmapNamed(IDR_FORWARD_D));
   forward_->SetTooltipText(l10n_util::GetString(IDS_TOOLTIP_FORWARD));
   forward_->SetAccessibleName(l10n_util::GetString(IDS_ACCNAME_FORWARD));
   forward_->SetID(VIEW_ID_FORWARD_BUTTON);
-  AddChildView(forward_);
 
   reload_ = new views::ImageButton(this);
   reload_->set_tag(IDC_RELOAD);
-  reload_->SetImage(views::CustomButton::BS_NORMAL,
-                    rb.GetBitmapNamed(IDR_RELOAD));
-  reload_->SetImage(views::CustomButton::BS_HOT,
-                    rb.GetBitmapNamed(IDR_RELOAD_H));
-  reload_->SetImage(views::CustomButton::BS_PUSHED,
-                    rb.GetBitmapNamed(IDR_RELOAD_P));
   reload_->SetTooltipText(l10n_util::GetString(IDS_TOOLTIP_RELOAD));
   reload_->SetAccessibleName(l10n_util::GetString(IDS_ACCNAME_RELOAD));
   reload_->SetID(VIEW_ID_RELOAD_BUTTON);
-  AddChildView(reload_);
 
   home_ = new views::ImageButton(this);
   home_->set_triggerable_event_flags(views::Event::EF_LEFT_BUTTON_DOWN |
                                   views::Event::EF_MIDDLE_BUTTON_DOWN);
   home_->set_tag(IDC_HOME);
-  home_->SetImage(views::CustomButton::BS_NORMAL, rb.GetBitmapNamed(IDR_HOME));
-  home_->SetImage(views::CustomButton::BS_HOT, rb.GetBitmapNamed(IDR_HOME_H));
-  home_->SetImage(views::CustomButton::BS_PUSHED,
-                  rb.GetBitmapNamed(IDR_HOME_P));
   home_->SetTooltipText(l10n_util::GetString(IDS_TOOLTIP_HOME));
   home_->SetAccessibleName(l10n_util::GetString(IDS_ACCNAME_HOME));
   home_->SetID(VIEW_ID_HOME_BUTTON);
+
+  LoadLeftSideControlsImages();
+
+  AddChildView(back_);
+  AddChildView(forward_);
+  AddChildView(reload_);
   AddChildView(home_);
 }
 
 void BrowserToolbarView::CreateCenterStack(Profile *profile) {
-  ResourceBundle &rb = ResourceBundle::GetSharedInstance();
-
   star_ = new ToolbarStarToggle(this, this);
   star_->set_tag(IDC_STAR);
-  star_->SetImage(views::CustomButton::BS_NORMAL, rb.GetBitmapNamed(IDR_STAR));
-  star_->SetImage(views::CustomButton::BS_HOT, rb.GetBitmapNamed(IDR_STAR_H));
-  star_->SetImage(views::CustomButton::BS_PUSHED,
-                  rb.GetBitmapNamed(IDR_STAR_P));
-  star_->SetImage(views::CustomButton::BS_DISABLED,
-                  rb.GetBitmapNamed(IDR_STAR_D));
-  star_->SetToggledImage(views::CustomButton::BS_NORMAL,
-                         rb.GetBitmapNamed(IDR_STARRED));
-  star_->SetToggledImage(views::CustomButton::BS_HOT,
-                         rb.GetBitmapNamed(IDR_STARRED_H));
-  star_->SetToggledImage(views::CustomButton::BS_PUSHED,
-                         rb.GetBitmapNamed(IDR_STARRED_P));
   star_->SetDragController(this);
   star_->SetTooltipText(l10n_util::GetString(IDS_TOOLTIP_STAR));
   star_->SetToggledTooltipText(l10n_util::GetString(IDS_TOOLTIP_STARRED));
@@ -229,23 +193,118 @@ void BrowserToolbarView::CreateCenterStack(Profile *profile) {
                                       model_, this,
                                       display_mode_ == DISPLAYMODE_LOCATION,
                                       this);
-  AddChildView(location_bar_);
-  location_bar_->Init();
 
   // The Go button.
   go_ = new GoButton(location_bar_, browser_);
-  go_->SetImage(views::CustomButton::BS_NORMAL, rb.GetBitmapNamed(IDR_GO));
-  go_->SetImage(views::CustomButton::BS_HOT, rb.GetBitmapNamed(IDR_GO_H));
-  go_->SetImage(views::CustomButton::BS_PUSHED, rb.GetBitmapNamed(IDR_GO_P));
-  go_->SetToggledImage(views::CustomButton::BS_NORMAL,
-                       rb.GetBitmapNamed(IDR_STOP));
-  go_->SetToggledImage(views::CustomButton::BS_HOT,
-                       rb.GetBitmapNamed(IDR_STOP_H));
-  go_->SetToggledImage(views::CustomButton::BS_PUSHED,
-                       rb.GetBitmapNamed(IDR_STOP_P));
   go_->SetAccessibleName(l10n_util::GetString(IDS_ACCNAME_GO));
   go_->SetID(VIEW_ID_GO_BUTTON);
+
+  LoadCenterStackImages();
+
+  AddChildView(location_bar_);
+  location_bar_->Init();
   AddChildView(go_);
+}
+
+void BrowserToolbarView::CreateRightSideControls(Profile* profile) {
+  ThemeProvider* tp = GetThemeProvider();
+
+  page_menu_ = new views::MenuButton(NULL, std::wstring(), this, false);
+  page_menu_->SetAccessibleName(l10n_util::GetString(IDS_ACCNAME_PAGE));
+  page_menu_->SetTooltipText(l10n_util::GetString(IDS_PAGEMENU_TOOLTIP));
+  page_menu_->SetID(VIEW_ID_PAGE_MENU);
+
+
+  app_menu_ = new views::MenuButton(NULL, std::wstring(), this, false);
+  app_menu_->SetAccessibleName(l10n_util::GetString(IDS_ACCNAME_APP));
+  app_menu_->SetTooltipText(l10n_util::GetStringF(IDS_APPMENU_TOOLTIP,
+      l10n_util::GetString(IDS_PRODUCT_NAME)));
+  app_menu_->SetID(VIEW_ID_APP_MENU);
+
+  LoadRightSideControlsImages();
+
+  AddChildView(page_menu_);
+  AddChildView(app_menu_);
+
+  if (CommandLine::ForCurrentProcess()->HasSwitch(switches::kBookmarkMenu)) {
+    bookmark_menu_ = new BookmarkMenuButton(browser_);
+    AddChildView(bookmark_menu_);
+  } else {
+    bookmark_menu_ = NULL;
+  }
+}
+
+void BrowserToolbarView::LoadLeftSideControlsImages() {
+  ThemeProvider* tp = GetThemeProvider();
+
+  back_->SetImage(views::CustomButton::BS_NORMAL, tp->GetBitmapNamed(IDR_BACK));
+  back_->SetImage(views::CustomButton::BS_HOT, tp->GetBitmapNamed(IDR_BACK_H));
+  back_->SetImage(views::CustomButton::BS_PUSHED,
+    tp->GetBitmapNamed(IDR_BACK_P));
+  back_->SetImage(views::CustomButton::BS_DISABLED,
+    tp->GetBitmapNamed(IDR_BACK_D));
+
+  forward_->SetImage(views::CustomButton::BS_NORMAL,
+    tp->GetBitmapNamed(IDR_FORWARD));
+  forward_->SetImage(views::CustomButton::BS_HOT,
+    tp->GetBitmapNamed(IDR_FORWARD_H));
+  forward_->SetImage(views::CustomButton::BS_PUSHED,
+    tp->GetBitmapNamed(IDR_FORWARD_P));
+  forward_->SetImage(views::CustomButton::BS_DISABLED,
+    tp->GetBitmapNamed(IDR_FORWARD_D));
+
+  reload_->SetImage(views::CustomButton::BS_NORMAL,
+    tp->GetBitmapNamed(IDR_RELOAD));
+  reload_->SetImage(views::CustomButton::BS_HOT,
+    tp->GetBitmapNamed(IDR_RELOAD_H));
+  reload_->SetImage(views::CustomButton::BS_PUSHED,
+    tp->GetBitmapNamed(IDR_RELOAD_P));
+
+  home_->SetImage(views::CustomButton::BS_NORMAL, tp->GetBitmapNamed(IDR_HOME));
+  home_->SetImage(views::CustomButton::BS_HOT, tp->GetBitmapNamed(IDR_HOME_H));
+  home_->SetImage(views::CustomButton::BS_PUSHED,
+    tp->GetBitmapNamed(IDR_HOME_P));
+}
+
+void BrowserToolbarView::LoadCenterStackImages() {
+  ThemeProvider* tp = GetThemeProvider();
+
+  star_->SetImage(views::CustomButton::BS_NORMAL, tp->GetBitmapNamed(IDR_STAR));
+  star_->SetImage(views::CustomButton::BS_HOT, tp->GetBitmapNamed(IDR_STAR_H));
+  star_->SetImage(views::CustomButton::BS_PUSHED,
+      tp->GetBitmapNamed(IDR_STAR_P));
+  star_->SetImage(views::CustomButton::BS_DISABLED,
+      tp->GetBitmapNamed(IDR_STAR_D));
+  star_->SetToggledImage(views::CustomButton::BS_NORMAL,
+      tp->GetBitmapNamed(IDR_STARRED));
+  star_->SetToggledImage(views::CustomButton::BS_HOT,
+      tp->GetBitmapNamed(IDR_STARRED_H));
+  star_->SetToggledImage(views::CustomButton::BS_PUSHED,
+      tp->GetBitmapNamed(IDR_STARRED_P));
+
+  go_->SetImage(views::CustomButton::BS_NORMAL, tp->GetBitmapNamed(IDR_GO));
+  go_->SetImage(views::CustomButton::BS_HOT, tp->GetBitmapNamed(IDR_GO_H));
+  go_->SetImage(views::CustomButton::BS_PUSHED, tp->GetBitmapNamed(IDR_GO_P));
+  go_->SetToggledImage(views::CustomButton::BS_NORMAL,
+      tp->GetBitmapNamed(IDR_STOP));
+  go_->SetToggledImage(views::CustomButton::BS_HOT,
+      tp->GetBitmapNamed(IDR_STOP_H));
+  go_->SetToggledImage(views::CustomButton::BS_PUSHED,
+      tp->GetBitmapNamed(IDR_STOP_P));
+}
+
+void BrowserToolbarView::LoadRightSideControlsImages() {
+  ThemeProvider* tp = GetThemeProvider();
+
+  // We use different menu button images if the locale is right-to-left.
+  if (UILayoutIsRightToLeft())
+    page_menu_->SetIcon(*tp->GetBitmapNamed(IDR_MENU_PAGE_RTL));
+  else
+    page_menu_->SetIcon(*tp->GetBitmapNamed(IDR_MENU_PAGE));
+  if (UILayoutIsRightToLeft())
+    app_menu_->SetIcon(*tp->GetBitmapNamed(IDR_MENU_CHROME_RTL));
+  else
+    app_menu_->SetIcon(*tp->GetBitmapNamed(IDR_MENU_CHROME));
 }
 
 void BrowserToolbarView::Update(TabContents* tab, bool should_restore_state) {
@@ -263,42 +322,6 @@ void BrowserToolbarView::OnInputInProgress(bool in_progress) {
 
   model_->set_input_in_progress(in_progress);
   location_bar_->Update(NULL);
-}
-
-void BrowserToolbarView::CreateRightSideControls(Profile* profile) {
-  ResourceBundle &rb = ResourceBundle::GetSharedInstance();
-
-  page_menu_ = new views::MenuButton(NULL, std::wstring(), this, false);
-
-  // We use different menu button images if the locale is right-to-left.
-  if (UILayoutIsRightToLeft())
-    page_menu_->SetIcon(*rb.GetBitmapNamed(IDR_MENU_PAGE_RTL));
-  else
-    page_menu_->SetIcon(*rb.GetBitmapNamed(IDR_MENU_PAGE));
-
-  page_menu_->SetAccessibleName(l10n_util::GetString(IDS_ACCNAME_PAGE));
-  page_menu_->SetTooltipText(l10n_util::GetString(IDS_PAGEMENU_TOOLTIP));
-  page_menu_->SetID(VIEW_ID_PAGE_MENU);
-  AddChildView(page_menu_);
-
-  app_menu_ = new views::MenuButton(NULL, std::wstring(), this, false);
-  if (UILayoutIsRightToLeft())
-    app_menu_->SetIcon(*rb.GetBitmapNamed(IDR_MENU_CHROME_RTL));
-  else
-    app_menu_->SetIcon(*rb.GetBitmapNamed(IDR_MENU_CHROME));
-
-  app_menu_->SetAccessibleName(l10n_util::GetString(IDS_ACCNAME_APP));
-  app_menu_->SetTooltipText(l10n_util::GetStringF(IDS_APPMENU_TOOLTIP,
-      l10n_util::GetString(IDS_PRODUCT_NAME)));
-  app_menu_->SetID(VIEW_ID_APP_MENU);
-  AddChildView(app_menu_);
-
-  if (CommandLine::ForCurrentProcess()->HasSwitch(switches::kBookmarkMenu)) {
-    bookmark_menu_ = new BookmarkMenuButton(browser_);
-    AddChildView(bookmark_menu_);
-  } else {
-    bookmark_menu_ = NULL;
-  }
 }
 
 void BrowserToolbarView::Layout() {
@@ -756,6 +779,12 @@ bool BrowserToolbarView::GetAccessibleRole(AccessibilityTypes::Role* role) {
 
 void BrowserToolbarView::SetAccessibleName(const std::wstring& name) {
   accessible_name_.assign(name);
+}
+
+void BrowserToolbarView::ThemeChanged() {
+  LoadLeftSideControlsImages();
+  LoadCenterStackImages();
+  LoadRightSideControlsImages();
 }
 
 int BrowserToolbarView::GetNextAccessibleViewIndex(int view_index,

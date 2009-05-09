@@ -88,6 +88,10 @@ extern const wchar_t kPrintingPageHeaderRight[];
 extern const wchar_t kPrintingPageFooterLeft[];
 extern const wchar_t kPrintingPageFooterCenter[];
 extern const wchar_t kPrintingPageFooterRight[];
+extern const wchar_t kCurrentThemeID[];
+extern const wchar_t kCurrentThemeImages[];
+extern const wchar_t kCurrentThemeColors[];
+extern const wchar_t kCurrentThemeTints[];
 extern const wchar_t kCheckDefaultBrowser[];
 
 // Local state

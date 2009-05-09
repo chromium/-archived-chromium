@@ -8,6 +8,7 @@
 #include "app/gfx/chrome_font.h"
 #include "app/gfx/path.h"
 #include "app/resource_bundle.h"
+#include "app/theme_provider.h"
 #if defined(OS_WIN)
 #include "app/win_util.h"
 #include "base/win_util.h"
@@ -21,157 +22,7 @@
 
 namespace views {
 
-// An enumeration of bitmap resources used by this window.
-enum {
-  FRAME_PART_BITMAP_FIRST = 0,  // Must be first.
-
-  // Window Controls.
-  FRAME_CLOSE_BUTTON_ICON,
-  FRAME_CLOSE_BUTTON_ICON_H,
-  FRAME_CLOSE_BUTTON_ICON_P,
-  FRAME_CLOSE_BUTTON_ICON_SA,
-  FRAME_CLOSE_BUTTON_ICON_SA_H,
-  FRAME_CLOSE_BUTTON_ICON_SA_P,
-  FRAME_RESTORE_BUTTON_ICON,
-  FRAME_RESTORE_BUTTON_ICON_H,
-  FRAME_RESTORE_BUTTON_ICON_P,
-  FRAME_MAXIMIZE_BUTTON_ICON,
-  FRAME_MAXIMIZE_BUTTON_ICON_H,
-  FRAME_MAXIMIZE_BUTTON_ICON_P,
-  FRAME_MINIMIZE_BUTTON_ICON,
-  FRAME_MINIMIZE_BUTTON_ICON_H,
-  FRAME_MINIMIZE_BUTTON_ICON_P,
-
-  // Window Frame Border.
-  FRAME_BOTTOM_EDGE,
-  FRAME_BOTTOM_LEFT_CORNER,
-  FRAME_BOTTOM_RIGHT_CORNER,
-  FRAME_LEFT_EDGE,
-  FRAME_RIGHT_EDGE,
-  FRAME_TOP_EDGE,
-  FRAME_TOP_LEFT_CORNER,
-  FRAME_TOP_RIGHT_CORNER,
-
-  // Client Edge Border.
-  FRAME_CLIENT_EDGE_TOP_LEFT,
-  FRAME_CLIENT_EDGE_TOP,
-  FRAME_CLIENT_EDGE_TOP_RIGHT,
-  FRAME_CLIENT_EDGE_RIGHT,
-  FRAME_CLIENT_EDGE_BOTTOM_RIGHT,
-  FRAME_CLIENT_EDGE_BOTTOM,
-  FRAME_CLIENT_EDGE_BOTTOM_LEFT,
-  FRAME_CLIENT_EDGE_LEFT,
-
-  FRAME_PART_BITMAP_COUNT  // Must be last.
-};
-
-class ActiveWindowResources : public WindowResources {
- public:
-  ActiveWindowResources() {
-    InitClass();
-  }
-  virtual ~ActiveWindowResources() {
-  }
-
-  // WindowResources implementation:
-  virtual SkBitmap* GetPartBitmap(FramePartBitmap part) const {
-    return standard_frame_bitmaps_[part];
-  }
-
- private:
-  static void InitClass() {
-    static bool initialized = false;
-    if (!initialized) {
-      static const int kFramePartBitmapIds[] = {
-        0,
-        IDR_CLOSE, IDR_CLOSE_H, IDR_CLOSE_P,
-        IDR_CLOSE_SA, IDR_CLOSE_SA_H, IDR_CLOSE_SA_P,
-        IDR_RESTORE, IDR_RESTORE_H, IDR_RESTORE_P,
-        IDR_MAXIMIZE, IDR_MAXIMIZE_H, IDR_MAXIMIZE_P,
-        IDR_MINIMIZE, IDR_MINIMIZE_H, IDR_MINIMIZE_P,
-        IDR_WINDOW_BOTTOM_CENTER, IDR_WINDOW_BOTTOM_LEFT_CORNER,
-            IDR_WINDOW_BOTTOM_RIGHT_CORNER, IDR_WINDOW_LEFT_SIDE,
-            IDR_WINDOW_RIGHT_SIDE, IDR_WINDOW_TOP_CENTER,
-            IDR_WINDOW_TOP_LEFT_CORNER, IDR_WINDOW_TOP_RIGHT_CORNER,
-        IDR_APP_TOP_LEFT, IDR_APP_TOP_CENTER, IDR_APP_TOP_RIGHT,
-            IDR_CONTENT_RIGHT_SIDE, IDR_CONTENT_BOTTOM_RIGHT_CORNER,
-            IDR_CONTENT_BOTTOM_CENTER, IDR_CONTENT_BOTTOM_LEFT_CORNER,
-            IDR_CONTENT_LEFT_SIDE,
-        0
-      };
-
-      ResourceBundle& rb = ResourceBundle::GetSharedInstance();
-      for (int i = 0; i < FRAME_PART_BITMAP_COUNT; ++i) {
-        int id = kFramePartBitmapIds[i];
-        if (id != 0)
-          standard_frame_bitmaps_[i] = rb.GetBitmapNamed(id);
-      }
-      initialized = true;
-    }
-  }
-
-  static SkBitmap* standard_frame_bitmaps_[FRAME_PART_BITMAP_COUNT];
-
-  DISALLOW_EVIL_CONSTRUCTORS(ActiveWindowResources);
-};
-
-class InactiveWindowResources : public WindowResources {
- public:
-  InactiveWindowResources() {
-    InitClass();
-  }
-  virtual ~InactiveWindowResources() {
-  }
-
-  // WindowResources implementation:
-  virtual SkBitmap* GetPartBitmap(FramePartBitmap part) const {
-    return standard_frame_bitmaps_[part];
-  }
-
- private:
-  static void InitClass() {
-    static bool initialized = false;
-    if (!initialized) {
-      static const int kFramePartBitmapIds[] = {
-        0,
-        IDR_CLOSE, IDR_CLOSE_H, IDR_CLOSE_P,
-        IDR_CLOSE_SA, IDR_CLOSE_SA_H, IDR_CLOSE_SA_P,
-        IDR_RESTORE, IDR_RESTORE_H, IDR_RESTORE_P,
-        IDR_MAXIMIZE, IDR_MAXIMIZE_H, IDR_MAXIMIZE_P,
-        IDR_MINIMIZE, IDR_MINIMIZE_H, IDR_MINIMIZE_P,
-        IDR_DEWINDOW_BOTTOM_CENTER, IDR_DEWINDOW_BOTTOM_LEFT_CORNER,
-            IDR_DEWINDOW_BOTTOM_RIGHT_CORNER, IDR_DEWINDOW_LEFT_SIDE,
-            IDR_DEWINDOW_RIGHT_SIDE, IDR_DEWINDOW_TOP_CENTER,
-            IDR_DEWINDOW_TOP_LEFT_CORNER, IDR_DEWINDOW_TOP_RIGHT_CORNER,
-        IDR_APP_TOP_LEFT, IDR_APP_TOP_CENTER, IDR_APP_TOP_RIGHT,
-            IDR_CONTENT_RIGHT_SIDE, IDR_CONTENT_BOTTOM_RIGHT_CORNER,
-            IDR_CONTENT_BOTTOM_CENTER, IDR_CONTENT_BOTTOM_LEFT_CORNER,
-            IDR_CONTENT_LEFT_SIDE,
-        0
-      };
-
-      ResourceBundle& rb = ResourceBundle::GetSharedInstance();
-      for (int i = 0; i < FRAME_PART_BITMAP_COUNT; ++i) {
-        int id = kFramePartBitmapIds[i];
-        if (id != 0)
-          standard_frame_bitmaps_[i] = rb.GetBitmapNamed(id);
-      }
-      initialized = true;
-    }
-  }
-
-  static SkBitmap* standard_frame_bitmaps_[FRAME_PART_BITMAP_COUNT];
-
-  DISALLOW_EVIL_CONSTRUCTORS(InactiveWindowResources);
-};
-
 // static
-SkBitmap* ActiveWindowResources::standard_frame_bitmaps_[];
-SkBitmap* InactiveWindowResources::standard_frame_bitmaps_[];
-
-// static
-WindowResources* CustomFrameView::active_resources_ = NULL;
-WindowResources* CustomFrameView::inactive_resources_ = NULL;
 ChromeFont* CustomFrameView::title_font_ = NULL;
 
 namespace {
@@ -231,33 +82,34 @@ CustomFrameView::CustomFrameView(Window* frame)
       should_show_minmax_buttons_(false),
       frame_(frame) {
   InitClass();
-  WindowResources* resources = active_resources_;
+
+  ThemeProvider* tp = GetThemeProvider();
 
   // Close button images will be set in LayoutWindowControls().
   AddChildView(close_button_);
 
   restore_button_->SetImage(CustomButton::BS_NORMAL,
-      resources->GetPartBitmap(FRAME_RESTORE_BUTTON_ICON));
+      tp->GetBitmapNamed(IDR_RESTORE));
   restore_button_->SetImage(CustomButton::BS_HOT,
-      resources->GetPartBitmap(FRAME_RESTORE_BUTTON_ICON_H));
+      tp->GetBitmapNamed(IDR_RESTORE_H));
   restore_button_->SetImage(CustomButton::BS_PUSHED,
-      resources->GetPartBitmap(FRAME_RESTORE_BUTTON_ICON_P));
+      tp->GetBitmapNamed(IDR_RESTORE_P));
   AddChildView(restore_button_);
 
   maximize_button_->SetImage(CustomButton::BS_NORMAL,
-      resources->GetPartBitmap(FRAME_MAXIMIZE_BUTTON_ICON));
+      tp->GetBitmapNamed(IDR_MAXIMIZE));
   maximize_button_->SetImage(CustomButton::BS_HOT,
-      resources->GetPartBitmap(FRAME_MAXIMIZE_BUTTON_ICON_H));
+      tp->GetBitmapNamed(IDR_MAXIMIZE_H));
   maximize_button_->SetImage(CustomButton::BS_PUSHED,
-      resources->GetPartBitmap(FRAME_MAXIMIZE_BUTTON_ICON_P));
+      tp->GetBitmapNamed(IDR_MAXIMIZE_P));
   AddChildView(maximize_button_);
 
   minimize_button_->SetImage(CustomButton::BS_NORMAL,
-      resources->GetPartBitmap(FRAME_MINIMIZE_BUTTON_ICON));
+      tp->GetBitmapNamed(IDR_MINIMIZE));
   minimize_button_->SetImage(CustomButton::BS_HOT,
-      resources->GetPartBitmap(FRAME_MINIMIZE_BUTTON_ICON_H));
+      tp->GetBitmapNamed(IDR_MINIMIZE_H));
   minimize_button_->SetImage(CustomButton::BS_PUSHED,
-      resources->GetPartBitmap(FRAME_MINIMIZE_BUTTON_ICON_P));
+      tp->GetBitmapNamed(IDR_MINIMIZE_P));
   AddChildView(minimize_button_);
 
   should_show_minmax_buttons_ = frame_->GetDelegate()->CanMaximize();
@@ -443,17 +295,50 @@ int CustomFrameView::TitleCoordinates(int* title_top_spacing,
 }
 
 void CustomFrameView::PaintRestoredFrameBorder(ChromeCanvas* canvas) {
-  SkBitmap* top_left_corner = resources()->GetPartBitmap(FRAME_TOP_LEFT_CORNER);
+  // Window frame mode.
+  ThemeProvider* tp = GetThemeProvider();
+
+  SkBitmap* theme_frame;
+  SkColor frame_color;
+
+  if (frame_->IsActive()) {
+    theme_frame = tp->GetBitmapNamed(IDR_THEME_FRAME);
+    frame_color = ResourceBundle::frame_color;
+  } else {
+    theme_frame = tp->GetBitmapNamed(IDR_THEME_FRAME_INACTIVE);
+    frame_color = ResourceBundle::frame_color_inactive;
+  }
+
+  SkBitmap* top_left_corner = tp->GetBitmapNamed(IDR_WINDOW_TOP_LEFT_CORNER);
   SkBitmap* top_right_corner =
-      resources()->GetPartBitmap(FRAME_TOP_RIGHT_CORNER);
-  SkBitmap* top_edge = resources()->GetPartBitmap(FRAME_TOP_EDGE);
-  SkBitmap* right_edge = resources()->GetPartBitmap(FRAME_RIGHT_EDGE);
-  SkBitmap* left_edge = resources()->GetPartBitmap(FRAME_LEFT_EDGE);
+    tp->GetBitmapNamed(IDR_WINDOW_TOP_RIGHT_CORNER);
+  SkBitmap* top_edge = tp->GetBitmapNamed(IDR_WINDOW_TOP_CENTER);
+  SkBitmap* right_edge = tp->GetBitmapNamed(IDR_WINDOW_RIGHT_SIDE);
+  SkBitmap* left_edge = tp->GetBitmapNamed(IDR_WINDOW_LEFT_SIDE);
   SkBitmap* bottom_left_corner =
-      resources()->GetPartBitmap(FRAME_BOTTOM_LEFT_CORNER);
+    tp->GetBitmapNamed(IDR_WINDOW_BOTTOM_LEFT_CORNER);
   SkBitmap* bottom_right_corner =
-    resources()->GetPartBitmap(FRAME_BOTTOM_RIGHT_CORNER);
-  SkBitmap* bottom_edge = resources()->GetPartBitmap(FRAME_BOTTOM_EDGE);
+    tp->GetBitmapNamed(IDR_WINDOW_BOTTOM_RIGHT_CORNER);
+  SkBitmap* bottom_edge = tp->GetBitmapNamed(IDR_WINDOW_BOTTOM_CENTER);
+
+  // Fill with the frame color first so we have a constant background for
+  // areas not covered by the theme image.
+  canvas->FillRectInt(frame_color, 0, 0, width(), theme_frame->height());
+  // Now fill down the sides
+  canvas->FillRectInt(frame_color,
+      0, theme_frame->height(),
+      left_edge->width(), height() - theme_frame->height());
+  canvas->FillRectInt(frame_color,
+      width() - right_edge->width(), theme_frame->height(),
+      right_edge->width(), height() - theme_frame->height());
+  // Now fill the bottom area.
+  canvas->FillRectInt(frame_color,
+      left_edge->width(), height() - bottom_edge->height(),
+      width() - left_edge->width() - right_edge->width(),
+      bottom_edge->height());
+
+  // Draw the theme frame.
+  canvas->TileImageInt(*theme_frame, 0, 0, width(), theme_frame->height());
 
   // Top.
   canvas->DrawBitmapInt(*top_left_corner, 0, 0);
@@ -488,13 +373,15 @@ void CustomFrameView::PaintRestoredFrameBorder(ChromeCanvas* canvas) {
 
 void CustomFrameView::PaintMaximizedFrameBorder(
     ChromeCanvas* canvas) {
-  SkBitmap* top_edge = resources()->GetPartBitmap(FRAME_TOP_EDGE);
+  ThemeProvider* tp = GetThemeProvider();
+
+  SkBitmap* top_edge = tp->GetBitmapNamed(IDR_WINDOW_TOP_CENTER);
   canvas->TileImageInt(*top_edge, 0, FrameBorderThickness(), width(),
                        top_edge->height());
 
   // The bottom of the titlebar actually comes from the top of the Client Edge
   // graphic, with the actual client edge clipped off the bottom.
-  SkBitmap* titlebar_bottom = resources()->GetPartBitmap(FRAME_CLIENT_EDGE_TOP);
+  SkBitmap* titlebar_bottom = tp->GetBitmapNamed(IDR_APP_TOP_CENTER);
   int edge_height = titlebar_bottom->height() - kClientEdgeThickness;
   canvas->TileImageInt(*titlebar_bottom, 0,
       frame_->GetClientView()->y() - edge_height, width(), edge_height);
@@ -518,16 +405,17 @@ void CustomFrameView::PaintRestoredClientEdge(ChromeCanvas* canvas) {
   gfx::Rect client_area_bounds = frame_->GetClientView()->bounds();
   int client_area_top = client_area_bounds.y();
 
-  SkBitmap* top_left = resources()->GetPartBitmap(FRAME_CLIENT_EDGE_TOP_LEFT);
-  SkBitmap* top = resources()->GetPartBitmap(FRAME_CLIENT_EDGE_TOP);
-  SkBitmap* top_right = resources()->GetPartBitmap(FRAME_CLIENT_EDGE_TOP_RIGHT);
-  SkBitmap* right = resources()->GetPartBitmap(FRAME_CLIENT_EDGE_RIGHT);
+  ThemeProvider* tp = GetThemeProvider();
+  SkBitmap* top_left = tp->GetBitmapNamed(IDR_APP_TOP_LEFT);
+  SkBitmap* top = tp->GetBitmapNamed(IDR_APP_TOP_CENTER);
+  SkBitmap* top_right = tp->GetBitmapNamed(IDR_APP_TOP_RIGHT);
+  SkBitmap* right = tp->GetBitmapNamed(IDR_CONTENT_RIGHT_SIDE);
   SkBitmap* bottom_right =
-      resources()->GetPartBitmap(FRAME_CLIENT_EDGE_BOTTOM_RIGHT);
-  SkBitmap* bottom = resources()->GetPartBitmap(FRAME_CLIENT_EDGE_BOTTOM);
+      tp->GetBitmapNamed(IDR_CONTENT_BOTTOM_RIGHT_CORNER);
+  SkBitmap* bottom = tp->GetBitmapNamed(IDR_CONTENT_BOTTOM_CENTER);
   SkBitmap* bottom_left =
-      resources()->GetPartBitmap(FRAME_CLIENT_EDGE_BOTTOM_LEFT);
-  SkBitmap* left = resources()->GetPartBitmap(FRAME_CLIENT_EDGE_LEFT);
+      tp->GetBitmapNamed(IDR_CONTENT_BOTTOM_LEFT_CORNER);
+  SkBitmap* left = tp->GetBitmapNamed(IDR_CONTENT_LEFT_SIDE);
 
   // Top.
   // This next calculation is necessary because the top center bitmap is shorter
@@ -559,6 +447,11 @@ void CustomFrameView::PaintRestoredClientEdge(ChromeCanvas* canvas) {
   // Left.
   canvas->TileImageInt(*left, client_area_bounds.x() - left->width(),
       client_area_top, left->width(), client_area_height);
+
+  // Draw the toolbar color to fill in the edges.
+  canvas->DrawRectInt(ResourceBundle::toolbar_color,
+    client_area_bounds.x() - 1, client_area_top - 2,
+    client_area_bounds.width() + 1, client_area_bottom - client_area_top + 2);
 }
 
 void CustomFrameView::LayoutWindowControls() {
@@ -609,24 +502,26 @@ void CustomFrameView::LayoutWindowControls() {
         minimize_button_size.width(),
         minimize_button_size.height() + top_extra_height);
 
-    normal_part = FRAME_CLOSE_BUTTON_ICON;
-    hot_part = FRAME_CLOSE_BUTTON_ICON_H;
-    pushed_part = FRAME_CLOSE_BUTTON_ICON_P;
+    normal_part = IDR_CLOSE;
+    hot_part = IDR_CLOSE_H;
+    pushed_part = IDR_CLOSE_P;
   } else {
     visible_button->SetVisible(false);
     minimize_button_->SetVisible(false);
 
-    normal_part = FRAME_CLOSE_BUTTON_ICON_SA;
-    hot_part = FRAME_CLOSE_BUTTON_ICON_SA_H;
-    pushed_part = FRAME_CLOSE_BUTTON_ICON_SA_P;
+    normal_part = IDR_CLOSE_SA;
+    hot_part = IDR_CLOSE_SA_H;
+    pushed_part = IDR_CLOSE_SA_P;
   }
 
+  ThemeProvider* tp = GetThemeProvider();
+
   close_button_->SetImage(CustomButton::BS_NORMAL,
-                          active_resources_->GetPartBitmap(normal_part));
+                          tp->GetBitmapNamed(normal_part));
   close_button_->SetImage(CustomButton::BS_HOT,
-                          active_resources_->GetPartBitmap(hot_part));
+                          tp->GetBitmapNamed(hot_part));
   close_button_->SetImage(CustomButton::BS_PUSHED,
-                          active_resources_->GetPartBitmap(pushed_part));
+                          tp->GetBitmapNamed(pushed_part));
 }
 
 void CustomFrameView::LayoutTitleBar() {
@@ -688,9 +583,6 @@ void CustomFrameView::LayoutClientView() {
 void CustomFrameView::InitClass() {
   static bool initialized = false;
   if (!initialized) {
-    active_resources_ = new ActiveWindowResources;
-    inactive_resources_ = new InactiveWindowResources;
-
 #if defined(OS_WIN)
     title_font_ = new ChromeFont(win_util::GetWindowTitleFont());
 #elif defined(OS_LINUX)

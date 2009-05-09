@@ -21,6 +21,7 @@ class Profile;
 class RenderViewHost;
 class Value;
 class TabContents;
+class ThemeProvider;
 
 // A DOMUI sets up the datasources and message handlers for a given HTML-based
 // UI. It is contained by a DOMUIManager.
@@ -44,7 +45,7 @@ class DOMUI {
   bool hide_favicon() const {
     return hide_favicon_;
   }
-  
+
   // Returns true if the bookmark bar should be forced to being visible,
   // overriding the user's preference.
   bool force_bookmark_bar_visible() const {
@@ -88,6 +89,8 @@ class DOMUI {
   void CallJavascriptFunction(const std::wstring& function_name,
                               const Value& arg1,
                               const Value& arg2);
+
+  ThemeProvider* GetThemeProvider() const;
 
   TabContents* tab_contents() { return tab_contents_; }
 

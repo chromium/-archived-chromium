@@ -183,11 +183,30 @@ void ExtensionsService::OnExtensionInstalled(Extension* extension,
       NotificationType::EXTENSION_INSTALLED,
       NotificationService::AllSources(),
       Details<Extension>(extension));
+
+  // If the extension is a theme, tell the profile (and therefore ThemeProvider)
+  // to apply it.
+  if (extension->IsTheme()) {
+    NotificationService::current()->Notify(
+        NotificationType::THEME_INSTALLED,
+        NotificationService::AllSources(),
+        Details<Extension>(extension));
+  }
+}
+
+void ExtensionsService::OnExtensionVersionReinstalled(const std::string& id) {
+  Extension* extension = GetExtensionByID(id);
+  if (extension && extension->IsTheme()) {
+    NotificationService::current()->Notify(
+        NotificationType::THEME_INSTALLED,
+        NotificationService::AllSources(),
+        Details<Extension>(extension));
+  }
 }
 
 Extension* ExtensionsService::GetExtensionByID(std::string id) {
   for (ExtensionList::const_iterator iter = extensions_.begin();
-       iter != extensions_.end(); ++iter) {
+      iter != extensions_.end(); ++iter) {
     if ((*iter)->id() == id)
       return *iter;
   }
@@ -329,7 +348,24 @@ Extension* ExtensionsServiceBackend::LoadExtension(
     return NULL;
   }
 
-  // Validate that claimed resources actually exist.
+  // Validate that claimed image resources actually exist.
+  DictionaryValue* images_value = extension->GetThemeImages();
+  if (images_value) {
+    DictionaryValue::key_iterator iter = images_value->begin_keys();
+    while (iter != images_value->end_keys()) {
+      std::string val;
+      images_value->GetString(*iter, &val);
+      const FilePath& path = extension->path().AppendASCII(val);
+      if (!file_util::PathExists(path)) {
+        ReportExtensionLoadError(extension_path,
+          StringPrintf("Could not load '%s' for theme.",
+          WideToUTF8(path.ToWStringHack()).c_str()));
+        return NULL;
+      }
+      ++iter;
+    }
+  }
+  // Validate that claimed script resources actually exist.
   for (size_t i = 0; i < extension->content_scripts().size(); ++i) {
     const UserScript& script = extension->content_scripts()[i];
 
@@ -532,8 +568,9 @@ bool ExtensionsServiceBackend::CheckCurrentVersion(
     // has actually loaded successfully.
     FilePath version_dir = dest_dir.AppendASCII(current_version_str);
     if (file_util::PathExists(version_dir)) {
-      ReportExtensionInstallError(dest_dir,
-          "Existing version is already up to date.");
+      std::string id = WideToASCII(dest_dir.BaseName().ToWStringHack());
+      StringToLowerASCII(&id);
+      ReportExtensionVersionReinstalled(id);
       return false;
     }
   }
@@ -725,6 +762,14 @@ void ExtensionsServiceBackend::ReportExtensionInstallError(
       StringPrintf("Could not install extension from '%s'. %s",
                    path_str.c_str(), error.c_str());
   ExtensionErrorReporter::GetInstance()->ReportError(message, alert_on_error_);
+}
+
+void ExtensionsServiceBackend::ReportExtensionVersionReinstalled(
+    const std::string& id) {
+  frontend_->GetMessageLoop()->PostTask(FROM_HERE, NewRunnableMethod(
+      frontend_,
+      &ExtensionsServiceFrontendInterface::OnExtensionVersionReinstalled,
+      id));
 }
 
 void ExtensionsServiceBackend::ReportExtensionInstalled(

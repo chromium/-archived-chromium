@@ -62,6 +62,7 @@ class TestBrowserWindow : public BrowserWindow {
   virtual void ConfirmBrowserCloseWithPendingDownloads() {}
   virtual void ShowHTMLDialog(HtmlDialogUIDelegate* delegate,
                               void* parent_window) {}
+  virtual void UserChangedTheme() {}
  protected:
   virtual void DestroyBrowser() {}
 

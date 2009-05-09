@@ -246,6 +246,10 @@ const wchar_t kPrintingPageHeaderRight[] = L"printing.page.header.right";
 const wchar_t kPrintingPageFooterLeft[] = L"printing.page.footer.left";
 const wchar_t kPrintingPageFooterCenter[] = L"printing.page.footer.center";
 const wchar_t kPrintingPageFooterRight[] = L"printing.page.footer.right";
+const wchar_t kCurrentThemeID[] = L"extensions.theme.id";
+const wchar_t kCurrentThemeImages[] = L"extensions.theme.images";
+const wchar_t kCurrentThemeColors[] = L"extensions.theme.colors";
+const wchar_t kCurrentThemeTints[] = L"extensions.theme.tints";
 
 // Boolean that indicates whether we should check if we are the default browser
 // on start-up.

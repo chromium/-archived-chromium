@@ -36,6 +36,10 @@ class TabRenderer : public views::View,
   TabRenderer();
   virtual ~TabRenderer();
 
+  // Overridden from views:
+  void ViewHierarchyChanged(bool is_add, View* parent, View* child);
+  ThemeProvider* GetThemeProvider();
+
   // Updates the data the Tab uses to render itself from the specified
   // TabContents.
   //
@@ -56,6 +60,13 @@ class TabRenderer : public views::View,
   void StartPulse();
   void StopPulse();
 
+  // Set the theme provider - because we get detached, we are frequently
+  // outside of a hierarchy with a theme provider at the top. This should be
+  // called whenever we're detached or attached to a hierarchy.
+  void SetThemeProvider(ThemeProvider* provider) {
+    theme_provider_ = provider;
+  }
+
   // Returns the minimum possible size of a single unselected Tab.
   static gfx::Size GetMinimumUnselectedSize();
   // Returns the minimum possible size of a selected Tab. Selected tabs must
@@ -66,9 +77,8 @@ class TabRenderer : public views::View,
   // available.
   static gfx::Size GetStandardSize();
 
-  // Loads the images to be used for the tab background. Uses the images for
-  // Vista if |use_vista_images| is true.
-  static void LoadTabImages(bool use_vista_images);
+  // Loads the images to be used for the tab background.
+  static void LoadTabImages();
 
  protected:
   views::ImageButton* close_button() const { return close_button_; }
@@ -166,7 +176,7 @@ class TabRenderer : public views::View,
   };
   static TabImage tab_active;
   static TabImage tab_inactive;
-  static TabImage tab_inactive_otr;
+  static TabImage tab_alpha;
   static TabImage tab_hover;
 
   // Whether we're showing the icon. It is cached so that we can detect when it
@@ -188,6 +198,8 @@ class TabRenderer : public views::View,
   FavIconCrashAnimation* crash_animation_;
 
   bool should_display_crashed_favicon_;
+
+  ThemeProvider* theme_provider_;
 
   static void InitClass();
   static bool initialized_;

@@ -7,6 +7,8 @@
 
 #include "base/gfx/native_widget_types.h"
 
+class ThemeProvider;
+
 namespace gfx {
 class Rect;
 }
@@ -53,6 +55,9 @@ class Widget {
   // Returns the RootView contained by this Widget.
   virtual RootView* GetRootView() = 0;
 
+  // Returns the Widget associated with the root ancestor.
+  virtual Widget* GetRootWidget() const = 0;
+
   // Returns whether the Widget is visible to the user.
   virtual bool IsVisible() const = 0;
 
@@ -74,6 +79,14 @@ class Widget {
   // window.
   virtual Window* GetWindow() { return NULL; }
   virtual const Window* GetWindow() const { return NULL; }
+
+  // Get the theme provider.
+  virtual ThemeProvider* GetThemeProvider() const { return NULL; }
+
+  // Get the dialog theme provider; this is necessary for when a dialog has
+  // no profile (and ThemeProvider) associated with it. The dialog theme
+  // provider provides a default set of bitmaps that such dialogs can use.
+  virtual ThemeProvider* GetDialogThemeProvider() { return NULL; }
 };
 
 }  // namespace views

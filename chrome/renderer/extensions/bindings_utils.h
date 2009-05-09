@@ -7,6 +7,7 @@
 
 #include "app/resource_bundle.h"
 #include "base/singleton.h"
+#include "base/string_piece.h"
 
 #include <string>
 

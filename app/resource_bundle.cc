@@ -15,6 +15,22 @@
 ResourceBundle* ResourceBundle::g_shared_instance_ = NULL;
 
 /* static */
+// TODO(glen): Finish moving these into theme provider (dialogs still
+//    depend on these colors).
+const SkColor ResourceBundle::frame_color =
+     SkColorSetRGB(77, 139, 217);
+const SkColor ResourceBundle::frame_color_inactive =
+     SkColorSetRGB(184, 209, 240);
+const SkColor ResourceBundle::frame_color_incognito =
+     SkColorSetRGB(83, 106, 139);
+const SkColor ResourceBundle::frame_color_incognito_inactive =
+     SkColorSetRGB(126, 139, 156);
+const SkColor ResourceBundle::toolbar_color =
+     SkColorSetRGB(210, 225, 246);
+const SkColor ResourceBundle::toolbar_separator_color =
+     SkColorSetRGB(182, 186, 192);
+
+/* static */
 void ResourceBundle::InitSharedInstance(const std::wstring& pref_locale) {
   DCHECK(g_shared_instance_ == NULL) << "ResourceBundle initialized twice";
   g_shared_instance_ = new ResourceBundle();
@@ -51,39 +67,11 @@ void ResourceBundle::FreeImages() {
   skia_images_.clear();
 }
 
-void ResourceBundle::SetThemeExtension(const Extension& e) {
-  theme_extension_.reset(new Extension(e));
-}
-
 /* static */
 SkBitmap* ResourceBundle::LoadBitmap(DataHandle data_handle, int resource_id) {
   std::vector<unsigned char> raw_data, png_data;
   bool success = false;
-  // First check to see if we have a registered theme extension and whether
-  // it can handle this resource.
-  // TODO(erikkay): It would be nice to use something less brittle than
-  // resource_id here.
-  if (g_shared_instance_->theme_extension_.get()) {
-    FilePath path =
-        g_shared_instance_->theme_extension_->GetThemeResourcePath(resource_id);
-    if (!path.empty()) {
-      net::FileStream file;
-      int flags = base::PLATFORM_FILE_OPEN | base::PLATFORM_FILE_READ;
-      if (file.Open(path, flags) == net::OK) {
-        int64 avail = file.Available();
-        if (avail > 0 && avail < INT_MAX) {
-          size_t size = static_cast<size_t>(avail);
-          raw_data.resize(size);
-          char* data = reinterpret_cast<char*>(&(raw_data.front()));
-          if (file.ReadUntilComplete(data, size) == avail) {
-            success= true;
-          } else {
-            raw_data.resize(0);
-          }
-        }
-      }
-    }
-  }
+
   if (!success)
     success = LoadResourceBytes(data_handle, resource_id, &raw_data);
   if (!success)

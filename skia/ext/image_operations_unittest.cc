@@ -309,7 +309,7 @@ TEST(ImageOperations, CreateHSLShiftedBitmapToSame) {
     }
   }
 
-  float hsl[3] = { -1, -1, -1 };
+  skia::HSL hsl = { -1, -1, -1 };
 
   SkBitmap shifted = skia::ImageOperations::CreateHSLShiftedBitmap(src, hsl);
 
@@ -340,7 +340,7 @@ TEST(ImageOperations, CreateHSLShiftedBitmapHueOnly) {
   }
 
   // Shift to red.
-  float hsl[3] = { 0, -1, -1 };
+  skia::HSL hsl = { 0, -1, -1 };
 
   SkBitmap shifted = skia::ImageOperations::CreateHSLShiftedBitmap(src, hsl);
 

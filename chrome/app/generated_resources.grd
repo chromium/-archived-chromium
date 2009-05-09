@@ -3099,6 +3099,13 @@ each locale. -->
         Save text from forms to make them easier to fill out
       </message>
 
+      <message name="IDS_THEMES_GROUP_NAME" desc="The title of the themes group">
+        Themes:
+      </message>
+      <message name="IDS_THEMES_RESET_BUTTON" desc="The button to reset your theme">
+        Reset to default theme
+      </message>
+
       <message name="IDS_OPTIONS_FONTSANDLANGUAGES_GROUP_NAME" desc="The label of the 'Fonts and Languages' group">
         Fonts and Languages:
       </message>

@@ -10,7 +10,10 @@
 #include "base/stl_util-inl.h"
 #include "base/string_util.h"
 #include "base/values.h"
+#include "base/win_util.h"
+#include "chrome/browser/profile.h"
 #include "chrome/browser/tab_contents/tab_contents.h"
+#include "chrome/browser/tab_contents/tab_contents_view.h"
 
 DOMUI::DOMUI(TabContents* contents)
     : hide_favicon_(false),
@@ -77,6 +80,10 @@ void DOMUI::CallJavascriptFunction(
   javascript += L"," + UTF8ToWide(json) + L");";
 
   ExecuteJavascript(javascript);
+}
+
+ThemeProvider* DOMUI::GetThemeProvider() const {
+  return tab_contents_->profile()->GetThemeProvider();
 }
 
 void DOMUI::RegisterMessageCallback(const std::string &message,

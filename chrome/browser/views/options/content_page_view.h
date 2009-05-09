@@ -51,8 +51,9 @@ class ContentPageView : public OptionsPageView,
   // Init all the dialog controls.
   void InitDownloadLocation();
   void InitPasswordSavingGroup();
-  void InitFormAutofillGroup();
   void InitFontsLangGroup();
+  void InitFormAutofillGroup();
+  void InitThemesGroup();
 
   // Updates the directory displayed in the default download location view with
   // the current value of the pref.
@@ -71,19 +72,23 @@ class ContentPageView : public OptionsPageView,
   views::RadioButton* passwords_asktosave_radio_;
   views::RadioButton* passwords_neversave_radio_;
 
+  // Controls for the Fonts and Languages group.
+  OptionsGroupView* fonts_lang_group_;
+  views::Label* fonts_and_languages_label_;
+  views::NativeButton* change_content_fonts_button_;
+
   // Controls for the Form Autofill group
   OptionsGroupView* form_autofill_group_;
   views::Checkbox* form_autofill_checkbox_;
+
+  // Controls for the Themes group
+  OptionsGroupView* themes_group_;
+  views::NativeButton* themes_reset_button_;
 
   // Controls for the Popup Blocking group.
   OptionsGroupView* popups_group_;
   views::RadioButton* popups_show_minimized_radio_;
   views::RadioButton* popups_block_all_radio_;
-
-  // Controls for the Fonts and Languages group.
-  OptionsGroupView* fonts_lang_group_;
-  views::Label* fonts_and_languages_label_;
-  views::NativeButton* change_content_fonts_button_;
 
   StringPrefMember default_download_location_;
   BooleanPrefMember ask_for_save_location_;

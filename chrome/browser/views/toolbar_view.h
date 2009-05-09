@@ -63,6 +63,7 @@ class BrowserToolbarView : public views::View,
   virtual bool GetAccessibleName(std::wstring* name);
   virtual bool GetAccessibleRole(AccessibilityTypes::Role* role);
   virtual void SetAccessibleName(const std::wstring& name);
+  virtual void ThemeChanged();
 
   // Overridden from EncodingMenuControllerDelegate:
   virtual bool IsItemChecked(int id) const;
@@ -147,6 +148,9 @@ class BrowserToolbarView : public views::View,
   void CreateLeftSideControls();
   void CreateCenterStack(Profile* profile);
   void CreateRightSideControls(Profile* profile);
+  void LoadLeftSideControlsImages();
+  void LoadCenterStackImages();
+  void LoadRightSideControlsImages();
 
   // Updates the controls to display the security appropriately (highlighted if
   // secure).

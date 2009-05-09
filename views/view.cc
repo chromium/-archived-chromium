@@ -1568,6 +1568,11 @@ int View::GetLineScrollIncrement(ScrollView* scroll_view,
   return 0;
 }
 
+ThemeProvider* View::GetThemeProvider() {
+  Widget* widget = GetWidget();
+  return widget ? widget->GetThemeProvider() : NULL;
+}
+
 // static
 void View::RegisterChildrenForVisibleBoundsNotification(
     RootView* root, View* view) {

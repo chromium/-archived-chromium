@@ -9,7 +9,9 @@
 #include "app/gfx/path.h"
 #include "app/l10n_util.h"
 #include "app/resource_bundle.h"
+#include "app/theme_provider.h"
 #include "app/win_util.h"
+#include "chrome/browser/browser_theme_provider.h"
 #include "chrome/browser/views/frame/browser_frame.h"
 #include "chrome/browser/views/frame/browser_view.h"
 #include "chrome/browser/views/tabs/tab_strip.h"
@@ -20,244 +22,7 @@
 #include "views/widget/root_view.h"
 #include "views/window/window_resources.h"
 
-// An enumeration of bitmap resources used by this window.
-enum {
-  // Window Controls.
-  FRAME_CLOSE_BUTTON_ICON,
-  FRAME_CLOSE_BUTTON_ICON_H,
-  FRAME_CLOSE_BUTTON_ICON_P,
-  FRAME_CLOSE_BUTTON_ICON_SA,
-  FRAME_CLOSE_BUTTON_ICON_SA_H,
-  FRAME_CLOSE_BUTTON_ICON_SA_P,
-  FRAME_RESTORE_BUTTON_ICON,
-  FRAME_RESTORE_BUTTON_ICON_H,
-  FRAME_RESTORE_BUTTON_ICON_P,
-  FRAME_MAXIMIZE_BUTTON_ICON,
-  FRAME_MAXIMIZE_BUTTON_ICON_H,
-  FRAME_MAXIMIZE_BUTTON_ICON_P,
-  FRAME_MINIMIZE_BUTTON_ICON,
-  FRAME_MINIMIZE_BUTTON_ICON_H,
-  FRAME_MINIMIZE_BUTTON_ICON_P,
-
-  // Window Frame Border.
-  FRAME_BOTTOM_EDGE,
-  FRAME_BOTTOM_LEFT_CORNER,
-  FRAME_BOTTOM_RIGHT_CORNER,
-  FRAME_LEFT_EDGE,
-  FRAME_RIGHT_EDGE,
-  FRAME_TOP_EDGE,
-  FRAME_TOP_LEFT_CORNER,
-  FRAME_TOP_RIGHT_CORNER,
-
-  // Client Edge Border.
-  FRAME_CLIENT_EDGE_TOP_LEFT,
-  FRAME_CLIENT_EDGE_TOP,
-  FRAME_CLIENT_EDGE_TOP_RIGHT,
-  FRAME_CLIENT_EDGE_RIGHT,
-  FRAME_CLIENT_EDGE_BOTTOM_RIGHT,
-  FRAME_CLIENT_EDGE_BOTTOM,
-  FRAME_CLIENT_EDGE_BOTTOM_LEFT,
-  FRAME_CLIENT_EDGE_LEFT,
-
-  // No-toolbar client edge.
-  FRAME_NO_TOOLBAR_TOP_LEFT,
-  FRAME_NO_TOOLBAR_TOP_CENTER,
-  FRAME_NO_TOOLBAR_TOP_RIGHT,
-
-  FRAME_PART_BITMAP_COUNT  // Must be last.
-};
-
-class ActiveWindowResources : public views::WindowResources {
- public:
-  ActiveWindowResources() {
-    InitClass();
-  }
-  virtual ~ActiveWindowResources() { }
-
-  // WindowResources implementation:
-  virtual SkBitmap* GetPartBitmap(views::FramePartBitmap part) const {
-    return standard_frame_bitmaps_[part];
-  }
-
- private:
-  static void InitClass() {
-    static bool initialized = false;
-    if (!initialized) {
-      static const int kFramePartBitmapIds[] = {
-        IDR_CLOSE, IDR_CLOSE_H, IDR_CLOSE_P,
-        IDR_CLOSE_SA, IDR_CLOSE_SA_H, IDR_CLOSE_SA_P,
-        IDR_RESTORE, IDR_RESTORE_H, IDR_RESTORE_P,
-        IDR_MAXIMIZE, IDR_MAXIMIZE_H, IDR_MAXIMIZE_P,
-        IDR_MINIMIZE, IDR_MINIMIZE_H, IDR_MINIMIZE_P,
-        IDR_WINDOW_BOTTOM_CENTER, IDR_WINDOW_BOTTOM_LEFT_CORNER,
-            IDR_WINDOW_BOTTOM_RIGHT_CORNER, IDR_WINDOW_LEFT_SIDE,
-            IDR_WINDOW_RIGHT_SIDE, IDR_WINDOW_TOP_CENTER,
-            IDR_WINDOW_TOP_LEFT_CORNER, IDR_WINDOW_TOP_RIGHT_CORNER,
-        IDR_CONTENT_TOP_LEFT_CORNER, IDR_CONTENT_TOP_CENTER,
-            IDR_CONTENT_TOP_RIGHT_CORNER, IDR_CONTENT_RIGHT_SIDE,
-            IDR_CONTENT_BOTTOM_RIGHT_CORNER, IDR_CONTENT_BOTTOM_CENTER,
-            IDR_CONTENT_BOTTOM_LEFT_CORNER, IDR_CONTENT_LEFT_SIDE,
-        IDR_APP_TOP_LEFT, IDR_APP_TOP_CENTER, IDR_APP_TOP_RIGHT,
-      };
-
-      ResourceBundle& rb = ResourceBundle::GetSharedInstance();
-      for (int i = 0; i < FRAME_PART_BITMAP_COUNT; ++i)
-        standard_frame_bitmaps_[i] = rb.GetBitmapNamed(kFramePartBitmapIds[i]);
-      initialized = true;
-    }
-  }
-
-  static SkBitmap* standard_frame_bitmaps_[FRAME_PART_BITMAP_COUNT];
-
-  DISALLOW_EVIL_CONSTRUCTORS(ActiveWindowResources);
-};
-
-class InactiveWindowResources : public views::WindowResources {
- public:
-  InactiveWindowResources() {
-    InitClass();
-  }
-  virtual ~InactiveWindowResources() { }
-
-  // WindowResources implementation:
-  virtual SkBitmap* GetPartBitmap(views::FramePartBitmap part) const {
-    return standard_frame_bitmaps_[part];
-  }
-
- private:
-  static void InitClass() {
-    static bool initialized = false;
-    if (!initialized) {
-      static const int kFramePartBitmapIds[] = {
-        IDR_CLOSE, IDR_CLOSE_H, IDR_CLOSE_P,
-        IDR_CLOSE_SA, IDR_CLOSE_SA_H, IDR_CLOSE_SA_P,
-        IDR_RESTORE, IDR_RESTORE_H, IDR_RESTORE_P,
-        IDR_MAXIMIZE, IDR_MAXIMIZE_H, IDR_MAXIMIZE_P,
-        IDR_MINIMIZE, IDR_MINIMIZE_H, IDR_MINIMIZE_P,
-        IDR_DEWINDOW_BOTTOM_CENTER, IDR_DEWINDOW_BOTTOM_LEFT_CORNER,
-            IDR_DEWINDOW_BOTTOM_RIGHT_CORNER, IDR_DEWINDOW_LEFT_SIDE,
-            IDR_DEWINDOW_RIGHT_SIDE, IDR_DEWINDOW_TOP_CENTER,
-            IDR_DEWINDOW_TOP_LEFT_CORNER, IDR_DEWINDOW_TOP_RIGHT_CORNER,
-        IDR_CONTENT_TOP_LEFT_CORNER, IDR_CONTENT_TOP_CENTER,
-            IDR_CONTENT_TOP_RIGHT_CORNER, IDR_CONTENT_RIGHT_SIDE,
-            IDR_CONTENT_BOTTOM_RIGHT_CORNER, IDR_CONTENT_BOTTOM_CENTER,
-            IDR_CONTENT_BOTTOM_LEFT_CORNER, IDR_CONTENT_LEFT_SIDE,
-        IDR_APP_TOP_LEFT, IDR_APP_TOP_CENTER, IDR_APP_TOP_RIGHT,
-      };
-
-      ResourceBundle& rb = ResourceBundle::GetSharedInstance();
-      for (int i = 0; i < FRAME_PART_BITMAP_COUNT; ++i)
-        standard_frame_bitmaps_[i] = rb.GetBitmapNamed(kFramePartBitmapIds[i]);
-      initialized = true;
-    }
-  }
-
-  static SkBitmap* standard_frame_bitmaps_[FRAME_PART_BITMAP_COUNT];
-
-  DISALLOW_EVIL_CONSTRUCTORS(InactiveWindowResources);
-};
-
-class OTRActiveWindowResources : public views::WindowResources {
- public:
-  OTRActiveWindowResources() {
-    InitClass();
-  }
-  virtual ~OTRActiveWindowResources() { }
-
-  // WindowResources implementation:
-  virtual SkBitmap* GetPartBitmap(views::FramePartBitmap part) const {
-    return standard_frame_bitmaps_[part];
-  }
-
- private:
-  static void InitClass() {
-    static bool initialized = false;
-    if (!initialized) {
-      static const int kFramePartBitmapIds[] = {
-        IDR_CLOSE, IDR_CLOSE_H, IDR_CLOSE_P,
-        IDR_CLOSE_SA, IDR_CLOSE_SA_H, IDR_CLOSE_SA_P,
-        IDR_RESTORE, IDR_RESTORE_H, IDR_RESTORE_P,
-        IDR_MAXIMIZE, IDR_MAXIMIZE_H, IDR_MAXIMIZE_P,
-        IDR_MINIMIZE, IDR_MINIMIZE_H, IDR_MINIMIZE_P,
-        IDR_WINDOW_BOTTOM_CENTER_OTR, IDR_WINDOW_BOTTOM_LEFT_CORNER_OTR,
-            IDR_WINDOW_BOTTOM_RIGHT_CORNER_OTR, IDR_WINDOW_LEFT_SIDE_OTR,
-            IDR_WINDOW_RIGHT_SIDE_OTR, IDR_WINDOW_TOP_CENTER_OTR,
-            IDR_WINDOW_TOP_LEFT_CORNER_OTR, IDR_WINDOW_TOP_RIGHT_CORNER_OTR,
-        IDR_CONTENT_TOP_LEFT_CORNER, IDR_CONTENT_TOP_CENTER,
-            IDR_CONTENT_TOP_RIGHT_CORNER, IDR_CONTENT_RIGHT_SIDE,
-            IDR_CONTENT_BOTTOM_RIGHT_CORNER, IDR_CONTENT_BOTTOM_CENTER,
-            IDR_CONTENT_BOTTOM_LEFT_CORNER, IDR_CONTENT_LEFT_SIDE,
-        IDR_APP_TOP_LEFT, IDR_APP_TOP_CENTER, IDR_APP_TOP_RIGHT,
-      };
-
-      ResourceBundle& rb = ResourceBundle::GetSharedInstance();
-      for (int i = 0; i < FRAME_PART_BITMAP_COUNT; ++i)
-        standard_frame_bitmaps_[i] = rb.GetBitmapNamed(kFramePartBitmapIds[i]);
-      initialized = true;
-    }
-  }
-
-  static SkBitmap* standard_frame_bitmaps_[FRAME_PART_BITMAP_COUNT];
-
-  DISALLOW_EVIL_CONSTRUCTORS(OTRActiveWindowResources);
-};
-
-class OTRInactiveWindowResources : public views::WindowResources {
- public:
-  OTRInactiveWindowResources() {
-    InitClass();
-  }
-  virtual ~OTRInactiveWindowResources() { }
-
-  // WindowResources implementation:
-  virtual SkBitmap* GetPartBitmap(views::FramePartBitmap part) const {
-    return standard_frame_bitmaps_[part];
-  }
-
- private:
-  static void InitClass() {
-    static bool initialized = false;
-    if (!initialized) {
-      static const int kFramePartBitmapIds[] = {
-        IDR_CLOSE, IDR_CLOSE_H, IDR_CLOSE_P,
-        IDR_CLOSE_SA, IDR_CLOSE_SA_H, IDR_CLOSE_SA_P,
-        IDR_RESTORE, IDR_RESTORE_H, IDR_RESTORE_P,
-        IDR_MAXIMIZE, IDR_MAXIMIZE_H, IDR_MAXIMIZE_P,
-        IDR_MINIMIZE, IDR_MINIMIZE_H, IDR_MINIMIZE_P,
-        IDR_DEWINDOW_BOTTOM_CENTER_OTR, IDR_DEWINDOW_BOTTOM_LEFT_CORNER_OTR,
-            IDR_DEWINDOW_BOTTOM_RIGHT_CORNER_OTR, IDR_DEWINDOW_LEFT_SIDE_OTR,
-            IDR_DEWINDOW_RIGHT_SIDE_OTR, IDR_DEWINDOW_TOP_CENTER_OTR,
-            IDR_DEWINDOW_TOP_LEFT_CORNER_OTR,
-            IDR_DEWINDOW_TOP_RIGHT_CORNER_OTR,
-        IDR_CONTENT_TOP_LEFT_CORNER, IDR_CONTENT_TOP_CENTER,
-            IDR_CONTENT_TOP_RIGHT_CORNER, IDR_CONTENT_RIGHT_SIDE,
-            IDR_CONTENT_BOTTOM_RIGHT_CORNER, IDR_CONTENT_BOTTOM_CENTER,
-            IDR_CONTENT_BOTTOM_LEFT_CORNER, IDR_CONTENT_LEFT_SIDE,
-        IDR_APP_TOP_LEFT, IDR_APP_TOP_CENTER, IDR_APP_TOP_RIGHT,
-      };
-
-      ResourceBundle& rb = ResourceBundle::GetSharedInstance();
-      for (int i = 0; i < FRAME_PART_BITMAP_COUNT; ++i)
-        standard_frame_bitmaps_[i] = rb.GetBitmapNamed(kFramePartBitmapIds[i]);
-      initialized = true;
-    }
-  }
-
-  static SkBitmap* standard_frame_bitmaps_[FRAME_PART_BITMAP_COUNT];
-
-  DISALLOW_EVIL_CONSTRUCTORS(OTRInactiveWindowResources);
-};
-
 // static
-SkBitmap* ActiveWindowResources::standard_frame_bitmaps_[];
-SkBitmap* InactiveWindowResources::standard_frame_bitmaps_[];
-SkBitmap* OTRActiveWindowResources::standard_frame_bitmaps_[];
-SkBitmap* OTRInactiveWindowResources::standard_frame_bitmaps_[];
-
-views::WindowResources* OpaqueBrowserFrameView::active_resources_ = NULL;
-views::WindowResources* OpaqueBrowserFrameView::inactive_resources_ = NULL;
-views::WindowResources* OpaqueBrowserFrameView::active_otr_resources_ = NULL;
-views::WindowResources* OpaqueBrowserFrameView::inactive_otr_resources_ = NULL;
 SkBitmap* OpaqueBrowserFrameView::distributor_logo_ = NULL;
 ChromeFont* OpaqueBrowserFrameView::title_font_ = NULL;
 
@@ -341,68 +106,57 @@ OpaqueBrowserFrameView::OpaqueBrowserFrameView(BrowserFrame* frame,
       frame_(frame),
       browser_view_(browser_view) {
   InitClass();
-  if (browser_view->IsOffTheRecord()) {
-    if (!active_otr_resources_) {
-      // Lazy load OTR resources only when we first show an OTR frame.
-      active_otr_resources_ = new OTRActiveWindowResources;
-      inactive_otr_resources_ = new OTRInactiveWindowResources;
-    }
-    current_active_resources_ = active_otr_resources_;
-    current_inactive_resources_= inactive_otr_resources_;
-  } else {
-    current_active_resources_ = active_resources_;
-    current_inactive_resources_ = inactive_resources_;
-  }
 
-  views::WindowResources* resources = current_active_resources_;
+  ThemeProvider* tp = frame_->GetThemeProvider();
+
   minimize_button_->SetImage(
       views::CustomButton::BS_NORMAL,
-      resources->GetPartBitmap(FRAME_MINIMIZE_BUTTON_ICON));
+      tp->GetBitmapNamed(IDR_MINIMIZE));
   minimize_button_->SetImage(
       views::CustomButton::BS_HOT,
-      resources->GetPartBitmap(FRAME_MINIMIZE_BUTTON_ICON_H));
+      tp->GetBitmapNamed(IDR_MINIMIZE_H));
   minimize_button_->SetImage(
       views::CustomButton::BS_PUSHED,
-      resources->GetPartBitmap(FRAME_MINIMIZE_BUTTON_ICON_P));
+      tp->GetBitmapNamed(IDR_MINIMIZE_P));
   minimize_button_->SetAccessibleName(
       l10n_util::GetString(IDS_ACCNAME_MINIMIZE));
   AddChildView(minimize_button_);
 
   maximize_button_->SetImage(
       views::CustomButton::BS_NORMAL,
-      resources->GetPartBitmap(FRAME_MAXIMIZE_BUTTON_ICON));
+      tp->GetBitmapNamed(IDR_MAXIMIZE));
   maximize_button_->SetImage(
       views::CustomButton::BS_HOT,
-      resources->GetPartBitmap(FRAME_MAXIMIZE_BUTTON_ICON_H));
+      tp->GetBitmapNamed(IDR_MAXIMIZE_H));
   maximize_button_->SetImage(
       views::CustomButton::BS_PUSHED,
-      resources->GetPartBitmap(FRAME_MAXIMIZE_BUTTON_ICON_P));
+      tp->GetBitmapNamed(IDR_MAXIMIZE_P));
   maximize_button_->SetAccessibleName(
       l10n_util::GetString(IDS_ACCNAME_MAXIMIZE));
   AddChildView(maximize_button_);
 
   restore_button_->SetImage(
       views::CustomButton::BS_NORMAL,
-      resources->GetPartBitmap(FRAME_RESTORE_BUTTON_ICON));
+      tp->GetBitmapNamed(IDR_RESTORE));
   restore_button_->SetImage(
       views::CustomButton::BS_HOT,
-      resources->GetPartBitmap(FRAME_RESTORE_BUTTON_ICON_H));
+      tp->GetBitmapNamed(IDR_RESTORE_H));
   restore_button_->SetImage(
       views::CustomButton::BS_PUSHED,
-      resources->GetPartBitmap(FRAME_RESTORE_BUTTON_ICON_P));
+      tp->GetBitmapNamed(IDR_RESTORE_P));
   restore_button_->SetAccessibleName(
       l10n_util::GetString(IDS_ACCNAME_RESTORE));
   AddChildView(restore_button_);
 
   close_button_->SetImage(
       views::CustomButton::BS_NORMAL,
-      resources->GetPartBitmap(FRAME_CLOSE_BUTTON_ICON));
+      tp->GetBitmapNamed(IDR_CLOSE));
   close_button_->SetImage(
       views::CustomButton::BS_HOT,
-      resources->GetPartBitmap(FRAME_CLOSE_BUTTON_ICON_H));
+      tp->GetBitmapNamed(IDR_CLOSE_H));
   close_button_->SetImage(
       views::CustomButton::BS_PUSHED,
-      resources->GetPartBitmap(FRAME_CLOSE_BUTTON_ICON_P));
+      tp->GetBitmapNamed(IDR_CLOSE_P));
   close_button_->SetAccessibleName(l10n_util::GetString(IDS_ACCNAME_CLOSE));
   AddChildView(close_button_);
 
@@ -753,17 +507,61 @@ int OpaqueBrowserFrameView::IconSize(int* title_top_spacing_ptr,
 }
 
 void OpaqueBrowserFrameView::PaintRestoredFrameBorder(ChromeCanvas* canvas) {
-  SkBitmap* top_left_corner = resources()->GetPartBitmap(FRAME_TOP_LEFT_CORNER);
+  ThemeProvider* tp = GetThemeProvider();
+
+  SkBitmap* top_left_corner = tp->GetBitmapNamed(IDR_WINDOW_TOP_LEFT_CORNER);
   SkBitmap* top_right_corner =
-      resources()->GetPartBitmap(FRAME_TOP_RIGHT_CORNER);
-  SkBitmap* top_edge = resources()->GetPartBitmap(FRAME_TOP_EDGE);
-  SkBitmap* right_edge = resources()->GetPartBitmap(FRAME_RIGHT_EDGE);
-  SkBitmap* left_edge = resources()->GetPartBitmap(FRAME_LEFT_EDGE);
+      tp->GetBitmapNamed(IDR_WINDOW_TOP_RIGHT_CORNER);
+  SkBitmap* top_edge = tp->GetBitmapNamed(IDR_WINDOW_TOP_CENTER);
+  SkBitmap* right_edge = tp->GetBitmapNamed(IDR_WINDOW_RIGHT_SIDE);
+  SkBitmap* left_edge = tp->GetBitmapNamed(IDR_WINDOW_LEFT_SIDE);
   SkBitmap* bottom_left_corner =
-      resources()->GetPartBitmap(FRAME_BOTTOM_LEFT_CORNER);
+      tp->GetBitmapNamed(IDR_WINDOW_BOTTOM_LEFT_CORNER);
   SkBitmap* bottom_right_corner =
-    resources()->GetPartBitmap(FRAME_BOTTOM_RIGHT_CORNER);
-  SkBitmap* bottom_edge = resources()->GetPartBitmap(FRAME_BOTTOM_EDGE);
+      tp->GetBitmapNamed(IDR_WINDOW_BOTTOM_RIGHT_CORNER);
+  SkBitmap* bottom_edge = tp->GetBitmapNamed(IDR_WINDOW_BOTTOM_CENTER);
+
+
+  // Window frame mode and color
+  SkBitmap* theme_frame;
+  SkColor frame_color;
+  if (!browser_view_->IsOffTheRecord()) {
+    if (frame_->IsActive()) {
+      theme_frame = tp->GetBitmapNamed(IDR_THEME_FRAME);
+      frame_color = tp->GetColor(BrowserThemeProvider::COLOR_FRAME);
+    } else {
+      theme_frame = tp->GetBitmapNamed(IDR_THEME_FRAME_INACTIVE);
+      frame_color = tp->GetColor(BrowserThemeProvider::COLOR_FRAME_INACTIVE);
+    }
+  } else {
+    if (frame_->IsActive()) {
+      theme_frame = tp->GetBitmapNamed(IDR_THEME_FRAME_INCOGNITO);
+      frame_color = tp->GetColor(BrowserThemeProvider::COLOR_FRAME_INCOGNITO);
+    } else {
+      theme_frame = tp->GetBitmapNamed(IDR_THEME_FRAME_INCOGNITO_INACTIVE);
+      frame_color = tp->GetColor(
+          BrowserThemeProvider::COLOR_FRAME_INCOGNITO_INACTIVE);
+    }
+  }
+
+  // Fill with the frame color first so we have a constant background for
+  // areas not covered by the theme image.
+  canvas->FillRectInt(frame_color, 0, 0, width(), theme_frame->height());
+  // Now fill down the sides
+  canvas->FillRectInt(frame_color,
+                      0, theme_frame->height(),
+                      left_edge->width(), height() - theme_frame->height());
+  canvas->FillRectInt(frame_color,
+                      width() - right_edge->width(), theme_frame->height(),
+                      right_edge->width(), height() - theme_frame->height());
+  // Now fill the bottom area.
+  canvas->FillRectInt(frame_color,
+      left_edge->width(), height() - bottom_edge->height(),
+      width() - left_edge->width() - right_edge->width(),
+      bottom_edge->height());
+
+  // Draw the theme frame.
+  canvas->TileImageInt(*theme_frame, 0, 0, width(), theme_frame->height());
 
   // Top.
   int top_left_height = std::min(top_left_corner->height(),
@@ -804,8 +602,11 @@ void OpaqueBrowserFrameView::PaintRestoredFrameBorder(ChromeCanvas* canvas) {
       height() - top_left_height - bottom_left_corner->height());
 }
 
+
 void OpaqueBrowserFrameView::PaintMaximizedFrameBorder(ChromeCanvas* canvas) {
-  SkBitmap* top_edge = resources()->GetPartBitmap(FRAME_TOP_EDGE);
+  ThemeProvider* tp = GetThemeProvider();
+
+  SkBitmap* top_edge = tp->GetBitmapNamed(IDR_WINDOW_TOP_CENTER);
   canvas->TileImageInt(*top_edge, 0, FrameBorderThickness(), width(),
                        top_edge->height());
 
@@ -814,7 +615,7 @@ void OpaqueBrowserFrameView::PaintMaximizedFrameBorder(ChromeCanvas* canvas) {
     // edge.  The graphic we use for this has a built in client edge, so we clip
     // it off the bottom.
     SkBitmap* top_center =
-        resources()->GetPartBitmap(FRAME_NO_TOOLBAR_TOP_CENTER);
+        tp->GetBitmapNamed(IDR_APP_TOP_CENTER);
     int edge_height = top_center->height() - kClientEdgeThickness;
     canvas->TileImageInt(*top_center, 0,
         frame_->GetClientView()->y() - edge_height, width(), edge_height);
@@ -851,10 +652,25 @@ void OpaqueBrowserFrameView::PaintToolbarBackground(ChromeCanvas* canvas) {
   if (!browser_view_->IsToolbarVisible())
     return;
 
+  ThemeProvider* tp = GetThemeProvider();
   gfx::Rect toolbar_bounds(browser_view_->GetToolbarBounds());
   gfx::Point toolbar_origin(toolbar_bounds.origin());
   View::ConvertPointToView(frame_->GetClientView(), this, &toolbar_origin);
   toolbar_bounds.set_origin(toolbar_origin);
+
+  int strip_height = browser_view_->GetTabStripHeight();
+  SkBitmap* theme_toolbar = tp->GetBitmapNamed(IDR_THEME_TOOLBAR);
+
+  canvas->TileImageInt(*theme_toolbar,
+      0, strip_height - 1,  // crop src
+      toolbar_bounds.x() - 1, toolbar_bounds.y() + 2,
+      toolbar_bounds.width() + 2, theme_toolbar->height());
+
+  SkBitmap* toolbar_left =
+      tp->GetBitmapNamed(IDR_CONTENT_TOP_LEFT_CORNER);
+  canvas->DrawBitmapInt(*toolbar_left,
+                        toolbar_bounds.x() - toolbar_left->width(),
+                        toolbar_bounds.y());
 
   // Gross hack: We split the toolbar images into two pieces, since sometimes
   // (popup mode) the toolbar isn't tall enough to show the whole image.  The
@@ -862,8 +678,6 @@ void OpaqueBrowserFrameView::PaintToolbarBackground(ChromeCanvas* canvas) {
   // section so that we never break the gradient.
   int split_point = kFrameShadowThickness * 2;
   int bottom_y = toolbar_bounds.y() + split_point;
-  SkBitmap* toolbar_left =
-      resources()->GetPartBitmap(FRAME_CLIENT_EDGE_TOP_LEFT);
   int bottom_edge_height =
       std::min(toolbar_left->height(), toolbar_bounds.height()) - split_point;
 
@@ -876,7 +690,7 @@ void OpaqueBrowserFrameView::PaintToolbarBackground(ChromeCanvas* canvas) {
       toolbar_left->width(), bottom_edge_height, false);
 
   SkBitmap* toolbar_center =
-      resources()->GetPartBitmap(FRAME_CLIENT_EDGE_TOP);
+      tp->GetBitmapNamed(IDR_CONTENT_TOP_CENTER);
   canvas->TileImageInt(*toolbar_center, 0, 0, toolbar_bounds.x(),
       toolbar_bounds.y(), toolbar_bounds.width(), split_point);
   int bottom_center_height =
@@ -885,8 +699,7 @@ void OpaqueBrowserFrameView::PaintToolbarBackground(ChromeCanvas* canvas) {
       toolbar_center->height() - bottom_center_height, toolbar_bounds.x(),
       bottom_y, toolbar_bounds.width(), bottom_center_height);
 
-  SkBitmap* toolbar_right =
-      resources()->GetPartBitmap(FRAME_CLIENT_EDGE_TOP_RIGHT);
+  SkBitmap* toolbar_right = tp->GetBitmapNamed(IDR_CONTENT_TOP_RIGHT_CORNER);
   canvas->DrawBitmapInt(*toolbar_right, 0, 0, toolbar_right->width(),
       split_point, toolbar_bounds.right(), toolbar_bounds.y(),
       toolbar_right->width(), split_point, false);
@@ -909,6 +722,7 @@ void OpaqueBrowserFrameView::PaintOTRAvatar(ChromeCanvas* canvas) {
 }
 
 void OpaqueBrowserFrameView::PaintRestoredClientEdge(ChromeCanvas* canvas) {
+  ThemeProvider* tp = GetThemeProvider();
   int client_area_top = frame_->GetClientView()->y();
 
   gfx::Rect client_area_bounds = CalculateClientAreaBounds(width(), height());
@@ -916,9 +730,9 @@ void OpaqueBrowserFrameView::PaintRestoredClientEdge(ChromeCanvas* canvas) {
     // The client edges start below the toolbar or its corner images, whichever
     // is shorter.
     gfx::Rect toolbar_bounds(browser_view_->GetToolbarBounds());
-    client_area_top += toolbar_bounds.y() + std::min(
-        resources()->GetPartBitmap(FRAME_CLIENT_EDGE_TOP_LEFT)->height(),
-        toolbar_bounds.height());
+    client_area_top += browser_view_->GetToolbarBounds().y() +
+        std::min(tp->GetBitmapNamed(IDR_CONTENT_TOP_LEFT_CORNER)->height(),
+                 toolbar_bounds.height());
   } else {
     // The toolbar isn't going to draw a client edge for us, so draw one
     // ourselves.
@@ -926,12 +740,11 @@ void OpaqueBrowserFrameView::PaintRestoredClientEdge(ChromeCanvas* canvas) {
     // shorter than the top left and right bitmaps.  We need their top edges to
     // line up, and we need the left and right edges to start below the corners'
     // bottoms.
-    SkBitmap* top_left = resources()->GetPartBitmap(FRAME_NO_TOOLBAR_TOP_LEFT);
-    SkBitmap* top_center =
-        resources()->GetPartBitmap(FRAME_NO_TOOLBAR_TOP_CENTER);
-    SkBitmap* top_right =
-        resources()->GetPartBitmap(FRAME_NO_TOOLBAR_TOP_RIGHT);
+    SkBitmap* top_left = tp->GetBitmapNamed(IDR_APP_TOP_LEFT);
+    SkBitmap* top_center = tp->GetBitmapNamed(IDR_APP_TOP_CENTER);
+    SkBitmap* top_right = tp->GetBitmapNamed(IDR_APP_TOP_RIGHT);
     int top_edge_y = client_area_top - top_center->height();
+
     client_area_top = std::min(top_edge_y + top_left->height(),
                                height() - NonClientBorderThickness());
     int height = client_area_top - top_edge_y;
@@ -945,28 +758,42 @@ void OpaqueBrowserFrameView::PaintRestoredClientEdge(ChromeCanvas* canvas) {
         top_right->width(), height, false);
   }
 
+
   int client_area_bottom =
       std::max(client_area_top, height() - NonClientBorderThickness());
   int client_area_height = client_area_bottom - client_area_top;
-  SkBitmap* right = resources()->GetPartBitmap(FRAME_CLIENT_EDGE_RIGHT);
+
+  // Draw the toolbar color so that the one pixel areas down the sides
+  // show the right color even if not covered by the toolbar image.
+  canvas->DrawRectInt(ResourceBundle::toolbar_color,
+      client_area_bounds.x() - kClientEdgeThickness, client_area_top,
+      client_area_bounds.width() + kClientEdgeThickness,
+      client_area_bottom - client_area_top);
+
+  // Draw the content/toolbar separator.
+  canvas->DrawLineInt(ResourceBundle::toolbar_separator_color,
+      client_area_bounds.x(), client_area_top,
+      client_area_bounds.x() + client_area_bounds.width(),
+      client_area_top);
+
+  SkBitmap* right = tp->GetBitmapNamed(IDR_CONTENT_RIGHT_SIDE);
   canvas->TileImageInt(*right, client_area_bounds.right(), client_area_top,
                        right->width(), client_area_height);
-
   canvas->DrawBitmapInt(
-      *resources()->GetPartBitmap(FRAME_CLIENT_EDGE_BOTTOM_RIGHT),
+      *tp->GetBitmapNamed(IDR_CONTENT_BOTTOM_RIGHT_CORNER),
       client_area_bounds.right(), client_area_bottom);
 
-  SkBitmap* bottom = resources()->GetPartBitmap(FRAME_CLIENT_EDGE_BOTTOM);
+  SkBitmap* bottom = tp->GetBitmapNamed(IDR_CONTENT_BOTTOM_CENTER);
   canvas->TileImageInt(*bottom, client_area_bounds.x(),
       client_area_bottom, client_area_bounds.width(),
       bottom->height());
 
   SkBitmap* bottom_left =
-      resources()->GetPartBitmap(FRAME_CLIENT_EDGE_BOTTOM_LEFT);
+      tp->GetBitmapNamed(IDR_CONTENT_BOTTOM_LEFT_CORNER);
   canvas->DrawBitmapInt(*bottom_left,
       client_area_bounds.x() - bottom_left->width(), client_area_bottom);
 
-  SkBitmap* left = resources()->GetPartBitmap(FRAME_CLIENT_EDGE_LEFT);
+  SkBitmap* left = tp->GetBitmapNamed(IDR_CONTENT_LEFT_SIDE);
   canvas->TileImageInt(*left, client_area_bounds.x() - left->width(),
       client_area_top, left->width(), client_area_height);
 }
@@ -1102,9 +929,6 @@ gfx::Rect OpaqueBrowserFrameView::CalculateClientAreaBounds(int width,
 void OpaqueBrowserFrameView::InitClass() {
   static bool initialized = false;
   if (!initialized) {
-    active_resources_ = new ActiveWindowResources;
-    inactive_resources_ = new InactiveWindowResources;
-
 #if defined(GOOGLE_CHROME_BUILD)
     distributor_logo_ = ResourceBundle::GetSharedInstance().
         GetBitmapNamed(IDR_DISTRIBUTOR_LOGO_LIGHT);

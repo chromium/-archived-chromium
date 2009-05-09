@@ -28,6 +28,7 @@
 #include "chrome/browser/sessions/tab_restore_service.h"
 #include "chrome/browser/spellchecker.h"
 #include "chrome/browser/ssl/ssl_host_state.h"
+#include "chrome/browser/browser_theme_provider.h"
 #include "chrome/browser/visitedlink_master.h"
 #include "chrome/browser/webdata/web_data_service.h"
 #include "chrome/common/chrome_constants.h"
@@ -37,7 +38,6 @@
 #include "chrome/common/pref_names.h"
 #include "chrome/common/render_messages.h"
 #include "grit/locale_settings.h"
-
 
 using base::Time;
 using base::TimeDelta;
@@ -59,6 +59,10 @@ void Profile::RegisterUserPrefs(PrefService* prefs) {
       IDS_SPELLCHECK_DICTIONARY);
   prefs->RegisterBooleanPref(prefs::kEnableSpellCheck, true);
   prefs->RegisterBooleanPref(prefs::kEnableUserScripts, false);
+  prefs->RegisterStringPref(prefs::kCurrentThemeID, L"");
+  prefs->RegisterDictionaryPref(prefs::kCurrentThemeImages);
+  prefs->RegisterDictionaryPref(prefs::kCurrentThemeColors);
+  prefs->RegisterDictionaryPref(prefs::kCurrentThemeTints);
   prefs->RegisterBooleanPref(prefs::kEnableExtensions, false);
 }
 
@@ -76,7 +80,7 @@ URLRequestContext* Profile::GetDefaultRequestContext() {
 ////////////////////////////////////////////////////////////////////////////////
 //
 // OffTheRecordProfileImpl is a profile subclass that wraps an existing profile
-// to  make it suitable for the off the record mode.
+// to make it suitable for the off the record mode.
 //
 ////////////////////////////////////////////////////////////////////////////////
 class OffTheRecordProfileImpl : public Profile,
@@ -202,6 +206,22 @@ class OffTheRecordProfileImpl : public Profile,
 
   virtual bool HasCreatedDownloadManager() const {
     return (download_manager_.get() != NULL);
+  }
+
+  virtual void InitThemes() {
+    GetOriginalProfile()->InitThemes();
+  }
+
+  virtual void SetTheme(Extension* extension) {
+    GetOriginalProfile()->SetTheme(extension);
+  }
+
+  virtual void ClearTheme() {
+    GetOriginalProfile()->ClearTheme();
+  }
+
+  virtual ThemeProvider* GetThemeProvider() {
+    return GetOriginalProfile()->GetThemeProvider();
   }
 
   virtual URLRequestContext* GetRequestContext() {
@@ -341,6 +361,9 @@ class OffTheRecordProfileImpl : public Profile,
   // The download manager that only stores downloaded items in memory.
   scoped_refptr<DownloadManager> download_manager_;
 
+  // The download manager that only stores downloaded items in memory.
+  scoped_refptr<BrowserThemeProvider> theme_provider_;
+
   // We don't want SSLHostState from the OTR profile to leak back to the main
   // profile because then the main profile would learn some of the host names
   // the user visited while OTR.
@@ -362,6 +385,7 @@ ProfileImpl::ProfileImpl(const FilePath& path)
       history_service_created_(false),
       created_web_data_service_(false),
       created_download_manager_(false),
+      created_theme_provider_(false),
       start_time_(Time::Now()),
       spellchecker_(NULL),
       shutdown_session_service_(false) {
@@ -387,6 +411,10 @@ ProfileImpl::ProfileImpl(const FilePath& path)
   prefs->transient()->SetString(prefs::kHomePage, "about:linux-splash");
   prefs->transient()->SetBoolean(prefs::kHomePageIsNewTabPage, false);
 #endif
+
+  // Listen for theme installation.
+  NotificationService::current()->AddObserver(this,
+    NotificationType::THEME_INSTALLED, NotificationService::AllSources());
 }
 
 void ProfileImpl::InitExtensions() {
@@ -440,6 +468,9 @@ ProfileImpl::~ProfileImpl() {
   // before the history is shutdown so it can properly cancel all requests.
   download_manager_ = NULL;
 
+  // The theme provider provides bitmaps to whoever wants them.
+  theme_provider_ = NULL;
+
   // Remove pref observers.
   PrefService* prefs = GetPrefs();
   prefs->RemovePrefObserver(prefs::kSpellCheckDictionary, this);
@@ -448,6 +479,10 @@ ProfileImpl::~ProfileImpl() {
 #ifdef CHROME_PERSONALIZATION
   personalization_.reset();
 #endif
+
+  // Remove theme observer.
+  NotificationService::current()->RemoveObserver(this,
+      NotificationType::THEME_INSTALLED, NotificationService::AllSources());
 
   // Both HistoryService and WebDataService maintain threads for background
   // processing. Its possible each thread still has tasks on it that have
@@ -731,6 +766,30 @@ bool ProfileImpl::HasCreatedDownloadManager() const {
   return created_download_manager_;
 }
 
+void ProfileImpl::InitThemes() {
+  if (!created_theme_provider_) {
+    scoped_refptr<BrowserThemeProvider> themes(new BrowserThemeProvider);
+    themes->Init(this);
+    created_theme_provider_ = true;
+    theme_provider_.swap(themes);
+  }
+}
+
+void ProfileImpl::SetTheme(Extension* extension) {
+  InitThemes();
+  theme_provider_.get()->SetTheme(extension);
+}
+
+void ProfileImpl::ClearTheme() {
+  InitThemes();
+  theme_provider_.get()->UseDefaultTheme();
+}
+
+ThemeProvider* ProfileImpl::GetThemeProvider() {
+  InitThemes();
+  return theme_provider_.get();
+}
+
 SessionService* ProfileImpl::GetSessionService() {
   if (!session_service_.get() && !shutdown_session_service_) {
     session_service_ = new SessionService(this);
@@ -911,6 +970,9 @@ void ProfileImpl::Observe(NotificationType type,
         *pref_name_in == prefs::kEnableSpellCheck) {
       InitializeSpellChecker(true);
     }
+  } else if (NotificationType::THEME_INSTALLED == type) {
+    Extension* extension = Details<Extension>(details).ptr();
+    SetTheme(extension);
   }
 }
 

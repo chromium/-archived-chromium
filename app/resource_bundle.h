@@ -18,7 +18,7 @@
 #include "base/file_path.h"
 #include "base/lock.h"
 #include "base/scoped_ptr.h"
-#include "chrome/browser/extensions/extension.h"
+#include "base/string16.h"
 
 #if defined(OS_LINUX) || defined(OS_MACOSX)
 namespace base {
@@ -29,8 +29,8 @@ class DataPack;
 typedef struct _GdkPixbuf GdkPixbuf;
 #endif
 class ChromeFont;
-class Extension;
 class SkBitmap;
+typedef uint32 SkColor;
 class StringPiece;
 
 // ResourceBundle is a central facility to load images and other resources,
@@ -123,8 +123,14 @@ class ResourceBundle {
   GdkPixbuf* GetPixbufNamed(int resource_id);
 #endif
 
-  // Sets an Extension object that can handle theme resource requests.
-  void SetThemeExtension(const Extension& e);
+  // TODO(glen): Move these into theme provider (dialogs still depend on
+  //    ResourceBundle).
+  static const SkColor frame_color;
+  static const SkColor frame_color_inactive;
+  static const SkColor frame_color_incognito;
+  static const SkColor frame_color_incognito_inactive;
+  static const SkColor toolbar_color;
+  static const SkColor toolbar_separator_color;
 
  private:
   // We define a DataHandle typedef to abstract across how data is stored
@@ -194,8 +200,6 @@ class ResourceBundle {
   scoped_ptr<ChromeFont> web_font_;
 
   static ResourceBundle* g_shared_instance_;
-
-  scoped_ptr<Extension> theme_extension_;
 
   DISALLOW_EVIL_CONSTRUCTORS(ResourceBundle);
 };

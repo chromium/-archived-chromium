@@ -119,6 +119,12 @@ class TestingProfile : public Profile {
   virtual bool HasCreatedDownloadManager() const {
     return false;
   }
+  virtual void InitThemes() { }
+  virtual void SetTheme(Extension* extension) { }
+  virtual void ClearTheme() { }
+  virtual ThemeProvider* GetThemeProvider() {
+    return NULL;
+  }
   virtual URLRequestContext* GetRequestContext() {
     return NULL;
   }

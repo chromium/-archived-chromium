@@ -33,6 +33,7 @@ class Path;
 class ChromeCanvas;
 class OSExchangeData;
 class ViewAccessibilityWrapper;
+class ThemeProvider;
 
 namespace views {
 
@@ -994,6 +995,9 @@ class View : public AcceleratorTarget {
                                      bool is_horizontal, bool is_positive);
   virtual int GetLineScrollIncrement(ScrollView* scroll_view,
                                      bool is_horizontal, bool is_positive);
+
+  // Get the theme provider from the parent widget.
+  ThemeProvider* GetThemeProvider();
 
  protected:
   // The id of this View. Used to find this View.

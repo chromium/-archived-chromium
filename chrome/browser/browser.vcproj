@@ -290,6 +290,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\browser_theme_provider.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\browser_theme_provider.h"
+				>
+			</File>
+			<File
 				RelativePath=".\browser_url_handler.cc"
 				>
 			</File>
@@ -1539,6 +1547,14 @@
 			</File>
 			<File
 				RelativePath=".\dom_ui\dom_ui_favicon_source.h"
+				>
+			</File>
+			<File
+				RelativePath=".\dom_ui\dom_ui_theme_source.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\dom_ui\dom_ui_theme_source.h"
 				>
 			</File>
 			<File

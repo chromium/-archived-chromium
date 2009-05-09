@@ -10,7 +10,6 @@
 #include "views/window/non_client_view.h"
 
 class BrowserView;
-class GlassBrowserWindowResources;
 class SkBitmap;
 
 class GlassBrowserFrameView : public BrowserNonClientFrameView {
@@ -95,7 +94,6 @@ class GlassBrowserFrameView : public BrowserNonClientFrameView {
 
   static void InitClass();
   static SkBitmap* distributor_logo_;
-  static GlassBrowserWindowResources* resources_;
 
   static const int kThrobberIconCount = 24;
   static HICON throbber_icons_[kThrobberIconCount];

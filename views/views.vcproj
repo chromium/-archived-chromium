@@ -201,6 +201,36 @@
 				>
 			</File>
 			<File
+				RelativePath=".\widget\default_theme_provider.cc"
+				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						ObjectFile="$(IntDir)\$(InputName)1.obj"
+						XMLDocumentationFileName="$(IntDir)\$(InputName)1.xdc"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						ObjectFile="$(IntDir)\$(InputName)1.obj"
+						XMLDocumentationFileName="$(IntDir)\$(InputName)1.xdc"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath=".\widget\default_theme_provider.h"
+				>
+			</File>
+			<File
+				RelativePath=".\widget\hwnd_notification_source.h"
+				>
+			</File>
+			<File
 				RelativePath=".\widget\root_view.cc"
 				>
 				<FileConfiguration

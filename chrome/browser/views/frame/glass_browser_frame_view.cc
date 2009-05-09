@@ -6,66 +6,15 @@
 
 #include "app/gfx/chrome_canvas.h"
 #include "app/resource_bundle.h"
+#include "app/theme_provider.h"
+#include "chrome/browser/browser_theme_provider.h"
 #include "chrome/browser/views/frame/browser_view.h"
 #include "chrome/browser/views/tabs/tab_strip.h"
 #include "grit/theme_resources.h"
 #include "views/window/client_view.h"
 #include "views/window/window_resources.h"
 
-// An enumeration of bitmap resources used by this window.
-enum {
-  // Client Edge Border.
-  FRAME_CLIENT_EDGE_TOP_LEFT,
-  FRAME_CLIENT_EDGE_TOP,
-  FRAME_CLIENT_EDGE_TOP_RIGHT,
-  FRAME_CLIENT_EDGE_RIGHT,
-  FRAME_CLIENT_EDGE_BOTTOM_RIGHT,
-  FRAME_CLIENT_EDGE_BOTTOM,
-  FRAME_CLIENT_EDGE_BOTTOM_LEFT,
-  FRAME_CLIENT_EDGE_LEFT,
-
-  FRAME_PART_BITMAP_COUNT  // Must be last.
-};
-
-class GlassBrowserWindowResources {
- public:
-  GlassBrowserWindowResources() {
-    InitClass();
-  }
-  virtual ~GlassBrowserWindowResources() { }
-
-  virtual SkBitmap* GetPartBitmap(views::FramePartBitmap part) const {
-    return standard_frame_bitmaps_[part];
-  }
-
- private:
-  static void InitClass() {
-    static bool initialized = false;
-    if (!initialized) {
-      static const int kFramePartBitmapIds[] = {
-        IDR_CONTENT_TOP_LEFT_CORNER, IDR_CONTENT_TOP_CENTER,
-            IDR_CONTENT_TOP_RIGHT_CORNER, IDR_CONTENT_RIGHT_SIDE,
-            IDR_CONTENT_BOTTOM_RIGHT_CORNER, IDR_CONTENT_BOTTOM_CENTER,
-            IDR_CONTENT_BOTTOM_LEFT_CORNER, IDR_CONTENT_LEFT_SIDE,
-      };
-
-      ResourceBundle& rb = ResourceBundle::GetSharedInstance();
-      for (int i = 0; i < FRAME_PART_BITMAP_COUNT; ++i)
-        standard_frame_bitmaps_[i] = rb.GetBitmapNamed(kFramePartBitmapIds[i]);
-
-      initialized = true;
-    }
-  }
-
-  static SkBitmap* standard_frame_bitmaps_[FRAME_PART_BITMAP_COUNT];
-
-  DISALLOW_EVIL_CONSTRUCTORS(GlassBrowserWindowResources);
-};
-
 // static
-SkBitmap* GlassBrowserWindowResources::standard_frame_bitmaps_[];
-
-GlassBrowserWindowResources* GlassBrowserFrameView::resources_ = NULL;
 SkBitmap* GlassBrowserFrameView::distributor_logo_ = NULL;
 HICON GlassBrowserFrameView::throbber_icons_[
     GlassBrowserFrameView::kThrobberIconCount];
@@ -281,23 +230,34 @@ void GlassBrowserFrameView::PaintDistributorLogo(ChromeCanvas* canvas) {
 }
 
 void GlassBrowserFrameView::PaintToolbarBackground(ChromeCanvas* canvas) {
+  ThemeProvider* tp = GetThemeProvider();
+
   gfx::Rect toolbar_bounds(browser_view_->GetToolbarBounds());
   gfx::Point toolbar_origin(toolbar_bounds.origin());
   View::ConvertPointToView(frame_->GetClientView(), this, &toolbar_origin);
   toolbar_bounds.set_origin(toolbar_origin);
 
+  SkBitmap* theme_toolbar = tp->GetBitmapNamed(IDR_THEME_TOOLBAR);
+
+  // Draw the toolbar background, setting src_y of the paint to the tab
+  // strip height as the toolbar background begins at the top of the tabs.
+  canvas->TileImageInt(*theme_toolbar,
+      0, browser_view_->GetTabStripHeight() - 1,
+      toolbar_bounds.x() - 1, toolbar_bounds.y() + 2,
+      toolbar_bounds.width() + 2, theme_toolbar->height());
+
   SkBitmap* toolbar_left =
-      resources_->GetPartBitmap(FRAME_CLIENT_EDGE_TOP_LEFT);
+      tp->GetBitmapNamed(IDR_CONTENT_TOP_LEFT_CORNER);
   canvas->DrawBitmapInt(*toolbar_left,
                         toolbar_bounds.x() - toolbar_left->width(),
                         toolbar_bounds.y());
 
   SkBitmap* toolbar_center =
-      resources_->GetPartBitmap(FRAME_CLIENT_EDGE_TOP);
+      tp->GetBitmapNamed(IDR_CONTENT_TOP_CENTER);
   canvas->TileImageInt(*toolbar_center, toolbar_bounds.x(), toolbar_bounds.y(),
                        toolbar_bounds.width(), toolbar_center->height());
 
-  canvas->DrawBitmapInt(*resources_->GetPartBitmap(FRAME_CLIENT_EDGE_TOP_RIGHT),
+  canvas->DrawBitmapInt(*tp->GetBitmapNamed(IDR_CONTENT_TOP_RIGHT_CORNER),
       toolbar_bounds.right(), toolbar_bounds.y());
 }
 
@@ -314,35 +274,50 @@ void GlassBrowserFrameView::PaintOTRAvatar(ChromeCanvas* canvas) {
 }
 
 void GlassBrowserFrameView::PaintRestoredClientEdge(ChromeCanvas* canvas) {
+  ResourceBundle& rb = ResourceBundle::GetSharedInstance();
+
   // The client edges start below the toolbar upper corner images regardless
   // of how tall the toolbar itself is.
   int client_area_top =
       frame_->GetClientView()->y() + browser_view_->GetToolbarBounds().y() +
-      resources_->GetPartBitmap(FRAME_CLIENT_EDGE_TOP_LEFT)->height();
+      rb.GetBitmapNamed(IDR_CONTENT_TOP_LEFT_CORNER)->height();
 
   gfx::Rect client_area_bounds = CalculateClientAreaBounds(width(), height());
   int client_area_bottom =
       std::max(client_area_top, height() - NonClientBorderThickness());
   int client_area_height = client_area_bottom - client_area_top;
-  SkBitmap* right = resources_->GetPartBitmap(FRAME_CLIENT_EDGE_RIGHT);
+  SkBitmap* right = rb.GetBitmapNamed(IDR_CONTENT_RIGHT_SIDE);
   canvas->TileImageInt(*right, client_area_bounds.right(), client_area_top,
                        right->width(), client_area_height);
 
+  // Draw the toolbar color so that the one pixel areas down the sides
+  // show the right color even if not covered by the toolbar image.
+  canvas->DrawRectInt(GetThemeProvider()->
+      GetColor(BrowserThemeProvider::COLOR_TOOLBAR),
+      client_area_bounds.x() - 1, client_area_top,
+      client_area_bounds.width() + 1, client_area_bottom - client_area_top);
+
+  // Draw the content/toolbar separator.
+  canvas->DrawLineInt(ResourceBundle::toolbar_separator_color,
+      client_area_bounds.x(), client_area_top,
+      client_area_bounds.x() + client_area_bounds.width(),
+      client_area_top);
+
   canvas->DrawBitmapInt(
-      *resources_->GetPartBitmap(FRAME_CLIENT_EDGE_BOTTOM_RIGHT),
+      *rb.GetBitmapNamed(IDR_CONTENT_BOTTOM_RIGHT_CORNER),
       client_area_bounds.right(), client_area_bottom);
 
-  SkBitmap* bottom = resources_->GetPartBitmap(FRAME_CLIENT_EDGE_BOTTOM);
+  SkBitmap* bottom = rb.GetBitmapNamed(IDR_CONTENT_BOTTOM_CENTER);
   canvas->TileImageInt(*bottom, client_area_bounds.x(),
       client_area_bottom, client_area_bounds.width(),
       bottom->height());
 
   SkBitmap* bottom_left =
-      resources_->GetPartBitmap(FRAME_CLIENT_EDGE_BOTTOM_LEFT);
+      rb.GetBitmapNamed(IDR_CONTENT_BOTTOM_LEFT_CORNER);
   canvas->DrawBitmapInt(*bottom_left,
       client_area_bounds.x() - bottom_left->width(), client_area_bottom);
 
-  SkBitmap* left = resources_->GetPartBitmap(FRAME_CLIENT_EDGE_LEFT);
+  SkBitmap* left = rb.GetBitmapNamed(IDR_CONTENT_LEFT_SIDE);
   canvas->TileImageInt(*left, client_area_bounds.x() - left->width(),
       client_area_top, left->width(), client_area_height);
 }
@@ -437,8 +412,6 @@ void GlassBrowserFrameView::InitThrobberIcons() {
 void GlassBrowserFrameView::InitClass() {
   static bool initialized = false;
   if (!initialized) {
-    resources_ = new GlassBrowserWindowResources;
-
 #if defined(GOOGLE_CHROME_BUILD)
     distributor_logo_ = ResourceBundle::GetSharedInstance().
         GetBitmapNamed(IDR_DISTRIBUTOR_LOGO);

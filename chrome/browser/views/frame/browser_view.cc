@@ -855,6 +855,11 @@ void BrowserView::ShowHTMLDialog(HtmlDialogUIDelegate* delegate,
   html_view->window()->Show();
 }
 
+void BrowserView::UserChangedTheme() {
+  frame_->GetRootView()->ThemeChanged();
+  frame_->GetRootView()->SchedulePaint();
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 // BrowserView, BrowserWindowTesting implementation:
 
@@ -1662,7 +1667,7 @@ void BrowserView::InitClass() {
 // static
 BrowserWindow* BrowserWindow::CreateBrowserWindow(Browser* browser) {
   BrowserView* browser_view = new BrowserView(browser);
-  (new BrowserFrame(browser_view))->Init();
+  (new BrowserFrame(browser_view, browser->profile()))->Init();
   return browser_view;
 }
 

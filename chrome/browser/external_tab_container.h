@@ -113,6 +113,7 @@ class ExternalTabContainer : public TabContentsDelegate,
   virtual gfx::NativeView GetNativeView() const;
   virtual void PaintNow(const gfx::Rect& update_rect);
   virtual views::RootView* GetRootView();
+  virtual Widget* GetRootWidget() const { return NULL; }
   virtual bool IsVisible() const;
   virtual bool IsActive() const;
   virtual bool GetAccelerator(int cmd_id,

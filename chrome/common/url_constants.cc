@@ -49,5 +49,6 @@ const char kChromeUIHistoryHost[] = "history";
 const char kChromeUIInspectorHost[] = "inspector";
 const char kChromeUINewTabHost[] = "newtab";
 const char kChromeUIThumbnailPath[] = "thumb";
+const char kChromeUIThemePath[] = "theme";
 
 }  // namespace chrome

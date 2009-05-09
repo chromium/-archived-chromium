@@ -10,6 +10,7 @@
 #include <set>
 #include <string>
 
+#include "app/theme_provider.h"
 #include "base/basictypes.h"
 #include "base/file_path.h"
 #include "base/scoped_ptr.h"
@@ -22,6 +23,7 @@
 class BookmarkModel;
 class ChromeURLRequestContext;
 class DownloadManager;
+class Extension;
 class ExtensionProcessManager;
 class ExtensionsService;
 class HistoryService;
@@ -33,6 +35,7 @@ class SSLHostState;
 class TabRestoreService;
 class TemplateURLFetcher;
 class TemplateURLModel;
+class BrowserThemeProvider;
 class URLRequestContext;
 class UserScriptMaster;
 class VisitedLinkMaster;
@@ -162,6 +165,18 @@ class Profile {
   virtual DownloadManager* GetDownloadManager() = 0;
   virtual bool HasCreatedDownloadManager() const = 0;
 
+  // Init our themes system.
+  virtual void InitThemes() = 0;
+
+  // Set the theme to the specified extension.
+  virtual void SetTheme(Extension* extension) = 0;
+
+  // Clear the theme and reset it to default.
+  virtual void ClearTheme() = 0;
+
+  // Returns or creates the ThemeProvider associated with this profile
+  virtual ThemeProvider* GetThemeProvider() = 0;
+
   // Returns the request context information associated with this profile.  Call
   // this only on the UI thread, since it can send notifications that should
   // happen on the UI thread.
@@ -289,6 +304,10 @@ class ProfileImpl : public Profile,
   virtual TemplateURLModel* GetTemplateURLModel();
   virtual TemplateURLFetcher* GetTemplateURLFetcher();
   virtual DownloadManager* GetDownloadManager();
+  virtual void InitThemes();
+  virtual void SetTheme(Extension* extension);
+  virtual void ClearTheme();
+  virtual ThemeProvider* GetThemeProvider();
   virtual bool HasCreatedDownloadManager() const;
   virtual URLRequestContext* GetRequestContext();
   virtual URLRequestContext* GetRequestContextForMedia();
@@ -363,9 +382,11 @@ class ProfileImpl : public Profile,
   scoped_refptr<HistoryService> history_service_;
   scoped_refptr<WebDataService> web_data_service_;
   scoped_refptr<SessionService> session_service_;
+  scoped_refptr<BrowserThemeProvider> theme_provider_;
   bool history_service_created_;
   bool created_web_data_service_;
   bool created_download_manager_;
+  bool created_theme_provider_;
   // Whether or not the last session exited cleanly. This is set only once.
   bool last_session_exited_cleanly_;
 

@@ -176,6 +176,10 @@ class BrowserWindow {
   virtual void ShowHTMLDialog(HtmlDialogUIDelegate* delegate,
                               void* parent_window) = 0;
 
+  // BrowserThemeProvider calls this when a user has changed his or her theme,
+  // indicating that it's time to redraw everything.
+  virtual void UserChangedTheme() = 0;
+
   // Construct a BrowserWindow implementation for the specified |browser|.
   static BrowserWindow* CreateBrowserWindow(Browser* browser);
 

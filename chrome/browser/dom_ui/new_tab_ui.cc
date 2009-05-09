@@ -16,6 +16,7 @@
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/dom_ui/dom_ui_favicon_source.h"
 #include "chrome/browser/dom_ui/dom_ui_thumbnail_source.h"
+#include "chrome/browser/dom_ui/dom_ui_theme_source.h"
 #include "chrome/browser/dom_ui/history_ui.h"
 #include "chrome/browser/history/page_usage_data.h"
 #include "chrome/browser/metrics/user_metrics.h"
@@ -1165,6 +1166,11 @@ NewTabUI::NewTabUI(TabContents* contents)
 
     // In testing mode there may not be an I/O thread.
     if (g_browser_process->io_thread()) {
+      g_browser_process->io_thread()->message_loop()->PostTask(FROM_HERE,
+          NewRunnableMethod(&chrome_url_data_manager,
+              &ChromeURLDataManager::AddDataSource,
+              new DOMUIThemeSource(GetProfile())));
+
       NewTabHTMLSource* html_source = new NewTabHTMLSource();
       g_browser_process->io_thread()->message_loop()->PostTask(FROM_HERE,
           NewRunnableMethod(&chrome_url_data_manager,

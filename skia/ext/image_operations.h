@@ -7,6 +7,7 @@
 
 #include "base/basictypes.h"
 #include "base/gfx/rect.h"
+#include "skia/ext/skia_utils.h"
 #include "SkColor.h"
 
 class SkBitmap;
@@ -80,7 +81,7 @@ class ImageOperations {
   //    0.5 = leave unchanged.
   //    1 = full lightness (make all pixels white).
   static SkBitmap CreateHSLShiftedBitmap(const SkBitmap& bitmap,
-                                         float hsl_shift[3]);
+                                         HSL hsl_shift);
 
   // Create a bitmap that is cropped from another bitmap. This is special
   // because it tiles the original bitmap, so your coordinates can extend

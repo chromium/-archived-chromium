@@ -20,6 +20,7 @@
 #include "chrome/browser/browser_list.h"
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/extensions/extensions_service.h"
+#include "chrome/browser/extensions/user_script_master.h"
 #include "chrome/browser/first_run.h"
 #include "chrome/browser/net/dns_global.h"
 #include "chrome/browser/profile.h"

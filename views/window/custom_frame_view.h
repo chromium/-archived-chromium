@@ -85,12 +85,6 @@ class CustomFrameView : public NonClientFrameView,
   void LayoutTitleBar();
   void LayoutClientView();
 
-  // Returns the resource collection to be used when rendering the window.
-  WindowResources* resources() const {
-    return frame_->IsActive() || paint_as_active() ? active_resources_
-                                                   : inactive_resources_;
-  }
-
   // The bounds of the client view, in this view's coordinates.
   gfx::Rect client_view_bounds_;
 
@@ -110,8 +104,6 @@ class CustomFrameView : public NonClientFrameView,
 
   // Initialize various static resources.
   static void InitClass();
-  static WindowResources* active_resources_;
-  static WindowResources* inactive_resources_;
   static ChromeFont* title_font_;
 
   DISALLOW_EVIL_CONSTRUCTORS(CustomFrameView);

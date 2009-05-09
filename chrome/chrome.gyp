@@ -167,6 +167,7 @@
         '../app/resource_bundle_mac.mm',
         '../app/slide_animation.cc',
         '../app/slide_animation.h',
+        '../app/theme_provider.h',
         '../app/throb_animation.cc',
         '../app/throb_animation.h',
         '../app/win_util.cc',

@@ -534,6 +534,9 @@ class NotificationType {
     // Sent when new extensions are loaded. The details are an ExtensionList*.
     EXTENSIONS_LOADED,
 
+    // Sent when a new theme is installed. The details are an extension.
+    THEME_INSTALLED,
+
     // Sent when new extensions are installed. The details are a FilePath.
     EXTENSION_INSTALLED,
 

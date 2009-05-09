@@ -51,8 +51,15 @@ class ExtensionsServiceFrontendInterface
   // installed extension rather than a new installation.
   virtual void OnExtensionInstalled(Extension* extension, bool is_update) = 0;
 
+  // Called when an existing extension is installed by the user. We may wish to
+  // notify the user about the prior existence of the extension, or take some
+  // action using the fact that the user chose to reinstall the extension as a
+  // signal (for example, setting the default theme to the extension).
+  virtual void OnExtensionVersionReinstalled(const std::string& id) = 0;
+
   // Lookup an extension by |id|.
   virtual Extension* GetExtensionByID(std::string id) = 0;
+
 };
 
 
@@ -77,6 +84,7 @@ class ExtensionsService : public ExtensionsServiceFrontendInterface {
   virtual void OnExtensionsLoaded(ExtensionList* extensions);
   virtual void OnExtensionInstalled(Extension* extension, bool is_update);
   virtual Extension* GetExtensionByID(std::string id);
+  virtual void OnExtensionVersionReinstalled(const std::string& id);
 
   // The name of the file that the current active version number is stored in.
   static const char* kCurrentVersionFileName;
@@ -175,6 +183,9 @@ class ExtensionsServiceBackend
   // Notify the frontend that there was an error installing an extension.
   void ReportExtensionInstallError(const FilePath& extension_path,
                                    const std::string& error);
+
+  // Notify the frontend that the extension had already been installed.
+  void ReportExtensionVersionReinstalled(const std::string& id);
 
   // Notify the frontend that extensions were installed.
   // |is_update| is true if this was an update to an existing extension.

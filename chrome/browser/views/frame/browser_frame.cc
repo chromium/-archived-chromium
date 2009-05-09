@@ -9,6 +9,7 @@
 
 #include "app/resource_bundle.h"
 #include "app/win_util.h"
+#include "chrome/browser/profile.h"
 #include "chrome/browser/browser_list.h"
 #include "chrome/browser/views/frame/browser_root_view.h"
 #include "chrome/browser/views/frame/browser_view.h"
@@ -23,10 +24,11 @@ static const int kClientEdgeThickness = 3;
 ///////////////////////////////////////////////////////////////////////////////
 // BrowserFrame, public:
 
-BrowserFrame::BrowserFrame(BrowserView* browser_view)
+BrowserFrame::BrowserFrame(BrowserView* browser_view, Profile* profile)
     : WindowWin(browser_view),
       browser_view_(browser_view),
-      frame_initialized_(false) {
+      frame_initialized_(false),
+      profile_(profile) {
   browser_view_->set_frame(this);
   GetNonClientView()->SetFrameView(CreateFrameViewForWindow());
   // Don't focus anything on creation, selecting a tab will set the focus.
@@ -58,6 +60,14 @@ gfx::Rect BrowserFrame::GetBoundsForTabStrip(TabStrip* tabstrip) const {
 
 void BrowserFrame::UpdateThrobber(bool running) {
   browser_frame_view_->UpdateThrobber(running);
+}
+
+ThemeProvider* BrowserFrame::GetThemeProvider() const {
+  return profile_->GetThemeProvider();
+}
+
+ThemeProvider* BrowserFrame::GetDialogThemeProvider() const {
+  return profile_->GetThemeProvider();
 }
 
 #if defined(FRAME_WINDOW)
@@ -220,7 +230,6 @@ void BrowserFrame::UpdateFrameAfterFrameChange() {
   WindowWin::UpdateFrameAfterFrameChange();
   UpdateDWMFrame();
 }
-
 
 views::RootView* BrowserFrame::CreateRootView() {
   return new BrowserRootView(this);

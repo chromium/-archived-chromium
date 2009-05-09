@@ -11,9 +11,6 @@ include_rules = [
 
   # TODO(beng): l10n_util_unittest.cc:
   "+chrome/test/data/resource.h",  
-  
-  # TODO(beng): resource_bundle.cc: Sever this link after glen fixes it.
-  "+chrome/browser/extensions/extension.h",
 
   "+skia",
 ]

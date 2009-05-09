@@ -39,25 +39,25 @@ static inline double calcHue(double temp1, double temp2, double hueVal) {
   return temp1;
 }
 
-SkPMColor HSLToSKColor(U8CPU alpha, float hsl[3]) {
-  double hue = SkScalarToDouble(hsl[0]);
-  double saturation = SkScalarToDouble(hsl[1]);
-  double lightness = SkScalarToDouble(hsl[2]);
+SkPMColor HSLToSKColor(U8CPU alpha, HSL hsl) {
+  double hue = hsl.h;
+  double saturation = hsl.s;
+  double lightness = hsl.l;
   double scaleFactor = 256.0;
 
   // If there's no color, we don't care about hue and can do everything based
   // on brightness.
   if (!saturation) {
-    U8CPU lightness;
+    U8CPU light;
 
-    if (hsl[2] < 0)
-      lightness = 0;
-    else if (hsl[2] >= SK_Scalar1)
-      lightness = 255;
+    if (lightness < 0)
+      light = 0;
+    else if (lightness >= SK_Scalar1)
+      light = 255;
     else
-      lightness = SkScalarToFixed(hsl[2]) >> 8;
+      light = SkDoubleToFixed(lightness) >> 8;
 
-    unsigned greyValue = SkAlphaMul(lightness, alpha);
+    unsigned greyValue = SkAlphaMul(light, alpha);
     return SkColorSetARGB(alpha, greyValue, greyValue, greyValue);
   }
 
@@ -76,7 +76,7 @@ SkPMColor HSLToSKColor(U8CPU alpha, float hsl[3]) {
       SkAlphaMul(static_cast<int>(bh * scaleFactor), alpha));
 }
 
-void SkColorToHSL(SkPMColor c, float hsl[3]) {
+void SkColorToHSL(SkPMColor c, HSL& hsl) {
   double r = SkColorGetR(c) / 255.0;
   double g = SkColorGetG(c) / 255.0;
   double b = SkColorGetB(c) / 255.0;
@@ -115,9 +115,37 @@ void SkColorToHSL(SkPMColor c, float hsl[3]) {
     if (h > 1) h -= 1;
   }
 
-  hsl[0] = h;
-  hsl[1] = s;
-  hsl[2] = l;
+  hsl.h = h;
+  hsl.s = s;
+  hsl.l = l;
+}
+
+SkColor HSLShift(HSL hsl, HSL shift) {
+  // Replace the hue with the tint's hue.
+  if (shift.h >= 0)
+    hsl.h = shift.h;
+
+  // Change the saturation.
+  if (shift.s >= 0) {
+    if (shift.s <= 0.5) {
+      hsl.s *= shift.s * 2.0;
+    } else {
+      hsl.s = hsl.s + (1.0 - hsl.s) *
+        ((shift.s - 0.5) * 2.0);
+    }
+  }
+
+  // Change the lightness.
+  if (shift.l >= 0) {
+    if (shift.l <= 0.5) {
+      hsl.l *= shift.l * 2.0;
+    } else {
+      hsl.l = hsl.l + (1.0 - hsl.l) *
+        ((shift.l - 0.5) * 2.0);
+    }
+  }
+
+  return skia::HSLToSKColor(0xff, hsl);
 }
 
 

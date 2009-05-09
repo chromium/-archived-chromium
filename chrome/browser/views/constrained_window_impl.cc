@@ -61,16 +61,23 @@ enum {
   FRAME_TOP_LEFT_CORNER,
   FRAME_TOP_RIGHT_CORNER,
 
+  FRAME_WINDOW,
+  FRAME_WINDOW_INACTIVE,
+  FRAME_WINDOW_INCOGNITO,
+  FRAME_WINDOW_INCOGNITO_INACTIVE,
+
   FRAME_PART_BITMAP_COUNT  // Must be last.
 };
 
 static const int kXPFramePartIDs[] = {
     0,
     IDR_CLOSE_SA, IDR_CLOSE_SA_H, IDR_CLOSE_SA_P,
-    IDR_CONSTRAINED_BOTTOM_CENTER, IDR_CONSTRAINED_BOTTOM_LEFT_CORNER,
-    IDR_CONSTRAINED_BOTTOM_RIGHT_CORNER, IDR_CONSTRAINED_LEFT_SIDE,
-    IDR_CONSTRAINED_RIGHT_SIDE, IDR_CONSTRAINED_TOP_CENTER,
-    IDR_CONSTRAINED_TOP_LEFT_CORNER, IDR_CONSTRAINED_TOP_RIGHT_CORNER,
+    IDR_WINDOW_BOTTOM_CENTER, IDR_WINDOW_BOTTOM_LEFT_CORNER,
+    IDR_WINDOW_BOTTOM_RIGHT_CORNER, IDR_WINDOW_LEFT_SIDE,
+    IDR_WINDOW_RIGHT_SIDE, IDR_WINDOW_TOP_CENTER,
+    IDR_WINDOW_TOP_LEFT_CORNER, IDR_WINDOW_TOP_RIGHT_CORNER,
+    IDR_THEME_FRAME, IDR_THEME_FRAME_INACTIVE, IDR_THEME_FRAME_INCOGNITO,
+    IDR_THEME_FRAME_INCOGNITO_INACTIVE,
     0 };
 static const int kVistaFramePartIDs[] = {
     0,
@@ -79,14 +86,8 @@ static const int kVistaFramePartIDs[] = {
     IDR_CONSTRAINED_BOTTOM_RIGHT_CORNER_V, IDR_CONSTRAINED_LEFT_SIDE_V,
     IDR_CONSTRAINED_RIGHT_SIDE_V, IDR_CONSTRAINED_TOP_CENTER_V,
     IDR_CONSTRAINED_TOP_LEFT_CORNER_V, IDR_CONSTRAINED_TOP_RIGHT_CORNER_V,
-    0 };
-static const int kOTRFramePartIDs[] = {
-    0,
-    IDR_CLOSE_SA, IDR_CLOSE_SA_H, IDR_CLOSE_SA_P,
-    IDR_WINDOW_BOTTOM_CENTER_OTR, IDR_WINDOW_BOTTOM_LEFT_CORNER_OTR,
-    IDR_WINDOW_BOTTOM_RIGHT_CORNER_OTR, IDR_WINDOW_LEFT_SIDE_OTR,
-    IDR_WINDOW_RIGHT_SIDE_OTR, IDR_WINDOW_TOP_CENTER_OTR,
-    IDR_WINDOW_TOP_LEFT_CORNER_OTR, IDR_WINDOW_TOP_RIGHT_CORNER_OTR,
+    IDR_THEME_FRAME, IDR_THEME_FRAME_INACTIVE, IDR_THEME_FRAME_INCOGNITO,
+    IDR_THEME_FRAME_INCOGNITO_INACTIVE,
     0 };
 
 class XPWindowResources : public views::WindowResources {
@@ -149,39 +150,8 @@ class VistaWindowResources : public views::WindowResources {
   DISALLOW_EVIL_CONSTRUCTORS(VistaWindowResources);
 };
 
-class OTRWindowResources : public views::WindowResources {
- public:
-  OTRWindowResources() {
-    InitClass();
-  }
-  virtual ~OTRWindowResources() {}
-
-  virtual SkBitmap* GetPartBitmap(views::FramePartBitmap part_id) const {
-    return bitmaps_[part_id];
-  }
-
- private:
-  static void InitClass() {
-    static bool initialized = false;
-    if (!initialized) {
-      ResourceBundle& rb = ResourceBundle::GetSharedInstance();
-      for (int i = 0; i < FRAME_PART_BITMAP_COUNT; ++i) {
-        int id = kOTRFramePartIDs[i];
-        if (id != 0)
-          bitmaps_[i] = rb.GetBitmapNamed(id);
-      }
-      initialized = true;
-    }
-  }
-
-  static SkBitmap* bitmaps_[FRAME_PART_BITMAP_COUNT];
-
-  DISALLOW_EVIL_CONSTRUCTORS(OTRWindowResources);
-};
-
 SkBitmap* XPWindowResources::bitmaps_[];
 SkBitmap* VistaWindowResources::bitmaps_[];
-SkBitmap* OTRWindowResources::bitmaps_[];
 
 ////////////////////////////////////////////////////////////////////////////////
 // ConstrainedWindowFrameView
@@ -299,7 +269,6 @@ const int kTitleCaptionSpacing = 5;
 const int kCaptionTopSpacing = 1;
 
 const SkColor kContentsBorderShadow = SkColorSetARGB(51, 0, 0, 0);
-const SkColor kContentsBorderColor = SkColorSetRGB(219, 235, 255);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -479,6 +448,29 @@ void ConstrainedWindowFrameView::PaintFrameBorder(ChromeCanvas* canvas) {
       resources_->GetPartBitmap(FRAME_BOTTOM_RIGHT_CORNER);
   SkBitmap* bottom_edge = resources_->GetPartBitmap(FRAME_BOTTOM_EDGE);
 
+  ResourceBundle& rb = ResourceBundle::GetSharedInstance();
+  SkBitmap* theme_frame = rb.GetBitmapNamed(IDR_THEME_FRAME);
+  SkColor frame_color = ResourceBundle::frame_color;
+
+  // Fill with the frame color first so we have a constant background for
+  // areas not covered by the theme image.
+  canvas->FillRectInt(frame_color, 0, 0, width(), theme_frame->height());
+  // Now fill down the sides
+  canvas->FillRectInt(frame_color,
+      0, theme_frame->height(),
+      left_edge->width(), height() - theme_frame->height());
+  canvas->FillRectInt(frame_color,
+      width() - right_edge->width(), theme_frame->height(),
+      right_edge->width(), height() - theme_frame->height());
+  // Now fill the bottom area.
+  canvas->FillRectInt(frame_color,
+      left_edge->width(), height() - bottom_edge->height(),
+      width() - left_edge->width() - right_edge->width(),
+      bottom_edge->height());
+
+  // Draw the theme frame.
+  canvas->TileImageInt(*theme_frame, 0, 0, width(), theme_frame->height());
+
   // Top.
   canvas->DrawBitmapInt(*top_left_corner, 0, 0);
   canvas->TileImageInt(*top_edge, top_left_corner->width(), 0,
@@ -526,7 +518,7 @@ void ConstrainedWindowFrameView::PaintClientEdge(ChromeCanvas* canvas) {
                       frame_shadow_bounds.y(), frame_shadow_bounds.width(),
                       frame_shadow_bounds.height());
 
-  canvas->FillRectInt(kContentsBorderColor, client_edge_bounds.x(),
+  canvas->FillRectInt(ResourceBundle::toolbar_color, client_edge_bounds.x(),
                       client_edge_bounds.y(), client_edge_bounds.width(),
                       client_edge_bounds.height());
 }
@@ -565,14 +557,10 @@ gfx::Rect ConstrainedWindowFrameView::CalculateClientAreaBounds(
 }
 
 void ConstrainedWindowFrameView::InitWindowResources() {
-  if (container_->owner()->profile()->IsOffTheRecord()) {
-    resources_.reset(new OTRWindowResources);
+  if (win_util::ShouldUseVistaFrame()) {
+    resources_.reset(new VistaWindowResources);
   } else {
-    if (win_util::ShouldUseVistaFrame()) {
-      resources_.reset(new VistaWindowResources);
-    } else {
-      resources_.reset(new XPWindowResources);
-    }
+    resources_.reset(new XPWindowResources);
   }
 }
 

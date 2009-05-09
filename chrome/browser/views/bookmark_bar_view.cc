@@ -87,7 +87,6 @@ static const SkColor kBackgroundColor = SkColorSetRGB(237, 244, 252);
 
 // Border colors for the BookmarBarView.
 static const SkColor kTopBorderColor = SkColorSetRGB(222, 234, 248);
-static const SkColor kBottomBorderColor = SkColorSetRGB(178, 178, 178);
 
 // Background color for when the bookmarks bar is only being displayed on the
 // new tab page - this color should match the background color of the new tab
@@ -222,30 +221,6 @@ class BookmarkButton : public views::TextButton {
     return event_utils::IsPossibleDispositionEvent(e);
   }
 
-  virtual void Paint(ChromeCanvas *canvas) {
-    views::TextButton::Paint(canvas);
-
-    PaintAnimation(this, canvas, show_animation_->GetCurrentValue());
-  }
-
-  static void PaintAnimation(views::View* view,
-                             ChromeCanvas* canvas,
-                             double animation_value) {
-    // Since we can't change the alpha of the button (it contains un-alphable
-    // text), we paint the bar background over the front of the button. As the
-    // bar background is a gradient, we have to paint the gradient at the
-    // size of the parent (hence all the margin math below). We can't use
-    // the parent's actual bounds because they differ from what is painted.
-    SkPaint paint;
-    paint.setAlpha(static_cast<int>((1.0 - animation_value) * 255));
-    paint.setShader(skia::CreateGradientShader(0,
-        view->height() + kTopMargin + kBottomMargin,
-        kTopBorderColor,
-        kBackgroundColor))->safeUnref();
-    canvas->FillRectInt(0, -kTopMargin, view->width(),
-                        view->height() + kTopMargin + kBottomMargin, paint);
-  }
-
  private:
   const GURL& url_;
   Profile* profile_;
@@ -283,9 +258,6 @@ class BookmarkFolderButton : public views::MenuButton {
 
   virtual void Paint(ChromeCanvas *canvas) {
     views::MenuButton::Paint(canvas, false);
-
-    BookmarkButton::PaintAnimation(this, canvas,
-                                   show_animation_->GetCurrentValue());
   }
 
  private:
@@ -588,7 +560,8 @@ void BookmarkBarView::Paint(ChromeCanvas* canvas) {
     canvas->FillRectInt(kNewtabBackgroundColor, 0, 0, width(), height());
 
     // Draw the 'bottom' of the toolbar above our bubble.
-    canvas->FillRectInt(kBottomBorderColor, 0, 0, width(), 1);
+    canvas->FillRectInt(ResourceBundle::toolbar_separator_color,
+                        0, 0, width(), 1);
 
     SkRect rect;
 
@@ -632,15 +605,14 @@ void BookmarkBarView::Paint(ChromeCanvas* canvas) {
                           SkDoubleToScalar(roundness),
                           SkDoubleToScalar(roundness), border_paint);
   } else {
-    SkPaint paint;
-    paint.setShader(skia::CreateGradientShader(0,
-                                               height(),
-                                               kTopBorderColor,
-                                               kBackgroundColor))->safeUnref();
-    canvas->FillRectInt(0, 0, width(), height(), paint);
+    gfx::Rect bounds = GetBounds(views::View::APPLY_MIRRORING_TRANSFORMATION);
 
-    canvas->FillRectInt(kTopBorderColor, 0, 0, width(), 1);
-    canvas->FillRectInt(kBottomBorderColor, 0, height() - 1, width(), 1);
+    // +1 is for toolbar outdent.
+    canvas->TileImageInt(*GetThemeProvider()->
+        GetBitmapNamed(IDR_THEME_TOOLBAR),
+        bounds.x() + 1, bounds.y(), 0, 0, width(), height());
+    canvas->FillRectInt(ResourceBundle::toolbar_separator_color,
+                        0, height() - 1, width(), 1);
   }
 }
 

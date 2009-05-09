@@ -12,6 +12,7 @@
 #include "app/gfx/chrome_canvas.h"
 #include "app/l10n_util.h"
 #include "app/resource_bundle.h"
+#include "base/command_line.h"
 #include "base/file_util.h"
 #include "base/gfx/native_theme.h"
 #include "chrome/browser/browser_process.h"
@@ -19,6 +20,7 @@
 #include "chrome/browser/views/options/fonts_languages_window_view.h"
 #include "chrome/browser/views/options/options_group_view.h"
 #include "chrome/browser/views/options/passwords_exceptions_window_view.h"
+#include "chrome/common/chrome_switches.h"
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
 #include "grit/generated_resources.h"
@@ -181,6 +183,8 @@ ContentPageView::ContentPageView(Profile* profile)
       passwords_neversave_radio_(NULL),
       fonts_lang_group_(NULL),
       fonts_and_languages_label_(NULL),
+      themes_group_(NULL),
+      themes_reset_button_(NULL),
       change_content_fonts_button_(NULL),
       OptionsPageView(profile) {
 }
@@ -257,6 +261,9 @@ void ContentPageView::ButtonPressed(views::Button* sender) {
         GetRootWindow(),
         gfx::Rect(),
         new FontsLanguagesWindowView(profile()))->Show();
+  } else if (sender == themes_reset_button_) {
+    UserMetricsRecordAction(L"Options_ThemesReset", profile()->GetPrefs());
+    profile()->ClearTheme();
   }
 }
 
@@ -298,6 +305,14 @@ void ContentPageView::InitControlLayout() {
   InitFormAutofillGroup();
   layout->AddView(form_autofill_group_);
   layout->AddPaddingRow(0, kRelatedControlVerticalSpacing);
+
+  if (CommandLine::ForCurrentProcess()->
+      HasSwitch(switches::kEnableExtensions)) {
+    layout->StartRow(0, single_column_view_set_id);
+    InitThemesGroup();
+    layout->AddView(themes_group_);
+    layout->AddPaddingRow(0, kRelatedControlVerticalSpacing);
+  }
 
   // Init member prefs so we can update the controls if prefs change.
   default_download_location_.Init(prefs::kDownloadDefaultDirectory,
@@ -445,6 +460,39 @@ void ContentPageView::InitPasswordSavingGroup() {
       true);
 }
 
+void ContentPageView::InitFontsLangGroup() {
+  fonts_and_languages_label_ = new views::Label(
+    l10n_util::GetString(IDS_OPTIONS_FONTSETTINGS_INFO));
+  fonts_and_languages_label_->SetHorizontalAlignment(views::Label::ALIGN_LEFT);
+  fonts_and_languages_label_->SetMultiLine(true);
+  change_content_fonts_button_ = new views::NativeButton(
+    this,
+    l10n_util::GetString(IDS_OPTIONS_FONTSETTINGS_CONFIGUREFONTS_BUTTON));
+
+  using views::GridLayout;
+  using views::ColumnSet;
+
+  views::View* contents = new views::View;
+  GridLayout* layout = new GridLayout(contents);
+  contents->SetLayoutManager(layout);
+
+  const int single_column_view_set_id = 1;
+  ColumnSet* column_set = layout->AddColumnSet(single_column_view_set_id);
+  column_set->AddColumn(GridLayout::LEADING, GridLayout::CENTER, 1,
+    GridLayout::USE_PREF, 0, 0);
+
+  layout->StartRow(0, single_column_view_set_id);
+  layout->AddView(fonts_and_languages_label_);
+  layout->AddPaddingRow(0, kRelatedControlVerticalSpacing);
+  layout->StartRow(0, single_column_view_set_id);
+  layout->AddView(change_content_fonts_button_);
+
+  fonts_lang_group_ = new OptionsGroupView(
+    contents,
+    l10n_util::GetString(IDS_OPTIONS_FONTSANDLANGUAGES_GROUP_NAME),
+    L"", true);
+}
+
 void ContentPageView::InitFormAutofillGroup() {
   form_autofill_checkbox_ = new views::Checkbox(
       l10n_util::GetString(IDS_AUTOFILL_SAVEFORMS));
@@ -468,17 +516,12 @@ void ContentPageView::InitFormAutofillGroup() {
 
   form_autofill_group_ = new OptionsGroupView(
       contents, l10n_util::GetString(IDS_AUTOFILL_SETTING_WINDOWS_GROUP_NAME),
-      L"", false);
+      L"", true);
 }
 
-void ContentPageView::InitFontsLangGroup() {
-  fonts_and_languages_label_ = new views::Label(
-      l10n_util::GetString(IDS_OPTIONS_FONTSETTINGS_INFO));
-  fonts_and_languages_label_->SetHorizontalAlignment(views::Label::ALIGN_LEFT);
-  fonts_and_languages_label_->SetMultiLine(true);
-  change_content_fonts_button_ = new views::NativeButton(
-      this,
-      l10n_util::GetString(IDS_OPTIONS_FONTSETTINGS_CONFIGUREFONTS_BUTTON));
+void ContentPageView::InitThemesGroup() {
+  themes_reset_button_ = new views::NativeButton(this,
+      l10n_util::GetString(IDS_THEMES_RESET_BUTTON));
 
   using views::GridLayout;
   using views::ColumnSet;
@@ -490,18 +533,14 @@ void ContentPageView::InitFontsLangGroup() {
   const int single_column_view_set_id = 1;
   ColumnSet* column_set = layout->AddColumnSet(single_column_view_set_id);
   column_set->AddColumn(GridLayout::LEADING, GridLayout::CENTER, 1,
-                        GridLayout::USE_PREF, 0, 0);
+    GridLayout::USE_PREF, 0, 0);
 
   layout->StartRow(0, single_column_view_set_id);
-  layout->AddView(fonts_and_languages_label_);
-  layout->AddPaddingRow(0, kRelatedControlVerticalSpacing);
-  layout->StartRow(0, single_column_view_set_id);
-  layout->AddView(change_content_fonts_button_);
+  layout->AddView(themes_reset_button_);
 
-  fonts_lang_group_ = new OptionsGroupView(
-      contents,
-      l10n_util::GetString(IDS_OPTIONS_FONTSANDLANGUAGES_GROUP_NAME),
-      L"", true);
+  themes_group_ = new OptionsGroupView(
+    contents, l10n_util::GetString(IDS_THEMES_GROUP_NAME),
+    L"", false);
 }
 
 void ContentPageView::UpdateDownloadDirectoryDisplay() {

@@ -10,6 +10,7 @@
 class AeroGlassNonClientView;
 class BrowserView;
 class NonClientFrameView;
+class Profile;
 class TabStrip;
 
 // A specialization of the NonClientFrameView object that provides additional
@@ -34,7 +35,7 @@ class BrowserNonClientFrameView : public views::NonClientFrameView {
 //
 class BrowserFrame : public views::WindowWin {
  public:
-  explicit BrowserFrame(BrowserView* browser_view);
+  explicit BrowserFrame(BrowserView* browser_view, Profile* profile);
   virtual ~BrowserFrame();
 
   // Initialize the frame. Creates the Window.
@@ -50,6 +51,10 @@ class BrowserFrame : public views::WindowWin {
 
   // Tells the frame to update the throbber.
   void UpdateThrobber(bool running);
+
+  // Overridden from views::Widget.
+  virtual ThemeProvider* GetThemeProvider() const;
+  virtual ThemeProvider* GetDialogThemeProvider() const;
 
   BrowserView* browser_view() const { return browser_view_; }
 
@@ -91,6 +96,8 @@ class BrowserFrame : public views::WindowWin {
   BrowserNonClientFrameView* browser_frame_view_;
 
   bool frame_initialized_;
+
+  Profile* profile_;
 
   DISALLOW_EVIL_CONSTRUCTORS(BrowserFrame);
 };

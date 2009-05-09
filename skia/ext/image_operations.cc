@@ -16,7 +16,6 @@
 #include "SkBitmap.h"
 #include "skia/ext/convolver.h"
 #include "skia/include/SkColorPriv.h"
-#include "skia/ext/skia_utils.h"
 
 namespace skia {
 
@@ -460,7 +459,7 @@ SkBitmap ImageOperations::CreateBlurredBitmap(const SkBitmap& bitmap,
 
 // static
 SkBitmap ImageOperations::CreateHSLShiftedBitmap(const SkBitmap& bitmap,
-                                                 float hsl_shift[3]) {
+                                                 HSL hsl_shift) {
   DCHECK(bitmap.empty() == false);
   DCHECK(bitmap.config() == SkBitmap::kARGB_8888_Config);
 
@@ -494,30 +493,30 @@ SkBitmap ImageOperations::CreateHSLShiftedBitmap(const SkBitmap& bitmap,
                                static_cast<int>(b * 255.0));
       }
 
-      float pixel_hsl[3];
+      HSL pixel_hsl = { 0, 0, 0 };
       SkColorToHSL(color, pixel_hsl);
 
       // Replace the hue with the tint's hue.
-      if (hsl_shift[0] >= 0)
-        pixel_hsl[0] = hsl_shift[0];
+      if (hsl_shift.h >= 0)
+        pixel_hsl.h = hsl_shift.h;
 
       // Change the saturation.
-      if (hsl_shift[1] >= 0) {
-        if (hsl_shift[1] <= 0.5) {
-          pixel_hsl[1] *= hsl_shift[1] * 2.0;
+      if (hsl_shift.s >= 0) {
+        if (hsl_shift.s <= 0.5) {
+          pixel_hsl.s *= hsl_shift.s * 2.0;
         } else {
-          pixel_hsl[1] = pixel_hsl[1] + (1.0 - pixel_hsl[1]) *
-              ((hsl_shift[1] - 0.5) * 2.0);
+          pixel_hsl.s = pixel_hsl.s + (1.0 - pixel_hsl.s) *
+              ((hsl_shift.s - 0.5) * 2.0);
         }
       }
 
       // Change the lightness.
-      if (hsl_shift[2] >= 0) {
-        if (hsl_shift[2] <= 0.5) {
-          pixel_hsl[2] *= hsl_shift[2] * 2.0;
+      if (hsl_shift.l >= 0) {
+        if (hsl_shift.l <= 0.5) {
+          pixel_hsl.l *= hsl_shift.l * 2.0;
         } else {
-          pixel_hsl[2] = pixel_hsl[2] + (1.0 - pixel_hsl[2]) *
-              ((hsl_shift[2] - 0.5) * 2.0);
+          pixel_hsl.l = pixel_hsl.l + (1.0 - pixel_hsl.l) *
+              ((hsl_shift.l - 0.5) * 2.0);
         }
       }
 
