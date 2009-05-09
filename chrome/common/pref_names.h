@@ -24,6 +24,7 @@ extern const wchar_t kApplicationLocale[];
 extern const wchar_t kDefaultCharset[];
 extern const wchar_t kAcceptLanguages[];
 extern const wchar_t kStaticEncodings[];
+extern const wchar_t kPopupWhitelistedHosts[];
 extern const wchar_t kShowBookmarkBar[];
 extern const wchar_t kWebKitStandardFontIsSerif[];
 extern const wchar_t kWebKitFixedFontFamily[];

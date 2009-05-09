@@ -10,6 +10,7 @@
 #ifndef CHROME_BROWSER_VIEWS_BLOCKED_POPUP_CONTAINER_H_
 #define CHROME_BROWSER_VIEWS_BLOCKED_POPUP_CONTAINER_H_
 
+#include <set>
 #include <utility>
 #include <vector>
 
@@ -25,6 +26,7 @@
 #include "views/widget/widget_win.h"
 
 class BlockedPopupContainer;
+class PrefService;
 class Profile;
 class TabContents;
 class TextButton;
@@ -92,6 +94,8 @@ class BlockedPopupContainer : public Animation,
                               public views::WidgetWin {
  public:
   virtual ~BlockedPopupContainer();
+
+  static void RegisterUserPrefs(PrefService* prefs);
 
   // Creates a BlockedPopupContainer, anchoring the container to the lower
   // right corner.
@@ -200,7 +204,7 @@ class BlockedPopupContainer : public Animation,
   virtual void UpdateTargetURL(TabContents* source, const GURL& url) { }
 
   // Creates an ExtensionFunctionDispatcher that has no browser
-  virtual ExtensionFunctionDispatcher *CreateExtensionFunctionDispatcher(
+  virtual ExtensionFunctionDispatcher* CreateExtensionFunctionDispatcher(
       RenderViewHost* render_view_host,
       const std::string& extension_id);
 
@@ -224,8 +228,11 @@ class BlockedPopupContainer : public Animation,
   // string is hostname.  bool is whitelisted status.
   typedef std::map<std::string, bool> PopupHosts;
 
+  // string is hostname.
+  typedef std::set<std::string> Whitelist;
+
   // Creates a container for a certain TabContents.
-  BlockedPopupContainer(TabContents* owner, Profile* profile);
+  BlockedPopupContainer(TabContents* owner, PrefService* prefs);
 
   // Overridden from Animation:
   // Changes the visibility percentage of the BlockedPopupContainer. This is
@@ -279,8 +286,14 @@ class BlockedPopupContainer : public Animation,
   // The TabContents that owns and constrains this BlockedPopupContainer.
   TabContents* owner_;
 
+  // The PrefService we can query to find out what's on the whitelist.
+  PrefService* prefs_;
+
   // Registrar to handle notifications we care about.
   NotificationRegistrar registrar_;
+
+  // The whitelisted hosts, which we allow to open popups directly.
+  Whitelist whitelist_;
 
   // Information about all blocked popups.
   BlockedPopups blocked_popups_;

@@ -497,11 +497,8 @@ ListValue::~ListValue() {
 }
 
 void ListValue::Clear() {
-  ValueVector::iterator list_iterator = list_.begin();
-  while (list_iterator != list_.end()) {
-    delete *list_iterator;
-    ++list_iterator;
-  }
+  for (ValueVector::iterator i(list_.begin()); i != list_.end(); ++i)
+    delete *i;
   list_.clear();
 }
 
@@ -609,11 +606,17 @@ bool ListValue::Remove(size_t index, Value** out_value) {
   else
     delete list_[index];
 
-  ValueVector::iterator entry = list_.begin();
-  entry += index;
-
-  list_.erase(entry);
+  list_.erase(list_.begin() + index);
   return true;
+}
+
+void ListValue::Remove(const Value& value) {
+  for (ValueVector::iterator i(list_.begin()); i != list_.end(); ++i) {
+    if ((*i)->Equals(&value)) {
+      list_.erase(i);
+      break;
+    }
+  }
 }
 
 void ListValue::Append(Value* in_value) {
@@ -624,11 +627,8 @@ void ListValue::Append(Value* in_value) {
 Value* ListValue::DeepCopy() const {
   ListValue* result = new ListValue;
 
-  ValueVector::const_iterator current_entry = list_.begin();
-  while (current_entry != list_.end()) {
-    result->Append((*current_entry)->DeepCopy());
-    ++current_entry;
-  }
+  for (ValueVector::const_iterator i(list_.begin()); i != list_.end(); ++i)
+    result->Append((*i)->DeepCopy());
 
   return result;
 }

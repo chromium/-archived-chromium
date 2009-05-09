@@ -25,6 +25,7 @@
 
 #if defined(OS_WIN)  // TODO(port): whittle this down as we port
 #include "chrome/browser/task_manager.h"
+#include "chrome/browser/views/blocked_popup_container.h"
 #include "chrome/browser/views/bookmark_manager_view.h"
 #include "chrome/browser/views/frame/browser_view.h"
 #include "chrome/browser/views/keyword_editor_view.h"
@@ -63,6 +64,9 @@ void RegisterAllPrefs(PrefService* user_prefs, PrefService* local_state) {
   TabContents::RegisterUserPrefs(user_prefs);
   TemplateURLPrepopulateData::RegisterUserPrefs(user_prefs);
   NewTabUI::RegisterUserPrefs(user_prefs);
+#if defined(OS_WIN)  // TODO(port): whittle this down as we port
+  BlockedPopupContainer::RegisterUserPrefs(user_prefs);
+#endif
 }
 
 }  // namespace browser

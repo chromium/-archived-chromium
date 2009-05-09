@@ -334,6 +334,9 @@ class ListValue : public Value {
   // it will return false and the ListValue object will be unchanged.
   bool Remove(size_t index, Value** out_value);
 
+  // Removes the first instance of |value| found in the list, if any.
+  void Remove(const Value& value);
+
   // Appends a Value to the end of the list.
   void Append(Value* in_value);
 
@@ -346,10 +349,6 @@ class ListValue : public Value {
 
   ListValue::const_iterator begin() const { return list_.begin(); }
   ListValue::const_iterator end() const { return list_.end(); }
-
-  ListValue::iterator Erase(iterator item) {
-    return list_.erase(item);
-  }
 
  private:
   DISALLOW_EVIL_CONSTRUCTORS(ListValue);

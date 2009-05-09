@@ -21,6 +21,8 @@
 #include "chrome/browser/profile.h"
 #include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/common/notification_service.h"
+#include "chrome/common/pref_names.h"
+#include "chrome/common/pref_service.h"
 #include "grit/generated_resources.h"
 #include "grit/theme_resources.h"
 #include "views/background.h"
@@ -221,7 +223,7 @@ bool BlockedPopupContainerView::IsItemChecked(int id) const {
 }
 
 void BlockedPopupContainerView::ExecuteCommand(int id) {
-  DCHECK(id > 0);
+  DCHECK_GT(id, 0);
   size_t id_size_t = static_cast<size_t>(id);
   if (id_size_t > kImpossibleNumberOfPopups) {
     // Decrement id since all index based commands have 1 added to them. (See
@@ -233,33 +235,28 @@ void BlockedPopupContainerView::ExecuteCommand(int id) {
   }
 }
 
-// static
-BlockedPopupContainer* BlockedPopupContainer::Create(
-    TabContents* owner, Profile* profile, const gfx::Point& initial_anchor) {
-  BlockedPopupContainer* container = new BlockedPopupContainer(owner, profile);
-  container->Init(initial_anchor);
-  return container;
-}
-
 BlockedPopupContainer::~BlockedPopupContainer() {
 }
 
-BlockedPopupContainer::BlockedPopupContainer(TabContents* owner,
-                                             Profile* profile)
-    : Animation(kFramerate, NULL),
-      owner_(owner),
-      container_view_(NULL),
-      has_been_dismissed_(false),
-      in_show_animation_(false),
-      visibility_percentage_(0) {
+// static
+void BlockedPopupContainer::RegisterUserPrefs(PrefService* prefs) {
+  prefs->RegisterListPref(prefs::kPopupWhitelistedHosts);
+}
+
+// static
+BlockedPopupContainer* BlockedPopupContainer::Create(
+    TabContents* owner, Profile* profile, const gfx::Point& initial_anchor) {
+  BlockedPopupContainer* container =
+      new BlockedPopupContainer(owner, profile->GetPrefs());
+  container->Init(initial_anchor);
+  return container;
 }
 
 void BlockedPopupContainer::AddTabContents(TabContents* tab_contents,
                                            const gfx::Rect& bounds,
                                            const std::string& host) {
-  bool whitelisted = false;  // TODO: Check if host is on whitelist.
-
   // Show whitelisted popups immediately.
+  bool whitelisted = !!whitelist_.count(host);
   if (whitelisted)
     owner_->AddNewContents(tab_contents, NEW_POPUP, bounds, true, GURL());
 
@@ -293,7 +290,7 @@ void BlockedPopupContainer::AddTabContents(TabContents* tab_contents,
   if (i == popup_hosts_.end())
     popup_hosts_[host] = whitelisted;
   else
-    DCHECK(!i->second);  // This host was already reported as whitelisted!
+    DCHECK_EQ(whitelisted, i->second);
 
   // Update UI.
   container_view_->UpdateLabel();
@@ -364,9 +361,13 @@ void BlockedPopupContainer::ToggleWhitelistingForHost(size_t index) {
   const std::string& host = i->first;
   bool should_whitelist = !i->second;
   popup_hosts_[host] = should_whitelist;
-  // TODO: Update whitelist pref.
 
+  ListValue* whitelist_pref =
+      prefs_->GetMutableList(prefs::kPopupWhitelistedHosts);
   if (should_whitelist) {
+    whitelist_.insert(host);
+    whitelist_pref->Append(new StringValue(host));
+
     // Open the popups in order.
     for (size_t j = 0; j < blocked_popups_.size(); ) {
       if (blocked_popups_[j].host == host)
@@ -375,6 +376,10 @@ void BlockedPopupContainer::ToggleWhitelistingForHost(size_t index) {
         ++j;
     }
   } else {
+    // Remove from whitelist.
+    whitelist_.erase(host);
+    whitelist_pref->Remove(StringValue(host));
+
     for (UnblockedPopups::iterator i(unblocked_popups_.begin());
          i != unblocked_popups_.end(); ) {
       TabContents* tab_contents = i->first;
@@ -481,6 +486,29 @@ ExtensionFunctionDispatcher* BlockedPopupContainer::
 }
 
 // private:
+
+BlockedPopupContainer::BlockedPopupContainer(TabContents* owner,
+                                             PrefService* prefs)
+    : Animation(kFramerate, NULL),
+      owner_(owner),
+      prefs_(prefs),
+      container_view_(NULL),
+      has_been_dismissed_(false),
+      in_show_animation_(false),
+      visibility_percentage_(0) {
+  // Copy whitelist pref into local member that's easier to use.
+  const ListValue* whitelist_pref =
+      prefs_->GetList(prefs::kPopupWhitelistedHosts);
+  // Careful: The returned value could be NULL if the pref has never been set.
+  if (whitelist_pref != NULL) {
+    for (ListValue::const_iterator i(whitelist_pref->begin());
+         i != whitelist_pref->end(); ++i) {
+      std::string host;
+      (*i)->GetAsString(&host);
+      whitelist_.insert(host);
+    }
+  }
+}
 
 void BlockedPopupContainer::AnimateToState(double state) {
   visibility_percentage_ = in_show_animation_ ? state : (1 - state);

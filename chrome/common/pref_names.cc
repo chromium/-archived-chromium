@@ -78,6 +78,9 @@ const wchar_t kAcceptLanguages[] = L"intl.accept_languages";
 // stored in non-translatable part of the resource bundle.
 const wchar_t kStaticEncodings[] = L"intl.static_encodings";
 
+// The list of hostnames for which we whitelist popups (rather than blocking).
+const wchar_t kPopupWhitelistedHosts[] = L"profile.popup_whitelisted_sites";
+
 // WebKit preferences.
 // A boolean flag to indicate whether WebKit standard font family is
 // serif or sans-serif. We don't have a UI for setting standard family.
