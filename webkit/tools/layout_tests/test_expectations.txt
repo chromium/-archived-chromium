@@ -2644,6 +2644,21 @@ BUG11613 LINUX : chrome/fast/forms/basic-textareas-quirks.html = FAIL
 BUG11613 LINUX : chrome/fast/forms/basic-textareas.html = FAIL
 BUG11613 MAC : LayoutTests/fast/forms/text-control-intrinsic-widths.html = FAIL
 BUG11613 MAC : LayoutTests/http/tests/security/cross-frame-access-call.html = FAIL
+BUG11613 WIN : LayoutTests/http/tests/navigation/anchor-frames.html = FAIL
+BUG11613 WIN : LayoutTests/http/tests/navigation/anchor-subframeload.html = FAIL
+BUG11613 WIN : LayoutTests/http/tests/navigation/javascriptlink-frames.html = FAIL
+BUG11613 WIN : LayoutTests/http/tests/navigation/javascriptlink-subframeload.html = FAIL
+BUG11613 WIN : LayoutTests/http/tests/navigation/metaredirect-frames.html = FAIL
+BUG11613 WIN : LayoutTests/http/tests/navigation/postredirect-goback2.html = FAIL
+BUG11613 WIN : LayoutTests/http/tests/navigation/redirect302-basic.html = FAIL
+BUG11613 WIN : LayoutTests/http/tests/navigation/redirect302-frames.html = FAIL
+BUG11613 WIN : LayoutTests/http/tests/navigation/redirect302-goback.html = FAIL
+BUG11613 WIN : LayoutTests/http/tests/navigation/redirect302-subframeload.html = FAIL
+BUG11613 WIN : LayoutTests/http/tests/navigation/relativeanchor-frames.html = FAIL
+BUG11613 WIN : LayoutTests/http/tests/navigation/success200-frames.html = FAIL
+BUG11613 WIN : LayoutTests/http/tests/navigation/success200-subframeload.html = FAIL
+BUG11613 WIN : LayoutTests/http/tests/navigation/timerredirect-frames.html = FAIL
+BUG11613 WIN : LayoutTests/http/tests/navigation/timerredirect-subframeload.html = FAIL
 
 // This needs to be rebaselined.  See http://trac.webkit.org/changeset/43378
 BUG11669 LINUX : LayoutTests/fast/layers/remove-only-this-layer-update.html = FAIL
