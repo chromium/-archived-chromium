@@ -22,29 +22,29 @@
 #include "SkBitmap.h"
 
 // Strings used by themes to identify colors for different parts of our UI.
-static const std::string kColorFrame = "frame";
-static const std::string kColorFrameInactive = "frame_inactive";
-static const std::string kColorFrameIncognito = "frame_incognito";
-static const std::string kColorFrameIncognitoInactive =
+static const char* kColorFrame = "frame";
+static const char* kColorFrameInactive = "frame_inactive";
+static const char* kColorFrameIncognito = "frame_incognito";
+static const char* kColorFrameIncognitoInactive =
     "frame_incognito_inactive";
-static const std::string kColorToolbar = "toolbar";
-static const std::string kColorTabText = "tab_text";
-static const std::string kColorBackgroundTabText = "background_tab_text";
-static const std::string kColorBookmarkText = "bookmark_text";
-static const std::string kColorNTPText = "ntp_text";
-static const std::string kColorNTPLink = "ntp_link";
-static const std::string kColorNTPSection = "ntp_section";
+static const char* kColorToolbar = "toolbar";
+static const char* kColorTabText = "tab_text";
+static const char* kColorBackgroundTabText = "background_tab_text";
+static const char* kColorBookmarkText = "bookmark_text";
+static const char* kColorNTPText = "ntp_text";
+static const char* kColorNTPLink = "ntp_link";
+static const char* kColorNTPSection = "ntp_section";
 
 // Strings used by themes to identify tints to apply to different parts of
 // our UI. The frame tints apply to the frame color and produce the
 // COLOR_FRAME* colors.
-static const std::string kTintButtons = "buttons";
-static const std::string kTintFrame = "frame";
-static const std::string kTintFrameInactive = "frame_inactive";
-static const std::string kTintFrameIncognito = "frame_incognito";
-static const std::string kTintFrameIncognitoInactive =
+static const char* kTintButtons = "buttons";
+static const char* kTintFrame = "frame";
+static const char* kTintFrameInactive = "frame_inactive";
+static const char* kTintFrameIncognito = "frame_incognito";
+static const char* kTintFrameIncognitoInactive =
     "frame_incognito_inactive";
-static const std::string kTintBackgroundTab = "background_tab";
+static const char* kTintBackgroundTab = "background_tab";
 
 // Default colors.
 static const SkColor kDefaultColorFrame = SkColorSetRGB(77, 139, 217);
@@ -402,15 +402,15 @@ void BrowserThemeProvider::GenerateFrameImages() {
     } else if (base_id != id && images_.find(base_id) != images_.end()) {
       frame = LoadThemeBitmap(base_id);
     } else {
-      if (id == IDR_THEME_FRAME_INCOGNITO ||
-          id == IDR_THEME_FRAME_INCOGNITO_INACTIVE)
-        frame = rb_.GetBitmapNamed(IDR_THEME_FRAME_INCOGNITO);
-      else
-        frame = rb_.GetBitmapNamed(IDR_THEME_FRAME);
+      // If the theme doesn't specify an image, then apply the tint to
+      // the default frame. Note that the default theme provides default
+      // bitmaps for all frame types, so this isn't strictly necessary
+      // in the case where no tint is provided either.
+      frame = rb_.GetBitmapNamed(IDR_THEME_FRAME);
     }
 
     if (frame) {
-      SkBitmap* tinted = new SkBitmap(TintBitmap(*frame, frame_tints_[id]));
+      SkBitmap* tinted = new SkBitmap(TintBitmap(*frame, iter->second));
       image_cache_[id] = tinted;
     }
     ++iter;
@@ -479,15 +479,17 @@ void BrowserThemeProvider::SaveImageData(DictionaryValue* images_value) {
       profile_->GetPrefs()->GetMutableDictionary(prefs::kCurrentThemeImages);
   pref_images->Clear();
 
-  DictionaryValue::key_iterator iter = images_value->begin_keys();
-  while (iter != images_value->end_keys()) {
-    std::string val;
-    if (images_value->GetString(*iter, &val)) {
-      int id = ThemeResourcesUtil::GetId(WideToUTF8(*iter));
-      if (id != -1)
-        pref_images->SetString(*iter, images_[id]);
+  if (images_value) {
+    DictionaryValue::key_iterator iter = images_value->begin_keys();
+    while (iter != images_value->end_keys()) {
+      std::string val;
+      if (images_value->GetString(*iter, &val)) {
+        int id = ThemeResourcesUtil::GetId(WideToUTF8(*iter));
+        if (id != -1)
+          pref_images->SetString(*iter, images_[id]);
+      }
+      ++iter;
     }
-    ++iter;
   }
 }
 
