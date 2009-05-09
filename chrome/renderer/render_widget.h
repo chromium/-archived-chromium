@@ -18,6 +18,7 @@
 #include "skia/ext/platform_canvas.h"
 #include "skia/include/SkBitmap.h"
 
+#include "third_party/WebKit/WebKit/chromium/public/WebRect.h"
 #include "webkit/glue/webwidget_delegate.h"
 #include "webkit/glue/webcursor.h"
 
@@ -119,6 +120,8 @@ class RenderWidget : public IPC::Channel::Listener,
 
   void DoDeferredPaint();
   void DoDeferredScroll();
+  void DoDeferredClose();
+  void DoDeferredSetWindowRect(const WebKit::WebRect& pos);
 
   // This method is called immediately after PaintRect but before the
   // corresponding paint or scroll message is send to the widget host.
@@ -138,6 +141,7 @@ class RenderWidget : public IPC::Channel::Listener,
   void OnWasRestored(bool needs_repainting);
   void OnPaintRectAck();
   void OnScrollRectAck();
+  void OnRequestMoveAck();
   void OnHandleInputEvent(const IPC::Message& message);
   void OnMouseCaptureLost();
   void OnSetFocus(bool enable);
@@ -174,6 +178,14 @@ class RenderWidget : public IPC::Channel::Listener,
   // Tells the renderer it does not have focus. Used to prevent us from getting
   // the focus on our own when the browser did not focus us.
   void ClearFocus();
+
+  // Set the pending window rect.
+  // Because the real render_widget is hosted in another process, there is
+  // a time period where we may have set a new window rect which has not yet
+  // been processed by the browser.  So we maintain a pending window rect
+  // size.  If JS code sets the WindowRect, and then immediately calls
+  // GetWindowRect() we'll use this pending window rect as the size.
+  void SetPendingWindowRect(const WebKit::WebRect& r);
 
   // Routing ID that allows us to communicate to the parent browser process
   // RenderWidgetHost. When MSG_ROUTING_NONE, no messages may be sent.
@@ -279,6 +291,11 @@ class RenderWidget : public IPC::Channel::Listener,
 
   // A custom background for the widget.
   SkBitmap background_;
+
+  // While we are waiting for the browser to update window sizes,
+  // we track the pending size temporarily.
+  int pending_window_rect_count_;
+  WebKit::WebRect pending_window_rect_;
 
   DISALLOW_COPY_AND_ASSIGN(RenderWidget);
 };

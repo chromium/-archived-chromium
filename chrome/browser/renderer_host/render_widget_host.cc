@@ -461,8 +461,10 @@ void RenderWidgetHost::OnMsgClose() {
 
 void RenderWidgetHost::OnMsgRequestMove(const gfx::Rect& pos) {
   // Note that we ignore the position.
-  if (view_)
+  if (view_) {
     view_->SetSize(pos.size());
+    Send(new ViewMsg_Move_ACK(routing_id_));
+  }
 }
 
 void RenderWidgetHost::OnMsgPaintRect(

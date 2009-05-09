@@ -1948,6 +1948,7 @@ void RenderView::Show(WebWidget* webwidget, WindowOpenDisposition disposition) {
   // browser process will impose a default position otherwise.
   Send(new ViewHostMsg_ShowView(opener_id_, routing_id_, disposition,
       initial_pos_, opened_by_user_gesture_, creator_url_));
+  SetPendingWindowRect(initial_pos_);
 }
 
 void RenderView::CloseWidgetSoon(WebWidget* webwidget) {

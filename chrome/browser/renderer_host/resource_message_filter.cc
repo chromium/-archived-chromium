@@ -225,9 +225,9 @@ bool ResourceMessageFilter::OnMessageReceived(const IPC::Message& message) {
       // we cannot make X calls from the IO thread.  On other platforms, we can
       // handle these calls directly.
       IPC_MESSAGE_HANDLER_DELAY_REPLY(ViewHostMsg_GetScreenInfo,
-                                      OnGetScreenInfo);
+                                      OnGetScreenInfo)
       IPC_MESSAGE_HANDLER_DELAY_REPLY(ViewHostMsg_GetWindowRect,
-                                      OnGetWindowRect);
+                                      OnGetWindowRect)
       IPC_MESSAGE_HANDLER_DELAY_REPLY(ViewHostMsg_GetRootWindowRect,
                                       OnGetRootWindowRect)
 

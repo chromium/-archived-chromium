@@ -573,6 +573,13 @@ IPC_BEGIN_MESSAGES(View)
   // background will be tiled in both directions if it is not large enough.
   IPC_MESSAGE_ROUTED1(ViewMsg_SetBackground,
                       SkBitmap /* background */)
+
+  // Reply to ViewHostMsg_RequestMove, ViewHostMsg_ShowView, and
+  // ViewHostMsg_ShowWidget to inform the renderer that the browser has
+  // processed the move.  The browser may have ignored the move, but it finished
+  // processing.  This is used because the renderer keeps a temporary cache of
+  // the widget position while these asynchronous operations are in progress.
+  IPC_MESSAGE_ROUTED0(ViewMsg_Move_ACK)
 IPC_END_MESSAGES(View)
 
 

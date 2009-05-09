@@ -849,14 +849,17 @@ void RenderViewHost::OnMsgShowView(int route_id,
   if (view) {
     view->ShowCreatedWindow(route_id, disposition, initial_pos, user_gesture,
                             creator_url);
+    Send(new ViewMsg_Move_ACK(route_id));
   }
 }
 
 void RenderViewHost::OnMsgShowWidget(int route_id,
                                      const gfx::Rect& initial_pos) {
   RenderViewHostDelegate::View* view = delegate_->GetViewDelegate();
-  if (view)
+  if (view) {
     view->ShowCreatedWidget(route_id, initial_pos);
+    Send(new ViewMsg_Move_ACK(route_id));
+  }
 }
 
 void RenderViewHost::OnMsgRunModal(IPC::Message* reply_msg) {
@@ -967,6 +970,7 @@ void RenderViewHost::OnMsgClose() {
 
 void RenderViewHost::OnMsgRequestMove(const gfx::Rect& pos) {
   delegate_->RequestMove(pos);
+  Send(new ViewMsg_Move_ACK(routing_id()));
 }
 
 void RenderViewHost::OnMsgDidRedirectProvisionalLoad(int32 page_id,

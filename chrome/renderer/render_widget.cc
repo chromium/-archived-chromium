@@ -54,7 +54,8 @@ RenderWidget::RenderWidget(RenderThreadBase* render_thread, bool activatable)
       ime_control_new_state_(false),
       ime_control_updated_(false),
       ime_control_busy_(false),
-      activatable_(activatable) {
+      activatable_(activatable),
+      pending_window_rect_count_(0) {
   RenderProcess::current()->AddRefProcess();
   DCHECK(render_thread_);
 }
@@ -129,6 +130,7 @@ IPC_DEFINE_MESSAGE_MAP(RenderWidget)
   IPC_MESSAGE_HANDLER(ViewMsg_ImeSetComposition, OnImeSetComposition)
   IPC_MESSAGE_HANDLER(ViewMsg_Repaint, OnMsgRepaint)
   IPC_MESSAGE_HANDLER(ViewMsg_SetTextDirection, OnSetTextDirection)
+  IPC_MESSAGE_HANDLER(ViewMsg_Move_ACK, OnRequestMoveAck)
   IPC_MESSAGE_UNHANDLED_ERROR()
 IPC_END_MESSAGE_MAP()
 
@@ -247,6 +249,11 @@ void RenderWidget::OnPaintRectAck() {
 
   // Continue painting if necessary...
   DoDeferredPaint();
+}
+
+void RenderWidget::OnRequestMoveAck() {
+  DCHECK(pending_window_rect_count_);
+  pending_window_rect_count_--;
 }
 
 void RenderWidget::OnScrollRectAck() {
@@ -574,6 +581,7 @@ void RenderWidget::Show(WebWidget* webwidget,
     // process will impose a default position otherwise.
     render_thread_->Send(new ViewHostMsg_ShowWidget(
         opener_id_, routing_id_, initial_pos_));
+    SetPendingWindowRect(initial_pos_);
   }
 }
 
@@ -605,12 +613,21 @@ void RenderWidget::Blur(WebWidget* webwidget) {
   Send(new ViewHostMsg_Blur(routing_id_));
 }
 
+void RenderWidget::DoDeferredClose() {
+  Send(new ViewHostMsg_Close(routing_id_));
+}
+
 void RenderWidget::CloseWidgetSoon(WebWidget* webwidget) {
   // If a page calls window.close() twice, we'll end up here twice, but that's
   // OK.  It is safe to send multiple Close messages.
 
-  // Ask the RenderWidgetHost to initiate close.
-  Send(new ViewHostMsg_Close(routing_id_));
+  // Ask the RenderWidgetHost to initiate close.  We could be called from deep
+  // in Javascript.  If we ask the RendwerWidgetHost to close now, the window
+  // could be closed before the JS finishes executing.  So instead, post a
+  // message back to the message loop, which won't run until the JS is
+  // complete, and then the Close message can be sent.
+  MessageLoop::current()->PostNonNestableTask(FROM_HERE, NewRunnableMethod(
+      this, &RenderWidget::DoDeferredClose));
 }
 
 void RenderWidget::GenerateFullRepaint() {
@@ -625,6 +642,11 @@ void RenderWidget::Close() {
 }
 
 void RenderWidget::GetWindowRect(WebWidget* webwidget, WebRect* result) {
+  if (pending_window_rect_count_) {
+    *result = pending_window_rect_;
+    return;
+  }
+
   gfx::Rect rect;
   Send(new ViewHostMsg_GetWindowRect(routing_id_, host_window_, &rect));
   *result = rect;
@@ -633,12 +655,28 @@ void RenderWidget::GetWindowRect(WebWidget* webwidget, WebRect* result) {
 void RenderWidget::SetWindowRect(WebWidget* webwidget, const WebRect& pos) {
   if (did_show_) {
     Send(new ViewHostMsg_RequestMove(routing_id_, pos));
+    SetPendingWindowRect(pos);
   } else {
     initial_pos_ = pos;
   }
 }
 
+void RenderWidget::SetPendingWindowRect(const WebRect& rect) {
+  pending_window_rect_ = rect;
+  pending_window_rect_count_++;
+}
+
 void RenderWidget::GetRootWindowRect(WebWidget* webwidget, WebRect* result) {
+  if (pending_window_rect_count_) {
+    // NOTE(mbelshe): If there is a pending_window_rect_, then getting
+    // the RootWindowRect is probably going to return wrong results since the
+    // browser may not have processed the Move yet.  There isn't really anything
+    // good to do in this case, and it shouldn't happen - since this size is
+    // only really needed for windowToScreen, which is only used for Popups.
+    *result = pending_window_rect_;
+    return;
+  }
+
   gfx::Rect rect;
   Send(new ViewHostMsg_GetRootWindowRect(routing_id_, host_window_, &rect));
   *result = rect;
