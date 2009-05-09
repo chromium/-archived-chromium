@@ -74,7 +74,20 @@ class DefaultBrowserInfoBarDelegate : public ConfirmInfoBarDelegate {
   explicit DefaultBrowserInfoBarDelegate(TabContents* contents)
       : ConfirmInfoBarDelegate(contents),
         profile_(contents->profile()),
-        action_taken_(false) {
+        action_taken_(false),
+        should_expire_(false),
+        method_factory_(this) {
+    // We want the info-bar to stick-around for few seconds and then be hidden
+    // on the next navigation after that.
+    MessageLoop::current()->PostDelayedTask(FROM_HERE,
+        method_factory_.NewRunnableMethod(
+            &DefaultBrowserInfoBarDelegate::Expire),
+        8000);  // 8 seconds.
+  }
+
+  virtual bool ShouldExpire(
+      const NavigationController::LoadCommittedDetails& details) const {
+    return should_expire_;
   }
 
   // Overridden from ConfirmInfoBarDelegate:
@@ -119,12 +132,22 @@ class DefaultBrowserInfoBarDelegate : public ConfirmInfoBarDelegate {
     return true;
   }
 
+  void Expire() {
+    should_expire_ = true;
+  }
+
  private:
   // The Profile that we restore sessions from.
   Profile* profile_;
 
   // Whether the user clicked one of the buttons.
   bool action_taken_;
+
+  // Whether the info-bar should be dismissed on the next navigation.
+  bool should_expire_;
+
+  // Used to delay the expiration of the info-bar.
+  ScopedRunnableMethodFactory<DefaultBrowserInfoBarDelegate> method_factory_;
 
   DISALLOW_COPY_AND_ASSIGN(DefaultBrowserInfoBarDelegate);
 };
