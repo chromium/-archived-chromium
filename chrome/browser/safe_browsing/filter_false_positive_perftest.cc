@@ -46,6 +46,7 @@
 
 #include <fstream>
 #include <iostream>
+#include <vector>
 
 #include "base/command_line.h"
 #include "base/file_path.h"
@@ -55,7 +56,8 @@
 #include "base/scoped_ptr.h"
 #include "base/sha2.h"
 #include "base/string_util.h"
-#include "chrome/browser/safe_browsing/safe_browsing_database_bloom.h"
+#include "chrome/browser/safe_browsing/bloom_filter.h"
+#include "chrome/browser/safe_browsing/safe_browsing_util.h"
 #include "chrome/common/chrome_paths.h"
 #include "chrome/common/sqlite_compiled_statement.h"
 #include "chrome/common/sqlite_utils.h"
@@ -294,7 +296,7 @@ TEST(SafeBrowsingBloomFilter, FalsePositives) {
   if (!ReadDatabase(data_dir, &prefix_list))
     return;
 
-  int start = SafeBrowsingDatabaseBloom::kBloomFilterSizeRatio;
+  int start = BloomFilter::kBloomFilterSizeRatio;
   if (CommandLine::ForCurrentProcess()->HasSwitch(kFilterStart)) {
     start = StringToInt(
         CommandLine::ForCurrentProcess()->GetSwitchValue(kFilterStart));

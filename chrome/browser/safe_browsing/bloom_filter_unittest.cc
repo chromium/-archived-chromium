@@ -8,8 +8,11 @@
 #include <limits.h>
 
 #include <set>
+#include <vector>
 
+#include "base/file_util.h"
 #include "base/logging.h"
+#include "base/path_service.h"
 #include "base/rand_util.h"
 #include "base/ref_counted.h"
 #include "base/string_util.h"
@@ -23,12 +26,13 @@ uint32 GenHash() {
 
 }
 
-TEST(SafeBrowsing, BloomFilter) {
+TEST(SafeBrowsingBloomFilter, BloomFilterUse) {
   // Use a small number for unit test so it's not slow.
   uint32 count = 1000;
 
   // Build up the bloom filter.
-  scoped_refptr<BloomFilter> filter = new BloomFilter(count * 10);
+  scoped_refptr<BloomFilter> filter =
+      new BloomFilter(count * BloomFilter::kBloomFilterSizeRatio);
 
   typedef std::set<int> Values;
   Values values;
@@ -42,7 +46,7 @@ TEST(SafeBrowsing, BloomFilter) {
   char* data_copy = new char[filter->size()];
   memcpy(data_copy, filter->data(), filter->size());
   scoped_refptr<BloomFilter> filter_copy =
-      new BloomFilter(data_copy, filter->size());
+      new BloomFilter(data_copy, filter->size(), filter->hash_keys_);
 
   // Check no false negatives by ensuring that every time we inserted exists.
   for (Values::iterator i = values.begin(); i != values.end(); ++i) {
@@ -75,3 +79,42 @@ TEST(SafeBrowsing, BloomFilter) {
   LOG(INFO) << "For safe browsing bloom filter of size " << count <<
       ", the FP rate was " << fp_rate << " %";
 }
+
+// Test that we can read and write the bloom filter file.
+TEST(SafeBrowsingBloomFilter, BloomFilterFile) {
+  // Create initial filter.
+  const int kTestEntries = BloomFilter::kBloomFilterMinSize;
+  scoped_refptr<BloomFilter> filter_write =
+      new BloomFilter(kTestEntries * BloomFilter::kBloomFilterSizeRatio);
+
+  for (int i = 0; i < kTestEntries; ++i)
+    filter_write->Insert(GenHash());
+
+  // Remove any left over test filters and serialize.
+  FilePath filter_path;
+  PathService::Get(base::DIR_TEMP, &filter_path);
+  filter_path = filter_path.AppendASCII("SafeBrowsingTestFilter");
+  file_util::Delete(filter_path, false);
+  ASSERT_FALSE(file_util::PathExists(filter_path));
+  ASSERT_TRUE(filter_write->WriteFile(filter_path));
+
+  // Create new empty filter and load from disk.
+  BloomFilter* filter = BloomFilter::LoadFile(filter_path);
+  ASSERT_TRUE(filter != NULL);
+  scoped_refptr<BloomFilter> filter_read = filter;
+
+  // Check data consistency.
+  EXPECT_EQ(filter_write->hash_keys_.size(), filter_read->hash_keys_.size());
+
+  for (int i = 0; i < static_cast<int>(filter_write->hash_keys_.size()); ++i)
+    EXPECT_EQ(filter_write->hash_keys_[i], filter_read->hash_keys_[i]);
+
+  EXPECT_EQ(filter_write->size(), filter_read->size());
+
+  EXPECT_TRUE(memcmp(filter_write->data(),
+                     filter_read->data(),
+                     filter_read->size()) == 0);
+
+  file_util::Delete(filter_path, false);
+}
+

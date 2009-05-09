@@ -81,9 +81,6 @@ class SafeBrowsingDatabaseBloom : public SafeBrowsingDatabase {
 
   virtual bool NeedToCheckUrl(const GURL& url);
 
-  // How many bits to use per item.  See the design doc for more information.
-  static const int kBloomFilterSizeRatio = 25;
-
  private:
   // Opens the database.
   bool Open();
@@ -195,9 +192,6 @@ class SafeBrowsingDatabaseBloom : public SafeBrowsingDatabase {
 
   // Flush in memory temporary caches.
   void ClearUpdateCaches();
-
-  // Load the bloom filter off disk.
-  virtual void LoadBloomFilter();
 
   // Encode the list id in the lower bit of the chunk.
   static inline int EncodeChunkId(int chunk, int list_id) {

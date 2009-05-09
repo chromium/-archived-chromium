@@ -5,6 +5,7 @@
 #include "chrome/browser/safe_browsing/safe_browsing_database.h"
 
 #include "base/file_util.h"
+#include "base/histogram.h"
 #include "base/logging.h"
 #include "base/sha2.h"
 #include "chrome/browser/safe_browsing/safe_browsing_database_bloom.h"
@@ -14,7 +15,7 @@ using base::Time;
 
 // Filename suffix for the bloom filter.
 static const FilePath::CharType kBloomFilterFile[] =
-    FILE_PATH_LITERAL(" Filter");
+    FILE_PATH_LITERAL(" Filter 2");
 
 // Factory method.
 SafeBrowsingDatabase* SafeBrowsingDatabase::Create() {
@@ -63,23 +64,28 @@ FilePath SafeBrowsingDatabase::BloomFilterFilename(
 void SafeBrowsingDatabase::LoadBloomFilter() {
   DCHECK(!bloom_filter_filename_.empty());
 
+  // If we're missing either of the database or filter files, we wait until the
+  // next update to generate a new filter.
+  // TODO(paulg): Investigate how often the filter file is missing and how
+  // expensive it would be to regenerate it.
   int64 size_64;
+  if (!file_util::GetFileSize(filename_, &size_64) || size_64 == 0)
+    return;
+
   if (!file_util::GetFileSize(bloom_filter_filename_, &size_64) ||
       size_64 == 0) {
-    BuildBloomFilter();
+    UMA_HISTOGRAM_COUNTS("SB2.FilterMissing", 1);
     return;
   }
 
-  int size = static_cast<int>(size_64);
-  char* data = new char[size];
-  CHECK(data);
-
+  // We have a bloom filter file, so use that as our filter.
   Time before = Time::Now();
-  file_util::ReadFile(bloom_filter_filename_, data, size);
-  SB_DLOG(INFO) << "SafeBrowsingDatabase read bloom filter in " <<
-        (Time::Now() - before).InMilliseconds() << " ms";
+  bloom_filter_ = BloomFilter::LoadFile(bloom_filter_filename_);
+  SB_DLOG(INFO) << "SafeBrowsingDatabase read bloom filter in "
+                << (Time::Now() - before).InMilliseconds() << " ms";
 
-  bloom_filter_ = new BloomFilter(data, size);
+  if (!bloom_filter_.get())
+    UMA_HISTOGRAM_COUNTS("SB2.FilterReadFail", 1);
 }
 
 void SafeBrowsingDatabase::DeleteBloomFilter() {
@@ -91,9 +97,10 @@ void SafeBrowsingDatabase::WriteBloomFilter() {
     return;
 
   Time before = Time::Now();
-  file_util::WriteFile(bloom_filter_filename_,
-                       bloom_filter_->data(),
-                       bloom_filter_->size());
+  bool write_ok = bloom_filter_->WriteFile(bloom_filter_filename_);
   SB_DLOG(INFO) << "SafeBrowsingDatabase wrote bloom filter in " <<
       (Time::Now() - before).InMilliseconds() << " ms";
+
+  if (!write_ok)
+    UMA_HISTOGRAM_COUNTS("SB2.FilterWriteFail", 1);
 }

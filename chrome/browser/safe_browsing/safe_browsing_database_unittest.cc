@@ -20,10 +20,8 @@
 
 using base::Time;
 
-static const FilePath::CharType kBloomSuffix[] =
-    FILE_PATH_LITERAL(" Bloom");
-static const FilePath::CharType kFilterSuffix[] =
-    FILE_PATH_LITERAL(" Filter");
+static const FilePath::CharType kBloomSuffix[] =  FILE_PATH_LITERAL(" Bloom");
+static const FilePath::CharType kFilterSuffix[] = FILE_PATH_LITERAL(" Filter");
 
 namespace {
   SBPrefix Sha256Prefix(const std::string& str) {
