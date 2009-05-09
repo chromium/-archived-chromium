@@ -412,10 +412,11 @@ void StatusBubbleViews::StatusView::Paint(ChromeCanvas* canvas) {
   // to x() and y() for the highlight text, we still won't overlap the shadow.
   int text_width = std::min(views::Label::GetFont().GetStringWidth(text_),
       width - (kShadowThickness * 2) - kTextPositionX - kTextHorizPadding - 1);
+  int text_height = height - (kShadowThickness * 2) - 1;
   gfx::Rect body_bounds(kShadowThickness + kTextPositionX,
                         kShadowThickness,
-                        text_width,
-                        height - (kShadowThickness * 2) - 1);
+                        std::max(0, text_width),
+                        std::max(0, text_height));
   body_bounds.set_x(MirroredLeftPointForRect(body_bounds));
   canvas->DrawStringInt(text_,
                         views::Label::GetFont(),
