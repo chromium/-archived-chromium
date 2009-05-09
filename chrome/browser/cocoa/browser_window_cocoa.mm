@@ -217,6 +217,10 @@ void BrowserWindowCocoa::ShowHTMLDialog(HtmlDialogUIDelegate* delegate,
   NOTIMPLEMENTED();
 }
 
+void BrowserWindowCocoa::UserChangedTheme() {
+  NOTIMPLEMENTED();
+}
+
 void BrowserWindowCocoa::Observe(NotificationType type,
                                  const NotificationSource& source,
                                  const NotificationDetails& details) {

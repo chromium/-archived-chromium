@@ -589,6 +589,10 @@ void BrowserWindowGtk::ShowHTMLDialog(HtmlDialogUIDelegate* delegate,
   NOTIMPLEMENTED();
 }
 
+void BrowserWindowGtk::UserChangedTheme() {
+  NOTIMPLEMENTED();
+}
+
 void BrowserWindowGtk::ConfirmBrowserCloseWithPendingDownloads() {
   NOTIMPLEMENTED();
   browser_->InProgressDownloadResponse(false);

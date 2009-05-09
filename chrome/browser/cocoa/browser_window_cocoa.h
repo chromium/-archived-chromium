@@ -66,6 +66,7 @@ class BrowserWindowCocoa : public BrowserWindow,
   virtual void ConfirmBrowserCloseWithPendingDownloads();
   virtual void ShowHTMLDialog(HtmlDialogUIDelegate* delegate,
                               void* parent_window);
+  virtual void UserChangedTheme();
 
   // Overridden from NotificationObserver
   virtual void Observe(NotificationType type,
