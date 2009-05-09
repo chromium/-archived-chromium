@@ -209,10 +209,10 @@ bool FirstRun::CreateSentinel() {
   return true;
 }
 
-bool FirstRun::ProcessMasterPreferences(
-    const FilePath& user_data_dir,
-    const FilePath& master_prefs_path,
-    int* preference_details) {
+bool FirstRun::ProcessMasterPreferences(const FilePath& user_data_dir,
+                                        const FilePath& master_prefs_path,
+                                        int* preference_details,
+                                        std::vector<std::wstring>* new_tabs) {
   DCHECK(!user_data_dir.empty());
   if (preference_details)
     *preference_details = 0;
@@ -235,6 +235,9 @@ bool FirstRun::ProcessMasterPreferences(
 
   if (parse_result & installer_util::MASTER_PROFILE_ERROR)
     return true;
+
+  if (new_tabs)
+    *new_tabs = installer_util::ParseFirstRunTabs(master_prefs);
 
   if (parse_result & installer_util::MASTER_PROFILE_REQUIRE_EULA) {
     // Show the post-installation EULA. This is done by setup.exe and the

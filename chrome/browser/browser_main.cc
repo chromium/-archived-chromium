@@ -187,6 +187,24 @@ void SIGCHLDHandler(int signal) {
 }
 #endif
 
+#if defined(OS_WIN)
+void AddFirstRunNewTabs(BrowserInit* browser_init,
+                        const std::vector<std::wstring>& new_tabs) {
+  std::vector<std::wstring>::const_iterator it = new_tabs.begin();
+  while (it != new_tabs.end()) {
+    GURL url(*it);
+    if (url.is_valid())
+      browser_init->AddFirstRunTab(url);
+    ++it;
+  }
+}
+#else
+// TODO(cpu): implement first run experience for other platforms.
+void AddFirstRunNewTabs(BrowserInit* browser_init,
+                        const std::vector<std::wstring>& new_tabs) {
+}
+#endif
+
 }  // namespace
 
 // Main routine for running as the Browser process.
@@ -317,12 +335,19 @@ int BrowserMain(const MainFunctionParams& parameters) {
     ResourceBundle::GetSharedInstance().LoadThemeResources();
   }
 
+  BrowserInit browser_init;
+
   if (is_first_run) {
     // On first run, we  need to process the master preferences before the
     // browser's profile_manager object is created, but after ResourceBundle
     // is initialized.
+    std::vector<std::wstring> first_run_tabs;
     first_run_ui_bypass =
-        !FirstRun::ProcessMasterPreferences(user_data_dir, FilePath(), NULL);
+        !FirstRun::ProcessMasterPreferences(user_data_dir, FilePath(), NULL,
+                                            &first_run_tabs);
+    // The master prefs might specify a set of urls to display.
+    if (first_run_tabs.size())
+      AddFirstRunNewTabs(&browser_init, first_run_tabs);
 
     // If we are running in App mode, we do not want to show the importer
     // (first run) UI.
@@ -445,7 +470,6 @@ int BrowserMain(const MainFunctionParams& parameters) {
     return ResultCodes::MACHINE_LEVEL_INSTALL_EXISTS;
 
   process_singleton.Create();
-  BrowserInit browser_init;
 
   // Show the First Run UI if this is the first time Chrome has been run on
   // this computer, or we're being compelled to do so by a command line flag.

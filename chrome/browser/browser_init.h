@@ -35,7 +35,8 @@ class BrowserInit {
   // called during actual process startup.
   bool Start(const CommandLine& cmd_line, const std::wstring& cur_dir,
              Profile* profile, int* return_code) {
-    return ProcessCommandLine(cmd_line, cur_dir, true, profile, return_code);
+    return ProcessCmdLineImpl(cmd_line, cur_dir, true, profile, return_code,
+                              this);
   }
 
   // This function performs command-line handling and is invoked when
@@ -44,10 +45,13 @@ class BrowserInit {
   // line we need to process - either from this process or from some other one
   // (if |process_startup| is true and we are being called from
   //  ProcessSingleton::OnCopyData).
-  static bool ProcessCommandLine(const CommandLine& command_line,
+  static bool ProcessCommandLine(const CommandLine& cmd_line,
                                  const std::wstring& cur_dir,
                                  bool process_startup, Profile* profile,
-                                 int* return_code);
+                                 int* return_code) {
+    return ProcessCmdLineImpl(cmd_line, cur_dir, process_startup, profile,
+                              return_code, NULL);
+  }
 
   template <class AutomationProviderClass>
   static void CreateAutomationProvider(const std::wstring& channel_id,
@@ -64,8 +68,15 @@ class BrowserInit {
 
   class LaunchWithProfile {
    public:
+    // There are two ctors. The first one implies a NULL browser_init object
+    // and thus no access to distribution-specific first-run behaviors. The
+    // second one is always called when the browser starts even if it is not
+    // the first run.
     LaunchWithProfile(const std::wstring& cur_dir,
                       const CommandLine& command_line);
+    LaunchWithProfile(const std::wstring& cur_dir,
+                      const CommandLine& command_line,
+                      BrowserInit* browser_init);
     ~LaunchWithProfile() { }
 
     // Creates the necessary windows for startup. Returns true on success,
@@ -118,11 +129,16 @@ class BrowserInit {
     std::wstring cur_dir_;
     const CommandLine& command_line_;
     Profile* profile_;
-
+    BrowserInit* browser_init_;
     DISALLOW_COPY_AND_ASSIGN(LaunchWithProfile);
   };
 
  private:
+  static bool ProcessCmdLineImpl(const CommandLine& command_line,
+                                 const std::wstring& cur_dir,
+                                 bool process_startup, Profile* profile,
+                                 int* return_code, BrowserInit* browser_init);
+
   // Additional tabs to open during first run. 
   std::vector<GURL> first_run_tabs_;
 

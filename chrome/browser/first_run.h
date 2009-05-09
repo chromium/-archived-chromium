@@ -5,6 +5,8 @@
 #ifndef CHROME_BROWSER_FIRST_RUN_H_
 #define CHROME_BROWSER_FIRST_RUN_H_
 
+#include <vector>
+
 #include "base/basictypes.h"
 #include "base/command_line.h"
 #include "base/gfx/native_widget_types.h"
@@ -66,7 +68,8 @@ class FirstRun {
   // 'master_preferences' file.
   static bool ProcessMasterPreferences(const FilePath& user_data_dir,
                                        const FilePath& master_prefs_path,
-                                       int* preference_details);
+                                       int* preference_details,
+                                       std::vector<std::wstring>* new_tabs);
 
   // Sets the kShouldShowFirstRunBubble local state pref so that the browser
   // shows the bubble once the main message loop gets going. Returns false if
