@@ -22,29 +22,29 @@
 #include "SkBitmap.h"
 
 // Strings used by themes to identify colors for different parts of our UI.
-static const char* kColorFrame = "frame";
-static const char* kColorFrameInactive = "frame_inactive";
-static const char* kColorFrameIncognito = "frame_incognito";
-static const char* kColorFrameIncognitoInactive =
+static const std::string kColorFrame = "frame";
+static const std::string kColorFrameInactive = "frame_inactive";
+static const std::string kColorFrameIncognito = "frame_incognito";
+static const std::string kColorFrameIncognitoInactive =
     "frame_incognito_inactive";
-static const char* kColorToolbar = "toolbar";
-static const char* kColorTabText = "tab_text";
-static const char* kColorBackgroundTabText = "background_tab_text";
-static const char* kColorBookmarkText = "bookmark_text";
-static const char* kColorNTPText = "ntp_text";
-static const char* kColorNTPLink = "ntp_link";
-static const char* kColorNTPSection = "ntp_section";
+static const std::string kColorToolbar = "toolbar";
+static const std::string kColorTabText = "tab_text";
+static const std::string kColorBackgroundTabText = "background_tab_text";
+static const std::string kColorBookmarkText = "bookmark_text";
+static const std::string kColorNTPText = "ntp_text";
+static const std::string kColorNTPLink = "ntp_link";
+static const std::string kColorNTPSection = "ntp_section";
 
 // Strings used by themes to identify tints to apply to different parts of
 // our UI. The frame tints apply to the frame color and produce the
 // COLOR_FRAME* colors.
-static const char* kTintButtons = "buttons";
-static const char* kTintFrame = "frame";
-static const char* kTintFrameInactive = "frame_inactive";
-static const char* kTintFrameIncognito = "frame_incognito";
-static const char* kTintFrameIncognitoInactive =
+static const std::string kTintButtons = "buttons";
+static const std::string kTintFrame = "frame";
+static const std::string kTintFrameInactive = "frame_inactive";
+static const std::string kTintFrameIncognito = "frame_incognito";
+static const std::string kTintFrameIncognitoInactive =
     "frame_incognito_inactive";
-static const char* kTintBackgroundTab = "background_tab";
+static const std::string kTintBackgroundTab = "background_tab";
 
 // Default colors.
 static const SkColor kDefaultColorFrame = SkColorSetRGB(77, 139, 217);
