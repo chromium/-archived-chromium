@@ -8,6 +8,7 @@
 #include "app/resource_bundle.h"
 #include "base/basictypes.h"
 #include "base/command_line.h"
+#include "base/compiler_specific.h"
 #include "base/event_recorder.h"
 #include "base/file_path.h"
 #include "base/histogram.h"
@@ -76,7 +77,7 @@ class DefaultBrowserInfoBarDelegate : public ConfirmInfoBarDelegate {
         profile_(contents->profile()),
         action_taken_(false),
         should_expire_(false),
-        method_factory_(this) {
+        ALLOW_THIS_IN_INITIALIZER_LIST(method_factory_(this)) {
     // We want the info-bar to stick-around for few seconds and then be hidden
     // on the next navigation after that.
     MessageLoop::current()->PostDelayedTask(FROM_HERE,
