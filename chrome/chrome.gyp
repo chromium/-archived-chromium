@@ -755,6 +755,8 @@
         'browser/dom_ui/dom_ui_factory.h',
         'browser/dom_ui/dom_ui_favicon_source.cc',
         'browser/dom_ui/dom_ui_favicon_source.h',
+        'browser/dom_ui/dom_ui_theme_source.cc',
+        'browser/dom_ui/dom_ui_theme_source.h',
         'browser/dom_ui/dom_ui_thumbnail_source.cc',
         'browser/dom_ui/dom_ui_thumbnail_source.h',
         'browser/dom_ui/downloads_ui.cc',
@@ -3388,8 +3390,8 @@
                           '../tools/code_coverage/coverage_posix.py',
                           '--directory',
                           '<(PRODUCT_DIR)',
-        '--',
-        '<@(_dependencies)'],
+                          '--',
+                          '<@(_dependencies)'],
               # Use outputs of this action as inputs for the main target build.
               # Seems as a misnomer but makes this happy on Linux (scons).
               'process_outputs_as_sources': 1,

@@ -188,6 +188,11 @@ RootView* WidgetGtk::GetRootView() {
   return root_view_.get();
 }
 
+Widget* WidgetGtk::GetRootWidget() const {
+  NOTIMPLEMENTED();
+  return NULL;
+}
+
 bool WidgetGtk::IsVisible() const {
   return GTK_WIDGET_VISIBLE(widget_);
 }

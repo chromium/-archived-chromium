@@ -222,7 +222,7 @@ SkBitmap* BrowserThemeProvider::LoadThemeBitmap(int id) {
   if (images_.count(id)) {
     // First check to see if we have a registered theme extension and whether
     // it can handle this resource.
-#ifdef OS_WIN
+#if defined(OS_WIN)
     FilePath path = FilePath(UTF8ToWide(images_[id]));
 #else
     FilePath path = FilePath(images_[id]);
