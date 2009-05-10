@@ -15,7 +15,7 @@ include_rules = [
   "-webkit",
   "-tools",
 
-  # Allow inclusion of WebKit API files
+  # Allow inclusion of WebKit API files.
   "+webkit/api",
 
   # Brett's test. Contact him for questions.
