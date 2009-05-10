@@ -6,7 +6,7 @@
 #define CHROME_COMMON_NATIVE_WEB_KEYBOARD_EVENT_H_
 
 #include "base/basictypes.h"
-#include "third_party/WebKit/WebKit/chromium/public/WebInputEvent.h"
+#include "webkit/api/public/WebInputEvent.h"
 
 #if defined(OS_WIN)
 #include <windows.h>

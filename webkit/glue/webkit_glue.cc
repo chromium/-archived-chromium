@@ -35,7 +35,7 @@
 #include "base/sys_info.h"
 #include "base/sys_string_conversions.h"
 #include "skia/include/SkBitmap.h"
-#include "third_party/WebKit/WebKit/chromium/public/WebString.h"
+#include "webkit/api/public/WebString.h"
 #include "webkit/glue/event_conversion.h"
 #include "webkit/glue/glue_util.h"
 #include "webkit/glue/weburlrequest_impl.h"

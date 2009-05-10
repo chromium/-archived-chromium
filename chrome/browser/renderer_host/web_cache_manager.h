@@ -17,7 +17,7 @@
 #include "base/singleton.h"
 #include "base/task.h"
 #include "base/time.h"
-#include "third_party/WebKit/WebKit/chromium/public/WebCache.h"
+#include "webkit/api/public/WebCache.h"
 
 class PrefService;
 

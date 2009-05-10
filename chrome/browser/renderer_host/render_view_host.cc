@@ -38,7 +38,7 @@
 #include "chrome/common/url_constants.h"
 #include "net/base/net_util.h"
 #include "skia/include/SkBitmap.h"
-#include "third_party/WebKit/WebKit/chromium/public/WebFindOptions.h"
+#include "webkit/api/public/WebFindOptions.h"
 #include "webkit/glue/autofill_form.h"
 
 using base::TimeDelta;

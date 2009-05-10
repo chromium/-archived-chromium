@@ -11,9 +11,9 @@
 
 #include "base/basictypes.h"
 #include "base/ref_counted.h"
-#include "third_party/WebKit/WebKit/chromium/public/WebString.h"
-#include "third_party/WebKit/WebKit/chromium/public/WebWorker.h"
-#include "third_party/WebKit/WebKit/chromium/public/WebWorkerClient.h"
+#include "webkit/api/public/WebString.h"
+#include "webkit/api/public/WebWorker.h"
+#include "webkit/api/public/WebWorkerClient.h"
 
 class GURL;
 class TestWebWorkerHelper;

@@ -9,7 +9,7 @@
 
 #include "base/basictypes.h"
 #include "chrome/common/ipc_channel.h"
-#include "third_party/WebKit/WebKit/chromium/public/WebWorker.h"
+#include "webkit/api/public/WebWorker.h"
 
 class ChildThread;
 class GURL;

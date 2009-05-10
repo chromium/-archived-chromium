@@ -18,8 +18,8 @@
 #include "base/logging.h"
 #include "base/file_util.h"
 #include "base/path_service.h"
-#include "third_party/WebKit/WebKit/chromium/public/WebKit.h"
-#include "third_party/WebKit/WebKit/chromium/public/WebKitClient.h"
+#include "webkit/api/public/WebKit.h"
+#include "webkit/api/public/WebKitClient.h"
 
 using WebKit::WebWorker;
 using WebKit::WebWorkerClient;

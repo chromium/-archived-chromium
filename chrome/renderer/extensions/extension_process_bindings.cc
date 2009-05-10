@@ -12,7 +12,7 @@
 #include "chrome/renderer/js_only_v8_extensions.h"
 #include "chrome/renderer/render_view.h"
 #include "grit/renderer_resources.h"
-#include "third_party/WebKit/WebKit/chromium/public/WebScriptSource.h"
+#include "webkit/api/public/WebScriptSource.h"
 #include "webkit/glue/webframe.h"
 
 using WebKit::WebScriptSource;

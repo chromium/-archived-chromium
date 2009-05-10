@@ -14,7 +14,7 @@
 #include "base/message_loop.h"
 #include "base/path_service.h"
 #include "base/string_util.h"
-#include "third_party/WebKit/WebKit/chromium/public/WebScriptSource.h"
+#include "webkit/api/public/WebScriptSource.h"
 #include "webkit/glue/dom_operations.h"
 #include "webkit/glue/webframe.h"
 #include "webkit/glue/webpreferences.h"

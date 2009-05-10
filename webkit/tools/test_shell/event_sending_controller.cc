@@ -28,13 +28,13 @@
 #include "base/message_loop.h"
 #include "base/string_util.h"
 #include "base/time.h"
-#include "third_party/WebKit/WebKit/chromium/public/WebDragData.h"
-#include "third_party/WebKit/WebKit/chromium/public/WebPoint.h"
+#include "webkit/api/public/WebDragData.h"
+#include "webkit/api/public/WebPoint.h"
 #include "webkit/glue/webview.h"
 #include "webkit/tools/test_shell/test_shell.h"
 
 #if defined(OS_WIN)
-#include "third_party/WebKit/WebKit/chromium/public/win/WebInputEventFactory.h"
+#include "webkit/api/public/win/WebInputEventFactory.h"
 using WebKit::WebInputEventFactory;
 #endif
 

@@ -17,7 +17,7 @@ MSVC_POP_WARNING();
 #undef LOG
 #include "base/logging.h"
 #include "base/gfx/rect.h"
-#include "third_party/WebKit/WebKit/chromium/public/WebRect.h"
+#include "webkit/api/public/WebRect.h"
 #include "webkit/glue/inspector_client_impl.h"
 #include "webkit/glue/webkit_glue.h"
 #include "webkit/glue/weburlrequest.h"

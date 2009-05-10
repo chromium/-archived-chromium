@@ -10,7 +10,7 @@
 #include "webkit/glue/webkitclient_impl.h"
 
 #if defined(OS_WIN)
-#include "third_party/WebKit/WebKit/chromium/public/win/WebSandboxSupport.h"
+#include "webkit/api/public/win/WebSandboxSupport.h"
 #endif
 
 class RendererWebKitClientImpl : public webkit_glue::WebKitClientImpl {

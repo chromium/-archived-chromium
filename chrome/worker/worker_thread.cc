@@ -7,7 +7,7 @@
 #include "chrome/common/worker_messages.h"
 #include "chrome/worker/webworkerclient_proxy.h"
 #include "chrome/worker/worker_webkitclient_impl.h"
-#include "third_party/WebKit/WebKit/chromium/public/WebKit.h"
+#include "webkit/api/public/WebKit.h"
 
 WorkerThread::WorkerThread()
     : ChildThread(base::Thread::Options(MessageLoop::TYPE_DEFAULT,

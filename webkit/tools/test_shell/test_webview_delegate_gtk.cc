@@ -14,7 +14,7 @@
 #include "base/string_util.h"
 #include "net/base/net_errors.h"
 #include "chrome/common/page_transition_types.h"
-#include "third_party/WebKit/WebKit/chromium/public/WebRect.h"
+#include "webkit/api/public/WebRect.h"
 #include "webkit/glue/webcursor.h"
 #include "webkit/glue/webdatasource.h"
 #include "webkit/glue/webdropdata.h"

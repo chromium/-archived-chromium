@@ -7,8 +7,8 @@
 #include "base/logging.h"
 #include "chrome/renderer/webworker_proxy.h"
 #include "chrome/worker/worker_thread.h"
-#include "third_party/WebKit/WebKit/chromium/public/WebString.h"
-#include "third_party/WebKit/WebKit/chromium/public/WebURL.h"
+#include "webkit/api/public/WebString.h"
+#include "webkit/api/public/WebURL.h"
 
 WebKit::WebClipboard* WorkerWebKitClientImpl::clipboard() {
   NOTREACHED();

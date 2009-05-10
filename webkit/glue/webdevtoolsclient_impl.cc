@@ -24,7 +24,7 @@
 #include "v8_utility.h"
 #include "base/string_util.h"
 #include "base/values.h"
-#include "third_party/WebKit/WebKit/chromium/public/WebScriptSource.h"
+#include "webkit/api/public/WebScriptSource.h"
 #include "webkit/glue/devtools/debugger_agent.h"
 #include "webkit/glue/devtools/devtools_rpc_js.h"
 #include "webkit/glue/devtools/dom_agent.h"

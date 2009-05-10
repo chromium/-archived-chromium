@@ -5,7 +5,7 @@
 #ifndef WEBMIMEREGISTRY_IMPL_H_
 #define WEBMIMEREGISTRY_IMPL_H_
 
-#include "third_party/WebKit/WebKit/chromium/public/WebMimeRegistry.h"
+#include "webkit/api/public/WebMimeRegistry.h"
 
 namespace webkit_glue {
 

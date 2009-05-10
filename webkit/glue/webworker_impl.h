@@ -5,7 +5,7 @@
 #ifndef WEBKIT_GLUE_WEBWORKER_IMPL_H_
 #define WEBKIT_GLUE_WEBWORKER_IMPL_H_
 
-#include "third_party/WebKit/WebKit/chromium/public/WebWorker.h"
+#include "webkit/api/public/WebWorker.h"
 
 #if ENABLE(WORKERS)
 

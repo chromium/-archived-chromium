@@ -21,7 +21,7 @@ MSVC_POP_WARNING();
 #undef LOG
 #include "base/logging.h"
 #include "skia/ext/platform_canvas.h"
-#include "third_party/WebKit/WebKit/chromium/public/WebInputEvent.h"
+#include "webkit/api/public/WebInputEvent.h"
 #include "webkit/glue/event_conversion.h"
 #include "webkit/glue/glue_util.h"
 #include "webkit/glue/webwidget_delegate.h"

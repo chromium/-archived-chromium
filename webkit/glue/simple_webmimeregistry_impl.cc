@@ -7,7 +7,7 @@
 #include "base/string_util.h"
 #include "base/sys_string_conversions.h"
 #include "net/base/mime_util.h"
-#include "third_party/WebKit/WebKit/chromium/public/WebString.h"
+#include "webkit/api/public/WebString.h"
 #include "webkit/glue/glue_util.h"
 #include "webkit/glue/webkit_glue.h"
 

@@ -23,7 +23,7 @@
 #include "chrome/common/modal_dialog_event.h"
 #include "chrome/common/notification_observer.h"
 #include "chrome/common/transport_dib.h"
-#include "third_party/WebKit/WebKit/chromium/public/WebCache.h"
+#include "webkit/api/public/WebCache.h"
 
 #if defined(OS_WIN)
 #include <windows.h>

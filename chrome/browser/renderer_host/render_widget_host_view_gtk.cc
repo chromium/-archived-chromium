@@ -16,7 +16,7 @@
 #include "chrome/common/x11_util.h"
 #include "chrome/browser/renderer_host/backing_store.h"
 #include "chrome/browser/renderer_host/render_widget_host.h"
-#include "third_party/WebKit/WebKit/chromium/public/gtk/WebInputEventFactory.h"
+#include "webkit/api/public/gtk/WebInputEventFactory.h"
 #include "webkit/glue/webcursor_gtk_data.h"
 
 using WebKit::WebInputEventFactory;

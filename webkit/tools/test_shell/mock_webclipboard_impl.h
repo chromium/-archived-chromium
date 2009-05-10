@@ -10,8 +10,8 @@
 #ifndef WEBKIT_TOOLS_TEST_SHELL_MOCK_WEBCLIPBOARD_IMPL_H_
 #define WEBKIT_TOOLS_TEST_SHELL_MOCK_WEBCLIPBOARD_IMPL_H_
 
-#include "third_party/WebKit/WebKit/chromium/public/WebClipboard.h"
-#include "third_party/WebKit/WebKit/chromium/public/WebString.h"
+#include "webkit/api/public/WebClipboard.h"
+#include "webkit/api/public/WebString.h"
 
 class MockWebClipboardImpl : public WebKit::WebClipboard {
  public:

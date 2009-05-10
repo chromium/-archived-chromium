@@ -8,9 +8,9 @@
 #include "chrome/common/ipc_logging.h"
 #include "chrome/common/worker_messages.h"
 #include "chrome/worker/worker_thread.h"
-#include "third_party/WebKit/WebKit/chromium/public/WebString.h"
-#include "third_party/WebKit/WebKit/chromium/public/WebURL.h"
-#include "third_party/WebKit/WebKit/chromium/public/WebWorker.h"
+#include "webkit/api/public/WebString.h"
+#include "webkit/api/public/WebURL.h"
+#include "webkit/api/public/WebWorker.h"
 
 using WebKit::WebString;
 using WebKit::WebWorker;

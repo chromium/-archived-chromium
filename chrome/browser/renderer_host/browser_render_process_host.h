@@ -19,7 +19,7 @@
 #include "chrome/browser/renderer_host/audio_renderer_host.h"
 #include "chrome/browser/renderer_host/render_process_host.h"
 #include "chrome/common/notification_observer.h"
-#include "third_party/WebKit/WebKit/chromium/public/WebCache.h"
+#include "webkit/api/public/WebCache.h"
 
 class CommandLine;
 class GURL;

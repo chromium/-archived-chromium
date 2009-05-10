@@ -12,7 +12,7 @@
 #include "base/shared_memory.h"
 #include "base/string_util.h"
 #include "googleurl/src/gurl.h"
-#include "third_party/WebKit/WebKit/chromium/public/WebScriptSource.h"
+#include "webkit/api/public/WebScriptSource.h"
 #include "webkit/glue/webframe.h"
 
 #include "grit/renderer_resources.h"

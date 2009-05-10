@@ -8,7 +8,7 @@
 #include "base/basictypes.h"
 #include "chrome/common/ipc_channel.h"
 #include "googleurl/src/gurl.h"
-#include "third_party/WebKit/WebKit/chromium/public/WebWorkerClient.h"
+#include "webkit/api/public/WebWorkerClient.h"
 
 namespace WebKit {
 class WebWorker;

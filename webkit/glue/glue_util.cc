@@ -3,11 +3,11 @@
 // found in the LICENSE file.
 
 // TODO(darin): This file will be deleted once we complete the move to
-// third_party/WebKit/WebKit/chromium
+// webkit/api
 
 // In this file, we pretend to be part of the WebKit implementation.
 // This is just a temporary hack while glue is still being moved into
-// third_party/WebKit/WebKit/chromium.
+// webkit/api.
 #define WEBKIT_IMPLEMENTATION 1
 
 #include "config.h"
@@ -29,12 +29,12 @@
 #include "base/string_util.h"
 #include "base/sys_string_conversions.h"
 #include "googleurl/src/gurl.h"
-#include "third_party/WebKit/WebKit/chromium/public/WebDragData.h"
-#include "third_party/WebKit/WebKit/chromium/public/WebPoint.h"
-#include "third_party/WebKit/WebKit/chromium/public/WebRect.h"
-#include "third_party/WebKit/WebKit/chromium/public/WebSize.h"
-#include "third_party/WebKit/WebKit/chromium/public/WebString.h"
-#include "third_party/WebKit/WebKit/chromium/public/WebURL.h"
+#include "webkit/api/public/WebDragData.h"
+#include "webkit/api/public/WebPoint.h"
+#include "webkit/api/public/WebRect.h"
+#include "webkit/api/public/WebSize.h"
+#include "webkit/api/public/WebString.h"
+#include "webkit/api/public/WebURL.h"
 
 namespace webkit_glue {
 

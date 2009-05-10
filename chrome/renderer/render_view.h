@@ -24,7 +24,7 @@
 #include "chrome/renderer/render_widget.h"
 #include "skia/include/SkBitmap.h"
 #include "testing/gtest/include/gtest/gtest_prod.h"
-#include "third_party/WebKit/WebKit/chromium/public/WebConsoleMessage.h"
+#include "webkit/api/public/WebConsoleMessage.h"
 #include "webkit/glue/dom_serializer_delegate.h"
 #include "webkit/glue/form_data.h"
 #include "webkit/glue/password_form_dom_manager.h"

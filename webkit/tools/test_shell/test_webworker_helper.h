@@ -12,7 +12,7 @@
 
 #include "base/basictypes.h"
 #include "base/port.h"
-#include "third_party/WebKit/WebKit/chromium/public/WebString.h"
+#include "webkit/api/public/WebString.h"
 
 #include <wtf/MainThread.h>
 

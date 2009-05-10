@@ -9,9 +9,9 @@
 #include "base/string_util.h"
 #include "base/trace_event.h"
 #include "grit/webkit_resources.h"
-#include "third_party/WebKit/WebKit/chromium/public/WebData.h"
-#include "third_party/WebKit/WebKit/chromium/public/WebPluginListBuilder.h"
-#include "third_party/WebKit/WebKit/chromium/public/WebString.h"
+#include "webkit/api/public/WebData.h"
+#include "webkit/api/public/WebPluginListBuilder.h"
+#include "webkit/api/public/WebString.h"
 #include "webkit/glue/webkit_glue.h"
 #include "webkit/glue/webplugininfo.h"
 

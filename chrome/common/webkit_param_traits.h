@@ -24,11 +24,11 @@
 #define CHROME_COMMON_WEBKIT_PARAM_TRAITS_H_
 
 #include "chrome/common/ipc_message_utils.h"
-#include "third_party/WebKit/WebKit/chromium/public/WebCache.h"
-#include "third_party/WebKit/WebKit/chromium/public/WebConsoleMessage.h"
-#include "third_party/WebKit/WebKit/chromium/public/WebFindOptions.h"
-#include "third_party/WebKit/WebKit/chromium/public/WebInputEvent.h"
-#include "third_party/WebKit/WebKit/chromium/public/WebScreenInfo.h"
+#include "webkit/api/public/WebCache.h"
+#include "webkit/api/public/WebConsoleMessage.h"
+#include "webkit/api/public/WebFindOptions.h"
+#include "webkit/api/public/WebInputEvent.h"
+#include "webkit/api/public/WebScreenInfo.h"
 
 namespace IPC {
 

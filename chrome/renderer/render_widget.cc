@@ -15,9 +15,9 @@
 #include "chrome/renderer/render_process.h"
 #include "skia/ext/platform_canvas.h"
 #include "skia/include/SkShader.h"
-#include "third_party/WebKit/WebKit/chromium/public/WebRect.h"
-#include "third_party/WebKit/WebKit/chromium/public/WebScreenInfo.h"
-#include "third_party/WebKit/WebKit/chromium/public/WebSize.h"
+#include "webkit/api/public/WebRect.h"
+#include "webkit/api/public/WebScreenInfo.h"
+#include "webkit/api/public/WebSize.h"
 
 #if defined(OS_POSIX)
 #include "skia/include/SkPixelRef.h"

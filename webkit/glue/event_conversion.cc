@@ -15,8 +15,8 @@
 #undef LOG
 #include "base/gfx/point.h"
 #include "base/logging.h"
-#include "third_party/WebKit/WebKit/chromium/public/WebInputEvent.h"
-#include "third_party/WebKit/WebKit/chromium/public/WebKit.h"
+#include "webkit/api/public/WebInputEvent.h"
+#include "webkit/api/public/WebKit.h"
 #include "webkit/glue/glue_util.h"
 #include "webkit/glue/webkit_glue.h"
 

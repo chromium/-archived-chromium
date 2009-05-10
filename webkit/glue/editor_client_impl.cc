@@ -26,7 +26,7 @@
 #undef LOG
 #include "base/message_loop.h"
 #include "base/string_util.h"
-#include "third_party/WebKit/WebKit/chromium/public/WebKit.h"
+#include "webkit/api/public/WebKit.h"
 #include "webkit/glue/autofill_form.h"
 #include "webkit/glue/dom_operations.h"
 #include "webkit/glue/editor_client_impl.h"

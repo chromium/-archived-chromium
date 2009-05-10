@@ -14,7 +14,7 @@
 #include "chrome/browser/renderer_host/render_widget_host.h"
 #include "chrome/common/modal_dialog_event.h"
 #include "chrome/common/page_zoom.h"
-#include "third_party/WebKit/WebKit/chromium/public/WebConsoleMessage.h"
+#include "webkit/api/public/WebConsoleMessage.h"
 #include "webkit/glue/autofill_form.h"
 #include "webkit/glue/password_form_dom_manager.h"
 #include "webkit/glue/window_open_disposition.h"

@@ -21,7 +21,7 @@
 #include "net/base/net_errors.h"
 #include "net/base/ssl_info.h"
 #include "net/base/x509_certificate.h"
-#include "third_party/WebKit/WebKit/chromium/public/WebConsoleMessage.h"
+#include "webkit/api/public/WebConsoleMessage.h"
 #include "webkit/glue/resource_type.h"
 
 class AutomationProvider;

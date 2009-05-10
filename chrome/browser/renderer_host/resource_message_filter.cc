@@ -43,9 +43,9 @@
 #endif
 
 #if defined(OS_WIN)
-#include "third_party/WebKit/WebKit/chromium/public/win/WebScreenInfoFactory.h"
+#include "webkit/api/public/win/WebScreenInfoFactory.h"
 #elif defined(OS_MACOSX)
-#include "third_party/WebKit/WebKit/chromium/public/mac/WebScreenInfoFactory.h"
+#include "webkit/api/public/mac/WebScreenInfoFactory.h"
 #endif
 
 using WebKit::WebCache;

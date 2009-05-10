@@ -18,11 +18,11 @@
 #undef LOG
 
 #include "base/logging.h"
+#include "webkit/api/public/WebString.h"
+#include "webkit/api/public/WebURL.h"
+#include "webkit/api/public/WebWorkerClient.h"
 #include "webkit/glue/glue_util.h"
 #include "webkit/glue/webworker_impl.h"
-#include "third_party/WebKit/WebKit/chromium/public/WebString.h"
-#include "third_party/WebKit/WebKit/chromium/public/WebURL.h"
-#include "third_party/WebKit/WebKit/chromium/public/WebWorkerClient.h"
 
 using WebKit::WebWorker;
 using WebKit::WebWorkerClient;

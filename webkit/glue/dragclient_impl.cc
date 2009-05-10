@@ -20,7 +20,7 @@ MSVC_POP_WARNING();
 
 #include "base/logging.h"
 #include "base/string_util.h"
-#include "third_party/WebKit/WebKit/chromium/public/WebDragData.h"
+#include "webkit/api/public/WebDragData.h"
 #include "webkit/glue/context_menu.h"
 #include "webkit/glue/glue_util.h"
 #include "webkit/glue/webdropdata.h"

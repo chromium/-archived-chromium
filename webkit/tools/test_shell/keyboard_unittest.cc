@@ -18,7 +18,7 @@ MSVC_POP_WARNING();
 #include "webkit/glue/editor_client_impl.h"
 #include "webkit/glue/event_conversion.h"
 #include "testing/gtest/include/gtest/gtest.h"
-#include "third_party/WebKit/WebKit/chromium/public/WebInputEvent.h"
+#include "webkit/api/public/WebInputEvent.h"
 
 using WebCore::PlatformKeyboardEvent;
 using WebCore::KeyboardEvent;

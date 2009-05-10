@@ -9,9 +9,9 @@
 #include "base/compiler_specific.h"
 #include "base/ref_counted.h"
 #include "base/gfx/native_widget_types.h"
-#include "third_party/WebKit/WebKit/chromium/public/WebPoint.h"
-#include "third_party/WebKit/WebKit/chromium/public/WebRect.h"
-#include "third_party/WebKit/WebKit/chromium/public/WebSize.h"
+#include "webkit/api/public/WebPoint.h"
+#include "webkit/api/public/WebRect.h"
+#include "webkit/api/public/WebSize.h"
 #include "webkit/glue/webwidget.h"
 
 #include "FramelessScrollViewClient.h"

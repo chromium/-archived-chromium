@@ -7,7 +7,7 @@
 
 #if ENABLE(WORKERS)
 
-#include "third_party/WebKit/WebKit/chromium/public/WebWorkerClient.h"
+#include "webkit/api/public/WebWorkerClient.h"
 
 #include "WorkerContextProxy.h"
 #include <wtf/RefPtr.h>

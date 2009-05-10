@@ -7,8 +7,8 @@
 #include "chrome/common/child_thread.h"
 #include "chrome/common/render_messages.h"
 #include "chrome/common/worker_messages.h"
-#include "third_party/WebKit/WebKit/chromium/public/WebURL.h"
-#include "third_party/WebKit/WebKit/chromium/public/WebWorkerClient.h"
+#include "webkit/api/public/WebURL.h"
+#include "webkit/api/public/WebWorkerClient.h"
 
 using WebKit::WebString;
 using WebKit::WebURL;

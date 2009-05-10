@@ -7,7 +7,7 @@
 
 #if ENABLE(VIDEO)
 
-#include "third_party/WebKit/WebKit/chromium/public/WebMediaPlayerClient.h"
+#include "webkit/api/public/WebMediaPlayerClient.h"
 
 #include "MediaPlayerPrivate.h"
 

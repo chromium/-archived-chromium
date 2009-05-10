@@ -21,20 +21,16 @@
 #include "webkit/glue/webworkerclient_impl.h"
 
 #include "base/command_line.h"
-#include "third_party/WebKit/WebKit/chromium/public/WebKit.h"
-#include "third_party/WebKit/WebKit/chromium/public/WebKitClient.h"
+#include "webkit/api/public/WebKit.h"
+#include "webkit/api/public/WebKitClient.h"
+#include "webkit/api/public/WebWorker.h"
 #include "webkit/glue/glue_util.h"
 #include "webkit/glue/webframeloaderclient_impl.h"
 #include "webkit/glue/webframe_impl.h"
 #include "webkit/glue/webview_delegate.h"
 #include "webkit/glue/webview_impl.h"
 #include "webkit/glue/webworker_impl.h"
-#include "third_party/WebKit/WebKit/chromium/public/WebConsoleMessage.h"
-#include "third_party/WebKit/WebKit/chromium/public/WebScriptSource.h"
-#include "third_party/WebKit/WebKit/chromium/public/WebWorker.h"
 
-using WebKit::WebConsoleMessage;
-using WebKit::WebScriptSource;
 using WebKit::WebString;
 using WebKit::WebWorker;
 using WebKit::WebWorkerClient;

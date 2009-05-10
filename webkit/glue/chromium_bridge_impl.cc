@@ -31,7 +31,7 @@
 #include "build/build_config.h"
 #include "googleurl/src/url_util.h"
 #include "skia/ext/skia_utils_win.h"
-#include "third_party/WebKit/WebKit/chromium/public/WebScreenInfo.h"
+#include "webkit/api/public/WebScreenInfo.h"
 #include "webkit/glue/chrome_client_impl.h"
 #include "webkit/glue/glue_util.h"
 #include "webkit/glue/plugins/plugin_instance.h"

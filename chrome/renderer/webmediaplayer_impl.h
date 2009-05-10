@@ -50,8 +50,8 @@
 #include "base/message_loop.h"
 #include "media/base/filters.h"
 #include "media/base/pipeline_impl.h"
-#include "third_party/WebKit/WebKit/chromium/public/WebMediaPlayer.h"
-#include "third_party/WebKit/WebKit/chromium/public/WebMediaPlayerClient.h"
+#include "webkit/api/public/WebMediaPlayer.h"
+#include "webkit/api/public/WebMediaPlayerClient.h"
 
 class AudioRendererImpl;
 class DataSourceImpl;

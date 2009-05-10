@@ -10,8 +10,8 @@
 #include "chrome/renderer/extensions/extension_process_bindings.h"
 #include "chrome/renderer/extensions/renderer_extension_bindings.h"
 #include "chrome/renderer/js_only_v8_extensions.h"
-#include "third_party/WebKit/WebKit/chromium/public/WebKit.h"
-#include "third_party/WebKit/WebKit/chromium/public/WebScriptSource.h"
+#include "webkit/api/public/WebKit.h"
+#include "webkit/api/public/WebScriptSource.h"
 #include "webkit/glue/weburlrequest.h"
 #include "webkit/glue/webview.h"
 

@@ -25,7 +25,7 @@
 #include "net/http/http_cache.h"
 #include "net/base/ssl_test_util.h"
 #include "net/url_request/url_request_context.h"
-#include "third_party/WebKit/WebKit/chromium/public/WebKit.h"
+#include "webkit/api/public/WebKit.h"
 #include "webkit/glue/webkit_glue.h"
 #include "webkit/glue/window_open_disposition.h"
 #include "webkit/extensions/v8/gc_extension.h"

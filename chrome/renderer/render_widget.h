@@ -18,7 +18,7 @@
 #include "skia/ext/platform_canvas.h"
 #include "skia/include/SkBitmap.h"
 
-#include "third_party/WebKit/WebKit/chromium/public/WebRect.h"
+#include "webkit/api/public/WebRect.h"
 #include "webkit/glue/webwidget_delegate.h"
 #include "webkit/glue/webcursor.h"
 
