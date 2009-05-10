@@ -12,8 +12,8 @@
 #include "chrome/browser/renderer_host/render_widget_host.h"
 #include "chrome/common/native_web_keyboard_event.h"
 #include "skia/ext/platform_canvas.h"
-#include "third_party/WebKit/WebKit/chromium/public/mac/WebInputEventFactory.h"
-#include "third_party/WebKit/WebKit/chromium/public/WebInputEvent.h"
+#include "webkit/api/public/mac/WebInputEventFactory.h"
+#include "webkit/api/public/WebInputEvent.h"
 #include "webkit/glue/webmenurunner_mac.h"
 
 using WebKit::WebInputEventFactory;

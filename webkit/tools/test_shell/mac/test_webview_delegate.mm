@@ -7,7 +7,7 @@
 #import <Cocoa/Cocoa.h>
 #include "base/string_util.h"
 #include "base/sys_string_conversions.h"
-#include "third_party/WebKit/WebKit/chromium/public/WebRect.h"
+#include "webkit/api/public/WebRect.h"
 #include "webkit/glue/webcursor.h"
 #include "webkit/glue/webview.h"
 #include "webkit/glue/plugins/plugin_list.h"

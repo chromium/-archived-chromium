@@ -10,7 +10,7 @@
 #include "base/gfx/platform_canvas.h"
 #include "base/gfx/rect.h"
 #include "base/gfx/size.h"
-#include "third_party/WebKit/WebKit/chromium/public/WebSize.h"
+#include "webkit/api/public/WebSize.h"
 #include "webkit/glue/webview.h"
 
 using WebKit::WebSize;
