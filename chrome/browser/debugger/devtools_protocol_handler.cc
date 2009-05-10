@@ -96,7 +96,7 @@ void DevToolsProtocolHandler::DidAccept(ListenSocket *server,
 
 void DevToolsProtocolHandler::DidRead(ListenSocket *connection,
                                       const std::string& data) {
-  // This method is not used.
+  // Not used.
 }
 
 void DevToolsProtocolHandler::DidClose(ListenSocket *sock) {

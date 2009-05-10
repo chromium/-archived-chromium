@@ -17,6 +17,8 @@ class DevToolsClientHostImpl;
 class NavigationController;
 
 // Proxies debugged tabs' NavigationControllers using their UIDs.
+// Keeps track of tabs being debugged so that we can detach from
+// them on remote debugger connection loss.
 class InspectableTabProxy {
  public:
   typedef base::hash_map<int32, NavigationController*> ControllersMap;

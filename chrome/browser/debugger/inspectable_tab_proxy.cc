@@ -38,7 +38,7 @@ void DevToolsClientHostImpl::OnRpcMessage(const std::string& msg) {
   static const std::string kDebuggerOutput = "DebuggerOutput";
   scoped_ptr<Value> message(JSONReader::Read(msg, false));
   if (!message->IsType(Value::TYPE_LIST)) {
-    NOTREACHED();  // The protocol has changed :(
+    NOTREACHED();  // The RPC protocol has changed :(
     return;
   }
   ListValue* list_msg = static_cast<ListValue*>(message.get());
@@ -84,7 +84,7 @@ DevToolsClientHost* InspectableTabProxy::NewClientHost(
 void InspectableTabProxy::OnRemoteDebuggerDetached() {
   while (id_to_client_host_map_.size() > 0) {
     IdToClientHostMap::iterator it = id_to_client_host_map_.begin();
-    it->second->debugger_remote_service()->DetachTab(IntToString(it->first),
-                                                     NULL);
+    it->second->debugger_remote_service()->DetachFromTab(IntToString(it->first),
+                                                         NULL);
   }
 }

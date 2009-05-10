@@ -18,7 +18,7 @@ class DevToolsRemoteListenSocket;
 class DevToolsRemoteMessage;
 
 // Dispatches DevToolsRemoteMessages to their appropriate handlers (Tools)
-// based on the value of the Tool message header.
+// based on the "Tool" message header value.
 class DevToolsProtocolHandler
     : public DevToolsRemoteListener,
       public OutboundSocketDelegate,
