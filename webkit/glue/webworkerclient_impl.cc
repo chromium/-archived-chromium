@@ -24,6 +24,7 @@
 #include "webkit/api/public/WebKit.h"
 #include "webkit/api/public/WebKitClient.h"
 #include "webkit/api/public/WebString.h"
+#include "webkit/api/public/WebURL.h"
 #include "webkit/api/public/WebWorker.h"
 #include "webkit/glue/glue_util.h"
 #include "webkit/glue/webframeloaderclient_impl.h"
