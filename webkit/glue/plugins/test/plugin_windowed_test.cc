@@ -18,20 +18,6 @@ NPError WindowedPluginTest::SetWindow(NPWindow* pNPWindow) {
     return NPERR_INVALID_PARAM;
   }
 
-  if (test_name() == "hidden_plugin") {
-    NPIdentifier function_id;
-    if (IsWindowVisible(window)) {
-      function_id = HostFunctions()->getstringidentifier("windowVisible");
-    } else {
-      function_id = HostFunctions()->getstringidentifier("windowHidden");
-    }
-
-    NPVariant rv;
-    NPObject *window_obj = NULL;
-    HostFunctions()->getvalue(id(), NPNVWindowNPObject, &window_obj);
-    HostFunctions()->invoke(id(), window_obj, function_id, NULL, 0, &rv);
-  }
-
   return NPERR_NO_ERROR;
 }
 

@@ -229,11 +229,6 @@ class WebPluginImpl : public WebPlugin,
   // Notifies the plugin about focus changes.
   void setFocus();
 
-  // Called by WebPluginContainer::show/hide, which overrides Widget show/hide.
-  // This allows us to control the visible state of the plugin window.
-  void show();
-  void hide();
-
   // Handle widget events.
   void handleEvent(WebCore::Event* event);
   void handleMouseEvent(WebCore::MouseEvent* event);
@@ -338,7 +333,6 @@ class WebPluginImpl : public WebPlugin,
   WebFrameImpl* webframe_;
 
   WebPluginDelegate* delegate_;
-  bool visible_;
 
   WebPluginContainer* widget_;
 

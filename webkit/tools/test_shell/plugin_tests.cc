@@ -51,6 +51,16 @@ class PluginTest : public TestShellTest {
     file_util::Delete(plugin_file_path_, true);
   }
 
+  virtual void SetUp() {
+    CopyTestPlugin();
+    TestShellTest::SetUp();
+  }
+
+  virtual void TearDown() {
+    DeleteTestPlugin();
+    TestShellTest::TearDown();
+  }
+
   FilePath plugin_src_;
   FilePath plugin_file_path_;
 };
@@ -103,8 +113,6 @@ TEST_F(PluginTest, Refresh) {
   test_shell_->webView()->GetMainFrame()->ExecuteScript(call_check);
   test_shell_->webView()->GetMainFrame()->GetContentAsPlainText(10000, &text);
   ASSERT_EQ(text, L"DONE");
-
-  DeleteTestPlugin();
 }
 
 #if defined(OS_WIN)
@@ -158,18 +166,40 @@ TEST_F(PluginTest, DeleteFrameDuringEvent) {
 }
 
 #if defined(OS_WIN)
-// Tests that a hidden plugin is not shown.  See http://crbug.com/8927
-TEST_F(PluginTest, HiddenPlugin) {
-  CopyTestPlugin();
+BOOL CALLBACK EnumChildProc(HWND hwnd, LPARAM lparam) {
+  HWND* plugin_hwnd = reinterpret_cast<HWND*>(lparam);
+  if (*plugin_hwnd) {
+    // More than one child window found, unexpected.
+    plugin_hwnd = NULL;
+    return FALSE;
+  }
+  *plugin_hwnd = hwnd;
+  return TRUE;
+}
 
+// Tests that hiding/showing the parent frame hides/shows the plugin.
+TEST_F(PluginTest, PluginVisibilty) {
   FilePath test_html = data_dir_;
   test_html = test_html.AppendASCII("plugins");
-  test_html = test_html.AppendASCII("hidden_plugin.html");
+  test_html = test_html.AppendASCII("plugin_visibility.html");
   test_shell_->LoadURL(test_html.ToWStringHack().c_str());
   test_shell_->WaitTestFinished();
 
-  std::wstring text;
-  test_shell_->webView()->GetMainFrame()->GetContentAsPlainText(10000, &text);
-  ASSERT_EQ(true, StartsWith(text, L"DONE", true));
+  WebFrame* main_frame = test_shell_->webView()->GetMainFrame();
+  HWND frame_hwnd = test_shell_->webViewWnd();
+  HWND plugin_hwnd = NULL;
+  EnumChildWindows(frame_hwnd, EnumChildProc,
+      reinterpret_cast<LPARAM>(&plugin_hwnd));
+  ASSERT_TRUE(plugin_hwnd != NULL);
+  ASSERT_FALSE(IsWindowVisible(plugin_hwnd));
+
+  main_frame->ExecuteScript(WebString::fromUTF8("showPlugin(true)"));
+  ASSERT_TRUE(IsWindowVisible(plugin_hwnd));
+
+  main_frame->ExecuteScript(WebString::fromUTF8("showFrame(false)"));
+  ASSERT_FALSE(IsWindowVisible(plugin_hwnd));
+
+  main_frame->ExecuteScript(WebString::fromUTF8("showFrame(true)"));
+  ASSERT_TRUE(IsWindowVisible(plugin_hwnd));
 }
 #endif

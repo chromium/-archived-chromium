@@ -163,26 +163,30 @@ void WebPluginContainer::setFocus() {
 }
 
 void WebPluginContainer::show() {
+  bool old_visible = isVisible();
+  setSelfVisible(true);
   // We don't want to force a geometry update when the plugin widget is
   // already visible as this involves a geometry update which may lead
   // to unnecessary window moves in the plugin process.
-  if (!impl_->visible_) {
-    impl_->show();
-    WebCore::Widget::show();
+  if (old_visible != isVisible()) {
     // This is to force an updategeometry call to the plugin process
     // where the plugin window can be hidden or shown.
     frameRectsChanged();
   }
+
+  WebCore::Widget::show();
 }
 
 void WebPluginContainer::hide() {
-  if (impl_->visible_) {
-    impl_->hide();
-    WebCore::Widget::hide();
+  bool old_visible = isVisible();
+  setSelfVisible(false);
+  if (old_visible != isVisible()) {
     // This is to force an updategeometry call to the plugin process
     // where the plugin window can be hidden or shown.
     frameRectsChanged();
   }
+
+  WebCore::Widget::hide();
 }
 
 void WebPluginContainer::handleEvent(WebCore::Event* event) {
@@ -209,10 +213,9 @@ void WebPluginContainer::setParentVisible(bool visible) {
   if (!isSelfVisible())
     return;  // This widget has explicitely been marked as not visible.
 
-  if (visible)
-    show();
-  else
-    hide();
+  // This is to force an updategeometry call to the plugin process
+  // where the plugin window can be hidden or shown.
+  frameRectsChanged();
 }
 
 // We override this function so that if the plugin is windowed, we can call
@@ -325,7 +328,6 @@ WebPluginImpl::WebPluginImpl(WebCore::HTMLPlugInElement* element,
       element_(element),
       webframe_(webframe),
       delegate_(delegate),
-      visible_(false),
       widget_(NULL),
       plugin_url_(plugin_url),
       load_manually_(load_manually),
@@ -661,7 +663,7 @@ void WebPluginImpl::setFrameRect(const WebCore::IntRect& rect) {
     move.window_rect = webkit_glue::FromIntRect(window_rect);
     move.clip_rect = webkit_glue::FromIntRect(clip_rect);
     move.cutout_rects = cutout_rects;
-    move.visible = visible_;
+    move.visible = widget_->isVisible();
 
     webview->delegate()->DidMove(webview, move);
   }
@@ -748,14 +750,6 @@ void WebPluginImpl::print(WebCore::GraphicsContext* gc) {
 void WebPluginImpl::setFocus() {
   if (windowless_)
     delegate_->SetFocus();
-}
-
-void WebPluginImpl::show() {
-  visible_ = true;
-}
-
-void WebPluginImpl::hide() {
-  visible_ = false;
 }
 
 void WebPluginImpl::handleEvent(WebCore::Event* event) {
