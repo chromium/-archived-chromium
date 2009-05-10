@@ -498,6 +498,14 @@
 			>
 		</File>
 		<File
+			RelativePath=".\chrome_views_delegate.cc"
+			>
+		</File>
+		<File
+			RelativePath=".\chrome_views_delegate.h"
+			>
+		</File>
+		<File
 			RelativePath=".\clear_browsing_data.cc"
 			>
 		</File>

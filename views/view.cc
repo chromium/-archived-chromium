@@ -19,6 +19,7 @@
 #include "skia/include/SkShader.h"
 #include "views/background.h"
 #include "views/layout_manager.h"
+#include "views/views_delegate.h"
 #include "views/widget/root_view.h"
 #include "views/widget/widget.h"
 #include "views/window/window.h"
@@ -28,6 +29,9 @@
 #endif
 
 namespace views {
+
+// static
+ViewsDelegate* ViewsDelegate::views_delegate = NULL;
 
 // static
 char View::kViewClassName[] = "views/View";

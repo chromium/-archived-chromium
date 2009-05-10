@@ -3,10 +3,7 @@
 // found in the LICENSE file.
 
 #include "views/window/window_delegate.h"
-
-// TODO(beng): hrmp. Fix this in http://crbug.com/4406
-#include "chrome/browser/browser_process.h"
-#include "chrome/common/pref_service.h"
+#include "views/views_delegate.h"
 #include "views/window/client_view.h"
 #include "views/window/window.h"
 #include "skia/include/SkBitmap.h"
@@ -29,59 +26,38 @@ void WindowDelegate::SaveWindowPlacement(const gfx::Rect& bounds,
                                          bool maximized,
                                          bool always_on_top) {
   std::wstring window_name = GetWindowName();
-  if (window_name.empty() || !g_browser_process->local_state())
+  if (!ViewsDelegate::views_delegate || window_name.empty())
     return;
 
-  DictionaryValue* window_preferences =
-      g_browser_process->local_state()->GetMutableDictionary(
-          window_name.c_str());
-  window_preferences->SetInteger(L"left", bounds.x());
-  window_preferences->SetInteger(L"top", bounds.y());
-  window_preferences->SetInteger(L"right", bounds.right());
-  window_preferences->SetInteger(L"bottom", bounds.bottom());
-  window_preferences->SetBoolean(L"maximized", maximized);
-  window_preferences->SetBoolean(L"always_on_top", always_on_top);
+  ViewsDelegate::views_delegate->SaveWindowPlacement(
+      window_name, bounds, maximized, always_on_top);
 }
 
 bool WindowDelegate::GetSavedWindowBounds(gfx::Rect* bounds) const {
   std::wstring window_name = GetWindowName();
-  if (window_name.empty())
+  if (!ViewsDelegate::views_delegate || window_name.empty())
     return false;
 
-  const DictionaryValue* dictionary =
-      g_browser_process->local_state()->GetDictionary(window_name.c_str());
-  int left, top, right, bottom;
-  if (!dictionary || !dictionary->GetInteger(L"left", &left) ||
-      !dictionary->GetInteger(L"top", &top) ||
-      !dictionary->GetInteger(L"right", &right) ||
-      !dictionary->GetInteger(L"bottom", &bottom))
-    return false;
-
-  bounds->SetRect(left, top, right - left, bottom - top);
-  return true;
+  return ViewsDelegate::views_delegate->GetSavedWindowBounds(
+      window_name, bounds);
 }
 
 bool WindowDelegate::GetSavedMaximizedState(bool* maximized) const {
   std::wstring window_name = GetWindowName();
-  if (window_name.empty())
+  if (!ViewsDelegate::views_delegate || window_name.empty())
     return false;
 
-  const DictionaryValue* dictionary =
-      g_browser_process->local_state()->GetDictionary(window_name.c_str());
-  return dictionary && dictionary->GetBoolean(L"maximized", maximized);
+  return ViewsDelegate::views_delegate->GetSavedMaximizedState(
+      window_name, maximized);
 }
 
 bool WindowDelegate::GetSavedAlwaysOnTopState(bool* always_on_top) const {
-  if (!g_browser_process->local_state())
-    return false;
-
   std::wstring window_name = GetWindowName();
-  if (window_name.empty())
+  if (!ViewsDelegate::views_delegate || window_name.empty())
     return false;
 
-  const DictionaryValue* dictionary =
-      g_browser_process->local_state()->GetDictionary(window_name.c_str());
-  return dictionary && dictionary->GetBoolean(L"always_on_top", always_on_top);
+  return ViewsDelegate::views_delegate->GetSavedAlwaysOnTopState(
+      window_name, always_on_top);
 }
 
 

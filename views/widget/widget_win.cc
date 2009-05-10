@@ -9,11 +9,11 @@
 #include "base/gfx/native_theme.h"
 #include "base/string_util.h"
 #include "base/win_util.h"
-#include "chrome/app/chrome_dll_resource.h"
 #include "views/accessibility/view_accessibility.h"
 #include "views/controls/native_control_win.h"
 #include "views/fill_layout.h"
 #include "views/focus/focus_util_win.h"
+#include "views/views_delegate.h"
 #include "views/widget/aero_tooltip_manager.h"
 #include "views/widget/default_theme_provider.h"
 #include "views/widget/root_view.h"
@@ -920,8 +920,9 @@ std::wstring WidgetWin::GetWindowClassName() {
   class_ex.cbClsExtra = 0;
   class_ex.cbWndExtra = 0;
   class_ex.hInstance = NULL;
-  class_ex.hIcon = LoadIcon(GetModuleHandle(L"chrome.dll"),
-                            MAKEINTRESOURCE(IDR_MAINFRAME));
+  class_ex.hIcon = NULL;
+  if (ViewsDelegate::views_delegate)
+    class_ex.hIcon = ViewsDelegate::views_delegate->GetDefaultWindowIcon();
   class_ex.hCursor = LoadCursor(NULL, IDC_ARROW);
   class_ex.hbrBackground = reinterpret_cast<HBRUSH>(class_info.background + 1);
   class_ex.lpszMenuName = NULL;

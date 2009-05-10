@@ -20,12 +20,12 @@
 #include "base/scoped_clipboard_writer.h"
 #include "base/string_util.h"
 #include "base/win_util.h"
-#include "chrome/browser/browser_process.h"
 #include "grit/generated_resources.h"
 #include "skia/ext/skia_utils_win.h"
 #include "views/controls/hwnd_view.h"
 #include "views/controls/menu/menu.h"
 #include "views/focus/focus_util_win.h"
+#include "views/views_delegate.h"
 #include "views/widget/widget.h"
 
 using gfx::NativeTheme;
@@ -420,8 +420,8 @@ void TextField::Edit::OnCopy() {
 
   const std::wstring text(GetSelectedText());
 
-  if (!text.empty()) {
-    ScopedClipboardWriter scw(g_browser_process->clipboard());
+  if (!text.empty() && ViewsDelegate::views_delegate) {
+    ScopedClipboardWriter scw(ViewsDelegate::views_delegate->GetClipboard());
     scw.WriteText(text);
   }
 }
@@ -782,10 +782,10 @@ void TextField::Edit::OnNonLButtonDown(UINT keys, const CPoint& point) {
 }
 
 void TextField::Edit::OnPaste() {
-  if (parent_->IsReadOnly())
+  if (parent_->IsReadOnly() || !ViewsDelegate::views_delegate)
     return;
 
-  Clipboard* clipboard = g_browser_process->clipboard();
+  Clipboard* clipboard = ViewsDelegate::views_delegate->GetClipboard();
 
   if (!clipboard->IsFormatAvailable(Clipboard::GetPlainTextWFormatType()))
     return;

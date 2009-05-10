@@ -6,14 +6,8 @@ include_rules = [
   # TODO(beng): sever these dependencies into chrome by either refactoring or
   #             moving code into app/
   
-  # message_box_view.cc, text_field.cc, window_delegate.cc
-  "+chrome/browser/browser_process.h",
-  
   # widget_win.cc
   "+chrome/app/chrome_dll_resource.h",
-  
-  # window_delegate.cc
-  "+chrome/common/pref_service.h",
   
   # TODO(beng): swap these with app/views specific generated resources.
   "+grit/generated_resources.h",

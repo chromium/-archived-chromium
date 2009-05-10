@@ -28,6 +28,7 @@
 #include "chrome/browser/views/bookmark_bubble_view.h"
 #include "chrome/browser/views/bookmark_manager_view.h"
 #include "chrome/browser/views/bug_report_view.h"
+#include "chrome/browser/views/chrome_views_delegate.h"
 #include "chrome/browser/views/clear_browsing_data.h"
 #include "chrome/browser/views/download_shelf_view.h"
 #include "chrome/browser/views/find_bar_win.h"
@@ -1667,6 +1668,8 @@ void BrowserView::InitClass() {
 
 // static
 BrowserWindow* BrowserWindow::CreateBrowserWindow(Browser* browser) {
+  if (!views::ViewsDelegate::views_delegate)
+    views::ViewsDelegate::views_delegate = new ChromeViewsDelegate;
   BrowserView* browser_view = new BrowserView(browser);
   (new BrowserFrame(browser_view, browser->profile()))->Init();
   return browser_view;

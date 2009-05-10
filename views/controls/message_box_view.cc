@@ -10,10 +10,10 @@
 #include "base/message_loop.h"
 #include "base/scoped_clipboard_writer.h"
 #include "base/string_util.h"
-#include "chrome/browser/browser_process.h"
 #include "grit/generated_resources.h"
 #include "views/controls/button/checkbox.h"
 #include "views/standard_layout.h"
+#include "views/views_delegate.h"
 #include "views/window/client_view.h"
 
 static const int kDefaultMessageWidth = 320;
@@ -95,7 +95,10 @@ bool MessageBoxView::AcceleratorPressed(
   // We only accepts Ctrl-C.
   DCHECK(accelerator.GetKeyCode() == 'C' && accelerator.IsCtrlDown());
 
-  Clipboard* clipboard = g_browser_process->clipboard();
+  if (!views::ViewsDelegate::views_delegate)
+    return false;
+
+  Clipboard* clipboard = views::ViewsDelegate::views_delegate->GetClipboard();
   if (!clipboard)
     return false;
 
