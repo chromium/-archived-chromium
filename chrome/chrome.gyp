@@ -48,6 +48,18 @@
         {
           'rule_name': 'grit',
           'extension': 'grd',
+          'variables': {
+            'conditions': [
+              ['branding=="Chrome"', {
+                # TODO(mmoss) The .grd files look for _google_chrome, but for
+                # consistency they should look for GOOGLE_CHROME_BUILD like C++.
+                # Clean this up when Windows moves to gyp.
+                'chrome_build': '_google_chrome',
+              }, {  # else: branding!="Chrome"
+                'chrome_build': '_chromium',
+              }],
+            ],
+          },
           'inputs': [
             '../tools/grit/grit.py',
           ],
@@ -55,7 +67,9 @@
             '<(SHARED_INTERMEDIATE_DIR)/chrome/grit/<(RULE_INPUT_ROOT).h',
             '<(SHARED_INTERMEDIATE_DIR)/chrome/<(RULE_INPUT_ROOT).pak',
           ],
-          'action': ['python', '<@(_inputs)', '-i', '<(RULE_INPUT_PATH)', 'build', '-o', '<(SHARED_INTERMEDIATE_DIR)/chrome'],
+          'action': ['python', '<@(_inputs)', '-i', '<(RULE_INPUT_PATH)',
+            'build', '-o', '<(SHARED_INTERMEDIATE_DIR)/chrome',
+            '-D', '<(chrome_build)'],
           'message': 'Generating resources from <(RULE_INPUT_PATH)',
         },
       ],
@@ -88,6 +102,18 @@
         {
           'rule_name': 'grit',
           'extension': 'grd',
+          'variables': {
+            'conditions': [
+              ['branding=="Chrome"', {
+                # TODO(mmoss) The .grd files look for _google_chrome, but for
+                # consistency they should look for GOOGLE_CHROME_BUILD like C++.
+                # Clean this up when Windows moves to gyp.
+                'chrome_build': '_google_chrome',
+              }, {  # else: branding!="Chrome"
+                'chrome_build': '_chromium',
+              }],
+            ],
+          },
           'inputs': [
             '../tools/grit/grit.py',
           ],
@@ -98,7 +124,9 @@
             '<(SHARED_INTERMEDIATE_DIR)/chrome/<(RULE_INPUT_ROOT)_he.pak',
             '<(SHARED_INTERMEDIATE_DIR)/chrome/<(RULE_INPUT_ROOT)_zh-TW.pak',
           ],
-          'action': ['python', '<@(_inputs)', '-i', '<(RULE_INPUT_PATH)', 'build', '-o', '<(SHARED_INTERMEDIATE_DIR)/chrome'],
+          'action': ['python', '<@(_inputs)', '-i', '<(RULE_INPUT_PATH)',
+            'build', '-o', '<(SHARED_INTERMEDIATE_DIR)/chrome',
+            '-D', '<(chrome_build)'],
           'message': 'Generating resources from <(RULE_INPUT_PATH)',
         },
       ],
@@ -222,6 +250,16 @@
           'action_name': 'theme_resources',
           'variables': {
             'input_path': 'app/theme/theme_resources.grd',
+            'conditions': [
+              ['branding=="Chrome"', {
+                # TODO(mmoss) The .grd files look for _google_chrome, but for
+                # consistency they should look for GOOGLE_CHROME_BUILD like C++.
+                # Clean this up when Windows moves to gyp.
+                'chrome_build': '_google_chrome',
+              }, {  # else: branding!="Chrome"
+                'chrome_build': '_chromium',
+              }],
+            ],
           },
           'inputs': [
             '<(input_path)',
@@ -233,7 +271,8 @@
             '<(grit_out_dir)/theme_resources.pak',
             '<(grit_out_dir)/theme_resources.rc',
           ],
-          'action': ['python', '<(grit_path)', '-i', '<(input_path)', 'build', '-o', '<(grit_out_dir)'],
+          'action': ['python', '<(grit_path)', '-i', '<(input_path)', 'build',
+            '-o', '<(grit_out_dir)', '-D', '<(chrome_build)'],
           'message': 'Generating resources from <(input_path)',
         },
       ],
@@ -2040,9 +2079,19 @@
               'variables': {
                 'pak_inputs': [
                   '<(SHARED_INTERMEDIATE_DIR)/chrome/generated_resources_da.pak',
-                  '<(SHARED_INTERMEDIATE_DIR)/chrome/chromium_strings_da.pak',
                   '<(SHARED_INTERMEDIATE_DIR)/chrome/locale_settings_da.pak',
                   '<(SHARED_INTERMEDIATE_DIR)/webkit/webkit_strings_da.pak',
+                ],
+                'conditions': [
+                  ['branding=="Chrome"', {
+                    'pak_inputs': [
+                        '<(SHARED_INTERMEDIATE_DIR)/chrome/google_chrome_strings_da.pak',
+                      ]
+                  }, {  # else: branding!="Chrome"
+                    'pak_inputs': [
+                        '<(SHARED_INTERMEDIATE_DIR)/chrome/chromium_strings_da.pak',
+                      ]
+                  }],
                 ],
               },
               'inputs': [
@@ -2069,9 +2118,19 @@
               'variables': {
                 'pak_inputs': [
                   '<(SHARED_INTERMEDIATE_DIR)/chrome/generated_resources_en-US.pak',
-                  '<(SHARED_INTERMEDIATE_DIR)/chrome/chromium_strings_en-US.pak',
                   '<(SHARED_INTERMEDIATE_DIR)/chrome/locale_settings_en-US.pak',
                   '<(SHARED_INTERMEDIATE_DIR)/webkit/webkit_strings_en-US.pak',
+                ],
+                'conditions': [
+                  ['branding=="Chrome"', {
+                    'pak_inputs': [
+                        '<(SHARED_INTERMEDIATE_DIR)/chrome/google_chrome_strings_en-US.pak',
+                      ]
+                  }, {  # else: branding!="Chrome"
+                    'pak_inputs': [
+                        '<(SHARED_INTERMEDIATE_DIR)/chrome/chromium_strings_en-US.pak',
+                      ]
+                  }],
                 ],
               },
               'inputs': [
@@ -2099,9 +2158,19 @@
               'variables': {
                 'pak_inputs': [
                   '<(SHARED_INTERMEDIATE_DIR)/chrome/generated_resources_he.pak',
-                  '<(SHARED_INTERMEDIATE_DIR)/chrome/chromium_strings_he.pak',
                   '<(SHARED_INTERMEDIATE_DIR)/chrome/locale_settings_he.pak',
                   '<(SHARED_INTERMEDIATE_DIR)/webkit/webkit_strings_he.pak',
+                ],
+                'conditions': [
+                  ['branding=="Chrome"', {
+                    'pak_inputs': [
+                        '<(SHARED_INTERMEDIATE_DIR)/chrome/google_chrome_strings_he.pak',
+                      ]
+                  }, {  # else: branding!="Chrome"
+                    'pak_inputs': [
+                        '<(SHARED_INTERMEDIATE_DIR)/chrome/chromium_strings_he.pak',
+                      ]
+                  }],
                 ],
               },
               'inputs': [
@@ -2128,9 +2197,19 @@
               'variables': {
                 'pak_inputs': [
                   '<(SHARED_INTERMEDIATE_DIR)/chrome/generated_resources_zh-TW.pak',
-                  '<(SHARED_INTERMEDIATE_DIR)/chrome/chromium_strings_zh-TW.pak',
                   '<(SHARED_INTERMEDIATE_DIR)/chrome/locale_settings_zh-TW.pak',
                   '<(SHARED_INTERMEDIATE_DIR)/webkit/webkit_strings_zh-TW.pak',
+                ],
+                'conditions': [
+                  ['branding=="Chrome"', {
+                    'pak_inputs': [
+                        '<(SHARED_INTERMEDIATE_DIR)/chrome/google_chrome_strings_zh-TW.pak',
+                      ]
+                  }, {  # else: branding!="Chrome"
+                    'pak_inputs': [
+                        '<(SHARED_INTERMEDIATE_DIR)/chrome/chromium_strings_zh-TW.pak',
+                      ]
+                  }],
                 ],
               },
               'inputs': [
