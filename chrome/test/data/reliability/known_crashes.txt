@@ -53,6 +53,9 @@ PREFIX : `anonymous namespace'::purecall____invalid_parameter_noinfo___std::dequ
 # 10794
 SUBSTRING : base::waitableevent::waitableevent___webpluginproxy::setmodaldialogevent___webplugindelegatestub::oninit
 
+# 11757
+SUBSTRING : browserthemeprovider::generatebitmap___browserthemeprovider::getbitmapnamed___tabrenderer::paintinactivetabbackground___tabrenderer::painttabbackground
+
 # 11408
 PREFIX : confirminfobar::layout___bookmarkbarview::didchangebounds___views::view::setbounds___infobarcontainer::layout___bookmarkbarview::didchangebounds___views::view::setbounds___browserview::layoutinfobar___browserview::layoutbookmarkandinfobars___browserview::layout___browserview::selectedtabtoolbarsizechanged___infobarcontainer::viewhierarchychanged___views::view::propagateremovenotifications___views::view::doremovechildview___views::view::removeallchildviews___infobarcontainer::changetabcontents___browserview::tabdetachedat___tabstripmodel::detachtabcontentsat___tabstripmodel::observe___notificationservice::notify___tabcontents::~tabcontents
 
