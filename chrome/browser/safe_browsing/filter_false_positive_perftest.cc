@@ -16,7 +16,7 @@
 // SafeBrowsing data, we can check a known set of URLs against the filter and
 // determine the false positive rate.
 //
-// Usage:
+// False positive calculation usage:
 //   $ ./perf_tests.exe --gtest_filter=SafeBrowsingBloomFilter.FalsePositives
 //                      --filter-start=<integer>
 //                      --filter-steps=<integer>
@@ -33,6 +33,14 @@
 //  --filter-csv:     The URL file contains information about the number of
 //                    unique views (the popularity) of each URL. See the format
 //                    description below.
+//
+//
+// Hash compute time usage:
+//   $ ./perf_tests.exe --gtest_filter=SafeBrowsingBloomFilter.HashTime
+//                      --filter-num-checks=<integer>
+//
+//  --filter-num-checks: The number of hash look ups to perform on the bloom
+//                       filter. The default is 10 million.
 //
 // Data files:
 //    chrome/test/data/safe_browsing/filter/database
@@ -53,9 +61,11 @@
 #include "base/file_util.h"
 #include "base/logging.h"
 #include "base/path_service.h"
+#include "base/rand_util.h"
 #include "base/scoped_ptr.h"
 #include "base/sha2.h"
 #include "base/string_util.h"
+#include "base/time.h"
 #include "chrome/browser/safe_browsing/bloom_filter.h"
 #include "chrome/browser/safe_browsing/safe_browsing_util.h"
 #include "chrome/common/chrome_paths.h"
@@ -63,6 +73,9 @@
 #include "chrome/common/sqlite_utils.h"
 #include "googleurl/src/gurl.h"
 #include "testing/gtest/include/gtest/gtest.h"
+
+using base::Time;
+using base::TimeDelta;
 
 namespace {
 
@@ -85,6 +98,10 @@ const wchar_t kFilterVerbose[] = L"filter-verbose";
 const wchar_t kFilterStart[] = L"filter-start";
 const wchar_t kFilterSteps[] = L"filter-steps";
 const wchar_t kFilterCsv[] = L"filter-csv";
+const wchar_t kFilterNumChecks[] = L"filter-num-checks";
+
+// Number of hash checks to make during performance testing.
+static const int kNumHashChecks = 10000000;
 
 // Returns the path to the data used in this test, relative to the top of the
 // source directory.
@@ -102,7 +119,8 @@ void BuildBloomFilter(int size_multiplier,
                       const std::vector<SBPrefix>& prefixes,
                       BloomFilter** bloom_filter) {
   // Create a BloomFilter with the specified size.
-  const int key_count = std::max(static_cast<int>(prefixes.size()), 250000);
+  const int key_count = std::max(static_cast<int>(prefixes.size()),
+                                 BloomFilter::kBloomFilterMinSize);
   const int filter_size = key_count * size_multiplier;
   *bloom_filter = new BloomFilter(filter_size);
 
@@ -293,8 +311,7 @@ void CalculateBloomFilterFalsePositives(
 TEST(SafeBrowsingBloomFilter, FalsePositives) {
   std::vector<SBPrefix> prefix_list;
   FilePath data_dir = GetFullDataPath();
-  if (!ReadDatabase(data_dir, &prefix_list))
-    return;
+  ASSERT_TRUE(ReadDatabase(data_dir, &prefix_list));
 
   int start = BloomFilter::kBloomFilterSizeRatio;
   if (CommandLine::ForCurrentProcess()->HasSwitch(kFilterStart)) {
@@ -312,5 +329,50 @@ TEST(SafeBrowsingBloomFilter, FalsePositives) {
 
   for (int multiplier = start; multiplier < stop; ++multiplier)
     CalculateBloomFilterFalsePositives(multiplier, data_dir, prefix_list);
+}
+
+// Computes the time required for performing a number of look ups in a bloom
+// filter. This is useful for measuring the performance of new hash functions.
+TEST(SafeBrowsingBloomFilter, HashTime) {
+  // Read the data from the database.
+  std::vector<SBPrefix> prefix_list;
+  FilePath data_dir = GetFullDataPath();
+  ASSERT_TRUE(ReadDatabase(data_dir, &prefix_list));
+
+  int num_checks = kNumHashChecks;
+  if (CommandLine::ForCurrentProcess()->HasSwitch(kFilterNumChecks)) {
+    num_checks = StringToInt(
+      CommandLine::ForCurrentProcess()->GetSwitchValue(kFilterNumChecks));
+  }
+
+  // Populate the bloom filter and measure the time.
+  BloomFilter* bloom_filter = NULL;
+  Time populate_before = Time::Now();
+  BuildBloomFilter(BloomFilter::kBloomFilterSizeRatio,
+                   prefix_list, &bloom_filter);
+  TimeDelta populate = Time::Now() - populate_before;
+
+  // Check a large number of random prefixes against the filter.
+  int hits = 0;
+  Time check_before = Time::Now();
+  for (int i = 0; i < num_checks; ++i) {
+    uint32 prefix = static_cast<uint32>(base::RandUint64());
+    if (bloom_filter->Exists(prefix))
+      ++hits;
+  }
+  TimeDelta check = Time::Now() - check_before;
+
+  int64 time_per_insert = populate.InMicroseconds() /
+                          static_cast<int>(prefix_list.size());
+  int64 time_per_check = check.InMicroseconds() / num_checks;
+
+  std::cout << "Time results for checks: " << num_checks
+            << ", prefixes: "              << prefix_list.size()
+            << ", populate time (ms): "    << populate.InMilliseconds()
+            << ", check time (ms): "       << check.InMilliseconds()
+            << ", hits: "                  << hits
+            << ", per-populate (us): "     << time_per_insert
+            << ", per-check (us): "        << time_per_check
+            << std::endl;
 }
 
