@@ -424,17 +424,16 @@ SkBitmap* BrowserThemeProvider::GenerateBitmap(int id) {
     // tab against. As themes don't use the glass frame, we don't have to
     // worry about compositing them together, as our default theme provides
     // the necessary bitmaps.
-    SkBitmap* frame;
-    if (id == IDR_THEME_TAB_BACKGROUND)
-      frame = image_cache_.find(IDR_THEME_FRAME)->second;
-    else
-      frame = image_cache_.find(IDR_THEME_FRAME_INCOGNITO)->second;
+    int base_id = (id == IDR_THEME_TAB_BACKGROUND) ?
+        IDR_THEME_FRAME : IDR_THEME_FRAME_INCOGNITO;
 
-    if (frame) {
+    std::map<int, SkBitmap*>::iterator it = image_cache_.find(base_id);
+    if (it != image_cache_.end()) {
+      SkBitmap* frame = it->second;
       SkBitmap blurred =
-        skia::ImageOperations::CreateBlurredBitmap(*frame, 5);
+          skia::ImageOperations::CreateBlurredBitmap(*frame, 5);
       SkBitmap* bg_tab =
-        new SkBitmap(TintBitmap(blurred, TINT_BACKGROUND_TAB));
+          new SkBitmap(TintBitmap(blurred, TINT_BACKGROUND_TAB));
       return bg_tab;
     }
   }
