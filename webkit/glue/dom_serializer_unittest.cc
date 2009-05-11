@@ -721,4 +721,65 @@ TEST_F(DomSerializerTests, SerialzeHTMLDOMWithBaseTag) {
   ASSERT_EQ(new_base_url, path_dir_url);
 }
 
+// Serializing page which has an empty HEAD tag.
+TEST_F(DomSerializerTests, SerialzeHTMLDOMWithEmptyHead) {
+  FilePath page_file_path = data_dir_;
+  page_file_path = page_file_path.AppendASCII("dom_serializer");
+  page_file_path = page_file_path.AppendASCII("empty_head.htm");
+  GURL file_url = net::FilePathToFileURL(page_file_path);
+  ASSERT_TRUE(file_url.SchemeIsFile());
+
+  // Load the test html content.
+  static const char* const empty_head_contents =
+    "<HTML><HEAD></HEAD><BODY>hello world</BODY></HTML>";
+  LoadContents(empty_head_contents, file_url, "");
+
+  // Make sure the head tag is empty.
+  WebFrameImpl* web_frame =
+      static_cast<WebFrameImpl*>(test_shell_->webView()->GetMainFrame());
+  ASSERT_TRUE(web_frame != NULL);
+  WebCore::Document* doc = web_frame->frame()->document();
+  ASSERT_TRUE(doc->isHTMLDocument());
+  WebCore::HTMLHeadElement* head_ele = doc->head();
+  ASSERT_TRUE(head_ele != NULL);
+  WTF::PassRefPtr<WebCore::HTMLCollection> children = head_ele->children();
+  ASSERT_TRUE(0 == children->length());
+
+  // Do serialization.
+  SerializeDomForURL(file_url, false);
+  // Make sure the serialized contents have META ;
+  ASSERT_TRUE(HasSerializedFrame(file_url));
+  const std::string& serialized_contents =
+      GetSerializedContentForFrame(file_url);
+
+  // Reload serialized contents and make sure there is only one META tag.
+  LoadContents(serialized_contents, file_url,
+               web_frame->frame()->loader()->encoding());
+  web_frame =
+      static_cast<WebFrameImpl*>(test_shell_->webView()->GetMainFrame());
+  ASSERT_TRUE(web_frame != NULL);
+  doc = web_frame->frame()->document();
+  ASSERT_TRUE(doc->isHTMLDocument());
+  head_ele = doc->head();
+  ASSERT_TRUE(head_ele != NULL);
+  children = head_ele->children();
+  ASSERT_TRUE(1 == children->length());
+  WebCore::Node* meta_node = head_ele->firstChild();
+  ASSERT_TRUE(meta_node != NULL);
+  // Get meta charset info.
+  WebCore::String charset_info;
+  ASSERT_TRUE(IsMetaElement(meta_node, &charset_info));
+  ASSERT_TRUE(!charset_info.isEmpty());
+  ASSERT_TRUE(charset_info == web_frame->frame()->loader()->encoding());
+
+  // Check the body's first node is text node and its contents are
+  // "hello world"
+  WebCore::HTMLElement* body_ele = doc->body();
+  ASSERT_TRUE(body_ele != NULL);
+  WebCore::Node* text_node = body_ele->firstChild();
+  ASSERT_TRUE(text_node->isTextNode());
+  const WebCore::String& text_node_contents = text_node->nodeValue();
+  ASSERT_TRUE(text_node_contents == WebCore::String("hello world"));
+}
+
 }  // namespace

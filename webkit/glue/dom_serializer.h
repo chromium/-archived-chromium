@@ -113,6 +113,12 @@ class DomSerializer {
     // Flag indicates whether we have written xml document declaration.
     // It is only used in xml document
     bool has_doc_declaration;
+    // Flag indicates whether we have added additional contents before end tag.
+    // This flag will be re-assigned in each call of function
+    // PostActionAfterSerializeOpenTag and it could be changed in function
+    // PreActionBeforeSerializeEndTag if the function adds new contents into
+    // serialization stream.
+    bool has_added_contents_before_end;
 
     // Constructor.
     SerializeDomParam(
