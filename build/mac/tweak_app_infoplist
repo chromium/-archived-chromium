@@ -1,0 +1,93 @@
+#!/bin/sh
+
+# Copyright (c) 2009 The Chromium Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+# Make sure we got the header to write into passed to us
+if [ $# -ne 1 ]; then
+  echo "error: missing branding as an argument" >&2
+  exit 1
+fi
+
+#
+# Xcode supports build variable substitutions and CPP; sadly, that doesn't work
+# because:
+#
+# 1. Xcode wants to do the Info.plist work before it runs any build phases,
+#    this means if we were to generate a .h file for INFOPLIST_PREFIX_HEADER 
+#    we'd have to put it in another target so it runs in time.
+# 2. Xcode also doesn't check to see if the header being used as a prefix for
+#    the Info.plist has changed.  So even if we updated it, it's only looking
+#    at the modtime of the info.plist to see if that's changed.
+#
+# So, we work around all of this by making a script build phase that will run
+# during the app build, and simply update the info.plist in place.  This way
+# by the time the app target is done, the info.plist is correct.
+#
+
+set -ex
+
+TOP="${SRCROOT}/.."
+BUILD_BRANDING=$1
+SRC_APP_PATH="${BUILT_PRODUCTS_DIR}/${BUILD_BRANDING}.app"
+
+# Figure out what version this build corresponds to.  Just use the svn revision
+# for now. Warning: my svnversion returns 10495:10552M. But that's ok since
+# it is just for reference.
+SVN_REVISION=$(svnversion "${SRCROOT}")
+if [ -z "${SVN_REVISION}" ] ; then
+  echo "warning: could not determine svn revision" >&2
+fi
+
+# Pull in the chrome version number
+. "${TOP}/chrome/VERSION"
+FULL_VERSION="${MAJOR}.${MINOR}.${BUILD}.${PATCH}"
+SHORT_VERSION="${MAJOR}.${MINOR}.${BUILD}"
+
+# Collect the year
+YEAR=$(date +%Y)
+
+# Copyright is based on branding
+if [ "${BUILD_BRANDING}" == "Chromium" ]; then
+  LONG_COPYRIGHT="${BUILD_BRANDING} ${FULL_VERSION}, Copyright ${YEAR} The Chromium Authors."
+elif [ "${BUILD_BRANDING}" == "Chrome" ]; then
+  LONG_COPYRIGHT="${BUILD_BRANDING} ${FULL_VERSION}, Copyright ${YEAR} Google Inc."
+else
+  echo "error: unknown branding: ${BUILD_BRANDING}" >&2
+  exit 1
+fi
+
+# I really hate how "defaults" doesn't take a real pathname but instead insists
+# on appending ".plist" to everything.
+INFO_PLIST_PATH="Contents/Info.plist"
+TMP_INFO_PLIST_DEFAULTS="${TEMP_DIR}/Info"
+TMP_INFO_PLIST="${TMP_INFO_PLIST_DEFAULTS}.plist"
+cp "${SRC_APP_PATH}/${INFO_PLIST_PATH}" "${TMP_INFO_PLIST}"
+
+# Save off the svn version number in case we need it
+defaults write "${TMP_INFO_PLIST_DEFAULTS}" \
+    SVNRevision -string "${SVN_REVISION}"
+
+# Add public version info so "Get Info" works
+defaults write "${TMP_INFO_PLIST_DEFAULTS}" \
+    CFBundleGetInfoString -string "${LONG_COPYRIGHT}"
+defaults write "${TMP_INFO_PLIST_DEFAULTS}" \
+    CFBundleShortVersionString -string "${SHORT_VERSION}"
+# Honor the 429496.72.95 limit.  The maximum comes from splitting 2^32 - 1 into
+# 6, 2, 2 digits.  The limitation was present in Tiger, but it could have been
+# fixed in later OS release, but hasn't been tested (it's easy enough to find
+# out with "lsregister -dump).
+# http://lists.apple.com/archives/carbon-dev/2006/Jun/msg00139.html
+# BUILD will always be an increasing value, so BUILD_PATH gives us something
+# unique that meetings what LS wants.
+defaults write "${TMP_INFO_PLIST_DEFAULTS}" \
+    CFBundleVersion -string "${BUILD}.${PATCH}"
+defaults write "${TMP_INFO_PLIST_DEFAULTS}" \
+    NSHumanReadableCopyright -string "${LONG_COPYRIGHT}"
+
+# Info.plist will work perfectly well in any plist format, but traditionally
+# applications use xml1 for this, so convert it back after whatever defaults
+# might have done.
+plutil -convert xml1 "${TMP_INFO_PLIST}"
+cp "${TMP_INFO_PLIST}" "${SRC_APP_PATH}/${INFO_PLIST_PATH}"

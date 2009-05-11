@@ -1936,14 +1936,10 @@
             }],
           ],
           'xcode_settings': {
-            # chrome/app/app-Info.plist has a CFBundleIdentifier of BUNDLE_ID,
-            # to be replaced by a properly branded bundle ID in Xcode with
-            # these settings.
-            'INFOPLIST_PREPROCESS': 'YES',
-            'INFOPLIST_PREPROCESSOR_DEFINITIONS': [
-              'BUNDLE_ID="<(bundle_id)"',
-              'BUNDLE_NAME="<(branding)"'
-            ],
+            # chrome/app/app-Info.plist has a CFBundleIdentifier of
+            # CHROMIUM_BUNDLE_ID to be replaced by a branded bundle ID in Xcode
+            # with this settings.
+            'CHROMIUM_BUNDLE_ID': '<(bundle_id)',
           },
         }, { # else: OS != "mac"
           'conditions': [
@@ -1956,6 +1952,23 @@
               # (buildbots etc.) to use "gyp -Dbranding=Chrome".
               'product_name': 'chrome'
             }],
+          ],
+        }],
+        ['OS=="mac"', {
+          # Mac addes an action to modify the Info.plist to meet our needs
+          # (see the script for why this is done).
+          'actions': [
+            {
+              'action_name': 'tweak_app_infoplist',
+              # We don't list any inputs or outputs because we always want
+              # the script to run.  Why?  Because it does thinks like record
+              # the svn revision into the info.plist, so there is no file to
+              # depend on that will change when ever that changes.
+              'inputs': [],
+              'outputs': [],
+              'action': ['<(DEPTH)/build/mac/tweak_app_infoplist',
+                         '<(branding)'],
+            },
           ],
         }],
         ['OS=="win"', {
