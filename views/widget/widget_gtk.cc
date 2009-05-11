@@ -51,9 +51,7 @@ void WidgetGtk::Init(const gfx::Rect& bounds,
   GetRootView();
 
   // Make container here.
-  widget_ = gtk_drawing_area_new();
-  gtk_drawing_area_size(GTK_DRAWING_AREA(widget_), 100, 100);
-  gtk_widget_show(widget_);
+  CreateGtkWidget();
 
   // Make sure we receive our motion events.
 
