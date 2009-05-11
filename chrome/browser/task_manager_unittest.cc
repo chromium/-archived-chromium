@@ -6,6 +6,7 @@
 
 #include <string>
 
+#include "app/l10n_util.h"
 #include "grit/chromium_strings.h"
 #include "grit/generated_resources.h"
 #include "testing/gtest/include/gtest/gtest.h"
@@ -24,57 +25,48 @@ class TestResource : public TaskManager::Resource {
 
 }  // namespace
 
-class TaskManagerTest : public testing::Test,
-                        public views::TableModelObserver {
- public:
-  // TableModelObserver
-  virtual void OnModelChanged() {}
-  virtual void OnItemsChanged(int start, int length) {}
-  virtual void OnItemsAdded(int start, int length) {}
-  virtual void OnItemsRemoved(int start, int length) {}
+class TaskManagerTest : public testing::Test {
 };
 
 TEST_F(TaskManagerTest, Basic) {
   TaskManager task_manager;
-  TaskManagerTableModel* model = task_manager.table_model_;
+  TaskManagerModel* model = task_manager.model_;
   EXPECT_FALSE(task_manager.BrowserProcessIsSelected());
-  EXPECT_EQ(0, model->RowCount());
+  EXPECT_EQ(0, model->ResourceCount());
 }
 
 TEST_F(TaskManagerTest, Resources) {
   TaskManager task_manager;
-  TaskManagerTableModel* model = task_manager.table_model_;
-  model->SetObserver(this);
+  TaskManagerModel* model = task_manager.model_;
 
   TestResource resource1, resource2;
 
   task_manager.AddResource(&resource1);
-  ASSERT_EQ(1, model->RowCount());
-  EXPECT_STREQ(L"test title",
-      model->GetText(0, IDS_TASK_MANAGER_PAGE_COLUMN).c_str());
+  ASSERT_EQ(1, model->ResourceCount());
+  EXPECT_TRUE(model->IsResourceFirstInGroup(0));
+  EXPECT_STREQ(L"test title", model->GetResourceTitle(0).c_str());
   EXPECT_STREQ(l10n_util::GetString(IDS_TASK_MANAGER_NA_CELL_TEXT).c_str(),
-      model->GetText(0, IDS_TASK_MANAGER_NET_COLUMN).c_str());
-  EXPECT_STREQ(L"0",
-      model->GetText(0, IDS_TASK_MANAGER_CPU_COLUMN).c_str());
+               model->GetResourceNetworkUsage(0).c_str());
+  EXPECT_STREQ(L"0", model->GetResourceCPUUsage(0).c_str());
 
   task_manager.AddResource(&resource2);  // Will be in the same group.
-  ASSERT_EQ(2, model->RowCount());
-  EXPECT_STREQ(L"test title",
-      model->GetText(1, IDS_TASK_MANAGER_PAGE_COLUMN).c_str());
+  ASSERT_EQ(2, model->ResourceCount());
+  EXPECT_TRUE(model->IsResourceFirstInGroup(0));
+  EXPECT_FALSE(model->IsResourceFirstInGroup(1));
+  EXPECT_STREQ(L"test title", model->GetResourceTitle(1).c_str());
   EXPECT_STREQ(l10n_util::GetString(IDS_TASK_MANAGER_NA_CELL_TEXT).c_str(),
-      model->GetText(1, IDS_TASK_MANAGER_NET_COLUMN).c_str());
-  EXPECT_STREQ(L"", model->GetText(1, IDS_TASK_MANAGER_CPU_COLUMN).c_str());
+               model->GetResourceNetworkUsage(1).c_str());
+  EXPECT_STREQ(L"0", model->GetResourceCPUUsage(1).c_str());
 
   task_manager.RemoveResource(&resource1);
   // Now resource2 will be first in group.
-  ASSERT_EQ(1, model->RowCount());
-  EXPECT_STREQ(L"test title",
-      model->GetText(0, IDS_TASK_MANAGER_PAGE_COLUMN).c_str());
+  ASSERT_EQ(1, model->ResourceCount());
+  EXPECT_TRUE(model->IsResourceFirstInGroup(0));
+  EXPECT_STREQ(L"test title", model->GetResourceTitle(0).c_str());
   EXPECT_STREQ(l10n_util::GetString(IDS_TASK_MANAGER_NA_CELL_TEXT).c_str(),
-      model->GetText(0, IDS_TASK_MANAGER_NET_COLUMN).c_str());
-  EXPECT_STREQ(L"0",
-      model->GetText(0, IDS_TASK_MANAGER_CPU_COLUMN).c_str());
+               model->GetResourceNetworkUsage(0).c_str());
+  EXPECT_STREQ(L"0", model->GetResourceCPUUsage(0).c_str());
 
   task_manager.RemoveResource(&resource2);
-  EXPECT_EQ(0, model->RowCount());
+  EXPECT_EQ(0, model->ResourceCount());
 }

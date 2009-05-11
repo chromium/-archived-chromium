@@ -7,6 +7,7 @@
 
 #include <map>
 #include <string>
+#include <utility>
 #include <vector>
 
 #include "base/basictypes.h"
@@ -17,29 +18,16 @@
 #include "base/timer.h"
 #include "chrome/browser/renderer_host/web_cache_manager.h"
 #include "chrome/browser/tab_contents/tab_contents.h"
-#if defined(OS_WIN)
-// TODO(port): Port or produce equivalent.
-#include "views/controls/table/group_table_view.h"
-#endif  // defined(OS_WIN)
 #include "net/url_request/url_request_job_tracker.h"
 #include "testing/gtest/include/gtest/gtest_prod.h"
 
 class MessageLoop;
-class ModelEntry;
-class PrefService;
 class SkBitmap;
-class Task;
 class TaskManager;
 class TaskManagerContents;
-class TaskManagerTableModel;
-class TaskManagerWindow;
+class TaskManagerModel;
 
 struct BytesReadParam;
-
-namespace views {
-class View;
-class Window;
-}
 
 namespace base {
 class ProcessMetrics;
@@ -145,10 +133,9 @@ class TaskManager {
   // Returns the singleton instance (and initializes it if necessary).
   static TaskManager* GetInstance();
 
-  // The model used for the list in the table that displays the list of tab
-  // processes.  It is ref counted because it is passed as a parameter to
-  // MessageLoop::InvokeLater().
-  scoped_refptr<TaskManagerTableModel> table_model_;
+  // The model used for gathering and processing task data. It is ref counted
+  // because it is passed as a parameter to MessageLoop::InvokeLater().
+  scoped_refptr<TaskManagerModel> model_;
 
   // A container containing the buttons and table.
   scoped_ptr<TaskManagerContents> contents_;
@@ -156,27 +143,67 @@ class TaskManager {
   DISALLOW_COPY_AND_ASSIGN(TaskManager);
 };
 
-#if defined(OS_WIN)
-// TODO(port): Port or produce equivalent.
-
-// The model that the table is using.
-class TaskManagerTableModel : public views::GroupTableModel,
-                              public URLRequestJobTracker::JobObserver,
-                              public base::RefCounted<TaskManagerTableModel> {
+class TaskManagerModelObserver {
  public:
-  explicit TaskManagerTableModel(TaskManager* task_manager);
-  ~TaskManagerTableModel();
+  virtual ~TaskManagerModelObserver() {}
 
-  // GroupTableModel methods:
-  int RowCount();
-  std::wstring GetText(int row, int column);
-  SkBitmap GetIcon(int row);
-  void GetGroupRangeForItem(int item, views::GroupRange* range);
-  void SetObserver(views::TableModelObserver* observer);
-  virtual int CompareValues(int row1, int row2, int column_id);
+  // Invoked when the model has been completely changed.
+  virtual void OnModelChanged() = 0;
 
-  // Returns the index at the specified row.
-  HANDLE GetProcessAt(int index);
+  // Invoked when a range of items has changed.
+  virtual void OnItemsChanged(int start, int length) = 0;
+
+  // Invoked when new items are added.
+  virtual void OnItemsAdded(int start, int length) = 0;
+
+  // Invoked when a range of items has been removed.
+  virtual void OnItemsRemoved(int start, int length) = 0;
+};
+
+// The model that the TaskManager is using.
+class TaskManagerModel : public URLRequestJobTracker::JobObserver,
+                         public base::RefCounted<TaskManagerModel> {
+ public:
+  explicit TaskManagerModel(TaskManager* task_manager);
+  ~TaskManagerModel();
+
+  // Set object to be notified on model changes.
+  void SetObserver(TaskManagerModelObserver* observer);
+
+  // Returns number of registered resources.
+  int ResourceCount() const;
+
+  // Methods to return formatted resource information.
+  std::wstring GetResourceTitle(int index) const;
+  std::wstring GetResourceNetworkUsage(int index) const;
+  std::wstring GetResourceCPUUsage(int index) const;
+  std::wstring GetResourcePrivateMemory(int index) const;
+  std::wstring GetResourceSharedMemory(int index) const;
+  std::wstring GetResourcePhysicalMemory(int index) const;
+  std::wstring GetResourceProcessId(int index) const;
+  std::wstring GetResourceStatsValue(int index, int col_id) const;
+  std::wstring GetResourceGoatsTeleported(int index) const;
+
+  // Returns true if the resource is first in its group (resources
+  // rendered by the same process are groupped together).
+  bool IsResourceFirstInGroup(int index) const;
+
+  // Returns icon to be used for resource (for example a favicon).
+  SkBitmap GetResourceIcon(int index) const;
+
+  // Returns a pair (start, length) of the group range of resource.
+  std::pair<int, int> GetGroupRangeForResource(int index) const;
+
+  // Compares values in column |col_id| and rows |row1|, |row2|.
+  // Returns -1 if value in |row1| is less than value in |row2|,
+  // 0 if they are equal, and 1 otherwise.
+  int CompareValues(int row1, int row2, int col_id) const;
+
+  // Returns process handle for given resource.
+  base::ProcessHandle GetResourceProcessHandle(int index) const;
+
+  // Returns TabContents of given resource or NULL if not applicable.
+  TabContents* GetResourceTabContents(int index) const;
 
   // JobObserver methods:
   void OnJobAdded(URLRequestJob* job);
@@ -191,9 +218,12 @@ class TaskManagerTableModel : public views::GroupTableModel,
   void AddResource(TaskManager::Resource* resource);
   void RemoveResource(TaskManager::Resource* resource);
 
- private:
-  friend class TaskManager;
+  void StartUpdating();
+  void StopUpdating();
 
+  void Clear();  // Removes all items.
+
+ private:
   enum UpdateState {
     IDLE = 0,      // Currently not updating.
     TASK_PENDING,  // An update task is pending.
@@ -215,21 +245,16 @@ class TaskManagerTableModel : public views::GroupTableModel,
     int byte_count;
   };
 
-  typedef std::map<HANDLE, std::vector<TaskManager::Resource*>*> GroupMap;
-  typedef std::map<HANDLE, base::ProcessMetrics*> MetricsMap;
-  typedef std::map<HANDLE, int> CPUUsageMap;
-  typedef std::map<TaskManager::Resource*, int64> ResourceValueMap;
   typedef std::vector<TaskManager::Resource*> ResourceList;
   typedef std::vector<TaskManager::ResourceProvider*> ResourceProviderList;
-
-  void StartUpdating();
-  void StopUpdating();
+  typedef std::map<base::ProcessHandle, ResourceList*> GroupMap;
+  typedef std::map<base::ProcessHandle, base::ProcessMetrics*> MetricsMap;
+  typedef std::map<base::ProcessHandle, int> CPUUsageMap;
+  typedef std::map<TaskManager::Resource*, int64> ResourceValueMap;
 
   // Updates the values for all rows.
   void Refresh();
 
-  // Removes all items.
-  void Clear();
   void AddItem(TaskManager::Resource* resource, bool notify_table);
   void RemoveItem(TaskManager::Resource* resource);
 
@@ -274,7 +299,7 @@ class TaskManagerTableModel : public views::GroupTableModel,
   bool GetProcessMetricsForRows(int row1,
                                 int row2,
                                 base::ProcessMetrics** proc_metrics1,
-                                base::ProcessMetrics** proc_metrics2);
+                                base::ProcessMetrics** proc_metrics2) const;
 
   // Given a string containing a number, this function returns the formatted
   // string that should be displayed in the task manager's memory cell.
@@ -308,7 +333,7 @@ class TaskManagerTableModel : public views::GroupTableModel,
   // A map that contains the CPU usage (in %) for a process since last refresh.
   CPUUsageMap cpu_usage_map_;
 
-  views::TableModelObserver* observer_;
+  TaskManagerModelObserver* observer_;
 
   MessageLoop* ui_loop_;
 
@@ -318,8 +343,7 @@ class TaskManagerTableModel : public views::GroupTableModel,
   // See design doc at http://go/at-teleporter for more information.
   static int goats_teleported_;
 
-  DISALLOW_COPY_AND_ASSIGN(TaskManagerTableModel);
+  DISALLOW_COPY_AND_ASSIGN(TaskManagerModel);
 };
-#endif  // defined(OS_WIN)
 
 #endif  // CHROME_BROWSER_TASK_MANAGER_H_
