@@ -195,6 +195,7 @@
       },
       'conditions': [
         ['OS=="win"', {
+          'dependencies': ['../build/win/system.gyp:cygwin'],
           'direct_dependent_settings': {
             'defines': [
               '__STD_C',
@@ -415,6 +416,11 @@
       ],
       'export_dependent_settings': [
         'wtf',
+      ],
+      'conditions': [
+        ['OS=="win"', {
+          'dependencies': ['../build/win/system.gyp:cygwin'],
+        }],
       ],
     },
     {
@@ -4115,6 +4121,7 @@
           },
         }],
         ['OS=="win"', {
+          'dependencies': ['../build/win/system.gyp:cygwin'],
           'sources/': [
             ['exclude', 'Posix\\.cpp$'],
             ['include', '/opentype/'],
@@ -4278,6 +4285,11 @@
           '<(SHARED_INTERMEDIATE_DIR)/webkit',
         ],
       },
+      'conditions': [
+        ['OS=="win"', {
+          'dependencies': ['../build/win/system.gyp:cygwin'],
+        }],
+      ],
     },
     {
       'target_name': 'webkit_strings',
@@ -4316,6 +4328,11 @@
           '<(SHARED_INTERMEDIATE_DIR)/webkit',
         ],
       },
+      'conditions': [
+        ['OS=="win"', {
+          'dependencies': ['../build/win/system.gyp:cygwin'],
+        }],
+      ],
     },
     {
       'target_name': 'glue',
@@ -4600,6 +4617,7 @@
         }, {  # else: OS=="win"
           'sources/': [['exclude', '_posix\\.cc$']],
           'dependencies': [
+            '../build/win/system.gyp:cygwin',
             'activex_shim/activex_shim.gyp:activex_shim',
             'default_plugin/default_plugin.gyp:default_plugin',
           ],

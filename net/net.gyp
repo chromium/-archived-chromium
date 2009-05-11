@@ -601,6 +601,11 @@
           '<(SHARED_INTERMEDIATE_DIR)/net',
         ],
       },
+      'conditions': [
+        ['OS=="win"', {
+          'dependencies': ['../build/win/system.gyp:cygwin'],
+        }],
+      ],
     },
   ],
   'conditions': [

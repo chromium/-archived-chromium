@@ -71,6 +71,11 @@
           '<(SHARED_INTERMEDIATE_DIR)/chrome',
         ],
       },
+      'conditions': [
+        ['OS=="win"', {
+          'dependencies': ['../build/win/system.gyp:cygwin'],
+        }],
+      ],
     },
     {
       # TODO(mark): It would be better if each static library that needed
@@ -109,6 +114,11 @@
           '<(SHARED_INTERMEDIATE_DIR)/chrome',
         ],
       },
+      'conditions': [
+        ['OS=="win"', {
+          'dependencies': ['../build/win/system.gyp:cygwin'],
+        }],
+      ],
     },
     {
       # TODO(beng): rename to 'app' when moves to top level.
@@ -232,6 +242,11 @@
           '<(SHARED_INTERMEDIATE_DIR)/chrome',
         ],
       },
+      'conditions': [
+        ['OS=="win"', {
+          'dependencies': ['../build/win/system.gyp:cygwin'],
+        }],
+      ],
     },
     {
       'target_name': 'common',

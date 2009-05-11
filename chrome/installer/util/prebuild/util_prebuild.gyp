@@ -29,6 +29,11 @@
            '<(SHARED_INTERMEDIATE_DIR)/installer_util_prebuild',
         ],
       },
+      'conditions': [
+        ['OS=="win"', {
+          'dependencies': ['../../../../build/win/system.gyp:cygwin'],
+        }],
+      ],
     },
   ],
 }

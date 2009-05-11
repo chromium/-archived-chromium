@@ -69,6 +69,7 @@
               ],
             },
           },
+          'dependencies': ['../../build/win/system.gyp:cygwin'],
           'rules': [
             {
               'rule_name': 'generate_libs',
