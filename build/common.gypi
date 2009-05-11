@@ -55,9 +55,6 @@
   },
   'target_defaults': {
     'conditions': [
-      ['target_arch=="arm"', {
-        'defines': ['__ARMEL__'],
-      }],
       ['branding=="Chrome"', {
         'defines': ['GOOGLE_CHROME_BUILD'],
       }, {  # else: branding!="Chrome"
