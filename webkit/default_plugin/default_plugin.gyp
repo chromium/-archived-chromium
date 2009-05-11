@@ -20,6 +20,7 @@
             '../../third_party/icu38/icu38.gyp:icuuc',
             '../../third_party/npapi/npapi.gyp:npapi',
             '../webkit.gyp:webkit_resources',
+            '../webkit.gyp:webkit_strings',
             '../../net/net.gyp:net_resources',
           ],
           'include_dirs': [
