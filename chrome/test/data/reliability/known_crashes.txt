@@ -83,6 +83,9 @@ SUBSTRING : webcore::frameloader::didreceiveresponse___webcore::resourceloader::
 # 7570
 PREFIX : webcore::renderbox::calcabsolutehorizontalreplaced___webcore::renderbox::calcabsolutehorizontal___webcore::renderbox::calcwidth
 
+# 10978
+PREFIX : webcore::renderobject::localtoabsolute___webcore::layoutstate::layoutstate___webcore::renderview::pushlayoutstate___webcore::frameview::layout
+
 # 8648
 PREFIX : webcore::rendertext::destroy___webcore::node::detach___webcore::containernode::detach
 
