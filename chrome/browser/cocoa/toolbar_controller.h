@@ -52,9 +52,12 @@ class ToolbarView;
 // Make the location bar the first responder, if possible.
 - (void)focusLocationBar;
 
-// Called when any url bar state changes. If |tabForRestoring| is non-NULL,
-// it points to a TabContents whose state we should restore.
-- (void)updateToolbarWithContents:(TabContents*)tabForRestoring;
+// Updates the toolbar (and transitively the location bar) with the states of
+// the specified |tab|.  If |shouldRestore| is true, we're switching
+// (back?) to this tab and should restore any previous location bar state
+// (such as user editing) as well.
+- (void)updateToolbarWithContents:(TabContents*)tabForRestoring
+               shouldRestoreState:(BOOL)shouldRestore;
 
 // Sets whether or not the current page in the frontmost tab is bookmarked.
 - (void)setStarredState:(BOOL)isStarred;

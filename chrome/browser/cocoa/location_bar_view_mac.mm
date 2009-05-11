@@ -56,6 +56,12 @@ void LocationBarViewMac::SaveStateToContents(TabContents* contents) {
   edit_view_->SaveStateToTab(contents);
 }
 
+void LocationBarViewMac::Update(const TabContents* contents,
+                                bool should_restore_state) {
+  // AutocompleteEditView restores state if the tab is non-NULL.
+  edit_view_->Update(should_restore_state ? contents : NULL);
+}
+
 void LocationBarViewMac::OnAutocompleteAccept(const GURL& url,
                                               WindowOpenDisposition disposition,
                                               PageTransition::Type transition,

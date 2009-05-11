@@ -8,6 +8,41 @@
 #include "chrome/browser/autocomplete/autocomplete_edit.h"
 #include "chrome/browser/autocomplete/autocomplete_popup_model.h"
 #include "chrome/browser/autocomplete/autocomplete_popup_view_mac.h"
+#include "chrome/browser/tab_contents/tab_contents.h"
+
+namespace {
+
+// Store's the model and view state across tab switches.
+struct AutocompleteEditViewMacState {
+  AutocompleteEditViewMacState(const AutocompleteEditModel::State model_state,
+                               const bool has_focus, const NSRange& selection)
+      : model_state(model_state),
+        has_focus(has_focus),
+        selection(selection) {
+  }
+
+  const AutocompleteEditModel::State model_state;
+  const bool has_focus;
+  const NSRange selection;
+};
+
+// Returns a lazily initialized property bag accessor for saving our
+// state in a TabContents.
+PropertyAccessor<AutocompleteEditViewMacState>* GetStateAccessor() {
+  static PropertyAccessor<AutocompleteEditViewMacState> state;
+  return &state;
+}
+
+// Accessors for storing and getting the state from the tab.
+void StoreStateToTab(TabContents* tab,
+                     const AutocompleteEditViewMacState& state) {
+  GetStateAccessor()->SetProperty(tab->property_bag(), state);
+}
+const AutocompleteEditViewMacState* GetStateFromTab(const TabContents* tab) {
+  return GetStateAccessor()->GetProperty(tab->property_bag());
+}
+
+}  // namespace
 
 // Thin Obj-C bridge class that is the delegate of the omnibox field.
 // It intercepts various control delegate methods and vectors them to
@@ -57,19 +92,68 @@ AutocompleteEditViewMac::~AutocompleteEditViewMac() {
   [field_ setDelegate:nil];
 }
 
-// TODO(shess): This is the minimal change which seems to unblock
-// getting the minimal Omnibox code checked in without making the
-// world worse.  Browser::TabSelectedAt() calls this when the tab
-// changes, but that is only wired up for Windows.  I do not yet
-// understand that code well enough to go for it.  Once wired up, then
-// code can be removed at:
-// [TabContentsController defocusLocationBar]
-// [TabStripController selectTabWithContents:...]
 void AutocompleteEditViewMac::SaveStateToTab(TabContents* tab) {
-  // TODO(shess): Actually save the state to the tab area.
+  DCHECK(tab);
 
-  // Drop the popup before we change to another tab.
-  ClosePopup();
+  NSRange range;
+  if (model_->has_focus()) {
+    range = GetSelectedRange();
+  } else {
+    // If we are not focussed, there is no selection.  Manufacture
+    // something reasonable in case it starts to matter in the future.
+    range = NSMakeRange(0, [[field_ stringValue] length]);
+  }
+
+  AutocompleteEditViewMacState state(model_->GetStateForTabSwitch(),
+                                     model_->has_focus(), range);
+  StoreStateToTab(tab, state);
+}
+
+void AutocompleteEditViewMac::Update(
+    const TabContents* tab_for_state_restoring) {
+  // TODO(shess): It seems like if the tab is non-NULL, then this code
+  // shouldn't need to be called at all.  When coded that way, I find
+  // that the field isn't always updated correctly.  Figure out why
+  // this is.  Maybe this method should be refactored into more
+  // specific cases.
+  const std::wstring text = toolbar_model_->GetText();
+  const bool user_visible = model_->UpdatePermanentText(text);
+
+  if (tab_for_state_restoring) {
+    RevertAll();
+
+    const AutocompleteEditViewMacState* state = 
+        GetStateFromTab(tab_for_state_restoring);
+    if (state) {
+      // Should restore the user's text via SetUserText().
+      model_->RestoreState(state->model_state);
+
+      // Restore user's selection.
+      // TODO(shess): The model_ does not restore the focus state.  If
+      // field_ was in focus when we switched away, I presume it
+      // should be in focus when we switch back.  Figure out if model_
+      // not restoring focus is an oversight, or intentional for some
+      // subtle reason.
+      if (state->has_focus) {
+        FocusLocation();
+        DCHECK([field_ currentEditor]);
+        [[field_ currentEditor] setSelectedRange:state->selection];
+      }
+    }
+  } else if (user_visible) {
+    // Restore everything to the baseline look.
+    RevertAll();
+    // TODO(shess): Figure out how this case is used, to make sure
+    // we're getting the selection and popup right.
+
+  } else {
+    // TODO(shess): Figure out how this case is used, to make sure
+    // we're getting the selection and popup right.
+    // UpdateAndStyleText() approximates the inner part of Revertall()
+    // which under GTK is called EmphasizeURLComponents(), and is
+    // expected to change when I start feeding in the styling code.
+    UpdateAndStyleText(text, 0);
+  }
 }
 
 void AutocompleteEditViewMac::OpenURL(const GURL& url,
@@ -97,6 +181,16 @@ std::wstring AutocompleteEditViewMac::GetText() const {
   return base::SysNSStringToWide([field_ stringValue]);
 }
 
+void AutocompleteEditViewMac::SetUserText(const std::wstring& text,
+                                          const std::wstring& display_text,
+                                          bool update_popup) {
+  model_->SetUserText(text);
+  UpdateAndStyleText(display_text, display_text.size());
+  if (update_popup) {
+    UpdatePopup();
+  }
+}
+
 NSRange AutocompleteEditViewMac::GetSelectedRange() const {
   DCHECK([field_ currentEditor]);
   return [[field_ currentEditor] selectedRange];
@@ -119,7 +213,7 @@ void AutocompleteEditViewMac::RevertAll() {
   model_->Revert();
 
   std::wstring tt = GetText();
-  UpdateAndStyleText(tt, tt.size());
+  UpdateAndStyleText(tt, 0);
   controller_->OnChanged();
 }
 
@@ -156,7 +250,7 @@ void AutocompleteEditViewMac::UpdateAndStyleText(
     [as addAttribute:NSForegroundColorAttributeName
                value:[NSColor greenColor]
                range:NSMakeRange((NSInteger)parts.host.begin,
-                                 (NSInteger)parts.host.end())];
+                                 (NSInteger)parts.host.len)];
   }
 
   // TODO(shess): GTK has this as a member var, figure out why.
@@ -175,7 +269,7 @@ void AutocompleteEditViewMac::UpdateAndStyleText(
     }
     [as addAttribute:NSForegroundColorAttributeName value:color
                range:NSMakeRange((NSInteger)parts.scheme.begin,
-                                 (NSInteger)parts.scheme.end())];
+                                 (NSInteger)parts.scheme.len)];
   }
 
   // TODO(shess): Check that this updates the model's sense of focus
@@ -183,7 +277,7 @@ void AutocompleteEditViewMac::UpdateAndStyleText(
   [field_ setObjectValue:as];
   if (![field_ currentEditor]) {
     [field_ becomeFirstResponder];
-    DCHECK_EQ(field_, [[field_ window] firstResponder]);
+    DCHECK_EQ([field_ currentEditor], [[field_ window] firstResponder]);
   }
 
   NSRange selected_range = NSMakeRange(user_text_length, [as length]);
@@ -281,7 +375,12 @@ void AutocompleteEditViewMac::AcceptInput(
 }
 
 void AutocompleteEditViewMac::FocusLocation() {
-  [[field_ window] makeFirstResponder:field_];
+  // -makeFirstResponder: will select the entire field_.  If we're
+  // already firstResponder, it's likely that we want to retain the
+  // current selection.
+  if (![field_ currentEditor]) {
+    [[field_ window] makeFirstResponder:field_];
+  }
 }
 
 @implementation AutocompleteFieldDelegate

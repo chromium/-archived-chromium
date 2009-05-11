@@ -46,6 +46,11 @@ class LocationBarViewMac : public AutocompleteEditController,
     return edit_view_.get();
   }
 
+  // Updates the location bar.  Resets the bar's permanent text and
+  // security style, and if |should_restore_state| is true, restores
+  // saved state from the tab (for tab switching).
+  void Update(const TabContents* tab, bool should_restore_state);
+
   virtual void OnAutocompleteAccept(const GURL& url,
       WindowOpenDisposition disposition,
       PageTransition::Type transition,

@@ -43,9 +43,7 @@ class AutocompleteEditViewMac : public AutocompleteEditView {
   virtual const AutocompleteEditModel* model() const { return model_.get(); }
 
   virtual void SaveStateToTab(TabContents* tab);
-  virtual void Update(const TabContents* tab_for_state_restoring) {
-    NOTIMPLEMENTED();
-  }
+  virtual void Update(const TabContents* tab_for_state_restoring);
 
   virtual void OpenURL(const GURL& url,
                        WindowOpenDisposition disposition,
@@ -55,10 +53,12 @@ class AutocompleteEditViewMac : public AutocompleteEditView {
                        const std::wstring& keyword);
 
   virtual std::wstring GetText() const;
-  virtual void SetUserText(const std::wstring& text) { NOTIMPLEMENTED(); }
+  virtual void SetUserText(const std::wstring& text) {
+    SetUserText(text, text, true);
+  }
   virtual void SetUserText(const std::wstring& text,
                            const std::wstring& display_text,
-                           bool update_popup) { NOTIMPLEMENTED(); }
+                           bool update_popup);
 
   virtual void SetWindowTextAndCaretPos(const std::wstring& text,
                                         size_t caret_pos);

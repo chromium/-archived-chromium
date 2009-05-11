@@ -290,7 +290,8 @@ willPositionSheet:(NSWindow *)sheet
 
 - (void)updateToolbarWithContents:(TabContents*)tab
                shouldRestoreState:(BOOL)shouldRestore {
-  [toolbarController_ updateToolbarWithContents:shouldRestore ? tab : NULL];
+  [toolbarController_ updateToolbarWithContents:tab
+                             shouldRestoreState:shouldRestore];
 }
 
 - (void)setStarredState:(BOOL)isStarred {

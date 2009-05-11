@@ -1590,13 +1590,9 @@ void Browser::TabSelectedAt(TabContents* old_contents,
     ProcessPendingUIUpdates();
 
   if (old_contents) {
-#if defined(OS_WIN)
     // Save what the user's currently typing, so it can be restored when we
     // switch back to this tab.
     window_->GetLocationBar()->SaveStateToContents(old_contents);
-#else
-    NOTIMPLEMENTED();
-#endif
   }
 
   // Propagate the profile to the location bar.
