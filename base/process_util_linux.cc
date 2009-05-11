@@ -25,6 +25,18 @@ enum ParsingState {
   KEY_VALUE
 };
 
+// Reads /proc/<pid>/stat and populates |proc_stats| with the values split by
+// spaces.
+void GetProcStats(pid_t pid, std::vector<std::string>* proc_stats) {
+  FilePath stat_file("/proc");
+  stat_file = stat_file.Append(IntToString(pid));
+  stat_file = stat_file.Append("stat");
+  std::string mem_stats;
+  if (!file_util::ReadFileToString(stat_file, &mem_stats))
+    return;
+  SplitString(mem_stats, ' ', proc_stats);
+}
+
 }  // namespace
 
 namespace base {
@@ -187,11 +199,46 @@ bool NamedProcessIterator::IncludeEntry() {
   return filter_->Includes(entry_.pid, entry_.ppid);
 }
 
+// On linux, we return vsize.
+size_t ProcessMetrics::GetPagefileUsage() const {
+  std::vector<std::string> proc_stats;
+  GetProcStats(process_, &proc_stats);
+  const size_t kVmSize = 22;
+  if (proc_stats.size() > kVmSize)
+    return static_cast<size_t>(StringToInt(proc_stats[kVmSize]));
+  return 0;
+}
+
+size_t ProcessMetrics::GetPeakPagefileUsage() const {
+  NOTIMPLEMENTED();
+  return 0;
+}
+
+// On linux, we return RSS.
+size_t ProcessMetrics::GetWorkingSetSize() const {
+  std::vector<std::string> proc_stats;
+  GetProcStats(process_, &proc_stats);
+  const size_t kVmRss = 23;
+  if (proc_stats.size() > kVmRss) {
+    size_t num_pages = static_cast<size_t>(StringToInt(proc_stats[kVmRss]));
+    return num_pages * getpagesize();
+  }
+  return 0;
+}
+
+size_t ProcessMetrics::GetPeakWorkingSetSize() const {
+  NOTIMPLEMENTED();
+  return 0;
+}
+
 // To have /proc/self/io file you must enable CONFIG_TASK_IO_ACCOUNTING
 // in your kernel configuration.
 bool ProcessMetrics::GetIOCounters(IoCounters* io_counters) const {
   std::string proc_io_contents;
-  if (!file_util::ReadFileToString(L"/proc/self/io", &proc_io_contents))
+  FilePath io_file("/proc");
+  io_file = io_file.Append(IntToString(process_));
+  io_file = io_file.Append("io");
+  if (!file_util::ReadFileToString(io_file, &proc_io_contents))
     return false;
 
   (*io_counters).OtherOperationCount = 0;

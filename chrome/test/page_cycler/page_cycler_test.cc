@@ -16,7 +16,6 @@
 #include "chrome/test/automation/window_proxy.h"
 #include "chrome/test/chrome_process_util.h"
 #include "chrome/test/ui/ui_test.h"
-#include "chrome/test/perf/mem_usage.h"
 #include "googleurl/src/gurl.h"
 #include "net/base/net_util.h"
 
@@ -84,8 +83,6 @@ class PageCyclerTest : public UITest {
     ASSERT_FALSE(timings->empty());
   }
 
-#if defined(OS_WIN)
-  // TODO(port): Port chrome_process_util and remove windowsisms.
   void PrintIOPerfInfo(const char* test_name) {
     FilePath data_dir;
     PathService::Get(chrome::DIR_USER_DATA, &data_dir);
@@ -100,10 +97,10 @@ class PageCyclerTest : public UITest {
       }
 
       scoped_ptr<base::ProcessMetrics> process_metrics;
-      IO_COUNTERS io_counters;
       process_metrics.reset(
           base::ProcessMetrics::CreateProcessMetrics(process_handle));
-      ZeroMemory(&io_counters, sizeof(io_counters));
+      IoCounters io_counters;
+      memset(&io_counters, 0, sizeof(io_counters));
 
       if (process_metrics.get()->GetIOCounters(&io_counters)) {
         // Print out IO performance.  We assume that the values can be
@@ -163,35 +160,50 @@ class PageCyclerTest : public UITest {
 
     ChromeProcessList::const_iterator it;
     for (it = chrome_processes.begin(); it != chrome_processes.end(); ++it) {
-      size_t peak_virtual_size;
-      size_t current_virtual_size;
-      size_t peak_working_set_size;
-      size_t current_working_set_size;
-      if (GetMemoryInfo(*it, &peak_virtual_size, &current_virtual_size,
-                        &peak_working_set_size, &current_working_set_size)) {
-        std::string chrome_name = (*it == browser_process_pid) ? "_b" : "_r";
-
-        std::string trace_name(test_name);
-        PrintResult("vm_peak", chrome_name,
-                    "vm_pk" + chrome_name + trace_name,
-                    peak_virtual_size, "bytes",
-                    true /* important */);
-        PrintResult("vm_final", chrome_name,
-                    "vm_f" + chrome_name + trace_name,
-                    current_virtual_size, "bytes",
-                    false /* not important */);
-        PrintResult("ws_peak", chrome_name,
-                    "ws_pk" + chrome_name + trace_name,
-                    peak_working_set_size, "bytes",
-                    true /* important */);
-        PrintResult("ws_final", chrome_name,
-                    "ws_pk" + chrome_name + trace_name,
-                    current_working_set_size, "bytes",
-                    false /* not important */);
+      base::ProcessHandle process_handle;
+      if (!base::OpenProcessHandle(*it, &process_handle)) {
+        NOTREACHED();
       }
+
+      scoped_ptr<base::ProcessMetrics> process_metrics;
+      process_metrics.reset(
+          base::ProcessMetrics::CreateProcessMetrics(process_handle));
+
+      std::string chrome_name = (*it == browser_process_pid) ? "_b" : "_r";
+
+      std::string trace_name(test_name);
+#if defined(OS_WIN)
+      PrintResult("vm_peak", chrome_name,
+                  "vm_pk" + chrome_name + trace_name,
+                  process_metrics->GetPeakPagefileUsage(), "bytes",
+                  true /* important */);
+      PrintResult("vm_final", chrome_name,
+                  "vm_f" + chrome_name + trace_name,
+                  process_metrics->GetPagefileUsage(), "bytes",
+                  false /* not important */);
+      PrintResult("ws_peak", chrome_name,
+                  "ws_pk" + chrome_name + trace_name,
+                  process_metrics->GetPeakWorkingSetSize(), "bytes",
+                  true /* important */);
+      PrintResult("ws_final", chrome_name,
+                  "ws_f" + chrome_name + trace_name,
+                  process_metrics->GetWorkingSetSize(), "bytes",
+                  false /* not important */);
+#elif defined(OS_LINUX)
+      PrintResult("vm_size_final", chrome_name,
+                  "vm_size_f" + chrome_name + trace_name,
+                  process_metrics->GetPagefileUsage(), "bytes",
+                  true /* important */);
+      PrintResult("vm_rss_final", chrome_name,
+                  "vm_rss_f" + chrome_name + trace_name,
+                  process_metrics->GetWorkingSetSize(), "bytes",
+                  true /* important */);
+#else
+      NOTIMPLEMENTED();
+#endif
+      base::CloseProcessHandle(process_handle);
     }
   }
-#endif  // defined(OS_WIN)
 
   // When use_http is true, the test name passed here will be used directly in
   // the path to the test data, so it must be safe for use in a URL without
@@ -204,11 +216,8 @@ class PageCyclerTest : public UITest {
     if (timings.empty())
       return;
 
-#if defined(OS_WIN)
-    // TODO(port): Enable when Print{MemoryUsage,IOPerf}Info are ported.
     PrintMemoryUsageInfo("");
     PrintIOPerfInfo("");
-#endif  // defined(OS_WIN)
 
     wprintf(L"\nPages: [%ls]\n", pages.c_str());
     PrintResultList("times", "", "t", timings, "ms",
@@ -224,7 +233,13 @@ class PageCyclerReferenceTest : public PageCyclerTest {
     FilePath dir;
     PathService::Get(chrome::DIR_TEST_TOOLS, &dir);
     dir = dir.AppendASCII("reference_build");
+#if defined(OS_WIN)
     dir = dir.AppendASCII("chrome");
+#elif defined(OS_LINUX)
+    dir = dir.AppendASCII("chrome_linux");
+#elif defined(OS_MACOSX)
+    dir = dir.AppendASCII("chrome_mac");
+#endif
     browser_directory_ = dir;
     UITest::SetUp();
   }
@@ -236,11 +251,8 @@ class PageCyclerReferenceTest : public PageCyclerTest {
     if (timings.empty())
       return;
 
-#if defined(OS_WIN)
-    // TODO(port): Enable when Print{MemoryUsage,IOPerf}Info are ported.
     PrintMemoryUsageInfo("_ref");
     PrintIOPerfInfo("_ref");
-#endif  // defined(OS_WIN)
 
     PrintResultList("times", "", "t_ref", timings, "ms",
                     true /* important */);

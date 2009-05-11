@@ -233,4 +233,24 @@ bool ProcessMetrics::GetIOCounters(IoCounters* io_counters) const {
   return false;
 }
 
+size_t ProcessMetrics::GetPagefileUsage() const {
+  NOTIMPLEMENTED();
+  return 0;
+}
+
+size_t ProcessMetrics::GetPeakPagefileUsage() const {
+  NOTIMPLEMENTED();
+  return 0;
+}
+
+size_t ProcessMetrics::GetWorkingSetSize() const {
+  NOTIMPLEMENTED();
+  return 0;
+}
+
+size_t ProcessMetrics::GetPeakWorkingSetSize() const {
+  NOTIMPLEMENTED();
+  return 0;
+}
+
 }  // namespace base

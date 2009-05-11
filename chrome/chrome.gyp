@@ -2912,6 +2912,7 @@
       'target_name': 'page_cycler_tests',
       'type': 'executable',
       'dependencies': [
+        'app',
         'chrome_resources',
         'chrome_strings',
         'test_support_ui',

@@ -520,6 +520,15 @@ size_t ProcessMetrics::GetWorkingSetSize() const {
   return 0;
 }
 
+// Returns the peak working set size, in bytes.
+size_t ProcessMetrics::GetPeakWorkingSetSize() const {
+  PROCESS_MEMORY_COUNTERS pmc;
+  if (GetProcessMemoryInfo(process_, &pmc, sizeof(pmc))) {
+    return pmc.PeakWorkingSetSize;
+  }
+  return 0;
+}
+
 size_t ProcessMetrics::GetPrivateBytes() const {
   // PROCESS_MEMORY_COUNTERS_EX is not supported until XP SP2.
   // GetProcessMemoryInfo() will simply fail on prior OS. So the requested
