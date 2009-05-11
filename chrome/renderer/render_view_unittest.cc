@@ -315,19 +315,14 @@ TEST_F(RenderViewTest, OnPrintPages) {
 // through the RenderWidget::OnHandleInputEvent() function.
 TEST_F(RenderViewTest, OnHandleKeyboardEvent) {
 #if defined(OS_WIN)
-  // Save the keyboard layout and the status.
-  // This test changes the keyboard layout and status. This may break
-  // succeeding tests. To prevent this possible break, we should save the
-  // layout and status here to restore when this test is finished.
-  HKL original_layout = GetKeyboardLayout(0);
-  BYTE original_key_states[256];
-  GetKeyboardState(&original_key_states[0]);
-
   // Load an HTML page consisting of one <input> element and three
   // contentediable <div> elements.
   // The <input> element is used for sending keyboard events, and the <div>
   // elements are used for writing DOM events in the following format:
-  //   "<keyCode>,<shiftKey>,<controlKey>,<altKey>,<metaKey>".
+  //   "<keyCode>,<shiftKey>,<controlKey>,<altKey>".
+  // TODO(hbono): <http://crbug.com/2215> Our WebKit port set |ev.metaKey| to
+  // true when pressing an alt key, i.e. the |ev.metaKey| value is not
+  // trustworthy. We will check the |ev.metaKey| value when this issue is fixed.
   view_->set_delay_seconds_for_form_state_sync(0);
   LoadHTML("<html>"
            "<head>"
@@ -339,8 +334,7 @@ TEST_F(RenderViewTest, OnHandleKeyboardEvent) {
            "      (ev.which || ev.keyCode) + ',' +"
            "      ev.shiftKey + ',' +"
            "      ev.ctrlKey + ',' +"
-           "      ev.altKey + ',' +"
-           "      ev.metaKey;"
+           "      ev.altKey;"
            "  return true;"
            "}"
            "</script>"
@@ -362,24 +356,33 @@ TEST_F(RenderViewTest, OnHandleKeyboardEvent) {
   ExecuteJavaScript("document.getElementById('test').focus();");
   render_thread_.sink().ClearMessages();
 
-  // Language IDs used in this test.
-  // This test directly loads keyboard-layout drivers and use them for
-  // emulating non-US keyboard layouts.
-  static const wchar_t* kLanguageIDs[] = {
-    L"00000401",  // Arabic
-    L"00000409",  // United States
-    L"0000040c",  // French
-    L"0000040d",  // Hebrew
-    L"00001009",  // Canadian French
+  static const MockKeyboard::Layout kLayouts[] = {
+    MockKeyboard::LAYOUT_ARABIC,
+    MockKeyboard::LAYOUT_CANADIAN_FRENCH,
+    MockKeyboard::LAYOUT_FRENCH,
+    MockKeyboard::LAYOUT_HEBREW,
+    MockKeyboard::LAYOUT_RUSSIAN,
+    MockKeyboard::LAYOUT_UNITED_STATES,
   };
-  for (size_t i = 0; i < ARRAYSIZE_UNSAFE(kLanguageIDs); ++i) {
-    // Load a keyboard-layout driver.
-    HKL handle = LoadKeyboardLayout(kLanguageIDs[i], KLF_ACTIVATE);
-    EXPECT_TRUE(handle != NULL);
 
-    // For each key code, we send two keyboard events: one when we only press
-    // the key, and one when we press the key and a shift key.
-    for (int modifiers = 0; modifiers < 2; ++modifiers) {
+  for (size_t i = 0; i < ARRAYSIZE_UNSAFE(kLayouts); ++i) {
+    // For each key code, we send three keyboard events.
+    //  * we press only the key;
+    //  * we press the key and a left-shift key, and;
+    //  * we press the key and a right-alt (AltGr) key.
+    // For each modifiers, we need a string used for formatting its expected
+    // result. (See the above comment for its format.)
+    static const struct {
+      MockKeyboard::Modifiers modifiers;
+      const wchar_t* expected_result;
+    } kModifierData[] = {
+      {MockKeyboard::NONE,       L"false,false,false"},
+      {MockKeyboard::LEFT_SHIFT, L"true,false,false"},
+      {MockKeyboard::RIGHT_ALT,  L"false,false,true"},
+    };
+
+    MockKeyboard::Layout layout = kLayouts[i];
+    for (size_t j = 0; j < ARRAYSIZE_UNSAFE(kModifierData); ++j) {
       // Virtual key codes used for this test.
       static const int kKeyCodes[] = {
         '0', '1', '2', '3', '4', '5', '6', '7',
@@ -401,72 +404,30 @@ TEST_F(RenderViewTest, OnHandleKeyboardEvent) {
         VK_OEM_8,
       };
 
-      // Over-write the keyboard status with our modifier-key status.
-      // WebInputEventFactory::keyboardEvent() uses GetKeyState() to retrive
-      // modifier-key status. So, we update the modifier-key status with this
-      // SetKeyboardState() call before creating NativeWebKeyboardEvent
-      // instances.
-      BYTE key_states[256];
-      memset(&key_states[0], 0, sizeof(key_states));
-      key_states[VK_SHIFT] = (modifiers & 0x01) ? 0x80 : 0;
-      SetKeyboardState(&key_states[0]);
-
-      for (size_t j = 0; j <= ARRAYSIZE_UNSAFE(kKeyCodes); ++j) {
-        // Retrieve the Unicode character composed from the virtual-key code
-        // and our modifier-key status from the keyboard-layout driver.
-        // This character is used for creating a WM_CHAR message and an
-        // expected result.
-        int key_code = kKeyCodes[j];
-        wchar_t codes[4];
-        int length = ToUnicodeEx(key_code, MapVirtualKey(key_code, 0),
-                                 &key_states[0], &codes[0],
-                                 ARRAYSIZE_UNSAFE(codes), 0, handle);
-        if (length != 1)
+      MockKeyboard::Modifiers modifiers = kModifierData[j].modifiers;
+      for (size_t k = 0; k <= ARRAYSIZE_UNSAFE(kKeyCodes); ++k) {
+        // Send a keyboard event to the RenderView object.
+        // We should test a keyboard event only when the given keyboard-layout
+        // driver is installed in a PC and the driver can assign a Unicode
+        // charcter for the given tuple (key-code and modifiers).
+        int key_code = kKeyCodes[k];
+        std::wstring char_code;
+        if (SendKeyEvent(layout, key_code, modifiers, &char_code) < 0)
           continue;
-
-        // Create IPC messages from Windows messages and send them to our
-        // back-end.
-        // A keyboard event of Windows consists of three Windows messages:
-        // WM_KEYDOWN, WM_CHAR, and WM_KEYUP.
-        // WM_KEYDOWN and WM_KEYUP sends virtual-key codes. On the other hand,
-        // WM_CHAR sends a composed Unicode character.
-        NativeWebKeyboardEvent keydown_event(NULL, WM_KEYDOWN, key_code, 0);
-        scoped_ptr<IPC::Message> keydown_message(
-            new ViewMsg_HandleInputEvent(0));
-        keydown_message->WriteData(
-            reinterpret_cast<const char*>(&keydown_event),
-            sizeof(WebKit::WebKeyboardEvent));
-        view_->OnHandleInputEvent(*keydown_message);
-
-        NativeWebKeyboardEvent char_event(NULL, WM_CHAR, codes[0], 0);
-        scoped_ptr<IPC::Message> char_message(new ViewMsg_HandleInputEvent(0));
-        char_message->WriteData(reinterpret_cast<const char*>(&char_event),
-                                sizeof(WebKit::WebKeyboardEvent));
-        view_->OnHandleInputEvent(*char_message);
-
-        NativeWebKeyboardEvent keyup_event(NULL, WM_KEYUP, key_code, 0);
-        scoped_ptr<IPC::Message> keyup_message(new ViewMsg_HandleInputEvent(0));
-        keyup_message->WriteData(reinterpret_cast<const char*>(&keyup_event),
-                                 sizeof(WebKit::WebKeyboardEvent));
-        view_->OnHandleInputEvent(*keyup_message);
 
         // Create an expected result from the virtual-key code, the character
         // code, and the modifier-key status.
         // We format a string that emulates a DOM-event string produced hy
         // our JavaScript function. (See the above comment for the format.)
-        static const wchar_t* kModifiers[] = {
-          L"false,false,false,false",
-          L"true,false,false,false",
-        };
         static wchar_t expected_result[1024];
         wsprintf(&expected_result[0],
                  L"\x000A"       // texts in the <input> element
                  L"%d,%s\x000A"  // texts in the first <div> element
                  L"%d,%s\x000A"  // texts in the second <div> element
                  L"%d,%s",       // texts in the third <div> element
-                 key_code, kModifiers[modifiers],
-                 codes[0], kModifiers[modifiers],
-                 key_code, kModifiers[modifiers]);
+                 key_code, kModifierData[j].expected_result,
+                 char_code[0], kModifierData[j].expected_result,
+                 key_code, kModifierData[j].expected_result);
 
         // Retrieve the text in the test page and compare it with the expected
         // text created from a virtual-key code, a character code, and the
@@ -478,13 +439,217 @@ TEST_F(RenderViewTest, OnHandleKeyboardEvent) {
         EXPECT_EQ(expected_result, output);
       }
     }
-
-    UnloadKeyboardLayout(handle);
   }
+#else
+  NOTIMPLEMENTED();
+#endif
+}
 
-  // Restore the keyboard layout and status.
-  SetKeyboardState(&original_key_states[0]);
-  ActivateKeyboardLayout(original_layout, KLF_RESET);
+// Test that our EditorClientImpl class can insert characters when we send
+// keyboard events through the RenderWidget::OnHandleInputEvent() function.
+// This test is for preventing regressions caused only when we use non-US
+// keyboards, such as Issue 10846.
+TEST_F(RenderViewTest, InsertCharacters) {
+#if defined(OS_WIN)
+  static const struct {
+    MockKeyboard::Layout layout;
+    const wchar_t* expected_result;
+  } kLayouts[] = {
+#if 0
+    // Disabled these keyboard layouts because buildbots do not have their
+    // keyboard-layout drivers installed.
+    {MockKeyboard::LAYOUT_ARABIC,
+     L"\x0030\x0031\x0032\x0033\x0034\x0035\x0036\x0037"
+     L"\x0038\x0039\x0634\x0624\x064a\x062b\x0628\x0644"
+     L"\x0627\x0647\x062a\x0646\x0645\x0629\x0649\x062e"
+     L"\x062d\x0636\x0642\x0633\x0641\x0639\x0631\x0635"
+     L"\x0621\x063a\x0626\x0643\x003d\x0648\x002d\x0632"
+     L"\x0638\x0630\x062c\x005c\x062f\x0637\x0028\x0021"
+     L"\x0040\x0023\x0024\x0025\x005e\x0026\x002a\x0029"
+     L"\x0650\x007d\x005d\x064f\x005b\x0623\x00f7\x0640"
+     L"\x060c\x002f\x2019\x0622\x00d7\x061b\x064e\x064c"
+     L"\x064d\x2018\x007b\x064b\x0652\x0625\x007e\x003a"
+     L"\x002b\x002c\x005f\x002e\x061f\x0651\x003c\x007c"
+     L"\x003e\x0022\x0030\x0031\x0032\x0033\x0034\x0035"
+     L"\x0036\x0037\x0038\x0039\x0634\x0624\x064a\x062b"
+     L"\x0628\x0644\x0627\x0647\x062a\x0646\x0645\x0629"
+     L"\x0649\x062e\x062d\x0636\x0642\x0633\x0641\x0639"
+     L"\x0631\x0635\x0621\x063a\x0626\x0643\x003d\x0648"
+     L"\x002d\x0632\x0638\x0630\x062c\x005c\x062f\x0637"
+    },
+    {MockKeyboard::LAYOUT_HEBREW,
+     L"\x0030\x0031\x0032\x0033\x0034\x0035\x0036\x0037"
+     L"\x0038\x0039\x05e9\x05e0\x05d1\x05d2\x05e7\x05db"
+     L"\x05e2\x05d9\x05df\x05d7\x05dc\x05da\x05e6\x05de"
+     L"\x05dd\x05e4\x002f\x05e8\x05d3\x05d0\x05d5\x05d4"
+     L"\x0027\x05e1\x05d8\x05d6\x05e3\x003d\x05ea\x002d"
+     L"\x05e5\x002e\x003b\x005d\x005c\x005b\x002c\x0028"
+     L"\x0021\x0040\x0023\x0024\x0025\x005e\x0026\x002a"
+     L"\x0029\x0041\x0042\x0043\x0044\x0045\x0046\x0047"
+     L"\x0048\x0049\x004a\x004b\x004c\x004d\x004e\x004f"
+     L"\x0050\x0051\x0052\x0053\x0054\x0055\x0056\x0057"
+     L"\x0058\x0059\x005a\x003a\x002b\x003e\x005f\x003c"
+     L"\x003f\x007e\x007d\x007c\x007b\x0022\x0030\x0031"
+     L"\x0032\x0033\x0034\x0035\x0036\x0037\x0038\x0039"
+     L"\x05e9\x05e0\x05d1\x05d2\x05e7\x05db\x05e2\x05d9"
+     L"\x05df\x05d7\x05dc\x05da\x05e6\x05de\x05dd\x05e4"
+     L"\x002f\x05e8\x05d3\x05d0\x05d5\x05d4\x0027\x05e1"
+     L"\x05d8\x05d6\x05e3\x003d\x05ea\x002d\x05e5\x002e"
+     L"\x003b\x005d\x005c\x005b\x002c"
+    },
+#endif
+    {MockKeyboard::LAYOUT_CANADIAN_FRENCH,
+     L"\x0030\x0031\x0032\x0033\x0034\x0035\x0036\x0037"
+     L"\x0038\x0039\x0061\x0062\x0063\x0064\x0065\x0066"
+     L"\x0067\x0068\x0069\x006a\x006b\x006c\x006d\x006e"
+     L"\x006f\x0070\x0071\x0072\x0073\x0074\x0075\x0076"
+     L"\x0077\x0078\x0079\x007a\x003b\x003d\x002c\x002d"
+     L"\x002e\x00e9\x003c\x0029\x0021\x0022\x002f\x0024"
+     L"\x0025\x003f\x0026\x002a\x0028\x0041\x0042\x0043"
+     L"\x0044\x0045\x0046\x0047\x0048\x0049\x004a\x004b"
+     L"\x004c\x004d\x004e\x004f\x0050\x0051\x0052\x0053"
+     L"\x0054\x0055\x0056\x0057\x0058\x0059\x005a\x003a"
+     L"\x002b\x0027\x005f\x002e\x00c9\x003e\x0030\x0031"
+     L"\x0032\x0033\x0034\x0035\x0036\x0037\x0038\x0039"
+     L"\x0061\x0062\x0063\x0064\x0065\x0066\x0067\x0068"
+     L"\x0069\x006a\x006b\x006c\x006d\x006e\x006f\x0070"
+     L"\x0071\x0072\x0073\x0074\x0075\x0076\x0077\x0078"
+     L"\x0079\x007a\x003b\x003d\x002c\x002d\x002e\x00e9"
+     L"\x003c"
+    },
+    {MockKeyboard::LAYOUT_FRENCH,
+     L"\x00e0\x0026\x00e9\x0022\x0027\x0028\x002d\x00e8"
+     L"\x005f\x00e7\x0061\x0062\x0063\x0064\x0065\x0066"
+     L"\x0067\x0068\x0069\x006a\x006b\x006c\x006d\x006e"
+     L"\x006f\x0070\x0071\x0072\x0073\x0074\x0075\x0076"
+     L"\x0077\x0078\x0079\x007a\x0024\x003d\x002c\x003b"
+     L"\x003a\x00f9\x0029\x002a\x0021\x0030\x0031\x0032"
+     L"\x0033\x0034\x0035\x0036\x0037\x0038\x0039\x0041"
+     L"\x0042\x0043\x0044\x0045\x0046\x0047\x0048\x0049"
+     L"\x004a\x004b\x004c\x004d\x004e\x004f\x0050\x0051"
+     L"\x0052\x0053\x0054\x0055\x0056\x0057\x0058\x0059"
+     L"\x005a\x00a3\x002b\x003f\x002e\x002f\x0025\x00b0"
+     L"\x00b5\x00e0\x0026\x00e9\x0022\x0027\x0028\x002d"
+     L"\x00e8\x005f\x00e7\x0061\x0062\x0063\x0064\x0065"
+     L"\x0066\x0067\x0068\x0069\x006a\x006b\x006c\x006d"
+     L"\x006e\x006f\x0070\x0071\x0072\x0073\x0074\x0075"
+     L"\x0076\x0077\x0078\x0079\x007a\x0024\x003d\x002c"
+     L"\x003b\x003a\x00f9\x0029\x002a\x0021"
+    },
+    {MockKeyboard::LAYOUT_RUSSIAN,
+     L"\x0030\x0031\x0032\x0033\x0034\x0035\x0036\x0037"
+     L"\x0038\x0039\x0444\x0438\x0441\x0432\x0443\x0430"
+     L"\x043f\x0440\x0448\x043e\x043b\x0434\x044c\x0442"
+     L"\x0449\x0437\x0439\x043a\x044b\x0435\x0433\x043c"
+     L"\x0446\x0447\x043d\x044f\x0436\x003d\x0431\x002d"
+     L"\x044e\x002e\x0451\x0445\x005c\x044a\x044d\x0029"
+     L"\x0021\x0022\x2116\x003b\x0025\x003a\x003f\x002a"
+     L"\x0028\x0424\x0418\x0421\x0412\x0423\x0410\x041f"
+     L"\x0420\x0428\x041e\x041b\x0414\x042c\x0422\x0429"
+     L"\x0417\x0419\x041a\x042b\x0415\x0413\x041c\x0426"
+     L"\x0427\x041d\x042f\x0416\x002b\x0411\x005f\x042e"
+     L"\x002c\x0401\x0425\x002f\x042a\x042d\x0030\x0031"
+     L"\x0032\x0033\x0034\x0035\x0036\x0037\x0038\x0039"
+     L"\x0444\x0438\x0441\x0432\x0443\x0430\x043f\x0440"
+     L"\x0448\x043e\x043b\x0434\x044c\x0442\x0449\x0437"
+     L"\x0439\x043a\x044b\x0435\x0433\x043c\x0446\x0447"
+     L"\x043d\x044f\x0436\x003d\x0431\x002d\x044e\x002e"
+     L"\x0451\x0445\x005c\x044a\x044d"
+    },
+    {MockKeyboard::LAYOUT_UNITED_STATES,
+     L"\x0030\x0031\x0032\x0033\x0034\x0035\x0036\x0037"
+     L"\x0038\x0039\x0061\x0062\x0063\x0064\x0065\x0066"
+     L"\x0067\x0068\x0069\x006a\x006b\x006c\x006d\x006e"
+     L"\x006f\x0070\x0071\x0072\x0073\x0074\x0075\x0076"
+     L"\x0077\x0078\x0079\x007a\x003b\x003d\x002c\x002d"
+     L"\x002e\x002f\x0060\x005b\x005c\x005d\x0027\x0029"
+     L"\x0021\x0040\x0023\x0024\x0025\x005e\x0026\x002a"
+     L"\x0028\x0041\x0042\x0043\x0044\x0045\x0046\x0047"
+     L"\x0048\x0049\x004a\x004b\x004c\x004d\x004e\x004f"
+     L"\x0050\x0051\x0052\x0053\x0054\x0055\x0056\x0057"
+     L"\x0058\x0059\x005a\x003a\x002b\x003c\x005f\x003e"
+     L"\x003f\x007e\x007b\x007c\x007d\x0022\x0030\x0031"
+     L"\x0032\x0033\x0034\x0035\x0036\x0037\x0038\x0039"
+     L"\x0061\x0062\x0063\x0064\x0065\x0066\x0067\x0068"
+     L"\x0069\x006a\x006b\x006c\x006d\x006e\x006f\x0070"
+     L"\x0071\x0072\x0073\x0074\x0075\x0076\x0077\x0078"
+     L"\x0079\x007a\x003b\x003d\x002c\x002d\x002e\x002f"
+     L"\x0060\x005b\x005c\x005d\x0027"
+    },
+  };
+
+  for (size_t i = 0; i < ARRAYSIZE_UNSAFE(kLayouts); ++i) {
+    // Load an HTML page consisting of one <div> element.
+    // This <div> element is used by the EditorClientImpl class to insert
+    // characters received through the RenderWidget::OnHandleInputEvent()
+    // function.
+    view_->set_delay_seconds_for_form_state_sync(0);
+    LoadHTML("<html>"
+             "<head>"
+             "<title></title>"
+             "</head>"
+             "<body>"
+             "<div id='test' contenteditable='true'>"
+             "</div>"
+             "</body>"
+             "</html>");
+    ExecuteJavaScript("document.getElementById('test').focus();");
+    render_thread_.sink().ClearMessages();
+
+    // For each key code, we send three keyboard events.
+    //  * Pressing only the key;
+    //  * Pressing the key and a left-shift key, and;
+    //  * Pressing the key and a right-alt (AltGr) key.
+    static const MockKeyboard::Modifiers kModifiers[] = {
+      MockKeyboard::NONE,
+      MockKeyboard::LEFT_SHIFT,
+      MockKeyboard::RIGHT_ALT,
+    };
+
+    MockKeyboard::Layout layout = kLayouts[i].layout;
+    for (size_t j = 0; j < ARRAYSIZE_UNSAFE(kModifiers); ++j) {
+      // Virtual key codes used for this test.
+      static const int kKeyCodes[] = {
+        '0', '1', '2', '3', '4', '5', '6', '7',
+        '8', '9', 'A', 'B', 'C', 'D', 'E', 'F',
+        'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N',
+        'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V',
+        'W', 'X', 'Y', 'Z',
+        VK_OEM_1,
+        VK_OEM_PLUS,
+        VK_OEM_COMMA,
+        VK_OEM_MINUS,
+        VK_OEM_PERIOD,
+        VK_OEM_2,
+        VK_OEM_3,
+        VK_OEM_4,
+        VK_OEM_5,
+        VK_OEM_6,
+        VK_OEM_7,
+        VK_OEM_8,
+      };
+
+      MockKeyboard::Modifiers modifiers = kModifiers[j];
+      for (size_t k = 0; k <= ARRAYSIZE_UNSAFE(kKeyCodes); ++k) {
+        // Send a keyboard event to the RenderView object.
+        // We should test a keyboard event only when the given keyboard-layout
+        // driver is installed in a PC and the driver can assign a Unicode
+        // charcter for the given tuple (layout, key-code, and modifiers).
+        int key_code = kKeyCodes[k];
+        std::wstring char_code;
+        if (SendKeyEvent(layout, key_code, modifiers, &char_code) < 0)
+          continue;
+      }
+    }
+
+    // Retrieve the text in the test page and compare it with the expected
+    // text created from a virtual-key code, a character code, and the
+    // modifier-key status.
+    const int kMaxOutputCharacters = 4096;
+    std::wstring output;
+    GetMainFrame()->GetContentAsPlainText(kMaxOutputCharacters, &output);
+    EXPECT_EQ(kLayouts[i].expected_result, output);
+  }
 #else
   NOTIMPLEMENTED();
 #endif

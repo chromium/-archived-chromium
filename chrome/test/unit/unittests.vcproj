@@ -935,6 +935,22 @@
 				Name="test_infrastructure"
 				>
 				<File
+					RelativePath="..\..\renderer\mock_keyboard.cc"
+					>
+				</File>
+				<File
+					RelativePath="..\..\renderer\mock_keyboard.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\renderer\mock_keyboard_driver_win.cc"
+					>
+				</File>
+				<File
+					RelativePath="..\..\renderer\mock_keyboard_driver_win.h"
+					>
+				</File>
+				<File
 					RelativePath="..\..\renderer\mock_render_process.h"
 					>
 				</File>

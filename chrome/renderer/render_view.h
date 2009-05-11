@@ -383,6 +383,8 @@ class RenderView : public RenderWidget,
                         const gfx::Rect& resizer_rect);
 
  private:
+  // For unit tests.
+  friend class RenderViewTest;
   FRIEND_TEST(RenderViewTest, OnLoadAlternateHTMLText);
   FRIEND_TEST(RenderViewTest, OnNavStateChanged);
   FRIEND_TEST(RenderViewTest, OnImeStateChanged);
@@ -390,6 +392,7 @@ class RenderView : public RenderWidget,
   FRIEND_TEST(RenderViewTest, OnSetTextDirection);
   FRIEND_TEST(RenderViewTest, OnPrintPages);
   FRIEND_TEST(RenderViewTest, OnHandleKeyboardEvent);
+  FRIEND_TEST(RenderViewTest, InsertCharacters);
 
   explicit RenderView(RenderThreadBase* render_thread);
 

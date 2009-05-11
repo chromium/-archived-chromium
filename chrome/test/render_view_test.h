@@ -5,7 +5,10 @@
 #ifndef CHROME_TEST_RENDER_VIEW_TEST_H_
 #define CHROME_TEST_RENDER_VIEW_TEST_H_
 
+#include <string>
+
 #include "base/scoped_ptr.h"
+#include "chrome/renderer/mock_keyboard.h"
 #include "chrome/renderer/mock_render_process.h"
 #include "chrome/renderer/mock_render_thread.h"
 #include "chrome/renderer/render_view.h"
@@ -32,6 +35,12 @@ class RenderViewTest : public testing::Test {
   // Loads the given HTML into the main frame as a data: URL.
   void LoadHTML(const char* html);
 
+  // Sends IPC messages that emulates a key-press event.
+  int SendKeyEvent(MockKeyboard::Layout layout,
+                   int key_code,
+                   MockKeyboard::Modifiers key_modifiers,
+                   std::wstring* output);
+
   // testing::Test
   virtual void SetUp();
 
@@ -42,6 +51,7 @@ class RenderViewTest : public testing::Test {
   scoped_ptr<MockProcess> mock_process_;
   scoped_refptr<RenderView> view_;
   RendererWebKitClientImpl webkitclient_;
+  scoped_ptr<MockKeyboard> mock_keyboard_;
 };
 
 #endif  // CHROME_TEST_RENDER_VIEW_TEST_H_

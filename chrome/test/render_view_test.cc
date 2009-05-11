@@ -4,12 +4,14 @@
 
 #include "chrome/test/render_view_test.h"
 
+#include "chrome/common/native_web_keyboard_event.h"
 #include "chrome/common/render_messages.h"
 #include "chrome/browser/extensions/extension_function_dispatcher.h"
 #include "chrome/renderer/extensions/event_bindings.h"
 #include "chrome/renderer/extensions/extension_process_bindings.h"
 #include "chrome/renderer/extensions/renderer_extension_bindings.h"
 #include "chrome/renderer/js_only_v8_extensions.h"
+#include "webkit/api/public/WebInputEvent.h"
 #include "webkit/api/public/WebKit.h"
 #include "webkit/api/public/WebScriptSource.h"
 #include "webkit/glue/weburlrequest.h"
@@ -74,6 +76,9 @@ void RenderViewTest::SetUp() {
   view_ = RenderView::Create(&render_thread_, NULL, NULL, kOpenerId,
                              WebPreferences(),
                              new SharedRenderViewCounter(0), kRouteId);
+
+  // Attach a pseudo keyboard device to this object.
+  mock_keyboard_.reset(new MockKeyboard());
 }
 void RenderViewTest::TearDown() {
   render_thread_.SendCloseMessage();
@@ -89,4 +94,53 @@ void RenderViewTest::TearDown() {
   WebKit::shutdown();
 
   msg_loop_.RunAllPending();
+
+  mock_keyboard_.reset();
+}
+
+int RenderViewTest::SendKeyEvent(MockKeyboard::Layout layout,
+                                 int key_code,
+                                 MockKeyboard::Modifiers modifiers,
+                                 std::wstring* output) {
+#if defined(OS_WIN)
+  // Retrieve the Unicode character for the given tuple (keyboard-layout,
+  // key-code, and modifiers).
+  // Exit when a keyboard-layout driver cannot assign a Unicode character to
+  // the tuple to prevent sending an invalid key code to the RenderView object.
+  CHECK(mock_keyboard_.get());
+  CHECK(output);
+  int length = mock_keyboard_->GetCharacters(layout, key_code, modifiers,
+                                             output);
+  if (length != 1)
+    return -1;
+
+  // Create IPC messages from Windows messages and send them to our
+  // back-end.
+  // A keyboard event of Windows consists of three Windows messages:
+  // WM_KEYDOWN, WM_CHAR, and WM_KEYUP.
+  // WM_KEYDOWN and WM_KEYUP sends virtual-key codes. On the other hand,
+  // WM_CHAR sends a composed Unicode character.
+  NativeWebKeyboardEvent keydown_event(NULL, WM_KEYDOWN, key_code, 0);
+  scoped_ptr<IPC::Message> keydown_message(new ViewMsg_HandleInputEvent(0));
+  keydown_message->WriteData(reinterpret_cast<const char*>(&keydown_event),
+                             sizeof(WebKit::WebKeyboardEvent));
+  view_->OnHandleInputEvent(*keydown_message);
+
+  NativeWebKeyboardEvent char_event(NULL, WM_CHAR, (*output)[0], 0);
+  scoped_ptr<IPC::Message> char_message(new ViewMsg_HandleInputEvent(0));
+  char_message->WriteData(reinterpret_cast<const char*>(&char_event),
+                          sizeof(WebKit::WebKeyboardEvent));
+  view_->OnHandleInputEvent(*char_message);
+
+  NativeWebKeyboardEvent keyup_event(NULL, WM_KEYUP, key_code, 0);
+  scoped_ptr<IPC::Message> keyup_message(new ViewMsg_HandleInputEvent(0));
+  keyup_message->WriteData(reinterpret_cast<const char*>(&keyup_event),
+                           sizeof(WebKit::WebKeyboardEvent));
+  view_->OnHandleInputEvent(*keyup_message);
+
+  return length;
+#else
+  NOTIMPLEMENTED();
+  return L'\0';
+#endif
 }

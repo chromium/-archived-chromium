@@ -2172,6 +2172,8 @@
         'browser/tab_contents/test_web_contents.h',
         'common/ipc_test_sink.cc',
         'common/ipc_test_sink.h',
+        'renderer/mock_keyboard.h',
+        'renderer/mock_keyboard.cc',
         'renderer/mock_render_process.h',
         'renderer/mock_render_thread.cc',
         'renderer/mock_render_thread.h',
