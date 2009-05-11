@@ -1117,11 +1117,6 @@ void Browser::OpenClearBrowsingDataDialog() {
   window_->ShowClearBrowsingDataDialog();
 }
 
-void Browser::OpenImportSettingsDialog() {
-  UserMetrics::RecordAction(L"Import_ShowDlg", profile_);
-  window_->ShowImportDialog();
-}
-
 void Browser::OpenOptionsDialog() {
   UserMetrics::RecordAction(L"ShowOptions", profile_);
   ShowOptionsWindow(OPTIONS_PAGE_DEFAULT, OPTIONS_GROUP_NONE, profile_);
@@ -1134,6 +1129,13 @@ void Browser::OpenKeywordEditor() {
 
 void Browser::OpenPasswordManager() {
   window_->ShowPasswordManager();
+}
+#endif
+
+#if defined(OS_WIN) || defined(OS_LINUX)
+void Browser::OpenImportSettingsDialog() {
+  UserMetrics::RecordAction(L"Import_ShowDlg", profile_);
+  window_->ShowImportDialog();
 }
 #endif
 
@@ -1349,10 +1351,12 @@ void Browser::ExecuteCommandWithDisposition(
       Personalization::HandleMenuItemClick(profile());             break;
 #endif
     case IDC_CLEAR_BROWSING_DATA:   OpenClearBrowsingDataDialog(); break;
-    case IDC_IMPORT_SETTINGS:       OpenImportSettingsDialog();    break;
     case IDC_OPTIONS:               OpenOptionsDialog();           break;
     case IDC_EDIT_SEARCH_ENGINES:   OpenKeywordEditor();           break;
     case IDC_VIEW_PASSWORDS:        OpenPasswordManager();         break;
+#endif
+#if defined(OS_WIN) || defined(OS_LINUX)
+    case IDC_IMPORT_SETTINGS:       OpenImportSettingsDialog();    break;
 #endif
     case IDC_ABOUT:                 OpenAboutChromeDialog();       break;
     case IDC_HELP_PAGE:             OpenHelpTab();                 break;

@@ -52,8 +52,16 @@
 * ***** END LICENSE BLOCK ***** */
 
 // static
+#if defined(OS_LINUX)
+// TODO(rahulk): Even though this is called OLD_LOCK_FILE_NAME in Firefox code
+// http://www.google.com/codesearch/p?hl=en#e_ObwTAVPyo/profile/dirserviceprovider/src/nsProfileLock.cpp&l=433
+// this seems to work with Firefox 3.0.
+const FilePath::CharType* FirefoxProfileLock::kLockFileName =
+    FILE_PATH_LITERAL("lock");
+#else
 const FilePath::CharType* FirefoxProfileLock::kLockFileName =
     FILE_PATH_LITERAL("parent.lock");
+#endif
 
 FirefoxProfileLock::FirefoxProfileLock(const std::wstring& path) {
   Init();

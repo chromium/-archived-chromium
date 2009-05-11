@@ -931,6 +931,8 @@
         'browser/gtk/gtk_chrome_button.cc',
         'browser/gtk/gtk_chrome_button.h',
         'browser/gtk/hung_renderer_dialog_gtk.cc',
+        'browser/gtk/import_dialog_gtk.cc',
+        'browser/gtk/import_dialog_gtk.h',
         'browser/gtk/info_bubble_gtk.cc',
         'browser/gtk/info_bubble_gtk.h',
         'browser/gtk/infobar_container_gtk.cc',

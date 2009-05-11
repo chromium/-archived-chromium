@@ -372,10 +372,12 @@ class Browser : public TabStripModelDelegate,
   void ShowDownloadsTab();
 #if defined(OS_WIN)
   void OpenClearBrowsingDataDialog();
-  void OpenImportSettingsDialog();
   void OpenOptionsDialog();
   void OpenKeywordEditor();
   void OpenPasswordManager();
+#endif
+#if defined(OS_WIN) || defined(OS_LINUX)
+  void OpenImportSettingsDialog();
 #endif
   void OpenAboutChromeDialog();
   void OpenHelpTab();

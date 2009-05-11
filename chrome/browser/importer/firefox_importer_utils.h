@@ -6,6 +6,7 @@
 #define CHROME_BROWSER_IMPORTER_FIREFOX_IMPORTER_UTILS_H_
 
 #include "base/basictypes.h"
+#include "base/file_util.h"
 #include "base/values.h"
 #include "build/build_config.h"
 #include "webkit/glue/password_form.h"
@@ -13,17 +14,22 @@
 class GURL;
 class TemplateURL;
 
-// Detects which version of Firefox is installed. Returns its
+// Detects which version of Firefox is installed from registry. Returns its
 // major version, and drops the minor version. Returns 0 if
 // failed. If there are indicators of both FF2 and FF3 it is
 // biased to return the biggest version.
 int GetCurrentFirefoxMajorVersion();
 
-#if defined(OS_WIN)
+#if defined(OS_WIN) || defined(OS_LINUX)
+// Detects version of Firefox and installation path from given Firefox profile
+bool GetFirefoxVersionAndPathFromProfile(const std::wstring& profile_path,
+                                         int* version,
+                                         std::wstring* app_path);
+
 // Gets the full path of the profiles.ini file. This file records
 // the profiles that can be used by Firefox.  Returns an empty
 // string if failed.
-std::wstring GetProfilesINI();
+FilePath GetProfilesINI();
 
 // Parses the profile.ini file, and stores its information in |root|.
 // This file is a plain-text file. Key/value pairs are stored one per

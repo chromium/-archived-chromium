@@ -515,7 +515,7 @@ void ImporterHost::StartImportSettings(const ProfileInfo& profile_info,
     }
   }
 
-  #if defined(OS_WIN)
+#if defined(OS_WIN)
   // For google toolbar import, we need the user to log in and store their GAIA
   // credentials.
   if (profile_info.browser_type == GOOGLE_TOOLBAR5) {
@@ -677,26 +677,12 @@ void ImporterHost::DetectIEProfiles() {
 #endif
 
 void ImporterHost::DetectFirefoxProfiles() {
-  // Detects which version of Firefox is installed.
-  int version = GetCurrentFirefoxMajorVersion();
-  ProfileType firefox_type;
-  if (version == 2) {
-    firefox_type = FIREFOX2;
-  } else if (version == 3) {
-    firefox_type = FIREFOX3;
-  } else {
-    // Ignores other versions of firefox.
-    return;
-  }
-
-  DictionaryValue root;
-#if defined(OS_WIN)
-  std::wstring ini_file = GetProfilesINI();
-  ParseProfileINI(ini_file, &root);
-#else
-  // TODO(port): Do we need to concern ourselves with profiles on posix?
+#if defined(OS_MACOSX)
   NOTIMPLEMENTED();
-#endif
+#else
+  DictionaryValue root;
+  std::wstring ini_file = GetProfilesINI().ToWStringHack();
+  ParseProfileINI(ini_file, &root);
 
   std::wstring source_path;
   for (int i = 0; ; ++i) {
@@ -714,7 +700,6 @@ void ImporterHost::DetectFirefoxProfiles() {
           &path16, 0, ASCIIToUTF16("/"), ASCIIToUTF16("\\"));
       path.assign(UTF16ToWideHack(path16));
 
-#if defined(OS_WIN)
       // IsRelative=1 means the folder path would be relative to the
       // path of profiles.ini. IsRelative=0 refers to a custom profile
       // location.
@@ -724,7 +709,6 @@ void ImporterHost::DetectFirefoxProfiles() {
       } else {
         profile_path = path;
       }
-#endif
 
       // We only import the default profile when multiple profiles exist,
       // since the other profiles are used mostly by developers for testing.
@@ -740,16 +724,34 @@ void ImporterHost::DetectFirefoxProfiles() {
     }
   }
 
+  // Detects which version of Firefox is installed.
+  ProfileType firefox_type;
+  std::wstring app_path;
+  int version = GetCurrentFirefoxMajorVersion();
+  if (version != 2 && version != 3)
+    GetFirefoxVersionAndPathFromProfile(source_path, &version, &app_path);
+  if (version == 2) {
+    firefox_type = FIREFOX2;
+  } else if (version == 3) {
+    firefox_type = FIREFOX3;
+  } else {
+    // Ignores other versions of firefox.
+    return;
+  }
+
   if (!source_path.empty()) {
     ProfileInfo* firefox = new ProfileInfo();
     firefox->description = l10n_util::GetString(IDS_IMPORT_FROM_FIREFOX);
     firefox->browser_type = firefox_type;
     firefox->source_path = source_path;
     firefox->app_path = GetFirefoxInstallPath();
+    if (firefox->app_path.empty())
+      firefox->app_path = app_path;
     firefox->services_supported = HISTORY | FAVORITES | COOKIES | PASSWORDS |
         SEARCH_ENGINES;
     source_profiles_.push_back(firefox);
   }
+#endif
 }
 
 void ImporterHost::DetectGoogleToolbarProfiles() {

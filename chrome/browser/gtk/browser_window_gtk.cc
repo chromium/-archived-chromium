@@ -22,6 +22,7 @@
 #include "chrome/browser/gtk/bookmark_bar_gtk.h"
 #include "chrome/browser/gtk/browser_toolbar_gtk.h"
 #include "chrome/browser/gtk/go_button_gtk.h"
+#include "chrome/browser/gtk/import_dialog_gtk.h"
 #include "chrome/browser/gtk/infobar_container_gtk.h"
 #include "chrome/browser/gtk/find_bar_gtk.h"
 #include "chrome/browser/gtk/status_bubble_gtk.h"
@@ -565,7 +566,7 @@ void BrowserWindowGtk::ShowClearBrowsingDataDialog() {
 }
 
 void BrowserWindowGtk::ShowImportDialog() {
-  NOTIMPLEMENTED();
+  ImportDialogGtk::Show(window_, browser_->profile());
 }
 
 void BrowserWindowGtk::ShowSearchEnginesDialog() {

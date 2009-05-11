@@ -12,7 +12,6 @@
 #include "app/win_util.h"
 #include "base/registry.h"
 #endif
-#include "base/file_util.h"
 #include "base/logging.h"
 #include "base/string_util.h"
 #include "base/sys_string_conversions.h"
@@ -108,21 +107,61 @@ int GetCurrentFirefoxMajorVersion() {
 #endif
 }
 
+#if defined(OS_WIN) || defined(OS_LINUX)
+bool GetFirefoxVersionAndPathFromProfile(const std::wstring& profile_path,
+                                         int* version,
+                                         std::wstring* app_path) {
+  bool ret = false;
+  std::wstring compatibility_file(profile_path);
+  file_util::AppendToPath(&compatibility_file, L"compatibility.ini");
+  std::string content;
+  file_util::ReadFileToString(compatibility_file, &content);
+  ReplaceSubstringsAfterOffset(&content, 0, "\r\n", "\n");
+  std::vector<std::string> lines;
+  SplitString(content, '\n', &lines);
+
+  for (size_t i = 0; i < lines.size(); ++i) {
+    const std::string& line = lines[i];
+    if (line.empty() || line[0] == '#' || line[0] == ';')
+      continue;
+    size_t equal = line.find('=');
+    if (equal != std::string::npos) {
+      std::string key = line.substr(0, equal);
+      if (key == "LastVersion") {
+        *version = line.substr(equal + 1)[0] - '0';
+        ret = true;
+      } else if (key == "LastAppDir") {
+        *app_path = UTF8ToWide(line.substr(equal + 1));
+      }
+    }
+  }
+  return ret;
+}
+
+
+FilePath GetProfilesINI() {
+  FilePath ini_file;
 #if defined(OS_WIN)
-std::wstring GetProfilesINI() {
   // The default location of the profile folder containing user data is
   // under the "Application Data" folder in Windows XP.
-  std::wstring ini_file;
   wchar_t buffer[MAX_PATH] = {0};
   if (SUCCEEDED(SHGetFolderPath(NULL, CSIDL_APPDATA, NULL,
                                 SHGFP_TYPE_CURRENT, buffer))) {
-    ini_file = buffer;
-    file_util::AppendToPath(&ini_file, L"Mozilla\\Firefox\\profiles.ini");
+    ini_file = FilePath(buffer).Append(L"Mozilla\\Firefox\\profiles.ini");
   }
-  if (!file_util::PathExists(ini_file))
-    ini_file.clear();
 
-  return ini_file;
+#else
+  // The default location of the profile folder containing user data is
+  // under user HOME directory in .mozilla/firefox folder on Linux.
+  const char *home = getenv("HOME");
+  if (home && home[0]) {
+    ini_file = FilePath(home).Append(".mozilla/firefox/profiles.ini");
+  }
+#endif
+  if (file_util::PathExists(ini_file))
+    return ini_file;
+
+  return FilePath();
 }
 
 void ParseProfileINI(std::wstring file, DictionaryValue* root) {
