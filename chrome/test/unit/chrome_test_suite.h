@@ -11,7 +11,7 @@
 
 #include "app/resource_bundle.h"
 #include "base/stats_table.h"
-#include "base/file_path.h"
+#include "base/file_util.h"
 #if defined(OS_MACOSX)
 #include "base/mac_util.h"
 #endif
@@ -81,8 +81,10 @@ class ChromeTestSuite : public TestSuite {
         CommandLine::ForCurrentProcess()->GetSwitchValue(
             switches::kUserDataDir));
     if (user_data_dir.empty() &&
-      PathService::Get(base::DIR_EXE, &user_data_dir))
+        file_util::CreateNewTempDirectory(FILE_PATH_LITERAL("chrome_test_"),
+                                          &user_data_dir)) {
       user_data_dir = user_data_dir.AppendASCII("test_user_data");
+    }
     if (!user_data_dir.empty())
       PathService::Override(chrome::DIR_USER_DATA,
                             user_data_dir.ToWStringHack());
@@ -122,6 +124,13 @@ class ChromeTestSuite : public TestSuite {
     StatsTable::set_current(NULL);
     delete stats_table_;
 
+    // Delete the test_user_data dir recursively
+    FilePath user_data_dir;
+    if (PathService::Get(chrome::DIR_USER_DATA, &user_data_dir) &&
+        !user_data_dir.empty()) {
+      file_util::Delete(user_data_dir, true);
+      file_util::Delete(user_data_dir.DirName(), false);
+    }
     TestSuite::Shutdown();
   }
 
