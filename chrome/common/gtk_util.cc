@@ -66,7 +66,8 @@ GtkWidget* CreateGtkBorderBin(GtkWidget* child, const GdkColor* color,
   // use a container border, since it won't paint there.  Use an alignment
   // inside to get the sizes exactly of how we want the border painted.
   GtkWidget* ebox = gtk_event_box_new();
-  gtk_widget_modify_bg(ebox, GTK_STATE_NORMAL, color);
+  if (color)
+    gtk_widget_modify_bg(ebox, GTK_STATE_NORMAL, color);
   GtkWidget* alignment = gtk_alignment_new(0.0, 0.0, 1.0, 1.0);
   gtk_alignment_set_padding(GTK_ALIGNMENT(alignment), top, bottom, left, right);
   gtk_container_add(GTK_CONTAINER(alignment), child);

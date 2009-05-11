@@ -99,7 +99,7 @@ void FindBarGtk::InitWidgets() {
   // lateral position. We put that fixed in a SlideAnimatorGtk in order to get
   // the slide effect.
   GtkWidget* hbox = gtk_hbox_new(false, 0);
-  container_ = gfx::CreateGtkBorderBin(hbox, &kBackgroundColor,
+  container_ = gfx::CreateGtkBorderBin(hbox, NULL,
       kBarPaddingTopBottom, kBarPaddingTopBottom,
       kEntryPaddingLeft, kBarPaddingRight);
   gtk_widget_set_app_paintable(container_, TRUE);
