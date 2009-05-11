@@ -311,7 +311,6 @@ class HttpNetworkTransaction : public HttpTransaction {
   scoped_refptr<RequestHeaders> request_headers_;
   size_t request_headers_bytes_sent_;
   scoped_ptr<UploadDataStream> request_body_stream_;
-  scoped_refptr<IOBuffer> write_buffer_;
 
   // The read buffer may be larger than it is full.  The 'capacity' indicates
   // the allocation size of the buffer, and the 'len' indicates how much data

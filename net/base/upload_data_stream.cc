@@ -11,6 +11,7 @@ namespace net {
 
 UploadDataStream::UploadDataStream(const UploadData* data)
     : data_(data),
+      buf_(new IOBuffer(kBufSize)),
       buf_len_(0),
       next_element_(data->elements().begin()),
       next_element_offset_(0),
@@ -28,7 +29,7 @@ void UploadDataStream::DidConsume(size_t num_bytes) {
 
   buf_len_ -= num_bytes;
   if (buf_len_)
-    memmove(buf_, buf_ + num_bytes, buf_len_);
+    memmove(buf_->data(), buf_->data() + num_bytes, buf_len_);
 
   FillBuf();
 
@@ -51,7 +52,7 @@ void UploadDataStream::FillBuf() {
 
       size_t bytes_copied = std::min(count, size_remaining);
 
-      memcpy(buf_ + buf_len_, &d[next_element_offset_], bytes_copied);
+      memcpy(buf_->data() + buf_len_, &d[next_element_offset_], bytes_copied);
       buf_len_ += bytes_copied;
 
       if (bytes_copied == count) {
@@ -88,7 +89,8 @@ void UploadDataStream::FillBuf() {
       int count = static_cast<int>(std::min(
           static_cast<uint64>(size_remaining), next_element_remaining_));
       if (count > 0 &&
-          (rv = next_element_stream_.Read(buf_ + buf_len_, count, NULL)) > 0) {
+          (rv = next_element_stream_.Read(buf_->data() + buf_len_,
+                                          count, NULL)) > 0) {
         buf_len_ += rv;
         next_element_remaining_ -= rv;
       } else {

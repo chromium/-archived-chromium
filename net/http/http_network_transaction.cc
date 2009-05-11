@@ -746,19 +746,13 @@ int HttpNetworkTransaction::DoWriteBody() {
   DCHECK(request_body_stream_.get());
   DCHECK(request_body_stream_->size());
 
-  const char* buf = request_body_stream_->buf();
   int buf_len = static_cast<int>(request_body_stream_->buf_len());
-  DCHECK(!write_buffer_);
-  write_buffer_ = new IOBuffer(buf_len);
-  memcpy(write_buffer_->data(), buf, buf_len);
 
-  return connection_.socket()->Write(write_buffer_, buf_len, &io_callback_);
+  return connection_.socket()->Write(request_body_stream_->buf(), buf_len,
+                                     &io_callback_);
 }
 
 int HttpNetworkTransaction::DoWriteBodyComplete(int result) {
-  DCHECK(write_buffer_);
-  write_buffer_ = NULL;
-
   if (result < 0)
     return HandleIOError(result);
 
