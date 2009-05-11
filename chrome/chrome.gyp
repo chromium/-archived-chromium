@@ -1903,9 +1903,9 @@
           'conditions': [
             ['branding=="Chrome"', {
               'mac_bundle_resources': ['app/theme/google_chrome/app.icns'],
-              # "bundle_id" is the name of the variable used to replace
-              # BUNDLE_ID in Info.plist.
-              'variables': {'bundle_id': 'com.google.Chrome'},
+              'variables': {
+                'bundle_id': 'com.google.Chrome',
+              },
               # Only include breakpad in official builds.
               'dependencies': [
                 '../breakpad/breakpad.gyp:breakpad',
@@ -1918,7 +1918,9 @@
               ]
             }, {  # else: branding!="Chrome"
               'mac_bundle_resources': ['app/theme/chromium/app.icns'],
-              'variables': {'bundle_id': 'org.chromium.Chromium'},
+              'variables': {
+                'bundle_id': 'org.chromium.Chromium',
+              },
             }],
           ],
           'xcode_settings': {
@@ -1926,7 +1928,10 @@
             # to be replaced by a properly branded bundle ID in Xcode with
             # these settings.
             'INFOPLIST_PREPROCESS': 'YES',
-            'INFOPLIST_PREPROCESSOR_DEFINITIONS': ['BUNDLE_ID="<(bundle_id)"'],
+            'INFOPLIST_PREPROCESSOR_DEFINITIONS': [
+              'BUNDLE_ID="<(bundle_id)"',
+              'BUNDLE_NAME="<(branding)"'
+            ],
           },
         }, { # else: OS != "mac"
           'conditions': [
