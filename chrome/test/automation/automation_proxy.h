@@ -20,7 +20,6 @@
 #include "chrome/test/automation/automation_handle_tracker.h"
 #include "chrome/test/automation/automation_messages.h"
 
-class AutomationRequest;
 class BrowserProxy;
 class TabProxy;
 class WindowProxy;
@@ -172,11 +171,6 @@ class AutomationProxy : public IPC::Channel::Listener,
   virtual bool SendWithTimeout(IPC::Message* message, int timeout,
                                bool* is_timeout);
 
-  // Returns the current AutomationRequest object.
-  AutomationRequest* current_request() { return current_request_; }
-  // Clears the current AutomationRequest object.
-  void clear_current_request() { current_request_ = NULL; }
-
   // Wrapper over AutomationHandleTracker::InvalidateHandle. Receives the
   // message from AutomationProxy, unpacks the messages and routes that call to
   // the tracker.
@@ -229,8 +223,6 @@ class AutomationProxy : public IPC::Channel::Listener,
 
   // An event that notifies when we are shutting-down.
   scoped_ptr<base::WaitableEvent> shutdown_event_;
-
-  AutomationRequest* current_request_;
 
   // The version of the automation provider we are communicating with.
   std::string server_version_;

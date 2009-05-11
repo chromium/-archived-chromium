@@ -961,8 +961,7 @@ TEST_F(ExternalTabTestType, ExternalTabPostMessage) {
     tab->NavigateInExternalTab(GURL(content));
     EXPECT_TRUE(proxy->WaitForNavigationComplete(10000));
 
-    tab->HandleMessageFromExternalHost(tab->handle(), "Hello from gtest",
-                                       "null", "*");
+    tab->HandleMessageFromExternalHost("Hello from gtest", "null", "*");
 
     EXPECT_TRUE(ExternalTabHandler(external_tab_container, 10000));
     EXPECT_NE(0, proxy->messages_received());

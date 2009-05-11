@@ -255,8 +255,7 @@ class TabProxy : public AutomationResourceProxy {
                 SavePackage::SavePackageType type);
 
   // Posts a message to the external tab.
-  void HandleMessageFromExternalHost(AutomationHandle handle,
-                                     const std::string& message,
+  void HandleMessageFromExternalHost(const std::string& message,
                                      const std::string& origin,
                                      const std::string& target);
 

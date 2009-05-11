@@ -26,47 +26,6 @@
 using base::TimeDelta;
 using base::TimeTicks;
 
-// This class exists to group together the data and functionality used for
-// synchronous automation requests.
-class AutomationRequest
-    : public base::RefCountedThreadSafe<AutomationRequest> {
- public:
-  AutomationRequest() : received_response_(true, false) {
-    static int32 routing_id = 0;
-    routing_id_ = ++routing_id;
-  }
-
-  // This is called on the background thread once the response has been
-  // received and the foreground thread can resume execution.
-  void SignalResponseReady(const IPC::Message& response) {
-    response_.reset(new IPC::Message(response));
-
-    received_response_.Signal();
-  }
-
-  // This can be used to take ownership of the response object that
-  // we've received, reducing the need to copy the message.
-  void GrabResponse(IPC::Message** response) {
-    DCHECK(response);
-    *response = response_.get();
-    response_.release();
-  }
-
-  int32 routing_id() { return routing_id_; }
-
-  const IPC::Message& response() {
-    DCHECK(response_.get());
-    return *(response_.get());
-  }
-
- private:
-  int32 routing_id_;
-  scoped_ptr<IPC::Message> response_;
-  base::WaitableEvent received_response_;
-
-  DISALLOW_EVIL_CONSTRUCTORS(AutomationRequest);
-};
-
 namespace {
 
 // This object allows messages received on the background thread to be
@@ -78,28 +37,6 @@ class AutomationMessageFilter : public IPC::ChannelProxy::MessageFilter {
   // Return true to indicate that the message was handled, or false to let
   // the message be handled in the default way.
   virtual bool OnMessageReceived(const IPC::Message& message) {
-    {
-      // Here we're checking to see if it matches the (because there should
-      // be at most one) synchronous request.  If the received message is
-      // the response to the synchronous request, we clear the server's
-      // "current_request" pointer and signal to the request object that
-      // the response is ready for processing.  We're clearing current_request
-      // here rather than on the foreground thread so that we can assert
-      // that both threads perceive it as cleared at the time that the
-      // foreground thread wakes up.
-      scoped_refptr<AutomationRequest> request = server_->current_request();
-      if (request.get() && (message.routing_id() == request->routing_id())) {
-        server_->clear_current_request();
-        request->SignalResponseReady(message);
-        return true;
-      }
-      if (message.routing_id() > 0) {
-        // The message is either the previous async response or arrived
-        // after timeout.
-        return true;
-      }
-    }
-
     bool handled = true;
 
     IPC_BEGIN_MESSAGE_MAP(AutomationMessageFilter, message)
@@ -146,7 +83,6 @@ AutomationProxy::AutomationProxy(int command_execution_timeout_ms)
       initial_loads_complete_(true, false),
       new_tab_ui_load_complete_(true, false),
       shutdown_event_(new base::WaitableEvent(true, false)),
-      current_request_(NULL),
       app_launch_signaled_(0),
       perform_version_check_(false),
       command_execution_timeout_(
@@ -165,7 +101,6 @@ AutomationProxy::~AutomationProxy() {
   // AutomationMessageFilter::OnMessageReceived.
   channel_.reset();
   thread_.reset();
-  DCHECK(NULL == current_request_);
   tracker_.reset();
 }
 
