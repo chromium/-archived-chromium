@@ -442,8 +442,15 @@ void SafeBrowsingService::HandleOneCheck(
   if (check->client) {
     UrlCheckResult result = URL_SAFE;
     int index = safe_browsing_util::CompareFullHashes(check->url, full_hashes);
-    if (index != -1)
+    if (index != -1) {
       result = GetResultFromListname(full_hashes[index].list_name);
+    } else {
+      // Log the case where the SafeBrowsing servers return full hashes in the
+      // GetHash response that match the prefix we're looking up, but don't
+      // match the full hash of the URL.
+      if (!full_hashes.empty())
+        UMA_HISTOGRAM_COUNTS("SB2.GetHashServerMiss", 1);
+    }
 
     // Let the client continue handling the original request.
     check->client->OnUrlCheckResult(check->url, result);
