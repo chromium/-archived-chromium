@@ -85,6 +85,11 @@ static TestURLInfo test_db[] = {
 
   // Domain name with number.
   {"http://www.17173.com/", L"Domain with number", 3, 3, false},
+
+  // URLs to test exact-matching behavior.
+  {"http://go/", L"Intranet URL", 1, 1, false},
+  {"http://gooey/", L"Intranet URL 2", 5, 5, false},
+
 };
 
 class HistoryURLProviderTest : public testing::Test,
@@ -260,6 +265,20 @@ TEST_F(HistoryURLProviderTest, PromoteShorterURLs) {
   };
   RunTest(L"foo.com/dir/another/a", std::wstring(), true, short_4,
           arraysize(short_4));
+
+  // Exact matches should always be best no matter how much more another match
+  // has been typed.
+  const std::string short_5a[] = {
+    "http://gooey/",
+    "http://www.google.com/",
+  };
+  const std::string short_5b[] = {
+    "http://go/",
+    "http://gooey/",
+    "http://www.google.com/",
+  };
+  RunTest(L"g", std::wstring(), false, short_5a, arraysize(short_5a));
+  RunTest(L"go", std::wstring(), false, short_5b, arraysize(short_5b));
 }
 
 // Bookmarks have been moved out of the history db, resulting in this no longer

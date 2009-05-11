@@ -328,14 +328,15 @@ class HistoryURLProvider : public AutocompleteProvider {
   AutocompleteMatch SuggestExactInput(const AutocompleteInput& input,
                                       bool trim_http);
 
-  // Assumes |params| contains the "what you typed" suggestion created by
-  // SuggestExactInput().  Looks up its info in the DB.  If found, fills in the
+  // Given a |match| containing the "what you typed" suggestion created by
+  // SuggestExactInput(), looks up its info in the DB.  If found, fills in the
   // title from the DB, promotes the match's priority to that of an inline
   // autocomplete match (maybe it should be slightly better?), and places it on
-  // the front of |params|->matches (so we pick the right matches to throw away
+  // the front of |matches| (so we pick the right matches to throw away
   // when culling redirects to/from it).  Returns whether a match was promoted.
   bool FixupExactSuggestion(history::URLDatabase* db,
-                            HistoryURLProviderParams* params,
+                            const AutocompleteInput& input,
+                            AutocompleteMatch* match,
                             HistoryMatches* matches) const;
 
   // Determines if |match| is suitable for inline autocomplete, and promotes it

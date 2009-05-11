@@ -131,8 +131,7 @@ void HistoryURLProvider::ExecuteWithDB(history::HistoryBackend* backend,
 void HistoryURLProvider::DoAutocomplete(history::HistoryBackend* backend,
                                         history::URLDatabase* db,
                                         HistoryURLProviderParams* params) {
-  // For non-UNKNOWN input, create a What You Typed match, which we'll need
-  // below.
+  // Create a What You Typed match, which we'll need below.
   bool have_what_you_typed_match =
       params->input.canonicalized_url().is_valid() &&
       (params->input.type() != AutocompleteInput::UNKNOWN);
@@ -176,16 +175,23 @@ void HistoryURLProvider::DoAutocomplete(history::HistoryBackend* backend,
   // converting the rest of the matches.
   size_t first_match = 1;
   size_t exact_suggestion = 0;
-  if (params->input.prevent_inline_autocomplete() || history_matches.empty() ||
+  // Checking |is_history_what_you_typed_match| tells us whether
+  // SuggestExactInput() succeeded in constructing a valid match.
+  if (what_you_typed_match.is_history_what_you_typed_match &&
+      FixupExactSuggestion(db, params->input, &what_you_typed_match,
+                           &history_matches)) {
+    // Got an exact match for the user's input.  Treat is as the best match
+    // regardless of the input type.
+    exact_suggestion = 1;
+    params->matches.push_back(what_you_typed_match);
+  } else if (params->input.prevent_inline_autocomplete() ||
+      history_matches.empty() ||
       !PromoteMatchForInlineAutocomplete(params, history_matches.front())) {
-    // Failed to promote for inline autocompletion.  Use the What You Typed
-    // match, if we have it.
+    // Failed to promote any URLs for inline autocompletion.  Use the What You
+    // Typed match, if we have it and the input wasn't UNKNOWN.
     first_match = 0;
-    if (have_what_you_typed_match) {
+    if (have_what_you_typed_match)
       params->matches.push_back(what_you_typed_match);
-      if (FixupExactSuggestion(db, params, &history_matches))
-        first_match = exact_suggestion = 1;
-    }
   }
 
   // This is the end of the synchronous pass.
@@ -269,12 +275,11 @@ AutocompleteMatch HistoryURLProvider::SuggestExactInput(
 }
 
 bool HistoryURLProvider::FixupExactSuggestion(history::URLDatabase* db,
-                                              HistoryURLProviderParams* params,
+                                              const AutocompleteInput& input,
+                                              AutocompleteMatch* match,
                                               HistoryMatches* matches) const {
-  DCHECK(!params->matches.empty());
-
-  history::URLRow info;
-  AutocompleteMatch& match = params->matches.front();
+  DCHECK(match != NULL);
+  DCHECK(matches != NULL);
 
   // Tricky corner case: The user has visited intranet site "foo", but not
   // internet site "www.foo.com".  He types in foo (getting an exact match),
@@ -291,27 +296,24 @@ bool HistoryURLProvider::FixupExactSuggestion(history::URLDatabase* db,
   // * and the input _without_ the TLD _is_ in the history DB,
   // * ...then just before pressing "ctrl" the best match we supplied was the
   //   what-you-typed match, so stick with it by promoting this.
-  if (!db->GetRowForURL(match.destination_url, &info)) {
-    if (params->input.desired_tld().empty())
+  history::URLRow info;
+  if (!db->GetRowForURL(match->destination_url, &info)) {
+    if (input.desired_tld().empty())
       return false;
-    GURL destination_url(
-        URLFixerUpper::FixupURL(WideToUTF8(params->input.text()),
-        std::string()));
+    GURL destination_url(URLFixerUpper::FixupURL(WideToUTF8(input.text()),
+                                                 std::string()));
     if (!db->GetRowForURL(destination_url, &info))
       return false;
   } else {
     // We have data for this match, use it.
-    match.deletable = true;
-    match.description = info.title();
-    AutocompleteMatch::ClassifyMatchInString(params->input.text(),
-                                             info.title(),
-                                             ACMatchClassification::NONE,
-                                             &match.description_class);
+    match->deletable = true;
+    match->description = info.title();
+    AutocompleteMatch::ClassifyMatchInString(input.text(), info.title(),
+        ACMatchClassification::NONE, &match->description_class);
   }
 
   // Promote as an exact match.
-  match.relevance = CalculateRelevance(params->input.type(),
-                                       INLINE_AUTOCOMPLETE, 0);
+  match->relevance = CalculateRelevance(input.type(), INLINE_AUTOCOMPLETE, 0);
 
   // Put it on the front of the HistoryMatches for redirect culling.
   EnsureMatchPresent(info, std::wstring::npos, false, matches, true);
