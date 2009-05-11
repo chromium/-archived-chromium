@@ -152,9 +152,18 @@ std::string AboutHistograms(const std::string& query) {
 }
 
 std::string AboutLinuxSplash() {
+  int resource_id = IDR_LINUX_SPLASH_HTML_CHROMIUM;
+  scoped_ptr<FileVersionInfo> version_info(
+      FileVersionInfo::CreateFileVersionInfoForCurrentModule());
+  if (version_info == NULL) {
+    DLOG(ERROR) << "Unable to create FileVersionInfo object";
+  } else {
+    if (version_info->is_official_build()) {
+      resource_id = IDR_LINUX_SPLASH_HTML_CHROME;
+    }
+  }
   static const std::string linux_splash_html =
-      ResourceBundle::GetSharedInstance().GetDataResource(
-          IDR_LINUX_SPLASH_HTML);
+      ResourceBundle::GetSharedInstance().GetDataResource(resource_id);
 
   return linux_splash_html;
 }
