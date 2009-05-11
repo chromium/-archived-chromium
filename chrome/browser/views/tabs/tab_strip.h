@@ -104,8 +104,6 @@ class TabStrip : public views::View,
   virtual bool GetAccessibleName(std::wstring* name);
   virtual void SetAccessibleName(const std::wstring& name);
   virtual views::View* GetViewForPoint(const gfx::Point& point);
-  virtual views::View* GetViewForPoint(const gfx::Point& point,
-                                       bool can_create_floating);
 
  protected:
   // TabStripModelObserver implementation:

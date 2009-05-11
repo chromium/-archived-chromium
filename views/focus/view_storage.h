@@ -10,20 +10,14 @@
 
 // This class is a simple storage place for storing/retrieving views.  It is
 // used for example in the FocusManager to store/restore focused views when the
-// main window becomes active/inactive.  It supports floating views, meaning
-// that when you store a view, it can be retrieved even if it is a floating
-// view or the child of a floating view that has been detached since the view
-// was stored (in which case the floating view is recreated and reattached).
-// It also automatically removes a view from the storage if the view is removed
-// from the tree hierarchy (or in the case of a floating view, if the view
-// containing the floating view is removed).
+// main window becomes active/inactive.
+// It automatically removes a view from the storage if the view is removed from
+// the tree hierarchy.
 //
 // To use it, you first need to create a view storage id that can then be used
 // to store/retrieve views.
 
 namespace views {
-
-struct ViewLocationInfo;
 
 class ViewStorage {
  public:
@@ -63,9 +57,8 @@ class ViewStorage {
   // Next id for the view storage.
   int view_storage_next_id_;
 
-  // The association id to View used for the view storage.  The ViewStorage owns
-  // the ViewLocationInfo.
-  std::map<int, ViewLocationInfo*> id_to_view_location_;
+  // The association id to View used for the view storage.
+  std::map<int, View*> id_to_view_;
 
   // Association View to id, used to speed up view notification removal.
   std::map<View*, std::vector<int>*> view_to_ids_;
@@ -75,4 +68,4 @@ class ViewStorage {
 
 }  // namespace views
 
-#endif  // #ifndef VIEWS_FOCUS_VIEW_STORAGE_H_
+#endif  // VIEWS_FOCUS_VIEW_STORAGE_H_

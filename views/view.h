@@ -116,17 +116,6 @@ class DragController {
 /////////////////////////////////////////////////////////////////////////////
 class View : public AcceleratorTarget {
  public:
-
-  // Used in EnumerateFloatingViews() to specify which floating view to
-  // retrieve.
-  enum FloatingViewPosition {
-    FIRST = 0,
-    NEXT,
-    PREVIOUS,
-    LAST,
-    CURRENT
-  };
-
   // Used in the versions of GetBounds() and x() that take a transformation
   // parameter in order to determine whether or not to take into account the
   // mirroring setting of the View when returning bounds positions.
@@ -400,14 +389,6 @@ class View : public AcceleratorTarget {
   // Paint this View immediately.
   virtual void PaintNow();
 
-  // Paint a view without attaching it to this view hierarchy.
-  // Any view can be painted that way.
-  // This method set bounds, calls layout and handles clipping properly. The
-  // provided view can be attached to a parent. The parent will be saved and
-  // restored. (x, y, width, height) define the floating view bounds
-  void PaintFloatingView(ChromeCanvas* canvas, View* view,
-                         int x, int y, int w, int h);
-
   // Tree functions
 
   // Add a child View.
@@ -598,77 +579,6 @@ class View : public AcceleratorTarget {
   // Returns NULL if there are no children, or if none of the children has
   // accessibility focus.
   virtual View* GetAccFocusedChildView() { return NULL; }
-
-  // Floating views
-  //
-  // A floating view is a view that is used to paint a cell within a parent view
-  // Floating Views are painted using PaintFloatingView() above.
-  //
-  // Floating views can also be lazily created and attached to the view
-  // hierarchy to process events. To make this possible, each view is given an
-  // opportunity to create and attach a floating view right before an mouse
-  // event is processed.
-
-  // Retrieves the id for the floating view at the specified coordinates if any.
-  // Derived classes that use floating views should implement this method and
-  // return true if a view has been found and its id set in |id|.
-  virtual bool GetFloatingViewIDForPoint(int x, int y, int* id);
-
-  // Retrieves the ID of the floating view at the specified |position| and sets
-  // it in |id|.
-  // For positions NEXT and PREVIOUS, the specified |starting_id| is used as
-  // the origin, it is ignored for FIRST and LAST.
-  // Returns true if an ID was found, false otherwise.
-  // For CURRENT, the |starting_id| should be set in |id| and true returned if
-  // the |starting_id| is a valid floating view id.
-  // Derived classes that use floating views should implement this method and
-  // return a unique ID for each floating view.
-  // The default implementation always returns false.
-  virtual bool EnumerateFloatingViews(FloatingViewPosition position,
-                                      int starting_id,
-                                      int* id);
-
-  // Creates and attaches the floating view with the specified |id| to this view
-  // hierarchy and returns it.
-  // Derived classes that use floating views should implement this method.
-  //
-  // NOTE: subclasses implementing this should return NULL if passed an invalid
-  // id. An invalid ID may be passed in by the focus manager when attempting
-  // to restore focus.
-  virtual View* ValidateFloatingViewForID(int id);
-
-  // Whether the focus should automatically be restored to the last focused
-  // view. Default implementation returns true.
-  // Derived classes that want to restore focus themselves should override this
-  // method and return false.
-  virtual bool ShouldRestoreFloatingViewFocus();
-
-  // Attach a floating view to the receiving view. The view is inserted
-  // in the child view list and will behave like a normal view. |id| is the
-  // floating view id for that view.
-  void AttachFloatingView(View* v, int id);
-
-  // Return whether a view already has a floating view which bounds intersects
-  // the provided point.
-  //
-  // If the View uses right-to-left UI layout, then the given point is checked
-  // against the mirrored position of each floating View.
-  bool HasFloatingViewForPoint(int x, int y);
-
-  // Detach and delete all floating views. Call this method when your model
-  // or layout changes.
-  void DetachAllFloatingViews();
-
-  // Returns the view with the specified |id|, by calling
-  // ValidateFloatingViewForID if that view has not yet been attached.
-  virtual View* RetrieveFloatingViewForID(int id);
-
-  // Restores the focus to the previously selected floating view.
-  virtual void RestoreFloatingViewFocus();
-
-  // Goes up the parent hierarchy of this view and returns the first floating
-  // view found.  Returns NULL if none were found.
-  View* RetrieveFloatingViewParent();
 
   // Utility functions
 
@@ -1070,10 +980,6 @@ class View : public AcceleratorTarget {
   // Views must invoke this when the tooltip text they are to display changes.
   void TooltipTextChanged();
 
-  // Actual implementation of GetViewForPoint.
-  virtual View* GetViewForPoint(const gfx::Point& point,
-                                bool can_create_floating);
-
   // Sets whether this view wants notification when its visible bounds relative
   // to the root view changes. If true, this view is notified any time the
   // origin of one its ancestors changes, or the portion of the bounds not
@@ -1102,18 +1008,6 @@ class View : public AcceleratorTarget {
   // any).  In that case, OnKeyPressed will subsequently be invoked for that
   // event.
   virtual bool ShouldLookupAccelerators(const KeyEvent& e) { return true; }
-
-  // A convenience method for derived classes which have floating views with IDs
-  // that are consecutive numbers in an interval [|low_bound|, |high_bound|[.
-  // They can call this method in their EnumerateFloatingViews implementation.
-  // If |ascending_order| is true, the first id is |low_bound|, the next after
-  // id n is n + 1, and so on.  If |ascending_order| is false, the order is
-  // reversed, first id is |high_bound|, the next id after id n is n -1...
-  static bool EnumerateFloatingViewsForInterval(int low_bound, int high_bound,
-                                                bool ascending_order,
-                                                FloatingViewPosition position,
-                                                int starting_id,
-                                                int* id);
 
   // These are cover methods that invoke the method of the same name on
   // the DragController. Subclasses may wish to override rather than install
@@ -1177,10 +1071,6 @@ class View : public AcceleratorTarget {
   // WriteDragData to write the data and GetDragOperations to determine the
   // supported drag operations. When done, OnDragDone is invoked.
   void DoDrag(const MouseEvent& e, int press_x, int press_y);
-
-  // Adds a child View at the specified position. |floating_view| should be true
-  // if the |v| is a floating view.
-  void AddChildView(int index, View* v, bool floating_view);
 
   // Removes |view| from the hierarchy tree.  If |update_focus_cycle| is true,
   // the next and previous focusable views of views pointing to this view are
@@ -1253,26 +1143,6 @@ class View : public AcceleratorTarget {
   void RegisterAccelerators();
   void UnregisterAccelerators();
 
-  // Returns the number of children that are actually attached floating views.
-  int GetFloatingViewCount() const;
-
-  // Returns the id for this floating view.
-  int GetFloatingViewID();
-
-  // Returns whether this view is a floating view.
-  bool IsFloatingView();
-
-  // Sets in |path| the path in the view hierarchy from |start| to |end| (the
-  // path is the list of indexes in each view's children to get from |start|
-  // to |end|).
-  // Returns true if |start| and |view| are connected and the |path| has been
-  // retrieved succesfully, false otherwise.
-  static bool GetViewPath(View* start, View* end, std::vector<int>* path);
-
-  // Returns the view at the end of the specified |path|, starting at the
-  // |start| view.
-  static View* GetViewForPath(View* start, const std::vector<int>& path);
-
   // This View's bounds in the parent coordinate system.
   gfx::Rect bounds_;
 
@@ -1282,18 +1152,6 @@ class View : public AcceleratorTarget {
   // This view's children.
   typedef std::vector<View*> ViewList;
   ViewList child_views_;
-
-  // List of floating children. A floating view is always referenced by
-  // child_views_ and will be deleted on destruction just like any other
-  // child view.
-  ViewList floating_views_;
-
-  // Maps a floating view to its floating view id.
-  std::map<View*, int> floating_views_ids_;
-
-  // Whether we want the focus to be restored.  This is used to store/restore
-  // focus for floating views.
-  bool should_restore_focus_;
 
   // The View's LayoutManager defines the sizing heuristics applied to child
   // Views. The default is absolute positioning according to bounds_.
@@ -1329,10 +1187,6 @@ class View : public AcceleratorTarget {
 
   // The list of accelerators.
   scoped_ptr<std::vector<Accelerator> > accelerators_;
-
-  // The task used to restore automatically the focus to the last focused
-  // floating view.
-  RestoreFocusTask* restore_focus_view_task_;
 
   // The menu controller.
   ContextMenuController* context_menu_controller_;

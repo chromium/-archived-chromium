@@ -36,34 +36,6 @@ ViewsDelegate* ViewsDelegate::views_delegate = NULL;
 // static
 char View::kViewClassName[] = "views/View";
 
-////////////////////////////////////////////////////////////////////////////////
-//
-// A task used to automatically restore focus on the last focused floating view
-//
-////////////////////////////////////////////////////////////////////////////////
-
-class RestoreFocusTask : public Task {
- public:
-  explicit RestoreFocusTask(View* target) : view_(target) {
-  }
-
-  ~RestoreFocusTask() {}
-
-  void Cancel() {
-    view_ = NULL;
-  }
-
-  void Run() {
-    if (view_)
-      view_->RestoreFloatingViewFocus();
-  }
- private:
-  // The target view.
-  View* view_;
-
-  DISALLOW_COPY_AND_ASSIGN(RestoreFocusTask);
-};
-
 /////////////////////////////////////////////////////////////////////////////
 //
 // View - constructors, destructors, initialization
@@ -77,14 +49,12 @@ View::View()
       focusable_(false),
       bounds_(0, 0, 0, 0),
       parent_(NULL),
-      should_restore_focus_(false),
       is_visible_(true),
       is_parent_owned_(true),
       notify_when_visible_bounds_in_root_changes_(false),
       registered_for_visible_bounds_notification_(false),
       next_focusable_view_(NULL),
       previous_focusable_view_(NULL),
-      restore_focus_view_task_(NULL),
       context_menu_controller_(NULL),
 #if defined(OS_WIN)
       accessibility_(NULL),
@@ -95,9 +65,6 @@ View::View()
 }
 
 View::~View() {
-  if (restore_focus_view_task_)
-    restore_focus_view_task_->Cancel();
-
   int c = static_cast<int>(child_views_.size());
   while (--c >= 0) {
     if (child_views_[c]->IsParentOwned())
@@ -423,23 +390,6 @@ void View::PaintNow() {
     view->PaintNow();
 }
 
-void View::PaintFloatingView(ChromeCanvas* canvas, View* view,
-                             int x, int y, int w, int h) {
-  if (should_restore_focus_ && ShouldRestoreFloatingViewFocus()) {
-    // We are painting again a floating view, this is a good time to restore the
-    // focus to the last focused floating view if any.
-    should_restore_focus_ = false;
-    restore_focus_view_task_ = new RestoreFocusTask(this);
-    MessageLoop::current()->PostTask(FROM_HERE, restore_focus_view_task_);
-  }
-  View* saved_parent = view->GetParent();
-  view->SetParent(this);
-  view->SetBounds(x, y, w, h);
-  view->Layout();
-  view->ProcessPaint(canvas);
-  view->SetParent(saved_parent);
-}
-
 gfx::Insets View::GetInsets() const {
   gfx::Insets insets;
   if (border_.get())
@@ -521,22 +471,16 @@ void View::ProcessMouseReleased(const MouseEvent& e, bool canceled) {
 }
 
 void View::AddChildView(View* v) {
-  AddChildView(static_cast<int>(child_views_.size()), v, false);
+  AddChildView(static_cast<int>(child_views_.size()), v);
 }
 
 void View::AddChildView(int index, View* v) {
-  AddChildView(index, v, false);
-}
-
-void View::AddChildView(int index, View* v, bool floating_view) {
   // Remove the view from its current parent if any.
   if (v->GetParent())
     v->GetParent()->RemoveChildView(v);
 
-  if (!floating_view) {
-    // Sets the prev/next focus views.
-    InitFocusSiblings(v, index);
-  }
+  // Sets the prev/next focus views.
+  InitFocusSiblings(v, index);
 
   // Let's insert the view.
   child_views_.insert(child_views_.begin() + index, v);
@@ -589,7 +533,7 @@ void View::DoRemoveChildView(View* a_view,
                                      child_views_.end(),
                                      a_view);
   if (i != child_views_.end()) {
-    if (update_focus_cycle && !a_view->IsFloatingView()) {
+    if (update_focus_cycle) {
       // Let's remove the view from the focus traversal.
       View* next_focusable = a_view->next_focusable_view_;
       View* prev_focusable = a_view->previous_focusable_view_;
@@ -700,10 +644,6 @@ void View::PropagateVisibilityNotifications(View* start, bool is_visible) {
 void View::VisibilityChanged(View* starting_from, bool is_visible) {
 }
 
-View* View::GetViewForPoint(const gfx::Point& point) {
-  return GetViewForPoint(point, true);
-}
-
 void View::SetNotifyWhenVisibleBoundsInRootChanges(bool value) {
   if (notify_when_visible_bounds_in_root_changes_ == value)
     return;
@@ -721,8 +661,7 @@ bool View::GetNotifyWhenVisibleBoundsInRootChanges() {
   return notify_when_visible_bounds_in_root_changes_;
 }
 
-View* View::GetViewForPoint(const gfx::Point& point,
-                            bool can_create_floating) {
+View* View::GetViewForPoint(const gfx::Point& point) {
   // Walk the child Views recursively looking for the View that most
   // tightly encloses the specified point.
   for (int i = GetChildViewCount() - 1 ; i >= 0 ; --i) {
@@ -733,19 +672,7 @@ View* View::GetViewForPoint(const gfx::Point& point,
     gfx::Point point_in_child_coords(point);
     View::ConvertPointToView(this, child, &point_in_child_coords);
     if (child->HitTest(point_in_child_coords))
-      return child->GetViewForPoint(point_in_child_coords, true);
-  }
-
-  // We haven't found a view for the point. Try to create floating views
-  // and try again if one was created.
-  // can_create_floating makes sure we don't try forever even if
-  // GetFloatingViewIDForPoint lies or if RetrieveFloatingViewForID creates a
-  // view which doesn't contain the provided point
-  int id;
-  if (can_create_floating &&
-      GetFloatingViewIDForPoint(point.x(), point.y(), &id)) {
-    RetrieveFloatingViewForID(id);  // This creates the floating view.
-    return GetViewForPoint(point, false);
+      return child->GetViewForPoint(point_in_child_coords);
   }
   return this;
 }
@@ -1056,44 +983,6 @@ void View::UnregisterAccelerators() {
   }
 }
 
-/////////////////////////////////////////////////////////////////////////////
-//
-// View - floating views
-//
-/////////////////////////////////////////////////////////////////////////////
-
-bool View::IsFloatingView() {
-  if (!parent_)
-    return false;
-
-  return parent_->floating_views_ids_.find(this) !=
-      parent_->floating_views_ids_.end();
-}
-
-// default implementation does nothing
-bool View::GetFloatingViewIDForPoint(int x, int y, int* id) {
-  return false;
-}
-
-int View::GetFloatingViewCount() const {
-  return static_cast<int>(floating_views_.size());
-}
-
-View* View::RetrieveFloatingViewParent() {
-  View* v = this;
-  while (v) {
-    if (v->IsFloatingView())
-      return v;
-    v = v->GetParent();
-  }
-  return NULL;
-}
-
-bool View::EnumerateFloatingViews(FloatingViewPosition position,
-                                  int starting_id, int* id) {
-    return false;
-}
-
 int View::GetDragOperations(int press_x, int press_y) {
   if (!drag_controller_)
     return DragDropTypes::DRAG_NONE;
@@ -1111,158 +1000,6 @@ void View::OnDragDone() {
 bool View::InDrag() {
   RootView* root_view = GetRootView();
   return root_view ? (root_view->GetDragView() == this) : false;
-}
-
-View* View::ValidateFloatingViewForID(int id) {
-  return NULL;
-}
-
-bool View::ShouldRestoreFloatingViewFocus() {
-  return true;
-}
-
-void View::AttachFloatingView(View* v, int id) {
-  floating_views_.push_back(v);
-  floating_views_ids_[v] = id;
-  AddChildView(static_cast<int>(child_views_.size()), v, true);
-}
-
-bool View::HasFloatingViewForPoint(int x, int y) {
-  int i, c;
-  View* v;
-  gfx::Rect r;
-
-  for (i = 0, c = static_cast<int>(floating_views_.size()); i < c; ++i) {
-    v = floating_views_[i];
-    r.SetRect(v->GetX(APPLY_MIRRORING_TRANSFORMATION), v->y(),
-              v->width(), v->height());
-    if (r.Contains(x, y))
-      return true;
-  }
-  return false;
-}
-
-void View::DetachAllFloatingViews() {
-  RootView* root_view = GetRootView();
-  View* focused_view = NULL;
-  FocusManager* focus_manager = NULL;
-  if (root_view) {
-    // We may be called when we are not attached to a root view in which case
-    // there is nothing to do for focus.
-    focus_manager = GetFocusManager();
-    if (focus_manager) {
-      // We may not have a focus manager (if we are detached from a top window).
-      focused_view = focus_manager->GetFocusedView();
-    }
-  }
-
-  int c = static_cast<int>(floating_views_.size());
-  while (--c >= 0) {
-    // If the focused view is a floating view or a floating view's children,
-    // use the focus manager to store it.
-    int tmp_id;
-    if (focused_view &&
-        ((focused_view == floating_views_[c]) ||
-          floating_views_[c]->IsParentOf(focused_view))) {
-      // We call EnumerateFloatingView to make sure the floating view is still
-      // valid: the model may have changed and could not know anything about
-      // that floating view anymore.
-      if (EnumerateFloatingViews(CURRENT,
-                                 floating_views_[c]->GetFloatingViewID(),
-                                 &tmp_id)) {
-        // TODO(port): Fix this once we have a FocusManger for Linux.
-#if defined(OS_WIN)
-        focus_manager->StoreFocusedView();
-#endif
-        should_restore_focus_ = true;
-      }
-      focused_view = NULL;
-    }
-
-    RemoveChildView(floating_views_[c]);
-    delete floating_views_[c];
-  }
-  floating_views_.clear();
-  floating_views_ids_.clear();
-}
-
-int View::GetFloatingViewID() {
-  DCHECK(IsFloatingView());
-  std::map<View*, int>::iterator iter = parent_->floating_views_ids_.find(this);
-  DCHECK(iter != parent_->floating_views_ids_.end());
-  return iter->second;
-}
-
-View* View::RetrieveFloatingViewForID(int id) {
-  for (ViewList::const_iterator iter = floating_views_.begin();
-       iter != floating_views_.end(); ++iter) {
-    if ((*iter)->GetFloatingViewID() == id)
-      return *iter;
-  }
-  return ValidateFloatingViewForID(id);
-}
-
-void View::RestoreFloatingViewFocus() {
-  // Clear the reference to the task as if we have been triggered by it, it will
-  // soon be invalid.
-  restore_focus_view_task_ = NULL;
-  should_restore_focus_ = false;
-
-  // TODO(port): Fix this once we have a FocusManger for Linux.
-#if defined(OS_WIN)
-  FocusManager* focus_manager = GetFocusManager();
-  DCHECK(focus_manager);
-  if (focus_manager)
-    focus_manager->RestoreFocusedView();
-#endif
-}
-
-// static
-bool View::EnumerateFloatingViewsForInterval(int low_bound, int high_bound,
-                                             bool ascending_order,
-                                             FloatingViewPosition position,
-                                             int starting_id,
-                                             int* id) {
-  DCHECK(low_bound <= high_bound);
-  if (low_bound >= high_bound)
-    return false;
-
-  switch (position) {
-    case CURRENT:
-      if ((starting_id >= low_bound) && (starting_id < high_bound)) {
-        *id = starting_id;
-        return true;
-      }
-      return false;
-    case FIRST:
-      *id = ascending_order ? low_bound : high_bound - 1;
-      return true;
-    case LAST:
-      *id = ascending_order ? high_bound - 1 : low_bound;
-      return true;
-    case NEXT:
-    case PREVIOUS:
-      if (((position == NEXT) && ascending_order) ||
-          ((position == PREVIOUS) && !ascending_order)) {
-        starting_id++;
-        if (starting_id < high_bound) {
-          *id = starting_id;
-          return true;
-        }
-        return false;
-      }
-      DCHECK(((position == NEXT) && !ascending_order) ||
-             ((position == PREVIOUS) && ascending_order));
-      starting_id--;
-      if (starting_id >= low_bound) {
-        *id = starting_id;
-        return true;
-      }
-      return false;
-    default:
-      NOTREACHED();
-  }
-  return false;
 }
 
 // static
@@ -1614,31 +1351,6 @@ void View::RemoveDescendantToNotify(View* view) {
   descendants_to_notify_->erase(i);
   if (descendants_to_notify_->empty())
     descendants_to_notify_.reset();
-}
-
-// static
-bool View::GetViewPath(View* start, View* end, std::vector<int>* path) {
-  while (end && (end != start)) {
-    View* parent = end->GetParent();
-    if (!parent)
-      return false;
-    path->insert(path->begin(), parent->GetChildIndex(end));
-    end = parent;
-  }
-  return end == start;
-}
-
-// static
-View* View::GetViewForPath(View* start, const std::vector<int>& path) {
-  View* v = start;
-  for (std::vector<int>::const_iterator iter = path.begin();
-       iter != path.end(); ++iter) {
-    int index = *iter;
-    if (index >= v->GetChildViewCount())
-      return NULL;
-    v = v->GetChildViewAt(index);
-  }
-  return v;
 }
 
 // DropInfo --------------------------------------------------------------------

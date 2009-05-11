@@ -176,11 +176,6 @@ void NonClientView::ViewHierarchyChanged(bool is_add, View* parent,
 }
 
 views::View* NonClientView::GetViewForPoint(const gfx::Point& point) {
-  return GetViewForPoint(point, false);
-}
-
-views::View* NonClientView::GetViewForPoint(const gfx::Point& point,
-                                            bool can_create_floating) {
   // Because of the z-ordering of our child views (the client view is positioned
   // over the non-client frame view, if the client view ever overlaps the frame
   // view visually (as it does for the browser window), then it will eat mouse
@@ -193,7 +188,7 @@ views::View* NonClientView::GetViewForPoint(const gfx::Point& point,
   if (frame_view_->HitTest(point_in_child_coords))
     return frame_view_->GetViewForPoint(point);
 
-  return View::GetViewForPoint(point, can_create_floating);
+  return View::GetViewForPoint(point);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -657,56 +657,19 @@ View* RootView::FindNextFocusableViewImpl(View* starting_view,
 
   // First let's try the left child.
   if (can_go_down) {
-    View* v = NULL;
     if (starting_view->GetChildViewCount() > 0) {
-      // We are only interested in non floating-views, as attached floating
-      // views order is variable (depending on mouse moves).
-      for (int i = 0; i < starting_view->GetChildViewCount(); i++) {
-        View* child = starting_view->GetChildViewAt(i);
-        if (!child->IsFloatingView()) {
-          v = FindNextFocusableViewImpl(child, false, false, true,
-                                        skip_group_id);
-          break;
-        }
-      }
+      View* v = FindNextFocusableViewImpl(starting_view->GetChildViewAt(0),
+                                          false, false, true, skip_group_id);
+      if (v)
+        return v;
     }
-    if (v == NULL) {
-      // Try the floating views.
-      int id = 0;
-      if (starting_view->EnumerateFloatingViews(View::FIRST, 0, &id)) {
-        View* child = starting_view->RetrieveFloatingViewForID(id);
-        DCHECK(child);
-        v = FindNextFocusableViewImpl(child, false, false, true, skip_group_id);
-      }
-    }
-    if (v)
-      return v;
   }
 
   // Then try the right sibling.
-  View* sibling = NULL;
-  if (starting_view->IsFloatingView()) {
-    int id = 0;
-    if (starting_view->GetParent()->EnumerateFloatingViews(
-        View::NEXT, starting_view->GetFloatingViewID(), &id)) {
-      sibling = starting_view->GetParent()->RetrieveFloatingViewForID(id);
-      DCHECK(sibling);
-    }
-  } else {
-    sibling = starting_view->GetNextFocusableView();
-    if (!sibling) {
-      // Let's try floating views.
-      int id = 0;
-      if (starting_view->GetParent()->EnumerateFloatingViews(View::FIRST,
-                                                             0, &id)) {
-        sibling = starting_view->GetParent()->RetrieveFloatingViewForID(id);
-        DCHECK(sibling);
-      }
-    }
-  }
+  View* sibling = starting_view->GetNextFocusableView();
   if (sibling) {
-    View* v =
-        FindNextFocusableViewImpl(sibling, false, false, true, skip_group_id);
+    View* v = FindNextFocusableViewImpl(sibling,
+                                        false, false, true, skip_group_id);
     if (v)
       return v;
   }
@@ -715,15 +678,7 @@ View* RootView::FindNextFocusableViewImpl(View* starting_view,
   if (can_go_up) {
     View* parent = starting_view->GetParent();
     while (parent) {
-      int id = 0;
-      if (parent->IsFloatingView() &&
-          parent->GetParent()->EnumerateFloatingViews(
-                View::NEXT, parent->GetFloatingViewID(), &id)) {
-        sibling = parent->GetParent()->RetrieveFloatingViewForID(id);
-        DCHECK(sibling);
-      } else {
-        sibling = parent->GetNextFocusableView();
-      }
+      sibling = parent->GetNextFocusableView();
       if (sibling) {
         return FindNextFocusableViewImpl(sibling,
                                          false, true, true,
@@ -750,24 +705,14 @@ View* RootView::FindPreviousFocusableViewImpl(View* starting_view,
                                               int skip_group_id) {
   // Let's go down and right as much as we can.
   if (can_go_down) {
-    View* v = NULL;
-    if (starting_view->GetChildViewCount() -
-        starting_view->GetFloatingViewCount() > 0) {
+    if (starting_view->GetChildViewCount() > 0) {
       View* view =
           starting_view->GetChildViewAt(starting_view->GetChildViewCount() - 1);
-      v = FindPreviousFocusableViewImpl(view, false, false, true,
-                                        skip_group_id);
-    } else {
-      // Let's try floating views.
-      int id = 0;
-      if (starting_view->EnumerateFloatingViews(View::LAST, 0, &id)) {
-        View* child = starting_view->RetrieveFloatingViewForID(id);
-        DCHECK(child);
-        v = FindNextFocusableViewImpl(child, false, false, true, skip_group_id);
-      }
+      View* v = FindPreviousFocusableViewImpl(view, false, false, true,
+                                              skip_group_id);
+      if (v)
+        return v;
     }
-    if (v)
-      return v;
   }
 
   if (!skip_starting_view) {
@@ -778,28 +723,7 @@ View* RootView::FindPreviousFocusableViewImpl(View* starting_view,
   }
 
   // Then try the left sibling.
-  View* sibling = NULL;
-  if (starting_view->IsFloatingView()) {
-    int id = 0;
-    if (starting_view->GetParent()->EnumerateFloatingViews(
-        View::PREVIOUS, starting_view->GetFloatingViewID(), &id)) {
-      sibling = starting_view->GetParent()->RetrieveFloatingViewForID(id);
-      DCHECK(sibling);
-    }
-    if (!sibling) {
-      // No more floating views, try regular views, starting at the last one.
-      View* parent = starting_view->GetParent();
-      for (int i = parent->GetChildViewCount() - 1; i >= 0; i--) {
-        View* v = parent->GetChildViewAt(i);
-        if (!v->IsFloatingView()) {
-          sibling = v;
-          break;
-        }
-      }
-    }
-  } else {
-    sibling = starting_view->GetPreviousFocusableView();
-  }
+  View* sibling = starting_view->GetPreviousFocusableView();
   if (sibling) {
     return FindPreviousFocusableViewImpl(sibling,
                                          false, true, true,

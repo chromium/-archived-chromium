@@ -731,14 +731,9 @@ void TabStrip::SetAccessibleName(const std::wstring& name) {
 }
 
 views::View* TabStrip::GetViewForPoint(const gfx::Point& point) {
-  return GetViewForPoint(point, false);
-}
-
-views::View* TabStrip::GetViewForPoint(const gfx::Point& point,
-                                       bool can_create_floating) {
   // Return any view that isn't a Tab or this TabStrip immediately. We don't
   // want to interfere.
-  views::View* v = View::GetViewForPoint(point, can_create_floating);
+  views::View* v = View::GetViewForPoint(point);
   if (v && v != this && v->GetClassName() != Tab::kTabClassName)
     return v;
 

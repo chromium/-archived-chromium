@@ -199,8 +199,6 @@ class NonClientView : public View {
   // NonClientView, View overrides:
   virtual void ViewHierarchyChanged(bool is_add, View* parent, View* child);
   virtual views::View* GetViewForPoint(const gfx::Point& point);
-  virtual views::View* GetViewForPoint(const gfx::Point& point,
-                                       bool can_create_floating);
 
  private:
   // The frame that hosts this NonClientView.
