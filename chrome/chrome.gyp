@@ -2499,6 +2499,7 @@
         'app/breakpad_mac_stubs.mm',
         # All unittests in browser, common, and renderer.
         'browser/autocomplete/autocomplete_unittest.cc',
+        'browser/autocomplete/autocomplete_popup_view_mac_unittest.mm',
         'browser/autocomplete/history_contents_provider_unittest.cc',
         'browser/autocomplete/history_url_provider_unittest.cc',
         'browser/autocomplete/keyword_provider_unittest.cc',

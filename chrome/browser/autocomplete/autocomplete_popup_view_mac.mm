@@ -22,6 +22,30 @@ NSColor* HoveredBackgroundColor() {
   return [NSColor controlColor];
 }
 
+// TODO(shess): These are totally unprincipled.  I experimented with
+// +controlTextColor and the like, but found myself wondering whether
+// that was really appropriate.  Circle back after consulting with
+// someone more knowledgeable about the ins and outs of this.
+static const NSColor* ContentTextColor() {
+  return [NSColor blackColor];
+}
+static const NSColor* URLTextColor() {
+  return [NSColor colorWithCalibratedRed:0.0 green:0.55 blue:0.0 alpha:1.0];
+}
+static const NSColor* DescriptionTextColor() {
+  return [NSColor darkGrayColor];
+}
+
+// TODO(shess): As with colors, there are a dozen ways to phrase this,
+// all of them probably wrong.  Circle back with a ui-oriented
+// resource later.
+static const NSFont* NormalFont() {
+  return [NSFont userFontOfSize:12];
+}
+static const NSFont* BoldFont() {
+  return [NSFont boldSystemFontOfSize:12];
+}
+
 // Return the appropriate icon for the given match.  Derived from the
 // gtk code.
 NSImage* MatchIcon(const AutocompleteMatch& match) {
@@ -57,23 +81,86 @@ NSImage* MatchIcon(const AutocompleteMatch& match) {
   return nil;
 }
 
-// Return the text to show for the match, based on the match's
-// contents and description.
-// TODO(shess): Style the runs within the text.
-NSString* MatchText(const AutocompleteMatch& match) {
-  NSString* s = base::SysWideToNSString(match.contents);
+}  // namespace
 
-  if (!match.description.empty()) {
-    NSString* description = base::SysWideToNSString(match.description);
+// Helper for MatchText() to allow sharing code between the contents
+// and description cases.  Returns NSMutableAttributedString as a
+// convenience for MatchText().
+NSMutableAttributedString* AutocompletePopupViewMac::DecorateMatchedString(
+    const std::wstring &matchString,
+    const AutocompleteMatch::ACMatchClassifications &classifications,
+    NSColor* textColor) {
 
-    // Append an em dash (U-2014) and description.
-    s = [s stringByAppendingFormat:@" %C %@", 0x2014, description];
+  // Start out with a string using the default style info.
+  NSString* s = base::SysWideToNSString(matchString);
+  NSDictionary* attributes = [NSDictionary dictionaryWithObjectsAndKeys:
+                                  NormalFont(), NSFontAttributeName,
+                                  textColor, NSForegroundColorAttributeName,
+                                  nil];
+  NSMutableAttributedString* as =
+      [[[NSMutableAttributedString alloc] initWithString:s
+                                              attributes:attributes]
+        autorelease];
+
+  // Mark up the runs which differ from the default.
+  for (ACMatchClassifications::const_iterator i = classifications.begin();
+       i != classifications.end(); ++i) {
+    const BOOL isLast = (i+1) == classifications.end();
+    const size_t nextOffset = (isLast ? matchString.length() : (i+1)->offset);
+    const NSInteger location = static_cast<NSInteger>(i->offset);
+    const NSInteger length = static_cast<NSInteger>(nextOffset - i->offset);
+    const NSRange range = NSMakeRange(location, length);
+
+    if (0 != (i->style & ACMatchClassification::URL)) {
+      [as addAttribute:NSForegroundColorAttributeName
+                 value:URLTextColor() range:range];
+    }
+
+    if (0 != (i->style & ACMatchClassification::MATCH)) {
+      [as addAttribute:NSFontAttributeName value:BoldFont() range:range];
+    }
   }
 
-  return s;
+  return as;
 }
 
-}  // namespace
+// Return the text to show for the match, based on the match's
+// contents and description.
+NSMutableAttributedString* AutocompletePopupViewMac::MatchText(
+    const AutocompleteMatch& match) {
+  NSMutableAttributedString *as =
+      DecorateMatchedString(match.contents, match.contents_class,
+                            ContentTextColor());
+
+  // If there is a description, append it, separated from the contents
+  // with an em dash, and decorated with a distinct color.
+  if (!match.description.empty()) {
+    NSDictionary* attributes =
+        [NSDictionary dictionaryWithObjectsAndKeys:
+             NormalFont(), NSFontAttributeName,
+             ContentTextColor(), NSForegroundColorAttributeName,
+             nil];
+    NSString* rawEmDash = [NSString stringWithFormat:@" %C ", 0x2014];
+    NSAttributedString* emDash =
+        [[[NSAttributedString alloc] initWithString:rawEmDash
+                                         attributes:attributes] autorelease];
+ 
+    NSAttributedString* description =
+        DecorateMatchedString(match.description, match.description_class,
+                              DescriptionTextColor());
+ 
+    [as appendAttributedString:emDash];
+    [as appendAttributedString:description];
+  }
+
+  NSMutableParagraphStyle* style =
+      [[[NSMutableParagraphStyle alloc] init] autorelease];
+  [style setLineBreakMode:NSLineBreakByTruncatingTail];
+  [as addAttribute:NSParagraphStyleAttributeName value:style
+             range:NSMakeRange(0, [as length])];
+
+  return as;
+}
 
 // AutocompleteButtonCell overrides how backgrounds are displayed to
 // handle hover versus selected.  So long as we're in there, it also
@@ -199,7 +286,7 @@ void AutocompletePopupViewMac::UpdatePopupAppearance() {
     AutocompleteButtonCell* cell = [matrix cellAtRow:ii column:0];
     const AutocompleteMatch& match = model_->result().match_at(ii);
     [cell setImage:MatchIcon(match)];
-    [cell setTitle:MatchText(match)];
+    [cell setAttributedTitle:MatchText(match)];
   }
 
   // Update the selection.

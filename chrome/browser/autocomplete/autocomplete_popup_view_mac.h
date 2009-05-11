@@ -70,6 +70,18 @@ class AutocompletePopupViewMac : public AutocompletePopupView {
   // helper object.
   void AcceptInput();
 
+  // Return the text to show for the match, based on the match's
+  // contents and description.
+  static NSMutableAttributedString* MatchText(const AutocompleteMatch& match);
+
+  // Helper for MatchText() to allow sharing code between the contents
+  // and description cases.  Returns NSMutableAttributedString as a
+  // convenience for MatchText().
+  static NSMutableAttributedString* DecorateMatchedString(
+      const std::wstring &matchString,
+      const AutocompleteMatch::ACMatchClassifications &classifications,
+      NSColor* textColor);
+
  private:
   // Create the popup_ instance if needed.
   void CreatePopupIfNeeded();
