@@ -21,4 +21,6 @@ dependents_google_chrome = [
 ]
 
 delay_loaded = [
+  'OLE32.dll',
+  'OLEAUT32.dll',
 ]
