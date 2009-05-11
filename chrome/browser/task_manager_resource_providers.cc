@@ -4,6 +4,12 @@
 
 #include "chrome/browser/task_manager_resource_providers.h"
 
+#include "build/build_config.h"
+
+#if defined(OS_WIN)
+#include <atlbase.h>
+#endif  // defined(OS_WIN)
+
 #if defined(OS_WIN)
 #include "app/gfx/icon_util.h"
 #endif  // defined(OS_WIN)
