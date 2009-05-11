@@ -18,16 +18,17 @@ FtpNetworkLayer::FtpNetworkLayer()
 FtpNetworkLayer::~FtpNetworkLayer() {
 }
 
+// static
+FtpTransactionFactory* FtpNetworkLayer::CreateFactory() {
+  return new FtpNetworkLayer();
+}
+
 FtpTransaction* FtpNetworkLayer::CreateTransaction() {
   if (suspended_)
     return NULL;
 
   return new FtpNetworkTransaction(
       session_, ClientSocketFactory::GetDefaultFactory());
-}
-
-FtpAuthCache* FtpNetworkLayer::GetAuthCache() {
-  return session_->auth_cache();
 }
 
 void FtpNetworkLayer::Suspend(bool suspend) {

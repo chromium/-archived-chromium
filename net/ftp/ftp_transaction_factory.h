@@ -7,7 +7,6 @@
 
 namespace net {
 
-class FtpAuthCache;
 class FtpTransaction;
 
 // An interface to a class that can create FtpTransaction objects.
@@ -17,9 +16,6 @@ class FtpTransactionFactory {
 
   // Creates a FtpTransaction object.
   virtual FtpTransaction* CreateTransaction() = 0;
-
-  // Returns the associated FTP auth cache if any (may be NULL).
-  virtual FtpAuthCache* GetAuthCache() = 0;
 
   // Suspends the creation of new transactions. If |suspend| is false, creation
   // of new transactions is resumed.

@@ -5,16 +5,16 @@
 #ifndef NET_FTP_FTP_REQUEST_INFO_H_
 #define NET_FTP_FTP_REQUEST_INFO_H_
 
+#include "googleurl/src/gurl.h"
+
+namespace net {
+
 class FtpRequestInfo {
  public:
   // The requested URL.
   GURL url;
-
-  // Any upload data.
-  scoped_refptr<UploadData> upload_data;
-
-  // Any load flags (see load_flags.h).
-  int load_flags;
 };
+
+}  // namespace net
 
 #endif  // NET_FTP_FTP_REQUEST_INFO_H_

@@ -10,6 +10,8 @@
 
 #include "net/base/auth.h"
 #include "net/base/completion_callback.h"
+#include "net/ftp/ftp_request_info.h"
+#include "net/ftp/ftp_transaction.h"
 #include "net/url_request/url_request_job.h"
 
 class URLRequestContext;
@@ -29,10 +31,9 @@ class URLRequestNewFtpJob : public URLRequestJob {
   // URLRequestJob methods:
   virtual void Start();
   virtual void Kill();
-  virtual uint64 GetUploadProgress() const;
-  virtual void GetResponseInfo();
-  virtual int GetResponseCode() const;
-  virtual bool GetMoreData();
+
+  // TODO(ibrar):  Yet to give another look at this function.
+  virtual uint64 GetUploadProgress() const { return 0; }
   virtual bool ReadRawData(net::IOBuffer* buf, int buf_size, int *bytes_read);
 
   void NotifyHeadersComplete();
@@ -43,11 +44,16 @@ class URLRequestNewFtpJob : public URLRequestJob {
   void OnStartCompleted(int result);
   void OnReadCompleted(int result);
 
+  net::FtpRequestInfo request_info_;
+  scoped_ptr<net::FtpTransaction> transaction_;
+  const net::FtpResponseInfo* response_info_;
+
   net::AuthState server_auth_state_;
 
   net::CompletionCallbackImpl<URLRequestNewFtpJob> start_callback_;
   net::CompletionCallbackImpl<URLRequestNewFtpJob> read_callback_;
 
+  std::string directory_html_;
   bool read_in_progress_;
 
   // Keep a reference to the url request context to be sure it's not deleted

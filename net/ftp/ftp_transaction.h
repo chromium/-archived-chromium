@@ -6,6 +6,7 @@
 #define NET_FTP_FTP_TRANSACTION_H_
 
 #include "net/base/completion_callback.h"
+#include "net/base/io_buffer.h"
 #include "net/base/load_states.h"
 
 namespace net {
@@ -17,7 +18,7 @@ class FtpResponseInfo;
 class FtpTransaction {
  public:
   // Stops any pending IO and destroys the transaction object.
-  virtual void Destroy() = 0;
+  virtual ~FtpTransaction() {}
 
   // Starts the FTP transaction (i.e., sends the FTP request).
   //
@@ -54,7 +55,9 @@ class FtpTransaction {
   //
   // NOTE: The transaction is not responsible for deleting the callback object.
   //
-  virtual int Read(char* buf, int buf_len, CompletionCallback* callback) = 0;
+  virtual int Read(IOBuffer* buf,
+                   int buf_len,
+                   CompletionCallback* callback) = 0;
 
   // Returns the response info for this transaction or NULL if the response
   // info is not available.
@@ -64,7 +67,7 @@ class FtpTransaction {
   virtual LoadState GetLoadState() const = 0;
 
   // Returns the upload progress in bytes.  If there is no upload data,
-  // zero will be returned.  This does not include the request headers.
+  // zero will be returned.
   virtual uint64 GetUploadProgress() const = 0;
 };
 

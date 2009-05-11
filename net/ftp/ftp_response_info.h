@@ -11,17 +11,22 @@ namespace net {
 
 class FtpResponseInfo {
  public:
+  FtpResponseInfo() : is_directory_listing(false) {
+  }
+
   // Non-null when authentication is required.
   scoped_refptr<AuthChallengeInfo> auth_challenge;
 
-  // The length of the response.  -1 means unspecified.
-  int64 content_length;
+  // The time at which the request was made that resulted in this response.
+  // For cached responses, this time could be "far" in the past.
+  base::Time request_time;
+
+  // The time at which the response headers were received.  For cached
+  // responses, this time could be "far" in the past.
+  base::Time response_time;
 
   // True if the response data is of a directory listing.
   bool is_directory_listing;
-
-  FtpResponseInfo() : content_length(-1), is_directory_listing(false) {
-  }
 };
 
 }  // namespace net

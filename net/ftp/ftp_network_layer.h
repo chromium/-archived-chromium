@@ -11,15 +11,17 @@
 namespace net {
 
 class FtpNetworkSession;
+class FtpAuthCache;
 
 class FtpNetworkLayer : public FtpTransactionFactory {
  public:
   FtpNetworkLayer();
   ~FtpNetworkLayer();
 
+  static FtpTransactionFactory* CreateFactory();
+
   // FtpTransactionFactory methods:
   virtual FtpTransaction* CreateTransaction();
-  virtual FtpAuthCache* GetAuthCache();
   virtual void Suspend(bool suspend);
 
  private:
