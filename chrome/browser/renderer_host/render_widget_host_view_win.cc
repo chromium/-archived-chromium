@@ -414,6 +414,7 @@ bool RenderWidgetHostViewWin::HasFocus() {
 
 void RenderWidgetHostViewWin::Show() {
   DCHECK(parent_hwnd_);
+  DCHECK(parent_hwnd_ != GetDesktopWindow());
   SetParent(parent_hwnd_);
   ShowWindow(SW_SHOW);
 
@@ -421,11 +422,20 @@ void RenderWidgetHostViewWin::Show() {
 }
 
 void RenderWidgetHostViewWin::Hide() {
+  if (GetParent() == GetDesktopWindow()) {
+    LOG(WARNING) << "Hide() called twice in a row: " << this << ":" <<
+        parent_hwnd_ << ":" << GetParent();
+    // TODO(erikkay) Perhaps it should be OK to call Hide multiple times.
+    DCHECK(false);
+    return;
+  }
+
   if (::GetFocus() == m_hWnd)
     ::SetFocus(NULL);
   ShowWindow(SW_HIDE);
+
+  // Cache the old parent, then orphan the window so we stop receiving messages
   parent_hwnd_ = GetParent();
-  // Orphan the window so we stop receiving messages.
   SetParent(NULL);
 
   WasHidden();

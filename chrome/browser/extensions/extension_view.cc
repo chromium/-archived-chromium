@@ -25,16 +25,18 @@ ExtensionView::~ExtensionView() {
 }
 
 void ExtensionView::SetVisible(bool is_visible) {
-  HWNDView::SetVisible(is_visible);
+  if (is_visible != IsVisible()) {
+    HWNDView::SetVisible(is_visible);
 
-  // Also tell RenderWidgetHostView the new visibility. Despite its name, it is
-  // not part of the View heirarchy and does not know about the change unless we
-  // tell it.
-  if (render_view_host()->view()) {
-    if (is_visible)
-      render_view_host()->view()->Show();
-    else
-      render_view_host()->view()->Hide();
+    // Also tell RenderWidgetHostView the new visibility. Despite its name, it
+    // is not part of the View heirarchy and does not know about the change
+    // unless we tell it.
+    if (render_view_host()->view()) {
+      if (is_visible)
+        render_view_host()->view()->Show();
+      else
+        render_view_host()->view()->Hide();
+    }
   }
 }
 
