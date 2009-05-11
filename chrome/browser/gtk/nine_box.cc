@@ -11,28 +11,22 @@
 
 namespace {
 
-// Get the (x,y) coordinates of the widget relative to its GdkWindow.
-gfx::Point GetWindowRelativeCoords(GtkWidget* widget) {
-  // GtkAllocation (x, y) is relative to widget->window for NO_WINDOW widgets.
-  if (GTK_WIDGET_NO_WINDOW(widget))
-    return gfx::Point(widget->allocation.x, widget->allocation.y);
-
-  return gfx::Point();
-}
-
 // Draw pixbuf |src| into |dst| at position (x, y).
-void DrawPixbuf(GtkWidget* dst, GdkPixbuf* src, int x, int y) {
-  gfx::Point offset = GetWindowRelativeCoords(dst);
-
-  GdkGC* gc = dst->style->fg_gc[GTK_WIDGET_STATE(dst)];
-  gdk_draw_pixbuf(dst->window,  // The destination drawable.
-                  gc,  // Graphics context.
-                  src, 0, 0,  // Source image and x,y offset.
-                  offset.x() + x, offset.y() + y, -1, -1,  // x, y, width, height.
-                  GDK_RGB_DITHER_NONE, 0, 0);  // Dithering mode, x,y offsets.
+void DrawPixbuf(cairo_t* cr, GdkPixbuf* src, int x, int y) {
+  gdk_cairo_set_source_pixbuf(cr, src, x, y);
+  cairo_paint(cr);
 }
 
-}  // anonymous namespace
+// Tile pixbuf |src| across |cr| at |x|, |y| for |width| and |height|.
+void TileImage(cairo_t* cr, GdkPixbuf* src,
+               int x, int y, int width, int height) {
+  gdk_cairo_set_source_pixbuf(cr, src, x, y);
+  cairo_pattern_set_extend(cairo_get_source(cr), CAIRO_EXTEND_REPEAT);
+  cairo_rectangle(cr, x, y, width, height);
+  cairo_fill(cr);
+}
+
+}  // namespace
 
 NineBox::NineBox(int top_left, int top, int top_right, int left, int center,
                  int right, int bottom_left, int bottom, int bottom_right) {
@@ -52,72 +46,53 @@ NineBox::~NineBox() {
 }
 
 void NineBox::RenderToWidget(GtkWidget* dst) const {
-  // TODO(evanm): this is stupid; it should just be implemented with SkBitmaps
-  // and convert to a GdkPixbuf at the last second.
-
   int dst_width = dst->allocation.width;
   int dst_height = dst->allocation.height;
 
-  // This function paints one row at a time.
-  // To make indexing sane, |images| points at the current row of images,
-  // so images[0] always refers to the left-most image of the current row.
-  GdkPixbuf* const* images = &images_[0];
+  cairo_t* cr = gdk_cairo_create(GDK_DRAWABLE(dst->window));
+  // Transform our cairo from window to widget coordinates.
+  cairo_translate(cr, dst->allocation.x, dst->allocation.y);
 
   // The upper-left and lower-right corners of the center square in the
   // rendering of the ninebox.
-  const int x1 = gdk_pixbuf_get_width(images[0]);
-  const int y1 = gdk_pixbuf_get_height(images[0]);
-  const int x2 = images[2] ? dst_width - gdk_pixbuf_get_width(images[2]) : x1;
-  const int y2 = images[6] ? dst_height - gdk_pixbuf_get_height(images[6]) : y1;
+  int x1 = gdk_pixbuf_get_width(images_[0]);
+  int y1 = gdk_pixbuf_get_height(images_[0]);
+  int x2 = images_[2] ? dst_width - gdk_pixbuf_get_width(images_[2]) : x1;
+  int y2 = images_[6] ? dst_height - gdk_pixbuf_get_height(images_[6]) : y1;
   DCHECK_GE(x2, x1);
   DCHECK_GE(y2, y1);
 
-  if (images[0])
-    DrawPixbuf(dst, images[0], 0, 0);
-  if (images[1])
-    RenderTopCenterStrip(dst, x1, x2, 0);
-  if (images[2])
-    DrawPixbuf(dst, images[2], x2, 0);
+  // Top row, center image is horizontally tiled.
+  if (images_[0])
+    DrawPixbuf(cr, images_[0], 0, 0);
+  if (images_[1])
+    RenderTopCenterStrip(cr, x1, 0, x2 - x1);
+  if (images_[2])
+    DrawPixbuf(cr, images_[2], x2, 0);
 
-  // Center row.  Needs vertical tiling.
-  images = &images_[1 * 3];
-  if (images[0]) {
-    TileImage(dst, images[0],
-              0, y1,
-              0, y2);
-  }
-  if (images[1]) {
-    const int delta_y = gdk_pixbuf_get_height(images[1]);
-    for (int y = y1; y < y2; y += delta_y) {
-      TileImage(dst, images[1],
-                x1, y,
-                x2, y);
-    }
-  }
-  if (images[2]) {
-    TileImage(dst, images[2],
-              x2, y1,
-              x2, y2);
-  }
+  // Center row, all images are vertically tiled, center is horizontally tiled.
+  if (images_[3])
+    TileImage(cr, images_[3], 0, y1, x1, y2 - y1);
+  if (images_[4])
+    TileImage(cr, images_[4], x1, y1, x2 - x1, y2 - y1);
+  if (images_[5])
+    TileImage(cr, images_[5], x2, y1, dst_width - x2, y2 - y1);
 
-  // Bottom row.
-  images = &images_[2 * 3];
-  if (images[0])
-    DrawPixbuf(dst, images[0], 0, y2);
-  if (images[1]) {
-    TileImage(dst, images[1],
-              x1, y2,
-              x2, y2);
-  }
-  if (images[2])
-    DrawPixbuf(dst, images[2], x2, y2);
+  // Bottom row, center image is horizontally tiled.
+  if (images_[6])
+    DrawPixbuf(cr, images_[6], 0, y2);
+  if (images_[7])
+    TileImage(cr, images_[7], x1, y2, x2 - x1, dst_height - y2);
+  if (images_[8])
+    DrawPixbuf(cr, images_[8], x2, y2);
+
+  cairo_destroy(cr);
 }
 
-void NineBox::RenderTopCenterStrip(GtkWidget* dst, int x1,
-                                   int x2, int y1) const {
-  TileImage(dst, images_[1],
-            x1, y1,
-            x2, y1);
+void NineBox::RenderTopCenterStrip(cairo_t* cr,
+                                   int x, int y, int width) const {
+  const int height = gdk_pixbuf_get_height(images_[1]);
+  TileImage(cr, images_[1], x, y, width, height);
 }
 
 void NineBox::ChangeWhiteToTransparent() {
@@ -166,32 +141,4 @@ void NineBox::ContourWidget(GtkWidget* widget) const {
 
   g_object_unref(mask);
   cairo_destroy(cr);
-}
-
-void NineBox::TileImage(GtkWidget* dst, GdkPixbuf* src,
-                        int x1, int y1, int x2, int y2) const {
-  GdkGC* gc = dst->style->fg_gc[GTK_WIDGET_STATE(dst)];
-  const int src_width = gdk_pixbuf_get_width(src);
-  const int src_height = gdk_pixbuf_get_height(src);
-  const int dst_width = dst->allocation.width;
-  const int dst_height = dst->allocation.height;
-
-  gfx::Point offset = GetWindowRelativeCoords(dst);
-
-  // We only tile along one axis (see above TODO about nuking all this code),
-  // dx or dy will be nonzero along that axis.
-  int dx = 0, dy = 0;
-  if (x2 > x1)
-    dx = src_width;
-  if (y2 > y1)
-    dy = src_height;
-  DCHECK(dx == 0 || dy == 0);
-
-  for (int x = x1, y = y1; x < x2 || y < y2; x += dx, y += dy) {
-    gdk_draw_pixbuf(dst->window, gc, src, 0, 0,
-                    offset.x() + x, offset.y() + y,
-                    dx ? std::min(src_width,  dst_width - x) : src_width,
-                    dy ? std::min(src_height, dst_height - y) : src_height,
-                    GDK_RGB_DITHER_NONE, 0, 0);
-  }
 }

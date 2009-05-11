@@ -320,8 +320,10 @@ gboolean BrowserToolbarGtk::OnContentAreaExpose(GtkWidget* widget,
                                                 BrowserToolbarGtk* toolbar) {
   // TODO(deanm): We should improve the tiling performance, or not use NineBox.
   // For now at least honor the damage rect to avoid unnecessary painting.
-  toolbar->background_ninebox_.get()->RenderTopCenterStrip(widget,
-      e->area.x, e->area.x + e->area.width, -2);
+  cairo_t* cr = gdk_cairo_create(GDK_DRAWABLE(widget->window));
+  toolbar->background_ninebox_.get()->RenderTopCenterStrip(cr,
+      e->area.x, -2, e->area.width);
+  cairo_destroy(cr);
 
   return FALSE;  // Allow subwidgets to paint.
 }

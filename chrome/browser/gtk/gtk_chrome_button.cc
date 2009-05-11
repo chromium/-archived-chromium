@@ -12,11 +12,11 @@
 namespace {
 
 // The theme graphics for when the mouse is over the button.
-static NineBox* g_nine_box_prelight;
+NineBox* g_nine_box_prelight;
 // The theme graphics for when the button is clicked.
-static NineBox* g_nine_box_active;
+NineBox* g_nine_box_active;
 
-}
+}  // namespace
 
 G_BEGIN_DECLS
 
@@ -71,7 +71,7 @@ static gboolean gtk_chrome_button_expose(GtkWidget* widget,
                                  gtk_bin_get_child(GTK_BIN(widget)),
                                  event);
 
-  return FALSE;
+  return TRUE;  // Don't propagate, we are the default handler.
 }
 
 GtkWidget* gtk_chrome_button_new(void) {

@@ -30,9 +30,9 @@ class NineBox {
   // The images will be tiled to fit into the widget.
   void RenderToWidget(GtkWidget* dst) const;
 
-  // Render the top row of images to |dst| between |x1| and |x2|.
+  // Render the top row of images to |dst| between |x1| and |x1| + |width|.
   // This is split from RenderToWidget so the toolbar can use it.
-  void RenderTopCenterStrip(GtkWidget* dst, int x1, int x2, int y1) const;
+  void RenderTopCenterStrip(cairo_t* cr, int x, int y, int width) const;
 
   // Change all pixels that are white in |images_| to have 0 opacity.
   void ChangeWhiteToTransparent();
@@ -45,9 +45,6 @@ class NineBox {
   void ContourWidget(GtkWidget* widget) const;
 
  private:
-  // Repeatedly stamp src across dst.
-  void TileImage(GtkWidget* dst, GdkPixbuf* src,
-                 int x1, int y1, int x2, int y2) const;
 
   GdkPixbuf* images_[9];
 };
