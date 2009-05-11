@@ -243,6 +243,7 @@ class ChromeTests:
                             "--trace_children",
                             "--indirect"],
                            cmd_args=[
+                            "--timeout=120000",
                             "--ui-test-timeout=120000",
                             "--ui-test-action-timeout=80000",
                             "--ui-test-action-max-timeout=180000"])
