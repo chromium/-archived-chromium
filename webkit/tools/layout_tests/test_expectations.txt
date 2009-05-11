@@ -2392,12 +2392,9 @@ BUG11613 MAC : LayoutTests/fast/forms/textarea-scrollbar.html = FAIL
 BUG11613 MAC : LayoutTests/fast/forms/textarea-scrolled-type.html = FAIL
 BUG11613 LINUX MAC : LayoutTests/fast/forms/textarea-setinnerhtml.html = FAIL
 BUG11613 LINUX MAC : LayoutTests/fast/overflow/overflow-x-y.html = FAIL
-BUG11613 MAC : LayoutTests/fast/parser/comment-in-textarea.html = FAIL
-BUG11613 LINUX MAC : LayoutTests/fast/parser/entity-comment-in-textarea.html = FAIL
-BUG11613 LINUX MAC : LayoutTests/fast/parser/open-comment-in-textarea.html = FAIL
-BUG11613 MAC : LayoutTests/fast/replaced/width100percent-textarea.html = FAIL
-BUG11613 LINUX MAC : LayoutTests/fast/table/003.html = FAIL
-BUG11613 MAC : LayoutTests/fast/text/international/rtl-white-space-pre-wrap.html = FAIL
+BUG11613 LINUX : LayoutTests/fast/parser/entity-comment-in-textarea.html = FAIL
+BUG11613 LINUX : LayoutTests/fast/parser/open-comment-in-textarea.html = FAIL
+BUG11613 LINUX : LayoutTests/fast/table/003.html = FAIL
 BUG11613 LINUX MAC : LayoutTests/http/tests/navigation/anchor-basic.html = FAIL
 BUG11613 LINUX MAC : LayoutTests/http/tests/navigation/anchor-frames.html = FAIL
 BUG11613 LINUX MAC : LayoutTests/http/tests/navigation/anchor-goback.html = FAIL
@@ -2430,9 +2427,9 @@ BUG11613 LINUX MAC : LayoutTests/http/tests/navigation/timerredirect-basic.html 
 BUG11613 LINUX MAC : LayoutTests/http/tests/navigation/timerredirect-frames.html = FAIL
 BUG11613 LINUX MAC : LayoutTests/http/tests/navigation/timerredirect-goback.html = FAIL
 BUG11613 MAC : LayoutTests/http/tests/navigation/timerredirect-subframeload.html = FAIL
-BUG11613 LINUX MAC : LayoutTests/tables/mozilla/bugs/bug194024.html = FAIL
-BUG11613 LINUX MAC : LayoutTests/tables/mozilla/bugs/bug30559.html = FAIL
-BUG11613 LINUX MAC : LayoutTests/tables/mozilla/bugs/bug30692.html = FAIL
+BUG11613 LINUX : LayoutTests/tables/mozilla/bugs/bug194024.html = FAIL
+BUG11613 LINUX : LayoutTests/tables/mozilla/bugs/bug30559.html = FAIL
+BUG11613 LINUX : LayoutTests/tables/mozilla/bugs/bug30692.html = FAIL
 
 // Caused by WebKit merge 43346:43361.  These likely just need re-baselining.
 // Most likely caused by http://trac.webkit.org/changeset/43355
