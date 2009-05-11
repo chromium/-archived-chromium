@@ -2305,10 +2305,6 @@ BUG11001 LINUX MAC WIN : LayoutTests/http/tests/history/back-to-post.php = TIMEO
 // Reasons unknown..
 BUG11012 LINUX MAC : LayoutTests/http/tests/security/xss-DENIED-xml-external-entity.xhtml = FAIL
 
-// New failures from WebKit Merge 42805:42932
-BUG11121 LINUX WIN : LayoutTests/fast/repaint/layer-outline-horizontal.html = FAIL
-BUG11121 LINUX WIN : LayoutTests/fast/repaint/layer-outline.html = FAIL
-
 // Need Linux rebaselines from WebKit Merge 42805:42932
 BUG11123 LINUX : LayoutTests/editing/deleting/delete-br-013.html = FAIL
 BUG11123 LINUX : LayoutTests/editing/inserting/4960120-1.html = FAIL
