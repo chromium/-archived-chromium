@@ -4,14 +4,17 @@
 
 #include "chrome/browser/gtk/download_item_gtk.h"
 
+#include "app/gfx/chrome_canvas.h"
 #include "app/gfx/chrome_font.h"
 #include "app/gfx/text_elider.h"
 #include "app/slide_animation.h"
 #include "base/basictypes.h"
 #include "base/string_util.h"
+#include "base/time.h"
 #include "chrome/browser/download/download_item_model.h"
 #include "chrome/browser/download/download_manager.h"
 #include "chrome/browser/download/download_shelf.h"
+#include "chrome/browser/download/download_util.h"
 #include "chrome/browser/gtk/download_shelf_gtk.h"
 #include "chrome/browser/gtk/menu_gtk.h"
 #include "chrome/browser/gtk/nine_box.h"
@@ -31,14 +34,17 @@ const int kTextWidth = 140;
 // The minimum width we will ever draw the download item. Used as a lower bound
 // during animation. This number comes from the width of the images used to
 // make the download item.
-const int kMinDownloadItemWidth = 13;
+const int kMinDownloadItemWidth = 13 + download_util::kSmallProgressIconSize;
 
 const char* kLabelColorMarkup = "<span color='#%s'>%s</span>";
 const char* kFilenameColor = "576C95";  // 87, 108, 149
 const char* kStatusColor = "7B8DAE";  // 123, 141, 174
 
 // New download item animation speed in milliseconds.
-static const int kNewItemAnimationDurationMs = 800;
+const int kNewItemAnimationDurationMs = 800;
+
+// How long the 'download complete' animation should last for.
+const int kCompleteAnimationDurationMs = 2500;
 
 }  // namespace
 
@@ -139,15 +145,23 @@ NineBox* DownloadItemGtk::menu_nine_box_active_ = NULL;
 DownloadItemGtk::DownloadItemGtk(DownloadShelfGtk* parent_shelf,
                                  BaseDownloadItemModel* download_model)
     : parent_shelf_(parent_shelf),
+      progress_angle_(download_util::kStartAngleDegrees),
       download_model_(download_model),
       bounding_widget_(parent_shelf->GetRightBoundingWidget()) {
   InitNineBoxes();
 
   body_ = gtk_button_new();
   gtk_widget_set_app_paintable(body_, TRUE);
-  g_signal_connect(G_OBJECT(body_), "expose-event",
+  g_signal_connect(body_, "expose-event",
                    G_CALLBACK(OnExpose), this);
   GTK_WIDGET_UNSET_FLAGS(body_, GTK_CAN_FOCUS);
+  // Remove internal padding on the button.
+  GtkRcStyle* no_padding_style = gtk_rc_style_new();
+  no_padding_style->xthickness = 0;
+  no_padding_style->ythickness = 0;
+  gtk_widget_modify_style(body_, no_padding_style);
+  g_object_unref(no_padding_style);
+
   name_label_ = gtk_label_new(NULL);
 
   // TODO(estade): This is at best an educated guess, since we don't actually
@@ -172,14 +186,29 @@ DownloadItemGtk::DownloadItemGtk(DownloadShelfGtk* parent_shelf,
   GtkWidget* text_stack = gtk_vbox_new(FALSE, 0);
   gtk_box_pack_start(GTK_BOX(text_stack), name_label_, TRUE, TRUE, 0);
   gtk_box_pack_start(GTK_BOX(text_stack), status_label_, FALSE, FALSE, 0);
-  gtk_container_add(GTK_CONTAINER(body_), text_stack);
+
+  // We use a GtkFixed because we don't want it to have its own window.
+  // This choice of widget is not critically important though.
+  progress_area_ = gtk_fixed_new();
+  gtk_widget_set_size_request(progress_area_,
+      download_util::kSmallProgressIconSize,
+      download_util::kSmallProgressIconSize);
+  gtk_widget_set_app_paintable(progress_area_, TRUE);
+  g_signal_connect(progress_area_, "expose-event",
+                   G_CALLBACK(OnProgressAreaExpose), this);
+
+  // Put the download progress icon on the left of the labels.
+  GtkWidget* body_hbox = gtk_hbox_new(FALSE, 0);
+  gtk_container_add(GTK_CONTAINER(body_), body_hbox);
+  gtk_box_pack_start(GTK_BOX(body_hbox), progress_area_, FALSE, FALSE, 0);
+  gtk_box_pack_start(GTK_BOX(body_hbox), text_stack, TRUE, TRUE, 0);
 
   menu_button_ = gtk_button_new();
   gtk_widget_set_app_paintable(menu_button_, TRUE);
   GTK_WIDGET_UNSET_FLAGS(menu_button_, GTK_CAN_FOCUS);
-  g_signal_connect(G_OBJECT(menu_button_), "expose-event",
+  g_signal_connect(menu_button_, "expose-event",
                    G_CALLBACK(OnExpose), this);
-  g_signal_connect(G_OBJECT(menu_button_), "button-press-event",
+  g_signal_connect(menu_button_, "button-press-event",
                    G_CALLBACK(OnMenuButtonPressEvent), this);
   g_object_set_data(G_OBJECT(menu_button_), "left-align-popup",
                     reinterpret_cast<void*>(true));
@@ -205,6 +234,7 @@ DownloadItemGtk::DownloadItemGtk(DownloadShelfGtk* parent_shelf,
 }
 
 DownloadItemGtk::~DownloadItemGtk() {
+  StopDownloadProgress();
   g_signal_handler_disconnect(parent_shelf_->GetHBox(), resize_handler_id_);
   gtk_widget_destroy(hbox_);
   download_model_->download()->RemoveObserver(this);
@@ -218,11 +248,18 @@ void DownloadItemGtk::OnDownloadUpdated(DownloadItem* download) {
       parent_shelf_->RemoveDownloadItem(this);  // This will delete us!
       return;
     case DownloadItem::CANCELLED:
+      StopDownloadProgress();
+      break;
     case DownloadItem::COMPLETE:
+      StopDownloadProgress();
+      complete_animation_.reset(new SlideAnimation(this));
+      complete_animation_->SetSlideDuration(kCompleteAnimationDurationMs);
+      complete_animation_->SetTweenType(SlideAnimation::NONE);
+      complete_animation_->Show();
+      break;
     case DownloadItem::IN_PROGRESS:
-      // TODO(estade): adjust download progress animation appropriately, once
-      // we have download progress animations.
-      NOTIMPLEMENTED();
+      download_model_->download()->is_paused() ?
+          StopDownloadProgress() : StartDownloadProgress();
       break;
     default:
       NOTREACHED();
@@ -250,15 +287,39 @@ void DownloadItemGtk::OnDownloadUpdated(DownloadItem* download) {
 }
 
 void DownloadItemGtk::AnimationProgressed(const Animation* animation) {
-  // Eventually we will show an icon and graphical download progress, but for
-  // now the only contents of body_ is text, so to make its size request the
-  // same as the width of the text. See above TODO for explanation of the
-  // extra 50.
-  int showing_width = std::max(kMinDownloadItemWidth,
-      static_cast<int>((kTextWidth + 50) *
-                       new_item_animation_->GetCurrentValue()));
-  showing_width = std::max(showing_width, kMinDownloadItemWidth);
-  gtk_widget_set_size_request(body_, showing_width, -1);
+  if (animation == complete_animation_.get()) {
+    gtk_widget_queue_draw(progress_area_);
+  } else {
+    DCHECK(animation == new_item_animation_.get());
+    // See above TODO for explanation of the extra 50.
+    int showing_width = std::max(kMinDownloadItemWidth,
+        static_cast<int>((kTextWidth + 50 +
+                         download_util::kSmallProgressIconSize) *
+                         new_item_animation_->GetCurrentValue()));
+    showing_width = std::max(showing_width, kMinDownloadItemWidth);
+    gtk_widget_set_size_request(body_, showing_width, -1);
+  }
+}
+
+// Download progress animation functions.
+
+void DownloadItemGtk::UpdateDownloadProgress() {
+  progress_angle_ = (progress_angle_ +
+                     download_util::kUnknownIncrementDegrees) %
+                    download_util::kMaxDegrees;
+  gtk_widget_queue_draw(progress_area_);
+}
+
+void DownloadItemGtk::StartDownloadProgress() {
+  if (progress_timer_.IsRunning())
+    return;
+  progress_timer_.Start(
+      base::TimeDelta::FromMilliseconds(download_util::kProgressRateMs), this,
+      &DownloadItemGtk::UpdateDownloadProgress);
+}
+
+void DownloadItemGtk::StopDownloadProgress() {
+  progress_timer_.Stop();
 }
 
 // static
@@ -337,9 +398,42 @@ gboolean DownloadItemGtk::OnExpose(GtkWidget* widget, GdkEventExpose* e,
   return TRUE;
 }
 
+// static
+gboolean DownloadItemGtk::OnProgressAreaExpose(GtkWidget* widget,
+    GdkEventExpose* event, DownloadItemGtk* download_item) {
+  // Create a transparent canvas.
+  ChromeCanvasPaint canvas(event, false);
+  if (download_item->complete_animation_.get()) {
+    if (download_item->complete_animation_->IsAnimating()) {
+      download_util::PaintDownloadComplete(&canvas,
+          widget->allocation.x, widget->allocation.y,
+          download_item->complete_animation_->GetCurrentValue(),
+          download_util::SMALL);
+    }
+  } else {
+    download_util::PaintDownloadProgress(&canvas,
+        widget->allocation.x, widget->allocation.y,
+        download_item->progress_angle_,
+        download_item->download_model_->download()->PercentComplete(),
+        download_util::SMALL);
+  }
+
+  // TODO(estade): paint download icon.
+  return TRUE;
+}
+
+// static
 gboolean DownloadItemGtk::OnMenuButtonPressEvent(GtkWidget* button,
                                                  GdkEvent* event,
                                                  DownloadItemGtk* item) {
+  // Stop any completion animation.
+  if (item->complete_animation_.get() &&
+      item->complete_animation_->IsAnimating()) {
+    item->complete_animation_->End();
+  }
+
+  item->complete_animation_->End();
+
   // TODO(port): this never puts the button into the "active" state,
   // so this may need to be changed. See note in BrowserToolbarGtk.
   if (event->type == GDK_BUTTON_PRESS) {
@@ -356,6 +450,7 @@ gboolean DownloadItemGtk::OnMenuButtonPressEvent(GtkWidget* button,
   return FALSE;
 }
 
+// static
 void DownloadItemGtk::OnShelfResized(GtkWidget *widget,
                                      GtkAllocation *allocation,
                                      DownloadItemGtk* item) {

@@ -36,10 +36,26 @@ class DownloadItemGtk : public DownloadItem::Observer,
   virtual void AnimationProgressed(const Animation* animation);
 
  private:
+  // Functions for controlling the progress animation.
+  // Repaint the download progress.
+  void UpdateDownloadProgress();
+
+  // Starts a repeating timer for UpdateDownloadProgress.
+  void StartDownloadProgress();
+
+  // Stops the repeating timer.
+  void StopDownloadProgress();
+
   static void InitNineBoxes();
 
+  // Used for the download item's body and menu button.
   static gboolean OnExpose(GtkWidget* widget, GdkEventExpose* e,
                            DownloadItemGtk* download_item);
+
+  // Used for the download icon.
+  static gboolean OnProgressAreaExpose(GtkWidget* widget,
+                                       GdkEventExpose* e,
+                                       DownloadItemGtk* download_item);
 
   static gboolean OnMenuButtonPressEvent(GtkWidget* button,
                                          GdkEvent* event,
@@ -78,6 +94,13 @@ class DownloadItemGtk : public DownloadItem::Observer,
   // The widget that creates a dropdown menu when pressed.
   GtkWidget* menu_button_;
 
+  // The widget that contains the animation progress and the file's icon
+  // (as well as the complete animation).
+  GtkWidget* progress_area_;
+
+  // In degrees. Only used for downloads with no known total size.
+  int progress_angle_;
+
   // The menu that pops down when the user presses |menu_button_|. We do not
   // create this until the first time we actually need it.
   scoped_ptr<DownloadShelfContextMenuGtk> menu_;
@@ -95,6 +118,12 @@ class DownloadItemGtk : public DownloadItem::Observer,
 
   // The animation when this item is first added to the shelf.
   scoped_ptr<SlideAnimation> new_item_animation_;
+
+  // Progress animation.
+  base::RepeatingTimer<DownloadItemGtk> progress_timer_;
+
+  // Animation for download complete.
+  scoped_ptr<SlideAnimation> complete_animation_;
 };
 
 #endif  // CHROME_BROWSER_GTK_DOWNLOAD_ITEM_GTK_H_

@@ -8,6 +8,7 @@
 #include "app/resource_bundle.h"
 #include "base/gfx/gtk_util.h"
 #include "chrome/browser/download/download_item_model.h"
+#include "chrome/browser/download/download_util.h"
 #include "chrome/browser/gtk/custom_button.h"
 #include "chrome/browser/gtk/download_item_gtk.h"
 #include "chrome/browser/gtk/link_button_gtk.h"
@@ -18,9 +19,8 @@
 
 namespace {
 
-// The height of the download items. Should be at least 28, as that is the
-// minimum height of their nineboxes.
-const int kDownloadItemHeight = 38;
+// The height of the download items.
+const int kDownloadItemHeight = download_util::kSmallProgressIconSize;
 
 // Padding between the download widgets.
 const int kDownloadItemPadding = 10;

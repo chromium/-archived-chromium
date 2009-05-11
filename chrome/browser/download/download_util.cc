@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
+// Copyright (c) 2009 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 //
@@ -8,13 +8,9 @@
 
 #include "chrome/browser/download/download_util.h"
 
-#include "app/gfx/chrome_canvas.h"
 #include "app/l10n_util.h"
-#include "app/os_exchange_data.h"
 #include "app/resource_bundle.h"
-#include "base/base_drag_source.h"
 #include "base/file_util.h"
-#include "base/scoped_clipboard_writer.h"
 #include "base/string_util.h"
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/download/download_item_model.h"
@@ -25,8 +21,12 @@
 #include "skia/ext/image_operations.h"
 #include "skia/include/SkPath.h"
 #include "skia/include/SkShader.h"
+
+#if defined(OS_WIN)
+#include "app/os_exchange_data.h"
+#include "base/base_drag_source.h"
 #include "views/drag_utils.h"
-#include "views/view.h"
+#endif
 
 namespace download_util {
 
@@ -66,14 +66,14 @@ SkBitmap* g_foreground_32 = NULL;
 SkBitmap* g_background_32 = NULL;
 
 void PaintDownloadProgress(ChromeCanvas* canvas,
+#if defined(OS_WIN)
                            views::View* containing_view,
+#endif
                            int origin_x,
                            int origin_y,
                            int start_angle,
                            int percent_done,
                            PaintDownloadProgressSize size) {
-  DCHECK(containing_view);
-
   // Load up our common bitmaps
   if (!g_background_16) {
     ResourceBundle& rb = ResourceBundle::GetSharedInstance();
@@ -89,8 +89,6 @@ void PaintDownloadProgress(ChromeCanvas* canvas,
   const int kProgressIconSize = (size == BIG) ? kBigProgressIconSize :
                                                 kSmallProgressIconSize;
 
-  int height = background->height();
-
   // We start by storing the bounds of the background and foreground bitmaps
   // so that it is easy to mirror the bounds if the UI layout is RTL.
   gfx::Rect background_bounds(origin_x, origin_y,
@@ -98,11 +96,13 @@ void PaintDownloadProgress(ChromeCanvas* canvas,
   gfx::Rect foreground_bounds(origin_x, origin_y,
                               foreground->width(), foreground->height());
 
+#if defined(OS_WIN)
   // Mirror the positions if necessary.
   int mirrored_x = containing_view->MirroredLeftPointForRect(background_bounds);
   background_bounds.set_x(mirrored_x);
   mirrored_x = containing_view->MirroredLeftPointForRect(foreground_bounds);
   foreground_bounds.set_x(mirrored_x);
+#endif
 
   // Draw the background progress image.
   SkPaint background_paint;
@@ -165,13 +165,13 @@ void PaintDownloadProgress(ChromeCanvas* canvas,
 }
 
 void PaintDownloadComplete(ChromeCanvas* canvas,
+#if defined(OS_WIN)
                            views::View* containing_view,
+#endif
                            int origin_x,
                            int origin_y,
                            double animation_progress,
                            PaintDownloadProgressSize size) {
-  DCHECK(containing_view);
-
   // Load up our common bitmaps.
   if (!g_foreground_16) {
     ResourceBundle& rb = ResourceBundle::GetSharedInstance();
@@ -181,11 +181,13 @@ void PaintDownloadComplete(ChromeCanvas* canvas,
 
   SkBitmap* complete = (size == BIG) ? g_foreground_32 : g_foreground_16;
 
-  // Mirror the positions if necessary.
   gfx::Rect complete_bounds(origin_x, origin_y,
                             complete->width(), complete->height());
+#if defined(OS_WIN)
+  // Mirror the positions if necessary.
   complete_bounds.set_x(
       containing_view->MirroredLeftPointForRect(complete_bounds));
+#endif
 
   // Start at full opacity, then loop back and forth five times before ending
   // at zero opacity.
@@ -211,8 +213,9 @@ void PaintDownloadComplete(ChromeCanvas* canvas,
 int GetBigProgressIconSize() {
   static int big_progress_icon_size = 0;
   if (big_progress_icon_size == 0) {
-    std::wstring locale_size_str =
-        l10n_util::GetString(IDS_DOWNLOAD_BIG_PROGRESS_SIZE);
+    string16 locale_size_str =
+        WideToUTF16Hack(
+        l10n_util::GetString(IDS_DOWNLOAD_BIG_PROGRESS_SIZE));
     bool rc = StringToInt(locale_size_str, &big_progress_icon_size);
     if (!rc || big_progress_icon_size < kBigProgressIconSize) {
       NOTREACHED();
@@ -227,6 +230,7 @@ int GetBigProgressIconOffset() {
   return (GetBigProgressIconSize() - kBigIconSize) / 2;
 }
 
+#if defined(OS_WIN)
 // Download dragging
 void DragDownload(const DownloadItem* download, SkBitmap* icon) {
   DCHECK(download);
@@ -244,5 +248,6 @@ void DragDownload(const DownloadItem* download, SkBitmap* icon) {
   DoDragDrop(data.get(), drag_source.get(), DROPEFFECT_COPY | DROPEFFECT_LINK,
              &effects);
 }
+#endif
 
 }  // namespace download_util
