@@ -38,7 +38,6 @@ devtools.ToolsAgent.prototype.reset = function() {
   this.debuggerAgent_.reset();
   
   this.domAgent_.getDocumentElementAsync();
-  this.debuggerAgent_.requestScripts();
 };
 
 
@@ -705,3 +704,12 @@ WebInspector.Console.prototype._evalInInspectedWindow = function(expression) {
   // the command log message.
   return 'evaluating...';
 };
+
+
+(function() {
+  var oldShow = WebInspector.ScriptsPanel.prototype.show;
+  WebInspector.ScriptsPanel.prototype.show =  function() {
+    devtools.tools.getDebuggerAgent().initializeScriptsCache();
+    oldShow.call(this);
+  };
+})();

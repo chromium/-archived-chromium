@@ -49,17 +49,35 @@ devtools.DebuggerAgent = function() {
    * @type {Object}
    */
   this.requestSeqToCallback_ = null;  
+
+  /**
+   * Whether the scripts list has been requested.
+   * @type {boolean}
+   */
+  this.scriptsCacheInitialized_ = false;
 };
 
 
 /**
  * Resets debugger agent to its initial state.
  */
- devtools.DebuggerAgent.prototype.reset = function() {
-   this.parsedScripts_ = {};
-   this.requestNumberToBreakpointInfo_ = {};
-   this.currentCallFrame_ = null;
-   this.requestSeqToCallback_ = {};
+devtools.DebuggerAgent.prototype.reset = function() {
+  this.scriptsCacheInitialized_ = false;
+  this.parsedScripts_ = {};
+  this.requestNumberToBreakpointInfo_ = {};
+  this.currentCallFrame_ = null;
+  this.requestSeqToCallback_ = {};
+};
+
+
+/**
+ * Requests scripts list if it has not been requested yet.
+ */
+devtools.DebuggerAgent.prototype.initializeScriptsCache = function() {
+  if (!this.scriptsCacheInitialized_) {
+    this.scriptsCacheInitialized_ = true;
+    this.requestScripts();
+  }
 };
 
 
