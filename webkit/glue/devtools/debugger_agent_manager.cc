@@ -235,7 +235,7 @@ DebuggerAgentImpl* DebuggerAgentManager::FindAgentForCurrentV8Context() {
   }
   DCHECK(!attached_agents_->isEmpty());
 
-  WebCore::Frame* frame = WebCore::V8Proxy::retrieveActiveFrame();
+  WebCore::Frame* frame = WebCore::V8Proxy::retrieveFrameForEnteredContext();
   if (!frame) {
     return NULL;
   }

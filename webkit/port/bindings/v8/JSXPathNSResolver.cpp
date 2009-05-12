@@ -58,7 +58,7 @@ String JSXPathNSResolver::lookupNamespaceURI(const String& prefix) {
   }
 
   if (lookupNamespaceURIFunc.IsEmpty() && !m_resolver->IsFunction()) {
-    Frame* frame = V8Proxy::retrieveActiveFrame();
+    Frame* frame = V8Proxy::retrieveFrameForEnteredContext();
     log_info(frame, "XPathNSResolver does not have a lookupNamespaceURI method.", String());
     return String();
   }

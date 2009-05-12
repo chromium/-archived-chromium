@@ -69,8 +69,10 @@ class ExtensionImpl : public v8::Extension {
   }
 
   static v8::Handle<v8::Value> StartRequest(const v8::Arguments& args) {
-    WebFrame* webframe = WebFrame::RetrieveActiveFrame();
-    RenderView* renderview = GetActiveRenderView();
+    // Get the current RenderView so that we can send a routed IPC message from
+    // the correct source.
+    WebFrame* webframe = WebFrame::RetrieveFrameForCurrentContext();
+    RenderView* renderview = GetRenderViewForCurrentContext();
     if (!webframe || !renderview)
       return v8::Undefined();
 

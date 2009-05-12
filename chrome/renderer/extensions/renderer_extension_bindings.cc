@@ -49,7 +49,9 @@ class ExtensionImpl : public v8::Extension {
   // Creates a new messaging channel to the given extension.
   static v8::Handle<v8::Value> OpenChannelToExtension(
       const v8::Arguments& args) {
-    RenderView* renderview = GetActiveRenderView();
+    // Get the current RenderView so that we can send a routed IPC message from
+    // the correct source.
+    RenderView* renderview = GetRenderViewForCurrentContext();
     if (!renderview)
       return v8::Undefined();
 
@@ -65,7 +67,7 @@ class ExtensionImpl : public v8::Extension {
 
   // Sends a message along the given channel.
   static v8::Handle<v8::Value> PostMessage(const v8::Arguments& args) {
-    RenderView* renderview = GetActiveRenderView();
+    RenderView* renderview = GetRenderViewForCurrentContext();
     if (!renderview)
       return v8::Undefined();
 

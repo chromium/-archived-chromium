@@ -198,13 +198,13 @@ public:
     // --- Static methods assume we are running VM in single thread, ---
     // --- and there is only one VM instance.                        ---
 
-    // Returns the frame of the calling code is in.
-    // Not necessary the frame of this proxy.
-    // For example, JS code in frame A calls windowB.open(...).
-    // Window::open method has the frame pointer of B, but
-    // the execution context is in frame A, so it needs
-    // frame A's loader to complete URL.
-    static Frame* retrieveActiveFrame();
+    // Returns the frame for the entered context. See comments in
+    // V8Proxy::retrieveFrameForEnteredContext() for more information.
+    static Frame* retrieveFrameForEnteredContext();
+
+    // Returns the frame for the current context. See comments in
+    // V8Proxy::retrieveFrameForEnteredContext() for more information.
+    static Frame* retrieveFrameForCurrentContext();
 
     // Check whether it is safe to access a frame in another domain.
     static bool isSafeScript(Frame* target);

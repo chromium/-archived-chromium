@@ -283,10 +283,28 @@ class V8Proxy {
   // Returns the frame object of the window object associated with
   // a context.
   static Frame* retrieveFrame(v8::Handle<v8::Context> context);
-  // Returns the frame that started JS execution.
-  // NOTE: cannot declare retrieveActiveFrame as inline function,
-  // VS complains at linking time.
-  static Frame* retrieveActiveFrame();
+
+
+  // The two functions below retrieve WebFrame instances relating the currently
+  // executing JavaScript. Since JavaScript can make function calls across
+  // frames, though, we need to be more precise.
+  //
+  // For example, imagine that a JS function in frame A calls a function in
+  // frame B, which calls native code, which wants to know what the 'active'
+  // frame is.
+  //
+  // The 'entered context' is the context where execution first entered the
+  // script engine; the context that is at the bottom of the JS function stack.
+  // RetrieveFrameForEnteredContext() would return Frame A in our example.
+  //
+  // The 'current context' is the context the JS engine is currently inside of;
+  // the context that is at the top of the JS function stack.
+  // RetrieveFrameForCurrentContext() would return Frame B in our example.
+  //
+  // NOTE: These cannot be declared as inline function, because VS complains at
+  // linking time.
+  static Frame* retrieveFrameForEnteredContext();
+  static Frame* retrieveFrameForCurrentContext();
 
   // Returns V8 Context of a frame. If none exists, creates
   // a new context.  It is potentially slow and consumes memory.

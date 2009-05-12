@@ -35,7 +35,7 @@ class ExternalExtensionWrapper : public v8::Extension {
       if (!args.Length())
         return v8::Undefined();
 
-      WebFrame* webframe = WebFrame::RetrieveActiveFrame();
+      WebFrame* webframe = WebFrame::RetrieveFrameForEnteredContext();
       DCHECK(webframe) << "There should be an active frame since we just got "
                           "a native function called.";
       if (!webframe) return v8::Undefined();

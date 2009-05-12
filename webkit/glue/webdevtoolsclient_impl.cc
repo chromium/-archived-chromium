@@ -197,7 +197,7 @@ v8::Handle<v8::Value> WebDevToolsClientImpl::JsAddSourceToFrame(
     return v8::Undefined();
   }
 
-  Page* page = V8Proxy::retrieveActiveFrame()->page();
+  Page* page = V8Proxy::retrieveFrameForEnteredContext()->page();
   InspectorController* inspectorController = page->inspectorController();
   return WebCore::v8Boolean(inspectorController->
       addSourceToFrame(mime_type, source_string, node));
@@ -211,7 +211,7 @@ v8::Handle<v8::Value> WebDevToolsClientImpl::JsLoaded(
   client->loaded_ = true;
 
   // Grant the devtools page the ability to have source view iframes.
-  Page* page = V8Proxy::retrieveActiveFrame()->page();
+  Page* page = V8Proxy::retrieveFrameForEnteredContext()->page();
   SecurityOrigin* origin = page->mainFrame()->domWindow()->securityOrigin();
   origin->grantUniversalAccess();
 

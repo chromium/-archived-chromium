@@ -7,9 +7,9 @@
 #include "chrome/renderer/render_view.h"
 #include "webkit/glue/webframe.h"
 
-RenderView* GetActiveRenderView() {
-  WebFrame* webframe = WebFrame::RetrieveActiveFrame();
-  DCHECK(webframe) << "GetActiveRenderView called when not in a V8 context.";
+RenderView* GetRenderViewForCurrentContext() {
+  WebFrame* webframe = WebFrame::RetrieveFrameForCurrentContext();
+  DCHECK(webframe) << "RetrieveCurrentFrame called when not in a V8 context.";
   if (!webframe)
     return NULL;
 

@@ -622,7 +622,7 @@ void ConsoleMessageManager::ProcessDelayedMessages()
     // context. If that for some bizarre reason does not
     // exist, we clear the list of delayed messages to avoid
     // posting messages. We still deallocate the vector.
-    Frame* frame = V8Proxy::retrieveActiveFrame();
+    Frame* frame = V8Proxy::retrieveFrameForEnteredContext();
     Page* page = NULL;
     if (frame)
         page = frame->page();
@@ -663,7 +663,7 @@ static void HandleConsoleMessage(v8::Handle<v8::Message> message,
                                  v8::Handle<v8::Value> data)
 {
   // Use the frame where JavaScript is called from.
-  Frame* frame = V8Proxy::retrieveActiveFrame();
+  Frame* frame = V8Proxy::retrieveFrameForEnteredContext();
   if (!frame)
       return;
 
@@ -700,7 +700,7 @@ static void ReportUnsafeAccessTo(Frame* target, DelayReporting delay)
   if (!targetDocument)
       return;
 
-  Frame* source = V8Proxy::retrieveActiveFrame();
+  Frame* source = V8Proxy::retrieveFrameForEnteredContext();
   if (!source || !source->document())
       return;  // Ignore error if the source document is gone.
 
@@ -1632,9 +1632,18 @@ Frame* V8Proxy::retrieveFrame(v8::Handle<v8::Context> context)
 }
 
 
-Frame* V8Proxy::retrieveActiveFrame()
+Frame* V8Proxy::retrieveFrameForEnteredContext()
 {
     v8::Handle<v8::Context> context = v8::Context::GetEntered();
+    if (context.IsEmpty())
+        return 0;
+    return retrieveFrame(context);
+}
+
+
+Frame* V8Proxy::retrieveFrameForCurrentContext()
+{
+    v8::Handle<v8::Context> context = v8::Context::GetCurrent();
     if (context.IsEmpty())
         return 0;
     return retrieveFrame(context);

@@ -341,8 +341,19 @@ class ChromePrintContext : public WebCore::PrintContext {
 int WebFrameImpl::live_object_count_ = 0;
 
 // static
-WebFrame* WebFrame::RetrieveActiveFrame() {
-  WebCore::Frame* frame = WebCore::ScriptController::retrieveActiveFrame();
+WebFrame* WebFrame::RetrieveFrameForEnteredContext() {
+  WebCore::Frame* frame =
+      WebCore::ScriptController::retrieveFrameForEnteredContext();
+  if (frame)
+    return WebFrameImpl::FromFrame(frame);
+  else
+    return NULL;
+}
+
+// static
+WebFrame* WebFrame::RetrieveFrameForCurrentContext() {
+  WebCore::Frame* frame =
+      WebCore::ScriptController::retrieveFrameForCurrentContext();
   if (frame)
     return WebFrameImpl::FromFrame(frame);
   else

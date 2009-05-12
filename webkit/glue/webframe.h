@@ -32,7 +32,23 @@ class WebFrame {
  public:
   WebFrame() {}
 
-  static WebFrame* RetrieveActiveFrame();
+  // The two functions below retrieve WebFrame instances relating the currently
+  // executing JavaScript. Since JavaScript can make function calls across
+  // frames, though, we need to be more precise.
+  //
+  // For example, imagine that a JS function in frame A calls a function in
+  // frame B, which calls native code, which wants to know what the 'active'
+  // frame is.
+  //
+  // The 'entered context' is the context where execution first entered the
+  // script engine; the context that is at the bottom of the JS function stack.
+  // RetrieveFrameForEnteredContext() would return Frame A in our example.
+  //
+  // The 'current context' is the context the JS engine is currently inside of;
+  // the context that is at the top of the JS function stack.
+  // RetrieveFrameForCurrentContext() would return Frame B in our example.
+  static WebFrame* RetrieveFrameForEnteredContext();
+  static WebFrame* RetrieveFrameForCurrentContext();
 
   // Binds a C++ class to a JavaScript property of the window object.  This
   // should generally be used via CppBoundClass::BindToJavascript() instead of

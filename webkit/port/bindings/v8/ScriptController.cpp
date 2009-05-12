@@ -80,9 +80,14 @@ void ScriptController::setFlags(const char* str, int length)
     v8::V8::SetFlagsFromString(str, length);
 }
 
-Frame* ScriptController::retrieveActiveFrame()
+Frame* ScriptController::retrieveFrameForEnteredContext()
 {
-    return V8Proxy::retrieveActiveFrame();
+    return V8Proxy::retrieveFrameForEnteredContext();
+}
+
+Frame* ScriptController::retrieveFrameForCurrentContext()
+{
+    return V8Proxy::retrieveFrameForCurrentContext();
 }
 
 bool ScriptController::isSafeScript(Frame* target)
@@ -155,7 +160,7 @@ void ScriptController::disconnectFrame()
 
 bool ScriptController::processingUserGesture() const
 {
-    Frame* active_frame = V8Proxy::retrieveActiveFrame();
+    Frame* active_frame = V8Proxy::retrieveFrameForEnteredContext();
     // No script is running, must be run by users.
     if (!active_frame)
         return true;

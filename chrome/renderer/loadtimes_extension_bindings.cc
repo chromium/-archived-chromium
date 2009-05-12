@@ -55,7 +55,7 @@ class LoadTimesExtensionWrapper : public v8::Extension {
   }
 
   static v8::Handle<v8::Value> GetLoadTimes(const v8::Arguments& args) {
-    WebFrame* win_frame = WebFrame::RetrieveActiveFrame();
+    WebFrame* win_frame = WebFrame::RetrieveFrameForEnteredContext();
     if (win_frame) {
       WebDataSource* data_source = win_frame->GetDataSource();
       if (data_source) {
