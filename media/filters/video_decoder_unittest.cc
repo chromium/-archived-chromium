@@ -20,6 +20,7 @@ using media::MockAudioRenderer;
 using media::MockDataSource;
 using media::MockDemuxer;
 using media::MockFilterConfig;
+using media::MockFilterFactory;
 using media::MockVideoRenderer;
 using media::PipelineImpl;
 using media::TestVideoDecoder;
@@ -31,15 +32,10 @@ TEST(VideoDecoder, CreateTestDecoder) {
   scoped_refptr<TestVideoDecoder> test_decoder = new TestVideoDecoder();
   MockFilterConfig config;
   scoped_refptr<FilterFactoryCollection> c = new FilterFactoryCollection();
-  c->AddFactory(MockDataSource::CreateFactory(&config));
-  c->AddFactory(MockDemuxer::CreateFactory(&config));
   c->AddFactory(new InstanceFilterFactory<TestVideoDecoder>(test_decoder));
-  c->AddFactory(MockAudioDecoder::CreateFactory(&config));
-  c->AddFactory(MockAudioRenderer::CreateFactory(&config));
-  c->AddFactory(MockVideoRenderer::CreateFactory(&config));
+  c->AddFactory(new MockFilterFactory(&config));
   media::InitializationHelper h;
   h.Start(&p, c, url);
   p.SetPlaybackRate(1.0f);
   p.Stop();
 }
-

@@ -82,7 +82,7 @@ class MockPipeline : public media::Pipeline {
   // Implementation of Pipeline interface.
   virtual bool Start(FilterFactory* filter_factory,
                      const std::string& url,
-                     Callback1<bool>::Type* init_complete_callback) {
+                     PipelineCallback* init_complete_callback) {
     EXPECT_FALSE(initialized_);
     initialized_ = true;
     if (init_complete_callback) {
@@ -101,7 +101,8 @@ class MockPipeline : public media::Pipeline {
     playback_rate_ = playback_rate;
   }
 
-  virtual void Seek(base::TimeDelta time) {
+  virtual void Seek(base::TimeDelta time,
+                    PipelineCallback* seek_complete_callback) {
     time_ = time;
   }
 

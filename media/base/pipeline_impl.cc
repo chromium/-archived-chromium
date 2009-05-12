@@ -3,6 +3,7 @@
 // found in the LICENSE file.
 
 #include "base/compiler_specific.h"
+#include "base/stl_util-inl.h"
 #include "media/base/filter_host_impl.h"
 #include "media/base/media_format.h"
 #include "media/base/pipeline_impl.h"
@@ -124,10 +125,11 @@ bool PipelineImpl::InternalSetError(PipelineError error) {
 // Creates the PipelineThread and calls it's start method.
 bool PipelineImpl::Start(FilterFactory* factory,
                          const std::string& url,
-                         Callback1<bool>::Type* init_complete_callback) {
+                         PipelineCallback* init_complete_callback) {
   DCHECK(!pipeline_thread_);
   DCHECK(factory);
   DCHECK(!initialized_);
+  DCHECK(!IsPipelineThread());
   if (!pipeline_thread_ && factory) {
     pipeline_thread_ = new PipelineThread(this);
     if (pipeline_thread_) {
@@ -146,16 +148,18 @@ bool PipelineImpl::Start(FilterFactory* factory,
 // Stop the PipelineThread and return to a state identical to that of a newly
 // created PipelineImpl object.
 void PipelineImpl::Stop() {
+  DCHECK(!IsPipelineThread());
+
   if (pipeline_thread_) {
     pipeline_thread_->Stop();
   }
   ResetState();
 }
 
-
-
 void PipelineImpl::SetPlaybackRate(float rate) {
-  if (OkToCallThread() && rate >= 0.0f) {
+  DCHECK(!IsPipelineThread());
+
+  if (IsPipelineOk() && rate >= 0.0f) {
     pipeline_thread_->SetPlaybackRate(rate);
   } else {
     // It's OK for a client to call SetPlaybackRate(0.0f) if we're stopped.
@@ -163,16 +167,21 @@ void PipelineImpl::SetPlaybackRate(float rate) {
   }
 }
 
-void PipelineImpl::Seek(base::TimeDelta time) {
-  if (OkToCallThread()) {
-    pipeline_thread_->Seek(time);
+void PipelineImpl::Seek(base::TimeDelta time,
+                        PipelineCallback* seek_callback) {
+  DCHECK(!IsPipelineThread());
+
+  if (IsPipelineOk()) {
+    pipeline_thread_->Seek(time, seek_callback);
   } else {
     NOTREACHED();
   }
 }
 
 void PipelineImpl::SetVolume(float volume) {
-  if (OkToCallThread() && volume >= 0.0f && volume <= 1.0f) {
+  DCHECK(!IsPipelineThread());
+
+  if (IsPipelineOk() && volume >= 0.0f && volume <= 1.0f) {
     pipeline_thread_->SetVolume(volume);
   } else {
     NOTREACHED();
@@ -195,6 +204,15 @@ void PipelineImpl::ResetState() {
   time_             = base::TimeDelta();
   ticks_at_last_set_time_ = base::TimeTicks::Now();
   rendered_mime_types_.clear();
+}
+
+bool PipelineImpl::IsPipelineOk() const {
+  return pipeline_thread_ && initialized_ && PIPELINE_OK == error_;
+}
+
+bool PipelineImpl::IsPipelineThread() const {
+  return pipeline_thread_ &&
+      PlatformThread::CurrentId() == pipeline_thread_->thread_id();
 }
 
 void PipelineImpl::SetDuration(base::TimeDelta duration) {
@@ -247,7 +265,7 @@ PipelineThread::~PipelineThread() {
 // thread.
 bool PipelineThread::Start(FilterFactory* filter_factory,
                            const std::string& url,
-                           Callback1<bool>::Type* init_complete_callback) {
+                           PipelineCallback* init_complete_callback) {
   if (thread_.Start()) {
     filter_factory->AddRef();
     PostTask(NewRunnableMethod(this,
@@ -284,8 +302,10 @@ void PipelineThread::SetPlaybackRate(float rate) {
 }
 
 // Called on client's thread.
-void PipelineThread::Seek(base::TimeDelta time) {
-  PostTask(NewRunnableMethod(this, &PipelineThread::SeekTask, time));
+void PipelineThread::Seek(base::TimeDelta time,
+                          PipelineCallback* seek_callback) {
+  PostTask(NewRunnableMethod(this, &PipelineThread::SeekTask, time,
+                             seek_callback));
 }
 
 // Called on client's thread.
@@ -355,7 +375,7 @@ void PipelineThread::PostTask(Task* task) {
 // handled by the CreateFilter method.
 void PipelineThread::StartTask(FilterFactory* filter_factory,
                                const std::string& url,
-                               Callback1<bool>::Type* init_complete_callback) {
+                               PipelineCallback* init_complete_callback) {
   // During the entire StartTask we hold the initialization_lock_ so that
   // if the client calls the Pipeline::Stop method while we are running a
   // nested message loop, we can correctly unwind out of it before calling
@@ -402,10 +422,11 @@ void PipelineThread::StopTask() {
   if (PipelineOk()) {
     pipeline_->error_ = PIPELINE_STOPPING;
   }
-  FilterHostVector::iterator iter = filter_hosts_.begin();
-  while (iter != filter_hosts_.end()) {
+
+  for (FilterHostVector::iterator iter = filter_hosts_.begin();
+       iter != filter_hosts_.end();
+       ++iter) {
     (*iter)->Stop();
-    ++iter;
   }
   if (host_initializing_) {
     host_initializing_ = NULL;
@@ -453,18 +474,23 @@ void PipelineThread::InitializationCompleteTask(FilterHostImpl* host) {
 
 void PipelineThread::SetPlaybackRateTask(float rate) {
   pipeline_->InternalSetPlaybackRate(rate);
-  FilterHostVector::iterator iter = filter_hosts_.begin();
-  while (iter != filter_hosts_.end()) {
+  for (FilterHostVector::iterator iter = filter_hosts_.begin();
+       iter != filter_hosts_.end();
+       ++iter) {
     (*iter)->media_filter()->SetPlaybackRate(rate);
-    ++iter;
   }
 }
 
-void PipelineThread::SeekTask(base::TimeDelta time) {
-  FilterHostVector::iterator iter = filter_hosts_.begin();
-  while (iter != filter_hosts_.end()) {
+void PipelineThread::SeekTask(base::TimeDelta time,
+                              PipelineCallback* seek_callback) {
+  for (FilterHostVector::iterator iter = filter_hosts_.begin();
+       iter != filter_hosts_.end();
+       ++iter) {
     (*iter)->media_filter()->Seek(time);
-    ++iter;
+  }
+  if (seek_callback) {
+    seek_callback->Run(true);
+    delete seek_callback;
   }
 }
 
@@ -479,10 +505,10 @@ void PipelineThread::SetVolumeTask(float volume) {
 
 void PipelineThread::SetTimeTask() {
   time_update_callback_scheduled_ = false;
-  FilterHostVector::iterator iter = filter_hosts_.begin();
-  while (iter != filter_hosts_.end()) {
+  for (FilterHostVector::iterator iter = filter_hosts_.begin();
+       iter != filter_hosts_.end();
+       ++iter) {
     (*iter)->RunTimeUpdateCallback(pipeline_->time_);
-    ++iter;
   }
 }
 
@@ -554,10 +580,7 @@ scoped_refptr<DataSource> PipelineThread::CreateDataSource(
 
 // Called as a result of destruction of the thread.
 void PipelineThread::WillDestroyCurrentMessageLoop() {
-  while (!filter_hosts_.empty()) {
-    delete filter_hosts_.back();
-    filter_hosts_.pop_back();
-  }
+  STLDeleteElements(&filter_hosts_);
 }
 
 }  // namespace media

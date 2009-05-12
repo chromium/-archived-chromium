@@ -13,140 +13,194 @@
 #include "media/base/mock_media_filters.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
-using media::FilterFactory;
-using media::FilterFactoryCollection;
-using media::FilterHost;
-using media::InitializationHelper;
-using media::MediaFormat;
-using media::MockAudioDecoder;
-using media::MockAudioRenderer;
-using media::MockDataSource;
-using media::MockDemuxer;
-using media::MockFilterConfig;
-using media::MockVideoDecoder;
-using media::MockVideoRenderer;
-using media::PipelineImpl;
-
 namespace {
 
-void AddAllMockFilters(FilterFactoryCollection* factories,
-                       const MockFilterConfig* config) {
-  factories->AddFactory(MockDataSource::CreateFactory(config));
-  factories->AddFactory(MockDemuxer::CreateFactory(config));
-  factories->AddFactory(MockAudioDecoder::CreateFactory(config));
-  factories->AddFactory(MockAudioRenderer::CreateFactory(config));
-  factories->AddFactory(MockVideoDecoder::CreateFactory(config));
-  factories->AddFactory(MockVideoRenderer::CreateFactory(config));
+class PipelineImplTest : public testing::Test {
+ protected:
+  PipelineImplTest()
+      : initialize_result_(false),
+        seek_result_(false),
+        initialize_event_(false, false),
+        seek_event_(false, false) {
+  }
+
+  virtual ~PipelineImplTest() {}
+
+  virtual void TearDown() {
+    // Force the pipeline to shut down its thread.
+    pipeline_.Stop();
+  }
+
+  // Called by tests after they have finished setting up MockFilterConfig.
+  // Initializes the pipeline and returns true if the initialization callback
+  // was executed, false otherwise.
+  bool InitializeAndWait() {
+    DCHECK(!filters_);
+    filters_ = new media::MockFilterFactory(&config_);
+    pipeline_.Start(filters_, "",
+                    NewCallback(this, &PipelineImplTest::OnInitialize));
+    return initialize_event_.TimedWait(base::TimeDelta::FromMilliseconds(500));
+  }
+
+  // Issues a seek on the pipeline and returns true if the seek callback was
+  // executed, false otherwise.
+  bool SeekAndWait(const base::TimeDelta& time) {
+    pipeline_.Seek(time, NewCallback(this, &PipelineImplTest::OnSeek));
+    return seek_event_.TimedWait(base::TimeDelta::FromMilliseconds(500));
+  }
+
+  // Fixture members.
+  media::PipelineImpl pipeline_;
+  scoped_refptr<media::MockFilterFactory> filters_;
+  media::MockFilterConfig config_;
+  bool initialize_result_;
+  bool seek_result_;
+
+ private:
+  void OnInitialize(bool result) {
+    initialize_result_ = result;
+    initialize_event_.Signal();
+  }
+
+  void OnSeek(bool result) {
+    seek_result_ = result;
+    seek_event_.Signal();
+  }
+
+  // Used to wait for callbacks.
+  base::WaitableEvent initialize_event_;
+  base::WaitableEvent seek_event_;
+
+  DISALLOW_COPY_AND_ASSIGN(PipelineImplTest);
+};
+
+TEST_F(PipelineImplTest, NeverInitializes) {
+  config_.data_source_behavior = media::MOCK_DATA_SOURCE_NEVER_INIT;
+
+  // This test hangs during initialization by never calling
+  // InitializationComplete().  Make sure we tear down the pipeline properly.
+  ASSERT_FALSE(InitializeAndWait());
+  EXPECT_FALSE(initialize_result_);
+  EXPECT_FALSE(pipeline_.IsInitialized());
+  EXPECT_EQ(media::PIPELINE_OK, pipeline_.GetError());
 }
 
-}  // namespace
+TEST_F(PipelineImplTest, RequiredFilterMissing) {
+  config_.create_filter = false;
 
-// TODO(ralphl): Get rid of single character variable names in these tests.
-TEST(PipelineImplTest, Initialization) {
-  std::string u("");
-
-  // This test hangs during initialization of the data source (it never
-  // calls InitializationComplete).  Make sure we tear down the pipeline
-  // propertly.
-  PipelineImpl p;
-  InitializationHelper h;
-  MockFilterConfig config;
-  config.data_source_behavior = media::MOCK_DATA_SOURCE_NEVER_INIT;
-  h.Start(&p, MockDataSource::CreateFactory(&config), u,
-          media::PIPELINE_OK, true);
-  p.Stop();
-  EXPECT_FALSE(h.waiting_for_callback());
-  EXPECT_FALSE(h.callback_success_status());
-  EXPECT_TRUE(media::PIPELINE_OK == p.GetError());
-
-  // This test should not hang.  Should return an error indicating that we are
-  // missing a requried filter.
-  config.data_source_behavior = media::MOCK_DATA_SOURCE_TASK_INIT;
-  h.Start(&p, MockDataSource::CreateFactory(&config), u,
-          media::PIPELINE_ERROR_REQUIRED_FILTER_MISSING);
-  p.Stop();
-
-  // This test should return a specific error from the mock data source.
-  config.data_source_behavior = media::MOCK_DATA_SOURCE_URL_ERROR_IN_INIT;
-  h.Start(&p, MockDataSource::CreateFactory(&config), u,
-          media::PIPELINE_ERROR_URL_NOT_FOUND);
-  p.Stop();
+  ASSERT_TRUE(InitializeAndWait());
+  EXPECT_FALSE(initialize_result_);
+  EXPECT_FALSE(pipeline_.IsInitialized());
+  EXPECT_EQ(media::PIPELINE_ERROR_REQUIRED_FILTER_MISSING,
+            pipeline_.GetError());
 }
 
-TEST(PipelineImplTest, MockAudioPipeline) {
-  std::string url("");
-  PipelineImpl p;
-  MockFilterConfig config;
-  config.has_video = false;
-  scoped_refptr<FilterFactoryCollection> c = new FilterFactoryCollection();
-  AddAllMockFilters(c, &config);
-  InitializationHelper h;
-  h.Start(&p, c, url);
+TEST_F(PipelineImplTest, URLNotFound) {
+  config_.data_source_behavior = media::MOCK_DATA_SOURCE_URL_ERROR_IN_INIT;
+
+  ASSERT_TRUE(InitializeAndWait());
+  EXPECT_FALSE(initialize_result_);
+  EXPECT_FALSE(pipeline_.IsInitialized());
+  EXPECT_EQ(media::PIPELINE_ERROR_URL_NOT_FOUND, pipeline_.GetError());
+}
+
+TEST_F(PipelineImplTest, NoStreams) {
+  config_.has_audio = false;
+  config_.has_video = false;
+
+  ASSERT_TRUE(InitializeAndWait());
+  EXPECT_FALSE(initialize_result_);
+  EXPECT_FALSE(pipeline_.IsInitialized());
+  EXPECT_EQ(media::PIPELINE_ERROR_COULD_NOT_RENDER, pipeline_.GetError());
+
+  EXPECT_FALSE(filters_->audio_decoder());
+  EXPECT_FALSE(filters_->audio_renderer());
+  EXPECT_FALSE(filters_->video_decoder());
+  EXPECT_FALSE(filters_->video_renderer());
+}
+
+TEST_F(PipelineImplTest, AudioStream) {
+  config_.has_video = false;
+
+  ASSERT_TRUE(InitializeAndWait());
+  EXPECT_TRUE(initialize_result_);
+  EXPECT_TRUE(pipeline_.IsInitialized());
+  EXPECT_EQ(media::PIPELINE_OK, pipeline_.GetError());
+
   size_t width, height;
-  p.GetVideoSize(&width, &height);
-  EXPECT_TRUE(p.IsRendered(media::mime_type::kMajorTypeAudio));
-  EXPECT_FALSE(p.IsRendered(media::mime_type::kMajorTypeVideo));
+  pipeline_.GetVideoSize(&width, &height);
   EXPECT_EQ(0u, width);
   EXPECT_EQ(0u, height);
-  p.SetPlaybackRate(1.0f);
-  p.SetVolume(0.5f);
-  p.Stop();
-  EXPECT_FALSE(p.IsInitialized());
+  EXPECT_TRUE(pipeline_.IsRendered(media::mime_type::kMajorTypeAudio));
+  EXPECT_FALSE(pipeline_.IsRendered(media::mime_type::kMajorTypeVideo));
+
+  EXPECT_TRUE(filters_->audio_decoder());
+  EXPECT_TRUE(filters_->audio_renderer());
+  EXPECT_FALSE(filters_->video_decoder());
+  EXPECT_FALSE(filters_->video_renderer());
 }
 
-TEST(PipelineImplTest, MockVideoPipeline) {
-  std::string url("");
-  PipelineImpl p;
-  scoped_refptr<FilterFactoryCollection> c = new FilterFactoryCollection();
-  MockFilterConfig config;
-  AddAllMockFilters(c, &config);
-  InitializationHelper h;
-  h.Start(&p, c, url);
+TEST_F(PipelineImplTest, VideoStream) {
+  config_.has_audio = false;
+
+  ASSERT_TRUE(InitializeAndWait());
+  EXPECT_TRUE(initialize_result_);
+  EXPECT_TRUE(pipeline_.IsInitialized());
+  EXPECT_EQ(media::PIPELINE_OK, pipeline_.GetError());
+
   size_t width, height;
-  p.GetVideoSize(&width, &height);
-  EXPECT_EQ(config.video_width, width);
-  EXPECT_EQ(config.video_height, height);
-  EXPECT_TRUE(p.IsRendered(media::mime_type::kMajorTypeAudio));
-  EXPECT_TRUE(p.IsRendered(media::mime_type::kMajorTypeVideo));
-  p.SetPlaybackRate(1.0f);
-  p.SetVolume(0.5f);
-  p.Stop();
-  EXPECT_FALSE(p.IsInitialized());
+  pipeline_.GetVideoSize(&width, &height);
+  EXPECT_EQ(config_.video_width, width);
+  EXPECT_EQ(config_.video_height, height);
+  EXPECT_FALSE(pipeline_.IsRendered(media::mime_type::kMajorTypeAudio));
+  EXPECT_TRUE(pipeline_.IsRendered(media::mime_type::kMajorTypeVideo));
+
+  EXPECT_FALSE(filters_->audio_decoder());
+  EXPECT_FALSE(filters_->audio_renderer());
+  EXPECT_TRUE(filters_->video_decoder());
+  EXPECT_TRUE(filters_->video_renderer());
 }
 
-TEST(PipelineImplTest, MockVideoOnlyPipeline) {
-  std::string url("");
-  PipelineImpl p;
-  scoped_refptr<FilterFactoryCollection> c = new FilterFactoryCollection();
-  MockFilterConfig config;
-  config.has_audio = false;
-  AddAllMockFilters(c, &config);
-  InitializationHelper h;
-  h.Start(&p, c, url);
+TEST_F(PipelineImplTest, AudioVideoStream) {
+  ASSERT_TRUE(InitializeAndWait());
+  EXPECT_TRUE(initialize_result_);
+  EXPECT_TRUE(pipeline_.IsInitialized());
+  EXPECT_EQ(media::PIPELINE_OK, pipeline_.GetError());
+
   size_t width, height;
-  p.GetVideoSize(&width, &height);
-  EXPECT_EQ(config.video_width, width);
-  EXPECT_EQ(config.video_height, height);
-  EXPECT_FALSE(p.IsRendered(media::mime_type::kMajorTypeAudio));
-  EXPECT_TRUE(p.IsRendered(media::mime_type::kMajorTypeVideo));
-  p.SetPlaybackRate(1.0f);
-  p.Stop();
-  EXPECT_FALSE(p.IsInitialized());
+  pipeline_.GetVideoSize(&width, &height);
+  EXPECT_EQ(config_.video_width, width);
+  EXPECT_EQ(config_.video_height, height);
+  EXPECT_TRUE(pipeline_.IsRendered(media::mime_type::kMajorTypeAudio));
+  EXPECT_TRUE(pipeline_.IsRendered(media::mime_type::kMajorTypeVideo));
+
+  EXPECT_TRUE(filters_->audio_decoder());
+  EXPECT_TRUE(filters_->audio_renderer());
+  EXPECT_TRUE(filters_->video_decoder());
+  EXPECT_TRUE(filters_->video_renderer());
 }
 
-TEST(PipelineImplTest, MockNothingToRenderPipeline) {
-  std::string url("");
-  PipelineImpl p;
-  scoped_refptr<FilterFactoryCollection> c = new FilterFactoryCollection();
-  MockFilterConfig config;
-  config.has_audio = false;
-  config.has_video = false;
-  AddAllMockFilters(c, &config);
-  InitializationHelper h;
-  h.Start(&p, c, url, media::PIPELINE_ERROR_COULD_NOT_RENDER);
-  p.Stop();
+TEST_F(PipelineImplTest, Seek) {
+  ASSERT_TRUE(InitializeAndWait());
+
+  // Seek and verify callback returned true.
+  base::TimeDelta expected = base::TimeDelta::FromSeconds(2000);
+  EXPECT_TRUE(SeekAndWait(expected));
+  EXPECT_TRUE(seek_result_);
+
+  // Verify every filter received the seek.
+  // TODO(scherkus): implement whatever it takes so I can use EXPECT_EQ with
+  // base::TimeDelta.
+  EXPECT_TRUE(expected == filters_->data_source()->seek_time());
+  EXPECT_TRUE(expected == filters_->demuxer()->seek_time());
+  EXPECT_TRUE(expected == filters_->audio_decoder()->seek_time());
+  EXPECT_TRUE(expected == filters_->audio_renderer()->seek_time());
+  EXPECT_TRUE(expected == filters_->video_decoder()->seek_time());
+  EXPECT_TRUE(expected == filters_->video_renderer()->seek_time());
 }
 
 // TODO(ralphl): Add a unit test that makes sure that the mock audio filter
 // is actually called on a SetVolume() call to the pipeline.  I almost checked
 // in code that broke this, but all unit tests were passing.
+
+}  // namespace

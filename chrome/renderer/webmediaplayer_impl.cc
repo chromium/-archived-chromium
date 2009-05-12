@@ -113,7 +113,7 @@ void WebMediaPlayerImpl::load(const WebKit::WebURL& url) {
 
   // Initialize the pipeline
   pipeline_.Start(filter_factory_.get(), url.spec(),
-      NewCallback(this, &WebMediaPlayerImpl::DidInitializePipeline));
+      NewCallback(this, &WebMediaPlayerImpl::OnPipelineInitialize));
 }
 
 void WebMediaPlayerImpl::cancelLoad() {
@@ -146,14 +146,11 @@ void WebMediaPlayerImpl::stop() {
 void WebMediaPlayerImpl::seek(float seconds) {
   DCHECK(main_loop_ && MessageLoop::current() == main_loop_);
 
-  pipeline_.Seek(base::TimeDelta::FromSeconds(static_cast<int64>(seconds)));
-
-  // Even though the seek might be in progress, WebKit's HTMLMediaElement
-  // thinks we're seeking unless we notify that the time has changed.
-  //
-  // TODO(scherkus): add a seek completion callback to the pipeline.
-  PostTask(kTimeChangedTaskIndex,
-           &WebKit::WebMediaPlayerClient::timeChanged);
+  // Try to preserve as much accuracy as possible.
+  float microseconds = seconds * base::Time::kMicrosecondsPerSecond;
+  pipeline_.Seek(
+      base::TimeDelta::FromMicroseconds(static_cast<int64>(microseconds)),
+      NewCallback(this, &WebMediaPlayerImpl::OnPipelineSeek));
 }
 
 void WebMediaPlayerImpl::setEndTime(float seconds) {
@@ -297,7 +294,7 @@ void WebMediaPlayerImpl::WillDestroyCurrentMessageLoop() {
   pipeline_.Stop();
 }
 
-void WebMediaPlayerImpl::DidInitializePipeline(bool successful) {
+void WebMediaPlayerImpl::OnPipelineInitialize(bool successful) {
   if (successful) {
     // Since we have initialized the pipeline, say we have everything.
     // TODO(hclam): change this to report the correct status.
@@ -314,6 +311,11 @@ void WebMediaPlayerImpl::DidInitializePipeline(bool successful) {
            &WebKit::WebMediaPlayerClient::networkStateChanged);
   PostTask(kReadyStateTaskIndex,
            &WebKit::WebMediaPlayerClient::readyStateChanged);
+}
+
+void WebMediaPlayerImpl::OnPipelineSeek(bool successful) {
+  PostTask(kTimeChangedTaskIndex,
+           &WebKit::WebMediaPlayerClient::timeChanged);
 }
 
 void WebMediaPlayerImpl::SetVideoRenderer(VideoRendererImpl* video_renderer) {

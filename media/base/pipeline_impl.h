@@ -46,29 +46,32 @@ class PipelineImpl : public Pipeline {
   virtual PipelineError GetError() const;
   virtual bool IsRendered(const std::string& major_mime_type) const;
 
-  // Impementation of Pipeline methods.
+  // Implementation of Pipeline methods.
   virtual bool Start(FilterFactory* filter_factory,
                      const std::string& url,
-                     Callback1<bool>::Type* init_complete_callback);
+                     PipelineCallback* start_callback);
   virtual void Stop();
   virtual void SetPlaybackRate(float rate);
-  virtual void Seek(base::TimeDelta time);
+  virtual void Seek(base::TimeDelta time,
+                    PipelineCallback* seek_callback);
   virtual void SetVolume(float volume);
 
  private:
   friend class FilterHostImpl;
   friend class PipelineThread;
 
-  // Reset the state of the pipline object to the initial state.  This method
+  // Reset the state of the pipeline object to the initial state.  This method
   // is used by the constructor, and the Stop method.
   void ResetState();
 
   // Used internally to make sure that the thread is in a state that is
   // acceptable to post a task to.  It must exist, be initialized, and there
   // must not be an error.
-  bool OkToCallThread() const {
-    return (pipeline_thread_ && initialized_ && PIPELINE_OK == error_);
-  }
+  bool IsPipelineOk() const;
+
+  // Returns true if we're currently executing on the pipeline thread.  Mostly
+  // used in DCHECKs.
+  bool IsPipelineThread() const;
 
   // Methods called by FilterHostImpl to update pipeline state.
   void SetDuration(base::TimeDelta duration);
@@ -170,10 +173,10 @@ class PipelineThread : public base::RefCountedThreadSafe<PipelineThread>,
 
   bool Start(FilterFactory* filter_factory,
              const std::string& url_media_source,
-             Callback1<bool>::Type* init_complete_callback);
+             PipelineCallback* init_complete_callback);
   void Stop();
   void SetPlaybackRate(float rate);
-  void Seek(base::TimeDelta time);
+  void Seek(base::TimeDelta time, PipelineCallback* seek_callback);
   void SetVolume(float volume);
 
   // Methods called by a FilterHostImpl object.  These methods may be called
@@ -203,6 +206,10 @@ class PipelineThread : public base::RefCountedThreadSafe<PipelineThread>,
   // Accessor used to post messages to thread's message loop.
   MessageLoop* message_loop() const { return thread_.message_loop(); }
 
+  // Accessor used by PipelineImpl to check if we're executing on the pipeline
+  // thread.
+  PlatformThreadId thread_id() const { return thread_.thread_id(); }
+
  private:
   // Implementation of MessageLoop::DestructionObserver.  StartTask registers
   // this class as a destruction observer on the thread's message loop.
@@ -223,10 +230,10 @@ class PipelineThread : public base::RefCountedThreadSafe<PipelineThread>,
   // StartTask message on the pipeline thread.
   void StartTask(FilterFactory* filter_factory,
                  const std::string& url,
-                 Callback1<bool>::Type* init_complete_callback);
+                 PipelineCallback* init_complete_callback);
   void StopTask();
   void SetPlaybackRateTask(float rate);
-  void SeekTask(base::TimeDelta time);
+  void SeekTask(base::TimeDelta time, PipelineCallback* seek_callback);
   void SetVolumeTask(float volume);
   void SetTimeTask();
   void InitializationCompleteTask(FilterHostImpl* FilterHost);

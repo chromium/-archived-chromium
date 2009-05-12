@@ -116,6 +116,11 @@ class PipelineStatus {
   virtual ~PipelineStatus() {}
 };
 
+// Client-provided callbacks for various pipeline operations.
+//
+// TODO(scherkus): consider returning a PipelineError instead of a bool, or
+// perhaps a client callback interface.
+typedef Callback1<bool>::Type PipelineCallback;
 
 class Pipeline : public PipelineStatus {
  public:
@@ -123,28 +128,28 @@ class Pipeline : public PipelineStatus {
   // construct a filter chain.  Returns true if successful, false otherwise
   // (i.e., pipeline already started).  Note that a return value of true
   // only indicates that the initialization process has started successfully.
-  // Pipeline initializaion is an inherently asynchronous process.  Clients
-  // should not call SetPlaybackRate, Seek, or SetVolume until initialization
-  // is complete.  Clients can either poll the IsInitialized() method (which is
-  // discouraged) or use the init_complete_callback as described below.
+  // Pipeline initialization is an inherently asynchronous process.  Clients
+  // should not call SetPlaybackRate(), Seek(), or SetVolume() until
+  // initialization is complete.  Clients can either poll the IsInitialized()
+  // method (which is discouraged) or use the |start_callback| as described
+  // below.
   //
   // This method is asynchronous and can execute a callback when completed.
-  // If the caller provides an init_complete_callback, it will be
-  // called when the pipeline initiailization completes.  If successful, the
-  // callback's bool parameter will be true.  If the callback is called with
-  // false, then the client can use the GetError method to obtain more
-  // information about the reason initialization failed.  The prototype for
-  // the client callback is:
+  // If the caller provides a |start_callback|, it will be called when the
+  // pipeline initialization completes.  If successful, the callback's bool
+  // parameter will be true.  If the callback is called with false, then the
+  // client can use the GetError() method to obtain more information about the
+  // reason initialization failed.  The prototype for the client callback is:
   //    void Client::PipelineInitComplete(bool init_was_successful);
   //
   // Note that clients must not call the Stop method from within the
-  // init_complete_callback.  Other methods, including SetPlaybackRate,
-  // Seek, and SetVolume may be called.  The client will be called on a
-  // thread owned by the pipeline class, not on the thread that originally
-  // called the Start method.
+  // |start_callback|.  Other methods, including SetPlaybackRate(), Seek(), and
+  // SetVolume() may be called.  The client will be called on a thread owned by
+  // the pipeline class, not on the thread that originally called the Start()
+  // method.
   virtual bool Start(FilterFactory* filter_factory,
                      const std::string& uri,
-                     Callback1<bool>::Type* init_complete_callback) = 0;
+                     PipelineCallback* start_callback) = 0;
 
   // Stops the pipeline and resets to an uninitialized state.  This method
   // will block the calling thread until the pipeline has been completely
@@ -158,15 +163,19 @@ class Pipeline : public PipelineStatus {
   // Attempt to adjust the playback rate. Setting a playback rate of 0.0f pauses
   // all rendering of the media.  A rate of 1.0f indicates a normal playback
   // rate.  Values for the playback rate must be greater than or equal to 0.0f.
-  // TODO(ralphl) What about maximum rate?  Does HTML5 specify a max?
+  // TODO(ralphl): What about maximum rate?  Does HTML5 specify a max?
   //
   // This method must be called only after initialization has completed.
   virtual void SetPlaybackRate(float playback_rate) = 0;
 
-  // Attempt to seek to the position in microseconds.
+  // Attempt to seek to the position specified by time.  |seek_callback| will be
+  // executed when the all filters in the pipeline have processed the seek.
+  // The callback will return true if the seek was carried out, false otherwise
+  // (i.e., streaming media).
   //
   // This method must be called only after initialization has completed.
-  virtual void Seek(base::TimeDelta time) = 0;
+  virtual void Seek(base::TimeDelta time,
+                    PipelineCallback* seek_callback) = 0;
 
   // Attempt to set the volume of the audio renderer.  Valid values for volume
   // range from 0.0f (muted) to 1.0f (full volume).  This value affects all

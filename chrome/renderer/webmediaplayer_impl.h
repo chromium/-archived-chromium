@@ -132,9 +132,11 @@ class WebMediaPlayerImpl : public WebKit::WebMediaPlayer,
   // to it.
   virtual void WillDestroyCurrentMessageLoop();
 
-  // Notification callback for initialization from |pipeline_|. |successful| is
-  // true if the pipeline initialization is successful otherwise false.
-  void DidInitializePipeline(bool successful);
+  // Notification from |pipeline_| when initialization has finished.
+  void OnPipelineInitialize(bool successful);
+
+  // Notification from |pipeline_| when a seek has finished.
+  void OnPipelineSeek(bool successful);
 
   // Called from tasks posted to |main_loop_| from this object to remove
   // reference of them.

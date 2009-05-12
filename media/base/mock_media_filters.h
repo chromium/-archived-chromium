@@ -37,7 +37,8 @@ enum MockDataSourceBehavior {
 // is typically allocated on the stack.
 struct MockFilterConfig {
   MockFilterConfig()
-      : data_source_behavior(MOCK_DATA_SOURCE_NORMAL_INIT),
+      : create_filter(true),
+        data_source_behavior(MOCK_DATA_SOURCE_NORMAL_INIT),
         data_source_value('!'),
         has_video(true),
         video_width(1280u),
@@ -53,6 +54,7 @@ struct MockFilterConfig {
         media_total_bytes(media_duration.InMilliseconds() * 250) {
   }
 
+  bool create_filter;
   MockDataSourceBehavior data_source_behavior;
   char data_source_value;
   bool has_video;
@@ -72,11 +74,6 @@ struct MockFilterConfig {
 
 class MockDataSource : public DataSource {
  public:
-  static FilterFactory* CreateFactory(const MockFilterConfig* config) {
-     return new FilterFactoryImpl1<MockDataSource,
-                                   const MockFilterConfig*>(config);
-  }
-
   explicit MockDataSource(const MockFilterConfig* config)
       : config_(config),
         position_(0),
@@ -93,6 +90,10 @@ class MockDataSource : public DataSource {
 
   // Implementation of MediaFilter.
   virtual void Stop() {}
+
+  virtual void Seek(base::TimeDelta time) {
+    seek_time_ = time;
+  }
 
   // Implementation of DataSource.
   virtual bool Initialize(const std::string& url) {
@@ -162,8 +163,9 @@ class MockDataSource : public DataSource {
     return true;
   }
 
-  // Simple position getter for unit testing.
+  // Mock accessors.
   int64 position() const { return position_; }
+  const base::TimeDelta& seek_time() const { return seek_time_; }
 
  private:
   virtual ~MockDataSource() {
@@ -189,6 +191,7 @@ class MockDataSource : public DataSource {
   const MockFilterConfig* config_;
   int64 position_;
   MediaFormat media_format_;
+  base::TimeDelta seek_time_;
 
   // Set to true inside the destructor.  Used in FFmpegGlue unit tests for
   // testing proper reference counting.
@@ -197,7 +200,6 @@ class MockDataSource : public DataSource {
   DISALLOW_COPY_AND_ASSIGN(MockDataSource);
 };
 
-//------------------------------------------------------------------------------
 
 class MockDemuxerStream : public DemuxerStream {
  public:
@@ -230,15 +232,9 @@ class MockDemuxerStream : public DemuxerStream {
   DISALLOW_COPY_AND_ASSIGN(MockDemuxerStream);
 };
 
-//------------------------------------------------------------------------------
 
 class MockDemuxer : public Demuxer {
  public:
-  static FilterFactory* CreateFactory(const MockFilterConfig* config) {
-     return new FilterFactoryImpl1<MockDemuxer,
-                                   const MockFilterConfig*>(config);
-  }
-
   explicit MockDemuxer(const MockFilterConfig* config)
       : config_(config),
         mock_audio_stream_(new MockDemuxerStream(config, true)),
@@ -247,6 +243,10 @@ class MockDemuxer : public Demuxer {
 
   // Implementation of MediaFilter.
   virtual void Stop() {}
+
+  virtual void Seek(base::TimeDelta time) {
+    seek_time_ = time;
+  }
 
   // Implementation of Demuxer.
   virtual bool Initialize(DataSource* data_source) {
@@ -284,29 +284,23 @@ class MockDemuxer : public Demuxer {
     return NULL;
   }
 
+  // Mock accessors.
+  const base::TimeDelta& seek_time() const { return seek_time_; }
+
  private:
   virtual ~MockDemuxer() {}
 
   const MockFilterConfig* config_;
   scoped_refptr<DemuxerStream> mock_audio_stream_;
   scoped_refptr<DemuxerStream> mock_video_stream_;
+  base::TimeDelta seek_time_;
 
   DISALLOW_COPY_AND_ASSIGN(MockDemuxer);
 };
 
-//------------------------------------------------------------------------------
 
 class MockAudioDecoder : public AudioDecoder {
  public:
-  static FilterFactory* CreateFactory(const MockFilterConfig* config) {
-    return new FilterFactoryImpl1<MockAudioDecoder,
-                                  const MockFilterConfig*>(config);
-  }
-
-  static bool IsMediaFormatSupported(const MediaFormat& media_format) {
-    return true;  // TODO(ralphl): check for a supported format.
-  }
-
   explicit MockAudioDecoder(const MockFilterConfig* config) {
     media_format_.SetAsString(MediaFormat::kMimeType,
                               config->uncompressed_audio_mime_type);
@@ -314,6 +308,10 @@ class MockAudioDecoder : public AudioDecoder {
 
   // Implementation of MediaFilter.
   virtual void Stop() {}
+
+  virtual void Seek(base::TimeDelta time) {
+    seek_time_ = time;
+  }
 
   // Implementation of AudioDecoder.
   virtual bool Initialize(DemuxerStream* stream) {
@@ -330,31 +328,29 @@ class MockAudioDecoder : public AudioDecoder {
     NOTREACHED();
   }
 
+  // Mock accessors.
+  const base::TimeDelta& seek_time() const { return seek_time_; }
+
  private:
   virtual ~MockAudioDecoder() {}
 
   MediaFormat media_format_;
+  base::TimeDelta seek_time_;
 
   DISALLOW_COPY_AND_ASSIGN(MockAudioDecoder);
 };
 
-//------------------------------------------------------------------------------
 
 class MockAudioRenderer : public AudioRenderer {
  public:
-  static FilterFactory* CreateFactory(const MockFilterConfig* config) {
-    return new FilterFactoryImpl1<MockAudioRenderer,
-                                  const MockFilterConfig*>(config);
-  }
-
-  static bool IsMediaFormatSupported(const MediaFormat& media_format) {
-    return true;  // TODO(ralphl): check for a supported format
-  }
-
   explicit MockAudioRenderer(const MockFilterConfig* config) {}
 
   // Implementation of MediaFilter.
   virtual void Stop() {}
+
+  virtual void Seek(base::TimeDelta time) {
+    seek_time_ = time;
+  }
 
   // Implementation of AudioRenderer.
   virtual bool Initialize(AudioDecoder* decoder) {
@@ -364,25 +360,20 @@ class MockAudioRenderer : public AudioRenderer {
 
   virtual void SetVolume(float volume) {}
 
+  // Mock accessors.
+  const base::TimeDelta& seek_time() const { return seek_time_; }
+
  private:
   virtual ~MockAudioRenderer() {}
+
+  base::TimeDelta seek_time_;
 
   DISALLOW_COPY_AND_ASSIGN(MockAudioRenderer);
 };
 
-//------------------------------------------------------------------------------
 
 class MockVideoDecoder : public VideoDecoder {
  public:
-  static FilterFactory* CreateFactory(const MockFilterConfig* config) {
-    return new FilterFactoryImpl1<MockVideoDecoder,
-                                  const MockFilterConfig*>(config);
-  }
-
-  static bool IsMediaFormatSupported(const MediaFormat& media_format) {
-    return true;  // TODO(ralphl): check for a supported format.
-  }
-
   // Helper function that initializes a YV12 frame with white and black scan
   // lines based on the |white_to_black| parameter.  If 0, then the entire
   // frame will be black, if 1 then the entire frame will be white.
@@ -423,6 +414,10 @@ class MockVideoDecoder : public VideoDecoder {
   // Implementation of MediaFilter.
   virtual void Stop() {}
 
+  virtual void Seek(base::TimeDelta time) {
+    seek_time_ = time;
+  }
+
   // Implementation of VideoDecoder.
   virtual bool Initialize(DemuxerStream* stream) {
     host_->InitializationComplete();
@@ -437,6 +432,9 @@ class MockVideoDecoder : public VideoDecoder {
     host_->PostTask(NewRunnableMethod(
         this, &MockVideoDecoder::DoRead, callback));
   }
+
+  // Mock accessors.
+  const base::TimeDelta& seek_time() const { return seek_time_; }
 
  private:
   virtual ~MockVideoDecoder() {}
@@ -471,30 +469,25 @@ class MockVideoDecoder : public VideoDecoder {
 
   MediaFormat media_format_;
   base::TimeDelta mock_frame_time_;
+  base::TimeDelta seek_time_;
   const MockFilterConfig* config_;
 
   DISALLOW_COPY_AND_ASSIGN(MockVideoDecoder);
 };
 
-//------------------------------------------------------------------------------
 
 class MockVideoRenderer : public VideoRenderer {
  public:
-  static FilterFactory* CreateFactory(const MockFilterConfig* config) {
-    return new FilterFactoryImpl1<MockVideoRenderer,
-                                  const MockFilterConfig*>(config);
-  }
-
-  static bool IsMediaFormatSupported(const MediaFormat& media_format) {
-    return true;  // TODO(ralphl): check for a supported format
-  }
-
   explicit MockVideoRenderer(const MockFilterConfig* config)
       : config_(config) {
   }
 
   // Implementation of MediaFilter.
   virtual void Stop() {}
+
+  virtual void Seek(base::TimeDelta time) {
+    seek_time_ = time;
+  }
 
   // Implementation of VideoRenderer.
   virtual bool Initialize(VideoDecoder* decoder) {
@@ -503,19 +496,94 @@ class MockVideoRenderer : public VideoRenderer {
     return true;
   }
 
+  // Mock accessors.
+  const base::TimeDelta& seek_time() const { return seek_time_; }
+
  private:
   virtual ~MockVideoRenderer() {}
 
+  base::TimeDelta seek_time_;
   const MockFilterConfig* config_;
 
   DISALLOW_COPY_AND_ASSIGN(MockVideoRenderer);
 };
 
 
-//------------------------------------------------------------------------------
+// FilterFactory capable of creating each mock filter type.  Only one instance
+// of each filter type can exist at any time.  Filters can be inspected for
+// expectations using the accessors, which may return NULL if the filter was
+// never created (i.e., streams containing no video).
+class MockFilterFactory : public FilterFactory {
+ public:
+  explicit MockFilterFactory(const MockFilterConfig* config)
+      : config_(config) {
+  }
+
+  // Mock accessors.
+  MockDataSource* data_source() const { return data_source_; }
+  MockDemuxer* demuxer() const { return demuxer_; }
+  MockAudioDecoder* audio_decoder() const { return audio_decoder_; }
+  MockVideoDecoder* video_decoder() const { return video_decoder_; }
+  MockAudioRenderer* audio_renderer() const { return audio_renderer_; }
+  MockVideoRenderer* video_renderer() const { return video_renderer_; }
+
+ protected:
+  MediaFilter* Create(FilterType filter_type, const MediaFormat& media_format) {
+    if (!config_->create_filter)
+      return NULL;
+
+    switch (filter_type) {
+      case FILTER_DATA_SOURCE:
+        DCHECK(!data_source_);
+        data_source_ = new MockDataSource(config_);
+        return data_source_;
+
+      case FILTER_DEMUXER:
+        DCHECK(!demuxer_);
+        demuxer_ = new MockDemuxer(config_);
+        return demuxer_;
+
+      case FILTER_AUDIO_DECODER:
+        DCHECK(!audio_decoder_);
+        audio_decoder_ = new MockAudioDecoder(config_);
+        return audio_decoder_;
+
+      case FILTER_VIDEO_DECODER:
+        DCHECK(!video_decoder_);
+        video_decoder_ = new MockVideoDecoder(config_);
+        return video_decoder_;
+
+      case FILTER_AUDIO_RENDERER:
+        DCHECK(!audio_renderer_);
+        audio_renderer_ = new MockAudioRenderer(config_);
+        return audio_renderer_;
+
+      case FILTER_VIDEO_RENDERER:
+        DCHECK(!video_renderer_);
+        video_renderer_ = new MockVideoRenderer(config_);
+        return video_renderer_;
+
+      default:
+        NOTREACHED();
+    }
+    return NULL;
+  }
+
+ private:
+  const MockFilterConfig* config_;
+  scoped_refptr<MockDataSource> data_source_;
+  scoped_refptr<MockDemuxer> demuxer_;
+  scoped_refptr<MockAudioDecoder> audio_decoder_;
+  scoped_refptr<MockVideoDecoder> video_decoder_;
+  scoped_refptr<MockAudioRenderer> audio_renderer_;
+  scoped_refptr<MockVideoRenderer> video_renderer_;
+
+  DISALLOW_COPY_AND_ASSIGN(MockFilterFactory);
+};
+
 // A simple class that waits for a pipeline to be started and checks some
 // basic initialization values.  The Start() method will not return until
-// either a pre-dermined amount of time has passed or the pipeline calls the
+// either a pre-determined amount of time has passed or the pipeline calls the
 // InitCallback() callback.  A typical use would be:
 //   Pipeline p;
 //   FilterFactoryCollection f;
@@ -531,6 +599,8 @@ class MockVideoRenderer : public VideoRenderer {
 // If the test expects the pipeline to hang during initialization (a filter
 // never calls FilterHost::InitializationComplete()) then the use would be:
 //   h.Start(&p, f, uri, PIPELINE_OK, true);
+//
+// TODO(scherkus): Keep refactoring tests until we can remove this entirely.
 class InitializationHelper {
  public:
   InitializationHelper()
@@ -543,7 +613,7 @@ class InitializationHelper {
   bool callback_success_status() { return callback_success_status_; }
 
   // Returns true if Start has been called, but the pipeline has not yet
-  // called the intialization complete callback.
+  // called the initialization complete callback.
   bool waiting_for_callback() { return waiting_for_callback_; }
 
   // Starts the pipeline, providing an initialization callback that points

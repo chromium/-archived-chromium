@@ -31,6 +31,7 @@ using media::MockDemuxer;
 using media::MockAudioDecoder;
 using media::MockAudioRenderer;
 using media::MockFilterConfig;
+using media::MockFilterFactory;
 using media::MockFilterHost;
 using media::MockPipeline;
 using media::PipelineImpl;
@@ -66,9 +67,7 @@ TEST(FileDataSourceTest, OpenFile) {
   config.has_video = false;
   scoped_refptr<FilterFactoryCollection> c = new FilterFactoryCollection();
   c->AddFactory(FileDataSource::CreateFactory());
-  c->AddFactory(MockDemuxer::CreateFactory(&config));
-  c->AddFactory(MockAudioDecoder::CreateFactory(&config));
-  c->AddFactory(MockAudioRenderer::CreateFactory(&config));
+  c->AddFactory(new MockFilterFactory(&config));
   InitializationHelper h;
   h.Start(&pipeline, c, TestFileURL());
   EXPECT_EQ(pipeline.GetTotalBytes(), 10);
