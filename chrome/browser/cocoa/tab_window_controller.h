@@ -62,22 +62,15 @@
 // Removes the placeholder installed by |-insertPlaceholderForTab:atLocation:|.
 - (void)removePlaceholder;
 
-// Drop a given tab view at the location of the current placeholder. If there
-// is no placeholder, it will go at the end. |controller| is the window
-// controller of a tab being dropped from a different window. It will be nil
-// if the drag is within the window. The implementation will call
-// |-removePlaceholder| since the drag is now complete. This also calls
-// |-layoutTabs| internally so clients do not need to call it again. When
-// dragging tabs between windows, this should be called *before*
-// |-detachTabView| on the source window since it needs to still be in the
-// source window's tab model for this method to find the information it needs
-// to complete the drop.
-- (void)dropTabView:(NSView*)view
+// Move a given tab view to the location of the current placeholder. If there is
+// no placeholder, it will go at the end. |controller| is the window controller
+// of a tab being dropped from a different window. It will be nil if the drag is
+// within the window, otherwise the tab is removed from that window before being
+// placed into this one. The implementation will call |-removePlaceholder| since
+// the drag is now complete.  This also calls |-layoutTabs| internally so
+// clients do not need to call it again.
+- (void)moveTabView:(NSView*)view
      fromController:(TabWindowController*)controller;
-
-// Tells the tab strip to forget about this tab in preparation for it being
-// put into a different tab strip, such as during a drop on another window.
-- (void)detachTabView:(NSView*)view;
 
 // Number of tabs in the tab strip. Useful, for example, to know if we're
 // dragging the only tab in the window.
@@ -96,6 +89,10 @@
 // can override this to add more things besides the tab strip. Be sure to
 // call the superclass' version if overridden.
 - (NSArray*)viewsToMoveToOverlay;
+
+// Tells the tab strip to forget about this tab in preparation for it being
+// put into a different tab strip, such as during a drop on another window.
+- (void)detachTabView:(NSView*)view;
 @end
 
 #endif  // CHROME_BROWSER_TAB_WINDOW_CONTROLLER_H_

@@ -206,19 +206,30 @@ willPositionSheet:(NSWindow *)sheet
 }
 
 // Called when the user clicks the zoom button (or selects it from the Window
-// menu). Zoom to the appropriate size based on the content.
+// menu). Zoom to the appropriate size based on the content. Make sure we
+// enforce a minimum width to ensure websites with small intrinsic widths
+// (such as google.com) don't end up with a wee window. Enforce a max width
+// that leaves room for icons on the right side. Use the full (usable) height
+// regardless.
 - (NSRect)windowWillUseStandardFrame:(NSWindow*)window
                         defaultFrame:(NSRect)frame {
 #if 0
-  // TODO(pinkerton): find a way to get the intrinsic size from WebCore over
-  // IPC. Patch coming in another CL to use this new API on TabContents.
-  // Need to enforce a minimum width as well (google.com has a very small
-  // intrinsic width).
-  TabContents* contents = browser_->tabstrip_model()->GetSelectedTabContents();
-  int intrinsicWidth = contents->preferred_width();
-  frame.size.width = intrinsicWidth;
-#endif
+// TODO(pinkerton): this is part of another CL which is out for review.
+  const int kMinimumIntrinsicWidth = 700;
+  const int kScrollbarWidth = 16;
+  const int kSpaceForIcons = 50;
+  const NSSize screenSize = [[window screen] visibleFrame].size;
+  // Always leave room on the right for icons.
+  const int kMaxWidth = screenSize.width - kSpaceForIcons;
 
+  TabContents* contents = browser_->tabstrip_model()->GetSelectedTabContents();
+  if (contents) {
+    int intrinsicWidth = contents->preferred_width() + kScrollbarWidth;
+    int tempWidth = std::max(intrinsicWidth, kMinimumIntrinsicWidth);
+    frame.size.width = std::min(tempWidth, kMaxWidth);
+    frame.size.height = screenSize.height;
+  }
+#endif
   return frame;
 }
 
@@ -305,17 +316,14 @@ willPositionSheet:(NSWindow *)sheet
   return [tabStripController_ selectedTabGrowBoxRect];
 }
 
-// Drop a given tab view at the location of the current placeholder. If there
-// is no placeholder, it will go at the end. |dragController| is the window
-// controller of a tab being dropped from a different window. It will be nil
-// if the drag is within the window. The implementation will call
-// |-removePlaceholder| since the drag is now complete. This also calls
-// |-layoutTabs| internally so clients do not need to call it again. When
-// dragging tabs between windows, this should be called *before*
-// |-detachTabView| on the source window since it needs to still be in the
-// source window's tab model for this method to find the information it needs
-// to complete the drop.
-- (void)dropTabView:(NSView*)view
+// Move a given tab view to the location of the current placeholder. If there is
+// no placeholder, it will go at the end. |controller| is the window controller
+// of a tab being dropped from a different window. It will be nil if the drag is
+// within the window, otherwise the tab is removed from that window before being
+// placed into this one. The implementation will call |-removePlaceholder| since
+// the drag is now complete.  This also calls |-layoutTabs| internally so
+// clients do not need to call it again.
+- (void)moveTabView:(NSView*)view
      fromController:(TabWindowController*)dragController {
   if (dragController) {
     // Moving between windows. Figure out the TabContents to drop into our tab
@@ -329,8 +337,14 @@ willPositionSheet:(NSWindow *)sheet
     TabContents* contents =
         dragBWC->browser_->tabstrip_model()->GetTabContentsAt(index);
 
+    // Now that we have enough information about the tab, we can remove it from
+    // the dragging window. We need to do this *before* we add it to the new
+    // window as this will removes the TabContents' delegate.
+    [dragController detachTabView:view];
+
     // Deposit it into our model at the appropriate location (it already knows
-    // where it should go from tracking the drag).
+    // where it should go from tracking the drag). Doing this sets the tab's
+    // delegate to be the Browser.
     [tabStripController_ dropTabContents:contents];
   } else {
     // Moving within a window.

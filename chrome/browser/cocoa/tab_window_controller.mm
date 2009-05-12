@@ -100,7 +100,7 @@
   return overlayWindow_;
 }
 
-- (void)dropTabView:(NSView*)view
+- (void)moveTabView:(NSView*)view
      fromController:(TabWindowController*)dragController {
   NOTIMPLEMENTED();
 }

@@ -271,15 +271,10 @@
     // into any existing window.
     TabWindowController* dropController = targetController;
     if (dropController) {
-      // The ordering here is important. We need to be able to get from the
-      // TabView in the |draggedController| to whatever is needed by the tab
-      // model. To do so, it still has to be in the model, so we have to call
-      // "drop" before we call "detach".
       NSView* draggedTabView = [draggedController selectedTabView];
       [draggedController removeOverlay];
-      [dropController dropTabView:draggedTabView
+      [dropController moveTabView:draggedTabView
                    fromController:draggedController];
-      [draggedController detachTabView:draggedTabView];
       [dropController showWindow:nil];
     } else {
       [targetController removePlaceholder];
@@ -301,7 +296,7 @@
     if (wasDrag) {
       // Move tab to new location.
       TabWindowController* dropController = sourceController;
-      [dropController dropTabView:[dropController selectedTabView]
+      [dropController moveTabView:[dropController selectedTabView]
                    fromController:nil];
     }
   }
