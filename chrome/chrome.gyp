@@ -1951,6 +1951,9 @@
         ['OS=="mac"', {
           # 'branding' is a variable defined in common.gypi
           # (e.g. "Chromium", "Chrome")
+          # NOTE: chrome/app/theme/chromium/BRANDING and 
+          # chrome/app/theme/google_chrome/BRANDING have the short names, etc.;
+          # should we try to extract from there instead?
           'product_name': '<(branding)',
           'conditions': [
             ['branding=="Chrome"', {
@@ -1990,6 +1993,9 @@
               #   'product_name': 'chromium'
               # whenever we convert the rest of the infrastructure
               # (buildbots etc.) to use "gyp -Dbranding=Chrome".
+              # NOTE: chrome/app/theme/chromium/BRANDING and 
+              # chrome/app/theme/google_chrome/BRANDING have the short names,
+              # etc.; should we try to extract from there instead?
               'product_name': 'chrome'
             }],
           ],
