@@ -30,10 +30,6 @@ TEST_F(IFrameTest, Crash) {
   NavigateAndVerifyTitle("iframe.html", L"iframe test");
 }
 
-#if !defined(OS_LINUX)
-// Temporarily disabled on Linux -- see bug 9870.
-// http://code.google.com/p/chromium/issues/detail?id=9870
 TEST_F(IFrameTest, InEmptyFrame) {
   NavigateAndVerifyTitle("iframe_in_empty_frame.html", L"iframe test");
 }
-#endif
