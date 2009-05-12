@@ -36,36 +36,14 @@ class TCPClientSocketWin : public ClientSocket {
   virtual int Write(IOBuffer* buf, int buf_len, CompletionCallback* callback);
 
  private:
-  class ReadDelegate : public base::ObjectWatcher::Delegate {
-   public:
-    explicit ReadDelegate(TCPClientSocketWin* tcp_socket)
-        : tcp_socket_(tcp_socket) { }
-    virtual ~ReadDelegate() { }
-
-    // base::ObjectWatcher::Delegate methods:
-    virtual void OnObjectSignaled(HANDLE object);
-
-   private:
-    TCPClientSocketWin* const tcp_socket_;
-  };
-
-  class WriteDelegate : public base::ObjectWatcher::Delegate {
-   public:
-    explicit WriteDelegate(TCPClientSocketWin* tcp_socket)
-        : tcp_socket_(tcp_socket) { }
-    virtual ~WriteDelegate() { }
-
-    // base::ObjectWatcher::Delegate methods:
-    virtual void OnObjectSignaled(HANDLE object);
-
-   private:
-    TCPClientSocketWin* const tcp_socket_;
-  };
+  class Core;
 
   int CreateSocket(const struct addrinfo* ai);
   void DoReadCallback(int rv);
   void DoWriteCallback(int rv);
   void DidCompleteConnect();
+  void DidCompleteRead();
+  void DidCompleteWrite();
 
   SOCKET socket_;
 
@@ -80,27 +58,10 @@ class TCPClientSocketWin : public ClientSocket {
   bool waiting_read_;
   bool waiting_write_;
 
-  // The separate OVERLAPPED variables for asynchronous operation.
-  // |read_overlapped_| is used for both Connect() and Read().
-  // |write_overlapped_| is only used for Write();
-  OVERLAPPED read_overlapped_;
-  OVERLAPPED write_overlapped_;
-
-  // The buffers used in Read() and Write().
-  WSABUF read_buffer_;
-  WSABUF write_buffer_;
-  scoped_refptr<IOBuffer> read_iobuffer_;
-  scoped_refptr<IOBuffer> write_iobuffer_;
-
-  // |reader_| handles the signals from |read_watcher_|.
-  ReadDelegate reader_;
-  // |writer_| handles the signals from |write_watcher_|.
-  WriteDelegate writer_;
-
-  // |read_watcher_| watches for events from Connect() and Read().
-  base::ObjectWatcher read_watcher_;
-  // |write_watcher_| watches for events from Write();
-  base::ObjectWatcher write_watcher_;
+  // The core of the socket that can live longer than the socket itself. We pass
+  // resources to the Windows async IO functions and we have to make sure that
+  // they are not destroyed while the OS still references them.
+  scoped_refptr<Core> core_;
 
   // External callback; called when connect or read is complete.
   CompletionCallback* read_callback_;
