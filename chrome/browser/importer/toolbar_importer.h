@@ -58,7 +58,7 @@ class Toolbar5Importer : public URLFetcher::Delegate, public Importer {
                           const std::string& data);
 
  private:
-  FRIEND_TEST(Toolbar5ImporterTest, DISABLED_BookmarkParse);
+  FRIEND_TEST(Toolbar5ImporterTest, BookmarkParse);
 
   // Internal states of the toolbar importer.
   enum InternalStateEnum {
