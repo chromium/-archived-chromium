@@ -69,6 +69,9 @@ class DraggedTabView : public views::View,
   // Paint the view, when it's not attached to any TabStrip.
   void PaintDetachedView(ChromeCanvas* canvas);
 
+  // Paint the view, when "Show window contents while dragging" is disabled.
+  void PaintFocusRect(ChromeCanvas* canvas);
+
   // Resizes the container to fit the content for the current attachment mode.
   void ResizeContainer();
 
@@ -84,6 +87,9 @@ class DraggedTabView : public views::View,
   // True if the view is currently attached to a TabStrip. Controls rendering
   // and sizing modes.
   bool attached_;
+
+  // True if "Show window contents while dragging" is enabled.
+  bool show_contents_on_drag_;
 
   // The unscaled offset of the mouse from the top left of the dragged Tab.
   // This is used to maintain an appropriate offset for the mouse pointer when

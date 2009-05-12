@@ -29,6 +29,7 @@ DraggedTabView::DraggedTabView(TabContents* datasource,
     : container_(NULL),
       renderer_(new TabRenderer),
       attached_(false),
+      show_contents_on_drag_(true),
       mouse_tab_offset_(mouse_tab_offset),
       attached_tab_size_(TabRenderer::GetMinimumSelectedSize()),
       photobooth_(NULL),
@@ -46,6 +47,12 @@ DraggedTabView::DraggedTabView(TabContents* datasource,
   container_->set_can_update_layered_window(false);
   container_->Init(NULL, gfx::Rect(0, 0, 0, 0), false);
   container_->SetContentsView(this);
+
+  BOOL drag;
+  if ((::SystemParametersInfo(SPI_GETDRAGFULLWINDOWS, 0, &drag, 0) != 0) &&
+      (drag == FALSE)) {
+    show_contents_on_drag_ = false;
+  }
 }
 
 DraggedTabView::~DraggedTabView() {
@@ -142,7 +149,9 @@ void DraggedTabView::AnimationCanceled(const Animation* animation) {
 // DraggedTabView, views::View overrides:
 
 void DraggedTabView::Paint(ChromeCanvas* canvas) {
-  if (attached_) {
+  if (!show_contents_on_drag_) {
+    PaintFocusRect(canvas);
+  } else if (attached_) {
     PaintAttachedTab(canvas);
   } else {
     PaintDetachedView(canvas);
@@ -225,6 +234,13 @@ void DraggedTabView::PaintDetachedView(ChromeCanvas* canvas) {
   rc.fRight = SkIntToScalar(ps.width());
   rc.fBottom = SkIntToScalar(ps.height());
   canvas->drawRect(rc, paint);
+}
+
+void DraggedTabView::PaintFocusRect(ChromeCanvas* canvas) {
+  gfx::Size ps = GetPreferredSize();
+  canvas->DrawFocusRect(0, 0,
+                        static_cast<int>(ps.width() * kScalingFactor),
+                        static_cast<int>(ps.height() * kScalingFactor));
 }
 
 void DraggedTabView::ResizeContainer() {
