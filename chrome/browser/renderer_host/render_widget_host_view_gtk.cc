@@ -242,11 +242,11 @@ bool RenderWidgetHostViewGtk::HasFocus() {
 }
 
 void RenderWidgetHostViewGtk::Show() {
-  NOTIMPLEMENTED();
+  gtk_widget_show(view_.get());
 }
 
 void RenderWidgetHostViewGtk::Hide() {
-  NOTIMPLEMENTED();
+  gtk_widget_hide(view_.get());
 }
 
 gfx::Rect RenderWidgetHostViewGtk::GetViewBounds() const {

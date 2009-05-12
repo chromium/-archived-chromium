@@ -425,8 +425,6 @@ void RenderWidgetHostViewWin::Hide() {
   if (GetParent() == GetDesktopWindow()) {
     LOG(WARNING) << "Hide() called twice in a row: " << this << ":" <<
         parent_hwnd_ << ":" << GetParent();
-    // TODO(erikkay) Perhaps it should be OK to call Hide multiple times.
-    DCHECK(false);
     return;
   }
 
