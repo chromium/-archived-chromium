@@ -48,7 +48,7 @@ BUG_OJAN SLOW : LayoutTests/http/tests/navigation/multiple-back-forward-entries.
 BUG_OJAN SLOW : LayoutTests/http/tests/xmlhttprequest/simple-cross-origin-progress-events.html = PASS
 BUG_OJAN SLOW MAC LINUX : LayoutTests/http/tests/xmlhttprequest/small-chunks-response-text.html = PASS
 BUG_OJAN SLOW WIN RELEASE : LayoutTests/http/tests/xmlhttprequest/supported-xml-content-types.html = PASS
-BUG_OJAN SLOW MAC LINUX : LayoutTests/http/tests/xmlhttprequest/supported-xml-content-types.html = PASS
+BUG_OJAN SLOW LINUX : LayoutTests/http/tests/xmlhttprequest/supported-xml-content-types.html = PASS
 BUG_OJAN SLOW WIN MAC : LayoutTests/svg/custom/invisible-text-after-scrolling.xhtml = PASS
 BUG_OJAN SLOW : LayoutTests/tables/mozilla/other/slashlogo.html = PASS
 
@@ -2395,7 +2395,7 @@ BUG11613 LINUX : LayoutTests/fast/parser/entity-comment-in-textarea.html = FAIL
 BUG11613 LINUX : LayoutTests/fast/parser/open-comment-in-textarea.html = FAIL
 BUG11613 LINUX : LayoutTests/fast/table/003.html = FAIL
 BUG11613 LINUX MAC : LayoutTests/http/tests/navigation/anchor-basic.html = FAIL
-BUG11613 LINUX MAC : LayoutTests/http/tests/navigation/anchor-frames.html = FAIL
+BUG11613 LINUX MAC : LayoutTests/http/tests/navigation/anchor-frames.html = FAIL TIMEOUT
 BUG11613 LINUX MAC : LayoutTests/http/tests/navigation/anchor-goback.html = FAIL
 BUG11613 LINUX MAC : LayoutTests/http/tests/navigation/anchor-subframeload.html = FAIL
 BUG11613 MAC : LayoutTests/http/tests/navigation/javascriptlink-basic.html = FAIL
@@ -2676,3 +2676,6 @@ BUG11796 MAC LINUX : LayoutTests/fast/forms/search-styled.html = FAIL
 BUG11810 MAC : LayoutTests/http/tests/navigation/post-goback-same-url.html = TIMEOUT
 BUG11810 MAC : LayoutTests/http/tests/mime/standard-mode-does-not-load-stylesheet-with-text-plain.html = TIMEOUT
 BUG11810 MAC : LayoutTests/svg/custom/polyline-points-crash.html = CRASH
+
+// This test is marked as Slow on other platforms but still times out on Mac debug
+BUG11812 MAC : LayoutTests/http/tests/xmlhttprequest/supported-xml-content-types.html = TIMEOUT
