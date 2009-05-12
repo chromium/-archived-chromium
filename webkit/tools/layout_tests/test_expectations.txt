@@ -2100,7 +2100,7 @@ BUG9798 LINUX : LayoutTests/fonts/cursive.html = FAIL PASS
 BUG9798 LINUX : LayoutTests/http/tests/misc/BOM-override-script.html = TIMEOUT PASS
 BUG9798 LINUX : LayoutTests/http/tests/navigation/error404-frames.html = TIMEOUT PASS
 BUG9798 LINUX : LayoutTests/http/tests/security/javascriptURL/xss-ALLOWED-to-javascript-url-sub-frame-2-level.html = FAIL PASS
-BUG9798 LINUX : LayoutTests/http/tests/security/originHeader/origin-header-for-post.html = FAIL PASS
+BUG9798 LINUX : LayoutTests/http/tests/security/originHeader/origin-header-for-post.html = FAIL PASS TIMEOUT
 BUG9798 LINUX : LayoutTests/http/tests/security/postMessage/origin-unaffected-by-document-domain.html = FAIL PASS
 BUG9798 LINUX : LayoutTests/http/tests/security/protocol-compare-case-insensitive.html = FAIL PASS
 BUG9798 LINUX : LayoutTests/http/tests/security/xss-DENIED-assign-location-hostname.html = FAIL PASS
@@ -2669,9 +2669,14 @@ BUG11795 MAC : LayoutTests/fast/images/favicon-as-image.html = FAIL
 BUG11796 MAC LINUX : LayoutTests/fast/forms/search-styled.html = FAIL
 
 // Flaky Mac tests
-BUG11810 MAC : LayoutTests/http/tests/navigation/post-goback-same-url.html = TIMEOUT
-BUG11810 MAC : LayoutTests/http/tests/mime/standard-mode-does-not-load-stylesheet-with-text-plain.html = TIMEOUT
-BUG11810 MAC : LayoutTests/svg/custom/polyline-points-crash.html = CRASH
+BUG11810 MAC : LayoutTests/http/tests/navigation/post-goback-same-url.html = TIMEOUT PASS
+BUG11810 MAC : LayoutTests/http/tests/mime/standard-mode-does-not-load-stylesheet-with-text-plain.html = TIMEOUT PASS
+BUG11810 MAC : LayoutTests/svg/custom/polyline-points-crash.html = CRASH PASS
+BUG11810 MAC : LayoutTests/editing/selection/extend-selection.html = TIMEOUT PASS
+
+// Flaky Linux tests
+BUG11832 LINUX : LayoutTests/svg/custom/circular-marker-reference-4.svg = FAIL PASS
+BUG11832 LINUX DEBUG : LayoutTests/svg/W3C-SVG-1.1/painting-marker-01-f.svg = FAIL PASS
 
 // This test is marked as Slow on other platforms but still times out on Mac debug
 BUG11812 MAC : LayoutTests/http/tests/xmlhttprequest/supported-xml-content-types.html = TIMEOUT
