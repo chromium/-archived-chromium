@@ -163,6 +163,12 @@ DomSerializer::SerializeDomParam::SerializeDomParam(
   is_html_document = doc->isHTMLDocument();
 }
 
+// Static
+std::wstring DomSerializer::GenerateMetaCharsetDeclaration(
+    const std::wstring& charset) {
+  return StringPrintf(kDefaultMetaContent, charset.c_str());
+}
+
 // Static.
 std::string DomSerializer::GenerateMarkOfTheWebDeclaration(
     const GURL& url) {
@@ -265,8 +271,8 @@ WebCore::String DomSerializer::PostActionAfterSerializeOpenTag(
     // See http://bugs.webkit.org/show_bug.cgi?id=16621.
     // First we generate new content for writing correct META element.
     std::wstring str_meta =
-        StringPrintf(kDefaultMetaContent,
-                     ASCIIToWide(param->text_encoding.name()).c_str());
+        GenerateMetaCharsetDeclaration(
+            ASCIIToWide(param->text_encoding.name()));
     result += StdWStringToString(str_meta);
 
     param->has_added_contents_before_end = true;

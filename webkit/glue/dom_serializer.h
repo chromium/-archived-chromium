@@ -57,6 +57,9 @@ class DomSerializer {
                 const std::vector<FilePath>& local_paths,
                 const FilePath& local_directory_name);
 
+  // Generate the META for charset declaration.
+  static std::wstring GenerateMetaCharsetDeclaration(
+      const std::wstring& charset);
   // Generate the MOTW declaration.
   static std::string GenerateMarkOfTheWebDeclaration(const GURL& url);
   // Generate the default base tag declaration.
