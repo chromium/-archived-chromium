@@ -1747,14 +1747,14 @@ my %typeCanFailConversion = (
     "SQLResultSet" => 0,
     "SVGAngle" => 0,
     "SVGElement" => 0,
-    "SVGLength" => 0,
-    "SVGMatrix" => 0,
-    "SVGNumber" => 0,
+    "SVGLength" => 1,
+    "SVGMatrix" => 1,
+    "SVGNumber" => 1,
     "SVGPaintType" => 0,
     "SVGPathSeg" => 0,
-    "SVGPoint" => 0,
-    "SVGRect" => 0,
-    "SVGTransform" => 0,
+    "SVGPoint" => 1,
+    "SVGRect" => 1,
+    "SVGTransform" => 1,
     "VoidCallback" => 1,
     "WebKitCSSMatrix" => 0,
     "WebKitPoint" => 0,
@@ -1782,7 +1782,15 @@ sub TranslateParameter
 
 sub BasicTypeCanFailConversion
 {
-  # As can been seen from the above, no basic types can fail conversion.
+  my $signature = shift;
+  my $type = $codeGenerator->StripModule($signature->type);
+
+  return 1 if $type eq "SVGLength";
+  return 1 if $type eq "SVGMatrix";
+  return 1 if $type eq "SVGNumber";
+  return 1 if $type eq "SVGPoint";
+  return 1 if $type eq "SVGRect";
+  return 1 if $type eq "SVGTransform";
   return 0;
 }
 
@@ -1866,8 +1874,7 @@ sub JSValueToNative
         my $nativeType = GetNativeType($type);
         $implIncludes{"V8SVGPODTypeWrapper.h"} = 1;
 
-        # TODO(jhass): perform type checking like others???
-        return "*V8Proxy::ToNativeObject<V8SVGPODTypeWrapper<${nativeType}> >(V8ClassIndex::${classIndex}, $value)"
+        return "V8SVGPODTypeUtil::ToSVGPODType<${nativeType}>(V8ClassIndex::${classIndex}, $value${maybeOkParam})"
       }
       
       $implIncludes{"V8${type}.h"} = 1;

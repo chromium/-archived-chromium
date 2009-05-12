@@ -36,6 +36,7 @@
 #include <wtf/Assertions.h>
 #include <wtf/RefCounted.h>
 #include <wtf/HashMap.h>
+#include "v8_proxy.h"
 
 namespace WebCore {
 
@@ -355,6 +356,29 @@ public:
         }
     }
 };
+
+
+class V8SVGPODTypeUtil {
+public:
+  template <class P>
+  static P ToSVGPODType(V8ClassIndex::V8WrapperType type,
+                        v8::Handle<v8::Value> object, bool& ok);
+};
+
+
+template <class P>
+P V8SVGPODTypeUtil::ToSVGPODType(V8ClassIndex::V8WrapperType type,
+                                 v8::Handle<v8::Value> object,
+                                 bool& ok) {
+  void *wrapper = V8Proxy::ToSVGPODTypeImpl(type, object);
+  if (wrapper == NULL) {
+    ok = false;
+    return P();
+  } else {
+    ok = true;
+    return *static_cast<V8SVGPODTypeWrapper<P>*>(wrapper);
+  }
+}
 
 
 } // namespace WebCore

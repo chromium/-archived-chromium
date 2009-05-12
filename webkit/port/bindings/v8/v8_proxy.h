@@ -476,6 +476,9 @@ class V8Proxy {
   static void RegisterExtension(v8::Extension* extension,
                                 const String& schemeRestriction);
 
+  static void* ToSVGPODTypeImpl(V8ClassIndex::V8WrapperType type,
+                                v8::Handle<v8::Value> object);
+
  private:
   v8::Persistent<v8::Context> createNewContext(v8::Handle<v8::Object> global);
   void InitContextIfNeeded();
