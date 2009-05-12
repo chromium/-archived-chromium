@@ -214,6 +214,13 @@ RenderView::~RenderView() {
     it = plugin_delegates_.erase(it);
   }
 
+  // Clear any pending extension api call requests.
+  IDMap<ExtensionProcessBindings::CallContext>::const_iterator call =
+      pending_extension_requests_.begin();
+  for (; call != pending_extension_requests_.end(); ++call) {
+    delete call->second;
+  }
+
   render_thread_->RemoveFilter(debug_message_handler_);
   render_thread_->RemoveFilter(audio_message_filter_);
 }
