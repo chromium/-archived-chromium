@@ -29,7 +29,6 @@
 #include "v8_proxy.h"
 #include "v8_binding.h"
 #include "V8NPObject.h"
-#include "v8_custom.h"
 
 #include "V8Attr.h"
 #include "V8CanvasGradient.h"
@@ -63,9 +62,7 @@
 #include "Document.h"
 #include "DocumentFragment.h"
 #include "Event.h"
-#include "EventListener.h"
 #include "EventTarget.h"
-#include "ExceptionCode.h"
 #include "FloatRect.h"
 #include "Frame.h"
 #include "FrameLoader.h"
@@ -74,10 +71,7 @@
 #include "HTMLCanvasElement.h"
 #include "HTMLDocument.h"
 #include "HTMLEmbedElement.h"
-#include "HTMLFrameElement.h"
-#include "HTMLFrameElementBase.h"
 #include "HTMLFrameSetElement.h"
-#include "HTMLIFrameElement.h"
 #include "HTMLImageElement.h"
 #include "HTMLInputElement.h"
 #include "HTMLNames.h"
@@ -655,184 +649,6 @@ CALLBACK_FUNC_DECL(CanvasRenderingContext2DPutImageData) {
   return v8::Undefined();
 }
 
-static bool AllowSettingSrcToJavascriptURL(Element* element, String name,
-                                           String value) {
-  // Need to parse value as URL first in order to check its protocol.
-  // " javascript:", "java\0script:", "javascript\t:", "javascript\1:"
-  // are all parsed as "javascript:" url.
-  // When changing location in HTMLFrameElement, value is parsed as url.
-  // We must match the behavior there.
-  // See issue 804099.
-  //
-  // parseURL is defined in CSSHelper.cpp.
-  if ((element->hasTagName(HTMLNames::iframeTag) ||
-       element->hasTagName(HTMLNames::frameTag)) &&
-      equalIgnoringCase(name, "src") &&
-      parseURL(value).startsWith("javascript:", false)) {
-    HTMLFrameElementBase* frame = static_cast<HTMLFrameElementBase*>(element);
-    Node* contentDoc = frame->contentDocument();
-    if (contentDoc && !V8Proxy::CheckNodeSecurity(contentDoc))
-      return false;
-  }
-  return true;
-}
-
-
-static bool AllowSettingFrameSrcToJavascriptUrl(HTMLFrameElementBase* frame,
-                                                String value) {
-  // See same issue in AllowSettingSrcToJavascriptURL.
-  if (parseURL(value).startsWith("javascript:", false)) {
-    Node* contentDoc = frame->contentDocument();
-    if (contentDoc && !V8Proxy::CheckNodeSecurity(contentDoc))
-      return false;
-  }
-  return true;
-}
-
-
-// Element ---------------------------------------------------------------------
-
-CALLBACK_FUNC_DECL(ElementSetAttribute) {
-  INC_STATS("DOM.Element.setAttribute()");
-  Element* imp = V8Proxy::DOMWrapperToNode<Element>(args.Holder());
-  ExceptionCode ec = 0;
-  String name = ToWebCoreString(args[0]);
-  String value = ToWebCoreString(args[1]);
-
-  if (!AllowSettingSrcToJavascriptURL(imp, name, value)) {
-    return v8::Undefined();
-  }
-
-  imp->setAttribute(name, value, ec);
-  if (ec != 0) {
-    V8Proxy::SetDOMException(ec);
-    return v8::Handle<v8::Value>();
-  }
-  return v8::Undefined();
-}
-
-CALLBACK_FUNC_DECL(ElementSetAttributeNode) {
-  INC_STATS("DOM.Element.setAttributeNode()");
-  if (!V8Attr::HasInstance(args[0])) {
-    V8Proxy::SetDOMException(TYPE_MISMATCH_ERR);
-    return v8::Handle<v8::Value>();
-  }
-
-  Attr* newAttr = V8Proxy::DOMWrapperToNode<Attr>(args[0]);
-  Element* imp = V8Proxy::DOMWrapperToNode<Element>(args.Holder());
-  ExceptionCode ec = 0;
-
-  if (!AllowSettingSrcToJavascriptURL(imp, newAttr->name(), newAttr->value())) {
-    return v8::Undefined();
-  }
-
-  RefPtr<Attr> result = imp->setAttributeNode(newAttr, ec);
-  if (ec != 0) {
-    V8Proxy::SetDOMException(ec);
-    return v8::Handle<v8::Value>();
-  }
-  return V8Proxy::NodeToV8Object(result.get());
-}
-
-CALLBACK_FUNC_DECL(ElementSetAttributeNS) {
-  INC_STATS("DOM.Element.setAttributeNS()");
-  Element* imp = V8Proxy::DOMWrapperToNode<Element>(args.Holder());
-  ExceptionCode ec = 0;
-  String namespaceURI = valueToStringWithNullCheck(args[0]);
-  String qualifiedName = ToWebCoreString(args[1]);
-  String value = ToWebCoreString(args[2]);
-
-  if (!AllowSettingSrcToJavascriptURL(imp, qualifiedName, value)) {
-    return v8::Undefined();
-  }
-
-  imp->setAttributeNS(namespaceURI, qualifiedName, value, ec);
-  if (ec != 0) {
-    V8Proxy::SetDOMException(ec);
-    return v8::Handle<v8::Value>();
-  }
-  return v8::Undefined();
-}
-
-CALLBACK_FUNC_DECL(ElementSetAttributeNodeNS) {
-  INC_STATS("DOM.Element.setAttributeNodeNS()");
-  if (!V8Attr::HasInstance(args[0])) {
-    V8Proxy::SetDOMException(TYPE_MISMATCH_ERR);
-    return v8::Handle<v8::Value>();
-  }
-
-  Attr* newAttr = V8Proxy::DOMWrapperToNode<Attr>(args[0]);
-  Element* imp = V8Proxy::DOMWrapperToNode<Element>(args.Holder());
-  ExceptionCode ec = 0;
-
-  if (!AllowSettingSrcToJavascriptURL(imp, newAttr->name(), newAttr->value())) {
-    return v8::Undefined();
-  }
-
-  RefPtr<Attr> result = imp->setAttributeNodeNS(newAttr, ec);
-  if (ec != 0) {
-    V8Proxy::SetDOMException(ec);
-    return v8::Handle<v8::Value>();
-  }
-  return V8Proxy::NodeToV8Object(result.get());
-}
-
-
-
-// Attr ------------------------------------------------------------------------
-
-ACCESSOR_SETTER(AttrValue) {
-  Attr* imp =
-      V8Proxy::DOMWrapperToNode<Attr>(info.Holder());
-  String v = valueToStringWithNullCheck(value);
-  Element* ownerElement = imp->ownerElement();
-
-  if (ownerElement &&
-      !AllowSettingSrcToJavascriptURL(ownerElement, imp->name(), v))
-    return;
-
-  ExceptionCode ec = 0;
-  imp->setValue(v, ec);
-  V8Proxy::SetDOMException(ec);
-}
-
-
-// HTMLFrameElement ------------------------------------------------------------
-
-ACCESSOR_SETTER(HTMLFrameElementSrc) {
-  HTMLFrameElement* imp =
-      V8Proxy::DOMWrapperToNode<HTMLFrameElement>(info.Holder());
-  String v = valueToStringWithNullCheck(value);
-
-  if (!AllowSettingFrameSrcToJavascriptUrl(imp, v)) return;
-
-  imp->setSrc(v);
-}
-
-ACCESSOR_SETTER(HTMLFrameElementLocation) {
-  HTMLFrameElement* imp =
-      V8Proxy::DOMWrapperToNode<HTMLFrameElement>(info.Holder());
-  String v = valueToStringWithNullCheck(value);
-
-  if (!AllowSettingFrameSrcToJavascriptUrl(imp, v)) return;
-
-  imp->setLocation(v);
-}
-
-
-// HTMLIFrameElement -----------------------------------------------------------
-
-ACCESSOR_SETTER(HTMLIFrameElementSrc) {
-  HTMLIFrameElement* imp =
-      V8Proxy::DOMWrapperToNode<HTMLIFrameElement>(info.Holder());
-  String v = valueToStringWithNullCheck(value);
-
-  if (!AllowSettingFrameSrcToJavascriptUrl(imp, v)) return;
-
-  imp->setSrc(v);
-}
-
-
 // TODO(mbelshe): This should move into V8DOMWindowCustom.cpp
 // Can't move it right now because it depends on V8ScheduledAction,
 // which is private to this file (v8_custom.cpp).
@@ -1064,49 +880,6 @@ ACCESSOR_GETTER(DOMWindowEventHandler) {
   String event_type = EventNameFromAttributeName(key);
 
   EventListener* listener = imp->getAttributeEventListener(event_type);
-  return V8Proxy::EventListenerToV8Object(listener);
-}
-
-
-ACCESSOR_SETTER(ElementEventHandler) {
-  Node* node = V8Proxy::DOMWrapperToNode<Node>(info.Holder());
-
-  // Name starts with 'on', remove them.
-  String key = ToWebCoreString(name);
-  ASSERT(key.startsWith("on"));
-  String event_type = key.substring(2);
-
-  // Set handler if the value is a function.  Otherwise, clear the
-  // event handler.
-  if (value->IsFunction()) {
-    V8Proxy* proxy = V8Proxy::retrieve(node->document()->frame());
-    // the document might be created using createDocument,
-    // which does not have a frame, use the active frame
-    if (!proxy)
-      proxy = V8Proxy::retrieve(V8Proxy::retrieveFrameForEnteredContext());
-    if (!proxy)
-      return;
-
-    RefPtr<EventListener> listener =
-      proxy->FindOrCreateV8EventListener(value, true);
-    if (listener) {
-      node->setAttributeEventListener(event_type, listener);
-    }
-  } else {
-    node->clearAttributeEventListener(event_type);
-  }
-}
-
-
-ACCESSOR_GETTER(ElementEventHandler) {
-  Node* node = V8Proxy::DOMWrapperToNode<Node>(info.Holder());
-
-  // Name starts with 'on', remove them.
-  String key = ToWebCoreString(name);
-  ASSERT(key.startsWith("on"));
-  String event_type = key.substring(2);
-
-  EventListener* listener = node->getAttributeEventListener(event_type);
   return V8Proxy::EventListenerToV8Object(listener);
 }
 
