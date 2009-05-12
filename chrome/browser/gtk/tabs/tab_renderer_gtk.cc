@@ -7,6 +7,7 @@
 #include "app/l10n_util.h"
 #include "app/resource_bundle.h"
 #include "chrome/browser/browser.h"
+#include "chrome/browser/browser_theme_provider.h"
 #include "chrome/browser/profile.h"
 #include "chrome/browser/tab_contents/tab_contents.h"
 #include "grit/generated_resources.h"
@@ -23,6 +24,7 @@ const int kFavIconTitleSpacing = 4;
 const int kTitleCloseButtonSpacing = 5;
 const int kStandardTitleWidth = 175;
 const int kFavIconSize = 16;
+const int kDropShadowOffset = 2;
 const int kSelectedTitleColor = SK_ColorBLACK;
 const int kUnselectedTitleColor = SkColorSetRGB(64, 64, 64);
 
@@ -81,7 +83,7 @@ void InitializeLoadingAnimationData(
 bool TabRendererGtk::initialized_ = false;
 TabRendererGtk::TabImage TabRendererGtk::tab_active_ = {0};
 TabRendererGtk::TabImage TabRendererGtk::tab_inactive_ = {0};
-TabRendererGtk::TabImage TabRendererGtk::tab_inactive_otr_ = {0};
+TabRendererGtk::TabImage TabRendererGtk::tab_alpha = {0};
 TabRendererGtk::TabImage TabRendererGtk::tab_hover_ = {0};
 ChromeFont* TabRendererGtk::title_font_ = NULL;
 int TabRendererGtk::title_font_height_ = 0;
@@ -168,6 +170,8 @@ void TabRendererGtk::UpdateData(TabContents* contents, bool loading_only) {
   // we display the throbber.
   data_.loading = contents->is_loading();
   data_.show_icon = contents->ShouldDisplayFavIcon();
+
+  theme_provider_ = contents->profile()->GetThemeProvider();
 }
 
 void TabRendererGtk::UpdateFromModel() {
@@ -225,6 +229,9 @@ int TabRendererGtk::GetContentHeight() {
 void TabRendererGtk::LoadTabImages() {
   ResourceBundle& rb = ResourceBundle::GetSharedInstance();
 
+  tab_alpha.image_l = rb.GetBitmapNamed(IDR_TAB_ALPHA_LEFT);
+  tab_alpha.image_r = rb.GetBitmapNamed(IDR_TAB_ALPHA_RIGHT);
+
   tab_active_.image_l = rb.GetBitmapNamed(IDR_TAB_ACTIVE_LEFT);
   tab_active_.image_c = rb.GetBitmapNamed(IDR_TAB_ACTIVE_CENTER);
   tab_active_.image_r = rb.GetBitmapNamed(IDR_TAB_ACTIVE_RIGHT);
@@ -236,18 +243,6 @@ void TabRendererGtk::LoadTabImages() {
   tab_inactive_.image_r = rb.GetBitmapNamed(IDR_TAB_INACTIVE_RIGHT);
   tab_inactive_.l_width = tab_inactive_.image_l->width();
   tab_inactive_.r_width = tab_inactive_.image_r->width();
-
-  // TODO: Generate these images http://crbug.com/11679
-  tab_hover_.image_l = rb.GetBitmapNamed(IDR_TAB_ACTIVE_LEFT);
-  tab_hover_.image_c = rb.GetBitmapNamed(IDR_TAB_ACTIVE_CENTER);
-  tab_hover_.image_r = rb.GetBitmapNamed(IDR_TAB_ACTIVE_RIGHT);
-
-  tab_inactive_otr_.image_l = rb.GetBitmapNamed(IDR_TAB_INACTIVE_LEFT);
-  tab_inactive_otr_.image_c = rb.GetBitmapNamed(IDR_TAB_INACTIVE_CENTER);
-  tab_inactive_otr_.image_r = rb.GetBitmapNamed(IDR_TAB_INACTIVE_RIGHT);
-
-  // tab_[hover,inactive_otr] width are not used and are initialized to 0
-  // during static initialization.
 
   close_button_width_ = rb.GetBitmapNamed(IDR_TAB_CLOSE)->width();
   close_button_height_ = rb.GetBitmapNamed(IDR_TAB_CLOSE)->height();
@@ -289,7 +284,7 @@ void TabRendererGtk::AnimationEnded(const Animation* animation) {
 // TabRendererGtk, private:
 
 void TabRendererGtk::Paint(GdkEventExpose* event) {
-  ChromeCanvasPaint canvas(event);
+  ChromeCanvasPaint canvas(event, false);
   if (canvas.isEmpty())
     return;
 
@@ -420,58 +415,111 @@ void TabRendererGtk::PaintTabBackground(ChromeCanvasPaint* canvas) {
   } else {
     // Draw our hover state.
     Animation* animation = hover_animation_.get();
+
+    PaintInactiveTabBackground(canvas);
     if (animation->GetCurrentValue() > 0) {
-      PaintHoverTabBackground(canvas,
-                              animation->GetCurrentValue() * kHoverOpacity);
-    } else {
-      PaintInactiveTabBackground(canvas);
+      SkRect bounds;
+      // TODO(jhawkins): This will only work for the first tab, because
+      // saveLayerAlpha only uses bounds as the size and not the location.  In
+      // our situation, canvas spans the entire tabstrip, so saving the layer
+      // at (0,0)x(w,h) will always save the first tab.
+      bounds.set(0, 0,
+          SkIntToScalar(width()), SkIntToScalar(height()));
+      canvas->saveLayerAlpha(&bounds,
+          static_cast<int>(animation->GetCurrentValue() * kHoverOpacity * 0xff),
+              SkCanvas::kARGB_ClipLayer_SaveFlag);
+      canvas->drawARGB(0, 255, 255, 255, SkPorterDuff::kClear_Mode);
+      PaintActiveTabBackground(canvas);
+      canvas->restore();
     }
   }
 }
 
 void TabRendererGtk::PaintInactiveTabBackground(ChromeCanvasPaint* canvas) {
   bool is_otr = data_.off_the_record;
-  const TabImage& image = is_otr ? tab_inactive_otr_ : tab_inactive_;
 
-  canvas->DrawBitmapInt(*image.image_l, bounds_.x(), bounds_.y());
-  canvas->TileImageInt(*image.image_c,
-                       bounds_.x() + tab_inactive_.l_width, bounds_.y(),
-                       width() - tab_inactive_.l_width - tab_inactive_.r_width,
-                       height());
-  canvas->DrawBitmapInt(*image.image_r,
-                        bounds_.x() + width() - tab_inactive_.r_width,
-                        bounds_.y());
-}
+  // The tab image needs to be lined up with the background image
+  // so that it feels partially transparent.
+  int offset = 1;
+  int offset_y = 20;
 
-void TabRendererGtk::PaintHoverTabBackground(ChromeCanvasPaint* canvas,
-                                             double opacity) {
-  bool is_otr = data_.off_the_record;
-  const TabImage& image = is_otr ? tab_inactive_otr_ : tab_inactive_;
+  int tab_id = is_otr ?
+      IDR_THEME_TAB_BACKGROUND_INCOGNITO : IDR_THEME_TAB_BACKGROUND;
 
-  SkBitmap left = skia::ImageOperations::CreateBlendedBitmap(
-      *image.image_l, *tab_hover_.image_l, opacity);
-  SkBitmap center = skia::ImageOperations::CreateBlendedBitmap(
-      *image.image_c, *tab_hover_.image_c, opacity);
-  SkBitmap right = skia::ImageOperations::CreateBlendedBitmap(
-      *image.image_r, *tab_hover_.image_r, opacity);
+  SkBitmap* tab_bg = theme_provider_->GetBitmapNamed(tab_id);
 
-  canvas->DrawBitmapInt(left, bounds_.x(), bounds_.y());
-  canvas->TileImageInt(center, bounds_.x() + tab_active_.l_width, bounds_.y(),
-      bounds_.width() - tab_active_.l_width - tab_active_.r_width,
-      bounds_.height());
-  canvas->DrawBitmapInt(right,
-      bounds_.x() + bounds_.width() - tab_active_.r_width, bounds_.y());
+  // Draw left edge.
+  SkBitmap tab_l = skia::ImageOperations::CreateTiledBitmap(
+      *tab_bg, offset, offset_y,
+      tab_active_.l_width, height());
+  SkBitmap theme_l = skia::ImageOperations::CreateMaskedBitmap(
+      tab_l, *tab_alpha.image_l);
+  canvas->DrawBitmapInt(theme_l,
+      0, 0, theme_l.width(), theme_l.height() - 1,
+      bounds_.x(), bounds_.y(), theme_l.width(), theme_l.height() - 1,
+      false);
+
+  // Draw right edge.
+  SkBitmap tab_r = skia::ImageOperations::CreateTiledBitmap(
+      *tab_bg,
+      offset + width() - tab_active_.r_width, offset_y,
+      tab_active_.r_width, height());
+  SkBitmap theme_r = skia::ImageOperations::CreateMaskedBitmap(
+      tab_r, *tab_alpha.image_r);
+  canvas->DrawBitmapInt(theme_r,
+      0, 0, theme_r.width(), theme_r.height() - 1,
+      bounds_.x() + width() - theme_r.width(), bounds_.y(),
+      theme_r.width(), theme_r.height() - 1,
+      false);
+
+  // Draw center.
+  canvas->TileImageInt(*tab_bg,
+      offset + tab_active_.l_width, kDropShadowOffset + offset_y,
+      bounds_.x() + tab_active_.l_width, bounds_.y() + 2,
+      width() - tab_active_.l_width - tab_active_.r_width, height() - 3);
+
+  canvas->DrawBitmapInt(*tab_inactive_.image_l, bounds_.x(), bounds_.y());
+  canvas->TileImageInt(*tab_inactive_.image_c, tab_inactive_.l_width, 0,
+      bounds_.x() + width() - tab_inactive_.l_width - tab_inactive_.r_width,
+      bounds_.y() + height());
+  canvas->DrawBitmapInt(*tab_inactive_.image_r,
+      bounds_.x() + width() - tab_inactive_.r_width, bounds_.y());
 }
 
 void TabRendererGtk::PaintActiveTabBackground(ChromeCanvasPaint* canvas) {
+  int offset = 1;
+
+  SkBitmap* tab_bg = theme_provider_->GetBitmapNamed(IDR_THEME_TOOLBAR);
+
+  // Draw left edge.
+  SkBitmap tab_l = skia::ImageOperations::CreateTiledBitmap(
+      *tab_bg, offset, 0, tab_active_.l_width, height());
+  SkBitmap theme_l = skia::ImageOperations::CreateMaskedBitmap(
+      tab_l, *tab_alpha.image_l);
+  canvas->DrawBitmapInt(theme_l, bounds_.x(), bounds_.y());
+
+  // Draw right edge.
+  SkBitmap tab_r = skia::ImageOperations::CreateTiledBitmap(
+      *tab_bg,
+      offset + width() - tab_active_.r_width, 0,
+      tab_active_.r_width, height());
+  SkBitmap theme_r = skia::ImageOperations::CreateMaskedBitmap(
+      tab_r, *tab_alpha.image_r);
+  canvas->DrawBitmapInt(theme_r,
+      bounds_.x() + width() - tab_active_.r_width, bounds_.y());
+
+  // Draw center.
+  canvas->TileImageInt(*tab_bg,
+      offset + tab_active_.l_width, 2,
+      bounds_.x() + tab_active_.l_width, bounds_.y() + 2,
+      width() - tab_active_.l_width - tab_active_.r_width, height() - 2);
+
   canvas->DrawBitmapInt(*tab_active_.image_l, bounds_.x(), bounds_.y());
   canvas->TileImageInt(*tab_active_.image_c,
-                       bounds_.x() + tab_active_.l_width, bounds_.y(),
-                       width() - tab_active_.l_width - tab_active_.r_width,
-                       height());
+      bounds_.x() + tab_active_.l_width, bounds_.y(),
+      width() - tab_active_.l_width - tab_active_.r_width, height());
   canvas->DrawBitmapInt(*tab_active_.image_r,
-                        bounds_.x() + width() - tab_active_.r_width,
-                        bounds_.y());
+      bounds_.x() + width() - tab_active_.r_width, bounds_.y());
 }
 
 void TabRendererGtk::PaintLoadingAnimation(ChromeCanvasPaint* canvas) {

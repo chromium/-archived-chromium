@@ -993,8 +993,6 @@ gboolean TabStripGtk::OnExpose(GtkWidget* widget, GdkEventExpose* event,
   event->area.height = tabstrip->bounds_.height();
   gdk_region_union_with_rect(event->region, &event->area);
 
-  tabstrip->PaintBackground(event);
-
   // Paint the New Tab button.
   gtk_container_propagate_expose(GTK_CONTAINER(tabstrip->tabstrip_.get()),
       tabstrip->newtab_button_.get()->widget(), event);
@@ -1056,11 +1054,6 @@ void TabStripGtk::OnSizeAllocate(GtkWidget* widget, GtkAllocation* allocation,
 // static
 void TabStripGtk::OnNewTabClicked(GtkWidget* widget, TabStripGtk* tabstrip) {
   tabstrip->model_->delegate()->AddBlankTab(true);
-}
-
-void TabStripGtk::PaintBackground(GdkEventExpose* event) {
-  ChromeCanvasPaint canvas(event);
-  canvas.TileImageInt(*background, 0, 0, bounds_.width(), bounds_.height());
 }
 
 void TabStripGtk::SetTabBounds(TabGtk* tab, const gfx::Rect& bounds) {

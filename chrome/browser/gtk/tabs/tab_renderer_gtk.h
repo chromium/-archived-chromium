@@ -21,6 +21,7 @@ class Size;
 }  // namespace gfx
 
 class TabContents;
+class ThemeProvider;
 
 class TabRendererGtk : public AnimationDelegate {
  public:
@@ -173,7 +174,6 @@ class TabRendererGtk : public AnimationDelegate {
   void PaintTabBackground(ChromeCanvasPaint* canvas);
   void PaintInactiveTabBackground(ChromeCanvasPaint* canvas);
   void PaintActiveTabBackground(ChromeCanvasPaint* canvas);
-  void PaintHoverTabBackground(ChromeCanvasPaint* canvas, double opacity);
   void PaintLoadingAnimation(ChromeCanvasPaint* canvas);
 
   // Returns the number of favicon-size elements that can fit in the tab's
@@ -204,7 +204,7 @@ class TabRendererGtk : public AnimationDelegate {
 
   static TabImage tab_active_;
   static TabImage tab_inactive_;
-  static TabImage tab_inactive_otr_;
+  static TabImage tab_alpha;
   static TabImage tab_hover_;
 
   static ChromeFont* title_font_;
@@ -245,6 +245,10 @@ class TabRendererGtk : public AnimationDelegate {
 
   // Contains the loading animation state.
   LoadingAnimation loading_animation_;
+
+  // TODO(jhawkins): If the theme is changed after the tab is created, we'll
+  // still render the old theme for this tab.
+  ThemeProvider* theme_provider_;
 
   DISALLOW_COPY_AND_ASSIGN(TabRendererGtk);
 };
