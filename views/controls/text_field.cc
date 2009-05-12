@@ -531,7 +531,7 @@ void TextField::Edit::OnKeyDown(TCHAR key, UINT repeat_count, UINT flags) {
     // Cut:   Shift-Delete and Ctrl-x are treated as cut.  Ctrl-Shift-Delete and
     //        Ctrl-Shift-x are not treated as cut even though the underlying
     //        CRichTextEdit would treat them as such.
-    // Copy:  Ctrl-v is treated as copy.  Shift-Ctrl-v is not.
+    // Copy:  Ctrl-c is treated as copy.  Shift-Ctrl-c is not.
     // Paste: Shift-Insert and Ctrl-v are tread as paste.  Ctrl-Shift-Insert and
     //        Ctrl-Shift-v are not.
     //
