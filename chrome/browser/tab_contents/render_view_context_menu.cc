@@ -4,9 +4,6 @@
 
 #include "chrome/browser/tab_contents/render_view_context_menu.h"
 
-#if defined(OS_WIN)
-#include "app/win_util.h"
-#endif
 #include "app/l10n_util.h"
 #include "base/clipboard.h"
 #include "base/command_line.h"
@@ -114,8 +111,10 @@ void RenderViewContextMenu::AppendFrameItems() {
   AppendMenuItem(IDS_CONTENT_CONTEXT_OPENFRAMENEWWINDOW);
   AppendMenuItem(IDS_CONTENT_CONTEXT_OPENFRAMEOFFTHERECORD);
   AppendSeparator();
-  AppendMenuItem(IDS_CONTENT_CONTEXT_SAVEFRAMEAS);
-  AppendMenuItem(IDS_CONTENT_CONTEXT_PRINTFRAME);
+  // These two menu items have yet to be implemented.
+  // http://code.google.com/p/chromium/issues/detail?id=11827
+  //AppendMenuItem(IDS_CONTENT_CONTEXT_SAVEFRAMEAS);
+  //AppendMenuItem(IDS_CONTENT_CONTEXT_PRINTFRAME);
   AppendMenuItem(IDS_CONTENT_CONTEXT_VIEWFRAMESOURCE);
   AppendMenuItem(IDS_CONTENT_CONTEXT_VIEWFRAMEINFO);
 }
@@ -459,23 +458,13 @@ void RenderViewContextMenu::ExecuteItemCommand(int id) {
       break;
 
     case IDS_CONTENT_CONTEXT_SAVEFRAMEAS:
-#if defined(OS_WIN)
-      win_util::MessageBox(NULL, L"Context Menu Action", L"Save Frame As",
-                           MB_OK);
-#else
-      // TODO(port): message box equivalent
+      // http://code.google.com/p/chromium/issues/detail?id=11827
       NOTIMPLEMENTED() << "IDS_CONTENT_CONTEXT_SAVEFRAMEAS";
-#endif
       break;
 
     case IDS_CONTENT_CONTEXT_PRINTFRAME:
-#if defined(OS_WIN)
-      win_util::MessageBox(NULL, L"Context Menu Action", L"Print Frame",
-                           MB_OK);
-#else
-      // TODO(port): message box equivalent
+      // http://code.google.com/p/chromium/issues/detail?id=11827
       NOTIMPLEMENTED() << "IDS_CONTENT_CONTEXT_PRINTFRAME";
-#endif
       break;
 
     case IDS_CONTENT_CONTEXT_VIEWFRAMESOURCE:
