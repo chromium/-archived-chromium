@@ -6,7 +6,6 @@
 #include "base/path_service.h"
 #include "base/perftimer.h"
 #include "base/time.h"
-#include "build/build_config.h"
 #include "chrome/app/chrome_dll_resource.h"
 #include "chrome/common/chrome_paths.h"
 #include "chrome/test/automation/browser_proxy.h"
@@ -89,12 +88,7 @@ class NewTabUIStartupTest : public UITest {
   }
 };
 
-}  // namespace
-
 // TODO(pamg): run these tests with a reference build?
-
-// TODO(tc): Fix this.
-#if !defined(OS_MACOSX)
 TEST_F(NewTabUIStartupTest, PerfCold) {
   RunStartupTest("tab_cold", false /* not cold */, true /* important */);
 }
@@ -102,4 +96,5 @@ TEST_F(NewTabUIStartupTest, PerfCold) {
 TEST_F(NewTabUIStartupTest, DISABLED_PerfWarm) {
   RunStartupTest("tab_warm", true /* cold */, false /* not important */);
 }
-#endif
+
+}  // namespace
