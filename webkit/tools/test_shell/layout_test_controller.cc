@@ -133,11 +133,6 @@ LayoutTestController::LayoutTestController(TestShell* shell) {
   BindMethod("setPrivateBrowsingEnabled", &LayoutTestController::setPrivateBrowsingEnabled);
   BindMethod("setUseDashboardCompatibilityMode", &LayoutTestController::setUseDashboardCompatibilityMode);
 
-  // This typo (missing 'i') is intentional as it matches the typo in the layout test
-  // see: LayoutTests/fast/canvas/fill-stroke-clip-reset-path.html.
-  // If Apple ever fixes this, we'll need to update it.
-  BindMethod("setUseDashboardCompatiblityMode", &LayoutTestController::setUseDashboardCompatibilityMode);
-
   // The fallback method is called when an unknown method is invoked.
   BindFallbackMethod(&LayoutTestController::fallbackMethod);
 
