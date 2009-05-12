@@ -219,7 +219,7 @@ void WidgetWin::Init(HWND parent, const gfx::Rect& bounds,
 
   // Bug 964884: detach the IME attached to this window.
   // We should attach IMEs only when we need to input CJK strings.
-  ::ImmAssociateContextEx(GetNativeView(), NULL, 0);
+  win_util::IMEAttach(GetNativeView(), false);
 }
 
 void WidgetWin::SetContentsView(View* view) {
