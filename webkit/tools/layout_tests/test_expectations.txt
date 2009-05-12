@@ -2197,7 +2197,7 @@ BUG9798 WIN RELEASE : LayoutTests/http/tests/xmlhttprequest/state-after-network-
 BUG9797 LINUX DEBUG : LayoutTests/svg/W3C-SVG-1.1/filters-gauss-01-b.svg = CRASH PASS
 BUG9797 LINUX DEBUG : LayoutTests/svg/carto.net/colourpicker.svg = CRASH FAIL
 BUG9797 LINUX DEBUG : LayoutTests/svg/carto.net/tabgroup.svg = CRASH PASS
-BUG9797 MAC DEBUG : LayoutTests/fast/body-propagation/overflow/004.html = FAIL PASS
+BUG9797 MAC : LayoutTests/fast/body-propagation/overflow/004.html = FAIL PASS
 BUG9797 MAC DEBUG : LayoutTests/tables/mozilla/bugs/bug137388-2.html = FAIL PASS
 BUG9797 WIN DEBUG : LayoutTests/editing/execCommand/paste-1.html = FAIL PASS
 BUG9797 WIN DEBUG : LayoutTests/editing/pasteboard/subframe-dragndrop-1.html = FAIL PASS
@@ -2671,3 +2671,8 @@ BUG11795 MAC : LayoutTests/fast/images/favicon-as-image.html = FAIL
 
 // Already baselined for chromium-win, may need to be done for mac/linux as well.
 BUG11796 MAC LINUX : LayoutTests/fast/forms/search-styled.html = FAIL
+
+// Flaky Mac tests
+BUG11810 MAC : LayoutTests/http/tests/navigation/post-goback-same-url.html = TIMEOUT
+BUG11810 MAC : LayoutTests/http/tests/mime/standard-mode-does-not-load-stylesheet-with-text-plain.html = TIMEOUT
+BUG11810 MAC : LayoutTests/svg/custom/polyline-points-crash.html = CRASH
