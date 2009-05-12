@@ -2671,7 +2671,3 @@ BUG11795 MAC : LayoutTests/fast/images/favicon-as-image.html = FAIL
 
 // Already baselined for chromium-win, may need to be done for mac/linux as well.
 BUG11796 MAC LINUX : LayoutTests/fast/forms/search-styled.html = FAIL
-
-// Seems like a crash in "instanceof" V8 code generation.
-// http://code.google.com/p/v8/issues/detail?id=341
-LayoutTests/fast/js/instance-of-immediates.html = CRASH
