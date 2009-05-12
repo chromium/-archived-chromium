@@ -584,3 +584,15 @@
    fun:_ZN10URLFetcher4Core21OnCompletedURLRequestERK16URLRequestStatus
    fun:_ZN14RunnableMethodIN10URLFetcher4CoreEMS1_FvRK16URLRequestStatusE6Tuple1IS2_EE3RunEv
 }
+{
+   bug_11838
+   Memcheck:Cond
+   fun:strlen
+   ...
+   fun:__xmlRaiseError
+   ...
+   fun:_ZN16Toolbar5Importer17LocateNextOpenTagEP9XmlReader
+   fun:_ZN16Toolbar5Importer27LocateNextTagWithStopByNameEP9XmlReaderRKSsS3_
+   fun:_ZN16Toolbar5Importer24ParseBookmarksFromReaderEP9XmlReaderPSt6vectorIN13ProfileWriter13BookmarkEntryESaIS4_EE
+   fun:_ZN39Toolbar5ImporterTest_BookmarkParse_Test8TestBodyEv
+}
