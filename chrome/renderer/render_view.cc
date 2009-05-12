@@ -2298,6 +2298,15 @@ void RenderView::SpellCheck(const std::wstring& word, int& misspell_location,
                                   &misspell_length));
 }
 
+void RenderView::GetAutoCorrectWord(const std::wstring& misspelled_word,
+                                    std::wstring& autocorrect_word) {
+  const CommandLine& command_line = *CommandLine::ForCurrentProcess();
+  if (command_line.HasSwitch(switches::kAutoSpellCorrect)) {
+    Send(new ViewHostMsg_GetAutoCorrectWord(routing_id_, misspelled_word,
+                                            &autocorrect_word));
+  }
+}
+
 void RenderView::SetInputMethodState(bool enabled) {
   // Save the updated IME status and mark the input focus has been updated.
   // The IME status is to be sent to a browser process next time when

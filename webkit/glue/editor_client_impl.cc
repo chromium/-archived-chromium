@@ -843,6 +843,18 @@ void EditorClientImpl::checkSpellingOfString(const UChar* str, int length,
     *misspellingLength = spell_length;
 }
 
+WebCore::String EditorClientImpl::getAutoCorrectSuggestionForMisspelledWord(
+    const WebCore::String& misspelledWord) {
+  WebViewDelegate* d = web_view_->delegate();
+  std::wstring autocorrect_word;
+  if (isContinuousSpellCheckingEnabled() && d) {
+    std::wstring word = webkit_glue::StringToStdWString(misspelledWord);
+    d->GetAutoCorrectWord(word, autocorrect_word);
+  }
+
+  return webkit_glue::StdWStringToString(autocorrect_word);
+}
+
 void EditorClientImpl::checkGrammarOfString(const UChar*, int length,
                                             WTF::Vector<WebCore::GrammarDetail>&,
                                             int* badGrammarLocation,

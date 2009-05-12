@@ -30,6 +30,7 @@ using base::TimeTicks;
 
 static const int kMaxSuggestions = 5;  // Max number of dictionary suggestions.
 
+static const int kMaxAutoCorrectWordSize = 8;
 
 namespace {
 
@@ -473,6 +474,49 @@ bool SpellChecker::Initialize() {
 
   tried_to_init_ = true;
   return false;
+}
+
+void SpellChecker::GetAutoCorrectionWord(const std::wstring& word,
+                                         std::wstring* autocorrect_word) {
+  autocorrect_word->clear();
+  int word_length = static_cast<int>(word.size());
+  if (word_length < 2 || word_length > kMaxAutoCorrectWordSize)
+    return;
+
+  wchar_t misspelled_word[kMaxAutoCorrectWordSize + 1];
+  const wchar_t* word_char = word.c_str();
+  for (int i = 0; i <= kMaxAutoCorrectWordSize; i++) {
+    if (i >= word_length)
+      misspelled_word[i] = NULL;
+    else
+      misspelled_word[i] = word_char[i];
+  }
+
+  // Swap adjacent characters and spellcheck.
+  int misspelling_start, misspelling_len;
+  for (int i = 0; i < word_length - 1; i++) {
+    // Swap.
+    std::swap(misspelled_word[i], misspelled_word[i + 1]);
+
+    // Check spelling.
+    misspelling_start = misspelling_len = 0;
+    SpellCheckWord(misspelled_word, word_length, &misspelling_start,
+        &misspelling_len, NULL);
+
+    // Make decision: if only one swap produced a valid word, then we want to
+    // return it. If we found two or more, we don't do autocorrection.
+    if (misspelling_len == 0) {
+      if (autocorrect_word->empty()) {
+        autocorrect_word->assign(misspelled_word);
+      } else {
+        autocorrect_word->clear();
+        return;
+      }
+    }
+
+    // Restore the swapped characters.
+    std::swap(misspelled_word[i], misspelled_word[i + 1]);
+  }
 }
 
 void SpellChecker::AddCustomWordsToHunspell() {

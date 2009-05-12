@@ -495,3 +495,36 @@ TEST_F(SpellCheckTest, DISABLED_SpellCheckSuggestionsAddToDictionary_EN_US) {
   // Remove the temp custom dictionary file.
   file_util::Delete(custom_dictionary_file, false);
 }
+
+TEST_F(SpellCheckTest, GetAutoCorrectionWord_EN_US) {
+  static const struct {
+    // A misspelled word.
+    const wchar_t* input;
+
+    // An expected result for this test case.
+    // Should be an empty string if there are no suggestions for auto correct.
+    const wchar_t* expected_result;
+  } kTestCases[] = {
+    {L"teh", L"the"},
+    {L"moer", L"more"},
+    {L"watre", L"water"},
+    {L"noen", L""},
+    {L"what", L""},
+  };
+
+  FilePath hunspell_directory = GetHunspellDirectory();
+  ASSERT_FALSE(hunspell_directory.empty());
+
+  scoped_refptr<SpellChecker> spell_checker(new SpellChecker(
+      hunspell_directory, "en-US", NULL, FilePath()));
+
+  for (size_t i = 0; i < ARRAYSIZE_UNSAFE(kTestCases); ++i) {
+    std::wstring misspelled_word(kTestCases[i].input);
+    std::wstring expected_autocorrect_word(kTestCases[i].expected_result);
+    std::wstring autocorrect_word;
+    spell_checker->GetAutoCorrectionWord(misspelled_word, &autocorrect_word);
+
+    // Check for spelling.
+    EXPECT_EQ(expected_autocorrect_word, autocorrect_word);
+  }
+}

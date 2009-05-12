@@ -815,6 +815,10 @@ IPC_BEGIN_MESSAGES(ViewHost)
                              int /* misspell location */,
                              int /* misspell length */)
 
+  IPC_SYNC_MESSAGE_ROUTED1_1(ViewHostMsg_GetAutoCorrectWord,
+                             std::wstring /* word to check */,
+                             std::wstring /* autocorrected word */)
+
   // Initiate a download based on user actions like 'ALT+click'.
   IPC_MESSAGE_ROUTED2(ViewHostMsg_DownloadUrl,
                       GURL /* url */,

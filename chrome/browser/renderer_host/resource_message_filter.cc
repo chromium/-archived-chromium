@@ -253,6 +253,8 @@ bool ResourceMessageFilter::OnMessageReceived(const IPC::Message& message) {
       IPC_MESSAGE_HANDLER(ViewHostMsg_ForwardToWorker,
                           OnForwardToWorker)
       IPC_MESSAGE_HANDLER_DELAY_REPLY(ViewHostMsg_SpellCheck, OnSpellCheck)
+      IPC_MESSAGE_HANDLER_DELAY_REPLY(ViewHostMsg_GetAutoCorrectWord,
+                                      OnGetAutoCorrectWord)
       IPC_MESSAGE_HANDLER(ViewHostMsg_DnsPrefetch, OnDnsPrefetch)
       IPC_MESSAGE_HANDLER(ViewHostMsg_RendererHistograms,
                           OnRendererHistograms)
@@ -790,6 +792,20 @@ void ResourceMessageFilter::OnSpellCheck(const std::wstring& word,
 
   ViewHostMsg_SpellCheck::WriteReplyParams(reply_msg, misspell_location,
                                            misspell_length);
+  Send(reply_msg);
+  return;
+}
+
+
+void ResourceMessageFilter::OnGetAutoCorrectWord(const std::wstring& word,
+                                                 IPC::Message* reply_msg) {
+  std::wstring autocorrect_word;
+  if (spellchecker_ != NULL) {
+    spellchecker_->GetAutoCorrectionWord(word, &autocorrect_word);
+  }
+
+  ViewHostMsg_GetAutoCorrectWord::WriteReplyParams(reply_msg,
+                                                   autocorrect_word);
   Send(reply_msg);
   return;
 }

@@ -162,7 +162,10 @@ extern const wchar_t kWebWorkerProcessPerCore[];
 extern const wchar_t kWebWorkerShareProcesses[];
 
 extern const wchar_t kBookmarkMenu[];
+
 extern const wchar_t kEnableStatsTable[];
+
+extern const wchar_t kAutoSpellCorrect[];
 
 extern const wchar_t kEnableOmnibox2[];
 

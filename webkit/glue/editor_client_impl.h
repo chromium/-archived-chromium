@@ -92,6 +92,8 @@ class EditorClientImpl : public WebCore::EditorClient {
                                     WTF::Vector<WebCore::GrammarDetail>&,
                                     int* badGrammarLocation,
                                     int* badGrammarLength);
+  virtual WebCore::String getAutoCorrectSuggestionForMisspelledWord(
+      const WebCore::String& misspelledWord);
   virtual void updateSpellingUIWithGrammarString(const WebCore::String&,
                                                  const WebCore::GrammarDetail& detail);
   virtual void updateSpellingUIWithMisspelledWord(const WebCore::String&);

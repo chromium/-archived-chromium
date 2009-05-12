@@ -428,9 +428,11 @@ const wchar_t kWebWorkerShareProcesses[]       = L"web-worker-share-processes";
 // Enables the bookmark menu.
 const wchar_t kBookmarkMenu[]                  = L"bookmark-menu";
 
+// Enables auto spell correction.
+const wchar_t kAutoSpellCorrect[] = L"auto-spell-correct";
+
 // Enables StatsTable, logging statistics to a global named shared memory table.
 const wchar_t kEnableStatsTable[]              = L"enable-stats-table";
-
 // Enables the Omnibox2 popup and functionality.
 const wchar_t kEnableOmnibox2[]                = L"enable-omnibox2";
 

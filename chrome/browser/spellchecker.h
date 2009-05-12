@@ -75,6 +75,12 @@ class SpellChecker : public base::RefCountedThreadSafe<SpellChecker> {
                       int* misspelling_len,
                       std::vector<std::wstring>* optional_suggestions);
 
+  // Find a possible correctly spelled word for a misspelled word. Computes an
+  // empty string if input misspelled word is too long, there is ambiguity, or
+  // the correct spelling cannot be determined.
+  void GetAutoCorrectionWord(const std::wstring& word,
+      std::wstring* autocorrect_word);
+
   // Add custom word to the dictionary, which means:
   //    a) Add it to the current hunspell object for immediate use,
   //    b) Add the word to a file in disk for custom dictionary.

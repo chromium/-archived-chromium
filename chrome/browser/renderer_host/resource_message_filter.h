@@ -146,6 +146,8 @@ class ResourceMessageFilter : public IPC::ChannelProxy::MessageFilter,
                      const GURL& referrer);
   void OnSpellCheck(const std::wstring& word,
                     IPC::Message* reply_msg);
+  void OnGetAutoCorrectWord(const std::wstring& word,
+                            IPC::Message* reply_msg);
   void OnDnsPrefetch(const std::vector<std::string>& hostnames);
   void OnRendererHistograms(const std::vector<std::string>& histogram_info);
   void OnReceiveContextMenuMsg(const IPC::Message& msg);
