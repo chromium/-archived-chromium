@@ -29,7 +29,7 @@ class DevToolsView : public views::View,
   // Destroy content views when the window is closing.
   void OnWindowClosing();
   void SendMessageToClient(const IPC::Message& message);
-  bool HasRenderViewHost(const RenderViewHost& rvh) const;
+  RenderViewHost* GetRenderViewHost() const;
 
  private:
   // Overridden from TabContentsDelegate:

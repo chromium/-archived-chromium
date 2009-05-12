@@ -22,7 +22,7 @@ class DevToolsWindowWin : public DevToolsWindow,
 
   // DevToolsWindow implementation.
   virtual void Show();
-  virtual bool HasRenderViewHost(const RenderViewHost& rvh) const;
+  virtual RenderViewHost* GetRenderViewHost() const;
 
   virtual void InspectedTabClosing();
   virtual void SetInspectedTabUrl(const std::string& url);

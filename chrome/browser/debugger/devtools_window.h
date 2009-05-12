@@ -19,7 +19,7 @@ class DevToolsWindow : public DevToolsClientHost {
 
   // Show this window.
   virtual void Show() = 0;
-  virtual bool HasRenderViewHost(const RenderViewHost& rvh) const = 0;
+  virtual RenderViewHost* GetRenderViewHost() const = 0;
 
   // DevToolsClientHost override.
   virtual DevToolsWindow* AsDevToolsWindow() { return this; }

@@ -7,6 +7,9 @@
 #include "chrome/browser/debugger/devtools_window.h"
 #include "chrome/browser/debugger/devtools_client_host.h"
 #include "chrome/browser/renderer_host/render_view_host.h"
+#include "chrome/browser/tab_contents/navigation_controller.h"
+#include "chrome/browser/tab_contents/navigation_entry.h"
+#include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/common/devtools_messages.h"
 #include "googleurl/src/gurl.h"
 
@@ -51,7 +54,7 @@ void DevToolsManager::ForwardToDevToolsAgent(
     if (!win) {
       continue;
     }
-    if (win->HasRenderViewHost(*client_rvh)) {
+    if (client_rvh == win->GetRenderViewHost()) {
       ForwardToDevToolsAgent(win, message);
       return;
     }
@@ -88,6 +91,13 @@ void DevToolsManager::OpenDevToolsWindow(RenderViewHost* inspected_rvh) {
   if (!host) {
     host = DevToolsWindow::Create();
     RegisterDevToolsClientHostFor(inspected_rvh, host);
+  }
+  TabContents* tab_contents = inspected_rvh->delegate()->GetAsTabContents();
+  if (tab_contents) {
+    NavigationEntry* entry = tab_contents->controller().GetActiveEntry();
+    if (entry) {
+      host->SetInspectedTabUrl(entry->url().possibly_invalid_spec());
+    }
   }
   DevToolsWindow* window = host->AsDevToolsWindow();
   if (window)

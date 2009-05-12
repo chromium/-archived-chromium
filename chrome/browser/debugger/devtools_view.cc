@@ -112,11 +112,11 @@ void DevToolsView::SendMessageToClient(const IPC::Message& message) {
   }
 }
 
-bool DevToolsView::HasRenderViewHost(const RenderViewHost& rvh) const {
+RenderViewHost* DevToolsView::GetRenderViewHost() const {
   if (tab_contents_) {
-    return (&rvh == tab_contents_->render_view_host());
+    return tab_contents_->render_view_host();
   }
-  return false;
+  return NULL;
 }
 
 void DevToolsView::OpenURLFromTab(TabContents* source,

@@ -36,11 +36,11 @@ void DevToolsWindowWin::Show() {
   }
 }
 
-bool DevToolsWindowWin::HasRenderViewHost(const RenderViewHost& rvh) const {
+RenderViewHost* DevToolsWindowWin::GetRenderViewHost() const {
   if (tools_view_) {
-    return tools_view_->HasRenderViewHost(rvh);
+    return tools_view_->GetRenderViewHost();
   }
-  return false;
+  return NULL;
 }
 
 void DevToolsWindowWin::InspectedTabClosing() {
