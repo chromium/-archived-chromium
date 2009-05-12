@@ -20,12 +20,12 @@
             '../../third_party/npapi/npapi.gyp:npapi',
             '../activex_shim/activex_shim.gyp:activex_shim',
           ],
+          'product_name': 'npaxshim',
           'msvs_guid': '494E414B-1655-48CE-996D-6413ECFB7829',
           'msvs_settings': {
             'VCLinkerTool': {
               'RegisterOutput': 'false',
               'IgnoreImportLibrary': 'true',
-              'OutputFile': '$(OutDir)/npaxshim.dll',
             },
           },
           'sources': [
