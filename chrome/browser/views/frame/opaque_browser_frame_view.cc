@@ -605,10 +605,20 @@ void OpaqueBrowserFrameView::PaintRestoredFrameBorder(ChromeCanvas* canvas) {
 
 void OpaqueBrowserFrameView::PaintMaximizedFrameBorder(ChromeCanvas* canvas) {
   ThemeProvider* tp = GetThemeProvider();
+  // Window frame mode and color
+  SkBitmap* theme_frame;
+  if (!browser_view_->IsOffTheRecord()) {
+    theme_frame = frame_->IsActive() ?
+        tp->GetBitmapNamed(IDR_THEME_FRAME) :
+        tp->GetBitmapNamed(IDR_THEME_FRAME_INACTIVE);
+  } else {
+    theme_frame = frame_->IsActive() ?
+        tp->GetBitmapNamed(IDR_THEME_FRAME_INCOGNITO) :
+        tp->GetBitmapNamed(IDR_THEME_FRAME_INCOGNITO_INACTIVE);
+  }
 
-  SkBitmap* top_edge = tp->GetBitmapNamed(IDR_WINDOW_TOP_CENTER);
-  canvas->TileImageInt(*top_edge, 0, FrameBorderThickness(), width(),
-                       top_edge->height());
+  // Draw the theme frame.
+  canvas->TileImageInt(*theme_frame, 0, 0, width(), theme_frame->height());
 
   if (!browser_view_->IsToolbarVisible()) {
     // There's no toolbar to edge the frame border, so we need to draw a bottom
