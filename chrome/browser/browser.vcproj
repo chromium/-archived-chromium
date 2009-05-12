@@ -1954,6 +1954,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\extensions\extension_error_utils.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\extensions\extension_error_utils.h"
+				>
+			</File>
+			<File
 				RelativePath=".\extensions\extension_function.cc"
 				>
 			</File>

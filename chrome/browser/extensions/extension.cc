@@ -11,6 +11,7 @@
 #include "base/string_util.h"
 #include "net/base/net_util.h"
 #include "chrome/browser/extensions/extension_error_reporter.h"
+#include "chrome/browser/extensions/extension_error_utils.h"
 #include "chrome/common/extensions/user_script.h"
 #include "chrome/common/url_constants.h"
 
@@ -210,23 +211,6 @@ FilePath Extension::GetResourcePath(const FilePath& extension_path,
   return ret_val;
 }
 
-// Creates an error messages from a pattern.
-static std::string FormatErrorMessage(const std::string& format,
-                                      const std::string s1) {
-  std::string ret_val = format;
-  ReplaceFirstSubstringAfterOffset(&ret_val, 0, "*", s1);
-  return ret_val;
-}
-
-static std::string FormatErrorMessage(const std::string& format,
-                                      const std::string s1,
-                                      const std::string s2) {
-  std::string ret_val = format;
-  ReplaceFirstSubstringAfterOffset(&ret_val, 0, "*", s1);
-  ReplaceFirstSubstringAfterOffset(&ret_val, 0, "*", s2);
-  return ret_val;
-}
-
 Extension::Extension(const FilePath& path) {
   DCHECK(path.IsAbsolute());
 
@@ -254,8 +238,8 @@ bool Extension::LoadUserScriptHelper(const DictionaryValue* content_script,
   if (content_script->HasKey(kRunAtKey)) {
     std::string run_location;
     if (!content_script->GetString(kRunAtKey, &run_location)) {
-      *error = FormatErrorMessage(kInvalidRunAtError,
-                                  IntToString(definition_index));
+      *error = ExtensionErrorUtils::FormatErrorMessage(kInvalidRunAtError,
+          IntToString(definition_index));
       return false;
     }
 
@@ -264,8 +248,8 @@ bool Extension::LoadUserScriptHelper(const DictionaryValue* content_script,
     } else if (run_location == kRunAtDocumentEndValue) {
       result->set_run_location(UserScript::DOCUMENT_END);
     } else {
-      *error = FormatErrorMessage(kInvalidRunAtError,
-                                  IntToString(definition_index));
+      *error = ExtensionErrorUtils::FormatErrorMessage(kInvalidRunAtError,
+          IntToString(definition_index));
       return false;
     }
   }
@@ -273,30 +257,28 @@ bool Extension::LoadUserScriptHelper(const DictionaryValue* content_script,
   // matches
   ListValue* matches = NULL;
   if (!content_script->GetList(kMatchesKey, &matches)) {
-    *error = FormatErrorMessage(kInvalidMatchesError,
-                                IntToString(definition_index));
+    *error = ExtensionErrorUtils::FormatErrorMessage(kInvalidMatchesError,
+        IntToString(definition_index));
     return false;
   }
 
   if (matches->GetSize() == 0) {
-    *error = FormatErrorMessage(kInvalidMatchCountError,
-                                IntToString(definition_index));
+    *error = ExtensionErrorUtils::FormatErrorMessage(kInvalidMatchCountError,
+        IntToString(definition_index));
     return false;
   }
   for (size_t j = 0; j < matches->GetSize(); ++j) {
     std::string match_str;
     if (!matches->GetString(j, &match_str)) {
-      *error = FormatErrorMessage(kInvalidMatchError,
-                                  IntToString(definition_index),
-                                  IntToString(j));
+      *error = ExtensionErrorUtils::FormatErrorMessage(kInvalidMatchError,
+          IntToString(definition_index), IntToString(j));
       return false;
     }
 
     URLPattern pattern;
     if (!pattern.Parse(match_str)) {
-      *error = FormatErrorMessage(kInvalidMatchError,
-                                  IntToString(definition_index),
-                                  IntToString(j));
+      *error = ExtensionErrorUtils::FormatErrorMessage(kInvalidMatchError,
+          IntToString(definition_index), IntToString(j));
       return false;
     }
 
@@ -307,23 +289,23 @@ bool Extension::LoadUserScriptHelper(const DictionaryValue* content_script,
   ListValue* js = NULL;
   if (content_script->HasKey(kJsKey) &&
       !content_script->GetList(kJsKey, &js)) {
-    *error = FormatErrorMessage(kInvalidJsListError,
-                                IntToString(definition_index));
+    *error = ExtensionErrorUtils::FormatErrorMessage(kInvalidJsListError,
+        IntToString(definition_index));
     return false;
   }
 
   ListValue* css = NULL;
   if (content_script->HasKey(kCssKey) &&
       !content_script->GetList(kCssKey, &css)) {
-    *error = FormatErrorMessage(kInvalidCssListError,
-      IntToString(definition_index));
+    *error = ExtensionErrorUtils::FormatErrorMessage(kInvalidCssListError,
+        IntToString(definition_index));
     return false;
   }
 
   // The manifest needs to have at least one js or css user script definition.
   if (((js ? js->GetSize() : 0) + (css ? css->GetSize() : 0)) == 0) {
-    *error = FormatErrorMessage(kMissingFileError,
-                                IntToString(definition_index));
+    *error = ExtensionErrorUtils::FormatErrorMessage(kMissingFileError,
+        IntToString(definition_index));
     return false;
   }
 
@@ -333,9 +315,8 @@ bool Extension::LoadUserScriptHelper(const DictionaryValue* content_script,
       Value* value;
       std::wstring relative;
       if (!js->Get(script_index, &value) || !value->GetAsString(&relative)) {
-        *error = FormatErrorMessage(kInvalidJsError,
-                                    IntToString(definition_index),
-                                    IntToString(script_index));
+        *error = ExtensionErrorUtils::FormatErrorMessage(kInvalidJsError,
+            IntToString(definition_index), IntToString(script_index));
         return false;
       }
       // TODO(georged): Make GetResourceURL accept wstring too
@@ -351,9 +332,8 @@ bool Extension::LoadUserScriptHelper(const DictionaryValue* content_script,
       Value* value;
       std::wstring relative;
       if (!css->Get(script_index, &value) || !value->GetAsString(&relative)) {
-        *error = FormatErrorMessage(kInvalidCssError,
-                                    IntToString(definition_index),
-                                    IntToString(script_index));
+        *error = ExtensionErrorUtils::FormatErrorMessage(kInvalidCssError,
+            IntToString(definition_index), IntToString(script_index));
         return false;
       }
       // TODO(georged): Make GetResourceURL accept wstring too
@@ -377,14 +357,14 @@ PageAction* Extension::LoadPageActionHelper(
   // Read the page action |icon|.
   std::string icon;
   if (!page_action->GetString(kIconPathKey, &icon)) {
-    *error = FormatErrorMessage(kInvalidPageActionIconPathError,
-                                IntToString(definition_index));
+    *error = ExtensionErrorUtils::FormatErrorMessage(
+        kInvalidPageActionIconPathError, IntToString(definition_index));
     return NULL;
   }
   FilePath icon_path = path_.AppendASCII(icon);
   if (!file_util::PathExists(icon_path)) {
-    *error = FormatErrorMessage(kMissingPageActionIcon,
-                                IntToString(definition_index));
+    *error = ExtensionErrorUtils::FormatErrorMessage(kMissingPageActionIcon,
+        IntToString(definition_index));
     return NULL;
   }
   result->set_icon_path(icon_path);
@@ -392,7 +372,8 @@ PageAction* Extension::LoadPageActionHelper(
   // Read the page action |id|.
   std::string id;
   if (!page_action->GetString(kIdKey, &id)) {
-    *error = FormatErrorMessage(kInvalidIdError, IntToString(definition_index));
+    *error = ExtensionErrorUtils::FormatErrorMessage(kInvalidIdError,
+        IntToString(definition_index));
     return NULL;
   }
   result->set_id(id);
@@ -400,8 +381,8 @@ PageAction* Extension::LoadPageActionHelper(
   // Read the page action |name|.
   std::string name;
   if (!page_action->GetString(kNameKey, &name)) {
-    *error = FormatErrorMessage(kInvalidNameError,
-                                IntToString(definition_index));
+    *error = ExtensionErrorUtils::FormatErrorMessage(kInvalidNameError,
+        IntToString(definition_index));
     return NULL;
   }
   result->set_name(name);
@@ -409,8 +390,8 @@ PageAction* Extension::LoadPageActionHelper(
   // Read the page action |tooltip|.
   std::string tooltip;
   if (!page_action->GetString(kTooltipKey, &tooltip)) {
-    *error = FormatErrorMessage(kInvalidPageActionTooltipError,
-                                IntToString(definition_index));
+    *error = ExtensionErrorUtils::FormatErrorMessage(
+        kInvalidPageActionTooltipError, IntToString(definition_index));
     return NULL;
   }
   result->set_tooltip(tooltip);
@@ -422,8 +403,8 @@ PageAction* Extension::LoadPageActionHelper(
     result->set_type(PageAction::PERMANENT);
   } else if (!LowerCaseEqualsASCII(type, kPageActionTypeTab) &&
              !LowerCaseEqualsASCII(type, kPageActionTypePermanent)) {
-    *error = FormatErrorMessage(kInvalidPageActionTypeValueError,
-                                IntToString(definition_index));
+    *error = ExtensionErrorUtils::FormatErrorMessage(
+        kInvalidPageActionTypeValueError, IntToString(definition_index));
     return NULL;
   } else {
     if (LowerCaseEqualsASCII(type, kPageActionTypeTab))
@@ -614,7 +595,8 @@ bool Extension::InitFromValue(const DictionaryValue& source, bool require_id,
     for (size_t i = 0; i < list_value->GetSize(); ++i) {
       std::string toolstrip;
       if (!list_value->GetString(i, &toolstrip)) {
-        *error = FormatErrorMessage(kInvalidToolstripError, IntToString(i));
+        *error = ExtensionErrorUtils::FormatErrorMessage(kInvalidToolstripError,
+            IntToString(i));
         return false;
       }
       toolstrips_.push_back(toolstrip);
@@ -632,8 +614,8 @@ bool Extension::InitFromValue(const DictionaryValue& source, bool require_id,
     for (size_t i = 0; i < list_value->GetSize(); ++i) {
       DictionaryValue* content_script;
       if (!list_value->GetDictionary(i, &content_script)) {
-        *error = FormatErrorMessage(kInvalidContentScriptError,
-          IntToString(i));
+        *error = ExtensionErrorUtils::FormatErrorMessage(
+            kInvalidContentScriptError, IntToString(i));
         return false;
       }
 
@@ -656,8 +638,8 @@ bool Extension::InitFromValue(const DictionaryValue& source, bool require_id,
     for (size_t i = 0; i < list_value->GetSize(); ++i) {
       DictionaryValue* page_action_value;
       if (!list_value->GetDictionary(i, &page_action_value)) {
-        *error = FormatErrorMessage(kInvalidPageActionError,
-                                    IntToString(i));
+        *error = ExtensionErrorUtils::FormatErrorMessage(
+            kInvalidPageActionError, IntToString(i));
         return false;
       }
 
@@ -673,7 +655,8 @@ bool Extension::InitFromValue(const DictionaryValue& source, bool require_id,
   if (source.HasKey(kPermissionsKey)) {
     ListValue* hosts = NULL;
     if (!source.GetList(kPermissionsKey, &hosts)) {
-      *error = FormatErrorMessage(kInvalidPermissionsError, "");
+      *error = ExtensionErrorUtils::FormatErrorMessage(
+          kInvalidPermissionsError, "");
       return false;
     }
 
@@ -685,23 +668,23 @@ bool Extension::InitFromValue(const DictionaryValue& source, bool require_id,
     for (size_t i = 0; i < hosts->GetSize(); ++i) {
       std::string host_str;
       if (!hosts->GetString(i, &host_str)) {
-        *error = FormatErrorMessage(kInvalidPermissionError,
-                                    IntToString(i));
+        *error = ExtensionErrorUtils::FormatErrorMessage(
+            kInvalidPermissionError, IntToString(i));
         return false;
       }
 
       URLPattern pattern;
       if (!pattern.Parse(host_str)) {
-        *error = FormatErrorMessage(kInvalidPermissionError,
-                                    IntToString(i));
+        *error = ExtensionErrorUtils::FormatErrorMessage(
+            kInvalidPermissionError, IntToString(i));
         return false;
       }
 
       // Only accept http/https persmissions at the moment.
       if ((pattern.scheme() != chrome::kHttpScheme) &&
           (pattern.scheme() != chrome::kHttpsScheme)) {
-        *error = FormatErrorMessage(kInvalidPermissionSchemeError,
-                                    IntToString(i));
+        *error = ExtensionErrorUtils::FormatErrorMessage(
+            kInvalidPermissionSchemeError, IntToString(i));
         return false;
       }
 

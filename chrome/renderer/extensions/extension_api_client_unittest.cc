@@ -91,8 +91,9 @@ TEST_F(ExtensionAPIClientTest, CallbackDispatching) {
   ASSERT_TRUE(callback_id >= 0);
 
   // Now send the callback a response
-  ExtensionProcessBindings::ExecuteCallbackInFrame(
-    GetMainFrame(), callback_id, "{\"foo\":\"bar\"}");
+  ExtensionProcessBindings::CallContext call(GetMainFrame(), "CreateTab");
+  ExtensionProcessBindings::ExecuteResponseInFrame(
+    &call, callback_id, true, "{\"foo\":\"bar\"}", "");
 
   // And verify that it worked
   ASSERT_EQ("pass", GetConsoleMessage());
@@ -138,19 +139,19 @@ TEST_F(ExtensionAPIClientTest, GetCurentWindow) {
                "GetCurrentWindow", "null");
 }
 
-TEST_F(ExtensionAPIClientTest, GetFocusedWindow) {
-  ExpectJsFail("chrome.windows.getFocused(function(){}, 20);",
+TEST_F(ExtensionAPIClientTest, GetLastFocusedWindow) {
+  ExpectJsFail("chrome.windows.getLastFocused(function(){}, 20);",
                "Uncaught Error: Too many arguments.");
 
-  ExpectJsFail("chrome.windows.getFocused();",
+  ExpectJsFail("chrome.windows.getLastFocused();",
                "Uncaught Error: Parameter 0 is required.");
 
-  ExpectJsFail("chrome.windows.getFocused('abc');",
+  ExpectJsFail("chrome.windows.getLastFocused('abc');",
                "Uncaught Error: Invalid value for argument 0. "
                "Expected 'function' but got 'string'.");
 
-  ExpectJsPass("chrome.windows.getFocused(function(){})",
-               "GetFocusedWindow", "null");
+  ExpectJsPass("chrome.windows.getLastFocused(function(){})",
+               "GetLastFocusedWindow", "null");
 }
 
 TEST_F(ExtensionAPIClientTest, GetAllWindows) {
@@ -302,10 +303,23 @@ TEST_F(ExtensionAPIClientTest, MoveTab) {
 }
 
 TEST_F(ExtensionAPIClientTest, RemoveTab) {
-  ExpectJsFail("chrome.tabs.remove('foobar', function(){});",
+  ExpectJsFail("chrome.tabs.remove(32, function(){}, 20);",
                "Uncaught Error: Too many arguments.");
 
-  ExpectJsPass("chrome.tabs.remove(21)", "RemoveTab", "21");
+
+  ExpectJsFail("chrome.tabs.remove('abc', function(){});",
+               "Uncaught Error: Invalid value for argument 0. "
+               "Expected 'integer' but got 'string'.");
+
+  ExpectJsFail("chrome.tabs.remove(1, 1);",
+               "Uncaught Error: Invalid value for argument 1. "
+               "Expected 'function' but got 'integer'.");
+
+  ExpectJsPass("chrome.tabs.remove(2, function(){})",
+               "RemoveTab", "2");
+
+  ExpectJsPass("chrome.tabs.remove(2)",
+               "RemoveTab", "2");
 }
 
 // Bookmark API tests

@@ -46,8 +46,8 @@ class ExtensionImpl : public v8::Extension {
       v8::Handle<v8::String> name) {
     std::set<std::string>* names = GetFunctionNameSet();
 
-    if (name->Equals(v8::String::New("GetNextCallbackId")))
-      return v8::FunctionTemplate::New(GetNextCallbackId);
+    if (name->Equals(v8::String::New("GetNextRequestId")))
+      return v8::FunctionTemplate::New(GetNextRequestId);
     else if (names->find(*v8::String::AsciiValue(name)) != names->end())
       return v8::FunctionTemplate::New(StartRequest, name);
 
@@ -63,9 +63,9 @@ class ExtensionImpl : public v8::Extension {
     return &Singleton<SingletonData>()->function_names_;
   }
 
-  static v8::Handle<v8::Value> GetNextCallbackId(const v8::Arguments& args) {
-    static int next_callback_id = 0;
-    return v8::Integer::New(next_callback_id++);
+  static v8::Handle<v8::Value> GetNextRequestId(const v8::Arguments& args) {
+    static int next_request_id = 0;
+    return v8::Integer::New(next_request_id++);
   }
 
   static v8::Handle<v8::Value> StartRequest(const v8::Arguments& args) {
@@ -76,14 +76,17 @@ class ExtensionImpl : public v8::Extension {
     if (!webframe || !renderview)
       return v8::Undefined();
 
-    if (args.Length() != 2 || !args[0]->IsString() || !args[1]->IsInt32())
+    if (args.Length() != 3 || !args[0]->IsString() || !args[1]->IsInt32() ||
+        !args[2]->IsBoolean())
       return v8::Undefined();
 
-    int callback_id = args[1]->Int32Value();
+    int request_id = args[1]->Int32Value();
+    bool has_callback = args[2]->BooleanValue();
+
     renderview->SendExtensionRequest(
         std::string(*v8::String::AsciiValue(args.Data())),
         std::string(*v8::String::Utf8Value(args[0])),
-        callback_id, webframe);
+        request_id, has_callback, webframe);
 
     return v8::Undefined();
   }
@@ -100,17 +103,31 @@ void ExtensionProcessBindings::SetFunctionNames(
   ExtensionImpl::SetFunctionNames(names);
 }
 
-void ExtensionProcessBindings::ExecuteCallbackInFrame(
-    WebFrame* frame, int callback_id, const std::string& response) {
-  std::string code = "chrome.dispatchCallback_(";
-  code += IntToString(callback_id);
-  code += ", '";
+void ExtensionProcessBindings::ExecuteResponseInFrame(
+    CallContext *call, int request_id, bool success,
+    const std::string& response,
+    const std::string& error) {
+  std::string code = "chrome.handleResponse_(";
+  code += IntToString(request_id);
 
+  code += ", '" + call->name_;
+
+  if (success)
+    code += "', true";
+  else
+    code += "', false";
+
+  code += ", '";
   size_t offset = code.length();
   code += response;
   ReplaceSubstringsAfterOffset(&code, offset, "\\", "\\\\");
   ReplaceSubstringsAfterOffset(&code, offset, "'", "\\'");
+  code += "', '";
+  offset = code.length();
+  code += error;
+  ReplaceSubstringsAfterOffset(&code, offset, "\\", "\\\\");
+  ReplaceSubstringsAfterOffset(&code, offset, "'", "\\'");
   code += "')";
 
-  frame->ExecuteScript(WebScriptSource(WebString::fromUTF8(code)));
+  call->frame_->ExecuteScript(WebScriptSource(WebString::fromUTF8(code)));
 }

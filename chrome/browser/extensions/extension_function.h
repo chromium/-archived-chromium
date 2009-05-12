@@ -33,16 +33,14 @@ class ExtensionFunction {
   }
   void set_args(Value* args) { args_ = args; }
 
-  void set_callback_id(int callback_id) { callback_id_ = callback_id; }
-  int callback_id() { return callback_id_; }
+  void set_request_id(int request_id) { request_id_ = request_id; }
+  int request_id() { return request_id_; }
 
   Value* result() { return result_.get(); }
   const std::string& error() { return error_; }
 
-  // Whether the extension has registered a callback and is waiting for a
-  // response. APIs can use this to avoid doing unnecessary work in the case
-  // that the extension is not expecting a response.
-  bool has_callback() { return callback_id_ != -1; }
+  void set_has_callback(bool has_callback) { has_callback_ = has_callback; } 
+  bool has_callback() { return has_callback_; }
 
   // Execute the API. Clients should call set_args() and set_callback_id()
   // before calling this method. Derived classes should populate result_ and
@@ -75,8 +73,12 @@ class ExtensionFunction {
   ExtensionFunctionDispatcher* dispatcher_;
 
  private:
-  // Id of js function to callback upon completion. -1 represents no callback.
-  int callback_id_;
+  // Id of this request, used to map the response back to the caller.
+  int request_id_;
+
+  // True if the js caller provides a callback function to receive the response
+  // of this call.
+  bool has_callback_;
 
   DISALLOW_COPY_AND_ASSIGN(ExtensionFunction);
 };

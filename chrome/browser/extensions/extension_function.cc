@@ -10,14 +10,8 @@
 void ExtensionFunction::SendResponse(bool success) {
   if (bad_message_) {
     dispatcher_->HandleBadMessage(this);
-  } else if (success) {
-    if (has_callback()) {
-      dispatcher_->SendResponse(this);
-    }
   } else {
-    // TODO(aa): In case of failure, send the error message to an error
-    // callback.
-    LOG(WARNING) << error_;
+    dispatcher_->SendResponse(this, success);
   }
 }
 
@@ -28,4 +22,3 @@ std::string ExtensionFunction::extension_id() {
 Profile* ExtensionFunction::profile() {
   return dispatcher_->profile();
 }
-

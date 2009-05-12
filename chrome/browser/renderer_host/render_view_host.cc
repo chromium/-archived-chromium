@@ -1384,16 +1384,20 @@ void RenderViewHost::ForwardMessageFromExternalHost(const std::string& message,
 
 void RenderViewHost::OnExtensionRequest(const std::string& name,
                                         const std::string& args,
-                                        int callback_id) {
+                                        int request_id,
+                                        bool has_callback) {
   // TODO(aa): Here is where we can check that this renderer was supposed to be
   // able to call extension APIs.
   DCHECK(extension_function_dispatcher_.get());
-  extension_function_dispatcher_->HandleRequest(name, args, callback_id);
+  extension_function_dispatcher_->HandleRequest(name, args, request_id,
+      has_callback);
 }
 
-void RenderViewHost::SendExtensionResponse(int callback_id,
-                                           const std::string& response) {
-  Send(new ViewMsg_ExtensionResponse(routing_id(), callback_id, response));
+void RenderViewHost::SendExtensionResponse(int request_id, bool success,
+                                           const std::string& response,
+                                           const std::string& error) {
+  Send(new ViewMsg_ExtensionResponse(routing_id(), request_id, success,
+      response, error));
 }
 
 void RenderViewHost::OnExtensionPostMessage(

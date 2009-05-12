@@ -36,7 +36,7 @@ class GetWindowFunction : public SyncExtensionFunction {
 class GetCurrentWindowFunction : public SyncExtensionFunction {
   virtual bool RunImpl();
 };
-class GetFocusedWindowFunction : public SyncExtensionFunction {
+class GetLastFocusedWindowFunction : public SyncExtensionFunction {
   virtual bool RunImpl();
 };
 class GetAllWindowsFunction : public SyncExtensionFunction {

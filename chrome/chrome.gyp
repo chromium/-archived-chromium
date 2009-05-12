@@ -856,6 +856,8 @@
         'browser/extensions/extension_bookmarks_module.h',
         'browser/extensions/extension_error_reporter.cc',
         'browser/extensions/extension_error_reporter.h',
+        'browser/extensions/extension_error_utils.cc',
+        'browser/extensions/extension_error_utils.h',
         'browser/extensions/extension_function.cc',
         'browser/extensions/extension_function.h',
         'browser/extensions/extension_function_dispatcher.cc',

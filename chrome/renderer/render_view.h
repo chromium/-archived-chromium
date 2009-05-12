@@ -20,6 +20,7 @@
 #include "build/build_config.h"
 #include "chrome/renderer/automation/dom_automation_controller.h"
 #include "chrome/renderer/dom_ui_bindings.h"
+#include "chrome/renderer/extensions/extension_process_bindings.h"
 #include "chrome/renderer/external_host_bindings.h"
 #include "chrome/renderer/render_widget.h"
 #include "skia/include/SkBitmap.h"
@@ -374,8 +375,11 @@ class RenderView : public RenderWidget,
   void OnClearFocusedNode();
 
   void SendExtensionRequest(const std::string& name, const std::string& args,
-                            int callback_id, WebFrame* web_frame);
-  void OnExtensionResponse(int callback_id, const std::string& response);
+                            int request_id, bool has_callback,
+                            WebFrame* web_frame);
+  void OnExtensionResponse(int request_id, bool success,
+                           const std::string& response,
+                           const std::string& error);
 
  protected:
   // RenderWidget override.
@@ -784,8 +788,8 @@ class RenderView : public RenderWidget,
   // change but is overridden by tests.
   int delay_seconds_for_form_state_sync_;
 
-  // Maps pending callback IDs to their frames.
-  IDMap<WebFrame> pending_extension_callbacks_;
+  // Maps pending request IDs to their frames.
+  IDMap<ExtensionProcessBindings::CallContext> pending_extension_requests_;
 
   scoped_refptr<AudioMessageFilter> audio_message_filter_;
 

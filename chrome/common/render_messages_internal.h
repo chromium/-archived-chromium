@@ -528,10 +528,12 @@ IPC_BEGIN_MESSAGES(View)
   // started.
   IPC_MESSAGE_ROUTED0(ViewMsg_MoveOrResizeStarted)
 
-  // The browser sends this message when an extension API has a response.
-  IPC_MESSAGE_ROUTED2(ViewMsg_ExtensionResponse,
-                      int /* callback id */,
-                      std::string /* response */)
+  // The browser sends this message in response to all extension api calls.
+  IPC_MESSAGE_ROUTED4(ViewMsg_ExtensionResponse,
+                      int /* request_id */,
+                      bool /* success */,
+                      std::string /* response */,
+                      std::string /* error */)
 
   // Tell the extension process about a new channel that has been opened from a
   // renderer.  source_port_id identifies the port that the extension can
@@ -1300,11 +1302,12 @@ IPC_BEGIN_MESSAGES(ViewHost)
                       double /* right_channel */)
 
   // A renderer sends this message when an extension process starts an API
-  // request. If callback id is -1, no response will be sent.
-  IPC_MESSAGE_ROUTED3(ViewHostMsg_ExtensionRequest,
+  // request. The browser will always respond with a ViewMsg_ExtensionResponse.
+  IPC_MESSAGE_ROUTED4(ViewHostMsg_ExtensionRequest,
                       std::string /* name */,
                       std::string /* argument */,
-                      int /* callback id */)
+                      int /* callback id */,
+                      bool /* has_callback */)
 
   // Notify the browser that this renderer added a listener to an event.
   IPC_MESSAGE_CONTROL1(ViewHostMsg_ExtensionAddListener,

@@ -9,10 +9,10 @@
 
 var chrome;
 (function() {
-  native function GetNextCallbackId();
+  native function GetNextRequestId();
   native function GetWindow();
   native function GetCurrentWindow();
-  native function GetFocusedWindow();
+  native function GetLastFocusedWindow();
   native function CreateWindow();
   native function RemoveWindow();
   native function GetAllWindows();
@@ -71,27 +71,37 @@ var chrome;
   // TODO(aa): This function should not be publicly exposed. Pass it into V8
   // instead and hold one per-context. See the way event_bindings.js works.
   var callbacks = [];
-  chrome.dispatchCallback_ = function(callbackId, str) {
+  chrome.handleResponse_ = function(requestId, name, success, response, error) {
     try {
-      if (str) {
-        callbacks[callbackId](goog.json.parse(str));
-      } else {
-        callbacks[callbackId]();
+      if (!success) {
+        if (!error)
+          error = "Unknown error."
+        console.error("Error during " + name + ": " + error);
+        return;
+      }
+      
+      if (callbacks[requestId]) {
+        if (response) {
+          callbacks[requestId](goog.json.parse(response));
+        } else {
+          callbacks[requestId]();
+        }
       }
     } finally {
-      delete callbacks[callbackId];
+      delete callbacks[requestId];
     }
   };
 
   // Send an API request and optionally register a callback.
   function sendRequest(request, args, callback) {
     var sargs = goog.json.serialize(args);
-    var callbackId = -1;
+    var requestId = GetNextRequestId();
+    var hasCallback = false;
     if (callback) {
-      callbackId = GetNextCallbackId();
-      callbacks[callbackId] = callback;
+      hasCallback = true;
+      callbacks[requestId] = callback;
     }
-    request(sargs, callbackId);
+    request(sargs, requestId, hasCallback);
   }
 
   //----------------------------------------------------------------------------
@@ -118,12 +128,12 @@ var chrome;
     chrome.types.fun
   ];
   
-  chrome.windows.getFocused = function(callback) {
+  chrome.windows.getLastFocused = function(callback) {
     validate(arguments, arguments.callee.params);
-    sendRequest(GetFocusedWindow, null, callback);
+    sendRequest(GetLastFocusedWindow, null, callback);
   };
 
-  chrome.windows.getFocused.params = [
+  chrome.windows.getLastFocused.params = [
     chrome.types.fun
   ];
 
@@ -137,11 +147,11 @@ var chrome;
     chrome.types.fun
   ];
   
-  chrome.windows.createWindow = function(createData, callback) {
+  chrome.windows.create = function(createData, callback) {
     validate(arguments, arguments.callee.params);
     sendRequest(CreateWindow, createData, callback);
   };
-  chrome.windows.createWindow.params = [
+  chrome.windows.create.params = [
     {
       type: "object",
       properties: {
@@ -156,12 +166,12 @@ var chrome;
     chrome.types.optFun
   ];
   
-  chrome.windows.removeWindow = function(windowId, callback) {
+  chrome.windows.remove = function(windowId, callback) {
     validate(arguments, arguments.callee.params);
     sendRequest(RemoveWindow, windowId, callback);
   };
 
-  chrome.windows.removeWindow.params = [
+  chrome.windows.remove.params = [
     chrome.types.pInt,
     chrome.types.optFun
   ];
@@ -267,13 +277,14 @@ var chrome;
     chrome.types.optFun
   ];
   
-  chrome.tabs.remove = function(tabId) {
+  chrome.tabs.remove = function(tabId, callback) {
     validate(arguments, arguments.callee.params);
-    sendRequest(RemoveTab, tabId);
+    sendRequest(RemoveTab, tabId, callback);
   };
 
   chrome.tabs.remove.params = [
-    chrome.types.pInt
+    chrome.types.pInt,
+    chrome.types.optFun
   ];
 
   // Sends ({Tab}).

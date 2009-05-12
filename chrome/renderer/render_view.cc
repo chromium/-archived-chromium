@@ -1461,20 +1461,21 @@ void RenderView::DidCancelClientRedirect(WebView* webview,
 
 void RenderView::WillCloseFrame(WebView* view, WebFrame* frame) {
   // Remove all the pending extension callbacks for this frame.
-  if (pending_extension_callbacks_.IsEmpty())
+  if (pending_extension_requests_.IsEmpty())
     return;
 
-  std::vector<int> orphaned_callbacks;
-  for (IDMap<WebFrame>::const_iterator iter =
-       pending_extension_callbacks_.begin();
-       iter != pending_extension_callbacks_.end(); ++iter) {
-    if (iter->second == frame)
-      orphaned_callbacks.push_back(iter->first);
+  std::vector<int> orphaned_requests;
+  for (IDMap<ExtensionProcessBindings::CallContext>::const_iterator iter =
+       pending_extension_requests_.begin();
+       iter != pending_extension_requests_.end(); ++iter) {
+    if (iter->second->frame_ == frame)
+      orphaned_requests.push_back(iter->first);
   }
 
-  for (std::vector<int>::const_iterator iter = orphaned_callbacks.begin();
-       iter != orphaned_callbacks.end(); ++iter) {
-    pending_extension_callbacks_.Remove(*iter);
+  for (std::vector<int>::const_iterator iter = orphaned_requests.begin();
+       iter != orphaned_requests.end(); ++iter) {
+    delete pending_extension_requests_.Lookup(*iter);
+    pending_extension_requests_.Remove(*iter);
   }
 }
 
@@ -2908,25 +2909,33 @@ void RenderView::OnSetBackground(const SkBitmap& background) {
 
 void RenderView::SendExtensionRequest(const std::string& name,
                                       const std::string& args,
-                                      int callback_id,
-                                      WebFrame* callback_frame) {
-  if (callback_id != -1) {
-    DCHECK(callback_frame) << "Callback specified without frame";
-    pending_extension_callbacks_.AddWithID(callback_frame, callback_id);
-  }
+                                      int request_id,
+                                      bool has_callback,
+                                      WebFrame* request_frame) {
+  DCHECK(request_frame) << "Request specified without frame";
+  pending_extension_requests_.AddWithID(
+      new ExtensionProcessBindings::CallContext(request_frame, name),
+      request_id);
 
-  Send(new ViewHostMsg_ExtensionRequest(routing_id_, name, args, callback_id));
+  Send(new ViewHostMsg_ExtensionRequest(routing_id_, name, args, request_id,
+      has_callback));
 }
 
-void RenderView::OnExtensionResponse(int callback_id,
-                                     const std::string& response) {
-  WebFrame* web_frame = pending_extension_callbacks_.Lookup(callback_id);
-  if (!web_frame)
+void RenderView::OnExtensionResponse(int request_id,
+                                     bool success,
+                                     const std::string& response,
+                                     const std::string& error) {
+  ExtensionProcessBindings::CallContext* call =
+      pending_extension_requests_.Lookup(request_id);
+
+  if (!call)
     return;  // The frame went away.
 
-  ExtensionProcessBindings::ExecuteCallbackInFrame(web_frame, callback_id,
-                                                   response);
-  pending_extension_callbacks_.Remove(callback_id);
+  ExtensionProcessBindings::ExecuteResponseInFrame(call, request_id,
+                                                   success, response,
+                                                   error);
+  pending_extension_requests_.Remove(request_id);
+  delete call;
 }
 
 // Dump all load time histograms.

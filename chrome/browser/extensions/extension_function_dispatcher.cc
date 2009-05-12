@@ -57,8 +57,8 @@ FactoryRegistry::FactoryRegistry() {
   factories_["GetWindow"] = &NewExtensionFunction<GetWindowFunction>;
   factories_["GetCurrentWindow"] =
       &NewExtensionFunction<GetCurrentWindowFunction>;
-  factories_["GetFocusedWindow"] =
-      &NewExtensionFunction<GetFocusedWindowFunction>;
+  factories_["GetLastFocusedWindow"] =
+      &NewExtensionFunction<GetLastFocusedWindowFunction>;
   factories_["GetAllWindows"] = &NewExtensionFunction<GetAllWindowsFunction>;
   factories_["CreateWindow"] = &NewExtensionFunction<CreateWindowFunction>;
   factories_["RemoveWindow"] = &NewExtensionFunction<RemoveWindowFunction>;
@@ -140,7 +140,8 @@ Browser* ExtensionFunctionDispatcher::GetBrowser() {
 
 void ExtensionFunctionDispatcher::HandleRequest(const std::string& name,
                                                 const std::string& args,
-                                                int callback_id) {
+                                                int request_id,
+                                                bool has_callback) {
   scoped_ptr<Value> value;
   if (!args.empty()) {
     JSONReader reader;
@@ -160,18 +161,21 @@ void ExtensionFunctionDispatcher::HandleRequest(const std::string& name,
       FactoryRegistry::instance()->NewFunction(name));
   function->set_dispatcher(this);
   function->set_args(value.get());
-  function->set_callback_id(callback_id);
+  function->set_request_id(request_id);
+  function->set_has_callback(has_callback);
   function->Run();
 }
 
-void ExtensionFunctionDispatcher::SendResponse(ExtensionFunction* function) {
+void ExtensionFunctionDispatcher::SendResponse(ExtensionFunction* function,
+                                               bool success) {
   std::string json;
 
   // Some functions might not need to return any results.
-  if (function->result())
+  if (success && function->result())
     JSONWriter::Write(function->result(), false, &json);
 
-  render_view_host_->SendExtensionResponse(function->callback_id(), json);
+  render_view_host_->SendExtensionResponse(function->request_id(), success,
+      json, function->error());
 }
 
 void ExtensionFunctionDispatcher::HandleBadMessage(ExtensionFunction* api) {

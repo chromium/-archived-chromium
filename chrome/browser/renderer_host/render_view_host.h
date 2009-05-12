@@ -421,7 +421,10 @@ class RenderViewHost : public RenderWidgetHost {
   // Creates a new RenderWidget with the given route id.
   void CreateNewWidget(int route_id, bool activatable);
 
-  void SendExtensionResponse(int callback_id, const std::string& response);
+  // Senf the response to an extension api call.
+  void SendExtensionResponse(int request_id, bool success,
+                             const std::string& response,
+                             const std::string& error);
 
  protected:
   // RenderWidgetHost protected overrides.
@@ -545,7 +548,7 @@ class RenderViewHost : public RenderWidgetHost {
                              const std::wstring& value);
 
   void OnExtensionRequest(const std::string& name, const std::string& args,
-                          int callback_id);
+                          int request_id, bool has_callback);
   void OnExtensionPostMessage(int port_id, const std::string& message);
 
   // Helper function to send a navigation message.  If a cross-site request is

@@ -35,10 +35,10 @@ class ExtensionFunctionDispatcher {
 
   // Handle a request to execute an extension function.
   void HandleRequest(const std::string& name, const std::string& args,
-                     int callback_id);
+                     int request_id, bool has_callback);
 
   // Send a response to a function.
-  void SendResponse(ExtensionFunction* api);
+  void SendResponse(ExtensionFunction* api, bool success);
 
   // Gets the browser extension functions should operate relative to. For
   // example, for positioning windows, or alert boxes, or creating tabs.
