@@ -48,11 +48,14 @@ SafeBrowsingResourceHandler::SafeBrowsingResourceHandler(
 }
 
 SafeBrowsingResourceHandler::~SafeBrowsingResourceHandler() {
-  NotificationService::current()->RemoveObserver(
-      this,
-      NotificationType::RESOURCE_MESSAGE_FILTER_SHUTDOWN,
-      Source<ResourceMessageFilter>(
-          static_cast<ResourceMessageFilter*>(receiver_)));
+  NotificationService* notification_service = NotificationService::current();
+  if (notification_service) {
+    notification_service->RemoveObserver(
+        this,
+        NotificationType::RESOURCE_MESSAGE_FILTER_SHUTDOWN,
+        Source<ResourceMessageFilter>(
+            static_cast<ResourceMessageFilter*>(receiver_)));
+  }
 }
 
 bool SafeBrowsingResourceHandler::OnUploadProgress(int request_id,
