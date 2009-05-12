@@ -52,6 +52,11 @@
 
     # The architecture that we're building on.
     'target_arch%': 'ia32',
+
+    # By default linux does not use views. To turn on views in Linux
+    # set the variable GYP_DEFINES to "toolkit_views=1", or modify
+    # ~/.gyp/include.gypi .
+    'toolkit_views%': 0,
   },
   'target_defaults': {
     'conditions': [
@@ -59,6 +64,9 @@
         'defines': ['GOOGLE_CHROME_BUILD'],
       }, {  # else: branding!="Chrome"
         'defines': ['CHROMIUM_BUILD'],
+      }],
+      ['toolkit_views=="1"', {
+        'defines': ['TOOLKIT_VIEWS=1'],
       }],
       ['coverage!=0', {
         'conditions': [
