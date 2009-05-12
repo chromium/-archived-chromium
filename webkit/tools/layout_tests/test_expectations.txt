@@ -1875,10 +1875,6 @@ BUG9155 MAC LINUX WIN : LayoutTests/fast/canvas/canvas-gradient-addStop-error.ht
 // Newly added test from 41613:41660 -- relies on ScriptCallStack::state() -- dglazkov should fix.
 BUG9156 MAC LINUX WIN : LayoutTests/fast/js/console-non-string-values.html = FAIL
 
-// New failures from 41613:41660 -- They likely just need to be rebaselined
-// for Mac and Linux, since that is what was done for Windows.
-BUG9157 LINUX : LayoutTests/fast/layers/normal-flow-hit-test.html = FAIL
-
 // New failures from 41660:41709
 // Newly added tests.
 BUG9159 LINUX WIN : LayoutTests/editing/pasteboard/5089327.html = FAIL
