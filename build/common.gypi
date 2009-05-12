@@ -391,7 +391,6 @@
           },
           'VCLibrarianTool': {
             'AdditionalOptions': '/ignore:4221',
-            'OutputFile': '$(OutDir)\\lib\\$(ProjectName).lib',
             'AdditionalLibraryDirectories':
               '<(DEPTH)/third_party/platformsdk_win2008_6_1/files/Lib',
           },
