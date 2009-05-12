@@ -14,14 +14,14 @@
 
 // Note this header must come before other ATL headers.
 #include "media/player/stdafx.h"
-#include <atlcrack.h>
-#include <atlctrls.h>
-#include <atlctrlw.h>
-#include <atldlgs.h>
-#include <atlframe.h>
-#include <atlmisc.h>
-#include <atlprint.h>
-#include <atlscrl.h>
+#include <atlcrack.h>   // NOLINT
+#include <atlctrls.h>   // NOLINT
+#include <atlctrlw.h>   // NOLINT
+#include <atldlgs.h>    // NOLINT
+#include <atlframe.h>   // NOLINT
+#include <atlmisc.h>    // NOLINT
+#include <atlprint.h>   // NOLINT
+#include <atlscrl.h>    // NOLINT
 
 // Note these headers are order sensitive.
 #include "base/at_exit.h"

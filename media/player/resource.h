@@ -43,14 +43,22 @@
 #define ID_PLAY_NORMALSPEED             32802
 #define ID_PLAY_DOUBLESPEED             32803
 #define ID_FILE_LAST                    32804
+#define ID_Menu32806                    32806
+#define ID_VIEW_ROTATE0                 32807
+#define ID_VIEW_ROTATE90                32808
+#define ID_VIEW_ROTATE180               32809
+#define ID_VIEW_ROTATE270               32810
+#define ID_VIEW_MIRROR_HORIZONTAL       32811
+#define ID_VIEW_MIRROR_VERTICAL         32812
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        203
-#define _APS_NEXT_COMMAND_VALUE         32806
+#define _APS_NEXT_COMMAND_VALUE         32813
 #define _APS_NEXT_CONTROL_VALUE         1013
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif
+

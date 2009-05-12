@@ -33,12 +33,7 @@ END
 
 2 TEXTINCLUDE 
 BEGIN
-    "#include ""../chrome/third_party/wtl/include/atlres.h\0"
-END
-
-3 TEXTINCLUDE 
-BEGIN
-    "\r\0"
+    "../chrome/third_party/wtl/include/atlres.h\0"
 END
 
 #endif    // APSTUDIO_INVOKED
@@ -116,15 +111,22 @@ BEGIN
         MENUITEM "&Toolbar",                    ID_VIEW_TOOLBAR
         MENUITEM "&Status Bar",                 ID_VIEW_STATUS_BAR
         MENUITEM SEPARATOR
+        MENUITEM "N&o Rotation",                ID_VIEW_ROTATE0
+        MENUITEM "Rotate &90",                  ID_VIEW_ROTATE90
+        MENUITEM "Rotate &180",                 ID_VIEW_ROTATE180
+        MENUITEM "Rotate &270",                 ID_VIEW_ROTATE270
+        MENUITEM "&Mirror Horizontally",        ID_VIEW_MIRROR_HORIZONTAL
+        MENUITEM "Mirror &Vertically",          ID_VIEW_MIRROR_VERTICAL
+        MENUITEM SEPARATOR
         MENUITEM "&Properties",                 ID_VIEW_PROPERTIES
     END
     POPUP "&Play"
     BEGIN
         MENUITEM "&Play/Pause\tSpace",          ID_PLAY_PLAY_PAUSE
         MENUITEM SEPARATOR
-        MENUITEM "&Half Speed\tCtrl+0",         ID_PLAY_HALFSPEED
-        MENUITEM "&Normal Speed\tCtrl+1",       ID_PLAY_NORMALSPEED
-        MENUITEM "&Double Speed\tCtrl+2",       ID_PLAY_DOUBLESPEED
+        MENUITEM "&Half Speed\tAlt+0",          ID_PLAY_HALFSPEED
+        MENUITEM "&Normal Speed\tAlt+1",        ID_PLAY_NORMALSPEED
+        MENUITEM "&Double Speed\tAlt+2",        ID_PLAY_DOUBLESPEED
     END
     POPUP "&Options"
     BEGIN
@@ -372,6 +374,12 @@ BEGIN
     ID_PLAY_NORMALSPEED     "Play movie at normal speed."
     ID_PLAY_DOUBLESPEED     "Play movie at twice the normal speed."
     ID_FILE_LAST            "Replay last movie\nOpen"
+    ID_VIEW_ROTATE0         "Turn off rotation."
+    ID_VIEW_ROTATE90        "Rotate movie by 90 degrees clockwise."
+    ID_VIEW_ROTATE180       "Rotate movie by 180 degrees."
+    ID_VIEW_ROTATE270       "Rotate movie by 270 degrees clockwise."
+    ID_VIEW_MIRROR_HORIZONTAL "Mirror movie horizontally."
+    ID_VIEW_MIRROR_VERTICAL "Mirror movie vertically."
 END
 
 STRINGTABLE 
@@ -468,5 +476,3 @@ END
 
 #endif    // English (U.S.) resources
 /////////////////////////////////////////////////////////////////////////////
-
-
