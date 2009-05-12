@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
+// Copyright (c) 2006-2009 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
@@ -12,17 +12,16 @@ namespace net {
 // Implementation of ProxyConfigService that returns a fixed result.
 class ProxyConfigServiceFixed : public ProxyConfigService {
  public:
-  explicit ProxyConfigServiceFixed(const ProxyInfo& pi) { pi_.Use(pi); }
+  explicit ProxyConfigServiceFixed(const ProxyConfig& pc) : pc_(pc) {}
 
   // ProxyConfigService methods:
   virtual int GetProxyConfig(ProxyConfig* config) {
-    config->proxy_rules.type = ProxyConfig::ProxyRules::TYPE_SINGLE_PROXY;
-    config->proxy_rules.single_proxy = pi_.proxy_server();
+    *config = pc_;
     return OK;
   }
 
  private:
-  ProxyInfo pi_;
+  ProxyConfig pc_;
 };
 
 }  // namespace net

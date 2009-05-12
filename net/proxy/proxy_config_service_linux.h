@@ -81,9 +81,7 @@ class ProxyConfigServiceLinux : public ProxyConfigService {
                                    ProxyServer* result_server);
   // As above but with scheme set to HTTP, for convenience.
   bool GetProxyFromEnvVar(const char* variable, ProxyServer* result_server);
-  // Parses entries from the value of the no_proxy env var, and stuffs
-  // them into config->proxy_bypass.
-  void ParseNoProxyList(const std::string& no_proxy, ProxyConfig* config);
+
   // Fills proxy config from environment variables. Returns true if
   // variables were found and the configuration is valid.
   bool GetConfigFromEnv(ProxyConfig* config);

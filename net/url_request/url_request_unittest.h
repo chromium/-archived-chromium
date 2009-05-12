@@ -48,9 +48,9 @@ class TestURLRequestContext : public URLRequestContext {
   }
 
   explicit TestURLRequestContext(const std::string& proxy) {
-    net::ProxyInfo proxy_info;
-    proxy_info.UseNamedProxy(proxy);
-    proxy_service_ = net::ProxyService::Create(&proxy_info);
+    net::ProxyConfig proxy_config;
+    proxy_config.proxy_rules.ParseFromString(proxy);
+    proxy_service_ = net::ProxyService::Create(&proxy_config);
     http_transaction_factory_ =
         net::HttpNetworkLayer::CreateFactory(proxy_service_);
   }
@@ -548,7 +548,6 @@ class FTPTestServer : public BaseTestServer {
 
     return true;
   }
-
 };
 
 #endif  // NET_URL_REQUEST_URL_REQUEST_UNITTEST_H_

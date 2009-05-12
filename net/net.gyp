@@ -444,7 +444,6 @@
         'http/http_transaction_unittest.h',
         'http/http_util_unittest.cc',
         'http/http_vary_data_unittest.cc',
-        'proxy/proxy_config_service_common_unittest.cc',
         'proxy/proxy_config_service_common_unittest.h',
         'proxy/proxy_config_service_linux_unittest.cc',
         'proxy/proxy_config_service_win_unittest.cc',
@@ -570,6 +569,8 @@
       'sources': [
         'disk_cache/disk_cache_test_util.cc',
         'disk_cache/disk_cache_test_util.h',
+        'proxy/proxy_config_service_common_unittest.cc',
+        'proxy/proxy_config_service_common_unittest.h',
       ],
     },
     {

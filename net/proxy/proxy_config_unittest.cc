@@ -3,6 +3,7 @@
 // found in the LICENSE file.
 
 #include "net/proxy/proxy_config.h"
+#include "net/proxy/proxy_config_service_common_unittest.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
 namespace {
@@ -195,5 +196,38 @@ TEST(ProxyConfigTest, ParseProxyRules) {
                             config.proxy_rules.proxy_for_https);
     ExpectProxyServerEquals(tests[i].proxy_for_ftp,
                             config.proxy_rules.proxy_for_ftp);
+  }
+}
+
+TEST(ProxyConfigTest, ParseProxyBypassList) {
+  struct bypass_test {
+    const char* proxy_bypass_input;
+    const char* flattened_output;
+  };
+
+  const struct {
+    const char* proxy_bypass_input;
+    const char* flattened_output;
+  } tests[] = {
+    {
+      "*",
+      "*\n"
+    },
+    {
+      ".google.com, .foo.com:42",
+      "*.google.com\n*.foo.com:42\n"
+    },
+    {
+      ".google.com, foo.com:99, 1.2.3.4:22, 127.0.0.1/8",
+      "*.google.com\n*foo.com:99\n1.2.3.4:22\n127.0.0.1/8\n"
+    }
+  };
+
+  net::ProxyConfig config;
+
+  for (size_t i = 0; i < ARRAYSIZE_UNSAFE(tests); ++i) {
+    config.ParseNoProxyList(tests[i].proxy_bypass_input);
+    EXPECT_EQ(tests[i].flattened_output,
+              net::FlattenProxyBypass(config.proxy_bypass));
   }
 }

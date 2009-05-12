@@ -86,14 +86,14 @@ class ProxyService {
   // |proxy_script_fetcher|.
   void SetProxyScriptFetcher(ProxyScriptFetcher* proxy_script_fetcher);
 
-  // Creates a proxy service using the specified settings. If |pi| is NULL then
+  // Creates a proxy service using the specified settings. If |pc| is NULL then
   // the system's default proxy settings will be used (on Windows this will
   // use IE's settings).
-  static ProxyService* Create(const ProxyInfo* pi);
+  static ProxyService* Create(const ProxyConfig* pc);
 
-  // Creates a proxy service using the specified settings. If |pi| is NULL then
+  // Creates a proxy service using the specified settings. If |pc| is NULL then
   // the system's default proxy settings will be used. This is basically the
-  // same as Create(const ProxyInfo*), however under the hood it uses a
+  // same as Create(const ProxyConfig*), however under the hood it uses a
   // different implementation (V8). |url_request_context| is the URL request
   // context that will be used if a PAC script needs to be fetched.
   // ##########################################################################
@@ -102,7 +102,7 @@ class ProxyService {
   // # other V8's running in the process must use v8::Locker.
   // ##########################################################################
   static ProxyService* CreateUsingV8Resolver(
-      const ProxyInfo* pi,
+      const ProxyConfig* pc,
       URLRequestContext* url_request_context);
 
   // Creates a proxy service that always fails to fetch the proxy configuration,

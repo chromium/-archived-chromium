@@ -42,6 +42,8 @@ class ProxyConfig {
       TYPE_PROXY_PER_SCHEME,
     };
 
+    // Note that the default of TYPE_NO_RULES results in direct connections
+    // being made when using this ProxyConfig.
     ProxyRules() : type(TYPE_NO_RULES) {}
 
     bool empty() const {
@@ -91,6 +93,11 @@ class ProxyConfig {
 
   ProxyRules proxy_rules;
 
+  // Parses entries from a comma-separated list of hosts for which proxy
+  // configurations should be bypassed. Clears proxy_bypass and sets it to the
+  // resulting list.
+  void ParseNoProxyList(const std::string& no_proxy);
+
   // Indicates a list of hosts that should bypass any proxy configuration.  For
   // these hosts, a direct connection should always be used.
   // The form <host>:<port> is also supported, meaning that only
@@ -102,6 +109,10 @@ class ProxyConfig {
 
   // Returns true if the given config is equivalent to this config.
   bool Equals(const ProxyConfig& other) const;
+
+  // Returns true if this config could possibly require the proxy service to
+  // use a PAC resolver.
+  bool MayRequirePACResolver() const;
 
  private:
   int id_;

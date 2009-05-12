@@ -71,8 +71,8 @@ class NotifyFetchCompletionTask : public Task {
 // We rely on the fact that the origin thread (and its message loop) will not
 // be destroyed until after the PAC thread is destroyed.
 
-class ProxyService::PacRequest :
-    public base::RefCountedThreadSafe<ProxyService::PacRequest> {
+class ProxyService::PacRequest
+    : public base::RefCountedThreadSafe<ProxyService::PacRequest> {
  public:
   // |service| -- the ProxyService that owns this request.
   // |url|     -- the url of the query.
@@ -193,46 +193,58 @@ ProxyService::ProxyService(ProxyConfigService* config_service,
 }
 
 // static
-ProxyService* ProxyService::Create(const ProxyInfo* pi) {
-  if (pi) {
-    // The ProxyResolver is set to NULL, since it should never be called
-    // (because the configuration will never require PAC).
-    return new ProxyService(new ProxyConfigServiceFixed(*pi), NULL);
+ProxyService* ProxyService::Create(const ProxyConfig* pc) {
+  scoped_ptr<ProxyConfigService> proxy_config_service;
+  scoped_ptr<ProxyResolver> proxy_resolver;
+  if (pc) {
+    proxy_config_service.reset(new ProxyConfigServiceFixed(*pc));
   }
+
 #if defined(OS_WIN)
-  return new ProxyService(new ProxyConfigServiceWin(),
-                          new ProxyResolverWinHttp());
+  if (proxy_config_service == NULL)
+    proxy_config_service.reset(new ProxyConfigServiceWin());
+  proxy_resolver.reset(new ProxyResolverWinHttp());
 #elif defined(OS_MACOSX)
-  return new ProxyService(new ProxyConfigServiceMac(),
-                          new ProxyResolverMac());
+  if (proxy_config_service == NULL)
+    proxy_config_service.reset(new ProxyConfigServiceMac());
+  proxy_resolver.reset(new ProxyResolverMac());
 #elif defined(OS_LINUX)
   // On Linux we use the V8Resolver, no fallback implementation.
-  return CreateNull();
+  // This means that if we got called with a ProxyConfig that could require a
+  // resolver, or if the caller is trying to create a regular ProxyService via
+  // this method instead of CreateUsingV8Resolver() we have to return a
+  // nulled-out ProxyService.
+  if (!pc || pc->MayRequirePACResolver()) {
+    LOG(WARNING) << "Attempting to create a ProxyService with a non-v8 "
+                 << "resolver using an invalid ProxyConfig.";
+    return CreateNull();
+  }
 #else
   return CreateNull();
 #endif
+
+  return new ProxyService(proxy_config_service.release(),
+                          proxy_resolver.release());
 }
 
 // static
 ProxyService* ProxyService::CreateUsingV8Resolver(
-    const ProxyInfo* pi, URLRequestContext* url_request_context) {
-  if (pi) {
-    // The ProxyResolver is set to NULL, since it should never be called
-    // (because the configuration will never require PAC).
-    return new ProxyService(new ProxyConfigServiceFixed(*pi), NULL);
-  }
-
+    const ProxyConfig* pc, URLRequestContext* url_request_context) {
   // Choose the system configuration service appropriate for each platform.
-  ProxyConfigService* config_service;
+  ProxyConfigService* config_service = NULL;
+  if (pc) {
+    config_service = new ProxyConfigServiceFixed(*pc);
+  } else {
 #if defined(OS_WIN)
-  config_service = new ProxyConfigServiceWin();
+    config_service = new ProxyConfigServiceWin();
 #elif defined(OS_MACOSX)
-  config_service = new ProxyConfigServiceMac();
+    config_service = new ProxyConfigServiceMac();
 #elif defined(OS_LINUX)
-  config_service = new ProxyConfigServiceLinux();
+    config_service = new ProxyConfigServiceLinux();
 #else
-  return CreateNull();
+    return CreateNull();
 #endif
+  }
 
   // Create a ProxyService that uses V8 to evaluate PAC scripts.
   ProxyService* proxy_service = new ProxyService(

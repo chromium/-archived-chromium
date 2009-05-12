@@ -345,9 +345,9 @@ ProxyService* CreateNullProxyService() {
 }
 
 ProxyService* CreateFixedProxyService(const std::string& proxy) {
-  ProxyInfo proxy_info;
-  proxy_info.UseNamedProxy(proxy);
-  return ProxyService::Create(&proxy_info);
+  net::ProxyConfig proxy_config;
+  proxy_config.proxy_rules.ParseFromString(proxy);
+  return ProxyService::Create(&proxy_config);
 }
 
 

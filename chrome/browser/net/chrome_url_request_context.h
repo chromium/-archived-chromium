@@ -9,6 +9,10 @@
 #include "net/url_request/url_request_context.h"
 
 class Profile;
+class CommandLine;
+namespace net {
+class ProxyConfig;
+}
 
 // A URLRequestContext subclass used by the browser. This can be used to store
 // extra information about requests, beyond what is supported by the base
@@ -96,3 +100,7 @@ class ChromeURLRequestContext : public URLRequestContext,
   bool is_media_;
   bool is_off_the_record_;
 };
+
+// Creates a proxy configuration using the overrides specified on the command
+// line. Returns NULL if the system defaults should be used instead.
+net::ProxyConfig* CreateProxyConfig(const CommandLine& command_line);

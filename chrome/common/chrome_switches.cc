@@ -233,9 +233,25 @@ const wchar_t kMakeDefaultBrowser[]            = L"make-default-browser";
 // affects HTTP and HTTPS requests.
 const wchar_t kProxyServer[]                   = L"proxy-server";
 
+// Don't use a proxy server, always make direct connections. Overrides any
+// other proxy server flags that are passed.
+const wchar_t kNoProxyServer[]                 = L"no-proxy-server";
+
+// Specify a list of URLs for whom we bypass proxy settings and use direct
+// connections. Ignored if proxy-server-auto-detect or no-proxy-server are
+// also specified.
+// TODO(robertshield): Specify URL format.
+const wchar_t kProxyServerBypassUrls[]         = L"proxy-server-bypass-urls";
+
+// Force proxy auto-detection.
+const wchar_t kProxyServerAutoDetect[]         = L"proxy-server-auto-detect";
+
+// Use the pac script at the given URL
+const wchar_t kProxyServerPacUrl[]             = L"proxy-server-pac-url";
+
 // Use WinHTTP to fetch and evaluate PAC scripts. Otherwise the default is
 // to use Chromium's network stack to fetch, and V8 to evaluate.
-const wchar_t kWinHttpProxyResolver[]               = L"winhttp-proxy-resolver";
+const wchar_t kWinHttpProxyResolver[]          = L"winhttp-proxy-resolver";
 
 // Chrome will support prefetching of DNS information.  Until this becomes
 // the default, we'll provide a command line switch.

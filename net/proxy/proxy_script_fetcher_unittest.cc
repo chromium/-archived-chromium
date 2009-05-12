@@ -27,7 +27,7 @@ struct FetchResult {
 class RequestContext : public URLRequestContext {
  public:
   RequestContext() {
-    net::ProxyInfo no_proxy;
+    net::ProxyConfig no_proxy;
     proxy_service_ = net::ProxyService::Create(&no_proxy);
     http_transaction_factory_ = net::HttpNetworkLayer::CreateFactory(
         proxy_service_);

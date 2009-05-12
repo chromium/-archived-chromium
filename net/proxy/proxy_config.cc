@@ -25,6 +25,10 @@ bool ProxyConfig::Equals(const ProxyConfig& other) const {
          proxy_bypass_local_names == other.proxy_bypass_local_names;
 }
 
+bool ProxyConfig::MayRequirePACResolver() const {
+  return auto_detect || !pac_url.is_empty();
+}
+
 void ProxyConfig::ProxyRules::ParseFromString(const std::string& proxy_rules) {
   // Reset.
   type = TYPE_NO_RULES;
@@ -74,6 +78,71 @@ const ProxyServer* ProxyConfig::ProxyRules::MapSchemeToProxy(
   if (scheme == "ftp")
     return &proxy_for_ftp;
   return NULL;  // No mapping for this scheme.
+}
+
+namespace {
+
+// Returns true if the given string represents an IP address.
+bool IsIPAddress(const std::string& domain) {
+  // From GURL::HostIsIPAddress()
+  url_canon::RawCanonOutputT<char, 128> ignored_output;
+  url_parse::Component ignored_component;
+  url_parse::Component domain_comp(0, domain.size());
+  return url_canon::CanonicalizeIPAddress(domain.c_str(), domain_comp,
+                                          &ignored_output,
+                                          &ignored_component);
+}
+
+}  // namespace
+
+void ProxyConfig::ParseNoProxyList(const std::string& no_proxy) {
+  proxy_bypass.clear();
+  if (no_proxy.empty())
+    return;
+  // Traditional semantics:
+  // A single "*" is specifically allowed and unproxies anything.
+  // "*" wildcards other than a single "*" entry are not universally
+  // supported. We will support them, as we get * wildcards for free
+  // (see MatchPattern() called from ProxyService::ShouldBypassProxyForURL()).
+  // no_proxy is a comma-separated list of <trailing_domain>[:<port>].
+  // If no port is specified then any port matches.
+  // The historical definition has trailing_domain match using a simple
+  // string "endswith" test, so that the match need not correspond to a
+  // "." boundary. For example: "google.com" matches "igoogle.com" too.
+  // Seems like that could be confusing, but we'll obey tradition.
+  // IP CIDR patterns are supposed to be supported too. We intend
+  // to do this in proxy_service.cc, but it's currently a TODO.
+  // See: http://crbug.com/9835.
+  StringTokenizer no_proxy_list(no_proxy, ",");
+  while (no_proxy_list.GetNext()) {
+    std::string bypass_entry = no_proxy_list.token();
+    TrimWhitespaceASCII(bypass_entry, TRIM_ALL, &bypass_entry);
+    if (bypass_entry.empty())
+      continue;
+    if (bypass_entry.at(0) != '*') {
+      // Insert a wildcard * to obtain an endsWith match, unless the
+      // entry looks like it might be an IP or CIDR.
+      // First look for either a :<port> or CIDR mask length suffix.
+      std::string::const_iterator begin = bypass_entry.begin();
+      std::string::const_iterator scan = bypass_entry.end() - 1;
+      while (scan > begin && IsAsciiDigit(*scan))
+        --scan;
+      std::string potential_ip;
+      if (*scan == '/' || *scan == ':')
+        potential_ip = std::string(begin, scan - 1);
+      else
+        potential_ip = bypass_entry;
+      if (!IsIPAddress(potential_ip)) {
+        // Do insert a wildcard.
+        bypass_entry.insert(0, "*");
+      }
+      // TODO(sdoyon): When CIDR matching is implemented in
+      // proxy_service.cc, consider making proxy_bypass more
+      // sophisticated to avoid parsing out the string on every
+      // request.
+    }
+    proxy_bypass.push_back(bypass_entry);
+  }
 }
 
 }  // namespace net

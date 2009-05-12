@@ -456,6 +456,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\browser\net\chrome_url_request_context_unittest.cc"
+				>
+			</File>
+			<File
 				RelativePath="..\..\browser\safe_browsing\chunk_range_unittest.cc"
 				>
 			</File>

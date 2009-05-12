@@ -23,26 +23,68 @@
 #include "net/proxy/proxy_service.h"
 #include "webkit/glue/webkit_glue.h"
 
-// Sets up proxy info if overrides were specified on the command line.
-// Otherwise returns NULL (meaning we should use the system defaults).
-// The caller is responsible for deleting returned pointer.
-static net::ProxyInfo* CreateProxyInfo(const CommandLine& command_line) {
-  net::ProxyInfo* proxy_info = NULL;
+net::ProxyConfig* CreateProxyConfig(const CommandLine& command_line) {
+  // Scan for all "enable" type proxy switches.
+  static const wchar_t* proxy_switches[] = {
+    switches::kProxyServer,
+    switches::kProxyServerPacUrl,
+    switches::kProxyServerAutoDetect,
+    switches::kProxyServerBypassUrls
+  };
 
-  if (command_line.HasSwitch(switches::kProxyServer)) {
-    proxy_info = new net::ProxyInfo();
-    const std::wstring& proxy_server =
-        command_line.GetSwitchValue(switches::kProxyServer);
-    proxy_info->UseNamedProxy(WideToASCII(proxy_server));
+  bool found_enable_proxy_switch = false;
+  for (size_t i = 0; i < arraysize(proxy_switches); i++) {
+    if (command_line.HasSwitch(proxy_switches[i])) {
+      found_enable_proxy_switch = true;
+      break;
+    }
   }
 
-  return proxy_info;
+  if (!found_enable_proxy_switch &&
+      !command_line.HasSwitch(switches::kNoProxyServer)) {
+    return NULL;
+  }
+
+  net::ProxyConfig* proxy_config = new net::ProxyConfig();
+  if (command_line.HasSwitch(switches::kNoProxyServer)) {
+    // Ignore (and warn about) all the other proxy config switches we get if
+    // the no-proxy-server command line argument is present.
+    if (found_enable_proxy_switch) {
+      LOG(WARNING) << "Additional command line proxy switches found when --"
+                   << switches::kNoProxyServer << " was specified.";
+    }
+    return proxy_config;
+  }
+
+  if (command_line.HasSwitch(switches::kProxyServer)) {
+    const std::wstring& proxy_server =
+        command_line.GetSwitchValue(switches::kProxyServer);
+    proxy_config->proxy_rules.ParseFromString(WideToASCII(proxy_server));
+  }
+
+  if (command_line.HasSwitch(switches::kProxyServerPacUrl)) {
+    proxy_config->pac_url =
+        GURL(WideToASCII(command_line.GetSwitchValue(
+            switches::kProxyServerPacUrl)));
+  }
+
+  if (command_line.HasSwitch(switches::kProxyServerAutoDetect)) {
+    proxy_config->auto_detect = true;
+  }
+
+  if (command_line.HasSwitch(switches::kProxyServerBypassUrls)) {
+    proxy_config->ParseNoProxyList(
+        WideToASCII(command_line.GetSwitchValue(
+            switches::kProxyServerBypassUrls)));
+  }
+
+  return proxy_config;
 }
 
 // Create a proxy service according to the options on command line.
 static net::ProxyService* CreateProxyService(URLRequestContext* context,
                                              const CommandLine& command_line) {
-  scoped_ptr<net::ProxyInfo> proxy_info(CreateProxyInfo(command_line));
+  scoped_ptr<net::ProxyConfig> proxy_config(CreateProxyConfig(command_line));
 
   bool use_v8 = !command_line.HasSwitch(switches::kWinHttpProxyResolver);
   if (use_v8 && command_line.HasSwitch(switches::kSingleProcess)) {
@@ -53,8 +95,8 @@ static net::ProxyService* CreateProxyService(URLRequestContext* context,
   }
 
   return use_v8 ?
-      net::ProxyService::CreateUsingV8Resolver(proxy_info.get(), context) :
-      net::ProxyService::Create(proxy_info.get());
+      net::ProxyService::CreateUsingV8Resolver(proxy_config.get(), context) :
+      net::ProxyService::Create(proxy_config.get());
 }
 
 // static
