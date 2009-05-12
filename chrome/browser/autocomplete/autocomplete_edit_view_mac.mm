@@ -27,10 +27,12 @@ struct AutocompleteEditViewMacState {
 };
 
 // Returns a lazily initialized property bag accessor for saving our
-// state in a TabContents.
+// state in a TabContents.  When constructed |accessor| generates a
+// globally-unique id used to index into the per-tab PropertyBag used
+// to store the state data.
 PropertyAccessor<AutocompleteEditViewMacState>* GetStateAccessor() {
-  static PropertyAccessor<AutocompleteEditViewMacState> state;
-  return &state;
+  static PropertyAccessor<AutocompleteEditViewMacState> accessor;
+  return &accessor;
 }
 
 // Accessors for storing and getting the state from the tab.
