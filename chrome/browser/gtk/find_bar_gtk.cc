@@ -172,10 +172,10 @@ GtkWidget* FindBarGtk::slide_widget() {
 }
 
 void FindBarGtk::Show() {
+  slide_widget_->Open();
   if (container_->window)
     gdk_window_raise(container_->window);
   gtk_widget_grab_focus(find_text_);
-  slide_widget_->Open();
 }
 
 void FindBarGtk::Hide(bool animate) {
@@ -236,7 +236,13 @@ bool FindBarGtk::IsFindBarVisible() {
 
 void FindBarGtk::RestoreSavedFocus() {
   // TODO(estade): We should save focus and restore its previous location if we
-  // don't find any matches in our search.
+  // don't find any matches in our search. For now just give focus to the tab
+  // contents.
+  // This function sometimes gets called when we don't have focus. We should do
+  // nothing in this case.
+  if (!GTK_WIDGET_HAS_FOCUS(find_text_))
+    return;
+
   find_bar_controller_->tab_contents()->Focus();
 }
 

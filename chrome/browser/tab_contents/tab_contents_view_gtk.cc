@@ -203,11 +203,13 @@ void TabContentsViewGtk::StoreFocus() {
     g_signal_handler_disconnect(stored_focus_widget_, destroy_handler_id_);
 
   stored_focus_widget_ = window->focus_widget;
-  // gtk_widget_destroyed() will set |stored_focus_widget_| to NULL when it is
-  // invoked during handling of the "destroy" signal.
-  destroy_handler_id_ = g_signal_connect(stored_focus_widget_, "destroy",
-                                         G_CALLBACK(gtk_widget_destroyed),
-                                         &stored_focus_widget_);
+  if (stored_focus_widget_) {
+    // gtk_widget_destroyed() will set |stored_focus_widget_| to NULL when it is
+    // invoked during handling of the "destroy" signal.
+    destroy_handler_id_ = g_signal_connect(stored_focus_widget_, "destroy",
+                                           G_CALLBACK(gtk_widget_destroyed),
+                                           &stored_focus_widget_);
+  }
 }
 
 void TabContentsViewGtk::RestoreFocus() {

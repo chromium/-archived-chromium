@@ -91,6 +91,7 @@ void SlideAnimatorGtk::CloseWithoutAnimation() {
   animation_->Reset(0.0);
   animation_->Hide();
   AnimationProgressed(animation_.get());
+  gtk_widget_hide(widget_.get());
 }
 
 bool SlideAnimatorGtk::IsShowing() {
@@ -108,8 +109,11 @@ void SlideAnimatorGtk::AnimationProgressed(const Animation* animation) {
 }
 
 void SlideAnimatorGtk::AnimationEnded(const Animation* animation) {
-  if (!animation_->IsShowing() && delegate_)
-    delegate_->Closed();
+  if (!animation_->IsShowing()) {
+    gtk_widget_hide(widget_.get());
+    if (delegate_)
+      delegate_->Closed();
+  }
 }
 
 // static
