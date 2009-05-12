@@ -1,9 +1,9 @@
-// Copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
+// Copyright (c) 2006-2009 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef WEBKIT_GLUE_EVENT_CONVERSION_H__
-#define WEBKIT_GLUE_EVENT_CONVERSION_H__
+#ifndef WEBKIT_GLUE_EVENT_CONVERSION_H_
+#define WEBKIT_GLUE_EVENT_CONVERSION_H_
 
 #include "base/basictypes.h"
 #include "base/compiler_specific.h"
@@ -31,14 +31,6 @@ class MakePlatformMouseEvent : public WebCore::PlatformMouseEvent {
  public:
   MakePlatformMouseEvent(
       WebCore::Widget* widget, const WebKit::WebMouseEvent& e);
-
-  static void ResetLastClick() {
-    last_click_time_ = last_click_count_ = 0;
-  }
-
- private:
-  static int last_click_count_;
-  static uint32 last_click_time_;
 };
 
 class MakePlatformWheelEvent : public WebCore::PlatformWheelEvent {
@@ -54,4 +46,4 @@ class MakePlatformKeyboardEvent : public WebCore::PlatformKeyboardEvent {
   bool IsCharacterKey() const;
 };
 
-#endif  // WEBKIT_GLUE_EVENT_CONVERSION_H__
+#endif  // WEBKIT_GLUE_EVENT_CONVERSION_H_

@@ -36,6 +36,9 @@
 #include "base/sys_string_conversions.h"
 #include "skia/include/SkBitmap.h"
 #include "webkit/api/public/WebString.h"
+#if defined(OS_WIN)
+#include "webkit/api/public/win/WebInputEventFactory.h"
+#endif
 #include "webkit/glue/event_conversion.h"
 #include "webkit/glue/glue_util.h"
 #include "webkit/glue/weburlrequest_impl.h"
@@ -219,9 +222,11 @@ void ResetBeforeTestRun(WebView* view) {
   if (frame && frame->script())
     frame->script()->setEventHandlerLineNumber(0);
 
+#if defined(OS_WIN)
   // Reset the last click information so the clicks generated from previous
   // test aren't inherited (otherwise can mistake single/double/triple clicks)
-  MakePlatformMouseEvent::ResetLastClick();
+  WebKit::WebInputEventFactory::resetLastClickState();
+#endif
 }
 
 #ifndef NDEBUG

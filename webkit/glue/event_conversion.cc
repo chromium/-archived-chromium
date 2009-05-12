@@ -29,9 +29,6 @@ using WebKit::WebMouseWheelEvent;
 
 // MakePlatformMouseEvent -----------------------------------------------------
 
-int MakePlatformMouseEvent::last_click_count_ = 0;
-uint32 MakePlatformMouseEvent::last_click_time_ = 0;
-
 MakePlatformMouseEvent::MakePlatformMouseEvent(Widget* widget,
                                                const WebMouseEvent& e) {
   // TODO(mpcomplete): widget is always toplevel, unless it's a popup.  We
@@ -45,77 +42,24 @@ MakePlatformMouseEvent::MakePlatformMouseEvent(Widget* widget,
   m_metaKey = (e.modifiers & WebInputEvent::MetaKey) != 0;
   m_modifierFlags = e.modifiers;
   m_timestamp = e.timeStampSeconds;
-
-  // This differs slightly from the WebKit code in WebKit/win/WebView.cpp where
-  // their original code looks buggy.
-  static IntPoint last_click_position;
-  static MouseButton last_click_button = LeftButton;
-
-  const uint32 current_time = static_cast<uint32>(m_timestamp * 1000);
-#if defined(OS_WIN)
-  const bool cancel_previous_click =
-      (abs(last_click_position.x() - m_position.x()) >
-       (GetSystemMetrics(SM_CXDOUBLECLK) / 2)) ||
-      (abs(last_click_position.y() - m_position.y()) >
-       (GetSystemMetrics(SM_CYDOUBLECLK) / 2)) ||
-      ((current_time - last_click_time_) > GetDoubleClickTime());
-#elif defined(OS_MACOSX) || defined(OS_LINUX)
-  const bool cancel_previous_click = false;
-#endif
+  m_clickCount = e.clickCount;
 
   switch (e.type) {
     case WebInputEvent::MouseMove:
     case WebInputEvent::MouseLeave:  // synthesize a move event
-      if (cancel_previous_click) {
-        last_click_count_ = 0;
-        last_click_position = IntPoint();
-        last_click_time_ = 0;
-      }
-      m_clickCount = last_click_count_;
       m_eventType = MouseEventMoved;
       break;
 
-// TODO(port): make these platform agnostic when we restructure this code.
-#if defined(OS_LINUX) || defined(OS_MACOSX)
-    case WebInputEvent::MouseTripleClick:
-      ++m_clickCount;
-      // fall through
-    case WebInputEvent::MouseDoubleClick:
-      ++m_clickCount;
-      // fall through
     case WebInputEvent::MouseDown:
-      ++m_clickCount;
-      last_click_time_ = current_time;
-      last_click_button = m_button;
       m_eventType = MouseEventPressed;
       break;
-#else
-    case WebInputEvent::MouseDown:
-    case WebInputEvent::MouseDoubleClick:
-      if (!cancel_previous_click && (m_button == last_click_button)) {
-        ++last_click_count_;
-      } else {
-        last_click_count_ = 1;
-        last_click_position = m_position;
-      }
-      last_click_time_ = current_time;
-      last_click_button = m_button;
-      m_clickCount = last_click_count_;
-      m_eventType = MouseEventPressed;
-      break;
-#endif
 
     case WebInputEvent::MouseUp:
-      m_clickCount = last_click_count_;
       m_eventType = MouseEventReleased;
       break;
 
     default:
       NOTREACHED() << "unexpected mouse event type";
-  }
-
-  if (WebKit::layoutTestMode()) {
-    m_clickCount = e.layoutTestClickCount;
   }
 }
 

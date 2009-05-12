@@ -1,10 +1,10 @@
 /*
  * Copyright (C) 2006-2009 Google Inc. All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are
  * met:
- * 
+ *
  *     * Redistributions of source code must retain the above copyright
  * notice, this list of conditions and the following disclaimer.
  *     * Redistributions in binary form must reproduce the above
@@ -14,7 +14,7 @@
  *     * Neither the name of Google Inc. nor the names of its
  * contributors may be used to endorse or promote products derived from
  * this software without specific prior written permission.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
  * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
@@ -141,12 +141,20 @@ WebKeyboardEvent WebInputEventFactory::keyboardEvent(HWND hwnd, UINT message,
 
 // WebMouseEvent --------------------------------------------------------------
 
+static int gLastClickCount;
+static double gLastClickTime;
+
 static LPARAM GetRelativeCursorPos(HWND hwnd)
 {
     POINT pos = {-1, -1};
     GetCursorPos(&pos);
     ScreenToClient(hwnd, &pos);
     return MAKELPARAM(pos.x, pos.y);
+}
+
+void WebInputEventFactory::resetLastClickState()
+{
+    gLastClickTime = gLastClickCount = 0;
 }
 
 WebMouseEvent WebInputEventFactory::mouseEvent(HWND hwnd, UINT message,
@@ -174,14 +182,17 @@ WebMouseEvent WebInputEventFactory::mouseEvent(HWND hwnd, UINT message,
         lparam = GetRelativeCursorPos(hwnd);
         break;
     case WM_LBUTTONDOWN:
+    case WM_LBUTTONDBLCLK:
         result.type = WebInputEvent::MouseDown;
         result.button = WebMouseEvent::ButtonLeft;
         break;
     case WM_MBUTTONDOWN:
+    case WM_MBUTTONDBLCLK:
         result.type = WebInputEvent::MouseDown;
         result.button = WebMouseEvent::ButtonMiddle;
         break;
     case WM_RBUTTONDOWN:
+    case WM_RBUTTONDBLCLK:
         result.type = WebInputEvent::MouseDown;
         result.button = WebMouseEvent::ButtonRight;
         break;
@@ -197,21 +208,15 @@ WebMouseEvent WebInputEventFactory::mouseEvent(HWND hwnd, UINT message,
         result.type = WebInputEvent::MouseUp;
         result.button = WebMouseEvent::ButtonRight;
         break;
-    case WM_LBUTTONDBLCLK:
-        result.type = WebInputEvent::MouseDoubleClick;
-        result.button = WebMouseEvent::ButtonLeft;
-        break;
-    case WM_MBUTTONDBLCLK:
-        result.type = WebInputEvent::MouseDoubleClick;
-        result.button = WebMouseEvent::ButtonMiddle;
-        break;
-    case WM_RBUTTONDBLCLK:
-        result.type = WebInputEvent::MouseDoubleClick;
-        result.button = WebMouseEvent::ButtonRight;
-        break;
     default:
         ASSERT_NOT_REACHED();
     }
+
+    // TODO(pkasting): http://b/1117926 Are we guaranteed that the message that
+    // GetMessageTime() refers to is the same one that we're passed in? Perhaps
+    // one of the construction parameters should be the time passed by the
+    // caller, who would know for sure.
+    result.timeStampSeconds = GetMessageTime() / 1000.0;
 
     // set position fields:
 
@@ -224,6 +229,41 @@ WebMouseEvent WebInputEventFactory::mouseEvent(HWND hwnd, UINT message,
     result.globalX = globalPoint.x;
     result.globalY = globalPoint.y;
 
+    // calculate number of clicks:
+
+    // This differs slightly from the WebKit code in WebKit/win/WebView.cpp
+    // where their original code looks buggy.
+    static int lastClickPositionX;
+    static int lastClickPositionY;
+    static WebMouseEvent::Button lastClickButton = WebMouseEvent::ButtonLeft;
+
+    double currentTime = result.timeStampSeconds;
+    bool cancelPreviousClick =
+        (abs(lastClickPositionX - result.x) > (GetSystemMetrics(SM_CXDOUBLECLK) / 2))
+        || (abs(lastClickPositionY - result.y) > (GetSystemMetrics(SM_CYDOUBLECLK) / 2))
+        || ((currentTime - gLastClickTime) * 1000.0 > GetDoubleClickTime());
+
+    if (result.type == WebInputEvent::MouseDown) {
+        if (!cancelPreviousClick && (result.button == lastClickButton))
+            ++gLastClickCount;
+        else {
+            gLastClickCount = 1;
+            lastClickPositionX = result.x;
+            lastClickPositionY = result.y;
+        }
+        gLastClickTime = currentTime;
+        lastClickButton = result.button;
+    } else if (result.type == WebInputEvent::MouseMove
+               || result.type == WebInputEvent::MouseLeave) {
+        if (cancelPreviousClick) {
+            gLastClickCount = 0;
+            lastClickPositionX = 0;
+            lastClickPositionY = 0;
+            gLastClickTime = 0;
+        }
+    }
+    result.clickCount = gLastClickCount;
+
     // set modifiers:
 
     if (wparam & MK_CONTROL)
@@ -232,11 +272,6 @@ WebMouseEvent WebInputEventFactory::mouseEvent(HWND hwnd, UINT message,
         result.modifiers |= WebInputEvent::ShiftKey;
     if (GetKeyState(VK_MENU) & 0x8000)
         result.modifiers |= (WebInputEvent::AltKey | WebInputEvent::MetaKey);  // FIXME: set META properly
-
-    // TODO(pkasting): http://b/1117926 Instead of using GetTickCount() here, we
-    // should use GetMessageTime() on the original Windows message in the browser
-    // process, and pass that in the WebMouseEvent.
-    result.timeStampSeconds = GetTickCount() / 1000.0;
 
     return result;
 }

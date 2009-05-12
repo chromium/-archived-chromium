@@ -1,10 +1,10 @@
 /*
  * Copyright (C) 2006-2009 Google Inc. All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are
  * met:
- * 
+ *
  *     * Redistributions of source code must retain the above copyright
  * notice, this list of conditions and the following disclaimer.
  *     * Redistributions in binary form must reproduce the above
@@ -14,7 +14,7 @@
  *     * Neither the name of Google Inc. nor the names of its
  * contributors may be used to endorse or promote products derived from
  * this software without specific prior written permission.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
  * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
@@ -108,7 +108,7 @@ WebKeyboardEvent WebInputEventFactory::keyboardEvent(const GdkEventKey* event)
     result.setKeyIdentifierFromWindowsKeyCode();
 
     // FIXME: Do we need to set IsAutoRepeat or IsKeyPad?
- 
+
     return result;
 }
 
@@ -125,17 +125,18 @@ WebMouseEvent WebInputEventFactory::mouseEvent(const GdkEventButton* event)
     result.y = static_cast<int>(event->y);
     result.globalX = static_cast<int>(event->x_root);
     result.globalY = static_cast<int>(event->y_root);
-    result.layoutTestClickCount = 0;
+    result.clickCount = 0;
 
     switch (event->type) {
+    case GDK_3BUTTON_PRESS:
+        ++result.clickCount;
+        // fallthrough
+    case GDK_2BUTTON_PRESS:
+        ++result.clickCount;
+        // fallthrough
     case GDK_BUTTON_PRESS:
         result.type = WebInputEvent::MouseDown;
-        break;
-    case GDK_2BUTTON_PRESS:
-        result.type = WebInputEvent::MouseDoubleClick;
-        break;
-    case GDK_3BUTTON_PRESS:
-        result.type = WebInputEvent::MouseTripleClick;
+        ++result.clickCount;
         break;
     case GDK_BUTTON_RELEASE:
         result.type = WebInputEvent::MouseUp;
@@ -182,7 +183,7 @@ WebMouseEvent WebInputEventFactory::mouseEvent(const GdkEventMotion* event)
         result.button = WebMouseEvent::ButtonMiddle;
     else if (event->state & GDK_BUTTON3_MASK)
         result.button = WebMouseEvent::ButtonRight;
-    
+
     return result;
 }
 

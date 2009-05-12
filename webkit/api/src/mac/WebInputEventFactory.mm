@@ -908,24 +908,26 @@ WebMouseEvent WebInputEventFactory::mouseEvent(NSEvent* event, NSView* view)
 {
     WebMouseEvent result;
 
+    result.clickCount = 0;
+
     switch ([event type]) {
     case NSMouseExited:
         result.type = WebInputEvent::MouseLeave;
         result.button = WebMouseEvent::ButtonNone;
         break;
     case NSLeftMouseDown:
-        result.type = [event clickCount] == 2 ? WebInputEvent::MouseDoubleClick
-                                              : WebInputEvent::MouseDown;
+        result.type = WebInputEvent::MouseDown;
+        result.clickCount = [event clickCount];
         result.button = WebMouseEvent::ButtonLeft;
         break;
     case NSOtherMouseDown:
-        result.type = [event clickCount] == 2 ? WebInputEvent::MouseDoubleClick
-                                              : WebInputEvent::MouseDown;
+        result.type = WebInputEvent::MouseDown;
+        result.clickCount = [event clickCount];
         result.button = WebMouseEvent::ButtonMiddle;
         break;
     case NSRightMouseDown:
-        result.type = [event clickCount] == 2 ? WebInputEvent::MouseDoubleClick
-                                              : WebInputEvent::MouseDown;
+        result.type = WebInputEvent::MouseDown;
+        result.clickCount = [event clickCount];
         result.button = WebMouseEvent::ButtonRight;
         break;
     case NSLeftMouseUp:

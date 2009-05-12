@@ -103,7 +103,7 @@ void InitMouseEvent(WebInputEvent::Type t, WebMouseEvent::Button b,
   e->globalX = pos.x();
   e->globalY = pos.y();
   e->timeStampSeconds = GetCurrentEventTimeSec();
-  e->layoutTestClickCount = click_count;
+  e->clickCount = click_count;
 }
 
 void ApplyKeyModifier(const std::wstring& arg, WebKeyboardEvent* event) {

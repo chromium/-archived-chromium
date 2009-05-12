@@ -1051,8 +1051,6 @@ bool WebViewImpl::HandleInputEvent(const WebInputEvent* input_event) {
       break;
 
     case WebInputEvent::MouseDown:
-    case WebInputEvent::MouseDoubleClick:
-    case WebInputEvent::MouseTripleClick:
       MouseDown(*static_cast<const WebMouseEvent*>(input_event));
       break;
 
