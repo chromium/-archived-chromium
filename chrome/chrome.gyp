@@ -2903,11 +2903,6 @@
             '../build/linux/system.gyp:gtk',
           ],
         }],
-        ['OS!="win"', {
-          'sources!': [
-            'test/startup/feature_startup_test.cc',
-          ],
-        }],
       ],
     },
     {

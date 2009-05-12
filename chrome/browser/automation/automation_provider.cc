@@ -865,8 +865,10 @@ AutomationProvider::AutomationProvider(Profile* profile)
 #if defined(OS_WIN)
   // TODO(port): Enable as the trackers get ported.
   cwindow_tracker_.reset(new AutomationConstrainedWindowTracker(this));
+#else
+  NOTIMPLEMENTED() << "hook up constrained window tracker";
+#endif
   new_tab_ui_load_observer_.reset(new NewTabUILoadObserver(this));
-#endif  // defined(OS_WIN)
   dom_operation_observer_.reset(new DomOperationNotificationObserver(this));
   dom_inspector_observer_.reset(new DomInspectorNotificationObserver(this));
 }

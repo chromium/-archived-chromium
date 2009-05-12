@@ -63,8 +63,7 @@ bool CopyRecursiveDirNoCache(const std::wstring& source_dir,
           errno = 0;
           FilePath source_path(ent->fts_path);
           if (CopyFile(source_path, target_path)) {
-            bool success = EvictFileFromSystemCache(
-                target_path.Append(source_path.BaseName()));
+            bool success = EvictFileFromSystemCache(target_path);
             DCHECK(success);
           } else {
             error = errno ? errno : EINVAL;

@@ -2,9 +2,6 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include <windows.h>
-
-#include "app/win_util.h"
 #include "base/file_util.h"
 #include "base/path_service.h"
 #include "base/perftimer.h"
@@ -21,12 +18,12 @@ namespace {
 
 // Returns the directory name where the "typical" user data is that we use for
 // testing.
-std::wstring ComputeTypicalUserDataSource() {
-  std::wstring source_history_file;
+FilePath ComputeTypicalUserDataSource() {
+  FilePath source_history_file;
   EXPECT_TRUE(PathService::Get(chrome::DIR_TEST_DATA,
                                &source_history_file));
-  file_util::AppendToPath(&source_history_file, L"profiles");
-  file_util::AppendToPath(&source_history_file, L"typical_history");
+  source_history_file = source_history_file.AppendASCII("profiles")
+      .AppendASCII("typical_history");
   return source_history_file;
 }
 
@@ -54,7 +51,7 @@ class NewTabUIStartupTest : public UITest {
   // we should report cold timings.
   void RunStartupTest(const char* label, bool want_warm, bool important) {
     // Install the location of the test profile file.
-    set_template_user_data(ComputeTypicalUserDataSource());
+    set_template_user_data(ComputeTypicalUserDataSource().ToWStringHack());
 
     TimeDelta timings[kNumCycles];
     for (int i = 0; i < kNumCycles; ++i) {
