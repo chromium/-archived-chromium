@@ -154,6 +154,8 @@
       'type': '<(library)',
       'msvs_guid': '4631946D-7D5F-44BD-A5A8-504C0A7033BE',
       'dependencies': [
+        'chrome_resources',
+        'chrome_strings',
         '../base/base.gyp:base',
         '../base/base.gyp:base_gfx',
         '../net/net.gyp:net',
@@ -163,6 +165,7 @@
       ],
       'include_dirs': [
         '..',
+        'third_party/wtl/include',
       ],
       'sources': [
         # All .cc, .h, and .mm files under app/ except for tests.
@@ -3190,6 +3193,8 @@
             '../views/controls/tree/tree_node_model.h',
             '../views/controls/tree/tree_view.cc',
             '../views/controls/tree/tree_view.h',
+            '../views/drag_utils.cc',
+            '../views/drag_utils.h',
             '../views/event.cc',
             '../views/event.h',
             '../views/event_gtk.cc',
@@ -3310,7 +3315,12 @@
               'include_dirs': [
                 'third_party/wtl/include',
               ],
-            },],
+            }, { # OS != "win"
+              'sources!': [
+                '../views/drag_utils.cc',
+                '../views/drag_utils.h',
+              ],
+            }],
             ['OS=="linux"', {
               'sources!': [
                 '../views/accelerator.cc',
