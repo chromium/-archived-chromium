@@ -20,17 +20,17 @@
 
 - (id)init {
   if ((self = [super init])) {
+    std::wstring empty;
     helper_ = new BrowserTestHelper();
     BookmarkModel* model = helper_->browser()->profile()->GetBookmarkModel();
-    nodes_[0] = new BookmarkNode(model, GURL("http://0.com"));
-    nodes_[1] = new BookmarkNode(model, GURL("http://1.com"));
+    BookmarkNode* bookmark_bar = model->GetBookmarkBarNode();
+    nodes_[0] = model->AddURL(bookmark_bar, 0, empty, GURL("http://0.com"));
+    nodes_[1] = model->AddURL(bookmark_bar, 1, empty, GURL("http://1.com"));
   }
   return self;
 }
 
 - (void)dealloc {
-  delete nodes_[0];
-  delete nodes_[1];
   delete helper_;
   [super dealloc];
 }

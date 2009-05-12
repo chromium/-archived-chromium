@@ -19,19 +19,6 @@ using base::Time;
 
 // BookmarkNode ---------------------------------------------------------------
 
-namespace {
-
-// ID for BookmarkNodes.
-// Various places assume an invalid id if == 0, for that reason we start with 1.
-int next_id_ = 1;
-
-}
-
-// static
-void BookmarkNode::SetNextId(int next_id) {
-  next_id_ = next_id;
-}
-
 const SkBitmap& BookmarkNode::GetFavIcon() {
   if (!loaded_favicon_) {
     loaded_favicon_ = true;
@@ -52,7 +39,7 @@ BookmarkNode::BookmarkNode(BookmarkModel* model, int id, const GURL& url)
 
 void BookmarkNode::Initialize(BookmarkModel* model, int id) {
   model_ = model;
-  id_ = id == 0 ? next_id_++ : id;
+  id_ = id;
   loaded_favicon_ = false;
   favicon_load_handle_ = 0;
   type_ = !url_.is_empty() ? history::StarredEntry::URL :
@@ -108,9 +95,9 @@ BookmarkModel::BookmarkModel(Profile* profile)
       ALLOW_THIS_IN_INITIALIZER_LIST(root_(this, GURL())),
       bookmark_bar_node_(NULL),
       other_node_(NULL),
+      next_node_id_(1),
       observers_(ObserverList<BookmarkModelObserver>::NOTIFY_EXISTING_ONLY),
-      loaded_signal_(TRUE, FALSE)
-{
+      loaded_signal_(TRUE, FALSE) {
   // Create the bookmark bar and other bookmarks folders. These always exist.
   CreateBookmarkNode();
   CreateOtherBookmarksNode();
@@ -289,7 +276,9 @@ BookmarkNode* BookmarkModel::AddGroup(
     return NULL;
   }
 
-  BookmarkNode* new_node = new BookmarkNode(this, GURL());
+  BookmarkNode* new_node = new BookmarkNode(this,
+                                            generate_next_node_id(),
+                                            GURL());
   new_node->date_group_modified_ = Time::Now();
   new_node->SetTitle(title);
   new_node->type_ = history::StarredEntry::USER_GROUP;
@@ -320,7 +309,7 @@ BookmarkNode* BookmarkModel::AddURLWithCreationTime(
 
   SetDateGroupModified(parent, creation_time);
 
-  BookmarkNode* new_node = new BookmarkNode(this, url);
+  BookmarkNode* new_node = new BookmarkNode(this, generate_next_node_id(), url);
   new_node->SetTitle(title);
   new_node->date_added_ = creation_time;
   new_node->type_ = history::StarredEntry::URL;
@@ -578,7 +567,7 @@ BookmarkNode* BookmarkModel::CreateRootNodeFromStarredEntry(
     const history::StarredEntry& entry) {
   DCHECK(entry.type == history::StarredEntry::BOOKMARK_BAR ||
          entry.type == history::StarredEntry::OTHER);
-  BookmarkNode* node = new BookmarkNode(this, GURL());
+  BookmarkNode* node = new BookmarkNode(this, generate_next_node_id(), GURL());
   node->Reset(entry);
   if (entry.type == history::StarredEntry::BOOKMARK_BAR)
     node->SetTitle(l10n_util::GetString(IDS_BOOMARK_BAR_FOLDER_NAME));
@@ -669,4 +658,8 @@ void BookmarkModel::PopulateNodesByURL(BookmarkNode* node) {
     nodes_ordered_by_url_set_.insert(node);
   for (int i = 0; i < node->GetChildCount(); ++i)
     PopulateNodesByURL(node->GetChild(i));
+}
+
+int BookmarkModel::generate_next_node_id() {
+  return next_node_id_++;
 }

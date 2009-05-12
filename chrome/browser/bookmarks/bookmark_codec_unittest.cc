@@ -190,9 +190,6 @@ TEST_F(BookmarkCodecTest, PersistIDsTest) {
   BookmarkCodec encoder(true);
   scoped_ptr<Value> model_value(encoder.Encode(model_to_encode.get()));
 
-  // Set the next id to 1 to simulate fresh Chrome start.
-  BookmarkNode::SetNextId(1);
-
   BookmarkModel decoded_model(NULL);
   BookmarkCodec decoder(true);
   ASSERT_TRUE(decoder.Decode(&decoded_model, *model_value.get()));
@@ -211,9 +208,6 @@ TEST_F(BookmarkCodecTest, PersistIDsTest) {
 
   BookmarkCodec encoder2(true);
   scoped_ptr<Value> model_value2(encoder2.Encode(&decoded_model));
-
-  // Set the next id to 1 to simulate fresh Chrome start.
-  BookmarkNode::SetNextId(1);
 
   BookmarkModel decoded_model2(NULL);
   BookmarkCodec decoder2(true);

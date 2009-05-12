@@ -18,21 +18,52 @@ UniqueIDGenerator::UniqueIDGenerator() {
 }
 
 int UniqueIDGenerator::GetUniqueID(int id) {
-  if (assigned_ids_.find(id) != assigned_ids_.end())
+  // If the given ID is already assigned, generate new ID.
+  if (IsIdAssigned(id))
     id = current_max_ + 1;
+
+  // Record the new ID as assigned.
+  RecordId(id);
 
   if (id > current_max_)
     current_max_ = id;
 
-  assigned_ids_.insert(id);
   return id;
+}
+
+bool UniqueIDGenerator::IsIdAssigned(int id) const {
+  // If the set is already instantiated, then use the set to determine if the
+  // given ID is assigned. Otherwise use the current maximum to determine if the
+  // given ID is assigned.
+  if (assigned_ids_.get())
+    return assigned_ids_->find(id) != assigned_ids_->end();
+  else
+    return id <= current_max_;
+}
+
+void UniqueIDGenerator::RecordId(int id) {
+  // If the set is instantiated, then use the set.
+  if (assigned_ids_.get()) {
+    assigned_ids_->insert(id);
+    return;
+  }
+
+  // The set is not yet instantiated. If the ID is current_max_ + 1, then just
+  // update the current_max_. Otherwise, instantiate the set and add all IDs
+  // from 0 to current_max_ to it.
+  if (id == current_max_ + 1) {
+    ++current_max_;
+    return;
+  }
+  assigned_ids_.reset(new std::set<int>);
+  for (int i = 0; i <= current_max_; ++i)
+    assigned_ids_->insert(i);
+  assigned_ids_->insert(id);
 }
 
 void UniqueIDGenerator::Reset() {
   current_max_ = 0;
-  assigned_ids_.clear();
-  // 0 should always be considered as an ID that's already generated.
-  assigned_ids_.insert(0);
+  assigned_ids_.reset(NULL);
 }
 
 const wchar_t* BookmarkCodec::kRootsKey = L"roots";
@@ -89,7 +120,7 @@ bool BookmarkCodec::Decode(BookmarkModel* model, const Value& value) {
   InitializeChecksum();
   bool success = DecodeHelper(model, value);
   FinalizeChecksum();
-  BookmarkNode::SetNextId(id_generator_.current_max() + 1);
+  model->set_next_node_id(id_generator_.current_max() + 1);
   return success;
 }
 
@@ -206,8 +237,8 @@ bool BookmarkCodec::DecodeNode(BookmarkModel* model,
     if (value.GetString(kIdKey, &id_string))
       if (!StringToInt(id_string, &id))
         return false;
-    id = id_generator_.GetUniqueID(id);
   }
+  id = id_generator_.GetUniqueID(id);
 
   std::wstring title;
   if (!value.GetString(kNameKey, &title))

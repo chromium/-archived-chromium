@@ -45,16 +45,13 @@ class BookmarkNode : public views::TreeNode<BookmarkNode> {
   FRIEND_TEST(BookmarkCodecTest, PersistIDsTest);
   FRIEND_TEST(BookmarkEditorViewTest, ChangeParentAndURL);
   FRIEND_TEST(BookmarkEditorViewTest, EditURLKeepsPosition);
+  FRIEND_TEST(BookmarkMenuBridgeTest, TestAddNodeToMenu);
   FRIEND_TEST(BookmarkEditorGtkTest, ChangeParentAndURL);
   FRIEND_TEST(BookmarkEditorGtkTest, EditURLKeepsPosition);
   FRIEND_TEST(BookmarkModelTest, MostRecentlyAddedEntries);
   FRIEND_TEST(BookmarkModelTest, GetMostRecentlyAddedNodeForURL);
 
  public:
-  // Creates a new node with the given properties. If the ID is not given or is
-  // 0, it is automatically assigned.
-  BookmarkNode(BookmarkModel* model, const GURL& url);
-  BookmarkNode(BookmarkModel* model, int id, const GURL& url);
   virtual ~BookmarkNode() {}
 
   // Returns the favicon for the this node. If the favicon has not yet been
@@ -100,8 +97,9 @@ class BookmarkNode : public views::TreeNode<BookmarkNode> {
   // HistoryContentsProvider.
 
  private:
-  // Sets the next ID for bookmark node ID generation.
-  static void SetNextId(int next_id);
+  // Creates a new node with the given properties.
+  BookmarkNode(BookmarkModel* model, const GURL& url);
+  BookmarkNode(BookmarkModel* model, int id, const GURL& url);
 
   // helper to initialize various fields during construction.
   void Initialize(BookmarkModel* model, int id);
@@ -207,6 +205,7 @@ class BookmarkModelObserver {
 // Profile.
 
 class BookmarkModel : public NotificationObserver, public BookmarkService {
+  friend class BookmarkCodec;
   friend class BookmarkNode;
   friend class BookmarkModelTest;
   friend class BookmarkStorage;
@@ -397,6 +396,15 @@ class BookmarkModel : public NotificationObserver, public BookmarkService {
                        const NotificationSource& source,
                        const NotificationDetails& details);
 
+  // Generates and returns the next node ID.
+  int generate_next_node_id();
+
+  // Sets the maximum node ID to the given value.
+  // This is used by BookmarkCodec to report the maximum ID after it's done
+  // decoding since during decoding codec can assign IDs to nodes if IDs are
+  // persisted.
+  void set_next_node_id(int id) { next_node_id_ = id; }
+
   Profile* profile_;
 
   // Whether the initial set of data has been loaded.
@@ -408,6 +416,9 @@ class BookmarkModel : public NotificationObserver, public BookmarkService {
 
   BookmarkNode* bookmark_bar_node_;
   BookmarkNode* other_node_;
+
+  // The maximum ID assigned to the bookmark nodes in the model.
+  int next_node_id_;
 
   // The observers.
   ObserverList<BookmarkModelObserver> observers_;

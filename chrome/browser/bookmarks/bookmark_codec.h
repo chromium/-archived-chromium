@@ -13,6 +13,7 @@
 #include <string>
 
 #include "base/basictypes.h"
+#include "base/scoped_ptr.h"
 #include "base/md5.h"
 
 class BookmarkModel;
@@ -39,10 +40,16 @@ class UniqueIDGenerator {
   int current_max() const { return current_max_; }
 
  private:
+  // Checks if the given ID is already assigned.
+  bool IsIdAssigned(int id) const;
+
+  // Records the given ID as assigned.
+  void RecordId(int id);
+
   // Maximum value we have seen so far.
   int current_max_;
   // All IDs assigned so far.
-  std::set<int> assigned_ids_;
+  scoped_ptr<std::set<int> > assigned_ids_;
 
   DISALLOW_COPY_AND_ASSIGN(UniqueIDGenerator);
 };

@@ -66,6 +66,7 @@ TEST_F(BookmarkMenuBridgeTest, TestClearBookmarkMenu) {
 // Test that AddNodeToMenu() properly adds bookmark nodes as menus,
 // including the recursive case.
 TEST_F(BookmarkMenuBridgeTest, TestAddNodeToMenu) {
+  std::wstring empty;
   Profile* profile = browser_test_helper_.profile();
 
   scoped_ptr<BookmarkMenuBridge> bridge(new BookmarkMenuBridge());
@@ -73,8 +74,9 @@ TEST_F(BookmarkMenuBridgeTest, TestAddNodeToMenu) {
 
   NSMenu* menu = [[[NSMenu alloc] initWithTitle:@"foo"] autorelease];
 
-  BookmarkModel* model = new BookmarkModel(profile);
-  BookmarkNode* root = new BookmarkNode(model, GURL());
+  BookmarkModel* model = profile->GetBookmarkModel();
+  BookmarkNode* bookmark_bar = model->GetBookmarkBarNode();
+  BookmarkNode* root = model->AddGroup(bookmark_bar, 0, empty);
   EXPECT_TRUE(model && root);
 
   const char* short_url = "http://foo/";
@@ -86,16 +88,12 @@ TEST_F(BookmarkMenuBridgeTest, TestAddNodeToMenu) {
   // 3 nodes; middle one has a child, last one has a HUGE URL
   // Set their titles to be the same as the URLs
   BookmarkNode* node = NULL;
-  root->Add(0, new BookmarkNode(model, GURL(short_url)));
-  root->Add(1, new BookmarkNode(model, GURL()));
-  root->Add(2, new BookmarkNode(model, GURL(long_url)));
-
-  root->GetChild(0)->SetTitle(ASCIIToWide(short_url));
-  root->GetChild(2)->SetTitle(ASCIIToWide(long_url));
+  model->AddURL(root, 0, ASCIIToWide(short_url), GURL(short_url));
+  node = model->AddGroup(root, 1, empty);
+  model->AddURL(root, 2, ASCIIToWide(long_url), GURL(long_url));
 
   // And the submenu fo the middle one
-  node = new BookmarkNode(model, GURL("http://sub"));
-  root->GetChild(1)->Add(0, node);
+  model->AddURL(node, 0, empty, GURL("http://sub"));
 
   // Add to the NSMenu, then confirm it looks good
   AddNodeToMenu(bridge.get(), root, menu);
@@ -131,7 +129,4 @@ TEST_F(BookmarkMenuBridgeTest, TestAddNodeToMenu) {
   // e.g. http://foo becomes http://foo/)
   EXPECT_GE([[[menu itemAtIndex:0] toolTip] length], (2*strlen(short_url) - 5));
   EXPECT_GE([[[menu itemAtIndex:2] toolTip] length], (2*strlen(long_url) - 5));
-
-  delete root;  // deletes all its kids
-  delete model;
 }
