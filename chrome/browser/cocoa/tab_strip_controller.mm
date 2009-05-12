@@ -8,6 +8,7 @@
 #include "base/sys_string_conversions.h"
 #include "chrome/app/chrome_dll_resource.h"
 #include "chrome/browser/browser.h"
+#include "chrome/browser/metrics/user_metrics.h"
 #include "chrome/browser/profile.h"
 #import "chrome/browser/cocoa/tab_strip_view.h"
 #import "chrome/browser/cocoa/tab_cell.h"
@@ -123,15 +124,19 @@
 
 // Called when the user closes a tab.  Asks the model to close the tab.
 - (void)closeTab:(id)sender {
-  if ([self numberOfTabViews] > 1) {
-    int index = [self indexForTabView:sender];
-    if (index >= 0 && tabModel_->ContainsIndex(index))
+  int index = [self indexForTabView:sender];
+  if (tabModel_->ContainsIndex(index)) {
+    TabContents* contents = tabModel_->GetTabContentsAt(index);
+    if (contents)
+      UserMetrics::RecordAction(L"CloseTab_Mouse", contents->profile());
+    if ([self numberOfTabViews] > 1) {
       tabModel_->CloseTabContentsAt(index);
-  } else {
-    // Use the standard window close if this is the last tab
-    // this prevents the tab from being removed from the model until after
-    // the window dissapears
-    [[tabView_ window] performClose:nil];
+    } else {
+      // Use the standard window close if this is the last tab
+      // this prevents the tab from being removed from the model until after
+      // the window dissapears
+      [[tabView_ window] performClose:nil];
+    }
   }
 }
 
