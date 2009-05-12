@@ -887,6 +887,11 @@ bool BackendImpl::CreateBackingStore(disk_cache::File* file) {
 
   IndexHeader header;
   header.table_len = DesiredIndexTableLen(max_size_);
+
+  // We need file version 2.1 for the new eviction algorithm.
+  if (new_eviction_)
+    header.version = 0x20001;
+
   header.create_time = Time::Now().ToInternalValue();
 
   if (!file->Write(&header, sizeof(header), 0))
