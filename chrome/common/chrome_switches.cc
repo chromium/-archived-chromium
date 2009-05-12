@@ -411,9 +411,9 @@ const wchar_t kNewFtp[]                        = L"new-ftp";
 // can connect to a channel, provided it knows its name. For debugging purposes.
 const wchar_t kIPCUseFIFO[]                    = L"ipc-use-fifo";
 
-// If this flag is set open old 'in process' WebInspector window instead of
-// new 'out of process' dev tool window.
-const wchar_t kDisableOutOfProcessDevTools[]    = L"disable-oop-devtools";
+// If this flag is set open out of process developer tools window instead of
+// Console Debugger when user clicks "Debug JavaScript".
+const wchar_t kEnableOutOfProcessDevTools[]    = L"enable-oop-devtools";
 
 // Enable HTML5 Worker support
 const wchar_t kEnableWebWorkers[]              = L"enable-web-workers";

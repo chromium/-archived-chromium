@@ -25,8 +25,8 @@ void DevToolsAgentFilter::DispatchMessageLoop() {
 DevToolsAgentFilter::DevToolsAgentFilter()
     : current_routing_id_(0) {
   const CommandLine& command_line = *CommandLine::ForCurrentProcess();
-  devtools_enabled_ = !command_line.HasSwitch(
-      switches::kDisableOutOfProcessDevTools);
+  devtools_enabled_ = command_line.HasSwitch(
+      switches::kEnableOutOfProcessDevTools);
   if (devtools_enabled_) {
     WebDevToolsAgent::SetMessageLoopDispatchHandler(
         &DevToolsAgentFilter::DispatchMessageLoop);

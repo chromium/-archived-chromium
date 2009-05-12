@@ -2117,11 +2117,11 @@ void Browser::InitCommandState() {
   command_updater_.UpdateCommandEnabled(IDC_CREATE_SHORTCUTS, false);
 #if defined(OS_WIN)
   // Command line debugger conflicts with the new oop one.
-  bool in_proc_devtools = CommandLine::ForCurrentProcess()->HasSwitch(
-      switches::kDisableOutOfProcessDevTools);
+  bool oop_devtools = CommandLine::ForCurrentProcess()->HasSwitch(
+      switches::kEnableOutOfProcessDevTools);
   command_updater_.UpdateCommandEnabled(IDC_DEBUGGER,
       // The debugger doesn't work in single process mode.
-      in_proc_devtools && !RenderProcessHost::run_renderer_in_process());
+      !oop_devtools && !RenderProcessHost::run_renderer_in_process());
 #endif
   command_updater_.UpdateCommandEnabled(IDC_TASK_MANAGER, true);
   command_updater_.UpdateCommandEnabled(IDC_SELECT_PROFILE, true);

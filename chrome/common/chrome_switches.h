@@ -155,7 +155,7 @@ extern const wchar_t kNewFtp[];
 
 extern const wchar_t kIPCUseFIFO[];
 
-extern const wchar_t kDisableOutOfProcessDevTools[];
+extern const wchar_t kEnableOutOfProcessDevTools[];
 
 extern const wchar_t kEnableWebWorkers[];
 extern const wchar_t kWebWorkerProcessPerCore[];
