@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 # Copyright (c) 2009 The Chromium Authors. All rights reserved.
 # Use of this source code is governed by a BSD-style license that can be
@@ -45,18 +45,21 @@ fi
 FULL_VERSION="${MAJOR}.${MINOR}.${BUILD}.${PATCH}"
 SHORT_VERSION="${MAJOR}.${MINOR}.${BUILD}"
 
-# Collect the year
-YEAR=$(date +%Y)
-
-# Copyright is based on branding
+# Load the branding file
 if [ "${BUILD_BRANDING}" == "Chromium" ]; then
-  LONG_COPYRIGHT="${BUILD_BRANDING} ${FULL_VERSION}, Copyright ${YEAR} The Chromium Authors."
+  BRANDING_FILE="${TOP}/chrome/app/theme/chromium/BRANDING"
 elif [ "${BUILD_BRANDING}" == "Chrome" ]; then
-  LONG_COPYRIGHT="${BUILD_BRANDING} ${FULL_VERSION}, Copyright ${YEAR} Google Inc."
+  BRANDING_FILE="${TOP}/chrome/app/theme/google_chrome/BRANDING"
 else
   echo "error: unknown branding: ${BUILD_BRANDING}" >&2
   exit 1
 fi
+COPYRIGHT_STRING=$(sed -n -e 's/^COPYRIGHT=\(.*\)$/\1/p' "${BRANDING_FILE}")
+# Map (c) or (C) to the copyright sign
+COPYRIGHT_STRING=$(echo "${COPYRIGHT_STRING}" | sed -e $'s/([cC])/\302\251/g')
+
+# Build the full copyright string
+LONG_COPYRIGHT="${BUILD_BRANDING} ${FULL_VERSION}, ${COPYRIGHT_STRING}"
 
 # I really hate how "defaults" doesn't take a real pathname but instead insists
 # on appending ".plist" to everything.
@@ -84,7 +87,7 @@ defaults write "${TMP_INFO_PLIST_DEFAULTS}" \
 defaults write "${TMP_INFO_PLIST_DEFAULTS}" \
     CFBundleVersion -string "${BUILD}.${PATCH}"
 defaults write "${TMP_INFO_PLIST_DEFAULTS}" \
-    NSHumanReadableCopyright -string "${LONG_COPYRIGHT}"
+    NSHumanReadableCopyright -string "${COPYRIGHT_STRING}"
 
 # Info.plist will work perfectly well in any plist format, but traditionally
 # applications use xml1 for this, so convert it back after whatever defaults
