@@ -316,7 +316,7 @@ bool CreateNewTempDirectory(const std::wstring& prefix,
 
 // Creates a directory, as well as creating any parent directories, if they
 // don't exist. Returns 'true' on successful creation, or if the directory
-// already exists.
+// already exists.  The directory is only readable by the current user.
 bool CreateDirectory(const FilePath& full_path);
 // Deprecated temporary compatibility function.
 bool CreateDirectory(const std::wstring& full_path);

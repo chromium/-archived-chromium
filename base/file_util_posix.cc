@@ -214,8 +214,7 @@ bool CopyDirectory(const FilePath& from_path,
         }
 
         // Try creating the target dir, continuing on it if it exists already.
-        // Rely on the user's umask to produce correct permissions.
-        if (mkdir(target_path.value().c_str(), 0777) != 0) {
+        if (mkdir(target_path.value().c_str(), 0700) != 0) {
           if (errno != EEXIST)
             error = errno;
         }
@@ -425,7 +424,7 @@ bool CreateDirectory(const FilePath& full_path) {
   for (std::vector<FilePath>::reverse_iterator i = subpaths.rbegin();
        i != subpaths.rend(); ++i) {
     if (!DirectoryExists(*i)) {
-      if (mkdir(i->value().c_str(), 0777) != 0)
+      if (mkdir(i->value().c_str(), 0700) != 0)
         return false;
     }
   }
