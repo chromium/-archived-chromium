@@ -832,7 +832,7 @@ devtools.DomAgent.prototype.getNodePropertiesAsync = function(nodeId,
   var callbackId = this.utilityFunctionCallbackWrapper_(callback);
   RemoteToolsAgent.ExecuteUtilityFunction(callbackId,
       'getProperties', nodeId,
-      goog.json.serialize([path, protoDepth]));
+      JSON.stringify([path, protoDepth]));
 };
 
 
@@ -861,7 +861,7 @@ devtools.DomAgent.prototype.getNodeStylesAsync = function(node,
   RemoteToolsAgent.ExecuteUtilityFunction(callbackId,
       'getStyles',
       node.id_,
-      goog.json.serialize([authorOnly]));
+      JSON.stringify([authorOnly]));
 };
 
 
@@ -878,7 +878,7 @@ devtools.DomAgent.prototype.toggleNodeStyleAsync = function(
   RemoteToolsAgent.ExecuteUtilityFunction(callbackId,
       'toggleNodeStyle',
       style.nodeId_,
-      goog.json.serialize([style.id_, enabled, name]));
+      JSON.stringify([style.id_, enabled, name]));
 };
 
 
@@ -896,7 +896,7 @@ devtools.DomAgent.prototype.applyStyleTextAsync = function(
       callbackId,
       'applyStyleText',
       style.nodeId_,
-      goog.json.serialize([style.id_, name, styleText]));
+      JSON.stringify([style.id_, name, styleText]));
 };
 
 
@@ -914,7 +914,7 @@ devtools.DomAgent.prototype.setStylePropertyAsync = function(
       callbackId,
       'setStyleProperty',
       node.id_,
-      goog.json.serialize([name, value]));
+      JSON.stringify([name, value]));
 };
 
 

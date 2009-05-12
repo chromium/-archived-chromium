@@ -989,9 +989,8 @@ devtools.DebugCommand.prototype.toJSONProtocol = function() {
   if (this.arguments_) {
     json.arguments = this.arguments_;
   }
-  return goog.json.serialize(json);
+  return JSON.stringify(json);
 };
-
 
 
 /**

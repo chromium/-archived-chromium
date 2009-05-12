@@ -308,7 +308,7 @@ WebInspector.ElementsPanel.prototype.invokeWithStyleSet_ =
   
   if (node && node.nodeType == Node.ELEMENT_NODE) {
     var callback = function(stylesStr) {
-      var styles = goog.json.parse(stylesStr);
+      var styles = JSON.parse(stylesStr);
       if (!styles.computedStyle) {
         return;
       }
@@ -374,7 +374,7 @@ WebInspector.PropertiesSidebarPane.prototype.update = function(object) {
   devtools.tools.getDomAgent().getNodePrototypesAsync(object.id_, 
       function(json) {
         // Get array of prototype user-friendly names.
-        var prototypes = goog.json.parse(json);
+        var prototypes = JSON.parse(json);
         for (var i = 0; i < prototypes.length; ++i) {
           var prototype = {};
           prototype.id_ = object.id_;
@@ -504,7 +504,7 @@ WebInspector.dummyFunction_ = function() {};
  */
 WebInspector.didGetNodePropertiesAsync_ = function(treeOutline, constructor,
     nodeId, path, json) {
-  var props = goog.json.parse(json);
+  var props = JSON.parse(json);
   var properties = [];
   var obj = {};
   obj.devtools$$nodeId_ = nodeId;

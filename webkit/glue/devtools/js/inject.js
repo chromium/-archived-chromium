@@ -6,7 +6,6 @@
  * @fileoverview Javascript that is being injected into the inspectable page
  * while debugging.
  */
-goog.require('goog.json');
 goog.provide('devtools.Injected');
 
 

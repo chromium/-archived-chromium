@@ -26,8 +26,8 @@ var devtools$$obj = new devtools.Injected();
  * @return {string} JSON-serialized result of the dispatched call.
  */
 function devtools$$dispatch(functionName, node, json_args) {
-  var params = goog.json.parse(json_args);
+  var params = JSON.parse(json_args);
   params.splice(0, 0, node);
   var result = devtools$$obj[functionName].apply(devtools$$obj, params);
-  return goog.json.serialize(result);
+  return JSON.stringify(result);
 };

@@ -193,7 +193,7 @@ RemoteToolsAgentStub.prototype.ExecuteUtilityFunction = function(callId,
       alert('Unexpected utility function:' + functionName);
     }
     RemoteToolsAgent.DidExecuteUtilityFunction(callId,
-        goog.json.serialize(result), '');
+        JSON.stringify(result), '');
   }, 0);
 };
 
@@ -201,7 +201,7 @@ RemoteToolsAgentStub.prototype.ExecuteUtilityFunction = function(callId,
 RemoteToolsAgentStub.prototype.GetNodePrototypes = function(callId, nodeId) {
   setTimeout(function() {
     RemoteToolsAgent.DidGetNodePrototypes(callId,
-        goog.json.serialize());
+        JSON.stringify());
   }, 0);
 };
 
