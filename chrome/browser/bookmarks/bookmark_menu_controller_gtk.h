@@ -5,11 +5,14 @@
 #ifndef CHROME_BROWSER_BOOKMARKS_BOOKMARK_MENU_CONTROLLER_GTK_H_
 #define CHROME_BROWSER_BOOKMARKS_BOOKMARK_MENU_CONTROLLER_GTK_H_
 
+#include <gtk/gtk.h>
+
 #include <map>
 
 #include "base/scoped_ptr.h"
 #include "chrome/browser/bookmarks/base_bookmark_model_observer.h"
-#include "chrome/browser/gtk/menu_gtk.h"
+#include "chrome/common/owned_widget_gtk.h"
+#include "webkit/glue/window_open_disposition.h"
 
 class BookmarkContextMenu;
 class Browser;
@@ -18,10 +21,7 @@ class PageNavigator;
 class BookmarkModel;
 class BookmarkNode;
 
-typedef struct _GtkWidget GtkWidget;
-
-class BookmarkMenuController : public BaseBookmarkModelObserver,
-                               public MenuGtk::Delegate {
+class BookmarkMenuController : public BaseBookmarkModelObserver {
  public:
   // Creates a BookmarkMenuController showing the children of |node| starting
   // at index |start_child_index|.
@@ -34,6 +34,7 @@ class BookmarkMenuController : public BaseBookmarkModelObserver,
                          bool show_other_folder);
   virtual ~BookmarkMenuController();
 
+  // Pops up the menu.
   void Popup(GtkWidget* widget, gint button_type, guint32 timestamp);
 
   // Overridden from BaseBookmarkModelObserver:
@@ -41,15 +42,32 @@ class BookmarkMenuController : public BaseBookmarkModelObserver,
   virtual void BookmarkNodeFavIconLoaded(BookmarkModel* model,
                                          BookmarkNode* node);
 
-  // Overridden from MenuGtk::Delegate:
-  virtual bool IsCommandEnabled(int id) const;
-  virtual void ExecuteCommand(int id);
-
  private:
+  // Recursively change the bookmark hierarchy rooted in |parent| into a set of
+  // gtk menus rooted in |menu|.
   void BuildMenu(BookmarkNode* parent,
                  int start_child_index,
-                 MenuGtk* menu,
-                 int* next_menu_id);
+                 GtkWidget* menu);
+
+  // Calls the page navigator to navigate to the node represented by
+  // |menu_item|.
+  void NavigateToMenuItem(GtkWidget* menu_item,
+                          WindowOpenDisposition disposition);
+
+  // Button press and release events for a GtkMenuItem. We have to override
+  // these separate from OnMenuItemActivated because we need to handle right
+  // clicks and opening bookmarks with different dispositions.
+  static gboolean OnButtonPressed(GtkWidget* sender,
+                                  GdkEventButton* event,
+                                  BookmarkMenuController* controller);
+  static gboolean OnButtonReleased(GtkWidget* sender,
+                                   GdkEventButton* event,
+                                   BookmarkMenuController* controller);
+
+  // We respond to the activate signal because things other than mouse button
+  // events can trigger it.
+  static void OnMenuItemActivated(GtkMenuItem* menuitem,
+                                  BookmarkMenuController* controller);
 
   Browser* browser_;
   Profile* profile_;
@@ -61,16 +79,17 @@ class BookmarkMenuController : public BaseBookmarkModelObserver,
   // The node we're showing the contents of.
   BookmarkNode* node_;
 
-  scoped_ptr<MenuGtk> menu_;
+  // Our bookmark menus. We don't use the MenuGtk class because we have to do
+  // all sorts of weird non-standard things with this menu, like:
+  // - The menu is a drag target
+  // - The menu items have context menus.
+  OwnedWidgetGtk menu_;
 
-  // Maps from menu id to BookmarkNode.
-  std::map<int, BookmarkNode*> menu_id_to_node_map_;
+  // Mapping from node to GtkMenuItem menu id. This only contains entries for
+  // nodes of type URL.
+  std::map<BookmarkNode*, GtkWidget*> node_to_menu_widget_map_;
 
-  // Mapping from node to menu id. This only contains entries for nodes of type
-  // URL.
-  std::map<BookmarkNode*, int> node_to_menu_id_map_;
-
-  // Used when a context menu is shown.
+  // Owns our right click context menu.
   scoped_ptr<BookmarkContextMenu> context_menu_;
 
   DISALLOW_COPY_AND_ASSIGN(BookmarkMenuController);

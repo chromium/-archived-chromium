@@ -51,8 +51,6 @@ class MenuGtk {
   void AppendMenuItemWithLabel(int command_id, const std::string& label);
   void AppendMenuItemWithIcon(int command_id, const std::string& label,
                               const SkBitmap& icon);
-  MenuGtk* AppendSubMenuWithIcon(int command_id, const std::string& label,
-                                 const SkBitmap& icon);
   void AppendSeparator();
 
   // Displays the menu. |timestamp| is the time of activation. The popup is
@@ -82,6 +80,17 @@ class MenuGtk {
   static std::string ConvertAcceleratorsFromWindowsStyle(
       const std::string& label);
 
+  // Repositions the menu to be right under the button.  Alignment is set as
+  // object data on |void_widget| with the tag "left_align".  If "left_align"
+  // is true, it aligns the left side of the menu with the left side of the
+  // button. Otherwise it aligns the right side of the menu with the right side
+  // of the button. Public since some menus have odd requirements that don't
+  // belong in a public class.
+  static void MenuPositionFunc(GtkMenu* menu,
+                               int* x,
+                               int* y,
+                               gboolean* push_in,
+                               void* void_widget);
  private:
   // A recursive function that transforms a MenuCreateMaterial tree into a set
   // of GtkMenuItems.
@@ -109,17 +118,6 @@ class MenuGtk {
   // via |delegate_|.
   static void OnMenuItemActivatedById(GtkMenuItem* menuitem, MenuGtk* menu);
 
-  // Repositions the menu to be right under the button.
-  // Alignment is set as object data on |void_widget| with the tag "left_align".
-  // If "left_align" is true, it aligns the left side of the menu with the left
-  // side of the button. Otherwise it aligns the right side of the menu with the
-  // right side of the button.
-  static void MenuPositionFunc(GtkMenu* menu,
-                               int* x,
-                               int* y,
-                               gboolean* push_in,
-                               void* void_widget);
-
   // Sets the check mark and enabled/disabled state on our menu items.
   static void SetMenuItemInfo(GtkWidget* widget, void* raw_menu);
 
@@ -134,10 +132,6 @@ class MenuGtk {
   // gtk_menu_popup() does not appear to take ownership of popup menus, so
   // MenuGtk explicitly manages the lifetime of the menu.
   OwnedWidgetGtk menu_;
-
-  // MenuGtk instances of submenus; we keep references to these objects just to
-  // clean up during our destructor.
-  std::vector<MenuGtk*> children_;
 };
 
 #endif  // CHROME_BROWSER_GTK_MENU_GTK_H_

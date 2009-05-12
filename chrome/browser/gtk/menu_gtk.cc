@@ -11,31 +11,6 @@
 #include "chrome/common/gtk_util.h"
 #include "skia/include/SkBitmap.h"
 
-namespace {
-
-struct SetIconState {
-  bool found;
-  const SkBitmap* icon;
-  int id;
-};
-
-void SetIconImpl(GtkWidget* widget, void* raw) {
-  SetIconState* data = reinterpret_cast<SetIconState*>(raw);
-  int this_id =
-      reinterpret_cast<int>(g_object_get_data(G_OBJECT(widget), "menu-id"));
-
-  if (this_id == data->id) {
-    GdkPixbuf* pixbuf = gfx::GdkPixbufFromSkBitmap(data->icon);
-    gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(widget),
-                                  gtk_image_new_from_pixbuf(pixbuf));
-    g_object_unref(pixbuf);
-
-    data->found = true;
-  }
-}
-
-}  // namespace
-
 MenuGtk::MenuGtk(MenuGtk::Delegate* delegate,
                  const MenuCreateMaterial* menu_data,
                  GtkAccelGroup* accel_group)
@@ -54,7 +29,6 @@ MenuGtk::MenuGtk(MenuGtk::Delegate* delegate, bool load)
 }
 
 MenuGtk::~MenuGtk() {
-  STLDeleteElements(&children_);
   menu_.Destroy();
   if (dummy_accel_group_)
     g_object_unref(dummy_accel_group_);
@@ -71,20 +45,6 @@ void MenuGtk::AppendMenuItemWithIcon(int command_id,
                                      const SkBitmap& icon) {
   GtkWidget* menu_item = BuildMenuItemWithImage(label, icon);
   AddMenuItemWithId(menu_item, command_id);
-}
-
-MenuGtk* MenuGtk::AppendSubMenuWithIcon(int command_id,
-                                        const std::string& label,
-                                        const SkBitmap& icon) {
-  GtkWidget* menu_item = BuildMenuItemWithImage(label, icon);
-
-  MenuGtk* submenu = new MenuGtk(delegate_, false);
-  gtk_menu_item_set_submenu(GTK_MENU_ITEM(menu_item), submenu->menu_.get());
-  children_.push_back(submenu);
-
-  AddMenuItemWithId(menu_item, command_id);
-
-  return submenu;
 }
 
 void MenuGtk::AppendSeparator() {
@@ -120,25 +80,6 @@ void MenuGtk::PopupAsContext(guint32 event_time) {
 
 void MenuGtk::Cancel() {
   gtk_menu_popdown(GTK_MENU(menu_.get()));
-}
-
-bool MenuGtk::SetIcon(const SkBitmap& icon, int item_id) {
-  // First search items in this menu.
-  SetIconState state;
-  state.found = false;
-  state.icon = &icon;
-  state.id = item_id;
-  gtk_container_foreach(GTK_CONTAINER(menu_.get()), SetIconImpl, &state);
-  if (state.found)
-    return true;
-
-  for (std::vector<MenuGtk*>::iterator it = children_.begin();
-       it != children_.end(); ++it) {
-    if ((*it)->SetIcon(icon, item_id))
-      return true;
-  }
-
-  return false;
 }
 
 // static

@@ -4,17 +4,35 @@
 
 #include "chrome/browser/bookmarks/bookmark_menu_controller_gtk.h"
 
+#include <gtk/gtk.h>
+
 #include "app/l10n_util.h"
 #include "app/resource_bundle.h"
 #include "base/string_util.h"
 #include "chrome/browser/bookmarks/bookmark_context_menu.h"
+#include "chrome/browser/gtk/menu_gtk.h"
 #include "chrome/browser/profile.h"
 #include "chrome/browser/tab_contents/page_navigator.h"
+#include "chrome/common/gtk_util.h"
 #include "grit/generated_resources.h"
 #include "grit/theme_resources.h"
 #include "webkit/glue/window_open_disposition.h"
 
-const int kEmptyId = -1;
+namespace {
+
+void SetImageMenuItem(GtkWidget* menu_item, const SkBitmap& bitmap) {
+  GdkPixbuf* pixbuf = gfx::GdkPixbufFromSkBitmap(&bitmap);
+  gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(menu_item),
+                                gtk_image_new_from_pixbuf(pixbuf));
+  g_object_unref(pixbuf);
+}
+
+BookmarkNode* GetNodeFromMenuItem(GtkWidget* menu_item) {
+  return static_cast<BookmarkNode*>(
+      g_object_get_data(G_OBJECT(menu_item), "bookmark-node"));
+}
+
+}  // namespace
 
 BookmarkMenuController::BookmarkMenuController(Browser* browser,
                                                Profile* profile,
@@ -28,83 +46,143 @@ BookmarkMenuController::BookmarkMenuController(Browser* browser,
       page_navigator_(navigator),
       parent_window_(window),
       node_(node) {
-  menu_.reset(new MenuGtk(this, false));
-  int next_menu_id = 1;
-  BuildMenu(node, start_child_index, menu_.get(), &next_menu_id);
+  menu_.Own(gtk_menu_new());
+  BuildMenu(node, start_child_index, menu_.get());
+  gtk_widget_show_all(menu_.get());
 }
 
 BookmarkMenuController::~BookmarkMenuController() {
   profile_->GetBookmarkModel()->RemoveObserver(this);
+  menu_.Destroy();
 }
 
 void BookmarkMenuController::Popup(GtkWidget* widget, gint button_type,
                                    guint32 timestamp) {
   profile_->GetBookmarkModel()->AddObserver(this);
-  menu_->Popup(widget, button_type, timestamp);
+
+  gtk_menu_popup(GTK_MENU(menu_.get()), NULL, NULL,
+                 &MenuGtk::MenuPositionFunc,
+                 widget, button_type, timestamp);
 }
 
 void BookmarkMenuController::BookmarkModelChanged() {
-  menu_->Cancel();
+  gtk_menu_popdown(GTK_MENU(menu_.get()));
 }
 
 void BookmarkMenuController::BookmarkNodeFavIconLoaded(BookmarkModel* model,
                                                        BookmarkNode* node) {
-  if (node_to_menu_id_map_.find(node) != node_to_menu_id_map_.end())
-    menu_->SetIcon(node->GetFavIcon(), node_to_menu_id_map_[node]);
+  std::map<BookmarkNode*, GtkWidget*>::iterator it =
+      node_to_menu_widget_map_.find(node);
+  if (it != node_to_menu_widget_map_.end())
+    SetImageMenuItem(it->second, node->GetFavIcon());
 }
 
-bool BookmarkMenuController::IsCommandEnabled(int id) const {
-  return id != kEmptyId;
-}
-
-void BookmarkMenuController::ExecuteCommand(int id) {
+void BookmarkMenuController::NavigateToMenuItem(
+    GtkWidget* menu_item,
+    WindowOpenDisposition disposition) {
+  BookmarkNode* node = GetNodeFromMenuItem(menu_item);
+  DCHECK(node);
   DCHECK(page_navigator_);
-  DCHECK(menu_id_to_node_map_.find(id) != menu_id_to_node_map_.end());
-  GURL url = menu_id_to_node_map_[id]->GetURL();
   page_navigator_->OpenURL(
-      url, GURL(),
-      // TODO(erg): Plumb mouse events here so things like shift-click or
-      // ctrl-click do the right things.
-      //
-      // event_utils::DispositionFromEventFlags(mouse_event_flags),
-      CURRENT_TAB,
-      PageTransition::AUTO_BOOKMARK);
+      node->GetURL(), GURL(), disposition, PageTransition::AUTO_BOOKMARK);
 }
 
 void BookmarkMenuController::BuildMenu(BookmarkNode* parent,
                                        int start_child_index,
-                                       MenuGtk* menu,
-                                       int* next_menu_id) {
+                                       GtkWidget* menu) {
   DCHECK(!parent->GetChildCount() ||
          start_child_index < parent->GetChildCount());
   for (int i = start_child_index; i < parent->GetChildCount(); ++i) {
     BookmarkNode* node = parent->GetChild(i);
-    int id = *next_menu_id;
 
-    (*next_menu_id)++;
+    GtkWidget* menu_item = gtk_image_menu_item_new_with_label(
+        WideToUTF8(node->GetTitle()).c_str());
+
     if (node->is_url()) {
       SkBitmap icon = node->GetFavIcon();
       if (icon.width() == 0) {
         icon = *ResourceBundle::GetSharedInstance().
             GetBitmapNamed(IDR_DEFAULT_FAVICON);
       }
-      menu->AppendMenuItemWithIcon(id, WideToUTF8(node->GetTitle()), icon);
-      node_to_menu_id_map_[node] = id;
+      SetImageMenuItem(menu_item, icon);
+      g_object_set_data(G_OBJECT(menu_item), "bookmark-node", node);
+      g_signal_connect(G_OBJECT(menu_item), "activate",
+                       G_CALLBACK(OnMenuItemActivated), this);
+      g_signal_connect(G_OBJECT(menu_item), "button-press-event",
+                       G_CALLBACK(OnButtonPressed), this);
+      g_signal_connect(G_OBJECT(menu_item), "button-release-event",
+                       G_CALLBACK(OnButtonReleased), this);
     } else if (node->is_folder()) {
       SkBitmap* folder_icon = ResourceBundle::GetSharedInstance().
           GetBitmapNamed(IDR_BOOKMARK_BAR_FOLDER);
-      MenuGtk* submenu =
-          menu->AppendSubMenuWithIcon(id, WideToUTF8(node->GetTitle()),
-                                      *folder_icon);
-      BuildMenu(node, 0, submenu, next_menu_id);
+      SetImageMenuItem(menu_item, *folder_icon);
+
+      GtkWidget* submenu = gtk_menu_new();
+      BuildMenu(node, 0, submenu);
+      gtk_menu_item_set_submenu(GTK_MENU_ITEM(menu_item), submenu);
     } else {
       NOTREACHED();
     }
-    menu_id_to_node_map_[id] = node;
+
+    gtk_menu_shell_append(GTK_MENU_SHELL(menu), menu_item);
+    node_to_menu_widget_map_[node] = menu_item;
   }
 
   if (parent->GetChildCount() == 0) {
-    menu->AppendMenuItemWithLabel(
-        kEmptyId, l10n_util::GetStringUTF8(IDS_MENU_EMPTY_SUBMENU));
+    GtkWidget* empty_menu = gtk_menu_item_new_with_label(
+        l10n_util::GetStringUTF8(IDS_MENU_EMPTY_SUBMENU).c_str());
+    gtk_widget_set_sensitive(empty_menu, FALSE);
+    gtk_menu_shell_append(GTK_MENU_SHELL(menu), empty_menu);
   }
+}
+
+gboolean BookmarkMenuController::OnButtonPressed(
+    GtkWidget* sender,
+    GdkEventButton* event,
+    BookmarkMenuController* controller) {
+  if (event->button == 3) {
+    // Show the right click menu and stop processing this button event.
+    BookmarkNode* node = GetNodeFromMenuItem(sender);
+    BookmarkNode* parent = node->GetParent();
+    std::vector<BookmarkNode*> nodes;
+    nodes.push_back(node);
+    controller->context_menu_.reset(
+        new BookmarkContextMenu(
+            GTK_WINDOW(gtk_widget_get_toplevel(sender)),
+            controller->profile_, controller->browser_,
+            controller->page_navigator_, parent, nodes,
+            BookmarkContextMenu::BOOKMARK_BAR));
+    controller->context_menu_->PopupAsContext(event->time);
+    return TRUE;
+  }
+
+  return FALSE;
+}
+
+gboolean BookmarkMenuController::OnButtonReleased(
+    GtkWidget* sender,
+    GdkEventButton* event,
+    BookmarkMenuController* controller) {
+  // TODO(erg): The OnButtonPressed and OnButtonReleased handlers should have
+  // the same guard code that prevents them from interfering with DnD as
+  // BookmarkBarGtk's versions.
+
+  // Releasing button 1 should trigger the bookmark menu.
+  if (event->button == 1) {
+    WindowOpenDisposition disposition =
+        event_utils::DispositionFromEventFlags(event->state);
+    controller->NavigateToMenuItem(sender, disposition);
+
+    // We need to manually dismiss the popup menu because we're overriding
+    // button-release-event.
+    gtk_menu_popdown(GTK_MENU(controller->menu_.get()));
+    return TRUE;
+  }
+
+  return FALSE;
+}
+
+void BookmarkMenuController::OnMenuItemActivated(
+    GtkMenuItem* menu_item, BookmarkMenuController* controller) {
+  controller->NavigateToMenuItem(GTK_WIDGET(menu_item), CURRENT_TAB);
 }
