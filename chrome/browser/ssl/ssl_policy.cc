@@ -33,12 +33,14 @@ using WebKit::WebConsoleMessage;
 // Wrap all these helper classes in an anonymous namespace.
 namespace {
 
-static void MarkOriginAsBroken(SSLManager* manager, const std::string& origin) {
+static void MarkOriginAsBroken(SSLManager* manager,
+                               const std::string& origin,
+                               int pid) {
   GURL parsed_origin(origin);
   if (!parsed_origin.SchemeIsSecure())
     return;
 
-  manager->MarkHostAsBroken(parsed_origin.host());
+  manager->MarkHostAsBroken(parsed_origin.host(), pid);
 }
 
 static void AllowMixedContentForOrigin(SSLManager* manager,
@@ -54,19 +56,19 @@ static void UpdateStateForMixedContent(SSLManager::RequestInfo* info) {
   if (info->resource_type() != ResourceType::MAIN_FRAME ||
       info->resource_type() != ResourceType::SUB_FRAME) {
     // The frame's origin now contains mixed content and therefore is broken.
-    MarkOriginAsBroken(info->manager(), info->frame_origin());
+    MarkOriginAsBroken(info->manager(), info->frame_origin(), info->pid());
   }
 
   if (info->resource_type() != ResourceType::MAIN_FRAME) {
     // The main frame now contains a frame with mixed content.  Therefore, we
     // mark the main frame's origin as broken too.
-    MarkOriginAsBroken(info->manager(), info->main_frame_origin());
+    MarkOriginAsBroken(info->manager(), info->main_frame_origin(), info->pid());
   }
 }
 
 static void UpdateStateForUnsafeContent(SSLManager::RequestInfo* info) {
   // This request as a broken cert, which means its host is broken.
-  info->manager()->MarkHostAsBroken(info->url().host());
+  info->manager()->MarkHostAsBroken(info->url().host(), info->pid());
 
   UpdateStateForMixedContent(info);
 }
@@ -223,7 +225,7 @@ void SSLPolicy::OnMixedContent(SSLManager::MixedContentHandler* handler) {
   // If the user has added an exception, doctor the |filter_policy|.
   std::string host = GURL(handler->main_frame_origin()).host();
   if (handler->manager()->DidAllowMixedContentForHost(host) ||
-      handler->manager()->DidMarkHostAsBroken(host))
+      handler->manager()->DidMarkHostAsBroken(host, handler->pid()))
     filter_policy = FilterPolicy::DONT_FILTER;
 
   if (filter_policy != FilterPolicy::DONT_FILTER) {
@@ -269,7 +271,8 @@ void SSLPolicy::UpdateEntry(SSLManager* manager, NavigationEntry* entry) {
     return;
   }
 
-  if (manager->DidMarkHostAsBroken(entry->url().host()))
+  if (manager->DidMarkHostAsBroken(entry->url().host(),
+                                   entry->site_instance()->GetProcess()->pid()))
     entry->ssl().set_has_mixed_content();
 }
 

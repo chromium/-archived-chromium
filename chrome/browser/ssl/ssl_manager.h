@@ -248,15 +248,21 @@ class SSLManager : public NotificationObserver {
                         ResourceType::Type resource_type,
                         const std::string& frame_origin,
                         const std::string& main_frame_origin,
+                        int pid,
                         MessageLoop* ui_loop)
         : ErrorHandler(rdh, request, resource_type, frame_origin,
-                       main_frame_origin, ui_loop) { }
+                       main_frame_origin, ui_loop),
+          pid_(pid) {}
+
+    int pid() const { return pid_; }
 
    protected:
     virtual void OnDispatchFailed() { TakeNoAction(); }
     virtual void OnDispatched() { manager()->OnMixedContent(this); }
 
    private:
+    int pid_;
+
     DISALLOW_COPY_AND_ASSIGN(MixedContentHandler);
   };
 
@@ -271,6 +277,7 @@ class SSLManager : public NotificationObserver {
                 const std::string& frame_origin,
                 const std::string& main_frame_origin,
                 FilterPolicy::Type filter_policy,
+                int pid,
                 int ssl_cert_id,
                 int ssl_cert_status)
         : manager_(manager),
@@ -279,6 +286,7 @@ class SSLManager : public NotificationObserver {
           frame_origin_(frame_origin),
           main_frame_origin_(main_frame_origin),
           filter_policy_(filter_policy),
+          pid_(pid),
           ssl_cert_id_(ssl_cert_id),
           ssl_cert_status_(ssl_cert_status) {
     }
@@ -289,6 +297,7 @@ class SSLManager : public NotificationObserver {
     const std::string& frame_origin() const { return frame_origin_; }
     const std::string& main_frame_origin() const { return main_frame_origin_; }
     FilterPolicy::Type filter_policy() const { return filter_policy_; }
+    int pid() const { return pid_; }
     int ssl_cert_id() const { return ssl_cert_id_; }
     int ssl_cert_status() const { return ssl_cert_status_; }
 
@@ -299,6 +308,7 @@ class SSLManager : public NotificationObserver {
     std::string frame_origin_;
     std::string main_frame_origin_;
     FilterPolicy::Type filter_policy_;
+    int pid_;
     int ssl_cert_id_;
     int ssl_cert_status_;
 
@@ -358,10 +368,10 @@ class SSLManager : public NotificationObserver {
   // Records that a host is "broken," that is, the origin for that host has been
   // contaminated with insecure content, either via HTTP or via HTTPS with a
   // bad certificate.
-  void MarkHostAsBroken(const std::string& host);
+  void MarkHostAsBroken(const std::string& host, int pid);
 
   // Returns whether the specified host was marked as broken.
-  bool DidMarkHostAsBroken(const std::string& host) const;
+  bool DidMarkHostAsBroken(const std::string& host, int pid) const;
 
   // Sets the maximum security style for the page.  If the current security
   // style is lower than |style|, this will not have an effect on the security

@@ -27,13 +27,14 @@ class SSLHostState : public NonThreadSafe {
   SSLHostState();
   ~SSLHostState();
 
-  // Records that a host is "broken," that is, the origin for that host has been
-  // contaminated with insecure content, either via HTTP or via HTTPS with a
-  // bad certificate.
-  void MarkHostAsBroken(const std::string& host);
+  // Records that a host is "broken" in a particular render process.  That is,
+  // the origin for that host has been contaminated with insecure content,
+  // either via HTTP or via HTTPS with a bad certificate.
+  void MarkHostAsBroken(const std::string& host, int pid);
 
-  // Returns whether the specified host was marked as broken.
-  bool DidMarkHostAsBroken(const std::string& host);
+  // Returns whether the specified host was marked as broken in a particular
+  // render process.
+  bool DidMarkHostAsBroken(const std::string& host, int pid);
 
   // Records that |cert| is permitted to be used for |host| in the future.
   void DenyCertForHost(net::X509Certificate* cert, const std::string& host);
@@ -52,8 +53,9 @@ class SSLHostState : public NonThreadSafe {
   bool DidAllowMixedContentForHost(const std::string& host);
 
  private:
+  typedef std::pair<std::string, int> BrokenHostEntry;
   // Hosts which have been contaminated with unsafe content.
-  std::set<std::string> broken_hosts_;
+  std::set<BrokenHostEntry> broken_hosts_;
 
   // Certificate policies for each host.
   std::map<std::string, net::X509Certificate::Policy> cert_policy_for_host_;

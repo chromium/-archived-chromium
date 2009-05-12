@@ -1836,7 +1836,7 @@ void TabContents::DidLoadResourceFromMemoryCache(
                                       &cert_id, &cert_status,
                                       &security_bits);
   LoadFromMemoryCacheDetails details(url, frame_origin, main_frame_origin,
-                                     cert_id, cert_status);
+                                     process()->pid(), cert_id, cert_status);
 
   NotificationService::current()->Notify(
       NotificationType::LOAD_FROM_MEMORY_CACHE,

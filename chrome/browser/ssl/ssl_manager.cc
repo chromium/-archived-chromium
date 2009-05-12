@@ -182,14 +182,14 @@ void SSLManager::AddMessageToConsole(const string16& message,
 }
 
 // Delegate API method.
-void SSLManager::MarkHostAsBroken(const std::string& host) {
-  ssl_host_state_->MarkHostAsBroken(host);
+void SSLManager::MarkHostAsBroken(const std::string& host, int pid) {
+  ssl_host_state_->MarkHostAsBroken(host, pid);
   DispatchSSLInternalStateChanged();
 }
 
 // Delegate API method.
-bool SSLManager::DidMarkHostAsBroken(const std::string& host) const {
-  return ssl_host_state_->DidMarkHostAsBroken(host);
+bool SSLManager::DidMarkHostAsBroken(const std::string& host, int pid) const {
+  return ssl_host_state_->DidMarkHostAsBroken(host, pid);
 }
 
 // Delegate API method.
@@ -504,6 +504,7 @@ bool SSLManager::ShouldStartRequest(ResourceDispatcherHost* rdh,
                                                 info->resource_type,
                                                 info->frame_origin,
                                                 info->main_frame_origin,
+                                                info->process_id,
                                                 ui_loop),
                         &MixedContentHandler::Dispatch));
   return false;
@@ -588,6 +589,7 @@ void SSLManager::DidLoadFromMemoryCache(LoadFromMemoryCacheDetails* details) {
       details->frame_origin(),
       details->main_frame_origin(),
       FilterPolicy::DONT_FILTER,
+      details->pid(),
       details->ssl_cert_id(),
       details->ssl_cert_status());
 
@@ -651,6 +653,7 @@ void SSLManager::DidStartResourceResponse(ResourceRequestDetails* details) {
       details->frame_origin(),
       details->main_frame_origin(),
       details->filter_policy(),
+      details->origin_pid(),
       details->ssl_cert_id(),
       details->ssl_cert_status());
 

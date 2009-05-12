@@ -424,8 +424,9 @@ TEST_F(SSLUITest, TestMixedContentsLoadedFromJS) {
 }
 
 // Visits two pages from the same origin: one with mixed content and one
-// without.  The test checks that we propagate the mixed content state from one
-// to the other.
+// without.  The test checks that we don't propagate the mixed content state
+// from one process to another process.  This test is expected to fail in
+// single process mode.
 TEST_F(SSLUITest, TestMixedContentsTwoTabs) {
   scoped_refptr<HTTPSTestServer> https_server = GoodCertServer();
   scoped_refptr<HTTPTestServer> http_server = PlainServer();
@@ -465,13 +466,13 @@ TEST_F(SSLUITest, TestMixedContentsTwoTabs) {
   EXPECT_EQ(0, cert_status & net::CERT_STATUS_ALL_ERRORS);
   EXPECT_EQ(NavigationEntry::SSLStatus::MIXED_CONTENT, mixed_content_state);
 
-  // Which means the origin for the first tab has also been contaminated with
-  // mixed content.
+  // The origin for the first tab has not been contaminated with
+  // mixed content because its in a separate process.
   EXPECT_TRUE(tab1->GetSecurityState(&security_style, &cert_status,
                                      &mixed_content_state));
   EXPECT_EQ(SECURITY_STYLE_AUTHENTICATED, security_style);
   EXPECT_EQ(0, cert_status & net::CERT_STATUS_ALL_ERRORS);
-  EXPECT_EQ(NavigationEntry::SSLStatus::MIXED_CONTENT, mixed_content_state);
+  EXPECT_EQ(NavigationEntry::SSLStatus::NORMAL_CONTENT, mixed_content_state);
 }
 
 // Visits a page with an image over http.  Visits another page over https
