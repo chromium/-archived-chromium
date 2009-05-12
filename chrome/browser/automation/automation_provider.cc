@@ -2116,13 +2116,8 @@ void AutomationProvider::HandleFindRequest(
 void AutomationProvider::HandleOpenFindInPageRequest(
     const IPC::Message& message, int handle) {
   if (browser_tracker_->ContainsHandle(handle)) {
-#if defined(OS_WIN)
     Browser* browser = browser_tracker_->GetResource(handle);
     browser->FindInPage(false, false);
-#else
-    // TODO(port): Enable when Browser::FindInPage is ported.
-    NOTIMPLEMENTED();
-#endif
   }
 }
 
@@ -2765,16 +2760,11 @@ void TestingAutomationProvider::OnRemoveProvider() {
 
 void AutomationProvider::GetSSLInfoBarCount(int handle, int* count) {
   *count = -1;  // -1 means error.
-#if defined(OS_WIN)
   if (tab_tracker_->ContainsHandle(handle)) {
     NavigationController* nav_controller = tab_tracker_->GetResource(handle);
     if (nav_controller)
       *count = nav_controller->tab_contents()->infobar_delegate_count();
   }
-#else
-  // TODO(port): Enable when TabContents infobar related stuff is ported.
-  NOTIMPLEMENTED();
-#endif
 }
 
 void AutomationProvider::ClickSSLInfoBarLink(int handle,
@@ -2782,7 +2772,6 @@ void AutomationProvider::ClickSSLInfoBarLink(int handle,
                                              bool wait_for_navigation,
                                              IPC::Message* reply_message) {
   bool success = false;
-#if defined(OS_WIN)
   if (tab_tracker_->ContainsHandle(handle)) {
     NavigationController* nav_controller = tab_tracker_->GetResource(handle);
     if (nav_controller) {
@@ -2801,10 +2790,6 @@ void AutomationProvider::ClickSSLInfoBarLink(int handle,
       }
     }
   }
-#else
-  // TODO(port): Enable when TabContents infobar related stuff is ported.
-  NOTIMPLEMENTED();
-#endif
   if (!wait_for_navigation || !success)
     AutomationMsg_ClickSSLInfoBarLink::WriteReplyParams(reply_message,
                                                         success);

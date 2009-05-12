@@ -110,7 +110,6 @@ class ChromeTestSuite : public TestSuite {
   }
 
   virtual void Shutdown() {
-    // TODO(port): Remove the #ifdef when ResourceBundle is ported.
     ResourceBundle::CleanupSharedInstance();
 
 #if defined(OS_MACOSX)

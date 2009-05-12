@@ -408,11 +408,8 @@ bool BrowserInit::LaunchWithProfile::Launch(Profile* profile,
     net::CookieMonster::EnableFileScheme();
 
   if (command_line_.HasSwitch(switches::kUserAgent)) {
-#if defined(OS_WIN)
     webkit_glue::SetUserAgent(WideToUTF8(
         command_line_.GetSwitchValue(switches::kUserAgent)));
-    // TODO(port): hook this up when we bring in webkit.
-#endif
   }
 
   // Open the required browser windows and tabs.
