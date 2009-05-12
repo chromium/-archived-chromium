@@ -74,135 +74,6 @@ int MapWinsockError(DWORD err) {
 
 //-----------------------------------------------------------------------------
 
-// This class encapsulates all the state that has to be preserved as long as
-// there is a network IO operation in progress. If the owner TCPClientSocketWin
-// is destroyed while an operation is in progress, the Core is detached and it
-// lives until the operation completes and the OS doesn't reference any resource
-// declared on this class anymore.
-class TCPClientSocketWin::Core : public base::RefCounted<Core> {
- public:
-  explicit Core(TCPClientSocketWin* socket);
-  ~Core();
-
-  // Start watching for the end of a read or write operation.
-  void WatchForRead();
-  void WatchForWrite();
-
-  // The TCPClientSocketWin is going away.
-  void Detach() { socket_ = NULL; }
-
-  // The separate OVERLAPPED variables for asynchronous operation.
-  // |read_overlapped_| is used for both Connect() and Read().
-  // |write_overlapped_| is only used for Write();
-  OVERLAPPED read_overlapped_;
-  OVERLAPPED write_overlapped_;
-
-  // The buffers used in Read() and Write().
-  WSABUF read_buffer_;
-  WSABUF write_buffer_;
-  scoped_refptr<IOBuffer> read_iobuffer_;
-  scoped_refptr<IOBuffer> write_iobuffer_;
-
- private:
-  class ReadDelegate : public base::ObjectWatcher::Delegate {
-   public:
-    explicit ReadDelegate(Core* core) : core_(core) {}
-    virtual ~ReadDelegate() {}
-
-    // base::ObjectWatcher::Delegate methods:
-    virtual void OnObjectSignaled(HANDLE object);
-
-   private:
-    Core* const core_;
-  };
-
-  class WriteDelegate : public base::ObjectWatcher::Delegate {
-   public:
-    explicit WriteDelegate(Core* core) : core_(core) {}
-    virtual ~WriteDelegate() {}
-
-    // base::ObjectWatcher::Delegate methods:
-    virtual void OnObjectSignaled(HANDLE object);
-
-   private:
-    Core* const core_;
-  };
-
-  // The socket that created this object.
-  TCPClientSocketWin* socket_;
-
-  // |reader_| handles the signals from |read_watcher_|.
-  ReadDelegate reader_;
-  // |writer_| handles the signals from |write_watcher_|.
-  WriteDelegate writer_;
-
-  // |read_watcher_| watches for events from Connect() and Read().
-  base::ObjectWatcher read_watcher_;
-  // |write_watcher_| watches for events from Write();
-  base::ObjectWatcher write_watcher_;
-
-  DISALLOW_COPY_AND_ASSIGN(Core);
-};
-
-TCPClientSocketWin::Core::Core(
-    TCPClientSocketWin* socket)
-    : socket_(socket),
-      ALLOW_THIS_IN_INITIALIZER_LIST(reader_(this)),
-      ALLOW_THIS_IN_INITIALIZER_LIST(writer_(this)) {
-  memset(&read_overlapped_, 0, sizeof(read_overlapped_));
-  memset(&write_overlapped_, 0, sizeof(write_overlapped_));
-}
-
-TCPClientSocketWin::Core::~Core() {
-  // Make sure the message loop is not watching this object anymore.
-  read_watcher_.StopWatching();
-  write_watcher_.StopWatching();
-
-  WSACloseEvent(read_overlapped_.hEvent);
-  memset(&read_overlapped_, 0, sizeof(read_overlapped_));
-  WSACloseEvent(write_overlapped_.hEvent);
-  memset(&write_overlapped_, 0, sizeof(write_overlapped_));
-}
-
-void TCPClientSocketWin::Core::WatchForRead() {
-  // We grab an extra reference because there is an IO operation in progress.
-  // Balanced in ReadDelegate::OnObjectSignaled().
-  AddRef();
-  read_watcher_.StartWatching(read_overlapped_.hEvent, &reader_);
-}
-
-void TCPClientSocketWin::Core::WatchForWrite() {
-  // We grab an extra reference because there is an IO operation in progress.
-  // Balanced in WriteDelegate::OnObjectSignaled().
-  AddRef();
-  write_watcher_.StartWatching(write_overlapped_.hEvent, &writer_);
-}
-
-void TCPClientSocketWin::Core::ReadDelegate::OnObjectSignaled(
-    HANDLE object) {
-  DCHECK_EQ(object, core_->read_overlapped_.hEvent);
-  if (core_->socket_) {
-    if (core_->socket_->waiting_connect_) {
-      core_->socket_->DidCompleteConnect();
-    } else {
-      core_->socket_->DidCompleteRead();
-    }
-  }
-
-  core_->Release();
-}
-
-void TCPClientSocketWin::Core::WriteDelegate::OnObjectSignaled(
-    HANDLE object) {
-  DCHECK_EQ(object, core_->write_overlapped_.hEvent);
-  if (core_->socket_)
-    core_->socket_->DidCompleteWrite();
-
-  core_->Release();
-}
-
-//-----------------------------------------------------------------------------
-
 TCPClientSocketWin::TCPClientSocketWin(const AddressList& addresses)
     : socket_(INVALID_SOCKET),
       addresses_(addresses),
@@ -210,8 +81,12 @@ TCPClientSocketWin::TCPClientSocketWin(const AddressList& addresses)
       waiting_connect_(false),
       waiting_read_(false),
       waiting_write_(false),
+      ALLOW_THIS_IN_INITIALIZER_LIST(reader_(this)),
+      ALLOW_THIS_IN_INITIALIZER_LIST(writer_(this)),
       read_callback_(NULL),
       write_callback_(NULL) {
+  memset(&read_overlapped_, 0, sizeof(read_overlapped_));
+  memset(&write_overlapped_, 0, sizeof(write_overlapped_));
   EnsureWinsockInit();
 }
 
@@ -232,20 +107,17 @@ int TCPClientSocketWin::Connect(CompletionCallback* callback) {
   if (rv != OK)
     return rv;
 
-  DCHECK(!core_);
-  core_ = new Core(this);
-
   // WSACreateEvent creates a manual-reset event object.
-  core_->read_overlapped_.hEvent = WSACreateEvent();
+  read_overlapped_.hEvent = WSACreateEvent();
   // WSAEventSelect sets the socket to non-blocking mode as a side effect.
   // Our connect() and recv() calls require that the socket be non-blocking.
-  WSAEventSelect(socket_, core_->read_overlapped_.hEvent, FD_CONNECT);
+  WSAEventSelect(socket_, read_overlapped_.hEvent, FD_CONNECT);
 
-  core_->write_overlapped_.hEvent = WSACreateEvent();
+  write_overlapped_.hEvent = WSACreateEvent();
 
   if (!connect(socket_, ai->ai_addr, static_cast<int>(ai->ai_addrlen))) {
     // Connected without waiting!
-    WaitForAndResetEvent(core_->read_overlapped_.hEvent);
+    WaitForAndResetEvent(read_overlapped_.hEvent);
     TRACE_EVENT_END("socket.connect", this, "");
     return OK;
   }
@@ -256,7 +128,7 @@ int TCPClientSocketWin::Connect(CompletionCallback* callback) {
     return MapWinsockError(err);
   }
 
-  core_->WatchForRead();
+  read_watcher_.StartWatching(read_overlapped_.hEvent, &reader_);
   waiting_connect_ = true;
   read_callback_ = callback;
   return ERR_IO_PENDING;
@@ -267,6 +139,10 @@ void TCPClientSocketWin::Disconnect() {
     return;
 
   TRACE_EVENT_INSTANT("socket.disconnect", this, "");
+
+  // Make sure the message loop is not watching this object anymore.
+  read_watcher_.StopWatching();
+  write_watcher_.StopWatching();
 
   // Note: don't use CancelIo to cancel pending IO because it doesn't work
   // when there is a Winsock layered service provider.
@@ -281,15 +157,33 @@ void TCPClientSocketWin::Disconnect() {
   closesocket(socket_);
   socket_ = INVALID_SOCKET;
 
+  if (waiting_read_ || waiting_write_) {
+    base::TimeTicks start = base::TimeTicks::Now();
+
+    // Wait for pending IO to be aborted.
+    if (waiting_read_)
+      WaitForSingleObject(read_overlapped_.hEvent, INFINITE);
+    if (waiting_write_)
+      WaitForSingleObject(write_overlapped_.hEvent, INFINITE);
+
+    // We want to see if we block the message loop for too long.
+    UMA_HISTOGRAM_TIMES("AsyncIO.ClientSocketDisconnect",
+                        base::TimeTicks::Now() - start);
+  }
+
+  WSACloseEvent(read_overlapped_.hEvent);
+  memset(&read_overlapped_, 0, sizeof(read_overlapped_));
+  WSACloseEvent(write_overlapped_.hEvent);
+  memset(&write_overlapped_, 0, sizeof(write_overlapped_));
+
   // Reset for next time.
   current_ai_ = addresses_.head();
 
   waiting_read_ = false;
   waiting_write_ = false;
+  read_iobuffer_ = NULL;
+  write_iobuffer_ = NULL;
   waiting_connect_ = false;
-
-  core_->Detach();
-  core_ = NULL;
 }
 
 bool TCPClientSocketWin::IsConnected() const {
@@ -329,19 +223,19 @@ int TCPClientSocketWin::Read(IOBuffer* buf,
   DCHECK_NE(socket_, INVALID_SOCKET);
   DCHECK(!waiting_read_);
   DCHECK(!read_callback_);
-  DCHECK(!core_->read_iobuffer_);
+  DCHECK(!read_iobuffer_);
 
-  core_->read_buffer_.len = buf_len;
-  core_->read_buffer_.buf = buf->data();
+  read_buffer_.len = buf_len;
+  read_buffer_.buf = buf->data();
 
   TRACE_EVENT_BEGIN("socket.read", this, "");
   // TODO(wtc): Remove the CHECK after enough testing.
-  CHECK(WaitForSingleObject(core_->read_overlapped_.hEvent, 0) == WAIT_TIMEOUT);
+  CHECK(WaitForSingleObject(read_overlapped_.hEvent, 0) == WAIT_TIMEOUT);
   DWORD num, flags = 0;
-  int rv = WSARecv(socket_, &core_->read_buffer_, 1, &num, &flags,
-                   &core_->read_overlapped_, NULL);
+  int rv = WSARecv(
+      socket_, &read_buffer_, 1, &num, &flags, &read_overlapped_, NULL);
   if (rv == 0) {
-    WaitForAndResetEvent(core_->read_overlapped_.hEvent);
+    WaitForAndResetEvent(read_overlapped_.hEvent);
     TRACE_EVENT_END("socket.read", this, StringPrintf("%d bytes", num));
 
     // Because of how WSARecv fills memory when used asynchronously, Purify
@@ -350,15 +244,15 @@ int TCPClientSocketWin::Read(IOBuffer* buf,
     // individual bytes. We override that in PURIFY builds to avoid the false
     // error reports.
     // See bug 5297.
-    base::MemoryDebug::MarkAsInitialized(core_->read_buffer_.buf, num);
+    base::MemoryDebug::MarkAsInitialized(read_buffer_.buf, num);
     return static_cast<int>(num);
   }
   int err = WSAGetLastError();
   if (err == WSA_IO_PENDING) {
-    core_->WatchForRead();
+    read_watcher_.StartWatching(read_overlapped_.hEvent, &reader_);
     waiting_read_ = true;
     read_callback_ = callback;
-    core_->read_iobuffer_ = buf;
+    read_iobuffer_ = buf;
     return ERR_IO_PENDING;
   }
   return MapWinsockError(err);
@@ -371,29 +265,28 @@ int TCPClientSocketWin::Write(IOBuffer* buf,
   DCHECK(!waiting_write_);
   DCHECK(!write_callback_);
   DCHECK_GT(buf_len, 0);
-  DCHECK(!core_->write_iobuffer_);
+  DCHECK(!write_iobuffer_);
 
-  core_->write_buffer_.len = buf_len;
-  core_->write_buffer_.buf = buf->data();
+  write_buffer_.len = buf_len;
+  write_buffer_.buf = buf->data();
 
   TRACE_EVENT_BEGIN("socket.write", this, "");
   // TODO(wtc): Remove the CHECK after enough testing.
-  CHECK(
-      WaitForSingleObject(core_->write_overlapped_.hEvent, 0) == WAIT_TIMEOUT);
+  CHECK(WaitForSingleObject(write_overlapped_.hEvent, 0) == WAIT_TIMEOUT);
   DWORD num;
-  int rv = WSASend(socket_, &core_->write_buffer_, 1, &num, 0,
-                   &core_->write_overlapped_, NULL);
+  int rv =
+      WSASend(socket_, &write_buffer_, 1, &num, 0, &write_overlapped_, NULL);
   if (rv == 0) {
-    WaitForAndResetEvent(core_->write_overlapped_.hEvent);
+    WaitForAndResetEvent(write_overlapped_.hEvent);
     TRACE_EVENT_END("socket.write", this, StringPrintf("%d bytes", num));
     return static_cast<int>(num);
   }
   int err = WSAGetLastError();
   if (err == WSA_IO_PENDING) {
-    core_->WatchForWrite();
+    write_watcher_.StartWatching(write_overlapped_.hEvent, &writer_);
     waiting_write_ = true;
     write_callback_ = callback;
-    core_->write_iobuffer_ = buf;
+    write_iobuffer_ = buf;
     return ERR_IO_PENDING;
   }
   return MapWinsockError(err);
@@ -484,15 +377,13 @@ void TCPClientSocketWin::DoWriteCallback(int rv) {
 }
 
 void TCPClientSocketWin::DidCompleteConnect() {
-  DCHECK(waiting_connect_);
   int result;
 
   TRACE_EVENT_END("socket.connect", this, "");
   waiting_connect_ = false;
 
   WSANETWORKEVENTS events;
-  int rv = WSAEnumNetworkEvents(socket_, core_->read_overlapped_.hEvent,
-                                &events);
+  int rv = WSAEnumNetworkEvents(socket_, read_overlapped_.hEvent, &events);
   if (rv == SOCKET_ERROR) {
     NOTREACHED();
     result = MapWinsockError(WSAGetLastError());
@@ -522,29 +413,42 @@ void TCPClientSocketWin::DidCompleteConnect() {
     DoReadCallback(result);
 }
 
-void TCPClientSocketWin::DidCompleteRead() {
-  DCHECK(waiting_read_);
-  DWORD num_bytes, flags;
-  BOOL ok = WSAGetOverlappedResult(socket_, &core_->read_overlapped_,
-                                   &num_bytes, FALSE, &flags);
-  WSAResetEvent(core_->read_overlapped_.hEvent);
-  TRACE_EVENT_END("socket.read", this, StringPrintf("%d bytes", num_bytes));
-  waiting_read_ = false;
-  core_->read_iobuffer_ = NULL;
-  DoReadCallback(ok ? num_bytes : MapWinsockError(WSAGetLastError()));
+void TCPClientSocketWin::ReadDelegate::OnObjectSignaled(HANDLE object) {
+  DCHECK_EQ(object, tcp_socket_->read_overlapped_.hEvent);
+
+  if (tcp_socket_->waiting_connect_) {
+    tcp_socket_->DidCompleteConnect();
+  } else {
+    DCHECK(tcp_socket_->waiting_read_);
+    DWORD num_bytes, flags;
+    BOOL ok = WSAGetOverlappedResult(
+        tcp_socket_->socket_, &tcp_socket_->read_overlapped_, &num_bytes,
+        FALSE, &flags);
+    WSAResetEvent(object);
+    TRACE_EVENT_END("socket.read", tcp_socket_,
+                    StringPrintf("%d bytes", num_bytes));
+    tcp_socket_->waiting_read_ = false;
+    tcp_socket_->read_iobuffer_ = NULL;
+    tcp_socket_->DoReadCallback(
+        ok ? num_bytes : MapWinsockError(WSAGetLastError()));
+  }
 }
 
-void TCPClientSocketWin::DidCompleteWrite() {
-  DCHECK(waiting_write_);
+void TCPClientSocketWin::WriteDelegate::OnObjectSignaled(HANDLE object) {
+  DCHECK_EQ(object, tcp_socket_->write_overlapped_.hEvent);
+  DCHECK(tcp_socket_->waiting_write_);
 
   DWORD num_bytes, flags;
-  BOOL ok = WSAGetOverlappedResult(socket_, &core_->write_overlapped_,
-                                   &num_bytes, FALSE, &flags);
-  WSAResetEvent(core_->write_overlapped_.hEvent);
-  TRACE_EVENT_END("socket.write", this, StringPrintf("%d bytes", num_bytes));
-  waiting_write_ = false;
-  core_->write_iobuffer_ = NULL;
-  DoWriteCallback(ok ? num_bytes : MapWinsockError(WSAGetLastError()));
+  BOOL ok = WSAGetOverlappedResult(
+      tcp_socket_->socket_, &tcp_socket_->write_overlapped_, &num_bytes,
+      FALSE, &flags);
+  WSAResetEvent(object);
+  TRACE_EVENT_END("socket.write", tcp_socket_,
+                  StringPrintf("%d bytes", num_bytes));
+  tcp_socket_->waiting_write_ = false;
+  tcp_socket_->write_iobuffer_ = NULL;
+  tcp_socket_->DoWriteCallback(
+      ok ? num_bytes : MapWinsockError(WSAGetLastError()));
 }
 
 }  // namespace net
