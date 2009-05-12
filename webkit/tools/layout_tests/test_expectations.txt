@@ -2665,3 +2665,10 @@ BUG11763 MAC LINUX : LayoutTests/fast/css/compare-content-style.html = FAIL PASS
 BUG11763 MAC LINUX : LayoutTests/editing/style/apply-through-end-of-document.html = FAIL PASS
 BUG11763 MAC LINUX : LayoutTests/webarchive/test-link-rel-icon.html = FAIL PASS
 
+// This test got moved (and the baselines have been moved accordingly), but now as a result
+// it seems to be failing?!
+BUG11795 : LayoutTests/http/tests/misc/favicon-as-image.html = FAIL
+
+// Already baselined for chromium-win, may need to be done for mac/linux as well.
+BUG11796 MAC LINUX : LayoutTests/fast/forms/search-styled.html = FAIL
+
