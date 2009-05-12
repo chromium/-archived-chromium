@@ -98,6 +98,9 @@ MSVC_PUSH_WARNING_LEVEL(0);
 #include "HTMLNames.h"
 #include "HistoryItem.h"
 #include "InspectorController.h"
+#if defined(OS_MACOSX)
+#include "LocalCurrentGraphicsContext.h"
+#endif
 #include "markup.h"
 #include "Page.h"
 #include "PlatformContextSkia.h"
@@ -1550,6 +1553,7 @@ void WebFrameImpl::Paint(skia::PlatformCanvas* canvas, const WebRect& rect) {
 #if defined(OS_MACOSX)
     CGContextRef context = canvas->getTopPlatformDevice().GetBitmapContext();
     GraphicsContext gc(context);
+    WebCore::LocalCurrentGraphicsContext localContext(&gc);
 #else
     PlatformContextSkia context(canvas);
 
