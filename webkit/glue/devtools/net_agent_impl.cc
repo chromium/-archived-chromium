@@ -87,6 +87,7 @@ void NetAgentImpl::WillSendRequest(
   }
 
   Resource* resource = new Resource();
+  pending_resources_.set(identifier, resource);
   KURL url = request.url();
   resource->start_time = WTF::currentTime();
   resource->url = request.url();
