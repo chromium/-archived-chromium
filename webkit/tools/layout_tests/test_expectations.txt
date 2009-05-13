@@ -2659,6 +2659,17 @@ BUG_SENORBLANCO LINUX : LayoutTests/svg/custom/js-late-marker-creation.svg = FAI
 BUG_SENORBLANCO WIN : LayoutTests/svg/custom/gradient-stop-corner-cases.svg = FAIL
 BUG_SENORBLANCO WIN : LayoutTests/svg/custom/grayscale-gradient-mask.svg = FAIL
 BUG_SENORBLANCO WIN : LayoutTests/svg/custom/js-late-gradient-and-object-creation.svg = FAIL
+BUG_SENORBLANCO WIN : LayoutTests/editing/inserting/4960120-1.html = FAIL
+BUG_SENORBLANCO WIN : LayoutTests/fast/forms/textarea-scrollbar.html = FAIL
+BUG_SENORBLANCO WIN : LayoutTests/fast/forms/textarea-scrolled-type.html = FAIL
+BUG_SENORBLANCO WIN : LayoutTests/fast/layers/self-painting-outline.html = FAIL
+BUG_SENORBLANCO WIN : LayoutTests/fast/overflow/overflow-focus-ring.html = FAIL
+BUG_SENORBLANCO WIN : LayoutTests/repaint/layer-outline-horizontal.html = FAIL
+BUG_SENORBLANCO WIN : LayoutTests/repaint/layer-outline.html = FAIL
+BUG_SENORBLANCO LINUX : LayoutTests/fast/borders/border-image-01.html = FAIL
+BUG_SENORBLANCO LINUX : LayoutTests/fast/borders/border-image-omit-right-slice.html = FAIL
+BUG_SENORBLANCO LINUX : LayoutTests/transitions/transition-end-event-multiple-03.html = FAIL
+BUG_SENORBLANCO LINUX : LayoutTests/transitions/transition-end-event-set-none.html = FAIL
 
 // This needs to be rebaselined.  See http://trac.webkit.org/changeset/43378
 BUG11669 LINUX : LayoutTests/fast/layers/remove-only-this-layer-update.html = FAIL
