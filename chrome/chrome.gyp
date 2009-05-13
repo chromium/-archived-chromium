@@ -1989,6 +1989,7 @@
               'dependencies': [
                 '../breakpad/breakpad.gyp:breakpad',
                 '../breakpad/breakpad.gyp:dump_syms',
+                '../breakpad/breakpad.gyp:symupload',
               ],
               'copies': [
                 {
