@@ -9,8 +9,35 @@
 #include "webkit/tools/test_shell/test_shell.h"
 #include "webkit/tools/test_shell/test_shell_platform_delegate.h"
 
+// Hooks Gtk's logs so that we can ignore harmless warnings.
+static void GtkLogHandler(const gchar* log_domain,
+                          GLogLevelFlags log_level,
+                          const gchar* message,
+                          gpointer userdata) {
+  if (strstr(message, "Loading IM context type") ||
+      strstr(message, "wrong ELF class: ELFCLASS64")) {
+    // GTK outputs some warnings when it attempts to load 64bit shared
+    // objects from 32bit binaries. Suppress them as they are not
+    // actual errors. The warning messages are like
+    //
+    // (test_shell:2476): Gtk-WARNING **:
+    // /usr/lib/gtk-2.0/2.10.0/immodules/im-uim.so: wrong ELF class: ELFCLASS64
+    //
+    // (test_shell:2476): Gtk-WARNING **: Loading IM context type 'uim' failed
+    //
+    // Related bug: http://crbug.com/9643
+  } else {
+    g_log_default_handler(log_domain, log_level, message, userdata);
+  }
+}
+
+static void SetUpGtkLogHandler() {
+  g_log_set_handler("Gtk", G_LOG_LEVEL_WARNING, GtkLogHandler, NULL);
+}
+
 void TestShellPlatformDelegate::PreflightArgs(int *argc, char ***argv) {
   gtk_init(argc, argv);
+  SetUpGtkLogHandler();
 }
 
 void TestShellPlatformDelegate::SelectUnifiedTheme() {
