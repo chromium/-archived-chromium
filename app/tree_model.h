@@ -6,6 +6,7 @@
 #define APP_TREE_MODEL_H_
 
 #include <string>
+#include <vector>
 
 #include "base/logging.h"
 
