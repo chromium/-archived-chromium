@@ -5,8 +5,12 @@
 #ifndef APP_OS_EXCHANGE_DATA_H_
 #define APP_OS_EXCHANGE_DATA_H_
 
+#include "build/build_config.h"
+
+#if defined(OS_WIN)
 #include <atlbase.h>
 #include <objidl.h>
+#endif
 #include <vector>
 
 #include "base/basictypes.h"
@@ -23,8 +27,13 @@ class Pickle;
 //  translating that into something the OS can understand.
 //
 ///////////////////////////////////////////////////////////////////////////////
+#if defined(OS_WIN)
 class OSExchangeData : public IDataObject {
+#else
+class OSExchangeData {
+#endif
  public:
+#if defined(OS_WIN)
   // Returns true if source has plain text that is a valid url.
   static bool HasPlainTextURL(IDataObject* source);
 
@@ -32,8 +41,10 @@ class OSExchangeData : public IDataObject {
   // that url.
   static bool GetPlainTextURL(IDataObject* source, GURL* url);
 
+  explicit OSExchangeData(IDataObject* source);
+#endif
+
   OSExchangeData();
-  OSExchangeData(IDataObject* source);
   virtual ~OSExchangeData();
 
   // These functions add data to the OSExchangeData object of various Chrome
@@ -51,8 +62,10 @@ class OSExchangeData : public IDataObject {
   void SetURL(const GURL& url, const std::wstring& title);
   // A full path to a file
   void SetFilename(const std::wstring& full_path);
+#if defined(OS_WIN)
   // Adds pickled data of the specified format.
   void SetPickledData(CLIPFORMAT format, const Pickle& data);
+#endif
   // Adds the bytes of a file (CFSTR_FILECONTENTS and CFSTR_FILEDESCRIPTOR).
   void SetFileContents(const std::wstring& filename,
                        const std::string& file_contents);
@@ -68,7 +81,9 @@ class OSExchangeData : public IDataObject {
   bool GetURLAndTitle(GURL* url, std::wstring* title) const;
   // Return the path of a file, if available.
   bool GetFilename(std::wstring* full_path) const;
+#if defined(OS_WIN)
   bool GetPickledData(CLIPFORMAT format, Pickle* data) const;
+#endif
   bool GetFileContents(std::wstring* filename,
                        std::string* file_contents) const;
   bool GetHtml(std::wstring* html, GURL* base_url) const;
@@ -79,6 +94,7 @@ class OSExchangeData : public IDataObject {
   bool HasURL() const;
   bool HasURLTitle() const;
   bool HasFile() const;
+#if defined(OS_WIN)
   bool HasFormat(CLIPFORMAT format) const;
 
   // IDataObject implementation:
@@ -100,8 +116,10 @@ class OSExchangeData : public IDataObject {
   HRESULT __stdcall QueryInterface(const IID& iid, void** object);
   ULONG __stdcall AddRef();
   ULONG __stdcall Release();
+#endif
 
  private:
+#if defined(OS_WIN)
   // FormatEtcEnumerator only likes us for our StoredDataMap typedef.
   friend class FormatEtcEnumerator;
 
@@ -137,8 +155,9 @@ class OSExchangeData : public IDataObject {
   CComPtr<IDataObject> source_object_;
 
   LONG ref_count_;
+#endif
 
-  DISALLOW_EVIL_CONSTRUCTORS(OSExchangeData);
+  DISALLOW_COPY_AND_ASSIGN(OSExchangeData);
 };
 
 #endif  // #ifndef APP_OS_EXCHANGE_DATA_H_

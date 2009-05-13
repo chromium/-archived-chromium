@@ -202,7 +202,8 @@
         '../app/l10n_util_win.cc',
         '../app/l10n_util_win.h',
         '../app/message_box_flags.h',
-        '../app/os_exchange_data.cc',
+        '../app/os_exchange_data_win.cc',
+        '../app/os_exchange_data_gtk.cc',
         '../app/os_exchange_data.h',
         '../app/resource_bundle.cc',
         '../app/resource_bundle.h',
@@ -238,7 +239,14 @@
             '../app/gfx/icon_util.cc',
             '../app/gfx/icon_util.h',
             '../app/os_exchange_data.cc',
-            '../app/os_exchange_data.h',
+          ],
+          'conditions': [
+            ['toolkit_views!="1"', {
+              'sources!': [
+                '../app/os_exchange_data.h',
+                '../app/os_exchange_data_gtk.cc',
+              ],
+            }],
           ],
         }],
       ],
@@ -1588,7 +1596,7 @@
             '../third_party/GTM',
             '../third_party/GTM/AppKit',
           ],
-       }],
+        }],
         ['OS=="win"', {
           'defines': [
             '__STD_C',

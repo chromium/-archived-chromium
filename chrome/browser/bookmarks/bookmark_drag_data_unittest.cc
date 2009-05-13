@@ -22,7 +22,7 @@ TEST_F(BookmarkDragDataTest, InitialState) {
 TEST_F(BookmarkDragDataTest, BogusRead) {
   scoped_refptr<OSExchangeData> data(new OSExchangeData());
   BookmarkDragData drag_data;
-  EXPECT_FALSE(drag_data.Read(data.get()));
+  EXPECT_FALSE(drag_data.Read(OSExchangeData(data.get())));
   EXPECT_FALSE(drag_data.is_valid());
 }
 
@@ -36,7 +36,7 @@ TEST_F(BookmarkDragDataTest, JustURL) {
   data->SetURL(url, title);
 
   BookmarkDragData drag_data;
-  EXPECT_TRUE(drag_data.Read(data.get()));
+  EXPECT_TRUE(drag_data.Read(OSExchangeData(data.get())));
   EXPECT_TRUE(drag_data.is_valid());
   ASSERT_EQ(1, drag_data.elements.size());
   EXPECT_TRUE(drag_data.elements[0].is_url);

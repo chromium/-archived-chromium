@@ -25,6 +25,7 @@
 #endif
 #elif defined(_WIN32)
 #define OS_WIN 1
+#define TOOLKIT_VIEWS 1
 #else
 #error Please add support for your platform in build/build_config.h
 #endif

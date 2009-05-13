@@ -222,7 +222,7 @@
 			>
 		</File>
 		<File
-			RelativePath=".\os_exchange_data.cc"
+			RelativePath=".\os_exchange_data_win.cc"
 			>
 		</File>
 		<File

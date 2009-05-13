@@ -461,11 +461,13 @@ class FontsLanguagesWindowView {
   void SelectLanguagesTab() { NOTIMPLEMENTED(); }
 };
 
+#if !defined(TOOLKIT_VIEWS)
 class OSExchangeData {
  public:
   void SetString(const std::wstring& data) { NOTIMPLEMENTED(); }
   void SetURL(const GURL& url, const std::wstring& title) { NOTIMPLEMENTED(); }
 };
+#endif
 
 class BaseDragSource {
 };

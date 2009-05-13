@@ -5,7 +5,7 @@
 #include "chrome/browser/bookmarks/bookmark_drag_data.h"
 
 // TODO(port): Port this file.
-#if defined(OS_WIN)
+#if defined(TOOLKIT_VIEWS)
 #include "app/os_exchange_data.h"
 #else
 #include "chrome/common/temp_scaffolding_stubs.h"
@@ -16,7 +16,6 @@
 #include "chrome/browser/bookmarks/bookmark_model.h"
 #include "chrome/browser/profile.h"
 #include "chrome/common/url_constants.h"
-
 
 #if defined(OS_WIN)
 static CLIPFORMAT clipboard_format = 0;
