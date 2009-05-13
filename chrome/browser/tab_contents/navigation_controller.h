@@ -205,9 +205,7 @@ class NavigationController {
   // new page ID for you and update the TabContents with that ID.
   void CommitPendingEntry();
 
-  // Discards the pending and transient entries if any.  Calling this may cause
-  // the active tab contents to switch if the current entry corresponds to a
-  // different tab contents type.
+  // Discards the pending and transient entries if any.
   void DiscardNonCommittedEntries();
 
   // Returns the pending entry corresponding to the navigation that is
