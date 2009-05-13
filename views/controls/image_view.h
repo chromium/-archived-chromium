@@ -5,7 +5,7 @@
 #ifndef VIEWS_CONTROLS_IMAGE_VIEW_H_
 #define VIEWS_CONTROLS_IMAGE_VIEW_H_
 
-#include "skia/include/SkBitmap.h"
+#include "third_party/skia/include/core/SkBitmap.h"
 #include "views/view.h"
 
 class ChromeCanvas;

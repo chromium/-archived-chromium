@@ -8,7 +8,7 @@
 
 #include "app/gfx/chrome_canvas.h"
 #include "base/logging.h"
-#include "skia/include/SkColor.h"
+#include "third_party/skia/include/core/SkColor.h"
 
 namespace views {
 

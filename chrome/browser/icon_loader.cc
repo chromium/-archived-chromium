@@ -7,7 +7,7 @@
 #include "base/message_loop.h"
 #include "base/thread.h"
 #include "chrome/browser/browser_process.h"
-#include "skia/include/SkBitmap.h"
+#include "third_party/skia/include/core/SkBitmap.h"
 
 IconLoader::IconLoader(const IconGroupID& group, IconSize size,
                        Delegate* delegate)

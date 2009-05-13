@@ -16,7 +16,7 @@
 #include "chrome/browser/view_ids.h"
 #include "grit/generated_resources.h"
 #include "grit/theme_resources.h"
-#include "skia/include/SkGradientShader.h"
+#include "third_party/skia/include/effects/SkGradientShader.h"
 #include "views/background.h"
 #include "views/controls/button/image_button.h"
 #include "views/controls/label.h"

@@ -9,7 +9,7 @@
 #include "base/gfx/point.h"
 #include "base/gfx/size.h"
 #include "base/task.h"
-#include "skia/include/SkBitmap.h"
+#include "third_party/skia/include/core/SkBitmap.h"
 #include "views/view.h"
 
 namespace views {

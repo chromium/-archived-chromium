@@ -7,8 +7,8 @@
 #include "base/logging.h"
 #include "chrome/common/transport_dib.h"
 #include "skia/ext/platform_canvas.h"
-#include "skia/include/SkBitmap.h"
-#include "skia/include/SkCanvas.h"
+#include "third_party/skia/include/core/SkBitmap.h"
+#include "third_party/skia/include/core/SkCanvas.h"
 
 BackingStore::BackingStore(const gfx::Size& size)
     : size_(size) {

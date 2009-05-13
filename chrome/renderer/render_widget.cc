@@ -14,14 +14,14 @@
 #include "chrome/common/transport_dib.h"
 #include "chrome/renderer/render_process.h"
 #include "skia/ext/platform_canvas.h"
-#include "skia/include/SkShader.h"
+#include "third_party/skia/include/core/SkShader.h"
 #include "webkit/api/public/WebRect.h"
 #include "webkit/api/public/WebScreenInfo.h"
 #include "webkit/api/public/WebSize.h"
 
 #if defined(OS_POSIX)
-#include "skia/include/SkPixelRef.h"
-#include "skia/include/SkMallocPixelRef.h"
+#include "third_party/skia/include/core/SkPixelRef.h"
+#include "third_party/skia/include/core/SkMallocPixelRef.h"
 #endif  // defined(OS_POSIX)
 
 #include "webkit/glue/webtextdirection.h"

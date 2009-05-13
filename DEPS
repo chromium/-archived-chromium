@@ -31,6 +31,9 @@ deps = {
   "src/v8":
     "http://v8.googlecode.com/svn/trunk@1927",
 
+  "src/third_party/skia":
+    "http://skia.googlecode.com/svn/trunk@171",
+
   "src/webkit/data/layout_tests/LayoutTests":
     Var("webkit_trunk") + "/LayoutTests@" + Var("webkit_revision"),
 

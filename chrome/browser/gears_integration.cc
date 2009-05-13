@@ -13,7 +13,7 @@
 #include "chrome/common/gears_api.h"
 #include "googleurl/src/gurl.h"
 #include "net/base/base64.h"
-#include "skia/include/SkBitmap.h"
+#include "third_party/skia/include/core/SkBitmap.h"
 #include "webkit/glue/dom_operations.h"
 
 // The following 2 helpers are borrowed from the Gears codebase.

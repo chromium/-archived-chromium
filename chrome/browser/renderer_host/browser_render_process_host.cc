@@ -67,7 +67,7 @@ using WebKit::WebCache;
 #include "chrome/common/temp_scaffolding_stubs.h"
 #endif
 
-#include "skia/include/SkBitmap.h"
+#include "third_party/skia/include/core/SkBitmap.h"
 
 
 // This class creates the IO thread for the renderer when running in

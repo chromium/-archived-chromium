@@ -13,7 +13,7 @@
 #include "chrome/common/page_transition_types.h"
 #include "googleurl/src/gurl.h"
 #include "grit/theme_resources.h"
-#include "skia/include/SkBitmap.h"
+#include "third_party/skia/include/core/SkBitmap.h"
 
 class NavigationController;
 

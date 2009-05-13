@@ -10,7 +10,7 @@
 
 #include "app/resource_bundle.h"
 #include "base/gfx/rect.h"
-#include "skia/include/SkColor.h"
+#include "third_party/skia/include/core/SkColor.h"
 #include "views/background.h"
 #include "views/border.h"
 #include "views/controls/button/checkbox.h"

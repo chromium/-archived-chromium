@@ -21,7 +21,7 @@
 #include "chrome/browser/dom_ui/html_dialog_ui.h"
 #include "chrome/browser/tab_contents/navigation_entry.h"
 #include "googleurl/src/gurl.h"
-#include "skia/include/SkBitmap.h"
+#include "third_party/skia/include/core/SkBitmap.h"
 
 class BookmarkContextMenu;
 class BookmarkNode;

@@ -13,7 +13,7 @@
 #include "app/gfx/chrome_font.h"
 #include "base/basictypes.h"
 #include "views/view.h"
-#include "skia/include/SkColor.h"
+#include "third_party/skia/include/core/SkColor.h"
 
 namespace views {
 

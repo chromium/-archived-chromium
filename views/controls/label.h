@@ -7,7 +7,7 @@
 
 #include "app/gfx/chrome_font.h"
 #include "googleurl/src/gurl.h"
-#include "skia/include/SkColor.h"
+#include "third_party/skia/include/core/SkColor.h"
 #include "testing/gtest/include/gtest/gtest_prod.h"
 #include "views/view.h"
 

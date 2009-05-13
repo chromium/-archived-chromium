@@ -63,7 +63,6 @@
 #if defined(OS_MACOSX)
 #include "third_party/WebKit/WebKit/mac/WebCoreSupport/WebSystemInterface.h"
 #endif
-#include "skia/include/corecg/SkTypes.h"
 
 extern int BrowserMain(const MainFunctionParams&);
 extern int RendererMain(const MainFunctionParams&);
@@ -114,12 +113,6 @@ void PureCall() {
 }
 
 void OnNoMemory() {
-  // Skia indicates that it can safely handle some NULL allocs by clearing
-  // this flag.  In this case, we'll ignore the new_handler and won't crash.
-  if (!sk_malloc_will_throw()) {
-      return;
-  }
-
   // Kill the process. This is important for security, since WebKit doesn't
   // NULL-check many memory allocations. If a malloc fails, returns NULL, and
   // the buffer is then used, it provides a handy mapping of memory starting at

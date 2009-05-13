@@ -15,7 +15,7 @@
 #if defined(OS_WIN)
 #include "skia/ext/skia_utils_win.h"
 #endif
-#include "skia/include/SkBitmap.h"
+#include "third_party/skia/include/core/SkBitmap.h"
 
 namespace color_utils {
 

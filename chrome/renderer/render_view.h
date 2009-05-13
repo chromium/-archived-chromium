@@ -23,7 +23,7 @@
 #include "chrome/renderer/extensions/extension_process_bindings.h"
 #include "chrome/renderer/external_host_bindings.h"
 #include "chrome/renderer/render_widget.h"
-#include "skia/include/SkBitmap.h"
+#include "third_party/skia/include/core/SkBitmap.h"
 #include "testing/gtest/include/gtest/gtest_prod.h"
 #include "webkit/api/public/WebConsoleMessage.h"
 #include "webkit/glue/dom_serializer_delegate.h"

@@ -15,7 +15,7 @@
 #include "views/controls/menu/menu.h"
 #include "views/controls/menu/view_menu_delegate.h"
 #include "views/view.h"
-#include "skia/include/corecg/SkRect.h"
+#include "third_party/skia/include/core/SkRect.h"
 
 class Browser;
 class PageNavigator;

@@ -6,7 +6,7 @@
 #include "base/gfx/point.h"
 #include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/browser/views/tabs/hwnd_photobooth.h"
-#include "skia/include/SkBitmap.h"
+#include "third_party/skia/include/core/SkBitmap.h"
 #include "views/widget/widget_win.h"
 
 namespace {

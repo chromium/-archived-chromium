@@ -17,7 +17,7 @@
 #include "chrome/common/notification_service.h"
 #include "googleurl/src/gurl.h"
 #include "googleurl/src/url_util.h"
-#include "skia/include/SkBitmap.h"
+#include "third_party/skia/include/core/SkBitmap.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 // AutocompleteEditModel

@@ -9,7 +9,7 @@
 #include "app/gfx/chrome_font.h"
 #include "app/l10n_util.h"
 #include "base/gfx/rect.h"
-#include "skia/include/SkShader.h"
+#include "third_party/skia/include/core/SkShader.h"
 
 namespace {
 

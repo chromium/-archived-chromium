@@ -14,7 +14,7 @@
 #include "base/basictypes.h"
 #include "base/gfx/rect.h"
 #include "chrome/common/owned_widget_gtk.h"
-#include "skia/include/SkBitmap.h"
+#include "third_party/skia/include/core/SkBitmap.h"
 
 namespace gfx {
 class Size;

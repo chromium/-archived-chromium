@@ -9,7 +9,7 @@
 #include "chrome/browser/tabs/tab_strip_model.h"
 #include "chrome/browser/views/tabs/hwnd_photobooth.h"
 #include "chrome/browser/views/tabs/tab_renderer.h"
-#include "skia/include/SkShader.h"
+#include "third_party/skia/include/core/SkShader.h"
 #include "views/widget/widget_win.h"
 
 const int kTransparentAlpha = 200;

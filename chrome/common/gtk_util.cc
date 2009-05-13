@@ -7,7 +7,7 @@
 #include <gtk/gtk.h>
 
 #include "base/linux_util.h"
-#include "skia/include/SkBitmap.h"
+#include "third_party/skia/include/core/SkBitmap.h"
 
 namespace {
 

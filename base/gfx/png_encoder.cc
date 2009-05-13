@@ -5,7 +5,7 @@
 #include "base/basictypes.h"
 #include "base/gfx/png_encoder.h"
 #include "base/logging.h"
-#include "skia/include/SkBitmap.h"
+#include "third_party/skia/include/core/SkBitmap.h"
 
 extern "C" {
 #include "third_party/libpng/png.h"

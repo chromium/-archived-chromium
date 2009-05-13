@@ -6,7 +6,7 @@
 #define VIEWS_BORDER_H_
 
 #include "app/gfx/insets.h"
-#include "skia/include/SkColor.h"
+#include "third_party/skia/include/core/SkColor.h"
 #include "views/view.h"
 
 class ChromeCanvas;

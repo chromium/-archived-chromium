@@ -18,7 +18,7 @@
 
 #include "app/l10n_util.h"
 #include "base/logging.h"
-#include "skia/include/SkColor.h"
+#include "third_party/skia/include/core/SkColor.h"
 #if defined(OS_WIN)
 // TODO(port): remove the ifdef when native_control.h is ported.
 #include "views/controls/native_control.h"

@@ -2650,6 +2650,16 @@ BUG11613 WIN : LayoutTests/http/tests/navigation/success200-subframeload.html = 
 BUG11613 WIN : LayoutTests/http/tests/navigation/timerredirect-frames.html = FAIL
 BUG11613 WIN : LayoutTests/http/tests/navigation/timerredirect-subframeload.html = FAIL
 
+// These tests were broken by the latest skia drop (masks and opacity).
+BUG_SENORBLANCO WIN LINUX : LayoutTests/fast/reflections/reflection-masks-opacity.html = FAIL
+BUG_SENORBLANCO WIN LINUX : LayoutTests/fast/reflections/reflection-masks.html = FAIL
+BUG_SENORBLANCO WIN LINUX : LayoutTests/svg/W3C-SVG-1.1/pservers-grad-16-b.svg = FAIL
+BUG_SENORBLANCO LINUX : LayoutTests/svg/custom/circular-marker-reference-3.svg  = FAIL
+BUG_SENORBLANCO LINUX : LayoutTests/svg/custom/js-late-marker-creation.svg = FAIL
+BUG_SENORBLANCO WIN : LayoutTests/svg/custom/gradient-stop-corner-cases.svg = FAIL
+BUG_SENORBLANCO WIN : LayoutTests/svg/custom/grayscale-gradient-mask.svg = FAIL
+BUG_SENORBLANCO WIN : LayoutTests/svg/custom/js-late-gradient-and-object-creation.svg = FAIL
+
 // This needs to be rebaselined.  See http://trac.webkit.org/changeset/43378
 BUG11669 LINUX : LayoutTests/fast/layers/remove-only-this-layer-update.html = FAIL
 

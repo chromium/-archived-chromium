@@ -8,7 +8,7 @@
 
 #include "base/logging.h"
 #include "base/scoped_ptr.h"
-#include "skia/include/SkBitmap.h"
+#include "third_party/skia/include/core/SkBitmap.h"
 
 extern "C" {
 #include "third_party/libjpeg/jpeglib.h"

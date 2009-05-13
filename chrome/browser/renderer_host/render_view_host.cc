@@ -37,7 +37,7 @@
 #include "chrome/common/thumbnail_score.h"
 #include "chrome/common/url_constants.h"
 #include "net/base/net_util.h"
-#include "skia/include/SkBitmap.h"
+#include "third_party/skia/include/core/SkBitmap.h"
 #include "webkit/api/public/WebFindOptions.h"
 #include "webkit/glue/autofill_form.h"
 

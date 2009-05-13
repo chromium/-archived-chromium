@@ -18,7 +18,7 @@
 #include "chrome/browser/views/autocomplete/autocomplete_popup_win.h"
 #include "grit/generated_resources.h"
 #include "grit/theme_resources.h"
-#include "skia/include/SkShader.h"
+#include "third_party/skia/include/core/SkShader.h"
 #include "third_party/icu38/public/common/unicode/ubidi.h"
 #include "views/widget/widget.h"
 

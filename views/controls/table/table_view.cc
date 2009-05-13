@@ -15,8 +15,8 @@
 #include "base/string_util.h"
 #include "base/win_util.h"
 #include "skia/ext/skia_utils_win.h"
-#include "skia/include/SkBitmap.h"
-#include "skia/include/SkColorFilter.h"
+#include "third_party/skia/include/core/SkBitmap.h"
+#include "third_party/skia/include/core/SkColorFilter.h"
 #include "views/controls/hwnd_view.h"
 
 namespace views {

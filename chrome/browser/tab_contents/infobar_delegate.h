@@ -9,7 +9,7 @@
 
 #include "base/basictypes.h"
 #include "chrome/browser/tab_contents/navigation_controller.h"
-#include "skia/include/SkBitmap.h"
+#include "third_party/skia/include/core/SkBitmap.h"
 #include "webkit/glue/window_open_disposition.h"
 
 class AlertInfoBarDelegate;

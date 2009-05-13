@@ -9,7 +9,7 @@
 #include "base/stl_util-inl.h"
 #include "base/string_util.h"
 #include "chrome/common/gtk_util.h"
-#include "skia/include/SkBitmap.h"
+#include "third_party/skia/include/core/SkBitmap.h"
 
 MenuGtk::MenuGtk(MenuGtk::Delegate* delegate,
                  const MenuCreateMaterial* menu_data,

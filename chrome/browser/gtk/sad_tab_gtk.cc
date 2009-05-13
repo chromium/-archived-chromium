@@ -15,7 +15,7 @@
 #include "grit/generated_resources.h"
 #include "grit/theme_resources.h"
 #include "skia/ext/skia_utils.h"
-#include "skia/include/SkGradientShader.h"
+#include "third_party/skia/include/effects/SkGradientShader.h"
 
 namespace {
 

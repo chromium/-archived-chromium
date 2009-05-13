@@ -7,8 +7,8 @@
 #include "app/gfx/chrome_canvas.h"
 #include "app/resource_bundle.h"
 #include "base/logging.h"
-#include "skia/include/SkBitmap.h"
-#include "skia/include/SkGradientShader.h"
+#include "third_party/skia/include/core/SkBitmap.h"
+#include "third_party/skia/include/effects/SkGradientShader.h"
 
 namespace views {
 

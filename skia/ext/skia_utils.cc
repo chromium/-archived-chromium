@@ -3,8 +3,7 @@
 // found in the LICENSE file.
 
 #include "skia/ext/skia_utils.h"
-#include "skia/include/SkColorPriv.h"
-
+#include "SkColorPriv.h"
 #include "SkGradientShader.h"
 
 namespace skia {

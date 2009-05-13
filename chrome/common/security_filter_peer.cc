@@ -13,8 +13,8 @@
 #include "grit/renderer_resources.h"
 #include "net/base/net_errors.h"
 #include "net/http/http_response_headers.h"
-#include "skia/include/SkBitmap.h"
-#include "skia/include/SkCanvas.h"
+#include "third_party/skia/include/core/SkBitmap.h"
+#include "third_party/skia/include/core/SkCanvas.h"
 #include "webkit/glue/webkit_glue.h"
 #include "SkDevice.h"
 

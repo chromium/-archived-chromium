@@ -25,7 +25,7 @@
 #include "base/gfx/rect.h"
 #include "base/scoped_ptr.h"
 #include "base/task.h"
-#include "skia/include/SkBitmap.h"
+#include "third_party/skia/include/core/SkBitmap.h"
 
 class BrowserIdleTimer;
 class BrowserWindow;

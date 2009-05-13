@@ -8,7 +8,7 @@
 #include <string>
 
 #include "base/basictypes.h"
-#include "skia/include/SkColor.h"
+#include "third_party/skia/include/core/SkColor.h"
 
 class NavigationController;
 class NavigationEntry;

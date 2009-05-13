@@ -12,7 +12,7 @@
 #include "chrome/browser/history/url_database.h"  // For DBCloseScoper.
 #include "chrome/browser/meta_table_helper.h"
 #include "chrome/common/sqlite_compiled_statement.h"
-#include "skia/include/SkBitmap.h"
+#include "third_party/skia/include/core/SkBitmap.h"
 
 struct sqlite3;
 struct ThumbnailScore;

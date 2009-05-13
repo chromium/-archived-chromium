@@ -6,7 +6,7 @@
 #include "views/views_delegate.h"
 #include "views/window/client_view.h"
 #include "views/window/window.h"
-#include "skia/include/SkBitmap.h"
+#include "third_party/skia/include/core/SkBitmap.h"
 
 namespace views {
 

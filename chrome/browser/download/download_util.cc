@@ -19,8 +19,8 @@
 #include "grit/locale_settings.h"
 #include "grit/theme_resources.h"
 #include "skia/ext/image_operations.h"
-#include "skia/include/SkPath.h"
-#include "skia/include/SkShader.h"
+#include "third_party/skia/include/core/SkPath.h"
+#include "third_party/skia/include/core/SkShader.h"
 
 #if defined(OS_WIN)
 #include "app/os_exchange_data.h"

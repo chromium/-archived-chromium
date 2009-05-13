@@ -8,7 +8,7 @@
 #include "app/resource_bundle.h"
 #include "base/time.h"
 #include "grit/theme_resources.h"
-#include "skia/include/SkBitmap.h"
+#include "third_party/skia/include/core/SkBitmap.h"
 
 using base::Time;
 using base::TimeDelta;

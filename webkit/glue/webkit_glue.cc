@@ -34,7 +34,7 @@
 #include "base/string_util.h"
 #include "base/sys_info.h"
 #include "base/sys_string_conversions.h"
-#include "skia/include/SkBitmap.h"
+#include "third_party/skia/include/core/SkBitmap.h"
 #include "webkit/api/public/WebString.h"
 #if defined(OS_WIN)
 #include "webkit/api/public/win/WebInputEventFactory.h"

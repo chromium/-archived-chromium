@@ -40,7 +40,7 @@
 #include "webkit/glue/webview_delegate.h"
 
 #if defined(OS_POSIX)
-#include "skia/include/SkBitmap.h"
+#include "third_party/skia/include/core/SkBitmap.h"
 #endif
 
 namespace base {

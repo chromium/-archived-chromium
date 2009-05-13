@@ -23,7 +23,7 @@
 #include "grit/generated_resources.h"
 #include "grit/locale_settings.h"
 #include "grit/theme_resources.h"
-#include "skia/include/SkBitmap.h"
+#include "third_party/skia/include/core/SkBitmap.h"
 #include "views/background.h"
 #include "views/grid_layout.h"
 #include "views/controls/button/native_button.h"

@@ -7,8 +7,8 @@
 #include "base/logging.h"
 #include "base/sys_string_conversions.h"
 
-#include "skia/include/SkTypeface.h"
-#include "skia/include/SkPaint.h"
+#include "third_party/skia/include/core/SkTypeface.h"
+#include "third_party/skia/include/core/SkPaint.h"
 
 ChromeFont::ChromeFont(const ChromeFont& other) {
   CopyChromeFont(other);
@@ -80,8 +80,8 @@ ChromeFont ChromeFont::CreateFont(const std::wstring& font_family,
                                   int font_size) {
   DCHECK_GT(font_size, 0);
 
-  SkTypeface* tf = SkTypeface::Create(base::SysWideToUTF8(font_family).c_str(),
-                                      SkTypeface::kNormal);
+  SkTypeface* tf = SkTypeface::CreateFromName(
+      base::SysWideToUTF8(font_family).c_str(), SkTypeface::kNormal);
   DCHECK(tf) << "Could not find font: " << base::SysWideToUTF8(font_family);
   SkAutoUnref tf_helper(tf);
 
@@ -106,8 +106,9 @@ ChromeFont ChromeFont::DeriveFont(int size_delta, int style) const {
   if (ITALIC & style)
     skstyle |= SkTypeface::kItalic;
 
-  SkTypeface* tf = SkTypeface::Create(base::SysWideToUTF8(font_family_).c_str(),
-                                      static_cast<SkTypeface::Style>(skstyle));
+  SkTypeface* tf = SkTypeface::CreateFromName(
+      base::SysWideToUTF8(font_family_).c_str(),
+      static_cast<SkTypeface::Style>(skstyle));
   SkAutoUnref tf_helper(tf);
 
   return ChromeFont(tf, font_family_, font_size_ + size_delta, skstyle);

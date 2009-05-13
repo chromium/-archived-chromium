@@ -14,7 +14,7 @@
 #include "base/logging.h"
 #include "base/stl_util-inl.h"
 #include "skia/ext/skia_utils_win.h"
-#include "skia/include/SkColor.h"
+#include "third_party/skia/include/core/SkColor.h"
 #include "views/background.h"
 #include "views/fill_layout.h"
 #include "views/widget/root_view.h"

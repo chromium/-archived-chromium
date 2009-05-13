@@ -5,7 +5,7 @@
 #ifndef APP_THEME_PROVIDER_H_
 #define APP_THEME_PROVIDER_H_
 
-#include "skia/include/SkColor.h"
+#include "third_party/skia/include/core/SkColor.h"
 
 class SkBitmap;
 

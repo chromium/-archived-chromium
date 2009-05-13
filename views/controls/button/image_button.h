@@ -5,7 +5,7 @@
 #ifndef VIEWS_CONTROLS_BUTTON_IMAGE_BUTTON_H_
 #define VIEWS_CONTROLS_BUTTON_IMAGE_BUTTON_H_
 
-#include "skia/include/SkBitmap.h"
+#include "third_party/skia/include/core/SkBitmap.h"
 #include "views/controls/button/custom_button.h"
 
 namespace views {

@@ -16,7 +16,7 @@
 #include "chrome/common/ipc_channel.h"
 #include "chrome/renderer/render_process.h"
 #include "skia/ext/platform_canvas.h"
-#include "skia/include/SkBitmap.h"
+#include "third_party/skia/include/core/SkBitmap.h"
 
 #include "webkit/api/public/WebRect.h"
 #include "webkit/glue/webwidget_delegate.h"

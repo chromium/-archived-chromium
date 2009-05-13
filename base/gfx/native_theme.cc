@@ -15,7 +15,7 @@
 #include "base/scoped_handle.h"
 #include "skia/ext/platform_canvas.h"
 #include "skia/ext/skia_utils_win.h"
-#include "skia/include/SkShader.h"
+#include "third_party/skia/include/core/SkShader.h"
 
 namespace {
 

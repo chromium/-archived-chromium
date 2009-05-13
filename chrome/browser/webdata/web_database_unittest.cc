@@ -11,7 +11,7 @@
 #include "chrome/browser/search_engines/template_url.h"
 #include "chrome/browser/webdata/web_database.h"
 #include "chrome/common/chrome_paths.h"
-#include "skia/include/SkBitmap.h"
+#include "third_party/skia/include/core/SkBitmap.h"
 #include "testing/gtest/include/gtest/gtest.h"
 #include "webkit/glue/autofill_form.h"
 #include "webkit/glue/password_form.h"

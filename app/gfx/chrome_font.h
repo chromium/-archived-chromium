@@ -12,7 +12,7 @@
 #if defined(OS_WIN)
 typedef struct HFONT__* HFONT;
 #elif defined(OS_LINUX)
-#include "skia/include/SkRefCnt.h"
+#include "third_party/skia/include/core/SkRefCnt.h"
 class SkPaint;
 class SkTypeface;
 #endif

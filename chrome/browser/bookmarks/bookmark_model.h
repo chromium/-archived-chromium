@@ -20,7 +20,7 @@
 #include "chrome/browser/history/history_types.h"
 #include "chrome/common/notification_observer.h"
 #include "googleurl/src/gurl.h"
-#include "skia/include/SkBitmap.h"
+#include "third_party/skia/include/core/SkBitmap.h"
 #include "testing/gtest/include/gtest/gtest_prod.h"
 #include "views/controls/tree/tree_node_model.h"
 

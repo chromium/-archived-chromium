@@ -6,7 +6,7 @@
 #define VIEWS_CONTROLS_BUTTON_TEXT_BUTTON_H_
 
 #include "app/gfx/chrome_font.h"
-#include "skia/include/SkBitmap.h"
+#include "third_party/skia/include/core/SkBitmap.h"
 #include "views/border.h"
 #include "views/controls/button/custom_button.h"
 

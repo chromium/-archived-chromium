@@ -16,7 +16,7 @@ MSVC_POP_WARNING();
 #include "base/gfx/size.h"
 #include "webkit/glue/image_decoder.h"
 #include "webkit/glue/webview_impl.h"
-#include "skia/include/SkBitmap.h"
+#include "third_party/skia/include/core/SkBitmap.h"
 
 ImageResourceFetcher::ImageResourceFetcher(
     WebViewImpl* web_view,

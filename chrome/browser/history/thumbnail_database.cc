@@ -12,7 +12,7 @@
 #include "chrome/browser/history/url_database.h"
 #include "chrome/common/sqlite_utils.h"
 #include "chrome/common/thumbnail_score.h"
-#include "skia/include/SkBitmap.h"
+#include "third_party/skia/include/core/SkBitmap.h"
 
 using base::Time;
 

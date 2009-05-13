@@ -8,7 +8,7 @@
 #include "app/l10n_util.h"
 #include "base/message_loop.h"
 #include "grit/generated_resources.h"
-#include "skia/include/SkBitmap.h"
+#include "third_party/skia/include/core/SkBitmap.h"
 #include "views/controls/menu/menu.h"
 #include "views/controls/scroll_view.h"
 #include "views/widget/widget.h"

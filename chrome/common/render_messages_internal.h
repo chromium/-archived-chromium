@@ -18,7 +18,7 @@
 #include "base/shared_memory.h"
 #include "chrome/common/ipc_message_macros.h"
 #include "chrome/common/transport_dib.h"
-#include "skia/include/SkBitmap.h"
+#include "third_party/skia/include/core/SkBitmap.h"
 #include "webkit/glue/dom_operations.h"
 #include "webkit/glue/webappcachecontext.h"
 #include "webkit/glue/webcursor.h"

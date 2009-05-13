@@ -31,7 +31,7 @@
 #include "grit/chromium_strings.h"
 #include "grit/generated_resources.h"
 #include "grit/theme_resources.h"
-#include "skia/include/SkBitmap.h"
+#include "third_party/skia/include/core/SkBitmap.h"
 #include "views/controls/button/radio_button.h"
 #include "views/controls/label.h"
 #include "views/controls/table/table_view.h"

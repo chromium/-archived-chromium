@@ -7,7 +7,7 @@
 #include "app/gfx/chrome_canvas.h"
 #include "base/logging.h"
 #include "skia/ext/skia_utils_win.h"
-#include "skia/include/SkPaint.h"
+#include "third_party/skia/include/core/SkPaint.h"
 #include "views/painter.h"
 #include "views/view.h"
 

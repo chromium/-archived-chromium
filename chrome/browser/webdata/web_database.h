@@ -12,7 +12,7 @@
 #include "chrome/browser/meta_table_helper.h"
 #include "chrome/browser/search_engines/template_url.h"
 #include "chrome/common/sqlite_utils.h"
-#include "skia/include/SkBitmap.h"
+#include "third_party/skia/include/core/SkBitmap.h"
 #include "testing/gtest/include/gtest/gtest_prod.h"
 #include "webkit/glue/autofill_form.h"
 

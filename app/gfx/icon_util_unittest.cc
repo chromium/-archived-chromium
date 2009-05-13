@@ -8,7 +8,7 @@
 #include "base/file_util.h"
 #include "base/path_service.h"
 #include "chrome/common/chrome_paths.h"
-#include "skia/include/SkBitmap.h"
+#include "third_party/skia/include/core/SkBitmap.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
 namespace {

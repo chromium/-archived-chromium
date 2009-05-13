@@ -9,7 +9,7 @@
 #include "base/gfx/size.h"
 #include "base/logging.h"
 #include "skia/ext/image_operations.h"
-#include "skia/include/SkBitmap.h"
+#include "third_party/skia/include/core/SkBitmap.h"
 
 // Defining the dimensions for the icon images. We store only one value because
 // we always resize to a square image; that is, the value 48 means that we are

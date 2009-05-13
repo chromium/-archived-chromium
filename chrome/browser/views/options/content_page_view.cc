@@ -26,7 +26,7 @@
 #include "grit/generated_resources.h"
 #include "grit/theme_resources.h"
 #include "skia/ext/skia_utils_win.h"
-#include "skia/include/SkBitmap.h"
+#include "third_party/skia/include/core/SkBitmap.h"
 #include "views/controls/button/radio_button.h"
 #include "views/controls/text_field.h"
 #include "views/grid_layout.h"

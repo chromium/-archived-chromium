@@ -15,7 +15,7 @@
 #include <uxtheme.h>
 #include "base/basictypes.h"
 #include "base/gfx/size.h"
-#include "skia/include/SkColor.h"
+#include "third_party/skia/include/core/SkColor.h"
 
 namespace skia {
 class PlatformCanvasWin;

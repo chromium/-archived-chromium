@@ -14,8 +14,8 @@
 #include "base/logging.h"
 #include "base/stack_container.h"
 #include "SkBitmap.h"
+#include "SkColorPriv.h"
 #include "skia/ext/convolver.h"
-#include "skia/include/SkColorPriv.h"
 
 namespace skia {
 
