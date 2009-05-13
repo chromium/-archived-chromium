@@ -217,6 +217,9 @@ class SdchManager {
   SdchManager();
   ~SdchManager();
 
+  // Discontinue fetching of dictionaries, as we're now shutting down.
+  static void Shutdown();
+
   // Provide access to the single instance of this class.
   static SdchManager* Global();
 

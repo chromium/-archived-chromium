@@ -82,6 +82,13 @@ SdchManager::~SdchManager() {
 }
 
 // static
+void SdchManager::Shutdown() {
+  if (!global_ )
+    return;
+  global_->fetcher_.reset(NULL);
+}
+
+// static
 void SdchManager::BlacklistDomain(const GURL& url) {
   if (!global_ )
     return;

@@ -31,6 +31,10 @@ class SdchDictionaryFetcher : public URLFetcher::Delegate,
   // SdchManager class with the dictionary's text.
   virtual void Schedule(const GURL& dictionary_url);
 
+  // Stop fetching dictionaries, and abandon any current URLFetcheer operations
+  // so that the IO thread can be stopped.
+  static void Shutdown() { SdchManager::Shutdown(); }
+
  private:
   // Delay in ms between Schedule and actual download.
   // This leaves the URL in a queue, which is de-duped, so that there is less

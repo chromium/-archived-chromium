@@ -19,6 +19,7 @@
 #include "chrome/browser/google_url_tracker.h"
 #include "chrome/browser/metrics/metrics_service.h"
 #include "chrome/browser/net/dns_global.h"
+#include "chrome/browser/net/sdch_dictionary_fetcher.h"
 #include "chrome/browser/plugin_service.h"
 #include "chrome/browser/profile_manager.h"
 #include "chrome/browser/renderer_host/render_process_host.h"
@@ -143,10 +144,16 @@ BrowserProcessImpl::~BrowserProcessImpl() {
   // this destructor is run.
   automation_provider_list_.reset();
 
+  // We need to shutdown the SdchDictionaryFetcher as it regularly holds
+  // a pointer to a URLFetcher, and that URLFetcher (upon destruction) will do
+  // a PostDelayedTask onto the IO thread.  This shutdown call will both discard
+  // any pending URLFetchers, and avoid creating any more.
+  SdchDictionaryFetcher::Shutdown();
+
   // We need to destroy the MetricsService and GoogleURLTracker before the
   // io_thread_ gets destroyed, since both destructors can call the URLFetcher
-  // destructor, which does an InvokeLater operation on the IO thread.  (The IO
-  // thread will handle that URLFetcher operation before going away.)
+  // destructor, which does an PostDelayedTask operation on the IO thread.  (The
+  // IO thread will handle that URLFetcher operation before going away.)
   metrics_service_.reset();
   google_url_tracker_.reset();
 
