@@ -210,10 +210,16 @@
         tabFrame.origin.x = offset;
       }
 
+#if 0
       // Animate the tab in by putting it below the horizon.
+      // TODO(pinkerton/alcor): While this looks nice, it confuses the heck
+      // out of the window server and causes the window to think that there's
+      // no tab there. The net result is that dragging the tab also drags
+      // the window. We need to find another way to do this.
       if (newTab && visible) {
         [[tab view] setFrame:NSOffsetRect(tabFrame, 0, -NSHeight(tabFrame))];
       }
+#endif
 
       id frameTarget = visible ? [[tab view] animator] : [tab view];
       tabFrame.size.width = [tab selected] ? kMaxTabWidth : baseTabWidth;
@@ -270,8 +276,14 @@
   TabController* newController = [self newTab];
   [tabArray_ insertObject:newController atIndex:index];
   NSView* newView = [newController view];
+
+  // Set the originating frame to just below the strip so that it animates
+  // upwards as it's being initially layed out. Oddly, this works while doing
+  // something similar in |-layoutTabs| confuses the window server.
+  // TODO(pinkerton): I'm not happy with this animiation either, but it's
+  // a little better that just sliding over (maybe?).
   [newView setFrame:NSOffsetRect([newView frame],
-                                 0, [[self class] defaultTabHeight])];
+                                 0, -[[self class] defaultTabHeight])];
 
   [tabView_ addSubview:newView
             positioned:inForeground ? NSWindowAbove : NSWindowBelow
