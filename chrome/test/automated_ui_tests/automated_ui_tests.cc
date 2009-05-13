@@ -310,7 +310,12 @@ bool AutomatedUITest::DoAction(const std::string & action) {
   } else if (LowerCaseEqualsASCII(action, "javascriptdebugger")) {
     did_complete_action = JavaScriptDebugger();
   } else if (LowerCaseEqualsASCII(action, "navigate")) {
-    did_complete_action = Navigate();
+    std::string url = "about:blank";
+    if (init_reader_.NodeAttribute("url", &url)) {
+      xml_writer_.AddAttribute("url", url);
+    }
+    GURL test_url(url);
+    did_complete_action = Navigate(test_url);
   } else if (LowerCaseEqualsASCII(action, "newtab")) {
     did_complete_action = NewTab();
   } else if (LowerCaseEqualsASCII(action, "openwindow")) {
@@ -393,10 +398,6 @@ bool AutomatedUITest::DoAction(const std::string & action) {
   return did_complete_action;
 }
 
-bool AutomatedUITest::BackButton() {
-  return RunCommandAsync(IDC_BACK);
-}
-
 bool AutomatedUITest::ChangeEncoding() {
   // Get the encoding list that is used to populate the UI (encoding menu)
   std::wstring cur_locale = g_browser_process->GetApplicationLocale();
@@ -421,10 +422,6 @@ bool AutomatedUITest::FindInPage() {
   return RunCommandAsync(IDC_FIND);
 }
 
-bool AutomatedUITest::ForwardButton() {
-  return RunCommandAsync(IDC_FORWARD);
-}
-
 bool AutomatedUITest::Home() {
   return RunCommandAsync(IDC_HOME);
 }
@@ -435,29 +432,6 @@ bool AutomatedUITest::JavaScriptConsole() {
 
 bool AutomatedUITest::JavaScriptDebugger() {
   return RunCommandAsync(IDC_DEBUGGER);
-}
-
-bool AutomatedUITest::Navigate() {
-  scoped_ptr<TabProxy> tab(GetActiveTab());
-  if (tab.get() == NULL) {
-    AddErrorAttribute("active_tab_not_found");
-    return false;
-  }
-  std::string url = "about:blank";
-  if (init_reader_.NodeAttribute("url", &url)) {
-    xml_writer_.AddAttribute("url", url);
-  }
-  GURL test_url(url);
-  bool did_timeout = false;
-  tab->NavigateToURLWithTimeout(test_url,
-                                command_execution_timeout_ms(),
-                                &did_timeout);
-
-  if (did_timeout) {
-    AddWarningAttribute("timeout");
-    return false;
-  }
-  return true;
 }
 
 bool AutomatedUITest::OpenAboutDialog() {
@@ -518,10 +492,6 @@ bool AutomatedUITest::PressTabKey() {
 
 bool AutomatedUITest::PressUpArrow() {
   return SimulateKeyPressInActiveWindow(VK_UP, 0);
-}
-
-bool AutomatedUITest::ReloadPage() {
-  return RunCommandAsync(IDC_RELOAD);
 }
 
 bool AutomatedUITest::SelectNextTab() {

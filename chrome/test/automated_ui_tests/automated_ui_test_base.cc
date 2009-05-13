@@ -25,6 +25,10 @@ void AutomatedUITestBase::SetUp() {
   set_active_browser(automation()->GetBrowserWindow(0));
 }
 
+bool AutomatedUITestBase::BackButton() {
+  return RunCommand(IDC_BACK);
+}
+
 bool AutomatedUITestBase::CloseActiveTab() {
   BrowserProxy* browser = active_browser();
   int tab_count;
@@ -75,6 +79,10 @@ bool AutomatedUITestBase::DuplicateTab() {
   return RunCommand(IDC_DUPLICATE_TAB);
 }
 
+bool AutomatedUITestBase::ForwardButton() {
+  return RunCommand(IDC_FORWARD);
+}
+
 bool AutomatedUITestBase::GoOffTheRecord() {
   return RunCommand(IDC_NEW_INCOGNITO_WINDOW);
 }
@@ -108,10 +116,32 @@ bool AutomatedUITestBase::OpenAndActivateNewBrowserWindow(
   return true;
 }
 
+bool AutomatedUITestBase::Navigate(const GURL& url) {
+  scoped_ptr<TabProxy> tab(GetActiveTab());
+  if (tab.get() == NULL) {
+    LogErrorMessage("active_tab_not_found");
+    return false;
+  }
+  bool did_timeout = false;
+  tab->NavigateToURLWithTimeout(url,
+                                command_execution_timeout_ms(),
+                                &did_timeout);
+
+  if (did_timeout) {
+    LogWarningMessage("timeout");
+    return false;
+  }
+  return true;
+}
+
 bool AutomatedUITestBase::NewTab() {
   // Apply accelerator and wait for a new tab to open, if either
   // fails, return false. Apply Accelerator takes care of logging its failure.
   return RunCommand(IDC_NEW_TAB);
+}
+
+bool AutomatedUITestBase::ReloadPage() {
+  return RunCommand(IDC_RELOAD);
 }
 
 bool AutomatedUITestBase::RestoreTab() {

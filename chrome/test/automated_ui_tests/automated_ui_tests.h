@@ -130,11 +130,6 @@ class AutomatedUITest : public AutomatedUITestBase {
   // NOTE: This list is sorted alphabetically, so that we can easily detect
   // missing actions.
 
-  // Activates back button in active window.
-  // Returns true if call to activate the accelerator is successful.
-  // XML element: <Back/>
-  bool BackButton();
-
   // Changes the encoding of the page (the encoding is selected at random
   // from a list of encodings).
   // Returns true if call to activate the accelerator is successful.
@@ -148,11 +143,6 @@ class AutomatedUITest : public AutomatedUITestBase {
   // Activates "find in page" on the current page.
   // XML element: <FindInPage/>
   bool FindInPage();
-
-  // Activates forward button in active window.
-  // Returns true if call to activate the accelerator is successful.
-  // XML element: <Forward/>
-  bool ForwardButton();
 
   // Navigates to the Home page.
   // Returns true if call to activate the accelerator is successful.
@@ -170,11 +160,6 @@ class AutomatedUITest : public AutomatedUITestBase {
   // it is dismissed.
   // XML element: <JavaScriptDebugger/>
   bool JavaScriptDebugger();
-
-  // Navigates the activate tab to about:blank.
-  // XML element: <Navigate/>
-  // Optional Attributes: url="|address|" will navigate to |address|
-  bool Navigate();
 
   // Opens the About dialog. This dialog is modal so a majority of the test
   // can't be completed until it is dismissed.
@@ -245,10 +230,6 @@ class AutomatedUITest : public AutomatedUITestBase {
   // Simulates a page up key press on the active window.
   // XML element: <UpArrow/>
   bool PressUpArrow();
-
-  // Reload the active tab. Returns false on failure.
-  // XML element: <Reload/>
-  bool ReloadPage();
 
   // Activates the next tab on the active browser window.
   // XML element: <SelectNextTab/>

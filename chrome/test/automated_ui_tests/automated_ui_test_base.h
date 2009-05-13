@@ -23,6 +23,10 @@ class AutomatedUITestBase : public UITest {
   // NOTE: This list is sorted alphabetically.
   // All functions are synchronous unless specified with Async.
 
+  // Go back in active tab.
+  // Returns true if successful, false otherwise.
+  bool BackButton();
+
   // Close the selected tab in the current browser window. The function will
   // not try close the tab if it is the only tab of the last normal window, so
   // the application is not got closed.
@@ -38,8 +42,15 @@ class AutomatedUITestBase : public UITest {
   // Returns true if a duplicated tab is added.
   bool DuplicateTab();
 
+  // Go forward in active tab.
+  // Returns true if successful, false otherwise.
+  bool ForwardButton();
+
   // Opens an OffTheRecord browser window.
   bool GoOffTheRecord();
+
+  // Navigates the activate tab to given url.
+  bool Navigate(const GURL& url);
 
   // Opens a new tab in the active window using an accelerator.
   // Returns true if a new tab is successfully opened.
@@ -52,6 +63,10 @@ class AutomatedUITestBase : public UITest {
   // previous browser window when new window is successfully created, and the
   // caller owns previous_browser.
   bool OpenAndActivateNewBrowserWindow(BrowserProxy** previous_browser);
+
+  // Reload the active tab.
+  // Returns true if successful, false otherwise.
+  bool ReloadPage();
 
   // Restores a previously closed tab.
   // Returns true if the tab is successfully restored.

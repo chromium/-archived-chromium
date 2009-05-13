@@ -245,7 +245,6 @@ class NavigationNotificationObserver : public NotificationObserver {
     automation_->Send(reply_message_);
     reply_message_ = NULL;
 
-    automation_->RemoveNavigationStatusListener(this);
     delete this;
   }
 
@@ -259,6 +258,8 @@ class NavigationNotificationObserver : public NotificationObserver {
       automation_->Send(reply_message_);
       reply_message_ = NULL;
     }
+
+    automation_->RemoveNavigationStatusListener(this);
 
     NotificationService* service = NotificationService::current();
     service->RemoveObserver(this, NotificationType::NAV_ENTRY_COMMITTED,
@@ -567,6 +568,18 @@ class ExecuteBrowserCommandObserver : public NotificationObserver {
                                               reply_message->routing_id(),
                                               true, reply_message);
         observer->set_for_browser_command(true);
+        break;
+      }
+      case IDC_BACK:
+      case IDC_FORWARD:
+      case IDC_RELOAD: {
+        automation->
+        AddNavigationStatusListener<AutomationMsg_NavigationResponseValues>(
+            &browser->GetSelectedTabContents()->controller(),
+            reply_message,
+            AUTOMATION_MSG_NAVIGATION_SUCCESS,
+            AUTOMATION_MSG_NAVIGATION_AUTH_NEEDED,
+            AUTOMATION_MSG_NAVIGATION_ERROR);
         break;
       }
       default: {

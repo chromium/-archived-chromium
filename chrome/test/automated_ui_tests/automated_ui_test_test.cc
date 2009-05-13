@@ -7,6 +7,8 @@
 #include "chrome/test/automation/browser_proxy.h"
 #include "chrome/test/automation/tab_proxy.h"
 #include "chrome/test/ui/ui_test.h"
+#include "googleurl/src/gurl.h"
+#include "net/base/net_util.h"
 
 TEST_F(AutomatedUITestBase, NewTab) {
   int tab_count;
@@ -240,4 +242,33 @@ TEST_F(AutomatedUITestBase, OpenCloseBrowserWindowWithAccelerator) {
   ASSERT_TRUE(RunCommand(IDC_CLOSE_WINDOW));
   automation()->GetBrowserWindowCount(&num_browser_windows);
   ASSERT_EQ(1, num_browser_windows);
+}
+
+TEST_F(AutomatedUITestBase, Navigate) {
+  FilePath path_prefix(test_data_directory_.AppendASCII("session_history"));
+  GURL url1(net::FilePathToFileURL(path_prefix.AppendASCII("bot1.html")));
+  GURL url2(net::FilePathToFileURL(path_prefix.AppendASCII("bot2.html")));
+  GURL url3(net::FilePathToFileURL(path_prefix.AppendASCII("bot3.html")));
+  GURL url;
+  ASSERT_TRUE(Navigate(url1));
+  ASSERT_TRUE(GetActiveTab()->GetCurrentURL(&url));
+  ASSERT_EQ(url1, url);
+  ASSERT_TRUE(Navigate(url2));
+  ASSERT_TRUE(GetActiveTab()->GetCurrentURL(&url));
+  ASSERT_EQ(url2, url);
+  ASSERT_TRUE(Navigate(url3));
+  ASSERT_TRUE(GetActiveTab()->GetCurrentURL(&url));
+  ASSERT_EQ(url3, url);
+  ASSERT_TRUE(BackButton());
+  ASSERT_TRUE(GetActiveTab()->GetCurrentURL(&url));
+  ASSERT_EQ(url2, url);
+  ASSERT_TRUE(BackButton());
+  ASSERT_TRUE(GetActiveTab()->GetCurrentURL(&url));
+  ASSERT_EQ(url1, url);
+  ASSERT_TRUE(ForwardButton());
+  ASSERT_TRUE(GetActiveTab()->GetCurrentURL(&url));
+  ASSERT_EQ(url2, url);
+  ASSERT_TRUE(ReloadPage());
+  ASSERT_TRUE(GetActiveTab()->GetCurrentURL(&url));
+  ASSERT_EQ(url2, url);
 }
