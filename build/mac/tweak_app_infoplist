@@ -4,6 +4,32 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
+set -e
+
+# Pull off the optional args
+INCLUDE_BREAKPAD=0
+OPTERR=0
+while getopts ":b:" an_opt ; do
+  case $an_opt in
+    b)
+      INCLUDE_BREAKPAD=$OPTARG
+      ;;
+    \?)
+      echo "Unknown option $OPTARG"
+      exit 1
+      ;;
+    :)
+      echo "Option $OPTARG missing it's value"
+      exit 1
+      ;;
+    *)
+      echo "Not recognized argument $an_opt"
+      exit 1
+      ;;
+  esac
+done
+shift $(($OPTIND - 1))
+
 # Make sure we got the header to write into passed to us
 if [ $# -ne 1 ]; then
   echo "error: missing branding as an argument" >&2
@@ -26,11 +52,11 @@ fi
 # by the time the app target is done, the info.plist is correct.
 #
 
-set -ex
-
 TOP="${SRCROOT}/.."
 BUILD_BRANDING=$1
 SRC_APP_PATH="${BUILT_PRODUCTS_DIR}/${BUILD_BRANDING}.app"
+
+set -x
 
 # Figure out what version this build corresponds to.  Just use the svn revision
 # for now. Warning: my svnversion returns 10495:10552M. But that's ok since
@@ -88,6 +114,32 @@ defaults write "${TMP_INFO_PLIST_DEFAULTS}" \
     CFBundleVersion -string "${BUILD}.${PATCH}"
 defaults write "${TMP_INFO_PLIST_DEFAULTS}" \
     NSHumanReadableCopyright -string "${COPYRIGHT_STRING}"
+
+# Add/Remove the breakpad keys
+if [ "${INCLUDE_BREAKPAD}" == "1" ] ; then
+  defaults write "${TMP_INFO_PLIST_DEFAULTS}" \
+      BreakpadURL "https://clients2.google.com/cr/report"
+  defaults write "${TMP_INFO_PLIST_DEFAULTS}" BreakpadReportInterval "3600"
+  defaults write "${TMP_INFO_PLIST_DEFAULTS}" \
+      BreakpadProduct "${BUILD_BRANDING}_Mac"
+  defaults write "${TMP_INFO_PLIST_DEFAULTS}" \
+      BreakpadProductDisplay "${BUILD_BRANDING}"
+  defaults write "${TMP_INFO_PLIST_DEFAULTS}" \
+      BreakpadVersion -string "${FULL_VERSION}"
+  defaults write "${TMP_INFO_PLIST_DEFAULTS}" BreakpadSendAndExit "YES"
+  # TODO: remove/update this when we have first launch
+  defaults write "${TMP_INFO_PLIST_DEFAULTS}" BreakpadSkipConfirm "YES"
+else
+  # Make sure the keys aren't there, || true to avoid errors if they aren't.
+  defaults delete "${TMP_INFO_PLIST_DEFAULTS}" BreakpadURL || true
+  defaults delete "${TMP_INFO_PLIST_DEFAULTS}" BreakpadReportInterval || true
+  defaults delete "${TMP_INFO_PLIST_DEFAULTS}" BreakpadProduct || true
+  defaults delete "${TMP_INFO_PLIST_DEFAULTS}" BreakpadProductDisplay || true
+  defaults delete "${TMP_INFO_PLIST_DEFAULTS}" BreakpadVersion || true
+  defaults delete "${TMP_INFO_PLIST_DEFAULTS}" BreakpadSendAndExit || true
+  # TODO: remove/update this when we have first launch
+  defaults delete "${TMP_INFO_PLIST_DEFAULTS}" BreakpadSkipConfirm || true
+fi
 
 # Info.plist will work perfectly well in any plist format, but traditionally
 # applications use xml1 for this, so convert it back after whatever defaults

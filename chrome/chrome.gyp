@@ -5,6 +5,9 @@
 {
   'variables': {
     'chromium_code': 1,
+    # Mac NOTE: at the start of the conditions block we default some vars
+    # that control features based on the branding, this way each place that
+    # needs to know about the feature isn't hard coded to the branding type.
   },
   'includes': [
     '../build/common.gypi',
@@ -1975,22 +1978,40 @@
               'variables': {
                 'bundle_id': 'com.google.Chrome',
               },
+            }, {  # else: 'branding!="Chrome"
+              'mac_bundle_resources': ['app/theme/chromium/app.icns'],
+              'variables': {
+                'bundle_id': 'org.chromium.Chromium',
+              },
+            }],
+            ['mac_breakpad==1', {
               # Only include breakpad in official builds.
               'dependencies': [
                 '../breakpad/breakpad.gyp:breakpad',
+                '../breakpad/breakpad.gyp:dump_syms',
               ],
               'copies': [
                 {
                   'destination': '<(PRODUCT_DIR)/<(branding).app/Contents/Resources/',
                   'files': ['<(PRODUCT_DIR)/crash_inspector', '<(PRODUCT_DIR)/crash_report_sender.app'],
                 },
-              ]
-            }, {  # else: branding!="Chrome"
-              'mac_bundle_resources': ['app/theme/chromium/app.icns'],
-              'variables': {
-                'bundle_id': 'org.chromium.Chromium',
-              },
-            }],
+              ],
+              'target_conditions': [
+                # We use target_conditions here that is always true to force
+                # this post build to run last.  This lets the strip from
+                # common.gypi go ahead of it, so we can always hit the
+                # upstripped app within the fake dSYM.
+                ['1', {
+                  'postbuilds': [
+                    {
+                      'postbuild_name': 'Dump Symbols',
+                      'action': ['<(DEPTH)/build/mac/dump_app_syms',
+                                 '<(branding)'],
+                    },
+                  ],
+                }],
+              ],
+            }], # mac_breakpad
           ],
           'xcode_settings': {
             # chrome/app/app-Info.plist has a CFBundleIdentifier of
@@ -2027,6 +2048,7 @@
               'inputs': [],
               'outputs': [],
               'action': ['<(DEPTH)/build/mac/tweak_app_infoplist',
+                         '-b', '<(mac_breakpad)',
                          '<(branding)'],
             },
           ],
@@ -2970,6 +2992,17 @@
     },
   ],
   'conditions': [
+    # We set a few feature variables so the different parts that need to check
+    # for the mac build, check that flag instead of coding it based on branding.
+    ['OS=="mac" and branding=="Chrome"', {
+      'variables': {
+        'mac_breakpad%': 1
+      }
+    }, {
+      'variables': {
+        'mac_breakpad%': 0
+      }
+    }],
     ['OS=="linux"', {
       'targets': [
         {
