@@ -23,6 +23,7 @@
 #include "chrome/common/render_messages.h"
 #include "chrome/plugin/npobject_proxy.h"
 #include "chrome/plugin/npobject_stub.h"
+#include "chrome/plugin/npobject_util.h"
 #include "chrome/renderer/render_thread.h"
 #include "chrome/renderer/render_view.h"
 #include "googleurl/src/gurl.h"
@@ -339,6 +340,8 @@ void WebPluginDelegateProxy::OnMessageReceived(const IPC::Message& msg) {
     IPC_MESSAGE_HANDLER(PluginHostMsg_GetCookies, OnGetCookies)
     IPC_MESSAGE_HANDLER(PluginHostMsg_ShowModalHTMLDialog,
                         OnShowModalHTMLDialog)
+    IPC_MESSAGE_HANDLER(PluginHostMsg_GetDragData, OnGetDragData);
+    IPC_MESSAGE_HANDLER(PluginHostMsg_SetDropEffect, OnSetDropEffect);
     IPC_MESSAGE_HANDLER(PluginHostMsg_MissingPluginStatus,
                         OnMissingPluginStatus)
     IPC_MESSAGE_HANDLER(PluginHostMsg_URLRequest, OnHandleURLRequest)
@@ -726,6 +729,58 @@ void WebPluginDelegateProxy::OnShowModalHTMLDialog(
                                       json_retval);
 }
 
+void WebPluginDelegateProxy::OnGetDragData(const NPVariant_Param& object,
+                                           bool add_data,
+                                           std::vector<NPVariant_Param>* values,
+                                           bool* success) {
+  DCHECK(values && success);
+  *success = false;
+
+  WebView* webview = NULL;
+  if (render_view_)
+    webview = render_view_->webview();
+  if (!webview)
+    return;
+
+  NPVariant results[4];
+  NPObject* event = reinterpret_cast<NPObject*>(object.npobject_pointer);
+  const int32 drag_id = webview->GetDragIdentity();
+  if (!drag_id || !webkit_glue::GetDragData(event, add_data, &results[1]))
+    return;
+
+  INT32_TO_NPVARIANT(drag_id, results[0]);
+  values->push_back(NPVariant_Param());
+  CreateNPVariantParam(results[0], NULL, &values->back(), false, NULL);
+  values->push_back(NPVariant_Param());
+  CreateNPVariantParam(results[1], NULL, &values->back(), false, NULL);
+  values->push_back(NPVariant_Param());
+  CreateNPVariantParam(results[2], NULL, &values->back(), false, NULL);
+  values->push_back(NPVariant_Param());
+  CreateNPVariantParam(results[3], NULL, &values->back(), add_data, NULL);
+
+  *success = true;
+}
+
+void WebPluginDelegateProxy::OnSetDropEffect(const NPVariant_Param& object,
+                                             int effect,
+                                             bool* success) {
+  DCHECK(success);
+  *success = false;
+
+  WebView* webview = NULL;
+  if (render_view_)
+    webview = render_view_->webview();
+  if (!webview)
+    return;
+
+  NPObject* event = reinterpret_cast<NPObject*>(object.npobject_pointer);
+  const int32 drag_id = webview->GetDragIdentity();
+  if (!drag_id || !webkit_glue::IsDragEvent(event))
+    return;
+
+  *success = webview->SetDropEffect(effect != 0);
+}
+
 void WebPluginDelegateProxy::OnMissingPluginStatus(int status) {
   if (render_view_)
     render_view_->OnMissingPluginStatus(this, status);
@@ -825,8 +880,8 @@ void WebPluginDelegateProxy::OnCancelDocumentLoad() {
 }
 
 void WebPluginDelegateProxy::OnInitiateHTTPRangeRequest(
-   const std::string& url, const std::string& range_info,
-   intptr_t existing_stream, bool notify_needed, intptr_t notify_data) {
+    const std::string& url, const std::string& range_info,
+    intptr_t existing_stream, bool notify_needed, intptr_t notify_data) {
   plugin_->InitiateHTTPRangeRequest(url.c_str(), range_info.c_str(),
                                     existing_stream, notify_needed,
                                     notify_data);

@@ -313,6 +313,41 @@ CPError STDCALL CPB_ShowHtmlDialog(
   return CPERR_FAILURE;
 }
 
+CPError STDCALL CPB_GetDragData(
+    CPID id, CPBrowsingContext context, struct NPObject* event, bool add_data,
+    int32 *identity, int32 *event_id, char **drag_type, char **drag_data) {
+  CHECK(ChromePluginLib::IsPluginThread());
+
+  *identity = *event_id = 0;
+  WebPluginProxy* webplugin = WebPluginProxy::FromCPBrowsingContext(context);
+  if (!event || !webplugin)
+    return CPERR_INVALID_PARAMETER;
+
+  std::string type_str, data_str;
+  if (!webplugin->GetDragData(event, add_data,
+                              identity, event_id, &type_str, &data_str)) {
+    return CPERR_FAILURE;
+  }
+
+  if (add_data)
+    *drag_data = CPB_StringDup(CPB_Alloc, data_str);
+  *drag_type = CPB_StringDup(CPB_Alloc, type_str);
+  return CPERR_SUCCESS;
+}
+
+CPError STDCALL CPB_SetDropEffect(
+    CPID id, CPBrowsingContext context, struct NPObject* event, int effect) {
+  CHECK(ChromePluginLib::IsPluginThread());
+
+  WebPluginProxy* webplugin = WebPluginProxy::FromCPBrowsingContext(context);
+  if (!event || !webplugin)
+    return CPERR_INVALID_PARAMETER;
+
+  if (webplugin->SetDropEffect(event, effect))
+    return CPERR_SUCCESS;
+  return CPERR_FAILURE;
+}
+
 CPError STDCALL CPB_GetCommandLineArguments(
     CPID id, CPBrowsingContext context, const char* url, char** arguments) {
   CHECK(ChromePluginLib::IsPluginThread());
@@ -597,6 +632,8 @@ CPBrowserFuncs* GetCPBrowserFuncsForPlugin() {
     browser_funcs.send_sync_message = CPB_SendSyncMessage;
     browser_funcs.plugin_thread_async_call = CPB_PluginThreadAsyncCall;
     browser_funcs.open_file_dialog = CPB_OpenFileDialog;
+    browser_funcs.get_drag_data = CPB_GetDragData;
+    browser_funcs.set_drop_effect = CPB_SetDropEffect;
 
     browser_funcs.request_funcs = &request_funcs;
     browser_funcs.response_funcs = &response_funcs;

@@ -64,4 +64,24 @@ bool DeserializeNPIdentifier(const Pickle& pickle, void** pickle_iter,
   return true;
 }
 
+bool GetDragData(NPObject* event, bool add_data, NPVariant results[3]) {
+#if PLATFORM(CHROMIUM) && USE(V8)
+  // TODO(noel): fill this in.
+  return false;
+#else
+  // Not supported on other ports (JSC, etc).
+  return false;
+#endif
+}
+
+bool IsDragEvent(NPObject* event) {
+#if PLATFORM(CHROMIUM) && USE(V8)
+  // TODO(noel): fill this in.
+  return false;
+#else
+  // Not supported on other ports (JSC, etc).
+  return false;
+#endif
+}
+
 }  // namespace webkit_glue
