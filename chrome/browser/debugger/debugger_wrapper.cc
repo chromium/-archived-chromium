@@ -17,8 +17,8 @@
 DebuggerWrapper::DebuggerWrapper(int port) {
 #ifndef CHROME_DEBUGGER_DISABLED
   if (port > 0) {
-    if (!CommandLine::ForCurrentProcess()->HasSwitch(
-        switches::kEnableOutOfProcessDevTools)) {
+    if (CommandLine::ForCurrentProcess()->HasSwitch(
+        switches::kDisableOutOfProcessDevTools)) {
       DebuggerInputOutputSocket *io = new DebuggerInputOutputSocket(port);
       debugger_ = new DebuggerShell(io);
       debugger_->Start();

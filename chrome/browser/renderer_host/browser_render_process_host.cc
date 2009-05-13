@@ -263,7 +263,7 @@ bool BrowserRenderProcessHost::Init() {
     switches::kEnableWebWorkers,
     switches::kEnableStatsTable,
     switches::kEnableExtensions,
-    switches::kEnableOutOfProcessDevTools,
+    switches::kDisableOutOfProcessDevTools,
     switches::kAutoSpellCorrect,
     switches::kDisableAudio,
     switches::kSimpleDataSource,

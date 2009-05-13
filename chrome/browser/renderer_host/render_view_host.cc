@@ -560,8 +560,8 @@ void RenderViewHost::CopyImageAt(int x, int y) {
 }
 
 void RenderViewHost::InspectElementAt(int x, int y) {
-  if (CommandLine::ForCurrentProcess()->HasSwitch(
-          switches::kEnableOutOfProcessDevTools)) {
+  if (!CommandLine::ForCurrentProcess()->HasSwitch(
+          switches::kDisableOutOfProcessDevTools)) {
     DevToolsManager* manager = g_browser_process->devtools_manager();
     manager->InspectElement(this, x, y);
   } else {
@@ -572,8 +572,8 @@ void RenderViewHost::InspectElementAt(int x, int y) {
 }
 
 void RenderViewHost::ShowJavaScriptConsole() {
-  if (CommandLine::ForCurrentProcess()->HasSwitch(
-          switches::kEnableOutOfProcessDevTools)) {
+  if (!CommandLine::ForCurrentProcess()->HasSwitch(
+          switches::kDisableOutOfProcessDevTools)) {
     DevToolsManager* manager = g_browser_process->devtools_manager();
     manager->OpenDevToolsWindow(this);
   } else {

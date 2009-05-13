@@ -298,8 +298,8 @@ void RenderView::Init(gfx::NativeViewId parent_hwnd,
 
   const CommandLine& command_line = *CommandLine::ForCurrentProcess();
 
-  bool dev_tools_enabled = command_line.HasSwitch(
-      switches::kEnableOutOfProcessDevTools);
+  bool dev_tools_enabled = !command_line.HasSwitch(
+      switches::kDisableOutOfProcessDevTools);
   if (dev_tools_enabled)
     devtools_agent_.reset(new DevToolsAgent(routing_id, this));
 
