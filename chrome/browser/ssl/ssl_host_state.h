@@ -53,8 +53,13 @@ class SSLHostState : public NonThreadSafe {
   bool DidAllowMixedContentForHost(const std::string& host);
 
  private:
+  // A BrokenHostEntry is a pair of (host, process_id) that indicates the host
+  // contains non-HTTPS content in that renderer process.
   typedef std::pair<std::string, int> BrokenHostEntry;
-  // Hosts which have been contaminated with unsafe content.
+
+  // Hosts which have been contaminated with non-HTTPS content in the
+  // specified process.  Note that non-HTTPS content can travel between
+  // same-origin frames in one processs but cannot jump between processes.
   std::set<BrokenHostEntry> broken_hosts_;
 
   // Certificate policies for each host.
