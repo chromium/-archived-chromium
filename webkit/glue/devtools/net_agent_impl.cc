@@ -12,8 +12,6 @@
 #include "Document.h"
 #include "DocumentLoader.h"
 #include "FrameLoader.h"
-#include "HTTPHeaderMap.h"
-#include "KURL.h"
 #include "PlatformString.h"
 #include "ResourceError.h"
 #include "ResourceRequest.h"
@@ -53,7 +51,9 @@ void NetAgentImpl::SetDocument(Document* doc) {
 void NetAgentImpl::Attach() {
   for (FinishedResources::iterator it = finished_resources_.begin();
        it != finished_resources_.end(); ++it) {
-    delegate_->DidFinishLoading(it->first, *it->second);
+    DictionaryValue value;
+    Serialize(*it->second, &value);
+    delegate_->DidFinishLoading(it->first, value);
   }
   attached_ = true;
 }
@@ -81,21 +81,21 @@ void NetAgentImpl::WillSendRequest(
     DocumentLoader* loader,
     int identifier,
     const ResourceRequest& request) {
-  KURL url = request.url();
-  DictionaryValue* resource = new DictionaryValue();
+  if (pending_resources_.contains(identifier)) {
+    // We are going through redirect, nuke old resource.
+    delete pending_resources_.get(identifier);
+  }
 
-  resource->SetReal(L"startTime", WTF::currentTime());
-  resource->SetString(L"url",  webkit_glue::StringToStdString(url.string()));
-  resource->SetString(L"domain", webkit_glue::StringToStdString(url.host()));
-  resource->SetString(L"path", webkit_glue::StringToStdString(url.path()));
-  resource->SetString(L"lastPathComponent",
-      webkit_glue::StringToStdString(url.lastPathComponent()));
-  resource->Set(L"requestHeaders",
-      BuildValueForHeaders(request.httpHeaderFields()));
-  pending_resources_.set(identifier, resource);
+  Resource* resource = new Resource();
+  KURL url = request.url();
+  resource->start_time = WTF::currentTime();
+  resource->url = request.url();
+  resource->request_headers = request.httpHeaderFields();
 
   if (attached_) {
-    delegate_->WillSendRequest(identifier, *resource);
+    DictionaryValue value;
+    Serialize(*resource, &value);
+    delegate_->WillSendRequest(identifier, value);
   }
 }
 
@@ -108,22 +108,19 @@ void NetAgentImpl::DidReceiveResponse(
   }
 
   KURL url = response.url();
-  DictionaryValue* resource = pending_resources_.get(identifier);
-  resource->SetReal(L"responseReceivedTime", WTF::currentTime());
-  resource->SetString(L"url",
-      webkit_glue::StringToStdWString(url.string()));
-  resource->SetInteger(L"expectedContentLength",
-      static_cast<int>(response.expectedContentLength()));
-  resource->SetInteger(L"responseStatusCode", response.httpStatusCode());
-  resource->SetString(L"mimeType",
-      webkit_glue::StringToStdWString(response.mimeType()));
-  resource->SetString(L"suggestedFilename",
-      webkit_glue::StringToStdWString(response.suggestedFilename()));
-  resource->Set(L"responseHeaders",
-      BuildValueForHeaders(response.httpHeaderFields()));
+  Resource* resource = pending_resources_.get(identifier);
+  resource->response_received_time = WTF::currentTime();
+  resource->expected_content_length =
+      static_cast<int>(response.expectedContentLength());
+  resource->http_status_code = response.httpStatusCode();
+  resource->mime_type = response.mimeType();
+  resource->suggested_filename = response.suggestedFilename();
+  resource->response_headers = response.httpHeaderFields();
 
   if (attached_) {
-    delegate_->DidReceiveResponse(identifier, *resource);
+    DictionaryValue value;
+    Serialize(*resource, &value);
+    delegate_->DidReceiveResponse(identifier, value);
   }
 }
 
@@ -147,8 +144,8 @@ void NetAgentImpl::DidFinishLoading(
     main_loader_ = loader;
   }
 
-  DictionaryValue* resource = pending_resources_.get(identifier);
-  resource->SetReal(L"endTime", WTF::currentTime());
+  Resource* resource = pending_resources_.get(identifier);
+  resource->end_time = WTF::currentTime();
 
   pending_resources_.remove(identifier);
   finished_resources_.append(std::make_pair(identifier, resource));
@@ -163,7 +160,9 @@ void NetAgentImpl::DidFinishLoading(
   }
 
   if (attached_) {
-    delegate_->DidFinishLoading(identifier, *resource);
+    DictionaryValue value;
+    Serialize(*resource, &value);
+    delegate_->DidFinishLoading(identifier, value);
   }
 }
 
@@ -174,10 +173,9 @@ void NetAgentImpl::DidFailLoading(
   if (!pending_resources_.contains(identifier)) {
     return;
   }
-  DictionaryValue* resource = pending_resources_.get(identifier);
-  resource->SetInteger(L"errorCode", error.errorCode());
-  resource->SetString(L"localizedDescription",
-      webkit_glue::StringToStdString(error.localizedDescription()));
+  Resource* resource = pending_resources_.get(identifier);
+  resource->error_code = error.errorCode();
+  resource->error_description = error.localizedDescription();
   DidFinishLoading(loader, identifier);
 }
 
@@ -264,6 +262,7 @@ void NetAgentImpl::GetResourceContent(
       webkit_glue::StringToStdString(source));
 }
 
+// static
 Value* NetAgentImpl::BuildValueForHeaders(const HTTPHeaderMap& headers) {
   OwnPtr<DictionaryValue> value(new DictionaryValue());
   HTTPHeaderMap::const_iterator end = headers.end();
@@ -272,4 +271,42 @@ Value* NetAgentImpl::BuildValueForHeaders(const HTTPHeaderMap& headers) {
         webkit_glue::StringToStdString(it->second));
   }
   return value.release();
+}
+
+// static
+void NetAgentImpl::Serialize(const Resource& resource,
+                             DictionaryValue* value) {
+  value->SetReal(L"startTime", resource.start_time);
+  value->SetReal(L"responseReceivedTime", resource.response_received_time);
+  value->SetReal(L"endTime", resource.end_time);
+
+  value->SetString(L"url",
+                   webkit_glue::StringToStdString(resource.url.string()));
+  value->SetString(L"domain",
+                   webkit_glue::StringToStdString(resource.url.host()));
+  value->SetString(L"path",
+                   webkit_glue::StringToStdString(resource.url.path()));
+  value->SetString(
+      L"lastPathComponent",
+      webkit_glue::StringToStdString(resource.url.lastPathComponent()));
+
+  value->SetString(L"mimeType",
+      webkit_glue::StringToStdWString(resource.mime_type));
+  value->SetString(L"suggestedFilename",
+      webkit_glue::StringToStdWString(resource.suggested_filename));
+
+  value->SetInteger(L"expectedContentLength",
+                    resource.expected_content_length);
+  value->SetInteger(L"responseStatusCode", resource.http_status_code);
+
+  value->Set(L"requestHeaders",
+             BuildValueForHeaders(resource.request_headers));
+  value->Set(L"responseHeaders",
+             BuildValueForHeaders(resource.response_headers));
+
+  if (resource.error_code) {
+    value->SetInteger(L"errorCode", resource.error_code);
+    value->SetString(L"localizedDescription",
+        webkit_glue::StringToStdString(resource.error_description));
+  }
 }

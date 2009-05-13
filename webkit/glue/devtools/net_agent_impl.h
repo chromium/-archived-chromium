@@ -7,6 +7,8 @@
 
 #include <utility>
 
+#include "HTTPHeaderMap.h"
+#include "KURL.h"
 #include <wtf/HashMap.h>
 #include <wtf/RefCounted.h>
 #include <wtf/RefPtr.h>
@@ -83,17 +85,45 @@ class NetAgentImpl : public NetAgent {
     int identifier,
     const WebCore::ScriptString& source);
 
-
  private:
+  struct Resource {
+    Resource()
+        : start_time(0),
+          response_received_time(0),
+          end_time(0),
+          expected_content_length(0),
+          http_status_code(0),
+          error_code(0) {
+    }
+    double start_time;
+    double response_received_time;
+    double end_time;
+
+    WebCore::KURL url;
+    WebCore::String mime_type;
+    WebCore::String suggested_filename;
+
+    int expected_content_length;
+    int http_status_code;
+
+    WebCore::HTTPHeaderMap request_headers;
+    WebCore::HTTPHeaderMap response_headers;
+
+    int error_code;
+    WebCore::String error_description;
+  };
+
+  static void Serialize(const Resource& resource, DictionaryValue* value);
+
   // Serializes headers map into a value.
-  Value* BuildValueForHeaders(const WebCore::HTTPHeaderMap& headers);
+  static Value* BuildValueForHeaders(const WebCore::HTTPHeaderMap& headers);
 
   NetAgentDelegate* delegate_;
   WebCore::Document* document_;
   RefPtr<WebCore::DocumentLoader> main_loader_;
-  typedef HashMap<int, DictionaryValue*, DefaultHash<int>::Hash,
+  typedef HashMap<int, Resource*, DefaultHash<int>::Hash,
                   WTF::UnsignedWithZeroKeyHashTraits<int> > ResourcesMap;
-  typedef Vector<std::pair<int, DictionaryValue*> > FinishedResources;
+  typedef Vector<std::pair<int, Resource*> > FinishedResources;
   typedef HashMap<int, WebCore::ScriptString, DefaultHash<int>::Hash,
                   WTF::UnsignedWithZeroKeyHashTraits<int> > XmlHttpSources;
 
