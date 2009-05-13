@@ -57,6 +57,278 @@ struct IDNTestCase {
   const bool unicode_allowed[arraysize(kLanguages)];
 };
 
+// TODO(jungshik) This is just a random sample of languages and is far
+// from exhaustive.  We may have to generate all the combinations
+// of languages (powerset of a set of all the languages).
+const IDNTestCase idn_cases[] = {
+  // No IDN
+  {"www.google.com", L"www.google.com",
+   {true,  true,  true,  true,  true,
+    true,  true,  true,  true,  true,
+    true,  true,  true,  true,  true,
+    true,  true,  true,  true,  true,
+    true}},
+  {"www.google.com.", L"www.google.com.",
+   {true,  true,  true,  true,  true,
+    true,  true,  true,  true,  true,
+    true,  true,  true,  true,  true,
+    true,  true,  true,  true,  true,
+    true}},
+  {".", L".",
+   {true,  true,  true,  true,  true,
+    true,  true,  true,  true,  true,
+    true,  true,  true,  true,  true,
+    true,  true,  true,  true,  true,
+    true}},
+  {"", L"",
+   {true,  true,  true,  true,  true,
+    true,  true,  true,  true,  true,
+    true,  true,  true,  true,  true,
+    true,  true,  true,  true,  true,
+    true}},
+  // IDN
+  // Hanzi (Chinese)
+  {"xn--1lq90i.cn", L"\x5317\x4eac.cn",
+   {true,  false, true,  true,  false,
+    false, false, false, false, false,
+    false, false, false, false, false,
+    false, false, true,  true,  false,
+    true}},
+  // Hanzi + '123'
+  {"www.xn--123-p18d.com", L"www.\x4e00" L"123.com",
+   {true,  false, true,  true,  false,
+    false, false, false, false, false,
+    false, false, false, false, false,
+    false, false, true,  true,  false,
+    true}},
+  // Hanzi + Latin
+  {"www.xn--hello-9n1hm04c.com", L"www.hello\x4e2d\x56fd.com",
+   {false, false, true,  true,  false,
+    false, false, false, false, false,
+    false, false, false, false, false,
+    false, false, true,  true,  false,
+    true}},
+  // Kanji + Kana (Japanese)
+  {"xn--l8jvb1ey91xtjb.jp", L"\x671d\x65e5\x3042\x3055\x3072.jp",
+   {true,  false, false, true,  false,
+    false, false, false, false, false,
+    false, false, false, false, false,
+    false, false, false, true,  false,
+    false}},
+  #if 0
+  // U+30FC is not a part of the Japanese exemplar set.
+  // Enable this after 'fixing' ICU data or locally working around it.
+  // Katakana + Latin (Japanese)
+  {"xn--e-efusa1mzf.jp", L"e\x30b3\x30de\x30fc\x30b9.jp",
+   {true,   false, false, false, false,
+    false, false, false, false, false,
+    false, false, false, false, false,
+    false, false, false, false, false,
+    }},
+  #endif
+  // Hangul (Korean)
+  {"www.xn--or3b17p6jjc.kr", L"www.\xc804\xc790\xc815\xbd80.kr",
+   {true,  false, false, false, true,
+    false, false, false, false, false,
+    false, false, false, false, false,
+    false, false, false, true,  false,
+    false}},
+  // b<u-umlaut>cher (German)
+  {"xn--bcher-kva.de", L"b\x00fc" L"cher.de",
+   {true,  false, false, false, false,
+    false, false, false, false, true,
+    true,  true,  false, false, false,
+    true,  false, false, false, false,
+    false}},
+  // a with diaeresis
+  {"www.xn--frgbolaget-q5a.se", L"www.f\x00e4rgbolaget.se",
+   {true,  false, false, false, false,
+    false, false, false, false, false,
+    true,  false, true, false, false,
+    true,  false, false, false, false,
+    false}},
+  // c-cedilla (French)
+  {"www.xn--alliancefranaise-npb.fr", L"www.alliancefran\x00e7" L"aise.fr",
+   {true,  false, false, false, false,
+    false, false, false, false, true,
+    false, true,  false, false, false,
+    false, false, false, false, false,
+    false}},
+  // caf'e with acute accent' (French)
+  {"xn--caf-dma.fr", L"caf\x00e9.fr",
+   {true,  false, false, false, false,
+    false, false, false, false, true,
+    false, true,  false, false, false,
+    false, false, false, false, false,
+    false}},
+  // c-cedillla and a with tilde (Portuguese)
+  {"xn--poema-9qae5a.com.br", L"p\x00e3oema\x00e7\x00e3.com.br",
+   {true,  false, false, false, false,
+    false, false, false, false, false,
+    false, true,  false, false, false,
+    false, false, false, false, false,
+    false}},
+  // s with caron
+  {"xn--achy-f6a.com", L"\x0161" L"achy.com",
+   {true,  false, false, false, false,
+    false, false, false, false, false,
+    false, false, false, false, false,
+    false, false, false, false, false,
+    false}},
+  // TODO(jungshik) : Add examples with Cyrillic letters
+  // only used in some languages written in Cyrillic.
+  // Eutopia (Greek)
+  {"xn--kxae4bafwg.gr", L"\x03bf\x03c5\x03c4\x03bf\x03c0\x03af\x03b1.gr",
+   {true,  false, false, false, false,
+    false, false, false, true,  false,
+    false, false, false, false, false,
+    false, true,  false, false, false,
+    false}},
+  // Eutopia + 123 (Greek)
+  {"xn---123-pldm0haj2bk.gr",
+   L"\x03bf\x03c5\x03c4\x03bf\x03c0\x03af\x03b1-123.gr",
+   {true,  false, false, false, false,
+    false, false, false, true,  false,
+    false, false, false, false, false,
+    false, true,  false, false, false,
+    false}},
+  // Cyrillic (Russian)
+  {"xn--n1aeec9b.ru", L"\x0442\x043e\x0440\x0442\x044b.ru",
+   {true,  false, false, false, false,
+    false, false, true,  false, false,
+    false, false, false, false, false,
+    false, false, false, false, true,
+    true}},
+  // Cyrillic + 123 (Russian)
+  {"xn---123-45dmmc5f.ru", L"\x0442\x043e\x0440\x0442\x044b-123.ru",
+   {true,  false, false, false, false,
+    false, false, true,  false, false,
+    false, false, false, false, false,
+    false, false, false, false, true,
+    true}},
+  // Arabic
+  {"xn--mgba1fmg.ar", L"\x0627\x0641\x0644\x0627\x0645.ar",
+   {true,  false, false, false, false,
+    false, true,  false, false, false,
+    false, false, false, false, false,
+    false, false, false, false, false,
+    false}},
+  // Hebrew
+  {"xn--4dbib.he", L"\x05d5\x05d0\x05d4.he",
+   {true,  false, false, false, false,
+    true,  false, false, false, false,
+    false, false, false, false, false,
+    false, false, false, false, true,
+    false}},
+  // Thai
+  {"xn--12c2cc4ag3b4ccu.th",
+   L"\x0e2a\x0e32\x0e22\x0e01\x0e32\x0e23\x0e1a\x0e34\x0e19.th",
+   {true,  false, false, false, false,
+    false, false, false, false, false,
+    false, false, false, true,  false,
+    false, false, false, false, false,
+    false}},
+  // Devangari (Hindi)
+  {"www.xn--l1b6a9e1b7c.in", L"www.\x0905\x0915\x094b\x0932\x093e.in",
+   {true,  false, false, false, false,
+    false, false, false, false, false,
+    false, false, false, false, true,
+    false, false, false, false, false,
+    false}},
+  // Invalid IDN
+  {"xn--hello?world.com", NULL,
+   {false, false, false, false, false,
+    false, false, false, false, false,
+    false, false, false, false, false,
+    false, false, false, false, false,
+    false}},
+  // Unsafe IDNs
+  // "payp<alpha>l.com"
+  {"www.xn--paypl-g9d.com", L"payp\x03b1l.com",
+   {false, false, false, false, false,
+    false, false, false, false, false,
+    false, false, false, false, false,
+    false, false, false, false, false,
+    false}},
+  // google.gr with Greek omicron and epsilon
+  {"xn--ggl-6xc1ca.gr", L"g\x03bf\x03bfgl\x03b5.gr",
+   {false, false, false, false, false,
+    false, false, false, false, false,
+    false, false, false, false, false,
+    false, false, false, false, false,
+    false}},
+  // google.ru with Cyrillic o
+  {"xn--ggl-tdd6ba.ru", L"g\x043e\x043egl\x0435.ru",
+   {false, false, false, false, false,
+    false, false, false, false, false,
+    false, false, false, false, false,
+    false, false, false, false, false,
+    false}},
+  // h<e with acute>llo<China in Han>.cn
+  {"xn--hllo-bpa7979ih5m.cn", L"h\x00e9llo\x4e2d\x56fd.cn",
+   {false, false, false, false, false,
+    false, false, false, false, false,
+    false, false, false, false, false,
+    false, false, false, false, false,
+    false}},
+  // <Greek rho><Cyrillic a><Cyrillic u>.ru
+  {"xn--2xa6t2b.ru", L"\x03c1\x0430\x0443.ru",
+   {false, false, false, false, false,
+    false, false, false, false, false,
+    false, false, false, false, false,
+    false, false, false, false, false,
+    false}},
+  // One that's really long that will force a buffer realloc
+  {"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+       "aaaaaaa",
+   L"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+       L"aaaaaaaa",
+   {true,  true,  true,  true,  true,
+    true,  true,  true,  true,  true,
+    true,  true,  true,  true,  true,
+    true,  true,  true,  true,  true,
+    true}},
+  // Test cases for characters we blacklisted although allowed in IDN.
+  // Embedded spaces will be turned to %20 in the display.
+  // TODO(jungshik): We need to have more cases. This is a typical
+  // data-driven trap. The following test cases need to be separated
+  // and tested only for a couple of languages.
+  {"xn--osd3820f24c.kr", L"\xac00\xb098\x115f.kr",
+    {false, false, false, false, false,
+     false, false, false, false, false,
+     false, false, false, false, false,
+     false, false, false, false, false,
+     false}},
+  {"www.xn--google-ho0coa.com", L"www.\x2039google\x203a.com",
+    {false, false, false, false, false,
+     false, false, false, false, false,
+     false, false, false, false, false,
+     false, false, false, false, false,
+  }},
+  {"google.xn--comabc-k8d", L"google.com\x0338" L"abc",
+    {false, false, false, false, false,
+     false, false, false, false, false,
+     false, false, false, false, false,
+     false, false, false, false, false,
+     }},
+#if 0
+  // These two cases are special. We need a separate test.
+  // U+3000 and U+3002 are normalized to ASCII space and dot.
+  {"xn-- -kq6ay5z.cn", L"\x4e2d\x56fd\x3000.cn",
+    {false, false, true,  false, false,
+     false, false, false, false, false,
+     false, false, false, false, false,
+     false, false, true,  false, false,
+     true}},
+  {"xn--fiqs8s.cn", L"\x4e2d\x56fd\x3002" L"cn",
+    {false, false, true,  false, false,
+     false, false, false, false, false,
+     false, false, false, false, false,
+     false, false, true,  false, false,
+     true}},
+#endif
+};
+
 struct SuggestedFilenameCase {
   const char* url;
   const char* content_disp_header;
@@ -394,281 +666,31 @@ TEST(NetUtilTest, GetFileNameFromCD) {
   }
 }
 
-TEST(NetUtilTest, IDNToUnicode) {
-  // TODO(jungshik) This is just a random sample of languages and is far
-  // from exhaustive.  We may have to generate all the combinations
-  // of languages (powerset of a set of all the languages).
-  const IDNTestCase idn_cases[] = {
-    // No IDN
-    {"www.google.com", L"www.google.com",
-     {true,  true,  true,  true,  true,
-      true,  true,  true,  true,  true,
-      true,  true,  true,  true,  true,
-      true,  true,  true,  true,  true,
-      true}},
-    {"www.google.com.", L"www.google.com.",
-     {true,  true,  true,  true,  true,
-      true,  true,  true,  true,  true,
-      true,  true,  true,  true,  true,
-      true,  true,  true,  true,  true,
-      true}},
-    {".", L".",
-     {true,  true,  true,  true,  true,
-      true,  true,  true,  true,  true,
-      true,  true,  true,  true,  true,
-      true,  true,  true,  true,  true,
-      true}},
-    {"", L"",
-     {true,  true,  true,  true,  true,
-      true,  true,  true,  true,  true,
-      true,  true,  true,  true,  true,
-      true,  true,  true,  true,  true,
-      true}},
-    // IDN
-    // Hanzi (Chinese)
-    {"xn--1lq90i.cn", L"\x5317\x4eac.cn",
-     {true,  false, true,  true,  false,
-      false, false, false, false, false,
-      false, false, false, false, false,
-      false, false, true,  true,  false,
-      true}},
-    // Hanzi + '123'
-    {"www.xn--123-p18d.com", L"www.\x4e00" L"123.com",
-     {true,  false, true,  true,  false,
-      false, false, false, false, false,
-      false, false, false, false, false,
-      false, false, true,  true,  false,
-      true}},
-    // Hanzi + Latin
-    {"www.xn--hello-9n1hm04c.com", L"www.hello\x4e2d\x56fd.com",
-     {false, false, true,  true,  false,
-      false, false, false, false, false,
-      false, false, false, false, false,
-      false, false, true,  true,  false,
-      true}},
-    // Kanji + Kana (Japanese)
-    {"xn--l8jvb1ey91xtjb.jp", L"\x671d\x65e5\x3042\x3055\x3072.jp",
-     {true,  false, false, true,  false,
-      false, false, false, false, false,
-      false, false, false, false, false,
-      false, false, false, true,  false,
-      false}},
-    #if 0
-    // U+30FC is not a part of the Japanese exemplar set.
-    // Enable this after 'fixing' ICU data or locally working around it.
-    // Katakana + Latin (Japanese)
-    {"xn--e-efusa1mzf.jp", L"e\x30b3\x30de\x30fc\x30b9.jp",
-     {true,   false, false, false, false,
-      false, false, false, false, false,
-      false, false, false, false, false,
-      false, false, false, false, false,
-      }},
-    #endif
-    // Hangul (Korean)
-    {"www.xn--or3b17p6jjc.kr", L"www.\xc804\xc790\xc815\xbd80.kr",
-     {true,  false, false, false, true,
-      false, false, false, false, false,
-      false, false, false, false, false,
-      false, false, false, true,  false,
-      false}},
-    // b<u-umlaut>cher (German)
-    {"xn--bcher-kva.de", L"b\x00fc" L"cher.de",
-     {true,  false, false, false, false,
-      false, false, false, false, true,
-      true,  true,  false, false, false,
-      true,  false, false, false, false,
-      false}},
-    // a with diaeresis
-    {"www.xn--frgbolaget-q5a.se", L"www.f\x00e4rgbolaget.se",
-     {true,  false, false, false, false,
-      false, false, false, false, false,
-      true,  false, true, false, false,
-      true,  false, false, false, false,
-      false}},
-    // c-cedilla (French)
-    {"www.xn--alliancefranaise-npb.fr", L"www.alliancefran\x00e7" L"aise.fr",
-     {true,  false, false, false, false,
-      false, false, false, false, true,
-      false, true,  false, false, false,
-      false, false, false, false, false,
-      false}},
-    // caf'e with acute accent' (French)
-    {"xn--caf-dma.fr", L"caf\x00e9.fr",
-     {true,  false, false, false, false,
-      false, false, false, false, true,
-      false, true,  false, false, false,
-      false, false, false, false, false,
-      false}},
-    // c-cedillla and a with tilde (Portuguese)
-    {"xn--poema-9qae5a.com.br", L"p\x00e3oema\x00e7\x00e3.com.br",
-     {true,  false, false, false, false,
-      false, false, false, false, false,
-      false, true,  false, false, false,
-      false, false, false, false, false,
-      false}},
-    // s with caron
-    {"xn--achy-f6a.com", L"\x0161" L"achy.com",
-     {true,  false, false, false, false,
-      false, false, false, false, false,
-      false, false, false, false, false,
-      false, false, false, false, false,
-      false}},
-    // TODO(jungshik) : Add examples with Cyrillic letters
-    // only used in some languages written in Cyrillic.
-    // Eutopia (Greek)
-    {"xn--kxae4bafwg.gr", L"\x03bf\x03c5\x03c4\x03bf\x03c0\x03af\x03b1.gr",
-     {true,  false, false, false, false,
-      false, false, false, true,  false,
-      false, false, false, false, false,
-      false, true,  false, false, false,
-      false}},
-    // Eutopia + 123 (Greek)
-    {"xn---123-pldm0haj2bk.gr",
-     L"\x03bf\x03c5\x03c4\x03bf\x03c0\x03af\x03b1-123.gr",
-     {true,  false, false, false, false,
-      false, false, false, true,  false,
-      false, false, false, false, false,
-      false, true,  false, false, false,
-      false}},
-    // Cyrillic (Russian)
-    {"xn--n1aeec9b.ru", L"\x0442\x043e\x0440\x0442\x044b.ru",
-     {true,  false, false, false, false,
-      false, false, true,  false, false,
-      false, false, false, false, false,
-      false, false, false, false, true,
-      true}},
-    // Cyrillic + 123 (Russian)
-    {"xn---123-45dmmc5f.ru", L"\x0442\x043e\x0440\x0442\x044b-123.ru",
-     {true,  false, false, false, false,
-      false, false, true,  false, false,
-      false, false, false, false, false,
-      false, false, false, false, true,
-      true}},
-    // Arabic
-    {"xn--mgba1fmg.ar", L"\x0627\x0641\x0644\x0627\x0645.ar",
-     {true,  false, false, false, false,
-      false, true,  false, false, false,
-      false, false, false, false, false,
-      false, false, false, false, false,
-      false}},
-    // Hebrew
-    {"xn--4dbib.he", L"\x05d5\x05d0\x05d4.he",
-     {true,  false, false, false, false,
-      true,  false, false, false, false,
-      false, false, false, false, false,
-      false, false, false, false, true,
-      false}},
-    // Thai
-    {"xn--12c2cc4ag3b4ccu.th",
-     L"\x0e2a\x0e32\x0e22\x0e01\x0e32\x0e23\x0e1a\x0e34\x0e19.th",
-     {true,  false, false, false, false,
-      false, false, false, false, false,
-      false, false, false, true,  false,
-      false, false, false, false, false,
-      false}},
-    // Devangari (Hindi)
-    {"www.xn--l1b6a9e1b7c.in", L"www.\x0905\x0915\x094b\x0932\x093e.in",
-     {true,  false, false, false, false,
-      false, false, false, false, false,
-      false, false, false, false, true,
-      false, false, false, false, false,
-      false}},
-    // Invalid IDN
-    {"xn--hello?world.com", NULL,
-     {false, false, false, false, false,
-      false, false, false, false, false,
-      false, false, false, false, false,
-      false, false, false, false, false,
-      false}},
-    // Unsafe IDNs
-    // "payp<alpha>l.com"
-    {"www.xn--paypl-g9d.com", L"payp\x03b1l.com",
-     {false, false, false, false, false,
-      false, false, false, false, false,
-      false, false, false, false, false,
-      false, false, false, false, false,
-      false}},
-    // google.gr with Greek omicron and epsilon
-    {"xn--ggl-6xc1ca.gr", L"g\x03bf\x03bfgl\x03b5.gr",
-     {false, false, false, false, false,
-      false, false, false, false, false,
-      false, false, false, false, false,
-      false, false, false, false, false,
-      false}},
-    // google.ru with Cyrillic o
-    {"xn--ggl-tdd6ba.ru", L"g\x043e\x043egl\x0435.ru",
-     {false, false, false, false, false,
-      false, false, false, false, false,
-      false, false, false, false, false,
-      false, false, false, false, false,
-      false}},
-    // h<e with acute>llo<China in Han>.cn
-    {"xn--hllo-bpa7979ih5m.cn", L"h\x00e9llo\x4e2d\x56fd.cn",
-     {false, false, false, false, false,
-      false, false, false, false, false,
-      false, false, false, false, false,
-      false, false, false, false, false,
-      false}},
-    // <Greek rho><Cyrillic a><Cyrillic u>.ru
-    {"xn--2xa6t2b.ru", L"\x03c1\x0430\x0443.ru",
-     {false, false, false, false, false,
-      false, false, false, false, false,
-      false, false, false, false, false,
-      false, false, false, false, false,
-      false}},
-    // One that's really long that will force a buffer realloc
-    {"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
-         "aaaaaaa",
-     L"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
-         L"aaaaaaaa",
-     {true,  true,  true,  true,  true,
-      true,  true,  true,  true,  true,
-      true,  true,  true,  true,  true,
-      true,  true,  true,  true,  true,
-      true}},
-    // Test cases for characters we blacklisted although allowed in IDN.
-    // Embedded spaces will be turned to %20 in the display.
-    // TODO(jungshik): We need to have more cases. This is a typical
-    // data-driven trap. The following test cases need to be separated
-    // and tested only for a couple of languages.
-    {"xn--osd3820f24c.kr", L"\xac00\xb098\x115f.kr",
-      {false, false, false, false, false,
-       false, false, false, false, false,
-       false, false, false, false, false,
-       false, false, false, false, false,
-       false}},
-    {"www.xn--google-ho0coa.com", L"www.\x2039google\x203a.com",
-      {false, false, false, false, false,
-       false, false, false, false, false,
-       false, false, false, false, false,
-       false, false, false, false, false,
-    }},
-    {"google.xn--comabc-k8d", L"google.com\x0338" L"abc",
-      {false, false, false, false, false,
-       false, false, false, false, false,
-       false, false, false, false, false,
-       false, false, false, false, false,
-       }},
-#if 0
-    // These two cases are special. We need a separate test.
-    // U+3000 and U+3002 are normalized to ASCII space and dot.
-    {"xn-- -kq6ay5z.cn", L"\x4e2d\x56fd\x3000.cn",
-      {false, false, true,  false, false,
-       false, false, false, false, false,
-       false, false, false, false, false,
-       false, false, true,  false, false,
-       true}},
-    {"xn--fiqs8s.cn", L"\x4e2d\x56fd\x3002" L"cn",
-      {false, false, true,  false, false,
-       false, false, false, false, false,
-       false, false, false, false, false,
-       false, false, true,  false, false,
-       true}},
-#endif
-  };
-
+TEST(NetUtilTest, IDNToUnicodeFast) {
   for (size_t i = 0; i < ARRAYSIZE_UNSAFE(idn_cases); i++) {
     for (size_t j = 0; j < arraysize(kLanguages); j++) {
+      // ja || zh,zh-TW,en || ko,ja -> IDNToUnicodeSlow
+      if (j == 3 || j == 17 || j == 18)
+        continue;
+      std::wstring output;
+      net::IDNToUnicode(idn_cases[i].input,
+                        static_cast<int>(strlen(idn_cases[i].input)),
+                        kLanguages[j],
+                        &output);
+      std::wstring expected(idn_cases[i].unicode_allowed[j] ?
+                            idn_cases[i].unicode_output :
+                            ASCIIToWide(idn_cases[i].input));
+      EXPECT_EQ(expected, output);
+    }
+  }
+}
+
+TEST(NetUtilTest, IDNToUnicodeSlow) {
+  for (size_t i = 0; i < ARRAYSIZE_UNSAFE(idn_cases); i++) {
+    for (size_t j = 0; j < arraysize(kLanguages); j++) {
+      // !(ja || zh,zh-TW,en || ko,ja) -> IDNToUnicodeFast
+      if (!(j == 3 || j == 17 || j == 18))
+        continue;
       std::wstring output;
       net::IDNToUnicode(idn_cases[i].input,
                         static_cast<int>(strlen(idn_cases[i].input)),

@@ -14,4 +14,4 @@ DiskCacheBackendTest.NewEvictionTrimInvalidEntry
 DiskCacheBackendTest.NewEvictionInvalidEntryEnumeration
 
 # Takes three minutes under valgrind.  Skip to keep valgrind bot < 10 minutes
-NetUtilTest.IDNToUnicode
+NetUtilTest.IDNToUnicodeSlow
