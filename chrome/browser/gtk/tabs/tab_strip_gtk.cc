@@ -11,6 +11,7 @@
 #include "base/gfx/gtk_util.h"
 #include "base/gfx/point.h"
 #include "chrome/browser/browser.h"
+#include "chrome/browser/browser_theme_provider.h"
 #include "chrome/browser/gtk/custom_button.h"
 #include "chrome/browser/gtk/tabs/dragged_tab_controller_gtk.h"
 #include "chrome/browser/tab_contents/tab_contents.h"
@@ -449,13 +450,13 @@ TabStripGtk::~TabStripGtk() {
   tab_data_.clear();
 }
 
-void TabStripGtk::Init(int width) {
-  ResourceBundle &rb = ResourceBundle::GetSharedInstance();
+void TabStripGtk::Init(int width, Profile* profile) {
+  ThemeProvider* theme_provider = profile->GetThemeProvider();
 
   model_->AddObserver(this);
 
   if (!background) {
-    background = rb.GetBitmapNamed(IDR_WINDOW_TOP_CENTER);
+    background = theme_provider->GetBitmapNamed(IDR_THEME_FRAME);
   }
 
   tabstrip_.Own(gtk_fixed_new());
@@ -993,6 +994,8 @@ gboolean TabStripGtk::OnExpose(GtkWidget* widget, GdkEventExpose* event,
   event->area.height = tabstrip->bounds_.height();
   gdk_region_union_with_rect(event->region, &event->area);
 
+  tabstrip->PaintBackground(event);
+
   // Paint the New Tab button.
   gtk_container_propagate_expose(GTK_CONTAINER(tabstrip->tabstrip_.get()),
       tabstrip->newtab_button_.get()->widget(), event);
@@ -1054,6 +1057,11 @@ void TabStripGtk::OnSizeAllocate(GtkWidget* widget, GtkAllocation* allocation,
 // static
 void TabStripGtk::OnNewTabClicked(GtkWidget* widget, TabStripGtk* tabstrip) {
   tabstrip->model_->delegate()->AddBlankTab(true);
+}
+
+void TabStripGtk::PaintBackground(GdkEventExpose* event) {
+  ChromeCanvasPaint canvas(event);
+  canvas.TileImageInt(*background, 0, 0, bounds_.width(), bounds_.height());
 }
 
 void TabStripGtk::SetTabBounds(TabGtk* tab, const gfx::Rect& bounds) {
