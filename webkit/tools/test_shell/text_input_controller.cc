@@ -4,6 +4,7 @@
 
 #include "webkit/tools/test_shell/text_input_controller.h"
 
+#include "base/string_util.h"
 #include "webkit/glue/webview.h"
 #include "webkit/glue/webframe.h"
 #include "webkit/glue/webtextinput.h"
@@ -50,7 +51,7 @@ void TextInputController::insertText(
     return;
 
   if (args.size() >= 1 && args[0].isString()) {
-    text_input->InsertText(args[0].ToString());
+    text_input->InsertText(UTF8ToUTF16(args[0].ToString()));
   }
 }
 
@@ -63,7 +64,7 @@ void TextInputController::doCommand(
     return;
 
   if (args.size() >= 1 && args[0].isString()) {
-    text_input->DoCommand(args[0].ToString());
+    text_input->DoCommand(UTF8ToUTF16(args[0].ToString()));
   }
 }
 
@@ -77,7 +78,7 @@ void TextInputController::setMarkedText(
 
   if (args.size() >= 3 && args[0].isString()
       && args[1].isNumber() && args[2].isNumber()) {
-    text_input->SetMarkedText(args[0].ToString(),
+    text_input->SetMarkedText(UTF8ToUTF16(args[0].ToString()),
                               args[1].ToInt32(),
                               args[2].ToInt32());
   }

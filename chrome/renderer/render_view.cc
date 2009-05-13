@@ -2434,7 +2434,7 @@ void RenderView::OnInsertText(const string16& text) {
     return;
   WebTextInput* text_input = frame->GetTextInput();
   if (text_input)
-    text_input->InsertText(UTF16ToUTF8(text));
+    text_input->InsertText(text);
 }
 
 void RenderView::OnSetPageEncoding(const std::wstring& encoding_name) {
