@@ -35,7 +35,10 @@ const wchar_t kGoogleUpdateExecutable[] = L"GoogleUpdate.exe";
 const wchar_t kUntaggedInstallerPattern[] = L"ChromeStandaloneSetup_";
 const wchar_t kDiffInstallerPattern[] = L"_from_";
 const wchar_t kFullInstallerPattern[] = L"_chrome_installer";
-const wchar_t kDevChannelBuildPattern[] = L"2.0.";
+const wchar_t kDevChannelBuild[] = L"2.0.";
+const wchar_t kStableChannelBuild[] = L"1.0.";
+const wchar_t kFullInstall[] = L"Full";
+const wchar_t kDiffInstall[] = L"Diff";
 
 // Google Chrome meta installer location.
 const wchar_t kChromeMetaInstallerExe[] =

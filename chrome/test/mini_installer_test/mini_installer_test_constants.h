@@ -36,7 +36,10 @@ extern const wchar_t kUserInstall[];
 extern const wchar_t kUntaggedInstallerPattern[];
 extern const wchar_t kDiffInstallerPattern[];
 extern const wchar_t kFullInstallerPattern[];
-extern const wchar_t kDevChannelBuildPattern[];
+extern const wchar_t kDevChannelBuild[];
+extern const wchar_t kStableChannelBuild[];
+extern const wchar_t kFullInstall[];
+extern const wchar_t kDiffInstall[];
 
 // Google Chrome meta installer location.
 extern const wchar_t kChromeApplyTagExe[];

@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
+// Copyright (c) 2006-2009 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
@@ -37,8 +37,10 @@ typedef std::vector<file_info> file_info_list;
 // This class has methods to install and uninstall Chrome mini installer.
 class ChromeMiniInstaller {
  public:
-  explicit ChromeMiniInstaller(std::wstring type) {
-    install_type_ = type;
+  explicit ChromeMiniInstaller(std::wstring install_type,
+                               std::wstring build_type) {
+    install_type_ = install_type;
+    build_channel_ = build_type;
   }
 
   ~ChromeMiniInstaller() {}
@@ -46,15 +48,15 @@ class ChromeMiniInstaller {
   // Closes specified process.
   void CloseProcesses(const std::wstring& executable_name);
 
-  // This method will first install the full installer and
-  // then over installs with diff installer.
-  void InstallDifferentialInstaller();
+  // Installs the latest full installer.
+  void InstallFullInstaller(bool over_install);
 
   // Installs chrome.
   void Install();
 
-  // Installs the latest full installer.
-  void InstallFullInstaller();
+  // This method will first install the full installer and
+  // then over installs with diff installer.
+  void OverInstallOnFullInstaller(const std::wstring& install_type);
 
   // Installs Google Chrome through meta installer.
   void InstallMetaInstaller();
@@ -64,18 +66,22 @@ class ChromeMiniInstaller {
                             const std::wstring& path = L"");
 
   // This will test the standalone installer.
-  void InstallStandaloneIntaller();
+  void InstallStandaloneInstaller();
 
   // Uninstalls Chrome.
   void UnInstall();
 
-  // This method takes care of all overinstall cases.
+  // This method will perform a over install
   void OverInstall();
 
  private:
   // This variable holds the install type.
   // Install type can be either system or user level.
   std::wstring install_type_;
+
+  // This variable holds the channel information. A dev build or stable build
+  // will be installed based on the build_channel_ value.
+  std::wstring build_channel_;
 
   bool standalone_installer;
 
@@ -128,6 +134,10 @@ class ChromeMiniInstaller {
   // the diff installer file name argument.
   bool GetPreviousFullInstaller(const std::wstring& diff_file,
                                 std::wstring *previous);
+
+  // This method will get the previous build number
+  void GetPreviousBuildNumber(const std::wstring& path,
+                              std::wstring *build_number);
 
   // Get HKEY based on install type.
   HKEY GetRootRegistryKey();
