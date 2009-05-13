@@ -1031,6 +1031,8 @@ BUG8402 MAC : LayoutTests/fast/forms/drag-out-of-textarea.html = FAIL PASS
 // URLs.
 BUG8407 : LayoutTests/fast/loader/main-document-url-for-non-http-loads.html = FAIL
 
+BUG11851 : LayoutTests/fast/dom/Element/attr-param-typechecking.html = CRASH
+
 // ----------------------------------------------------------------------------
 // NEW FOR THE MERGE
 //
