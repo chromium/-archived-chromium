@@ -1897,9 +1897,6 @@
         'app/keystone_glue.h',
         'app/keystone_glue.m',
         'app/scoped_ole_initializer.h',
-        'app/tree_model.h',
-        'app/tree_node_iterator.h',
-        'app/tree_node_model.h',
       ],
       'mac_bundle_resources': [
         'app/nibs/en.lproj/BrowserWindow.xib',
