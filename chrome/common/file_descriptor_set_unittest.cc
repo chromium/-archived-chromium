@@ -12,6 +12,24 @@
 #include "chrome/common/file_descriptor_set_posix.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
+namespace {
+
+// Get a safe file descriptor for test purposes.
+int GetSafeFd() {
+  return open("/dev/null", O_RDONLY);
+}
+
+// Returns true if fd was already closed.  Closes fd if not closed.
+bool VerifyClosed(int fd) {
+  const int duped = dup(fd);
+  if (duped != -1) {
+    HANDLE_EINTR(close(duped));
+    HANDLE_EINTR(close(fd));
+    return false;
+  }
+  return true;
+}
+
 // The FileDescriptorSet will try and close some of the descriptor numbers
 // which we given it. This is the base descriptor value. It's great enough such
 // that no real descriptor will accidently be closed.
@@ -36,13 +54,15 @@ TEST(FileDescriptorSet, BasicAddAndClose) {
 
   ASSERT_EQ(set->size(), 0u);
   ASSERT_TRUE(set->empty());
-  ASSERT_TRUE(set->AddAndAutoClose(kFDBase));
+  const int fd = GetSafeFd();
+  ASSERT_TRUE(set->AddAndAutoClose(fd));
   ASSERT_EQ(set->size(), 1u);
   ASSERT_TRUE(!set->empty());
 
   set->CommitAll();
-}
 
+  ASSERT_TRUE(VerifyClosed(fd));
+}
 TEST(FileDescriptorSet, MaxSize) {
   scoped_refptr<FileDescriptorSet> set = new FileDescriptorSet;
 
@@ -63,12 +83,15 @@ TEST(FileDescriptorSet, SetDescriptors) {
   set->SetDescriptors(NULL, 0);
   ASSERT_TRUE(set->empty());
 
-  static const int fds[] = {kFDBase};
+  const int fd = GetSafeFd();
+  static const int fds[] = {fd};
   set->SetDescriptors(fds, 1);
   ASSERT_TRUE(!set->empty());
   ASSERT_EQ(set->size(), 1u);
 
   set->CommitAll();
+
+  ASSERT_TRUE(VerifyClosed(fd));
 }
 
 TEST(FileDescriptorSet, GetDescriptors) {
@@ -135,24 +158,21 @@ TEST(FileDescriptorSet, WalkCycle) {
 TEST(FileDescriptorSet, DontClose) {
   scoped_refptr<FileDescriptorSet> set = new FileDescriptorSet;
 
-  const int fd = open("/dev/null", O_RDONLY);
+  const int fd = GetSafeFd();
   ASSERT_TRUE(set->Add(fd));
   set->CommitAll();
 
-  const int duped = dup(fd);
-  ASSERT_GE(duped, 0);
-  HANDLE_EINTR(close(duped));
-  HANDLE_EINTR(close(fd));
+  ASSERT_FALSE(VerifyClosed(fd));
 }
 
 TEST(FileDescriptorSet, DoClose) {
   scoped_refptr<FileDescriptorSet> set = new FileDescriptorSet;
 
-  const int fd = open("/dev/null", O_RDONLY);
+  const int fd = GetSafeFd();
   ASSERT_TRUE(set->AddAndAutoClose(fd));
   set->CommitAll();
 
-  const int duped = dup(fd);
-  ASSERT_EQ(duped, -1);
-  HANDLE_EINTR(close(fd));
+  ASSERT_TRUE(VerifyClosed(fd));
 }
+
+}  // namespace
