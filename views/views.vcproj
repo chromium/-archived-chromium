@@ -716,18 +716,6 @@
 				Name="tree"
 				>
 				<File
-					RelativePath=".\controls\tree\tree_model.h"
-					>
-				</File>
-				<File
-					RelativePath=".\controls\tree\tree_node_iterator.h"
-					>
-				</File>
-				<File
-					RelativePath=".\controls\tree\tree_node_model.h"
-					>
-				</File>
-				<File
 					RelativePath=".\controls\tree\tree_view.cc"
 					>
 				</File>

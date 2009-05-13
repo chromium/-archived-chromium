@@ -1076,10 +1076,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\views\controls\tree\tree_node_iterator_unittest.cc"
-				>
-			</File>
-			<File
 				RelativePath="..\..\..\views\view_unittest.cc"
 				>
 			</File>
@@ -1129,6 +1125,10 @@
 			</File>
 			<File
 				RelativePath="..\..\..\app\gfx\text_elider_unittest.cc"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\app\tree_node_iterator_unittest.cc"
 				>
 			</File>
 			<File

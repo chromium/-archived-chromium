@@ -7,12 +7,12 @@
 
 #include <set>
 
+#include "app/tree_node_model.h"
 #include "chrome/browser/bookmarks/bookmark_editor.h"
 #include "chrome/browser/bookmarks/bookmark_model.h"
 #include "views/controls/button/button.h"
 #include "views/controls/menu/menu.h"
 #include "views/controls/text_field.h"
-#include "views/controls/tree/tree_node_model.h"
 #include "views/controls/tree/tree_view.h"
 #include "views/window/dialog_delegate.h"
 
@@ -78,8 +78,7 @@ class BookmarkEditorView : public BookmarkEditor,
 
   // TreeViewObserver methods.
   virtual void OnTreeViewSelectionChanged(views::TreeView* tree_view);
-  virtual bool CanEdit(views::TreeView* tree_view,
-                       views::TreeModelNode* node);
+  virtual bool CanEdit(views::TreeView* tree_view, TreeModelNode* node);
 
   // TextField::Controller methods.
   virtual void ContentsChanged(views::TextField* sender,
@@ -113,16 +112,16 @@ class BookmarkEditorView : public BookmarkEditor,
 
  private:
   // Type of node in the tree.
-  typedef views::TreeNodeWithValue<int> EditorNode;
+  typedef TreeNodeWithValue<int> EditorNode;
 
   // Model for the TreeView. Trivial subclass that doesn't allow titles with
   // empty strings.
-  class EditorTreeModel : public views::TreeNodeModel<EditorNode> {
+  class EditorTreeModel : public TreeNodeModel<EditorNode> {
    public:
     explicit EditorTreeModel(EditorNode* root)
         : TreeNodeModel<EditorNode>(root) {}
 
-    virtual void SetTitle(views::TreeModelNode* node,
+    virtual void SetTitle(TreeModelNode* node,
                           const std::wstring& title) {
       if (!title.empty())
         TreeNodeModel::SetTitle(node, title);

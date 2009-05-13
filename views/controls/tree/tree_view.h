@@ -7,10 +7,10 @@
 
 #include <map>
 
+#include "app/tree_model.h"
 #include "base/basictypes.h"
 #include "base/logging.h"
 #include "views/controls/native_control.h"
-#include "views/controls/tree/tree_model.h"
 
 namespace views {
 

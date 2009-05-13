@@ -27,7 +27,9 @@
 #include "chrome/common/ipc_sync_channel.h"
 #include "chrome/common/notification_observer.h"
 #include "chrome/test/automation/automation_messages.h"
+#if defined(OS_WIN)
 #include "views/event.h"
+#endif  // defined(OS_WIN)
 
 #if defined(OS_WIN)
 // TODO(port): enable these.

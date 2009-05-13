@@ -2,6 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+#include "app/tree_node_model.h"
 #include "base/string_util.h"
 #include "chrome/browser/bookmarks/bookmark_codec.h"
 #include "chrome/browser/bookmarks/bookmark_model.h"
@@ -12,7 +13,6 @@
 #include "chrome/common/notification_service.h"
 #include "chrome/test/testing_profile.h"
 #include "testing/gtest/include/gtest/gtest.h"
-#include "views/controls/tree/tree_node_model.h"
 
 using base::Time;
 using base::TimeDelta;
@@ -467,7 +467,7 @@ TEST_F(BookmarkModelTest, NotifyURLsStarred) {
 namespace {
 
 // See comment in PopulateNodeFromString.
-typedef views::TreeNodeWithValue<history::StarredEntry::Type> TestNode;
+typedef TreeNodeWithValue<history::StarredEntry::Type> TestNode;
 
 // Does the work of PopulateNodeFromString. index gives the index of the current
 // element in description to process.

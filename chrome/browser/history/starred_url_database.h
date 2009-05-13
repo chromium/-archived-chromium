@@ -8,12 +8,12 @@
 #include <map>
 #include <set>
 
+#include "app/tree_node_model.h"
 #include "base/basictypes.h"
 #include "base/file_path.h"
 #include "chrome/browser/history/history_types.h"
 #include "chrome/browser/history/url_database.h"
 #include "testing/gtest/include/gtest/gtest_prod.h"
-#include "views/controls/tree/tree_node_model.h"
 
 struct sqlite3;
 class SqliteStatementCache;
@@ -115,7 +115,7 @@ class StarredURLDatabase : public URLDatabase {
   StarID CreateStarredEntry(StarredEntry* entry);
 
   // Used when checking integrity of starred table.
-  typedef views::TreeNodeWithValue<history::StarredEntry> StarredNode;
+  typedef TreeNodeWithValue<history::StarredEntry> StarredNode;
 
   // Returns the max group id, or 0 if there is an error.
   UIStarID GetMaxGroupID();

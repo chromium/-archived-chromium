@@ -388,7 +388,7 @@ void BookmarkManagerView::OnKeyDown(unsigned short virtual_keycode) {
 
 void BookmarkManagerView::OnTreeViewSelectionChanged(
     views::TreeView* tree_view) {
-  views::TreeModelNode* node = tree_view_->GetSelectedNode();
+  TreeModelNode* node = tree_view_->GetSelectedNode();
 
   BookmarkTableModel* new_table_model = NULL;
   BookmarkNode* table_parent_node = NULL;

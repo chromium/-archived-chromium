@@ -22,7 +22,7 @@
 //   a1
 //   g1
 class BookmarkFolderTreeModelTest : public testing::Test,
-                                    public views::TreeModelObserver {
+                                    public TreeModelObserver {
  public:
   BookmarkFolderTreeModelTest()
       : url1_("http://1"),
@@ -61,27 +61,27 @@ class BookmarkFolderTreeModelTest : public testing::Test,
     return profile_->GetBookmarkModel();
   }
 
-  virtual void TreeNodesAdded(views::TreeModel* model,
-                              views::TreeModelNode* parent,
+  virtual void TreeNodesAdded(TreeModel* model,
+                              TreeModelNode* parent,
                               int start,
                               int count) {
     added_count_++;
   }
 
-  virtual void TreeNodesRemoved(views::TreeModel* model,
-                                views::TreeModelNode* parent,
+  virtual void TreeNodesRemoved(TreeModel* model,
+                                TreeModelNode* parent,
                                 int start,
                                 int count) {
     removed_count_++;
   }
 
-  virtual void TreeNodeChanged(views::TreeModel* model,
-                               views::TreeModelNode* node) {
+  virtual void TreeNodeChanged(TreeModel* model,
+                               TreeModelNode* node) {
     changed_count_++;
   }
 
-  virtual void TreeNodeChildrenReordered(views::TreeModel* model,
-                                         views::TreeModelNode* parent) {
+  virtual void TreeNodeChildrenReordered(TreeModel* model,
+                                         TreeModelNode* parent) {
     reordered_count_++;
   }
 
@@ -118,7 +118,7 @@ class BookmarkFolderTreeModelTest : public testing::Test,
 // and other folders matches the initial state.
 TEST_F(BookmarkFolderTreeModelTest, InitialState) {
   // Verify the first 4 nodes.
-  views::TreeModelNode* root = model_->GetRoot();
+  TreeModelNode* root = model_->GetRoot();
   ASSERT_EQ(4, model_->GetChildCount(root));
   EXPECT_EQ(BookmarkFolderTreeModel::BOOKMARK,
             model_->GetNodeType(model_->GetChild(root, 0)));
@@ -130,7 +130,7 @@ TEST_F(BookmarkFolderTreeModelTest, InitialState) {
             model_->GetNodeType(model_->GetChild(root, 3)));
 
   // Verify the contents of the bookmark bar node.
-  views::TreeModelNode* bb_node = model_->GetChild(root, 0);
+  TreeModelNode* bb_node = model_->GetChild(root, 0);
   EXPECT_TRUE(model_->TreeNodeAsBookmarkNode(bb_node) ==
               bookmark_model()->GetBookmarkBarNode());
   ASSERT_EQ(1, model_->GetChildCount(bb_node));
@@ -138,7 +138,7 @@ TEST_F(BookmarkFolderTreeModelTest, InitialState) {
               bookmark_model()->GetBookmarkBarNode()->GetChild(1));
 
   // Verify the contents of the other folders node.
-  views::TreeModelNode* other_node = model_->GetChild(root, 1);
+  TreeModelNode* other_node = model_->GetChild(root, 1);
   EXPECT_TRUE(model_->TreeNodeAsBookmarkNode(other_node) ==
               bookmark_model()->other_node());
   ASSERT_EQ(1, model_->GetChildCount(other_node));

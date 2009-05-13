@@ -2,19 +2,17 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef VIEWS_CONTROLS_TREE_TREE_NODE_MODEL_H_
-#define VIEWS_CONTROLS_TREE_TREE_NODE_MODEL_H_
+#ifndef APP_TREE_NODE_MODEL_H_
+#define APP_TREE_NODE_MODEL_H_
 
 #include <algorithm>
 #include <vector>
 
+#include "app/tree_model.h"
 #include "base/basictypes.h"
 #include "base/scoped_ptr.h"
 #include "base/scoped_vector.h"
 #include "base/stl_util-inl.h"
-#include "views/controls/tree/tree_model.h"
-
-namespace views {
 
 // TreeNodeModel and TreeNodes provide an implementation of TreeModel around
 // TreeNodes. TreeNodes form a directed acyclic graph.
@@ -278,6 +276,4 @@ class TreeNodeModel : public TreeModel {
   DISALLOW_COPY_AND_ASSIGN(TreeNodeModel);
 };
 
-}  // namespace views
-
-#endif  // VIEWS_CONTROLS_TREE_TREE_NODE_MODEL_H_
+#endif  // APP_TREE_NODE_MODEL_H_

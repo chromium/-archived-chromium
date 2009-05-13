@@ -12,6 +12,7 @@
 #else
 #include "chrome/common/temp_scaffolding_stubs.h"
 #endif
+#include "app/tree_node_iterator.h"
 #include "base/basictypes.h"
 #include "base/string_util.h"
 #include "base/time.h"
@@ -28,7 +29,6 @@
 #include "chrome/common/pref_service.h"
 #include "grit/chromium_strings.h"
 #include "grit/generated_resources.h"
-#include "views/controls/tree/tree_node_iterator.h"
 #include "views/event.h"
 
 using base::Time;
@@ -417,7 +417,7 @@ std::vector<BookmarkNode*> GetMostRecentlyModifiedGroups(
     BookmarkModel* model,
     size_t max_count) {
   std::vector<BookmarkNode*> nodes;
-  views::TreeNodeIterator<BookmarkNode> iterator(model->root_node());
+  TreeNodeIterator<BookmarkNode> iterator(model->root_node());
   while (iterator.has_next()) {
     BookmarkNode* parent = iterator.Next();
     if (parent->is_folder() && parent->date_group_modified() > base::Time()) {
@@ -455,7 +455,7 @@ std::vector<BookmarkNode*> GetMostRecentlyModifiedGroups(
 void GetMostRecentlyAddedEntries(BookmarkModel* model,
                                  size_t count,
                                  std::vector<BookmarkNode*>* nodes) {
-  views::TreeNodeIterator<BookmarkNode> iterator(model->root_node());
+  TreeNodeIterator<BookmarkNode> iterator(model->root_node());
   while (iterator.has_next()) {
     BookmarkNode* node = iterator.Next();
     if (node->is_url()) {
@@ -481,7 +481,7 @@ void GetBookmarksMatchingText(BookmarkModel* model,
   if (query_nodes.empty())
     return;
 
-  views::TreeNodeIterator<BookmarkNode> iterator(model->root_node());
+  TreeNodeIterator<BookmarkNode> iterator(model->root_node());
   Snippet::MatchPositions match_position;
   while (iterator.has_next()) {
     BookmarkNode* node = iterator.Next();
@@ -511,7 +511,7 @@ void GetBookmarksContainingText(BookmarkModel* model,
   if (words.empty())
     return;
 
-  views::TreeNodeIterator<BookmarkNode> iterator(model->root_node());
+  TreeNodeIterator<BookmarkNode> iterator(model->root_node());
   while (iterator.has_next()) {
     BookmarkNode* node = iterator.Next();
     if (node->is_url() && DoesBookmarkContainWords(node, words)) {

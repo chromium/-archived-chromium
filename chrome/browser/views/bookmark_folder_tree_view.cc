@@ -77,7 +77,7 @@ int BookmarkFolderTreeView::OnPerformDrop(const views::DropTargetEvent& event) {
 }
 
 BookmarkNode* BookmarkFolderTreeView::GetSelectedBookmarkNode() {
-  views::TreeModelNode* selected_node = GetSelectedNode();
+  TreeModelNode* selected_node = GetSelectedNode();
   if (!selected_node)
     return NULL;
   return TreeNodeAsBookmarkNode(folder_model()->AsNode(selected_node));
@@ -141,7 +141,7 @@ BookmarkFolderTreeView::DropPosition BookmarkFolderTreeView::
     RECT bounds;
     TreeView_GetItemRect(hwnd, item, &bounds, TRUE);
     if (y < bounds.bottom) {
-      views::TreeModelNode* model_node = GetNodeForTreeItem(item);
+      TreeModelNode* model_node = GetNodeForTreeItem(item);
       if (folder_model()->GetNodeType(model_node) !=
           BookmarkFolderTreeModel::BOOKMARK) {
         // Only allow drops on bookmark nodes.

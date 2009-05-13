@@ -2,15 +2,13 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef VIEWS_CONTROLS_TREE_TREE_NODE_ITERATOR_H_
-#define VIEWS_CONTROLS_TREE_TREE_NODE_ITERATOR_H_
+#ifndef APP_TREE_NODE_ITERATOR_H_
+#define APP_TREE_NODE_ITERATOR_H_
 
 #include <stack>
 
 #include "base/basictypes.h"
 #include "base/logging.h"
-
-namespace views {
 
 // Iterator that iterates over the descendants of a node. The iteration does
 // not include the node itself, only the descendants. The following illustrates
@@ -69,6 +67,4 @@ class TreeNodeIterator {
   DISALLOW_COPY_AND_ASSIGN(TreeNodeIterator);
 };
 
-}  // namespace views
-
-#endif  // VIEWS_CONTROLS_TREE_TREE_NODE_ITERATOR_H_
+#endif  // APP_TREE_NODE_ITERATOR_H_

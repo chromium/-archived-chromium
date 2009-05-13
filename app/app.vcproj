@@ -262,6 +262,18 @@
 			>
 		</File>
 		<File
+			RelativePath=".\tree_model.h"
+			>
+		</File>
+		<File
+			RelativePath=".\tree_node_iterator.h"
+			>
+		</File>
+		<File
+			RelativePath=".\tree_node_model.h"
+			>
+		</File>
+		<File
 			RelativePath=".\win_util.cc"
 			>
 		</File>

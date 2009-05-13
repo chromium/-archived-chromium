@@ -4,14 +4,12 @@
 
 #include "testing/gtest/include/gtest/gtest.h"
 
-#include "views/controls/tree/tree_node_iterator.h"
-#include "views/controls/tree/tree_node_model.h"
+#include "app/tree_node_iterator.h"
+#include "app/tree_node_model.h"
 
-typedef testing::Test TreeNodeIteratorTest;
+namespace {
 
-using views::TreeNodeWithValue;
-
-TEST_F(TreeNodeIteratorTest, Test) {
+TEST(TreeNodeIteratorTest, Test) {
   TreeNodeWithValue<int> root;
   root.Add(0, new TreeNodeWithValue<int>(1));
   root.Add(1, new TreeNodeWithValue<int>(2));
@@ -21,7 +19,7 @@ TEST_F(TreeNodeIteratorTest, Test) {
   f3->Add(0, f4);
   f4->Add(0, new TreeNodeWithValue<int>(5));
 
-  views::TreeNodeIterator<TreeNodeWithValue<int> > iterator(&root);
+  TreeNodeIterator<TreeNodeWithValue<int> > iterator(&root);
   ASSERT_TRUE(iterator.has_next());
   ASSERT_EQ(root.GetChild(0), iterator.Next());
 
@@ -39,3 +37,5 @@ TEST_F(TreeNodeIteratorTest, Test) {
 
   ASSERT_FALSE(iterator.has_next());
 }
+
+}  // namespace

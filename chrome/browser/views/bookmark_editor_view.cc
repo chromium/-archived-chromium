@@ -31,7 +31,6 @@ using views::GridLayout;
 using views::Label;
 using views::NativeButton;
 using views::TextField;
-using views::TreeNode;
 
 // Background color of text field when URL is invalid.
 static const SkColor kErrorColor = SkColorSetRGB(0xFF, 0xBC, 0xBC);
@@ -162,7 +161,7 @@ void BookmarkEditorView::OnTreeViewSelectionChanged(
 }
 
 bool BookmarkEditorView::CanEdit(views::TreeView* tree_view,
-                                 views::TreeModelNode* node) {
+                                 TreeModelNode* node) {
   // Only allow editting of children of the bookmark bar node and other node.
   EditorNode* bb_node = tree_model_->AsNode(node);
   return (bb_node->GetParent() && bb_node->GetParent()->GetParent());

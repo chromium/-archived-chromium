@@ -2,16 +2,14 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef VIEWS_CONTROLS_TREE_TREE_MODEL_H_
-#define VIEWS_CONTROLS_TREE_TREE_MODEL_H_
+#ifndef APP_TREE_MODEL_H_
+#define APP_TREE_MODEL_H_
 
 #include <string>
 
 #include "base/logging.h"
 
 class SkBitmap;
-
-namespace views {
 
 class TreeModel;
 
@@ -86,6 +84,4 @@ class TreeModel {
   virtual int GetIconIndex(TreeModelNode* node) { return -1; }
 };
 
-}  // namespace views
-
-#endif  // VIEWS_CONTROLS_TREE_TREE_MODEL_H_
+#endif  // APP_TREE_TREE_MODEL_H_
