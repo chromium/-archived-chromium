@@ -297,7 +297,6 @@
         '../third_party/skia/src/core/SkUtils.cpp',
         '../third_party/skia/src/core/SkWriter32.cpp',
         '../third_party/skia/src/core/SkXfermode.cpp',
-        '../third_party/skia/src/core/core_files.mk',
 
         '../third_party/skia/src/effects/Sk1DPathEffect.cpp',
         '../third_party/skia/src/effects/Sk2DPathEffect.cpp',
