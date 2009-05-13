@@ -1052,17 +1052,11 @@ void HistoryHandler::HandleSearchHistoryPage(const Value* content) {
       std::wstring wstring_value;
       if (string_value->GetAsString(&wstring_value)) {
         UserMetrics::RecordAction(L"NTP_SearchHistory", dom_ui_->GetProfile());
-
-#if defined(OS_WIN)
-// TODO(port): include this once history is converted to HTML
         dom_ui_->tab_contents()->controller().LoadURL(
             HistoryUI::GetHistoryURLWithSearchText(wstring_value),
             GURL(),
             PageTransition::LINK);
         // We are deleted by LoadURL, so do not call anything else.
-#else
-        NOTIMPLEMENTED();
-#endif
       }
     }
   }
