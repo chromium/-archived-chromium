@@ -138,7 +138,7 @@
             '.',
           ],
           'dependencies': [
-            '../../../build/temp_gyp/breakpad.gyp:breakpad_handler',
+            '../../../breakpad/breakpad.gyp:breakpad_handler',
             '../../default_plugin/default_plugin.gyp:default_plugin',
           ],
           # TODO(bradnelson):  

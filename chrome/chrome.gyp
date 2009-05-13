@@ -2060,8 +2060,8 @@
           ],
           'dependencies': [
             'views',
-            '../build/temp_gyp/breakpad.gyp:breakpad_handler',
-            '../build/temp_gyp/breakpad.gyp:breakpad_sender',
+            '../breakpad/breakpad.gyp:breakpad_handler',
+            '../breakpad/breakpad.gyp:breakpad_sender',
             '../sandbox/sandbox.gyp:sandbox',
             'worker',
           ],
