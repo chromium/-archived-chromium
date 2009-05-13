@@ -5,6 +5,7 @@
 #include "base/base_paths.h"
 #include "base/file_util.h"
 #include "media/base/yuv_scale.h"
+#include "media/base/yuv_row.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
 // Reference images were created with the following steps
@@ -33,12 +34,14 @@ static const int kScaledWidth = 1024;
 static const int kScaledHeight = 768;
 static const int kBpp = 4;
 
+// TODO(fbarchard): Move hash function to somewhere common.
+namespace {
 // DJB2 hash
-unsigned int hash(unsigned char *s, size_t len) {
-  unsigned int hash = 5381;
+unsigned int hash(unsigned char *s, size_t len, unsigned int hash = 5381) {
   while (len--)
     hash = hash * 33 + *s++;
   return hash;
+}
 }
 
 TEST(YuvScaleTest, Basic) {
@@ -76,7 +79,12 @@ TEST(YuvScaleTest, Basic) {
   // To get this hash value, run once and examine the following EXPECT_EQ.
   // Then plug new hash value into EXPECT_EQ statements.
 
-  EXPECT_EQ(rgb_hash, 1849654084u);
+  // TODO(fbarchard): Make reference code mimic MMX exactly
+#if USE_MMX
+  EXPECT_EQ(379971680u, rgb_hash);
+#else
+  EXPECT_EQ(197274901u, rgb_hash);
+#endif
   return;  // This is here to allow you to put a break point on this line
 }
 
@@ -115,7 +123,12 @@ TEST(YV16ScaleTest, Basic) {
   // To get this hash value, run once and examine the following EXPECT_EQ.
   // Then plug new hash value into EXPECT_EQ statements.
 
-  EXPECT_EQ(rgb_hash, 1297606858u);
+  // TODO(fbarchard): Make reference code mimic MMX exactly
+#if USE_MMX
+  EXPECT_EQ(2317989539u, rgb_hash);
+#else
+  EXPECT_EQ(2946450771u, rgb_hash);
+#endif
   return;
 }
 

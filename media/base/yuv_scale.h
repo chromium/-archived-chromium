@@ -30,7 +30,6 @@ enum Rotate {
 // 6       5
 // ->1   2<-
 
-
 // Scale a frame of YV12 (aka YUV420) to 32 bit ARGB.
 void ScaleYV12ToRGB32(const uint8* yplane,
                       const uint8* uplane,
