@@ -5,7 +5,25 @@
 #include <shlobj.h>
 
 #include "base/scoped_comptr_win.h"
+#include "base/scoped_ptr.h"
 #include "testing/gtest/include/gtest/gtest.h"
+
+namespace {
+
+struct Dummy {
+  Dummy() : adds(0), releases(0) { }
+  void AddRef() { ++adds; }
+  void Release() { ++releases; }
+
+  int adds;
+  int releases;
+};
+
+extern const IID dummy_iid;
+const IID dummy_iid = { 0x12345678u, 0x1234u, 0x5678u, 01, 23, 45, 67, 89,
+                        01, 23, 45 };
+
+}  // namespace
 
 TEST(ScopedComPtrTest, ScopedComPtr) {
   EXPECT_TRUE(memcmp(&ScopedComPtr<IUnknown>::iid(), &IID_IUnknown,
@@ -49,4 +67,31 @@ TEST(ScopedComPtrTest, ScopedComPtr) {
   }
 
   ::CoUninitialize();
+}
+
+TEST(ScopedComPtrTest, ScopedComPtrVector) {
+  // Verify we don't get error C2558.
+  typedef ScopedComPtr<Dummy, &dummy_iid> Ptr;
+  std::vector<Ptr> bleh;
+  scoped_ptr<Dummy> p(new Dummy);
+  {
+    Ptr p2(p.get());
+    EXPECT_EQ(p->adds, 1);
+    EXPECT_EQ(p->releases, 0);
+    Ptr p3 = p2;
+    EXPECT_EQ(p->adds, 2);
+    EXPECT_EQ(p->releases, 0);
+    p3 = p2;
+    EXPECT_EQ(p->adds, 3);
+    EXPECT_EQ(p->releases, 1);
+    bleh.push_back(p2);
+    EXPECT_EQ(p->adds, 5);
+    EXPECT_EQ(p->releases, 2);
+    EXPECT_EQ(bleh[0], p.get());
+    bleh.pop_back();
+    EXPECT_EQ(p->adds, 5);
+    EXPECT_EQ(p->releases, 3);
+  }
+  EXPECT_EQ(p->adds, 5);
+  EXPECT_EQ(p->releases, 5);
 }

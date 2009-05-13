@@ -34,7 +34,7 @@ class ScopedComPtr : public scoped_refptr<Interface> {
   explicit ScopedComPtr(Interface* p) : ParentClass(p) {
   }
 
-  explicit ScopedComPtr(const ScopedComPtr<Interface, interface_id>& p)
+  ScopedComPtr(const ScopedComPtr<Interface, interface_id>& p)
       : ParentClass(p) {
   }
 
