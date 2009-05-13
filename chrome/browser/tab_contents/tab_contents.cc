@@ -1626,6 +1626,8 @@ void TabContents::RenderViewCreated(RenderViewHost* render_view_host) {
     render_view_host->Send(
         new ViewMsg_EnableViewSourceMode(render_view_host->routing_id()));
   }
+
+  view()->RenderViewCreated(render_view_host);
 }
 
 void TabContents::RenderViewReady(RenderViewHost* rvh) {

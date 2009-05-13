@@ -12,6 +12,7 @@
 #include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/common/notification_type.h"
 #include "chrome/common/notification_service.h"
+#include "chrome/common/render_messages.h"
 
 #include "chrome/common/temp_scaffolding_stubs.h"
 
@@ -88,6 +89,13 @@ void TabContentsViewMac::StartDragging(const WebDropData& drop_data) {
 }
 
 void TabContentsViewMac::OnContentsDestroy() {
+}
+
+void TabContentsViewMac::RenderViewCreated(RenderViewHost* host) {
+  // We want updates whenever the intrinsic width of the webpage
+  // changes. Put the RenderView into that mode.
+  int routing_id = host->routing_id();
+  host->Send(new ViewMsg_EnableIntrinsicWidthChangedMode(routing_id));
 }
 
 void TabContentsViewMac::SetPageTitle(const std::wstring& title) {

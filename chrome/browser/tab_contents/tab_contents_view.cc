@@ -11,7 +11,8 @@
 #include "chrome/browser/tab_contents/tab_contents_delegate.h"
 
 TabContentsView::TabContentsView(TabContents* tab_contents)
-    : tab_contents_(tab_contents) {
+    : tab_contents_(tab_contents),
+      preferred_width_(0) {
 }
 
 void TabContentsView::CreateView() {
@@ -19,6 +20,14 @@ void TabContentsView::CreateView() {
 
 void TabContentsView::RenderWidgetHostDestroyed(RenderWidgetHost* host) {
   delegate_view_helper_.RenderWidgetHostDestroyed(host);
+}
+
+void TabContentsView::RenderViewCreated(RenderViewHost* host) {
+  // Default implementation does nothing. Platforms may override.
+}
+
+void TabContentsView::UpdatePreferredWidth(int pref_width) {
+  preferred_width_ = pref_width;
 }
 
 void TabContentsView::CreateNewWindow(int route_id,

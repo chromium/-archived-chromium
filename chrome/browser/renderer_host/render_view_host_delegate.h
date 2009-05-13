@@ -117,6 +117,9 @@ class RenderViewHostDelegate {
     // specified events. This gives an opportunity to the browser to process the
     // event (used for keyboard shortcuts).
     virtual void HandleKeyboardEvent(const NativeWebKeyboardEvent& event) = 0;
+
+    // The content's intrinsic width (prefWidth) changed.
+    virtual void UpdatePreferredWidth(int pref_width) = 0;
   };
 
   // Interface for saving web pages.
@@ -252,9 +255,6 @@ class RenderViewHostDelegate {
                                 const GURL& image_url,
                                 bool errored,
                                 const SkBitmap& image) { }
-
-  // The content's intrinsic width (prefWidth) changed.
-  virtual void DidContentsPreferredWidthChange(const int pref_width) { }
 
   // The page wants to open a URL with the specified disposition.
   virtual void RequestOpenURL(const GURL& url,

@@ -110,6 +110,11 @@ class TabContentsView : public RenderViewHostDelegate::View {
   // RenderWidgetHost is deleted. Removes |host| from internal maps.
   void RenderWidgetHostDestroyed(RenderWidgetHost* host);
 
+  // Invoked when the TabContents is notified that the RenderView has been
+  // fully created. The default implementation does nothing; override
+  // for platform-specific behavior is needed.
+  virtual void RenderViewCreated(RenderViewHost* host);
+
   // Sets focus to the native widget for this tab.
   virtual void Focus() = 0;
 
@@ -123,6 +128,12 @@ class TabContentsView : public RenderViewHostDelegate::View {
   // Restores focus to the last focus view. If StoreFocus has not yet been
   // invoked, SetInitialFocus is invoked.
   virtual void RestoreFocus() = 0;
+
+  // Set and return the content's intrinsic width.
+  virtual void UpdatePreferredWidth(int pref_width);
+  int preferred_width() const {
+    return preferred_width_;
+  }
 
  protected:
   TabContentsView() {}  // Abstract interface.
@@ -170,6 +181,9 @@ class TabContentsView : public RenderViewHostDelegate::View {
   // renderer that haven't shown yet.
   typedef std::map<int, RenderWidgetHostView*> PendingWidgetViews;
   PendingWidgetViews pending_widget_views_;
+
+  // The page content's intrinsic width.
+  int preferred_width_;
 
   DISALLOW_COPY_AND_ASSIGN(TabContentsView);
 };

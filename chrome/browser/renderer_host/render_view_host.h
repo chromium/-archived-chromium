@@ -482,7 +482,7 @@ class RenderViewHost : public RenderWidgetHost {
   void OnMsgContextMenu(const ContextMenuParams& params);
   void OnMsgOpenURL(const GURL& url, const GURL& referrer,
                     WindowOpenDisposition disposition);
-  void OnMsgDidContentsPreferredWidthChange(const int pref_width);
+  void OnMsgDidContentsPreferredWidthChange(int pref_width);
   void OnMsgDomOperationResponse(const std::string& json_string,
                                  int automation_id);
   void OnMsgDOMUISend(const std::string& message,

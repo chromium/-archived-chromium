@@ -1081,8 +1081,11 @@ void RenderViewHost::OnMsgOpenURL(const GURL& url,
   delegate_->RequestOpenURL(validated_url, referrer, disposition);
 }
 
-void RenderViewHost::OnMsgDidContentsPreferredWidthChange(const int pref_width) {
-  delegate_->DidContentsPreferredWidthChange(pref_width);
+void RenderViewHost::OnMsgDidContentsPreferredWidthChange(int pref_width) {
+  RenderViewHostDelegate::View* view = delegate_->GetViewDelegate();
+  if (!view)
+    return;
+  view->UpdatePreferredWidth(pref_width);
 }
 
 void RenderViewHost::OnMsgDomOperationResponse(

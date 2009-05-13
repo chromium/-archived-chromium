@@ -200,7 +200,9 @@ RenderView::RenderView(RenderThreadBase* render_thread)
       decrement_shared_popup_at_destruction_(false),
       form_field_autofill_request_id_(0),
       popup_notification_visible_(false),
-      delay_seconds_for_form_state_sync_(kDefaultDelaySecondsForFormStateSync) {
+      delay_seconds_for_form_state_sync_(kDefaultDelaySecondsForFormStateSync),
+      preferred_width_(0),
+      send_preferred_width_changes_(false) {
 }
 
 RenderView::~RenderView() {
@@ -431,6 +433,8 @@ void RenderView::OnMessageReceived(const IPC::Message& message) {
     IPC_MESSAGE_HANDLER(ViewMsg_ExtensionResponse, OnExtensionResponse)
     IPC_MESSAGE_HANDLER(ViewMsg_ClearFocusedNode, OnClearFocusedNode)
     IPC_MESSAGE_HANDLER(ViewMsg_SetBackground, OnSetBackground)
+    IPC_MESSAGE_HANDLER(ViewMsg_EnableIntrinsicWidthChangedMode,
+                        OnEnableIntrinsicWidthChangedMode)
 
     // Have the super handle all other messages.
     IPC_MESSAGE_UNHANDLED(RenderWidget::OnMessageReceived(message))
@@ -1926,13 +1930,23 @@ void RenderView::OpenURL(WebView* webview, const GURL& url,
 void RenderView::DidContentsSizeChange(WebWidget* webwidget,
                                        int new_width,
                                        int new_height) {
-  // TODO(rafaelw): This is a temporary solution. Only the ExtensionView wants
-  // this notification at the moment. It isn't clean to test for ExtensionView
-  // by examining the enabled_bindings. This needs to be generalized as it
-  // becomes clear what extension toolbars need.
-  if (BindingsPolicy::is_extension_enabled(enabled_bindings_)) {
+  // We don't always want to send the change messages over IPC, only if we've
+  // be put in that mode by getting a |ViewMsg_EnableIntrinsicWidthChangedMode|
+  // message.
+  // TODO(rafaelw): Figure out where the best place to set this for extensions
+  // is. It isn't clean to test for ExtensionView by examining the
+  // enabled_bindings. This needs to be generalized as it becomes clear what
+  // extension toolbars need.
+  if (BindingsPolicy::is_extension_enabled(enabled_bindings_) ||
+      send_preferred_width_changes_) {
+    // WebCore likes to tell us things have changed even when they haven't, so
+    // cache the width and only send the IPC message when we're sure the
+    // width is different.
     int width = webview()->GetMainFrame()->GetContentsPreferredWidth();
-    Send(new ViewHostMsg_DidContentsPreferredWidthChange(routing_id_, width));
+    if (width != preferred_width_) {
+      Send(new ViewHostMsg_DidContentsPreferredWidthChange(routing_id_, width));
+      preferred_width_ = width;
+    }
   }
 }
 
@@ -2718,6 +2732,10 @@ void RenderView::OnEnableViewSourceMode() {
     return;
 
   main_frame->SetInViewSourceMode(true);
+}
+
+void RenderView::OnEnableIntrinsicWidthChangedMode() {
+  send_preferred_width_changes_ = true;
 }
 
 void RenderView::OnUpdateBackForwardListCount(int back_list_count,

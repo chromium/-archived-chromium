@@ -49,7 +49,7 @@ void ExtensionHost::CreateRenderView(const GURL& url,
   render_view_host_->NavigateToURL(url);
 }
 
-void ExtensionHost::DidContentsPreferredWidthChange(const int pref_width) {
+void ExtensionHost::UpdatePreferredWidth(int pref_width) {
   if (view_)
     view_->DidContentsPreferredWidthChange(pref_width);
 }

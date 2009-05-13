@@ -46,6 +46,7 @@ class TabContentsViewMac : public TabContentsView,
   virtual gfx::NativeWindow GetTopLevelNativeWindow() const;
   virtual void GetContainerBounds(gfx::Rect* out) const;
   virtual void OnContentsDestroy();
+  virtual void RenderViewCreated(RenderViewHost* host);
   virtual void SetPageTitle(const std::wstring& title);
   virtual void Invalidate();
   virtual void SizeContents(const gfx::Size& size);
@@ -83,6 +84,9 @@ class TabContentsViewMac : public TabContentsView,
   // Used to render the sad tab. This will be non-NULL only when the sad tab is
   // visible.
   scoped_nsobject<SadTabView> sad_tab_;
+
+  // The page content's intrinsic width.
+  int preferred_width_;
 
   DISALLOW_COPY_AND_ASSIGN(TabContentsViewMac);
 };

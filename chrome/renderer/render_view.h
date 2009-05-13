@@ -541,6 +541,7 @@ class RenderView : public RenderWidget,
   void OnInstallMissingPlugin();
   void OnFileChooserResponse(const std::vector<FilePath>& file_names);
   void OnEnableViewSourceMode();
+  void OnEnableIntrinsicWidthChangedMode();
   void OnUpdateBackForwardListCount(int back_list_count,
                                     int forward_list_count);
   void OnGetAccessibilityInfo(
@@ -798,6 +799,13 @@ class RenderView : public RenderWidget,
   // The currently selected text. This is currently only updated on Linux, where
   // it's for the selection clipboard.
   std::string selection_text_;
+
+  // Cache the preferred width of the page in order to prevent sending the IPC
+  // when layout() recomputes it but it doesn't actually change.
+  int preferred_width_;
+
+  // If true, we send IPC messages when the preferred width changes.
+  bool send_preferred_width_changes_;
 
   DISALLOW_COPY_AND_ASSIGN(RenderView);
 };

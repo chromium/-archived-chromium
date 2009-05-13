@@ -90,6 +90,7 @@ class InterstitialPage::InterstitialPageRVHViewDelegate
                            const gfx::Rect& selection_rect,
                            int active_match_ordinal,
                            bool final_update);
+  virtual void UpdatePreferredWidth(int pref_width);
 
  private:
   InterstitialPage* interstitial_page_;
@@ -514,6 +515,10 @@ void InterstitialPage::InterstitialPageRVHViewDelegate::StartDragging(
 void InterstitialPage::InterstitialPageRVHViewDelegate::UpdateDragCursor(
     bool is_drop_target) {
   NOTREACHED() << "InterstitialPage does not support dragging yet.";
+}
+
+void InterstitialPage::InterstitialPageRVHViewDelegate::UpdatePreferredWidth(
+    int pref_width) {
 }
 
 void InterstitialPage::InterstitialPageRVHViewDelegate::TakeFocus(

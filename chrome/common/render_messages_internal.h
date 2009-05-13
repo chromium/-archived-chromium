@@ -582,6 +582,11 @@ IPC_BEGIN_MESSAGES(View)
   // processing.  This is used because the renderer keeps a temporary cache of
   // the widget position while these asynchronous operations are in progress.
   IPC_MESSAGE_ROUTED0(ViewMsg_Move_ACK)
+
+  // Used to instruct the RenderView to send back updates to the intrinsic
+  // width.
+  IPC_MESSAGE_ROUTED0(ViewMsg_EnableIntrinsicWidthChangedMode)
+
 IPC_END_MESSAGES(View)
 
 

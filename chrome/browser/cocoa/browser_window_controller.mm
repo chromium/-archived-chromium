@@ -213,8 +213,6 @@ willPositionSheet:(NSWindow *)sheet
 // regardless.
 - (NSRect)windowWillUseStandardFrame:(NSWindow*)window
                         defaultFrame:(NSRect)frame {
-#if 0
-// TODO(pinkerton): this is part of another CL which is out for review.
   const int kMinimumIntrinsicWidth = 700;
   const int kScrollbarWidth = 16;
   const int kSpaceForIcons = 50;
@@ -224,12 +222,11 @@ willPositionSheet:(NSWindow *)sheet
 
   TabContents* contents = browser_->tabstrip_model()->GetSelectedTabContents();
   if (contents) {
-    int intrinsicWidth = contents->preferred_width() + kScrollbarWidth;
+    int intrinsicWidth = contents->view()->preferred_width() + kScrollbarWidth;
     int tempWidth = std::max(intrinsicWidth, kMinimumIntrinsicWidth);
     frame.size.width = std::min(tempWidth, kMaxWidth);
     frame.size.height = screenSize.height;
   }
-#endif
   return frame;
 }
 

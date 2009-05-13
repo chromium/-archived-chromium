@@ -43,7 +43,6 @@ class ExtensionHost : public RenderViewHostDelegate,
   // TODO(mpcomplete): GetProfile is unused.
   virtual Profile* GetProfile() const { return NULL; }
   virtual const GURL& GetURL() const { return url_; }
-  virtual void DidContentsPreferredWidthChange(const int pref_width);
   virtual WebPreferences GetWebkitPrefs();
   virtual void RunJavaScriptMessage(
       const std::wstring& message,
@@ -73,6 +72,7 @@ class ExtensionHost : public RenderViewHostDelegate,
   virtual void UpdateDragCursor(bool is_drop_target);
   virtual void TakeFocus(bool reverse);
   virtual void HandleKeyboardEvent(const NativeWebKeyboardEvent& event);
+  virtual void UpdatePreferredWidth(int pref_width);
 
  private:
   // ExtensionFunctionDispatcher::Delegate
