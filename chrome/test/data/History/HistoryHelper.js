@@ -53,3 +53,6 @@ function createCookie(name,value,days) {
 function eraseCookie(name) {
   createCookie(name, "", -1);
 }
+
+var navigate_backward_cookie = "Navigate_Backward_Cookie";
+var navigate_forward_cookie = "Navigate_Forward_Cookie";

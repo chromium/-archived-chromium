@@ -424,9 +424,9 @@ class NavigationController {
   // contents.
   void FinishRestore(int selected_index);
 
-  // Inserts an entry after the current position, removing all entries after it.
-  // The new entry will become the active one.
-  void InsertEntry(NavigationEntry* entry);
+  // Inserts a new entry or replaces the current entry with a new one, removing
+  // all entries after it. The new entry will become the active one.
+  void InsertOrReplaceEntry(NavigationEntry* entry, bool replace);
 
   // Discards the pending and transient entries.
   void DiscardNonCommittedEntriesInternal();

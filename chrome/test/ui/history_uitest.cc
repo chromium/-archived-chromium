@@ -49,9 +49,36 @@ class HistoryTester : public UITest {
 };
 
 TEST_F(HistoryTester, VerifyHistoryLength) {
-  std::wstring test_case = L"history_length_test1.html";
-  GURL url = GetTestUrl(L"History", test_case);
-  NavigateToURL(url);
-  WaitForFinish("History_Length_Test", "1", url, kTestCompleteCookie,
+  // Test the history length for the following page transitions.
+  //
+  // Test case 1:
+  //   -open-> Page 1.
+  // Test case 2:
+  //   -open-> Page 2 -redirect-> Page 3.
+  // Test case 3:
+  //   -open-> Page 4 -navigate_backward-> Page 3 -navigate_backward->Page 1
+  //   -navigate_forward-> Page 3 -navigate_forward-> Page 4
+  //
+  // Note that Page 2 is not visited on navigating backward/forward.
+
+  // Test case 1
+  std::wstring test_case_1 = L"history_length_test_page_1.html";
+  GURL url_1 = GetTestUrl(L"History", test_case_1);
+  NavigateToURL(url_1);
+  WaitForFinish("History_Length_Test_1", "1", url_1, kTestCompleteCookie,
+                kTestCompleteSuccess, action_max_timeout_ms());
+
+  // Test case 2
+  std::wstring test_case_2 = L"history_length_test_page_2.html";
+  GURL url_2 = GetTestUrl(L"History", test_case_2);
+  NavigateToURL(url_2);
+  WaitForFinish("History_Length_Test_2", "1", url_2, kTestCompleteCookie,
+                kTestCompleteSuccess, action_max_timeout_ms());
+
+  // Test case 3
+  std::wstring test_case_3 = L"history_length_test_page_4.html";
+  GURL url_3 = GetTestUrl(L"History", test_case_3);
+  NavigateToURL(url_3);
+  WaitForFinish("History_Length_Test_3", "1", url_3, kTestCompleteCookie,
                 kTestCompleteSuccess, action_max_timeout_ms());
 }
