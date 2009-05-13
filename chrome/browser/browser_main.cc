@@ -591,11 +591,13 @@ int BrowserMain(const MainFunctionParams& parameters) {
 
   MetricsService* metrics = NULL;
   if (!parsed_command_line.HasSwitch(switches::kDisableMetrics)) {
+    bool enabled = local_state->GetBoolean(prefs::kMetricsReportingEnabled);
     bool record_only =
         parsed_command_line.HasSwitch(switches::kMetricsRecordingOnly);
 
 #if !defined(GOOGLE_CHROME_BUILD)
-    record_only = true;
+    // Disable user metrics completely for non-Google Chrome builds.
+    enabled = false;
 #endif
 
     if (record_only) {
@@ -612,8 +614,6 @@ int BrowserMain(const MainFunctionParams& parameters) {
     } else {
       // If the user permits metrics reporting with the checkbox in the
       // prefs, we turn on recording.
-      bool enabled = local_state->GetBoolean(prefs::kMetricsReportingEnabled);
-
       metrics->SetUserPermitsUpload(enabled);
       if (enabled)
         metrics->Start();
