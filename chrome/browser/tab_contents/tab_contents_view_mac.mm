@@ -123,13 +123,26 @@ void TabContentsViewMac::SetInitialFocus() {
 }
 
 void TabContentsViewMac::StoreFocus() {
-  // TODO(port)
+  NSResponder* current_focus = [[cocoa_view_.get() window] firstResponder];
+  if ([current_focus isKindOfClass:[NSView class]]) {
+    NSView* current_focus_view = (NSView*)current_focus;
+
+    if ([current_focus_view isDescendantOf:cocoa_view_.get()]) {
+      latent_focus_view_.reset([current_focus_view retain]);
+      return;
+    }
+  }
+
+  latent_focus_view_.reset();
 }
 
 void TabContentsViewMac::RestoreFocus() {
-  // TODO(port)
-  // For now just assume we are viewing the tab for the first time.
-  SetInitialFocus();
+  // TODO(avi): Could we be restoring a view that's no longer in the key view
+  // chain?
+  if (latent_focus_view_.get()) {
+    [[cocoa_view_.get() window] makeFirstResponder:latent_focus_view_.get()];
+    latent_focus_view_.reset();
+  }
 }
 
 void TabContentsViewMac::UpdateDragCursor(bool is_drop_target) {

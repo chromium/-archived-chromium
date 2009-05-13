@@ -484,12 +484,6 @@ willPositionSheet:(NSWindow *)sheet
                   userGesture:(bool)wasUserGesture {
   DCHECK(oldContents != newContents);
 
-  // We do not store the focus when closing the tab to work-around bug 4633.
-  // Some reports seem to show that the focus manager and/or focused view can
-  // be garbage at that point, it is not clear why.
-  if (oldContents && !oldContents->is_being_destroyed())
-    oldContents->view()->StoreFocus();
-
   // Update various elements that are interested in knowing the current
   // TabContents.
 #if 0
@@ -505,10 +499,6 @@ willPositionSheet:(NSWindow *)sheet
   [NSApp changeWindowsItem:[self window]
                      title:base::SysUTF16ToNSString(newContents->GetTitle())
                   filename:NO];
-
-  if (BrowserList::GetLastActive() == browser_ &&
-      !browser_->tabstrip_model()->closing_all())
-    newContents->view()->RestoreFocus();
 
 #if 0
 // TODO(pinkerton):Update as more things become window-specific

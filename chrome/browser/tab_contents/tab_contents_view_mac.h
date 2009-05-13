@@ -78,6 +78,9 @@ class TabContentsViewMac : public TabContentsView,
   // The Cocoa NSView that lives in the view hierarchy.
   scoped_nsobject<TabContentsViewCocoa> cocoa_view_;
 
+  // The Cocoa NSView to restore the focus to when focus returns.
+  scoped_nsobject<NSView> latent_focus_view_;
+
   // Used to get notifications about renderers coming and going.
   NotificationRegistrar registrar_;
 

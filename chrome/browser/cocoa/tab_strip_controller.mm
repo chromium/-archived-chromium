@@ -17,6 +17,7 @@
 #import "chrome/browser/cocoa/tab_strip_model_observer_bridge.h"
 #import "chrome/browser/cocoa/tab_view.h"
 #include "chrome/browser/tab_contents/tab_contents.h"
+#include "chrome/browser/tab_contents/tab_contents_view.h"
 #include "chrome/browser/tabs/tab_strip_model.h"
 #include "grit/generated_resources.h"
 
@@ -325,8 +326,14 @@
   // size than surrounding tabs if the user has many.
   [self layoutTabs];
 
+  if (oldContents)
+    oldContents->view()->StoreFocus();
+
   // Swap in the contents for the new tab
   [self swapInTabAtIndex:index];
+
+  if (newContents)
+    newContents->view()->RestoreFocus();
 }
 
 // Called when a notification is received from the model that the given tab
