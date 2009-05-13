@@ -2727,3 +2727,5 @@ BUG11909 : LayoutTests/http/tests/security/aboutBlank/xss-DENIED-set-opener.html
 BUG11909 : LayoutTests/http/tests/security/cookies/document-open.html = FAIL
 BUG11909 : LayoutTests/http/tests/misc/window-open-then-write.html = TIMEOUT
 BUG11909 : LayoutTests/http/tests/navigation/new-window-redirect-history.html = TIMEOUT
+
+BUG11924 WIN : LayoutTests/http/tests/navigation/relativeanchor-basic.html = FAIL
