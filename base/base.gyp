@@ -365,6 +365,10 @@
                   # generates version information, e.g. to capture revision
                   # changes, which aren't captured by file dependencies.
                   '<(SHARED_INTERMEDIATE_DIR)/base/file_version_info_linux.bogus',
+
+		  # And this is the real output, so that the build system knows
+		  # what action generates it.
+                  '<(SHARED_INTERMEDIATE_DIR)/base/file_version_info_linux.h',
                 ],
                 'action': [
                   '../chrome/tools/build/linux/version.sh',
