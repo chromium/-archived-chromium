@@ -13,16 +13,11 @@
 RemoteDebuggerAgentStub = function() {
 };
 
-RemoteDebuggerAgentStub.prototype.DebugAttach = function() {
-};
-
-RemoteDebuggerAgentStub.prototype.DebugDetach = function() {
-};
-
-RemoteDebuggerAgentStub.prototype.DebugCommand = function() {
-};
-
 RemoteDebuggerAgentStub.prototype.DebugBreak = function() {
+};
+
+RemoteDebuggerAgentStub.prototype.GetContextId = function() {
+  RemoteDebuggerAgent.DidGetContextId(3);
 };
 
 
@@ -217,7 +212,7 @@ RemoteDebuggerCommandExecutorStub = function() {
 };
 
 
-RemoteDebuggerCommandExecutorStub.prototype.DebuggerCommand = function() {
+RemoteDebuggerCommandExecutorStub.prototype.DebuggerCommand = function(cmd) {
 };
 
 

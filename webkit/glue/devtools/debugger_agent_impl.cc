@@ -54,6 +54,10 @@ void DebuggerAgentImpl::DebugBreak() {
   DebuggerAgentManager::DebugBreak(this);
 }
 
+void DebuggerAgentImpl::GetContextId() {
+  delegate_->DidGetContextId(webdevtools_agent_->host_id());
+}
+
 void DebuggerAgentImpl::DebuggerOutput(const std::string& command) {
   delegate_->DebuggerOutput(command);
   webdevtools_agent_->ForceRepaint();

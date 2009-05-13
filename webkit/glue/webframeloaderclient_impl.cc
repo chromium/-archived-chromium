@@ -105,6 +105,11 @@ void WebFrameLoaderClient::windowObjectCleared() {
   WebViewDelegate* d = webview->delegate();
   if (d)
     d->WindowObjectCleared(webframe_);
+
+  WebDevToolsAgentImpl* tools_agent = webview->GetWebDevToolsAgentImpl();
+  if (tools_agent) {
+    tools_agent->WindowObjectCleared(webframe_);
+  }
 }
 
 void WebFrameLoaderClient::documentElementAvailable() {

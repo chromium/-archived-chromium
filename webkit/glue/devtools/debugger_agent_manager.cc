@@ -10,10 +10,7 @@
 #include <wtf/HashSet.h>
 #undef LOG
 
-#include "base/json_reader.h"
-#include "base/json_writer.h"
 #include "base/string_util.h"
-#include "base/values.h"
 #include "webkit/glue/devtools/debugger_agent_impl.h"
 #include "webkit/glue/devtools/debugger_agent_manager.h"
 #include "webkit/glue/webdevtoolsagent_impl.h"
@@ -51,17 +48,6 @@ class CallerIdWrapper : public v8::Debug::ClientData {
 
 }  // namespace
 
-
-// static
-void DebuggerAgentManager::V8DebugMessageHandler(const uint16_t* message,
-                                                 int length,
-                                                 v8::Debug::ClientData* data) {
-#if USE(V8)
-  std::wstring out(reinterpret_cast<const wchar_t*>(message), length);
-  std::string out_utf8 = WideToUTF8(out);
-  DebuggerAgentManager::DebuggerOutput(out_utf8, data);
-#endif
-}
 
 void DebuggerAgentManager::V8DebugHostDispatchHandler() {
   if (!DebuggerAgentManager::message_loop_dispatch_handler_ ||
@@ -118,9 +104,7 @@ void DebuggerAgentManager::DebugAttach(DebuggerAgentImpl* debugger_agent) {
 #if USE(V8)
   if (!attached_agents_) {
     attached_agents_ = new AttachedAgentsSet();
-    v8::Debug::SetMessageHandler(
-        &DebuggerAgentManager::V8DebugMessageHandler,
-        false /* don't create separate thread for sending debugger output */);
+    v8::Debug::SetMessageHandler2(&DebuggerAgentManager::OnV8DebugMessage);
     v8::Debug::SetHostDispatchHandler(
         &DebuggerAgentManager::V8DebugHostDispatchHandler, 100 /* ms */);
   }
@@ -143,7 +127,7 @@ void DebuggerAgentManager::DebugDetach(DebuggerAgentImpl* debugger_agent) {
     // Note that we do not empty handlers while in dispatch - we schedule
     // continue and do removal once we are out of the dispatch.
     if (!in_host_dispatch_handler_) {
-      v8::Debug::SetMessageHandler(NULL);
+      v8::Debug::SetMessageHandler2(NULL);
       v8::Debug::SetHostDispatchHandler(NULL);
     } else if (FindAgentForCurrentV8Context() == debugger_agent) {
       // Force continue just in case to handle close while on a breakpoint.
@@ -162,10 +146,13 @@ void DebuggerAgentManager::DebugBreak(DebuggerAgentImpl* debugger_agent) {
 }
 
 // static
-void DebuggerAgentManager::DebuggerOutput(const std::string& out,
-                                          v8::Debug::ClientData* caller_data) {
+void DebuggerAgentManager::OnV8DebugMessage(const v8::Debug::Message& message) {
+  v8::HandleScope scope;
+  v8::String::Utf8Value value(message.GetJSON());
+  std::string out(*value, value.length());
+
   // If caller_data is not NULL the message is a response to a debugger command.
-  if (caller_data) {
+  if (v8::Debug::ClientData* caller_data = message.GetClientData()) {
     CallerIdWrapper* wrapper = static_cast<CallerIdWrapper*>(caller_data);
     if (wrapper->caller_is_mananager()) {
       // Just ignore messages sent by this manager.
@@ -178,17 +165,18 @@ void DebuggerAgentManager::DebuggerOutput(const std::string& out,
     }
     return;
   } // Otherwise it's an event message.
+  DCHECK(message.IsEvent());
 
   // Agent that should be used for sending events is determined based
   // on the active Frame.
   DebuggerAgentImpl* agent = FindAgentForCurrentV8Context();
-  if (!agent) {
+  if (agent) {
+    agent->DebuggerOutput(out);
+  } else if (!message.WillStartRunning()) {
     // Autocontinue execution on break and exception  events if there is no
     // handler.
     SendContinueCommandToV8();
-    return;
   }
-  agent->DebuggerOutput(out);
 }
 
 // static
@@ -202,6 +190,20 @@ void DebuggerAgentManager::ExecuteDebuggerCommand(
 void DebuggerAgentManager::SetMessageLoopDispatchHandler(
     WebDevToolsAgent::MessageLoopDispatchHandler handler) {
   message_loop_dispatch_handler_ = handler;
+}
+
+// static
+void DebuggerAgentManager::SetHostId(WebFrameImpl* webframe, int host_id) {
+  WebCore::V8Proxy* proxy = WebCore::V8Proxy::retrieve(webframe->frame());
+  if (!proxy || !proxy->ContextInitialized()) {
+    return;
+  }
+  v8::HandleScope scope;
+  v8::Handle<v8::Context> context = proxy->GetContext();
+  if (context.IsEmpty() || !context->GetData()->IsUndefined()) {
+    return;
+  }
+  context->SetData(v8::Integer::New(host_id));
 }
 
 // static

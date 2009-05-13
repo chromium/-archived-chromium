@@ -10,13 +10,17 @@
 #define DEBUGGER_AGENT_STRUCT(METHOD0, METHOD1, METHOD2, METHOD3, \
     METHOD4) \
   /* Stops v8 execution as soon as it gets control. */ \
-  METHOD0(DebugBreak)
+  METHOD0(DebugBreak) \
+  /* Requests global context id of the inspected tab. */ \
+  METHOD0(GetContextId)
 
 DEFINE_RPC_CLASS(DebuggerAgent, DEBUGGER_AGENT_STRUCT)
 
 #define DEBUGGER_AGENT_DELEGATE_STRUCT(METHOD0, METHOD1, METHOD2, METHOD3, \
     METHOD4) \
-  METHOD1(DebuggerOutput, std::string /* output text */)
+  METHOD1(DebuggerOutput, std::string /* output text */) \
+  /* Response to GetContextId. */ \
+  METHOD1(DidGetContextId, int /* context id */)
 
 DEFINE_RPC_CLASS(DebuggerAgentDelegate, DEBUGGER_AGENT_DELEGATE_STRUCT)
 

@@ -18,6 +18,7 @@ class PageGroupLoadDeferrer;
 
 class DebuggerAgentImpl;
 class DictionaryValue;
+class WebFrameImpl;
 class WebViewImpl;
 
 // There is single v8 instance per render process. Also there may be several
@@ -28,13 +29,10 @@ class WebViewImpl;
 // detached. When message is received from debugger it will route it to the
 // right debugger agent if there is one otherwise the message will be ignored.
 //
-// TODO(yurys): v8 may send a message(e.g. exception event) after which it
+// v8 may send a message(e.g. exception event) after which it
 // would expect some actions from the handler. If there is no appropriate
-// debugger agent to handle such messages the manager should perform the action
+// debugger agent to handle such messages the manager will perform the action
 // itself, otherwise v8 may hang waiting for the action.
-//
-// TODO(yurys): disable plugin message handling while v8 is paused on a
-// breakpoint.
 class DebuggerAgentManager {
  public:
   static void DebugAttach(DebuggerAgentImpl* debugger_agent);
@@ -47,18 +45,18 @@ class DebuggerAgentManager {
   static void SetMessageLoopDispatchHandler(
       WebDevToolsAgent::MessageLoopDispatchHandler handler);
 
+  // Sets |host_id| as the frame context data. This id is used to filter scripts
+  // related to the inspected page.
+  static void SetHostId(WebFrameImpl* webframe, int host_id);
+
   static void OnWebViewClosed(WebViewImpl* webview);
 
  private:
   DebuggerAgentManager();
   ~DebuggerAgentManager();
 
-  static void V8DebugMessageHandler(const uint16_t* message,
-                                    int length,
-                                    v8::Debug::ClientData* data);
   static void V8DebugHostDispatchHandler();
-  static void DebuggerOutput(const std::string& out,
-                             v8::Debug::ClientData* caller_data);
+  static void OnV8DebugMessage(const v8::Debug::Message& message);
   static void SendCommandToV8(const std::wstring& cmd,
                               v8::Debug::ClientData* data);
   static void SendContinueCommandToV8();

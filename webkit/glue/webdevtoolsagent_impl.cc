@@ -163,6 +163,10 @@ void WebDevToolsAgentImpl::AddMessageToConsole(
   }
 }
 
+void WebDevToolsAgentImpl::WindowObjectCleared(WebFrameImpl* webframe) {
+  DebuggerAgentManager::SetHostId(webframe, host_id_);
+}
+
 void WebDevToolsAgentImpl::ForceRepaint() {
   delegate_->ForceRepaint();
 }

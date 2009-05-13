@@ -34,6 +34,7 @@ class DebuggerAgentImpl : public DebuggerAgent {
 
   // DebuggerAgent implementation.
   virtual void DebugBreak();
+  virtual void GetContextId();
 
   void DebuggerOutput(const std::string& out);
 

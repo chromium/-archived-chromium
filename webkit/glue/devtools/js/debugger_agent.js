@@ -15,6 +15,14 @@ goog.provide('devtools.DebuggerAgent');
 devtools.DebuggerAgent = function() {
   RemoteDebuggerAgent.DebuggerOutput =
       goog.bind(this.handleDebuggerOutput_, this);
+  RemoteDebuggerAgent.DidGetContextId = 
+      goog.bind(this.didGetContextId_, this);
+      
+  /**
+   * Id of the inspected page global context. It is used for filtering scripts.
+   * @type {number} 
+   */
+  this.contextId_ = null;
       
   /**
    * Mapping from script id to script info.
@@ -63,6 +71,7 @@ devtools.DebuggerAgent = function() {
  */
 devtools.DebuggerAgent.prototype.reset = function() {
   this.scriptsCacheInitialized_ = false;
+  this.contextId_ = null;
   this.parsedScripts_ = {};
   this.requestNumberToBreakpointInfo_ = {};
   this.currentCallFrame_ = null;
@@ -86,6 +95,11 @@ devtools.DebuggerAgent.prototype.initializeScriptsCache = function() {
  * processed in handleScriptsResponse_.
  */
 devtools.DebuggerAgent.prototype.requestScripts = function() {
+  if (this.contextId_ === null) {
+    // Update context id first to filter the scripts.
+    RemoteDebuggerAgent.GetContextId();
+    return;
+  }
   var cmd = new devtools.DebugCommand('scripts', {
     'includeSource': true
   });
@@ -330,6 +344,17 @@ devtools.DebuggerAgent.prototype.requestLookup_ = function(handles, callback) {
 
 
 /**
+ * Handles GetContextId response.
+ * @param {number} contextId Id of the inspected page global context.
+ */
+devtools.DebuggerAgent.prototype.didGetContextId_ = function(contextId) {
+  this.contextId_ = contextId;
+  // Update scripts.
+  this.requestScripts();
+};
+
+
+/**
  * Handles output sent by v8 debugger. The output is either asynchronous event
  * or response to a previously sent request.  See protocol definitioun for more
  * details on the output format.
@@ -422,13 +447,40 @@ devtools.DebuggerAgent.prototype.handleScriptsResponse_ = function(msg) {
   var scripts = msg.getBody();
   for (var i = 0; i < scripts.length; i++) {
     var script = scripts[i];
-    
+
+    // Skip scripts from other tabs.
+    if (!this.isScriptFromInspectedContext_(script, msg)) {
+      continue;
+    }
+
     // We may already have received the info in an afterCompile event.
     if (script.id in this.parsedScripts_) {
       continue;
     }
     this.addScriptInfo_(script);
   }
+};
+
+
+/**
+ * @param {Object} script Json object representing script.
+ * @param {devtools.DebuggerMessage} msg Debugger response.
+ */
+devtools.DebuggerAgent.prototype.isScriptFromInspectedContext_ = function(
+    script, msg) {
+  if (!script.context) {
+    // Always ignore scripts from the utility context.
+    return false;
+  }
+  var context = msg.lookup(script.context.ref);
+  var scriptContextId = context.data;
+  if (!goog.isDef(scriptContextId)) {
+    return false; // Always ignore scripts from the utility context.
+  }
+  if (this.contextId_ === null) {
+    return true;
+  }
+  return (scriptContextId == this.contextId_);
 };
 
 
@@ -461,6 +513,10 @@ devtools.DebuggerAgent.prototype.handleSetBreakpointResponse_ = function(msg) {
  */
 devtools.DebuggerAgent.prototype.handleAfterCompileEvent_ = function(msg) {
   var script = msg.getBody().script;
+  // Ignore scripts from other tabs.
+  if (!this.isScriptFromInspectedContext_(script, msg)) {
+    return;
+  }
   this.addScriptInfo_(script);
 };
 

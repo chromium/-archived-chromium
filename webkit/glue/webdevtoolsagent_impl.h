@@ -30,7 +30,7 @@ class NetAgentImpl;
 class Value;
 class WebDevToolsAgentDelegate;
 class WebFrame;
-class WebFrame;
+class WebFrameImpl;
 class WebViewImpl;
 
 class WebDevToolsAgentImpl
@@ -73,6 +73,8 @@ class WebDevToolsAgentImpl
       const WebCore::String& message,
       unsigned int line_no,
       const WebCore::String& source_id);
+
+  void WindowObjectCleared(WebFrameImpl* webframe);
 
   void ForceRepaint();
 
