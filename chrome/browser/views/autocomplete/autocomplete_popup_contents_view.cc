@@ -39,7 +39,8 @@ static const SkColor kSelectedDimTextColor =
     color_utils::GetSysSkColor(COLOR_HIGHLIGHTTEXT);
 static const SkColor kStandardURLColor = SkColorSetRGB(0, 0x80, 0);
 static const SkColor kHighlightURLColor = SkColorSetRGB(0xD0, 0xFF, 0xD0);
-static const int kPopupTransparency = 235;
+static const int kGlassPopupTransparency = 240;
+static const int kOpaquePopupTransparency = 255;
 static const int kHoverRowAlpha = 0x40;
 // The minimum distance between the top and bottom of the icon and the top or
 // bottom of the row. "Minimum" is used because the vertical padding may be
@@ -56,6 +57,9 @@ static const int kRowRightPadding = 3;
 // The horizontal distance between the right edge of the icon and the left edge
 // of the text.
 static const int kIconTextSpacing = 9;
+// The size delta between the font used for the edit and the result rows. Passed
+// to ChromeFont::DeriveFont.
+static const int kEditFontAdjust = -1;
 
 class AutocompleteResultView : public views::View {
  public:
@@ -650,7 +654,7 @@ AutocompletePopupContentsView::AutocompletePopupContentsView(
       model_(new AutocompletePopupModel(this, edit_model, profile)),
       edit_view_(edit_view),
       popup_positioner_(popup_positioner),
-      edit_font_(font) {
+      result_font_(font.DeriveFont(kEditFontAdjust)) {
   set_border(new PopupBorder);
 }
 
@@ -658,7 +662,7 @@ void AutocompletePopupContentsView::UpdateResultViewsFromResult(
     const AutocompleteResult& result) {
   RemoveAllChildViews(true);
   for (size_t i = 0; i < result.size(); ++i)
-    AddChildView(new AutocompleteResultView(this, i, edit_font_));
+    AddChildView(new AutocompleteResultView(this, i, result_font_));
   Layout();
 }
 
@@ -854,7 +858,9 @@ void AutocompletePopupContentsView::MakeCanvasTransparent(
     ChromeCanvas* canvas) {
   // Allow the window blur effect to show through the popup background.
   SkPaint paint;
-  paint.setColor(SkColorSetARGB(kPopupTransparency, 255, 255, 255));
+  SkColor transparency = win_util::ShouldUseVistaFrame() ?
+      kGlassPopupTransparency : kOpaquePopupTransparency;
+  paint.setColor(SkColorSetARGB(transparency, 255, 255, 255));
   paint.setPorterDuffXfermode(SkPorterDuff::kDstIn_Mode);
   paint.setStyle(SkPaint::kFill_Style);
   canvas->FillRectInt(0, 0, canvas->getDevice()->width(),

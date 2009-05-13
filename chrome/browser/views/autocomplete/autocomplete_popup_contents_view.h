@@ -99,9 +99,9 @@ class AutocompletePopupContentsView : public views::View,
   // An object that tells the popup how to position itself.
   AutocompletePopupPositioner* popup_positioner_;
 
-  // The font used by the edit that created us. This is used by the result
-  // views to synthesize a suitable display font.
-  ChromeFont edit_font_;
+  // The font that we should use for result rows. This is based on the font used
+  // by the edit that created us.
+  ChromeFont result_font_;
 
   DISALLOW_COPY_AND_ASSIGN(AutocompletePopupContentsView);
 };
