@@ -2708,3 +2708,22 @@ BUG11898 WIN DEBUG : LayoutTests/http/tests/misc/submit-get-in-utf16be.html = TI
 
 // This test is marked as Slow on other platforms but still times out on Mac debug
 BUG11812 MAC : LayoutTests/http/tests/xmlhttprequest/supported-xml-content-types.html = TIMEOUT
+
+// These tests started to fail after r43604 upstream.
+BUG11909 : LayoutTests/http/tests/misc/iframe-domain-test.html = FAIL
+BUG11909 : LayoutTests/http/tests/security/aboutBlank/security-context-grandchildren-lexical.html = FAIL
+BUG11909 : LayoutTests/http/tests/security/aboutBlank/security-context-grandchildren-write-lexical.html = FAIL
+BUG11909 : LayoutTests/http/tests/security/aboutBlank/security-context-grandchildren-writeln-lexical.html = FAIL
+BUG11909 : LayoutTests/http/tests/security/aboutBlank/security-context-grandchildren-alias.html = FAIL
+BUG11909 : LayoutTests/http/tests/security/aboutBlank/security-context-grandchildren.html = FAIL
+BUG11909 : LayoutTests/http/tests/security/aboutBlank/security-context-window-open.html = FAIL
+BUG11909 : LayoutTests/http/tests/security/aboutBlank/security-context-with-base-tag.html = FAIL
+BUG11909 : LayoutTests/http/tests/security/aboutBlank/security-context-write.html = FAIL
+BUG11909 : LayoutTests/http/tests/security/aboutBlank/security-context-writeln.html = FAIL
+BUG11909 : LayoutTests/http/tests/security/aboutBlank/security-context.html = FAIL
+BUG11909 : LayoutTests/http/tests/security/aboutBlank/xss-DENIED-navigate-opener-document-write.html = FAIL
+BUG11909 : LayoutTests/http/tests/security/aboutBlank/xss-DENIED-navigate-opener-javascript-url.html = FAIL
+BUG11909 : LayoutTests/http/tests/security/aboutBlank/xss-DENIED-set-opener.html = FAIL
+BUG11909 : LayoutTests/http/tests/security/cookies/document-open.html = FAIL
+BUG11909 : LayoutTests/http/tests/misc/window-open-then-write.html = TIMEOUT
+BUG11909 : LayoutTests/http/tests/navigation/new-window-redirect-history.html = TIMEOUT
