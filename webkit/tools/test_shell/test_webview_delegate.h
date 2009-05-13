@@ -207,7 +207,7 @@ class TestWebViewDelegate : public base::RefCounted<TestWebViewDelegate>,
     WebNavigationType type,
     WindowOpenDisposition disposition,
     bool is_redirect);
-  virtual void NavigateBackForwardSoon(int offset);
+  virtual WebHistoryItem* GetHistoryEntryAtOffset(int offset);
   virtual int GetHistoryBackListCount();
   virtual int GetHistoryForwardListCount();
 

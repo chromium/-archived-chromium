@@ -56,6 +56,7 @@ MSVC_POP_WARNING();
 #include "webkit/glue/webdevtoolsagent_impl.h"
 #include "webkit/glue/weberror_impl.h"
 #include "webkit/glue/webframeloaderclient_impl.h"
+#include "webkit/glue/webhistoryitem_impl.h"
 #include "webkit/glue/webkit_glue.h"
 #include "webkit/glue/webplugin_impl.h"
 #include "webkit/glue/webresponse_impl.h"
@@ -786,6 +787,16 @@ void WebFrameLoaderClient::dispatchDidStartProvisionalLoad() {
     alt_404_page_fetcher_->Cancel();
 }
 
+NavigationGesture WebFrameLoaderClient::NavigationGestureForLastLoad() {
+  // TODO(timsteele): userGestureHint returns too many false positives
+  // (see bug 1051891) to trust it and assign NavigationGestureUser, so
+  // for now we assign Unknown in those cases and Auto otherwise.
+  // (Issue 874811 known false negative as well).
+  return webframe_->frame()->loader()->userGestureHint() ?
+      NavigationGestureUnknown :
+      NavigationGestureAuto;
+}
+
 void WebFrameLoaderClient::dispatchDidReceiveTitle(const String& title) {
   WebViewImpl* webview = webframe_->GetWebViewImpl();
   WebViewDelegate* d = webview->delegate();
@@ -1010,19 +1021,13 @@ void WebFrameLoaderClient::dispatchDecidePolicyForNavigationAction(
     // such navigations.
     const WebDataSourceImpl* ds = webframe_->GetProvisionalDataSourceImpl();
     if (ds) {
-      const GURL& url = ds->GetRequest().GetURL();
-      if (url.SchemeIs(webkit_glue::kBackForwardNavigationScheme)) {
-        HandleBackForwardNavigation(url);
-        disposition = IGNORE_ACTION;
-      } else {
-        bool is_redirect = !ds->GetRedirectChain().empty();
+      bool is_redirect = !ds->GetRedirectChain().empty();
 
-        WebNavigationType webnav_type =
-            WebDataSourceImpl::NavigationTypeToWebNavigationType(action.type());
+      WebNavigationType webnav_type =
+          WebDataSourceImpl::NavigationTypeToWebNavigationType(action.type());
 
-        disposition = d->DispositionForNavigationAction(
-            wv, webframe_, &ds->GetRequest(), webnav_type, disposition, is_redirect);
-      }
+      disposition = d->DispositionForNavigationAction(
+          wv, webframe_, &ds->GetRequest(), webnav_type, disposition, is_redirect);
 
       if (disposition != IGNORE_ACTION) {
         if (disposition == CURRENT_TAB) {
@@ -1630,29 +1635,6 @@ bool WebFrameLoaderClient::ActionSpecifiesDisposition(
   else
     *disposition = shift ? NEW_WINDOW : SAVE_TO_DISK;
   return true;
-}
-
-NavigationGesture WebFrameLoaderClient::NavigationGestureForLastLoad() {
-  // TODO(timsteele): userGestureHint returns too many false positives
-  // (see bug 1051891) to trust it and assign NavigationGestureUser, so
-  // for now we assign Unknown in those cases and Auto otherwise.
-  // (Issue 874811 known false negative as well).
-  return webframe_->frame()->loader()->userGestureHint() ?
-      NavigationGestureUnknown :
-      NavigationGestureAuto;
-}
-
-void WebFrameLoaderClient::HandleBackForwardNavigation(const GURL& url) {
-  DCHECK(url.SchemeIs(webkit_glue::kBackForwardNavigationScheme));
-
-  std::string offset_str = url.ExtractFileName();
-  int offset;
-  if (!StringToInt(offset_str, &offset))
-    return;
-
-  WebViewDelegate* d = webframe_->GetWebViewImpl()->delegate();
-  if (d)
-    d->NavigateBackForwardSoon(offset);
 }
 
 NetAgentImpl* WebFrameLoaderClient::GetNetAgentImpl() {

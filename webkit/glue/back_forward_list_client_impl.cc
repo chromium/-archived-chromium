@@ -8,11 +8,10 @@
 #undef LOG
 
 #include "webkit/glue/back_forward_list_client_impl.h"
+#include "webkit/glue/webhistoryitem_impl.h"
 #include "webkit/glue/webview_impl.h"
 
 namespace webkit_glue {
-
-const char kBackForwardNavigationScheme[] = "chrome-back-forward";
 
 BackForwardListClientImpl::BackForwardListClientImpl(WebViewImpl* webview)
     : webview_(webview) {
@@ -48,8 +47,15 @@ void BackForwardListClientImpl::goToItem(WebCore::HistoryItem* item) {
   previous_item_ = current_item_;
   current_item_ = item;
 
-  if (pending_history_item_ == item)
-    pending_history_item_ = NULL;
+  if (pending_history_item_) {
+    if (item == pending_history_item_->GetHistoryItem()) {
+      // Let the main frame know this HistoryItem is loading, so it can cache
+      // any ExtraData when the DataSource is created.
+      webview_->main_frame()->set_currently_loading_history_item(
+          pending_history_item_);
+      pending_history_item_ = NULL;
+    }
+  }
 }
 
 WebCore::HistoryItem* BackForwardListClientImpl::currentItem() {
@@ -60,21 +66,14 @@ WebCore::HistoryItem* BackForwardListClientImpl::itemAtIndex(int index) {
   if (!webview_->delegate())
     return NULL;
 
-  // Since we don't keep the entire back/forward list, we have no way to
-  // properly implement this method.  We return a dummy entry instead that we
-  // intercept in our FrameLoaderClient implementation in case WebCore asks
-  // to navigate to this HistoryItem.
+  WebHistoryItem* item = webview_->delegate()->GetHistoryEntryAtOffset(index);
+  if (!item)
+    return NULL;
 
-  // TODO(darin): We should change WebCore to handle history.{back,forward,go}
-  // differently.  It should perhaps just ask the FrameLoaderClient to perform
-  // those navigations.
-
-  WebCore::String url_string = WebCore::String::format(
-      "%s://go/%d", kBackForwardNavigationScheme, index);
-
-  pending_history_item_ =
-      WebCore::HistoryItem::create(url_string, WebCore::String(), 0.0);
-  return pending_history_item_.get();
+  // If someone has asked for a history item, we probably want to navigate to
+  // it soon.  Keep track of it until goToItem is called.
+  pending_history_item_ = static_cast<WebHistoryItemImpl*>(item);
+  return pending_history_item_->GetHistoryItem();
 }
 
 int BackForwardListClientImpl::backListCount() {

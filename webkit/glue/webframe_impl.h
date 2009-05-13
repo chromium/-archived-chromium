@@ -43,6 +43,7 @@ class AltErrorPageResourceFetcher;
 class ChromePrintContext;
 class WebDataSourceImpl;
 class WebErrorImpl;
+class WebHistoryItemImpl;
 class WebPluginDelegate;
 class WebRequest;
 class WebView;
@@ -225,6 +226,8 @@ class WebFrameImpl : public WebFrame, public base::RefCounted<WebFrameImpl> {
   // If currently_loading_request is NULL, does nothing.
   void CacheCurrentRequestInfo(WebDataSourceImpl* datasource);
 
+  void set_currently_loading_history_item(WebHistoryItemImpl* item);
+
   // Getters for the impls corresponding to Get(Provisional)DataSource. They
   // may return NULL if there is no corresponding data source.
   WebDataSourceImpl* GetDataSourceImpl() const;
@@ -306,6 +309,10 @@ class WebFrameImpl : public WebFrame, public base::RefCounted<WebFrameImpl> {
   // WebFrameLoaderClient.  Unfortunately we have no other way to pass this
   // information to him.  Only non-NULL during a call to LoadRequest.
   const WebRequest* currently_loading_request_;
+
+  // Similar to currently_loading_request_, except this will be set when
+  // WebCore initiates a history navigation (probably via javascript).
+  scoped_refptr<WebHistoryItemImpl> currently_loading_history_item_;
 
   // Plugins sometimes need to be notified when loads are complete so we keep
   // a pointer back to the appropriate plugin.
