@@ -316,10 +316,6 @@ bool LowerCaseEqualsASCII(const wchar_t* a_begin,
                           const wchar_t* a_end,
                           const char* b);
 
-// Performs a case-sensitive string compare. The behavior is undefined if both
-// strings are not ASCII.
-bool EqualsASCII(const string16& a, const StringPiece& b);
-
 // Returns true if str starts with search, or false otherwise.
 bool StartsWithASCII(const std::string& str,
                      const std::string& search,

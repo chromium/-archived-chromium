@@ -14,9 +14,7 @@ MSVC_POP_WARNING();
 
 #undef LOG
 
-#include "base/string16.h"
 #include "base/string_util.h"
-#include "webkit/glue/glue_util.h"
 #include "webkit/glue/webframe_impl.h"
 #include "webkit/glue/webtextinput_impl.h"
 
@@ -36,18 +34,18 @@ WebCore::Editor* WebTextInputImpl::GetEditor() {
   return web_frame_impl_->frame()->editor();
 }
 
-void WebTextInputImpl::InsertText(const string16& text) {
-  WebCore::String str = webkit_glue::String16ToString(text);
+void WebTextInputImpl::InsertText(const std::string& text) {
+  WebCore::String str(text.c_str());
   GetEditor()->insertText(str, NULL);
 }
 
-void WebTextInputImpl::DoCommand(const string16& com) {
+void WebTextInputImpl::DoCommand(const std::string& com) {
   if (com.length() <= 2)
     return;
 
   // Since we don't have NSControl, we will convert the format of command
   // string and call the function on Editor directly.
-  string16 command = com;
+  std::string command = com;
 
   // Make sure the first letter is upper case.
   command.replace(0, 1, 1, toupper(command.at(0)));
@@ -58,16 +56,16 @@ void WebTextInputImpl::DoCommand(const string16& com) {
 
   // Specially handling commands that Editor::execCommand does not directly
   // support.
-  if (EqualsASCII(command, "DeleteToEndOfParagraph")) {
+  if (!command.compare("DeleteToEndOfParagraph")) {
     DeleteToEndOfParagraph();
-  } else if(EqualsASCII(command, "Indent")) {
+  } else if(!command.compare("Indent")) {
     GetEditor()->indent();
-  } else if(EqualsASCII(command, "Outdent")) {
+  } else if(!command.compare("Outdent")) {
     GetEditor()->outdent();
-  } else if(EqualsASCII(command, "DeleteBackward")) {
+  } else if(!command.compare("DeleteBackward")) {
     WebCore::AtomicString editor_command("BackwardDelete");
     GetEditor()->command(editor_command).execute();
-  } else if(EqualsASCII(command, "DeleteForward")) {
+  } else if(!command.compare("DeleteForward")) {
     WebCore::AtomicString editor_command("ForwardDelete");
     GetEditor()->command(editor_command).execute();
   } else {
@@ -78,11 +76,11 @@ void WebTextInputImpl::DoCommand(const string16& com) {
   return;
 }
 
-void WebTextInputImpl::SetMarkedText(const string16& text,
+void WebTextInputImpl::SetMarkedText(const std::string& text,
                                      int32_t location,
                                      int32_t length) {
   WebCore::Editor* editor = GetEditor();
-  WebCore::String str = webkit_glue::String16ToString(text);
+  WebCore::String str(text.c_str());
 
   editor->confirmComposition(str);
 
