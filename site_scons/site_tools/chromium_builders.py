@@ -167,6 +167,7 @@ non_compilable_suffixes = {
         '.html',
         '.hxx',
         '.idl',
+        '.mk',
         '.js',
         '.rc',
     ]),
