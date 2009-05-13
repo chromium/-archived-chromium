@@ -68,7 +68,6 @@
 #include "webkit/glue/webdropdata.h"
 #include "webkit/glue/weberror.h"
 #include "webkit/glue/webframe.h"
-#include "webkit/glue/webhistoryitem.h"
 #include "webkit/glue/webkit_glue.h"
 #include "webkit/glue/webpreferences.h"
 #include "webkit/glue/webplugin_delegate.h"
@@ -1561,13 +1560,6 @@ WindowOpenDisposition RenderView::DispositionForNavigationAction(
           url.SchemeIs(chrome::kViewSourceScheme)) {
         OpenURL(webview, url, GURL(), disposition);
         return IGNORE_ACTION;  // Suppress the load here.
-      } else if (url.SchemeIs(kBackForwardNavigationScheme)) {
-        std::string offset_str = url.ExtractFileName();
-        int offset;
-        if (StringToInt(offset_str, &offset)) {
-          GoToEntryAtOffset(offset);
-          return IGNORE_ACTION;  // The browser process handles this one.
-        }
       }
     }
   }
@@ -2445,20 +2437,7 @@ void RenderView::OnAutofillFormSubmitted(WebView* webview,
   Send(new ViewHostMsg_AutofillFormSubmitted(routing_id_, form));
 }
 
-WebHistoryItem* RenderView::GetHistoryEntryAtOffset(int offset) {
-  // Our history list is kept in the browser process on the UI thread.  Since
-  // we can't make a sync IPC call to that thread without risking deadlock,
-  // we use a trick: construct a fake history item of the form:
-  //   history://go/OFFSET
-  // When WebCore tells us to navigate to it, we tell the browser process to
-  // do a back/forward navigation instead.
-
-  GURL url(StringPrintf("%s://go/%d", kBackForwardNavigationScheme, offset));
-  history_navigation_item_ = WebHistoryItem::Create(url, L"", "", NULL);
-  return history_navigation_item_.get();
-}
-
-void RenderView::GoToEntryAtOffset(int offset) {
+void RenderView::NavigateBackForwardSoon(int offset) {
   history_back_list_count_ += offset;
   history_forward_list_count_ -= offset;
 
