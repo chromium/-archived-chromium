@@ -21,18 +21,18 @@ if [ "x$(id -u)" != x0 ]; then
 fi
 
 # Packages need for development
-dev_list="bison fakeroot flex g++ g++-multilib gperf libcairo2-dev libgconf2-dev
-          libglib2.0-dev libgtk2.0-dev libnspr4-dev libnss3-dev
-          libsqlite3-dev lighttpd msttcorefonts perl php5-cgi
+dev_list="bison fakeroot flex g++ g++-multilib gperf libasound2-dev
+          libcairo2-dev libgconf2-dev libglib2.0-dev libgtk2.0-dev libnspr4-dev
+          libnss3-dev libsqlite3-dev lighttpd msttcorefonts perl php5-cgi
           pkg-config python subversion sun-java6-fonts wdiff"
 
 # Full list of required run-time libraries
-lib_list="libatk1.0-0 libc6 libcairo2 libexpat1 libfontconfig1 libfreetype6
-          libglib2.0-0 libgtk2.0-0 libnspr4-0d libnss3-1d libpango1.0-0
-          libpcre3 libpixman-1-0 libpng12-0 libstdc++6 libsqlite3-0 libx11-6
-          libxau6 libxcb-xlib0 libxcb1 libxcomposite1 libxcursor1 libxdamage1
-          libxdmcp6 libxext6 libxfixes3 libxi6 libxinerama1 libxrandr2
-          libxrender1 zlib1g"
+lib_list="libatk1.0-0 libc6 libasound2 libcairo2 libexpat1 libfontconfig1
+          libfreetype6 libglib2.0-0 libgtk2.0-0 libnspr4-0d libnss3-1d
+          libpango1.0-0 libpcre3 libpixman-1-0 libpng12-0 libstdc++6
+          libsqlite3-0 libx11-6 libxau6 libxcb-xlib0 libxcb1 libxcomposite1
+          libxcursor1 libxdamage1 libxdmcp6 libxext6 libxfixes3 libxi6
+          libxinerama1 libxrandr2 libxrender1 zlib1g"
 
 # Debugging symbols for all of the run-time libraries
 dbg_list="libatk1.0-dbg libc6-dbg libcairo2-dbg libfontconfig1-dbg
