@@ -395,14 +395,14 @@ void LogMessage::Init(const char* file, int line) {
   if (log_thread_id)
     stream_ << CurrentThreadId() << ':';
   if (log_timestamp) {
-     time_t t = time(NULL);
-#if _MSC_VER >= 1400
+    time_t t = time(NULL);
     struct tm local_time = {0};
+#if _MSC_VER >= 1400
     localtime_s(&local_time, &t);
-    struct tm* tm_time = &local_time;
 #else
-    struct tm* tm_time = localtime(&t);
+    localtime_r(&t, &local_time);
 #endif
+    struct tm* tm_time = &local_time;
     stream_ << std::setfill('0')
             << std::setw(2) << 1 + tm_time->tm_mon
             << std::setw(2) << tm_time->tm_mday
