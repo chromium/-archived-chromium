@@ -6,7 +6,6 @@
 #define CHROME_RENDERER_WEBPLUGIN_DELEGATE_PROXY_H__
 
 #include <string>
-#include <vector>
 
 #include "base/gfx/rect.h"
 #include "base/gfx/native_widget_types.h"
@@ -20,7 +19,6 @@
 class GURL;
 struct NPObject;
 class NPObjectStub;
-struct NPVariant_Param;
 struct PluginHostMsg_URLRequest_Params;
 class RenderView;
 class SkBitmap;
@@ -127,10 +125,6 @@ class WebPluginDelegateProxy : public WebPluginDelegate,
   void OnShowModalHTMLDialog(const GURL& url, int width, int height,
                              const std::string& json_arguments,
                              std::string* json_retval);
-  void OnGetDragData(const NPVariant_Param& event, bool add_data,
-                     std::vector<NPVariant_Param>* values, bool* success);
-  void OnSetDropEffect(const NPVariant_Param& event, int effect,
-                       bool* success);
   void OnMissingPluginStatus(int status);
   void OnGetCPBrowsingContext(uint32* context);
   void OnCancelDocumentLoad();

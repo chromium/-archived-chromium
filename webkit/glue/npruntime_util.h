@@ -16,10 +16,6 @@ bool SerializeNPIdentifier(NPIdentifier identifier, Pickle* pickle);
 bool DeserializeNPIdentifier(const Pickle& pickle, void** pickle_iter,
                              NPIdentifier* identifier);
 
-// Validate drag and drop events access the data. TODO(noel): implement.
-bool GetDragData(NPObject* event, bool add_data, NPVariant results[3]);
-bool IsDragEvent(NPObject* event);
-
 }  // namespace webkit_glue
 
 #endif  // WEBKIT_GLUE_NPRUNTIME_UTIL_H_
