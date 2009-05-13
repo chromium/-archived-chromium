@@ -208,14 +208,14 @@ ATOM TestShell::RegisterWindowClass() {
   return RegisterClassEx(&wcex);
 }
 
-void TestShell::DumpBackForwardList(std::wstring* result) {
+void TestShell::DumpAllBackForwardLists(std::wstring* result) {
   result->clear();
   for (WindowList::iterator iter = TestShell::windowList()->begin();
      iter != TestShell::windowList()->end(); iter++) {
     HWND hwnd = *iter;
     TestShell* shell =
         static_cast<TestShell*>(win_util::GetWindowUserData(hwnd));
-    webkit_glue::DumpBackForwardList(shell->webView(), NULL, result);
+    shell->DumpBackForwardList(result);
   }
 }
 

@@ -9,10 +9,11 @@
 
 #include "base/ref_counted.h"
 
-class WebHistoryItemImpl;
 class WebViewImpl;
 
 namespace webkit_glue {
+
+extern const char kBackForwardNavigationScheme[];
 
 class BackForwardListClientImpl : public WebCore::BackForwardListClient {
  public:
@@ -39,7 +40,7 @@ class BackForwardListClientImpl : public WebCore::BackForwardListClient {
 
   // The last history item that was accessed via itemAtIndex().  We keep track
   // of this until goToItem() is called, so we can track the navigation.
-  scoped_refptr<WebHistoryItemImpl> pending_history_item_;
+  RefPtr<WebCore::HistoryItem> pending_history_item_;
 };
 
 } // namespace webkit_glue

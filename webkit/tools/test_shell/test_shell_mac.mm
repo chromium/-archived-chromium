@@ -484,14 +484,14 @@ void TestShell::ResizeSubViews() {
   // handled by Cocoa for us
 }
 
-/* static */ void TestShell::DumpBackForwardList(std::wstring* result) {
+/* static */ void TestShell::DumpAllBackForwardLists(std::wstring* result) {
   result->clear();
   for (WindowList::iterator iter = TestShell::windowList()->begin();
        iter != TestShell::windowList()->end(); iter++) {
     NSWindow* window = *iter;
     WindowMap::iterator it = window_map_.Get().find(window);
     if (it != window_map_.Get().end())
-      webkit_glue::DumpBackForwardList(it->second->webView(), NULL, result);
+      it->second->DumpBackForwardList(result);
     else
       LOG(ERROR) << "Failed to find shell for window during dump";
   }

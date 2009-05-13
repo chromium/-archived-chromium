@@ -5,7 +5,6 @@
 #include "webkit/tools/test_shell/test_navigation_controller.h"
 
 #include "base/logging.h"
-#include "webkit/glue/webhistoryitem.h"
 #include "webkit/tools/test_shell/test_shell.h"
 
 // ----------------------------------------------------------------------------
@@ -29,19 +28,7 @@ TestNavigationEntry::~TestNavigationEntry() {
 }
 
 void TestNavigationEntry::SetContentState(const std::string& state) {
-  cached_history_item_ = NULL;  // invalidate our cached item
   state_ = state;
-}
-
-WebHistoryItem* TestNavigationEntry::GetHistoryItem() const {
-  if (!cached_history_item_) {
-    TestShellExtraRequestData* extra_data =
-        new TestShellExtraRequestData(GetPageID());
-    cached_history_item_ =
-        WebHistoryItem::Create(GetURL(), GetTitle(), GetContentState(),
-                               extra_data);
-  }
-  return cached_history_item_;
 }
 
 // ----------------------------------------------------------------------------
@@ -129,9 +116,8 @@ int TestNavigationController::GetCurrentEntryIndex() const {
 }
 
 
-TestNavigationEntry* TestNavigationController::GetEntryAtOffset(
-    int offset) const {
-  int index = last_committed_entry_index_ + offset;
+TestNavigationEntry* TestNavigationController::GetEntryAtIndex(
+    int index) const {
   if (index < 0 || index >= GetEntryCount())
     return NULL;
 

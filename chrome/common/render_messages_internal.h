@@ -605,7 +605,7 @@ IPC_BEGIN_MESSAGES(ViewHost)
                               int /* route_id */,
                               ModalDialogEvent /* modal_dialog_event */)
 
-  // Similar to ViewHostMsg_CreateView, except used for sub-widgets, like
+  // Similar to ViewHostMsg_CreateWindow, except used for sub-widgets, like
   // <select> dropdowns.  This message is sent to the TabContents that
   // contains the widget being created.
   IPC_SYNC_MESSAGE_CONTROL2_1(ViewHostMsg_CreateWidget,
@@ -614,7 +614,7 @@ IPC_BEGIN_MESSAGES(ViewHost)
                               int /* route_id */)
 
   // These two messages are sent to the parent RenderViewHost to display the
-  // page/widget that was created by CreateView/CreateWidget.  routing_id
+  // page/widget that was created by CreateWindow/CreateWidget.  routing_id
   // refers to the id that was returned from the Create message above.
   // The initial_position parameter is a rectangle in screen coordinates.
   //

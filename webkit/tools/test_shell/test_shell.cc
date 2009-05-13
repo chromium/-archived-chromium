@@ -217,7 +217,7 @@ void TestShell::Dump(TestShell* shell) {
 
       if (shell->layout_test_controller_->ShouldDumpBackForwardList()) {
         std::wstring bfDump;
-        DumpBackForwardList(&bfDump);
+        DumpAllBackForwardLists(&bfDump);
         printf("%s", WideToUTF8(bfDump).c_str());
       }
     }
@@ -418,35 +418,52 @@ void TestShell::Show(WebView* webview, WindowOpenDisposition disposition) {
 }
 
 void TestShell::BindJSObjectsToWindow(WebFrame* frame) {
-    // Only bind the test classes if we're running tests.
-    if (layout_test_mode_) {
-        layout_test_controller_->BindToJavascript(frame,
-                                                  L"layoutTestController");
-        event_sending_controller_->BindToJavascript(frame,
-                                                    L"eventSender");
-        text_input_controller_->BindToJavascript(frame,
-                                                 L"textInputController");
-    }
+  // Only bind the test classes if we're running tests.
+  if (layout_test_mode_) {
+    layout_test_controller_->BindToJavascript(frame, L"layoutTestController");
+    event_sending_controller_->BindToJavascript(frame, L"eventSender");
+    text_input_controller_->BindToJavascript(frame, L"textInputController");
+  }
 }
 
+void TestShell::DumpBackForwardEntry(int index, std::wstring* result) {
+  int current_index = navigation_controller_->GetLastCommittedEntryIndex();
+
+  std::string content_state =
+      navigation_controller_->GetEntryAtIndex(index)->GetContentState();
+  if (content_state.empty()) {
+    content_state = webkit_glue::CreateHistoryStateForURL(
+        navigation_controller_->GetEntryAtIndex(index)->GetURL());
+  }
+
+  result->append(
+      webkit_glue::DumpHistoryState(content_state, 8, index == current_index));
+}
+
+void TestShell::DumpBackForwardList(std::wstring* result) {
+  result->append(L"\n============== Back Forward List ==============\n");
+
+  for (int i = 0; i < navigation_controller_->GetEntryCount(); ++i)
+    DumpBackForwardEntry(i, result);
+
+  result->append(L"===============================================\n");
+}
 
 void TestShell::CallJSGC() {
-    WebFrame* frame = webView()->GetMainFrame();
-    frame->CallJSGC();
+  webView()->GetMainFrame()->CallJSGC();
 }
 
-
 WebView* TestShell::CreateWebView(WebView* webview) {
-    // If we're running layout tests, only open a new window if the test has
-    // called layoutTestController.setCanOpenWindows()
-    if (layout_test_mode_ && !layout_test_controller_->CanOpenWindows())
-        return NULL;
+  // If we're running layout tests, only open a new window if the test has
+  // called layoutTestController.setCanOpenWindows()
+  if (layout_test_mode_ && !layout_test_controller_->CanOpenWindows())
+    return NULL;
 
-    TestShell* new_win;
-    if (!CreateNewWindow(std::wstring(), &new_win))
-        return NULL;
+  TestShell* new_win;
+  if (!CreateNewWindow(std::wstring(), &new_win))
+    return NULL;
 
-    return new_win->webView();
+  return new_win->webView();
 }
 
 void TestShell::SizeToSVG() {

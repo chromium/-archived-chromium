@@ -40,6 +40,7 @@
 #include "webkit/api/public/win/WebInputEventFactory.h"
 #endif
 #include "webkit/glue/event_conversion.h"
+#include "webkit/glue/glue_serialize.h"
 #include "webkit/glue/glue_util.h"
 #include "webkit/glue/weburlrequest_impl.h"
 #include "webkit/glue/webframe_impl.h"
@@ -150,62 +151,42 @@ static bool HistoryItemCompareLess(PassRefPtr<WebCore::HistoryItem> item1,
 }
 
 // Writes out a HistoryItem into a string in a readable format.
-static void DumpHistoryItem(WebCore::HistoryItem* item, int indent,
-                            bool is_current, std::wstring* result) {
+static std::wstring DumpHistoryItem(PassRefPtr<WebCore::HistoryItem> item,
+                                    int indent, bool is_current) {
+  std::wstring result;
+
   if (is_current) {
-    result->append(L"curr->");
-    result->append(indent - 6, L' ');  // 6 == L"curr->".length()
+    result.append(L"curr->");
+    result.append(indent - 6, L' ');  // 6 == L"curr->".length()
   } else {
-    result->append(indent, L' ');
+    result.append(indent, L' ');
   }
 
-  result->append(StringToStdWString(item->urlString()));
+  result.append(StringToStdWString(item->urlString()));
   if (!item->target().isEmpty()) {
-    result->append(L" (in frame \"" + StringToStdWString(item->target()) +
-                   L"\")");
+    result.append(L" (in frame \"" + StringToStdWString(item->target()) +
+                  L"\")");
   }
   if (item->isTargetItem())
-    result->append(L"  **nav target**");
-  result->append(L"\n");
+    result.append(L"  **nav target**");
+  result.append(L"\n");
 
   if (item->hasChildren()) {
     WebCore::HistoryItemVector children = item->children();
     // Must sort to eliminate arbitrary result ordering which defeats
     // reproducible testing.
     std::sort(children.begin(), children.end(), HistoryItemCompareLess);
-    for (unsigned i = 0; i < children.size(); i++) {
-      DumpHistoryItem(children[i].get(), indent+4, false, result);
-    }
+    for (unsigned i = 0; i < children.size(); i++)
+      result += DumpHistoryItem(children[i].get(), indent+4, false);
   }
+
+  return result;
 }
 
-void DumpBackForwardList(WebView* view, void* previous_history_item,
-                         std::wstring* result) {
-  result->append(L"\n============== Back Forward List ==============\n");
-
-  WebCore::Frame* frame =
-      static_cast<WebFrameImpl*>(view->GetMainFrame())->frame();
-  WebCore::BackForwardList* list = frame->page()->backForwardList();
-
-  // Skip everything before the previous_history_item, if it's in the back list.
-  // If it isn't found, assume it fell off the end, and include everything.
-  int start_index = -list->backListCount();
-  WebCore::HistoryItem* prev_item =
-      static_cast<WebCore::HistoryItem*>(previous_history_item);
-  for (int i = -list->backListCount(); i < 0; ++i) {
-    if (prev_item == list->itemAtIndex(i))
-      start_index = i+1;
-  }
-
-  for (int i = start_index; i < 0; ++i)
-    DumpHistoryItem(list->itemAtIndex(i), 8, false, result);
-
-  DumpHistoryItem(list->currentItem(), 8, true, result);
-
-  for (int i = 1; i <= list->forwardListCount(); ++i)
-    DumpHistoryItem(list->itemAtIndex(i), 8, false, result);
-
-  result->append(L"===============================================\n");
+std::wstring DumpHistoryState(const std::string& history_state, int indent,
+                              bool is_current) {
+  return DumpHistoryItem(HistoryItemFromString(history_state), indent,
+                         is_current);
 }
 
 void ResetBeforeTestRun(WebView* view) {

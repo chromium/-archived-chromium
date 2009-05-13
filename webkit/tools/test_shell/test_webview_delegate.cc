@@ -115,6 +115,14 @@ WebWidget* TestWebViewDelegate::CreatePopupWidget(WebView* webview,
   return shell_->CreatePopupWidget(webview);
 }
 
+WebWorker* TestWebViewDelegate::CreateWebWorker(WebWorkerClient* client) {
+#if ENABLE(WORKERS)
+  return TestWebWorkerHelper::CreateWebWorker(client);
+#else
+  return NULL;
+#endif
+}
+
 void TestWebViewDelegate::OpenURL(WebView* webview, const GURL& url,
                                   const GURL& referrer,
                                   WindowOpenDisposition disposition) {
@@ -661,13 +669,8 @@ void TestWebViewDelegate::DidEndEditing() {
   }
 }
 
-WebHistoryItem* TestWebViewDelegate::GetHistoryEntryAtOffset(int offset) {
-  TestNavigationEntry* entry = static_cast<TestNavigationEntry*>(
-      shell_->navigation_controller()->GetEntryAtOffset(offset));
-  if (!entry)
-    return NULL;
-
-  return entry->GetHistoryItem();
+void TestWebViewDelegate::NavigateBackForwardSoon(int offset) {
+  shell_->navigation_controller()->GoToOffset(offset);
 }
 
 int TestWebViewDelegate::GetHistoryBackListCount() {
@@ -791,6 +794,16 @@ void TestWebViewDelegate::LocationChangeDone(WebFrame* frame) {
   if (frame == top_loading_frame_) {
     top_loading_frame_ = NULL;
 
+    // It is important to update the content state for the current navigation
+    // entry in case we are done with the test and need to dump the back/
+    // forward list.
+    std::string state;
+    if (shell_->webView()->GetMainFrame()->GetCurrentHistoryState(&state)) {
+      TestNavigationEntry* entry =
+          shell_->navigation_controller()->GetLastCommittedEntry();
+      entry->SetContentState(state);
+    }
+
     if (shell_->layout_test_mode())
       shell_->layout_test_controller()->LocationChangeDone();
   }
@@ -887,12 +900,4 @@ std::wstring TestWebViewDelegate::GetFrameDescription(WebFrame* webframe) {
     else
       return L"frame (anonymous)";
   }
-}
-
-WebWorker* TestWebViewDelegate::CreateWebWorker(WebWorkerClient* client) {
-#if ENABLE(WORKERS)
-  return TestWebWorkerHelper::CreateWebWorker(client);
-#else
-  return NULL;
-#endif
 }

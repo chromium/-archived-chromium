@@ -194,7 +194,14 @@ public:
     static bool RunFileTest(const TestParams& params);
 
     // Writes the back-forward list data for every open window into result.
-    static void DumpBackForwardList(std::wstring* result);
+    // Should call DumpBackForwardListOfWindow on each TestShell window.
+    static void DumpAllBackForwardLists(std::wstring* result);
+
+    // Writes the single back-forward entry into result.
+    void DumpBackForwardEntry(int index, std::wstring* result);
+
+    // Writes the back-forward list data for this test shell into result.
+    void DumpBackForwardList(std::wstring* result);
 
     // Dumps the output from given test as text and/or image depending on
     // the flags set.

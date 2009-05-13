@@ -482,14 +482,14 @@ void TestShell::ResizeSubViews() {
   // GTK manages layout for us so we do nothing.
 }
 
-/* static */ void TestShell::DumpBackForwardList(std::wstring* result) {
+/* static */ void TestShell::DumpAllBackForwardLists(std::wstring* result) {
   result->clear();
   for (WindowList::iterator iter = TestShell::windowList()->begin();
        iter != TestShell::windowList()->end(); iter++) {
-      GtkWindow* window = *iter;
-      TestShell* shell =
-          static_cast<TestShell*>(g_object_get_data(G_OBJECT(window), "test-shell"));
-      webkit_glue::DumpBackForwardList(shell->webView(), NULL, result);
+    GtkWindow* window = *iter;
+    TestShell* shell =
+        static_cast<TestShell*>(g_object_get_data(G_OBJECT(window), "test-shell"));
+    shell->DumpBackForwardList(result);
   }
 }
 

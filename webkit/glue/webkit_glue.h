@@ -54,9 +54,10 @@ std::wstring DumpRenderer(WebFrame* web_frame);
 // Returns a dump of the scroll position of the webframe.
 std::wstring DumpFrameScrollPosition(WebFrame* web_frame, bool recursive);
 
-// Returns a representation of the back/forward list.
-void DumpBackForwardList(WebView* view, void* previous_history_item,
-                         std::wstring* result);
+// Returns a dump of the given history state suitable for implementing the
+// dumpBackForwardList command of the layoutTestController.
+std::wstring DumpHistoryState(const std::string& history_state, int indent,
+                              bool is_current);
 
 // Cleans up state left over from the previous test run.
 void ResetBeforeTestRun(WebView* view);

@@ -16,7 +16,6 @@
 
 class GURL;
 class TestShell;
-class WebHistoryItem;
 
 // Associated with browser-initated navigations to hold tracking data.
 class TestShellExtraRequestData : public WebRequest::ExtraData {
@@ -67,7 +66,6 @@ class TestNavigationEntry {
   void SetPageID(int page_id) { page_id_ = page_id; }
   int32 GetPageID() const { return page_id_; }
 
-  WebHistoryItem* GetHistoryItem() const;
   const std::wstring& GetTargetFrame() const { return target_frame_; }
 
  private:
@@ -78,8 +76,6 @@ class TestNavigationEntry {
   GURL url_;
   std::wstring title_;
   std::string state_;
-
-  mutable scoped_refptr<WebHistoryItem> cached_history_item_;
 
   std::wstring target_frame_;
 
@@ -132,9 +128,9 @@ class TestNavigationController {
   // it is the pending_entry_index_.
   int GetCurrentEntryIndex() const;
 
-  // Returns the entry at the specified offset from current.  Returns NULL
-  // if out of bounds.
-  TestNavigationEntry* GetEntryAtOffset(int offset) const;
+  // Returns the entry at the specified index.  Returns NULL if out of
+  // bounds.
+  TestNavigationEntry* GetEntryAtIndex(int index) const;
 
   // Return the entry with the corresponding type and page_id, or NULL if
   // not found.

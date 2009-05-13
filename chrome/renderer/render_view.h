@@ -279,7 +279,7 @@ class RenderView : public RenderWidget,
   virtual void TakeFocus(WebView* webview, bool reverse);
   virtual void JSOutOfMemory();
 
-  virtual WebHistoryItem* GetHistoryEntryAtOffset(int offset);
+  virtual void NavigateBackForwardSoon(int offset);
   virtual int GetHistoryBackListCount();
   virtual int GetHistoryForwardListCount();
   virtual void OnNavStateChanged(WebView* webview);
@@ -462,10 +462,6 @@ class RenderView : public RenderWidget,
   // Adds search provider from the given OpenSearch description URL as a
   // keyword search.
   void AddGURLSearchProvider(const GURL& osd_url, bool autodetected);
-
-  // Tells the browser process to navigate to a back/forward entry at the given
-  // offset from current.
-  void GoToEntryAtOffset(int offset);
 
   // RenderView IPC message handlers
   void SendThumbnail();
@@ -770,11 +766,6 @@ class RenderView : public RenderWidget,
   // The id of the last request sent for form field autofill.  Used to ignore
   // out of date responses.
   int form_field_autofill_request_id_;
-
-  // A cached WebHistoryItem used for back/forward navigations initiated by
-  // WebCore (via the window.history.go API).  We only have one such navigation
-  // pending at a time.
-  scoped_refptr<WebHistoryItem> history_navigation_item_;
 
   // We need to prevent windows from closing themselves with a window.close()
   // call while a blocked popup notification is being displayed. We cannot
