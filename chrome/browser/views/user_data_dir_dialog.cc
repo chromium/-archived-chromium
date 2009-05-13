@@ -22,8 +22,7 @@ std::wstring UserDataDirDialog::RunUserDataDirDialog(
 }
 
 UserDataDirDialog::UserDataDirDialog(const std::wstring& user_data_dir)
-    : ALLOW_THIS_IN_INITIALIZER_LIST(
-          select_file_dialog_(SelectFileDialog::Create(this))),
+    : select_file_dialog_(SelectFileDialog::Create(this)),
       is_blocking_(true) {
   std::wstring message_text = l10n_util::GetStringF(
       IDS_CANT_WRITE_USER_DIRECTORY_SUMMARY, user_data_dir);

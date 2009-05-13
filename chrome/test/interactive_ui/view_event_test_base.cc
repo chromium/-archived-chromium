@@ -4,8 +4,6 @@
 
 #include "chrome/test/interactive_ui/view_event_test_base.h"
 
-#include <ole2.h>
-
 #include "base/message_loop.h"
 #include "chrome/browser/automation/ui_controls.h"
 #include "views/view.h"

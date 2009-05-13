@@ -147,7 +147,7 @@ class BookmarkManagerView : public views::View,
                                bool is_mouse_gesture);
 
   // ViewMenuDelegate.
-  virtual void RunMenu(views::View* source, const gfx::Point& pt, HWND hwnd);
+  virtual void RunMenu(views::View* source, const CPoint& pt, HWND hwnd);
 
   // MenuDelegate.
   virtual void ExecuteCommand(int id);

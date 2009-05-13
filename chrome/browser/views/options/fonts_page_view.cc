@@ -209,8 +209,7 @@ void EmbellishTitle(views::Label* title_label) {
 }
 
 FontsPageView::FontsPageView(Profile* profile)
-    : ALLOW_THIS_IN_INITIALIZER_LIST(
-          select_font_dialog_(SelectFontDialog::Create(this))),
+    : select_font_dialog_(SelectFontDialog::Create(this)),
       fonts_group_title_(NULL),
       encoding_group_title_(NULL),
       fixed_width_font_change_page_button_(NULL),

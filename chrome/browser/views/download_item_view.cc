@@ -143,7 +143,7 @@ DownloadItemView::DownloadItemView(DownloadItem* download,
     dangerous_download_label_(NULL),
     dangerous_download_label_sized_(false),
     creation_time_(base::Time::Now()),
-    ALLOW_THIS_IN_INITIALIZER_LIST(reenable_method_factory_(this)),
+    reenable_method_factory_(this),
     disabled_while_opening_(false) {
   // TODO(idana) Bug# 1163334
   //

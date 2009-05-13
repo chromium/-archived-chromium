@@ -5,9 +5,6 @@
 #ifndef VIEWS_CONTROLS_TREE_TREE_VIEW_H_
 #define VIEWS_CONTROLS_TREE_TREE_VIEW_H_
 
-#include <windows.h>
-#include <commctrl.h>
-
 #include <map>
 
 #include "base/basictypes.h"
@@ -162,7 +159,7 @@ class TreeView : public NativeControl, TreeModelObserver {
   virtual bool NotifyOnKeyDown() const { return true; }
   virtual bool OnKeyDown(int virtual_key_code);
 
-  virtual void OnContextMenu(const WTL::CPoint& location);
+  virtual void OnContextMenu(const CPoint& location);
 
   // Returns the TreeModelNode for |tree_item|.
   TreeModelNode* GetNodeForTreeItem(HTREEITEM tree_item);

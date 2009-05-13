@@ -2,6 +2,9 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+#include <atlbase.h>
+#include <shlobj.h>
+
 #include "app/os_exchange_data.h"
 #include "base/clipboard_util.h"
 #include "base/pickle.h"
@@ -39,7 +42,7 @@ TEST(OSExchangeDataTest, StringDataAccessViaCOM) {
   OSExchangeData* data = new OSExchangeData;
   std::wstring input = L"O hai googlz.";
   data->SetString(input);
-  ScopedComPtr<IDataObject> com_data(data);
+  CComPtr<IDataObject> com_data(data);
 
   FORMATETC format_etc =
       { CF_UNICODETEXT, NULL, DVASPECT_CONTENT, -1, TYMED_HGLOBAL };
@@ -51,6 +54,8 @@ TEST(OSExchangeDataTest, StringDataAccessViaCOM) {
       ScopedHGlobal<wchar_t>(medium.hGlobal).get();
   EXPECT_EQ(input, output);
   ReleaseStgMedium(&medium);
+
+  // data is freed automatically by CComPtr.
 }
 
 // Test setting using the IDataObject COM API
@@ -58,7 +63,7 @@ TEST(OSExchangeDataTest, StringDataWritingViaCOM) {
   OSExchangeData* data = new OSExchangeData;
   std::wstring input = L"http://www.google.com/";
 
-  ScopedComPtr<IDataObject> com_data(data);
+  CComPtr<IDataObject> com_data(data);
 
   // Store data in the object using the COM SetData API.
   CLIPFORMAT cfstr_ineturl = RegisterClipboardFormat(CFSTR_INETURL);
@@ -93,7 +98,7 @@ TEST(OSExchangeDataTest, URLDataAccessViaCOM) {
   OSExchangeData* data = new OSExchangeData;
   GURL url("http://www.google.com/");
   data->SetURL(url, L"");
-  ScopedComPtr<IDataObject> com_data(data);
+  CComPtr<IDataObject> com_data(data);
 
   CLIPFORMAT cfstr_ineturl = RegisterClipboardFormat(CFSTR_INETURL);
   FORMATETC format_etc =
@@ -116,7 +121,7 @@ TEST(OSExchangeDataTest, MultipleFormatsViaCOM) {
   data->SetURL(url, L"Google");
   data->SetString(text);
 
-  ScopedComPtr<IDataObject> com_data(data);
+  CComPtr<IDataObject> com_data(data);
 
   CLIPFORMAT cfstr_ineturl = RegisterClipboardFormat(CFSTR_INETURL);
   FORMATETC url_format_etc =
@@ -151,10 +156,9 @@ TEST(OSExchangeDataTest, EnumerationViaCOM) {
       RegisterClipboardFormat(CFSTR_FILEDESCRIPTOR);
   CLIPFORMAT text_x_moz_url = RegisterClipboardFormat(L"text/x-moz-url");
 
-  ScopedComPtr<IDataObject> com_data(data);
-  ScopedComPtr<IEnumFORMATETC> enumerator;
-  EXPECT_EQ(S_OK, com_data.get()->EnumFormatEtc(DATADIR_GET,
-                                                enumerator.Receive()));
+  CComPtr<IDataObject> com_data(data);
+  CComPtr<IEnumFORMATETC> enumerator;
+  EXPECT_EQ(S_OK, com_data->EnumFormatEtc(DATADIR_GET, &enumerator));
 
   // Test that we can get one item.
   {
@@ -206,9 +210,9 @@ TEST(OSExchangeDataTest, EnumerationViaCOM) {
   {
     EXPECT_EQ(S_OK, enumerator->Reset());
     EXPECT_EQ(S_OK, enumerator->Skip(1));
-    ScopedComPtr<IEnumFORMATETC> cloned_enumerator;
-    EXPECT_EQ(S_OK, enumerator.get()->Clone(cloned_enumerator.Receive()));
-    EXPECT_EQ(S_OK, enumerator.get()->Reset());
+    CComPtr<IEnumFORMATETC> cloned_enumerator;
+    EXPECT_EQ(S_OK, enumerator->Clone(&cloned_enumerator));
+    EXPECT_EQ(S_OK, enumerator->Reset());
 
     {
       ULONG retrieved = 0;
@@ -253,7 +257,7 @@ TEST(OSExchangeDataTest, TestURLExchangeFormats) {
   EXPECT_EQ(url_spec, WideToUTF8(output_string));
 
   // File contents access via COM
-  ScopedComPtr<IDataObject> com_data(data);
+  CComPtr<IDataObject> com_data(data);
   {
     CLIPFORMAT cfstr_file_contents =
         RegisterClipboardFormat(CFSTR_FILECONTENTS);

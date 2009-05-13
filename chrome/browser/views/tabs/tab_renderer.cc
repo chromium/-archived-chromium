@@ -2,9 +2,9 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "chrome/browser/views/tabs/tab_renderer.h"
-
 #include <limits>
+
+#include "chrome/browser/views/tabs/tab_renderer.h"
 
 #include "app/gfx/chrome_canvas.h"
 #include "app/gfx/chrome_font.h"
@@ -174,7 +174,7 @@ class TabRenderer::FavIconCrashAnimation : public Animation,
                                            public AnimationDelegate {
  public:
   explicit FavIconCrashAnimation(TabRenderer* target)
-      : ALLOW_THIS_IN_INITIALIZER_LIST(Animation(1000, 25, this)),
+      : Animation(1000, 25, this),
         target_(target) {
   }
   virtual ~FavIconCrashAnimation() {}

@@ -8,7 +8,6 @@
 #include <atlapp.h>
 #include <atlcrack.h>
 #include <atlframe.h>
-#include <atlmisc.h>
 
 #include "app/l10n_util_win.h"
 #include "base/logging.h"
@@ -128,7 +127,7 @@ class NativeControlContainer : public CWindowImpl<NativeControlContainer,
     TRACK_HWND_DESTRUCTION(m_hWnd);
   }
 
-  void OnContextMenu(HWND window, const WTL::CPoint& location) {
+  void OnContextMenu(HWND window, const CPoint& location) {
     if (parent_)
       parent_->OnContextMenu(location);
   }

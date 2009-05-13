@@ -110,10 +110,9 @@ void HWNDView::ShowWidget(int x, int y, int w, int h) {
 
   if (fast_resize()) {
     // In a fast resize, we move the window and clip it with SetWindowRgn.
-    RECT win_rect;
-    GetWindowRect(native_view(), &win_rect);
-    gfx::Rect rect(win_rect);
-    ::SetWindowPos(native_view(), 0, x, y, rect.width(), rect.height(),
+    CRect rect;
+    GetWindowRect(native_view(), &rect);
+    ::SetWindowPos(native_view(), 0, x, y, rect.Width(), rect.Height(),
                    swp_flags);
 
     HRGN clip_region = CreateRectRgn(0, 0, w, h);

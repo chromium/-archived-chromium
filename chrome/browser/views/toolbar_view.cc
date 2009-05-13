@@ -582,7 +582,7 @@ gfx::Size BrowserToolbarView::GetPreferredSize() {
       vertical_spacing);
 }
 
-void BrowserToolbarView::RunPageMenu(const gfx::Point& pt, HWND hwnd) {
+void BrowserToolbarView::RunPageMenu(const CPoint& pt, HWND hwnd) {
   Menu::AnchorPoint anchor = Menu::TOPRIGHT;
   if (UILayoutIsRightToLeft())
     anchor = Menu::TOPLEFT;
@@ -646,10 +646,10 @@ void BrowserToolbarView::RunPageMenu(const gfx::Point& pt, HWND hwnd) {
 
   menu.AppendMenuItemWithLabel(IDC_REPORT_BUG,
                                l10n_util::GetString(IDS_REPORT_BUG));
-  menu.RunMenuAt(pt.x(), pt.y());
+  menu.RunMenuAt(pt.x, pt.y);
 }
 
-void BrowserToolbarView::RunAppMenu(const gfx::Point& pt, HWND hwnd) {
+void BrowserToolbarView::RunAppMenu(const CPoint& pt, HWND hwnd) {
   Menu::AnchorPoint anchor = Menu::TOPRIGHT;
   if (UILayoutIsRightToLeft())
     anchor = Menu::TOPLEFT;
@@ -704,7 +704,7 @@ void BrowserToolbarView::RunAppMenu(const gfx::Point& pt, HWND hwnd) {
   menu.AppendSeparator();
   menu.AppendMenuItemWithLabel(IDC_EXIT, l10n_util::GetString(IDS_EXIT));
 
-  menu.RunMenuAt(pt.x(), pt.y());
+  menu.RunMenuAt(pt.x, pt.y);
 
   // Menu is going away, so set the profiles menu pointer to NULL.
   profiles_menu_ = NULL;
@@ -718,7 +718,7 @@ bool BrowserToolbarView::IsItemChecked(int id) const {
   return EncodingMenuControllerDelegate::IsItemChecked(id);
 }
 
-void BrowserToolbarView::RunMenu(views::View* source, const gfx::Point& pt,
+void BrowserToolbarView::RunMenu(views::View* source, const CPoint& pt,
                                  HWND hwnd) {
   switch (source->GetID()) {
     case VIEW_ID_PAGE_MENU:

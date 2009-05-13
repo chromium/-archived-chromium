@@ -4,8 +4,6 @@
 
 #include "chrome/browser/views/bookmark_table_view.h"
 
-#include <commctrl.h>
-
 #include "app/drag_drop_types.h"
 #include "app/gfx/chrome_canvas.h"
 #include "app/gfx/chrome_font.h"
@@ -432,12 +430,11 @@ void BookmarkTableView::PaintAltText() {
 gfx::Rect BookmarkTableView::GetAltTextBounds() {
   static const int kXOffset = 16;
   DCHECK(GetNativeControlHWND());
-  RECT client_rect_rect;
-  GetClientRect(GetNativeControlHWND(), &client_rect_rect);
-  gfx::Rect client_rect(client_rect_rect);
+  CRect client_rect;
+  GetClientRect(GetNativeControlHWND(), client_rect);
   ChromeFont font = GetAltTextFont();
   // Pad height by 2 for halo.
-  return gfx::Rect(kXOffset, content_offset(), client_rect.width() - kXOffset,
+  return gfx::Rect(kXOffset, content_offset(), client_rect.Width() - kXOffset,
                    std::max(kImageSize, font.height() + 2));
 }
 

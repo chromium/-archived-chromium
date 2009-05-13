@@ -4,8 +4,6 @@
 
 #include "views/controls/button/native_button_win.h"
 
-#include <commctrl.h>
-
 #include "base/logging.h"
 #include "views/controls/button/checkbox.h"
 #include "views/controls/button/native_button.h"

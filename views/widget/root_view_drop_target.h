@@ -5,6 +5,10 @@
 #ifndef VIEWS_WIDGET_ROOT_VIEW_DROP_TARGET_H_
 #define VIEWS_WIDGET_ROOT_VIEW_DROP_TARGET_H_
 
+#include <atlbase.h>
+#include <atlapp.h>
+#include <atlmisc.h>
+
 #include "app/os_exchange_data.h"
 #include "base/base_drop_target.h"
 

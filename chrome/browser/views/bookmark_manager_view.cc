@@ -137,7 +137,7 @@ BookmarkManagerView::BookmarkManagerView(Profile* profile)
     : profile_(profile->GetOriginalProfile()),
       table_view_(NULL),
       tree_view_(NULL),
-      ALLOW_THIS_IN_INITIALIZER_LIST(search_factory_(this)) {
+      search_factory_(this) {
   search_tf_ = new views::TextField();
   search_tf_->set_default_width_in_chars(30);
 
@@ -479,7 +479,7 @@ void BookmarkManagerView::ShowContextMenu(views::View* source,
 }
 
 void BookmarkManagerView::RunMenu(views::View* source,
-                                  const gfx::Point& pt,
+                                  const CPoint& pt,
                                   HWND hwnd) {
   // TODO(glen): when you change the buttons around and what not, futz with
   // this to make it look good. If you end up keeping padding numbers make them
@@ -487,14 +487,14 @@ void BookmarkManagerView::RunMenu(views::View* source,
   if (!GetBookmarkModel()->IsLoaded())
     return;
 
-  int menu_x = pt.x();
+  int menu_x = pt.x;
   menu_x += UILayoutIsRightToLeft() ? (source->width() - 5) :
                                       (-source->width() + 5);
   if (source->GetID() == kOrganizeMenuButtonID) {
-    ShowMenu(hwnd, menu_x, pt.y() + 2,
+    ShowMenu(hwnd, menu_x, pt.y + 2,
              BookmarkContextMenu::BOOKMARK_MANAGER_ORGANIZE_MENU);
   } else if (source->GetID() == kToolsMenuButtonID) {
-    ShowToolsMenu(hwnd, menu_x, pt.y() + 2);
+    ShowToolsMenu(hwnd, menu_x, pt.y + 2);
   } else {
     NOTREACHED();
   }

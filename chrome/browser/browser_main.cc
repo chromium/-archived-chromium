@@ -4,11 +4,6 @@
 
 #include "build/build_config.h"
 
-#if defined(OS_WIN)
-#include <windows.h>
-#include <commctrl.h>
-#endif
-
 #include <algorithm>
 
 #include "app/l10n_util.h"

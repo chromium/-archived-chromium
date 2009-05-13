@@ -6,6 +6,8 @@
 #define VIEWS_WINDOW_WINDOW_WIN_H_
 
 #include "views/widget/widget_win.h"
+#include "views/window/client_view.h"
+#include "views/window/non_client_view.h"
 #include "views/window/window.h"
 
 namespace gfx {

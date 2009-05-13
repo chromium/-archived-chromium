@@ -7,10 +7,6 @@
 #include <cryptuiapi.h>
 #pragma comment(lib, "cryptui.lib")
 
-#include <atlbase.h>
-#include <atlapp.h>
-#include <atlmisc.h>
-
 #include "app/l10n_util.h"
 #include "app/resource_bundle.h"
 #include "app/win_util.h"

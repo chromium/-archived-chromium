@@ -1093,7 +1093,7 @@ int BookmarkBarView::GetDragOperations(View* sender, int x, int y) {
 }
 
 void BookmarkBarView::RunMenu(views::View* view,
-                              const gfx::Point& pt,
+                              const CPoint& pt,
                               HWND hwnd) {
   BookmarkNode* node;
   MenuItemView::AnchorPosition anchor_point = MenuItemView::TOPLEFT;

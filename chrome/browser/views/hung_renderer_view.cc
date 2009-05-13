@@ -405,14 +405,14 @@ void HungRendererDialogView::CreateKillButtonView() {
 gfx::Rect HungRendererDialogView::GetDisplayBounds(
     TabContents* contents) {
   HWND contents_hwnd = contents->GetNativeView();
-  RECT contents_bounds_rect;
-  GetWindowRect(contents_hwnd, &contents_bounds_rect);
-  gfx::Rect contents_bounds(contents_bounds_rect);
+  CRect contents_bounds;
+  GetWindowRect(contents_hwnd, &contents_bounds);
+
   gfx::Rect window_bounds = window()->GetBounds();
 
-  int window_x = contents_bounds.x() +
-      (contents_bounds.width() - window_bounds.width()) / 2;
-  int window_y = contents_bounds.y() + kOverlayContentsOffsetY;
+  int window_x = contents_bounds.left +
+      (contents_bounds.Width() - window_bounds.width()) / 2;
+  int window_y = contents_bounds.top + kOverlayContentsOffsetY;
   return gfx::Rect(window_x, window_y, window_bounds.width(),
                    window_bounds.height());
 }

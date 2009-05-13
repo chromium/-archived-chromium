@@ -5,7 +5,6 @@
 #include "views/controls/table/group_table_view.h"
 
 #include "app/gfx/chrome_canvas.h"
-#include "base/compiler_specific.h"
 #include "base/message_loop.h"
 #include "base/task.h"
 
@@ -25,7 +24,7 @@ GroupTableView::GroupTableView(GroupTableModel* model,
     : TableView(model, columns, table_type, false, resizable_columns,
                 autosize_columns),
     model_(model),
-    ALLOW_THIS_IN_INITIALIZER_LIST(sync_selection_factory_(this)) {
+    sync_selection_factory_(this) {
 }
 
 GroupTableView::~GroupTableView() {
@@ -166,22 +165,22 @@ void GroupTableView::OnSelectedStateChanged() {
 
 // Draws the line separator betweens the groups.
 void GroupTableView::PostPaint(int model_row, int column, bool selected,
-                               const gfx::Rect& bounds, HDC hdc) {
+                               const CRect& bounds, HDC hdc) {
   GroupRange group_range;
   model_->GetGroupRangeForItem(model_row, &group_range);
 
   // We always paint a vertical line at the end of the last cell.
   HPEN hPen = CreatePen(PS_SOLID, kSeparatorLineThickness, kSeparatorLineColor);
   HPEN hPenOld = (HPEN) SelectObject(hdc, hPen);
-  int x = static_cast<int>(bounds.right() - kSeparatorLineThickness);
-  MoveToEx(hdc, x, bounds.y(), NULL);
-  LineTo(hdc, x, bounds.bottom());
+  int x = static_cast<int>(bounds.right - kSeparatorLineThickness);
+  MoveToEx(hdc, x, bounds.top, NULL);
+  LineTo(hdc, x, bounds.bottom);
 
   // We paint a separator line after the last item of a group.
   if (model_row == (group_range.start + group_range.length - 1)) {
-    int y = static_cast<int>(bounds.bottom() - kSeparatorLineThickness);
+    int y = static_cast<int>(bounds.bottom - kSeparatorLineThickness);
     MoveToEx(hdc, 0, y, NULL);
-    LineTo(hdc, bounds.width(), y);
+    LineTo(hdc, bounds.Width(), y);
   }
   SelectObject(hdc, hPenOld);
   DeleteObject(hPen);

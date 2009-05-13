@@ -5,7 +5,6 @@
 #include "chrome/browser/input_window_dialog.h"
 
 #include "app/l10n_util.h"
-#include "base/compiler_specific.h"
 #include "base/message_loop.h"
 #include "base/task.h"
 #include "views/grid_layout.h"
@@ -61,7 +60,7 @@ class ContentView : public views::View,
  public:
   explicit ContentView(WinInputWindowDialog* delegate)
       : delegate_(delegate),
-        ALLOW_THIS_IN_INITIALIZER_LIST(focus_grabber_factory_(this)) {
+        focus_grabber_factory_(this) {
     DCHECK(delegate_);
   }
 

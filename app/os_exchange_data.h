@@ -5,10 +5,11 @@
 #ifndef APP_OS_EXCHANGE_DATA_H_
 #define APP_OS_EXCHANGE_DATA_H_
 
+#include <atlbase.h>
 #include <objidl.h>
 #include <vector>
 
-#include "base/scoped_comptr_win.h"
+#include "base/basictypes.h"
 
 class GURL;
 class Pickle;
@@ -133,7 +134,7 @@ class OSExchangeData : public IDataObject {
   typedef std::vector<StoredDataInfo*> StoredData;
   StoredData contents_;
 
-  ScopedComPtr<IDataObject> source_object_;
+  CComPtr<IDataObject> source_object_;
 
   LONG ref_count_;
 

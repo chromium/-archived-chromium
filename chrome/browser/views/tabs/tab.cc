@@ -208,10 +208,10 @@ bool Tab::GetTooltipText(int x, int y, std::wstring* tooltip) {
   return false;
 }
 
-bool Tab::GetTooltipTextOrigin(int x, int y, gfx::Point* origin) {
+bool Tab::GetTooltipTextOrigin(int x, int y, CPoint* origin) {
   ChromeFont font;
-  origin->set_x(title_bounds().x() + 10);
-  origin->set_y(-views::TooltipManager::GetTooltipHeight() - 4);
+  origin->x = title_bounds().x() + 10;
+  origin->y = -views::TooltipManager::GetTooltipHeight() - 4;
   return true;
 }
 

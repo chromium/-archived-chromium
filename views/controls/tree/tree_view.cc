@@ -4,9 +4,7 @@
 
 #include "views/controls/tree/tree_view.h"
 
-#include <atlbase.h>
-#include <atlapp.h>
-#include <atlmisc.h>
+#include <shellapi.h>
 
 #include "app/gfx/chrome_canvas.h"
 #include "app/gfx/icon_util.h"
@@ -32,7 +30,7 @@ TreeView::TreeView()
       process_enter_(false),
       show_context_menu_only_when_node_selected_(true),
       select_on_right_mouse_down_(true),
-      ALLOW_THIS_IN_INITIALIZER_LIST(wrapper_(this)),
+      wrapper_(this),
       original_handler_(NULL),
       drag_enabled_(false),
       has_custom_icons_(false),
@@ -483,7 +481,7 @@ bool TreeView::OnKeyDown(int virtual_key_code) {
   return false;
 }
 
-void TreeView::OnContextMenu(const WTL::CPoint& location) {
+void TreeView::OnContextMenu(const CPoint& location) {
   if (!GetContextMenuController())
     return;
 

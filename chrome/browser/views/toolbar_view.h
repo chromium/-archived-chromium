@@ -72,7 +72,7 @@ class BrowserToolbarView : public views::View,
   virtual bool GetAcceleratorInfo(int id, views::Accelerator* accel);
 
   // views::MenuDelegate
-  virtual void RunMenu(views::View* source, const gfx::Point& pt, HWND hwnd);
+  virtual void RunMenu(views::View* source, const CPoint& pt, HWND hwnd);
 
   // GetProfilesHelper::Delegate method.
   virtual void OnGetProfilesDone(const std::vector<std::wstring>& profiles);
@@ -157,10 +157,10 @@ class BrowserToolbarView : public views::View,
   void SetSecurityLevel(ToolbarModel::SecurityLevel security_level);
 
   // Show the page menu.
-  void RunPageMenu(const gfx::Point& pt, HWND hwnd);
+  void RunPageMenu(const CPoint& pt, HWND hwnd);
 
   // Show the app menu.
-  void RunAppMenu(const gfx::Point& pt, HWND hwnd);
+  void RunAppMenu(const CPoint& pt, HWND hwnd);
 
   // Overridden from View, to pass keyboard triggering of the right-click
   // context menu on to the toolbar child view that currently has the

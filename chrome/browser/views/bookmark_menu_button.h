@@ -36,13 +36,13 @@ class BookmarkMenuButton : public views::MenuButton,
 
   // ViewMenuDelegate.
   virtual void RunMenu(views::View* source,
-                       const gfx::Point& pt,
+                       const CPoint& pt,
                        gfx::NativeView hwnd);
 
  private:
   // Shows the menu.
   void RunMenu(views::View* source,
-               const gfx::Point& pt,
+               const CPoint& pt,
                gfx::NativeView hwnd,
                bool for_drop);
 

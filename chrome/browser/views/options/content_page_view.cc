@@ -2,12 +2,12 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "chrome/browser/views/options/content_page_view.h"
-
 #include <windows.h>
 #include <shlobj.h>
 #include <vsstyle.h>
 #include <vssym32.h>
+
+#include "chrome/browser/views/options/content_page_view.h"
 
 #include "app/gfx/chrome_canvas.h"
 #include "app/l10n_util.h"
@@ -176,8 +176,7 @@ ContentPageView::ContentPageView(Profile* profile)
       download_default_download_location_display_(NULL),
       download_browse_button_(NULL),
       download_ask_for_save_location_checkbox_(NULL),
-      ALLOW_THIS_IN_INITIALIZER_LIST(
-          select_file_dialog_(SelectFileDialog::Create(this))),
+      select_file_dialog_(SelectFileDialog::Create(this)),
       passwords_exceptions_button_(NULL),
       passwords_group_(NULL),
       passwords_asktosave_radio_(NULL),

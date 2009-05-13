@@ -93,13 +93,13 @@ void BookmarkMenuButton::BookmarkMenuDeleted(
 }
 
 void BookmarkMenuButton::RunMenu(views::View* source,
-                                 const gfx::Point& pt,
+                                 const CPoint& pt,
                                  gfx::NativeView hwnd) {
   RunMenu(source, pt, hwnd, false);
 }
 
 void BookmarkMenuButton::RunMenu(views::View* source,
-                                 const gfx::Point& pt,
+                                 const CPoint& pt,
                                  gfx::NativeView hwnd,
                                  bool for_drop) {
   Profile* profile = browser_->profile();
@@ -141,5 +141,5 @@ void BookmarkMenuButton::StopShowFolderDropMenuTimer() {
 }
 
 void BookmarkMenuButton::ShowDropMenu() {
-  RunMenu(NULL, gfx::Point(), GetWidget()->GetNativeView(), true);
+  RunMenu(NULL, CPoint(), GetWidget()->GetNativeView(), true);
 }
