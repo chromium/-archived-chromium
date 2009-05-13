@@ -2696,6 +2696,7 @@ BUG11810 MAC : LayoutTests/http/tests/navigation/post-goback-same-url.html = TIM
 BUG11810 MAC : LayoutTests/http/tests/mime/standard-mode-does-not-load-stylesheet-with-text-plain.html = TIMEOUT PASS
 BUG11810 MAC : LayoutTests/svg/custom/polyline-points-crash.html = CRASH PASS
 BUG11810 MAC : LayoutTests/editing/selection/extend-selection.html = TIMEOUT PASS
+BUG11810 MAC DEBUG : LayoutTests/fast/repaint/subtree-root-clip.html = CRASH PASS
 
 // Flaky Linux tests
 BUG11832 LINUX : LayoutTests/svg/custom/circular-marker-reference-4.svg = FAIL PASS
