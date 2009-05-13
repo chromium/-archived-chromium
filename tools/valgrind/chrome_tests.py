@@ -176,6 +176,7 @@ class ChromeTests:
     for directory in self._data_dirs:
       filename = os.path.join(directory, name + ".gtest.txt")
       if os.path.exists(filename):
+        logging.info("reading gtest filters from %s" % filename)
         f = open(filename, 'r')
         for line in f.readlines():
           if line.startswith("#") or line.startswith("//") or line.isspace():
