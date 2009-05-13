@@ -9,15 +9,15 @@
       'type': 'settings',
       'direct_dependent_settings': {
         'cflags': [
-          '<!@(python pkg_config_wrapper.py --cflags gtk+-2.0)',
+          '<!@(pkg-config --cflags gtk+-2.0)',
         ],
       },
       'link_settings': {
         'ldflags': [
-          '<!@(python pkg_config_wrapper.py --libs-only-L --libs-only-other gtk+-2.0)',
+          '<!@(pkg-config --libs-only-L --libs-only-other gtk+-2.0)',
         ],
         'libraries': [
-          '<!@(python pkg_config_wrapper.py --libs-only-l gtk+-2.0)',
+          '<!@(pkg-config --libs-only-l gtk+-2.0)',
         ],
       },
     },
@@ -26,15 +26,15 @@
       'type': 'settings',
       'direct_dependent_settings': {
         'cflags': [
-          '<!@(python pkg_config_wrapper.py --cflags nss)',
+          '<!@(pkg-config --cflags nss)',
         ],
       },
       'link_settings': {
         'ldflags': [
-          '<!@(python pkg_config_wrapper.py --libs-only-L --libs-only-other nss)',
+          '<!@(pkg-config --libs-only-L --libs-only-other nss)',
         ],
         'libraries': [
-          '<!@(python pkg_config_wrapper.py --libs-only-l nss)',
+          '<!@(pkg-config --libs-only-l nss)',
         ],
       },
     },
@@ -43,15 +43,15 @@
       'type': 'settings',
       'direct_dependent_settings': {
         'cflags': [
-          '<!@(python pkg_config_wrapper.py --cflags freetype2)',
+          '<!@(pkg-config --cflags freetype2)',
         ],
       },
       'link_settings': {
         'ldflags': [
-          '<!@(python pkg_config_wrapper.py --libs-only-L --libs-only-other freetype2)',
+          '<!@(pkg-config --libs-only-L --libs-only-other freetype2)',
         ],
         'libraries': [
-          '<!@(python pkg_config_wrapper.py --libs-only-l freetype2)',
+          '<!@(pkg-config --libs-only-l freetype2)',
         ],
       },
     },
@@ -60,15 +60,15 @@
       'type': 'settings',
       'direct_dependent_settings': {
         'cflags': [
-          '<!@(python pkg_config_wrapper.py --cflags fontconfig)',
+          '<!@(pkg-config --cflags fontconfig)',
         ],
       },
       'link_settings': {
         'ldflags': [
-          '<!@(python pkg_config_wrapper.py --libs-only-L --libs-only-other fontconfig)',
+          '<!@(pkg-config --libs-only-L --libs-only-other fontconfig)',
         ],
         'libraries': [
-          '<!@(python pkg_config_wrapper.py --libs-only-l fontconfig)',
+          '<!@(pkg-config --libs-only-l fontconfig)',
         ],
       },
     },
@@ -77,15 +77,15 @@
       'type': 'settings',
       'direct_dependent_settings': {
         'cflags': [
-          '<!@(python pkg_config_wrapper.py --cflags gdk-2.0)',
+          '<!@(pkg-config --cflags gdk-2.0)',
         ],
       },
       'link_settings': {
         'ldflags': [
-          '<!@(python pkg_config_wrapper.py --libs-only-L --libs-only-other gdk-2.0)',
+          '<!@(pkg-config --libs-only-L --libs-only-other gdk-2.0)',
         ],
         'libraries': [
-          '<!@(python pkg_config_wrapper.py --libs-only-l gdk-2.0)',
+          '<!@(pkg-config --libs-only-l gdk-2.0)',
         ],
       },
     },
@@ -94,15 +94,15 @@
       'type': 'settings',
       'direct_dependent_settings': {
         'cflags': [
-          '<!@(python pkg_config_wrapper.py --cflags gconf-2.0)',
+          '<!@(pkg-config --cflags gconf-2.0)',
         ],
       },
       'link_settings': {
         'ldflags': [
-          '<!@(python pkg_config_wrapper.py --libs-only-L --libs-only-other gconf-2.0)',
+          '<!@(pkg-config --libs-only-L --libs-only-other gconf-2.0)',
         ],
         'libraries': [
-          '<!@(python pkg_config_wrapper.py --libs-only-l gconf-2.0)',
+          '<!@(pkg-config --libs-only-l gconf-2.0)',
         ],
       },
     },
@@ -111,15 +111,15 @@
       'type': 'settings',
       'direct_dependent_settings': {
         'cflags': [
-          '<!@(python pkg_config_wrapper.py --cflags gthread-2.0)',
+          '<!@(pkg-config --cflags gthread-2.0)',
         ],
       },
       'link_settings': {
         'ldflags': [
-          '<!@(python pkg_config_wrapper.py --libs-only-L --libs-only-other gthread-2.0)',
+          '<!@(pkg-config --libs-only-L --libs-only-other gthread-2.0)',
         ],
         'libraries': [
-          '<!@(python pkg_config_wrapper.py --libs-only-l gthread-2.0)',
+          '<!@(pkg-config --libs-only-l gthread-2.0)',
         ],
       },
     },
@@ -128,15 +128,15 @@
       'type': 'settings',
       'direct_dependent_settings': {
         'cflags': [
-          '<!@(python pkg_config_wrapper.py --cflags x11)',
+          '<!@(pkg-config --cflags x11)',
         ],
       },
       'link_settings': {
         'ldflags': [
-          '<!@(python pkg_config_wrapper.py --libs-only-L --libs-only-other x11)',
+          '<!@(pkg-config --libs-only-L --libs-only-other x11)',
         ],
         'libraries': [
-          '<!@(python pkg_config_wrapper.py --libs-only-l x11)',
+          '<!@(pkg-config --libs-only-l x11)',
         ],
       },
     },
