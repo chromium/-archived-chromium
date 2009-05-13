@@ -132,6 +132,22 @@ class NotificationType {
     // are provided.
     RESOURCE_RECEIVED_REDIRECT,
 
+    // SSL ---------------------------------------------------------------------
+
+    // Updating the SSL security indicators (the lock icon and such) proceeds
+    // in two phases:
+    //
+    // 1) An SSLManager changes the SSLHostState (which hangs off the profile
+    //    object).  When this happens, the SSLManager broadcasts an
+    //    SSL_INTERNAL_STATE_CHANGED notification.
+    //
+    // 2) The SSLManager for each tab receives this notification and might or
+    //    might not update the navigation entry for its tab, depending on
+    //    whether the change in SSLHostState affects that tab.  If the
+    //    SSLManager does change the navigation entry, then the SSLManager
+    //    broadcasts an SSL_VISIBLE_STATE_CHANGED notification to the user
+    //    interface can redraw properly.
+
     // The SSL state of a page has changed in some visible way.  For example,
     // if an insecure resource is loaded on a secure page.  Note that a
     // toplevel load commit will also update the SSL state (since the
