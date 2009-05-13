@@ -1621,22 +1621,22 @@ each locale. -->
         There are several SSL errors on this page:
       </message>
       <message name="IDS_SSL_MIXED_CONTENT_TITLE" desc="Title for mixed SSL / non-SSL content">
-        This page contains insecure elements.
+        This page contains insecure content.
       </message>
       <message name="IDS_SSL_MIXED_CONTENT_DESCRIPTION" desc="Description for mixed SSL / non-SSL content">
-        This page contains some insecure elements
+        This page contains some insecure content
       </message>
       <message name="IDS_SSL_MIXED_CONTENT_DETAILS" desc="Description for mixed SSL / non-SSL content">
-        This page is not retrieved entirely over a secure connection.  It contains some elements retrieved over insecure connections.
+        This page is not retrieved entirely over a secure connection.  It contains some content retrieved over insecure connections.
       </message>
       <message name="IDS_SSL_UNSAFE_CONTENT_TITLE" desc="Title for broken https resources in safe SSL page">
-        This page contains insecure elements.
+        This page contains insecure content.
       </message>
       <message name="IDS_SSL_UNSAFE_CONTENT_DESCRIPTION" desc="Description for broken https resources in safe SSL page">
-        This page contains some insecure elements
+        This page contains some insecure content
       </message>
       <message name="IDS_SSL_UNSAFE_CONTENT_DETAILS" desc="Title for broken https resources in safe SSL page">
-        Some elements in this page are retrieved over a connection with SSL errors.
+        Some content on this page was retrieved over a connection with SSL errors.
       </message>
 
       <!-- Certificate error strings -->
