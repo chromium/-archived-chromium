@@ -4,6 +4,8 @@
 
 #include "chrome/browser/views/autocomplete/autocomplete_popup_contents_view.h"
 
+#include <objidl.h>
+#include <commctrl.h>
 #include <dwmapi.h>
 
 #include "app/gfx/chrome_canvas.h"

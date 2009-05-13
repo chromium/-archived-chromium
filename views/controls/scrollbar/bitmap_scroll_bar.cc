@@ -6,6 +6,7 @@
 
 #include "app/gfx/chrome_canvas.h"
 #include "app/l10n_util.h"
+#include "base/compiler_specific.h"
 #include "base/message_loop.h"
 #include "grit/generated_resources.h"
 #include "third_party/skia/include/core/SkBitmap.h"
@@ -37,8 +38,9 @@ class AutorepeatButton : public ImageButton {
  public:
   AutorepeatButton(ButtonListener* listener)
       : ImageButton(listener),
-        repeater_(NewCallback<AutorepeatButton>(this,
-            &AutorepeatButton::NotifyClick)) {
+        ALLOW_THIS_IN_INITIALIZER_LIST(repeater_(
+            NewCallback<AutorepeatButton>(this,
+                                          &AutorepeatButton::NotifyClick))) {
   }
   virtual ~AutorepeatButton() {}
 
@@ -255,13 +257,14 @@ class BitmapScrollBarThumb : public View {
 BitmapScrollBar::BitmapScrollBar(bool horizontal, bool show_scroll_buttons)
     : contents_size_(0),
       contents_scroll_offset_(0),
-      prev_button_(new AutorepeatButton(this)),
-      next_button_(new AutorepeatButton(this)),
-      thumb_(new BitmapScrollBarThumb(this)),
+      ALLOW_THIS_IN_INITIALIZER_LIST(prev_button_(new AutorepeatButton(this))),
+      ALLOW_THIS_IN_INITIALIZER_LIST(next_button_(new AutorepeatButton(this))),
+      ALLOW_THIS_IN_INITIALIZER_LIST(thumb_(new BitmapScrollBarThumb(this))),
       thumb_track_state_(CustomButton::BS_NORMAL),
       last_scroll_amount_(SCROLL_NONE),
-      repeater_(NewCallback<BitmapScrollBar>(this,
-          &BitmapScrollBar::TrackClicked)),
+      ALLOW_THIS_IN_INITIALIZER_LIST(repeater_(
+          NewCallback<BitmapScrollBar>(this,
+                                       &BitmapScrollBar::TrackClicked))),
       context_menu_mouse_position_(0),
       show_scroll_buttons_(show_scroll_buttons),
       ScrollBar(horizontal) {

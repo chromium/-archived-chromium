@@ -77,10 +77,12 @@ void ExceptionsTableModel::OnWebDataServiceRequestDone(
 // ExceptionsPageView, public
 ExceptionsPageView::ExceptionsPageView(Profile* profile)
     : OptionsPageView(profile),
-      remove_button_(this, l10n_util::GetString(
-          IDS_EXCEPTIONS_PAGE_VIEW_REMOVE_BUTTON)),
-      remove_all_button_(this, l10n_util::GetString(
-          IDS_EXCEPTIONS_PAGE_VIEW_REMOVE_ALL_BUTTON)),
+      ALLOW_THIS_IN_INITIALIZER_LIST(remove_button_(
+          this,
+          l10n_util::GetString(IDS_EXCEPTIONS_PAGE_VIEW_REMOVE_BUTTON))),
+      ALLOW_THIS_IN_INITIALIZER_LIST(remove_all_button_(
+          this,
+          l10n_util::GetString(IDS_EXCEPTIONS_PAGE_VIEW_REMOVE_ALL_BUTTON))),
       table_model_(profile),
       table_view_(NULL) {
 }

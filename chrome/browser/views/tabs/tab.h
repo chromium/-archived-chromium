@@ -101,7 +101,7 @@ class Tab : public TabRenderer,
   virtual void OnMouseReleased(const views::MouseEvent& event,
                                bool canceled);
   virtual bool GetTooltipText(int x, int y, std::wstring* tooltip);
-  virtual bool GetTooltipTextOrigin(int x, int y, CPoint* origin);
+  virtual bool GetTooltipTextOrigin(int x, int y, gfx::Point* origin);
   virtual std::string GetClassName() const { return kTabClassName; }
   virtual bool GetAccessibleRole(AccessibilityTypes::Role* role);
   virtual bool GetAccessibleName(std::wstring* name);

@@ -53,7 +53,7 @@ class GridLayoutTest : public testing::Test {
   }
 
   gfx::Size pref;
-  CRect bounds;
+  gfx::Rect bounds;
   View host;
   GridLayout* layout;
 };
@@ -78,7 +78,7 @@ class GridLayoutAlignmentTest : public testing::Test {
     }
   }
 
-  void TestAlignment(GridLayout::Alignment alignment, CRect* bounds) {
+  void TestAlignment(GridLayout::Alignment alignment, gfx::Rect* bounds) {
     ColumnSet* c1 = layout->AddColumnSet(0);
     c1->AddColumn(alignment, alignment, 1, GridLayout::USE_PREF, 0, 0);
     layout->StartRow(1, 0);
@@ -87,7 +87,7 @@ class GridLayoutAlignmentTest : public testing::Test {
     EXPECT_TRUE(gfx::Size(10, 20) == pref);
     host.SetBounds(0, 0, 100, 100);
     layout->Layout(&host);
-    *bounds = v1.bounds().ToRECT();
+    *bounds = v1.bounds();
     RemoveAll();
   }
 
@@ -97,27 +97,27 @@ class GridLayoutAlignmentTest : public testing::Test {
 };
 
 TEST_F(GridLayoutAlignmentTest, Fill) {
-  CRect bounds;
+  gfx::Rect bounds;
   TestAlignment(GridLayout::FILL, &bounds);
-  EXPECT_TRUE(CRect(0, 0, 100, 100) == bounds);
+  EXPECT_TRUE(gfx::Rect(0, 0, 100, 100) == bounds);
 }
 
 TEST_F(GridLayoutAlignmentTest, Leading) {
-  CRect bounds;
+  gfx::Rect bounds;
   TestAlignment(GridLayout::LEADING, &bounds);
-  EXPECT_TRUE(CRect(0, 0, 10, 20) == bounds);
+  EXPECT_TRUE(gfx::Rect(0, 0, 10, 20) == bounds);
 }
 
 TEST_F(GridLayoutAlignmentTest, Center) {
-  CRect bounds;
+  gfx::Rect bounds;
   TestAlignment(GridLayout::CENTER, &bounds);
-  EXPECT_TRUE(CRect(45, 40, 55, 60) == bounds);
+  EXPECT_TRUE(gfx::Rect(45, 40, 55, 60) == bounds);
 }
 
 TEST_F(GridLayoutAlignmentTest, Trailing) {
-  CRect bounds;
+  gfx::Rect bounds;
   TestAlignment(GridLayout::TRAILING, &bounds);
-  EXPECT_TRUE(CRect(90, 80, 100, 100) == bounds);
+  EXPECT_TRUE(gfx::Rect(90, 80, 100, 100) == bounds);
 }
 
 TEST_F(GridLayoutTest, TwoColumns) {

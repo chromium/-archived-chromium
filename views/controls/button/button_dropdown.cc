@@ -5,6 +5,7 @@
 #include "views/controls/button/button_dropdown.h"
 
 #include "app/l10n_util.h"
+#include "base/compiler_specific.h"
 #include "base/message_loop.h"
 #include "grit/generated_resources.h"
 #include "views/controls/menu/view_menu_delegate.h"
@@ -26,7 +27,7 @@ ButtonDropDown::ButtonDropDown(ButtonListener* listener,
     : ImageButton(listener),
       menu_delegate_(menu_delegate),
       y_position_on_lbuttondown_(0),
-      show_menu_factory_(this) {
+      ALLOW_THIS_IN_INITIALIZER_LIST(show_menu_factory_(this)) {
 }
 
 ButtonDropDown::~ButtonDropDown() {

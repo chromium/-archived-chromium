@@ -8,14 +8,12 @@
 #include <vector>
 #include <string>
 
-#include "base/basictypes.h"
+#include "base/scoped_comptr_win.h"
 #include "base/time.h"
 #include "chrome/browser/history/history_types.h"
 #include "googleurl/src/gurl.h"
 
 #if defined(OS_WIN)
-#include <atlbase.h>
-#include <atlcomcli.h>
 #include "history_indexer.h"
 #endif
 
@@ -60,18 +58,18 @@ class HistoryPublisher {
   // Returns '0' if the time object is NULL.
   static double TimeToUTCVariantTime(const base::Time& time);
 
-  typedef std::vector<CComPtr<IChromeHistoryIndexer> > IndexerList;
+  typedef std::vector< ScopedComPtr<IChromeHistoryIndexer> > IndexerList;
 
   // The list of indexers registered to receive history data from us.
   IndexerList indexers_;
 
   // The Registry key under HKCU where the indexers need to register their
   // CLSID.
-  static const wchar_t* kRegKeyRegisteredIndexersInfo;
+  static const wchar_t* const kRegKeyRegisteredIndexersInfo;
 #endif
 
   // The format of the thumbnail we pass to indexers.
-  static const char* kThumbnailImageFormat;
+  static const char* const kThumbnailImageFormat;
 
   DISALLOW_COPY_AND_ASSIGN(HistoryPublisher);
 };

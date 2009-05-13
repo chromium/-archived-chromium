@@ -16,9 +16,9 @@
 // This is probably leveraging a windows bug.
 class ForegroundHelper : public CWindowImpl<ForegroundHelper> {
  public:
-BEGIN_MSG_MAP(ForegroundHelper)
-  MESSAGE_HANDLER(WM_HOTKEY, OnHotKey)
-END_MSG_MAP()
+  BEGIN_MSG_MAP(ForegroundHelper)
+    MESSAGE_HANDLER(WM_HOTKEY, OnHotKey)
+  END_MSG_MAP()
 
   // Brings a window into the foreground.
   // Can be called from any window, even if the caller is not the
@@ -37,7 +37,7 @@ END_MSG_MAP()
     // be in the foreground and allowed to move the target window
     // into the foreground too.
 
-    if(NULL == Create(NULL, NULL, NULL, WS_POPUP))
+    if (NULL == Create(NULL, NULL, NULL, WS_POPUP))
       return AtlHresultFromLastError();
 
     static const int hotkey_id = 0x0000baba;
@@ -62,11 +62,11 @@ END_MSG_MAP()
     // Loop until we get the key.
     // TODO: It may be possible to get stuck here if the
     // message gets lost?
-    while(GetMessage(&msg, NULL, 0, 0)) {
+    while (GetMessage(&msg, NULL, 0, 0)) {
       TranslateMessage(&msg);
       DispatchMessage(&msg);
 
-      if(WM_HOTKEY == msg.message)
+      if (WM_HOTKEY == msg.message)
         break;
     }
 
@@ -78,7 +78,7 @@ END_MSG_MAP()
 
   // Handle the registered Hotkey being pressed.
   LRESULT OnHotKey(UINT /*uMsg*/, WPARAM /*wParam*/,
-		   LPARAM /*lParam*/, BOOL& bHandled) {
+		           LPARAM /*lParam*/, BOOL& bHandled) {
     HWND window = reinterpret_cast<HWND>(GetWindowLongPtr(GWLP_USERDATA));
     SetForegroundWindow(window);
     return 1;

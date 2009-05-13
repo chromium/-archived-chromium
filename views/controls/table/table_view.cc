@@ -4,8 +4,12 @@
 
 #include "views/controls/table/table_view.h"
 
-#include <algorithm>
 #include <windowsx.h>
+#include <atlbase.h>
+#include <atlapp.h>
+#include <atlmisc.h>
+
+#include <algorithm>
 
 #include "app/gfx/chrome_canvas.h"
 #include "app/gfx/favicon_size.h"
@@ -95,7 +99,7 @@ TableView::TableView(TableModel* model,
       list_view_(NULL),
       header_original_handler_(NULL),
       original_handler_(NULL),
-      table_view_wrapper_(this),
+      ALLOW_THIS_IN_INITIALIZER_LIST(table_view_wrapper_(this)),
       custom_cell_font_(NULL),
       content_offset_(0) {
   for (std::vector<TableColumn>::const_iterator i = columns.begin();
@@ -574,10 +578,10 @@ LRESULT CALLBACK TableView::TableWndProc(HWND window,
       // the position supplied in the l_param.
       if (table_view->UILayoutIsRightToLeft() &&
           (GET_X_LPARAM(l_param) != -1 || GET_Y_LPARAM(l_param) != -1)) {
-        CPoint screen_point;
+        WTL::CPoint screen_point;
         GetCursorPos(&screen_point);
-        CPoint table_point = screen_point;
-        CRect client_rect;
+        WTL::CPoint table_point = screen_point;
+        WTL::CRect client_rect;
         if (ScreenToClient(window, &table_point) &&
             GetClientRect(window, &client_rect) &&
             client_rect.PtInRect(table_point)) {
@@ -1231,11 +1235,11 @@ LRESULT TableView::OnCustomDraw(NMLVCUSTOMDRAW* draw_info) {
         SkBitmap image = model_->GetIcon(model_index);
         if (!image.isNull()) {
           // Get the rect that holds the icon.
-          CRect icon_rect, client_rect;
+          WTL::CRect icon_rect, client_rect;
           if (ListView_GetItemRect(list_view_, view_index, &icon_rect,
                                    LVIR_ICON) &&
               GetClientRect(list_view_, &client_rect)) {
-            CRect intersection;
+            WTL::CRect intersection;
             // Client rect includes the header but we need to make sure we don't
             // paint into it.
             client_rect.top += content_offset_;
@@ -1287,10 +1291,11 @@ LRESULT TableView::OnCustomDraw(NMLVCUSTOMDRAW* draw_info) {
         }
       }
       if (ImplementPostPaint()) {
-        CRect cell_rect;
+        WTL::CRect cell_rect;
         if (ListView_GetItemRect(list_view_, view_index, &cell_rect,
                                  LVIR_BOUNDS)) {
-          PostPaint(model_index, 0, false, cell_rect, draw_info->nmcd.hdc);
+          PostPaint(model_index, 0, false, gfx::Rect(cell_rect),
+                    draw_info->nmcd.hdc);
           r = CDRF_SKIPDEFAULT;
         }
       }
@@ -1313,7 +1318,7 @@ void TableView::ResetColumnSizes() {
 
   // See comment in TableColumn for what this does.
   int width = this->width();
-  CRect native_bounds;
+  WTL::CRect native_bounds;
   if (GetClientRect(GetNativeControlHWND(), &native_bounds) &&
       native_bounds.Width() > 0) {
     // Prefer the bounds of the window over our bounds, which may be different.
@@ -1524,7 +1529,7 @@ void TableView::UpdateContentOffset() {
   POINT origin = {0, 0};
   MapWindowPoints(header, list_view_, &origin, 1);
 
-  CRect header_bounds;
+  WTL::CRect header_bounds;
   GetWindowRect(header, &header_bounds);
 
   content_offset_ = origin.y + header_bounds.Height();

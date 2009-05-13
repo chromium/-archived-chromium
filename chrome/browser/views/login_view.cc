@@ -2,11 +2,12 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include <string>
-
 #include "chrome/browser/views/login_view.h"
 
+#include <string>
+
 #include "app/l10n_util.h"
+#include "base/compiler_specific.h"
 #include "base/message_loop.h"
 #include "grit/generated_resources.h"
 #include "views/grid_layout.h"
@@ -31,7 +32,7 @@ LoginView::LoginView(const std::wstring& explanation)
       password_label_(new Label(
           l10n_util::GetString(IDS_LOGIN_DIALOG_PASSWORD_FIELD))),
       message_label_(new Label(explanation)),
-      focus_grabber_factory_(this),
+      ALLOW_THIS_IN_INITIALIZER_LIST(focus_grabber_factory_(this)),
       login_model_(NULL) {
   message_label_->SetMultiLine(true);
   message_label_->SetHorizontalAlignment(Label::ALIGN_LEFT);

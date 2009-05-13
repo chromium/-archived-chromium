@@ -2,14 +2,14 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+#include "chrome/browser/first_run.h"
+
 #include <atlbase.h>
 #include <atlcom.h>
 #include <windows.h>
 #include <shlobj.h>
 
 #include <sstream>
-
-#include "chrome/browser/first_run.h"
 
 #include "app/resource_bundle.h"
 #include "base/command_line.h"

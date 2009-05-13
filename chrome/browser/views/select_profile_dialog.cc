@@ -33,7 +33,7 @@ void SelectProfileDialog::RunDialog() {
 }
 
 SelectProfileDialog::SelectProfileDialog()
-    : helper_(new GetProfilesHelper(this)) {
+    : ALLOW_THIS_IN_INITIALIZER_LIST(helper_(new GetProfilesHelper(this))) {
   // We first create an instance of the helper and then setup controls. This
   // doesn't lead to race condition because once the helper is done with
   // enumerating profiles by examining the file system, it posts a task on the

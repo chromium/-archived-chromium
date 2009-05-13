@@ -10,10 +10,11 @@
 #include <wtypes.h>
 
 #include "base/registry.h"
+#include "base/scoped_comptr_win.h"
 
 namespace history {
 
-const wchar_t* HistoryPublisher::kRegKeyRegisteredIndexersInfo =
+const wchar_t* const HistoryPublisher::kRegKeyRegisteredIndexersInfo =
     L"Software\\Google\\Google Chrome\\IndexerPlugins";
 
 // static
@@ -60,7 +61,7 @@ bool HistoryPublisher::ReadRegisteredIndexersFromRegistry() {
     CLSID clsid;
     CLSIDFromString(static_cast<LPOLESTR>(
         const_cast<TCHAR*>(iter.Name())), &clsid);
-    CComPtr<IChromeHistoryIndexer> indexer;
+    ScopedComPtr<IChromeHistoryIndexer> indexer;
     HRESULT hr = CoCreateInstance(clsid, NULL, CLSCTX_INPROC,
                                   __uuidof(IChromeHistoryIndexer),
                                   reinterpret_cast<void**>(&indexer));
