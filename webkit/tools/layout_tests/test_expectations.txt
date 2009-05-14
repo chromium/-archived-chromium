@@ -1520,6 +1520,7 @@ BUG10389 WIN LINUX : LayoutTests/fast/canvas/canvas-as-image-incremental-repaint
 BUG10389 WIN LINUX : LayoutTests/fast/canvas/canvas-incremental-repaint.html = FAIL
 BUG10389 WIN LINUX : LayoutTests/fast/repaint/create-layer-repaint.html = FAIL
 BUG10389 WIN LINUX : LayoutTests/fast/repaint/reflection-redraw.html = FAIL
+BUG10389 WIN LINUX : LayoutTests/fast/repaint/opacity-change-on-overflow-float.html = FAIL
 
 // Linux pixeltest failure: Failing to rotate the form control
 BUG10390 LINUX : LayoutTests/fast/transforms/transformed-focused-text-input.html = FAIL
@@ -2729,6 +2730,9 @@ BUG11909 : LayoutTests/http/tests/misc/window-open-then-write.html = TIMEOUT
 BUG11909 : LayoutTests/http/tests/navigation/new-window-redirect-history.html = TIMEOUT
 
 BUG11924 WIN : LayoutTests/http/tests/navigation/relativeanchor-basic.html = FAIL
+
+BUG11933 WIN LINUX : LayoutTests/fast/frames/content-opacity-1.html = FAIL
+BUG11933 WIN LINUX : LayoutTests/fast/frames/content-opacity-2.html = FAIL TIMEOUT
 
 // Note: This was already failing in a different way. See BUG10316, above, so be
 // sure to uncomment/recheck that when this is removed.
