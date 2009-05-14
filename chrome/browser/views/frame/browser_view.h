@@ -274,7 +274,7 @@ class BrowserView : public BrowserWindow,
   // Layout the TabContents container, between the coordinates |top| and
   // |bottom|.
   void LayoutTabContents(int top, int bottom);
-  // Layout the Download Shelf, returns the coordinate of the top of the\
+  // Layout the Download Shelf, returns the coordinate of the top of the
   // control, for laying out the previous control.
   int LayoutDownloadShelf(int bottom);
   // Layout the Status Bubble.
