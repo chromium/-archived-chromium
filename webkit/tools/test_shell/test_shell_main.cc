@@ -301,13 +301,17 @@ int main(int argc, char* argv[]) {
 
       shell->CallJSGC();
       shell->CallJSGC();
-      if (shell) {
-        // When we finish the last test, cleanup the LayoutTestController.
-        // It may have references to not-yet-cleaned up windows.  By
-        // cleaning up here we help purify reports.
-        shell->ResetTestController();
-        delete shell;
-      }
+
+      // When we finish the last test, cleanup the LayoutTestController.
+      // It may have references to not-yet-cleaned up windows.  By
+      // cleaning up here we help purify reports.
+      shell->ResetTestController();
+
+      // Flush any remaining messages before we kill ourselves.
+      // http://code.google.com/p/chromium/issues/detail?id=9500
+      MessageLoop::current()->RunAllPending();
+
+      delete shell;
     } else {
       MessageLoop::current()->Run();
     }
