@@ -1172,26 +1172,10 @@ NewTabUI::NewTabUI(TabContents* contents)
               html_source));
     }
   }
-
-  // Listen for theme installation.
-  NotificationService::current()->AddObserver(this,
-      NotificationType::THEME_INSTALLED, NotificationService::AllSources());
 }
 
 NewTabUI::~NewTabUI() {
-  // Remove theme observer.
-  NotificationService::current()->RemoveObserver(this,
-      NotificationType::THEME_INSTALLED, NotificationService::AllSources());
 }
-
-void NewTabUI::Observe(NotificationType type,
-                       const NotificationSource& source,
-                       const NotificationDetails& details) {
-  if (NotificationType::THEME_INSTALLED == type) {
-    CallJavascriptFunction(L"themeChanged");
-  }
-}
-
 
 // static
 void NewTabUI::RegisterUserPrefs(PrefService* prefs) {

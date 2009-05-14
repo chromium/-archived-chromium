@@ -12,21 +12,17 @@ class Profile;
 // ThumbnailSource is the gateway between network-level chrome:
 // requests for thumbnails and the history backend that serves these.
 class DOMUIThemeSource : public ChromeURLDataManager::DataSource {
- public:
+public:
   explicit DOMUIThemeSource(Profile* profile);
 
   // Called when the network layer has requested a resource underneath
   // the path we registered.
   virtual void StartDataRequest(const std::string& path, int request_id);
-  virtual std::string GetMimeType(const std::string& path) const;
+  virtual std::string GetMimeType(const std::string& path) const {
+    return "image/png";
+  }
 
- private:
-  // Generate and send the CSS for the new tab.
-  void SendNewTabCSS(int request_id);
-
-  // Fetch and send the theme bitmap.
-  void SendThemeBitmap(int request_id, int resource_id);
-
+private:
   Profile* profile_;
   DISALLOW_COPY_AND_ASSIGN(DOMUIThemeSource);
 };

@@ -1423,13 +1423,11 @@ TEST(StringUtilTest, StartsWith) {
 }
 
 TEST(StringUtilTest, GetStringFWithOffsets) {
-  std::vector<const string16> subst;
-  subst.push_back(ASCIIToUTF16("1"));
-  subst.push_back(ASCIIToUTF16("2"));
   std::vector<size_t> offsets;
 
   ReplaceStringPlaceholders(ASCIIToUTF16("Hello, $1. Your number is $2."),
-                            subst,
+                            ASCIIToUTF16("1"),
+                            ASCIIToUTF16("2"),
                             &offsets);
   EXPECT_EQ(2U, offsets.size());
   EXPECT_EQ(7U, offsets[0]);
@@ -1437,46 +1435,13 @@ TEST(StringUtilTest, GetStringFWithOffsets) {
   offsets.clear();
 
   ReplaceStringPlaceholders(ASCIIToUTF16("Hello, $2. Your number is $1."),
-                            subst,
+                            ASCIIToUTF16("1"),
+                            ASCIIToUTF16("2"),
                             &offsets);
   EXPECT_EQ(2U, offsets.size());
   EXPECT_EQ(25U, offsets[0]);
   EXPECT_EQ(7U, offsets[1]);
   offsets.clear();
-}
-
-TEST(StringUtilTest, ReplaceStringPlaceholders) {
-  std::vector<const string16> subst;
-  subst.push_back(ASCIIToUTF16("9a"));
-  subst.push_back(ASCIIToUTF16("8b"));
-  subst.push_back(ASCIIToUTF16("7c"));
-  subst.push_back(ASCIIToUTF16("6d"));
-  subst.push_back(ASCIIToUTF16("5e"));
-  subst.push_back(ASCIIToUTF16("4f"));
-  subst.push_back(ASCIIToUTF16("3g"));
-  subst.push_back(ASCIIToUTF16("2h"));
-  subst.push_back(ASCIIToUTF16("1i"));
-
-  string16 formatted =
-      ReplaceStringPlaceholders(
-      ASCIIToUTF16("$1a,$2b,$3c,$4d,$5e,$6f,$7g,$8h,$9i"), subst, NULL);
-
-  EXPECT_EQ(formatted, ASCIIToUTF16("9aa,8bb,7cc,6dd,5ee,4ff,3gg,2hh,1ii"));
-}
-
-TEST(StringUtilTest, ReplaceStringPlaceholdersTooFew) {
-  // Test whether replacestringplaceholders works as expected when there
-  // are fewer inputs than outputs.
-  std::vector<const string16> subst;
-  subst.push_back(ASCIIToUTF16("9a"));
-  subst.push_back(ASCIIToUTF16("8b"));
-  subst.push_back(ASCIIToUTF16("7c"));
-
-  string16 formatted =
-      ReplaceStringPlaceholders(
-      ASCIIToUTF16("$1a,$2b,$3c,$4d,$5e,$6f,$1g,$2h,$3i"), subst, NULL);
-
-  EXPECT_EQ(formatted, ASCIIToUTF16("9aa,8bb,7cc,d,e,f,9ag,8bh,7ci"));
 }
 
 TEST(StringUtilTest, SplitStringAlongWhitespace) {

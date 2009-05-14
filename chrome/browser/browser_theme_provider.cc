@@ -22,29 +22,29 @@
 #include "SkBitmap.h"
 
 // Strings used by themes to identify colors for different parts of our UI.
-static const char* kColorFrame = "frame";
-static const char* kColorFrameInactive = "frame_inactive";
-static const char* kColorFrameIncognito = "frame_incognito";
-static const char* kColorFrameIncognitoInactive =
+static const std::string kColorFrame = "frame";
+static const std::string kColorFrameInactive = "frame_inactive";
+static const std::string kColorFrameIncognito = "frame_incognito";
+static const std::string kColorFrameIncognitoInactive =
     "frame_incognito_inactive";
-static const char* kColorToolbar = "toolbar";
-static const char* kColorTabText = "tab_text";
-static const char* kColorBackgroundTabText = "background_tab_text";
-static const char* kColorBookmarkText = "bookmark_text";
-static const char* kColorNTPText = "ntp_text";
-static const char* kColorNTPLink = "ntp_link";
-static const char* kColorNTPSection = "ntp_section";
+static const std::string kColorToolbar = "toolbar";
+static const std::string kColorTabText = "tab_text";
+static const std::string kColorBackgroundTabText = "background_tab_text";
+static const std::string kColorBookmarkText = "bookmark_text";
+static const std::string kColorNTPText = "ntp_text";
+static const std::string kColorNTPLink = "ntp_link";
+static const std::string kColorNTPSection = "ntp_section";
 
 // Strings used by themes to identify tints to apply to different parts of
 // our UI. The frame tints apply to the frame color and produce the
 // COLOR_FRAME* colors.
-static const char* kTintButtons = "buttons";
-static const char* kTintFrame = "frame";
-static const char* kTintFrameInactive = "frame_inactive";
-static const char* kTintFrameIncognito = "frame_incognito";
-static const char* kTintFrameIncognitoInactive =
+static const std::string kTintButtons = "buttons";
+static const std::string kTintFrame = "frame";
+static const std::string kTintFrameInactive = "frame_inactive";
+static const std::string kTintFrameIncognito = "frame_incognito";
+static const std::string kTintFrameIncognitoInactive =
     "frame_incognito_inactive";
-static const char* kTintBackgroundTab = "background_tab";
+static const std::string kTintBackgroundTab = "background_tab";
 
 // Default colors.
 static const SkColor kDefaultColorFrame = SkColorSetRGB(77, 139, 217);
@@ -55,10 +55,6 @@ static const SkColor kDefaultColorFrameIncognitoInactive =
 static const SkColor kDefaultColorToolbar = SkColorSetRGB(210, 225, 246);
 static const SkColor kDefaultColorTabText = SkColorSetRGB(0, 0, 0);
 static const SkColor kDefaultColorBackgroundTabText = SkColorSetRGB(64, 64, 64);
-static const SkColor kDefaultColorBookmarkText = SkColorSetRGB(64, 64, 64);
-static const SkColor kDefaultColorNTPText = SkColorSetRGB(0, 0, 0);
-static const SkColor kDefaultColorNTPLink = SkColorSetRGB(0, 0, 204);
-static const SkColor kDefaultColorNTPSection = SkColorSetRGB(225, 236, 254);
 
 // Default tints.
 static const skia::HSL kDefaultTintButtons = { -1, -1, -1 };
@@ -108,14 +104,11 @@ BrowserThemeProvider::BrowserThemeProvider()
 BrowserThemeProvider::~BrowserThemeProvider() { }
 
 void BrowserThemeProvider::Init(Profile* profile) {
-  DCHECK(CalledOnValidThread());
   profile_ = profile;
   LoadThemePrefs();
 }
 
 SkBitmap* BrowserThemeProvider::GetBitmapNamed(int id) {
-  DCHECK(CalledOnValidThread());
-
   // Check to see if we already have the Skia image in the cache.
   ImageCache::const_iterator found = image_cache_.find(id);
   if (found != image_cache_.end())
@@ -135,15 +128,15 @@ SkBitmap* BrowserThemeProvider::GetBitmapNamed(int id) {
   if (!result.get())
     result.reset(rb_.GetBitmapNamed(id));
 
-  if (result.get()) {
-    // If the requested image is part of the toolbar button set, and we have
-    // a provided tint for that set, tint it appropriately.
-    if (button_images_.count(id) && tints_.count(kTintButtons)) {
-      SkBitmap* tinted =
-          new SkBitmap(TintBitmap(*result.release(), TINT_BUTTONS));
-      result.reset(tinted);
-    }
+  // If the requested image is part of the toolbar button set, and we have
+  // a provided tint for that set, tint it appropriately.
+  if (button_images_.count(id) && tints_.count(kTintButtons)) {
+    SkBitmap* tinted =
+        new SkBitmap(TintBitmap(*result.release(), TINT_BUTTONS));
+    result.reset(tinted);
+  }
 
+  if (result.get()) {
     // We loaded successfully. Cache the bitmap.
     image_cache_[id] = result.get();
     return result.release();
@@ -154,8 +147,6 @@ SkBitmap* BrowserThemeProvider::GetBitmapNamed(int id) {
 }
 
 SkColor BrowserThemeProvider::GetColor(int id) {
-  DCHECK(CalledOnValidThread());
-
   // TODO(glen): Figure out if we need to tint these. http://crbug.com/11578
   switch (id) {
     case COLOR_FRAME:
@@ -181,22 +172,6 @@ SkColor BrowserThemeProvider::GetColor(int id) {
       return (colors_.find(kColorBackgroundTabText) != colors_.end()) ?
           colors_[kColorBackgroundTabText] :
           kDefaultColorBackgroundTabText;
-    case COLOR_BOOKMARK_TEXT:
-      return (colors_.find(kColorBookmarkText) != colors_.end()) ?
-          colors_[kColorBookmarkText] :
-          kDefaultColorBookmarkText;
-    case COLOR_NTP_TEXT:
-      return (colors_.find(kColorNTPText) != colors_.end()) ?
-          colors_[kColorNTPText] :
-          kDefaultColorNTPText;
-    case COLOR_NTP_LINK:
-      return (colors_.find(kColorNTPLink) != colors_.end()) ?
-          colors_[kColorNTPLink] :
-          kDefaultColorNTPLink;
-    case COLOR_NTP_SECTION:
-      return (colors_.find(kColorNTPSection) != colors_.end()) ?
-          colors_[kColorNTPSection] :
-          kDefaultColorNTPSection;
     default:
       NOTREACHED() << "Unknown color requested";
   }
@@ -242,7 +217,6 @@ void BrowserThemeProvider::UseDefaultTheme() {
 }
 
 SkBitmap* BrowserThemeProvider::LoadThemeBitmap(int id) {
-  DCHECK(CalledOnValidThread());
   // Attempt to find the image in our theme bundle.
   std::vector<unsigned char> raw_data, png_data;
   if (images_.count(id)) {
@@ -292,7 +266,6 @@ SkBitmap* BrowserThemeProvider::LoadThemeBitmap(int id) {
 }
 
 skia::HSL BrowserThemeProvider::GetTint(int id) {
-  DCHECK(CalledOnValidThread());
   switch (id) {
     case TINT_FRAME:
       return (tints_.find(kTintFrame) != tints_.end()) ?
@@ -474,8 +447,8 @@ void BrowserThemeProvider::NotifyThemeChanged() {
 
   // Redraw!
   for (BrowserList::const_iterator browser = BrowserList::begin();
-      browser != BrowserList::end(); ++browser) {
-    (*browser)->window()->UserChangedTheme();
+    browser != BrowserList::end(); ++browser) {
+      (*browser)->window()->UserChangedTheme();
   }
 }
 

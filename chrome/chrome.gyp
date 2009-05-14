@@ -2695,7 +2695,6 @@
         'browser/cocoa/toolbar_view_unittest.mm',
         'browser/command_updater_unittest.cc',
         'browser/debugger/devtools_manager_unittest.cc',
-        'browser/dom_ui/dom_ui_theme_source_unittest.cc',
         'browser/dom_ui/dom_ui_unittest.cc',
         'browser/download/download_manager_unittest.cc',
         'browser/download/download_request_manager_unittest.cc',

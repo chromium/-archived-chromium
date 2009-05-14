@@ -7,7 +7,6 @@
 
 #include "app/resource_bundle.h"
 #include "app/theme_provider.h"
-#include "base/non_thread_safe.h"
 #include "base/ref_counted.h"
 #include "skia/ext/skia_utils.h"
 
@@ -16,8 +15,7 @@ class Profile;
 class DictionaryValue;
 
 class BrowserThemeProvider :
-    public base::RefCounted<BrowserThemeProvider>,
-    public NonThreadSafe,
+    public base::RefCountedThreadSafe<BrowserThemeProvider>,
     public ThemeProvider {
  public:
   BrowserThemeProvider();

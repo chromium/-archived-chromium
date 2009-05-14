@@ -130,12 +130,10 @@ logEvent('log start');
 <meta charset="utf-8">
 <title jscontent="title"></title>
 <style>
-html {
-  height:100%;
-}
 body {
   background-color:white;
   margin:0px;
+  background-image:url(chrome-ui://theme/theme_newtab_background);
   background-repeat:repeat-x;
 }
 html[firstview='true'] #main {
@@ -159,6 +157,7 @@ form {
   margin-bottom:30px;
 }
 .section-title {
+  color:#000;
   line-height:19pt;
   font-size:110%;
   font-weight:bold;
@@ -224,6 +223,7 @@ a.thumbnail {
   padding:15px;
   margin:12px;
 }
+
 .recent-bookmark {
   display:block;
   background-repeat:no-repeat;
@@ -298,6 +298,12 @@ html[dir='rtl'] #managesearcheslink {
   -webkit-border-radius:5px 5px;
   margin-bottom:10px;
 }
+#searches {
+  background-color:#e1ecfe;
+}
+#recentlyBookmarked {
+  background-color:#e1ecfe;
+}
 html[dir='rtl'] #recentlyBookmarkedContainer {
   text-align:right;
 }
@@ -352,7 +358,6 @@ html[dir='rtl'] #searches input {
   pointer-events: none;  /* Disable clicks */
 }
 </style>
-<link id="themecss" rel="stylesheet" href="chrome://theme/css/newtab.css" />
 </head>
 <body onload="logEvent('body onload fired');"
       jsvalues=".style.fontFamily:fontfamily;.style.fontSize:fontsize">
@@ -450,7 +455,7 @@ document.addEventListener('DOMContentLoaded', handleDOMContentLoaded);
       <div id='searches-entries'></div>
     </div>
 
-    <div id="recentlyBookmarked" class="sidebar themed" style="display:none">
+    <div id="recentlyBookmarked" class="sidebar" style="display:none">
       <span class="section-title" jscontent="bookmarks"></span>
       <div id="recentlyBookmarkedContainer"></div>
     </div>
@@ -953,10 +958,6 @@ function restoreThumbnails() {
   chrome.send('clearMostVisitedURLsBlacklist');
 }
 
-function themeChanged() {
-  $('themecss').href = 'chrome://theme/css/newtab.css?' + Date.now();
-}
-
 function viewLog() {
   var lines = [];
   var start = log[0][1];
@@ -986,7 +987,7 @@ setTimeout(function(){document.getElementById('main').className = 'visible'},
 </script>
 
 <img id="small-cross-image" style="display: none; vertical-align:middle;" alt="X"
-     src="chrome://theme/newtab_remove_icon"/>
+     src="../../app/theme/ntp_x_icon_small.png"/>
 </body>
 
 <style>
@@ -1000,16 +1001,16 @@ setTimeout(function(){document.getElementById('main').className = 'visible'},
   height: 81px;
   left: 60px;
   top: 47px;
-  background: url(chrome://theme/newtab_remove_thumbnail);
+  background: url('../../app/theme/ntp_x_icon.png');
 }
 .edit-mode div.edit-cross:hover {
-  background: url(chrome://theme/newtab_remove_thumbnail_hover);
+  background: url('../../app/theme/ntp_x_icon_hover.png');
 }
 .edit-mode div.edit-cross:active {
-  background: url(chrome://theme/newtab_remove_thumbnail_active);
+  background: url('../../app/theme/ntp_x_icon_active.png');
 }
 .recent-window-container {
-  background: url(chrome://theme/newtab_closed_window);
+  background: url('../../app/theme/closed_window.png');
   background-repeat: no-repeat;
 }
 html[dir='rtl'] .recent-window-container {
