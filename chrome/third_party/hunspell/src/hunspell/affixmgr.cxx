@@ -1139,6 +1139,12 @@ int AffixMgr::encodeit(struct affentry * ptr, char * cs)
          neg = 0;
       }
       n++;
+      if (n > 8) {
+        HUNSPELL_WARNING(stderr, "Number of conditions is larger than 8. This"
+            "version of Hunspell does not support more than 8 conditions."
+            "Please, get rid of affentries with more than 8 conditions.");
+        break;
+      }
       ec = 0;
       neg = 0;
     }  
@@ -3777,7 +3783,7 @@ int  AffixMgr::parse_affix(char * line, const char at, FILE * af, char * dupflag
                            free(err);
                            return 1;
                        }
-                       ptr = (struct affentry *) malloc(numents * sizeof(struct affentry));
+                       ptr = (struct affentry *) calloc(numents, sizeof(struct affentry));
                        if (!ptr) return 1;
                        ptr->opts = ff;
                        if (utf8) ptr->opts += aeUTF8;
