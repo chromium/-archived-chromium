@@ -604,9 +604,20 @@ TEST_F(PageLoadTest, Reliability) {
   log_file.close();
 }
 
+namespace {
+  void ReportHandler(const std::string& str) {
+    // Ignore report events.
+  }
+}
+
 void SetPageRange(const CommandLine& parsed_command_line) {
   // If calling into this function, we are running as a standalone program.
   stand_alone = true;
+
+  // Since we use --enable-dcheck for reliability tests, suppress the error
+  // dialog in the test process.
+  logging::SetLogReportHandler(ReportHandler);
+
   if (parsed_command_line.HasSwitch(kStartPageSwitch)) {
     ASSERT_TRUE(parsed_command_line.HasSwitch(kEndPageSwitch));
     start_page =
