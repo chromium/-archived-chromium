@@ -186,7 +186,7 @@ void LocationBarViewGtk::FocusSearch() {
 }
 
 void LocationBarViewGtk::UpdatePageActions() {
-  NOTIMPLEMENTED();
+  // http://code.google.com/p/chromium/issues/detail?id=11973
 }
 
 void LocationBarViewGtk::SaveStateToContents(TabContents* contents) {
