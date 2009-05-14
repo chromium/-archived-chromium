@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
+// Copyright (c) 2009 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 //
@@ -6,8 +6,8 @@
 // used by TextInputController in test_shell. It only facilitates layout tests
 // and should not be used by renderers.
 
-#ifndef WEBKIT_GLUE_WEBTEXTINPUT_IMPL_H__
-#define WEBKIT_GLUE_WEBTEXTINPUT_IMPL_H__
+#ifndef WEBKIT_GLUE_WEBTEXTINPUT_IMPL_H_
+#define WEBKIT_GLUE_WEBTEXTINPUT_IMPL_H_
 
 #include "webkit/glue/webtextinput.h"
 
@@ -19,9 +19,9 @@ class WebTextInputImpl : public WebTextInput {
   virtual ~WebTextInputImpl();
 
   // WebTextInput methods
-  virtual void InsertText(const std::string& text);
-  virtual void DoCommand(const std::string& command);
-  virtual void SetMarkedText(const std::string& text,
+  virtual void InsertText(const string16& text);
+  virtual void DoCommand(const string16& command);
+  virtual void SetMarkedText(const string16& text,
                              int32_t location, int32_t length);
   virtual void UnMarkText();
   virtual bool HasMarkedText();
@@ -49,7 +49,7 @@ class WebTextInputImpl : public WebTextInput {
   // Holding a non-owning pointer to the web frame we are associated with.
   WebFrameImpl* web_frame_impl_;
 
-  DISALLOW_EVIL_CONSTRUCTORS(WebTextInputImpl);
+  DISALLOW_COPY_AND_ASSIGN(WebTextInputImpl);
 };
 
-#endif  // #ifndef WEBKIT_GLUE_WEBTEXTINPUT_IMPL_H__
+#endif  // #ifndef WEBKIT_GLUE_WEBTEXTINPUT_IMPL_H_

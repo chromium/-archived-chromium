@@ -734,6 +734,12 @@ bool LowerCaseEqualsASCII(const wchar_t* a_begin,
   return DoLowerCaseEqualsASCII(a_begin, a_end, b);
 }
 
+bool EqualsASCII(const string16& a, const StringPiece& b) {
+  if (a.length() != b.length())
+    return false;
+  return std::equal(b.begin(), b.end(), a.begin());
+}
+
 bool StartsWithASCII(const std::string& str,
                      const std::string& search,
                      bool case_sensitive) {

@@ -7,6 +7,7 @@
 
 #include <string>
 #include "base/basictypes.h"
+#include "base/string16.h"
 
 class WebTextInput {
  public:
@@ -14,13 +15,13 @@ class WebTextInput {
   virtual ~WebTextInput() {}
 
   // Inserts text to the associated frame.
-  virtual void InsertText(const std::string& text) = 0;
+  virtual void InsertText(const string16& text) = 0;
 
   // Executes the given editing command on the frame.
-  virtual void DoCommand(const std::string& command) = 0;
+  virtual void DoCommand(const string16& command) = 0;
 
   // Sets marked text region on the frame.
-  virtual void SetMarkedText(const std::string& text,
+  virtual void SetMarkedText(const string16& text,
                              int32_t location, int32_t length) = 0;
 
   // Clears the marked text region on the frame.
