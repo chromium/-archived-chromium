@@ -6,6 +6,7 @@
 
 #include "app/l10n_util.h"
 #include "app/resource_bundle.h"
+#include "base/compiler_specific.h"
 #include "base/process_util.h"
 #include "base/stats_table.h"
 #include "base/string_util.h"
@@ -691,7 +692,8 @@ void TaskManager::RegisterPrefs(PrefService* prefs) {
   prefs->RegisterDictionaryPref(prefs::kTaskManagerWindowPlacement);
 }
 
-TaskManager::TaskManager() : model_(new TaskManagerModel(this)) {
+TaskManager::TaskManager()
+    : ALLOW_THIS_IN_INITIALIZER_LIST(model_(new TaskManagerModel(this))) {
   Init();
 }
 
