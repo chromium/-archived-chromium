@@ -1008,13 +1008,12 @@ std::wstring BrowserView::GetWindowName() const {
 }
 
 void BrowserView::SaveWindowPlacement(const gfx::Rect& bounds,
-                                      bool maximized,
-                                      bool always_on_top) {
+                                      bool maximized) {
   // If IsFullscreen() is true, we've just changed into fullscreen mode, and
   // we're catching the going-into-fullscreen sizing and positioning calls,
   // which we want to ignore.
   if (!IsFullscreen() && browser_->ShouldSaveWindowPlacement()) {
-    WindowDelegate::SaveWindowPlacement(bounds, maximized, always_on_top);
+    WindowDelegate::SaveWindowPlacement(bounds, maximized);
     browser_->SaveWindowPlacement(bounds, maximized);
   }
 }

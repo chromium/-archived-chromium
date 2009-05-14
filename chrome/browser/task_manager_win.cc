@@ -5,6 +5,7 @@
 #include "chrome/browser/task_manager.h"
 
 #include "base/stats_table.h"
+#include "chrome/app/chrome_dll_resource.h"
 #include "chrome/browser/browser_list.h"
 #include "chrome/browser/browser_process.h"
 #include "chrome/common/pref_names.h"
@@ -190,8 +191,7 @@ class TaskManagerViewImpl : public TaskManagerView,
   // views::DialogDelegate
   virtual bool CanResize() const;
   virtual bool CanMaximize() const;
-  virtual bool IsAlwaysOnTop() const;
-  virtual bool HasAlwaysOnTopMenu() const;
+  virtual bool ExecuteWindowsCommand(int command_id);
   virtual std::wstring GetWindowTitle() const;
   virtual std::wstring GetWindowName() const;
   virtual int GetDialogButtons() const;
@@ -220,6 +220,15 @@ class TaskManagerViewImpl : public TaskManagerView,
   virtual void ExecuteCommand(int id);
 
  private:
+  // Initializes the state of the always-on-top setting as the window is shown.
+  void InitAlwaysOnTopState();
+
+  // Adds an always on top item to the window's system menu.
+  void AddAlwaysOnTopSystemMenuItem();
+
+  // Restores saved always on top state from a previous session.
+  bool GetSavedAlwaysOnTopState(bool* always_on_top) const;
+
   scoped_ptr<views::NativeButton> kill_button_;
   scoped_ptr<views::Link> about_memory_link_;
   views::GroupTableView* tab_table_;
@@ -233,13 +242,20 @@ class TaskManagerViewImpl : public TaskManagerView,
 
   scoped_ptr<TaskManagerTableModel> table_model_;
 
+  // True when the Task Manager window should be shown on top of other windows.
+  bool is_always_on_top_;
+
+  // We need to own the text of the menu, the Windows API does not copy it.
+  std::wstring always_on_top_menu_text_;
+
   DISALLOW_COPY_AND_ASSIGN(TaskManagerViewImpl);
 };
 
 TaskManagerViewImpl::TaskManagerViewImpl(TaskManager* task_manager,
                                          TaskManagerModel* model)
     : task_manager_(task_manager),
-      model_(model) {
+      model_(model),
+      is_always_on_top_(false) {
   Init();
 }
 
@@ -410,6 +426,7 @@ void TaskManagerViewImpl::OpenWindow() {
     window()->Activate();
   } else {
     views::Window::CreateChromeWindow(NULL, gfx::Rect(), this);
+    InitAlwaysOnTopState();
     model_->StartUpdating();
     window()->Show();
   }
@@ -430,13 +447,37 @@ bool TaskManagerViewImpl::CanMaximize() const {
   return true;
 }
 
-bool TaskManagerViewImpl::IsAlwaysOnTop() const {
-  return true;
-}
+bool TaskManagerViewImpl::ExecuteWindowsCommand(int command_id) {
+  if (command_id == IDC_ALWAYS_ON_TOP) {
+    is_always_on_top_ = !is_always_on_top_;
 
-bool TaskManagerViewImpl::HasAlwaysOnTopMenu() const {
-  return true;
-};
+    // Change the menu check state.
+    HMENU system_menu = GetSystemMenu(GetWindow()->GetNativeWindow(), FALSE);
+    MENUITEMINFO menu_info;
+    memset(&menu_info, 0, sizeof(MENUITEMINFO));
+    menu_info.cbSize = sizeof(MENUITEMINFO);
+    BOOL r = GetMenuItemInfo(system_menu, IDC_ALWAYS_ON_TOP,
+                             FALSE, &menu_info);
+    DCHECK(r);
+    menu_info.fMask = MIIM_STATE;
+    if (is_always_on_top_)
+      menu_info.fState = MFS_CHECKED;
+    r = SetMenuItemInfo(system_menu, IDC_ALWAYS_ON_TOP, FALSE, &menu_info);
+
+    // Now change the actual window's behavior.
+    window()->SetIsAlwaysOnTop(is_always_on_top_);
+
+    // Save the state.
+    if (g_browser_process->local_state()) {
+      DictionaryValue* window_preferences =
+          g_browser_process->local_state()->GetMutableDictionary(
+              GetWindowName().c_str());
+      window_preferences->SetBoolean(L"always_on_top", is_always_on_top_);
+    }
+    return true;
+  }
+  return false;
+}
 
 std::wstring TaskManagerViewImpl::GetWindowTitle() const {
   return l10n_util::GetString(IDS_TASK_MANAGER_TITLE);
@@ -513,6 +554,54 @@ bool TaskManagerViewImpl::IsItemChecked(int id) const {
 
 void TaskManagerViewImpl::ExecuteCommand(int id) {
   tab_table_->SetColumnVisibility(id, !tab_table_->IsColumnVisible(id));
+}
+
+void TaskManagerViewImpl::InitAlwaysOnTopState() {
+  is_always_on_top_ = false;
+  if (GetSavedAlwaysOnTopState(&is_always_on_top_))
+    window()->SetIsAlwaysOnTop(is_always_on_top_);
+  AddAlwaysOnTopSystemMenuItem();
+}
+
+void TaskManagerViewImpl::AddAlwaysOnTopSystemMenuItem() {
+  // The Win32 API requires that we own the text.
+  always_on_top_menu_text_ = l10n_util::GetString(IDS_ALWAYS_ON_TOP);
+
+  // Let's insert a menu to the window.
+  HMENU system_menu = ::GetSystemMenu(GetWindow()->GetNativeWindow(), FALSE);
+  int index = ::GetMenuItemCount(system_menu) - 1;
+  if (index < 0) {
+    // Paranoia check.
+    NOTREACHED();
+    index = 0;
+  }
+  // First we add the separator.
+  MENUITEMINFO menu_info;
+  memset(&menu_info, 0, sizeof(MENUITEMINFO));
+  menu_info.cbSize = sizeof(MENUITEMINFO);
+  menu_info.fMask = MIIM_FTYPE;
+  menu_info.fType = MFT_SEPARATOR;
+  ::InsertMenuItem(system_menu, index, TRUE, &menu_info);
+
+  // Then the actual menu.
+  menu_info.fMask = MIIM_FTYPE | MIIM_ID | MIIM_STRING | MIIM_STATE;
+  menu_info.fType = MFT_STRING;
+  menu_info.fState = MFS_ENABLED;
+  if (is_always_on_top_)
+    menu_info.fState |= MFS_CHECKED;
+  menu_info.wID = IDC_ALWAYS_ON_TOP;
+  menu_info.dwTypeData = const_cast<wchar_t*>(always_on_top_menu_text_.c_str());
+  ::InsertMenuItem(system_menu, index, TRUE, &menu_info);
+}
+
+bool TaskManagerViewImpl::GetSavedAlwaysOnTopState(bool* always_on_top) const {
+  if (!g_browser_process->local_state())
+    return false;
+
+  const DictionaryValue* dictionary =
+      g_browser_process->local_state()->GetDictionary(GetWindowName().c_str());
+  return dictionary &&
+      dictionary->GetBoolean(L"always_on_top", always_on_top) && always_on_top;
 }
 
 }  // namespace

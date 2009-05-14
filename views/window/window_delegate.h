@@ -53,20 +53,6 @@ class WindowDelegate {
     return false;
   }
 
-  // Returns true if the window should be placed on top of all other windows on
-  // the system, even when it is not active. If HasAlwaysOnTopMenu() returns
-  // true, then this method is only used the first time the window is opened, it
-  // is stored in the preferences for next runs.
-  virtual bool IsAlwaysOnTop() const {
-    return false;
-  }
-
-  // Returns whether an "always on top" menu should be added to the system menu
-  // of the window.
-  virtual bool HasAlwaysOnTopMenu() const {
-    return false;
-  }
-
   // Returns true if the dialog should be displayed modally to the window that
   // opened it. Only windows with WindowType == DIALOG can be modal.
   virtual bool IsModal() const {
@@ -105,21 +91,15 @@ class WindowDelegate {
     return std::wstring();
   }
 
-  // Saves the window's bounds, maximized and always-on-top states. By default
-  // this uses the process' local state keyed by window name (See GetWindowName
-  // above). This behavior can be overridden to provide additional
-  // functionality.
-  virtual void SaveWindowPlacement(const gfx::Rect& bounds,
-                                   bool maximized,
-                                   bool always_on_top);
+  // Saves the window's bounds and maximized states. By default this uses the
+  // process' local state keyed by window name (See GetWindowName above). This
+  // behavior can be overridden to provide additional functionality.
+  virtual void SaveWindowPlacement(const gfx::Rect& bounds, bool maximized);
 
-  // Retrieves the window's bounds, maximized and always-on-top states. By
-  // default, this uses the process' local state keyed by window name (See
-  // GetWindowName above). This behavior can be overridden to provide
-  // additional functionality.
+  // Retrieves the window's bounds and maximized states.
+  // This behavior can be overridden to provide additional functionality.
   virtual bool GetSavedWindowBounds(gfx::Rect* bounds) const;
   virtual bool GetSavedMaximizedState(bool* maximized) const;
-  virtual bool GetSavedAlwaysOnTopState(bool* always_on_top) const;
 
   // Called when the window closes.
   virtual void WindowClosing() { }

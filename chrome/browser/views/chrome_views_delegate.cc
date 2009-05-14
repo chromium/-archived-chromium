@@ -19,8 +19,7 @@ Clipboard* ChromeViewsDelegate::GetClipboard() const {
 
 void ChromeViewsDelegate::SaveWindowPlacement(const std::wstring& window_name,
                                               const gfx::Rect& bounds,
-                                              bool maximized,
-                                              bool always_on_top) {
+                                              bool maximized) {
   if (!g_browser_process->local_state())
     return;
 
@@ -32,7 +31,6 @@ void ChromeViewsDelegate::SaveWindowPlacement(const std::wstring& window_name,
   window_preferences->SetInteger(L"right", bounds.right());
   window_preferences->SetInteger(L"bottom", bounds.bottom());
   window_preferences->SetBoolean(L"maximized", maximized);
-  window_preferences->SetBoolean(L"always_on_top", always_on_top);
 }
 
 bool ChromeViewsDelegate::GetSavedWindowBounds(const std::wstring& window_name,
@@ -63,18 +61,6 @@ bool ChromeViewsDelegate::GetSavedMaximizedState(
       g_browser_process->local_state()->GetDictionary(window_name.c_str());
   return dictionary && dictionary->GetBoolean(L"maximized", maximized) &&
       maximized;
-}
-
-bool ChromeViewsDelegate::GetSavedAlwaysOnTopState(
-    const std::wstring& window_name,
-    bool* always_on_top) const {
-  if (!g_browser_process->local_state())
-    return false;
-
-  const DictionaryValue* dictionary =
-      g_browser_process->local_state()->GetDictionary(window_name.c_str());
-  return dictionary && dictionary->GetBoolean(L"always_on_top", always_on_top) &&
-      always_on_top;
 }
 
 #if defined(OS_WIN)

@@ -14,7 +14,6 @@
 #include "app/resource_bundle.h"
 #include "app/win_util.h"
 #include "base/win_util.h"
-#include "chrome/app/chrome_dll_resource.h"
 #include "grit/generated_resources.h"
 #include "views/widget/root_view.h"
 #include "views/window/client_view.h"
@@ -401,6 +400,13 @@ void WindowWin::UpdateWindowIcon() {
   }
 }
 
+void WindowWin::SetIsAlwaysOnTop(bool always_on_top) {
+  ::SetWindowPos(GetNativeView(),
+      always_on_top ? HWND_TOPMOST : HWND_NOTOPMOST,
+      0, 0, 0, 0,
+      SWP_NOMOVE | SWP_NOSIZE | SWP_FRAMECHANGED);
+}
+
 NonClientFrameView* WindowWin::CreateFrameViewForWindow() {
   if (non_client_view_->UseNativeFrame())
     return new NativeFrameView(this);
@@ -440,7 +446,6 @@ WindowWin::WindowWin(WindowDelegate* window_delegate)
       minimum_size_(100, 100),
       is_modal_(false),
       restored_enabled_(false),
-      is_always_on_top_(false),
       fullscreen_(false),
       window_closed_(false),
       disable_inactive_rendering_(false),
@@ -471,7 +476,6 @@ void WindowWin::Init(HWND parent, const gfx::Rect& bounds) {
   is_modal_ = window_delegate_->IsModal();
   if (is_modal_)
     BecomeModal();
-  is_always_on_top_ = window_delegate_->IsAlwaysOnTop();
 
   if (window_style() == 0)
     set_window_style(CalculateWindowStyle());
@@ -489,7 +493,6 @@ void WindowWin::Init(HWND parent, const gfx::Rect& bounds) {
   UpdateWindowTitle();
 
   SetInitialBounds(bounds);
-  InitAlwaysOnTopState();
 
   GetMonitorAndRects(bounds.ToRECT(), &last_monitor_, &last_monitor_rect_,
                      &last_work_area_);
@@ -1056,25 +1059,7 @@ void WindowWin::OnSysCommand(UINT notification_code, CPoint click) {
   if (window_delegate_->ExecuteWindowsCommand(notification_code))
     return;
 
-  if (notification_code == IDC_ALWAYS_ON_TOP) {
-    is_always_on_top_ = !is_always_on_top_;
-
-    // Change the menu check state.
-    HMENU system_menu = GetSystemMenu(GetNativeView(), FALSE);
-    MENUITEMINFO menu_info;
-    memset(&menu_info, 0, sizeof(MENUITEMINFO));
-    menu_info.cbSize = sizeof(MENUITEMINFO);
-    BOOL r = GetMenuItemInfo(system_menu, IDC_ALWAYS_ON_TOP,
-                             FALSE, &menu_info);
-    DCHECK(r);
-    menu_info.fMask = MIIM_STATE;
-    if (is_always_on_top_)
-      menu_info.fState = MFS_CHECKED;
-    r = SetMenuItemInfo(system_menu, IDC_ALWAYS_ON_TOP, FALSE, &menu_info);
-
-    // Now change the actual window's behavior.
-    AlwaysOnTopChanged();
-  } else if ((notification_code == SC_KEYMENU) && (click.x == VK_SPACE)) {
+  if ((notification_code == SC_KEYMENU) && (click.x == VK_SPACE)) {
     // Run the system menu at the NonClientView's desired location.
     RunSystemMenu(non_client_view_->GetSystemMenuPoint());
   } else {
@@ -1229,48 +1214,6 @@ void WindowWin::SetInitialBounds(const gfx::Rect& create_bounds) {
   }
 }
 
-void WindowWin::InitAlwaysOnTopState() {
-  is_always_on_top_ = false;
-  if (window_delegate_->GetSavedAlwaysOnTopState(&is_always_on_top_) &&
-      is_always_on_top_ != window_delegate_->IsAlwaysOnTop()) {
-    AlwaysOnTopChanged();
-  }
-
-  if (window_delegate_->HasAlwaysOnTopMenu())
-    AddAlwaysOnTopSystemMenuItem();
-}
-
-void WindowWin::AddAlwaysOnTopSystemMenuItem() {
-  // The Win32 API requires that we own the text.
-  always_on_top_menu_text_ = l10n_util::GetString(IDS_ALWAYS_ON_TOP);
-
-  // Let's insert a menu to the window.
-  HMENU system_menu = ::GetSystemMenu(GetNativeView(), FALSE);
-  int index = ::GetMenuItemCount(system_menu) - 1;
-  if (index < 0) {
-    // Paranoia check.
-    NOTREACHED();
-    index = 0;
-  }
-  // First we add the separator.
-  MENUITEMINFO menu_info;
-  memset(&menu_info, 0, sizeof(MENUITEMINFO));
-  menu_info.cbSize = sizeof(MENUITEMINFO);
-  menu_info.fMask = MIIM_FTYPE;
-  menu_info.fType = MFT_SEPARATOR;
-  ::InsertMenuItem(system_menu, index, TRUE, &menu_info);
-
-  // Then the actual menu.
-  menu_info.fMask = MIIM_FTYPE | MIIM_ID | MIIM_STRING | MIIM_STATE;
-  menu_info.fType = MFT_STRING;
-  menu_info.fState = MFS_ENABLED;
-  if (is_always_on_top_)
-    menu_info.fState |= MFS_CHECKED;
-  menu_info.wID = IDC_ALWAYS_ON_TOP;
-  menu_info.dwTypeData = const_cast<wchar_t*>(always_on_top_menu_text_.c_str());
-  ::InsertMenuItem(system_menu, index, TRUE, &menu_info);
-}
-
 void WindowWin::RestoreEnabledIfNecessary() {
   if (is_modal_ && !restored_enabled_) {
     restored_enabled_ = true;
@@ -1282,13 +1225,6 @@ void WindowWin::RestoreEnabledIfNecessary() {
       start = ::GetParent(start);
     }
   }
-}
-
-void WindowWin::AlwaysOnTopChanged() {
-  ::SetWindowPos(GetNativeView(),
-    is_always_on_top_ ? HWND_TOPMOST : HWND_NOTOPMOST,
-    0, 0, 0, 0,
-    SWP_NOMOVE | SWP_NOSIZE | SWP_FRAMECHANGED);
 }
 
 DWORD WindowWin::CalculateWindowStyle() {
@@ -1316,8 +1252,6 @@ DWORD WindowWin::CalculateWindowExStyle() {
   DWORD window_ex_styles = 0;
   if (window_delegate_->AsDialogDelegate())
     window_ex_styles |= WS_EX_DLGMODALFRAME;
-  if (window_delegate_->IsAlwaysOnTop())
-    window_ex_styles |= WS_EX_TOPMOST;
   return window_ex_styles;
 }
 
@@ -1338,7 +1272,7 @@ void WindowWin::SaveWindowPosition() {
   bool maximized = (win_placement.showCmd == SW_SHOWMAXIMIZED);
   CRect window_bounds(win_placement.rcNormalPosition);
   window_delegate_->SaveWindowPlacement(
-      gfx::Rect(win_placement.rcNormalPosition), maximized, is_always_on_top_);
+      gfx::Rect(win_placement.rcNormalPosition), maximized);
 }
 
 void WindowWin::LockUpdates() {

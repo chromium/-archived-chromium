@@ -46,6 +46,7 @@ class WindowGtk : public WidgetGtk, public Window {
   virtual void DisableInactiveRendering();
   virtual void UpdateWindowTitle();
   virtual void UpdateWindowIcon();
+  virtual void SetIsAlwaysOnTop(bool always_on_top);
   virtual NonClientFrameView* CreateFrameViewForWindow();
   virtual void UpdateFrameAfterFrameChange();
   virtual WindowDelegate* GetDelegate() const;

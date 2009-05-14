@@ -23,14 +23,13 @@ SkBitmap WindowDelegate::GetWindowIcon() {
 }
 
 void WindowDelegate::SaveWindowPlacement(const gfx::Rect& bounds,
-                                         bool maximized,
-                                         bool always_on_top) {
+                                         bool maximized) {
   std::wstring window_name = GetWindowName();
   if (!ViewsDelegate::views_delegate || window_name.empty())
     return;
 
   ViewsDelegate::views_delegate->SaveWindowPlacement(
-      window_name, bounds, maximized, always_on_top);
+      window_name, bounds, maximized);
 }
 
 bool WindowDelegate::GetSavedWindowBounds(gfx::Rect* bounds) const {
@@ -50,16 +49,6 @@ bool WindowDelegate::GetSavedMaximizedState(bool* maximized) const {
   return ViewsDelegate::views_delegate->GetSavedMaximizedState(
       window_name, maximized);
 }
-
-bool WindowDelegate::GetSavedAlwaysOnTopState(bool* always_on_top) const {
-  std::wstring window_name = GetWindowName();
-  if (!ViewsDelegate::views_delegate || window_name.empty())
-    return false;
-
-  return ViewsDelegate::views_delegate->GetSavedAlwaysOnTopState(
-      window_name, always_on_top);
-}
-
 
 ClientView* WindowDelegate::CreateClientView(Window* window) {
   return new ClientView(window, GetContentsView());

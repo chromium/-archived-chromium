@@ -3,12 +3,6 @@ include_rules = [
   "+skia/ext",
   "+skia/include",
   
-  # TODO(beng): sever these dependencies into chrome by either refactoring or
-  #             moving code into app/
-  
-  # widget_win.cc
-  "+chrome/app/chrome_dll_resource.h",
-  
   # TODO(beng): swap these with app/views specific generated resources.
   "+grit/generated_resources.h",
   "+grit/theme_resources.h",

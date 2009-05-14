@@ -80,6 +80,7 @@ class WindowWin : public WidgetWin,
   virtual void DisableInactiveRendering();
   virtual void UpdateWindowTitle();
   virtual void UpdateWindowIcon();
+  virtual void SetIsAlwaysOnTop(bool always_on_top);
   virtual NonClientFrameView* CreateFrameViewForWindow();
   virtual void UpdateFrameAfterFrameChange();
   virtual WindowDelegate* GetDelegate() const;
@@ -163,18 +164,8 @@ class WindowWin : public WidgetWin,
   // bounds used when the window was created.
   void SetInitialBounds(const gfx::Rect& create_bounds);
 
-  // Restore saved always on stop state and add the always on top system menu
-  // if needed.
-  void InitAlwaysOnTopState();
-
-  // Add an item for "Always on Top" to the System Menu.
-  void AddAlwaysOnTopSystemMenuItem();
-
   // If necessary, enables all ancestors.
   void RestoreEnabledIfNecessary();
-
-  // Update the window style to reflect the always on top state.
-  void AlwaysOnTopChanged();
 
   // Calculate the appropriate window styles for this window.
   DWORD CalculateWindowStyle();
@@ -244,12 +235,6 @@ class WindowWin : public WidgetWin,
   // Whether all ancestors have been enabled. This is only used if is_modal_ is
   // true.
   bool restored_enabled_;
-
-  // Whether the window is currently always on top.
-  bool is_always_on_top_;
-
-  // We need to own the text of the menu, the Windows API does not copy it.
-  std::wstring always_on_top_menu_text_;
 
   // True if we're in fullscreen mode.
   bool fullscreen_;

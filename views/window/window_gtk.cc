@@ -129,6 +129,10 @@ void WindowGtk::UpdateWindowIcon() {
   NOTIMPLEMENTED();
 }
 
+void WindowGtk::SetIsAlwaysOnTop(bool always_on_top) {
+  NOTIMPLEMENTED();
+}
+
 NonClientFrameView* WindowGtk::CreateFrameViewForWindow() {
   // TODO(erg): Always use a custom frame view? Are there cases where we let
   // the window manager deal with the X11 equivalent of the "non-client" area?

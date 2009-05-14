@@ -111,6 +111,9 @@ class Window {
   // Tell the window to update its icon from the delegate.
   virtual void UpdateWindowIcon() = 0;
 
+  // Sets whether or not the window is always-on-top.
+  virtual void SetIsAlwaysOnTop(bool always_on_top) = 0;
+
   // Creates an appropriate NonClientFrameView for this window.
   virtual NonClientFrameView* CreateFrameViewForWindow() = 0;
 

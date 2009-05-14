@@ -562,7 +562,7 @@ void PageInfoWindow::Init(Profile* profile,
     if (GetSavedWindowBounds(&bounds) && GetSavedMaximizedState(&maximized)) {
       CRect bounds_crect(bounds.ToRECT());
       CalculateWindowBounds(&bounds_crect);
-      SaveWindowPlacement(gfx::Rect(bounds_crect), maximized, false);
+      SaveWindowPlacement(gfx::Rect(bounds_crect), maximized);
     }
   }
 

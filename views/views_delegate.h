@@ -28,12 +28,11 @@ class ViewsDelegate {
   // Gets the clipboard.
   virtual Clipboard* GetClipboard() const = 0;
 
-  // Saves the position, size, maximized and always-on-top state for the
-  // window with the specified name.
+  // Saves the position, size and maximized state for the window with the
+  // specified name.
   virtual void SaveWindowPlacement(const std::wstring& window_name,
                                    const gfx::Rect& bounds,
-                                   bool maximized,
-                                   bool always_on_top) = 0;
+                                   bool maximized) = 0;
 
   // Retrieves the saved position and size for the window with the specified
   // name.
@@ -44,11 +43,6 @@ class ViewsDelegate {
   // name.
   virtual bool GetSavedMaximizedState(const std::wstring& window_name,
                                       bool* maximized) const = 0;
-
-  // Retrieves the saved always-on-top state for the window with the specified
-  // name.
-  virtual bool GetSavedAlwaysOnTopState(const std::wstring& window_name,
-                                        bool* always_on_top) const = 0;
 
 #if defined(OS_WIN)
   // Retrieves the default window icon to use for windows if none is specified.

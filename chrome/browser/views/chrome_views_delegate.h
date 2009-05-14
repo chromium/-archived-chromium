@@ -17,14 +17,11 @@ class ChromeViewsDelegate : public views::ViewsDelegate {
   virtual Clipboard* GetClipboard() const;
   virtual void SaveWindowPlacement(const std::wstring& window_name,
                                    const gfx::Rect& bounds,
-                                   bool maximized,
-                                   bool always_on_top);
+                                   bool maximized);
   virtual bool GetSavedWindowBounds(const std::wstring& window_name,
                                     gfx::Rect* bounds) const;
   virtual bool GetSavedMaximizedState(const std::wstring& window_name,
                                       bool* maximized) const;
-  virtual bool GetSavedAlwaysOnTopState(const std::wstring& window_name,
-                                        bool* always_on_top) const;
 #if defined(OS_WIN)
   virtual HICON GetDefaultWindowIcon() const;
 #endif

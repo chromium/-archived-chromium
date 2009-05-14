@@ -235,8 +235,7 @@ class BrowserView : public BrowserWindow,
   virtual bool ExecuteWindowsCommand(int command_id);
   virtual std::wstring GetWindowName() const;
   virtual void SaveWindowPlacement(const gfx::Rect& bounds,
-                                   bool maximized,
-                                   bool always_on_top);
+                                   bool maximized);
   virtual bool GetSavedWindowBounds(gfx::Rect* bounds) const;
   virtual bool GetSavedMaximizedState(bool* maximized) const;
   virtual views::View* GetContentsView();
