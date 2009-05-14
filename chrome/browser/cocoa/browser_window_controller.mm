@@ -7,6 +7,7 @@
 #include "chrome/app/chrome_dll_resource.h"  // IDC_*
 #include "chrome/browser/browser.h"
 #include "chrome/browser/browser_list.h"
+#include "chrome/browser/browser_process.h"
 #include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/browser/tab_contents/tab_contents_view.h"
 #include "chrome/browser/tabs/tab_strip_model.h"
@@ -21,6 +22,7 @@
 #import "chrome/browser/cocoa/tab_strip_controller.h"
 #import "chrome/browser/cocoa/tab_view.h"
 #import "chrome/browser/cocoa/toolbar_controller.h"
+#include "chrome/common/pref_service.h"
 
 namespace {
 
@@ -43,6 +45,12 @@ const int kWindowGradientHeight = 24;
 // Called by the Notification Center whenever the tabContentArea's
 // frame changes.  Re-positions the bookmark bar and the find bar.
 - (void)tabContentAreaFrameChanged:(id)sender;
+
+// Saves the window's position in the local state preferences.
+- (void)saveWindowPositionIfNeeded;
+
+// Saves the window's position to the given pref service.
+- (void)saveWindowPositionToPrefs:(PrefService*)prefs;
 
 // We need to adjust where sheets come out of the window, as by default they
 // erupt from the omnibox, which is rather weird.
@@ -166,7 +174,7 @@ willPositionSheet:(NSWindow *)sheet
 - (void)windowWillClose:(NSNotification *)notification {
   DCHECK(!browser_->tabstrip_model()->count());
 
-  // We can't acutally use |-autorelease| here because there's an embedded
+  // We can't actually use |-autorelease| here because there's an embedded
   // run loop in the |-performClose:| which contains its own autorelease pool.
   // Instead we use call it after a zero-length delay, which gets us back
   // to the main event loop.
@@ -187,6 +195,11 @@ willPositionSheet:(NSWindow *)sheet
   if (!browser_->ShouldCloseWindow())
     return NO;
 
+  // saveWindowPositionIfNeeded: only works if we are the last active
+  // window, but orderOut: ends up activating another window, so we
+  // have to save the window position before we call orderOut:.
+  [self saveWindowPositionIfNeeded];
+
   if (!browser_->tabstrip_model()->empty()) {
     // Tab strip isn't empty.  Hide the frame (so it appears to have closed
     // immediately) and close all the tabs, allowing the renderers to shut
@@ -203,6 +216,7 @@ willPositionSheet:(NSWindow *)sheet
 // Called right after our window became the main window.
 - (void)windowDidBecomeMain:(NSNotification *)notification {
   BrowserList::SetLastActive(browser_.get());
+  [self saveWindowPositionIfNeeded];
 }
 
 // Called when the user clicks the zoom button (or selects it from the Window
@@ -578,6 +592,41 @@ willPositionSheet:(NSWindow *)sheet
   if (findBarCocoaController_.get()) {
     [findBarCocoaController_ positionFindBarView:[self tabContentArea]];
   }
+}
+
+- (void)saveWindowPositionIfNeeded {
+  if (browser_ != BrowserList::GetLastActive())
+    return;
+
+  if (!g_browser_process || !g_browser_process->local_state() ||
+      !browser_->ShouldSaveWindowPlacement())
+    return;
+
+  [self saveWindowPositionToPrefs:g_browser_process->local_state()];
+}
+
+- (void)saveWindowPositionToPrefs:(PrefService*)prefs {
+  // Window placements are stored relative to the work area bounds,
+  // not the monitor bounds.
+  NSRect workFrame = [[[self window] screen] visibleFrame];
+
+  // Start with the window's frame, which is in virtual coordinates.
+  // Subtract the origin of the visibleFrame to get the window frame
+  // relative to the work area.
+  gfx::Rect bounds(NSRectToCGRect([[self window] frame]));
+  bounds.Offset(-workFrame.origin.x, -workFrame.origin.y);
+
+  // Do some y twiddling to flip the coordinate system.
+  bounds.set_y(workFrame.size.height - bounds.y() - bounds.height());
+
+  DictionaryValue* windowPreferences = prefs->GetMutableDictionary(
+      browser_->GetWindowPlacementKey().c_str());
+  windowPreferences->SetInteger(L"left", bounds.x());
+  windowPreferences->SetInteger(L"top", bounds.y());
+  windowPreferences->SetInteger(L"right", bounds.right());
+  windowPreferences->SetInteger(L"bottom", bounds.bottom());
+  windowPreferences->SetBoolean(L"maximized", false);
+  windowPreferences->SetBoolean(L"always_on_top", false);
 }
 
 - (NSRect)window:(NSWindow *)window

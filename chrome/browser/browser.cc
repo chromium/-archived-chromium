@@ -74,9 +74,12 @@
 #include "chrome/browser/user_data_manager.h"
 #include "chrome/browser/view_ids.h"
 #include "chrome/browser/views/location_bar_view.h"
-#include "chrome/browser/window_sizer.h"
 #include "chrome/common/child_process_host.h"
 #endif  // OS_WIN
+
+#if defined(OS_WIN) || defined(OS_MACOSX)
+#include "chrome/browser/window_sizer.h"
+#endif
 
 using base::TimeDelta;
 

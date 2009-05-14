@@ -1,9 +1,9 @@
-// Copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
+// Copyright (c) 2009 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CHROME_BROWSER_WINDOW_SIZER_H__
-#define CHROME_BROWSER_WINDOW_SIZER_H__
+#ifndef CHROME_BROWSER_WINDOW_SIZER_H_
+#define CHROME_BROWSER_WINDOW_SIZER_H_
 
 #include <vector>
 
@@ -32,6 +32,10 @@ class WindowSizer {
   WindowSizer(StateProvider* state_provider,
               MonitorInfoProvider* monitor_info_provider);
   virtual ~WindowSizer();
+
+  // Static factory methods to create default MonitorInfoProvider
+  // instances.  The returned object is owned by the caller.
+  static MonitorInfoProvider* CreateDefaultMonitorInfoProvider();
 
   // An interface implemented by an object that can retrieve information about
   // the monitors on the system.
@@ -92,20 +96,6 @@ class WindowSizer {
     virtual bool GetLastActiveWindowState(gfx::Rect* bounds) const = 0;
   };
 
-  // Determines the size, position and maximized state for the browser window.
-  // See documentation for DetermineWindowBounds below. Normally,
-  // |window_bounds| is calculated by calling GetLastActiveWindowState(). To
-  // explicitly specify a particular window to base the bounds on, pass in a
-  // non-NULL value for |browser|.
-  static void GetBrowserWindowBounds(const std::wstring& app_name,
-                                     const gfx::Rect& specified_bounds,
-                                     Browser* browser,
-                                     gfx::Rect* window_bounds,
-                                     bool* maximized);
-
-  // Returns the default origin for popups of the given size.
-  static gfx::Point GetDefaultPopupOrigin(const gfx::Size& size);
-
   // Determines the position, size and maximized state for a window as it is
   // created. This function uses several strategies to figure out optimal size
   // and placement, first looking for an existing active window, then falling
@@ -120,6 +110,24 @@ class WindowSizer {
   void DetermineWindowBounds(const gfx::Rect& specified_bounds,
                              gfx::Rect* bounds,
                              bool* maximized) const;
+
+  // Determines the size, position and maximized state for the browser window.
+  // See documentation for DetermineWindowBounds below. Normally,
+  // |window_bounds| is calculated by calling GetLastActiveWindowState(). To
+  // explicitly specify a particular window to base the bounds on, pass in a
+  // non-NULL value for |browser|.
+  static void GetBrowserWindowBounds(const std::wstring& app_name,
+                                     const gfx::Rect& specified_bounds,
+                                     Browser* browser,
+                                     gfx::Rect* window_bounds,
+                                     bool* maximized);
+
+  // Returns the default origin for popups of the given size.
+  static gfx::Point GetDefaultPopupOrigin(const gfx::Size& size);
+
+  // How much horizontal and vertical offset there is between newly
+  // opened windows.  This value may be different on each platform.
+  static const int kWindowTilePixels;
 
  private:
   // The edge of the screen to check for out-of-bounds.
@@ -165,5 +173,4 @@ class WindowSizer {
   DISALLOW_EVIL_CONSTRUCTORS(WindowSizer);
 };
 
-
-#endif  // #ifndef CHROME_BROWSER_WINDOW_SIZER_H__
+#endif  // #ifndef CHROME_BROWSER_WINDOW_SIZER_H_

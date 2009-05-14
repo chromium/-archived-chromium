@@ -1553,6 +1553,8 @@
         'browser/webdata/web_database_win.cc',
         'browser/window_sizer.cc',
         'browser/window_sizer.h',
+        'browser/window_sizer_mac.mm',
+        'browser/window_sizer_win.cc',
         'browser/worker_host/worker_process_host.cc',
         'browser/worker_host/worker_process_host.h',
         'browser/worker_host/worker_service.cc',
@@ -1574,6 +1576,9 @@
             '../build/linux/system.gyp:gtk',
           ],
           'sources!': [
+	    # TODO(port): add this to the Linux build once a
+	    #  window_sizer_linux.cc is written
+            'browser/window_sizer.cc',
             'browser/debugger/debugger_shell_stubs.cc',
             # Windows-specific files.
             'browser/download/download_exe.cc',
@@ -1692,7 +1697,6 @@
             'browser/shell_integration.cc',
             'browser/tab_contents/web_drag_source.cc',
             'browser/tab_contents/web_drop_target.cc',
-            'browser/window_sizer.cc',
           ],
         }],
       ],
@@ -2687,6 +2691,7 @@
         'browser/cocoa/bookmark_menu_bridge_unittest.mm',
         'browser/cocoa/bookmark_menu_cocoa_controller_unittest.mm',
         'browser/cocoa/browser_window_cocoa_unittest.mm',
+        'browser/cocoa/browser_window_controller_unittest.mm',
         'browser/cocoa/command_observer_bridge_unittest.mm',
         'browser/cocoa/find_bar_bridge_unittest.mm',
         'browser/cocoa/find_bar_cocoa_controller_unittest.mm',

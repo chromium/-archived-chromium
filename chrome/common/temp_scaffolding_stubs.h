@@ -355,6 +355,7 @@ class DockInfo {
   void AdjustOtherWindowBounds() const { NOTIMPLEMENTED(); }
 };
 
+#if defined(OS_LINUX)
 class WindowSizer {
  public:
   static void GetBrowserWindowBounds(const std::wstring& app_name,
@@ -363,6 +364,7 @@ class WindowSizer {
                                      gfx::Rect* window_bounds,
                                      bool* maximized);
 };
+#endif
 
 //---------------------------------------------------------------------------
 // These stubs are for Profile

@@ -825,6 +825,10 @@
 				RelativePath=".\window_sizer.h"
 				>
 			</File>
+			<File
+				RelativePath=".\window_sizer_win.cc"
+				>
+			</File>
 		</Filter>
 		<Filter
 			Name="Automation"

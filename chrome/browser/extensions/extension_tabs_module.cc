@@ -13,7 +13,7 @@
 #include "chrome/browser/tab_contents/navigation_entry.h"
 
 // TODO(port): Port these files.
-#if defined(OS_WIN)
+#if defined(OS_WIN) || defined(OS_MACOSX)
 #include "chrome/browser/window_sizer.h"
 #else
 #include "chrome/common/temp_scaffolding_stubs.h"

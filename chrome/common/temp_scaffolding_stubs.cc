@@ -278,6 +278,7 @@ void DragDownload(const DownloadItem* download, SkBitmap* icon) {
 
 }  // namespace download_util
 
+#if defined(OS_LINUX)
 void WindowSizer::GetBrowserWindowBounds(const std::wstring& app_name,
                                          const gfx::Rect& specified_bounds,
                                          Browser* browser,
@@ -291,6 +292,7 @@ void WindowSizer::GetBrowserWindowBounds(const std::wstring& app_name,
     *window_bounds = gfx::Rect(0, 0, 1024, 768);
   }
 }
+#endif
 
 #if defined(OS_MACOSX)
 void HungRendererDialog::HideForTabContents(TabContents*) {
