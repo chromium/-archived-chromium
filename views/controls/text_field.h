@@ -94,7 +94,7 @@ class TextField : public View {
   virtual void AboutToRequestFocusFromTabTraversal(bool reverse);
 
   // Overridden from Chrome::View.
-  virtual bool ShouldLookupAccelerators(const KeyEvent& e);
+  virtual bool SkipDefaultKeyEventProcessing(const KeyEvent& e);
 
   virtual HWND GetNativeComponent();
 

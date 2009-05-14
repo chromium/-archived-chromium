@@ -242,17 +242,24 @@ bool FocusManager::OnKeyDown(HWND window, UINT message, WPARAM wparam,
       << "KeystrokeListener list modified during notification";
 
   int virtual_key_code = static_cast<int>(wparam);
+  int repeat_count = LOWORD(lparam);
+  int flags = HIWORD(lparam);
+  KeyEvent key_event(Event::ET_KEY_PRESSED,
+                     virtual_key_code, repeat_count, flags);
+
+  // If the focused view wants to process the key event as is, let it be.
+  if (focused_view_ && focused_view_->SkipDefaultKeyEventProcessing(key_event))
+    return true;
+
   // Intercept Tab related messages for focus traversal.
   // Note that we don't do focus traversal if the root window is not part of the
   // active window hierarchy as this would mean we have no focused view and
   // would focus the first focusable view.
   HWND active_window = ::GetActiveWindow();
   if ((active_window == root_ || ::IsChild(active_window, root_)) &&
-      (virtual_key_code == VK_TAB) && !win_util::IsCtrlPressed()) {
-    if (!focused_view_ || !focused_view_->CanProcessTabKeyEvents()) {
-      AdvanceFocus(win_util::IsShiftPressed());
-      return false;
-    }
+      IsTabTraversalKeyEvent(key_event)) {
+    AdvanceFocus(win_util::IsShiftPressed());
+    return false;
   }
 
   // Intercept arrow key messages to switch between grouped views.
@@ -278,16 +285,6 @@ bool FocusManager::OnKeyDown(HWND window, UINT message, WPARAM wparam,
     return false;
   }
 
-  int repeat_count = LOWORD(lparam);
-  int flags = HIWORD(lparam);
-  if (focused_view_ &&
-      !focused_view_->ShouldLookupAccelerators(KeyEvent(
-          Event::ET_KEY_PRESSED, virtual_key_code,
-          repeat_count, flags))) {
-    // This should not be processed as an accelerator.
-    return true;
-  }
-
   // Process keyboard accelerators.
   // We process accelerators here as we have no way of knowing if a HWND has
   // really processed a key event. If the key combination matches an
@@ -297,9 +294,12 @@ bool FocusManager::OnKeyDown(HWND window, UINT message, WPARAM wparam,
                                       win_util::IsShiftPressed(),
                                       win_util::IsCtrlPressed(),
                                       win_util::IsAltPressed()));
-  if (ProcessAccelerator(accelerator)) {
-    // If a shortcut was activated for this keydown message, do not
-    // propagate the message further.
+  // We give a chance to the focused view to override the accelerator before
+  // processing it.
+  if ((focused_view_ && focused_view_->OverrideAccelerator(accelerator)) ||
+      ProcessAccelerator(accelerator)) {
+    // If a shortcut was activated for this keydown message, do not propagate
+    // the message further.
     return false;
   }
   return true;
@@ -645,15 +645,8 @@ bool FocusManager::ProcessAccelerator(const Accelerator& accelerator) {
   do {
     AcceleratorTarget* target =
         focus_manager->GetTargetForAccelerator(accelerator);
-    if (target) {
-      // If there is focused view, we give it a chance to process that
-      // accelerator.
-      if (!focused_view_ ||
-          !focused_view_->OverrideAccelerator(accelerator)) {
-        if (target->AcceleratorPressed(accelerator))
-          return true;
-      }
-    }
+    if (target && target->AcceleratorPressed(accelerator))
+      return true;
 
     // When dealing with child windows that have their own FocusManager (such
     // as ConstrainedWindow), we still want the parent FocusManager to process
@@ -669,6 +662,11 @@ AcceleratorTarget* FocusManager::GetTargetForAccelerator(
   if (iter != accelerators_.end())
     return iter->second;
   return NULL;
+}
+
+// static
+bool FocusManager::IsTabTraversalKeyEvent(const KeyEvent& key_event) {
+  return key_event.GetCharacter() == VK_TAB && !win_util::IsCtrlPressed();
 }
 
 void FocusManager::ViewRemoved(View* parent, View* removed) {

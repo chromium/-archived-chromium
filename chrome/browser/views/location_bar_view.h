@@ -83,9 +83,6 @@ class LocationBarView : public LocationBar,
   // No focus border for the location bar, the caret is enough.
   virtual void PaintFocusBorder(ChromeCanvas* canvas) { }
 
-  // Overridden from View so we can use <tab> to go into keyword search mode.
-  virtual bool CanProcessTabKeyEvents();
-
   // Called when any ancestor changes its size, asks the AutocompleteEditModel
   // to close its popup.
   virtual void VisibleBoundsInRootChanged();
@@ -136,7 +133,7 @@ class LocationBarView : public LocationBar,
   void Focus();
 
   // Overridden from Chrome::View.
-  virtual bool ShouldLookupAccelerators(const views::KeyEvent& e);
+  virtual bool SkipDefaultKeyEventProcessing(const views::KeyEvent& event);
 
  private:
   // View used when the user has selected a keyword.

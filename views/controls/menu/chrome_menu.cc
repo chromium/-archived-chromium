@@ -23,6 +23,7 @@
 #include "skia/ext/skia_utils_win.h"
 #include "views/border.h"
 #include "views/drag_utils.h"
+#include "views/focus/focus_manager.h"
 #include "views/view_constants.h"
 #include "views/widget/root_view.h"
 #include "views/widget/widget_win.h"
@@ -996,6 +997,10 @@ void SubmenuView::Hide() {
 
 void SubmenuView::ReleaseCapture() {
   host_->ReleaseCapture();
+}
+
+bool SubmenuView::SkipDefaultKeyEventProcessing(const views::KeyEvent& e) {
+  return views::FocusManager::IsTabTraversalKeyEvent(e);
 }
 
 void SubmenuView::SetDropMenuItem(MenuItemView* item,

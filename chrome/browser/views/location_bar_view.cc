@@ -33,6 +33,7 @@
 #include "grit/theme_resources.h"
 #include "views/background.h"
 #include "views/border.h"
+#include "views/focus/focus_manager.h"
 #include "views/widget/root_view.h"
 #include "views/widget/widget.h"
 
@@ -236,11 +237,6 @@ void LocationBarView::Paint(ChromeCanvas* canvas) {
   int top_margin = TopMargin();
   canvas->FillRectInt(bg, 0, top_margin, width(),
                       std::max(height() - top_margin - kVertMargin, 0));
-}
-
-bool LocationBarView::CanProcessTabKeyEvents() {
-  // We want to receive tab key events when the hint is showing.
-  return keyword_hint_view_.IsVisible();
 }
 
 void LocationBarView::VisibleBoundsInRootChanged() {
@@ -851,42 +847,48 @@ void LocationBarView::KeywordHintView::Layout() {
   }
 }
 
-bool LocationBarView::ShouldLookupAccelerators(const views::KeyEvent& e) {
+bool LocationBarView::SkipDefaultKeyEventProcessing(const views::KeyEvent& e) {
+  if (keyword_hint_view_.IsVisible() &&
+      views::FocusManager::IsTabTraversalKeyEvent(e)) {
+    // We want to receive tab key events when the hint is showing.
+    return true;
+  }
+
   int c = e.GetCharacter();
-  // We don't translate accelerators for ALT + numpad digit, they are used for
+  // We don't process ALT + numpad digit as accelerators, they are used for
   // entering special characters.
   if (e.IsAltDown() && win_util::IsNumPadDigit(c, e.IsExtendedKey()))
-    return false;
+    return true;
 
   // Skip accelerators for key combinations omnibox wants to crack. This list
   // should be synced with AutocompleteEditViewWin::OnKeyDownOnlyWritable().
+  // (but for tab which is dealt with above).
   //
-  // We cannot return false for all keys because we still need to handle some
+  // We cannot return true for all keys because we still need to handle some
   // accelerators (e.g., F5 for reload the page should work even when the
   // Omnibox gets focused).
   switch (c) {
   case VK_RETURN:
-    return false;
+    return true;
 
   case VK_UP:
   case VK_DOWN:
-    return e.IsAltDown();
+    return !e.IsAltDown();
 
   case VK_DELETE:
   case VK_INSERT:
-    return e.IsAltDown() || !e.IsShiftDown();
+    return !e.IsAltDown() && e.IsShiftDown();
 
   case 'X':
   case 'V':
-    return e.IsAltDown() || !e.IsControlDown();
+    return !e.IsAltDown() && e.IsControlDown();
 
   case VK_BACK:
-  case VK_TAB:
   case 0xbb:
-    return false;
+    return true;
 
   default:
-    return true;
+    return false;
   }
 }
 

@@ -16,6 +16,7 @@
 #include "base/task.h"
 #include "third_party/skia/include/core/SkBitmap.h"
 #include "views/controls/menu/controller.h"
+#include "views/event.h"
 #include "views/view.h"
 
 namespace views {
@@ -553,11 +554,11 @@ class SubmenuView : public View {
   // not captured.
   void ReleaseCapture();
 
+  // Overriden from View to prevent tab from doing anything.
+  virtual bool SkipDefaultKeyEventProcessing(const views::KeyEvent& e);
+
   // Returns the parent menu item we're showing children for.
   MenuItemView* GetMenuItem() const { return parent_menu_item_; }
-
-  // Overriden to return true. This prevents tab from doing anything.
-  virtual bool CanProcessTabKeyEvents() { return true; }
 
   // Set the drop item and position.
   void SetDropMenuItem(MenuItemView* item,

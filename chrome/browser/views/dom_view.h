@@ -11,6 +11,7 @@
 #include "base/scoped_ptr.h"
 #include "googleurl/src/gurl.h"
 #include "views/controls/hwnd_view.h"
+#include "views/event.h"
 
 class Profile;
 class SiteInstance;
@@ -33,7 +34,8 @@ class DOMView : public views::HWNDView {
   void LoadURL(const GURL& url);
 
  protected:
-  virtual bool CanProcessTabKeyEvents() { return true; }
+  // Overridden from View.
+  virtual bool SkipDefaultKeyEventProcessing(const views::KeyEvent& e);
 
   scoped_ptr<TabContents> tab_contents_;
 

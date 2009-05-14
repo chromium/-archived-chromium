@@ -514,7 +514,8 @@ class View : public AcceleratorTarget {
   // Called on a view (if it is has focus) before an Accelerator is processed.
   // Views that want to override an accelerator should override this method to
   // perform the required action and return true, to indicate that the
-  // accelerator should not be processed any further.
+  // accelerator should not be processed any further (in which case the key
+  // event is eaten).
   virtual bool OverrideAccelerator(const Accelerator& accelerator) {
     return false;
   }
@@ -705,20 +706,25 @@ class View : public AcceleratorTarget {
   // (Shift-Tab).
   virtual void AboutToRequestFocusFromTabTraversal(bool reverse) { }
 
+  // Invoked when a key is pressed before the key event is processed (and
+  // potentially eaten) by the focus manager for tab traversal, accelerators and
+  // other focus related actions.
+  // The default implementation returns false, ensuring that tab traversal and
+  // accelerators processing is performed.
+  // Subclasses should return true if they want to process the key event and not
+  // have it processed as an accelerator (if any) or as a tab traversal (if the
+  // key event is for the TAB key).  In that case, OnKeyPressed will
+  // subsequently be invoked for that event.
+  virtual bool SkipDefaultKeyEventProcessing(const KeyEvent& e) {
+    return false;
+  }
+
   // Invoked when a key is pressed or released.
   // Subclasser should return true if the event has been processed and false
   // otherwise. If the event has not been processed, the parent will be given a
   // chance.
   virtual bool OnKeyPressed(const KeyEvent& e);
   virtual bool OnKeyReleased(const KeyEvent& e);
-
-  // Whether the view wants to receive Tab and Shift-Tab key events.
-  // If false, Tab and Shift-Tabs key events are used for focus traversal and
-  // are not sent to the view. If true, the events are sent to the view and not
-  // used for focus traversal.
-  // This implementation returns false (so that by default views handle nicely
-  // the keyboard focus traversal).
-  virtual bool CanProcessTabKeyEvents();
 
   // Invoked when the user uses the mousewheel. Implementors should return true
   // if the event has been processed and false otherwise. This message is sent
@@ -1000,14 +1006,6 @@ class View : public AcceleratorTarget {
   // Widget, which is what is appropriate for views that have no native window
   // associated with them (so the root view gets the keyboard messages).
   virtual void Focus();
-
-  // Invoked when a key is pressed before the key event is processed by the
-  // focus manager for accelerators.  This gives a chance to the view to
-  // override an accelerator.  Subclasser should return false if they want to
-  // process the key event and not have it translated to an accelerator (if
-  // any).  In that case, OnKeyPressed will subsequently be invoked for that
-  // event.
-  virtual bool ShouldLookupAccelerators(const KeyEvent& e) { return true; }
 
   // These are cover methods that invoke the method of the same name on
   // the DragController. Subclasses may wish to override rather than install

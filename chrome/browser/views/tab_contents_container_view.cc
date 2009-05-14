@@ -110,12 +110,6 @@ void TabContentsContainerView::AboutToRequestFocusFromTabTraversal(
   tab_contents_->SetInitialFocus(reverse);
 }
 
-bool TabContentsContainerView::CanProcessTabKeyEvents() {
-  // TabContents with no RootView are supposed to deal with the focus traversal
-  // explicitly.  For that reason, they receive tab key events as is.
-  return !!tab_contents_;
-}
-
 views::FocusTraversable* TabContentsContainerView::GetFocusTraversableParent() {
   return GetRootView();
 }
@@ -158,15 +152,16 @@ bool TabContentsContainerView::GetAccessibleRole(
   return true;
 }
 
-bool TabContentsContainerView::ShouldLookupAccelerators(
+bool TabContentsContainerView::SkipDefaultKeyEventProcessing(
     const views::KeyEvent& e) {
-  // Don't look-up accelerators if we are showing a non-crashed TabContents.
+  // Don't look-up accelerators or tab-traverse if we are showing a non-crashed
+  // TabContents.
   // We'll first give the page a chance to process the key events.  If it does
   // not process them, they'll be returned to us and we'll treat them as
   // accelerators then.
   if (tab_contents_ && !tab_contents_->is_crashed())
-    return false;
-  return true;
+    return true;
+  return false;
 }
 
 void TabContentsContainerView::Observe(NotificationType type,

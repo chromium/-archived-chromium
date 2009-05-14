@@ -1163,18 +1163,19 @@ void TextField::AboutToRequestFocusFromTabTraversal(bool reverse) {
   SelectAll();
 }
 
-bool TextField::ShouldLookupAccelerators(const KeyEvent& e) {
+bool TextField::SkipDefaultKeyEventProcessing(const KeyEvent& e) {
   // TODO(hamaji): Figure out which keyboard combinations we need to add here,
-  //               similar to LocationBarView::ShouldLookupAccelerators.
+  //               similar to LocationBarView::SkipDefaultKeyEventProcessing.
   if (e.GetCharacter() == VK_BACK)
-    return false;  // We'll handle BackSpace ourselves.
+    return true;  // We'll handle BackSpace ourselves.
 
   // We don't translate accelerators for ALT + NumPad digit, they are used for
   // entering special characters.
-  if (!e.IsAltDown())
+  if (e.IsAltDown() &&
+      win_util::IsNumPadDigit(e.GetCharacter(), e.IsExtendedKey()))
     return true;
 
-  return !win_util::IsNumPadDigit(e.GetCharacter(), e.IsExtendedKey());
+  return false;
 }
 
 void TextField::UpdateEditBackgroundColor() {

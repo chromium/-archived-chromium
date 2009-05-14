@@ -14,6 +14,7 @@ class TabContents;
 
 #include "chrome/common/notification_registrar.h"
 #include "views/controls/hwnd_view.h"
+#include "views/event.h"
 #include "views/focus/focus_manager.h"
 
 // This View contains the TabContents.
@@ -35,7 +36,6 @@ class TabContentsContainerView : public views::HWNDView,
   virtual void Focus();
   virtual void RequestFocus();
   virtual void AboutToRequestFocusFromTabTraversal(bool reverse);
-  virtual bool CanProcessTabKeyEvents();
   virtual bool GetAccessibleRole(AccessibilityTypes::Role* role);
 
   // Overridden from HWNDView.
@@ -49,8 +49,8 @@ class TabContentsContainerView : public views::HWNDView,
 
  protected:
   // Web content should be given first crack at accelerators. This function
-  // returns false if the current tab is a webcontents.
-  virtual bool ShouldLookupAccelerators(const views::KeyEvent& e);
+  // returns true if not the sad tab.
+  virtual bool SkipDefaultKeyEventProcessing(const views::KeyEvent& e);
 
  private:
   // Add or remove observers for events that we care about.

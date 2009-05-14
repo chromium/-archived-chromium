@@ -1212,10 +1212,6 @@ bool View::ExceededDragThreshold(int delta_x, int delta_y) {
           abs(delta_y) > GetVerticalDragThreshold());
 }
 
-bool View::CanProcessTabKeyEvents() {
-  return false;
-}
-
 // Tooltips -----------------------------------------------------------------
 bool View::GetTooltipText(int x, int y, std::wstring* tooltip) {
   return false;

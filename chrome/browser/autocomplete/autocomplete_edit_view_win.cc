@@ -1641,8 +1641,8 @@ bool AutocompleteEditViewWin::OnKeyDownOnlyWritable(TCHAR key,
   // WM_SYSKEYDOWN, so we need to check (flags & KF_ALTDOWN) in various places
   // in this function even with a WM_SYSKEYDOWN handler.
 
-  // Update LocationBarView::ShouldLookupAccelerators() as well when you add
-  // some key combinations here.
+  // Update LocationBarView::SkipDefaultKeyEventProcessing() as well when you
+  // add some key combinations here.
   int count = repeat_count;
   switch (key) {
     case VK_RETURN:

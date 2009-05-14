@@ -283,6 +283,11 @@ class FocusManager {
   AcceleratorTarget* GetTargetForAccelerator(
       const Accelerator& accelerator) const;
 
+  // Convenience method that returns true if the passed |key_event| should
+  // trigger tab traversal (if it is a TAB key press with or without SHIFT
+  // pressed).
+  static bool IsTabTraversalKeyEvent(const KeyEvent& key_event);
+
  private:
 #if defined(OS_WIN)
   explicit FocusManager(HWND root, RootView* root_view);
