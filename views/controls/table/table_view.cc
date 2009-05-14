@@ -892,7 +892,7 @@ HWND TableView::CreateNativeControl(HWND parent_container) {
 
   // Bug 964884: detach the IME attached to this window.
   // We should attach IMEs only when we need to input CJK strings.
-  win_util::IMEAttach(list_view_, false);
+  ::ImmAssociateContextEx(list_view_, NULL, 0);
 
   UpdateContentOffset();
 

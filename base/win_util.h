@@ -117,12 +117,6 @@ void NotifyHWNDDestruction(const tracked_objects::Location& from_here,
 #define TRACK_HWND_DESTRUCTION(hwnd) \
     win_util::NotifyHWNDDestruction(FROM_HERE, hwnd)
 
-// Attach the default IME to the window or detach it from the window.
-// This functions is a wrapper function for the ImmAssociateContextEx()
-// function to prevent a crash when calling the function on a PC which doesn't
-// have a valid "imm32.dll" installed.
-bool IMEAttach(HWND window, bool attach);
-
 }  // namespace win_util
 
 #endif  // BASE_WIN_UTIL_H__

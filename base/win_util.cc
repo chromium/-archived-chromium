@@ -436,26 +436,6 @@ void NotifyHWNDDestruction(const tracked_objects::Location& from_here,
                                                                from_here));
 }
 
-bool IMEAttach(HWND window, bool attach) {
-  // To prevent a crash when calling ImmAssociateContextEx() function on a PC
-  // which has a valid "imm32.dll" installed, we manually load "imm32.dll" and
-  // call its "ImmAssociateContextEx() function.
-  bool result = false;
-  HMODULE imm32_module = LoadLibrary(L"imm32.dll");
-  if (imm32_module) {
-    typedef BOOL (WINAPI* Imm32_ImmAssociateContextEx)(HWND, HIMC, DWORD);
-    Imm32_ImmAssociateContextEx imm_associate_context_ex =
-        reinterpret_cast<Imm32_ImmAssociateContextEx>(
-        GetProcAddress(imm32_module, "ImmAssociateContextEx"));
-    if (imm_associate_context_ex) {
-      result = !!imm_associate_context_ex(window, NULL,
-                                          attach ? IACE_DEFAULT : 0);
-    }
-    FreeLibrary(imm32_module);
-  }
-  return result;
-}
-
 }  // namespace win_util
 
 #ifdef _MSC_VER
