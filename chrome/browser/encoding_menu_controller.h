@@ -5,6 +5,7 @@
 #ifndef CHORME_BROWSER_ENCODING_MENU_CONTROLLER_H_
 #define CHORME_BROWSER_ENCODING_MENU_CONTROLLER_H_
 
+#include <string>
 #include <vector>
 
 #include "base/basictypes.h"  // For DISALLOW_IMPLICIT_CONSTRUCTORS
