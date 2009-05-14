@@ -310,6 +310,7 @@
         'app_base',
         'chrome_resources',
         'chrome_strings',
+        'theme_resources',
         '../base/base.gyp:base',
         '../base/base.gyp:base_gfx',
         '../build/temp_gyp/googleurl.gyp:googleurl',
