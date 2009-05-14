@@ -16,8 +16,6 @@
 class SSLCertErrorHandler : public SSLErrorHandler {
  public:
   // Construct on the IO thread.
-  // We mark this method as private because it is tricky to correctly
-  // construct a CertError object.
   SSLCertErrorHandler(ResourceDispatcherHost* rdh,
                       URLRequest* request,
                       ResourceType::Type resource_type,

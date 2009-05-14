@@ -36,4 +36,4 @@ class SSLMixedContentHandler : public SSLErrorHandler {
   DISALLOW_COPY_AND_ASSIGN(SSLMixedContentHandler);
 };
 
-#endif  // CHROME_BROWSER_SSL_SSL_MIXED_CONTENT_HANDLERR_H_
+#endif  // CHROME_BROWSER_SSL_SSL_MIXED_CONTENT_HANDLER_H_
