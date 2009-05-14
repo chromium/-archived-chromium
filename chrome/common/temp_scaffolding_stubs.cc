@@ -123,12 +123,12 @@ void AutomationProvider::OnMessageFromExternalHost(
 
 #if defined(OS_LINUX)
 bool ShellIntegration::SetAsDefaultBrowser() {
-  NOTIMPLEMENTED();
+  // http://code.google.com/p/chromium/issues/detail?id=11972
   return true;
 }
 
 bool ShellIntegration::IsDefaultBrowser() {
-  NOTIMPLEMENTED();
+  // http://code.google.com/p/chromium/issues/detail?id=11972
   return true;
 }
 #endif
