@@ -73,9 +73,6 @@ class WindowGtk : public WidgetGtk, public Window {
   // destructor.
   bool is_modal_;
 
-  // Whether the window is currently always on top.
-  bool is_always_on_top_;
-
   // Our window delegate.
   WindowDelegate* window_delegate_;
 

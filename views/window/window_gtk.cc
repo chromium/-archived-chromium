@@ -162,7 +162,6 @@ gfx::NativeWindow WindowGtk::GetNativeWindow() const {
 WindowGtk::WindowGtk(WindowDelegate* window_delegate)
     : WidgetGtk(TYPE_WINDOW),
       is_modal_(false),
-      is_always_on_top_(false),
       window_delegate_(window_delegate),
       non_client_view_(new NonClientView(this)) {
   window_delegate_->window_.reset(this);
@@ -176,7 +175,6 @@ void WindowGtk::Init(const gfx::Rect& bounds) {
     // TODO(erg): Fix once modality works.
     // BecomeModal();
   }
-  is_always_on_top_ = window_delegate_->IsAlwaysOnTop();
 
   WidgetGtk::Init(bounds, true);
 
@@ -188,7 +186,6 @@ void WindowGtk::Init(const gfx::Rect& bounds) {
   UpdateWindowTitle();
 
   //  SetInitialBounds(bounds);
-  //  InitAlwaysOnTopState();
 
   // if (!IsAppWindow()) {
   //   notification_registrar_.Add(
