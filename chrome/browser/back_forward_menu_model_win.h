@@ -13,7 +13,7 @@
 class SkBitmap;
 
 class BackForwardMenuModelWin : public BackForwardMenuModel,
-                                public Menu::Delegate {
+                                public views::Menu::Delegate {
  public:
   BackForwardMenuModelWin(Browser* browser, ModelType model_type);
 

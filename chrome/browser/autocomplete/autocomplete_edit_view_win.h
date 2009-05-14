@@ -44,7 +44,7 @@ class AutocompleteEditViewWin
                          CWinTraits<WS_CHILD | WS_VISIBLE | ES_AUTOHSCROLL |
                                     ES_NOHIDESEL> >,
       public CRichEditCommands<AutocompleteEditViewWin>,
-      public Menu::Delegate,
+      public views::Menu::Delegate,
       public AutocompleteEditView {
  public:
   struct State {
@@ -424,7 +424,7 @@ class AutocompleteEditViewWin
   CHARRANGE saved_selection_for_focus_change_;
 
   // The context menu for the edit.
-  scoped_ptr<Menu> context_menu_;
+  scoped_ptr<views::Menu> context_menu_;
 
   // Font we're using.  We keep a reference to make sure the font supplied to
   // the constructor doesn't go away before we do.

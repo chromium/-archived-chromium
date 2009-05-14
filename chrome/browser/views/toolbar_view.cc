@@ -583,28 +583,28 @@ gfx::Size BrowserToolbarView::GetPreferredSize() {
 }
 
 void BrowserToolbarView::RunPageMenu(const gfx::Point& pt, HWND hwnd) {
-  Menu::AnchorPoint anchor = Menu::TOPRIGHT;
+  views::Menu::AnchorPoint anchor = views::Menu::TOPRIGHT;
   if (UILayoutIsRightToLeft())
-    anchor = Menu::TOPLEFT;
+    anchor = views::Menu::TOPLEFT;
 
-  Menu menu(this, anchor, hwnd);
-  menu.AppendMenuItemWithLabel(IDC_CREATE_SHORTCUTS,
+  scoped_ptr<views::Menu> menu(views::Menu::Create(this, anchor, hwnd));
+  menu->AppendMenuItemWithLabel(IDC_CREATE_SHORTCUTS,
       l10n_util::GetString(IDS_CREATE_SHORTCUTS));
-  menu.AppendSeparator();
-  menu.AppendMenuItemWithLabel(IDC_CUT, l10n_util::GetString(IDS_CUT));
-  menu.AppendMenuItemWithLabel(IDC_COPY, l10n_util::GetString(IDS_COPY));
-  menu.AppendMenuItemWithLabel(IDC_PASTE, l10n_util::GetString(IDS_PASTE));
-  menu.AppendSeparator();
+  menu->AppendSeparator();
+  menu->AppendMenuItemWithLabel(IDC_CUT, l10n_util::GetString(IDS_CUT));
+  menu->AppendMenuItemWithLabel(IDC_COPY, l10n_util::GetString(IDS_COPY));
+  menu->AppendMenuItemWithLabel(IDC_PASTE, l10n_util::GetString(IDS_PASTE));
+  menu->AppendSeparator();
 
-  menu.AppendMenuItemWithLabel(IDC_FIND,
-                               l10n_util::GetString(IDS_FIND));
-  menu.AppendMenuItemWithLabel(IDC_SAVE_PAGE,
-                               l10n_util::GetString(IDS_SAVE_PAGE));
-  menu.AppendMenuItemWithLabel(IDC_PRINT, l10n_util::GetString(IDS_PRINT));
-  menu.AppendSeparator();
+  menu->AppendMenuItemWithLabel(IDC_FIND,
+                                l10n_util::GetString(IDS_FIND));
+  menu->AppendMenuItemWithLabel(IDC_SAVE_PAGE,
+                                l10n_util::GetString(IDS_SAVE_PAGE));
+  menu->AppendMenuItemWithLabel(IDC_PRINT, l10n_util::GetString(IDS_PRINT));
+  menu->AppendSeparator();
 
-  Menu* zoom_menu = menu.AppendSubMenu(IDC_ZOOM_MENU,
-                                       l10n_util::GetString(IDS_ZOOM_MENU));
+  views::Menu* zoom_menu = menu->AppendSubMenu(
+      IDC_ZOOM_MENU, l10n_util::GetString(IDS_ZOOM_MENU));
   zoom_menu->AppendMenuItemWithLabel(IDC_ZOOM_PLUS,
                                      l10n_util::GetString(IDS_ZOOM_PLUS));
   zoom_menu->AppendMenuItemWithLabel(IDC_ZOOM_NORMAL,
@@ -613,7 +613,7 @@ void BrowserToolbarView::RunPageMenu(const gfx::Point& pt, HWND hwnd) {
                                      l10n_util::GetString(IDS_ZOOM_MINUS));
 
   // Create encoding menu.
-  Menu* encoding_menu = menu.AppendSubMenu(
+  views::Menu* encoding_menu = menu->AppendSubMenu(
       IDC_ENCODING_MENU, l10n_util::GetString(IDS_ENCODING_MENU));
 
   EncodingMenuControllerDelegate::BuildEncodingMenu(profile_, encoding_menu);
@@ -629,8 +629,8 @@ void BrowserToolbarView::RunPageMenu(const gfx::Point& pt, HWND hwnd) {
     { IDC_TASK_MANAGER, IDS_TASK_MANAGER }
   };
   // Append developer menu.
-  menu.AppendSeparator();
-  Menu* developer_menu = menu.AppendSubMenu(IDC_DEVELOPER_MENU,
+  menu->AppendSeparator();
+  views::Menu* developer_menu = menu->AppendSubMenu(IDC_DEVELOPER_MENU,
       l10n_util::GetString(IDS_DEVELOPER_MENU));
   for (int i = 0; i < arraysize(developer_menu_materials); ++i) {
     if (developer_menu_materials[i].menu_id) {
@@ -642,24 +642,24 @@ void BrowserToolbarView::RunPageMenu(const gfx::Point& pt, HWND hwnd) {
     }
   }
 
-  menu.AppendSeparator();
+  menu->AppendSeparator();
 
-  menu.AppendMenuItemWithLabel(IDC_REPORT_BUG,
+  menu->AppendMenuItemWithLabel(IDC_REPORT_BUG,
                                l10n_util::GetString(IDS_REPORT_BUG));
-  menu.RunMenuAt(pt.x(), pt.y());
+  menu->RunMenuAt(pt.x(), pt.y());
 }
 
 void BrowserToolbarView::RunAppMenu(const gfx::Point& pt, HWND hwnd) {
-  Menu::AnchorPoint anchor = Menu::TOPRIGHT;
+  views::Menu::AnchorPoint anchor = views::Menu::TOPRIGHT;
   if (UILayoutIsRightToLeft())
-    anchor = Menu::TOPLEFT;
+    anchor = views::Menu::TOPLEFT;
 
-  Menu menu(this, anchor, hwnd);
-  menu.AppendMenuItemWithLabel(IDC_NEW_TAB, l10n_util::GetString(IDS_NEW_TAB));
-  menu.AppendMenuItemWithLabel(IDC_NEW_WINDOW,
-                               l10n_util::GetString(IDS_NEW_WINDOW));
-  menu.AppendMenuItemWithLabel(IDC_NEW_INCOGNITO_WINDOW,
-                               l10n_util::GetString(IDS_NEW_INCOGNITO_WINDOW));
+  scoped_ptr<views::Menu> menu(views::Menu::Create(this, anchor, hwnd));
+  menu->AppendMenuItemWithLabel(IDC_NEW_TAB, l10n_util::GetString(IDS_NEW_TAB));
+  menu->AppendMenuItemWithLabel(IDC_NEW_WINDOW,
+                                l10n_util::GetString(IDS_NEW_WINDOW));
+  menu->AppendMenuItemWithLabel(IDC_NEW_INCOGNITO_WINDOW,
+                                l10n_util::GetString(IDS_NEW_INCOGNITO_WINDOW));
 
   // Enumerate profiles asynchronously and then create the parent menu item.
   // We will create the child menu items for this once the asynchronous call is
@@ -667,44 +667,44 @@ void BrowserToolbarView::RunAppMenu(const gfx::Point& pt, HWND hwnd) {
   const CommandLine& command_line = *CommandLine::ForCurrentProcess();
   if (command_line.HasSwitch(switches::kEnableUserDataDirProfiles)) {
     profiles_helper_->GetProfiles(NULL);
-    profiles_menu_ = menu.AppendSubMenu(IDC_PROFILE_MENU,
-                                        l10n_util::GetString(IDS_PROFILE_MENU));
+    profiles_menu_ = menu->AppendSubMenu(
+        IDC_PROFILE_MENU, l10n_util::GetString(IDS_PROFILE_MENU));
   }
 
-  menu.AppendSeparator();
-  menu.AppendMenuItemWithLabel(IDC_SHOW_BOOKMARK_BAR,
-                               l10n_util::GetString(IDS_SHOW_BOOKMARK_BAR));
-  menu.AppendMenuItemWithLabel(IDC_FULLSCREEN,
-                               l10n_util::GetString(IDS_FULLSCREEN));
-  menu.AppendSeparator();
-  menu.AppendMenuItemWithLabel(IDC_SHOW_HISTORY,
-                               l10n_util::GetString(IDS_SHOW_HISTORY));
-  menu.AppendMenuItemWithLabel(IDC_SHOW_BOOKMARK_MANAGER,
-                               l10n_util::GetString(IDS_BOOKMARK_MANAGER));
-  menu.AppendMenuItemWithLabel(IDC_SHOW_DOWNLOADS,
-                               l10n_util::GetString(IDS_SHOW_DOWNLOADS));
-  menu.AppendSeparator();
+  menu->AppendSeparator();
+  menu->AppendMenuItemWithLabel(IDC_SHOW_BOOKMARK_BAR,
+                                l10n_util::GetString(IDS_SHOW_BOOKMARK_BAR));
+  menu->AppendMenuItemWithLabel(IDC_FULLSCREEN,
+                                l10n_util::GetString(IDS_FULLSCREEN));
+  menu->AppendSeparator();
+  menu->AppendMenuItemWithLabel(IDC_SHOW_HISTORY,
+                                l10n_util::GetString(IDS_SHOW_HISTORY));
+  menu->AppendMenuItemWithLabel(IDC_SHOW_BOOKMARK_MANAGER,
+                                l10n_util::GetString(IDS_BOOKMARK_MANAGER));
+  menu->AppendMenuItemWithLabel(IDC_SHOW_DOWNLOADS,
+                                l10n_util::GetString(IDS_SHOW_DOWNLOADS));
+  menu->AppendSeparator();
 #ifdef CHROME_PERSONALIZATION
   if (!Personalization::IsP13NDisabled()) {
-    menu.AppendMenuItemWithLabel(IDC_P13N_INFO,
+    menu->AppendMenuItemWithLabel(IDC_P13N_INFO,
         Personalization::GetMenuItemInfoText(browser()));
   }
 #endif
-  menu.AppendMenuItemWithLabel(IDC_CLEAR_BROWSING_DATA,
-                               l10n_util::GetString(IDS_CLEAR_BROWSING_DATA));
-  menu.AppendMenuItemWithLabel(IDC_IMPORT_SETTINGS,
-                               l10n_util::GetString(IDS_IMPORT_SETTINGS));
-  menu.AppendSeparator();
-  menu.AppendMenuItemWithLabel(IDC_OPTIONS, l10n_util::GetStringF(IDS_OPTIONS,
-                               l10n_util::GetString(IDS_PRODUCT_NAME)));
-  menu.AppendMenuItemWithLabel(IDC_ABOUT, l10n_util::GetStringF(IDS_ABOUT,
-                               l10n_util::GetString(IDS_PRODUCT_NAME)));
-  menu.AppendMenuItemWithLabel(IDC_HELP_PAGE,
-                               l10n_util::GetString(IDS_HELP_PAGE));
-  menu.AppendSeparator();
-  menu.AppendMenuItemWithLabel(IDC_EXIT, l10n_util::GetString(IDS_EXIT));
+  menu->AppendMenuItemWithLabel(IDC_CLEAR_BROWSING_DATA,
+                                l10n_util::GetString(IDS_CLEAR_BROWSING_DATA));
+  menu->AppendMenuItemWithLabel(IDC_IMPORT_SETTINGS,
+                                l10n_util::GetString(IDS_IMPORT_SETTINGS));
+  menu->AppendSeparator();
+  menu->AppendMenuItemWithLabel(IDC_OPTIONS, l10n_util::GetStringF(IDS_OPTIONS,
+                                l10n_util::GetString(IDS_PRODUCT_NAME)));
+  menu->AppendMenuItemWithLabel(IDC_ABOUT, l10n_util::GetStringF(IDS_ABOUT,
+                                l10n_util::GetString(IDS_PRODUCT_NAME)));
+  menu->AppendMenuItemWithLabel(IDC_HELP_PAGE,
+                                l10n_util::GetString(IDS_HELP_PAGE));
+  menu->AppendSeparator();
+  menu->AppendMenuItemWithLabel(IDC_EXIT, l10n_util::GetString(IDS_EXIT));
 
-  menu.RunMenuAt(pt.x(), pt.y());
+  menu->RunMenuAt(pt.x(), pt.y());
 
   // Menu is going away, so set the profiles menu pointer to NULL.
   profiles_menu_ = NULL;

@@ -247,6 +247,8 @@ class Window {
 class InputWindowDelegate {
 };
 
+namespace views {
+
 class Menu {
  public:
   enum AnchorPoint {
@@ -278,6 +280,8 @@ class Menu {
   void AppendSeparator() { NOTIMPLEMENTED(); }
   void AppendDelegateMenuItem(int item_id) { NOTIMPLEMENTED(); }
 };
+
+}  // namespace view
 
 class BookmarkManagerView {
  public:

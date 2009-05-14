@@ -39,7 +39,7 @@ class ImageButton;
 // blocked. This view should only be used inside of BlockedPopupContainer.
 class BlockedPopupContainerView : public views::View,
                                   public views::ButtonListener,
-                                  public Menu::Delegate {
+                                  public views::Menu::Delegate {
  public:
   explicit BlockedPopupContainerView(BlockedPopupContainer* container);
   ~BlockedPopupContainerView();
@@ -79,7 +79,7 @@ class BlockedPopupContainerView : public views::View,
   views::ImageButton* close_button_;
 
   // Popup menu shown to user.
-  scoped_ptr<Menu> launch_menu_;
+  scoped_ptr<views::Menu> launch_menu_;
 
   DISALLOW_IMPLICIT_CONSTRUCTORS(BlockedPopupContainerView);
 };

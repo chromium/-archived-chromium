@@ -14,7 +14,7 @@ class Profile;
 
 // Encapsulates logic about populating the encoding menu and making
 // sure the correct items are checked.
-class EncodingMenuControllerDelegate : public Menu::Delegate {
+class EncodingMenuControllerDelegate : public views::Menu::Delegate {
  public:
   explicit EncodingMenuControllerDelegate(Browser* browser);
 
@@ -29,7 +29,7 @@ class EncodingMenuControllerDelegate : public Menu::Delegate {
   // is used in both the simple frame menu and in the page menu in the
   // toolbar. (And probably elsewhere in the future, hence the
   // dedicated delegate).
-  static void BuildEncodingMenu(Profile* profile, Menu* encoding_menu);
+  static void BuildEncodingMenu(Profile* profile, views::Menu* encoding_menu);
 
  private:
   Browser* browser_;

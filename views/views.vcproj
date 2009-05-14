@@ -768,6 +768,14 @@
 					>
 				</File>
 				<File
+					RelativePath=".\controls\menu\menu_win.cc"
+					>
+				</File>
+				<File
+					RelativePath=".\controls\menu\menu_win.h"
+					>
+				</File>
+				<File
 					RelativePath=".\controls\menu\view_menu_delegate.h"
 					>
 				</File>

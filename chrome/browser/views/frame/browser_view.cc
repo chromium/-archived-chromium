@@ -60,6 +60,7 @@
 #include "grit/generated_resources.h"
 #include "grit/theme_resources.h"
 #include "grit/webkit_resources.h"
+#include "views/controls/menu/menu_win.h"
 #include "views/controls/scrollbar/native_scroll_bar.h"
 #include "views/fill_layout.h"
 #include "views/view.h"
@@ -1298,7 +1299,7 @@ void BrowserView::Init() {
 
 void BrowserView::InitSystemMenu() {
   HMENU system_menu = GetSystemMenu(frame_->GetNativeView(), FALSE);
-  system_menu_.reset(new Menu(system_menu));
+  system_menu_.reset(new views::MenuWin(system_menu));
   int insertion_index = std::max(0, system_menu_->ItemCount() - 1);
   // We add the menu items in reverse order so that insertion_index never needs
   // to change.
@@ -1549,7 +1550,7 @@ void BrowserView::LoadAccelerators() {
   free(accelerators);
 }
 
-void BrowserView::BuildMenuForTabStriplessWindow(Menu* menu,
+void BrowserView::BuildMenuForTabStriplessWindow(views::Menu* menu,
                                                  int insertion_index) {
   encoding_menu_delegate_.reset(new EncodingMenuControllerDelegate(
       browser_.get()));
@@ -1560,7 +1561,7 @@ void BrowserView::BuildMenuForTabStriplessWindow(Menu* menu,
     } else {
       int command = kMenuLayout[i].command;
       if (command == IDC_ENCODING_MENU) {
-        Menu* encoding_menu = menu->AddSubMenu(
+        views::Menu* encoding_menu = menu->AddSubMenu(
             insertion_index,
             IDC_ENCODING_MENU,
             l10n_util::GetString(IDS_ENCODING_MENU));
@@ -1568,8 +1569,9 @@ void BrowserView::BuildMenuForTabStriplessWindow(Menu* menu,
         EncodingMenuControllerDelegate::BuildEncodingMenu(browser_->profile(),
                                                           encoding_menu);
       } else if (command == IDC_ZOOM_MENU) {
-        Menu* zoom_menu = menu->AddSubMenu(insertion_index, IDC_ZOOM_MENU,
-                                           l10n_util::GetString(IDS_ZOOM_MENU));
+        views::Menu* zoom_menu =
+            menu->AddSubMenu(insertion_index, IDC_ZOOM_MENU,
+                             l10n_util::GetString(IDS_ZOOM_MENU));
         zoom_menu->AppendMenuItemWithLabel(
             IDC_ZOOM_PLUS,
             l10n_util::GetString(IDS_ZOOM_PLUS));

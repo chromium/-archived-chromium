@@ -14,7 +14,7 @@ RenderViewContextMenuWin::RenderViewContextMenuWin(
     const ContextMenuParams& params,
     HWND owner)
     : RenderViewContextMenu(tab_contents, params),
-      ALLOW_THIS_IN_INITIALIZER_LIST(menu_(this, Menu::TOPLEFT, owner)),
+      ALLOW_THIS_IN_INITIALIZER_LIST(menu_(this, views::Menu::TOPLEFT, owner)),
       sub_menu_(NULL) {
   InitMenu(params.node);
 }
@@ -27,26 +27,26 @@ void RenderViewContextMenuWin::RunMenuAt(int x, int y) {
 }
 
 void RenderViewContextMenuWin::AppendMenuItem(int id) {
-  AppendItem(id, l10n_util::GetString(id), Menu::NORMAL);
+  AppendItem(id, l10n_util::GetString(id), views::Menu::NORMAL);
 }
 
 void RenderViewContextMenuWin::AppendMenuItem(int id,
                                               const std::wstring& label) {
-  AppendItem(id, label, Menu::NORMAL);
+  AppendItem(id, label, views::Menu::NORMAL);
 }
 
 void RenderViewContextMenuWin::AppendRadioMenuItem(int id,
                                                    const std::wstring& label) {
-  AppendItem(id, label, Menu::RADIO);
+  AppendItem(id, label, views::Menu::RADIO);
 }
 
 void RenderViewContextMenuWin::AppendCheckboxMenuItem(int id,
     const std::wstring& label) {
-  AppendItem(id, label, Menu::CHECKBOX);
+  AppendItem(id, label, views::Menu::CHECKBOX);
 }
 
 void RenderViewContextMenuWin::AppendSeparator() {
-  Menu* menu = sub_menu_ ? sub_menu_ : &menu_;
+  views::Menu* menu = sub_menu_ ? sub_menu_ : &menu_;
   menu->AppendSeparator();
 }
 
@@ -66,8 +66,8 @@ void RenderViewContextMenuWin::FinishSubMenu() {
 void RenderViewContextMenuWin::AppendItem(
     int id,
     const std::wstring& label,
-    Menu::MenuItemType type) {
-  Menu* menu = sub_menu_ ? sub_menu_ : &menu_;
+    views::Menu::MenuItemType type) {
+  views::Menu* menu = sub_menu_ ? sub_menu_ : &menu_;
   menu->AppendMenuItem(id, label, type);
 }
 

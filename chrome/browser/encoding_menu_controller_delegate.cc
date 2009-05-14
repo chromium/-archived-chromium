@@ -53,7 +53,7 @@ void EncodingMenuControllerDelegate::ExecuteCommand(int id) {
 }
 
 void EncodingMenuControllerDelegate::BuildEncodingMenu(
-    Profile* profile, Menu* encoding_menu) {
+    Profile* profile, views::Menu* encoding_menu) {
   typedef EncodingMenuController::EncodingMenuItemList EncodingMenuItemList;
   EncodingMenuItemList menuItems;
   EncodingMenuController controller;
@@ -62,7 +62,7 @@ void EncodingMenuControllerDelegate::BuildEncodingMenu(
   for (EncodingMenuItemList::iterator it = menuItems.begin();
        it != menuItems.end();
        ++it) {
-    Menu::MenuItemType type = Menu::RADIO;
+    views::Menu::MenuItemType type = views::Menu::RADIO;
     int id = it->first;
     std::wstring &localized_title = it->second;
 
@@ -70,7 +70,7 @@ void EncodingMenuControllerDelegate::BuildEncodingMenu(
       encoding_menu->AppendSeparator();
     } else {
       if (id == IDC_ENCODING_AUTO_DETECT) {
-        type = Menu::CHECKBOX;
+        type = views::Menu::CHECKBOX;
       }
 
       encoding_menu->AppendMenuItem(id, localized_title, type);

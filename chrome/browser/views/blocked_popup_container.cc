@@ -179,8 +179,8 @@ gfx::Size BlockedPopupContainerView::GetPreferredSize() {
 
 void BlockedPopupContainerView::ButtonPressed(views::Button* sender) {
   if (sender == popup_count_label_) {
-    launch_menu_.reset(new Menu(this, Menu::TOPLEFT,
-                                container_->GetNativeView()));
+    launch_menu_.reset(views::Menu::Create(this, views::Menu::TOPLEFT,
+                                           container_->GetNativeView()));
 
     // Set items 1 .. popup_count as individual popups.
     size_t popup_count = container_->GetBlockedPopupCount();
@@ -191,7 +191,7 @@ void BlockedPopupContainerView::ButtonPressed(views::Button* sender) {
       // the value 0 as the nop command.
       launch_menu_->AppendMenuItem(i + 1,
           l10n_util::GetStringF(IDS_POPUP_TITLE_FORMAT, url, title),
-          Menu::NORMAL);
+          views::Menu::NORMAL);
     }
 
     // Set items (kImpossibleNumberOfPopups + 1) ..
@@ -201,7 +201,8 @@ void BlockedPopupContainerView::ButtonPressed(views::Button* sender) {
       launch_menu_->AppendSeparator();
     for (size_t i = 0; i < hosts.size(); ++i) {
       launch_menu_->AppendMenuItem(kImpossibleNumberOfPopups + i + 1,
-          l10n_util::GetStringF(IDS_POPUP_HOST_FORMAT, hosts[i]), Menu::NORMAL);
+          l10n_util::GetStringF(IDS_POPUP_HOST_FORMAT, hosts[i]),
+          views::Menu::NORMAL);
     }
 
     CPoint cursor_position;

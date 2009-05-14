@@ -202,7 +202,7 @@ class BrowserToolbarView : public views::View,
   TabContents* tab_;
 
   // Profiles menu to populate with profile names.
-  Menu* profiles_menu_;
+  views::Menu* profiles_menu_;
 
   // Helper class to enumerate profiles information on the file thread.
   scoped_refptr<GetProfilesHelper> profiles_helper_;

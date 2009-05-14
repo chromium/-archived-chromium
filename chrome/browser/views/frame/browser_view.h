@@ -25,9 +25,12 @@ class ExtensionShelf;
 class FullscreenExitBubble;
 class HtmlDialogUIDelegate;
 class InfoBarContainer;
-class Menu;
 class StatusBubbleViews;
 class TabContentsContainerView;
+
+namespace views {
+class Menu;
+}
 
 ///////////////////////////////////////////////////////////////////////////////
 // BrowserView
@@ -316,7 +319,7 @@ class BrowserView : public BrowserWindow,
   void LoadAccelerators();
 
   // Builds the correct menu for when we have minimal chrome.
-  void BuildMenuForTabStriplessWindow(Menu* menu, int insertion_index);
+  void BuildMenuForTabStriplessWindow(views::Menu* menu, int insertion_index);
 
   // Retrieves the command id for the specified Windows app command.
   int GetCommandIDForAppCommandID(int app_command_id) const;
@@ -376,7 +379,7 @@ class BrowserView : public BrowserWindow,
   scoped_ptr<FullscreenExitBubble> fullscreen_bubble_;
 
   // Lazily created representation of the system menu.
-  scoped_ptr<Menu> system_menu_;
+  scoped_ptr<views::Menu> system_menu_;
 
   // The default favicon image.
   static SkBitmap default_favicon_;

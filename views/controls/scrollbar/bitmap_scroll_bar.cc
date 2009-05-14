@@ -540,18 +540,19 @@ void BitmapScrollBar::ShowContextMenu(View* source,
   View::ConvertPointFromWidget(this, &temp_pt);
   context_menu_mouse_position_ = IsHorizontal() ? temp_pt.x() : temp_pt.y();
 
-  Menu menu(this, Menu::TOPLEFT, GetWidget()->GetNativeView());
-  menu.AppendDelegateMenuItem(ScrollBarContextMenuCommand_ScrollHere);
-  menu.AppendSeparator();
-  menu.AppendDelegateMenuItem(ScrollBarContextMenuCommand_ScrollStart);
-  menu.AppendDelegateMenuItem(ScrollBarContextMenuCommand_ScrollEnd);
-  menu.AppendSeparator();
-  menu.AppendDelegateMenuItem(ScrollBarContextMenuCommand_ScrollPageUp);
-  menu.AppendDelegateMenuItem(ScrollBarContextMenuCommand_ScrollPageDown);
-  menu.AppendSeparator();
-  menu.AppendDelegateMenuItem(ScrollBarContextMenuCommand_ScrollPrev);
-  menu.AppendDelegateMenuItem(ScrollBarContextMenuCommand_ScrollNext);
-  menu.RunMenuAt(x, y);
+  scoped_ptr<Menu> menu(
+      Menu::Create(this, Menu::TOPLEFT, GetWidget()->GetNativeView()));
+  menu->AppendDelegateMenuItem(ScrollBarContextMenuCommand_ScrollHere);
+  menu->AppendSeparator();
+  menu->AppendDelegateMenuItem(ScrollBarContextMenuCommand_ScrollStart);
+  menu->AppendDelegateMenuItem(ScrollBarContextMenuCommand_ScrollEnd);
+  menu->AppendSeparator();
+  menu->AppendDelegateMenuItem(ScrollBarContextMenuCommand_ScrollPageUp);
+  menu->AppendDelegateMenuItem(ScrollBarContextMenuCommand_ScrollPageDown);
+  menu->AppendSeparator();
+  menu->AppendDelegateMenuItem(ScrollBarContextMenuCommand_ScrollPrev);
+  menu->AppendDelegateMenuItem(ScrollBarContextMenuCommand_ScrollNext);
+  menu->RunMenuAt(x, y);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

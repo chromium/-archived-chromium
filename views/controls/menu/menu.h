@@ -5,34 +5,17 @@
 #ifndef CONTROLS_MENU_VIEWS_MENU_H_
 #define CONTROLS_MENU_VIEWS_MENU_H_
 
-#include <windows.h>
-
-#include <vector>
-
 #include "base/basictypes.h"
+#include "base/gfx/native_widget_types.h"
 #include "views/controls/menu/controller.h"
 
 class SkBitmap;
 
-namespace {
-class MenuHostWindow;
-}
-
 namespace views {
+
 class Accelerator;
-}
 
-///////////////////////////////////////////////////////////////////////////////
-//
-// Menu class
-//
-//   A wrapper around a Win32 HMENU handle that provides convenient APIs for
-//   menu construction, display and subsequent command execution.
-//
-///////////////////////////////////////////////////////////////////////////////
 class Menu {
-  friend class MenuHostWindow;
-
  public:
   /////////////////////////////////////////////////////////////////////////////
   //
@@ -131,14 +114,8 @@ class Menu {
     }
 
    protected:
-    // Returns an empty icon. Will initialize kEmptyIcon if it hasn't been
-    // initialized.
+    // Returns an empty icon.
     const SkBitmap& GetEmptyIcon() const;
-
-   private:
-    // Will be initialized to an icon of 0 width and 0 height when first using.
-    // An empty icon means we don't need to draw it.
-    static const SkBitmap* kEmptyIcon;
   };
 
   // This class is a helper that simply wraps a controller and forwards all
@@ -195,15 +172,18 @@ class Menu {
   // owner        The window that the menu is being brought up relative
   //              to. Not actually used for anything but must not be
   //              NULL.
-  Menu(Delegate* delegate, AnchorPoint anchor, HWND owner);
-  // Alternatively, a Menu object can be constructed wrapping an existing
-  // HMENU. This can be used to use the convenience methods to insert
-  // menu items and manage label string ownership. However this kind of
-  // Menu object cannot use the delegate.
-  explicit Menu(HMENU hmenu);
+  Menu(Delegate* delegate, AnchorPoint anchor);
+  Menu();
   virtual ~Menu();
 
+  static Menu* Create(Delegate* delegate,
+                      AnchorPoint anchor,
+                      gfx::NativeView parent);
+
   void set_delegate(Delegate* delegate) { delegate_ = delegate; }
+  Delegate* delegate() const { return delegate_; }
+
+  AnchorPoint anchor() const { return anchor_; }
 
   // Adds an item to this menu.
   // item_id    The id of the item, used to identify it in delegate callbacks
@@ -234,10 +214,10 @@ class Menu {
   Menu* AppendSubMenuWithIcon(int item_id,
                               const std::wstring& label,
                               const SkBitmap& icon);
-  Menu* AddSubMenuWithIcon(int index,
-                           int item_id,
-                           const std::wstring& label,
-                           const SkBitmap& icon);
+  virtual Menu* AddSubMenuWithIcon(int index,
+                                   int item_id,
+                                   const std::wstring& label,
+                                   const SkBitmap& icon) = 0;
 
   // This is a convenience for standard text label menu items where the label
   // is provided with this call.
@@ -251,7 +231,7 @@ class Menu {
 
   // Adds a separator to this menu
   void AppendSeparator();
-  void AddSeparator(int index);
+  virtual void AddSeparator(int index) = 0;
 
   // Appends a menu item with an icon. This is for the menu item which
   // needs an icon. Calling this function forces the Menu class to draw
@@ -265,91 +245,47 @@ class Menu {
                            const SkBitmap& icon);
 
   // Enables or disables the item with the specified id.
-  void EnableMenuItemByID(int item_id, bool enabled);
-  void EnableMenuItemAt(int index, bool enabled);
+  virtual void EnableMenuItemByID(int item_id, bool enabled) = 0;
+  virtual void EnableMenuItemAt(int index, bool enabled) = 0;
 
   // Sets menu label at specified index.
-  void SetMenuLabel(int item_id, const std::wstring& label);
+  virtual void SetMenuLabel(int item_id, const std::wstring& label) = 0;
 
   // Sets an icon for an item with a given item_id. Calling this function
   // also forces the Menu class to draw the menu, instead of relying on Windows.
   // Returns false if the item with |item_id| is not found.
-  bool SetIcon(const SkBitmap& icon, int item_id);
+  virtual bool SetIcon(const SkBitmap& icon, int item_id) = 0;
 
   // Shows the menu, blocks until the user dismisses the menu or selects an
   // item, and executes the command for the selected item (if any).
   // Warning: Blocking call. Will implicitly run a message loop.
-  void RunMenuAt(int x, int y);
+  virtual void RunMenuAt(int x, int y) = 0;
 
   // Cancels the menu.
-  virtual void Cancel();
+  virtual void Cancel() = 0;
 
   // Returns the number of menu items.
-  int ItemCount();
+  virtual int ItemCount() = 0;
 
  protected:
-  // The delegate that is being used to get information about the presentation.
-  Delegate* delegate_;
-
- private:
-  // The data of menu items needed to display.
-  struct ItemData;
-
   explicit Menu(Menu* parent);
 
-  void AddMenuItemInternal(int index,
-                           int item_id,
-                           const std::wstring& label,
-                           const SkBitmap& icon,
-                           HMENU submenu,
-                           MenuItemType type);
+  virtual void AddMenuItemInternal(int index,
+                                   int item_id,
+                                   const std::wstring& label,
+                                   const SkBitmap& icon,
+                                   MenuItemType type) = 0;
 
-  // Sets menu information before displaying, including sub-menus.
-  void SetMenuInfo();
-
-  // Get all the state flags for the |fState| field of MENUITEMINFO for the
-  // item with the specified id. |delegate| is consulted if non-NULL about
-  // the state of the item in preference to |controller_|.
-  UINT GetStateFlagsForItemID(int item_id) const;
-
-  // Gets the Win32 TPM alignment flags for the specified AnchorPoint.
-  DWORD GetTPMAlignFlags() const;
-
-  // The Win32 Menu Handle we wrap
-  HMENU menu_;
-
-  // The window that would receive WM_COMMAND messages when the user selects
-  // an item from the menu.
-  HWND owner_;
-
-  // This list is used to store the default labels for the menu items.
-  // We may use contextual labels when RunMenu is called, so we must save
-  // a copy of default ones here.
-  std::vector<std::wstring> labels_;
-
-  // A flag to indicate whether this menu will be drawn by the Menu class.
-  // If it's true, all the menu items will be owner drawn. Otherwise,
-  // all the drawing will be done by Windows.
-  bool owner_draw_;
+ private:
+  // The delegate that is being used to get information about the presentation.
+  Delegate* delegate_;
 
   // How this popup menu should be aligned relative to the point it is run at.
   AnchorPoint anchor_;
 
-  // This list is to store the string labels and icons to display. It's used
-  // when owner_draw_ is true. We give MENUITEMINFO pointers to these
-  // structures to specify what we'd like to draw. If owner_draw_ is false,
-  // we only give MENUITEMINFO pointers to the labels_.
-  // The label member of the ItemData structure comes from either labels_ or
-  // the GetContextualLabel.
-  std::vector<ItemData*> item_data_;
-
-  // Our sub-menus, if any.
-  std::vector<Menu*> submenus_;
-
-  // Whether the menu is visible.
-  bool is_menu_visible_;
-
   DISALLOW_COPY_AND_ASSIGN(Menu);
 };
+
+}  // namespace views
 
 #endif  // CONTROLS_MENU_VIEWS_MENU_H_

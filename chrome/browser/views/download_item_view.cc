@@ -65,7 +65,7 @@ static const int kDisabledOnOpenDuration = 3000;
 // DownloadShelfContextMenuWin -------------------------------------------------
 
 class DownloadShelfContextMenuWin : public DownloadShelfContextMenu,
-                                    public Menu::Delegate {
+                                    public views::Menu::Delegate {
  public:
   DownloadShelfContextMenuWin::DownloadShelfContextMenuWin(
      BaseDownloadItemModel* model,
@@ -75,23 +75,27 @@ class DownloadShelfContextMenuWin : public DownloadShelfContextMenu,
     DCHECK(model);
 
     // The menu's anchor point is determined based on the UI layout.
-    Menu::AnchorPoint anchor_point;
+    views::Menu::AnchorPoint anchor_point;
     if (l10n_util::GetTextDirection() == l10n_util::RIGHT_TO_LEFT)
-      anchor_point = Menu::TOPRIGHT;
+      anchor_point = views::Menu::TOPRIGHT;
     else
-      anchor_point = Menu::TOPLEFT;
+      anchor_point = views::Menu::TOPLEFT;
 
-    Menu context_menu(this, anchor_point, window);
-    if (download_->state() == DownloadItem::COMPLETE)
-      context_menu.AppendMenuItem(OPEN_WHEN_COMPLETE, L"", Menu::NORMAL);
-    else
-      context_menu.AppendMenuItem(OPEN_WHEN_COMPLETE, L"", Menu::CHECKBOX);
-    context_menu.AppendMenuItem(ALWAYS_OPEN_TYPE, L"", Menu::CHECKBOX);
-    context_menu.AppendSeparator();
-    context_menu.AppendMenuItem(SHOW_IN_FOLDER, L"", Menu::NORMAL);
-    context_menu.AppendSeparator();
-    context_menu.AppendMenuItem(CANCEL, L"", Menu::NORMAL);
-    context_menu.RunMenuAt(point.x(), point.y());
+    scoped_ptr<views::Menu> context_menu(
+        views::Menu::Create(this, anchor_point, window));
+    if (download_->state() == DownloadItem::COMPLETE) {
+      context_menu->AppendMenuItem(OPEN_WHEN_COMPLETE, L"",
+                                   views::Menu::NORMAL);
+    } else {
+      context_menu->AppendMenuItem(OPEN_WHEN_COMPLETE, L"",
+                                   views::Menu::CHECKBOX);
+    }
+    context_menu->AppendMenuItem(ALWAYS_OPEN_TYPE, L"", views::Menu::CHECKBOX);
+    context_menu->AppendSeparator();
+    context_menu->AppendMenuItem(SHOW_IN_FOLDER, L"", views::Menu::NORMAL);
+    context_menu->AppendSeparator();
+    context_menu->AppendMenuItem(CANCEL, L"", views::Menu::NORMAL);
+    context_menu->RunMenuAt(point.x(), point.y());
   }
 
   // Menu::Delegate implementation ---------------------------------------------

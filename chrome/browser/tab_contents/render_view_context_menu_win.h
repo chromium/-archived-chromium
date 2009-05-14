@@ -7,10 +7,10 @@
 
 #include "chrome/browser/tab_contents/render_view_context_menu.h"
 #include "views/accelerator.h"
-#include "views/controls/menu/menu.h"
+#include "views/controls/menu/menu_win.h"
 
 class RenderViewContextMenuWin : public RenderViewContextMenu,
-                                 public Menu::Delegate{
+                                 public views::Menu::Delegate {
  public:
   RenderViewContextMenuWin(TabContents* tab_contents,
                            const ContextMenuParams& params,
@@ -39,10 +39,12 @@ class RenderViewContextMenuWin : public RenderViewContextMenu,
 
  private:
   // Append the item to |sub_menu_| if it exists, or |menu_| otherwise.
-  void AppendItem(int id, const std::wstring& label, Menu::MenuItemType type);
+  void AppendItem(int id,
+                  const std::wstring& label,
+                  views::Menu::MenuItemType type);
 
-  Menu menu_;
-  Menu* sub_menu_;
+  views::MenuWin menu_;
+  views::Menu* sub_menu_;
 };
 
 #endif  // CHROME_BROWSER_TAB_CONTENTS_RENDER_VIEW_CONTEXT_MENU_WIN_H_

@@ -167,7 +167,7 @@ class TaskManagerViewImpl : public TaskManagerView,
                             public views::TableViewObserver,
                             public views::LinkController,
                             public views::ContextMenuController,
-                            public Menu::Delegate {
+                            public views::Menu::Delegate {
  public:
   TaskManagerViewImpl(TaskManager* task_manager,
                       TaskManagerModel* model);
@@ -498,12 +498,13 @@ void TaskManagerViewImpl::ShowContextMenu(views::View* source,
                                           int y,
                                           bool is_mouse_gesture) {
   UpdateStatsCounters();
-  Menu menu(this, Menu::TOPLEFT, source->GetWidget()->GetNativeView());
+  scoped_ptr<views::Menu> menu(views::Menu::Create(
+      this, views::Menu::TOPLEFT, source->GetWidget()->GetNativeView()));
   for (std::vector<views::TableColumn>::iterator i =
        columns_.begin(); i != columns_.end(); ++i) {
-    menu.AppendMenuItem(i->id, i->title, Menu::CHECKBOX);
+    menu->AppendMenuItem(i->id, i->title, views::Menu::CHECKBOX);
   }
-  menu.RunMenuAt(x, y);
+  menu->RunMenuAt(x, y);
 }
 
 bool TaskManagerViewImpl::IsItemChecked(int id) const {

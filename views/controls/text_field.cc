@@ -24,7 +24,7 @@
 #include "grit/generated_resources.h"
 #include "skia/ext/skia_utils_win.h"
 #include "views/controls/hwnd_view.h"
-#include "views/controls/menu/menu.h"
+#include "views/controls/menu/menu_win.h"
 #include "views/focus/focus_util_win.h"
 #include "views/views_delegate.h"
 #include "views/widget/widget.h"
@@ -289,7 +289,7 @@ TextField::Edit::Edit(TextField* parent, bool draw_border)
   ole_interface.Attach(GetOleInterface());
   text_object_model_ = ole_interface;
 
-  context_menu_.reset(new Menu(this, Menu::TOPLEFT, m_hWnd));
+  context_menu_.reset(new MenuWin(this, Menu::TOPLEFT, m_hWnd));
   context_menu_->AppendMenuItemWithLabel(IDS_UNDO,
                                          l10n_util::GetString(IDS_UNDO));
   context_menu_->AppendSeparator();

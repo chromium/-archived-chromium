@@ -40,7 +40,7 @@ class BookmarkEditorView : public BookmarkEditor,
                            public views::DialogDelegate,
                            public views::TextField::Controller,
                            public views::ContextMenuController,
-                           public Menu::Delegate,
+                           public views::Menu::Delegate,
                            public BookmarkModelObserver {
   FRIEND_TEST(BookmarkEditorViewTest, ChangeParent);
   FRIEND_TEST(BookmarkEditorViewTest, ChangeParentAndURL);
@@ -243,7 +243,7 @@ class BookmarkEditorView : public BookmarkEditor,
   BookmarkNode* node_;
 
   // The context menu.
-  scoped_ptr<Menu> context_menu_;
+  scoped_ptr<views::Menu> context_menu_;
 
   // Mode used to create nodes from.
   BookmarkModel* bb_model_;

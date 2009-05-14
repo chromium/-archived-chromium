@@ -137,7 +137,7 @@ void ButtonDropDown::ShowDropDownMenu(HWND window) {
     if (menu_position.x() < left_bound)
       menu_position.set_x(left_bound);
 
-    Menu menu(menu_delegate_, anchor, window);
+    scoped_ptr<Menu> menu(Menu::Create(menu_delegate_, anchor, window));
 
     // ID's for AppendMenu is 1-based because RunMenu will ignore the user
     // selection if id=0 is selected (0 = NO-OP) so we add 1 here and subtract 1
@@ -145,16 +145,16 @@ void ButtonDropDown::ShowDropDownMenu(HWND window) {
     int item_count = menu_delegate_->GetItemCount();
     for (int i = 0; i < item_count; i++) {
       if (menu_delegate_->IsItemSeparator(i + 1)) {
-        menu.AppendSeparator();
+        menu->AppendSeparator();
       } else {
         if (menu_delegate_->HasIcon(i + 1))
-          menu.AppendMenuItemWithIcon(i + 1, L"", SkBitmap());
+          menu->AppendMenuItemWithIcon(i + 1, L"", SkBitmap());
         else
-          menu.AppendMenuItem(i+1, L"", Menu::NORMAL);
+          menu->AppendMenuItem(i+1, L"", Menu::NORMAL);
       }
     }
 
-    menu.RunMenuAt(menu_position.x(), menu_position.y());
+    menu->RunMenuAt(menu_position.x(), menu_position.y());
 
     // Need to explicitly clear mouse handler so that events get sent
     // properly after the menu finishes running. If we don't do this, then

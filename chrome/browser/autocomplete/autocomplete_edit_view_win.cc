@@ -469,7 +469,7 @@ AutocompleteEditViewWin::AutocompleteEditViewWin(
   SetDefaultCharFormat(cf);
 
   // Set up context menu.
-  context_menu_.reset(new Menu(this, Menu::TOPLEFT, m_hWnd));
+  context_menu_.reset(views::Menu::Create(this, views::Menu::TOPLEFT, m_hWnd));
   if (popup_window_mode_) {
     context_menu_->AppendMenuItemWithLabel(IDS_COPY,
                                            l10n_util::GetString(IDS_COPY));
