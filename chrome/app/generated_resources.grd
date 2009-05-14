@@ -3814,6 +3814,10 @@ each locale. -->
         Don't ask again
       </message>
 
+      <message name="IDS_RGBA_CSS_FORMAT_STRING" translateable="false" desc="The format string to use when converting colors to CSS rgba().">
+        rgba($1, $2, $3, $4)
+      </message>
+
     </messages>
   </release>
 </grit>

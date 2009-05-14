@@ -6,13 +6,15 @@
 #define CHROME_BROWSER_DOM_UI_NEW_TAB_UI_H_
 
 #include "chrome/browser/dom_ui/dom_ui.h"
+#include "chrome/common/notification_observer.h"
 
 class GURL;
 class PrefService;
 class Profile;
 
 // The TabContents used for the New Tab page.
-class NewTabUI : public DOMUI {
+class NewTabUI : public DOMUI,
+                 public NotificationObserver {
  public:
   explicit NewTabUI(TabContents* manager);
   ~NewTabUI();
@@ -20,6 +22,10 @@ class NewTabUI : public DOMUI {
   static void RegisterUserPrefs(PrefService* prefs);
 
  private:
+  void Observe(NotificationType type,
+               const NotificationSource& source,
+               const NotificationDetails& details);
+
   // The message id that should be displayed in this NewTabUIContents
   // instance's motd area.
   int motd_message_id_;

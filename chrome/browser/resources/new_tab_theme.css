@@ -1,0 +1,11 @@
+body {
+  background-image:url(chrome://theme/theme_ntp_background?$1);
+  background-position:bottom;
+  color: $2;
+}
+a {
+  color: $3;
+}
+.sidebar.themed {
+  background-color: $4;
+}

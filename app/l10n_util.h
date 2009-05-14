@@ -79,6 +79,11 @@ std::wstring GetStringF(int message_id,
                         const std::wstring& a,
                         const std::wstring& b,
                         const std::wstring& c);
+std::wstring GetStringF(int message_id,
+                        const std::wstring& a,
+                        const std::wstring& b,
+                        const std::wstring& c,
+                        const std::wstring& d);
 std::string GetStringFUTF8(int message_id,
                            const string16& a);
 std::string GetStringFUTF8(int message_id,
@@ -88,6 +93,11 @@ std::string GetStringFUTF8(int message_id,
                            const string16& a,
                            const string16& b,
                            const string16& c);
+std::string GetStringFUTF8(int message_id,
+                           const string16& a,
+                           const string16& b,
+                           const string16& c,
+                           const string16& d);
 
 // Variants that return the offset(s) of the replaced parameters. The
 // vector based version returns offsets ordered by parameter. For example if

@@ -1270,74 +1270,42 @@ void SplitStringAlongWhitespace(const std::wstring& str,
 }
 
 string16 ReplaceStringPlaceholders(const string16& format_string,
-                                   const string16& a,
-                                   size_t* offset) {
-  std::vector<size_t> offsets;
-  string16 result = ReplaceStringPlaceholders(format_string, a,
-                                              string16(),
-                                              string16(),
-                                              string16(), &offsets);
-  DCHECK(offsets.size() == 1);
-  if (offset) {
-    *offset = offsets[0];
+                                   const std::vector<const string16>& subst,
+                                   std::vector<size_t>* offsets) {
+  int substitutions = subst.size();
+  DCHECK(substitutions < 10);
+
+  int sub_length = 0;
+  for (std::vector<const string16>::const_iterator iter = subst.begin();
+       iter != subst.end();
+       ++iter) {
+    sub_length += (*iter).length();
   }
-  return result;
-}
-
-string16 ReplaceStringPlaceholders(const string16& format_string,
-                                   const string16& a,
-                                   const string16& b,
-                                   std::vector<size_t>* offsets) {
-  return ReplaceStringPlaceholders(format_string, a, b, string16(),
-                                   string16(), offsets);
-}
-
-string16 ReplaceStringPlaceholders(const string16& format_string,
-                                   const string16& a,
-                                   const string16& b,
-                                   const string16& c,
-                                   std::vector<size_t>* offsets) {
-  return ReplaceStringPlaceholders(format_string, a, b, c, string16(),
-                                   offsets);
-}
-
-string16 ReplaceStringPlaceholders(const string16& format_string,
-                                       const string16& a,
-                                       const string16& b,
-                                       const string16& c,
-                                       const string16& d,
-                                       std::vector<size_t>* offsets) {
-  // We currently only support up to 4 place holders ($1 through $4), although
-  // it's easy enough to add more.
-  const string16* subst_texts[] = { &a, &b, &c, &d };
 
   string16 formatted;
-  formatted.reserve(format_string.length() + a.length() +
-      b.length() + c.length() + d.length());
+  formatted.reserve(format_string.length() + sub_length);
 
   std::vector<ReplacementOffset> r_offsets;
-
-  // Replace $$ with $ and $1-$4 with placeholder text if it exists.
   for (string16::const_iterator i = format_string.begin();
        i != format_string.end(); ++i) {
     if ('$' == *i) {
       if (i + 1 != format_string.end()) {
         ++i;
-        DCHECK('$' == *i || ('1' <= *i && *i <= '4')) <<
-            "Invalid placeholder: " << *i;
+        DCHECK('$' == *i || '1' <= *i) << "Invalid placeholder: " << *i;
         if ('$' == *i) {
           formatted.push_back('$');
         } else {
           int index = *i - '1';
           if (offsets) {
             ReplacementOffset r_offset(index,
-                                       static_cast<int>(formatted.size()));
+                static_cast<int>(formatted.size()));
             r_offsets.insert(std::lower_bound(r_offsets.begin(),
-                                              r_offsets.end(), r_offset,
-                                              &CompareParameter),
-                             r_offset);
+                r_offsets.end(), r_offset,
+                &CompareParameter),
+                r_offset);
           }
-          formatted.append(*subst_texts[index]);
+          if (index < substitutions)
+            formatted.append(subst.at(index));
         }
       }
     } else {
@@ -1346,11 +1314,26 @@ string16 ReplaceStringPlaceholders(const string16& format_string,
   }
   if (offsets) {
     for (std::vector<ReplacementOffset>::const_iterator i = r_offsets.begin();
-         i != r_offsets.end(); ++i) {
+        i != r_offsets.end(); ++i) {
       offsets->push_back(i->offset);
     }
   }
   return formatted;
+}
+
+string16 ReplaceStringPlaceholders(const string16& format_string,
+                                   const string16& a,
+                                   size_t* offset) {
+  std::vector<size_t> offsets;
+  std::vector<const string16> subst;
+  subst.push_back(a);
+  string16 result = ReplaceStringPlaceholders(format_string, subst, &offsets);
+
+  DCHECK(offsets.size() == 1);
+  if (offset) {
+    *offset = offsets[0];
+  }
+  return result;
 }
 
 template <class CHAR>
