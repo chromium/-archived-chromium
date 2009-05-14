@@ -9,6 +9,20 @@
 
 namespace media {
 
+// Always try to use two threads for video decoding.  There is little reason
+// not to since current day CPUs tend to be multi-core and we measured
+// performance benefits on older machines such as P4s with hyperthreading.
+//
+// Handling decoding on separate threads also frees up the pipeline thread to
+// continue processing. Although it'd be nice to have the option of a single
+// decoding thread, FFmpeg treats having one thread the same as having zero
+// threads (i.e., avcodec_decode_video() will execute on the calling thread).
+// Yet another reason for having two threads :)
+//
+// TODO(scherkus): some video codecs might not like avcodec_thread_init() being
+// called on them... should attempt to find out which ones those are!
+static const int kDecodeThreads = 2;
+
 FFmpegVideoDecoder::FFmpegVideoDecoder()
     : DecoderBase<VideoDecoder, VideoFrame>(NULL),
       width_(0),
@@ -44,7 +58,9 @@ bool FFmpegVideoDecoder::OnInitialize(DemuxerStream* demuxer_stream) {
   codec_context_ = ffmpeg_demuxer_stream->av_stream()->codec;
   codec_context_->flags2 |= CODEC_FLAG2_FAST;  // Enable faster H264 decode.
   AVCodec* codec = avcodec_find_decoder(codec_context_->codec_id);
-  if (!codec || avcodec_open(codec_context_, codec) < 0) {
+  if (!codec ||
+      avcodec_thread_init(codec_context_, kDecodeThreads) < 0 ||
+      avcodec_open(codec_context_, codec) < 0) {
     host_->Error(media::PIPELINE_ERROR_DECODE);
     return false;
   }
