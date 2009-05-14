@@ -53,6 +53,9 @@ int Checkbox::GetTextIndent() {
 // Checkbox, View overrides:
 
 gfx::Size Checkbox::GetPreferredSize() {
+  if (!native_wrapper_)
+    return gfx::Size();
+
   gfx::Size prefsize = native_wrapper_->GetView()->GetPreferredSize();
   prefsize.set_width(
       prefsize.width() + kCheckboxLabelSpacing +

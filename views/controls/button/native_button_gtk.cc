@@ -86,10 +86,31 @@ void NativeButtonGtk::NativeControlCreated(GtkWidget* widget) {
   UpdateDefault();
 }
 
+NativeCheckboxGtk::NativeCheckboxGtk(Checkbox* checkbox)
+    : NativeButtonGtk(checkbox) {
+}
+
+void NativeCheckboxGtk::CreateNativeControl() {
+  GtkWidget* widget = gtk_check_button_new();
+  NativeControlCreated(widget);
+}
+
+// static
+int NativeButtonWrapper::GetFixedWidth() {
+  // TODO(brettw) implement this properly.
+  return 10;
+}
+
 // static
 NativeButtonWrapper* NativeButtonWrapper::CreateNativeButtonWrapper(
     NativeButton* native_button) {
   return new NativeButtonGtk(native_button);
+}
+
+// static
+NativeButtonWrapper* NativeButtonWrapper::CreateCheckboxWrapper(
+    Checkbox* checkbox) {
+  return new NativeCheckboxGtk(checkbox);
 }
 
 }  // namespace views

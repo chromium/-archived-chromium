@@ -41,6 +41,18 @@ class NativeButtonGtk : public NativeControlGtk, public NativeButtonWrapper {
   DISALLOW_COPY_AND_ASSIGN(NativeButtonGtk);
 };
 
+class NativeCheckboxGtk : public NativeButtonGtk {
+ public:
+  explicit NativeCheckboxGtk(Checkbox* checkbox);
+
+ private:
+  virtual void CreateNativeControl();
+
+  // Returns true if this button is actually a checkbox or radio button.
+  virtual bool IsCheckbox() const { return true; }
+  DISALLOW_COPY_AND_ASSIGN(NativeCheckboxGtk);
+};
+
 }  // namespace views
 
 #endif  // #ifndef VIEWS_CONTROLS_BUTTON_NATIVE_BUTTON_GTK_H_
