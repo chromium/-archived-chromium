@@ -612,8 +612,23 @@ int SSLClientSocketWin::DidCallInitializeSecurityContext() {
     return DidCompleteHandshake();
   }
 
-  if (FAILED(isc_status_))
-    return MapSecurityError(isc_status_);
+  if (FAILED(isc_status_)) {
+    int result = MapSecurityError(isc_status_);
+    // We told Schannel to not verify the server certificate
+    // (SCH_CRED_MANUAL_CRED_VALIDATION), so any certificate error returned by
+    // InitializeSecurityContext must be referring to the (missing) client
+    // certificate.
+    if (IsCertificateError(result)) {
+      // TODO(wtc): When we support SSL client authentication, we will need to
+      // add new error codes for client certificate errors reported by the
+      // server using SSL/TLS alert messages.  See http://crbug.com/318.  See
+      // also the MSDN page "Schannel Error Codes for TLS and SSL Alerts",
+      // which maps TLS alert messages to Windows error codes:
+      // http://msdn.microsoft.com/en-us/library/dd721886%28VS.85%29.aspx
+      return ERR_SSL_CLIENT_AUTH_CERT_NEEDED;
+    }
+    return result;
+  }
 
   if (isc_status_ == SEC_I_INCOMPLETE_CREDENTIALS) {
     // We don't support SSL client authentication yet.  For now we just set
