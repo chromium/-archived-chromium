@@ -6,7 +6,6 @@
 
 #include "webkit/tools/test_shell/image_decoder_unittest.h"
 
-#include "base/file_path.h"
 #include "base/file_util.h"
 #include "base/md5.h"
 #include "base/path_service.h"
@@ -15,6 +14,23 @@
 #include "base/time.h"
 
 using base::Time;
+
+namespace {
+
+// Determine if we should test with file specified by |path| based
+// on |file_selection| and the |threshold| for the file size.
+bool ShouldSkipFile(const std::wstring& path,
+                    ImageDecoderTestFileSelection file_selection,
+                    const int64 threshold) {
+  if (file_selection == TEST_ALL)
+    return false;
+
+  int64 image_size = 0;
+  file_util::GetFileSize(path, &image_size);
+  return (file_selection == TEST_SMALLER) == (image_size > threshold);
+}
+
+}  // anonymous namespace
 
 void ReadFileToVector(const std::wstring& path, Vector<char>* contents) {
   std::string contents_str;
@@ -114,10 +130,15 @@ bool ImageDecoderTest::ShouldImageFail(const std::wstring& path) const {
                         kBadSuffix.length(), kBadSuffix));
 }
 
-void ImageDecoderTest::TestDecoding() const {
+void ImageDecoderTest::TestDecoding(
+    ImageDecoderTestFileSelection file_selection,
+    const int64 threshold) const {
   const std::vector<std::wstring> image_files(GetImageFiles());
   for (std::vector<std::wstring>::const_iterator i(image_files.begin());
        i != image_files.end(); ++i) {
+    if (ShouldSkipFile(*i, file_selection, threshold))
+      continue;
+
     Vector<char> image_contents;
     ReadFileToVector(*i, &image_contents);
 
@@ -150,7 +171,9 @@ void ImageDecoderTest::TestDecoding() const {
 }
 
 #ifndef CALCULATE_MD5_SUMS
-void ImageDecoderTest::TestChunkedDecoding() const {
+void ImageDecoderTest::TestChunkedDecoding(
+    ImageDecoderTestFileSelection file_selection,
+    const int64 threshold) const {
   // Init random number generator with current day, so a failing case will fail
   // consistently over the course of a whole day.
   const Time today = Time::Now().LocalMidnight();
@@ -159,6 +182,9 @@ void ImageDecoderTest::TestChunkedDecoding() const {
   const std::vector<std::wstring> image_files(GetImageFiles());
   for (std::vector<std::wstring>::const_iterator i(image_files.begin());
        i != image_files.end(); ++i) {
+    if (ShouldSkipFile(*i, file_selection, threshold))
+      continue;
+
     if (ShouldImageFail(*i))
       continue;
 

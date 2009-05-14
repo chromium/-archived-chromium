@@ -40,14 +40,28 @@ class BMPImageDecoderTest : public ImageDecoderTest {
   virtual WebCore::ImageDecoder* CreateDecoder() const {
     return new WebCore::BMPImageDecoder();
   }
+
+  // The BMPImageDecoderTest tests are really slow under Valgrind.
+  // Thus it is split into fast and slow versions. The threshold is
+  // set to 10KB because the fast test can finish under Valgrind in
+  // less than 30 seconds.
+  static const int64 kThresholdSize = 10240;
 };
 
-TEST_F(BMPImageDecoderTest, Decoding) {
-  TestDecoding();
+TEST_F(BMPImageDecoderTest, DecodingFast) {
+  TestDecoding(TEST_SMALLER, kThresholdSize);
+}
+
+TEST_F(BMPImageDecoderTest, DecodingSlow) {
+  TestDecoding(TEST_BIGGER, kThresholdSize);
 }
 
 #ifndef CALCULATE_MD5_SUMS
-TEST_F(BMPImageDecoderTest, ChunkedDecoding) {
-  TestChunkedDecoding();
+TEST_F(BMPImageDecoderTest, ChunkedDecodingFast) {
+  TestChunkedDecoding(TEST_SMALLER, kThresholdSize);
+}
+
+TEST_F(BMPImageDecoderTest, ChunkedDecodingSlow) {
+  TestChunkedDecoding(TEST_BIGGER, kThresholdSize);
 }
 #endif

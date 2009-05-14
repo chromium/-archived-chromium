@@ -29,6 +29,12 @@
 
 //#define CALCULATE_MD5_SUMS
 
+enum ImageDecoderTestFileSelection {
+  TEST_ALL,
+  TEST_SMALLER,
+  TEST_BIGGER,
+};
+
 // Reads the contents of the specified file into the specified vector.
 void ReadFileToVector(const std::wstring& path, Vector<char>* contents);
 
@@ -59,13 +65,26 @@ class ImageDecoderTest : public testing::Test {
   bool ShouldImageFail(const std::wstring& path) const;
 
   // Verifies each of the test image files is decoded correctly and matches the
-  // expected state.
-  void TestDecoding() const;
+  // expected state. |file_selection| and |threshold| can be used to select
+  // files to test based on file size.
+  void TestDecoding(ImageDecoderTestFileSelection file_selection,
+                    const int64 threshold) const;
+
+  void TestDecoding() const {
+    TestDecoding(TEST_ALL, 0);
+  }
 
 #ifndef CALCULATE_MD5_SUMS
   // Verifies that decoding still works correctly when the files are split into
-  // pieces at a random point.
-  void TestChunkedDecoding() const;
+  // pieces at a random point. |file_selection| and |threshold| can be used to
+  // select files to test based on file size.
+  void TestChunkedDecoding(ImageDecoderTestFileSelection file_selection,
+                           const int64 threshold) const;
+
+  void TestChunkedDecoding() const {
+    TestChunkedDecoding(TEST_ALL, 0);
+  }
+
 #endif
 
   // Returns the correct type of image decoder for this test.
