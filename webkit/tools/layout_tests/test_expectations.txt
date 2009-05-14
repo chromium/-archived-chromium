@@ -2713,9 +2713,6 @@ BUG11909 : LayoutTests/http/tests/navigation/new-window-redirect-history.html = 
 
 BUG11924 WIN : LayoutTests/http/tests/navigation/relativeanchor-basic.html = FAIL
 
-BUG11933 WIN LINUX : LayoutTests/fast/frames/content-opacity-1.html = FAIL
-BUG11933 WIN LINUX : LayoutTests/fast/frames/content-opacity-2.html = FAIL
-
 // Note: This was already failing in a different way. See BUG10316, above, so be
 // sure to uncomment/recheck that when this is removed.
 BUG11935 MAC : LayoutTests/http/tests/ssl/verify-ssl-enabled.php = CRASH
