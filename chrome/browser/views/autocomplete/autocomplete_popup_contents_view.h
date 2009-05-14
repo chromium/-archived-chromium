@@ -22,10 +22,13 @@ class Profile;
 class AutocompleteResultViewModel {
  public:
   // Returns true if the index is selected.
-  virtual bool IsSelectedIndex(size_t index) = 0;
+  virtual bool IsSelectedIndex(size_t index) const = 0;
+
+  // Returns true if the index is bookmarked.
+  virtual bool IsBookmarkedIndex(size_t index) const = 0;
 
   // Returns the type of match that the row corresponds to.
-  virtual const AutocompleteMatch& GetMatchAtIndex(size_t index) = 0;
+  virtual const AutocompleteMatch& GetMatchAtIndex(size_t index) const = 0;
 
   // Called when the line at the specified index should be opened with the
   // provided disposition.
@@ -66,8 +69,9 @@ class AutocompletePopupContentsView : public views::View,
   virtual AutocompletePopupModel* GetModel();
 
   // Overridden from AutocompleteResultViewModel:
-  virtual bool IsSelectedIndex(size_t index);
-  virtual const AutocompleteMatch& GetMatchAtIndex(size_t index);
+  virtual bool IsSelectedIndex(size_t index) const;
+  virtual bool IsBookmarkedIndex(size_t index) const;
+  virtual const AutocompleteMatch& GetMatchAtIndex(size_t index) const;
   virtual void OpenIndex(size_t index, WindowOpenDisposition disposition);
   virtual void SetHoveredLine(size_t index);
   virtual void SetSelectedLine(size_t index, bool revert_to_default);

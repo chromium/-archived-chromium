@@ -397,10 +397,14 @@ SkBitmap* AutocompleteResultView::GetIcon() const {
     case AutocompleteMatch::URL_WHAT_YOU_TYPED:
     case AutocompleteMatch::HISTORY_URL:
     case AutocompleteMatch::NAVSUGGEST:
+      if (model_->IsBookmarkedIndex(model_index_))
+        return selected ? icon_star_selected_ : icon_star_;
       return selected ? icon_url_selected_ : icon_url_;
     case AutocompleteMatch::HISTORY_TITLE:
     case AutocompleteMatch::HISTORY_BODY:
     case AutocompleteMatch::HISTORY_KEYWORD:
+      if (model_->IsBookmarkedIndex(model_index_))
+        return selected ? icon_star_selected_ : icon_star_;
       return selected ? icon_history_selected_ : icon_history_;
     case AutocompleteMatch::SEARCH_WHAT_YOU_TYPED:
     case AutocompleteMatch::SEARCH_HISTORY:
@@ -724,12 +728,16 @@ AutocompletePopupModel* AutocompletePopupContentsView::GetModel() {
 ////////////////////////////////////////////////////////////////////////////////
 // AutocompletePopupContentsView, AutocompleteResultViewModel implementation:
 
-bool AutocompletePopupContentsView::IsSelectedIndex(size_t index) {
+bool AutocompletePopupContentsView::IsSelectedIndex(size_t index) const {
   return index == model_->selected_line();
 }
 
+bool AutocompletePopupContentsView::IsBookmarkedIndex(size_t index) const {
+  return GetMatchAtIndex(index).starred;
+}
+
 const AutocompleteMatch& AutocompletePopupContentsView::GetMatchAtIndex(
-    size_t index) {
+    size_t index) const {
   return model_->result().match_at(index);
 }
 
