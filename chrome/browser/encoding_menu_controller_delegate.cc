@@ -4,77 +4,34 @@
 
 #include "chrome/browser/encoding_menu_controller_delegate.h"
 
-#include "app/l10n_util.h"
 #include "chrome/app/chrome_dll_resource.h"
 #include "chrome/browser/browser.h"
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/character_encoding.h"
+#include "chrome/browser/encoding_menu_controller.h"
 #include "chrome/browser/profile.h"
 #include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
-#include "grit/generated_resources.h"
 
 EncodingMenuControllerDelegate::EncodingMenuControllerDelegate(Browser* browser)
     : browser_(browser) {
 }
 
 bool EncodingMenuControllerDelegate::IsItemChecked(int id) const {
-  Profile* profile = browser_->profile();
+  if (!browser_)
+    return false;
+  Profile *profile = browser_->profile();
   if (!profile)
     return false;
   TabContents* current_tab = browser_->GetSelectedTabContents();
-  if (!current_tab)
+  if (!current_tab) {
     return false;
-  std::wstring encoding = current_tab->encoding();
-  if (encoding.empty())
-    encoding = profile->GetPrefs()->GetString(prefs::kDefaultCharset);
-  switch (id) {
-    case IDC_ENCODING_AUTO_DETECT:
-      return profile->GetPrefs()->GetBoolean(
-          prefs::kWebKitUsesUniversalDetector);
-    case IDC_ENCODING_UTF8:
-    case IDC_ENCODING_UTF16LE:
-    case IDC_ENCODING_ISO88591:
-    case IDC_ENCODING_WINDOWS1252:
-    case IDC_ENCODING_GBK:
-    case IDC_ENCODING_GB18030:
-    case IDC_ENCODING_BIG5:
-    case IDC_ENCODING_BIG5HKSCS:
-    case IDC_ENCODING_KOREAN:
-    case IDC_ENCODING_SHIFTJIS:
-    case IDC_ENCODING_ISO2022JP:
-    case IDC_ENCODING_EUCJP:
-    case IDC_ENCODING_THAI:
-    case IDC_ENCODING_ISO885915:
-    case IDC_ENCODING_MACINTOSH:
-    case IDC_ENCODING_ISO88592:
-    case IDC_ENCODING_WINDOWS1250:
-    case IDC_ENCODING_ISO88595:
-    case IDC_ENCODING_WINDOWS1251:
-    case IDC_ENCODING_KOI8R:
-    case IDC_ENCODING_KOI8U:
-    case IDC_ENCODING_ISO88597:
-    case IDC_ENCODING_WINDOWS1253:
-    case IDC_ENCODING_ISO88594:
-    case IDC_ENCODING_ISO885913:
-    case IDC_ENCODING_WINDOWS1257:
-    case IDC_ENCODING_ISO88593:
-    case IDC_ENCODING_ISO885910:
-    case IDC_ENCODING_ISO885914:
-    case IDC_ENCODING_ISO885916:
-    case IDC_ENCODING_WINDOWS1254:
-    case IDC_ENCODING_ISO88596:
-    case IDC_ENCODING_WINDOWS1256:
-    case IDC_ENCODING_ISO88598:
-    case IDC_ENCODING_ISO88598I:
-    case IDC_ENCODING_WINDOWS1255:
-    case IDC_ENCODING_WINDOWS1258:
-      return (!encoding.empty() && encoding ==
-          CharacterEncoding::GetCanonicalEncodingNameByCommandId(id));
-    default:
-      return false;
   }
+  const std::wstring encoding = current_tab->encoding();
+
+  EncodingMenuController controller;
+  return controller.IsItemChecked(profile, encoding, id);
 }
 
 bool EncodingMenuControllerDelegate::SupportsCommand(int id) const {
@@ -97,38 +54,26 @@ void EncodingMenuControllerDelegate::ExecuteCommand(int id) {
 
 void EncodingMenuControllerDelegate::BuildEncodingMenu(
     Profile* profile, Menu* encoding_menu) {
-  // Append auto-detection item.
-  encoding_menu->AppendMenuItem(IDC_ENCODING_AUTO_DETECT,
-                                l10n_util::GetString(IDS_ENCODING_AUTO_DETECT),
-                                Menu::CHECKBOX);
+  typedef EncodingMenuController::EncodingMenuItemList EncodingMenuItemList;
+  EncodingMenuItemList menuItems;
+  EncodingMenuController controller;
+  controller.GetEncodingMenuItems(profile, &menuItems);
 
-  // Append encoding item.
-  encoding_menu->AppendSeparator();
-  // Create current display encoding list.
-  std::wstring cur_locale = g_browser_process->GetApplicationLocale();
-  const std::vector<CharacterEncoding::EncodingInfo>* encodings;
-  // Build the list of encoding ids : It is made of the
-  // locale-dependent short list, the cache of recently selected
-  // encodings and other encodings.
-  encodings = CharacterEncoding::GetCurrentDisplayEncodings(
-      cur_locale,
-      profile->GetPrefs()->GetString(prefs::kStaticEncodings),
-      profile->GetPrefs()->GetString(prefs::kRecentlySelectedEncoding));
-  DCHECK(encodings);
-  DCHECK(!encodings->empty());
-  unsigned len = static_cast<unsigned>(encodings->size());
-  // Add encoding menus.
-  std::vector<CharacterEncoding::EncodingInfo>::const_iterator it;
-  for (it = encodings->begin(); it != encodings->end(); ++it) {
-    if (it->encoding_id) {
-      std::wstring encoding = it->encoding_display_name;
-      std::wstring bidi_safe_encoding;
-      if (l10n_util::AdjustStringForLocaleDirection(encoding,
-                                                    &bidi_safe_encoding))
-        encoding.swap(bidi_safe_encoding);
-      encoding_menu->AppendMenuItem(it->encoding_id, encoding, Menu::RADIO);
-    } else {
+  for (EncodingMenuItemList::iterator it = menuItems.begin();
+       it != menuItems.end();
+       ++it) {
+    Menu::MenuItemType type = Menu::RADIO;
+    int id = it->first;
+    std::wstring &localized_title = it->second;
+
+    if (id == 0) {
       encoding_menu->AppendSeparator();
+    } else {
+      if (id == IDC_ENCODING_AUTO_DETECT) {
+        type = Menu::CHECKBOX;
+      }
+
+      encoding_menu->AppendMenuItem(id, localized_title, type);
     }
   }
 }

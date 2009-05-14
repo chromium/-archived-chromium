@@ -5,6 +5,7 @@
 #ifndef CHORME_BROWSER_ENCODING_MENU_CONTROLLER_DELEGATE_H__
 #define CHORME_BROWSER_ENCODING_MENU_CONTROLLER_DELEGATE_H__
 
+#include "base/basictypes.h"  // For DISALLOW_IMPLICIT_CONSTRUCTORS
 #include "views/controls/menu/menu.h"
 
 class Browser;
@@ -32,6 +33,7 @@ class EncodingMenuControllerDelegate : public Menu::Delegate {
 
  private:
   Browser* browser_;
+  DISALLOW_IMPLICIT_CONSTRUCTORS(EncodingMenuControllerDelegate);
 };
 
 #endif // CHORME_BROWSER_ENCODING_MENU_CONTROLLER_DELEGATE_H__

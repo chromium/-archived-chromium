@@ -8,6 +8,7 @@
 #include "chrome/browser/browser.h"
 #include "chrome/browser/browser_list.h"
 #include "chrome/browser/browser_process.h"
+#include "chrome/browser/encoding_menu_controller.h"
 #include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/browser/tab_contents/tab_contents_view.h"
 #include "chrome/browser/tabs/tab_strip_model.h"
@@ -263,6 +264,27 @@ willPositionSheet:(NSWindow *)sheet
     if (oldState != newState)
       [item setState:newState];
   }
+
+  // Update the checked/Unchecked state of items in the encoding menu.
+  // On Windows this logic is part of encoding_menu_controller_delegate.cc
+  EncodingMenuController encoding_controller;
+  if (encoding_controller.DoesCommandBelongToEncodingMenu(tag)) {
+    DCHECK(browser_.get());
+    Profile *profile = browser_->profile();
+    DCHECK(profile);
+    TabContents* current_tab = browser_->GetSelectedTabContents();
+    if (!current_tab) {
+      return;
+    }
+    const std::wstring encoding = current_tab->encoding();
+
+    bool toggled = encoding_controller.IsItemChecked(profile, encoding, tag);
+    NSInteger oldState = [item state];
+    NSInteger newState = toggled ? NSOnState : NSOffState;
+    if (oldState != newState)
+      [item setState:newState];
+  }
+
 }
 
 // Called to validate menu and toolbar items when this window is key. All the
