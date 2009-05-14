@@ -239,9 +239,14 @@ void AutocompleteEditViewMac::ClosePopup() {
 
 void AutocompleteEditViewMac::UpdateAndStyleText(
     const std::wstring& display_text, size_t user_text_length) {
+  NSDictionary* attributes = [NSDictionary dictionaryWithObjectsAndKeys:
+                                  [field_ font], NSFontAttributeName,
+                                  nil];
   NSString* ss = base::SysWideToNSString(display_text);
   NSMutableAttributedString* as =
-      [[[NSMutableAttributedString alloc] initWithString:ss] autorelease];
+      [[[NSMutableAttributedString alloc] initWithString:ss
+                                              attributes:attributes]
+        autorelease];
 
   url_parse::Parsed parts;
   AutocompleteInput::Parse(display_text, model_->GetDesiredTLD(),

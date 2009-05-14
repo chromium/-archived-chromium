@@ -36,16 +36,6 @@ static const NSColor* DescriptionTextColor() {
   return [NSColor darkGrayColor];
 }
 
-// TODO(shess): As with colors, there are a dozen ways to phrase this,
-// all of them probably wrong.  Circle back with a ui-oriented
-// resource later.
-static const NSFont* NormalFont() {
-  return [NSFont userFontOfSize:12];
-}
-static const NSFont* BoldFont() {
-  return [NSFont boldSystemFontOfSize:12];
-}
-
 // Return the appropriate icon for the given match.  Derived from the
 // gtk code.
 NSImage* MatchIcon(const AutocompleteMatch& match) {
@@ -89,12 +79,14 @@ NSImage* MatchIcon(const AutocompleteMatch& match) {
 NSMutableAttributedString* AutocompletePopupViewMac::DecorateMatchedString(
     const std::wstring &matchString,
     const AutocompleteMatch::ACMatchClassifications &classifications,
-    NSColor* textColor) {
+    NSColor* textColor, NSFont* font) {
+  // Cache for on-demand computation of the bold version of |font|.
+  NSFont* boldFont = nil;
 
   // Start out with a string using the default style info.
   NSString* s = base::SysWideToNSString(matchString);
   NSDictionary* attributes = [NSDictionary dictionaryWithObjectsAndKeys:
-                                  NormalFont(), NSFontAttributeName,
+                                  font, NSFontAttributeName,
                                   textColor, NSForegroundColorAttributeName,
                                   nil];
   NSMutableAttributedString* as =
@@ -117,7 +109,11 @@ NSMutableAttributedString* AutocompletePopupViewMac::DecorateMatchedString(
     }
 
     if (0 != (i->style & ACMatchClassification::MATCH)) {
-      [as addAttribute:NSFontAttributeName value:BoldFont() range:range];
+      if (!boldFont) {
+        NSFontManager* fontManager = [NSFontManager sharedFontManager];
+        boldFont = [fontManager convertFont:font toHaveTrait:NSBoldFontMask];
+      }
+      [as addAttribute:NSFontAttributeName value:boldFont range:range];
     }
   }
 
@@ -125,19 +121,20 @@ NSMutableAttributedString* AutocompletePopupViewMac::DecorateMatchedString(
 }
 
 // Return the text to show for the match, based on the match's
-// contents and description.
-NSMutableAttributedString* AutocompletePopupViewMac::MatchText(
-    const AutocompleteMatch& match) {
+// contents and description.  Result will be in |font|, with the
+// boldfaced version used for matches.
+NSAttributedString* AutocompletePopupViewMac::MatchText(
+    const AutocompleteMatch& match, NSFont* font) {
   NSMutableAttributedString *as =
       DecorateMatchedString(match.contents, match.contents_class,
-                            ContentTextColor());
+                            ContentTextColor(), font);
 
   // If there is a description, append it, separated from the contents
   // with an em dash, and decorated with a distinct color.
   if (!match.description.empty()) {
     NSDictionary* attributes =
         [NSDictionary dictionaryWithObjectsAndKeys:
-             NormalFont(), NSFontAttributeName,
+             font, NSFontAttributeName,
              ContentTextColor(), NSForegroundColorAttributeName,
              nil];
     NSString* rawEmDash = [NSString stringWithFormat:@" %C ", 0x2014];
@@ -147,7 +144,7 @@ NSMutableAttributedString* AutocompletePopupViewMac::MatchText(
  
     NSAttributedString* description =
         DecorateMatchedString(match.description, match.description_class,
-                              DescriptionTextColor());
+                              DescriptionTextColor(), font);
  
     [as appendAttributedString:emDash];
     [as appendAttributedString:description];
@@ -263,6 +260,18 @@ void AutocompletePopupViewMac::UpdatePopupAppearance() {
 
   CreatePopupIfNeeded();
 
+  // Load the results into the popup's matrix.
+  AutocompleteMatrix* matrix = [popup_ contentView];
+  const size_t rows = model_->result().size();
+  DCHECK_GT(rows, 0U);
+  [matrix renewRows:rows columns:1];
+  for (size_t ii = 0; ii < rows; ++ii) {
+    AutocompleteButtonCell* cell = [matrix cellAtRow:ii column:0];
+    const AutocompleteMatch& match = model_->result().match_at(ii);
+    [cell setImage:MatchIcon(match)];
+    [cell setAttributedTitle:MatchText(match, [field_ font])];
+  }
+
   // Layout the popup and size it to land underneath the field.
   // TODO(shess) Consider refactoring to remove this depenency,
   // because the popup doesn't need any of the field-like aspects of
@@ -272,22 +281,22 @@ void AutocompletePopupViewMac::UpdatePopupAppearance() {
   r = [field_ convertRectToBase:r];
   r.origin = [[field_ window] convertBaseToScreen:r.origin];
 
-  AutocompleteMatrix* matrix = [popup_ contentView];
-  [matrix setCellSize:NSMakeSize(r.size.width, [matrix cellSize].height)];
+  // Set the cell size to fit a line of text in the cell's font.  All
+  // cells should use the same font and layout to one line.
+  NSRect bigRect = [matrix bounds];
+  // TODO(shess): Why 1000.0?  Because it's "big enough".  Find
+  // something better.
+  bigRect.size.height = 1000.0;
+  NSSize cellSize = [[matrix cellAtRow:0 column:0] cellSizeForBounds:bigRect];
+  [matrix setCellSize:NSMakeSize(r.size.width, cellSize.height)];
+
+  // Make the matrix big enough to hold all the cells.
+  [matrix sizeToCells];
   [matrix setFrameSize:NSMakeSize(r.size.width, [matrix frame].size.height)];
 
-  size_t rows = model_->result().size();
-  [matrix renewRows:rows columns:1];
-  [matrix sizeToCells];
+  // Make the window just as big.
   r.size.height = [matrix frame].size.height;
   r.origin.y -= r.size.height + 2;
-
-  for (size_t ii = 0; ii < rows; ++ii) {
-    AutocompleteButtonCell* cell = [matrix cellAtRow:ii column:0];
-    const AutocompleteMatch& match = model_->result().match_at(ii);
-    [cell setImage:MatchIcon(match)];
-    [cell setAttributedTitle:MatchText(match)];
-  }
 
   // Update the selection.
   PaintUpdatesNow();

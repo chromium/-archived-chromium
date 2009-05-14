@@ -71,8 +71,10 @@ class AutocompletePopupViewMac : public AutocompletePopupView {
   void AcceptInput();
 
   // Return the text to show for the match, based on the match's
-  // contents and description.
-  static NSMutableAttributedString* MatchText(const AutocompleteMatch& match);
+  // contents and description.  Result will be in |font|, with the
+  // boldfaced version used for matches.
+  static NSAttributedString* MatchText(const AutocompleteMatch& match,
+                                       NSFont* font);
 
   // Helper for MatchText() to allow sharing code between the contents
   // and description cases.  Returns NSMutableAttributedString as a
@@ -80,7 +82,7 @@ class AutocompletePopupViewMac : public AutocompletePopupView {
   static NSMutableAttributedString* DecorateMatchedString(
       const std::wstring &matchString,
       const AutocompleteMatch::ACMatchClassifications &classifications,
-      NSColor* textColor);
+      NSColor* textColor, NSFont* font);
 
  private:
   // Create the popup_ instance if needed.

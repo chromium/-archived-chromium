@@ -6,13 +6,21 @@
 
 #include "base/sys_string_conversions.h"
 #include "chrome/browser/autocomplete/autocomplete.h"
-#include "testing/gtest/include/gtest/gtest.h"
+#include "testing/platform_test.h"
 
 namespace {
 
-class AutocompletePopupViewMacTest : public testing::Test {
+class AutocompletePopupViewMacTest : public PlatformTest {
  public:
-  AutocompletePopupViewMacTest() {
+  AutocompletePopupViewMacTest() {}
+
+  virtual void SetUp() {
+    PlatformTest::SetUp();
+
+    // These are here because there is no autorelease pool for the
+    // constructor.
+    color_ = [NSColor blackColor];
+    font_ = [NSFont userFontOfSize:12];
   }
 
   // Returns the length of the run starting at |location| for which
@@ -79,6 +87,8 @@ class AutocompletePopupViewMacTest : public testing::Test {
     return m;
   }
 
+  NSColor* color_;  // weak
+  NSFont* font_;  // weak
 };
 
 // Simple inputs with no matches should result in styled output who's
@@ -91,7 +101,7 @@ TEST_F(AutocompletePopupViewMacTest, DecorateMatchedStringNoMatch) {
   NSAttributedString* decorated =
       AutocompletePopupViewMac::DecorateMatchedString(
           base::SysNSStringToWide(string), classifications,
-          [NSColor blackColor]);
+          color_, font_);
 
   // Result has same characters as the input.
   EXPECT_EQ([decorated length], [string length]);
@@ -101,7 +111,7 @@ TEST_F(AutocompletePopupViewMacTest, DecorateMatchedStringNoMatch) {
   EXPECT_EQ(RunLengthForAttribute(decorated, 0U,
                                   NSForegroundColorAttributeName),
             [string length]);
-  EXPECT_TRUE(RunHasColor(decorated, 0U, [NSColor blackColor]));
+  EXPECT_TRUE(RunHasColor(decorated, 0U, color_));
 
   // An unbolded font for the entire string.
   EXPECT_EQ(RunLengthForAttribute(decorated, 0U,
@@ -121,7 +131,7 @@ TEST_F(AutocompletePopupViewMacTest, DecorateMatchedStringURLNoMatch) {
   NSAttributedString* decorated =
       AutocompletePopupViewMac::DecorateMatchedString(
           base::SysNSStringToWide(string), classifications,
-          [NSColor blackColor]);
+          color_, font_);
 
   // Result has same characters as the input.
   EXPECT_EQ([decorated length], [string length]);
@@ -131,7 +141,7 @@ TEST_F(AutocompletePopupViewMacTest, DecorateMatchedStringURLNoMatch) {
   EXPECT_EQ(RunLengthForAttribute(decorated, 0U,
                                   NSForegroundColorAttributeName),
             [string length]);
-  EXPECT_FALSE(RunHasColor(decorated, 0U, [NSColor blackColor]));
+  EXPECT_FALSE(RunHasColor(decorated, 0U, color_));
 
   // An unbolded font for the entire string.
   EXPECT_EQ(RunLengthForAttribute(decorated, 0U,
@@ -153,7 +163,7 @@ TEST_F(AutocompletePopupViewMacTest, DecorateMatchedStringDimNoMatch) {
   NSAttributedString* decorated =
       AutocompletePopupViewMac::DecorateMatchedString(
           base::SysNSStringToWide(string), classifications,
-          [NSColor blackColor]);
+          color_, font_);
 
   // Result has same characters as the input.
   EXPECT_EQ([decorated length], [string length]);
@@ -163,7 +173,7 @@ TEST_F(AutocompletePopupViewMacTest, DecorateMatchedStringDimNoMatch) {
   EXPECT_EQ(RunLengthForAttribute(decorated, 0U,
                                   NSForegroundColorAttributeName),
             [string length]);
-  EXPECT_TRUE(RunHasColor(decorated, 0U, [NSColor blackColor]));
+  EXPECT_TRUE(RunHasColor(decorated, 0U, color_));
 
   // An unbolded font for the entire string.
   EXPECT_EQ(RunLengthForAttribute(decorated, 0U,
@@ -193,7 +203,7 @@ TEST_F(AutocompletePopupViewMacTest, DecorateMatchedStringMatch) {
   NSAttributedString* decorated =
       AutocompletePopupViewMac::DecorateMatchedString(
           base::SysNSStringToWide(string), classifications,
-          [NSColor blackColor]);
+          color_, font_);
 
   // Result has same characters as the input.
   EXPECT_EQ([decorated length], [string length]);
@@ -203,7 +213,7 @@ TEST_F(AutocompletePopupViewMacTest, DecorateMatchedStringMatch) {
   EXPECT_EQ(RunLengthForAttribute(decorated, 0U,
                                   NSForegroundColorAttributeName),
             [string length]);
-  EXPECT_TRUE(RunHasColor(decorated, 0U, [NSColor blackColor]));
+  EXPECT_TRUE(RunHasColor(decorated, 0U, color_));
 
   // Should have three font runs, not bold, bold, then not bold again.
   EXPECT_EQ(RunLengthForAttribute(decorated, 0U,
@@ -241,7 +251,7 @@ TEST_F(AutocompletePopupViewMacTest, DecorateMatchedStringURLMatch) {
   NSAttributedString* decorated =
       AutocompletePopupViewMac::DecorateMatchedString(
           base::SysNSStringToWide(string), classifications,
-          [NSColor blackColor]);
+          color_, font_);
 
   // Result has same characters as the input.
   EXPECT_EQ([decorated length], [string length]);
@@ -251,7 +261,7 @@ TEST_F(AutocompletePopupViewMacTest, DecorateMatchedStringURLMatch) {
   EXPECT_EQ(RunLengthForAttribute(decorated, 0U,
                                   NSForegroundColorAttributeName),
             [string length]);
-  EXPECT_FALSE(RunHasColor(decorated, 0U, [NSColor blackColor]));
+  EXPECT_FALSE(RunHasColor(decorated, 0U, color_));
 
   // Should have three font runs, not bold, bold, then not bold again.
   EXPECT_EQ(RunLengthForAttribute(decorated, 0U,
@@ -278,7 +288,7 @@ TEST_F(AutocompletePopupViewMacTest, MatchText) {
   AutocompleteMatch m = MakeMatch(base::SysNSStringToWide(contents),
                                   base::SysNSStringToWide(description));
 
-  NSAttributedString* decorated = AutocompletePopupViewMac::MatchText(m);
+  NSAttributedString* decorated = AutocompletePopupViewMac::MatchText(m, font_);
 
   // Result contains the characters of the input in the right places.
   EXPECT_GT([decorated length], [contents length] + [description length]);
@@ -322,7 +332,7 @@ TEST_F(AutocompletePopupViewMacTest, MatchTextContentsMatch) {
       ACMatchClassification(runLength1 + runLength2,
                             ACMatchClassification::NONE));
 
-  NSAttributedString* decorated = AutocompletePopupViewMac::MatchText(m);
+  NSAttributedString* decorated = AutocompletePopupViewMac::MatchText(m, font_);
 
   // Result has same characters as the input.
   EXPECT_EQ([decorated length], [contents length]);
@@ -366,7 +376,7 @@ TEST_F(AutocompletePopupViewMacTest, MatchTextDescriptionMatch) {
   m.description_class.push_back(
       ACMatchClassification(runLength1, ACMatchClassification::NONE));
 
-  NSAttributedString* decorated = AutocompletePopupViewMac::MatchText(m);
+  NSAttributedString* decorated = AutocompletePopupViewMac::MatchText(m, font_);
 
   // Result contains the characters of the input.
   EXPECT_GT([decorated length], [contents length] + [description length]);
