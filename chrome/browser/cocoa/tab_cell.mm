@@ -22,8 +22,8 @@ namespace {
       startHighlight = GTMColorationLightHighlight;
       endHighlight = GTMColorationLightMidtone;
     } else {
-      startHighlight = GTMColorationBaseShadow;
-      endHighlight = GTMColorationBaseShadow;
+      startHighlight = GTMColorationLightShadow;
+      endHighlight = GTMColorationLightShadow;
     }
 
     NSColor *backgroundColor = [[GTMTheme defaultTheme] backgroundColor];
