@@ -986,6 +986,7 @@
 
         # V8 bindings not generated from .idl source.
         '../third_party/WebKit/WebCore/bindings/v8/custom/V8AttrCustom.cpp',
+        '../third_party/WebKit/WebCore/bindings/v8/V8CanvasPixelArrayCustom.cpp',
         '../third_party/WebKit/WebCore/bindings/v8/custom/V8CanvasRenderingContext2DCustom.cpp',
         '../third_party/WebKit/WebCore/bindings/v8/custom/V8ClientRectListCustom.cpp',
         '../third_party/WebKit/WebCore/bindings/v8/custom/V8ClipboardCustom.cpp',
@@ -1005,6 +1006,7 @@
         '../third_party/WebKit/WebCore/bindings/v8/custom/V8CustomVoidCallback.cpp',
         '../third_party/WebKit/WebCore/bindings/v8/custom/V8CustomVoidCallback.h',
         '../third_party/WebKit/WebCore/bindings/v8/custom/V8DatabaseCustom.cpp',
+        '../third_party/WebKit/WebCore/bindings/v8/custom/V8DocumentLocationCustom.cpp',
         '../third_party/WebKit/WebCore/bindings/v8/custom/V8DOMParserConstructor.cpp',
         '../third_party/WebKit/WebCore/bindings/v8/custom/V8DOMStringListCustom.cpp',
         '../third_party/WebKit/WebCore/bindings/v8/custom/V8DOMWindowCustom.cpp',
@@ -1121,8 +1123,6 @@
         'port/bindings/v8/RGBColor.h',
         'port/bindings/v8/ScriptController.cpp',
         'port/bindings/v8/ScriptController.h',
-        'port/bindings/v8/V8CanvasPixelArrayCustom.cpp',
-        'port/bindings/v8/V8DocumentLocationCustom.cpp',
         'port/bindings/v8/V8MessagePortCustom.cpp',
         'port/bindings/v8/V8SVGPODTypeWrapper.h',
         'port/bindings/v8/dom_wrapper_map.h',
