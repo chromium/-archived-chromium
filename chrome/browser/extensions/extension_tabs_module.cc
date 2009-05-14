@@ -22,7 +22,7 @@
 #endif
 
 namespace {
-// keys
+// Keys.
 const wchar_t* kIdKey = L"id";
 const wchar_t* kIndexKey = L"index";
 const wchar_t* kWindowIdKey = L"windowId";
@@ -37,7 +37,7 @@ const wchar_t* kWidthKey = L"width";
 const wchar_t* kHeightKey = L"height";
 const wchar_t* kTabsKey = L"tabs";
 
-// errors
+// Error messages.
 const char* kWindowNotFoundError = "No window with id: *.";
 const char* kTabNotFoundError = "No tab with id: *.";
 const char* kInvalidUrlError = "Invalid url: \"*\".";
@@ -321,7 +321,7 @@ bool RemoveWindowFunction::RunImpl() {
   return true;
 }
 
-// Tabs ---------------------------------------------------------------------
+// Tabs ------------------------------------------------------------------------
 
 bool GetSelectedTabFunction::RunImpl() {
   Browser* browser;
@@ -414,7 +414,7 @@ bool CreateTabFunction::RunImpl() {
     EXTENSION_FUNCTION_VALIDATE(args->GetInteger(kIndexKey, &index));
 
   if (index < 0) {
-    // Default insert behavior
+    // Default insert behavior.
     index = -1;
   }
   if (index > tab_strip->count()) {

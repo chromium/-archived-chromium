@@ -8,9 +8,18 @@
 #include "chrome/browser/browser_list.h"
 #include "chrome/browser/profile.h"
 #include "chrome/browser/extensions/extension.h"
+#include "chrome/browser/extensions/extension_error_utils.h"
 #include "chrome/browser/extensions/extension_tabs_module.h"
 #include "chrome/browser/extensions/extensions_service.h"
 #include "chrome/browser/tab_contents/navigation_entry.h"
+
+namespace {
+  // Error messages.
+  const char* kNoExtensionError = "No extension with id: *.";
+  const char* kNoTabError = "No tab with id: *.";
+  const char* kNoPageActionError = "No PageAction with id: *.";
+  const char* kUrlNotActiveError = "This url is no longer active: *.";
+}
 
 bool EnablePageActionFunction::RunImpl() {
   EXTENSION_FUNCTION_VALIDATE(args_->IsType(Value::TYPE_LIST));
@@ -29,27 +38,34 @@ bool EnablePageActionFunction::RunImpl() {
   // Find the TabContents that contains this tab id.
   TabContents* contents = NULL;
   ExtensionTabUtil::GetTabById(tab_id, profile(), NULL, NULL, &contents, NULL);
-  if (!contents)
+  if (!contents) {
+    error_ = ExtensionErrorUtils::FormatErrorMessage(kNoTabError,
+                                                     IntToString(tab_id));
     return false;
+  }
 
   // Make sure the URL hasn't changed.
-  // TODO(finnur): Add an error message here when there is a way to.
-  if (url != contents->controller().GetActiveEntry()->url().spec())
+  if (url != contents->controller().GetActiveEntry()->url().spec()) {
+    error_ = ExtensionErrorUtils::FormatErrorMessage(kUrlNotActiveError, url);
     return false;
+  }
 
   // Find our extension.
   Extension* extension = NULL;
   ExtensionsService* service = profile()->GetExtensionsService();
-  if (service)
-    extension = service->GetExtensionByID(extension_id());
-  else
-    NOTREACHED();
-  if (!extension)
+  extension = service->GetExtensionByID(extension_id());
+  if (!extension) {
+    error_ = ExtensionErrorUtils::FormatErrorMessage(kNoExtensionError,
+                                                     extension_id());
     return false;
+  }
 
   const PageAction* page_action = extension->GetPageAction(page_action_id);
-  if (!page_action)
+  if (!page_action) {
+    error_ = ExtensionErrorUtils::FormatErrorMessage(kNoPageActionError,
+                                                     page_action_id);
     return false;
+  }
 
   // Set visible and broadcast notifications that the UI should be updated.
   contents->EnablePageAction(page_action);
