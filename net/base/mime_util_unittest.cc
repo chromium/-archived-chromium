@@ -29,9 +29,9 @@ TEST(MimeUtilTest, ExtensionTest) {
 
   for (size_t i = 0; i < ARRAYSIZE_UNSAFE(tests); ++i) {
     rv = net::GetMimeTypeFromExtension(tests[i].extension, &mime_type);
-    EXPECT_EQ(rv, tests[i].valid);
+    EXPECT_EQ(tests[i].valid, rv);
     if (rv)
-      EXPECT_EQ(mime_type, tests[i].mime_type);
+      EXPECT_EQ(tests[i].mime_type, mime_type);
   }
 }
 
@@ -55,9 +55,9 @@ TEST(MimeUtilTest, FileTest) {
   for (size_t i = 0; i < ARRAYSIZE_UNSAFE(tests); ++i) {
     rv = net::GetMimeTypeFromFile(FilePath(tests[i].file_path),
                                   &mime_type);
-    EXPECT_EQ(rv, tests[i].valid);
+    EXPECT_EQ(tests[i].valid, rv);
     if (rv)
-      EXPECT_EQ(mime_type, tests[i].mime_type);
+      EXPECT_EQ(tests[i].mime_type, mime_type);
   }
 }
 
