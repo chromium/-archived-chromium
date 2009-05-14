@@ -1,0 +1,37 @@
+<html>
+
+<head>
+<script src="npapi.js"></script>
+</head>
+
+<body>
+<div id="statusPanel" style="border: 1px solid red; width: 100%">
+Test running....
+</div>
+
+
+Alert in Window message<p>
+
+Tests that there's no deadlock when a plugin creates an alert in response to a synchronous Windows message from the browser process.
+
+<DIV ID="PluginDiv">
+<embed	type="application/vnd.npapi-test" 
+	src="foo"
+	name="alert_in_window_message"
+	id="1"
+	mode="np_embed"
+>
+</DIV>
+
+<DIV id="PluginDiv2"></DIV>
+
+<script>
+
+function CallAlert() {
+  alert('testalert');
+  return;
+}
+</script>
+
+</body>
+</html>
