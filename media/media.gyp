@@ -95,6 +95,8 @@
         'filters/test_video_renderer.h',
         'filters/video_renderer_base.cc',
         'filters/video_renderer_base.h',
+        'filters/video_thread.cc',
+        'filters/video_thread.h',
       ],
       'direct_dependent_settings': {
         'include_dirs': [
