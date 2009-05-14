@@ -109,9 +109,6 @@ class FindBarView : public views::View,
   views::ImageButton* find_next_button_;
   views::ImageButton* close_button_;
 
-  // The last matchcount number we reported to the user.
-  int last_reported_matchcount_;
-
   // Whether or not we're attempting to blend with the toolbar (this is
   // false if the bookmarks bar is visible).
   bool toolbar_blend_;

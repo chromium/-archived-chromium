@@ -405,6 +405,7 @@ void ReplaceSubstringsAfterOffset(std::string* str,
 // Specialized string-conversion functions.
 std::string IntToString(int value);
 std::wstring IntToWString(int value);
+string16 IntToString16(int value);
 std::string UintToString(unsigned int value);
 std::wstring UintToWString(unsigned int value);
 std::string Int64ToString(int64 value);

@@ -107,14 +107,20 @@ class FindBarGtk : public FindBar,
   bool container_shaped_;
 
   // The widget where text is entered.
-  GtkWidget* find_text_;
+  GtkWidget* text_entry_;
 
   // The next and previous match buttons.
   scoped_ptr<CustomDrawButton> find_previous_button_;
   scoped_ptr<CustomDrawButton> find_next_button_;
 
+  // The GtkLabel listing how many results were found.
+  GtkWidget* match_count_label_;
+
   // The X to close the find bar.
   scoped_ptr<CustomDrawButton> close_button_;
+
+  // The last matchcount number we reported to the user.
+  int last_reported_matchcount_;
 
   // Pointer back to the owning controller.
   FindBarController* find_bar_controller_;

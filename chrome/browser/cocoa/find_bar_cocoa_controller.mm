@@ -139,9 +139,6 @@
   // otherwise match counts won't work on Mac and Linux.
   NSString* searchString = [findText_ stringValue];
   if ([searchString length] > 0) {
-    // TODO(rohitrao): Implement similar logic as in FindBarWin, to
-    // avoid flickering when searching.  For now, only update the
-    // results label if both our numbers are non-negative.
     if (result.active_match_ordinal() >= 0 && result.number_of_matches() >= 0) {
       [resultsLabel_ setStringValue:base::SysWideToNSString(
             l10n_util::GetStringF(IDS_FIND_IN_PAGE_COUNT,

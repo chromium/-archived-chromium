@@ -90,7 +90,6 @@ FindBarView::FindBarView(FindBarWin* container)
       find_next_button_(NULL),
       close_button_(NULL),
       animation_offset_(0),
-      last_reported_matchcount_(0),
       toolbar_blend_(true) {
   ResourceBundle& rb = ResourceBundle::GetSharedInstance();
 
@@ -184,31 +183,16 @@ void FindBarView::UpdateForResult(const FindNotificationDetails& result,
   bool have_valid_range =
       result.number_of_matches() != -1 && result.active_match_ordinal() != -1;
 
-  // Avoid bug 894389: When a new search starts (and finds something) it reports
-  // an interim match count result of 1 before the scoping effort starts. This
-  // is to provide feedback as early as possible that we will find something.
-  // As you add letters to the search term, this creates a flashing effect when
-  // we briefly show "1 of 1" matches because there is a slight delay until
-  // the scoping effort starts updating the match count. We avoid this flash by
-  // ignoring interim results of 1 if we already have a positive number.
-  if (result.number_of_matches() > -1) {
-    if (last_reported_matchcount_ > 0 &&
-        result.number_of_matches() == 1 &&
-        !result.final_update())
-      return;  // Don't let interim result override match count.
-    last_reported_matchcount_ = result.number_of_matches();
-  }
-
   // If we don't have any results and something was passed in, then that means
   // someone pressed F3 while the Find box was closed. In that case we need to
   // repopulate the Find box with what was passed in.
-  if (find_text_->GetText().empty() && !find_text.empty()) {
+  std::wstring search_string = find_text_->GetText();
+  if (search_string.empty() && !find_text.empty()) {
     find_text_->SetText(find_text);
     find_text_->SelectAll();
   }
 
-  std::wstring search_string = find_text_->GetText();
-  if (search_string.length() > 0 && have_valid_range) {
+  if (!search_string.empty() && have_valid_range) {
     match_count_text_->SetText(
         l10n_util::GetStringF(IDS_FIND_IN_PAGE_COUNT,
                               IntToWString(result.active_match_ordinal()),
@@ -427,7 +411,7 @@ void FindBarView::ButtonPressed(views::Button* sender) {
   switch (sender->tag()) {
     case FIND_PREVIOUS_TAG:
     case FIND_NEXT_TAG:
-      if (find_text_->GetText().length() > 0) {
+      if (!find_text_->GetText().empty()) {
         container_->GetFindBarController()->tab_contents()->StartFinding(
             find_text_->GetText(),
             sender->tag() == FIND_NEXT_TAG);
@@ -463,7 +447,7 @@ void FindBarView::ContentsChanged(views::TextField* sender,
   // When the user changes something in the text box we check the contents and
   // if the textbox contains something we set it as the new search string and
   // initiate search (even though old searches might be in progress).
-  if (new_contents.length() > 0) {
+  if (!new_contents.empty()) {
     controller->tab_contents()->StartFinding(new_contents, true);
   } else {
     // The textbox is empty so we reset.  true = clear selection on page.
@@ -488,7 +472,7 @@ bool FindBarView::HandleKeystroke(views::TextField* sender, UINT message,
     case VK_RETURN: {
       // Pressing Return/Enter starts the search (unless text box is empty).
       std::wstring find_string = find_text_->GetText();
-      if (find_string.length() > 0) {
+      if (!find_string.empty()) {
         // Search forwards for enter, backwards for shift-enter.
         container_->GetFindBarController()->tab_contents()->StartFinding(
             find_string,

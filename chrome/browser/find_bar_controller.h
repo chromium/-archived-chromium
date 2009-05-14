@@ -40,10 +40,19 @@ class FindBarController : public NotificationObserver {
   FindBar* find_bar() const { return find_bar_.get(); }
 
  private:
+  // Sents an update to the find bar with the tab contents' current result. The
+  // tab_contents_ must be non-NULL before this call. Theis handles
+  // de-flickering in addition to just calling the update function.
+  void UpdateFindBarForCurrentResult();
+
   scoped_ptr<FindBar> find_bar_;
 
   // The TabContents we are currently associated with.  Can be NULL.
   TabContents* tab_contents_;
+
+  // The last match count we reported to the user. This is used by
+  // UpdateFindBarForCurrentResult to avoid flickering.
+  int last_reported_matchcount_;
 
   DISALLOW_COPY_AND_ASSIGN(FindBarController);
 };

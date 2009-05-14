@@ -73,9 +73,9 @@ FindBarGtk::FindBarGtk(BrowserWindowGtk* browser)
 
   // Hook up signals after the widget has been added to the hierarchy so the
   // widget will be realized.
-  g_signal_connect(find_text_, "changed",
+  g_signal_connect(text_entry_, "changed",
                    G_CALLBACK(OnChanged), this);
-  g_signal_connect(find_text_, "key-press-event",
+  g_signal_connect(text_entry_, "key-press-event",
                    G_CALLBACK(OnKeyPressEvent), this);
   g_signal_connect(widget(), "size-allocate",
                    G_CALLBACK(OnFixedSizeAllocate), this);
@@ -144,20 +144,30 @@ void FindBarGtk::InitWidgets() {
   gtk_box_pack_end(GTK_BOX(hbox), find_previous_button_->widget(),
                    FALSE, FALSE, 0);
 
-  find_text_ = gtk_entry_new();
+  // Make a box for the edit and match count widgets. This is fixed size since
+  // we want the widgets inside to resize themselves rather than making the
+  // dialog bigger.
+  GtkWidget* content_hbox = gtk_hbox_new(false, 0);
+  gtk_widget_set_size_request(content_hbox, 300, -1);
+
+  text_entry_ = gtk_entry_new();
+  match_count_label_ = gtk_label_new(NULL);
+
   // Force the text widget height so it lines up with the buttons regardless of
   // font size.
-  gtk_widget_set_size_request(find_text_, -1, 20);
-  gtk_entry_set_has_frame(GTK_ENTRY(find_text_), FALSE);
+  gtk_widget_set_size_request(text_entry_, -1, 20);
+  gtk_entry_set_has_frame(GTK_ENTRY(text_entry_), FALSE);
+
+  gtk_box_pack_end(GTK_BOX(content_hbox), match_count_label_, FALSE, FALSE, 0);
+  gtk_box_pack_end(GTK_BOX(content_hbox), text_entry_, TRUE, TRUE, 0);
 
   // We fake anti-aliasing by having two borders.
-  GtkWidget* border_bin = gfx::CreateGtkBorderBin(find_text_,
+  GtkWidget* border_bin = gfx::CreateGtkBorderBin(content_hbox,
                                                   &kTextBorderColor,
                                                   1, 1, 1, 0);
   GtkWidget* border_bin_aa = gfx::CreateGtkBorderBin(border_bin,
                                                      &kTextBorderColorAA,
                                                      1, 1, 1, 0);
-
   GtkWidget* centering_vbox = gtk_vbox_new(FALSE, 0);
   gtk_box_pack_start(GTK_BOX(centering_vbox), border_bin_aa, TRUE, FALSE, 0);
   gtk_box_pack_end(GTK_BOX(hbox), centering_vbox, FALSE, FALSE, 0);
@@ -165,6 +175,7 @@ void FindBarGtk::InitWidgets() {
   // We show just the GtkFixed and |border_| (but not the dialog).
   gtk_widget_show(widget());
   gtk_widget_show(border_);
+  gtk_widget_show(match_count_label_);
 }
 
 GtkWidget* FindBarGtk::slide_widget() {
@@ -175,7 +186,7 @@ void FindBarGtk::Show() {
   slide_widget_->Open();
   if (container_->window)
     gdk_window_raise(container_->window);
-  gtk_widget_grab_focus(find_text_);
+  gtk_widget_grab_focus(text_entry_);
 }
 
 void FindBarGtk::Hide(bool animate) {
@@ -186,9 +197,9 @@ void FindBarGtk::Hide(bool animate) {
 }
 
 void FindBarGtk::SetFocusAndSelection() {
-  gtk_widget_grab_focus(find_text_);
+  gtk_widget_grab_focus(text_entry_);
   // Select all the text.
-  gtk_entry_select_region(GTK_ENTRY(find_text_), 0, -1);
+  gtk_entry_select_region(GTK_ENTRY(text_entry_), 0, -1);
 }
 
 void FindBarGtk::ClearResults(const FindNotificationDetails& results) {
@@ -204,12 +215,41 @@ void FindBarGtk::MoveWindowIfNecessary(const gfx::Rect& selection_rect,
 }
 
 void FindBarGtk::SetFindText(const string16& find_text) {
-  std::string find_text_utf8 = UTF16ToUTF8(find_text);
-  gtk_entry_set_text(GTK_ENTRY(find_text_), find_text_utf8.c_str());
+  std::string text_entry_utf8 = UTF16ToUTF8(find_text);
+  gtk_entry_set_text(GTK_ENTRY(text_entry_), text_entry_utf8.c_str());
 }
 
 void FindBarGtk::UpdateUIForFindResult(const FindNotificationDetails& result,
                                        const string16& find_text) {
+  std::string text_entry_utf8 = UTF16ToUTF8(find_text);
+  bool have_valid_range =
+      result.number_of_matches() != -1 && result.active_match_ordinal() != -1;
+
+  // If we don't have any results and something was passed in, then that means
+  // someone pressed F3 while the Find box was closed. In that case we need to
+  // repopulate the Find box with what was passed in.
+  std::string search_string(gtk_entry_get_text(GTK_ENTRY(text_entry_)));
+  if (search_string.empty() && !text_entry_utf8.empty()) {
+    gtk_entry_set_text(GTK_ENTRY(text_entry_), text_entry_utf8.c_str());
+    gtk_entry_select_region(GTK_ENTRY(text_entry_), 0, -1);
+  }
+
+  if (!search_string.empty() && have_valid_range) {
+    gtk_label_set_text(GTK_LABEL(match_count_label_),
+        l10n_util::GetStringFUTF8(IDS_FIND_IN_PAGE_COUNT,
+            IntToString16(result.active_match_ordinal()),
+            IntToString16(result.number_of_matches())).c_str());
+  } else {
+    // If there was no text entered, we don't show anything in the result count
+    // area.
+    gtk_label_set_text(GTK_LABEL(match_count_label_), "");
+  }
+
+  // TODO(brettw) We should update the background color of the text field to
+  // reflect whether any text was found. See the Windows version for how.
+
+  // TODO(brettw) enable or disable the find next/previous buttons depending
+  // on whether any matches were found.
 }
 
 void FindBarGtk::AudibleAlert() {
@@ -240,7 +280,7 @@ void FindBarGtk::RestoreSavedFocus() {
   // contents.
   // This function sometimes gets called when we don't have focus. We should do
   // nothing in this case.
-  if (!GTK_WIDGET_HAS_FOCUS(find_text_))
+  if (!GTK_WIDGET_HAS_FOCUS(text_entry_))
     return;
 
   find_bar_controller_->tab_contents()->Focus();
@@ -261,7 +301,7 @@ void FindBarGtk::FindEntryTextInContents(bool forward_search) {
   if (!tab_contents)
     return;
 
-  std::string new_contents(gtk_entry_get_text(GTK_ENTRY(find_text_)));
+  std::string new_contents(gtk_entry_get_text(GTK_ENTRY(text_entry_)));
 
   if (new_contents.length() > 0) {
     tab_contents->StartFinding(UTF8ToUTF16(new_contents), forward_search);
