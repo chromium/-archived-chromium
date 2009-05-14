@@ -822,3 +822,13 @@ WebInspector.ProfileDataGridNode.prototype._populate = function(event) {
      return new originalDataGrid(columns);
    };
 })();
+
+
+/**
+ * @override
+ * TODO(pfeldman): Add l10n.
+ */
+WebInspector.UIString = function(string)
+{
+  return string;
+}
