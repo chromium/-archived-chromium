@@ -13,22 +13,37 @@ VideoRendererImpl::VideoRendererImpl(WebMediaPlayerImpl* delegate)
   delegate_->SetVideoRenderer(this);
 }
 
-void VideoRendererImpl::OnStop() {
+// static
+bool VideoRendererImpl::IsMediaFormatSupported(
+    const media::MediaFormat& media_format) {
+  int width = 0;
+  int height = 0;
+  return ParseMediaFormat(media_format, &width, &height);
+}
+
+void VideoRendererImpl::Stop() {
+  VideoThread::Stop();
   delegate_->SetVideoRenderer(NULL);
 }
 
-bool VideoRendererImpl::OnInitialize(size_t width, size_t height) {
+bool VideoRendererImpl::OnInitialize(media::VideoDecoder* decoder) {
+  int width = 0;
+  int height = 0;
+  if (!ParseMediaFormat(decoder->media_format(), &width, &height))
+    return false;
+
   video_size_.SetSize(width, height);
   bitmap_.setConfig(SkBitmap::kARGB_8888_Config, width, height);
   if (bitmap_.allocPixels(NULL, NULL)) {
     bitmap_.eraseRGB(0x00, 0x00, 0x00);
     return true;
   }
+
   NOTREACHED();
   return false;
 }
 
-void VideoRendererImpl::OnPaintNeeded() {
+void VideoRendererImpl::OnFrameAvailable() {
   delegate_->PostRepaintTask();
 }
 

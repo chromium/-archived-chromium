@@ -21,20 +21,20 @@
 #include "media/base/buffers.h"
 #include "media/base/factory.h"
 #include "media/base/filters.h"
-#include "media/filters/video_renderer_base.h"
+#include "media/filters/video_thread.h"
 #include "webkit/api/public/WebMediaPlayer.h"
 
-class VideoRendererImpl : public media::VideoRendererBase {
+class VideoRendererImpl : public media::VideoThread {
  public:
   // Methods for painting called by the WebMediaPlayerDelegateImpl
 
   // This method is called with the same rect as the Paint method and could
   // be used by future implementations to implement an improved color space +
-  // scale code on a seperate thread.  Since we always do the streach on the
+  // scale code on a separate thread.  Since we always do the stretch on the
   // same thread as the Paint method, we just ignore the call for now.
   virtual void SetRect(const gfx::Rect& rect) {}
 
-  // Paint the current front frame on the |canvas| streaching it to fit the
+  // Paint the current front frame on the |canvas| stretching it to fit the
   // |dest_rect|
   virtual void Paint(skia::PlatformCanvas* canvas, const gfx::Rect& dest_rect);
 
@@ -44,21 +44,23 @@ class VideoRendererImpl : public media::VideoRendererBase {
                                          WebMediaPlayerImpl*>(delegate);
   }
 
+  // FilterFactoryImpl1 implementation.
+  static bool IsMediaFormatSupported(const media::MediaFormat& media_format);
+
+  // Override VideoThread implementation of Stop().
+  virtual void Stop();
+
+ protected:
+  // Method called by VideoThread during initialization.
+  virtual bool OnInitialize(media::VideoDecoder* decoder);
+
+  // Method called by the VideoThread when a frame is available.
+  virtual void OnFrameAvailable();
+
  private:
-  // Method called by base class during initialization.
-  virtual bool OnInitialize(size_t width, size_t height);
-
-  // Method called by VideoRendererBase to tell us to stop.
-  virtual void OnStop();
-
-  // Method called by the VideoRendererBase when a repaint is needed.
-  virtual void OnPaintNeeded();
-
+  // Only the filter factories can create instances.
   friend class media::FilterFactoryImpl1<VideoRendererImpl,
                                          WebMediaPlayerImpl*>;
-
-  // Constructor and destructor are private.  Only the filter factory is
-  // allowed to create instances.
   explicit VideoRendererImpl(WebMediaPlayerImpl* delegate);
   virtual ~VideoRendererImpl() {}
 
