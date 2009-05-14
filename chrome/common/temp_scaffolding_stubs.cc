@@ -137,7 +137,7 @@ bool ShellIntegration::IsDefaultBrowser() {
 
 // static
 bool FirstRun::IsChromeFirstRun() {
-  NOTIMPLEMENTED();
+  // http://code.google.com/p/chromium/issues/detail?id=11971
   return false;
 }
 
@@ -146,13 +146,13 @@ bool FirstRun::ProcessMasterPreferences(const FilePath& user_data_dir,
                                         const FilePath& master_prefs_path,
                                         int* preference_details,
                                         std::vector<std::wstring>* new_tabs) {
-  NOTIMPLEMENTED();
+  // http://code.google.com/p/chromium/issues/detail?id=11971
   return false;
 }
 
 // static
 int FirstRun::ImportNow(Profile* profile, const CommandLine& cmdline) {
-  NOTIMPLEMENTED();
+  // http://code.google.com/p/chromium/issues/detail?id=11971
   return 0;
 }
 
