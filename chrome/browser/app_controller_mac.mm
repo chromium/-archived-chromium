@@ -13,6 +13,7 @@
 #include "chrome/browser/browser_list.h"
 #include "chrome/browser/browser_shutdown.h"
 #import "chrome/browser/cocoa/bookmark_menu_bridge.h"
+#import "chrome/browser/cocoa/encoding_menu_controller_delegate_mac.h"
 #import "chrome/browser/cocoa/preferences_window_controller.h"
 #include "chrome/browser/command_updater.h"
 #include "chrome/common/pref_names.h"
@@ -66,6 +67,13 @@
   // Register any Mac-specific preferences.
   PrefService* prefs = [self defaultProfile]->GetPrefs();
   prefs->RegisterBooleanPref(prefs::kShowPageOptionsButtons, false);
+
+  // Build up the encoding menu, the order of the items differs based on the
+  // current locale (see http://crbug.com/7647 for details).
+  // We need a valid g_browser_process to get the profile which is why we can't
+  // call this from awakeFromNib.
+  EncodingMenuControllerDelegate::BuildEncodingMenu([self defaultProfile]);
+
 }
 
 - (void)dealloc {
