@@ -11,6 +11,8 @@
 #include <atlbase.h>
 #include <objidl.h>
 #endif
+
+#include <string>
 #include <vector>
 
 #include "base/basictypes.h"
@@ -160,4 +162,4 @@ class OSExchangeData {
   DISALLOW_COPY_AND_ASSIGN(OSExchangeData);
 };
 
-#endif  // #ifndef APP_OS_EXCHANGE_DATA_H_
+#endif  // APP_OS_EXCHANGE_DATA_H_
