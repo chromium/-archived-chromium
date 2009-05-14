@@ -34,6 +34,7 @@
 #include "chrome/common/chrome_constants.h"
 #include "chrome/common/chrome_paths.h"
 #include "chrome/common/chrome_switches.h"
+#include "chrome/common/net/cookie_monster_sqlite.h"
 #include "chrome/common/notification_service.h"
 #include "chrome/common/pref_names.h"
 #include "chrome/common/render_messages.h"
@@ -48,6 +49,16 @@ static const int kCreateSessionServiceDelayMS = 500;
 // A pointer to the request context for the default profile.  See comments on
 // Profile::GetDefaultRequestContext.
 URLRequestContext* Profile::default_request_context_;
+
+static void CleanupRequestContext(ChromeURLRequestContext* context) {
+  if (context) {
+    context->CleanupOnUIThread();
+
+    // Clean up request context on IO thread.
+    g_browser_process->io_thread()->message_loop()->ReleaseSoon(FROM_HERE,
+                                                                context);
+  }
+}
 
 // static
 void Profile::RegisterUserPrefs(PrefService* prefs) {
@@ -89,6 +100,7 @@ class OffTheRecordProfileImpl : public Profile,
   explicit OffTheRecordProfileImpl(Profile* real_profile)
       : profile_(real_profile),
         media_request_context_(NULL),
+        extensions_request_context_(NULL),
         start_time_(Time::Now()) {
     request_context_ = ChromeURLRequestContext::CreateOffTheRecord(this);
     request_context_->AddRef();
@@ -105,15 +117,9 @@ class OffTheRecordProfileImpl : public Profile,
   }
 
   virtual ~OffTheRecordProfileImpl() {
-    if (request_context_) {
-      request_context_->CleanupOnUIThread();
-
-      // Clean up request context on IO thread.
-      g_browser_process->io_thread()->message_loop()->PostTask(FROM_HERE,
-          NewRunnableMethod(request_context_,
-              &base::RefCountedThreadSafe<URLRequestContext>::Release));
-      request_context_ = NULL;
-    }
+    CleanupRequestContext(request_context_);
+    CleanupRequestContext(media_request_context_);
+    CleanupRequestContext(extensions_request_context_);
     NotificationService::current()->RemoveObserver(
         this,
         NotificationType::BROWSER_CLOSED,
@@ -251,6 +257,18 @@ class OffTheRecordProfileImpl : public Profile,
     return media_request_context_;
   }
 
+  URLRequestContext* GetRequestContextForExtensions() {
+    if (!extensions_request_context_) {
+      extensions_request_context_ =
+          ChromeURLRequestContext::CreateOffTheRecordForExtensions(this);
+      extensions_request_context_->AddRef();
+
+      DCHECK(extensions_request_context_->cookie_store());
+    }
+
+    return extensions_request_context_;
+  }
+
   virtual SessionService* GetSessionService() {
     // Don't save any sessions when off the record.
     return NULL;
@@ -358,6 +376,8 @@ class OffTheRecordProfileImpl : public Profile,
   // The context for requests for media resources.
   ChromeURLRequestContext* media_request_context_;
 
+  ChromeURLRequestContext* extensions_request_context_;
+
   // The download manager that only stores downloaded items in memory.
   scoped_refptr<DownloadManager> download_manager_;
 
@@ -382,6 +402,7 @@ ProfileImpl::ProfileImpl(const FilePath& path)
     : path_(path),
       request_context_(NULL),
       media_request_context_(NULL),
+      extensions_request_context_(NULL),
       history_service_created_(false),
       created_web_data_service_(false),
       created_download_manager_(false),
@@ -508,28 +529,12 @@ ProfileImpl::~ProfileImpl() {
       spellchecker_->Release();
   }
 
-  if (request_context_) {
-    request_context_->CleanupOnUIThread();
+  if (default_request_context_ == request_context_)
+    default_request_context_ = NULL;
 
-    if (default_request_context_ == request_context_)
-      default_request_context_ = NULL;
-
-    // Clean up request context on IO thread.
-    g_browser_process->io_thread()->message_loop()->PostTask(FROM_HERE,
-        NewRunnableMethod(request_context_,
-            &base::RefCountedThreadSafe<URLRequestContext>::Release));
-    request_context_ = NULL;
-  }
-
-  if (media_request_context_) {
-    media_request_context_->CleanupOnUIThread();
-
-    // Clean up request context on IO thread.
-    g_browser_process->io_thread()->message_loop()->PostTask(FROM_HERE,
-        NewRunnableMethod(media_request_context_,
-            &base::RefCountedThreadSafe<URLRequestContext>::Release));
-    media_request_context_ = NULL;
-  }
+  CleanupRequestContext(request_context_);
+  CleanupRequestContext(media_request_context_);
+  CleanupRequestContext(extensions_request_context_);
 
   // HistoryService may call into the BookmarkModel, as such we need to
   // delete HistoryService before the BookmarkModel. The destructor for
@@ -707,6 +712,21 @@ URLRequestContext* ProfileImpl::GetRequestContextForMedia() {
   }
 
   return media_request_context_;
+}
+
+URLRequestContext* ProfileImpl::GetRequestContextForExtensions() {
+  if (!extensions_request_context_) {
+    FilePath cookie_path = GetPath();
+    cookie_path = cookie_path.Append(chrome::kExtensionsCookieFilename);
+
+    extensions_request_context_ =
+        ChromeURLRequestContext::CreateOriginalForExtensions(this, cookie_path);
+    extensions_request_context_->AddRef();
+
+    DCHECK(extensions_request_context_->cookie_store());
+  }
+
+  return extensions_request_context_;
 }
 
 HistoryService* ProfileImpl::GetHistoryService(ServiceAccessType sat) {

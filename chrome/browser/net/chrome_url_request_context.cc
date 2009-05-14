@@ -16,6 +16,7 @@
 #include "chrome/common/chrome_switches.h"
 #include "chrome/common/notification_service.h"
 #include "chrome/common/pref_names.h"
+#include "chrome/common/url_constants.h"
 #include "net/ftp/ftp_network_layer.h"
 #include "net/http/http_cache.h"
 #include "net/http/http_network_layer.h"
@@ -155,6 +156,26 @@ ChromeURLRequestContext* ChromeURLRequestContext::CreateOriginalForMedia(
 }
 
 // static
+ChromeURLRequestContext* ChromeURLRequestContext::CreateOriginalForExtensions(
+    Profile* profile, const FilePath& cookie_store_path) {
+  DCHECK(!profile->IsOffTheRecord());
+  ChromeURLRequestContext* context = new ChromeURLRequestContext(profile);
+
+  // All we care about for extensions is the cookie store.
+  DCHECK(!cookie_store_path.empty());
+  context->cookie_db_.reset(new SQLitePersistentCookieStore(
+      cookie_store_path.ToWStringHack(),
+      g_browser_process->db_thread()->message_loop()));
+  context->cookie_store_ = new net::CookieMonster(context->cookie_db_.get());
+
+  // Enable cookies for extension URLs only.
+  const char* schemes[] = {chrome::kExtensionScheme};
+  context->cookie_store_->SetCookieableSchemes(schemes, 1);
+
+  return context;
+}
+
+// static
 ChromeURLRequestContext* ChromeURLRequestContext::CreateOffTheRecord(
     Profile* profile) {
   DCHECK(profile->IsOffTheRecord());
@@ -181,6 +202,20 @@ ChromeURLRequestContext* ChromeURLRequestContext::CreateOffTheRecordForMedia(
   // original one.
   DCHECK(profile->IsOffTheRecord());
   return CreateRequestContextForMedia(profile, disk_cache_path, true);
+}
+
+// static
+ChromeURLRequestContext*
+ChromeURLRequestContext::CreateOffTheRecordForExtensions(Profile* profile) {
+  DCHECK(profile->IsOffTheRecord());
+  ChromeURLRequestContext* context = new ChromeURLRequestContext(profile);
+  context->cookie_store_ = new net::CookieMonster;
+
+  // Enable cookies for extension URLs only.
+  const char* schemes[] = {chrome::kExtensionScheme};
+  context->cookie_store_->SetCookieableSchemes(schemes, 1);
+
+  return context;
 }
 
 // static

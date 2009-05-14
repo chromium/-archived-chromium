@@ -94,6 +94,7 @@ CookieMonster::CookieMonster()
       store_(NULL),
       last_access_threshold_(
           TimeDelta::FromSeconds(kDefaultAccessUpdateThresholdSeconds)) {
+  SetDefaultCookieableSchemes();
 }
 
 CookieMonster::CookieMonster(PersistentCookieStore* store)
@@ -101,6 +102,7 @@ CookieMonster::CookieMonster(PersistentCookieStore* store)
       store_(store),
       last_access_threshold_(
           TimeDelta::FromSeconds(kDefaultAccessUpdateThresholdSeconds)) {
+  SetDefaultCookieableSchemes();
 }
 
 CookieMonster::~CookieMonster() {
@@ -122,6 +124,13 @@ void CookieMonster::InitStore() {
        it != cookies.end(); ++it) {
     InternalInsertCookie(it->first, it->second, false);
   }
+}
+
+void CookieMonster::SetDefaultCookieableSchemes() {
+  // Note: file must be the last scheme.
+  static const char* kDefaultCookieableSchemes[] = { "http", "https", "file" };
+  int num_schemes = enable_file_scheme_ ? 3 : 2;
+  SetCookieableSchemes(kDefaultCookieableSchemes, num_schemes);
 }
 
 // The system resolution is not high enough, so we can have multiple
@@ -358,18 +367,11 @@ static Time CanonExpiration(const CookieMonster::ParsedCookie& pc,
   return Time();
 }
 
-static bool HasCookieableScheme(const GURL& url) {
-  static const char* kCookieableSchemes[]  = { "http", "https", "file" };
-  static const int   kCookieableSchemesLen = arraysize(kCookieableSchemes);
-  static const int   kCookieableSchemesFileIndex = 2;
-
+bool CookieMonster::HasCookieableScheme(const GURL& url) {
   // Make sure the request is on a cookie-able url scheme.
-  for (int i = 0; i < kCookieableSchemesLen; ++i) {
+  for (size_t i = 0; i < cookieable_schemes_.size(); ++i) {
     // We matched a scheme.
-    if (url.SchemeIs(kCookieableSchemes[i])) {
-      // This is file:// scheme
-      if (i == kCookieableSchemesFileIndex)
-        return CookieMonster::enable_file_scheme_;
+    if (url.SchemeIs(cookieable_schemes_[i].c_str())) {
       // We've matched a supported scheme.
       return true;
     }
@@ -378,6 +380,13 @@ static bool HasCookieableScheme(const GURL& url) {
   // The scheme didn't match any in our whitelist.
   COOKIE_DLOG(WARNING) << "Unsupported cookie scheme: " << url.scheme();
   return false;
+}
+
+void CookieMonster::SetCookieableSchemes(
+    const char* schemes[], size_t num_schemes) {
+  cookieable_schemes_.clear();
+  cookieable_schemes_.insert(cookieable_schemes_.end(),
+                             schemes, schemes + num_schemes);
 }
 
 bool CookieMonster::SetCookie(const GURL& url,
@@ -419,7 +428,6 @@ bool CookieMonster::SetCookieWithCreationTimeWithOptions(
   DCHECK(!creation_time.is_null());
 
   if (!HasCookieableScheme(url)) {
-    DLOG(WARNING) << "Unsupported cookie scheme: " << url.scheme();
     return false;
   }
 
@@ -733,7 +741,6 @@ std::string CookieMonster::GetCookies(const GURL& url) {
 std::string CookieMonster::GetCookiesWithOptions(const GURL& url,
                                                  const CookieOptions& options) {
   if (!HasCookieableScheme(url)) {
-    DLOG(WARNING) << "Unsupported cookie scheme: " << url.scheme();
     return std::string();
   }
 

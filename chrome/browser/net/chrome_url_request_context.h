@@ -38,6 +38,11 @@ class ChromeURLRequestContext : public URLRequestContext,
   static ChromeURLRequestContext* CreateOriginalForMedia(Profile *profile,
       const FilePath& disk_cache_path);
 
+  // Create an instance for an original profile for extensions. This is expected
+  // to get called on UI thread.
+  static ChromeURLRequestContext* CreateOriginalForExtensions(Profile *profile,
+      const FilePath& cookie_store_path);
+
   // Create an instance for use with an OTR profile. This is expected to get
   // called on the UI thread.
   static ChromeURLRequestContext* CreateOffTheRecord(Profile* profile);
@@ -45,6 +50,10 @@ class ChromeURLRequestContext : public URLRequestContext,
   // Create an instance of request context for OTR profile for media resources.
   static ChromeURLRequestContext* CreateOffTheRecordForMedia(Profile* profile,
       const FilePath& disk_cache_path);
+
+  // Create an instance of request context for OTR profile for extensions.
+  static ChromeURLRequestContext* CreateOffTheRecordForExtensions(
+      Profile* profile);
 
   // Clean up UI thread resources. This is expected to get called on the UI
   // thread before the instance is deleted on the IO thread.

@@ -32,6 +32,7 @@ class PrefService;
 class SessionService;
 class SpellChecker;
 class SSLHostState;
+class SQLitePersistentCookieStore;
 class TabRestoreService;
 class TemplateURLFetcher;
 class TemplateURLModel;
@@ -189,6 +190,10 @@ class Profile {
   // profile.
   virtual URLRequestContext* GetRequestContextForMedia() = 0;
 
+  // Returns the request context used for extension-related requests.  This
+  // is only used for a separate cookie store currently.
+  virtual URLRequestContext* GetRequestContextForExtensions() = 0;
+
   // Returns the session service for this profile. This may return NULL. If
   // this profile supports a session service (it isn't off the record), and
   // the session service hasn't yet been created, this forces creation of
@@ -311,6 +316,7 @@ class ProfileImpl : public Profile,
   virtual bool HasCreatedDownloadManager() const;
   virtual URLRequestContext* GetRequestContext();
   virtual URLRequestContext* GetRequestContextForMedia();
+  virtual URLRequestContext* GetRequestContextForExtensions();
   virtual SessionService* GetSessionService();
   virtual void ShutdownSessionService();
   virtual bool HasSessionService() const;
@@ -377,6 +383,8 @@ class ProfileImpl : public Profile,
   ChromeURLRequestContext* request_context_;
 
   ChromeURLRequestContext* media_request_context_;
+
+  ChromeURLRequestContext* extensions_request_context_;
 
   scoped_refptr<DownloadManager> download_manager_;
   scoped_refptr<HistoryService> history_service_;

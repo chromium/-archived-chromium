@@ -255,6 +255,8 @@ class ResourceMessageFilter : public IPC::ChannelProxy::MessageFilter,
   // A request context specific for media resources.
   scoped_refptr<URLRequestContext> media_request_context_;
 
+  scoped_refptr<URLRequestContext> extensions_request_context_;
+
   // A pointer to the profile associated with this filter.
   //
   // DANGER! Do not dereference this pointer! This class lives on the I/O thread

@@ -76,6 +76,7 @@ class CookieMonster {
         store_(NULL),
         last_access_threshold_(
             base::TimeDelta::FromSeconds(last_access_threshold_seconds)) {
+    SetDefaultCookieableSchemes();
   }
 #endif
 
@@ -133,9 +134,15 @@ class CookieMonster {
                     const CanonicalCookie& cookie,
                     bool sync_to_store);
 
+  // Override the default list of schemes that are allowed to be set in
+  // this cookie store.  Calling his overrides the value of
+  // "enable_file_scheme_".
+  void SetCookieableSchemes(const char* schemes[], size_t num_schemes);
+
   // There are some unknowns about how to correctly handle file:// cookies,
   // and our implementation for this is not robust enough. This allows you
   // to enable support, but it should only be used for testing. Bug 1157243.
+  // Must be called before creating a CookieMonster instance.
   static void EnableFileScheme();
   static bool enable_file_scheme_;
 
@@ -155,6 +162,8 @@ class CookieMonster {
   // Initializes the backing store and reads existing cookies from it.
   // Should only be called by InitIfNecessary().
   void InitStore();
+
+  void SetDefaultCookieableSchemes();
 
   void FindCookiesForHostAndDomain(const GURL& url,
                                    const CookieOptions& options,
@@ -210,6 +219,8 @@ class CookieMonster {
                             const CookieMapItPair& itpair,
                             std::vector<CookieMap::iterator>* cookie_its);
 
+  bool HasCookieableScheme(const GURL& url);
+
   CookieMap cookies_;
 
   // Indicates whether the cookie store has been initialized. This happens
@@ -226,6 +237,8 @@ class CookieMonster {
   // Minimum delay after updating a cookie's LastAccessDate before we will
   // update it again.
   const base::TimeDelta last_access_threshold_;
+
+  std::vector<std::string> cookieable_schemes_;
 
   // Lock for thread-safety
   Lock lock_;

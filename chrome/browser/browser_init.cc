@@ -45,7 +45,6 @@
 #include "grit/generated_resources.h"
 #include "grit/locale_settings.h"
 #include "grit/theme_resources.h"
-#include "net/base/cookie_monster.h"
 #include "webkit/glue/webkit_glue.h"
 
 #if defined(OS_WIN)
@@ -403,9 +402,6 @@ bool BrowserInit::LaunchWithProfile::Launch(Profile* profile,
       }
     }
   }
-
-  if (command_line_.HasSwitch(switches::kEnableFileCookies))
-    net::CookieMonster::EnableFileScheme();
 
   if (command_line_.HasSwitch(switches::kUserAgent)) {
     webkit_glue::SetUserAgent(WideToUTF8(

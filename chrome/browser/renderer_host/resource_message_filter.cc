@@ -27,6 +27,7 @@
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
 #include "chrome/common/render_messages.h"
+#include "chrome/common/url_constants.h"
 #include "net/base/cookie_monster.h"
 #include "net/base/mime_util.h"
 #include "net/base/load_flags.h"
@@ -125,6 +126,7 @@ ResourceMessageFilter::ResourceMessageFilter(
       ALLOW_THIS_IN_INITIALIZER_LIST(resolve_proxy_msg_helper_(this, NULL)),
       request_context_(profile->GetRequestContext()),
       media_request_context_(profile->GetRequestContextForMedia()),
+      extensions_request_context_(profile->GetRequestContextForExtensions()),
       profile_(profile),
       render_widget_helper_(render_widget_helper),
       audio_renderer_host_(audio_renderer_host),
@@ -384,15 +386,19 @@ void ResourceMessageFilter::OnMsgCreateWidget(int opener_id,
 void ResourceMessageFilter::OnSetCookie(const GURL& url,
                                         const GURL& policy_url,
                                         const std::string& cookie) {
-  if (request_context_->cookie_policy()->CanSetCookie(url, policy_url))
-    request_context_->cookie_store()->SetCookie(url, cookie);
+  URLRequestContext* context = url.SchemeIs(chrome::kExtensionScheme) ?
+      extensions_request_context_.get() : request_context_.get();
+  if (context->cookie_policy()->CanSetCookie(url, policy_url))
+    context->cookie_store()->SetCookie(url, cookie);
 }
 
 void ResourceMessageFilter::OnGetCookies(const GURL& url,
                                          const GURL& policy_url,
                                          std::string* cookies) {
-  if (request_context_->cookie_policy()->CanGetCookies(url, policy_url))
-    *cookies = request_context_->cookie_store()->GetCookies(url);
+  URLRequestContext* context = url.SchemeIs(chrome::kExtensionScheme) ?
+      extensions_request_context_.get() : request_context_.get();
+  if (context->cookie_policy()->CanGetCookies(url, policy_url))
+    *cookies = context->cookie_store()->GetCookies(url);
 }
 
 void ResourceMessageFilter::OnGetDataDir(std::wstring* data_dir) {

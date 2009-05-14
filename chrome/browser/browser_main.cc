@@ -49,6 +49,7 @@
 #include "grit/chromium_strings.h"
 #include "grit/generated_resources.h"
 #include "grit/net_resources.h"
+#include "net/base/cookie_monster.h"
 #include "net/base/net_module.h"
 #include "net/http/http_network_session.h"
 
@@ -363,6 +364,12 @@ int BrowserMain(const MainFunctionParams& parameters) {
     // TODO(port): We should probably change this to a "check for minimum
     // requirements" function, implemented by each platform.
     CheckForWin2000();
+  }
+
+  if (parsed_command_line.HasSwitch(switches::kEnableFileCookies)) {
+    // Enable cookie storage for file:// URLs.  Must do this before the first
+    // Profile (and therefore the first CookieMonster) is created.
+    net::CookieMonster::EnableFileScheme();
   }
 
   // Initialize histogram statistics gathering system.

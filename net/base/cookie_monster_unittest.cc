@@ -928,4 +928,21 @@ TEST(CookieMonsterTest, TestDeleteSingleCookie) {
   EXPECT_EQ("A=B; E=F", cm.GetCookies(url_google));
 }
 
+TEST(CookieMonsterTest, SetCookieableSchemes) {
+  net::CookieMonster cm;
+  net::CookieMonster cm_foo;
+
+  // Only cm_foo should allow foo:// cookies.
+  const char* kSchemes[] = {"foo"};
+  cm_foo.SetCookieableSchemes(kSchemes, 1);
+
+  GURL foo_url("foo://host/path");
+  GURL http_url("http://host/path");
+
+  EXPECT_TRUE(cm.SetCookie(http_url, "x=1"));
+  EXPECT_FALSE(cm.SetCookie(foo_url, "x=1"));
+  EXPECT_TRUE(cm_foo.SetCookie(foo_url, "x=1"));
+  EXPECT_FALSE(cm_foo.SetCookie(http_url, "x=1"));
+}
+
 // TODO test overwrite cookie

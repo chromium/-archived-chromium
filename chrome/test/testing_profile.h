@@ -131,6 +131,9 @@ class TestingProfile : public Profile {
   virtual URLRequestContext* GetRequestContextForMedia() {
     return NULL;
   }
+  virtual URLRequestContext* GetRequestContextForExtensions() {
+    return NULL;
+  }
   void set_session_service(SessionService* session_service) {
     session_service_ = session_service;
   }

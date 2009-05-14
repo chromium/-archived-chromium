@@ -60,6 +60,7 @@ const FilePath::CharType kOffTheRecordMediaCacheDirname[] =
     FPL("Incognito Media Cache");
 const wchar_t kChromePluginDataDirname[] = L"Plugin Data";
 const FilePath::CharType kCookieFilename[] = FPL("Cookies");
+const FilePath::CharType kExtensionsCookieFilename[] = FPL("Extension Cookies");
 const FilePath::CharType kHistoryFilename[] = FPL("History");
 const FilePath::CharType kLocalStateFilename[] = FPL("Local State");
 const FilePath::CharType kPreferencesFilename[] = FPL("Preferences");
