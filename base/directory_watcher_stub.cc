@@ -10,7 +10,7 @@
 class DirectoryWatcherImpl : public DirectoryWatcher::PlatformDelegate {
  public:
   virtual bool Watch(const FilePath& path, DirectoryWatcher::Delegate* delegate,
-                     bool recursive) {
+                     MessageLoop* backend_loop, bool recursive) {
     return false;
   }
 };

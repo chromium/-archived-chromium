@@ -15,6 +15,7 @@
 #elif defined(OS_POSIX)
 #include <fts.h>
 #include <sys/stat.h>
+#include <sys/types.h>
 #endif
 
 #include <stdio.h>
@@ -341,6 +342,11 @@ struct FileInfo {
 bool GetFileInfo(const FilePath& file_path, FileInfo* info);
 // Deprecated temporary compatibility function.
 bool GetFileInfo(const std::wstring& file_path, FileInfo* info);
+
+#if defined(OS_POSIX)
+// Store inode number of |path| in |inode|. Return true on success.
+bool GetInode(const FilePath& path, ino_t* inode);
+#endif
 
 // Wrapper for fopen-like calls. Returns non-NULL FILE* on success.
 FILE* OpenFile(const FilePath& filename, const char* mode);

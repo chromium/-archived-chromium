@@ -12,6 +12,8 @@
 #include "base/pickle.h"
 #include "base/stl_util-inl.h"
 #include "base/string_util.h"
+#include "base/thread.h"
+#include "chrome/browser/browser_process.h"
 #include "chrome/common/notification_service.h"
 #include "chrome/common/url_constants.h"
 #include "net/base/net_util.h"
@@ -271,7 +273,9 @@ void UserScriptMaster::AddWatchedPath(const FilePath& path) {
 // TODO(aa): Enable this when DirectoryWatcher is implemented for linux.
 #if defined(OS_WIN) || defined(OS_MACOSX)
   DirectoryWatcher* watcher = new DirectoryWatcher();
-  watcher->Watch(path, this, true);
+  base::Thread* file_thread = g_browser_process->file_thread();
+  watcher->Watch(path, this, file_thread ? file_thread->message_loop() : NULL,
+                 true);
   dir_watchers_.push_back(watcher);
 #endif
 }

@@ -18,7 +18,7 @@ class DirectoryWatcherImpl : public DirectoryWatcher::PlatformDelegate,
   virtual ~DirectoryWatcherImpl();
 
   virtual bool Watch(const FilePath& path, DirectoryWatcher::Delegate* delegate,
-                     bool recursive);
+                     MessageLoop* backend_loop, bool recursive);
 
   // Callback from MessageLoopForIO.
   virtual void OnObjectSignaled(HANDLE object);
@@ -44,7 +44,8 @@ DirectoryWatcherImpl::~DirectoryWatcherImpl() {
 }
 
 bool DirectoryWatcherImpl::Watch(const FilePath& path,
-    DirectoryWatcher::Delegate* delegate, bool recursive) {
+                                 DirectoryWatcher::Delegate* delegate,
+                                 MessageLoop* backend_loop, bool recursive) {
   DCHECK(path_.value().empty());  // Can only watch one path.
 
   handle_ = FindFirstChangeNotification(

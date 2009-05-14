@@ -440,6 +440,16 @@ bool GetFileInfo(const FilePath& file_path, FileInfo* results) {
   return true;
 }
 
+bool GetInode(const FilePath& path, ino_t* inode) {
+  struct stat buffer;
+  int result = stat(path.value().c_str(), &buffer);
+  if (result < 0)
+    return false;
+
+  *inode = buffer.st_ino;
+  return true;
+}
+
 FILE* OpenFile(const std::string& filename, const char* mode) {
   return OpenFile(FilePath(filename), mode);
 }

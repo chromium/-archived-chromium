@@ -6,8 +6,8 @@
 
 #include <errno.h>
 #include <string.h>
-#include <sys/ioctl.h>
 #include <sys/inotify.h>
+#include <sys/ioctl.h>
 #include <sys/select.h>
 #include <unistd.h>
 
@@ -18,6 +18,7 @@
 
 #include "base/eintr_wrapper.h"
 #include "base/file_path.h"
+#include "base/file_util.h"
 #include "base/hash_tables.h"
 #include "base/lock.h"
 #include "base/logging.h"
@@ -26,8 +27,11 @@
 #include "base/singleton.h"
 #include "base/task.h"
 #include "base/thread.h"
+#include "base/waitable_event.h"
 
 namespace {
+
+class DirectoryWatcherImpl;
 
 // Singleton to manage all inotify watches.
 class InotifyReader {
@@ -35,34 +39,26 @@ class InotifyReader {
   typedef int Watch;  // Watch descriptor used by AddWatch and RemoveWatch.
   static const Watch kInvalidWatch = -1;
 
-  // Watch |path| for changes. |delegate| will be notified on each change. Does
-  // not check for duplicates. If you call it n times with same |path|
-  // and |delegate|, it will receive n notifications for each change
-  // in |path|. It makes implementation of DirectoryWatcher simple.
+  // Watch |path| for changes. |watcher| will be notified on each change.
   // Returns kInvalidWatch on failure.
-  Watch AddWatch(const FilePath& path, DirectoryWatcher::Delegate* delegate);
+  Watch AddWatch(const FilePath& path, DirectoryWatcherImpl* watcher);
 
-  // Remove |watch| for |delegate|. If you had n watches for same |delegate|
-  // and path, after calling this function you will have n - 1.
-  // Returns true on success.
-  bool RemoveWatch(Watch watch, DirectoryWatcher::Delegate* delegate);
+  // Remove |watch|. Returns true on success.
+  bool RemoveWatch(Watch watch, DirectoryWatcherImpl* watcher);
 
   // Callback for InotifyReaderTask.
-  void OnInotifyEvent(inotify_event* event);
+  void OnInotifyEvent(const inotify_event* event);
 
  private:
   friend struct DefaultSingletonTraits<InotifyReader>;
 
-  typedef std::pair<DirectoryWatcher::Delegate*, MessageLoop*> DelegateInfo;
-  typedef std::multiset<DelegateInfo> DelegateSet;
+  typedef std::set<DirectoryWatcherImpl*> WatcherSet;
 
   InotifyReader();
   ~InotifyReader();
 
   // We keep track of which delegates want to be notified on which watches.
-  // Multiset is used because there may be many DirectoryWatchers for same path
-  // and delegate.
-  base::hash_map<Watch, DelegateSet> delegates_;
+  base::hash_map<Watch, WatcherSet> watchers_;
 
   // For each watch we also want to know the path it's watching.
   base::hash_map<Watch, FilePath> paths_;
@@ -83,6 +79,114 @@ class InotifyReader {
   bool valid_;
 
   DISALLOW_COPY_AND_ASSIGN(InotifyReader);
+};
+
+class DirectoryWatcherImpl : public DirectoryWatcher::PlatformDelegate {
+ public:
+  typedef std::set<FilePath> FilePathSet;
+
+  DirectoryWatcherImpl();
+  ~DirectoryWatcherImpl();
+
+  void EnsureSetupFinished();
+
+  // Called for each event coming from one of watches.
+  void OnInotifyEvent(const inotify_event* event);
+
+  // Callback for RegisterSubtreeWatchesTask.
+  bool OnEnumeratedSubtree(const FilePathSet& paths);
+
+  // Start watching |path| for changes and notify |delegate| on each change.
+  // If |recursive| is true, watch entire subtree.
+  // Returns true if watch for |path| has been added successfully. Watches
+  // required for |recursive| are added on a background thread and have no
+  // effect on the return value.
+  virtual bool Watch(const FilePath& path, DirectoryWatcher::Delegate* delegate,
+                     MessageLoop* backend_loop, bool recursive);
+
+ private:
+  typedef std::set<InotifyReader::Watch> WatchSet;
+  typedef std::set<ino_t> InodeSet;
+
+  // Returns true if |inode| is watched by DirectoryWatcherImpl.
+  bool IsInodeWatched(ino_t inode) const;
+
+  // Delegate to notify upon changes.
+  DirectoryWatcher::Delegate* delegate_;
+
+  // Path we're watching (passed to delegate).
+  FilePath root_path_;
+
+  // Watch returned by InotifyReader.
+  InotifyReader::Watch watch_;
+
+  // Set of watched inodes.
+  InodeSet inodes_watched_;
+
+  // Keep track of registered watches.
+  WatchSet watches_;
+
+  // Lock to protect inodes_watched_ and watches_.
+  Lock lock_;
+
+  // Flag set to true when recursively watching subtree.
+  bool recursive_;
+
+  // Loop where we post directory change notifications to.
+  MessageLoop* loop_;
+
+  // Event signaled when the background task finished adding initial inotify
+  // watches for recursive watch.
+  base::WaitableEvent recursive_setup_finished_;
+
+  DISALLOW_COPY_AND_ASSIGN(DirectoryWatcherImpl);
+};
+
+class RegisterSubtreeWatchesTask : public Task {
+ public:
+  RegisterSubtreeWatchesTask(DirectoryWatcherImpl* watcher,
+                             const FilePath& path)
+      : watcher_(watcher),
+        path_(path) {
+  }
+
+  virtual void Run() {
+    file_util::FileEnumerator dir_list(path_, true,
+        file_util::FileEnumerator::DIRECTORIES);
+
+    DirectoryWatcherImpl::FilePathSet subtree;
+    for (FilePath subdirectory = dir_list.Next();
+         !subdirectory.empty();
+         subdirectory = dir_list.Next()) {
+      subtree.insert(subdirectory);
+    }
+    watcher_->OnEnumeratedSubtree(subtree);
+  }
+
+ private:
+  DirectoryWatcherImpl* watcher_;
+  FilePath path_;
+
+  DISALLOW_COPY_AND_ASSIGN(RegisterSubtreeWatchesTask);
+};
+
+class DirectoryWatcherImplNotifyTask : public Task {
+ public:
+  DirectoryWatcherImplNotifyTask(DirectoryWatcher::Delegate* delegate,
+                                 const FilePath& path)
+      : delegate_(delegate),
+        path_(path) {
+  }
+
+  virtual void Run() {
+    delegate_->OnDirectoryChanged(path_);
+  }
+
+ private:
+  DirectoryWatcher::Delegate* delegate_;
+  FilePath path_;
+
+  DISALLOW_COPY_AND_ASSIGN(DirectoryWatcherImplNotifyTask);
 };
 
 class InotifyReaderTask : public Task {
@@ -151,25 +255,6 @@ class InotifyReaderTask : public Task {
   DISALLOW_COPY_AND_ASSIGN(InotifyReaderTask);
 };
 
-class InotifyReaderNotifyTask : public Task {
- public:
-  InotifyReaderNotifyTask(DirectoryWatcher::Delegate* delegate,
-                          const FilePath& path)
-      : delegate_(delegate),
-        path_(path) {
-  }
-
-  virtual void Run() {
-    delegate_->OnDirectoryChanged(path_);
-  }
-
- private:
-  DirectoryWatcher::Delegate* delegate_;
-  FilePath path_;
-
-  DISALLOW_COPY_AND_ASSIGN(InotifyReaderNotifyTask);
-};
-
 InotifyReader::InotifyReader()
     : thread_("inotify_reader"),
       inotify_fd_(inotify_init()),
@@ -199,7 +284,8 @@ InotifyReader::~InotifyReader() {
 }
 
 InotifyReader::Watch InotifyReader::AddWatch(
-    const FilePath& path, DirectoryWatcher::Delegate* delegate) {
+    const FilePath& path, DirectoryWatcherImpl* watcher) {
+
   if (!valid_)
     return kInvalidWatch;
 
@@ -208,19 +294,20 @@ InotifyReader::Watch InotifyReader::AddWatch(
   Watch watch = inotify_add_watch(inotify_fd_, path.value().c_str(),
                                   IN_CREATE | IN_DELETE |
                                   IN_CLOSE_WRITE | IN_MOVE);
+
   if (watch == kInvalidWatch)
     return kInvalidWatch;
 
   if (paths_[watch].empty())
     paths_[watch] = path;  // We don't yet watch this path.
 
-  delegates_[watch].insert(std::make_pair(delegate, MessageLoop::current()));
+  watchers_[watch].insert(watcher);
 
   return watch;
 }
 
 bool InotifyReader::RemoveWatch(Watch watch,
-                                DirectoryWatcher::Delegate* delegate) {
+                                DirectoryWatcherImpl* watcher) {
   if (!valid_)
     return false;
 
@@ -229,89 +316,148 @@ bool InotifyReader::RemoveWatch(Watch watch,
   if (paths_[watch].empty())
     return false;  // We don't recognize this watch.
 
-  // Only erase one occurrence of delegate (there may be more).
-  delegates_[watch].erase(
-      delegates_[watch].find(std::make_pair(delegate, MessageLoop::current())));
+  watchers_[watch].erase(watcher);
 
-  if (delegates_[watch].empty()) {
+  if (watchers_[watch].empty()) {
     paths_.erase(watch);
-    delegates_.erase(watch);
-
+    watchers_.erase(watch);
     return (inotify_rm_watch(inotify_fd_, watch) == 0);
   }
 
   return true;
 }
 
-void InotifyReader::OnInotifyEvent(inotify_event* event) {
+void InotifyReader::OnInotifyEvent(const inotify_event* event) {
   if (event->mask & IN_IGNORED)
     return;
 
-  DelegateSet delegates_to_notify;
+  WatcherSet watchers_to_notify;
   FilePath changed_path;
 
   {
     AutoLock auto_lock(lock_);
     changed_path = paths_[event->wd];
-    delegates_to_notify.insert(delegates_[event->wd].begin(),
-                               delegates_[event->wd].end());
+    watchers_to_notify.insert(watchers_[event->wd].begin(),
+                              watchers_[event->wd].end());
   }
 
-  DelegateSet::iterator i;
-  for (i = delegates_to_notify.begin(); i != delegates_to_notify.end(); ++i) {
-    DirectoryWatcher::Delegate* delegate = i->first;
-    MessageLoop* loop = i->second;
-    loop->PostTask(FROM_HERE,
-                   new InotifyReaderNotifyTask(delegate, changed_path));
+  for (WatcherSet::iterator watcher = watchers_to_notify.begin();
+       watcher != watchers_to_notify.end();
+       ++watcher) {
+    (*watcher)->OnInotifyEvent(event);
   }
 }
 
-class DirectoryWatcherImpl : public DirectoryWatcher::PlatformDelegate {
- public:
-  DirectoryWatcherImpl() : watch_(InotifyReader::kInvalidWatch) {}
-  ~DirectoryWatcherImpl();
-
-  virtual bool Watch(const FilePath& path, DirectoryWatcher::Delegate* delegate,
-                     bool recursive);
-
- private:
-  // Delegate to notify upon changes.
-  DirectoryWatcher::Delegate* delegate_;
-
-  // Path we're watching (passed to delegate).
-  FilePath path_;
-
-  // Watch returned by InotifyReader.
-  InotifyReader::Watch watch_;
-
-  DISALLOW_COPY_AND_ASSIGN(DirectoryWatcherImpl);
-};
+DirectoryWatcherImpl::DirectoryWatcherImpl()
+    : watch_(InotifyReader::kInvalidWatch),
+      recursive_setup_finished_(false, false) {
+}
 
 DirectoryWatcherImpl::~DirectoryWatcherImpl() {
-  if (watch_ != InotifyReader::kInvalidWatch)
-    Singleton<InotifyReader>::get()->RemoveWatch(watch_, delegate_);
+  if (watch_ == InotifyReader::kInvalidWatch)
+    return;
+
+  if (recursive_)
+    recursive_setup_finished_.Wait();
+  for (WatchSet::iterator watch = watches_.begin();
+       watch != watches_.end();
+       ++watch) {
+    Singleton<InotifyReader>::get()->RemoveWatch(*watch, this);
+  }
+  watches_.clear();
+  inodes_watched_.clear();
 }
 
-bool DirectoryWatcherImpl::Watch(const FilePath& path,
-    DirectoryWatcher::Delegate* delegate, bool recursive) {
-  DCHECK(watch_ == InotifyReader::kInvalidWatch);  // Can only watch one path.
+void DirectoryWatcherImpl::OnInotifyEvent(const inotify_event* event) {
+  loop_->PostTask(FROM_HERE,
+      new DirectoryWatcherImplNotifyTask(delegate_, root_path_));
 
-  if (recursive) {
-    // TODO(phajdan.jr): Support recursive watches.
-    // Unfortunately inotify has no "native" support for them, but it can be
-    // emulated by walking the directory tree and setting up watches for each
-    // directory. Of course this is ineffective for large directory trees.
-    // For the algorithm, see the link below:
-    // http://osdir.com/ml/gnome.dashboard.devel/2004-10/msg00022.html
+  if (!(event->mask & IN_ISDIR))
+    return;
+
+  if (event->mask & IN_CREATE || event->mask & IN_MOVED_TO) {
+    // TODO(phajdan.jr): add watch for this new directory.
     NOTIMPLEMENTED();
+  } else if (event->mask & IN_DELETE || event->mask & IN_MOVED_FROM) {
+    // TODO(phajdan.jr): remove our watch for this directory.
+    NOTIMPLEMENTED();
+  }
+}
+
+bool DirectoryWatcherImpl::IsInodeWatched(ino_t inode) const {
+  return inodes_watched_.find(inode) != inodes_watched_.end();
+}
+
+bool DirectoryWatcherImpl::OnEnumeratedSubtree(const FilePathSet& subtree) {
+  DCHECK(recursive_);
+
+  if (watch_ == InotifyReader::kInvalidWatch) {
+    recursive_setup_finished_.Signal();
     return false;
   }
 
-  delegate_ = delegate;
-  path_ = path;
-  watch_ = Singleton<InotifyReader>::get()->AddWatch(path, delegate_);
+  bool success = true;
+  AutoLock auto_lock(lock_);
+  for (FilePathSet::iterator subdirectory = subtree.begin();
+       subdirectory != subtree.end();
+       ++subdirectory) {
+    ino_t inode;
+    if (!file_util::GetInode(*subdirectory, &inode)) {
+      success = false;
+      continue;
+    }
+    if (IsInodeWatched(inode))
+      continue;
+    InotifyReader::Watch watch =
+      Singleton<InotifyReader>::get()->AddWatch(*subdirectory, this);
+    if (watch != InotifyReader::kInvalidWatch) {
+      watches_.insert(watch);
+      inodes_watched_.insert(inode);
+    }
+  }
+  recursive_setup_finished_.Signal();
+  return success;
+}
 
-  return watch_ != InotifyReader::kInvalidWatch;
+bool DirectoryWatcherImpl::Watch(const FilePath& path,
+                                 DirectoryWatcher::Delegate* delegate,
+                                 MessageLoop* backend_loop, bool recursive) {
+
+  // Can only watch one path.
+  DCHECK(watch_ == InotifyReader::kInvalidWatch);
+
+  ino_t inode;
+  if (!file_util::GetInode(path, &inode))
+    return false;
+
+  InotifyReader::Watch watch =
+      Singleton<InotifyReader>::get()->AddWatch(path, this);
+  if (watch == InotifyReader::kInvalidWatch)
+    return false;
+
+  delegate_ = delegate;
+  recursive_ = recursive;
+  root_path_ = path;
+  watch_ = watch;
+  loop_ = MessageLoop::current();
+
+  {
+    AutoLock auto_lock(lock_);
+    inodes_watched_.insert(inode);
+    watches_.insert(watch_);
+  }
+
+  if (recursive_) {
+    Task* subtree_task = new RegisterSubtreeWatchesTask(this, root_path_);
+    if (backend_loop) {
+      backend_loop->PostTask(FROM_HERE, subtree_task);
+    } else {
+      subtree_task->Run();
+      delete subtree_task;
+    }
+  }
+
+  return true;
 }
 
 }  // namespace
@@ -319,3 +465,4 @@ bool DirectoryWatcherImpl::Watch(const FilePath& path,
 DirectoryWatcher::DirectoryWatcher() {
   impl_ = new DirectoryWatcherImpl();
 }
+

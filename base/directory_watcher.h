@@ -11,6 +11,7 @@
 #include "base/ref_counted.h"
 
 class FilePath;
+class MessageLoop;
 
 // This class lets you register interest in changes on a directory.
 // The delegate will get called whenever a file is added or changed in the
@@ -19,6 +20,7 @@ class DirectoryWatcher {
  public:
   class Delegate {
    public:
+    virtual ~Delegate() {}
     virtual void OnDirectoryChanged(const FilePath& path) = 0;
   };
 
@@ -27,15 +29,18 @@ class DirectoryWatcher {
 
   // Register interest in any changes in the directory |path|.
   // OnDirectoryChanged will be called back for each change within the dir.
-  // If |recursive| is true, the delegate will be notified for each change
-  // within the directory tree starting at |path|. Returns false on error.
+  // Any background operations will be ran on |backend_loop|, or inside Watch
+  // if |backend_loop| is NULL. If |recursive| is true, the delegate will be
+  // notified for each change within the directory tree starting at |path|.
+  // Returns false on error.
   //
   // Note: on Windows you may got more notifications for non-recursive watch
   // than you expect, especially on versions earlier than Vista. The behavior
   // is consistent on any particular version of Windows, but not across
   // different versions.
-  bool Watch(const FilePath& path, Delegate* delegate, bool recursive) {
-    return impl_->Watch(path, delegate, recursive);
+  bool Watch(const FilePath& path, Delegate* delegate,
+             MessageLoop* backend_loop, bool recursive) {
+    return impl_->Watch(path, delegate, backend_loop, recursive);
   }
 
   // Used internally to encapsulate different members on different platforms.
@@ -43,7 +48,7 @@ class DirectoryWatcher {
    public:
     virtual ~PlatformDelegate() {}
     virtual bool Watch(const FilePath& path, Delegate* delegate,
-                       bool recursive) = 0;
+                       MessageLoop* backend_loop, bool recursive) = 0;
   };
 
  private:

@@ -28,7 +28,7 @@ class DirectoryWatcherImpl : public DirectoryWatcher::PlatformDelegate {
   }
 
   virtual bool Watch(const FilePath& path, DirectoryWatcher::Delegate* delegate,
-                     bool recursive);
+                     MessageLoop* backend_loop, bool recursive);
 
   void OnFSEventsCallback(const FilePath& event_path) {
     DCHECK(!path_.value().empty());
@@ -72,6 +72,7 @@ void FSEventsCallback(ConstFSEventStreamRef stream,
 
 bool DirectoryWatcherImpl::Watch(const FilePath& path,
                                  DirectoryWatcher::Delegate* delegate,
+                                 MessageLoop* backend_loop,
                                  bool recursive) {
   DCHECK(path_.value().empty());  // Can only watch one path.
 
