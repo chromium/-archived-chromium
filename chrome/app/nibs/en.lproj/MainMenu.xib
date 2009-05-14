@@ -8,7 +8,7 @@
 		<string key="IBDocument.HIToolboxVersion">353.00</string>
 		<object class="NSMutableArray" key="IBDocument.EditedObjectIDs">
 			<bool key="EncodedWithXMLCoder">YES</bool>
-			<integer value="465"/>
+			<integer value="502"/>
 		</object>
 		<object class="NSArray" key="IBDocument.PluginDependencies">
 			<bool key="EncodedWithXMLCoder">YES</bool>
@@ -795,6 +795,14 @@
 										<string key="NSTitle">Text Encoding</string>
 										<object class="NSMutableArray" key="NSMenuItems">
 											<bool key="EncodedWithXMLCoder">YES</bool>
+											<object class="NSMenuItem" id="433074134">
+												<reference key="NSMenu" ref="466817936"/>
+												<string type="base64-UTF8" key="NSTitle">VW5pY29kZeKEoiAoVVRGLTgpA</string>
+												<string key="NSKeyEquiv"/>
+												<int key="NSMnemonicLoc">2147483647</int>
+												<reference key="NSOnImage" ref="353210768"/>
+												<reference key="NSMixedImage" ref="549394948"/>
+											</object>
 										</object>
 									</object>
 								</object>
@@ -1572,14 +1580,6 @@
 					</object>
 					<int key="connectionID">558</int>
 				</object>
-				<object class="IBConnectionRecord">
-					<object class="IBActionConnection" key="connection">
-						<string key="label">commandDispatch:</string>
-						<reference key="source" ref="1014"/>
-						<reference key="destination" ref="602502221"/>
-					</object>
-					<int key="connectionID">615</int>
-				</object>
 			</object>
 			<object class="IBMutableOrderedSet" key="objectRecords">
 				<object class="NSArray" key="orderedObjects">
@@ -2234,8 +2234,14 @@
 						<reference key="object" ref="466817936"/>
 						<object class="NSMutableArray" key="children">
 							<bool key="EncodedWithXMLCoder">YES</bool>
+							<reference ref="433074134"/>
 						</object>
 						<reference key="parent" ref="602502221"/>
+					</object>
+					<object class="IBObjectRecord">
+						<int key="objectID">467</int>
+						<reference key="object" ref="433074134"/>
+						<reference key="parent" ref="466817936"/>
 					</object>
 					<object class="IBObjectRecord">
 						<int key="objectID">473</int>
@@ -2592,6 +2598,7 @@
 					<string>465.IBPluginDependency</string>
 					<string>466.IBEditorWindowLastContentRect</string>
 					<string>466.IBPluginDependency</string>
+					<string>467.IBPluginDependency</string>
 					<string>473.IBPluginDependency</string>
 					<string>483.IBPluginDependency</string>
 					<string>491.IBPluginDependency</string>
@@ -2779,13 +2786,13 @@
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
 					<reference ref="9"/>
 					<string>{{525, 802}, {197, 73}}</string>
-					<string>{{455, 721}, {535, 20}}</string>
+					<string>{{369, 836}, {535, 20}}</string>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
 					<reference ref="9"/>
 					<string>{74, 862}</string>
 					<string>{{11, 977}, {478, 20}}</string>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
-					<string>{{647, 508}, {273, 213}}</string>
+					<string>{{561, 623}, {273, 213}}</string>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
 					<string>{{475, 832}, {234, 43}}</string>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
@@ -2818,7 +2825,8 @@
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
-					<string>{{920, 545}, {64, 6}}</string>
+					<string>{{834, 643}, {178, 23}}</string>
+					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
@@ -2911,7 +2919,7 @@
 				</object>
 			</object>
 			<nil key="sourceID"/>
-			<int key="maxID">615</int>
+			<int key="maxID">558</int>
 		</object>
 		<object class="IBClassDescriber" key="IBDocument.Classes">
 			<object class="NSMutableArray" key="referencedPartialClassDescriptions">

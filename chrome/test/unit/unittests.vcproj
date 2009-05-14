@@ -516,10 +516,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\browser\encoding_menu_controller_unittest.cc"
-				>
-			</File>
-			<File
 				RelativePath="..\..\browser\extensions\extension_messages_unittest.cc"
 				>
 			</File>

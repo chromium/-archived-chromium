@@ -90,10 +90,6 @@
 #define IDC_PRINT                       35003
 #define IDC_SAVE_PAGE                   35004
 #define IDC_ENCODING_MENU               35005
-
-// When adding a new encoding to this list, be sure to append it to the
-// EncodingMenuController::kValidEncodingIds array in
-// encoding_menu_controller.cc.
 #define IDC_ENCODING_AUTO_DETECT        35006
 #define IDC_ENCODING_UTF8               35007
 #define IDC_ENCODING_UTF16LE            35008
