@@ -45,6 +45,9 @@ class GetAllWindowsFunction : public SyncExtensionFunction {
 class CreateWindowFunction : public SyncExtensionFunction {
   virtual bool RunImpl();
 };
+class UpdateWindowFunction : public SyncExtensionFunction {
+  virtual bool RunImpl();
+};
 class RemoveWindowFunction : public SyncExtensionFunction {
   virtual bool RunImpl();
 };
