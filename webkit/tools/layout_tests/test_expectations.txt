@@ -2738,3 +2738,20 @@ BUG11933 WIN LINUX : LayoutTests/fast/frames/content-opacity-2.html = FAIL
 // sure to uncomment/recheck that when this is removed.
 BUG11935 MAC : LayoutTests/http/tests/ssl/verify-ssl-enabled.php = CRASH
 BUG11935 LINUX : LayoutTests/http/tests/navigation/document-location-click-timeout.html = CRASH
+
+BUGTONY WIN : LayoutTests/http/tests/navigation/anchor-basic.html = FAIL
+BUGTONY WIN : LayoutTests/http/tests/navigation/anchor-goback.html = FAIL
+BUGTONY WIN : LayoutTests/http/tests/navigation/javascriptlink-basic.html = FAIL
+BUGTONY WIN : LayoutTests/http/tests/navigation/javascriptlink-goback.html = FAIL
+BUGTONY WIN : LayoutTests/http/tests/navigation/metaredirect-basic.html = FAIL
+BUGTONY WIN : LayoutTests/http/tests/navigation/metaredirect-goback.html = FAIL
+BUGTONY WIN : LayoutTests/http/tests/navigation/post-goback2.html = FAIL
+BUGTONY WIN : LayoutTests/http/tests/navigation/relativeanchor-goback.html = FAIL
+BUGTONY WIN : LayoutTests/http/tests/navigation/slowmetaredirect-basic.html = FAIL
+BUGTONY WIN : LayoutTests/http/tests/navigation/slowtimerredirect-basic.html = FAIL
+BUGTONY WIN : LayoutTests/http/tests/navigation/success200-basic.html = FAIL
+BUGTONY WIN : LayoutTests/http/tests/navigation/success200-goback.html = FAIL
+BUGTONY WIN : LayoutTests/http/tests/navigation/success200-loadsame.html = FAIL
+BUGTONY WIN : LayoutTests/http/tests/navigation/success200-reload.html = FAIL
+BUGTONY WIN : LayoutTests/http/tests/navigation/timerredirect-basic.html = FAIL
+BUGTONY WIN : LayoutTests/http/tests/navigation/timerredirect-goback.html = FAIL
