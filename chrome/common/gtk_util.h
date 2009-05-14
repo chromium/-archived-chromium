@@ -9,9 +9,7 @@
 
 #include "webkit/glue/window_open_disposition.h"
 
-typedef struct _GdkPixbuf GdkPixbuf;
 typedef struct _GtkWidget GtkWidget;
-class SkBitmap;
 
 namespace event_utils {
 
@@ -22,13 +20,9 @@ WindowOpenDisposition DispositionFromEventFlags(guint state);
 
 }  // namespace event_utils
 
-namespace gfx {
+namespace gtk_util {
 
-// Convert and copy a SkBitmap to a GdkPixbuf. NOTE: this uses BGRAToRGBA, so
-// it is an expensive operation.
-GdkPixbuf* GdkPixbufFromSkBitmap(const SkBitmap* bitmap);
-
-// Create a GtkBin with |child| as its child widget.  This bin will paint a
+  // Create a GtkBin with |child| as its child widget.  This bin will paint a
 // border of color |color| with the sizes specified in pixels.
 GtkWidget* CreateGtkBorderBin(GtkWidget* child, const GdkColor* color,
                               int top, int bottom, int left, int right);
@@ -36,6 +30,6 @@ GtkWidget* CreateGtkBorderBin(GtkWidget* child, const GdkColor* color,
 // Remove all children from this container.
 void RemoveAllChildren(GtkWidget* container);
 
-}  // namespace gfx
+}  // namespace gtk_util
 
 #endif  // CHROME_COMMON_GTK_UTIL_H_
