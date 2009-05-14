@@ -69,7 +69,6 @@ SSLPolicyBackend::SSLPolicyBackend(NavigationController* controller)
     : controller_(controller),
       ssl_host_state_(controller->profile()->GetSSLHostState()) {
   DCHECK(controller_);
-  DCHECK(ssl_host_state_);
 }
 
 void SSLPolicyBackend::ShowMessage(const std::wstring& msg) {
