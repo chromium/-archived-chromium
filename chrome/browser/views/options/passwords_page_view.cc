@@ -25,12 +25,11 @@ MultiLabelButtons::MultiLabelButtons(views::ButtonListener* listener,
                                      const std::wstring& alt_label)
     : NativeButton(listener, label),
       label_(label),
-      alt_label_(alt_label),
-      pref_size_(-1, -1) {
+      alt_label_(alt_label) {
 }
 
 gfx::Size MultiLabelButtons::GetPreferredSize() {
-  if (pref_size_.width() == -1 && pref_size_.height() == -1) {
+  if (pref_size_.IsEmpty()) {
     // Let's compute our preferred size.
     std::wstring current_label = label();
     SetLabel(label_);
