@@ -9,7 +9,6 @@
 
 #include "base/gfx/rect.h"
 #include "base/scoped_ptr.h"
-#include "base/task.h"
 #include "base/timer.h"
 #include "chrome/browser/browser_window.h"
 #include "chrome/browser/tabs/tab_strip_model.h"
@@ -186,10 +185,6 @@ class BrowserWindowGtk : public BrowserWindow,
 
   // The container for info bars. Always non-NULL.
   scoped_ptr<InfoBarContainerGtk> infobar_container_;
-
-  // When it goes out of scope during our destruction, |method_factory_| will
-  // cancel its pending tasks (which depend on us still existing).
-  ScopedRunnableMethodFactory<BrowserWindowGtk> method_factory_;
 
   // The timer used to update frames for the Loading Animation.
   base::RepeatingTimer<BrowserWindowGtk> loading_animation_timer_;

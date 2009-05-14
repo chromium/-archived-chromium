@@ -35,6 +35,6 @@ void OwnedWidgetGtk::Destroy() {
 
   DCHECK(!g_object_is_floating(widget));
   // NOTE: Assumes some implementation details about glib internals.
-  DCHECK(G_OBJECT(widget)->ref_count == 1);
+  DCHECK_EQ(G_OBJECT(widget)->ref_count, 1U);
   g_object_unref(widget);
 }

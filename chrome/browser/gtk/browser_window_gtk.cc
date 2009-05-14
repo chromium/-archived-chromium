@@ -273,8 +273,7 @@ BrowserWindowGtk::BrowserWindowGtk(Browser* browser)
     :  browser_(browser),
        // TODO(port): make this a pref.
        custom_frame_(false),
-       full_screen_(false),
-       method_factory_(this) {
+       full_screen_(false) {
   window_ = GTK_WINDOW(gtk_window_new(GTK_WINDOW_TOPLEVEL));
   SetWindowIcon();
   SetGeometryHints();
@@ -783,18 +782,7 @@ gboolean BrowserWindowGtk::OnGtkAccelerator(GtkAccelGroup* accel_group,
                                             GdkModifierType modifier,
                                             BrowserWindowGtk* browser_window) {
   int command_id = GetCommandId(keyval, modifier);
-  // We have to delay certain commands that may try to destroy widgets to which
-  // GTK is currently holding a reference. (For now the only such command is
-  // tab closing.) GTK will hold a reference on the RWHV widget when the
-  // event came through on that widget but GTK focus was elsewhere.
-  if (IDC_CLOSE_TAB == command_id) {
-    MessageLoop::current()->PostTask(FROM_HERE,
-        browser_window->method_factory_.NewRunnableMethod(
-            &BrowserWindowGtk::ExecuteBrowserCommand,
-            command_id));
-  } else {
-    browser_window->ExecuteBrowserCommand(command_id);
-  }
+  browser_window->ExecuteBrowserCommand(command_id);
 
   return TRUE;
 }

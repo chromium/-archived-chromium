@@ -10,7 +10,9 @@
 #include <cairo/cairo.h>
 
 #include "base/logging.h"
+#include "base/message_loop.h"
 #include "base/string_util.h"
+#include "base/task.h"
 #include "chrome/common/native_web_keyboard_event.h"
 #include "chrome/common/render_messages.h"
 #include "chrome/common/x11_util.h"
@@ -166,6 +168,7 @@ RenderWidgetHostViewGtk::RenderWidgetHostViewGtk(RenderWidgetHost* widget_host)
 }
 
 RenderWidgetHostViewGtk::~RenderWidgetHostViewGtk() {
+  view_.Destroy();
 }
 
 void RenderWidgetHostViewGtk::InitAsChild() {
@@ -305,11 +308,7 @@ void RenderWidgetHostViewGtk::Destroy() {
     gtk_widget_destroy(gtk_widget_get_parent(view_.get()));
   }
 
-  // We need to disconnect ourselves from our parent widget at this time; this
-  // does the right thing, automatically removing ourselves from our parent
-  // container.
-  view_.Destroy();
-  delete this;
+  MessageLoop::current()->DeleteSoon(FROM_HERE, this);
 }
 
 void RenderWidgetHostViewGtk::SetTooltipText(const std::wstring& tooltip_text) {
