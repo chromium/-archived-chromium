@@ -7,8 +7,10 @@
 #include "base/string_util.h"
 #include "chrome/browser/browser.h"
 #include "chrome/browser/browser_list.h"
+#include "chrome/browser/extensions/extension.h"
 #include "chrome/browser/extensions/extension_error_utils.h"
 #include "chrome/browser/extensions/extension_function_dispatcher.h"
+#include "chrome/browser/extensions/extensions_service.h"
 #include "chrome/browser/renderer_host/render_view_host_delegate.h"
 #include "chrome/browser/tab_contents/navigation_entry.h"
 
@@ -57,6 +59,10 @@ static bool GetTabById(int tab_id, Profile* profile, Browser** browser,
                        TabStripModel** tab_strip,
                        TabContents** contents,
                        int* tab_index, std::string* error_message);
+
+// Construct an absolute path from a relative path.
+static GURL AbsolutePath(Profile* profile, std::string extension_id,
+                         std::string relative_url);
 
 // ExtensionTabUtil
 int ExtensionTabUtil::GetWindowId(const Browser* browser) {
@@ -385,9 +391,13 @@ bool CreateTabFunction::RunImpl() {
     EXTENSION_FUNCTION_VALIDATE(args->GetString(kUrlKey, &url_string));
     url.reset(new GURL(url_string));
     if (!url->is_valid()) {
-      error_ = ExtensionErrorUtils::FormatErrorMessage(kInvalidUrlError,
-          url_string);
-      return false;
+      // The path as passed in is not valid. Try converting to absolute path.
+      *url = AbsolutePath(profile(), extension_id(), url_string);
+      if (!url->is_valid()) {
+        error_ = ExtensionErrorUtils::FormatErrorMessage(kInvalidUrlError,
+                                                         url_string);
+        return false;
+      }
     }
   }
 
@@ -466,8 +476,12 @@ bool UpdateTabFunction::RunImpl() {
     GURL new_gurl(url);
 
     if (!new_gurl.is_valid()) {
-      error_ = ExtensionErrorUtils::FormatErrorMessage(kInvalidUrlError, url);
-      return false;
+      // The path as passed in is not valid. Try converting to absolute path.
+      new_gurl = AbsolutePath(profile(), extension_id(), url);
+      if (!new_gurl.is_valid()) {
+        error_ = ExtensionErrorUtils::FormatErrorMessage(kInvalidUrlError, url);
+        return false;
+      }
     }
 
     controller.LoadURL(new_gurl, GURL(), PageTransition::LINK);
@@ -615,6 +629,13 @@ static Browser* GetBrowserInProfileWithId(Profile* profile,
         kWindowNotFoundError, IntToString(window_id));
 
   return NULL;
+}
+
+static GURL AbsolutePath(Profile* profile, std::string extension_id,
+                         std::string relative_url) {
+  ExtensionsService* service = profile->GetExtensionsService();
+  Extension* extension = service->GetExtensionByID(extension_id);
+  return Extension::GetResourceURL(extension->url(), relative_url);
 }
 
 static bool GetTabById(int tab_id, Profile* profile, Browser** browser,
