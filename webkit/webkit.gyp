@@ -986,7 +986,7 @@
 
         # V8 bindings not generated from .idl source.
         '../third_party/WebKit/WebCore/bindings/v8/custom/V8AttrCustom.cpp',
-        '../third_party/WebKit/WebCore/bindings/v8/V8CanvasPixelArrayCustom.cpp',
+        '../third_party/WebKit/WebCore/bindings/v8/custom/V8CanvasPixelArrayCustom.cpp',
         '../third_party/WebKit/WebCore/bindings/v8/custom/V8CanvasRenderingContext2DCustom.cpp',
         '../third_party/WebKit/WebCore/bindings/v8/custom/V8ClientRectListCustom.cpp',
         '../third_party/WebKit/WebCore/bindings/v8/custom/V8ClipboardCustom.cpp',
@@ -1962,6 +1962,12 @@
         '../third_party/WebKit/WebCore/page/wx/EventHandlerWx.cpp',
         '../third_party/WebKit/WebCore/page/AXObjectCache.cpp',
         '../third_party/WebKit/WebCore/page/AXObjectCache.h',
+        '../third_party/WebKit/WebCore/page/AccessibilityAriaGrid.cpp',
+        '../third_party/WebKit/WebCore/page/AccessibilityAriaGrid.h',
+        '../third_party/WebKit/WebCore/page/AccessibilityAriaGridCell.cpp',
+        '../third_party/WebKit/WebCore/page/AccessibilityAriaGridCell.h',
+        '../third_party/WebKit/WebCore/page/AccessibilityAriaGridRow.cpp',
+        '../third_party/WebKit/WebCore/page/AccessibilityAriaGridRow.h',
         '../third_party/WebKit/WebCore/page/AccessibilityImageMapLink.cpp',
         '../third_party/WebKit/WebCore/page/AccessibilityImageMapLink.h',
         '../third_party/WebKit/WebCore/page/AccessibilityList.cpp',
