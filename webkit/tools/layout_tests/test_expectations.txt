@@ -2729,3 +2729,6 @@ BUG11909 : LayoutTests/http/tests/misc/window-open-then-write.html = TIMEOUT
 BUG11909 : LayoutTests/http/tests/navigation/new-window-redirect-history.html = TIMEOUT
 
 BUG11924 WIN : LayoutTests/http/tests/navigation/relativeanchor-basic.html = FAIL
+
+BUG11935 MAC : LayoutTests/http/tests/ssl/verify-ssl-enabled.php = CRASH
+BUG11935 LINUX : LayoutTests/http/tests/navigation/document-location-click-timeout.html = CRASH
