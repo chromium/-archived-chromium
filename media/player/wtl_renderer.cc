@@ -9,16 +9,26 @@ WtlVideoRenderer::WtlVideoRenderer(WtlVideoWindow* window)
     : window_(window) {
 }
 
-bool WtlVideoRenderer::OnInitialize(size_t width, size_t height) {
+WtlVideoRenderer::~WtlVideoRenderer() {
+}
+
+// static
+bool WtlVideoRenderer::IsMediaFormatSupported(
+    const media::MediaFormat& media_format) {
+  int width = 0;
+  int height = 0;
+  return ParseMediaFormat(media_format, &width, &height);
+}
+
+bool WtlVideoRenderer::OnInitialize(media::VideoDecoder* decoder) {
+  int width = 0;
+  int height = 0;
+  if (!ParseMediaFormat(decoder->media_format(), &width, &height))
+    return false;
   window_->SetSize(width, height);
   return true;
 }
 
-void WtlVideoRenderer::OnPaintNeeded() {
+void WtlVideoRenderer::OnFrameAvailable() {
   window_->Invalidate();
-}
-
-void WtlVideoRenderer::GetCurrentFrame(
-    scoped_refptr<media::VideoFrame>* frame_out) {
-  return media::VideoRendererBase::GetCurrentFrame(frame_out);
 }

@@ -7,24 +7,24 @@
 #ifndef MEDIA_PLAYER_WTL_RENDERER_H_
 #define MEDIA_PLAYER_WTL_RENDERER_H_
 
-#include "media/filters/video_renderer_base.h"
+#include "media/filters/video_thread.h"
 
 class WtlVideoWindow;
 
-class WtlVideoRenderer : public media::VideoRendererBase {
+class WtlVideoRenderer : public media::VideoThread {
  public:
   explicit WtlVideoRenderer(WtlVideoWindow* window);
-  virtual bool OnInitialize(size_t width, size_t height);
-  virtual void OnPaintNeeded();
-  void GetCurrentFrame(scoped_refptr<media::VideoFrame>* frame_out);
 
-  static bool IsMediaFormatSupported(const media::MediaFormat& format) {
-    return media::VideoRendererBase::IsMediaFormatSupported(format);
-  }
+  static bool IsMediaFormatSupported(const media::MediaFormat& media_format);
+
+ protected:
+  virtual bool OnInitialize(media::VideoDecoder* decoder);
+  virtual void OnFrameAvailable();
 
  private:
+  // Only allow to be deleted by reference counting.
   friend class scoped_refptr<WtlVideoRenderer>;
-  virtual ~WtlVideoRenderer() {}
+  virtual ~WtlVideoRenderer();
 
   WtlVideoWindow* window_;
 
