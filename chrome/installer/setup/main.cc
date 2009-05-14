@@ -32,6 +32,7 @@
 #include "chrome/installer/util/shell_util.h"
 #include "chrome/installer/util/util_constants.h"
 #include "chrome/installer/util/work_item.h"
+#include "courgette/courgette.h"
 #include "third_party/bspatch/mbspatch.h"
 
 #include "installer_util_strings.h"
@@ -56,6 +57,18 @@ int PatchArchiveFile(bool system_install, const std::wstring& archive_path,
   LOG(INFO) << "Applying patch " << patch_archive
             << " to file " << existing_archive
             << " and generating file " << uncompressed_archive;
+
+  // Try Courgette first.  Courgette checks the patch file first and fails
+  // quickly if the patch file does not have a valid Courgette header.
+  courgette::Status patch_status =
+      courgette::ApplyEnsemblePatch(existing_archive.c_str(),
+                                    patch_archive.c_str(),
+                                    uncompressed_archive.c_str());
+
+  if (patch_status == courgette::C_OK) {
+    return 0;
+  }
+
   return ApplyBinaryPatch(existing_archive.c_str(),
                           patch_archive.c_str(),
                           uncompressed_archive.c_str());
@@ -438,7 +451,7 @@ installer_util::InstallStatus InstallChrome(const CommandLine& cmd_line,
 }
 
 installer_util::InstallStatus UninstallChrome(const CommandLine& cmd_line,
-                                              const wchar_t* cmd_params, 
+                                              const wchar_t* cmd_params,
                                               const installer::Version* version,
                                               bool system_install) {
   LOG(INFO) << "Uninstalling Chome";
@@ -495,7 +508,7 @@ bool HandleNonInstallCmdLineOptions(const CommandLine& cmd_line,
   if (cmd_line.HasSwitch(installer_util::switches::kShowEula)) {
     // Check if we need to show the EULA. If it is passed as a command line
     // then the dialog is shown and regardless of the outcome setup exits here.
-    std::wstring inner_frame = 
+    std::wstring inner_frame =
         cmd_line.GetSwitchValue(installer_util::switches::kShowEula);
     exit_code = ShowEULADialog(inner_frame);
     if (installer_util::EULA_REJECTED != exit_code)
