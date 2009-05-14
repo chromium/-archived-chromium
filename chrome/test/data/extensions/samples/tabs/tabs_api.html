@@ -19,10 +19,6 @@ function bootStrap() {
   });
 }
 
-function isInt(i) {
-  return (typeof i == "number") && !(i % 1) && !isNaN(i);
-}
-
 function loadWindowList() {
   chrome.windows.getAll(true, function(windowList) {     
     tabs = {};
@@ -58,7 +54,8 @@ function updateTab(id){
   } catch (e) {
     alert(e);
   }
-} 
+}
+  
 
 function moveTabData(id) {
 	return {
@@ -185,6 +182,10 @@ chrome.tabs.onRemoved.addListener(function(tabId) {
   loadWindowList();
 });
 
+function isInt(i) {
+  return (typeof i == "number") && !(i % 1) && !isNaN(i);
+}
+
 function createWindow() {
   var args = {
     'left': parseInt(document.getElementById('new_window_left').value),
@@ -223,34 +224,6 @@ function refreshWindow(windowId) {
       appendToLog('window refreshed -- windowId: ' + window.id + ' tab count:' + window.tabs.length);
     });
   });
-}
-
-function updateWindowData(id) {
-  var retval = {
-    left: parseInt(document.getElementById('left_' + id).value),
-    top: parseInt(document.getElementById('top_' + id).value),
-    width: parseInt(document.getElementById('width_' + id).value),
-    height: parseInt(document.getElementById('height_' + id).value)
-  }
-         
-  if (!isInt(retval.left))
-    delete retval.left;
-  if (!isInt(retval.top))
-    delete retval.top;
-  if (!isInt(retval.width))
-    delete retval.width;
-  if (!isInt(retval.height))
-    delete retval.height;
-     
-  return retval;
-}
-
-function updateWindow(id){
-  try {
-    chrome.windows.update(id, updateWindowData(id));
-  } catch (e) {
-    alert(e);
-  }
 }
 
 function removeWindow(windowId) {
@@ -327,7 +300,6 @@ function refreshSelectedTab(windowId) {
             </div>
           </div>
         </div>
-        <button onclick="updateWindow(this.jstdata);" jsvalues=".jstdata:id">Update Window</button>
         <button onclick="removeWindow(this.jstdata);" jsvalues=".jstdata:id">Close Window</button>
         <button onclick="refreshSelectedTab(this.jstdata);" jsvalues=".jstdata:id">Refresh Selected Tab</button>
       </div>

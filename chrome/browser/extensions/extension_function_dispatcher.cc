@@ -61,7 +61,6 @@ FactoryRegistry::FactoryRegistry() {
       &NewExtensionFunction<GetLastFocusedWindowFunction>;
   factories_["GetAllWindows"] = &NewExtensionFunction<GetAllWindowsFunction>;
   factories_["CreateWindow"] = &NewExtensionFunction<CreateWindowFunction>;
-  factories_["UpdateWindow"] = &NewExtensionFunction<UpdateWindowFunction>;
   factories_["RemoveWindow"] = &NewExtensionFunction<RemoveWindowFunction>;
   
   // Tabs

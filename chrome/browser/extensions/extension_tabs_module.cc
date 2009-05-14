@@ -253,55 +253,6 @@ bool CreateWindowFunction::RunImpl() {
   return true;
 }
 
-bool UpdateWindowFunction::RunImpl() {
-  EXTENSION_FUNCTION_VALIDATE(args_->IsType(Value::TYPE_LIST));
-  const ListValue* args = static_cast<const ListValue*>(args_);
-  int window_id;
-  EXTENSION_FUNCTION_VALIDATE(args->GetInteger(0, &window_id));
-  DictionaryValue* update_props;
-  EXTENSION_FUNCTION_VALIDATE(args->GetDictionary(1, &update_props));
-
-  Browser* browser = GetBrowserInProfileWithId(profile(), window_id, &error_);
-  if (!browser)
-    return false;
-
-  gfx::Rect bounds = browser->window()->GetNormalBounds();
-  // Any part of the bounds can optionally be set by the caller.
-  int bounds_val;
-  if (update_props->HasKey(kLeftKey)) {
-    EXTENSION_FUNCTION_VALIDATE(update_props->GetInteger(kLeftKey,
-        &bounds_val));
-    bounds.set_x(bounds_val);
-  }
-
-  if (update_props->HasKey(kTopKey)) {
-    EXTENSION_FUNCTION_VALIDATE(update_props->GetInteger(kTopKey,
-        &bounds_val));
-    bounds.set_y(bounds_val);
-  }
-
-  if (update_props->HasKey(kWidthKey)) {
-    EXTENSION_FUNCTION_VALIDATE(update_props->GetInteger(kWidthKey,
-        &bounds_val));
-    bounds.set_width(bounds_val);
-  }
-
-  if (update_props->HasKey(kHeightKey)) {
-    EXTENSION_FUNCTION_VALIDATE(update_props->GetInteger(kHeightKey,
-        &bounds_val));
-    bounds.set_height(bounds_val);
-  }
-
-  // TODO(rafaelw): This call to SetBounds() ends up resulting in the target
-  // window being activated (pushed to the front). On win32, this appears to be
-  // the result of HWND event handling.
-  browser->window()->SetBounds(bounds);
-  // TODO(rafaelw): Support |focused|.
-  result_.reset(CreateWindowValue(browser, false));
-
-  return true;
-}
-
 bool RemoveWindowFunction::RunImpl() {
   int window_id;
   EXTENSION_FUNCTION_VALIDATE(args_->GetAsInteger(&window_id));
@@ -625,10 +576,10 @@ static bool GetTabById(int tab_id, Profile* profile, Browser** browser,
   if (ExtensionTabUtil::GetTabById(tab_id, profile, browser, tab_strip,
                                    contents, tab_index))
     return true;
-
+  
   if (error_message)
     *error_message = ExtensionErrorUtils::FormatErrorMessage(
         kTabNotFoundError, IntToString(tab_id));
-
+    
   return false;
 }
