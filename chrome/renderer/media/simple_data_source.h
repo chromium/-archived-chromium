@@ -56,7 +56,7 @@ class SimpleDataSource :
   virtual ~SimpleDataSource();
 
   // Updates |url_| and |media_format_| with the given URL.
-  void SetURL(const std::string& url);
+  void SetURL(const GURL& url);
 
   // Start the resource loading on the render thread.
   void StartTask();
@@ -71,7 +71,7 @@ class SimpleDataSource :
   scoped_ptr<webkit_glue::ResourceLoaderBridge> bridge_;
 
   media::MediaFormat media_format_;
-  std::string url_;
+  GURL url_;
   std::string data_;
   int64 size_;
   int64 position_;

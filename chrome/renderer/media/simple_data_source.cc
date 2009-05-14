@@ -24,19 +24,18 @@ SimpleDataSource::~SimpleDataSource() {}
 void SimpleDataSource::Stop() {}
 
 bool SimpleDataSource::Initialize(const std::string& url) {
-  SetURL(url);
+  SetURL(GURL(url));
 
   // Validate the URL.
-  GURL gurl(url);
-  if (!gurl.is_valid()) {
+  if (!url_.is_valid()) {
     return false;
   }
 
   // Create our bridge and post a task to start loading the resource.
   bridge_.reset(RenderThread::current()->resource_dispatcher()->CreateBridge(
       "GET",
-      gurl,
-      gurl,
+      url_,
+      url_,
       GURL::EmptyGURL(),  // TODO(scherkus): provide referer here.
       "null",             // TODO(abarth): provide frame_origin
       "null",             // TODO(abarth): provide main_frame_origin
@@ -92,7 +91,7 @@ void SimpleDataSource::OnDownloadProgress(uint64 position, uint64 size) {}
 void SimpleDataSource::OnUploadProgress(uint64 position, uint64 size) {}
 
 void SimpleDataSource::OnReceivedRedirect(const GURL& new_url) {
-  SetURL(new_url.spec());
+  SetURL(new_url);
 }
 
 void SimpleDataSource::OnReceivedResponse(
@@ -100,7 +99,7 @@ void SimpleDataSource::OnReceivedResponse(
     bool content_filtered) {
   // This is a simple data source, so we assume 200 responses with the content
   // length provided.
-  DCHECK(info.headers->response_code() == 200);
+  DCHECK(url_.SchemeIsFile() || info.headers->response_code() == 200);
   DCHECK(info.content_length != -1);
   size_ = info.content_length;
 }
@@ -114,19 +113,21 @@ void SimpleDataSource::OnCompletedRequest(const URLRequestStatus& status,
   DCHECK(size_ == data_.length());
   position_ = 0;
   bridge_.reset();
+  host_->SetTotalBytes(size_);
+  host_->SetBufferedBytes(size_);
   host_->InitializationComplete();
 }
 
 std::string SimpleDataSource::GetURLForDebugging() {
-  return url_;
+  return url_.spec();
 }
 
-void SimpleDataSource::SetURL(const std::string& url) {
+void SimpleDataSource::SetURL(const GURL& url) {
   url_ = url;
   media_format_.Clear();
   media_format_.SetAsString(media::MediaFormat::kMimeType,
                             media::mime_type::kApplicationOctetStream);
-  media_format_.SetAsString(media::MediaFormat::kURL, url);
+  media_format_.SetAsString(media::MediaFormat::kURL, url.spec());
 }
 
 void SimpleDataSource::StartTask() {
