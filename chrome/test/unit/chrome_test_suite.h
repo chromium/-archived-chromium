@@ -23,6 +23,9 @@
 #include "chrome/browser/browser_process.h"
 #include "chrome/common/chrome_paths.h"
 #include "chrome/common/chrome_switches.h"
+#if defined(OS_MACOSX)
+#include "chrome/common/mac_app_names.h"
+#endif
 #include "chrome/test/testing_browser_process.h"
 #include "net/base/host_resolver_unittest.h"
 #include "net/base/net_util.h"
@@ -92,7 +95,7 @@ class ChromeTestSuite : public TestSuite {
 #if defined(OS_MACOSX)
     FilePath path;
     PathService::Get(base::DIR_EXE, &path);
-    path = path.AppendASCII("Chromium.app");
+    path = path.AppendASCII(MAC_BROWSER_APP_NAME);
     mac_util::SetOverrideAppBundlePath(path);
 #endif
 

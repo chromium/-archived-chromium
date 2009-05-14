@@ -11,12 +11,7 @@
 #include "base/mac_util.h"
 #include "base/path_service.h"
 #import "base/scoped_nsobject.h"
-
-#if defined(GOOGLE_CHROME_BUILD)
-#define APP_NAME "Chrome.app"
-#else
-#define APP_NAME "Chromium.app"
-#endif
+#include "chrome/common/mac_app_names.h"
 
 // A class that initializes Cocoa and sets up resources for many of our
 // Cocoa controller unit tests. It does several key things:
@@ -35,7 +30,7 @@ class CocoaTestHelper {
     // Look in the Chromium app bundle for resources.
     FilePath path;
     PathService::Get(base::DIR_EXE, &path);
-    path = path.AppendASCII(APP_NAME);
+    path = path.AppendASCII(MAC_BROWSER_APP_NAME);
     mac_util::SetOverrideAppBundlePath(path);
 
     // Bootstrap Cocoa. It's very unhappy without this.

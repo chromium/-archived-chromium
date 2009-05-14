@@ -13,6 +13,7 @@
 #include "testing/gtest/include/gtest/gtest.h"
 #if defined(OS_MACOSX)
 #include "base/mac_util.h"
+#include "chrome/common/mac_app_names.h"
 #endif
 
 using base::Time;
@@ -131,10 +132,10 @@ void HistoryURLProviderTest::SetUp() {
 #if defined(OS_MACOSX)
   FilePath path;
   PathService::Get(base::DIR_EXE, &path);
-  path = path.AppendASCII("Chromium.app");
+  path = path.AppendASCII(MAC_BROWSER_APP_NAME);
   mac_util::SetOverrideAppBundlePath(path);
 #endif
-  
+
   profile_.reset(new TestingProfile());
   profile_->CreateBookmarkModel(true);
   profile_->CreateHistoryService(true);
