@@ -259,6 +259,22 @@ gfx::NativeView WidgetWin::GetNativeView() const {
   return hwnd_;
 }
 
+static BOOL CALLBACK EnumChildProcForRedraw(HWND hwnd, LPARAM lparam) {
+  DWORD process_id;
+  GetWindowThreadProcessId(hwnd, &process_id);
+  gfx::Rect invalid_rect = *reinterpret_cast<gfx::Rect*>(lparam);
+
+  RECT window_rect;
+  GetWindowRect(hwnd, &window_rect);
+  invalid_rect.Offset(-window_rect.left, -window_rect.top);
+
+  int flags = RDW_INVALIDATE | RDW_NOCHILDREN;
+  if (process_id == GetCurrentProcessId())
+    flags |= RDW_UPDATENOW;
+  RedrawWindow(hwnd, &invalid_rect.ToRECT(), NULL, flags);
+  return TRUE;
+}
+
 void WidgetWin::PaintNow(const gfx::Rect& update_rect) {
   if (use_layered_buffer_) {
     PaintLayeredWindow();
@@ -273,9 +289,20 @@ void WidgetWin::PaintNow(const gfx::Rect& update_rect) {
       ::RedrawWindow(GetParent(), parent_update_rect, NULL,
                      RDW_UPDATENOW | RDW_INVALIDATE | RDW_ALLCHILDREN);
     } else {
-      RECT native_update_rect = update_rect.ToRECT();
-      RedrawWindow(hwnd_, &native_update_rect, NULL,
-                   RDW_UPDATENOW | RDW_INVALIDATE | RDW_ALLCHILDREN);
+      // Paint child windows that are in a different process asynchronously.
+      // This prevents a hang in other processes from blocking this process.
+      ::RedrawWindow(hwnd_, &update_rect.ToRECT(), NULL,
+                     RDW_INVALIDATE | RDW_UPDATENOW | RDW_NOCHILDREN);
+
+      // Send the invalid rect in screen coordinates.
+      CRect screen_rect_temp;
+      GetWindowRect(&screen_rect_temp);
+      gfx::Rect screen_rect(screen_rect_temp);
+      gfx::Rect invalid_screen_rect = update_rect;
+      invalid_screen_rect.Offset(screen_rect.x(), screen_rect.y());
+
+      LPARAM lparam = reinterpret_cast<LPARAM>(&invalid_screen_rect);
+      EnumChildWindows(hwnd_, EnumChildProcForRedraw, lparam);
     }
     // As we were created with a style of WS_CLIPCHILDREN redraw requests may
     // result in an empty paint rect in WM_PAINT (this'll happen if a

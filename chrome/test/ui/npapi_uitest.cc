@@ -192,6 +192,28 @@ TEST_F(NPAPIVisiblePluginTester, CreateInstanceInPaint) {
                 kTestCompleteSuccess, kShortWaitTimeout);
 }
 
+#if defined(OS_WIN)
+
+// Tests that putting up an alert in response to a paint doesn't deadlock.
+TEST_F(NPAPIVisiblePluginTester, AlertInWindowMessage) {
+  show_window_ = true;
+  std::wstring test_case = L"alert_in_window_message.html";
+  GURL url = GetTestUrl(L"npapi", test_case);
+  NavigateToURL(url);
+
+  bool modal_dialog_showing = false;
+  MessageBoxFlags::DialogButton available_buttons;
+  ASSERT_TRUE(automation()->WaitForAppModalDialog(kShortWaitTimeout));
+  ASSERT_TRUE(automation()->GetShowingAppModalDialog(&modal_dialog_showing,
+      &available_buttons));
+  ASSERT_TRUE(modal_dialog_showing);
+  ASSERT_TRUE((MessageBoxFlags::DIALOGBUTTON_OK & available_buttons) != 0);
+  ASSERT_TRUE(automation()->ClickAppModalDialogButton(
+      MessageBoxFlags::DIALOGBUTTON_OK));
+}
+
+#endif
+
 TEST_F(NPAPIVisiblePluginTester, VerifyNPObjectLifetimeTest) {
   if (!UITest::in_process_renderer()) {
     show_window_ = true;

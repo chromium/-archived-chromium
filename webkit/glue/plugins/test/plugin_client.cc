@@ -5,9 +5,6 @@
 #include "base/string_util.h"
 #include "webkit/glue/plugins/test/plugin_client.h"
 #include "webkit/glue/plugins/test/plugin_arguments_test.h"
-#if defined(OS_WIN)
-#include "webkit/glue/plugins/test/plugin_create_instance_in_paint.h"
-#endif
 #include "webkit/glue/plugins/test/plugin_delete_plugin_in_stream_test.h"
 #include "webkit/glue/plugins/test/plugin_get_javascript_url_test.h"
 #include "webkit/glue/plugins/test/plugin_geturl_test.h"
@@ -17,7 +14,9 @@
 #include "webkit/glue/plugins/test/plugin_npobject_lifetime_test.h"
 #include "webkit/glue/plugins/test/plugin_npobject_proxy_test.h"
 #include "webkit/glue/plugins/test/plugin_window_size_test.h"
+#if defined(OS_WIN)
 #include "webkit/glue/plugins/test/plugin_windowed_test.h"
+#endif
 #include "webkit/glue/plugins/test/plugin_windowless_test.h"
 #include "third_party/npapi/bindings/npapi.h"
 #include "third_party/npapi/bindings/npruntime.h"
@@ -123,9 +122,6 @@ NPError NPP_New(NPMIMEType pluginType, NPP instance, uint16 mode,
   } else if (test_name == "checkwindowrect") {
     new_test = new NPAPIClient::PluginWindowSizeTest(instance,
       NPAPIClient::PluginClient::HostFunctions());
-  } else if (test_name == "create_instance_in_paint") {
-    new_test = new NPAPIClient::CreateInstanceInPaintTest(instance,
-      NPAPIClient::PluginClient::HostFunctions());
 #endif
   } else if (test_name == "self_delete_plugin_stream") {
     new_test = new NPAPIClient::DeletePluginInStreamTest(instance,
@@ -156,7 +152,9 @@ NPError NPP_New(NPMIMEType pluginType, NPP instance, uint16 mode,
       NPAPIClient::PluginClient::HostFunctions());
 #if defined(OS_WIN)
   // TODO(port): plugin_windowed_test.*.
-  } else if (test_name == "hidden_plugin") {
+  } else if (test_name == "hidden_plugin" ||
+             test_name == "create_instance_in_paint" ||
+             test_name == "alert_in_window_message") {
     new_test = new NPAPIClient::WindowedPluginTest(instance,
         NPAPIClient::PluginClient::HostFunctions());
 #endif
