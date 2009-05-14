@@ -8,6 +8,7 @@
 #include <atlapp.h>
 #include <atlcrack.h>
 #include <atlctrls.h>
+#include <atlmisc.h>
 #include <tom.h>  // For ITextDocument, a COM interface to CRichEditCtrl
 #include <vsstyle.h>
 

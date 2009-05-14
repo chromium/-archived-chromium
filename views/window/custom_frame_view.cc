@@ -74,11 +74,12 @@ const int kCaptionTopSpacing = 1;
 
 CustomFrameView::CustomFrameView(Window* frame)
     : NonClientFrameView(),
-      close_button_(new ImageButton(this)),
-      restore_button_(new ImageButton(this)),
-      maximize_button_(new ImageButton(this)),
-      minimize_button_(new ImageButton(this)),
-      system_menu_button_(new ImageButton(this)),
+      ALLOW_THIS_IN_INITIALIZER_LIST(close_button_(new ImageButton(this))),
+      ALLOW_THIS_IN_INITIALIZER_LIST(restore_button_(new ImageButton(this))),
+      ALLOW_THIS_IN_INITIALIZER_LIST(maximize_button_(new ImageButton(this))),
+      ALLOW_THIS_IN_INITIALIZER_LIST(minimize_button_(new ImageButton(this))),
+      ALLOW_THIS_IN_INITIALIZER_LIST(
+          system_menu_button_(new ImageButton(this))),
       should_show_minmax_buttons_(false),
       frame_(frame) {
   InitClass();

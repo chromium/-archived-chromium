@@ -9,6 +9,7 @@
 
 #if defined(OS_WIN)
 #include <windows.h>
+typedef struct tagNMLVCUSTOMDRAW NMLVCUSTOMDRAW;
 #endif  // defined(OS_WIN)
 
 #include <map>
@@ -470,7 +471,7 @@ class TableView : public NativeControl,
   virtual bool ImplementPostPaint() { return false; }
   // Subclasses can implement in this method extra-painting for cells.
   virtual void PostPaint(int model_row, int column, bool selected,
-                         const CRect& bounds, HDC device_context) { }
+                         const gfx::Rect& bounds, HDC device_context) { }
   virtual void PostPaint() {}
 
   virtual HWND CreateNativeControl(HWND parent_container);

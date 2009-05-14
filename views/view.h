@@ -7,12 +7,6 @@
 
 #include "build/build_config.h"
 
-#if defined(OS_WIN)
-#include <atlbase.h>
-#include <atlapp.h>
-#include <atlmisc.h>
-#endif  // defined(OS_WIN)
-
 #include <algorithm>
 #include <map>
 #include <string>
@@ -24,6 +18,10 @@
 #include "views/accessibility/accessibility_types.h"
 #include "views/background.h"
 #include "views/border.h"
+
+#if defined(OS_WIN)
+struct IDataObject;
+#endif  // defined(OS_WIN)
 
 namespace gfx {
 class Insets;

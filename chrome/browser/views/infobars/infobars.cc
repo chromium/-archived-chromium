@@ -84,8 +84,9 @@ class InfoBarBackground : public views::Background {
 
 InfoBar::InfoBar(InfoBarDelegate* delegate)
     : delegate_(delegate),
-      close_button_(new views::ImageButton(this)),
-      delete_factory_(this) {
+      ALLOW_THIS_IN_INITIALIZER_LIST(
+          close_button_(new views::ImageButton(this))),
+      ALLOW_THIS_IN_INITIALIZER_LIST(delete_factory_(this)) {
   // We delete ourselves when we're removed from the view hierarchy.
   SetParentOwned(false);
 

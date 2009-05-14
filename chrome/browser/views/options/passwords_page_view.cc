@@ -182,14 +182,16 @@ void PasswordsTableModel::CancelLoginsQuery() {
 // PasswordsPageView, public
 PasswordsPageView::PasswordsPageView(Profile* profile)
     : OptionsPageView(profile),
-      show_button_(
+      ALLOW_THIS_IN_INITIALIZER_LIST(show_button_(
           this,
           l10n_util::GetString(IDS_PASSWORDS_PAGE_VIEW_SHOW_BUTTON),
-          l10n_util::GetString(IDS_PASSWORDS_PAGE_VIEW_HIDE_BUTTON)),
-      remove_button_(this, l10n_util::GetString(
-          IDS_PASSWORDS_PAGE_VIEW_REMOVE_BUTTON)),
-      remove_all_button_(this, l10n_util::GetString(
-          IDS_PASSWORDS_PAGE_VIEW_REMOVE_ALL_BUTTON)),
+          l10n_util::GetString(IDS_PASSWORDS_PAGE_VIEW_HIDE_BUTTON))),
+      ALLOW_THIS_IN_INITIALIZER_LIST(remove_button_(
+          this,
+          l10n_util::GetString(IDS_PASSWORDS_PAGE_VIEW_REMOVE_BUTTON))),
+      ALLOW_THIS_IN_INITIALIZER_LIST(remove_all_button_(
+          this,
+          l10n_util::GetString(IDS_PASSWORDS_PAGE_VIEW_REMOVE_ALL_BUTTON))),
       table_model_(profile),
       table_view_(NULL) {
 }

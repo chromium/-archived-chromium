@@ -300,7 +300,7 @@ class BookmarkBarView : public views::View,
   // . menu for star groups.
   // The latter two are handled by a MenuRunner, which builds the appropriate
   // menu.
-  virtual void RunMenu(views::View* view, const CPoint& pt, HWND hwnd);
+  virtual void RunMenu(views::View* view, const gfx::Point& pt, HWND hwnd);
 
   // Invoked when a star entry corresponding to a URL on the bookmark bar is
   // pressed. Forwards to the PageNavigator to open the URL.

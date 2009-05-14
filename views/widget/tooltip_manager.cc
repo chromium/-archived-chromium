@@ -4,6 +4,7 @@
 
 #include "views/widget/tooltip_manager.h"
 
+#include <windowsx.h>
 #include <limits>
 
 #include "app/gfx/text_elider.h"

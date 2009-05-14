@@ -48,7 +48,7 @@ class GroupTableView : public TableView {
   // Extra-painting required to draw the separator line between groups.
   virtual bool ImplementPostPaint() { return true; }
   virtual void PostPaint(int model_row, int column, bool selected,
-                         const CRect& bounds, HDC device_context);
+                         const gfx::Rect& bounds, HDC device_context);
 
   // In order to make keyboard navigation possible (using the Up and Down
   // keys), we must take action when an arrow key is pressed. The reason we

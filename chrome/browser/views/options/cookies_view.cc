@@ -2,9 +2,9 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include <algorithm>
-
 #include "chrome/browser/views/options/cookies_view.h"
+
+#include <algorithm>
 
 #include "app/gfx/chrome_canvas.h"
 #include "app/gfx/color_utils.h"
@@ -697,7 +697,7 @@ CookiesView::CookiesView(Profile* profile)
       remove_button_(NULL),
       remove_all_button_(NULL),
       profile_(profile),
-      search_update_factory_(this) {
+      ALLOW_THIS_IN_INITIALIZER_LIST(search_update_factory_(this)) {
 }
 
 void CookiesView::Init() {

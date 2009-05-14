@@ -53,7 +53,7 @@ class GridLayoutTest : public testing::Test {
   }
 
   gfx::Size pref;
-  CRect bounds;
+  gfx::Rect bounds;
   View host;
   GridLayout* layout;
 };
@@ -78,16 +78,16 @@ class GridLayoutAlignmentTest : public testing::Test {
     }
   }
 
-  void TestAlignment(GridLayout::Alignment alignment, CRect* bounds) {
+  void TestAlignment(GridLayout::Alignment alignment, gfx::Rect* bounds) {
     ColumnSet* c1 = layout->AddColumnSet(0);
     c1->AddColumn(alignment, alignment, 1, GridLayout::USE_PREF, 0, 0);
     layout->StartRow(1, 0);
     layout->AddView(&v1);
     gfx::Size pref = layout->GetPreferredSize(&host);
-    EXPECT_TRUE(gfx::Size(10, 20) == pref);
+    EXPECT_EQ(gfx::Size(10, 20), pref);
     host.SetBounds(0, 0, 100, 100);
     layout->Layout(&host);
-    *bounds = v1.bounds().ToRECT();
+    *bounds = v1.bounds();
     RemoveAll();
   }
 
@@ -97,27 +97,27 @@ class GridLayoutAlignmentTest : public testing::Test {
 };
 
 TEST_F(GridLayoutAlignmentTest, Fill) {
-  CRect bounds;
+  gfx::Rect bounds;
   TestAlignment(GridLayout::FILL, &bounds);
-  EXPECT_TRUE(CRect(0, 0, 100, 100) == bounds);
+  EXPECT_EQ(gfx::Rect(0, 0, 100, 100), bounds);
 }
 
 TEST_F(GridLayoutAlignmentTest, Leading) {
-  CRect bounds;
+  gfx::Rect bounds;
   TestAlignment(GridLayout::LEADING, &bounds);
-  EXPECT_TRUE(CRect(0, 0, 10, 20) == bounds);
+  EXPECT_EQ(gfx::Rect(0, 0, 10, 20), bounds);
 }
 
 TEST_F(GridLayoutAlignmentTest, Center) {
-  CRect bounds;
+  gfx::Rect bounds;
   TestAlignment(GridLayout::CENTER, &bounds);
-  EXPECT_TRUE(CRect(45, 40, 55, 60) == bounds);
+  EXPECT_EQ(gfx::Rect(45, 40, 10, 20), bounds);
 }
 
 TEST_F(GridLayoutAlignmentTest, Trailing) {
-  CRect bounds;
+  gfx::Rect bounds;
   TestAlignment(GridLayout::TRAILING, &bounds);
-  EXPECT_TRUE(CRect(90, 80, 100, 100) == bounds);
+  EXPECT_EQ(gfx::Rect(90, 80, 10, 20), bounds);
 }
 
 TEST_F(GridLayoutTest, TwoColumns) {
@@ -133,7 +133,7 @@ TEST_F(GridLayoutTest, TwoColumns) {
   layout->AddView(&v2);
 
   GetPreferredSize();
-  EXPECT_TRUE(gfx::Size(30, 20) == pref);
+  EXPECT_EQ(gfx::Size(30, 20), pref);
 
   host.SetBounds(0, 0, pref.width(), pref.height());
   layout->Layout(&host);
@@ -157,7 +157,7 @@ TEST_F(GridLayoutTest, ColSpan1) {
   layout->AddView(&v2);
 
   GetPreferredSize();
-  EXPECT_TRUE(gfx::Size(100, 60) == pref);
+  EXPECT_EQ(gfx::Size(100, 60), pref);
 
   host.SetBounds(0, 0, pref.width(), pref.height());
   layout->Layout(&host);
@@ -182,7 +182,7 @@ TEST_F(GridLayoutTest, ColSpan2) {
   layout->AddView(&v2);
 
   GetPreferredSize();
-  EXPECT_TRUE(gfx::Size(100, 40) == pref);
+  EXPECT_EQ(gfx::Size(100, 40), pref);
 
   host.SetBounds(0, 0, pref.width(), pref.height());
   layout->Layout(&host);
@@ -208,7 +208,7 @@ TEST_F(GridLayoutTest, ColSpan3) {
   layout->AddView(&v3);
 
   GetPreferredSize();
-  EXPECT_TRUE(gfx::Size(100, 40) == pref);
+  EXPECT_EQ(gfx::Size(100, 40), pref);
 
   host.SetBounds(0, 0, pref.width(), pref.height());
   layout->Layout(&host);
@@ -238,7 +238,7 @@ TEST_F(GridLayoutTest, ColSpan4) {
   layout->AddView(&v3, 2, 1);
 
   GetPreferredSize();
-  EXPECT_TRUE(gfx::Size(25, 30) == pref);
+  EXPECT_EQ(gfx::Size(25, 30), pref);
 
   host.SetBounds(0, 0, pref.width(), pref.height());
   layout->Layout(&host);
@@ -263,7 +263,7 @@ TEST_F(GridLayoutTest, SameSizeColumns) {
   layout->AddView(&v2);
 
   gfx::Size pref = layout->GetPreferredSize(&host);
-  EXPECT_TRUE(gfx::Size(100, 20) == pref);
+  EXPECT_EQ(gfx::Size(100, 20), pref);
 
   host.SetBounds(0, 0, pref.width(), pref.height());
   layout->Layout(&host);
@@ -325,7 +325,7 @@ TEST_F(GridLayoutTest, TestVerticalResize1) {
   layout->AddView(&v2);
 
   GetPreferredSize();
-  EXPECT_TRUE(gfx::Size(50, 30) == pref);
+  EXPECT_EQ(gfx::Size(50, 30), pref);
 
   host.SetBounds(0, 0, 50, 100);
   layout->Layout(&host);
@@ -345,7 +345,7 @@ TEST_F(GridLayoutTest, Insets) {
   layout->AddView(&v1);
 
   GetPreferredSize();
-  EXPECT_TRUE(gfx::Size(16, 24) == pref);
+  EXPECT_EQ(gfx::Size(16, 24), pref);
 
   host.SetBounds(0, 0, pref.width(), pref.height());
   layout->Layout(&host);
@@ -395,8 +395,8 @@ TEST_F(GridLayoutTest, FixedSize) {
   }
 
   GetPreferredSize();
-  EXPECT_TRUE(gfx::Size(column_count * title_width + 4,
-                        row_count * pref_height + 4) == pref);
+  EXPECT_EQ(gfx::Size(column_count * title_width + 4,
+                      row_count * pref_height + 4), pref);
 }
 
 TEST_F(GridLayoutTest, RowSpanWithPaddingRow) {
@@ -438,7 +438,7 @@ TEST_F(GridLayoutTest, RowSpan) {
   layout->AddView(s3);
 
   GetPreferredSize();
-  EXPECT_TRUE(gfx::Size(40, 40) == pref);
+  EXPECT_EQ(gfx::Size(40, 40), pref);
 
   host.SetBounds(0, 0, pref.width(), pref.height());
   layout->Layout(&host);
@@ -464,7 +464,7 @@ TEST_F(GridLayoutTest, RowSpan2) {
   layout->AddView(new SettableSizeView(gfx::Size(10, 20)));
 
   GetPreferredSize();
-  EXPECT_TRUE(gfx::Size(84, 64) == pref);
+  EXPECT_EQ(gfx::Size(84, 64), pref);
 
   host.SetBounds(0, 0, pref.width(), pref.height());
   layout->Layout(&host);

@@ -4,6 +4,8 @@
 
 #include "chrome/browser/views/bookmark_folder_tree_view.h"
 
+#include <commctrl.h>
+
 #include "app/drag_drop_types.h"
 #include "app/os_exchange_data.h"
 #include "base/base_drag_source.h"

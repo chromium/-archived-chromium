@@ -6,7 +6,7 @@
 
 namespace history {
 
-const char* HistoryPublisher::kThumbnailImageFormat = "image/jpeg";
+const char* const HistoryPublisher::kThumbnailImageFormat = "image/jpeg";
 
 void HistoryPublisher::PublishPageThumbnail(
     const std::vector<unsigned char>& thumbnail, const GURL& url,

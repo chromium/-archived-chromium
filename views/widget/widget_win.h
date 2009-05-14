@@ -6,7 +6,9 @@
 #define VIEWS_WIDGET_WIDGET_WIN_H_
 
 #include <atlbase.h>
+#include <atlapp.h>
 #include <atlcrack.h>
+#include <atlmisc.h>
 
 #include "base/message_loop.h"
 #include "base/system_monitor.h"
@@ -36,7 +38,7 @@ RootView* GetRootViewForHWND(HWND hwnd);
 // uMsg - kReflectedMessage
 // wParam - Should be 0
 // lParam - Pointer to MSG struct containing the original message.
-static const int kReflectedMessage = WM_APP + 3;
+const int kReflectedMessage = WM_APP + 3;
 
 // These two messages aren't defined in winuser.h, but they are sent to windows
 // with captions. They appear to paint the window caption and frame.
@@ -46,8 +48,8 @@ static const int kReflectedMessage = WM_APP + 3;
 // window and paint the standard caption/title over the top of the custom one.
 // So we need to handle these messages in CustomFrameWindow to prevent this
 // from happening.
-static const int WM_NCUAHDRAWCAPTION = 0xAE;
-static const int WM_NCUAHDRAWFRAME = 0xAF;
+const int WM_NCUAHDRAWCAPTION = 0xAE;
+const int WM_NCUAHDRAWFRAME = 0xAF;
 
 ///////////////////////////////////////////////////////////////////////////////
 //

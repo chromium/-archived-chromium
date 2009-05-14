@@ -521,7 +521,8 @@ GeneralPageView::GeneralPageView(Profile* profile)
       default_browser_group_(NULL),
       default_browser_status_label_(NULL),
       default_browser_use_as_default_button_(NULL),
-      default_browser_worker_(new DefaultBrowserWorker(this)),
+      ALLOW_THIS_IN_INITIALIZER_LIST(
+          default_browser_worker_(new DefaultBrowserWorker(this))),
       OptionsPageView(profile) {
 }
 

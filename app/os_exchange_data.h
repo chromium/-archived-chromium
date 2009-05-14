@@ -8,8 +8,8 @@
 #include "build/build_config.h"
 
 #if defined(OS_WIN)
-#include <atlbase.h>
 #include <objidl.h>
+#include "base/scoped_comptr_win.h"
 #endif
 
 #include <string>
@@ -154,7 +154,7 @@ class OSExchangeData {
   typedef std::vector<StoredDataInfo*> StoredData;
   StoredData contents_;
 
-  CComPtr<IDataObject> source_object_;
+  ScopedComPtr<IDataObject> source_object_;
 
   LONG ref_count_;
 #endif
