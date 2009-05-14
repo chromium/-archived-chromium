@@ -206,7 +206,7 @@ void FindBarGtk::ClearResults(const FindNotificationDetails& results) {
 }
 
 void FindBarGtk::StopAnimation() {
-  NOTIMPLEMENTED();
+  // http://code.google.com/p/chromium/issues/detail?id=11979
 }
 
 void FindBarGtk::MoveWindowIfNecessary(const gfx::Rect& selection_rect,
