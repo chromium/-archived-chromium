@@ -1357,6 +1357,8 @@
         'browser/tabs/tab_strip_model_order_controller.h',
         'browser/task_manager.cc',
         'browser/task_manager.h',
+        'browser/task_manager_linux.cc',
+        'browser/task_manager_win.cc',
         'browser/task_manager_resource_providers.cc',
         'browser/task_manager_resource_providers.h',
         'browser/theme_resources_util.cc',
@@ -1688,7 +1690,6 @@
             'browser/shell_integration.cc',
             'browser/tab_contents/web_drag_source.cc',
             'browser/tab_contents/web_drop_target.cc',
-            'browser/task_manager.cc',
             'browser/window_sizer.cc',
           ],
         }],
@@ -1984,7 +1985,7 @@
         ['OS=="mac"', {
           # 'branding' is a variable defined in common.gypi
           # (e.g. "Chromium", "Chrome")
-          # NOTE: chrome/app/theme/chromium/BRANDING and 
+          # NOTE: chrome/app/theme/chromium/BRANDING and
           # chrome/app/theme/google_chrome/BRANDING have the short names, etc.;
           # should we try to extract from there instead?
           'product_name': '<(branding)',
@@ -2045,7 +2046,7 @@
               #   'product_name': 'chromium'
               # whenever we convert the rest of the infrastructure
               # (buildbots etc.) to use "gyp -Dbranding=Chrome".
-              # NOTE: chrome/app/theme/chromium/BRANDING and 
+              # NOTE: chrome/app/theme/chromium/BRANDING and
               # chrome/app/theme/google_chrome/BRANDING have the short names,
               # etc.; should we try to extract from there instead?
               'product_name': 'chrome'
@@ -2875,6 +2876,7 @@
             'browser/gtk/go_button_gtk_unittest.cc',
             'browser/gtk/tabs/tab_renderer_gtk_unittest.cc',
             'browser/navigation_controller_unittest.cc',
+            'browser/task_manager_unittest.cc',
             'renderer/render_view_unittest.cc',
             'test/test_notification_tracker.cc',
             'test/test_notification_tracker.h',
@@ -2920,7 +2922,6 @@
             'browser/printing/print_job_unittest.cc',
             'browser/rlz/rlz_unittest.cc',
             'browser/tabs/tab_strip_model_unittest.cc',
-            'browser/task_manager_unittest.cc',
             'browser/views/bookmark_editor_view_unittest.cc',
             'browser/views/find_bar_win_unittest.cc',
             'browser/views/keyword_editor_view_unittest.cc',

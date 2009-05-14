@@ -806,6 +806,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\task_manager_win.cc"
+				>
+			</File>
+			<File
 				RelativePath=".\task_manager_resource_providers.cc"
 				>
 			</File>

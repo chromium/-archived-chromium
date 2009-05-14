@@ -24,7 +24,7 @@
 class MessageLoop;
 class SkBitmap;
 class TaskManager;
-class TaskManagerContents;
+class TaskManagerView;
 class TaskManagerModel;
 
 struct BytesReadParam;
@@ -138,7 +138,7 @@ class TaskManager {
   scoped_refptr<TaskManagerModel> model_;
 
   // A container containing the buttons and table.
-  scoped_ptr<TaskManagerContents> contents_;
+  scoped_ptr<TaskManagerView> view_;
 
   DISALLOW_COPY_AND_ASSIGN(TaskManager);
 };
@@ -344,6 +344,16 @@ class TaskManagerModel : public URLRequestJobTracker::JobObserver,
   static int goats_teleported_;
 
   DISALLOW_COPY_AND_ASSIGN(TaskManagerModel);
+};
+
+class TaskManagerView {
+ public:
+  virtual ~TaskManagerView() {}
+
+  virtual void GetSelection(std::vector<int>* selection) = 0;
+  virtual void GetFocused(std::vector<int>* focused) = 0;
+
+  virtual void OpenWindow() = 0;
 };
 
 #endif  // CHROME_BROWSER_TASK_MANAGER_H_

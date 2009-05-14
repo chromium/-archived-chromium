@@ -18,7 +18,6 @@
 #include "chrome/browser/options_window.h"
 #include "chrome/browser/rlz/rlz.h"
 #include "chrome/browser/shell_integration.h"
-#include "chrome/browser/task_manager.h"
 #include "chrome/common/process_watcher.h"
 
 #if defined(OS_MACOSX)
@@ -291,14 +290,6 @@ void WindowSizer::GetBrowserWindowBounds(const std::wstring& app_name,
   if (specified_bounds.IsEmpty()) {
     *window_bounds = gfx::Rect(0, 0, 1024, 768);
   }
-}
-
-void TaskManager::AddResource(Resource* resource) {
-  NOTIMPLEMENTED();
-}
-
-void TaskManager::RemoveResource(Resource* resource) {
-  NOTIMPLEMENTED();
 }
 
 #if defined(OS_MACOSX)

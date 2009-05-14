@@ -231,6 +231,16 @@ size_t ProcessMetrics::GetPeakWorkingSetSize() const {
   return 0;
 }
 
+size_t ProcessMetrics::GetPrivateBytes() const {
+  NOTIMPLEMENTED();
+  return 0;
+}
+
+bool ProcessMetrics::GetWorkingSetKBytes(WorkingSetKBytes* ws_usage) const {
+  NOTIMPLEMENTED();
+  return false;
+}
+
 // To have /proc/self/io file you must enable CONFIG_TASK_IO_ACCOUNTING
 // in your kernel configuration.
 bool ProcessMetrics::GetIOCounters(IoCounters* io_counters) const {

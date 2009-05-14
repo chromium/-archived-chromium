@@ -7,10 +7,10 @@
 #include <string>
 
 #include "app/l10n_util.h"
+#include "base/process_util.h"
 #include "grit/chromium_strings.h"
 #include "grit/generated_resources.h"
 #include "testing/gtest/include/gtest/gtest.h"
-#include "views/controls/table/table_view.h"
 
 namespace {
 
@@ -18,7 +18,9 @@ class TestResource : public TaskManager::Resource {
  public:
   virtual std::wstring GetTitle() const { return L"test title"; }
   virtual SkBitmap GetIcon() const { return SkBitmap(); }
-  virtual HANDLE GetProcess() const { return NULL; }
+  virtual base::ProcessHandle GetProcess() const {
+    return base::GetCurrentProcessHandle();
+  }
   virtual bool SupportNetworkUsage() const { return false; }
   virtual void SetSupportNetworkUsage() { NOTREACHED(); }
 };
