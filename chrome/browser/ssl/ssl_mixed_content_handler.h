@@ -6,6 +6,7 @@
 #define CHROME_BROWSER_SSL_SSL_MIXED_CONTENT_HANDLER_H_
 
 #include "chrome/browser/ssl/ssl_error_handler.h"
+#include "chrome/browser/ssl/ssl_manager.h"
 
 // The SSLMixedContentHandler class is used to query what to do with
 // mixed content, from the IO thread to the UI thread.
