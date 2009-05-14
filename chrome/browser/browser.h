@@ -372,7 +372,9 @@ class Browser : public TabStripModelDelegate,
   void ShowDownloadsTab();
 #if defined(OS_WIN)
   void OpenClearBrowsingDataDialog();
+#endif
   void OpenOptionsDialog();
+#if defined(OS_WIN)
   void OpenKeywordEditor();
   void OpenPasswordManager();
 #endif

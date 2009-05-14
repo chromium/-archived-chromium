@@ -24,6 +24,7 @@
 #include "chrome/browser/location_bar.h"
 #include "chrome/browser/metrics/user_metrics.h"
 #include "chrome/browser/net/url_fixer_upper.h"
+#include "chrome/browser/options_window.h"
 #include "chrome/browser/profile.h"
 #include "chrome/browser/sessions/session_service.h"
 #include "chrome/browser/sessions/session_types.h"
@@ -68,7 +69,6 @@
 #include "chrome/browser/debugger/debugger_window.h"
 #include "chrome/browser/dock_info.h"
 #include "chrome/browser/download/save_package.h"
-#include "chrome/browser/options_window.h"
 #include "chrome/browser/ssl/ssl_error_info.h"
 #include "chrome/browser/task_manager.h"
 #include "chrome/browser/user_data_manager.h"
@@ -1116,12 +1116,14 @@ void Browser::OpenClearBrowsingDataDialog() {
   UserMetrics::RecordAction(L"ClearBrowsingData_ShowDlg", profile_);
   window_->ShowClearBrowsingDataDialog();
 }
+#endif
 
 void Browser::OpenOptionsDialog() {
   UserMetrics::RecordAction(L"ShowOptions", profile_);
   ShowOptionsWindow(OPTIONS_PAGE_DEFAULT, OPTIONS_GROUP_NONE, profile_);
 }
 
+#if defined(OS_WIN)
 void Browser::OpenKeywordEditor() {
   UserMetrics::RecordAction(L"EditSearchEngines", profile_);
   window_->ShowSearchEnginesDialog();
@@ -1351,7 +1353,9 @@ void Browser::ExecuteCommandWithDisposition(
       Personalization::HandleMenuItemClick(profile());             break;
 #endif
     case IDC_CLEAR_BROWSING_DATA:   OpenClearBrowsingDataDialog(); break;
+#endif
     case IDC_OPTIONS:               OpenOptionsDialog();           break;
+#if defined(OS_WIN)
     case IDC_EDIT_SEARCH_ENGINES:   OpenKeywordEditor();           break;
     case IDC_VIEW_PASSWORDS:        OpenPasswordManager();         break;
 #endif

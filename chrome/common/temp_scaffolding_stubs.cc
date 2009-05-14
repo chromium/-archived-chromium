@@ -15,6 +15,7 @@
 #include "chrome/browser/first_run.h"
 #include "chrome/browser/hung_renderer_dialog.h"
 #include "chrome/browser/memory_details.h"
+#include "chrome/browser/options_window.h"
 #include "chrome/browser/rlz/rlz.h"
 #include "chrome/browser/shell_integration.h"
 #include "chrome/browser/task_manager.h"
@@ -314,3 +315,13 @@ void BrowserList::AllBrowsersClosed() {
   // TODO(port): Close any dependent windows if necessary when the last browser
   //             window is closed.
 }
+
+//--------------------------------------------------------------------------
+
+#if defined(OS_MACOSX)
+void ShowOptionsWindow(OptionsPage page,
+                       OptionsGroup highlight_group,
+                       Profile* profile) {
+  NOTIMPLEMENTED();
+}
+#endif
