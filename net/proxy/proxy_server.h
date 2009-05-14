@@ -48,8 +48,10 @@ class ProxyServer {
     return scheme_ == SCHEME_SOCKS4 || scheme_ == SCHEME_SOCKS5;
   }
 
-  // Gets the host portion of the proxy server.
-  const std::string& host() const;
+  // Gets the host portion of the proxy server. If the host portion is an
+  // IPv6 literal address, the return value does not include the square
+  // brackets ([]) used to separate it from the port portion.
+  std::string HostNoBrackets() const;
 
   // Gets the port portion of the proxy server.
   int port() const;

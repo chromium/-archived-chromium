@@ -594,11 +594,11 @@ int HttpNetworkTransaction::DoResolveHost() {
   // Determine the host and port to connect to.
   if (using_proxy_ || using_tunnel_) {
     ProxyServer proxy_server = proxy_info_.proxy_server();
-    host = proxy_server.host();
+    host = proxy_server.HostNoBrackets();
     port = proxy_server.port();
   } else {
     // Direct connection
-    host = request_->url.host();
+    host = request_->url.HostNoBrackets();
     port = request_->url.EffectiveIntPort();
   }
 

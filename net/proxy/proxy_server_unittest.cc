@@ -48,6 +48,44 @@ TEST(ProxyServerTest, FromURI) {
        "PROXY foopy:10"
     },
 
+    // IPv6 HTTP proxy URIs:
+    {
+       "[FEDC:BA98:7654:3210:FEDC:BA98:7654:3210]:10",  // No scheme.
+       "[FEDC:BA98:7654:3210:FEDC:BA98:7654:3210]:10",
+       net::ProxyServer::SCHEME_HTTP,
+       "FEDC:BA98:7654:3210:FEDC:BA98:7654:3210",
+       10,
+       "[FEDC:BA98:7654:3210:FEDC:BA98:7654:3210]:10",
+       "PROXY [FEDC:BA98:7654:3210:FEDC:BA98:7654:3210]:10"
+    },
+    {
+       "http://[3ffe:2a00:100:7031::1]",  // No port.
+       "[3ffe:2a00:100:7031::1]:80",
+       net::ProxyServer::SCHEME_HTTP,
+       "3ffe:2a00:100:7031::1",
+       80,
+       "[3ffe:2a00:100:7031::1]:80",
+       "PROXY [3ffe:2a00:100:7031::1]:80"
+    },
+    {
+       "http://[::192.9.5.5]",
+       "[::192.9.5.5]:80",
+       net::ProxyServer::SCHEME_HTTP,
+       "::192.9.5.5",
+       80,
+       "[::192.9.5.5]:80",
+       "PROXY [::192.9.5.5]:80"
+    },
+    {
+       "http://[::FFFF:129.144.52.38]:80",
+       "[::FFFF:129.144.52.38]:80",
+       net::ProxyServer::SCHEME_HTTP,
+       "::FFFF:129.144.52.38",
+       80,
+       "[::FFFF:129.144.52.38]:80",
+       "PROXY [::FFFF:129.144.52.38]:80"
+    },
+
     // SOCKS4 proxy URIs:
     {
        "socks4://foopy",  // No port.
@@ -95,7 +133,7 @@ TEST(ProxyServerTest, FromURI) {
     EXPECT_FALSE(uri.is_direct());
     EXPECT_EQ(tests[i].expected_uri, uri.ToURI());
     EXPECT_EQ(tests[i].expected_scheme, uri.scheme());
-    EXPECT_EQ(tests[i].expected_host, uri.host());
+    EXPECT_EQ(tests[i].expected_host, uri.HostNoBrackets());
     EXPECT_EQ(tests[i].expected_port, uri.port());
     EXPECT_EQ(tests[i].expected_host_and_port, uri.host_and_port());
     EXPECT_EQ(tests[i].expected_pac_string, uri.ToPacString());

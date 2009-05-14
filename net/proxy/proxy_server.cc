@@ -56,10 +56,15 @@ ProxyServer::Scheme GetSchemeFromURI(std::string::const_iterator begin,
 
 }  // namespace
 
-const std::string& ProxyServer::host() const {
+std::string ProxyServer::HostNoBrackets() const {
   // Doesn't make sense to call this if the URI scheme doesn't
   // have concept of a host.
   DCHECK(is_valid() && !is_direct());
+
+  // Remove brackets from an RFC 2732-style IPv6 literal address.
+  const std::string::size_type len = host_.size();
+  if (len != 0 && host_[0] == '[' && host_[len - 1] == ']')
+    return host_.substr(1, len - 2);
   return host_;
 }
 
