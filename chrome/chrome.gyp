@@ -1302,6 +1302,8 @@
         'browser/ssl/ssl_mixed_content_handler.h',
         'browser/ssl/ssl_policy.cc',
         'browser/ssl/ssl_policy.h',
+        'browser/ssl/ssl_policy_backend.cc',
+        'browser/ssl/ssl_policy_backend.h',
         'browser/ssl/ssl_request_info.h',
         'browser/status_bubble.h',
         'browser/tab_contents/constrained_window.h',

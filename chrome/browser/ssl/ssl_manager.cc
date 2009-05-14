@@ -43,57 +43,6 @@
 #include "chrome/common/temp_scaffolding_stubs.h"
 #endif
 
-using WebKit::WebConsoleMessage;
-
-class SSLInfoBarDelegate : public ConfirmInfoBarDelegate {
- public:
-  SSLInfoBarDelegate(TabContents* contents,
-                     const std::wstring message,
-                     const std::wstring& button_label,
-                     Task* task)
-    : ConfirmInfoBarDelegate(contents),
-      message_(message),
-      button_label_(button_label),
-      task_(task) {
-  }
-  virtual ~SSLInfoBarDelegate() {}
-
-  // Overridden from ConfirmInfoBarDelegate:
-  virtual void InfoBarClosed() {
-    delete this;
-  }
-  virtual std::wstring GetMessageText() const {
-    return message_;
-  }
-  virtual SkBitmap* GetIcon() const {
-    return ResourceBundle::GetSharedInstance().GetBitmapNamed(
-        IDR_INFOBAR_SSL_WARNING);
-  }
-  virtual int GetButtons() const {
-    return !button_label_.empty() ? BUTTON_OK : BUTTON_NONE;
-  }
-  virtual std::wstring GetButtonLabel(InfoBarButton button) const {
-    return button_label_;
-  }
-  virtual bool Accept() {
-    if (task_.get()) {
-      task_->Run();
-      task_.reset();  // Ensures we won't run the task again.
-    }
-    return true;
-  }
-
- private:
-  // Labels for the InfoBar's message and button.
-  std::wstring message_;
-  std::wstring button_label_;
-
-  // A task to run when the InfoBar is accepted.
-  scoped_ptr<Task> task_;
-
-  DISALLOW_COPY_AND_ASSIGN(SSLInfoBarDelegate);
-};
-
 // static
 void SSLManager::RegisterUserPrefs(PrefService* prefs) {
   prefs->RegisterIntegerPref(prefs::kMixedContentFiltering,
@@ -102,8 +51,8 @@ void SSLManager::RegisterUserPrefs(PrefService* prefs) {
 
 SSLManager::SSLManager(NavigationController* controller, Delegate* delegate)
     : delegate_(delegate),
-      controller_(controller),
-      ssl_host_state_(controller->profile()->GetSSLHostState()) {
+      backend_(controller),
+      controller_(controller) {
   DCHECK(controller_);
 
   // If do delegate is supplied, use the default policy.
@@ -124,102 +73,6 @@ SSLManager::SSLManager(NavigationController* controller, Delegate* delegate)
 }
 
 SSLManager::~SSLManager() {
-}
-
-// Delegate API method.
-void SSLManager::ShowMessage(const std::wstring& msg) {
-  ShowMessageWithLink(msg, std::wstring(), NULL);
-}
-
-void SSLManager::ShowMessageWithLink(const std::wstring& msg,
-                                     const std::wstring& link_text,
-                                     Task* task) {
-  if (controller_->pending_entry()) {
-    // The main frame is currently loading, wait until the load is committed so
-    // to show the error on the right page (once the location bar shows the
-    // correct url).
-    if (std::find(pending_messages_.begin(), pending_messages_.end(), msg) ==
-        pending_messages_.end())
-      pending_messages_.push_back(SSLMessageInfo(msg, link_text, task));
-
-    return;
-  }
-
-  NavigationEntry* entry = controller_->GetActiveEntry();
-  if (!entry)
-    return;
-
-  // Don't show the message if the user doesn't expect an authenticated session.
-  if (entry->ssl().security_style() <= SECURITY_STYLE_UNAUTHENTICATED)
-    return;
-
-  if (controller_->tab_contents()) {
-    controller_->tab_contents()->AddInfoBar(
-        new SSLInfoBarDelegate(controller_->tab_contents(), msg, link_text,
-                               task));
-  }
-}
-
-// Delegate API method.
-bool SSLManager::SetMaxSecurityStyle(SecurityStyle style) {
-  NavigationEntry* entry = controller_->GetActiveEntry();
-  if (!entry) {
-    NOTREACHED();
-    return false;
-  }
-
-  if (entry->ssl().security_style() > style) {
-    entry->ssl().set_security_style(style);
-    return true;
-  }
-  return false;
-}
-
-// Delegate API method.
-void SSLManager::AddMessageToConsole(const string16& message,
-                                     const WebConsoleMessage::Level& level) {
-  controller_->tab_contents()->render_view_host()->AddMessageToConsole(
-      string16(), message, level);
-}
-
-// Delegate API method.
-void SSLManager::MarkHostAsBroken(const std::string& host, int pid) {
-  ssl_host_state_->MarkHostAsBroken(host, pid);
-  DispatchSSLInternalStateChanged();
-}
-
-// Delegate API method.
-bool SSLManager::DidMarkHostAsBroken(const std::string& host, int pid) const {
-  return ssl_host_state_->DidMarkHostAsBroken(host, pid);
-}
-
-// Delegate API method.
-void SSLManager::DenyCertForHost(net::X509Certificate* cert,
-                                 const std::string& host) {
-  // Remember that we don't like this cert for this host.
-  ssl_host_state_->DenyCertForHost(cert, host);
-}
-
-// Delegate API method.
-void SSLManager::AllowCertForHost(net::X509Certificate* cert,
-                                  const std::string& host) {
-  ssl_host_state_->AllowCertForHost(cert, host);
-}
-
-// Delegate API method.
-net::X509Certificate::Policy::Judgment SSLManager::QueryPolicy(
-    net::X509Certificate* cert, const std::string& host) {
-  return ssl_host_state_->QueryPolicy(cert, host);
-}
-
-// Delegate API method.
-void SSLManager::AllowMixedContentForHost(const std::string& host) {
-  ssl_host_state_->AllowMixedContentForHost(host);
-}
-
-// Delegate API method.
-bool SSLManager::DidAllowMixedContentForHost(const std::string& host) const {
-  return ssl_host_state_->DidAllowMixedContentForHost(host);
 }
 
 bool SSLManager::ProcessedSSLErrorFromRequest() const {
@@ -324,13 +177,6 @@ void SSLManager::Observe(NotificationType type,
   }
 }
 
-void SSLManager::DispatchSSLInternalStateChanged() {
-  NotificationService::current()->Notify(
-      NotificationType::SSL_INTERNAL_STATE_CHANGED,
-      Source<NavigationController>(controller_),
-      NotificationService::NoDetails());
-}
-
 void SSLManager::DispatchSSLVisibleStateChanged() {
   NotificationService::current()->Notify(
       NotificationType::SSL_VISIBLE_STATE_CHANGED,
@@ -346,7 +192,7 @@ void SSLManager::UpdateEntry(NavigationEntry* entry) {
 
   NavigationEntry::SSLStatus original_ssl_status = entry->ssl();  // Copy!
 
-  delegate()->UpdateEntry(this, entry);
+  delegate()->UpdateEntry(backend(), entry);
 
   if (!entry->ssl().Equals(original_ssl_status))
     DispatchSSLVisibleStateChanged();
@@ -361,7 +207,7 @@ void SSLManager::DidLoadFromMemoryCache(LoadFromMemoryCacheDetails* details) {
   // This resource must have been loaded with FilterPolicy::DONT_FILTER because
   // filtered resouces aren't cachable.
   scoped_refptr<SSLRequestInfo> info = new SSLRequestInfo(
-      this,
+      backend(),
       details->url(),
       ResourceType::SUB_RESOURCE,
       details->frame_origin(),
@@ -425,7 +271,7 @@ void SSLManager::DidStartResourceResponse(ResourceRequestDetails* details) {
   DCHECK(details);
 
   scoped_refptr<SSLRequestInfo> info = new SSLRequestInfo(
-      this,
+      backend(),
       details->url(),
       details->resource_type(),
       details->frame_origin(),
@@ -449,21 +295,8 @@ void SSLManager::DidReceiveResourceRedirect(ResourceRedirectDetails* details) {
   //               the HTTP request to https://attacker.com/payload.js.
 }
 
-void SSLManager::ShowPendingMessages() {
-  std::vector<SSLMessageInfo>::const_iterator iter;
-  for (iter = pending_messages_.begin();
-       iter != pending_messages_.end(); ++iter) {
-    ShowMessageWithLink(iter->message, iter->link_text, iter->action);
-  }
-  ClearPendingMessages();
-}
-
 void SSLManager::DidChangeSSLInternalState() {
   UpdateEntry(controller_->GetActiveEntry());
-}
-
-void SSLManager::ClearPendingMessages() {
-  pending_messages_.clear();
 }
 
 // static

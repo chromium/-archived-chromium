@@ -9,6 +9,7 @@
 
 #include "base/basictypes.h"
 #include "base/ref_counted.h"
+#include "chrome/browser/ssl/ssl_manager.h"
 #include "chrome/browser/renderer_host/resource_dispatcher_host.h"
 #include "chrome/common/filter_policy.h"
 #include "googleurl/src/gurl.h"
@@ -16,7 +17,6 @@
 
 class MessageLoop;
 class SSLCertErrorHandler;
-class SSLManager;
 class TabContents;
 class URLRequest;
 
@@ -59,7 +59,7 @@ class SSLErrorHandler : public base::RefCountedThreadSafe<SSLErrorHandler> {
   const std::string& main_frame_origin() const { return main_frame_origin_; }
 
   // Call on the UI thread.
-  SSLManager* manager() const { return manager_; }
+  SSLPolicyBackend* backend() const { return manager_->backend(); }
 
   // Returns the TabContents this object is associated with.  Should be
   // called from the UI thread.

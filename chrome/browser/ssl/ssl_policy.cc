@@ -30,48 +30,47 @@
 #include "net/base/ssl_info.h"
 #include "webkit/glue/resource_type.h"
 
-
 using WebKit::WebConsoleMessage;
 
 // Wrap all these helper classes in an anonymous namespace.
 namespace {
 
-static void MarkOriginAsBroken(SSLManager* manager,
+static void MarkOriginAsBroken(SSLPolicyBackend* backend,
                                const std::string& origin,
                                int pid) {
   GURL parsed_origin(origin);
   if (!parsed_origin.SchemeIsSecure())
     return;
 
-  manager->MarkHostAsBroken(parsed_origin.host(), pid);
+  backend->MarkHostAsBroken(parsed_origin.host(), pid);
 }
 
-static void AllowMixedContentForOrigin(SSLManager* manager,
+static void AllowMixedContentForOrigin(SSLPolicyBackend* backend,
                                        const std::string& origin) {
   GURL parsed_origin(origin);
   if (!parsed_origin.SchemeIsSecure())
     return;
 
-  manager->AllowMixedContentForHost(parsed_origin.host());
+  backend->AllowMixedContentForHost(parsed_origin.host());
 }
 
 static void UpdateStateForMixedContent(SSLRequestInfo* info) {
   if (info->resource_type() != ResourceType::MAIN_FRAME ||
       info->resource_type() != ResourceType::SUB_FRAME) {
     // The frame's origin now contains mixed content and therefore is broken.
-    MarkOriginAsBroken(info->manager(), info->frame_origin(), info->pid());
+    MarkOriginAsBroken(info->backend(), info->frame_origin(), info->pid());
   }
 
   if (info->resource_type() != ResourceType::MAIN_FRAME) {
     // The main frame now contains a frame with mixed content.  Therefore, we
     // mark the main frame's origin as broken too.
-    MarkOriginAsBroken(info->manager(), info->main_frame_origin(), info->pid());
+    MarkOriginAsBroken(info->backend(), info->main_frame_origin(), info->pid());
   }
 }
 
 static void UpdateStateForUnsafeContent(SSLRequestInfo* info) {
   // This request as a broken cert, which means its host is broken.
-  info->manager()->MarkHostAsBroken(info->url().host(), info->pid());
+  info->backend()->MarkHostAsBroken(info->url().host(), info->pid());
 
   UpdateStateForMixedContent(info);
 }
@@ -97,10 +96,10 @@ ShowMixedContentTask::~ShowMixedContentTask() {
 }
 
 void ShowMixedContentTask::Run() {
-  AllowMixedContentForOrigin(handler_->manager(), handler_->frame_origin());
-  AllowMixedContentForOrigin(handler_->manager(),
+  AllowMixedContentForOrigin(handler_->backend(), handler_->frame_origin());
+  AllowMixedContentForOrigin(handler_->backend(),
                              handler_->main_frame_origin());
-  handler_->manager()->controller()->Reload(true);
+  handler_->backend()->Reload();
 }
 
 static void ShowErrorPage(SSLPolicy* policy, SSLCertErrorHandler* handler) {
@@ -161,7 +160,7 @@ static void AddMixedContentWarningToConsole(SSLMixedContentHandler* handler) {
       IDS_MIXED_CONTENT_LOG_MESSAGE,
       UTF8ToWide(handler->frame_origin()),
       UTF8ToWide(handler->request_url().spec()));
-  handler->manager()->AddMessageToConsole(
+  handler->backend()->AddMessageToConsole(
       WideToUTF16Hack(text), WebConsoleMessage::LevelWarning);
 }
 
@@ -177,7 +176,7 @@ SSLPolicy* SSLPolicy::GetDefaultPolicy() {
 void SSLPolicy::OnCertError(SSLCertErrorHandler* handler) {
   // First we check if we know the policy for this error.
   net::X509Certificate::Policy::Judgment judgment =
-      handler->manager()->QueryPolicy(handler->ssl_info().cert,
+      handler->backend()->QueryPolicy(handler->ssl_info().cert,
                                       handler->request_url().host());
 
   if (judgment == net::X509Certificate::Policy::ALLOWED) {
@@ -202,7 +201,7 @@ void SSLPolicy::OnCertError(SSLCertErrorHandler* handler) {
     case net::ERR_CERT_UNABLE_TO_CHECK_REVOCATION:
       // We ignore this error and display an infobar.
       handler->ContinueRequest();
-      handler->manager()->ShowMessage(l10n_util::GetString(
+      handler->backend()->ShowMessage(l10n_util::GetString(
           IDS_CERT_ERROR_UNABLE_TO_CHECK_REVOCATION_INFO_BAR));
       break;
     case net::ERR_CERT_CONTAINS_ERRORS:
@@ -225,12 +224,12 @@ void SSLPolicy::OnMixedContent(SSLMixedContentHandler* handler) {
 
   // If the user has added an exception, doctor the |filter_policy|.
   std::string host = GURL(handler->main_frame_origin()).host();
-  if (handler->manager()->DidAllowMixedContentForHost(host) ||
-      handler->manager()->DidMarkHostAsBroken(host, handler->pid()))
+  if (handler->backend()->DidAllowMixedContentForHost(host) ||
+      handler->backend()->DidMarkHostAsBroken(host, handler->pid()))
     filter_policy = FilterPolicy::DONT_FILTER;
 
   if (filter_policy != FilterPolicy::DONT_FILTER) {
-    handler->manager()->ShowMessageWithLink(
+    handler->backend()->ShowMessageWithLink(
         l10n_util::GetString(IDS_SSL_INFO_BAR_FILTERED_CONTENT),
         l10n_util::GetString(IDS_SSL_INFO_BAR_SHOW_CONTENT),
         new ShowMixedContentTask(handler));
@@ -251,7 +250,7 @@ void SSLPolicy::OnRequestStarted(SSLRequestInfo* info) {
     UpdateStateForMixedContent(info);
 }
 
-void SSLPolicy::UpdateEntry(SSLManager* manager, NavigationEntry* entry) {
+void SSLPolicy::UpdateEntry(SSLPolicyBackend* backend, NavigationEntry* entry) {
   DCHECK(entry);
 
   InitializeEntryIfNeeded(entry);
@@ -272,7 +271,7 @@ void SSLPolicy::UpdateEntry(SSLManager* manager, NavigationEntry* entry) {
     return;
   }
 
-  if (manager->DidMarkHostAsBroken(entry->url().host(),
+  if (backend->DidMarkHostAsBroken(entry->url().host(),
                                    entry->site_instance()->GetProcess()->pid()))
     entry->ssl().set_has_mixed_content();
 }
@@ -322,7 +321,7 @@ void SSLPolicy::OnDenyCertificate(SSLCertErrorHandler* handler) {
   // While DenyCertForHost() executes synchronously on this thread,
   // CancelRequest() gets posted to a different thread. Calling
   // DenyCertForHost() first ensures deterministic ordering.
-  handler->manager()->DenyCertForHost(handler->ssl_info().cert,
+  handler->backend()->DenyCertForHost(handler->ssl_info().cert,
                                       handler->request_url().host());
   handler->CancelRequest();
 }
@@ -338,7 +337,7 @@ void SSLPolicy::OnAllowCertificate(SSLCertErrorHandler* handler) {
   // While AllowCertForHost() executes synchronously on this thread,
   // ContinueRequest() gets posted to a different thread. Calling
   // AllowCertForHost() first ensures deterministic ordering.
-  handler->manager()->AllowCertForHost(handler->ssl_info().cert,
+  handler->backend()->AllowCertForHost(handler->ssl_info().cert,
                                        handler->request_url().host());
   handler->ContinueRequest();
 }

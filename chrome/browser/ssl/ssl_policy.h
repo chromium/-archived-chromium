@@ -12,8 +12,8 @@
 // SSLPolicy
 //
 // This class is responsible for making the security decisions that concern the
-// SSL trust indicators.  It relies on the SSLManager to actually enact the
-// decisions it reaches.
+// SSL trust indicators.  It relies on the SSLPolicyBackend to actually enact
+// the decisions it reaches.
 //
 class SSLPolicy : public SSLManager::Delegate,
                   public SSLBlockingPage::Delegate {
@@ -25,7 +25,7 @@ class SSLPolicy : public SSLManager::Delegate,
   virtual void OnCertError(SSLCertErrorHandler* handler);
   virtual void OnMixedContent(SSLMixedContentHandler* handler);
   virtual void OnRequestStarted(SSLRequestInfo* info);
-  virtual void UpdateEntry(SSLManager* manager, NavigationEntry* entry);
+  virtual void UpdateEntry(SSLPolicyBackend* backend, NavigationEntry* entry);
 
   // This method is static because it is called from both the UI and the IO
   // threads.

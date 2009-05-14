@@ -2562,6 +2562,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\ssl\ssl_policy_backend.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\ssl\ssl_policy_backend.h"
+				>
+			</File>
+			<File
 				RelativePath=".\ssl\ssl_request_info.h"
 				>
 			</File>

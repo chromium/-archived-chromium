@@ -28,7 +28,7 @@ class SSLMixedContentHandler : public SSLErrorHandler {
 
  protected:
   virtual void OnDispatchFailed() { TakeNoAction(); }
-  virtual void OnDispatched() { manager()->OnMixedContent(this); }
+  virtual void OnDispatched() { manager_->OnMixedContent(this); }
 
  private:
   int pid_;

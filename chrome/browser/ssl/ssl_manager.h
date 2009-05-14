@@ -13,6 +13,7 @@
 #include "base/observer_list.h"
 #include "base/ref_counted.h"
 #include "chrome/browser/renderer_host/resource_dispatcher_host.h"
+#include "chrome/browser/ssl/ssl_policy_backend.h"
 #include "chrome/browser/tab_contents/provisional_load_details.h"
 #include "chrome/browser/tab_contents/security_style.h"
 #include "chrome/common/notification_observer.h"
@@ -75,7 +76,7 @@ class SSLManager : public NotificationObserver {
     virtual void OnRequestStarted(SSLRequestInfo* info) = 0;
 
     // Update the SSL information in |entry| to match the current state.
-    virtual void UpdateEntry(SSLManager* manager, NavigationEntry* entry) = 0;
+    virtual void UpdateEntry(SSLPolicyBackend* backend, NavigationEntry* entry) = 0;
   };
 
   static void RegisterUserPrefs(PrefService* prefs);
@@ -86,66 +87,12 @@ class SSLManager : public NotificationObserver {
 
   ~SSLManager();
 
-  //////////////////////////////////////////////////////////////////////////////
-  // Delegate API
-  //
-  // The SSL manager expects these methods to be called by its delegate.  They
-  // exist to make Delegates easy to implement.
-
-  // Ensure that the specified message is displayed to the user.  This will
-  // display an InfoBar at the top of the associated tab.
-  void ShowMessage(const std::wstring& msg);
-
-  // Same as ShowMessage but also contains a link that when clicked run the
-  // specified task.  The SSL Manager becomes the owner of the task.
-  void ShowMessageWithLink(const std::wstring& msg,
-                           const std::wstring& link_text,
-                           Task* task);
-
-  // Records that a host is "broken," that is, the origin for that host has been
-  // contaminated with insecure content, either via HTTP or via HTTPS with a
-  // bad certificate.
-  void MarkHostAsBroken(const std::string& host, int pid);
-
-  // Returns whether the specified host was marked as broken.
-  bool DidMarkHostAsBroken(const std::string& host, int pid) const;
-
-  // Sets the maximum security style for the page.  If the current security
-  // style is lower than |style|, this will not have an effect on the security
-  // indicators.
-  //
-  // It will return true if the navigation entry was updated or false if
-  // nothing changed. The caller is responsible for broadcasting
-  // NOTIFY_SSY_STATE_CHANGED if it returns true.
-  bool SetMaxSecurityStyle(SecurityStyle style);
-
-  // Logs a message to the console of the page.
-  void AddMessageToConsole(const string16& message,
-                           const WebKit::WebConsoleMessage::Level&);
-
-  // Records that |cert| is permitted to be used for |host| in the future.
-  void DenyCertForHost(net::X509Certificate* cert, const std::string& host);
-
-  // Records that |cert| is not permitted to be used for |host| in the future.
-  void AllowCertForHost(net::X509Certificate* cert, const std::string& host);
-
-  // Queries whether |cert| is allowed or denied for |host|.
-  net::X509Certificate::Policy::Judgment QueryPolicy(
-      net::X509Certificate* cert, const std::string& host);
-
-  // Allow mixed content to be visible (non filtered).
-  void AllowMixedContentForHost(const std::string& host);
-
-  // Returns whether the specified host is allowed to show mixed content.
-  bool DidAllowMixedContentForHost(const std::string& host) const;
-
-  //
-  //////////////////////////////////////////////////////////////////////////////
-
   // The delegate of the SSLManager.  This value may be changed at any time,
   // but it is not permissible for it to be NULL.
   Delegate* delegate() const { return delegate_; }
   void set_delegate(Delegate* delegate) { delegate_ = delegate; }
+
+  SSLPolicyBackend* backend() { return &backend_; }
 
   // Entry point for SSLCertificateErrors.  This function begins the process
   // of resolving a certificate error during an SSL connection.  SSLManager
@@ -171,13 +118,14 @@ class SSLManager : public NotificationObserver {
                                  URLRequest* request,
                                  MessageLoop* ui_loop);
 
-  // Called by CertError::Dispatch to kick off processing of the cert error by
-  // the SSL manager.  The error originated from the ResourceDispatcherHost.
+  // Called by SSLCertErrorHandler::OnDispatch to kick off processing of the
+  // cert error by the SSL manager.  The error originated from the
+  // ResourceDispatcherHost.
   //
   // Called on the UI thread.
   void OnCertError(SSLCertErrorHandler* handler);
 
-  // Called by MixedContentHandler::Dispatch to kick off processing of the
+  // Called by SSLMixedContentHandler::OnDispatch to kick off processing of the
   // mixed-content resource request.  The info originated from the
   // ResourceDispatcherHost.
   //
@@ -255,9 +203,6 @@ class SSLManager : public NotificationObserver {
   void DidReceiveResourceRedirect(ResourceRedirectDetails* details);
   void DidChangeSSLInternalState();
 
-  // Dispatch NotificationType::SSL_INTERNAL_STATE_CHANGED notification.
-  void DispatchSSLInternalStateChanged();
-
   // Dispatch NotificationType::SSL_VISIBLE_STATE_CHANGED notification.
   void DispatchSSLVisibleStateChanged();
 
@@ -274,19 +219,15 @@ class SSLManager : public NotificationObserver {
   // Must not be NULL.
   Delegate* delegate_;
 
+  // The backend for the SSLPolicy to actuate its decisions.
+  SSLPolicyBackend backend_;
+
   // The NavigationController that owns this SSLManager.  We are responsible
   // for the security UI of this tab.
   NavigationController* controller_;
 
   // Handles registering notifications with the NotificationService.
   NotificationRegistrar registrar_;
-
-  // SSL state specific for each host.
-  SSLHostState* ssl_host_state_;
-
-  // The list of messages that should be displayed (in info bars) when the page
-  // currently loading had loaded.
-  std::vector<SSLMessageInfo> pending_messages_;
 
   DISALLOW_COPY_AND_ASSIGN(SSLManager);
 };
