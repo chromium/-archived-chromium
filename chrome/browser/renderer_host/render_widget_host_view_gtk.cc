@@ -205,7 +205,9 @@ void RenderWidgetHostViewGtk::InitAsPopup(
 }
 
 void RenderWidgetHostViewGtk::DidBecomeSelected() {
-  NOTIMPLEMENTED();
+  // This is involved in calling WasRestored() on the RWH, which looks
+  // important.
+  // http://code.google.com/p/chromium/issues/detail?id=11977
 }
 
 void RenderWidgetHostViewGtk::WasHidden() {
