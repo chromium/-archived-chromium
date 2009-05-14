@@ -1,0 +1,8 @@
+The single header file (valgrind.h) in this directory defines runtime
+macros that determine whether the current process is running under
+Valgrind.
+
+This header file was taken from Valgrind source code (version 3.4.1,
+available at http://valgrind.org/downloads/valgrind-3.4.1.tar.bz2, dated
+28 Feb 2009). The file is covered under BSD license as described within
+the file.

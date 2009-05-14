@@ -18,6 +18,7 @@
 #endif
 #if defined(OS_POSIX)
 #include "base/message_pump_libevent.h"
+#include "base/third_party/valgrind/valgrind.h"
 #endif
 #if defined(OS_LINUX)
 #include "base/message_pump_glib.h"
@@ -365,10 +366,16 @@ bool MessageLoop::DeletePendingTasks() {
       AddToDelayedWorkQueue(pending_task);
     } else {
       // TODO(darin): Delete all tasks once it is safe to do so.
-      // Until it is totally safe, just do it when running purify.
+      // Until it is totally safe, just do it when running Purify or
+      // Valgrind.
+#if defined(OS_WIN)
 #ifdef PURIFY
       delete pending_task.task;
 #endif  // PURIFY
+#elif defined(OS_POSIX)
+      if (RUNNING_ON_VALGRIND)
+        delete pending_task.task;
+#endif  // defined(OS_POSIX)
     }
   }
   did_work |= !deferred_non_nestable_work_queue_.empty();
