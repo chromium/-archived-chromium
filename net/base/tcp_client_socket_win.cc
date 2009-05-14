@@ -17,18 +17,23 @@ namespace net {
 
 namespace {
 
-// Waits for the (manual-reset) event object to become signaled and resets
-// it.  Called after a Winsock function succeeds synchronously
+// If the (manual-reset) event object is signaled, resets it and returns true.
+// Otherwise, does nothing and returns false.  Called after a Winsock function
+// succeeds synchronously
 //
 // Our testing shows that except in rare cases (when running inside QEMU),
-// the event object is already signaled at this point, so we just call this
-// method on the IO thread to avoid a context switch.
-void WaitForAndResetEvent(WSAEVENT hEvent) {
+// the event object is already signaled at this point, so we call this method
+// to avoid a context switch in common cases.  This is just a performance
+// optimization.  The code still works if this function simply returns false.
+bool ResetEventIfSignaled(WSAEVENT hEvent) {
   // TODO(wtc): Remove the CHECKs after enough testing.
-  DWORD wait_rv = WaitForSingleObject(hEvent, INFINITE);
+  DWORD wait_rv = WaitForSingleObject(hEvent, 0);
+  if (wait_rv == WAIT_TIMEOUT)
+    return false;  // The event object is not signaled.
   CHECK(wait_rv == WAIT_OBJECT_0);
   BOOL ok = WSAResetEvent(hEvent);
   CHECK(ok);
+  return true;
 }
 
 //-----------------------------------------------------------------------------
@@ -245,15 +250,16 @@ int TCPClientSocketWin::Connect(CompletionCallback* callback) {
 
   if (!connect(socket_, ai->ai_addr, static_cast<int>(ai->ai_addrlen))) {
     // Connected without waiting!
-    WaitForAndResetEvent(core_->read_overlapped_.hEvent);
-    TRACE_EVENT_END("socket.connect", this, "");
-    return OK;
-  }
-
-  DWORD err = WSAGetLastError();
-  if (err != WSAEWOULDBLOCK) {
-    LOG(ERROR) << "connect failed: " << err;
-    return MapWinsockError(err);
+    if (ResetEventIfSignaled(core_->read_overlapped_.hEvent)) {
+      TRACE_EVENT_END("socket.connect", this, "");
+      return OK;
+    }
+  } else {
+    DWORD err = WSAGetLastError();
+    if (err != WSAEWOULDBLOCK) {
+      LOG(ERROR) << "connect failed: " << err;
+      return MapWinsockError(err);
+    }
   }
 
   core_->WatchForRead();
@@ -349,27 +355,28 @@ int TCPClientSocketWin::Read(IOBuffer* buf,
   int rv = WSARecv(socket_, &core_->read_buffer_, 1, &num, &flags,
                    &core_->read_overlapped_, NULL);
   if (rv == 0) {
-    WaitForAndResetEvent(core_->read_overlapped_.hEvent);
-    TRACE_EVENT_END("socket.read", this, StringPrintf("%d bytes", num));
+    if (ResetEventIfSignaled(core_->read_overlapped_.hEvent)) {
+      TRACE_EVENT_END("socket.read", this, StringPrintf("%d bytes", num));
 
-    // Because of how WSARecv fills memory when used asynchronously, Purify
-    // isn't able to detect that it's been initialized, so it scans for 0xcd
-    // in the buffer and reports UMRs (uninitialized memory reads) for those
-    // individual bytes. We override that in PURIFY builds to avoid the false
-    // error reports.
-    // See bug 5297.
-    base::MemoryDebug::MarkAsInitialized(core_->read_buffer_.buf, num);
-    return static_cast<int>(num);
+      // Because of how WSARecv fills memory when used asynchronously, Purify
+      // isn't able to detect that it's been initialized, so it scans for 0xcd
+      // in the buffer and reports UMRs (uninitialized memory reads) for those
+      // individual bytes. We override that in PURIFY builds to avoid the
+      // false error reports.
+      // See bug 5297.
+      base::MemoryDebug::MarkAsInitialized(core_->read_buffer_.buf, num);
+      return static_cast<int>(num);
+    }
+  } else {
+    int err = WSAGetLastError();
+    if (err != WSA_IO_PENDING)
+      return MapWinsockError(err);
   }
-  int err = WSAGetLastError();
-  if (err == WSA_IO_PENDING) {
-    core_->WatchForRead();
-    waiting_read_ = true;
-    read_callback_ = callback;
-    core_->read_iobuffer_ = buf;
-    return ERR_IO_PENDING;
-  }
-  return MapWinsockError(err);
+  core_->WatchForRead();
+  waiting_read_ = true;
+  read_callback_ = callback;
+  core_->read_iobuffer_ = buf;
+  return ERR_IO_PENDING;
 }
 
 int TCPClientSocketWin::Write(IOBuffer* buf,
@@ -392,19 +399,20 @@ int TCPClientSocketWin::Write(IOBuffer* buf,
   int rv = WSASend(socket_, &core_->write_buffer_, 1, &num, 0,
                    &core_->write_overlapped_, NULL);
   if (rv == 0) {
-    WaitForAndResetEvent(core_->write_overlapped_.hEvent);
-    TRACE_EVENT_END("socket.write", this, StringPrintf("%d bytes", num));
-    return static_cast<int>(num);
+    if (ResetEventIfSignaled(core_->write_overlapped_.hEvent)) {
+      TRACE_EVENT_END("socket.write", this, StringPrintf("%d bytes", num));
+      return static_cast<int>(num);
+    }
+  } else {
+    int err = WSAGetLastError();
+    if (err != WSA_IO_PENDING)
+      return MapWinsockError(err);
   }
-  int err = WSAGetLastError();
-  if (err == WSA_IO_PENDING) {
-    core_->WatchForWrite();
-    waiting_write_ = true;
-    write_callback_ = callback;
-    core_->write_iobuffer_ = buf;
-    return ERR_IO_PENDING;
-  }
-  return MapWinsockError(err);
+  core_->WatchForWrite();
+  waiting_write_ = true;
+  write_callback_ = callback;
+  core_->write_iobuffer_ = buf;
+  return ERR_IO_PENDING;
 }
 
 int TCPClientSocketWin::CreateSocket(const struct addrinfo* ai) {
