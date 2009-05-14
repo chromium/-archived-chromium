@@ -99,7 +99,7 @@ void FindBarGtk::InitWidgets() {
   // lateral position. We put that fixed in a SlideAnimatorGtk in order to get
   // the slide effect.
   GtkWidget* hbox = gtk_hbox_new(false, 0);
-  container_ = gtk_util::CreateGtkBorderBin(hbox, NULL,
+  container_ = gfx::CreateGtkBorderBin(hbox, NULL,
       kBarPaddingTopBottom, kBarPaddingTopBottom,
       kEntryPaddingLeft, kBarPaddingRight);
   gtk_widget_set_app_paintable(container_, TRUE);
@@ -162,12 +162,12 @@ void FindBarGtk::InitWidgets() {
   gtk_box_pack_end(GTK_BOX(content_hbox), text_entry_, TRUE, TRUE, 0);
 
   // We fake anti-aliasing by having two borders.
-  GtkWidget* border_bin = gtk_util::CreateGtkBorderBin(content_hbox,
-                                                       &kTextBorderColor,
-                                                      1, 1, 1, 0);
-  GtkWidget* border_bin_aa = gtk_util::CreateGtkBorderBin(border_bin,
-                                                          &kTextBorderColorAA,
-                                                          1, 1, 1, 0);
+  GtkWidget* border_bin = gfx::CreateGtkBorderBin(content_hbox,
+                                                  &kTextBorderColor,
+                                                  1, 1, 1, 0);
+  GtkWidget* border_bin_aa = gfx::CreateGtkBorderBin(border_bin,
+                                                     &kTextBorderColorAA,
+                                                     1, 1, 1, 0);
   GtkWidget* centering_vbox = gtk_vbox_new(FALSE, 0);
   gtk_box_pack_start(GTK_BOX(centering_vbox), border_bin_aa, TRUE, FALSE, 0);
   gtk_box_pack_end(GTK_BOX(hbox), centering_vbox, FALSE, FALSE, 0);

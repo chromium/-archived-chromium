@@ -65,7 +65,7 @@ void InfoBarContainerGtk::ChangeTabContents(TabContents* contents) {
         Source<TabContents>(tab_contents_));
   }
 
-  gtk_util::RemoveAllChildren(container_.get());
+  gfx::RemoveAllChildren(container_.get());
 
   tab_contents_ = contents;
   if (tab_contents_) {

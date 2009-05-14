@@ -4,7 +4,6 @@
 
 #include "chrome/browser/gtk/bookmark_bar_gtk.h"
 
-#include "app/gfx/gtk_util.h"
 #include "app/gfx/text_elider.h"
 #include "app/l10n_util.h"
 #include "app/resource_bundle.h"
@@ -96,7 +95,7 @@ void BookmarkBarGtk::Init(Profile* profile) {
   static GdkPixbuf* folder_icon = rb.GetPixbufNamed(IDR_BOOKMARK_BAR_FOLDER);
 
   bookmark_hbox_ = gtk_hbox_new(FALSE, 0);
-  container_.Own(gtk_util::CreateGtkBorderBin(bookmark_hbox_, &kBackgroundColor,
+  container_.Own(gfx::CreateGtkBorderBin(bookmark_hbox_, &kBackgroundColor,
       kBarPadding, kBarPadding, kBarPadding, kBarPadding));
 
   instructions_ =
@@ -274,7 +273,7 @@ void BookmarkBarGtk::SetInstructionState(BookmarkNode* boomarks_bar_node) {
 }
 
 void BookmarkBarGtk::RemoveAllBookmarkButtons() {
-  gtk_util::RemoveAllChildren(bookmark_toolbar_.get());
+  gfx::RemoveAllChildren(bookmark_toolbar_.get());
 }
 
 int BookmarkBarGtk::GetBookmarkButtonCount() {
