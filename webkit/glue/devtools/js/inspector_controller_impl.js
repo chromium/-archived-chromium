@@ -145,4 +145,20 @@ devtools.InspectorControllerImpl.prototype.setPauseOnExceptions = function(
 };
 
 
+/**
+ * @override
+ */
+devtools.InspectorControllerImpl.prototype.startProfiling = function() {
+  devtools.tools.getDebuggerAgent().startProfiling();
+};
+
+
+/**
+ * @override
+ */
+devtools.InspectorControllerImpl.prototype.stopProfiling = function() {
+  devtools.tools.getDebuggerAgent().stopProfiling();
+};
+
+
 var InspectorController = new devtools.InspectorControllerImpl();

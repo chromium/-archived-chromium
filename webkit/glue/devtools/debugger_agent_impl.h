@@ -5,6 +5,8 @@
 #ifndef WEBKIT_GLUE_DEVTOOLS_DEBUGGER_AGENT_IMPL_H_
 #define WEBKIT_GLUE_DEVTOOLS_DEBUGGER_AGENT_IMPL_H_
 
+#include <string>
+
 #include <wtf/HashSet.h>
 
 #include "v8.h"
@@ -36,7 +38,15 @@ class DebuggerAgentImpl : public DebuggerAgent {
   virtual void DebugBreak();
   virtual void GetContextId();
 
+  virtual void StartProfiling();
+
+  virtual void StopProfiling();
+
+  virtual void GetLogLines(int position);
+
   void DebuggerOutput(const std::string& out);
+
+  void DidGetLogLines(const std::string& log, int new_position);
 
   // Executes function with the given name in the utility context. Passes node
   // and json args as parameters. Note that the function called must be

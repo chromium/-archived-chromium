@@ -20,6 +20,24 @@ RemoteDebuggerAgentStub.prototype.GetContextId = function() {
   RemoteDebuggerAgent.DidGetContextId(3);
 };
 
+RemoteDebuggerAgentStub.prototype.StopProfiling = function() {
+};
+
+RemoteDebuggerAgentStub.prototype.StartProfiling = function() {
+};
+
+RemoteDebuggerAgentStub.prototype.GetLogLines = function(pos) {
+  if (pos < RemoteDebuggerAgentStub.ProfilerLogBuffer.length) {
+    setTimeout(function() {
+        RemoteDebuggerAgent.DidGetLogLines(
+            RemoteDebuggerAgentStub.ProfilerLogBuffer,
+            pos + RemoteDebuggerAgentStub.ProfilerLogBuffer.length);
+        },
+        100);
+  } else {
+    setTimeout(function() { RemoteDebuggerAgent.DidGetLogLines('', pos); }, 100);
+  }
+};
 
 /**
  * @constructor
@@ -203,6 +221,20 @@ RemoteToolsAgentStub.prototype.GetNodePrototypes = function(callId, nodeId) {
 
 RemoteToolsAgentStub.prototype.ClearConsoleMessages = function() {
 };
+
+
+RemoteDebuggerAgentStub.ProfilerLogBuffer =
+  'code-creation,LazyCompile,0x1000,256,"test1 http://aaa.js:1"\n' +
+  'code-creation,LazyCompile,0x2000,256,"test2 http://bbb.js:2"\n' +
+  'code-creation,LazyCompile,0x3000,256,"test3 http://ccc.js:3"\n' +
+  'tick,0x1010,0x0,3\n' +
+  'tick,0x2020,0x0,3,0x1010\n' +
+  'tick,0x2020,0x0,3,0x1010\n' +
+  'tick,0x3010,0x0,3,0x2020, 0x1010\n' +
+  'tick,0x2020,0x0,3,0x1010\n' +
+  'tick,0x2030,0x0,3,0x2020, 0x1010\n' +
+  'tick,0x2020,0x0,3,0x1010\n' +
+  'tick,0x1010,0x0,3\n';
 
 
 /**

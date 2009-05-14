@@ -17,6 +17,8 @@ devtools.DebuggerAgent = function() {
       goog.bind(this.handleDebuggerOutput_, this);
   RemoteDebuggerAgent.DidGetContextId = 
       goog.bind(this.didGetContextId_, this);
+  RemoteDebuggerAgent.DidGetLogLines =
+      goog.bind(this.didGetLogLines_, this);
       
   /**
    * Id of the inspected page global context. It is used for filtering scripts.
@@ -63,6 +65,25 @@ devtools.DebuggerAgent = function() {
    * @type {boolean}
    */
   this.scriptsCacheInitialized_ = false;
+  
+  /**
+   * Whether user has stopped profiling and we are retrieving the rest of
+   * profiler's log.
+   * @type {boolean}
+   */
+  this.isProcessingProfile_ = false;
+  
+  /**
+   * The position in log file to read from.
+   * @type {number}
+   */
+  this.lastProfileLogPosition_ = 0;
+  
+  /**
+   * Profiler processor instance.
+   * @type {devtools.profiler.Processor}
+   */
+  this.profilerProcessor_ = new devtools.profiler.Processor();  
 };
 
 
@@ -283,6 +304,28 @@ devtools.DebuggerAgent.prototype.resolveChildren = function(object, callback) {
     }
     callback(object);
   });
+};
+
+
+/**
+ * Starts (resumes) profiling.
+ */
+devtools.DebuggerAgent.prototype.startProfiling = function() {
+  if (this.isProcessingProfile_) {
+    return;
+  }  
+  RemoteDebuggerAgent.StartProfiling();
+  RemoteDebuggerAgent.GetLogLines(this.lastProfileLogPosition_);
+  WebInspector.setRecordingProfile(true);
+};
+
+
+/**
+ * Stops (pauses) profiling.
+ */
+devtools.DebuggerAgent.prototype.stopProfiling = function() {
+  this.isProcessingProfile_ = true;
+  RemoteDebuggerAgent.StopProfiling();
 };
 
 
@@ -518,6 +561,28 @@ devtools.DebuggerAgent.prototype.handleAfterCompileEvent_ = function(msg) {
     return;
   }
   this.addScriptInfo_(script);
+};
+
+
+/**
+ * Handles a portion of a profiler log retrieved by GetLogLines call.
+ * @param {string} log A portion of profiler log.
+ * @param {number} newPosition The position in log file to read from
+ *     next time.
+ */
+devtools.DebuggerAgent.prototype.didGetLogLines_ = function(
+    log, newPosition) {
+  if (log.length > 0) {
+    this.profilerProcessor_.processLogChunk(log);
+    this.lastProfileLogPosition_ = newPosition;
+  } else if (this.isProcessingProfile_) {
+    this.isProcessingProfile_ = false;
+    WebInspector.setRecordingProfile(false);           
+    WebInspector.addProfile(this.profilerProcessor_.createProfileForView());
+    return;
+  }
+  setTimeout(function() { RemoteDebuggerAgent.GetLogLines(newPosition); },
+    this.isProcessingProfile_ ? 100 : 1000);
 };
 
 
