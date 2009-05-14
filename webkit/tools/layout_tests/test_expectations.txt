@@ -2664,10 +2664,7 @@ BUG11669 LINUX : LayoutTests/fast/layers/remove-only-this-layer-update.html = FA
 
 // May need rebaselining for mac/linux, or may need nothing at all. Triage after has run
 // on mac/linux buildbot. See http://crbug.com/11763.
-BUG11763 LINUX : LayoutTests/fast/js/postfix-syntax.html = FAIL PASS
 BUG11763 LINUX : LayoutTests/fast/layers/self-painting-outline.html = FAIL PASS
-BUG11763 LINUX : LayoutTests/fast/css/compare-content-style.html = FAIL PASS
-BUG11763 LINUX : LayoutTests/editing/style/apply-through-end-of-document.html = FAIL PASS
 
 // This test got moved (and the baselines have been moved accordingly), but now as a result
 // it seems to be failing?!
