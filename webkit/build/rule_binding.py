@@ -74,7 +74,7 @@ def main(args):
     command.extend(['-I', include_dir])
   command.append(generate_bindings)
   command.extend(options)
-  command.extend(['--outputdir', cppdir, input])
+  command.extend(['--outputDir', cppdir, input])
 
   # Do it.  check_call is new in 2.5, so simulate its behavior with call and
   # assert.

@@ -598,7 +598,7 @@
           'rule_name': 'binding',
           'extension': 'idl',
           'inputs': [
-            'port/bindings/scripts/generate-bindings.pl',
+            '../third_party/WebKit/WebCore/bindings/scripts/generate-bindings.pl',
             'port/bindings/scripts/CodeGenerator.pm',
             'port/bindings/scripts/CodeGeneratorV8.pm',
             'port/bindings/scripts/IDLParser.pm',
