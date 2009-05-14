@@ -2327,6 +2327,7 @@
         'renderer',
         'chrome_resources',
         'chrome_strings',
+        'theme_resources',
         '../skia/skia.gyp:skia',
         '../testing/gtest.gyp:gtest',
       ],
