@@ -162,8 +162,17 @@ void Label::Paint(ChromeCanvas* canvas) {
     focus_rect.set_width(w);
     focus_rect.set_height(h);
     focus_rect.Inset(-kFocusBorderPadding, -kFocusBorderPadding);
-    canvas->DrawFocusRect(MirroredLeftPointForRect(focus_rect), focus_rect.y(),
-                          focus_rect.width(), focus_rect.height());
+    // If the label is a single line of text, then the computed text bound
+    // corresponds directly to the text being drawn and no mirroring is needed
+    // for the RTL case. For multiline text, the text bound is an estimation
+    // and is recomputed in ChromeCanvas::SizeStringInt(). For multiline text
+    // in RTL, we need to take mirroring into account when computing the focus
+    // rectangle.
+    int x = focus_rect.x();
+    if (flags & ChromeCanvas::MULTI_LINE)
+      x = MirroredLeftPointForRect(focus_rect);
+    canvas->DrawFocusRect(x, focus_rect.y(), focus_rect.width(),
+                          focus_rect.height());
   }
 }
 
