@@ -2042,7 +2042,6 @@ BUG10477 WIN LINUX : LayoutTests/fast/repaint/reflection-repaint-test.html = FAI
 BUG10477 WIN LINUX : LayoutTests/fast/repaint/transform-layout-repaint.html = FAIL
 BUG10477 LINUX : LayoutTests/fast/events/context-no-deselect.html = FAIL
 BUG10477 : LayoutTests/fast/xmlhttprequest/xmlhttprequest-nonexistent-file.html = FAIL
-BUG10477 WIN LINUX : LayoutTests/http/tests/navigation/success200-frames-loadsame.html = FAIL
 BUG10477 : LayoutTests/http/tests/navigation/onload-navigation-iframe-2.html = TIMEOUT
 
 // Flaky since rev 13111.
@@ -2636,20 +2635,8 @@ BUG11613 LINUX : chrome/fast/forms/basic-textareas.html = FAIL
 BUG11613 MAC : LayoutTests/fast/forms/text-control-intrinsic-widths.html = FAIL
 BUG11613 MAC : LayoutTests/http/tests/security/cross-frame-access-call.html = FAIL
 BUG11613 WIN : LayoutTests/http/tests/navigation/anchor-frames.html = FAIL
-BUG11613 WIN : LayoutTests/http/tests/navigation/anchor-subframeload.html = FAIL
 BUG11613 WIN : LayoutTests/http/tests/navigation/javascriptlink-frames.html = FAIL
-BUG11613 WIN : LayoutTests/http/tests/navigation/javascriptlink-subframeload.html = FAIL
-BUG11613 WIN : LayoutTests/http/tests/navigation/metaredirect-frames.html = FAIL
-BUG11613 WIN : LayoutTests/http/tests/navigation/postredirect-goback2.html = FAIL
-BUG11613 WIN : LayoutTests/http/tests/navigation/redirect302-basic.html = FAIL
-BUG11613 WIN : LayoutTests/http/tests/navigation/redirect302-frames.html = FAIL
-BUG11613 WIN : LayoutTests/http/tests/navigation/redirect302-goback.html = FAIL
-BUG11613 WIN : LayoutTests/http/tests/navigation/redirect302-subframeload.html = FAIL
 BUG11613 WIN : LayoutTests/http/tests/navigation/relativeanchor-frames.html = FAIL
-BUG11613 WIN : LayoutTests/http/tests/navigation/success200-frames.html = FAIL
-BUG11613 WIN : LayoutTests/http/tests/navigation/success200-subframeload.html = FAIL
-BUG11613 WIN : LayoutTests/http/tests/navigation/timerredirect-frames.html = FAIL
-BUG11613 WIN : LayoutTests/http/tests/navigation/timerredirect-subframeload.html = FAIL
 
 // These tests were broken by the latest skia drop (masks and opacity).
 BUG_SENORBLANCO WIN LINUX : LayoutTests/fast/reflections/reflection-masks-opacity.html = FAIL
@@ -2736,20 +2723,3 @@ BUG11933 WIN LINUX : LayoutTests/fast/frames/content-opacity-2.html = FAIL
 // sure to uncomment/recheck that when this is removed.
 BUG11935 MAC : LayoutTests/http/tests/ssl/verify-ssl-enabled.php = CRASH
 BUG11935 LINUX : LayoutTests/http/tests/navigation/document-location-click-timeout.html = CRASH
-
-BUGTONY WIN : LayoutTests/http/tests/navigation/anchor-basic.html = FAIL
-BUGTONY WIN : LayoutTests/http/tests/navigation/anchor-goback.html = FAIL
-BUGTONY WIN : LayoutTests/http/tests/navigation/javascriptlink-basic.html = FAIL
-BUGTONY WIN : LayoutTests/http/tests/navigation/javascriptlink-goback.html = FAIL
-BUGTONY WIN : LayoutTests/http/tests/navigation/metaredirect-basic.html = FAIL
-BUGTONY WIN : LayoutTests/http/tests/navigation/metaredirect-goback.html = FAIL
-BUGTONY WIN : LayoutTests/http/tests/navigation/post-goback2.html = FAIL
-BUGTONY WIN : LayoutTests/http/tests/navigation/relativeanchor-goback.html = FAIL
-BUGTONY WIN : LayoutTests/http/tests/navigation/slowmetaredirect-basic.html = FAIL
-BUGTONY WIN : LayoutTests/http/tests/navigation/slowtimerredirect-basic.html = FAIL
-BUGTONY WIN : LayoutTests/http/tests/navigation/success200-basic.html = FAIL
-BUGTONY WIN : LayoutTests/http/tests/navigation/success200-goback.html = FAIL
-BUGTONY WIN : LayoutTests/http/tests/navigation/success200-loadsame.html = FAIL
-BUGTONY WIN : LayoutTests/http/tests/navigation/success200-reload.html = FAIL
-BUGTONY WIN : LayoutTests/http/tests/navigation/timerredirect-basic.html = FAIL
-BUGTONY WIN : LayoutTests/http/tests/navigation/timerredirect-goback.html = FAIL
