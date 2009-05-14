@@ -7,10 +7,11 @@
 
 #include <string>
 
-#include "chrome/browser/ssl/ssl_manager.h"
+#include "chrome/browser/ssl/ssl_error_info.h"
 #include "chrome/browser/tab_contents/interstitial_page.h"
 
 class DictionaryValue;
+class SSLCertErrorHandler;
 
 // This class is responsible for showing/hiding the interstitial page that is
 // shown when a certificate error happens.
@@ -23,16 +24,16 @@ class SSLBlockingPage : public InterstitialPage {
    public:
     // Should return the information about the error that causes this blocking
     // page.
-    virtual SSLErrorInfo GetSSLErrorInfo(SSLManager::CertError* error) = 0;
+    virtual SSLErrorInfo GetSSLErrorInfo(SSLCertErrorHandler* handler) = 0;
 
     // Notification that the user chose to reject the certificate.
-    virtual void OnDenyCertificate(SSLManager::CertError* error) = 0;
+    virtual void OnDenyCertificate(SSLCertErrorHandler* handler) = 0;
 
     // Notification that the user chose to accept the certificate.
-    virtual void OnAllowCertificate(SSLManager::CertError* error) = 0;
+    virtual void OnAllowCertificate(SSLCertErrorHandler* handler) = 0;
   };
 
-  SSLBlockingPage(SSLManager::CertError* error, Delegate* delegate);
+  SSLBlockingPage(SSLCertErrorHandler* handler, Delegate* delegate);
   virtual ~SSLBlockingPage();
 
   // A method that sets strings in the specified dictionary from the passed
@@ -56,7 +57,7 @@ class SSLBlockingPage : public InterstitialPage {
 
   // The error we represent.  We will either call CancelRequest() or
   // ContinueRequest() on this object.
-  scoped_refptr<SSLManager::CertError> error_;
+  scoped_refptr<SSLCertErrorHandler> handler_;
 
   // Our delegate.  It provides useful information, like the title and details
   // about this error.

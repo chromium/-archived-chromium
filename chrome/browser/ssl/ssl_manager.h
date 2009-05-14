@@ -32,8 +32,12 @@ class NavigationController;
 class PrefService;
 class ResourceRedirectDetails;
 class ResourceRequestDetails;
+class SSLCertErrorHandler;
+class SSLErrorHandler;
 class SSLErrorInfo;
 class SSLHostState;
+class SSLMixedContentHandler;
+class SSLRequestInfo;
 class Task;
 class URLRequest;
 class TabContents;
@@ -48,273 +52,6 @@ class TabContents;
 
 class SSLManager : public NotificationObserver {
  public:
-  class CertError;
-
-  // An ErrorHandler carries information from the IO thread to the UI thread
-  // and is dispatched to the appropriate SSLManager when it arrives on the
-  // UI thread.  Subclasses should override the OnDispatched/OnDispatchFailed
-  // methods to implement the actions that should be taken on the UI thread.
-  // These methods can call the different convenience methods ContinueRequest/
-  // CancelRequest/StartRequest to perform any required action on the URLRequest
-  // the ErrorHandler was created with.
-  // IMPORTANT NOTE: if you are not doing anything in
-  // OnDispatched/OnDispatchFailed, make sure you call TakeNoAction().  This is
-  // necessary for ensuring the instance is not leaked.
-  class ErrorHandler : public base::RefCountedThreadSafe<ErrorHandler> {
-   public:
-    virtual ~ErrorHandler() { }
-
-    virtual CertError* AsCertError() { return NULL; }
-
-    // Find the appropriate SSLManager for the URLRequest and begin handling
-    // this error.
-    //
-    // Call on UI thread.
-    void Dispatch();
-
-    // Available on either thread.
-    const GURL& request_url() const { return request_url_; }
-
-    // Available on either thread.
-    ResourceType::Type resource_type() const { return resource_type_; }
-
-    // Available on either thread.
-    const std::string& frame_origin() const { return frame_origin_; }
-
-    // Available on either thread.
-    const std::string& main_frame_origin() const { return main_frame_origin_; }
-
-    // Call on the UI thread.
-    SSLManager* manager() const { return manager_; }
-
-    // Returns the TabContents this object is associated with.  Should be
-    // called from the UI thread.
-    TabContents* GetTabContents();
-
-    // Cancels the associated URLRequest.
-    // This method can be called from OnDispatchFailed and OnDispatched.
-    void CancelRequest();
-
-    // Continue the URLRequest ignoring any previous errors.  Note that some
-    // errors cannot be ignored, in which case this will result in the request
-    // being canceled.
-    // This method can be called from OnDispatchFailed and OnDispatched.
-    void ContinueRequest();
-
-    // Cancels the associated URLRequest and mark it as denied.  The renderer
-    // processes such request in a special manner, optionally replacing them
-    // with alternate content (typically frames content is replaced with a
-    // warning message).
-    // This method can be called from OnDispatchFailed and OnDispatched.
-    void DenyRequest();
-
-    // Starts the associated URLRequest.  |filter_policy| specifies whether the
-    // ResourceDispatcher should attempt to filter the loaded content in order
-    // to make it secure (ex: images are made slightly transparent and are
-    // stamped).
-    // Should only be called when the URLRequest has not already been started.
-    // This method can be called from OnDispatchFailed and OnDispatched.
-    void StartRequest(FilterPolicy::Type filter_policy);
-
-    // Does nothing on the URLRequest but ensures the current instance ref
-    // count is decremented appropriately.  Subclasses that do not want to
-    // take any specific actions in their OnDispatched/OnDispatchFailed should
-    // call this.
-    void TakeNoAction();
-
-   protected:
-    // Construct on the IO thread.
-    ErrorHandler(ResourceDispatcherHost* resource_dispatcher_host,
-                 URLRequest* request,
-                 ResourceType::Type resource_type,
-                 const std::string& frame_origin,
-                 const std::string& main_frame_origin,
-                 MessageLoop* ui_loop);
-
-    // The following 2 methods are the methods subclasses should implement.
-    virtual void OnDispatchFailed() { TakeNoAction(); }
-
-    // Can use the manager_ member.
-    virtual void OnDispatched() { TakeNoAction(); }
-
-    // We cache the message loops to be able to proxy events across the thread
-    // boundaries.
-    MessageLoop* ui_loop_;
-    MessageLoop* io_loop_;
-
-    // Should only be accessed on the UI thread.
-    SSLManager* manager_;  // Our manager.
-
-    // The id of the URLRequest associated with this object.
-    // Should only be accessed from the IO thread.
-    ResourceDispatcherHost::GlobalRequestID request_id_;
-
-    // The ResourceDispatcherHost we are associated with.
-    ResourceDispatcherHost* resource_dispatcher_host_;
-
-   private:
-    // Completes the CancelRequest operation on the IO thread.
-    // Call on the IO thread.
-    void CompleteCancelRequest(int error);
-
-    // Completes the ContinueRequest operation on the IO thread.
-    //
-    // Call on the IO thread.
-    void CompleteContinueRequest();
-
-    // Completes the StartRequest operation on the IO thread.
-    // Call on the IO thread.
-    void CompleteStartRequest(FilterPolicy::Type filter_policy);
-
-    // Derefs this instance.
-    // Call on the IO thread.
-    void CompleteTakeNoAction();
-
-    // We use these members to find the correct SSLManager when we arrive on
-    // the UI thread.
-    int render_process_host_id_;
-    int tab_contents_id_;
-
-    // The URL that we requested.
-    // This read-only member can be accessed on any thread.
-    const GURL request_url_;
-
-    // What kind of resource is associated with the requested that generated
-    // that error.
-    // This read-only member can be accessed on any thread.
-    const ResourceType::Type resource_type_;
-
-    // The origin of the frame associated with this request.
-    // This read-only member can be accessed on any thread.
-    const std::string frame_origin_;
-
-    // The origin of the main frame associated with this request.
-    // This read-only member can be accessed on any thread.
-    const std::string main_frame_origin_;
-
-    // A flag to make sure we notify the URLRequest exactly once.
-    // Should only be accessed on the IO thread
-    bool request_has_been_notified_;
-
-    DISALLOW_COPY_AND_ASSIGN(ErrorHandler);
-  };
-
-  // A CertError represents an error that occurred with the certificate in an
-  // SSL session.  A CertError object exists both on the IO thread and on the UI
-  // thread and allows us to cancel/continue a request it is associated with.
-  class CertError : public ErrorHandler {
-   public:
-
-    virtual CertError* AsCertError() { return this; }
-
-    // These accessors are available on either thread
-    const net::SSLInfo& ssl_info() const { return ssl_info_; }
-    int cert_error() const { return cert_error_; }
-
-   private:
-    // SSLManager is responsible for creating CertError objects.
-    friend class SSLManager;
-
-    // Construct on the IO thread.
-    // We mark this method as private because it is tricky to correctly
-    // construct a CertError object.
-    CertError(ResourceDispatcherHost* resource_dispatcher_host,
-              URLRequest* request,
-              ResourceType::Type resource_type,
-              const std::string& frame_origin,
-              const std::string& main_frame_origin,
-              int cert_error,
-              net::X509Certificate* cert,
-              MessageLoop* ui_loop);
-
-    // ErrorHandler methods
-    virtual void OnDispatchFailed() { CancelRequest(); }
-    virtual void OnDispatched() { manager_->OnCertError(this); }
-
-    // These read-only members can be accessed on any thread.
-    net::SSLInfo ssl_info_;
-    const int cert_error_;  // The error we represent.
-
-    DISALLOW_COPY_AND_ASSIGN(CertError);
-  };
-
-  // The MixedContentHandler class is used to query what to do with
-  // mixed content, from the IO thread to the UI thread.
-  class MixedContentHandler : public ErrorHandler {
-   public:
-    // Created on the IO thread.
-    MixedContentHandler(ResourceDispatcherHost* rdh,
-                        URLRequest* request,
-                        ResourceType::Type resource_type,
-                        const std::string& frame_origin,
-                        const std::string& main_frame_origin,
-                        int pid,
-                        MessageLoop* ui_loop)
-        : ErrorHandler(rdh, request, resource_type, frame_origin,
-                       main_frame_origin, ui_loop),
-          pid_(pid) {}
-
-    int pid() const { return pid_; }
-
-   protected:
-    virtual void OnDispatchFailed() { TakeNoAction(); }
-    virtual void OnDispatched() { manager()->OnMixedContent(this); }
-
-   private:
-    int pid_;
-
-    DISALLOW_COPY_AND_ASSIGN(MixedContentHandler);
-  };
-
-  // RequestInfo wraps up the information SSLPolicy needs about a request in
-  // order to update our security IU.  RequestInfo is RefCounted in case we need
-  // to deal with the request asynchronously.
-  class RequestInfo : public base::RefCounted<RequestInfo> {
-   public:
-    RequestInfo(SSLManager* manager,
-                const GURL& url,
-                ResourceType::Type resource_type,
-                const std::string& frame_origin,
-                const std::string& main_frame_origin,
-                FilterPolicy::Type filter_policy,
-                int pid,
-                int ssl_cert_id,
-                int ssl_cert_status)
-        : manager_(manager),
-          url_(url),
-          resource_type_(resource_type),
-          frame_origin_(frame_origin),
-          main_frame_origin_(main_frame_origin),
-          filter_policy_(filter_policy),
-          pid_(pid),
-          ssl_cert_id_(ssl_cert_id),
-          ssl_cert_status_(ssl_cert_status) {
-    }
-
-    SSLManager* manager() const { return manager_; }
-    const GURL& url() const { return url_; }
-    ResourceType::Type resource_type() const { return resource_type_; }
-    const std::string& frame_origin() const { return frame_origin_; }
-    const std::string& main_frame_origin() const { return main_frame_origin_; }
-    FilterPolicy::Type filter_policy() const { return filter_policy_; }
-    int pid() const { return pid_; }
-    int ssl_cert_id() const { return ssl_cert_id_; }
-    int ssl_cert_status() const { return ssl_cert_status_; }
-
-   private:
-    SSLManager* manager_;
-    GURL url_;
-    ResourceType::Type resource_type_;
-    std::string frame_origin_;
-    std::string main_frame_origin_;
-    FilterPolicy::Type filter_policy_;
-    int pid_;
-    int ssl_cert_id_;
-    int ssl_cert_status_;
-
-    DISALLOW_COPY_AND_ASSIGN(RequestInfo);
-  };
-
   // The SSLManager will ask its delegate to decide how to handle events
   // relevant to SSL.  Delegates are expected to be stateless and intended to be
   // easily implementable.
@@ -327,15 +64,15 @@ class SSLManager : public NotificationObserver {
   class Delegate {
    public:
     // An error occurred with the certificate in an SSL connection.
-    virtual void OnCertError(CertError* error) = 0;
+    virtual void OnCertError(SSLCertErrorHandler* handler) = 0;
 
     // A request for a mixed-content resource was made.  Note that the resource
     // request was not started yet and the delegate is responsible for starting
     // it.
-    virtual void OnMixedContent(MixedContentHandler* handler) = 0;
+    virtual void OnMixedContent(SSLMixedContentHandler* handler) = 0;
 
     // We have started a resource request with the given info.
-    virtual void OnRequestStarted(RequestInfo* info) = 0;
+    virtual void OnRequestStarted(SSLRequestInfo* info) = 0;
 
     // Update the SSL information in |entry| to match the current state.
     virtual void UpdateEntry(SSLManager* manager, NavigationEntry* entry) = 0;
@@ -438,14 +175,14 @@ class SSLManager : public NotificationObserver {
   // the SSL manager.  The error originated from the ResourceDispatcherHost.
   //
   // Called on the UI thread.
-  void OnCertError(CertError* error);
+  void OnCertError(SSLCertErrorHandler* handler);
 
   // Called by MixedContentHandler::Dispatch to kick off processing of the
   // mixed-content resource request.  The info originated from the
   // ResourceDispatcherHost.
   //
   // Called on the UI thread.
-  void OnMixedContent(MixedContentHandler* handler);
+  void OnMixedContent(SSLMixedContentHandler* handler);
 
   // Entry point for navigation.  This function begins the process of updating
   // the security UI when the main frame navigates to a new URL.

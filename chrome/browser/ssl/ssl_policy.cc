@@ -11,7 +11,10 @@
 #include "base/string_util.h"
 #include "chrome/browser/cert_store.h"
 #include "chrome/browser/renderer_host/render_view_host.h"
+#include "chrome/browser/ssl/ssl_cert_error_handler.h"
 #include "chrome/browser/ssl/ssl_error_info.h"
+#include "chrome/browser/ssl/ssl_mixed_content_handler.h"
+#include "chrome/browser/ssl/ssl_request_info.h"
 #include "chrome/browser/tab_contents/navigation_entry.h"
 #include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/common/jstemplate_builder.h"
@@ -52,7 +55,7 @@ static void AllowMixedContentForOrigin(SSLManager* manager,
   manager->AllowMixedContentForHost(parsed_origin.host());
 }
 
-static void UpdateStateForMixedContent(SSLManager::RequestInfo* info) {
+static void UpdateStateForMixedContent(SSLRequestInfo* info) {
   if (info->resource_type() != ResourceType::MAIN_FRAME ||
       info->resource_type() != ResourceType::SUB_FRAME) {
     // The frame's origin now contains mixed content and therefore is broken.
@@ -66,7 +69,7 @@ static void UpdateStateForMixedContent(SSLManager::RequestInfo* info) {
   }
 }
 
-static void UpdateStateForUnsafeContent(SSLManager::RequestInfo* info) {
+static void UpdateStateForUnsafeContent(SSLRequestInfo* info) {
   // This request as a broken cert, which means its host is broken.
   info->manager()->MarkHostAsBroken(info->url().host(), info->pid());
 
@@ -75,19 +78,18 @@ static void UpdateStateForUnsafeContent(SSLManager::RequestInfo* info) {
 
 class ShowMixedContentTask : public Task {
  public:
-  ShowMixedContentTask(SSLManager::MixedContentHandler* handler);
+  ShowMixedContentTask(SSLMixedContentHandler* handler);
   virtual ~ShowMixedContentTask();
 
   virtual void Run();
 
  private:
-  scoped_refptr<SSLManager::MixedContentHandler> handler_;
+  scoped_refptr<SSLMixedContentHandler> handler_;
 
   DISALLOW_COPY_AND_ASSIGN(ShowMixedContentTask);
 };
 
-ShowMixedContentTask::ShowMixedContentTask(
-    SSLManager::MixedContentHandler* handler)
+ShowMixedContentTask::ShowMixedContentTask(SSLMixedContentHandler* handler)
     : handler_(handler) {
 }
 
@@ -101,8 +103,8 @@ void ShowMixedContentTask::Run() {
   handler_->manager()->controller()->Reload(true);
 }
 
-static void ShowErrorPage(SSLPolicy* policy, SSLManager::CertError* error) {
-  SSLErrorInfo error_info = policy->GetSSLErrorInfo(error);
+static void ShowErrorPage(SSLPolicy* policy, SSLCertErrorHandler* handler) {
+  SSLErrorInfo error_info = policy->GetSSLErrorInfo(handler);
 
   // Let's build the html error page.
   DictionaryValue strings;
@@ -126,23 +128,23 @@ static void ShowErrorPage(SSLPolicy* policy, SSLManager::CertError* error) {
   std::string html_text(jstemplate_builder::GetTemplateHtml(html, &strings,
                                                             "template_root"));
 
-  TabContents* tab  = error->GetTabContents();
+  TabContents* tab  = handler->GetTabContents();
   int cert_id = CertStore::GetSharedInstance()->StoreCert(
-      error->ssl_info().cert, tab->render_view_host()->process()->pid());
+      handler->ssl_info().cert, tab->render_view_host()->process()->pid());
   std::string security_info =
       SSLManager::SerializeSecurityInfo(cert_id,
-                                        error->ssl_info().cert_status,
-                                        error->ssl_info().security_bits);
+                                        handler->ssl_info().cert_status,
+                                        handler->ssl_info().security_bits);
   tab->render_view_host()->LoadAlternateHTMLString(html_text,
                                                    true,
-                                                   error->request_url(),
+                                                   handler->request_url(),
                                                    security_info);
   tab->controller().GetActiveEntry()->set_page_type(
       NavigationEntry::ERROR_PAGE);
 }
 
-static void ShowBlockingPage(SSLPolicy* policy, SSLManager::CertError* error) {
-  SSLBlockingPage* blocking_page = new SSLBlockingPage(error, policy);
+static void ShowBlockingPage(SSLPolicy* policy, SSLCertErrorHandler* handler) {
+  SSLBlockingPage* blocking_page = new SSLBlockingPage(handler, policy);
   blocking_page->Show();
 }
 
@@ -154,8 +156,7 @@ static void InitializeEntryIfNeeded(NavigationEntry* entry) {
       SECURITY_STYLE_AUTHENTICATED : SECURITY_STYLE_UNAUTHENTICATED);
 }
 
-static void AddMixedContentWarningToConsole(
-    SSLManager::MixedContentHandler* handler) {
+static void AddMixedContentWarningToConsole(SSLMixedContentHandler* handler) {
   const std::wstring& text = l10n_util::GetStringF(
       IDS_MIXED_CONTENT_LOG_MESSAGE,
       UTF8ToWide(handler->frame_origin()),
@@ -173,14 +174,14 @@ SSLPolicy* SSLPolicy::GetDefaultPolicy() {
   return Singleton<SSLPolicy>::get();
 }
 
-void SSLPolicy::OnCertError(SSLManager::CertError* error) {
+void SSLPolicy::OnCertError(SSLCertErrorHandler* handler) {
   // First we check if we know the policy for this error.
   net::X509Certificate::Policy::Judgment judgment =
-      error->manager()->QueryPolicy(error->ssl_info().cert,
-                                    error->request_url().host());
+      handler->manager()->QueryPolicy(handler->ssl_info().cert,
+                                      handler->request_url().host());
 
   if (judgment == net::X509Certificate::Policy::ALLOWED) {
-    error->ContinueRequest();
+    handler->ContinueRequest();
     return;
   }
 
@@ -188,35 +189,35 @@ void SSLPolicy::OnCertError(SSLManager::CertError* error) {
   // For now we handle the DENIED as the UNKNOWN, which means a blocking
   // page is shown to the user every time he comes back to the page.
 
-  switch(error->cert_error()) {
+  switch(handler->cert_error()) {
     case net::ERR_CERT_COMMON_NAME_INVALID:
     case net::ERR_CERT_DATE_INVALID:
     case net::ERR_CERT_AUTHORITY_INVALID:
-      OnOverridableCertError(error);
+      OnOverridableCertError(handler);
       break;
     case net::ERR_CERT_NO_REVOCATION_MECHANISM:
       // Ignore this error.
-      error->ContinueRequest();
+      handler->ContinueRequest();
       break;
     case net::ERR_CERT_UNABLE_TO_CHECK_REVOCATION:
       // We ignore this error and display an infobar.
-      error->ContinueRequest();
-      error->manager()->ShowMessage(l10n_util::GetString(
+      handler->ContinueRequest();
+      handler->manager()->ShowMessage(l10n_util::GetString(
           IDS_CERT_ERROR_UNABLE_TO_CHECK_REVOCATION_INFO_BAR));
       break;
     case net::ERR_CERT_CONTAINS_ERRORS:
     case net::ERR_CERT_REVOKED:
     case net::ERR_CERT_INVALID:
-      OnFatalCertError(error);
+      OnFatalCertError(handler);
       break;
     default:
       NOTREACHED();
-      error->CancelRequest();
+      handler->CancelRequest();
       break;
   }
 }
 
-void SSLPolicy::OnMixedContent(SSLManager::MixedContentHandler* handler) {
+void SSLPolicy::OnMixedContent(SSLMixedContentHandler* handler) {
   // Get the user's mixed content preference.
   PrefService* prefs = handler->GetTabContents()->profile()->GetPrefs();
   FilterPolicy::Type filter_policy =
@@ -239,7 +240,7 @@ void SSLPolicy::OnMixedContent(SSLManager::MixedContentHandler* handler) {
   AddMixedContentWarningToConsole(handler);
 }
 
-void SSLPolicy::OnRequestStarted(SSLManager::RequestInfo* info) {
+void SSLPolicy::OnRequestStarted(SSLRequestInfo* info) {
   if (net::IsCertStatusError(info->ssl_cert_status()))
     UpdateStateForUnsafeContent(info);
 
@@ -309,24 +310,24 @@ bool SSLPolicy::IsMixedContent(const GURL& url,
 ////////////////////////////////////////////////////////////////////////////////
 // SSLBlockingPage::Delegate methods
 
-SSLErrorInfo SSLPolicy::GetSSLErrorInfo(SSLManager::CertError* error) {
+SSLErrorInfo SSLPolicy::GetSSLErrorInfo(SSLCertErrorHandler* handler) {
   return SSLErrorInfo::CreateError(
-      SSLErrorInfo::NetErrorToErrorType(error->cert_error()),
-      error->ssl_info().cert, error->request_url());
+      SSLErrorInfo::NetErrorToErrorType(handler->cert_error()),
+      handler->ssl_info().cert, handler->request_url());
 }
 
-void SSLPolicy::OnDenyCertificate(SSLManager::CertError* error) {
+void SSLPolicy::OnDenyCertificate(SSLCertErrorHandler* handler) {
   // Default behavior for rejecting a certificate.
   //
   // While DenyCertForHost() executes synchronously on this thread,
   // CancelRequest() gets posted to a different thread. Calling
   // DenyCertForHost() first ensures deterministic ordering.
-  error->manager()->DenyCertForHost(error->ssl_info().cert,
-                                    error->request_url().host());
-  error->CancelRequest();
+  handler->manager()->DenyCertForHost(handler->ssl_info().cert,
+                                      handler->request_url().host());
+  handler->CancelRequest();
 }
 
-void SSLPolicy::OnAllowCertificate(SSLManager::CertError* error) {
+void SSLPolicy::OnAllowCertificate(SSLCertErrorHandler* handler) {
   // Default behavior for accepting a certificate.
   // Note that we should not call SetMaxSecurityStyle here, because the active
   // NavigationEntry has just been deleted (in HideInterstitialPage) and the
@@ -337,33 +338,33 @@ void SSLPolicy::OnAllowCertificate(SSLManager::CertError* error) {
   // While AllowCertForHost() executes synchronously on this thread,
   // ContinueRequest() gets posted to a different thread. Calling
   // AllowCertForHost() first ensures deterministic ordering.
-  error->manager()->AllowCertForHost(error->ssl_info().cert,
-                                     error->request_url().host());
-  error->ContinueRequest();
+  handler->manager()->AllowCertForHost(handler->ssl_info().cert,
+                                       handler->request_url().host());
+  handler->ContinueRequest();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 // Certificate Error Routines
 
-void SSLPolicy::OnOverridableCertError(SSLManager::CertError* error) {
-  if (error->resource_type() != ResourceType::MAIN_FRAME) {
+void SSLPolicy::OnOverridableCertError(SSLCertErrorHandler* handler) {
+  if (handler->resource_type() != ResourceType::MAIN_FRAME) {
     // A sub-resource has a certificate error.  The user doesn't really
     // have a context for making the right decision, so block the
     // request hard, without an info bar to allow showing the insecure
     // content.
-    error->DenyRequest();
+    handler->DenyRequest();
     return;
   }
   // We need to ask the user to approve this certificate.
-  ShowBlockingPage(this, error);
+  ShowBlockingPage(this, handler);
 }
 
-void SSLPolicy::OnFatalCertError(SSLManager::CertError* error) {
-  if (error->resource_type() != ResourceType::MAIN_FRAME) {
-    error->DenyRequest();
+void SSLPolicy::OnFatalCertError(SSLCertErrorHandler* handler) {
+  if (handler->resource_type() != ResourceType::MAIN_FRAME) {
+    handler->DenyRequest();
     return;
   }
-  error->CancelRequest();
-  ShowErrorPage(this, error);
+  handler->CancelRequest();
+  ShowErrorPage(this, handler);
   // No need to degrade our security indicators because we didn't continue.
 }

@@ -12,6 +12,7 @@
 #include "chrome/browser/browser.h"
 #include "chrome/browser/cert_store.h"
 #include "chrome/browser/dom_operation_notification_details.h"
+#include "chrome/browser/ssl/ssl_cert_error_handler.h"
 #include "chrome/browser/ssl/ssl_error_info.h"
 #include "chrome/browser/tab_contents/navigation_controller.h"
 #include "chrome/browser/tab_contents/navigation_entry.h"
@@ -41,10 +42,10 @@ void RecordSSLBlockingPageStats(SSLBlockingPageEvent event) {
 
 // Note that we always create a navigation entry with SSL errors.
 // No error happening loading a sub-resource triggers an interstitial so far.
-SSLBlockingPage::SSLBlockingPage(SSLManager::CertError* error,
+SSLBlockingPage::SSLBlockingPage(SSLCertErrorHandler* handler,
                                  Delegate* delegate)
-    : InterstitialPage(error->GetTabContents(), true, error->request_url()),
-      error_(error),
+    : InterstitialPage(handler->GetTabContents(), true, handler->request_url()),
+      handler_(handler),
       delegate_(delegate),
       delegate_has_been_notified_(false) {
   RecordSSLBlockingPageStats(SHOW);
@@ -61,7 +62,7 @@ SSLBlockingPage::~SSLBlockingPage() {
 std::string SSLBlockingPage::GetHTMLContents() {
   // Let's build the html error page.
   DictionaryValue strings;
-  SSLErrorInfo error_info = delegate_->GetSSLErrorInfo(error_);
+  SSLErrorInfo error_info = delegate_->GetSSLErrorInfo(handler_);
   strings.SetString(L"title",
                     l10n_util::GetString(IDS_SSL_BLOCKING_PAGE_TITLE));
   strings.SetString(L"headLine", error_info.title());
@@ -88,7 +89,7 @@ std::string SSLBlockingPage::GetHTMLContents() {
 }
 
 void SSLBlockingPage::UpdateEntry(NavigationEntry* entry) {
-  const net::SSLInfo& ssl_info = error_->ssl_info();
+  const net::SSLInfo& ssl_info = handler_->ssl_info();
   int cert_id = CertStore::GetSharedInstance()->StoreCert(
       ssl_info.cert, tab()->render_view_host()->process()->pid());
 
@@ -130,14 +131,14 @@ void SSLBlockingPage::DontProceed() {
 void SSLBlockingPage::NotifyDenyCertificate() {
   DCHECK(!delegate_has_been_notified_);
 
-  delegate_->OnDenyCertificate(error_);
+  delegate_->OnDenyCertificate(handler_);
   delegate_has_been_notified_ = true;
 }
 
 void SSLBlockingPage::NotifyAllowCertificate() {
   DCHECK(!delegate_has_been_notified_);
 
-  delegate_->OnAllowCertificate(error_);
+  delegate_->OnAllowCertificate(handler_);
   delegate_has_been_notified_ = true;
 }
 

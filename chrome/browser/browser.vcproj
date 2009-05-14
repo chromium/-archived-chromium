@@ -2514,6 +2514,18 @@
 				>
 			</File>
 			<File
+				RelativePath=".\ssl\ssl_cert_error_handler.h"
+				>
+			</File>
+			<File
+				RelativePath=".\ssl\ssl_error_handler.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\ssl\ssl_error_handler.h"
+				>
+			</File>
+			<File
 				RelativePath=".\ssl\ssl_error_info.cc"
 				>
 			</File>
@@ -2538,11 +2550,19 @@
 				>
 			</File>
 			<File
+				RelativePath=".\ssl\ssl_mixed_content_handler.h"
+				>
+			</File>
+			<File
 				RelativePath=".\ssl\ssl_policy.cc"
 				>
 			</File>
 			<File
 				RelativePath=".\ssl\ssl_policy.h"
+				>
+			</File>
+			<File
+				RelativePath=".\ssl\ssl_request_info.h"
 				>
 			</File>
 		</Filter>

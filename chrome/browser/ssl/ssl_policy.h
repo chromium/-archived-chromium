@@ -22,9 +22,9 @@ class SSLPolicy : public SSLManager::Delegate,
   static SSLPolicy* GetDefaultPolicy();
 
   // SSLManager::Delegate methods.
-  virtual void OnCertError(SSLManager::CertError* error);
-  virtual void OnMixedContent(SSLManager::MixedContentHandler* handler);
-  virtual void OnRequestStarted(SSLManager::RequestInfo* info);
+  virtual void OnCertError(SSLCertErrorHandler* handler);
+  virtual void OnMixedContent(SSLMixedContentHandler* handler);
+  virtual void OnRequestStarted(SSLRequestInfo* info);
   virtual void UpdateEntry(SSLManager* manager, NavigationEntry* entry);
 
   // This method is static because it is called from both the UI and the IO
@@ -35,9 +35,9 @@ class SSLPolicy : public SSLManager::Delegate,
                              const std::string& frame_origin);
 
   // SSLBlockingPage::Delegate methods.
-  virtual SSLErrorInfo GetSSLErrorInfo(SSLManager::CertError* error);
-  virtual void OnDenyCertificate(SSLManager::CertError* error);
-  virtual void OnAllowCertificate(SSLManager::CertError* error);
+  virtual SSLErrorInfo GetSSLErrorInfo(SSLCertErrorHandler* handler);
+  virtual void OnDenyCertificate(SSLCertErrorHandler* handler);
+  virtual void OnAllowCertificate(SSLCertErrorHandler* handler);
 
  private:
   // Construct via |GetDefaultPolicy|.
@@ -47,11 +47,11 @@ class SSLPolicy : public SSLManager::Delegate,
   // Helper method for derived classes handling certificate errors that can be
   // overridden by the user.
   // Show a blocking page and let the user continue or cancel the request.
-  void OnOverridableCertError(SSLManager::CertError* error);
+  void OnOverridableCertError(SSLCertErrorHandler* handler);
 
   // Helper method for derived classes handling fatal certificate errors.
   // Cancel the request and show an error page.
-  void OnFatalCertError(SSLManager::CertError* error);
+  void OnFatalCertError(SSLCertErrorHandler* handler);
 
   DISALLOW_COPY_AND_ASSIGN(SSLPolicy);
 };
