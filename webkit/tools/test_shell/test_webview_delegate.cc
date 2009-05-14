@@ -801,7 +801,8 @@ void TestWebViewDelegate::LocationChangeDone(WebFrame* frame) {
     if (shell_->webView()->GetMainFrame()->GetCurrentHistoryState(&state)) {
       TestNavigationEntry* entry =
           shell_->navigation_controller()->GetLastCommittedEntry();
-      entry->SetContentState(state);
+      if (entry)
+        entry->SetContentState(state);
     }
 
     if (shell_->layout_test_mode())

@@ -2722,4 +2722,3 @@ BUG11933 WIN LINUX : LayoutTests/fast/frames/content-opacity-2.html = FAIL
 // Note: This was already failing in a different way. See BUG10316, above, so be
 // sure to uncomment/recheck that when this is removed.
 BUG11935 MAC : LayoutTests/http/tests/ssl/verify-ssl-enabled.php = CRASH
-BUG11935 LINUX : LayoutTests/http/tests/navigation/document-location-click-timeout.html = CRASH
