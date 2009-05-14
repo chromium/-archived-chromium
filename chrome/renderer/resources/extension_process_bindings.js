@@ -14,6 +14,7 @@ var chrome;
   native function GetCurrentWindow();
   native function GetLastFocusedWindow();
   native function CreateWindow();
+  native function UpdateWindow();
   native function RemoveWindow();
   native function GetAllWindows();
   native function GetTab();
@@ -165,7 +166,25 @@ var chrome;
     },
     chrome.types.optFun
   ];
-  
+
+  chrome.windows.update = function(windowId, updateData, callback) {
+    validate(arguments, arguments.callee.params);
+    sendRequest(UpdateWindow, [windowId, updateData], callback);
+  };
+  chrome.windows.update.params = [
+    chrome.types.pInt,
+    {
+      type: "object",
+      properties: {
+        left: chrome.types.optInt,
+        top: chrome.types.optInt,
+        width: chrome.types.optPInt,
+        height: chrome.types.optPInt
+      },
+    },
+    chrome.types.optFun
+  ];
+
   chrome.windows.remove = function(windowId, callback) {
     validate(arguments, arguments.callee.params);
     sendRequest(RemoveWindow, windowId, callback);

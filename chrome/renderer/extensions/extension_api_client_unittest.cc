@@ -172,6 +172,89 @@ TEST_F(ExtensionAPIClientTest, GetAllWindows) {
                "GetAllWindows", "null");
 }
 
+TEST_F(ExtensionAPIClientTest, CreateWindow) {
+  ExpectJsFail("chrome.windows.create({url: 1}, function(){});",
+               "Uncaught Error: Invalid value for argument 0. Property "
+               "'url': Expected 'string' but got 'integer'.");
+  ExpectJsFail("chrome.windows.create({left: 'foo'}, function(){});",
+               "Uncaught Error: Invalid value for argument 0. Property "
+               "'left': Expected 'integer' but got 'string'.");
+  ExpectJsFail("chrome.windows.create({top: 'foo'}, function(){});",
+               "Uncaught Error: Invalid value for argument 0. Property "
+               "'top': Expected 'integer' but got 'string'.");
+  ExpectJsFail("chrome.windows.create({width: 'foo'}, function(){});",
+               "Uncaught Error: Invalid value for argument 0. Property "
+               "'width': Expected 'integer' but got 'string'.");
+  ExpectJsFail("chrome.windows.create({height: 'foo'}, function(){});",
+               "Uncaught Error: Invalid value for argument 0. Property "
+               "'height': Expected 'integer' but got 'string'.");
+  ExpectJsFail("chrome.windows.create({foo: 42}, function(){});",
+               "Uncaught Error: Invalid value for argument 0. Property "
+               "'foo': Unexpected property.");
+
+  ExpectJsPass("chrome.windows.create({"
+               "  url:'http://www.google.com/',"
+               "  left:0,"
+               "  top: 10,"
+               "  width:100,"
+               "  height:200"
+               "})",
+               "CreateWindow",
+               "{\"url\":\"http://www.google.com/\","
+               "\"left\":0,"
+               "\"top\":10,"
+               "\"width\":100,"
+               "\"height\":200}");
+}
+
+TEST_F(ExtensionAPIClientTest, UpdateWindow) {
+  ExpectJsFail("chrome.windows.update(null);",
+               "Uncaught Error: Parameter 0 is required.");
+  ExpectJsFail("chrome.windows.update(42, {left: 'foo'});",
+               "Uncaught Error: Invalid value for argument 1. Property "
+               "'left': Expected 'integer' but got 'string'.");
+  ExpectJsFail("chrome.windows.update(42, {top: 'foo'});",
+               "Uncaught Error: Invalid value for argument 1. Property "
+               "'top': Expected 'integer' but got 'string'.");
+  ExpectJsFail("chrome.windows.update(42, {height: false});",
+               "Uncaught Error: Invalid value for argument 1. Property "
+               "'height': Expected 'integer' but got 'boolean'.");
+  ExpectJsFail("chrome.windows.update(42, {width: false});",
+               "Uncaught Error: Invalid value for argument 1. Property "
+               "'width': Expected 'integer' but got 'boolean'.");
+  ExpectJsFail("chrome.windows.update(42, {foo: false});",
+               "Uncaught Error: Invalid value for argument 1. Property "
+               "'foo': Unexpected property.");
+
+  ExpectJsPass("chrome.windows.update(42, {"
+               "  width:100,"
+               "  height:200"
+               "})",
+               "UpdateWindow",
+               "[42,"
+               "{\"width\":100,"
+               "\"height\":200}]");
+}
+
+TEST_F(ExtensionAPIClientTest, RemoveWindow) {
+  ExpectJsFail("chrome.windows.remove(32, function(){}, 20);",
+               "Uncaught Error: Too many arguments.");
+
+  ExpectJsFail("chrome.windows.remove('abc', function(){});",
+               "Uncaught Error: Invalid value for argument 0. "
+               "Expected 'integer' but got 'string'.");
+
+  ExpectJsFail("chrome.windows.remove(1, 1);",
+               "Uncaught Error: Invalid value for argument 1. "
+               "Expected 'function' but got 'integer'.");
+
+  ExpectJsPass("chrome.windows.remove(2, function(){})",
+               "RemoveWindow", "2");
+
+  ExpectJsPass("chrome.windows.remove(2)",
+               "RemoveWindow", "2");
+}
+
 // Tab API tests
 
 TEST_F(ExtensionAPIClientTest, GetTab) {
