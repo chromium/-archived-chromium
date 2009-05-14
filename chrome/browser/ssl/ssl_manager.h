@@ -209,12 +209,6 @@ class SSLManager : public NotificationObserver {
   // Update the NavigationEntry with our current state.
   void UpdateEntry(NavigationEntry* entry);
 
-  // Shows the pending messages (in info-bars) if any.
-  void ShowPendingMessages();
-
-  // Clears any pending messages.
-  void ClearPendingMessages();
-
   // Our delegate.  The delegate is responsible for making policy decisions.
   // Must not be NULL.
   Delegate* delegate_;

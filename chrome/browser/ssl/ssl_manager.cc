@@ -249,7 +249,7 @@ void SSLManager::DidCommitProvisionalLoad(
       entry->ssl().set_cert_status(ssl_cert_status);
       entry->ssl().set_security_bits(ssl_security_bits);
     }
-    ShowPendingMessages();
+    backend_.ShowPendingMessages();
   }
 
   UpdateEntry(entry);
@@ -264,7 +264,7 @@ void SSLManager::DidFailProvisionalLoadWithError(
     return;
 
   if (details->main_frame())
-    ClearPendingMessages();
+    backend_.ClearPendingMessages();
 }
 
 void SSLManager::DidStartResourceResponse(ResourceRequestDetails* details) {

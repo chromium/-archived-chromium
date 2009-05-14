@@ -71,6 +71,12 @@ class SSLPolicyBackend {
   // Reloads the tab.
   void Reload();
 
+  // Shows the pending messages (in info-bars) if any.
+  void ShowPendingMessages();
+
+  // Clears any pending messages.
+  void ClearPendingMessages();
+
  private:
   // SSLMessageInfo contains the information necessary for displaying a message
   // in an info-bar.
@@ -98,12 +104,6 @@ class SSLPolicyBackend {
 
   // Dispatch NotificationType::SSL_INTERNAL_STATE_CHANGED notification.
   void DispatchSSLInternalStateChanged();
-
-  // Shows the pending messages (in info-bars) if any.
-  void ShowPendingMessages();
-
-  // Clears any pending messages.
-  void ClearPendingMessages();
 
   // The NavigationController that owns this SSLManager.  We are responsible
   // for the security UI of this tab.
