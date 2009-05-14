@@ -241,10 +241,12 @@
             '../app/os_exchange_data.cc',
           ],
           'conditions': [
-            ['toolkit_views!="1"', {
-              'sources!': [
-                '../app/os_exchange_data.h',
-                '../app/os_exchange_data_gtk.cc',
+            ['toolkit_views==0', {
+              # Note: because of gyp predence rules this has to be defined as
+              # 'sources/' rather than 'sources!'.
+              'sources/': [
+                ['exclude', '^../app/os_exchange_data_gtk.cc'],
+                ['exclude', '^../app/os_exchange_data.h'],
               ],
             }],
           ],
