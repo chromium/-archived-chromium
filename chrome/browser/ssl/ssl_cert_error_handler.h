@@ -43,12 +43,11 @@ class SSLCertErrorHandler : public SSLErrorHandler {
   const net::SSLInfo& ssl_info() const { return ssl_info_; }
   int cert_error() const { return cert_error_; }
 
- protected:
+ private:
   // SSLErrorHandler methods
   virtual void OnDispatchFailed() { CancelRequest(); }
   virtual void OnDispatched() { manager_->OnCertError(this); }
 
- private:
   // These read-only members may be accessed on any thread.
   net::SSLInfo ssl_info_;
   const int cert_error_;  // The error we represent.

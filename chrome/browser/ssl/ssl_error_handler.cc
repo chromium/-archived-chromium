@@ -50,7 +50,9 @@ SSLErrorHandler::SSLErrorHandler(ResourceDispatcherHost* rdh,
 void SSLErrorHandler::Dispatch() {
   DCHECK(MessageLoop::current() == ui_loop_);
 
-  TabContents* tab_contents = GetTabContents();
+  TabContents* tab_contents =
+      tab_util::GetTabContentsByID(render_process_host_id_, tab_contents_id_);
+
   if (!tab_contents) {
     // We arrived on the UI thread, but the tab we're looking for is no longer
     // here.
@@ -117,24 +119,24 @@ void SSLErrorHandler::CompleteCancelRequest(int error) {
   // notify the request twice, it may no longer exist and |this| might have
   // already have been deleted.
   DCHECK(!request_has_been_notified_);
-  if (!request_has_been_notified_)
-    return;
 
-  URLRequest* request = resource_dispatcher_host_->GetURLRequest(request_id_);
-  if (request) {
-    // The request can be NULL if it was cancelled by the renderer (as the
-    // result of the user navigating to a new page from the location bar).
-    DLOG(INFO) << "CompleteCancelRequest() url: " << request->url().spec();
-    SSLCertErrorHandler* cert_error = AsSSLCertErrorHandler();
-    if (cert_error)
-      request->SimulateSSLError(error, cert_error->ssl_info());
-    else
-      request->SimulateError(error);
+  if (!request_has_been_notified_) {
+    URLRequest* request = resource_dispatcher_host_->GetURLRequest(request_id_);
+    if (request) {
+      // The request can be NULL if it was cancelled by the renderer (as the
+      // result of the user navigating to a new page from the location bar).
+      DLOG(INFO) << "CompleteCancelRequest() url: " << request->url().spec();
+      SSLCertErrorHandler* cert_error = AsSSLCertErrorHandler();
+      if (cert_error)
+        request->SimulateSSLError(error, cert_error->ssl_info());
+      else
+        request->SimulateError(error);
+    }
+    request_has_been_notified_ = true;
+
+    // We're done with this object on the IO thread.
+    Release();
   }
-  request_has_been_notified_ = true;
-
-  // We're done with this object on the IO thread.
-  Release();
 }
 
 void SSLErrorHandler::CompleteContinueRequest() {
@@ -144,20 +146,20 @@ void SSLErrorHandler::CompleteContinueRequest() {
   // notify the request twice, it may no longer exist and |this| might have
   // already have been deleted.
   DCHECK(!request_has_been_notified_);
-  if (request_has_been_notified_)
-    return;
 
-  URLRequest* request = resource_dispatcher_host_->GetURLRequest(request_id_);
-  if (request) {
-    // The request can be NULL if it was cancelled by the renderer (as the
-    // result of the user navigating to a new page from the location bar).
-    DLOG(INFO) << "CompleteContinueRequest() url: " << request->url().spec();
-    request->ContinueDespiteLastError();
+  if (!request_has_been_notified_) {
+    URLRequest* request = resource_dispatcher_host_->GetURLRequest(request_id_);
+    if (request) {
+      // The request can be NULL if it was cancelled by the renderer (as the
+      // result of the user navigating to a new page from the location bar).
+      DLOG(INFO) << "CompleteContinueRequest() url: " << request->url().spec();
+      request->ContinueDespiteLastError();
+    }
+    request_has_been_notified_ = true;
+
+    // We're done with this object on the IO thread.
+    Release();
   }
-  request_has_been_notified_ = true;
-
-  // We're done with this object on the IO thread.
-  Release();
 }
 
 void SSLErrorHandler::CompleteStartRequest(FilterPolicy::Type filter_policy) {
@@ -167,6 +169,7 @@ void SSLErrorHandler::CompleteStartRequest(FilterPolicy::Type filter_policy) {
   // notify the request twice, it may no longer exist and |this| might have
   // already have been deleted.
   DCHECK(!request_has_been_notified_);
+
   if (request_has_been_notified_)
     return;
 
@@ -195,11 +198,12 @@ void SSLErrorHandler::CompleteTakeNoAction() {
   // notify the request twice, it may no longer exist and |this| might have
   // already have been deleted.
   DCHECK(!request_has_been_notified_);
-  if (request_has_been_notified_)
-    return;
 
-  request_has_been_notified_ = true;
+  if (!request_has_been_notified_) {
+    request_has_been_notified_ = true;
 
-  // We're done with this object on the IO thread.
-  Release();
+    // We're done with this object on the IO thread.
+    Release();
+  }
 }
+
