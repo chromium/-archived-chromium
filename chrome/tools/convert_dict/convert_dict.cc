@@ -13,6 +13,7 @@
 
 #include <stdio.h>
 
+#include "base/at_exit.h"
 #include "base/file_util.h"
 #include "base/icu_util.h"
 #include "base/logging.h"
@@ -77,6 +78,7 @@ int main(int argc, char* argv[]) {
   if (argc != 2)
     return PrintHelp();
 
+  base::AtExitManager exit_manager;
   icu_util::Initialize();
 
   std::string file_base = argv[1];
