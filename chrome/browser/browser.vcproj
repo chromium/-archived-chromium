@@ -2734,6 +2734,14 @@
 			RelativePath=".\toolbar_model.h"
 			>
 		</File>
+		<File
+			RelativePath=".\utility_process_host.cc"
+			>
+		</File>
+		<File
+			RelativePath=".\utility_process_host.h"
+			>
+		</File>
 	</Files>
 	<Globals>
 	</Globals>

@@ -332,6 +332,8 @@
       ],
       'sources': [
         # All .cc, .h, and .mm files under chrome/common except for tests.
+        'common/extensions/extension_unpacker.cc',
+        'common/extensions/extension_unpacker.h',
         'common/extensions/url_pattern.cc',
         'common/extensions/url_pattern.h',
         'common/extensions/user_script.cc',
@@ -1385,6 +1387,8 @@
         'browser/toolbar_model.h',
         'browser/user_data_manager.cc',
         'browser/user_data_manager.h',
+        'browser/utility_process_host.cc',
+        'browser/utility_process_host.h',
         'browser/view_ids.h',
         'browser/views/about_chrome_view.cc',
         'browser/views/about_chrome_view.h',
@@ -1924,6 +1928,38 @@
       ],
     },
     {
+      'target_name': 'utility',
+      'type': '<(library)',
+      'dependencies': [
+        '../base/base.gyp:base',
+        '../skia/skia.gyp:skia',
+      ],
+      'sources': [
+        'tools/build/win/precompiled.cc',
+        'tools/build/win/precompiled.h',
+
+        'utility/utility_main.cc',
+        'utility/utility_thread.cc',
+        'utility/utility_thread.h',
+      ],
+      'include_dirs': [
+        '..',
+      ],
+      'configurations': {
+        'Debug': {
+          'msvs_precompiled_header': 'tools/build/win/precompiled.h',
+          'msvs_precompiled_source': 'tools/build/win/precompiled.cc',
+        },
+      },
+      'conditions': [
+        ['OS=="linux"', {
+          'dependencies': [
+            '../build/linux/system.gyp:gtk',
+          ],
+        }],
+      ],
+    },
+    {
       'target_name': 'app',
       'type': 'executable',
       'mac_bundle': 1,
@@ -1931,6 +1967,7 @@
         'common',
         'browser',
         'renderer',
+        'utility',
         '../printing/printing.gyp:printing',
         '../webkit/webkit.gyp:inspector_resources',
       ],
@@ -2675,6 +2712,7 @@
         'browser',
         'common',
         'renderer',
+        'utility',
         'chrome_resources',
         'chrome_strings',
         'test_support_unit',

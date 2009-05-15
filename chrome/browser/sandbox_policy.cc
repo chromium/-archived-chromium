@@ -244,7 +244,6 @@ bool ApplyPolicyForUntrustedPlugin(sandbox::TargetPolicy* policy) {
                                sandbox::TargetPolicy::FILES_ALLOW_ANY, policy))
     return false;
 
-
   if (!AddDirectoryAndChildren(base::DIR_APP_DATA, NULL,
                                sandbox::TargetPolicy::FILES_ALLOW_READONLY,
                                policy))
@@ -343,6 +342,11 @@ void AddPolicyForRenderer(HDESK desktop, sandbox::TargetPolicy* policy) {
 namespace sandbox {
 
 base::ProcessHandle StartProcess(CommandLine* cmd_line) {
+  return StartProcessWithAccess(cmd_line, FilePath());
+}
+
+base::ProcessHandle StartProcessWithAccess(CommandLine* cmd_line,
+                                           const FilePath& exposed_dir) {
   base::ProcessHandle process = 0;
   const CommandLine& browser_command_line = *CommandLine::ForCurrentProcess();
   ChildProcessInfo::ProcessType type;
@@ -353,6 +357,8 @@ base::ProcessHandle StartProcess(CommandLine* cmd_line) {
     type = ChildProcessInfo::PLUGIN_PROCESS;
   } else if (type_str == switches::kWorkerProcess) {
     type = ChildProcessInfo::WORKER_PROCESS;
+  } else if (type_str == switches::kUtilityProcess) {
+    type = ChildProcessInfo::UTILITY_PROCESS;
   } else {
     NOTREACHED();
     return 0;
@@ -393,6 +399,21 @@ base::ProcessHandle StartProcess(CommandLine* cmd_line) {
     desktop = CreateDesktop(
       kDesktopName, NULL, NULL, 0, DESKTOP_CREATEWINDOW, NULL);
     AddPolicyForRenderer(desktop, policy);
+  }
+
+  if (!exposed_dir.empty()) {
+    result = policy->AddRule(sandbox::TargetPolicy::SUBSYS_FILES,
+                             sandbox::TargetPolicy::FILES_ALLOW_ANY,
+                             exposed_dir.ToWStringHack().c_str());
+    if (result != sandbox::SBOX_ALL_OK)
+      return 0;
+
+    FilePath exposed_files = exposed_dir.AppendASCII("*");
+    result = policy->AddRule(sandbox::TargetPolicy::SUBSYS_FILES,
+                             sandbox::TargetPolicy::FILES_ALLOW_ANY,
+                             exposed_files.ToWStringHack().c_str());
+    if (result != sandbox::SBOX_ALL_OK)
+      return 0;
   }
 
   if (!AddGenericPolicy(policy)) {

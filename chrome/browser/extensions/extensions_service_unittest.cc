@@ -152,7 +152,7 @@ TEST_F(ExtensionsServiceTest, LoadAllExtensionsFromDirectorySuccess) {
   extensions_path = extensions_path.AppendASCII("good");
 
   scoped_refptr<ExtensionsServiceBackend> backend(
-      new ExtensionsServiceBackend(extensions_path));
+      new ExtensionsServiceBackend(extensions_path, NULL));
   scoped_refptr<ExtensionsServiceTestFrontend> frontend(
       new ExtensionsServiceTestFrontend);
 
@@ -234,7 +234,7 @@ TEST_F(ExtensionsServiceTest, LoadAllExtensionsFromDirectoryFail) {
   extensions_path = extensions_path.AppendASCII("bad");
 
   scoped_refptr<ExtensionsServiceBackend> backend(
-      new ExtensionsServiceBackend(extensions_path));
+      new ExtensionsServiceBackend(extensions_path, NULL));
   scoped_refptr<ExtensionsServiceTestFrontend> frontend(
       new ExtensionsServiceTestFrontend);
 
@@ -273,7 +273,7 @@ TEST_F(ExtensionsServiceTest, InstallExtension) {
   file_util::CreateNewTempDirectory(FILE_PATH_LITERAL("ext_test"),
                                    &install_dir);
   scoped_refptr<ExtensionsServiceBackend> backend(
-      new ExtensionsServiceBackend(install_dir));
+      new ExtensionsServiceBackend(install_dir, NULL));
   scoped_refptr<ExtensionsServiceTestFrontend> frontend(
       new ExtensionsServiceTestFrontend);
 
@@ -313,7 +313,7 @@ TEST_F(ExtensionsServiceTest, UninstallExtension) {
   file_util::CreateNewTempDirectory(FILE_PATH_LITERAL("ext_test"),
                                    &install_path);
   scoped_refptr<ExtensionsServiceBackend> backend(
-      new ExtensionsServiceBackend(install_path));
+      new ExtensionsServiceBackend(install_path, NULL));
   scoped_refptr<ExtensionsServiceTestFrontend> frontend(
       new ExtensionsServiceTestFrontend);
 
@@ -356,7 +356,7 @@ TEST_F(ExtensionsServiceTest, ReinstallExtension) {
   file_util::CreateNewTempDirectory(FILE_PATH_LITERAL("ext_test"),
       &install_dir);
   scoped_refptr<ExtensionsServiceBackend> backend(
-      new ExtensionsServiceBackend(install_dir));
+      new ExtensionsServiceBackend(install_dir, NULL));
   scoped_refptr<ExtensionsServiceTestFrontend> frontend(
       new ExtensionsServiceTestFrontend);
 
@@ -409,7 +409,7 @@ TEST_F(ExtensionsServiceTest, LoadExtension) {
   extensions_path = extensions_path.AppendASCII("extensions");
 
   scoped_refptr<ExtensionsServiceBackend> backend(
-      new ExtensionsServiceBackend(extensions_path));
+      new ExtensionsServiceBackend(extensions_path, NULL));
   scoped_refptr<ExtensionsServiceTestFrontend> frontend(
       new ExtensionsServiceTestFrontend);
 
@@ -437,7 +437,7 @@ TEST_F(ExtensionsServiceTest, GenerateID) {
   extensions_path = extensions_path.AppendASCII("extensions");
 
   scoped_refptr<ExtensionsServiceBackend> backend(
-      new ExtensionsServiceBackend(extensions_path));
+      new ExtensionsServiceBackend(extensions_path, NULL));
   scoped_refptr<ExtensionsServiceTestFrontend> frontend(
       new ExtensionsServiceTestFrontend);
 

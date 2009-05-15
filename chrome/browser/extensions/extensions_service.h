@@ -19,6 +19,7 @@ class Extension;
 class ExtensionsServiceBackend;
 class GURL;
 class Profile;
+class ResourceDispatcherHost;
 class SiteInstance;
 class UserScriptMaster;
 typedef std::vector<Extension*> ExtensionList;
@@ -118,8 +119,10 @@ class ExtensionsService : public ExtensionsServiceFrontendInterface {
 class ExtensionsServiceBackend
     : public base::RefCountedThreadSafe<ExtensionsServiceBackend> {
  public:
-  explicit ExtensionsServiceBackend(const FilePath& install_directory)
-      : install_directory_(install_directory) {}
+  explicit ExtensionsServiceBackend(const FilePath& install_directory,
+                                    ResourceDispatcherHost* rdh)
+      : install_directory_(install_directory),
+        resource_dispatcher_host_(rdh) {}
 
   // Loads extensions from the install directory. The extensions are assumed to
   // be unpacked in directories that are direct children of the specified path.
@@ -157,6 +160,9 @@ class ExtensionsServiceBackend
   void UninstallExtension(const std::string& extension_id);
 
  private:
+  class UnpackerClient;
+  friend class UnpackerClient;
+
   // Load a single extension from |extension_path|, the top directory of
   // a specific extension where its manifest file lives.
   Extension* LoadExtension(const FilePath& extension_path, bool require_id);
@@ -165,18 +171,23 @@ class ExtensionsServiceBackend
   // a versioned extension where its Current Version file lives.
   Extension* LoadExtensionCurrentVersion(const FilePath& extension_path);
 
-  // Install a crx file at |source_file|. If |expected_id| is not empty, it's
-  // verified against the extension's manifest before installation. If the
-  // extension is already installed, install the new version only if its version
-  // number is greater than the current installed version. On success, sets
-  // |version_dir| to the versioned directory the extension was installed to and
-  // |was_update| to whether the extension turned out to be an update to an
-  // already installed version. Both |version_dir| and |was_update| can be NULL
-  // if the caller doesn't care.
-  bool InstallOrUpdateExtension(const FilePath& source_file,
+  // Install a crx file at |extension_path|. If |expected_id| is not empty, it's
+  // verified against the extension's manifest before installation. If
+  // |from_external| is true, this extension install is from an external source,
+  // ie the Windows registry, and will be marked as such. If the extension is
+  // already installed, install the new version only if its version number is
+  // greater than the current installed version.
+  void InstallOrUpdateExtension(const FilePath& extension_path,
                                 const std::string& expected_id,
-                                FilePath* version_dir,
-                                bool* was_update);
+                                bool from_external);
+
+  // Finish installing an extension after it has been unpacked to
+  // |temp_extension_dir| by our utility process.  If |expected_id| is not
+  // empty, it's verified against the extension's manifest before installation.
+  void OnExtensionUnpacked(const FilePath& extension_path,
+                           const FilePath& temp_extension_dir,
+                           const std::string expected_id,
+                           bool from_external);
 
   // Notify the frontend that there was an error loading an extension.
   void ReportExtensionLoadError(const FilePath& extension_path,
@@ -237,6 +248,9 @@ class ExtensionsServiceBackend
 
   // The top-level extensions directory being installed to.
   FilePath install_directory_;
+
+  // We only need a pointer to this to pass along to other interfaces.
+  ResourceDispatcherHost* resource_dispatcher_host_;
 
   // Whether errors result in noisy alerts.
   bool alert_on_error_;

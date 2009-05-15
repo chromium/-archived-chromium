@@ -27,6 +27,7 @@ void SandboxInitWrapper::InitializeSandbox(const CommandLine& command_line,
   if (!command_line.HasSwitch(switches::kNoSandbox)) {
     if ((process_type == switches::kRendererProcess) ||
         (process_type == switches::kWorkerProcess) ||
+        (process_type == switches::kUtilityProcess) ||
         (process_type == switches::kPluginProcess &&
          command_line.HasSwitch(switches::kSafePlugins))) {
 #if defined(OS_WIN)

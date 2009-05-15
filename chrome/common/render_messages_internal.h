@@ -587,6 +587,15 @@ IPC_BEGIN_MESSAGES(View)
   // width.
   IPC_MESSAGE_ROUTED0(ViewMsg_EnableIntrinsicWidthChangedMode)
 
+  //---------------------------------------------------------------------------
+  // Utility process messages:
+  // These are messages from the browser to the utility process.  They're here
+  // because we ran out of spare message types.
+
+  // Tell the utility process to unpack the given extension file in its
+  // directory and verify that it is valid.
+  IPC_MESSAGE_CONTROL1(UtilityMsg_UnpackExtension,
+                       FilePath /* extension_filename */)
 IPC_END_MESSAGES(View)
 
 
@@ -1372,4 +1381,14 @@ IPC_BEGIN_MESSAGES(ViewHost)
   IPC_MESSAGE_ROUTED1(ViewHostMsg_ShowPopup,
                       ViewHostMsg_ShowPopup_Params)
 
+  //---------------------------------------------------------------------------
+  // Utility process host messages:
+  // These are messages from the utility process to the browser.  They're here
+  // because we ran out of spare message types.
+
+  // Reply when the utility process is done unpacking an extension.  |success|
+  // argument is true if the extension unpacked and verified successfully.
+  IPC_MESSAGE_CONTROL2(UtilityHostMsg_UnpackExtension_Reply,
+                       bool /* success */,
+                       std::string /* error_message, if any */)
 IPC_END_MESSAGES(ViewHost)

@@ -17,6 +17,7 @@ class ChildProcessInfo {
     RENDER_PROCESS,
     PLUGIN_PROCESS,
     WORKER_PROCESS,
+    UTILITY_PROCESS,
     UNKNOWN_PROCESS,
   };
 

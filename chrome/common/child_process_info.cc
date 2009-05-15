@@ -24,6 +24,8 @@ std::wstring ChildProcessInfo::GetTypeNameInEnglish(
       return L"Plug-in";
     case WORKER_PROCESS:
       return L"Web Worker";
+    case UTILITY_PROCESS:
+      return L"Utility";
     case UNKNOWN_PROCESS:
       default:
       DCHECK(false) << "Unknown child process type!";

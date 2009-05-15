@@ -16,6 +16,7 @@
 #include "chrome/browser/browser.h"
 #include "chrome/browser/browser_list.h"
 #include "chrome/browser/browser_process.h"
+#include "chrome/browser/chrome_thread.h"
 #include "chrome/browser/extensions/extension.h"
 #include "chrome/browser/extensions/extension_browser_event_router.h"
 #include "chrome/browser/extensions/extension_error_reporter.h"
@@ -23,6 +24,8 @@
 #include "chrome/browser/extensions/user_script_master.h"
 #include "chrome/browser/plugin_service.h"
 #include "chrome/browser/profile.h"
+#include "chrome/browser/utility_process_host.h"
+#include "chrome/common/extensions/extension_unpacker.h"
 #include "chrome/common/json_value_serializer.h"
 #include "chrome/common/notification_service.h"
 #include "chrome/common/unzip.h"
@@ -69,15 +72,117 @@ const wchar_t kRegistryExtensionVersion[] = L"version";
 // source.
 const char kExternalInstallFile[] = "EXTERNAL_INSTALL";
 
+// A temporary subdirectory where we unpack extensions.
+const char* kUnpackExtensionDir = "TEMP_UNPACK";
+
 // The version of the extension package that this code understands.
 const uint32 kExpectedVersion = 1;
 }
+
+// This class coordinates an extension unpack task which is run in a separate
+// process.  Results are sent back to this class, which we route to the
+// ExtensionServiceBackend.
+class ExtensionsServiceBackend::UnpackerClient
+    : public UtilityProcessHost::Client {
+ public:
+  UnpackerClient(ExtensionsServiceBackend* backend,
+                 const FilePath& extension_path,
+                 const std::string& expected_id,
+                 bool from_external)
+    : backend_(backend), extension_path_(extension_path),
+      expected_id_(expected_id), from_external_(from_external) {
+  }
+
+  // Starts the unpack task.  We call back to the backend when the task is done,
+  // or a problem occurs.
+  void Start() {
+    AddRef();  // balanced in OnUnpackExtensionReply()
+
+    // TODO(mpcomplete): handle multiple installs
+    FilePath temp_dir = backend_->install_directory_.AppendASCII(
+        kUnpackExtensionDir);
+    if (!file_util::CreateDirectory(temp_dir)) {
+      backend_->ReportExtensionInstallError(extension_path_,
+          "Failed to create temporary directory.");
+      return;
+    }
+
+    temp_extension_path_ = temp_dir.Append(extension_path_.BaseName());
+    if (!file_util::CopyFile(extension_path_, temp_extension_path_)) {
+      backend_->ReportExtensionInstallError(extension_path_,
+          "Failed to copy extension file to temporary directory.");
+      return;
+    }
+
+    if (backend_->resource_dispatcher_host_) {
+      ChromeThread::GetMessageLoop(ChromeThread::IO)->PostTask(FROM_HERE,
+          NewRunnableMethod(this, &UnpackerClient::StartProcessOnIOThread,
+                            backend_->resource_dispatcher_host_,
+                            MessageLoop::current()));
+    } else {
+      // Cheesy... but if we don't have a ResourceDispatcherHost, assume we're
+      // in a unit test and run the unpacker directly in-process.
+      ExtensionUnpacker unpacker(temp_extension_path_);
+      bool success = unpacker.Run();
+      OnUnpackExtensionReply(success, unpacker.error_message());
+    }
+  }
+
+ private:
+  // UtilityProcessHost::Client
+  virtual void OnProcessCrashed() {
+    OnUnpackExtensionReply(false, "Chrome crashed while trying to install");
+  }
+
+  virtual void OnUnpackExtensionReply(bool success,
+                                      const std::string& error_message) {
+    if (success) {
+      // The extension was unpacked to the temp dir inside our unpacking dir.
+      FilePath extension_dir = temp_extension_path_.DirName().AppendASCII(
+          ExtensionsServiceBackend::kTempExtensionName);
+      backend_->OnExtensionUnpacked(extension_path_, extension_dir,
+                                    expected_id_, from_external_);
+    } else {
+      backend_->ReportExtensionInstallError(extension_path_, error_message);
+    }
+    Cleanup();
+    Release();  // balanced in Run()
+  }
+
+  // Cleans up our temp directory.
+  void Cleanup() {
+    file_util::Delete(temp_extension_path_.DirName(), true);
+  }
+
+  // Starts the utility process that unpacks our extension.
+  void StartProcessOnIOThread(ResourceDispatcherHost* rdh,
+                              MessageLoop* file_loop) {
+    UtilityProcessHost* host = new UtilityProcessHost(rdh, this, file_loop);
+    host->StartExtensionUnpacker(temp_extension_path_);
+  }
+
+  scoped_refptr<ExtensionsServiceBackend> backend_;
+
+  // The path to the crx file that we're installing.
+  FilePath extension_path_;
+
+  // The path to the copy of the crx file in the temporary directory where we're
+  // unpacking it.
+  FilePath temp_extension_path_;
+
+  // The ID we expect this extension to have, if any.
+  std::string expected_id_;
+
+  // True if this is being installed from an external source.
+  bool from_external_;
+};
 
 ExtensionsService::ExtensionsService(Profile* profile,
                                      UserScriptMaster* user_script_master)
     : message_loop_(MessageLoop::current()),
       install_directory_(profile->GetPath().AppendASCII(kInstallDirectoryName)),
-      backend_(new ExtensionsServiceBackend(install_directory_)),
+      backend_(new ExtensionsServiceBackend(
+          install_directory_, g_browser_process->resource_dispatcher_host())),
       user_script_master_(user_script_master) {
 }
 
@@ -677,100 +782,80 @@ void ExtensionsServiceBackend::InstallExtension(
   frontend_ = frontend;
   alert_on_error_ = false;
 
-  bool was_update = false;
-  FilePath destination_path;
-  if (InstallOrUpdateExtension(extension_path,
-                               std::string(),  // no expected id
-                               &destination_path, &was_update))
-    ReportExtensionInstalled(destination_path.DirName(), was_update);
+  bool from_external = false;
+  InstallOrUpdateExtension(extension_path, std::string(), from_external);
 }
 
-bool ExtensionsServiceBackend::InstallOrUpdateExtension(
-    const FilePath& source_file, const std::string& expected_id,
-    FilePath* version_dir, bool* was_update) {
-  if (was_update)
-    *was_update = false;
+void ExtensionsServiceBackend::InstallOrUpdateExtension(
+    const FilePath& extension_path, const std::string& expected_id,
+    bool from_external) {
+  UnpackerClient* client =
+      new UnpackerClient(this, extension_path, expected_id, from_external);
+  client->Start();
+}
 
-  // Read and verify the extension.
-  scoped_ptr<DictionaryValue> manifest(ReadManifest(source_file));
+void ExtensionsServiceBackend::OnExtensionUnpacked(
+    const FilePath& extension_path,
+    const FilePath& temp_extension_dir,
+    const std::string expected_id,
+    bool from_external) {
+  // TODO(mpcomplete): the utility process should pass up a parsed manifest that
+  // we rewrite in the browser.
+  // Bug http://code.google.com/p/chromium/issues/detail?id=11680
+  scoped_ptr<DictionaryValue> manifest(ReadManifest(extension_path));
   if (!manifest.get()) {
     // ReadManifest has already reported the extension error.
-    return false;
-  }
-  DictionaryValue* dict = manifest.get();
-  Extension extension;
-  std::string error;
-  if (!extension.InitFromValue(*dict,
-                               true,  // require ID
-                               &error)) {
-    ReportExtensionInstallError(source_file,
-                                "Invalid extension manifest.");
-    return false;
+    return;
   }
 
-  // ID is required for installed extensions.
-  if (extension.id().empty()) {
-    ReportExtensionInstallError(source_file, "Required value 'id' is missing.");
-    return false;
+  Extension extension;
+  std::string error;
+  if (!extension.InitFromValue(*manifest,
+                               true,  // require ID
+                               &error)) {
+    ReportExtensionInstallError(extension_path, "Invalid extension manifest.");
+    return;
   }
 
   // If an expected id was provided, make sure it matches.
-  if (expected_id.length() && expected_id != extension.id()) {
-    ReportExtensionInstallError(source_file,
+  if (!expected_id.empty() && expected_id != extension.id()) {
+    ReportExtensionInstallError(extension_path,
         "ID in new extension manifest does not match expected ID.");
-    return false;
+    return;
   }
 
   // <profile>/Extensions/<id>
   FilePath dest_dir = install_directory_.AppendASCII(extension.id());
   std::string version = extension.VersionString();
   std::string current_version;
+  bool was_update = false;
   if (ReadCurrentVersion(dest_dir, &current_version)) {
     if (!CheckCurrentVersion(version, current_version, dest_dir))
-      return false;
-    if (was_update)
-      *was_update = true;
-  }
-
-  // <profile>/Extensions/INSTALL_TEMP
-  FilePath temp_dir = install_directory_.AppendASCII(kTempExtensionName);
-
-  // Ensure we're starting with a clean slate.
-  if (file_util::PathExists(temp_dir)) {
-    if (!file_util::Delete(temp_dir, true)) {
-      ReportExtensionInstallError(source_file,
-          "Couldn't delete existing temporary directory.");
-      return false;
-    }
-  }
-  ScopedTempDir scoped_temp;
-  scoped_temp.Set(temp_dir);
-  if (!scoped_temp.IsValid()) {
-    ReportExtensionInstallError(source_file,
-                                "Couldn't create temporary directory.");
-    return false;
-  }
-
-  // <profile>/Extensions/INSTALL_TEMP/<version>
-  FilePath temp_version = temp_dir.AppendASCII(version);
-  file_util::CreateDirectory(temp_version);
-  if (!Unzip(source_file, temp_version, NULL)) {
-    ReportExtensionInstallError(source_file, "Couldn't unzip extension.");
-    return false;
+      return;
+    was_update = true;
   }
 
   // <profile>/Extensions/<dir_name>/<version>
-  *version_dir = dest_dir.AppendASCII(version);
-  if (!InstallDirSafely(temp_version, *version_dir))
-    return false;
+  FilePath version_dir = dest_dir.AppendASCII(version);
+  if (!InstallDirSafely(temp_extension_dir, version_dir))
+    return;
 
   if (!SetCurrentVersion(dest_dir, version)) {
-    if (!file_util::Delete(*version_dir, true))
+    if (!file_util::Delete(version_dir, true))
       LOG(WARNING) << "Can't remove " << dest_dir.value();
-    return false;
+    return;
   }
 
-  return true;
+  // To mark that this extension was installed from an external source, create a
+  // zero-length file.  At load time, this is used to indicate that the
+  // extension should be uninstalled.
+  // TODO(erikkay): move this into per-extension config storage when it appears.
+  if (from_external) {
+    FilePath marker = version_dir.AppendASCII(kExternalInstallFile);
+    file_util::WriteFile(marker, NULL, 0);
+  }
+
+  ReportExtensionInstalled(dest_dir, was_update);
 }
 
 void ExtensionsServiceBackend::ReportExtensionInstallError(
@@ -847,18 +932,9 @@ void ExtensionsServiceBackend::CheckForExternalUpdates(
         std::wstring extension_version;
         if (key.ReadValue(kRegistryExtensionVersion, &extension_version)) {
           if (ShouldInstall(id, WideToASCII(extension_version))) {
-            FilePath version_dir;
-            if (InstallOrUpdateExtension(FilePath(extension_path), id,
-                                         &version_dir, NULL)) {
-              // To mark that this extension was installed from an external
-              // source, create a zero-length file.  At load time, this is used
-              // to indicate that the extension should be uninstalled.
-              // TODO(erikkay): move this into per-extension config storage when
-              // it appears.
-              FilePath marker = version_dir.AppendASCII(
-                  kExternalInstallFile);
-              file_util::WriteFile(marker, NULL, 0);
-            }
+            bool from_external = true;
+            InstallOrUpdateExtension(FilePath(extension_path), id,
+                                     from_external);
           }
         } else {
           // TODO(erikkay): find a way to get this into about:extensions

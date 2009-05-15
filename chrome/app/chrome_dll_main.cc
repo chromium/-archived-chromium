@@ -68,6 +68,7 @@ extern int BrowserMain(const MainFunctionParams&);
 extern int RendererMain(const MainFunctionParams&);
 extern int PluginMain(const MainFunctionParams&);
 extern int WorkerMain(const MainFunctionParams&);
+extern int UtilityMain(const MainFunctionParams&);
 
 #if defined(OS_WIN)
 // TODO(erikkay): isn't this already defined somewhere?
@@ -444,6 +445,8 @@ int ChromeMain(int argc, const char** argv) {
     rv = RendererMain(main_params);
   } else if (process_type == switches::kPluginProcess) {
     rv = PluginMain(main_params);
+  } else if (process_type == switches::kUtilityProcess) {
+    rv = UtilityMain(main_params);
   } else if (process_type == switches::kWorkerProcess) {
 #if defined(OS_WIN)
     rv = WorkerMain(main_params);

@@ -72,6 +72,9 @@ const wchar_t kPluginProcess[]                 = L"plugin";
 // Causes the process to run as a worker subprocess.
 const wchar_t kWorkerProcess[]                 = L"worker";
 
+// Causes the process to run as a utility subprocess.
+const wchar_t kUtilityProcess[]                = L"utility";
+
 // Runs the renderer and plugins in the same process as the browser
 const wchar_t kSingleProcess[]                 = L"single-process";
 
