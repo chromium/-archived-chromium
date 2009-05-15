@@ -4,5 +4,4 @@ include_rules = [
   "+grit/generated_resources.h",
   "+grit/theme_resources.h",
   "+skia/ext",
-  "+skia/include",
 ]

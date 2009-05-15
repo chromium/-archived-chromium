@@ -20,8 +20,6 @@ enum {
   DIR_USER_DESKTOP,      // directory that correspond to the desktop
   DIR_RESOURCES,         // directory where application resources are stored
   DIR_INSPECTOR,         // directory where web inspector is located
-  DIR_THEMES,            // directory where theme dll files are stored
-  DIR_LOCALES,           // directory where locale resources are stored
   DIR_APP_DICTIONARIES,  // directory where the global dictionaries are
   DIR_USER_DOCUMENTS,    // directory for a user's "My Documents"
   DIR_DEFAULT_DOWNLOADS, // directory for a user's "My Documents/Downloads"

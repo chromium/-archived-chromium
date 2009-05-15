@@ -4,8 +4,5 @@ include_rules = [
   "+grit/locale_settings.h",
   "+grit/theme_resources.h",
   "+net",
-  # TODO(beng): Sever these links once we have extracted all deps from
-  # chrome/common.
-  "+chrome/common/chrome_paths.h",
   "+skia",
 ]

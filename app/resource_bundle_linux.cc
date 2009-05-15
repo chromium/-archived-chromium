@@ -6,6 +6,7 @@
 
 #include <gtk/gtk.h>
 
+#include "app/app_paths.h"
 #include "app/gfx/font.h"
 #include "app/gfx/gtk_util.h"
 #include "app/l10n_util.h"
@@ -18,8 +19,7 @@
 #include "base/path_service.h"
 #include "base/string_piece.h"
 #include "base/string_util.h"
-#include "chrome/common/chrome_paths.h"
-#include "SkBitmap.h"
+#include "third_party/skia/include/core/SkBitmap.h"
 
 namespace {
 
@@ -94,7 +94,7 @@ void ResourceBundle::LoadResources(const std::wstring& pref_locale) {
 
 FilePath ResourceBundle::GetLocaleFilePath(const std::wstring& pref_locale) {
   FilePath locale_path;
-  PathService::Get(chrome::DIR_LOCALES, &locale_path);
+  PathService::Get(app::DIR_LOCALES, &locale_path);
 
   const std::wstring app_locale = l10n_util::GetApplicationLocale(pref_locale);
   if (app_locale.empty())
@@ -105,7 +105,7 @@ FilePath ResourceBundle::GetLocaleFilePath(const std::wstring& pref_locale) {
 
 void ResourceBundle::LoadThemeResources() {
   FilePath theme_data_path;
-  PathService::Get(chrome::DIR_THEMES, &theme_data_path);
+  PathService::Get(app::DIR_THEMES, &theme_data_path);
   theme_data_path = theme_data_path.Append(FILE_PATH_LITERAL("default.pak"));
   theme_data_ = new base::DataPack;
   bool success = theme_data_->Load(theme_data_path);

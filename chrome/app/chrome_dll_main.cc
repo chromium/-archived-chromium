@@ -29,6 +29,7 @@
 #include <string.h>
 #endif
 
+#include "app/app_paths.h"
 #include "app/resource_bundle.h"
 #include "base/at_exit.h"
 #include "base/command_line.h"
@@ -331,6 +332,7 @@ int ChromeMain(int argc, const char** argv) {
   SetupCRT(parsed_command_line);
 
   // Initialize the Chrome path provider.
+  app::RegisterPathProvider();
   chrome::RegisterPathProvider();
 
   // Initialize the Stats Counters table.  With this initialized,
