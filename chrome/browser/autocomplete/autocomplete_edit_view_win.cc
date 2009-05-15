@@ -1631,6 +1631,15 @@ void AutocompleteEditViewWin::HandleKeystroke(UINT message,
   ScopedFreeze freeze(this, GetTextObjectModel());
   OnBeforePossibleChange();
   DefWindowProc(message, key, MAKELPARAM(repeat_count, flags));
+
+  // CRichEditCtrl automatically turns on IMF_AUTOKEYBOARD when the user
+  // inputs an RTL character, making it difficult for the user to control
+  // what language is set as they type. Force this off to make the edit's
+  // behavior more stable.
+  const int lang_options = SendMessage(EM_GETLANGOPTIONS, 0, 0);
+  if (lang_options & IMF_AUTOKEYBOARD)
+    SendMessage(EM_SETLANGOPTIONS, 0, lang_options & ~IMF_AUTOKEYBOARD);
+
   OnAfterPossibleChange();
 }
 
