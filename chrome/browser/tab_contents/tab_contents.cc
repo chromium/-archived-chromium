@@ -22,6 +22,7 @@
 #include "chrome/browser/download/download_manager.h"
 #include "chrome/browser/download/download_request_manager.h"
 #include "chrome/browser/download/download_shelf.h"
+#include "chrome/browser/download/download_started_animation.h"
 #include "chrome/browser/gears_integration.h"
 #include "chrome/browser/google_util.h"
 #include "chrome/browser/hung_renderer_dialog.h"
@@ -32,6 +33,7 @@
 #include "chrome/browser/plugin_installer.h"
 #include "chrome/browser/renderer_host/render_widget_host_view.h"
 #include "chrome/browser/renderer_host/web_cache_manager.h"
+#include "chrome/browser/tab_contents/infobar_delegate.h"
 #include "chrome/browser/tab_contents/navigation_entry.h"
 #include "chrome/browser/tab_contents/tab_contents_delegate.h"
 #include "chrome/browser/tab_contents/tab_contents_view.h"
@@ -40,6 +42,7 @@
 #include "chrome/common/chrome_switches.h"
 #include "chrome/common/notification_service.h"
 #include "chrome/common/page_action.h"
+#include "chrome/common/platform_util.h"
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
 #include "chrome/common/render_messages.h"
@@ -53,9 +56,7 @@
 #if defined(OS_WIN)
 // TODO(port): some of these headers should be ported.
 #include "chrome/browser/modal_html_dialog_delegate.h"
-#include "chrome/browser/tab_contents/infobar_delegate.h"
 #include "chrome/browser/views/blocked_popup_container.h"
-#include "chrome/browser/views/download_started_animation.h"
 #include "views/controls/scrollbar/native_scroll_bar.h"
 #endif
 
@@ -955,13 +956,11 @@ void TabContents::OnStartDownload(DownloadItem* download) {
       new DownloadItemModel(download));
   tab_contents->SetDownloadShelfVisible(true);
 
-// TODO(port): port animatinos.
-#if defined(OS_WIN)
-  // This animation will delete itself when it finishes, or if we become hidden
-  // or destroyed.
-  if (IsWindowVisible(GetNativeView())) {  // For minimized windows, unit
-                                           // tests, etc.
-    new DownloadStartedAnimation(tab_contents);
+// TODO(port): port for mac.
+#if defined(OS_WIN) || defined(OS_LINUX)
+  // We make this check for the case of minimized windows, unit tests, etc.
+  if (platform_util::IsVisible(GetNativeView())) {
+    DownloadStartedAnimation::Show(tab_contents);
   }
 #endif
 }

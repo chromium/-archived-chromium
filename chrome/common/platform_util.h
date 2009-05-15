@@ -24,6 +24,11 @@ string16 GetWindowTitle(gfx::NativeWindow window);
 // Returns true if |window| is the foreground top level window.
 bool IsWindowActive(gfx::NativeWindow window);
 
+// Returns true if the view is visible. The exact definition of this is
+// platform-specific, but it is generally not "visible to the user", rather
+// whether the view has the visible attribute set.
+bool IsVisible(gfx::NativeView view);
+
 }
 
 #endif  // CHROME_COMMON_PLATFORM_UTIL_H_

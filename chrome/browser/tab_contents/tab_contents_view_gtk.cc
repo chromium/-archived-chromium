@@ -151,7 +151,11 @@ void TabContentsViewGtk::GetContainerBounds(gfx::Rect* out) const {
   // as well as sizing some other widgets in Windows.  In GTK the size is
   // managed for us, so it appears to be only used for the download shelf
   // animation.
-  out->SetRect(vbox_.get()->allocation.x, vbox_.get()->allocation.y,
+  int x = 0;
+  int y = 0;
+  if (vbox_.get()->window)
+    gdk_window_get_origin(vbox_.get()->window, &x, &y);
+  out->SetRect(x + vbox_.get()->allocation.x, y + vbox_.get()->allocation.y,
                vbox_.get()->allocation.width, vbox_.get()->allocation.height);
 }
 

@@ -44,4 +44,9 @@ bool IsWindowActive(gfx::NativeWindow window) {
   return false;
 }
 
+bool IsVisible(gfx::NativeView view) {
+  NOTIMPLEMENTED();
+  return true;
+}
+
 }  // namespace platform_util

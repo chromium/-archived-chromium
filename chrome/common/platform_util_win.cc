@@ -97,4 +97,9 @@ bool IsWindowActive(gfx::NativeWindow window) {
   return ::GetForegroundWindow() == window;
 }
 
+bool IsVisible(gfx::NativeView view) {
+  // MSVC complains if we don't include != 0.
+  return ::IsWindowVisible(view) != 0;
+}
+
 }  // namespace platform_util

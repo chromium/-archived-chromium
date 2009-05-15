@@ -41,4 +41,8 @@ bool IsWindowActive(gfx::NativeWindow window) {
   return gtk_window_is_active(window);
 }
 
+bool IsVisible(gfx::NativeView view) {
+  return GTK_WIDGET_VISIBLE(view);
+}
+
 }  // namespace platform_util
