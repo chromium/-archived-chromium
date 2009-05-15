@@ -736,10 +736,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\browser\ssl\ssl_host_state_unittest.cc"
-				>
-			</File>
-			<File
 				RelativePath="..\..\browser\history\starred_url_database_unittest.cc"
 				>
 			</File>
