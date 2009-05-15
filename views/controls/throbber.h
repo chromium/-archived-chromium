@@ -31,7 +31,7 @@ class Throbber : public View {
 
   // overridden from View
   virtual gfx::Size GetPreferredSize();
-  virtual void Paint(ChromeCanvas* canvas);
+  virtual void Paint(gfx::Canvas* canvas);
 
  protected:
   // Specifies whether the throbber is currently animating or not
@@ -90,7 +90,7 @@ class CheckmarkThrobber : public Throbber {
   void SetChecked(bool checked);
 
   // Overridden from Throbber:
-  virtual void Paint(ChromeCanvas* canvas);
+  virtual void Paint(gfx::Canvas* canvas);
 
  private:
   static const int kFrameTimeMs = 30;

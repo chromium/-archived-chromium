@@ -4,7 +4,7 @@
 
 #include "views/controls/image_view.h"
 
-#include "app/gfx/chrome_canvas.h"
+#include "app/gfx/canvas.h"
 #include "base/logging.h"
 
 namespace views {
@@ -104,7 +104,7 @@ void ImageView::ComputeImageOrigin(int image_width, int image_height,
   }
 }
 
-void ImageView::Paint(ChromeCanvas* canvas) {
+void ImageView::Paint(gfx::Canvas* canvas) {
   View::Paint(canvas);
   int image_width = image_.width();
   int image_height = image_.height();

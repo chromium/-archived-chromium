@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "app/gfx/chrome_canvas.h"
+#include "app/gfx/canvas.h"
 #include "app/l10n_util.h"
 #include "base/string_util.h"
 #include "testing/gtest/include/gtest/gtest.h"
@@ -394,7 +394,7 @@ TEST(LabelTest, DrawMultiLineString) {
   EXPECT_EQ(0, text_bounds.y());
   EXPECT_GT(text_bounds.width(), kMinTextDimension);
   EXPECT_GT(text_bounds.height(), kMinTextDimension);
-  EXPECT_EQ(ChromeCanvas::MULTI_LINE | ChromeCanvas::TEXT_ALIGN_CENTER, flags);
+  EXPECT_EQ(gfx::Canvas::MULTI_LINE | gfx::Canvas::TEXT_ALIGN_CENTER, flags);
   gfx::Rect center_bounds(text_bounds);
 
   label.SetHorizontalAlignment(Label::ALIGN_LEFT);
@@ -406,7 +406,7 @@ TEST(LabelTest, DrawMultiLineString) {
   EXPECT_EQ(0, text_bounds.y());
   EXPECT_GT(text_bounds.width(), kMinTextDimension);
   EXPECT_GT(text_bounds.height(), kMinTextDimension);
-  EXPECT_EQ(ChromeCanvas::MULTI_LINE | ChromeCanvas::TEXT_ALIGN_LEFT, flags);
+  EXPECT_EQ(gfx::Canvas::MULTI_LINE | gfx::Canvas::TEXT_ALIGN_LEFT, flags);
 
   label.SetHorizontalAlignment(Label::ALIGN_RIGHT);
   paint_text.clear();
@@ -417,7 +417,7 @@ TEST(LabelTest, DrawMultiLineString) {
   EXPECT_EQ(0, text_bounds.y());
   EXPECT_GT(text_bounds.width(), kMinTextDimension);
   EXPECT_GT(text_bounds.height(), kMinTextDimension);
-  EXPECT_EQ(ChromeCanvas::MULTI_LINE | ChromeCanvas::TEXT_ALIGN_RIGHT, flags);
+  EXPECT_EQ(gfx::Canvas::MULTI_LINE | gfx::Canvas::TEXT_ALIGN_RIGHT, flags);
 
   // Test multiline drawing with a border.
   gfx::Insets border(19, 92, 23, 2);
@@ -435,7 +435,7 @@ TEST(LabelTest, DrawMultiLineString) {
   EXPECT_EQ(center_bounds.y() + border.top(), text_bounds.y());
   EXPECT_EQ(center_bounds.width(), text_bounds.width());
   EXPECT_EQ(center_bounds.height(), text_bounds.height());
-  EXPECT_EQ(ChromeCanvas::MULTI_LINE | ChromeCanvas::TEXT_ALIGN_CENTER, flags);
+  EXPECT_EQ(gfx::Canvas::MULTI_LINE | gfx::Canvas::TEXT_ALIGN_CENTER, flags);
 }
 
 }  // namespace views

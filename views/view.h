@@ -24,11 +24,11 @@ struct IDataObject;
 #endif  // defined(OS_WIN)
 
 namespace gfx {
+class Canvas;
 class Insets;
 class Path;
 }
 
-class ChromeCanvas;
 class OSExchangeData;
 class ViewAccessibilityWrapper;
 class ThemeProvider;
@@ -288,19 +288,19 @@ class View : public AcceleratorTarget {
     ui_mirroring_is_enabled_for_rtl_languages_ = enable;
   }
 
-  // This method determines whether the ChromeCanvas object passed to
+  // This method determines whether the gfx::Canvas object passed to
   // View::Paint() needs to be transformed such that anything drawn on the
   // canvas object during View::Paint() is flipped horizontally.
   //
   // By default, this function returns false (which is the initial value of
   // |flip_canvas_on_paint_for_rtl_ui_|). View subclasses that need to paint on
-  // a flipped ChromeCanvas when the UI layout is right-to-left need to call
+  // a flipped gfx::Canvas when the UI layout is right-to-left need to call
   // EnableCanvasFlippingForRTLUI().
   bool FlipCanvasOnPaintForRTLUI() const {
     return flip_canvas_on_paint_for_rtl_ui_ ? UILayoutIsRightToLeft() : false;
   }
 
-  // Enables or disables flipping of the ChromeCanvas during View::Paint().
+  // Enables or disables flipping of the gfx::Canvas during View::Paint().
   // Note that if canvas flipping is enabled, the canvas will be flipped only
   // if the UI layout is right-to-left; that is, the canvas will be flipped
   // only if UILayoutIsRightToLeft() returns true.
@@ -368,21 +368,21 @@ class View : public AcceleratorTarget {
   // Default implementation paints the background if it is defined
   //
   // Override this method when implementing a new control.
-  virtual void Paint(ChromeCanvas* canvas);
+  virtual void Paint(gfx::Canvas* canvas);
 
   // Paint the background if any. This method is called by Paint() and
   // should rarely be invoked directly.
-  virtual void PaintBackground(ChromeCanvas* canvas);
+  virtual void PaintBackground(gfx::Canvas* canvas);
 
   // Paint the border if any. This method is called by Paint() and
   // should rarely be invoked directly.
-  virtual void PaintBorder(ChromeCanvas* canvas);
+  virtual void PaintBorder(gfx::Canvas* canvas);
 
   // Paints the focus border (only if the view has the focus).
   // This method is called by Paint() and should rarely be invoked directly.
   // The default implementation paints a gray border around the view. Override
   // it for custom focus effects.
-  virtual void PaintFocusBorder(ChromeCanvas* canvas);
+  virtual void PaintFocusBorder(gfx::Canvas* canvas);
 
   // Paint this View immediately.
   virtual void PaintNow();
@@ -786,10 +786,10 @@ class View : public AcceleratorTarget {
   // inside a custom graphics.
   // To customize painting override either the Paint or PaintChildren method,
   // not this one.
-  virtual void ProcessPaint(ChromeCanvas* canvas);
+  virtual void ProcessPaint(gfx::Canvas* canvas);
 
   // Paint the View's child Views, in reverse order.
-  virtual void PaintChildren(ChromeCanvas* canvas);
+  virtual void PaintChildren(gfx::Canvas* canvas);
 
   // Sets the ContextMenuController. Setting this to non-null makes the View
   // process mouse events.
@@ -1199,7 +1199,7 @@ class View : public AcceleratorTarget {
   // language like Arabic or Hebrew.
   bool ui_mirroring_is_enabled_for_rtl_languages_;
 
-  // Indicates whether or not the ChromeCanvas object passed to View::Paint()
+  // Indicates whether or not the gfx::Canvas object passed to View::Paint()
   // is going to be flipped horizontally (using the appropriate transform) on
   // right-to-left locales for this View.
   bool flip_canvas_on_paint_for_rtl_ui_;

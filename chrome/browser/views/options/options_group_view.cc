@@ -7,8 +7,8 @@
 
 #include "chrome/browser/views/options/options_group_view.h"
 
-#include "app/gfx/chrome_canvas.h"
-#include "app/gfx/chrome_font.h"
+#include "app/gfx/canvas.h"
+#include "app/gfx/font.h"
 #include "app/l10n_util.h"
 #include "app/resource_bundle.h"
 #include "base/gfx/native_theme.h"
@@ -62,7 +62,7 @@ int OptionsGroupView::GetContentsWidth() const {
 ///////////////////////////////////////////////////////////////////////////////
 // OptionsGroupView, views::View overrides:
 
-void OptionsGroupView::Paint(ChromeCanvas* canvas) {
+void OptionsGroupView::Paint(gfx::Canvas* canvas) {
   if (highlighted_) {
     COLORREF infocolor = GetSysColor(COLOR_INFOBK);
     SkColor background_color = SkColorSetRGB(GetRValue(infocolor),

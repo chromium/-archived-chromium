@@ -56,7 +56,7 @@ class FindBarView : public views::View,
   void animation_offset(int offset) { animation_offset_ = offset; }
 
   // Overridden from views::View:
-  virtual void Paint(ChromeCanvas* canvas);
+  virtual void Paint(gfx::Canvas* canvas);
   virtual void Layout();
   virtual gfx::Size GetPreferredSize();
   virtual void ViewHierarchyChanged(bool is_add, View* parent, View* child);

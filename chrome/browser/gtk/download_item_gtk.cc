@@ -4,8 +4,8 @@
 
 #include "chrome/browser/gtk/download_item_gtk.h"
 
-#include "app/gfx/chrome_canvas.h"
-#include "app/gfx/chrome_font.h"
+#include "app/gfx/canvas.h"
+#include "app/gfx/font.h"
 #include "app/gfx/text_elider.h"
 #include "app/slide_animation.h"
 #include "base/basictypes.h"
@@ -402,7 +402,7 @@ gboolean DownloadItemGtk::OnExpose(GtkWidget* widget, GdkEventExpose* e,
 gboolean DownloadItemGtk::OnProgressAreaExpose(GtkWidget* widget,
     GdkEventExpose* event, DownloadItemGtk* download_item) {
   // Create a transparent canvas.
-  ChromeCanvasPaint canvas(event, false);
+  gfx::CanvasPaint canvas(event, false);
   if (download_item->complete_animation_.get()) {
     if (download_item->complete_animation_->IsAnimating()) {
       download_util::PaintDownloadComplete(&canvas,

@@ -178,15 +178,15 @@
         '../app/app_switches.cc',
         '../app/drag_drop_types.cc',
         '../app/drag_drop_types.h',
-        '../app/gfx/chrome_canvas.cc',
-        '../app/gfx/chrome_canvas.h',
-        '../app/gfx/chrome_canvas_linux.cc',
-        '../app/gfx/chrome_canvas_win.cc',
-        '../app/gfx/chrome_font.h',
-        '../app/gfx/chrome_font_gtk.cc',
-        '../app/gfx/chrome_font_mac.mm',
-        '../app/gfx/chrome_font_skia.cc',
-        '../app/gfx/chrome_font_win.cc',
+        '../app/gfx/canvas.cc',
+        '../app/gfx/canvas.h',
+        '../app/gfx/canvas_linux.cc',
+        '../app/gfx/canvas_win.cc',
+        '../app/gfx/font.h',
+        '../app/gfx/font_gtk.cc',
+        '../app/gfx/font_mac.mm',
+        '../app/gfx/font_skia.cc',
+        '../app/gfx/font_win.cc',
         '../app/gfx/color_utils.cc',
         '../app/gfx/color_utils.h',
         '../app/gfx/favicon_size.h',
@@ -230,7 +230,7 @@
       'conditions': [
         ['OS=="linux"', {
           'dependencies': [
-            # chrome_font_gtk.cc uses fontconfig.
+            # font_gtk.cc uses fontconfig.
             # TODO(evanm): I think this is wrong; it should just use GTK.
             '../build/linux/system.gyp:fontconfig',
             '../build/linux/system.gyp:gtk',
@@ -2824,7 +2824,7 @@
         'common/extensions/url_pattern_unittest.cc',
         'common/extensions/user_script_unittest.cc',
         'common/file_descriptor_set_unittest.cc',
-        '../app/gfx/chrome_font_unittest.cc',
+        '../app/gfx/font_unittest.cc',
         'common/gfx/emf_unittest.cc',
         '../app/gfx/icon_util_unittest.cc',
         '../app/gfx/text_elider_unittest.cc',

@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CHROME_COMMON_GFX_INSETS_H__
-#define CHROME_COMMON_GFX_INSETS_H__
+#ifndef APP_GFX_INSETS_H_
+#define APP_GFX_INSETS_H_
 
 namespace gfx {
 
@@ -66,4 +66,4 @@ class Insets {
 
 } // namespace
 
-#endif // CHROME_COMMON_GFX_INSETS_H__
+#endif // APP_GFX_INSETS_H_

@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "app/gfx/chrome_canvas.h"
+#include "app/gfx/canvas.h"
 #include "base/gfx/point.h"
 #include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/browser/views/tabs/hwnd_photobooth.h"
@@ -78,7 +78,7 @@ void HWNDPhotobooth::ReplaceHWND(HWND new_hwnd) {
 }
 
 void HWNDPhotobooth::PaintScreenshotIntoCanvas(
-    ChromeCanvas* canvas,
+    gfx::Canvas* canvas,
     const gfx::Rect& target_bounds) {
   // Our contained window may have been re-parented. Make sure it belongs to
   // us until someone calls ReplaceHWND(NULL).

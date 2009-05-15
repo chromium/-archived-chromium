@@ -10,7 +10,7 @@
 #endif
 
 #include "app/drag_drop_types.h"
-#include "app/gfx/chrome_canvas.h"
+#include "app/gfx/canvas.h"
 #include "app/l10n_util.h"
 #include "base/logging.h"
 #include "base/message_loop.h"
@@ -299,28 +299,28 @@ void View::SchedulePaint(int x, int y, int w, int h) {
   SchedulePaint(gfx::Rect(x, y, w, h), false);
 }
 
-void View::Paint(ChromeCanvas* canvas) {
+void View::Paint(gfx::Canvas* canvas) {
   PaintBackground(canvas);
   PaintFocusBorder(canvas);
   PaintBorder(canvas);
 }
 
-void View::PaintBackground(ChromeCanvas* canvas) {
+void View::PaintBackground(gfx::Canvas* canvas) {
   if (background_.get())
     background_->Paint(canvas, this);
 }
 
-void View::PaintBorder(ChromeCanvas* canvas) {
+void View::PaintBorder(gfx::Canvas* canvas) {
   if (border_.get())
     border_->Paint(*this, canvas);
 }
 
-void View::PaintFocusBorder(ChromeCanvas* canvas) {
+void View::PaintFocusBorder(gfx::Canvas* canvas) {
   if (HasFocus() && IsFocusable())
     canvas->DrawFocusRect(0, 0, width(), height());
 }
 
-void View::PaintChildren(ChromeCanvas* canvas) {
+void View::PaintChildren(gfx::Canvas* canvas) {
   int i, c;
   for (i = 0, c = GetChildViewCount(); i < c; ++i) {
     View* child = GetChildViewAt(i);
@@ -332,7 +332,7 @@ void View::PaintChildren(ChromeCanvas* canvas) {
   }
 }
 
-void View::ProcessPaint(ChromeCanvas* canvas) {
+void View::ProcessPaint(gfx::Canvas* canvas) {
   if (!IsVisible()) {
     return;
   }

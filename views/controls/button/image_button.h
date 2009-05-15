@@ -33,7 +33,7 @@ class ImageButton : public CustomButton {
 
   // Overridden from View:
   virtual gfx::Size GetPreferredSize();
-  virtual void Paint(ChromeCanvas* canvas);
+  virtual void Paint(gfx::Canvas* canvas);
 
  protected:
   // Returns the image to paint. This is invoked from paint and returns a value

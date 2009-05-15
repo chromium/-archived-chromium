@@ -54,7 +54,7 @@ class BrowserToolbarView : public views::View,
 
   // views::View
   virtual void Layout();
-  virtual void Paint(ChromeCanvas* canvas);
+  virtual void Paint(gfx::Canvas* canvas);
   virtual void DidGainFocus();
   virtual void WillLoseFocus();
   virtual bool OnKeyPressed(const views::KeyEvent& e);

@@ -4,7 +4,7 @@
 
 #include "views/controls/hwnd_view.h"
 
-#include "app/gfx/chrome_canvas.h"
+#include "app/gfx/canvas.h"
 #include "base/logging.h"
 #include "views/focus/focus_manager.h"
 #include "views/widget/widget.h"
@@ -46,7 +46,7 @@ void HWNDView::Detach() {
   set_installed_clip(false);
 }
 
-void HWNDView::Paint(ChromeCanvas* canvas) {
+void HWNDView::Paint(gfx::Canvas* canvas) {
   // The area behind our window is black, so during a fast resize (where our
   // content doesn't draw over the full size of our HWND, and the HWND
   // background color doesn't show up), we need to cover that blackness with

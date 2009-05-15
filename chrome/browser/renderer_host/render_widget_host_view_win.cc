@@ -4,7 +4,7 @@
 
 #include "chrome/browser/renderer_host/render_widget_host_view_win.h"
 
-#include "app/gfx/chrome_canvas.h"
+#include "app/gfx/canvas.h"
 #include "app/l10n_util.h"
 #include "app/l10n_util_win.h"
 #include "app/resource_bundle.h"
@@ -549,7 +549,7 @@ void RenderWidgetHostViewWin::DrawResizeCorner(const gfx::Rect& paint_rect,
   if (!paint_rect.Intersect(resize_corner_rect).IsEmpty()) {
     SkBitmap* bitmap = ResourceBundle::GetSharedInstance().
         GetBitmapNamed(IDR_TEXTAREA_RESIZER);
-    ChromeCanvas canvas(bitmap->width(), bitmap->height(), false);
+    gfx::Canvas canvas(bitmap->width(), bitmap->height(), false);
     // TODO(jcampan): This const_cast should not be necessary once the
     // SKIA API has been changed to return a non-const bitmap.
     const_cast<SkBitmap&>(canvas.getDevice()->accessBitmap(true)).
@@ -757,9 +757,9 @@ void RenderWidgetHostViewWin::OnPaint(HDC dc) {
 void RenderWidgetHostViewWin::DrawBackground(const RECT& dirty_rect,
                                              CPaintDC* dc) {
   if (!background_.empty()) {
-    ChromeCanvas canvas(dirty_rect.right - dirty_rect.left,
-                        dirty_rect.bottom - dirty_rect.top,
-                        true);  // opaque
+    gfx::Canvas canvas(dirty_rect.right - dirty_rect.left,
+                       dirty_rect.bottom - dirty_rect.top,
+                       true);  // opaque
     canvas.TranslateInt(-dirty_rect.left, -dirty_rect.top);
 
     const RECT& dc_rect = dc->m_ps.rcPaint;

@@ -4,7 +4,7 @@
 
 #include "chrome/browser/views/location_bar_view.h"
 
-#include "app/gfx/chrome_canvas.h"
+#include "app/gfx/canvas.h"
 #include "app/l10n_util.h"
 #include "app/resource_bundle.h"
 #include "app/win_util.h"
@@ -223,7 +223,7 @@ void LocationBarView::Layout() {
   DoLayout(true);
 }
 
-void LocationBarView::Paint(ChromeCanvas* canvas) {
+void LocationBarView::Paint(gfx::Canvas* canvas) {
   View::Paint(canvas);
 
   SkColor bg = SkColorSetRGB(
@@ -677,7 +677,7 @@ void LocationBarView::SelectedKeywordView::SetFont(const gfx::Font& font) {
   partial_label_.SetFont(font);
 }
 
-void LocationBarView::SelectedKeywordView::Paint(ChromeCanvas* canvas) {
+void LocationBarView::SelectedKeywordView::Paint(gfx::Canvas* canvas) {
   canvas->TranslateInt(0, kBackgroundYOffset);
   background_painter_.Paint(width(), height() - kTopInset, canvas);
   canvas->TranslateInt(0, -kBackgroundYOffset);
@@ -795,7 +795,7 @@ void LocationBarView::KeywordHintView::SetKeyword(const std::wstring& keyword) {
   }
 }
 
-void LocationBarView::KeywordHintView::Paint(ChromeCanvas* canvas) {
+void LocationBarView::KeywordHintView::Paint(gfx::Canvas* canvas) {
   int image_x = leading_label_.IsVisible() ? leading_label_.width() : 0;
 
   // Since we paint the button image directly on the canvas (instead of using a

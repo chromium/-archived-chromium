@@ -8,7 +8,9 @@
 #include "base/basictypes.h"
 #include "base/gfx/rect.h"
 
-class ChromeCanvas;
+namespace gfx {
+class Canvas;
+}
 namespace views {
 class WidgetWin;
 }
@@ -42,7 +44,7 @@ class HWNDPhotobooth {
 
   // Paints the current display image of the window into |canvas|, clipped to
   // |target_bounds|.
-  void PaintScreenshotIntoCanvas(ChromeCanvas* canvas,
+  void PaintScreenshotIntoCanvas(gfx::Canvas* canvas,
                                  const gfx::Rect& target_bounds);
 
  private:

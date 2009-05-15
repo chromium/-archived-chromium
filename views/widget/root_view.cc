@@ -7,7 +7,7 @@
 #include <algorithm>
 
 #include "app/drag_drop_types.h"
-#include "app/gfx/chrome_canvas.h"
+#include "app/gfx/canvas.h"
 #if defined(OS_WIN)
 #include "base/base_drag_source.h"
 #endif
@@ -147,7 +147,7 @@ class ScopedProcessingPaint {
 };
 #endif
 
-void RootView::ProcessPaint(ChromeCanvas* canvas) {
+void RootView::ProcessPaint(gfx::Canvas* canvas) {
 #ifndef NDEBUG
   ScopedProcessingPaint processing_paint(&is_processing_paint_);
 #endif

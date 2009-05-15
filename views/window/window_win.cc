@@ -6,8 +6,8 @@
 
 #include <shellapi.h>
 
-#include "app/gfx/chrome_canvas.h"
-#include "app/gfx/chrome_font.h"
+#include "app/gfx/canvas.h"
+#include "app/gfx/font.h"
 #include "app/gfx/icon_util.h"
 #include "app/gfx/path.h"
 #include "app/l10n_util.h"
@@ -862,11 +862,11 @@ void WindowWin::OnNCPaint(HRGN rgn) {
 
   root_view->SchedulePaint(gfx::Rect(dirty_region), false);
 
-  // ChromeCanvasPaints destructor does the actual painting. As such, wrap the
+  // gfx::CanvasPaints destructor does the actual painting. As such, wrap the
   // following in a block to force paint to occur so that we can release the dc.
   {
-    ChromeCanvasPaint canvas(dc, opaque(), dirty_region.left, dirty_region.top,
-                             dirty_region.Width(), dirty_region.Height());
+    gfx::CanvasPaint canvas(dc, opaque(), dirty_region.left, dirty_region.top,
+                            dirty_region.Width(), dirty_region.Height());
 
     root_view->ProcessPaint(&canvas);
   }

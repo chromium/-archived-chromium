@@ -4,8 +4,8 @@
 
 #include "chrome/browser/views/frame/opaque_browser_frame_view.h"
 
-#include "app/gfx/chrome_canvas.h"
-#include "app/gfx/chrome_font.h"
+#include "app/gfx/canvas.h"
+#include "app/gfx/font.h"
 #include "app/gfx/path.h"
 #include "app/l10n_util.h"
 #include "app/resource_bundle.h"
@@ -313,7 +313,7 @@ void OpaqueBrowserFrameView::ResetWindowControls() {
 ///////////////////////////////////////////////////////////////////////////////
 // OpaqueBrowserFrameView, views::View overrides:
 
-void OpaqueBrowserFrameView::Paint(ChromeCanvas* canvas) {
+void OpaqueBrowserFrameView::Paint(gfx::Canvas* canvas) {
   if (frame_->IsFullscreen())
     return;  // Nothing is visible, so don't bother to paint.
 
@@ -506,7 +506,7 @@ int OpaqueBrowserFrameView::IconSize(int* title_top_spacing_ptr,
       kIconHeightFractionDenominator) / 2 * 2, kIconMinimumSize);
 }
 
-void OpaqueBrowserFrameView::PaintRestoredFrameBorder(ChromeCanvas* canvas) {
+void OpaqueBrowserFrameView::PaintRestoredFrameBorder(gfx::Canvas* canvas) {
   ThemeProvider* tp = GetThemeProvider();
 
   SkBitmap* top_left_corner = tp->GetBitmapNamed(IDR_WINDOW_TOP_LEFT_CORNER);
@@ -603,7 +603,7 @@ void OpaqueBrowserFrameView::PaintRestoredFrameBorder(ChromeCanvas* canvas) {
 }
 
 
-void OpaqueBrowserFrameView::PaintMaximizedFrameBorder(ChromeCanvas* canvas) {
+void OpaqueBrowserFrameView::PaintMaximizedFrameBorder(gfx::Canvas* canvas) {
   ThemeProvider* tp = GetThemeProvider();
   // Window frame mode and color
   SkBitmap* theme_frame;
@@ -632,7 +632,7 @@ void OpaqueBrowserFrameView::PaintMaximizedFrameBorder(ChromeCanvas* canvas) {
   }
 }
 
-void OpaqueBrowserFrameView::PaintDistributorLogo(ChromeCanvas* canvas) {
+void OpaqueBrowserFrameView::PaintDistributorLogo(gfx::Canvas* canvas) {
   // The distributor logo is only painted when the frame is not maximized and
   // when we actually have a logo.
   if (!frame_->IsMaximized() && distributor_logo_ &&
@@ -642,7 +642,7 @@ void OpaqueBrowserFrameView::PaintDistributorLogo(ChromeCanvas* canvas) {
   }
 }
 
-void OpaqueBrowserFrameView::PaintTitleBar(ChromeCanvas* canvas) {
+void OpaqueBrowserFrameView::PaintTitleBar(gfx::Canvas* canvas) {
   // The window icon is painted by the TabIconView.
   views::WindowDelegate* d = frame_->GetDelegate();
   if (d->ShouldShowWindowTitle()) {
@@ -658,7 +658,7 @@ void OpaqueBrowserFrameView::PaintTitleBar(ChromeCanvas* canvas) {
   }
 }
 
-void OpaqueBrowserFrameView::PaintToolbarBackground(ChromeCanvas* canvas) {
+void OpaqueBrowserFrameView::PaintToolbarBackground(gfx::Canvas* canvas) {
   if (!browser_view_->IsToolbarVisible())
     return;
 
@@ -716,7 +716,7 @@ void OpaqueBrowserFrameView::PaintToolbarBackground(ChromeCanvas* canvas) {
       toolbar_right->width(), bottom_edge_height, false);
 }
 
-void OpaqueBrowserFrameView::PaintOTRAvatar(ChromeCanvas* canvas) {
+void OpaqueBrowserFrameView::PaintOTRAvatar(gfx::Canvas* canvas) {
   if (!browser_view_->ShouldShowOffTheRecordAvatar())
     return;
 
@@ -728,7 +728,7 @@ void OpaqueBrowserFrameView::PaintOTRAvatar(ChromeCanvas* canvas) {
       otr_avatar_bounds_.width(), otr_avatar_bounds_.height(), false);
 }
 
-void OpaqueBrowserFrameView::PaintRestoredClientEdge(ChromeCanvas* canvas) {
+void OpaqueBrowserFrameView::PaintRestoredClientEdge(gfx::Canvas* canvas) {
   ThemeProvider* tp = GetThemeProvider();
   int client_area_top = frame_->GetClientView()->y();
 

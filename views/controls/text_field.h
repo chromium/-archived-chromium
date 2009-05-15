@@ -10,7 +10,7 @@
 
 #include <string>
 
-#include "app/gfx/chrome_font.h"
+#include "app/gfx/font.h"
 #include "base/basictypes.h"
 #include "views/view.h"
 #include "third_party/skia/include/core/SkColor.h"

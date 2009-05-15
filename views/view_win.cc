@@ -5,7 +5,7 @@
 #include "views/view.h"
 
 #include "app/drag_drop_types.h"
-#include "app/gfx/chrome_canvas.h"
+#include "app/gfx/canvas.h"
 #include "app/gfx/path.h"
 #include "app/os_exchange_data.h"
 #include "base/scoped_handle.h"

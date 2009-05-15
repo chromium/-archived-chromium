@@ -14,7 +14,9 @@
 #include "base/basictypes.h"
 #include "third_party/skia/include/core/SkColor.h"
 
-class ChromeCanvas;
+namespace gfx {
+class Canvas;
+}
 
 namespace views {
 
@@ -65,7 +67,7 @@ class Background {
                                              Painter* painter);
 
   // Render the background for the provided view
-  virtual void Paint(ChromeCanvas* canvas, View* view) const = 0;
+  virtual void Paint(gfx::Canvas* canvas, View* view) const = 0;
 
   // Set a solid, opaque color to be used when drawing backgrounds of native
   // controls.  Unfortunately alpha=0 is not an option.

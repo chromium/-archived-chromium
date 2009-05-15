@@ -4,7 +4,7 @@
 
 #include "chrome/browser/views/frame/glass_browser_frame_view.h"
 
-#include "app/gfx/chrome_canvas.h"
+#include "app/gfx/canvas.h"
 #include "app/resource_bundle.h"
 #include "app/theme_provider.h"
 #include "chrome/browser/browser_theme_provider.h"
@@ -176,7 +176,7 @@ int GlassBrowserFrameView::NonClientHitTest(const gfx::Point& point) {
 ///////////////////////////////////////////////////////////////////////////////
 // GlassBrowserFrameView, views::View overrides:
 
-void GlassBrowserFrameView::Paint(ChromeCanvas* canvas) {
+void GlassBrowserFrameView::Paint(gfx::Canvas* canvas) {
   if (!browser_view_->IsTabStripVisible())
     return;  // Nothing is visible, so don't bother to paint.
 
@@ -216,7 +216,7 @@ int GlassBrowserFrameView::NonClientTopBorderHeight() const {
       (browser_view_->IsMaximized() ? 0 : kNonClientRestoredExtraThickness);
 }
 
-void GlassBrowserFrameView::PaintDistributorLogo(ChromeCanvas* canvas) {
+void GlassBrowserFrameView::PaintDistributorLogo(gfx::Canvas* canvas) {
   // The distributor logo is only painted when the frame is not maximized and
   // when we actually have a logo.
   if (!frame_->IsMaximized() && distributor_logo_ &&
@@ -229,7 +229,7 @@ void GlassBrowserFrameView::PaintDistributorLogo(ChromeCanvas* canvas) {
   }
 }
 
-void GlassBrowserFrameView::PaintToolbarBackground(ChromeCanvas* canvas) {
+void GlassBrowserFrameView::PaintToolbarBackground(gfx::Canvas* canvas) {
   ThemeProvider* tp = GetThemeProvider();
 
   gfx::Rect toolbar_bounds(browser_view_->GetToolbarBounds());
@@ -261,7 +261,7 @@ void GlassBrowserFrameView::PaintToolbarBackground(ChromeCanvas* canvas) {
       toolbar_bounds.right(), toolbar_bounds.y());
 }
 
-void GlassBrowserFrameView::PaintOTRAvatar(ChromeCanvas* canvas) {
+void GlassBrowserFrameView::PaintOTRAvatar(gfx::Canvas* canvas) {
   if (!browser_view_->ShouldShowOffTheRecordAvatar())
     return;
 
@@ -273,7 +273,7 @@ void GlassBrowserFrameView::PaintOTRAvatar(ChromeCanvas* canvas) {
       otr_avatar_bounds_.width(), otr_avatar_bounds_.height(), false);
 }
 
-void GlassBrowserFrameView::PaintRestoredClientEdge(ChromeCanvas* canvas) {
+void GlassBrowserFrameView::PaintRestoredClientEdge(gfx::Canvas* canvas) {
   ResourceBundle& rb = ResourceBundle::GetSharedInstance();
 
   // The client edges start below the toolbar upper corner images regardless

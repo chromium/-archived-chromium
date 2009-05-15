@@ -4,8 +4,8 @@
 
 #include "views/window/custom_frame_view.h"
 
-#include "app/gfx/chrome_canvas.h"
-#include "app/gfx/chrome_font.h"
+#include "app/gfx/canvas.h"
+#include "app/gfx/font.h"
 #include "app/gfx/path.h"
 #include "app/resource_bundle.h"
 #include "app/theme_provider.h"
@@ -210,7 +210,7 @@ void CustomFrameView::ResetWindowControls() {
 ///////////////////////////////////////////////////////////////////////////////
 // CustomFrameView, View overrides:
 
-void CustomFrameView::Paint(ChromeCanvas* canvas) {
+void CustomFrameView::Paint(gfx::Canvas* canvas) {
   if (frame_->IsMaximized())
     PaintMaximizedFrameBorder(canvas);
   else
@@ -295,7 +295,7 @@ int CustomFrameView::TitleCoordinates(int* title_top_spacing,
       BottomEdgeThicknessWithinNonClientHeight();
 }
 
-void CustomFrameView::PaintRestoredFrameBorder(ChromeCanvas* canvas) {
+void CustomFrameView::PaintRestoredFrameBorder(gfx::Canvas* canvas) {
   // Window frame mode.
   ResourceBundle& rb = ResourceBundle::GetSharedInstance();
 
@@ -373,7 +373,7 @@ void CustomFrameView::PaintRestoredFrameBorder(ChromeCanvas* canvas) {
 }
 
 void CustomFrameView::PaintMaximizedFrameBorder(
-    ChromeCanvas* canvas) {
+    gfx::Canvas* canvas) {
   ResourceBundle& rb = ResourceBundle::GetSharedInstance();
 
   SkBitmap* top_edge = rb.GetBitmapNamed(IDR_WINDOW_TOP_CENTER);
@@ -388,7 +388,7 @@ void CustomFrameView::PaintMaximizedFrameBorder(
       frame_->GetClientView()->y() - edge_height, width(), edge_height);
 }
 
-void CustomFrameView::PaintTitleBar(ChromeCanvas* canvas) {
+void CustomFrameView::PaintTitleBar(gfx::Canvas* canvas) {
   WindowDelegate* d = frame_->GetDelegate();
 
   // It seems like in some conditions we can be asked to paint after the window
@@ -402,7 +402,7 @@ void CustomFrameView::PaintTitleBar(ChromeCanvas* canvas) {
       title_bounds_.width(), title_bounds_.height());
 }
 
-void CustomFrameView::PaintRestoredClientEdge(ChromeCanvas* canvas) {
+void CustomFrameView::PaintRestoredClientEdge(gfx::Canvas* canvas) {
   gfx::Rect client_area_bounds = frame_->GetClientView()->bounds();
   int client_area_top = client_area_bounds.y();
 

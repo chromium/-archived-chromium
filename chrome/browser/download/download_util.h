@@ -10,7 +10,7 @@
 #include <set>
 #include <string>
 
-#include "app/gfx/chrome_canvas.h"
+#include "app/gfx/canvas.h"
 #include "base/basictypes.h"
 #include "base/task.h"
 
@@ -97,7 +97,7 @@ enum PaintDownloadProgressSize {
 // require the containing View in addition to the canvas because if we are
 // drawing in a right-to-left locale, we need to mirror the position of the
 // progress animation within the containing View.
-void PaintDownloadProgress(ChromeCanvas* canvas,
+void PaintDownloadProgress(gfx::Canvas* canvas,
 #if defined(OS_WIN)
                            views::View* containing_view,
 #endif
@@ -107,7 +107,7 @@ void PaintDownloadProgress(ChromeCanvas* canvas,
                            int percent,
                            PaintDownloadProgressSize size);
 
-void PaintDownloadComplete(ChromeCanvas* canvas,
+void PaintDownloadComplete(gfx::Canvas* canvas,
 #if defined(OS_WIN)
                            views::View* containing_view,
 #endif

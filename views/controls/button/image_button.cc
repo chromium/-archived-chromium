@@ -4,7 +4,7 @@
 
 #include "views/controls/button/image_button.h"
 
-#include "app/gfx/chrome_canvas.h"
+#include "app/gfx/canvas.h"
 #include "app/throb_animation.h"
 #include "skia/ext/image_operations.h"
 
@@ -20,7 +20,7 @@ ImageButton::ImageButton(ButtonListener* listener)
     : CustomButton(listener),
       h_alignment_(ALIGN_LEFT),
       v_alignment_(ALIGN_TOP) {
-  // By default, we request that the ChromeCanvas passed to our View::Paint()
+  // By default, we request that the gfx::Canvas passed to our View::Paint()
   // implementation is flipped horizontally so that the button's bitmaps are
   // mirrored when the UI directionality is right-to-left.
   EnableCanvasFlippingForRTLUI(true);
@@ -49,7 +49,7 @@ gfx::Size ImageButton::GetPreferredSize() {
   return gfx::Size(kDefaultWidth, kDefaultHeight);
 }
 
-void ImageButton::Paint(ChromeCanvas* canvas) {
+void ImageButton::Paint(gfx::Canvas* canvas) {
   // Call the base class first to paint any background/borders.
   View::Paint(canvas);
 

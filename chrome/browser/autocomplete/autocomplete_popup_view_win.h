@@ -12,7 +12,7 @@
 
 #include <string>
 
-#include "app/gfx/chrome_font.h"
+#include "app/gfx/font.h"
 #include "base/scoped_ptr.h"
 #include "base/win_util.h"
 #include "chrome/browser/autocomplete/autocomplete.h"

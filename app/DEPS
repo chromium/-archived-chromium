@@ -1,11 +1,11 @@
 include_rules = [
-  # TODO(beng): Modify this link to be more specific about what resource
-  #             headers are included once app gets its own strings.
-  "+grit",
+  # TODO(beng): swap these with app/views specific generated resources.
+  "+grit/generated_resources.h",
+  "+grit/locale_settings.h",
+  "+grit/theme_resources.h",
   "+net",
   # TODO(beng): Sever these links once we have extracted all deps from
   # chrome/common.
   "+chrome/common/chrome_paths.h",
-
   "+skia",
 ]

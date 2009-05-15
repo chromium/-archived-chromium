@@ -6,8 +6,8 @@
 
 #include <string>
 
-#include "app/gfx/chrome_canvas.h"
-#include "app/gfx/chrome_font.h"
+#include "app/gfx/canvas.h"
+#include "app/gfx/font.h"
 #include "app/l10n_util.h"
 #include "app/resource_bundle.h"
 #include "base/gfx/size.h"
@@ -80,7 +80,7 @@ gboolean SadTabGtk::OnExposeThunk(GtkWidget* widget,
 }
 
 gboolean SadTabGtk::OnExpose(GtkWidget* widget, GdkEventExpose* event) const {
-  ChromeCanvasPaint canvas(event);
+  gfx::CanvasPaint canvas(event);
   SkPaint paint;
   paint.setShader(skia::CreateGradientShader(0, height_,
                                              kBackgroundColor,
@@ -107,7 +107,7 @@ gboolean SadTabGtk::OnExpose(GtkWidget* widget, GdkEventExpose* event) const {
                        title_y_,
                        width_,
                        sad_tab_constants.title_font.height(),
-                       ChromeCanvas::TEXT_ALIGN_CENTER);
+                       gfx::Canvas::TEXT_ALIGN_CENTER);
 
   // Paint the explanatory message.
   canvas.DrawStringInt(
@@ -118,9 +118,9 @@ gboolean SadTabGtk::OnExpose(GtkWidget* widget, GdkEventExpose* event) const {
       message_y_,
       width_,
       99999,  // Let the height be large, and we'll clip if needed.
-      ChromeCanvas::TEXT_ALIGN_CENTER |
-      ChromeCanvas::MULTI_LINE |
-      ChromeCanvas::TEXT_VALIGN_TOP);
+      gfx::Canvas::TEXT_ALIGN_CENTER |
+      gfx::Canvas::MULTI_LINE |
+      gfx::Canvas::TEXT_VALIGN_TOP);
 
   return TRUE;
 }

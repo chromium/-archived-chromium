@@ -6,7 +6,7 @@
 
 #include <algorithm>
 
-#include "app/gfx/chrome_canvas.h"
+#include "app/gfx/canvas.h"
 #include "app/gfx/color_utils.h"
 #include "base/thread.h"
 #include "chrome/browser/bookmarks/bookmark_folder_tree_model.h"
@@ -302,7 +302,7 @@ std::vector<BookmarkNode*> BookmarkManagerView::GetSelectedTableNodes() {
   return nodes;
 }
 
-void BookmarkManagerView::PaintBackground(ChromeCanvas* canvas) {
+void BookmarkManagerView::PaintBackground(gfx::Canvas* canvas) {
   canvas->drawColor(kBackgroundColorBottom, SkPorterDuff::kSrc_Mode);
 
   SkPaint paint;

@@ -111,7 +111,7 @@ class Font {
   // copied.
   static Font CreateFont(HFONT hfont);
 
-  // Returns the handle to the underlying HFONT. This is used by ChromeCanvas to
+  // Returns the handle to the underlying HFONT. This is used by gfx::Canvas to
   // draw text.
   HFONT hfont() const { return font_ref_->hfont(); }
 

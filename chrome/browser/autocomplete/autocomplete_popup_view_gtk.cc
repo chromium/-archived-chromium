@@ -8,7 +8,7 @@
 
 #include <algorithm>
 
-#include "app/gfx/chrome_font.h"
+#include "app/gfx/font.h"
 #include "app/resource_bundle.h"
 #include "base/basictypes.h"
 #include "base/gfx/gtk_util.h"

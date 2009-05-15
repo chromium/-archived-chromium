@@ -65,7 +65,7 @@ SkBitmap* g_background_16 = NULL;
 SkBitmap* g_foreground_32 = NULL;
 SkBitmap* g_background_32 = NULL;
 
-void PaintDownloadProgress(ChromeCanvas* canvas,
+void PaintDownloadProgress(gfx::Canvas* canvas,
 #if defined(OS_WIN)
                            views::View* containing_view,
 #endif
@@ -164,7 +164,7 @@ void PaintDownloadProgress(ChromeCanvas* canvas,
                         foreground_paint);
 }
 
-void PaintDownloadComplete(ChromeCanvas* canvas,
+void PaintDownloadComplete(gfx::Canvas* canvas,
 #if defined(OS_WIN)
                            views::View* containing_view,
 #endif

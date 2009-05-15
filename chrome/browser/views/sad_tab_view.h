@@ -5,7 +5,7 @@
 #ifndef CHROME_BROWSER_VIEWS_SAD_TAB_VIEW_H_
 #define CHROME_BROWSER_VIEWS_SAD_TAB_VIEW_H_
 
-#include "app/gfx/chrome_font.h"
+#include "app/gfx/font.h"
 #include "base/basictypes.h"
 #include "views/view.h"
 
@@ -32,7 +32,7 @@ class SadTabView : public views::View {
   virtual ~SadTabView() {}
 
   // Overridden from views::View:
-  virtual void Paint(ChromeCanvas* canvas);
+  virtual void Paint(gfx::Canvas* canvas);
   virtual void Layout();
 
  private:

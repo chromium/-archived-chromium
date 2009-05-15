@@ -41,7 +41,7 @@ class HWNDView : public NativeViewHost {
   // TODO(sky): convert this to native_view().
   HWND GetHWND() const { return native_view(); }
 
-  virtual void Paint(ChromeCanvas* canvas);
+  virtual void Paint(gfx::Canvas* canvas);
 
   // Overridden from View.
   virtual std::string GetClassName() const;

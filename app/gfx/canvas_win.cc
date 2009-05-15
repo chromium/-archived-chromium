@@ -2,11 +2,11 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "app/gfx/chrome_canvas.h"
+#include "app/gfx/canvas.h"
 
 #include <limits>
 
-#include "app/gfx/chrome_font.h"
+#include "app/gfx/font.h"
 #include "app/l10n_util.h"
 #include "base/gfx/rect.h"
 #include "third_party/skia/include/core/SkShader.h"
@@ -33,47 +33,47 @@ void DoDrawText(HDC hdc, const std::wstring& text,
   DrawText(hdc, string_ptr, string_size, text_bounds, flags);
 }
 
-// Compute the windows flags necessary to implement the provided text
-// ChromeCanvas flags.
+// Compute the windows flags necessary to implement the provided text Canvas
+// flags.
 int ComputeFormatFlags(int flags, const std::wstring& text) {
   int f = 0;
 
   // Setting the text alignment explicitly in case it hasn't already been set.
   // This will make sure that we don't align text to the left on RTL locales
   // just because no alignment flag was passed to DrawStringInt().
-  if (!(flags & (ChromeCanvas::TEXT_ALIGN_CENTER |
-                 ChromeCanvas::TEXT_ALIGN_RIGHT |
-                 ChromeCanvas::TEXT_ALIGN_LEFT))) {
+  if (!(flags & (gfx::Canvas::TEXT_ALIGN_CENTER |
+                 gfx::Canvas::TEXT_ALIGN_RIGHT |
+                 gfx::Canvas::TEXT_ALIGN_LEFT))) {
     flags |= l10n_util::DefaultCanvasTextAlignment();
   }
 
-  if (flags & ChromeCanvas::HIDE_PREFIX)
+  if (flags & gfx::Canvas::HIDE_PREFIX)
     f |= DT_HIDEPREFIX;
-  else if ((flags & ChromeCanvas::SHOW_PREFIX) == 0)
+  else if ((flags & gfx::Canvas::SHOW_PREFIX) == 0)
     f |= DT_NOPREFIX;
 
-  if (flags & ChromeCanvas::MULTI_LINE) {
+  if (flags & gfx::Canvas::MULTI_LINE) {
     f |= DT_WORDBREAK;
-    if (flags & ChromeCanvas::CHARACTER_BREAK)
+    if (flags & gfx::Canvas::CHARACTER_BREAK)
       f |= DT_EDITCONTROL;
   } else {
     f |= DT_SINGLELINE | DT_VCENTER;
-    if (!(flags & ChromeCanvas::NO_ELLIPSIS))
+    if (!(flags & gfx::Canvas::NO_ELLIPSIS))
       f |= DT_END_ELLIPSIS;
   }
 
   // vertical alignment
-  if (flags & ChromeCanvas::TEXT_VALIGN_TOP)
+  if (flags & gfx::Canvas::TEXT_VALIGN_TOP)
     f |= DT_TOP;
-  else if (flags & ChromeCanvas::TEXT_VALIGN_BOTTOM)
+  else if (flags & gfx::Canvas::TEXT_VALIGN_BOTTOM)
     f |= DT_BOTTOM;
   else
     f |= DT_VCENTER;
 
   // horizontal alignment
-  if (flags & ChromeCanvas::TEXT_ALIGN_CENTER)
+  if (flags & gfx::Canvas::TEXT_ALIGN_CENTER)
     f |= DT_CENTER;
-  else if (flags & ChromeCanvas::TEXT_ALIGN_RIGHT)
+  else if (flags & gfx::Canvas::TEXT_ALIGN_RIGHT)
     f |= DT_RIGHT;
   else
     f |= DT_LEFT;
@@ -117,20 +117,22 @@ int ComputeFormatFlags(int flags, const std::wstring& text) {
 
 }  // anonymous namespace
 
-ChromeCanvas::ChromeCanvas(int width, int height, bool is_opaque)
+namespace gfx {
+
+Canvas::Canvas(int width, int height, bool is_opaque)
     : skia::PlatformCanvasWin(width, height, is_opaque) {
 }
 
-ChromeCanvas::ChromeCanvas() : skia::PlatformCanvasWin() {
+Canvas::Canvas() : skia::PlatformCanvasWin() {
 }
 
-ChromeCanvas::~ChromeCanvas() {
+Canvas::~Canvas() {
 }
 
 // static
-void ChromeCanvas::SizeStringInt(const std::wstring& text,
-                                 const gfx::Font& font,
-                                 int *width, int *height, int flags) {
+void Canvas::SizeStringInt(const std::wstring& text,
+                           const gfx::Font& font,
+                           int *width, int *height, int flags) {
   HDC dc = GetDC(NULL);
   HFONT old_font = static_cast<HFONT>(SelectObject(dc, font.hfont()));
   RECT b;
@@ -153,9 +155,9 @@ void ChromeCanvas::SizeStringInt(const std::wstring& text,
   ReleaseDC(NULL, dc);
 }
 
-void ChromeCanvas::DrawStringInt(const std::wstring& text, HFONT font,
-                                 const SkColor& color, int x, int y, int w,
-                                 int h, int flags) {
+void Canvas::DrawStringInt(const std::wstring& text, HFONT font,
+                           const SkColor& color, int x, int y, int w, int h,
+                           int flags) {
   if (!IntersectsClipRectInt(x, y, w, h))
     return;
 
@@ -181,10 +183,10 @@ void ChromeCanvas::DrawStringInt(const std::wstring& text, HFONT font,
   getTopPlatformDevice().makeOpaque(x, y, w, h);
 }
 
-void ChromeCanvas::DrawStringInt(const std::wstring& text,
-                                 const gfx::Font& font,
-                                 const SkColor& color,
-                                 int x, int y, int w, int h, int flags) {
+void Canvas::DrawStringInt(const std::wstring& text,
+                           const gfx::Font& font,
+                           const SkColor& color,
+                           int x, int y, int w, int h, int flags) {
   DrawStringInt(text, font.hfont(), color, x, y, w, h, flags);
 }
 
@@ -215,19 +217,19 @@ static bool pixelShouldGetHalo(const SkBitmap& bitmap, int x, int y,
   return false;
 }
 
-void ChromeCanvas::DrawStringWithHalo(const std::wstring& text,
-                                      const gfx::Font& font,
-                                      const SkColor& text_color,
-                                      const SkColor& halo_color_in,
-                                      int x, int y, int w, int h,
-                                      int flags) {
+void Canvas::DrawStringWithHalo(const std::wstring& text,
+                                const gfx::Font& font,
+                                const SkColor& text_color,
+                                const SkColor& halo_color_in,
+                                int x, int y, int w, int h,
+                                int flags) {
   // Some callers will have semitransparent halo colors, which we don't handle
   // (since the resulting image can have 1-bit transparency only).
   SkColor halo_color = halo_color_in | 0xFF000000;
 
   // Create a temporary buffer filled with the halo color. It must leave room
   // for the 1-pixel border around the text.
-  ChromeCanvas text_canvas(w + 2, h + 2, true);
+  Canvas text_canvas(w + 2, h + 2, true);
   SkPaint bkgnd_paint;
   bkgnd_paint.setColor(halo_color);
   text_canvas.FillRectInt(0, 0, w + 2, h + 2, bkgnd_paint);
@@ -262,3 +264,5 @@ void ChromeCanvas::DrawStringWithHalo(const std::wstring& text,
   // Draw the halo bitmap with blur.
   drawBitmap(text_bitmap, SkIntToScalar(x - 1), SkIntToScalar(y - 1));
 }
+
+}  // namespace gfx

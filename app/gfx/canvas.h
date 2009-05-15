@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef APP_GFX_CHROME_CANVAS_H_
-#define APP_GFX_CHROME_CANVAS_H_
+#ifndef APP_GFX_CANVAS_H_
+#define APP_GFX_CANVAS_H_
 
 #if defined(OS_WIN)
 #include <windows.h>
@@ -14,19 +14,17 @@
 #include "base/basictypes.h"
 #include "skia/ext/platform_canvas.h"
 
-namespace gfx {
-class Font;
-class Rect;
-}
-
 #if defined(OS_LINUX)
 typedef struct _cairo cairo_t;
 #endif
 
-// ChromeCanvas is the SkCanvas used by Views for all painting. It
-// provides a handful of methods for the common operations used throughout
-// Views. With few exceptions, you should NOT create a ChromeCanvas directly,
-// rather one will be passed to you via the various paint methods in view.
+namespace gfx {
+
+class Font;
+class Rect;
+
+// Canvas is a SkCanvas subclass that provides a number of methods for common
+// operations used throughout an application built using base/gfx and app/gfx.
 //
 // All methods that take integer arguments (as is used throughout views)
 // end with Int. If you need to use methods provided by the superclass
@@ -39,7 +37,7 @@ typedef struct _cairo cairo_t;
 // source and destination colors are combined. Unless otherwise specified,
 // the variant that does not take a SkPorterDuff::Mode uses a transfer mode
 // of kSrcOver_Mode.
-class ChromeCanvas : public skia::PlatformCanvas {
+class Canvas : public skia::PlatformCanvas {
  public:
   // Specifies the alignment for text rendered with the DrawStringInt method.
   enum {
@@ -69,13 +67,13 @@ class ChromeCanvas : public skia::PlatformCanvas {
     CHARACTER_BREAK = 1024,
   };
 
-  // Creates an empty ChromeCanvas. Callers must use initialize before using
-  // the canvas.
-  ChromeCanvas();
+  // Creates an empty Canvas. Callers must use initialize before using the
+  // canvas.
+  Canvas();
 
-  ChromeCanvas(int width, int height, bool is_opaque);
+  Canvas(int width, int height, bool is_opaque);
 
-  virtual ~ChromeCanvas();
+  virtual ~Canvas();
 
   // Retrieves the clip rectangle and sets it in the specified rectangle if any.
   // Returns true if the clip rect is non-empty.
@@ -207,11 +205,13 @@ class ChromeCanvas : public skia::PlatformCanvas {
                      int flags);
 #endif
 
-  DISALLOW_EVIL_CONSTRUCTORS(ChromeCanvas);
+  DISALLOW_COPY_AND_ASSIGN(Canvas);
 };
 
 #if defined(OS_WIN) || defined(OS_LINUX)
-typedef skia::CanvasPaintT<ChromeCanvas> ChromeCanvasPaint;
+typedef skia::CanvasPaintT<Canvas> CanvasPaint;
 #endif
 
-#endif  // APP_GFX_CHROME_CANVAS_H_
+}  // namespace gfx;
+
+#endif  // #ifndef APP_GFX_CANVAS_H_

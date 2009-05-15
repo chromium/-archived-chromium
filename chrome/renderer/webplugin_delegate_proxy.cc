@@ -10,7 +10,7 @@
 #include <atlbase.h>
 #endif
 
-#include "app/gfx/chrome_canvas.h"
+#include "app/gfx/canvas.h"
 #include "app/l10n_util.h"
 #include "app/resource_bundle.h"
 #include "base/logging.h"
@@ -741,7 +741,7 @@ void WebPluginDelegateProxy::PaintSadPlugin(gfx::NativeDrawingContext hdc,
   const int width = plugin_rect_.width();
   const int height = plugin_rect_.height();
 
-  ChromeCanvas canvas(width, height, false);
+  gfx::Canvas canvas(width, height, false);
   SkPaint paint;
 
   paint.setStyle(SkPaint::kFill_Style);

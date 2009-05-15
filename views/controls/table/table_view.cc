@@ -11,7 +11,7 @@
 
 #include <algorithm>
 
-#include "app/gfx/chrome_canvas.h"
+#include "app/gfx/canvas.h"
 #include "app/gfx/favicon_size.h"
 #include "app/gfx/icon_util.h"
 #include "app/l10n_util_win.h"
@@ -866,7 +866,7 @@ HWND TableView::CreateNativeControl(HWND parent_container) {
     // We create 2 phony images because we are going to switch images at every
     // refresh in order to force a refresh of the icon area (somehow the clip
     // rect does not include the icon).
-    ChromeCanvas canvas(kImageSize, kImageSize, false);
+    gfx::Canvas canvas(kImageSize, kImageSize, false);
     // Make the background completely transparent.
     canvas.drawColor(SK_ColorBLACK, SkPorterDuff::kClear_Mode);
     HICON empty_icon =
@@ -1245,7 +1245,7 @@ LRESULT TableView::OnCustomDraw(NMLVCUSTOMDRAW* draw_info) {
             client_rect.top += content_offset_;
             // Make sure the region need to paint is visible.
             if (intersection.IntersectRect(&icon_rect, &client_rect)) {
-              ChromeCanvas canvas(icon_rect.Width(), icon_rect.Height(), false);
+              gfx::Canvas canvas(icon_rect.Width(), icon_rect.Height(), false);
 
               // It seems the state in nmcd.uItemState is not correct.
               // We'll retrieve it explicitly.

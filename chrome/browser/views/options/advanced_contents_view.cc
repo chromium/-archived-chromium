@@ -12,7 +12,7 @@
 #include <vsstyle.h>
 #include <vssym32.h>
 
-#include "app/gfx/chrome_canvas.h"
+#include "app/gfx/canvas.h"
 #include "app/resource_bundle.h"
 #include "base/file_util.h"
 #include "base/path_service.h"
@@ -62,7 +62,7 @@ class ListBackground : public views::Background {
   }
   virtual ~ListBackground() {}
 
-  virtual void Paint(ChromeCanvas* canvas, views::View* view) const {
+  virtual void Paint(gfx::Canvas* canvas, views::View* view) const {
     HDC dc = canvas->beginPlatformPaint();
     RECT native_lb = view->GetLocalBounds(true).ToRECT();
     gfx::NativeTheme::instance()->PaintListBackground(dc, true, &native_lb);

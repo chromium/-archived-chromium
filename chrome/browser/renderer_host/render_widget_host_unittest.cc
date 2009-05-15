@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "app/gfx/chrome_canvas.h"
+#include "app/gfx/canvas.h"
 #include "base/basictypes.h"
 #include "base/keyboard_codes.h"
 #include "base/scoped_ptr.h"
@@ -253,7 +253,7 @@ TEST_F(RenderWidgetHostTest, Background) {
   host_->set_view(view.get());
 
   // Create a checkerboard background to test with.
-  ChromeCanvas canvas(4, 4, true);
+  gfx::Canvas canvas(4, 4, true);
   canvas.FillRectInt(SK_ColorBLACK, 0, 0, 2, 2);
   canvas.FillRectInt(SK_ColorWHITE, 2, 0, 2, 2);
   canvas.FillRectInt(SK_ColorWHITE, 0, 2, 2, 2);
@@ -288,7 +288,7 @@ TEST_F(RenderWidgetHostTest, Background) {
 #endif
 
 #else
-  // TODO(port): Mac does not have ChromeCanvas. Maybe we can just change this
+  // TODO(port): Mac does not have gfx::Canvas. Maybe we can just change this
   // test to use SkCanvas directly?
 #endif
 

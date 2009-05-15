@@ -2,17 +2,19 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "app/gfx/chrome_canvas.h"
+#include "app/gfx/canvas.h"
 
 #include <limits>
 
-#include "app/gfx/chrome_font.h"
+#include "app/gfx/font.h"
 #include "app/l10n_util.h"
 #include "base/gfx/rect.h"
 #include "base/logging.h"
 #include "third_party/skia/include/core/SkShader.h"
 
-bool ChromeCanvas::GetClipRect(gfx::Rect* r) {
+namespace gfx {
+
+bool Canvas::GetClipRect(gfx::Rect* r) {
   SkRect clip;
   if (!getClipBounds(&clip)) {
     if (r)
@@ -25,30 +27,29 @@ bool ChromeCanvas::GetClipRect(gfx::Rect* r) {
   return true;
 }
 
-bool ChromeCanvas::ClipRectInt(int x, int y, int w, int h) {
+bool Canvas::ClipRectInt(int x, int y, int w, int h) {
   SkRect new_clip;
   new_clip.set(SkIntToScalar(x), SkIntToScalar(y),
                SkIntToScalar(x + w), SkIntToScalar(y + h));
   return clipRect(new_clip);
 }
 
-bool ChromeCanvas::IntersectsClipRectInt(int x, int y, int w, int h) {
+bool Canvas::IntersectsClipRectInt(int x, int y, int w, int h) {
   SkRect clip;
   return getClipBounds(&clip) &&
       clip.intersect(SkIntToScalar(x), SkIntToScalar(y), SkIntToScalar(x + w),
                      SkIntToScalar(y + h));
 }
 
-void ChromeCanvas::TranslateInt(int x, int y) {
+void Canvas::TranslateInt(int x, int y) {
   translate(SkIntToScalar(x), SkIntToScalar(y));
 }
 
-void ChromeCanvas::ScaleInt(int x, int y) {
+void Canvas::ScaleInt(int x, int y) {
   scale(SkIntToScalar(x), SkIntToScalar(y));
 }
 
-void ChromeCanvas::FillRectInt(const SkColor& color,
-                               int x, int y, int w, int h) {
+void Canvas::FillRectInt(const SkColor& color, int x, int y, int w, int h) {
   SkPaint paint;
   paint.setColor(color);
   paint.setStyle(SkPaint::kFill_Style);
@@ -56,20 +57,17 @@ void ChromeCanvas::FillRectInt(const SkColor& color,
   FillRectInt(x, y, w, h, paint);
 }
 
-void ChromeCanvas::FillRectInt(int x, int y, int w, int h,
-                               const SkPaint& paint) {
+void Canvas::FillRectInt(int x, int y, int w, int h, const SkPaint& paint) {
   SkIRect rc = {x, y, x + w, y + h};
   drawIRect(rc, paint);
 }
 
-void ChromeCanvas::DrawRectInt(const SkColor& color,
-                               int x, int y, int w, int h) {
+void Canvas::DrawRectInt(const SkColor& color, int x, int y, int w, int h) {
   DrawRectInt(color, x, y, w, h, SkPorterDuff::kSrcOver_Mode);
 }
 
-void ChromeCanvas::DrawRectInt(const SkColor& color,
-                               int x, int y, int w, int h,
-                               SkPorterDuff::Mode mode) {
+void Canvas::DrawRectInt(const SkColor& color, int x, int y, int w, int h,
+                         SkPorterDuff::Mode mode) {
   SkPaint paint;
   paint.setColor(color);
   paint.setStyle(SkPaint::kStroke_Style);
@@ -83,8 +81,7 @@ void ChromeCanvas::DrawRectInt(const SkColor& color,
   drawIRect(rc, paint);
 }
 
-void ChromeCanvas::DrawLineInt(const SkColor& color,
-                               int x1, int y1, int x2, int y2) {
+void Canvas::DrawLineInt(const SkColor& color, int x1, int y1, int x2, int y2) {
   SkPaint paint;
   paint.setColor(color);
   paint.setStrokeWidth(SkIntToScalar(1));
@@ -92,7 +89,7 @@ void ChromeCanvas::DrawLineInt(const SkColor& color,
            SkIntToScalar(y2), paint);
 }
 
-void ChromeCanvas::DrawFocusRect(int x, int y, int width, int height) {
+void Canvas::DrawFocusRect(int x, int y, int width, int height) {
   // Create a 2D bitmap containing alternating on/off pixels - we do this
   // so that you never get two pixels of the same color around the edges
   // of the focus rect (this may mean that opposing edges of the rect may
@@ -146,28 +143,28 @@ void ChromeCanvas::DrawFocusRect(int x, int y, int width, int height) {
   drawRect(rect, paint);
 }
 
-void ChromeCanvas::DrawBitmapInt(const SkBitmap& bitmap, int x, int y) {
+void Canvas::DrawBitmapInt(const SkBitmap& bitmap, int x, int y) {
   drawBitmap(bitmap, SkIntToScalar(x), SkIntToScalar(y));
 }
 
-void ChromeCanvas::DrawBitmapInt(const SkBitmap& bitmap, int x, int y,
-                                 const SkPaint& paint) {
+void Canvas::DrawBitmapInt(const SkBitmap& bitmap, int x, int y,
+                           const SkPaint& paint) {
   drawBitmap(bitmap, SkIntToScalar(x), SkIntToScalar(y), &paint);
 }
 
-void ChromeCanvas::DrawBitmapInt(const SkBitmap& bitmap, int src_x, int src_y,
-                                 int src_w, int src_h, int dest_x, int dest_y,
-                                 int dest_w, int dest_h,
-                                 bool filter) {
+void Canvas::DrawBitmapInt(const SkBitmap& bitmap, int src_x, int src_y,
+                           int src_w, int src_h, int dest_x, int dest_y,
+                           int dest_w, int dest_h,
+                           bool filter) {
   SkPaint p;
   DrawBitmapInt(bitmap, src_x, src_y, src_w, src_h, dest_x, dest_y,
                 dest_w, dest_h, filter, p);
 }
 
-void ChromeCanvas::DrawBitmapInt(const SkBitmap& bitmap, int src_x, int src_y,
-                                 int src_w, int src_h, int dest_x, int dest_y,
-                                 int dest_w, int dest_h,
-                                 bool filter, const SkPaint& paint) {
+void Canvas::DrawBitmapInt(const SkBitmap& bitmap, int src_x, int src_y,
+                           int src_w, int src_h, int dest_x, int dest_y,
+                           int dest_w, int dest_h,
+                           bool filter, const SkPaint& paint) {
   DLOG_ASSERT(src_x + src_w < std::numeric_limits<int16_t>::max() &&
               src_y + src_h < std::numeric_limits<int16_t>::max());
   if (src_w <= 0 || src_h <= 0 || dest_w <= 0 || dest_h <= 0) {
@@ -216,22 +213,20 @@ void ChromeCanvas::DrawBitmapInt(const SkBitmap& bitmap, int src_x, int src_y,
   drawRect(dest_rect, p);
 }
 
-void ChromeCanvas::DrawStringInt(const std::wstring& text,
-                                 const gfx::Font& font,
-                                 const SkColor& color,
-                                 int x, int y,
-                                 int w, int h) {
+void Canvas::DrawStringInt(const std::wstring& text,
+                           const gfx::Font& font,
+                           const SkColor& color,
+                           int x, int y, int w, int h) {
   DrawStringInt(text, font, color, x, y, w, h,
                 l10n_util::DefaultCanvasTextAlignment());
 }
 
-void ChromeCanvas::TileImageInt(const SkBitmap& bitmap,
-                                int x, int y, int w, int h) {
+void Canvas::TileImageInt(const SkBitmap& bitmap, int x, int y, int w, int h) {
   TileImageInt(bitmap, 0, 0, x, y, w, h);
 }
 
-void ChromeCanvas::TileImageInt(const SkBitmap& bitmap, int src_x, int src_y,
-                                int dest_x, int dest_y, int w, int h) {
+void Canvas::TileImageInt(const SkBitmap& bitmap, int src_x, int src_y,
+                          int dest_x, int dest_y, int w, int h) {
   if (!IntersectsClipRectInt(dest_x, dest_y, w, h))
     return;
 
@@ -253,7 +248,7 @@ void ChromeCanvas::TileImageInt(const SkBitmap& bitmap, int src_x, int src_y,
   restore();
 }
 
-SkBitmap ChromeCanvas::ExtractBitmap() {
+SkBitmap Canvas::ExtractBitmap() {
   const SkBitmap& device_bitmap = getDevice()->accessBitmap(false);
 
   // Make a bitmap to return, and a canvas to draw into it. We don't just want
@@ -263,3 +258,5 @@ SkBitmap ChromeCanvas::ExtractBitmap() {
   device_bitmap.copyTo(&result, SkBitmap::kARGB_8888_Config);
   return result;
 }
+
+}  // namespace gfx

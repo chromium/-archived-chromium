@@ -4,7 +4,7 @@
 
 #include "views/controls/button/text_button.h"
 
-#include "app/gfx/chrome_canvas.h"
+#include "app/gfx/canvas.h"
 #include "app/l10n_util.h"
 #include "app/throb_animation.h"
 #include "app/resource_bundle.h"
@@ -67,7 +67,7 @@ TextButtonBorder::~TextButtonBorder() {
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-void TextButtonBorder::Paint(const View& view, ChromeCanvas* canvas) const {
+void TextButtonBorder::Paint(const View& view, gfx::Canvas* canvas) const {
   const TextButton* mb = static_cast<const TextButton*>(&view);
   int state = mb->state();
 
@@ -182,7 +182,7 @@ void TextButton::ClearMaxTextSize() {
   max_text_size_ = text_size_;
 }
 
-void TextButton::Paint(ChromeCanvas* canvas, bool for_drag) {
+void TextButton::Paint(gfx::Canvas* canvas, bool for_drag) {
   if (!for_drag) {
     PaintBackground(canvas);
 
@@ -318,7 +318,7 @@ bool TextButton::OnMousePressed(const MouseEvent& e) {
   return true;
 }
 
-void TextButton::Paint(ChromeCanvas* canvas) {
+void TextButton::Paint(gfx::Canvas* canvas) {
   Paint(canvas, false);
 }
 

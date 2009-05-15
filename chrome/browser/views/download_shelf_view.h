@@ -38,7 +38,7 @@ class DownloadShelfView : public DownloadShelf,
   // Implementation of View.
   virtual gfx::Size GetPreferredSize();
   virtual void Layout();
-  virtual void Paint(ChromeCanvas* canvas);
+  virtual void Paint(gfx::Canvas* canvas);
 
   // Implementation of AnimationDelegate.
   virtual void AnimationProgressed(const Animation* animation);
@@ -70,7 +70,7 @@ class DownloadShelfView : public DownloadShelf,
   void AddDownloadView(views::View* view);
 
   // Paints the border.
-  void PaintBorder(ChromeCanvas* canvas);
+  void PaintBorder(gfx::Canvas* canvas);
 
   // The animation for adding new items to the shelf.
   scoped_ptr<SlideAnimation> new_item_animation_;

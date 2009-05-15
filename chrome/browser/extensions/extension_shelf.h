@@ -6,7 +6,7 @@
 #define CHROME_BROWSER_EXTENSIONS_EXTENSION_SHELF_H_
 
 #include "chrome/browser/extensions/extensions_service.h"
-#include "app/gfx/chrome_canvas.h"
+#include "app/gfx/canvas.h"
 #include "chrome/common/notification_observer.h"
 #include "views/view.h"
 
@@ -19,7 +19,7 @@ class ExtensionShelf : public views::View,
   virtual ~ExtensionShelf();
 
   // View
-  virtual void Paint(ChromeCanvas* canvas);
+  virtual void Paint(gfx::Canvas* canvas);
   virtual gfx::Size GetPreferredSize();
   virtual void Layout();
 
@@ -37,7 +37,7 @@ class ExtensionShelf : public views::View,
 
  private:
   // Inits the background bitmap.
-  void InitBackground(ChromeCanvas* canvas, const SkRect& subset);
+  void InitBackground(gfx::Canvas* canvas, const SkRect& subset);
 
   Browser* browser_;
 

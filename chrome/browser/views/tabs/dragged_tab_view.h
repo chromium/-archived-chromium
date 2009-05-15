@@ -59,18 +59,18 @@ class DraggedTabView : public views::View,
   virtual void AnimationCanceled(const Animation* animation);
 
   // Overridden from views::View:
-  virtual void Paint(ChromeCanvas* canvas);
+  virtual void Paint(gfx::Canvas* canvas);
   virtual void Layout();
   virtual gfx::Size GetPreferredSize();
 
   // Paint the view, when it's attached to a TabStrip.
-  void PaintAttachedTab(ChromeCanvas* canvas);
+  void PaintAttachedTab(gfx::Canvas* canvas);
 
   // Paint the view, when it's not attached to any TabStrip.
-  void PaintDetachedView(ChromeCanvas* canvas);
+  void PaintDetachedView(gfx::Canvas* canvas);
 
   // Paint the view, when "Show window contents while dragging" is disabled.
-  void PaintFocusRect(ChromeCanvas* canvas);
+  void PaintFocusRect(gfx::Canvas* canvas);
 
   // Resizes the container to fit the content for the current attachment mode.
   void ResizeContainer();

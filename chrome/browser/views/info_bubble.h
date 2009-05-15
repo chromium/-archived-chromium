@@ -121,7 +121,7 @@ class InfoBubble : public views::WidgetWin,
     HRGN GetMask(const CSize& size);
 
     // Paints the background and arrow appropriately.
-    virtual void Paint(ChromeCanvas* canvas);
+    virtual void Paint(gfx::Canvas* canvas);
 
     // Returns true if the arrow is positioned along the top edge of the
     // view. If this returns false the arrow is positioned along the bottom

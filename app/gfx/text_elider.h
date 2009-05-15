@@ -2,13 +2,13 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CHROME_COMMON_GFX_TEXT_ELIDER_H_
-#define CHROME_COMMON_GFX_TEXT_ELIDER_H_
+#ifndef APP_GFX_TEXT_ELIDER_H_
+#define APP_GFX_TEXT_ELIDER_H_
 
 #include <unicode/coll.h>
 #include <unicode/uchar.h>
 
-#include "app/gfx/chrome_font.h"
+#include "app/gfx/font.h"
 #include "base/basictypes.h"
 #include "base/string16.h"
 
@@ -96,4 +96,4 @@ class SortedDisplayURL {
 
 } // namespace gfx.
 
-#endif  // CHROME_COMMON_GFX_TEXT_ELIDER_H_
+#endif  // APP_GFX_TEXT_ELIDER_H_

@@ -6,7 +6,7 @@
 
 #include <vector>
 
-#include "app/gfx/chrome_canvas.h"
+#include "app/gfx/canvas.h"
 #include "app/gfx/text_elider.h"
 #include "app/l10n_util.h"
 #include "app/resource_bundle.h"
@@ -429,7 +429,7 @@ void DownloadItemView::ButtonPressed(views::Button* sender) {
 
 // Load an icon for the file type we're downloading, and animate any in progress
 // download state.
-void DownloadItemView::Paint(ChromeCanvas* canvas) {
+void DownloadItemView::Paint(gfx::Canvas* canvas) {
   BodyImageSet* body_image_set;
   switch (body_state_) {
     case NORMAL:
@@ -624,7 +624,7 @@ void DownloadItemView::Paint(ChromeCanvas* canvas) {
   }
 }
 
-void DownloadItemView::PaintBitmaps(ChromeCanvas* canvas,
+void DownloadItemView::PaintBitmaps(gfx::Canvas* canvas,
                                     const SkBitmap* top_bitmap,
                                     const SkBitmap* center_bitmap,
                                     const SkBitmap* bottom_bitmap,

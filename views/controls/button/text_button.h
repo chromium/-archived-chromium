@@ -5,7 +5,7 @@
 #ifndef VIEWS_CONTROLS_BUTTON_TEXT_BUTTON_H_
 #define VIEWS_CONTROLS_BUTTON_TEXT_BUTTON_H_
 
-#include "app/gfx/chrome_font.h"
+#include "app/gfx/font.h"
 #include "third_party/skia/include/core/SkBitmap.h"
 #include "views/border.h"
 #include "views/controls/button/custom_button.h"
@@ -26,7 +26,7 @@ class TextButtonBorder : public Border {
   virtual ~TextButtonBorder();
 
   // Render the background for the provided view
-  virtual void Paint(const View& view, ChromeCanvas* canvas) const;
+  virtual void Paint(const View& view, gfx::Canvas* canvas) const;
 
   // Returns the insets for the border.
   virtual void GetInsets(gfx::Insets* insets) const;
@@ -92,7 +92,7 @@ class TextButton : public CustomButton {
 
   // Paint the button into the specified canvas. If |for_drag| is true, the
   // function paints a drag image representation into the canvas.
-  virtual void Paint(ChromeCanvas* canvas, bool for_drag);
+  virtual void Paint(gfx::Canvas* canvas, bool for_drag);
 
   // Overridden from View:
   virtual gfx::Size GetPreferredSize();
@@ -101,7 +101,7 @@ class TextButton : public CustomButton {
 
  protected:
   virtual bool OnMousePressed(const MouseEvent& e);
-  virtual void Paint(ChromeCanvas* canvas);
+  virtual void Paint(gfx::Canvas* canvas);
 
  private:
   // The text string that is displayed in the button.

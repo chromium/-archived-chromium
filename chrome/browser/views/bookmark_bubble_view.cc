@@ -4,7 +4,7 @@
 
 #include "chrome/browser/views/bookmark_bubble_view.h"
 
-#include "app/gfx/chrome_canvas.h"
+#include "app/gfx/canvas.h"
 #include "app/l10n_util.h"
 #include "app/resource_bundle.h"
 #include "chrome/app/chrome_dll_resource.h"

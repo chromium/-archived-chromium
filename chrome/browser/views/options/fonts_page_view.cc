@@ -11,8 +11,8 @@
 
 #include <vector>
 
-#include "app/gfx/chrome_canvas.h"
-#include "app/gfx/chrome_font.h"
+#include "app/gfx/canvas.h"
+#include "app/gfx/font.h"
 #include "app/l10n_util.h"
 #include "app/resource_bundle.h"
 #include "base/file_util.h"
@@ -113,7 +113,7 @@ class FontDisplayView : public views::View {
   int font_size() { return font_size_; }
 
   // views::View overrides:
-  virtual void Paint(ChromeCanvas* canvas);
+  virtual void Paint(gfx::Canvas* canvas);
   virtual void Layout();
   virtual gfx::Size GetPreferredSize();
 
@@ -175,7 +175,7 @@ void FontDisplayView::SetFontType(const std::wstring& font_name,
   font_text_label_->SetText(displayed_text);
 }
 
-void FontDisplayView::Paint(ChromeCanvas* canvas) {
+void FontDisplayView::Paint(gfx::Canvas* canvas) {
   HDC dc = canvas->beginPlatformPaint();
   RECT rect = { 0, 0, width(), height() };
   gfx::NativeTheme::instance()->PaintTextField(

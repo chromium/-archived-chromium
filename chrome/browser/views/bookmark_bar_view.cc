@@ -6,7 +6,7 @@
 
 #include <limits>
 
-#include "app/gfx/chrome_canvas.h"
+#include "app/gfx/canvas.h"
 #include "app/gfx/text_elider.h"
 #include "app/l10n_util.h"
 #include "app/os_exchange_data.h"
@@ -256,7 +256,7 @@ class BookmarkFolderButton : public views::MenuButton {
     return e.IsMiddleMouseButton();
   }
 
-  virtual void Paint(ChromeCanvas *canvas) {
+  virtual void Paint(gfx::Canvas *canvas) {
     views::MenuButton::Paint(canvas, false);
   }
 
@@ -310,7 +310,7 @@ class ButtonSeparatorView : public views::View {
   ButtonSeparatorView() {}
   virtual ~ButtonSeparatorView() {}
 
-  virtual void Paint(ChromeCanvas* canvas) {
+  virtual void Paint(gfx::Canvas* canvas) {
     SkPaint paint;
     paint.setShader(skia::CreateGradientShader(0,
                                                height() / 2,
@@ -554,7 +554,7 @@ void BookmarkBarView::ViewHierarchyChanged(bool is_add,
   }
 }
 
-void BookmarkBarView::Paint(ChromeCanvas* canvas) {
+void BookmarkBarView::Paint(gfx::Canvas* canvas) {
   if (IsDetachedStyle()) {
     // Draw the background to match the new tab page.
     canvas->FillRectInt(kNewtabBackgroundColor, 0, 0, width(), height());
@@ -616,7 +616,7 @@ void BookmarkBarView::Paint(ChromeCanvas* canvas) {
   }
 }
 
-void BookmarkBarView::PaintChildren(ChromeCanvas* canvas) {
+void BookmarkBarView::PaintChildren(gfx::Canvas* canvas) {
   View::PaintChildren(canvas);
 
   if (drop_info_.get() && drop_info_->valid &&
@@ -892,7 +892,7 @@ MenuButton* BookmarkBarView::CreateOverflowButton() {
   // right-to-left.
   //
   // By default, menu buttons are not flipped because they generally contain
-  // text and flipping the ChromeCanvas object will break text rendering. Since
+  // text and flipping the gfx::Canvas object will break text rendering. Since
   // the overflow button does not contain text, we can safely flip it.
   button->EnableCanvasFlippingForRTLUI(true);
 
@@ -1053,7 +1053,7 @@ void BookmarkBarView::WriteDragData(View* sender,
   for (int i = 0; i < GetBookmarkButtonCount(); ++i) {
     if (sender == GetBookmarkButton(i)) {
       views::TextButton* button = GetBookmarkButton(i);
-      ChromeCanvas canvas(button->width(), button->height(), false);
+      gfx::Canvas canvas(button->width(), button->height(), false);
       button->Paint(&canvas, true);
       drag_utils::SetDragImageOnDataObject(canvas, button->width(),
                                            button->height(), press_x,

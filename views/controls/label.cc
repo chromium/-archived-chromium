@@ -6,8 +6,8 @@
 
 #include <math.h>
 
-#include "app/gfx/chrome_canvas.h"
-#include "app/gfx/chrome_font.h"
+#include "app/gfx/canvas.h"
+#include "app/gfx/font.h"
 #include "app/gfx/insets.h"
 #include "app/gfx/text_elider.h"
 #include "app/l10n_util.h"
@@ -68,7 +68,7 @@ gfx::Size Label::GetPreferredSize() {
 
   if (is_multi_line_) {
     int w = width(), h = 0;
-    ChromeCanvas::SizeStringInt(text_, font_, &w, &h, ComputeMultiLineFlags());
+    gfx::Canvas::SizeStringInt(text_, font_, &w, &h, ComputeMultiLineFlags());
     prefsize.SetSize(w, h);
   } else {
     prefsize = GetTextSize();
@@ -80,18 +80,18 @@ gfx::Size Label::GetPreferredSize() {
 }
 
 int Label::ComputeMultiLineFlags() {
-  int flags = ChromeCanvas::MULTI_LINE;
+  int flags = gfx::Canvas::MULTI_LINE;
   if (allow_character_break_)
-    flags |= ChromeCanvas::CHARACTER_BREAK;
+    flags |= gfx::Canvas::CHARACTER_BREAK;
   switch (horiz_alignment_) {
     case ALIGN_LEFT:
-      flags |= ChromeCanvas::TEXT_ALIGN_LEFT;
+      flags |= gfx::Canvas::TEXT_ALIGN_LEFT;
       break;
     case ALIGN_CENTER:
-      flags |= ChromeCanvas::TEXT_ALIGN_CENTER;
+      flags |= gfx::Canvas::TEXT_ALIGN_CENTER;
       break;
     case ALIGN_RIGHT:
-      flags |= ChromeCanvas::TEXT_ALIGN_RIGHT;
+      flags |= gfx::Canvas::TEXT_ALIGN_RIGHT;
       break;
   }
   return flags;
@@ -134,7 +134,7 @@ void Label::CalculateDrawStringParams(
   }
 }
 
-void Label::Paint(ChromeCanvas* canvas) {
+void Label::Paint(gfx::Canvas* canvas) {
   PaintBackground(canvas);
   std::wstring paint_text;
   gfx::Rect text_bounds;
@@ -156,8 +156,8 @@ void Label::Paint(ChromeCanvas* canvas) {
     // We explicitly OR in MULTI_LINE here since SizeStringInt seems to return
     // an incorrect height for single line text when the MULTI_LINE flag isn't
     // specified. o_O...
-    ChromeCanvas::SizeStringInt(paint_text, font_, &w, &h,
-                                flags | ChromeCanvas::MULTI_LINE);
+    gfx::Canvas::SizeStringInt(paint_text, font_, &w, &h,
+                               flags | gfx::Canvas::MULTI_LINE);
     gfx::Rect focus_rect = text_bounds;
     focus_rect.set_width(w);
     focus_rect.set_height(h);
@@ -165,18 +165,18 @@ void Label::Paint(ChromeCanvas* canvas) {
     // If the label is a single line of text, then the computed text bound
     // corresponds directly to the text being drawn and no mirroring is needed
     // for the RTL case. For multiline text, the text bound is an estimation
-    // and is recomputed in ChromeCanvas::SizeStringInt(). For multiline text
+    // and is recomputed in gfx::Canvas::SizeStringInt(). For multiline text
     // in RTL, we need to take mirroring into account when computing the focus
     // rectangle.
     int x = focus_rect.x();
-    if (flags & ChromeCanvas::MULTI_LINE)
+    if (flags & gfx::Canvas::MULTI_LINE)
       x = MirroredLeftPointForRect(focus_rect);
     canvas->DrawFocusRect(x, focus_rect.y(), focus_rect.width(),
                           focus_rect.height());
   }
 }
 
-void Label::PaintBackground(ChromeCanvas* canvas) {
+void Label::PaintBackground(gfx::Canvas* canvas) {
   const Background* bg = contains_mouse_ ? GetMouseOverBackground() : NULL;
   if (!bg)
     bg = background();
@@ -239,7 +239,7 @@ int Label::GetHeightForWidth(int w) {
     gfx::Insets insets = GetInsets();
     w = std::max<int>(0, w - insets.width());
     int h = 0;
-    ChromeCanvas cc(0, 0, true);
+    gfx::Canvas cc(0, 0, true);
     cc.SizeStringInt(text_, font_, &w, &h, ComputeMultiLineFlags());
     return h + insets.height();
   }

@@ -7,7 +7,7 @@
 #include <string>
 
 #include "app/drag_drop_types.h"
-#include "app/gfx/chrome_canvas.h"
+#include "app/gfx/canvas.h"
 #include "app/l10n_util.h"
 #include "app/os_exchange_data.h"
 #include "app/resource_bundle.h"
@@ -403,7 +403,7 @@ void BrowserToolbarView::Layout() {
   app_menu_->SetBounds(next_menu_x, child_y, app_menu_width, child_height);
 }
 
-void BrowserToolbarView::Paint(ChromeCanvas* canvas) {
+void BrowserToolbarView::Paint(gfx::Canvas* canvas) {
   View::Paint(canvas);
 
   if (IsDisplayModeNormal())

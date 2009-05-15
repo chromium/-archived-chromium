@@ -8,7 +8,9 @@
 #include "third_party/skia/include/core/SkBitmap.h"
 #include "views/view.h"
 
-class ChromeCanvas;
+namespace gfx {
+class Canvas;
+}
 
 namespace views {
 
@@ -71,7 +73,7 @@ class ImageView : public View {
   // Return whether the image should be centered inside the view.
   // Overriden from View
   virtual gfx::Size GetPreferredSize();
-  virtual void Paint(ChromeCanvas* canvas);
+  virtual void Paint(gfx::Canvas* canvas);
 
   // Overriden from View.
   virtual bool GetTooltipText(int x, int y, std::wstring* tooltip);

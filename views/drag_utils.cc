@@ -8,8 +8,8 @@
 #include <shlobj.h>
 #include <shobjidl.h>
 
-#include "app/gfx/chrome_canvas.h"
-#include "app/gfx/chrome_font.h"
+#include "app/gfx/canvas.h"
+#include "app/gfx/font.h"
 #include "app/l10n_util.h"
 #include "app/os_exchange_data.h"
 #include "app/resource_bundle.h"
@@ -59,7 +59,7 @@ static void SetDragImageOnDataObject(HBITMAP hbitmap,
 
 // Blit the contents of the canvas to a new HBITMAP. It is the caller's
 // responsibility to release the |bits| buffer.
-static HBITMAP CreateBitmapFromCanvas(const ChromeCanvas& canvas,
+static HBITMAP CreateBitmapFromCanvas(const gfx::Canvas& canvas,
                                       int width,
                                       int height) {
   HDC screen_dc = GetDC(NULL);
@@ -102,7 +102,7 @@ void SetURLAndDragImage(const GURL& url,
   button.SetBounds(0, 0, prefsize.width(), prefsize.height());
 
   // Render the image.
-  ChromeCanvas canvas(prefsize.width(), prefsize.height(), false);
+  gfx::Canvas canvas(prefsize.width(), prefsize.height(), false);
   button.Paint(&canvas, true);
   SetDragImageOnDataObject(canvas, prefsize.width(), prefsize.height(),
                            prefsize.width() / 2, prefsize.height() / 2,
@@ -124,7 +124,7 @@ void CreateDragImageForFile(const std::wstring& file_name,
   // Add +2 here to allow room for the halo.
   const int height = font.height() + icon->height() +
                      kLinkDragImageVPadding + 2;
-  ChromeCanvas canvas(width, height, false /* translucent */);
+  gfx::Canvas canvas(width, height, false /* translucent */);
 
   // Paint the icon.
   canvas.DrawBitmapInt(*icon, (width - icon->width()) / 2, 0);
@@ -133,13 +133,13 @@ void CreateDragImageForFile(const std::wstring& file_name,
   canvas.DrawStringWithHalo(name, font, kFileDragImageTextColor, SK_ColorWHITE,
                             1, icon->height() + kLinkDragImageVPadding + 1,
                             width - 2, font.height(),
-                            ChromeCanvas::TEXT_ALIGN_CENTER);
+                            gfx::Canvas::TEXT_ALIGN_CENTER);
 
   SetDragImageOnDataObject(canvas, width, height, width / 2,
                            kLinkDragImageVPadding, data_object);
 }
 
-void SetDragImageOnDataObject(const ChromeCanvas& canvas,
+void SetDragImageOnDataObject(const gfx::Canvas& canvas,
                               int width,
                               int height,
                               int cursor_x_offset,

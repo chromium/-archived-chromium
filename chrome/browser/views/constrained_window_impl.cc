@@ -4,8 +4,8 @@
 
 #include "chrome/browser/views/constrained_window_impl.h"
 
-#include "app/gfx/chrome_canvas.h"
-#include "app/gfx/chrome_font.h"
+#include "app/gfx/canvas.h"
+#include "app/gfx/font.h"
 #include "app/gfx/path.h"
 #include "app/gfx/text_elider.h"
 #include "app/l10n_util.h"
@@ -177,7 +177,7 @@ class ConstrainedWindowFrameView
   virtual void ResetWindowControls() { }
 
   // Overridden from views::View:
-  virtual void Paint(ChromeCanvas* canvas);
+  virtual void Paint(gfx::Canvas* canvas);
   virtual void Layout();
   virtual void ThemeChanged();
 
@@ -203,9 +203,9 @@ class ConstrainedWindowFrameView
                        int* title_thickness) const;
 
   // Paints different parts of the window to the incoming canvas.
-  void PaintFrameBorder(ChromeCanvas* canvas);
-  void PaintTitleBar(ChromeCanvas* canvas);
-  void PaintClientEdge(ChromeCanvas* canvas);
+  void PaintFrameBorder(gfx::Canvas* canvas);
+  void PaintTitleBar(gfx::Canvas* canvas);
+  void PaintClientEdge(gfx::Canvas* canvas);
 
   // Layout various sub-components of this view.
   void LayoutWindowControls();
@@ -381,7 +381,7 @@ void ConstrainedWindowFrameView::EnableClose(bool enable) {
 ////////////////////////////////////////////////////////////////////////////////
 // ConstrainedWindowFrameView, views::View implementation:
 
-void ConstrainedWindowFrameView::Paint(ChromeCanvas* canvas) {
+void ConstrainedWindowFrameView::Paint(gfx::Canvas* canvas) {
   PaintFrameBorder(canvas);
   PaintTitleBar(canvas);
   PaintClientEdge(canvas);
@@ -435,7 +435,7 @@ int ConstrainedWindowFrameView::TitleCoordinates(
   return *title_top_spacing + *title_thickness + title_bottom_spacing;
 }
 
-void ConstrainedWindowFrameView::PaintFrameBorder(ChromeCanvas* canvas) {
+void ConstrainedWindowFrameView::PaintFrameBorder(gfx::Canvas* canvas) {
   SkBitmap* top_left_corner = resources_->GetPartBitmap(FRAME_TOP_LEFT_CORNER);
   SkBitmap* top_right_corner =
       resources_->GetPartBitmap(FRAME_TOP_RIGHT_CORNER);
@@ -502,13 +502,13 @@ void ConstrainedWindowFrameView::PaintFrameBorder(ChromeCanvas* canvas) {
       height() - top_left_corner->height() - bottom_left_corner->height());
 }
 
-void ConstrainedWindowFrameView::PaintTitleBar(ChromeCanvas* canvas) {
+void ConstrainedWindowFrameView::PaintTitleBar(gfx::Canvas* canvas) {
   canvas->DrawStringInt(container_->GetWindowTitle(), *title_font_,
       GetTitleColor(), MirroredLeftPointForRect(title_bounds_),
       title_bounds_.y(), title_bounds_.width(), title_bounds_.height());
 }
 
-void ConstrainedWindowFrameView::PaintClientEdge(ChromeCanvas* canvas) {
+void ConstrainedWindowFrameView::PaintClientEdge(gfx::Canvas* canvas) {
   gfx::Rect client_edge_bounds(CalculateClientAreaBounds(width(), height()));
   client_edge_bounds.Inset(-kClientEdgeThickness, -kClientEdgeThickness);
   gfx::Rect frame_shadow_bounds(client_edge_bounds);

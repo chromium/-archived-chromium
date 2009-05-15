@@ -284,7 +284,7 @@ void TabRendererGtk::AnimationEnded(const Animation* animation) {
 // TabRendererGtk, private:
 
 void TabRendererGtk::Paint(GdkEventExpose* event) {
-  ChromeCanvasPaint canvas(event, false);
+  gfx::CanvasPaint canvas(event, false);
   if (canvas.isEmpty())
     return;
 
@@ -406,7 +406,7 @@ void TabRendererGtk::Layout() {
   // TODO(jhawkins): Handle RTL layout.
 }
 
-void TabRendererGtk::PaintTabBackground(ChromeCanvasPaint* canvas) {
+void TabRendererGtk::PaintTabBackground(gfx::CanvasPaint* canvas) {
   if (IsSelected()) {
     // Sometimes detaching a tab quickly can result in the model reporting it
     // as not being selected, so is_drag_clone_ ensures that we always paint
@@ -435,7 +435,7 @@ void TabRendererGtk::PaintTabBackground(ChromeCanvasPaint* canvas) {
   }
 }
 
-void TabRendererGtk::PaintInactiveTabBackground(ChromeCanvasPaint* canvas) {
+void TabRendererGtk::PaintInactiveTabBackground(gfx::CanvasPaint* canvas) {
   bool is_otr = data_.off_the_record;
 
   // The tab image needs to be lined up with the background image
@@ -486,7 +486,7 @@ void TabRendererGtk::PaintInactiveTabBackground(ChromeCanvasPaint* canvas) {
       bounds_.x() + width() - tab_inactive_.r_width, bounds_.y());
 }
 
-void TabRendererGtk::PaintActiveTabBackground(ChromeCanvasPaint* canvas) {
+void TabRendererGtk::PaintActiveTabBackground(gfx::CanvasPaint* canvas) {
   int offset = 1;
 
   SkBitmap* tab_bg = theme_provider_->GetBitmapNamed(IDR_THEME_TOOLBAR);
@@ -522,7 +522,7 @@ void TabRendererGtk::PaintActiveTabBackground(ChromeCanvasPaint* canvas) {
       bounds_.x() + width() - tab_active_.r_width, bounds_.y());
 }
 
-void TabRendererGtk::PaintLoadingAnimation(ChromeCanvasPaint* canvas) {
+void TabRendererGtk::PaintLoadingAnimation(gfx::CanvasPaint* canvas) {
   const SkBitmap* frames =
       (loading_animation_.animation_state() == ANIMATION_WAITING) ?
       loading_animation_.waiting_animation_frames() :

@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "app/gfx/chrome_canvas.h"
+#include "app/gfx/canvas.h"
 #include "app/gfx/path.h"
 #include "base/clipboard.h"
 #include "base/message_loop.h"
@@ -48,7 +48,7 @@ void PaintRootView(views::RootView* root, bool empty_paint) {
     // User isn't logged in, so that PaintNow will generate an empty rectangle.
     // Invoke paint directly.
     gfx::Rect paint_rect = root->GetScheduledPaintRect();
-    ChromeCanvas canvas(paint_rect.width(), paint_rect.height(), true);
+    gfx::Canvas canvas(paint_rect.width(), paint_rect.height(), true);
     canvas.TranslateInt(-paint_rect.x(), -paint_rect.y());
     canvas.ClipRectInt(0, 0, paint_rect.width(), paint_rect.height());
     root->ProcessPaint(&canvas);
@@ -131,7 +131,7 @@ class TestView : public View {
   virtual bool OnMousePressed(const MouseEvent& event);
   virtual bool OnMouseDragged(const MouseEvent& event);
   virtual void OnMouseReleased(const MouseEvent& event, bool canceled);
-  virtual void Paint(ChromeCanvas* canvas);
+  virtual void Paint(gfx::Canvas* canvas);
 
   // DidChangeBounds test
   bool did_change_bounds_;
@@ -350,7 +350,7 @@ TEST_F(ViewTest, MouseEvent) {
 // Painting
 ////////////////////////////////////////////////////////////////////////////////
 
-void TestView::Paint(ChromeCanvas* canvas) {
+void TestView::Paint(gfx::Canvas* canvas) {
   canvas->getClipBounds(&last_clip_);
 }
 

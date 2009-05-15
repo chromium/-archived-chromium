@@ -41,7 +41,7 @@ class AboutChromeView : public views::View,
   // Overridden from views::View:
   virtual gfx::Size GetPreferredSize();
   virtual void Layout();
-  virtual void Paint(ChromeCanvas* canvas);
+  virtual void Paint(gfx::Canvas* canvas);
   virtual void ViewHierarchyChanged(bool is_add,
                                     views::View* parent,
                                     views::View* child);
@@ -93,7 +93,7 @@ class AboutChromeView : public views::View,
   // NOTE: The reason why we need this function is because while Skia knows how
   // to wrap text appropriately, it doesn't tell us where it drew the last
   // character, which we need to position the URLs within the text.
-  void DrawTextAndPositionUrl(ChromeCanvas* canvas,
+  void DrawTextAndPositionUrl(gfx::Canvas* canvas,
                               const std::wstring& text,
                               views::Link* link,
                               gfx::Rect* rect,
@@ -106,7 +106,7 @@ class AboutChromeView : public views::View,
   // |word_for_word| specifies whether to draw the text word for word or wheter
   // to treat the text as one blurb (similar to the way url's are treated inside
   // RTL text. For details on the other parameters, see DrawTextAndPositionUrl.
-  void DrawTextStartingFrom(ChromeCanvas* canvas,
+  void DrawTextStartingFrom(gfx::Canvas* canvas,
                             const std::wstring& text,
                             gfx::Size* position,
                             const gfx::Rect& bounds,

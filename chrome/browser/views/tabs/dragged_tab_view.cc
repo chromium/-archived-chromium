@@ -4,7 +4,7 @@
 
 #include "chrome/browser/views/tabs/dragged_tab_view.h"
 
-#include "app/gfx/chrome_canvas.h"
+#include "app/gfx/canvas.h"
 #include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/browser/tabs/tab_strip_model.h"
 #include "chrome/browser/views/tabs/hwnd_photobooth.h"
@@ -148,7 +148,7 @@ void DraggedTabView::AnimationCanceled(const Animation* animation) {
 ///////////////////////////////////////////////////////////////////////////////
 // DraggedTabView, views::View overrides:
 
-void DraggedTabView::Paint(ChromeCanvas* canvas) {
+void DraggedTabView::Paint(gfx::Canvas* canvas) {
   if (!show_contents_on_drag_) {
     PaintFocusRect(canvas);
   } else if (attached_) {
@@ -185,13 +185,13 @@ gfx::Size DraggedTabView::GetPreferredSize() {
 ////////////////////////////////////////////////////////////////////////////////
 // DraggedTabView, private:
 
-void DraggedTabView::PaintAttachedTab(ChromeCanvas* canvas) {
+void DraggedTabView::PaintAttachedTab(gfx::Canvas* canvas) {
   renderer_->ProcessPaint(canvas);
 }
 
-void DraggedTabView::PaintDetachedView(ChromeCanvas* canvas) {
+void DraggedTabView::PaintDetachedView(gfx::Canvas* canvas) {
   gfx::Size ps = GetPreferredSize();
-  ChromeCanvas scale_canvas(ps.width(), ps.height(), false);
+  gfx::Canvas scale_canvas(ps.width(), ps.height(), false);
   SkBitmap& bitmap_device = const_cast<SkBitmap&>(
       scale_canvas.getTopPlatformDevice().accessBitmap(true));
   bitmap_device.eraseARGB(0, 0, 0, 0);
@@ -236,7 +236,7 @@ void DraggedTabView::PaintDetachedView(ChromeCanvas* canvas) {
   canvas->drawRect(rc, paint);
 }
 
-void DraggedTabView::PaintFocusRect(ChromeCanvas* canvas) {
+void DraggedTabView::PaintFocusRect(gfx::Canvas* canvas) {
   gfx::Size ps = GetPreferredSize();
   canvas->DrawFocusRect(0, 0,
                         static_cast<int>(ps.width() * kScalingFactor),

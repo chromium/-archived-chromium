@@ -4,7 +4,7 @@
 
 #include "chrome/browser/debugger/debugger_view.h"
 
-#include "app/gfx/chrome_canvas.h"
+#include "app/gfx/canvas.h"
 #include "app/resource_bundle.h"
 #include "base/logging.h"
 #include "base/string_util.h"
@@ -57,7 +57,7 @@ void DebuggerView::ViewHierarchyChanged(bool is_add,
   }
 }
 
-void DebuggerView::Paint(ChromeCanvas* canvas) {
+void DebuggerView::Paint(gfx::Canvas* canvas) {
 #ifndef NDEBUG
   SkPaint paint;
   canvas->FillRectInt(SK_ColorCYAN, x(), y(), width(), height());

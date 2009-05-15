@@ -16,9 +16,8 @@
 #include "views/layout_manager.h"
 #include "views/widget/widget.h"
 
-class ChromeCanvas;
-
 namespace gfx {
+class Canvas;
 class Rect;
 }
 
@@ -608,7 +607,7 @@ class WidgetWin : public Widget,
 
   // A canvas that contains the window contents in the case of a layered
   // window.
-  scoped_ptr<ChromeCanvas> contents_;
+  scoped_ptr<gfx::Canvas> contents_;
 
   // Whether or not the window should delete itself when it is destroyed.
   // Set this to false via its setter for stack allocated instances.

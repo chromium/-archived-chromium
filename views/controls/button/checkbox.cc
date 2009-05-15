@@ -4,7 +4,7 @@
 
 #include "views/controls/button/checkbox.h"
 
-#include "app/gfx/chrome_canvas.h"
+#include "app/gfx/canvas.h"
 #include "views/controls/label.h"
 
 namespace views {
@@ -85,7 +85,7 @@ void Checkbox::Layout() {
   native_wrapper_->GetView()->Layout();
 }
 
-void Checkbox::PaintFocusBorder(ChromeCanvas* canvas) {
+void Checkbox::PaintFocusBorder(gfx::Canvas* canvas) {
   // Our focus border is rendered by the label, so we don't do anything here.
 }
 

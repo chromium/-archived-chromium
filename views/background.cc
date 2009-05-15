@@ -4,7 +4,7 @@
 
 #include "views/background.h"
 
-#include "app/gfx/chrome_canvas.h"
+#include "app/gfx/canvas.h"
 #include "base/logging.h"
 #include "skia/ext/skia_utils_win.h"
 #include "third_party/skia/include/core/SkPaint.h"
@@ -22,7 +22,7 @@ class SolidBackground : public Background {
     SetNativeControlColor(color_);
   }
 
-  void Paint(ChromeCanvas* canvas, View* view) const {
+  void Paint(gfx::Canvas* canvas, View* view) const {
     // Fill the background. Note that we don't constrain to the bounds as
     // canvas is already clipped for us.
     canvas->drawColor(color_);
@@ -47,7 +47,7 @@ class BackgroundPainter : public Background {
   }
 
 
-  void Paint(ChromeCanvas* canvas, View* view) const {
+  void Paint(gfx::Canvas* canvas, View* view) const {
     Painter::PaintPainterAt(0, 0, view->width(), view->height(), canvas,
                             painter_);
   }

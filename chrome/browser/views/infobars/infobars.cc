@@ -4,7 +4,7 @@
 
 #include "chrome/browser/views/infobars/infobars.h"
 
-#include "app/gfx/chrome_canvas.h"
+#include "app/gfx/canvas.h"
 #include "app/l10n_util.h"
 #include "app/resource_bundle.h"
 #include "app/slide_animation.h"
@@ -64,7 +64,7 @@ class InfoBarBackground : public views::Background {
   }
 
   // Overridden from views::View:
-  virtual void Paint(ChromeCanvas* canvas, views::View* view) const {
+  virtual void Paint(gfx::Canvas* canvas, views::View* view) const {
     // First paint the gradient background.
     gradient_background_->Paint(canvas, view);
 

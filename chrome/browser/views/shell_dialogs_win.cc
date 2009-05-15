@@ -12,7 +12,7 @@
 #include <algorithm>
 #include <set>
 
-#include "app/gfx/chrome_font.h"
+#include "app/gfx/font.h"
 #include "app/l10n_util.h"
 #include "app/win_util.h"
 #include "base/file_util.h"

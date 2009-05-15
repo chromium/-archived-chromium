@@ -4,7 +4,7 @@
 
 #include "views/controls/scrollbar/bitmap_scroll_bar.h"
 
-#include "app/gfx/chrome_canvas.h"
+#include "app/gfx/canvas.h"
 #include "app/l10n_util.h"
 #include "base/compiler_specific.h"
 #include "base/message_loop.h"
@@ -140,7 +140,7 @@ class BitmapScrollBarThumb : public View {
 
  protected:
   // View overrides:
-  virtual void Paint(ChromeCanvas* canvas) {
+  virtual void Paint(gfx::Canvas* canvas) {
     canvas->DrawBitmapInt(*start_cap_bitmap(), 0, 0);
     int top_cap_height = start_cap_bitmap()->height();
     int bottom_cap_height = end_cap_bitmap()->height();
@@ -391,7 +391,7 @@ gfx::Size BitmapScrollBar::GetPreferredSize() {
   return gfx::Size(button_prefsize.width(), button_prefsize.height() * 2);
 }
 
-void BitmapScrollBar::Paint(ChromeCanvas* canvas) {
+void BitmapScrollBar::Paint(gfx::Canvas* canvas) {
   // Paint the track.
   gfx::Rect track_bounds = GetTrackBounds();
   canvas->TileImageInt(*images_[THUMB_TRACK][thumb_track_state_],

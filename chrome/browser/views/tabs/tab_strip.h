@@ -90,7 +90,7 @@ class TabStrip : public views::View,
   void UpdateLoadingAnimations();
 
   // views::View overrides:
-  virtual void PaintChildren(ChromeCanvas* canvas);
+  virtual void PaintChildren(gfx::Canvas* canvas);
   virtual views::View* GetViewByID(int id) const;
   virtual void Layout();
   virtual gfx::Size GetPreferredSize();

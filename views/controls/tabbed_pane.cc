@@ -6,8 +6,8 @@
 
 #include <vssym32.h>
 
-#include "app/gfx/chrome_canvas.h"
-#include "app/gfx/chrome_font.h"
+#include "app/gfx/canvas.h"
+#include "app/gfx/font.h"
 #include "app/l10n_util_win.h"
 #include "app/resource_bundle.h"
 #include "base/gfx/native_theme.h"
@@ -37,7 +37,7 @@ class TabBackground : public Background {
   }
   virtual ~TabBackground() {}
 
-  virtual void Paint(ChromeCanvas* canvas, View* view) const {
+  virtual void Paint(gfx::Canvas* canvas, View* view) const {
     HDC dc = canvas->beginPlatformPaint();
     RECT r = {0, 0, view->width(), view->height()};
     gfx::NativeTheme::instance()->PaintTabPanelBackground(dc, &r);

@@ -8,7 +8,7 @@
 #include <uxtheme.h>
 #include <Vssym32.h>
 
-#include "app/gfx/chrome_canvas.h"
+#include "app/gfx/canvas.h"
 #include "app/gfx/color_utils.h"
 #include "app/l10n_util.h"
 #include "app/l10n_util_win.h"
@@ -335,7 +335,7 @@ class MenuScrollButton : public View {
     return DragDropTypes::DRAG_NONE;
   }
 
-  virtual void Paint(ChromeCanvas* canvas) {
+  virtual void Paint(gfx::Canvas* canvas) {
     HDC dc = canvas->beginPlatformPaint();
 
     // The background.
@@ -430,7 +430,7 @@ class MenuScrollViewContainer : public View {
         kSubmenuBorderSize, kSubmenuBorderSize));
   }
 
-  virtual void Paint(ChromeCanvas* canvas) {
+  virtual void Paint(gfx::Canvas* canvas) {
     HDC dc = canvas->beginPlatformPaint();
     CRect bounds(0, 0, width(), height());
     NativeTheme::instance()->PaintMenuBackground(
@@ -503,7 +503,7 @@ class MenuSeparator : public View {
   MenuSeparator() {
   }
 
-  void Paint(ChromeCanvas* canvas) {
+  void Paint(gfx::Canvas* canvas) {
     // The gutter is rendered before the background.
     int start_x = 0;
     int start_y = height() / 3;
@@ -873,7 +873,7 @@ void SubmenuView::DidChangeBounds(const gfx::Rect& previous,
   SchedulePaint();
 }
 
-void SubmenuView::PaintChildren(ChromeCanvas* canvas) {
+void SubmenuView::PaintChildren(gfx::Canvas* canvas) {
   View::PaintChildren(canvas);
 
   if (drop_item_ && drop_position_ != MenuDelegate::DROP_ON)
@@ -1031,7 +1031,7 @@ MenuScrollViewContainer* SubmenuView::GetScrollViewContainer() {
   return scroll_view_container_;
 }
 
-void SubmenuView::PaintDropIndicator(ChromeCanvas* canvas,
+void SubmenuView::PaintDropIndicator(gfx::Canvas* canvas,
                                      MenuItemView* item,
                                      MenuDelegate::DropPosition position) {
   if (position == MenuDelegate::DROP_NONE)
@@ -1210,7 +1210,7 @@ void MenuItemView::SetIcon(const SkBitmap& icon) {
   SchedulePaint();
 }
 
-void MenuItemView::Paint(ChromeCanvas* canvas) {
+void MenuItemView::Paint(gfx::Canvas* canvas) {
   Paint(canvas, false);
 }
 
@@ -1374,15 +1374,15 @@ void MenuItemView::PrepareForRun(bool has_mnemonics) {
 int MenuItemView::GetDrawStringFlags() {
   int flags = 0;
   if (UILayoutIsRightToLeft())
-    flags |= ChromeCanvas::TEXT_ALIGN_RIGHT;
+    flags |= gfx::Canvas::TEXT_ALIGN_RIGHT;
   else
-    flags |= ChromeCanvas::TEXT_ALIGN_LEFT;
+    flags |= gfx::Canvas::TEXT_ALIGN_LEFT;
 
   if (has_mnemonics_) {
     if (show_mnemonics)
-      flags |= ChromeCanvas::SHOW_PREFIX;
+      flags |= gfx::Canvas::SHOW_PREFIX;
     else
-      flags |= ChromeCanvas::HIDE_PREFIX;
+      flags |= gfx::Canvas::HIDE_PREFIX;
   }
   return flags;
 }
@@ -1423,7 +1423,7 @@ void MenuItemView::AdjustBoundsForRTLUI(RECT* rect) const {
   *rect = mirrored_rect.ToRECT();
 }
 
-void MenuItemView::Paint(ChromeCanvas* canvas, bool for_drag) {
+void MenuItemView::Paint(gfx::Canvas* canvas, bool for_drag) {
   bool render_selection =
       (!for_drag && IsSelected() &&
        parent_menu_item_->GetSubmenu()->GetShowSelection(this));
@@ -1824,7 +1824,7 @@ void MenuController::OnMouseDragged(SubmenuView* source,
       gfx::Point drag_loc(event.location());
       View::ConvertPointToScreen(source->GetScrollViewContainer(), &drag_loc);
       View::ConvertPointToView(NULL, item, &drag_loc);
-      ChromeCanvas canvas(item->width(), item->height(), false);
+      gfx::Canvas canvas(item->width(), item->height(), false);
       item->Paint(&canvas, true);
 
       scoped_refptr<OSExchangeData> data(new OSExchangeData);

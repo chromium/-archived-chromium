@@ -68,7 +68,7 @@ ExtensionShelf::~ExtensionShelf() {
                      NotificationService::AllSources());
 }
 
-void ExtensionShelf::Paint(ChromeCanvas* canvas) {
+void ExtensionShelf::Paint(gfx::Canvas* canvas) {
 #if 0
   // TODO(erikkay) re-enable this when Glen has the gradient values worked out.
   SkPaint paint;
@@ -180,7 +180,7 @@ bool ExtensionShelf::HasExtensionViews() {
   return GetChildViewCount() > 0;
 }
 
-void ExtensionShelf::InitBackground(ChromeCanvas* canvas,
+void ExtensionShelf::InitBackground(gfx::Canvas* canvas,
                                     const SkRect& subset) {
   if (!background_.empty())
     return;

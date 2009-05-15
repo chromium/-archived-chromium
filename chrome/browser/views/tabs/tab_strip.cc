@@ -5,7 +5,7 @@
 #include "chrome/browser/views/tabs/tab_strip.h"
 
 #include "app/drag_drop_types.h"
-#include "app/gfx/chrome_canvas.h"
+#include "app/gfx/canvas.h"
 #include "app/gfx/path.h"
 #include "app/l10n_util.h"
 #include "app/os_exchange_data.h"
@@ -586,7 +586,7 @@ void TabStrip::UpdateLoadingAnimations() {
 ///////////////////////////////////////////////////////////////////////////////
 // TabStrip, views::View overrides:
 
-void TabStrip::PaintChildren(ChromeCanvas* canvas) {
+void TabStrip::PaintChildren(gfx::Canvas* canvas) {
   // Paint the tabs in reverse order, so they stack to the left.
   Tab* selected_tab = NULL;
   for (int i = GetTabCount() - 1; i >= 0; --i) {

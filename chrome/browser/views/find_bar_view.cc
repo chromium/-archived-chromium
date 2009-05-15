@@ -6,7 +6,7 @@
 
 #include <algorithm>
 
-#include "app/gfx/chrome_canvas.h"
+#include "app/gfx/canvas.h"
 #include "app/l10n_util.h"
 #include "app/resource_bundle.h"
 #include "base/string_util.h"
@@ -237,7 +237,7 @@ void FindBarView::SetFocusAndSelection() {
 ///////////////////////////////////////////////////////////////////////////////
 // FindBarView, views::View overrides:
 
-void FindBarView::Paint(ChromeCanvas* canvas) {
+void FindBarView::Paint(gfx::Canvas* canvas) {
   SkPaint paint;
 
   // Get the local bounds so that we now how much to stretch the background.

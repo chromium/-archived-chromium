@@ -47,7 +47,7 @@ class DebuggerView : public views::View,
   }
   virtual gfx::Size GetPreferredSize();
   virtual void Layout();
-  virtual void Paint(ChromeCanvas* canvas);
+  virtual void Paint(gfx::Canvas* canvas);
   virtual void ViewHierarchyChanged(bool is_add,
                                     views::View* parent,
                                     views::View* child);

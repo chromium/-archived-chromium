@@ -9,7 +9,7 @@
 #include <vsstyle.h>
 #include <vssym32.h>
 
-#include "app/gfx/chrome_canvas.h"
+#include "app/gfx/canvas.h"
 #include "app/l10n_util.h"
 #include "app/resource_bundle.h"
 #include "base/command_line.h"
@@ -54,7 +54,7 @@ class FileDisplayArea : public views::View {
   void SetFile(const FilePath& file_path);
 
   // views::View overrides:
-  virtual void Paint(ChromeCanvas* canvas);
+  virtual void Paint(gfx::Canvas* canvas);
   virtual void Layout();
   virtual gfx::Size GetPreferredSize();
 
@@ -104,7 +104,7 @@ void FileDisplayArea::SetFile(const FilePath& file_path) {
   }
 }
 
-void FileDisplayArea::Paint(ChromeCanvas* canvas) {
+void FileDisplayArea::Paint(gfx::Canvas* canvas) {
   HDC dc = canvas->beginPlatformPaint();
   RECT rect = { 0, 0, width(), height() };
   gfx::NativeTheme::instance()->PaintTextField(

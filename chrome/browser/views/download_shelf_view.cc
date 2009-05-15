@@ -6,7 +6,7 @@
 
 #include <algorithm>
 
-#include "app/gfx/chrome_canvas.h"
+#include "app/gfx/canvas.h"
 #include "app/l10n_util.h"
 #include "app/resource_bundle.h"
 #include "base/logging.h"
@@ -147,12 +147,12 @@ void DownloadShelfView::RemoveDownloadView(View* view) {
   SchedulePaint();
 }
 
-void DownloadShelfView::Paint(ChromeCanvas* canvas) {
+void DownloadShelfView::Paint(gfx::Canvas* canvas) {
   PaintBackground(canvas);
   PaintBorder(canvas);
 }
 
-void DownloadShelfView::PaintBorder(ChromeCanvas* canvas) {
+void DownloadShelfView::PaintBorder(gfx::Canvas* canvas) {
   canvas->FillRectInt(kBorderColor, 0, 0, width(), 1);
 }
 

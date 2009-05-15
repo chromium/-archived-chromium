@@ -2,11 +2,11 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "app/gfx/chrome_canvas.h"
+#include "app/gfx/canvas.h"
 
 #include <pango/pango.h>
 
-#include "app/gfx/chrome_font.h"
+#include "app/gfx/font.h"
 #include "base/gfx/rect.h"
 #include "base/logging.h"
 #include "base/string_util.h"
@@ -41,24 +41,26 @@ PangoFontDescription* PangoFontFromGfxFont(const gfx::Font& gfx_font) {
 
 }  // namespace
 
-ChromeCanvas::ChromeCanvas(int width, int height, bool is_opaque)
+namespace gfx {
+
+Canvas::Canvas(int width, int height, bool is_opaque)
     : skia::PlatformCanvasLinux(width, height, is_opaque) {
 }
 
-ChromeCanvas::ChromeCanvas() : skia::PlatformCanvasLinux() {
+Canvas::Canvas() : skia::PlatformCanvasLinux() {
 }
 
-ChromeCanvas::~ChromeCanvas() {
+Canvas::~Canvas() {
 }
 
 // static
-void ChromeCanvas::SizeStringInt(const std::wstring& text,
-                                 const gfx::Font& font,
-                                 int* width, int* height, int flags) {
+void Canvas::SizeStringInt(const std::wstring& text,
+                           const gfx::Font& font,
+                           int* width, int* height, int flags) {
   NOTIMPLEMENTED();
 }
 
-void ChromeCanvas::ApplySkiaMatrixToCairoContext(cairo_t* cr) {
+void Canvas::ApplySkiaMatrixToCairoContext(cairo_t* cr) {
   const SkMatrix& skia_matrix = getTotalMatrix();
   cairo_matrix_t cairo_matrix;
   cairo_matrix_init(&cairo_matrix,
@@ -71,10 +73,10 @@ void ChromeCanvas::ApplySkiaMatrixToCairoContext(cairo_t* cr) {
   cairo_set_matrix(cr, &cairo_matrix);
 }
 
-void ChromeCanvas::DrawStringInt(const std::wstring& text,
-                                 const gfx::Font& font,
-                                 const SkColor& color, int x, int y, int w,
-                                 int h, int flags) {
+void Canvas::DrawStringInt(const std::wstring& text,
+                           const gfx::Font& font,
+                           const SkColor& color, int x, int y, int w, int h,
+                           int flags) {
   cairo_surface_t* surface = beginPlatformPaint();
   cairo_t* cr = cairo_create(surface);
   // We're going to draw onto the surface directly. This circumvents the matrix
@@ -88,8 +90,8 @@ void ChromeCanvas::DrawStringInt(const std::wstring& text,
                        SkColorGetG(color) / 255.0,
                        SkColorGetB(color) / 255.0);
 
-  // TODO(deanm): Implement the rest of the ChromeCanvas flags.
-  if (!(flags & ChromeCanvas::NO_ELLIPSIS))
+  // TODO(deanm): Implement the rest of the Canvas flags.
+  if (!(flags & Canvas::NO_ELLIPSIS))
     pango_layout_set_ellipsize(layout, PANGO_ELLIPSIZE_END);
 
   pango_layout_set_width(layout, w * PANGO_SCALE);
@@ -119,9 +121,9 @@ void ChromeCanvas::DrawStringInt(const std::wstring& text,
   int width, height;
   pango_layout_get_size(layout, &width, &height);
 
-  if (flags & ChromeCanvas::TEXT_VALIGN_TOP) {
+  if (flags & Canvas::TEXT_VALIGN_TOP) {
     // Cairo should draw from the top left corner already.
-  } else if (flags & ChromeCanvas::TEXT_VALIGN_BOTTOM) {
+  } else if (flags & Canvas::TEXT_VALIGN_BOTTOM) {
     y = y + (h - (height / PANGO_SCALE));
   } else {
     // Vertically centered.
@@ -135,3 +137,5 @@ void ChromeCanvas::DrawStringInt(const std::wstring& text,
   cairo_destroy(cr);
   // NOTE: beginPlatformPaint returned its surface, we shouldn't destroy it.
 }
+
+}  // namespace gfx

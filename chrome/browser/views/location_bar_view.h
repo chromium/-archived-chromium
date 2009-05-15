@@ -8,7 +8,7 @@
 #include <string>
 #include <vector>
 
-#include "app/gfx/chrome_font.h"
+#include "app/gfx/font.h"
 #include "base/gfx/rect.h"
 #include "chrome/browser/autocomplete/autocomplete_edit.h"
 #include "chrome/browser/autocomplete/autocomplete_edit_view_win.h"
@@ -78,10 +78,10 @@ class LocationBarView : public LocationBar,
 
   // Layout and Painting functions
   virtual void Layout();
-  virtual void Paint(ChromeCanvas* canvas);
+  virtual void Paint(gfx::Canvas* canvas);
 
   // No focus border for the location bar, the caret is enough.
-  virtual void PaintFocusBorder(ChromeCanvas* canvas) { }
+  virtual void PaintFocusBorder(gfx::Canvas* canvas) { }
 
   // Called when any ancestor changes its size, asks the AutocompleteEditModel
   // to close its popup.
@@ -149,7 +149,7 @@ class LocationBarView : public LocationBar,
 
     void SetFont(const gfx::Font& font);
 
-    virtual void Paint(ChromeCanvas* canvas);
+    virtual void Paint(gfx::Canvas* canvas);
 
     virtual gfx::Size GetPreferredSize();
     virtual gfx::Size GetMinimumSize();
@@ -204,7 +204,7 @@ class LocationBarView : public LocationBar,
     void SetKeyword(const std::wstring& keyword);
     std::wstring keyword() const { return keyword_; }
 
-    virtual void Paint(ChromeCanvas* canvas);
+    virtual void Paint(gfx::Canvas* canvas);
     virtual gfx::Size GetPreferredSize();
     // The minimum size is just big enough to show the tab.
     virtual gfx::Size GetMinimumSize();

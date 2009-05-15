@@ -52,7 +52,7 @@ class BlockedPopupContainerView : public views::View,
   // Overridden from views::View:
 
   // Paints our border and background. (Does not paint children.)
-  virtual void Paint(ChromeCanvas* canvas);
+  virtual void Paint(gfx::Canvas* canvas);
   // Sets positions of all child views.
   virtual void Layout();
   // Gets the desired size of the popup notification.

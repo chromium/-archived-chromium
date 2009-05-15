@@ -4,7 +4,7 @@
 
 #include "chrome/browser/gtk/tabs/tab_strip_gtk.h"
 
-#include "app/gfx/chrome_canvas.h"
+#include "app/gfx/canvas.h"
 #include "app/l10n_util.h"
 #include "app/resource_bundle.h"
 #include "app/slide_animation.h"
@@ -1060,7 +1060,7 @@ void TabStripGtk::OnNewTabClicked(GtkWidget* widget, TabStripGtk* tabstrip) {
 }
 
 void TabStripGtk::PaintBackground(GdkEventExpose* event) {
-  ChromeCanvasPaint canvas(event);
+  gfx::CanvasPaint canvas(event);
   canvas.TileImageInt(*background, 0, 0, bounds_.width(), bounds_.height());
 }
 

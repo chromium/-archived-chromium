@@ -5,7 +5,7 @@
 #ifndef VIEWS_CONTROLS_LABEL_H_
 #define VIEWS_CONTROLS_LABEL_H_
 
-#include "app/gfx/chrome_font.h"
+#include "app/gfx/font.h"
 #include "googleurl/src/gurl.h"
 #include "third_party/skia/include/core/SkColor.h"
 #include "testing/gtest/include/gtest/gtest_prod.h"
@@ -67,11 +67,11 @@ class Label : public View {
   virtual std::string GetClassName() const;
 
   // Overridden to paint
-  virtual void Paint(ChromeCanvas* canvas);
+  virtual void Paint(gfx::Canvas* canvas);
 
   // If the mouse is over the label, and a mouse over background has been
   // specified, its used. Otherwise super's implementation is invoked
-  virtual void PaintBackground(ChromeCanvas* canvas);
+  virtual void PaintBackground(gfx::Canvas* canvas);
 
   // Set the font.
   void SetFont(const gfx::Font& font);

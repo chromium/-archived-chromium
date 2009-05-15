@@ -4,7 +4,7 @@
 
 #include "chrome/browser/views/info_bubble.h"
 
-#include "app/gfx/chrome_canvas.h"
+#include "app/gfx/canvas.h"
 #include "app/gfx/path.h"
 #include "app/resource_bundle.h"
 #include "app/win_util.h"
@@ -338,7 +338,7 @@ HRGN InfoBubble::ContentView::GetMask(const CSize &size) {
   return mask.CreateHRGN();
 }
 
-void InfoBubble::ContentView::Paint(ChromeCanvas* canvas) {
+void InfoBubble::ContentView::Paint(gfx::Canvas* canvas) {
   int bubble_x = 0;
   int bubble_y = 0;
   int bubble_w = width();

@@ -34,7 +34,7 @@ class GlassBrowserFrameView : public BrowserNonClientFrameView {
 
  protected:
   // Overridden from views::View:
-  virtual void Paint(ChromeCanvas* canvas);
+  virtual void Paint(gfx::Canvas* canvas);
   virtual void Layout();
 
  private:
@@ -51,10 +51,10 @@ class GlassBrowserFrameView : public BrowserNonClientFrameView {
   int NonClientTopBorderHeight() const;
 
   // Paint various sub-components of this view.
-  void PaintDistributorLogo(ChromeCanvas* canvas);
-  void PaintToolbarBackground(ChromeCanvas* canvas);
-  void PaintOTRAvatar(ChromeCanvas* canvas);
-  void PaintRestoredClientEdge(ChromeCanvas* canvas);
+  void PaintDistributorLogo(gfx::Canvas* canvas);
+  void PaintToolbarBackground(gfx::Canvas* canvas);
+  void PaintOTRAvatar(gfx::Canvas* canvas);
+  void PaintRestoredClientEdge(gfx::Canvas* canvas);
 
   // Layout various sub-components of this view.
   void LayoutDistributorLogo();

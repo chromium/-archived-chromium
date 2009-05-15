@@ -7,8 +7,8 @@
 #include <commctrl.h>
 
 #include "app/drag_drop_types.h"
-#include "app/gfx/chrome_canvas.h"
-#include "app/gfx/chrome_font.h"
+#include "app/gfx/canvas.h"
+#include "app/gfx/font.h"
 #include "app/os_exchange_data.h"
 #include "app/resource_bundle.h"
 #include "base/base_drag_source.h"
@@ -420,7 +420,7 @@ void BookmarkTableView::PaintAltText() {
   HDC dc = GetDC(GetNativeControlHWND());
   gfx::Font font = GetAltTextFont();
   gfx::Rect bounds = GetAltTextBounds();
-  ChromeCanvas canvas(bounds.width(), bounds.height(), false);
+  gfx::Canvas canvas(bounds.width(), bounds.height(), false);
   // Pad by 1 for halo.
   canvas.DrawStringWithHalo(alt_text_, font, SK_ColorDKGRAY, SK_ColorWHITE, 1,
                             1, bounds.width() - 2, bounds.height() - 2,

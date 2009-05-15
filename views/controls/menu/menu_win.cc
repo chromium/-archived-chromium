@@ -12,8 +12,8 @@
 #include <atlmisc.h>
 #include <string>
 
-#include "app/gfx/chrome_canvas.h"
-#include "app/gfx/chrome_font.h"
+#include "app/gfx/canvas.h"
+#include "app/gfx/font.h"
 #include "app/l10n_util.h"
 #include "app/l10n_util_win.h"
 #include "base/gfx/rect.h"
@@ -188,7 +188,7 @@ class MenuHostWindow : public CWindowImpl<MenuHostWindow, CWindow,
       // Draw the icon after the label, otherwise it would be covered
       // by the label.
       if (data->icon.width() != 0 && data->icon.height() != 0) {
-        ChromeCanvas canvas(data->icon.width(), data->icon.height(), false);
+        gfx::Canvas canvas(data->icon.width(), data->icon.height(), false);
         canvas.drawColor(SK_ColorBLACK, SkPorterDuff::kClear_Mode);
         canvas.DrawBitmapInt(data->icon, 0, 0);
         canvas.getTopPlatformDevice().drawToHDC(hDC, lpdis->rcItem.left +

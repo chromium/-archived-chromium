@@ -8,7 +8,9 @@
 #include <objidl.h>
 #include <string>
 
-class ChromeCanvas;
+namespace gfx {
+class Canvas;
+}
 class GURL;
 class OSExchangeData;
 class SkBitmap;
@@ -33,7 +35,7 @@ void CreateDragImageForFile(const std::wstring& file_name,
 // Sets the drag image on data_object from the supplied canvas. width/height
 // are the size of the image to use, and the offsets give the location of
 // the hotspot for the drag image.
-void SetDragImageOnDataObject(const ChromeCanvas& canvas,
+void SetDragImageOnDataObject(const gfx::Canvas& canvas,
                               int width,
                               int height,
                               int cursor_x_offset,

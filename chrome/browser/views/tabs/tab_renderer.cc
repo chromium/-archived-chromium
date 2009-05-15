@@ -6,8 +6,8 @@
 
 #include <limits>
 
-#include "app/gfx/chrome_canvas.h"
-#include "app/gfx/chrome_font.h"
+#include "app/gfx/canvas.h"
+#include "app/gfx/font.h"
 #include "app/l10n_util.h"
 #include "app/resource_bundle.h"
 #include "app/win_util.h"
@@ -367,7 +367,7 @@ std::wstring TabRenderer::GetTitle() const {
 ////////////////////////////////////////////////////////////////////////////////
 // TabRenderer, views::View overrides:
 
-void TabRenderer::Paint(ChromeCanvas* canvas) {
+void TabRenderer::Paint(gfx::Canvas* canvas) {
   // Don't paint if we're narrower than we can render correctly. (This should
   // only happen during animations).
   if (width() < GetMinimumUnselectedSize().width())
@@ -555,7 +555,7 @@ void TabRenderer::AnimationEnded(const Animation* animation) {
 ////////////////////////////////////////////////////////////////////////////////
 // TabRenderer, private
 
-void TabRenderer::PaintTabBackground(ChromeCanvas* canvas) {
+void TabRenderer::PaintTabBackground(gfx::Canvas* canvas) {
   if (IsSelected()) {
     // Sometimes detaching a tab quickly can result in the model reporting it
     // as not being selected, so is_drag_clone_ ensures that we always paint
@@ -581,7 +581,7 @@ void TabRenderer::PaintTabBackground(ChromeCanvas* canvas) {
   }
 }
 
-void TabRenderer::PaintInactiveTabBackground(ChromeCanvas* canvas) {
+void TabRenderer::PaintInactiveTabBackground(gfx::Canvas* canvas) {
   bool is_otr = data_.off_the_record;
 
   // The tab image needs to be lined up with the background image
@@ -638,7 +638,7 @@ void TabRenderer::PaintInactiveTabBackground(ChromeCanvas* canvas) {
                         width() - tab_inactive.r_width, 0);
 }
 
-void TabRenderer::PaintActiveTabBackground(ChromeCanvas* canvas) {
+void TabRenderer::PaintActiveTabBackground(gfx::Canvas* canvas) {
   int offset = GetX(views::View::APPLY_MIRRORING_TRANSFORMATION) + 1;
   ThemeProvider* tp = GetThemeProvider();
   if (!tp)
@@ -674,7 +674,7 @@ void TabRenderer::PaintActiveTabBackground(ChromeCanvas* canvas) {
   canvas->DrawBitmapInt(*tab_active.image_r, width() - tab_active.r_width, 0);
 }
 
-void TabRenderer::PaintHoverTabBackground(ChromeCanvas* canvas,
+void TabRenderer::PaintHoverTabBackground(gfx::Canvas* canvas,
                                           double opacity) {
   bool is_otr = data_.off_the_record;
   SkBitmap left = skia::ImageOperations::CreateBlendedBitmap(
@@ -690,7 +690,7 @@ void TabRenderer::PaintHoverTabBackground(ChromeCanvas* canvas,
   canvas->DrawBitmapInt(right, width() - tab_active.r_width, 0);
 }
 
-void TabRenderer::PaintLoadingAnimation(ChromeCanvas* canvas) {
+void TabRenderer::PaintLoadingAnimation(gfx::Canvas* canvas) {
   SkBitmap* frames = (animation_state_ == ANIMATION_WAITING) ?
                       waiting_animation_frames : loading_animation_frames;
   int image_size = frames->height();

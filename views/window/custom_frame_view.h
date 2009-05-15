@@ -11,12 +11,12 @@
 #include "views/window/window_resources.h"
 
 namespace gfx{
+class Canvas;
 class Font;
 class Size;
 class Path;
 class Point;
 }
-class ChromeCanvas;
 
 namespace views {
 
@@ -45,7 +45,7 @@ class CustomFrameView : public NonClientFrameView,
   virtual void ResetWindowControls();
 
   // View overrides:
-  virtual void Paint(ChromeCanvas* canvas);
+  virtual void Paint(gfx::Canvas* canvas);
   virtual void Layout();
   virtual gfx::Size GetPreferredSize();
 
@@ -75,10 +75,10 @@ class CustomFrameView : public NonClientFrameView,
                        int* title_thickness) const;
 
   // Paint various sub-components of this view.
-  void PaintRestoredFrameBorder(ChromeCanvas* canvas);
-  void PaintMaximizedFrameBorder(ChromeCanvas* canvas);
-  void PaintTitleBar(ChromeCanvas* canvas);
-  void PaintRestoredClientEdge(ChromeCanvas* canvas);
+  void PaintRestoredFrameBorder(gfx::Canvas* canvas);
+  void PaintMaximizedFrameBorder(gfx::Canvas* canvas);
+  void PaintTitleBar(gfx::Canvas* canvas);
+  void PaintRestoredClientEdge(gfx::Canvas* canvas);
 
   // Layout various sub-components of this view.
   void LayoutWindowControls();

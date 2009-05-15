@@ -8,7 +8,7 @@
 #include <set>
 
 #include "app/animation.h"
-#include "app/gfx/chrome_canvas.h"
+#include "app/gfx/canvas.h"
 #include "app/resource_bundle.h"
 #include "chrome/browser/browser_window.h"
 #include "chrome/browser/extensions/extension_function_dispatcher.h"
@@ -51,7 +51,7 @@ class DockView : public views::View {
     return gfx::Size(DockInfo::popup_width(), DockInfo::popup_height());
   }
 
-  virtual void PaintBackground(ChromeCanvas* canvas) {
+  virtual void PaintBackground(gfx::Canvas* canvas) {
     SkRect outer_rect = { SkIntToScalar(0), SkIntToScalar(0),
                           SkIntToScalar(width()),
                           SkIntToScalar(height()) };
@@ -118,7 +118,7 @@ class DockView : public views::View {
   }
 
  private:
-  void DrawBitmapWithAlpha(ChromeCanvas* canvas, const SkBitmap& image,
+  void DrawBitmapWithAlpha(gfx::Canvas* canvas, const SkBitmap& image,
                            int x, int y) {
     SkPaint paint;
     paint.setAlpha(128);

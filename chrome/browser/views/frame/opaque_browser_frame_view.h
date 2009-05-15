@@ -47,7 +47,7 @@ class OpaqueBrowserFrameView : public BrowserNonClientFrameView,
   virtual void ResetWindowControls();
 
   // Overridden from views::View:
-  virtual void Paint(ChromeCanvas* canvas);
+  virtual void Paint(gfx::Canvas* canvas);
   virtual void Layout();
   virtual bool HitTest(const gfx::Point& l) const;
   virtual void ViewHierarchyChanged(bool is_add,
@@ -101,13 +101,13 @@ class OpaqueBrowserFrameView : public BrowserNonClientFrameView,
   // Paint various sub-components of this view.  The *FrameBorder() functions
   // also paint the background of the titlebar area, since the top frame border
   // and titlebar background are a contiguous component.
-  void PaintRestoredFrameBorder(ChromeCanvas* canvas);
-  void PaintMaximizedFrameBorder(ChromeCanvas* canvas);
-  void PaintDistributorLogo(ChromeCanvas* canvas);
-  void PaintTitleBar(ChromeCanvas* canvas);
-  void PaintToolbarBackground(ChromeCanvas* canvas);
-  void PaintOTRAvatar(ChromeCanvas* canvas);
-  void PaintRestoredClientEdge(ChromeCanvas* canvas);
+  void PaintRestoredFrameBorder(gfx::Canvas* canvas);
+  void PaintMaximizedFrameBorder(gfx::Canvas* canvas);
+  void PaintDistributorLogo(gfx::Canvas* canvas);
+  void PaintTitleBar(gfx::Canvas* canvas);
+  void PaintToolbarBackground(gfx::Canvas* canvas);
+  void PaintOTRAvatar(gfx::Canvas* canvas);
+  void PaintRestoredClientEdge(gfx::Canvas* canvas);
 
   // Layout various sub-components of this view.
   void LayoutWindowControls();

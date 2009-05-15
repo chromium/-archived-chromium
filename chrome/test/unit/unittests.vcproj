@@ -508,15 +508,15 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\browser\encoding_menu_controller_unittest.cc"
+				>
+			</File>
+			<File
 				RelativePath="..\..\browser\password_manager\encryptor_unittest.cc"
 				>
 			</File>
 			<File
 				RelativePath="..\..\browser\history\expire_history_backend_unittest.cc"
-				>
-			</File>
-			<File
-				RelativePath="..\..\browser\encoding_menu_controller_unittest.cc"
 				>
 			</File>
 			<File
@@ -1112,7 +1112,7 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\app\gfx\chrome_font_unittest.cc"
+				RelativePath="..\..\..\app\gfx\font_unittest.cc"
 				>
 			</File>
 			<File

@@ -18,7 +18,7 @@
 
 #include <string>
 
-#include "app/gfx/chrome_font.h"
+#include "app/gfx/font.h"
 #include "app/slide_animation.h"
 #include "base/basictypes.h"
 #include "base/scoped_ptr.h"
@@ -55,7 +55,7 @@ class DownloadItemView : public views::ButtonListener,
 
   // View overrides
   virtual void Layout();
-  virtual void Paint(ChromeCanvas* canvas);
+  virtual void Paint(gfx::Canvas* canvas);
   virtual gfx::Size GetPreferredSize();
   virtual void OnMouseExited(const views::MouseEvent& event);
   virtual void OnMouseMoved(const views::MouseEvent& event);
@@ -111,7 +111,7 @@ class DownloadItemView : public views::ButtonListener,
 
   // Convenience method to paint the 3 vertical bitmaps (bottom, middle, top)
   // that form the background.
-  void PaintBitmaps(ChromeCanvas* canvas,
+  void PaintBitmaps(gfx::Canvas* canvas,
                     const SkBitmap* top_bitmap,
                     const SkBitmap* center_bitmap,
                     const SkBitmap* bottom_bitmap,

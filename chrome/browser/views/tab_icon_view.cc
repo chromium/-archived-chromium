@@ -7,7 +7,7 @@
 #include <windows.h>
 #include <shellapi.h>
 
-#include "app/gfx/chrome_canvas.h"
+#include "app/gfx/canvas.h"
 #include "app/gfx/favicon_size.h"
 #include "app/gfx/icon_util.h"
 #include "app/resource_bundle.h"
@@ -83,17 +83,17 @@ void TabIconView::Update() {
   }
 }
 
-void TabIconView::PaintThrobber(ChromeCanvas* canvas) {
+void TabIconView::PaintThrobber(gfx::Canvas* canvas) {
   int image_size = g_throbber_frames->height();
   PaintIcon(canvas, is_light_ ? *g_throbber_frames_light : *g_throbber_frames,
             throbber_frame_ * image_size, 0, image_size, image_size, false);
 }
 
-void TabIconView::PaintFavIcon(ChromeCanvas* canvas, const SkBitmap& bitmap) {
+void TabIconView::PaintFavIcon(gfx::Canvas* canvas, const SkBitmap& bitmap) {
   PaintIcon(canvas, bitmap, 0, 0, bitmap.width(), bitmap.height(), true);
 }
 
-void TabIconView::PaintIcon(ChromeCanvas* canvas,
+void TabIconView::PaintIcon(gfx::Canvas* canvas,
                             const SkBitmap& bitmap,
                             int src_x,
                             int src_y,
@@ -125,7 +125,7 @@ void TabIconView::PaintIcon(ChromeCanvas* canvas,
                         dest_h, filter);
 }
 
-void TabIconView::Paint(ChromeCanvas* canvas) {
+void TabIconView::Paint(gfx::Canvas* canvas) {
   bool rendered = false;
 
   if (throbber_running_) {

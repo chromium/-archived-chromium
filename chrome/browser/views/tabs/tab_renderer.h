@@ -92,7 +92,7 @@ class TabRenderer : public views::View,
 
  private:
   // Overridden from views::View:
-  virtual void Paint(ChromeCanvas* canvas);
+  virtual void Paint(gfx::Canvas* canvas);
   virtual void Layout();
   virtual void OnMouseEntered(const views::MouseEvent& event);
   virtual void OnMouseExited(const views::MouseEvent& event);
@@ -117,11 +117,11 @@ class TabRenderer : public views::View,
   void ResetCrashedFavIcon();
 
   // Paint various portions of the Tab
-  void PaintTabBackground(ChromeCanvas* canvas);
-  void PaintInactiveTabBackground(ChromeCanvas* canvas);
-  void PaintActiveTabBackground(ChromeCanvas* canvas);
-  void PaintHoverTabBackground(ChromeCanvas* canvas, double opacity);
-  void PaintLoadingAnimation(ChromeCanvas* canvas);
+  void PaintTabBackground(gfx::Canvas* canvas);
+  void PaintInactiveTabBackground(gfx::Canvas* canvas);
+  void PaintActiveTabBackground(gfx::Canvas* canvas);
+  void PaintHoverTabBackground(gfx::Canvas* canvas, double opacity);
+  void PaintLoadingAnimation(gfx::Canvas* canvas);
 
   // Returns the number of favicon-size elements that can fit in the tab's
   // current size.

@@ -12,7 +12,7 @@
 
 #include <math.h>
 
-#include "app/gfx/chrome_canvas.h"
+#include "app/gfx/canvas.h"
 #include "app/gfx/path.h"
 #include "app/l10n_util.h"
 #include "app/resource_bundle.h"
@@ -125,7 +125,7 @@ void BlockedPopupContainerView::UpdateLabel() {
   SchedulePaint();
 }
 
-void BlockedPopupContainerView::Paint(ChromeCanvas* canvas) {
+void BlockedPopupContainerView::Paint(gfx::Canvas* canvas) {
   // Draw the standard background.
   View::Paint(canvas);
 

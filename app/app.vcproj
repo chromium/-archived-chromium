@@ -125,23 +125,15 @@
 			Name="gfx"
 			>
 			<File
-				RelativePath=".\gfx\chrome_canvas.cc"
+				RelativePath=".\gfx\canvas.cc"
 				>
 			</File>
 			<File
-				RelativePath=".\gfx\chrome_canvas.h"
+				RelativePath=".\gfx\canvas.h"
 				>
 			</File>
 			<File
-				RelativePath=".\gfx\chrome_canvas_win.cc"
-				>
-			</File>
-			<File
-				RelativePath=".\gfx\chrome_font.h"
-				>
-			</File>
-			<File
-				RelativePath=".\gfx\chrome_font_win.cc"
+				RelativePath=".\gfx\canvas_win.cc"
 				>
 			</File>
 			<File
@@ -154,6 +146,14 @@
 			</File>
 			<File
 				RelativePath=".\gfx\favicon_size.h"
+				>
+			</File>
+			<File
+				RelativePath=".\gfx\font.h"
+				>
+			</File>
+			<File
+				RelativePath=".\gfx\font_win.cc"
 				>
 			</File>
 			<File

@@ -8,7 +8,7 @@
 #include <atlapp.h>
 #include <atltheme.h>
 
-#include "app/gfx/chrome_canvas.h"
+#include "app/gfx/canvas.h"
 #include "base/logging.h"
 #include "skia/ext/bitmap_platform_device_win.h"
 #include "SkGradientShader.h"
@@ -23,7 +23,7 @@ void GetRebarGradientColors(int width, int x1, int x2,
   // those so calling code can use them to create gradient brushes for use in
   // rendering in other directions.
 
-  ChromeCanvas canvas(width, 1, true);
+  gfx::Canvas canvas(width, 1, true);
 
   // Render the Rebar gradient into the DIB
   CTheme theme;

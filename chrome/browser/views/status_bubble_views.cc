@@ -6,7 +6,7 @@
 
 #include <algorithm>
 
-#include "app/gfx/chrome_canvas.h"
+#include "app/gfx/canvas.h"
 #include "app/gfx/text_elider.h"
 #include "app/l10n_util.h"
 #include "app/l10n_util_win.h"
@@ -142,7 +142,7 @@ class StatusBubbleViews::StatusView : public views::Label,
   void AnimateToState(double state);
   void AnimationEnded(const Animation* animation);
 
-  virtual void Paint(ChromeCanvas* canvas);
+  virtual void Paint(gfx::Canvas* canvas);
 
   BubbleStage stage_;
   BubbleStyle style_;
@@ -318,7 +318,7 @@ void StatusBubbleViews::StatusView::SetStyle(BubbleStyle style) {
   }
 }
 
-void StatusBubbleViews::StatusView::Paint(ChromeCanvas* canvas) {
+void StatusBubbleViews::StatusView::Paint(gfx::Canvas* canvas) {
   SkPaint paint;
   paint.setStyle(SkPaint::kFill_Style);
   paint.setFlags(SkPaint::kAntiAlias_Flag);

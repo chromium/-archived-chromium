@@ -4,7 +4,7 @@
 
 #include "views/controls/single_split_view.h"
 
-#include "app/gfx/chrome_canvas.h"
+#include "app/gfx/canvas.h"
 #include "skia/ext/skia_utils_win.h"
 #include "views/background.h"
 

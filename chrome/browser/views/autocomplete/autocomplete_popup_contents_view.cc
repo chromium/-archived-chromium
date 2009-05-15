@@ -8,7 +8,7 @@
 #include <commctrl.h>
 #include <dwmapi.h>
 
-#include "app/gfx/chrome_canvas.h"
+#include "app/gfx/canvas.h"
 #include "app/gfx/color_utils.h"
 #include "app/gfx/insets.h"
 #include "app/gfx/path.h"
@@ -71,7 +71,7 @@ class AutocompleteResultView : public views::View {
   virtual ~AutocompleteResultView();
 
   // Overridden from views::View:
-  virtual void Paint(ChromeCanvas* canvas);
+  virtual void Paint(gfx::Canvas* canvas);
   virtual void Layout();
   virtual gfx::Size GetPreferredSize();
   virtual void OnMouseEntered(const views::MouseEvent& event);
@@ -92,16 +92,16 @@ class AutocompleteResultView : public views::View {
   // |classifications|. If |force_dim| is true, ACMatchClassification::DIM is
   // added to all of the classifications. Returns the x position to the right
   // of the string.
-  int DrawString(ChromeCanvas* canvas,
-                  const std::wstring& text,
-                  const ACMatchClassifications& classifications,
-                  bool force_dim,
-                  int x,
-                  int y);
+  int DrawString(gfx::Canvas* canvas,
+                 const std::wstring& text,
+                 const ACMatchClassifications& classifications,
+                 bool force_dim,
+                 int x,
+                 int y);
 
   // Draws an individual sub-fragment with the specified style. Returns the x
   // position to the right of the fragment.
-  int DrawStringFragment(ChromeCanvas* canvas,
+  int DrawStringFragment(gfx::Canvas* canvas,
                          const std::wstring& text,
                          int style,
                          int x,
@@ -284,7 +284,7 @@ AutocompleteResultView::AutocompleteResultView(
 AutocompleteResultView::~AutocompleteResultView() {
 }
 
-void AutocompleteResultView::Paint(ChromeCanvas* canvas) {
+void AutocompleteResultView::Paint(gfx::Canvas* canvas) {
   canvas->FillRectInt(GetBackgroundColor(), 0, 0, width(), height());
 
   int x = MirroredLeftPointForRect(icon_bounds_);
@@ -421,7 +421,7 @@ SkBitmap* AutocompleteResultView::GetIcon() const {
 }
 
 int AutocompleteResultView::DrawString(
-    ChromeCanvas* canvas,
+    gfx::Canvas* canvas,
     const std::wstring& text,
     const ACMatchClassifications& classifications,
     bool force_dim,
@@ -494,7 +494,7 @@ int AutocompleteResultView::DrawString(
 }
 
 int AutocompleteResultView::DrawStringFragment(
-    ChromeCanvas* canvas,
+    gfx::Canvas* canvas,
     const std::wstring& text,
     int style,
     int x,
@@ -563,7 +563,7 @@ class PopupBorder : public views::Border {
   }
 
   // Overridden from views::Border:
-  virtual void Paint(const views::View& view, ChromeCanvas* canvas) const;
+  virtual void Paint(const views::View& view, gfx::Canvas* canvas) const;
   virtual void GetInsets(gfx::Insets* insets) const;
 
  private:
@@ -592,7 +592,7 @@ SkBitmap* PopupBorder::dropshadow_bottomright_ = NULL;
 SkBitmap* PopupBorder::dropshadow_bottom_ = NULL;
 SkBitmap* PopupBorder::dropshadow_bottomleft_ = NULL;
 
-void PopupBorder::Paint(const views::View& view, ChromeCanvas* canvas) const {
+void PopupBorder::Paint(const views::View& view, gfx::Canvas* canvas) const {
   int ds_tl_width = dropshadow_topleft_->width();
   int ds_tl_height = dropshadow_topleft_->height();
   int ds_tr_width = dropshadow_topright_->width();
@@ -767,7 +767,7 @@ void AutocompletePopupContentsView::SetSelectedLine(size_t index,
 ////////////////////////////////////////////////////////////////////////////////
 // AutocompletePopupContentsView, views::View overrides:
 
-void AutocompletePopupContentsView::PaintChildren(ChromeCanvas* canvas) {
+void AutocompletePopupContentsView::PaintChildren(gfx::Canvas* canvas) {
   // We paint our children in an unconventional way.
   //
   // Because the border of this view creates an anti-aliased round-rect region
@@ -778,7 +778,7 @@ void AutocompletePopupContentsView::PaintChildren(ChromeCanvas* canvas) {
   // Instead, we paint all our children into a second canvas and use that as a
   // shader to fill a path representing the round-rect clipping region. This
   // yields a nice anti-aliased edge.
-  ChromeCanvas contents_canvas(width(), height(), true);
+  gfx::Canvas contents_canvas(width(), height(), true);
   contents_canvas.FillRectInt(kBackgroundColor, 0, 0, width(), height());
   View::PaintChildren(&contents_canvas);
   // We want the contents background to be slightly transparent so we can see
@@ -865,7 +865,7 @@ void AutocompletePopupContentsView::UpdateBlurRegion() {
 }
 
 void AutocompletePopupContentsView::MakeCanvasTransparent(
-    ChromeCanvas* canvas) {
+    gfx::Canvas* canvas) {
   // Allow the window blur effect to show through the popup background.
   SkPaint paint;
   SkColor transparency = win_util::ShouldUseVistaFrame() ?

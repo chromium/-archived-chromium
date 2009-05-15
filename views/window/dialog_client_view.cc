@@ -8,8 +8,8 @@
 #include <uxtheme.h>
 #include <vsstyle.h>
 
-#include "app/gfx/chrome_canvas.h"
-#include "app/gfx/chrome_font.h"
+#include "app/gfx/canvas.h"
+#include "app/gfx/font.h"
 #include "app/l10n_util.h"
 #include "app/resource_bundle.h"
 #include "base/gfx/native_theme.h"
@@ -34,7 +34,7 @@ void UpdateButtonHelper(NativeButton* button_view,
   button_view->SetVisible(delegate->IsDialogButtonVisible(button));
 }
 
-void FillViewWithSysColor(ChromeCanvas* canvas, View* view, COLORREF color) {
+void FillViewWithSysColor(gfx::Canvas* canvas, View* view, COLORREF color) {
   SkColor sk_color =
       SkColorSetRGB(GetRValue(color), GetGValue(color), GetBValue(color));
   canvas->FillRectInt(sk_color, 0, 0, view->width(), view->height());
@@ -250,11 +250,11 @@ int DialogClientView::NonClientHitTest(const gfx::Point& point) {
 ////////////////////////////////////////////////////////////////////////////////
 // DialogClientView, View overrides:
 
-void DialogClientView::Paint(ChromeCanvas* canvas) {
+void DialogClientView::Paint(gfx::Canvas* canvas) {
   FillViewWithSysColor(canvas, this, GetSysColor(COLOR_3DFACE));
 }
 
-void DialogClientView::PaintChildren(ChromeCanvas* canvas) {
+void DialogClientView::PaintChildren(gfx::Canvas* canvas) {
   View::PaintChildren(canvas);
   if (!window()->IsMaximized() && !window()->IsMinimized())
     PaintSizeBox(canvas);
@@ -347,7 +347,7 @@ void DialogClientView::ButtonPressed(Button* sender) {
 ////////////////////////////////////////////////////////////////////////////////
 // DialogClientView, private:
 
-void DialogClientView::PaintSizeBox(ChromeCanvas* canvas) {
+void DialogClientView::PaintSizeBox(gfx::Canvas* canvas) {
   if (window()->GetDelegate()->CanResize() ||
       window()->GetDelegate()->CanMaximize()) {
     HDC dc = canvas->beginPlatformPaint();

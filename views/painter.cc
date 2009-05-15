@@ -4,7 +4,7 @@
 
 #include "views/painter.h"
 
-#include "app/gfx/chrome_canvas.h"
+#include "app/gfx/canvas.h"
 #include "app/resource_bundle.h"
 #include "base/logging.h"
 #include "third_party/skia/include/core/SkBitmap.h"
@@ -25,7 +25,7 @@ class GradientPainter : public Painter {
   virtual ~GradientPainter() {
   }
 
-  void Paint(int w, int h, ChromeCanvas* canvas) {
+  void Paint(int w, int h, gfx::Canvas* canvas) {
     SkPaint paint;
     SkPoint p[2];
     p[0].set(SkIntToScalar(0), SkIntToScalar(0));
@@ -58,7 +58,7 @@ class GradientPainter : public Painter {
 
 // static
 void Painter::PaintPainterAt(int x, int y, int w, int h,
-                             ChromeCanvas* canvas, Painter* painter) {
+                             gfx::Canvas* canvas, Painter* painter) {
   DCHECK(canvas && painter);
   if (w < 0 || h < 0)
     return;
@@ -77,7 +77,7 @@ ImagePainter::ImagePainter(const int image_resource_names[],
     images_.push_back(rb.GetBitmapNamed(image_resource_names[i]));
 }
 
-void ImagePainter::Paint(int w, int h, ChromeCanvas* canvas) {
+void ImagePainter::Paint(int w, int h, gfx::Canvas* canvas) {
   canvas->DrawBitmapInt(*images_[BORDER_TOP_LEFT], 0, 0);
   canvas->TileImageInt(*images_[BORDER_TOP],
                        images_[BORDER_TOP_LEFT]->width(),
@@ -147,7 +147,7 @@ HorizontalPainter::HorizontalPainter(const int image_resource_names[]) {
          images_[LEFT]->height() == images_[CENTER]->height());
 }
 
-void HorizontalPainter::Paint(int w, int h, ChromeCanvas* canvas) {
+void HorizontalPainter::Paint(int w, int h, gfx::Canvas* canvas) {
   if (w < (images_[LEFT]->width() + images_[CENTER]->width() +
             images_[RIGHT]->width())) {
     // No room to paint.

@@ -5,7 +5,7 @@
 #include "views/widget/root_view.h"
 
 #include "app/drag_drop_types.h"
-#include "app/gfx/chrome_canvas.h"
+#include "app/gfx/canvas.h"
 #include "base/base_drag_source.h"
 #include "base/logging.h"
 #include "views/widget/root_view_drop_target.h"
@@ -40,7 +40,7 @@ void RootView::OnPaint(HWND hwnd) {
     RECT win_version = original_dirty_region.ToRECT();
     InvalidateRect(hwnd, &win_version, FALSE);
   }
-  ChromeCanvasPaint canvas(hwnd);
+  gfx::CanvasPaint canvas(hwnd);
   if (!canvas.isEmpty()) {
     const PAINTSTRUCT& ps = canvas.paintStruct();
     SchedulePaint(gfx::Rect(ps.rcPaint), false);

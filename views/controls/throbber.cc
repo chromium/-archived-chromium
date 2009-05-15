@@ -4,7 +4,7 @@
 
 #include "views/controls/throbber.h"
 
-#include "app/gfx/chrome_canvas.h"
+#include "app/gfx/canvas.h"
 #include "app/resource_bundle.h"
 #include "base/time.h"
 #include "grit/theme_resources.h"
@@ -66,7 +66,7 @@ gfx::Size Throbber::GetPreferredSize() {
   return gfx::Size(frames_->height(), frames_->height());
 }
 
-void Throbber::Paint(ChromeCanvas* canvas) {
+void Throbber::Paint(gfx::Canvas* canvas) {
   if (!running_ && !paint_while_stopped_)
     return;
 
@@ -140,7 +140,7 @@ void CheckmarkThrobber::SetChecked(bool checked) {
   }
 }
 
-void CheckmarkThrobber::Paint(ChromeCanvas* canvas) {
+void CheckmarkThrobber::Paint(gfx::Canvas* canvas) {
   if (running_) {
     // Let the throbber throb...
     Throbber::Paint(canvas);

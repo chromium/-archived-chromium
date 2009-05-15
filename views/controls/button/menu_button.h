@@ -7,7 +7,7 @@
 
 #include <windows.h>
 
-#include "app/gfx/chrome_font.h"
+#include "app/gfx/font.h"
 #include "base/time.h"
 #include "views/background.h"
 #include "views/controls/button/text_button.h"
@@ -44,7 +44,7 @@ class MenuButton : public TextButton {
 
   // Overridden to take into account the potential use of a drop marker.
   virtual gfx::Size GetPreferredSize();
-  virtual void Paint(ChromeCanvas* canvas, bool for_drag);
+  virtual void Paint(gfx::Canvas* canvas, bool for_drag);
 
   // These methods are overriden to implement a simple push button
   // behavior

@@ -76,7 +76,7 @@ class BookmarkManagerView : public views::View,
   // Returns the selection of the table.
   std::vector<BookmarkNode*> GetSelectedTableNodes();
 
-  virtual void PaintBackground(ChromeCanvas* canvas);
+  virtual void PaintBackground(gfx::Canvas* canvas);
 
   virtual gfx::Size GetPreferredSize();
 

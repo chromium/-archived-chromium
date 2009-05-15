@@ -96,8 +96,8 @@ class BookmarkBarView : public views::View,
   virtual void DidChangeBounds(const gfx::Rect& previous,
                                const gfx::Rect& current);
   virtual void ViewHierarchyChanged(bool is_add, View* parent, View* child);
-  virtual void Paint(ChromeCanvas* canvas);
-  virtual void PaintChildren(ChromeCanvas* canvas);
+  virtual void Paint(gfx::Canvas* canvas);
+  virtual void PaintChildren(gfx::Canvas* canvas);
   virtual bool CanDrop(const OSExchangeData& data);
   virtual void OnDragEntered(const views::DropTargetEvent& event);
   virtual int OnDragUpdated(const views::DropTargetEvent& event);

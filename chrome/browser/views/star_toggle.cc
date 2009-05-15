@@ -4,7 +4,7 @@
 
 #include "chrome/browser/views/star_toggle.h"
 
-#include "app/gfx/chrome_canvas.h"
+#include "app/gfx/canvas.h"
 #include "app/resource_bundle.h"
 #include "chrome/app/chrome_dll_resource.h"
 #include "grit/theme_resources.h"
@@ -33,7 +33,7 @@ bool StarToggle::GetState() const {
   return state_;
 }
 
-void StarToggle::Paint(ChromeCanvas* canvas) {
+void StarToggle::Paint(gfx::Canvas* canvas) {
   PaintFocusBorder(canvas);
   canvas->DrawBitmapInt(state_ ? *state_on_ : *state_off_,
                         (width() - state_off_->width()) / 2,

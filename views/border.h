@@ -9,7 +9,9 @@
 #include "third_party/skia/include/core/SkColor.h"
 #include "views/view.h"
 
-class ChromeCanvas;
+namespace gfx{
+class Canvas;
+}
 
 namespace views {
 
@@ -45,7 +47,7 @@ class Border {
   static Border* CreateEmptyBorder(int top, int left, int bottom, int right);
 
   // Renders the border for the specified view.
-  virtual void Paint(const View& view, ChromeCanvas* canvas) const = 0;
+  virtual void Paint(const View& view, gfx::Canvas* canvas) const = 0;
 
   // Sets the specified insets to the the border insets.
   virtual void GetInsets(gfx::Insets* insets) const = 0;

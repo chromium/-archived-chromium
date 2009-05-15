@@ -41,7 +41,7 @@ class Checkbox : public NativeButton {
   // Overridden from View:
   virtual gfx::Size GetPreferredSize();
   virtual void Layout();
-  virtual void PaintFocusBorder(ChromeCanvas* canvas);
+  virtual void PaintFocusBorder(gfx::Canvas* canvas);
   virtual View* GetViewForPoint(const gfx::Point& point);
   virtual View* GetViewForPoint(const gfx::Point& point,
                                 bool can_create_floating);

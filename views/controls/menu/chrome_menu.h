@@ -9,7 +9,7 @@
 #include <vector>
 
 #include "app/drag_drop_types.h"
-#include "app/gfx/chrome_font.h"
+#include "app/gfx/font.h"
 #include "base/gfx/point.h"
 #include "base/gfx/rect.h"
 #include "base/message_loop.h"
@@ -352,7 +352,7 @@ class MenuItemView : public View {
   int GetCommand() const { return command_; }
 
   // Paints the menu item.
-  virtual void Paint(ChromeCanvas* canvas);
+  virtual void Paint(gfx::Canvas* canvas);
 
   // Returns the preferred size of this item.
   virtual gfx::Size GetPreferredSize();
@@ -421,7 +421,7 @@ class MenuItemView : public View {
 
   // Actual paint implementation. If for_drag is true, portions of the menu
   // are not rendered.
-  void Paint(ChromeCanvas* canvas, bool for_drag);
+  void Paint(gfx::Canvas* canvas, bool for_drag);
 
   // Destroys the window used to display this menu and recursively destroys
   // the windows used to display all descendants.
@@ -517,7 +517,7 @@ class SubmenuView : public View {
                                const gfx::Rect& current);
 
   // Painting.
-  void PaintChildren(ChromeCanvas* canvas);
+  void PaintChildren(gfx::Canvas* canvas);
 
   // Drag and drop methods. These are forwarded to the MenuController.
   virtual bool CanDrop(const OSExchangeData& data);
@@ -578,7 +578,7 @@ class SubmenuView : public View {
  private:
   // Paints the drop indicator. This is only invoked if item is non-NULL and
   // position is not DROP_NONE.
-  void PaintDropIndicator(ChromeCanvas* canvas,
+  void PaintDropIndicator(gfx::Canvas* canvas,
                           MenuItemView* item,
                           MenuDelegate::DropPosition position);
 

@@ -11,8 +11,8 @@
 #include <atlmisc.h>
 #include <cmath>
 
-#include "app/gfx/chrome_canvas.h"
-#include "app/gfx/chrome_font.h"
+#include "app/gfx/canvas.h"
+#include "app/gfx/font.h"
 #include "app/l10n_util.h"
 #include "app/resource_bundle.h"
 #include "base/command_line.h"
@@ -670,7 +670,7 @@ void AutocompletePopupViewWin::DrawEntry(HDC dc,
 }
 
 void AutocompletePopupViewWin::DrawStar(HDC dc, int x, int y) const {
-  ChromeCanvas canvas(star_->width(), star_->height(), false);
+  gfx::Canvas canvas(star_->width(), star_->height(), false);
   // Make the background completely transparent.
   canvas.drawColor(SK_ColorBLACK, SkPorterDuff::kClear_Mode);
   canvas.DrawBitmapInt(*star_, 0, 0);

@@ -6,7 +6,7 @@
 
 #include <windows.h>
 
-#include "app/gfx/chrome_canvas.h"
+#include "app/gfx/canvas.h"
 #include "app/os_exchange_data.h"
 #include "chrome/browser/bookmarks/bookmark_drag_data.h"
 #include "chrome/browser/browser.h"  // TODO(beng): this dependency is awful.
@@ -443,7 +443,7 @@ void TabContentsViewWin::OnPaint(HDC junk_dc) {
     CRect cr;
     GetClientRect(&cr);
     sad_tab_->SetBounds(gfx::Rect(cr));
-    ChromeCanvasPaint canvas(GetNativeView(), true);
+    gfx::CanvasPaint canvas(GetNativeView(), true);
     sad_tab_->ProcessPaint(&canvas);
     return;
   }

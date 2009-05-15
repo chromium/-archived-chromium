@@ -6,7 +6,7 @@
 
 #include <gtk/gtk.h>
 
-#include "app/gfx/chrome_canvas.h"
+#include "app/gfx/canvas.h"
 #include "base/logging.h"
 #include "third_party/skia/include/core/SkColor.h"
 
@@ -17,7 +17,7 @@ void RootView::UpdateCursor(const MouseEvent& e) {
 }
 
 void RootView::OnPaint(GdkEventExpose* event) {
-  ChromeCanvasPaint canvas(event);
+  gfx::CanvasPaint canvas(event);
 
   if (!canvas.isEmpty()) {
     SchedulePaint(gfx::Rect(canvas.rectangle()), false);

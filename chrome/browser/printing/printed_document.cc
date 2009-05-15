@@ -6,7 +6,7 @@
 
 #include <set>
 
-#include "app/gfx/chrome_font.h"
+#include "app/gfx/font.h"
 #include "app/gfx/text_elider.h"
 #include "app/win_util.h"
 #include "base/message_loop.h"

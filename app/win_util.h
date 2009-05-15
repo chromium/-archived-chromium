@@ -10,7 +10,7 @@
 #include <string>
 #include <vector>
 
-#include "app/gfx/chrome_font.h"
+#include "app/gfx/font.h"
 #include "base/fix_wp64.h"
 #include "base/gfx/rect.h"
 #include "base/scoped_handle.h"

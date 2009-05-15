@@ -188,12 +188,12 @@ void WrapPathWithLTRFormatting(const FilePath& path,
                                string16* rtl_safe_path);
 
 // Returns the default text alignment to be used when drawing text on a
-// ChromeCanvas based on the directionality of the system locale language. This
-// function is used by ChromeCanvas::DrawStringInt when the text alignment is
+// gfx::Canvas based on the directionality of the system locale language. This
+// function is used by gfx::Canvas::DrawStringInt when the text alignment is
 // not specified.
 //
-// This function returns either ChromeCanvas::TEXT_ALIGN_LEFT or
-// ChromeCanvas::TEXT_ALIGN_RIGHT.
+// This function returns either gfx::Canvas::TEXT_ALIGN_LEFT or
+// gfx::Canvas::TEXT_ALIGN_RIGHT.
 int DefaultCanvasTextAlignment();
 
 // Compares the two strings using the specified collator.

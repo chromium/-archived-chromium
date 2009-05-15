@@ -8,7 +8,7 @@
 #include <atlapp.h>
 #include <atlmisc.h>
 
-#include "app/gfx/chrome_canvas.h"
+#include "app/gfx/canvas.h"
 #include "app/gfx/icon_util.h"
 #include "app/l10n_util.h"
 #include "app/l10n_util_win.h"
@@ -684,13 +684,13 @@ LRESULT CALLBACK TreeView::TreeWndProc(HWND window,
       return 1;
 
     case WM_PAINT: {
-      ChromeCanvasPaint canvas(window);
+      gfx::CanvasPaint canvas(window);
       if (canvas.isEmpty())
         return 0;
 
       HDC dc = canvas.beginPlatformPaint();
       if (l10n_util::GetTextDirection() == l10n_util::RIGHT_TO_LEFT) {
-        // ChromeCanvas ends up configuring the DC with a mode of GM_ADVANCED.
+        // gfx::Canvas ends up configuring the DC with a mode of GM_ADVANCED.
         // For some reason a graphics mode of ADVANCED triggers all the text
         // to be mirrored when RTL. Set the mode back to COMPATIBLE and
         // explicitly set the layout. Additionally SetWorldTransform and

@@ -6,7 +6,7 @@
 
 #include <locale>
 
-#include "app/gfx/chrome_canvas.h"
+#include "app/gfx/canvas.h"
 #include "app/l10n_util.h"
 #include "app/l10n_util_win.h"
 #include "app/os_exchange_data.h"
@@ -2009,7 +2009,7 @@ void AutocompleteEditViewWin::DrawSlashForInsecureScheme(
   // Create a canvas as large as |scheme_rect| to do our drawing, and initialize
   // it to fully transparent so any antialiasing will look nice when painted
   // atop the edit.
-  ChromeCanvas canvas(scheme_rect.Width(), scheme_rect.Height(), false);
+  gfx::Canvas canvas(scheme_rect.Width(), scheme_rect.Height(), false);
   // TODO (jcampan): This const_cast should not be necessary once the SKIA
   // API has been changed to return a non-const bitmap.
   (const_cast<SkBitmap&>(canvas.getDevice()->accessBitmap(true))).

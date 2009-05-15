@@ -5,7 +5,7 @@
 #ifndef CHROME_BROWSER_VIEWS_AUTOCOMPLETE_AUTOCOMPLETE_POPUP_CONTENTS_VIEW_H_
 #define CHROME_BROWSER_VIEWS_AUTOCOMPLETE_AUTOCOMPLETE_POPUP_CONTENTS_VIEW_H_
 
-#include "app/gfx/chrome_font.h"
+#include "app/gfx/font.h"
 #include "chrome/browser/autocomplete/autocomplete.h"
 #include "chrome/browser/autocomplete/autocomplete_popup_model.h"
 #include "chrome/browser/autocomplete/autocomplete_popup_view.h"
@@ -77,7 +77,7 @@ class AutocompletePopupContentsView : public views::View,
   virtual void SetSelectedLine(size_t index, bool revert_to_default);
 
   // Overridden from views::View:
-  virtual void PaintChildren(ChromeCanvas* canvas);
+  virtual void PaintChildren(gfx::Canvas* canvas);
   virtual void Layout();
 
  private:
@@ -89,7 +89,7 @@ class AutocompletePopupContentsView : public views::View,
   void UpdateBlurRegion();
 
   // Makes the contents of the canvas slightly transparent.
-  void MakeCanvasTransparent(ChromeCanvas* canvas);
+  void MakeCanvasTransparent(gfx::Canvas* canvas);
 
   // The popup that contains this view.
   AutocompletePopupWin* popup_;

@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CHROME_COMMON_GFX_CHROME_PATH_H_
-#define CHROME_COMMON_GFX_CHROME_PATH_H_
+#ifndef APP_GFX_PATH_H_
+#define APP_GFX_PATH_H_
 
 #include "base/basictypes.h"
 
@@ -37,4 +37,4 @@ class Path : public SkPath {
 
 }
 
-#endif  // #ifndef CHROME_COMMON_GFX_CHROME_PATH_H_
+#endif  // #ifndef APP_GFX_PATH_H_

@@ -5,7 +5,7 @@
 #ifndef VIEWS_CONTROLS_BUTTON_NATIVE_BUTTON_H_
 #define VIEWS_CONTROLS_BUTTON_NATIVE_BUTTON_H_
 
-#include "app/gfx/chrome_font.h"
+#include "app/gfx/font.h"
 #include "views/controls/button/button.h"
 #include "views/controls/button/native_button_wrapper.h"
 

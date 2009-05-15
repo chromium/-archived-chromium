@@ -5,7 +5,7 @@
 #include "views/controls/button/menu_button.h"
 
 #include "app/drag_drop_types.h"
-#include "app/gfx/chrome_canvas.h"
+#include "app/gfx/canvas.h"
 #include "app/l10n_util.h"
 #include "app/resource_bundle.h"
 #include "app/win_util.h"
@@ -75,7 +75,7 @@ gfx::Size MenuButton::GetPreferredSize() {
   return prefsize;
 }
 
-void MenuButton::Paint(ChromeCanvas* canvas, bool for_drag) {
+void MenuButton::Paint(gfx::Canvas* canvas, bool for_drag) {
   TextButton::Paint(canvas, for_drag);
 
   if (show_menu_marker_) {

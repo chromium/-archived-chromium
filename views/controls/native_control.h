@@ -43,7 +43,7 @@ class NativeControl : public View {
   virtual void SetEnabled(bool enabled);
 
   // Overridden to do nothing.
-  virtual void Paint(ChromeCanvas* canvas);
+  virtual void Paint(gfx::Canvas* canvas);
  protected:
   friend class NativeControlContainer;
 

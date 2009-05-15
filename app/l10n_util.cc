@@ -7,7 +7,7 @@
 #include "app/l10n_util.h"
 
 #include "app/app_switches.h"
-#include "app/gfx/chrome_canvas.h"
+#include "app/gfx/canvas.h"
 #include "app/resource_bundle.h"
 #include "base/command_line.h"
 #include "base/file_util.h"
@@ -611,9 +611,9 @@ void WrapPathWithLTRFormatting(const FilePath& path,
 
 int DefaultCanvasTextAlignment() {
   if (GetTextDirection() == LEFT_TO_RIGHT) {
-    return ChromeCanvas::TEXT_ALIGN_LEFT;
+    return gfx::Canvas::TEXT_ALIGN_LEFT;
   } else {
-    return ChromeCanvas::TEXT_ALIGN_RIGHT;
+    return gfx::Canvas::TEXT_ALIGN_RIGHT;
   }
 }
 

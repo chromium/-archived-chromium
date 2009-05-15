@@ -6,7 +6,7 @@
 
 #include <commdlg.h>
 
-#include "app/gfx/chrome_canvas.h"
+#include "app/gfx/canvas.h"
 #include "app/gfx/color_utils.h"
 #include "app/l10n_util.h"
 #include "app/resource_bundle.h"
@@ -351,7 +351,7 @@ void AboutChromeView::Layout() {
 }
 
 
-void AboutChromeView::Paint(ChromeCanvas* canvas) {
+void AboutChromeView::Paint(gfx::Canvas* canvas) {
   views::View::Paint(canvas);
 
   // Draw the background image color (and the separator) across the dialog.
@@ -424,7 +424,7 @@ void AboutChromeView::Paint(ChromeCanvas* canvas) {
   main_text_label_height_ = position.height() + font.height();
 }
 
-void AboutChromeView::DrawTextAndPositionUrl(ChromeCanvas* canvas,
+void AboutChromeView::DrawTextAndPositionUrl(gfx::Canvas* canvas,
                                              const std::wstring& text,
                                              views::Link* link,
                                              gfx::Rect* rect,
@@ -479,7 +479,7 @@ void AboutChromeView::DrawTextAndPositionUrl(ChromeCanvas* canvas,
   }
 }
 
-void AboutChromeView::DrawTextStartingFrom(ChromeCanvas* canvas,
+void AboutChromeView::DrawTextStartingFrom(gfx::Canvas* canvas,
                                            const std::wstring& text,
                                            gfx::Size* position,
                                            const gfx::Rect& bounds,
@@ -492,10 +492,10 @@ void AboutChromeView::DrawTextStartingFrom(ChromeCanvas* canvas,
     return;
 
   int flags = (text_direction_is_rtl_ ?
-                   ChromeCanvas::TEXT_ALIGN_RIGHT :
-                   ChromeCanvas::TEXT_ALIGN_LEFT) |
-              ChromeCanvas::MULTI_LINE |
-              ChromeCanvas::HIDE_PREFIX;
+                   gfx::Canvas::TEXT_ALIGN_RIGHT :
+                   gfx::Canvas::TEXT_ALIGN_LEFT) |
+              gfx::Canvas::MULTI_LINE |
+              gfx::Canvas::HIDE_PREFIX;
 
   // Iterate over each word in the text, or put in a more locale-neutral way:
   // iterate to the next line breaking opportunity.

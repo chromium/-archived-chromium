@@ -4,7 +4,7 @@
 
 #include "chrome/plugin/webplugin_proxy.h"
 
-#include "app/gfx/chrome_canvas.h"
+#include "app/gfx/canvas.h"
 #if defined(OS_WIN)
 #include "app/win_util.h"
 #endif

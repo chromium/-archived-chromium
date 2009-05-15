@@ -6,7 +6,7 @@
 
 #include <algorithm>
 
-#include "app/gfx/chrome_canvas.h"
+#include "app/gfx/canvas.h"
 #include "app/gfx/color_utils.h"
 #include "app/l10n_util.h"
 #include "app/resource_bundle.h"

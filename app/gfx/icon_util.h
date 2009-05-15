@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CHROME_COMMON_ICON_UTIL_H__
-#define CHROME_COMMON_ICON_UTIL_H__
+#ifndef APP_ICON_UTIL_H_
+#define APP_ICON_UTIL_H_
 
 #include <windows.h>
 #include <string>
@@ -190,4 +190,4 @@ class IconUtil {
   DISALLOW_IMPLICIT_CONSTRUCTORS(IconUtil);
 };
 
-#endif  // CHROME_COMMON_ICON_UTIL_H__
+#endif  // APP_ICON_UTIL_H_

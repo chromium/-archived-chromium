@@ -4,7 +4,7 @@
 
 #include "views/border.h"
 
-#include "app/gfx/chrome_canvas.h"
+#include "app/gfx/canvas.h"
 #include "base/logging.h"
 
 namespace views {
@@ -16,7 +16,7 @@ class SolidBorder : public Border {
  public:
   SolidBorder(int thickness, SkColor color);
 
-  virtual void Paint(const View& view, ChromeCanvas* canvas) const;
+  virtual void Paint(const View& view, gfx::Canvas* canvas) const;
   virtual void GetInsets(gfx::Insets* insets) const;
 
  private:
@@ -33,7 +33,7 @@ SolidBorder::SolidBorder(int thickness, SkColor color)
       insets_(thickness, thickness, thickness, thickness) {
 }
 
-void SolidBorder::Paint(const View& view, ChromeCanvas* canvas) const {
+void SolidBorder::Paint(const View& view, gfx::Canvas* canvas) const {
   gfx::Rect clip_rect;
   if (!canvas->GetClipRect(&clip_rect))
     return;  // Empty clip rectangle, nothing to paint.
@@ -70,7 +70,7 @@ class EmptyBorder : public Border {
   EmptyBorder(int top, int left, int bottom, int right)
       : top_(top), left_(left), bottom_(bottom), right_(right) {}
 
-  virtual void Paint(const View& view, ChromeCanvas* canvas) const {}
+  virtual void Paint(const View& view, gfx::Canvas* canvas) const {}
 
   virtual void GetInsets(gfx::Insets* insets) const {
     DCHECK(insets);

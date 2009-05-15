@@ -4,7 +4,7 @@
 
 #include "chrome/browser/views/sad_tab_view.h"
 
-#include "app/gfx/chrome_canvas.h"
+#include "app/gfx/canvas.h"
 #include "app/l10n_util.h"
 #include "app/resource_bundle.h"
 #include "base/gfx/size.h"
@@ -35,7 +35,7 @@ SadTabView::SadTabView() {
   InitClass();
 }
 
-void SadTabView::Paint(ChromeCanvas* canvas) {
+void SadTabView::Paint(gfx::Canvas* canvas) {
   SkPaint paint;
   paint.setShader(skia::CreateGradientShader(0, height(),
                                              kBackgroundColor,
@@ -50,12 +50,12 @@ void SadTabView::Paint(ChromeCanvas* canvas) {
   canvas->DrawStringInt(title_, *title_font_, kTitleColor, title_bounds_.x(),
                         title_bounds_.y(), title_bounds_.width(),
                         title_bounds_.height(),
-                        ChromeCanvas::TEXT_ALIGN_CENTER);
+                        gfx::Canvas::TEXT_ALIGN_CENTER);
 
   canvas->DrawStringInt(message_, *message_font_, kMessageColor,
                         message_bounds_.x(), message_bounds_.y(),
                         message_bounds_.width(), message_bounds_.height(),
-                        ChromeCanvas::MULTI_LINE);
+                        gfx::Canvas::MULTI_LINE);
 }
 
 void SadTabView::Layout() {
@@ -70,11 +70,11 @@ void SadTabView::Layout() {
   int title_height = title_font_->height();
   title_bounds_.SetRect(title_x, title_y, title_width_, title_height);
 
-  ChromeCanvas cc(0, 0, true);
+  gfx::Canvas cc(0, 0, true);
   int message_width = static_cast<int>(width() * kMessageSize);
   int message_height = 0;
   cc.SizeStringInt(message_, *message_font_, &message_width, &message_height,
-                   ChromeCanvas::MULTI_LINE);
+                   gfx::Canvas::MULTI_LINE);
   int message_x = (width() - message_width) / 2;
   int message_y = title_bounds_.bottom() + kTitleMessageSpacing;
   message_bounds_.SetRect(message_x, message_y, message_width, message_height);

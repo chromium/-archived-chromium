@@ -4,7 +4,7 @@
 
 #include "views/widget/widget_win.h"
 
-#include "app/gfx/chrome_canvas.h"
+#include "app/gfx/canvas.h"
 #include "app/win_util.h"
 #include "base/gfx/native_theme.h"
 #include "base/string_util.h"
@@ -898,9 +898,9 @@ Window* WidgetWin::GetWindowImpl(HWND hwnd) {
 }
 
 void WidgetWin::SizeContents(const CRect& window_rect) {
-  contents_.reset(new ChromeCanvas(window_rect.Width(),
-                                   window_rect.Height(),
-                                   false));
+  contents_.reset(new gfx::Canvas(window_rect.Width(),
+                                  window_rect.Height(),
+                                  false));
 }
 
 void WidgetWin::PaintLayeredWindow() {

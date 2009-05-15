@@ -5,7 +5,7 @@
 #include "chrome/browser/views/frame/browser_view.h"
 
 #include "app/drag_drop_types.h"
-#include "app/gfx/chrome_canvas.h"
+#include "app/gfx/canvas.h"
 #include "app/l10n_util.h"
 #include "app/os_exchange_data.h"
 #include "app/resource_bundle.h"
@@ -138,7 +138,7 @@ class ResizeCorner : public views::View {
  public:
   ResizeCorner() { }
 
-  virtual void Paint(ChromeCanvas* canvas) {
+  virtual void Paint(gfx::Canvas* canvas) {
     views::WindowWin* window = GetWindow();
     if (!window || (window->IsMaximized() || window->IsFullscreen()))
       return;

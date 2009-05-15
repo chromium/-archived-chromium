@@ -39,13 +39,13 @@ class TabIconView : public views::View {
   void set_is_light(bool is_light) { is_light_ = is_light; }
 
   // Overriden from View
-  virtual void Paint(ChromeCanvas* canvas);
+  virtual void Paint(gfx::Canvas* canvas);
   virtual gfx::Size GetPreferredSize();
 
  private:
-  void PaintThrobber(ChromeCanvas* canvas);
-  void PaintFavIcon(ChromeCanvas* canvas, const SkBitmap& bitmap);
-  void PaintIcon(ChromeCanvas* canvas,
+  void PaintThrobber(gfx::Canvas* canvas);
+  void PaintFavIcon(gfx::Canvas* canvas, const SkBitmap& bitmap);
+  void PaintIcon(gfx::Canvas* canvas,
                  const SkBitmap& bitmap,
                  int src_x,
                  int src_y,

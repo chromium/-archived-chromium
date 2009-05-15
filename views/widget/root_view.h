@@ -65,7 +65,7 @@ class RootView : public View,
   virtual void SchedulePaint(int x, int y, int w, int h);
 
   // Paint this RootView and its child Views.
-  virtual void ProcessPaint(ChromeCanvas* canvas);
+  virtual void ProcessPaint(gfx::Canvas* canvas);
 
   // If the invalid rect is non-empty and there is a pending paint the RootView
   // is painted immediately. This is internally invoked as the result of

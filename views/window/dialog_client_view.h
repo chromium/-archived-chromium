@@ -5,7 +5,7 @@
 #ifndef VIEWS_WINDOW_DIALOG_CLIENT_VIEW_H_
 #define VIEWS_WINDOW_DIALOG_CLIENT_VIEW_H_
 
-#include "app/gfx/chrome_font.h"
+#include "app/gfx/font.h"
 #include "views/focus/focus_manager.h"
 #include "views/controls/button/button.h"
 #include "views/window/client_view.h"
@@ -61,8 +61,8 @@ class DialogClientView : public ClientView,
 
  protected:
   // View overrides:
-  virtual void Paint(ChromeCanvas* canvas);
-  virtual void PaintChildren(ChromeCanvas* canvas);
+  virtual void Paint(gfx::Canvas* canvas);
+  virtual void PaintChildren(gfx::Canvas* canvas);
   virtual void Layout();
   virtual void ViewHierarchyChanged(bool is_add, View* parent, View* child);
   virtual gfx::Size GetPreferredSize();
@@ -74,7 +74,7 @@ class DialogClientView : public ClientView,
  private:
   // Paint the size box in the bottom right corner of the window if it is
   // resizable.
-  void PaintSizeBox(ChromeCanvas* canvas);
+  void PaintSizeBox(gfx::Canvas* canvas);
 
   // Returns the width of the specified dialog button using the correct font.
   int GetButtonWidth(int button) const;

@@ -8,8 +8,8 @@
 #include <gtk/gtk.h>
 
 #include "app/animation.h"
-#include "app/gfx/chrome_canvas.h"
-#include "app/gfx/chrome_font.h"
+#include "app/gfx/canvas.h"
+#include "app/gfx/font.h"
 #include "app/slide_animation.h"
 #include "base/basictypes.h"
 #include "base/gfx/rect.h"
@@ -171,10 +171,10 @@ class TabRendererGtk : public AnimationDelegate {
   static int GetContentHeight();
 
   // Paint various portions of the Tab
-  void PaintTabBackground(ChromeCanvasPaint* canvas);
-  void PaintInactiveTabBackground(ChromeCanvasPaint* canvas);
-  void PaintActiveTabBackground(ChromeCanvasPaint* canvas);
-  void PaintLoadingAnimation(ChromeCanvasPaint* canvas);
+  void PaintTabBackground(gfx::CanvasPaint* canvas);
+  void PaintInactiveTabBackground(gfx::CanvasPaint* canvas);
+  void PaintActiveTabBackground(gfx::CanvasPaint* canvas);
+  void PaintLoadingAnimation(gfx::CanvasPaint* canvas);
 
   // Returns the number of favicon-size elements that can fit in the tab's
   // current size.

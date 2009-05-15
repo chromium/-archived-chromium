@@ -10,7 +10,9 @@
 #include "base/basictypes.h"
 #include "third_party/skia/include/core/SkColor.h"
 
-class ChromeCanvas;
+namespace gfx {
+class Canvas;
+}
 class SkBitmap;
 
 namespace views {
@@ -23,7 +25,7 @@ class Painter {
   // A convenience method for painting a Painter in a particular region.
   // This translates the canvas to x/y and paints the painter.
   static void PaintPainterAt(int x, int y, int w, int h,
-                             ChromeCanvas* canvas, Painter* painter);
+                             gfx::Canvas* canvas, Painter* painter);
 
   // Creates a painter that draws a gradient between the two colors.
   static Painter* CreateHorizontalGradient(SkColor c1, SkColor c2);
@@ -32,7 +34,7 @@ class Painter {
   virtual ~Painter() {}
 
   // Paints the painter in the specified region.
-  virtual void Paint(int w, int h, ChromeCanvas* canvas) = 0;
+  virtual void Paint(int w, int h, gfx::Canvas* canvas) = 0;
 };
 
 // ImagePainter paints 8 (or 9) images into a box. The four corner
@@ -64,7 +66,7 @@ class ImagePainter : public Painter {
   virtual ~ImagePainter() {}
 
   // Paints the images.
-  virtual void Paint(int w, int h, ChromeCanvas* canvas);
+  virtual void Paint(int w, int h, gfx::Canvas* canvas);
 
   // Returns the specified image. The returned image should NOT be deleted.
   SkBitmap* GetImage(BorderElements element) {
@@ -94,7 +96,7 @@ class HorizontalPainter : public Painter {
   virtual ~HorizontalPainter() {}
 
   // Paints the images.
-  virtual void Paint(int w, int h, ChromeCanvas* canvas);
+  virtual void Paint(int w, int h, gfx::Canvas* canvas);
 
   // Height of the images.
   int height() const { return height_; }

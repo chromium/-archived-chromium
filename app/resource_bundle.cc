@@ -4,7 +4,7 @@
 
 #include "app/resource_bundle.h"
 
-#include "app/gfx/chrome_font.h"
+#include "app/gfx/font.h"
 #include "base/gfx/png_decoder.h"
 #include "base/logging.h"
 #include "base/string_piece.h"
