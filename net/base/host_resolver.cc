@@ -40,8 +40,29 @@ HostMapper* SetHostMapper(HostMapper* value) {
 static int HostResolverProc(
     const std::string& host, const std::string& port, struct addrinfo** out) {
   struct addrinfo hints = {0};
-  hints.ai_family = PF_UNSPEC;
-  hints.ai_flags = AI_ADDRCONFIG;
+  hints.ai_family = AF_UNSPEC;
+
+  // DO NOT USE AI_ADDRCONFIG.
+  //
+  // The following comment in <winsock2.h> is the best documentation I found
+  // on AI_ADDRCONFIG for Windows:
+  //   Flags used in "hints" argument to getaddrinfo()
+  //       - AI_ADDRCONFIG is supported starting with Vista
+  //       - default is AI_ADDRCONFIG ON whether the flag is set or not
+  //         because the performance penalty in not having ADDRCONFIG in
+  //         the multi-protocol stack environment is severe;
+  //         this defaulting may be disabled by specifying the AI_ALL flag,
+  //         in that case AI_ADDRCONFIG must be EXPLICITLY specified to
+  //         enable ADDRCONFIG behavior
+  //
+  // Not only is AI_ADDRCONFIG unnecessary, but it can be harmful.  If the
+  // computer is not connected to a network, AI_ADDRCONFIG causes getaddrinfo
+  // to fail with WSANO_DATA (11004) for "localhost", probably because of the
+  // following note on AI_ADDRCONFIG in the MSDN getaddrinfo page:
+  //   The IPv4 or IPv6 loopback address is not considered a valid global
+  //   address.
+  // See http://crbug.com/5234.
+  hints.ai_flags = 0;
 
   // Restrict result set to only this socket type to avoid duplicates.
   hints.ai_socktype = SOCK_STREAM;
