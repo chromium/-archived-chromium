@@ -1640,7 +1640,7 @@
           'dependencies': [
             'views',
             '../google_update/google_update.gyp:google_update',
-            'installer/util/util.gyp:installer_util',
+            'installer/installer.gyp:installer_util',
             '../printing/printing.gyp:printing',
           ],
           'export_dependent_settings': [

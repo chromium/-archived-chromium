@@ -51,6 +51,9 @@
         'Types.h',
       ],
       'direct_dependent_settings': {
+        'defines': [
+          '_LZMA_IN_CB',
+        ],
         'include_dirs': [
           '.',
         ],
