@@ -104,6 +104,20 @@ void SSLPolicyBackend::ShowMessageWithLink(const std::wstring& msg,
   }
 }
 
+bool SSLPolicyBackend::SetMaxSecurityStyle(SecurityStyle style) {
+  NavigationEntry* entry = controller_->GetActiveEntry();
+  if (!entry) {
+    NOTREACHED();
+    return false;
+  }
+
+  if (entry->ssl().security_style() > style) {
+    entry->ssl().set_security_style(style);
+    return true;
+  }
+  return false;
+}
+
 void SSLPolicyBackend::AddMessageToConsole(
     const string16& message, const WebConsoleMessage::Level& level) {
   controller_->tab_contents()->render_view_host()->AddMessageToConsole(
