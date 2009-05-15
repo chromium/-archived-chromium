@@ -311,6 +311,9 @@ var chrome;
   // *MAY* be followed by tab-selection-changed.
   chrome.tabs.onCreated = new chrome.Event("tab-created");
   
+  // Sends (tabId, {ChangedProps}).
+  chrome.tabs.onUpdated = new chrome.Event("tab-updated");
+
   // Sends (tabId, {windowId, fromIndex, toIndex}).
   // Tabs can only "move" within a window.
   chrome.tabs.onMoved = new chrome.Event("tab-moved");

@@ -170,6 +170,20 @@ chrome.tabs.onMoved.addListener(function(tabId, props) {
   loadWindowList();
 });
 
+function refreshTab(tabId) {
+  chrome.tabs.get(tabId, function(tab) {
+    var input = new JsExprContext(tab);
+    var output = document.getElementById('tab_' + tab.id);
+    jstProcess(input, output);      
+    appendToLog('tab refreshed -- tabId: ' + tab.id + ' url: ' + tab.url);
+  });
+}
+
+chrome.tabs.onUpdated.addListener(function(tabId, props) {
+  appendToLog('tabs.onUpdated -- tab: ' + tabId + ' status ' + props.status);
+  refreshTab(tabId);
+});
+
 chrome.tabs.onDetached.addListener(function(tabId, props) {
   appendToLog('tabs.onDetached -- window: ' + props.oldWindowId + ' tab: ' + tabId + ' index ' + props.oldPosition);
   loadWindowList();
@@ -261,15 +275,6 @@ function removeWindow(windowId) {
   } catch (e) {
     alert(e);
   }
-}
-
-function refreshTab(tabId) {
-  chrome.tabs.get(tabId, function(tab) {
-    var input = new JsExprContext(tab);
-    var output = document.getElementById('tab_' + tab.id);
-    jstProcess(input, output);      
-    appendToLog('tab refreshed -- tabId: ' + tab.id + ' url:' + tab.url);
-  });
 }
 
 function refreshSelectedTab(windowId) {

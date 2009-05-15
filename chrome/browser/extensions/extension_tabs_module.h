@@ -5,6 +5,8 @@
 #ifndef CHROME_BROWSER_EXTENSIONS_EXTENSION_TABS_MODULE_H__
 #define CHROME_BROWSER_EXTENSIONS_EXTENSION_TABS_MODULE_H__
 
+#include <string>
+
 #include "chrome/browser/extensions/extension_function.h"
 
 class Browser;
@@ -14,13 +16,24 @@ class TabStripModel;
 
 class ExtensionTabUtil {
  public:
+  // Possible tab states.  These states are used to calculate the "status"
+  // property of the Tab object that is used in the extension tab API.
+  enum TabStatus {
+    TAB_LOADING,  // Waiting for the DOM to load.
+    TAB_COMPLETE  // Tab loading and rendering is complete.
+  };
+
   static int GetWindowId(const Browser* browser);
   static int GetTabId(const TabContents* tab_contents);
+  static TabStatus GetTabStatus(const TabContents* tab_contents);
+  static std::string GetTabStatusText(TabStatus status);
   static int GetWindowIdOfTab(const TabContents* tab_contents);
   static DictionaryValue* CreateTabValue(const TabContents* tab_contents);
   static DictionaryValue* CreateTabValue(const TabContents* tab_contents,
                                          TabStripModel* tab_strip,
                                          int tab_index);
+  static DictionaryValue* CreateTabChangedValue(const TabContents* contents);
+
   // Any out parameter (|browser|, |tab_strip|, |contents|, & |tab_index|) may
   // be NULL and will not be set within the function.
   static bool GetTabById(int tab_id, Profile* profile, Browser** browser,

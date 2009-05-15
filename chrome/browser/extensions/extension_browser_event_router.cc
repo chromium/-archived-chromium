@@ -10,11 +10,11 @@
 #include "chrome/browser/profile.h"
 #include "chrome/browser/extensions/extension.h"
 #include "chrome/browser/extensions/extension_message_service.h"
-#include "chrome/browser/extensions/extension_tabs_module.h"
 #include "chrome/common/notification_service.h"
 
 const char* kOnPageActionExecuted = "page-action-executed";
 const char* kOnTabCreated = "tab-created";
+const char* kOnTabUpdated = "tab-updated";
 const char* kOnTabMoved = "tab-moved";
 const char* kOnTabSelectionChanged = "tab-selection-changed";
 const char* kOnTabAttached = "tab-attached";
@@ -23,6 +23,22 @@ const char* kOnTabRemoved = "tab-removed";
 const char* kOnWindowCreated = "window-created";
 const char* kOnWindowRemoved = "window-removed";
 const char* kOnWindowFocusedChanged = "window-focus-changed";
+
+ExtensionBrowserEventRouter::TabEntry::TabEntry()
+    : state_(ExtensionTabUtil::TAB_COMPLETE) {
+}
+
+ExtensionBrowserEventRouter::TabEntry::TabEntry(const TabContents* contents)
+    : state_(ExtensionTabUtil::TAB_COMPLETE) {
+  UpdateState(contents);
+}
+
+bool ExtensionBrowserEventRouter::TabEntry::UpdateState(
+    const TabContents* contents) {
+  ExtensionTabUtil::TabStatus old_state = state_;
+  state_ = ExtensionTabUtil::GetTabStatus(contents);
+  return old_state != state_;
+}
 
 ExtensionBrowserEventRouter* ExtensionBrowserEventRouter::GetInstance() {
   return Singleton<ExtensionBrowserEventRouter>::get();
@@ -61,7 +77,7 @@ ExtensionBrowserEventRouter::ExtensionBrowserEventRouter()
 void ExtensionBrowserEventRouter::OnBrowserAdded(const Browser* browser) {
   // Start listening to TabStripModel events for this browser.
   browser->tabstrip_model()->AddObserver(this);
-  
+
   DispatchSimpleBrowserEvent(browser->profile(),
                              ExtensionTabUtil::GetWindowId(browser),
                              kOnWindowCreated);
@@ -99,8 +115,8 @@ void ExtensionBrowserEventRouter::TabInsertedAt(TabContents* contents,
                                                 bool foreground) {
   // If tab is new, send tab-created event.
   int tab_id = ExtensionTabUtil::GetTabId(contents);
-  if (tab_ids_.find(tab_id) == tab_ids_.end()) {
-    tab_ids_.insert(tab_id);
+  if (tab_entries_.find(tab_id) == tab_entries_.end()) {
+    tab_entries_[tab_id] = TabEntry(contents);
 
     TabCreatedAt(contents, index, foreground);
     return;
@@ -108,7 +124,7 @@ void ExtensionBrowserEventRouter::TabInsertedAt(TabContents* contents,
 
   ListValue args;
   args.Append(Value::CreateIntegerValue(tab_id));
-  
+
   DictionaryValue *object_args = new DictionaryValue();
   object_args->Set(L"newWindowId", Value::CreateIntegerValue(
       ExtensionTabUtil::GetWindowIdOfTab(contents)));
@@ -124,14 +140,14 @@ void ExtensionBrowserEventRouter::TabInsertedAt(TabContents* contents,
 void ExtensionBrowserEventRouter::TabDetachedAt(TabContents* contents,
                                                 int index) {
   int tab_id = ExtensionTabUtil::GetTabId(contents);
-  if (tab_ids_.find(tab_id) == tab_ids_.end()) {
+  if (tab_entries_.find(tab_id) == tab_entries_.end()) {
     // The tab was removed. Don't send detach event.
     return;
   }
 
   ListValue args;
   args.Append(Value::CreateIntegerValue(tab_id));
-  
+
   DictionaryValue *object_args = new DictionaryValue();
   object_args->Set(L"oldWindowId", Value::CreateIntegerValue(
       ExtensionTabUtil::GetWindowIdOfTab(contents)));
@@ -156,7 +172,7 @@ void ExtensionBrowserEventRouter::TabClosingAt(TabContents* contents,
 
   DispatchEvent(contents->profile(), kOnTabRemoved, json_args);
 
-  int removed_count = tab_ids_.erase(tab_id);
+  int removed_count = tab_entries_.erase(tab_id);
   DCHECK(removed_count > 0);
 }
 
@@ -167,7 +183,7 @@ void ExtensionBrowserEventRouter::TabSelectedAt(TabContents* old_contents,
   ListValue args;
   args.Append(Value::CreateIntegerValue(
       ExtensionTabUtil::GetTabId(new_contents)));
-  
+
   DictionaryValue *object_args = new DictionaryValue();
   object_args->Set(L"windowId", Value::CreateIntegerValue(
       ExtensionTabUtil::GetWindowIdOfTab(new_contents)));
@@ -184,7 +200,7 @@ void ExtensionBrowserEventRouter::TabMoved(TabContents* contents,
                                            int to_index) {
   ListValue args;
   args.Append(Value::CreateIntegerValue(ExtensionTabUtil::GetTabId(contents)));
-  
+
   DictionaryValue *object_args = new DictionaryValue();
   object_args->Set(L"windowId", Value::CreateIntegerValue(
       ExtensionTabUtil::GetWindowIdOfTab(contents)));
@@ -200,7 +216,26 @@ void ExtensionBrowserEventRouter::TabMoved(TabContents* contents,
 
 void ExtensionBrowserEventRouter::TabChangedAt(TabContents* contents,
                                                int index,
-                                               bool loading_only) { }
+                                               bool loading_only) {
+  int tab_id = ExtensionTabUtil::GetTabId(contents);
+  std::map<int, TabEntry>::iterator i = tab_entries_.find(tab_id);
+  if (tab_entries_.end() == i)
+    return;
+
+  TabEntry& entry = i->second;
+  if (entry.UpdateState(contents)) {
+    // The state of the tab (as seen from the extension point of view) has
+    // changed.  Send a notification to the extension.
+    ListValue args;
+    args.Append(Value::CreateIntegerValue(tab_id));
+    args.Append(ExtensionTabUtil::CreateTabChangedValue(contents));
+
+    std::string json_args;
+    JSONWriter::Write(&args, false, &json_args);
+
+    DispatchEvent(contents->profile(), kOnTabUpdated, json_args);
+  }
+}
 
 void ExtensionBrowserEventRouter::TabStripEmpty() { }
 

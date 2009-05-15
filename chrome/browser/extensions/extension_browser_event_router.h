@@ -5,13 +5,14 @@
 #ifndef CHROME_BROWSER_EXTENSIONS_EXTENSION_BROWSER_EVENT_ROUTER_H_
 #define CHROME_BROWSER_EXTENSIONS_EXTENSION_BROWSER_EVENT_ROUTER_H_
 
+#include <map>
 #include <vector>
-#include <set>
 #include <string>
 
 #include "base/basictypes.h"
 #include "base/singleton.h"
 #include "chrome/browser/browser_list.h"
+#include "chrome/browser/extensions/extension_tabs_module.h"
 #include "chrome/browser/tabs/tab_strip_model.h"
 #include "chrome/common/notification_observer.h"
 
@@ -64,9 +65,37 @@ class ExtensionBrowserEventRouter : public TabStripModelObserver,
 
   bool initialized_;
 
-  // Maintain set of known tab ids, so we can distinguish between tab creation
-  // and tab insertion. Also used to not send tab-detached after tab-removed.
-  std::set<int> tab_ids_;
+  // Maintain some information about known tabs, so we can:
+  //
+  //  - distinguish between tab creation and tab insertion
+  //  - not send tab-detached after tab-removed
+  //  - reduce the "noise" of TabChangedAt() when sending events to extensions
+  class TabEntry {
+   public:
+    // Create a new tab entry whose initial state is TAB_COMPLETE.  This
+    // constructor is required because TabEntry objects placed inside an
+    // std::map<> by value.
+    TabEntry();
+
+    // Create a new tab entry whose initial state is derived from the given
+    // tab contents.
+    explicit TabEntry(const TabContents* contents);
+
+    // Returns the current state of the tab.
+    ExtensionTabUtil::TabStatus state() const { return state_; }
+
+    // Update the state of the tab based on its TabContents.  Returns true if
+    // the state changed, false otherwise.  Whether the state has changed or not
+    // is used to determine if events needs to be sent to extensions during
+    // processing of TabChangedAt().
+    bool UpdateState(const TabContents* contents);
+
+   private:
+    // Tab state used for last notification to extensions.
+    ExtensionTabUtil::TabStatus state_;
+  };
+
+  std::map<int, TabEntry> tab_entries_;
 
   DISALLOW_COPY_AND_ASSIGN(ExtensionBrowserEventRouter);
 };

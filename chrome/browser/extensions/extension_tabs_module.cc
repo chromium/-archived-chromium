@@ -28,6 +28,7 @@ const wchar_t* kIndexKey = L"index";
 const wchar_t* kWindowIdKey = L"windowId";
 const wchar_t* kUrlKey = L"url";
 const wchar_t* kTitleKey = L"title";
+const wchar_t* kStatusKey = L"status";
 const wchar_t* kSelectedKey = L"selected";
 const wchar_t* kFocusedKey = L"focused";
 const wchar_t* kFavIconUrlKey = L"favIconUrl";
@@ -36,6 +37,10 @@ const wchar_t* kTopKey = L"top";
 const wchar_t* kWidthKey = L"width";
 const wchar_t* kHeightKey = L"height";
 const wchar_t* kTabsKey = L"tabs";
+
+// Tab status text
+const char* kStatusValueLoading = "loading";
+const char* kStatusValueComplete = "complete";
 
 // Error messages.
 const char* kWindowNotFoundError = "No window with id: *.";
@@ -73,6 +78,25 @@ int ExtensionTabUtil::GetTabId(const TabContents* tab_contents) {
   return tab_contents->controller().session_id().id();
 }
 
+ExtensionTabUtil::TabStatus ExtensionTabUtil::GetTabStatus(
+    const TabContents* tab_contents) {
+  return tab_contents->is_loading() ? TAB_LOADING : TAB_COMPLETE;
+}
+
+std::string ExtensionTabUtil::GetTabStatusText(TabStatus status) {
+  std::string text;
+  switch (status) {
+    case TAB_LOADING:
+      text = kStatusValueLoading;
+      break;
+    case TAB_COMPLETE:
+      text = kStatusValueComplete;
+      break;
+  }
+
+  return text;
+}
+
 int ExtensionTabUtil::GetWindowIdOfTab(const TabContents* tab_contents) {
   return tab_contents->controller().window_id().id();
 }
@@ -93,22 +117,37 @@ DictionaryValue* ExtensionTabUtil::CreateTabValue(
   return ExtensionTabUtil::CreateTabValue(contents, NULL, -1);
 }
 
+DictionaryValue* ExtensionTabUtil::CreateTabChangedValue(
+    const TabContents* contents) {
+  // A tab changed event should include a tab value that contains only the
+  // changed properties.  For now, this means only the status property.
+  DictionaryValue* result = new DictionaryValue();
+  result->SetString(kStatusKey, GetTabStatusText(GetTabStatus(contents)));
+  return result;
+}
+
 DictionaryValue* ExtensionTabUtil::CreateTabValue(
     const TabContents* contents, TabStripModel* tab_strip, int tab_index) {
+  TabStatus status = GetTabStatus(contents);
+
   DictionaryValue* result = new DictionaryValue();
   result->SetInteger(kIdKey, ExtensionTabUtil::GetTabId(contents));
   result->SetInteger(kIndexKey, tab_index);
   result->SetInteger(kWindowIdKey,
                      ExtensionTabUtil::GetWindowIdOfTab(contents));
   result->SetString(kUrlKey, contents->GetURL().spec());
-  result->SetString(kTitleKey, UTF16ToWide(contents->GetTitle()));
+  result->SetString(kStatusKey, GetTabStatusText(status));
   result->SetBoolean(kSelectedKey,
                      tab_strip && tab_index == tab_strip->selected_index());
 
-  NavigationEntry* entry = contents->controller().GetActiveEntry();
-  if (entry) {
-    if (entry->favicon().is_valid())
-      result->SetString(kFavIconUrlKey, entry->favicon().url().spec());
+  if (status != TAB_LOADING) {
+    result->SetString(kTitleKey, UTF16ToWide(contents->GetTitle()));
+
+    NavigationEntry* entry = contents->controller().GetActiveEntry();
+    if (entry) {
+      if (entry->favicon().is_valid())
+        result->SetString(kFavIconUrlKey, entry->favicon().url().spec());
+    }
   }
 
   return result;
