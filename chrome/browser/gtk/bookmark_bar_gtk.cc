@@ -9,7 +9,9 @@
 #include "app/l10n_util.h"
 #include "app/resource_bundle.h"
 #include "base/gfx/gtk_util.h"
+#include "base/pickle.h"
 #include "chrome/browser/bookmarks/bookmark_context_menu.h"
+#include "chrome/browser/bookmarks/bookmark_drag_data.h"
 #include "chrome/browser/bookmarks/bookmark_menu_controller_gtk.h"
 #include "chrome/browser/bookmarks/bookmark_utils.h"
 #include "chrome/browser/browser.h"
@@ -33,11 +35,30 @@ const int kBarPadding = 2;
 // Maximum number of characters on a bookmark button.
 const size_t kMaxCharsOnAButton = 15;
 
-// Our custom draging type for bookmarks.
-static GtkTargetEntry target_table[] = {
-  { const_cast<char*>("application/x-bookmark-toolbar-item"),
-    GTK_TARGET_SAME_APP, 0 }
+// Used in gtk_selection_data_set(). (I assume from this parameter that gtk has
+// to some really exotic hardware...)
+const int kBitsInAByte = 8;
+
+// Dictionary key used to store a BookmarkNode* on a GtkWidget.
+const char kBookmarkNode[] = "bookmark-node";
+
+// Integers representing the various types of items that the bookmark bar
+// accepts as DnD types.
+enum BookmarkType {
+  DROP_TARGET_INTERNAL
 };
+
+// Mime types for DnD. Used to synchronize across applications.
+const char kInternalURIType[] = "application/x-chrome-bookmark-item";
+
+// Table of the mime types that we accept with their options.
+const GtkTargetEntry kTargetTable[] = {
+  { const_cast<char*>(kInternalURIType), GTK_TARGET_SAME_APP,
+    DROP_TARGET_INTERNAL }
+  // TODO(erg): Add "text/uri-list" support.
+};
+
+const int kTargetTableSize = G_N_ELEMENTS(kTargetTable);
 
 }  // namespace
 
@@ -112,7 +133,7 @@ void BookmarkBarGtk::Init(Profile* profile) {
                      TRUE, TRUE, 0);
 
   gtk_drag_dest_set(bookmark_toolbar_.get(), GTK_DEST_DEFAULT_DROP,
-                    target_table, G_N_ELEMENTS(target_table),
+                    kTargetTable, kTargetTableSize,
                     GDK_ACTION_MOVE);
   g_signal_connect(bookmark_toolbar_.get(), "drag-motion",
                    G_CALLBACK(&OnToolbarDragMotion), this);
@@ -120,6 +141,8 @@ void BookmarkBarGtk::Init(Profile* profile) {
                    G_CALLBACK(&OnToolbarDragLeave), this);
   g_signal_connect(bookmark_toolbar_.get(), "drag-drop",
                    G_CALLBACK(&OnToolbarDragDrop), this);
+  g_signal_connect(bookmark_toolbar_.get(), "drag-data-received",
+                   G_CALLBACK(&OnToolbarDragReceived), this);
   g_signal_connect(bookmark_toolbar_.get(), "button-press-event",
                    G_CALLBACK(&OnButtonPressed), this);
 
@@ -318,6 +341,9 @@ void BookmarkBarGtk::ConfigureButtonForNode(BookmarkNode* node,
       gtk_button_set_image(GTK_BUTTON(button),
                            gtk_image_new_from_pixbuf(default_bookmark_icon));
   }
+
+  g_object_set_data(G_OBJECT(button), kBookmarkNode,
+                    reinterpret_cast<void*>(node));
 }
 
 GtkWidget* BookmarkBarGtk::CreateBookmarkButton(
@@ -327,12 +353,17 @@ GtkWidget* BookmarkBarGtk::CreateBookmarkButton(
 
   // The tool item is also a source for dragging
   gtk_drag_source_set(button, GDK_BUTTON1_MASK,
-                      target_table, G_N_ELEMENTS(target_table),
+                      kTargetTable, kTargetTableSize,
                       GDK_ACTION_MOVE);
   g_signal_connect(G_OBJECT(button), "drag-begin",
                    G_CALLBACK(&OnButtonDragBegin), this);
   g_signal_connect(G_OBJECT(button), "drag-end",
                    G_CALLBACK(&OnButtonDragEnd), this);
+  g_signal_connect(G_OBJECT(button), "drag-data-get",
+                   G_CALLBACK(&OnButtonDragGet), this);
+  // We deliberately don't connect to "drag-data-delete" because the action of
+  // moving a button will regenerate all the contents of the bookmarks bar
+  // anyway.
 
   if (node->is_url()) {
     // Connect to 'button-release-event' instead of 'clicked' because we need
@@ -509,7 +540,8 @@ void BookmarkBarGtk::OnButtonDragBegin(GtkWidget* button,
   gtk_container_add(GTK_CONTAINER(window), frame);
   gtk_widget_show(frame);
 
-  GtkWidget* floating_button = bar->CreateBookmarkButton(node);
+  GtkWidget* floating_button = gtk_chrome_button_new();
+  bar->ConfigureButtonForNode(node, floating_button);
   gtk_container_add(GTK_CONTAINER(frame), floating_button);
   gtk_widget_show(floating_button);
 
@@ -534,6 +566,34 @@ void BookmarkBarGtk::OnButtonDragEnd(GtkWidget* button,
   bar->dragged_node_ = NULL;
 
   gtk_widget_show(button);
+}
+
+// static
+void BookmarkBarGtk::OnButtonDragGet(GtkWidget* widget, GdkDragContext* context,
+                                     GtkSelectionData* selection_data,
+                                     guint target_type, guint time,
+                                     BookmarkBarGtk* bar) {
+  BookmarkNode* node =
+      reinterpret_cast<BookmarkNode*>(
+          g_object_get_data(G_OBJECT(widget), kBookmarkNode));
+  DCHECK(node);
+
+  switch (target_type) {
+    case DROP_TARGET_INTERNAL: {
+      BookmarkDragData data(node);
+      Pickle pickle;
+      data.WriteToPickle(bar->profile_, &pickle);
+
+      gtk_selection_data_set(selection_data, selection_data->target,
+                             kBitsInAByte,
+                             static_cast<const guchar*>(pickle.data()),
+                             pickle.size());
+      break;
+    }
+    default: {
+      DLOG(ERROR) << "Unsupported drag get type!";
+    }
+  }
 }
 
 // static
@@ -614,22 +674,63 @@ void BookmarkBarGtk::OnToolbarDragLeave(GtkToolbar* toolbar,
 }
 
 // static
-gboolean BookmarkBarGtk::OnToolbarDragDrop(GtkWidget* toolbar,
-                                           GdkDragContext* drag_context,
-                                           gint x,
-                                           gint y,
-                                           guint time,
-                                           BookmarkBarGtk* bar) {
-  // TODO(erg): This implementation only works within the same profile, which
-  // is OK for now because we're restricted to drags from within the same
-  // window.
-  if (bar->dragged_node_) {
-    gint index = gtk_toolbar_get_drop_index(GTK_TOOLBAR(toolbar), x, y);
-    // Drag from same profile, do a move.
-    bar->model_->Move(bar->dragged_node_, bar->model_->GetBookmarkBarNode(),
-                      index);
-    return TRUE;
+gboolean BookmarkBarGtk::OnToolbarDragDrop(
+    GtkWidget* widget, GdkDragContext* context,
+    gint x, gint y, guint time,
+    BookmarkBarGtk* bar) {
+  gboolean is_valid_drop_site = FALSE;
+
+  if (context->targets) {
+    GdkAtom target_type =
+        GDK_POINTER_TO_ATOM(g_list_nth_data(context->targets,
+                                            DROP_TARGET_INTERNAL));
+    gtk_drag_get_data(widget, context, target_type, time);
+
+    is_valid_drop_site = TRUE;
   }
 
-  return FALSE;
+  return is_valid_drop_site;
+}
+
+// static
+void BookmarkBarGtk::OnToolbarDragReceived(GtkWidget* widget,
+                                           GdkDragContext* context,
+                                           gint x, gint y,
+                                           GtkSelectionData* selection_data,
+                                           guint target_type, guint time,
+                                           BookmarkBarGtk* bar) {
+  gboolean dnd_success = FALSE;
+  gboolean delete_selection_data = FALSE;
+
+  // Deal with what we are given from source
+  if ((selection_data != NULL) && (selection_data->length >= 0)) {
+    if (context-> action == GDK_ACTION_MOVE) {
+      delete_selection_data = TRUE;
+    }
+
+    switch (target_type) {
+      case DROP_TARGET_INTERNAL: {
+        Pickle pickle(reinterpret_cast<char*>(selection_data->data),
+                      selection_data->length);
+        BookmarkDragData drag_data;
+        drag_data.ReadFromPickle(&pickle);
+
+        std::vector<BookmarkNode*> nodes = drag_data.GetNodes(bar->profile_);
+        for (std::vector<BookmarkNode*>::iterator it = nodes.begin();
+             it != nodes.end(); ++it) {
+          gint index = gtk_toolbar_get_drop_index(
+              GTK_TOOLBAR(bar->bookmark_toolbar_.get()), x, y);
+          bar->model_->Move(*it, bar->model_->GetBookmarkBarNode(), index);
+        }
+
+        dnd_success = TRUE;
+        break;
+      }
+      default: {
+        DLOG(ERROR) << "Unsupported drag received type: " << target_type;
+      }
+    }
+  }
+
+  gtk_drag_finish(context, dnd_success, delete_selection_data, time);
 }

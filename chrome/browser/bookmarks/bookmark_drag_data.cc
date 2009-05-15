@@ -19,16 +19,14 @@
 
 #if defined(OS_WIN)
 static CLIPFORMAT clipboard_format = 0;
-#endif
 
 static void RegisterFormat() {
-#if defined(OS_WIN)
   if (clipboard_format == 0) {
     clipboard_format = RegisterClipboardFormat(L"chrome/x-bookmark-entries");
     DCHECK(clipboard_format);
   }
-#endif
 }
+#endif
 
 BookmarkDragData::Element::Element(BookmarkNode* node)
     : is_url(node->is_url()),
@@ -87,6 +85,7 @@ BookmarkDragData::BookmarkDragData(const std::vector<BookmarkNode*>& nodes) {
     elements.push_back(Element(nodes[i]));
 }
 
+#if defined(OS_WIN)
 void BookmarkDragData::Write(Profile* profile, OSExchangeData* data) const {
   RegisterFormat();
 
@@ -103,19 +102,9 @@ void BookmarkDragData::Write(Profile* profile, OSExchangeData* data) const {
   }
 
   Pickle data_pickle;
-  data_pickle.WriteWString(
-      profile ? profile->GetPath().ToWStringHack() : std::wstring());
-  data_pickle.WriteSize(elements.size());
+  WriteToPickle(profile, &data_pickle);
 
-  for (size_t i = 0; i < elements.size(); ++i)
-    elements[i].WriteToPickle(&data_pickle);
-
-#if defined(OS_WIN)
   data->SetPickledData(clipboard_format, data_pickle);
-#else
-  // TODO(port): Clipboard integration.
-  NOTIMPLEMENTED();
-#endif
 }
 
 bool BookmarkDragData::Read(const OSExchangeData& data) {
@@ -125,24 +114,11 @@ bool BookmarkDragData::Read(const OSExchangeData& data) {
 
   profile_path_.clear();
 
-#if defined(OS_WIN)
   if (data.HasFormat(clipboard_format)) {
     Pickle drag_data_pickle;
     if (data.GetPickledData(clipboard_format, &drag_data_pickle)) {
-      void* data_iterator = NULL;
-      size_t element_count;
-      if (drag_data_pickle.ReadWString(&data_iterator, &profile_path_) &&
-          drag_data_pickle.ReadSize(&data_iterator, &element_count)) {
-        std::vector<Element> tmp_elements;
-        tmp_elements.resize(element_count);
-        for (size_t i = 0; i < element_count; ++i) {
-          if (!tmp_elements[i].ReadFromPickle(&drag_data_pickle,
-                                              &data_iterator)) {
-            return false;
-          }
-        }
-        elements.swap(tmp_elements);
-      }
+      if (!ReadFromPickle(&drag_data_pickle))
+        return false;
     }
   } else {
     // See if there is a URL on the clipboard.
@@ -153,12 +129,51 @@ bool BookmarkDragData::Read(const OSExchangeData& data) {
       elements.push_back(element);
     }
   }
-#else
-  // TODO(port): Clipboard integration.
-  NOTIMPLEMENTED();
-#endif
 
   return is_valid();
+}
+#endif
+
+void BookmarkDragData::WriteToPickle(Profile* profile, Pickle* pickle) const {
+#if defined(WCHAR_T_IS_UTF16)
+  pickle->WriteWString(
+      profile ? profile->GetPath().ToWStringHack() : std::wstring());
+#elif defined(WCHAR_T_IS_UTF32)
+  pickle->WriteString(
+      profile ? profile->GetPath().value() : std::string());
+#else
+  NOTIMPLEMENTED() << "Impossible encoding situation!";
+#endif
+
+  pickle->WriteSize(elements.size());
+
+  for (size_t i = 0; i < elements.size(); ++i)
+    elements[i].WriteToPickle(pickle);
+}
+
+bool BookmarkDragData::ReadFromPickle(Pickle* pickle) {
+  void* data_iterator = NULL;
+  size_t element_count;
+#if defined(WCHAR_T_IS_UTF16)
+  if (pickle->ReadWString(&data_iterator, &profile_path_) &&
+#elif defined(WCHAR_T_IS_UTF32)
+  if (pickle->ReadString(&data_iterator, &profile_path_) &&
+#else
+  NOTIMPLEMENTED() << "Impossible encoding situation!";
+  if (false &&
+#endif
+      pickle->ReadSize(&data_iterator, &element_count)) {
+    std::vector<Element> tmp_elements;
+    tmp_elements.resize(element_count);
+    for (size_t i = 0; i < element_count; ++i) {
+      if (!tmp_elements[i].ReadFromPickle(pickle, &data_iterator)) {
+        return false;
+      }
+    }
+    elements.swap(tmp_elements);
+  }
+
+  return true;
 }
 
 std::vector<BookmarkNode*> BookmarkDragData::GetNodes(Profile* profile) const {
@@ -187,5 +202,9 @@ BookmarkNode* BookmarkDragData::GetFirstNode(Profile* profile) const {
 bool BookmarkDragData::IsFromProfile(Profile* profile) const {
   // An empty path means the data is not associated with any profile.
   return (!profile_path_.empty() &&
+#if defined(WCHAR_T_IS_UTF16)
       profile->GetPath().ToWStringHack() == profile_path_);
+#elif defined(WCHAR_T_IS_UTF32)
+      profile->GetPath().value() == profile_path_);
+#endif
 }

@@ -137,6 +137,10 @@ class BookmarkBarGtk : public BookmarkModelObserver {
   static void OnButtonDragEnd(GtkWidget* button,
                               GdkDragContext* drag_context,
                               BookmarkBarGtk* bar);
+  static void OnButtonDragGet(GtkWidget* widget, GdkDragContext* context,
+                              GtkSelectionData* selection_data,
+                              guint target_type, guint time,
+                              BookmarkBarGtk* bar);
 
   // GtkButton callbacks for folder buttons
   static gboolean OnFolderButtonReleased(GtkWidget* sender,
@@ -156,11 +160,14 @@ class BookmarkBarGtk : public BookmarkModelObserver {
                                  GdkDragContext* context,
                                  guint time,
                                  BookmarkBarGtk* bar);
-  static gboolean OnToolbarDragDrop(GtkWidget* toolbar,
-                                    GdkDragContext* drag_context,
-                                    gint x,
-                                    gint y,
-                                    guint time,
+  static gboolean OnToolbarDragDrop(GtkWidget* widget, GdkDragContext* context,
+                                    gint x, gint y, guint time,
+                                    BookmarkBarGtk* bar);
+  static void OnToolbarDragReceived(GtkWidget* widget,
+                                    GdkDragContext* context,
+                                    gint x, gint y,
+                                    GtkSelectionData* selection_data,
+                                    guint target_type, guint time,
                                     BookmarkBarGtk* bar);
 
   Profile* profile_;

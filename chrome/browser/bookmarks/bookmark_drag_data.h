@@ -2,9 +2,10 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CHROME_BROWSER_BOOKMARKS_BOOKMARK_DRAG_DATA_
-#define CHROME_BROWSER_BOOKMARKS_BOOKMARK_DRAG_DATA_
+#ifndef CHROME_BROWSER_BOOKMARKS_BOOKMARK_DRAG_DATA_H_
+#define CHROME_BROWSER_BOOKMARKS_BOOKMARK_DRAG_DATA_H_
 
+#include <string>
 #include <vector>
 
 #include "chrome/browser/history/history.h"
@@ -35,7 +36,6 @@ class Profile;
 //     // data is valid, contents are in elements.
 
 struct BookmarkDragData {
-
   // Element represents a single node.
   struct Element {
     explicit Element(BookmarkNode* node);
@@ -71,6 +71,7 @@ struct BookmarkDragData {
   explicit BookmarkDragData(BookmarkNode* node);
   explicit BookmarkDragData(const std::vector<BookmarkNode*>& nodes);
 
+#if defined(OS_WIN)
   // Writes elements to data. If there is only one element and it is a URL
   // the URL and title are written to the clipboard in a format other apps can
   // use.
@@ -80,6 +81,13 @@ struct BookmarkDragData {
 
   // Restores this data from the clipboard, returning true on success.
   bool Read(const OSExchangeData& data);
+#endif
+
+  // Writes the data for a drag to |pickle|.
+  void WriteToPickle(Profile* profile, Pickle* pickle) const;
+
+  // Reads the data for a drag from a |pickle|.
+  bool ReadFromPickle(Pickle* pickle);
 
   // Returns the nodes represented by this DragData. If this DragData was
   // created from the same profile then the nodes from the model are returned.
@@ -108,7 +116,11 @@ struct BookmarkDragData {
 
  private:
   // Path of the profile we originated from.
+#if defined(WCHAR_T_IS_UTF16)
   std::wstring profile_path_;
+#elif defined(WCHAR_T_IS_UTF32)
+  std::string profile_path_;
+#endif
 };
 
-#endif  // CHROME_BROWSER_BOOKMARKS_BOOKMARK_DRAG_DATA_
+#endif  // CHROME_BROWSER_BOOKMARKS_BOOKMARK_DRAG_DATA_H_
