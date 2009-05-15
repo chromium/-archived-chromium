@@ -6,6 +6,7 @@
 
 #include "base/file_path.h"
 #include "base/logging.h"
+#include "base/stl_util-inl.h"
 #include "base/string_util.h"
 #include "chrome/common/url_constants.h"
 #include "googleurl/src/gurl.h"
@@ -16,6 +17,9 @@
 class RendererSecurityPolicy::SecurityState {
  public:
   SecurityState() : has_dom_ui_bindings_(false) { }
+  ~SecurityState() {
+    scheme_policy_.clear();
+  }
 
   // Grant permission to request URLs with the specified scheme.
   void GrantScheme(const std::string& scheme) {
@@ -87,6 +91,14 @@ RendererSecurityPolicy::RendererSecurityPolicy() {
   RegisterPseudoScheme(chrome::kAboutScheme);
   RegisterPseudoScheme(chrome::kJavaScriptScheme);
   RegisterPseudoScheme(chrome::kViewSourceScheme);
+}
+
+RendererSecurityPolicy::~RendererSecurityPolicy() {
+  web_safe_schemes_.clear();
+  pseudo_schemes_.clear();
+  STLDeleteContainerPairSecondPointers(security_state_.begin(),
+                                       security_state_.end());
+  security_state_.clear();
 }
 
 // static

@@ -26,6 +26,10 @@ class GURL;
 //
 class RendererSecurityPolicy {
  public:
+  // Object can only be created through GetInstance() so the constructor is
+  // private.
+  ~RendererSecurityPolicy();
+
   // There is one global RendererSecurityPolicy object for the entire browser
   // processes.  The object returned by this method may be accessed on any
   // thread.
