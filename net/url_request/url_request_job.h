@@ -205,7 +205,7 @@ class URLRequestJob : public base::RefCountedThreadSafe<URLRequestJob>,
   virtual bool GetMimeType(std::string* mime_type) const { return false; }
   virtual bool GetURL(GURL* gurl) const;
   virtual base::Time GetRequestTime() const;
-  virtual bool IsCachedContent() const;
+  virtual bool IsCachedContent() const { return false; }
   virtual int64 GetByteReadCount() const;
   virtual int GetResponseCode() const { return -1; }
   virtual int GetInputStreamBufferSize() const { return kFilterBufSize; }

@@ -67,15 +67,18 @@ URLRequestHttpJob::URLRequestHttpJob(URLRequest* request)
       context_(request->context()),
       sdch_dictionary_advertised_(false),
       sdch_test_activated_(false),
-      sdch_test_control_(false) {
+      sdch_test_control_(false),
+      is_cached_content_(false) {
 }
 
 URLRequestHttpJob::~URLRequestHttpJob() {
   DCHECK(!sdch_test_control_ || !sdch_test_activated_);
-  if (sdch_test_control_)
-    RecordPacketStats(SDCH_EXPERIMENT_HOLDBACK);
-  if (sdch_test_activated_)
-    RecordPacketStats(SDCH_EXPERIMENT_DECODE);
+  if (!IsCachedContent()) {
+    if (sdch_test_control_)
+      RecordPacketStats(SDCH_EXPERIMENT_HOLDBACK);
+    if (sdch_test_activated_)
+      RecordPacketStats(SDCH_EXPERIMENT_DECODE);
+  }
 
   if (sdch_dictionary_url_.is_valid()) {
     // Prior to reaching the destructor, request_ has been set to a NULL
@@ -468,6 +471,10 @@ void URLRequestHttpJob::NotifyHeadersComplete() {
   DCHECK(!response_info_);
 
   response_info_ = transaction_->GetResponseInfo();
+
+  // Save boolean, as we'll need this info at destruction time, and filters may
+  // also need this info.
+  is_cached_content_ = response_info_->was_cached;
 
   // Get the Set-Cookie values, and send them to our cookie database.
   if (!(request_info_.load_flags & net::LOAD_DO_NOT_SAVE_COOKIES)) {

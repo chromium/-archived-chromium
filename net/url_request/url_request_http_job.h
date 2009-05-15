@@ -45,6 +45,7 @@ class URLRequestHttpJob : public URLRequestJob {
   virtual int GetResponseCode() const;
   virtual bool GetContentEncodings(
       std::vector<Filter::FilterType>* encoding_type);
+  virtual bool IsCachedContent() const { return is_cached_content_; }
   virtual bool IsSdchResponse() const;
   virtual bool IsRedirectResponse(GURL* location, int* http_status_code);
   virtual bool IsSafeRedirect(const GURL& location);
@@ -104,6 +105,9 @@ class URLRequestHttpJob : public URLRequestJob {
   // indicate what we decided on for this instance.
   bool sdch_test_activated_;  // Advertising a dictionary for sdch.
   bool sdch_test_control_;    // Not even accepting-content sdch.
+
+  // For recording of stats, we need to remember if this is cached content.
+  bool is_cached_content_;
 
   DISALLOW_COPY_AND_ASSIGN(URLRequestHttpJob);
 };
