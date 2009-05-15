@@ -234,16 +234,16 @@ const wchar_t kProxyServer[]                   = L"proxy-server";
 const wchar_t kNoProxyServer[]                 = L"no-proxy-server";
 
 // Specify a list of URLs for whom we bypass proxy settings and use direct
-// connections. Ignored if proxy-server-auto-detect or no-proxy-server are
+// connections. Ignored if --proxy-auto-detect or --no-proxy-server are
 // also specified.
 // TODO(robertshield): Specify URL format.
-const wchar_t kProxyServerBypassUrls[]         = L"proxy-server-bypass-urls";
+const wchar_t kProxyBypassUrls[]         = L"proxy-bypass-urls";
 
 // Force proxy auto-detection.
-const wchar_t kProxyServerAutoDetect[]         = L"proxy-server-auto-detect";
+const wchar_t kProxyAutoDetect[]         = L"proxy-auto-detect";
 
 // Use the pac script at the given URL
-const wchar_t kProxyServerPacUrl[]             = L"proxy-server-pac-url";
+const wchar_t kProxyPacUrl[]             = L"proxy-pac-url";
 
 // Use WinHTTP to fetch and evaluate PAC scripts. Otherwise the default is
 // to use Chromium's network stack to fetch, and V8 to evaluate.

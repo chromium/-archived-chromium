@@ -28,9 +28,9 @@ net::ProxyConfig* CreateProxyConfig(const CommandLine& command_line) {
   // Scan for all "enable" type proxy switches.
   static const wchar_t* proxy_switches[] = {
     switches::kProxyServer,
-    switches::kProxyServerPacUrl,
-    switches::kProxyServerAutoDetect,
-    switches::kProxyServerBypassUrls
+    switches::kProxyPacUrl,
+    switches::kProxyAutoDetect,
+    switches::kProxyBypassUrls
   };
 
   bool found_enable_proxy_switch = false;
@@ -49,7 +49,7 @@ net::ProxyConfig* CreateProxyConfig(const CommandLine& command_line) {
   net::ProxyConfig* proxy_config = new net::ProxyConfig();
   if (command_line.HasSwitch(switches::kNoProxyServer)) {
     // Ignore (and warn about) all the other proxy config switches we get if
-    // the no-proxy-server command line argument is present.
+    // the --no-proxy-server command line argument is present.
     if (found_enable_proxy_switch) {
       LOG(WARNING) << "Additional command line proxy switches found when --"
                    << switches::kNoProxyServer << " was specified.";
@@ -63,20 +63,20 @@ net::ProxyConfig* CreateProxyConfig(const CommandLine& command_line) {
     proxy_config->proxy_rules.ParseFromString(WideToASCII(proxy_server));
   }
 
-  if (command_line.HasSwitch(switches::kProxyServerPacUrl)) {
+  if (command_line.HasSwitch(switches::kProxyPacUrl)) {
     proxy_config->pac_url =
         GURL(WideToASCII(command_line.GetSwitchValue(
-            switches::kProxyServerPacUrl)));
+            switches::kProxyPacUrl)));
   }
 
-  if (command_line.HasSwitch(switches::kProxyServerAutoDetect)) {
+  if (command_line.HasSwitch(switches::kProxyAutoDetect)) {
     proxy_config->auto_detect = true;
   }
 
-  if (command_line.HasSwitch(switches::kProxyServerBypassUrls)) {
+  if (command_line.HasSwitch(switches::kProxyBypassUrls)) {
     proxy_config->ParseNoProxyList(
         WideToASCII(command_line.GetSwitchValue(
-            switches::kProxyServerBypassUrls)));
+            switches::kProxyBypassUrls)));
   }
 
   return proxy_config;
