@@ -738,6 +738,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\dock_info_win.cc"
+				>
+			</File>
+			<File
 				RelativePath=".\dock_info.cc"
 				>
 			</File>

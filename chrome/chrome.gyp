@@ -1673,6 +1673,14 @@
             # Exclude all of views.
             ['exclude', '^browser/views/'],
           ],
+          'conditions': [
+            ['toolkit_views==1',{
+              'sources/': [
+                ['include', '^browser/dock_info.cc'],
+                ['include', '^browser/dock_info.h'],
+              ],
+            }],
+          ],
           'sources!': [
             'browser/autocomplete/autocomplete_accessibility.cc',
             'browser/automation/ui_controls.cc',

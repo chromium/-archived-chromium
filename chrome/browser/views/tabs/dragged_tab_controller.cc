@@ -153,25 +153,30 @@ class DraggedTabController::DockDisplayer : public AnimationDelegate {
                 const DockInfo& info)
       : controller_(controller),
         popup_(NULL),
-        popup_hwnd_(NULL),
+        popup_window_(NULL),
 #pragma warning(suppress: 4355)  // Okay to pass "this" here.
         animation_(this),
         hidden_(false),
         in_enable_area_(info.in_enable_area()) {
-    popup_ = new views::WidgetWin;
-    popup_->set_window_style(WS_POPUP);
-    popup_->set_window_ex_style(WS_EX_LAYERED | WS_EX_TOOLWINDOW |
-                                WS_EX_TOPMOST);
-    popup_->SetLayeredAlpha(0x00);
-    popup_->Init(NULL, info.GetPopupRect(), false);
-    popup_->SetContentsView(new DockView(info.type()));
+#if defined(OS_WIN)
+    views::WidgetWin* popup = new views::WidgetWin;
+    popup_ = popup;
+    popup->set_window_style(WS_POPUP);
+    popup->set_window_ex_style(WS_EX_LAYERED | WS_EX_TOOLWINDOW |
+                               WS_EX_TOPMOST);
+    popup->SetLayeredAlpha(0x00);
+    popup->Init(NULL, info.GetPopupRect(), false);
+    popup->SetContentsView(new DockView(info.type()));
     if (info.in_enable_area())
       animation_.Reset(1);
     else
       animation_.Show();
-    popup_->SetWindowPos(HWND_TOP, 0, 0, 0, 0,
+    popup->SetWindowPos(HWND_TOP, 0, 0, 0, 0,
         SWP_NOSIZE | SWP_NOACTIVATE | SWP_NOMOVE | SWP_SHOWWINDOW);
-    popup_hwnd_ = popup_->GetNativeView();
+#else
+    NOTIMPLEMENTED()
+#endif
+    popup_window_ = popup_->GetNativeView();
   }
 
   ~DockDisplayer() {
@@ -191,8 +196,8 @@ class DraggedTabController::DockDisplayer : public AnimationDelegate {
   // when the DraggedTabController is destoryed.
   void clear_controller() { controller_ = NULL; }
 
-  // HWND of the window we create.
-  HWND popup_hwnd() { return popup_hwnd_; }
+  // NativeWindow of the window we create.
+  gfx::NativeWindow popup_window() { return popup_window_; }
 
   // Starts the hide animation. When the window is closed the
   // DraggedTabController is notified by way of the DockDisplayerDestroyed
@@ -216,14 +221,22 @@ class DraggedTabController::DockDisplayer : public AnimationDelegate {
   virtual void AnimationEnded(const Animation* animation) {
     if (!hidden_)
       return;
-    popup_->Close();
+#if defined(OS_WIN)
+    static_cast<views::WidgetWin*>(popup_)->Close();
+#else
+    NOTIMPLEMENTED();
+#endif
     delete this;
   }
 
   virtual void UpdateLayeredAlpha() {
     double scale = in_enable_area_ ? 1 : .5;
-    popup_->SetLayeredAlpha(
+#if defined(OS_WIN)
+    static_cast<views::WidgetWin*>(popup_)->SetLayeredAlpha(
         static_cast<BYTE>(animation_.GetCurrentValue() * scale * 255.0));
+#else
+    NOTIMPLEMENTED();
+#endif
     popup_->GetRootView()->SchedulePaint();
   }
 
@@ -232,11 +245,11 @@ class DraggedTabController::DockDisplayer : public AnimationDelegate {
   DraggedTabController* controller_;
 
   // Window we're showing.
-  views::WidgetWin* popup_;
+  views::Widget* popup_;
 
-  // HWND of |popup_|. We cache this to avoid the possibility of invoking a
-  // method on popup_ after we close it.
-  HWND popup_hwnd_;
+  // NativeWindow of |popup_|. We cache this to avoid the possibility of
+  // invoking a method on popup_ after we close it.
+  gfx::NativeWindow popup_window_;
 
   // Animation for when first made visible.
   SlideAnimation animation_;
@@ -464,9 +477,9 @@ void DraggedTabController::UpdateDockInfo(const gfx::Point& screen_point) {
     if (dock_info_.type() != DockInfo::NONE) {
       // Show new docking position.
       DockDisplayer* controller = new DockDisplayer(this, dock_info_);
-      if (controller->popup_hwnd()) {
+      if (controller->popup_window()) {
         dock_controllers_.push_back(controller);
-        dock_windows_.insert(controller->popup_hwnd());
+        dock_windows_.insert(controller->popup_window());
       } else {
         delete controller;
       }
@@ -1113,8 +1126,8 @@ void DraggedTabController::OnAnimateToBoundsComplete() {
 
 void DraggedTabController::DockDisplayerDestroyed(
     DockDisplayer* controller) {
-  std::set<HWND>::iterator dock_i =
-      dock_windows_.find(controller->popup_hwnd());
+  DockWindows::iterator dock_i =
+      dock_windows_.find(controller->popup_window());
   if (dock_i != dock_windows_.end())
     dock_windows_.erase(dock_i);
   else
@@ -1131,7 +1144,7 @@ void DraggedTabController::DockDisplayerDestroyed(
 
 void DraggedTabController::BringWindowUnderMouseToFront() {
   // If we're going to dock to another window, bring it to the front.
-  HWND hwnd = dock_info_.hwnd();
+  HWND hwnd = dock_info_.window();
   if (!hwnd) {
     HWND dragged_hwnd = view_->GetWidget()->GetNativeView();
     dock_windows_.insert(dragged_hwnd);

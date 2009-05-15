@@ -6,12 +6,10 @@
 #define CHROME_BROWSER_DOCK_INFO_H_
 
 #include <set>
-#include <windows.h>
 
+#include "base/gfx/native_widget_types.h"
 #include "base/gfx/point.h"
 #include "base/gfx/rect.h"
-
-class Profile;
 
 // DockInfo is used to do determine possible dock locations for a dragged
 // tab. To use DockInfo invoke GetDockInfoAtPoint. This returns a new
@@ -27,11 +25,13 @@ class DockInfo {
  public:
   class Factory {
    public:
-    virtual DockInfo GetDockInfoAtPoint(const gfx::Point& screen_point,
-                                        const std::set<HWND>& ignore) = 0;
+    virtual DockInfo GetDockInfoAtPoint(
+        const gfx::Point& screen_point,
+        const std::set<gfx::NativeWindow>& ignore) = 0;
 
-    virtual HWND GetLocalProcessWindowAtPoint(const gfx::Point& screen_point,
-                                              const std::set<HWND>& ignore) = 0;
+    virtual gfx::NativeWindow GetLocalProcessWindowAtPoint(
+        const gfx::Point& screen_point,
+        const std::set<gfx::NativeWindow>& ignore) = 0;
   };
 
    // Possible dock positions.
@@ -40,7 +40,7 @@ class DockInfo {
     NONE,
 
     // Indicates the new window should be positioned relative to the window
-    // identified by hwnd().
+    // identified by window().
     LEFT_OF_WINDOW,
     RIGHT_OF_WINDOW,
     BOTTOM_OF_WINDOW,
@@ -55,7 +55,22 @@ class DockInfo {
     BOTTOM_HALF
   };
 
-  DockInfo() : type_(NONE), hwnd_(NULL), in_enable_area_(false) {}
+  DockInfo() : type_(NONE), window_(NULL), in_enable_area_(false) {}
+
+  // Returns true if |screen_loc| is close to the hotspot at |x|, |y|. If the
+  // point is close enough to the hotspot true is returned and |in_enable_area|
+  // is set appropriately.
+  static bool IsCloseToPoint(const gfx::Point& screen_loc,
+                             int x,
+                             int y,
+                             bool* in_enable_area);
+
+  // Variant of IsCloseToPoint used for monitor relative positions.
+  static bool IsCloseToMonitorPoint(const gfx::Point& screen_loc,
+                                    int x,
+                                    int y,
+                                    DockInfo::Type type,
+                                    bool* in_enable_area);
 
   // Sets the factory.
   static void set_factory(Factory* factory) { factory_ = factory; }
@@ -65,7 +80,7 @@ class DockInfo {
   static int popup_height();
 
   // Returns the DockInfo for the specified point |screen_point|. |ignore|
-  // contains the set of hwnds to ignore from consideration. This contains the
+  // contains the set of windows to ignore from consideration. This contains the
   // dragged window as well as any windows showing possible dock locations.
   //
   // If there is no docking position for the specified location the returned
@@ -74,7 +89,7 @@ class DockInfo {
   // If a Factory has been set, the method of the same name is invoked on the
   // Factory to determine the DockInfo.
   static DockInfo GetDockInfoAtPoint(const gfx::Point& screen_point,
-                                     const std::set<HWND>& ignore);
+                                     const std::set<gfx::NativeWindow>& ignore);
 
   // Returns the top most window from the current process at |screen_point|.
   // See GetDockInfoAtPoint for a description of |ignore|. This returns NULL if
@@ -83,8 +98,9 @@ class DockInfo {
   //
   // If a Factory has been set, the method of the same name is invoked on the
   // Factory to determine the DockInfo.
-  static HWND GetLocalProcessWindowAtPoint(const gfx::Point& screen_point,
-                                           const std::set<HWND>& ignore);
+  static gfx::NativeWindow GetLocalProcessWindowAtPoint(
+      const gfx::Point& screen_point,
+      const std::set<gfx::NativeWindow>& ignore);
 
   // Returns true if this DockInfo is valid for the specified point. This
   // resets in_enable_area based on the new location.
@@ -107,8 +123,8 @@ class DockInfo {
 
   // The window to dock too. Is null for dock types that are relative to the
   // monitor.
-  void set_hwnd(HWND hwnd) { hwnd_ = hwnd; }
-  HWND hwnd() const { return hwnd_; }
+  void set_window(gfx::NativeWindow window) { window_ = window; }
+  gfx::NativeWindow window() const { return window_; }
 
   // The location of the hotspot.
   void set_hot_spot(const gfx::Point& hot_spot) { hot_spot_ = hot_spot; }
@@ -137,9 +153,9 @@ class DockInfo {
   bool in_enable_area() const { return in_enable_area_; }
 
   // Returns true if |other| is considered equal to this. Two DockInfos are
-  // considered equal if they have the same type and same hwnd.
+  // considered equal if they have the same type and same window.
   bool equals(const DockInfo& other) const {
-    return type_ == other.type_ && hwnd_ == other.hwnd_ &&
+    return type_ == other.type_ && window_ == other.window_ &&
            monitor_bounds_ == other.monitor_bounds_;
   }
 
@@ -152,8 +168,12 @@ class DockInfo {
                          Type type);
 
  private:
+  // Returns the bounds of the window.
+  bool GetWindowBounds(gfx::Rect* bounds) const;
+  void SizeOtherWindowTo(const gfx::Rect& bounds) const;
+
   Type type_;
-  HWND hwnd_;
+  gfx::NativeWindow window_;
   gfx::Point hot_spot_;
   gfx::Rect monitor_bounds_;
   bool in_enable_area_;

@@ -297,7 +297,8 @@ class DraggedTabController : public TabContentsDelegate,
 
   DockInfo dock_info_;
 
-  std::set<HWND> dock_windows_;
+  typedef std::set<gfx::NativeWindow> DockWindows;
+  DockWindows dock_windows_;
   std::vector<DockDisplayer*> dock_controllers_;
 
   // Timer used to bring the window under the cursor to front. If the user

@@ -350,6 +350,7 @@ class FaviconStatus {
   GURL url_;
 };
 
+#if !defined(TOOLKIT_VIEWS)
 class DockInfo {
  public:
   bool GetNewWindowBounds(gfx::Rect*, bool*) const {
@@ -358,6 +359,7 @@ class DockInfo {
   }
   void AdjustOtherWindowBounds() const { NOTIMPLEMENTED(); }
 };
+#endif
 
 #if defined(OS_LINUX)
 class WindowSizer {
