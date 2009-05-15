@@ -22,7 +22,7 @@ class MockThemeSource : public DOMUIThemeSource {
   }
 
   int result_request_id_;
-  unsigned int result_data_size_;
+  size_t result_data_size_;
 };
 
 // A mock profile
