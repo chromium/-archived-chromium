@@ -2683,6 +2683,9 @@ BUG11812 MAC : LayoutTests/http/tests/xmlhttprequest/supported-xml-content-types
 
 // These tests started to fail after r43604 upstream.
 BUG11909 : LayoutTests/http/tests/navigation/new-window-redirect-history.html = FAIL
+BUG11909 : LayoutTests/http/tests/security/aboutBlank/security-context-grandchildren-lexical.html = FAIL
+BUG11909 : LayoutTests/http/tests/security/aboutBlank/security-context-grandchildren-write-lexical.html = FAIL
+BUG11909 : LayoutTests/http/tests/security/aboutBlank/security-context-grandchildren-writeln-lexical.html = FAIL
 
 BUG11924 WIN : LayoutTests/http/tests/navigation/relativeanchor-basic.html = FAIL
 
