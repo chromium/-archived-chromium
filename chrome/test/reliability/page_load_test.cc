@@ -133,8 +133,12 @@ class PageLoadTest : public UITest {
     show_window_ = true;
   }
 
-  void NavigateToURLLogResult(const GURL& url, std::ofstream& log_file,
+  // Accept URL as string here because the url may also act as a test id
+  // and needs to be logged in its original format even if invalid.
+  void NavigateToURLLogResult(const std::wstring& url_string,
+                              std::ofstream& log_file,
                               NavigationMetrics* metrics_output) {
+    GURL url = GURL(url_string);
     NavigationMetrics metrics = {NAVIGATION_ERROR};
     std::ofstream test_log;
 
@@ -240,7 +244,7 @@ class PageLoadTest : public UITest {
     }
 
     if (log_file.is_open()) {
-      log_file << url.spec();
+      log_file << url_string;
       switch (metrics.result) {
         case NAVIGATION_ERROR:
           log_file << " error";
@@ -296,7 +300,7 @@ class PageLoadTest : public UITest {
       for (int i = start_page; i <= end_page; ++i) {
         std::wstring test_page_url(
             StringPrintf(L"%ls/page?id=%d", server_url.c_str(), i));
-        NavigateToURLLogResult(GURL(test_page_url), log_file, NULL);
+        NavigateToURLLogResult(test_page_url, log_file, NULL);
       }
     } else {
       // Don't run if single process mode.
@@ -324,7 +328,11 @@ class PageLoadTest : public UITest {
       GURL test_url_1 = net::FilePathToFileURL(test_page_1);
       GURL test_url_2 = net::FilePathToFileURL(test_page_2);
 
-      NavigateToURLLogResult(test_url_1, log_file, &metrics);
+      // Convert back to string so that all calls to navigate are the same.
+      const std::wstring test_url_1_string = ASCIIToWide(test_url_1.spec());
+      const std::wstring test_url_2_string = ASCIIToWide(test_url_2.spec());
+
+      NavigateToURLLogResult(test_url_1_string, log_file, &metrics);
       // Verify everything is fine
       EXPECT_EQ(NAVIGATION_SUCCESS, metrics.result);
       EXPECT_EQ(0, metrics.crash_dump_count);
@@ -337,7 +345,7 @@ class PageLoadTest : public UITest {
       EXPECT_EQ(0, metrics.plugin_crash_count);
 
       // Go to "about:crash"
-      NavigateToURLLogResult(GURL(crash_url), log_file, &metrics);
+      NavigateToURLLogResult(std::wstring(crash_url), log_file, &metrics);
       // Found a crash dump
       EXPECT_EQ(1, metrics.crash_dump_count) << kFailedNoCrashService;
       // Browser did not crash, and exited cleanly.
@@ -348,7 +356,7 @@ class PageLoadTest : public UITest {
       EXPECT_EQ(1, metrics.renderer_crash_count);
       EXPECT_EQ(0, metrics.plugin_crash_count);
 
-      NavigateToURLLogResult(test_url_2, log_file, &metrics);
+      NavigateToURLLogResult(test_url_2_string, log_file, &metrics);
       // The data on previous crash should be cleared and we should get
       // metrics for a successful page load.
       EXPECT_EQ(NAVIGATION_SUCCESS, metrics.result);
@@ -399,7 +407,7 @@ class PageLoadTest : public UITest {
         break;
 
       if (start_index <= line_index) {
-        NavigateToURLLogResult(GURL(url_str), log_file, NULL);
+        NavigateToURLLogResult(ASCIIToWide(url_str), log_file, NULL);
       }
     }
 
@@ -598,7 +606,7 @@ TEST_F(PageLoadTest, Reliability) {
   }
 
   if (!end_url.empty()) {
-    NavigateToURLLogResult(GURL(end_url), log_file, NULL);
+    NavigateToURLLogResult(end_url, log_file, NULL);
   }
 
   log_file.close();
