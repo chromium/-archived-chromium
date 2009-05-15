@@ -1074,8 +1074,6 @@ BUG10324 WIN LINUX : LayoutTests/editing/selection/caret-rtl-2.html = FAIL
 BUG10325 WIN : LayoutTests/fast/dom/resource-locations-in-created-html-document.html = FAIL
 
 BUG10326 : LayoutTests/http/tests/messaging/cross-domain-message-event-dispatch.html = TIMEOUT FAIL PASS
-// See recent changes to test_shell_win.
-BUG10326 LINUX : LayoutTests/http/tests/navigation/metaredirect-basic.html = FAIL
 
 // GURL/KURL difference in handling of "http:".
 // New test. We should fix it, but it doesn't need to block the current release
@@ -1330,10 +1328,7 @@ BUG10670 MAC : chrome/fast/forms/basic-selects.html = FAIL
 // than rebasing, we'll wait for the upstream (which ojan said should happen
 // early in Jan 09).
 BUG10364 MAC : LayoutTests/fast/css/resize-corner-tracking.html = FAIL
-BUG10364 LINUX : LayoutTests/http/tests/navigation/javascriptlink-subframeload.html = TIMEOUT FAIL PASS
 BUG10364 MAC : LayoutTests/http/tests/navigation/reload-subframe-object.html = TIMEOUT FAIL
-BUG10364 LINUX : LayoutTests/http/tests/navigation/success200-frames.html = FAIL PASS
-BUG10364 LINUX : LayoutTests/http/tests/navigation/timerredirect-subframeload.html = TIMEOUT FAIL PASS
 
 // bad key event handling
 BUG10366 MAC : LayoutTests/fast/events/option-tab.html = FAIL
@@ -1715,7 +1710,6 @@ BUG10424 LINUX : LayoutTests/fast/clip/009.html = CRASH PASS
 BUG10424 LINUX : LayoutTests/fast/clip/013.html = CRASH PASS
 BUG10424 LINUX : LayoutTests/fast/clip/015.html = CRASH PASS
 BUG10424 LINUX : LayoutTests/fast/canvas/unclosed-canvas-4.html = CRASH PASS
-BUG10424 LINUX : LayoutTests/http/tests/navigation/redirect302-frames.html = FAIL PASS
 
 // Regression from r9839.
 BUG10425 LINUX : LayoutTests/tables/mozilla_expected_failures/marvin/backgr_position-table-column.html = FAIL
@@ -1925,7 +1919,6 @@ BUG10459 LINUX : LayoutTests/fast/text/international/rtl-white-space-pre-wrap.ht
 
 BUG10461 WIN LINUX : LayoutTests/fast/repaint/renderer-destruction-by-invalidateSelection-crash.html = FAIL PASS
 BUG10461 WIN LINUX : LayoutTests/editing/selection/move-by-line-002.html = FAIL PASS
-BUG10461 LINUX : LayoutTests/http/tests/navigation/javascriptlink-basic.html = FAIL PASS
 BUG10461 MAC : LayoutTests/fast/css/rgb-float.html = FAIL PASS
 BUG10461 MAC : LayoutTests/fast/forms/003.html = FAIL PASS
 BUG10461 MAC : LayoutTests/fast/forms/menulist-no-renderer-onmousedown.html = FAIL PASS
@@ -2129,7 +2122,7 @@ BUG9798 LINUX : pending/fast/repaint/bugzilla-6473.html = FAIL PASS
 BUG9798 LINUX DEBUG : LayoutTests/transitions/repeated-firing-background-color.html = FAIL PASS
 BUG9798 LINUX MAC : LayoutTests/editing/pasteboard/drag-drop-dead-frame.html = FAIL PASS
 BUG9798 LINUX RELEASE : LayoutTests/svg/carto.net/colourpicker.svg = FAIL PASS
-BUG9798 LINUX WIN : LayoutTests/http/tests/navigation/metaredirect-subframeload.html = TIMEOUT PASS FAIL
+BUG9798 LINUX WIN : LayoutTests/http/tests/navigation/metaredirect-subframeload.html = TIMEOUT PASS
 BUG9798 MAC : LayoutTests/dom/html/level2/html/HTMLSelectElement15.html = FAIL PASS
 BUG9798 MAC : LayoutTests/fast/dom/onerror-img.html = FAIL PASS
 BUG9798 MAC : LayoutTests/fast/images/load-img-with-empty-src.html = FAIL PASS
@@ -2387,38 +2380,10 @@ BUG11613 LINUX MAC : LayoutTests/fast/overflow/overflow-x-y.html = FAIL
 BUG11613 LINUX : LayoutTests/fast/parser/entity-comment-in-textarea.html = FAIL
 BUG11613 LINUX : LayoutTests/fast/parser/open-comment-in-textarea.html = FAIL
 BUG11613 LINUX : LayoutTests/fast/table/003.html = FAIL
-BUG11613 LINUX MAC : LayoutTests/http/tests/navigation/anchor-basic.html = FAIL
 BUG11613 LINUX MAC : LayoutTests/http/tests/navigation/anchor-frames.html = FAIL TIMEOUT
-BUG11613 LINUX MAC : LayoutTests/http/tests/navigation/anchor-goback.html = FAIL
-BUG11613 LINUX MAC : LayoutTests/http/tests/navigation/anchor-subframeload.html = FAIL
-BUG11613 MAC : LayoutTests/http/tests/navigation/javascriptlink-basic.html = FAIL
 BUG11613 MAC : LayoutTests/http/tests/navigation/javascriptlink-frames.html = FAIL
-BUG11613 LINUX MAC : LayoutTests/http/tests/navigation/javascriptlink-goback.html = FAIL
-BUG11613 MAC : LayoutTests/http/tests/navigation/javascriptlink-subframeload.html = FAIL
-BUG11613 MAC : LayoutTests/http/tests/navigation/metaredirect-basic.html = FAIL
-BUG11613 LINUX MAC : LayoutTests/http/tests/navigation/metaredirect-frames.html = FAIL
-BUG11613 LINUX MAC : LayoutTests/http/tests/navigation/metaredirect-goback.html = FAIL
-BUG11613 LINUX MAC : LayoutTests/http/tests/navigation/post-goback2.html = FAIL
-BUG11613 LINUX MAC : LayoutTests/http/tests/navigation/postredirect-goback2.html = FAIL
-BUG11613 LINUX MAC : LayoutTests/http/tests/navigation/redirect302-basic.html = FAIL
-BUG11613 MAC : LayoutTests/http/tests/navigation/redirect302-frames.html = FAIL
-BUG11613 LINUX MAC : LayoutTests/http/tests/navigation/redirect302-goback.html = FAIL
-BUG11613 LINUX MAC : LayoutTests/http/tests/navigation/redirect302-subframeload.html = FAIL
 BUG11613 LINUX MAC : LayoutTests/http/tests/navigation/relativeanchor-basic.html = FAIL
 BUG11613 LINUX MAC : LayoutTests/http/tests/navigation/relativeanchor-frames.html = FAIL
-BUG11613 LINUX MAC : LayoutTests/http/tests/navigation/relativeanchor-goback.html = FAIL
-BUG11613 LINUX MAC : LayoutTests/http/tests/navigation/slowmetaredirect-basic.html = FAIL
-BUG11613 LINUX MAC : LayoutTests/http/tests/navigation/slowtimerredirect-basic.html = FAIL
-BUG11613 LINUX MAC : LayoutTests/http/tests/navigation/success200-basic.html = FAIL
-BUG11613 MAC : LayoutTests/http/tests/navigation/success200-frames.html = FAIL
-BUG11613 LINUX MAC : LayoutTests/http/tests/navigation/success200-goback.html = FAIL
-BUG11613 LINUX MAC : LayoutTests/http/tests/navigation/success200-loadsame.html = FAIL
-BUG11613 LINUX MAC : LayoutTests/http/tests/navigation/success200-reload.html = FAIL
-BUG11613 LINUX MAC : LayoutTests/http/tests/navigation/success200-subframeload.html = FAIL
-BUG11613 LINUX MAC : LayoutTests/http/tests/navigation/timerredirect-basic.html = FAIL
-BUG11613 LINUX MAC : LayoutTests/http/tests/navigation/timerredirect-frames.html = FAIL
-BUG11613 LINUX MAC : LayoutTests/http/tests/navigation/timerredirect-goback.html = FAIL
-BUG11613 MAC : LayoutTests/http/tests/navigation/timerredirect-subframeload.html = FAIL
 BUG11613 LINUX : LayoutTests/tables/mozilla/bugs/bug194024.html = FAIL
 BUG11613 LINUX : LayoutTests/tables/mozilla/bugs/bug30559.html = FAIL
 BUG11613 LINUX : LayoutTests/tables/mozilla/bugs/bug30692.html = FAIL
