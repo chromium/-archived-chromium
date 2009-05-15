@@ -358,7 +358,7 @@ FilePath SpellChecker::GetVersionedFileName(const Language& input_language,
     {"hi-IN", "-1-1"},
     {"tr-TR", "-1-1"},
     {"et-EE", "-1-1"},
-    {"fr-FR", "-1-3"},
+    {"fr-FR", "-1-4"}, // to fix crash, fr dictionary was updated to 1.4
     {"lt-LT", "-1-3"},
     {"pl-PL", "-1-3"}
   };
