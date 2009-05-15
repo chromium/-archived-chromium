@@ -72,8 +72,6 @@ class AutocompleteEditViewMac : public AutocompleteEditView {
   virtual void RevertAll();
   virtual void UpdatePopup();
   virtual void ClosePopup();
-  void UpdateAndStyleText(const std::wstring& display_text,
-                          size_t user_text_length);
   virtual void OnTemporaryTextMaybeChanged(const std::wstring& display_text,
                                            bool save_original_selection);
   virtual bool OnInlineAutocompleteTextMaybeChanged(
@@ -97,6 +95,13 @@ class AutocompleteEditViewMac : public AutocompleteEditView {
   // field has focus.
   NSRange GetSelectedRange() const;
 
+  // Grab focus if needed and set the selection to |range|.
+  void SetSelectedRange(const NSRange range);
+
+  // Update the field with |display_text| and highlight the host and
+  // scheme (if it's an URL or URL-fragment).
+  void UpdateAndStyleText(const std::wstring& display_text);
+
   scoped_ptr<AutocompleteEditModel> model_;
   scoped_ptr<AutocompletePopupViewMac> popup_view_;
 
@@ -112,6 +117,9 @@ class AutocompleteEditViewMac : public AutocompleteEditView {
   // Objective-C object to bridge field_ delegate calls to C++.
   scoped_nsobject<AutocompleteEditHelper> edit_helper_;
 
+  // Text and selection at the point where the user started using the
+  // arrows to move around in the popup.
+  NSRange saved_temporary_selection_;
   std::wstring saved_temporary_text_;
 
   // Tracking state before and after a possible change for reporting

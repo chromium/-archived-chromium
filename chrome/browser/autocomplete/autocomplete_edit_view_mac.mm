@@ -12,6 +12,41 @@
 
 namespace {
 
+// TODO(shess): This is ugly, find a better way.  Using it right now
+// so that I can crib from gtk and still be able to see that I'm using
+// the same values easily.
+const NSColor* ColorWithRGBBytes(int rr, int gg, int bb) {
+  DCHECK_LE(rr, 255);
+  DCHECK_LE(bb, 255);
+  DCHECK_LE(gg, 255);
+  return [NSColor colorWithCalibratedRed:static_cast<float>(rr)/255.0
+                                   green:static_cast<float>(gg)/255.0
+                                    blue:static_cast<float>(bb)/255.0
+                                   alpha:1.0];
+}
+const NSColor* SecureBackgroundColor() {
+  return ColorWithRGBBytes(255, 245, 195);  // Yellow
+}
+const NSColor* NormalBackgroundColor() {
+  return [NSColor controlBackgroundColor];
+}
+const NSColor* InsecureBackgroundColor() {
+  return [NSColor controlBackgroundColor];
+}
+
+const NSColor* HostTextColor() {
+  return [NSColor blackColor];
+}
+const NSColor* BaseTextColor() {
+  return [NSColor darkGrayColor];
+}
+const NSColor* SecureSchemeColor() {
+  return ColorWithRGBBytes(0x00, 0x96, 0x14);
+}
+const NSColor* InsecureSchemeColor() {
+  return ColorWithRGBBytes(0xc8, 0x00, 0x00);
+}
+
 // Store's the model and view state across tab switches.
 struct AutocompleteEditViewMacState {
   AutocompleteEditViewMacState(const AutocompleteEditModel::State model_state,
@@ -42,6 +77,13 @@ void StoreStateToTab(TabContents* tab,
 }
 const AutocompleteEditViewMacState* GetStateFromTab(const TabContents* tab) {
   return GetStateAccessor()->GetProperty(tab->property_bag());
+}
+
+// Helper to make converting url_parse ranges to NSRange easier to
+// read.
+NSRange ComponentToNSRange(const url_parse::Component& component) {
+  return NSMakeRange(static_cast<NSInteger>(component.begin),
+                     static_cast<NSInteger>(component.len));
 }
 
 }  // namespace
@@ -77,6 +119,9 @@ AutocompleteEditViewMac::AutocompleteEditViewMac(
   DCHECK(command_updater);
   DCHECK(field);
   [field_ setDelegate:edit_helper_];
+
+  // Needed so that editing doesn't lose the styling.
+  [field_ setAllowsEditingTextAttributes:YES];
 }
 
 AutocompleteEditViewMac::~AutocompleteEditViewMac() {
@@ -137,9 +182,7 @@ void AutocompleteEditViewMac::Update(
       // not restoring focus is an oversight, or intentional for some
       // subtle reason.
       if (state->has_focus) {
-        FocusLocation();
-        DCHECK([field_ currentEditor]);
-        [[field_ currentEditor] setSelectedRange:state->selection];
+        SetSelectedRange(state->selection);
       }
     }
   } else if (user_visible) {
@@ -151,10 +194,7 @@ void AutocompleteEditViewMac::Update(
   } else {
     // TODO(shess): Figure out how this case is used, to make sure
     // we're getting the selection and popup right.
-    // UpdateAndStyleText() approximates the inner part of Revertall()
-    // which under GTK is called EmphasizeURLComponents(), and is
-    // expected to change when I start feeding in the styling code.
-    UpdateAndStyleText(text, 0);
+    UpdateAndStyleText(text);
   }
 }
 
@@ -187,7 +227,9 @@ void AutocompleteEditViewMac::SetUserText(const std::wstring& text,
                                           const std::wstring& display_text,
                                           bool update_popup) {
   model_->SetUserText(text);
-  UpdateAndStyleText(display_text, display_text.size());
+  // TODO(shess): TODO below from gtk.
+  // TODO(deanm): something about selection / focus change here.
+  UpdateAndStyleText(display_text);
   if (update_popup) {
     UpdatePopup();
   }
@@ -198,24 +240,40 @@ NSRange AutocompleteEditViewMac::GetSelectedRange() const {
   return [[field_ currentEditor] selectedRange];
 }
 
+void AutocompleteEditViewMac::SetSelectedRange(const NSRange range) {
+  // TODO(shess): Check if we should steal focus or not.  We can't set
+  // the selection without focus, though.
+  FocusLocation();
+
+  // TODO(shess): What if it didn't get first responder, and there is
+  // no field editor?  This will do nothing.  Well, at least it won't
+  // crash.  Think of something more productive to do, or prove that
+  // it cannot occur and DCHECK appropriately.
+  [[field_ currentEditor] setSelectedRange:range];
+}
+
 void AutocompleteEditViewMac::SetWindowTextAndCaretPos(const std::wstring& text,
                                                        size_t caret_pos) {
-  UpdateAndStyleText(text, text.size());
+  DCHECK_LE(caret_pos, text.size());
+  UpdateAndStyleText(text);
+  SetSelectedRange(NSMakeRange(caret_pos, caret_pos));
 }
 
 void AutocompleteEditViewMac::SelectAll(bool reversed) {
-  // TODO(shess): Figure out what reversed implies.  The gtk version
+  // TODO(shess): Figure out what |reversed| implies.  The gtk version
   // has it imply inverting the selection front to back, but I don't
   // even know if that makes sense for Mac.
-  UpdateAndStyleText(GetText(), 0);
+
+  // TODO(shess): Verify that we should be stealing focus at this
+  // point.
+  SetSelectedRange(NSMakeRange(0, GetText().size()));
 }
 
 void AutocompleteEditViewMac::RevertAll() {
   ClosePopup();
   model_->Revert();
 
-  std::wstring tt = GetText();
-  UpdateAndStyleText(tt, 0);
+  UpdateAndStyleText(GetText());
   controller_->OnChanged();
 }
 
@@ -238,61 +296,56 @@ void AutocompleteEditViewMac::ClosePopup() {
 }
 
 void AutocompleteEditViewMac::UpdateAndStyleText(
-    const std::wstring& display_text, size_t user_text_length) {
-  NSDictionary* attributes = [NSDictionary dictionaryWithObjectsAndKeys:
-                                  [field_ font], NSFontAttributeName,
-                                  nil];
+    const std::wstring& display_text) {
   NSString* ss = base::SysWideToNSString(display_text);
   NSMutableAttributedString* as =
-      [[[NSMutableAttributedString alloc] initWithString:ss
-                                              attributes:attributes]
-        autorelease];
+      [[[NSMutableAttributedString alloc] initWithString:ss] autorelease];
+  [as addAttribute:NSFontAttributeName value:[field_ font]
+             range:NSMakeRange(0, [as length])];
 
   url_parse::Parsed parts;
   AutocompleteInput::Parse(display_text, model_->GetDesiredTLD(),
                            &parts, NULL);
-  bool emphasize = model_->CurrentTextIsURL() && (parts.host.len > 0);
+  const bool emphasize = model_->CurrentTextIsURL() && (parts.host.len > 0);
   if (emphasize) {
-    // TODO(shess): Pull color out as a constant.
-    [as addAttribute:NSForegroundColorAttributeName
-               value:[NSColor greenColor]
-               range:NSMakeRange((NSInteger)parts.host.begin,
-                                 (NSInteger)parts.host.len)];
+    [as addAttribute:NSForegroundColorAttributeName value:BaseTextColor()
+               range:NSMakeRange(0, [as length])];
+
+    [as addAttribute:NSForegroundColorAttributeName value:HostTextColor()
+               range:ComponentToNSRange(parts.host)];
   }
 
   // TODO(shess): GTK has this as a member var, figure out why.
-  ToolbarModel::SecurityLevel scheme_security_level =
+  // [Could it be to not change if no change?  If so, I'm guessing
+  // AppKit may already handle that.]
+  const ToolbarModel::SecurityLevel scheme_security_level =
       toolbar_model_->GetSchemeSecurityLevel();
+
+  if (scheme_security_level == ToolbarModel::SECURE) {
+    [field_ setBackgroundColor:SecureBackgroundColor()];
+  } else if (scheme_security_level == ToolbarModel::NORMAL) {
+    [field_ setBackgroundColor:NormalBackgroundColor()];
+  } else if (scheme_security_level == ToolbarModel::INSECURE) {
+    [field_ setBackgroundColor:InsecureBackgroundColor()];
+  } else {
+    NOTREACHED() << "Unexpected scheme_security_level: "
+                 << scheme_security_level;
+  }
 
   // Emphasize the scheme for security UI display purposes (if necessary).
   if (!model_->user_input_in_progress() && parts.scheme.is_nonempty() &&
       (scheme_security_level != ToolbarModel::NORMAL)) {
-    // TODO(shess): Pull colors out as constants.
     NSColor* color;
     if (scheme_security_level == ToolbarModel::SECURE) {
-      color = [NSColor blueColor];
+      color = SecureSchemeColor();
     } else {
-      color = [NSColor blackColor];
+      color = InsecureSchemeColor();
     }
     [as addAttribute:NSForegroundColorAttributeName value:color
-               range:NSMakeRange((NSInteger)parts.scheme.begin,
-                                 (NSInteger)parts.scheme.len)];
+               range:ComponentToNSRange(parts.scheme)];
   }
 
-  // TODO(shess): Check that this updates the model's sense of focus
-  // correctly.
   [field_ setObjectValue:as];
-  if (![field_ currentEditor]) {
-    [field_ becomeFirstResponder];
-    DCHECK_EQ([field_ currentEditor], [[field_ window] firstResponder]);
-  }
-
-  NSRange selected_range = NSMakeRange(user_text_length, [as length]);
-  // TODO(shess): What if it didn't get first responder, and there is
-  // no field editor?  This will do nothing.  Well, at least it won't
-  // crash.  Think of something more productive to do, or prove that
-  // it cannot occur and DCHECK appropriately.
-  [[field_ currentEditor] setSelectedRange:selected_range];
 }
 
 void AutocompleteEditViewMac::OnTemporaryTextMaybeChanged(
@@ -301,10 +354,11 @@ void AutocompleteEditViewMac::OnTemporaryTextMaybeChanged(
   // the popup, will be restored if they hit escape.  Figure out if
   // that is for certain it.
   if (save_original_selection) {
+    saved_temporary_selection_ = GetSelectedRange();
     saved_temporary_text_ = GetText();
   }
 
-  UpdateAndStyleText(display_text, display_text.size());
+  SetWindowTextAndCaretPos(display_text, display_text.size());
 }
 
 bool AutocompleteEditViewMac::OnInlineAutocompleteTextMaybeChanged(
@@ -316,13 +370,16 @@ bool AutocompleteEditViewMac::OnInlineAutocompleteTextMaybeChanged(
     return false;
   }
 
-  UpdateAndStyleText(display_text, user_text_length);
+  UpdateAndStyleText(display_text);
+  DCHECK_LE(user_text_length, display_text.size());
+  SetSelectedRange(NSMakeRange(user_text_length, display_text.size()));
   return true;
 }
 
 void AutocompleteEditViewMac::OnRevertTemporaryText() {
-  UpdateAndStyleText(saved_temporary_text_, saved_temporary_text_.size());
+  UpdateAndStyleText(saved_temporary_text_);
   saved_temporary_text_.clear();
+  SetSelectedRange(saved_temporary_selection_);
 }
 
 void AutocompleteEditViewMac::OnBeforePossibleChange() {
@@ -331,14 +388,14 @@ void AutocompleteEditViewMac::OnBeforePossibleChange() {
 }
 
 bool AutocompleteEditViewMac::OnAfterPossibleChange() {
-  NSRange new_selection(GetSelectedRange());
-  std::wstring new_text(GetText());
+  const NSRange new_selection(GetSelectedRange());
+  const std::wstring new_text(GetText());
   const size_t length = new_text.length();
 
-  bool selection_differs = !NSEqualRanges(new_selection,
-                                          selection_before_change_);
-  bool at_end_of_edit = (length == new_selection.location);
-  bool text_differs = (new_text != text_before_change_);
+  const bool selection_differs = !NSEqualRanges(new_selection,
+                                                selection_before_change_);
+  const bool at_end_of_edit = (length == new_selection.location);
+  const bool text_differs = (new_text != text_before_change_);
 
   // When the user has deleted text, we don't allow inline
   // autocomplete.  This is assumed if the text has gotten shorter AND
@@ -350,21 +407,33 @@ bool AutocompleteEditViewMac::OnAfterPossibleChange() {
   // and other methods to provide positive knowledge that a delete
   // occured, rather than intuiting it from context.  Consider whether
   // that would be a stronger approach.
-  bool just_deleted_text =
+  const bool just_deleted_text =
       (length < text_before_change_.length() &&
        new_selection.location <= selection_before_change_.location);
 
-  bool something_changed = model_->OnAfterPossibleChange(new_text,
+  const bool something_changed = model_->OnAfterPossibleChange(new_text,
       selection_differs, text_differs, just_deleted_text, at_end_of_edit);
 
-  // TODO(shess): Restyle the text if something_changed.  Not fixing
-  // now because styling is currently broken.
+  // Restyle if the user changed something.
+  // TODO(shess): Does this need to diver deeper to avoid flashing?
+  // For instance, if the user types "/" after the hostname, will it
+  // show as HostTextColor() for an instant before being replaced by
+  // BaseTextColor().  This could probably be done by subclassing the
+  // cell and intercepting draw requests so that we draw the right
+  // thing every time.
+  // NOTE(shess): That kind of thing would also help with when the
+  // flashing from when the user's typing replaces the selection which
+  // is then re-created with the new autocomplete results.
+  if (something_changed) {
+    UpdateAndStyleText(new_text);
+    SetSelectedRange(new_selection);
+  }
 
   return something_changed;
 }
 
 void AutocompleteEditViewMac::OnUpOrDownKeyPressed(bool up, bool by_page) {
-  int count = by_page ? model_->result().size() : 1;
+  const int count = by_page ? model_->result().size() : 1;
   model_->OnUpOrDownKeyPressed(up ? -count : count);
 }
 void AutocompleteEditViewMac::OnEscapeKeyPressed() {
@@ -387,6 +456,7 @@ void AutocompleteEditViewMac::FocusLocation() {
   // current selection.
   if (![field_ currentEditor]) {
     [[field_ window] makeFirstResponder:field_];
+    DCHECK_EQ([field_ currentEditor], [[field_ window] firstResponder]);
   }
 }
 
