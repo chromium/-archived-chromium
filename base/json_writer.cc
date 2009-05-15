@@ -12,13 +12,22 @@
 const char kPrettyPrintLineEnding[] = "\r\n";
 
 /* static */
-void JSONWriter::Write(const Value* const node, bool pretty_print,
+void JSONWriter::Write(const Value* const node,
+                       bool pretty_print,
                        std::string* json) {
+  WriteWithOptionalEscape(node, pretty_print, true, json);
+}
+
+/* static */
+void JSONWriter::WriteWithOptionalEscape(const Value* const node,
+                                         bool pretty_print,
+                                         bool escape,
+                                         std::string* json) {
   json->clear();
   // Is there a better way to estimate the size of the output?
   json->reserve(1024);
   JSONWriter writer(pretty_print, json);
-  writer.BuildJSONString(node, 0);
+  writer.BuildJSONString(node, 0, escape);
   if (pretty_print)
     json->append(kPrettyPrintLineEnding);
 }
@@ -29,7 +38,9 @@ JSONWriter::JSONWriter(bool pretty_print, std::string* json)
   DCHECK(json);
 }
 
-void JSONWriter::BuildJSONString(const Value* const node, int depth) {
+void JSONWriter::BuildJSONString(const Value* const node,
+                                 int depth,
+                                 bool escape) {
   switch(node->GetType()) {
     case Value::TYPE_NULL:
       json_string_->append("null");
@@ -81,10 +92,17 @@ void JSONWriter::BuildJSONString(const Value* const node, int depth) {
 
     case Value::TYPE_STRING:
       {
-        std::wstring value;
-        bool result = node->GetAsString(&value);
-        DCHECK(result);
-        AppendQuotedString(value);
+        if (escape) {
+          std::wstring value;
+          bool result = node->GetAsString(&value);
+          DCHECK(result);
+          AppendQuotedString(value);
+        } else {
+          std::string value;
+          bool result = node->GetAsString(&value);
+          DCHECK(result);
+          string_escape::JavascriptDoubleQuote(value, true, json_string_);
+        }
         break;
       }
 
@@ -105,7 +123,7 @@ void JSONWriter::BuildJSONString(const Value* const node, int depth) {
           Value* value = NULL;
           bool result = list->Get(i, &value);
           DCHECK(result);
-          BuildJSONString(value, depth);
+          BuildJSONString(value, depth, escape);
         }
 
         if (pretty_print_)
@@ -144,7 +162,7 @@ void JSONWriter::BuildJSONString(const Value* const node, int depth) {
           } else {
             json_string_->append(":");
           }
-          BuildJSONString(value, depth + 1);
+          BuildJSONString(value, depth + 1, escape);
         }
 
         if (pretty_print_) {
@@ -164,7 +182,8 @@ void JSONWriter::BuildJSONString(const Value* const node, int depth) {
 }
 
 void JSONWriter::AppendQuotedString(const std::wstring& str) {
-  string_escape::JavascriptDoubleQuote(WideToUTF16Hack(str), true,
+  string_escape::JavascriptDoubleQuote(WideToUTF16Hack(str),
+                                       true,
                                        json_string_);
 }
 

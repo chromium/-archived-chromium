@@ -23,12 +23,20 @@ class JSONWriter {
   static void Write(const Value* const node, bool pretty_print,
                     std::string* json);
 
+  // Same as above, but has an option to not escape the string, preserving its
+  // UTF8 characters. It is useful if you can pass resulting string to the
+  // JSON parser in binary form (as UTF8).
+  static void WriteWithOptionalEscape(const Value* const node,
+                                      bool pretty_print,
+                                      bool escape,
+                                      std::string* json);
+
  private:
   JSONWriter(bool pretty_print, std::string* json);
 
   // Called recursively to build the JSON string.  Whe completed, value is
   // json_string_ will contain the JSON.
-  void BuildJSONString(const Value* const node, int depth);
+  void BuildJSONString(const Value* const node, int depth, bool escape);
 
   // Appends a quoted, escaped, version of str to json_string_.
   void AppendQuotedString(const std::wstring& str);
