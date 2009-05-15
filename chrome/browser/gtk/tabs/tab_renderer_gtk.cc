@@ -85,7 +85,7 @@ TabRendererGtk::TabImage TabRendererGtk::tab_active_ = {0};
 TabRendererGtk::TabImage TabRendererGtk::tab_inactive_ = {0};
 TabRendererGtk::TabImage TabRendererGtk::tab_alpha = {0};
 TabRendererGtk::TabImage TabRendererGtk::tab_hover_ = {0};
-ChromeFont* TabRendererGtk::title_font_ = NULL;
+gfx::Font* TabRendererGtk::title_font_ = NULL;
 int TabRendererGtk::title_font_height_ = 0;
 SkBitmap* TabRendererGtk::download_icon_ = NULL;
 int TabRendererGtk::download_icon_width_ = 0;
@@ -589,7 +589,7 @@ void TabRendererGtk::InitResources() {
   LoadTabImages();
 
   ResourceBundle& rb = ResourceBundle::GetSharedInstance();
-  title_font_ = new ChromeFont(rb.GetFont(ResourceBundle::BaseFont));
+  title_font_ = new gfx::Font(rb.GetFont(ResourceBundle::BaseFont));
   title_font_height_ = title_font_->height();
 
   InitializeLoadingAnimationData(&rb, &loading_animation_data);

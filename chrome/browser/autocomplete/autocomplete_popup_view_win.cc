@@ -87,10 +87,10 @@ int AutocompletePopupViewWin::MirroringContext::GetLeft(int x1, int x2) const {
 const wchar_t AutocompletePopupViewWin::DrawLineInfo::ellipsis_str[] =
     L"\x2026";
 
-AutocompletePopupViewWin::DrawLineInfo::DrawLineInfo(const ChromeFont& font) {
+AutocompletePopupViewWin::DrawLineInfo::DrawLineInfo(const gfx::Font& font) {
   // Create regular and bold fonts.
   regular_font = font.DeriveFont(-1);
-  bold_font = regular_font.DeriveFont(0, ChromeFont::BOLD);
+  bold_font = regular_font.DeriveFont(0, gfx::Font::BOLD);
 
   // The total padding added to each line (bottom padding is what is
   // left over after DrawEntry() specifies its top offset).
@@ -186,7 +186,7 @@ COLORREF AutocompletePopupViewWin::DrawLineInfo::AlphaBlend(
 }
 
 AutocompletePopupViewWin::AutocompletePopupViewWin(
-    const ChromeFont& font,
+    const gfx::Font& font,
     AutocompleteEditViewWin* edit_view,
     AutocompleteEditModel* edit_model,
     Profile* profile)
@@ -680,7 +680,7 @@ void AutocompletePopupViewWin::DrawStar(HDC dc, int x, int y) const {
 
 // static
 AutocompletePopupView* AutocompletePopupView::CreatePopupView(
-    const ChromeFont& font,
+    const gfx::Font& font,
     AutocompleteEditViewWin* edit_view,
     AutocompleteEditModel* edit_model,
     Profile* profile,

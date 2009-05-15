@@ -37,7 +37,7 @@ struct TestData {
 };
 
 void RunTest(Testcase* testcases, size_t num_testcases) {
-  static const ChromeFont font;
+  static const gfx::Font font;
   for (size_t i = 0; i < num_testcases; ++i) {
     const GURL url(testcases[i].input);
     // Should we test with non-empty language list?
@@ -175,7 +175,7 @@ TEST(TextEliderTest, TestFilenameEliding) {
       L"filename.mid" + kEllipsisStr + L".longext"}
   };
 
-  static const ChromeFont font;
+  static const gfx::Font font;
   for (size_t i = 0; i < arraysize(testcases); ++i) {
     FilePath filepath(testcases[i].input);
     EXPECT_EQ(testcases[i].output, ElideFilename(filepath,
@@ -210,7 +210,7 @@ TEST(TextEliderTest, ElideTextLongStrings) {
       data_scheme + std::wstring(156, L'a') + kEllipsisStr},
   };
 
-  const ChromeFont font;
+  const gfx::Font font;
   int ellipsis_width = font.GetStringWidth(kEllipsisStr);
   for (size_t i = 0; i < arraysize(testcases); ++i) {
     // Compare sizes rather than actual contents because if the test fails,

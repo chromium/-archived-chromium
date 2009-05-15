@@ -25,8 +25,8 @@ static const SkColor kBackgroundEndColor = SkColorSetRGB(35, 48, 64);
 
 // static
 SkBitmap* SadTabView::sad_tab_bitmap_ = NULL;
-ChromeFont* SadTabView::title_font_ = NULL;
-ChromeFont* SadTabView::message_font_ = NULL;
+gfx::Font* SadTabView::title_font_ = NULL;
+gfx::Font* SadTabView::message_font_ = NULL;
 std::wstring SadTabView::title_;
 std::wstring SadTabView::message_;
 int SadTabView::title_width_;
@@ -85,9 +85,9 @@ void SadTabView::InitClass() {
   static bool initialized = false;
   if (!initialized) {
     ResourceBundle& rb = ResourceBundle::GetSharedInstance();
-    title_font_ = new ChromeFont(
-        rb.GetFont(ResourceBundle::BaseFont).DeriveFont(2, ChromeFont::BOLD));
-    message_font_ = new ChromeFont(
+    title_font_ = new gfx::Font(
+        rb.GetFont(ResourceBundle::BaseFont).DeriveFont(2, gfx::Font::BOLD));
+    message_font_ = new gfx::Font(
         rb.GetFont(ResourceBundle::BaseFont).DeriveFont(1));
     sad_tab_bitmap_ = rb.GetBitmapNamed(IDR_SAD_TAB);
 

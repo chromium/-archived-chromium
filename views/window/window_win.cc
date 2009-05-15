@@ -186,7 +186,7 @@ void WindowWin::PopForceHidden() {
 int Window::GetLocalizedContentsWidth(int col_resource_id) {
   double chars = _wtof(l10n_util::GetString(col_resource_id).c_str());
   ResourceBundle& rb = ResourceBundle::GetSharedInstance();
-  ChromeFont font = rb.GetFont(ResourceBundle::BaseFont);
+  gfx::Font font = rb.GetFont(ResourceBundle::BaseFont);
   int width = font.GetExpectedTextWidth(static_cast<int>(chars));
   DCHECK(width > 0);
   return width;
@@ -196,7 +196,7 @@ int Window::GetLocalizedContentsWidth(int col_resource_id) {
 int Window::GetLocalizedContentsHeight(int row_resource_id) {
   double lines = _wtof(l10n_util::GetString(row_resource_id).c_str());
   ResourceBundle& rb = ResourceBundle::GetSharedInstance();
-  ChromeFont font = rb.GetFont(ResourceBundle::BaseFont);
+  gfx::Font font = rb.GetFont(ResourceBundle::BaseFont);
   int height = static_cast<int>(font.height() * lines);
   DCHECK(height > 0);
   return height;

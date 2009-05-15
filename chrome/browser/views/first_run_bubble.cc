@@ -60,11 +60,11 @@ class FirstRunBubbleView : public views::View,
         label3_(NULL),
         keep_button_(NULL),
         change_button_(NULL) {
-    ChromeFont& font =
+    gfx::Font& font =
         ResourceBundle::GetSharedInstance().GetFont(ResourceBundle::MediumFont);
 
     label1_ = new views::Label(l10n_util::GetString(IDS_FR_BUBBLE_TITLE));
-    label1_->SetFont(font.DeriveFont(3, ChromeFont::BOLD));
+    label1_->SetFont(font.DeriveFont(3, gfx::Font::BOLD));
     label1_->SetHorizontalAlignment(views::Label::ALIGN_LEFT);
     AddChildView(label1_);
 

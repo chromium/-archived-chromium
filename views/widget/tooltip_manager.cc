@@ -52,21 +52,21 @@ int TooltipManager::GetTooltipHeight() {
   return tooltip_height_;
 }
 
-static ChromeFont DetermineDefaultFont() {
+static gfx::Font DetermineDefaultFont() {
   HWND window = CreateWindowEx(
       WS_EX_TRANSPARENT | l10n_util::GetExtendedTooltipStyles(),
       TOOLTIPS_CLASS, NULL, 0 , 0, 0, 0, 0, NULL, NULL, NULL, NULL);
   HFONT hfont = reinterpret_cast<HFONT>(SendMessage(window, WM_GETFONT, 0, 0));
-  ChromeFont font = hfont ? ChromeFont::CreateFont(hfont) : ChromeFont();
+  gfx::Font font = hfont ? gfx::Font::CreateFont(hfont) : gfx::Font();
   DestroyWindow(window);
   return font;
 }
 
 // static
-ChromeFont TooltipManager::GetDefaultFont() {
-  static ChromeFont* font = NULL;
+gfx::Font TooltipManager::GetDefaultFont() {
+  static gfx::Font* font = NULL;
   if (!font)
-    font = new ChromeFont(DetermineDefaultFont());
+    font = new gfx::Font(DetermineDefaultFont());
   return *font;
 }
 
@@ -264,9 +264,9 @@ int TooltipManager::CalcTooltipHeight() {
     SetMapMode(dc, last_map_mode);
     ReleaseDC(NULL, dc);
   } else {
-    // Tooltip is using the system font. Use ChromeFont, which should pick
+    // Tooltip is using the system font. Use gfx::Font, which should pick
     // up the system font.
-    height = ChromeFont().height();
+    height = gfx::Font().height();
   }
   // Get the margins from the tooltip
   RECT tooltip_margin;
@@ -309,7 +309,7 @@ void TooltipManager::TrimTooltipToFit(std::wstring* text,
   *line_count = static_cast<int>(lines.size());
 
   // Format each line to fit.
-  ChromeFont font = GetDefaultFont();
+  gfx::Font font = GetDefaultFont();
   std::wstring result;
   for (std::vector<std::wstring>::iterator i = lines.begin(); i != lines.end();
        ++i) {

@@ -10,17 +10,19 @@
 #include "third_party/skia/include/core/SkTypeface.h"
 #include "third_party/skia/include/core/SkPaint.h"
 
-ChromeFont::ChromeFont(const ChromeFont& other) {
-  CopyChromeFont(other);
+namespace gfx {
+
+Font::Font(const Font& other) {
+  CopyFont(other);
 }
 
-ChromeFont& ChromeFont::operator=(const ChromeFont& other) {
-  CopyChromeFont(other);
+Font& Font::operator=(const Font& other) {
+  CopyFont(other);
   return *this;
 }
 
-ChromeFont::ChromeFont(SkTypeface* tf, const std::wstring& font_family,
-                       int font_size, int style)
+Font::Font(SkTypeface* tf, const std::wstring& font_family, int font_size,
+           int style)
     : typeface_helper_(new SkAutoUnref(tf)),
       typeface_(tf),
       font_family_(font_family),
@@ -30,7 +32,7 @@ ChromeFont::ChromeFont(SkTypeface* tf, const std::wstring& font_family,
   calculateMetrics();
 }
 
-void ChromeFont::calculateMetrics() {
+void Font::calculateMetrics() {
   SkPaint paint;
   SkPaint::FontMetrics metrics;
 
@@ -52,7 +54,7 @@ void ChromeFont::calculateMetrics() {
   }
 }
 
-void ChromeFont::CopyChromeFont(const ChromeFont& other) {
+void Font::CopyFont(const Font& other) {
   typeface_helper_.reset(new SkAutoUnref(other.typeface_));
   typeface_ = other.typeface_;
   typeface_->ref();
@@ -64,20 +66,19 @@ void ChromeFont::CopyChromeFont(const ChromeFont& other) {
   avg_width_ = other.avg_width_;
 }
 
-int ChromeFont::height() const {
+int Font::height() const {
   return height_;
 }
 
-int ChromeFont::baseline() const {
+int Font::baseline() const {
   return ascent_;
 }
 
-int ChromeFont::ave_char_width() const {
+int Font::ave_char_width() const {
   return avg_width_;
 }
 
-ChromeFont ChromeFont::CreateFont(const std::wstring& font_family,
-                                  int font_size) {
+Font Font::CreateFont(const std::wstring& font_family, int font_size) {
   DCHECK_GT(font_size, 0);
 
   SkTypeface* tf = SkTypeface::CreateFromName(
@@ -85,10 +86,10 @@ ChromeFont ChromeFont::CreateFont(const std::wstring& font_family,
   DCHECK(tf) << "Could not find font: " << base::SysWideToUTF8(font_family);
   SkAutoUnref tf_helper(tf);
 
-  return ChromeFont(tf, font_family, font_size, NORMAL);
+  return Font(tf, font_family, font_size, NORMAL);
 }
 
-ChromeFont ChromeFont::DeriveFont(int size_delta, int style) const {
+Font Font::DeriveFont(int size_delta, int style) const {
   // If the delta is negative, if must not push the size below 1
   if (size_delta < 0) {
     DCHECK_LT(-size_delta, font_size_);
@@ -96,7 +97,7 @@ ChromeFont ChromeFont::DeriveFont(int size_delta, int style) const {
 
   if (style == style_) {
     // Fast path, we just use the same typeface at a different size
-    return ChromeFont(typeface_, font_family_, font_size_ + size_delta, style_);
+    return Font(typeface_, font_family_, font_size_ + size_delta, style_);
   }
 
   // If the style has changed we may need to load a new face
@@ -111,10 +112,10 @@ ChromeFont ChromeFont::DeriveFont(int size_delta, int style) const {
       static_cast<SkTypeface::Style>(skstyle));
   SkAutoUnref tf_helper(tf);
 
-  return ChromeFont(tf, font_family_, font_size_ + size_delta, skstyle);
+  return Font(tf, font_family_, font_size_ + size_delta, skstyle);
 }
 
-void ChromeFont::PaintSetup(SkPaint* paint) const {
+void Font::PaintSetup(SkPaint* paint) const {
   paint->setAntiAlias(false);
   paint->setSubpixelText(false);
   paint->setTextSize(SkFloatToScalar(font_size_));
@@ -124,7 +125,7 @@ void ChromeFont::PaintSetup(SkPaint* paint) const {
                       -SK_Scalar1/4 : 0);
 }
 
-int ChromeFont::GetStringWidth(const std::wstring& text) const {
+int Font::GetStringWidth(const std::wstring& text) const {
   const std::string utf8(base::SysWideToUTF8(text));
 
   SkPaint paint;
@@ -142,23 +143,25 @@ int ChromeFont::GetStringWidth(const std::wstring& text) const {
   return breadth;
 }
 
-int ChromeFont::GetExpectedTextWidth(int length) const {
+int Font::GetExpectedTextWidth(int length) const {
   return length * avg_width_;
 }
 
 
-int ChromeFont::style() const {
+int Font::style() const {
   return style_;
 }
 
-std::wstring ChromeFont::FontName() {
+std::wstring Font::FontName() {
   return font_family_;
 }
 
-int ChromeFont::FontSize() {
+int Font::FontSize() {
   return font_size_;
 }
 
-NativeFont ChromeFont::nativeFont() const {
+NativeFont Font::nativeFont() const {
   return typeface_;
 }
+
+}  // namespace gfx

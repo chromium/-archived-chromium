@@ -107,7 +107,7 @@ class FontDisplayView : public views::View {
   void SetFontType(const std::wstring& font_name,
                    int font_size);
 
-  void SetFontType(ChromeFont font);
+  void SetFontType(gfx::Font font);
 
   std::wstring font_name() { return font_name_; }
   int font_size() { return font_size_; }
@@ -138,7 +138,7 @@ FontDisplayView::FontDisplayView()
 FontDisplayView::~FontDisplayView() {
 }
 
-void FontDisplayView::SetFontType(ChromeFont font) {
+void FontDisplayView::SetFontType(gfx::Font font) {
   if (font.FontName().empty())
     return;
 
@@ -170,7 +170,7 @@ void FontDisplayView::SetFontType(const std::wstring& font_name,
   displayed_text += UTF8ToWide(::StringPrintf("%d", font_size_));
   HDC hdc = GetDC(NULL);
   int font_size_point = MulDiv(font_size, 72, GetDeviceCaps(hdc, LOGPIXELSY));
-  ChromeFont font = ChromeFont::CreateFont(font_name, font_size_point);
+  gfx::Font font = gfx::Font::CreateFont(font_name, font_size_point);
   font_text_label_->SetFont(font);
   font_text_label_->SetText(displayed_text);
 }
@@ -190,7 +190,7 @@ void FontDisplayView::Layout() {
 
 gfx::Size FontDisplayView::GetPreferredSize() {
   ResourceBundle& rb = ResourceBundle::GetSharedInstance();
-  ChromeFont font = rb.GetFont(ResourceBundle::BaseFont);
+  gfx::Font font = rb.GetFont(ResourceBundle::BaseFont);
   return gfx::Size(font.GetExpectedTextWidth(kFontDisplayMaxWidthChars),
                    font.height() * kFontDisplayMaxHeightChars
                        + 2 * kFontDisplayLabelPadding);
@@ -198,8 +198,8 @@ gfx::Size FontDisplayView::GetPreferredSize() {
 
 void EmbellishTitle(views::Label* title_label) {
   ResourceBundle& rb = ResourceBundle::GetSharedInstance();
-  ChromeFont title_font =
-      rb.GetFont(ResourceBundle::BaseFont).DeriveFont(0, ChromeFont::BOLD);
+  gfx::Font title_font =
+      rb.GetFont(ResourceBundle::BaseFont).DeriveFont(0, gfx::Font::BOLD);
   title_label->SetFont(title_font);
   SkColor title_color =
       gfx::NativeTheme::instance()->GetThemeColorWithDefault(
@@ -286,11 +286,11 @@ void FontsPageView::ItemChanged(views::ComboBox* combo_box,
   }
 }
 
-void FontsPageView::FontSelected(const ChromeFont& const_font, void* params) {
-  ChromeFont font(const_font);
-  if (ChromeFont(font).FontName().empty())
+void FontsPageView::FontSelected(const gfx::Font& const_font, void* params) {
+  gfx::Font font(const_font);
+  if (gfx::Font(font).FontName().empty())
     return;
-  int font_size = ChromeFont(font).FontSize();
+  int font_size = gfx::Font(font).FontSize();
   // Currently we do not have separate font sizes for Serif and Sans Serif.
   // Therefore, when Serif font size is changed, Sans-Serif font size changes,
   // and vice versa.
@@ -443,7 +443,7 @@ void FontsPageView::InitFontLayout() {
   const int triple_column_view_set_id = 0;
   ColumnSet* column_set = layout->AddColumnSet(triple_column_view_set_id);
 
-  int label_width = ChromeFont().GetExpectedTextWidth(
+  int label_width = gfx::Font().GetExpectedTextWidth(
       _wtoi(l10n_util::GetString(IDS_FONTSLANG_LABEL_WIDTH).c_str()));
   column_set->AddColumn(GridLayout::FILL, GridLayout::FILL, 0,
                         GridLayout::FIXED, label_width, 0);

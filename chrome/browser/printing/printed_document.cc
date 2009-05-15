@@ -130,12 +130,12 @@ void PrintedDocument::RenderPrintedPage(const PrintedPage& page,
   }
 
   // Print the header and footer.
-  int base_font_size = ChromeFont().height();
+  int base_font_size = gfx::Font().height();
   int new_font_size = ConvertUnit(10,
                                   immutable_.settings_.desired_dpi,
                                   immutable_.settings_.dpi());
   DCHECK_GT(new_font_size, base_font_size);
-  ChromeFont font(ChromeFont().DeriveFont(new_font_size - base_font_size));
+  gfx::Font font(gfx::Font().DeriveFont(new_font_size - base_font_size));
   HGDIOBJ old_font = SelectObject(context, font.hfont());
   DCHECK(old_font != NULL);
   // We don't want a white square around the text ever if overflowing.
@@ -264,7 +264,7 @@ void PrintedDocument::PrintHeaderFooter(HDC context,
                                         const PrintedPage& page,
                                         PageOverlays::HorizontalPosition x,
                                         PageOverlays::VerticalPosition y,
-                                        const ChromeFont& font) const {
+                                        const gfx::Font& font) const {
   const PrintSettings& settings = immutable_.settings_;
   const std::wstring& line = settings.overlays.GetOverlay(x, y);
   if (line.empty()) {

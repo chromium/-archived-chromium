@@ -9,20 +9,21 @@
 #include "base/logging.h"
 #include "base/sys_string_conversions.h"
 
+namespace gfx {
+
 // static
-ChromeFont ChromeFont::CreateFont(const std::wstring& font_name,
-                                  int font_size) {
-  return ChromeFont(font_name, font_size, NORMAL);
+Font Font::CreateFont(const std::wstring& font_name, int font_size) {
+  return Font(font_name, font_size, NORMAL);
 }
 
-ChromeFont::ChromeFont(const std::wstring& font_name, int font_size, int style)
+Font::Font(const std::wstring& font_name, int font_size, int style)
     : font_name_(font_name),
       font_size_(font_size),
       style_(style) {
   calculateMetrics();
 }
 
-ChromeFont::ChromeFont()
+Font::Font()
     : font_size_([NSFont systemFontSize]),
       style_(NORMAL) {
   NSFont* system_font = [NSFont systemFontOfSize:font_size_];
@@ -30,30 +31,30 @@ ChromeFont::ChromeFont()
   calculateMetrics();
 }
 
-void ChromeFont::calculateMetrics() {
+void Font::calculateMetrics() {
   NSFont* font = nativeFont();
   height_ = [font xHeight];
   ascent_ = [font ascender];
   avg_width_ = [font boundingRectForGlyph:[font glyphWithName:@"x"]].size.width;
 }
 
-ChromeFont ChromeFont::DeriveFont(int size_delta, int style) const {
-  return ChromeFont(font_name_, font_size_ + size_delta, style);
+Font Font::DeriveFont(int size_delta, int style) const {
+  return Font(font_name_, font_size_ + size_delta, style);
 }
 
-int ChromeFont::height() const {
+int Font::height() const {
   return height_;
 }
 
-int ChromeFont::baseline() const {
+int Font::baseline() const {
   return ascent_;
 }
 
-int ChromeFont::ave_char_width() const {
+int Font::ave_char_width() const {
   return avg_width_;
 }
 
-int ChromeFont::GetStringWidth(const std::wstring& text) const {
+int Font::GetStringWidth(const std::wstring& text) const {
   NSFont* font = nativeFont();
   NSString* ns_string = base::SysWideToNSString(text);
   NSDictionary* attributes =
@@ -62,26 +63,28 @@ int ChromeFont::GetStringWidth(const std::wstring& text) const {
   return string_size.width;
 }
 
-int ChromeFont::GetExpectedTextWidth(int length) const {
+int Font::GetExpectedTextWidth(int length) const {
   return length * avg_width_;
 }
 
-int ChromeFont::style() const {
+int Font::style() const {
   return style_;
 }
 
-std::wstring ChromeFont::FontName() {
+std::wstring Font::FontName() {
   return font_name_;
 }
 
-int ChromeFont::FontSize() {
+int Font::FontSize() {
   return font_size_;
 }
 
-NativeFont ChromeFont::nativeFont() const {
+NativeFont Font::nativeFont() const {
   // TODO(pinkerton): apply |style_| to font.
   // We could cache this, but then we'd have to conditionally change the
   // dtor just for MacOS. Not sure if we want to/need to do that.
   return [NSFont fontWithName:base::SysWideToNSString(font_name_)
                          size:font_size_];
 }
+
+}  // namespace gfx

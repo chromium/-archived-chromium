@@ -217,7 +217,7 @@ void ChromeCanvas::DrawBitmapInt(const SkBitmap& bitmap, int src_x, int src_y,
 }
 
 void ChromeCanvas::DrawStringInt(const std::wstring& text,
-                                 const ChromeFont& font,
+                                 const gfx::Font& font,
                                  const SkColor& color,
                                  int x, int y,
                                  int w, int h) {

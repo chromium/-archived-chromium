@@ -113,7 +113,7 @@ class DialogClientView : public ClientView,
 
   // Static resource initialization
   static void InitClass();
-  static ChromeFont* dialog_button_font_;
+  static gfx::Font* dialog_button_font_;
 
   DISALLOW_COPY_AND_ASSIGN(DialogClientView);
 };

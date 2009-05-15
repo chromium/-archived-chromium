@@ -285,7 +285,7 @@ int MessageBox(HWND hwnd,
                UINT flags);
 
 // Returns the system set window title font.
-ChromeFont GetWindowTitleFont();
+gfx::Font GetWindowTitleFont();
 
 // The thickness of an auto-hide taskbar in pixels.
 extern const int kAutoHideTaskbarThicknessPx;

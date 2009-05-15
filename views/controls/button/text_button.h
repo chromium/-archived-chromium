@@ -118,7 +118,7 @@ class TextButton : public CustomButton {
   TextAlignment alignment_;
 
   // The font used to paint the text.
-  ChromeFont font_;
+  gfx::Font font_;
 
   // Text color.
   SkColor color_;

@@ -79,7 +79,7 @@ class StatusBubbleViews::StatusView : public views::Label,
         opacity_start_(0),
         opacity_end_(0) {
     ResourceBundle& rb = ResourceBundle::GetSharedInstance();
-    ChromeFont font(rb.GetFont(ResourceBundle::BaseFont));
+    gfx::Font font(rb.GetFont(ResourceBundle::BaseFont));
     SetFont(font);
   }
 

@@ -36,8 +36,8 @@ OptionsGroupView::OptionsGroupView(views::View* contents,
       show_separator_(show_separator),
       highlighted_(false) {
   ResourceBundle& rb = ResourceBundle::GetSharedInstance();
-  ChromeFont title_font =
-      rb.GetFont(ResourceBundle::BaseFont).DeriveFont(0, ChromeFont::BOLD);
+  gfx::Font title_font =
+      rb.GetFont(ResourceBundle::BaseFont).DeriveFont(0, gfx::Font::BOLD);
   title_label_->SetFont(title_font);
   SkColor title_color = gfx::NativeTheme::instance()->GetThemeColorWithDefault(
       gfx::NativeTheme::BUTTON, BP_GROUPBOX, GBS_NORMAL, TMT_TEXTCOLOR,
@@ -92,7 +92,7 @@ void OptionsGroupView::Init() {
   SetLayoutManager(layout);
 
   ResourceBundle& rb = ResourceBundle::GetSharedInstance();
-  ChromeFont font = rb.GetFont(ResourceBundle::BaseFont);
+  gfx::Font font = rb.GetFont(ResourceBundle::BaseFont);
   std::wstring left_column_chars =
       l10n_util::GetString(IDS_OPTIONS_DIALOG_LEFT_COLUMN_WIDTH_CHARS);
   int left_column_width =

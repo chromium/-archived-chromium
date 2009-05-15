@@ -44,7 +44,7 @@ class FontsPageView : public OptionsPageView,
                            int new_index);
 
   // SelectFontDialog::Listener implementation:
-  virtual void FontSelected(const ChromeFont& font, void* params);
+  virtual void FontSelected(const gfx::Font& font, void* params);
 
   // Save Changes made to relevent pref members associated with this tab.
   // This is public since it is called by FontsLanguageWindowView in its

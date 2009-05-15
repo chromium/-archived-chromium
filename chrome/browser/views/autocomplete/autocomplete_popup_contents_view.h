@@ -46,7 +46,7 @@ class AutocompletePopupContentsView : public views::View,
                                       public AutocompleteResultViewModel,
                                       public AutocompletePopupView {
  public:
-  AutocompletePopupContentsView(const ChromeFont& font,
+  AutocompletePopupContentsView(const gfx::Font& font,
                                 AutocompleteEditViewWin* edit_view,
                                 AutocompleteEditModel* edit_model,
                                 Profile* profile,
@@ -105,7 +105,7 @@ class AutocompletePopupContentsView : public views::View,
 
   // The font that we should use for result rows. This is based on the font used
   // by the edit that created us.
-  ChromeFont result_font_;
+  gfx::Font result_font_;
 
   DISALLOW_COPY_AND_ASSIGN(AutocompletePopupContentsView);
 };

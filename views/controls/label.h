@@ -51,7 +51,7 @@ class Label : public View {
   // Create a new label with a default font
   explicit Label(const std::wstring& text);
 
-  Label(const std::wstring& text, const ChromeFont& font);
+  Label(const std::wstring& text, const gfx::Font& font);
 
   virtual ~Label();
 
@@ -74,10 +74,10 @@ class Label : public View {
   virtual void PaintBackground(ChromeCanvas* canvas);
 
   // Set the font.
-  void SetFont(const ChromeFont& font);
+  void SetFont(const gfx::Font& font);
 
   // Return the font used by this label
-  ChromeFont GetFont() const;
+  gfx::Font GetFont() const;
 
   // Set the label text.
   void SetText(const std::wstring& text);
@@ -192,7 +192,7 @@ class Label : public View {
   FRIEND_TEST(LabelTest, DrawSingleLineString);
   FRIEND_TEST(LabelTest, DrawMultiLineString);
 
-  static ChromeFont GetDefaultFont();
+  static gfx::Font GetDefaultFont();
 
   // Returns parameters to be used for the DrawString call.
   void CalculateDrawStringParams(std::wstring* paint_text,
@@ -213,10 +213,10 @@ class Label : public View {
 
   int ComputeMultiLineFlags();
   gfx::Size GetTextSize();
-  void Init(const std::wstring& text, const ChromeFont& font);
+  void Init(const std::wstring& text, const gfx::Font& font);
   std::wstring text_;
   GURL url_;
-  ChromeFont font_;
+  gfx::Font font_;
   SkColor color_;
   gfx::Size text_size_;
   bool text_size_valid_;

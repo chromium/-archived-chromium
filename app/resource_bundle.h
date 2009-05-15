@@ -23,12 +23,14 @@
 #if defined(OS_LINUX) || defined(OS_MACOSX)
 namespace base {
 class DataPack;
-};
+}
 #endif
 #if defined(OS_LINUX)
 typedef struct _GdkPixbuf GdkPixbuf;
 #endif
-class ChromeFont;
+namespace gfx{
+class Font;
+}
 class SkBitmap;
 typedef uint32 SkColor;
 class StringPiece;
@@ -102,7 +104,7 @@ class ResourceBundle {
   string16 GetLocalizedString(int message_id);
 
   // Returns the font for the specified style.
-  ChromeFont GetFont(FontStyle style);
+  gfx::Font GetFont(FontStyle style);
 
 #if defined(OS_WIN)
   // Loads and returns an icon from the theme dll.
@@ -154,7 +156,7 @@ class ResourceBundle {
   // external data module.
   void LoadResources(const std::wstring& pref_locale);
 
-  // Initialize all the ChromeFont members if they haven't yet been initialized.
+  // Initialize all the gfx::Font members if they haven't yet been initialized.
   void LoadFontsIfNecessary();
 
   // Returns the full pathname of the locale file to load.  May return an empty
@@ -192,12 +194,12 @@ class ResourceBundle {
 #endif
 
   // The various fonts used. Cached to avoid repeated GDI creation/destruction.
-  scoped_ptr<ChromeFont> base_font_;
-  scoped_ptr<ChromeFont> small_font_;
-  scoped_ptr<ChromeFont> medium_font_;
-  scoped_ptr<ChromeFont> medium_bold_font_;
-  scoped_ptr<ChromeFont> large_font_;
-  scoped_ptr<ChromeFont> web_font_;
+  scoped_ptr<gfx::Font> base_font_;
+  scoped_ptr<gfx::Font> small_font_;
+  scoped_ptr<gfx::Font> medium_font_;
+  scoped_ptr<gfx::Font> medium_bold_font_;
+  scoped_ptr<gfx::Font> large_font_;
+  scoped_ptr<gfx::Font> web_font_;
 
   static ResourceBundle* g_shared_instance_;
 

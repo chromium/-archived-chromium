@@ -11,7 +11,9 @@
 #include "views/window/non_client_view.h"
 
 class BrowserView;
-class ChromeFont;
+namespace gfx {
+class Font;
+}
 class TabContents;
 class TabStrip;
 namespace views {
@@ -150,7 +152,7 @@ class OpaqueBrowserFrameView : public BrowserNonClientFrameView,
   static void InitClass();
   static void InitAppWindowResources();
   static SkBitmap* distributor_logo_;
-  static ChromeFont* title_font_;
+  static gfx::Font* title_font_;
 
   DISALLOW_EVIL_CONSTRUCTORS(OpaqueBrowserFrameView);
 };

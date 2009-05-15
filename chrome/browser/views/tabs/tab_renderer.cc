@@ -46,7 +46,7 @@ static const int kPulseDurationMs = 200;
 static const double kHoverOpacity = 0.33;
 
 // TODO(beng): (Cleanup) This stuff should move onto the class.
-static ChromeFont* title_font = NULL;
+static gfx::Font* title_font = NULL;
 static int title_font_height = 0;
 static SkBitmap* close_button_n = NULL;
 static SkBitmap* close_button_h = NULL;
@@ -75,7 +75,7 @@ void InitResources() {
   if (!initialized) {
     // TODO(glen): Allow theming of these.
     ResourceBundle& rb = ResourceBundle::GetSharedInstance();
-    title_font = new ChromeFont(rb.GetFont(ResourceBundle::BaseFont));
+    title_font = new gfx::Font(rb.GetFont(ResourceBundle::BaseFont));
     title_font_height = title_font->height();
 
     close_button_n = rb.GetBitmapNamed(IDR_TAB_CLOSE);

@@ -13,11 +13,11 @@
 #include "chrome/browser/printing/print_settings.h"
 #include "googleurl/src/gurl.h"
 
-class ChromeFont;
 class MessageLoop;
 
 namespace gfx {
 class Emf;
+class Font;
 }
 
 namespace printing {
@@ -171,7 +171,7 @@ class PrintedDocument : public base::RefCountedThreadSafe<PrintedDocument> {
                          const PrintedPage& page,
                          PageOverlays::HorizontalPosition x,
                          PageOverlays::VerticalPosition y,
-                         const ChromeFont& font) const;
+                         const gfx::Font& font) const;
 
   // Calls the render source to render a page. Makes sure to execute the call in
   // the right thread context.

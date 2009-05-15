@@ -12,7 +12,9 @@
 #include "base/basictypes.h"
 #include "base/task.h"
 
-class ChromeFont;
+namespace gfx {
+class Font;
+}
 
 namespace views {
 
@@ -55,7 +57,7 @@ class TooltipManager {
   static int GetTooltipHeight();
 
   // Returns the default font used by tooltips.
-  static ChromeFont GetDefaultFont();
+  static gfx::Font GetDefaultFont();
 
   // Returns the separator for lines of text in a tooltip.
   static const std::wstring& GetLineSeparator();

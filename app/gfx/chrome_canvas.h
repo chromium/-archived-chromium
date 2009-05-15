@@ -14,8 +14,8 @@
 #include "base/basictypes.h"
 #include "skia/ext/platform_canvas.h"
 
-class ChromeFont;
 namespace gfx {
+class Font;
 class Rect;
 }
 
@@ -152,13 +152,13 @@ class ChromeCanvas : public skia::PlatformCanvas {
   // Draws text with the specified color, font and location. The text is
   // aligned to the left, vertically centered, clipped to the region. If the
   // text is too big, it is truncated and '...' is added to the end.
-  void DrawStringInt(const std::wstring& text, const ChromeFont& font,
+  void DrawStringInt(const std::wstring& text, const gfx::Font& font,
                      const SkColor& color, int x, int y, int w, int h);
 
   // Draws text with the specified color, font and location. The last argument
   // specifies flags for how the text should be rendered. It can be one of
   // TEXT_ALIGN_CENTER, TEXT_ALIGN_RIGHT or TEXT_ALIGN_LEFT.
-  void DrawStringInt(const std::wstring& text, const ChromeFont& font,
+  void DrawStringInt(const std::wstring& text, const gfx::Font& font,
                      const SkColor& color, int x, int y, int w, int h,
                      int flags);
 
@@ -167,7 +167,7 @@ class ChromeCanvas : public skia::PlatformCanvas {
   // ClearType to be drawn to an otherwise transparenct bitmap for drag images.
   // Drag images have only 1-bit of transparency, so we don't do any fancy
   // blurring.
-  void DrawStringWithHalo(const std::wstring& text, const ChromeFont& font,
+  void DrawStringWithHalo(const std::wstring& text, const gfx::Font& font,
                           const SkColor& text_color, const SkColor& halo_color,
                           int x, int y, int w, int h, int flags);
 #endif
@@ -194,7 +194,7 @@ class ChromeCanvas : public skia::PlatformCanvas {
   // Attempts to fit the text with the provided width and height. Increases
   // height and then width as needed to make the text fit. This method
   // supports multiple lines.
-  static void SizeStringInt(const std::wstring& test, const ChromeFont& font,
+  static void SizeStringInt(const std::wstring& test, const gfx::Font& font,
                             int *width, int* height, int flags);
 
  private:

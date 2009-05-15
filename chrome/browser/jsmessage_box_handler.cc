@@ -48,7 +48,7 @@ std::wstring GetWindowTitle(TabContents* tab_contents, const GURL& frame_url,
 
   // TODO(brettw) it should be easier than this to do the correct language
   // handling without getting the accept language from the profile.
-  std::wstring base_address = gfx::ElideUrl(clean_url, ChromeFont(), 0,
+  std::wstring base_address = gfx::ElideUrl(clean_url, gfx::Font(), 0,
       tab_contents->profile()->GetPrefs()->GetString(prefs::kAcceptLanguages));
   // Force URL to have LTR directionality.
   if (l10n_util::GetTextDirection() == l10n_util::RIGHT_TO_LEFT)

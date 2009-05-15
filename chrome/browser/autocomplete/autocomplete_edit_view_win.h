@@ -60,7 +60,7 @@ class AutocompleteEditViewWin
 
   DECLARE_WND_CLASS(L"Chrome_AutocompleteEditView");
 
-  AutocompleteEditViewWin(const ChromeFont& font,
+  AutocompleteEditViewWin(const gfx::Font& font,
                           AutocompleteEditController* controller,
                           ToolbarModel* toolbar_model,
                           views::View* parent_view,
@@ -428,7 +428,7 @@ class AutocompleteEditViewWin
 
   // Font we're using.  We keep a reference to make sure the font supplied to
   // the constructor doesn't go away before we do.
-  ChromeFont font_;
+  gfx::Font font_;
 
   // Metrics about the font, which we keep so we don't need to recalculate them
   // every time we paint.  |font_y_adjustment_| is the number of pixels we need

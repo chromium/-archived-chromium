@@ -121,10 +121,10 @@ class TextField : public View {
   void SetDefaultBackgroundColor();
 
   // Set the font.
-  void SetFont(const ChromeFont& font);
+  void SetFont(const gfx::Font& font);
 
   // Return the font used by this TextField.
-  ChromeFont GetFont() const;
+  gfx::Font GetFont() const;
 
   // Sets the left and right margin (in pixels) within the text box. On Windows
   // this is accomplished by packing the left and right margin into a single
@@ -173,7 +173,7 @@ class TextField : public View {
 
   StyleFlags style_;
 
-  ChromeFont font_;
+  gfx::Font font_;
 
   // NOTE: this is temporary until we rewrite TextField to always work whether
   // there is an HWND or not.

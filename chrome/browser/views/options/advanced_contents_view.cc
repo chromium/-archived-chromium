@@ -144,8 +144,8 @@ AdvancedSection::AdvancedSection(Profile* profile,
       title_label_(new views::Label(title)),
       OptionsPageView(profile) {
   ResourceBundle& rb = ResourceBundle::GetSharedInstance();
-  ChromeFont title_font =
-      rb.GetFont(ResourceBundle::BaseFont).DeriveFont(0, ChromeFont::BOLD);
+  gfx::Font title_font =
+      rb.GetFont(ResourceBundle::BaseFont).DeriveFont(0, gfx::Font::BOLD);
   title_label_->SetFont(title_font);
 
   SkColor title_color = gfx::NativeTheme::instance()->GetThemeColorWithDefault(

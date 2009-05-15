@@ -32,11 +32,11 @@ Label::Label(const std::wstring& text) {
   Init(text, GetDefaultFont());
 }
 
-Label::Label(const std::wstring& text, const ChromeFont& font) {
+Label::Label(const std::wstring& text, const gfx::Font& font) {
   Init(text, font);
 }
 
-void Label::Init(const std::wstring& text, const ChromeFont& font) {
+void Label::Init(const std::wstring& text, const gfx::Font& font) {
   contains_mouse_ = false;
   font_ = font;
   text_size_valid_ = false;
@@ -184,13 +184,13 @@ void Label::PaintBackground(ChromeCanvas* canvas) {
     bg->Paint(canvas, this);
 }
 
-void Label::SetFont(const ChromeFont& font) {
+void Label::SetFont(const gfx::Font& font) {
   font_ = font;
   text_size_valid_ = false;
   SchedulePaint();
 }
 
-ChromeFont Label::GetFont() const {
+gfx::Font Label::GetFont() const {
   return font_;
 }
 
@@ -363,7 +363,7 @@ gfx::Insets Label::GetInsets() const {
 }
 
 // static
-ChromeFont Label::GetDefaultFont() {
+gfx::Font Label::GetDefaultFont() {
   return ResourceBundle::GetSharedInstance().GetFont(ResourceBundle::BaseFont);
 }
 

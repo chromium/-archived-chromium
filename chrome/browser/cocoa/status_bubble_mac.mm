@@ -83,9 +83,9 @@ void StatusBubbleMac::SetURL(const GURL& url, const std::wstring& languages) {
                                     kTextPositionX -
                                     kTextPadding);
   NSFont* font = [[window_ contentView] font];
-  ChromeFont font_chr =
-      ChromeFont::CreateFont(base::SysNSStringToWide([font fontName]),
-                             [font pointSize]);
+  gfx::Font font_chr =
+      gfx::Font::CreateFont(base::SysNSStringToWide([font fontName]),
+                            [font pointSize]);
 
   std::wstring status = gfx::ElideUrl(url, font_chr, text_width, languages);
   NSString* status_ns = base::SysWideToNSString(status);

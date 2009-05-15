@@ -11,12 +11,12 @@
 #include "views/window/window_resources.h"
 
 namespace gfx{
+class Font;
 class Size;
 class Path;
 class Point;
 }
 class ChromeCanvas;
-class ChromeFont;
 
 namespace views {
 
@@ -104,7 +104,7 @@ class CustomFrameView : public NonClientFrameView,
 
   // Initialize various static resources.
   static void InitClass();
-  static ChromeFont* title_font_;
+  static gfx::Font* title_font_;
 
   DISALLOW_EVIL_CONSTRUCTORS(CustomFrameView);
 };

@@ -99,7 +99,7 @@ class AboutChromeView : public views::View,
                               gfx::Rect* rect,
                               gfx::Size* position,
                               const gfx::Rect& bounds,
-                              const ChromeFont& font);
+                              const gfx::Font& font);
 
   // A helper function for DrawTextAndPositionUrl, which simply draws the text
   // from a certain starting point |position| and wraps within bounds.
@@ -110,7 +110,7 @@ class AboutChromeView : public views::View,
                             const std::wstring& text,
                             gfx::Size* position,
                             const gfx::Rect& bounds,
-                            const ChromeFont& font,
+                            const gfx::Font& font,
                             bool word_for_word);
 
   // A simply utility function that calculates whether a word of width

@@ -60,25 +60,25 @@ const int kRightPadding = 3;
 // the total width.
 const float kContentWidthPercentage = 0.7;
 
-// TODO(deanm): We should put this on ChromeFont so it can be shared.
+// TODO(deanm): We should put this on gfx::Font so it can be shared.
 // Returns a new pango font, free with pango_font_description_free().
-PangoFontDescription* PangoFontFromChromeFont(const ChromeFont& chrome_font) {
-  ChromeFont font = chrome_font;  // Copy so we can call non-const methods.
+PangoFontDescription* PangoFontFromGfxFont(const gfx::Font& chrome_font) {
+  gfx::Font font = chrome_font;  // Copy so we can call non-const methods.
   PangoFontDescription* pfd = pango_font_description_new();
   pango_font_description_set_family(pfd, WideToUTF8(font.FontName()).c_str());
   pango_font_description_set_size(pfd, font.FontSize() * PANGO_SCALE);
 
   switch (font.style()) {
-    case ChromeFont::NORMAL:
+    case gfx::Font::NORMAL:
       // Nothing to do, should already be PANGO_STYLE_NORMAL.
       break;
-    case ChromeFont::BOLD:
+    case gfx::Font::BOLD:
       pango_font_description_set_weight(pfd, PANGO_WEIGHT_BOLD);
       break;
-    case ChromeFont::ITALIC:
+    case gfx::Font::ITALIC:
       pango_font_description_set_style(pfd, PANGO_STYLE_ITALIC);
       break;
-    case ChromeFont::UNDERLINED:
+    case gfx::Font::UNDERLINED:
       // TODO(deanm): How to do underlined?  Where do we use it?  Probably have
       // to paint it ourselves, see pango_font_metrics_get_underline_position.
       break;
@@ -246,9 +246,9 @@ AutocompletePopupViewGtk::AutocompletePopupViewGtk(
   // We always ellipsize when drawing our text runs.
   pango_layout_set_ellipsize(layout_, PANGO_ELLIPSIZE_END);
   // TODO(deanm): We might want to eventually follow what Windows does and
-  // plumb a ChromeFont through.  This is because popup windows have a
+  // plumb a gfx::Font through.  This is because popup windows have a
   // different font size, although we could just derive that font here.
-  PangoFontDescription* pfd = PangoFontFromChromeFont(ChromeFont());
+  PangoFontDescription* pfd = PangoFontFromGfxFont(gfx::Font());
   pango_layout_set_font_description(layout_, pfd);
   pango_font_description_free(pfd);
 

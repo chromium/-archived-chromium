@@ -24,7 +24,7 @@
 
 // static
 SkBitmap* OpaqueBrowserFrameView::distributor_logo_ = NULL;
-ChromeFont* OpaqueBrowserFrameView::title_font_ = NULL;
+gfx::Font* OpaqueBrowserFrameView::title_font_ = NULL;
 
 namespace {
 // The frame border is only visible in restored mode and is hardcoded to 4 px on
@@ -948,7 +948,7 @@ void OpaqueBrowserFrameView::InitClass() {
 void OpaqueBrowserFrameView::InitAppWindowResources() {
   static bool initialized = false;
   if (!initialized) {
-    title_font_ = new ChromeFont(win_util::GetWindowTitleFont());
+    title_font_ = new gfx::Font(win_util::GetWindowTitleFont());
     initialized = true;
   }
 }

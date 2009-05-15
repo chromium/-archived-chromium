@@ -672,7 +672,7 @@ LocationBarView::SelectedKeywordView::SelectedKeywordView(Profile* profile)
 LocationBarView::SelectedKeywordView::~SelectedKeywordView() {
 }
 
-void LocationBarView::SelectedKeywordView::SetFont(const ChromeFont& font) {
+void LocationBarView::SelectedKeywordView::SetFont(const gfx::Font& font) {
   full_label_.SetFont(font);
   partial_label_.SetFont(font);
 }
@@ -763,7 +763,7 @@ LocationBarView::KeywordHintView::~KeywordHintView() {
   RemoveChildView(&trailing_label_);
 }
 
-void LocationBarView::KeywordHintView::SetFont(const ChromeFont& font) {
+void LocationBarView::KeywordHintView::SetFont(const gfx::Font& font) {
   leading_label_.SetFont(font);
   trailing_label_.SetFont(font);
 }

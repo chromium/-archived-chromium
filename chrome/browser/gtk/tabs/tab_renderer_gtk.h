@@ -207,7 +207,7 @@ class TabRendererGtk : public AnimationDelegate {
   static TabImage tab_alpha;
   static TabImage tab_hover_;
 
-  static ChromeFont* title_font_;
+  static gfx::Font* title_font_;
   static int title_font_height_;
 
   static SkBitmap* download_icon_;

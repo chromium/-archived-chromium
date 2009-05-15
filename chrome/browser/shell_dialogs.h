@@ -13,7 +13,9 @@
 #include "base/ref_counted.h"
 #include "base/string16.h"
 
-class ChromeFont;
+namespace gfx {
+class Font;
+}
 
 // A base class for shell dialogs.
 class BaseShellDialog {
@@ -132,7 +134,7 @@ class SelectFontDialog
     // Notifies the Listener that a font selection has been made. The font
     // details are supplied in |font|. |params| is contextual passed to
     // SelectFile.
-    virtual void FontSelected(const ChromeFont& font, void* params) = 0;
+    virtual void FontSelected(const gfx::Font& font, void* params) = 0;
 
     // Notifies the Listener that the font selection was aborted (via the user
     // canceling or closing the selection dialog box, for example). |params| is

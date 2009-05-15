@@ -13,7 +13,9 @@
 class BookmarkModel;
 class BookmarkNode;
 class BookmarkTableModel;
-class ChromeFont;
+namespace gfx {
+class Font;
+}
 class OSExchangeData;
 class PrefService;
 class Profile;
@@ -144,7 +146,7 @@ class BookmarkTableView : public views::TableView {
   gfx::Rect GetAltTextBounds();
 
   // Returns the font used for alt text.
-  ChromeFont GetAltTextFont();
+  gfx::Font GetAltTextFont();
 
   Profile* profile_;
 

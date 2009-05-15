@@ -131,17 +131,17 @@ void Link::SetHighlighted(bool f) {
 }
 
 void Link::ValidateStyle() {
-  ChromeFont font = GetFont();
+  gfx::Font font = GetFont();
 
   if (enabled_) {
-    if ((font.style() & ChromeFont::UNDERLINED) == 0) {
+    if ((font.style() & gfx::Font::UNDERLINED) == 0) {
       Label::SetFont(font.DeriveFont(0, font.style() |
-                                     ChromeFont::UNDERLINED));
+                                     gfx::Font::UNDERLINED));
     }
   } else {
-    if ((font.style() & ChromeFont::UNDERLINED) != 0) {
+    if ((font.style() & gfx::Font::UNDERLINED) != 0) {
       Label::SetFont(font.DeriveFont(0, font.style() &
-                                     ~ChromeFont::UNDERLINED));
+                                     ~gfx::Font::UNDERLINED));
     }
   }
 
@@ -156,7 +156,7 @@ void Link::ValidateStyle() {
   }
 }
 
-void Link::SetFont(const ChromeFont& font) {
+void Link::SetFont(const gfx::Font& font) {
   Label::SetFont(font);
   ValidateStyle();
 }

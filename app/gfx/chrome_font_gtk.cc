@@ -9,7 +9,9 @@
 
 #include "base/string_util.h"
 
-ChromeFont* ChromeFont::default_font_ = NULL;
+namespace gfx {
+
+Font* Font::default_font_ = NULL;
 
 // Find the best match font for |family_name| in the same way as Skia
 // to make sure CreateFont() successfully creates default font.
@@ -45,7 +47,7 @@ static std::wstring FindBestMatchFontFamilyName(const char* family_name) {
 }
 
 // Get the default gtk system font (name and size).
-ChromeFont::ChromeFont() {
+Font::Font() {
   if (default_font_ == NULL) {
     gtk_init(NULL, NULL);
     GtkSettings* settings = gtk_settings_get_default();
@@ -72,7 +74,7 @@ ChromeFont::ChromeFont() {
     // TODO(agl): remove this.
     std::wstring font_family = FindBestMatchFontFamilyName(family_name);
 
-    default_font_ = new ChromeFont(CreateFont(font_family, size / PANGO_SCALE));
+    default_font_ = new Font(CreateFont(font_family, size / PANGO_SCALE));
 
     pango_font_description_free(desc);
     g_free(font_name);
@@ -81,5 +83,7 @@ ChromeFont::ChromeFont() {
     DCHECK(default_font_);
   }
 
-  CopyChromeFont(*default_font_);
+  CopyFont(*default_font_);
 }
+
+}  // namespace gfx

@@ -44,7 +44,7 @@ static void AppendFormattedComponent(const std::string& spec,
 // a rendered string is always the sum of the widths of its substrings.  Also I
 // suspect it could be made simpler.
 std::wstring ElideUrl(const GURL& url,
-                      const ChromeFont& font,
+                      const gfx::Font& font,
                       int available_pixel_width,
                       const std::wstring& languages) {
   // Get a formatted string and corresponding parsing of the url.
@@ -271,7 +271,7 @@ std::wstring ElideUrl(const GURL& url,
 }
 
 std::wstring ElideFilename(const FilePath& filename,
-                           const ChromeFont& font,
+                           const gfx::Font& font,
                            int available_pixel_width) {
   int full_width = font.GetStringWidth(filename.ToWStringHack());
   if (full_width <= available_pixel_width)
@@ -302,7 +302,7 @@ std::wstring ElideFilename(const FilePath& filename,
 // This function adds an ellipsis at the end of the text if the text
 // does not fit the given pixel width.
 std::wstring ElideText(const std::wstring& text,
-                       const ChromeFont& font,
+                       const gfx::Font& font,
                        int available_pixel_width){
   if (text.empty())
     return text;

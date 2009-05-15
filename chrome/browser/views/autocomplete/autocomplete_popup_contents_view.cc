@@ -60,14 +60,14 @@ static const int kRowRightPadding = 3;
 // of the text.
 static const int kIconTextSpacing = 9;
 // The size delta between the font used for the edit and the result rows. Passed
-// to ChromeFont::DeriveFont.
+// to gfx::Font::DeriveFont.
 static const int kEditFontAdjust = -1;
 
 class AutocompleteResultView : public views::View {
  public:
   AutocompleteResultView(AutocompleteResultViewModel* model,
                          int model_index,
-                         const ChromeFont& font);
+                         const gfx::Font& font);
   virtual ~AutocompleteResultView();
 
   // Overridden from views::View:
@@ -108,7 +108,7 @@ class AutocompleteResultView : public views::View {
                          int y);
 
   // Gets the font and text color for a fragment with the specified style.
-  ChromeFont GetFragmentFont(int style) const;
+  gfx::Font GetFragmentFont(int style) const;
   SkColor GetFragmentTextColor(int style) const;
 
   // This row's model and model index.
@@ -119,7 +119,7 @@ class AutocompleteResultView : public views::View {
   bool hot_;
 
   // The font used to derive fonts for rendering the text in this row.
-  ChromeFont font_;
+  gfx::Font font_;
 
   // A context used for mirroring regions.
   class MirroringContext;
@@ -272,7 +272,7 @@ int AutocompleteResultView::MirroringContext::GetLeft(int x1, int x2) const {
 AutocompleteResultView::AutocompleteResultView(
     AutocompleteResultViewModel* model,
     int model_index,
-    const ChromeFont& font)
+    const gfx::Font& font)
     : model_(model),
       model_index_(model_index),
       hot_(false),
@@ -499,7 +499,7 @@ int AutocompleteResultView::DrawStringFragment(
     int style,
     int x,
     int y) {
-  ChromeFont display_font = GetFragmentFont(style);
+  gfx::Font display_font = GetFragmentFont(style);
   // Clamp text width to the available width within the popup so we elide if
   // necessary.
   int string_width = std::min(display_font.GetStringWidth(text),
@@ -511,9 +511,9 @@ int AutocompleteResultView::DrawStringFragment(
   return string_width;
 }
 
-ChromeFont AutocompleteResultView::GetFragmentFont(int style) const {
+gfx::Font AutocompleteResultView::GetFragmentFont(int style) const {
   if (style & ACMatchClassification::MATCH)
-    return font_.DeriveFont(0, ChromeFont::BOLD);
+    return font_.DeriveFont(0, gfx::Font::BOLD);
   return font_;
 }
 
@@ -651,7 +651,7 @@ void PopupBorder::InitClass() {
 // AutocompletePopupContentsView, public:
 
 AutocompletePopupContentsView::AutocompletePopupContentsView(
-    const ChromeFont& font,
+    const gfx::Font& font,
     AutocompleteEditViewWin* edit_view,
     AutocompleteEditModel* edit_model,
     Profile* profile,

@@ -115,7 +115,7 @@ LRESULT ComboBox::OnNotify(int w_param, LPNMHDR l_param) {
 
 void ComboBox::UpdateComboBoxFromModel(HWND hwnd) {
   ::SendMessage(hwnd, CB_RESETCONTENT, 0, 0);
-  ChromeFont font = ResourceBundle::GetSharedInstance().GetFont(
+  gfx::Font font = ResourceBundle::GetSharedInstance().GetFont(
       ResourceBundle::BaseFont);
   int max_width = 0;
   int num_items = model_->GetItemCount(this);

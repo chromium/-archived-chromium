@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef APP_GFX_CHROME_FONT_H_
-#define APP_GFX_CHROME_FONT_H_
+#ifndef APP_GFX_FONT_H_
+#define APP_GFX_FONT_H_
 
 #include "build/build_config.h"
 
@@ -37,9 +37,11 @@ typedef SkTypeface* NativeFont;
 #include "base/ref_counted.h"
 #include "base/scoped_ptr.h"
 
-// ChromeFont provides a wrapper around an underlying font. Copy and assignment
+namespace gfx {
+
+// Font provides a wrapper around an underlying font. Copy and assignment
 // operators are explicitly allowed, and cheap.
-class ChromeFont {
+class Font {
  public:
   // The following constants indicate the font style.
   enum {
@@ -49,16 +51,16 @@ class ChromeFont {
     UNDERLINED = 4,
   };
 
-  // Creates a ChromeFont given font name (e.g. arial), font size (e.g. 12).
+  // Creates a Font given font name (e.g. arial), font size (e.g. 12).
   // Skia actually expects a family name and not a font name.
-  static ChromeFont CreateFont(const std::wstring& font_name, int font_size);
+  static Font CreateFont(const std::wstring& font_name, int font_size);
 
-  ~ChromeFont() { }
+  ~Font() { }
 
   // Returns a new Font derived from the existing font.
   // size_deta is the size to add to the current font. For example, a value
   // of 5 results in a font 5 units bigger than this font.
-  ChromeFont DeriveFont(int size_delta) const {
+  Font DeriveFont(int size_delta) const {
     return DeriveFont(size_delta, style());
   }
 
@@ -67,7 +69,7 @@ class ChromeFont {
   // argument version of this method for an example.
   // The style parameter specifies the new style for the font, and is a
   // bitmask of the values: BOLD, ITALIC and UNDERLINED.
-  ChromeFont DeriveFont(int size_delta, int style) const;
+  Font DeriveFont(int size_delta, int style) const;
 
   // Returns the number of vertical pixels needed to display characters from
   // the specified font.
@@ -102,12 +104,12 @@ class ChromeFont {
   NativeFont nativeFont() const;
 
   // Creates a font with the default name and style.
-  ChromeFont();
+  Font();
 
 #if defined(OS_WIN)
-  // Creates a ChromeFont from the specified HFONT. The supplied HFONT is
-  // effectively copied.
-  static ChromeFont CreateFont(HFONT hfont);
+  // Creates a Font from the specified HFONT. The supplied HFONT is effectively
+  // copied.
+  static Font CreateFont(HFONT hfont);
 
   // Returns the handle to the underlying HFONT. This is used by ChromeCanvas to
   // draw text.
@@ -124,8 +126,8 @@ class ChromeFont {
 #elif defined(OS_LINUX)
   // We need a copy constructor and assignment operator to deal with
   // the Skia reference counting.
-  ChromeFont(const ChromeFont& other);
-  ChromeFont& operator=(const ChromeFont& other);
+  Font(const Font& other);
+  Font& operator=(const Font& other);
   // Setup a Skia context to use the current typeface
   void PaintSetup(SkPaint* paint) const;
 #endif
@@ -135,14 +137,12 @@ class ChromeFont {
 #if defined(OS_WIN)
   // Chrome text drawing bottoms out in the Windows GDI functions that take an
   // HFONT (an opaque handle into Windows). To avoid lots of GDI object
-  // allocation and destruction, ChromeFont indirectly refers to the HFONT
-  // by way of an HFontRef. That is, every ChromeFont has an HFontRef, which
-  // has an HFONT.
+  // allocation and destruction, Font indirectly refers to the HFONT by way of
+  // an HFontRef. That is, every Font has an HFontRef, which has an HFONT.
   //
   // HFontRef is reference counted. Upon deletion, it deletes the HFONT.
   // By making HFontRef maintain the reference to the HFONT, multiple
-  // HFontRefs can share the same HFONT, and ChromeFont can provide value
-  // semantics.
+  // HFontRefs can share the same HFONT, and Font can provide value semantics.
   class HFontRef : public base::RefCounted<HFontRef> {
    public:
     // This constructor takes control of the HFONT, and will delete it when
@@ -182,7 +182,7 @@ class ChromeFont {
   // Creates and returns a new HFONTRef from the specified HFONT.
   static HFontRef* CreateHFontRef(HFONT font);
 
-  explicit ChromeFont(HFontRef* font_ref) : font_ref_(font_ref) { }
+  explicit Font(HFontRef* font_ref) : font_ref_(font_ref) { }
 
   // Reference to the base font all fonts are derived from.
   static HFontRef* base_font_ref_;
@@ -190,15 +190,15 @@ class ChromeFont {
   // Indirect reference to the HFontRef, which references the underlying HFONT.
   scoped_refptr<HFontRef> font_ref_;
 #elif defined(OS_LINUX)
-  explicit ChromeFont(SkTypeface* typeface, const std::wstring& name,
-                      int size, int style);
+  explicit Font(SkTypeface* typeface, const std::wstring& name,
+                int size, int style);
   // Calculate and cache the font metrics.
   void calculateMetrics();
   // Make |this| a copy of |other|.
-  void CopyChromeFont(const ChromeFont& other);
+  void CopyFont(const Font& other);
 
   // The default font, used for the default constructor.
-  static ChromeFont* default_font_;
+  static Font* default_font_;
 
   // These two both point to the same SkTypeface. We use the SkAutoUnref to
   // handle the reference counting, but without @typeface_ we would have to
@@ -217,7 +217,7 @@ class ChromeFont {
   int ascent_;
   int avg_width_;
 #elif defined(OS_MACOSX)
-  explicit ChromeFont(const std::wstring& font_name, int font_size, int style);
+  explicit Font(const std::wstring& font_name, int font_size, int style);
 
   // Calculate and cache the font metrics.
   void calculateMetrics();
@@ -234,4 +234,6 @@ class ChromeFont {
 
 };
 
-#endif  // APP_GFX_CHROME_FONT_H_
+}  // namespace gfx
+
+#endif  // APP_GFX_FONT_H_

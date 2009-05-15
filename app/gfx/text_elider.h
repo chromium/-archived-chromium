@@ -47,19 +47,19 @@ std::wstring GetCleanStringFromUrl(const GURL& url,
 // is displayed properly in an RTL context. Please refer to
 // http://crbug.com/6487 for more information.
 std::wstring ElideUrl(const GURL& url,
-                      const ChromeFont& font,
+                      const gfx::Font& font,
                       int available_pixel_width,
                       const std::wstring& languages);
 
 std::wstring ElideText(const std::wstring& text,
-                       const ChromeFont& font,
+                       const gfx::Font& font,
                        int available_pixel_width);
 
 // Elide a filename to fit a given pixel width, with an emphasis on not hiding
 // the extension unless we have to. If filename contains a path, the path will
 // be removed if filename doesn't fit into available_pixel_width.
 std::wstring ElideFilename(const FilePath& filename,
-                           const ChromeFont& font,
+                           const gfx::Font& font,
                            int available_pixel_width);
 
 // SortedDisplayURL maintains a string from a URL suitable for display to the

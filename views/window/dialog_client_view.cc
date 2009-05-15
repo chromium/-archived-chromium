@@ -77,7 +77,7 @@ class DialogButton : public NativeButton {
 }  // namespace
 
 // static
-ChromeFont* DialogClientView::dialog_button_font_ = NULL;
+gfx::Font* DialogClientView::dialog_button_font_ = NULL;
 static const int kDialogMinButtonWidth = 75;
 static const int kDialogButtonLabelSpacing = 16;
 static const int kDialogButtonContentSpacing = 5;
@@ -454,7 +454,7 @@ void DialogClientView::InitClass() {
   static bool initialized = false;
   if (!initialized) {
     ResourceBundle& rb = ResourceBundle::GetSharedInstance();
-    dialog_button_font_ = new ChromeFont(rb.GetFont(ResourceBundle::BaseFont));
+    dialog_button_font_ = new gfx::Font(rb.GetFont(ResourceBundle::BaseFont));
     initialized = true;
   }
 }

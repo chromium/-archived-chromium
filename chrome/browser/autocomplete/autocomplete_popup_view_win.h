@@ -48,7 +48,7 @@ class AutocompletePopupViewWin
     MSG_WM_PAINT(OnPaint)
   END_MSG_MAP()
 
-  AutocompletePopupViewWin(const ChromeFont& font,
+  AutocompletePopupViewWin(const gfx::Font& font,
                            AutocompleteEditViewWin* edit_view,
                            AutocompleteEditModel* edit_model,
                            Profile* profile);
@@ -82,7 +82,7 @@ class AutocompletePopupViewWin
       MAX_STATUS_ENTRIES
     };
 
-    explicit DrawLineInfo(const ChromeFont& font);
+    explicit DrawLineInfo(const gfx::Font& font);
     ~DrawLineInfo();
 
     static COLORREF AlphaBlend(COLORREF foreground,
@@ -91,8 +91,8 @@ class AutocompletePopupViewWin
 
     static const wchar_t ellipsis_str[];
 
-    ChromeFont regular_font;  // Fonts used for rendering AutocompleteMatches.
-    ChromeFont bold_font;
+    gfx::Font regular_font;  // Fonts used for rendering AutocompleteMatches.
+    gfx::Font bold_font;
     int font_height;          // Height (in pixels) of a line of text w/o
                               // padding.
     int line_height;          // Height (in pixels) of a line of text w/padding.

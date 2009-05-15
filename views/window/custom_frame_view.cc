@@ -23,7 +23,7 @@
 namespace views {
 
 // static
-ChromeFont* CustomFrameView::title_font_ = NULL;
+gfx::Font* CustomFrameView::title_font_ = NULL;
 
 namespace {
 // The frame border is only visible in restored mode and is hardcoded to 4 px on
@@ -585,10 +585,10 @@ void CustomFrameView::InitClass() {
   static bool initialized = false;
   if (!initialized) {
 #if defined(OS_WIN)
-    title_font_ = new ChromeFont(win_util::GetWindowTitleFont());
+    title_font_ = new gfx::Font(win_util::GetWindowTitleFont());
 #elif defined(OS_LINUX)
     // TODO: need to resolve what font this is.
-    title_font_ = new ChromeFont();
+    title_font_ = new gfx::Font();
 #endif
     initialized = true;
   }

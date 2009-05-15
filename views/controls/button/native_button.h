@@ -9,7 +9,9 @@
 #include "views/controls/button/button.h"
 #include "views/controls/button/native_button_wrapper.h"
 
-class ChromeFont;
+namespace gfx {
+class Font;
+}
 
 namespace views {
 
@@ -27,8 +29,8 @@ class NativeButton : public Button {
   std::wstring label() const { return label_; }
 
   // Sets the font to be used when displaying the button's label.
-  void set_font(const ChromeFont& font) { font_ = font; }
-  const ChromeFont& font() const { return font_; }
+  void set_font(const gfx::Font& font) { font_ = font; }
+  const gfx::Font& font() const { return font_; }
 
   // Sets/Gets whether or not the button appears and behaves as the default
   // button in its current context.
@@ -80,7 +82,7 @@ class NativeButton : public Button {
   bool is_default_;
 
   // The font used to render the button label.
-  ChromeFont font_;
+  gfx::Font font_;
 
   // True if the button should ignore the minimum size for the platform. Default
   // is false. Set to true to create narrower buttons.

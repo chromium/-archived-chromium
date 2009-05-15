@@ -712,7 +712,7 @@ void SelectFontDialogImpl::FontSelected(LOGFONT logfont,
   if (listener_) {
     HFONT font = CreateFontIndirect(&logfont);
     if (font) {
-      listener_->FontSelected(ChromeFont::CreateFont(font), params);
+      listener_->FontSelected(gfx::Font::CreateFont(font), params);
       DeleteObject(font);
     } else {
       listener_->FontSelectionCanceled(params);

@@ -147,7 +147,7 @@ class LocationBarView : public LocationBar,
     explicit SelectedKeywordView(Profile* profile);
     virtual ~SelectedKeywordView();
 
-    void SetFont(const ChromeFont& font);
+    void SetFont(const gfx::Font& font);
 
     virtual void Paint(ChromeCanvas* canvas);
 
@@ -197,7 +197,7 @@ class LocationBarView : public LocationBar,
     explicit KeywordHintView(Profile* profile);
     virtual ~KeywordHintView();
 
-    void SetFont(const ChromeFont& font);
+    void SetFont(const gfx::Font& font);
 
     void SetColor(const SkColor& color);
 
@@ -444,7 +444,7 @@ class LocationBarView : public LocationBar,
   PageTransition::Type transition_;
 
   // Font used by edit and some of the hints.
-  ChromeFont font_;
+  gfx::Font font_;
 
   // Location_entry view wrapper
   views::HWNDView* location_entry_view_;

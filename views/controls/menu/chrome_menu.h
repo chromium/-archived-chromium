@@ -319,7 +319,7 @@ class MenuItemView : public View {
   MenuItemView* GetParentMenuItem() const { return parent_menu_item_; }
 
   // Sets the font.
-  void SetFont(const ChromeFont& font) { font_ = font; }
+  void SetFont(const gfx::Font& font) { font_ = font; }
 
   // Sets the title
   void SetTitle(const std::wstring& title) {
@@ -460,7 +460,7 @@ class MenuItemView : public View {
   SubmenuView* submenu_;
 
   // Font.
-  ChromeFont font_;
+  gfx::Font font_;
 
   // Title.
   std::wstring title_;

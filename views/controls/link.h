@@ -49,7 +49,7 @@ class Link : public Label {
   virtual bool OnKeyPressed(const KeyEvent& e);
   virtual bool OverrideAccelerator(const Accelerator& accelerator);
 
-  virtual void SetFont(const ChromeFont& font);
+  virtual void SetFont(const gfx::Font& font);
 
   // Set whether the link is enabled.
   virtual void SetEnabled(bool f);

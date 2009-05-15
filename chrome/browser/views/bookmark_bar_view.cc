@@ -149,7 +149,7 @@ static std::wstring CreateToolTipForURLAndTitle(const gfx::Point& screen_loc,
                                                 const std::wstring& languages) {
   const gfx::Rect monitor_bounds = win_util::GetMonitorBoundsForRect(
       gfx::Rect(screen_loc.x(), screen_loc.y(), 1, 1));
-  ChromeFont tt_font = views::TooltipManager::GetDefaultFont();
+  gfx::Font tt_font = views::TooltipManager::GetDefaultFont();
   std::wstring result;
 
   // First the title.

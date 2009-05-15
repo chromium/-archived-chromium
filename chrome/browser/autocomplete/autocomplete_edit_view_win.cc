@@ -390,7 +390,7 @@ base::LazyInstance<PaintPatcher> g_paint_patcher(base::LINKER_INITIALIZED);
 }  // namespace
 
 AutocompleteEditViewWin::AutocompleteEditViewWin(
-    const ChromeFont& font,
+    const gfx::Font& font,
     AutocompleteEditController* controller,
     ToolbarModel* toolbar_model,
     views::View* parent_view,

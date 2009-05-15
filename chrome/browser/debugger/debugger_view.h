@@ -88,7 +88,7 @@ class DebuggerView : public views::View,
   void ExecuteJavascript(const std::string& js);
 
   DebuggerWindow* window_;
-  ChromeFont font_;
+  gfx::Font font_;
   TabContents* tab_contents_;
   TabContentsContainerView* web_container_;
   std::vector<std::wstring> pending_output_;

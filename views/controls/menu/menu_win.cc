@@ -107,7 +107,7 @@ class MenuHostWindow : public CWindowImpl<MenuHostWindow, CWindow,
     MenuWin::ItemData* data =
         reinterpret_cast<MenuWin::ItemData*>(lpmis->itemData);
     if (data != NULL) {
-      ChromeFont font;
+      gfx::Font font;
       lpmis->itemWidth = font.GetStringWidth(data->label) + kIconWidth +
           kItemLeftMargin + kItemRightMargin -
           GetSystemMetrics(SM_CXMENUCHECK);
@@ -161,7 +161,7 @@ class MenuHostWindow : public CWindowImpl<MenuHostWindow, CWindow,
       SystemParametersInfo(SPI_GETKEYBOARDCUES, 0, &underline_mnemonics, 0);
       if (!underline_mnemonics)
         format |= DT_HIDEPREFIX;
-      ChromeFont font;
+      gfx::Font font;
       HGDIOBJ old_font = static_cast<HFONT>(SelectObject(hDC, font.hfont()));
       int fontsize = font.FontSize();
 

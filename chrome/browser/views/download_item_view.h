@@ -165,7 +165,7 @@ class DownloadItemView : public views::ButtonListener,
   bool show_status_text_;
 
   // The font used to print the file name and status.
-  ChromeFont font_;
+  gfx::Font font_;
 
   // The current state (normal, hot or pushed) of the body and drop-down.
   State body_state_;

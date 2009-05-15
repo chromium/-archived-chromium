@@ -36,7 +36,7 @@ struct SadTabGtkConstants {
           ResourceBundle::GetSharedInstance().GetBitmapNamed(IDR_SAD_TAB)),
         title_font(
             ResourceBundle::GetSharedInstance().GetFont(
-                ResourceBundle::BaseFont).DeriveFont(2, ChromeFont::BOLD)),
+                ResourceBundle::BaseFont).DeriveFont(2, gfx::Font::BOLD)),
         message_font(
             ResourceBundle::GetSharedInstance().GetFont(
                 ResourceBundle::BaseFont).DeriveFont(1)),
@@ -44,8 +44,8 @@ struct SadTabGtkConstants {
         message(l10n_util::GetString(IDS_SAD_TAB_MESSAGE)) {}
 
   const SkBitmap* sad_tab_bitmap;
-  ChromeFont title_font;
-  ChromeFont message_font;
+  gfx::Font title_font;
+  gfx::Font message_font;
   std::wstring title;
   std::wstring message;
 };

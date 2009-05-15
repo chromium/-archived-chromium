@@ -129,7 +129,7 @@ ChromeCanvas::~ChromeCanvas() {
 
 // static
 void ChromeCanvas::SizeStringInt(const std::wstring& text,
-                                 const ChromeFont& font,
+                                 const gfx::Font& font,
                                  int *width, int *height, int flags) {
   HDC dc = GetDC(NULL);
   HFONT old_font = static_cast<HFONT>(SelectObject(dc, font.hfont()));
@@ -182,7 +182,7 @@ void ChromeCanvas::DrawStringInt(const std::wstring& text, HFONT font,
 }
 
 void ChromeCanvas::DrawStringInt(const std::wstring& text,
-                                 const ChromeFont& font,
+                                 const gfx::Font& font,
                                  const SkColor& color,
                                  int x, int y, int w, int h, int flags) {
   DrawStringInt(text, font.hfont(), color, x, y, w, h, flags);
@@ -216,7 +216,7 @@ static bool pixelShouldGetHalo(const SkBitmap& bitmap, int x, int y,
 }
 
 void ChromeCanvas::DrawStringWithHalo(const std::wstring& text,
-                                      const ChromeFont& font,
+                                      const gfx::Font& font,
                                       const SkColor& text_color,
                                       const SkColor& halo_color_in,
                                       int x, int y, int w, int h,

@@ -126,14 +126,14 @@ namespace views {
 namespace {
 
 // Returns the font menus are to use.
-ChromeFont GetMenuFont() {
+gfx::Font GetMenuFont() {
   NONCLIENTMETRICS metrics;
   win_util::GetNonClientMetrics(&metrics);
 
   l10n_util::AdjustUIFont(&(metrics.lfMenuFont));
   HFONT font = CreateFontIndirect(&metrics.lfMenuFont);
   DLOG_ASSERT(font);
-  return ChromeFont::CreateFont(font);
+  return gfx::Font::CreateFont(font);
 }
 
 // Calculates all sizes that we can from the OS.
@@ -1215,7 +1215,7 @@ void MenuItemView::Paint(ChromeCanvas* canvas) {
 }
 
 gfx::Size MenuItemView::GetPreferredSize() {
-  ChromeFont& font = GetRootMenuItem()->font_;
+  gfx::Font& font = GetRootMenuItem()->font_;
   return gfx::Size(
       font.GetStringWidth(title_) + label_start + item_right_margin,
       font.height() + GetBottomMargin() + GetTopMargin());
@@ -1487,7 +1487,7 @@ void MenuItemView::Paint(ChromeCanvas* canvas, bool for_drag) {
       NativeTheme::MENU, MENU_POPUPITEM, state, TMT_TEXTCOLOR,
       default_sys_color);
   int width = this->width() - item_right_margin - label_start;
-  ChromeFont& font = GetRootMenuItem()->font_;
+  gfx::Font& font = GetRootMenuItem()->font_;
   gfx::Rect text_bounds(label_start, top_margin, width, font.height());
   text_bounds.set_x(MirroredLeftPointForRect(text_bounds));
   if (for_drag) {

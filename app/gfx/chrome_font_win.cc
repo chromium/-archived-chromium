@@ -15,92 +15,93 @@
 #include "grit/generated_resources.h"
 #include "grit/locale_settings.h"
 
+namespace gfx {
+
 /*static*/
-ChromeFont::HFontRef* ChromeFont::base_font_ref_;
+Font::HFontRef* Font::base_font_ref_;
 
 // If the tmWeight field of a TEXTMETRIC structure has a value >= this, the
 // font is bold.
 static const int kTextMetricWeightBold = 700;
 
 //
-// ChromeFont
+// Font
 //
 
-ChromeFont::ChromeFont()
+Font::Font()
     : font_ref_(GetBaseFontRef()) {
 }
 
-int ChromeFont::height() const {
+int Font::height() const {
   return font_ref_->height();
 }
 
-int ChromeFont::baseline() const {
+int Font::baseline() const {
   return font_ref_->baseline();
 }
 
-int ChromeFont::ave_char_width() const {
+int Font::ave_char_width() const {
   return font_ref_->ave_char_width();
 }
 
-int ChromeFont::GetExpectedTextWidth(int length) const {
+int Font::GetExpectedTextWidth(int length) const {
   return length * std::min(font_ref_->dlu_base_x(), ave_char_width());
 }
 
-int ChromeFont::style() const {
+int Font::style() const {
   return font_ref_->style();
 }
 
-NativeFont ChromeFont::nativeFont() const {
+NativeFont Font::nativeFont() const {
   return hfont();
 }
 
 // static
-ChromeFont ChromeFont::CreateFont(HFONT font) {
+Font Font::CreateFont(HFONT font) {
   DCHECK(font);
   LOGFONT font_info;
   GetObject(font, sizeof(LOGFONT), &font_info);
-  return ChromeFont(CreateHFontRef(CreateFontIndirect(&font_info)));
+  return Font(CreateHFontRef(CreateFontIndirect(&font_info)));
 }
 
-ChromeFont ChromeFont::CreateFont(const std::wstring& font_name,
-                                  int font_size) {
+Font Font::CreateFont(const std::wstring& font_name, int font_size) {
   HDC hdc = GetDC(NULL);
   long lf_height = -MulDiv(font_size, GetDeviceCaps(hdc, LOGPIXELSY), 72);
   ReleaseDC(NULL, hdc);
   HFONT hf = ::CreateFont(lf_height, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
                     font_name.c_str());
-  return ChromeFont::CreateFont(hf);
+  return Font::CreateFont(hf);
 }
 
 // static
-ChromeFont::HFontRef* ChromeFont::GetBaseFontRef() {
+Font::HFontRef* Font::GetBaseFontRef() {
   if (base_font_ref_ == NULL) {
     NONCLIENTMETRICS metrics;
     win_util::GetNonClientMetrics(&metrics);
 
     l10n_util::AdjustUIFont(&metrics.lfMessageFont);
 
-    // See comment in ChromeFont::DeriveFont() about font size.
+    // See comment in Font::DeriveFont() about font size.
     // TODO(jungshik): Add a per-locale resource entry for the minimum
     // font size  and actually enforce the lower-bound. 5 is way too small
     // for CJK, Thai, and Indian locales.
     DCHECK_GE(abs(metrics.lfMessageFont.lfHeight), 5);
     HFONT font = CreateFontIndirect(&metrics.lfMessageFont);
     DLOG_ASSERT(font);
-    base_font_ref_ = ChromeFont::CreateHFontRef(font);
+    base_font_ref_ = Font::CreateHFontRef(font);
     // base_font_ref_ is global, up the ref count so it's never deleted.
     base_font_ref_->AddRef();
   }
   return base_font_ref_;
 }
 
-std::wstring ChromeFont::FontName() {
+std::wstring Font::FontName() {
   LOGFONT font_info;
   GetObject(hfont(), sizeof(LOGFONT), &font_info);
   return (std::wstring(font_info.lfFaceName));
 }
 
-int ChromeFont::FontSize() {
+int Font::FontSize() {
   LOGFONT font_info;
   GetObject(hfont(), sizeof(LOGFONT), &font_info);
   long lf_height = font_info.lfHeight;
@@ -115,7 +116,7 @@ int ChromeFont::FontSize() {
   return font_size;
 }
 
-ChromeFont::HFontRef::HFontRef(HFONT hfont,
+Font::HFontRef::HFontRef(HFONT hfont,
          int height,
          int baseline,
          int ave_char_width,
@@ -130,12 +131,12 @@ ChromeFont::HFontRef::HFontRef(HFONT hfont,
   DLOG_ASSERT(hfont);
 }
 
-ChromeFont::HFontRef::~HFontRef() {
+Font::HFontRef::~HFontRef() {
   DeleteObject(hfont_);
 }
 
 
-ChromeFont ChromeFont::DeriveFont(int size_delta, int style) const {
+Font Font::DeriveFont(int size_delta, int style) const {
   LOGFONT font_info;
   GetObject(hfont(), sizeof(LOGFONT), &font_info);
   // LOGFONT returns two types of font heights, negative is measured slightly
@@ -154,10 +155,10 @@ ChromeFont ChromeFont::DeriveFont(int size_delta, int style) const {
   font_info.lfWeight = (style & BOLD) ? FW_BOLD : FW_NORMAL;
 
   HFONT hfont = CreateFontIndirect(&font_info);
-  return ChromeFont(CreateHFontRef(hfont));
+  return Font(CreateHFontRef(hfont));
 }
 
-int ChromeFont::GetStringWidth(const std::wstring& text) const {
+int Font::GetStringWidth(const std::wstring& text) const {
   int width = 0;
   HDC dc = GetDC(NULL);
   HFONT previous_font = static_cast<HFONT>(SelectObject(dc, hfont()));
@@ -173,7 +174,7 @@ int ChromeFont::GetStringWidth(const std::wstring& text) const {
   return width;
 }
 
-ChromeFont::HFontRef* ChromeFont::CreateHFontRef(HFONT font) {
+Font::HFontRef* Font::CreateHFontRef(HFONT font) {
   TEXTMETRIC font_metrics;
   HDC screen_dc = GetDC(NULL);
   HFONT previous_font = static_cast<HFONT>(SelectObject(screen_dc, font));
@@ -197,15 +198,17 @@ ChromeFont::HFontRef* ChromeFont::CreateHFontRef(HFONT font) {
       std::max(1, static_cast<int>(font_metrics.tmAveCharWidth));
   int style = 0;
   if (font_metrics.tmItalic) {
-    style |= ChromeFont::ITALIC;
+    style |= Font::ITALIC;
   }
   if (font_metrics.tmUnderlined) {
-    style |= ChromeFont::UNDERLINED;
+    style |= Font::UNDERLINED;
   }
   if (font_metrics.tmWeight >= kTextMetricWeightBold) {
-    style |= ChromeFont::BOLD;
+    style |= Font::BOLD;
   }
 
   return new HFontRef(font, height, baseline, ave_char_width, style,
                       dlu_base_x);
 }
+
+}  // namespace gfx

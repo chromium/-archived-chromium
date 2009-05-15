@@ -1117,13 +1117,13 @@ void TextField::SetDefaultBackgroundColor() {
   UpdateEditBackgroundColor();
 }
 
-void TextField::SetFont(const ChromeFont& font) {
+void TextField::SetFont(const gfx::Font& font) {
   font_ = font;
   if (edit_)
     edit_->SetFont(font.hfont());
 }
 
-ChromeFont TextField::GetFont() const {
+gfx::Font TextField::GetFont() const {
   return font_;
 }
 

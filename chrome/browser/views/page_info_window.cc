@@ -158,7 +158,7 @@ SecurityTabView::Section::Section(const std::wstring& title, bool state,
 
   head_line_label_ = new views::Label(head_line);
   head_line_label_->SetFont(
-      head_line_label_->GetFont().DeriveFont(0, ChromeFont::BOLD));
+      head_line_label_->GetFont().DeriveFont(0, gfx::Font::BOLD));
   head_line_label_->SetHorizontalAlignment(views::Label::ALIGN_LEFT);
   AddChildView(head_line_label_);
 

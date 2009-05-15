@@ -199,7 +199,7 @@ bool Tab::GetTooltipText(int x, int y, std::wstring* tooltip) {
   std::wstring title = GetTitle();
   if (!title.empty()) {
     // Only show the tooltip if the title is truncated.
-    ChromeFont font;
+    gfx::Font font;
     if (font.GetStringWidth(title) > title_bounds().width()) {
       *tooltip = title;
       return true;
@@ -209,7 +209,7 @@ bool Tab::GetTooltipText(int x, int y, std::wstring* tooltip) {
 }
 
 bool Tab::GetTooltipTextOrigin(int x, int y, gfx::Point* origin) {
-  ChromeFont font;
+  gfx::Font font;
   origin->set_x(title_bounds().x() + 10);
   origin->set_y(-views::TooltipManager::GetTooltipHeight() - 4);
   return true;

@@ -17,9 +17,9 @@ const int kMinTextDimension = 4;
 TEST(LabelTest, FontProperty) {
   Label label;
   std::wstring font_name(L"courier");
-  ChromeFont font = ChromeFont::CreateFont(font_name, 30);
+  gfx::Font font = gfx::Font::CreateFont(font_name, 30);
   label.SetFont(font);
-  ChromeFont font_used = label.GetFont();
+  gfx::Font font_used = label.GetFont();
   EXPECT_STREQ(font_name.c_str(), font_used.FontName().c_str());
   EXPECT_EQ(30, font_used.FontSize());
 }

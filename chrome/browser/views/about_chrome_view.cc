@@ -226,7 +226,7 @@ void AboutChromeView::Init() {
   // Create a label and add the full text so we can query it for the height.
   views::Label dummy_text(full_text);
   dummy_text.SetMultiLine(true);
-  ChromeFont font =
+  gfx::Font font =
       ResourceBundle::GetSharedInstance().GetFont(ResourceBundle::BaseFont);
 
   // Add up the height of the various elements on the page.
@@ -360,8 +360,8 @@ void AboutChromeView::Paint(ChromeCanvas* canvas) {
   canvas->TileImageInt(*kBackgroundBmp, 0, 0,
                        dialog_dimensions_.width(), kBackgroundBmp->height());
 
-  ChromeFont font =
-    ResourceBundle::GetSharedInstance().GetFont(ResourceBundle::BaseFont);
+  gfx::Font font =
+      ResourceBundle::GetSharedInstance().GetFont(ResourceBundle::BaseFont);
 
   const gfx::Rect label_bounds = main_text_label_->bounds();
 
@@ -430,7 +430,7 @@ void AboutChromeView::DrawTextAndPositionUrl(ChromeCanvas* canvas,
                                              gfx::Rect* rect,
                                              gfx::Size* position,
                                              const gfx::Rect& bounds,
-                                             const ChromeFont& font) {
+                                             const gfx::Font& font) {
   DCHECK(canvas && position);
 
   // What we get passed in as |text| is potentially a mix of LTR and RTL "runs"
@@ -483,7 +483,7 @@ void AboutChromeView::DrawTextStartingFrom(ChromeCanvas* canvas,
                                            const std::wstring& text,
                                            gfx::Size* position,
                                            const gfx::Rect& bounds,
-                                           const ChromeFont& font,
+                                           const gfx::Font& font,
                                            bool ltr_within_rtl) {
   // Iterate through line breaking opportunities (which in English would be
   // spaces and such. This tells us where to wrap.

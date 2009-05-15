@@ -5,8 +5,6 @@
 #ifndef VIEWS_CONTROLS_BUTTON_NATIVE_BUTTON_WRAPPER_H_
 #define VIEWS_CONTROLS_BUTTON_NATIVE_BUTTON_WRAPPER_H_
 
-class ChromeFont;
-
 namespace views {
 
 class Checkbox;

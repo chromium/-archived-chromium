@@ -159,24 +159,24 @@ SkBitmap* ResourceBundle::GetBitmapNamed(int resource_id) {
 void ResourceBundle::LoadFontsIfNecessary() {
   AutoLock lock_scope(lock_);
   if (!base_font_.get()) {
-    base_font_.reset(new ChromeFont());
+    base_font_.reset(new gfx::Font());
 
-    small_font_.reset(new ChromeFont());
+    small_font_.reset(new gfx::Font());
     *small_font_ = base_font_->DeriveFont(-2);
 
-    medium_font_.reset(new ChromeFont());
+    medium_font_.reset(new gfx::Font());
     *medium_font_ = base_font_->DeriveFont(3);
 
-    medium_bold_font_.reset(new ChromeFont());
+    medium_bold_font_.reset(new gfx::Font());
     *medium_bold_font_ =
-        base_font_->DeriveFont(3, base_font_->style() | ChromeFont::BOLD);
+        base_font_->DeriveFont(3, base_font_->style() | gfx::Font::BOLD);
 
-    large_font_.reset(new ChromeFont());
+    large_font_.reset(new gfx::Font());
     *large_font_ = base_font_->DeriveFont(8);
   }
 }
 
-ChromeFont ResourceBundle::GetFont(FontStyle style) {
+gfx::Font ResourceBundle::GetFont(FontStyle style) {
   LoadFontsIfNecessary();
   switch(style) {
     case SmallFont:

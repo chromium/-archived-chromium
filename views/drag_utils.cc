@@ -118,7 +118,7 @@ void CreateDragImageForFile(const std::wstring& file_name,
   // Set up our text portion
   const std::wstring& name = file_util::GetFilenameFromPath(file_name);
   ResourceBundle& rb = ResourceBundle::GetSharedInstance();
-  ChromeFont font = rb.GetFont(ResourceBundle::BaseFont);
+  gfx::Font font = rb.GetFont(ResourceBundle::BaseFont);
 
   const int width = kFileDragImageMaxWidth;
   // Add +2 here to allow room for the halo.

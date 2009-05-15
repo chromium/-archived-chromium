@@ -14,23 +14,23 @@
 namespace {
 
 // Returns a new pango font, free with pango_font_description_free().
-PangoFontDescription* PangoFontFromChromeFont(const ChromeFont& chrome_font) {
-  ChromeFont font = chrome_font;  // Copy so we can call non-const methods.
+PangoFontDescription* PangoFontFromGfxFont(const gfx::Font& gfx_font) {
+  gfx::Font font = gfx_font;  // Copy so we can call non-const methods.
   PangoFontDescription* pfd = pango_font_description_new();
   pango_font_description_set_family(pfd, WideToUTF8(font.FontName()).c_str());
   pango_font_description_set_size(pfd, font.FontSize() * PANGO_SCALE);
 
   switch (font.style()) {
-    case ChromeFont::NORMAL:
+    case gfx::Font::NORMAL:
       // Nothing to do, should already be PANGO_STYLE_NORMAL.
       break;
-    case ChromeFont::BOLD:
+    case gfx::Font::BOLD:
       pango_font_description_set_weight(pfd, PANGO_WEIGHT_BOLD);
       break;
-    case ChromeFont::ITALIC:
+    case gfx::Font::ITALIC:
       pango_font_description_set_style(pfd, PANGO_STYLE_ITALIC);
       break;
-    case ChromeFont::UNDERLINED:
+    case gfx::Font::UNDERLINED:
       // TODO(deanm): How to do underlined?  Where do we use it?  Probably have
       // to paint it ourselves, see pango_font_metrics_get_underline_position.
       break;
@@ -53,7 +53,7 @@ ChromeCanvas::~ChromeCanvas() {
 
 // static
 void ChromeCanvas::SizeStringInt(const std::wstring& text,
-                                 const ChromeFont& font,
+                                 const gfx::Font& font,
                                  int* width, int* height, int flags) {
   NOTIMPLEMENTED();
 }
@@ -72,7 +72,7 @@ void ChromeCanvas::ApplySkiaMatrixToCairoContext(cairo_t* cr) {
 }
 
 void ChromeCanvas::DrawStringInt(const std::wstring& text,
-                                 const ChromeFont& font,
+                                 const gfx::Font& font,
                                  const SkColor& color, int x, int y, int w,
                                  int h, int flags) {
   cairo_surface_t* surface = beginPlatformPaint();
@@ -112,7 +112,7 @@ void ChromeCanvas::DrawStringInt(const std::wstring& text,
   std::string utf8 = WideToUTF8(text);
   pango_layout_set_text(layout, utf8.data(), utf8.size());
 
-  PangoFontDescription* desc = PangoFontFromChromeFont(font);
+  PangoFontDescription* desc = PangoFontFromGfxFont(font);
   pango_layout_set_font_description(layout, desc);
   pango_font_description_free(desc);
 
