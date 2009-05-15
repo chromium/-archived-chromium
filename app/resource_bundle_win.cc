@@ -6,6 +6,7 @@
 
 #include <atlbase.h>
 
+#include "app/app_paths.h"
 #include "app/gfx/font.h"
 #include "app/l10n_util.h"
 #include "base/file_util.h"
@@ -14,7 +15,6 @@
 #include "base/resource_util.h"
 #include "base/string_piece.h"
 #include "base/win_util.h"
-#include "chrome/common/chrome_paths.h"
 
 namespace {
 
@@ -63,7 +63,7 @@ void ResourceBundle::LoadResources(const std::wstring& pref_locale) {
 
 FilePath ResourceBundle::GetLocaleFilePath(const std::wstring& pref_locale) {
   FilePath locale_path;
-  PathService::Get(chrome::DIR_LOCALES, &locale_path);
+  PathService::Get(app::DIR_LOCALES, &locale_path);
 
   const std::wstring app_locale = l10n_util::GetApplicationLocale(pref_locale);
   if (app_locale.empty())
@@ -75,7 +75,7 @@ FilePath ResourceBundle::GetLocaleFilePath(const std::wstring& pref_locale) {
 void ResourceBundle::LoadThemeResources() {
   DCHECK(NULL == theme_data_) << "theme dll already loaded";
   std::wstring theme_data_path;
-  PathService::Get(chrome::DIR_THEMES, &theme_data_path);
+  PathService::Get(app::DIR_THEMES, &theme_data_path);
   file_util::AppendToPath(&theme_data_path, L"default.dll");
 
   // The dll should only have resources, not executable code.

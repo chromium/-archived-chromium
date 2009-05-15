@@ -2,12 +2,12 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+#include "app/app_paths.h"
 #include "app/gfx/icon_util.h"
 #include "base/gfx/size.h"
 #include "base/scoped_ptr.h"
 #include "base/file_util.h"
 #include "base/path_service.h"
-#include "chrome/common/chrome_paths.h"
 #include "third_party/skia/include/core/SkBitmap.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
@@ -20,7 +20,7 @@ namespace {
   class IconUtilTest : public testing::Test {
    public:
     IconUtilTest() {
-      PathService::Get(chrome::DIR_TEST_DATA, &test_data_directory_);
+      PathService::Get(app::DIR_TEST_DATA, &test_data_directory_);
     }
     ~IconUtilTest() {}
 

@@ -92,25 +92,6 @@ bool PathProvider(int key, FilePath* result) {
       cur = cur.Append(FILE_PATH_LITERAL("resources"));
       cur = cur.Append(FILE_PATH_LITERAL("inspector"));
       break;
-    case chrome::DIR_THEMES:
-      if (!PathService::Get(chrome::DIR_APP, &cur))
-        return false;
-      cur = cur.Append(FILE_PATH_LITERAL("themes"));
-      create_dir = true;
-      break;
-    case chrome::DIR_LOCALES:
-      if (!PathService::Get(chrome::DIR_APP, &cur))
-        return false;
-#if defined(OS_MACOSX)
-      // On Mac, locale files are in Contents/Resources, a sibling of the
-      // App dir.
-      cur = cur.DirName();
-      cur = cur.Append(FILE_PATH_LITERAL("Resources"));
-#else
-      cur = cur.Append(FILE_PATH_LITERAL("locales"));
-#endif
-      create_dir = true;
-      break;
     case chrome::DIR_APP_DICTIONARIES:
 #if defined(OS_LINUX)
       // We can't write into the EXE dir on Linux, so keep dictionaries

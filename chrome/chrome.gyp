@@ -174,6 +174,8 @@
         # All .cc, .h, and .mm files under app/ except for tests.
         '../app/animation.cc',
         '../app/animation.h',
+        '../app/app_paths.h',
+        '../app/app_paths.cc',
         '../app/app_switches.h',
         '../app/app_switches.cc',
         '../app/drag_drop_types.cc',

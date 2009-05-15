@@ -9,6 +9,7 @@
 
 #include <string>
 
+#include "app/app_paths.h"
 #include "app/resource_bundle.h"
 #include "base/stats_table.h"
 #include "base/file_util.h"
@@ -74,6 +75,7 @@ class ChromeTestSuite : public TestSuite {
     scoped_host_mapper_.Init(host_mapper_.get());
 
     chrome::RegisterPathProvider();
+    app::RegisterPathProvider();
     g_browser_process = new TestingBrowserProcess;
 
     // Notice a user data override, and otherwise default to using a custom
