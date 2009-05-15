@@ -14,13 +14,13 @@
 #include "base/time.h"
 #include "base/waitable_event.h"
 #include "chrome/browser/browser_process.h"
-#include "chrome/browser/child_process_security_policy.h"
 #include "chrome/browser/cross_site_request_manager.h"
 #include "chrome/browser/debugger/debugger_wrapper.h"
 #include "chrome/browser/debugger/devtools_manager.h"
 #include "chrome/browser/extensions/extension_message_service.h"
 #include "chrome/browser/metrics/user_metrics.h"
 #include "chrome/browser/profile.h"
+#include "chrome/browser/renderer_host/renderer_security_policy.h"
 #include "chrome/browser/renderer_host/render_process_host.h"
 #include "chrome/browser/renderer_host/render_view_host_delegate.h"
 #include "chrome/browser/renderer_host/render_widget_host.h"
@@ -48,7 +48,7 @@ using WebKit::WebInputEvent;
 
 namespace {
 
-void FilterURL(ChildProcessSecurityPolicy* policy, int renderer_id, GURL* url) {
+void FilterURL(RendererSecurityPolicy* policy, int renderer_id, GURL* url) {
   if (!url->is_valid())
     return;  // We don't need to block invalid URLs.
 
@@ -140,7 +140,7 @@ bool RenderViewHost::CreateRenderView() {
   DCHECK(process()->profile());
 
   if (enabled_bindings_ & BindingsPolicy::DOM_UI) {
-    ChildProcessSecurityPolicy::GetInstance()->GrantDOMUIBindings(
+    RendererSecurityPolicy::GetInstance()->GrantDOMUIBindings(
         process()->pid());
   }
 
@@ -196,7 +196,7 @@ void RenderViewHost::NavigateToEntry(const NavigationEntry& entry,
   ViewMsg_Navigate_Params params;
   MakeNavigateParams(entry, is_reload, &params);
 
-  ChildProcessSecurityPolicy::GetInstance()->GrantRequestURL(
+  RendererSecurityPolicy::GetInstance()->GrantRequestURL(
       process()->pid(), params.url);
 
   DoNavigate(entry.url(), new ViewMsg_Navigate(routing_id(), params));
@@ -209,7 +209,7 @@ void RenderViewHost::NavigateToURL(const GURL& url) {
   params.transition = PageTransition::LINK;
   params.reload = false;
 
-  ChildProcessSecurityPolicy::GetInstance()->GrantRequestURL(
+  RendererSecurityPolicy::GetInstance()->GrantRequestURL(
       process()->pid(), params.url);
 
   DoNavigate(url, new ViewMsg_Navigate(routing_id(), params));
@@ -396,7 +396,7 @@ void RenderViewHost::DragTargetDragEnter(
     const gfx::Point& client_pt,
     const gfx::Point& screen_pt) {
   // Grant the renderer the ability to load the drop_data.
-  ChildProcessSecurityPolicy* policy = ChildProcessSecurityPolicy::GetInstance();
+  RendererSecurityPolicy* policy = RendererSecurityPolicy::GetInstance();
   policy->GrantRequestURL(process()->pid(), drop_data.url);
   for (std::vector<string16>::const_iterator iter(drop_data.filenames.begin());
        iter != drop_data.filenames.end(); ++iter) {
@@ -568,7 +568,7 @@ void RenderViewHost::InspectElementAt(int x, int y) {
     DevToolsManager* manager = g_browser_process->devtools_manager();
     manager->InspectElement(this, x, y);
   } else {
-    ChildProcessSecurityPolicy::GetInstance()->
+    RendererSecurityPolicy::GetInstance()->
         GrantInspectElement(process()->pid());
     Send(new ViewMsg_InspectElement(routing_id(), x, y));
   }
@@ -580,7 +580,7 @@ void RenderViewHost::ShowJavaScriptConsole() {
     DevToolsManager* manager = g_browser_process->devtools_manager();
     manager->OpenDevToolsWindow(this);
   } else {
-    ChildProcessSecurityPolicy::GetInstance()->
+    RendererSecurityPolicy::GetInstance()->
         GrantInspectElement(process()->pid());
     Send(new ViewMsg_ShowJavaScriptConsole(routing_id()));
   }
@@ -668,7 +668,7 @@ void RenderViewHost::InstallMissingPlugin() {
 }
 
 void RenderViewHost::FileSelected(const FilePath& path) {
-  ChildProcessSecurityPolicy::GetInstance()->GrantUploadFile(process()->pid(),
+  RendererSecurityPolicy::GetInstance()->GrantUploadFile(process()->pid(),
                                                          path);
   std::vector<FilePath> files;
   files.push_back(path);
@@ -679,7 +679,7 @@ void RenderViewHost::MultiFilesSelected(
          const std::vector<FilePath>& files) {
   for (std::vector<FilePath>::const_iterator file = files.begin();
        file != files.end(); ++file) {
-    ChildProcessSecurityPolicy::GetInstance()->GrantUploadFile(
+    RendererSecurityPolicy::GetInstance()->GrantUploadFile(
       process()->pid(), *file);
   }
   Send(new ViewMsg_RunFileChooserResponse(routing_id(), files));
@@ -906,7 +906,7 @@ void RenderViewHost::OnMsgNavigate(const IPC::Message& msg) {
     return;
 
   const int renderer_id = process()->pid();
-  ChildProcessSecurityPolicy* policy = ChildProcessSecurityPolicy::GetInstance();
+  RendererSecurityPolicy* policy = RendererSecurityPolicy::GetInstance();
   // Without this check, an evil renderer can trick the browser into creating
   // a navigation entry for a banned URL.  If the user clicks the back button
   // followed by the forward button (or clicks reload, or round-trips through
@@ -1002,7 +1002,7 @@ void RenderViewHost::OnMsgDidLoadResourceFromMemoryCache(
 void RenderViewHost::OnMsgDidStartProvisionalLoadForFrame(bool is_main_frame,
                                                           const GURL& url) {
   GURL validated_url(url);
-  FilterURL(ChildProcessSecurityPolicy::GetInstance(),
+  FilterURL(RendererSecurityPolicy::GetInstance(),
             process()->pid(), &validated_url);
 
   delegate_->DidStartProvisionalLoadForFrame(this, is_main_frame,
@@ -1015,7 +1015,7 @@ void RenderViewHost::OnMsgDidFailProvisionalLoadWithError(
     const GURL& url,
     bool showing_repost_interstitial) {
   GURL validated_url(url);
-  FilterURL(ChildProcessSecurityPolicy::GetInstance(),
+  FilterURL(RendererSecurityPolicy::GetInstance(),
             process()->pid(), &validated_url);
 
   delegate_->DidFailProvisionalLoadWithError(this, is_main_frame,
@@ -1062,7 +1062,7 @@ void RenderViewHost::OnMsgContextMenu(const ContextMenuParams& params) {
   // directly, don't show them in the context menu.
   ContextMenuParams validated_params(params);
   const int renderer_id = process()->pid();
-  ChildProcessSecurityPolicy* policy = ChildProcessSecurityPolicy::GetInstance();
+  RendererSecurityPolicy* policy = RendererSecurityPolicy::GetInstance();
 
   // We don't validate |unfiltered_link_url| so that this field can be used
   // when users want to copy the original link URL.
@@ -1078,7 +1078,7 @@ void RenderViewHost::OnMsgOpenURL(const GURL& url,
                                   const GURL& referrer,
                                   WindowOpenDisposition disposition) {
   GURL validated_url(url);
-  FilterURL(ChildProcessSecurityPolicy::GetInstance(),
+  FilterURL(RendererSecurityPolicy::GetInstance(),
             process()->pid(), &validated_url);
 
   delegate_->RequestOpenURL(validated_url, referrer, disposition);
@@ -1098,7 +1098,7 @@ void RenderViewHost::OnMsgDomOperationResponse(
 
 void RenderViewHost::OnMsgDOMUISend(
     const std::string& message, const std::string& content) {
-  if (!ChildProcessSecurityPolicy::GetInstance()->
+  if (!RendererSecurityPolicy::GetInstance()->
           HasDOMUIBindings(process()->pid())) {
     NOTREACHED() << "Blocked unauthorized use of DOMUIBindings.";
     return;

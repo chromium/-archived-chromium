@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CHROME_BROWSER_CHILD_PROCESS_SECURITY_POLICY_H_
-#define CHROME_BROWSER_CHILD_PROCESS_SECURITY_POLICY_H_
+#ifndef CHROME_BROWSER_RENDERER_HOST_RENDERER_SECURITY_POLICY_H_
+#define CHROME_BROWSER_RENDERER_HOST_RENDERER_SECURITY_POLICY_H_
 
 #include <string>
 #include <map>
@@ -17,23 +17,23 @@
 class FilePath;
 class GURL;
 
-// The ChildProcessSecurityPolicy class is used to grant and revoke security
+// The RendererSecurityPolicy class is used to grant and revoke security
 // capabilities for renderers.  For example, it restricts whether a renderer
 // is permmitted to loaded file:// URLs based on whether the renderer has ever
 // been commanded to load file:// URLs by the browser.
 //
-// ChildProcessSecurityPolicy is a singleton that may be used on any thread.
+// RendererSecurityPolicy is a singleton that may be used on any thread.
 //
-class ChildProcessSecurityPolicy {
+class RendererSecurityPolicy {
  public:
   // Object can only be created through GetInstance() so the constructor is
   // private.
-  ~ChildProcessSecurityPolicy();
+  ~RendererSecurityPolicy();
 
-  // There is one global ChildProcessSecurityPolicy object for the entire browser
+  // There is one global RendererSecurityPolicy object for the entire browser
   // processes.  The object returned by this method may be accessed on any
   // thread.
-  static ChildProcessSecurityPolicy* GetInstance();
+  static RendererSecurityPolicy* GetInstance();
 
   // Web-safe schemes can be requested by any renderer.  Once a web-safe scheme
   // has been registered, any renderer processes can request URLs with that
@@ -98,9 +98,9 @@ class ChildProcessSecurityPolicy {
   typedef std::set<std::string> SchemeSet;
   typedef std::map<int, SecurityState*> SecurityStateMap;
 
-  // Obtain an instance of ChildProcessSecurityPolicy via GetInstance().
-  ChildProcessSecurityPolicy();
-  friend struct DefaultSingletonTraits<ChildProcessSecurityPolicy>;
+  // Obtain an instance of RendererSecurityPolicy via GetInstance().
+  RendererSecurityPolicy();
+  friend struct DefaultSingletonTraits<RendererSecurityPolicy>;
 
   // You must acquire this lock before reading or writing any members of this
   // class.  You must not block while holding this lock.
@@ -121,7 +121,7 @@ class ChildProcessSecurityPolicy {
   // not escape this class.
   SecurityStateMap security_state_;
 
-  DISALLOW_COPY_AND_ASSIGN(ChildProcessSecurityPolicy);
+  DISALLOW_COPY_AND_ASSIGN(RendererSecurityPolicy);
 };
 
-#endif  // CHROME_BROWSER_CHILD_PROCESS_SECURITY_POLICY_H_
+#endif  // CHROME_BROWSER_RENDERER_HOST_RENDERER_SECURITY_POLICY_H_

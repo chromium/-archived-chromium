@@ -13,7 +13,6 @@
 #include "base/stl_util-inl.h"
 #include "base/time.h"
 #include "chrome/browser/cert_store.h"
-#include "chrome/browser/child_process_security_policy.h"
 #include "chrome/browser/cross_site_request_manager.h"
 #include "chrome/browser/download/download_file.h"
 #include "chrome/browser/download/download_manager.h"
@@ -28,6 +27,7 @@
 #include "chrome/browser/renderer_host/download_resource_handler.h"
 #include "chrome/browser/renderer_host/media_resource_handler.h"
 #include "chrome/browser/renderer_host/render_view_host.h"
+#include "chrome/browser/renderer_host/renderer_security_policy.h"
 #include "chrome/browser/renderer_host/resource_request_details.h"
 #include "chrome/browser/renderer_host/safe_browsing_resource_handler.h"
 #include "chrome/browser/renderer_host/save_file_resource_handler.h"
@@ -109,7 +109,7 @@ bool ShouldServiceRequest(ChildProcessInfo::ProcessType process_type,
   if (process_type != ChildProcessInfo::RENDER_PROCESS)
     return true;
 
-  ChildProcessSecurityPolicy* policy = ChildProcessSecurityPolicy::GetInstance();
+  RendererSecurityPolicy* policy = RendererSecurityPolicy::GetInstance();
 
   // Check if the renderer is permitted to request the requested URL.
   if (!policy->CanRequestURL(process_id, request_data.url)) {
@@ -484,7 +484,7 @@ void ResourceDispatcherHost::BeginDownload(const GURL& url,
     return;
 
   // Check if the renderer is permitted to request the requested URL.
-  if (!ChildProcessSecurityPolicy::GetInstance()->
+  if (!RendererSecurityPolicy::GetInstance()->
           CanRequestURL(process_id, url)) {
     LOG(INFO) << "Denied unauthorized download request for " <<
         url.possibly_invalid_spec();
@@ -821,7 +821,7 @@ void ResourceDispatcherHost::OnReceivedRedirect(URLRequest* request,
   DCHECK(request->status().is_success());
 
   if (info->process_type == ChildProcessInfo::RENDER_PROCESS &&
-      !ChildProcessSecurityPolicy::GetInstance()->
+      !RendererSecurityPolicy::GetInstance()->
           CanRequestURL(info->process_id, new_url)) {
     LOG(INFO) << "Denied unauthorized request for " <<
         new_url.possibly_invalid_spec();
