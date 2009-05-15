@@ -6,6 +6,7 @@
 #define CHROME_BROWSER_TAB_CONTENTS_TAB_CONTENTS_VIEW_GTK_H_
 
 #include "base/scoped_ptr.h"
+#include "chrome/browser/gtk/focus_store_gtk.h"
 #include "chrome/browser/tab_contents/tab_contents_view.h"
 #include "chrome/common/notification_observer.h"
 #include "chrome/common/notification_registrar.h"
@@ -87,13 +88,7 @@ class TabContentsViewGtk : public TabContentsView,
 
   scoped_ptr<SadTabGtk> sad_tab_;
 
-  // The widget that was focused the last time we were asked to store focus.
-  GtkWidget* stored_focus_widget_;
-
-  // The widget for which we've stored focus might be destroyed by the time we
-  // want to restore focus. Thus we connect to the "destroy" signal on that
-  // widget. This is the handler ID for the destroy handler.
-  guint destroy_handler_id_;
+  FocusStoreGtk focus_store_;
 
   DISALLOW_COPY_AND_ASSIGN(TabContentsViewGtk);
 };

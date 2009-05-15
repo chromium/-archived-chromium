@@ -33,7 +33,7 @@ gboolean OnFocus(GtkWidget* widget, GtkDirectionType focus,
   // If we already have focus, let the next widget have a shot at it. We will
   // reach this situation after the call to gtk_widget_child_focus() in
   // TakeFocus().
-  if (GTK_WIDGET_HAS_FOCUS(widget))
+  if (gtk_widget_is_focus(widget))
     return FALSE;
 
   gtk_widget_grab_focus(widget);
@@ -67,8 +67,7 @@ TabContentsView* TabContentsView::Create(TabContents* tab_contents) {
 
 TabContentsViewGtk::TabContentsViewGtk(TabContents* tab_contents)
     : TabContentsView(tab_contents),
-      vbox_(gtk_vbox_new(FALSE, 0)),
-      stored_focus_widget_(NULL) {
+      vbox_(gtk_vbox_new(FALSE, 0)) {
   registrar_.Add(this, NotificationType::TAB_CONTENTS_CONNECTED,
                  Source<TabContents>(tab_contents));
   registrar_.Add(this, NotificationType::TAB_CONTENTS_DISCONNECTED,
@@ -192,29 +191,12 @@ void TabContentsViewGtk::SetInitialFocus() {
 }
 
 void TabContentsViewGtk::StoreFocus() {
-  GtkWindow* window = GetTopLevelNativeWindow();
-  if (!window) {
-    NOTREACHED();
-    return;
-  }
-
-  // Disconnect the previous destroy handler (if any).
-  if (stored_focus_widget_)
-    g_signal_handler_disconnect(stored_focus_widget_, destroy_handler_id_);
-
-  stored_focus_widget_ = window->focus_widget;
-  if (stored_focus_widget_) {
-    // gtk_widget_destroyed() will set |stored_focus_widget_| to NULL when it is
-    // invoked during handling of the "destroy" signal.
-    destroy_handler_id_ = g_signal_connect(stored_focus_widget_, "destroy",
-                                           G_CALLBACK(gtk_widget_destroyed),
-                                           &stored_focus_widget_);
-  }
+  focus_store_.Store(GetNativeView());
 }
 
 void TabContentsViewGtk::RestoreFocus() {
-  if (stored_focus_widget_)
-    gtk_widget_grab_focus(stored_focus_widget_);
+  if (focus_store_.widget())
+    gtk_widget_grab_focus(focus_store_.widget());
   else
     SetInitialFocus();
 }

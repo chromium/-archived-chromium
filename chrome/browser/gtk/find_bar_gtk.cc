@@ -77,6 +77,13 @@ FindBarGtk::FindBarGtk(BrowserWindowGtk* browser)
                    G_CALLBACK(OnChanged), this);
   g_signal_connect(text_entry_, "key-press-event",
                    G_CALLBACK(OnKeyPressEvent), this);
+  // When the user tabs to us or clicks on us, save where the focus used to
+  // be.
+  g_signal_connect(text_entry_, "focus",
+                   G_CALLBACK(OnFocus), this);
+  gtk_widget_add_events(text_entry_, GDK_BUTTON_PRESS_MASK);
+  g_signal_connect(text_entry_, "button-press-event",
+                   G_CALLBACK(OnButtonPress), this);
   g_signal_connect(widget(), "size-allocate",
                    G_CALLBACK(OnFixedSizeAllocate), this);
   // We can't call ContourWidget() until after |container_| has been
@@ -122,14 +129,14 @@ void FindBarGtk::InitWidgets() {
   close_button_.reset(
       CustomDrawButton::AddBarCloseButton(hbox, kCloseButtonPaddingLeft));
   g_signal_connect(G_OBJECT(close_button_->widget()), "clicked",
-                   G_CALLBACK(OnButtonPressed), this);
+                   G_CALLBACK(OnClicked), this);
   gtk_widget_set_tooltip_text(close_button_->widget(),
       l10n_util::GetStringUTF8(IDS_FIND_IN_PAGE_CLOSE_TOOLTIP).c_str());
 
   find_next_button_.reset(new CustomDrawButton(IDR_FINDINPAGE_NEXT,
       IDR_FINDINPAGE_NEXT_H, IDR_FINDINPAGE_NEXT_H, IDR_FINDINPAGE_NEXT_P));
   g_signal_connect(G_OBJECT(find_next_button_->widget()), "clicked",
-                   G_CALLBACK(OnButtonPressed), this);
+                   G_CALLBACK(OnClicked), this);
   gtk_widget_set_tooltip_text(find_next_button_->widget(),
       l10n_util::GetStringUTF8(IDS_FIND_IN_PAGE_NEXT_TOOLTIP).c_str());
   gtk_box_pack_end(GTK_BOX(hbox), find_next_button_->widget(),
@@ -138,7 +145,7 @@ void FindBarGtk::InitWidgets() {
   find_previous_button_.reset(new CustomDrawButton(IDR_FINDINPAGE_PREV,
       IDR_FINDINPAGE_PREV_H, IDR_FINDINPAGE_PREV_H, IDR_FINDINPAGE_PREV_P));
   g_signal_connect(G_OBJECT(find_previous_button_->widget()), "clicked",
-                   G_CALLBACK(OnButtonPressed), this);
+                   G_CALLBACK(OnClicked), this);
   gtk_widget_set_tooltip_text(find_previous_button_->widget(),
       l10n_util::GetStringUTF8(IDS_FIND_IN_PAGE_PREVIOUS_TOOLTIP).c_str());
   gtk_box_pack_end(GTK_BOX(hbox), find_previous_button_->widget(),
@@ -186,7 +193,6 @@ void FindBarGtk::Show() {
   slide_widget_->Open();
   if (container_->window)
     gdk_window_raise(container_->window);
-  gtk_widget_grab_focus(text_entry_);
 }
 
 void FindBarGtk::Hide(bool animate) {
@@ -197,6 +203,7 @@ void FindBarGtk::Hide(bool animate) {
 }
 
 void FindBarGtk::SetFocusAndSelection() {
+  StoreOutsideFocus();
   gtk_widget_grab_focus(text_entry_);
   // Select all the text.
   gtk_entry_select_region(GTK_ENTRY(text_entry_), 0, -1);
@@ -221,6 +228,11 @@ void FindBarGtk::SetFindText(const string16& find_text) {
 
 void FindBarGtk::UpdateUIForFindResult(const FindNotificationDetails& result,
                                        const string16& find_text) {
+  // Once we find a match we no longer want to keep track of what had
+  // focus. EndFindSession will then set the focus to the page content.
+  if (result.number_of_matches() > 0)
+    focus_store_.Store(NULL);
+
   std::string text_entry_utf8 = UTF16ToUTF8(find_text);
   bool have_valid_range =
       result.number_of_matches() != -1 && result.active_match_ordinal() != -1;
@@ -275,15 +287,15 @@ bool FindBarGtk::IsFindBarVisible() {
 }
 
 void FindBarGtk::RestoreSavedFocus() {
-  // TODO(estade): We should save focus and restore its previous location if we
-  // don't find any matches in our search. For now just give focus to the tab
-  // contents.
   // This function sometimes gets called when we don't have focus. We should do
   // nothing in this case.
-  if (!GTK_WIDGET_HAS_FOCUS(text_entry_))
+  if (!gtk_widget_is_focus(text_entry_))
     return;
 
-  find_bar_controller_->tab_contents()->Focus();
+  if (focus_store_.widget())
+    gtk_widget_grab_focus(focus_store_.widget());
+  else
+    find_bar_controller_->tab_contents()->Focus();
 }
 
 FindBarTesting* FindBarGtk::GetFindBarTesting() {
@@ -311,6 +323,15 @@ void FindBarGtk::FindEntryTextInContents(bool forward_search) {
   }
 }
 
+void FindBarGtk::StoreOutsideFocus() {
+  // |text_entry_| is the only widget in the find bar that can be focused,
+  // so it's the only one we have to check.
+  // TODO(estade): when we make the find bar buttons focusable, we'll have
+  // to change this (same above in RestoreSavedFocus).
+  if (!gtk_widget_is_focus(text_entry_))
+    focus_store_.Store(text_entry_);
+}
+
 // static
 gboolean FindBarGtk::OnChanged(GtkWindow* window, FindBarGtk* find_bar) {
   find_bar->FindEntryTextInContents(true);
@@ -331,7 +352,7 @@ gboolean FindBarGtk::OnKeyPressEvent(GtkWindow* window, GdkEventKey* event,
 }
 
 // static
-void FindBarGtk::OnButtonPressed(GtkWidget* button, FindBarGtk* find_bar) {
+void FindBarGtk::OnClicked(GtkWidget* button, FindBarGtk* find_bar) {
   if (button == find_bar->close_button_->widget()) {
     find_bar->find_bar_controller_->EndFindSession();
   } else if (button == find_bar->find_previous_button_->widget() ||
@@ -376,4 +397,22 @@ void FindBarGtk::OnContainerSizeAllocate(GtkWidget* container,
     GetDialogBackground()->ContourWidget(container);
     findbar->container_shaped_ = true;
   }
+}
+
+// static
+gboolean FindBarGtk::OnFocus(GtkWidget* text_entry, GtkDirectionType focus,
+                             FindBarGtk* find_bar) {
+  find_bar->StoreOutsideFocus();
+
+  // Continue propagating the event.
+  return FALSE;
+}
+
+// static
+gboolean FindBarGtk::OnButtonPress(GtkWidget* text_entry, GdkEventButton* e,
+                                   FindBarGtk* find_bar) {
+  find_bar->StoreOutsideFocus();
+
+  // Continue propagating the event.
+  return FALSE;
 }

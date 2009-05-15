@@ -1870,6 +1870,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\download\download_started_animation.h"
+				>
+			</File>
+			<File
 				RelativePath=".\download\download_util.cc"
 				>
 			</File>

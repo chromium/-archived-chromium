@@ -10,6 +10,7 @@
 #include "base/basictypes.h"
 #include "base/scoped_ptr.h"
 #include "chrome/browser/find_bar.h"
+#include "chrome/browser/gtk/focus_store_gtk.h"
 #include "chrome/common/owned_widget_gtk.h"
 
 class BrowserWindowGtk;
@@ -59,6 +60,10 @@ class FindBarGtk : public FindBar,
  private:
   void InitWidgets();
 
+  // Store the currently focused widget if it is not in the find bar.
+  // This should always be called before we claim focus.
+  void StoreOutsideFocus();
+
   // Returns the child of |fixed_| that holds what the user perceives as the
   // findbar.
   GtkWidget* slide_widget();
@@ -75,7 +80,7 @@ class FindBarGtk : public FindBar,
                                   FindBarGtk* find_bar);
 
   // Callback for previous, next, and close button.
-  static void OnButtonPressed(GtkWidget* button, FindBarGtk* find_bar);
+  static void OnClicked(GtkWidget* button, FindBarGtk* find_bar);
 
   // Called when |fixed_| changes sizes. Used to position the dialog (the
   // "dialog" is the widget hierarchy rooted at |slide_widget_|).
@@ -87,6 +92,12 @@ class FindBarGtk : public FindBar,
   static void OnContainerSizeAllocate(GtkWidget* container,
                                       GtkAllocation* allocation,
                                       FindBarGtk* findbar);
+
+  // These are both used for focus management.
+  static gboolean OnFocus(GtkWidget* text_entry, GtkDirectionType focus,
+                          FindBarGtk* find_bar);
+  static gboolean OnButtonPress(GtkWidget* text_entry, GdkEventButton* e,
+                                FindBarGtk* find_bar);
 
   // GtkFixed containing the find bar widgets.
   OwnedWidgetGtk fixed_;
@@ -124,6 +135,9 @@ class FindBarGtk : public FindBar,
 
   // Pointer back to the owning controller.
   FindBarController* find_bar_controller_;
+
+  // Saves where the focus used to be whenever we get it.
+  FocusStoreGtk focus_store_;
 
   DISALLOW_COPY_AND_ASSIGN(FindBarGtk);
 };

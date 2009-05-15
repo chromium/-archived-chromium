@@ -546,11 +546,7 @@
 			>
 		</File>
 		<File
-			RelativePath=".\download_started_animation.cc"
-			>
-		</File>
-		<File
-			RelativePath=".\download_started_animation.h"
+			RelativePath=".\download_started_animation_win.cc"
 			>
 		</File>
 		<File
