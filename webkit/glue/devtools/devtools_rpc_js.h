@@ -110,110 +110,15 @@ struct RpcJsTypeTrait<std::string> {
   }
 
 ///////////////////////////////////////////////////////
-// JS RPC dispatch method implementations
-
-#define TOOLS_RPC_JS_DISPATCH0(Method) \
-if (method_name == #Method) { \
-  *expr = StringPrintf("%s.%s()", js_obj.c_str(), #Method); \
-  return true; \
-}
-
-#define TOOLS_RPC_JS_DISPATCH1(Method, T1) \
-if (method_name == #Method) { \
-  Value* t1; \
-  message.Get(2, &t1); \
-  *expr = StringPrintf("%s.%s(%s)", js_obj.c_str(), #Method, \
-      DevToolsRpc::Serialize(*t1).c_str()); \
-  return true; \
-}
-
-#define TOOLS_RPC_JS_DISPATCH2(Method, T1, T2) \
-if (method_name == #Method) { \
-  Value* t1; \
-  Value* t2; \
-  message.Get(2, &t1); \
-  message.Get(3, &t2); \
-  *expr = StringPrintf("%s.%s(%s, %s)", js_obj.c_str(), #Method, \
-      DevToolsRpc::Serialize(*t1).c_str(), \
-      DevToolsRpc::Serialize(*t2).c_str()); \
-  return true; \
-}
-
-#define TOOLS_RPC_JS_DISPATCH3(Method, T1, T2, T3) \
-if (method_name == #Method) { \
-  Value* t1; \
-  Value* t2; \
-  Value* t3; \
-  message.Get(2, &t1); \
-  message.Get(3, &t2); \
-  message.Get(4, &t3); \
-  *expr = StringPrintf("%s.%s(%s, %s, %s)", js_obj.c_str(), #Method, \
-      DevToolsRpc::Serialize(*t1).c_str(), \
-      DevToolsRpc::Serialize(*t2).c_str(), \
-      DevToolsRpc::Serialize(*t3).c_str()); \
-  return true; \
-}
-
-#define TOOLS_RPC_JS_DISPATCH4(Method, T1, T2, T3, T4) \
-if (method_name == #Method) { \
-  Value* t1; \
-  Value* t2; \
-  Value* t3; \
-  Value* t4; \
-  message.Get(2, &t1); \
-  message.Get(3, &t2); \
-  message.Get(4, &t3); \
-  message.Get(5, &t4); \
-  *expr = StringPrintf("%s.%s(%s, %s, %s, %s)", js_obj.c_str(), #Method, \
-      DevToolsRpc::Serialize(*t1).c_str(), \
-      DevToolsRpc::Serialize(*t2).c_str(), \
-      DevToolsRpc::Serialize(*t3).c_str(), \
-      DevToolsRpc::Serialize(*t4).c_str()); \
-  return true; \
-}
-
-#define DEFINE_RPC_JS_DISPATCH(Class, STRUCT) \
-class Js##Class##Dispatch { \
- public: \
-  explicit Js##Class##Dispatch(const std::wstring& classname) \
-      : js_obj(WideToUTF8(classname)) {} \
-  virtual ~Js##Class##Dispatch() {} \
-  \
-  bool Dispatch(const ListValue& message, std::string* expr) { \
-    std::string class_name; \
-    message.GetString(0, &class_name); \
-    if (class_name != #Class) { \
-      return false; \
-    } \
-    std::string method_name; \
-    message.GetString(1, &method_name); \
-    typedef Class CLASS; \
-    STRUCT( \
-        TOOLS_RPC_JS_DISPATCH0, \
-        TOOLS_RPC_JS_DISPATCH1, \
-        TOOLS_RPC_JS_DISPATCH2, \
-        TOOLS_RPC_JS_DISPATCH3, \
-        TOOLS_RPC_JS_DISPATCH4) \
-    return false; \
-  } \
- private: \
-  std::string js_obj; \
-  DISALLOW_COPY_AND_ASSIGN(Js##Class##Dispatch); \
-};
-
-///////////////////////////////////////////////////////
 // JS RPC main obj macro
 
 #define DEFINE_RPC_JS_BOUND_OBJ(Class, STRUCT, DClass, DELEGATE_STRUCT) \
-DEFINE_RPC_JS_DISPATCH(DClass, DELEGATE_STRUCT) \
 class Js##Class##BoundObj : public Class##Stub, \
-                            public CppBoundClass, \
-                            public Js##DClass##Dispatch { \
+                            public CppBoundClass { \
  public: \
   Js##Class##BoundObj(Delegate* rpc_delegate, WebFrame* frame, \
       const std::wstring& classname) \
-      : Class##Stub(rpc_delegate), \
-        Js##DClass##Dispatch(classname) { \
+      : Class##Stub(rpc_delegate) { \
     BindToJavascript(frame, classname); \
     STRUCT( \
         TOOLS_RPC_JS_BIND_METHOD0, \

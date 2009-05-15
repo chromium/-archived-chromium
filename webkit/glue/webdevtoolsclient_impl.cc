@@ -158,17 +158,9 @@ void WebDevToolsClientImpl::DispatchMessageFromAgent(
     pending_incoming_messages_.append(raw_msg);
     return;
   }
-  OwnPtr<ListValue> message(
-      static_cast<ListValue*>(DevToolsRpc::ParseMessage(raw_msg)));
-
-  std::string expr;
-  if (dom_agent_obj_->Dispatch(*message.get(), &expr)
-          || net_agent_obj_->Dispatch(*message.get(), &expr)
-          || tools_agent_obj_->Dispatch(*message.get(), &expr)
-          || debugger_agent_obj_->Dispatch(*message.get(), &expr)) {
-    web_view_impl_->GetMainFrame()->ExecuteScript(
-        WebScriptSource(WebString::fromUTF8(expr)));
-  }
+  std::string expr = StringPrintf("devtools.dispatch(%s)", raw_msg.c_str());
+  web_view_impl_->GetMainFrame()->ExecuteScript(
+      WebScriptSource(WebString::fromUTF8(expr)));
 }
 
 void WebDevToolsClientImpl::SendRpcMessage(const std::string& raw_msg) {

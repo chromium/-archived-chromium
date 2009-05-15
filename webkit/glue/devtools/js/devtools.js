@@ -13,6 +13,29 @@ goog.require('devtools.DebuggerAgent');
 goog.require('devtools.DomAgent');
 goog.require('devtools.NetAgent');
 
+
+/**
+ * Dispatches raw message from the host.
+ * @param {Object} msg Message to dispatch.
+ */
+devtools.dispatch = function(msg) {
+  var delegate = msg[0];
+  var methodName = msg[1];
+  var remoteName = 'Remote' + delegate.substring(0, delegate.length - 8);
+  var agent = window[remoteName];
+  if (!agent) {
+    debugPrint('No remote agent "' + remoteName + '" found.');
+    return;
+  }
+  var method = agent[methodName];
+  if (!method) {
+    debugPrint('No method "' + remoteName + '.' + methodName + '" found.');
+    return;
+  }
+  method.apply(this, msg.slice(2));
+};
+
+
 devtools.ToolsAgent = function() {
   RemoteToolsAgent.DidEvaluateJavaScript = devtools.Callback.processCallback;
   RemoteToolsAgent.DidExecuteUtilityFunction =
