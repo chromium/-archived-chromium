@@ -2358,9 +2358,6 @@ BUG11483 LINUX : LayoutTests/fast/forms/input-text-double-click.html = FAIL
 BUG11483 LINUX : LayoutTests/editing/spelling/spellcheck-attribute.html = FAIL
 BUG11483 LINUX : LayoutTests/svg/text/foreignObject-repaint.xml = FAIL
 
-// Other regresssions from WebKit Merge 43114:43242
-BUG11502 WIN : LayoutTests/svg/css/glyph-orientation-rounding-test.xhtml = CRASH PASS
-
 // Regressions from WebKit merge 43242:43321.  These just need to re-baselining:
 BUG_DARIN LINUX : LayoutTests/editing/pasteboard/5027857.html = FAIL
 BUG_DARIN LINUX : LayoutTests/editing/pasteboard/paste-pre-002.html = FAIL
@@ -2638,26 +2635,17 @@ BUG11613 WIN : LayoutTests/http/tests/navigation/anchor-frames.html = FAIL
 BUG11613 WIN : LayoutTests/http/tests/navigation/javascriptlink-frames.html = FAIL
 BUG11613 WIN : LayoutTests/http/tests/navigation/relativeanchor-frames.html = FAIL
 
-// These tests were broken by the latest skia drop (masks and opacity).
-BUG_SENORBLANCO WIN LINUX : LayoutTests/fast/reflections/reflection-masks-opacity.html = FAIL
-BUG_SENORBLANCO WIN LINUX : LayoutTests/fast/reflections/reflection-masks.html = FAIL
-BUG_SENORBLANCO WIN LINUX : LayoutTests/svg/W3C-SVG-1.1/pservers-grad-16-b.svg = FAIL
-BUG_SENORBLANCO LINUX : LayoutTests/svg/custom/circular-marker-reference-3.svg  = FAIL
-BUG_SENORBLANCO LINUX : LayoutTests/svg/custom/js-late-marker-creation.svg = FAIL
-BUG_SENORBLANCO WIN : LayoutTests/svg/custom/gradient-stop-corner-cases.svg = FAIL
-BUG_SENORBLANCO WIN : LayoutTests/svg/custom/grayscale-gradient-mask.svg = FAIL
-BUG_SENORBLANCO WIN : LayoutTests/svg/custom/js-late-gradient-and-object-creation.svg = FAIL
-BUG_SENORBLANCO WIN : LayoutTests/editing/inserting/4960120-1.html = FAIL
-BUG_SENORBLANCO WIN : LayoutTests/fast/forms/textarea-scrollbar.html = FAIL
-BUG_SENORBLANCO WIN : LayoutTests/fast/forms/textarea-scrolled-type.html = FAIL
-BUG_SENORBLANCO WIN : LayoutTests/fast/layers/self-painting-outline.html = FAIL
-BUG_SENORBLANCO WIN : LayoutTests/fast/overflow/overflow-focus-ring.html = FAIL
-BUG_SENORBLANCO WIN : LayoutTests/fast/repaint/layer-outline-horizontal.html = FAIL
-BUG_SENORBLANCO WIN : LayoutTests/fast/repaint/layer-outline.html = FAIL
-BUG_SENORBLANCO LINUX : LayoutTests/fast/borders/border-image-01.html = FAIL
-BUG_SENORBLANCO LINUX : LayoutTests/fast/borders/border-image-omit-right-slice.html = FAIL
-BUG_SENORBLANCO LINUX : LayoutTests/transitions/transition-end-event-multiple-03.html = FAIL
-BUG_SENORBLANCO LINUX : LayoutTests/transitions/transition-end-event-set-none.html = FAIL
+// These tests were broken by skia r171:
+// These ones seem to be mask/opacity-related:
+BUG12002 WIN LINUX : LayoutTests/fast/reflections/reflection-masks-opacity.html = FAIL
+BUG12002 WIN LINUX : LayoutTests/fast/reflections/reflection-masks.html = FAIL
+BUG12002 WIN LINUX : LayoutTests/svg/W3C-SVG-1.1/pservers-grad-16-b.svg = FAIL
+BUG12002 WIN : LayoutTests/svg/custom/gradient-stop-corner-cases.svg = FAIL
+BUG12002 WIN : LayoutTests/svg/custom/grayscale-gradient-mask.svg = FAIL
+// This one seems to have patterned stroke issues:
+BUG12003 WIN : LayoutTests/svg/custom/js-late-gradient-and-object-creation.svg = FAIL
+// This one is flaky on Linux
+BUG12004 LINUX : LayoutTests/svg/custom/js-late-marker-creation.svg = FAIL PASS
 
 // This needs to be rebaselined.  See http://trac.webkit.org/changeset/43378
 BUG11669 LINUX : LayoutTests/fast/layers/remove-only-this-layer-update.html = FAIL
