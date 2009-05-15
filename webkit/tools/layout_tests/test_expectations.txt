@@ -2712,3 +2712,6 @@ BUG11909 : LayoutTests/http/tests/misc/window-open-then-write.html = TIMEOUT
 BUG11909 : LayoutTests/http/tests/navigation/new-window-redirect-history.html = TIMEOUT
 
 BUG11924 WIN : LayoutTests/http/tests/navigation/relativeanchor-basic.html = FAIL
+
+BUG11933 LINUX : LayoutTests/fast/frames/content-opacity-1.html = FAIL
+BUG11933 LINUX : LayoutTests/fast/frames/content-opacity-2.html = FAIL
