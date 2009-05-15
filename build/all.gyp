@@ -36,6 +36,7 @@
         '../third_party/libpng/libpng.gyp:*',
         '../third_party/libxml/libxml.gyp:*',
         '../third_party/libxslt/libxslt.gyp:*',
+        '../third_party/lzma_sdk/lzma_sdk.gyp:*',
         '../third_party/modp_b64/modp_b64.gyp:*',
         '../third_party/npapi/npapi.gyp:*',
         '../third_party/sqlite/sqlite.gyp:*',
