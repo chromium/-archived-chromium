@@ -2682,25 +2682,18 @@ BUG11898 WIN DEBUG : LayoutTests/http/tests/misc/submit-get-in-utf16be.html = TI
 BUG11812 MAC : LayoutTests/http/tests/xmlhttprequest/supported-xml-content-types.html = TIMEOUT
 
 // These tests started to fail after r43604 upstream.
-BUG11909 : LayoutTests/http/tests/misc/iframe-domain-test.html = FAIL
-BUG11909 : LayoutTests/http/tests/security/aboutBlank/security-context-grandchildren-lexical.html = FAIL
-BUG11909 : LayoutTests/http/tests/security/aboutBlank/security-context-grandchildren-write-lexical.html = FAIL
-BUG11909 : LayoutTests/http/tests/security/aboutBlank/security-context-grandchildren-writeln-lexical.html = FAIL
-BUG11909 : LayoutTests/http/tests/security/aboutBlank/security-context-grandchildren-alias.html = FAIL
-BUG11909 : LayoutTests/http/tests/security/aboutBlank/security-context-grandchildren.html = FAIL
-BUG11909 : LayoutTests/http/tests/security/aboutBlank/security-context-window-open.html = FAIL
-BUG11909 LINUX WIN : LayoutTests/http/tests/security/aboutBlank/security-context-with-base-tag.html = FAIL
-BUG11909 : LayoutTests/http/tests/security/aboutBlank/security-context-write.html = FAIL
-BUG11909 : LayoutTests/http/tests/security/aboutBlank/security-context-writeln.html = FAIL
-BUG11909 : LayoutTests/http/tests/security/aboutBlank/security-context.html = FAIL
-BUG11909 : LayoutTests/http/tests/security/aboutBlank/xss-DENIED-navigate-opener-document-write.html = FAIL
-BUG11909 : LayoutTests/http/tests/security/aboutBlank/xss-DENIED-navigate-opener-javascript-url.html = FAIL
-BUG11909 : LayoutTests/http/tests/security/aboutBlank/xss-DENIED-set-opener.html = FAIL
-BUG11909 : LayoutTests/http/tests/security/cookies/document-open.html = FAIL
-BUG11909 : LayoutTests/http/tests/misc/window-open-then-write.html = TIMEOUT
-BUG11909 : LayoutTests/http/tests/navigation/new-window-redirect-history.html = TIMEOUT
+BUG11909 : LayoutTests/http/tests/navigation/new-window-redirect-history.html = FAIL
 
 BUG11924 WIN : LayoutTests/http/tests/navigation/relativeanchor-basic.html = FAIL
 
 BUG11933 LINUX : LayoutTests/fast/frames/content-opacity-1.html = FAIL
 BUG11933 LINUX : LayoutTests/fast/frames/content-opacity-2.html = FAIL
+
+// Need LINUX/Mac rebaselines after WebKit Update 437150:43770
+BUG12054 MAC LINUX : LayoutTests/fast/canvas/canvas-bg-zoom.html = FAIL
+BUG12054 MAC LINUX : LayoutTests/editing/execCommand/outdent-blockquote-test1.html = FAIL
+BUG12054 MAC LINUX : LayoutTests/editing/execCommand/outdent-blockquote-test2.html = FAIL
+BUG12054 MAC LINUX : LayoutTests/editing/execCommand/outdent-blockquote-test3.html = FAIL
+BUG12054 MAC LINUX : LayoutTests/editing/execCommand/outdent-blockquote-test4.html = FAIL
+BUG12054 MAC LINUX : LayoutTests/fast/text/international/danda-space.html = FAIL
+BUG12054 MAC LINUX : LayoutTests/fast/text/international/thai-baht-space.html = FAIL
