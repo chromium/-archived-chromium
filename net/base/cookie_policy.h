@@ -25,12 +25,11 @@ class CookiePolicy {
   enum Type {
     ALLOW_ALL_COOKIES = 0,      // do not perform any cookie blocking
     BLOCK_THIRD_PARTY_COOKIES,  // prevent third-party cookies from being sent
-    BLOCK_ALL_COOKIES,           // disable cookies
-    SESSION_COOKIES            // expire all cookies at end of session
+    BLOCK_ALL_COOKIES           // disable cookies
   };
 
   static bool ValidType(int32 type) {
-    return type >= ALLOW_ALL_COOKIES && type <= SESSION_COOKIES;
+    return type >= ALLOW_ALL_COOKIES && type <= BLOCK_ALL_COOKIES;
   }
 
   static Type FromInt(int32 type) {
@@ -40,9 +39,6 @@ class CookiePolicy {
   // Sets the current policy to enforce. This should be called when the user's
   // preferences change.
   void SetType(Type type) { type_ = type; }
-
-  // Get the current policy.
-  Type GetType() const { return type_; }
 
   CookiePolicy();
 

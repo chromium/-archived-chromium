@@ -711,10 +711,6 @@ bool CookieMonster::DeleteCookie(const std::string& domain,
   return false;
 }
 
-void CookieMonster::SetStore(PersistentCookieStore* store) {
-  store_ = store;
-}
-
 // Mozilla sorts on the path length (longest first), and then it
 // sorts by creation time (oldest first).
 // The RFC says the sort order for the domain attribute is undefined.

@@ -3132,9 +3132,6 @@ each locale. -->
       <message name="IDS_OPTIONS_COOKIES_BLOCK_ALL_COOKIES" desc="The label of the 'Block all cookies' dropdown list item">
         Block all cookies
       </message>
-      <message name="IDS_OPTIONS_COOKIES_SESSION_COOKIES" desc="The label of the 'Session cookies' dropdown list item">
-        Session Cookies
-      </message>
       <message name="IDS_OPTIONS_COOKIES_SHOWCOOKIES" desc="The label of the 'Show Cookies' button">
         Show cookies
       </message>
