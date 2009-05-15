@@ -45,6 +45,9 @@ TEST(LabelTest, ColorProperty) {
   SkColor color = SkColorSetARGB(20, 40, 10, 5);
   label.SetColor(color);
   EXPECT_EQ(color, label.GetColor());
+  SkColor h_color = SkColorSetARGB(40, 80, 20, 10);
+  label.SetHighlightColor(h_color);
+  EXPECT_EQ(h_color, label.GetHighlightColor());
 }
 
 TEST(LabelTest, AlignmentProperty) {
@@ -168,6 +171,13 @@ TEST(LabelTest, SingleLineSizing) {
   gfx::Size required_size = label.GetPreferredSize();
   EXPECT_GT(required_size.height(), kMinTextDimension);
   EXPECT_GT(required_size.width(), kMinTextDimension);
+
+  // Test with highlights.
+  label.SetDrawHighlighted(true);
+  gfx::Size highlighted_size = label.GetPreferredSize();
+  EXPECT_GT(highlighted_size.height(), required_size.height());
+  EXPECT_GT(highlighted_size.width(), required_size.width());
+  label.SetDrawHighlighted(false);
 
   // Test everything with borders.
   gfx::Insets border(10, 20, 30, 40);

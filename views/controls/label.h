@@ -97,6 +97,16 @@ class Label : public View {
   // Return a reference to the currently used color
   virtual const SkColor GetColor() const;
 
+  // Set and Get the highlight color
+  virtual void SetHighlightColor(const SkColor& color) {
+    highlight_color_ = color;
+  }
+  virtual const SkColor GetHighlightColor() const { return highlight_color_; }
+
+  // Whether to draw highlighted text.
+  virtual bool DrawHighlighted() const { return highlighted_; }
+  virtual void SetDrawHighlighted(bool h);
+
   // Set horizontal alignment. If the locale is RTL, and the RTL alignment
   // setting is set as USE_UI_ALIGNMENT, the alignment is flipped around.
   //
@@ -218,6 +228,7 @@ class Label : public View {
   GURL url_;
   gfx::Font font_;
   SkColor color_;
+  SkColor highlight_color_;
   gfx::Size text_size_;
   bool text_size_valid_;
   bool is_multi_line_;
@@ -241,6 +252,8 @@ class Label : public View {
   // allows this view to reserve space for a focus border that it otherwise
   // might not have because it is not itself focusable.
   bool has_focus_border_;
+  // Whether the text is drawn with an inset highlight.
+  bool highlighted_;
 
   DISALLOW_COPY_AND_ASSIGN(Label);
 };

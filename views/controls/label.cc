@@ -43,6 +43,7 @@ void Label::Init(const std::wstring& text, const gfx::Font& font) {
   SetText(text);
   url_set_ = false;
   color_ = kEnabledColor;
+  highlight_color_ = kEnabledColor;
   horiz_alignment_ = ALIGN_CENTER;
   is_multi_line_ = false;
   allow_character_break_ = false;
@@ -50,6 +51,7 @@ void Label::Init(const std::wstring& text, const gfx::Font& font) {
   rtl_alignment_mode_ = USE_UI_ALIGNMENT;
   paint_as_focused_ = false;
   has_focus_border_ = false;
+  highlighted_ = false;
 }
 
 Label::~Label() {
@@ -69,6 +71,8 @@ gfx::Size Label::GetPreferredSize() {
   if (is_multi_line_) {
     int w = width(), h = 0;
     gfx::Canvas::SizeStringInt(text_, font_, &w, &h, ComputeMultiLineFlags());
+    // TODO(erikkay) With highlighted_ enabled, should we adjust the size
+    // in the multi-line case?
     prefsize.SetSize(w, h);
   } else {
     prefsize = GetTextSize();
@@ -140,6 +144,17 @@ void Label::Paint(gfx::Canvas* canvas) {
   gfx::Rect text_bounds;
   int flags = 0;
   CalculateDrawStringParams(&paint_text, &text_bounds, &flags);
+  if (highlighted_) {
+    // Draw a second version of the string underneath the main one, but down
+    // and to the right by a pixel to create a highlight.
+    canvas->DrawStringInt(paint_text,
+                          font_,
+                          highlight_color_,
+                          text_bounds.x() + 1,
+                          text_bounds.y() + 1,
+                          text_bounds.width(),
+                          text_bounds.height());
+  }
   canvas->DrawStringInt(paint_text,
                         font_,
                         color_,
@@ -226,12 +241,12 @@ const GURL Label::GetURL() const {
 gfx::Size Label::GetTextSize() {
   if (!text_size_valid_) {
     text_size_.SetSize(font_.GetStringWidth(text_), font_.height());
+    if (highlighted_)
+      text_size_.Enlarge(1, 1);
     text_size_valid_ = true;
   }
 
-  if (text_size_valid_)
-    return text_size_;
-  return gfx::Size();
+  return text_size_;
 }
 
 int Label::GetHeightForWidth(int w) {
@@ -257,6 +272,11 @@ void Label::SetColor(const SkColor& color) {
 
 const SkColor Label::GetColor() const {
   return color_;
+}
+
+void Label::SetDrawHighlighted(bool h) {
+  highlighted_ = h;
+  text_size_valid_ = false;
 }
 
 void Label::SetHorizontalAlignment(Alignment a) {
