@@ -134,6 +134,7 @@ Page.prototype.getTitleDOM_ = function() {
   node.appendChild(link);
 
   if (this.starred_) {
+    node.className += ' starred';
     node.appendChild(createElementWithClassName('div', 'starred'));
   }
 
@@ -406,6 +407,11 @@ function HistoryView(model) {
   this.lastDisplayed_ = [];
 
   this.model_.setView(this);
+
+  var self = this;
+  window.onresize = function() {
+    self.updateEntryAnchorWidth_();
+  };
 }
 
 // HistoryView, public: -------------------------------------------------------
@@ -513,6 +519,7 @@ HistoryView.prototype.displayResults_ = function() {
 
   this.displaySummaryBar_();
   this.displayNavBar_();
+  this.updateEntryAnchorWidth_();
 }
 
 /**
@@ -560,6 +567,37 @@ HistoryView.prototype.createPageNavHTML_ = function(page, name) {
             'onclick="setPage(' + page + '); return false;"' +
             '>' + name + '</a>';
 }
+
+/**
+ * Updates the CSS rule for the entry anchor.
+ * @private
+ */
+HistoryView.prototype.updateEntryAnchorWidth_ = function() {
+  // We need to have at least on .title div to be able to calculate the
+  // desired width of the anchor.
+  var titleElement = document.querySelector('.entry .title');
+  if (!titleElement)
+    return;
+
+  // Create new CSS rules and add them last to the last stylesheet.
+  if (!this.entryAnchorRule_) {
+    var styleSheets = document.styleSheets;
+    var styleSheet = styleSheets[styleSheets.length - 1];
+    var rules = styleSheet.cssRules;
+    var createRule = function(selector) {
+      styleSheet.insertRule(selector + '{}', rules.length);
+      return rules[rules.length - 1];
+    };
+    this.entryAnchorRule_ = createRule('.entry .title > a');
+    // The following rule needs to be more specific to have higher priority.
+    this.entryAnchorStarredRule_ = createRule('.entry .title.starred > a');
+  }
+
+  var anchorMaxWith = titleElement.offsetWidth;
+  this.entryAnchorRule_.style.maxWidth = anchorMaxWith + 'px';
+  // Adjust by the width of star plus its margin.
+  this.entryAnchorStarredRule_.style.maxWidth = anchorMaxWith - 23 + 'px';
+};
 
 ///////////////////////////////////////////////////////////////////////////////
 // State object:
@@ -825,21 +863,30 @@ html[dir='rtl'] .time {
 .results .time, .results .title {
   margin-top:18px;
 }
-.starred {
+.title > .starred {
   background:url('../../app/theme/star_small.png');
   background-repeat:no-repeat;
   display:inline-block;
   margin-left:12px;
+  margin-right:0;
   width:11px;
   height:11px;
 }
-.entry .title a {
+html[dir='rtl'] .title > .starred {
+  margin-left:0;
+  margin-right:12px;
+}
+.entry .title > a {
+  -webkit-box-sizing: border-box;
   background-repeat:no-repeat;
   background-size:16px;
   background-position:0px 1px;
   padding:1px 0px 4px 22px;
+  display:inline-block;
+  overflow:hidden;
+  text-overflow:ellipsis;
 }
-html[dir='rtl'] .entry .title a {
+html[dir='rtl'] .entry .title > a {
   background-position-x:right;
   padding-left:0px;
   padding-right:22px;
