@@ -213,6 +213,7 @@ FilePath Extension::GetResourcePath(const FilePath& extension_path,
 
 Extension::Extension(const FilePath& path) {
   DCHECK(path.IsAbsolute());
+  location_ = INVALID;
 
 #if defined(OS_WIN)
   // Normalize any drive letter to upper-case. We do this for consistency with

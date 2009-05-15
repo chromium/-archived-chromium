@@ -33,15 +33,6 @@ class ExtensionsServiceFrontendInterface
   // The message loop to invoke the frontend's methods on.
   virtual MessageLoop* GetMessageLoop() = 0;
 
-  // Install the extension file at |extension_path|.  Will install as an
-  // update if an older version is already installed.
-  // For fresh installs, this method also causes the extension to be
-  // immediately loaded.
-  virtual void InstallExtension(const FilePath& extension_path) = 0;
-
-  // Load the extension from the directory |extension_path|.
-  virtual void LoadExtension(const FilePath& extension_path) = 0;
-
   // Called when extensions are loaded by the backend. The frontend takes
   // ownership of the list.
   virtual void OnExtensionsLoaded(ExtensionList* extensions) = 0;
@@ -56,10 +47,6 @@ class ExtensionsServiceFrontendInterface
   // action using the fact that the user chose to reinstall the extension as a
   // signal (for example, setting the default theme to the extension).
   virtual void OnExtensionVersionReinstalled(const std::string& id) = 0;
-
-  // Lookup an extension by |id|.
-  virtual Extension* GetExtensionByID(std::string id) = 0;
-
 };
 
 
@@ -77,13 +64,26 @@ class ExtensionsService : public ExtensionsServiceFrontendInterface {
   // Initialize and start all installed extensions.
   bool Init();
 
+  // Install the extension file at |extension_path|.  Will install as an
+  // update if an older version is already installed.
+  // For fresh installs, this method also causes the extension to be
+  // immediately loaded.
+  void InstallExtension(const FilePath& extension_path);
+
+  // Uninstalls the specified extension. Callers should only call this method
+  // with extensions that exist and are "internal".
+  void UninstallExtension(const std::string& extension_id);
+
+  // Load the extension from the directory |extension_path|.
+  void LoadExtension(const FilePath& extension_path);
+
+  // Lookup an extension by |id|.
+  virtual Extension* GetExtensionByID(std::string id);
+
   // ExtensionsServiceFrontendInterface
   virtual MessageLoop* GetMessageLoop();
-  virtual void InstallExtension(const FilePath& extension_path);
-  virtual void LoadExtension(const FilePath& extension_path);
   virtual void OnExtensionsLoaded(ExtensionList* extensions);
   virtual void OnExtensionInstalled(Extension* extension, bool is_update);
-  virtual Extension* GetExtensionByID(std::string id);
   virtual void OnExtensionVersionReinstalled(const std::string& id);
 
   // The name of the file that the current active version number is stored in.
@@ -151,6 +151,11 @@ class ExtensionsServiceBackend
   void CheckForExternalUpdates(
       scoped_refptr<ExtensionsServiceFrontendInterface> frontend);
 
+  // Deletes all versions of the extension from the filesystem. Note that only
+  // extensions whose location() == INTERNAL can be uninstalled. Attempting to
+  // uninstall other extensions will silently fail.
+  void UninstallExtension(const std::string& extension_id);
+
  private:
   // Load a single extension from |extension_path|, the top directory of
   // a specific extension where its manifest file lives.
@@ -216,10 +221,6 @@ class ExtensionsServiceBackend
   // externally managed extension.  If so return true if it should be
   // uninstalled.
   bool CheckExternalUninstall(const FilePath& path, const std::string& id);
-
-  // Deletes all versions of the extension from the filesystem.
-  // |path| points at a specific extension version dir.
-  void UninstallExtension(const FilePath& path);
 
   // Should an extension of |id| and |version| be installed?
   // Returns true if no extension of type |id| is installed or if |version|

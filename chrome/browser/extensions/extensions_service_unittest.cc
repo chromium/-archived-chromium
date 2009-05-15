@@ -84,12 +84,6 @@ class ExtensionsServiceTestFrontend
     return &message_loop_;
   }
 
-  virtual void InstallExtension(const FilePath& extension_path) {
-  }
-
-  virtual void LoadExtension(const FilePath& extension_path) {
-  }
-
   virtual void OnExtensionsLoaded(ExtensionList* new_extensions) {
     extensions_.insert(extensions_.end(), new_extensions->begin(),
                        new_extensions->end());
@@ -105,10 +99,6 @@ class ExtensionsServiceTestFrontend
 
   virtual void OnExtensionVersionReinstalled(const std::string& id) {
     reinstalled_id_ = id;
-  }
-
-  virtual Extension* GetExtensionByID(std::string id) {
-    return NULL;
   }
 
   void TestInstallExtension(const FilePath& path,
@@ -184,6 +174,7 @@ TEST_F(ExtensionsServiceTest, LoadAllExtensionsFromDirectorySuccess) {
             frontend->extensions()->at(0)->name());
   EXPECT_EQ(std::string("The first extension that I made."),
             frontend->extensions()->at(0)->description());
+  EXPECT_EQ(Extension::INTERNAL, frontend->extensions()->at(0)->location());
 
   Extension* extension = frontend->extensions()->at(0);
   const UserScriptList& scripts = extension->content_scripts();
@@ -222,7 +213,8 @@ TEST_F(ExtensionsServiceTest, LoadAllExtensionsFromDirectorySuccess) {
             frontend->extensions()->at(1)->plugins_dir().value());
   EXPECT_EQ(frontend->extensions()->at(1)->GetResourceURL("background.html"),
             frontend->extensions()->at(1)->background_url());
-  ASSERT_EQ(0u, frontend->extensions()->at(1)->content_scripts().size());
+  EXPECT_EQ(0u, frontend->extensions()->at(1)->content_scripts().size());
+  EXPECT_EQ(Extension::INTERNAL, frontend->extensions()->at(1)->location());
 
   EXPECT_EQ(std::string("20123456789abcdef0123456789abcdef0123456"),
             frontend->extensions()->at(2)->id());
@@ -230,7 +222,8 @@ TEST_F(ExtensionsServiceTest, LoadAllExtensionsFromDirectorySuccess) {
             frontend->extensions()->at(2)->name());
   EXPECT_EQ(std::string(""),
             frontend->extensions()->at(2)->description());
-  ASSERT_EQ(0u, frontend->extensions()->at(2)->content_scripts().size());
+  EXPECT_EQ(0u, frontend->extensions()->at(2)->content_scripts().size());
+  EXPECT_EQ(Extension::EXTERNAL, frontend->extensions()->at(2)->location());
 };
 
 // Test loading bad extensions from the profile directory.
@@ -308,6 +301,47 @@ TEST_F(ExtensionsServiceTest, InstallExtension) {
 
   // TODO(erikkay): add more tests for many of the failure cases.
   // TODO(erikkay): add tests for upgrade cases.
+}
+
+// Tests uninstalling extensions
+TEST_F(ExtensionsServiceTest, UninstallExtension) {
+  FilePath extensions_path;
+  ASSERT_TRUE(PathService::Get(chrome::DIR_TEST_DATA, &extensions_path));
+  extensions_path = extensions_path.AppendASCII("extensions");
+
+  FilePath install_path;
+  file_util::CreateNewTempDirectory(FILE_PATH_LITERAL("ext_test"),
+                                   &install_path);
+  scoped_refptr<ExtensionsServiceBackend> backend(
+      new ExtensionsServiceBackend(install_path));
+  scoped_refptr<ExtensionsServiceTestFrontend> frontend(
+      new ExtensionsServiceTestFrontend);
+
+  FilePath path = extensions_path.AppendASCII("good.crx");
+
+  // A simple extension that should install without error.
+  frontend->TestInstallExtension(path, backend, true);
+
+  // The directory should be there now.
+  const char* extension_id = "00123456789abcdef0123456789abcdef0123456";
+  FilePath extension_path = install_path.AppendASCII(extension_id);
+  EXPECT_TRUE(file_util::PathExists(extension_path));
+
+  // Uninstall it, directory should be gone.
+  backend->UninstallExtension(extension_id);
+  EXPECT_FALSE(file_util::PathExists(extension_path));
+
+  // Try uinstalling one that doesn't have a Current Version file for some
+  // reason.
+  frontend->TestInstallExtension(path, backend, true);
+  FilePath current_version_file =
+      extension_path.AppendASCII(ExtensionsService::kCurrentVersionFileName);
+  EXPECT_TRUE(file_util::Delete(current_version_file, true));
+  backend->UninstallExtension(extension_id);
+  EXPECT_FALSE(file_util::PathExists(extension_path));
+
+  // Try uninstalling one that doesn't even exist. We shouldn't crash.
+  backend->UninstallExtension(extension_id);
 }
 
 TEST_F(ExtensionsServiceTest, ReinstallExtension) {
@@ -394,6 +428,7 @@ TEST_F(ExtensionsServiceTest, LoadExtension) {
   frontend->GetMessageLoop()->RunAllPending();
   EXPECT_EQ(1u, GetErrors().size());
   ASSERT_EQ(1u, frontend->extensions()->size());
+  ASSERT_EQ(Extension::LOAD, frontend->extensions()->at(0)->location());
 }
 
 TEST_F(ExtensionsServiceTest, GenerateID) {

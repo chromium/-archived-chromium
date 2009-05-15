@@ -550,11 +550,18 @@ class NotificationType {
     // Sent when new extensions are loaded. The details are an ExtensionList*.
     EXTENSIONS_LOADED,
 
-    // Sent when a new theme is installed. The details are an extension.
+    // Sent when a new theme is installed. The details are an Extension.
     THEME_INSTALLED,
 
     // Sent when new extensions are installed. The details are a FilePath.
     EXTENSION_INSTALLED,
+
+    // Sent when an extension is unloaded. This happens when an extension is
+    // uninstalled. When we add a disable feature, it will also happen then.
+    // The details are an Extension.  Note that when this notification is sent,
+    // ExtensionsService has already removed the extension from its internal
+    // state.
+    EXTENSION_UNLOADED,
 
     // Debugging ---------------------------------------------------------------
 

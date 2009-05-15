@@ -128,10 +128,39 @@ void ExtensionsService::InstallExtension(const FilePath& extension_path) {
           scoped_refptr<ExtensionsServiceFrontendInterface>(this)));
 }
 
+void ExtensionsService::UninstallExtension(const std::string& extension_id) {
+  Extension* extension = NULL;
+
+  ExtensionList::iterator iter;
+  for (iter = extensions_.begin(); iter != extensions_.end(); ++iter) {
+    if ((*iter)->id() == extension_id) {
+      extension = *iter;
+      break;
+    }
+  }
+
+  // Remove the extension from our list.
+  extensions_.erase(iter);
+
+  // Callers should check existence and that the extension is internal before
+  // calling us.
+  DCHECK(extension);
+  DCHECK(extension->is_uninstallable());
+
+  // Tell other services the extension is gone.
+  NotificationService::current()->Notify(NotificationType::EXTENSION_UNLOADED,
+                                         NotificationService::AllSources(),
+                                         Details<Extension>(extension));
+
+  // Tell the file thread to start deleting.
+  g_browser_process->file_thread()->message_loop()->PostTask(FROM_HERE,
+      NewRunnableMethod(backend_.get(),
+          &ExtensionsServiceBackend::UninstallExtension, extension_id));
+
+  delete extension;
+}
+
 void ExtensionsService::LoadExtension(const FilePath& extension_path) {
-  // TODO(aa): This message loop should probably come from a backend
-  // interface, similar to how the message loop for the frontend comes
-  // from the frontend interface.
   g_browser_process->file_thread()->message_loop()->PostTask(FROM_HERE,
       NewRunnableMethod(backend_.get(),
           &ExtensionsServiceBackend::LoadSingleExtension,
@@ -261,7 +290,7 @@ void ExtensionsServiceBackend::LoadExtensionsFromInstallDirectory(
     if (CheckExternalUninstall(extension_path, extension_id)) {
       // TODO(erikkay): Possibly defer this operation to avoid slowing initial
       // load of extensions.
-      UninstallExtension(extension_path);
+      UninstallExtension(extension_id);
 
       // No error needs to be reported.  The extension effectively doesn't
       // exist.
@@ -295,6 +324,7 @@ void ExtensionsServiceBackend::LoadSingleExtension(
   Extension* extension = LoadExtension(extension_path,
                                        false);  // don't require ID
   if (extension) {
+    extension->set_location(Extension::LOAD);
     ExtensionList* extensions = new ExtensionList;
     extensions->push_back(extension);
     ReportExtensionsLoaded(extensions);
@@ -347,6 +377,12 @@ Extension* ExtensionsServiceBackend::LoadExtension(
     ReportExtensionLoadError(extension_path, error);
     return NULL;
   }
+
+  FilePath external_marker = extension_path.AppendASCII(kExternalInstallFile);
+  if (file_util::PathExists(external_marker))
+    extension->set_location(Extension::EXTERNAL);
+  else
+    extension->set_location(Extension::INTERNAL);
 
   // TODO(glen): Add theme resource validation here. http://crbug.com/11678
   // Validate that claimed script resources actually exist. 
@@ -795,6 +831,8 @@ void ExtensionsServiceBackend::CheckForExternalUpdates(
   frontend_ = frontend;
 
 #if defined(OS_WIN)
+  // TODO(port): Pull this out into an interface. That will also allow us to
+  // test the behavior of external extensions.
   HKEY reg_root = HKEY_LOCAL_MACHINE;
   RegistryKeyIterator iterator(reg_root, kRegistryExtensions);
   while (iterator.Valid()) {
@@ -861,18 +899,34 @@ bool ExtensionsServiceBackend::CheckExternalUninstall(const FilePath& path,
 }
 
 // Assumes that the extension isn't currently loaded or in use.
-void ExtensionsServiceBackend::UninstallExtension(const FilePath& path) {
-  FilePath parent = path.DirName();
-  FilePath version =
-      parent.AppendASCII(ExtensionsService::kCurrentVersionFileName);
-  bool version_exists = file_util::PathExists(version);
-  DCHECK(version_exists);
-  if (!version_exists) {
-    LOG(WARNING) << "Asked to uninstall bogus extension dir " << parent.value();
+void ExtensionsServiceBackend::UninstallExtension(
+    const std::string& extension_id) {
+  // First, delete the Current Version file. If the directory delete fails, then
+  // at least the extension won't be loaded again.
+  FilePath extension_directory = install_directory_.AppendASCII(extension_id);
+
+  if (!file_util::PathExists(extension_directory)) {
+    LOG(WARNING) << "Asked to remove a non-existent extension " << extension_id;
     return;
   }
-  if (!file_util::Delete(parent, true)) {
-    LOG(WARNING) << "Failed to delete " << parent.value();
+
+  FilePath current_version_file = extension_directory.AppendASCII(
+      ExtensionsService::kCurrentVersionFileName);
+  if (!file_util::PathExists(current_version_file)) {
+    LOG(WARNING) << "Extension " << extension_id
+                 << " does not have a Current Version file.";
+  } else {
+    if (!file_util::Delete(current_version_file, false)) {
+      LOG(WARNING) << "Could not delete Current Version file for extension "
+                   << extension_id;
+      return;
+    }
+  }
+
+  // Ok, now try and delete the entire rest of the directory.
+  if (!file_util::Delete(extension_directory, true)) {
+    LOG(WARNING) << "Could not delete directory for extension "
+                 << extension_id;
   }
 }
 

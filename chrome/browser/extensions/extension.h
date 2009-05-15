@@ -23,10 +23,14 @@
 // Represents a Chromium extension.
 class Extension {
  public:
-  Extension() {}
-  explicit Extension(const FilePath& path);
-  explicit Extension(const Extension& path);
-  virtual ~Extension();
+  // What an extension was loaded from.
+  enum Location {
+    INVALID,
+    INTERNAL,  // A crx file from the internal Extensions directory
+    EXTERNAL,  // A crx file from an external directory (via eg the registry
+               // on Windows)
+    LOAD  // --load-extension 
+  };
 
   // The name of the manifest inside an extension.
   static const char kManifestFilename[];
@@ -102,6 +106,11 @@ class Extension {
   // The number of bytes in a legal id.
   static const size_t kIdSize;
 
+  Extension() : location_(INVALID) {}
+  explicit Extension(const FilePath& path);
+  explicit Extension(const Extension& other);
+  virtual ~Extension();
+
   // Returns an absolute url to a resource inside of an extension. The
   // |extension_url| argument should be the url() from an Extension object. The
   // |relative_path| can be untrusted user input. The returned URL will either
@@ -124,22 +133,16 @@ class Extension {
     return GetResourcePath(path(), relative_path);
   }
 
-  DictionaryValue* GetThemeImages() const { return theme_images_.get(); }
-  DictionaryValue* GetThemeColors() const { return theme_colors_.get(); }
-  DictionaryValue* GetThemeTints() const { return theme_tints_.get(); }
-  bool IsTheme() { return is_theme_; }
-
   // Initialize the extension from a parsed manifest.
   // If |require_id| is true, will return an error if the "id" key is missing
   // from the value.
   bool InitFromValue(const DictionaryValue& value, bool require_id,
                      std::string* error);
 
-  // Retrieves a page action by |id|.
-  const PageAction* GetPageAction(std::string id) const;
-
   const FilePath& path() const { return path_; }
   const GURL& url() const { return extension_url_; }
+  const Location location() const { return location_; }
+  void set_location(Location location) { location_ = location; }
   const std::string& id() const { return id_; }
   const Version* version() const { return version_.get(); }
   // String representation of the version number.
@@ -153,6 +156,19 @@ class Extension {
   const std::vector<std::string>& toolstrips() const { return toolstrips_; }
   const std::vector<URLPattern>& permissions() const {
       return permissions_; }
+
+  // Retrieves a page action by |id|.
+  const PageAction* GetPageAction(std::string id) const;
+
+  // Theme-related
+  DictionaryValue* GetThemeImages() const { return theme_images_.get(); }
+  DictionaryValue* GetThemeColors() const { return theme_colors_.get(); }
+  DictionaryValue* GetThemeTints() const { return theme_tints_.get(); }
+  bool IsTheme() { return is_theme_; }
+
+  // It doesn't really make sense to 'uninstall' extensions loaded from
+  // --load-extension or external locations.
+  const bool is_uninstallable() const { return location_ == INTERNAL; }
 
  private:
   // Helper method that loads a UserScript object from a
@@ -173,6 +189,9 @@ class Extension {
 
   // The base extension url for the extension.
   GURL extension_url_;
+
+  // The location the extension was loaded from.
+  Location location_;
 
   // A human-readable ID for the extension. The convention is to use something
   // like 'com.example.myextension', but this is not currently enforced. An
