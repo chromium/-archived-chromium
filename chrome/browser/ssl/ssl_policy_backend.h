@@ -20,62 +20,56 @@ class Task;
 class SSLPolicyBackend {
  public:
   explicit SSLPolicyBackend(NavigationController* controller);
+  virtual ~SSLPolicyBackend();
 
   // Ensure that the specified message is displayed to the user.  This will
   // display an InfoBar at the top of the associated tab.
-  void ShowMessage(const std::wstring& msg);
+  virtual void ShowMessage(const std::wstring& msg);
 
   // Same as ShowMessage but also contains a link that when clicked run the
   // specified task.  The SSL Manager becomes the owner of the task.
-  void ShowMessageWithLink(const std::wstring& msg,
-                           const std::wstring& link_text,
-                           Task* task);
+  virtual void ShowMessageWithLink(const std::wstring& msg,
+                                   const std::wstring& link_text,
+                                   Task* task);
 
   // Records that a host is "broken," that is, the origin for that host has been
   // contaminated with insecure content, either via HTTP or via HTTPS with a
   // bad certificate.
-  void MarkHostAsBroken(const std::string& host, int pid);
+  virtual void MarkHostAsBroken(const std::string& host, int pid);
 
   // Returns whether the specified host was marked as broken.
-  bool DidMarkHostAsBroken(const std::string& host, int pid) const;
-
-  // Sets the maximum security style for the page.  If the current security
-  // style is lower than |style|, this will not have an effect on the security
-  // indicators.
-  //
-  // It will return true if the navigation entry was updated or false if
-  // nothing changed. The caller is responsible for broadcasting
-  // NOTIFY_SSY_STATE_CHANGED if it returns true.
-  bool SetMaxSecurityStyle(SecurityStyle style);
+  virtual bool DidMarkHostAsBroken(const std::string& host, int pid) const;
 
   // Logs a message to the console of the page.
-  void AddMessageToConsole(const string16& message,
-                           const WebKit::WebConsoleMessage::Level&);
+  virtual void AddMessageToConsole(const string16& message,
+                                   const WebKit::WebConsoleMessage::Level&);
 
   // Records that |cert| is permitted to be used for |host| in the future.
-  void DenyCertForHost(net::X509Certificate* cert, const std::string& host);
+  virtual void DenyCertForHost(net::X509Certificate* cert,
+                               const std::string& host);
 
   // Records that |cert| is not permitted to be used for |host| in the future.
-  void AllowCertForHost(net::X509Certificate* cert, const std::string& host);
+  virtual void AllowCertForHost(net::X509Certificate* cert,
+                                const std::string& host);
 
   // Queries whether |cert| is allowed or denied for |host|.
-  net::X509Certificate::Policy::Judgment QueryPolicy(
+  virtual net::X509Certificate::Policy::Judgment QueryPolicy(
       net::X509Certificate* cert, const std::string& host);
 
   // Allow mixed content to be visible (non filtered).
-  void AllowMixedContentForHost(const std::string& host);
+  virtual void AllowMixedContentForHost(const std::string& host);
 
   // Returns whether the specified host is allowed to show mixed content.
-  bool DidAllowMixedContentForHost(const std::string& host) const;
+  virtual bool DidAllowMixedContentForHost(const std::string& host) const;
 
   // Reloads the tab.
-  void Reload();
+  virtual void Reload();
 
   // Shows the pending messages (in info-bars) if any.
-  void ShowPendingMessages();
+  virtual void ShowPendingMessages();
 
   // Clears any pending messages.
-  void ClearPendingMessages();
+  virtual void ClearPendingMessages();
 
  private:
   // SSLMessageInfo contains the information necessary for displaying a message
