@@ -134,6 +134,9 @@ class CookieMonster {
                     const CanonicalCookie& cookie,
                     bool sync_to_store);
 
+  // Sets the store, possibly to null for session only cookies.
+  void SetStore(PersistentCookieStore* store);
+
   // Override the default list of schemes that are allowed to be set in
   // this cookie store.  Calling his overrides the value of
   // "enable_file_scheme_".

@@ -142,7 +142,9 @@ ChromeURLRequestContext* ChromeURLRequestContext::CreateOriginal(
     context->cookie_db_.reset(new SQLitePersistentCookieStore(
         cookie_store_path.ToWStringHack(),
         g_browser_process->db_thread()->message_loop()));
-    context->cookie_store_ = new net::CookieMonster(context->cookie_db_.get());
+    context->cookie_store_ = new net::CookieMonster(
+        context->cookie_policy_.GetType() ==
+        net::CookiePolicy::SESSION_COOKIES ? NULL : context->cookie_db_.get());
   }
 
   return context;
@@ -390,6 +392,11 @@ void ChromeURLRequestContext::OnCookiePolicyChange(
   DCHECK(MessageLoop::current() ==
          ChromeThread::GetMessageLoop(ChromeThread::IO));
   cookie_policy_.SetType(type);
+
+  if (is_off_the_record_ || type == net::CookiePolicy::SESSION_COOKIES)
+    cookie_store_->SetStore(NULL);
+  else
+    cookie_store_->SetStore(cookie_db_.get());
 }
 
 void ChromeURLRequestContext::OnNewExtensions(ExtensionPaths* new_paths) {

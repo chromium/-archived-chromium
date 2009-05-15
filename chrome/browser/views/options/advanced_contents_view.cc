@@ -286,14 +286,15 @@ class CookieBehaviorComboModel : public views::ComboBox::Model {
 
   // Return the number of items in the combo box.
   virtual int GetItemCount(views::ComboBox* source) {
-    return 3;
+    return 4;
   }
 
   virtual std::wstring GetItemAt(views::ComboBox* source, int index) {
     const int kStringIDs[] = {
       IDS_OPTIONS_COOKIES_ACCEPT_ALL_COOKIES,
       IDS_OPTIONS_COOKIES_RESTRICT_THIRD_PARTY_COOKIES,
-      IDS_OPTIONS_COOKIES_BLOCK_ALL_COOKIES
+      IDS_OPTIONS_COOKIES_BLOCK_ALL_COOKIES,
+      IDS_OPTIONS_COOKIES_SESSION_COOKIES
     };
     if (index >= 0 && index < arraysize(kStringIDs))
       return l10n_util::GetString(kStringIDs[index]);
@@ -472,6 +473,7 @@ void PrivacySection::ItemChanged(views::ComboBox* sender,
     const wchar_t* kUserMetrics[] = {
         L"Options_AllowAllCookies",
         L"Options_BlockThirdPartyCookies",
+        L"Options_SessionCookies",
         L"Options_BlockAllCookies"
     };
     DCHECK(cookie_policy >= 0 && cookie_policy < arraysize(kUserMetrics));

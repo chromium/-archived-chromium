@@ -16,6 +16,8 @@ bool CookiePolicy::CanGetCookies(const GURL& url, const GURL& policy_url) {
       return true;
     case CookiePolicy::BLOCK_THIRD_PARTY_COOKIES:
       return true;
+    case CookiePolicy::SESSION_COOKIES:
+      return true;
     case CookiePolicy::BLOCK_ALL_COOKIES:
       return false;
     default:
@@ -33,6 +35,8 @@ bool CookiePolicy::CanSetCookie(const GURL& url, const GURL& policy_url) {
         return true;  // Empty policy URL should indicate a first-party request
       return net::RegistryControlledDomainService::SameDomainOrHost(url,
                                                                     policy_url);
+    case CookiePolicy::SESSION_COOKIES:
+      return true;
     case CookiePolicy::BLOCK_ALL_COOKIES:
       return false;
     default:
