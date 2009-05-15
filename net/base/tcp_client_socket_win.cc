@@ -250,6 +250,17 @@ int TCPClientSocketWin::Connect(CompletionCallback* callback) {
 
   if (!connect(socket_, ai->ai_addr, static_cast<int>(ai->ai_addrlen))) {
     // Connected without waiting!
+    //
+    // The MSDN page for connect says:
+    //   With a nonblocking socket, the connection attempt cannot be completed
+    //   immediately. In this case, connect will return SOCKET_ERROR, and
+    //   WSAGetLastError will return WSAEWOULDBLOCK.
+    // which implies that for a nonblocking socket, connect never returns 0.
+    // It's not documented whether the event object will be signaled or not
+    // if connect does return 0.  So the code below is essentially dead code
+    // and we don't know if it's correct.
+    NOTREACHED();
+
     if (ResetEventIfSignaled(core_->read_overlapped_.hEvent)) {
       TRACE_EVENT_END("socket.connect", this, "");
       return OK;
