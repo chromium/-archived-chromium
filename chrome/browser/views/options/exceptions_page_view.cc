@@ -131,19 +131,21 @@ void ExceptionsPageView::InitControlLayout() {
   // Design the grid.
   ColumnSet* column_set = layout->AddColumnSet(column_set_id);
   column_set->AddColumn(GridLayout::FILL, GridLayout::FILL, 1,
-                        GridLayout::FIXED, 300, 0);
+                        GridLayout::USE_PREF, 0, 0);
   column_set->AddPaddingColumn(0, kRelatedControlHorizontalSpacing);
-  column_set->AddColumn(GridLayout::FILL, GridLayout::LEADING, 0,
+  column_set->AddColumn(GridLayout::FILL, GridLayout::CENTER, 0,
                         GridLayout::USE_PREF, 0, 0);
 
   // Fill the grid.
-  layout->StartRow(0.05f, column_set_id);
-  layout->AddView(table_view_, 1, 2);
+  layout->StartRow(0, column_set_id);
+  layout->AddView(table_view_, 1, 4, GridLayout::FILL,
+                  GridLayout::FILL);
   layout->AddView(&remove_button_);
-  layout->StartRow(0.80f, column_set_id);
+  layout->StartRowWithPadding(0, column_set_id, 0,
+                              kRelatedControlVerticalSpacing);
   layout->SkipColumns(1);
   layout->AddView(&remove_all_button_);
-  layout->AddPaddingRow(0, kRelatedControlVerticalSpacing);
+  layout->AddPaddingRow(1, 0);
 
   // Ask the database for exception data.
   table_model_.GetAllExceptionsForProfile();
