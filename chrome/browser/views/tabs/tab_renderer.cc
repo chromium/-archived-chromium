@@ -10,7 +10,6 @@
 #include "app/gfx/font.h"
 #include "app/l10n_util.h"
 #include "app/resource_bundle.h"
-#include "app/win_util.h"
 #include "chrome/browser/browser.h"
 #include "chrome/browser/browser_theme_provider.h"
 #include "chrome/browser/profile.h"
@@ -34,7 +33,6 @@ static const int kCloseButtonVertFuzz = 0;
 static const int kCloseButtonHorzFuzz = 5;
 static const int kFaviconSize = 16;
 static const int kSelectedTitleColor = SK_ColorBLACK;
-static const int kUnselectedTitleColor = SkColorSetRGB(64, 64, 64);
 
 // How long the hover state takes.
 static const int kHoverDurationMs = 90;
@@ -214,8 +212,8 @@ TabRenderer::TabRenderer()
       showing_icon_(false),
       showing_download_icon_(false),
       showing_close_button_(false),
-      crash_animation_(NULL),
       fav_icon_hiding_offset_(0),
+      crash_animation_(NULL),
       should_display_crashed_favicon_(false),
       theme_provider_(NULL) {
   InitResources();
@@ -676,7 +674,6 @@ void TabRenderer::PaintActiveTabBackground(gfx::Canvas* canvas) {
 
 void TabRenderer::PaintHoverTabBackground(gfx::Canvas* canvas,
                                           double opacity) {
-  bool is_otr = data_.off_the_record;
   SkBitmap left = skia::ImageOperations::CreateBlendedBitmap(
                   *tab_inactive.image_l, *tab_active.image_l, opacity);
   SkBitmap center = skia::ImageOperations::CreateBlendedBitmap(

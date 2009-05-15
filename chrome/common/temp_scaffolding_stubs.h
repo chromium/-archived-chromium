@@ -247,6 +247,7 @@ class Window {
 class InputWindowDelegate {
 };
 
+#if !defined(TOOLKIT_VIEWS)
 namespace views {
 
 class Menu {
@@ -282,6 +283,7 @@ class Menu {
 };
 
 }  // namespace view
+#endif
 
 class BookmarkManagerView {
  public:

@@ -67,7 +67,6 @@
 #include "chrome/browser/browser_url_handler.h"
 #include "chrome/browser/cert_store.h"
 #include "chrome/browser/debugger/debugger_window.h"
-#include "chrome/browser/dock_info.h"
 #include "chrome/browser/download/save_package.h"
 #include "chrome/browser/ssl/ssl_error_info.h"
 #include "chrome/browser/task_manager.h"
@@ -79,6 +78,10 @@
 
 #if defined(OS_WIN) || defined(OS_MACOSX)
 #include "chrome/browser/window_sizer.h"
+#endif
+
+#if defined(TOOLKIT_VIEWS)
+#include "chrome/browser/dock_info.h"
 #endif
 
 using base::TimeDelta;

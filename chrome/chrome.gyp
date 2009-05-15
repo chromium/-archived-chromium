@@ -817,6 +817,7 @@
         'browser/debugger/devtools_window_win.cc',
         'browser/debugger/inspectable_tab_proxy.cc',
         'browser/debugger/inspectable_tab_proxy.h',
+        'browser/dock_info_gtk.cc',
         'browser/dock_info.cc',
         'browser/dock_info.h',
         'browser/dom_operation_notification_details.h',
@@ -1678,8 +1679,18 @@
           'conditions': [
             ['toolkit_views==1',{
               'sources/': [
+                ['include', '^browser/dock_info_gtk.cc'],
                 ['include', '^browser/dock_info.cc'],
                 ['include', '^browser/dock_info.h'],
+                ['include', '^browser/views/tabs/tab.cc'],
+                ['include', '^browser/views/tabs/tab.h'],
+                ['include', '^browser/views/tabs/tab_renderer.cc'],
+                ['include', '^browser/views/tabs/tab_renderer.h'],
+              ],
+            }],
+            ['toolkit_views==0',{
+              'sources/': [
+                ['exclude', '^browser/dock_info_gtk.cc'],
               ],
             }],
           ],

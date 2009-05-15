@@ -129,8 +129,10 @@ class Tab : public TabRenderer,
   // True if the tab is being animated closed.
   bool closing_;
 
+#if defined(OS_WIN)
   // If non-null it means we're showing a menu for the tab.
   ContextMenuController* menu_controller_;
+#endif
 
   DISALLOW_COPY_AND_ASSIGN(Tab);
 };
