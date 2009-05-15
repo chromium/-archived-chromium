@@ -61,6 +61,8 @@ TEST(DOMUISources, ThemeSourceImages) {
   EXPECT_NE(theme_source->result_data_size_, png_bytes.size());
 }
 
+// TODO(glen): Reenable.
+/*
 TEST(DOMUISources, ThemeSourceCSS) {
   MockProfile* profile = new MockProfile();
   MockThemeSource* theme_source = new MockThemeSource(profile);
@@ -82,3 +84,4 @@ TEST(DOMUISources, ThemeSourceCSS) {
   EXPECT_EQ(theme_source->result_request_id_, 7);
   EXPECT_EQ(theme_source->result_data_size_, 0);
 }
+*/
