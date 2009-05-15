@@ -850,6 +850,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\automation\automation_extension_function.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\automation\automation_extension_function.h"
+				>
+			</File>
+			<File
 				RelativePath=".\automation\automation_provider.cc"
 				>
 			</File>

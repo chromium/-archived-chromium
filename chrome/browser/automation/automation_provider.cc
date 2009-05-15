@@ -13,6 +13,7 @@
 #include "chrome/app/chrome_dll_resource.h"
 #include "chrome/browser/app_modal_dialog.h"
 #include "chrome/browser/app_modal_dialog_queue.h"
+#include "chrome/browser/automation/automation_extension_function.h"
 #include "chrome/browser/automation/automation_provider_list.h"
 #include "chrome/browser/automation/url_request_failed_dns_job.h"
 #include "chrome/browser/automation/url_request_mock_http_job.h"
@@ -1145,6 +1146,8 @@ void AutomationProvider::OnMessageReceived(const IPC::Message& message) {
                         SavePackageShouldPromptUser)
     IPC_MESSAGE_HANDLER(AutomationMsg_WindowTitle,
                         GetWindowTitle)
+    IPC_MESSAGE_HANDLER(AutomationMsg_SetEnableExtensionAutomation,
+                        SetEnableExtensionAutomation)
   IPC_END_MESSAGE_MAP()
 }
 
@@ -2695,7 +2698,10 @@ void AutomationProvider::OnMessageFromExternalHost(int handle,
       return;
     }
 
-    view_host->ForwardMessageFromExternalHost(message, origin, target);
+    if (!AutomationExtensionFunction::InterceptMessageFromExternalHost(
+            view_host, message, origin, target)) {
+      view_host->ForwardMessageFromExternalHost(message, origin, target);
+    }
   }
 }
 #endif  // defined(OS_WIN) || defined(OS_LINUX)
@@ -2923,6 +2929,10 @@ void AutomationProvider::OverrideEncoding(int tab_handle,
 
 void AutomationProvider::SavePackageShouldPromptUser(bool should_prompt) {
   SavePackage::SetShouldPromptUser(should_prompt);
+}
+
+void AutomationProvider::SetEnableExtensionAutomation(bool automation_enabled) {
+  AutomationExtensionFunction::SetEnabled(automation_enabled);
 }
 
 #if defined(OS_WIN)

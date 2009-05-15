@@ -158,6 +158,12 @@ class AutomationProxy : public IPC::Channel::Listener,
   // sent.
   bool SavePackageShouldPromptUser(bool should_prompt);
 
+  // Turn extension automation mode on and off.  When extension automation
+  // mode is turned on, the automation host can overtake extension API calls
+  // e.g. to make UI tests for extensions easier to write.  Returns true if
+  // the message is successfully sent.
+  bool SetEnableExtensionAutomation(bool enable_automation);
+
   // Returns the ID of the automation IPC channel, so that it can be
   // passed to the app as a launch parameter.
   const std::wstring& channel_id() const { return channel_id_; }

@@ -15,6 +15,7 @@
 #include "chrome/common/chrome_constants.h"
 #include "chrome/common/chrome_switches.h"
 #include "chrome/common/json_value_serializer.h"
+#include "chrome/test/automation/automation_proxy_uitest.h"
 #include "chrome/test/automation/constrained_window_proxy.h"
 #include "chrome/test/automation/browser_proxy.h"
 #include "chrome/test/automation/tab_proxy.h"
@@ -29,28 +30,6 @@ class AutomationProxyTest : public UITest {
     dom_automation_enabled_ = true;
     launch_arguments_.AppendSwitchWithValue(switches::kLang,
                                             L"en-us");
-  }
-};
-
-class AutomationProxyVisibleTest : public UITest {
- protected:
-  AutomationProxyVisibleTest() {
-    show_window_ = true;
-  }
-};
-
-template <class AutomationProxyClass>
-class CustomAutomationProxyTest : public AutomationProxyVisibleTest {
- protected:
-  CustomAutomationProxyTest() {
-  }
-
-  // Override UITest's CreateAutomationProxy to provide our the unit test
-  // with our special implementation of AutomationProxy.
-  // This function is called from within UITest::LaunchBrowserAndServer.
-  virtual AutomationProxy* CreateAutomationProxy(int execution_timeout) {
-    AutomationProxyClass* proxy = new AutomationProxyClass(execution_timeout);
-    return proxy;
   }
 };
 
@@ -691,16 +670,16 @@ TEST_F(AutomationProxyTest, CantEscapeByOnloadMoveto) {
 }
 #endif  // defined(OS_WIN)
 
-
-// TODO(port): Remove HWND if possible.
+// TODO(port): Remove HWND if possible
 #if defined(OS_WIN)
-// Creates a top-level window, makes the |external_tab_window| a child
-// of that window and displays them.  After displaying the windows the function
-// enters a message loop that processes window messages as well as calling
-// MessageLoop::current()->RunAllPending() to process any incoming IPC messages.
-// The time_to_wait parameter is the maximum time the loop will run.
-// To end the loop earlier, post a quit message to the thread.
-bool ExternalTabHandler(HWND external_tab_window, int time_to_wait) {
+// Creates a top-level window, makes the |external_tab_window| a child of
+// that window and displays them. After displaying the windows the
+// function enters a message loop that processes window messages as well
+// as calling MessageLoop::current()->RunAllPending() to process any
+// incoming IPC messages. The time_to_wait_ms parameter is the maximum
+// time the loop will run. To end the loop earlier, post a quit message to
+// the thread.
+bool ExternalTabMessageLoop(HWND external_tab_window, int time_to_wait_ms) {
   static const wchar_t class_name[] = L"External_Tab_UI_Test_Class";
   static const wchar_t window_title[] = L"External Tab Tester";
 
@@ -738,7 +717,7 @@ bool ExternalTabHandler(HWND external_tab_window, int time_to_wait) {
   const int kTimerIdQuit = 100;
   const int kTimerIdProcessPendingMessages = 101;
 
-  ::SetTimer(external_tab_ui_parent, kTimerIdQuit, time_to_wait, NULL);
+  ::SetTimer(external_tab_ui_parent, kTimerIdQuit, time_to_wait_ms, NULL);
   // Process pending messages every 50 milliseconds
   ::SetTimer(external_tab_ui_parent, kTimerIdProcessPendingMessages, 50, NULL);
 
@@ -781,83 +760,46 @@ bool ExternalTabHandler(HWND external_tab_window, int time_to_wait) {
   return true;
 }
 
-// A single-use AutomationProxy implementation that's good
-// for a single navigation and a single ForwardMessageToExternalHost
-// message.  Once the ForwardMessageToExternalHost message is received
-// the class posts a quit message to the thread on which the message
-// was received.
-class AutomationProxyForExternalTab : public AutomationProxy {
- public:
-  AutomationProxyForExternalTab(int execution_timeout)
-      : AutomationProxy(execution_timeout),
-        messages_received_(0),
-        navigate_complete_(false) {
+AutomationProxyForExternalTab::AutomationProxyForExternalTab(
+    int execution_timeout)
+    : AutomationProxy(execution_timeout),
+      messages_received_(0),
+      navigate_complete_(false) {
+}
+
+bool AutomationProxyForExternalTab::WaitForNavigationComplete(
+    int max_time_to_wait_ms) {
+  base::TimeTicks start(base::TimeTicks::Now());
+  while (!navigate_complete_) {
+    PlatformThread::Sleep(50);
+    MessageLoop::current()->RunAllPending();
+    base::TimeTicks end(base::TimeTicks::Now());
+    base::TimeDelta delta = end - start;
+    if (static_cast<int>(delta.InMilliseconds()) > max_time_to_wait_ms)
+      return false;
   }
+  return true;
+}
 
-  int messages_received() const {
-    return messages_received_;
-  }
+void AutomationProxyForExternalTab::OnMessageReceived(const IPC::Message& msg) {
+  IPC_BEGIN_MESSAGE_MAP(AutomationProxyForExternalTab, msg)
+    IPC_MESSAGE_HANDLER(AutomationMsg_DidNavigate, OnDidNavigate)
+    IPC_MESSAGE_HANDLER(AutomationMsg_ForwardMessageToExternalHost,
+                        OnForwardMessageToExternalHost)
+  IPC_END_MESSAGE_MAP()
+}
 
-  const std::string& message() const {
-    return message_;
-  }
-
-  const std::string& origin() const {
-    return origin_;
-  }
-
-  const std::string& target() const {
-    return target_;
-  }
-
-  // Waits for the DidNavigate event to be processed on the current thread.
-  // Returns true if the event arrived, false if there was a timeout.
-  bool WaitForNavigationComplete(int max_time_to_wait_ms) {
-    base::TimeTicks start(base::TimeTicks::Now());
-    while (!navigate_complete_) {
-      PlatformThread::Sleep(50);
-      MessageLoop::current()->RunAllPending();
-      base::TimeTicks end(base::TimeTicks::Now());
-      base::TimeDelta delta = end - start;
-      if (static_cast<int>(delta.InMilliseconds()) > max_time_to_wait_ms)
-        return false;
-    }
-    return true;
-  }
-
- protected:
-  virtual void OnMessageReceived(const IPC::Message& msg) {
-    IPC_BEGIN_MESSAGE_MAP(AutomationProxyForExternalTab, msg)
-      IPC_MESSAGE_HANDLER(AutomationMsg_DidNavigate, OnDidNavigate)
-      IPC_MESSAGE_HANDLER(AutomationMsg_ForwardMessageToExternalHost,
-                          OnForwardMessageToExternalHost)
-    IPC_END_MESSAGE_MAP()
-  }
-
-  void OnDidNavigate(int tab_handle, int navigation_type, int relative_offset,
-                     const GURL& url) {
-    navigate_complete_ = true;
-  }
-
-  void OnForwardMessageToExternalHost(int tab_handle,
-                                      const std::string& message,
-                                      const std::string& origin,
-                                      const std::string& target) {
-    messages_received_++;
-    message_ = message;
-    origin_ = origin;
-    target_ = target;
-    PostQuitMessage(0);
-  }
-
- protected:
-  bool navigate_complete_;
-  int messages_received_;
-  std::string message_, origin_, target_;
-};
-
-typedef CustomAutomationProxyTest<AutomationProxyForExternalTab>
-    ExternalTabTestType;
+void AutomationProxyForExternalTab::OnForwardMessageToExternalHost(
+    int handle,
+    const std::string& message,
+    const std::string& origin,
+    const std::string& target) {
+  messages_received_++;
+  message_ = message;
+  origin_ = origin;
+  target_ = target;
+  PostQuitMessage(0);
+}
 
 TEST_F(ExternalTabTestType, CreateExternalTab) {
   HWND external_tab_container = NULL;
@@ -867,7 +809,7 @@ TEST_F(ExternalTabTestType, CreateExternalTab) {
   EXPECT_NE(FALSE, ::IsWindow(external_tab_container));
   if (tab != NULL) {
     tab->NavigateInExternalTab(GURL(L"http://www.google.com"));
-    EXPECT_EQ(true, ExternalTabHandler(external_tab_container, 1000));
+    EXPECT_EQ(true, ExternalTabMessageLoop(external_tab_container, 1000));
     // Since the tab goes away lazily, wait a bit
     PlatformThread::Sleep(1000);
     EXPECT_FALSE(tab->is_valid());
@@ -925,7 +867,7 @@ TEST_F(ExternalTabTestType, ExternalTabPostMessage) {
 
     tab->HandleMessageFromExternalHost("Hello from gtest", "null", "*");
 
-    EXPECT_TRUE(ExternalTabHandler(external_tab_container, 10000));
+    EXPECT_TRUE(ExternalTabMessageLoop(external_tab_container, 10000));
     EXPECT_NE(0, proxy->messages_received());
 
     if (proxy->messages_received()) {

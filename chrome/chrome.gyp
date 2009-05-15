@@ -620,6 +620,8 @@
         'browser/automation/automation_autocomplete_edit_tracker.h',
         'browser/automation/automation_browser_tracker.h',
         'browser/automation/automation_constrained_window_tracker.h',
+        'browser/automation/automation_extension_function.h',
+        'browser/automation/automation_extension_function.cc',
         'browser/automation/automation_provider.cc',
         'browser/automation/automation_provider.h',
         'browser/automation/automation_provider_list.cc',
@@ -2439,6 +2441,8 @@
         'test/automation/browser_proxy.h',
         'test/automation/constrained_window_proxy.cc',
         'test/automation/constrained_window_proxy.h',
+        'test/automation/extension_automation_constants.h',
+        'test/automation/extension_automation_constants.cc',
         'test/automation/tab_proxy.cc',
         'test/automation/tab_proxy.h',
         'test/automation/window_proxy.cc',
@@ -2689,6 +2693,7 @@
         }, { # else: OS != "win"
           'sources!': [
             # TODO(port)?  (Most of these include windows.h or similar.)
+            'browser/extensions/extension_uitest.cc',
             'browser/printing/printing_layout_uitest.cc',
             'browser/ssl/ssl_uitest.cc',
             'browser/views/find_bar_win_uitest.cc',

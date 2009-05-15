@@ -430,6 +430,9 @@ class AutomationProvider : public base::RefCounted<AutomationProvider>,
 
   void SavePackageShouldPromptUser(bool should_prompt);
 
+  // Enables extension automation (for e.g. UITests).
+  void SetEnableExtensionAutomation(bool automation_enabled);
+
   void GetWindowTitle(int handle, string16* text);
 
   // Convert a tab handle into a TabContents. If |tab| is non-NULL a pointer

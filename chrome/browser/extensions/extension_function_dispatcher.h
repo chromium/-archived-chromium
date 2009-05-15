@@ -5,6 +5,7 @@
 #ifndef CHROME_BROWSER_EXTENSIONS_EXTENSION_FUNCTION_DISPATCHER_H_
 #define CHROME_BROWSER_EXTENSIONS_EXTENSION_FUNCTION_DISPATCHER_H_
 
+#include <map>
 #include <string>
 #include <vector>
 
@@ -15,6 +16,9 @@ class ExtensionFunction;
 class Profile;
 class RenderViewHost;
 class RenderViewHostDelegate;
+
+// A factory function for creating new ExtensionFunction instances.
+typedef ExtensionFunction* (*ExtensionFunctionFactory)();
 
 // ExtensionFunctionDispatcher receives requests to execute functions from
 // Chromium extensions running in a RenderViewHost and dispatches them to the
@@ -28,6 +32,14 @@ class ExtensionFunctionDispatcher {
 
   // Gets a list of all known extension function names.
   static void GetAllFunctionNames(std::vector<std::string>* names);
+
+  // Override a previously registered function. Returns true if successful,
+  // false if no such function was registered.
+  static bool OverrideFunction(const std::string& name,
+                               ExtensionFunctionFactory factory);
+
+  // Resets all functions to their initial implementation.
+  static void ResetFunctions();
 
   ExtensionFunctionDispatcher(RenderViewHost* render_view_host,
                               Delegate* delegate,
@@ -60,6 +72,13 @@ class ExtensionFunctionDispatcher {
   Delegate* delegate_;
 
   std::string extension_id_;
+
+  // AutomationExtensionFunction requires access to the RenderViewHost
+  // associated with us.  We make it a friend rather than exposing the
+  // RenderViewHost as a public method as we wouldn't want everyone to
+  // start assuming a 1:1 relationship between us and RenderViewHost,
+  // whereas AutomationExtensionFunction is by necessity "tight" with us.
+  friend class AutomationExtensionFunction;
 };
 
 #endif  // CHROME_BROWSER_EXTENSIONS_EXTENSION_FUNCTION_DISPATCHER_H_

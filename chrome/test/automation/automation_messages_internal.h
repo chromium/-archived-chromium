@@ -916,4 +916,10 @@ IPC_BEGIN_MESSAGES(Automation)
   // value is the number of windows.
   IPC_SYNC_MESSAGE_ROUTED0_1(AutomationMsg_NormalBrowserWindowCount, int)
 
+  // Used to put the browser into "extension automation mode" for the
+  // current profile, or turn off the mode.
+  IPC_SYNC_MESSAGE_ROUTED1_0(AutomationMsg_SetEnableExtensionAutomation,
+                             bool /* true to enable extension automation */)
+
+
 IPC_END_MESSAGES(Automation)

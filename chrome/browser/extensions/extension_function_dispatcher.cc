@@ -4,8 +4,6 @@
 
 #include "chrome/browser/extensions/extension_function_dispatcher.h"
 
-#include "base/json_reader.h"
-#include "base/json_writer.h"
 #include "base/process_util.h"
 #include "base/singleton.h"
 #include "base/values.h"
@@ -23,16 +21,31 @@
 
 namespace {
 
-// A pointer to a function that create an instance of an ExtensionFunction.
-typedef ExtensionFunction* (*ExtensionFunctionFactory)();
+// Template for defining ExtensionFunctionFactory.
+template<class T>
+ExtensionFunction* NewExtensionFunction() {
+  return new T();
+}
 
-// Contains a list of all known extension functions and allows clients to create
-// instances of them.
+// Contains a list of all known extension functions and allows clients to
+// create instances of them.
 class FactoryRegistry {
  public:
   static FactoryRegistry* instance();
-  FactoryRegistry();
+  FactoryRegistry() { ResetFunctions(); }
+
+  // Resets all functions to their default values.
+  void ResetFunctions();
+
+  // Adds all function names to 'names'.
   void GetAllNames(std::vector<std::string>* names);
+
+  // Allows overriding of specific functions (e.g. for testing).  Functions
+  // must be previously registered.  Returns true if successful.
+  bool OverrideFunction(const std::string& name,
+                        ExtensionFunctionFactory factory);
+
+  // Factory method for the ExtensionFunction registered as 'name'.
   ExtensionFunction* NewFunction(const std::string& name);
 
  private:
@@ -40,17 +53,11 @@ class FactoryRegistry {
   FactoryMap factories_;
 };
 
-// Template for defining ExtensionFunctionFactory.
-template<class T>
-ExtensionFunction* NewExtensionFunction() {
-  return new T();
-}
-
 FactoryRegistry* FactoryRegistry::instance() {
   return Singleton<FactoryRegistry>::get();
 }
 
-FactoryRegistry::FactoryRegistry() {
+void FactoryRegistry::ResetFunctions() {
   // Register all functions here.
 
   // Windows
@@ -63,10 +70,11 @@ FactoryRegistry::FactoryRegistry() {
   factories_["CreateWindow"] = &NewExtensionFunction<CreateWindowFunction>;
   factories_["UpdateWindow"] = &NewExtensionFunction<UpdateWindowFunction>;
   factories_["RemoveWindow"] = &NewExtensionFunction<RemoveWindowFunction>;
-  
+
   // Tabs
   factories_["GetTab"] = &NewExtensionFunction<GetTabFunction>;
-  factories_["GetSelectedTab"] = &NewExtensionFunction<GetSelectedTabFunction>;
+  factories_["GetSelectedTab"] =
+      &NewExtensionFunction<GetSelectedTabFunction>;
   factories_["GetAllTabsInWindow"] =
       &NewExtensionFunction<GetAllTabsInWindowFunction>;
   factories_["CreateTab"] = &NewExtensionFunction<CreateTabFunction>;
@@ -86,35 +94,57 @@ FactoryRegistry::FactoryRegistry() {
       &NewExtensionFunction<GetBookmarkTreeFunction>;
   factories_["SearchBookmarks"] =
       &NewExtensionFunction<SearchBookmarksFunction>;
-  factories_["RemoveBookmark"] = &NewExtensionFunction<RemoveBookmarkFunction>;
-  factories_["CreateBookmark"] = &NewExtensionFunction<CreateBookmarkFunction>;
+  factories_["RemoveBookmark"] =
+      &NewExtensionFunction<RemoveBookmarkFunction>;
+  factories_["CreateBookmark"] =
+      &NewExtensionFunction<CreateBookmarkFunction>;
   factories_["MoveBookmark"] = &NewExtensionFunction<MoveBookmarkFunction>;
   factories_["SetBookmarkTitle"] =
       &NewExtensionFunction<SetBookmarkTitleFunction>;
 }
 
-void FactoryRegistry::GetAllNames(
-    std::vector<std::string>* names) {
-  for (FactoryMap::iterator iter = factories_.begin(); iter != factories_.end();
-       ++iter) {
+void FactoryRegistry::GetAllNames(std::vector<std::string>* names) {
+  for (FactoryMap::iterator iter = factories_.begin();
+       iter != factories_.end(); ++iter) {
     names->push_back(iter->first);
+  }
+}
+
+bool FactoryRegistry::OverrideFunction(const std::string& name,
+                                       ExtensionFunctionFactory factory) {
+  FactoryMap::iterator iter = factories_.find(name);
+  if (iter == factories_.end()) {
+    return false;
+  } else {
+    iter->second = factory;
+    return true;
   }
 }
 
 ExtensionFunction* FactoryRegistry::NewFunction(const std::string& name) {
   FactoryMap::iterator iter = factories_.find(name);
   DCHECK(iter != factories_.end());
-  return iter->second();
+  ExtensionFunction* function = iter->second();
+  function->SetName(name);
+  return function;
 }
 
-};
-
+};  // namespace
 
 // ExtensionFunctionDispatcher -------------------------------------------------
 
 void ExtensionFunctionDispatcher::GetAllFunctionNames(
     std::vector<std::string>* names) {
   FactoryRegistry::instance()->GetAllNames(names);
+}
+
+bool ExtensionFunctionDispatcher::OverrideFunction(
+    const std::string& name, ExtensionFunctionFactory factory) {
+  return FactoryRegistry::instance()->OverrideFunction(name, factory);
+}
+
+void ExtensionFunctionDispatcher::ResetFunctions() {
+  FactoryRegistry::instance()->ResetFunctions();
 }
 
 ExtensionFunctionDispatcher::ExtensionFunctionDispatcher(
@@ -124,9 +154,8 @@ ExtensionFunctionDispatcher::ExtensionFunctionDispatcher(
   : render_view_host_(render_view_host),
     delegate_(delegate),
     extension_id_(extension_id) {
-  DCHECK(delegate);
   RenderProcessHost* process = render_view_host_->process();
-  ExtensionMessageService* message_service = 
+  ExtensionMessageService* message_service =
       ExtensionMessageService::GetInstance(profile()->GetRequestContext());
   DCHECK(process);
   DCHECK(message_service);
@@ -134,6 +163,8 @@ ExtensionFunctionDispatcher::ExtensionFunctionDispatcher(
 }
 
 Browser* ExtensionFunctionDispatcher::GetBrowser() {
+  DCHECK(delegate_);
+
   Browser* retval = delegate_->GetBrowser();
   DCHECK(retval);
   return retval;
@@ -143,25 +174,12 @@ void ExtensionFunctionDispatcher::HandleRequest(const std::string& name,
                                                 const std::string& args,
                                                 int request_id,
                                                 bool has_callback) {
-  scoped_ptr<Value> value;
-  if (!args.empty()) {
-    JSONReader reader;
-    value.reset(reader.JsonToValue(args, false, false));
-
-    // Since we do the serialization in the v8 extension, we should always get
-    // valid JSON.
-    if (!value.get()) {
-      DCHECK(false);
-      return;
-    }
-  }
-
   // TODO(aa): This will get a bit more complicated when we support functions
   // that live longer than the stack frame.
   scoped_ptr<ExtensionFunction> function(
       FactoryRegistry::instance()->NewFunction(name));
   function->set_dispatcher(this);
-  function->set_args(value.get());
+  function->SetArgs(args);
   function->set_request_id(request_id);
   function->set_has_callback(has_callback);
   function->Run();
@@ -169,14 +187,8 @@ void ExtensionFunctionDispatcher::HandleRequest(const std::string& name,
 
 void ExtensionFunctionDispatcher::SendResponse(ExtensionFunction* function,
                                                bool success) {
-  std::string json;
-
-  // Some functions might not need to return any results.
-  if (success && function->result())
-    JSONWriter::Write(function->result(), false, &json);
-
   render_view_host_->SendExtensionResponse(function->request_id(), success,
-      json, function->error());
+      function->GetResult(), function->GetError());
 }
 
 void ExtensionFunctionDispatcher::HandleBadMessage(ExtensionFunction* api) {
