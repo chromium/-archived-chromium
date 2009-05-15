@@ -11,6 +11,7 @@
 
 #include <sstream>
 
+#include "app/app_switches.h"
 #include "app/resource_bundle.h"
 #include "base/command_line.h"
 #include "base/file_util.h"

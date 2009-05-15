@@ -2,6 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+#include "app/app_switches.h"
 #include "app/l10n_util.h"
 #include "base/command_line.h"
 #include "base/path_service.h"

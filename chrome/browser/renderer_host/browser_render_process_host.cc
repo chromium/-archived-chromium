@@ -11,6 +11,7 @@
 
 #include <algorithm>
 
+#include "app/app_switches.h"
 #if defined(OS_WIN)
 #include "app/win_util.h"
 #endif

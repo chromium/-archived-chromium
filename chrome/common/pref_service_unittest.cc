@@ -2,6 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+#include "app/test/data/resource.h"
 #include "base/file_util.h"
 #include "base/path_service.h"
 #include "chrome/common/chrome_paths.h"
@@ -10,7 +11,6 @@
 #include "chrome/common/notification_type.h"
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
-#include "chrome/test/data/resource.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
 class PrefServiceTest : public testing::Test {

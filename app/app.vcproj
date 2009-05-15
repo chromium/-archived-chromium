@@ -194,6 +194,14 @@
 			>
 		</File>
 		<File
+			RelativePath=".\app_switches.cc"
+			>
+		</File>
+		<File
+			RelativePath=".\app_switches.h"
+			>
+		</File>
+		<File
 			RelativePath=".\drag_drop_types.cc"
 			>
 		</File>
@@ -222,11 +230,11 @@
 			>
 		</File>
 		<File
-			RelativePath=".\os_exchange_data_win.cc"
+			RelativePath=".\os_exchange_data.h"
 			>
 		</File>
 		<File
-			RelativePath=".\os_exchange_data.h"
+			RelativePath=".\os_exchange_data_win.cc"
 			>
 		</File>
 		<File

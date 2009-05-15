@@ -145,10 +145,6 @@ const wchar_t kJavaScriptFlags[]               = L"js-flags";
 // string value, the 2 letter code from ISO 3166-1.
 const wchar_t kCountry[]                       = L"country";
 
-// The language file that we want to try to open.  Of the form
-// language[-country] where language is the 2 letter code from ISO-639.
-const wchar_t kLang[]                          = L"lang";
-
 // Will add kDebugOnStart to every child processes. If a value is passed, it
 // will be used as a filter to determine if the child process should have the
 // kDebugOnStart flag passed on or not.

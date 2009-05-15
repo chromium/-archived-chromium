@@ -48,7 +48,6 @@ extern const wchar_t kPluginPath[];
 extern const wchar_t kUserAgent[];
 extern const wchar_t kJavaScriptFlags[];
 extern const wchar_t kCountry[];
-extern const wchar_t kLang[];
 extern const wchar_t kDebugChildren[];
 extern const wchar_t kWaitForDebuggerChildren[];
 

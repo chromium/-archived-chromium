@@ -4,6 +4,7 @@
 
 #include <string>
 
+#include "app/app_switches.h"
 #include "app/message_box_flags.h"
 #include "base/command_line.h"
 #include "base/file_path.h"

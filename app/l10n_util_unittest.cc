@@ -5,6 +5,9 @@
 #include "build/build_config.h"
 
 #include "app/l10n_util.h"
+#if !defined(OS_MACOSX)
+#include "app/test/data/resource.h"
+#endif
 #include "base/basictypes.h"
 #include "base/file_util.h"
 #include "base/path_service.h"
@@ -14,9 +17,6 @@
 #include "base/win_util.h"
 #endif
 #include "chrome/common/chrome_paths.h"
-#if !defined(OS_MACOSX)
-#include "chrome/test/data/resource.h"
-#endif
 #include "testing/gtest/include/gtest/gtest.h"
 #include "testing/platform_test.h"
 #include "unicode/locid.h"
