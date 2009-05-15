@@ -5,6 +5,8 @@
 #ifndef CHROME_BROWSER_TAB_CONTENTS_TAB_CONTENTS_VIEW_GTK_H_
 #define CHROME_BROWSER_TAB_CONTENTS_TAB_CONTENTS_VIEW_GTK_H_
 
+#include <gtk/gtk.h>
+
 #include "base/scoped_ptr.h"
 #include "chrome/browser/gtk/focus_store_gtk.h"
 #include "chrome/browser/tab_contents/tab_contents_view.h"
@@ -68,12 +70,27 @@ class TabContentsViewGtk : public TabContentsView,
                        const NotificationDetails& details);
 
  private:
+  // Insert the given widget into the content area. Should only be used for
+  // web pages and the like (including interstitials and sad tab). Note that
+  // this will be perfectly happy to insert overlapping render views, so care
+  // should be taken that the correct one is hidden/shown.
+  void InsertIntoContentArea(GtkWidget* widget);
+
   // We keep track of the timestamp of the latest mousedown event.
   static gboolean OnMouseDown(GtkWidget* widget,
                               GdkEventButton* event, TabContentsViewGtk* view);
 
+  // Used to propagate size changes on |fixed_| to its children.
+  static gboolean OnSizeAllocate(GtkWidget* widget,
+                                 GtkAllocation* config,
+                                 TabContentsViewGtk* view);
+
   // The native widget for the tab.
   OwnedWidgetGtk vbox_;
+
+  // This container holds the tab's web page views. It is a GtkFixed so that we
+  // can control the size of the web pages.
+  GtkWidget* fixed_;
 
   // The context menu is reset every time we show it, but we keep a pointer to
   // between uses so that it won't go out of scope before we're done with it.

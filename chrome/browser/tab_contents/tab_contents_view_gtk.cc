@@ -10,6 +10,8 @@
 #include "base/string_util.h"
 #include "base/gfx/point.h"
 #include "base/gfx/rect.h"
+#include "base/gfx/size.h"
+#include "chrome/browser/download/download_shelf.h"
 #include "chrome/browser/gtk/browser_window_gtk.h"
 #include "chrome/browser/gtk/sad_tab_gtk.h"
 #include "chrome/browser/renderer_host/render_view_host.h"
@@ -58,6 +60,16 @@ gboolean OnMouseMove(GtkWidget* widget, GdkEventMotion* event,
   return FALSE;
 }
 
+// Used with gtk_container_foreach to change the sizes of the children of
+// |fixed_|.
+void SetSizeRequest(GtkWidget* widget, gpointer userdata) {
+  gfx::Size* size = static_cast<gfx::Size*>(userdata);
+  if (widget->allocation.width != size->width() ||
+      widget->allocation.height != size->height()) {
+    gtk_widget_set_size_request(widget, size->width(), size->height());
+  }
+}
+
 }  // namespace
 
 // static
@@ -68,6 +80,11 @@ TabContentsView* TabContentsView::Create(TabContents* tab_contents) {
 TabContentsViewGtk::TabContentsViewGtk(TabContents* tab_contents)
     : TabContentsView(tab_contents),
       vbox_(gtk_vbox_new(FALSE, 0)) {
+  fixed_ = gtk_fixed_new();
+  gtk_box_pack_start(GTK_BOX(vbox_.get()), fixed_, TRUE, TRUE, 0);
+  g_signal_connect(fixed_, "size-allocate",
+                   G_CALLBACK(OnSizeAllocate), this);
+  gtk_widget_show(fixed_);
   registrar_.Add(this, NotificationType::TAB_CONTENTS_CONNECTED,
                  Source<TabContents>(tab_contents));
   registrar_.Add(this, NotificationType::TAB_CONTENTS_DISCONNECTED,
@@ -108,7 +125,8 @@ RenderWidgetHostView* TabContentsViewGtk::CreateViewForWidget(
                         GDK_POINTER_MOTION_MASK);
   g_signal_connect(content_view, "button-press-event",
                    G_CALLBACK(OnMouseDown), this);
-  gtk_box_pack_start(GTK_BOX(vbox_.get()), content_view, TRUE, TRUE, 0);
+
+  InsertIntoContentArea(content_view);
   return view;
 }
 
@@ -250,8 +268,7 @@ void TabContentsViewGtk::Observe(NotificationType type,
     }
     case NotificationType::TAB_CONTENTS_DISCONNECTED: {
       sad_tab_.reset(new SadTabGtk);
-      gtk_box_pack_start(
-          GTK_BOX(vbox_.get()), sad_tab_->widget(), TRUE, TRUE, 0);
+      InsertIntoContentArea(sad_tab_->widget());
       gtk_widget_show(sad_tab_->widget());
       break;
     }
@@ -278,8 +295,26 @@ void TabContentsViewGtk::StartDragging(const WebDropData& drop_data) {
     tab_contents()->render_view_host()->DragSourceSystemDragEnded();
 }
 
+void TabContentsViewGtk::InsertIntoContentArea(GtkWidget* widget) {
+  gtk_fixed_put(GTK_FIXED(fixed_), widget, 0, 0);
+}
+
 gboolean TabContentsViewGtk::OnMouseDown(GtkWidget* widget,
     GdkEventButton* event, TabContentsViewGtk* view) {
   view->last_mouse_down_time_ = event->time;
+  return FALSE;
+}
+
+gboolean TabContentsViewGtk::OnSizeAllocate(GtkWidget* widget,
+                                            GtkAllocation* allocation,
+                                            TabContentsViewGtk* view) {
+  int width = allocation->width;
+  DownloadShelf* shelf = view->tab_contents()->GetDownloadShelf(false);
+  int height = shelf && shelf->IsClosing() ?
+               widget->parent->allocation.height : allocation->height;
+  height += view->tab_contents()->delegate()->GetExtraRenderViewHeight();
+  gfx::Size size(width, height);
+  gtk_container_foreach(GTK_CONTAINER(widget), SetSizeRequest, &size);
+
   return FALSE;
 }

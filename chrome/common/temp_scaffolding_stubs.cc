@@ -215,6 +215,7 @@ class DownloadShelfMac : public DownloadShelf {
       : DownloadShelf(tab_contents) { }
   virtual void AddDownload(BaseDownloadItemModel* download_model) { }
   virtual bool IsShowing() const { return false; }
+  virtual bool IsClosing() const { return false; }
 };
 
 // static

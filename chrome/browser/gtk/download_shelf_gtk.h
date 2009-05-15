@@ -28,6 +28,7 @@ class DownloadShelfGtk : public DownloadShelf {
   // DownloadShelf implementation.
   virtual void AddDownload(BaseDownloadItemModel* download_model);
   virtual bool IsShowing() const;
+  virtual bool IsClosing() const;
 
  private:
   // Remove |download_item| from the download shelf and delete it.

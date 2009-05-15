@@ -180,6 +180,12 @@ class BrowserWindow {
   // indicating that it's time to redraw everything.
   virtual void UserChangedTheme() = 0;
 
+  // Get extra vertical height that the render view should add to its requests
+  // to webkit. This can help prevent sending extraneous layout/repaint requests
+  // when the delegate is in the process of resizing the tab contents view (e.g.
+  // during infobar animations).
+  virtual int GetExtraRenderViewHeight() const = 0;
+
   // Construct a BrowserWindow implementation for the specified |browser|.
   static BrowserWindow* CreateBrowserWindow(Browser* browser);
 

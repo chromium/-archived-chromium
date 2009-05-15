@@ -205,6 +205,7 @@ class BrowserView : public BrowserWindow,
   virtual void ShowHTMLDialog(HtmlDialogUIDelegate* delegate,
                               void* parent_window);
   virtual void UserChangedTheme();
+  virtual int GetExtraRenderViewHeight() const;
 
   // Overridden from BrowserWindowTesting:
   virtual BookmarkBarView* GetBookmarkBarView() const;

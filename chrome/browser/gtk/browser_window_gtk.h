@@ -79,6 +79,7 @@ class BrowserWindowGtk : public BrowserWindow,
   virtual void ShowHTMLDialog(HtmlDialogUIDelegate* delegate,
                               void* parent_window);
   virtual void UserChangedTheme();
+  virtual int GetExtraRenderViewHeight() const;
 
   // Overridden from NotificationObserver:
   virtual void Observe(NotificationType type,

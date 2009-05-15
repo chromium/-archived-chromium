@@ -39,8 +39,8 @@ class RenderWidgetHostViewGtkWidget {
                                   GDK_KEY_RELEASE_MASK);
     GTK_WIDGET_SET_FLAGS(widget, GTK_CAN_FOCUS);
 
-    g_signal_connect(widget, "configure-event",
-                     G_CALLBACK(ConfigureEvent), host_view);
+    g_signal_connect(widget, "size-allocate",
+                     G_CALLBACK(SizeAllocate), host_view);
     g_signal_connect(widget, "expose-event",
                      G_CALLBACK(ExposeEvent), host_view);
     g_signal_connect(widget, "key-press-event",
@@ -74,8 +74,8 @@ class RenderWidgetHostViewGtkWidget {
   }
 
  private:
-  static gboolean ConfigureEvent(GtkWidget* widget, GdkEventConfigure* config,
-                                 RenderWidgetHostViewGtk* host_view) {
+  static gboolean SizeAllocate(GtkWidget* widget, GtkAllocation* allocation,
+                               RenderWidgetHostViewGtk* host_view) {
     host_view->GetRenderWidgetHost()->WasResized();
     return FALSE;
   }

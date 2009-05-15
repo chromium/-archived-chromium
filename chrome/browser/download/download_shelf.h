@@ -43,6 +43,9 @@ class DownloadShelf {
   // the beginning Show and true at the beginning of a Hide.
   virtual bool IsShowing() const = 0;
 
+  // Returns whether the download shelf is showing the close animation.
+  virtual bool IsClosing() const = 0;
+
  protected:
   TabContents* tab_contents_;
 

@@ -56,6 +56,7 @@ class DownloadShelfView : public DownloadShelf,
   // Implementation of DownloadShelf.
   virtual void AddDownload(BaseDownloadItemModel* download_model);
   virtual bool IsShowing() const;
+  virtual bool IsClosing() const;
 
   // Removes a specified download view. The supplied view is deleted after
   // it's removed.

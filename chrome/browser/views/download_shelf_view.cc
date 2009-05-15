@@ -304,3 +304,8 @@ void DownloadShelfView::ButtonPressed(views::Button* button) {
 bool DownloadShelfView::IsShowing() const {
   return shelf_animation_->IsShowing();
 }
+
+bool DownloadShelfView::IsClosing() const {
+  // TODO(estade): This is never called. For now just return false.
+  return false;
+}

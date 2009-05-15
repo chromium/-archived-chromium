@@ -63,6 +63,7 @@ class TestBrowserWindow : public BrowserWindow {
   virtual void ShowHTMLDialog(HtmlDialogUIDelegate* delegate,
                               void* parent_window) {}
   virtual void UserChangedTheme() {}
+  virtual int GetExtraRenderViewHeight() const { return 0; }
  protected:
   virtual void DestroyBrowser() {}
 

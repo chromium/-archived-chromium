@@ -2002,6 +2002,10 @@ ExtensionFunctionDispatcher* Browser::CreateExtensionFunctionDispatcher(
   return new ExtensionFunctionDispatcher(render_view_host, this, extension_id);
 }
 
+int Browser::GetExtraRenderViewHeight() const {
+  return window_->GetExtraRenderViewHeight();
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 // Browser, SelectFileDialog::Listener implementation:
 

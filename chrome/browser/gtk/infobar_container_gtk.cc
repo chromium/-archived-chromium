@@ -15,26 +15,31 @@
 
 namespace {
 
-// Used by RemoveInfoBar to pass data to AnimateClosingForDelegate.
-struct RemoveInfoBarData {
-  GtkWidget* container;
-  InfoBarDelegate* delegate;
-};
-
+// If |infobar_widget| matches |info_bar_delegate|, then close the infobar.
 void AnimateClosingForDelegate(GtkWidget* infobar_widget,
-                               gpointer remove_info_bar_data) {
+                               gpointer info_bar_delegate) {
+  InfoBarDelegate* delegate =
+      static_cast<InfoBarDelegate*>(info_bar_delegate);
   InfoBar* infobar = reinterpret_cast<InfoBar*>(
       g_object_get_data(G_OBJECT(infobar_widget), "info-bar"));
-  RemoveInfoBarData* data =
-      reinterpret_cast<RemoveInfoBarData*>(remove_info_bar_data);
 
   if (!infobar) {
     NOTREACHED();
     return;
   }
 
-  if (data->delegate == infobar->delegate())
+  if (delegate == infobar->delegate())
     infobar->AnimateClose();
+}
+
+// Get the height of the widget and add it to |userdata|, but only if it is in
+// the process of closing.
+void SumClosingBarHeight(GtkWidget* widget, gpointer userdata) {
+  int* height_sum = static_cast<int*>(userdata);
+  InfoBar* infobar = reinterpret_cast<InfoBar*>(
+      g_object_get_data(G_OBJECT(widget), "info-bar"));
+  if (infobar->IsClosing())
+    *height_sum += widget->allocation.height;
 }
 
 }  // namespace
@@ -45,7 +50,7 @@ InfoBarContainerGtk::InfoBarContainerGtk(BrowserWindow* browser_window)
     : browser_window_(browser_window),
       tab_contents_(NULL),
       container_(gtk_vbox_new(FALSE, 0)) {
-  gtk_widget_show(container_.get());
+  gtk_widget_show(widget());
 }
 
 InfoBarContainerGtk::~InfoBarContainerGtk() {
@@ -65,7 +70,7 @@ void InfoBarContainerGtk::ChangeTabContents(TabContents* contents) {
         Source<TabContents>(tab_contents_));
   }
 
-  gtk_util::RemoveAllChildren(container_.get());
+  gtk_util::RemoveAllChildren(widget());
 
   tab_contents_ = contents;
   if (tab_contents_) {
@@ -81,6 +86,12 @@ void InfoBarContainerGtk::ChangeTabContents(TabContents* contents) {
 
 void InfoBarContainerGtk::RemoveDelegate(InfoBarDelegate* delegate) {
   tab_contents_->RemoveInfoBar(delegate);
+}
+
+int InfoBarContainerGtk::TotalHeightOfClosingBars() const {
+  int sum = 0;
+  gtk_container_foreach(GTK_CONTAINER(widget()), SumClosingBarHeight, &sum);
+  return sum;
 }
 
 // InfoBarContainerGtk, NotificationObserver implementation: -------------------
@@ -109,7 +120,7 @@ void InfoBarContainerGtk::UpdateInfoBars() {
 void InfoBarContainerGtk::AddInfoBar(InfoBarDelegate* delegate, bool animate) {
   InfoBar* infobar = delegate->CreateInfoBar();
   infobar->set_container(this);
-  gtk_box_pack_end(GTK_BOX(container_.get()), infobar->widget(),
+  gtk_box_pack_end(GTK_BOX(widget()), infobar->widget(),
                    FALSE, FALSE, 0);
   if (animate)
     infobar->AnimateOpen();
@@ -118,8 +129,6 @@ void InfoBarContainerGtk::AddInfoBar(InfoBarDelegate* delegate, bool animate) {
 }
 
 void InfoBarContainerGtk::RemoveInfoBar(InfoBarDelegate* delegate) {
-  RemoveInfoBarData remove_info_bar_data = { container_.get(), delegate };
-
-  gtk_container_foreach(GTK_CONTAINER(container_.get()),
-                        AnimateClosingForDelegate, &remove_info_bar_data);
+  gtk_container_foreach(GTK_CONTAINER(widget()),
+                        AnimateClosingForDelegate, delegate);
 }

@@ -232,6 +232,11 @@ void BrowserWindowCocoa::UserChangedTheme() {
   NOTIMPLEMENTED();
 }
 
+int BrowserWindowCocoa::GetExtraRenderViewHeight() const {
+  // Currently this is only used on linux.
+  return 0;
+}
+
 void BrowserWindowCocoa::Observe(NotificationType type,
                                  const NotificationSource& source,
                                  const NotificationDetails& details) {

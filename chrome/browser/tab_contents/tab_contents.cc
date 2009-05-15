@@ -919,7 +919,7 @@ void TabContents::SetDownloadShelfVisible(bool visible) {
   if (shelf_visible_ != visible) {
     if (visible) {
       // Invoke GetDownloadShelf to force the shelf to be created.
-      GetDownloadShelf();
+      GetDownloadShelf(true);
     }
     shelf_visible_ = visible;
 
@@ -951,7 +951,7 @@ void TabContents::OnStartDownload(DownloadItem* download) {
   TabContents* tab_contents = delegate()->GetConstrainingContents(this);
 
   // GetDownloadShelf creates the download shelf if it was not yet created.
-  tab_contents->GetDownloadShelf()->AddDownload(
+  tab_contents->GetDownloadShelf(true)->AddDownload(
       new DownloadItemModel(download));
   tab_contents->SetDownloadShelfVisible(true);
 
@@ -966,14 +966,14 @@ void TabContents::OnStartDownload(DownloadItem* download) {
 #endif
 }
 
-DownloadShelf* TabContents::GetDownloadShelf() {
-  if (!download_shelf_.get())
+DownloadShelf* TabContents::GetDownloadShelf(bool create) {
+  if (!download_shelf_.get() && create)
     download_shelf_.reset(DownloadShelf::Create(this));
   return download_shelf_.get();
 }
 
 void TabContents::MigrateShelfFrom(TabContents* tab_contents) {
-  download_shelf_.reset(tab_contents->GetDownloadShelf());
+  download_shelf_.reset(tab_contents->GetDownloadShelf(true));
   download_shelf_->ChangeTabContents(tab_contents, this);
   tab_contents->ReleaseDownloadShelf();
 }

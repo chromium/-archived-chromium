@@ -32,7 +32,8 @@ SlideAnimatorGtk::SlideAnimatorGtk(GtkWidget* child,
     : child_(child),
       direction_(direction),
       delegate_(delegate),
-      fixed_needs_resize_(false) {
+      fixed_needs_resize_(false),
+      is_closing_(false) {
   widget_.Own(gtk_fixed_new());
   gtk_fixed_put(GTK_FIXED(widget_.get()), child, 0, 0);
   gtk_widget_set_size_request(widget_.get(), -1, 0);
@@ -64,6 +65,7 @@ SlideAnimatorGtk::~SlideAnimatorGtk() {
 }
 
 void SlideAnimatorGtk::Open() {
+  is_closing_ = false;
   gtk_widget_show_all(widget_.get());
   animation_->Show();
 }
@@ -84,6 +86,7 @@ void SlideAnimatorGtk::OpenWithoutAnimation() {
 }
 
 void SlideAnimatorGtk::Close() {
+  is_closing_ = true;
   animation_->Hide();
 }
 
@@ -96,6 +99,10 @@ void SlideAnimatorGtk::CloseWithoutAnimation() {
 
 bool SlideAnimatorGtk::IsShowing() {
   return animation_->IsShowing();
+}
+
+bool SlideAnimatorGtk::IsClosing() {
+  return animation_->IsAnimating() && is_closing_;
 }
 
 void SlideAnimatorGtk::AnimationProgressed(const Animation* animation) {

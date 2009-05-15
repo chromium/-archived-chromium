@@ -415,8 +415,9 @@ class TabContents : public PageNavigator,
   // Displays the download shelf and animation when a download occurs.
   void OnStartDownload(DownloadItem* download);
 
-  // Returns the DownloadShelf, creating it if necessary.
-  DownloadShelf* GetDownloadShelf();
+  // Returns the DownloadShelf. If the shelf doesn't exist and |create| is true,
+  // this function will create the shelf.
+  DownloadShelf* GetDownloadShelf(bool create);
 
   // Transfer the shelf view from |tab_contents| to the receiving TabContents.
   // |tab_contents| no longer owns the shelf after this call. The shelf is owned

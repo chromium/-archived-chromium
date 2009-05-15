@@ -167,6 +167,13 @@ class TabContentsDelegate {
     return false;
   }
 
+  // Return much extra vertical space should be allotted to the
+  // render view widget during various animations (e.g. infobar closing).
+  // This is used to make painting look smoother.
+  virtual int GetExtraRenderViewHeight() {
+    return 0;
+  }
+
  protected:
   ~TabContentsDelegate() {}
 

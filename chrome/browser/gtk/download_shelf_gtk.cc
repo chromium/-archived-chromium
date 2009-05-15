@@ -138,6 +138,10 @@ bool DownloadShelfGtk::IsShowing() const {
   return slide_widget_->IsShowing();
 }
 
+bool DownloadShelfGtk::IsClosing() const {
+  return slide_widget_->IsClosing();
+}
+
 void DownloadShelfGtk::RemoveDownloadItem(DownloadItemGtk* download_item) {
   DCHECK(download_item);
   std::vector<DownloadItemGtk*>::iterator i =

@@ -21,7 +21,7 @@ class InfoBarContainerGtk : public NotificationObserver {
   virtual ~InfoBarContainerGtk();
 
   // Get the native widget.
-  GtkWidget* widget() { return container_.get(); }
+  GtkWidget* widget() const { return container_.get(); }
 
   // Changes the TabContents for which this container is showing InfoBars. Can
   // be NULL, in which case we will simply detach ourselves from the old tab
@@ -32,6 +32,10 @@ class InfoBarContainerGtk : public NotificationObserver {
   // will notify us back and cause us to close the View. This is called from
   // the InfoBar's close button handler.
   void RemoveDelegate(InfoBarDelegate* delegate);
+
+  // Returns the total pixel height of all infobars in this container that
+  // are currently closing.
+  int TotalHeightOfClosingBars() const;
 
  private:
   // Overridden from NotificationObserver:

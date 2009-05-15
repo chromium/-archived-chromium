@@ -105,6 +105,10 @@ void InfoBar::Close() {
   delete this;
 }
 
+bool InfoBar::IsClosing() {
+  return slide_widget_->IsClosing();
+}
+
 void InfoBar::RemoveInfoBar() const {
   container_->RemoveDelegate(delegate_);
 }
