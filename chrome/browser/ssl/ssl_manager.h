@@ -38,6 +38,7 @@ class SSLErrorHandler;
 class SSLErrorInfo;
 class SSLHostState;
 class SSLMixedContentHandler;
+class SSLPolicy;
 class SSLRequestInfo;
 class Task;
 class URLRequest;
@@ -53,46 +54,19 @@ class TabContents;
 
 class SSLManager : public NotificationObserver {
  public:
-  // The SSLManager will ask its delegate to decide how to handle events
-  // relevant to SSL.  Delegates are expected to be stateless and intended to be
-  // easily implementable.
-  //
-  // Delegates should interact with the rest of the browser only through their
-  // parameters and through the delegate API of the SSLManager.
-  //
-  // If a delegate needs to do something tricky, consider having the SSLManager
-  // do it instead.
-  class Delegate {
-   public:
-    // An error occurred with the certificate in an SSL connection.
-    virtual void OnCertError(SSLCertErrorHandler* handler) = 0;
-
-    // A request for a mixed-content resource was made.  Note that the resource
-    // request was not started yet and the delegate is responsible for starting
-    // it.
-    virtual void OnMixedContent(SSLMixedContentHandler* handler) = 0;
-
-    // We have started a resource request with the given info.
-    virtual void OnRequestStarted(SSLRequestInfo* info) = 0;
-
-    // Update the SSL information in |entry| to match the current state.
-    virtual void UpdateEntry(SSLPolicyBackend* backend, NavigationEntry* entry) = 0;
-  };
-
-  static void RegisterUserPrefs(PrefService* prefs);
-
   // Construct an SSLManager for the specified tab.
   // If |delegate| is NULL, SSLPolicy::GetDefaultPolicy() is used.
-  SSLManager(NavigationController* controller, Delegate* delegate);
-
+  explicit SSLManager(NavigationController* controller);
   ~SSLManager();
 
-  // The delegate of the SSLManager.  This value may be changed at any time,
-  // but it is not permissible for it to be NULL.
-  Delegate* delegate() const { return delegate_; }
-  void set_delegate(Delegate* delegate) { delegate_ = delegate; }
-
+  SSLPolicy* policy() { return policy_.get(); }
   SSLPolicyBackend* backend() { return &backend_; }
+
+  // The navigation controller associated with this SSLManager.  The
+  // NavigationController is guaranteed to outlive the SSLManager.
+  NavigationController* controller() { return controller_; }
+
+  static void RegisterUserPrefs(PrefService* prefs);
 
   // Entry point for SSLCertificateErrors.  This function begins the process
   // of resolving a certificate error during an SSL connection.  SSLManager
@@ -118,20 +92,6 @@ class SSLManager : public NotificationObserver {
                                  URLRequest* request,
                                  MessageLoop* ui_loop);
 
-  // Called by SSLCertErrorHandler::OnDispatch to kick off processing of the
-  // cert error by the SSL manager.  The error originated from the
-  // ResourceDispatcherHost.
-  //
-  // Called on the UI thread.
-  void OnCertError(SSLCertErrorHandler* handler);
-
-  // Called by SSLMixedContentHandler::OnDispatch to kick off processing of the
-  // mixed-content resource request.  The info originated from the
-  // ResourceDispatcherHost.
-  //
-  // Called on the UI thread.
-  void OnMixedContent(SSLMixedContentHandler* handler);
-
   // Entry point for navigation.  This function begins the process of updating
   // the security UI when the main frame navigates to a new URL.
   //
@@ -147,10 +107,6 @@ class SSLManager : public NotificationObserver {
 
   // Called to determine if there were any processed SSL errors from request.
   bool ProcessedSSLErrorFromRequest() const;
-
-  // The navigation controller associated with this SSLManager.  The
-  // NavigationController is guaranteed to outlive the SSLManager.
-  NavigationController* controller() { return controller_; }
 
   // Convenience methods for serializing/deserializing the security info.
   static std::string SerializeSecurityInfo(int cert_id,
@@ -209,12 +165,11 @@ class SSLManager : public NotificationObserver {
   // Update the NavigationEntry with our current state.
   void UpdateEntry(NavigationEntry* entry);
 
-  // Our delegate.  The delegate is responsible for making policy decisions.
-  // Must not be NULL.
-  Delegate* delegate_;
-
   // The backend for the SSLPolicy to actuate its decisions.
   SSLPolicyBackend backend_;
+
+  // The SSLPolicy instance for this manager.
+  scoped_ptr<SSLPolicy> policy_;
 
   // The NavigationController that owns this SSLManager.  We are responsible
   // for the security UI of this tab.

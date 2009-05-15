@@ -5,43 +5,21 @@
 #include "chrome/browser/ssl/ssl_manager.h"
 
 #include "app/l10n_util.h"
-#include "app/resource_bundle.h"
 #include "base/message_loop.h"
-#include "base/string_util.h"
-#include "chrome/browser/browser_process.h"
 #include "chrome/browser/load_from_memory_cache_details.h"
-#include "chrome/browser/renderer_host/render_view_host.h"
 #include "chrome/browser/renderer_host/resource_request_details.h"
 #include "chrome/browser/ssl/ssl_cert_error_handler.h"
-#include "chrome/browser/ssl/ssl_error_info.h"
-#include "chrome/browser/ssl/ssl_error_handler.h"
-#include "chrome/browser/ssl/ssl_host_state.h"
 #include "chrome/browser/ssl/ssl_mixed_content_handler.h"
 #include "chrome/browser/ssl/ssl_policy.h"
 #include "chrome/browser/ssl/ssl_request_info.h"
-#include "chrome/browser/tab_contents/infobar_delegate.h"
 #include "chrome/browser/tab_contents/navigation_controller.h"
 #include "chrome/browser/tab_contents/navigation_entry.h"
 #include "chrome/browser/tab_contents/provisional_load_details.h"
-#include "chrome/browser/tab_contents/tab_contents.h"
-#include "chrome/browser/tab_contents/tab_util.h"
 #include "chrome/common/notification_service.h"
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
 #include "grit/generated_resources.h"
-#include "grit/theme_resources.h"
 #include "net/base/cert_status_flags.h"
-#include "net/base/net_errors.h"
-#include "net/url_request/url_request.h"
-#include "webkit/glue/resource_type.h"
-
-#if defined(OS_WIN)
-// TODO(port): Port these files.
-#include "chrome/browser/load_notification_details.h"
-#include "views/controls/link.h"
-#else
-#include "chrome/common/temp_scaffolding_stubs.h"
-#endif
 
 // static
 void SSLManager::RegisterUserPrefs(PrefService* prefs) {
@@ -49,15 +27,11 @@ void SSLManager::RegisterUserPrefs(PrefService* prefs) {
                              FilterPolicy::DONT_FILTER);
 }
 
-SSLManager::SSLManager(NavigationController* controller, Delegate* delegate)
-    : delegate_(delegate),
-      backend_(controller),
+SSLManager::SSLManager(NavigationController* controller)
+    : backend_(controller),
+      policy_(new SSLPolicy(&backend_)),
       controller_(controller) {
   DCHECK(controller_);
-
-  // If do delegate is supplied, use the default policy.
-  if (!delegate_)
-    delegate_ = SSLPolicy::GetDefaultPolicy();
 
   // Subscribe to various notifications.
   registrar_.Add(this, NotificationType::FAIL_PROVISIONAL_LOAD_WITH_ERROR,
@@ -141,14 +115,6 @@ bool SSLManager::ShouldStartRequest(ResourceDispatcherHost* rdh,
   return false;
 }
 
-void SSLManager::OnCertError(SSLCertErrorHandler* handler) {
-  delegate()->OnCertError(handler);
-}
-
-void SSLManager::OnMixedContent(SSLMixedContentHandler* handler) {
-  delegate()->OnMixedContent(handler);
-}
-
 void SSLManager::Observe(NotificationType type,
                          const NotificationSource& source,
                          const NotificationDetails& details) {
@@ -192,7 +158,7 @@ void SSLManager::UpdateEntry(NavigationEntry* entry) {
 
   NavigationEntry::SSLStatus original_ssl_status = entry->ssl();  // Copy!
 
-  delegate()->UpdateEntry(backend(), entry);
+  policy()->UpdateEntry(entry);
 
   if (!entry->ssl().Equals(original_ssl_status))
     DispatchSSLVisibleStateChanged();
@@ -207,7 +173,6 @@ void SSLManager::DidLoadFromMemoryCache(LoadFromMemoryCacheDetails* details) {
   // This resource must have been loaded with FilterPolicy::DONT_FILTER because
   // filtered resouces aren't cachable.
   scoped_refptr<SSLRequestInfo> info = new SSLRequestInfo(
-      backend(),
       details->url(),
       ResourceType::SUB_RESOURCE,
       details->frame_origin(),
@@ -218,7 +183,7 @@ void SSLManager::DidLoadFromMemoryCache(LoadFromMemoryCacheDetails* details) {
       details->ssl_cert_status());
 
   // Simulate loading this resource through the usual path.
-  delegate()->OnRequestStarted(info.get());
+  policy()->OnRequestStarted(info.get());
 }
 
 void SSLManager::DidCommitProvisionalLoad(
@@ -271,7 +236,6 @@ void SSLManager::DidStartResourceResponse(ResourceRequestDetails* details) {
   DCHECK(details);
 
   scoped_refptr<SSLRequestInfo> info = new SSLRequestInfo(
-      backend(),
       details->url(),
       details->resource_type(),
       details->frame_origin(),
@@ -281,10 +245,10 @@ void SSLManager::DidStartResourceResponse(ResourceRequestDetails* details) {
       details->ssl_cert_id(),
       details->ssl_cert_status());
 
-  // Notify our delegate that we started a resource request.  Ideally, the
-  // delegate should have the ability to cancel the request, but we can't do
+  // Notify our policy that we started a resource request.  Ideally, the
+  // policy should have the ability to cancel the request, but we can't do
   // that yet.
-  delegate()->OnRequestStarted(info.get());
+  policy()->OnRequestStarted(info.get());
 }
 
 void SSLManager::DidReceiveResourceRedirect(ResourceRedirectDetails* details) {

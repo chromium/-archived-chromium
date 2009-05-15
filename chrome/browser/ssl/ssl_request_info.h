@@ -11,15 +11,12 @@
 #include "googleurl/src/gurl.h"
 #include "webkit/glue/resource_type.h"
 
-class SSLPolicyBackend;
-
 // SSLRequestInfo wraps up the information SSLPolicy needs about a request in
 // order to update our security IU.  SSLRequestInfo is RefCounted in case we
 // need to deal with the request asynchronously.
 class SSLRequestInfo : public base::RefCounted<SSLRequestInfo> {
  public:
-  SSLRequestInfo(SSLPolicyBackend* backend,
-                 const GURL& url,
+  SSLRequestInfo(const GURL& url,
                  ResourceType::Type resource_type,
                  const std::string& frame_origin,
                  const std::string& main_frame_origin,
@@ -27,8 +24,7 @@ class SSLRequestInfo : public base::RefCounted<SSLRequestInfo> {
                  int pid,
                  int ssl_cert_id,
                  int ssl_cert_status)
-      : backend_(backend),
-        url_(url),
+      : url_(url),
         resource_type_(resource_type),
         frame_origin_(frame_origin),
         main_frame_origin_(main_frame_origin),
@@ -38,7 +34,6 @@ class SSLRequestInfo : public base::RefCounted<SSLRequestInfo> {
         ssl_cert_status_(ssl_cert_status) {
   }
 
-  SSLPolicyBackend* backend() const { return backend_; }
   const GURL& url() const { return url_; }
   ResourceType::Type resource_type() const { return resource_type_; }
   const std::string& frame_origin() const { return frame_origin_; }
@@ -49,7 +44,6 @@ class SSLRequestInfo : public base::RefCounted<SSLRequestInfo> {
   int ssl_cert_status() const { return ssl_cert_status_; }
 
  private:
-  SSLPolicyBackend* backend_;
   GURL url_;
   ResourceType::Type resource_type_;
   std::string frame_origin_;

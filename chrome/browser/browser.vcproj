@@ -810,15 +810,15 @@
 				>
 			</File>
 			<File
-				RelativePath=".\task_manager_win.cc"
-				>
-			</File>
-			<File
 				RelativePath=".\task_manager_resource_providers.cc"
 				>
 			</File>
 			<File
 				RelativePath=".\task_manager_resource_providers.h"
+				>
+			</File>
+			<File
+				RelativePath=".\task_manager_win.cc"
 				>
 			</File>
 			<File
@@ -2526,6 +2526,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\ssl\ssl_cert_error_handler.cc"
+				>
+			</File>
+			<File
 				RelativePath=".\ssl\ssl_cert_error_handler.h"
 				>
 			</File>
@@ -2559,6 +2563,10 @@
 			</File>
 			<File
 				RelativePath=".\ssl\ssl_manager.h"
+				>
+			</File>
+			<File
+				RelativePath=".\ssl\ssl_mixed_content_handler.cc"
 				>
 			</File>
 			<File

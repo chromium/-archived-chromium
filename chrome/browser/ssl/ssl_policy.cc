@@ -32,152 +32,45 @@
 
 using WebKit::WebConsoleMessage;
 
-// Wrap all these helper classes in an anonymous namespace.
-namespace {
-
-static void MarkOriginAsBroken(SSLPolicyBackend* backend,
-                               const std::string& origin,
-                               int pid) {
-  GURL parsed_origin(origin);
-  if (!parsed_origin.SchemeIsSecure())
-    return;
-
-  backend->MarkHostAsBroken(parsed_origin.host(), pid);
-}
-
-static void AllowMixedContentForOrigin(SSLPolicyBackend* backend,
-                                       const std::string& origin) {
-  GURL parsed_origin(origin);
-  if (!parsed_origin.SchemeIsSecure())
-    return;
-
-  backend->AllowMixedContentForHost(parsed_origin.host());
-}
-
-static void UpdateStateForMixedContent(SSLRequestInfo* info) {
-  if (info->resource_type() != ResourceType::MAIN_FRAME ||
-      info->resource_type() != ResourceType::SUB_FRAME) {
-    // The frame's origin now contains mixed content and therefore is broken.
-    MarkOriginAsBroken(info->backend(), info->frame_origin(), info->pid());
-  }
-
-  if (info->resource_type() != ResourceType::MAIN_FRAME) {
-    // The main frame now contains a frame with mixed content.  Therefore, we
-    // mark the main frame's origin as broken too.
-    MarkOriginAsBroken(info->backend(), info->main_frame_origin(), info->pid());
-  }
-}
-
-static void UpdateStateForUnsafeContent(SSLRequestInfo* info) {
-  // This request as a broken cert, which means its host is broken.
-  info->backend()->MarkHostAsBroken(info->url().host(), info->pid());
-
-  UpdateStateForMixedContent(info);
-}
-
-class ShowMixedContentTask : public Task {
+class SSLPolicy::ShowMixedContentTask : public Task {
  public:
-  ShowMixedContentTask(SSLMixedContentHandler* handler);
+  ShowMixedContentTask(SSLPolicy* policy, SSLMixedContentHandler* handler);
   virtual ~ShowMixedContentTask();
 
   virtual void Run();
 
  private:
+  SSLPolicy* policy_;
   scoped_refptr<SSLMixedContentHandler> handler_;
 
   DISALLOW_COPY_AND_ASSIGN(ShowMixedContentTask);
 };
 
-ShowMixedContentTask::ShowMixedContentTask(SSLMixedContentHandler* handler)
-    : handler_(handler) {
+SSLPolicy::ShowMixedContentTask::ShowMixedContentTask(SSLPolicy* policy,
+                                           SSLMixedContentHandler* handler)
+    : policy_(policy),
+      handler_(handler) {
 }
 
-ShowMixedContentTask::~ShowMixedContentTask() {
+SSLPolicy::ShowMixedContentTask::~ShowMixedContentTask() {
 }
 
-void ShowMixedContentTask::Run() {
-  AllowMixedContentForOrigin(handler_->backend(), handler_->frame_origin());
-  AllowMixedContentForOrigin(handler_->backend(),
-                             handler_->main_frame_origin());
-  handler_->backend()->Reload();
+void SSLPolicy::ShowMixedContentTask::Run() {
+  policy_->AllowMixedContentForOrigin(handler_->frame_origin());
+  policy_->AllowMixedContentForOrigin(handler_->main_frame_origin());
+  policy_->backend()->Reload();
 }
 
-static void ShowErrorPage(SSLPolicy* policy, SSLCertErrorHandler* handler) {
-  SSLErrorInfo error_info = policy->GetSSLErrorInfo(handler);
-
-  // Let's build the html error page.
-  DictionaryValue strings;
-  strings.SetString(L"title", l10n_util::GetString(IDS_SSL_ERROR_PAGE_TITLE));
-  strings.SetString(L"headLine", error_info.title());
-  strings.SetString(L"description", error_info.details());
-  strings.SetString(L"moreInfoTitle",
-                    l10n_util::GetString(IDS_CERT_ERROR_EXTRA_INFO_TITLE));
-  SSLBlockingPage::SetExtraInfo(&strings, error_info.extra_information());
-
-  strings.SetString(L"back", l10n_util::GetString(IDS_SSL_ERROR_PAGE_BACK));
-
-  strings.SetString(L"textdirection",
-      (l10n_util::GetTextDirection() == l10n_util::RIGHT_TO_LEFT) ?
-      L"rtl" : L"ltr");
-
-  static const StringPiece html(
-      ResourceBundle::GetSharedInstance().GetRawDataResource(
-          IDR_SSL_ERROR_HTML));
-
-  std::string html_text(jstemplate_builder::GetTemplateHtml(html, &strings,
-                                                            "template_root"));
-
-  TabContents* tab  = handler->GetTabContents();
-  int cert_id = CertStore::GetSharedInstance()->StoreCert(
-      handler->ssl_info().cert, tab->render_view_host()->process()->pid());
-  std::string security_info =
-      SSLManager::SerializeSecurityInfo(cert_id,
-                                        handler->ssl_info().cert_status,
-                                        handler->ssl_info().security_bits);
-  tab->render_view_host()->LoadAlternateHTMLString(html_text,
-                                                   true,
-                                                   handler->request_url(),
-                                                   security_info);
-  tab->controller().GetActiveEntry()->set_page_type(
-      NavigationEntry::ERROR_PAGE);
-}
-
-static void ShowBlockingPage(SSLPolicy* policy, SSLCertErrorHandler* handler) {
-  SSLBlockingPage* blocking_page = new SSLBlockingPage(handler, policy);
-  blocking_page->Show();
-}
-
-static void InitializeEntryIfNeeded(NavigationEntry* entry) {
-  if (entry->ssl().security_style() != SECURITY_STYLE_UNKNOWN)
-    return;
-
-  entry->ssl().set_security_style(entry->url().SchemeIsSecure() ?
-      SECURITY_STYLE_AUTHENTICATED : SECURITY_STYLE_UNAUTHENTICATED);
-}
-
-static void AddMixedContentWarningToConsole(SSLMixedContentHandler* handler) {
-  const std::wstring& text = l10n_util::GetStringF(
-      IDS_MIXED_CONTENT_LOG_MESSAGE,
-      UTF8ToWide(handler->frame_origin()),
-      UTF8ToWide(handler->request_url().spec()));
-  handler->backend()->AddMessageToConsole(
-      WideToUTF16Hack(text), WebConsoleMessage::LevelWarning);
-}
-
-}  // namespace
-
-SSLPolicy::SSLPolicy() {
-}
-
-SSLPolicy* SSLPolicy::GetDefaultPolicy() {
-  return Singleton<SSLPolicy>::get();
+SSLPolicy::SSLPolicy(SSLPolicyBackend* backend)
+    : backend_(backend) {
+  DCHECK(backend_);
 }
 
 void SSLPolicy::OnCertError(SSLCertErrorHandler* handler) {
   // First we check if we know the policy for this error.
   net::X509Certificate::Policy::Judgment judgment =
-      handler->backend()->QueryPolicy(handler->ssl_info().cert,
-                                      handler->request_url().host());
+      backend_->QueryPolicy(handler->ssl_info().cert,
+                            handler->request_url().host());
 
   if (judgment == net::X509Certificate::Policy::ALLOWED) {
     handler->ContinueRequest();
@@ -201,7 +94,7 @@ void SSLPolicy::OnCertError(SSLCertErrorHandler* handler) {
     case net::ERR_CERT_UNABLE_TO_CHECK_REVOCATION:
       // We ignore this error and display an infobar.
       handler->ContinueRequest();
-      handler->backend()->ShowMessage(l10n_util::GetString(
+      backend_->ShowMessage(l10n_util::GetString(
           IDS_CERT_ERROR_UNABLE_TO_CHECK_REVOCATION_INFO_BAR));
       break;
     case net::ERR_CERT_CONTAINS_ERRORS:
@@ -224,15 +117,15 @@ void SSLPolicy::OnMixedContent(SSLMixedContentHandler* handler) {
 
   // If the user has added an exception, doctor the |filter_policy|.
   std::string host = GURL(handler->main_frame_origin()).host();
-  if (handler->backend()->DidAllowMixedContentForHost(host) ||
-      handler->backend()->DidMarkHostAsBroken(host, handler->pid()))
+  if (backend_->DidAllowMixedContentForHost(host) ||
+      backend_->DidMarkHostAsBroken(host, handler->pid()))
     filter_policy = FilterPolicy::DONT_FILTER;
 
   if (filter_policy != FilterPolicy::DONT_FILTER) {
-    handler->backend()->ShowMessageWithLink(
+    backend_->ShowMessageWithLink(
         l10n_util::GetString(IDS_SSL_INFO_BAR_FILTERED_CONTENT),
         l10n_util::GetString(IDS_SSL_INFO_BAR_SHOW_CONTENT),
-        new ShowMixedContentTask(handler));
+        new ShowMixedContentTask(this, handler));
   }
 
   handler->StartRequest(filter_policy);
@@ -250,7 +143,7 @@ void SSLPolicy::OnRequestStarted(SSLRequestInfo* info) {
     UpdateStateForMixedContent(info);
 }
 
-void SSLPolicy::UpdateEntry(SSLPolicyBackend* backend, NavigationEntry* entry) {
+void SSLPolicy::UpdateEntry(NavigationEntry* entry) {
   DCHECK(entry);
 
   InitializeEntryIfNeeded(entry);
@@ -271,7 +164,7 @@ void SSLPolicy::UpdateEntry(SSLPolicyBackend* backend, NavigationEntry* entry) {
     return;
   }
 
-  if (backend->DidMarkHostAsBroken(entry->url().host(),
+  if (backend_->DidMarkHostAsBroken(entry->url().host(),
                                    entry->site_instance()->GetProcess()->pid()))
     entry->ssl().set_has_mixed_content();
 }
@@ -321,8 +214,8 @@ void SSLPolicy::OnDenyCertificate(SSLCertErrorHandler* handler) {
   // While DenyCertForHost() executes synchronously on this thread,
   // CancelRequest() gets posted to a different thread. Calling
   // DenyCertForHost() first ensures deterministic ordering.
-  handler->backend()->DenyCertForHost(handler->ssl_info().cert,
-                                      handler->request_url().host());
+  backend_->DenyCertForHost(handler->ssl_info().cert,
+                            handler->request_url().host());
   handler->CancelRequest();
 }
 
@@ -337,8 +230,8 @@ void SSLPolicy::OnAllowCertificate(SSLCertErrorHandler* handler) {
   // While AllowCertForHost() executes synchronously on this thread,
   // ContinueRequest() gets posted to a different thread. Calling
   // AllowCertForHost() first ensures deterministic ordering.
-  handler->backend()->AllowCertForHost(handler->ssl_info().cert,
-                                       handler->request_url().host());
+  backend_->AllowCertForHost(handler->ssl_info().cert,
+                             handler->request_url().host());
   handler->ContinueRequest();
 }
 
@@ -355,7 +248,8 @@ void SSLPolicy::OnOverridableCertError(SSLCertErrorHandler* handler) {
     return;
   }
   // We need to ask the user to approve this certificate.
-  ShowBlockingPage(this, handler);
+  SSLBlockingPage* blocking_page = new SSLBlockingPage(handler, this);
+  blocking_page->Show();
 }
 
 void SSLPolicy::OnFatalCertError(SSLCertErrorHandler* handler) {
@@ -364,6 +258,100 @@ void SSLPolicy::OnFatalCertError(SSLCertErrorHandler* handler) {
     return;
   }
   handler->CancelRequest();
-  ShowErrorPage(this, handler);
+  ShowErrorPage(handler);
   // No need to degrade our security indicators because we didn't continue.
+}
+
+void SSLPolicy::ShowErrorPage(SSLCertErrorHandler* handler) {
+  SSLErrorInfo error_info = GetSSLErrorInfo(handler);
+
+  // Let's build the html error page.
+  DictionaryValue strings;
+  strings.SetString(L"title", l10n_util::GetString(IDS_SSL_ERROR_PAGE_TITLE));
+  strings.SetString(L"headLine", error_info.title());
+  strings.SetString(L"description", error_info.details());
+  strings.SetString(L"moreInfoTitle",
+                    l10n_util::GetString(IDS_CERT_ERROR_EXTRA_INFO_TITLE));
+  SSLBlockingPage::SetExtraInfo(&strings, error_info.extra_information());
+
+  strings.SetString(L"back", l10n_util::GetString(IDS_SSL_ERROR_PAGE_BACK));
+
+  strings.SetString(L"textdirection",
+      (l10n_util::GetTextDirection() == l10n_util::RIGHT_TO_LEFT) ?
+      L"rtl" : L"ltr");
+
+  static const StringPiece html(
+      ResourceBundle::GetSharedInstance().GetRawDataResource(
+          IDR_SSL_ERROR_HTML));
+
+  std::string html_text(jstemplate_builder::GetTemplateHtml(html, &strings,
+                                                            "template_root"));
+
+  TabContents* tab  = handler->GetTabContents();
+  int cert_id = CertStore::GetSharedInstance()->StoreCert(
+      handler->ssl_info().cert, tab->render_view_host()->process()->pid());
+  std::string security_info =
+      SSLManager::SerializeSecurityInfo(cert_id,
+                                        handler->ssl_info().cert_status,
+                                        handler->ssl_info().security_bits);
+  tab->render_view_host()->LoadAlternateHTMLString(html_text,
+                                                   true,
+                                                   handler->request_url(),
+                                                   security_info);
+  tab->controller().GetActiveEntry()->set_page_type(
+      NavigationEntry::ERROR_PAGE);
+}
+
+void SSLPolicy::AddMixedContentWarningToConsole(
+    SSLMixedContentHandler* handler) {
+  const std::wstring& text = l10n_util::GetStringF(
+      IDS_MIXED_CONTENT_LOG_MESSAGE,
+      UTF8ToWide(handler->frame_origin()),
+      UTF8ToWide(handler->request_url().spec()));
+  backend_->AddMessageToConsole(
+      WideToUTF16Hack(text), WebConsoleMessage::LevelWarning);
+}
+
+void SSLPolicy::InitializeEntryIfNeeded(NavigationEntry* entry) {
+  if (entry->ssl().security_style() != SECURITY_STYLE_UNKNOWN)
+    return;
+
+  entry->ssl().set_security_style(entry->url().SchemeIsSecure() ?
+      SECURITY_STYLE_AUTHENTICATED : SECURITY_STYLE_UNAUTHENTICATED);
+}
+
+void SSLPolicy::MarkOriginAsBroken(const std::string& origin, int pid) {
+  GURL parsed_origin(origin);
+  if (!parsed_origin.SchemeIsSecure())
+    return;
+
+  backend_->MarkHostAsBroken(parsed_origin.host(), pid);
+}
+
+void SSLPolicy::AllowMixedContentForOrigin(const std::string& origin) {
+  GURL parsed_origin(origin);
+  if (!parsed_origin.SchemeIsSecure())
+    return;
+
+  backend_->AllowMixedContentForHost(parsed_origin.host());
+}
+
+void SSLPolicy::UpdateStateForMixedContent(SSLRequestInfo* info) {
+  if (info->resource_type() != ResourceType::MAIN_FRAME ||
+      info->resource_type() != ResourceType::SUB_FRAME) {
+    // The frame's origin now contains mixed content and therefore is broken.
+    MarkOriginAsBroken(info->frame_origin(), info->pid());
+  }
+
+  if (info->resource_type() != ResourceType::MAIN_FRAME) {
+    // The main frame now contains a frame with mixed content.  Therefore, we
+    // mark the main frame's origin as broken too.
+    MarkOriginAsBroken(info->main_frame_origin(), info->pid());
+  }
+}
+
+void SSLPolicy::UpdateStateForUnsafeContent(SSLRequestInfo* info) {
+  // This request as a broken cert, which means its host is broken.
+  backend_->MarkHostAsBroken(info->url().host(), info->pid());
+  UpdateStateForMixedContent(info);
 }

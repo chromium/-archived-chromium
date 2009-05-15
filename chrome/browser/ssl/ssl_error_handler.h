@@ -58,9 +58,6 @@ class SSLErrorHandler : public base::RefCountedThreadSafe<SSLErrorHandler> {
   // Available on either thread.
   const std::string& main_frame_origin() const { return main_frame_origin_; }
 
-  // Call on the UI thread.
-  SSLPolicyBackend* backend() const { return manager_->backend(); }
-
   // Returns the TabContents this object is associated with.  Should be
   // called from the UI thread.
   TabContents* GetTabContents();

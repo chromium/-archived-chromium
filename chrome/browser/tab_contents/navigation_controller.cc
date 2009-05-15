@@ -117,7 +117,7 @@ NavigationController::NavigationController(TabContents* contents,
       transient_entry_index_(-1),
       tab_contents_(contents),
       max_restored_page_id_(-1),
-      ALLOW_THIS_IN_INITIALIZER_LIST(ssl_manager_(this, NULL)),
+      ALLOW_THIS_IN_INITIALIZER_LIST(ssl_manager_(this)),
       needs_reload_(false),
       load_pending_entry_when_active_(false) {
   DCHECK(profile_);

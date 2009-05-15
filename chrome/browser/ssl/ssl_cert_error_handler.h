@@ -5,8 +5,9 @@
 #ifndef CHROME_BROWSER_SSL_SSL_CERT_ERROR_HANDLER_H_
 #define CHROME_BROWSER_SSL_SSL_CERT_ERROR_HANDLER_H_
 
+#include <string>
+
 #include "chrome/browser/ssl/ssl_error_handler.h"
-#include "chrome/browser/ssl/ssl_manager.h"
 #include "net/base/ssl_info.h"
 #include "net/base/x509_certificate.h"
 
@@ -23,17 +24,7 @@ class SSLCertErrorHandler : public SSLErrorHandler {
                       const std::string& main_frame_origin,
                       int cert_error,
                       net::X509Certificate* cert,
-                      MessageLoop* ui_loop)
-      : SSLErrorHandler(rdh, request, resource_type, frame_origin,
-                        main_frame_origin, ui_loop),
-        cert_error_(cert_error) {
-    DCHECK(request == resource_dispatcher_host_->GetURLRequest(request_id_));
-
-    // We cannot use the request->ssl_info(), it's not been initialized yet, so
-    // we have to set the fields manually.
-    ssl_info_.cert = cert;
-    ssl_info_.SetCertError(cert_error);
-  }
+                      MessageLoop* ui_loop);
 
   virtual SSLCertErrorHandler* AsSSLCertErrorHandler() { return this; }
 
@@ -43,8 +34,8 @@ class SSLCertErrorHandler : public SSLErrorHandler {
 
  protected:
   // SSLErrorHandler methods
-  virtual void OnDispatchFailed() { CancelRequest(); }
-  virtual void OnDispatched() { manager_->OnCertError(this); }
+  virtual void OnDispatchFailed();
+  virtual void OnDispatched();
 
  private:
   // These read-only members may be accessed on any thread.
