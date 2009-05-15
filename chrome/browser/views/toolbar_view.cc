@@ -685,7 +685,7 @@ void BrowserToolbarView::RunAppMenu(const gfx::Point& pt, HWND hwnd) {
                                 l10n_util::GetString(IDS_SHOW_DOWNLOADS));
   menu->AppendSeparator();
 #ifdef CHROME_PERSONALIZATION
-  if (!Personalization::IsP13NDisabled()) {
+  if (!Personalization::IsP13NDisabled(profile_)) {
     menu->AppendMenuItemWithLabel(IDC_P13N_INFO,
         Personalization::GetMenuItemInfoText(browser()));
   }

@@ -1153,7 +1153,7 @@ NewTabUI::NewTabUI(TabContents* contents)
     AddMessageHandler(new HistoryHandler(this));
     AddMessageHandler(new MetricsHandler(this));
 #ifdef CHROME_PERSONALIZATION
-    if (!Personalization::IsP13NDisabled()) {
+    if (!Personalization::IsP13NDisabled(GetProfile())) {
       AddMessageHandler(Personalization::CreateNewTabPageHandler(this));
     }
 #endif

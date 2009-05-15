@@ -203,7 +203,7 @@ void OptionsWindowView::Init() {
                        content_page, false);
 
 #ifdef CHROME_PERSONALIZATION
-  if (!Personalization::IsP13NDisabled()) {
+  if (!Personalization::IsP13NDisabled(profile_)) {
     UserDataPageView* user_data_page = new UserDataPageView(profile_);
     tabs_->AddTabAtIndex(tab_index++,
                          l10n_util::GetString(IDS_OPTIONS_USER_DATA_TAB_LABEL),
