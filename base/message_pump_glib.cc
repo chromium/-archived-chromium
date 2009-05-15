@@ -110,9 +110,12 @@ MessagePumpForUI::MessagePumpForUI()
   // This is needed to allow Run calls inside Dispatch.
   g_source_set_can_recurse(work_source_, TRUE);
   g_source_attach(work_source_, context_);
+  gdk_event_handler_set(&EventDispatcher, this, NULL);
 }
 
 MessagePumpForUI::~MessagePumpForUI() {
+  gdk_event_handler_set(reinterpret_cast<GdkEventFunc>(gtk_main_do_event),
+                        this, NULL);
   g_source_destroy(work_source_);
   g_source_unref(work_source_);
   close(wakeup_pipe_read_);
@@ -210,6 +213,18 @@ void MessagePumpForUI::HandleDispatch() {
     return;
 }
 
+void MessagePumpForUI::AddObserver(Observer* observer) {
+  observers_.AddObserver(observer);
+}
+
+void MessagePumpForUI::RemoveObserver(Observer* observer) {
+  observers_.RemoveObserver(observer);
+}
+
+void MessagePumpForUI::WillProcessEvent(GdkEvent* event) {
+  FOR_EACH_OBSERVER(Observer, observers_, WillProcessEvent(event));
+}
+
 void MessagePumpForUI::Quit() {
   if (state_) {
     state_->should_quit = true;
@@ -233,6 +248,12 @@ void MessagePumpForUI::ScheduleDelayedWork(const Time& delayed_work_time) {
   // adjusted.  This will cause us to try to do work, but that's ok.
   delayed_work_time_ = delayed_work_time;
   ScheduleWork();
+}
+
+// static
+void MessagePumpForUI::EventDispatcher(GdkEvent* event, gpointer data) {
+  reinterpret_cast<MessagePumpForUI*>(data)->WillProcessEvent(event);
+  gtk_main_do_event(event);
 }
 
 }  // namespace base

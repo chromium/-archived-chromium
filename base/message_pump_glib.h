@@ -5,9 +5,11 @@
 #ifndef BASE_MESSAGE_PUMP_GLIB_H_
 #define BASE_MESSAGE_PUMP_GLIB_H_
 
+#include <gtk/gtk.h>
 #include <glib.h>
 
 #include "base/message_pump.h"
+#include "base/observer_list.h"
 #include "base/time.h"
 
 namespace base {
@@ -16,6 +18,16 @@ namespace base {
 // OS_LINUX platforms using GLib.
 class MessagePumpForUI : public MessagePump {
  public:
+  // Observer is notified prior to a GdkEvent event being dispatched. As
+  // Observers are notified of every change, they have to be FAST!
+  class Observer {
+   public:
+    virtual ~Observer() {}
+
+    // This method is called before processing a message.
+    virtual void WillProcessEvent(GdkEvent* event) = 0;
+  };
+
   MessagePumpForUI();
   ~MessagePumpForUI();
 
@@ -31,6 +43,13 @@ class MessagePumpForUI : public MessagePump {
   // has completed.
   int HandlePrepare();
   void HandleDispatch();
+
+  // Add an Observer, which will start receiving notifications immediately.
+  void AddObserver(Observer* observer);
+
+  // Remove an Observer.  It is safe to call this method while an Observer is
+  // receiving a notification callback.
+  void RemoveObserver(Observer* observer);
 
  private:
   // We may make recursive calls to Run, so we save state that needs to be
@@ -48,6 +67,13 @@ class MessagePumpForUI : public MessagePump {
     // iteration to be blocking or not.
     bool more_work_is_plausible;
   };
+
+  // Invoked from EventDispatcher. Notifies all observers we're about to
+  // process an event.
+  void WillProcessEvent(GdkEvent* event);
+
+  // Callback prior to gdk dispatching an event.
+  static void EventDispatcher(GdkEvent* event, gpointer data);
 
   RunState* state_;
 
@@ -70,6 +96,9 @@ class MessagePumpForUI : public MessagePump {
   int wakeup_pipe_read_;
   int wakeup_pipe_write_;
   GPollFD wakeup_gpollfd_;
+
+  // List of observers.
+  ObserverList<Observer> observers_;
 
   DISALLOW_COPY_AND_ASSIGN(MessagePumpForUI);
 };
