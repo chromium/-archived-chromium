@@ -1125,7 +1125,6 @@
         'port/bindings/v8/ScriptController.h',
         'port/bindings/v8/V8MessagePortCustom.cpp',
         'port/bindings/v8/V8SVGPODTypeWrapper.h',
-        'port/bindings/v8/dom_wrapper_map.h',
         'port/bindings/v8/NPV8Object.cpp',
         'port/bindings/v8/NPV8Object.h',
         'port/bindings/v8/npruntime.cpp',

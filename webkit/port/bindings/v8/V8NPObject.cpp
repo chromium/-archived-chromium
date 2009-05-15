@@ -36,7 +36,7 @@
 #include "NPV8Object.h"
 #include "npruntime_priv.h"
 #include "v8_proxy.h"
-#include "dom_wrapper_map.h"
+#include "V8DOMMap.h"
 #include "HTMLPlugInElement.h"
 #include "V8HTMLAppletElement.h"
 #include "V8HTMLEmbedElement.h"
