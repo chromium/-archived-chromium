@@ -4,6 +4,8 @@
 
 #include "base/gfx/rect.h"
 #include "base/logging.h"
+#include "base/scoped_cftyperef.h"
+#include "base/sys_string_conversions.h"
 #include "chrome/browser/bookmarks/bookmark_utils.h"
 #include "chrome/browser/cocoa/browser_window_cocoa.h"
 #include "chrome/browser/cocoa/browser_window_controller.h"
@@ -12,6 +14,8 @@
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
 #include "chrome/browser/profile.h"
+
+#include <ApplicationServices/ApplicationServices.h>
 
 BrowserWindowCocoa::BrowserWindowCocoa(Browser* browser,
                                        BrowserWindowController* controller,
@@ -87,8 +91,15 @@ void BrowserWindowCocoa::SelectedTabToolbarSizeChanged(bool is_animating) {
 }
 
 void BrowserWindowCocoa::UpdateTitleBar() {
-  // This is used on windows to update the favicon and title in the window
-  // icon, which we don't use on the mac.
+  NSString* newTitle =
+      base::SysWideToNSString(browser_->GetCurrentPageTitle());
+
+  // Window menu
+  [NSApp changeWindowsItem:window_ title:newTitle filename:NO];
+
+  // Dock (if applicable)
+  if ([window_ isMiniaturized])
+    SetMinimizedWindowTitle(window_, newTitle);
 }
 
 void BrowserWindowCocoa::UpdateLoadingAnimations(bool should_animate) {
@@ -241,4 +252,23 @@ void BrowserWindowCocoa::DestroyBrowser() {
 
   // at this point the controller is dead (autoreleased), so
   // make sure we don't try to reference it any more.
+}
+
+void BrowserWindowCocoa::SetMinimizedWindowTitle(NSWindow* window,
+                                                 NSString* title) {
+  typedef OSStatus (*CoreDockSetItemTitlePtr)(CGWindowID wid,
+                                              CFStringRef title);
+
+  scoped_cftyperef<CFBundleRef> hi_services(
+      CFBundleGetBundleWithIdentifier(CFSTR("com.apple.HIServices")));
+  if (!hi_services)
+    return;
+
+  CoreDockSetItemTitlePtr CoreDockSetItemTitle =
+      (CoreDockSetItemTitlePtr)
+      CFBundleGetFunctionPointerForName(hi_services,
+                                        CFSTR("CoreDockSetItemTitle"));
+
+  if (CoreDockSetItemTitle)
+    CoreDockSetItemTitle([window windowNumber], (CFStringRef)title);
 }

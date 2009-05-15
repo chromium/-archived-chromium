@@ -58,6 +58,10 @@ const int kWindowGradientHeight = 24;
 - (NSRect)window:(NSWindow *)window
 willPositionSheet:(NSWindow *)sheet
        usingRect:(NSRect)defaultSheetRect;
+
+// We need to know when the window was miniaturized so we can set the dock
+// title correctly.
+- (void)windowDidMiniaturize:(NSNotification *)notification;
 @end
 
 
@@ -529,17 +533,10 @@ willPositionSheet:(NSWindow *)sheet
 #endif
   newContents->DidBecomeSelected();
 
-  // Change the entry in the Window menu to match the title of the
-  // currently selected tab.  This will create an entry if one does
-  // not already exist.
-  [NSApp changeWindowsItem:[self window]
-                     title:base::SysUTF16ToNSString(newContents->GetTitle())
-                  filename:NO];
-
+  // Update all the UI bits.
+  windowShim_->UpdateTitleBar();
 #if 0
 // TODO(pinkerton):Update as more things become window-specific
-  // Update all the UI bits.
-  UpdateTitleBar();
   toolbar_->SetProfile(new_contents->profile());
   UpdateToolbar(new_contents, true);
   UpdateUIForContents(new_contents);
@@ -549,13 +546,9 @@ willPositionSheet:(NSWindow *)sheet
 - (void)tabChangedWithContents:(TabContents*)contents
                        atIndex:(NSInteger)index
                    loadingOnly:(BOOL)loading {
-  // Change the entry in the Window menu to match the new title of the tab,
-  // but only if this is the currently selected tab.
-  if (index == browser_->tabstrip_model()->selected_index()) {
-    [NSApp changeWindowsItem:[self window]
-                       title:base::SysUTF16ToNSString(contents->GetTitle())
-                    filename:NO];
-  }
+  // Update titles if this is the currently selected tab.
+  if (index == browser_->tabstrip_model()->selected_index())
+    windowShim_->UpdateTitleBar();
 }
 
 @end
@@ -657,6 +650,10 @@ willPositionSheet:(NSWindow *)sheet
   NSRect windowFrame = [window frame];
   defaultSheetRect.origin.y = windowFrame.size.height - 10;
   return defaultSheetRect;
+}
+
+- (void)windowDidMiniaturize:(NSNotification *)notification {
+  windowShim_->UpdateTitleBar();
 }
 
 // In addition to the tab strip and content area, which the superview's impl
