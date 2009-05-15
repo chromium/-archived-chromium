@@ -6,7 +6,6 @@
 
 #include "app/l10n_util.h"
 
-#include "app/app_paths.h"
 #include "app/app_switches.h"
 #include "app/gfx/canvas.h"
 #include "app/resource_bundle.h"
@@ -18,6 +17,7 @@
 #include "base/string_piece.h"
 #include "base/string_util.h"
 #include "base/sys_string_conversions.h"
+#include "chrome/common/chrome_paths.h"
 #include "unicode/uscript.h"
 
 // TODO(playmobil): remove this undef once SkPostConfig.h is fixed.
@@ -229,7 +229,7 @@ std::wstring GetApplicationLocale(const std::wstring& pref_locale) {
   return L"en";
 #else
   FilePath locale_path;
-  PathService::Get(app::DIR_LOCALES, &locale_path);
+  PathService::Get(chrome::DIR_LOCALES, &locale_path);
   std::wstring resolved_locale;
 
   // First, check to see if there's a --lang flag.

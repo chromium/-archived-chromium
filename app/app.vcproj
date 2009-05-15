@@ -194,14 +194,6 @@
 			>
 		</File>
 		<File
-			RelativePath=".\app_paths.cc"
-			>
-		</File>
-		<File
-			RelativePath=".\app_paths.h"
-			>
-		</File>
-		<File
 			RelativePath=".\app_switches.cc"
 			>
 		</File>

@@ -4,7 +4,6 @@
 
 #include "build/build_config.h"
 
-#include "app/app_paths.h"
 #include "app/l10n_util.h"
 #if !defined(OS_MACOSX)
 #include "app/test/data/resource.h"
@@ -17,6 +16,7 @@
 #if defined(OS_WIN)
 #include "base/win_util.h"
 #endif
+#include "chrome/common/chrome_paths.h"
 #include "testing/gtest/include/gtest/gtest.h"
 #include "testing/platform_test.h"
 #include "unicode/locid.h"
@@ -100,12 +100,12 @@ TEST_F(L10nUtilTest, GetAppLocale) {
   // Use a temporary locale dir so we don't have to actually build the locale
   // dlls for this test.
   FilePath orig_locale_dir;
-  PathService::Get(app::DIR_LOCALES, &orig_locale_dir);
+  PathService::Get(chrome::DIR_LOCALES, &orig_locale_dir);
   FilePath new_locale_dir;
   EXPECT_TRUE(file_util::CreateNewTempDirectory(
       FILE_PATH_LITERAL("l10n_util_test"),
       &new_locale_dir));
-  PathService::Override(app::DIR_LOCALES, new_locale_dir.ToWStringHack());
+  PathService::Override(chrome::DIR_LOCALES, new_locale_dir.ToWStringHack());
   // Make fake locale files.
   std::string filenames[] = {
     "en-US",
@@ -204,7 +204,7 @@ TEST_F(L10nUtilTest, GetAppLocale) {
 #endif
 
   // Clean up.
-  PathService::Override(app::DIR_LOCALES, orig_locale_dir.ToWStringHack());
+  PathService::Override(chrome::DIR_LOCALES, orig_locale_dir.ToWStringHack());
   file_util::Delete(new_locale_dir, true);
   UErrorCode error_code = U_ZERO_ERROR;
   Locale::setDefault(locale, error_code);
