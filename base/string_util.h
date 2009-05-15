@@ -558,30 +558,17 @@ std::string JoinString(const std::vector<std::string>& parts, char s);
 void SplitStringAlongWhitespace(const std::wstring& str,
                                 std::vector<std::wstring>* result);
 
-// Replace $1-$2-$3 in the format string with |a| and |b| respectively.
-// Additionally, $$ is replaced by $. The offset/offsets parameter here can be
-// NULL.
+// Replace $1-$2-$3..$9 in the format string with |a|-|b|-|c|..|i| respectively.
+// Additionally, $$ is replaced by $. The offsets parameter here can
+// be NULL. This only allows you to use up to nine replacements.
+string16 ReplaceStringPlaceholders(const string16& format_string,
+                                   const std::vector<string16>& subst,
+                                   std::vector<size_t>* offsets);
+
+// Single-string shortcut for ReplaceStringHolders.
 string16 ReplaceStringPlaceholders(const string16& format_string,
                                    const string16& a,
                                    size_t* offset);
-
-string16 ReplaceStringPlaceholders(const string16& format_string,
-                                   const string16& a,
-                                   const string16& b,
-                                   std::vector<size_t>* offsets);
-
-string16 ReplaceStringPlaceholders(const string16& format_string,
-                                   const string16& a,
-                                   const string16& b,
-                                   const string16& c,
-                                   std::vector<size_t>* offsets);
-
-string16 ReplaceStringPlaceholders(const string16& format_string,
-                                   const string16& a,
-                                   const string16& b,
-                                   const string16& c,
-                                   const string16& d,
-                                   std::vector<size_t>* offsets);
 
 // If the size of |input| is more than |max_len|, this function returns true and
 // |input| is shortened into |output| by removing chars in the middle (they are

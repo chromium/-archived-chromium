@@ -312,7 +312,12 @@ static string16 GetStringF(int message_id,
                            std::vector<size_t>* offsets) {
   ResourceBundle& rb = ResourceBundle::GetSharedInstance();
   const string16& format_string = rb.GetLocalizedString(message_id);
-  string16 formatted = ReplaceStringPlaceholders(format_string, a, b, c, d,
+  std::vector<string16> subst;
+  subst.push_back(a);
+  subst.push_back(b);
+  subst.push_back(c);
+  subst.push_back(d);
+  string16 formatted = ReplaceStringPlaceholders(format_string, subst,
                                                  offsets);
   return formatted;
 }
@@ -337,6 +342,15 @@ std::wstring GetStringF(int message_id,
                                 WideToUTF16(c), string16(), NULL));
 }
 
+std::wstring GetStringF(int message_id,
+                        const std::wstring& a,
+                        const std::wstring& b,
+                        const std::wstring& c,
+                        const std::wstring& d) {
+  return UTF16ToWide(GetStringF(message_id, WideToUTF16(a), WideToUTF16(b),
+                                WideToUTF16(c), WideToUTF16(d), NULL));
+}
+
 std::string GetStringFUTF8(int message_id,
                            const string16& a) {
   return UTF16ToUTF8(GetStringF(message_id, a, string16(), string16(),
@@ -355,6 +369,14 @@ std::string GetStringFUTF8(int message_id,
                            const string16& b,
                            const string16& c) {
   return UTF16ToUTF8(GetStringF(message_id, a, b, c, string16(), NULL));
+}
+
+std::string GetStringFUTF8(int message_id,
+                           const string16& a,
+                           const string16& b,
+                           const string16& c,
+                           const string16& d) {
+  return UTF16ToUTF8(GetStringF(message_id, a, b, c, d, NULL));
 }
 
 std::wstring GetStringF(int message_id, const std::wstring& a, size_t* offset) {
