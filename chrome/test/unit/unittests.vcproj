@@ -452,6 +452,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\browser\child_process_security_policy_unittest.cc"
+				>
+			</File>
+			<File
 				RelativePath="..\..\browser\chrome_thread_unittest.cc"
 				>
 			</File>
@@ -665,10 +669,6 @@
 			</File>
 			<File
 				RelativePath="..\..\browser\renderer_host\render_widget_host_unittest.cc"
-				>
-			</File>
-			<File
-				RelativePath="..\..\browser\renderer_host\renderer_security_policy_unittest.cc"
 				>
 			</File>
 			<File

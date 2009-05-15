@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "chrome/browser/renderer_host/renderer_security_policy.h"
+#include "chrome/browser/child_process_security_policy.h"
 
 #include "base/file_path.h"
 #include "base/logging.h"
@@ -14,7 +14,7 @@
 
 // The SecurityState class is used to maintain per-renderer security state
 // information.
-class RendererSecurityPolicy::SecurityState {
+class ChildProcessSecurityPolicy::SecurityState {
  public:
   SecurityState() : has_dom_ui_bindings_(false) { }
   ~SecurityState() {
@@ -78,7 +78,7 @@ class RendererSecurityPolicy::SecurityState {
   DISALLOW_COPY_AND_ASSIGN(SecurityState);
 };
 
-RendererSecurityPolicy::RendererSecurityPolicy() {
+ChildProcessSecurityPolicy::ChildProcessSecurityPolicy() {
   // We know about these schemes and believe them to be safe.
   RegisterWebSafeScheme(chrome::kHttpScheme);
   RegisterWebSafeScheme(chrome::kHttpsScheme);
@@ -93,7 +93,7 @@ RendererSecurityPolicy::RendererSecurityPolicy() {
   RegisterPseudoScheme(chrome::kViewSourceScheme);
 }
 
-RendererSecurityPolicy::~RendererSecurityPolicy() {
+ChildProcessSecurityPolicy::~ChildProcessSecurityPolicy() {
   web_safe_schemes_.clear();
   pseudo_schemes_.clear();
   STLDeleteContainerPairSecondPointers(security_state_.begin(),
@@ -102,11 +102,11 @@ RendererSecurityPolicy::~RendererSecurityPolicy() {
 }
 
 // static
-RendererSecurityPolicy* RendererSecurityPolicy::GetInstance() {
-  return Singleton<RendererSecurityPolicy>::get();
+ChildProcessSecurityPolicy* ChildProcessSecurityPolicy::GetInstance() {
+  return Singleton<ChildProcessSecurityPolicy>::get();
 }
 
-void RendererSecurityPolicy::Add(int renderer_id) {
+void ChildProcessSecurityPolicy::Add(int renderer_id) {
   AutoLock lock(lock_);
   if (security_state_.count(renderer_id) != 0) {
     NOTREACHED() << "Add renderers at most once.";
@@ -116,7 +116,7 @@ void RendererSecurityPolicy::Add(int renderer_id) {
   security_state_[renderer_id] = new SecurityState();
 }
 
-void RendererSecurityPolicy::Remove(int renderer_id) {
+void ChildProcessSecurityPolicy::Remove(int renderer_id) {
   AutoLock lock(lock_);
   if (security_state_.count(renderer_id) != 1) {
     NOTREACHED() << "Remove renderers at most once.";
@@ -127,7 +127,7 @@ void RendererSecurityPolicy::Remove(int renderer_id) {
   security_state_.erase(renderer_id);
 }
 
-void RendererSecurityPolicy::RegisterWebSafeScheme(const std::string& scheme) {
+void ChildProcessSecurityPolicy::RegisterWebSafeScheme(const std::string& scheme) {
   AutoLock lock(lock_);
   DCHECK(web_safe_schemes_.count(scheme) == 0) << "Add schemes at most once.";
   DCHECK(pseudo_schemes_.count(scheme) == 0) << "Web-safe implies not psuedo.";
@@ -135,13 +135,13 @@ void RendererSecurityPolicy::RegisterWebSafeScheme(const std::string& scheme) {
   web_safe_schemes_.insert(scheme);
 }
 
-bool RendererSecurityPolicy::IsWebSafeScheme(const std::string& scheme) {
+bool ChildProcessSecurityPolicy::IsWebSafeScheme(const std::string& scheme) {
   AutoLock lock(lock_);
 
   return (web_safe_schemes_.find(scheme) != web_safe_schemes_.end());
 }
 
-void RendererSecurityPolicy::RegisterPseudoScheme(const std::string& scheme) {
+void ChildProcessSecurityPolicy::RegisterPseudoScheme(const std::string& scheme) {
   AutoLock lock(lock_);
   DCHECK(pseudo_schemes_.count(scheme) == 0) << "Add schemes at most once.";
   DCHECK(web_safe_schemes_.count(scheme) == 0) <<
@@ -150,13 +150,13 @@ void RendererSecurityPolicy::RegisterPseudoScheme(const std::string& scheme) {
   pseudo_schemes_.insert(scheme);
 }
 
-bool RendererSecurityPolicy::IsPseudoScheme(const std::string& scheme) {
+bool ChildProcessSecurityPolicy::IsPseudoScheme(const std::string& scheme) {
   AutoLock lock(lock_);
 
   return (pseudo_schemes_.find(scheme) != pseudo_schemes_.end());
 }
 
-void RendererSecurityPolicy::GrantRequestURL(int renderer_id, const GURL& url) {
+void ChildProcessSecurityPolicy::GrantRequestURL(int renderer_id, const GURL& url) {
 
   if (!url.is_valid())
     return;  // Can't grant the capability to request invalid URLs.
@@ -190,7 +190,7 @@ void RendererSecurityPolicy::GrantRequestURL(int renderer_id, const GURL& url) {
   }
 }
 
-void RendererSecurityPolicy::GrantUploadFile(int renderer_id,
+void ChildProcessSecurityPolicy::GrantUploadFile(int renderer_id,
                                              const FilePath& file) {
   AutoLock lock(lock_);
 
@@ -201,7 +201,7 @@ void RendererSecurityPolicy::GrantUploadFile(int renderer_id,
   state->second->GrantUploadFile(file);
 }
 
-void RendererSecurityPolicy::GrantInspectElement(int renderer_id) {
+void ChildProcessSecurityPolicy::GrantInspectElement(int renderer_id) {
   AutoLock lock(lock_);
 
   SecurityStateMap::iterator state = security_state_.find(renderer_id);
@@ -213,7 +213,7 @@ void RendererSecurityPolicy::GrantInspectElement(int renderer_id) {
   state->second->GrantScheme(chrome::kChromeUIScheme);
 }
 
-void RendererSecurityPolicy::GrantDOMUIBindings(int renderer_id) {
+void ChildProcessSecurityPolicy::GrantDOMUIBindings(int renderer_id) {
   AutoLock lock(lock_);
 
   SecurityStateMap::iterator state = security_state_.find(renderer_id);
@@ -229,7 +229,7 @@ void RendererSecurityPolicy::GrantDOMUIBindings(int renderer_id) {
   state->second->GrantScheme(chrome::kFileScheme);
 }
 
-bool RendererSecurityPolicy::CanRequestURL(int renderer_id, const GURL& url) {
+bool ChildProcessSecurityPolicy::CanRequestURL(int renderer_id, const GURL& url) {
   if (!url.is_valid())
     return false;  // Can't request invalid URLs.
 
@@ -270,7 +270,7 @@ bool RendererSecurityPolicy::CanRequestURL(int renderer_id, const GURL& url) {
   }
 }
 
-bool RendererSecurityPolicy::CanUploadFile(int renderer_id,
+bool ChildProcessSecurityPolicy::CanUploadFile(int renderer_id,
                                            const FilePath& file) {
   AutoLock lock(lock_);
 
@@ -281,7 +281,7 @@ bool RendererSecurityPolicy::CanUploadFile(int renderer_id,
   return state->second->CanUploadFile(file);
 }
 
-bool RendererSecurityPolicy::HasDOMUIBindings(int renderer_id) {
+bool ChildProcessSecurityPolicy::HasDOMUIBindings(int renderer_id) {
   AutoLock lock(lock_);
 
   SecurityStateMap::iterator state = security_state_.find(renderer_id);

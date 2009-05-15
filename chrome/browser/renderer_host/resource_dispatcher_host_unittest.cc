@@ -7,7 +7,7 @@
 #include "base/file_path.h"
 #include "base/message_loop.h"
 #include "base/process_util.h"
-#include "chrome/browser/renderer_host/renderer_security_policy.h"
+#include "chrome/browser/child_process_security_policy.h"
 #include "chrome/browser/renderer_host/resource_dispatcher_host.h"
 #include "chrome/common/chrome_plugin_lib.h"
 #include "chrome/common/render_messages.h"
@@ -112,13 +112,13 @@ class ResourceDispatcherHostTest : public testing::Test,
  protected:
   // testing::Test
   virtual void SetUp() {
-    RendererSecurityPolicy::GetInstance()->Add(0);
+    ChildProcessSecurityPolicy::GetInstance()->Add(0);
     URLRequest::RegisterProtocolFactory("test", &URLRequestTestJob::Factory);
     EnsureTestSchemeIsAllowed();
   }
   virtual void TearDown() {
     URLRequest::RegisterProtocolFactory("test", NULL);
-    RendererSecurityPolicy::GetInstance()->Remove(0);
+    ChildProcessSecurityPolicy::GetInstance()->Remove(0);
 
     // The plugin lib is automatically loaded during these test
     // and we want a clean environment for other tests.
@@ -143,7 +143,7 @@ class ResourceDispatcherHostTest : public testing::Test,
     static bool have_white_listed_test_scheme = false;
 
     if (!have_white_listed_test_scheme) {
-      RendererSecurityPolicy::GetInstance()->RegisterWebSafeScheme("test");
+      ChildProcessSecurityPolicy::GetInstance()->RegisterWebSafeScheme("test");
       have_white_listed_test_scheme = true;
     }
   }

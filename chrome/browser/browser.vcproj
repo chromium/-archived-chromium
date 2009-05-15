@@ -338,6 +338,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\child_process_security_policy.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\child_process_security_policy.h"
+				>
+			</File>
+			<File
 				RelativePath=".\chrome_thread.cc"
 				>
 			</File>
@@ -2211,14 +2219,6 @@
 			</File>
 			<File
 				RelativePath=".\renderer_host\render_widget_host_view_win.h"
-				>
-			</File>
-			<File
-				RelativePath=".\renderer_host\renderer_security_policy.cc"
-				>
-			</File>
-			<File
-				RelativePath=".\renderer_host\renderer_security_policy.h"
 				>
 			</File>
 			<File

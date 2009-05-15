@@ -27,6 +27,7 @@
 #include "base/string_util.h"
 #include "base/thread.h"
 #include "chrome/browser/browser_process.h"
+#include "chrome/browser/child_process_security_policy.h"
 #include "chrome/browser/extensions/extension_message_service.h"
 #include "chrome/browser/extensions/user_script_master.h"
 #include "chrome/browser/history/history.h"
@@ -35,7 +36,6 @@
 #include "chrome/browser/renderer_host/render_view_host.h"
 #include "chrome/browser/renderer_host/render_widget_helper.h"
 #include "chrome/browser/renderer_host/render_widget_host.h"
-#include "chrome/browser/renderer_host/renderer_security_policy.h"
 #include "chrome/browser/renderer_host/resource_message_filter.h"
 #include "chrome/browser/renderer_host/web_cache_manager.h"
 #include "chrome/browser/visitedlink_master.h"
@@ -155,7 +155,7 @@ BrowserRenderProcessHost::BrowserRenderProcessHost(Profile* profile)
 BrowserRenderProcessHost::~BrowserRenderProcessHost() {
   if (pid() >= 0) {
     WebCacheManager::GetInstance()->Remove(pid());
-    RendererSecurityPolicy::GetInstance()->Remove(pid());
+    ChildProcessSecurityPolicy::GetInstance()->Remove(pid());
   }
 
   // We may have some unsent messages at this point, but that's OK.
@@ -342,7 +342,7 @@ bool BrowserRenderProcessHost::Init() {
 
   resource_message_filter->Init(pid());
   WebCacheManager::GetInstance()->Add(pid());
-  RendererSecurityPolicy::GetInstance()->Add(pid());
+  ChildProcessSecurityPolicy::GetInstance()->Add(pid());
 
   // Now that the process is created, set its backgrounding accordingly.
   SetBackgrounded(backgrounded_);

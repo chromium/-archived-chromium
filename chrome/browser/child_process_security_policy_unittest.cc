@@ -6,13 +6,13 @@
 
 #include "base/basictypes.h"
 #include "base/file_path.h"
-#include "chrome/browser/renderer_host/renderer_security_policy.h"
+#include "chrome/browser/child_process_security_policy.h"
 #include "chrome/common/url_constants.h"
 #include "net/url_request/url_request.h"
 #include "net/url_request/url_request_test_job.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
-class RendererSecurityPolicyTest : public testing::Test {
+class ChildProcessSecurityPolicyTest : public testing::Test {
 protected:
   // testing::Test
   virtual void SetUp() {
@@ -27,8 +27,8 @@ protected:
 
 static int kRendererID = 42;
 
-TEST_F(RendererSecurityPolicyTest, IsWebSafeSchemeTest) {
-  RendererSecurityPolicy* p = RendererSecurityPolicy::GetInstance();
+TEST_F(ChildProcessSecurityPolicyTest, IsWebSafeSchemeTest) {
+  ChildProcessSecurityPolicy* p = ChildProcessSecurityPolicy::GetInstance();
 
   EXPECT_TRUE(p->IsWebSafeScheme("http"));
   EXPECT_TRUE(p->IsWebSafeScheme("https"));
@@ -42,8 +42,8 @@ TEST_F(RendererSecurityPolicyTest, IsWebSafeSchemeTest) {
   EXPECT_TRUE(p->IsWebSafeScheme("registered-web-safe-scheme"));
 }
 
-TEST_F(RendererSecurityPolicyTest, IsPseudoSchemeTest) {
-  RendererSecurityPolicy* p = RendererSecurityPolicy::GetInstance();
+TEST_F(ChildProcessSecurityPolicyTest, IsPseudoSchemeTest) {
+  ChildProcessSecurityPolicy* p = ChildProcessSecurityPolicy::GetInstance();
 
   EXPECT_TRUE(p->IsPseudoScheme("about"));
   EXPECT_TRUE(p->IsPseudoScheme("javascript"));
@@ -54,8 +54,8 @@ TEST_F(RendererSecurityPolicyTest, IsPseudoSchemeTest) {
   EXPECT_TRUE(p->IsPseudoScheme("registered-psuedo-scheme"));
 }
 
-TEST_F(RendererSecurityPolicyTest, StandardSchemesTest) {
-  RendererSecurityPolicy* p = RendererSecurityPolicy::GetInstance();
+TEST_F(ChildProcessSecurityPolicyTest, StandardSchemesTest) {
+  ChildProcessSecurityPolicy* p = ChildProcessSecurityPolicy::GetInstance();
 
   p->Add(kRendererID);
 
@@ -79,8 +79,8 @@ TEST_F(RendererSecurityPolicyTest, StandardSchemesTest) {
   p->Remove(kRendererID);
 }
 
-TEST_F(RendererSecurityPolicyTest, AboutTest) {
-  RendererSecurityPolicy* p = RendererSecurityPolicy::GetInstance();
+TEST_F(ChildProcessSecurityPolicyTest, AboutTest) {
+  ChildProcessSecurityPolicy* p = ChildProcessSecurityPolicy::GetInstance();
 
   p->Add(kRendererID);
 
@@ -113,8 +113,8 @@ TEST_F(RendererSecurityPolicyTest, AboutTest) {
   p->Remove(kRendererID);
 }
 
-TEST_F(RendererSecurityPolicyTest, JavaScriptTest) {
-  RendererSecurityPolicy* p = RendererSecurityPolicy::GetInstance();
+TEST_F(ChildProcessSecurityPolicyTest, JavaScriptTest) {
+  ChildProcessSecurityPolicy* p = ChildProcessSecurityPolicy::GetInstance();
 
   p->Add(kRendererID);
 
@@ -125,8 +125,8 @@ TEST_F(RendererSecurityPolicyTest, JavaScriptTest) {
   p->Remove(kRendererID);
 }
 
-TEST_F(RendererSecurityPolicyTest, RegisterWebSafeSchemeTest) {
-  RendererSecurityPolicy* p = RendererSecurityPolicy::GetInstance();
+TEST_F(ChildProcessSecurityPolicyTest, RegisterWebSafeSchemeTest) {
+  ChildProcessSecurityPolicy* p = ChildProcessSecurityPolicy::GetInstance();
 
   p->Add(kRendererID);
 
@@ -148,8 +148,8 @@ TEST_F(RendererSecurityPolicyTest, RegisterWebSafeSchemeTest) {
   p->Remove(kRendererID);
 }
 
-TEST_F(RendererSecurityPolicyTest, CanServiceCommandsTest) {
-  RendererSecurityPolicy* p = RendererSecurityPolicy::GetInstance();
+TEST_F(ChildProcessSecurityPolicyTest, CanServiceCommandsTest) {
+  ChildProcessSecurityPolicy* p = ChildProcessSecurityPolicy::GetInstance();
 
   p->Add(kRendererID);
 
@@ -164,8 +164,8 @@ TEST_F(RendererSecurityPolicyTest, CanServiceCommandsTest) {
   p->Remove(kRendererID);
 }
 
-TEST_F(RendererSecurityPolicyTest, ViewSource) {
-  RendererSecurityPolicy* p = RendererSecurityPolicy::GetInstance();
+TEST_F(ChildProcessSecurityPolicyTest, ViewSource) {
+  ChildProcessSecurityPolicy* p = ChildProcessSecurityPolicy::GetInstance();
 
   p->Add(kRendererID);
 
@@ -185,8 +185,8 @@ TEST_F(RendererSecurityPolicyTest, ViewSource) {
   p->Remove(kRendererID);
 }
 
-TEST_F(RendererSecurityPolicyTest, CanUploadFiles) {
-  RendererSecurityPolicy* p = RendererSecurityPolicy::GetInstance();
+TEST_F(ChildProcessSecurityPolicyTest, CanUploadFiles) {
+  ChildProcessSecurityPolicy* p = ChildProcessSecurityPolicy::GetInstance();
 
   p->Add(kRendererID);
 
@@ -209,8 +209,8 @@ TEST_F(RendererSecurityPolicyTest, CanUploadFiles) {
   p->Remove(kRendererID);
 }
 
-TEST_F(RendererSecurityPolicyTest, CanServiceInspectElement) {
-  RendererSecurityPolicy* p = RendererSecurityPolicy::GetInstance();
+TEST_F(ChildProcessSecurityPolicyTest, CanServiceInspectElement) {
+  ChildProcessSecurityPolicy* p = ChildProcessSecurityPolicy::GetInstance();
 
   GURL url("chrome://inspector/inspector.html");
 
@@ -223,8 +223,8 @@ TEST_F(RendererSecurityPolicyTest, CanServiceInspectElement) {
   p->Remove(kRendererID);
 }
 
-TEST_F(RendererSecurityPolicyTest, CanServiceDOMUIBindings) {
-  RendererSecurityPolicy* p = RendererSecurityPolicy::GetInstance();
+TEST_F(ChildProcessSecurityPolicyTest, CanServiceDOMUIBindings) {
+  ChildProcessSecurityPolicy* p = ChildProcessSecurityPolicy::GetInstance();
 
   GURL url("chrome://thumb/http://www.google.com/");
 
@@ -239,8 +239,8 @@ TEST_F(RendererSecurityPolicyTest, CanServiceDOMUIBindings) {
   p->Remove(kRendererID);
 }
 
-TEST_F(RendererSecurityPolicyTest, RemoveRace) {
-  RendererSecurityPolicy* p = RendererSecurityPolicy::GetInstance();
+TEST_F(ChildProcessSecurityPolicyTest, RemoveRace) {
+  ChildProcessSecurityPolicy* p = ChildProcessSecurityPolicy::GetInstance();
 
   GURL url("file:///etc/passwd");
   FilePath file(FILE_PATH_LITERAL("/etc/passwd"));
@@ -258,7 +258,7 @@ TEST_F(RendererSecurityPolicyTest, RemoveRace) {
   p->Remove(kRendererID);
 
   // Renderers are added and removed on the UI thread, but the policy can be
-  // queried on the IO thread.  The RendererSecurityPolicy needs to be prepared
+  // queried on the IO thread.  The ChildProcessSecurityPolicy needs to be prepared
   // to answer policy questions about renderers who no longer exist.
 
   // In this case, we default to secure behavior.
