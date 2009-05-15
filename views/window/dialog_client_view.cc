@@ -207,7 +207,7 @@ void DialogClientView::AcceptWindow() {
   }
   if (GetDialogDelegate()->Accept(false)) {
     accepted_ = true;
-    window()->Close();
+    Close();
   }
 }
 
@@ -215,7 +215,7 @@ void DialogClientView::CancelWindow() {
   // Call the standard Close handler, which checks with the delegate before
   // proceeding. This checking _isn't_ done here, but in the WM_CLOSE handler,
   // so that the close box on the window also shares this code path.
-  window()->Close();
+  Close();
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -327,7 +327,7 @@ gfx::Size DialogClientView::GetPreferredSize() {
 
 bool DialogClientView::AcceleratorPressed(const Accelerator& accelerator) {
   DCHECK(accelerator.GetKeyCode() == VK_ESCAPE);  // We only expect Escape key.
-  window()->Close();
+  Close();
   return true;
 }
 
@@ -457,6 +457,11 @@ void DialogClientView::InitClass() {
     dialog_button_font_ = new gfx::Font(rb.GetFont(ResourceBundle::BaseFont));
     initialized = true;
   }
+}
+
+void DialogClientView::Close() {
+  window()->Close();
+  GetDialogDelegate()->OnClose();
 }
 
 }  // namespace views

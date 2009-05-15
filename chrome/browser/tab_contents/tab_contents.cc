@@ -1062,6 +1062,10 @@ void TabContents::OnJavaScriptMessageBoxClosed(IPC::Message* reply_msg,
   render_manager_.OnJavaScriptMessageBoxClosed(reply_msg, success, prompt);
 }
 
+void TabContents::OnJavaScriptMessageBoxWindowDestroyed() {
+  render_manager_.OnJavaScriptMessageBoxWindowDestroyed();
+}
+
 void TabContents::OnSavePage() {
   // If we can not save the page, try to download it.
   if (!SavePackage::IsSavableContents(contents_mime_type())) {

@@ -516,6 +516,9 @@ class TabContents : public PageNavigator,
                                     bool success,
                                     const std::wstring& prompt);
 
+  // AppModalDialog calls this when the javascript dialog has been destroyed.
+  void OnJavaScriptMessageBoxWindowDestroyed();
+
   // Prepare for saving the current web page to disk.
   void OnSavePage();
 

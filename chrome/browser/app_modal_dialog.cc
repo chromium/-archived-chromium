@@ -98,3 +98,9 @@ void AppModalDialog::OnAccept(const std::wstring& prompt_text,
       tab_contents()->set_suppress_javascript_messages(true);
   }
 }
+
+void AppModalDialog::OnClose() {
+ if (tab_contents_) {
+   tab_contents_->OnJavaScriptMessageBoxWindowDestroyed();
+ }
+}

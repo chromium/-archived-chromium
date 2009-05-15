@@ -95,6 +95,9 @@ class DialogClientView : public ClientView,
   // Returns the DialogDelegate for the window.
   DialogDelegate* GetDialogDelegate() const;
 
+  // Closes the window.
+  void Close();
+
   // The dialog buttons.
   NativeButton* ok_button_;
   NativeButton* cancel_button_;

@@ -103,6 +103,9 @@ class DialogDelegate : public WindowDelegate {
   // Overridden from WindowDelegate:
   virtual ClientView* CreateClientView(Window* window);
 
+  // Called when the window has been closed.
+  virtual void OnClose() {};
+
   // A helper for accessing the DialogClientView object contained by this
   // delegate's Window.
   DialogClientView* GetDialogClientView() const;

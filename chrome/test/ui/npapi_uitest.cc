@@ -210,6 +210,15 @@ TEST_F(NPAPIVisiblePluginTester, AlertInWindowMessage) {
   ASSERT_TRUE((MessageBoxFlags::DIALOGBUTTON_OK & available_buttons) != 0);
   ASSERT_TRUE(automation()->ClickAppModalDialogButton(
       MessageBoxFlags::DIALOGBUTTON_OK));
+
+  modal_dialog_showing = false;
+  ASSERT_TRUE(automation()->WaitForAppModalDialog(kShortWaitTimeout));
+  ASSERT_TRUE(automation()->GetShowingAppModalDialog(&modal_dialog_showing,
+      &available_buttons));
+  ASSERT_TRUE(modal_dialog_showing);
+  ASSERT_TRUE((MessageBoxFlags::DIALOGBUTTON_OK & available_buttons) != 0);
+  ASSERT_TRUE(automation()->ClickAppModalDialogButton(
+      MessageBoxFlags::DIALOGBUTTON_OK));
 }
 
 #endif

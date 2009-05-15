@@ -283,6 +283,10 @@ class RenderViewHost : public RenderWidgetHost {
                                   bool success,
                                   const std::wstring& prompt);
 
+  // This function is called when the JavaScript message box window has been
+  // destroyed.
+  void JavaScriptMessageBoxWindowDestroyed();
+
   // Notifies the RenderView that the modal html dialog has been closed.
   void ModalHTMLDialogClosed(IPC::Message* reply_msg,
                              const std::string& json_retval);

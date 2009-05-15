@@ -253,6 +253,10 @@ void RenderViewHostManager::OnJavaScriptMessageBoxClosed(
   render_view_host_->JavaScriptMessageBoxClosed(reply_msg, success, prompt);
 }
 
+void RenderViewHostManager::OnJavaScriptMessageBoxWindowDestroyed() {
+  render_view_host_->JavaScriptMessageBoxWindowDestroyed();
+}
+
 void RenderViewHostManager::Observe(NotificationType type,
                                     const NotificationSource& source,
                                     const NotificationDetails& details) {

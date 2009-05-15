@@ -79,6 +79,7 @@ class AppModalDialog : public NotificationObserver {
   // Callbacks from NativeDialog when the user accepts or cancels the dialog.
   void OnCancel();
   void OnAccept(const std::wstring& prompt_text, bool suppress_js_messages);
+  void OnClose();
 
   // Helper methods used to query or control the dialog. This is used by
   // automation.

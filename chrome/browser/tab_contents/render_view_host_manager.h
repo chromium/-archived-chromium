@@ -148,6 +148,9 @@ class RenderViewHostManager : public NotificationObserver {
                                     bool success,
                                     const std::wstring& prompt);
 
+  // Forwards this message to the RenderViewHost.
+  void OnJavaScriptMessageBoxWindowDestroyed();
+
   // Sets the passed passed interstitial as the currently showing interstitial.
   // |interstitial_page| should be non NULL (use the remove_interstitial_page
   // method to unset the interstitial) and no interstitial page should be set

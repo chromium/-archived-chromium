@@ -92,6 +92,9 @@ LRESULT CALLBACK WindowedPluginTest::WindowProc(
     } else if (this_ptr->test_name() == "alert_in_window_message" &&
                message == WM_PAINT) {
       this_ptr->done_ = true;
+      // We call this function twice as we want to display two alerts
+      // and verify that we don't hang the browser.
+      CallJSFunction(this_ptr, "CallAlert");
       CallJSFunction(this_ptr, "CallAlert");
     }
   }

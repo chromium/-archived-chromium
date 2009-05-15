@@ -536,11 +536,14 @@ void RenderViewHost::JavaScriptMessageBoxClosed(IPC::Message* reply_msg,
     StartHangMonitorTimeout(TimeDelta::FromMilliseconds(kUnloadTimeoutMS));
   }
 
-  if (--modal_dialog_count_ == 0)
-    modal_dialog_event_->Reset();
   ViewHostMsg_RunJavaScriptMessage::WriteReplyParams(reply_msg,
                                                      success, prompt);
   Send(reply_msg);
+}
+
+void RenderViewHost::JavaScriptMessageBoxWindowDestroyed() {
+ if (--modal_dialog_count_ == 0)
+   modal_dialog_event_->Reset();
 }
 
 void RenderViewHost::ModalHTMLDialogClosed(IPC::Message* reply_msg,
