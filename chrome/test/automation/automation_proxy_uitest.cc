@@ -278,8 +278,7 @@ TEST_F(AutomationProxyTest, NavigateToURL) {
   // TODO(vibhor) : Add a test using testserver.
 }
 
-// This test is disabled. See bug 794412
-TEST_F(AutomationProxyTest, DISABLED_NavigateToURLWithTimeout1) {
+TEST_F(AutomationProxyTest, NavigateToURLWithTimeout1) {
   scoped_ptr<BrowserProxy> window(automation()->GetBrowserWindow(0));
   ASSERT_TRUE(window.get());
   scoped_ptr<TabProxy> tab(window->GetTab(0));
@@ -290,7 +289,7 @@ TEST_F(AutomationProxyTest, DISABLED_NavigateToURLWithTimeout1) {
 
   bool is_timeout;
   tab->NavigateToURLWithTimeout(net::FilePathToFileURL(filename),
-                                10000, &is_timeout);
+                                5000, &is_timeout);
   ASSERT_FALSE(is_timeout);
 
   std::wstring title;
@@ -300,12 +299,9 @@ TEST_F(AutomationProxyTest, DISABLED_NavigateToURLWithTimeout1) {
   tab->NavigateToURLWithTimeout(net::FilePathToFileURL(filename),
                                 1, &is_timeout);
   ASSERT_TRUE(is_timeout);
-
-  PlatformThread::Sleep(10);
 }
 
-// This test is disabled. See bug 794412.
-TEST_F(AutomationProxyTest, DISABLED_NavigateToURLWithTimeout2) {
+TEST_F(AutomationProxyTest, NavigateToURLWithTimeout2) {
   scoped_ptr<BrowserProxy> window(automation()->GetBrowserWindow(0));
   ASSERT_TRUE(window.get());
   scoped_ptr<TabProxy> tab(window->GetTab(0));
@@ -323,10 +319,8 @@ TEST_F(AutomationProxyTest, DISABLED_NavigateToURLWithTimeout2) {
   FilePath filename2(test_data_directory_);
   filename2 = filename2.AppendASCII("title1.html");
   tab->NavigateToURLWithTimeout(net::FilePathToFileURL(filename2),
-                                10000, &is_timeout);
+                                5000, &is_timeout);
   ASSERT_FALSE(is_timeout);
-
-  PlatformThread::Sleep(10);
 }
 
 TEST_F(AutomationProxyTest, GoBackForward) {
@@ -496,24 +490,13 @@ TEST_F(AutomationProxyTest, AcceleratorNewTab) {
 
   int tab_count = -1;
   ASSERT_TRUE(window->GetTabCount(&tab_count));
+  EXPECT_EQ(1, tab_count);
 
-  ASSERT_TRUE(window->ApplyAccelerator(IDC_NEW_TAB));
-  ASSERT_TRUE(window->WaitForTabCountToBecome(tab_count + 1,
-                                              action_timeout_ms()));
+  ASSERT_TRUE(window->RunCommand(IDC_NEW_TAB));
   ASSERT_TRUE(window->GetTabCount(&tab_count));
+  EXPECT_EQ(2, tab_count);
   scoped_ptr<TabProxy> tab(window->GetTab(tab_count - 1));
   ASSERT_TRUE(tab.get());
-
-  std::wstring title;
-  int i;
-  for (i = 0; i < 10; ++i) {
-    PlatformThread::Sleep(sleep_timeout_ms());
-    ASSERT_TRUE(tab->GetTabTitle(&title));
-    if (title == L"Destinations" || title == L"New Tab")
-      break;
-  }
-  // If we got to 10, the new tab failed to open.
-  ASSERT_NE(10, i);
 }
 
 class AutomationProxyTest4 : public UITest {
@@ -637,28 +620,18 @@ TEST_F(AutomationProxyTest3, FrameDocumentCanBeAccessed) {
   // correct.
 #if 0
   // Open a new Destinations tab to execute script inside.
-  window->ApplyAccelerator(IDC_NEWTAB);
+  window->RunCommand(IDC_NEWTAB);
   tab.reset(window->GetTab(1));
   ASSERT_TRUE(tab.get());
   ASSERT_TRUE(window->ActivateTab(1));
 
-  std::wstring title;
-  int i;
-  for (i = 0; i < 10; ++i) {
-    PlatformThread::Sleep(sleep_timeout_ms());
-    ASSERT_TRUE(tab->GetTabTitle(&title));
-    if (title == L"Destinations")
-      break;
-  }
-  // If we got to 10, the new tab failed to open.
-  ASSERT_NE(10, i);
   ASSERT_FALSE(tab->ExecuteAndExtractString(xpath1, jscript1, &actual));
 #endif
 }
 
 // TODO(port): Need to port constrained_window_proxy.* first.
 #if defined(OS_WIN)
-TEST_F(AutomationProxyTest, DISABLED_ConstrainedWindowTest) {
+TEST_F(AutomationProxyTest, ConstrainedWindowTest) {
   scoped_ptr<BrowserProxy> window(automation()->GetBrowserWindow(0));
   ASSERT_TRUE(window.get());
 
@@ -675,26 +648,14 @@ TEST_F(AutomationProxyTest, DISABLED_ConstrainedWindowTest) {
   int count;
   ASSERT_TRUE(tab->WaitForChildWindowCountToChange(0, &count, 5000));
 
-  ASSERT_EQ(2, count);
+  ASSERT_EQ(1, count);
 
   ConstrainedWindowProxy* cwindow = tab->GetConstrainedWindow(0);
   ASSERT_TRUE(cwindow);
 
   std::wstring title;
   ASSERT_TRUE(cwindow->GetTitle(&title));
-#if defined(GOOGLE_CHROME_BUILD)
-  std::wstring app_name = L"Google Chrome";
-#else
-  std::wstring app_name = L"Chromium";
-#endif
-  std::wstring window_title = L"Constrained Window 0 - " + app_name;
-  ASSERT_STREQ(window_title.c_str(), title.c_str());
-  delete cwindow;
-
-  cwindow = tab->GetConstrainedWindow(1);
-  ASSERT_TRUE(cwindow);
-  ASSERT_TRUE(cwindow->GetTitle(&title));
-  window_title = L"Constrained Window 1 - " + app_name;
+  std::wstring window_title = L"Pop-ups Blocked: 2";
   ASSERT_STREQ(window_title.c_str(), title.c_str());
   delete cwindow;
 }
@@ -1000,7 +961,7 @@ TEST_F(AutomationProxyTest, AutocompleteParallelProxy) {
   scoped_ptr<AutocompleteEditProxy> edit1(
       browser1->GetAutocompleteEdit());
   ASSERT_TRUE(edit1.get());
-  EXPECT_TRUE(browser1->ApplyAccelerator(IDC_NEW_WINDOW));
+  EXPECT_TRUE(browser1->RunCommand(IDC_NEW_WINDOW));
   scoped_ptr<BrowserProxy> browser2(automation()->GetBrowserWindow(1));
   ASSERT_TRUE(browser2.get());
   scoped_ptr<AutocompleteEditProxy> edit2(
