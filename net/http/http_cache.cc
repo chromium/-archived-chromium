@@ -938,7 +938,11 @@ void HttpCache::Transaction::OnNetworkInfoAvailable(int result) {
       }
     }
   } else if (IsCertificateError(result)) {
-    response_.ssl_info = network_trans_->GetResponseInfo()->ssl_info;
+    const HttpResponseInfo* response = network_trans_->GetResponseInfo();
+    // If we get a certificate error, then there is a certificate in ssl_info,
+    // so GetResponseInfo() should never returns NULL here.
+    DCHECK(response);
+    response_.ssl_info = response->ssl_info;
   }
   HandleResult(result);
 }
