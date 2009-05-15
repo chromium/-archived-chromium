@@ -65,7 +65,7 @@
       }, {  # else: branding!="Chrome"
         'defines': ['CHROMIUM_BUILD'],
       }],
-      ['toolkit_views=="1"', {
+      ['toolkit_views==1', {
         'defines': ['TOOLKIT_VIEWS=1'],
       }],
       ['coverage!=0', {
