@@ -344,21 +344,29 @@
               {
                 'action_name': 'linux_version',
                 'variables': {
+                  'version_py_path': '../chrome/tools/build/version.py',
+                  'version_path': '../chrome/VERSION',
                   'template_input_path': 'file_version_info_linux.h.version',
                   'template_output_path':
                   '<(SHARED_INTERMEDIATE_DIR)/base/file_version_info_linux.h',
                 },
-                'inputs': [
-                  '<(template_input_path)',
-                  '../chrome/VERSION',
-                  '../chrome/tools/build/linux/version.sh',
-                ],
                 'conditions': [
                   [ 'branding == "Chrome"', {
-                    'inputs': ['../chrome/app/theme/google_chrome/BRANDING']
-                    }, { # else branding!="Chrome"
-                    'inputs': ['../chrome/app/theme/chromium/BRANDING']
+                    'variables': {
+                       'branding_path':
+                         '../chrome/app/theme/google_chrome/BRANDING',
+                    },
+                  }, { # else branding!="Chrome"
+                    'variables': {
+                       'branding_path':
+                         '../chrome/app/theme/chromium/BRANDING',
+                    },
                   }],
+                ],
+                'inputs': [
+                  '<(template_input_path)',
+                  '<(version_path)',
+                  '<(branding_path)',
                 ],
                 'outputs': [
                   # Use a non-existant output so this action always runs and
@@ -371,9 +379,14 @@
                   '<(SHARED_INTERMEDIATE_DIR)/base/file_version_info_linux.h',
                 ],
                 'action': [
-                  '../chrome/tools/build/linux/version.sh',
-                  '<(template_input_path)', '<(template_output_path)',
+                  'python',
+                  '<(version_py_path)',
+                  '-f', '<(version_path)',
+                  '-f', '<(branding_path)',
+                  '<(template_input_path)',
+                  '<(template_output_path)',
                 ],
+                'message': 'Generating version information',
               },
             ],
             'include_dirs': [
