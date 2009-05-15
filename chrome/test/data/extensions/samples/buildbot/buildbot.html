@@ -1,8 +1,17 @@
 <script>
 var botRoot = "http://build.chromium.org/buildbot/waterfall";
-var botUrl = botRoot + "/horizontal_one_box_per_builder";
+var statusURL = "http://chromium-status.appspot.com/current";
+//var waterfallURL = botRoot + "/console_json?name=username@chromium.org&json=1";
+var waterfallURL = botRoot + "/console_json?json=1";
+var botList;
+var checkinResults;
 
-function updateStatus(status) {
+function updateStatus(text) {
+  var results = (new RegExp('"Notice".*>(.*)<', 'g')).exec(text);
+  if (!results || results.index < 0) {
+    throw new Error("couldn't find status div in " + text);
+  }
+  var status = results[1];
   var div = document.getElementById("status");
   div.title = status;
   var open = /open/i;
@@ -15,19 +24,69 @@ function updateStatus(status) {
   }
 }
 
+function updateBots(text) {
+  var results = (new RegExp('(.*)<\/body>', 'g')).exec(text);
+  if (!results || results.index < 0) {
+    console.log("Error: couldn't find bot JSON");
+    console.log(text);
+    return;
+  }
+  var data;
+  try {
+    data = JSON.parse(results[1]);
+  } catch (e) {
+    console.dir(e);
+    console.log(text);
+    return;
+  }
+  if (!data) {
+    throw new Error("JSON parse fail: " + results[1]);
+  }
+  botList = data[0];
+  checkinResults = data[1];
+  console.dir(botList);
+  displayBots();
+}
+
+function showBot(botIndex) {
+  var bot = botList[botIndex];
+  var url = botRoot + "/waterfall?builder=" + bot.name;
+  //var url = botRoot + "/builders/" + bot.name;
+  //var url = botRoot + "/" + bot.url;
+  window.open(url);
+  window.event.stopPropagation();
+}
+
+function displayBots() {
+  if (!botList) {
+    console.log("botList is null");
+    return;
+  }
+  var bots = document.getElementById("bots");
+  var html = "";
+  if (bots.className == "visible") {
+    botList.forEach(function(bot, i) {
+      html += "<div class='bot " + bot.color + 
+          "' onclick='showBot(" + i + ")' " +
+          "title='" + bot.title + "'></div>";
+    });
+  }
+  bots.innerHTML = html;
+}
+
 function requestStatus() {
+  requestURL(statusURL, updateStatus);
+  requestURL(waterfallURL, updateBots);
+  setTimeout(requestStatus, 30000);
+}
+
+function requestURL(url, callback) {
   var xhr = new XMLHttpRequest();
   try {
     xhr.onreadystatechange = function(state) {
       if (xhr.readyState == 4) {
         var text = xhr.responseText;
-        var re = /"Notice"[^>]*>([^<\n]+)</g;
-        var results = re.exec(text);
-        if (results && results.index >= 0) {
-          updateStatus(results[1]);
-        } else {
-          console.log("Error: couldn't find node");
-        }
+        callback(text);
       }
     }
     
@@ -35,12 +94,11 @@ function requestStatus() {
       console.log("xhr error: " + error);
     }
 
-    xhr.open("GET", "http://chromium-status.appspot.com/current");
+    xhr.open("GET", url);
     xhr.send({});
   } catch(e) {
     console.log("exception: " + e);
   }
-  setTimeout(requestStatus, 30000);
 }
 
 var hoverTimerId = null;
@@ -56,9 +114,7 @@ window.addEventListener("mouseover", function(e) {
       hoverTimerId = null;
       var bots = document.getElementById("bots");
       bots.className = "visible";
-      // TODO(erikkay): this generates "Unsafe JavaScript attempt to access
-      // frame with URL".
-      bots.src = botUrl + "?xxx=" + (new Date()).getTime();
+      displayBots();
     }, 1000);
   }
 }, false);
@@ -73,6 +129,7 @@ window.addEventListener("mouseout", function(e) {
       hideTimerId = null;
       var bots = document.getElementById("bots");
       bots.className = "";
+      //displayBots();
     }, 1000);
   }
 }, false);
@@ -89,6 +146,10 @@ requestStatus();
   font-weight:bold;
 }
 
+#change {
+  font-weight:bold;
+}
+
 .open {
   color: green;
 }
@@ -99,32 +160,64 @@ requestStatus();
 
 #bots {
   border: none;
-  height: 15px;
+  height: 100%;
   width: 0;
   -webkit-transition: width .2s linear;
   background-color: transparent;
   display:-webkit-box;
-  margin-left:-5px;
+  -webkit-box-align:center; /* center content vertically */
+  overflow: hidden;
+  padding-left: 2px;
 }
 
 #bots.visible {
-  width: 435px;  /* hardcoded width sucks */
+  width: 612px;  /* hardcoded width sucks */
 }
 
-#frame-wrapper {
-  /* This is used to get us to vertically center the iframe in the vertical
-  space. */
-  -webkit-box-align:center;
-  /* Also, scooch the frame in a bit, under the button, because the content of
-  the frame has some extra built-in left padding. */
+.bot {
+  margin-right: 1px;
+  line-height: 100%;
+  cursor: pointer;
+  -webkit-border-radius: 2px;
   display:-webkit-box;
+  width: 10px;
+  height: 15px;
+}
+
+.running {
+  background-color:  rgb(255, 252, 108);
+  border: 1px solid rgb(197, 197, 109);
+}
+
+.notstarted {
+  /* background-color: white; */
+  border: 1px solid rgb(170, 170, 170);
+}
+
+.failure {
+  background-color: rgb(233, 128, 128);
+  border: 1px solid rgb(167, 114, 114);
+}
+
+.warnings {
+  background-color: rgb(255, 195, 67);
+  border: 1px solid rgb(194, 157, 70);
+}
+
+.success {
+  background-color: rgb(143, 223, 95);
+  border: 1px solid rgb(79, 133, 48);
+}
+
+.exception {
+  background-color: rgb(224, 176, 255);
+  border: 1px solid rgb(172, 160, 179);
 }
 
 </style>
 
 <div class="toolstrip-button">
 <span id="status" class="open">tree: open?</span>
-<div id="frame-wrapper">
-<iframe scrolling="no" id="bots"></iframe>
 </div>
+<div id="bots">
 </div>
