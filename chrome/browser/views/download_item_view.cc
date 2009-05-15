@@ -404,8 +404,7 @@ void DownloadItemView::Layout() {
     y = (height() - button_size.height()) / 2;
     save_button_->SetBounds(x, y, button_size.width(), button_size.height());
     x += button_size.width() + kButtonPadding;
-    discard_button_->SetBounds(x, y, button_size.width(),
-                               button_size.height());
+    discard_button_->SetBounds(x, y, button_size.width(), button_size.height());
   }
 }
 
@@ -873,7 +872,7 @@ gfx::Size DownloadItemView::GetButtonSize() {
   // not showing, the native buttons are not parented and their preferred size
   // is 0, messing-up the layout.
   if (cached_button_size_.width() != 0)
-    size = cached_button_size_;
+    return cached_button_size_;
 
   size = save_button_->GetMinimumSize();
   gfx::Size discard_size = discard_button_->GetMinimumSize();

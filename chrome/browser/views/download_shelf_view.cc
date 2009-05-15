@@ -208,14 +208,21 @@ void DownloadShelfView::Layout() {
   // Let our base class layout our child views
   views::View::Layout();
 
+  // If there is not enought room to show the first download item, show the
+  // "Show all downloads" link to the left to make it more visible that there is
+  // something to see.
+  bool show_link_only = !CanFitFirstDownloadItem();
+
   gfx::Size image_size = arrow_image_->GetPreferredSize();
   gfx::Size close_button_size = close_button_->GetPreferredSize();
   gfx::Size show_all_size = show_all_view_->GetPreferredSize();
   int max_download_x =
       std::max<int>(0, width() - kRightPadding - close_button_size.width() -
                        kCloseAndLinkPadding - show_all_size.width() -
-                       image_size.width() - kDownloadPadding);
-  int next_x = max_download_x + kDownloadPadding;
+                       kDownloadsTitlePadding - image_size.width() -
+                       kDownloadPadding);
+  int next_x = show_link_only ? kLeftPadding :
+                                max_download_x + kDownloadPadding;
   // Align vertically with show_all_view_.
   arrow_image_->SetBounds(next_x,
                           CenterPosition(show_all_size.height(), height()),
@@ -230,6 +237,13 @@ void DownloadShelfView::Layout() {
                            CenterPosition(close_button_size.height(), height()),
                            close_button_size.width(),
                            close_button_size.height());
+  if (show_link_only) {
+    // Let's hide all the items.
+    std::vector<View*>::reverse_iterator ri;
+    for (ri = download_views_.rbegin(); ri != download_views_.rend(); ++ri)
+      (*ri)->SetVisible(false);
+    return;
+  }
 
   next_x = kLeftPadding;
   std::vector<View*>::reverse_iterator ri;
@@ -245,7 +259,7 @@ void DownloadShelfView::Layout() {
                      new_item_animation_->GetCurrentValue());
     }
 
-    next_x += (item_width + kDownloadPadding);
+    next_x += item_width;
 
     // Make sure our item can be contained within the shelf.
     if (next_x < max_download_x) {
@@ -256,6 +270,27 @@ void DownloadShelfView::Layout() {
       (*ri)->SetVisible(false);
     }
   }
+}
+
+bool DownloadShelfView::CanFitFirstDownloadItem() {
+  if (download_views_.empty())
+    return true;
+
+  gfx::Size image_size = arrow_image_->GetPreferredSize();
+  gfx::Size close_button_size = close_button_->GetPreferredSize();
+  gfx::Size show_all_size = show_all_view_->GetPreferredSize();
+
+  // Let's compute the width available for download items, which is the width
+  // of the shelf minus the "Show all downloads" link, arrow and close button
+  // and the padding.
+  int available_width = width() - kRightPadding - close_button_size.width() -
+      kCloseAndLinkPadding - show_all_size.width() - kDownloadsTitlePadding -
+      image_size.width() - kDownloadPadding - kLeftPadding;
+  if (available_width <= 0)
+    return false;
+
+  gfx::Size item_size = (*download_views_.rbegin())->GetPreferredSize();
+  return item_size.width() < available_width;
 }
 
 void DownloadShelfView::LinkActivated(views::Link* source, int event_flags) {

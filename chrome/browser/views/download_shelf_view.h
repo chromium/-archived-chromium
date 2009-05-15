@@ -72,6 +72,9 @@ class DownloadShelfView : public DownloadShelf,
   // Paints the border.
   void PaintBorder(gfx::Canvas* canvas);
 
+  // Returns true if the shelf is wide enough to show the first download item.
+  bool CanFitFirstDownloadItem();
+
   // The animation for adding new items to the shelf.
   scoped_ptr<SlideAnimation> new_item_animation_;
 
