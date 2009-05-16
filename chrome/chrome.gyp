@@ -5,6 +5,20 @@
 {
   'variables': {
     'chromium_code': 1,
+
+     # Define the common dependencies that contain all the actual
+     # Chromium functionality.  This list gets pulled in below by
+     # the link of the actual chrome (or chromium) executable on
+     # Linux or Mac, and into chrome.dll on Windows.
+     'chromium_dependencies': [
+       'common',
+       'browser',
+       'renderer',
+       'views',
+       '../printing/printing.gyp:printing',
+       '../webkit/webkit.gyp:inspector_resources',
+     ],
+
     # Mac NOTE: at the start of the conditions block we default some vars
     # that control features based on the branding, this way each place that
     # needs to know about the feature isn't hard coded to the branding type.
@@ -1967,22 +1981,12 @@
       'target_name': 'app',
       'type': 'executable',
       'mac_bundle': 1,
-      'dependencies': [
-        'common',
-        'browser',
-        'renderer',
-        'utility',
-        '../printing/printing.gyp:printing',
-        '../webkit/webkit.gyp:inspector_resources',
-      ],
       'sources': [
         # All .cc, .h, .m, and .mm files under app except for tests.
         'app/breakpad_win.cc',
         'app/breakpad_win.h',
         'app/breakpad_mac.mm',
         'app/breakpad_mac.h',
-        'app/chrome_dll_main.cc',
-        'app/chrome_dll_resource.h',
         'app/chrome_exe_main.cc',
         'app/chrome_exe_main.mm',
         'app/chrome_exe_main_gtk.cc',
@@ -2152,17 +2156,33 @@
           ],
         }],
         ['OS=="win"', {
-          'include_dirs': [
-            'third_party/wtl/include',
-          ],
           'dependencies': [
-            'views',
-            '../breakpad/breakpad.gyp:breakpad_handler',
-            '../breakpad/breakpad.gyp:breakpad_sender',
+            # On Windows, make sure we've built chrome.dll, which
+            # contains all of the library code with Chromium
+            # functionality.
+            'chrome_dll',
+            'installer/util/util.gyp:installer_util',
+            '../build/temp_gyp/breakpad.gyp:breakpad_handler',
+            '../build/temp_gyp/breakpad.gyp:breakpad_sender',
+            '../google_update/google_update.gyp:google_update',
             '../sandbox/sandbox.gyp:sandbox',
-            'worker',
           ],
+          'msvs_settings': {
+            'VCLinkerTool': {
+              'ImportLibrary': '$(OutDir)\\lib\\chrome_exe.lib',
+            },
+          },
         },{  # 'OS!="win"
+          'dependencies': [
+            # On Linux and Mac, link the dependencies (libraries)
+            # that make up actual Chromium functionality directly
+            # into the executable.
+            '<@(chromium_dependencies)',
+          ],
+          'sources': [
+            'app/chrome_dll_main.cc',
+            'app/chrome_dll_resource.h',
+          ],
           'variables': {
             'repack_path': '../tools/data_pack/repack.py',
           },
@@ -3482,6 +3502,46 @@
     }], # OS=="win" or OS=="linux"
     ['OS=="win"',
       { 'targets': [
+        {
+          'target_name': 'chrome_dll',
+          'type': 'shared_library',
+          'product_name': 'chrome',
+          'include_dirs': [
+            'third_party/wtl/include',
+          ],
+          'dependencies': [
+            # On Windows, link the dependencies (libraries) that make
+            # up actual Chromium functionality into this .dll.
+            '<@(chromium_dependencies)',
+            'chrome_resources',
+            'worker',
+            '../net/net.gyp:net_resources',
+            '../webkit/webkit.gyp:webkit_resources',
+          ],
+          'sources': [
+            'app/chrome_dll_main.cc',
+            'app/chrome_dll_resource.h',
+
+            '../webkit/glue/resources/aliasb.cur',
+            '../webkit/glue/resources/cell.cur',
+            '../webkit/glue/resources/col_resize.cur',
+            '../webkit/glue/resources/copy.cur',
+            '../webkit/glue/resources/row_resize.cur',
+            '../webkit/glue/resources/vertical_text.cur',
+            '../webkit/glue/resources/zoom_in.cur',
+            '../webkit/glue/resources/zoom_out.cur',
+            #'app/check_dependents.bat',
+            #'app/chrome.dll.deps',
+            #'app/chrome_dll.rc',
+            #'app/chrome_dll_resource.h',
+            #'app/chrome_dll_version.rc.version',
+          ],
+          'msvs_settings': {
+            'VCLinkerTool': {
+              'ImportLibrary': '$(OutDir)\\lib\\chrome_dll.lib',
+            },
+          },
+        },
         {
           'target_name': 'interactive_ui_tests',
           'type': 'executable',
