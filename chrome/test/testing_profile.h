@@ -11,6 +11,7 @@
 #include "base/file_util.h"
 #include "chrome/browser/bookmarks/bookmark_model.h"
 #include "chrome/browser/browser_prefs.h"
+#include "chrome/browser/browser_theme_provider.h"
 #include "chrome/browser/history/history.h"
 #include "chrome/browser/profile.h"
 #include "chrome/browser/search_engines/template_url_model.h"
@@ -51,6 +52,9 @@ class TestingProfile : public Profile {
 
   // Creates a TemplateURLModel. If not invoked the TemplateURLModel is NULL.
   void CreateTemplateURLModel();
+
+  // Creates a ThemeProvider. If not invoked the ThemeProvider is NULL.
+  void CreateThemeProvider();
 
   virtual FilePath GetPath() {
     return path_;
@@ -123,7 +127,7 @@ class TestingProfile : public Profile {
   virtual void SetTheme(Extension* extension) { }
   virtual void ClearTheme() { }
   virtual ThemeProvider* GetThemeProvider() {
-    return NULL;
+    return theme_provider_.get();
   }
   virtual URLRequestContext* GetRequestContext() {
     return NULL;
@@ -227,6 +231,9 @@ class TestingProfile : public Profile {
 
   // The SessionService. Defaults to NULL, but can be set using the setter.
   scoped_refptr<SessionService> session_service_;
+
+  // The theme provider. Only created if CreateThemeProvider is invoked.
+  scoped_refptr<BrowserThemeProvider> theme_provider_;
 
   // Do we have a history service? This defaults to the value of
   // history_service, but can be explicitly set.

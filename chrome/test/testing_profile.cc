@@ -165,6 +165,10 @@ void TestingProfile::CreateTemplateURLModel() {
   template_url_model_.reset(new TemplateURLModel(this));
 }
 
+void TestingProfile::CreateThemeProvider() {
+  theme_provider_ = new BrowserThemeProvider();
+}
+
 void TestingProfile::BlockUntilHistoryProcessesPendingRequests() {
   DCHECK(history_service_.get());
   DCHECK(MessageLoop::current());

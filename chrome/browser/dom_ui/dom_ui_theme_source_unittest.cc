@@ -25,63 +25,65 @@ class MockThemeSource : public DOMUIThemeSource {
   size_t result_data_size_;
 };
 
-// A mock profile
-class MockProfile : public TestingProfile {
+class DOMUISourcesTest : public testing::Test {
  public:
-  ThemeProvider* GetThemeProvider() { return new BrowserThemeProvider(); }
+  TestingProfile* profile() const { return profile_.get(); }
+  MockThemeSource* theme_source() const { return theme_source_.get(); }
+ private:
+  virtual void SetUp() {
+    profile_.reset(new TestingProfile());
+    profile_.get()->CreateThemeProvider();
+    theme_source_ = new MockThemeSource(profile_.get());
+  }
+
+  virtual void TearDown() {
+    theme_source_ = NULL;
+    profile_.reset(NULL);
+  }
+
+  scoped_ptr<TestingProfile> profile_;
+  scoped_refptr<MockThemeSource> theme_source_;
 };
 
-
-TEST(DOMUISources, ThemeSourceMimeTypes) {
-  MockProfile* profile = new MockProfile();
-  DOMUIThemeSource* theme_source = new DOMUIThemeSource(profile);
-
-  EXPECT_EQ(theme_source->GetMimeType("css/newtab.css"), "text/css");
-  EXPECT_EQ(theme_source->GetMimeType("css/newtab.css?foo"), "text/css");
-  EXPECT_EQ(theme_source->GetMimeType("WRONGURL"), "image/png");
+TEST_F(DOMUISourcesTest, ThemeSourceMimeTypes) {
+  EXPECT_EQ(theme_source()->GetMimeType("css/newtab.css"), "text/css");
+  EXPECT_EQ(theme_source()->GetMimeType("css/newtab.css?foo"), "text/css");
+  EXPECT_EQ(theme_source()->GetMimeType("WRONGURL"), "image/png");
 }
 
-TEST(DOMUISources, ThemeSourceImages) {
-  MockProfile* profile = new MockProfile();
-  MockThemeSource* theme_source = new MockThemeSource(profile);
-
+TEST_F(DOMUISourcesTest, ThemeSourceImages) {
   // Our test data. Rather than comparing the data itself, we just compare
   // its size.
-  ThemeProvider* tp = profile->GetThemeProvider();
-  SkBitmap* image = tp->GetBitmapNamed(IDR_THEME_FRAME);
+  SkBitmap* image = ResourceBundle::GetSharedInstance().GetBitmapNamed(IDR_THEME_FRAME);
   std::vector<unsigned char> png_bytes;
   PNGEncoder::EncodeBGRASkBitmap(*image, false, &png_bytes);
 
-  theme_source->StartDataRequest("theme_frame", 1);
-  EXPECT_EQ(theme_source->result_request_id_, 1);
-  EXPECT_EQ(theme_source->result_data_size_, png_bytes.size());
+  theme_source()->StartDataRequest("theme_frame", 1);
+  EXPECT_EQ(theme_source()->result_request_id_, 1);
+  EXPECT_EQ(theme_source()->result_data_size_, png_bytes.size());
 
-  theme_source->StartDataRequest("theme_toolbar", 2);
-  EXPECT_EQ(theme_source->result_request_id_, 2);
-  EXPECT_NE(theme_source->result_data_size_, png_bytes.size());
+  theme_source()->StartDataRequest("theme_toolbar", 2);
+  EXPECT_EQ(theme_source()->result_request_id_, 2);
+  EXPECT_NE(theme_source()->result_data_size_, png_bytes.size());
 }
 
-// TODO(glen): Reenable.
-/*
-TEST(DOMUISources, ThemeSourceCSS) {
-  MockProfile* profile = new MockProfile();
-  MockThemeSource* theme_source = new MockThemeSource(profile);
-
+TEST_F(DOMUISourcesTest, ThemeSourceCSS) {
   // Generating the test data for the NTP CSS would just involve copying the
   // method, or being super brittle and hard-coding the result (requiring
   // an update to the unittest every time the CSS template changes), so we
   // just check for a successful request and data that is non-null.
-  theme_source->StartDataRequest("css/newtab.css", 1);
-  EXPECT_EQ(theme_source->result_request_id_, 1);
-  EXPECT_NE(theme_source->result_data_size_, 0);
+  size_t empty_size = 0;
 
-  theme_source->StartDataRequest("css/newtab.css?pie", 3);
-  EXPECT_EQ(theme_source->result_request_id_, 3);
-  EXPECT_NE(theme_source->result_data_size_, 0);
+  theme_source()->StartDataRequest("css/newtab.css", 1);
+  EXPECT_EQ(theme_source()->result_request_id_, 1);
+  EXPECT_NE(theme_source()->result_data_size_, empty_size);
+
+  theme_source()->StartDataRequest("css/newtab.css?pie", 3);
+  EXPECT_EQ(theme_source()->result_request_id_, 3);
+  EXPECT_NE(theme_source()->result_data_size_, empty_size);
 
   // Check that we send NULL back when we can't find what we're looking for.
-  theme_source->StartDataRequest("css/WRONGURL", 7);
-  EXPECT_EQ(theme_source->result_request_id_, 7);
-  EXPECT_EQ(theme_source->result_data_size_, 0);
+  theme_source()->StartDataRequest("css/WRONGURL", 7);
+  EXPECT_EQ(theme_source()->result_request_id_, 7);
+  EXPECT_EQ(theme_source()->result_data_size_, empty_size);
 }
-*/
