@@ -14,10 +14,20 @@ bool PlatformMimeUtil::GetPlatformMimeTypeFromExtension(
     const FilePath::StringType& ext, std::string* result) const {
   FilePath::StringType dummy_path = "foo." + ext;
   std::string out = mime_util::GetFileMimeType(dummy_path);
+
   // GetFileMimeType likes to return application/octet-stream
   // for everything it doesn't know - ignore that.
   if (out == "application/octet-stream" || !out.length())
     return false;
+
+  // GetFileMimeType returns image/x-ico because that's what's in the XDG
+  // mime database. That database is the merger of the Gnome and KDE mime
+  // databases. Apparently someone working on KDE in 2001 decided .ico
+  // resolves to image/x-ico, whereas the rest of the world uses image/x-icon.
+  // FWIW, image/vnd.microsoft.icon is the official IANA assignment.
+  if (out == "image/x-ico")
+    out = "image/x-icon";
+
   *result = out;
   return true;
 }
