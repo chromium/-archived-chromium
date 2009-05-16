@@ -13,6 +13,7 @@
       'actions': [
         {
           'action_name': 'setup_mount',
+          'msvs_cygwin_shell': 0,
           'inputs': [
             '../../third_party/cygwin/setup_mount.bat',
           ],
