@@ -1,0 +1,7 @@
+{
+  "name": "ViewTest",
+  "description": "Clicking on any toolstrip or background page should 'claim' the 'strong' typeface from the others by calling claim() directly on their window objects",
+  "version": "0.1",
+  "toolstrips": ["ts1.html", "ts2.html"],
+  "background_page": "bg.html"
+}

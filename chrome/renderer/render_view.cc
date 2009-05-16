@@ -1532,6 +1532,12 @@ void RenderView::DocumentElementAvailable(WebFrame* frame) {
   if (frame->GetURL().SchemeIs(chrome::kExtensionScheme))
     frame->GrantUniversalAccess();
 
+  // Tell extensions to self-register their js contexts.
+  // TODO:(rafaelw): This is kind of gross. We need a way to call through
+  // the glue layer to retrieve the current v8::Context.
+  if (frame->GetURL().SchemeIs(chrome::kExtensionScheme))
+    ExtensionProcessBindings::RegisterExtensionContext(frame);
+
   if (RenderThread::current())  // Will be NULL during unit tests.
     RenderThread::current()->user_script_slave()->InjectScripts(
         frame, UserScript::DOCUMENT_START);

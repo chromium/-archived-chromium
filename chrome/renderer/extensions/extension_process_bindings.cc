@@ -6,6 +6,7 @@
 
 #include "base/singleton.h"
 #include "chrome/common/render_messages.h"
+#include "chrome/common/url_constants.h"
 #include "chrome/renderer/extensions/bindings_utils.h"
 #include "chrome/renderer/extensions/event_bindings.h"
 #include "chrome/renderer/extensions/renderer_extension_bindings.h"
@@ -29,6 +30,14 @@ const char* kExtensionDeps[] = {
   RendererExtensionBindings::kName,
 };
 
+// Types for storage of per-renderer-singleton data structure that maps
+// |extension_id| -> <List of v8 Contexts for the "views" of that extension>
+typedef std::list< v8::Persistent<v8::Context> > ContextList;
+typedef std::map<std::string, ContextList> ExtensionIdContextsMap;
+struct ExtensionViewContexts {
+  ExtensionIdContextsMap contexts;
+};
+
 class ExtensionImpl : public v8::Extension {
  public:
   ExtensionImpl() : v8::Extension(
@@ -48,6 +57,12 @@ class ExtensionImpl : public v8::Extension {
 
     if (name->Equals(v8::String::New("GetNextRequestId")))
       return v8::FunctionTemplate::New(GetNextRequestId);
+    else if (name->Equals(v8::String::New("RegisterExtension")))
+      return v8::FunctionTemplate::New(RegisterExtension);
+    else if (name->Equals(v8::String::New("UnregisterExtension")))
+      return v8::FunctionTemplate::New(UnregisterExtension);
+    else if (name->Equals(v8::String::New("GetViews")))
+      return v8::FunctionTemplate::New(GetViews);
     else if (names->find(*v8::String::AsciiValue(name)) != names->end())
       return v8::FunctionTemplate::New(StartRequest, name);
 
@@ -61,6 +76,70 @@ class ExtensionImpl : public v8::Extension {
 
   static std::set<std::string>* GetFunctionNameSet() {
     return &Singleton<SingletonData>()->function_names_;
+  }
+
+  static ContextList& GetRegisteredContexts(std::string extension_id) {
+    return Singleton<ExtensionViewContexts>::get()->contexts[extension_id];
+  }
+
+  static v8::Handle<v8::Value> RegisterExtension(const v8::Arguments& args) {
+    RenderView* renderview = GetRenderViewForCurrentContext();
+    DCHECK(renderview);
+    GURL url = renderview->webview()->GetMainFrame()->GetURL();
+    DCHECK(url.scheme() == chrome::kExtensionScheme);
+
+    v8::Persistent<v8::Context> current_context =
+        v8::Persistent<v8::Context>::New(v8::Context::GetCurrent());
+    DCHECK(!current_context.IsEmpty());
+
+    std::string extension_id = url.host();
+    GetRegisteredContexts(extension_id).push_back(current_context);
+    return v8::String::New(extension_id.c_str());
+  }
+
+  static v8::Handle<v8::Value> UnregisterExtension(const v8::Arguments& args) {
+    DCHECK_EQ(args.Length(), 1);
+    DCHECK(args[0]->IsString());
+
+    std::string extension_id(*v8::String::Utf8Value(args[0]));
+    ContextList& contexts = GetRegisteredContexts(extension_id);
+    v8::Local<v8::Context> current_context = v8::Context::GetCurrent();
+    DCHECK(!current_context.IsEmpty());
+
+    ContextList::iterator it = std::find(contexts.begin(), contexts.end(),
+                                         current_context);
+    if (it == contexts.end()) {
+      NOTREACHED();
+      return v8::Undefined();
+    }
+
+    it->Dispose();
+    it->Clear();
+    contexts.erase(it);
+
+    return v8::Undefined();
+  }
+
+  static v8::Handle<v8::Value> GetViews(const v8::Arguments& args) {
+    RenderView* renderview = GetRenderViewForCurrentContext();
+    DCHECK(renderview);
+    GURL url = renderview->webview()->GetMainFrame()->GetURL();
+    std::string extension_id = url.host();
+
+    ContextList& contexts = GetRegisteredContexts(extension_id);
+    DCHECK(contexts.size() > 0);
+
+    v8::Local<v8::Array> views = v8::Array::New(contexts.size());
+    int index = 0;
+    ContextList::const_iterator it = contexts.begin();
+    for (; it != contexts.end(); ++it) {
+      v8::Local<v8::Value> window = (*it)->Global()->Get(
+          v8::String::New("window"));
+      DCHECK(!window.IsEmpty());
+      views->Set(v8::Integer::New(index), window);
+      index++;
+    }
+    return views;
   }
 
   static v8::Handle<v8::Value> GetNextRequestId(const v8::Arguments& args) {
@@ -101,6 +180,11 @@ v8::Extension* ExtensionProcessBindings::Get() {
 void ExtensionProcessBindings::SetFunctionNames(
     const std::vector<std::string>& names) {
   ExtensionImpl::SetFunctionNames(names);
+}
+
+void ExtensionProcessBindings::RegisterExtensionContext(WebFrame* frame) {
+  frame->ExecuteScript(WebScriptSource(WebString::fromUTF8(
+      "chrome.self.register_();")));
 }
 
 void ExtensionProcessBindings::ExecuteResponseInFrame(

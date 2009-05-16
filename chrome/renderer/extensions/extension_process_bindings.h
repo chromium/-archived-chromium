@@ -27,6 +27,7 @@ class ExtensionProcessBindings {
 
   static void SetFunctionNames(const std::vector<std::string>& names);
   static v8::Extension* Get();
+  static void RegisterExtensionContext(WebFrame* frame);
   static void ExecuteResponseInFrame(CallContext *call, int request_id,
                                      bool success,
                                      const std::string& response,

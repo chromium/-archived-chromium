@@ -10,6 +10,9 @@
 var chrome;
 (function() {
   native function GetNextRequestId();
+  native function RegisterExtension();
+  native function UnregisterExtension();
+  native function GetViews();
   native function GetWindow();
   native function GetCurrentWindow();
   native function GetLastFocusedWindow();
@@ -499,7 +502,19 @@ var chrome;
   //----------------------------------------------------------------------------
 
   // Self.
-  chrome.self = {};
+  chrome.self = chrome.self || {};
   chrome.self.onConnect = new chrome.Event("channel-connect");
+  
+  // Register
+  chrome.self.register_ = function() {
+    var extensionId = RegisterExtension();
+    window.addEventListener('unload', function() {
+        UnregisterExtension(extensionId); }, false);
+    delete chrome.self.register_;
+  }
+
+  chrome.self.getViews = function() {
+    return GetViews();
+  }
 })();
 
