@@ -27,7 +27,7 @@ class TestLocationBar : public LocationBar {
   }
 
   // Overridden from LocationBar:
-  virtual void ShowFirstRunBubble() {}
+  virtual void ShowFirstRunBubble(bool use_OEM_bubble) {}
   virtual std::wstring GetInputString() const { return input_string_; }
   virtual WindowOpenDisposition GetWindowOpenDisposition() const {
     return disposition_;

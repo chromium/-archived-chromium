@@ -166,6 +166,7 @@ extern const wchar_t kSafeBrowsingWrappedKey[];
 
 extern const wchar_t kOptionsWindowLastTabIndex[];
 extern const wchar_t kShouldShowFirstRunBubble[];
+extern const wchar_t kShouldUseOEMFirstRunBubble[];
 extern const wchar_t kShouldShowWelcomePage[];
 
 extern const wchar_t kLastKnownGoogleURL[];

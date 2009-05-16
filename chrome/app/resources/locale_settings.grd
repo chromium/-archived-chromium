@@ -219,7 +219,7 @@
         <include name="IDR_TERMS_HTML" file="terms\terms_chromium.html" type="BINDATA" />
       </if>
     </includes>
-    <messages>
+    <messages fallback_to_english="true">
 
       <!-- The font used in web-style native pages (e.g. History). -->
       <message name="IDS_WEB_FONT_FAMILY" use_name_for_id="true">
@@ -505,6 +505,15 @@
       </message>
       <message name="IDS_FIRSTRUNBUBBLE_DIALOG_HEIGHT_LINES" use_name_for_id="true">
         12
+      </message>
+
+      <!-- The width and height of the First Run Search Information mini -->
+      <!-- bubble in characters and lines (See above). -->
+      <message name="IDS_FIRSTRUNOEMBUBBLE_DIALOG_WIDTH_CHARS" use_name_for_id="true">
+        70
+      </message>
+      <message name="IDS_FIRSTRUNOEMBUBBLE_DIALOG_HEIGHT_LINES" use_name_for_id="true">
+        4
       </message>
 
       <!-- The URL to be loaded to display Help -->

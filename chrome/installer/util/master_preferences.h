@@ -53,7 +53,9 @@ enum MasterPrefResult {
   // Show the EULA and do not install if not accepted.
   MASTER_PROFILE_REQUIRE_EULA                  = 0x1 << 13,
   // Use an alternate description text for some shortcuts.
-  MASTER_PROFILE_ALT_SHORTCUT_TXT              = 0x1 << 14
+  MASTER_PROFILE_ALT_SHORTCUT_TXT              = 0x1 << 14,
+  // Use a smaller OEM info bubble on first run.
+  MASTER_PROFILE_OEM_FIRST_RUN_BUBBLE          = 0x1 << 15
 };
 
 // The master preferences is a JSON file with the same entries as the
@@ -101,7 +103,7 @@ int ParseDistributionPreferences(const std::wstring& master_prefs_path);
 // As part of the master preferences an optional section indicates the tabs
 // to open during first run. An example is the following:
 //
-//  { 
+//  {
 //    "first_run_tabs": [
 //       "http://google.com/f1",
 //       "https://google.com/f2"

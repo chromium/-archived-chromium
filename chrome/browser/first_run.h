@@ -76,6 +76,11 @@ class FirstRun {
   // the pref could not be set.
   static bool SetShowFirstRunBubblePref();
 
+  // Sets the kShouldUseOEMFirstRunBubble local state pref so that the
+  // browser shows the OEM first run bubble once the main message loop
+  // gets going. Returns false if the pref could not be set.
+  static bool SetOEMFirstRunBubblePref();
+
   // Sets the kShouldShowWelcomePage local state pref so that the browser
   // loads the welcome tab once the message loop gets going. Returns false
   // if the pref could not be set.
