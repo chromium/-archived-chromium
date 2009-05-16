@@ -376,9 +376,12 @@ void CustomFrameView::PaintMaximizedFrameBorder(
     gfx::Canvas* canvas) {
   ResourceBundle& rb = ResourceBundle::GetSharedInstance();
 
-  SkBitmap* top_edge = rb.GetBitmapNamed(IDR_WINDOW_TOP_CENTER);
-  canvas->TileImageInt(*top_edge, 0, FrameBorderThickness(), width(),
-                       top_edge->height());
+  SkBitmap* theme_frame = frame_->IsActive() ?
+        rb.GetBitmapNamed(IDR_THEME_FRAME) :
+        rb.GetBitmapNamed(IDR_THEME_FRAME_INACTIVE);
+
+  canvas->TileImageInt(*theme_frame, 0, FrameBorderThickness(), width(),
+                       theme_frame->height());
 
   // The bottom of the titlebar actually comes from the top of the Client Edge
   // graphic, with the actual client edge clipped off the bottom.
