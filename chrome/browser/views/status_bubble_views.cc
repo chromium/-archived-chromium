@@ -101,7 +101,8 @@ class StatusBubbleViews::StatusView : public views::Label,
   typedef enum BubbleStyle {
     STYLE_BOTTOM,
     STYLE_FLOATING,
-    STYLE_STANDARD
+    STYLE_STANDARD,
+    STYLE_STANDARD_RIGHT
   };
 
   // Set the bubble text to a certain value, hides the bubble if text is
@@ -111,6 +112,8 @@ class StatusBubbleViews::StatusView : public views::Label,
   BubbleStage GetState() const { return stage_; }
 
   void SetStyle(BubbleStyle style);
+
+  BubbleStyle GetStyle() const { return style_; }
 
   // Show the bubble instantly.
   void Show();
@@ -343,7 +346,9 @@ void StatusBubbleViews::StatusView::Paint(gfx::Canvas* canvas) {
     rad[2] = 0;
     rad[3] = 0;
   } else {
-    if (UILayoutIsRightToLeft()) {
+    if (UILayoutIsRightToLeft() ^ (style_ == STYLE_STANDARD_RIGHT)) {
+      // The text is RtL or the bubble is on the right side (but not both).
+
       // Top Left corner.
       rad[0] = SkIntToScalar(kBubbleCornerRadius);
       rad[1] = SkIntToScalar(kBubbleCornerRadius);
@@ -364,7 +369,7 @@ void StatusBubbleViews::StatusView::Paint(gfx::Canvas* canvas) {
 
   // Bottom edges - square these off if the bubble is in its standard position
   // (sticking upward).
-  if (style_ == STYLE_STANDARD) {
+  if (style_ == STYLE_STANDARD || style_ == STYLE_STANDARD_RIGHT) {
     // Bottom Right Corner.
     rad[4] = 0;
     rad[5] = 0;
@@ -551,7 +556,8 @@ void StatusBubbleViews::AvoidMouse() {
 
   // Get the position of the frame.
   gfx::Point top_left;
-  views::View::ConvertPointToScreen(frame_->GetRootView(), &top_left);
+  views::RootView* root = frame_->GetRootView();
+  views::View::ConvertPointToScreen(root, &top_left);
 
   // Get the cursor position relative to the popup.
   cursor_location.x -= (top_left.x() + position_.x);
@@ -587,12 +593,36 @@ void StatusBubbleViews::AvoidMouse() {
       view_->SetStyle(StatusView::STYLE_STANDARD);
     }
 
-    offset_ = offset;
-    popup_->MoveWindow(top_left.x() + position_.x,
-                       top_left.y() + position_.y + offset_,
-                       size_.cx,
-                       size_.cy);
-  } else if (offset_ != 0) {
+    // Check if the bubble sticks out from the monitor.
+    MONITORINFO monitor_info;
+    monitor_info.cbSize = sizeof(monitor_info);
+    GetMonitorInfo(MonitorFromWindow(frame_->GetNativeView(),
+                                     MONITOR_DEFAULTTONEAREST), &monitor_info);
+    gfx::Rect monitor_rect(monitor_info.rcWork);
+    const int bubble_bottom_y = top_left.y() + position_.y + size_.cy;
+
+    if (bubble_bottom_y + offset > monitor_rect.height()) {
+      // The offset is still too large. Move the bubble to the right and reset
+      // Y offset_ to zero.
+      view_->SetStyle(StatusView::STYLE_STANDARD_RIGHT);
+      offset_ = 0;
+
+      int root_width = root->GetLocalBounds(true).width();  // border included.
+      // Substract border width + bubble width.
+      int right_position_x = root_width - (position_.x + size_.cx);
+      popup_->MoveWindow(top_left.x() + right_position_x,
+                         top_left.y() + position_.y,
+                         size_.cx,
+                         size_.cy);
+    } else {
+      offset_ = offset;
+      popup_->MoveWindow(top_left.x() + position_.x,
+                         top_left.y() + position_.y + offset_,
+                         size_.cx,
+                         size_.cy);
+    }
+  } else if (offset_ != 0 ||
+      view_->GetStyle() == StatusView::STYLE_STANDARD_RIGHT) {
     offset_ = 0;
     view_->SetStyle(StatusView::STYLE_STANDARD);
     popup_->MoveWindow(top_left.x() + position_.x,
