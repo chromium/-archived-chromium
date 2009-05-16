@@ -1466,6 +1466,7 @@ void WebViewImpl::SetPreferences(const WebPreferences& preferences) {
     settings->setUserStyleSheetLocation(KURL());
   }
   settings->setUsesPageCache(preferences.uses_page_cache);
+  settings->setDownloadableBinaryFontsEnabled(preferences.remote_fonts_enabled);
 
   // This setting affects the behavior of links in an editable region:
   // clicking the link should select it rather than navigate to it.

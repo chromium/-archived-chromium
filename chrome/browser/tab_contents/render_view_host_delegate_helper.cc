@@ -165,6 +165,8 @@ WebPreferences RenderViewHostDelegateHelper::GetWebkitPrefs(
         prefs->GetBoolean(prefs::kWebKitLoadsImagesAutomatically);
     web_prefs.uses_page_cache =
         command_line.HasSwitch(switches::kEnableFastback);
+    web_prefs.remote_fonts_enabled =
+        command_line.HasSwitch(switches::kEnableRemoteFonts);
   }
 
   web_prefs.uses_universal_detector =

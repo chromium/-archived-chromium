@@ -347,6 +347,10 @@ const wchar_t kDisablePlugins[]                = L"disable-plugins";
 // Prevent images from loading.
 const wchar_t kDisableImages[]                 = L"disable-images";
 
+// Enable remote web font support. SVG font should always work whether
+// this option is specified or not.
+const wchar_t kEnableRemoteFonts[]                 = L"enable-remote-fonts";
+
 // Use the low fragmentation heap for the CRT.
 const wchar_t kUseLowFragHeapCrt[]             = L"use-lf-heap";
 
