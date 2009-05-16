@@ -30,7 +30,6 @@
 #include "v8_binding.h"
 #include "V8NPObject.h"
 
-#include "V8Attr.h"
 #include "V8CanvasGradient.h"
 #include "V8CanvasPattern.h"
 #include "V8CustomEventListener.h"
@@ -39,7 +38,6 @@
 #include "V8HTMLCanvasElement.h"
 #include "V8HTMLDocument.h"
 #include "V8HTMLImageElement.h"
-#include "V8HTMLOptionElement.h"
 #include "V8NamedNodesCollection.h"
 #include "V8Node.h"
 #include "V8Proxy.h"
@@ -71,13 +69,9 @@
 #include "HTMLCanvasElement.h"
 #include "HTMLDocument.h"
 #include "HTMLEmbedElement.h"
-#include "HTMLFrameSetElement.h"
 #include "HTMLImageElement.h"
 #include "HTMLInputElement.h"
 #include "HTMLNames.h"
-#include "HTMLOptionElement.h"
-#include "HTMLOptionsCollection.h"
-#include "HTMLSelectElement.h"
 #include "History.h"
 #include "JSXPathNSResolver.h"
 #include "JSDOMBinding.h"
@@ -147,90 +141,6 @@ ACCESSOR_GETTER(DocumentImplementation) {
   info.Holder()->SetInternalField(kDocumentImplementationIndex, wrapper);
 
   return wrapper;
-}
-
-
-INDEXED_PROPERTY_GETTER(HTMLOptionsCollection) {
-  INC_STATS("DOM.HTMLOptionsCollection.IndexedPropertyGetter");
-  HTMLOptionsCollection* collection =
-      V8Proxy::ToNativeObject<HTMLOptionsCollection>(
-          V8ClassIndex::HTMLOPTIONSCOLLECTION, info.Holder());
-
-  RefPtr<Node> result = collection->item(index);
-  if (!result) return v8::Handle<v8::Value>();
-
-  return V8Proxy::NodeToV8Object(result.get());
-}
-
-static v8::Handle<v8::Value> OptionsCollectionSetter(uint32_t index,
-    v8::Handle<v8::Value> value, HTMLSelectElement* base) {
-  if (value->IsNull() || value->IsUndefined()) {
-    base->remove(index);
-    return value;
-  }
-
-  ExceptionCode ec = 0;
-
-  // Check that the value is an HTMLOptionElement.  If not, throw a
-  // TYPE_MISMATCH_ERR DOMException.
-  if (!V8HTMLOptionElement::HasInstance(value)) {
-    V8Proxy::SetDOMException(TYPE_MISMATCH_ERR);
-    return value;
-  }
-
-  HTMLOptionElement* element =
-      V8Proxy::DOMWrapperToNode<HTMLOptionElement>(
-          v8::Handle<v8::Object>::Cast(value));
-  base->setOption(index, element, ec);
-
-  V8Proxy::SetDOMException(ec);
-  return value;
-}
-
-
-INDEXED_PROPERTY_SETTER(HTMLOptionsCollection) {
-  INC_STATS("DOM.HTMLOptionsCollection.IndexedPropertySetter");
-  HTMLOptionsCollection* collection =
-      V8Proxy::ToNativeObject<HTMLOptionsCollection>(
-          V8ClassIndex::HTMLOPTIONSCOLLECTION, info.Holder());
-  HTMLSelectElement* base = static_cast<HTMLSelectElement*>(collection->base());
-  return OptionsCollectionSetter(index, value, base);
-}
-
-NAMED_PROPERTY_GETTER(HTMLSelectElementCollection) {
-  INC_STATS("DOM.HTMLSelectElementCollection.NamedPropertySetter");
-  HTMLSelectElement* select =
-    V8Proxy::DOMWrapperToNode<HTMLSelectElement>(info.Holder());
-  v8::Handle<v8::Value> value = info.Holder()->GetRealNamedPropertyInPrototypeChain(name);
-
-  if (!value.IsEmpty())
-    return value;
-
-  // Search local callback properties next to find IDL defined
-  // properties.
-  if (info.Holder()->HasRealNamedCallbackProperty(name))
-    return notHandledByInterceptor();
-
-  PassRefPtr<HTMLOptionsCollection> collection = select->options();
-
-  Vector<RefPtr<Node> > items;
-  collection->namedItems(v8StringToAtomicWebCoreString(name), items);
-
-  if (!items.size())
-    return v8::Handle<v8::Value>();
-
-  if (items.size() == 1)
-    return V8Proxy::NodeToV8Object(items.at(0).get());
-
-  NodeList* list = new V8NamedNodesCollection(items);
-  return V8Proxy::ToV8Object(V8ClassIndex::NODELIST, list);
-}
-
-INDEXED_PROPERTY_SETTER(HTMLSelectElementCollection) {
-  INC_STATS("DOM.HTMLSelectElementCollection.IndexedPropertySetter");
-  HTMLSelectElement* select =
-      V8Proxy::DOMWrapperToNode<HTMLSelectElement>(info.Holder());
-  return OptionsCollectionSetter(index, value, select);
 }
 
 // CanvasRenderingContext2D ----------------------------------------------------
