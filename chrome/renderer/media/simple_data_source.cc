@@ -15,7 +15,7 @@
 SimpleDataSource::SimpleDataSource(int32 routing_id)
     : routing_id_(routing_id),
       render_loop_(RenderThread::current()->message_loop()),
-      size_(0),
+      size_(-1),
       position_(0) {
 }
 
@@ -59,6 +59,7 @@ const media::MediaFormat& SimpleDataSource::media_format() {
 }
 
 size_t SimpleDataSource::Read(uint8* data, size_t size) {
+  DCHECK_GE(size_, 0);
   size_t copied = std::min(size, static_cast<size_t>(size_ - position_));
   memcpy(data, data_.c_str() + position_, copied);
   position_ += copied;
@@ -97,10 +98,6 @@ void SimpleDataSource::OnReceivedRedirect(const GURL& new_url) {
 void SimpleDataSource::OnReceivedResponse(
     const webkit_glue::ResourceLoaderBridge::ResponseInfo& info,
     bool content_filtered) {
-  // This is a simple data source, so we assume 200 responses with the content
-  // length provided.
-  DCHECK(url_.SchemeIsFile() || info.headers->response_code() == 200);
-  DCHECK(info.content_length != -1);
   size_ = info.content_length;
 }
 
@@ -110,9 +107,17 @@ void SimpleDataSource::OnReceivedData(const char* data, int len) {
 
 void SimpleDataSource::OnCompletedRequest(const URLRequestStatus& status,
                                           const std::string& security_info) {
-  DCHECK(size_ == data_.length());
-  position_ = 0;
   bridge_.reset();
+  // If we don't get a content length or the request has failed, report it
+  // as a network error.
+  DCHECK(size_ == -1 || size_ == data_.length());
+  if (size_ == -1)
+    size_ = data_.length();
+  if (!status.is_success()) {
+    host_->Error(media::PIPELINE_ERROR_NETWORK);
+  } else {
+    host_->InitializationComplete();
+  }
   host_->SetTotalBytes(size_);
   host_->SetBufferedBytes(size_);
   host_->InitializationComplete();
