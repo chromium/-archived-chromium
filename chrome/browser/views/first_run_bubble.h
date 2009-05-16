@@ -8,15 +8,14 @@
 #include "base/task.h"
 #include "chrome/browser/views/info_bubble.h"
 
-class FirstRunBubbleViewBase;
+class FirstRunBubbleView;
 class Profile;
 
 class FirstRunBubble : public InfoBubble,
                        public InfoBubbleDelegate {
  public:
   static FirstRunBubble* Show(Profile* profile, HWND parent_hwnd,
-                              const gfx::Rect& position_relative_to,
-                              bool use_OEM_bubble);
+                              const gfx::Rect& position_relative_to);
 
   FirstRunBubble()
       : enable_window_method_factory_(this),
@@ -30,7 +29,7 @@ class FirstRunBubble : public InfoBubble,
     enable_window_method_factory_.RevokeAll();
   }
 
-  void set_view(FirstRunBubbleViewBase* view) { view_ = view; }
+  void set_view(FirstRunBubbleView* view) { view_ = view; }
 
   // Overridden from InfoBubble:
   virtual void OnActivate(UINT action, BOOL minimized, HWND window);
@@ -50,7 +49,7 @@ class FirstRunBubble : public InfoBubble,
   ScopedRunnableMethodFactory<FirstRunBubble> enable_window_method_factory_;
 
   // The view inside the FirstRunBubble.
-  FirstRunBubbleViewBase* view_;
+  FirstRunBubbleView* view_;
 
   DISALLOW_COPY_AND_ASSIGN(FirstRunBubble);
 };
