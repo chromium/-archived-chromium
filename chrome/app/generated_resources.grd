@@ -2941,6 +2941,17 @@ each locale. -->
         Change search engine
       </message>
 
+      <!-- First run alternative minibubble popup -->
+      <message name="IDS_FR_OEM_BUBBLE_TITLE_1" desc="Bubble-like popup dialog title, part 1">
+        New!
+      </message>
+      <message name="IDS_FR_OEM_BUBBLE_TITLE_2" desc="Bubble-like popup dialog title, part 2">
+        Search from the address bar.
+      </message>
+      <message name="IDS_FR_OEM_BUBBLE_SUBTEXT" desc="Text under the title for the bubble. 'Orchids' may be translated into any locale-appropriate search term.">
+        Try it out - type "orchids" and press Enter.
+      </message>
+
       <!-- Sad Tab Strings -->
       <message name="IDS_SAD_TAB_TITLE" desc="The title of the sad tab page that is shown when a tab crashes. This is intended to be a humorous exclamation of dismay.">
         Aw, Snap!
