@@ -17,6 +17,7 @@
 #include "chrome/browser/bookmarks/bookmark_context_menu.h"
 #include "chrome/browser/bookmarks/bookmark_utils.h"
 #include "chrome/browser/browser.h"
+#include "chrome/browser/browser_theme_provider.h"
 #include "chrome/browser/extensions/extension.h"
 #include "chrome/browser/extensions/extension_view.h"
 #include "chrome/browser/extensions/extensions_service.h"
@@ -81,9 +82,6 @@ static SkBitmap* kDefaultFavIcon = NULL;
 
 // Icon used for folders.
 static SkBitmap* kFolderIcon = NULL;
-
-// Background color.
-static const SkColor kBackgroundColor = SkColorSetRGB(237, 244, 252);
 
 // Border colors for the BookmarBarView.
 static const SkColor kTopBorderColor = SkColorSetRGB(222, 234, 248);
@@ -324,7 +322,8 @@ class ButtonSeparatorView : public views::View {
     paint_down.setShader(skia::CreateGradientShader(height() / 2,
         height(),
         kSeparatorColor,
-        kBackgroundColor))->safeUnref();
+        GetThemeProvider()->GetColor(BrowserThemeProvider::COLOR_TOOLBAR)
+        ))->safeUnref();
     SkRect rc_down = {
         SkIntToScalar(kSeparatorStartX),  SkIntToScalar(height() / 2),
         SkIntToScalar(1), SkIntToScalar(height() - 1) };
@@ -586,10 +585,8 @@ void BookmarkBarView::Paint(gfx::Canvas* canvas) {
     // Draw our background.
     SkPaint paint;
     paint.setAntiAlias(true);
-    paint.setShader(skia::CreateGradientShader(0,
-                                               height(),
-                                               kTopBorderColor,
-                                               kBackgroundColor))->safeUnref();
+    paint.setColor(
+        GetThemeProvider()->GetColor(BrowserThemeProvider::COLOR_TOOLBAR));
 
     canvas->drawRoundRect(rect,
                           SkDoubleToScalar(roundness),
