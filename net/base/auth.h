@@ -18,7 +18,7 @@ class AuthChallengeInfo :
  public:
   bool is_proxy;  // true for Proxy-Authenticate, false for WWW-Authenticate.
   std::wstring host;  // the domain name of the server asking for auth
-  // (could be the proxy).
+                      // (could be the proxy).
   std::wstring scheme;  // "Basic", "Digest", or whatever other method is used.
   std::wstring realm;  // the realm provided by the server, if there is one.
 
@@ -27,7 +27,7 @@ class AuthChallengeInfo :
   ~AuthChallengeInfo() {}
 };
 
-//Authentication structures
+// Authentication structures
 enum AuthState {
   AUTH_STATE_DONT_NEED_AUTH,
   AUTH_STATE_NEED_AUTH,

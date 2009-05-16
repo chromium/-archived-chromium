@@ -147,13 +147,14 @@ void URLRequestFtpJob::SendRequest() {
   int port = request_->url().has_port() ?
       request_->url().IntPort() : INTERNET_DEFAULT_FTP_PORT;
 
-  connection_handle_ = InternetConnectA(GetTheInternet(),
-                                        request_->url().host().c_str(),
-                                        port,
-                                        have_auth ? username.c_str() : NULL,
-                                        have_auth ? password.c_str() : NULL,
-                                        INTERNET_SERVICE_FTP, flags,
-                                        reinterpret_cast<DWORD_PTR>(this));
+  connection_handle_ = InternetConnectA(
+      GetTheInternet(),
+      request_->url().HostNoBrackets().c_str(),
+      port,
+      have_auth ? username.c_str() : NULL,
+      have_auth ? password.c_str() : NULL,
+      INTERNET_SERVICE_FTP, flags,
+      reinterpret_cast<DWORD_PTR>(this));
 
   if (connection_handle_) {
     OnConnect();

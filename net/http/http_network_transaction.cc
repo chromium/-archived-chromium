@@ -654,8 +654,8 @@ int HttpNetworkTransaction::DoSSLConnect() {
 
   // Add a SSL socket on top of our existing transport socket.
   ClientSocket* s = connection_.release_socket();
-  s = socket_factory_->CreateSSLClientSocket(s, request_->url.host(),
-                                             ssl_config_);
+  s = socket_factory_->CreateSSLClientSocket(
+      s, request_->url.HostNoBrackets(), ssl_config_);
   connection_.set_socket(s);
   return connection_.socket()->Connect(&io_callback_);
 }
