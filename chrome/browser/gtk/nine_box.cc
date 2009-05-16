@@ -50,8 +50,13 @@ void NineBox::RenderToWidget(GtkWidget* dst) const {
   int dst_height = dst->allocation.height;
 
   cairo_t* cr = gdk_cairo_create(GDK_DRAWABLE(dst->window));
-  // Transform our cairo from window to widget coordinates.
-  cairo_translate(cr, dst->allocation.x, dst->allocation.y);
+  // For widgets that have their own window, the allocation (x,y) coordinates
+  // are GdkWindow relative. For other widgets, the coordinates are relative
+  // to their container.
+  if (GTK_WIDGET_NO_WINDOW(dst)) {
+    // Transform our cairo from window to widget coordinates.
+    cairo_translate(cr, dst->allocation.x, dst->allocation.y);
+  }
 
   // The upper-left and lower-right corners of the center square in the
   // rendering of the ninebox.
