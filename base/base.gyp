@@ -40,6 +40,22 @@
         'third_party/nss/sha512.cc',
         'third_party/purify/pure.h',
         'third_party/purify/pure_api.c',
+        'third_party/xdg_mime/xdgmime.c',
+        'third_party/xdg_mime/xdgmime.h',
+        'third_party/xdg_mime/xdgmimealias.c',
+        'third_party/xdg_mime/xdgmimealias.h',
+        'third_party/xdg_mime/xdgmimecache.c',
+        'third_party/xdg_mime/xdgmimecache.h',
+        'third_party/xdg_mime/xdgmimeglob.c',
+        'third_party/xdg_mime/xdgmimeglob.h',
+        'third_party/xdg_mime/xdgmimeicon.c',
+        'third_party/xdg_mime/xdgmimeicon.h',
+        'third_party/xdg_mime/xdgmimeint.c',
+        'third_party/xdg_mime/xdgmimeint.h',
+        'third_party/xdg_mime/xdgmimemagic.c',
+        'third_party/xdg_mime/xdgmimemagic.h',
+        'third_party/xdg_mime/xdgmimeparent.c',
+        'third_party/xdg_mime/xdgmimeparent.h',
         'atomicops_internals_x86_gcc.cc',
         'at_exit.cc',
         'at_exit.h',
@@ -167,6 +183,8 @@
         'message_pump_mac.mm',
         'message_pump_win.cc',
         'message_pump_win.h',
+        'mime_util.h',
+        'mime_util_linux.cc',
         'native_library.h',
         'native_library_linux.cc',
         'native_library_mac.mm',
@@ -374,8 +392,8 @@
                   # changes, which aren't captured by file dependencies.
                   '<(SHARED_INTERMEDIATE_DIR)/base/file_version_info_linux.bogus',
 
-		  # And this is the real output, so that the build system knows
-		  # what action generates it.
+                  # And this is the real output, so that the build system knows
+                  # what action generates it.
                   '<(SHARED_INTERMEDIATE_DIR)/base/file_version_info_linux.h',
                 ],
                 'action': [
@@ -415,6 +433,9 @@
             },
           },
           {  # else: OS != "linux"
+            'sources/': [
+              ['exclude', '/xdg_mime/'],
+            ],
             'sources!': [
               'crypto/signature_verifier_nss.cc',
               'atomicops_internals_x86_gcc.cc',

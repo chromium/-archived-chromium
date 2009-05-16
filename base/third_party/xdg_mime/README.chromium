@@ -1,0 +1,10 @@
+The original code of this module is at:
+http://webcvs.freedesktop.org/mime/xdgmime/
+
+The code in this directory is synced from:
+http://svn.gnome.org/svn/glib/trunk/gio/xdgmime/
+@ r7784 on 2009/05/11.
+This version contains some bugfixes to the original code.
+
+In addition, we have the following patch(es):
+- compile.patch: small tweaks to make the code compile.

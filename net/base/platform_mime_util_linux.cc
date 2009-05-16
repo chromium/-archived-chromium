@@ -4,23 +4,22 @@
 
 #include <string>
 
+#include "base/logging.h"
+#include "base/mime_util.h"
 #include "net/base/platform_mime_util.h"
 
 namespace net {
 
 bool PlatformMimeUtil::GetPlatformMimeTypeFromExtension(
     const FilePath::StringType& ext, std::string* result) const {
-  // The correct thing to do is to interact somehow with the freedesktop shared
-  // mime info cache. Since Linux (and other traditional *IX systems) don't use
-  // file extensions; they use mime types and have multiple ways of detecting
-  // that; some types can be guessed from globs (*.gif), but there's a whole
-  // bunch that use a magic byte test.
-  //
-  // Since this method only is called from inside mime_util where there is
-  // already a hard coded table of mime types, we just return false because it
-  // doesn't matter.
-
-  return false;
+  FilePath::StringType dummy_path = "foo." + ext;
+  std::string out = mime_util::GetFileMimeType(dummy_path);
+  // GetFileMimeType likes to return application/octet-stream
+  // for everything it doesn't know - ignore that.
+  if (out == "application/octet-stream" || !out.length())
+    return false;
+  *result = out;
+  return true;
 }
 
 bool PlatformMimeUtil::GetPreferredExtensionForMimeType(
@@ -34,6 +33,7 @@ bool PlatformMimeUtil::GetPreferredExtensionForMimeType(
   // (image/gif). We look up the "heaviest" glob for a certain mime type and
   // then then try to chop off "*.".
 
+  NOTIMPLEMENTED();
   return false;
 }
 
