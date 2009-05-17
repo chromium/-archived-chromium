@@ -310,6 +310,20 @@ TEST_F(ClientSocketPoolTest, PendingRequests_NoKeepAlive) {
   EXPECT_EQ(kNumRequests, TestSocketRequest::completion_count);
 }
 
+// This test will start up a RequestSocket() and then immediately Cancel() it.
+// The pending host resolution will eventually complete, and destroy the
+// ClientSocketPool which will crash if the group was not cleared properly.
+TEST_F(ClientSocketPoolTest, CancelRequestClearGroup) {
+  TestSocketRequest req(pool_.get(), &request_order_);
+  EXPECT_EQ(ERR_IO_PENDING,
+            req.handle.Init("a", "www.google.com", 80, 5, &req));
+  req.handle.Reset();
+  // There is a race condition here.  If the worker pool doesn't post the task
+  // before we get here, then this might not run ConnectingSocket::IOComplete
+  // and therefore leak the canceled ConnectingSocket.
+  MessageLoop::current()->RunAllPending();
+}
+
 TEST_F(ClientSocketPoolTest, CancelRequest) {
   scoped_ptr<TestSocketRequest> reqs[kNumRequests];
 
@@ -369,16 +383,6 @@ TEST_F(ClientSocketPoolTest, CancelRequest) {
             reqs[arraysize(reqs) - 1].get()) <<
       "The last request with priority 1 should not have been inserted "
       "earlier into the queue.";
-}
-
-// This test will start up a RequestSocket() and then immediately Cancel() it.
-// The pending host resolution will eventually complete, and destroy the
-// ClientSocketPool which will crash if the group was not cleared properly.
-TEST_F(ClientSocketPoolTest, CancelRequestClearGroup) {
-  TestSocketRequest req(pool_.get(), &request_order_);
-  EXPECT_EQ(ERR_IO_PENDING,
-            req.handle.Init("a", "www.google.com", 80, 5, &req));
-  req.handle.Reset();
 }
 
 }  // namespace
