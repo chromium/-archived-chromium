@@ -12,13 +12,16 @@
 
 namespace net {
 
+class ClientSocketFactory;
 class ProxyService;
 
 // This class holds session objects used by HttpNetworkTransaction objects.
 class HttpNetworkSession : public base::RefCounted<HttpNetworkSession> {
  public:
-  explicit HttpNetworkSession(ProxyService* proxy_service)
-      : connection_pool_(new ClientSocketPool(max_sockets_per_group_)),
+  HttpNetworkSession(ProxyService* proxy_service,
+                     ClientSocketFactory* client_socket_factory)
+      : connection_pool_(new ClientSocketPool(
+            max_sockets_per_group_, client_socket_factory)),
         proxy_service_(proxy_service) {
     DCHECK(proxy_service);
   }

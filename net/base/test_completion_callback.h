@@ -38,7 +38,6 @@ class TestCompletionCallback : public CallbackRunner< Tuple1<int> > {
     return result_;
   }
 
- private:
   virtual void RunWithParams(const Tuple1<int>& params) {
     result_ = params.a;
     have_result_ = true;
@@ -46,6 +45,7 @@ class TestCompletionCallback : public CallbackRunner< Tuple1<int> > {
       MessageLoop::current()->Quit();
   }
 
+ private:
   int result_;
   bool have_result_;
   bool waiting_for_result_;
