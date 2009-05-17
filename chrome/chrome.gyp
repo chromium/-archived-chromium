@@ -205,7 +205,7 @@
         'chrome_resources',
         'chrome_strings',
         'theme_resources',
-        '../app/app.gyp:app',
+        '../app/app.gyp:app_base',
         '../base/base.gyp:base',
         '../base/base.gyp:base_gfx',
         '../build/temp_gyp/googleurl.gyp:googleurl',
@@ -403,7 +403,7 @@
         ],
       },
       'export_dependent_settings': [
-        '../app/app.gyp:app',
+        '../app/app.gyp:app_base',
       ],
       'conditions': [
         ['OS=="linux"', {
