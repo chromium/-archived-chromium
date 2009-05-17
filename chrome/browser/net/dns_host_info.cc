@@ -234,13 +234,13 @@ void DnsHostInfo::DLogResultsStats(const char* message) const {
 //------------------------------------------------------------------------------
 
 // Preclude any possibility of Java Script or markup in the text, by only
-// allowing alphanumerics, ".", and whitespace.
+// allowing alphanumerics, '.', '-', ':', and whitespace.
 static std::string RemoveJs(const std::string& text) {
   std::string output(text);
   size_t length = output.length();
   for (size_t i = 0; i < length; i++) {
     char next = output[i];
-    if (isalnum(next) || isspace(next) || '.' == next || '-' == next)
+    if (isalnum(next) || isspace(next) || strchr(".-:", next) != NULL)
       continue;
     output[i] = '?';
   }
