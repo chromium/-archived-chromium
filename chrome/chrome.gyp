@@ -5,9 +5,6 @@
 {
   'variables': {
     'chromium_code': 1,
-    # Mac NOTE: at the start of the conditions block we default some vars
-    # that control features based on the branding, this way each place that
-    # needs to know about the feature isn't hard coded to the branding type.
   },
   'includes': [
     '../build/common.gypi',
@@ -152,114 +149,6 @@
       ],
     },
     {
-      # TODO(beng): rename to 'app' when moves to top level.
-      'target_name': 'app_base',
-      'type': '<(library)',
-      'msvs_guid': '4631946D-7D5F-44BD-A5A8-504C0A7033BE',
-      'dependencies': [
-        'chrome_resources',
-        'chrome_strings',
-        '../base/base.gyp:base',
-        '../base/base.gyp:base_gfx',
-        '../net/net.gyp:net',
-        '../skia/skia.gyp:skia',
-        '../third_party/icu38/icu38.gyp:icui18n',
-        '../third_party/icu38/icu38.gyp:icuuc',
-      ],
-      'include_dirs': [
-        '..',
-        'third_party/wtl/include',
-      ],
-      'sources': [
-        # All .cc, .h, and .mm files under app/ except for tests.
-        '../app/animation.cc',
-        '../app/animation.h',
-        '../app/app_paths.h',
-        '../app/app_paths.cc',
-        '../app/app_switches.h',
-        '../app/app_switches.cc',
-        '../app/drag_drop_types.cc',
-        '../app/drag_drop_types.h',
-        '../app/gfx/canvas.cc',
-        '../app/gfx/canvas.h',
-        '../app/gfx/canvas_linux.cc',
-        '../app/gfx/canvas_win.cc',
-        '../app/gfx/font.h',
-        '../app/gfx/font_gtk.cc',
-        '../app/gfx/font_mac.mm',
-        '../app/gfx/font_skia.cc',
-        '../app/gfx/font_win.cc',
-        '../app/gfx/color_utils.cc',
-        '../app/gfx/color_utils.h',
-        '../app/gfx/favicon_size.h',
-        '../app/gfx/gtk_util.cc',
-        '../app/gfx/gtk_util.h',
-        '../app/gfx/icon_util.cc',
-        '../app/gfx/icon_util.h',
-        '../app/gfx/insets.h',
-        '../app/gfx/path_gtk.cc',
-        '../app/gfx/path_win.cc',
-        '../app/gfx/path.h',
-        '../app/gfx/text_elider.cc',
-        '../app/gfx/text_elider.h',
-        '../app/l10n_util.cc',
-        '../app/l10n_util.h',
-        '../app/l10n_util_posix.cc',
-        '../app/l10n_util_win.cc',
-        '../app/l10n_util_win.h',
-        '../app/message_box_flags.h',
-        '../app/os_exchange_data_win.cc',
-        '../app/os_exchange_data_gtk.cc',
-        '../app/os_exchange_data.h',
-        '../app/resource_bundle.cc',
-        '../app/resource_bundle.h',
-        '../app/resource_bundle_win.cc',
-        '../app/resource_bundle_linux.cc',
-        '../app/resource_bundle_mac.mm',
-        '../app/slide_animation.cc',
-        '../app/slide_animation.h',
-        '../app/theme_provider.h',
-        '../app/throb_animation.cc',
-        '../app/throb_animation.h',
-        '../app/win_util.cc',
-        '../app/win_util.h',
-      ],
-      'direct_dependent_settings': {
-        'include_dirs': [
-          '..',
-        ],
-      },
-      'conditions': [
-        ['OS=="linux"', {
-          'dependencies': [
-            # font_gtk.cc uses fontconfig.
-            # TODO(evanm): I think this is wrong; it should just use GTK.
-            '../build/linux/system.gyp:fontconfig',
-            '../build/linux/system.gyp:gtk',
-          ],
-        }],
-        ['OS!="win"', {
-          'sources!': [
-            '../app/drag_drop_types.cc',
-            '../app/drag_drop_types.h',
-            '../app/gfx/icon_util.cc',
-            '../app/gfx/icon_util.h',
-            '../app/os_exchange_data.cc',
-          ],
-          'conditions': [
-            ['toolkit_views==0', {
-              # Note: because of gyp predence rules this has to be defined as
-              # 'sources/' rather than 'sources!'.
-              'sources/': [
-                ['exclude', '^../app/os_exchange_data_gtk.cc'],
-                ['exclude', '^../app/os_exchange_data.h'],
-              ],
-            }],
-          ],
-        }],
-      ],
-    },
-    {
       # theme_resources also generates a .cc file, so it can't use the rules above.
       'target_name': 'theme_resources',
       'type': 'none',
@@ -313,10 +202,10 @@
       'target_name': 'common',
       'type': '<(library)',
       'dependencies': [
-        'app_base',
         'chrome_resources',
         'chrome_strings',
         'theme_resources',
+        '../app/app.gyp:app',
         '../base/base.gyp:base',
         '../base/base.gyp:base_gfx',
         '../build/temp_gyp/googleurl.gyp:googleurl',
@@ -514,7 +403,7 @@
         ],
       },
       'export_dependent_settings': [
-        'app_base',
+        '../app/app.gyp:app',
       ],
       'conditions': [
         ['OS=="linux"', {

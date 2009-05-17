@@ -21,6 +21,7 @@
       'type': 'none',
       'xcode_create_dependents_test_runner': 1,
       'dependencies': [
+        '../app/app.gyp:*',
         '../base/base.gyp:*',
         '../media/media.gyp:*',
         '../net/net.gyp:*',
