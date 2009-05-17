@@ -5,9 +5,6 @@
 {
   'variables': {
     'chromium_code': 1,
-    # Mac NOTE: at the start of the conditions block we default some vars
-    # that control features based on the branding, this way each place that
-    # needs to know about the feature isn't hard coded to the branding type.
   },
   'includes': [
     '../build/common.gypi',
