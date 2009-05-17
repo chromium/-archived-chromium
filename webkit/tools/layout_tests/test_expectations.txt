@@ -2663,3 +2663,6 @@ BUG12054 MAC LINUX : LayoutTests/editing/execCommand/outdent-blockquote-test3.ht
 BUG12054 MAC LINUX : LayoutTests/editing/execCommand/outdent-blockquote-test4.html = FAIL
 BUG12054 MAC LINUX : LayoutTests/fast/text/international/danda-space.html = FAIL
 BUG12054 MAC LINUX : LayoutTests/fast/text/international/thai-baht-space.html = FAIL
+
+// New test, added in http://trac.webkit.org/changeset/43793, fails for us.
+BUG12104 : LayoutTests/fast/backgrounds/background-clip-text.html
