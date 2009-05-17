@@ -100,6 +100,8 @@ class BufferedResourceLoader :
  private:
   // Append buffer to the queue of buffers.
   void AppendToBuffer(const uint8* buffer, size_t size);
+
+  // Destroy buffers in |buffers_|.
   void SignalComplete();
   bool ShouldEnableDefer();
   bool ShouldDisableDefer();
@@ -126,7 +128,8 @@ class BufferedResourceLoader :
   int64 offset_;
   int64 content_length_;
 
-  std::deque<Buffer*> buffers_;
+  typedef std::deque<Buffer*> BufferQueue;
+  BufferQueue buffers_;
   size_t buffered_bytes_;
   size_t buffer_limit_;
   base::WaitableEvent buffer_event_;

@@ -5,6 +5,7 @@
 #include "base/compiler_specific.h"
 #include "base/message_loop.h"
 #include "base/process_util.h"
+#include "base/stl_util-inl.h"
 #include "base/string_util.h"
 #include "chrome/common/extensions/url_pattern.h"
 #include "chrome/renderer/media/buffered_data_source.h"
@@ -56,13 +57,10 @@ BufferedResourceLoader::BufferedResourceLoader(int32 routing_id,
       first_byte_position_(first_byte_position),
       last_byte_position_(last_byte_position),
       render_loop_(RenderThread::current()->message_loop()) {
-  AddRef();
 }
 
 BufferedResourceLoader::~BufferedResourceLoader() {
-  for (size_t i = 0; i < buffers_.size(); ++i)
-    delete buffers_[i];
-  buffers_.clear();
+  STLDeleteElements<BufferQueue>(&buffers_);
 }
 
 int BufferedResourceLoader::Start(net::CompletionCallback* start_callback) {
@@ -142,10 +140,15 @@ int BufferedResourceLoader::Start(net::CompletionCallback* start_callback) {
 }
 
 void BufferedResourceLoader::Stop() {
+  BufferQueue delete_queue;
   {
     AutoLock auto_lock(lock_);
     stopped_ = true;
+    // Use of |buffers_| is protected by the lock, we can destroy it safely.
+    delete_queue.swap(buffers_);
+    buffers_.clear();
   }
+  STLDeleteElements<BufferQueue>(&delete_queue);
 
   // Wakes up the waiting thread so they can catch the stop signal.
   render_loop_->PostTask(FROM_HERE,
@@ -375,18 +378,17 @@ void BufferedResourceLoader::OnCompletedRequest(
 
   if (async_start_)
     InvokeAndResetStartCallback(status.os_error());
-  Release();
 }
 
 /////////////////////////////////////////////////////////////////////////////
 // BufferedResourceLoader, private
 void BufferedResourceLoader::AppendToBuffer(const uint8* data, size_t size) {
-  scoped_ptr<Buffer> buffer(new Buffer(size));
-  memcpy(buffer->data.get(), data, size);
   {
     AutoLock auto_lock(lock_);
     if (!stopped_) {
-      buffers_.push_back(buffer.release());
+      Buffer* buffer = new Buffer(size);
+      memcpy(buffer->data.get(), data, size);
+      buffers_.push_back(buffer);
       buffered_bytes_ += size;
     }
   }
@@ -430,6 +432,7 @@ void BufferedResourceLoader::OnDestroy() {
   DCHECK(MessageLoop::current() == render_loop_);
   if (bridge_.get()) {
     bridge_->Cancel();
+    bridge_.reset();
   }
 }
 
