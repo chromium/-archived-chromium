@@ -50,6 +50,7 @@ class Message;
 //---------------------------------------------------------------------------
 // These stubs are for Browser_main()
 
+#if defined(OS_LINUX)
 class GoogleUpdateSettings {
  public:
   static bool GetCollectStatsConsent() {
@@ -83,6 +84,7 @@ class GoogleUpdateSettings {
  private:
   DISALLOW_IMPLICIT_CONSTRUCTORS(GoogleUpdateSettings);
 };
+#endif  // OS_LINUX
 
 void OpenFirstRunDialog(Profile* profile, ProcessSingleton* process_singleton);
 

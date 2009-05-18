@@ -13,6 +13,7 @@
 #import "base/scoped_nsautorelease_pool.h"
 #include "base/sys_string_conversions.h"
 #import "breakpad/src/client/mac/Framework/Breakpad.h"
+#include "chrome/installer/util/google_update_settings.h"
 
 #if !defined(GOOGLE_CHROME_BUILD)
 // If we aren't compiling as a branded build, then add dummy versions of the
@@ -41,12 +42,6 @@ namespace {
 
 BreakpadRef gBreakpadRef = NULL;
 
-// Did the user optin for reporting stats.
-bool IsStatsReportingAllowed() {
-  NOTIMPLEMENTED();
-  return true;
-}
-
 } // namespace
 
 bool IsCrashReporterEnabled() {
@@ -67,7 +62,7 @@ void InitCrashReporter() {
 
   // Check for Send stats preference. If preference is not specifically turned
   // on then disable crash reporting.
-  if (!IsStatsReportingAllowed()) {
+  if (!GoogleUpdateSettings::GetCollectStatsConsent()) {
     LOG(WARNING) << "Breakpad disabled";
     return;
   }

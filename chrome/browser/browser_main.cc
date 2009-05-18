@@ -90,7 +90,6 @@
 #include "chrome/browser/rlz/rlz.h"
 #include "chrome/browser/views/user_data_dir_dialog.h"
 #include "chrome/common/env_vars.h"
-#include "chrome/installer/util/google_update_settings.h"
 #include "chrome/installer/util/helper.h"
 #include "chrome/installer/util/install_util.h"
 #include "chrome/installer/util/shell_util.h"
@@ -107,6 +106,10 @@
 #if defined(TOOLKIT_GTK)
 #include "chrome/common/gtk_util.h"
 #endif
+
+#if defined(OS_WIN) || defined(OS_MACOSX)
+#include "chrome/installer/util/google_update_settings.h"
+#endif  // OS_WIN || OS_MACOSX
 
 namespace Platform {
 
