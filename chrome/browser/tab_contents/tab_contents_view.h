@@ -129,6 +129,10 @@ class TabContentsView : public RenderViewHostDelegate::View {
   // invoked, SetInitialFocus is invoked.
   virtual void RestoreFocus() = 0;
 
+  // Simple mouse event forwarding from the RenderViewHost.
+  virtual void HandleMouseEvent() {}
+  virtual void HandleMouseLeave() {}
+
   // Set and return the content's intrinsic width.
   virtual void UpdatePreferredWidth(int pref_width);
   int preferred_width() const {

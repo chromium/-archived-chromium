@@ -1371,6 +1371,26 @@ gfx::Rect RenderViewHost::GetRootWindowResizerRect() const {
   return delegate_->GetRootWindowResizerRect();
 }
 
+void RenderViewHost::ForwardMouseEvent(
+    const WebKit::WebMouseEvent& mouse_event) {
+  RenderWidgetHost::ForwardMouseEvent(mouse_event);
+
+  RenderViewHostDelegate::View* view = delegate_->GetViewDelegate();
+  if (view) {
+    switch (mouse_event.type) {
+      case WebInputEvent::MouseMove:
+        view->HandleMouseEvent();
+        break;
+      case WebInputEvent::MouseLeave:
+        view->HandleMouseLeave();
+        break;
+      default:
+        // For now, we don't care about the rest.
+        break;
+    }
+  }
+}
+
 void RenderViewHost::OnDebugDisconnect() {
   if (debugger_attached_) {
     debugger_attached_ = false;

@@ -85,6 +85,8 @@ class InterstitialPage::InterstitialPageRVHViewDelegate
   virtual void UpdateDragCursor(bool is_drop_target);
   virtual void TakeFocus(bool reverse);
   virtual void HandleKeyboardEvent(const NativeWebKeyboardEvent& event);
+  virtual void HandleMouseEvent();
+  virtual void HandleMouseLeave();
   virtual void OnFindReply(int request_id,
                            int number_of_matches,
                            const gfx::Rect& selection_rect,
@@ -531,6 +533,16 @@ void InterstitialPage::InterstitialPageRVHViewDelegate::HandleKeyboardEvent(
     const NativeWebKeyboardEvent& event) {
   if (interstitial_page_->tab() && interstitial_page_->tab()->GetViewDelegate())
     interstitial_page_->tab()->GetViewDelegate()->HandleKeyboardEvent(event);
+}
+
+void InterstitialPage::InterstitialPageRVHViewDelegate::HandleMouseEvent() {
+  if (interstitial_page_->tab() && interstitial_page_->tab()->GetViewDelegate())
+    interstitial_page_->tab()->GetViewDelegate()->HandleMouseEvent();
+}
+
+void InterstitialPage::InterstitialPageRVHViewDelegate::HandleMouseLeave() {
+  if (interstitial_page_->tab() && interstitial_page_->tab()->GetViewDelegate())
+    interstitial_page_->tab()->GetViewDelegate()->HandleMouseLeave();
 }
 
 void InterstitialPage::InterstitialPageRVHViewDelegate::OnFindReply(

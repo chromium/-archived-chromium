@@ -211,7 +211,7 @@ class RenderWidgetHost : public IPC::Channel::Listener {
 
   // Forwards the given message to the renderer. These are called by the view
   // when it has received a message.
-  void ForwardMouseEvent(const WebKit::WebMouseEvent& mouse_event);
+  virtual void ForwardMouseEvent(const WebKit::WebMouseEvent& mouse_event);
   void ForwardWheelEvent(const WebKit::WebMouseWheelEvent& wheel_event);
   void ForwardKeyboardEvent(const NativeWebKeyboardEvent& key_event);
 

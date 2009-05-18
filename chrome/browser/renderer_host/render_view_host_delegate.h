@@ -118,6 +118,11 @@ class RenderViewHostDelegate {
     // event (used for keyboard shortcuts).
     virtual void HandleKeyboardEvent(const NativeWebKeyboardEvent& event) = 0;
 
+    // Notifications about mouse events in this view.  This is useful for
+    // implementing global 'on hover' features external to the view.
+    virtual void HandleMouseEvent() {}
+    virtual void HandleMouseLeave() {}
+
     // The content's intrinsic width (prefWidth) changed.
     virtual void UpdatePreferredWidth(int pref_width) = 0;
   };
