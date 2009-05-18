@@ -48,6 +48,7 @@ static NSString* const kStarredImageName = @"starred";
   [self initCommandStatus:commands_];
   locationBarView_.reset(new LocationBarViewMac(locationBar_, commands_,
                                                 toolbarModel_, profile_));
+  [locationBar_ setFont:[NSFont systemFontOfSize:[NSFont systemFontSize]]];
 }
 
 - (void)dealloc {

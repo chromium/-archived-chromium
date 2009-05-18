@@ -11,7 +11,11 @@
       NSBackgroundStyleLowered : NSBackgroundStyleRaised;
 }
 
-- (void)drawWithFrame:(NSRect)cellFrame inView:(NSView *)controlView{
+- (void)awakeFromNib {
+  [[self image] setTemplate:YES];
+}
+
+- (void)drawWithFrame:(NSRect)cellFrame inView:(NSView *)controlView {
   NSRect drawFrame = NSInsetRect(cellFrame, 1.5, 1.5);
   ButtonType type = [[(NSControl*)controlView cell] tag];
   switch (type) {
@@ -65,10 +69,15 @@
     NSDivideRect(cellFrame, &borderRect, &contentRect, 1.0, NSMaxXEdge);
     [[NSColor colorWithCalibratedWhite:0.0 alpha:0.15] set];
     NSRectFillUsingOperation(NSInsetRect(borderRect, 0, 2),
-                             NSCompositeSourceOver);
+                             NSCompositeHighlight);
   }
+  CGContextRef ctx = static_cast<CGContextRef>
+    ([[NSGraphicsContext currentContext] graphicsPort]);
 
+  CGContextSetAlpha(ctx, 0.8);
+  CGContextBeginTransparencyLayer(ctx, NULL);
   [self drawInteriorWithFrame:NSOffsetRect(cellFrame, 0, 1) inView:controlView];
+  CGContextEndTransparencyLayer(ctx);
 }
 
 @end
