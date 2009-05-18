@@ -5,6 +5,8 @@
 #ifndef CHROME_BROWSER_VIEWS_FRAME_BROWSER_VIEW_H_
 #define CHROME_BROWSER_VIEWS_FRAME_BROWSER_VIEW_H_
 
+#include <set>
+
 #include "chrome/browser/browser.h"
 #include "chrome/browser/browser_window.h"
 #include "chrome/browser/hang_monitor/hung_plugin_action.h"
@@ -19,6 +21,7 @@
 
 class BookmarkBarView;
 class Browser;
+class BrowserBubble;
 class BrowserToolbarView;
 class EncodingMenuControllerDelegate;
 class ExtensionShelf;
@@ -163,6 +166,10 @@ class BrowserView : public BrowserWindow,
   // Register preferences specific to this view.
   static void RegisterBrowserViewPrefs(PrefService* prefs);
 
+  // Attach/Detach a BrowserBubble to the browser.
+  void AttachBrowserBubble(BrowserBubble *bubble);
+  void DetachBrowserBubble(BrowserBubble *bubble);
+
   // Overridden from BrowserWindow:
   virtual void Show();
   virtual void SetBounds(const gfx::Rect& bounds);
@@ -280,7 +287,7 @@ class BrowserView : public BrowserWindow,
   int LayoutDownloadShelf(int bottom);
   // Layout the Status Bubble.
   void LayoutStatusBubble(int top);
-  // Layout the Extension Bottom Bar
+  // Layout the Extension Shelf
   int LayoutExtensionShelf();
 
   // Prepare to show the Bookmark Bar for the specified TabContents. Returns
@@ -408,6 +415,9 @@ class BrowserView : public BrowserWindow,
 
   // A bottom bar for showing extensions.
   ExtensionShelf* extension_shelf_;
+
+  typedef std::set<BrowserBubble*> BubbleSet;
+  BubbleSet browser_bubbles_;
 
   DISALLOW_COPY_AND_ASSIGN(BrowserView);
 };

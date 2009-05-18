@@ -490,6 +490,18 @@
 			>
 		</File>
 		<File
+			RelativePath=".\browser_bubble.cc"
+			>
+		</File>
+		<File
+			RelativePath=".\browser_bubble.h"
+			>
+		</File>
+		<File
+			RelativePath=".\browser_bubble_win.cc"
+			>
+		</File>
+		<File
 			RelativePath=".\bug_report_view.cc"
 			>
 		</File>

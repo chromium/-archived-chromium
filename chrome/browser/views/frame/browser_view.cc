@@ -27,6 +27,7 @@
 #include "chrome/browser/views/bookmark_bar_view.h"
 #include "chrome/browser/views/bookmark_bubble_view.h"
 #include "chrome/browser/views/bookmark_manager_view.h"
+#include "chrome/browser/views/browser_bubble.h"
 #include "chrome/browser/views/bug_report_view.h"
 #include "chrome/browser/views/chrome_views_delegate.h"
 #include "chrome/browser/views/clear_browsing_data.h"
@@ -330,6 +331,11 @@ void BrowserView::WindowMoved() {
 
   status_bubble_->Reposition();
 
+  BubbleSet::iterator bubble = browser_bubbles_.begin();
+  for (; bubble != browser_bubbles_.end(); ++bubble) {
+    (*bubble)->BrowserWindowMoved();
+  }
+
   BookmarkBubbleView::Hide();
 
   // Close the omnibox popup, if any.
@@ -507,6 +513,14 @@ void BrowserView::RegisterBrowserViewPrefs(PrefService* prefs) {
                              kDefaultHungPluginDetectFrequency);
 }
 
+void BrowserView::AttachBrowserBubble(BrowserBubble* bubble) {
+  browser_bubbles_.insert(bubble);
+}
+
+void BrowserView::DetachBrowserBubble(BrowserBubble* bubble) {
+  browser_bubbles_.erase(bubble);
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 // BrowserView, BrowserWindow implementation:
 
@@ -540,6 +554,11 @@ void BrowserView::SetBounds(const gfx::Rect& bounds) {
 
 void BrowserView::Close() {
   frame_->Close();
+
+  BubbleSet::iterator bubble = browser_bubbles_.begin();
+  for (; bubble != browser_bubbles_.end(); ++bubble) {
+    (*bubble)->BrowserWindowClosed();
+  }
 }
 
 void BrowserView::Activate() {
