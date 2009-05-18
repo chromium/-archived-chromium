@@ -1590,6 +1590,8 @@
                 ['include', '^browser/views/tabs/tab.h'],
                 ['include', '^browser/views/tabs/tab_renderer.cc'],
                 ['include', '^browser/views/tabs/tab_renderer.h'],
+                ['include', '^browser/views/tabs/tab_strip.cc'],
+                ['include', '^browser/views/tabs/tab_strip.h'],
               ],
             }],
             ['toolkit_views==0',{

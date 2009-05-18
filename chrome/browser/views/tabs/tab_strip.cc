@@ -11,7 +11,9 @@
 #include "app/os_exchange_data.h"
 #include "app/resource_bundle.h"
 #include "app/slide_animation.h"
+#if defined(OS_WIN)
 #include "app/win_util.h"
+#endif
 #include "base/gfx/size.h"
 #include "base/stl_util-inl.h"
 #include "chrome/browser/metrics/user_metrics.h"
@@ -75,7 +77,6 @@ class NewTabButton : public views::ImageButton {
   virtual void GetHitTestMask(gfx::Path* path) const {
     DCHECK(path);
 
-    SkScalar h = SkIntToScalar(height());
     SkScalar w = SkIntToScalar(width());
 
     // These values are defined by the shape of the new tab bitmap. Should that
@@ -231,7 +232,7 @@ class TabStrip::TabAnimation : public AnimationDelegate {
 ///////////////////////////////////////////////////////////////////////////////
 
 // Handles insertion of a Tab at |index|.
-class InsertTabAnimation : public TabStrip::TabAnimation {
+class TabStrip::InsertTabAnimation : public TabStrip::TabAnimation {
  public:
   explicit InsertTabAnimation(TabStrip* tabstrip, int index)
       : TabAnimation(tabstrip, INSERT),
@@ -272,7 +273,7 @@ class InsertTabAnimation : public TabStrip::TabAnimation {
 ///////////////////////////////////////////////////////////////////////////////
 
 // Handles removal of a Tab from |index|
-class RemoveTabAnimation : public TabStrip::TabAnimation {
+class TabStrip::RemoveTabAnimation : public TabStrip::TabAnimation {
  public:
   RemoveTabAnimation(TabStrip* tabstrip, int index, TabContents* contents)
       : TabAnimation(tabstrip, REMOVE),
@@ -336,6 +337,7 @@ class RemoveTabAnimation : public TabStrip::TabAnimation {
       return;
     }
 
+#if defined(OS_WIN)
     POINT pt;
     GetCursorPos(&pt);
     views::Widget* widget = tabstrip_->GetWidget();
@@ -348,6 +350,9 @@ class RemoveTabAnimation : public TabStrip::TabAnimation {
     // in progress.
     PostMessage(widget->GetNativeView(), WM_MOUSEMOVE, 0,
                 MAKELPARAM(pt.x, pt.y));
+#else
+    NOTIMPLEMENTED();
+#endif
   }
 
   int index_;
@@ -358,7 +363,7 @@ class RemoveTabAnimation : public TabStrip::TabAnimation {
 ///////////////////////////////////////////////////////////////////////////////
 
 // Handles the movement of a Tab from one position to another.
-class MoveTabAnimation : public TabStrip::TabAnimation {
+class TabStrip::MoveTabAnimation : public TabStrip::TabAnimation {
  public:
   MoveTabAnimation(TabStrip* tabstrip, int tab_a_index, int tab_b_index)
       : TabAnimation(tabstrip, MOVE),
@@ -413,7 +418,7 @@ class MoveTabAnimation : public TabStrip::TabAnimation {
 
 // Handles the animated resize layout of the entire TabStrip from one width
 // to another.
-class ResizeLayoutAnimation : public TabStrip::TabAnimation {
+class TabStrip::ResizeLayoutAnimation : public TabStrip::TabAnimation {
  public:
   explicit ResizeLayoutAnimation(TabStrip* tabstrip)
       : TabAnimation(tabstrip, RESIZE) {
@@ -496,7 +501,7 @@ int TabStrip::GetPreferredHeight() {
 }
 
 bool TabStrip::CanProcessInputEvents() const {
-  return IsAnimating() == NULL;
+  return !IsAnimating();
 }
 
 bool TabStrip::PointIsWithinWindowCaption(const gfx::Point& point) {
@@ -815,8 +820,7 @@ void TabStrip::TabInsertedAt(TabContents* contents,
 
   // Don't animate the first tab, it looks weird, and don't animate anything
   // if the containing window isn't visible yet.
-  if (GetTabCount() > 1 && GetWidget() &&
-      IsWindowVisible(GetWidget()->GetNativeView())) {
+  if (GetTabCount() > 1 && GetWindow() && GetWindow()->IsVisible()) {
     StartInsertTabAnimation(index);
   } else {
     Layout();
@@ -853,7 +857,6 @@ void TabStrip::TabSelectedAt(TabContents* old_contents,
 
 void TabStrip::TabMoved(TabContents* contents, int from_index, int to_index) {
   Tab* tab = GetTabAt(from_index);
-  Tab* other_tab = GetTabAt(to_index);
   tab_data_.erase(tab_data_.begin() + from_index);
   TabData data = {tab, gfx::Rect()};
   tab_data_.insert(tab_data_.begin() + to_index, data);
@@ -1006,6 +1009,7 @@ void TabStrip::ButtonPressed(views::Button* sender) {
 ///////////////////////////////////////////////////////////////////////////////
 // TabStrip, MessageLoop::Observer implementation:
 
+#if defined(OS_WIN)
 void TabStrip::WillProcessMessage(const MSG& msg) {
 }
 
@@ -1056,6 +1060,11 @@ void TabStrip::DidProcessMessage(const MSG& msg) {
       break;
   }
 }
+#else
+void TabStrip::WillProcessEvent(GdkEvent* event) {
+  NOTIMPLEMENTED();
+}
+#endif
 
 ///////////////////////////////////////////////////////////////////////////////
 // TabStrip, private:
@@ -1203,10 +1212,18 @@ bool TabStrip::IsCursorInTabStripZone() {
   bounds.set_origin(tabstrip_topleft);
   bounds.set_height(bounds.height() + kTabStripAnimationVSlop);
 
-  CPoint cursor_point;
-  GetCursorPos(&cursor_point);
+#if defined(OS_WIN)
+  CPoint cursor_point_c;
+  GetCursorPos(&cursor_point_c);
+  gfx::Point cursor_point(cursor_point_c);
+#else
+  // TODO: make sure this is right with multiple monitors.
+  gint x, y;
+  gdk_display_get_pointer(NULL, NULL, &x, &y, NULL);
+  gfx::Point cursor_point(x, y);
+#endif
 
-  return bounds.Contains(cursor_point.x, cursor_point.y);
+  return bounds.Contains(cursor_point.x(), cursor_point.y());
 }
 
 void TabStrip::AddMessageLoopObserver() {
@@ -1250,9 +1267,14 @@ gfx::Rect TabStrip::GetDropBounds(int drop_index,
                         drop_indicator_height);
 
   // If the rect doesn't fit on the monitor, push the arrow to the bottom.
+#if defined(OS_WIN)
   gfx::Rect monitor_bounds = win_util::GetMonitorBoundsForRect(drop_bounds);
   *is_beneath = (monitor_bounds.IsEmpty() ||
                  !monitor_bounds.Contains(drop_bounds));
+#else
+  *is_beneath = false;
+  NOTIMPLEMENTED();
+#endif
   if (*is_beneath)
     drop_bounds.Offset(0, drop_bounds.height() + height());
 
@@ -1313,9 +1335,13 @@ void TabStrip::SetDropIndex(int index, bool drop_before) {
   // Reposition the window. Need to show it too as the window is initially
   // hidden.
 
+#if defined(OS_WIN)
   drop_info_->arrow_window->SetWindowPos(
       HWND_TOPMOST, drop_bounds.x(), drop_bounds.y(), drop_bounds.width(),
       drop_bounds.height(), SWP_NOACTIVATE | SWP_SHOWWINDOW);
+#else
+  NOTIMPLEMENTED();
+#endif
 }
 
 int TabStrip::GetDropEffect(const views::DropTargetEvent& event) {
@@ -1339,6 +1365,7 @@ TabStrip::DropInfo::DropInfo(int drop_index, bool drop_before, bool point_down)
     : drop_index(drop_index),
       drop_before(drop_before),
       point_down(point_down) {
+#if defined(OS_WIN)
   arrow_window = new views::WidgetWin;
   arrow_window->set_window_style(WS_POPUP);
   arrow_window->set_window_ex_style(WS_EX_TOPMOST | WS_EX_NOACTIVATE |
@@ -1352,11 +1379,16 @@ TabStrip::DropInfo::DropInfo(int drop_index, bool drop_before, bool point_down)
       gfx::Rect(0, 0, drop_indicator_width, drop_indicator_height),
       true);
   arrow_window->SetContentsView(arrow_view);
+#else
+  NOTIMPLEMENTED();
+#endif
 }
 
 TabStrip::DropInfo::~DropInfo() {
   // Close eventually deletes the window, which deletes arrow_view too.
+#if defined(OS_WIN)
   arrow_window->Close();
+#endif
 }
 
 ///////////////////////////////////////////////////////////////////////////////

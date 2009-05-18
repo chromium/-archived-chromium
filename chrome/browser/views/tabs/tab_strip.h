@@ -2,16 +2,19 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CHROME_BROWSER_VIEWS_TABS_TAB_STRIP_H__
-#define CHROME_BROWSER_VIEWS_TABS_TAB_STRIP_H__
+#ifndef CHROME_BROWSER_VIEWS_TABS_TAB_STRIP_H_
+#define CHROME_BROWSER_VIEWS_TABS_TAB_STRIP_H_
 
 #include "base/gfx/point.h"
+#include "base/message_loop.h"
 #include "chrome/browser/tabs/tab_strip_model.h"
 #include "chrome/browser/views/tabs/tab.h"
 #include "views/controls/button/image_button.h"
 #include "views/controls/menu/menu.h"
 #include "views/view.h"
+#if defined(OS_WIN)
 #include "views/widget/widget_win.h"
+#endif
 
 class DraggedTabController;
 class ScopedMouseCloseWidthCalculator;
@@ -141,16 +144,25 @@ class TabStrip : public views::View,
   virtual void ButtonPressed(views::Button* sender);
 
   // MessageLoop::Observer implementation:
+#if defined(OS_WIN)
   virtual void WillProcessMessage(const MSG& msg);
   virtual void DidProcessMessage(const MSG& msg);
+#else
+  virtual void WillProcessEvent(GdkEvent* event);
+#endif
 
  private:
+  class InsertTabAnimation;
+  class MoveTabAnimation;
+  class RemoveTabAnimation;
+  class ResizeLayoutAnimation;
+  class TabAnimation;
+
   friend class DraggedTabController;
   friend class InsertTabAnimation;
   friend class MoveTabAnimation;
   friend class RemoveTabAnimation;
   friend class ResizeLayoutAnimation;
-  friend class SuspendAnimationsTask;
   friend class TabAnimation;
 
   TabStrip();
@@ -251,7 +263,6 @@ class TabStrip : public views::View,
 
   // Notifies the TabStrip that the specified TabAnimation has completed.
   // Optionally a full Layout will be performed, specified by |layout|.
-  class TabAnimation;
   void FinishAnimation(TabAnimation* animation, bool layout);
 
   // Finds the index of the TabContents corresponding to |tab| in our
@@ -331,11 +342,13 @@ class TabStrip : public views::View,
 
     // Renders the drop indicator.
     // TODO(beng): should be views::Widget.
+#if defined(OS_WIN)
     views::WidgetWin* arrow_window;
+#endif
     views::ImageView* arrow_view;
 
    private:
-    DISALLOW_EVIL_CONSTRUCTORS(DropInfo);
+    DISALLOW_COPY_AND_ASSIGN(DropInfo);
   };
 
   // Valid for the lifetime of a drag over us.
@@ -355,7 +368,7 @@ class TabStrip : public views::View,
   // The currently running animation.
   scoped_ptr<TabAnimation> active_animation_;
 
-  DISALLOW_EVIL_CONSTRUCTORS(TabStrip);
+  DISALLOW_COPY_AND_ASSIGN(TabStrip);
 };
 
-#endif  // CHROME_BROWSER_VIEWS_TABS_TAB_STRIP_H__
+#endif  // CHROME_BROWSER_VIEWS_TABS_TAB_STRIP_H_
