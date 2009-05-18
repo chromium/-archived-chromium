@@ -156,6 +156,9 @@ void BackingStore::PaintRect(base::ProcessHandle process,
   if (!display_)
     return;
 
+  if (bitmap_rect.IsEmpty())
+    return;
+
   if (!use_render_)
     return PaintRectWithoutXrender(bitmap, bitmap_rect);
 
