@@ -798,6 +798,9 @@ class RenderView : public RenderWidget,
   // If true, we send IPC messages when the preferred width changes.
   bool send_preferred_width_changes_;
 
+  // The text selection the last time DidChangeSelection got called.
+  std::string last_selection_;
+
   DISALLOW_COPY_AND_ASSIGN(RenderView);
 };
 

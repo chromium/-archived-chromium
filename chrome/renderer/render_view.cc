@@ -2487,9 +2487,20 @@ void RenderView::SetTooltipText(WebView* webview,
 
 void RenderView::DidChangeSelection(bool is_empty_selection) {
 #if defined(OS_LINUX)
+  // TODO(estade): investigate incremental updates to the selection so that we
+  // don't send the entire selection over IPC every time.
   if (!is_empty_selection) {
+    // Sometimes we get repeated DidChangeSelection calls from webkit when
+    // the selection hasn't actually changed. We don't want to report these
+    // because it will cause us to continually claim the X clipboard.
+    const std::string& this_selection =
+        webview()->GetFocusedFrame()->GetSelection(false);
+    if (this_selection == last_selection_)
+      return;
+
     Send(new ViewHostMsg_SelectionChanged(routing_id_,
-         webview()->GetFocusedFrame()->GetSelection(false)));
+         this_selection));
+    last_selection_ = this_selection;
   }
 #endif
 }
