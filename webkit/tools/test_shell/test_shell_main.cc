@@ -238,11 +238,6 @@ int main(int argc, char* argv[]) {
       base::MemoryDebug::DumpAllMemoryInUse();
     }
 
-    if (false) {
-      // TODO(scherkus): check for any DLL dependencies.
-      webkit_glue::SetMediaPlayerAvailable(true);
-    }
-
     // See if we need to run the tests.
     if (layout_test_mode) {
       // Set up for the kind of test requested.

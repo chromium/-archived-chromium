@@ -112,11 +112,9 @@ void RenderProcess::Init() {
   }
 
   FilePath module_path;
-  if (PathService::Get(base::DIR_MODULE, &module_path)) {
-    if (media::InitializeMediaLibrary(module_path)) {
-      webkit_glue::SetMediaPlayerAvailable(true);
-    }
-  }
+  initialized_media_library_ =
+      PathService::Get(base::DIR_MODULE, &module_path) &&
+      media::InitializeMediaLibrary(module_path);
 }
 
 bool RenderProcess::InProcessPlugins() {

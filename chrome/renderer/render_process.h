@@ -45,6 +45,8 @@ class RenderProcess : public ChildProcess {
   // Returns true if plugins should be loaded in-process.
   bool in_process_plugins() const { return in_process_plugins_; }
 
+  bool initialized_media_library() const { return initialized_media_library_; }
+
   // Returns a pointer to the RenderProcess singleton instance.
   static RenderProcess* current() {
     return static_cast<RenderProcess*>(ChildProcess::current());
@@ -92,6 +94,7 @@ class RenderProcess : public ChildProcess {
   uint32 sequence_number_;
 
   bool in_process_plugins_;
+  bool initialized_media_library_;
 
   DISALLOW_COPY_AND_ASSIGN(RenderProcess);
 };

@@ -400,7 +400,7 @@ void TestShell::ResetWebPreferences() {
         web_prefs_->text_areas_are_resizable = false;
         web_prefs_->java_enabled = true;
         web_prefs_->allow_scripts_to_close_windows = false;
-        // It's off by default for Chrome, but we don't want to 
+        // It's off by default for Chrome, but we don't want to
         // lose the coverage of dynamic font tests in webkit test.
         web_prefs_->remote_fonts_enabled = true;
     }
@@ -588,16 +588,6 @@ void TestShell::SetFocus(WebWidgetHost* host, bool enable) {
 //-----------------------------------------------------------------------------
 
 namespace webkit_glue {
-
-static bool g_media_player_available = false;
-
-void SetMediaPlayerAvailable(bool value) {
-  g_media_player_available = value;
-}
-
-bool IsMediaPlayerAvailable() {
-  return g_media_player_available;
-}
 
 void PrecacheUrl(const char16* url, int url_length) {}
 

@@ -110,14 +110,6 @@ WebKit::WebString FilePathStringToWebString(const FilePath::StringType& str);
 
 //---- BEGIN FUNCTIONS IMPLEMENTED BY EMBEDDER --------------------------------
 
-// Set during RenderProcess::GlobalInit when --enable-video has been passed in
-// and all media related libraries were successfully loaded.
-void SetMediaPlayerAvailable(bool value);
-
-// This function is called from WebCore::MediaPlayerPrivate,
-// Returns true if media player is available and can be created.
-bool IsMediaPlayerAvailable();
-
 // This function is called to request a prefetch of the entire URL, loading it
 // into our cache for (expected) future needs.  The given URL may NOT be in
 // canonical form and it will NOT be null-terminated; use the length instead.

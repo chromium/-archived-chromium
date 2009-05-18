@@ -146,18 +146,6 @@ ScopedClipboardWriterGlue::~ScopedClipboardWriterGlue() {
 
 namespace webkit_glue {
 
-// Global variable set during RenderProcess::GlobalInit if video was enabled
-// and our media libraries were successfully loaded.
-static bool g_media_player_available = false;
-
-void SetMediaPlayerAvailable(bool value) {
-  g_media_player_available = value;
-}
-
-bool IsMediaPlayerAvailable() {
-  return g_media_player_available;
-}
-
 void PrecacheUrl(const wchar_t* url, int url_length) {
   // TBD: jar: Need implementation that loads the targetted URL into our cache.
   // For now, at least prefetch DNS lookup

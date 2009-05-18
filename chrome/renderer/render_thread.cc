@@ -350,9 +350,11 @@ void RenderThread::EnsureWebKitInitialized() {
     WebKit::registerExtension(extensions_v8::PlaybackExtension::Get());
   }
 
-  if (command_line.HasSwitch(switches::kEnableWebWorkers)) {
+  if (command_line.HasSwitch(switches::kEnableWebWorkers))
     WebKit::enableWebWorkers();
-  }
+
+  if (RenderProcess::current()->initialized_media_library())
+    WebKit::enableMediaPlayer();
 }
 
 void RenderThread::OnExtensionHandleConnect(int port_id,
