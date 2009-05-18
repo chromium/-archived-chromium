@@ -55,6 +55,12 @@ SharedMemoryHandle SharedMemory::NULLHandle() {
   return NULL;
 }
 
+// static
+void SharedMemory::CloseHandle(const SharedMemoryHandle& handle) {
+  DCHECK(handle != NULL);
+  ::CloseHandle(handle);
+}
+
 bool SharedMemory::Create(const std::wstring &name, bool read_only,
                           bool open_existing, size_t size) {
   DCHECK(mapped_file_ == NULL);

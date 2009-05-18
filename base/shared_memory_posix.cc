@@ -70,6 +70,12 @@ SharedMemoryHandle SharedMemory::NULLHandle() {
   return SharedMemoryHandle();
 }
 
+// static
+void SharedMemory::CloseHandle(const SharedMemoryHandle& handle) {
+  DCHECK(handle.fd >= 0);
+  close(handle.fd);
+}
+
 bool SharedMemory::Create(const std::wstring &name, bool read_only,
                           bool open_existing, size_t size) {
   read_only_ = read_only;

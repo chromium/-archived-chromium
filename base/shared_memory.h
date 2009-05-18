@@ -61,6 +61,9 @@ class SharedMemory {
   // Return invalid handle (see comment above for exact definition).
   static SharedMemoryHandle NULLHandle();
 
+  // Close a shared memory handle.
+  static void CloseHandle(const SharedMemoryHandle& handle);
+
   // Creates or opens a shared memory segment based on a name.
   // If read_only is true, opens the memory as read-only.
   // If open_existing is true, and the shared memory already exists,

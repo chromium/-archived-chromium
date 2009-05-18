@@ -114,6 +114,12 @@ class ResourceDispatcher {
   // Returns true if the message passed in is a resource related message.
   static bool IsResourceDispatcherMessage(const IPC::Message& message);
 
+  // ViewHostMsg_Resource_DataReceived is not POD, it has a shared memory
+  // handle in it that we should cleanup it up nicely. This method accepts any
+  // message and determine whether the message is
+  // ViewHostMsg_Resource_DataReceived and clean up the shared memory handle.
+  void ReleaseResourcesInDataMessage(const IPC::Message& message);
+
   IPC::Message::Sender* message_sender_;
 
   // All pending requests issued to the host

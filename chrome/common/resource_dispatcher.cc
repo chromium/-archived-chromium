@@ -276,6 +276,8 @@ bool ResourceDispatcher::OnMessageReceived(const IPC::Message& message) {
     // This might happen for kill()ed requests on the webkit end, so perhaps it
     // shouldn't be a warning...
     DLOG(WARNING) << "Got response for a nonexistant or finished request";
+    // Release resources in the message if it is a data message.
+    ReleaseResourcesInDataMessage(message);
     return true;
   }
 
@@ -467,6 +469,17 @@ bool ResourceDispatcher::RemovePendingRequest(int request_id) {
   PendingRequestList::iterator it = pending_requests_.find(request_id);
   if (it == pending_requests_.end())
     return false;
+
+  // Iterate through the deferred message queue and clean up the messages.
+  PendingRequestInfo& request_info = it->second;
+  MessageQueue& q = request_info.deferred_message_queue;
+  while (!q.empty()) {
+    IPC::Message* m = q.front();
+    ReleaseResourcesInDataMessage(*m);
+    q.pop_front();
+    delete m;
+  }
+
   pending_requests_.erase(it);
   return true;
 }
@@ -558,4 +571,25 @@ bool ResourceDispatcher::IsResourceDispatcherMessage(
   }
 
   return false;
+}
+
+void ResourceDispatcher::ReleaseResourcesInDataMessage(
+    const IPC::Message& message) {
+  void* iter = NULL;
+  int request_id;
+  if (!message.ReadInt(&iter, &request_id)) {
+    NOTREACHED() << "malformed resource message";
+    return;
+  }
+
+  // If the message contains a shared memory handle, we should close the
+  // handle or there will be a memory leak.
+  if (message.type() == ViewMsg_Resource_DataReceived::ID) {
+    base::SharedMemoryHandle shm_handle;
+    if (IPC::ParamTraits<base::SharedMemoryHandle>::Read(&message,
+                                                         &iter,
+                                                         &shm_handle)) {
+      base::SharedMemory::CloseHandle(shm_handle);
+    }
+  }
 }
