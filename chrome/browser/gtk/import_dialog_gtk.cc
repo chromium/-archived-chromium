@@ -23,27 +23,23 @@ ImportDialogGtk::ImportDialogGtk(GtkWindow* parent, Profile* profile) :
       l10n_util::GetStringUTF8(IDS_IMPORT_SETTINGS_TITLE).c_str(),
       parent,
       (GtkDialogFlags) (GTK_DIALOG_MODAL | GTK_DIALOG_NO_SEPARATOR),
+      GTK_STOCK_CANCEL,
+      GTK_RESPONSE_REJECT,
       l10n_util::GetStringUTF8(IDS_IMPORT_COMMIT).c_str(),
       GTK_RESPONSE_ACCEPT,
-      l10n_util::GetStringUTF8(IDS_CANCEL).c_str(),
-      GTK_RESPONSE_REJECT,
       NULL);
 
-  //TODO(rahulk): find how to set size properly so that the dialog box width is
-  // atleast enough to display full title.
+  // TODO(rahulk): find how to set size properly so that the dialog
+  // box width is at least enough to display full title.
   gtk_widget_set_size_request(dialog, 300, -1);
 
   GtkWidget* content_area = GTK_DIALOG(dialog)->vbox;
-  GtkWidget* alignment = gtk_alignment_new(0.0, 0.0, 0.0, 0.0);
-  gtk_box_pack_start(GTK_BOX(content_area), alignment, TRUE, TRUE, 0);
+  gtk_box_set_spacing(GTK_BOX(content_area), 18);
 
-  GtkWidget* vbox = gtk_vbox_new(FALSE, 0);
-  gtk_container_add(GTK_CONTAINER(alignment), vbox);
-
-  GtkWidget* combo_hbox = gtk_hbox_new(FALSE, 5);
+  GtkWidget* combo_hbox = gtk_hbox_new(FALSE, 12);
   GtkWidget* from = gtk_label_new(
       l10n_util::GetStringUTF8(IDS_IMPORT_FROM_LABEL).c_str());
-  gtk_box_pack_start(GTK_BOX(combo_hbox), from, TRUE, TRUE, 5);
+  gtk_box_pack_start(GTK_BOX(combo_hbox), from, FALSE, FALSE, 0);
 
   combo_ = gtk_combo_box_new_text();
   int profiles_count = importer_host_->GetAvailableProfileCount();
@@ -53,34 +49,33 @@ ImportDialogGtk::ImportDialogGtk(GtkWindow* parent, Profile* profile) :
                               WideToUTF8(profile).c_str());
   }
   gtk_combo_box_set_active(GTK_COMBO_BOX(combo_), 0);
-  gtk_box_pack_start(GTK_BOX(combo_hbox), combo_, TRUE, TRUE, 5);
-  gtk_box_pack_start(GTK_BOX(vbox), combo_hbox, TRUE, TRUE, 5);
+  gtk_box_pack_start(GTK_BOX(combo_hbox), combo_, TRUE, TRUE, 0);
+
+  gtk_box_pack_start(GTK_BOX(content_area), combo_hbox, FALSE, FALSE, 0);
+
+  GtkWidget* vbox = gtk_vbox_new(FALSE, 6);
 
   GtkWidget* description = gtk_label_new(
       l10n_util::GetStringUTF8(IDS_IMPORT_ITEMS_LABEL).c_str());
-  gtk_box_pack_start(GTK_BOX(vbox), description, TRUE, TRUE, 5);
-
-  GtkWidget* text_alignment = gtk_alignment_new(0.0, 0.0, 1.0, 1.0);
-  gtk_alignment_set_padding(GTK_ALIGNMENT(text_alignment), 0, 0, 25, 0);
-  GtkWidget* text_vbox = gtk_vbox_new(FALSE, 0);
-  gtk_container_add(GTK_CONTAINER(text_alignment), text_vbox);
-  gtk_box_pack_start(GTK_BOX(vbox), text_alignment, TRUE, TRUE, 0);
+  gtk_misc_set_alignment(GTK_MISC(description), 0, 0);
+  gtk_box_pack_start(GTK_BOX(vbox), description, FALSE, FALSE, 0);
 
   bookmarks_ = gtk_check_button_new_with_label(
       l10n_util::GetStringUTF8(IDS_IMPORT_FAVORITES_CHKBOX).c_str());
-  gtk_box_pack_start(GTK_BOX(text_vbox), bookmarks_, TRUE, TRUE, 5);
+  gtk_box_pack_start(GTK_BOX(vbox), bookmarks_, FALSE, FALSE, 0);
 
   search_engines_ = gtk_check_button_new_with_label(
       l10n_util::GetStringUTF8(IDS_IMPORT_SEARCH_ENGINES_CHKBOX).c_str());
-  gtk_box_pack_start(GTK_BOX(text_vbox), search_engines_, TRUE, TRUE, 5);
+  gtk_box_pack_start(GTK_BOX(vbox), search_engines_, FALSE, FALSE, 0);
 
   passwords_ = gtk_check_button_new_with_label(
       l10n_util::GetStringUTF8(IDS_IMPORT_PASSWORDS_CHKBOX).c_str());
-  gtk_box_pack_start(GTK_BOX(text_vbox), passwords_, TRUE, TRUE, 5);
+  gtk_box_pack_start(GTK_BOX(vbox), passwords_, FALSE, FALSE, 0);
 
   history_ = gtk_check_button_new_with_label(
       l10n_util::GetStringUTF8(IDS_IMPORT_HISTORY_CHKBOX).c_str());
-  gtk_box_pack_start(GTK_BOX(text_vbox), history_, TRUE, TRUE, 5);
+  gtk_box_pack_start(GTK_BOX(vbox), history_, FALSE, FALSE, 0);
+  gtk_box_pack_start(GTK_BOX(content_area), vbox, FALSE, FALSE, 0);
 
   g_signal_connect(dialog, "response",
                    G_CALLBACK(HandleOnResponseDialog), this);

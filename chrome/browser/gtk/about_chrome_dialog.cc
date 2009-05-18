@@ -96,6 +96,11 @@ void ShowAboutDialogForProfile(GtkWindow* parent, Profile* profile) {
       GTK_DIALOG_MODAL,
       GTK_STOCK_OK, GTK_RESPONSE_ACCEPT,
       NULL);
+  // Pick up the style set in gtk_util.cc:InitRCStyles().
+  // The layout of this dialog is special because the logo should be flush
+  // with the edges of the window.
+  gtk_widget_set_name(dialog, "about-dialog");
+  gtk_dialog_set_has_separator(GTK_DIALOG(dialog), FALSE);
 
   GtkWidget* content_area = GTK_DIALOG(dialog)->vbox;
 
@@ -135,10 +140,15 @@ void ShowAboutDialogForProfile(GtkWindow* parent, Profile* profile) {
   gtk_container_add(GTK_CONTAINER(ebox), hbox);
   gtk_box_pack_start(GTK_BOX(content_area), ebox, TRUE, TRUE, 0);
 
+  // We use a separate box for the licensing etc. text.  See the comment near
+  // the top of this function about using a special layout for this dialog.
+  GtkWidget* vbox = gtk_vbox_new(FALSE, 6);
+  gtk_container_set_border_width(GTK_CONTAINER(vbox), 12);
+
   GtkWidget* copyright_label = MakeMarkupLabel(
       "<span size=\"smaller\">%s</span>",
       l10n_util::GetString(IDS_ABOUT_VERSION_COPYRIGHT));
-  gtk_box_pack_start(GTK_BOX(content_area), copyright_label, TRUE, TRUE, 5);
+  gtk_box_pack_start(GTK_BOX(vbox), copyright_label, TRUE, TRUE, 5);
 
   // TODO(erg): Figure out how to really insert links. We could just depend on
   // (or include the source of) libsexy's SexyUrlLabel gtk widget...
@@ -155,12 +165,14 @@ void ShowAboutDialogForProfile(GtkWindow* parent, Profile* profile) {
 
   gtk_label_set_line_wrap(GTK_LABEL(license_label), TRUE);
   gtk_misc_set_alignment(GTK_MISC(license_label), 0, 0);
-  gtk_box_pack_start(GTK_BOX(content_area), license_label, TRUE, TRUE, 0);
+  gtk_box_pack_start(GTK_BOX(vbox), license_label, TRUE, TRUE, 0);
 
   // Hack around Gtk's not-so-good label wrapping, as described here:
   // http://blog.16software.com/dynamic-label-wrapping-in-gtk
   g_signal_connect(G_OBJECT(license_label), "size-allocate",
                    G_CALLBACK(FixLabelWrappingCallback), NULL);
+
+  gtk_box_pack_start(GTK_BOX(content_area), vbox, TRUE, TRUE, 0);
 
   g_signal_connect(dialog, "response", G_CALLBACK(OnDialogResponse), NULL);
   gtk_window_set_resizable(GTK_WINDOW(dialog), FALSE);

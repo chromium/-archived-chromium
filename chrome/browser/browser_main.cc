@@ -104,6 +104,10 @@
 
 #endif  // defined(OS_WIN)
 
+#if defined(TOOLKIT_GTK)
+#include "chrome/common/gtk_util.h"
+#endif
+
 namespace Platform {
 
 void WillInitializeMainMessageLoop(const CommandLine & command_line);
@@ -552,6 +556,9 @@ int BrowserMain(const MainFunctionParams& parameters) {
   // file thread to be run sometime later. If this is the first run we record
   // the installation event.
   RLZTracker::InitRlzDelayed(base::DIR_MODULE, is_first_run);
+#endif
+#if defined(TOOLKIT_GTK)
+  gtk_util::InitRCStyles();
 #endif
 
   // Config the network module so it has access to resources.

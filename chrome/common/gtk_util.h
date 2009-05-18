@@ -38,6 +38,9 @@ gfx::Point GetWidgetScreenPosition(GtkWidget* widget);
 // Returns the bounds of the specified widget in screen coordinates.
 gfx::Rect GetWidgetScreenBounds(GtkWidget* widget);
 
+// Initialize some GTK settings so that our dialogs are consistent.
+void InitRCStyles();
+
 }  // namespace gtk_util
 
 #endif  // CHROME_COMMON_GTK_UTIL_H_

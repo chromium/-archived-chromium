@@ -80,6 +80,7 @@ OptionsWindowGtk::OptionsWindowGtk(Profile* profile)
       GTK_STOCK_CLOSE,
       GTK_RESPONSE_CLOSE,
       NULL);
+  gtk_box_set_spacing(GTK_BOX(GTK_DIALOG(dialog_)->vbox), 18);
 
   notebook_ = gtk_notebook_new();
 

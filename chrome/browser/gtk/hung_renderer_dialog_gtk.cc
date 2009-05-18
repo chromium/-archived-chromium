@@ -93,20 +93,20 @@ void HungRendererDialogGtk::Init() {
   // |         kill button    wait button|
   // ·-----------------------------------·
   GtkWidget* contents_vbox = dialog_->vbox;
-  gtk_container_set_border_width(GTK_CONTAINER(contents_vbox), 12);
+  gtk_box_set_spacing(GTK_BOX(contents_vbox), 18);
 
-  GtkWidget* hbox = gtk_hbox_new(false, 12);
+  GtkWidget* hbox = gtk_hbox_new(FALSE, 12);
   gtk_box_pack_start(GTK_BOX(contents_vbox), hbox, TRUE, TRUE, 0);
 
   // Wrap the icon in a vbox so it stays top aligned.
-  GtkWidget* icon_vbox = gtk_vbox_new(false, 0);
+  GtkWidget* icon_vbox = gtk_vbox_new(FALSE, 0);
   gtk_box_pack_start(GTK_BOX(hbox), icon_vbox, FALSE, FALSE, 0);
   ResourceBundle& rb = ResourceBundle::GetSharedInstance();
   GdkPixbuf* icon_pixbuf = rb.GetPixbufNamed(IDR_FROZEN_TAB_ICON);
   GtkWidget* icon = gtk_image_new_from_pixbuf(icon_pixbuf);
   gtk_box_pack_start(GTK_BOX(icon_vbox), icon, FALSE, FALSE, 0);
 
-  GtkWidget* vbox = gtk_vbox_new(false, 6);
+  GtkWidget* vbox = gtk_vbox_new(FALSE, 6);
   gtk_box_pack_start(GTK_BOX(hbox), vbox, TRUE, TRUE, 0);
 
   GtkWidget* text = gtk_label_new(
@@ -117,6 +117,8 @@ void HungRendererDialogGtk::Init() {
   GtkWidget* scroll_list = gtk_scrolled_window_new(NULL, NULL);
   gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scroll_list),
       GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
+  gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(scroll_list),
+                                      GTK_SHADOW_ETCHED_IN);
   gtk_box_pack_start(GTK_BOX(vbox), scroll_list, TRUE, TRUE, 0);
 
   // The list of hung tabs is GtkTreeView with a GtkListStore as the model.

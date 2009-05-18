@@ -103,9 +103,6 @@ class BookmarkEditorGtk : public BookmarkEditor,
   GtkWidget* dialog_;
   GtkWidget* name_entry_;
   GtkWidget* url_entry_;
-  GtkWidget* close_button_;
-  GtkWidget* ok_button_;
-  GtkWidget* new_folder_button_;
   GtkWidget* tree_view_;
 
   // Helper object that manages the currently selected item in |tree_view_|.

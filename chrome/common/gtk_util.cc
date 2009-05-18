@@ -81,4 +81,32 @@ gfx::Rect GetWidgetScreenBounds(GtkWidget* widget) {
                    widget->allocation.width, widget->allocation.height);
 }
 
+void InitRCStyles() {
+  static const char kRCText[] =
+      // Make our dialogs styled like the GNOME HIG.
+      // TODO(evanm): content-area-spacing doesn't seem to work -- maybe it
+      // was introduced in a later version of GTK?
+      "style \"gnome-dialog\" {\n"
+      "  xthickness = 12\n"
+      "  GtkDialog::action-area-border = 0\n"
+      "  GtkDialog::button-spacing = 6\n"
+      "  GtkDialog::content-area-spacing = 18\n"
+      "  GtkDialog::content-area-border = 12\n"
+      "}\n"
+      // Note we set it at the "application" priority, so users can override.
+      "widget \"GtkDialog\" style : application \"gnome-dialog\"\n"
+
+      // Make our about dialog special.
+      "style \"about-dialog\" {\n"
+      "  GtkDialog::action-area-border = 12\n"
+      "  GtkDialog::button-spacing = 6\n"
+      "  GtkDialog::content-area-spacing = 18\n"
+      "  GtkDialog::content-area-border = 0\n"
+      "}\n"
+      // Note we set it at the "application" priority, so users can override.
+      "widget \"about-dialog\" style : application \"about-dialog\"\n";
+
+  gtk_rc_parse_string(kRCText);
+}
+
 }  // namespace gtk_util
