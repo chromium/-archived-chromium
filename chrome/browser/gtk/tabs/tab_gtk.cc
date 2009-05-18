@@ -261,8 +261,13 @@ void TabGtk::SetVisible(bool visible) const {
 }
 
 void TabGtk::CloseButtonResized(const gfx::Rect& bounds) {
-  gtk_fixed_move(GTK_FIXED(TabRendererGtk::widget()),
-      close_button_.get()->widget(), bounds.x(), bounds.y());
+  if (!bounds.IsEmpty()) {
+    gtk_fixed_move(GTK_FIXED(TabRendererGtk::widget()),
+        close_button_.get()->widget(), bounds.x(), bounds.y());
+    gtk_widget_show(close_button_.get()->widget());
+  } else {
+    gtk_widget_hide(close_button_.get()->widget());
+  }
 }
 
 void TabGtk::Paint(GdkEventExpose* event) {
@@ -300,7 +305,6 @@ CustomDrawButton* TabGtk::MakeCloseButton() {
                    G_CALLBACK(OnCloseButtonClicked), this);
   GTK_WIDGET_UNSET_FLAGS(button->widget(), GTK_CAN_FOCUS);
   gtk_fixed_put(GTK_FIXED(TabRendererGtk::widget()), button->widget(), 0, 0);
-  gtk_widget_show(button->widget());
 
   return button;
 }
