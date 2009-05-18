@@ -10,6 +10,7 @@
 
 #include "app/drag_drop_types.h"
 #include "app/gfx/font.h"
+#include "base/gfx/native_widget_types.h"
 #include "base/gfx/point.h"
 #include "base/gfx/rect.h"
 #include "base/message_loop.h"
@@ -21,16 +22,14 @@
 
 namespace views {
 
-class WidgetWin;
 class MenuController;
+class MenuHost;
 class MenuItemView;
+class MenuScrollViewContainer;
 class SubmenuView;
 
 namespace {
-class MenuHost;
 class MenuHostRootView;
-class MenuScrollTask;
-class MenuScrollViewContainer;
 }
 
 // MenuDelegate --------------------------------------------------------------
@@ -238,11 +237,11 @@ class MenuItemView : public View {
   // a rectangle, which is used to position the menu. |has_mnemonics| indicates
   // whether the items have mnemonics. Mnemonics are identified by way of the
   // character following the '&'.
-  void RunMenuAt(HWND parent,
+  void RunMenuAt(gfx::NativeView parent,
                  const gfx::Rect& bounds,
                  AnchorPosition anchor,
                  bool has_mnemonics);
-  void RunMenuForDropAt(HWND parent,
+  void RunMenuForDropAt(gfx::NativeView parent,
                         const gfx::Rect& bounds,
                         AnchorPosition anchor);
 
@@ -417,7 +416,7 @@ class MenuItemView : public View {
 
   // Given bounds within our View, this helper routine mirrors the bounds if
   // necessary.
-  void AdjustBoundsForRTLUI(RECT* rect) const;
+  void AdjustBoundsForRTLUI(gfx::Rect* rect) const;
 
   // Actual paint implementation. If for_drag is true, portions of the menu
   // are not rendered.
@@ -534,7 +533,7 @@ class SubmenuView : public View {
 
   // Shows the menu at the specified location. Coordinates are in screen
   // coordinates. max_width gives the max width the view should be.
-  void ShowAt(HWND parent, const gfx::Rect& bounds, bool do_capture);
+  void ShowAt(gfx::NativeView parent, const gfx::Rect& bounds, bool do_capture);
 
   // Closes the menu, destroying the host.
   void Close();
@@ -614,11 +613,15 @@ class SubmenuView : public View {
 // All relevant events are forwarded to the MenuController from SubmenuView
 // and MenuHost.
 
-class MenuController : public MessageLoopForUI::Dispatcher {
+class MenuController
+#if defined(OS_WIN)
+    : public MessageLoopForUI::Dispatcher {
+#else
+    {
+#endif
  public:
   friend class MenuHostRootView;
   friend class MenuItemView;
-  friend class MenuScrollTask;
 
   // If a menu is currently active, this returns the controller for it.
   static MenuController* GetActiveInstance();
@@ -626,7 +629,7 @@ class MenuController : public MessageLoopForUI::Dispatcher {
   // Runs the menu at the specified location. If the menu was configured to
   // block, the selected item is returned. If the menu does not block this
   // returns NULL immediately.
-  MenuItemView* Run(HWND parent,
+  MenuItemView* Run(gfx::NativeView parent,
                     MenuItemView* root,
                     const gfx::Rect& bounds,
                     MenuItemView::AnchorPosition position,
@@ -674,6 +677,8 @@ class MenuController : public MessageLoopForUI::Dispatcher {
   void OnDragExitedScrollButton(SubmenuView* source);
 
  private:
+  class MenuScrollTask;
+
   // Tracks selection information.
   struct State {
     State() : item(NULL), submenu_open(false) {}
@@ -730,6 +735,7 @@ class MenuController : public MessageLoopForUI::Dispatcher {
   // Sets the active MenuController.
   static void SetActiveInstance(MenuController* controller);
 
+#if defined(OS_WIN)
   // Dispatcher method. This returns true if the menu was canceled, or
   // if the message is such that the menu should be closed.
   virtual bool Dispatch(const MSG& msg);
@@ -739,6 +745,7 @@ class MenuController : public MessageLoopForUI::Dispatcher {
   // pressed, or a matching mnemonic was found) the message loop returns.
   bool OnKeyDown(const MSG& msg);
   bool OnChar(const MSG& msg);
+#endif
 
   // Creates a MenuController. If blocking is true, Run blocks the caller
   explicit MenuController(bool blocking);
@@ -842,7 +849,7 @@ class MenuController : public MessageLoopForUI::Dispatcher {
 
   // Returns true if window is the window used to show item, or any of
   // items ancestors.
-  bool IsMenuWindow(MenuItemView* item, HWND window);
+  bool IsMenuWindow(MenuItemView* item, gfx::NativeWindow window);
 
   // Selects by mnemonic, and if that doesn't work tries the first character of
   // the title. Returns true if a match was selected and the menu should exit.
@@ -918,7 +925,7 @@ class MenuController : public MessageLoopForUI::Dispatcher {
   MenuDelegate::DropPosition drop_position_;
 
   // Owner of child windows.
-  HWND owner_;
+  gfx::NativeWindow owner_;
 
   // Indicates a possible drag operation.
   bool possible_drag_;
@@ -941,7 +948,7 @@ class MenuController : public MessageLoopForUI::Dispatcher {
   // underway.
   scoped_ptr<MenuScrollTask> scroll_task_;
 
-  DISALLOW_EVIL_CONSTRUCTORS(MenuController);
+  DISALLOW_COPY_AND_ASSIGN(MenuController);
 };
 
 }  // namespace views

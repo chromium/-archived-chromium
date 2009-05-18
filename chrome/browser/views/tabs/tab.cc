@@ -11,8 +11,8 @@
 #include "app/resource_bundle.h"
 #include "base/gfx/size.h"
 #include "grit/generated_resources.h"
-#if defined(OS_WIN)
 #include "views/controls/menu/chrome_menu.h"
+#if defined(OS_WIN)
 #include "views/widget/tooltip_manager.h"
 #endif
 #include "views/widget/widget.h"
@@ -23,7 +23,6 @@ static const SkScalar kTabCapWidth = 15;
 static const SkScalar kTabTopCurveWidth = 4;
 static const SkScalar kTabBottomCurveWidth = 3;
 
-#if defined(OS_WIN)
 class Tab::ContextMenuController : public views::MenuDelegate {
  public:
   explicit ContextMenuController(Tab* tab)
@@ -123,7 +122,6 @@ class Tab::ContextMenuController : public views::MenuDelegate {
 
   DISALLOW_COPY_AND_ASSIGN(ContextMenuController);
 };
-#endif
 
 ///////////////////////////////////////////////////////////////////////////////
 // Tab, public:
@@ -131,19 +129,14 @@ class Tab::ContextMenuController : public views::MenuDelegate {
 Tab::Tab(TabDelegate* delegate)
     : TabRenderer(),
       delegate_(delegate),
-      closing_(false)
-#if defined(OS_WIN)
-      , menu_controller_(NULL) {
-#else
-      {
-#endif
+      closing_(false),
+      menu_controller_(NULL) {
   close_button()->SetAccessibleName(l10n_util::GetString(IDS_ACCNAME_CLOSE));
   close_button()->SetAnimationDuration(0);
   SetContextMenuController(this);
 }
 
 Tab::~Tab() {
-#if defined(OS_WIN)
   if (menu_controller_) {
     // The menu is showing. Close the menu.
     menu_controller_->Cancel();
@@ -151,7 +144,6 @@ Tab::~Tab() {
     // Invoke this so that we hide the highlight.
     ContextMenuClosed();
   }
-#endif
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -245,13 +237,11 @@ bool Tab::GetAccessibleName(std::wstring* name) {
 
 void Tab::ShowContextMenu(views::View* source, int x, int y,
                           bool is_mouse_gesture) {
-#if defined(OS_WIN)
   if (menu_controller_)
     return;
   menu_controller_ = new ContextMenuController(this);
   menu_controller_->RunMenuAt(x, y);
   // ContextMenuController takes care of deleting itself.
-#endif
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -293,7 +283,5 @@ void Tab::MakePathForTab(gfx::Path* path) const {
 
 void Tab::ContextMenuClosed() {
   delegate()->StopAllHighlighting();
-#if defined(OS_WIN)
   menu_controller_ = NULL;
-#endif
 }

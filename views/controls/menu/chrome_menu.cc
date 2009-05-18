@@ -209,6 +209,8 @@ static void ScrollToVisible(View* view) {
   view->ScrollRectToVisible(0, 0, view->width(), view->height());
 }
 
+}  // namespace
+
 // MenuScrollTask --------------------------------------------------------------
 
 // MenuScrollTask is used when the SubmenuView does not all fit on screen and
@@ -216,7 +218,7 @@ static void ScrollToVisible(View* view) {
 // itself with a RepeatingTimer. When Run is invoked MenuScrollTask scrolls
 // appropriately.
 
-class MenuScrollTask {
+class MenuController::MenuScrollTask {
  public:
   MenuScrollTask() : submenu_(NULL) {
     pixels_per_second_ = pref_menu_height * 20;
@@ -291,6 +293,8 @@ class MenuScrollTask {
 
   DISALLOW_COPY_AND_ASSIGN(MenuScrollTask);
 };
+
+namespace {
 
 // MenuScrollButton ------------------------------------------------------------
 
@@ -409,6 +413,8 @@ class MenuScrollView : public View {
   DISALLOW_COPY_AND_ASSIGN(MenuScrollView);
 };
 
+}  // namespace
+
 // MenuScrollViewContainer -----------------------------------------------------
 
 // MenuScrollViewContainer contains the SubmenuView (through a MenuScrollView)
@@ -493,6 +499,8 @@ class MenuScrollViewContainer : public View {
 
   DISALLOW_COPY_AND_ASSIGN(MenuScrollViewContainer);
 };
+
+namespace {
 
 // MenuSeparator ---------------------------------------------------------------
 
@@ -642,6 +650,8 @@ class MenuHostRootView : public RootView {
   DISALLOW_COPY_AND_ASSIGN(MenuHostRootView);
 };
 
+}  // namespace
+
 // MenuHost ------------------------------------------------------------------
 
 // MenuHost is the window responsible for showing a single menu.
@@ -762,6 +772,8 @@ class MenuHost : public WidgetWin {
 
   DISALLOW_COPY_AND_ASSIGN(MenuHost);
 };
+
+namespace {
 
 // EmptyMenuMenuItem ---------------------------------------------------------
 
@@ -1417,10 +1429,8 @@ void MenuItemView::RemoveEmptyMenus() {
   }
 }
 
-void MenuItemView::AdjustBoundsForRTLUI(RECT* rect) const {
-  gfx::Rect mirrored_rect(*rect);
-  mirrored_rect.set_x(MirroredLeftPointForRect(mirrored_rect));
-  *rect = mirrored_rect.ToRECT();
+void MenuItemView::AdjustBoundsForRTLUI(gfx::Rect* rect) const {
+  rect->set_x(MirroredLeftPointForRect(*rect));
 }
 
 void MenuItemView::Paint(gfx::Canvas* canvas, bool for_drag) {
@@ -1433,21 +1443,22 @@ void MenuItemView::Paint(gfx::Canvas* canvas, bool for_drag) {
 
   // The gutter is rendered before the background.
   if (render_gutter && !for_drag) {
-    RECT gutter_bounds = { label_start - kGutterToLabel - gutter_width, 0, 0,
-                           height() };
-    gutter_bounds.right = gutter_bounds.left + gutter_width;
+    gfx::Rect gutter_bounds(label_start - kGutterToLabel - gutter_width, 0,
+                            gutter_width, height());
     AdjustBoundsForRTLUI(&gutter_bounds);
+    RECT gutter_rect = gutter_bounds.ToRECT();
     NativeTheme::instance()->PaintMenuGutter(dc, MENU_POPUPGUTTER, MPI_NORMAL,
-                                             &gutter_bounds);
+                                             &gutter_rect);
   }
 
   // Render the background.
   if (!for_drag) {
-    RECT item_bounds = { 0, 0, width(), height() };
+    gfx::Rect item_bounds(0, 0, width(), height());
     AdjustBoundsForRTLUI(&item_bounds);
+    RECT item_rect = item_bounds.ToRECT();
     NativeTheme::instance()->PaintMenuItemBackground(
         NativeTheme::MENU, dc, MENU_POPUPITEM, state, render_selection,
-        &item_bounds);
+        &item_rect);
   }
 
   int icon_x = kItemLeftMargin;
@@ -1460,21 +1471,22 @@ void MenuItemView::Paint(gfx::Canvas* canvas, bool for_drag) {
 
   if (type_ == CHECKBOX && GetDelegate()->IsItemChecked(GetCommand())) {
     // Draw the check background.
-    RECT check_bg_bounds = { 0, 0, icon_x + icon_width, height() };
+    gfx::Rect check_bg_bounds(0, 0, icon_x + icon_width, height());
     const int bg_state = IsEnabled() ? MCB_NORMAL : MCB_DISABLED;
     AdjustBoundsForRTLUI(&check_bg_bounds);
+    RECT check_bg_rect = check_bg_bounds.ToRECT();
     NativeTheme::instance()->PaintMenuCheckBackground(
         NativeTheme::MENU, dc, MENU_POPUPCHECKBACKGROUND, bg_state,
-        &check_bg_bounds);
+        &check_bg_rect);
 
     // And the check.
-    RECT check_bounds = { icon_x, icon_y, icon_x + icon_width,
-                          icon_y + icon_height };
+    gfx::Rect check_bounds(icon_x, icon_y, icon_width, icon_height);
     const int check_state = IsEnabled() ? MC_CHECKMARKNORMAL :
                                           MC_CHECKMARKDISABLED;
     AdjustBoundsForRTLUI(&check_bounds);
+    RECT check_rect = check_bounds.ToRECT();
     NativeTheme::instance()->PaintMenuCheck(
-        NativeTheme::MENU, dc, MENU_POPUPCHECK, check_state, &check_bounds,
+        NativeTheme::MENU, dc, MENU_POPUPCHECK, check_state, &check_rect,
         render_selection);
   }
 
@@ -1517,13 +1529,8 @@ void MenuItemView::Paint(gfx::Canvas* canvas, bool for_drag) {
 
   if (HasSubmenu()) {
     int state_id = IsEnabled() ? MSM_NORMAL : MSM_DISABLED;
-    RECT arrow_bounds = {
-        this->width() - item_right_margin + kLabelToArrowPadding,
-        0,
-        0,
-        height()
-    };
-    arrow_bounds.right = arrow_bounds.left + arrow_width;
+    gfx::Rect arrow_bounds(this->width() - item_right_margin + kLabelToArrowPadding,
+                           0, arrow_width, height());
     AdjustBoundsForRTLUI(&arrow_bounds);
 
     // If our sub menus open from right to left (which is the case when the
@@ -1535,8 +1542,9 @@ void MenuItemView::Paint(gfx::Canvas* canvas, bool for_drag) {
     else
       arrow_direction = NativeTheme::RIGHT_POINTING_ARROW;
 
+    RECT arrow_rect = arrow_bounds.ToRECT();
     NativeTheme::instance()->PaintMenuArrow(
-        NativeTheme::MENU, dc, MENU_POPUPSUBMENU, state_id, &arrow_bounds,
+        NativeTheme::MENU, dc, MENU_POPUPSUBMENU, state_id, &arrow_rect,
         arrow_direction, render_selection);
   }
   canvas->endPlatformPaint();
