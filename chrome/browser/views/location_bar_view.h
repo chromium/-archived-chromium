@@ -12,7 +12,6 @@
 #include "base/gfx/rect.h"
 #include "chrome/browser/autocomplete/autocomplete_edit.h"
 #include "chrome/browser/autocomplete/autocomplete_edit_view_win.h"
-#include "chrome/browser/icon_manager.h"
 #include "chrome/browser/location_bar.h"
 #include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/browser/toolbar_model.h"
@@ -327,10 +326,15 @@ class LocationBarView : public LocationBar,
     // is the current page URL.
     void UpdateVisibility(TabContents* contents, GURL url);
 
-    // Called when the IconManager has loaded our icon.
-    void OnIconLoaded(IconManager::Handle handle, SkBitmap* icon);
+    // A callback for when the image has loaded.
+    void OnImageLoaded(SkBitmap* image);
 
   private:
+    // We load the images for the PageActions on the file thread. These tasks
+    // help with that.
+    class LoadImageTask;
+    class ImageLoadingTracker;
+
     // The location bar view that owns us.
     LocationBarView* owner_;
 
@@ -341,14 +345,15 @@ class LocationBarView : public LocationBar,
     // us, it resides in the extension of this particular profile.
     const PageAction* page_action_;
 
+    // The object that is waiting for the image loading to complete
+    // asynchronously.
+    ImageLoadingTracker* tracker_;
+
     // The tab id we are currently showing the icon for.
     int current_tab_id_;
 
     // The URL we are currently showing the icon for.
     GURL current_url_;
-
-    // For canceling an in progress icon request.
-    CancelableRequestConsumerT<int, 0> icon_consumer_;
 
     DISALLOW_COPY_AND_ASSIGN(PageActionImageView);
   };

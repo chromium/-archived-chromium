@@ -5,9 +5,11 @@
 #include "chrome/browser/views/location_bar_view.h"
 
 #include "app/gfx/canvas.h"
+#include "app/gfx/favicon_size.h"
 #include "app/l10n_util.h"
 #include "app/resource_bundle.h"
 #include "app/win_util.h"
+#include "base/file_util.h"
 #include "base/path_service.h"
 #include "base/string_util.h"
 #include "chrome/app/chrome_dll_resource.h"
@@ -31,11 +33,13 @@
 #include "chrome/common/page_action.h"
 #include "grit/generated_resources.h"
 #include "grit/theme_resources.h"
+#include "skia/ext/image_operations.h"
 #include "views/background.h"
 #include "views/border.h"
 #include "views/focus/focus_manager.h"
 #include "views/widget/root_view.h"
 #include "views/widget/widget.h"
+#include "webkit/glue/image_decoder.h"
 
 using views::View;
 
@@ -1100,6 +1104,98 @@ void LocationBarView::SecurityImageView::ShowInfoBubble() {
 
 // PageActionImageView----------------------------------------------------------
 
+// The views need to load their icons asynchronously but might be deleted before
+// the images have loaded. This class stays alive while the request is in
+// progress (manages its own lifetime) and keeps track of whether the view still
+// cares about the icon loading.
+class LocationBarView::PageActionImageView::ImageLoadingTracker
+  : public base::RefCountedThreadSafe<ImageLoadingTracker> {
+ public:
+  explicit ImageLoadingTracker(PageActionImageView* view) : view_(view) {
+    AddRef();  // We hold on to a reference to ourself to make sure we don't
+               // get deleted until we get a response from image loading (see
+               // ImageLoadingDone).
+  }
+  ~ImageLoadingTracker() {}
+
+  void StopTrackingImageLoad() {
+    view_ = NULL;
+  }
+
+  void OnImageLoaded(SkBitmap* image) {
+    view_->OnImageLoaded(image);
+    delete image;
+    Release();  // We are no longer needed.
+  }
+
+ private:
+
+  // The view that is waiting for the image to load.
+  PageActionImageView* view_;
+};
+
+// The LoadImageTask is for asynchronously loading the image on the file thread.
+// If the image is successfully loaded and decoded it will report back on the
+// |callback_loop| to let the caller know the image is done loading.
+class LocationBarView::PageActionImageView::LoadImageTask : public Task {
+ public:
+  LoadImageTask(ImageLoadingTracker* tracker,
+                const FilePath& path)
+    : callback_loop_(MessageLoop::current()),
+      path_(path),
+      tracker_(tracker) {}
+
+  void ReportBack(SkBitmap* image) {
+    DCHECK(image);
+    callback_loop_->PostTask(FROM_HERE, NewRunnableMethod(tracker_,
+        &PageActionImageView::ImageLoadingTracker::OnImageLoaded, image));
+  }
+
+  virtual void Run() {
+    // Read the file from disk.
+    std::string file_contents;
+    if (!file_util::PathExists(path_) ||
+        !file_util::ReadFileToString(path_, &file_contents)) {
+      ReportBack(NULL);
+      return;
+    }
+
+    // Decode the image using WebKit's image decoder.
+    const unsigned char* data =
+        reinterpret_cast<const unsigned char*>(file_contents.data());
+    webkit_glue::ImageDecoder decoder(gfx::Size(kFavIconSize, kFavIconSize));
+    scoped_ptr<SkBitmap> decoded(new SkBitmap());
+    *decoded = decoder.Decode(data, file_contents.length());
+    if (decoded->empty()) {
+      ReportBack(NULL);
+      return;  // Unable to decode.
+    }
+
+    if (decoded->width() != kFavIconSize || decoded->height() != kFavIconSize) {
+      // The bitmap is not the correct size, re-sample.
+      int new_width = decoded->width();
+      int new_height = decoded->height();
+      // Calculate what dimensions to use within the constraints (16x16 max).
+      calc_favicon_target_size(&new_width, &new_height);
+      *decoded = skia::ImageOperations::Resize(
+          *decoded, skia::ImageOperations::RESIZE_LANCZOS3,
+          new_width, new_height);
+    }
+
+    ReportBack(decoded.release());
+  }
+
+ private:
+  // The message loop that we need to call back on to report that we are done.
+  MessageLoop* callback_loop_;
+
+  // The object that is waiting for us to respond back.
+  ImageLoadingTracker* tracker_;
+
+  // The path to the image to load asynchronously.
+  FilePath path_;
+};
+
 LocationBarView::PageActionImageView::PageActionImageView(
     LocationBarView* owner,
     Profile* profile,
@@ -1107,29 +1203,21 @@ LocationBarView::PageActionImageView::PageActionImageView(
   : owner_(owner),
     profile_(profile),
     page_action_(page_action),
+    tracker_(new ImageLoadingTracker(this)),
     LocationBarImageView() {
-  // The first thing we do is try to set the image from the PageAction icon.
-  if (page_action->icon_path().empty()) {
-    NOTREACHED();
-    return;  // Need icon path to continue.
-  }
-
-  IconManager* im = g_browser_process->icon_manager();
-
-  SkBitmap* icon = im->LookupIcon(page_action->icon_path(),
-                                  IconLoader::SMALL);
-  if (icon) {
-    ImageView::SetImage(icon);
-  } else {
-    // Ask the Icon Manager to load the icon (happens on the File thread).
-    IconManager::Handle h = im->LoadIcon(page_action->icon_path(),
-        IconLoader::SMALL, &icon_consumer_,
-        NewCallback(this, &LocationBarView::PageActionImageView::OnIconLoaded));
-  }
+  // Load the images this view needs asynchronously on the file thread. We'll
+  // get a call back into OnImageLoaded if the image loads successfully. If not,
+  // the ImageView will have no image and will not appear in the Omnibox.
+  DCHECK(!page_action->icon_path().empty());
+  FilePath path = FilePath(page_action->icon_path());
+  MessageLoop* file_loop = g_browser_process->file_thread()->message_loop();
+  file_loop->PostTask(FROM_HERE,
+      new LoadImageTask(tracker_, page_action->icon_path()));
 }
 
 LocationBarView::PageActionImageView::~PageActionImageView() {
-  icon_consumer_.CancelAllRequests();
+  if (tracker_)
+    tracker_->StopTrackingImageLoad();
 }
 
 bool LocationBarView::PageActionImageView::OnMousePressed(
@@ -1155,9 +1243,9 @@ void LocationBarView::PageActionImageView::UpdateVisibility(
   SetVisible(contents->IsPageActionEnabled(page_action_));
 }
 
-void LocationBarView::PageActionImageView::OnIconLoaded(
-    IconManager::Handle handle, SkBitmap* icon) {
-  ImageView::SetImage(icon);
+void LocationBarView::PageActionImageView::OnImageLoaded(SkBitmap* image) {
+  tracker_ = NULL;  // The tracker object will delete itself when we return.
+  ImageView::SetImage(image);
   owner_->UpdatePageActions();
 }
 
