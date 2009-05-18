@@ -392,8 +392,6 @@ void TestWebViewDelegate::DidChangeLocationWithinPageForFrame(
   }
 
   UpdateForCommittedLoad(frame, is_new_navigation);
-
-  LocationChangeDone(frame);
 }
 
 void TestWebViewDelegate::DidReceiveIconForFrame(WebView* webview,
@@ -793,9 +791,7 @@ void TestWebViewDelegate::UpdateAddressBar(WebView* webView) {
 }
 
 void TestWebViewDelegate::LocationChangeDone(WebFrame* frame) {
-  // A navigation to an URL with a reference fragment might just be a command
-  // to scroll the page.  In such cases, there will be no top loading frame.
-  if (frame == top_loading_frame_ || !top_loading_frame_) {
+  if (frame == top_loading_frame_) {
     top_loading_frame_ = NULL;
 
     // It is important to update the content state for the current navigation
