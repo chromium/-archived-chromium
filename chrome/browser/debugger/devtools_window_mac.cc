@@ -7,7 +7,7 @@
 #include "base/logging.h"
 
 // static
-DevToolsWindow* DevToolsWindow::Create() {
+DevToolsWindow* DevToolsWindow::Create(Profile* profile) {
   NOTIMPLEMENTED();
   return NULL;
 }

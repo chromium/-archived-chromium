@@ -89,7 +89,7 @@ void DevToolsManager::ForwardToDevToolsClient(RenderViewHost* inspected_rvh,
 void DevToolsManager::OpenDevToolsWindow(RenderViewHost* inspected_rvh) {
   DevToolsClientHost* host = GetDevToolsClientHostFor(inspected_rvh);
   if (!host) {
-    host = DevToolsWindow::Create();
+    host = DevToolsWindow::Create(inspected_rvh->delegate()->GetProfile());
     RegisterDevToolsClientHostFor(inspected_rvh, host);
   }
   TabContents* tab_contents = inspected_rvh->delegate()->GetAsTabContents();

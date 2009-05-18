@@ -16,6 +16,7 @@ namespace IPC {
 class Message;
 }
 
+class Profile;
 class RenderViewHost;
 class TabContentsContainerView;
 class TabContents;
@@ -23,7 +24,7 @@ class TabContents;
 class DevToolsView : public views::View,
                      public TabContentsDelegate {
  public:
-  explicit DevToolsView();
+  explicit DevToolsView(Profile* profile);
   virtual ~DevToolsView();
 
   // Destroy content views when the window is closing.
@@ -70,6 +71,7 @@ class DevToolsView : public views::View,
 
   TabContents* tab_contents_;
   TabContentsContainerView* web_container_;
+  Profile* profile_;
 
   DISALLOW_COPY_AND_ASSIGN(DevToolsView);
 };

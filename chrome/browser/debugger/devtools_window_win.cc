@@ -12,8 +12,8 @@
 #include "grit/generated_resources.h"
 
 // static
-DevToolsWindow* DevToolsWindow::Create() {
-  DevToolsView* view = new DevToolsView();
+DevToolsWindow* DevToolsWindow::Create(Profile* profile) {
+  DevToolsView* view = new DevToolsView(profile);
   DevToolsWindowWin* window = new DevToolsWindowWin(view);
   views::Window::CreateChromeWindow(NULL, gfx::Rect(), window);
   return window;

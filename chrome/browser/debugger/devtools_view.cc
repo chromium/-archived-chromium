@@ -18,7 +18,9 @@
 #include "chrome/common/render_messages.h"
 #include "chrome/common/url_constants.h"
 
-DevToolsView::DevToolsView() : tab_contents_(NULL) {
+DevToolsView::DevToolsView(Profile* profile)
+    : tab_contents_(NULL),
+      profile_(profile) {
   web_container_ = new TabContentsContainerView();
   AddChildView(web_container_);
 }
@@ -50,9 +52,7 @@ void DevToolsView::ViewHierarchyChanged(bool is_add,
 void DevToolsView::Init() {
   // We can't create the TabContents until we've actually been put into a real
   // view hierarchy somewhere.
-  Profile* profile = BrowserList::GetLastActive()->profile();
-
-  tab_contents_ = new TabContents(profile, NULL, MSG_ROUTING_NONE, NULL);
+  tab_contents_ = new TabContents(profile_, NULL, MSG_ROUTING_NONE, NULL);
   tab_contents_->set_delegate(this);
   web_container_->SetTabContents(tab_contents_);
   tab_contents_->render_view_host()->AllowDOMUIBindings();

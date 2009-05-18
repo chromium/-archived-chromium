@@ -8,12 +8,13 @@
 #include "base/basictypes.h"
 #include "chrome/browser/debugger/devtools_client_host.h"
 
+class Profile;
 class RenderViewHost;
 
 class DevToolsWindow : public DevToolsClientHost {
  public:
   // Factory method for creating platform specific devtools windows.
-  static DevToolsWindow* Create();
+  static DevToolsWindow* Create(Profile* profile);
 
   virtual ~DevToolsWindow() {}
 
