@@ -4,7 +4,6 @@
 
 #include "base/gfx/rect.h"
 #include "base/logging.h"
-#include "base/scoped_cftyperef.h"
 #include "base/sys_string_conversions.h"
 #include "chrome/browser/bookmarks/bookmark_utils.h"
 #include "chrome/browser/cocoa/browser_window_cocoa.h"
@@ -14,8 +13,6 @@
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
 #include "chrome/browser/profile.h"
-
-#include <ApplicationServices/ApplicationServices.h>
 
 BrowserWindowCocoa::BrowserWindowCocoa(Browser* browser,
                                        BrowserWindowController* controller,
@@ -97,9 +94,8 @@ void BrowserWindowCocoa::UpdateTitleBar() {
   // Window menu
   [NSApp changeWindowsItem:window_ title:newTitle filename:NO];
 
-  // Dock (if applicable)
-  if ([window_ isMiniaturized])
-    SetMinimizedWindowTitle(window_, newTitle);
+  // Dock
+  [window_ setMiniwindowTitle:newTitle];
 }
 
 void BrowserWindowCocoa::UpdateLoadingAnimations(bool should_animate) {
@@ -257,23 +253,4 @@ void BrowserWindowCocoa::DestroyBrowser() {
 
   // at this point the controller is dead (autoreleased), so
   // make sure we don't try to reference it any more.
-}
-
-void BrowserWindowCocoa::SetMinimizedWindowTitle(NSWindow* window,
-                                                 NSString* title) {
-  typedef OSStatus (*CoreDockSetItemTitlePtr)(CGWindowID wid,
-                                              CFStringRef title);
-
-  scoped_cftyperef<CFBundleRef> hi_services(
-      CFBundleGetBundleWithIdentifier(CFSTR("com.apple.HIServices")));
-  if (!hi_services)
-    return;
-
-  CoreDockSetItemTitlePtr CoreDockSetItemTitle =
-      (CoreDockSetItemTitlePtr)
-      CFBundleGetFunctionPointerForName(hi_services,
-                                        CFSTR("CoreDockSetItemTitle"));
-
-  if (CoreDockSetItemTitle)
-    CoreDockSetItemTitle([window windowNumber], (CFStringRef)title);
 }

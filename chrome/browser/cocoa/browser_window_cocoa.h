@@ -11,7 +11,6 @@
 class Browser;
 @class BrowserWindowController;
 @class FindBarCocoaController;
-@class NSString;
 @class NSWindow;
 @class NSMenu;
 
@@ -82,8 +81,6 @@ class BrowserWindowCocoa : public BrowserWindow,
   virtual void DestroyBrowser();
 
  private:
-  void SetMinimizedWindowTitle(NSWindow* window, NSString* title);
-
   NSWindow* window_;  // weak, owned by controller
   Browser* browser_;  // weak, owned by controller
   BrowserWindowController* controller_;  // weak, owns us

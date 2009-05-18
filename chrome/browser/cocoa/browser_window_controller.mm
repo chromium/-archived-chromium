@@ -58,10 +58,6 @@ const int kWindowGradientHeight = 24;
 - (NSRect)window:(NSWindow *)window
 willPositionSheet:(NSWindow *)sheet
        usingRect:(NSRect)defaultSheetRect;
-
-// We need to know when the window was miniaturized so we can set the dock
-// title correctly.
-- (void)windowDidMiniaturize:(NSNotification *)notification;
 @end
 
 
@@ -650,10 +646,6 @@ willPositionSheet:(NSWindow *)sheet
   NSRect windowFrame = [window frame];
   defaultSheetRect.origin.y = windowFrame.size.height - 10;
   return defaultSheetRect;
-}
-
-- (void)windowDidMiniaturize:(NSNotification *)notification {
-  windowShim_->UpdateTitleBar();
 }
 
 // In addition to the tab strip and content area, which the superview's impl
