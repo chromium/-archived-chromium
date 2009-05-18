@@ -7,11 +7,15 @@
 
 #include <string>
 
+#include "base/command_line.h"
 #include "base/scoped_ptr.h"
+#include "chrome/common/main_function_params.h"
+#include "chrome/common/sandbox_init_wrapper.h"
 #include "chrome/renderer/mock_keyboard.h"
 #include "chrome/renderer/mock_render_process.h"
 #include "chrome/renderer/mock_render_thread.h"
 #include "chrome/renderer/render_view.h"
+#include "chrome/renderer/renderer_main_platform_delegate.h"
 #include "chrome/renderer/renderer_webkitclient_impl.h"
 #include "testing/gtest/include/gtest/gtest.h"
 #include "webkit/glue/webframe.h"
@@ -52,6 +56,12 @@ class RenderViewTest : public testing::Test {
   scoped_refptr<RenderView> view_;
   RendererWebKitClientImpl webkitclient_;
   scoped_ptr<MockKeyboard> mock_keyboard_;
+
+  // Used to setup the process so renderers can run.
+  scoped_ptr<RendererMainPlatformDelegate> platform_;
+  scoped_ptr<MainFunctionParams> params_;
+  scoped_ptr<CommandLine> command_line_;
+  scoped_ptr<SandboxInitWrapper> sandbox_init_wrapper_;
 };
 
 #endif  // CHROME_TEST_RENDER_VIEW_TEST_H_

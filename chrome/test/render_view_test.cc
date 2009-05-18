@@ -11,6 +11,7 @@
 #include "chrome/renderer/extensions/extension_process_bindings.h"
 #include "chrome/renderer/extensions/renderer_extension_bindings.h"
 #include "chrome/renderer/js_only_v8_extensions.h"
+#include "chrome/renderer/renderer_main_platform_delegate.h"
 #include "webkit/api/public/WebInputEvent.h"
 #include "webkit/api/public/WebKit.h"
 #include "webkit/api/public/WebScriptSource.h"
@@ -54,6 +55,17 @@ void RenderViewTest::LoadHTML(const char* html) {
 }
 
 void RenderViewTest::SetUp() {
+  sandbox_init_wrapper_.reset(new SandboxInitWrapper());
+#if defined(OS_WIN)
+  command_line_.reset(new CommandLine(std::wstring()));
+#elif defined(OS_POSIX)
+  command_line_.reset(new CommandLine(std::vector<std::string>()));
+#endif
+  params_.reset(new MainFunctionParams(*command_line_, *sandbox_init_wrapper_,
+                                       NULL));
+  platform_.reset(new RendererMainPlatformDelegate(*params_));
+  platform_->PlatformInitialize();
+
   WebKit::initialize(&webkitclient_);
   WebKit::registerExtension(BaseJsV8Extension::Get());
   WebKit::registerExtension(JsonJsV8Extension::Get());
@@ -96,6 +108,12 @@ void RenderViewTest::TearDown() {
   msg_loop_.RunAllPending();
 
   mock_keyboard_.reset();
+
+  platform_->PlatformUninitialize();
+  platform_.reset();
+  params_.reset();
+  command_line_.reset();
+  sandbox_init_wrapper_.reset();
 }
 
 int RenderViewTest::SendKeyEvent(MockKeyboard::Layout layout,
