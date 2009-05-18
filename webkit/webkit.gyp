@@ -597,6 +597,7 @@
         {
           'rule_name': 'binding',
           'extension': 'idl',
+          'msvs_external_rule': 1,
           'inputs': [
             '../third_party/WebKit/WebCore/bindings/scripts/generate-bindings.pl',
             'port/bindings/scripts/CodeGenerator.pm',
