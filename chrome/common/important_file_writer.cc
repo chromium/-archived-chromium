@@ -55,7 +55,7 @@ class WriteToDiskTask : public Task {
       return;
     }
 
-    if (file_util::ReplaceFile(tmp_file_path, path_)) {
+    if (file_util::Move(tmp_file_path, path_)) {
       LogSuccess();
       return;
     }

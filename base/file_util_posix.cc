@@ -168,10 +168,6 @@ bool Move(const FilePath& from_path, const FilePath& to_path) {
   return true;
 }
 
-bool ReplaceFile(const FilePath& from_path, const FilePath& to_path) {
-  return (rename(from_path.value().c_str(), to_path.value().c_str()) == 0);
-}
-
 bool CopyDirectory(const FilePath& from_path,
                    const FilePath& to_path,
                    bool recursive) {

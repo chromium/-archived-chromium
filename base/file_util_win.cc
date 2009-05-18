@@ -116,18 +116,6 @@ bool Move(const FilePath& from_path, const FilePath& to_path) {
   return false;
 }
 
-bool ReplaceFile(const FilePath& from_path, const FilePath& to_path) {
-  // Make sure that the target file exists.
-  HANDLE target_file = ::CreateFile(to_path.value().c_str(), 0,
-                                    FILE_SHARE_READ | FILE_SHARE_WRITE,
-                                    NULL, CREATE_NEW,
-                                    FILE_ATTRIBUTE_NORMAL, NULL);
-  if (target_file != INVALID_HANDLE_VALUE)
-    ::CloseHandle(target_file);
-  return ::ReplaceFile(to_path.value().c_str(), from_path.value().c_str(),
-                       NULL, 0, NULL, NULL) ? true : false;
-}
-
 bool CopyFile(const FilePath& from_path, const FilePath& to_path) {
   // NOTE: I suspect we could support longer paths, but that would involve
   // analyzing all our usage of files.
