@@ -149,12 +149,14 @@ void DraggedTabView::AnimationCanceled(const Animation* animation) {
 // DraggedTabView, views::View overrides:
 
 void DraggedTabView::Paint(gfx::Canvas* canvas) {
-  if (!show_contents_on_drag_) {
-    PaintFocusRect(canvas);
-  } else if (attached_) {
+  if (attached_) {
     PaintAttachedTab(canvas);
   } else {
-    PaintDetachedView(canvas);
+    if (show_contents_on_drag_) {
+      PaintDetachedView(canvas);
+    } else {
+      PaintFocusRect(canvas);
+    }
   }
 }
 
