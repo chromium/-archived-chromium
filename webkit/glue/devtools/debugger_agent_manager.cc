@@ -167,6 +167,41 @@ void DebuggerAgentManager::OnV8DebugMessage(const v8::Debug::Message& message) {
   } // Otherwise it's an event message.
   DCHECK(message.IsEvent());
 
+  // Filter out events from the utility context.
+  // TODO(yurys): add global context accessor to v8 API.
+  if (message.GetEvent() == v8::AfterCompile) {
+    // Note that message.GetEventContext() will return context active when we
+    // entered the debugger. It's not necessarily the global context where the
+    // script is compiled so to get the scripts' context we call JS methods on
+    // the event data.
+    v8::Handle<v8::Object> compileEvent = message.GetEventData();
+    v8::Handle<v8::Value> scriptGetter =
+        compileEvent->Get(v8::String::New("script"));
+    v8::Local<v8::Function> fun = v8::Function::Cast(*scriptGetter);
+    v8::Local<v8::Object> script_mirror =
+        v8::Object::Cast(*fun->Call(compileEvent, 0, NULL));
+
+    v8::Handle<v8::Value> contextGetter =
+        script_mirror->Get(v8::String::New("context"));
+    v8::Local<v8::Function> contextGetterFunc =
+        v8::Function::Cast(*contextGetter);
+    v8::Local<v8::Object> context_mirror =
+        v8::Object::Cast(*contextGetterFunc->Call(script_mirror, 0, NULL));
+
+    v8::Handle<v8::Value> dataGetter =
+        context_mirror->Get(v8::String::New("data"));
+    v8::Local<v8::Function> dataGetterFunc =
+        v8::Function::Cast(*dataGetter);
+    v8::Local<v8::Value> data =
+        *dataGetterFunc->Call(context_mirror, 0, NULL);
+
+    // If the context is from one of the inpected tabs it must have host_id in
+    // the data field. See DebuggerAgentManager::SetHostId for more details.
+    if (data.IsEmpty() || !data->IsInt32()) {
+      return;
+    }
+  }
+
   // Agent that should be used for sending events is determined based
   // on the active Frame.
   DebuggerAgentImpl* agent = FindAgentForCurrentV8Context();
@@ -178,6 +213,7 @@ void DebuggerAgentManager::OnV8DebugMessage(const v8::Debug::Message& message) {
     SendContinueCommandToV8();
   }
 }
+
 
 // static
 void DebuggerAgentManager::ExecuteDebuggerCommand(
