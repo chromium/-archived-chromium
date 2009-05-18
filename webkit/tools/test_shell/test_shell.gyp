@@ -500,6 +500,11 @@
           # mac tests load the resources from the built test_shell beside the
           # test
           'dependencies': ['test_shell'],
+          # TODO(port)
+          # disable plugin tests until we re-enable plugins for chromium.app
+          'sources!': [
+            'plugin_tests.cc',
+          ]
         }],
         ['OS=="win"', {
           'msvs_disabled_warnings': [ 4800 ],

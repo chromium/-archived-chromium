@@ -1167,6 +1167,8 @@ BUG10350 LINUX : LayoutTests/fast/replaced/width100percent-radio.html = FAIL
 BUG10666 LINUX : chrome/fast/forms/basic-selects.html = FAIL
 
 // Depends on plugin support.
+BUG10351 MAC : LayoutTests/fast/dom/Window/Plug-ins.html = FAIL
+BUG10351 MAC : LayoutTests/fast/js/navigator-mimeTypes-length.html = FAIL
 BUG10351 MAC : LayoutTests/accessibility/plugin.html = FAIL CRASH
 BUG10351 MAC LINUX : LayoutTests/fast/dom/object-embed-plugin-scripting.html = FAIL
 BUG10351 MAC : LayoutTests/fast/dynamic/flash-replacement-test.html = FAIL CRASH
@@ -1199,7 +1201,7 @@ BUG10351 MAC LINUX : LayoutTests/plugins/netscape-get-property-return-value.html
 BUG10351 MAC LINUX : LayoutTests/plugins/netscape-identifier-conversion.html = FAIL
 BUG10351 MAC LINUX : LayoutTests/plugins/netscape-invoke-default.html = FAIL
 BUG10351 LINUX : LayoutTests/plugins/open-and-close-window-with-plugin.html = FAIL
-BUG10351 LINUX : LayoutTests/plugins/plugin-javascript-access.html = FAIL
+BUG10351 MAC LINUX : LayoutTests/plugins/plugin-javascript-access.html = FAIL
 BUG10351 MAC LINUX : LayoutTests/plugins/plugin-remove-subframe.html = FAIL
 BUG10351 MAC LINUX : LayoutTests/plugins/return-error-from-new-stream-doesnt-invoke-destroy-stream.html = TIMEOUT
 BUG10667 LINUX MAC : chrome/plugins/get-file-url.html = CRASH TIMEOUT
@@ -2651,6 +2653,9 @@ BUG11909 : LayoutTests/http/tests/security/aboutBlank/security-context-grandchil
 BUG11909 : LayoutTests/http/tests/security/aboutBlank/security-context-grandchildren-writeln-lexical.html = FAIL
 
 BUG11924 WIN : LayoutTests/http/tests/navigation/relativeanchor-basic.html = FAIL
+
+BUG11933 LINUX : LayoutTests/fast/frames/content-opacity-1.html = FAIL
+BUG11933 LINUX : LayoutTests/fast/frames/content-opacity-2.html = FAIL
 
 // Need LINUX/Mac rebaselines after WebKit Update 437150:43770
 BUG12054 MAC LINUX : LayoutTests/fast/canvas/canvas-bg-zoom.html = FAIL

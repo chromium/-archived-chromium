@@ -68,7 +68,11 @@ void PluginList::LoadPluginsFromDir(const FilePath &path) {
 }
 
 bool PluginList::ShouldLoadPlugin(const WebPluginInfo& info) {
-
+  // TODO(port): uncomment the next line to enable plugins--disabled by
+  // default so that public dev builds fall back correctly to the no-plugin
+  // code on pages with plugins.
+  return false;
+  
   // Hierarchy check
   // (we're loading plugins hierarchically from Library folders, so plugins we
   //  encounter earlier must override plugins we encounter later)
