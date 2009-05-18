@@ -2652,9 +2652,6 @@ BUG11909 : LayoutTests/http/tests/security/aboutBlank/security-context-grandchil
 
 BUG11924 WIN : LayoutTests/http/tests/navigation/relativeanchor-basic.html = FAIL
 
-BUG11933 LINUX : LayoutTests/fast/frames/content-opacity-1.html = FAIL
-BUG11933 LINUX : LayoutTests/fast/frames/content-opacity-2.html = FAIL
-
 // Need LINUX/Mac rebaselines after WebKit Update 437150:43770
 BUG12054 MAC LINUX : LayoutTests/fast/canvas/canvas-bg-zoom.html = FAIL
 BUG12054 MAC LINUX : LayoutTests/editing/execCommand/outdent-blockquote-test1.html = FAIL

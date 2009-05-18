@@ -265,7 +265,11 @@ std::string TestShell::DumpImage(WebFrame* web_frame,
   bool discard_transparency = false;
 #endif
 
-  // Compute MD5 sum.
+  // Compute MD5 sum.  We should have done this before calling
+  // device->makeOpaque on Windows.  Because we do it after the call, there are
+  // some images that are the pixel identical on windows and other platforms
+  // but have different MD5 sums.  At this point, rebaselining all the windows
+  // tests is too much of a pain, so we just check in different baselines.
   MD5Context ctx;
   MD5Init(&ctx);
   MD5Update(&ctx, src_bmp.getPixels(), src_bmp.getSize());
