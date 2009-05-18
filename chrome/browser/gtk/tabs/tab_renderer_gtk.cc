@@ -43,6 +43,8 @@ const SkScalar kTabBottomCurveWidth = 3;
 const int kCloseButtonVertFuzz = 0;
 const int kCloseButtonHorzFuzz = 5;
 
+SkBitmap* crashed_fav_icon = NULL;
+
 TabRendererGtk::LoadingAnimation::Data loading_animation_data;
 
 // Loads the loading animation images and data.
@@ -126,6 +128,45 @@ void TabRendererGtk::LoadingAnimation::ValidateLoadingAnimation(
 }
 
 ////////////////////////////////////////////////////////////////////////////////
+// FaviconCrashAnimation
+//
+//  A custom animation subclass to manage the favicon crash animation.
+class TabRendererGtk::FavIconCrashAnimation : public Animation,
+                                              public AnimationDelegate {
+ public:
+  explicit FavIconCrashAnimation(TabRendererGtk* target)
+      : ALLOW_THIS_IN_INITIALIZER_LIST(Animation(1000, 25, this)),
+        target_(target) {
+  }
+  virtual ~FavIconCrashAnimation() {}
+
+  // Animation overrides:
+  virtual void AnimateToState(double state) {
+    const double kHidingOffset = 27;
+
+    if (state < .5) {
+      target_->SetFavIconHidingOffset(
+          static_cast<int>(floor(kHidingOffset * 2.0 * state)));
+    } else {
+      target_->DisplayCrashedFavIcon();
+      target_->SetFavIconHidingOffset(
+          static_cast<int>(
+              floor(kHidingOffset - ((state - .5) * 2.0 * kHidingOffset))));
+    }
+  }
+
+  // AnimationDelegate overrides:
+  virtual void AnimationCanceled(const Animation* animation) {
+    target_->SetFavIconHidingOffset(0);
+  }
+
+ private:
+  TabRendererGtk* target_;
+
+  DISALLOW_COPY_AND_ASSIGN(FavIconCrashAnimation);
+};
+
+////////////////////////////////////////////////////////////////////////////////
 // TabRendererGtk, public:
 
 TabRendererGtk::TabRendererGtk()
@@ -172,6 +213,16 @@ void TabRendererGtk::UpdateData(TabContents* contents, bool loading_only) {
 void TabRendererGtk::UpdateFromModel() {
   // Force a layout, since the tab may have grown a favicon.
   Layout();
+  SchedulePaint();
+
+  if (data_.crashed) {
+    if (!should_display_crashed_favicon_ && !IsPerformingCrashAnimation())
+      StartCrashAnimation();
+  } else {
+    if (IsPerformingCrashAnimation())
+      StopCrashAnimation();
+    ResetCrashedFavIcon();
+  }
 }
 
 bool TabRendererGtk::IsSelected() const {
@@ -290,6 +341,36 @@ void TabRendererGtk::AnimationEnded(const Animation* animation) {
 ////////////////////////////////////////////////////////////////////////////////
 // TabRendererGtk, private:
 
+void TabRendererGtk::StartCrashAnimation() {
+  if (!crash_animation_.get())
+    crash_animation_.reset(new FavIconCrashAnimation(this));
+  crash_animation_->Reset();
+  crash_animation_->Start();
+}
+
+void TabRendererGtk::StopCrashAnimation() {
+  if (!crash_animation_.get())
+    return;
+  crash_animation_->Stop();
+}
+
+bool TabRendererGtk::IsPerformingCrashAnimation() const {
+  return crash_animation_.get() && crash_animation_->IsAnimating();
+}
+
+void TabRendererGtk::SetFavIconHidingOffset(int offset) {
+  fav_icon_hiding_offset_ = offset;
+  SchedulePaint();
+}
+
+void TabRendererGtk::DisplayCrashedFavIcon() {
+  should_display_crashed_favicon_ = true;
+}
+
+void TabRendererGtk::ResetCrashedFavIcon() {
+  should_display_crashed_favicon_ = false;
+}
+
 void TabRendererGtk::Paint(GdkEventExpose* event) {
   gfx::CanvasPaint canvas(event, false);
   if (canvas.isEmpty())
@@ -314,9 +395,31 @@ void TabRendererGtk::Paint(GdkEventExpose* event) {
   if (show_icon) {
     if (loading_animation_.animation_state() != ANIMATION_NONE) {
       PaintLoadingAnimation(&canvas);
-    } else if (!data_.favicon.isNull()) {
-      canvas.DrawBitmapInt(data_.favicon, favicon_bounds_.x(),
-                           favicon_bounds_.y() + fav_icon_hiding_offset_);
+    } else {
+      canvas.save();
+      canvas.ClipRectInt(0, 0, width(), height() - kFavIconTitleSpacing);
+      if (should_display_crashed_favicon_) {
+        canvas.DrawBitmapInt(*crashed_fav_icon, 0, 0,
+                             crashed_fav_icon->width(),
+                             crashed_fav_icon->height(),
+                             favicon_bounds_.x(),
+                             favicon_bounds_.y() + fav_icon_hiding_offset_,
+                             kFavIconSize, kFavIconSize,
+                             true);
+      } else {
+        if (!data_.favicon.isNull()) {
+          // TODO(pkasting): Use code in tab_icon_view.cc:PaintIcon() (or switch
+          // to using that class to render the favicon).
+          canvas.DrawBitmapInt(data_.favicon, 0, 0,
+                               data_.favicon.width(),
+                               data_.favicon.height(),
+                               favicon_bounds_.x(),
+                               favicon_bounds_.y() + fav_icon_hiding_offset_,
+                               kFavIconSize, kFavIconSize,
+                               true);
+        }
+      }
+      canvas.restore();
     }
   }
 
@@ -606,6 +709,8 @@ void TabRendererGtk::InitResources() {
   title_font_height_ = title_font_->height();
 
   InitializeLoadingAnimationData(&rb, &loading_animation_data);
+
+  crashed_fav_icon = rb.GetBitmapNamed(IDR_SAD_FAVICON);
 
   initialized_ = true;
 }

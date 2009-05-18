@@ -145,6 +145,8 @@ class TabRendererGtk : public AnimationDelegate {
   void OnMouseExited();
 
  private:
+  class FavIconCrashAnimation;
+
   // Model data. We store this here so that we don't need to ask the underlying
   // model, which is tricky since instances of this object can outlive the
   // corresponding objects in the underlying model.
@@ -171,6 +173,19 @@ class TabRendererGtk : public AnimationDelegate {
   virtual void AnimationProgressed(const Animation* animation);
   virtual void AnimationCanceled(const Animation* animation);
   virtual void AnimationEnded(const Animation* animation);
+
+  // Starts/Stops the crash animation.
+  void StartCrashAnimation();
+  void StopCrashAnimation();
+
+  // Return true if the crash animation is currently running.
+  bool IsPerformingCrashAnimation() const;
+
+  // Set the temporary offset for the favicon. This is used during animation.
+  void SetFavIconHidingOffset(int offset);
+
+  void DisplayCrashedFavIcon();
+  void ResetCrashedFavIcon();
 
   // Generates the bounds for the interior items of the tab.
   void Layout();
@@ -241,6 +256,9 @@ class TabRendererGtk : public AnimationDelegate {
 
   // The offset used to animate the favicon location.
   int fav_icon_hiding_offset_;
+
+  // The animation object used to swap the favicon with the sad tab icon.
+  scoped_ptr<FavIconCrashAnimation> crash_animation_;
 
   // Set when the crashed favicon should be displayed.
   bool should_display_crashed_favicon_;
