@@ -2,15 +2,11 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CHROME_BROWSER_VIEWS_TABS_HWND_PHOTOBOOTH_H__
-#define CHROME_BROWSER_VIEWS_TABS_HWND_PHOTOBOOTH_H__
+#ifndef CHROME_BROWSER_VIEWS_TABS_NATIVE_VIEW_PHOTOBOOTH_WIN_H_
+#define CHROME_BROWSER_VIEWS_TABS_NATIVE_VIEW_PHOTOBOOTH_WIN_H_
 
-#include "base/basictypes.h"
-#include "base/gfx/rect.h"
+#include "chrome/browser/views/tabs/native_view_photobooth.h"
 
-namespace gfx {
-class Canvas;
-}
 namespace views {
 class WidgetWin;
 }
@@ -25,27 +21,25 @@ class WidgetWin;
 //  Implementation note: This causes the HWND to be re-parented to a mostly
 //  off-screen layered window.
 //
-class HWNDPhotobooth {
+class NativeViewPhotoboothWin : public NativeViewPhotobooth {
  public:
   // Creates the photo booth. Constructs a nearly off-screen window, parents
   // the HWND, then shows it. The caller is responsible for destroying this
   // window, since the photo-booth will detach it before it is destroyed.
   // |canvas| is a canvas to paint the contents into, and dest_bounds is the
   // target area in |canvas| to which painted contents will be clipped.
-  explicit HWNDPhotobooth(HWND initial_hwnd);
+  explicit NativeViewPhotoboothWin(gfx::NativeView initial_view);
 
   // Destroys the photo booth window.
-  virtual ~HWNDPhotobooth();
+  virtual ~NativeViewPhotoboothWin();
 
-  // Replaces the HWND in the photo booth with the specified one. The caller is
-  // responsible for destroying this HWND since it will be detached from the
-  // capture window before the capture window is destroyed.
-  void ReplaceHWND(HWND new_hwnd);
+  // Replaces the view in the photo booth with the specified one.
+  virtual void Replace(gfx::NativeView new_view);
 
   // Paints the current display image of the window into |canvas|, clipped to
   // |target_bounds|.
-  void PaintScreenshotIntoCanvas(gfx::Canvas* canvas,
-                                 const gfx::Rect& target_bounds);
+  virtual void PaintScreenshotIntoCanvas(gfx::Canvas* canvas,
+                                         const gfx::Rect& target_bounds);
 
  private:
   // Creates a mostly off-screen window to contain the HWND to be captured.
@@ -57,7 +51,7 @@ class HWNDPhotobooth {
   // The current HWND being captured.
   HWND current_hwnd_;
 
-  DISALLOW_EVIL_CONSTRUCTORS(HWNDPhotobooth);
+  DISALLOW_COPY_AND_ASSIGN(NativeViewPhotoboothWin);
 };
 
-#endif  // #ifndef CHROME_BROWSER_VIEWS_TABS_HWND_PHOTOBOOTH_H__
+#endif  // #ifndef CHROME_BROWSER_VIEWS_TABS_NATIVE_VIEW_PHOTOBOOTH_WIN_H_

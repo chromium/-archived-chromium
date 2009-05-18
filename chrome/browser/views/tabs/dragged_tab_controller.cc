@@ -16,7 +16,7 @@
 #include "chrome/browser/metrics/user_metrics.h"
 #include "chrome/browser/views/frame/browser_view.h"
 #include "chrome/browser/views/tabs/dragged_tab_view.h"
-#include "chrome/browser/views/tabs/hwnd_photobooth.h"
+#include "chrome/browser/views/tabs/native_view_photobooth.h"
 #include "chrome/browser/views/tabs/tab.h"
 #include "chrome/browser/views/tabs/tab_strip.h"
 #include "chrome/browser/tab_contents/tab_contents.h"
@@ -761,8 +761,10 @@ void DraggedTabController::Detach() {
 
   // Set up the photo booth to start capturing the contents of the dragged
   // TabContents.
-  if (!photobooth_.get())
-    photobooth_.reset(new HWNDPhotobooth(dragged_contents_->GetNativeView()));
+  if (!photobooth_.get()) {
+    photobooth_.reset(
+        NativeViewPhotobooth::Create(dragged_contents_->GetNativeView()));
+  }
 
   // Update the View. This NULL check is necessary apparently in some
   // conditions during automation where the view_ is destroyed inside a

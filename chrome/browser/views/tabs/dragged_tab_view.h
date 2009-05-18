@@ -18,7 +18,7 @@ class WidgetWin;
 namespace gfx {
 class Point;
 }
-class HWNDPhotobooth;
+class NativeViewPhotobooth;
 class Tab;
 class TabContents;
 class TabRenderer;
@@ -39,7 +39,7 @@ class DraggedTabView : public views::View,
   void Attach(int selected_width);
 
   // Notifies the DraggedTabView that it has been detached from a TabStrip.
-  void Detach(HWNDPhotobooth* photobooth);
+  void Detach(NativeViewPhotobooth* photobooth);
 
   // Notifies the DraggedTabView that it should update itself.
   void Update();
@@ -103,7 +103,7 @@ class DraggedTabView : public views::View,
 
   // A handle to the DIB containing the current screenshot of the TabContents
   // we are dragging.
-  HWNDPhotobooth* photobooth_;
+  NativeViewPhotobooth* photobooth_;
 
   // The dimensions of the TabContents being dragged.
   gfx::Size contents_size_;

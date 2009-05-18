@@ -2,10 +2,11 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+#include "chrome/browser/views/tabs/native_view_photobooth_win.h"
+
 #include "app/gfx/canvas.h"
 #include "base/gfx/point.h"
 #include "chrome/browser/tab_contents/tab_contents.h"
-#include "chrome/browser/views/tabs/hwnd_photobooth.h"
 #include "third_party/skia/include/core/SkBitmap.h"
 #include "views/widget/widget_win.h"
 
@@ -38,23 +39,29 @@ gfx::Point GetCaptureWindowPosition() {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-// HWNDPhotobooth, public:
+// NativeViewPhotoboothWin, public:
 
-HWNDPhotobooth::HWNDPhotobooth(HWND initial_hwnd)
+// static
+NativeViewPhotobooth* NativeViewPhotobooth::Create(
+    gfx::NativeView initial_view) {
+  return new NativeViewPhotoboothWin(initial_view);
+}
+
+NativeViewPhotoboothWin::NativeViewPhotoboothWin(HWND initial_hwnd)
     : capture_window_(NULL),
       current_hwnd_(initial_hwnd) {
   DCHECK(IsWindow(current_hwnd_));
   CreateCaptureWindow(initial_hwnd);
 }
 
-HWNDPhotobooth::~HWNDPhotobooth() {
+NativeViewPhotoboothWin::~NativeViewPhotoboothWin() {
   // Detach the attached HWND. The creator of the photo-booth is responsible
   // for destroying it.
-  ReplaceHWND(NULL);
+  Replace(NULL);
   capture_window_->Close();
 }
 
-void HWNDPhotobooth::ReplaceHWND(HWND new_hwnd) {
+void NativeViewPhotoboothWin::Replace(HWND new_hwnd) {
   if (IsWindow(current_hwnd_) &&
       GetParent(current_hwnd_) == capture_window_->GetNativeView()) {
     // We need to hide the window too, so it doesn't show up in the TaskBar or
@@ -77,14 +84,14 @@ void HWNDPhotobooth::ReplaceHWND(HWND new_hwnd) {
   }
 }
 
-void HWNDPhotobooth::PaintScreenshotIntoCanvas(
+void NativeViewPhotoboothWin::PaintScreenshotIntoCanvas(
     gfx::Canvas* canvas,
     const gfx::Rect& target_bounds) {
   // Our contained window may have been re-parented. Make sure it belongs to
-  // us until someone calls ReplaceHWND(NULL).
+  // us until someone calls Replace(NULL).
   if (IsWindow(current_hwnd_) &&
       GetParent(current_hwnd_) != capture_window_->GetNativeView()) {
-    ReplaceHWND(current_hwnd_);
+    Replace(current_hwnd_);
   }
 
   // We compel the contained HWND to paint now, synchronously. We do this to
@@ -111,9 +118,9 @@ void HWNDPhotobooth::PaintScreenshotIntoCanvas(
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-// HWNDPhotobooth, private:
+// NativeViewPhotoboothWin, private:
 
-void HWNDPhotobooth::CreateCaptureWindow(HWND initial_hwnd) {
+void NativeViewPhotoboothWin::CreateCaptureWindow(HWND initial_hwnd) {
   // Snapshotting a HWND is tricky - if the HWND is clipped (e.g. positioned
   // partially off-screen) then just blitting from the HWND' DC to the capture
   // bitmap would be incorrect, since the capture bitmap would show only the
@@ -155,5 +162,5 @@ void HWNDPhotobooth::CreateCaptureWindow(HWND initial_hwnd) {
   SetLayeredWindowAttributes(
       capture_window_->GetNativeView(), RGB(0xFF, 0xFF, 0xFF), 0xFF, LWA_ALPHA);
 
-  ReplaceHWND(initial_hwnd);
+  Replace(initial_hwnd);
 }

@@ -325,11 +325,15 @@
 				>
 			</File>
 			<File
-				RelativePath=".\tabs\hwnd_photobooth.cc"
+				RelativePath=".\tabs\native_view_photobooth_win.cc"
 				>
 			</File>
 			<File
-				RelativePath=".\tabs\hwnd_photobooth.h"
+				RelativePath=".\tabs\native_view_photobooth_win.h"
+				>
+			</File>
+			<File
+				RelativePath=".\tabs\native_view_photobooth.h"
 				>
 			</File>
 			<File

@@ -7,7 +7,7 @@
 #include "app/gfx/canvas.h"
 #include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/browser/tabs/tab_strip_model.h"
-#include "chrome/browser/views/tabs/hwnd_photobooth.h"
+#include "chrome/browser/views/tabs/native_view_photobooth.h"
 #include "chrome/browser/views/tabs/tab_renderer.h"
 #include "third_party/skia/include/core/SkShader.h"
 #include "views/widget/widget_win.h"
@@ -94,7 +94,7 @@ void DraggedTabView::Attach(int selected_width) {
   Update();
 }
 
-void DraggedTabView::Detach(HWNDPhotobooth* photobooth) {
+void DraggedTabView::Detach(NativeViewPhotobooth* photobooth) {
   attached_ = false;
   photobooth_ = photobooth;
   container_->SetLayeredAlpha(kTransparentAlpha);

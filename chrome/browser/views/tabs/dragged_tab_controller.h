@@ -20,7 +20,7 @@ class View;
 }
 class BrowserWindow;
 class DraggedTabView;
-class HWNDPhotobooth;
+class NativeViewPhotobooth;
 class SkBitmap;
 class Tab;
 class TabStrip;
@@ -258,7 +258,7 @@ class DraggedTabController : public TabContentsDelegate,
 
   // The photo-booth the TabContents sits in when the Tab is detached, to
   // obtain screen shots.
-  scoped_ptr<HWNDPhotobooth> photobooth_;
+  scoped_ptr<NativeViewPhotobooth> photobooth_;
 
   // The position of the mouse (in screen coordinates) at the start of the drag
   // operation. This is used to calculate minimum elasticity before a
