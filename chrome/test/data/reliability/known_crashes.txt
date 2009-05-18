@@ -111,3 +111,5 @@ PREFIX : tcmalloc::threadcache::fetchfromcentralcache___tcmalloc::threadcache::a
 # 8875
 PREFIX : _87except____startoneargerrorhandling___sqrt___v8::internal::invoke___v8::internal::execution::call
 
+# 12154
+PREFIX : tcmalloc::threadcache::fetchfromcentralcache___tcmalloc::threadcache::allocate___`anonymous namespace'::do_malloc___`anonymous namespace'::cpp_alloc___operator new___std::_allocate<wchar_t>___std::basic_string<wchar_t,std::char_traits<wchar_t>,std::allocator<wchar_t> >::_copy___std::basic_string<wchar_t,std::char_traits<wchar_t>,std::allocator<wchar_t> >::append___std::operator+<wchar_t,std::char_traits<wchar_t>,std::allocator<wchar_t> >___safebrowsingdatabasebloom::init___safebrowsingservice::getdatabase
