@@ -12,7 +12,7 @@
 #include "googleurl/src/gurl.h"
 #include "webkit/glue/scoped_clipboard_writer_glue.h"
 
-#include "SkBitmap.h"
+#include "third_party/skia/include/core/SkBitmap.h"
 
 // Clipboard glue
 

@@ -18,6 +18,12 @@ include_rules = [
   # Allow inclusion of WebKit API files.
   "+webkit/api",
 
+  # Allow inclusion of Mozilla interface headers.
+  "+third_party/mozilla",
+
+  # Allow usage of Google Toolbox for Mac.
+  "+third_party/GTM",
+
   # Brett's test. Contact him for questions.
   "+frame_window",
 ]

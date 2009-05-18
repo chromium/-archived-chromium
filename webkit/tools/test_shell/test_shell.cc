@@ -43,7 +43,7 @@
 #include "webkit/tools/test_shell/test_navigation_controller.h"
 #include "webkit/tools/test_shell/test_shell_switches.h"
 
-#include "SkBitmap.h"
+#include "third_party/skia/include/core/SkBitmap.h"
 
 namespace {
 

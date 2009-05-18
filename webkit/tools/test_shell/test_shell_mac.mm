@@ -42,7 +42,7 @@
 #include "webkit/tools/test_shell/simple_resource_loader_bridge.h"
 #include "webkit/tools/test_shell/test_navigation_controller.h"
 
-#import "third_party/skia/include/core/SkBitmap.h"
+#include "third_party/skia/include/core/SkBitmap.h"
 
 #import "mac/DumpRenderTreePasteboard.h"
 

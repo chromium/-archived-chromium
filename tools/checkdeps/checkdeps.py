@@ -69,9 +69,6 @@ INCLUDE_RULES_VAR_NAME = "include_rules"
 # be checked. This allows us to skip third party code, for example.
 SKIP_SUBDIRS_VAR_NAME = "skip_child_includes"
 
-# We'll search for lines beginning with this string for checking.
-INCLUDE_PREFIX = "#include"
-
 # The maximum number of lines to check in each source file before giving up.
 MAX_LINES = 150
 
@@ -84,7 +81,7 @@ VERBOSE = False
 
 # This regular expression will be used to extract filenames from include
 # statements.
-EXTRACT_INCLUDE_FILENAME = re.compile(INCLUDE_PREFIX + ' *"(.*)"')
+EXTRACT_INCLUDE_PATH = re.compile('[ \t]*#[ \t]*(?:include|import)[ \t]+"(.*)"')
 
 # In lowercase, using forward slashes as directory separators, ending in a
 # forward slash. Set by the command line options.
@@ -274,19 +271,21 @@ def ApplyDirectoryRules(existing_rules, dir_name):
 
 def ShouldCheckFile(file_name):
   """Returns True if the given file is a type we want to check."""
-  if len(file_name) < 2:
-    return False
-  return file_name.endswith(".cc") or file_name.endswith(".h")
+  checked_extensions = [
+      '.h',
+      '.cc',
+      '.m',
+      '.mm',
+  ]
+  basename, extension = os.path.splitext(file_name)
+  return extension in checked_extensions
 
 
 def CheckLine(rules, line):
   """Checks the given file with the given rule set. If the line is an #include
   directive and is illegal, a string describing the error will be returned.
   Otherwise, None will be returned."""
-  if line[0:8] != "#include":
-    return None  # Not an include line
-
-  found_item = EXTRACT_INCLUDE_FILENAME.match(line)
+  found_item = EXTRACT_INCLUDE_PATH.match(line)
   if not found_item:
     return None  # Not a match
 

@@ -17,7 +17,6 @@
 #include "base/path_service.h"
 #include "base/string_piece.h"
 #include "base/string_util.h"
-#include "chrome/common/chrome_paths.h"
 
 ResourceBundle::~ResourceBundle() {
   FreeImages();
