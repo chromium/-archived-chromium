@@ -4,7 +4,9 @@
 
 #include "chrome/browser/gtk/nine_box.h"
 
+#include "app/gfx/gtk_util.h"
 #include "app/resource_bundle.h"
+#include "app/theme_provider.h"
 #include "base/gfx/gtk_util.h"
 #include "base/gfx/point.h"
 #include "base/logging.h"
@@ -26,6 +28,10 @@ void TileImage(cairo_t* cr, GdkPixbuf* src,
   cairo_fill(cr);
 }
 
+GdkPixbuf* GetPixbufNamed(ThemeProvider* theme_provider, int name) {
+  return gfx::GdkPixbufFromSkBitmap(theme_provider->GetBitmapNamed(name));
+}
+
 }  // namespace
 
 NineBox::NineBox(int top_left, int top, int top_right, int left, int center,
@@ -40,6 +46,29 @@ NineBox::NineBox(int top_left, int top, int top_right, int left, int center,
   images_[6] = bottom_left ? rb.GetPixbufNamed(bottom_left) : NULL;
   images_[7] = bottom ? rb.GetPixbufNamed(bottom) : NULL;
   images_[8] = bottom_right ? rb.GetPixbufNamed(bottom_right) : NULL;
+}
+
+NineBox::NineBox(ThemeProvider* theme_provider,
+                 int top_left, int top, int top_right, int left, int center,
+                 int right, int bottom_left, int bottom, int bottom_right) {
+  images_[0] = top_left ?
+               GetPixbufNamed(theme_provider, top_left) : NULL;
+  images_[1] = top ?
+               GetPixbufNamed(theme_provider, top) : NULL;
+  images_[2] = top_right ?
+               GetPixbufNamed(theme_provider, top_right) : NULL;
+  images_[3] = left ?
+               GetPixbufNamed(theme_provider, left) : NULL;
+  images_[4] = center ?
+               GetPixbufNamed(theme_provider, center) : NULL;
+  images_[5] = right ?
+               GetPixbufNamed(theme_provider, right) : NULL;
+  images_[6] = bottom_left ?
+               GetPixbufNamed(theme_provider, bottom_left) : NULL;
+  images_[7] = bottom ?
+               GetPixbufNamed(theme_provider, bottom) : NULL;
+  images_[8] = bottom_right ?
+               GetPixbufNamed(theme_provider, bottom_right) : NULL;
 }
 
 NineBox::~NineBox() {

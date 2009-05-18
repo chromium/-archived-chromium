@@ -7,6 +7,8 @@
 
 #include <gtk/gtk.h>
 
+class ThemeProvider;
+
 // A NineBox manages a set of source images representing a 3x3 grid, where
 // non-corner images can be tiled to make a larger image.  It's used to
 // use bitmaps for constructing image-based resizable widgets like buttons.
@@ -24,6 +26,12 @@ class NineBox {
   // ids that will be passed to the resource bundle.  Use 0 for no image.
   NineBox(int top_left, int top, int top_right, int left, int center, int right,
           int bottom_left, int bottom, int bottom_right);
+
+  // Same as above, but use themed images.
+  NineBox(ThemeProvider* theme_provider,
+          int top_left, int top, int top_right, int left, int center, int right,
+          int bottom_left, int bottom, int bottom_right);
+
   ~NineBox();
 
   // Render the NineBox to |dst|.

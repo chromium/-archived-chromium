@@ -13,6 +13,7 @@
 #include "base/path_service.h"
 #include "chrome/app/chrome_dll_resource.h"
 #include "chrome/browser/browser.h"
+#include "chrome/browser/browser_theme_provider.h"
 #include "chrome/browser/gtk/back_forward_menu_model_gtk.h"
 #include "chrome/browser/gtk/custom_button.h"
 #include "chrome/browser/gtk/go_button_gtk.h"
@@ -98,7 +99,7 @@ void BrowserToolbarGtk::Init(Profile* profile,
   // -1 for width means "let GTK do its normal sizing".
   gtk_widget_set_size_request(toolbar_, -1, kToolbarHeight);
   g_signal_connect(G_OBJECT(toolbar_), "expose-event",
-                   G_CALLBACK(&OnContentAreaExpose), this);
+                   G_CALLBACK(&OnToolbarExpose), this);
 
   // A GtkAccelGroup is not InitiallyUnowned, meaning we get a real reference
   // count starting at one.  We don't want the lifetime to be managed by the
@@ -315,14 +316,17 @@ void BrowserToolbarGtk::BuildToolbarMenuButton(
 }
 
 // static
-gboolean BrowserToolbarGtk::OnContentAreaExpose(GtkWidget* widget,
-                                                GdkEventExpose* e,
-                                                BrowserToolbarGtk* toolbar) {
-  // TODO(deanm): We should improve the tiling performance, or not use NineBox.
-  // For now at least honor the damage rect to avoid unnecessary painting.
+gboolean BrowserToolbarGtk::OnToolbarExpose(GtkWidget* widget,
+                                            GdkEventExpose* e,
+                                            BrowserToolbarGtk* toolbar) {
   cairo_t* cr = gdk_cairo_create(GDK_DRAWABLE(widget->window));
+  // It would be more intuitive to pass |e->area.y| rather than 0, but the
+  // toolbar is supposed to blend in with the active tab, so we have to pass
+  // coordinates for the IDR_THEME_TOOLBAR bitmap relative to the top of the
+  // tab strip. Since the toolbar's GdkWindow has the same origin as the tab
+  // strip's GdkWindow, we can just pass 0.
   toolbar->background_ninebox_.get()->RenderTopCenterStrip(cr,
-      e->area.x, -2, e->area.width);
+      e->area.x, 0, e->area.width);
   cairo_destroy(cr);
 
   return FALSE;  // Allow subwidgets to paint.
@@ -447,14 +451,8 @@ CustomDrawButton* BrowserToolbarGtk::MakeHomeButton() {
 }
 
 void BrowserToolbarGtk::InitNineBox() {
+  // TODO(estade): use |profile_|?
   background_ninebox_.reset(new NineBox(
-      IDR_CONTENT_TOP_LEFT_CORNER,
-      IDR_CONTENT_TOP_CENTER,
-      IDR_CONTENT_TOP_RIGHT_CORNER,
-      IDR_CONTENT_LEFT_SIDE,
-      0,
-      IDR_CONTENT_RIGHT_SIDE,
-      IDR_CONTENT_BOTTOM_LEFT_CORNER,
-      IDR_CONTENT_BOTTOM_CENTER,
-      IDR_CONTENT_BOTTOM_RIGHT_CORNER));
+      browser_->profile()->GetThemeProvider(),
+      0, IDR_THEME_TOOLBAR, 0, 0, 0, 0, 0, 0, 0));
 }
