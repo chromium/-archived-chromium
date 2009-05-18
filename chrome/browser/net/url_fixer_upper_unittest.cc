@@ -88,6 +88,26 @@ static const segment_case segment_cases[] = {
     url_parse::Component(48, 3), // query
     url_parse::Component(52, 3), // ref
   },
+  { "[2001:db8::1]/path", "http",
+    url_parse::Component(), // scheme
+    url_parse::Component(), // username
+    url_parse::Component(), // password
+    url_parse::Component(0, 13), // host
+    url_parse::Component(), // port
+    url_parse::Component(13, 5), // path
+    url_parse::Component(), // query
+    url_parse::Component(), // ref
+  },
+  { "[::1]", "http",
+    url_parse::Component(), // scheme
+    url_parse::Component(), // username
+    url_parse::Component(), // password
+    url_parse::Component(0, 5), // host
+    url_parse::Component(), // port
+    url_parse::Component(), // path
+    url_parse::Component(), // query
+    url_parse::Component(), // ref
+  },
 };
 
 TEST(URLFixerUpperTest, SegmentURL) {
@@ -196,6 +216,12 @@ struct fixup_case {
   { "http://google.com/search?q=\xf0\x90\x80\xa0", "",
     "http://google.com/search?q=\xf0\x90\x80\xa0"
   },
+  // URLs containing IPv6 literals.
+  {"[2001:db8::2]", "", "http://[2001:db8::2]/"},
+  {"[::]:80", "", "http://[::]:80/"},
+  {"[::]:80/path", "", "http://[::]:80/path"},
+  // TODO(pmarks): Maybe we should parse bare IPv6 literals someday.
+  {"::1", "", "::1"},
 };
 
 TEST(URLFixerUpperTest, FixupURL) {

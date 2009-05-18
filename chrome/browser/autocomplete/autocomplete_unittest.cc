@@ -233,8 +233,12 @@ TEST(AutocompleteTest, InputType) {
 #endif  // defined(OS_WIN)
     { L"http://foo.com/", AutocompleteInput::URL },
     { L"127.0.0.1", AutocompleteInput::URL },
+    { L"127.0.1", AutocompleteInput::UNKNOWN },
+    { L"127.0.1/", AutocompleteInput::UNKNOWN },
     { L"browser.tabs.closeButtons", AutocompleteInput::UNKNOWN },
     { L"\u6d4b\u8bd5", AutocompleteInput::UNKNOWN },
+    { L"[2001:]", AutocompleteInput::QUERY },  // Not a valid IP
+    { L"[2001:dB8::1]", AutocompleteInput::URL },
   };
 
   for (size_t i = 0; i < ARRAYSIZE_UNSAFE(input_cases); ++i) {

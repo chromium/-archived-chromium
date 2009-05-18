@@ -181,8 +181,12 @@ AutocompleteInput::Type AutocompleteInput::Parse(
 
   // See if the host is an IP address.
   bool is_ip_address;
-  net::CanonicalizeHost(host, &is_ip_address);
+  const std::string canon_host(net::CanonicalizeHost(host, &is_ip_address));
   if (is_ip_address) {
+    // If the user typed a valid IPv6 address, treat it as a URL.
+    if (canon_host[0] == '[')
+      return URL;
+
     // If the user originally typed a host that looks like an IP address (a
     // dotted quad), they probably want to open it.  If the original input was
     // something else (like a single number), they probably wanted to search for

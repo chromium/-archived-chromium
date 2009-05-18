@@ -19,7 +19,8 @@
 #include "net/base/net_util.h"
 #include "net/base/registry_controlled_domain.h"
 
-using namespace std;
+using std::string;
+using std::wstring;
 
 namespace {
 
@@ -311,6 +312,47 @@ static bool HasPort(const std::string& original_text,
   return true;
 }
 
+// Try to extract a valid scheme from the beginning of |text|.
+// If successful, set |scheme_component| to the text range where the scheme
+// was located, and fill |canon_scheme| with its canonicalized form.
+// Otherwise, return false and leave the outputs in an indeterminate state.
+static bool GetValidScheme(const string &text,
+                           url_parse::Component *scheme_component,
+                           string *canon_scheme) {
+  // Locate everything up to (but not including) the first ':'
+  if (!url_parse::ExtractScheme(text.data(), static_cast<int>(text.length()),
+                                scheme_component))
+    return false;
+
+  // Make sure the scheme contains only valid characters, and convert
+  // to lowercase.  This also catches IPv6 literals like [::1], because
+  // brackets are not in the whitelist.
+  url_canon::StdStringCanonOutput canon_scheme_output(canon_scheme);
+  url_parse::Component canon_scheme_component;
+  if (!url_canon::CanonicalizeScheme(text.data(), *scheme_component,
+                                     &canon_scheme_output,
+                                     &canon_scheme_component))
+    return false;
+
+  // Strip the ':', and any trailing buffer space.
+  DCHECK_EQ(0, canon_scheme_component.begin);
+  canon_scheme->erase(canon_scheme_component.len);
+
+  // We need to fix up the segmentation for "www.example.com:/".  For this
+  // case, we guess that schemes with a "." are not actually schemes.
+  if (canon_scheme->find('.') != string::npos)
+    return false;
+
+  // We need to fix up the segmentation for "www:123/".  For this case, we
+  // will add an HTTP scheme later and make the URL parser happy.
+  // TODO(pkasting): Maybe we should try to use GURL's parser for this?
+  if (HasPort(text, *scheme_component))
+    return false;
+
+  // Everything checks out.
+  return true;
+}
+
 string URLFixerUpper::SegmentURL(const string& text,
                                  url_parse::Parsed* parts) {
   // Initialize the result.
@@ -333,36 +375,12 @@ string URLFixerUpper::SegmentURL(const string& text,
 
   // Otherwise, we need to look at things carefully.
   string scheme;
-  if (url_parse::ExtractScheme(text.data(),
-                               static_cast<int>(text.length()),
-                               &parts->scheme)) {
-    // We were able to extract a scheme.  Remember what we have, but we may
-    // decide to change our minds later.
-    scheme.assign(text.substr(parts->scheme.begin, parts->scheme.len));
-
-    if (parts->scheme.is_valid() &&
-        // Valid schemes are ASCII-only.
-        (!IsStringASCII(scheme) ||
-        // We need to fix up the segmentation for "www.example.com:/".  For this
-        // case, we guess that schemes with a "." are not actually schemes.
-        (scheme.find(".") != wstring::npos) ||
-        // We need to fix up the segmentation for "www:123/".  For this case, we
-        // will add an HTTP scheme later and make the URL parser happy.
-        // TODO(pkasting): Maybe we should try to use GURL's parser for this?
-        HasPort(text, parts->scheme)))
-      parts->scheme.reset();
-  }
-
-  // When we couldn't find a scheme in the input, we need to pick one.  Normally
-  // we choose http, but if the URL starts with "ftp.", we match other browsers
-  // and choose ftp.
-  if (!parts->scheme.is_valid()) {
+  if (!GetValidScheme(text, &parts->scheme, &scheme)) {
+    // Couldn't determine the scheme, so just pick one.
+    parts->scheme.reset();
     scheme.assign(StartsWithASCII(text, "ftp.", false) ?
         chrome::kFtpScheme : chrome::kHttpScheme);
   }
-
-  // Cannonicalize the scheme.
-  StringToLowerASCII(&scheme);
 
   // Not segmenting file schemes or nonstandard schemes.
   if ((scheme == chrome::kFileScheme) ||
