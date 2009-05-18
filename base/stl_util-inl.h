@@ -447,11 +447,4 @@ std::vector<T> SetToVector(const std::set<T>& values) {
   return result;
 }
 
-// Test to see if a set, map, hash_set or hash_map contains a particular key.
-// Returns true if the key is in the collection.
-template <typename Collection, typename Key>
-bool ContainsKey(const Collection& collection, const Key& key) {
-  return collection.find(key) != collection.end();
-}
-
 #endif  // BASE_STL_UTIL_INL_H_
