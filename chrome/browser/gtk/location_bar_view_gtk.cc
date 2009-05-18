@@ -190,7 +190,7 @@ void LocationBarViewGtk::UpdatePageActions() {
 }
 
 void LocationBarViewGtk::SaveStateToContents(TabContents* contents) {
-  NOTIMPLEMENTED();
+  // http://crbug.com/9225
 }
 
 void LocationBarViewGtk::Revert() {

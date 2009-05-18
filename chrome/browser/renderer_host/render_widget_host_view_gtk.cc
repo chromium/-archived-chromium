@@ -389,7 +389,6 @@ void RenderWidgetHostViewGtk::Paint(const gfx::Rect& damage_rect) {
   } else {
     if (window)
       gdk_window_clear(window);
-    NOTIMPLEMENTED();
   }
 }
 
