@@ -25,6 +25,9 @@
 #elif defined(OS_POSIX)
 #include "base/message_pump_libevent.h"
 #endif
+#if defined(OS_LINUX)
+#include "base/message_pump_glib.h"
+#endif
 
 // A MessageLoop is used to process events for a particular thread.  There is
 // at most one MessageLoop instance per thread.
@@ -413,18 +416,28 @@ class MessageLoopForUI : public MessageLoop {
     return static_cast<MessageLoopForUI*>(loop);
   }
 
+#if defined(OS_LINUX)
+  typedef base::MessagePumpForUI::Observer Observer;
+
+  // See message_pump_glib for definitions of these methods.
+  void AddObserver(Observer* observer);
+  void RemoveObserver(Observer* observer);
+#endif
+
 #if defined(OS_WIN)
   typedef base::MessagePumpWin::Dispatcher Dispatcher;
   typedef base::MessagePumpWin::Observer Observer;
 
   // Please see MessagePumpWin for definitions of these methods.
-  void Run(Dispatcher* dispatcher);
   void AddObserver(Observer* observer);
   void RemoveObserver(Observer* observer);
+  void Run(Dispatcher* dispatcher);
   void WillProcessMessage(const MSG& message);
   void DidProcessMessage(const MSG& message);
   void PumpOutPendingPaintMessages();
+#endif
 
+#if defined(OS_WIN) || defined(OS_LINUX)
  protected:
   // TODO(rvargas): Make this platform independent.
   base::MessagePumpForUI* pump_ui() {

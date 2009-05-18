@@ -565,20 +565,24 @@ const LinearHistogram::DescriptionPair MessageLoop::event_descriptions_[] = {
 //------------------------------------------------------------------------------
 // MessageLoopForUI
 
+#if defined(OS_LINUX) || defined(OS_WIN)
+
+void MessageLoopForUI::AddObserver(Observer* observer) {
+  pump_ui()->AddObserver(observer);
+}
+
+void MessageLoopForUI::RemoveObserver(Observer* observer) {
+  pump_ui()->RemoveObserver(observer);
+}
+
+#endif
+
 #if defined(OS_WIN)
 
 void MessageLoopForUI::Run(Dispatcher* dispatcher) {
   AutoRunState save_state(this);
   state_->dispatcher = dispatcher;
   RunHandler();
-}
-
-void MessageLoopForUI::AddObserver(Observer* observer) {
-  pump_win()->AddObserver(observer);
-}
-
-void MessageLoopForUI::RemoveObserver(Observer* observer) {
-  pump_win()->RemoveObserver(observer);
 }
 
 void MessageLoopForUI::WillProcessMessage(const MSG& message) {

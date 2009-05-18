@@ -431,6 +431,9 @@
                 '-lrt',
               ],
             },
+            'export_dependent_settings': [
+              '../build/linux/system.gyp:gtk',
+            ],
           },
           {  # else: OS != "linux"
             'sources/': [
