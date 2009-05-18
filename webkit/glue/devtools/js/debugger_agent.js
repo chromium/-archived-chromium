@@ -122,11 +122,45 @@ devtools.DebuggerAgent.prototype.requestScripts = function() {
     return;
   }
   var cmd = new devtools.DebugCommand('scripts', {
+    'includeSource': false
+  });
+  devtools.DebuggerAgent.sendCommand_(cmd);
+  // Force v8 execution so that it gets to processing the requested command.
+  devtools.tools.evaluateJavaScript('javascript:void(0)');
+};
+
+
+/**
+ * Asynchronously requests the debugger for the script source.
+ * @param {number} scriptId Id of the script whose source should be resolved.
+ * @param {function(source:?string):void} callback Function that will be called
+ *     when the source resolution is completed. 'source' parameter will be null
+ *     if the resolution fails.
+ */
+devtools.DebuggerAgent.prototype.resolveScriptSource = function(
+    scriptId, callback) {
+  var script = this.parsedScripts_[scriptId];
+  if (!script) {
+    callback(null);
+    return;
+  }
+
+  var cmd = new devtools.DebugCommand('scripts', {
+    'ids': [scriptId],
     'includeSource': true
   });
   devtools.DebuggerAgent.sendCommand_(cmd);
   // Force v8 execution so that it gets to processing the requested command.
   devtools.tools.evaluateJavaScript('javascript:void(0)');
+  
+  this.requestSeqToCallback_[cmd.getSequenceNumber()] = function(msg) {
+    if (msg.isSuccess()) {
+      var scriptJson = msg.getBody()[0];
+      callback(scriptJson.source);
+    } else {
+      callback(null);
+    }
+  };
 };
 
 
@@ -491,6 +525,10 @@ devtools.DebuggerAgent.prototype.handleExceptionEvent_ = function(msg) {
  * @param {devtools.DebuggerMessage} msg
  */
 devtools.DebuggerAgent.prototype.handleScriptsResponse_ = function(msg) {
+  if (this.invokeCallbackForResponse_(msg)) {
+    return;
+  }
+
   var scripts = msg.getBody();
   for (var i = 0; i < scripts.length; i++) {
     var script = scripts[i];
@@ -644,15 +682,18 @@ devtools.DebuggerAgent.prototype.handleBacktraceResponse_ = function(msg) {
 /**
  * Handles response to a command by invoking its callback (if any).
  * @param {devtools.DebuggerMessage} msg
+ * @return {boolean} Whether a callback for the given message was found and
+ *     excuted.
  */
 devtools.DebuggerAgent.prototype.invokeCallbackForResponse_ = function(msg) {
   var callback = this.requestSeqToCallback_[msg.getRequestSeq()];
   if (!callback) {
     // It may happend if reset was called.
-    return;
+    return false;
   }
   delete this.requestSeqToCallback_[msg.getRequestSeq()];
   callback(msg);
+  return true;
 };
 
 

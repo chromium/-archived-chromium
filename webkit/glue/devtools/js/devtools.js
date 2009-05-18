@@ -509,6 +509,48 @@ WebInspector.SourceView.prototype.setupSourceFrameIfNeeded = function() {
 
 
 /**
+ * This override is necessary for adding script source asynchronously.
+ * @override
+ */
+WebInspector.ScriptView.prototype.setupSourceFrameIfNeeded = function() {
+  if (!this._frameNeedsSetup) {
+    return;
+  }
+
+  this.attach();
+  
+  if (this.script.source) {
+    this.didResolveScriptSource_();
+  } else {
+    var self = this;
+    devtools.tools.getDebuggerAgent().resolveScriptSource(
+        this.script.sourceID,
+        function(source) {
+          self.script.source = source || '<source is not available>';
+          self.didResolveScriptSource_();
+        });
+  }
+};
+
+
+/**
+ * Performs source frame setup when script source is aready resolved.
+ */
+WebInspector.ScriptView.prototype.didResolveScriptSource_ = function() {
+  if (!InspectorController.addSourceToFrame(
+      "text/javascript", this.script.source, this.sourceFrame.element)) {
+    return;
+  }
+
+  delete this._frameNeedsSetup;
+
+  this.sourceFrame.addEventListener(
+      "syntax highlighting complete", this._syntaxHighlightingComplete, this);
+  this.sourceFrame.syntaxHighlightJavascript();
+};
+
+
+/**
  * Dummy object used during properties inspection.
  * @see WebInspector.didGetNodePropertiesAsync_
  */
