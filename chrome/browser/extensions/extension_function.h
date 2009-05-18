@@ -28,6 +28,7 @@ class Profile;
 class ExtensionFunction {
  public:
   ExtensionFunction() : request_id_(-1), has_callback_(false) {}
+  virtual ~ExtensionFunction() {}
 
   // Specifies the name of the function.
   virtual void SetName(const std::string& name) { }
@@ -79,7 +80,7 @@ class ExtensionFunction {
 // parsing JSON (and instead uses custom serialization of Value objects).
 class AsyncExtensionFunction : public ExtensionFunction {
  public:
-  AsyncExtensionFunction() : bad_message_(false) {}
+  AsyncExtensionFunction() : args_(NULL), bad_message_(false) {}
   virtual ~AsyncExtensionFunction() {}
 
   virtual void SetArgs(const std::string& args);
@@ -94,7 +95,7 @@ class AsyncExtensionFunction : public ExtensionFunction {
 
   Profile* profile();
 
-  // The arguments to the API. Only non-null if argument were specfied.
+  // The arguments to the API. Only non-null if argument were specified.
   Value* args_;
 
   // The result of the API. This should be populated by the derived class before
