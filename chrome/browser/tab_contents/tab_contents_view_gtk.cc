@@ -97,7 +97,8 @@ TabContentsViewGtk::~TabContentsViewGtk() {
 }
 
 void TabContentsViewGtk::CreateView() {
-  NOTIMPLEMENTED();
+  // Windows uses this to do initialization, but we do all our initialization
+  // in the constructor.
 }
 
 RenderWidgetHostView* TabContentsViewGtk::CreateViewForWidget(
@@ -178,7 +179,8 @@ void TabContentsViewGtk::Invalidate() {
 }
 
 void TabContentsViewGtk::SizeContents(const gfx::Size& size) {
-  NOTIMPLEMENTED();
+  // This function is a hack and should go away. In any case we don't manually
+  // control the size of the contents on linux, so do nothing.
 }
 
 void TabContentsViewGtk::FindInPage(const Browser& browser,
