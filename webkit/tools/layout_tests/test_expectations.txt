@@ -2671,3 +2671,6 @@ BUG12104 : LayoutTests/fast/backgrounds/background-clip-text.html = FAIL
 
 // Change upstream reveals an issue in V8 bindings: http://trac.webkit.org/changeset/43795
 BUG12105 DEBUG : LayoutTests/svg/dom/svglist-exception-on-out-bounds-error.html = CRASH
+
+// New test, added in http://trac.webkit.org/changeset/43822, fails for us
+BUG12197 : LayoutTests/editing/pasteboard/get-data-text-plain-drop.html = FAIL
