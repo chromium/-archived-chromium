@@ -17,6 +17,7 @@
 #include "chrome/browser/renderer_host/render_view_host.h"
 #include "chrome/browser/renderer_host/render_view_host_factory.h"
 #include "chrome/browser/renderer_host/render_widget_host_view_gtk.h"
+#include "chrome/browser/tab_contents/interstitial_page.h"
 #include "chrome/browser/tab_contents/render_view_context_menu_gtk.h"
 #include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/browser/tab_contents/tab_contents_delegate.h"
@@ -200,9 +201,13 @@ bool TabContentsViewGtk::GetFindBarWindowInfo(gfx::Point* position,
 }
 
 void TabContentsViewGtk::Focus() {
-  GtkWidget* widget = GetContentNativeView();
-  if (widget)
-    gtk_widget_grab_focus(widget);
+  if (tab_contents()->showing_interstitial_page()) {
+    tab_contents()->interstitial_page()->Focus();
+  } else {
+    GtkWidget* widget = GetContentNativeView();
+    if (widget)
+      gtk_widget_grab_focus(widget);
+  }
 }
 
 void TabContentsViewGtk::SetInitialFocus() {

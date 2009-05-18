@@ -45,7 +45,7 @@ void TabContentsContainerGtk::SetTabContents(TabContents* tab_contents) {
     gfx::NativeView widget = tab_contents_->GetNativeView();
     if (widget) {
       gtk_box_pack_end(GTK_BOX(vbox_), widget, TRUE, TRUE, 0);
-      gtk_widget_show_all(widget);
+      gtk_widget_show(widget);
     }
     // We need to make sure that we are below the findbar.
     // Sometimes the content native view will be null.
