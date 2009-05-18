@@ -268,7 +268,7 @@ void ExternalTabContainer::Observe(NotificationType type,
     case NotificationType::LOAD_STOP: {
         const LoadNotificationDetails* load =
             Details<LoadNotificationDetails>(details).ptr();
-        if (PageTransition::IsMainFrame(load->origin())) {
+        if (load != NULL && PageTransition::IsMainFrame(load->origin())) {
           automation_->Send(new AutomationMsg_TabLoaded(0, tab_handle_,
                                                         load->url()));
         }
