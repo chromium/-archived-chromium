@@ -282,28 +282,29 @@ devtools.DebuggerAgent.prototype.requestEvaluate = function(
  *     children are resolved.
  */
 devtools.DebuggerAgent.prototype.resolveChildren = function(object, callback) {
-  var handles = [];
-  var names = [];
-  for (var name in object) {
-    var value = object[name];
-    if (goog.isObject(value) && 'ref' in value) {
-      handles.push(value.ref);
-      names.push(name);
-    }
-  }
-  if (handles.length == 0) {
-    callback(object);
+  if ('ref' in object) {
+    this.requestLookup_([object.ref], function(msg) {
+      var result = {};
+      if (msg.isSuccess()) {
+        var handleToObject = msg.getBody();
+        var resolved = handleToObject[object.ref];
+        devtools.DebuggerAgent.formatObjectProperties_(resolved, result);
+      } else {
+        result.error = 'Failed to resolve children: ' + msg.getMessage();
+      }
+      object.resolvedValue = result;
+      callback(object);
+    });
+    
     return;
-  }
-  this.requestLookup_(handles, function(msg) {
-    var handleToObject = msg.getBody();
-    for (var i = 0; i < names.length; i++) {
-      var name = names[i];
-      var jsonObj = handleToObject[object[name].ref]
-      object[name] = devtools.DebuggerAgent.formatValue_(jsonObj, msg);
+  } else {
+    if (!object.resolvedValue) {
+      var message = 'Corrupted object: ' + JSON.stringify(object);
+      object.resolvedValue = {};
+      object.resolvedValue.error = message;
     }
     callback(object);
-  });
+  }
 };
 
 
@@ -346,7 +347,9 @@ devtools.DebuggerAgent.prototype.requestClearBreakpoint_ = function(
  * Sends 'backtrace' request to v8.
  */
 devtools.DebuggerAgent.prototype.requestBacktrace_ = function() {
-  var cmd = new devtools.DebugCommand('backtrace');
+  var cmd = new devtools.DebugCommand('backtrace', {
+    'compactFormat':true
+  });
   devtools.DebuggerAgent.sendCommand_(cmd);
 };
 
@@ -379,6 +382,7 @@ devtools.DebuggerAgent.prototype.stepCommand_ = function(action) {
  */
 devtools.DebuggerAgent.prototype.requestLookup_ = function(handles, callback) {
   var cmd = new devtools.DebugCommand('lookup', {
+    'compactFormat':true,
     'handles': handles
   });
   devtools.DebuggerAgent.sendCommand_(cmd);
@@ -665,25 +669,23 @@ devtools.DebuggerAgent.prototype.evaluateInCallFrame_ = function(expression) {
  */
 devtools.DebuggerAgent.formatCallFrame_ = function(stackFrame, script, msg) {
   var sourceId = script.id;
-  var func = msg.lookup(stackFrame.func.ref);
-  var funcScript = msg.lookup(func.script.ref);
-  if (funcScript && 'id' in funcScript) {
-    sourceId = funcScript.id;
-  }
-
-  var funcName = devtools.DebuggerAgent.formatFunctionCall_(stackFrame, msg);
+  
+  var func = stackFrame.func;
+  var sourceId = func.scriptId;
+  var funcName = func.name || func.inferredName || '(anonymous function)';
   
   var scope = {};
   
   // Add arguments.
-  devtools.DebuggerAgent.valuesArrayToMap_(stackFrame.arguments, scope, msg);
+  devtools.DebuggerAgent.valuesArrayToMap_(stackFrame.arguments, scope);
   
   // Add local variables.
-  devtools.DebuggerAgent.valuesArrayToMap_(stackFrame.locals, scope, msg);
+  devtools.DebuggerAgent.valuesArrayToMap_(stackFrame.locals, scope);
 
-  var thisObject = msg.lookup(stackFrame.receiver.ref);
+  var thisObject = devtools.DebuggerAgent.formatObjectReference_(
+      stackFrame.receiver); 
   // Add variable with name 'this' to the scope.
-  scope['this'] = devtools.DebuggerAgent.formatObject_(thisObject, msg);
+  scope['this'] = thisObject;
   
   var line = devtools.DebuggerAgent.v8ToWwebkitLineNumber_(stackFrame.line);
   var result = new devtools.CallFrame();
@@ -699,66 +701,18 @@ devtools.DebuggerAgent.formatCallFrame_ = function(stackFrame, script, msg) {
 
 
 /**
- * Returns user-friendly representation of the function call from the stack
- * frame.
- * @param {Object} stackFrame Frame json object from 'backtrace' response.
- * @return {!string} Function name with argument values.
- */
-devtools.DebuggerAgent.formatFunctionCall_ = function(stackFrame, msg) {
-  var func = msg.lookup(stackFrame.func.ref);
-  return func.name || func.inferredName || '(anonymous function)';
-};
-
-
-/**
- * Converts an object from the debugger response to the format understandable
- * by ScriptsPanel.
- * @param {Object} object An object from the debugger protocol response.
- * @param {devtools.DebuggerMessage} msg Parsed debugger response.
- * @return {!Object} Object describing 'object' in the format expected by
- *     ScriptsPanel and its panes.
- */
-devtools.DebuggerAgent.formatObject_ = function(object, msg) {
-  var result = {};
-  devtools.DebuggerAgent.formatObjectProperties_(object, msg, result);
-  return { 'value': result };
-};
-
-
-/**
- * Converts a function from the debugger response to the format understandable
- * by ScriptsPanel.
- * @param {Object} func Function object from the debugger protocol response.
- * @param {devtools.DebuggerMessage} msg Parsed debugger response.
- * @return {!Object} Object describing 'func' in the format expected by
- *     ScriptsPanel and its panes.
- */
-devtools.DebuggerAgent.formatFunction_ = function(func, msg) {
-  var result = {};
-  devtools.DebuggerAgent.formatObjectProperties_(func, msg, result);
-  result.name = func.name;
-  
-  var holder = function() {};
-  holder.value = result;
-  return holder;
-};
-
-
-/**
  * Collects properties for an object from the debugger response.
  * @param {Object} object An object from the debugger protocol response.
- * @param {devtools.DebuggerMessage} msg Parsed debugger response.
  * @param {Object} result A map to put the properties in.
  */
-devtools.DebuggerAgent.formatObjectProperties_ = function(object,
-    msg, result) {
-  devtools.DebuggerAgent.propertiesToMap_(object.properties, result, msg);
+devtools.DebuggerAgent.formatObjectProperties_ = function(object, result) {
+  devtools.DebuggerAgent.propertiesToMap_(object.properties, result);
   result.protoObject = devtools.DebuggerAgent.formatObjectReference_(
-      object.protoObject, msg);
+      object.protoObject);
   result.prototypeObject = devtools.DebuggerAgent.formatObjectReference_(
-      object.prototypeObject, msg);
+      object.prototypeObject);
   result.constructorFunction = devtools.DebuggerAgent.formatObjectReference_(
-      object.constructorFunction, msg);
+      object.constructorFunction);
 };
 
 
@@ -768,13 +722,12 @@ devtools.DebuggerAgent.formatObjectProperties_ = function(object,
  * @param {Array.<Object>} properties Receiver properties array from 'backtrace'
  *     response.
  * @param {Object} map Result holder.
- * @param {devtools.DebuggerMessage} msg Parsed 'backtrace' response.
  */
-devtools.DebuggerAgent.propertiesToMap_ = function(properties, map, msg) {
+devtools.DebuggerAgent.propertiesToMap_ = function(properties, map) {
   for (var j = 0; j < properties.length; j++) {
     var nextValue = properties[j];
-    map[nextValue.name] = devtools.DebuggerAgent.formatObjectReference_(
-        nextValue, msg);
+    map[nextValue.name] =
+        devtools.DebuggerAgent.formatObjectReference_(nextValue.value);
   }
 };
 
@@ -786,100 +739,36 @@ devtools.DebuggerAgent.propertiesToMap_ = function(properties, map, msg) {
  * @param {Array.<Object>} array Arguments or locals array from 'backtrace'
  *     response.
  * @param {Object} map Result holder.
- * @param {devtools.DebuggerMessage} msg Parsed 'backtrace' response.
  */
-devtools.DebuggerAgent.valuesArrayToMap_ = function(array, map, msg) {
-  for (var j = 0; j < array.length; j++) {
-    var nextValue = array[j];
-    
-    var object = msg.lookup(nextValue.value.ref);
-    var val = object ?
-              devtools.DebuggerAgent.formatValue_(object, msg) :
-              '<unresolved ref: ' + nextValue.value.ref + '>';
-    map[nextValue.name] = val;
-  }
+devtools.DebuggerAgent.valuesArrayToMap_ = function(array, map) {
+  this.propertiesToMap_(array, map);
 };
 
 
 /**
- * TODO(yurys): we should merge all this formatting code with the one for
- * elements tree.
- * @param {Object} object An object reference from the debugger response. 
- * @param {devtools.DebuggerMessage} msg Parsed debugger response.
- * @return {*} The reference representation expected by ScriptsPanel.
- */
-devtools.DebuggerAgent.formatObjectReference_ = function(objectRef, msg) {
-  if (!('ref' in objectRef)) {
-    return objectRef;
-  }
-  var object = msg.lookup(objectRef.ref);
-  if (!object) {
-    return objectRef;
-  }
-  switch (object.type) {
-    case 'number':
-    case 'string':
-    case 'boolean':
-      return object.value;
-    case 'undefined':
-      return undefined;
-    case 'null':
-      return null;
-    case 'function': {
-      var result = function() {};
-      result.ref = objectRef.ref;
-      return result;
-    }
-    case 'object':
-      return objectRef;
-    default:
-      return objectRef;
-  };
-};
-
-
-/**
- * @param {Object} object An object from the debugger response. 
- * @param {devtools.DebuggerMessage} msg Parsed debugger response.
+ * @param {Object} v An object reference from the debugger response. 
  * @return {*} The value representation expected by ScriptsPanel.
  */
-devtools.DebuggerAgent.formatValue_ = function(object, msg) {
-  if (!object) {
-    return object;
+devtools.DebuggerAgent.formatObjectReference_ = function(v) {
+  if (v.type == 'object') {
+    return v;
+  } else if (v.type == 'function') {
+    var f = function() {};
+    f.ref = v.ref;
+    return f;
+  } else if (goog.isDef(v.value)) {
+    return v.value;
+  } else if (v.type == 'undefined') {
+    return 'undefined';
+  } else if (v.type == 'null') {
+    return 'null';
+  } else if (v.name) {
+    return v.name;
+  } else if (v.className) {
+    return v.className;
+  } else {
+    return '<unresolved ref: ' + v.ref + ', type: ' + v.type + '>';
   }
-  switch (object.type) {
-    case 'number':
-    case 'string':
-    case 'boolean':
-      return object.value;
-    case 'undefined':
-      return undefined;
-    case 'null':
-      return null;
-    case 'function':
-      return devtools.DebuggerAgent.formatFunction_(object, msg);
-    case 'object':
-      return devtools.DebuggerAgent.formatObject_(object, msg);
-    default:
-      return '<invalid value>';
-  };
-};
-
-
-devtools.DebuggerAgent.formatObjectReference_old = function(objectRef, msg) {
-  if (!objectRef.ref) {
-    return 'illegal ref';
-  }
-  
-  var object = msg.lookup(objectRef.ref);
-  if (!object) {
-    return '{ref: ' + objectRef.ref + '}';
-  }
-  
-  if ('value' in object) {
-    return object.value;
-  }
-  return '[' + object.type + ']';
 };
 
 
@@ -1061,7 +950,7 @@ devtools.CallFrame.prototype.evaluate = function(expression) {
  */
 devtools.CallFrame.handleEvaluateResponse_ = function(response) {
   var body = response.getBody();
-  var value = devtools.DebuggerAgent.formatValue_(body);
+  var value = devtools.DebuggerAgent.formatObjectReference_(body);
   WebInspector.addMessageToConsole(new WebInspector.ConsoleCommandResult(
       value, false /* exception */, null /* commandMessage */));
 };

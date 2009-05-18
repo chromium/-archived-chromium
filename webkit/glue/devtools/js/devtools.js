@@ -618,7 +618,7 @@ WebInspector.ScopeChainSidebarPane.TreeElement.inherits(
  */
 WebInspector.ScopeChainSidebarPane.TreeElement.prototype.onpopulate =
     function() {
-  var obj = this.parentObject[this.propertyName].value;
+  var obj = this.parentObject[this.propertyName];
   devtools.tools.getDebuggerAgent().resolveChildren(obj,
       goog.bind(this.didResolveChildren_, this));
 };
@@ -630,8 +630,8 @@ WebInspector.ScopeChainSidebarPane.TreeElement.prototype.onpopulate =
 WebInspector.ScopeChainSidebarPane.TreeElement.prototype.didResolveChildren_ =
     function(object) {
   this.removeChildren();
-  
   var constructor = this.treeOutline.section.treeElementConstructor;
+  object = object.resolvedValue;
   for (var name in object) {
     this.appendChild(new constructor(object, name));
   }
