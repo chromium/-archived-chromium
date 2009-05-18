@@ -9,7 +9,7 @@
 #define MEDIA_PLAYER_VIEW_H_
 
 // Enable timing code by turning on TESTING macro.
-//  #define TESTING 1
+// #define TESTING 1
 
 #ifdef TESTING
 #define _CRT_SECURE_NO_WARNINGS
@@ -19,6 +19,10 @@
 #include <string.h>
 #endif
 
+// Enable swscaler.
+// TODO(fbarchard): Include header and change bilinear to point sampling.
+// #define TEST_SWSCALER 1
+
 #include <atlscrl.h>
 
 #include "base/basictypes.h"
@@ -26,7 +30,6 @@
 #include "media/base/factory.h"
 #include "media/base/filters.h"
 #include "media/base/yuv_convert.h"
-#include "media/base/yuv_scale.h"
 #include "media/player/movie.h"
 #include "media/player/wtl_renderer.h"
 
@@ -53,7 +56,7 @@ class WtlVideoWindow : public CScrollWindowImpl<WtlVideoWindow> {
   WtlVideoWindow() {
     size_.cx = 0;
     size_.cy = 0;
-    view_size_ = 1;
+    view_size_ = 2;  // Normal size.
     view_rotate_ = media::ROTATE_0;
     renderer_ = new WtlVideoRenderer(this);
     last_frame_ = NULL;
@@ -161,21 +164,40 @@ class WtlVideoWindow : public CScrollWindowImpl<WtlVideoWindow> {
     int scaled_height = clipped_height;
     switch (view_size_) {
       case 0:
+        scaled_width = clipped_width / 4;
+        scaled_height = clipped_height / 4;
+        break;
+
+      case 1:
         scaled_width = clipped_width / 2;
         scaled_height = clipped_height / 2;
         break;
 
-      case 1:
-      default:  // Assume 1:1 for stray view sizes
+      case 2:
+      default:  // Assume 1:1 for stray view sizes.
         scaled_width = clipped_width;
         scaled_height = clipped_height;
         break;
 
-      case 2:
+      case 3:  // Double.
         scaled_width = clipped_width;
         scaled_height = clipped_height;
         clipped_width = scaled_width / 2;
         clipped_height = scaled_height / 2;
+        break;
+
+      case 4:  // Triple.
+        scaled_width = clipped_width;
+        scaled_height = clipped_height;
+        clipped_width = scaled_width / 3;
+        clipped_height = scaled_height / 3;
+        break;
+
+      case 5:  // Quadruple.
+        scaled_width = clipped_width;
+        scaled_height = clipped_height;
+        clipped_width = scaled_width / 4;
+        clipped_height = scaled_height / 4;
         break;
     }
 
@@ -186,12 +208,12 @@ class WtlVideoWindow : public CScrollWindowImpl<WtlVideoWindow> {
     }
 
 #ifdef TESTING
-    SetThreadPriority(GetCurrentThread(), THREAD_PRIORITY_ABOVE_NORMAL);
-    double yuvtimestart = GetTime();             // Start timer.
+    double yuv_time_start = GetTime();  // Start timer.
 #endif
 
     bool enable_draw = media::Movie::get()->GetDrawEnable();
     if (enable_draw) {
+#ifdef TEST_SWSCALER
       bool enable_swscaler = media::Movie::get()->GetSwscalerEnable();
       if (enable_swscaler) {
         uint8* data_out[3];
@@ -203,21 +225,19 @@ class WtlVideoWindow : public CScrollWindowImpl<WtlVideoWindow> {
         stride_out[1] = 0;
         stride_out[2] = 0;
 
-        /*
         if (!sws_context_) {
           DCHECK(frame_in.format == VideoSurface::YV12);
-          int outtype = bm.bmBitsPixel == 32 ? PIX_FMT_RGB32 : PIX_FMT_RGB24;
           sws_context_ = sws_getContext(frame_in.width, frame_in.height,
                                         PIX_FMT_YUV420P, width_, height_,
-                                        outtype, SWS_FAST_BILINEAR,
+                                        PIX_FMT_RGB32, SWS_FAST_BILINEAR,
                                         NULL, NULL, NULL);
           DCHECK(sws_context_);
         }
 
-        sws_scale(sws_context_, frame_in.data, frame_in.strides, 0, 
-        height_, data_out, stride_out);
-        */
+        sws_scale(sws_context_, frame_in.data, frame_in.strides, 0,
+                  height_, data_out, stride_out);
       } else {
+#endif
         DCHECK(bm.bmBitsPixel == 32);
         DrawYUV(frame_in,
                 movie_dib_bits,
@@ -226,19 +246,25 @@ class WtlVideoWindow : public CScrollWindowImpl<WtlVideoWindow> {
                 clipped_height,
                 scaled_width,
                 scaled_height);
+#ifdef TEST_SWSCALER
       }
+#endif
     }
 #ifdef TESTING
-    double yuvtimeend = GetTime();             // Start timer.
-    SSetThreadPriority(GetCurrentThread(), THREAD_PRIORITY_ABOVE_NORMAL);
-    static int yuvtimecount = 0;
-    static double yuvtimesum = 0;
-    yuvtimesum += yuvtimeend - yuvtimestart;
-    ++yuvtimecount;
+    double yuv_time_end = GetTime();
+    static int yuv_time_count = 0;
+    static double yuv_time_sum = 0.;
+    if (!yuv_time_count)
+      yuv_time_sum = 0.;
+    yuv_time_sum += (yuv_time_end - yuv_time_start);
+    ++yuv_time_count;
 
     char outputbuf[512];
-    snprintf(outputbuf, sizeof(outputbuf), "yuv %.2fms avg %.2fms\n",
-             yuvtimeend - yuvtimestart, yuvtimesum / yuvtimecount);
+    _snprintf_s(outputbuf, sizeof(outputbuf), "test %f", yuv_time_end);
+    _snprintf_s(outputbuf, sizeof(outputbuf),
+                "yuv %5.2f ms avg %5.2f ms\n",
+                yuv_time_end - yuv_time_start,
+                yuv_time_sum / yuv_time_count);
     OutputDebugStringA(outputbuf);
 #endif
   }
@@ -273,14 +299,14 @@ class WtlVideoWindow : public CScrollWindowImpl<WtlVideoWindow> {
       double paint_time_end = GetTime();
       static int paint_count = 0;
       static double paint_time_sum = 0;
-      paint_time_sum += paint_time_end-paint_time_start;
+      paint_time_sum += paint_time_end - paint_time_start;
       ++paint_count;
       char outputbuf[512];
-      snprintf(outputbuf, sizeof(outputbuf),
-               "paint time %5.2fms blit %5.2fms avg %5.2fms\n",
-               paint_time_start-paint_time_previous,
-               paint_time_end-paint_time_start,
-               paint_time_sum/paint_count);
+      _snprintf_s(outputbuf, sizeof(outputbuf),
+                  "paint time %5.2f ms blit %5.2f ms avg %5.2f ms\n",
+                  paint_time_start - paint_time_previous,
+                  paint_time_end - paint_time_start,
+                  paint_time_sum / paint_count);
       OutputDebugStringA(outputbuf);
 
       paint_time_previous = paint_time_start;
@@ -356,7 +382,8 @@ class WtlVideoWindow : public CScrollWindowImpl<WtlVideoWindow> {
 
  private:
   HBITMAP hbmp_;  // For Images
-  int view_size_;  // View Size. 0=0.5, 1=normal, 2=2x, 3=fit, 4=full
+  // View Size: 0=1/4, 1=0.5, 2=normal, 3=2x, 4=3x, 5=4x, 3=fit, 4=full.
+  int view_size_;
 
   // View Rotate 0-5 for ID_VIEW_ROTATE0 to ID_VIEW_MIRROR_VERTICAL
   media::Rotate view_rotate_;
@@ -370,30 +397,34 @@ class WtlVideoWindow : public CScrollWindowImpl<WtlVideoWindow> {
                int clipped_height,
                int scaled_width,
                int scaled_height) {
-    if (frame_in.format == media::VideoSurface::YV16) {
-      // Temporary cast, til we use uint8 for VideoFrame.
-      media::ScaleYV16ToRGB32(frame_in.data[0],
-                              frame_in.data[1],
-                              frame_in.data[2],
-                              movie_dib_bits,
-                              clipped_width, clipped_height,
-                              scaled_width, scaled_height,
-                              frame_in.strides[0],
-                              frame_in.strides[1],
-                              dibrowbytes,
-                              view_rotate_);
+    media::YUVType yuv_type = (frame_in.format == media::VideoSurface::YV12) ?
+        media::YV12 : media::YV16;
+
+    // Simple convert is not necessary for performance, but allows
+    // easier alternative implementations.
+    if ((view_rotate_ == media::ROTATE_0) &&   // Not scaled or rotated
+        (view_size_ == 2)) {
+      media::ConvertYUVToRGB32(frame_in.data[0],
+                               frame_in.data[1],
+                               frame_in.data[2],
+                               movie_dib_bits,
+                               scaled_width, scaled_height,
+                               frame_in.strides[0],
+                               frame_in.strides[1],
+                               dibrowbytes,
+                               yuv_type);
     } else {
-      // Temporary cast, til we use uint8 for VideoFrame.
-      media::ScaleYV12ToRGB32(frame_in.data[0],
-                              frame_in.data[1],
-                              frame_in.data[2],
-                              movie_dib_bits,
-                              clipped_width, clipped_height,
-                              scaled_width, scaled_height,
-                              frame_in.strides[0],
-                              frame_in.strides[1],
-                              dibrowbytes,
-                              view_rotate_);
+      media::ScaleYUVToRGB32(frame_in.data[0],
+                             frame_in.data[1],
+                             frame_in.data[2],
+                             movie_dib_bits,
+                             clipped_width, clipped_height,
+                             scaled_width, scaled_height,
+                             frame_in.strides[0],
+                             frame_in.strides[1],
+                             dibrowbytes,
+                             yuv_type,
+                             view_rotate_);
     }
   }
 
@@ -417,9 +448,9 @@ class WtlVideoWindow : public CScrollWindowImpl<WtlVideoWindow> {
 #if TESTING
       static int frame_dump_count = 0;
       char outputbuf[512];
-      snprintf(outputbuf, sizeof(outputbuf), "yuvdump %4d %dx%d stride %d\n",
-               frame_dump_count, frame_in.width, frame_in.height,
-               frame_in.strides[0]);
+      _snprintf_s(outputbuf, sizeof(outputbuf), "yuvdump %4d %dx%d stride %d\n",
+                  frame_dump_count, frame_in.width, frame_in.height,
+                  frame_in.strides[0]);
       OutputDebugStringA(outputbuf);
       ++frame_dump_count;
 #endif

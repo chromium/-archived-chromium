@@ -150,63 +150,20 @@ static inline void YuvPixel(uint8 y,
                                         (0xff000000);
 }
 
-void ConvertYV12ToRGB32Row(const uint8* y_buf,
-                           const uint8* u_buf,
-                           const uint8* v_buf,
-                           uint8* rgb_buf,
-                           int width) {
+void FastConvertYUVToRGB32Row(const uint8* y_buf,
+                              const uint8* u_buf,
+                              const uint8* v_buf,
+                              uint8* rgb_buf,
+                              int width) {
   for (int32 x = 0; x < static_cast<int32>(width); x += 2) {
     uint8 u = u_buf[x >> 1];
     uint8 v = v_buf[x >> 1];
-    int32 d = static_cast<int32>(u) - 128;
-    int32 e = static_cast<int32>(v) - 128;
-
-    int32 cb =   (516 * d + 128);
-    int32 cg = (- 100 * d - 208 * e + 128);
-    int32 cr =             (409 * e + 128);
-
     uint8 y0 = y_buf[x];
-    int32 C298a = ((static_cast<int32>(y0) - 16) * 298 + 128);
-    *reinterpret_cast<uint32*>(rgb_buf) = clip(C298a + cb) |
-                                         (clip(C298a + cg) << 8) |
-                                         (clip(C298a + cr) << 16) |
-                                         0xff000000;
-
     uint8 y1 = y_buf[x + 1];
-    int32 C298b = ((static_cast<int32>(y1) - 16) * 298 + 128);
-    *reinterpret_cast<uint32*>(rgb_buf + 4) = clip(C298b + cb) |
-                                             (clip(C298b + cg) << 8) |
-                                             (clip(C298b + cr) << 16) |
-                                             0xff000000;
+    YuvPixel(y0, u, v, rgb_buf);
+    YuvPixel(y1, u, v, rgb_buf + 4);
 
     rgb_buf += 8;  // Advance 2 pixels.
-  }
-}
-
-void HalfYV12ToRGB32Row(const uint8* y_buf,
-                        const uint8* u_buf,
-                        const uint8* v_buf,
-                        uint8* rgb_buf,
-                        int width) {
-  for (int32 x = 0; x < width; ++x) {
-    uint8 u = u_buf[x];
-    uint8 v = v_buf[x];
-    int32 d = static_cast<int32>(u) - 128;
-    int32 e = static_cast<int32>(v) - 128;
-
-    int32 cb =   (516 * d + 128);
-    int32 cg = (- 100 * d - 208 * e + 128);
-    int32 cr =             (409 * e + 128);
-
-    uint8 y0 = y_buf[x * 2 + 0];
-    uint8 y1 = y_buf[x * 2 + 1];
-    int32 C298a = ((static_cast<int32>((y0 + y1) >> 1) - 16) * 298 + 128);
-    *reinterpret_cast<uint32*>(rgb_buf) = clip(C298a + cb) |
-                                         (clip(C298a + cg) << 8) |
-                                         (clip(C298a + cr) << 16) |
-                                         0xff000000;
-
-    rgb_buf += 4;
   }
 }
 
@@ -214,37 +171,18 @@ void HalfYV12ToRGB32Row(const uint8* y_buf,
 // A shift by 5 is used to further subsample the chrominence channels.
 // & 15 isolates the fixed point fraction.  >> 2 to get the upper 2 bits,
 // for 1/4 pixel accurate interpolation.
-void ScaleYV12ToRGB32Row(const uint8* y_buf,
-                         const uint8* u_buf,
-                         const uint8* v_buf,
-                         uint8* rgb_buf,
-                         int width,
-                         int scaled_dx) {
+void ScaleYUVToRGB32Row(const uint8* y_buf,
+                        const uint8* u_buf,
+                        const uint8* v_buf,
+                        uint8* rgb_buf,
+                        int width,
+                        int scaled_dx) {
   int scaled_x = 0;
   for (int32 x = 0; x < width; ++x) {
     uint8 u = u_buf[scaled_x >> 5];
     uint8 v = v_buf[scaled_x >> 5];
     uint8 y0 = y_buf[scaled_x >> 4];
-#if MEDIA_BILINEAR_FILTER
-    uint8 y1 = y_buf[(scaled_x >> 4) + 1];
-    switch ((scaled_x & 15) >> 2) {
-      case 1:  // 75% first pixel, 25% second pixel.
-        y0 = (y0 + y0 + y0 + y1) >> 2;
-        break;
-      case 2:  // 50/50 blend
-        y0 = (y0 + y1) >> 1;
-        break;
-      case 3:  // 25% first pixel, 75% second pixel.
-        y0 = (y0 + y1 + y1 + y1) >> 2;
-        break;
-      default:
-      case 0:  // 100% first pixel.
-        break;
-    }
-#endif  // MEDIA_BILINEAR_FILTER
-
     YuvPixel(y0, u, v, rgb_buf);
-
     rgb_buf += 4;
     scaled_x += scaled_dx;
   }

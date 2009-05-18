@@ -8,6 +8,7 @@
 // Generated from the TEXTINCLUDE 2 resource.
 //
 #include "../chrome/third_party/wtl/include/atlres.h"
+
 /////////////////////////////////////////////////////////////////////////////
 #undef APSTUDIO_READONLY_SYMBOLS
 
@@ -34,6 +35,11 @@ END
 2 TEXTINCLUDE 
 BEGIN
     "../chrome/third_party/wtl/include/atlres.h\0"
+END
+
+3 TEXTINCLUDE 
+BEGIN
+    "\r\0"
 END
 
 #endif    // APSTUDIO_INVOKED
@@ -102,10 +108,13 @@ BEGIN
     END
     POPUP "&View"
     BEGIN
+        MENUITEM "&Quarter Size\tCtrl+9",       ID_VIEW_QUARTERSIZE
         MENUITEM "&Half Size\tCtrl+0",          ID_VIEW_HALFSIZE
         MENUITEM "&Normal Size\tCtrl+1",        ID_VIEW_NORMALSIZE
         MENUITEM "&Double Size\tCtrl+2",        ID_VIEW_DOUBLESIZE
-        MENUITEM "Fit to Screen\tCtrl+3",       ID_VIEW_FITTOSCREEN
+        MENUITEM "Triple Size\tCtrl+3",         ID_VIEW_TRIPLESIZE
+        MENUITEM "Quadruple Size\tCtrl+4",      ID_VIEW_QUADRUPLESIZE
+        MENUITEM "Fit to Screen",               ID_VIEW_FITTOSCREEN
         MENUITEM "&Full Screen\tCtrl+F",        ID_VIEW_FULLSCREEN
         MENUITEM SEPARATOR
         MENUITEM "&Toolbar",                    ID_VIEW_TOOLBAR
@@ -290,18 +299,20 @@ BEGIN
     VK_INSERT,      ID_EDIT_COPY,           VIRTKEY, CONTROL, NOINVERT
     "V",            ID_EDIT_PASTE,          VIRTKEY, CONTROL, NOINVERT
     VK_INSERT,      ID_EDIT_PASTE,          VIRTKEY, SHIFT, NOINVERT
-    "O",            ID_FILE_OPEN,           VIRTKEY, CONTROL, NOINVERT
     "L",            ID_FILE_LAST,           VIRTKEY, CONTROL, NOINVERT
+    "O",            ID_FILE_OPEN,           VIRTKEY, CONTROL, NOINVERT
     "P",            ID_FILE_PRINT,          VIRTKEY, CONTROL, NOINVERT
+    "2",            ID_PLAY_DOUBLESPEED,    VIRTKEY, ALT, NOINVERT
     "0",            ID_PLAY_HALFSPEED,      VIRTKEY, ALT, NOINVERT
     "1",            ID_PLAY_NORMALSPEED,    VIRTKEY, ALT, NOINVERT
-    "2",            ID_PLAY_DOUBLESPEED,    VIRTKEY, ALT, NOINVERT
     " ",            ID_PLAY_PLAY_PAUSE,     ASCII,  NOINVERT
+    "2",            ID_VIEW_DOUBLESIZE,     VIRTKEY, CONTROL, NOINVERT
+    "F",            ID_VIEW_FULLSCREEN,     VIRTKEY, CONTROL, NOINVERT
     "0",            ID_VIEW_HALFSIZE,       VIRTKEY, CONTROL, NOINVERT
     "1",            ID_VIEW_NORMALSIZE,     VIRTKEY, CONTROL, NOINVERT
-    "2",            ID_VIEW_DOUBLESIZE,     VIRTKEY, CONTROL, NOINVERT
-    "3",            ID_VIEW_FITTOSCREEN,    VIRTKEY, CONTROL, NOINVERT
-    "F",            ID_VIEW_FULLSCREEN,     VIRTKEY, CONTROL, NOINVERT
+    "9",            ID_VIEW_QUARTERSIZE,    VIRTKEY, CONTROL, NOINVERT
+    "3",            ID_VIEW_TRIPLESIZE,     VIRTKEY, CONTROL, NOINVERT
+    "4",            ID_VIEW_QUADRUPLESIZE,  VIRTKEY, CONTROL, NOINVERT
 END
 
 
@@ -380,6 +391,7 @@ BEGIN
     ID_VIEW_ROTATE270       "Rotate movie by 270 degrees clockwise."
     ID_VIEW_MIRROR_HORIZONTAL "Mirror movie horizontally."
     ID_VIEW_MIRROR_VERTICAL "Mirror movie vertically."
+    ID_VIEW_QUARTERSIZE     "View movie at quarter normal size."
 END
 
 STRINGTABLE 
@@ -474,5 +486,24 @@ BEGIN
     ID_VIEW_FITTOSCREEN     "Maximize window to desktop."
 END
 
+STRINGTABLE 
+BEGIN
+    ID_VIEW_TRIPLESIZE      "View movie at triple the normal size."
+    ID_VIEW_QUADRUPLESIZE   "View movie at quadruple the normal size."
+END
+
 #endif    // English (U.S.) resources
 /////////////////////////////////////////////////////////////////////////////
+
+
+
+#ifndef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 3 resource.
+//
+
+
+/////////////////////////////////////////////////////////////////////////////
+#endif    // not APSTUDIO_INVOKED
+

@@ -71,16 +71,19 @@ class CMainFrame : public CFrameWindowImpl<CMainFrame>,
     UIEnable(ID_EDIT_COPY, bEnable);
     UIEnable(ID_EDIT_PASTE, ::IsClipboardFormatAvailable(CF_BITMAP));
     UIEnable(ID_EDIT_CLEAR, bEnable);
+    UIEnable(ID_VIEW_QUARTERSIZE, true);
     UIEnable(ID_VIEW_HALFSIZE, true);
     UIEnable(ID_VIEW_NORMALSIZE, true);
     UIEnable(ID_VIEW_DOUBLESIZE, true);
+    UIEnable(ID_VIEW_TRIPLESIZE, true);
+    UIEnable(ID_VIEW_QUADRUPLESIZE, true);
     UIEnable(ID_VIEW_FITTOSCREEN, false);  // Not currently implemented.
     UIEnable(ID_VIEW_FULLSCREEN, false);  // Not currently implemented.
     UIEnable(ID_VIEW_PROPERTIES, bEnable);
     UIEnable(ID_VIEW_ROTATE0, true);
-    UIEnable(ID_VIEW_ROTATE90, false);
+    UIEnable(ID_VIEW_ROTATE90, true);
     UIEnable(ID_VIEW_ROTATE180, true);
-    UIEnable(ID_VIEW_ROTATE270, false);
+    UIEnable(ID_VIEW_ROTATE270, true);
     UIEnable(ID_VIEW_MIRROR_HORIZONTAL, true);
     UIEnable(ID_VIEW_MIRROR_VERTICAL, true);
     UIEnable(ID_PLAY_PLAY_PAUSE, bMovieOpen);   // if no movie open.
@@ -209,7 +212,8 @@ class CMainFrame : public CFrameWindowImpl<CMainFrame>,
     COMMAND_ID_HANDLER_EX(ID_EDIT_COPY, OnEditCopy)
     COMMAND_ID_HANDLER_EX(ID_EDIT_PASTE, OnEditPaste)
     COMMAND_ID_HANDLER_EX(ID_EDIT_CLEAR, OnEditClear)
-    COMMAND_RANGE_HANDLER_EX(ID_VIEW_HALFSIZE, ID_VIEW_FULLSCREEN, OnViewSize)
+    COMMAND_RANGE_HANDLER_EX(ID_VIEW_QUARTERSIZE, ID_VIEW_FULLSCREEN,
+                             OnViewSize)
     COMMAND_ID_HANDLER_EX(ID_VIEW_TOOLBAR, OnViewToolBar)
     COMMAND_ID_HANDLER_EX(ID_VIEW_STATUS_BAR, OnViewStatusBar)
     COMMAND_RANGE_HANDLER_EX(ID_VIEW_ROTATE0, ID_VIEW_MIRROR_VERTICAL,
@@ -236,9 +240,12 @@ class CMainFrame : public CFrameWindowImpl<CMainFrame>,
     UPDATE_ELEMENT(ID_EDIT_COPY, UPDUI_MENUPOPUP | UPDUI_TOOLBAR)
     UPDATE_ELEMENT(ID_EDIT_PASTE, UPDUI_MENUPOPUP | UPDUI_TOOLBAR)
     UPDATE_ELEMENT(ID_EDIT_CLEAR, UPDUI_MENUPOPUP | UPDUI_TOOLBAR)
+    UPDATE_ELEMENT(ID_VIEW_QUARTERSIZE, UPDUI_MENUPOPUP)
     UPDATE_ELEMENT(ID_VIEW_HALFSIZE, UPDUI_MENUPOPUP)
     UPDATE_ELEMENT(ID_VIEW_NORMALSIZE, UPDUI_MENUPOPUP)
     UPDATE_ELEMENT(ID_VIEW_DOUBLESIZE, UPDUI_MENUPOPUP)
+    UPDATE_ELEMENT(ID_VIEW_TRIPLESIZE, UPDUI_MENUPOPUP)
+    UPDATE_ELEMENT(ID_VIEW_QUADRUPLESIZE, UPDUI_MENUPOPUP)
     UPDATE_ELEMENT(ID_VIEW_FITTOSCREEN, UPDUI_MENUPOPUP)
     UPDATE_ELEMENT(ID_VIEW_FULLSCREEN, UPDUI_MENUPOPUP)
     UPDATE_ELEMENT(ID_VIEW_TOOLBAR, UPDUI_MENUPOPUP)
@@ -265,11 +272,14 @@ class CMainFrame : public CFrameWindowImpl<CMainFrame>,
 
   void UpdateSizeUICheck() {
     int view_size = m_view.GetViewSize();
-    UISetCheck(ID_VIEW_HALFSIZE,    (view_size == 0));
-    UISetCheck(ID_VIEW_NORMALSIZE,  (view_size == 1));
-    UISetCheck(ID_VIEW_DOUBLESIZE,  (view_size == 2));
-    UISetCheck(ID_VIEW_FITTOSCREEN, (view_size == 3));
-    UISetCheck(ID_VIEW_FULLSCREEN,  (view_size == 4));
+    UISetCheck(ID_VIEW_QUARTERSIZE,   (view_size == 0));
+    UISetCheck(ID_VIEW_HALFSIZE,      (view_size == 1));
+    UISetCheck(ID_VIEW_NORMALSIZE,    (view_size == 2));
+    UISetCheck(ID_VIEW_DOUBLESIZE,    (view_size == 3));
+    UISetCheck(ID_VIEW_TRIPLESIZE,    (view_size == 4));
+    UISetCheck(ID_VIEW_QUADRUPLESIZE, (view_size == 5));
+    UISetCheck(ID_VIEW_FITTOSCREEN,   (view_size == 6));
+    UISetCheck(ID_VIEW_FULLSCREEN,    (view_size == 7));
   }
 
   void UpdateSpeedUICheck() {
@@ -558,7 +568,7 @@ class CMainFrame : public CFrameWindowImpl<CMainFrame>,
   }
 
   void OnViewSize(UINT /*uNotifyCode*/, int nID, CWindow /*wnd*/) {
-    m_view.SetViewSize(nID - ID_VIEW_HALFSIZE);
+    m_view.SetViewSize(nID - ID_VIEW_QUARTERSIZE);
     UpdateSizeUICheck();
     UpdateLayout();
   }

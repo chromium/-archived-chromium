@@ -12,33 +12,55 @@
 
 namespace media {
 
-void ConvertYV12ToRGB32Row(const uint8* y_buf,
-                           const uint8* u_buf,
-                           const uint8* v_buf,
-                           uint8* rgb_buf,
-                           int width);
+// Can only do 1x.
+// This is the second fastest of the scalers.
+void FastConvertYUVToRGB32Row(const uint8* y_buf,
+                              const uint8* u_buf,
+                              const uint8* v_buf,
+                              uint8* rgb_buf,
+                              int width);
 
-void HalfYV12ToRGB32Row(const uint8* y_buf,
-                        const uint8* u_buf,
-                        const uint8* v_buf,
-                        uint8* rgb_buf,
-                        int width);
+// Can do 1x, half size or any scale down by an integer amount.
+// Step can be negative (mirroring, rotate 180).
+// This is the third fastest of the scalers.
+void ConvertYUVToRGB32Row(const uint8* y_buf,
+                          const uint8* u_buf,
+                          const uint8* v_buf,
+                          uint8* rgb_buf,
+                          int width,
+                          int step);
 
-void ScaleYV12ToRGB32Row(const uint8* y_buf,
+// Rotate is like Convert, but applies different step to Y versus U and V.
+// This allows rotation by 90 or 270, by stepping by stride.
+// This is the forth fastest of the scalers.
+void RotateConvertYUVToRGB32Row(const uint8* y_buf,
+                                const uint8* u_buf,
+                                const uint8* v_buf,
+                                uint8* rgb_buf,
+                                int width,
+                                int ystep,
+                                int uvstep);
+
+// Doubler does 4 pixels at a time.  Each pixel is replicated.
+// This is the fastest of the scalers.
+void DoubleYUVToRGB32Row(const uint8* y_buf,
                          const uint8* u_buf,
                          const uint8* v_buf,
                          uint8* rgb_buf,
-                         int width,
-                         int scaled_dx);
+                         int width);
 
-void Half2Row(const uint8* in_row0,
-              const uint8* in_row1,
-              uint8* out_row,
-              int out_width);
+// Handles arbitrary scaling up or down.
+// Mirroring is supported, but not 90 or 270 degree rotation.
+// Chroma is under sampled every 2 pixels for performance.
+// This is the slowest of the scalers.
+void ScaleYUVToRGB32Row(const uint8* y_buf,
+                        const uint8* u_buf,
+                        const uint8* v_buf,
+                        uint8* rgb_buf,
+                        int width,
+                        int scaled_dx);
 
-// MMX for Windows
-// C++ code provided as a fall back.
-
+// MMX for Windows; C++ for other platforms.
 #ifndef USE_MMX
 #if defined(_MSC_VER)
 #define USE_MMX 1

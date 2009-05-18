@@ -42,15 +42,16 @@ void ExpectFrameColor(media::VideoFrame* yv12_frame, uint32 expect_rgb_color) {
   EXPECT_EQ(rgb_surface.height, yuv_surface.height);
   EXPECT_EQ(rgb_surface.planes, expect_rgb_planes);
 
-  media::ConvertYV12ToRGB32(yuv_surface.data[VideoSurface::kYPlane],
-                            yuv_surface.data[VideoSurface::kUPlane],
-                            yuv_surface.data[VideoSurface::kVPlane],
-                            rgb_surface.data[VideoSurface::kRGBPlane],
-                            rgb_surface.width,
-                            rgb_surface.height,
-                            yuv_surface.strides[VideoSurface::kYPlane],
-                            yuv_surface.strides[VideoSurface::kUPlane],
-                            rgb_surface.strides[VideoSurface::kRGBPlane]);
+  media::ConvertYUVToRGB32(yuv_surface.data[VideoSurface::kYPlane],
+                           yuv_surface.data[VideoSurface::kUPlane],
+                           yuv_surface.data[VideoSurface::kVPlane],
+                           rgb_surface.data[VideoSurface::kRGBPlane],
+                           rgb_surface.width,
+                           rgb_surface.height,
+                           yuv_surface.strides[VideoSurface::kYPlane],
+                           yuv_surface.strides[VideoSurface::kUPlane],
+                           rgb_surface.strides[VideoSurface::kRGBPlane],
+                           media::YV12);
 
   for (size_t row = 0; row < rgb_surface.height; ++row) {
     uint32* rgb_row_data = reinterpret_cast<uint32*>(

@@ -246,11 +246,11 @@ MMX_ALIGNED(int16 coefficients_RGB_V[256][4]) = {
 #pragma warning(disable: 4799)
 
 __declspec(naked)
-void ConvertYV12ToRGB32Row(const uint8* y_buf,
-                           const uint8* u_buf,
-                           const uint8* v_buf,
-                           uint8* rgb_buf,
-                           int width) {
+void FastConvertYUVToRGB32Row(const uint8* y_buf,
+                              const uint8* u_buf,
+                              const uint8* v_buf,
+                              uint8* rgb_buf,
+                              int width) {
   __asm {
     pushad
     mov       edx, [esp + 32 + 4]   // Y
@@ -258,48 +258,7 @@ void ConvertYV12ToRGB32Row(const uint8* y_buf,
     mov       esi, [esp + 32 + 12]  // V
     mov       ebp, [esp + 32 + 16]  // rgb
     mov       ecx, [esp + 32 + 20]  // width
-    shr       ecx, 1
-
- wloop :
-    movzx     eax, byte ptr [edi]  // NOLINT
-    add       edi, 1
-    movzx     ebx, byte ptr [esi]  // NOLINT
-    add       esi, 1
-    movq      mm0, [coefficients_RGB_U + 8 * eax]
-    movzx     eax, byte ptr [edx]  // NOLINT
-    paddsw    mm0, [coefficients_RGB_V + 8 * ebx]
-    movzx     ebx, byte ptr [edx + 1]  // NOLINT
-    movq      mm1, [coefficients_RGB_Y + 8 * eax]
-    add       edx, 2
-    movq      mm2, [coefficients_RGB_Y + 8 * ebx]
-    paddsw    mm1, mm0
-    paddsw    mm2, mm0
-    psraw     mm1, 6
-    psraw     mm2, 6
-    packuswb  mm1, mm2
-    movntq    [ebp], mm1  // NOLINT
-    add       ebp, 8
-    sub       ecx, 1
-    jnz       wloop
-
-    popad
-    ret
-  }
-}
-
-__declspec(naked)
-void HalfYV12ToRGB32Row(const uint8* y_buf,
-                        const uint8* u_buf,
-                        const uint8* v_buf,
-                        uint8* rgb_buf,
-                        int width) {
-  __asm {
-    pushad
-    mov       edx, [esp + 32 + 4]   // Y
-    mov       edi, [esp + 32 + 8]   // U
-    mov       esi, [esp + 32 + 12]  // V
-    mov       ebp, [esp + 32 + 16]  // rgb
-    mov       ecx, [esp + 32 + 20]  // width
+    jmp       wend
 
  wloop :
     movzx     eax, byte ptr [edi]
@@ -309,19 +268,35 @@ void HalfYV12ToRGB32Row(const uint8* y_buf,
     movq      mm0, [coefficients_RGB_U + 8 * eax]
     movzx     eax, byte ptr [edx]
     paddsw    mm0, [coefficients_RGB_V + 8 * ebx]
-#if MEDIA_BILINEAR_FILTER
     movzx     ebx, byte ptr [edx + 1]
-    add       ebx, eax
-    shr       ebx, 1
-#endif
-    paddsw    mm0, [coefficients_RGB_Y + 8 * eax]
+    movq      mm1, [coefficients_RGB_Y + 8 * eax]
     add       edx, 2
-    psraw     mm0, 6
-    packuswb  mm0, mm0
-    movd      [ebp], mm0
-    add       ebp, 4
-    sub       ecx, 1
-    jnz       wloop
+    movq      mm2, [coefficients_RGB_Y + 8 * ebx]
+    paddsw    mm1, mm0
+    paddsw    mm2, mm0
+    psraw     mm1, 6
+    psraw     mm2, 6
+    packuswb  mm1, mm2
+    movntq    [ebp], mm1
+    add       ebp, 8
+ wend :
+    sub       ecx, 2
+    jns       wloop
+
+    and       ecx, 1  // odd number of pixels?
+    jz        wdone
+
+    movzx     eax, byte ptr [edi]
+    movq      mm0, [coefficients_RGB_U + 8 * eax]
+    movzx     eax, byte ptr [esi]
+    paddsw    mm0, [coefficients_RGB_V + 8 * eax]
+    movzx     eax, byte ptr [edx]
+    movq      mm1, [coefficients_RGB_Y + 8 * eax]
+    paddsw    mm1, mm0
+    psraw     mm1, 6
+    packuswb  mm1, mm1
+    movd      [ebp], mm1
+ wdone :
 
     popad
     ret
@@ -329,12 +304,12 @@ void HalfYV12ToRGB32Row(const uint8* y_buf,
 }
 
 __declspec(naked)
-void ScaleYV12ToRGB32Row(const uint8* y_buf,
-                         const uint8* u_buf,
-                         const uint8* v_buf,
-                         uint8* rgb_buf,
-                         int width,
-                         int dx) {
+void ConvertYUVToRGB32Row(const uint8* y_buf,
+                          const uint8* u_buf,
+                          const uint8* v_buf,
+                          uint8* rgb_buf,
+                          int width,
+                          int step) {
   __asm {
     pushad
     mov       edx, [esp + 32 + 4]   // Y
@@ -342,62 +317,262 @@ void ScaleYV12ToRGB32Row(const uint8* y_buf,
     mov       esi, [esp + 32 + 12]  // V
     mov       ebp, [esp + 32 + 16]  // rgb
     mov       ecx, [esp + 32 + 20]  // width
-    xor       eax, eax              // x
+    mov       ebx, [esp + 32 + 24]  // step
+    jmp       wend
 
  wloop :
-    mov       ebx, eax
-    sar       ebx, 5
-    movzx     ebx, byte ptr [edi + ebx]
-    movq      mm0, [coefficients_RGB_U + 8 * ebx]
-    mov       ebx, eax
-    sar       ebx, 5
-    movzx     ebx, byte ptr [esi + ebx]
-    paddsw    mm0, [coefficients_RGB_V + 8 * ebx]
-    mov       ebx, eax
-    sar       ebx, 4
-    movzx     ebx, byte ptr [edx + ebx]
-    paddsw    mm0, [coefficients_RGB_Y + 8 * ebx]
-    psraw     mm0, 6
-    packuswb  mm0, mm0
-    movd      [ebp], mm0
-    add       ebp, 4
-    add       eax, [esp + 32 + 24]  // x += dx
-    sub       ecx, 1
-    jnz       wloop
+    movzx     eax, byte ptr [edi]
+    add       edi, ebx
+    movq      mm0, [coefficients_RGB_U + 8 * eax]
+    movzx     eax, byte ptr [esi]
+    add       esi, ebx
+    paddsw    mm0, [coefficients_RGB_V + 8 * eax]
+    movzx     eax, byte ptr [edx]
+    add       edx, ebx
+    movq      mm1, [coefficients_RGB_Y + 8 * eax]
+    movzx     eax, byte ptr [edx]
+    add       edx, ebx
+    movq      mm2, [coefficients_RGB_Y + 8 * eax]
+    paddsw    mm1, mm0
+    paddsw    mm2, mm0
+    psraw     mm1, 6
+    psraw     mm2, 6
+    packuswb  mm1, mm2
+    movntq    [ebp], mm1
+    add       ebp, 8
+ wend :
+    sub       ecx, 2
+    jns       wloop
+
+    and       ecx, 1  // odd number of pixels?
+    jz        wdone
+
+    movzx     eax, byte ptr [edi]
+    movq      mm0, [coefficients_RGB_U + 8 * eax]
+    movzx     eax, byte ptr [esi]
+    paddsw    mm0, [coefficients_RGB_V + 8 * eax]
+    movzx     eax, byte ptr [edx]
+    movq      mm1, [coefficients_RGB_Y + 8 * eax]
+    paddsw    mm1, mm0
+    psraw     mm1, 6
+    packuswb  mm1, mm1
+    movd      [ebp], mm1
+ wdone :
 
     popad
     ret
   }
 }
 
-
 __declspec(naked)
-void Half2Row(const uint8* in_row0,
-              const uint8* in_row1,
-              uint8* out_row,
-              int out_width) {
+void RotateConvertYUVToRGB32Row(const uint8* y_buf,
+                                const uint8* u_buf,
+                                const uint8* v_buf,
+                                uint8* rgb_buf,
+                                int width,
+                                int ystep,
+                                int uvstep) {
   __asm {
     pushad
-    mov       esi, [esp + 32 + 4]   // row0
-    mov       ebx, [esp + 32 + 8]   // row1
-    mov       edi, [esp + 32 + 12]  // out
-    mov       ecx, [esp + 32 + 16]  // width
+    mov       edx, [esp + 32 + 4]   // Y
+    mov       edi, [esp + 32 + 8]   // U
+    mov       esi, [esp + 32 + 12]  // V
+    mov       ebp, [esp + 32 + 16]  // rgb
+    mov       ecx, [esp + 32 + 20]  // width
+    jmp       wend
 
  wloop :
+    movzx     eax, byte ptr [edi]
+    mov       ebx, [esp + 32 + 28]  // uvstep
+    add       edi, ebx
+    movq      mm0, [coefficients_RGB_U + 8 * eax]
     movzx     eax, byte ptr [esi]
-    movzx     edx, byte ptr [esi+1]
-    add       esi, 2
-    add       eax, edx
-    movzx     edx, byte ptr [ebx]
-    add       eax, edx
-    movzx     edx, byte ptr [ebx+1]
-    add       eax, edx
-    add       ebx, 2
-    shr       eax, 2
-    mov       [edi], al
+    add       esi, ebx
+    paddsw    mm0, [coefficients_RGB_V + 8 * eax]
+    movzx     eax, byte ptr [edx]
+    mov       ebx, [esp + 32 + 24]  // ystep
+    add       edx, ebx
+    movq      mm1, [coefficients_RGB_Y + 8 * eax]
+    movzx     eax, byte ptr [edx]
+    add       edx, ebx
+    movq      mm2, [coefficients_RGB_Y + 8 * eax]
+    paddsw    mm1, mm0
+    paddsw    mm2, mm0
+    psraw     mm1, 6
+    psraw     mm2, 6
+    packuswb  mm1, mm2
+    movntq    [ebp], mm1
+    add       ebp, 8
+ wend :
+    sub       ecx, 2
+    jns       wloop
+
+    and       ecx, 1  // odd number of pixels?
+    jz        wdone
+
+    movzx     eax, byte ptr [edi]
+    movq      mm0, [coefficients_RGB_U + 8 * eax]
+    movzx     eax, byte ptr [esi]
+    paddsw    mm0, [coefficients_RGB_V + 8 * eax]
+    movzx     eax, byte ptr [edx]
+    movq      mm1, [coefficients_RGB_Y + 8 * eax]
+    paddsw    mm1, mm0
+    psraw     mm1, 6
+    packuswb  mm1, mm1
+    movd      [ebp], mm1
+ wdone :
+
+    popad
+    ret
+  }
+}
+
+__declspec(naked)
+void DoubleYUVToRGB32Row(const uint8* y_buf,
+                         const uint8* u_buf,
+                         const uint8* v_buf,
+                         uint8* rgb_buf,
+                         int width) {
+  __asm {
+    pushad
+    mov       edx, [esp + 32 + 4]   // Y
+    mov       edi, [esp + 32 + 8]   // U
+    mov       esi, [esp + 32 + 12]  // V
+    mov       ebp, [esp + 32 + 16]  // rgb
+    mov       ecx, [esp + 32 + 20]  // width
+    jmp       wend
+
+ wloop :
+    movzx     eax, byte ptr [edi]
     add       edi, 1
+    movzx     ebx, byte ptr [esi]
+    add       esi, 1
+    movq      mm0, [coefficients_RGB_U + 8 * eax]
+    movzx     eax, byte ptr [edx]
+    paddsw    mm0, [coefficients_RGB_V + 8 * ebx]
+    movq      mm1, [coefficients_RGB_Y + 8 * eax]
+    paddsw    mm1, mm0
+    psraw     mm1, 6
+    packuswb  mm1, mm1
+    punpckldq mm1, mm1
+    movntq    [ebp], mm1
+
+    movzx     ebx, byte ptr [edx + 1]
+    add       edx, 2
+    paddsw    mm0, [coefficients_RGB_Y + 8 * ebx]
+    psraw     mm0, 6
+    packuswb  mm0, mm0
+    punpckldq mm0, mm0
+    movntq    [ebp+8], mm0
+    add       ebp, 16
+ wend :
+    sub       ecx, 4
+    jns       wloop
+
+    add       ecx, 4
+    jz        wdone
+
+    movzx     eax, byte ptr [edi]
+    movq      mm0, [coefficients_RGB_U + 8 * eax]
+    movzx     eax, byte ptr [esi]
+    paddsw    mm0, [coefficients_RGB_V + 8 * eax]
+    movzx     eax, byte ptr [edx]
+    movq      mm1, [coefficients_RGB_Y + 8 * eax]
+    paddsw    mm1, mm0
+    psraw     mm1, 6
+    packuswb  mm1, mm1
+    jmp       wend1
+
+ wloop1 :
+    movd      [ebp], mm1
+    add       ebp, 4
+ wend1 :
     sub       ecx, 1
-    jnz       wloop
+    jns       wloop1
+ wdone :
+    popad
+    ret
+  }
+}
+
+// This version does general purpose scaling by any amount, up or down.
+// The only thing it can not do it rotation by 90 or 270.
+// For performance the chroma is under sampled, reducing cost of a 3x
+// 1080p scale from 8.4 ms to 5.4 ms.
+__declspec(naked)
+void ScaleYUVToRGB32Row(const uint8* y_buf,
+                        const uint8* u_buf,
+                        const uint8* v_buf,
+                        uint8* rgb_buf,
+                        int width,
+                        int dx) {
+  __asm {
+    pushad
+    mov       edx, [esp + 32 + 4]   // Y
+    mov       edi, [esp + 32 + 8]   // U
+    mov       esi, [esp + 32 + 12]  // V
+    mov       ebp, [esp + 32 + 16]  // rgb
+    mov       ecx, [esp + 32 + 20]  // width
+    xor       ebx, ebx              // x
+    jmp       wend
+
+ wloop :
+    mov       eax, ebx
+    sar       eax, 5
+    movzx     eax, byte ptr [edi + eax]
+    movq      mm0, [coefficients_RGB_U + 8 * eax]
+    mov       eax, ebx
+    sar       eax, 5
+    movzx     eax, byte ptr [esi + eax]
+    paddsw    mm0, [coefficients_RGB_V + 8 * eax]
+    mov       eax, ebx
+    add       ebx, [esp + 32 + 24]  // x += dx
+    sar       eax, 4
+    movzx     eax, byte ptr [edx + eax]
+    movq      mm1, [coefficients_RGB_Y + 8 * eax]
+    mov       eax, ebx
+    add       ebx, [esp + 32 + 24]  // x += dx
+    sar       eax, 4
+    movzx     eax, byte ptr [edx + eax]
+    movq      mm2, [coefficients_RGB_Y + 8 * eax]
+    paddsw    mm1, mm0
+    paddsw    mm2, mm0
+    psraw     mm1, 6
+    psraw     mm2, 6
+    packuswb  mm1, mm2
+    movntq    [ebp], mm1
+    add       ebp, 8
+ wend :
+    sub       ecx, 2
+    jns       wloop
+
+    and       ecx, 1  // odd number of pixels?
+    jz        wdone
+
+    mov       eax, ebx
+    sar       eax, 5
+    movzx     eax, byte ptr [edi + eax]
+    movq      mm0, [coefficients_RGB_U + 8 * eax]
+    mov       eax, ebx
+    sar       eax, 5
+    movzx     eax, byte ptr [esi + eax]
+    paddsw    mm0, [coefficients_RGB_V + 8 * eax]
+    mov       eax, ebx
+    sar       eax, 4
+    movzx     eax, byte ptr [edx + eax]
+    movq      mm1, [coefficients_RGB_Y + 8 * eax]
+    mov       eax, ebx
+    sar       eax, 4
+    movzx     eax, byte ptr [edx + eax]
+    movq      mm2, [coefficients_RGB_Y + 8 * eax]
+    paddsw    mm1, mm0
+    paddsw    mm2, mm0
+    psraw     mm1, 6
+    psraw     mm2, 6
+    packuswb  mm1, mm2
+    movd      [ebp], mm1
+
+ wdone :
 
     popad
     ret

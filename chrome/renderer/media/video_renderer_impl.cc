@@ -83,15 +83,16 @@ void VideoRendererImpl::CopyToCurrentFrame(media::VideoFrame* video_frame) {
              frame_in.strides[media::VideoSurface::kVPlane]);
       DCHECK(frame_in.planes == media::VideoSurface::kNumYUVPlanes);
       bitmap_.lockPixels();
-      media::ConvertYV12ToRGB32(frame_in.data[media::VideoSurface::kYPlane],
-                                frame_in.data[media::VideoSurface::kUPlane],
-                                frame_in.data[media::VideoSurface::kVPlane],
-                                static_cast<uint8*>(bitmap_.getPixels()),
-                                frame_in.width,
-                                frame_in.height,
-                                frame_in.strides[media::VideoSurface::kYPlane],
-                                frame_in.strides[media::VideoSurface::kUPlane],
-                                bitmap_.rowBytes());
+      media::ConvertYUVToRGB32(frame_in.data[media::VideoSurface::kYPlane],
+                               frame_in.data[media::VideoSurface::kUPlane],
+                               frame_in.data[media::VideoSurface::kVPlane],
+                               static_cast<uint8*>(bitmap_.getPixels()),
+                               frame_in.width,
+                               frame_in.height,
+                               frame_in.strides[media::VideoSurface::kYPlane],
+                               frame_in.strides[media::VideoSurface::kUPlane],
+                               bitmap_.rowBytes(),
+                               media::YV12);
       bitmap_.unlockPixels();
       video_frame->Unlock();
     } else {

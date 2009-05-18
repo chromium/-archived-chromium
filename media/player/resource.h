@@ -34,11 +34,14 @@
 #define ID_OPTIONS_AUDIO                32793
 #define ID_OPTIONS_DUMPYUVFILE          32794
 #define ID_Menu                         32795
-#define ID_VIEW_HALFSIZE                32796
-#define ID_VIEW_NORMALSIZE              32797
-#define ID_VIEW_DOUBLESIZE              32798
-#define ID_VIEW_FITTOSCREEN             32799
-#define ID_VIEW_FULLSCREEN              32800
+#define ID_VIEW_QUARTERSIZE             32815
+#define ID_VIEW_HALFSIZE                32816
+#define ID_VIEW_NORMALSIZE              32817
+#define ID_VIEW_DOUBLESIZE              32818
+#define ID_VIEW_TRIPLESIZE              32819
+#define ID_VIEW_QUADRUPLESIZE           32820
+#define ID_VIEW_FITTOSCREEN             32821
+#define ID_VIEW_FULLSCREEN              32822
 #define ID_PLAY_HALFSPEED               32801
 #define ID_PLAY_NORMALSPEED             32802
 #define ID_PLAY_DOUBLESPEED             32803
@@ -56,9 +59,8 @@
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        203
-#define _APS_NEXT_COMMAND_VALUE         32813
+#define _APS_NEXT_COMMAND_VALUE         32823
 #define _APS_NEXT_CONTROL_VALUE         1013
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif
-
