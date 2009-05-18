@@ -42,7 +42,7 @@ namespace courgette {
 //
 // The code appears to be a rewritten version of the suffix array algorithm
 // presented in "Faster Suffix Sorting" by N. Jesper Larsson and Kunihiko
-// Sadakane, special-cased for bytes.
+// Sadakane, special cased for bytes.
 
 static void
 split(int *I,int *V,int start,int len,int h)
@@ -191,9 +191,6 @@ static void WriteHeader(SinkStream* stream, MBSPatchHeader* header) {
   stream->WriteVarint32(header->slen);
   stream->WriteVarint32(header->scrc32);
   stream->WriteVarint32(header->dlen);
-  stream->WriteVarint32(header->cblen);
-  stream->WriteVarint32(header->difflen);
-  stream->WriteVarint32(header->extralen);
 }
 
 BSDiffStatus CreateBinaryPatch(SourceStream* old_stream,
@@ -204,8 +201,18 @@ BSDiffStatus CreateBinaryPatch(SourceStream* old_stream,
   LOG(INFO) << "Start bsdiff";
   size_t initial_patch_stream_length = patch_stream->Length();
 
+  SinkStreamSet patch_streams;
+  SinkStream* control_stream_copy_counts = patch_streams.stream(0);
+  SinkStream* control_stream_extra_counts = patch_streams.stream(1);
+  SinkStream* control_stream_seeks = patch_streams.stream(2);
+  SinkStream* diff_skips = patch_streams.stream(3);
+  SinkStream* diff_bytes = patch_streams.stream(4);
+  SinkStream* extra_bytes = patch_streams.stream(5);
+
   const uint8* old = old_stream->Buffer();
   const int oldsize = old_stream->Remaining();
+
+  uint32 pending_diff_zeros = 0;
 
   scoped_array<int> I(new(std::nothrow) int[oldsize + 1]);
   scoped_array<int> V(new(std::nothrow) int[oldsize + 1]);
@@ -221,23 +228,11 @@ BSDiffStatus CreateBinaryPatch(SourceStream* old_stream,
   const uint8* newbuf = new_stream->Buffer();
   const int newsize = new_stream->Remaining();
 
-  // Allocate newsize+1 bytes instead of newsize bytes to ensure that we never
-  // try to malloc(0) and get a NULL pointer.
-
-  scoped_array<uint8> diff_bytes_array(new(std::nothrow) uint8[newsize + 1]);
-  scoped_array<uint8> extra_bytes_array(new(std::nothrow) uint8[newsize + 1]);
-  if (diff_bytes_array == NULL || extra_bytes_array == NULL)
-    return MEM_ERROR;
-
-  uint8* diff_bytes = diff_bytes_array.get();
-  uint8* extra_bytes = extra_bytes_array.get();
   int control_length = 0;
   int diff_bytes_length = 0;
   int diff_bytes_nonzero = 0;
   int extra_bytes_length = 0;
   int eblen = 0;
-
-  SinkStream control_stream;
 
   // The patch format is a sequence of triples <copy,extra,seek> where 'copy' is
   // the number of bytes to copy from the old file (possibly with mistakes),
@@ -364,13 +359,18 @@ BSDiffStatus CreateBinaryPatch(SourceStream* old_stream,
 
       for (int i = 0;  i < lenf;  i++) {
         uint8 diff_byte = newbuf[lastscan + i] - old[lastpos + i];
-        diff_bytes[diff_bytes_length + i] = diff_byte;
-        if (diff_byte)
+        if (diff_byte) {
           ++diff_bytes_nonzero;
+          diff_skips->WriteVarint32(pending_diff_zeros);
+          pending_diff_zeros = 0;
+          diff_bytes->Write(&diff_byte, 1);
+        } else {
+          ++pending_diff_zeros;
+        }
       }
       int gap = (scan - lenb) - (lastscan + lenf);
       for (int i = 0;  i < gap;  i++)
-        extra_bytes[extra_bytes_length + i] = newbuf[lastscan + lenf + i];
+        extra_bytes->Write(&newbuf[lastscan + lenf + i], 1);
 
       diff_bytes_length += lenf;
       extra_bytes_length += gap;
@@ -379,9 +379,9 @@ BSDiffStatus CreateBinaryPatch(SourceStream* old_stream,
       uint32 extra_count = gap;
       int32 seek_adjustment = ((pos - lenb) - (lastpos + lenf));
 
-      control_stream.WriteVarint32(copy_count);
-      control_stream.WriteVarint32(extra_count);
-      control_stream.WriteVarint32Signed(seek_adjustment);
+      control_stream_copy_counts->WriteVarint32(copy_count);
+      control_stream_extra_counts->WriteVarint32(extra_count);
+      control_stream_seeks->WriteVarint32Signed(seek_adjustment);
       ++control_length;
 #ifdef DEBUG_bsmedberg
       LOG(INFO) << StringPrintf(
@@ -395,6 +395,8 @@ BSDiffStatus CreateBinaryPatch(SourceStream* old_stream,
     }
   }
 
+  diff_skips->WriteVarint32(pending_diff_zeros);
+
   I.reset();
 
   MBSPatchHeader header;
@@ -405,19 +407,16 @@ BSDiffStatus CreateBinaryPatch(SourceStream* old_stream,
   header.slen     = oldsize;
   header.scrc32   = CalculateCrc(old, oldsize);
   header.dlen     = newsize;
-  header.cblen    = control_stream.Length();
-  header.difflen  = diff_bytes_length;
-  header.extralen = extra_bytes_length;
 
   WriteHeader(patch_stream, &header);
 
-  patch_stream->Append(&control_stream);
-  patch_stream->Write(diff_bytes, diff_bytes_length);
-  patch_stream->Write(extra_bytes, extra_bytes_length);
+  size_t diff_skips_length = diff_skips->Length();
+  patch_streams.CopyTo(patch_stream);
 
   LOG(INFO) << "Control tuples: " << control_length
             << "  copy bytes: " << diff_bytes_length
             << "  mistakes: " << diff_bytes_nonzero
+            << "  (skips: " << diff_skips_length << ")"
             << "  extra bytes: " << extra_bytes_length;
 
   LOG(INFO) << "Uncompressed bsdiff patch size "

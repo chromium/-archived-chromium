@@ -26,7 +26,7 @@ enum Status {
   C_BAD_ENSEMBLE_MAGIC = 5,       // Ensemble patch has bad magic.
   C_BAD_ENSEMBLE_VERSION = 6,     // Ensemble patch has wrong version.
   C_BAD_ENSEMBLE_HEADER = 7,      // Ensemble patch has corrupt header.
-  C_BAD_ENSEMBLE_CRC = 8,         // Ensemble patch has corrupt header.
+  C_BAD_ENSEMBLE_CRC = 8,         // Ensemble patch has corrupt data.
 
   C_BAD_TRANSFORM = 12,           // Transform mis-specified.
   C_BAD_BASE = 13,                // Base for transform malformed.

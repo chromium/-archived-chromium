@@ -74,9 +74,6 @@ typedef struct MBSPatchHeader_ {
   uint32 slen;       // Length of the file to be patched.
   uint32 scrc32;     // CRC32 of the file to be patched.
   uint32 dlen;       // Length of the result file.
-  uint32 cblen;      // Length of the control block in bytes.
-  uint32 difflen;    // Length of the diff block in bytes.
-  uint32 extralen;   // Length of the extra block in bytes.
 } MBSPatchHeader;
 
 // This is the value for the tag field.  Must match length exactly, not counting
