@@ -36,6 +36,9 @@ const int kBarPaddingRight = 4;
 // images.
 const int kFindBarHeight = 32;
 
+// The width of the text entry field.
+const int kTextEntryWidth = 220;
+
 // Get the ninebox that draws the background of |container_|. It is also used
 // to change the shape of |container_|. The pointer is shared by all instances
 // of FindBarGtk.
@@ -155,7 +158,7 @@ void FindBarGtk::InitWidgets() {
   // we want the widgets inside to resize themselves rather than making the
   // dialog bigger.
   GtkWidget* content_hbox = gtk_hbox_new(false, 0);
-  gtk_widget_set_size_request(content_hbox, 300, -1);
+  gtk_widget_set_size_request(content_hbox, kTextEntryWidth, -1);
 
   text_entry_ = gtk_entry_new();
   match_count_label_ = gtk_label_new(NULL);
