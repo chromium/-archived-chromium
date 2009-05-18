@@ -1,31 +1,32 @@
-// Copyright (c) 2008, Google Inc.
-// All rights reserved.
-//
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions are
-// met:
-//
-//     * Redistributions of source code must retain the above copyright
-// notice, this list of conditions and the following disclaimer.
-//     * Redistributions in binary form must reproduce the above
-// copyright notice, this list of conditions and the following disclaimer
-// in the documentation and/or other materials provided with the
-// distribution.
-//     * Neither the name of Google Inc. nor the names of its
-// contributors may be used to endorse or promote products derived from
-// this software without specific prior written permission.
-//
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-// "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-// LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
-// A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
-// OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
-// SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
-// LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-// DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
-// THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+/*
+ * Copyright (C) 2008, 2009 Google Inc. All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are
+ * met:
+ *
+ *     * Redistributions of source code must retain the above copyright
+ * notice, this list of conditions and the following disclaimer.
+ *     * Redistributions in binary form must reproduce the above
+ * copyright notice, this list of conditions and the following disclaimer
+ * in the documentation and/or other materials provided with the
+ * distribution.
+ *     * Neither the name of Google Inc. nor the names of its
+ * contributors may be used to endorse or promote products derived from
+ * this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+ * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+ * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+ * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+ * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
 
 #include "config.h"
 #include "ScriptController.h"
@@ -46,38 +47,15 @@
 #include "ScriptState.h"
 #include "Widget.h"
 
-#include "v8_proxy.h"
-#include "v8_binding.h"
+#include "V8Binding.h"
 #include "V8NPObject.h"
-
-NPRuntimeFunctions npruntime_functions = {
-    NPN_GetStringIdentifier,
-    NPN_GetStringIdentifiers,
-    NPN_GetIntIdentifier,
-    NPN_IdentifierIsString,
-    NPN_UTF8FromIdentifier,
-    NPN_IntFromIdentifier,
-    NPN_CreateObject,
-    NPN_RetainObject,
-    NPN_ReleaseObject,
-    NPN_Invoke,
-    NPN_InvokeDefault,
-    NPN_Evaluate,
-    NPN_GetProperty,
-    NPN_SetProperty,
-    NPN_RemoveProperty,
-    NPN_HasProperty,
-    NPN_HasMethod,
-    NPN_ReleaseVariantValue,
-    NPN_SetException
-};
-
+#include "V8Proxy.h"
 
 namespace WebCore {
 
-void ScriptController::setFlags(const char* str, int length)
+void ScriptController::setFlags(const char* string, int length)
 {
-    v8::V8::SetFlagsFromString(str, length);
+    v8::V8::SetFlagsFromString(string, length);
 }
 
 Frame* ScriptController::retrieveFrameForEnteredContext()
@@ -95,14 +73,14 @@ bool ScriptController::isSafeScript(Frame* target)
     return V8Proxy::CanAccessFrame(target, true);
 }
 
-void ScriptController::gcProtectJSWrapper(void* dom_object)
+void ScriptController::gcProtectJSWrapper(void* domObject)
 {
-    V8Proxy::GCProtect(dom_object);
+    V8Proxy::GCProtect(domObject);
 }
 
-void ScriptController::gcUnprotectJSWrapper(void* dom_object)
+void ScriptController::gcUnprotectJSWrapper(void* domObject)
 {
-    V8Proxy::GCUnprotect(dom_object);
+    V8Proxy::GCUnprotect(domObject);
 }
 
 ScriptController::ScriptController(Frame* frame)
@@ -152,7 +130,7 @@ void ScriptController::updatePlatformScriptObjects()
     notImplemented();
 }
 
-// Disconnect the proxy from its owner frame;
+// Disconnect the proxy from its owner frame.
 void ScriptController::disconnectFrame()
 {
     m_proxy->disconnectFrame();
@@ -160,16 +138,16 @@ void ScriptController::disconnectFrame()
 
 bool ScriptController::processingUserGesture() const
 {
-    Frame* active_frame = V8Proxy::retrieveFrameForEnteredContext();
-    // No script is running, must be run by users.
-    if (!active_frame)
+    Frame* activeFrame = V8Proxy::retrieveFrameForEnteredContext();
+    // No script is running, so it must be run by users.
+    if (!activeFrame)
         return true;
 
-    V8Proxy* active_proxy = active_frame->script()->proxy();
+    V8Proxy* activeProxy = activeFrame->script()->proxy();
 
-    v8::HandleScope handle_scope;
-    v8::Handle<v8::Context> context = V8Proxy::GetContext(active_frame);
-    // TODO(fqian): find all cases context can be empty:
+    v8::HandleScope handleScope;
+    v8::Handle<v8::Context> context = V8Proxy::GetContext(activeFrame);
+    // FIXME: find all cases context can be empty:
     //  1) JS is disabled;
     //  2) page is NULL;
     if (context.IsEmpty())
@@ -178,84 +156,68 @@ bool ScriptController::processingUserGesture() const
     v8::Context::Scope scope(context);
 
     v8::Handle<v8::Object> global = context->Global();
-    v8::Handle<v8::Value> jsevent = global->Get(v8::String::NewSymbol("event"));
-    Event* event = V8Proxy::ToNativeEvent(jsevent);
+    v8::Handle<v8::Value> jsEvent = global->Get(v8::String::NewSymbol("event"));
+    Event* event = V8Proxy::ToNativeEvent(jsEvent);
 
     // Based on code from kjs_bindings.cpp.
     // Note: This is more liberal than Firefox's implementation.
     if (event) {
         const AtomicString& type = event->type();
-        bool event_ok =
-          // mouse events
-          type == eventNames().clickEvent ||
-          type == eventNames().mousedownEvent ||
-          type == eventNames().mouseupEvent ||
-          type == eventNames().dblclickEvent ||
-          // keyboard events
-          type == eventNames().keydownEvent ||
-          type == eventNames().keypressEvent ||
-          type == eventNames().keyupEvent ||
-          // other accepted events
-          type == eventNames().selectEvent ||
-          type == eventNames().changeEvent ||
-          type == eventNames().focusEvent ||
-          type == eventNames().blurEvent ||
-          type == eventNames().submitEvent;
+        bool eventOk =
+            // mouse events
+            type == eventNames().clickEvent || type == eventNames().mousedownEvent || type == eventNames().mouseupEvent || type == eventNames().dblclickEvent
+            // keyboard events
+            || type == eventNames().keydownEvent || type == eventNames().keypressEvent || type == eventNames().keyupEvent
+            // other accepted events
+            || type == eventNames().selectEvent || type == eventNames().changeEvent || type == eventNames().focusEvent || type == eventNames().blurEvent || type == eventNames().submitEvent;
 
-        if (event_ok)
-          return true;
-    } else if (active_proxy->inlineCode() && !active_proxy->timerCallback())
-        // This is the <a href="javascript:window.open('...')> case -> we let it
-        // through
+        if (eventOk)
+            return true;
+    } else if (activeProxy->inlineCode() && !activeProxy->timerCallback()) {
+        // This is the <a href="javascript:window.open('...')> case -> we let it through.
         return true;
+    }
 
-    // This is the <script>window.open(...)</script> case or a timer callback ->
-    // block it
+    // This is the <script>window.open(...)</script> case or a timer callback -> block it.
     return false;
 }
 
-void ScriptController::evaluateInNewContext(
-    const Vector<ScriptSourceCode>& sources) {
-  m_proxy->evaluateInNewContext(sources);
+void ScriptController::evaluateInNewContext(const Vector<ScriptSourceCode>& sources)
+{
+    m_proxy->evaluateInNewContext(sources);
 }
 
 // Evaluate a script file in the environment of this proxy.
 ScriptValue ScriptController::evaluate(const ScriptSourceCode& sourceCode)
 {
-    v8::HandleScope hs;
+    v8::HandleScope handleScope;
     v8::Handle<v8::Context> context = V8Proxy::GetContext(m_proxy->frame());
     if (context.IsEmpty())
         return ScriptValue();
 
     v8::Context::Scope scope(context);
-    v8::Local<v8::Value> obj = m_proxy->evaluate(sourceCode, NULL);
+    v8::Local<v8::Value> object = m_proxy->evaluate(sourceCode, 0);
 
-    if (obj.IsEmpty() || obj->IsUndefined())
+    if (object.IsEmpty() || object->IsUndefined())
         return ScriptValue();
 
-    return ScriptValue(obj);
+    return ScriptValue(object);
 }
 
-void ScriptController::disposeJSResult(v8::Persistent<v8::Value> result)
+void ScriptController::setEventHandlerLineNumber(int lineNumber)
 {
-    result.Dispose();
-    result.Clear();
+    m_proxy->setEventHandlerLineno(lineNumber);
 }
 
-void ScriptController::setEventHandlerLineNumber(int lineno)
+void ScriptController::finishedWithEvent(Event* event)
 {
-    m_proxy->setEventHandlerLineno(lineno);
+    m_proxy->finishedWithEvent(event);
 }
 
-void ScriptController::finishedWithEvent(Event* evt)
+// Create a V8 object with an interceptor of NPObjectPropertyGetter.
+void ScriptController::bindToWindowObject(Frame* frame, const String& key, NPObject* object)
 {
-    m_proxy->finishedWithEvent(evt);
-}
-
-// Create a V8 object with an interceptor of NPObjectPropertyGetter
-void ScriptController::BindToWindowObject(Frame* frame, const String& key, NPObject* object)
-{
-    v8::HandleScope handle_scope;
+    v8::HandleScope handleScope;
 
     v8::Handle<v8::Context> context = V8Proxy::GetContext(frame);
     if (context.IsEmpty())
@@ -263,30 +225,24 @@ void ScriptController::BindToWindowObject(Frame* frame, const String& key, NPObj
 
     v8::Context::Scope scope(context);
 
-    v8::Handle<v8::Object> value = CreateV8ObjectForNPObject(object, NULL);
+    v8::Handle<v8::Object> value = CreateV8ObjectForNPObject(object, 0);
 
-    // Attach to the global object
+    // Attach to the global object.
     v8::Handle<v8::Object> global = context->Global();
     global->Set(v8String(key), value);
 }
 
 void ScriptController::collectGarbage()
 {
-    v8::HandleScope hs;
+    v8::HandleScope handleScope;
     v8::Handle<v8::Context> context = V8Proxy::GetContext(m_proxy->frame());
     if (context.IsEmpty())
         return;
 
     v8::Context::Scope scope(context);
 
-    m_proxy->evaluate(ScriptSourceCode("if (window.gc) void(gc());"), NULL);
+    m_proxy->evaluate(ScriptSourceCode("if (window.gc) void(gc());"), 0);
 }
-
-NPRuntimeFunctions* ScriptController::functions()
-{
-    return &npruntime_functions;
-}
-
 
 bool ScriptController::haveInterpreter() const
 {
@@ -300,7 +256,7 @@ bool ScriptController::isEnabled() const
 
 PassScriptInstance ScriptController::createScriptInstanceForWidget(Widget* widget)
 {
-    ASSERT(widget != 0);
+    ASSERT(widget);
 
     if (widget->isFrameView())
         return 0;
@@ -314,29 +270,28 @@ PassScriptInstance ScriptController::createScriptInstanceForWidget(Widget* widge
     // NPObjects are treated differently than other objects wrapped by JS.
     // NPObjects can be created either by the browser (e.g. the main
     // window object) or by the plugin (the main plugin object
-    // for a HTMLEmbedElement).  Further,
-    // unlike most DOM Objects, the frame is especially careful to ensure
-    // NPObjects terminate at frame teardown because if a plugin leaks a
-    // reference, it could leak its objects (or the browser's objects).
+    // for a HTMLEmbedElement). Further, unlike most DOM Objects, the frame
+    // is especially careful to ensure NPObjects terminate at frame teardown because
+    // if a plugin leaks a reference, it could leak its objects (or the browser's objects).
     //
     // The Frame maintains a list of plugin objects (m_pluginObjects)
     // which it can use to quickly find the wrapped embed object.
     //
     // Inside the NPRuntime, we've added a few methods for registering
-    // wrapped NPObjects.  The purpose of the registration is because
+    // wrapped NPObjects. The purpose of the registration is because
     // javascript garbage collection is non-deterministic, yet we need to
-    // be able to tear down the plugin objects immediately.  When an object
-    // is registered, javascript can use it.  When the object is destroyed,
+    // be able to tear down the plugin objects immediately. When an object
+    // is registered, javascript can use it. When the object is destroyed,
     // or when the object's "owning" object is destroyed, the object will
     // be un-registered, and the javascript engine must not use it.
     //
     // Inside the javascript engine, the engine can keep a reference to the
-    // NPObject as part of its wrapper.  However, before accessing the object
+    // NPObject as part of its wrapper. However, before accessing the object
     // it must consult the NPN_Registry.
 
-    v8::Local<v8::Object> wrapper = CreateV8ObjectForNPObject(npObject, NULL);
+    v8::Local<v8::Object> wrapper = CreateV8ObjectForNPObject(npObject, 0);
 
-    // Track the plugin object.  We've been given a reference to the object.
+    // Track the plugin object. We've been given a reference to the object.
     m_pluginObjects.set(widget, npObject);
 
     return V8ScriptInstance::create(wrapper);
@@ -381,10 +336,10 @@ NPObject* ScriptController::windowScriptNPObject()
         // JavaScript is enabled, so there is a JavaScript window object.
         // Return an NPObject bound to the window object.
         m_windowScriptNPObject = createScriptObject(m_frame);
-        _NPN_RegisterObject(m_windowScriptNPObject, NULL);
+        _NPN_RegisterObject(m_windowScriptNPObject, 0);
     } else {
         // JavaScript is not enabled, so we cannot bind the NPObject to the
-        // JavaScript window object.  Instead, we create an NPObject of a
+        // JavaScript window object. Instead, we create an NPObject of a
         // different class, one which is not bound to a JavaScript object.
         m_windowScriptNPObject = createNoScriptObject();
     }
@@ -393,7 +348,7 @@ NPObject* ScriptController::windowScriptNPObject()
 
 NPObject* ScriptController::createScriptObjectForPluginElement(HTMLPlugInElement* plugin)
 {
-    // Can't create NPObjects when JavaScript is disabled
+    // Can't create NPObjects when JavaScript is disabled.
     if (!isEnabled())
         return createNoScriptObject();
 
@@ -430,4 +385,4 @@ void ScriptController::updateDocument()
     m_proxy->updateDocument();
 }
 
-}  // namespace WebCpre
+} // namespace WebCore

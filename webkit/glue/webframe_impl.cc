@@ -793,7 +793,7 @@ void WebFrameImpl::BindToWindowObject(const std::wstring& name,
 
   String key = webkit_glue::StdWStringToString(name);
 #if USE(V8)
-  frame_->script()->BindToWindowObject(frame_, key, object);
+  frame_->script()->bindToWindowObject(frame_, key, object);
 #endif
 
 #if USE(JSC)
