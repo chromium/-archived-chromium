@@ -113,6 +113,9 @@ class RenderWidgetHostViewGtk : public RenderWidgetHostView {
 
   // The cursor for the page. This is passed up from the renderer.
   WebCursor current_cursor_;
+
+  // Whether or not this widget is hidden.
+  bool is_hidden_;
 };
 
 #endif  // CHROME_BROWSER_RENDERER_HOST_RENDER_WIDGET_HOST_VIEW_GTK_H_

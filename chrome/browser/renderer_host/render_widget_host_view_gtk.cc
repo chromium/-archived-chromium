@@ -163,7 +163,8 @@ RenderWidgetHostViewGtk::RenderWidgetHostViewGtk(RenderWidgetHost* widget_host)
       popup_signal_id_(0),
       activatable_(true),
       about_to_validate_and_paint_(false),
-      is_loading_(false) {
+      is_loading_(false),
+      is_hidden_(false) {
   host_->set_view(this);
 }
 
@@ -205,13 +206,25 @@ void RenderWidgetHostViewGtk::InitAsPopup(
 }
 
 void RenderWidgetHostViewGtk::DidBecomeSelected() {
-  // This is involved in calling WasRestored() on the RWH, which looks
-  // important.
-  // http://code.google.com/p/chromium/issues/detail?id=11977
+  if (!is_hidden_)
+    return;
+
+  is_hidden_ = false;
+  host_->WasRestored();
 }
 
 void RenderWidgetHostViewGtk::WasHidden() {
-  NOTIMPLEMENTED();
+  if (is_hidden_)
+    return;
+
+  // If we receive any more paint messages while we are hidden, we want to
+  // ignore them so we don't re-allocate the backing store.  We will paint
+  // everything again when we become selected again.
+  is_hidden_ = true;
+
+  // If we have a renderer, then inform it that we are being hidden so it can
+  // reduce its resource utilization.
+  GetRenderWidgetHost()->WasHidden();
 }
 
 void RenderWidgetHostViewGtk::SetSize(const gfx::Size& size) {
@@ -289,6 +302,9 @@ void RenderWidgetHostViewGtk::IMEUpdateStatus(int control,
 }
 
 void RenderWidgetHostViewGtk::DidPaintRect(const gfx::Rect& rect) {
+  if (is_hidden_)
+    return;
+
   if (about_to_validate_and_paint_)
     invalid_rect_ = invalid_rect_.Union(rect);
   else
@@ -297,6 +313,9 @@ void RenderWidgetHostViewGtk::DidPaintRect(const gfx::Rect& rect) {
 
 void RenderWidgetHostViewGtk::DidScrollRect(const gfx::Rect& rect, int dx,
                                             int dy) {
+  if (is_hidden_)
+    return;
+
   Paint(rect);
 }
 
