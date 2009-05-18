@@ -606,6 +606,8 @@
         'browser/cert_store.h',
         'browser/character_encoding.cc',
         'browser/character_encoding.h',
+        'browser/child_process_security_policy.cc',
+        'browser/child_process_security_policy.h',
         'browser/chrome_plugin_browsing_context.cc',
         'browser/chrome_plugin_browsing_context.h',
         'browser/chrome_plugin_host.cc',
@@ -1127,8 +1129,6 @@
         'browser/renderer_host/render_widget_host_view_mac.mm',
         'browser/renderer_host/render_widget_host_view_win.cc',
         'browser/renderer_host/render_widget_host_view_win.h',
-        'browser/renderer_host/renderer_security_policy.cc',
-        'browser/renderer_host/renderer_security_policy.h',
         'browser/renderer_host/resource_dispatcher_host.cc',
         'browser/renderer_host/resource_dispatcher_host.h',
         'browser/renderer_host/resource_handler.h',
@@ -2657,6 +2657,7 @@
         'browser/debugger/devtools_remote_listen_socket_unittest.cc',
         'browser/debugger/devtools_remote_listen_socket_unittest.h',
         'browser/debugger/devtools_sanity_unittest.cc',
+        'browser/child_process_security_policy_unittest.cc',
         'browser/chrome_thread_unittest.cc',
         # It is safe to list */cocoa/* files in the "common" file list
         # without an explicit exclusion since gyp is smart enough to
@@ -2745,7 +2746,6 @@
         'browser/renderer_host/audio_renderer_host_unittest.cc',
         'browser/renderer_host/render_view_host_unittest.cc',
         'browser/renderer_host/render_widget_host_unittest.cc',
-        'browser/renderer_host/renderer_security_policy_unittest.cc',
         'browser/renderer_host/resource_dispatcher_host_unittest.cc',
         'browser/renderer_host/web_cache_manager_unittest.cc',
         'browser/rlz/rlz_unittest.cc',
