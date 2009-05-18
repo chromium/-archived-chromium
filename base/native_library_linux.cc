@@ -13,7 +13,7 @@ namespace base {
 
 // static
 NativeLibrary LoadNativeLibrary(const FilePath& library_path) {
-  void* dl = dlopen(library_path.value().c_str(), RTLD_LAZY);
+  void* dl = dlopen(library_path.value().c_str(), RTLD_LAZY|RTLD_DEEPBIND);
   if (!dl)
     NOTREACHED() << "dlopen failed: " << dlerror();
 
