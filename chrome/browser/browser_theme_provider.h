@@ -2,8 +2,12 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CHROME_BROWSER_THEME_PROVIDER_H_
-#define CHROME_BROWSER_THEME_PROVIDER_H_
+#ifndef CHROME_BROWSER_BROWSER_THEME_PROVIDER_H_
+#define CHROME_BROWSER_BROWSER_THEME_PROVIDER_H_
+
+#include <map>
+#include <string>
+#include <vector>
 
 #include "app/resource_bundle.h"
 #include "app/theme_provider.h"
@@ -15,10 +19,9 @@ class Extension;
 class Profile;
 class DictionaryValue;
 
-class BrowserThemeProvider :
-    public base::RefCounted<BrowserThemeProvider>,
-    public NonThreadSafe,
-    public ThemeProvider {
+class BrowserThemeProvider : public base::RefCounted<BrowserThemeProvider>,
+                             public NonThreadSafe,
+                             public ThemeProvider {
  public:
   BrowserThemeProvider();
   virtual ~BrowserThemeProvider();
@@ -109,10 +112,17 @@ class BrowserThemeProvider :
   // Load theme data from preferences.
   void LoadThemePrefs();
 
+  // Frees generated images and clears the image cache.
+  void FreeImages();
+
   // Cached images. We cache all retrieved and generated bitmaps and keep
   // track of the pointers.
   typedef std::map<int, SkBitmap*> ImageCache;
   ImageCache image_cache_;
+
+  // List of generate images that aren't stored in ResourceBundles image cache
+  // and need to be freed.
+  std::vector<SkBitmap*> generated_images_;
 
   ResourceBundle& rb_;
   Profile* profile_;
@@ -124,4 +134,4 @@ class BrowserThemeProvider :
   DISALLOW_COPY_AND_ASSIGN(BrowserThemeProvider);
 };
 
-#endif  // CHROME_BROWSER_THEME_PROVIDER_H_
+#endif  // CHROME_BROWSER_BROWSER_THEME_PROVIDER_H_

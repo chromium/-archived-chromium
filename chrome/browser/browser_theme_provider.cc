@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "browser_theme_provider.h"
+#include "chrome/browser/browser_theme_provider.h"
 
 #include "base/gfx/png_decoder.h"
 #include "base/string_util.h"
@@ -19,7 +19,7 @@
 #include "net/base/net_errors.h"
 #include "skia/ext/image_operations.h"
 #include "skia/ext/skia_utils.h"
-#include "SkBitmap.h"
+#include "third_party/skia/include/core/SkBitmap.h"
 
 // Strings used by themes to identify colors for different parts of our UI.
 static const char* kColorFrame = "frame";
@@ -105,7 +105,9 @@ BrowserThemeProvider::BrowserThemeProvider()
   }
 }
 
-BrowserThemeProvider::~BrowserThemeProvider() { }
+BrowserThemeProvider::~BrowserThemeProvider() {
+  FreeImages();
+}
 
 void BrowserThemeProvider::Init(Profile* profile) {
   DCHECK(CalledOnValidThread());
@@ -207,7 +209,7 @@ SkColor BrowserThemeProvider::GetColor(int id) {
 
 void BrowserThemeProvider::SetTheme(Extension* extension) {
   // Clear our image cache.
-  image_cache_.clear();
+  FreeImages();
 
   DCHECK(extension);
   DCHECK(extension->IsTheme());
@@ -228,7 +230,7 @@ void BrowserThemeProvider::SetTheme(Extension* extension) {
 
 void BrowserThemeProvider::UseDefaultTheme() {
   // Clear our image cache.
-  image_cache_.clear();
+  FreeImages();
 
   images_.clear();
   colors_.clear();
@@ -461,6 +463,7 @@ SkBitmap* BrowserThemeProvider::GenerateBitmap(int id) {
           skia::ImageOperations::CreateBlurredBitmap(*frame, 5);
       SkBitmap* bg_tab =
           new SkBitmap(TintBitmap(blurred, TINT_BACKGROUND_TAB));
+      generated_images_.push_back(bg_tab);
       return bg_tab;
     }
   }
@@ -555,4 +558,13 @@ void BrowserThemeProvider::SaveTintData() {
       ++iter;
     }
   }
+}
+
+void BrowserThemeProvider::FreeImages() {
+  for (std::vector<SkBitmap*>::iterator i = generated_images_.begin();
+       i != generated_images_.end(); i++) {
+    delete *i;
+  }
+  generated_images_.clear();
+  image_cache_.clear();
 }
