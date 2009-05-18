@@ -7,11 +7,11 @@
 
 #include "build/build_config.h"
 
-#include <string>
-
 #ifdef OS_WIN
 #include <windows.h>
 #endif
+
+#include <string>
 
 #include "base/basictypes.h"
 
@@ -39,7 +39,8 @@ bool FileURLToFilePath(const GURL& url, FilePath* file_path);
 // Saves the result into |*host| and |*port|. If the input did not have
 // the optional port, sets |*port| to -1.
 // Returns true if the parsing was successful, false otherwise.
-// The returned host is NOT canonicalized, and may be invalid.
+// The returned host is NOT canonicalized, and may be invalid. If <host> is
+// an IPv6 literal address, the returned host includes the square brackets.
 bool GetHostAndPort(std::string::const_iterator host_and_port_begin,
                     std::string::const_iterator host_and_port_end,
                     std::string* host,

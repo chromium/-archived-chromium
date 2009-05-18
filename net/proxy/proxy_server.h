@@ -29,6 +29,8 @@ class ProxyServer {
   // Constructs an invalid ProxyServer.
   ProxyServer() : scheme_(SCHEME_INVALID), port_(-1) {}
 
+  // If |host| is an IPv6 literal address, it must include the square
+  // brackets.
   ProxyServer(Scheme scheme, const std::string& host, int port)
       : scheme_(scheme), host_(host), port_(port) {}
 
