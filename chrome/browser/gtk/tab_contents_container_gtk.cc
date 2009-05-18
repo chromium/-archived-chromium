@@ -28,7 +28,7 @@ void TabContentsContainerGtk::SetTabContents(TabContents* tab_contents) {
   if (tab_contents_) {
     gfx::NativeView widget = tab_contents_->GetNativeView();
     if (widget)
-      gtk_container_remove(GTK_CONTAINER(vbox_), widget);
+      gtk_widget_hide(widget);
 
     tab_contents_->WasHidden();
 
@@ -44,9 +44,12 @@ void TabContentsContainerGtk::SetTabContents(TabContents* tab_contents) {
 
     gfx::NativeView widget = tab_contents_->GetNativeView();
     if (widget) {
-      gtk_box_pack_end(GTK_BOX(vbox_), widget, TRUE, TRUE, 0);
+      // Pack it into |vbox_| if it isn't already.
+      if (widget->parent != vbox_)
+        gtk_box_pack_end(GTK_BOX(vbox_), widget, TRUE, TRUE, 0);
       gtk_widget_show(widget);
     }
+
     // We need to make sure that we are below the findbar.
     // Sometimes the content native view will be null.
     // TODO(estade): will this case ever cause findbar occlusion problems?
@@ -56,6 +59,14 @@ void TabContentsContainerGtk::SetTabContents(TabContents* tab_contents) {
       if (content_gdk_window)
         gdk_window_lower(content_gdk_window);
     }
+  }
+}
+
+void TabContentsContainerGtk::DetachTabContents(TabContents* tab_contents) {
+  gfx::NativeView widget = tab_contents_->GetNativeView();
+  if (widget) {
+    DCHECK_EQ(widget->parent, vbox_);
+    gtk_container_remove(GTK_CONTAINER(vbox_), widget);
   }
 }
 

@@ -619,10 +619,9 @@ void BrowserWindowGtk::TabDetachedAt(TabContents* contents, int index) {
   // We use index here rather than comparing |contents| because by this time
   // the model has already removed |contents| from its list, so
   // browser_->GetSelectedTabContents() will return NULL or something else.
-  if (index == browser_->tabstrip_model()->selected_index()) {
+  if (index == browser_->tabstrip_model()->selected_index())
     infobar_container_->ChangeTabContents(NULL);
-    contents_container_->SetTabContents(NULL);
-  }
+  contents_container_->DetachTabContents(contents);
 }
 
 // TODO(estade): this function should probably be unforked from the BrowserView

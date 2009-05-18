@@ -25,6 +25,9 @@ class TabContentsContainerGtk : public NotificationObserver {
   void SetTabContents(TabContents* tab_contents);
   TabContents* GetTabContents() const { return tab_contents_; }
 
+  // Remove the tab from the hierarchy.
+  void DetachTabContents(TabContents* tab_contents);
+
   // NotificationObserver implementation.
   virtual void Observe(NotificationType type,
                        const NotificationSource& source,
