@@ -21,11 +21,20 @@ set -e
 TOP="${SRCROOT}/.."
 PKG_DMG="${TOP}/build/mac/pkg-dmg"
 
-APP_NAME=$1
+BUILD_BRANDING=$1
+if [ "${BUILD_BRANDING}" == "Chromium" ]; then
+  APP_NAME="Chromium"
+  DMG_NAME="Chromium.dmg"
+elif [ "${BUILD_BRANDING}" == "Chrome" ]; then
+  APP_NAME="Google Chrome"
+  DMG_NAME="GoogleChrome.dmg"
+else
+  echo "error: unknown branding: ${BUILD_BRANDING}" >&2
+  exit 1
+fi
+
 SRC_APP_PATH="${BUILT_PRODUCTS_DIR}/${APP_NAME}.app"
 VOL_NAME="${APP_NAME}"
-# Do we want a svn version in the DMG name?
-DMG_NAME="${APP_NAME}.dmg"
 DST_DMG_PATH="${BUILT_PRODUCTS_DIR}/${DMG_NAME}"
 
 # show things as we run them

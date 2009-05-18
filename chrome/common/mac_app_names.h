@@ -6,7 +6,7 @@
 #define CHROME_COMMON_MAC_APP_NAMES_H_
 
 #if defined(GOOGLE_CHROME_BUILD)
-#define MAC_BROWSER_APP_NAME "Chrome.app"
+#define MAC_BROWSER_APP_NAME "Google Chrome.app"
 #elif defined(CHROMIUM_BUILD)
 #define MAC_BROWSER_APP_NAME "Chromium.app"
 #else

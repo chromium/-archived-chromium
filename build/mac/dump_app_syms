@@ -19,10 +19,17 @@ fi
 
 TOP="${SRCROOT}/.."
 BUILD_BRANDING=$1
+if [ "${BUILD_BRANDING}" == "Chromium" ]; then
+  SRC_APP_NAME="Chromium"
+elif [ "${BUILD_BRANDING}" == "Chrome" ]; then
+  SRC_APP_NAME="Google Chrome"
+else
+  echo "error: unknown branding: ${BUILD_BRANDING}" >&2
+  exit 1
+fi
 
 . "${TOP}/chrome/VERSION"
 
-SRC_APP_NAME="${BUILD_BRANDING}"
 BREAKPAD_DUMP_SYMS="${BUILT_PRODUCTS_DIR}/dump_syms"
 BREAKPAD_PRODUCT_ID="${BUILD_BRANDING}_Mac"
 FULL_VERSION="${MAJOR}.${MINOR}.${BUILD}.${PATCH}"

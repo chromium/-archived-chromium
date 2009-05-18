@@ -54,7 +54,15 @@ fi
 
 TOP="${SRCROOT}/.."
 BUILD_BRANDING=$1
-SRC_APP_PATH="${BUILT_PRODUCTS_DIR}/${BUILD_BRANDING}.app"
+if [ "${BUILD_BRANDING}" == "Chromium" ]; then
+  APP_NAME="Chromium"
+elif [ "${BUILD_BRANDING}" == "Chrome" ]; then
+  APP_NAME="Google Chrome"
+else
+  echo "error: unknown branding: ${BUILD_BRANDING}" >&2
+  exit 1
+fi
+SRC_APP_PATH="${BUILT_PRODUCTS_DIR}/${APP_NAME}.app"
 
 set -x
 
@@ -85,7 +93,7 @@ COPYRIGHT_STRING=$(sed -n -e 's/^COPYRIGHT=\(.*\)$/\1/p' "${BRANDING_FILE}")
 COPYRIGHT_STRING=$(echo "${COPYRIGHT_STRING}" | sed -e $'s/([cC])/\302\251/g')
 
 # Build the full copyright string
-LONG_COPYRIGHT="${BUILD_BRANDING} ${FULL_VERSION}, ${COPYRIGHT_STRING}"
+LONG_COPYRIGHT="${APP_NAME} ${FULL_VERSION}, ${COPYRIGHT_STRING}"
 
 # I really hate how "defaults" doesn't take a real pathname but instead insists
 # on appending ".plist" to everything.

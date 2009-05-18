@@ -1958,10 +1958,6 @@
         ['OS=="mac"', {
           # 'branding' is a variable defined in common.gypi
           # (e.g. "Chromium", "Chrome")
-          # NOTE: chrome/app/theme/chromium/BRANDING and
-          # chrome/app/theme/google_chrome/BRANDING have the short names, etc.;
-          # should we try to extract from there instead?
-          'product_name': '<(branding)',
           'conditions': [
             ['branding=="Chrome"', {
               'mac_bundle_resources': ['app/theme/google_chrome/app.icns'],
@@ -1983,7 +1979,7 @@
               ],
               'copies': [
                 {
-                  'destination': '<(PRODUCT_DIR)/<(branding).app/Contents/Resources/',
+                  'destination': '<(PRODUCT_DIR)/<(mac_product_name).app/Contents/Resources/',
                   'files': ['<(PRODUCT_DIR)/crash_inspector', '<(PRODUCT_DIR)/crash_report_sender.app'],
                 },
               ],
@@ -2004,11 +2000,15 @@
               ],
             }], # mac_breakpad
           ],
+          'product_name': '<(mac_product_name)',
           'xcode_settings': {
-            # chrome/app/app-Info.plist has a CFBundleIdentifier of
-            # CHROMIUM_BUNDLE_ID to be replaced by a branded bundle ID in Xcode
-            # with this settings.
+            # chrome/app/app-Info.plist has:
+            #   CFBundleIdentifier of CHROMIUM_BUNDLE_ID
+            #   CFBundleName of CHROMIUM_SHORT_NAME
+            # Xcode then replaces these values with the branded values we set
+            # as settings on the target.
             'CHROMIUM_BUNDLE_ID': '<(bundle_id)',
+            'CHROMIUM_SHORT_NAME': '<(branding)',
           },
         }, { # else: OS != "mac"
           'conditions': [
@@ -2992,15 +2992,24 @@
     },
   ],
   'conditions': [
-    # We set a few feature variables so the different parts that need to check
-    # for the mac build, check that flag instead of coding it based on branding.
+    # We set a feature variable so the different parts that need to check for
+    # the mac build use of breakpad, check that flag instead of coding it based
+    # on branding.
+    # We need the Mac app name on disk, so we stick this into a variable so
+    # the different places that need it can use the common variable.
+    # NOTE: chrome/app/theme/chromium/BRANDING and
+    # chrome/app/theme/google_chrome/BRANDING have the short names, etc.;
+    # but extracting from there still means xcodeproject are out of date until
+    # the next project regeneration.
     ['OS=="mac" and branding=="Chrome"', {
       'variables': {
-        'mac_breakpad%': 1
+        'mac_breakpad%': 1,
+        'mac_product_name%': 'Google Chrome',
       }
     }, {
       'variables': {
-        'mac_breakpad%': 0
+        'mac_breakpad%': 0,
+        'mac_product_name%': 'Chromium',
       }
     }],
     ['OS=="linux"', {
