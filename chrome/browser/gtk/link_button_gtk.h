@@ -17,6 +17,8 @@ class LinkButtonGtk {
 
   GtkWidget* widget() { return widget_.get(); }
 
+  GtkWidget* label() { return label_; }
+
  private:
   // Called when the pointer enters or leaves the button.
   static gboolean OnEnter(GtkWidget* widget, LinkButtonGtk* link_button);

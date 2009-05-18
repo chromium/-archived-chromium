@@ -18,6 +18,7 @@
 #include "chrome/browser/gtk/download_shelf_gtk.h"
 #include "chrome/browser/gtk/menu_gtk.h"
 #include "chrome/browser/gtk/nine_box.h"
+#include "chrome/common/gtk_util.h"
 #include "grit/generated_resources.h"
 #include "grit/theme_resources.h"
 
@@ -181,6 +182,9 @@ DownloadItemGtk::DownloadItemGtk(DownloadShelfGtk* parent_shelf,
   // Left align and vertically center the labels.
   gtk_misc_set_alignment(GTK_MISC(name_label_), 0, 0.5);
   gtk_misc_set_alignment(GTK_MISC(status_label_), 0, 0.5);
+  // Until we switch to vector graphics, force the font size.
+  gtk_util::ForceFontSizePixels(name_label_, 13.4); // 13.4px == 10pt @ 96dpi
+  gtk_util::ForceFontSizePixels(status_label_, 13.4); // 13.4px == 10pt @ 96dpi
 
   // Stack the labels on top of one another.
   GtkWidget* text_stack = gtk_vbox_new(FALSE, 0);

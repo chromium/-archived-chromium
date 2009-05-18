@@ -167,6 +167,9 @@ void FindBarGtk::InitWidgets() {
   // font size.
   gtk_widget_set_size_request(text_entry_, -1, 20);
   gtk_entry_set_has_frame(GTK_ENTRY(text_entry_), FALSE);
+  // Until we switch to vector graphics, force the font size.
+  gtk_util::ForceFontSizePixels(text_entry_, 13.4);  // 13.4px == 10pt @ 96dpi
+  gtk_util::ForceFontSizePixels(match_count_label_, 13.4);
 
   gtk_box_pack_end(GTK_BOX(content_hbox), match_count_label_, FALSE, FALSE, 0);
   gtk_box_pack_end(GTK_BOX(content_hbox), text_entry_, TRUE, TRUE, 0);

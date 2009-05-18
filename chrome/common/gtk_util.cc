@@ -7,6 +7,7 @@
 #include <gtk/gtk.h>
 
 #include "base/linux_util.h"
+#include "base/logging.h"
 #include "third_party/skia/include/core/SkBitmap.h"
 
 namespace {
@@ -52,6 +53,16 @@ GtkWidget* CreateGtkBorderBin(GtkWidget* child, const GdkColor* color,
 
 void RemoveAllChildren(GtkWidget* container) {
   gtk_container_foreach(GTK_CONTAINER(container), RemoveWidget, container);
+}
+
+void ForceFontSizePixels(GtkWidget* widget, double size_pixels) {
+  GtkStyle* style = widget->style;
+  PangoFontDescription* font_desc = style->font_desc;
+  // pango_font_description_set_absolute_size sets the font size in device
+  // units, which for us is pixels.
+  pango_font_description_set_absolute_size(font_desc,
+                                           PANGO_SCALE * size_pixels);
+  gtk_widget_modify_font(widget, font_desc);
 }
 
 gfx::Point GetWidgetScreenPosition(GtkWidget* widget) {

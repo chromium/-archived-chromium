@@ -600,7 +600,9 @@ void TabRendererGtk::InitResources() {
   LoadTabImages();
 
   ResourceBundle& rb = ResourceBundle::GetSharedInstance();
-  title_font_ = new gfx::Font(rb.GetFont(ResourceBundle::BaseFont));
+  // Force the font size to 10pt.
+  gfx::Font base_font = rb.GetFont(ResourceBundle::BaseFont);
+  title_font_ = new gfx::Font(gfx::Font::CreateFont(base_font.FontName(), 10));
   title_font_height_ = title_font_->height();
 
   InitializeLoadingAnimationData(&rb, &loading_animation_data);

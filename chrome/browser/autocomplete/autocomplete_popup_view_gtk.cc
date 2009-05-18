@@ -248,7 +248,9 @@ AutocompletePopupViewGtk::AutocompletePopupViewGtk(
   // TODO(deanm): We might want to eventually follow what Windows does and
   // plumb a gfx::Font through.  This is because popup windows have a
   // different font size, although we could just derive that font here.
-  PangoFontDescription* pfd = PangoFontFromGfxFont(gfx::Font());
+  // For now, force the font size to 10pt.
+  gfx::Font font = gfx::Font::CreateFont(gfx::Font().FontName(), 10);
+  PangoFontDescription* pfd = PangoFontFromGfxFont(font);
   pango_layout_set_font_description(layout_, pfd);
   pango_font_description_free(pfd);
 

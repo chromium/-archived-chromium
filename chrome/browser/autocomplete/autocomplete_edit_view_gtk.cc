@@ -16,6 +16,7 @@
 #include "chrome/browser/gtk/location_bar_view_gtk.h"
 #include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/browser/toolbar_model.h"
+#include "chrome/common/gtk_util.h"
 #include "chrome/common/notification_service.h"
 #include "googleurl/src/gurl.h"
 
@@ -86,6 +87,8 @@ void AutocompleteEditViewGtk::Init() {
   tag_table_ = gtk_text_tag_table_new();
   text_buffer_ = gtk_text_buffer_new(tag_table_);
   text_view_ = gtk_text_view_new_with_buffer(text_buffer_);
+  // Until we switch to vector graphics, force the font size.
+  gtk_util::ForceFontSizePixels(text_view_, 13.4); // 13.4px == 10pt @ 96dpi
 
   // The text view was floating.  It will now be owned by the alignment.
   gtk_container_add(GTK_CONTAINER(alignment_.get()), text_view_);

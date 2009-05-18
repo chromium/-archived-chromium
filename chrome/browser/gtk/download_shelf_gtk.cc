@@ -14,6 +14,7 @@
 #include "chrome/browser/gtk/link_button_gtk.h"
 #include "chrome/browser/gtk/slide_animator_gtk.h"
 #include "chrome/browser/tab_contents/tab_contents.h"
+#include "chrome/common/gtk_util.h"
 #include "grit/generated_resources.h"
 #include "grit/theme_resources.h"
 
@@ -96,6 +97,9 @@ DownloadShelfGtk::DownloadShelfGtk(TabContents* tab_contents)
   link_button_.reset(new LinkButtonGtk(link_text.c_str()));
   g_signal_connect(link_button_->widget(), "clicked",
                    G_CALLBACK(OnButtonClick), this);
+  // Until we switch to vector graphics, force the font size.
+  // 13.4px == 10pt @ 96dpi
+  gtk_util::ForceFontSizePixels(link_button_->label(), 13.4);
 
   // Make the download arrow icon.
   ResourceBundle& rb = ResourceBundle::GetSharedInstance();

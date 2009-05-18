@@ -32,6 +32,9 @@ GtkWidget* CreateGtkBorderBin(GtkWidget* child, const GdkColor* color,
 // Remove all children from this container.
 void RemoveAllChildren(GtkWidget* container);
 
+// Force the font size of the widget to |size_pixels|.
+void ForceFontSizePixels(GtkWidget* widget, double size_pixels);
+
 // Gets the position of a gtk widget in screen coordinates.
 gfx::Point GetWidgetScreenPosition(GtkWidget* widget);
 
