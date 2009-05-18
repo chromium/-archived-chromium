@@ -27,7 +27,8 @@ NSString* const kUserDoneEditingPrefsNotification =
 
 namespace {
 std::wstring GetNewTabUIURLString() {
-  return UTF8ToWide(chrome::kChromeUINewTabURL);
+  std::wstring temp = UTF8ToWide(chrome::kChromeUINewTabURL);
+  return URLFixerUpper::FixupURL(temp, std::wstring());
 }
 }  // namespace
 
@@ -313,6 +314,8 @@ enum { kHomepageNewTabPage, kHomepageURL };
   // If the text field contains a valid URL, sync it to prefs. We run it
   // through the fixer upper to allow input like "google.com" to be converted
   // to something valid ("http://google.com").
+  if (!urlString)
+    urlString = [NSString stringWithFormat:@"%s", chrome::kChromeUINewTabURL];
   std::wstring temp = base::SysNSStringToWide(urlString);
   std::wstring fixedString = URLFixerUpper::FixupURL(temp, std::wstring());
   if (GURL(WideToUTF8(fixedString)).is_valid())
