@@ -2598,7 +2598,6 @@ BUG11613 MAC : LayoutTests/fast/forms/text-control-intrinsic-widths.html = FAIL
 BUG11613 MAC : LayoutTests/http/tests/security/cross-frame-access-call.html = FAIL
 BUG11613 WIN : LayoutTests/http/tests/navigation/anchor-frames.html = FAIL
 BUG11613 WIN : LayoutTests/http/tests/navigation/javascriptlink-frames.html = FAIL
-BUG11613 WIN : LayoutTests/http/tests/navigation/relativeanchor-frames.html = FAIL
 
 // These tests were broken by skia r171:
 // These ones seem to be mask/opacity-related:
@@ -2651,8 +2650,6 @@ BUG11909 : LayoutTests/http/tests/navigation/new-window-redirect-history.html = 
 BUG11909 : LayoutTests/http/tests/security/aboutBlank/security-context-grandchildren-lexical.html = FAIL
 BUG11909 : LayoutTests/http/tests/security/aboutBlank/security-context-grandchildren-write-lexical.html = FAIL
 BUG11909 : LayoutTests/http/tests/security/aboutBlank/security-context-grandchildren-writeln-lexical.html = FAIL
-
-BUG11924 WIN : LayoutTests/http/tests/navigation/relativeanchor-basic.html = FAIL
 
 BUG11933 LINUX : LayoutTests/fast/frames/content-opacity-1.html = FAIL
 BUG11933 LINUX : LayoutTests/fast/frames/content-opacity-2.html = FAIL

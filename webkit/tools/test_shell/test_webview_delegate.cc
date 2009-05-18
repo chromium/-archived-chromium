@@ -794,17 +794,6 @@ void TestWebViewDelegate::LocationChangeDone(WebFrame* frame) {
   if (frame == top_loading_frame_) {
     top_loading_frame_ = NULL;
 
-    // It is important to update the content state for the current navigation
-    // entry in case we are done with the test and need to dump the back/
-    // forward list.
-    std::string state;
-    if (shell_->webView()->GetMainFrame()->GetCurrentHistoryState(&state)) {
-      TestNavigationEntry* entry =
-          shell_->navigation_controller()->GetLastCommittedEntry();
-      if (entry)
-        entry->SetContentState(state);
-    }
-
     if (shell_->layout_test_mode())
       shell_->layout_test_controller()->LocationChangeDone();
   }
@@ -863,6 +852,10 @@ void TestWebViewDelegate::UpdateURL(WebFrame* frame) {
   } else {
     entry->SetURL(GURL(request.GetURL()));
   }
+
+  std::string state;
+  if (frame->GetCurrentHistoryState(&state))
+    entry->SetContentState(state);
 
   shell_->navigation_controller()->DidNavigateToEntry(entry.release());
 
