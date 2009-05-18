@@ -31,7 +31,8 @@ class PowerTest : public base::SystemMonitor::PowerObserver {
   int resumes_;  // Count of OnResume notifications.
 };
 
-TEST(SystemMonitor, PowerNotifications) {
+// Disabled as a temporary workaround for http://crbug.com/12187
+TEST(SystemMonitor, DISABLED_PowerNotifications) {
   const int kObservers = 5;
 
   // Initialize a message loop for this to run on.
