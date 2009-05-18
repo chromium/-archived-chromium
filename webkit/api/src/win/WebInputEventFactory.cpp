@@ -170,7 +170,7 @@ WebMouseEvent WebInputEventFactory::mouseEvent(HWND hwnd, UINT message,
         else if (wparam & MK_MBUTTON)
             result.button = WebMouseEvent::ButtonMiddle;
         else if (wparam & MK_RBUTTON)
-            result.button = WebMouseEvent::ButtonMiddle;
+            result.button = WebMouseEvent::ButtonRight;
         else
             result.button = WebMouseEvent::ButtonNone;
         break;
