@@ -100,16 +100,13 @@ class TabGtk::ContextMenuController : public MenuGtk::Delegate {
 TabGtk::TabGtk(TabDelegate* delegate)
     : TabRendererGtk(),
       delegate_(delegate),
-      closing_(false) {
+      closing_(false),
+      dragging_(false) {
   event_box_.Own(gtk_event_box_new());
   gtk_event_box_set_visible_window(GTK_EVENT_BOX(event_box_.get()), FALSE);
   gtk_drag_source_set(event_box_.get(), GDK_BUTTON1_MASK,
                       target_table, G_N_ELEMENTS(target_table),
                       GDK_ACTION_MOVE);
-  gtk_drag_dest_set(event_box_.get(), GTK_DEST_DEFAULT_DROP,
-                    target_table, G_N_ELEMENTS(target_table),
-                    GDK_ACTION_MOVE);
-  gtk_drag_dest_set_track_motion(event_box_.get(), true);
   g_signal_connect(G_OBJECT(event_box_.get()), "button-press-event",
                    G_CALLBACK(OnMousePress), this);
   g_signal_connect(G_OBJECT(event_box_.get()), "button-release-event",
@@ -119,13 +116,11 @@ TabGtk::TabGtk(TabDelegate* delegate)
   g_signal_connect(G_OBJECT(event_box_.get()), "leave-notify-event",
                    G_CALLBACK(OnLeaveNotify), this);
   g_signal_connect_after(G_OBJECT(event_box_.get()), "drag-begin",
-                           G_CALLBACK(&OnDragBegin), this);
+                           G_CALLBACK(OnDragBegin), this);
   g_signal_connect_after(G_OBJECT(event_box_.get()), "drag-end",
-                         G_CALLBACK(&OnDragEnd), this);
+                         G_CALLBACK(OnDragEnd), this);
   g_signal_connect_after(G_OBJECT(event_box_.get()), "drag-failed",
-                           G_CALLBACK(&OnDragFailed), this);
-  g_signal_connect_after(G_OBJECT(event_box_.get()), "drag-motion",
-                         G_CALLBACK(&OnDragMotion), this);
+                           G_CALLBACK(OnDragFailed), this);
   gtk_widget_add_events(event_box_.get(),
         GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK |
         GDK_LEAVE_NOTIFY_MASK | GDK_LEAVE_NOTIFY_MASK);
@@ -145,6 +140,17 @@ TabGtk::~TabGtk() {
   }
 
   event_box_.Destroy();
+}
+
+// static
+void TabGtk::GdkEventHandler(GdkEvent* event, void* data) {
+  TabGtk* tab = static_cast<TabGtk*>(data);
+
+  if (event->type == GDK_MOTION_NOTIFY && tab && tab->dragging_) {
+    tab->delegate_->ContinueDrag(NULL);
+  }
+
+  gtk_main_do_event(event);
 }
 
 // static
@@ -192,17 +198,29 @@ gboolean TabGtk::OnLeaveNotify(GtkWidget* widget, GdkEventCrossing* event,
 // static
 void TabGtk::OnDragBegin(GtkWidget* widget, GdkDragContext* context,
                          TabGtk* tab) {
+  gdk_event_handler_set(TabGtk::GdkEventHandler, tab, NULL);
+
   int x, y;
   gdk_window_get_pointer(tab->event_box_.get()->window, &x, &y, NULL);
+
+  // Make the mouse coordinate relative to the tab.
+  x -= tab->bounds().x();
+  y -= tab->bounds().y();
+
+  tab->dragging_ = true;
   tab->delegate_->MaybeStartDrag(tab, gfx::Point(x, y));
 }
 
 // static
 void TabGtk::OnDragEnd(GtkWidget* widget, GdkDragContext* context,
                        TabGtk* tab) {
+  tab->dragging_ = false;
   // Notify the drag helper that we're done with any potential drag operations.
   // Clean up the drag helper, which is re-created on the next mouse press.
   tab->delegate_->EndDrag(false);
+
+  // Reset the user data pointer for our event handler.
+  gdk_event_handler_set(TabGtk::GdkEventHandler, NULL, NULL);
 }
 
 // static
@@ -219,7 +237,7 @@ gboolean TabGtk::OnDragMotion(GtkWidget* widget,
 gboolean TabGtk::OnDragFailed(GtkWidget* widget, GdkDragContext* context,
                               GtkDragResult result,
                               TabGtk* tab) {
-  tab->delegate_->EndDrag(true);
+  tab->delegate_->EndDrag(false);
   return TRUE;
 }
 
@@ -228,6 +246,18 @@ gboolean TabGtk::OnDragFailed(GtkWidget* widget, GdkDragContext* context,
 
 bool TabGtk::IsSelected() const {
   return delegate_->IsTabSelected(this);
+}
+
+bool TabGtk::IsVisible() const {
+  return GTK_WIDGET_FLAGS(event_box_.get()) & GTK_VISIBLE;
+}
+
+void TabGtk::SetVisible(bool visible) const {
+  if (visible) {
+    gtk_widget_show(event_box_.get());
+  } else {
+    gtk_widget_hide(event_box_.get());
+  }
 }
 
 void TabGtk::CloseButtonResized(const gfx::Rect& bounds) {

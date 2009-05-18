@@ -125,11 +125,6 @@ void TabRendererGtk::LoadingAnimation::ValidateLoadingAnimation(
   }
 }
 
-bool TabRendererGtk::IsVisible() {
-  // TODO(jhawkins): Implement this and SetVisible.
-  return true;
-}
-
 ////////////////////////////////////////////////////////////////////////////////
 // TabRendererGtk, public:
 
@@ -181,6 +176,18 @@ void TabRendererGtk::UpdateFromModel() {
 
 bool TabRendererGtk::IsSelected() const {
   return true;
+}
+
+bool TabRendererGtk::IsVisible() const {
+  return GTK_WIDGET_FLAGS(tab_.get()) & GTK_VISIBLE;
+}
+
+void TabRendererGtk::SetVisible(bool visible) const {
+  if (visible) {
+    gtk_widget_show(tab_.get());
+  } else {
+    gtk_widget_hide(tab_.get());
+  }
 }
 
 void TabRendererGtk::CloseButtonResized(const gfx::Rect& bounds) {
@@ -335,6 +342,10 @@ void TabRendererGtk::Paint(GdkEventExpose* event) {
   canvas.DrawStringInt(title, *title_font_, title_color, title_bounds_.x(),
                        title_bounds_.y(), title_bounds_.width(),
                        title_bounds_.height());
+}
+
+void TabRendererGtk::SchedulePaint() {
+  gtk_widget_queue_draw(tab_.get());
 }
 
 void TabRendererGtk::Layout() {

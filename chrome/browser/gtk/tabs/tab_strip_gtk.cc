@@ -859,6 +859,7 @@ void TabStripGtk::GetDesiredTabWidths(int tab_count,
       (static_cast<double>(available_width - total_offset) /
        static_cast<double>(tab_count)),
       static_cast<double>(TabGtk::GetStandardSize().width()));
+
   *unselected_width = std::max(desired_tab_width, min_unselected_width);
   *selected_width = std::max(desired_tab_width, min_selected_width);
 

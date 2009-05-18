@@ -4,9 +4,11 @@
 
 #include "chrome/browser/gtk/tabs/dragged_tab_controller_gtk.h"
 
+#include "chrome/browser/gtk/tabs/dragged_tab_gtk.h"
 #include "chrome/browser/gtk/tabs/tab_strip_gtk.h"
 #include "chrome/browser/tabs/tab_strip_model.h"
 #include "chrome/browser/tab_contents/tab_contents.h"
+#include "chrome/common/gtk_util.h"
 #include "chrome/common/notification_service.h"
 
 namespace {
@@ -25,22 +27,41 @@ DraggedTabControllerGtk::DraggedTabControllerGtk(TabGtk* source_tab,
       source_tabstrip_(source_tabstrip),
       source_model_index_(source_tabstrip->GetIndexOfTab(source_tab)),
       attached_tabstrip_(source_tabstrip),
+      in_destructor_(false),
       last_move_screen_x_(0) {
   SetDraggedContents(
       source_tabstrip_->model()->GetTabContentsAt(source_model_index_));
 }
 
 DraggedTabControllerGtk::~DraggedTabControllerGtk() {
+  in_destructor_ = true;
+  // Need to delete the dragged tab here manually _before_ we reset the dragged
+  // contents to NULL, otherwise if the view is animating to its destination
+  // bounds, it won't be able to clean up properly since its cleanup routine
+  // uses GetIndexForDraggedContents, which will be invalid.
+  dragged_tab_.reset();
+  SetDraggedContents(NULL);
 }
 
 void DraggedTabControllerGtk::CaptureDragInfo(const gfx::Point& mouse_offset) {
   start_screen_point_ = GetCursorScreenPoint();
   mouse_offset_ = mouse_offset;
-  snap_bounds_ = source_tab_->bounds();
 }
 
 void DraggedTabControllerGtk::Drag() {
-  ContinueDragging();
+  if (!source_tab_)
+    return;
+
+  // Before we get to dragging anywhere, ensure that we consider ourselves
+  // attached to the source tabstrip.
+  if (source_tab_->IsVisible()) {
+    Attach(source_tabstrip_, gfx::Point());
+  }
+
+  if (!source_tab_->IsVisible()) {
+    // TODO(jhawkins): Save focus.
+    ContinueDragging();
+  }
 }
 
 bool DraggedTabControllerGtk::EndDrag(bool canceled) {
@@ -66,6 +87,8 @@ void DraggedTabControllerGtk::OpenURLFromTab(TabContents* source,
 
 void DraggedTabControllerGtk::NavigationStateChanged(const TabContents* source,
                                                      unsigned changed_flags) {
+  if (dragged_tab_.get())
+    dragged_tab_->Update();
 }
 
 void DraggedTabControllerGtk::AddNewContents(TabContents* source,
@@ -88,6 +111,10 @@ void DraggedTabControllerGtk::ActivateContents(TabContents* contents) {
 }
 
 void DraggedTabControllerGtk::LoadingStateChanged(TabContents* source) {
+  // TODO(jhawkins): It would be nice to respond to this message by changing the
+  // screen shot in the dragged tab.
+  if (dragged_tab_.get())
+    dragged_tab_->Update();
 }
 
 void DraggedTabControllerGtk::CloseContents(TabContents* source) {
@@ -132,6 +159,10 @@ void DraggedTabControllerGtk::Observe(NotificationType type,
   EndDragImpl(TAB_DESTROYED);
 }
 
+void DraggedTabControllerGtk::InitWindowCreatePoint() {
+  window_create_point_.SetPoint(mouse_offset_.x(), mouse_offset_.y());
+}
+
 void DraggedTabControllerGtk::SetDraggedContents(TabContents* new_contents) {
   if (dragged_contents_) {
     registrar_.Remove(this,
@@ -157,6 +188,8 @@ void DraggedTabControllerGtk::SetDraggedContents(TabContents* new_contents) {
 }
 
 void DraggedTabControllerGtk::ContinueDragging() {
+  EnsureDraggedTab();
+
   // TODO(jhawkins): We don't handle the situation where the last tab is dragged
   // out of a window, so we'll just go with the way Windows handles dragging for
   // now.
@@ -165,7 +198,7 @@ void DraggedTabControllerGtk::ContinueDragging() {
 }
 
 void DraggedTabControllerGtk::MoveTab(const gfx::Point& screen_point) {
-  gfx::Point dragged_point = GetDraggedPoint(screen_point);
+  gfx::Point dragged_tab_point = GetDraggedTabPoint(screen_point);
 
   if (attached_tabstrip_) {
     // Determine the horizontal move threshold. This is dependent on the width
@@ -183,29 +216,109 @@ void DraggedTabControllerGtk::MoveTab(const gfx::Point& screen_point) {
       TabStripModel* attached_model = attached_tabstrip_->model();
       int from_index =
           attached_model->GetIndexOfTabContents(dragged_contents_);
-      gfx::Rect bounds = source_tab_->bounds();
+      gfx::Rect bounds = GetDraggedTabTabStripBounds(dragged_tab_point);
       int to_index = GetInsertionIndexForDraggedBounds(bounds);
       to_index = NormalizeIndexToAttachedTabStrip(to_index);
       if (from_index != to_index) {
         last_move_screen_x_ = screen_point.x();
-        snap_bounds_ = attached_tabstrip_->GetTabAt(to_index)->bounds();
         attached_model->MoveTabContentsAt(from_index, to_index, true);
       }
     }
   }
 
-  // Move the tab. There are no changes to the model if we're detached.
-  gfx::Rect bounds = source_tab_->bounds();
-  bounds.set_x(dragged_point.x());
-  source_tab_->SetBounds(bounds);
-  gtk_fixed_move(GTK_FIXED(source_tabstrip_->tabstrip_.get()),
-      source_tab_->widget(), bounds.x(), bounds.y());
+  // Move the dragged tab. There are no changes to the model if we're detached.
+  dragged_tab_->MoveTo(dragged_tab_point);
 }
 
 TabStripGtk* DraggedTabControllerGtk::GetTabStripForPoint(
     const gfx::Point& screen_point) {
   // TODO(jhawkins): Actually get the correct tabstrip under |screen_point|.
   return source_tabstrip_;
+}
+
+void DraggedTabControllerGtk::Attach(TabStripGtk* attached_tabstrip,
+                                     const gfx::Point& screen_point) {
+  attached_tabstrip_ = attached_tabstrip;
+  InitWindowCreatePoint();
+  attached_tabstrip_->GenerateIdealBounds();
+
+  TabGtk* tab = GetTabMatchingDraggedContents(attached_tabstrip_);
+
+  // Update the tab first, so we can ask it for its bounds and determine
+  // where to insert the hidden tab.
+
+  // If this is the first time Attach is called for this drag, we're attaching
+  // to the source tabstrip, and we should assume the tab count already
+  // includes this tab since we haven't been detached yet. If we don't do this,
+  // the dragged representation will be a different size to others in the
+  // tabstrip.
+  int tab_count = attached_tabstrip_->GetTabCount();
+  if (!tab)
+    ++tab_count;
+  double unselected_width = 0, selected_width = 0;
+  attached_tabstrip_->GetDesiredTabWidths(tab_count, &unselected_width,
+                                          &selected_width);
+  EnsureDraggedTab();
+  dragged_tab_->Attach(static_cast<int>(selected_width));
+
+  if (!tab) {
+    // There is no tab in |attached_tabstrip| that corresponds to the dragged
+    // TabContents. We must now create one.
+
+    // Remove ourselves as the delegate now that the dragged TabContents is
+    // being inserted back into a Browser.
+    dragged_contents_->set_delegate(NULL);
+    original_delegate_ = NULL;
+
+    // Return the TabContents' to normalcy.
+    dragged_contents_->set_capturing_contents(false);
+
+    // We need to ask the tabstrip we're attached to ensure that the ideal
+    // bounds for all its tabs are correctly generated, because the calculation
+    // in GetInsertionIndexForDraggedBounds needs them to be to figure out the
+    // appropriate insertion index.
+    attached_tabstrip_->GenerateIdealBounds();
+
+    // Inserting counts as a move. We don't want the tabs to jitter when the
+    // user moves the tab immediately after attaching it.
+    last_move_screen_x_ = screen_point.x();
+
+    // Figure out where to insert the tab based on the bounds of the dragged
+    // representation and the ideal bounds of the other tabs already in the
+    // strip. ("ideal bounds" are stable even if the tabs' actual bounds are
+    // changing due to animation).
+    gfx::Rect bounds = GetDraggedTabTabStripBounds(screen_point);
+    int index = GetInsertionIndexForDraggedBounds(bounds);
+    index = std::max(std::min(index, attached_tabstrip_->model()->count()), 0);
+    attached_tabstrip_->model()->InsertTabContentsAt(index, dragged_contents_,
+        true, false);
+
+    tab = GetTabMatchingDraggedContents(attached_tabstrip_);
+  }
+  DCHECK(tab);  // We should now have a tab.
+  tab->SetVisible(false);
+
+  // TODO(jhawkins): Move the corresponding window to the front.
+}
+
+void DraggedTabControllerGtk::Detach() {
+  // TODO(jhawkins): Detach the dragged tab.
+}
+
+gfx::Point DraggedTabControllerGtk::ConvertScreenPointToTabStripPoint(
+    TabStripGtk* tabstrip, const gfx::Point& screen_point) {
+  gint x, y;
+  gdk_window_get_origin(tabstrip->tabstrip_.get()->window, &x, &y);
+  return gfx::Point(screen_point.x() - x, screen_point.y() - y);
+}
+
+gfx::Rect DraggedTabControllerGtk::GetDraggedTabTabStripBounds(
+    const gfx::Point& screen_point) {
+  gfx::Point client_point =
+      ConvertScreenPointToTabStripPoint(attached_tabstrip_, screen_point);
+  gfx::Size tab_size = dragged_tab_->attached_tab_size();
+  return gfx::Rect(client_point.x(), client_point.y(),
+                   tab_size.width(), tab_size.height());
 }
 
 int DraggedTabControllerGtk::GetInsertionIndexForDraggedBounds(
@@ -243,19 +356,41 @@ int DraggedTabControllerGtk::GetInsertionIndexForDraggedBounds(
   return TabStripModel::kNoTab;
 }
 
-gfx::Point DraggedTabControllerGtk::GetDraggedPoint(const gfx::Point& point) {
-  int x = point.x() - mouse_offset_.x();
-  int y = point.y() - mouse_offset_.y();
+gfx::Point DraggedTabControllerGtk::GetDraggedTabPoint(
+    const gfx::Point& screen_point) {
+  int x = screen_point.x() - mouse_offset_.x();
+  int y = screen_point.y() - mouse_offset_.y();
 
-  // Snap the dragged tab to the tab strip.
-  if (x < 0)
-    x = 0;
+  // If we're not attached, we just use x and y from above.
+  if (attached_tabstrip_) {
+    gfx::Rect tabstrip_bounds =
+        gtk_util::GetWidgetScreenBounds(attached_tabstrip_->tabstrip_.get());
+    // Snap the dragged tab to the tabstrip if we are attached, detaching
+    // only when the mouse position (screen_point) exceeds the screen bounds
+    // of the tabstrip.
+    if (x < tabstrip_bounds.x() && screen_point.x() >= tabstrip_bounds.x())
+      x = tabstrip_bounds.x();
 
-  // Make sure the tab can't be dragged off the right side of the tab strip.
-  int max_x = attached_tabstrip_->bounds_.right() - source_tab_->width();
-  if (x > max_x)
-    x = max_x;
+    gfx::Size tab_size = dragged_tab_->attached_tab_size();
+    int vertical_drag_magnetism = tab_size.height() * 2;
+    int vertical_detach_point = tabstrip_bounds.y() - vertical_drag_magnetism;
+    if (y < tabstrip_bounds.y() && screen_point.y() >= vertical_detach_point)
+      y = tabstrip_bounds.y();
 
+    // Make sure the tab can't be dragged off the right side of the tabstrip
+    // unless the mouse pointer passes outside the bounds of the strip by
+    // clamping the position of the dragged window to the tabstrip width less
+    // the width of one tab until the mouse pointer (screen_point) exceeds the
+    // screen bounds of the tabstrip.
+    int max_x = tabstrip_bounds.right() - tab_size.width();
+    int max_y = tabstrip_bounds.bottom() - tab_size.height();
+    if (x > max_x && screen_point.x() <= tabstrip_bounds.right())
+      x = max_x;
+    if (y > max_y && screen_point.y() <=
+        (tabstrip_bounds.bottom() + vertical_drag_magnetism)) {
+      y = max_y;
+    }
+  }
   return gfx::Point(x, y);
 }
 
@@ -318,7 +453,7 @@ void DraggedTabControllerGtk::RevertDrag() {
     int index = attached_tabstrip_->model()->GetIndexOfTabContents(
         dragged_contents_);
     if (attached_tabstrip_ != source_tabstrip_) {
-      // The Tab was inserted into another TabStrip. We need to put it back
+      // The tab was inserted into another tabstrip. We need to put it back
       // into the original one.
       attached_tabstrip_->model()->DetachTabContentsAt(index);
       // TODO(beng): (Cleanup) seems like we should use Attach() for this
@@ -327,7 +462,7 @@ void DraggedTabControllerGtk::RevertDrag() {
       source_tabstrip_->model()->InsertTabContentsAt(source_model_index_,
           dragged_contents_, true, false);
     } else {
-      // The Tab was moved within the TabStrip where the drag was initiated.
+      // The tab was moved within the tabstrip where the drag was initiated.
       // Move it back to the starting location.
       source_tabstrip_->model()->MoveTabContentsAt(index, source_model_index_,
           true);
@@ -336,24 +471,35 @@ void DraggedTabControllerGtk::RevertDrag() {
     // TODO(beng): (Cleanup) seems like we should use Attach() for this
     //             somehow.
     attached_tabstrip_ = source_tabstrip_;
-    // The Tab was detached from the TabStrip where the drag began, and has not
-    // been attached to any other TabStrip. We need to put it back into the
-    // source TabStrip.
+    // The tab was detached from the tabstrip where the drag began, and has not
+    // been attached to any other tabstrip. We need to put it back into the
+    // source tabstrip.
     source_tabstrip_->model()->InsertTabContentsAt(source_model_index_,
         dragged_contents_, true, false);
   }
+
+  source_tab_->SetVisible(true);
 }
 
 bool DraggedTabControllerGtk::CompleteDrag() {
-  // We don't need to do anything other than make the Tab visible again,
+  // We don't need to do anything other than make the tab visible again,
   // since the dragged tab is going away.
-  gfx::Rect bounds = source_tab_->bounds();
-  bounds.set_x(snap_bounds_.x());
-  source_tab_->SetBounds(bounds);
-  gtk_fixed_move(GTK_FIXED(source_tabstrip_->tabstrip_.get()),
-      source_tab_->widget(), bounds.x(), bounds.y());
+  TabGtk* tab = GetTabMatchingDraggedContents(attached_tabstrip_);
+  gfx::Rect rect = GetTabScreenBounds(tab);
+  dragged_tab_->AnimateToBounds(GetTabScreenBounds(tab),
+      NewCallback(this, &DraggedTabControllerGtk::OnAnimateToBoundsComplete));
 
   return false;
+}
+
+void DraggedTabControllerGtk::EnsureDraggedTab() {
+  if (!dragged_tab_.get()) {
+    gfx::Rect rect;
+    dragged_contents_->GetContainerBounds(&rect);
+
+    dragged_tab_.reset(new DraggedTabGtk(dragged_contents_, mouse_offset_,
+        gfx::Size(rect.width(), rect.height())));
+  }
 }
 
 gfx::Point DraggedTabControllerGtk::GetCursorScreenPoint() const {
@@ -365,4 +511,39 @@ gfx::Point DraggedTabControllerGtk::GetCursorScreenPoint() const {
   gdk_display_get_pointer(display, NULL, &x, &y, NULL);
 
   return gfx::Point(x, y);
+}
+
+// static
+gfx::Rect DraggedTabControllerGtk::GetTabScreenBounds(TabGtk* tab) {
+  // A hidden widget moved with gtk_fixed_move in a GtkFixed container doesn't
+  // update its allocation until after the widget is shown, so we have to use
+  // the tab bounds we keep track of.
+  int x, y;
+  x = tab->bounds().x();
+  y = tab->bounds().y();
+
+  GtkWidget* widget = tab->widget();
+  GtkWidget* parent = gtk_widget_get_parent(widget);
+  gfx::Point point = gtk_util::GetWidgetScreenPosition(parent);
+  x += point.x();
+  y += point.y();
+
+  return gfx::Rect(x, y, widget->allocation.width, widget->allocation.height);
+}
+
+void DraggedTabControllerGtk::OnAnimateToBoundsComplete() {
+  // Sometimes, for some reason, in automation we can be called back on a
+  // detach even though we aren't attached to a tabstrip. Guard against that.
+  if (attached_tabstrip_) {
+    TabGtk* tab = GetTabMatchingDraggedContents(attached_tabstrip_);
+    if (tab) {
+      tab->SetVisible(true);
+      // Paint the tab now, otherwise there may be slight flicker between the
+      // time the dragged tab window is destroyed and we paint.
+      tab->SchedulePaint();
+    }
+  }
+
+  if (!in_destructor_)
+    source_tabstrip_->DestroyDragController();
 }

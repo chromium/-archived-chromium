@@ -84,17 +84,25 @@ class TabRendererGtk : public AnimationDelegate {
   // Returns true if the Tab is selected, false otherwise.
   virtual bool IsSelected() const;
 
+  // Returns true if the Tab is visible, false otherwise.
+  virtual bool IsVisible() const;
+
+  // Sets the visibility of the Tab.
+  virtual void SetVisible(bool visible) const;
+
   // Notifies subclasses that the close button has been resized to |bounds|.
   virtual void CloseButtonResized(const gfx::Rect& bounds);
 
   // Paints the tab into |canvas|.
   virtual void Paint(GdkEventExpose* event);
 
+  // There is no PaintNow available, so the fastest we can do is schedule a
+  // paint with the windowing system.
+  virtual void SchedulePaint();
+
   // Advance the loading animation to the next frame, or hide the animation if
   // the tab isn't loading.
   void ValidateLoadingAnimation(AnimationState animation_state);
-
-  bool IsVisible();
 
   // Returns the minimum possible size of a single unselected Tab.
   static gfx::Size GetMinimumUnselectedSize();

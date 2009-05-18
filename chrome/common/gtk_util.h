@@ -7,6 +7,8 @@
 
 #include <gtk/gtk.h>
 
+#include "base/gfx/point.h"
+#include "base/gfx/rect.h"
 #include "webkit/glue/window_open_disposition.h"
 
 typedef struct _GtkWidget GtkWidget;
@@ -29,6 +31,12 @@ GtkWidget* CreateGtkBorderBin(GtkWidget* child, const GdkColor* color,
 
 // Remove all children from this container.
 void RemoveAllChildren(GtkWidget* container);
+
+// Gets the position of a gtk widget in screen coordinates.
+gfx::Point GetWidgetScreenPosition(GtkWidget* widget);
+
+// Returns the bounds of the specified widget in screen coordinates.
+gfx::Rect GetWidgetScreenBounds(GtkWidget* widget);
 
 }  // namespace gtk_util
 

@@ -80,8 +80,14 @@ class TabGtk : public TabRendererGtk {
 
   // TabRendererGtk overrides:
   virtual bool IsSelected() const;
+  virtual bool IsVisible() const;
+  virtual void SetVisible(bool visible) const;
   virtual void CloseButtonResized(const gfx::Rect& bounds);
   virtual void Paint(GdkEventExpose* event);
+
+  // The callback that is called for every gdk event.  We use it to inspect for
+  // drag-motion events when the drag is outside of the source tab.
+  static void GdkEventHandler(GdkEvent* event, void* tab);
 
   // button-press-event handler that handles mouse clicks.
   static gboolean OnMousePress(GtkWidget* widget, GdkEventButton* event,
@@ -146,6 +152,9 @@ class TabGtk : public TabRendererGtk {
 
   // The windowless widget used to collect input events for the tab.
   OwnedWidgetGtk event_box_;
+
+  // True if this tab is being dragged.
+  bool dragging_;
 
   DISALLOW_COPY_AND_ASSIGN(TabGtk);
 };

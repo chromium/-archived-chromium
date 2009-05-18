@@ -54,4 +54,31 @@ void RemoveAllChildren(GtkWidget* container) {
   gtk_container_foreach(GTK_CONTAINER(container), RemoveWidget, container);
 }
 
+gfx::Point GetWidgetScreenPosition(GtkWidget* widget) {
+  int x = 0, y = 0;
+
+  GtkWidget* parent = widget;
+  while (parent) {
+    if (GTK_IS_WINDOW(parent)) {
+      int window_x, window_y;
+      gtk_window_get_position(GTK_WINDOW(parent), &window_x, &window_y);
+      x += window_x;
+      y += window_y;
+      return gfx::Point(x, y);
+    }
+
+    x += parent->allocation.x;
+    y += parent->allocation.y;
+    parent = gtk_widget_get_parent(parent);
+  }
+
+  return gfx::Point(x, y);
+}
+
+gfx::Rect GetWidgetScreenBounds(GtkWidget* widget) {
+  gfx::Point position = GetWidgetScreenPosition(widget);
+  return gfx::Rect(position.x(), position.y(),
+                   widget->allocation.width, widget->allocation.height);
+}
+
 }  // namespace gtk_util

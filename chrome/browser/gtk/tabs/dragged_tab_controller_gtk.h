@@ -5,10 +5,14 @@
 #ifndef CHROME_BROWSER_GTK_TABS_DRAGGED_TAB_CONTROLLER_GTK_H_
 #define CHROME_BROWSER_GTK_TABS_DRAGGED_TAB_CONTROLLER_GTK_H_
 
+#include <gtk/gtk.h>
+
+#include "base/scoped_ptr.h"
 #include "base/timer.h"
 #include "chrome/browser/tab_contents/tab_contents_delegate.h"
 #include "chrome/common/notification_registrar.h"
 
+class DraggedTabGtk;
 class TabGtk;
 class TabStripGtk;
 
@@ -74,6 +78,10 @@ class DraggedTabControllerGtk : public NotificationObserver,
                        const NotificationSource& source,
                        const NotificationDetails& details);
 
+  // Initialize the offset used to calculate the position to create windows
+  // in |GetWindowCreatePoint|.
+  void InitWindowCreatePoint();
+
   // Sets the TabContents being dragged with the specified |new_contents|.
   void SetDraggedContents(TabContents* new_contents);
 
@@ -88,13 +96,27 @@ class DraggedTabControllerGtk : public NotificationObserver,
   // coordinates), or NULL if there is none.
   TabStripGtk* GetTabStripForPoint(const gfx::Point& screen_point);
 
+  // Attach the dragged Tab to the specified TabStrip.
+  void Attach(TabStripGtk* attached_tabstrip, const gfx::Point& screen_point);
+
+  // Detach the dragged Tab from the current TabStrip.
+  void Detach();
+
+  // Converts a screen point to a point relative to the tab strip.
+  gfx::Point ConvertScreenPointToTabStripPoint(TabStripGtk* tabstrip,
+                                               const gfx::Point& screen_point);
+
+  // Retrieve the bounds of the DraggedTabGtk, relative to the attached
+  // TabStrip, given location of the dragged tab in screen coordinates.
+  gfx::Rect GetDraggedTabTabStripBounds(const gfx::Point& screen_point);
+
   // Returns the index where the dragged TabContents should be inserted into
   // the attached TabStripModel given the DraggedTabView's bounds
   // |dragged_bounds| in coordinates relative to the attached TabStrip.
   int GetInsertionIndexForDraggedBounds(const gfx::Rect& dragged_bounds) const;
 
   // Get the position of the dragged tab relative to the attached tab strip.
-  gfx::Point GetDraggedPoint(const gfx::Point& point);
+  gfx::Point GetDraggedTabPoint(const gfx::Point& screen_point);
 
   // Finds the Tab within the specified TabStrip that corresponds to the
   // dragged TabContents.
@@ -111,13 +133,24 @@ class DraggedTabControllerGtk : public NotificationObserver,
   // be destroyed immediately, false otherwise.
   bool CompleteDrag();
 
+  // Create the DraggedTabGtk if it does not yet exist.
+  void EnsureDraggedTab();
+
   // Utility for getting the mouse position in screen coordinates.
   gfx::Point GetCursorScreenPoint() const;
+
+  // Gets the screen bounds of a tab.
+  static gfx::Rect GetTabScreenBounds(TabGtk* tab);
 
   // Utility to convert the specified TabStripModel index to something valid
   // for the attached TabStrip.
   int NormalizeIndexToAttachedTabStrip(int index) const;
 
+  // Completes the drag session after the view has animated to its final
+  // position.
+  void OnAnimateToBoundsComplete();
+
+  // Activates whichever window is under the mouse.
   void BringWindowUnderMouseToFront();
 
   // Handles registering for notifications.
@@ -145,6 +178,9 @@ class DraggedTabControllerGtk : public NotificationObserver,
   // dragged Tab is detached.
   TabStripGtk* attached_tabstrip_;
 
+  // The visual representation of the dragged Tab.
+  scoped_ptr<DraggedTabGtk> dragged_tab_;
+
   // The position of the mouse (in screen coordinates) at the start of the drag
   // operation. This is used to calculate minimum elasticity before a
   // DraggedTabView is constructed.
@@ -156,15 +192,19 @@ class DraggedTabControllerGtk : public NotificationObserver,
   // detached window is created at the right location.
   gfx::Point mouse_offset_;
 
+  // A hint to use when positioning new windows created by detaching Tabs. This
+  // is the distance of the mouse from the top left of the dragged tab as if it
+  // were the distance of the mouse from the top left of the first tab in the
+  // attached TabStrip from the top left of the window.
+  gfx::Point window_create_point_;
+
+  // Whether we're in the destructor or not.  Makes sure we don't destroy the
+  // drag controller more than once.
+  bool in_destructor_;
+
   // The horizontal position of the mouse cursor in screen coordinates at the
   // time of the last re-order event.
   int last_move_screen_x_;
-
-  // The last good tab bounds of the dragged tab.  This is the position the tab
-  // will be snapped back to when the drag is released.
-  // TODO(jhawkins): We should not be moving the tab itself, but rather a
-  // stand-in renderer.
-  gfx::Rect snap_bounds_;
 
   // Timer used to bring the window under the cursor to front. If the user
   // stops moving the mouse for a brief time over a browser window, it is
