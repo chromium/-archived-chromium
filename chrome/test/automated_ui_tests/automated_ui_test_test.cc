@@ -41,7 +41,8 @@ TEST_F(AutomatedUITestBase, RestoreTab) {
   NewTab();
   active_browser()->GetTabCount(&tab_count);
   ASSERT_EQ(2, tab_count);
-  GURL test_url("about:blank");
+  FilePath path_prefix(test_data_directory_.AppendASCII("session_history"));
+  GURL test_url = net::FilePathToFileURL(path_prefix.AppendASCII("bot1.html"));
   GetActiveTab()->NavigateToURL(test_url);
   CloseActiveTab();
   active_browser()->GetTabCount(&tab_count);
