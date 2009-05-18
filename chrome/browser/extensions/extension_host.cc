@@ -155,6 +155,16 @@ void ExtensionHost::TakeFocus(bool reverse) {
 void ExtensionHost::HandleKeyboardEvent(const NativeWebKeyboardEvent& event) {
 }
 
+void ExtensionHost::HandleMouseEvent() {
+  if (view_)
+    view_->HandleMouseEvent();
+}
+
+void ExtensionHost::HandleMouseLeave() {
+  if (view_)
+    view_->HandleMouseLeave();
+}
+
 Browser* ExtensionHost::GetBrowser() {
   if (view_)
     return view_->browser();

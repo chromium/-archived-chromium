@@ -72,6 +72,8 @@ class ExtensionHost : public RenderViewHostDelegate,
   virtual void UpdateDragCursor(bool is_drop_target);
   virtual void TakeFocus(bool reverse);
   virtual void HandleKeyboardEvent(const NativeWebKeyboardEvent& event);
+  virtual void HandleMouseEvent();
+  virtual void HandleMouseLeave();
   virtual void UpdatePreferredWidth(int pref_width);
 
  private:

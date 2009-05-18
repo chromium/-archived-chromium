@@ -15,7 +15,7 @@
 ExtensionView::ExtensionView(ExtensionHost* host, Browser* browser,
                              const GURL& content_url)
     : host_(host), browser_(browser), content_url_(content_url),
-      initialized_(false) {
+      initialized_(false), container_(NULL) {
   host_->set_view(this);
 }
 
@@ -113,4 +113,14 @@ void ExtensionView::ViewHierarchyChanged(bool is_add,
       pending_background_.reset();
     }
   }
+}
+
+void ExtensionView::HandleMouseEvent() {
+  if (container_)
+    container_->OnExtensionMouseEvent(this);
+}
+
+void ExtensionView::HandleMouseLeave() {
+  if (container_)
+    container_->OnExtensionMouseLeave(this);
 }

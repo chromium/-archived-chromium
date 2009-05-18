@@ -23,6 +23,15 @@
 class Browser;
 class Extension;
 
+// A class that represents the container that this view is in.
+// (bottom shelf, side bar, etc.)
+class ExtensionContainer {
+ public:
+  // Mouse event notifications from the view. (useful for hover UI).
+  virtual void OnExtensionMouseEvent(ExtensionView* view) = 0;
+  virtual void OnExtensionMouseLeave(ExtensionView* view) = 0;
+};
+
 // This handles the display portion of an ExtensionHost.
 class ExtensionView : public views::HWNDView {
  public:
@@ -36,9 +45,14 @@ class ExtensionView : public views::HWNDView {
 
   // Notification from ExtensionHost.
   void DidContentsPreferredWidthChange(const int pref_width);
+  void HandleMouseEvent();
+  void HandleMouseLeave();
 
   // Set a custom background for the view. The background will be tiled.
   void SetBackground(const SkBitmap& background);
+
+  // Sets the container for this view.
+  void SetContainer(ExtensionContainer* container) { container_ = container; }
 
   // views::HWNDView
   virtual void SetVisible(bool is_visible);
@@ -46,6 +60,7 @@ class ExtensionView : public views::HWNDView {
                                const gfx::Rect& current);
   virtual void ViewHierarchyChanged(bool is_add,
                                     views::View *parent, views::View *child);
+
  private:
   friend class ExtensionHost;
 
@@ -71,6 +86,10 @@ class ExtensionView : public views::HWNDView {
   // What we should set the preferred width to once the ExtensionView has
   // loaded.
   int pending_preferred_width_;
+
+  // The container this view is in (not necessarily its direct superview).
+  // Note: the view does not own its container.
+  ExtensionContainer* container_;
 
   DISALLOW_COPY_AND_ASSIGN(ExtensionView);
 };
