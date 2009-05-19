@@ -111,6 +111,22 @@ void ExtensionMessageService::RemoveEventListener(std::string event_name,
   listeners_[event_name].erase(render_process_id);
 }
 
+void ExtensionMessageService::AllocatePortIdPair(int* port1, int* port2) {
+  AutoLock lock(next_port_id_lock_);
+
+  // TODO(mpcomplete): what happens when this wraps?
+  int port1_id = next_port_id_++;
+  int port2_id = next_port_id_++;
+
+  DCHECK(IS_PORT1_ID(port1_id));
+  DCHECK(GET_OPPOSITE_PORT_ID(port1_id) == port2_id);
+  DCHECK(GET_OPPOSITE_PORT_ID(port2_id) == port1_id);
+  DCHECK(GET_CHANNEL_ID(port1_id) == GET_CHANNEL_ID(port2_id));
+
+  *port1 = port1_id;
+  *port2 = port2_id;
+}
+
 int ExtensionMessageService::GetProcessIdForExtension(
     const std::string& extension_id) {
   AutoLock lock(process_ids_lock_);
@@ -149,13 +165,9 @@ int ExtensionMessageService::OpenChannelToExtension(
   DCHECK(initialized_);
 
   // Create a channel ID for both sides of the channel.
-  // TODO(mpcomplete): what happens when this wraps?
-  int port1_id = next_port_id_++;
-  int port2_id = next_port_id_++;
-  DCHECK(IS_PORT1_ID(port1_id));
-  DCHECK(GET_OPPOSITE_PORT_ID(port1_id) == port2_id);
-  DCHECK(GET_OPPOSITE_PORT_ID(port2_id) == port1_id);
-  DCHECK(GET_CHANNEL_ID(port1_id) == GET_CHANNEL_ID(port2_id));
+  int port1_id = -1;
+  int port2_id = -1;
+  AllocatePortIdPair(&port1_id, &port2_id);
 
   ui_loop_->PostTask(FROM_HERE,
       NewRunnableMethod(this, &ExtensionMessageService::OpenChannelOnUIThread,
@@ -167,10 +179,19 @@ int ExtensionMessageService::OpenChannelToExtension(
 void ExtensionMessageService::OpenChannelOnUIThread(
     int source_routing_id, int source_port_id, int source_process_id,
     int dest_port_id, int dest_process_id) {
+  RenderProcessHost* source = RenderProcessHost::FromID(source_process_id);
+  OpenChannelOnUIThreadImpl(source_routing_id, source_port_id,
+                            source, dest_port_id, dest_process_id,
+                            source_process_id);
+}
+
+void ExtensionMessageService::OpenChannelOnUIThreadImpl(
+    int source_routing_id, int source_port_id, IPC::Message::Sender* source,
+    int dest_port_id, int dest_process_id, int source_process_id) {
   DCHECK_EQ(MessageLoop::current()->type(), MessageLoop::TYPE_UI);
 
   MessageChannel channel;
-  channel.port1 = RenderProcessHost::FromID(source_process_id);
+  channel.port1 = source;
   channel.port2 = RenderProcessHost::FromID(dest_process_id);
   if (!channel.port1 || !channel.port2) {
     // One of the processes could have been closed while posting this task.
@@ -192,6 +213,43 @@ void ExtensionMessageService::OpenChannelOnUIThread(
                                                          tab_json));
 }
 
+int ExtensionMessageService::OpenAutomationChannelToExtension(
+    int source_process_id, int routing_id, const std::string& extension_id,
+    IPC::Message::Sender* source) {
+  DCHECK_EQ(MessageLoop::current()->type(), MessageLoop::TYPE_UI);
+
+  // Lookup the targeted extension process.
+  int process_id = GetProcessIdForExtension(extension_id);
+  if (process_id == -1)
+    return -1;
+
+  DCHECK(initialized_);
+
+  int port1_id = -1;
+  int port2_id = -1;
+  // Create a channel ID for both sides of the channel.
+  AllocatePortIdPair(&port1_id, &port2_id);
+
+  // TODO(siggi): The source process- and routing ids are used to
+  //      describe the originating tab to the target extension.
+  //      This isn't really appropriate here, the originating tab
+  //      information should be supplied by the caller for
+  //      automation-initiated ports.
+  OpenChannelOnUIThreadImpl(routing_id, port1_id, source, port2_id,
+                            process_id, source_process_id);
+
+  return port2_id;
+}
+
+void ExtensionMessageService::CloseAutomationChannel(int port_id) {
+  DCHECK_EQ(MessageLoop::current()->type(), MessageLoop::TYPE_UI);
+
+  // TODO(siggi): Cleanup from the tab seems to beat this to the punch.
+  // DCHECK(channels_[GET_CHANNEL_ID(port_id)].port1 != NULL);
+  // TODO(siggi): should we notify the other side of the port?
+  channels_.erase(GET_CHANNEL_ID(port_id));
+}
+
 void ExtensionMessageService::PostMessageFromRenderer(
     int port_id, const std::string& message) {
   DCHECK_EQ(MessageLoop::current()->type(), MessageLoop::TYPE_UI);
@@ -203,7 +261,7 @@ void ExtensionMessageService::PostMessageFromRenderer(
   MessageChannel& channel = iter->second;
 
   // Figure out which port the ID corresponds to.
-  RenderProcessHost* dest =
+  IPC::Message::Sender* dest =
       IS_PORT1_ID(port_id) ? channel.port1 : channel.port2;
 
   int source_port_id = GET_OPPOSITE_PORT_ID(port_id);

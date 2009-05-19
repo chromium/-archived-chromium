@@ -521,6 +521,8 @@
         'browser/automation/automation_resource_tracker.h',
         'browser/automation/automation_tab_tracker.h',
         'browser/automation/automation_window_tracker.h',
+        'browser/automation/extension_port_container.cc',
+        'browser/automation/extension_port_container.h',
         'browser/automation/ui_controls.cc',
         'browser/automation/ui_controls.h',
         'browser/automation/url_request_failed_dns_job.cc',

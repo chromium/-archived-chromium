@@ -8,6 +8,7 @@
 #include "base/file_version_info.h"
 #include "base/message_loop.h"
 #include "base/path_service.h"
+#include "base/stl_util-inl.h"
 #include "base/string_util.h"
 #include "base/thread.h"
 #include "chrome/app/chrome_dll_resource.h"
@@ -15,6 +16,7 @@
 #include "chrome/browser/app_modal_dialog_queue.h"
 #include "chrome/browser/automation/automation_extension_function.h"
 #include "chrome/browser/automation/automation_provider_list.h"
+#include "chrome/browser/automation/extension_port_container.h"
 #include "chrome/browser/automation/url_request_failed_dns_job.h"
 #include "chrome/browser/automation/url_request_mock_http_job.h"
 #include "chrome/browser/automation/url_request_slow_download_job.h"
@@ -888,6 +890,10 @@ AutomationProvider::AutomationProvider(Profile* profile)
 }
 
 AutomationProvider::~AutomationProvider() {
+  STLDeleteContainerPairSecondPointers(port_containers_.begin(),
+                                       port_containers_.end());
+  port_containers_.clear();
+
   // Make sure that any outstanding NotificationObservers also get destroyed.
   ObserverList<NotificationObserver>::Iterator it(notification_observer_list_);
   NotificationObserver* observer;
@@ -961,6 +967,36 @@ void AutomationProvider::AddLoginHandler(NavigationController* tab,
 void AutomationProvider::RemoveLoginHandler(NavigationController* tab) {
   DCHECK(login_handler_map_[tab]);
   login_handler_map_.erase(tab);
+}
+
+void AutomationProvider::AddPortContainer(ExtensionPortContainer* port) {
+  int port_id = port->port_id();
+  DCHECK_NE(-1, port_id);
+  DCHECK(port_containers_.find(port_id) == port_containers_.end());
+
+  port_containers_[port_id] = port;
+}
+
+void AutomationProvider::RemovePortContainer(ExtensionPortContainer* port) {
+  int port_id = port->port_id();
+  DCHECK_NE(-1, port_id);
+
+  PortContainerMap::iterator it = port_containers_.find(port_id);
+  DCHECK(it != port_containers_.end());
+
+  if (it != port_containers_.end()) {
+    delete it->second;
+    port_containers_.erase(it);
+  }
+}
+
+ExtensionPortContainer* AutomationProvider::GetPortContainer(
+    int port_id) const {
+  PortContainerMap::const_iterator it = port_containers_.find(port_id);
+  if (it == port_containers_.end())
+    return NULL;
+
+  return it->second;
 }
 
 int AutomationProvider::GetIndexForNavigationController(
@@ -2687,6 +2723,7 @@ void AutomationProvider::OnMessageFromExternalHost(int handle,
       NOTREACHED();
       return;
     }
+
     TabContents* tab_contents = tab->tab_contents();
     if (!tab_contents) {
       NOTREACHED();
@@ -2698,10 +2735,19 @@ void AutomationProvider::OnMessageFromExternalHost(int handle,
       return;
     }
 
-    if (!AutomationExtensionFunction::InterceptMessageFromExternalHost(
+    if (AutomationExtensionFunction::InterceptMessageFromExternalHost(
             view_host, message, origin, target)) {
-      view_host->ForwardMessageFromExternalHost(message, origin, target);
+      // Message was diverted.
+      return;
     }
+
+    if (ExtensionPortContainer::InterceptMessageFromExternalHost(message,
+          origin, target, this, view_host, handle)) {
+      // Message was diverted.
+      return;
+    }
+
+    view_host->ForwardMessageFromExternalHost(message, origin, target);
   }
 }
 #endif  // defined(OS_WIN) || defined(OS_LINUX)

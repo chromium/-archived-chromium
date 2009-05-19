@@ -40,6 +40,7 @@ enum AutomationMsg_NavigationResponseValues;
 class LoginHandler;
 class NavigationControllerRestoredObserver;
 class ExternalTabContainer;
+class ExtensionPortContainer;
 struct AutocompleteMatchData;
 
 class AutomationProvider : public base::RefCounted<AutomationProvider>,
@@ -48,6 +49,8 @@ class AutomationProvider : public base::RefCounted<AutomationProvider>,
  public:
   explicit AutomationProvider(Profile* profile);
   virtual ~AutomationProvider();
+
+  Profile* profile() const { return profile_; }
 
   // Establishes a connection to an automation client, if present.
   // An AutomationProxy should be established (probably in a different process)
@@ -102,6 +105,14 @@ class AutomationProvider : public base::RefCounted<AutomationProvider>,
   // not just logins.
   void AddLoginHandler(NavigationController* tab, LoginHandler* handler);
   void RemoveLoginHandler(NavigationController* tab);
+
+  // Add an extension port container.
+  // Takes ownership of the container.
+  void AddPortContainer(ExtensionPortContainer* port);
+  // Remove and delete the port container.
+  void RemovePortContainer(ExtensionPortContainer* port);
+  // Get the port container for the given port id.
+  ExtensionPortContainer* GetPortContainer(int port_id) const;
 
   // IPC implementations
   virtual bool Send(IPC::Message* msg);
@@ -451,6 +462,7 @@ class AutomationProvider : public base::RefCounted<AutomationProvider>,
 
   typedef ObserverList<NotificationObserver> NotificationObserverList;
   typedef std::map<NavigationController*, LoginHandler*> LoginHandlerMap;
+  typedef std::map<int, ExtensionPortContainer*> PortContainerMap;
 
   scoped_ptr<IPC::ChannelProxy> channel_;
   scoped_ptr<NotificationObserver> initial_load_observer_;
@@ -468,6 +480,7 @@ class AutomationProvider : public base::RefCounted<AutomationProvider>,
   scoped_ptr<AutomationAutocompleteEditTracker> autocomplete_edit_tracker_;
   scoped_ptr<NavigationControllerRestoredObserver> restore_tracker_;
   LoginHandlerMap login_handler_map_;
+  PortContainerMap port_containers_;
   NotificationObserverList notification_observer_list_;
 
   // Handle for an in-process redirect query. We expect only one redirect query

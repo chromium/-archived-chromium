@@ -910,6 +910,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\automation\extension_port_container.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\automation\extension_port_container.h"
+				>
+			</File>
+			<File
 				RelativePath=".\automation\ui_controls.cc"
 				>
 			</File>

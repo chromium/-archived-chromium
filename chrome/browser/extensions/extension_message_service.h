@@ -48,6 +48,9 @@ class ExtensionMessageService : public NotificationObserver {
   void AddEventListener(std::string event_name, int render_process_id);
   void RemoveEventListener(std::string event_name, int render_process_id);
 
+  // Closes an extension channel for test automation.
+  void CloseAutomationChannel(int port_id);
+
   // Sends a message from a renderer to the given port.
   // TODO(mpcomplete): include the source tab.
   void PostMessageFromRenderer(int port_id, const std::string& message);
@@ -61,6 +64,14 @@ class ExtensionMessageService : public NotificationObserver {
                const NotificationSource& source,
                const NotificationDetails& details);
 
+  // Given an extension's ID, opens a channel between the given automation
+  // "port" and that extension.  Returns a channel ID to be used for posting
+  // messages between the processes, or -1 if the extension doesn't exist.
+  int OpenAutomationChannelToExtension(int source_process_id,
+                                       int routing_id,
+                                       const std::string& extension_id,
+                                       IPC::Message::Sender* source);
+
   // --- IO thread only:
 
   // Given an extension's ID, opens a channel between the given renderer "port"
@@ -72,9 +83,16 @@ class ExtensionMessageService : public NotificationObserver {
                              ResourceMessageFilter* source);
 
  private:
-  // Gets the process ID for the specified etension.
+  // Allocates a pair of port ids.
+  // NOTE: this can be called from any thread.
+  void AllocatePortIdPair(int* port1, int* port2);
+
+  // Gets the process ID for the specified extension.
   // NOTE: this can be called from any thread.
   int GetProcessIdForExtension(const std::string& extension_id);
+
+  int OpenChannelToExtensionImpl(const std::string& extension_id,
+                                 IPC::Message::Sender* source);
 
   // The UI message loop, used for posting tasks.
   MessageLoop* ui_loop_;
@@ -104,11 +122,17 @@ class ExtensionMessageService : public NotificationObserver {
       int source_port_id, int source_process_id,
       int dest_port_id, int dest_process_id);
 
-  // The connection between two renderers.  It is possible that both ports
+  // Common between OpenChannelOnUIThread and
+  // OpenAutomationChannelToExtension.
+  void OpenChannelOnUIThreadImpl(
+    int source_routing_id, int source_port_id, IPC::Message::Sender* source,
+    int dest_port_id, int dest_process_id, int source_process_id);
+
+  // The connection between two ports.  It is possible that both ports
   // refer to the same renderer.
   struct MessageChannel {
-    RenderProcessHost* port1;
-    RenderProcessHost* port2;
+    IPC::Message::Sender* port1;
+    IPC::Message::Sender* port2;
   };
 
   // A map of channel ID to its channel object.
@@ -118,10 +142,12 @@ class ExtensionMessageService : public NotificationObserver {
   // True if Init has been called.
   bool initialized_;
 
-  // --- IO thread only:
-
   // For generating unique channel IDs.
   int next_port_id_;
+
+  // Protects the next_port_id_ variable, since it can be
+  // used on the IO thread or the UI thread.
+  Lock next_port_id_lock_;
 
   DISALLOW_COPY_AND_ASSIGN(ExtensionMessageService);
 };
