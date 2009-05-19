@@ -1506,6 +1506,11 @@
             'browser/download/download_exe.cc',
           ],
         }],
+        ['OS=="linux" and toolkit_views==0', {
+          'sources!': [
+            'browser/bookmarks/bookmark_drop_info.cc',
+          ],
+        }],
         ['OS=="mac"', {
           'sources/': [
             # Exclude most of download.
@@ -1940,7 +1945,6 @@
       'conditions': [
         ['OS=="linux"', {
           'dependencies': [
-            'views',
             # Needed for chrome_dll_main.cc #include of gtk/gtk.h
             '../build/linux/system.gyp:gtk',
             # Needed for chrome_dll_main.cc use of g_thread_init
@@ -1964,6 +1968,11 @@
               'files': ['<(INTERMEDIATE_DIR)/repack/default.pak'],
             },
           ],
+        }],
+        ['OS=="linux" and toolkit_views==1', {
+          'dependencies': [
+            'views',
+	  ],
         }],
         ['OS=="mac"', {
           # 'branding' is a variable defined in common.gypi
@@ -2464,8 +2473,12 @@
       'conditions': [
         ['OS=="linux"', {
           'dependencies': [
-            'views',
             '../build/linux/system.gyp:gtk',
+          ],
+        }],
+        ['OS=="linux" and toolkit_views==1', {
+          'dependencies': [
+            'views',
           ],
         }],
       ],
@@ -2548,7 +2561,6 @@
       'conditions': [
         ['OS=="linux"', {
           'dependencies': [
-            'views',
             '../build/linux/system.gyp:gtk',
           ],
           'sources!': [
@@ -2559,6 +2571,11 @@
             'browser/metrics/metrics_service_uitest.cc',
             'test/reliability/page_load_test.cc',
             'test/ui/layout_plugin_uitest.cc',
+          ],
+        }],
+        ['OS=="linux" and toolkit_views==1', {
+          'dependencies': [
+            'views',
           ],
         }],
         ['OS=="mac"', {
@@ -2835,7 +2852,6 @@
       'conditions': [
         ['OS=="linux"', {
           'dependencies': [
-            'views',
             '../build/linux/system.gyp:gtk',
             '../build/linux/system.gyp:nss',
           ],
@@ -2845,6 +2861,11 @@
             # might want to write our own tests for the download manager
             # on linux, though.
             'browser/download/download_manager_unittest.cc',
+          ],
+        }],
+        ['OS=="linux" and toolkit_views==1', {
+          'dependencies': [
+            'views',
           ],
         }],
         ['OS=="mac"', {
@@ -2949,8 +2970,12 @@
       'conditions': [
         ['OS=="linux"', {
           'dependencies': [
-            'views',
             '../build/linux/system.gyp:gtk',
+          ],
+        }],
+        ['OS=="linux" and toolkit_views==1', {
+          'dependencies': [
+            'views',
           ],
         }],
       ],
@@ -2980,7 +3005,7 @@
             '../build/linux/system.gyp:gtk',
           ],
         }],
-        ['OS!="mac"', {
+        ['OS=="win" or (OS=="linux" and toolkit_views==1)', {
           'dependencies': [
             'views',
           ],
@@ -3131,7 +3156,7 @@
                 'browser/visitedlink_perftest.cc',
               ],
             }],
-            ['OS!="mac"', {
+            ['OS=="win" or (OS=="linux" and toolkit_views==1)', {
               'dependencies': [
                 'views',
               ],
@@ -3140,7 +3165,7 @@
         },
       ],
     }],  # OS!="mac"
-    ['OS=="win" or OS=="linux"',
+    ['OS=="win" or (OS=="linux" and toolkit_views==1)',
       { 'targets': [
         {
           'target_name': 'views',
