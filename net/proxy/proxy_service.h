@@ -112,6 +112,14 @@ class ProxyService {
  private:
   friend class PacRequest;
 
+  // Creates a config service appropriate for this platform that fetches the
+  // system proxy settings.
+  static ProxyConfigService* CreateSystemProxyConfigService();
+
+  // Creates a proxy resolver appropriate for this platform that doesn't rely
+  // on V8.
+  static ProxyResolver* CreateNonV8ProxyResolver();
+
   ProxyResolver* resolver() { return resolver_.get(); }
   base::Thread* pac_thread() { return pac_thread_.get(); }
 

@@ -32,7 +32,21 @@ namespace net {
 // Config getter that fails every time.
 class ProxyConfigServiceNull : public ProxyConfigService {
  public:
+  // ProxyConfigService implementation:
   virtual int GetProxyConfig(ProxyConfig* config) {
+    return ERR_NOT_IMPLEMENTED;
+  }
+};
+
+// Proxy resolver that fails every time.
+class ProxyResolverNull : public ProxyResolver {
+ public:
+  ProxyResolverNull() : ProxyResolver(true /*does_fetch*/) {}
+
+  // ProxyResolver implementation:
+  virtual int GetProxyForURL(const GURL& /*query_url*/,
+                             const GURL& /*pac_url*/,
+                             ProxyInfo* /*results*/) {
     return ERR_NOT_IMPLEMENTED;
   }
 };
@@ -194,61 +208,26 @@ ProxyService::ProxyService(ProxyConfigService* config_service,
 
 // static
 ProxyService* ProxyService::Create(const ProxyConfig* pc) {
-  scoped_ptr<ProxyConfigService> proxy_config_service;
-  scoped_ptr<ProxyResolver> proxy_resolver;
-  if (pc) {
-    proxy_config_service.reset(new ProxyConfigServiceFixed(*pc));
-  }
+  // Choose the system configuration service appropriate for each platform.
+  ProxyConfigService* proxy_config_service = pc ?
+      new ProxyConfigServiceFixed(*pc) :
+      CreateSystemProxyConfigService();
 
-#if defined(OS_WIN)
-  if (proxy_config_service == NULL)
-    proxy_config_service.reset(new ProxyConfigServiceWin());
-  proxy_resolver.reset(new ProxyResolverWinHttp());
-#elif defined(OS_MACOSX)
-  if (proxy_config_service == NULL)
-    proxy_config_service.reset(new ProxyConfigServiceMac());
-  proxy_resolver.reset(new ProxyResolverMac());
-#elif defined(OS_LINUX)
-  // On Linux we use the V8Resolver, no fallback implementation.
-  // This means that if we got called with a ProxyConfig that could require a
-  // resolver, or if the caller is trying to create a regular ProxyService via
-  // this method instead of CreateUsingV8Resolver() we have to return a
-  // nulled-out ProxyService.
-  if (!pc || pc->MayRequirePACResolver()) {
-    LOG(WARNING) << "Attempting to create a ProxyService with a non-v8 "
-                 << "resolver using an invalid ProxyConfig.";
-    return CreateNull();
-  }
-#else
-  return CreateNull();
-#endif
-
-  return new ProxyService(proxy_config_service.release(),
-                          proxy_resolver.release());
+  // Try to choose a non-v8 proxy resolver implementation.
+  return new ProxyService(proxy_config_service, CreateNonV8ProxyResolver());
 }
 
 // static
 ProxyService* ProxyService::CreateUsingV8Resolver(
     const ProxyConfig* pc, URLRequestContext* url_request_context) {
   // Choose the system configuration service appropriate for each platform.
-  ProxyConfigService* config_service = NULL;
-  if (pc) {
-    config_service = new ProxyConfigServiceFixed(*pc);
-  } else {
-#if defined(OS_WIN)
-    config_service = new ProxyConfigServiceWin();
-#elif defined(OS_MACOSX)
-    config_service = new ProxyConfigServiceMac();
-#elif defined(OS_LINUX)
-    config_service = new ProxyConfigServiceLinux();
-#else
-    return CreateNull();
-#endif
-  }
+  ProxyConfigService* proxy_config_service = pc ?
+      new ProxyConfigServiceFixed(*pc) :
+      CreateSystemProxyConfigService();
 
   // Create a ProxyService that uses V8 to evaluate PAC scripts.
   ProxyService* proxy_service = new ProxyService(
-      config_service, new ProxyResolverV8());
+      proxy_config_service, new ProxyResolverV8());
 
   // Configure PAC script downloads to be issued using |url_request_context|.
   proxy_service->SetProxyScriptFetcher(
@@ -259,9 +238,8 @@ ProxyService* ProxyService::CreateUsingV8Resolver(
 
 // static
 ProxyService* ProxyService::CreateNull() {
-  // The ProxyResolver is set to NULL, since it should never be called
-  // (because the configuration will never require PAC).
-  return new ProxyService(new ProxyConfigServiceNull, NULL);
+  // Use a configuration fetcher and proxy resolver which always fail.
+  return new ProxyService(new ProxyConfigServiceNull, new ProxyResolverNull);
 }
 
 int ProxyService::ResolveProxy(const GURL& url, ProxyInfo* result,
@@ -548,6 +526,34 @@ void ProxyService::DidCompletePacRequest(int config_id, int result_code) {
 
   // Remember that this configuration doesn't work.
   config_is_bad_ = true;
+}
+
+// static
+ProxyConfigService* ProxyService::CreateSystemProxyConfigService() {
+#if defined(OS_WIN)
+  return new ProxyConfigServiceWin();
+#elif defined(OS_MACOSX)
+  return new ProxyConfigServiceMac();
+#elif defined(OS_LINUX)
+  return new ProxyConfigServiceLinux();
+#else
+  LOG(WARNING) << "Failed to choose a system proxy settings fetcher "
+                  "for this platform.";
+  return new ProxyConfigServiceNull();
+#endif
+}
+
+// static
+ProxyResolver* ProxyService::CreateNonV8ProxyResolver() {
+#if defined(OS_WIN)
+  return new ProxyResolverWinHttp();
+#elif defined(OS_MACOSX)
+  return new ProxyResolverMac();
+#else
+  LOG(WARNING) << "PAC support disabled because there is no fallback "
+                  "non-V8 implementation";
+  return new ProxyResolverNull();
+#endif
 }
 
 void ProxyService::UpdateConfig() {
