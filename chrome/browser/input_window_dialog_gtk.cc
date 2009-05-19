@@ -39,12 +39,6 @@ class GtkInputWindowDialog : public InputWindowDialog {
   // The underlying gtk dialog window.
   GtkWidget* dialog_;
 
-  // The Cancel or Close button
-  GtkWidget* close_button_;
-
-  // The OK button.
-  GtkWidget* ok_button_;
-
   // The GtkEntry in this form.
   GtkWidget* input_;
 
@@ -62,17 +56,17 @@ GtkInputWindowDialog::GtkInputWindowDialog(GtkWindow* parent,
                   window_title.c_str(),
                   parent,
                   GTK_DIALOG_MODAL,
+                  GTK_STOCK_CANCEL, GTK_RESPONSE_REJECT,
+                  GTK_STOCK_OK, GTK_RESPONSE_ACCEPT,
                   NULL)),
-      close_button_(gtk_dialog_add_button(GTK_DIALOG(dialog_),
-                                          GTK_STOCK_CANCEL,
-                                          GTK_RESPONSE_REJECT)),
-      ok_button_(gtk_dialog_add_button(GTK_DIALOG(dialog_),
-                                       GTK_STOCK_OK, GTK_RESPONSE_ACCEPT)),
       delegate_(delegate) {
   gtk_dialog_set_default_response(GTK_DIALOG(dialog_), GTK_RESPONSE_ACCEPT);
+  gtk_dialog_set_has_separator(GTK_DIALOG(dialog_), FALSE);
 
   GtkWidget* content_area = GTK_DIALOG(dialog_)->vbox;
-  GtkWidget* hbox = gtk_hbox_new(FALSE, 5);
+  gtk_box_set_spacing(GTK_BOX(content_area), 18);
+
+  GtkWidget* hbox = gtk_hbox_new(FALSE, 6);
   GtkWidget* label_widget = gtk_label_new(label.c_str());
   gtk_box_pack_start(GTK_BOX(hbox), label_widget, FALSE, FALSE, 0);
 
@@ -84,7 +78,7 @@ GtkInputWindowDialog::GtkInputWindowDialog(GtkWindow* parent,
   gtk_box_pack_start(GTK_BOX(hbox), input_, TRUE, TRUE, 0);
 
   gtk_widget_show_all(hbox);
-  gtk_container_set_border_width(GTK_CONTAINER(hbox), 5);
+
   gtk_box_pack_start(GTK_BOX(content_area), hbox, FALSE, FALSE, 0);
 
   g_signal_connect(dialog_, "response",
@@ -115,8 +109,9 @@ void GtkInputWindowDialog::Close() {
 void GtkInputWindowDialog::OnEntryChanged(GtkEditable* entry,
                                           GtkInputWindowDialog* window) {
   std::wstring value(UTF8ToWide(gtk_entry_get_text(GTK_ENTRY(entry))));
-  gtk_widget_set_sensitive(GTK_WIDGET(window->ok_button_),
-                           window->delegate_->IsValid(value));
+  gtk_dialog_set_response_sensitive(GTK_DIALOG(window->dialog_),
+                                    GTK_RESPONSE_ACCEPT,
+                                    window->delegate_->IsValid(value));
 }
 
 // static

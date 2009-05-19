@@ -94,7 +94,7 @@ void ShowAboutDialogForProfile(GtkWindow* parent, Profile* profile) {
       l10n_util::GetStringUTF8(IDS_ABOUT_CHROME_TITLE).c_str(),
       parent,
       GTK_DIALOG_MODAL,
-      GTK_STOCK_OK, GTK_RESPONSE_ACCEPT,
+      GTK_STOCK_CLOSE, GTK_RESPONSE_CLOSE,
       NULL);
   // Pick up the style set in gtk_util.cc:InitRCStyles().
   // The layout of this dialog is special because the logo should be flush
