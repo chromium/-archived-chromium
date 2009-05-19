@@ -390,14 +390,11 @@ int SSLClientSocketMac::Write(IOBuffer* buf, int buf_len,
 }
 
 void SSLClientSocketMac::GetSSLInfo(SSLInfo* ssl_info) {
-  DCHECK(completed_handshake_);
-  OSStatus status;
-
   ssl_info->Reset();
 
   // set cert
   CFArrayRef certs;
-  status = SSLCopyPeerCertificates(ssl_context_, &certs);
+  OSStatus status = SSLCopyPeerCertificates(ssl_context_, &certs);
   if (!status) {
     DCHECK(CFArrayGetCount(certs) > 0);
 
