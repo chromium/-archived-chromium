@@ -292,7 +292,7 @@ class ChildProcessSecurityPolicyInProcessBrowserTest
   }
 };
 
-IN_PROC_BROWSER_TEST_F(ChildProcessSecurityPolicyInProcessBrowserTest, NoLeak) {
+IN_PROC_BROWSER_TEST_F(ChildProcessSecurityPolicyInProcessBrowserTest, DISABLED_NoLeak) {
   FilePath path;
   PathService::Get(chrome::DIR_TEST_DATA, &path);
   path = path.Append(FilePath::FromWStringHack(L"google"));
