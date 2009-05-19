@@ -223,6 +223,14 @@
 			>
 		</File>
 		<File
+			RelativePath=".\hard_error_handler_win.cc"
+			>
+		</File>
+		<File
+			RelativePath=".\hard_error_handler_win.h"
+			>
+		</File>
+		<File
 			RelativePath="..\common\result_codes.h"
 			>
 		</File>

@@ -16,6 +16,7 @@
 #include "base/string_util.h"
 #include "base/win_util.h"
 #include "chrome/app/google_update_client.h"
+#include "chrome/app/hard_error_handler_win.h"
 #include "chrome/common/env_vars.h"
 #include "chrome/installer/util/install_util.h"
 #include "chrome/installer/util/google_update_settings.h"
@@ -119,6 +120,11 @@ struct CrashReporterInfo {
 bool DumpDoneCallback(const wchar_t*, const wchar_t*, void*,
                       EXCEPTION_POINTERS* ex_info,
                       MDRawAssertionInfo*, bool) {
+  // If the exception is because there was a problem loading a delay-loaded
+  // module, then show the user a dialog explaining the problem and then exit.
+  if (DelayLoadFailureExceptionMessageBox(ex_info))
+    return true;
+
   // We set CHROME_CRASHED env var. If the CHROME_RESTART is present.
   // This signals the child process to show the 'chrome has crashed' dialog.
   if (!::GetEnvironmentVariableW(env_vars::kRestartInfo, NULL, 0))

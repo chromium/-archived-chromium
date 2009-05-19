@@ -1899,6 +1899,8 @@
         'app/client_util.h',
         'app/google_update_client.cc',
         'app/google_update_client.h',
+        'app/hard_error_handler_win.cc',
+        'app/hard_error_handler_win.h',
         'app/keystone_glue.h',
         'app/keystone_glue.m',
         'app/scoped_ole_initializer.h',
