@@ -9,6 +9,7 @@
 #include "base/string_util.h"
 #include "base/thread.h"
 #include "chrome/browser/browser_process.h"
+#include "chrome/browser/debugger/devtools_manager.h"
 #include "chrome/browser/extensions/extension.h"
 #include "chrome/browser/extensions/extension_message_service.h"
 #include "chrome/browser/extensions/extensions_service.h"
@@ -114,7 +115,7 @@ void ExtensionsDOMHandler::HandleInspectMessage(const Value* value) {
     return;
   }
 
-  host->InspectElementAt(0, 0);
+  g_browser_process->devtools_manager()->OpenDevToolsWindow(host);
 }
 
 static void CreateScriptFileDetailValue(

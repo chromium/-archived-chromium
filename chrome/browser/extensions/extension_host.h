@@ -40,8 +40,6 @@ class ExtensionHost : public RenderViewHostDelegate,
   void CreateRenderView(const GURL& url, RenderWidgetHostView* host_view);
 
   // RenderViewHostDelegate
-  // TODO(mpcomplete): GetProfile is unused.
-  virtual Profile* GetProfile() const { return NULL; }
   virtual const GURL& GetURL() const { return url_; }
   virtual WebPreferences GetWebkitPrefs();
   virtual void RunJavaScriptMessage(

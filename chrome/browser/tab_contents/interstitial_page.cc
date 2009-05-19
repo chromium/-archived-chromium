@@ -366,10 +366,6 @@ void InterstitialPage::SetInitialFocus(bool reverse) {
   render_view_host_->SetInitialFocus(reverse);
 }
 
-Profile* InterstitialPage::GetProfile() const {
-  return tab_->profile();
-}
-
 void InterstitialPage::DidNavigate(
     RenderViewHost* render_view_host,
     const ViewHostMsg_FrameNavigate_Params& params) {

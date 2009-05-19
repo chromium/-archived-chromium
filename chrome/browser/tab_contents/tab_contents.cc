@@ -1598,10 +1598,6 @@ RenderViewHostDelegate::Save* TabContents::GetSaveDelegate() const {
   return save_package_.get();  // May be NULL, but we can return NULL.
 }
 
-Profile* TabContents::GetProfile() const {
-  return profile();
-}
-
 ExtensionFunctionDispatcher* TabContents::CreateExtensionFunctionDispatcher(
     RenderViewHost* render_view_host,
     const std::string& extension_id) {

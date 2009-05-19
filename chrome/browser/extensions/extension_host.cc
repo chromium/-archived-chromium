@@ -7,6 +7,8 @@
 #include "app/resource_bundle.h"
 #include "chrome/browser/browser.h"
 #include "chrome/browser/browser_list.h"
+#include "chrome/browser/browser_process.h"
+#include "chrome/browser/debugger/devtools_manager.h"
 #include "chrome/browser/extensions/extension.h"
 #include "chrome/browser/extensions/extension_message_service.h"
 #include "chrome/browser/extensions/extension_view.h"
@@ -140,7 +142,7 @@ void ExtensionHost::ShowCreatedWidget(int route_id,
 
 void ExtensionHost::ShowContextMenu(const ContextMenuParams& params) {
   // TODO(erikkay) - This is a temporary hack.  Show a menu here instead.
-  render_view_host()->InspectElementAt(params.x, params.y);
+  g_browser_process->devtools_manager()->OpenDevToolsWindow(render_view_host());
 }
 
 void ExtensionHost::StartDragging(const WebDropData& drop_data) {

@@ -1369,8 +1369,6 @@
         'browser/views/html_dialog_view.cc',
         'browser/views/html_dialog_view.h',
         'browser/views/hung_renderer_view.cc',
-        'browser/views/hwnd_html_view.cc',
-        'browser/views/hwnd_html_view.h',
         'browser/views/importer_lock_view.cc',
         'browser/views/importer_lock_view.h',
         'browser/views/importer_view.cc',

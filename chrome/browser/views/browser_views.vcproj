@@ -654,14 +654,6 @@
 			>
 		</File>
 		<File
-			RelativePath=".\hwnd_html_view.cc"
-			>
-		</File>
-		<File
-			RelativePath=".\hwnd_html_view.h"
-			>
-		</File>
-		<File
 			RelativePath=".\importer_lock_view.cc"
 			>
 		</File>

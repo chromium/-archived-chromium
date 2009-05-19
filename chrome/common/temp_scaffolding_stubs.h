@@ -508,17 +508,4 @@ class HWNDView {
 };
 }  // namespace views
 
-class HWNDHtmlView : public views::HWNDView {
- public:
-  HWNDHtmlView(const GURL& content_url, RenderViewHostDelegate* delegate,
-               bool allow_dom_ui_bindings, SiteInstance* instance) {
-    NOTIMPLEMENTED();
-  }
-  virtual ~HWNDHtmlView() {}
-
-  RenderViewHost* render_view_host() { NOTIMPLEMENTED(); return NULL; }
-  SiteInstance* site_instance() { NOTIMPLEMENTED(); return NULL; }
-};
-
-
 #endif  // CHROME_COMMON_TEMP_SCAFFOLDING_STUBS_H_
