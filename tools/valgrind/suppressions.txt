@@ -1,3 +1,16 @@
+# There are three kinds of suppressions in this file.
+# 1. third party stuff we have no control over
+#
+# 2. intentional unit test errors, or stuff that is somehow a false positive
+# in our own code, or stuff that is so trivial it's not worth fixing
+#
+# 3. Suppressions for real chromium bugs that are not yet fixed.
+# These should all be in chromium's bug tracking system (but a few aren't yet).
+# Periodically we should sweep this file and the bug tracker clean by
+# running overnight and removing outdated bugs/suppressions.
+#-----------------------------------------------------------------------
+
+# 1. third party stuff we have no control over
 {
    Uninitialized value in deflate
    Memcheck:Cond
@@ -25,6 +38,26 @@
    fun:FcConfigAppFontAddFile
 }
 {
+   # See also http://www.gnome.org/~johan/gtk.suppression
+   # (which has a smattering of similar pango suppressions)
+   pango_font_leak_todo
+   Memcheck:Leak
+   ...
+   fun:FcFontRenderPrepare
+   obj:*
+   fun:pango_font_map_load_fontset
+}
+{
+   # Fontconfig leak, seen in shard 16 of 20 of ui_tests
+   # See https://bugs.freedesktop.org/show_bug.cgi?id=8428
+   # and http://www.gnome.org/~johan/gtk.suppression
+   fontconfig_bug_8428
+   Memcheck:Leak
+   fun:realloc
+   fun:FcPatternObjectInsertElt
+   fun:FcPatternObjectAddWithBinding
+}
+{
    dlopen invalid read, probably a bug in glibc.  TODO(dkegel): file glibc bug
    Memcheck:Value4
    ...
@@ -49,50 +82,6 @@
    Memcheck:Leak
    ...
    fun:SECMOD_LoadUserModule
-}
-{
-   # Possible NSS leak, see http://crbug.com/10750
-   bug_10750
-   Memcheck:Leak
-   fun:calloc
-   fun:PR_Calloc
-   ...
-   fun:SECMOD_UnloadUserModule
-}
-{
-   # Leak reported by NSS but possibly our fault, see http://crbug/4609
-   bug_4609
-   Memcheck:Leak
-   ...
-   fun:NSS_Shutdown
-}
-{
-   (Probable memory leak in Skia)
-   Memcheck:Leak
-   fun:_Znwj
-   fun:_ZN10SkFontHost15ResolveTypefaceEj
-   fun:_ZN24SkScalerContext_FreeType9setupSizeEv
-   fun:_ZN24SkScalerContext_FreeType19generateFontMetricsEPN7SkPaint11FontMetricsES2_
-   fun:_ZN15SkScalerContext14getFontMetricsEPN7SkPaint11FontMetricsES2_
-   fun:_ZN12SkGlyphCacheC1EPK12SkDescriptor
-   fun:_ZN12SkGlyphCache10VisitCacheEPK12SkDescriptorPFbPKS_PvES5_
-}
-{
-   Another possible skia leak
-   Memcheck:Leak
-   fun:_Znwj
-   fun:_ZN10SkFontHost15ResolveTypefaceEj
-   fun:_ZN24SkScalerContext_FreeType9setupSizeEv
-   fun:_ZN24SkScalerContext_FreeType15generateMetricsEP7SkGlyph
-   fun:_ZN24SkScalerContext_FreeType15generateAdvanceEP7SkGlyph
-   fun:_ZN15SkScalerContext10getAdvanceEP7SkGlyph
-   fun:_ZN12SkGlyphCache13lookupMetricsEjNS_11MetricsTypeE
-   fun:_ZN12SkGlyphCache17getGlyphIDAdvanceEt
-   fun:_Z24sk_getAdvance_glyph_nextP12SkGlyphCachePPKc
-   fun:_ZNK7SkPaint12measure_textEP12SkGlyphCachePKcjPiP6SkRect
-   fun:_ZNK7SkPaint11measureTextEPKvjP6SkRectf
-   fun:_ZNK7SkPaint11measureTextEPKvj
-   fun:_ZNK7WebCore14SimpleFontData21platformWidthForGlyphEt
 }
 {
    Error in ICU
@@ -185,6 +174,11 @@
    fun:event_base_loopexit
    fun:_ZN4base19MessagePumpLibevent3RunEPNS_11MessagePump8DelegateE
 }
+
+#-----------------------------------------------------------------------
+# 2. intentional unit test errors, or stuff that is somehow a false positive
+# in our own code, or stuff that is so trivial it's not worth fixing
+
 {
    logging::InitLogging never frees filename. It would be hard to free properly.
    Memcheck:Leak
@@ -212,7 +206,39 @@
    ...
    fun:_ZN2v88internal8FlagList18SetFlagsFromStringEPKci
 }
-######### Baseline leaks -- just here to get test_shell_tests green -- fix later ######
+
+#-----------------------------------------------------------------------
+# 3. Suppressions for real chromium bugs that are not yet fixed.
+# These should all be in chromium's bug tracking system (but a few aren't yet).
+
+{
+   (Probable memory leak in Skia)
+   Memcheck:Leak
+   fun:_Znwj
+   fun:_ZN10SkFontHost15ResolveTypefaceEj
+   fun:_ZN24SkScalerContext_FreeType9setupSizeEv
+   fun:_ZN24SkScalerContext_FreeType19generateFontMetricsEPN7SkPaint11FontMetricsES2_
+   fun:_ZN15SkScalerContext14getFontMetricsEPN7SkPaint11FontMetricsES2_
+   fun:_ZN12SkGlyphCacheC1EPK12SkDescriptor
+   fun:_ZN12SkGlyphCache10VisitCacheEPK12SkDescriptorPFbPKS_PvES5_
+}
+{
+   Another possible skia leak
+   Memcheck:Leak
+   fun:_Znwj
+   fun:_ZN10SkFontHost15ResolveTypefaceEj
+   fun:_ZN24SkScalerContext_FreeType9setupSizeEv
+   fun:_ZN24SkScalerContext_FreeType15generateMetricsEP7SkGlyph
+   fun:_ZN24SkScalerContext_FreeType15generateAdvanceEP7SkGlyph
+   fun:_ZN15SkScalerContext10getAdvanceEP7SkGlyph
+   fun:_ZN12SkGlyphCache13lookupMetricsEjNS_11MetricsTypeE
+   fun:_ZN12SkGlyphCache17getGlyphIDAdvanceEt
+   fun:_Z24sk_getAdvance_glyph_nextP12SkGlyphCachePPKc
+   fun:_ZNK7SkPaint12measure_textEP12SkGlyphCachePKcjPiP6SkRect
+   fun:_ZNK7SkPaint11measureTextEPKvjP6SkRectf
+   fun:_ZNK7SkPaint11measureTextEPKvj
+   fun:_ZNK7WebCore14SimpleFontData21platformWidthForGlyphEt
+}
 {
    # src/webkit/tools/test_shell/node_leak_test.cc:44
    NodeLeakTest_leak_todo
@@ -307,24 +333,11 @@
    fun:_ZN13TestShellTest5SetUpEv
 }
 {
-   # See also http://www.gnome.org/~johan/gtk.suppression
-   # (which has a smattering of similar pango suppressions)
-   pango_font_leak_todo
+   # Leak reported by NSS but possibly our fault, see http://crbug/4609
+   bug_4609
    Memcheck:Leak
    ...
-   fun:FcFontRenderPrepare
-   obj:*
-   fun:pango_font_map_load_fontset
-}
-{
-   # Fontconfig leak, seen in shard 16 of 20 of ui_tests
-   # See https://bugs.freedesktop.org/show_bug.cgi?id=8428
-   # and http://www.gnome.org/~johan/gtk.suppression
-   fontconfig_bug_8428
-   Memcheck:Leak
-   fun:realloc
-   fun:FcPatternObjectInsertElt
-   fun:FcPatternObjectAddWithBinding
+   fun:NSS_Shutdown
 }
 {
    # See http://crbug.com/6522
@@ -439,6 +452,15 @@
    fun:_ZN22RendererSecurityPolicy3AddEi
    fun:_ZN24BrowserRenderProcessHost4InitEv
    fun:_ZN14RenderViewHost16CreateRenderViewEv
+}
+{
+   # Possible NSS leak, see http://crbug.com/10750
+   bug_10750
+   Memcheck:Leak
+   fun:calloc
+   fun:PR_Calloc
+   ...
+   fun:SECMOD_UnloadUserModule
 }
 {
    # See http://crbug.com/10755 (1/2)
