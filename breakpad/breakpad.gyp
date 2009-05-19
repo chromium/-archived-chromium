@@ -71,7 +71,7 @@
           'mac_bundle_resources': [
             'src/client/mac/sender/English.lproj/Localizable.strings',
             'src/client/mac/sender/crash_report_sender.icns',
-            'src/client/mac/sender/English.lproj/Breakpad.nib',
+            'src/client/mac/sender/Breakpad.nib',
             'src/client/mac/sender/crash_report_sender-Info.plist',
           ],
           'mac_bundle_resources!': [
