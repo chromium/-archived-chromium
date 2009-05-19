@@ -13,21 +13,54 @@
 
 // Helper object that receives the notification that the dialog/sheet is
 // going away. Is responsible for cleaning itself up.
-@interface AppModalDialogHelper : NSObject
+@interface AppModalDialogHelper : NSObject {
+ @private
+  NSAlert* alert_;
+  NSTextField* textField_;  // WEAK; owned by alert_
+}
+
+- (NSAlert*)alert;
+- (NSTextField*)textField;
+- (void)alertDidEnd:(NSAlert *)alert
+         returnCode:(int)returnCode
+        contextInfo:(void*)contextInfo;
+
 @end
 
 @implementation AppModalDialogHelper
+
+- (NSAlert*)alert {
+  alert_ = [[NSAlert alloc] init];
+  return alert_;
+}
+
+- (NSTextField*)textField {
+  textField_ = [[NSTextField alloc] initWithFrame:NSMakeRect(0, 0, 300, 22)];
+  [alert_ setAccessoryView:textField_];
+  [textField_ release];
+
+  return textField_;
+}
+
+- (void)dealloc {
+  [alert_ release];
+  [super dealloc];
+}
+
 // |contextInfo| is the bridge back to the C++ AppModalDialog. When complete,
 // autorelease to clean ourselves up.
-- (void)sheetDidEnd:(NSWindow *)sheet
+- (void)alertDidEnd:(NSAlert *)alert
          returnCode:(int)returnCode
         contextInfo:(void*)contextInfo {
   AppModalDialog* bridge = reinterpret_cast<AppModalDialog*>(contextInfo);
+  std::wstring input;
+  if (textField_)
+    input = base::SysNSStringToWide([textField_ stringValue]);
   switch (returnCode) {
-    case NSAlertDefaultReturn:  // OK
-      bridge->OnAccept(std::wstring(), false);
+    case NSAlertFirstButtonReturn:   // OK
+      bridge->OnAccept(input, false);
       break;
-    case NSAlertOtherReturn:  // Cancel
+    case NSAlertSecondButtonReturn:  // Cancel
       bridge->OnCancel();
       break;
     default:
@@ -48,6 +81,7 @@ void AppModalDialog::CreateAndShowDialog() {
   // TODO(pinkerton): Need to find the right localized strings for these.
   NSString* default_button = NSLocalizedString(@"OK", nil);
   NSString* other_button = NSLocalizedString(@"Cancel", nil);
+  BOOL text_field = NO;
   switch (dialog_flags_) {
     case MessageBoxFlags::kIsJavascriptAlert:
       // OK & Cancel are fine for these types of alerts.
@@ -63,9 +97,7 @@ void AppModalDialog::CreateAndShowDialog() {
       }
       break;
     case MessageBoxFlags::kIsJavascriptPrompt:
-      // We need to make a custom message box for javascript prompts. Not
-      // sure how to handle this...
-      NOTIMPLEMENTED();
+      text_field = YES;
       break;
 
     default:
@@ -78,11 +110,25 @@ void AppModalDialog::CreateAndShowDialog() {
   AppModalDialogHelper* helper = [[AppModalDialogHelper alloc] init];
 
   // Show the modal dialog.
-  NSString* title_str = base::SysWideToNSString(title_);
-  NSString* message_str = base::SysWideToNSString(message_text_);
-  NSBeginAlertSheet(title_str, default_button, nil, other_button, nil,
-                    helper, @selector(sheetDidEnd:returnCode:contextInfo:),
-                    nil, this, message_str);
+  NSAlert* alert = [helper alert];
+  NSTextField* field = nil;
+  if (text_field) {
+    field = [helper textField];
+    [field setStringValue:base::SysWideToNSString(default_prompt_text_)];
+  }
+  [alert setDelegate:helper];
+  [alert setInformativeText:base::SysWideToNSString(message_text_)];
+  [alert setMessageText:base::SysWideToNSString(title_)];
+  [alert addButtonWithTitle:default_button];
+  [alert addButtonWithTitle:other_button];
+
+  [alert beginSheetModalForWindow:nil  // nil here makes it app-modal
+                    modalDelegate:helper
+                   didEndSelector:@selector(alertDidEnd:returnCode:contextInfo:)
+                      contextInfo:this];
+
+  if (field)
+    [[alert window] makeFirstResponder:field];
 }
 
 void AppModalDialog::ActivateModalDialog() {
