@@ -37,11 +37,12 @@ class WebCoreStringResource: public v8::String::ExternalStringResource {
   String impl_;
 };
 
+
 String v8StringToWebCoreString(
     v8::Handle<v8::String> v8_str, bool externalize) {
-  if (v8_str->IsExternal()) {
-    WebCoreStringResource* str_resource = static_cast<WebCoreStringResource*>(
-        v8_str->GetExternalStringResource());
+  WebCoreStringResource* str_resource = static_cast<WebCoreStringResource*>(
+      v8_str->GetExternalStringResource());
+  if (str_resource) {
     return str_resource->webcore_string();
   }
 
@@ -49,27 +50,12 @@ String v8StringToWebCoreString(
   if (length == 0) {
     // Avoid trying to morph empty strings, as they do not have enough room to
     // contain the external reference.
-    return "";
+    return StringImpl::empty();
   }
 
-  // Copy the characters from the v8::String into a WebCore::String and allocate
-  // an external resource which will be attached to the v8::String.
-  String result;
-  const int kStringSizeToCopy = 256;
-  if (length < kStringSizeToCopy) {
-    uint16_t buffer[kStringSizeToCopy];
-    v8_str->Write(buffer, 0, length);
-    result = StringImpl::create(reinterpret_cast<UChar*>(buffer), length);
-  } else {
-    StringBuffer buf(length);
-    v8_str->Write(reinterpret_cast<uint16_t*>(buf.characters()), 0, length);
-    result = String::adopt(buf);
-  }
-
-//
-//  TODO(mbelshe): Disable string morphing because it causes mystery
-//     perf regressions on intl1 and intl2 page cyclers.  It works fine
-//     on machines other than the buildbots.
+  UChar* buffer;
+  String result = String::createUninitialized(length, buffer);
+  v8_str->Write(reinterpret_cast<uint16_t*>(buffer), 0, length);
 
   if (externalize) {
     WebCoreStringResource* resource = new WebCoreStringResource(result);
@@ -83,17 +69,33 @@ String v8StringToWebCoreString(
 
 
 String v8ValueToWebCoreString(v8::Handle<v8::Value> obj) {
-  v8::Handle<v8::String> v8_str;
   if (obj->IsString()) {
-    v8_str = v8::Handle<v8::String>::Cast(obj);
-    return v8StringToWebCoreString(v8_str, true);
+    v8::Handle<v8::String> v8_str = v8::Handle<v8::String>::Cast(obj);
+    String webCoreString = v8StringToWebCoreString(v8_str, true);
+    return webCoreString;
+  } else if (obj->IsInt32()) {
+    int value = obj->Int32Value();
+    // Most numbers used are <= 100. Even if they aren't used
+    // there's very little in using the space.
+    const int kLowNumbers = 100;
+    static AtomicString lowNumbers[kLowNumbers + 1];
+    String webCoreString;
+    if (0 <= value && value <= kLowNumbers) {
+      webCoreString = lowNumbers[value];
+      if (!webCoreString) {
+        AtomicString valueString = AtomicString(String::number(value));
+        lowNumbers[value] = valueString;
+        webCoreString = valueString;
+      }
+    } else {
+      webCoreString = String::number(value);
+    }
+    return webCoreString;
   } else {
     v8::TryCatch block;
-    v8_str = obj->ToString();
-    if (v8_str.IsEmpty())
-      return "";
+    v8::Handle<v8::String> v8_str = obj->ToString();
+    return v8StringToWebCoreString(v8_str, false);
   }
-  return v8StringToWebCoreString(v8_str, false);
 }
 
 
