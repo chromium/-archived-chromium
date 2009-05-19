@@ -453,12 +453,6 @@ void DraggedTabController::WillProcessEvent(GdkEvent* event) {
 }
 #endif
 
-#else
-void DraggedTabController::WillProcessEvent(GdkEvent* event) {
-  NOTIMPLEMENTED();
-}
-#endif
-
 ///////////////////////////////////////////////////////////////////////////////
 // DraggedTabController, private:
 
