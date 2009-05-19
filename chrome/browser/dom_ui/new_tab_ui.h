@@ -12,6 +12,10 @@ class GURL;
 class PrefService;
 class Profile;
 
+namespace {
+  class NewTabHTMLSource;
+}
+
 // The TabContents used for the New Tab page.
 class NewTabUI : public DOMUI,
                  public NotificationObserver {
@@ -20,6 +24,9 @@ class NewTabUI : public DOMUI,
   ~NewTabUI();
 
   static void RegisterUserPrefs(PrefService* prefs);
+
+  // Whether we should use the prototype new tab page.
+  static bool EnableNewNewTabPage();
 
  private:
   void Observe(NotificationType type,

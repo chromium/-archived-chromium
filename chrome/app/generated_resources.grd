@@ -3295,6 +3295,10 @@ each locale. -->
                desc="The 'Bookmarks' heading on the new tab page">
         Recent bookmarks
       </message>
+      <message name="IDS_NEW_TAB_RECENT"
+               desc="The text to show for the 'Recent' heading. It is used to describe recent activity such as recent history, bookmarks, tabs, searches etc.">
+        Recent
+      </message>
       <message name="IDS_NEW_TAB_HISTORY_SHOW"
                desc="The 'Show history' link on the new tab page">
         Show full history

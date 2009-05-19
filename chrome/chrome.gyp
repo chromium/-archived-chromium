@@ -737,6 +737,8 @@
         'browser/dom_ui/dom_ui_theme_source.h',
         'browser/dom_ui/dom_ui_thumbnail_source.cc',
         'browser/dom_ui/dom_ui_thumbnail_source.h',
+        'browser/dom_ui/downloads_dom_handler.cc',
+        'browser/dom_ui/downloads_dom_handler.h',
         'browser/dom_ui/downloads_ui.cc',
         'browser/dom_ui/downloads_ui.h',
         'browser/dom_ui/fileicon_source.cc',

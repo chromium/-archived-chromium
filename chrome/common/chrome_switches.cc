@@ -454,4 +454,7 @@ const wchar_t kDisableAudio[]                  = L"disable-audio";
 // is cleaned up and playback testing completed.
 const wchar_t kSimpleDataSource[]              = L"simple-data-source";
 
+// Enables the prototype of the next version of the New Tab page.
+const wchar_t kNewNewTabPage[]                 = L"new-new-tab-page";
+
 }  // namespace switches

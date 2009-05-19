@@ -8,6 +8,7 @@
 
 #include "app/l10n_util.h"
 #include "app/resource_bundle.h"
+#include "base/command_line.h"
 #include "base/histogram.h"
 #include "base/string_piece.h"
 #include "chrome/browser/bookmarks/bookmark_model.h"
@@ -17,6 +18,7 @@
 #include "chrome/browser/dom_ui/dom_ui_favicon_source.h"
 #include "chrome/browser/dom_ui/dom_ui_thumbnail_source.h"
 #include "chrome/browser/dom_ui/dom_ui_theme_source.h"
+#include "chrome/browser/dom_ui/downloads_dom_handler.h"
 #include "chrome/browser/dom_ui/history_ui.h"
 #include "chrome/browser/history/page_usage_data.h"
 #include "chrome/browser/metrics/user_metrics.h"
@@ -29,6 +31,7 @@
 #include "chrome/browser/search_engines/template_url.h"
 #include "chrome/browser/sessions/tab_restore_service.h"
 #include "chrome/browser/user_data_manager.h"
+#include "chrome/common/chrome_switches.h"
 #include "chrome/common/jstemplate_builder.h"
 #include "chrome/common/notification_service.h"
 #include "chrome/common/pref_names.h"
@@ -242,6 +245,8 @@ void NewTabHTMLSource::StartDataRequest(const std::string& path,
       l10n_util::GetString(IDS_NEW_TAB_SEARCHES));
   localized_strings.SetString(L"bookmarks",
       l10n_util::GetString(IDS_NEW_TAB_BOOKMARKS));
+  localized_strings.SetString(L"recent",
+      l10n_util::GetString(IDS_NEW_TAB_RECENT));
   localized_strings.SetString(L"showhistory",
       l10n_util::GetString(IDS_NEW_TAB_HISTORY_SHOW));
   localized_strings.SetString(L"showhistoryurl",
@@ -278,10 +283,10 @@ void NewTabHTMLSource::StartDataRequest(const std::string& path,
 #ifdef CHROME_PERSONALIZATION
   localized_strings.SetString(L"p13nsrc", Personalization::GetNewTabSource());
 #endif
-
   static const StringPiece new_tab_html(
       ResourceBundle::GetSharedInstance().GetRawDataResource(
-          IDR_NEW_TAB_HTML));
+          NewTabUI::EnableNewNewTabPage() ?
+              IDR_NEW_NEW_TAB_HTML : IDR_NEW_TAB_HTML));
 
   const std::string full_html = jstemplate_builder::GetTemplateHtml(
       new_tab_html, &localized_strings, "t" /* template root node id */);
@@ -805,6 +810,8 @@ void RecentlyBookmarkedHandler::SendBookmarksToPage() {
     DictionaryValue* entry_value = new DictionaryValue;
     SetURLTitleAndDirection(entry_value,
                             WideToUTF16(node->GetTitle()), node->GetURL());
+    entry_value->SetInteger(L"time",
+                            static_cast<int>(node->date_added().ToTimeT()));
     list_value.Append(entry_value);
   }
   dom_ui_->CallJavascriptFunction(L"recentlyBookmarked", list_value);
@@ -1146,6 +1153,18 @@ NewTabUI::NewTabUI(TabContents* contents)
             &ChromeURLDataManager::AddDataSource,
             html_source));
   } else {
+
+    if (EnableNewNewTabPage()) {
+      DownloadManager* dlm = GetProfile()->GetDownloadManager();
+      DownloadsDOMHandler* downloads_handler =
+          new DownloadsDOMHandler(this, dlm);
+
+      AddMessageHandler(downloads_handler);
+      AddMessageHandler(new BrowsingHistoryHandler(this));
+
+      downloads_handler->Init();
+    }
+
     AddMessageHandler(new TemplateURLHandler(this));
     AddMessageHandler(new MostVisitedHandler(this));
     AddMessageHandler(new RecentlyBookmarkedHandler(this));
@@ -1196,4 +1215,10 @@ void NewTabUI::Observe(NotificationType type,
 // static
 void NewTabUI::RegisterUserPrefs(PrefService* prefs) {
   MostVisitedHandler::RegisterUserPrefs(prefs);
+}
+
+// static
+bool NewTabUI::EnableNewNewTabPage() {
+  const CommandLine* command_line = CommandLine::ForCurrentProcess();
+  return command_line->HasSwitch(switches::kNewNewTabPage);
 }
