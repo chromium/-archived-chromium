@@ -32,7 +32,7 @@ class VideoRendererImpl : public media::VideoThread {
   // be used by future implementations to implement an improved color space +
   // scale code on a separate thread.  Since we always do the stretch on the
   // same thread as the Paint method, we just ignore the call for now.
-  virtual void SetRect(const gfx::Rect& rect) {}
+  virtual void SetRect(const gfx::Rect& rect);
 
   // Paint the current front frame on the |canvas| stretching it to fit the
   // |dest_rect|
@@ -64,9 +64,24 @@ class VideoRendererImpl : public media::VideoThread {
   explicit VideoRendererImpl(WebMediaPlayerImpl* delegate);
   virtual ~VideoRendererImpl() {}
 
-  // Internal method used by the Paint method to convert the specified video
-  // frame to RGB, placing the converted pixels in the |current_frame_| bitmap.
-  void CopyToCurrentFrame(media::VideoFrame* video_frame);
+  // Determine the conditions to perform fast paint. Returns true if we can do
+  // fast paint otherwise false.
+  bool CanFastPaint(skia::PlatformCanvas* canvas, const gfx::Rect& dest_rect);
+
+  // Slow paint does a YUV => RGB, and scaled blit in two separate operations.
+  void SlowPaint(media::VideoFrame* video_frame,
+                 skia::PlatformCanvas* canvas,
+                 const gfx::Rect& dest_rect);
+
+  // Fast paint does YUV => RGB, scaling, blitting all in one step into the
+  // canvas. It's not always safe and appropriate to perform fast paint.
+  // CanFastPaint() is used to determine the conditions.
+  void FastPaint(media::VideoFrame* video_frame,
+                 skia::PlatformCanvas* canvas,
+                 const gfx::Rect& dest_rect);
+
+  void TransformToSkIRect(const SkMatrix& matrix, const gfx::Rect& src_rect,
+                          SkIRect* dest_rect);
 
   // Pointer to our parent object that is called to request repaints.
   WebMediaPlayerImpl* delegate_;
