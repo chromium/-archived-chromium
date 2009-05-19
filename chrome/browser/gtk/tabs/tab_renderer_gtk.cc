@@ -8,6 +8,7 @@
 #include "app/resource_bundle.h"
 #include "chrome/browser/browser.h"
 #include "chrome/browser/browser_theme_provider.h"
+#include "chrome/browser/gtk/custom_button.h"
 #include "chrome/browser/profile.h"
 #include "chrome/browser/tab_contents/tab_contents.h"
 #include "grit/generated_resources.h"
@@ -182,6 +183,7 @@ TabRendererGtk::TabRendererGtk()
   gtk_widget_set_app_paintable(tab_.get(), TRUE);
   g_signal_connect(G_OBJECT(tab_.get()), "expose-event",
                    G_CALLBACK(OnExpose), this);
+  close_button_.reset(MakeCloseButton());
   gtk_widget_show(tab_.get());
 
   hover_animation_.reset(new SlideAnimation(this));
@@ -239,10 +241,6 @@ void TabRendererGtk::SetVisible(bool visible) const {
   } else {
     gtk_widget_hide(tab_.get());
   }
-}
-
-void TabRendererGtk::CloseButtonResized(const gfx::Rect& bounds) {
-  // Nothing to do.
 }
 
 void TabRendererGtk::ValidateLoadingAnimation(AnimationState animation_state) {
@@ -371,11 +369,7 @@ void TabRendererGtk::ResetCrashedFavIcon() {
   should_display_crashed_favicon_ = false;
 }
 
-void TabRendererGtk::Paint(GdkEventExpose* event) {
-  gfx::CanvasPaint canvas(event, false);
-  if (canvas.isEmpty())
-    return;
-
+void TabRendererGtk::Paint(gfx::Canvas* canvas) {
   // Don't paint if we're narrower than we can render correctly. (This should
   // only happen during animations).
   if (width() < GetMinimumUnselectedSize().width())
@@ -390,42 +384,42 @@ void TabRendererGtk::Paint(GdkEventExpose* event) {
       show_close_button != showing_close_button_)
     Layout();
 
-  PaintTabBackground(&canvas);
+  PaintTabBackground(canvas);
 
   if (show_icon) {
     if (loading_animation_.animation_state() != ANIMATION_NONE) {
-      PaintLoadingAnimation(&canvas);
+      PaintLoadingAnimation(canvas);
     } else {
-      canvas.save();
-      canvas.ClipRectInt(0, 0, width(), height() - kFavIconTitleSpacing);
+      canvas->save();
+      canvas->ClipRectInt(0, 0, width(), height() - kFavIconTitleSpacing);
       if (should_display_crashed_favicon_) {
-        canvas.DrawBitmapInt(*crashed_fav_icon, 0, 0,
-                             crashed_fav_icon->width(),
-                             crashed_fav_icon->height(),
-                             favicon_bounds_.x(),
-                             favicon_bounds_.y() + fav_icon_hiding_offset_,
-                             kFavIconSize, kFavIconSize,
-                             true);
+        canvas->DrawBitmapInt(*crashed_fav_icon, 0, 0,
+                              crashed_fav_icon->width(),
+                              crashed_fav_icon->height(),
+                              favicon_bounds_.x(),
+                              favicon_bounds_.y() + fav_icon_hiding_offset_,
+                              kFavIconSize, kFavIconSize,
+                              true);
       } else {
         if (!data_.favicon.isNull()) {
           // TODO(pkasting): Use code in tab_icon_view.cc:PaintIcon() (or switch
           // to using that class to render the favicon).
-          canvas.DrawBitmapInt(data_.favicon, 0, 0,
-                               data_.favicon.width(),
-                               data_.favicon.height(),
-                               favicon_bounds_.x(),
-                               favicon_bounds_.y() + fav_icon_hiding_offset_,
-                               kFavIconSize, kFavIconSize,
-                               true);
+          canvas->DrawBitmapInt(data_.favicon, 0, 0,
+                                data_.favicon.width(),
+                                data_.favicon.height(),
+                                favicon_bounds_.x(),
+                                favicon_bounds_.y() + fav_icon_hiding_offset_,
+                                kFavIconSize, kFavIconSize,
+                                true);
         }
       }
-      canvas.restore();
+      canvas->restore();
     }
   }
 
   if (show_download_icon) {
-    canvas.DrawBitmapInt(*download_icon_,
-                         download_icon_bounds_.x(), download_icon_bounds_.y());
+    canvas->DrawBitmapInt(*download_icon_,
+                          download_icon_bounds_.x(), download_icon_bounds_.y());
   }
 
   // Paint the Title.
@@ -442,9 +436,15 @@ void TabRendererGtk::Paint(GdkEventExpose* event) {
 
   SkColor title_color = IsSelected() ? kSelectedTitleColor
                                      : kUnselectedTitleColor;
-  canvas.DrawStringInt(title, *title_font_, title_color, title_bounds_.x(),
-                       title_bounds_.y(), title_bounds_.width(),
-                       title_bounds_.height());
+  canvas->DrawStringInt(title, *title_font_, title_color, title_bounds_.x(),
+                        title_bounds_.y(), title_bounds_.width(),
+                        title_bounds_.height());
+}
+
+SkBitmap TabRendererGtk::PaintBitmap() {
+  gfx::Canvas canvas(width(), height(), false);
+  Paint(&canvas);
+  return canvas.ExtractBitmap();
 }
 
 void TabRendererGtk::SchedulePaint() {
@@ -492,7 +492,7 @@ void TabRendererGtk::Layout() {
     close_button_bounds_.SetRect(0, 0, 0, 0);
   }
 
-  CloseButtonResized(close_button_bounds_);
+  MoveCloseButtonWidget();
 
   // Size the Title text to fill the remaining space.
   int title_left = favicon_bounds_.right() + kFavIconTitleSpacing;
@@ -520,7 +520,25 @@ void TabRendererGtk::Layout() {
   // TODO(jhawkins): Handle RTL layout.
 }
 
-void TabRendererGtk::PaintTabBackground(gfx::CanvasPaint* canvas) {
+void TabRendererGtk::MoveCloseButtonWidget() {
+  if (!close_button_bounds_.IsEmpty()) {
+    gtk_fixed_move(GTK_FIXED(tab_.get()), close_button_.get()->widget(),
+                   close_button_bounds_.x(), close_button_bounds_.y());
+    gtk_widget_show(close_button_.get()->widget());
+  } else {
+    gtk_widget_hide(close_button_.get()->widget());
+  }
+}
+
+void TabRendererGtk::PaintTab(GdkEventExpose* event) {
+  gfx::CanvasPaint canvas(event, false);
+  if (canvas.isEmpty())
+    return;
+
+  Paint(&canvas);
+}
+
+void TabRendererGtk::PaintTabBackground(gfx::Canvas* canvas) {
   if (IsSelected()) {
     // Sometimes detaching a tab quickly can result in the model reporting it
     // as not being selected, so is_drag_clone_ ensures that we always paint
@@ -549,7 +567,7 @@ void TabRendererGtk::PaintTabBackground(gfx::CanvasPaint* canvas) {
   }
 }
 
-void TabRendererGtk::PaintInactiveTabBackground(gfx::CanvasPaint* canvas) {
+void TabRendererGtk::PaintInactiveTabBackground(gfx::Canvas* canvas) {
   bool is_otr = data_.off_the_record;
 
   // The tab image needs to be lined up with the background image
@@ -600,7 +618,7 @@ void TabRendererGtk::PaintInactiveTabBackground(gfx::CanvasPaint* canvas) {
       bounds_.x() + width() - tab_inactive_.r_width, bounds_.y());
 }
 
-void TabRendererGtk::PaintActiveTabBackground(gfx::CanvasPaint* canvas) {
+void TabRendererGtk::PaintActiveTabBackground(gfx::Canvas* canvas) {
   int offset = 1;
 
   SkBitmap* tab_bg = theme_provider_->GetBitmapNamed(IDR_THEME_TOOLBAR);
@@ -636,7 +654,7 @@ void TabRendererGtk::PaintActiveTabBackground(gfx::CanvasPaint* canvas) {
       bounds_.x() + width() - tab_active_.r_width, bounds_.y());
 }
 
-void TabRendererGtk::PaintLoadingAnimation(gfx::CanvasPaint* canvas) {
+void TabRendererGtk::PaintLoadingAnimation(gfx::Canvas* canvas) {
   const SkBitmap* frames =
       (loading_animation_.animation_state() == ANIMATION_WAITING) ?
       loading_animation_.waiting_animation_frames() :
@@ -678,10 +696,34 @@ bool TabRendererGtk::ShouldShowCloseBox() const {
   return IsSelected() || IconCapacity() >= 3;
 }
 
+CustomDrawButton* TabRendererGtk::MakeCloseButton() {
+  CustomDrawButton* button = new CustomDrawButton(IDR_TAB_CLOSE,
+      IDR_TAB_CLOSE_P, IDR_TAB_CLOSE_H, IDR_TAB_CLOSE);
+
+  g_signal_connect(G_OBJECT(button->widget()), "clicked",
+                   G_CALLBACK(OnCloseButtonClicked), this);
+  GTK_WIDGET_UNSET_FLAGS(button->widget(), GTK_CAN_FOCUS);
+  gtk_fixed_put(GTK_FIXED(tab_.get()), button->widget(), 0, 0);
+
+  return button;
+}
+
+void TabRendererGtk::CloseButtonClicked() {
+  // Nothing to do.
+}
+
+// static
+void TabRendererGtk::OnCloseButtonClicked(GtkWidget* widget,
+                                          TabRendererGtk* tab) {
+  tab->CloseButtonClicked();
+}
+
 // static
 gboolean TabRendererGtk::OnExpose(GtkWidget* widget, GdkEventExpose* event,
                                   TabRendererGtk* tab) {
-  tab->Paint(event);
+  tab->PaintTab(event);
+  gtk_container_propagate_expose(GTK_CONTAINER(tab->tab_.get()),
+                                 tab->close_button_.get()->widget(), event);
   return TRUE;
 }
 

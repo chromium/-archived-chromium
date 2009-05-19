@@ -7,6 +7,7 @@
 #include <gdk/gdk.h>
 
 #include "app/gfx/canvas.h"
+#include "app/gfx/gtk_util.h"
 #include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/browser/tabs/tab_strip_model.h"
 #include "chrome/browser/gtk/tabs/tab_renderer_gtk.h"
@@ -22,6 +23,11 @@ const int kTwiceDragFrameBorderSize = 2 * kDragFrameBorderSize;
 const float kScalingFactor = 0.5;
 
 const int kAnimateToBoundsDurationMs = 150;
+
+bool IsScreenComposited() {
+  GdkScreen* screen = gdk_screen_get_default();
+  return gdk_screen_is_composited(screen) == TRUE;
+}
 
 }  // namespace
 
@@ -43,7 +49,8 @@ DraggedTabGtk::DraggedTabGtk(TabContents* datasource,
   SetContainerColorMap();
   gtk_widget_set_app_paintable(container_, TRUE);
   g_signal_connect(G_OBJECT(container_), "expose-event",
-                   G_CALLBACK(OnExpose), this);
+                   G_CALLBACK(OnExposeEvent), this);
+  gtk_widget_add_events(container_, GDK_STRUCTURE_MASK);
   gtk_container_add(GTK_CONTAINER(container_), renderer_->widget());
   gtk_widget_show_all(container_);
 }
@@ -140,6 +147,13 @@ int DraggedTabGtk::ScaleValue(int value) {
   return attached_ ? value : static_cast<int>(value * kScalingFactor);
 }
 
+gfx::Rect DraggedTabGtk::bounds() const {
+  gint x, y, width, height;
+  gtk_window_get_position(GTK_WINDOW(container_), &x, &y);
+  gtk_window_get_size(GTK_WINDOW(container_), &width, &height);
+  return gfx::Rect(x, y, width, height);
+}
+
 void DraggedTabGtk::SetContainerColorMap() {
   GdkScreen* screen = gtk_widget_get_screen(container_);
   GdkColormap* colormap = gdk_screen_get_rgba_colormap(screen);
@@ -151,23 +165,58 @@ void DraggedTabGtk::SetContainerColorMap() {
   gtk_widget_set_colormap(container_, colormap);
 }
 
-// static
-gboolean DraggedTabGtk::OnExpose(GtkWidget* widget, GdkEventExpose* event,
-                                 DraggedTabGtk* dragged_tab) {
-  cairo_t* cairo_context = gdk_cairo_create(widget->window);
+void DraggedTabGtk::SetContainerTransparency() {
+  cairo_t* cairo_context = gdk_cairo_create(container_->window);
   if (!cairo_context)
-      return FALSE;
+      return;
 
   // Make the background of the dragged tab window fully transparent.  All of
   // the content of the window (child widgets) will be completely opaque.
-  gint width, height;
-  gtk_window_get_size(GTK_WINDOW(widget), &width, &height);
-  cairo_scale(cairo_context, static_cast<double>(width),
-              static_cast<double>(height));
+  gfx::Size size = bounds().size();
+  cairo_scale(cairo_context, static_cast<double>(size.width()),
+              static_cast<double>(size.height()));
   cairo_set_source_rgba(cairo_context, 1.0f, 1.0f, 1.0f, 0.0f);
   cairo_set_operator(cairo_context, CAIRO_OPERATOR_SOURCE);
   cairo_paint(cairo_context);
   cairo_destroy(cairo_context);
+}
+
+void DraggedTabGtk::SetContainerShapeMask() {
+  // Render the tab as a bitmap.
+  SkBitmap tab = renderer_->PaintBitmap();
+  GdkPixbuf* pixbuf = gfx::GdkPixbufFromSkBitmap(&tab);
+
+  // Create a 1bpp bitmap the size of |container_|.
+  gfx::Size size = bounds().size();
+  GdkPixmap* pixmap = gdk_pixmap_new(NULL, size.width(), size.height(), 1);
+  cairo_t* cairo_context = gdk_cairo_create(GDK_DRAWABLE(pixmap));
+
+  // Set the transparency.
+  cairo_set_source_rgba(cairo_context, 1, 1, 1, 0);
+
+  // Blit the rendered bitmap into a pixmap.  Any pixel set in the pixmap will
+  // be opaque in the container window.
+  cairo_set_operator(cairo_context, CAIRO_OPERATOR_SOURCE);
+  gdk_cairo_set_source_pixbuf(cairo_context, pixbuf, 0, 0);
+  cairo_paint(cairo_context);
+  cairo_destroy(cairo_context);
+
+  // Set the shape mask.
+  gdk_window_shape_combine_mask(container_->window, pixmap, 0, 0);
+  g_object_unref(pixbuf);
+  g_object_unref(pixmap);
+}
+
+// static
+gboolean DraggedTabGtk::OnExposeEvent(GtkWidget* widget,
+                                      GdkEventExpose* event,
+                                      DraggedTabGtk* dragged_tab) {
+  printf("OnExposeEvent\n");
+  if (IsScreenComposited()) {
+    dragged_tab->SetContainerTransparency();
+  } else {
+    dragged_tab->SetContainerShapeMask();
+  }
 
   return FALSE;
 }

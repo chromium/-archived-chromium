@@ -61,13 +61,25 @@ class DraggedTabGtk : public AnimationDelegate {
   // Utility for scaling a size by the current scaling factor.
   int ScaleValue(int value);
 
+  // Returns the bounds of the container window.
+  gfx::Rect bounds() const;
+
   // Sets the color map of the container window to allow the window to be
   // transparent.
   void SetContainerColorMap();
 
-  // expose-event handler that redraws the dragged tab.
-  static gboolean OnExpose(GtkWidget* widget, GdkEventExpose* event,
-                           DraggedTabGtk* dragged_tab);
+  // Sets full transparency for the container window.  This is used if
+  // compositing is available for the screen.
+  void SetContainerTransparency();
+
+  // Sets the shape mask for the container window to emulate a transparent
+  // container window.  This is used if compositing is not available for the
+  // screen.
+  void SetContainerShapeMask();
+
+  // expose-event handler that notifies when the tab needs to be redrawn.
+  static gboolean OnExposeEvent(GtkWidget* widget, GdkEventExpose* event,
+                                DraggedTabGtk* dragged_tab);
 
   // The window that contains the dragged tab or tab contents.
   GtkWidget* container_;

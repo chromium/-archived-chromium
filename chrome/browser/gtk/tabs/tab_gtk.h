@@ -13,8 +13,6 @@ namespace gfx {
 class Path;
 }
 
-class CustomDrawButton;
-
 class TabGtk : public TabRendererGtk {
  public:
   // An interface implemented by an object that can help this Tab complete
@@ -82,8 +80,7 @@ class TabGtk : public TabRendererGtk {
   virtual bool IsSelected() const;
   virtual bool IsVisible() const;
   virtual void SetVisible(bool visible) const;
-  virtual void CloseButtonResized(const gfx::Rect& bounds);
-  virtual void Paint(GdkEventExpose* event);
+  virtual void CloseButtonClicked();
 
   // The callback that is called for every gdk event.  We use it to inspect for
   // drag-motion events when the drag is outside of the source tab.
@@ -126,16 +123,11 @@ class TabGtk : public TabRendererGtk {
   class ContextMenuController;
   friend class ContextMenuController;
 
-  // Handles the clicked signal for the close button.
-  static void OnCloseButtonClicked(GtkWidget* widget, TabGtk* tab);
-
   // Shows the context menu.
   void ShowContextMenu();
 
   // Invoked when the context menu closes.
   void ContextMenuClosed();
-
-  CustomDrawButton* MakeCloseButton();
 
   // An instance of a delegate object that can perform various actions based on
   // user gestures.
@@ -146,9 +138,6 @@ class TabGtk : public TabRendererGtk {
 
   // The context menu controller.
   scoped_ptr<ContextMenuController> menu_controller_;
-
-  // The close button.
-  scoped_ptr<CustomDrawButton> close_button_;
 
   // The windowless widget used to collect input events for the tab.
   OwnedWidgetGtk event_box_;

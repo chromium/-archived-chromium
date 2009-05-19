@@ -20,6 +20,7 @@ namespace gfx {
 class Size;
 }  // namespace gfx
 
+class CustomDrawButton;
 class TabContents;
 class ThemeProvider;
 
@@ -90,15 +91,18 @@ class TabRendererGtk : public AnimationDelegate {
   // Sets the visibility of the Tab.
   virtual void SetVisible(bool visible) const;
 
-  // Notifies subclasses that the close button has been resized to |bounds|.
-  virtual void CloseButtonResized(const gfx::Rect& bounds);
-
   // Paints the tab into |canvas|.
-  virtual void Paint(GdkEventExpose* event);
+  virtual void Paint(gfx::Canvas* canvas);
+
+  // Paints the tab into a SkBitmap.
+  virtual SkBitmap PaintBitmap();
 
   // There is no PaintNow available, so the fastest we can do is schedule a
   // paint with the windowing system.
   virtual void SchedulePaint();
+
+  // Notifies the Tab that the close button has been clicked.
+  virtual void CloseButtonClicked();
 
   // Advance the loading animation to the next frame, or hide the animation if
   // the tab isn't loading.
@@ -190,14 +194,20 @@ class TabRendererGtk : public AnimationDelegate {
   // Generates the bounds for the interior items of the tab.
   void Layout();
 
+  // Moves the close button widget within the GtkFixed container.
+  void MoveCloseButtonWidget();
+
   // Returns the largest of the favicon, title text, and the close button.
   static int GetContentHeight();
 
+  // Paints the tab, minus the close button.
+  void PaintTab(GdkEventExpose* event);
+
   // Paint various portions of the Tab
-  void PaintTabBackground(gfx::CanvasPaint* canvas);
-  void PaintInactiveTabBackground(gfx::CanvasPaint* canvas);
-  void PaintActiveTabBackground(gfx::CanvasPaint* canvas);
-  void PaintLoadingAnimation(gfx::CanvasPaint* canvas);
+  void PaintTabBackground(gfx::Canvas* canvas);
+  void PaintInactiveTabBackground(gfx::Canvas* canvas);
+  void PaintActiveTabBackground(gfx::Canvas* canvas);
+  void PaintLoadingAnimation(gfx::Canvas* canvas);
 
   // Returns the number of favicon-size elements that can fit in the tab's
   // current size.
@@ -208,6 +218,11 @@ class TabRendererGtk : public AnimationDelegate {
 
   // Returns whether the Tab should display a close button.
   bool ShouldShowCloseBox() const;
+
+  CustomDrawButton* MakeCloseButton();
+
+  // Handles the clicked signal for the close button.
+  static void OnCloseButtonClicked(GtkWidget* widget, TabRendererGtk* tab);
 
   // expose-event handler that redraws the tab.
   static gboolean OnExpose(GtkWidget* widget, GdkEventExpose* e,
@@ -275,6 +290,9 @@ class TabRendererGtk : public AnimationDelegate {
   // TODO(jhawkins): If the theme is changed after the tab is created, we'll
   // still render the old theme for this tab.
   ThemeProvider* theme_provider_;
+
+  // The close button.
+  scoped_ptr<CustomDrawButton> close_button_;
 
   DISALLOW_COPY_AND_ASSIGN(TabRendererGtk);
 };

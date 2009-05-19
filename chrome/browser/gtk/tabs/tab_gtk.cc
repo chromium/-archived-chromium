@@ -7,7 +7,6 @@
 #include "app/gfx/path.h"
 #include "app/l10n_util.h"
 #include "app/resource_bundle.h"
-#include "chrome/browser/gtk/custom_button.h"
 #include "chrome/browser/gtk/menu_gtk.h"
 #include "grit/generated_resources.h"
 #include "grit/theme_resources.h"
@@ -126,8 +125,6 @@ TabGtk::TabGtk(TabDelegate* delegate)
         GDK_LEAVE_NOTIFY_MASK | GDK_LEAVE_NOTIFY_MASK);
   gtk_container_add(GTK_CONTAINER(event_box_.get()), TabRendererGtk::widget());
   gtk_widget_show_all(event_box_.get());
-
-  close_button_.reset(MakeCloseButton());
 }
 
 TabGtk::~TabGtk() {
@@ -260,30 +257,12 @@ void TabGtk::SetVisible(bool visible) const {
   }
 }
 
-void TabGtk::CloseButtonResized(const gfx::Rect& bounds) {
-  if (!bounds.IsEmpty()) {
-    gtk_fixed_move(GTK_FIXED(TabRendererGtk::widget()),
-        close_button_.get()->widget(), bounds.x(), bounds.y());
-    gtk_widget_show(close_button_.get()->widget());
-  } else {
-    gtk_widget_hide(close_button_.get()->widget());
-  }
-}
-
-void TabGtk::Paint(GdkEventExpose* event) {
-  TabRendererGtk::Paint(event);
-
-  gtk_container_propagate_expose(GTK_CONTAINER(TabRendererGtk::widget()),
-        close_button_.get()->widget(), event);
+void TabGtk::CloseButtonClicked() {
+  delegate_->CloseTab(this);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 // TabGtk, private:
-
-// static
-void TabGtk::OnCloseButtonClicked(GtkWidget* widget, TabGtk* tab) {
-  tab->delegate_->CloseTab(tab);
-}
 
 void TabGtk::ShowContextMenu() {
   if (!menu_controller_.get())
@@ -295,16 +274,4 @@ void TabGtk::ShowContextMenu() {
 void TabGtk::ContextMenuClosed() {
   delegate()->StopAllHighlighting();
   menu_controller_.reset();
-}
-
-CustomDrawButton* TabGtk::MakeCloseButton() {
-  CustomDrawButton* button = new CustomDrawButton(IDR_TAB_CLOSE,
-      IDR_TAB_CLOSE_P, IDR_TAB_CLOSE_H, IDR_TAB_CLOSE);
-
-  g_signal_connect(G_OBJECT(button->widget()), "clicked",
-                   G_CALLBACK(OnCloseButtonClicked), this);
-  GTK_WIDGET_UNSET_FLAGS(button->widget(), GTK_CAN_FOCUS);
-  gtk_fixed_put(GTK_FIXED(TabRendererGtk::widget()), button->widget(), 0, 0);
-
-  return button;
 }
