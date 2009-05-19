@@ -167,7 +167,6 @@ RenderWidgetHostViewGtk::RenderWidgetHostViewGtk(RenderWidgetHost* widget_host)
       parent_host_view_(NULL),
       parent_(NULL),
       popup_signal_id_(0),
-      activatable_(true),
       about_to_validate_and_paint_(false),
       is_loading_(false),
       is_hidden_(false) {
@@ -193,7 +192,7 @@ void RenderWidgetHostViewGtk::InitAsPopup(
 
   // If we are not activatable, we don't want to grab keyboard input,
   // and webkit will manage our destruction.
-  if (activatable_) {
+  if (activatable()) {
     // Grab all input for the app. If a click lands outside the bounds of the
     // popup, WebKit will notice and destroy us.
     gtk_grab_add(view_.get());
@@ -333,7 +332,7 @@ void RenderWidgetHostViewGtk::Destroy() {
   // If |parent_| is non-null, we are a popup and we must disconnect from our
   // parent and destroy the popup window.
   if (parent_) {
-    if (activatable_) {
+    if (activatable()) {
       g_signal_handler_disconnect(parent_, popup_signal_id_);
       parent_host_view_->Focus();
     }

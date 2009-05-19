@@ -30,10 +30,6 @@ class RenderWidgetHostViewGtk : public RenderWidgetHostView {
   // Initialize this object for use as a drawing area.
   void InitAsChild();
 
-  // TODO(estade): unfork this with RenderWidgetHostViewWin function of same
-  // name.
-  void set_activatable(bool activatable) { activatable_ = activatable; }
-
   // ---------------------------------------------------------------------------
   // Implementation of RenderWidgetHostView...
 
@@ -95,12 +91,6 @@ class RenderWidgetHostViewGtk : public RenderWidgetHostView {
   // We connect to the parent's focus out event. When we are destroyed, we need
   // to remove this handler, so we must keep track of its id.
   gulong popup_signal_id_;
-  // This variable determines our degree of control over user input. If we are
-  // activatable, we must grab and handle all user input. If we are not
-  // activatable, then our parent render view retains more control. Example of
-  // activatable popup: <select> dropdown. Example of non-activatable popup:
-  // form autocomplete.
-  bool activatable_;
   // This is true when we are currently painting and thus should handle extra
   // paint requests by expanding the invalid rect rather than actually
   // painting.
