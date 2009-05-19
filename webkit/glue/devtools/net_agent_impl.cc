@@ -279,9 +279,9 @@ void NetAgentImpl::Serialize(const Resource& resource,
   value->SetReal(L"responseReceivedTime", resource.response_received_time);
   value->SetReal(L"endTime", resource.end_time);
 
-  value->SetString(L"url",
+  value->SetString(L"requestURL",
                    webkit_glue::StringToStdString(resource.url.string()));
-  value->SetString(L"domain",
+  value->SetString(L"host",
                    webkit_glue::StringToStdString(resource.url.host()));
   value->SetString(L"path",
                    webkit_glue::StringToStdString(resource.url.path()));
@@ -302,6 +302,9 @@ void NetAgentImpl::Serialize(const Resource& resource,
              BuildValueForHeaders(resource.request_headers));
   value->Set(L"responseHeaders",
              BuildValueForHeaders(resource.response_headers));
+
+  value->SetBoolean(L"isMainResource", false);
+  value->SetBoolean(L"cached", false);
 
   if (resource.error_code) {
     value->SetInteger(L"errorCode", resource.error_code);

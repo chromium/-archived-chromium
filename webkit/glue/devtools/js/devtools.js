@@ -491,7 +491,7 @@ WebInspector.SourceView.prototype.setupSourceFrameIfNeeded = function() {
   var netAgent = devtools.tools.getNetAgent();
 
   netAgent.getResourceContentAsync(identifier, function(source) {
-    var resource = netAgent.getResource(identifier);
+    var resource = WebInspector.resources[identifier];
     if (InspectorController.addSourceToFrame(resource.mimeType, source,
                                              element)) {
       delete self._frameNeedsSetup;
