@@ -298,6 +298,14 @@
 				>
 			</File>
 		</Filter>
+		<Filter
+			Name="TestChildProcessSecurityPolicy"
+			>
+			<File
+				RelativePath="..\..\browser\child_process_security_policy_browser_test.cc"
+				>
+			</File>
+		</Filter>
 	</Files>
 	<Globals>
 	</Globals>

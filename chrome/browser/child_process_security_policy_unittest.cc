@@ -6,15 +6,8 @@
 
 #include "base/basictypes.h"
 #include "base/file_path.h"
-#include "chrome/browser/browser.h"
-#include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/browser/child_process_security_policy.h"
-#include "chrome/browser/renderer_host/render_process_host.h"
-#include "chrome/common/chrome_paths.h"
 #include "chrome/common/url_constants.h"
-#include "chrome/test/in_process_browser_test.h"
-#include "chrome/test/ui_test_utils.h"
-#include "net/base/net_util.h"
 #include "net/url_request/url_request.h"
 #include "net/url_request/url_request_test_job.h"
 #include "testing/gtest/include/gtest/gtest.h"
@@ -273,45 +266,3 @@ TEST_F(ChildProcessSecurityPolicyTest, RemoveRace) {
   EXPECT_FALSE(p->CanUploadFile(kRendererID, file));
   EXPECT_FALSE(p->HasDOMUIBindings(kRendererID));
 }
-
-#if defined(OS_WIN)
-/*
-class ChildProcessSecurityPolicyInProcessBrowserTest
-    : public InProcessBrowserTest {
- public:
-  virtual void SetUp() {
-    EXPECT_EQ(
-      ChildProcessSecurityPolicy::GetInstance()->security_state_.size(), 0U);
-    InProcessBrowserTest::SetUp();
-  }
-
-  virtual void TearDown() {
-    EXPECT_EQ(
-      ChildProcessSecurityPolicy::GetInstance()->security_state_.size(), 0U);
-    InProcessBrowserTest::TearDown();
-  }
-};
-
-IN_PROC_BROWSER_TEST_F(ChildProcessSecurityPolicyInProcessBrowserTest, DISABLED_NoLeak) {
-  FilePath path;
-  PathService::Get(chrome::DIR_TEST_DATA, &path);
-  path = path.Append(FilePath::FromWStringHack(L"google"));
-  path = path.Append(FilePath::FromWStringHack(L"google.html"));
-  GURL url = net::FilePathToFileURL(path);
-
-  ui_test_utils::NavigateToURL(browser(), url);
-  EXPECT_EQ(
-      ChildProcessSecurityPolicy::GetInstance()->security_state_.size(), 1U);
-
-  TabContents* tab = browser()->GetTabContentsAt(0);
-  ASSERT_TRUE(tab != NULL);
-  base::KillProcess(
-      tab->process()->process().handle(), base::PROCESS_END_KILLED_BY_USER,
-      true);
-
-  tab->controller().Reload(true);
-  EXPECT_EQ(
-      ChildProcessSecurityPolicy::GetInstance()->security_state_.size(), 1U);
-}
-*/
-#endif
