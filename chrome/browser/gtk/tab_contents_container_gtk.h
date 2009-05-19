@@ -11,11 +11,12 @@
 #include "chrome/common/notification_observer.h"
 
 class RenderViewHost;
+class StatusBubbleGtk;
 class TabContents;
 
 class TabContentsContainerGtk : public NotificationObserver {
  public:
-  TabContentsContainerGtk();
+  explicit TabContentsContainerGtk(StatusBubbleGtk* status_bubble);
   ~TabContentsContainerGtk();
 
   // Inserts our GtkWidget* hierarchy into a GtkBox managed by our owner.
@@ -48,13 +49,29 @@ class TabContentsContainerGtk : public NotificationObserver {
   // get notified.
   void TabContentsDestroyed(TabContents* contents);
 
+  // Implements our hack around a GtkFixed. The entire size of the GtkFixed is
+  // allocated to normal tab contents views, while the status bubble is
+  // informed of its parent and its parent's allocation (it makes a decision
+  // about layout later.)
+  static void OnFixedSizeAllocate(
+      GtkWidget* fixed,
+      GtkAllocation* allocation,
+      TabContentsContainerGtk* container);
+
   // The currently visible TabContents.
   TabContents* tab_contents_;
 
-  // We keep a GtkVBox which is inserted into this object's owner's GtkWidget
+  // The status bubble manager.  Always non-NULL.
+  StatusBubbleGtk* status_bubble_;
+
+  // We keep a GtkFixed which is inserted into this object's owner's GtkWidget
   // hierarchy. We then insert and remove TabContents GtkWidgets into this
-  // vbox_.
-  GtkWidget* vbox_;
+  // fixed_. This should not be a GtkVBox since there were errors with timing
+  // where the vbox was horizontally split with the top half displaying the
+  // current TabContents and bottom half displaying the loading page. In
+  // addition, we need to position the status bubble on top of the currently
+  // displayed TabContents so we put that in this part of the hierarchy.
+  GtkWidget* fixed_;
 
   DISALLOW_COPY_AND_ASSIGN(TabContentsContainerGtk);
 };

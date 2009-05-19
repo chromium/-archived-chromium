@@ -5,14 +5,35 @@
 #include "chrome/browser/gtk/tab_contents_container_gtk.h"
 
 #include "base/gfx/native_widget_types.h"
+#include "chrome/browser/gtk/status_bubble_gtk.h"
 #include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/browser/renderer_host/render_widget_host_view_gtk.h"
 #include "chrome/common/notification_service.h"
 
-TabContentsContainerGtk::TabContentsContainerGtk()
+namespace {
+
+// Allocates all normal tab contents views to the size of the passed in
+// |allocation|. Ignores StatusBubbles, which are handled separately.
+void ChildrenSizeAllocate(GtkWidget* widget, void* param) {
+  GtkAllocation* allocation = reinterpret_cast<GtkAllocation*>(param);
+
+  if (strcmp(gtk_widget_get_name(widget), "status-bubble") != 0) {
+    gtk_widget_size_allocate(widget, allocation);
+  }
+}
+
+}  // namespace
+
+TabContentsContainerGtk::TabContentsContainerGtk(StatusBubbleGtk* status_bubble)
     : tab_contents_(NULL),
-      vbox_(gtk_vbox_new(FALSE, 0)) {
-  gtk_widget_show_all(vbox_);
+      status_bubble_(status_bubble),
+      fixed_(gtk_fixed_new()) {
+  gtk_fixed_put(GTK_FIXED(fixed_), status_bubble->widget(), 0, 0);
+
+  g_signal_connect(fixed_, "size-allocate",
+                   G_CALLBACK(OnFixedSizeAllocate), this);
+
+  gtk_widget_show(fixed_);
 }
 
 TabContentsContainerGtk::~TabContentsContainerGtk() {
@@ -21,7 +42,7 @@ TabContentsContainerGtk::~TabContentsContainerGtk() {
 }
 
 void TabContentsContainerGtk::AddContainerToBox(GtkWidget* box) {
-  gtk_box_pack_start(GTK_BOX(box), vbox_, TRUE, TRUE, 0);
+  gtk_box_pack_start(GTK_BOX(box), fixed_, TRUE, TRUE, 0);
 }
 
 void TabContentsContainerGtk::SetTabContents(TabContents* tab_contents) {
@@ -44,9 +65,8 @@ void TabContentsContainerGtk::SetTabContents(TabContents* tab_contents) {
 
     gfx::NativeView widget = tab_contents_->GetNativeView();
     if (widget) {
-      // Pack it into |vbox_| if it isn't already.
-      if (widget->parent != vbox_)
-        gtk_box_pack_end(GTK_BOX(vbox_), widget, TRUE, TRUE, 0);
+      if (widget->parent != fixed_)
+        gtk_fixed_put(GTK_FIXED(fixed_), widget, 0, 0);
       gtk_widget_show(widget);
     }
 
@@ -64,9 +84,11 @@ void TabContentsContainerGtk::SetTabContents(TabContents* tab_contents) {
 
 void TabContentsContainerGtk::DetachTabContents(TabContents* tab_contents) {
   gfx::NativeView widget = tab_contents_->GetNativeView();
-  if (widget) {
-    DCHECK_EQ(widget->parent, vbox_);
-    gtk_container_remove(GTK_CONTAINER(vbox_), widget);
+  // It is possible to detach an unrealized, unparented TabContents if you
+  // slow things down enough in valgrind. Might happen in the real world, too.
+  if (widget && widget->parent) {
+    DCHECK_EQ(widget->parent, fixed_);
+    gtk_container_remove(GTK_CONTAINER(fixed_), widget);
   }
 }
 
@@ -128,4 +150,17 @@ void TabContentsContainerGtk::TabContentsDestroyed(TabContents* contents) {
   // us to clean up our state in case this happens.
   DCHECK(contents == tab_contents_);
   SetTabContents(NULL);
+}
+
+// static
+void TabContentsContainerGtk::OnFixedSizeAllocate(
+    GtkWidget* fixed,
+    GtkAllocation* allocation,
+    TabContentsContainerGtk* container) {
+  // Set all the tab contents GtkWidgets to the size of the allocation.
+  gtk_container_foreach(GTK_CONTAINER(fixed), ChildrenSizeAllocate,
+                        allocation);
+
+  // Tell the status bubble about how large it can be.
+  container->status_bubble_->SetParentAllocation(fixed, allocation);
 }

@@ -4,19 +4,35 @@
 
 #include "chrome/browser/gtk/status_bubble_gtk.h"
 
+#include <gtk/gtk.h>
+
+#include "base/gfx/gtk_util.h"
 #include "base/string_util.h"
+#include "chrome/browser/gtk/slide_animator_gtk.h"
+#include "chrome/common/gtk_util.h"
 #include "googleurl/src/gurl.h"
 
-// NOTE: this code is probably the wrong approach for the status bubble.
-// Talk to evanm before you attempt to fix bugs in it -- we're probably
-// better off restructuring it.
+namespace {
 
-StatusBubbleGtk::StatusBubbleGtk(GtkWindow* parent)
-    : parent_(parent), window_(NULL) {
+const GdkColor kBackgroundColor = GDK_COLOR_RGB(0xe6, 0xed, 0xf4);
+const GdkColor kFrameBorderColor = GDK_COLOR_RGB(0xbe, 0xc8, 0xd4);
+
+// Inner padding between the border and the text label.
+const int kInternalTopBottomPadding = 1;
+const int kInternalLeftRightPadding = 2;
+
+// Border of color kFrameBorderColor around the status bubble.
+const int kBorderPadding = 1;
+
+}  // namespace
+
+StatusBubbleGtk::StatusBubbleGtk()
+    : parent_(NULL) {
+  InitWidgets();
 }
 
 StatusBubbleGtk::~StatusBubbleGtk() {
-  Hide();
+  container_.Destroy();
 }
 
 void StatusBubbleGtk::SetStatus(const std::string& status) {
@@ -25,55 +41,89 @@ void StatusBubbleGtk::SetStatus(const std::string& status) {
     return;
   }
 
-  if (!window_)
-    Create();
-
   gtk_label_set_text(GTK_LABEL(label_), status.c_str());
-  Reposition();
-  gtk_widget_show(window_);
+
+  Show();
 }
 
 void StatusBubbleGtk::SetStatus(const std::wstring& status) {
   SetStatus(WideToUTF8(status));
 }
 
+void StatusBubbleGtk::SetParentAllocation(
+    GtkWidget* parent, GtkAllocation* allocation) {
+  parent_ = parent;
+  parent_allocation_ = *allocation;
+  SetStatusBubbleSize();
+}
+
 void StatusBubbleGtk::SetURL(const GURL& url, const std::wstring& languages) {
   SetStatus(url.possibly_invalid_spec());
 }
 
+void StatusBubbleGtk::Show() {
+  SetStatusBubbleSize();
+  gtk_widget_show_all(container_.get());
+
+  if (container_.get()->window)
+    gdk_window_raise(container_.get()->window);
+}
+
 void StatusBubbleGtk::Hide() {
-  if (!window_)
-    return;
-  gtk_widget_destroy(window_);
-  window_ = NULL;
+  gtk_widget_hide_all(container_.get());
+}
+
+void StatusBubbleGtk::SetStatusBubbleSize() {
+  if (parent_) {
+    GtkRequisition requisition;
+    gtk_widget_size_request(container_.get(), &requisition);
+
+    // TODO(erg): Previously, I put a call to gtk_fixed_put() here. It appears
+    // that doing this sets off a size-allocate storm, since gtk_fixed_put()
+    // calls gtk_widget_queue_resize on the GtkFixed that caused this message.
+    // The real solution may be creating a subclass of GtkVBox that has extra
+    // code to deal with floating widgets, but this hack is good enough for
+    // Friday. evanm says that there's a a GtkFixed subclass in test_shell that
+    // we'll be stealing for plugin support anyway that should also do the same
+    // task.
+
+    GtkAllocation widget_allocation;
+    int child_y = std::max(
+        parent_allocation_.y + parent_allocation_.height - requisition.height,
+        0);
+    widget_allocation.x = 0;
+    widget_allocation.y = child_y;
+    widget_allocation.width = std::min(requisition.width,
+                                       parent_allocation_.width);
+    widget_allocation.height = requisition.height;
+    gtk_widget_size_allocate(container_.get(), &widget_allocation);
+  }
 }
 
 void StatusBubbleGtk::MouseMoved() {
-  if (!window_)
-    return;
-  // We ignore for now.
-  // TODO(port): the fancy sliding behavior.
+  // We can't do that fancy sliding behaviour where the status bubble slides
+  // out of the window because the window manager gets in the way. So totally
+  // ignore this message for now.
+  //
+  // TODO(erg): At least get some sliding behaviour so that it slides out of
+  // the way to hide the status bubble on mouseover.
 }
 
-void StatusBubbleGtk::Create() {
-  if (window_)
-    return;
+void StatusBubbleGtk::InitWidgets() {
+  label_ = gtk_label_new(NULL);
 
-  window_ = gtk_window_new(GTK_WINDOW_POPUP);
-  gtk_window_set_transient_for(GTK_WINDOW(window_), parent_);
-  gtk_container_set_border_width(GTK_CONTAINER(window_), 2);
-  label_ = gtk_label_new("");
-  gtk_widget_show(label_);
-  gtk_container_add(GTK_CONTAINER(window_), label_);
-}
+  GtkWidget* padding = gtk_alignment_new(0, 0, 1, 1);
+  gtk_alignment_set_padding(GTK_ALIGNMENT(padding),
+      kInternalTopBottomPadding, kInternalTopBottomPadding,
+      kInternalLeftRightPadding, kInternalLeftRightPadding);
+  gtk_container_add(GTK_CONTAINER(padding), label_);
 
-void StatusBubbleGtk::Reposition() {
-  int x, y, width, parent_height;
-  gdk_window_get_position(GTK_WIDGET(parent_)->window, &x, &y);
-  gtk_window_get_size(parent_, &width, &parent_height);
-  GtkRequisition requisition;
-  gtk_widget_size_request(window_, &requisition);
-  // TODO(port): RTL positioning.
-  gtk_window_move(GTK_WINDOW(window_), x,
-                  y + parent_height - requisition.height);
+  GtkWidget* bg_box = gtk_event_box_new();
+  gtk_container_add(GTK_CONTAINER(bg_box), padding);
+  gtk_widget_modify_bg(bg_box, GTK_STATE_NORMAL, &kBackgroundColor);
+
+  container_.Own(gtk_util::CreateGtkBorderBin(bg_box, &kFrameBorderColor,
+          kBorderPadding, kBorderPadding, kBorderPadding, kBorderPadding));
+  gtk_widget_set_name(container_.get(), "status-bubble");
+  gtk_widget_set_app_paintable(container_.get(), TRUE);
 }

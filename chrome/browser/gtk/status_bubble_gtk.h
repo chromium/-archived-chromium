@@ -5,17 +5,23 @@
 #ifndef CHROME_BROWSER_GTK_STATUS_BUBBLE_GTK_H_
 #define CHROME_BROWSER_GTK_STATUS_BUBBLE_GTK_H_
 
-#include <string>
-
 #include <gtk/gtk.h>
 
+#include <string>
+
+#include "base/scoped_ptr.h"
 #include "chrome/browser/status_bubble.h"
+#include "chrome/common/owned_widget_gtk.h"
 
 class GURL;
 
+// GTK implementation of StatusBubble. Unlike Windows, our status bubble
+// doesn't have the nice leave-the-window effect since we can't rely on the
+// window manager to not try to be "helpful" and center our popups, etc.
+// We therefore position it absolutely in a GtkFixed, that we don't own.
 class StatusBubbleGtk : public StatusBubble {
  public:
-  StatusBubbleGtk(GtkWindow* parent);
+  StatusBubbleGtk();
   virtual ~StatusBubbleGtk();
 
   // StatusBubble implementation.
@@ -26,22 +32,42 @@ class StatusBubbleGtk : public StatusBubble {
 
   void SetStatus(const std::string& status_utf8);
 
+  // Notification from our parent GtkFixed about its size. |allocation| is the
+  // size of our |parent| GtkFixed, and we use it to position our status bubble
+  // directly on top of the current render view.
+  void SetParentAllocation(GtkWidget* parent, GtkAllocation* allocation);
+
+  // Top of the widget hierarchy for a StatusBubble. This top level widget is
+  // guarenteed to have its gtk_widget_name set to "status-bubble" for
+  // identification.
+  GtkWidget* widget() { return container_.get(); }
+
  private:
-  // Construct the window/widget.
-  void Create();
+  // Sets the status bubble's location in the parent GtkFixed, shows the widget
+  // and makes sure that the status bubble has the highest z-order.
+  void Show();
 
-  // Reposition ourselves atop our parent window.
-  void Reposition();
+  // Builds the widgets, containers, etc.
+  void InitWidgets();
 
-  // The window we display on top of.
-  GtkWindow* parent_;
+  // An ad hoc, informally-specified, bug-ridden, slow implementation of half
+  // of GTK's requisition/allocation system. We use this to position the status
+  // bubble on top of our parent GtkFixed.
+  void SetStatusBubbleSize();
 
-  // The top-level (popup) window we own.
-  // NULL when we're not showing.
-  GtkWidget* window_;
+  // A GtkAlignment that is the child of |slide_widget_|.
+  OwnedWidgetGtk container_;
 
-  // The GtkLabel holding the text./
+  // The GtkLabel holding the text.
   GtkWidget* label_;
+
+  // Our parent GtkFixed. (We don't own this; we only keep a reference as we
+  // set our own size by notifying |parent_| of our desired size.)
+  GtkWidget* parent_;
+
+  // |parent_|'s GtkAllocation. We make sure that |container_| lives along the
+  // bottom of this and doesn't protrude.
+  GtkAllocation parent_allocation_;
 };
 
-#endif  // #ifndef CHROME_BROWSER_GTK_STATUS_BUBBLE_GTK_H_
+#endif  // CHROME_BROWSER_GTK_STATUS_BUBBLE_GTK_H_

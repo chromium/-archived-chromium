@@ -326,15 +326,15 @@ BrowserWindowGtk::BrowserWindowGtk(Browser* browser)
                      infobar_container_->widget(),
                      FALSE, FALSE, 0);
 
-  contents_container_.reset(new TabContentsContainerGtk());
+  status_bubble_.reset(new StatusBubbleGtk());
+
+  contents_container_.reset(new TabContentsContainerGtk(status_bubble_.get()));
   contents_container_->AddContainerToBox(render_area_vbox_);
 
   // Note that calling this the first time is necessary to get the
   // proper control layout.
   // TODO(port): make this a pref.
   SetCustomFrame(false);
-
-  status_bubble_.reset(new StatusBubbleGtk(window_));
 
   GtkWidget* event_box = gtk_event_box_new();
   gtk_container_add(GTK_CONTAINER(event_box), render_area_vbox_);
