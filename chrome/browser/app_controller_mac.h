@@ -6,12 +6,14 @@
 #define CHROME_BROWSER_APP_CONTROLLER_MAC_H_
 
 #import <Cocoa/Cocoa.h>
+#include <vector>
 
 #include "base/scoped_nsobject.h"
 #include "base/scoped_ptr.h"
 
 class BookmarkMenuBridge;
 class CommandUpdater;
+class GURL;
 @class PreferencesWindowController;
 class Profile;
 
@@ -25,6 +27,11 @@ class Profile;
   // (and Browser*s).
   scoped_ptr<BookmarkMenuBridge> bookmarkMenuBridge_;
   scoped_nsobject<PreferencesWindowController> prefsController_;
+
+  // URLs that need to be opened when the app is fully initialized. Because it's
+  // only needed during early startup, it points to a valid vector during early
+  // startup and is NULL during the rest of app execution.
+  scoped_ptr<std::vector<GURL> > pendingURLs_;
 }
 
 - (IBAction)quit:(id)sender;

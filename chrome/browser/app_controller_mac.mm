@@ -23,6 +23,8 @@
 
 @interface AppController(PRIVATE)
 - (void)initMenuState;
+- (void)openURLs:(const std::vector<GURL>&)urls;
+- (void)openPendingURLs;
 - (void)getUrl:(NSAppleEventDescriptor*)event
      withReply:(NSAppleEventDescriptor*)reply;
 - (void)openFiles:(NSAppleEventDescriptor*)event
@@ -35,19 +37,9 @@
 // the profile is loaded or any preferences have been registered). Defer any
 // user-data initialization until -applicationDidFinishLaunching:.
 - (void)awakeFromNib {
-  // Set up the command updater for when there are no windows open
-  [self initMenuState];
-}
+  pendingURLs_.reset(new std::vector<GURL>());
 
-// This is called after profiles have been loaded and preferences registered.
-// It is safe to access the default profile here.
-- (void)applicationDidFinishLaunching:(NSNotification*)notify {
-  // Hold an extra ref to the BrowserProcess singleton so it doesn't go away
-  // when all the browser windows get closed. We'll release it on quit which
-  // will be the signal to exit.
-  DCHECK(g_browser_process);
-  g_browser_process->AddRefModule();
-
+  // We need to register the handlers early to catch events fired on launch.
   NSAppleEventManager* em = [NSAppleEventManager sharedAppleEventManager];
   [em setEventHandler:self
           andSelector:@selector(getUrl:withReply:)
@@ -62,6 +54,19 @@
         forEventClass:kCoreEventClass
            andEventID:kAEOpenDocuments];
 
+  // Set up the command updater for when there are no windows open
+  [self initMenuState];
+}
+
+// This is called after profiles have been loaded and preferences registered.
+// It is safe to access the default profile here.
+- (void)applicationDidFinishLaunching:(NSNotification*)notify {
+  // Hold an extra ref to the BrowserProcess singleton so it doesn't go away
+  // when all the browser windows get closed. We'll release it on quit which
+  // will be the signal to exit.
+  DCHECK(g_browser_process);
+  g_browser_process->AddRefModule();
+
   bookmarkMenuBridge_.reset(new BookmarkMenuBridge());
 
   // Register any Mac-specific preferences.
@@ -74,6 +79,8 @@
   // call this from awakeFromNib.
   EncodingMenuControllerDelegate::BuildEncodingMenu([self defaultProfile]);
 
+  // Now that we're initialized we can open any URLs we've been holding onto.
+  [self openPendingURLs];
 }
 
 - (void)dealloc {
@@ -197,15 +204,28 @@
 // the ProcessSingleton, and it calls BrowserInit. It's best to bottleneck the
 // openings through that for uniform handling.
 
-namespace {
+- (void)openURLs:(const std::vector<GURL>&)urls {
+  if (pendingURLs_.get()) {
+    // too early to open; save for later
+    pendingURLs_->insert(pendingURLs_->end(), urls.begin(), urls.end());
+    return;
+  }
 
-void OpenURLs(const std::vector<GURL>& urls) {
   CommandLine dummy((std::wstring()));
   BrowserInit::LaunchWithProfile launch(std::wstring(), dummy);
   launch.OpenURLsInBrowser(BrowserList::GetLastActive(), false, urls);
 }
 
-}  // namespace
+- (void)openPendingURLs {
+  // Since the existence of pendingURLs_ is a flag that it's too early to
+  // open URLs, we need to reset pendingURLs_.
+  std::vector<GURL> urls;
+  swap(urls, *pendingURLs_);
+  pendingURLs_.reset();
+
+  if (urls.size())
+    [self openURLs:urls];
+}
 
 - (void)getUrl:(NSAppleEventDescriptor*)event
      withReply:(NSAppleEventDescriptor*)reply {
@@ -216,7 +236,7 @@ void OpenURLs(const std::vector<GURL>& urls) {
   std::vector<GURL> gurlVector;
   gurlVector.push_back(gurl);
 
-  OpenURLs(gurlVector);
+  [self openURLs:gurlVector];
 }
 
 - (void)openFiles:(NSAppleEventDescriptor*)event
@@ -249,7 +269,7 @@ void OpenURLs(const std::vector<GURL>& urls) {
     gurlVector.push_back(gurl);
   }
 
-  OpenURLs(gurlVector);
+  [self openURLs:gurlVector];
 }
 
 // Called when the preferences window is closed. We use this to release the
