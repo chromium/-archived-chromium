@@ -213,8 +213,8 @@ void VideoThread::ThreadMain() {
 
 void VideoThread::GetCurrentFrame(scoped_refptr<media::VideoFrame>* frame_out) {
   AutoLock auto_lock(lock_);
-  DCHECK_EQ(state_, INITIALIZED);
-  DCHECK(current_frame_);
+  // Either we have initialized or we have the current frame.
+  DCHECK(state_ != INITIALIZED || current_frame_);
   *frame_out = current_frame_;
 }
 
