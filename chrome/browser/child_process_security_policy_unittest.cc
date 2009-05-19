@@ -274,6 +274,8 @@ TEST_F(ChildProcessSecurityPolicyTest, RemoveRace) {
   EXPECT_FALSE(p->HasDOMUIBindings(kRendererID));
 }
 
+#if defined(OS_WIN)
+
 class ChildProcessSecurityPolicyInProcessBrowserTest
     : public InProcessBrowserTest {
  public:
@@ -311,3 +313,5 @@ IN_PROC_BROWSER_TEST_F(ChildProcessSecurityPolicyInProcessBrowserTest, NoLeak) {
   EXPECT_EQ(
       ChildProcessSecurityPolicy::GetInstance()->security_state_.size(), 1U);
 }
+
+#endif
