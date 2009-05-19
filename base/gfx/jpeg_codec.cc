@@ -184,6 +184,7 @@ bool JPEGCodec::Encode(const unsigned char* input, ColorFormat format,
                        int quality, std::vector<unsigned char>* output) {
   jpeg_compress_struct cinfo;
   CompressDestroyer destroyer;
+  destroyer.SetManagedObject(&cinfo);
   output->clear();
 
   // We set up the normal JPEG error routines, then override error_exit.
@@ -204,7 +205,6 @@ bool JPEGCodec::Encode(const unsigned char* input, ColorFormat format,
 
   // The destroyer will destroy() cinfo on exit.
   jpeg_create_compress(&cinfo);
-  destroyer.SetManagedObject(&cinfo);
 
   cinfo.image_width = w;
   cinfo.image_height = h;
@@ -395,6 +395,7 @@ bool JPEGCodec::Decode(const unsigned char* input, size_t input_size,
                        int* w, int* h) {
   jpeg_decompress_struct cinfo;
   DecompressDestroyer destroyer;
+  destroyer.SetManagedObject(&cinfo);
   output->clear();
 
   // We set up the normal JPEG error routines, then override error_exit.
@@ -414,7 +415,6 @@ bool JPEGCodec::Decode(const unsigned char* input, size_t input_size,
   // The destroyer will destroy() cinfo on exit.  We don't want to set the
   // destroyer's object until cinfo is initialized.
   jpeg_create_decompress(&cinfo);
-  destroyer.SetManagedObject(&cinfo);
 
   // set up the source manager
   jpeg_source_mgr srcmgr;
