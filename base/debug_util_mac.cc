@@ -25,10 +25,9 @@ void DebugUtil::DisableOSCrashDumps() {
                                SIGBUS,
                                SIGSEGV,
                                SIGSYS,
-                               SIGPIPE,
                                SIGXCPU,
                                SIGXFSZ};
-  // For all these signals, just wire thing sup so we exit immediately.
+  // For all these signals, just wire things up so we exit immediately.
   for (size_t i = 0; i < arraysize(signals_to_intercept); ++i) {
     signal(signals_to_intercept[i], ExitSignalHandler);
   }

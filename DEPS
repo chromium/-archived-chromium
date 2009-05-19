@@ -7,7 +7,7 @@ vars = {
 
 deps = {
   "src/breakpad/src":
-    "http://google-breakpad.googlecode.com/svn/trunk/src@328",
+    "http://google-breakpad.googlecode.com/svn/trunk/src@339",
 
   "src/googleurl":
     "http://google-url.googlecode.com/svn/trunk@103",
