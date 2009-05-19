@@ -219,8 +219,8 @@ void VideoRendererImpl::FastPaint(media::VideoFrame* video_frame,
       // Since the format is YV12, there is one U, V value per 2x2 block, thus
       // the math here.
       // TODO(hclam): handle formats other than YV12.
-      size_t uv_offset = (frame_in.strides[media::VideoSurface::kUPlane] *
-                          frame_clip_top + frame_clip_left) / 2;
+      size_t uv_offset = frame_in.strides[media::VideoSurface::kUPlane] *
+                         (frame_clip_top / 2) + frame_clip_left / 2;
       uint8* frame_clip_y = frame_in.data[media::VideoSurface::kYPlane] +
                             y_offset;
       uint8* frame_clip_u = frame_in.data[media::VideoSurface::kUPlane] +
