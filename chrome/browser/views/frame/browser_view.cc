@@ -302,6 +302,7 @@ BrowserView::~BrowserView() {
   ticker_.UnregisterTickHandler(&hung_window_detector_);
 }
 
+#if defined(OS_WIN)
 // static
 BrowserView* BrowserView::GetBrowserViewForHWND(HWND window) {
   if (IsWindow(window)) {
@@ -311,6 +312,7 @@ BrowserView* BrowserView::GetBrowserViewForHWND(HWND window) {
   }
   return NULL;
 }
+#endif
 
 int BrowserView::GetShowState() const {
   if (explicit_show_state != -1)
@@ -569,6 +571,7 @@ bool BrowserView::IsActive() const {
   return frame_->GetWindow()->IsActive();
 }
 
+#if defined(OS_WIN)
 void BrowserView::FlashFrame() {
   FLASHWINFO fwi;
   fwi.cbSize = sizeof(fwi);
@@ -578,6 +581,7 @@ void BrowserView::FlashFrame() {
   fwi.dwTimeout = 0;
   FlashWindowEx(&fwi);
 }
+#endif
 
 gfx::NativeWindow BrowserView::GetNativeHandle() {
   return GetWidget()->GetNativeView();
@@ -637,6 +641,7 @@ bool BrowserView::IsMaximized() const {
   return frame_->GetWindow()->IsMaximized();
 }
 
+#if defined(OS_WIN)
 void BrowserView::SetFullscreen(bool fullscreen) {
   if (IsFullscreen() == fullscreen)
     return;  // Nothing to do.
@@ -692,6 +697,7 @@ void BrowserView::SetFullscreen(bool fullscreen) {
   Layout();
   frame_->GetWindow()->PopForceHidden();
 }
+#endif
 
 bool BrowserView::IsFullscreen() const {
   return frame_->GetWindow()->IsFullscreen();
@@ -867,6 +873,7 @@ void BrowserView::ConfirmBrowserCloseWithPendingDownloads() {
                                     delegate)->Show();
 }
 
+#if defined(OS_WIN)
 void BrowserView::ShowHTMLDialog(HtmlDialogUIDelegate* delegate,
                                  void* parent_window) {
   HWND parent_hwnd = reinterpret_cast<HWND>(parent_window);
@@ -876,6 +883,7 @@ void BrowserView::ShowHTMLDialog(HtmlDialogUIDelegate* delegate,
   html_view->InitDialog();
   html_view->window()->Show();
 }
+#endif
 
 void BrowserView::UserChangedTheme() {
   frame_->GetWindow()->GetNonClientView()->SetUseNativeFrame(false);
@@ -1127,6 +1135,7 @@ bool BrowserView::CanClose() const {
   return true;
 }
 
+#if defined(OS_WIN)
 int BrowserView::NonClientHitTest(const gfx::Point& point) {
   // Since the TabStrip only renders in some parts of the top of the window,
   // the un-obscured area is considered to be part of the non-client caption
@@ -1205,6 +1214,7 @@ int BrowserView::NonClientHitTest(const gfx::Point& point) {
   // If the point is somewhere else, delegate to the default implementation.
   return views::ClientView::NonClientHitTest(point);
 }
+#endif
 
 gfx::Size BrowserView::GetMinimumSize() {
   // TODO: In theory the tabstrip width should probably be
