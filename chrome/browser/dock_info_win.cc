@@ -4,6 +4,10 @@
 
 #include "chrome/browser/dock_info.h"
 
+#include <atlbase.h>
+#include <atlapp.h>
+#include <atlmisc.h>
+
 #include "base/basictypes.h"
 #include "base/logging.h"
 #include "chrome/browser/browser.h"
