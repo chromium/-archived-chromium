@@ -483,6 +483,7 @@ SkBitmap BrowserView::GetOTRAvatarIcon() {
   return otr_avatar_;
 }
 
+#if defined(OS_WIN)
 void BrowserView::PrepareToRunSystemMenu(HMENU menu) {
   for (int i = 0; i < arraysize(kMenuLayout); ++i) {
     int command = kMenuLayout[i].command;
@@ -506,6 +507,7 @@ void BrowserView::PrepareToRunSystemMenu(HMENU menu) {
     }
   }
 }
+#endif
 
 // static
 void BrowserView::RegisterBrowserViewPrefs(PrefService* prefs) {
@@ -571,8 +573,8 @@ bool BrowserView::IsActive() const {
   return frame_->GetWindow()->IsActive();
 }
 
-#if defined(OS_WIN)
 void BrowserView::FlashFrame() {
+#if defined(OS_WIN)
   FLASHWINFO fwi;
   fwi.cbSize = sizeof(fwi);
   fwi.hwnd = frame_->GetWindow()->GetNativeWindow();
@@ -580,8 +582,10 @@ void BrowserView::FlashFrame() {
   fwi.uCount = 4;
   fwi.dwTimeout = 0;
   FlashWindowEx(&fwi);
-}
+#else
+  NOTIMPLEMENTED();
 #endif
+}
 
 gfx::NativeWindow BrowserView::GetNativeHandle() {
   return GetWidget()->GetNativeView();
@@ -641,8 +645,8 @@ bool BrowserView::IsMaximized() const {
   return frame_->GetWindow()->IsMaximized();
 }
 
-#if defined(OS_WIN)
 void BrowserView::SetFullscreen(bool fullscreen) {
+#if defined(OS_WIN)
   if (IsFullscreen() == fullscreen)
     return;  // Nothing to do.
 
@@ -696,8 +700,10 @@ void BrowserView::SetFullscreen(bool fullscreen) {
   ignore_layout_ = false;
   Layout();
   frame_->GetWindow()->PopForceHidden();
-}
+#else
+  NOTIMPLEMENTED();
 #endif
+}
 
 bool BrowserView::IsFullscreen() const {
   return frame_->GetWindow()->IsFullscreen();
@@ -873,17 +879,19 @@ void BrowserView::ConfirmBrowserCloseWithPendingDownloads() {
                                     delegate)->Show();
 }
 
-#if defined(OS_WIN)
 void BrowserView::ShowHTMLDialog(HtmlDialogUIDelegate* delegate,
                                  void* parent_window) {
+#if defined(OS_WIN)
   HWND parent_hwnd = reinterpret_cast<HWND>(parent_window);
   parent_hwnd = parent_hwnd ? parent_hwnd : GetWidget()->GetNativeView();
   HtmlDialogView* html_view = new HtmlDialogView(browser_.get(), delegate);
   views::Window::CreateChromeWindow(parent_hwnd, gfx::Rect(), html_view);
   html_view->InitDialog();
   html_view->window()->Show();
-}
+#else
+  NOTIMPLEMENTED();
 #endif
+}
 
 void BrowserView::UserChangedTheme() {
   frame_->GetWindow()->GetNonClientView()->SetUseNativeFrame(false);
@@ -1135,8 +1143,8 @@ bool BrowserView::CanClose() const {
   return true;
 }
 
-#if defined(OS_WIN)
 int BrowserView::NonClientHitTest(const gfx::Point& point) {
+#if defined(OS_WIN)
   // Since the TabStrip only renders in some parts of the top of the window,
   // the un-obscured area is considered to be part of the non-client caption
   // area of the window. So we need to treat hit-tests in these regions as
@@ -1213,8 +1221,10 @@ int BrowserView::NonClientHitTest(const gfx::Point& point) {
 
   // If the point is somewhere else, delegate to the default implementation.
   return views::ClientView::NonClientHitTest(point);
-}
+#else
+  NOTIMPLEMENTED();
 #endif
+}
 
 gfx::Size BrowserView::GetMinimumSize() {
   // TODO: In theory the tabstrip width should probably be

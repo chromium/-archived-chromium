@@ -9,12 +9,15 @@
 
 #include "chrome/browser/browser.h"
 #include "chrome/browser/browser_window.h"
-#include "chrome/browser/hang_monitor/hung_plugin_action.h"
-#include "chrome/browser/hang_monitor/hung_window_detector.h"
 #include "chrome/browser/tabs/tab_strip_model.h"
 #include "chrome/browser/views/frame/browser_frame.h"
 #include "views/window/client_view.h"
 #include "views/window/window_delegate.h"
+
+#if defined(OS_WIN)
+#include "chrome/browser/hang_monitor/hung_plugin_action.h"
+#include "chrome/browser/hang_monitor/hung_window_detector.h"
+#endif
 
 // NOTE: For more information about the objects and files in this directory,
 // view: http://dev.chromium.org/developers/design-documents/browser-window
@@ -60,10 +63,12 @@ class BrowserView : public BrowserWindow,
   void set_frame(BrowserFrame* frame) { frame_ = frame; }
   BrowserFrame* frame() const { return frame_; }
 
+#if defined(OS_WIN)
   // Returns a pointer to the BrowserView* interface implementation (an
   // instance of this object, typically) for a given HWND, or NULL if there is
   // no such association.
   static BrowserView* GetBrowserViewForHWND(HWND window);
+#endif
 
   // Returns the show flag that should be used to show the frame containing
   // this view.
@@ -125,10 +130,6 @@ class BrowserView : public BrowserWindow,
   // otherwise.
   bool GetAccelerator(int cmd_id, views::Accelerator* accelerator);
 
-  // Handles incoming system messages. Returns true if the message was
-  // handled.
-  bool SystemCommandReceived(UINT notification_code, const gfx::Point& point);
-
   // Shows the next app-modal dialog box, if there is one to be shown, or moves
   // an existing showing one to the front. Returns true if one was shown or
   // activated, false if none was shown.
@@ -148,9 +149,11 @@ class BrowserView : public BrowserWindow,
   // Retrieves the icon to use in the frame to indicate an OTR window.
   SkBitmap GetOTRAvatarIcon();
 
+#if defined(OS_WIN)
   // Called right before displaying the system menu to allow the BrowserView
   // to add or delete entries.
   void PrepareToRunSystemMenu(HMENU menu);
+#endif
 
   // Returns true if the Browser object associated with this BrowserView is a
   // normal-type window (i.e. a browser window, not an app or popup).
@@ -375,7 +378,7 @@ class BrowserView : public BrowserWindow,
   scoped_ptr<StatusBubbleViews> status_bubble_;
 
   // A mapping between accelerators and commands.
-  scoped_ptr<std::map<views::Accelerator, int>> accelerator_table_;
+  scoped_ptr< std::map<views::Accelerator, int> > accelerator_table_;
 
   // True if we have already been initialized.
   bool initialized_;
@@ -398,6 +401,7 @@ class BrowserView : public BrowserWindow,
   // The delegate for the encoding menu.
   scoped_ptr<EncodingMenuControllerDelegate> encoding_menu_delegate_;
 
+#if defined(OS_WIN)
   // This object is used to perform periodic actions in a worker
   // thread. It is currently used to monitor hung plugin windows.
   WorkerThreadTicker ticker_;
@@ -410,6 +414,7 @@ class BrowserView : public BrowserWindow,
   // This object is invoked by hung_window_detector_ when it detects a hung
   // plugin window.
   HungPluginAction hung_plugin_action_;
+#endif
 
   // The timer used to update frames for the Loading Animation.
   base::RepeatingTimer<BrowserView> loading_animation_timer_;

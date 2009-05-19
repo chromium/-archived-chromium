@@ -96,7 +96,7 @@ class BrowserFrameWin : public BrowserFrame, public views::WindowWin {
 
   // An unowning reference to the root view associated with the window. We save
   // a copy as a BrowserRootView to avoid evil casting later, when we need to
-  // call functions only on BrowserRootView.
+  // call functions that only exist on BrowserRootView (versus RootView).
   BrowserRootView* root_view_;
 
   bool frame_initialized_;
