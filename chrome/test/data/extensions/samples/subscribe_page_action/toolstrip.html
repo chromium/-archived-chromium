@@ -1,0 +1,58 @@
+<html>
+<script>
+  // The Page Action ID.
+  var pageActionId = "RssPageAction";
+
+  // The window this Page Action is associated with.
+  var windowId = -1;
+
+  // The TabId this Page Action is associated with.
+  var tabId = -1;
+
+  // The URL of the page that contains the feed.
+  var pageUrl = "";
+
+  // The feed URL found on the page.
+  var feedUrl = "";
+
+  chrome.self.onConnect.addListener(function(port) {
+    windowId = port.tab.windowId;
+    tabId = port.tab.id;
+    pageUrl = port.tab.url;
+
+    // This will get called from the content script using PostMessage.
+    // |feedUrls| is a list of URL feeds found on the page. We only need 1 to
+    // enable the PageAction icon in the Omnibox.
+    port.onMessage.addListener(function(feedUrls) {
+      feedUrl = feedUrls[0];
+      // Let Chrome know that the PageAction needs to be enabled for this tabId
+      // and for the url of this page.
+      if (feedUrl) {
+        chrome.pageActions.enableForTab(pageActionId,
+                                        {tabId: tabId, url: pageUrl});
+      }
+    });
+  });
+
+  // Chrome will call into us when the user clicks on the icon in the OmniBox.
+  chrome.pageActions.onExecute.addListener(function(reply) {
+    chrome.windows.getCurrent(function(window) {
+      chrome.tabs.get(reply.data.tabId, function(tab) {
+        if (window.focused) {
+          // We need to know if we are the active window, because the tab may
+          // have moved to another window and we don't want to execute this
+          // action multiple times.
+          if (reply.pageActionId == pageActionId &&
+              reply.data.tabUrl == pageUrl) {
+            // Create a new tab showing the subscription page with the right
+            // feed URL.
+            var url = "http://www.google.com/reader/view/feed/" + feedUrl;
+            chrome.tabs.create({url: "subscribe.html?" + feedUrl,
+                               windowId: windowId});
+          }
+        }
+      });
+    });
+  });
+</script>
+</html>

@@ -1,0 +1,24 @@
+<html>
+<head>
+<title>Subscribe to feed</title>
+
+<script type="text/javascript">
+  function navigate() {
+    var select = document.getElementById("readers");
+    // Grab the URL from the querystring, removing question mark at the front.
+    var feed_url = document.location.search.substring(1);
+    var url = select.options[select.selectedIndex].value + feed_url;
+    document.location = url;
+  }
+</script>
+</head>
+
+<body>
+  <img src="feed-icon-64x64.png" align="absmiddle" />
+  Subscribe to this feed using:
+    <select id="readers">
+      <option value="http://www.google.com/reader/view/feed/">Google</option>
+    </select>
+    <button onclick="navigate();">Subscribe Now</button>
+</body>
+</html>
