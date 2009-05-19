@@ -309,6 +309,15 @@ int ChromeMain(int argc, const char** argv) {
     parsed_command_line.GetSwitchValue(switches::kProcessType);
   if (process_type.empty()) {
     browser_pid = base::GetCurrentProcId();
+#if defined(OS_POSIX)
+    // Ignore SIGPIPE so we don't crash when writing to sockets that have been
+    // closed on the server end.
+    struct sigaction action;
+    action.sa_handler = SIG_IGN;
+    sigemptyset(&action.sa_mask);
+    action.sa_flags = 0;
+    CHECK(sigaction(SIGPIPE, &action, 0) == 0);
+#endif  // OS_POSIX
   } else {
     std::wstring channel_name =
       parsed_command_line.GetSwitchValue(switches::kProcessChannelID);
