@@ -47,6 +47,15 @@ PageTransition::Type LocationBarViewMac::GetPageTransition() const {
   return transition_;
 }
 
+void LocationBarViewMac::AcceptInput() {
+  AcceptInputWithDisposition(CURRENT_TAB);
+}
+
+void LocationBarViewMac::AcceptInputWithDisposition(
+    WindowOpenDisposition disposition) {
+  edit_view_->AcceptInput(disposition, false);
+}
+
 void LocationBarViewMac::FocusLocation() {
   edit_view_->FocusLocation();
 }

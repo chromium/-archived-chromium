@@ -33,9 +33,8 @@ class LocationBarViewMac : public AutocompleteEditController,
   virtual std::wstring GetInputString() const;
   virtual WindowOpenDisposition GetWindowOpenDisposition() const;
   virtual PageTransition::Type GetPageTransition() const;
-  virtual void AcceptInput() { NOTIMPLEMENTED(); }
-  virtual void AcceptInputWithDisposition(WindowOpenDisposition disposition)
-      { NOTIMPLEMENTED(); }
+  virtual void AcceptInput();
+  virtual void AcceptInputWithDisposition(WindowOpenDisposition disposition);
   virtual void FocusLocation();
   virtual void FocusSearch() { NOTIMPLEMENTED(); }
   virtual void UpdateFeedIcon() { /* http://crbug.com/8832 */ }
