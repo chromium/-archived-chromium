@@ -69,6 +69,8 @@ const wchar_t kVerboseLogging[] = L"verbose_logging";
 const wchar_t kRequireEula[] = L"require_eula";
 // Use alternate shortcut text for the main shortcut.
 const wchar_t kAltShortcutText[] = L"alternate_shortcut_text";
+// Use alternate smaller first run info bubble.
+const wchar_t kAltFirstRunBubble[] = L"oem_bubble";
 
 
 int ParseDistributionPreferences(const std::wstring& master_prefs_path) {
@@ -109,6 +111,8 @@ int ParseDistributionPreferences(const std::wstring& master_prefs_path) {
       parse_result |= MASTER_PROFILE_REQUIRE_EULA;
     if (GetBooleanPref(distro, kAltShortcutText))
       parse_result |= MASTER_PROFILE_ALT_SHORTCUT_TXT;
+    if (GetBooleanPref(distro, kAltFirstRunBubble))
+      parse_result |= MASTER_PROFILE_OEM_FIRST_RUN_BUBBLE;
   }
   return parse_result;
 }

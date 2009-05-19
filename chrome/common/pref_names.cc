@@ -462,6 +462,12 @@ const wchar_t kOptionsWindowLastTabIndex[] = L"options_window.last_tab_index";
 // This preference is only registered by the first-run procedure.
 const wchar_t kShouldShowFirstRunBubble[] = L"show-first-run-bubble";
 
+// The mere fact that this pref is registered signals that we should show the
+// smaller OEM First Run Search Information bubble when the first
+// browser window appears.
+// This preference is only registered by the first-run procedure.
+const wchar_t kShouldUseOEMFirstRunBubble[] = L"show-OEM-first-run-bubble";
+
 // Signal that we should show the welcome page when we launch Chrome.
 const wchar_t kShouldShowWelcomePage[] = L"show-welcome-page";
 

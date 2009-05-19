@@ -110,7 +110,7 @@ class LocationBarView : public LocationBar,
   virtual bool OverrideAccelerator(const views::Accelerator& accelerator);
 
   // Overridden from LocationBar:
-  virtual void ShowFirstRunBubble();
+  virtual void ShowFirstRunBubble(bool use_OEM_bubble);
   virtual std::wstring GetInputString() const;
   virtual WindowOpenDisposition GetWindowOpenDisposition() const;
   virtual PageTransition::Type GetPageTransition() const;
@@ -421,7 +421,7 @@ class LocationBarView : public LocationBar,
   void OnMouseEvent(const views::MouseEvent& event, UINT msg);
 
   // Helper to show the first run info bubble.
-  void ShowFirstRunBubbleInternal();
+  void ShowFirstRunBubbleInternal(bool use_OEM_bubble);
 
   // Current profile. Not owned by us.
   Profile* profile_;

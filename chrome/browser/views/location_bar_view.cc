@@ -940,7 +940,7 @@ void LocationBarView::ShowInfoBubbleTask::Cancel() {
 
 // -----------------------------------------------------------------------------
 
-void LocationBarView::ShowFirstRunBubbleInternal() {
+void LocationBarView::ShowFirstRunBubbleInternal(bool use_OEM_bubble) {
   if (!location_entry_view_)
     return;
   if (!location_entry_view_->GetWidget()->IsActive()) {
@@ -969,7 +969,7 @@ void LocationBarView::ShowFirstRunBubbleInternal() {
 
   FirstRunBubble::Show(profile_,
       location_entry_view_->GetRootView()->GetWidget()->GetNativeView(),
-      bounds);
+      bounds, use_OEM_bubble);
 }
 
 // LocationBarImageView---------------------------------------------------------
@@ -1257,10 +1257,10 @@ bool LocationBarView::OverrideAccelerator(
 ////////////////////////////////////////////////////////////////////////////////
 // LocationBarView, LocationBar implementation:
 
-void LocationBarView::ShowFirstRunBubble() {
+void LocationBarView::ShowFirstRunBubble(bool use_OEM_bubble) {
   // We wait 30 milliseconds to open. It allows less flicker.
   Task* task = first_run_bubble_.NewRunnableMethod(
-      &LocationBarView::ShowFirstRunBubbleInternal);
+      &LocationBarView::ShowFirstRunBubbleInternal, use_OEM_bubble);
   MessageLoop::current()->PostDelayedTask(FROM_HERE, task, 30);
 }
 

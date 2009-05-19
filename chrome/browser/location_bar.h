@@ -22,7 +22,7 @@ class TabContents;
 class LocationBar {
  public:
   // Shows the first run information bubble anchored to the location bar.
-  virtual void ShowFirstRunBubble() = 0;
+  virtual void ShowFirstRunBubble(bool use_OEM_bubble) = 0;
 
   // Returns the string of text entered in the location bar.
   virtual std::wstring GetInputString() const = 0;

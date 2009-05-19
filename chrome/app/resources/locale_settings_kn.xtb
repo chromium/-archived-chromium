@@ -6,7 +6,9 @@
 <translation id="IDS_UI_FONT_FAMILY_XP">default</translation> 
 <translation id="IDS_UI_FONT_FAMILY">default</translation>
 <translation id="IDS_UI_FONT_SIZE_SCALER_XP">142</translation>
+
 <translation id="IDS_UI_FONT_SIZE_SCALER">130</translation>
+
 <translation id="IDS_ACCEPT_LANGUAGES">kn-IN,kn,en-US,en</translation>
 <translation id="IDS_DEFAULT_ENCODING">ISO-8859-1</translation>
 <translation id="IDS_STANDARD_FONT_IS_SERIF">true</translation>
@@ -56,6 +58,10 @@
 <translation id="IDS_IMPORTLOCK_DIALOG_HEIGHT_LINES">8</translation>
 <translation id="IDS_FIRSTRUNBUBBLE_DIALOG_WIDTH_CHARS">99</translation>
 <translation id="IDS_FIRSTRUNBUBBLE_DIALOG_HEIGHT_LINES">12</translation>
+<translation id="IDS_FIRSTRUNOEMBUBBLE_DIALOG_WIDTH_CHARS">70</translation>
+
+<translation id="IDS_FIRSTRUNOEMBUBBLE_DIALOG_HEIGHT_LINES">4</translation>
+
 <translation id="IDS_STATIC_ENCODING_LIST">ISO-8859-1,windows-1252</translation>
 <translation id="IDS_BOOKMARK_MANAGER_DIALOG_WIDTH_CHARS">150</translation>
 <translation id="IDS_BOOKMARK_MANAGER_DIALOG_HEIGHT_LINES">40</translation>

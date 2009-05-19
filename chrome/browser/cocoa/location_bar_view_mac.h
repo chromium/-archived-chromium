@@ -29,7 +29,7 @@ class LocationBarViewMac : public AutocompleteEditController,
   virtual ~LocationBarViewMac();
 
   // Overridden from LocationBar
-  virtual void ShowFirstRunBubble() { NOTIMPLEMENTED(); }
+  virtual void ShowFirstRunBubble(bool use_OEM_bubble) { NOTIMPLEMENTED(); }
   virtual std::wstring GetInputString() const;
   virtual WindowOpenDisposition GetWindowOpenDisposition() const;
   virtual PageTransition::Type GetPageTransition() const;

@@ -150,7 +150,7 @@ std::wstring LocationBarViewGtk::GetTitle() const {
   return std::wstring();
 }
 
-void LocationBarViewGtk::ShowFirstRunBubble() {
+void LocationBarViewGtk::ShowFirstRunBubble(bool use_OEM_bubble) {
   NOTIMPLEMENTED();
 }
 

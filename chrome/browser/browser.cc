@@ -280,9 +280,12 @@ void Browser::CreateBrowserWindow() {
     return;
   if (local_state->IsPrefRegistered(prefs::kShouldShowFirstRunBubble) &&
       local_state->GetBoolean(prefs::kShouldShowFirstRunBubble)) {
+    bool show_OEM_bubble = (local_state->
+        IsPrefRegistered(prefs::kShouldUseOEMFirstRunBubble) &&
+        local_state->GetBoolean(prefs::kShouldUseOEMFirstRunBubble));
     // Reset the preference so we don't show the bubble for subsequent windows.
     local_state->ClearPref(prefs::kShouldShowFirstRunBubble);
-    window_->GetLocationBar()->ShowFirstRunBubble();
+    window_->GetLocationBar()->ShowFirstRunBubble(show_OEM_bubble);
   }
 
   FindBar* find_bar = BrowserWindow::CreateFindBar(this);

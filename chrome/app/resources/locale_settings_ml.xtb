@@ -25,6 +25,7 @@
 <translation id="IDS_OPTIONS_DIALOG_HEIGHT_LINES">33</translation>
 <translation id="IDS_OPTIONS_DIALOG_LEFT_COLUMN_WIDTH_CHARS">26</translation>
 <translation id="IDS_OPTIONS_RESET_CONFIRM_BOX_WIDTH_CHARS">87</translation>
+
 <translation id="IDS_BUGREPORT_DIALOG_WIDTH_CHARS">85</translation>
 <translation id="IDS_BUGREPORT_DIALOG_HEIGHT_LINES">17</translation>
 <translation id="IDS_CLEARDATA_DIALOG_WIDTH_CHARS">82</translation>
@@ -56,6 +57,10 @@
 <translation id="IDS_IMPORTLOCK_DIALOG_HEIGHT_LINES">8</translation>
 <translation id="IDS_FIRSTRUNBUBBLE_DIALOG_WIDTH_CHARS">108</translation>
 <translation id="IDS_FIRSTRUNBUBBLE_DIALOG_HEIGHT_LINES">12</translation>
+<translation id="IDS_FIRSTRUNOEMBUBBLE_DIALOG_WIDTH_CHARS">70</translation>
+
+<translation id="IDS_FIRSTRUNOEMBUBBLE_DIALOG_HEIGHT_LINES">4</translation>
+
 <translation id="IDS_STATIC_ENCODING_LIST">ISO-8859-1,windows-1252</translation>
 <translation id="IDS_BOOKMARK_MANAGER_DIALOG_WIDTH_CHARS">150</translation>
 <translation id="IDS_BOOKMARK_MANAGER_DIALOG_HEIGHT_LINES">40</translation>

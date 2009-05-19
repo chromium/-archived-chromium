@@ -266,6 +266,9 @@ bool FirstRun::ProcessMasterPreferences(const FilePath& user_data_dir,
     }
   }
 
+  if (parse_result & installer_util::MASTER_PROFILE_OEM_FIRST_RUN_BUBBLE)
+    FirstRun::SetOEMFirstRunBubblePref();
+
   FilePath user_prefs = FilePath::FromWStringHack(
       GetDefaultPrefFilePath(true, user_data_dir.ToWStringHack()));
   if (user_prefs.empty())
@@ -636,6 +639,18 @@ bool FirstRun::SetShowFirstRunBubblePref() {
   if (!local_state->IsPrefRegistered(prefs::kShouldShowFirstRunBubble)) {
     local_state->RegisterBooleanPref(prefs::kShouldShowFirstRunBubble, false);
     local_state->SetBoolean(prefs::kShouldShowFirstRunBubble, true);
+  }
+  return true;
+}
+
+bool FirstRun::SetOEMFirstRunBubblePref() {
+  PrefService* local_state = g_browser_process->local_state();
+  if (!local_state)
+    return false;
+  if (!local_state->IsPrefRegistered(prefs::kShouldUseOEMFirstRunBubble)) {
+    local_state->RegisterBooleanPref(prefs::kShouldUseOEMFirstRunBubble,
+                                     false);
+    local_state->SetBoolean(prefs::kShouldUseOEMFirstRunBubble, true);
   }
   return true;
 }

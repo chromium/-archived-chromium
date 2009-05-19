@@ -507,6 +507,15 @@
         12
       </message>
 
+      <!-- The width and height of the First Run Search Information mini -->
+      <!-- bubble in characters and lines (See above). -->
+      <message name="IDS_FIRSTRUNOEMBUBBLE_DIALOG_WIDTH_CHARS" use_name_for_id="true">
+        70
+      </message>
+      <message name="IDS_FIRSTRUNOEMBUBBLE_DIALOG_HEIGHT_LINES" use_name_for_id="true">
+        4
+      </message>
+
       <!-- The URL to be loaded to display Help -->
       <message name="IDS_HELP_CONTENT_URL" translateable="false">
         http://www.google.com/support/chrome/?hl=[GRITLANGCODE]
