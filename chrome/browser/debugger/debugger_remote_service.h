@@ -27,6 +27,8 @@ struct DebuggerRemoteServiceCommand {
   static const std::string kDetach;
   static const std::string kDebuggerCommand;
   static const std::string kEvaluateJavascript;
+  static const std::string kFrameNavigate;  // navigation event
+  static const std::string kTabClosed;  // tab closing event
 };
 
 // Handles V8 debugger-related messages from the remote debugger (like
@@ -41,8 +43,14 @@ class DebuggerRemoteService : public DevToolsRemoteListener {
   explicit DebuggerRemoteService(DevToolsProtocolHandler* delegate);
   virtual ~DebuggerRemoteService();
 
-  // Handles a JSON message from the tab_id-associated V8 debugger.
-  void DebuggerOutput(int32 tab_id, const std::string& message);
+  // Handles a JSON message from the tab_uid-associated V8 debugger.
+  void DebuggerOutput(int32 tab_uid, const std::string& message);
+
+  // Handles a frame navigation event.
+  void FrameNavigate(int32 tab_uid, const std::string& url);
+
+  // Handles a tab closing event.
+  void TabClosed(int32 tab_uid);
 
   // Detaches the remote debugger from the tab specified by |destination|.
   // It is public so that we can detach from the tab on the remote debugger

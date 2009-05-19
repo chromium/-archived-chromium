@@ -17,12 +17,14 @@
 #include "chrome/common/devtools_messages.h"
 
 void DevToolsClientHostImpl::InspectedTabClosing() {
+  static const std::string kEmptyUrl = "";
+  TabClosed();
   NotifyCloseListener();
   delete this;
 }
 
 void DevToolsClientHostImpl::SetInspectedTabUrl(const std::string& url) {
-  //TODO(apavlov): Notify debugger on the url update.
+  // TODO(apavlov): Notify debugger on the url update if necessary.
 }
 
 void DevToolsClientHostImpl::SendMessageToClient(
@@ -35,7 +37,10 @@ void DevToolsClientHostImpl::SendMessageToClient(
 
 void DevToolsClientHostImpl::OnRpcMessage(const std::string& msg) {
   static const std::string kDebuggerAgentDelegate = "DebuggerAgentDelegate";
+  static const std::string kToolsAgentDelegate = "ToolsAgentDelegate";
   static const std::string kDebuggerOutput = "DebuggerOutput";
+  static const std::string kFrameNavigate = "FrameNavigate";
+
   scoped_ptr<Value> message(JSONReader::Read(msg, false));
   if (!message->IsType(Value::TYPE_LIST)) {
     NOTREACHED();  // The RPC protocol has changed :(
@@ -50,11 +55,24 @@ void DevToolsClientHostImpl::OnRpcMessage(const std::string& msg) {
     std::string str;
     list_msg->GetString(2, &str);
     DebuggerOutput(str);
+  } else if (class_name == kToolsAgentDelegate &&
+             message_name == kFrameNavigate) {
+    std::string url;
+    list_msg->GetString(2, &url);
+    FrameNavigate(url);
   }
 }
 
 void DevToolsClientHostImpl::DebuggerOutput(const std::string& msg) {
   service_->DebuggerOutput(id_, msg);
+}
+
+void DevToolsClientHostImpl::FrameNavigate(const std::string& url) {
+  service_->FrameNavigate(id_, url);
+}
+
+void DevToolsClientHostImpl::TabClosed() {
+  service_->TabClosed(id_);
 }
 
 const InspectableTabProxy::ControllersMap&

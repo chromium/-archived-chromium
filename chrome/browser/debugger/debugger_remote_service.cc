@@ -32,6 +32,11 @@ static const std::wstring kDataWide = L"data";
 // DictionaryValue field (which requires a wide string).
 static const std::wstring kResultWide = L"result";
 
+// A constant for the "command" JSON message field.
+// The type is wstring because the constant is used to get a
+// DictionaryValue field (which requires a wide string).
+static const std::wstring kCommandWide = L"command";
+
 }  // namespace
 
 const std::string DebuggerRemoteServiceCommand::kAttach = "attach";
@@ -40,6 +45,10 @@ const std::string DebuggerRemoteServiceCommand::kDebuggerCommand =
     "debugger_command";
 const std::string DebuggerRemoteServiceCommand::kEvaluateJavascript =
     "evaluate_javascript";
+const std::string DebuggerRemoteServiceCommand::kFrameNavigate =
+    "navigated";
+const std::string DebuggerRemoteServiceCommand::kTabClosed =
+    "closed";
 
 const std::string DebuggerRemoteService::kToolName = "V8Debugger";
 
@@ -55,7 +64,6 @@ DebuggerRemoteService::~DebuggerRemoteService() {}
 // V8 debugger via DevToolsClientHost.
 void DebuggerRemoteService::HandleMessage(
     const DevToolsRemoteMessage& message) {
-  static const std::wstring kCommandWide = L"command";
   const std::string destination = message.destination();
   scoped_ptr<Value> request(JSONReader::Read(message.content(), true));
   if (request.get() == NULL) {
@@ -152,7 +160,7 @@ TabContents* DebuggerRemoteService::ToTabContents(int32 tab_uid) {
 // a message from the V8 VM debugger corresponding to |tab_id| is received.
 // Composes a Chrome Developer Tools Protocol JSON response and sends it
 // to the remote debugger.
-void DebuggerRemoteService::DebuggerOutput(int32 tab_id,
+void DebuggerRemoteService::DebuggerOutput(int32 tab_uid,
                                            const std::string& message) {
   std::string content = StringPrintf(
       "{\"command\":\"%s\",\"result\":%s,\"data\":%s}",
@@ -162,9 +170,32 @@ void DebuggerRemoteService::DebuggerOutput(int32 tab_id,
   scoped_ptr<DevToolsRemoteMessage> response_message(
       DevToolsRemoteMessageBuilder::instance().Create(
           kToolName,
-          IntToString(tab_id),
+          IntToString(tab_uid),
           content));
   delegate_->Send(*(response_message.get()));
+}
+
+// Gets invoked from a DevToolsClientHost callback whenever
+// a tab corresponding to |tab_id| changes its URL. |url| is the new
+// URL of the tab (may be the same as the previous one if the tab is reloaded).
+// Sends the corresponding message to the remote debugger.
+void DebuggerRemoteService::FrameNavigate(int32 tab_uid,
+                                          const std::string& url) {
+  DictionaryValue value;
+  value.SetString(kCommandWide, DebuggerRemoteServiceCommand::kFrameNavigate);
+  value.SetInteger(kResultWide, RESULT_OK);
+  value.SetString(kDataWide, url);
+  SendResponse(value, kToolName, IntToString(tab_uid));
+}
+
+// Gets invoked from a DevToolsClientHost callback whenever
+// a tab corresponding to |tab_id| gets closed.
+// Sends the corresponding message to the remote debugger.
+void DebuggerRemoteService::TabClosed(int32 tab_id) {
+  DictionaryValue value;
+  value.SetString(kCommandWide, DebuggerRemoteServiceCommand::kTabClosed);
+  value.SetInteger(kResultWide, RESULT_OK);
+  SendResponse(value, kToolName, IntToString(tab_id));
 }
 
 // Attaches a remote debugger to the target tab specified by |destination|
