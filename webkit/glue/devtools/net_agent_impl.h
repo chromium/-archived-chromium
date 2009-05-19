@@ -118,6 +118,8 @@ class NetAgentImpl : public NetAgent {
   // Serializes headers map into a value.
   static Value* BuildValueForHeaders(const WebCore::HTTPHeaderMap& headers);
 
+  void ExpireFinishedResourcesCache();
+
   NetAgentDelegate* delegate_;
   WebCore::Document* document_;
   RefPtr<WebCore::DocumentLoader> main_loader_;
