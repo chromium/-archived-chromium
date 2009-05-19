@@ -8,8 +8,8 @@
 
 @implementation TabController
 
-@synthesize image = image_;
 @synthesize loading = loading_;
+@synthesize waiting = waiting_;
 @synthesize target = target_;
 @synthesize action = action_;
 
@@ -23,13 +23,11 @@
 - (id)init {
   self = [super initWithNibName:@"TabView" bundle:mac_util::MainAppBundle()];
   if (self != nil) {
-    [self setImage:[NSImage imageNamed:@"nav"]];
   }
   return self;
 }
 
 - (void)dealloc {
-  [image_ release];
   [super dealloc];
 }
 
@@ -44,6 +42,7 @@
 
 // Called when the tab's nib is done loading and all outlets are hooked up.
 - (void)awakeFromNib {
+  [(id)iconView_ setImage:[NSImage imageNamed:@"nav"]];
   [[self view] addSubview:backgroundButton_
                positioned:NSWindowBelow
                relativeTo:nil];
@@ -64,6 +63,18 @@
 
 - (BOOL)selected {
   return selected_;
+}
+
+- (void)setIconView:(NSView*)iconView {
+  NSRect currentFrame = [iconView_ frame];
+  [iconView_ removeFromSuperview];
+  iconView_ = iconView;
+  [iconView_ setFrame:currentFrame];
+  [[self view] addSubview:iconView_];
+}
+
+- (NSView*)iconView {
+  return iconView_;
 }
 
 @end

@@ -7,8 +7,11 @@
 
 #import <Cocoa/Cocoa.h>
 
-// A button cell that handles drawing/highlighting of tabs in the
-// tab bar.
+// A button cell that handles drawing/highlighting of tabs in the tab bar. Text
+// drawing leaves room for an icon view on the left of the tab and a close
+// button on the right. Technically, though, it doesn't know anything about what
+// it's leaving space for, so they could be reversed or even replaced by views
+// for other purposes.
 
 @interface TabCell : NSButtonCell {
 }

@@ -16,6 +16,7 @@
 #import "chrome/browser/cocoa/tab_controller.h"
 #import "chrome/browser/cocoa/tab_strip_model_observer_bridge.h"
 #import "chrome/browser/cocoa/tab_view.h"
+#import "chrome/browser/cocoa/throbber_view.h"
 #include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/browser/tab_contents/tab_contents_view.h"
 #include "chrome/browser/tabs/tab_strip_model.h"
@@ -357,6 +358,18 @@
   [self layoutTabs];
 }
 
+// A helper routine for creating an NSImageView to hold the fav icon for
+// |contents|.
+// TODO(pinkerton): fill in with code to use the real favicon, not the default
+// for all cases.
+- (NSImageView*)favIconImageViewForContents:(TabContents*)contents {
+  NSRect iconFrame = NSMakeRect(0, 0, 16, 16);
+  NSImageView* view = [[[NSImageView alloc] initWithFrame:iconFrame]
+                          autorelease];
+  [view setImage:[NSImage imageNamed:@"nav"]];
+  return view;
+}
+
 // Called when a notification is received from the model that the given tab
 // has been updated. |loading| will be YES when we only want to update the
 // throbber state, not anything else about the (partially) loading tab.
@@ -365,6 +378,35 @@
                    loadingOnly:(BOOL)loading {
   if (!loading)
     [self setTabTitle:[tabArray_ objectAtIndex:index] withContents:contents];
+
+  // Update the current loading state, replacing the icon with a throbber, or
+  // vice versa. This will get called repeatedly with the same state during a
+  // load, so we need to make sure we're not creating the throbber view over and
+  // over.
+  if (contents) {
+    TabController* tabController = [tabArray_ objectAtIndex:index];
+    NSString* imageName = nil;
+    if (contents->waiting_for_response() && ![tabController waiting]) {
+      imageName = @"throbber_waiting";
+      [tabController setWaiting:YES];
+    } else if (contents->is_loading() && ![tabController loading]) {
+      imageName = @"throbber";
+      [tabController setLoading:YES];
+    }
+    if (imageName) {
+      NSRect frame = NSMakeRect(0, 0, 16, 16);
+      NSImage* image = [NSImage imageNamed:imageName];
+      ThrobberView* throbber =
+          [[[ThrobberView alloc] initWithFrame:frame image:image] autorelease];
+      [tabController setIconView:throbber];
+    }
+    else if (!contents->is_loading()) {
+      // Set everything back to normal, we're done loading.
+      [tabController setIconView:[self favIconImageViewForContents:contents]];
+      [tabController setWaiting:NO];
+      [tabController setLoading:NO];
+    }
+  }
 
   TabContentsController* updatedController =
       [tabContentsArray_ objectAtIndex:index];

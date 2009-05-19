@@ -145,11 +145,14 @@ namespace {
 
   [[NSGraphicsContext currentContext] restoreGraphicsState];
 
-  // Inset where the text and favicon are drawn to keep them away from the
-  // sloping edges of the tab and the close box.
-  int kInteriorInset = cellFrame.size.height / 2.0;
-  NSRect frame = NSInsetRect(cellFrame, kInteriorInset, 0);
-  frame.size.width -= 16; // Inset for close box
+  // Inset where the text is drawn to keep it away from the sloping edges of the
+  // tab, the close box, and the icon view. These constants are derived
+  // empirically as the cell doesn't know about the surrounding view objects.
+  // TODO(pinkerton/alcor): Fix this somehow?
+  const int kIconXOffset = 28;
+  const int kCloseBoxXOffset = 16;
+  NSRect frame = NSOffsetRect(cellFrame, kIconXOffset, 0);
+  frame.size.width -= kCloseBoxXOffset + kIconXOffset;
   [self drawInteriorWithFrame:frame
                        inView:controlView];
 }

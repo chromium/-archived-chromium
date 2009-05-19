@@ -14,21 +14,33 @@
 // to be sent a message when the tab is selected by the user clicking. Setting
 // the |loading| property to YES visually indicates that this tab is currently
 // loading content via a spinner.
+//
+// The tab has the notion of an "icon view" which can be used to display
+// identifying characteristics such as a favicon, or since it's a full-fledged
+// view, something with state and animation such as a throbber for illustrating
+// progress. The default in the nib is an image view so nothing special is
+// required if that's all you need.
 
 @interface TabController : NSViewController {
  @private
   IBOutlet NSButton *backgroundButton_;
-  IBOutlet NSProgressIndicator *progressIndicator_;
+  IBOutlet NSView* iconView_;
   BOOL selected_;
   BOOL loading_;
-  NSImage *image_;
+  BOOL waiting_;
   id<TabControllerTarget> target_;  // weak, where actions are sent
   SEL action_;  // selector sent when tab is selected by clicking
 }
 
-@property(retain, nonatomic) NSImage *image;
-@property(assign, nonatomic) BOOL selected;
+// The loading/waiting state of the tab.
+// TODO(pinkerton): these really don't belong here, but something needs to
+// know the state and another parallel array in TabStripController doesn't seem
+// like the right place either. In a perfect world, this class shouldn't know
+// anything about states that are specific to a browser.
 @property(assign, nonatomic) BOOL loading;
+@property(assign, nonatomic) BOOL waiting;
+
+@property(assign, nonatomic) BOOL selected;
 @property(assign, nonatomic) id target;
 @property(assign, nonatomic) SEL action;
 
@@ -42,6 +54,11 @@
 // Closes the associated TabView by relaying the message to |target_| to
 // perform the close.
 - (IBAction)closeTab:(id)sender;
+
+// Replace the current icon view with the given view. |iconView| will be
+// resized to the size of the current icon view.
+- (void)setIconView:(NSView*)iconView;
+- (NSView*)iconView;
 
 @end
 
