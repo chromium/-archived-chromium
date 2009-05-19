@@ -9,8 +9,7 @@
 #include "base/scoped_ptr.h"
 #include "googleurl/src/gurl.h"
 #include "testing/gtest/include/gtest/gtest.h"
-
-#include "SkBitmap.h"
+#include "third_party/skia/include/core/SkBitmap.h"
 
 // Tests that serialize/deserialize correctly understand each other
 TEST(IPCMessageTest, Serialize) {

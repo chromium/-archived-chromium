@@ -7,8 +7,8 @@
 #include "base/file_util.h"
 #include "base/scoped_ptr.h"
 #include "base/stl_util-inl.h"
-#include "SkBitmap.h"
-#include "SkCanvas.h"
+#include "third_party/skia/include/core/SkBitmap.h"
+#include "third_party/skia/include/core/SkCanvas.h"
 
 IconManager::IconManager() {
 }

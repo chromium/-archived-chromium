@@ -5,10 +5,10 @@
 #include "skia/ext/bitmap_platform_device_mac.h"
 
 #include "skia/ext/skia_utils_mac.h"
-#include "SkMatrix.h"
-#include "SkPath.h"
-#include "SkTypes.h"
-#include "SkUtils.h"
+#include "third_party/skia/include/core/SkMatrix.h"
+#include "third_party/skia/include/core/SkPath.h"
+#include "third_party/skia/include/core/SkTypes.h"
+#include "third_party/skia/include/core/SkUtils.h"
 
 namespace skia {
 

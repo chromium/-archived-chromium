@@ -6,13 +6,12 @@
 
 #include <time.h>
 
-#include "SkMatrix.h"
-#include "SkRegion.h"
-#include "SkTypes.h"
-#include "SkUtils.h"
-
 #include "base/ref_counted.h"
 #include "skia/ext/skia_utils_mac.h"
+#include "third_party/skia/include/core/SkMatrix.h"
+#include "third_party/skia/include/core/SkRegion.h"
+#include "third_party/skia/include/core/SkTypes.h"
+#include "third_party/skia/include/core/SkUtils.h"
 
 namespace skia {
 

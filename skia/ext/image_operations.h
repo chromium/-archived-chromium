@@ -8,7 +8,7 @@
 #include "base/basictypes.h"
 #include "base/gfx/rect.h"
 #include "skia/ext/skia_utils.h"
-#include "SkColor.h"
+#include "third_party/skia/include/core/SkColor.h"
 
 class SkBitmap;
 

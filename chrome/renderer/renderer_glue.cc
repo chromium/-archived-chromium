@@ -25,6 +25,7 @@
 #include "chrome/renderer/render_process.h"
 #include "chrome/renderer/render_thread.h"
 #include "googleurl/src/url_util.h"
+#include "third_party/skia/include/core/SkBitmap.h"
 #include "webkit/api/public/WebKit.h"
 #include "webkit/api/public/WebKitClient.h"
 #include "webkit/api/public/WebString.h"
@@ -32,7 +33,6 @@
 #include "webkit/glue/webframe.h"
 #include "webkit/glue/webkit_glue.h"
 
-#include "SkBitmap.h"
 
 #if defined(OS_WIN)
 #include <strsafe.h>  // note: per msdn docs, this must *follow* other includes

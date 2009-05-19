@@ -13,8 +13,8 @@
 #include "base/gfx/size.h"
 #include "base/logging.h"
 #include "base/stack_container.h"
-#include "SkBitmap.h"
-#include "SkColorPriv.h"
+#include "third_party/skia/include/core/SkBitmap.h"
+#include "third_party/skia/include/core/SkColorPriv.h"
 #include "skia/ext/convolver.h"
 
 namespace skia {

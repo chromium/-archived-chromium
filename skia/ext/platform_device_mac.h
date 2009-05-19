@@ -6,7 +6,7 @@
 #define SKIA_EXT_PLATFORM_DEVICE_MAC_H_
 
 #import <ApplicationServices/ApplicationServices.h>
-#include "SkDevice.h"
+#include "third_party/skia/include/core/SkDevice.h"
 
 class SkMatrix;
 class SkPath;

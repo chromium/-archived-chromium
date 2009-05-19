@@ -5,7 +5,7 @@
 #include <algorithm>
 
 #include "skia/ext/convolver.h"
-#include "SkTypes.h"
+#include "third_party/skia/include/core/SkTypes.h"
 
 namespace skia {
 

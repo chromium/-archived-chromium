@@ -10,8 +10,6 @@
 #include <unistd.h>
 #endif
 
-#include "skia/ext/vector_canvas.h"
-
 #include "PNGImageDecoder.h"
 
 #include "base/command_line.h"
@@ -20,10 +18,9 @@
 #include "base/gfx/png_encoder.h"
 #include "base/path_service.h"
 #include "base/string_util.h"
-
+#include "skia/ext/vector_canvas.h"
 #include "testing/gtest/include/gtest/gtest.h"
-
-#include "SkDashPathEffect.h"
+#include "third_party/skia/include/effects/SkDashPathEffect.h"
 
 namespace skia {
 

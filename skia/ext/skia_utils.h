@@ -5,8 +5,8 @@
 #ifndef SKIA_EXT_SKIA_UTILS_H_
 #define SKIA_EXT_SKIA_UTILS_H_
 
-#include "SkColor.h"
-#include "SkShader.h"
+#include "third_party/skia/include/core/SkColor.h"
+#include "third_party/skia/include/core/SkShader.h"
 
 namespace skia {
 

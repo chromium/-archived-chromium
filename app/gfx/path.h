@@ -13,7 +13,7 @@
 typedef struct _GdkRegion GdkRegion;
 #endif
 
-#include "SkPath.h"
+#include "third_party/skia/include/core/SkPath.h"
 
 namespace gfx {
 

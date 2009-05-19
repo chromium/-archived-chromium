@@ -2,10 +2,11 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "SkTypes.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <new>
+
+#include "third_party/skia/include/core/SkTypes.h"
 
 // This implementation of sk_malloc_flags() and friends is identical
 // to SkMemory_malloc.c, except that it disables the CRT's new_handler

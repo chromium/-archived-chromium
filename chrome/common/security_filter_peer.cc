@@ -13,11 +13,10 @@
 #include "grit/renderer_resources.h"
 #include "net/base/net_errors.h"
 #include "net/http/http_response_headers.h"
-#include "third_party/skia/include/core/SkBitmap.h"
 #include "third_party/skia/include/core/SkCanvas.h"
+#include "third_party/skia/include/core/SkBitmap.h"
+#include "third_party/skia/include/core/SkDevice.h"
 #include "webkit/glue/webkit_glue.h"
-#include "SkDevice.h"
-
 
 SecurityFilterPeer::SecurityFilterPeer(
     webkit_glue::ResourceLoaderBridge* resource_loader_bridge,

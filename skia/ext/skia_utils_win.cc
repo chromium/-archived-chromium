@@ -2,12 +2,12 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include <windows.h>
-
 #include "skia/ext/skia_utils_win.h"
 
-#include "SkRect.h"
-#include "SkGradientShader.h"
+#include <windows.h>
+
+#include "third_party/skia/include/core/SkRect.h"
+#include "third_party/skia/include/effects/SkGradientShader.h"
 
 namespace {
 

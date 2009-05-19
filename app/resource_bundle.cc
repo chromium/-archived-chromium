@@ -10,7 +10,7 @@
 #include "base/string_piece.h"
 #include "net/base/file_stream.h"
 #include "net/base/net_errors.h"
-#include "SkBitmap.h"
+#include "third_party/skia/include/core/SkBitmap.h"
 
 ResourceBundle* ResourceBundle::g_shared_instance_ = NULL;
 

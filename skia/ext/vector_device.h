@@ -6,8 +6,8 @@
 #define SKIA_EXT_VECTOR_DEVICE_H_
 
 #include "skia/ext/platform_device_win.h"
-#include "SkMatrix.h"
-#include "SkRegion.h"
+#include "third_party/skia/include/core/SkMatrix.h"
+#include "third_party/skia/include/core/SkRegion.h"
 
 namespace skia {
 

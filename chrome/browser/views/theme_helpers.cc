@@ -11,7 +11,7 @@
 #include "app/gfx/canvas.h"
 #include "base/logging.h"
 #include "skia/ext/bitmap_platform_device_win.h"
-#include "SkGradientShader.h"
+#include "third_party/skia/include/effects/SkGradientShader.h"
 
 void GetRebarGradientColors(int width, int x1, int x2,
                             SkColor* c1, SkColor* c2) {

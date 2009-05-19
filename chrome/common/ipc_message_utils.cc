@@ -7,7 +7,7 @@
 #include "base/gfx/rect.h"
 #include "googleurl/src/gurl.h"
 #ifndef EXCLUDE_SKIA_DEPENDENCIES
-#include "SkBitmap.h"
+#include "third_party/skia/include/core/SkBitmap.h"
 #endif
 #include "webkit/glue/dom_operations.h"
 

@@ -5,8 +5,8 @@
 #include "skia/ext/skia_utils_mac.h"
 
 #include "base/logging.h"
-#include "SkMatrix.h"
-#include "SkRect.h"
+#include "third_party/skia/include/core/SkMatrix.h"
+#include "third_party/skia/include/core/SkRect.h"
 
 namespace gfx {
 

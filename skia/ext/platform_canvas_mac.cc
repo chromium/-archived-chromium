@@ -5,7 +5,7 @@
 #include "skia/ext/platform_canvas_mac.h"
 
 #include "skia/ext/bitmap_platform_device_mac.h"
-#include "SkTypes.h"
+#include "third_party/skia/include/core/SkTypes.h"
 
 namespace skia {
 

@@ -6,8 +6,8 @@
 
 #include "skia/ext/image_operations.h"
 #include "testing/gtest/include/gtest/gtest.h"
-#include "SkColorPriv.h"
-#include "SkBitmap.h"
+#include "third_party/skia/include/core/SkColorPriv.h"
+#include "third_party/skia/include/core/SkBitmap.h"
 
 namespace {
 

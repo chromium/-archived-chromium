@@ -6,8 +6,8 @@
 
 #include "skia/ext/skia_utils.h"
 #include "testing/gtest/include/gtest/gtest.h"
-#include "SkColorPriv.h"
-#include "SkBitmap.h"
+#include "third_party/skia/include/core/SkBitmap.h"
+#include "third_party/skia/include/core/SkColorPriv.h"
 
 TEST(SkiaUtils, SkColorToHSLRed) {
   SkColor red = SkColorSetARGB(255, 255, 0, 0);

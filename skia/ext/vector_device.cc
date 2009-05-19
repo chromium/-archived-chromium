@@ -6,8 +6,7 @@
 
 #include "base/gfx/gdi_util.h"
 #include "skia/ext/skia_utils_win.h"
-
-#include "SkUtils.h"
+#include "third_party/skia/include/core/SkUtils.h"
 
 namespace skia {
 

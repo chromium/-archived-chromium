@@ -4,11 +4,11 @@
 
 #include "skia/ext/platform_canvas_linux.h"
 
+#include <cairo/cairo.h>
+
 #include "skia/ext/platform_device_linux.h"
 #include "skia/ext/bitmap_platform_device_linux.h"
-#include "SkTypes.h"
-
-#include <cairo/cairo.h>
+#include "third_party/skia/include/core/SkTypes.h"
 
 namespace skia {
 

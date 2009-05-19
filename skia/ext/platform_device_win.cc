@@ -5,10 +5,10 @@
 #include "skia/ext/platform_device_win.h"
 
 #include "skia/ext/skia_utils_win.h"
-#include "SkMatrix.h"
-#include "SkPath.h"
-#include "SkRegion.h"
-#include "SkUtils.h"
+#include "third_party/skia/include/core/SkMatrix.h"
+#include "third_party/skia/include/core/SkPath.h"
+#include "third_party/skia/include/core/SkRegion.h"
+#include "third_party/skia/include/core/SkUtils.h"
 
 namespace skia {
 

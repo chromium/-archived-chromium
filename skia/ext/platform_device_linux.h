@@ -5,7 +5,7 @@
 #ifndef SKIA_EXT_PLATFORM_DEVICE_LINUX_H_
 #define SKIA_EXT_PLATFORM_DEVICE_LINUX_H_
 
-#include "SkDevice.h"
+#include "third_party/skia/include/core/SkDevice.h"
 
 typedef struct _cairo_surface cairo_surface_t;
 

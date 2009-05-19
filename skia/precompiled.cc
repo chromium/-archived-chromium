@@ -3,5 +3,5 @@
 // found in the LICENSE file.
 
 // Used to generate the precompiled header.
-#include "SkTypes.h"
+#include "third_party/skia/include/core/SkTypes.h"
 

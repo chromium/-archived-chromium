@@ -9,7 +9,7 @@
 
 #include "skia/ext/platform_device_win.h"
 
-#include "SkCanvas.h"
+#include "third_party/skia/include/core/SkCanvas.h"
 
 namespace skia {
 

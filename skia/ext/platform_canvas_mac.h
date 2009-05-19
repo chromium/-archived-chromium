@@ -7,7 +7,7 @@
 
 #include "skia/ext/platform_device_mac.h"
 
-#include "SkCanvas.h"
+#include "third_party/skia/include/core/SkCanvas.h"
 
 namespace skia {
 

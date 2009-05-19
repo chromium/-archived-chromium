@@ -7,7 +7,7 @@
 
 #include <windows.h>
 
-#include "SkColor.h"
+#include "third_party/skia/include/core/SkColor.h"
 
 // Get the colors at two points on a Rebar background gradient. This is for
 // drawing Rebar like backgrounds in Views. The reason not to just use

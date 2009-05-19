@@ -4,10 +4,10 @@
 
 #include "skia/ext/bitmap_platform_device_win.h"
 
-#include "SkMatrix.h"
-#include "SkRefCnt.h"
-#include "SkRegion.h"
-#include "SkUtils.h"
+#include "third_party/skia/include/core/SkMatrix.h"
+#include "third_party/skia/include/core/SkRefCnt.h"
+#include "third_party/skia/include/core/SkRegion.h"
+#include "third_party/skia/include/core/SkUtils.h"
 
 namespace skia {
 

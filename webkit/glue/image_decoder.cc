@@ -6,6 +6,7 @@
 #include "webkit/glue/image_decoder.h"
 
 #include "base/compiler_specific.h"
+#include "third_party/skia/include/core/SkBitmap.h"
 
 MSVC_PUSH_WARNING_LEVEL(0);
 #if defined(OS_WIN) || defined(OS_LINUX)
@@ -18,8 +19,6 @@ MSVC_PUSH_WARNING_LEVEL(0);
 #include "RefPtr.h"
 #include "SharedBuffer.h"
 MSVC_POP_WARNING();
-
-#include "SkBitmap.h"
 
 namespace webkit_glue {
 

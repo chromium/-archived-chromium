@@ -18,7 +18,7 @@
 #include "base/time.h"
 #include "chrome/browser/history/history.h"
 #include "chrome/common/thumbnail_score.h"
-#include "SkBitmap.h"
+#include "third_party/skia/include/core/SkBitmap.h"
 
 using base::Time;
 

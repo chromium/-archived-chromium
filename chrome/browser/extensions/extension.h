@@ -18,7 +18,7 @@
 #include "chrome/common/extensions/url_pattern.h"
 #include "chrome/common/page_action.h"
 #include "googleurl/src/gurl.h"
-#include "SkColor.h"
+#include "third_party/skia/include/core/SkColor.h"
 
 // Represents a Chromium extension.
 class Extension {
