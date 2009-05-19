@@ -160,6 +160,13 @@ bool Move(const FilePath& from_path, const FilePath& to_path);
 // Deprecated temporary compatibility function.
 bool Move(const std::wstring& from_path, const std::wstring& to_path);
 
+// Renames file |from_path| to |to_path|. Both paths must be on the same
+// volume, or the function will fail. Destination file will be created
+// if it doesn't exist. Prefer this function over Move when dealing with
+// temporary files. On Windows it preserves attributes of the target file.
+// Returns true on success.
+bool ReplaceFile(const FilePath& from_path, const FilePath& to_path);
+
 // Copies a single file. Use CopyDirectory to copy directories.
 bool CopyFile(const FilePath& from_path, const FilePath& to_path);
 // Deprecated temporary compatibility function.
