@@ -221,6 +221,10 @@ TEST_F(ActiveXTest, WMP) {
   TestActiveX(L"activex_wmp.html", kLongWaitTimeout, false);
 }
 
+TEST_F(ActiveXTest, WMPNoEmbedMimeType) {
+  TestActiveX(L"activex_wmp_no_embed_mime_type.html", kLongWaitTimeout, false);
+}
+
 TEST_F(ActiveXTest, DISABLED_CustomScripting) {
   TestActiveX(L"activex_custom_scripting.html", kShortWaitTimeout, true);
 }
@@ -229,7 +233,7 @@ TEST_F(ActiveXTest, DISABLED_EmbeddedMP3) {
   TestActiveX(L"mp3_test.html", kLongWaitTimeout, false);
 }
 
-TEST_F(ActiveXTest, EmbeddedMPE) {
+TEST_F(ActiveXTest, DISABLED_EmbeddedMPE) {
   TestActiveX(L"mpe_test.html", kLongWaitTimeout, false);
 }
 

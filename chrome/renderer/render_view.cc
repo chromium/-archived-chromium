@@ -1844,21 +1844,21 @@ WebPluginDelegate* RenderView::CreatePluginDelegate(
   if (!PluginChannelHost::IsListening())
     return NULL;
 
+  FilePath path;
+  render_thread_->Send(
+      new ViewHostMsg_GetPluginPath(url, mime_type, clsid, &path,
+                                    actual_mime_type));
+  if (path.value().empty())
+    return NULL;
+
+  std::string mime_type_to_use;
+  if (!actual_mime_type->empty())
+    mime_type_to_use = *actual_mime_type;
+  else
+    mime_type_to_use = mime_type;
+
 #if !defined(OS_LINUX)  // In-proc plugins aren't supported on Linux.
   if (RenderProcess::current()->in_process_plugins()) {
-    FilePath path;
-    render_thread_->Send(
-        new ViewHostMsg_GetPluginPath(url, mime_type, clsid, &path,
-                                      actual_mime_type));
-    if (path.value().empty())
-      return NULL;
-
-    std::string mime_type_to_use;
-    if (actual_mime_type && !actual_mime_type->empty())
-      mime_type_to_use = *actual_mime_type;
-    else
-      mime_type_to_use = mime_type;
-
     return WebPluginDelegate::Create(path,
                                      mime_type_to_use,
                                      gfx::NativeViewFromId(host_window_));
@@ -1866,7 +1866,7 @@ WebPluginDelegate* RenderView::CreatePluginDelegate(
 #endif
 
   WebPluginDelegateProxy* proxy =
-      WebPluginDelegateProxy::Create(url, mime_type, clsid, this);
+      WebPluginDelegateProxy::Create(url, mime_type_to_use, clsid, this);
   if (!proxy)
     return NULL;
 
