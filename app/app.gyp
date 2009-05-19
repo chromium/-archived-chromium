@@ -42,6 +42,7 @@
       'type': '<(library)',
       'msvs_guid': '4631946D-7D5F-44BD-A5A8-504C0A7033BE',
       'dependencies': [
+        'app_strings',
         '../base/base.gyp:base',
         '../base/base.gyp:base_gfx',
         '../net/net.gyp:net',
@@ -164,7 +165,7 @@
       'type': 'executable',
       'msvs_guid': 'B4D59AE8-8D2F-97E1-A8E9-6D2826729530',
       'dependencies': [
-        '../app/app.gyp:app_base',
+        'app_base',
         '../net/net.gyp:net_test_support',
         '../skia/skia.gyp:skia',
         '../testing/gtest.gyp:gtest',
@@ -204,6 +205,43 @@
             'os_exchange_data_win_unittest.cc',
             'win_util_unittest.cc',
           ],
+        }],
+      ],
+    },
+    {
+      'target_name': 'app_strings',
+      'type': 'none',
+      'msvs_guid': 'AE9BF4A2-19C5-49D8-BB1A-F28496DD7051',
+      'variables': {
+        'grit_path': '../tools/grit/grit.py',
+        'grit_out_dir': '<(SHARED_INTERMEDIATE_DIR)/app',
+      },
+      'actions': [
+        {
+          'action_name': 'app_strings',
+          'variables': {
+            'input_path': 'resources/app_strings.grd',
+          },
+          'inputs': [
+            '<(input_path)',
+          ],
+          'outputs': [
+            '<(grit_out_dir)/grit/app_strings.h',
+            '<(grit_out_dir)/app_strings_en-US.pak',
+            '<(grit_out_dir)/app_strings_en-US.rc',
+          ],
+          'action': ['python', '<(grit_path)', '-i', '<(input_path)', 'build', '-o', '<(grit_out_dir)'],
+          'message': 'Generating resources from <(input_path)',
+        },
+      ],
+      'direct_dependent_settings': {
+        'include_dirs': [
+          '<(SHARED_INTERMEDIATE_DIR)/app',
+        ],
+      },
+      'conditions': [
+        ['OS=="win"', {
+          'dependencies': ['../build/win/system.gyp:cygwin'],
         }],
       ],
     },

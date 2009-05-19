@@ -12,7 +12,6 @@
 #include "app/l10n_util_win.h"
 #include "base/logging.h"
 #include "base/win_util.h"
-#include "grit/generated_resources.h"
 
 namespace gfx {
 

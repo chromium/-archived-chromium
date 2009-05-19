@@ -13,7 +13,7 @@
 #include "base/stl_util-inl.h"
 #include "base/string_util.h"
 #include "googleurl/src/gurl.h"
-#include "grit/generated_resources.h"
+#include "grit/app_strings.h"
 #include "net/base/net_util.h"
 
 // Creates a new STGMEDIUM object to hold the specified text. The caller
@@ -668,7 +668,7 @@ static void CreateValidFileNameFromTitle(const GURL& url,
           url, std::string(), std::string(), std::wstring());
     } else {
       // Nothing else can be done, just use a default.
-      *validated = l10n_util::GetString(IDS_UNTITLED_SHORTCUT_FILE_NAME);
+      *validated = l10n_util::GetString(IDS_APP_UNTITLED_SHORTCUT_FILE_NAME);
     }
   } else {
     *validated = title;

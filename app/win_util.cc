@@ -21,7 +21,7 @@
 #include "base/scoped_handle.h"
 #include "base/string_util.h"
 #include "base/win_util.h"
-#include "grit/generated_resources.h"
+#include "grit/app_strings.h"
 #include "net/base/mime_util.h"
 
 // Ensure that we pick up this link library.
@@ -225,7 +225,7 @@ std::wstring FormatFilterForExtensions(
     const std::vector<std::wstring>& ext_desc,
     bool include_all_files) {
   const std::wstring all_ext = L"*.*";
-  const std::wstring all_desc = l10n_util::GetString(IDS_SAVEAS_ALL_FILES);
+  const std::wstring all_desc = l10n_util::GetString(IDS_APP_SAVEAS_ALL_FILES);
 
   DCHECK(file_ext.size()>=ext_desc.size());
 
