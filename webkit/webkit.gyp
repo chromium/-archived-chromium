@@ -1033,6 +1033,8 @@
         '../third_party/WebKit/WebCore/bindings/v8/custom/V8InspectorControllerCustom.cpp',
         '../third_party/WebKit/WebCore/bindings/v8/custom/V8LocationCustom.cpp',
         '../third_party/WebKit/WebCore/bindings/v8/custom/V8MessageChannelConstructor.cpp',
+        '../third_party/WebKit/WebCore/bindings/v8/custom/V8MessagePortCustom.cpp',
+
         '../third_party/WebKit/WebCore/bindings/v8/custom/V8NamedNodeMapCustom.cpp',
         '../third_party/WebKit/WebCore/bindings/v8/custom/V8NamedNodesCollection.cpp',
         '../third_party/WebKit/WebCore/bindings/v8/custom/V8NamedNodesCollection.h',
@@ -1127,7 +1129,6 @@
         'port/bindings/v8/RGBColor.h',
         'port/bindings/v8/ScriptController.cpp',
         'port/bindings/v8/ScriptController.h',
-        'port/bindings/v8/V8MessagePortCustom.cpp',
         'port/bindings/v8/V8SVGPODTypeWrapper.h',
         'port/bindings/v8/NPV8Object.cpp',
         'port/bindings/v8/NPV8Object.h',
