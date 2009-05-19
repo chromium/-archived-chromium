@@ -4044,6 +4044,9 @@
             # -Wno-multichar for:
             #   .../WebCore/platform/image-decoders/bmp/BMPImageDecoder.cpp
             '-Wno-multichar',
+            # WebCore does not work with strict aliasing enabled.
+            # https://bugs.webkit.org/show_bug.cgi?id=25864
+            '-fno-strict-aliasing',
           ],
         }],
         ['OS=="mac"', {
