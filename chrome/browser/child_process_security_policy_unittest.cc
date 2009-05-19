@@ -279,13 +279,13 @@ class ChildProcessSecurityPolicyInProcessBrowserTest
  public:
   virtual void SetUp() {
     EXPECT_EQ(
-      ChildProcessSecurityPolicy::GetInstance()->security_state_.size(), 0);
+      ChildProcessSecurityPolicy::GetInstance()->security_state_.size(), 0U);
     InProcessBrowserTest::SetUp();
   }
 
   virtual void TearDown() {
     EXPECT_EQ(
-      ChildProcessSecurityPolicy::GetInstance()->security_state_.size(), 0);
+      ChildProcessSecurityPolicy::GetInstance()->security_state_.size(), 0U);
     InProcessBrowserTest::TearDown();
   }
 };
@@ -299,7 +299,7 @@ IN_PROC_BROWSER_TEST_F(ChildProcessSecurityPolicyInProcessBrowserTest, NoLeak) {
 
   ui_test_utils::NavigateToURL(browser(), url);
   EXPECT_EQ(
-      ChildProcessSecurityPolicy::GetInstance()->security_state_.size(), 1);
+      ChildProcessSecurityPolicy::GetInstance()->security_state_.size(), 1U);
 
   TabContents* tab = browser()->GetTabContentsAt(0);
   ASSERT_TRUE(tab != NULL);
@@ -309,5 +309,5 @@ IN_PROC_BROWSER_TEST_F(ChildProcessSecurityPolicyInProcessBrowserTest, NoLeak) {
 
   tab->controller().Reload(true);
   EXPECT_EQ(
-      ChildProcessSecurityPolicy::GetInstance()->security_state_.size(), 1);
+      ChildProcessSecurityPolicy::GetInstance()->security_state_.size(), 1U);
 }
