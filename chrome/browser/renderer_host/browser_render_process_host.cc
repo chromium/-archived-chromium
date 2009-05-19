@@ -687,6 +687,9 @@ void BrowserRenderProcessHost::OnChannelError() {
   if (child_exited)
     process_.Close();
 
+  WebCacheManager::GetInstance()->Remove(pid());
+  ChildProcessSecurityPolicy::GetInstance()->Remove(pid());
+
   channel_.reset();
 
   // This process should detach all the listeners, causing the object to be

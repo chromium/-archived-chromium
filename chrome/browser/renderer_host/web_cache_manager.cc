@@ -85,9 +85,6 @@ void WebCacheManager::Add(int renderer_id) {
 }
 
 void WebCacheManager::Remove(int renderer_id) {
-  DCHECK(active_renderers_.count(renderer_id) > 0 ||
-         inactive_renderers_.count(renderer_id) > 0);
-
   // Erase all knowledge of this renderer
   active_renderers_.erase(renderer_id);
   inactive_renderers_.erase(renderer_id);

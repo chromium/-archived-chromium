@@ -13,6 +13,7 @@
 #include "base/file_path.h"
 #include "base/lock.h"
 #include "base/singleton.h"
+#include "testing/gtest/include/gtest/gtest_prod.h"
 
 class FilePath;
 class GURL;
@@ -93,6 +94,9 @@ class ChildProcessSecurityPolicy {
   bool HasDOMUIBindings(int renderer_id);
 
  private:
+  friend class ChildProcessSecurityPolicyInProcessBrowserTest;
+  FRIEND_TEST(ChildProcessSecurityPolicyInProcessBrowserTest, NoLeak);
+
   class SecurityState;
 
   typedef std::set<std::string> SchemeSet;

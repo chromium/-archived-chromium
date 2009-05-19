@@ -90,10 +90,8 @@ void RenderProcessHost::Release(int listener_id) {
     NotificationService::current()->Notify(
         NotificationType::RENDERER_PROCESS_TERMINATED,
         Source<RenderProcessHost>(this), NotificationService::NoDetails());
-    if (pid_ >= 0) {
+    if (pid_ >= 0)
       all_hosts.Remove(pid_);
-      pid_ = -1;
-    }
     MessageLoop::current()->DeleteSoon(FROM_HERE, this);
   }
 }
