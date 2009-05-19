@@ -198,6 +198,7 @@ class AutocompleteEditViewGtk : public AutocompleteEditView {
   GtkTextTag* base_tag_;
   GtkTextTag* secure_scheme_tag_;
   GtkTextTag* insecure_scheme_tag_;
+  GtkTextTag* black_text_tag_;
 
   scoped_ptr<AutocompleteEditModel> model_;
   scoped_ptr<AutocompletePopupViewGtk> popup_view_;
