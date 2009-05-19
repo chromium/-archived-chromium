@@ -53,6 +53,7 @@ class MimeUtilConstants {
         icon_themes(NULL),
         last_check_time(0) {
   }
+  ~MimeUtilConstants();
   friend struct DefaultSingletonTraits<MimeUtilConstants>;
   DISALLOW_COPY_AND_ASSIGN(MimeUtilConstants);
 };
@@ -429,19 +430,18 @@ void EnsureUpdated() {
   gettimeofday(&t, NULL);
   time_t now = t.tv_sec;
   MimeUtilConstants* constants = Singleton<MimeUtilConstants>::get();
-  time_t last_check_time = constants->last_check_time;
 
-  if (last_check_time == 0) {
+  if (constants->last_check_time == 0) {
     constants->icon_dirs = new std::map<FilePath, int>;
     constants->icon_themes = new std::map<std::string, IconTheme*>;
     constants->icon_formats = new std::vector<std::string>;
     EnableSvgIcon(true);
     InitIconDir();
-    last_check_time = now;
+    constants->last_check_time = now;
   } else {
     // TODO(thestig): something changed. start over. Upstream fix to Google
     // Gadgets for Linux.
-    if (now > last_check_time + constants->kUpdateInterval) {
+    if (now > constants->last_check_time + constants->kUpdateInterval) {
     }
   }
 }
@@ -473,6 +473,8 @@ void InitDefaultThemes() {
   char* env = getenv("GGL_ICON_THEME");
   if (env)
     default_themes[0] = IconTheme::LoadTheme(env);
+  else
+    default_themes[0] = NULL;
 
   env = getenv("KDE_FULL_SESSION");
   if (env) {
@@ -510,6 +512,14 @@ FilePath LookupIconInDefaultTheme(const std::string& icon_name, int size) {
     }
   }
   return LookupFallbackIcon(icon_name);
+}
+
+MimeUtilConstants::~MimeUtilConstants() {
+  delete icon_dirs;
+  delete icon_formats;
+  delete icon_themes;
+  for (size_t i = 0; i < kDefaultThemeNum; i++)
+    delete default_themes[i];
 }
 
 }  // namespace
