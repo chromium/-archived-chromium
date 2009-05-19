@@ -33,10 +33,17 @@ class OptionsWindowGtk {
   void ShowOptionsPage(OptionsPage page, OptionsGroup highlight_group);
 
  private:
+  // This is the callback function for Stats reporting checkbox.
+  static void OnLoggingChange(GtkWidget* widget,
+                              OptionsWindowGtk* options_window);
+
   static void OnSwitchPage(GtkNotebook* notebook, GtkNotebookPage* page,
                            guint page_num, OptionsWindowGtk* options_window);
 
   static void OnWindowDestroy(GtkWidget* widget, OptionsWindowGtk* window);
+
+  // This function gets called when stats reporting option is changed.
+  void LoggingChanged(GtkWidget* widget);
 
   // The options dialog
   GtkWidget *dialog_;
@@ -106,9 +113,18 @@ OptionsWindowGtk::OptionsWindowGtk(Profile* profile)
   }
 #endif
 
+  GtkWidget* metrics_vbox = gtk_vbox_new(FALSE, 5);
+  GtkWidget* metrics = gtk_check_button_new_with_label(
+      l10n_util::GetStringUTF8(IDS_OPTIONS_ENABLE_LOGGING).c_str());
+  gtk_box_pack_start(GTK_BOX(metrics_vbox), metrics, FALSE, FALSE, 0);
+  gtk_box_pack_start(GTK_BOX(metrics_vbox),
+                     gtk_label_new("TODO rest of the advanced options"),
+                     FALSE, FALSE, 0);
+  g_signal_connect(metrics, "clicked", G_CALLBACK(OnLoggingChange), this);
+
   gtk_notebook_append_page(
       GTK_NOTEBOOK(notebook_),
-      gtk_label_new("TODO advanced"),
+      metrics_vbox,
       gtk_label_new(
           l10n_util::GetStringUTF8(IDS_OPTIONS_ADVANCED_TAB_LABEL).c_str()));
 
@@ -161,6 +177,12 @@ void OptionsWindowGtk::ShowOptionsPage(OptionsPage page,
 // OptionsWindowGtk, private:
 
 // static
+void OptionsWindowGtk::OnLoggingChange(GtkWidget* widget,
+                                       OptionsWindowGtk* options_window) {
+  options_window->LoggingChanged(widget);
+}
+
+// static
 void OptionsWindowGtk::OnSwitchPage(GtkNotebook* notebook,
                                     GtkNotebookPage* page,
                                     guint page_num,
@@ -175,6 +197,15 @@ void OptionsWindowGtk::OnWindowDestroy(GtkWidget* widget,
                                        OptionsWindowGtk* options_window) {
   instance_ = NULL;
   MessageLoop::current()->DeleteSoon(FROM_HERE, options_window);
+}
+
+void OptionsWindowGtk::LoggingChanged(GtkWidget* metrics) {
+  // TODO: Once crash reporting is working for Linux, make the actual call to
+  // enable/disable it.
+  if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(metrics)))
+    LOG(INFO) << "Reporting enabled";
+  else
+    LOG(INFO) << "Reporting disabled";
 }
 
 ///////////////////////////////////////////////////////////////////////////////
