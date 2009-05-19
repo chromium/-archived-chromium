@@ -44,14 +44,6 @@ class WindowWin : public WidgetWin,
   // Executes the specified SC_command.
   void ExecuteSystemMenuCommand(int command);
 
-  // Hides the window if it hasn't already been force-hidden, then increments
-  // |force_hidden_count_| to prevent it from being shown again until
-  // PopForceHidden()) is called.
-  void PushForceHidden();
-
-  // Decrements |force_hidden_count_| and, if it is now zero, shows the window.
-  void PopForceHidden();
-
   // Accessors and setters for various properties.
   HWND owning_window() const { return owning_hwnd_; }
   void set_focus_on_creation(bool focus_on_creation) {
@@ -65,6 +57,9 @@ class WindowWin : public WidgetWin,
   virtual void SetBounds(const gfx::Rect& bounds,
                          gfx::NativeWindow other_window);
   virtual void Show();
+  virtual void HideWindow();
+  virtual void PushForceHidden();
+  virtual void PopForceHidden();
   virtual void Activate();
   virtual void Close();
   virtual void Maximize();

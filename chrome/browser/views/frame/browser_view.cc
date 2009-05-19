@@ -526,8 +526,8 @@ void BrowserView::DetachBrowserBubble(BrowserBubble* bubble) {
 
 void BrowserView::Show() {
   // If the window is already visible, just activate it.
-  if (frame_->IsVisible()) {
-    frame_->Activate();
+  if (frame_->GetWindow()->IsVisible()) {
+    frame_->GetWindow()->Activate();
     return;
   }
 
@@ -545,15 +545,15 @@ void BrowserView::Show() {
   if (selected_tab_contents)
     selected_tab_contents->view()->RestoreFocus();
 
-  frame_->Show();
+  frame_->GetWindow()->Show();
 }
 
 void BrowserView::SetBounds(const gfx::Rect& bounds) {
-  frame_->SetBounds(bounds);
+  frame_->GetWindow()->SetBounds(bounds);
 }
 
 void BrowserView::Close() {
-  frame_->Close();
+  frame_->GetWindow()->Close();
 
   BubbleSet::iterator bubble = browser_bubbles_.begin();
   for (; bubble != browser_bubbles_.end(); ++bubble) {
@@ -562,17 +562,17 @@ void BrowserView::Close() {
 }
 
 void BrowserView::Activate() {
-  frame_->Activate();
+  frame_->GetWindow()->Activate();
 }
 
 bool BrowserView::IsActive() const {
-  return frame_->IsActive();
+  return frame_->GetWindow()->IsActive();
 }
 
 void BrowserView::FlashFrame() {
   FLASHWINFO fwi;
   fwi.cbSize = sizeof(fwi);
-  fwi.hwnd = frame_->GetNativeView();
+  fwi.hwnd = frame_->GetWindow()->GetNativeWindow();
   fwi.dwFlags = FLASHW_ALL;
   fwi.uCount = 4;
   fwi.dwTimeout = 0;
@@ -603,9 +603,9 @@ void BrowserView::SelectedTabToolbarSizeChanged(bool is_animating) {
 }
 
 void BrowserView::UpdateTitleBar() {
-  frame_->UpdateWindowTitle();
+  frame_->GetWindow()->UpdateWindowTitle();
   if (ShouldShowWindowIcon())
-    frame_->UpdateWindowIcon();
+    frame_->GetWindow()->UpdateWindowIcon();
 }
 
 void BrowserView::UpdateLoadingAnimations(bool should_animate) {
@@ -630,11 +630,11 @@ void BrowserView::SetStarredState(bool is_starred) {
 }
 
 gfx::Rect BrowserView::GetNormalBounds() const {
-  return frame_->GetNormalBounds();
+  return frame_->GetWindow()->GetNormalBounds();
 }
 
 bool BrowserView::IsMaximized() const {
-  return frame_->IsMaximized();
+  return frame_->GetWindow()->IsMaximized();
 }
 
 void BrowserView::SetFullscreen(bool fullscreen) {
@@ -668,17 +668,18 @@ void BrowserView::SetFullscreen(bool fullscreen) {
     edit_view->set_force_hidden(true);
     ShowWindow(edit_view->m_hWnd, SW_HIDE);
   }
-  frame_->PushForceHidden();
+  frame_->GetWindow()->PushForceHidden();
 
   // Notify bookmark bar, so it can set itself to the appropriate drawing state.
   if (bookmark_bar_view_.get())
     bookmark_bar_view_->OnFullscreenToggled(fullscreen);
 
   // Toggle fullscreen mode.
-  frame_->SetFullscreen(fullscreen);
+  frame_->GetWindow()->SetFullscreen(fullscreen);
 
   if (IsFullscreen()) {
-    fullscreen_bubble_.reset(new FullscreenExitBubble(frame_, browser_.get()));
+    fullscreen_bubble_.reset(new FullscreenExitBubble(GetWidget(),
+                                                      browser_.get()));
   } else {
     // Show the edit again since we're no longer in fullscreen mode.
     edit_view->set_force_hidden(false);
@@ -689,11 +690,11 @@ void BrowserView::SetFullscreen(bool fullscreen) {
   // it's in its final position.
   ignore_layout_ = false;
   Layout();
-  frame_->PopForceHidden();
+  frame_->GetWindow()->PopForceHidden();
 }
 
 bool BrowserView::IsFullscreen() const {
-  return frame_->IsFullscreen();
+  return frame_->GetWindow()->IsFullscreen();
 }
 
 LocationBar* BrowserView::GetLocationBar() const {
@@ -746,7 +747,7 @@ bool BrowserView::IsBookmarkBarVisible() const {
 }
 
 gfx::Rect BrowserView::GetRootWindowResizerRect() const {
-  if (frame_->IsMaximized() || frame_->IsFullscreen())
+  if (frame_->GetWindow()->IsMaximized() || frame_->GetWindow()->IsFullscreen())
     return gfx::Rect();
 
   // We don't specify a resize corner size if we have a bottom shelf either.
@@ -771,7 +772,7 @@ gfx::Rect BrowserView::GetRootWindowResizerRect() const {
 }
 
 void BrowserView::DisableInactiveFrame() {
-  frame_->DisableInactiveRendering();
+  frame_->GetWindow()->DisableInactiveRendering();
 }
 
 void BrowserView::ToggleBookmarkBar() {
@@ -877,9 +878,9 @@ void BrowserView::ShowHTMLDialog(HtmlDialogUIDelegate* delegate,
 }
 
 void BrowserView::UserChangedTheme() {
-  frame_->GetNonClientView()->SetUseNativeFrame(false);
-  frame_->GetRootView()->ThemeChanged();
-  frame_->GetRootView()->SchedulePaint();
+  frame_->GetWindow()->GetNonClientView()->SetUseNativeFrame(false);
+  GetRootView()->ThemeChanged();
+  GetRootView()->SchedulePaint();
 }
 
 int BrowserView::GetExtraRenderViewHeight() const {
@@ -1060,8 +1061,8 @@ bool BrowserView::GetSavedWindowBounds(gfx::Rect* bounds) const {
           bounds->height() + toolbar_->GetPreferredSize().height());
     }
 
-    gfx::Rect window_rect =
-        frame_->GetNonClientView()->GetWindowBoundsForClientBounds(*bounds);
+    gfx::Rect window_rect = frame_->GetWindow()->GetNonClientView()->
+        GetWindowBoundsForClientBounds(*bounds);
     window_rect.set_origin(bounds->origin());
 
     // When we are given x/y coordinates of 0 on a created popup window,
@@ -1113,7 +1114,7 @@ bool BrowserView::CanClose() const {
     // Tab strip isn't empty.  Hide the frame (so it appears to have closed
     // immediately) and close all the tabs, allowing the renderers to shut
     // down. When the tab strip is empty we'll be called back again.
-    frame_->Hide();
+    frame_->GetWindow()->HideWindow();
     browser_->OnWindowClosing();
     return false;
   }
@@ -1121,7 +1122,7 @@ bool BrowserView::CanClose() const {
   // Empty TabStripModel, it's now safe to allow the Window to be closed.
   NotificationService::current()->Notify(
       NotificationType::WINDOW_CLOSED,
-      Source<HWND>(frame_->GetNativeView()),
+      Source<HWND>(frame_->GetWindow()->GetNativeWindow()),
       NotificationService::NoDetails());
   return true;
 }
@@ -1132,9 +1133,10 @@ int BrowserView::NonClientHitTest(const gfx::Point& point) {
   // area of the window. So we need to treat hit-tests in these regions as
   // hit-tests of the titlebar.
 
-  if (!frame_->IsMaximized() && !frame_->IsFullscreen()) {
+  if (!frame_->GetWindow()->IsMaximized() &&
+      !frame_->GetWindow()->IsFullscreen()) {
     CRect client_rect;
-    ::GetClientRect(frame_->GetNativeView(), &client_rect);
+    ::GetClientRect(frame_->GetWindow()->GetNativeWindow(), &client_rect);
     gfx::Size resize_corner_size = ResizeCorner::GetSize();
     gfx::Rect resize_corner_rect(client_rect.right - resize_corner_size.width(),
         client_rect.bottom - resize_corner_size.height(),
@@ -1295,6 +1297,7 @@ void BrowserView::Init() {
   tabstrip_ = new TabStrip(browser_->tabstrip_model());
   tabstrip_->SetAccessibleName(l10n_util::GetString(IDS_ACCNAME_TABSTRIP));
   AddChildView(tabstrip_);
+  frame_->TabStripCreated(tabstrip_);
 
   toolbar_ = new BrowserToolbarView(browser_.get());
   AddChildView(toolbar_);
@@ -1321,7 +1324,8 @@ void BrowserView::Init() {
 }
 
 void BrowserView::InitSystemMenu() {
-  HMENU system_menu = GetSystemMenu(frame_->GetNativeView(), FALSE);
+  HMENU system_menu = GetSystemMenu(frame_->GetWindow()->GetNativeWindow(),
+                                    FALSE);
   system_menu_.reset(new views::MenuWin(system_menu));
   int insertion_index = std::max(0, system_menu_->ItemCount() - 1);
   // We add the menu items in reverse order so that insertion_index never needs
@@ -1696,9 +1700,12 @@ void BrowserView::InitClass() {
 BrowserWindow* BrowserWindow::CreateBrowserWindow(Browser* browser) {
   if (!views::ViewsDelegate::views_delegate)
     views::ViewsDelegate::views_delegate = new ChromeViewsDelegate;
-  BrowserView* browser_view = new BrowserView(browser);
-  (new BrowserFrame(browser_view, browser->profile()))->Init();
-  return browser_view;
+
+  // Create the view and the frame. The frame will attach itself via the view
+  // so we don't need to do anything with the pointer.
+  BrowserView* view = new BrowserView(browser);
+  BrowserFrame::Create(view, browser->profile());
+  return view;
 }
 
 // static

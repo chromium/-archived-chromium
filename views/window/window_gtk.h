@@ -31,6 +31,9 @@ class WindowGtk : public WidgetGtk, public Window {
   virtual void SetBounds(const gfx::Rect& bounds,
                          gfx::NativeWindow other_window);
   virtual void Show();
+  virtual void HideWindow();
+  virtual void PushForceHidden();
+  virtual void PopForceHidden();
   virtual void Activate();
   virtual void Close();
   virtual void Maximize();

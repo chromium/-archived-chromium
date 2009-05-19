@@ -30,6 +30,7 @@ class HtmlDialogUIDelegate;
 class InfoBarContainer;
 class StatusBubbleViews;
 class TabContentsContainerView;
+class TabStrip;
 
 namespace views {
 class Menu;

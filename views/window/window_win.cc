@@ -161,13 +161,9 @@ void WindowWin::Show(int show_state) {
   SetInitialFocus();
 }
 
-int WindowWin::GetShowState() const {
-  return SW_SHOWNORMAL;
-}
-
-void WindowWin::ExecuteSystemMenuCommand(int command) {
-  if (command)
-    SendMessage(GetNativeView(), WM_SYSCOMMAND, command, 0);
+void WindowWin::HideWindow() {
+  // We can just call the function implemented by the widget.
+  Hide();
 }
 
 void WindowWin::PushForceHidden() {
@@ -180,6 +176,15 @@ void WindowWin::PopForceHidden() {
     force_hidden_count_ = 0;
     ShowWindow(SW_SHOW);
   }
+}
+
+int WindowWin::GetShowState() const {
+  return SW_SHOWNORMAL;
+}
+
+void WindowWin::ExecuteSystemMenuCommand(int command) {
+  if (command)
+    SendMessage(GetNativeView(), WM_SYSCOMMAND, command, 0);
 }
 
 // static

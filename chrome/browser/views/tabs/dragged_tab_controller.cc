@@ -25,6 +25,7 @@
 #include "third_party/skia/include/core/SkBitmap.h"
 #include "views/event.h"
 #include "views/widget/root_view.h"
+#include "views/window/window.h"
 
 static const int kHorizontalMoveThreshold = 16; // pixels
 

@@ -55,6 +55,18 @@ void WindowGtk::Show() {
   gtk_widget_show_all(GetNativeView());
 }
 
+void WindowGtk::HideWindow() {
+  NOTIMPLEMENTED();
+}
+
+void WindowGtk::PushForceHidden() {
+  NOTIMPLEMENTED();
+}
+
+void WindowGtk::PopForceHidden() {
+  NOTIMPLEMENTED();
+}
+
 void WindowGtk::Activate() {
   NOTIMPLEMENTED();
 }

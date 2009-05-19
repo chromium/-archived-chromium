@@ -18,8 +18,6 @@ BrowserRootView::BrowserRootView(views::Widget* widget)
 }
 
 bool BrowserRootView::CanDrop(const OSExchangeData& data) {
-  tabstrip_ =
-      static_cast<BrowserFrame*>(GetWidget())->browser_view()->tabstrip();
   can_drop_ = (tabstrip_ && tabstrip_->IsVisible() &&
                !tabstrip_->IsAnimating() && data.HasURL());
   return can_drop_;

@@ -5,7 +5,7 @@
 #ifndef CHROME_BROWSER_VIEWS_FRAME_GLASS_BROWSER_FRAME_VIEW_H_
 #define CHROME_BROWSER_VIEWS_FRAME_GLASS_BROWSER_FRAME_VIEW_H_
 
-#include "chrome/browser/views/frame/browser_frame.h"
+#include "chrome/browser/views/frame/browser_frame_win.h"
 #include "views/controls/button/button.h"
 #include "views/window/non_client_view.h"
 

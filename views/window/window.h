@@ -62,6 +62,20 @@ class Window {
   // Makes the window visible.
   virtual void Show() = 0;
 
+  // Hides the window. This does not delete the window, it just hides it. This
+  // always hides the window, it is separate from the stack maintained by
+  // Push/PopForceHidden.
+  virtual void HideWindow() = 0;
+
+  // Hides the window if it hasn't already been force-hidden. The force hidden
+  // count is tracked, so calling multiple times is allowed, you just have to
+  // be sure to call PopForceHidden the same number of times.
+  virtual void PushForceHidden() = 0;
+
+  // Decrements the force hidden count, showing the window if we have reached
+  // the top of the stack. See PushForceHidden.
+  virtual void PopForceHidden() = 0;
+
   // Activate the window, assuming it already exists and is visible.
   virtual void Activate() = 0;
 

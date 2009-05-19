@@ -17,7 +17,13 @@ class TabStrip;
 // TabStrip.
 class BrowserRootView : public views::RootView {
  public:
-  explicit BrowserRootView(views::Widget* widget);
+  // You must call set_tabstrip before this class will accept drops.
+  BrowserRootView(views::Widget* widget);
+
+  // Sets the tabstrip associated with this window. This is used to forward
+  // drag and drop operations to, so no drops will be accepted if there is no
+  // tabstrip set.
+  void set_tabstrip(TabStrip* tabstrip) { tabstrip_ = tabstrip; }
 
   virtual bool CanDrop(const OSExchangeData& data);
   virtual void OnDragEntered(const views::DropTargetEvent& event);

@@ -64,7 +64,7 @@ GlassBrowserFrameView::GlassBrowserFrameView(BrowserFrame* frame,
       throbber_running_(false),
       throbber_frame_(0) {
   InitClass();
-  if (frame_->GetDelegate()->ShouldShowWindowIcon())
+  if (frame_->GetWindow()->GetDelegate()->ShouldShowWindowIcon())
     InitThrobberIcons();
 }
 
@@ -86,8 +86,8 @@ gfx::Rect GlassBrowserFrameView::GetBoundsForTabStrip(
   if (UILayoutIsRightToLeft())
     tabstrip_x += (width() - minimize_button_offset);
   int tabstrip_width = minimize_button_offset - tabstrip_x -
-      (frame_->IsMaximized() ? kNewTabCaptionMaximizedSpacing
-                             : kNewTabCaptionRestoredSpacing);
+      (frame_->GetWindow()->IsMaximized() ? kNewTabCaptionMaximizedSpacing
+                                          : kNewTabCaptionRestoredSpacing);
   if (UILayoutIsRightToLeft())
     tabstrip_width += tabstrip_x;
   return gfx::Rect(tabstrip_x, NonClientTopBorderHeight(),
@@ -115,13 +115,15 @@ gfx::Rect GlassBrowserFrameView::GetBoundsForClientView() const {
 
 gfx::Rect GlassBrowserFrameView::GetWindowBoundsForClientBounds(
     const gfx::Rect& client_bounds) const {
-  if (!browser_view_->IsTabStripVisible()) {
+  HWND hwnd = frame_->GetWindow()->GetNativeWindow();
+  if (!browser_view_->IsTabStripVisible() && hwnd) {
     // If we don't have a tabstrip, we're either a popup or an app window, in
     // which case we have a standard size non-client area and can just use
-    // AdjustWindowRectEx to obtain it.
+    // AdjustWindowRectEx to obtain it. We check for a non-NULL window handle in
+    // case this gets called before the window is actually created.
     RECT rect = client_bounds.ToRECT();
-    AdjustWindowRectEx(&rect, frame_->window_style(), FALSE,
-                       frame_->window_ex_style());
+    AdjustWindowRectEx(&rect, GetWindowLong(hwnd, GWL_STYLE), FALSE,
+                       GetWindowLong(hwnd, GWL_EXSTYLE));
     return gfx::Rect(rect);
   }
 
@@ -134,6 +136,7 @@ gfx::Rect GlassBrowserFrameView::GetWindowBoundsForClientBounds(
 }
 
 gfx::Point GlassBrowserFrameView::GetSystemMenuPoint() const {
+  views::Window* window = frame_->GetWindow();
   gfx::Point system_menu_point;
   if (browser_view_->IsBrowserTypeNormal()) {
     // The X coordinate conditional is because in maximized mode the frame edge
@@ -141,10 +144,10 @@ gfx::Point GlassBrowserFrameView::GetSystemMenuPoint() const {
     // (where we don't do this trick) maximized windows have no client edge and
     // only the frame edge is offscreen.
     system_menu_point.SetPoint(NonClientBorderThickness() -
-        ((frame_->IsMaximized() || frame_->IsFullscreen()) ?
+        ((window->IsMaximized() || window->IsFullscreen()) ?
          0 : kClientEdgeThickness),
         NonClientTopBorderHeight() + browser_view_->GetTabStripHeight() -
-        (frame_->IsFullscreen() ? 0 : kClientEdgeThickness));
+        (frame_->GetWindow()->IsFullscreen() ? 0 : kClientEdgeThickness));
   } else {
     system_menu_point.SetPoint(0, -kFrameShadowThickness);
   }
@@ -160,7 +163,8 @@ int GlassBrowserFrameView::NonClientHitTest(const gfx::Point& point) {
   if (!browser_view_->IsBrowserTypeNormal() || !bounds().Contains(point))
     return HTNOWHERE;
 
-  int frame_component = frame_->GetClientView()->NonClientHitTest(point);
+  int frame_component =
+      frame_->GetWindow()->GetClientView()->NonClientHitTest(point);
   if (frame_component != HTNOWHERE)
     return frame_component;
 
@@ -168,7 +172,7 @@ int GlassBrowserFrameView::NonClientHitTest(const gfx::Point& point) {
   int window_component = GetHTComponentForFrame(point, border_thickness,
       NonClientBorderThickness(), border_thickness,
       kResizeAreaCornerSize - border_thickness,
-      frame_->GetDelegate()->CanResize());
+      frame_->GetWindow()->GetDelegate()->CanResize());
   // Fall back to the caption if no other component matches.
   return (window_component == HTNOWHERE) ? HTCAPTION : window_component;
 }
@@ -183,7 +187,7 @@ void GlassBrowserFrameView::Paint(gfx::Canvas* canvas) {
   PaintDistributorLogo(canvas);
   PaintToolbarBackground(canvas);
   PaintOTRAvatar(canvas);
-  if (!frame_->IsMaximized())
+  if (!frame_->GetWindow()->IsMaximized())
     PaintRestoredClientEdge(canvas);
 }
 
@@ -197,17 +201,19 @@ void GlassBrowserFrameView::Layout() {
 // GlassBrowserFrameView, private:
 
 int GlassBrowserFrameView::FrameBorderThickness() const {
-  return (frame_->IsMaximized() || frame_->IsFullscreen()) ?
+  views::Window* window = frame_->GetWindow();
+  return (window->IsMaximized() || window->IsFullscreen()) ?
       0 : GetSystemMetrics(SM_CXSIZEFRAME);
 }
 
 int GlassBrowserFrameView::NonClientBorderThickness() const {
-  return (frame_->IsMaximized() || frame_->IsFullscreen()) ?
+  views::Window* window = frame_->GetWindow();
+  return (window->IsMaximized() || window->IsFullscreen()) ?
       0 : kNonClientBorderThickness;
 }
 
 int GlassBrowserFrameView::NonClientTopBorderHeight() const {
-  if (frame_->IsFullscreen())
+  if (frame_->GetWindow()->IsFullscreen())
     return 0;
   // We'd like to use FrameBorderThickness() here, but the maximized Aero glass
   // frame has a 0 frame border around most edges and a CXSIZEFRAME-thick border
@@ -219,7 +225,7 @@ int GlassBrowserFrameView::NonClientTopBorderHeight() const {
 void GlassBrowserFrameView::PaintDistributorLogo(gfx::Canvas* canvas) {
   // The distributor logo is only painted when the frame is not maximized and
   // when we actually have a logo.
-  if (!frame_->IsMaximized() && distributor_logo_ &&
+  if (!frame_->GetWindow()->IsMaximized() && distributor_logo_ &&
       browser_view_->ShouldShowDistributorLogo()) {
     // NOTE: We don't mirror the logo placement here because the outer frame
     // itself isn't mirrored in RTL.  This is a bug; if it is fixed, this should
@@ -234,7 +240,8 @@ void GlassBrowserFrameView::PaintToolbarBackground(gfx::Canvas* canvas) {
 
   gfx::Rect toolbar_bounds(browser_view_->GetToolbarBounds());
   gfx::Point toolbar_origin(toolbar_bounds.origin());
-  View::ConvertPointToView(frame_->GetClientView(), this, &toolbar_origin);
+  View::ConvertPointToView(frame_->GetWindow()->GetClientView(),
+                           this, &toolbar_origin);
   toolbar_bounds.set_origin(toolbar_origin);
 
   SkBitmap* theme_toolbar = tp->GetBitmapNamed(IDR_THEME_TOOLBAR);
@@ -279,7 +286,8 @@ void GlassBrowserFrameView::PaintRestoredClientEdge(gfx::Canvas* canvas) {
   // The client edges start below the toolbar upper corner images regardless
   // of how tall the toolbar itself is.
   int client_area_top =
-      frame_->GetClientView()->y() + browser_view_->GetToolbarBounds().y() +
+      frame_->GetWindow()->GetClientView()->y() +
+      browser_view_->GetToolbarBounds().y() +
       rb.GetBitmapNamed(IDR_CONTENT_TOP_LEFT_CORNER)->height();
 
   gfx::Rect client_area_bounds = CalculateClientAreaBounds(width(), height());
@@ -339,7 +347,7 @@ void GlassBrowserFrameView::LayoutOTRAvatar() {
   int tabstrip_height, otr_height;
   if (browser_view_->IsTabStripVisible()) {
     tabstrip_height = browser_view_->GetTabStripHeight() - kOTRBottomSpacing;
-    otr_height = frame_->IsMaximized() ?
+    otr_height = frame_->GetWindow()->IsMaximized() ?
         (tabstrip_height - kOTRMaximizedTopSpacing) :
         otr_avatar_icon.height();
   } else {
@@ -371,7 +379,7 @@ void GlassBrowserFrameView::StartThrobber() {
     throbber_running_ = true;
     throbber_frame_ = 0;
     InitThrobberIcons();
-    SendMessage(frame_->GetNativeView(), WM_SETICON,
+    SendMessage(frame_->GetWindow()->GetNativeWindow(), WM_SETICON,
                 static_cast<WPARAM>(ICON_SMALL),
                 reinterpret_cast<LPARAM>(throbber_icons_[throbber_frame_]));
   }
@@ -383,14 +391,14 @@ void GlassBrowserFrameView::StopThrobber() {
 
     // This will reset the small icon which we set in the throbber code.
     // Windows will then pick up the default icon from the window class.
-    SendMessage(frame_->GetNativeView(), WM_SETICON,
+    SendMessage(frame_->GetWindow()->GetNativeWindow(), WM_SETICON,
                 static_cast<WPARAM>(ICON_SMALL), NULL);
   }
 }
 
 void GlassBrowserFrameView::DisplayNextThrobberFrame() {
   throbber_frame_ = (throbber_frame_ + 1) % kThrobberIconCount;
-  SendMessage(frame_->GetNativeView(), WM_SETICON,
+  SendMessage(frame_->GetWindow()->GetNativeWindow(), WM_SETICON,
               static_cast<WPARAM>(ICON_SMALL),
               reinterpret_cast<LPARAM>(throbber_icons_[throbber_frame_]));
 }

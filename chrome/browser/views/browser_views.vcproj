@@ -125,11 +125,15 @@
 			Name="Frame"
 			>
 			<File
-				RelativePath=".\frame\browser_frame.cc"
+				RelativePath=".\frame\browser_frame.h"
 				>
 			</File>
 			<File
-				RelativePath=".\frame\browser_frame.h"
+				RelativePath=".\frame\browser_frame_win.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\frame\browser_frame_win.h"
 				>
 			</File>
 			<File

@@ -98,7 +98,7 @@ void InfoBubble::Init(HWND parent_hwnd,
   BrowserView* browser_view =
       BrowserView::GetBrowserViewForHWND(owning_frame_hwnd);
   DCHECK(browser_view);
-  parent_ = browser_view->frame();
+  parent_ = browser_view->frame()->GetWindow();
   parent_->DisableInactiveRendering();
 
   if (kInfoBubbleCornerTopLeft == NULL) {

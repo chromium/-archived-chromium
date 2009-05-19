@@ -2,105 +2,59 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CHROME_BROWSER_VIEWS_FRAME_BROWSER_FRAME_
-#define CHROME_BROWSER_VIEWS_FRAME_BROWSER_FRAME_
+#ifndef CHROME_BROWSER_VIEWS_FRAME_BROWSER_FRAME_H_
+#define CHROME_BROWSER_VIEWS_FRAME_BROWSER_FRAME_H_
 
-#include "views/window/window_win.h"
+#include "build/build_config.h"
 #include "views/window/non_client_view.h"
 
-class AeroGlassNonClientView;
 class BrowserView;
-class NonClientFrameView;
 class Profile;
 class TabStrip;
+class ThemeProvider;
 
-// A specialization of the NonClientFrameView object that provides additional
-// Browser-specific methods.
-class BrowserNonClientFrameView : public views::NonClientFrameView {
+namespace gfx {
+class Rect;
+}  // namespace gfx
+
+namespace views {
+class Window;
+
+#if defined(OS_WIN)
+class WindowWin;
+#endif
+}  // namespace views
+
+// This is a virtual interface that allows system specific browser frames.
+class BrowserFrame {
  public:
-  BrowserNonClientFrameView() : NonClientFrameView() {}
-  virtual ~BrowserNonClientFrameView() {}
+  virtual ~BrowserFrame() {}
 
-  // Returns the bounds within which the TabStrip should be laid out.
-  virtual gfx::Rect GetBoundsForTabStrip(TabStrip* tabstrip) const = 0;
+  // Creates the appropriate BrowserFrame for this platform. The returned
+  // object is owned by the caller.
+  static BrowserFrame* Create(BrowserView* browser_view, Profile* profile);
 
-  // Updates the throbber.
-  virtual void UpdateThrobber(bool running) = 0;
-};
+  // Returns the Window associated with this frame. Guraranteed non-NULL after
+  // construction.
+  virtual views::Window* GetWindow() = 0;
 
-///////////////////////////////////////////////////////////////////////////////
-// BrowserFrame
-//
-//  BrowserFrame is a WindowWin subclass that provides the window frame for the
-//  Chrome browser window.
-//
-class BrowserFrame : public views::WindowWin {
- public:
-  explicit BrowserFrame(BrowserView* browser_view, Profile* profile);
-  virtual ~BrowserFrame();
-
-  // Initialize the frame. Creates the Window.
-  void Init();
+  // Notification that the tab strip has been created. This should let the
+  // BrowserRootView know about it so it can enable drag and drop.
+  virtual void TabStripCreated(TabStrip* tabstrip) = 0;
 
   // Determine the distance of the left edge of the minimize button from the
   // left edge of the window. Used in our Non-Client View's Layout.
-  int GetMinimizeButtonOffset() const;
+  virtual int GetMinimizeButtonOffset() const = 0;
 
   // Retrieves the bounds, in non-client view coordinates for the specified
   // TabStrip.
-  gfx::Rect GetBoundsForTabStrip(TabStrip* tabstrip) const;
+  virtual gfx::Rect GetBoundsForTabStrip(TabStrip* tabstrip) const = 0;
 
   // Tells the frame to update the throbber.
-  void UpdateThrobber(bool running);
+  virtual void UpdateThrobber(bool running) = 0;
 
-  // Overridden from views::Widget.
-  virtual ThemeProvider* GetThemeProvider() const;
-  virtual ThemeProvider* GetDialogThemeProvider() const;
-
-  BrowserView* browser_view() const { return browser_view_; }
-
-#if defined(FRAME_WINDOW)
-  void SetBrowserNonClientFrameView(BrowserNonClientFrameView* view);
-#endif
-
- protected:
-  // Overridden from views::WidgetWin:
-  virtual bool AcceleratorPressed(views::Accelerator* accelerator);
-  virtual bool GetAccelerator(int cmd_id, views::Accelerator* accelerator);
-  virtual void OnEnterSizeMove();
-  virtual void OnEndSession(BOOL ending, UINT logoff);
-  virtual void OnInitMenuPopup(HMENU menu, UINT position, BOOL is_system_menu);
-  virtual LRESULT OnMouseActivate(HWND window,
-                                  UINT hittest_code,
-                                  UINT message);
-  virtual void OnMove(const CPoint& point);
-  virtual void OnMoving(UINT param, const RECT* new_bounds);
-  virtual LRESULT OnNCActivate(BOOL active);
-  virtual LRESULT OnNCCalcSize(BOOL mode, LPARAM l_param);
-  virtual LRESULT OnNCHitTest(const CPoint& pt);
-
-  // Overridden from views::Window:
-  virtual int GetShowState() const;
-  virtual bool IsAppWindow() const { return true; }
-  virtual views::NonClientFrameView* CreateFrameViewForWindow();
-  virtual void UpdateFrameAfterFrameChange();
-  virtual views::RootView* CreateRootView();
-
- private:
-  // Updates the DWM with the frame bounds.
-  void UpdateDWMFrame();
-
-  // The BrowserView is our ClientView. This is a pointer to it.
-  BrowserView* browser_view_;
-
-  // A pointer to our NonClientFrameView as a BrowserNonClientFrameView.
-  BrowserNonClientFrameView* browser_frame_view_;
-
-  bool frame_initialized_;
-
-  Profile* profile_;
-
-  DISALLOW_EVIL_CONSTRUCTORS(BrowserFrame);
+  // Returns the theme provider for this frame.
+  virtual ThemeProvider* GetThemeProviderForFrame() const = 0;
 };
 
-#endif  // #ifndef CHROME_BROWSER_VIEWS_FRAME_BROWSER_FRAME_
+#endif  // CHROME_BROWSER_VIEWS_FRAME_BROWSER_FRAME_H_
