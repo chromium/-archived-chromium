@@ -1489,7 +1489,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "browser_tests_launcher", "t
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "tcmalloc", "..\third_party\tcmalloc\tcmalloc.vcproj", "{C564F145-9172-42C3-BFCB-60FDEA124321}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "app", "..\app\app_base.vcproj", "{4631946D-7D5F-44BD-A5A8-504C0A7033BE}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "app_base", "..\app\app_base.vcproj", "{4631946D-7D5F-44BD-A5A8-504C0A7033BE}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "courgette_lib", "..\courgette\courgette_lib.vcproj", "{9A72A362-E617-4205-B9F2-43C6FB280FA1}"
 EndProject
