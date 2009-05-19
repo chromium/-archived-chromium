@@ -92,10 +92,6 @@ static const int kUIUpdateCoalescingTimeMS = 200;
 // Idle time before helping prune memory consumption.
 static const int kBrowserReleaseMemoryInterval = 30;  // In seconds.
 
-// How much horizontal and vertical offset there is between newly opened
-// windows.
-static const int kWindowTilePixels = 20;
-
 ///////////////////////////////////////////////////////////////////////////////
 
 // A task to reduce the working set of the child processes that live on the IO
