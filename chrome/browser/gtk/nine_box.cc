@@ -35,7 +35,8 @@ GdkPixbuf* GetPixbufNamed(ThemeProvider* theme_provider, int name) {
 }  // namespace
 
 NineBox::NineBox(int top_left, int top, int top_right, int left, int center,
-                 int right, int bottom_left, int bottom, int bottom_right) {
+                 int right, int bottom_left, int bottom, int bottom_right)
+    : ninebox_owns_images_(false) {
   ResourceBundle& rb = ResourceBundle::GetSharedInstance();
   images_[0] = top_left ? rb.GetPixbufNamed(top_left) : NULL;
   images_[1] = top ? rb.GetPixbufNamed(top) : NULL;
@@ -50,7 +51,8 @@ NineBox::NineBox(int top_left, int top, int top_right, int left, int center,
 
 NineBox::NineBox(ThemeProvider* theme_provider,
                  int top_left, int top, int top_right, int left, int center,
-                 int right, int bottom_left, int bottom, int bottom_right) {
+                 int right, int bottom_left, int bottom, int bottom_right)
+    : ninebox_owns_images_(true) {
   images_[0] = top_left ?
                GetPixbufNamed(theme_provider, top_left) : NULL;
   images_[1] = top ?
@@ -72,6 +74,12 @@ NineBox::NineBox(ThemeProvider* theme_provider,
 }
 
 NineBox::~NineBox() {
+  if (ninebox_owns_images_) {
+    for (size_t i = 0; i < 9; i++) {
+      if (images_[i])
+        g_object_unref(images_[i]);
+    }
+  }
 }
 
 void NineBox::RenderToWidget(GtkWidget* dst) const {
