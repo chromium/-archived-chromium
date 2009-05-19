@@ -224,6 +224,10 @@
 						>
 					</File>
 					<File
+						RelativePath=".\tcmalloc\src\base\spinlock.cc"
+						>
+					</File>
+					<File
 						RelativePath="tcmalloc\src\base\sysinfo.cc"
 						>
 					</File>
