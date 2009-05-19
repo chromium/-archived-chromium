@@ -33,7 +33,7 @@ std::string DevToolsView::GetClassName() const {
 }
 
 gfx::Size DevToolsView::GetPreferredSize() {
-  return gfx::Size(700, 400);
+  return gfx::Size(640, 640);
 }
 
 void DevToolsView::Layout() {
