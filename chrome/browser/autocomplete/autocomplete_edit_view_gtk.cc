@@ -89,9 +89,6 @@ void AutocompleteEditViewGtk::Init() {
   text_view_ = gtk_text_view_new_with_buffer(text_buffer_);
   // Until we switch to vector graphics, force the font size.
   gtk_util::ForceFontSizePixels(text_view_, 13.4); // 13.4px == 10pt @ 96dpi
-  // Override the background color for now.  http://crbug.com/12195
-  gtk_widget_modify_base(text_view_, GTK_STATE_NORMAL,
-      &LocationBarViewGtk::kBackgroundColorByLevel[scheme_security_level_]);
 
   // The text view was floating.  It will now be owned by the alignment.
   gtk_container_add(GTK_CONTAINER(alignment_.get()), text_view_);
@@ -513,11 +510,6 @@ void AutocompleteEditViewGtk::EmphasizeURLComponents() {
   AutocompleteInput::Parse(text, model_->GetDesiredTLD(), &parts, NULL);
   bool emphasize = model_->CurrentTextIsURL() && (parts.host.len > 0);
 
-  // For now, force the text color to be black.  Eventually, we should allow
-  // the user to override via gtk theming.  http://crbug.com/12195
-  static GtkTextTag* black_text = gtk_text_buffer_create_tag(text_buffer_,
-      NULL, "foreground", "#000000", NULL);
-
   // Set the baseline emphasis.
   GtkTextIter start, end;
   gtk_text_buffer_get_bounds(text_buffer_, &start, &end);
@@ -532,12 +524,7 @@ void AutocompleteEditViewGtk::EmphasizeURLComponents() {
     gtk_text_buffer_get_iter_at_line_index(text_buffer_, &end, 0,
                                            GetUTF8Offset(text,
                                                          parts.host.end()));
-    // The following forces the text color to black.  When we start obeying the
-    // user theme, we want to remove_all_tags (to get the user's default
-    // text color) rather than applying a color tag.  http://crbug.com/12195
-    gtk_text_buffer_apply_tag(text_buffer_, black_text, &start, &end);
-  } else {
-    gtk_text_buffer_apply_tag(text_buffer_, black_text, &start, &end);
+    gtk_text_buffer_remove_all_tags(text_buffer_, &start, &end);
   }
 
   // Emphasize the scheme for security UI display purposes (if necessary).
