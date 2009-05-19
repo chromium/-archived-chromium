@@ -60,6 +60,8 @@ void NetAgentImpl::Attach() {
 
 void NetAgentImpl::Detach() {
   attached_ = false;
+  xml_http_sources_.clear();
+  ExpireFinishedResourcesCache();
 }
 
 void NetAgentImpl::DidCommitMainResourceLoad() {
@@ -151,19 +153,12 @@ void NetAgentImpl::DidFinishLoading(
   pending_resources_.remove(identifier);
   finished_resources_.append(std::make_pair(identifier, resource));
 
-  // Start removing resources from the cache once there are too many of them.
-  if (finished_resources_.size() > 200) {
-    for (int i = 0; i < 50; ++i) {
-      xml_http_sources_.remove(finished_resources_[i].first);
-      delete finished_resources_[i].second;
-    }
-    finished_resources_.remove(0, 50);
-  }
-
   if (attached_) {
     DictionaryValue value;
     Serialize(*resource, &value);
     delegate_->DidFinishLoading(identifier, value);
+  } else {
+    ExpireFinishedResourcesCache();
   }
 }
 
@@ -191,7 +186,10 @@ void NetAgentImpl::DidLoadResourceFromMemoryCache(
 void NetAgentImpl::DidLoadResourceByXMLHttpRequest(
     int identifier,
     const WebCore::ScriptString& source) {
-  xml_http_sources_.set(identifier, source);
+  if (attached_) {
+    // Only store XmlHttpRequests data when client is attached.
+    xml_http_sources_.set(identifier, source);
+  }
 }
 
 void NetAgentImpl::GetResourceContent(
@@ -309,5 +307,14 @@ void NetAgentImpl::Serialize(const Resource& resource,
     value->SetInteger(L"errorCode", resource.error_code);
     value->SetString(L"localizedDescription",
         webkit_glue::StringToStdString(resource.error_description));
+  }
+}
+
+void NetAgentImpl::ExpireFinishedResourcesCache() {
+  if (finished_resources_.size() > 100) {
+    for (int i = 0; i < 20; ++i) {
+      delete finished_resources_[i].second;
+    }
+    finished_resources_.remove(0, 20);
   }
 }
