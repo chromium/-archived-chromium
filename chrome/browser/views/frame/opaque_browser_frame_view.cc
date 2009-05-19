@@ -723,6 +723,11 @@ void OpaqueBrowserFrameView::PaintToolbarBackground(gfx::Canvas* canvas) {
       toolbar_right->height() - bottom_edge_height, toolbar_right->width(),
       bottom_edge_height, toolbar_bounds.right(), bottom_y,
       toolbar_right->width(), bottom_edge_height, false);
+
+  // Draw the content/toolbar separator.
+  canvas->DrawLineInt(ResourceBundle::toolbar_separator_color,
+      toolbar_bounds.x(), toolbar_bounds.bottom() - 1,
+      toolbar_bounds.right() - 1, toolbar_bounds.bottom() - 1);
 }
 
 void OpaqueBrowserFrameView::PaintOTRAvatar(gfx::Canvas* canvas) {
@@ -780,15 +785,21 @@ void OpaqueBrowserFrameView::PaintRestoredClientEdge(gfx::Canvas* canvas) {
 
   // Draw the toolbar color so that the one pixel areas down the sides
   // show the right color even if not covered by the toolbar image.
-  canvas->DrawRectInt(ResourceBundle::toolbar_color,
-      client_area_bounds.x() - kClientEdgeThickness, client_area_top,
-      client_area_bounds.width() + kClientEdgeThickness,
-      client_area_bottom - client_area_top);
-
-  // Draw the content/toolbar separator.
-  canvas->DrawLineInt(ResourceBundle::toolbar_separator_color,
-      client_area_bounds.x(), client_area_top,
-      client_area_bounds.x() + client_area_bounds.width(),
+  SkColor toolbar_color = tp->GetColor(BrowserThemeProvider::COLOR_TOOLBAR);
+  canvas->DrawLineInt(toolbar_color,
+      client_area_bounds.x() - kClientEdgeThickness,
+      client_area_top,
+      client_area_bounds.x() - kClientEdgeThickness,
+      client_area_bottom - 1 + kClientEdgeThickness);
+  canvas->DrawLineInt(toolbar_color,
+      client_area_bounds.x() - kClientEdgeThickness,
+      client_area_bottom - 1 + kClientEdgeThickness,
+      client_area_bounds.right() + kClientEdgeThickness,
+      client_area_bottom - 1 + kClientEdgeThickness);
+  canvas->DrawLineInt(toolbar_color,
+      client_area_bounds.right() - 1 + kClientEdgeThickness,
+      client_area_bottom - 1 + kClientEdgeThickness,
+      client_area_bounds.right() - 1 + kClientEdgeThickness,
       client_area_top);
 
   SkBitmap* right = tp->GetBitmapNamed(IDR_CONTENT_RIGHT_SIDE);

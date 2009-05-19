@@ -266,6 +266,11 @@ void GlassBrowserFrameView::PaintToolbarBackground(gfx::Canvas* canvas) {
 
   canvas->DrawBitmapInt(*tp->GetBitmapNamed(IDR_CONTENT_TOP_RIGHT_CORNER),
       toolbar_bounds.right(), toolbar_bounds.y());
+
+  // Draw the content/toolbar separator.
+  canvas->DrawLineInt(ResourceBundle::toolbar_separator_color,
+      toolbar_bounds.x(), toolbar_bounds.bottom() - 1,
+      toolbar_bounds.right() - 1, toolbar_bounds.bottom() - 1);
 }
 
 void GlassBrowserFrameView::PaintOTRAvatar(gfx::Canvas* canvas) {
@@ -281,51 +286,57 @@ void GlassBrowserFrameView::PaintOTRAvatar(gfx::Canvas* canvas) {
 }
 
 void GlassBrowserFrameView::PaintRestoredClientEdge(gfx::Canvas* canvas) {
-  ResourceBundle& rb = ResourceBundle::GetSharedInstance();
+  ThemeProvider* tp = GetThemeProvider();
 
   // The client edges start below the toolbar upper corner images regardless
   // of how tall the toolbar itself is.
   int client_area_top =
       frame_->GetWindow()->GetClientView()->y() +
       browser_view_->GetToolbarBounds().y() +
-      rb.GetBitmapNamed(IDR_CONTENT_TOP_LEFT_CORNER)->height();
+      tp->GetBitmapNamed(IDR_CONTENT_TOP_LEFT_CORNER)->height();
 
   gfx::Rect client_area_bounds = CalculateClientAreaBounds(width(), height());
   int client_area_bottom =
       std::max(client_area_top, height() - NonClientBorderThickness());
   int client_area_height = client_area_bottom - client_area_top;
-  SkBitmap* right = rb.GetBitmapNamed(IDR_CONTENT_RIGHT_SIDE);
+  SkBitmap* right = tp->GetBitmapNamed(IDR_CONTENT_RIGHT_SIDE);
   canvas->TileImageInt(*right, client_area_bounds.right(), client_area_top,
                        right->width(), client_area_height);
 
   // Draw the toolbar color so that the one pixel areas down the sides
   // show the right color even if not covered by the toolbar image.
-  canvas->DrawRectInt(GetThemeProvider()->
-      GetColor(BrowserThemeProvider::COLOR_TOOLBAR),
-      client_area_bounds.x() - 1, client_area_top,
-      client_area_bounds.width() + 1, client_area_bottom - client_area_top);
-
-  // Draw the content/toolbar separator.
-  canvas->DrawLineInt(ResourceBundle::toolbar_separator_color,
-      client_area_bounds.x(), client_area_top,
-      client_area_bounds.x() + client_area_bounds.width(),
+  SkColor toolbar_color = tp->GetColor(BrowserThemeProvider::COLOR_TOOLBAR);
+  canvas->DrawLineInt(toolbar_color,
+      client_area_bounds.x() - kClientEdgeThickness,
+      client_area_top,
+      client_area_bounds.x() - kClientEdgeThickness,
+      client_area_bottom - 1 + kClientEdgeThickness);
+  canvas->DrawLineInt(toolbar_color,
+      client_area_bounds.x() - kClientEdgeThickness,
+      client_area_bottom - 1 + kClientEdgeThickness,
+      client_area_bounds.right() + kClientEdgeThickness,
+      client_area_bottom - 1 + kClientEdgeThickness);
+  canvas->DrawLineInt(toolbar_color,
+      client_area_bounds.right() - 1 + kClientEdgeThickness,
+      client_area_bottom - 1 + kClientEdgeThickness,
+      client_area_bounds.right() - 1 + kClientEdgeThickness,
       client_area_top);
 
   canvas->DrawBitmapInt(
-      *rb.GetBitmapNamed(IDR_CONTENT_BOTTOM_RIGHT_CORNER),
+      *tp->GetBitmapNamed(IDR_CONTENT_BOTTOM_RIGHT_CORNER),
       client_area_bounds.right(), client_area_bottom);
 
-  SkBitmap* bottom = rb.GetBitmapNamed(IDR_CONTENT_BOTTOM_CENTER);
+  SkBitmap* bottom = tp->GetBitmapNamed(IDR_CONTENT_BOTTOM_CENTER);
   canvas->TileImageInt(*bottom, client_area_bounds.x(),
       client_area_bottom, client_area_bounds.width(),
       bottom->height());
 
   SkBitmap* bottom_left =
-      rb.GetBitmapNamed(IDR_CONTENT_BOTTOM_LEFT_CORNER);
+      tp->GetBitmapNamed(IDR_CONTENT_BOTTOM_LEFT_CORNER);
   canvas->DrawBitmapInt(*bottom_left,
       client_area_bounds.x() - bottom_left->width(), client_area_bottom);
 
-  SkBitmap* left = rb.GetBitmapNamed(IDR_CONTENT_LEFT_SIDE);
+  SkBitmap* left = tp->GetBitmapNamed(IDR_CONTENT_LEFT_SIDE);
   canvas->TileImageInt(*left, client_area_bounds.x() - left->width(),
       client_area_top, left->width(), client_area_height);
 }
