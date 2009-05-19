@@ -136,7 +136,6 @@ WidgetWin::WidgetWin()
     : close_widget_factory_(this),
       active_mouse_tracking_flags_(0),
       has_capture_(false),
-      current_action_(FA_NONE),
       window_style_(0),
       window_ex_style_(kWindowDefaultExStyle),
       use_layered_buffer_(true),
@@ -787,7 +786,6 @@ bool WidgetWin::ProcessMousePressed(const CPoint& point,
     if (!has_capture_) {
       SetCapture();
       has_capture_ = true;
-      current_action_ = FA_FORWARDING;
     }
     return true;
   }
@@ -813,7 +811,6 @@ void WidgetWin::ProcessMouseReleased(const CPoint& point, UINT flags) {
   // OnMouseReleased blocks.
   if (has_capture_ && ReleaseCaptureOnMouseReleased()) {
     has_capture_ = false;
-    current_action_ = FA_NONE;
     ReleaseCapture();
   }
   is_mouse_down_ = false;

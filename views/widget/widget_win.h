@@ -514,8 +514,6 @@ class WidgetWin : public Widget,
   // is true.
   virtual bool ReleaseCaptureOnMouseReleased() { return true; }
 
-  enum FrameAction {FA_NONE = 0, FA_RESIZING, FA_MOVING, FA_FORWARDING};
-
   virtual RootView* CreateRootView();
 
   // Returns true if this WidgetWin is opaque.
@@ -523,9 +521,6 @@ class WidgetWin : public Widget,
 
   // The root of the View hierarchy attached to this window.
   scoped_ptr<RootView> root_view_;
-
-  // Current frame ui action
-  FrameAction current_action_;
 
   // Whether or not we have capture the mouse.
   bool has_capture_;
