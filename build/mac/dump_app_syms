@@ -19,15 +19,9 @@ fi
 
 TOP="${SRCROOT}/.."
 BUILD_BRANDING=$1
-if [ "${BUILD_BRANDING}" == "Chromium" ]; then
-  SRC_APP_NAME="Chromium"
-elif [ "${BUILD_BRANDING}" == "Chrome" ]; then
-  SRC_APP_NAME="Google Chrome"
-else
-  echo "error: unknown branding: ${BUILD_BRANDING}" >&2
-  exit 1
-fi
 
+BRAND_SCRIPT="${TOP}/build/branding_value.sh"
+SRC_APP_NAME=$("${BRAND_SCRIPT}" "${BUILD_BRANDING}" PRODUCT_FULLNAME)
 . "${TOP}/chrome/VERSION"
 
 BREAKPAD_DUMP_SYMS="${BUILT_PRODUCTS_DIR}/dump_syms"

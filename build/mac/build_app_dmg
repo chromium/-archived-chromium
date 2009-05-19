@@ -20,25 +20,19 @@ set -e
 
 TOP="${SRCROOT}/.."
 PKG_DMG="${TOP}/build/mac/pkg-dmg"
+BRAND_SCRIPT="${TOP}/build/branding_value.sh"
 
 BUILD_BRANDING=$1
-if [ "${BUILD_BRANDING}" == "Chromium" ]; then
-  APP_NAME="Chromium"
-  DMG_NAME="Chromium.dmg"
-elif [ "${BUILD_BRANDING}" == "Chrome" ]; then
-  APP_NAME="Google Chrome"
-  DMG_NAME="GoogleChrome.dmg"
-else
-  echo "error: unknown branding: ${BUILD_BRANDING}" >&2
-  exit 1
-fi
+
+# show things as we run them
+set -x
+
+APP_NAME=$("${BRAND_SCRIPT}" "${BUILD_BRANDING}" PRODUCT_FULLNAME)
+DMG_NAME=$(echo "${APP_NAME}" | sed "s/ //g")
 
 SRC_APP_PATH="${BUILT_PRODUCTS_DIR}/${APP_NAME}.app"
 VOL_NAME="${APP_NAME}"
 DST_DMG_PATH="${BUILT_PRODUCTS_DIR}/${DMG_NAME}"
-
-# show things as we run them
-set -x
 
 # Call the real working
 "${PKG_DMG}" --source /var/empty \

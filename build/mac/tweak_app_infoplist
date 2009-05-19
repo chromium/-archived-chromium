@@ -54,17 +54,12 @@ fi
 
 TOP="${SRCROOT}/.."
 BUILD_BRANDING=$1
-if [ "${BUILD_BRANDING}" == "Chromium" ]; then
-  APP_NAME="Chromium"
-elif [ "${BUILD_BRANDING}" == "Chrome" ]; then
-  APP_NAME="Google Chrome"
-else
-  echo "error: unknown branding: ${BUILD_BRANDING}" >&2
-  exit 1
-fi
-SRC_APP_PATH="${BUILT_PRODUCTS_DIR}/${APP_NAME}.app"
+BRAND_SCRIPT="${TOP}/build/branding_value.sh"
 
 set -x
+
+APP_NAME=$("${BRAND_SCRIPT}" "${BUILD_BRANDING}" PRODUCT_FULLNAME)
+SRC_APP_PATH="${BUILT_PRODUCTS_DIR}/${APP_NAME}.app"
 
 # Figure out what version this build corresponds to.  Just use the svn revision
 # for now. Warning: my svnversion returns 10495:10552M. But that's ok since
@@ -79,16 +74,8 @@ fi
 FULL_VERSION="${MAJOR}.${MINOR}.${BUILD}.${PATCH}"
 SHORT_VERSION="${MAJOR}.${MINOR}.${BUILD}"
 
-# Load the branding file
-if [ "${BUILD_BRANDING}" == "Chromium" ]; then
-  BRANDING_FILE="${TOP}/chrome/app/theme/chromium/BRANDING"
-elif [ "${BUILD_BRANDING}" == "Chrome" ]; then
-  BRANDING_FILE="${TOP}/chrome/app/theme/google_chrome/BRANDING"
-else
-  echo "error: unknown branding: ${BUILD_BRANDING}" >&2
-  exit 1
-fi
-COPYRIGHT_STRING=$(sed -n -e 's/^COPYRIGHT=\(.*\)$/\1/p' "${BRANDING_FILE}")
+# Fetch the copyright
+COPYRIGHT_STRING=$("${BRAND_SCRIPT}" "${BUILD_BRANDING}" COPYRIGHT)
 # Map (c) or (C) to the copyright sign
 COPYRIGHT_STRING=$(echo "${COPYRIGHT_STRING}" | sed -e $'s/([cC])/\302\251/g')
 
