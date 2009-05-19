@@ -123,13 +123,6 @@ struct TitleMatch {
   Snippet::MatchPositions match_positions;
 };
 
-// Returns the bookmarks whose title contains text. At most |max_count|
-// matches are returned in |matches|.
-void GetBookmarksMatchingText(BookmarkModel* model,
-                              const std::wstring& text,
-                              size_t max_count,
-                              std::vector<TitleMatch>* matches);
-
 // Returns true if |n1| was added more recently than |n2|.
 bool MoreRecentlyAdded(BookmarkNode* n1, BookmarkNode* n2);
 

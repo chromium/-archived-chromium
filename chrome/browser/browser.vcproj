@@ -634,6 +634,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\bookmarks\bookmark_index.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\bookmarks\bookmark_index.h"
+				>
+			</File>
+			<File
 				RelativePath=".\bookmarks\bookmark_menu_controller_win.cc"
 				>
 			</File>

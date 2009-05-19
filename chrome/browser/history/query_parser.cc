@@ -56,25 +56,6 @@ void CoalseAndSortMatchPositions(Snippet::MatchPositions* matches) {
     CoalesceMatchesFrom(i, matches);
 }
 
-// For CJK ideographs and Korean Hangul, even a single character
-// can be useful in prefix matching, but that may give us too many
-// false positives. Moreover, the current ICU word breaker gives us
-// back every single Chinese character as a word so that there's no
-// point doing anything for them and we only adjust the minimum length
-// to 2 for Korean Hangul while using 3 for others. This is a temporary
-// hack until we have a segmentation support.
-inline bool IsWordLongEnoughForPrefixSearch(const std::wstring& word)
-{
-  DCHECK(word.size() > 0);
-  size_t minimum_length = 3;
-  // We intentionally exclude Hangul Jamos (both Conjoining and compatibility)
-  // because they 'behave like' Latin letters. Moreover, we should
-  // normalize the former before reaching here.
-  if (0xAC00 <= word[0] && word[0] <= 0xD7A3)
-    minimum_length = 2;
-  return word.size() >= minimum_length;
-}
-
 } // namespace
 
 // Inheritance structure:
@@ -119,7 +100,7 @@ bool QueryNodeWord::HasMatchIn(const std::vector<QueryWord>& words,
 }
 
 bool QueryNodeWord::Matches(const std::wstring& word, bool exact) const {
-  if (exact || !IsWordLongEnoughForPrefixSearch(word_))
+  if (exact || !QueryParser::IsWordLongEnoughForPrefixSearch(word_))
     return word == word_;
   return word.size() >= word_.size() &&
          (word_.compare(0, word_.size(), word, 0, word_.size()) == 0);
@@ -133,7 +114,7 @@ int QueryNodeWord::AppendToSQLiteQuery(std::wstring* query) const {
   query->append(word_);
 
   // Use prefix search if we're not literal and long enough.
-  if (!literal_ && IsWordLongEnoughForPrefixSearch(word_))
+  if (!literal_ && QueryParser::IsWordLongEnoughForPrefixSearch(word_))
     *query += L'*';
   return 1;
 }
@@ -258,6 +239,18 @@ bool QueryNodePhrase::HasMatchIn(
 }
 
 QueryParser::QueryParser() {
+}
+
+// static
+bool QueryParser::IsWordLongEnoughForPrefixSearch(const std::wstring& word) {
+  DCHECK(word.size() > 0);
+  size_t minimum_length = 3;
+  // We intentionally exclude Hangul Jamos (both Conjoining and compatibility)
+  // because they 'behave like' Latin letters. Moreover, we should
+  // normalize the former before reaching here.
+  if (0xAC00 <= word[0] && word[0] <= 0xD7A3)
+    minimum_length = 2;
+  return word.size() >= minimum_length;
 }
 
 // Returns true if the character is considered a quote.

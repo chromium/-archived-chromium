@@ -39,18 +39,3 @@ TEST_F(BookmarkUtilsTest, GetBookmarksContainingText) {
   EXPECT_TRUE(bookmark_utils::DoesBookmarkContainText(n1, L"foo bar"));
   nodes.clear();
 }
-
-// Makes sure if the lower case string of a bookmark title is more characters
-// than the upper case string no match positions are returned.
-TEST_F(BookmarkUtilsTest, EmptyMatchOnMultiwideLowercaseString) {
-  BookmarkModel model(NULL);
-  BookmarkNode* n1 =
-      model.AddURL(model.other_node(), 0, L"\u0130 i",
-                   GURL("http://www.google.com"));
-
-  std::vector<bookmark_utils::TitleMatch> matches;
-  bookmark_utils::GetBookmarksMatchingText(&model, L"i", 100, &matches);
-  ASSERT_EQ(1U, matches.size());
-  EXPECT_TRUE(matches[0].node == n1);
-  EXPECT_TRUE(matches[0].match_positions.empty());
-}

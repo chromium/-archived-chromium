@@ -213,7 +213,13 @@ void BookmarkModel::SetTitle(BookmarkNode* node,
   if (node->GetTitle() == title)
     return;
 
+  // The title index doesn't support changing the title, instead we remove then
+  // add it back.
+  index_.Remove(node);
+
   node->SetTitle(title);
+
+  index_.Add(node);
 
   if (store_.get())
     store_->ScheduleSave();
@@ -372,6 +378,13 @@ void BookmarkModel::ResetDateGroupModified(BookmarkNode* node) {
   SetDateGroupModified(node, Time());
 }
 
+void BookmarkModel::GetBookmarksWithTitlesMatching(
+    const std::wstring& text,
+    size_t max_count,
+    std::vector<bookmark_utils::TitleMatch>* matches) {
+  index_.GetBookmarksWithTitlesMatching(text, max_count, matches);
+}
+
 void BookmarkModel::ClearStore() {
   if (profile_ && store_.get()) {
     NotificationService::current()->RemoveObserver(
@@ -411,6 +424,8 @@ void BookmarkModel::RemoveNode(BookmarkNode* node,
       ++i;
     nodes_ordered_by_url_set_.erase(i);
     removed_urls->insert(node->GetURL());
+
+    index_.Remove(node);
   }
 
   CancelPendingFavIconLoadRequests(node);
@@ -506,6 +521,8 @@ BookmarkNode* BookmarkModel::AddNode(BookmarkNode* parent,
 
   FOR_EACH_OBSERVER(BookmarkModelObserver, observers_,
                     BookmarkNodeAdded(this, parent, index));
+
+  index_.Add(node);
 
   if (node->GetType() == history::StarredEntry::URL && !was_bookmarked) {
     history::URLsStarredDetails details(true);

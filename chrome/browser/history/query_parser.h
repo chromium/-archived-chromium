@@ -58,6 +58,15 @@ class QueryParser {
  public:
   QueryParser();
 
+  // For CJK ideographs and Korean Hangul, even a single character
+  // can be useful in prefix matching, but that may give us too many
+  // false positives. Moreover, the current ICU word breaker gives us
+  // back every single Chinese character as a word so that there's no
+  // point doing anything for them and we only adjust the minimum length
+  // to 2 for Korean Hangul while using 3 for others. This is a temporary
+  // hack until we have a segmentation support.
+  static bool IsWordLongEnoughForPrefixSearch(const std::wstring& word);
+
   // Parse a query into a SQLite query. The resulting query is placed in
   // sqlite_query and the number of words is returned.
   int ParseQuery(const std::wstring& query,

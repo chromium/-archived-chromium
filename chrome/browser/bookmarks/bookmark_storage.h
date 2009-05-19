@@ -12,6 +12,7 @@
 #include "chrome/common/notification_registrar.h"
 
 class BookmarkModel;
+class BookmarkNode;
 class Profile;
 class Task;
 class Value;
@@ -83,6 +84,9 @@ class BookmarkStorage : public NotificationObserver,
 
   // Returns the thread the backend is run on.
   const base::Thread* backend_thread() const { return backend_thread_; }
+
+  // Adds node to the model's index, recursing through all children as well.
+  void AddBookmarksToIndex(BookmarkNode* node);
 
   // Keep the pointer to profile, we may need it for migration from history.
   Profile* profile_;

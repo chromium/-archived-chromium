@@ -14,8 +14,10 @@
 #include "base/lock.h"
 #include "base/observer_list.h"
 #include "base/waitable_event.h"
+#include "chrome/browser/bookmarks/bookmark_index.h"
 #include "chrome/browser/bookmarks/bookmark_service.h"
 #include "chrome/browser/bookmarks/bookmark_storage.h"
+#include "chrome/browser/bookmarks/bookmark_utils.h"
 #include "chrome/browser/cancelable_request.h"
 #include "chrome/browser/history/history.h"
 #include "chrome/browser/history/history_types.h"
@@ -309,6 +311,11 @@ class BookmarkModel : public NotificationObserver, public BookmarkService {
   // combobox of most recently modified groups.
   void ResetDateGroupModified(BookmarkNode* node);
 
+  void GetBookmarksWithTitlesMatching(
+      const std::wstring& text,
+      size_t max_count,
+      std::vector<bookmark_utils::TitleMatch>* matches);
+
   Profile* profile() const { return profile_; }
 
   // Sets the store to NULL, making it so the BookmarkModel does not persist
@@ -436,6 +443,8 @@ class BookmarkModel : public NotificationObserver, public BookmarkService {
 
   // Reads/writes bookmarks to disk.
   scoped_refptr<BookmarkStorage> store_;
+
+  BookmarkIndex index_;
 
   base::WaitableEvent loaded_signal_;
 

@@ -471,32 +471,6 @@ void GetMostRecentlyAddedEntries(BookmarkModel* model,
   }
 }
 
-void GetBookmarksMatchingText(BookmarkModel* model,
-                              const std::wstring& text,
-                              size_t max_count,
-                              std::vector<TitleMatch>* matches) {
-  QueryParser parser;
-  ScopedVector<QueryNode> query_nodes;
-  parser.ParseQuery(text, &query_nodes.get());
-  if (query_nodes.empty())
-    return;
-
-  TreeNodeIterator<BookmarkNode> iterator(model->root_node());
-  Snippet::MatchPositions match_position;
-  while (iterator.has_next()) {
-    BookmarkNode* node = iterator.Next();
-    if (node->is_url() &&
-        parser.DoesQueryMatch(node->GetTitle(), query_nodes.get(),
-                              &match_position)) {
-      matches->push_back(TitleMatch());
-      matches->back().node = node;
-      matches->back().match_positions.swap(match_position);
-      if (matches->size() == max_count)
-        break;
-    }
-  }
-}
-
 bool MoreRecentlyAdded(BookmarkNode* n1, BookmarkNode* n2) {
   return n1->date_added() > n2->date_added();
 }

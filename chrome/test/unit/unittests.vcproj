@@ -424,6 +424,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\browser\bookmarks\bookmark_index_unittest.cc"
+				>
+			</File>
+			<File
 				RelativePath="..\..\browser\bookmarks\bookmark_model_test_utils.cc"
 				>
 			</File>

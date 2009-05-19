@@ -338,28 +338,6 @@ TEST_F(BookmarkModelTest, MostRecentlyAddedEntries) {
   ASSERT_TRUE(n4 == recently_added[3]);
 }
 
-// Makes sure GetBookmarksMatchingText works.
-TEST_F(BookmarkModelTest, GetBookmarksMatchingText) {
-  // Add two urls with titles 'blah' and 'x' and one folder with the title
-  // 'blah'.
-  BookmarkNode* n1 = model.AddURL(
-      model.GetBookmarkBarNode(), 0, L"blah", GURL("http://foo.com/0"));
-  BookmarkNode* n2 = model.AddURL(
-      model.GetBookmarkBarNode(), 1, L"x", GURL("http://foo.com/1"));
-  model.AddGroup(model.GetBookmarkBarNode(), 2, L"blah");
-
-  // Make sure we don't get back the folder.
-  std::vector<bookmark_utils::TitleMatch> results;
-  bookmark_utils::GetBookmarksMatchingText(&model, L"blah", 2, &results);
-  ASSERT_EQ(1U, results.size());
-  EXPECT_EQ(n1, results[0].node);
-  results.clear();
-
-  bookmark_utils::GetBookmarksMatchingText(&model, L"x", 2, &results);
-  ASSERT_EQ(1U, results.size());
-  EXPECT_EQ(n2, results[0].node);
-}
-
 // Makes sure GetMostRecentlyAddedNodeForURL stays in sync.
 TEST_F(BookmarkModelTest, GetMostRecentlyAddedNodeForURL) {
   // Add a couple of nodes such that the following holds for the time of the

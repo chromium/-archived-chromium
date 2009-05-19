@@ -6,6 +6,7 @@
 
 #include "base/compiler_specific.h"
 #include "base/file_util.h"
+#include "base/histogram.h"
 #include "base/json_writer.h"
 #include "base/message_loop.h"
 #include "base/thread.h"
@@ -18,6 +19,8 @@
 #include "chrome/common/json_value_serializer.h"
 #include "chrome/common/notification_source.h"
 #include "chrome/common/notification_type.h"
+
+using base::TimeTicks;
 
 namespace {
 
@@ -193,8 +196,16 @@ void BookmarkStorage::OnLoadFinished(bool file_exists, const FilePath& path,
     return;
 
   if (root_value) {
+    TimeTicks start_time = TimeTicks::Now();
     BookmarkCodec codec;
     codec.Decode(model_, *root_value);
+    UMA_HISTOGRAM_TIMES("Bookmarks.DecodeTime",
+                        TimeTicks::Now() - start_time);
+
+    start_time = TimeTicks::Now();
+    AddBookmarksToIndex(model_->root_node());
+    UMA_HISTOGRAM_TIMES("Bookmarks.CreatebookmarkIndexTime",
+                        TimeTicks::Now() - start_time);
   }
 
   model_->DoneLoading();
@@ -244,5 +255,14 @@ void BookmarkStorage::RunTaskOnBackendThread(Task* task) const {
   } else {
     task->Run();
     delete task;
+  }
+}
+
+void BookmarkStorage::AddBookmarksToIndex(BookmarkNode* node) {
+  if (node->is_url()) {
+    model_->index_.Add(node);
+  } else {
+    for (int i = 0; i < node->GetChildCount(); ++i)
+      AddBookmarksToIndex(node->GetChild(i));
   }
 }
