@@ -28,11 +28,35 @@ static void GetWidgetPositionOnScreen(GtkWidget* widget, int* x, int *y) {
   }
 }
 
+// Returns the view::Event::flags for a GdkEventButton.
+static int GetFlagsForEventButton(const GdkEventButton& event) {
+  int flags = Event::GetFlagsFromGdkState(event.state);
+  switch (event.button) {
+    case 1:
+      flags |= Event::EF_LEFT_BUTTON_DOWN;
+      break;
+    case 2:
+      flags |= Event::EF_MIDDLE_BUTTON_DOWN;
+      break;
+    case 3:
+      flags |= Event::EF_RIGHT_BUTTON_DOWN;
+      break;
+    default:
+      // We only deal with 1-3.
+      break;
+  }
+  if (event.type == GDK_2BUTTON_PRESS)
+    flags |= MouseEvent::EF_IS_DOUBLE_CLICK;
+  return flags;
+}
+
 WidgetGtk::WidgetGtk(Type type)
-    : type_(type),
+    : is_window_(false),
+      type_(type),
       widget_(NULL),
       child_widget_parent_(NULL),
       is_mouse_down_(false),
+      has_capture_(false),
       last_mouse_event_was_move_(false) {
 }
 
@@ -42,7 +66,7 @@ WidgetGtk::~WidgetGtk() {
     gtk_widget_destroy(widget_);
     child_widget_parent_ = widget_ = NULL;
   }
-  // MessageLoopForUI::current()->RemoveObserver(this);
+  MessageLoopForUI::current()->RemoveObserver(this);
 }
 
 void WidgetGtk::Init(const gfx::Rect& bounds,
@@ -74,7 +98,7 @@ void WidgetGtk::Init(const gfx::Rect& bounds,
 
   SetRootViewForWidget(widget_, root_view_.get());
 
-  // MessageLoopForUI::current()->AddObserver(this);
+  MessageLoopForUI::current()->AddObserver(this);
 
   g_signal_connect_after(G_OBJECT(child_widget_parent_), "size_allocate",
                          G_CALLBACK(CallSizeAllocate), NULL);
@@ -92,6 +116,12 @@ void WidgetGtk::Init(const gfx::Rect& bounds,
                    G_CALLBACK(CallButtonRelease), NULL);
   g_signal_connect(G_OBJECT(child_widget_parent_), "focus_in_event",
                    G_CALLBACK(CallFocusIn), NULL);
+  g_signal_connect(G_OBJECT(child_widget_parent_), "focus_out_event",
+                   G_CALLBACK(CallFocusOut), NULL);
+  g_signal_connect(G_OBJECT(child_widget_parent_), "grab_broke_event",
+                   G_CALLBACK(CallGrabBrokeEvent), NULL);
+  g_signal_connect(G_OBJECT(child_widget_parent_), "grab_notify",
+                   G_CALLBACK(CallGrabNotify), NULL);
   g_signal_connect(G_OBJECT(child_widget_parent_), "focus_out_event",
                    G_CALLBACK(CallFocusOut), NULL);
   g_signal_connect(G_OBJECT(child_widget_parent_), "key_press_event",
@@ -187,8 +217,13 @@ RootView* WidgetGtk::GetRootView() {
 }
 
 Widget* WidgetGtk::GetRootWidget() const {
-  NOTIMPLEMENTED();
-  return NULL;
+  GtkWidget* parent = widget_;
+  GtkWidget* last_parent = parent;
+  while (parent) {
+    last_parent = parent;
+    parent = gtk_widget_get_parent(parent);
+  }
+  return last_parent ? GetViewForNative(last_parent) : NULL;
 }
 
 bool WidgetGtk::IsVisible() const {
@@ -213,6 +248,11 @@ bool WidgetGtk::GetAccelerator(int cmd_id, Accelerator* accelerator) {
 
 Window* WidgetGtk::GetWindow() {
   return GetWindowImpl(widget_);
+}
+
+void WidgetGtk::DidProcessEvent(GdkEvent* event) {
+  if (root_view_->NeedsPainting(true))
+    PaintNow(root_view_->GetScheduledPaintRect());
 }
 
 const Window* WidgetGtk::GetWindow() const {
@@ -249,6 +289,19 @@ void WidgetGtk::OnSizeAllocate(GtkWidget* widget, GtkAllocation* allocation) {
 }
 
 gboolean WidgetGtk::OnMotionNotify(GtkWidget* widget, GdkEventMotion* event) {
+  if (has_capture_ && is_mouse_down_) {
+    last_mouse_event_was_move_ = false;
+    int flags = Event::GetFlagsFromGdkState(event->state);
+    if (event->state & GDK_BUTTON1_MASK)
+      flags |= Event::EF_LEFT_BUTTON_DOWN;
+    if (event->state & GDK_BUTTON2_MASK)
+      flags |= Event::EF_MIDDLE_BUTTON_DOWN;
+    if (event->state & GDK_BUTTON3_MASK)
+      flags |= Event::EF_RIGHT_BUTTON_DOWN;
+    MouseEvent mouse_drag(Event::ET_MOUSE_DRAGGED, event->x, event->y, flags);
+    root_view_->OnMouseDragged(mouse_drag);
+    return true;
+  }
   gfx::Point screen_loc(event->x_root, event->y_root);
   if (last_mouse_event_was_move_ && last_mouse_move_x_ == screen_loc.x() &&
       last_mouse_move_y_ == screen_loc.y()) {
@@ -258,10 +311,14 @@ gboolean WidgetGtk::OnMotionNotify(GtkWidget* widget, GdkEventMotion* event) {
   last_mouse_move_x_ = screen_loc.x();
   last_mouse_move_y_ = screen_loc.y();
   last_mouse_event_was_move_ = true;
-  MouseEvent mouse_move(Event::ET_MOUSE_MOVED,
-                        event->x,
-                        event->y,
-                        Event::GetFlagsFromGdkState(event->state));
+  int flags = Event::GetFlagsFromGdkState(event->state);
+  if (event->state & GDK_BUTTON1_MASK)
+    flags |= Event::EF_LEFT_BUTTON_DOWN;
+  if (event->state & GDK_BUTTON2_MASK)
+    flags |= Event::EF_MIDDLE_BUTTON_DOWN;
+  if (event->state & GDK_BUTTON3_MASK)
+    flags |= Event::EF_RIGHT_BUTTON_DOWN;
+  MouseEvent mouse_move(Event::ET_MOUSE_MOVED, event->x, event->y, flags);
   root_view_->OnMouseMoved(mouse_move);
   return true;
 }
@@ -281,14 +338,13 @@ void WidgetGtk::OnPaint(GtkWidget* widget, GdkEventExpose* event) {
 }
 
 gboolean WidgetGtk::OnEnterNotify(GtkWidget* widget, GdkEventCrossing* event) {
-  // TODO(port): We may not actually need this message; it looks like
-  // OnNotificationNotify() takes care of this case...
   return false;
 }
 
 gboolean WidgetGtk::OnLeaveNotify(GtkWidget* widget, GdkEventCrossing* event) {
   last_mouse_event_was_move_ = false;
-  root_view_->ProcessOnMouseExited();
+  if (!has_capture_ && !is_mouse_down_)
+    root_view_->ProcessOnMouseExited();
   return true;
 }
 
@@ -300,6 +356,16 @@ gboolean WidgetGtk::OnKeyPress(GtkWidget* widget, GdkEventKey* event) {
 gboolean WidgetGtk::OnKeyRelease(GtkWidget* widget, GdkEventKey* event) {
   KeyEvent key_event(event);
   return root_view_->ProcessKeyEvent(key_event);
+}
+
+gboolean WidgetGtk::OnGrabBrokeEvent(GtkWidget* widget, GdkEvent* event) {
+  HandleGrabBroke();
+  return false;  // To let other widgets get the event.
+}
+
+void WidgetGtk::OnGrabNotify(GtkWidget* widget, gboolean was_grabbed) {
+  gtk_grab_remove(child_widget_parent_);
+  HandleGrabBroke();
 }
 
 // static
@@ -318,34 +384,27 @@ RootView* WidgetGtk::CreateRootView() {
 }
 
 bool WidgetGtk::ProcessMousePressed(GdkEventButton* event) {
-  last_mouse_event_was_move_ = false;
-  // TODO: move this code into a common place. Also need support for
-  // double/triple click.
-  int flags = Event::GetFlagsFromGdkState(event->state);
-  switch (event->button) {
-    case 1:
-      flags |= Event::EF_LEFT_BUTTON_DOWN;
-      break;
-    case 2:
-      flags |= Event::EF_MIDDLE_BUTTON_DOWN;
-      break;
-    case 3:
-      flags |= Event::EF_MIDDLE_BUTTON_DOWN;
-      break;
-    default:
-      // We only deal with 1-3.
-      break;
+  if (event->type == GDK_2BUTTON_PRESS || event->type == GDK_3BUTTON_PRESS) {
+    // The sequence for double clicks is press, release, press, 2press, release.
+    // This means that at the time we get the second 'press' we don't know
+    // whether it corresponds to a double click or not. For now we're completely
+    // ignoring the 2press/3press events as they are duplicate. To make this
+    // work right we need to write our own code that detects if the press is a
+    // double/triple. For now we're completely punting, which means we always
+    // get single clicks.
+    // TODO: fix this.
+    return true;
   }
-  MouseEvent mouse_pressed(Event::ET_MOUSE_PRESSED,
-                           event->x, event->y, flags);
+
+  last_mouse_event_was_move_ = false;
+  MouseEvent mouse_pressed(Event::ET_MOUSE_PRESSED, event->x, event->y,
+                           GetFlagsForEventButton(*event));
   if (root_view_->OnMousePressed(mouse_pressed)) {
     is_mouse_down_ = true;
-    // TODO(port): Enable this once I figure out what capture is.
-    // if (!has_capture_) {
-    //   SetCapture();
-    //   has_capture_ = true;
-    //   current_action_ = FA_FORWARDING;
-    // }
+    if (!has_capture_) {
+      has_capture_ = true;
+      gtk_grab_add(child_widget_parent_);
+    }
     return true;
   }
 
@@ -354,18 +413,15 @@ bool WidgetGtk::ProcessMousePressed(GdkEventButton* event) {
 
 void WidgetGtk::ProcessMouseReleased(GdkEventButton* event) {
   last_mouse_event_was_move_ = false;
-  MouseEvent mouse_up(Event::ET_MOUSE_RELEASED,
-                      event->x, event->y,
-                      Event::GetFlagsFromGdkState(event->state));
+  MouseEvent mouse_up(Event::ET_MOUSE_RELEASED, event->x, event->y,
+                      GetFlagsForEventButton(*event));
   // Release the capture first, that way we don't get confused if
   // OnMouseReleased blocks.
-  //
-  // TODO(port): Enable this once I figure out what capture is.
-  // if (has_capture_ && ReleaseCaptureOnMouseReleased()) {
-  //   has_capture_ = false;
-  //   current_action_ = FA_NONE;
-  //   ReleaseCapture();
-  // }
+
+  if (has_capture_ && ReleaseCaptureOnMouseReleased()) {
+    has_capture_ = false;
+    gtk_grab_remove(child_widget_parent_);
+  }
   is_mouse_down_ = false;
   root_view_->OnMouseReleased(mouse_up, false);
 }
@@ -497,17 +553,43 @@ gboolean WidgetGtk::CallVisibilityNotify(GtkWidget* widget,
   return widget_gtk->OnVisibilityNotify(widget, event);
 }
 
-// Returns the first ancestor of |widget| that is a window.
+// static
+gboolean WidgetGtk::CallGrabBrokeEvent(GtkWidget* widget, GdkEvent* event) {
+  WidgetGtk* widget_gtk = GetViewForNative(widget);
+  if (!widget_gtk)
+    return false;
+
+  return widget_gtk->OnGrabBrokeEvent(widget, event);
+}
+
+// static
+void WidgetGtk::CallGrabNotify(GtkWidget* widget, gboolean was_grabbed) {
+  WidgetGtk* widget_gtk = GetViewForNative(widget);
+  if (!widget_gtk)
+    return;
+
+  return widget_gtk->OnGrabNotify(widget, was_grabbed);
+}
+
 // static
 Window* WidgetGtk::GetWindowImpl(GtkWidget* widget) {
   GtkWidget* parent = widget;
   while (parent) {
-    WindowGtk* window = GetWindowForNative(widget);
-    if (window)
-      return window;
+    WidgetGtk* widget_gtk = GetViewForNative(parent);
+    if (widget_gtk && widget_gtk->is_window_)
+      return static_cast<WindowGtk*>(widget_gtk);
     parent = gtk_widget_get_parent(parent);
   }
   return NULL;
+}
+
+void WidgetGtk::HandleGrabBroke() {
+  if (has_capture_) {
+    if (is_mouse_down_)
+      root_view_->ProcessMouseDragCanceled();
+    is_mouse_down_ = false;
+    has_capture_ = false;
+  }
 }
 
 }  // namespace views

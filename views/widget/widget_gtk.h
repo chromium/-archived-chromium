@@ -20,7 +20,7 @@ class View;
 class WindowGtk;
 
 // Widget implementation for GTK.
-class WidgetGtk : public Widget {
+class WidgetGtk : public Widget, public MessageLoopForUI::Observer {
  public:
   // Type of widget.
   enum Type {
@@ -64,6 +64,10 @@ class WidgetGtk : public Widget {
   virtual Window* GetWindow();
   virtual const Window* GetWindow() const;
 
+  // MessageLoopForUI::Observer.
+  virtual void WillProcessEvent(GdkEvent* event) {}
+  virtual void DidProcessEvent(GdkEvent* event);
+
  protected:
   virtual void OnSizeAllocate(GtkWidget* widget, GtkAllocation* allocation);
   virtual void OnPaint(GtkWidget* widget, GdkEventExpose* event);
@@ -87,10 +91,19 @@ class WidgetGtk : public Widget {
                                       GdkEventVisibility* event) {
     return false;
   }
+  virtual gboolean OnGrabBrokeEvent(GtkWidget* widget, GdkEvent* event);
+  virtual void OnGrabNotify(GtkWidget* widget, gboolean was_grabbed);
+
+  // Returns whether capture should be released on mouse release. The default
+  // is true.
+  virtual bool ReleaseCaptureOnMouseReleased() { return true; }
 
   // Sets and retrieves the WidgetGtk in the userdata section of the widget.
   static WindowGtk* GetWindowForNative(GtkWidget* widget);
   static void SetWindowForNative(GtkWidget* widget, WindowGtk* window);
+
+  // Are we a subclass of WindowGtk?
+  bool is_window_;
 
  private:
   virtual RootView* CreateRootView();
@@ -121,11 +134,16 @@ class WidgetGtk : public Widget {
   static gboolean CallScroll(GtkWidget* widget, GdkEventScroll* event);
   static gboolean CallVisibilityNotify(GtkWidget* widget,
                                        GdkEventVisibility* event);
+  static gboolean CallGrabBrokeEvent(GtkWidget* widget, GdkEvent* event);
+  static void CallGrabNotify(GtkWidget* widget, gboolean was_grabbed);
 
+  // Returns the first ancestor of |widget| that is a window.
   static Window* GetWindowImpl(GtkWidget* widget);
 
   // Creates the GtkWidget.
   void CreateGtkWidget();
+
+  void HandleGrabBroke();
 
   const Type type_;
 
@@ -140,6 +158,9 @@ class WidgetGtk : public Widget {
 
   // If true, the mouse is currently down.
   bool is_mouse_down_;
+
+  // Have we done a mouse grab?
+  bool has_capture_;
 
   // The following are used to detect duplicate mouse move events and not
   // deliver them. Displaying a window may result in the system generating
