@@ -45,10 +45,6 @@ URLRequestJob::URLRequestJob(URLRequest* request)
 }
 
 URLRequestJob::~URLRequestJob() {
-  // Cause filter chain to be destroyed now, so that any histogram requests can
-  // be made before we are torn down.
-  filter_.reset(NULL);
-
   g_url_request_job_tracker.RemoveJob(this);
 }
 

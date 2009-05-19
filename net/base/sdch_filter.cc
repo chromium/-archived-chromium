@@ -25,8 +25,7 @@ SdchFilter::SdchFilter(const FilterContext& filter_context)
       dest_buffer_excess_index_(0),
       source_bytes_(0),
       output_bytes_(0),
-      possible_pass_through_(false),
-      was_cached_(filter_context.IsCachedContent()) {
+      possible_pass_through_(false) {
   bool success = filter_context.GetMimeType(&mime_type_);
   DCHECK(success);
   success = filter_context.GetURL(&url_);
@@ -69,7 +68,7 @@ SdchFilter::~SdchFilter() {
     UMA_HISTOGRAM_COUNTS("Sdch3.UnflushedVcdiffOut", output_bytes_);
   }
 
-  if (was_cached_) {
+  if (filter_context().IsCachedContent()) {
     // Not a real error, but it is useful to have this tally.
     // TODO(jar): Remove this stat after SDCH stability is validated.
     SdchManager::SdchErrorRecovery(SdchManager::CACHE_DECODED);
@@ -196,7 +195,7 @@ Filter::FilterStatus SdchFilter::ReadFilteredData(char* dest_buffer,
           // Since we can't do a meta-refresh (along with an exponential
           // backoff), we'll just make sure this NEVER happens again.
           SdchManager::BlacklistDomainForever(url_);
-          if (was_cached_)
+          if (filter_context().IsCachedContent())
             SdchManager::SdchErrorRecovery(
                 SdchManager::CACHED_META_REFRESH_UNSUPPORTED);
           else
@@ -206,7 +205,7 @@ Filter::FilterStatus SdchFilter::ReadFilteredData(char* dest_buffer,
         }
         // HTML content means we can issue a meta-refresh, and get the content
         // again, perhaps without SDCH (to be safe).
-        if (was_cached_) {
+        if (filter_context().IsCachedContent()) {
           // Cached content is probably a startup tab, so we'll just get fresh
           // content and try again, without disabling sdch.
           SdchManager::SdchErrorRecovery(

@@ -79,6 +79,9 @@ URLRequestHttpJob::~URLRequestHttpJob() {
     if (sdch_test_activated_)
       RecordPacketStats(SDCH_EXPERIMENT_DECODE);
   }
+  // Make sure SDCH filters are told to emit histogram data while this class
+  // can still service the IsCachedContent() call.
+  DestroyFilters();
 
   if (sdch_dictionary_url_.is_valid()) {
     // Prior to reaching the destructor, request_ has been set to a NULL

@@ -111,11 +111,6 @@ class SdchFilter : public Filter {
   // This is used to restrict use of a dictionary to a specific URL or path.
   GURL url_;
 
-  // To facilitate error recovery, we store whether this content came from a
-  // cache, as we then probably don't have the requsite dictionary, and will
-  // need to induce a meta-refresh.
-  const bool was_cached_;
-
   // To facilitate error recovery, allow filter to know if content is text/html
   // by checking within this mime type (we may do a meta-refresh via html).
   std::string mime_type_;

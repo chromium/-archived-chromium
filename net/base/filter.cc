@@ -39,7 +39,7 @@ const char kTextHtml[]             = "text/html";
 
 Filter* Filter::Factory(const std::vector<FilterType>& filter_types,
                         const FilterContext& filter_context) {
-  DCHECK(filter_context.GetInputStreamBufferSize() > 0);
+  DCHECK_GT(filter_context.GetInputStreamBufferSize(), 0);
   if (filter_types.empty() || filter_context.GetInputStreamBufferSize() <= 0)
     return NULL;
 
@@ -263,7 +263,7 @@ Filter::~Filter() {}
 
 bool Filter::InitBuffer() {
   int buffer_size = filter_context_.GetInputStreamBufferSize();
-  DCHECK(buffer_size > 0);
+  DCHECK_GT(buffer_size, 0);
   if (buffer_size <= 0 || stream_buffer())
     return false;
 

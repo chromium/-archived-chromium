@@ -265,6 +265,16 @@ class URLRequestJob : public base::RefCountedThreadSafe<URLRequestJob>,
   // the hood.
   bool ReadFilteredData(int *bytes_read);
 
+  // Facilitate histogramming by turning on packet counting.
+  // If called more than once, the largest value will be used.
+  void EnablePacketCounting(size_t max_packets_timed);
+
+  // At or near destruction time, a derived class may request that the filters
+  // be destroyed so that statistics can be gathered while the derived class is
+  // still present to assist in calculations.  This is used by URLRequestHttpJob
+  // to get SDCH to emit stats.
+  void DestroyFilters() { filter_.reset(); }
+
   // The request that initiated this job. This value MAY BE NULL if the
   // request was released by DetachRequest().
   URLRequest* request_;
@@ -280,10 +290,6 @@ class URLRequestJob : public base::RefCountedThreadSafe<URLRequestJob>,
 
   // Contains IO performance measurement when profiling is enabled.
   scoped_ptr<URLRequestJobMetrics> metrics_;
-
-  // Facilitate histogramming by turning on packet counting.
-  // If called more than once, the largest value will be used.
-  void EnablePacketCounting(size_t max_packets_timed);
 
  private:
   // Size of filter input buffers used by this class.
