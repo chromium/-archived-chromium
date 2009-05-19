@@ -1592,6 +1592,8 @@
                 ['include', '^browser/dock_info_gtk.cc'],
                 ['include', '^browser/dock_info.cc'],
                 ['include', '^browser/dock_info.h'],
+                ['include', '^browser/views/tabs/dragged_tab_view.cc'],
+                ['include', '^browser/views/tabs/dragged_tab_view.h'],
                 ['include', '^browser/views/tabs/tab.cc'],
                 ['include', '^browser/views/tabs/tab.h'],
                 ['include', '^browser/views/tabs/tab_renderer.cc'],

@@ -431,6 +431,7 @@ void DraggedTabController::Observe(NotificationType type,
 ///////////////////////////////////////////////////////////////////////////////
 // DraggedTabController, MessageLoop::Observer implementation:
 
+#if defined(OS_WIN)
 void DraggedTabController::WillProcessMessage(const MSG& msg) {
 }
 
@@ -442,6 +443,12 @@ void DraggedTabController::DidProcessMessage(const MSG& msg) {
   if (msg.message == WM_KEYDOWN && msg.wParam == VK_ESCAPE)
     EndDrag(true);
 }
+
+#else
+void DraggedTabController::WillProcessEvent(GdkEvent* event) {
+  NOTIMPLEMENTED();
+}
+#endif
 
 ///////////////////////////////////////////////////////////////////////////////
 // DraggedTabController, private:

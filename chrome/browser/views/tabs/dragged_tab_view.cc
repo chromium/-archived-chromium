@@ -10,7 +10,10 @@
 #include "chrome/browser/views/tabs/native_view_photobooth.h"
 #include "chrome/browser/views/tabs/tab_renderer.h"
 #include "third_party/skia/include/core/SkShader.h"
+#include "views/widget/widget.h"
+#if defined(OS_WIN)
 #include "views/widget/widget_win.h"
+#endif
 
 const int kTransparentAlpha = 200;
 const int kOpaqueAlpha = 255;
@@ -26,8 +29,7 @@ static const SkColor kDraggedTabBorderColor = SkColorSetRGB(103, 129, 162);
 DraggedTabView::DraggedTabView(TabContents* datasource,
                                const gfx::Point& mouse_tab_offset,
                                const gfx::Size& contents_size)
-    : container_(NULL),
-      renderer_(new TabRenderer),
+    : renderer_(new TabRenderer),
       attached_(false),
       show_contents_on_drag_(true),
       mouse_tab_offset_(mouse_tab_offset),
@@ -39,6 +41,7 @@ DraggedTabView::DraggedTabView(TabContents* datasource,
 
   renderer_->UpdateData(datasource, false);
 
+#if defined(OS_WIN)
   container_.reset(new views::WidgetWin);
   container_->set_delete_on_destroy(false);
   container_->set_window_style(WS_POPUP);
@@ -53,16 +56,24 @@ DraggedTabView::DraggedTabView(TabContents* datasource,
       (drag == FALSE)) {
     show_contents_on_drag_ = false;
   }
+#else
+  NOTIMPLEMENTED();
+#endif
 }
 
 DraggedTabView::~DraggedTabView() {
   if (close_animation_.IsAnimating())
     close_animation_.Stop();
   GetParent()->RemoveChildView(this);
+#if defined(OS_WIN)
   container_->CloseNow();
+#else
+  NOTIMPLEMENTED();
+#endif
 }
 
 void DraggedTabView::MoveTo(const gfx::Point& screen_point) {
+#if defined(OS_WIN)
   int show_flags = container_->IsVisible() ? SWP_NOZORDER : SWP_SHOWWINDOW;
 
   int x;
@@ -83,13 +94,20 @@ void DraggedTabView::MoveTo(const gfx::Point& screen_point) {
 
   container_->SetWindowPos(HWND_TOP, x, y, 0, 0,
                            SWP_NOSIZE | SWP_NOACTIVATE | show_flags);
+#else
+  NOTIMPLEMENTED();
+#endif
 }
 
 void DraggedTabView::Attach(int selected_width) {
   attached_ = true;
   photobooth_ = NULL;
   attached_tab_size_.set_width(selected_width);
+#if defined(OS_WIN)
   container_->SetLayeredAlpha(kOpaqueAlpha);
+#else
+  NOTIMPLEMENTED();
+#endif
   ResizeContainer();
   Update();
 }
@@ -97,25 +115,33 @@ void DraggedTabView::Attach(int selected_width) {
 void DraggedTabView::Detach(NativeViewPhotobooth* photobooth) {
   attached_ = false;
   photobooth_ = photobooth;
+#if defined(OS_WIN)
   container_->SetLayeredAlpha(kTransparentAlpha);
+#else
+  NOTIMPLEMENTED();
+#endif
   ResizeContainer();
   Update();
 }
 
 void DraggedTabView::Update() {
+#if defined(OS_WIN)
   container_->set_can_update_layered_window(true);
   SchedulePaint();
   container_->PaintNow(gfx::Rect());
   container_->set_can_update_layered_window(false);
+#else
+  NOTIMPLEMENTED();
+#endif
 }
 
 void DraggedTabView::AnimateToBounds(const gfx::Rect& bounds,
                                      Callback0::Type* callback) {
   animation_callback_.reset(callback);
 
-  RECT wr;
-  GetWindowRect(GetWidget()->GetNativeView(), &wr);
-  animation_start_bounds_ = wr;
+  gfx::Rect initial_bounds;
+  GetWidget()->GetBounds(&initial_bounds, true);
+  animation_start_bounds_ = initial_bounds;
   animation_end_bounds_ = bounds;
 
   close_animation_.SetSlideDuration(kAnimateToBoundsDurationMs);
@@ -130,11 +156,14 @@ void DraggedTabView::AnimateToBounds(const gfx::Rect& bounds,
 // DraggedTabView, AnimationDelegate implementation:
 
 void DraggedTabView::AnimationProgressed(const Animation* animation) {
+#if defined(OS_WIN)
   int delta_x = (animation_end_bounds_.x() - animation_start_bounds_.x());
   int x = animation_start_bounds_.x() +
       static_cast<int>(delta_x * animation->GetCurrentValue());
   int y = animation_end_bounds_.y();
   container_->SetWindowPos(NULL, x, y, 0, 0, SWP_NOSIZE | SWP_NOACTIVATE);
+#else
+#endif
 }
 
 void DraggedTabView::AnimationEnded(const Animation* animation) {
@@ -247,9 +276,13 @@ void DraggedTabView::PaintFocusRect(gfx::Canvas* canvas) {
 
 void DraggedTabView::ResizeContainer() {
   gfx::Size ps = GetPreferredSize();
+#if defined(OS_WIN)
   SetWindowPos(container_->GetNativeView(), HWND_TOPMOST, 0, 0,
                ScaleValue(ps.width()), ScaleValue(ps.height()),
                SWP_NOMOVE | SWP_NOZORDER | SWP_NOACTIVATE);
+#else
+  NOTIMPLEMENTED();
+#endif
 }
 
 int DraggedTabView::ScaleValue(int value) {

@@ -78,8 +78,10 @@ class DraggedTabView : public views::View,
   // Utility for scaling a size by the current scaling factor.
   int ScaleValue(int value);
 
+#if defined(OS_WIN)
   // The window that contains the DraggedTabView.
   scoped_ptr<views::WidgetWin> container_;
+#endif
 
   // The renderer that paints the Tab shape.
   scoped_ptr<TabRenderer> renderer_;
