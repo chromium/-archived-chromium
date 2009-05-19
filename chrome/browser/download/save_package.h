@@ -156,12 +156,6 @@ class SavePackage : public base::RefCountedThreadSafe<SavePackage>,
   // web page.  This is available for testing.
   static void SetShouldPromptUser(bool should_prompt);
 
-  // Helper function for preparing suggested name for the SaveAs Dialog. The
-  // suggested name is composed of the default save path and the web document's
-  // title.
-  static FilePath GetSuggestNameForSaveAs(PrefService* prefs,
-                                          const FilePath& name);
-
   // Check whether we can do the saving page operation for the specified URL.
   static bool IsSavableURL(const GURL& url);
 
@@ -243,6 +237,16 @@ class SavePackage : public base::RefCountedThreadSafe<SavePackage>,
     return static_cast<int>(saved_success_items_.size() +
                             saved_failed_items_.size());
   }
+
+  // Helper function for preparing suggested name for the SaveAs Dialog. The
+  // suggested name is composed of the default save path and the web document's
+  // title.
+  static FilePath GetSuggestNameForSaveAs(
+      PrefService* prefs, const FilePath& name, bool can_save_as_complete);
+
+  // Ensure that the file name has a proper extension for HTML by adding ".htm"
+  // if necessary.
+  static FilePath EnsureHtmlExtension(const FilePath& name);
 
   typedef std::queue<SaveItem*> SaveItemQueue;
   // A queue for items we are about to start saving.

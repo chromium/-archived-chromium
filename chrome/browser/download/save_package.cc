@@ -951,8 +951,8 @@ void SavePackage::SetShouldPromptUser(bool should_prompt) {
 }
 
 // static
-FilePath SavePackage::GetSuggestNameForSaveAs(PrefService* prefs,
-                                              const FilePath& name) {
+FilePath SavePackage::GetSuggestNameForSaveAs(
+    PrefService* prefs, const FilePath& name, bool can_save_as_complete) {
   // Check whether the preference has the preferred directory for saving file.
   // If not, initialize it with default directory.
   if (!prefs->IsPrefRegistered(prefs::kSaveFileDefaultDirectory)) {
@@ -979,7 +979,9 @@ FilePath SavePackage::GetSuggestNameForSaveAs(PrefService* prefs,
   DCHECK(!(*save_file_path).empty());
 
   // Ask user for getting final saving name.
-  std::wstring file_name = name.ToWStringHack();
+  FilePath name_with_proper_ext =
+      can_save_as_complete ? EnsureHtmlExtension(name) : name;
+  std::wstring file_name = name_with_proper_ext.ToWStringHack();
   // TODO(port): we need a version of ReplaceIllegalCharacters() that takes
   // FilePaths.
   file_util::ReplaceIllegalCharacters(&file_name, L' ');
@@ -990,22 +992,39 @@ FilePath SavePackage::GetSuggestNameForSaveAs(PrefService* prefs,
   return suggest_name;
 }
 
+FilePath SavePackage::EnsureHtmlExtension(const FilePath& name) {
+  // If the file name doesn't have an extension suitable for HTML files,
+  // append ".htm".
+  FilePath::StringType ext = file_util::GetFileExtensionFromPath(name);
+  std::string mime_type;
+  if (!net::GetMimeTypeFromExtension(ext, &mime_type) ||
+      !CanSaveAsComplete(mime_type)) {
+    return FilePath(name.value() + FILE_PATH_LITERAL(".htm"));
+  }
+  return name;
+}
+
 void SavePackage::GetSaveInfo() {
   // Use "Web Page, Complete" option as default choice of saving page.
   int file_type_index = 2;
   SelectFileDialog::FileTypeInfo file_type_info;
   FilePath::StringType default_extension;
-  FilePath title =
-      FilePath::FromWStringHack(UTF16ToWideHack(tab_contents_->GetTitle()));
-  FilePath suggested_path =
-      GetSuggestNameForSaveAs(tab_contents_->profile()->GetPrefs(), title);
 
   SavePackageParam* save_params =
       new SavePackageParam(tab_contents_->contents_mime_type());
 
+  bool can_save_as_complete =
+      CanSaveAsComplete(save_params->current_tab_mime_type);
+
+  FilePath title =
+      FilePath::FromWStringHack(UTF16ToWideHack(tab_contents_->GetTitle()));
+  FilePath suggested_path =
+      GetSuggestNameForSaveAs(tab_contents_->profile()->GetPrefs(), title,
+                              can_save_as_complete);
+
   // If the contents can not be saved as complete-HTML, do not show the
   // file filters.
-  if (CanSaveAsComplete(save_params->current_tab_mime_type)) {
+  if (can_save_as_complete) {
     file_type_info.extensions.resize(2);
     file_type_info.extensions[0].push_back(FILE_PATH_LITERAL("htm"));
     file_type_info.extension_description_overrides.push_back(

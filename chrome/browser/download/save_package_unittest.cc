@@ -80,6 +80,10 @@ class SavePackageTest : public testing::Test {
                                           generated_name);
   }
 
+  FilePath EnsureHtmlExtension(const FilePath& name) {
+    return SavePackage::EnsureHtmlExtension(name);
+  }
+
  private:
   // SavePackage for successfully generating file name.
   scoped_refptr<SavePackage> save_package_success_;
@@ -172,4 +176,31 @@ TEST_F(SavePackageTest, TestLongSavePackageFilename) {
   EXPECT_TRUE(filename2.length() < long_file.length());
   EXPECT_TRUE(HasOrdinalNumber(filename2));
   EXPECT_NE(filename, filename2);
+}
+
+static const struct {
+  const FilePath::CharType* page_title;
+  const FilePath::CharType* expected_name;
+} kExtensionTestCases[] = {
+  // Extension is preserved if it is already proper for HTML.
+  {FPL("filename.html"), FPL("filename.html")},
+  {FPL("filename.HTML"), FPL("filename.HTML")},
+  {FPL("filename.htm"), FPL("filename.htm")},
+  // ".htm" is added if the extension is improper for HTML.
+  {FPL("hello.world"), FPL("hello.world.htm")},
+  {FPL("hello.txt"), FPL("hello.txt.htm")},
+  {FPL("is.html.good"), FPL("is.html.good.htm")},
+  // ".htm" is added if the name doesn't have an extension.
+  {FPL("helloworld"), FPL("helloworld.htm")},
+  {FPL("helloworld."), FPL("helloworld..htm")},
+};
+
+TEST_F(SavePackageTest, TestEnsureHtmlExtension) {
+  for (size_t i = 0; i < ARRAYSIZE_UNSAFE(kExtensionTestCases); ++i) {
+    FilePath original = FilePath(kExtensionTestCases[i].page_title);
+    FilePath expected = FilePath(kExtensionTestCases[i].expected_name);
+    FilePath actual = EnsureHtmlExtension(original);
+    EXPECT_EQ(expected.value(), actual.value()) << "Failed for page title: " <<
+        kExtensionTestCases[i].page_title;
+  }
 }

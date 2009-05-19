@@ -17,14 +17,7 @@
 
 const std::string kTestDir = "save_page";
 
-// We don't append an extension on linux.
-#if defined(OS_WIN)
 const std::string kAppendedExtension = ".htm";
-#elif defined(OS_LINUX)
-const std::string kAppendedExtension = "";
-#elif defined(OS_MACOSX)
-const std::string kAppendedExtension = ".html";
-#endif
 
 class SavePageTest : public UITest {
  protected:
@@ -168,14 +161,15 @@ TEST_F(SavePageTest, FilenameFromPageTitle) {
   EXPECT_TRUE(DieFileDie(dir, true));
 }
 
-// This tests that a webpage with the title "test.exe" is saved as "test.htm".
+// This tests that a webpage with the title "test.exe" is saved as
+// "test.exe.htm".
 // We probably don't care to handle this on Linux or Mac.
 #if defined(OS_WIN)
 TEST_F(SavePageTest, CleanFilenameFromPageTitle) {
   std::string file_name = "c.htm";
-  FilePath full_file_name = download_dir_.AppendASCII("test" +
+  FilePath full_file_name = download_dir_.AppendASCII("test.exe" +
                                                       kAppendedExtension);
-  FilePath dir = download_dir_.AppendASCII("test_files");
+  FilePath dir = download_dir_.AppendASCII("test.exe_files");
 
   GURL url = URLRequestMockHTTPJob::GetMockUrl(UTF8ToWide(kTestDir + "/" +
                                                file_name));
