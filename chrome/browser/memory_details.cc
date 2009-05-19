@@ -27,6 +27,7 @@ static ProcessData
     { L"Opera", L"opera.exe", },
     { L"Safari", L"safari.exe", },
     { L"IE (64bit)", L"iexplore.exe", },
+    { L"Konqueror", L"konqueror.exe", },
   };
 
 
