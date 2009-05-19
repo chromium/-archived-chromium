@@ -27,11 +27,11 @@ class DockInfo {
    public:
     virtual DockInfo GetDockInfoAtPoint(
         const gfx::Point& screen_point,
-        const std::set<gfx::NativeWindow>& ignore) = 0;
+        const std::set<gfx::NativeView>& ignore) = 0;
 
     virtual gfx::NativeWindow GetLocalProcessWindowAtPoint(
         const gfx::Point& screen_point,
-        const std::set<gfx::NativeWindow>& ignore) = 0;
+        const std::set<gfx::NativeView>& ignore) = 0;
   };
 
    // Possible dock positions.
@@ -89,7 +89,7 @@ class DockInfo {
   // If a Factory has been set, the method of the same name is invoked on the
   // Factory to determine the DockInfo.
   static DockInfo GetDockInfoAtPoint(const gfx::Point& screen_point,
-                                     const std::set<gfx::NativeWindow>& ignore);
+                                     const std::set<gfx::NativeView>& ignore);
 
   // Returns the top most window from the current process at |screen_point|.
   // See GetDockInfoAtPoint for a description of |ignore|. This returns NULL if
@@ -100,7 +100,7 @@ class DockInfo {
   // Factory to determine the DockInfo.
   static gfx::NativeWindow GetLocalProcessWindowAtPoint(
       const gfx::Point& screen_point,
-      const std::set<gfx::NativeWindow>& ignore);
+      const std::set<gfx::NativeView>& ignore);
 
   // Returns true if this DockInfo is valid for the specified point. This
   // resets in_enable_area based on the new location.

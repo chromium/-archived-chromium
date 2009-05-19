@@ -9,14 +9,14 @@
 
 // static
 DockInfo DockInfo::GetDockInfoAtPoint(const gfx::Point& screen_point,
-                                      const std::set<GtkWindow*>& ignore) {
+                                      const std::set<GtkWidget*>& ignore) {
   NOTIMPLEMENTED();
   return DockInfo();
 }
 
 GtkWindow* DockInfo::GetLocalProcessWindowAtPoint(
     const gfx::Point& screen_point,
-    const std::set<GtkWindow*>& ignore) {
+    const std::set<GtkWidget*>& ignore) {
   NOTIMPLEMENTED();
   if (factory_)
     return factory_->GetLocalProcessWindowAtPoint(screen_point, ignore);

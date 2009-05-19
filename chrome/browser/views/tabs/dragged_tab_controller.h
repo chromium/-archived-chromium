@@ -301,7 +301,7 @@ class DraggedTabController : public TabContentsDelegate,
 
   DockInfo dock_info_;
 
-  typedef std::set<gfx::NativeWindow> DockWindows;
+  typedef std::set<gfx::NativeView> DockWindows;
   DockWindows dock_windows_;
   std::vector<DockDisplayer*> dock_controllers_;
 

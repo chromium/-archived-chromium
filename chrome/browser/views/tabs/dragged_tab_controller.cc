@@ -25,6 +25,7 @@
 #include "third_party/skia/include/core/SkBitmap.h"
 #include "views/event.h"
 #include "views/widget/root_view.h"
+#include "views/widget/widget.h"
 #include "views/window/window.h"
 
 static const int kHorizontalMoveThreshold = 16; // pixels
@@ -115,6 +116,10 @@ class DockView : public views::View {
               height() / 2 - kTabSpacing / 2 - wide_icon->height());
         }
         break;
+
+      default:
+        NOTREACHED();
+        break;
     }
   }
 
@@ -154,9 +159,8 @@ class DraggedTabController::DockDisplayer : public AnimationDelegate {
                 const DockInfo& info)
       : controller_(controller),
         popup_(NULL),
-        popup_window_(NULL),
-#pragma warning(suppress: 4355)  // Okay to pass "this" here.
-        animation_(this),
+        popup_view_(NULL),
+        ALLOW_THIS_IN_INITIALIZER_LIST(animation_(this)),
         hidden_(false),
         in_enable_area_(info.in_enable_area()) {
 #if defined(OS_WIN)
@@ -175,9 +179,9 @@ class DraggedTabController::DockDisplayer : public AnimationDelegate {
     popup->SetWindowPos(HWND_TOP, 0, 0, 0, 0,
         SWP_NOSIZE | SWP_NOACTIVATE | SWP_NOMOVE | SWP_SHOWWINDOW);
 #else
-    NOTIMPLEMENTED()
+    NOTIMPLEMENTED();
 #endif
-    popup_window_ = popup_->GetNativeView();
+    popup_view_ = popup_->GetNativeView();
   }
 
   ~DockDisplayer() {
@@ -197,8 +201,8 @@ class DraggedTabController::DockDisplayer : public AnimationDelegate {
   // when the DraggedTabController is destoryed.
   void clear_controller() { controller_ = NULL; }
 
-  // NativeWindow of the window we create.
-  gfx::NativeWindow popup_window() { return popup_window_; }
+  // NativeView of the window we create.
+  gfx::NativeView popup_view() { return popup_view_; }
 
   // Starts the hide animation. When the window is closed the
   // DraggedTabController is notified by way of the DockDisplayerDestroyed
@@ -231,14 +235,14 @@ class DraggedTabController::DockDisplayer : public AnimationDelegate {
   }
 
   virtual void UpdateLayeredAlpha() {
-    double scale = in_enable_area_ ? 1 : .5;
 #if defined(OS_WIN)
+    double scale = in_enable_area_ ? 1 : .5;
     static_cast<views::WidgetWin*>(popup_)->SetLayeredAlpha(
         static_cast<BYTE>(animation_.GetCurrentValue() * scale * 255.0));
+    popup_->GetRootView()->SchedulePaint();
 #else
     NOTIMPLEMENTED();
 #endif
-    popup_->GetRootView()->SchedulePaint();
   }
 
  private:
@@ -248,9 +252,9 @@ class DraggedTabController::DockDisplayer : public AnimationDelegate {
   // Window we're showing.
   views::Widget* popup_;
 
-  // NativeWindow of |popup_|. We cache this to avoid the possibility of
+  // NativeView of |popup_|. We cache this to avoid the possibility of
   // invoking a method on popup_ after we close it.
-  gfx::NativeWindow popup_window_;
+  gfx::NativeView popup_view_;
 
   // Animation for when first made visible.
   SlideAnimation animation_;
@@ -443,6 +447,11 @@ void DraggedTabController::DidProcessMessage(const MSG& msg) {
   if (msg.message == WM_KEYDOWN && msg.wParam == VK_ESCAPE)
     EndDrag(true);
 }
+#else
+void DraggedTabController::WillProcessEvent(GdkEvent* event) {
+  NOTIMPLEMENTED();
+}
+#endif
 
 #else
 void DraggedTabController::WillProcessEvent(GdkEvent* event) {
@@ -460,15 +469,14 @@ void DraggedTabController::InitWindowCreatePoint() {
 }
 
 gfx::Point DraggedTabController::GetWindowCreatePoint() const {
-  POINT pt;
-  GetCursorPos(&pt);
+  gfx::Point cursor_point = GetCursorScreenPoint();
   if (dock_info_.type() != DockInfo::NONE) {
     // If we're going to dock, we need to return the exact coordinate,
     // otherwise we may attempt to maximize on the wrong monitor.
-    return gfx::Point(pt);
+    return cursor_point;
   }
-  return gfx::Point(pt.x - window_create_point_.x(),
-                    pt.y - window_create_point_.y());
+  return gfx::Point(cursor_point.x() - window_create_point_.x(),
+                    cursor_point.y() - window_create_point_.y());
 }
 
 void DraggedTabController::UpdateDockInfo(const gfx::Point& screen_point) {
@@ -485,9 +493,9 @@ void DraggedTabController::UpdateDockInfo(const gfx::Point& screen_point) {
     if (dock_info_.type() != DockInfo::NONE) {
       // Show new docking position.
       DockDisplayer* controller = new DockDisplayer(this, dock_info_);
-      if (controller->popup_window()) {
+      if (controller->popup_view()) {
         dock_controllers_.push_back(controller);
-        dock_windows_.insert(controller->popup_window());
+        dock_windows_.insert(controller->popup_view());
       } else {
         delete controller;
       }
@@ -632,7 +640,7 @@ DockInfo DraggedTabController::GetDockInfoAtPoint(
     return dock_info_;
   }
 
-  HWND dragged_hwnd = view_->GetWidget()->GetNativeView();
+  gfx::NativeView dragged_hwnd = view_->GetWidget()->GetNativeView();
   dock_windows_.insert(dragged_hwnd);
   DockInfo info = DockInfo::GetDockInfoAtPoint(screen_point, dock_windows_);
   dock_windows_.erase(dragged_hwnd);
@@ -641,11 +649,11 @@ DockInfo DraggedTabController::GetDockInfoAtPoint(
 
 TabStrip* DraggedTabController::GetTabStripForPoint(
     const gfx::Point& screen_point) {
-  HWND dragged_hwnd = view_->GetWidget()->GetNativeView();
-  dock_windows_.insert(dragged_hwnd);
-  HWND local_window =
+  gfx::NativeView dragged_view = view_->GetWidget()->GetNativeView();
+  dock_windows_.insert(dragged_view);
+  gfx::NativeWindow local_window =
       DockInfo::GetLocalProcessWindowAtPoint(screen_point, dock_windows_);
-  dock_windows_.erase(dragged_hwnd);
+  dock_windows_.erase(dragged_view);
   if (!local_window)
     return NULL;
   BrowserView* browser = BrowserView::GetBrowserViewForHWND(local_window);
@@ -969,9 +977,13 @@ void DraggedTabController::RevertDrag() {
   // it has been hidden.
   if (restore_frame) {
     if (!restore_bounds_.IsEmpty()) {
+#if defined(OS_WIN)
       HWND frame_hwnd = source_tabstrip_->GetWidget()->GetNativeView();
       MoveWindow(frame_hwnd, restore_bounds_.x(), restore_bounds_.y(),
                  restore_bounds_.width(), restore_bounds_.height(), TRUE);
+#else
+      NOTIMPLEMENTED();
+#endif
     }
   }
   source_tab_->SetVisible(true);
@@ -1036,11 +1048,10 @@ bool DraggedTabController::CompleteDrag() {
       }
     }
     // Compel the model to construct a new window for the detached TabContents.
-    CRect browser_rect;
-    GetWindowRect(source_tabstrip_->GetWidget()->GetNativeView(), &browser_rect);
+    gfx::Rect browser_rect = source_tabstrip_->GetWindow()->GetBounds();
     gfx::Rect window_bounds(
         GetWindowCreatePoint(),
-        gfx::Size(browser_rect.Width(), browser_rect.Height()));
+        gfx::Size(browser_rect.width(), browser_rect.height()));
     Browser* new_browser =
         source_tabstrip_->model()->delegate()->CreateNewStripWithContents(
             dragged_contents_, window_bounds, dock_info_);
@@ -1053,18 +1064,23 @@ bool DraggedTabController::CompleteDrag() {
 
 void DraggedTabController::EnsureDraggedView() {
   if (!view_.get()) {
-    RECT wr;
-    GetWindowRect(dragged_contents_->GetNativeView(), &wr);
-
+    gfx::Rect tab_bounds;
+    dragged_contents_->GetContainerBounds(&tab_bounds);
     view_.reset(new DraggedTabView(dragged_contents_, mouse_offset_,
-        gfx::Size(wr.right - wr.left, wr.bottom - wr.top)));
+                                   tab_bounds.size()));
   }
 }
 
 gfx::Point DraggedTabController::GetCursorScreenPoint() const {
+#if defined(OS_WIN)
   POINT pt;
   GetCursorPos(&pt);
   return gfx::Point(pt);
+#else
+  gint x, y;
+  gdk_display_get_pointer(NULL, NULL, &x, &y, NULL);
+  return gfx::Point(x, y);
+#endif
 }
 
 gfx::Rect DraggedTabController::GetViewScreenBounds(views::View* view) const {
@@ -1086,6 +1102,7 @@ int DraggedTabController::NormalizeIndexToAttachedTabStrip(int index) const {
 }
 
 void DraggedTabController::HideFrame() {
+#if defined(OS_WIN)
   // We don't actually hide the window, rather we just move it way off-screen.
   // If we actually hide it, we stop receiving drag events.
   HWND frame_hwnd = source_tabstrip_->GetWidget()->GetNativeView();
@@ -1097,6 +1114,9 @@ void DraggedTabController::HideFrame() {
   // We also save the bounds of the window prior to it being moved, so that if
   // the drag session is aborted we can restore them.
   restore_bounds_ = gfx::Rect(wr);
+#else
+  NOTIMPLEMENTED();
+#endif
 }
 
 void DraggedTabController::CleanUpHiddenFrame() {
@@ -1137,7 +1157,7 @@ void DraggedTabController::OnAnimateToBoundsComplete() {
 void DraggedTabController::DockDisplayerDestroyed(
     DockDisplayer* controller) {
   DockWindows::iterator dock_i =
-      dock_windows_.find(controller->popup_window());
+      dock_windows_.find(controller->popup_view());
   if (dock_i != dock_windows_.end())
     dock_windows_.erase(dock_i);
   else
@@ -1154,22 +1174,26 @@ void DraggedTabController::DockDisplayerDestroyed(
 
 void DraggedTabController::BringWindowUnderMouseToFront() {
   // If we're going to dock to another window, bring it to the front.
-  HWND hwnd = dock_info_.window();
-  if (!hwnd) {
-    HWND dragged_hwnd = view_->GetWidget()->GetNativeView();
-    dock_windows_.insert(dragged_hwnd);
-    hwnd = DockInfo::GetLocalProcessWindowAtPoint(GetCursorScreenPoint(),
-                                                  dock_windows_);
-    dock_windows_.erase(dragged_hwnd);
+  gfx::NativeWindow window = dock_info_.window();
+  if (!window) {
+    gfx::NativeView dragged_view = view_->GetWidget()->GetNativeView();
+    dock_windows_.insert(dragged_view);
+    window = DockInfo::GetLocalProcessWindowAtPoint(GetCursorScreenPoint(),
+                                                    dock_windows_);
+    dock_windows_.erase(dragged_view);
   }
-  if (hwnd) {
+  if (window) {
+#if defined(OS_WIN)
     // Move the window to the front.
-    SetWindowPos(hwnd, HWND_TOP, 0, 0, 0, 0,
+    SetWindowPos(window, HWND_TOP, 0, 0, 0, 0,
                  SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOSIZE);
 
     // The previous call made the window appear on top of the dragged window,
     // move the dragged window to the front.
     SetWindowPos(view_->GetWidget()->GetNativeView(), HWND_TOP, 0, 0, 0, 0,
                  SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOSIZE);
+#else
+    NOTIMPLEMENTED();
+#endif
   }
 }
