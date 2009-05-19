@@ -9,6 +9,7 @@
 #include <gdk/gdkx.h>
 #include <cairo/cairo.h>
 
+#include "base/gfx/gtk_util.h"
 #include "base/logging.h"
 #include "base/message_loop.h"
 #include "base/string_util.h"
@@ -30,6 +31,11 @@ class RenderWidgetHostViewGtkWidget {
   static GtkWidget* CreateNewWidget(RenderWidgetHostViewGtk* host_view) {
     GtkWidget* widget = gtk_drawing_area_new();
     gtk_widget_set_double_buffered(widget, FALSE);
+#if defined(NDEBUG)
+    gtk_widget_modify_bg(widget, GTK_STATE_NORMAL, &gfx::kGdkWhite);
+#else
+    gtk_widget_modify_bg(widget, GTK_STATE_NORMAL, &gfx::kGdkGreen);
+#endif
 
     gtk_widget_add_events(widget, GDK_EXPOSURE_MASK |
                                   GDK_POINTER_MOTION_MASK |
@@ -64,7 +70,7 @@ class RenderWidgetHostViewGtkWidget {
     gtk_target_list_add_text_targets(target_list, 0);
     gint num_targets = 0;
     GtkTargetEntry* targets = gtk_target_table_new_from_list(target_list,
-                                                            &num_targets);
+                                                             &num_targets);
     gtk_selection_clear_targets(widget, GDK_SELECTION_PRIMARY);
     gtk_selection_add_targets(widget, GDK_SELECTION_PRIMARY, targets,
                               num_targets);
