@@ -449,6 +449,9 @@ void DraggedTabController::DidProcessMessage(const MSG& msg) {
 }
 #else
 void DraggedTabController::WillProcessEvent(GdkEvent* event) {
+}
+
+void DraggedTabController::DidProcessEvent(GdkEvent* event) {
   NOTIMPLEMENTED();
 }
 #endif

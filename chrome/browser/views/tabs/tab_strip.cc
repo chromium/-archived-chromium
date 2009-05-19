@@ -1062,6 +1062,9 @@ void TabStrip::DidProcessMessage(const MSG& msg) {
 }
 #else
 void TabStrip::WillProcessEvent(GdkEvent* event) {
+}
+
+void TabStrip::DidProcessEvent(GdkEvent* event) {
   NOTIMPLEMENTED();
 }
 #endif

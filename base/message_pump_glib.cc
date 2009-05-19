@@ -225,6 +225,10 @@ void MessagePumpForUI::WillProcessEvent(GdkEvent* event) {
   FOR_EACH_OBSERVER(Observer, observers_, WillProcessEvent(event));
 }
 
+void MessagePumpForUI::DidProcessEvent(GdkEvent* event) {
+  FOR_EACH_OBSERVER(Observer, observers_, DidProcessEvent(event));
+}
+
 void MessagePumpForUI::Quit() {
   if (state_) {
     state_->should_quit = true;
@@ -254,6 +258,7 @@ void MessagePumpForUI::ScheduleDelayedWork(const Time& delayed_work_time) {
 void MessagePumpForUI::EventDispatcher(GdkEvent* event, gpointer data) {
   reinterpret_cast<MessagePumpForUI*>(data)->WillProcessEvent(event);
   gtk_main_do_event(event);
+  reinterpret_cast<MessagePumpForUI*>(data)->DidProcessEvent(event);
 }
 
 }  // namespace base

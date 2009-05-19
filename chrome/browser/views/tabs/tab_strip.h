@@ -149,6 +149,7 @@ class TabStrip : public views::View,
   virtual void DidProcessMessage(const MSG& msg);
 #else
   virtual void WillProcessEvent(GdkEvent* event);
+  virtual void DidProcessEvent(GdkEvent* event);
 #endif
 
  private:

@@ -116,12 +116,13 @@ class DraggedTabController : public TabContentsDelegate,
                        const NotificationSource& source,
                        const NotificationDetails& details);
 
-#if defined(OS_WIN)
   // Overridden from MessageLoop::Observer:
+#if defined(OS_WIN)
   virtual void WillProcessMessage(const MSG& msg);
   virtual void DidProcessMessage(const MSG& msg);
 #else
   virtual void WillProcessEvent(GdkEvent* event);
+  virtual void DidProcessEvent(GdkEvent* event);
 #endif
 
   // Initialize the offset used to calculate the position to create windows

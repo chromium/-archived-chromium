@@ -26,6 +26,9 @@ class MessagePumpForUI : public MessagePump {
 
     // This method is called before processing a message.
     virtual void WillProcessEvent(GdkEvent* event) = 0;
+
+    // This method is called after processing a message.
+    virtual void DidProcessEvent(GdkEvent* event) = 0;
   };
 
   MessagePumpForUI();
@@ -71,6 +74,10 @@ class MessagePumpForUI : public MessagePump {
   // Invoked from EventDispatcher. Notifies all observers we're about to
   // process an event.
   void WillProcessEvent(GdkEvent* event);
+
+  // Invoked from EventDispatcher. Notifies all observers we processed an
+  // event.
+  void DidProcessEvent(GdkEvent* event);
 
   // Callback prior to gdk dispatching an event.
   static void EventDispatcher(GdkEvent* event, gpointer data);
