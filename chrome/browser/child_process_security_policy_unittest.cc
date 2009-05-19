@@ -275,7 +275,7 @@ TEST_F(ChildProcessSecurityPolicyTest, RemoveRace) {
 }
 
 #if defined(OS_WIN)
-
+/*
 class ChildProcessSecurityPolicyInProcessBrowserTest
     : public InProcessBrowserTest {
  public:
@@ -313,5 +313,5 @@ IN_PROC_BROWSER_TEST_F(ChildProcessSecurityPolicyInProcessBrowserTest, DISABLED_
   EXPECT_EQ(
       ChildProcessSecurityPolicy::GetInstance()->security_state_.size(), 1U);
 }
-
+*/
 #endif
