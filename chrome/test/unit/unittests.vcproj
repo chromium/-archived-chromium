@@ -492,10 +492,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\browser\debugger\devtools_sanity_unittest.cc"
-				>
-			</File>
-			<File
 				RelativePath="..\..\browser\net\dns_host_info_unittest.cc"
 				>
 			</File>

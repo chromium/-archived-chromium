@@ -329,6 +329,14 @@
 			</File>
 		</Filter>
 		<Filter
+			Name="TestDevTools"
+			>
+			<File
+				RelativePath="..\..\browser\debugger\devtools_sanity_unittest.cc"
+				>
+			</File>
+		</Filter>
+		<Filter
 			Name="TestFindInPage"
 			>
 			<File
