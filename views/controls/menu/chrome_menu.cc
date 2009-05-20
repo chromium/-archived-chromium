@@ -19,7 +19,7 @@
 #include "base/task.h"
 #include "base/timer.h"
 #include "base/win_util.h"
-#include "grit/generated_resources.h"
+#include "grit/app_strings.h"
 #include "skia/ext/skia_utils_win.h"
 #include "views/border.h"
 #include "views/drag_utils.h"
@@ -788,7 +788,7 @@ class EmptyMenuMenuItem : public MenuItemView {
 
   explicit EmptyMenuMenuItem(MenuItemView* parent) :
       MenuItemView(parent, 0, NORMAL) {
-    SetTitle(l10n_util::GetString(IDS_MENU_EMPTY_SUBMENU));
+    SetTitle(l10n_util::GetString(IDS_APP_MENU_EMPTY_SUBMENU));
     // Set this so that we're not identified as a normal menu item.
     SetID(kEmptyMenuItemViewID);
     SetEnabled(false);

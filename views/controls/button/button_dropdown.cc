@@ -7,7 +7,7 @@
 #include "app/l10n_util.h"
 #include "base/compiler_specific.h"
 #include "base/message_loop.h"
-#include "grit/generated_resources.h"
+#include "grit/app_strings.h"
 #include "views/controls/menu/view_menu_delegate.h"
 #include "views/widget/widget.h"
 
@@ -172,7 +172,7 @@ void ButtonDropDown::ShowDropDownMenu(HWND window) {
 bool ButtonDropDown::GetAccessibleDefaultAction(std::wstring* action) {
   DCHECK(action);
 
-  action->assign(l10n_util::GetString(IDS_ACCACTION_PRESS));
+  action->assign(l10n_util::GetString(IDS_APP_ACCACTION_PRESS));
   return true;
 }
 

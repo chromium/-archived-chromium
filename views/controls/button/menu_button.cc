@@ -9,7 +9,7 @@
 #include "app/l10n_util.h"
 #include "app/resource_bundle.h"
 #include "app/win_util.h"
-#include "grit/generated_resources.h"
+#include "grit/app_strings.h"
 #include "grit/theme_resources.h"
 #include "views/controls/button/button.h"
 #include "views/controls/menu/view_menu_delegate.h"
@@ -231,7 +231,7 @@ void MenuButton::OnMouseExited(const MouseEvent& event) {
 bool MenuButton::GetAccessibleDefaultAction(std::wstring* action) {
   DCHECK(action);
 
-  action->assign(l10n_util::GetString(IDS_ACCACTION_PRESS));
+  action->assign(l10n_util::GetString(IDS_APP_ACCACTION_PRESS));
   return true;
 }
 

@@ -14,7 +14,6 @@
 #include "app/resource_bundle.h"
 #include "app/win_util.h"
 #include "base/win_util.h"
-#include "grit/generated_resources.h"
 #include "views/widget/root_view.h"
 #include "views/window/client_view.h"
 #include "views/window/custom_frame_view.h"
