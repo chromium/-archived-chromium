@@ -70,9 +70,7 @@ class FFmpegDemuxerStream : public DemuxerStream {
   virtual const MediaFormat& media_format();
   virtual void Read(Callback1<Buffer*>::Type* read_callback);
 
-  AVStream* av_stream() {
-    return av_stream_;
-  }
+  AVStream* av_stream() const { return stream_; }
 
   static const char* interface_id();
 
@@ -83,10 +81,12 @@ class FFmpegDemuxerStream : public DemuxerStream {
   // Returns true if there are still pending reads.
   bool FulfillPendingReads();
 
+  // Converts an FFmpeg stream timestamp into a base::TimeDelta.
+  base::TimeDelta ConvertTimestamp(int64 timestamp);
+
   FFmpegDemuxer* demuxer_;
-  AVStream* av_stream_;
+  AVStream* stream_;
   MediaFormat media_format_;
-  base::TimeDelta time_base_;
   base::TimeDelta duration_;
   bool discontinuous_;
 
