@@ -72,7 +72,16 @@ void WindowGtk::Activate() {
 }
 
 void WindowGtk::Close() {
-  NOTIMPLEMENTED();
+  if (window_closed_) {
+    // Don't do anything if we've already been closed.
+    return;
+  }
+
+  if (non_client_view_->CanClose()) {
+    SaveWindowPosition();
+    WidgetGtk::Close();
+    window_closed_ = true;
+  }
 }
 
 void WindowGtk::Maximize() {
@@ -175,7 +184,8 @@ WindowGtk::WindowGtk(WindowDelegate* window_delegate)
     : WidgetGtk(TYPE_WINDOW),
       is_modal_(false),
       window_delegate_(window_delegate),
-      non_client_view_(new NonClientView(this)) {
+      non_client_view_(new NonClientView(this)),
+      window_closed_(false) {
   is_window_ = true;
   window_delegate_->window_.reset(this);
 }
@@ -208,6 +218,14 @@ void WindowGtk::Init(const gfx::Rect& bounds) {
   // }
 
   // ResetWindowRegion(false);
+}
+
+void WindowGtk::SaveWindowPosition() {
+  // The delegate may have gone away on us.
+  if (!window_delegate_)
+    return;
+
+  NOTIMPLEMENTED();
 }
 
 }  // namespace views

@@ -4,6 +4,7 @@
 
 #include "views/widget/widget_gtk.h"
 
+#include "base/compiler_specific.h"
 #include "views/fill_layout.h"
 #include "views/widget/root_view.h"
 #include "views/window/window_gtk.h"
@@ -57,15 +58,12 @@ WidgetGtk::WidgetGtk(Type type)
       child_widget_parent_(NULL),
       is_mouse_down_(false),
       has_capture_(false),
-      last_mouse_event_was_move_(false) {
+      last_mouse_event_was_move_(false),
+      ALLOW_THIS_IN_INITIALIZER_LIST(close_widget_factory_(this)),
+      delete_on_destroy_(true) {
 }
 
 WidgetGtk::~WidgetGtk() {
-  if (widget_) {
-    // TODO: make sure this is right.
-    gtk_widget_destroy(widget_);
-    child_widget_parent_ = widget_ = NULL;
-  }
   MessageLoopForUI::current()->RemoveObserver(this);
 }
 
@@ -79,10 +77,10 @@ void WidgetGtk::Init(const gfx::Rect& bounds,
 
   // Make sure we receive our motion events.
 
-  // We register everything on the parent of all widgets. At a minimum we need
-  // painting to happen on the parent (otherwise painting doesn't work at all),
-  // and similarly we need mouse release events on the parent as windows don't
-  // get mouse releases.
+  // In general we register most events on the parent of all widgets. At a
+  // minimum we need painting to happen on the parent (otherwise painting
+  // doesn't work at all), and similarly we need mouse release events on the
+  // parent as windows don't get mouse releases.
   gtk_widget_add_events(child_widget_parent_,
                         GDK_ENTER_NOTIFY_MASK |
                         GDK_LEAVE_NOTIFY_MASK |
@@ -114,10 +112,6 @@ void WidgetGtk::Init(const gfx::Rect& bounds,
                    G_CALLBACK(CallButtonPress), NULL);
   g_signal_connect(G_OBJECT(child_widget_parent_), "button_release_event",
                    G_CALLBACK(CallButtonRelease), NULL);
-  g_signal_connect(G_OBJECT(child_widget_parent_), "focus_in_event",
-                   G_CALLBACK(CallFocusIn), NULL);
-  g_signal_connect(G_OBJECT(child_widget_parent_), "focus_out_event",
-                   G_CALLBACK(CallFocusOut), NULL);
   g_signal_connect(G_OBJECT(child_widget_parent_), "grab_broke_event",
                    G_CALLBACK(CallGrabBrokeEvent), NULL);
   g_signal_connect(G_OBJECT(child_widget_parent_), "grab_notify",
@@ -132,6 +126,17 @@ void WidgetGtk::Init(const gfx::Rect& bounds,
                    G_CALLBACK(CallScroll), NULL);
   g_signal_connect(G_OBJECT(child_widget_parent_), "visibility_notify_event",
                    G_CALLBACK(CallVisibilityNotify), NULL);
+
+  // In order to receive notification when the window is no longer the front
+  // window, we need to install these on the widget.
+  // NOTE: this doesn't work with focus follows mouse.
+  g_signal_connect(G_OBJECT(widget_), "focus_in_event",
+                   G_CALLBACK(CallFocusIn), NULL);
+  g_signal_connect(G_OBJECT(widget_), "focus_out_event",
+                   G_CALLBACK(CallFocusOut), NULL);
+
+  g_signal_connect(G_OBJECT(widget_), "destroy",
+                   G_CALLBACK(CallDestroy), NULL);
 
   // TODO(erg): Ignore these signals for now because they're such a drag.
   //
@@ -172,6 +177,35 @@ void WidgetGtk::SetContentsView(View* view) {
   DCHECK(widget_);  // Widget must have been created by now.
 
   OnSizeAllocate(widget_, &(widget_->allocation));
+}
+
+void WidgetGtk::Close() {
+  if (!widget_)
+    return;  // No need to do anything.
+
+  // Hide first.
+  Hide();
+  if (close_widget_factory_.empty()) {
+    // And we delay the close just in case we're on the stack.
+    MessageLoop::current()->PostTask(FROM_HERE,
+        close_widget_factory_.NewRunnableMethod(
+            &WidgetGtk::CloseNow));
+  }
+}
+
+void WidgetGtk::CloseNow() {
+  if (widget_)
+    gtk_widget_destroy(widget_);
+}
+
+void WidgetGtk::Show() {
+  if (widget_)
+    gtk_widget_show(widget_);
+}
+
+void WidgetGtk::Hide() {
+  if (widget_)
+    gtk_widget_hide(widget_);
 }
 
 void WidgetGtk::GetBounds(gfx::Rect* out, bool including_frame) const {
@@ -366,6 +400,13 @@ gboolean WidgetGtk::OnGrabBrokeEvent(GtkWidget* widget, GdkEvent* event) {
 void WidgetGtk::OnGrabNotify(GtkWidget* widget, gboolean was_grabbed) {
   gtk_grab_remove(child_widget_parent_);
   HandleGrabBroke();
+}
+
+void WidgetGtk::OnDestroy(GtkWidget* widget) {
+  widget_ = child_widget_parent_ = NULL;
+  root_view_->OnWidgetDestroyed();
+  if (delete_on_destroy_)
+    delete this;
 }
 
 // static
@@ -569,6 +610,15 @@ void WidgetGtk::CallGrabNotify(GtkWidget* widget, gboolean was_grabbed) {
     return;
 
   return widget_gtk->OnGrabNotify(widget, was_grabbed);
+}
+
+// static
+void WidgetGtk::CallDestroy(GtkObject* object) {
+  WidgetGtk* widget_gtk = GetViewForNative(GTK_WIDGET(object));
+  if (!widget_gtk)
+    return;
+
+  return widget_gtk->OnDestroy(GTK_WIDGET(object));
 }
 
 // static

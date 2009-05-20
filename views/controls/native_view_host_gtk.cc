@@ -11,15 +11,32 @@
 
 namespace views {
 
-NativeViewHostGtk::NativeViewHostGtk() {
+NativeViewHostGtk::NativeViewHostGtk() : destroy_signal_id_(0) {
 }
 
 NativeViewHostGtk::~NativeViewHostGtk() {
 }
 
+// static
+View* NativeViewHostGtk::GetViewForNative(GtkWidget* widget) {
+  gpointer user_data = g_object_get_data(G_OBJECT(widget), "chrome-view");
+  return static_cast<View*>(user_data);
+}
+
+// static
+void NativeViewHostGtk::SetViewForNative(GtkWidget* widget, View* view) {
+  g_object_set_data(G_OBJECT(widget), "chrome-view", view);
+}
+
 void NativeViewHostGtk::Attach(GtkWidget* widget) {
   DCHECK(native_view() == NULL);
   DCHECK(widget);
+
+  // Adds a mapping between the GtkWidget and us.
+  SetViewForNative(widget, this);
+
+  destroy_signal_id_ = g_signal_connect(G_OBJECT(widget), "destroy",
+                                        G_CALLBACK(CallDestroy), NULL);
 
   set_native_view(widget);
 
@@ -38,6 +55,10 @@ void NativeViewHostGtk::Attach(GtkWidget* widget) {
 
 void NativeViewHostGtk::Detach() {
   DCHECK(native_view());
+
+  g_signal_handler_disconnect(G_OBJECT(native_view()), destroy_signal_id_);
+  destroy_signal_id_ = 0;
+
   // TODO: focus.
   // FocusManager::UninstallFocusSubclass(native_view());
   set_native_view(NULL);
@@ -116,6 +137,19 @@ void NativeViewHostGtk::ShowWidget(int x, int y, int w, int h) {
 
 void NativeViewHostGtk::HideWidget() {
   gtk_widget_hide(native_view());
+}
+
+void NativeViewHostGtk::OnDestroy() {
+  set_native_view(NULL);
+}
+
+// static
+void NativeViewHostGtk::CallDestroy(GtkObject* object) {
+  View* view = GetViewForNative(GTK_WIDGET(object));
+  if (!view)
+    return;
+
+  return static_cast<NativeViewHostGtk*>(view)->OnDestroy();
 }
 
 }  // namespace views

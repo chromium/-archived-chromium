@@ -39,6 +39,12 @@ class WidgetGtk : public Widget, public MessageLoopForUI::Observer {
   // Initializes this widget.
   void Init(const gfx::Rect& bounds, bool has_own_focus_manager);
 
+  // Sets whether or not we are deleted when the widget is destroyed. The
+  // default is true.
+  void set_delete_on_destroy(bool delete_on_destroy) {
+    delete_on_destroy_ = delete_on_destroy;
+  }
+
   void AddChild(GtkWidget* child);
   void RemoveChild(GtkWidget* child);
 
@@ -50,6 +56,11 @@ class WidgetGtk : public Widget, public MessageLoopForUI::Observer {
   GtkWidget* child_widget_parent() const { return child_widget_parent_; }
 
   virtual void SetContentsView(View* view);
+
+  virtual void Close();
+  void CloseNow();
+  virtual void Show();
+  virtual void Hide();
 
   // Overridden from Widget:
   virtual void GetBounds(gfx::Rect* out, bool including_frame) const;
@@ -93,6 +104,7 @@ class WidgetGtk : public Widget, public MessageLoopForUI::Observer {
   }
   virtual gboolean OnGrabBrokeEvent(GtkWidget* widget, GdkEvent* event);
   virtual void OnGrabNotify(GtkWidget* widget, gboolean was_grabbed);
+  virtual void OnDestroy(GtkWidget* widget);
 
   // Returns whether capture should be released on mouse release. The default
   // is true.
@@ -136,6 +148,7 @@ class WidgetGtk : public Widget, public MessageLoopForUI::Observer {
                                        GdkEventVisibility* event);
   static gboolean CallGrabBrokeEvent(GtkWidget* widget, GdkEvent* event);
   static void CallGrabNotify(GtkWidget* widget, gboolean was_grabbed);
+  static void CallDestroy(GtkObject* object);
 
   // Returns the first ancestor of |widget| that is a window.
   static Window* GetWindowImpl(GtkWidget* widget);
@@ -172,6 +185,12 @@ class WidgetGtk : public Widget, public MessageLoopForUI::Observer {
   // Coordinates of the last mouse move event, in screen coordinates.
   int last_mouse_move_x_;
   int last_mouse_move_y_;
+
+  // The following factory is used to delay destruction.
+  ScopedRunnableMethodFactory<WidgetGtk> close_widget_factory_;
+
+  // See description above setter.
+  bool delete_on_destroy_;
 
   DISALLOW_COPY_AND_ASSIGN(WidgetGtk);
 };

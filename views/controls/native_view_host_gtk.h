@@ -5,6 +5,7 @@
 #ifndef VIEWS_CONTROLS_NATIVE_HOST_VIEW_GTK_H_
 #define VIEWS_CONTROLS_NATIVE_HOST_VIEW_GTK_H_
 
+#include <gtk/gtk.h>
 #include <string>
 
 #include "views/controls/native_view_host.h"
@@ -15,6 +16,10 @@ class NativeViewHostGtk : public NativeViewHost {
  public:
   NativeViewHostGtk();
   virtual ~NativeViewHostGtk();
+
+  // Sets and retrieves the View associated with a particular widget.
+  static View* GetViewForNative(GtkWidget* widget);
+  static void SetViewForNative(GtkWidget* widget, View* view);
 
   // Attach a widget to this View, making the window it represents
   // subject to sizing according to this View's parent container's Layout
@@ -41,6 +46,14 @@ class NativeViewHostGtk : public NativeViewHost {
   virtual void HideWidget();
 
  private:
+  // Signal handle id for 'destroy' signal.
+  gulong destroy_signal_id_;
+
+  // Invoked from the 'destroy' signal.
+  void OnDestroy();
+
+  static void CallDestroy(GtkObject* object);
+
   DISALLOW_COPY_AND_ASSIGN(NativeViewHostGtk);
 };
 

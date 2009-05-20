@@ -10,13 +10,12 @@
 
 namespace views {
 
-static const char* kNativeControlGtkKey = "__NATIVE_CONTROL_GTK__";
-
 NativeControlGtk::NativeControlGtk() {
 }
 
 NativeControlGtk::~NativeControlGtk() {
-  DCHECK(!native_view());
+  if (native_view())
+    gtk_widget_destroy(native_view());
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -58,9 +57,6 @@ void NativeControlGtk::Focus() {
 }
 
 void NativeControlGtk::NativeControlCreated(GtkWidget* native_control) {
-  // Adds a mapping between the GtkWidget and us.
-  g_object_set_data(G_OBJECT(native_control), kNativeControlGtkKey, this);
-
   Attach(native_control);
 
   // Update the newly created GtkWdigetwith any resident enabled state.

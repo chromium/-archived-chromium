@@ -71,6 +71,9 @@ class WindowGtk : public WidgetGtk, public Window {
   void Init(const gfx::Rect& bounds);
 
  private:
+  // Asks the delegate if any to save the window's location and size.
+  void SaveWindowPosition();
+
   // Whether or not the window is modal. This comes from the delegate and is
   // cached at Init time to avoid calling back to the delegate from the
   // destructor.
@@ -84,6 +87,9 @@ class WindowGtk : public WidgetGtk, public Window {
   // the default, this class must be subclassed and this value set to the
   // desired implementation before calling |Init|.
   NonClientView* non_client_view_;
+
+  // Set to true if the window is in the process of closing.
+  bool window_closed_;
 
   DISALLOW_COPY_AND_ASSIGN(WindowGtk);
 };
