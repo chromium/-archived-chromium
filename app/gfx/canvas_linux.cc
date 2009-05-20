@@ -57,7 +57,39 @@ Canvas::~Canvas() {
 void Canvas::SizeStringInt(const std::wstring& text,
                            const gfx::Font& font,
                            int* width, int* height, int flags) {
-  NOTIMPLEMENTED();
+  cairo_surface_t* surface =
+    cairo_image_surface_create(CAIRO_FORMAT_ARGB32, 0, 0);
+  cairo_t* cr = cairo_create(surface);
+  PangoLayout* layout = pango_cairo_create_layout(cr);
+
+  if (flags & NO_ELLIPSIS) {
+    pango_layout_set_ellipsize(layout, PANGO_ELLIPSIZE_NONE);
+  } else {
+    pango_layout_set_ellipsize(layout, PANGO_ELLIPSIZE_END);
+  }
+
+  if (flags & TEXT_ALIGN_CENTER) {
+    pango_layout_set_alignment(layout, PANGO_ALIGN_CENTER);
+  } else if (flags & TEXT_ALIGN_RIGHT) {
+    pango_layout_set_alignment(layout, PANGO_ALIGN_RIGHT);
+  }
+
+  if (flags & MULTI_LINE) {
+    pango_layout_set_wrap(layout,
+        (flags & CHARACTER_BREAK) ? PANGO_WRAP_WORD_CHAR : PANGO_WRAP_WORD);
+  }
+
+  std::string utf8 = WideToUTF8(text);
+  pango_layout_set_text(layout, utf8.data(), utf8.size());
+  PangoFontDescription* desc = PangoFontFromGfxFont(font);
+  pango_layout_set_font_description(layout, desc);
+
+  pango_layout_get_size(layout, width, height);
+  *width /= PANGO_SCALE;
+  *height /= PANGO_SCALE;
+  g_object_unref(layout);
+  pango_font_description_free(desc);
+  cairo_destroy(cr);
 }
 
 void Canvas::ApplySkiaMatrixToCairoContext(cairo_t* cr) {

@@ -4,6 +4,8 @@
 
 #include "app/gfx/font.h"
 
+#include "app/gfx/canvas.h"
+
 #include "base/logging.h"
 #include "base/sys_string_conversions.h"
 
@@ -126,21 +128,10 @@ void Font::PaintSetup(SkPaint* paint) const {
 }
 
 int Font::GetStringWidth(const std::wstring& text) const {
-  const std::string utf8(base::SysWideToUTF8(text));
+  int width = 0, height = 0;
 
-  SkPaint paint;
-  PaintSetup(&paint);
-  paint.setTextEncoding(SkPaint::kUTF8_TextEncoding);
-  SkScalar width = paint.measureText(utf8.data(), utf8.size());
-
-  int breadth = static_cast<int>(ceilf(SkScalarToFloat(width)));
-  // Check for overflow. We should probably be returning an unsigned
-  // int, but in practice we'll never have a screen massive enough
-  // to show that much text anyway.
-  if (breadth < 0)
-    return INT_MAX;
-
-  return breadth;
+  Canvas::SizeStringInt(text, *this, &width, &height, 0);
+  return width;
 }
 
 int Font::GetExpectedTextWidth(int length) const {
