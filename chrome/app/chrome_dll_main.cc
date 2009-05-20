@@ -159,7 +159,6 @@ static void GLibLogHandler(const gchar* log_domain,
   if (!message)
     message = "<no message>";
 
-
   if (strstr(message, "Loading IM context type") ||
       strstr(message, "wrong ELF class: ELFCLASS64")) {
     // http://crbug.com/9643
@@ -172,7 +171,11 @@ static void GLibLogHandler(const gchar* log_domain,
     // http://crbug.com/11133
     LOG(ERROR) << "Bug 11133";
   } else {
+#ifdef NDEBUG
+    LOG(ERROR) << log_domain << ": " << message;
+#else
     LOG(FATAL) << log_domain << ": " << message;
+#endif
   }
 }
 
