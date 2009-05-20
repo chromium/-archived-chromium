@@ -7,6 +7,7 @@
 #include "chrome/common/child_process.h"
 #include "chrome/common/ipc_logging.h"
 #include "chrome/common/worker_messages.h"
+#include "chrome/renderer/webworker_proxy.h"
 #include "chrome/worker/worker_thread.h"
 #include "webkit/api/public/WebString.h"
 #include "webkit/api/public/WebURL.h"
@@ -68,6 +69,11 @@ void WebWorkerClientProxy::workerContextDestroyed() {
   Send(new WorkerHostMsg_WorkerContextDestroyed(route_id_));
 
   delete this;
+}
+
+WebKit::WebWorker* WebWorkerClientProxy::createWorker(
+    WebKit::WebWorkerClient* client) {
+  return new WebWorkerProxy(client, WorkerThread::current(), 0);
 }
 
 bool WebWorkerClientProxy::Send(IPC::Message* message) {

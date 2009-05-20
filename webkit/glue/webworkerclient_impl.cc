@@ -12,8 +12,11 @@
 #include "FrameLoaderClient.h"
 #include "GenericWorkerTask.h"
 #include "ScriptExecutionContext.h"
+#include "WorkerContextExecutionProxy.h"
 #include "WorkerMessagingProxy.h"
 #include "Worker.h"
+#include "WorkerContext.h"
+#include "WorkerThread.h"
 #include <wtf/Threading.h>
 
 #undef LOG
@@ -71,7 +74,17 @@ WebCore::WorkerContextProxy* WebCore::WorkerContextProxy::create(
         frame_loader_client->webframe()->GetWebViewImpl()->delegate();
     webworker = webview_delegate->CreateWebWorker(proxy);
   } else {
-    webworker = WebKit::webKitClient()->createWorker(proxy);
+    WebCore::WorkerContextExecutionProxy* current_context =
+        WebCore::WorkerContextExecutionProxy::retrieve();
+    if (!current_context) {
+      NOTREACHED();
+      return NULL;
+    }
+
+    WebCore::WorkerObjectProxy* worker_object_proxy =
+        current_context->workerContext()->thread()->workerObjectProxy();
+    WebWorkerImpl* impl = reinterpret_cast<WebWorkerImpl*>(worker_object_proxy);
+    webworker = impl->client()->createWorker(proxy);
   }
 
   proxy->set_webworker(webworker);

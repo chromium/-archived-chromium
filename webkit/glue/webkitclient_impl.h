@@ -33,9 +33,6 @@ class WebKitClientImpl : public WebKit::WebKitClient {
   virtual void stopSharedTimer();
   virtual void callOnMainThread(void (*func)());
   virtual void suddenTerminationChanged(bool enabled) { }
-  virtual WebKit::WebWorker* createWorker(WebKit::WebWorkerClient* client) {
-    return NULL;
-  }
 
  private:
   void DoTimeout() {

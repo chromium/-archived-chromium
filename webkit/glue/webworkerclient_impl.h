@@ -59,6 +59,9 @@ class WebWorkerClientImpl : public WebCore::WorkerContextProxy,
   virtual void confirmMessageFromWorkerObject(bool has_pending_activity);
   virtual void reportPendingActivity(bool has_pending_activity);
   virtual void workerContextDestroyed();
+  virtual WebKit::WebWorker* createWorker(WebKit::WebWorkerClient* client) {
+    return NULL;
+  }
 
  private:
   virtual ~WebWorkerClientImpl();

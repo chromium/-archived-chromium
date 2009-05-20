@@ -35,8 +35,11 @@
 
 namespace WebKit {
     class WebString;
+    class WebWorker;
 
     // Provides an interface back to the in-page script object for a worker.
+    // All functions are expected to be called back on the thread that created
+    // the Worker object, unless noted.
     class WebWorkerClient {
     public:
         virtual void postMessageToWorkerObject(const WebString&) = 0;
@@ -57,6 +60,9 @@ namespace WebKit {
         virtual void reportPendingActivity(bool hasPendingActivity) = 0;
 
         virtual void workerContextDestroyed() = 0;
+
+        // This can be called on any thread to create a nested worker.
+        virtual WebKit::WebWorker* createWorker(WebKit::WebWorkerClient* client) = 0;
     };
 
 } // namespace WebKit

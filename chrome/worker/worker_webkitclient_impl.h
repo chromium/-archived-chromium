@@ -23,7 +23,6 @@ class WorkerWebKitClientImpl : public webkit_glue::WebKitClientImpl {
                                     const WebKit::WebURL& policy_url);
   virtual void prefetchHostName(const WebKit::WebString&);
   virtual WebKit::WebString defaultLocale();
-  virtual WebKit::WebWorker* createWorker(WebKit::WebWorkerClient* client);
 };
 
 #endif  // CHROME_WORKER_WORKER_WEBKIT_CLIENT_IMPL_H_

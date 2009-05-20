@@ -44,8 +44,6 @@ namespace WebKit {
     class WebURL;
     struct WebPluginInfo;
     template <typename T> class WebVector;
-    class WebWorker;
-    class WebWorkerClient;
 
     class WebKitClient {
     public:
@@ -129,11 +127,6 @@ namespace WebKit {
 
         // Callable from a background WebKit thread.
         virtual void callOnMainThread(void (*func)()) = 0;
-
-
-        // WebWorkers ----------------------------------------------------------
-
-        virtual WebWorker* createWorker(WebWorkerClient*) = 0;
     };
 
 } // namespace WebKit

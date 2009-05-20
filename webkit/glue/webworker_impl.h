@@ -55,6 +55,8 @@ class WebWorkerImpl: public WebCore::WorkerObjectProxy,
   virtual void postMessageToWorkerContext(const WebKit::WebString& message);
   virtual void workerObjectDestroyed();
 
+  WebKit::WebWorkerClient* client() { return client_; }
+
   // Executes the given task on the main thread.
   static void DispatchTaskToMainThread(
       PassRefPtr<WebCore::ScriptExecutionContext::Task> task);
