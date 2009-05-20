@@ -648,6 +648,8 @@
         'browser/cocoa/location_bar_cell.mm',
         'browser/cocoa/location_bar_view_mac.h',
         'browser/cocoa/location_bar_view_mac.mm',
+        'browser/cocoa/menu_localizer.h',
+        'browser/cocoa/menu_localizer.mm',
         'browser/cocoa/preferences_window_controller.h',
         'browser/cocoa/preferences_window_controller.mm',
         'browser/cocoa/sad_tab_view.h',
@@ -1531,6 +1533,7 @@
             '../third_party/GTM/AppKit/GTMNSBezierPath+RoundRect.m',
             '../third_party/GTM/AppKit/GTMNSColor+Luminance.m',
             '../third_party/GTM/AppKit/GTMTheme.m',
+            '../third_party/GTM/AppKit/GTMUILocalizer.m',
             # Build necessary Mozilla sources
             '../third_party/mozilla/include/NSWorkspace+Utils.h',
             '../third_party/mozilla/include/NSWorkspace+Utils.m',

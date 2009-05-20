@@ -14,6 +14,7 @@
 #include "chrome/browser/browser_shutdown.h"
 #import "chrome/browser/cocoa/bookmark_menu_bridge.h"
 #import "chrome/browser/cocoa/encoding_menu_controller_delegate_mac.h"
+#import "chrome/browser/cocoa/menu_localizer.h"
 #import "chrome/browser/cocoa/preferences_window_controller.h"
 #include "chrome/browser/command_updater.h"
 #include "chrome/common/pref_names.h"
@@ -66,6 +67,15 @@
   // will be the signal to exit.
   DCHECK(g_browser_process);
   g_browser_process->AddRefModule();
+
+  // Create the localizer for the main menu. We can't do this in the nib
+  // because it's too early. Do it before we create any bookmark menus as well,
+  // just in case one has a title that matches any of our strings (unlikely,
+  // but technically possible).
+  scoped_nsobject<MenuLocalizer> localizer(
+      [[MenuLocalizer alloc] initWithBundle:nil]);
+  [localizer localizeObject:[NSApplication sharedApplication]
+                recursively:YES];
 
   bookmarkMenuBridge_.reset(new BookmarkMenuBridge());
 

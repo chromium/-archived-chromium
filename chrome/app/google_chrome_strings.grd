@@ -388,6 +388,15 @@ Chrome supports. -->
       <message name="IDS_DEFAULT_BROWSER_INFOBAR_SHORT_TEXT" desc="More compact text to show in the default browser query infobar.">
         Google Chrome isn't your default browser.
       </message>
+      <message name="IDS_EXIT_MAC" desc="The menu item to quit the browser in the app menu.">
+        Quit Google Chrome
+      </message>
+      <message name="IDS_HIDE_MAC" desc="The menu item to hide all browser windows in the app menu.">
+        Hide Google Chrome
+      </message>
+      <message name="IDS_HELP_MAC" desc="The menu item to show help in the Help menu.">
+        Google Chrome Help
+      </message>
     </messages>
   </release>
 </grit>
