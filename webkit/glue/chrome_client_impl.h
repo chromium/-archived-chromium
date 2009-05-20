@@ -107,6 +107,7 @@ class ChromeClientImpl : public WebCore::ChromeClientChromium {
   virtual PlatformWidget platformWindow() const;
   virtual void contentsSizeChanged(WebCore::Frame*,
                                    const WebCore::IntSize&) const;
+  virtual void scrollRectIntoView(const WebCore::IntRect&, const WebCore::ScrollView*) const { }
 
   virtual void mouseDidMoveOverElement(const WebCore::HitTestResult& result,
                                        unsigned modifierFlags);
@@ -118,8 +119,11 @@ class ChromeClientImpl : public WebCore::ChromeClientChromium {
   virtual void exceededDatabaseQuota(WebCore::Frame*,
                                      const WebCore::String& databaseName);
 
+  virtual void requestGeolocationPermissionForFrame(WebCore::Frame*, WebCore::Geolocation*) { }
+
   virtual void runOpenPanel(WebCore::Frame*,
                             PassRefPtr<WebCore::FileChooser>);
+  virtual bool setCursor(WebCore::PlatformCursorHandle) { return false; }
   virtual void popupOpened(WebCore::PopupContainer* popup_container,
                            const WebCore::IntRect& bounds,
                            bool activatable,
