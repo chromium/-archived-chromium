@@ -9,7 +9,7 @@
 #include "app/l10n_util.h"
 #include "base/logging.h"
 #include "base/string_util.h"
-#include "grit/generated_resources.h"
+#include "grit/app_strings.h"
 
 namespace views {
 
@@ -17,37 +17,37 @@ std::wstring Accelerator::GetShortcutText() const {
   int string_id = 0;
   switch(key_code_) {
   case VK_TAB:
-    string_id = IDS_TAB_KEY;
+    string_id = IDS_APP_TAB_KEY;
     break;
   case VK_RETURN:
-    string_id = IDS_ENTER_KEY;
+    string_id = IDS_APP_ENTER_KEY;
     break;
   case VK_ESCAPE:
-    string_id = IDS_ESC_KEY;
+    string_id = IDS_APP_ESC_KEY;
     break;
   case VK_PRIOR:
-    string_id = IDS_PAGEUP_KEY;
+    string_id = IDS_APP_PAGEUP_KEY;
     break;
   case VK_NEXT:
-    string_id = IDS_PAGEDOWN_KEY;
+    string_id = IDS_APP_PAGEDOWN_KEY;
     break;
   case VK_END:
-    string_id = IDS_END_KEY;
+    string_id = IDS_APP_END_KEY;
     break;
   case VK_HOME:
-    string_id = IDS_HOME_KEY;
+    string_id = IDS_APP_HOME_KEY;
     break;
   case VK_INSERT:
-    string_id = IDS_INSERT_KEY;
+    string_id = IDS_APP_INSERT_KEY;
     break;
   case VK_DELETE:
-    string_id = IDS_DELETE_KEY;
+    string_id = IDS_APP_DELETE_KEY;
     break;
   case VK_F1:
-    string_id = IDS_F1_KEY;
+    string_id = IDS_APP_F1_KEY;
     break;
   case VK_F11:
-    string_id = IDS_F11_KEY;
+    string_id = IDS_APP_F11_KEY;
     break;
   }
 
@@ -84,15 +84,15 @@ std::wstring Accelerator::GetShortcutText() const {
   }
 
   if (IsShiftDown())
-    shortcut = l10n_util::GetStringF(IDS_SHIFT_MODIFIER, shortcut);
+    shortcut = l10n_util::GetStringF(IDS_APP_SHIFT_MODIFIER, shortcut);
 
   // Note that we use 'else-if' in order to avoid using Ctrl+Alt as a shortcut.
   // See http://blogs.msdn.com/oldnewthing/archive/2004/03/29/101121.aspx for
   // more information.
   if (IsCtrlDown())
-    shortcut = l10n_util::GetStringF(IDS_CONTROL_MODIFIER, shortcut);
+    shortcut = l10n_util::GetStringF(IDS_APP_CONTROL_MODIFIER, shortcut);
   else if (IsAltDown())
-    shortcut = l10n_util::GetStringF(IDS_ALT_MODIFIER, shortcut);
+    shortcut = l10n_util::GetStringF(IDS_APP_ALT_MODIFIER, shortcut);
 
   // For some reason, menus in Windows ignore standard Unicode directionality
   // marks (such as LRE, PDF, etc.). On RTL locales, we use RTL menus and

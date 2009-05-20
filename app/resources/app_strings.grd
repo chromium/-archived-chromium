@@ -175,7 +175,7 @@ need to be translated for each locale.-->
     -->
   </translations>
   <release seq="1" allow_pseudo="false">
-    <messages fallback_to_english="true" first_id="30000">
+    <messages fallback_to_english="true">
     
       <!-- Menus -->
       <message name="IDS_APP_MENU_EMPTY_SUBMENU" desc="Used when a submenu has no entries">
@@ -189,133 +189,7 @@ need to be translated for each locale.-->
       <message name="IDS_APP_SAVEAS_ALL_FILES" desc="Save As dialog box default text">
         All Files
       </message>
-
-      <!--Accessible name/action strings-->
-      <message name="IDS_APP_ACCACTION_PRESS" desc="The accessible default action for a button.">
-        Press
-      </message>
-
-      <!-- Scroll Bar Context Menu Labels -->
-      <message name="IDS_APP_SCROLLBAR_CXMENU_SCROLLHERE" desc="The label for the 'Scroll Here' item">
-        Scroll to Here
-      </message>
-      <message name="IDS_APP_SCROLLBAR_CXMENU_SCROLLLEFTEDGE" desc="The label for the 'Left Edge' item">
-        Left Edge
-      </message>
-      <message name="IDS_APP_SCROLLBAR_CXMENU_SCROLLRIGHTEDGE" desc="The label for the 'Right Edge' item">
-        Right Edge
-      </message>
-      <message name="IDS_APP_SCROLLBAR_CXMENU_SCROLLHOME" desc="The label for the 'Top' item">
-        Top
-      </message>
-      <message name="IDS_APP_SCROLLBAR_CXMENU_SCROLLEND" desc="The label for the 'Bottom' item">
-        Bottom
-      </message>
-      <message name="IDS_APP_SCROLLBAR_CXMENU_SCROLLPAGEUP" desc="The label for the 'Page Up' item">
-        Page Up
-      </message>
-      <message name="IDS_APP_SCROLLBAR_CXMENU_SCROLLPAGEDOWN" desc="The label for the 'Page Down' item">
-        Page Down
-      </message>
-      <message name="IDS_APP_SCROLLBAR_CXMENU_SCROLLLEFT" desc="The label for the 'Scroll Left' item">
-        Scroll Left
-      </message>
-      <message name="IDS_APP_SCROLLBAR_CXMENU_SCROLLRIGHT" desc="The label for the 'Scroll Left' item">
-        Scroll Right
-      </message>
-      <message name="IDS_APP_SCROLLBAR_CXMENU_SCROLLUP" desc="The label for the 'Scroll Up' item">
-        Scroll Up
-      </message>
-      <message name="IDS_APP_SCROLLBAR_CXMENU_SCROLLDOWN" desc="The label for the 'Scroll Down' item">
-        Scroll Down
-      </message>
-
-      <!-- Edit field context menu item labels. -->
-      <message name="IDS_APP_UNDO" desc="The text label of the Undo menu item">
-        &amp;Undo
-      </message>
-      <message name="IDS_APP_CUT" desc="The text label of the Cut menu item">
-        Cu&amp;t
-      </message>
-      <message name="IDS_APP_COPY" desc="The text label of the Copy menu item">
-        &amp;Copy
-      </message>
-      <message name="IDS_APP_PASTE" desc="The text label of the Paste menu item">
-        &amp;Paste
-      </message>
-      <message name="IDS_APP_SELECT_ALL" desc="The text label of the Select All menu item">
-        Select &amp;all
-      </message>
-
-      <!-- Generic terms -->
-      <message name="IDS_APP_OK" desc="Used for Ok on buttons">
-        OK
-      </message>
-      <message name="IDS_APP_CANCEL" desc="Used for Cancel on buttons">
-        Cancel
-      </message>
-      <message name="IDS_APP_CLOSE" desc="A generic term for Close on buttons and menus.">
-        Close
-      </message>
-
-      <!-- Key names -->
-      <message name="IDS_APP_ESC_KEY" desc="Escape key">
-        Esc
-      </message>
-      <message name="IDS_APP_TAB_KEY" desc="Tab key">
-        Tab
-      </message>
-      <message name="IDS_APP_INSERT_KEY" desc="Insert key">
-        Ins
-      </message>
-      <message name="IDS_APP_HOME_KEY" desc="Home key">
-        Home
-      </message>
-      <message name="IDS_APP_DELETE_KEY" desc="Delete key">
-        Del
-      </message>
-      <message name="IDS_APP_END_KEY" desc="End key">
-        End
-      </message>
-      <message name="IDS_APP_PAGEUP_KEY" desc="Page up key">
-        PgUp
-      </message>
-      <message name="IDS_APP_PAGEDOWN_KEY" desc="Page down key">
-        PgDwn
-      </message>
-      <message name="IDS_APP_LEFT_ARROW_KEY" desc="Left arrow key">
-        Left Arrow
-      </message>
-      <message name="IDS_APP_RIGHT_ARROW_KEY" desc="Right arrow key">
-        Right Arrow
-      </message>
-      <message name="IDS_APP_RIGHT_UP_KEY" desc="Up arrow key">
-        Up Arrow
-      </message>
-      <message name="IDS_APP_RIGHT_DOWN_KEY" desc="Down arrow key">
-        Down Arrow
-      </message>
-      <message name="IDS_APP_ENTER_KEY" desc="Enter key">
-        Enter
-      </message>
-      <message name="IDS_APP_F1_KEY" desc="F1 key">
-        F1
-      </message>
-      <message name="IDS_APP_F11_KEY" desc="F11 key">
-        F11
-      </message>
-
-      <!-- Shortcut Modifiers -->
-      <message name="IDS_APP_CONTROL_MODIFIER" desc="Control key shortcut modifier">
-        Ctrl+<ph name="KEY_COMBO_NAME">$1<ex>C</ex></ph>
-      </message>
-      <message name="IDS_APP_ALT_MODIFIER" desc="Alt key shortcut modifier">
-        Alt+<ph name="KEY_COMBO_NAME">$1<ex>C</ex></ph>
-      </message>
-      <message name="IDS_APP_SHIFT_MODIFIER" desc="Shift key shortcut modifier">
-        Shift+<ph name="KEY_COMBO_NAME">$1<ex>C</ex></ph>
-      </message>
-      
+    
     </messages>
   </release>
 </grit>
