@@ -718,10 +718,10 @@ devtools.DebuggerAgent.formatCallFrame_ = function(stackFrame, script, msg) {
   var scope = {};
   
   // Add arguments.
-  devtools.DebuggerAgent.valuesArrayToMap_(stackFrame.arguments, scope);
+  devtools.DebuggerAgent.argumentsArrayToMap_(stackFrame.arguments, scope);
   
   // Add local variables.
-  devtools.DebuggerAgent.valuesArrayToMap_(stackFrame.locals, scope);
+  devtools.DebuggerAgent.propertiesToMap_(stackFrame.locals, scope);
 
   var thisObject = devtools.DebuggerAgent.formatObjectReference_(
       stackFrame.receiver); 
@@ -760,29 +760,41 @@ devtools.DebuggerAgent.formatObjectProperties_ = function(object, result) {
 /**
  * For each property in 'properties' puts its name and user-friendly value into
  * 'map'.
- * @param {Array.<Object>} properties Receiver properties array from 'backtrace'
- *     response.
+ * @param {Array.<Object>} properties Receiver properties or locals array from
+ *     'backtrace' response.
  * @param {Object} map Result holder.
  */
 devtools.DebuggerAgent.propertiesToMap_ = function(properties, map) {
   for (var j = 0; j < properties.length; j++) {
     var nextValue = properties[j];
-    map[nextValue.name] =
-        devtools.DebuggerAgent.formatObjectReference_(nextValue.value);
+    // Skip unnamed properties. They may appear e.g. when number of actual
+    // parameters is greater the that of formal. In that case the superfluous
+    // parameters will be present in the arguments list as elements without
+    // names.
+    if (nextValue.name) {
+      map[nextValue.name] =
+          devtools.DebuggerAgent.formatObjectReference_(nextValue.value);
+    }
   }
 };
 
 
 /**
- * For each property in 'array' puts its name and user-friendly value into
- * 'map'. Each object referenced from the array is expected to be included in
- * the message.
- * @param {Array.<Object>} array Arguments or locals array from 'backtrace'
- *     response.
+ * Puts arguments from the protocol arguments array to the map assigning names
+ * to the anonymous arguments.
+ * @param {Array.<Object>} array Arguments array from 'backtrace' response.
  * @param {Object} map Result holder.
  */
-devtools.DebuggerAgent.valuesArrayToMap_ = function(array, map) {
-  this.propertiesToMap_(array, map);
+devtools.DebuggerAgent.argumentsArrayToMap_ = function(array, map) {
+  for (var j = 0; j < array.length; j++) {
+    var nextValue = array[j];
+    // Skip unnamed properties. They may appear e.g. when number of actual
+    // parameters is greater the that of formal. In that case the superfluous
+    // parameters will be present in the arguments list as elements without
+    // names.
+    var name = nextValue.name ? nextValue.name : '<arg #' + j + '>';
+    map[name] = devtools.DebuggerAgent.formatObjectReference_(nextValue.value);
+  }
 };
 
 
