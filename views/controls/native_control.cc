@@ -79,10 +79,7 @@ class NativeControlContainer : public CWindowImpl<NativeControlContainer,
  private:
 
   LRESULT OnCreate(LPCREATESTRUCT create_struct) {
-    TRACK_HWND_CREATION(m_hWnd);
-
     control_ = parent_->CreateNativeControl(m_hWnd);
-    TRACK_HWND_CREATION(control_);
 
     FocusManager::InstallFocusSubclass(control_, parent_);
 
@@ -125,7 +122,6 @@ class NativeControlContainer : public CWindowImpl<NativeControlContainer,
   void OnDestroy() {
     if (parent_)
       parent_->OnDestroy();
-    TRACK_HWND_DESTRUCTION(m_hWnd);
   }
 
   void OnContextMenu(HWND window, const WTL::CPoint& location) {
@@ -376,7 +372,6 @@ LRESULT CALLBACK NativeControl::NativeControlWndProc(HWND window, UINT message,
                             reinterpret_cast<WNDPROC>(original_handler));
     RemoveProp(window, kHandlerKey);
     RemoveProp(window, kNativeControlKey);
-    TRACK_HWND_DESTRUCTION(window);
   }
 
   return CallWindowProc(reinterpret_cast<WNDPROC>(original_handler), window,

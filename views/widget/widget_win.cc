@@ -179,7 +179,6 @@ void WidgetWin::Init(HWND parent, const gfx::Rect& bounds,
                          window_style_, bounds.x(), bounds.y(), bounds.width(),
                          bounds.height(), parent, NULL, NULL, this);
   DCHECK(hwnd_);
-  TRACK_HWND_CREATION(hwnd_);
   SetWindowSupportsRerouteMouseWheel(hwnd_);
 
   // The window procedure should have set the data for us.
@@ -1031,7 +1030,6 @@ LRESULT CALLBACK WidgetWin::WndProc(HWND window, UINT message,
   if (!widget->ProcessWindowMessage(window, message, w_param, l_param, result))
     result = DefWindowProc(window, message, w_param, l_param);
   if (message == WM_NCDESTROY) {
-    TRACK_HWND_DESTRUCTION(window);
     widget->hwnd_ = NULL;
     widget->OnFinalMessage(window);
   }

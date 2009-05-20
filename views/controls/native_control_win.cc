@@ -112,8 +112,6 @@ void NativeControlWin::ShowContextMenu(const gfx::Point& location) {
 }
 
 void NativeControlWin::NativeControlCreated(HWND native_control) {
-  TRACK_HWND_CREATION(native_control);
-
   // Associate this object with the control's HWND so that WidgetWin can find
   // this object when it receives messages from it.
   SetProp(native_control, kNativeControlWinKey, this);
@@ -191,7 +189,6 @@ LRESULT NativeControlWin::NativeControlWndProc(HWND window,
   } else if (message == WM_DESTROY) {
     win_util::SetWindowProc(window, native_control->original_wndproc_);
     RemoveProp(window, kNativeControlWinKey);
-    TRACK_HWND_DESTRUCTION(window);
   }
 
   return CallWindowProc(native_control->original_wndproc_, window, message,

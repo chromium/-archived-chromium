@@ -50,7 +50,6 @@ WebWidgetHost* WebWidgetHost::Create(HWND parent_view,
                                kWindowClassName, kWindowClassName, WS_POPUP,
                                0, 0, 0, 0,
                                parent_view, NULL, GetModuleHandle(NULL), NULL);
-  TRACK_HWND_CREATION(host->view_);
   win_util::SetWindowUserData(host->view_, host);
 
   host->webwidget_ = WebWidget::Create(delegate);
@@ -70,9 +69,6 @@ LRESULT CALLBACK WebWidgetHost::WndProc(HWND hwnd, UINT message, WPARAM wparam,
     switch (message) {
       case WM_DESTROY:
         delete host;
-        break;
-      case WM_NCDESTROY:
-        TRACK_HWND_DESTRUCTION(hwnd);
         break;
 
       case WM_PAINT: {

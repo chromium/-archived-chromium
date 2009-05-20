@@ -661,7 +661,6 @@ LRESULT RenderWidgetHostViewWin::OnCreate(CREATESTRUCT* create_struct) {
   // Call the WM_INPUTLANGCHANGE message handler to initialize the input locale
   // of a browser process.
   OnInputLangChange(0, 0);
-  TRACK_HWND_CREATION(m_hWnd);
   // Marks that window as supporting mouse-wheel messages rerouting so it is
   // scrolled when under the mouse pointer even if inactive.
   views::SetWindowSupportsRerouteMouseWheel(m_hWnd);
@@ -682,9 +681,6 @@ void RenderWidgetHostViewWin::OnActivate(UINT action, BOOL minimized,
 void RenderWidgetHostViewWin::OnDestroy() {
   ResetTooltip();
   TrackMouseLeave(false);
-#ifdef ENABLE_TRACK_HWND_DESTRUCTION
-  TRACK_HWND_DESTRUCTION(m_hWnd);
-#endif  // ENABLE_TRACK_HWND_DESTRUCTION
 }
 
 void RenderWidgetHostViewWin::OnPaint(HDC dc) {
