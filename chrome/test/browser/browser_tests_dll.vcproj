@@ -203,6 +203,14 @@
 			</File>
 		</Filter>
 		<Filter
+			Name="TestTaskManager"
+			>
+			<File
+				RelativePath="..\..\browser\task_manager_browsertest.cc"
+				>
+			</File>
+		</Filter>
+		<Filter
 			Name="TestSSL"
 			>
 			<File

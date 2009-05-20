@@ -260,6 +260,8 @@ TaskManagerViewImpl::TaskManagerViewImpl(TaskManager* task_manager,
 }
 
 TaskManagerViewImpl::~TaskManagerViewImpl() {
+  // Delete child views now, while our table model still exists.
+  RemoveAllChildViews(true);
 }
 
 void TaskManagerViewImpl::Init() {
