@@ -81,10 +81,11 @@ void AppModalDialog::CreateAndShowDialog() {
   // TODO(pinkerton): Need to find the right localized strings for these.
   NSString* default_button = NSLocalizedString(@"OK", nil);
   NSString* other_button = NSLocalizedString(@"Cancel", nil);
-  BOOL text_field = NO;
+  bool text_field = false;
+  bool one_button = false;
   switch (dialog_flags_) {
     case MessageBoxFlags::kIsJavascriptAlert:
-      // OK & Cancel are fine for these types of alerts.
+      one_button = true;
       break;
     case MessageBoxFlags::kIsJavascriptConfirm:
       if (is_before_unload_dialog_) {
@@ -97,7 +98,7 @@ void AppModalDialog::CreateAndShowDialog() {
       }
       break;
     case MessageBoxFlags::kIsJavascriptPrompt:
-      text_field = YES;
+      text_field = true;
       break;
 
     default:
@@ -120,7 +121,8 @@ void AppModalDialog::CreateAndShowDialog() {
   [alert setInformativeText:base::SysWideToNSString(message_text_)];
   [alert setMessageText:base::SysWideToNSString(title_)];
   [alert addButtonWithTitle:default_button];
-  [alert addButtonWithTitle:other_button];
+  if (!one_button)
+    [alert addButtonWithTitle:other_button];
 
   [alert beginSheetModalForWindow:nil  // nil here makes it app-modal
                     modalDelegate:helper
