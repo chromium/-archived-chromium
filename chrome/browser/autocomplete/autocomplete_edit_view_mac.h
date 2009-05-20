@@ -80,9 +80,11 @@ class AutocompleteEditViewMac : public AutocompleteEditView {
   virtual void OnBeforePossibleChange();
   virtual bool OnAfterPossibleChange();
 
-  // Helper functions which forward to our private: model_.
+  // Helper functions which forward to |model_|, for use from
+  // AutocompleteEditHelper Objective-C class.
   void OnUpOrDownKeyPressed(bool up, bool by_page);
   void OnEscapeKeyPressed();
+  // Only forwards to |model_| if the field_ has focus.
   void OnSetFocus(bool f);
   void OnKillFocus();
   void AcceptInput(WindowOpenDisposition disposition, bool for_drop);

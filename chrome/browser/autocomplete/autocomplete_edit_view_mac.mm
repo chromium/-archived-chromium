@@ -97,6 +97,8 @@ NSRange ComponentToNSRange(const url_parse::Component& component) {
   AutocompleteEditViewMac* edit_view_;  // weak, owns us.
 }
 - initWithEditView:(AutocompleteEditViewMac*)view;
+- (void)windowDidResignKey:(NSNotification*)notification;
+- (void)windowDidBecomeKey:(NSNotification*)notification;
 @end
 
 AutocompleteEditViewMac::AutocompleteEditViewMac(
@@ -122,6 +124,18 @@ AutocompleteEditViewMac::AutocompleteEditViewMac(
 
   // Needed so that editing doesn't lose the styling.
   [field_ setAllowsEditingTextAttributes:YES];
+
+  // Track the window's key status for signalling focus changes to
+  // |model_|.
+  NSNotificationCenter* nc = [NSNotificationCenter defaultCenter];
+  [nc addObserver:edit_helper_
+         selector:@selector(windowDidResignKey:) 
+             name:NSWindowDidResignKeyNotification
+           object:[field_ window]];
+  [nc addObserver:edit_helper_
+         selector:@selector(windowDidBecomeKey:) 
+             name:NSWindowDidBecomeKeyNotification
+           object:[field_ window]];
 }
 
 AutocompleteEditViewMac::~AutocompleteEditViewMac() {
@@ -137,6 +151,9 @@ AutocompleteEditViewMac::~AutocompleteEditViewMac() {
   // Disconnect field_ from edit_helper_ so that we don't get calls
   // after destruction.
   [field_ setDelegate:nil];
+
+  // Disconnect notifications so they don't signal a dead object.
+  [[NSNotificationCenter defaultCenter] removeObserver:edit_helper_];
 }
 
 void AutocompleteEditViewMac::SaveStateToTab(TabContents* tab) {
@@ -440,7 +457,10 @@ void AutocompleteEditViewMac::OnEscapeKeyPressed() {
   model_->OnEscapeKeyPressed();
 }
 void AutocompleteEditViewMac::OnSetFocus(bool f) {
-  model_->OnSetFocus(f);
+  // Only forward if we actually do have the focus.
+  if ([field_ currentEditor]) {
+    model_->OnSetFocus(f);
+  }
 }
 void AutocompleteEditViewMac::OnKillFocus() {
   // TODO(shess): This would seem to be a job for |model_|.
@@ -535,6 +555,16 @@ void AutocompleteEditViewMac::FocusLocation() {
 
   // TODO(shess): Figure out where the selection belongs.  On GTK,
   // it's set to the start of the text.
+}
+
+// Signal that we've lost focus when the window resigns key.
+- (void)windowDidResignKey:(NSNotification*)notification {
+  edit_view_->OnKillFocus();
+}
+
+// Signal that we may have regained focus.
+- (void)windowDidBecomeKey:(NSNotification*)notification {
+  edit_view_->OnSetFocus(false);
 }
 
 @end
