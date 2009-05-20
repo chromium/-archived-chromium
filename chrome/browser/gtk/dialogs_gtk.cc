@@ -195,13 +195,20 @@ void SelectFileDialogImpl::SelectFile(
 
 void SelectFileDialogImpl::AddFilters(GtkFileChooser* chooser) {
   for (size_t i = 0; i < file_types_.extensions.size(); ++i) {
-    GtkFileFilter* filter = gtk_file_filter_new();
+    GtkFileFilter* filter = NULL;
     for (size_t j = 0; j < file_types_.extensions[i].size(); ++j) {
       // TODO(estade): it's probably preferable to use mime types, but we are
       // passed extensions, so it's much easier to use globs.
-      gtk_file_filter_add_pattern(filter,
-          ("*." + file_types_.extensions[i][j]).c_str());
+      if (!file_types_.extensions[i][j].empty()) {
+        if (!filter)
+          filter = gtk_file_filter_new();
+        gtk_file_filter_add_pattern(filter,
+            ("*." + file_types_.extensions[i][j]).c_str());
+      }
     }
+    // We didn't find any non-empty extensions to filter on.
+    if (!filter)
+      continue;
 
     // The description vector may be blank, in which case we are supposed to
     // use some sort of default description based on the filter.
