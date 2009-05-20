@@ -14,7 +14,6 @@
 #include "base/scoped_ptr.h"
 #include "base/shared_memory.h"
 #include "chrome/common/extensions/user_script.h"
-#include "chrome/common/notification_registrar.h"
 #include "googleurl/src/gurl.h"
 #include "testing/gtest/include/gtest/gtest_prod.h"
 
@@ -23,14 +22,18 @@ class StringPiece;
 // Manages a segment of shared memory that contains the user scripts the user
 // has installed.  Lives on the UI thread.
 class UserScriptMaster : public base::RefCounted<UserScriptMaster>,
-                         public DirectoryWatcher::Delegate,
-                         public NotificationObserver {
+                         public DirectoryWatcher::Delegate {
  public:
   // For testability, the constructor takes the MessageLoop to run the
   // script-reloading worker on as well as the path the scripts live in.
   // These are normally the file thread and a directory inside the profile.
   UserScriptMaster(MessageLoop* worker, const FilePath& script_dir);
   ~UserScriptMaster();
+
+  // Add a single user script that exists outside the script directory.
+  void AddLoneScript(const UserScript& script) {
+    lone_scripts_.push_back(script);
+  }
 
   // Add a watched directory. All scripts will be reloaded when any file in
   // this directory changes.
@@ -122,14 +125,6 @@ class UserScriptMaster : public base::RefCounted<UserScriptMaster>,
 
   // DirectoryWatcher::Delegate implementation.
   virtual void OnDirectoryChanged(const FilePath& path);
-
-  // NotificationObserver implementation.
-  virtual void Observe(NotificationType type,
-                       const NotificationSource& source,
-                       const NotificationDetails& details);
-
-  // Manages our notification registrations.
-  NotificationRegistrar registrar_;
 
   // The directories containing user scripts.
   FilePath user_script_dir_;

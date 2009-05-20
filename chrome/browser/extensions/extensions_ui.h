@@ -69,9 +69,6 @@ class ExtensionsDOMHandler : public DOMMessageHandler {
   // Callback for "inspect" message.
   void HandleInspectMessage(const Value* value);
 
-  // Callback for "uninstall" message.
-  void HandleUninstallMessage(const Value* value);
-
   // Helper that lists the current active html pages for an extension.
   std::vector<ExtensionPage> GetActivePagesForExtension(
       const std::string& extension_id);

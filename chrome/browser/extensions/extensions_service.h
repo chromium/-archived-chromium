@@ -5,7 +5,6 @@
 #ifndef CHROME_BROWSER_EXTENSIONS_EXTENSIONS_SERVICE_H_
 #define CHROME_BROWSER_EXTENSIONS_EXTENSIONS_SERVICE_H_
 
-#include <set>
 #include <string>
 #include <vector>
 
@@ -19,21 +18,43 @@ class Browser;
 class Extension;
 class ExtensionsServiceBackend;
 class GURL;
-class PrefService;
 class Profile;
 class ResourceDispatcherHost;
 class SiteInstance;
 class UserScriptMaster;
 typedef std::vector<Extension*> ExtensionList;
 
-// Manages installed and running Chromium extensions.
-class ExtensionsService
-    : public base::RefCountedThreadSafe<ExtensionsService> {
+// Interface for the frontend to implement. Typically, this will be
+// ExtensionsService, but it can also be a test harness.
+class ExtensionsServiceFrontendInterface
+    : public base::RefCountedThreadSafe<ExtensionsServiceFrontendInterface> {
  public:
-  ExtensionsService(Profile* profile,
-                    MessageLoop* frontend_loop,
-                    MessageLoop* backend_loop,
-                    const std::string& registry_path);
+  virtual ~ExtensionsServiceFrontendInterface() {}
+
+  // The message loop to invoke the frontend's methods on.
+  virtual MessageLoop* GetMessageLoop() = 0;
+
+  // Called when extensions are loaded by the backend. The frontend takes
+  // ownership of the list.
+  virtual void OnExtensionsLoaded(ExtensionList* extensions) = 0;
+
+  // Called with results from InstallExtension().
+  // |is_update| is true if the installation was an update to an existing
+  // installed extension rather than a new installation.
+  virtual void OnExtensionInstalled(Extension* extension, bool is_update) = 0;
+
+  // Called when an existing extension is installed by the user. We may wish to
+  // notify the user about the prior existence of the extension, or take some
+  // action using the fact that the user chose to reinstall the extension as a
+  // signal (for example, setting the default theme to the extension).
+  virtual void OnExtensionVersionReinstalled(const std::string& id) = 0;
+};
+
+
+// Manages installed and running Chromium extensions.
+class ExtensionsService : public ExtensionsServiceFrontendInterface {
+ public:
+  ExtensionsService(Profile* profile, UserScriptMaster* user_script_master);
   ~ExtensionsService();
 
   // Gets the list of currently installed extensions.
@@ -58,34 +79,24 @@ class ExtensionsService
   void LoadExtension(const FilePath& extension_path);
 
   // Lookup an extension by |id|.
-  Extension* GetExtensionByID(std::string id);
+  virtual Extension* GetExtensionByID(std::string id);
+
+  // ExtensionsServiceFrontendInterface
+  virtual MessageLoop* GetMessageLoop();
+  virtual void OnExtensionsLoaded(ExtensionList* extensions);
+  virtual void OnExtensionInstalled(Extension* extension, bool is_update);
+  virtual void OnExtensionVersionReinstalled(const std::string& id);
 
   // The name of the file that the current active version number is stored in.
   static const char* kCurrentVersionFileName;
 
  private:
-  // For OnExtensionLoaded, OnExtensionInstalled, and
-  // OnExtensionVersionReinstalled.
-  friend class ExtensionsServiceBackend;
-
-  // Called by the backend when extensions have been loaded.
-  void OnExtensionsLoaded(ExtensionList* extensions);
-
-  // Called by the backend when an extensoin hsa been installed.
-  void OnExtensionInstalled(Extension* extension, bool is_update);
-  
-  // Called by the backend when an extension has been reinstalled.
-  void OnExtensionVersionReinstalled(const std::string& id);
-
   // The name of the directory inside the profile where extensions are
   // installed to.
   static const char* kInstallDirectoryName;
 
-  // Preferences for the owning profile.
-  PrefService* prefs_;
-
-  // The message loop to use with the backend.
-  MessageLoop* backend_loop_;
+  // The message loop for the thread the ExtensionsService is running on.
+  MessageLoop* message_loop_;
 
   // The current list of installed extensions.
   ExtensionList extensions_;
@@ -96,28 +107,29 @@ class ExtensionsService
   // The backend that will do IO on behalf of this instance.
   scoped_refptr<ExtensionsServiceBackend> backend_;
 
+  // The user script master for this profile.
+  scoped_refptr<UserScriptMaster> user_script_master_;
+
   DISALLOW_COPY_AND_ASSIGN(ExtensionsService);
 };
 
 // Implements IO for the ExtensionsService.
-// TODO(aa): This can probably move into the .cc file.
+// TODO(aa): Extract an interface out of this for testing the frontend, once the
+// frontend has significant logic to test.
 class ExtensionsServiceBackend
     : public base::RefCountedThreadSafe<ExtensionsServiceBackend> {
  public:
-  // |rdh| can be NULL in the case of test environment.
-  // |registry_path| can be NULL *except* in the case of the test environment,
-  // where it is specified to a temp location.
-  ExtensionsServiceBackend(const FilePath& install_directory,
-                          ResourceDispatcherHost* rdh,
-                          MessageLoop* frontend_loop,
-                          const std::string& registry_path);
+  explicit ExtensionsServiceBackend(const FilePath& install_directory,
+                                    ResourceDispatcherHost* rdh)
+      : install_directory_(install_directory),
+        resource_dispatcher_host_(rdh) {}
 
   // Loads extensions from the install directory. The extensions are assumed to
   // be unpacked in directories that are direct children of the specified path.
   // Errors are reported through ExtensionErrorReporter. On completion,
   // OnExtensionsLoaded() is called with any successfully loaded extensions.
   void LoadExtensionsFromInstallDirectory(
-      scoped_refptr<ExtensionsService> frontend);
+      scoped_refptr<ExtensionsServiceFrontendInterface> frontend);
 
   // Loads a single extension from |path| where |path| is the top directory of
   // a specific extension where its manifest file lives.
@@ -126,20 +138,21 @@ class ExtensionsServiceBackend
   // extensions.
   // TODO(erikkay): It might be useful to be able to load a packed extension
   // (presumably into memory) without installing it.
-  void LoadSingleExtension(const FilePath &path,
-                           scoped_refptr<ExtensionsService> frontend);
+  void LoadSingleExtension(
+      const FilePath &path,
+      scoped_refptr<ExtensionsServiceFrontendInterface> frontend);
 
   // Install the extension file at |extension_path|. Errors are reported through
-  // ExtensionErrorReporter. OnExtensionInstalled is called in the frontend on
-  // success.
-  void InstallExtension(const FilePath& extension_path,
-                        scoped_refptr<ExtensionsService> frontend);
+  // ExtensionErrorReporter. ReportExtensionInstalled is called on success.
+  void InstallExtension(
+      const FilePath& extension_path,
+      scoped_refptr<ExtensionsServiceFrontendInterface> frontend);
 
   // Check externally updated extensions for updates and install if necessary.
-  // Errors are reported through ExtensionErrorReporter. Succcess is not
-  // reported.
-  void CheckForExternalUpdates(std::set<std::string> ids_to_ignore,
-                               scoped_refptr<ExtensionsService> frontend);
+  // Errors are reported through ExtensionErrorReporter.
+  // ReportExtensionInstalled is called on success.
+  void CheckForExternalUpdates(
+      scoped_refptr<ExtensionsServiceFrontendInterface> frontend);
 
   // Deletes all versions of the extension from the filesystem. Note that only
   // extensions whose location() == INTERNAL can be uninstalled. Attempting to
@@ -190,6 +203,10 @@ class ExtensionsServiceBackend
   // Notify the frontend that the extension had already been installed.
   void ReportExtensionVersionReinstalled(const std::string& id);
 
+  // Notify the frontend that extensions were installed.
+  // |is_update| is true if this was an update to an existing extension.
+  void ReportExtensionInstalled(const FilePath& path, bool is_update);
+
   // Read the manifest from the front of the extension file.
   // Caller takes ownership of return value.
   DictionaryValue* ReadManifest(const FilePath& extension_path);
@@ -211,11 +228,10 @@ class ExtensionsServiceBackend
   bool SetCurrentVersion(const FilePath& dest_dir,
                          std::string version);
 
-  // For the extension in |version_path| with |id|, check to see if it's an
+  // For the extension at |path| with |id|, check to see if it's an
   // externally managed extension.  If so return true if it should be
   // uninstalled.
-  bool CheckExternalUninstall(const FilePath& version_path,
-                              const std::string& id);
+  bool CheckExternalUninstall(const FilePath& path, const std::string& id);
 
   // Should an extension of |id| and |version| be installed?
   // Returns true if no extension of type |id| is installed or if |version|
@@ -228,7 +244,7 @@ class ExtensionsServiceBackend
 
   // This is a naked pointer which is set by each entry point.
   // The entry point is responsible for ensuring lifetime.
-  ExtensionsService* frontend_;
+  ExtensionsServiceFrontendInterface* frontend_;
 
   // The top-level extensions directory being installed to.
   FilePath install_directory_;
@@ -238,14 +254,6 @@ class ExtensionsServiceBackend
 
   // Whether errors result in noisy alerts.
   bool alert_on_error_;
-
-  // The message loop to use to call the frontend.
-  MessageLoop* frontend_loop_;
-
-  // The path to look for externally registered extensions in. This is a
-  // registry key on windows, but it could be a similar string for the
-  // appropriate system on other platforms in the future.
-  std::string registry_path_;
 
   DISALLOW_COPY_AND_ASSIGN(ExtensionsServiceBackend);
 };

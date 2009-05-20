@@ -21,12 +21,13 @@
 #include "chrome/browser/extensions/extension_browser_event_router.h"
 #include "chrome/browser/extensions/extension_error_reporter.h"
 #include "chrome/browser/extensions/extension_process_manager.h"
+#include "chrome/browser/extensions/user_script_master.h"
+#include "chrome/browser/plugin_service.h"
 #include "chrome/browser/profile.h"
 #include "chrome/browser/utility_process_host.h"
 #include "chrome/common/extensions/extension_unpacker.h"
 #include "chrome/common/json_value_serializer.h"
 #include "chrome/common/notification_service.h"
-#include "chrome/common/pref_service.h"
 #include "chrome/common/unzip.h"
 #include "chrome/common/url_constants.h"
 
@@ -54,17 +55,10 @@ struct ExtensionHeader {
 const size_t kZipHashBytes = 32;  // SHA-256
 const size_t kZipHashHexBytes = kZipHashBytes * 2;  // Hex string is 2x size.
 
-// A preference that keeps track of external extensions the user has
-// uninstalled.
-const wchar_t kUninstalledExternalPref[] =
-    L"extensions.uninstalled_external_ids";
+#if defined(OS_WIN)
 
 // Registry key where registry defined extension installers live.
-// TODO(port): Assuming this becomes a similar key into the appropriate
-// platform system.
-const char kRegistryExtensions[] = "Software\\Google\\Chrome\\Extensions";
-
-#if defined(OS_WIN)
+const wchar_t kRegistryExtensions[] = L"Software\\Google\\Chrome\\Extensions";
 
 // Registry value of of that key that defines the path to the .crx file.
 const wchar_t kRegistryExtensionPath[] = L"path";
@@ -184,16 +178,12 @@ class ExtensionsServiceBackend::UnpackerClient
 };
 
 ExtensionsService::ExtensionsService(Profile* profile,
-                                     MessageLoop* frontend_loop,
-                                     MessageLoop* backend_loop,
-                                     const std::string& registry_path)
-    : prefs_(profile->GetPrefs()),
-      backend_loop_(backend_loop),
+                                     UserScriptMaster* user_script_master)
+    : message_loop_(MessageLoop::current()),
       install_directory_(profile->GetPath().AppendASCII(kInstallDirectoryName)),
       backend_(new ExtensionsServiceBackend(
-          install_directory_, g_browser_process->resource_dispatcher_host(),
-          frontend_loop, registry_path)) {
-  prefs_->RegisterListPref(kUninstalledExternalPref);
+          install_directory_, g_browser_process->resource_dispatcher_host())),
+      user_script_master_(user_script_master) {
 }
 
 ExtensionsService::~ExtensionsService() {
@@ -208,42 +198,39 @@ bool ExtensionsService::Init() {
   ExtensionBrowserEventRouter::GetInstance()->Init();
 
 #if defined(OS_WIN)
-
-  std::set<std::string> uninstalled_external_ids;
-  const ListValue* list = prefs_->GetList(kUninstalledExternalPref);
-  if (list) {
-    for (size_t i = 0; i < list->GetSize(); ++i) {
-      std::string val;
-      bool ok = list->GetString(i, &val);
-      DCHECK(ok);
-      DCHECK(uninstalled_external_ids.find(val) ==
-             uninstalled_external_ids.end());
-      uninstalled_external_ids.insert(val);
-    }
-  }
-
+  // TODO(port): ExtensionsServiceBackend::CheckForExternalUpdates depends on
+  // the Windows registry.
   // TODO(erikkay): Should we monitor the registry during run as well?
-  backend_loop_->PostTask(FROM_HERE, NewRunnableMethod(backend_.get(),
-      &ExtensionsServiceBackend::CheckForExternalUpdates,
-      uninstalled_external_ids, scoped_refptr<ExtensionsService>(this)));
-#else
-
-  // TODO(port)
-
+  g_browser_process->file_thread()->message_loop()->PostTask(FROM_HERE,
+      NewRunnableMethod(backend_.get(),
+          &ExtensionsServiceBackend::CheckForExternalUpdates,
+          scoped_refptr<ExtensionsServiceFrontendInterface>(this)));
 #endif
 
-  backend_loop_->PostTask(FROM_HERE, NewRunnableMethod(backend_.get(),
-      &ExtensionsServiceBackend::LoadExtensionsFromInstallDirectory,
-      scoped_refptr<ExtensionsService>(this)));
+  // TODO(aa): This message loop should probably come from a backend
+  // interface, similar to how the message loop for the frontend comes
+  // from the frontend interface.
+  g_browser_process->file_thread()->message_loop()->PostTask(FROM_HERE,
+      NewRunnableMethod(backend_.get(),
+          &ExtensionsServiceBackend::LoadExtensionsFromInstallDirectory,
+          scoped_refptr<ExtensionsServiceFrontendInterface>(this)));
 
   return true;
 }
 
+MessageLoop* ExtensionsService::GetMessageLoop() {
+  return message_loop_;
+}
+
 void ExtensionsService::InstallExtension(const FilePath& extension_path) {
-  backend_loop_->PostTask(FROM_HERE, NewRunnableMethod(backend_.get(),
-      &ExtensionsServiceBackend::InstallExtension,
-      extension_path,
-      scoped_refptr<ExtensionsService>(this)));
+  // TODO(aa): This message loop should probably come from a backend
+  // interface, similar to how the message loop for the frontend comes
+  // from the frontend interface.
+  g_browser_process->file_thread()->message_loop()->PostTask(FROM_HERE,
+      NewRunnableMethod(backend_.get(),
+          &ExtensionsServiceBackend::InstallExtension,
+          extension_path,
+          scoped_refptr<ExtensionsServiceFrontendInterface>(this)));
 }
 
 void ExtensionsService::UninstallExtension(const std::string& extension_id) {
@@ -257,48 +244,70 @@ void ExtensionsService::UninstallExtension(const std::string& extension_id) {
     }
   }
 
-  // Callers should not send us nonexistant extensions.
-  CHECK(extension);
-
   // Remove the extension from our list.
   extensions_.erase(iter);
+
+  // Callers should check existence and that the extension is internal before
+  // calling us.
+  DCHECK(extension);
+  DCHECK(extension->is_uninstallable());
 
   // Tell other services the extension is gone.
   NotificationService::current()->Notify(NotificationType::EXTENSION_UNLOADED,
                                          NotificationService::AllSources(),
                                          Details<Extension>(extension));
 
-  // For external extensions, we save a preference reminding ourself not to try
-  // and install the extension anymore.
-  if (extension->location() == Extension::EXTERNAL) {
-    ListValue* list = prefs_->GetMutableList(kUninstalledExternalPref);
-    list->Append(Value::CreateStringValue(extension->id()));
-    prefs_->ScheduleSavePersistentPrefs();
-  }
-
-  // Tell the backend to start deleting installed extensions on the file thread.
-  if (extension->location() == Extension::INTERNAL ||
-      extension->location() == Extension::EXTERNAL) {
-    backend_loop_->PostTask(FROM_HERE, NewRunnableMethod(backend_.get(),
-        &ExtensionsServiceBackend::UninstallExtension, extension_id));
-  }
+  // Tell the file thread to start deleting.
+  g_browser_process->file_thread()->message_loop()->PostTask(FROM_HERE,
+      NewRunnableMethod(backend_.get(),
+          &ExtensionsServiceBackend::UninstallExtension, extension_id));
 
   delete extension;
 }
 
 void ExtensionsService::LoadExtension(const FilePath& extension_path) {
-  backend_loop_->PostTask(FROM_HERE, NewRunnableMethod(backend_.get(),
-      &ExtensionsServiceBackend::LoadSingleExtension,
-      extension_path, scoped_refptr<ExtensionsService>(this)));
+  g_browser_process->file_thread()->message_loop()->PostTask(FROM_HERE,
+      NewRunnableMethod(backend_.get(),
+          &ExtensionsServiceBackend::LoadSingleExtension,
+          extension_path,
+          scoped_refptr<ExtensionsServiceFrontendInterface>(this)));
 }
 
 void ExtensionsService::OnExtensionsLoaded(ExtensionList* new_extensions) {
   extensions_.insert(extensions_.end(), new_extensions->begin(),
                      new_extensions->end());
+
+  // TODO: Fix race here.  A page could need a user script on startup, before
+  // the user script is loaded.  We need to freeze the renderer in that case.
+  // TODO(mpcomplete): We also need to force a renderer to refresh its cache of
+  // the plugin list when we inject user scripts, since it could have a stale
+  // version by the time extensions are loaded.
+
+  for (ExtensionList::iterator extension = extensions_.begin();
+       extension != extensions_.end(); ++extension) {
+    // Tell NPAPI about any plugins in the loaded extensions.
+    if (!(*extension)->plugins_dir().empty()) {
+      PluginService::GetInstance()->AddExtraPluginDir(
+          (*extension)->plugins_dir());
+    }
+
+    // Tell UserScriptMaster about any scripts in the loaded extensions.
+    const UserScriptList& scripts = (*extension)->content_scripts();
+    for (UserScriptList::const_iterator script = scripts.begin();
+         script != scripts.end(); ++script) {
+      user_script_master_->AddLoneScript(*script);
+    }
+  }
+
+  // Since user scripts may have changed, tell UserScriptMaster to kick off
+  // a scan.
+  user_script_master_->StartScan();
+
   NotificationService::current()->Notify(
       NotificationType::EXTENSIONS_LOADED,
       NotificationService::AllSources(),
       Details<ExtensionList>(new_extensions));
+
   delete new_extensions;
 }
 
@@ -341,21 +350,8 @@ Extension* ExtensionsService::GetExtensionByID(std::string id) {
 
 // ExtensionsServicesBackend
 
-ExtensionsServiceBackend::ExtensionsServiceBackend(
-    const FilePath& install_directory, ResourceDispatcherHost* rdh,
-    MessageLoop* frontend_loop, const std::string& registry_path)
-        : install_directory_(install_directory),
-          resource_dispatcher_host_(rdh),
-          frontend_loop_(frontend_loop),
-          registry_path_(registry_path) {
-  // Default the registry path if unspecified.
-  if (registry_path_.empty()) {
-    registry_path_ = kRegistryExtensions;
-  }
-}
-
 void ExtensionsServiceBackend::LoadExtensionsFromInstallDirectory(
-    scoped_refptr<ExtensionsService> frontend) {
+    scoped_refptr<ExtensionsServiceFrontendInterface> frontend) {
   frontend_ = frontend;
   alert_on_error_ = false;
 
@@ -396,25 +392,7 @@ void ExtensionsServiceBackend::LoadExtensionsFromInstallDirectory(
        extension_path = enumerator.Next()) {
     std::string extension_id = WideToASCII(
         extension_path.BaseName().ToWStringHack());
-
-    // If there is no Current Version file, just delete the directory and move
-    // on. This can legitimately happen when an uninstall does not complete, for
-    // example, when a plugin is in use at uninstall time.
-    FilePath current_version_path = extension_path.AppendASCII(
-        ExtensionsService::kCurrentVersionFileName);
-    if (!file_util::PathExists(current_version_path)) {
-      LOG(INFO) << "Deleting incomplete install for directory "
-                << WideToASCII(extension_path.ToWStringHack()) << ".";
-      file_util::Delete(extension_path, true); // recursive;
-      continue;
-    }
-
-    std::string current_version;
-    if (!ReadCurrentVersion(extension_path, &current_version))
-      continue;
-
-    FilePath version_path = extension_path.AppendASCII(current_version);
-    if (CheckExternalUninstall(version_path, extension_id)) {
+    if (CheckExternalUninstall(extension_path, extension_id)) {
       // TODO(erikkay): Possibly defer this operation to avoid slowing initial
       // load of extensions.
       UninstallExtension(extension_id);
@@ -424,7 +402,7 @@ void ExtensionsServiceBackend::LoadExtensionsFromInstallDirectory(
       continue;
     }
 
-    Extension* extension = LoadExtension(version_path, true);  // require id
+    Extension* extension = LoadExtensionCurrentVersion(extension_path);
     if (extension)
       extensions->push_back(extension);
   }
@@ -434,7 +412,8 @@ void ExtensionsServiceBackend::LoadExtensionsFromInstallDirectory(
 }
 
 void ExtensionsServiceBackend::LoadSingleExtension(
-    const FilePath& path_in, scoped_refptr<ExtensionsService> frontend) {
+    const FilePath& path_in,
+    scoped_refptr<ExtensionsServiceFrontendInterface> frontend) {
   frontend_ = frontend;
 
   // Explicit UI loads are always noisy.
@@ -455,6 +434,24 @@ void ExtensionsServiceBackend::LoadSingleExtension(
     extensions->push_back(extension);
     ReportExtensionsLoaded(extensions);
   }
+}
+
+Extension* ExtensionsServiceBackend::LoadExtensionCurrentVersion(
+    const FilePath& extension_path) {
+  std::string version_str;
+  if (!ReadCurrentVersion(extension_path, &version_str)) {
+    ReportExtensionLoadError(extension_path,
+        StringPrintf("Could not read '%s' file.",
+            ExtensionsService::kCurrentVersionFileName));
+    return NULL;
+  }
+
+  LOG(INFO) << "  " <<
+      WideToASCII(extension_path.BaseName().ToWStringHack()) <<
+      " version: " << version_str;
+
+  return LoadExtension(extension_path.AppendASCII(version_str),
+                       true);  // require id
 }
 
 Extension* ExtensionsServiceBackend::LoadExtension(
@@ -532,8 +529,10 @@ void ExtensionsServiceBackend::ReportExtensionLoadError(
 
 void ExtensionsServiceBackend::ReportExtensionsLoaded(
     ExtensionList* extensions) {
-  frontend_loop_->PostTask(FROM_HERE, NewRunnableMethod(
-      frontend_, &ExtensionsService::OnExtensionsLoaded, extensions));
+  frontend_->GetMessageLoop()->PostTask(FROM_HERE, NewRunnableMethod(
+      frontend_,
+      &ExtensionsServiceFrontendInterface::OnExtensionsLoaded,
+      extensions));
 }
 
 // The extension file format is a header, followed by the manifest, followed
@@ -776,7 +775,8 @@ bool ExtensionsServiceBackend::SetCurrentVersion(const FilePath& dest_dir,
 }
 
 void ExtensionsServiceBackend::InstallExtension(
-    const FilePath& extension_path, scoped_refptr<ExtensionsService> frontend) {
+    const FilePath& extension_path,
+    scoped_refptr<ExtensionsServiceFrontendInterface> frontend) {
   LOG(INFO) << "Installing extension " << extension_path.value();
 
   frontend_ = frontend;
@@ -855,27 +855,7 @@ void ExtensionsServiceBackend::OnExtensionUnpacked(
     file_util::WriteFile(marker, NULL, 0);
   }
 
-  // Load the extension immediately and then report installation success. We
-  // don't load extensions for external installs because external installation
-  // occurs before the normal startup so we just let startup pick them up. We
-  // don't notify installation because there is no UI or external install so
-  // there is nobody to notify.
-  if (!from_external) {
-    Extension* extension = LoadExtension(version_dir, true);  // require id
-    CHECK(extension);
-
-    frontend_loop_->PostTask(FROM_HERE, NewRunnableMethod(
-        frontend_, &ExtensionsService::OnExtensionInstalled, extension,
-        was_update));
-
-    // Only one extension, but ReportExtensionsLoaded can handle multiple,
-    // so we need to construct a list.
-    scoped_ptr<ExtensionList> extensions(new ExtensionList);
-    extensions->push_back(extension);
-    LOG(INFO) << "Done.";
-    // Hand off ownership of the loaded extensions to the frontend.
-    ReportExtensionsLoaded(extensions.release());
-  }
+  ReportExtensionInstalled(dest_dir, was_update);
 }
 
 void ExtensionsServiceBackend::ReportExtensionInstallError(
@@ -891,8 +871,31 @@ void ExtensionsServiceBackend::ReportExtensionInstallError(
 
 void ExtensionsServiceBackend::ReportExtensionVersionReinstalled(
     const std::string& id) {
-  frontend_loop_->PostTask(FROM_HERE, NewRunnableMethod(
-      frontend_, &ExtensionsService::OnExtensionVersionReinstalled, id));
+  frontend_->GetMessageLoop()->PostTask(FROM_HERE, NewRunnableMethod(
+      frontend_,
+      &ExtensionsServiceFrontendInterface::OnExtensionVersionReinstalled,
+      id));
+}
+
+void ExtensionsServiceBackend::ReportExtensionInstalled(
+    const FilePath& path, bool update) {
+  // After it's installed, load it right away with the same settings.
+  Extension* extension = LoadExtensionCurrentVersion(path);
+  CHECK(extension);
+
+  frontend_->GetMessageLoop()->PostTask(FROM_HERE, NewRunnableMethod(
+      frontend_,
+      &ExtensionsServiceFrontendInterface::OnExtensionInstalled,
+      extension,
+      update));
+
+  // Only one extension, but ReportExtensionsLoaded can handle multiple,
+  // so we need to construct a list.
+  scoped_ptr<ExtensionList> extensions(new ExtensionList);
+  extensions->push_back(extension);
+  LOG(INFO) << "Done.";
+  // Hand off ownership of the loaded extensions to the frontend.
+  ReportExtensionsLoaded(extensions.release());
 }
 
 // Some extensions will autoupdate themselves externally from Chrome.  These
@@ -902,8 +905,7 @@ void ExtensionsServiceBackend::ReportExtensionVersionReinstalled(
 // check that location for a .crx file, which it will then install locally if
 // a new version is available.
 void ExtensionsServiceBackend::CheckForExternalUpdates(
-    std::set<std::string> ids_to_ignore,
-    scoped_refptr<ExtensionsService> frontend) {
+    scoped_refptr<ExtensionsServiceFrontendInterface> frontend) {
 
   // Note that this installation is intentionally silent (since it didn't
   // go through the front-end).  Extensions that are registered in this
@@ -917,23 +919,16 @@ void ExtensionsServiceBackend::CheckForExternalUpdates(
   // TODO(port): Pull this out into an interface. That will also allow us to
   // test the behavior of external extensions.
   HKEY reg_root = HKEY_LOCAL_MACHINE;
-  RegistryKeyIterator iterator(reg_root, ASCIIToWide(registry_path_).c_str());
+  RegistryKeyIterator iterator(reg_root, kRegistryExtensions);
   while (iterator.Valid()) {
-    // Fold 
-    std::string id = StringToLowerASCII(WideToASCII(iterator.Name()));
-    if (ids_to_ignore.find(id) != ids_to_ignore.end()) {
-      LOG(INFO) << "Skipping uninstalled external extension " << id;
-      ++iterator;
-      continue;
-    }
-
     RegKey key;
-    std::wstring key_path = ASCIIToWide(registry_path_);
+    std::wstring key_path = kRegistryExtensions;
     key_path.append(L"\\");
     key_path.append(iterator.Name());
     if (key.Open(reg_root, key_path.c_str())) {
       std::wstring extension_path;
       if (key.ReadValue(kRegistryExtensionPath, &extension_path)) {
+        std::string id = WideToASCII(iterator.Name());
         std::wstring extension_version;
         if (key.ReadValue(kRegistryExtensionVersion, &extension_version)) {
           if (ShouldInstall(id, WideToASCII(extension_version))) {
@@ -959,21 +954,21 @@ void ExtensionsServiceBackend::CheckForExternalUpdates(
 #endif
 }
 
-bool ExtensionsServiceBackend::CheckExternalUninstall(const FilePath& version_path,
+bool ExtensionsServiceBackend::CheckExternalUninstall(const FilePath& path,
                                                       const std::string& id) {
-  FilePath external_file = version_path.AppendASCII(kExternalInstallFile);
+  FilePath external_file = path.AppendASCII(kExternalInstallFile);
   if (file_util::PathExists(external_file)) {
 #if defined(OS_WIN)
     HKEY reg_root = HKEY_LOCAL_MACHINE;
     RegKey key;
-    std::wstring key_path = ASCIIToWide(registry_path_);
+    std::wstring key_path = kRegistryExtensions;
     key_path.append(L"\\");
     key_path.append(ASCIIToWide(id));
 
     // If the key doesn't exist, then we should uninstall.
     return !key.Open(reg_root, key_path.c_str());
 #else
-    // TODO(port)
+    NOTREACHED();
 #endif
   }
   return false;
@@ -1004,10 +999,7 @@ void ExtensionsServiceBackend::UninstallExtension(
     }
   }
 
-  // Ok, now try and delete the entire rest of the directory. One major place
-  // this can fail is if the extension contains a plugin (stupid plugins). It's
-  // not a big deal though, because we'll notice next time we startup that the
-  // Current Version file is gone and finish the delete then.
+  // Ok, now try and delete the entire rest of the directory.
   if (!file_util::Delete(extension_directory, true)) {
     LOG(WARNING) << "Could not delete directory for extension "
                  << extension_id;
@@ -1019,7 +1011,7 @@ bool ExtensionsServiceBackend::ShouldInstall(const std::string& id,
   FilePath dir(install_directory_.AppendASCII(id.c_str()));
   std::string current_version;
   if (ReadCurrentVersion(dir, &current_version)) {
-    return CheckCurrentVersion(version, current_version, dir);
+    return !CheckCurrentVersion(version, current_version, dir);
   }
   return true;
 }

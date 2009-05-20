@@ -553,7 +553,7 @@ class NotificationType {
     // Sent when a new theme is installed. The details are an Extension.
     THEME_INSTALLED,
 
-    // Sent when new extensions are installed. The details are an Extension.
+    // Sent when new extensions are installed. The details are a FilePath.
     EXTENSION_INSTALLED,
 
     // Sent when an extension is unloaded. This happens when an extension is

@@ -108,6 +108,7 @@ class Extension {
 
   Extension() : location_(INVALID) {}
   explicit Extension(const FilePath& path);
+  explicit Extension(const Extension& other);
   virtual ~Extension();
 
   // Returns an absolute url to a resource inside of an extension. The
@@ -164,6 +165,10 @@ class Extension {
   DictionaryValue* GetThemeColors() const { return theme_colors_.get(); }
   DictionaryValue* GetThemeTints() const { return theme_tints_.get(); }
   bool IsTheme() { return is_theme_; }
+
+  // It doesn't really make sense to 'uninstall' extensions loaded from
+  // --load-extension or external locations.
+  const bool is_uninstallable() const { return location_ == INTERNAL; }
 
  private:
   // Helper method that loads a UserScript object from a
@@ -242,7 +247,8 @@ class Extension {
   // The sites this extension has permission to talk to (using XHR, etc).
   std::vector<URLPattern> permissions_;
 
-  DISALLOW_COPY_AND_ASSIGN(Extension);
+  // We implement copy, but not assign.
+  void operator=(const Extension&);
 };
 
 #endif  // CHROME_BROWSER_EXTENSIONS_EXTENSION_H_
