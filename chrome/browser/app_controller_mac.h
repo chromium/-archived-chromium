@@ -11,6 +11,7 @@
 #include "base/scoped_nsobject.h"
 #include "base/scoped_ptr.h"
 
+@class AboutWindowController;
 class BookmarkMenuBridge;
 class CommandUpdater;
 class GURL;
@@ -27,6 +28,7 @@ class Profile;
   // (and Browser*s).
   scoped_ptr<BookmarkMenuBridge> bookmarkMenuBridge_;
   scoped_nsobject<PreferencesWindowController> prefsController_;
+  scoped_nsobject<AboutWindowController> aboutController_;
 
   // URLs that need to be opened when the app is fully initialized. Because it's
   // only needed during early startup, it points to a valid vector during early
@@ -40,6 +42,10 @@ class Profile;
 // Show the preferences window, or bring it to the front if it's already
 // visible.
 - (IBAction)showPreferences:(id)sender;
+
+// Redirect in the menu item from the expected target of "File's
+// Owner" (NSAppliation) for a Branded About Box
+- (IBAction)orderFrontStandardAboutPanel:(id)sender;
 
 @end
 

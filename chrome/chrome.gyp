@@ -619,6 +619,8 @@
         'browser/chrome_plugin_host.h',
         'browser/chrome_thread.cc',
         'browser/chrome_thread.h',
+        'browser/cocoa/about_window_controller.h',
+        'browser/cocoa/about_window_controller.mm',
         'browser/cocoa/base_view.h',
         'browser/cocoa/base_view.mm',
         'browser/cocoa/bookmark_bar_controller.h',
@@ -1907,6 +1909,7 @@
         'app/scoped_ole_initializer.h',
       ],
       'mac_bundle_resources': [
+        'app/nibs/en.lproj/About.xib',
         'app/nibs/en.lproj/BrowserWindow.xib',
         'app/nibs/en.lproj/FindBar.xib',
         'app/nibs/en.lproj/MainMenu.xib',
@@ -2671,6 +2674,11 @@
       ],
       'sources': [
         'app/breakpad_mac_stubs.mm',
+	# *NO* files in chrome/app have unit tests (except keystone_glue)!!!
+	# It seems a waste to have an app_unittests target, so for now
+	# I add keystone_glue.m explicitly to this target.
+        'app/keystone_glue.m',
+        'app/keystone_glue_unittest.mm',
         # All unittests in browser, common, and renderer.
         'browser/autocomplete/autocomplete_unittest.cc',
         'browser/autocomplete/autocomplete_popup_view_mac_unittest.mm',
@@ -2700,6 +2708,7 @@
         # It is safe to list */cocoa/* files in the "common" file list
         # without an explicit exclusion since gyp is smart enough to
         # exclude them from non-Mac builds.
+        'browser/cocoa/about_window_controller_unittest.mm',
         'browser/cocoa/base_view_unittest.mm',
         'browser/cocoa/bookmark_bar_controller_unittest.mm',
         'browser/cocoa/bookmark_menu_bridge_unittest.mm',

@@ -12,6 +12,7 @@
 #include "chrome/browser/browser_init.h"
 #include "chrome/browser/browser_list.h"
 #include "chrome/browser/browser_shutdown.h"
+#import "chrome/browser/cocoa/about_window_controller.h"
 #import "chrome/browser/cocoa/bookmark_menu_bridge.h"
 #import "chrome/browser/cocoa/encoding_menu_controller_delegate_mac.h"
 #import "chrome/browser/cocoa/menu_localizer.h"
@@ -93,10 +94,6 @@
   [self openPendingURLs];
 }
 
-- (void)dealloc {
-  [super dealloc];
-}
-
 // We can't use the standard terminate: method because it will abruptly exit
 // the app and leave things on the stack in an unfinalized state. We need to
 // post a quit message to our run loop so the stack can gracefully unwind.
@@ -147,6 +144,8 @@
   } else if (action == @selector(quit:)) {
     enable = YES;
   } else if (action == @selector(showPreferences:)) {
+    enable = YES;
+  } else if (action == @selector(orderFrontStandardAboutPanel:)) {
     enable = YES;
   }
   return enable;
@@ -285,7 +284,10 @@
 // Called when the preferences window is closed. We use this to release the
 // window controller.
 - (void)prefsWindowClosed:(NSNotification*)notify {
-  [[NSNotificationCenter defaultCenter] removeObserver:self];
+  [[NSNotificationCenter defaultCenter]
+    removeObserver:self
+              name:kUserDoneEditingPrefsNotification
+            object:prefsController_.get()];
   prefsController_.reset(NULL);
 }
 
@@ -304,6 +306,48 @@
              object:prefsController_.get()];
   }
   [prefsController_ showPreferences:sender];
+}
+
+// Called when the about window is closed. We use this to release the
+// window controller.
+- (void)aboutWindowClosed:(NSNotification*)notify {
+  [[NSNotificationCenter defaultCenter]
+    removeObserver:self
+              name:kUserClosedAboutNotification
+            object:aboutController_.get()];
+  aboutController_.reset(NULL);
+}
+
+- (IBAction)orderFrontStandardAboutPanel:(id)sender {
+#if !defined(GOOGLE_CHROME_BUILD)
+  // If not branded behave like a generic Cocoa app.
+  [NSApp orderFrontStandardAboutPanel:sender];
+#else
+  // Otherwise bring up our special dialog (e.g. with an auto-update button).
+  if (!aboutController_) {
+    aboutController_.reset([[AboutWindowController alloc]
+                             initWithWindowNibName:@"About"]);
+    if (!aboutController_) {
+      // If we get here something is wacky.  I managed to do it when
+      // testing by explicitly forcing an auto-update to an older
+      // version then trying to open the about box again (missing
+      // nib).  This shouldn't be possible in general but let's try
+      // hard to not do nothing.
+      [NSApp orderFrontStandardAboutPanel:sender];
+      return;
+    }
+    // Watch for a notification of when it goes away so that we can destroy
+    // the controller.
+    [[NSNotificationCenter defaultCenter]
+        addObserver:self
+           selector:@selector(aboutWindowClosed:)
+               name:kUserClosedAboutNotification
+             object:aboutController_.get()];
+  }
+  if (![[aboutController_ window] isVisible])
+    [[aboutController_ window] center];
+  [aboutController_ showWindow:self];
+#endif
 }
 
 @end
