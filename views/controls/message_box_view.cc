@@ -10,6 +10,7 @@
 #include "base/message_loop.h"
 #include "base/scoped_clipboard_writer.h"
 #include "base/string_util.h"
+#include "grit/generated_resources.h"
 #include "views/controls/button/checkbox.h"
 #include "views/standard_layout.h"
 #include "views/views_delegate.h"

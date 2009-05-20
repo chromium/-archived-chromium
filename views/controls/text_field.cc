@@ -21,7 +21,7 @@
 #include "base/scoped_clipboard_writer.h"
 #include "base/string_util.h"
 #include "base/win_util.h"
-#include "grit/app_strings.h"
+#include "grit/generated_resources.h"
 #include "skia/ext/skia_utils_win.h"
 #include "views/controls/hwnd_view.h"
 #include "views/controls/menu/menu_win.h"
@@ -286,18 +286,18 @@ TextField::Edit::Edit(TextField* parent, bool draw_border)
   text_object_model_ = ole_interface;
 
   context_menu_.reset(new MenuWin(this, Menu::TOPLEFT, m_hWnd));
-  context_menu_->AppendMenuItemWithLabel(IDS_APP_UNDO,
-                                         l10n_util::GetString(IDS_APP_UNDO));
+  context_menu_->AppendMenuItemWithLabel(IDS_UNDO,
+                                         l10n_util::GetString(IDS_UNDO));
   context_menu_->AppendSeparator();
-  context_menu_->AppendMenuItemWithLabel(IDS_APP_CUT,
-                                         l10n_util::GetString(IDS_APP_CUT));
-  context_menu_->AppendMenuItemWithLabel(IDS_APP_COPY,
-                                         l10n_util::GetString(IDS_APP_COPY));
-  context_menu_->AppendMenuItemWithLabel(IDS_APP_PASTE,
-                                         l10n_util::GetString(IDS_APP_PASTE));
+  context_menu_->AppendMenuItemWithLabel(IDS_CUT,
+                                         l10n_util::GetString(IDS_CUT));
+  context_menu_->AppendMenuItemWithLabel(IDS_COPY,
+                                         l10n_util::GetString(IDS_COPY));
+  context_menu_->AppendMenuItemWithLabel(IDS_PASTE,
+                                         l10n_util::GetString(IDS_PASTE));
   context_menu_->AppendSeparator();
-  context_menu_->AppendMenuItemWithLabel(IDS_APP_SELECT_ALL,
-                                         l10n_util::GetString(IDS_APP_SELECT_ALL));
+  context_menu_->AppendMenuItemWithLabel(IDS_SELECT_ALL,
+                                         l10n_util::GetString(IDS_SELECT_ALL));
 }
 
 TextField::Edit::~Edit() {
@@ -373,14 +373,14 @@ void TextField::Edit::SetBackgroundColor(COLORREF bg_color) {
 
 bool TextField::Edit::IsCommandEnabled(int id) const {
   switch (id) {
-    case IDS_APP_UNDO:       return !parent_->IsReadOnly() && !!CanUndo();
-    case IDS_APP_CUT:        return !parent_->IsReadOnly() &&
-                                 !parent_->IsPassword() && !!CanCut();
-    case IDS_APP_COPY:       return !!CanCopy() && !parent_->IsPassword();
-    case IDS_APP_PASTE:      return !parent_->IsReadOnly() && !!CanPaste();
-    case IDS_APP_SELECT_ALL: return !!CanSelectAll();
-    default:                 NOTREACHED();
-                             return false;
+    case IDS_UNDO:       return !parent_->IsReadOnly() && !!CanUndo();
+    case IDS_CUT:        return !parent_->IsReadOnly() &&
+                                !parent_->IsPassword() && !!CanCut();
+    case IDS_COPY:       return !!CanCopy() && !parent_->IsPassword();
+    case IDS_PASTE:      return !parent_->IsReadOnly() && !!CanPaste();
+    case IDS_SELECT_ALL: return !!CanSelectAll();
+    default:             NOTREACHED();
+                         return false;
   }
 }
 
@@ -388,12 +388,12 @@ void TextField::Edit::ExecuteCommand(int id) {
   ScopedFreeze freeze(this, GetTextObjectModel());
   OnBeforePossibleChange();
   switch (id) {
-    case IDS_APP_UNDO:       Undo();       break;
-    case IDS_APP_CUT:        Cut();        break;
-    case IDS_APP_COPY:       Copy();       break;
-    case IDS_APP_PASTE:      Paste();      break;
-    case IDS_APP_SELECT_ALL: SelectAll();  break;
-    default:                 NOTREACHED(); break;
+    case IDS_UNDO:       Undo();       break;
+    case IDS_CUT:        Cut();        break;
+    case IDS_COPY:       Copy();       break;
+    case IDS_PASTE:      Paste();      break;
+    case IDS_SELECT_ALL: SelectAll();  break;
+    default:             NOTREACHED(); break;
   }
   OnAfterPossibleChange();
 }

@@ -13,7 +13,7 @@
 #include "app/l10n_util.h"
 #include "app/resource_bundle.h"
 #include "base/gfx/native_theme.h"
-#include "grit/app_strings.h"
+#include "grit/generated_resources.h"
 #include "views/controls/button/native_button.h"
 #include "views/standard_layout.h"
 #include "views/window/dialog_delegate.h"
@@ -109,7 +109,7 @@ void DialogClientView::ShowDialogButtons() {
     std::wstring label =
         dd->GetDialogButtonLabel(MessageBoxFlags::DIALOGBUTTON_OK);
     if (label.empty())
-      label = l10n_util::GetString(IDS_APP_OK);
+      label = l10n_util::GetString(IDS_OK);
     bool is_default_button =
         (dd->GetDefaultDialogButton() & MessageBoxFlags::DIALOGBUTTON_OK) != 0;
     ok_button_ = new DialogButton(this, window(),
@@ -127,9 +127,9 @@ void DialogClientView::ShowDialogButtons() {
         dd->GetDialogButtonLabel(MessageBoxFlags::DIALOGBUTTON_CANCEL);
     if (label.empty()) {
       if (buttons & MessageBoxFlags::DIALOGBUTTON_OK) {
-        label = l10n_util::GetString(IDS_APP_CANCEL);
+        label = l10n_util::GetString(IDS_CANCEL);
       } else {
-        label = l10n_util::GetString(IDS_APP_CLOSE);
+        label = l10n_util::GetString(IDS_CLOSE);
       }
     }
     bool is_default_button =
