@@ -211,7 +211,6 @@ void DraggedTabGtk::SetContainerShapeMask() {
 gboolean DraggedTabGtk::OnExposeEvent(GtkWidget* widget,
                                       GdkEventExpose* event,
                                       DraggedTabGtk* dragged_tab) {
-  printf("OnExposeEvent\n");
   if (IsScreenComposited()) {
     dragged_tab->SetContainerTransparency();
   } else {
