@@ -1123,8 +1123,6 @@
         'extensions/v8/profiler_extension.cc',
         'extensions/v8/profiler_extension.h',
         'port/bindings/v8/DOMObjectsInclude.h',
-        'port/bindings/v8/JSDOMBinding.cpp',
-        'port/bindings/v8/JSDOMBinding.h',
         'port/bindings/v8/JSXPathNSResolver.cpp',
         'port/bindings/v8/JSXPathNSResolver.h',
         'port/bindings/v8/RGBColor.cpp',

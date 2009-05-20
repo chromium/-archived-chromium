@@ -74,7 +74,6 @@
 #include "HTMLNames.h"
 #include "History.h"
 #include "JSXPathNSResolver.h"
-#include "JSDOMBinding.h"
 #include "KURL.h"
 #include "Location.h"
 #include "MessageChannel.h"
