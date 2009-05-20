@@ -2022,6 +2022,14 @@
                 }],
               ],
             }], # mac_breakpad
+            ['mac_keystone==1', {
+              'copies': [
+                {
+                  'destination': '<(PRODUCT_DIR)/<(mac_product_name).app/Contents/Frameworks/',
+                  'files': ['../third_party/googlemac/Releases/Keystone/KeystoneRegistration.framework'],
+                },
+              ],
+            }], # mac_keystone
           ],
           'product_name': '<(mac_product_name)',
           'xcode_settings': {
@@ -2062,7 +2070,8 @@
               'inputs': [],
               'outputs': [],
               'action': ['<(DEPTH)/build/mac/tweak_app_infoplist',
-                         '-b', '<(mac_breakpad)',
+                         '-b<(mac_breakpad)',
+                         '-k<(mac_keystone)',
                          '<(branding)'],
             },
           ],
@@ -3024,9 +3033,9 @@
     },
   ],
   'conditions': [
-    # We set a feature variable so the different parts that need to check for
-    # the mac build use of breakpad, check that flag instead of coding it based
-    # on branding.
+    # We set feature variables so the different parts that need to check for
+    # the mac build use of breakpad/keystone, check that flag instead of coding
+    # it based on branding.
     # We need the Mac app name on disk, so we stick this into a variable so
     # the different places that need it can use the common variable.
     # NOTE: chrome/app/theme/chromium/BRANDING and
@@ -3036,11 +3045,13 @@
     ['OS=="mac" and branding=="Chrome"', {
       'variables': {
         'mac_breakpad%': 1,
+        'mac_keystone%': 1,
         'mac_product_name%': 'Google Chrome',
       }
     }, {
       'variables': {
         'mac_breakpad%': 0,
+        'mac_keystone%': 0,
         'mac_product_name%': 'Chromium',
       }
     }],

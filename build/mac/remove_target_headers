@@ -1,0 +1,12 @@
+#!/bin/sh
+
+# Copyright (c) 2009 The Chromium Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+set -e
+
+find "${BUILT_PRODUCTS_DIR}/${WRAPPER_NAME}" -iname '*.h' -delete
+find "${BUILT_PRODUCTS_DIR}/${WRAPPER_NAME}" -iname 'Headers' -type l -delete
+find "${BUILT_PRODUCTS_DIR}/${WRAPPER_NAME}" -iname 'Headers' -type d -prune \
+  -delete

@@ -354,6 +354,20 @@
           ['_mac_bundle', {
             'xcode_settings': {'OTHER_LDFLAGS': ['-Wl,-ObjC']},
           }],
+          ['_type=="executable" and _mac_bundle', {
+            'postbuilds': [
+              {
+                'variables': {
+                  # Define remove_target_headers in a variable ending in _path
+                  # so that gyp understands it's a path and performs proper
+                  # relativization during dict merging.
+                  'remove_target_headers_path': 'mac/remove_target_headers',
+                },
+                'postbuild_name': 'Remove Target Headers',
+                'action': ['<(remove_target_headers_path)'],
+              },
+            ],
+          }],
           ['_type=="executable"', {
             'postbuilds': [
               {

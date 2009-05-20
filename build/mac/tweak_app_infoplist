@@ -7,12 +7,16 @@
 set -e
 
 # Pull off the optional args
-INCLUDE_BREAKPAD=0
+USE_BREAKPAD=0
+USE_KEYSTONE=0
 OPTERR=0
-while getopts ":b:" an_opt ; do
+while getopts ":b:k:" an_opt ; do
   case $an_opt in
     b)
-      INCLUDE_BREAKPAD=$OPTARG
+      USE_BREAKPAD=$OPTARG
+      ;;
+    k)
+      USE_KEYSTONE=$OPTARG
       ;;
     \?)
       echo "Unknown option $OPTARG"
@@ -111,7 +115,7 @@ defaults write "${TMP_INFO_PLIST_DEFAULTS}" \
     NSHumanReadableCopyright -string "${COPYRIGHT_STRING}"
 
 # Add/Remove the breakpad keys
-if [ "${INCLUDE_BREAKPAD}" == "1" ] ; then
+if [ "${USE_BREAKPAD}" = "1" ] ; then
   defaults write "${TMP_INFO_PLIST_DEFAULTS}" \
       BreakpadURL "https://clients2.google.com/cr/report"
   defaults write "${TMP_INFO_PLIST_DEFAULTS}" BreakpadReportInterval "3600"
@@ -132,6 +136,22 @@ else
   defaults delete "${TMP_INFO_PLIST_DEFAULTS}" BreakpadVersion || true
   defaults delete "${TMP_INFO_PLIST_DEFAULTS}" BreakpadSendAndExit || true
   defaults delete "${TMP_INFO_PLIST_DEFAULTS}" BreakpadSkipConfirm || true
+fi
+
+# Add/Remove keystone keys (only supported in release builds)
+if [ "${USE_KEYSTONE}" = "1" ] && [ "${CONFIGURATION}" = "Release" ] ; then
+  KEYSTONE_URL="https://tools.google.com/service/update2"
+  KEYSTONE_APP_ID=$(defaults read "${TMP_INFO_PLIST_DEFAULTS}" \
+                                                            CFBundleIdentifier)
+  defaults write "${TMP_INFO_PLIST_DEFAULTS}" \
+      KSVersion -string "${FULL_VERSION}"
+  defaults write "${TMP_INFO_PLIST_DEFAULTS}" KSProductID "${KEYSTONE_APP_ID}"
+  defaults write "${TMP_INFO_PLIST_DEFAULTS}" KSUpdateURL "${KEYSTONE_URL}"
+else
+  # Make sure the keys aren't there, || true to avoid errors if they aren't.
+  defaults delete "${TMP_INFO_PLIST_DEFAULTS}" KSVersion || true
+  defaults delete "${TMP_INFO_PLIST_DEFAULTS}" KSProductID || true
+  defaults delete "${TMP_INFO_PLIST_DEFAULTS}" KSUpdateURL || true
 fi
 
 # Info.plist will work perfectly well in any plist format, but traditionally
