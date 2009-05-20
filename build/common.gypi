@@ -114,6 +114,7 @@
             },
             'msvs_settings': {
               'VCCLCompilerTool': {
+                'AdditionalOptions': '/MP',
                 'Optimization': '0',
                 'PreprocessorDefinitions': ['_DEBUG'],
                 'BasicRuntimeChecks': '3',
@@ -408,6 +409,7 @@
         'msvs_disabled_warnings': [4396, 4503, 4819],
         'msvs_settings': {
           'VCCLCompilerTool': {
+            'AdditionalOptions': '/MP',
             'MinimalRebuild': 'false',
             'ExceptionHandling': '0',
             'BufferSecurityCheck': 'true',
