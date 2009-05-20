@@ -76,21 +76,21 @@ class DevToolsSanityTest : public InProcessBrowserTest {
 };
 
 // WebInspector opens.
-IN_PROC_BROWSER_TEST_F(DevToolsSanityTest, OpenWebInspector) {
+IN_PROC_BROWSER_TEST_F(DevToolsSanityTest, DISABLED_OpenWebInspector) {
   OpenWebInspector(kSimplePage);
   AssertTrue("typeof DevToolsHost == 'object' && !DevToolsHost.isStub");
   AssertTrue("!!doc.documentElement");
 }
 
 // Tests elements panel basics.
-IN_PROC_BROWSER_TEST_F(DevToolsSanityTest, ElementsPanel) {
+IN_PROC_BROWSER_TEST_F(DevToolsSanityTest, DISABLED_ElementsPanel) {
   OpenWebInspector(kSimplePage);
   AssertEquals("HTML", "doc.documentElement.nodeName");
   AssertTrue("doc.documentElement.hasChildNodes()");
 }
 
 // Tests resources panel basics.
-IN_PROC_BROWSER_TEST_F(DevToolsSanityTest, ResourcesPanel) {
+IN_PROC_BROWSER_TEST_F(DevToolsSanityTest, DISABLED_ResourcesPanel) {
   OpenWebInspector(kSimplePage);
   std::string func =
       "function() {"
