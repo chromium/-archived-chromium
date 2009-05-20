@@ -297,8 +297,29 @@ void MenuGtk::SetMenuItemInfo(GtkWidget* widget, gpointer userdata) {
 
   if (GTK_IS_CHECK_MENU_ITEM(widget)) {
     GtkCheckMenuItem* item = GTK_CHECK_MENU_ITEM(widget);
+
+    // gtk_check_menu_item_set_active() will send the activate signal. Touching
+    // the underlying "active" property will also call the "activate" handler
+    // for this menu item. So we prevent the correct activate handler from
+    // being called while we set the checkbox.
+    if (data) {
+      g_signal_handlers_block_by_func(
+          item, reinterpret_cast<void*>(OnMenuItemActivated), userdata);
+    } else {
+      g_signal_handlers_block_by_func(
+          item, reinterpret_cast<void*>(OnMenuItemActivatedById), userdata);
+    }
+
     gtk_check_menu_item_set_active(
         item, menu->delegate_->IsItemChecked(id));
+
+    if (data) {
+      g_signal_handlers_unblock_by_func(
+          item, reinterpret_cast<void*>(OnMenuItemActivated), userdata);
+    } else {
+      g_signal_handlers_unblock_by_func(
+          item, reinterpret_cast<void*>(OnMenuItemActivatedById), userdata);
+    }
   }
 
   if (GTK_IS_MENU_ITEM(widget)) {
