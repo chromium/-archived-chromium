@@ -258,6 +258,9 @@ SVG_POD_NATIVE_TYPES(MAKE_CASE)
 
 void V8Proxy::SetSVGContext(void* obj, SVGElement* context)
 {
+  if (obj == NULL)
+    return;
+
   SVGElement* old_context = svg_object_to_context_map().get(obj);
 
   if (old_context == context)
