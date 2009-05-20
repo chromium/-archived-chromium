@@ -660,4 +660,25 @@ willPositionSheet:(NSWindow *)sheet
   return [views arrayByAddingObjectsFromArray:browserViews];
 }
 
+// Undocumented method for multi-touch gestures in 10.5. Future OS's will
+// likely add a public API, but the worst that will happen is that this will
+// turn into dead code and just won't get called.
+- (void)swipeWithEvent:(NSEvent*)event {
+  // Map forwards and backwards to history; left is positive, right is negative.
+  unsigned int command = 0;
+  if ([event deltaX] > 0.5)
+    command = IDC_BACK;
+  else if ([event deltaX] < -0.5)
+    command = IDC_FORWARD;
+  else if ([event deltaY] > 0.5)
+    ;  // TODO(pinkerton): figure out page-up
+  else if ([event deltaY] < -0.5)
+    ;  // TODO(pinkerton): figure out page-down
+
+  // Ensure the command is valid first (ExecuteCommand() won't do that) and
+  // then make it so.
+  if (browser_->command_updater()->IsCommandEnabled(command))
+    browser_->ExecuteCommand(command);
+}
+
 @end
