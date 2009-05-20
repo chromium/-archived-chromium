@@ -16,6 +16,7 @@
 #include "chrome/browser/bookmarks/bookmark_utils.h"
 #include "chrome/browser/browser.h"
 #include "chrome/browser/gtk/custom_button.h"
+#include "chrome/browser/gtk/dnd_registry.h"
 #include "chrome/browser/gtk/gtk_chrome_button.h"
 #include "chrome/browser/metrics/user_metrics.h"
 #include "chrome/browser/profile.h"
@@ -42,19 +43,13 @@ const int kBitsInAByte = 8;
 // Dictionary key used to store a BookmarkNode* on a GtkWidget.
 const char kBookmarkNode[] = "bookmark-node";
 
-// Integers representing the various types of items that the bookmark bar
-// accepts as DnD types.
-enum BookmarkType {
-  DROP_TARGET_INTERNAL
-};
-
 // Mime types for DnD. Used to synchronize across applications.
 const char kInternalURIType[] = "application/x-chrome-bookmark-item";
 
 // Table of the mime types that we accept with their options.
 const GtkTargetEntry kTargetTable[] = {
   { const_cast<char*>(kInternalURIType), GTK_TARGET_SAME_APP,
-    DROP_TARGET_INTERNAL }
+    dnd::X_CHROME_BOOKMARK_ITEM }
   // TODO(erg): Add "text/uri-list" support.
 };
 
@@ -581,7 +576,7 @@ void BookmarkBarGtk::OnButtonDragGet(GtkWidget* widget, GdkDragContext* context,
   DCHECK(node);
 
   switch (target_type) {
-    case DROP_TARGET_INTERNAL: {
+    case dnd::X_CHROME_BOOKMARK_ITEM: {
       BookmarkDragData data(node);
       Pickle pickle;
       data.WriteToPickle(bar->profile_, &pickle);
@@ -649,6 +644,14 @@ gboolean BookmarkBarGtk::OnToolbarDragMotion(GtkToolbar* toolbar,
                                              gint y,
                                              guint time,
                                              BookmarkBarGtk* bar) {
+  GdkAtom target_type =
+      gtk_drag_dest_find_target(GTK_WIDGET(toolbar), context, NULL);
+  if (target_type == GDK_NONE) {
+    // We shouldn't act like a drop target when something that we can't deal
+    // with is dragged over the toolbar.
+    return FALSE;
+  }
+
   if (!bar->toolbar_drop_item_) {
     bar->toolbar_drop_item_ = bar->CreateBookmarkToolItem(bar->dragged_node_);
     g_object_ref_sink(GTK_OBJECT(bar->toolbar_drop_item_));
@@ -685,7 +688,7 @@ gboolean BookmarkBarGtk::OnToolbarDragDrop(
   if (context->targets) {
     GdkAtom target_type =
         GDK_POINTER_TO_ATOM(g_list_nth_data(context->targets,
-                                            DROP_TARGET_INTERNAL));
+                                            dnd::X_CHROME_BOOKMARK_ITEM));
     gtk_drag_get_data(widget, context, target_type, time);
 
     is_valid_drop_site = TRUE;
@@ -711,7 +714,7 @@ void BookmarkBarGtk::OnToolbarDragReceived(GtkWidget* widget,
     }
 
     switch (target_type) {
-      case DROP_TARGET_INTERNAL: {
+      case dnd::X_CHROME_BOOKMARK_ITEM: {
         Pickle pickle(reinterpret_cast<char*>(selection_data->data),
                       selection_data->length);
         BookmarkDragData drag_data;

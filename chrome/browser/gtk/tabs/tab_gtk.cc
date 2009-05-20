@@ -7,6 +7,7 @@
 #include "app/gfx/path.h"
 #include "app/l10n_util.h"
 #include "app/resource_bundle.h"
+#include "chrome/browser/gtk/dnd_registry.h"
 #include "chrome/browser/gtk/menu_gtk.h"
 #include "grit/generated_resources.h"
 #include "grit/theme_resources.h"
@@ -15,7 +16,8 @@ namespace {
 
 // The targets available for drag n' drop.
 GtkTargetEntry target_table[] = {
-  { const_cast<char*>("application/x-chrome-tab"), GTK_TARGET_SAME_APP, 0 }
+  { const_cast<char*>("application/x-chrome-tab"), GTK_TARGET_SAME_APP,
+    dnd::X_CHROME_TAB }
 };
 
 }  // namespace
