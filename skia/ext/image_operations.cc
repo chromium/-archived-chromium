@@ -11,8 +11,10 @@
 
 #include "base/gfx/rect.h"
 #include "base/gfx/size.h"
+#include "base/histogram.h"
 #include "base/logging.h"
 #include "base/stack_container.h"
+#include "base/time.h"
 #include "third_party/skia/include/core/SkBitmap.h"
 #include "third_party/skia/include/core/SkColorPriv.h"
 #include "skia/ext/convolver.h"
@@ -260,6 +262,9 @@ SkBitmap ImageOperations::Resize(const SkBitmap& source,
                                  ResizeMethod method,
                                  int dest_width, int dest_height,
                                  const gfx::Rect& dest_subset) {
+  // Time how long this takes to see if it's a problem for users.
+  base::TimeTicks resize_start = base::TimeTicks::Now();
+
   DCHECK(gfx::Rect(dest_width, dest_height).Contains(dest_subset)) <<
       "The supplied subset does not fall within the destination image.";
 
@@ -291,6 +296,9 @@ SkBitmap ImageOperations::Resize(const SkBitmap& source,
 
   // Preserve the "opaque" flag for use as an optimization later.
   result.setIsOpaque(source.isOpaque());
+
+  base::TimeDelta delta = base::TimeTicks::Now() - resize_start;
+  UMA_HISTOGRAM_TIMES("Image.ResampleMS", delta);
 
   return result;
 }
