@@ -71,6 +71,11 @@
             '../third_party/libevent/libevent.gyp:*',
           ],
         }],
+        ['OS=="win" or (OS=="linux" and toolkit_views==1)', {
+          'dependencies': [
+            '../views/views.gyp:*',
+          ],
+        }],
         ['all_gyps', {
           'dependencies': [
             '../chrome/chrome.gyp:*',
