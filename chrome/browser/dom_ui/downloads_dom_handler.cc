@@ -5,6 +5,7 @@
 #include "chrome/browser/dom_ui/downloads_dom_handler.h"
 
 #include "app/l10n_util.h"
+#include "base/basictypes.h"
 #include "base/gfx/png_encoder.h"
 #include "base/string_piece.h"
 #include "base/thread.h"
@@ -12,10 +13,6 @@
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/dom_ui/chrome_url_data_manager.h"
 #include "chrome/browser/dom_ui/fileicon_source.h"
-#if defined(OS_WIN)
-// TODO(port): re-enable when download_util is ported
-#include "chrome/browser/download/download_util.h"
-#endif
 #include "chrome/browser/metrics/user_metrics.h"
 #include "chrome/browser/profile.h"
 #include "chrome/common/jstemplate_builder.h"
@@ -23,6 +20,13 @@
 #include "chrome/common/url_constants.h"
 #include "grit/browser_resources.h"
 #include "grit/generated_resources.h"
+
+#if defined(OS_WIN)
+// TODO(port): re-enable when download_util is ported
+#include "chrome/browser/download/download_util.h"
+#else
+#include "chrome/common/temp_scaffolding_stubs.h"
+#endif
 
 namespace {
 

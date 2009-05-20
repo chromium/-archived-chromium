@@ -10,11 +10,13 @@
 #include "app/animation.h"
 #include "base/scoped_ptr.h"
 #include "chrome/browser/download/download_manager.h"
+#include "chrome/browser/icon_manager.h"
 
 class BaseDownloadItemModel;
 class DownloadShelfContextMenuGtk;
 class DownloadShelfGtk;
 class NineBox;
+class SkBitmap;
 class SlideAnimation;
 
 class DownloadItemGtk : public DownloadItem::Observer,
@@ -35,6 +37,10 @@ class DownloadItemGtk : public DownloadItem::Observer,
   // AnimationDelegate implementation.
   virtual void AnimationProgressed(const Animation* animation);
 
+  // Called when the icon manager has finished loading the icon. We take
+  // ownership of |icon_bitmap|.
+  void OnLoadIconComplete(IconManager::Handle handle, SkBitmap* icon_bitmap);
+
  private:
   // Functions for controlling the progress animation.
   // Repaint the download progress.
@@ -45,6 +51,9 @@ class DownloadItemGtk : public DownloadItem::Observer,
 
   // Stops the repeating timer.
   void StopDownloadProgress();
+
+  // Ask the icon manager to asynchronously start loading the icon for the file.
+  void LoadIcon();
 
   static void InitNineBoxes();
 
@@ -124,6 +133,12 @@ class DownloadItemGtk : public DownloadItem::Observer,
 
   // Animation for download complete.
   scoped_ptr<SlideAnimation> complete_animation_;
+
+  // The file icon for the download. May be null.
+  SkBitmap* icon_;
+
+  // For canceling an in progress icon request.
+  CancelableRequestConsumerT<int, 0> icon_consumer_;
 };
 
 #endif  // CHROME_BROWSER_GTK_DOWNLOAD_ITEM_GTK_H_

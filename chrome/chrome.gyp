@@ -1529,7 +1529,6 @@
             'browser/bookmarks/bookmark_context_menu.cc',
             'browser/bookmarks/bookmark_drop_info.cc',
             'browser/debugger/debugger_shell_stubs.cc',
-            'browser/icon_manager.cc',
           ],
           'sources': [
             # Build the necessary GTM sources

@@ -4,9 +4,8 @@
 
 #include "chrome/browser/icon_manager.h"
 
-#include "base/file_path.h"
+#include "base/mime_util.h"
 
 IconGroupID IconManager::GetGroupIDFromFilepath(const FilePath& filepath) {
-  NOTIMPLEMENTED();
-  return std::string();
+  return mime_util::GetFileMimeType(filepath);
 }

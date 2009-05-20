@@ -11,6 +11,7 @@
 #include "base/basictypes.h"
 #include "base/string_util.h"
 #include "base/time.h"
+#include "chrome/browser/browser_process.h"
 #include "chrome/browser/download/download_item_model.h"
 #include "chrome/browser/download/download_manager.h"
 #include "chrome/browser/download/download_shelf.h"
@@ -21,6 +22,7 @@
 #include "chrome/common/gtk_util.h"
 #include "grit/generated_resources.h"
 #include "grit/theme_resources.h"
+#include "third_party/skia/include/core/SkBitmap.h"
 
 namespace {
 
@@ -148,8 +150,10 @@ DownloadItemGtk::DownloadItemGtk(DownloadShelfGtk* parent_shelf,
     : parent_shelf_(parent_shelf),
       progress_angle_(download_util::kStartAngleDegrees),
       download_model_(download_model),
-      bounding_widget_(parent_shelf->GetRightBoundingWidget()) {
+      bounding_widget_(parent_shelf->GetRightBoundingWidget()),
+      icon_(NULL) {
   InitNineBoxes();
+  LoadIcon();
 
   body_ = gtk_button_new();
   gtk_widget_set_app_paintable(body_, TRUE);
@@ -326,6 +330,21 @@ void DownloadItemGtk::StopDownloadProgress() {
   progress_timer_.Stop();
 }
 
+// Icon loading functions.
+
+void DownloadItemGtk::OnLoadIconComplete(IconManager::Handle handle,
+                                         SkBitmap* icon_bitmap) {
+  icon_ = icon_bitmap;
+  gtk_widget_queue_draw(progress_area_);
+}
+
+void DownloadItemGtk::LoadIcon() {
+  IconManager* im = g_browser_process->icon_manager();
+  im->LoadIcon(download_model_->download()->full_path(),
+               IconLoader::SMALL, &icon_consumer_,
+               NewCallback(this, &DownloadItemGtk::OnLoadIconComplete));
+}
+
 // static
 void DownloadItemGtk::InitNineBoxes() {
   if (body_nine_box_normal_)
@@ -422,7 +441,13 @@ gboolean DownloadItemGtk::OnProgressAreaExpose(GtkWidget* widget,
         download_util::SMALL);
   }
 
-  // TODO(estade): paint download icon.
+  // TODO(estade): draw a default icon if |icon_| is null.
+  if (download_item->icon_) {
+    canvas.DrawBitmapInt(*download_item->icon_,
+        widget->allocation.x + download_util::kSmallProgressIconOffset,
+        widget->allocation.y + download_util::kSmallProgressIconOffset);
+  }
+
   return TRUE;
 }
 

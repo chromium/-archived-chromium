@@ -15,7 +15,7 @@ namespace mime_util {
 // have to exist. Please note because it doesn't touch the disk, this does not
 // work for directories.
 // If the mime type is unknown, this will return application/octet-stream.
-std::string GetFileMimeType(const std::string& file_path);
+std::string GetFileMimeType(const FilePath& filepath);
 
 // Gets the file name for an icon given the mime type and icon pixel size.
 // Where an icon is a square image of |size| x |size|.

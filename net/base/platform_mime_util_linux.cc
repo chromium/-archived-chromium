@@ -18,12 +18,12 @@ bool PlatformMimeUtil::GetPlatformMimeTypeFromExtension(
   if (ext == "pl")
     return false;
 
-  FilePath::StringType dummy_path = "foo." + ext;
+  FilePath dummy_path("foo." + ext);
   std::string out = mime_util::GetFileMimeType(dummy_path);
 
   // GetFileMimeType likes to return application/octet-stream
   // for everything it doesn't know - ignore that.
-  if (out == "application/octet-stream" || !out.length())
+  if (out == "application/octet-stream" || out.empty())
     return false;
 
   // GetFileMimeType returns image/x-ico because that's what's in the XDG

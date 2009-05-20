@@ -17,6 +17,7 @@
 #include "chrome/browser/download/download_file.h"
 #include "chrome/browser/download/save_file_manager.h"
 #include "chrome/browser/google_url_tracker.h"
+#include "chrome/browser/icon_manager.h"
 #include "chrome/browser/metrics/metrics_service.h"
 #include "chrome/browser/net/dns_global.h"
 #include "chrome/browser/net/sdch_dictionary_fetcher.h"
@@ -33,7 +34,6 @@
 
 #if defined(OS_WIN)
 #include "chrome/browser/automation/automation_provider_list.h"
-#include "chrome/browser/icon_manager.h"
 #include "chrome/browser/printing/print_job_manager.h"
 #include "views/focus/view_storage.h"
 #include "views/widget/accelerator_handler.h"

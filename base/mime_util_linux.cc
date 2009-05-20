@@ -21,6 +21,9 @@
 
 namespace {
 
+// Toggles whether we can handle SVG icons. See http://crbug.com/12272
+const bool kEnableSVG = false;
+
 class IconTheme;
 
 class MimeUtilConstants {
@@ -435,7 +438,7 @@ void EnsureUpdated() {
     constants->icon_dirs = new std::map<FilePath, int>;
     constants->icon_themes = new std::map<std::string, IconTheme*>;
     constants->icon_formats = new std::vector<std::string>;
-    EnableSvgIcon(true);
+    EnableSvgIcon(kEnableSVG);
     InitIconDir();
     constants->last_check_time = now;
   } else {
@@ -467,6 +470,9 @@ FilePath LookupFallbackIcon(const std::string& icon_name) {
 void InitDefaultThemes() {
   IconTheme** default_themes =
       Singleton<MimeUtilConstants>::get()->default_themes;
+  for (size_t i = 0; i < MimeUtilConstants::kDefaultThemeNum; ++i)
+    default_themes[i] = NULL;
+
   // TODO(thestig): There is no standard way to know about the current icon
   // theme. So just make a guess. We may be able to do this better. If so,
   // upstream fix to Google Gadgets for Linux.
@@ -500,11 +506,12 @@ FilePath LookupIconInDefaultTheme(const std::string& icon_name, int size) {
   EnsureUpdated();
   MimeUtilConstants* constants = Singleton<MimeUtilConstants>::get();
   std::map<std::string, IconTheme*>* icon_themes = constants->icon_themes;
-  if (icon_themes->size() == 0) InitDefaultThemes();
+  if (icon_themes->size() == 0)
+    InitDefaultThemes();
 
   FilePath icon_path;
   IconTheme** default_themes = constants->default_themes;
-  for (size_t i = 0; i < constants->kDefaultThemeNum; i++) {
+  for (size_t i = 0; i < MimeUtilConstants::kDefaultThemeNum; i++) {
     if (default_themes[i]) {
       icon_path = default_themes[i]->GetIconPath(icon_name, size, true);
       if (!icon_path.empty())
@@ -526,8 +533,8 @@ MimeUtilConstants::~MimeUtilConstants() {
 
 namespace mime_util {
 
-std::string GetFileMimeType(const std::string& file_path) {
-  return xdg_mime_get_mime_type_from_file_name(file_path.c_str());
+std::string GetFileMimeType(const FilePath& filepath) {
+  return xdg_mime_get_mime_type_from_file_name(filepath.value().c_str());
 }
 
 FilePath GetMimeIcon(const std::string& mime_type, size_t size) {
