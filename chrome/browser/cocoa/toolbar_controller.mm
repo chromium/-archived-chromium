@@ -112,9 +112,13 @@ static NSString* const kStarredImageName = @"starred";
 
 - (void)setIsLoading:(BOOL)isLoading {
   NSString* imageName = @"go";
-  if (isLoading)
+  NSInteger tag = IDC_GO;
+  if (isLoading) {
     imageName = @"stop";
+    tag = IDC_STOP;
+  }
   [goButton_ setImage:[NSImage imageNamed:imageName]];
+  [goButton_ setTag:tag];
 }
 
 // Returns an array of views in the order of the outlets above.

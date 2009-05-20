@@ -100,6 +100,15 @@ TEST_F(ToolbarControllerTest, Display) {
 
 TEST_F(ToolbarControllerTest, LoadingState) {
   // TODO(pinkerton): Same problem testing this as the starred state above.
+
+  // In its initial state, the go button has a tag of IDC_GO. When loading,
+  // it should be IDC_STOP.
+  NSButton* go = [[bar_ toolbarViews] objectAtIndex:kGoIndex];
+  EXPECT_EQ([go tag], IDC_GO);
+  [bar_ setIsLoading:YES];
+  EXPECT_EQ([go tag], IDC_STOP);
+  [bar_ setIsLoading:NO];
+  EXPECT_EQ([go tag], IDC_GO);
 }
 
 }  // namespace
