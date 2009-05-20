@@ -290,15 +290,18 @@ void WidgetWin::PaintNow(const gfx::Rect& update_rect) {
     } else {
       // Paint child windows that are in a different process asynchronously.
       // This prevents a hang in other processes from blocking this process.
-      ::RedrawWindow(hwnd_, &update_rect.ToRECT(), NULL,
-                     RDW_INVALIDATE | RDW_UPDATENOW | RDW_NOCHILDREN);
 
-      // Send the invalid rect in screen coordinates.
+      // Calculate the invalid rect in screen coordinates before  the first
+      // RedrawWindow call to the parent HWND, since that will empty update_rect
+      // (which comes from a member variable) in the OnPaint call.
       CRect screen_rect_temp;
       GetWindowRect(&screen_rect_temp);
       gfx::Rect screen_rect(screen_rect_temp);
       gfx::Rect invalid_screen_rect = update_rect;
       invalid_screen_rect.Offset(screen_rect.x(), screen_rect.y());
+
+      ::RedrawWindow(hwnd_, &update_rect.ToRECT(), NULL,
+                     RDW_INVALIDATE | RDW_UPDATENOW | RDW_NOCHILDREN);
 
       LPARAM lparam = reinterpret_cast<LPARAM>(&invalid_screen_rect);
       EnumChildWindows(hwnd_, EnumChildProcForRedraw, lparam);
