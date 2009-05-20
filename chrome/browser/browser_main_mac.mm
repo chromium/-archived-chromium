@@ -28,7 +28,7 @@ void WillInitializeMainMessageLoop(const CommandLine & command_line) {
 
   // Doesn't need to be in a GOOGLE_CHROME_BUILD since this references
   // a framework only distributed with Google Chrome.
-  [KeystoneGlue registerWithKeystone];
+  [[KeystoneGlue defaultKeystoneGlue] registerWithKeystone];
 
   // TODO(port): Use of LSUIElement=1 is a temporary fix.  The right
   // answer is to fix the renderer to not use Cocoa.
