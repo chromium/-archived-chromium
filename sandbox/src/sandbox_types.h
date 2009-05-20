@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
+// Copyright (c) 2006-2009 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
@@ -31,6 +31,12 @@ enum ResultCode {
   SBOX_ERROR_WAIT_ALREADY_CALLED = 9,
   // A channel error prevented DoCall from executing.
   SBOX_ERROR_CHANNEL_ERROR = 10,
+  // Failed to create the alternate desktop.
+  SBOX_ERROR_CANNOT_CREATE_DESKTOP = 11,
+  // Failed to create the alternate window station.
+  SBOX_ERROR_CANNOT_CREATE_WINSTATION = 12,
+  // Failed to switch back to the interactive window station.
+  SBOX_ERROR_FAILED_TO_SWITCH_BACK_WINSTATION = 13,
   // Placeholder for last item of the enum.
   SBOX_ERROR_LAST
 };

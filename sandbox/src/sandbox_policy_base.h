@@ -1,11 +1,11 @@
-// Copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
+// Copyright (c) 2006-2009 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
 #ifndef SANDBOX_SRC_SANDBOX_POLICY_BASE_H_
 #define SANDBOX_SRC_SANDBOX_POLICY_BASE_H_
 
-#include <Windows.h>
+#include <windows.h>
 #include <list>
 
 #include "base/basictypes.h"
@@ -57,9 +57,26 @@ class PolicyBase : public Dispatcher, public TargetPolicy {
     return SBOX_ALL_OK;
   }
 
-  virtual ResultCode SetDesktop(const wchar_t* desktop) {
-    desktop_ = desktop;
-    return SBOX_ALL_OK;
+  virtual ResultCode SetAlternateDesktop(bool alternate_winstation) {
+    use_alternate_desktop_ = true;
+    use_alternate_winstation_ = alternate_winstation;
+    return CreateAlternateDesktop(alternate_winstation);
+  }
+
+  virtual std::wstring GetAlternateDesktop() const;
+
+  virtual ResultCode CreateAlternateDesktop(bool alternate_winstation);
+
+  virtual void DestroyAlternateDesktop() {
+    if (alternate_desktop_handle_) {
+      ::CloseDesktop(alternate_desktop_handle_);
+      alternate_desktop_handle_ = NULL;
+    }
+
+    if (alternate_winstation_handle_) {
+      ::CloseWindowStation(alternate_winstation_handle_);
+      alternate_winstation_handle_ = NULL;
+    }
   }
 
   virtual ResultCode SetIntegrityLevel(IntegrityLevel integrity_level) {
@@ -82,10 +99,6 @@ class PolicyBase : public Dispatcher, public TargetPolicy {
   virtual ResultCode AddDllToUnload(const wchar_t* dll_name) {
     blacklisted_dlls_.push_back(std::wstring(dll_name));
     return SBOX_ALL_OK;
-  }
-
-  std::wstring GetDesktop() const {
-    return desktop_;
   }
 
   // Creates a Job object with the level specified in a previous call to
@@ -133,7 +146,8 @@ class PolicyBase : public Dispatcher, public TargetPolicy {
   TokenLevel initial_level_;
   JobLevel job_level_;
   uint32 ui_exceptions_;
-  std::wstring desktop_;
+  bool use_alternate_desktop_;
+  bool use_alternate_winstation_;
   IntegrityLevel integrity_level_;
   IntegrityLevel delayed_integrity_level_;
   // The array of objects that will answer IPC calls.
@@ -148,6 +162,9 @@ class PolicyBase : public Dispatcher, public TargetPolicy {
   bool relaxed_interceptions_;
   // The list of dlls to unload in the target process.
   std::vector<std::wstring> blacklisted_dlls_;
+
+  static HDESK alternate_desktop_handle_;
+  static HWINSTA alternate_winstation_handle_;
 
   DISALLOW_COPY_AND_ASSIGN(PolicyBase);
 };

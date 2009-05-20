@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
+// Copyright (c) 2006-2009 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
@@ -291,6 +291,27 @@ int BrowserMain(const MainFunctionParams& parameters) {
   // BrowserProcessImpl's constructor should set g_browser_process.
   DCHECK(g_browser_process);
 
+#if defined(OS_WIN)
+  // IMPORTANT: This piece of code needs to run as early as possible in the
+  // process because it will initialize the sandbox broker, which requires the
+  // process to swap its window station. During this time all the UI will be
+  // broken. This has to run before threads and windows are created.
+  sandbox::BrokerServices* broker_services =
+      parameters.sandbox_info_.BrokerServices();
+  if (broker_services) {
+    browser_process->InitBrokerServices(broker_services);
+    if (!parsed_command_line.HasSwitch(switches::kNoSandbox)) {
+      bool use_winsta = !parsed_command_line.HasSwitch(
+                            switches::kDisableAltWinstation);
+      // Precreate the desktop and window station used by the renderers.
+      sandbox::TargetPolicy* policy = broker_services->CreatePolicy();
+      sandbox::ResultCode result = policy->CreateAlternateDesktop(use_winsta);
+      CHECK(sandbox::SBOX_ERROR_FAILED_TO_SWITCH_BACK_WINSTATION != result);
+      policy->Release();
+    }
+  }
+#endif
+
   std::wstring local_state_path;
   PathService::Get(chrome::FILE_LOCAL_STATE, &local_state_path);
   bool local_state_file_exists = file_util::PathExists(local_state_path);
@@ -573,11 +594,6 @@ int BrowserMain(const MainFunctionParams& parameters) {
 
 #if defined(OS_WIN)
   RegisterExtensionProtocols();
-
-  sandbox::BrokerServices* broker_services =
-      parameters.sandbox_info_.BrokerServices();
-  if (broker_services)
-    browser_process->InitBrokerServices(broker_services);
 #endif
 
   // In unittest mode, this will do nothing.  In normal mode, this will create

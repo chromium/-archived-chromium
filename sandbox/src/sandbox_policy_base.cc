@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
+// Copyright (c) 2006-2009 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
@@ -24,6 +24,7 @@
 #include "sandbox/src/sync_dispatcher.h"
 #include "sandbox/src/sync_policy.h"
 #include "sandbox/src/target_process.h"
+#include "sandbox/src/window.h"
 
 namespace {
 // The standard windows size for one memory page.
@@ -48,6 +49,10 @@ namespace sandbox {
 
 SANDBOX_INTERCEPT IntegrityLevel g_shared_delayed_integrity_level;
 
+// Initializes static members.
+HWINSTA PolicyBase::alternate_winstation_handle_ = NULL;
+HDESK PolicyBase::alternate_desktop_handle_ = NULL;
+
 PolicyBase::PolicyBase()
     : ref_count(1),
       lockdown_level_(USER_LOCKDOWN),
@@ -58,7 +63,9 @@ PolicyBase::PolicyBase()
       policy_(NULL),
       policy_maker_(NULL),
       file_system_init_(false),
-      relaxed_interceptions_(true) {
+      relaxed_interceptions_(true),
+      use_alternate_desktop_(false),
+      use_alternate_winstation_(false) {
   ::InitializeCriticalSection(&lock_);
   // Initialize the IPC dispatcher array.
   memset(&ipc_targets_, NULL, sizeof(ipc_targets_));
@@ -129,6 +136,81 @@ DWORD PolicyBase::MakeTokens(HANDLE* initial, HANDLE* lockdown) {
     ::CloseHandle(*lockdown);
     return result;
   }
+  return SBOX_ALL_OK;
+}
+
+std::wstring PolicyBase::GetAlternateDesktop() const {
+  // No alternate desktop or winstation. Return an empty string.
+  if (!use_alternate_desktop_ && !use_alternate_winstation_) {
+    return std::wstring();
+  }
+
+  // The desktop and winstation should have been created by now.
+  // If we hit this scenario, it means that the user ignored the failure
+  // during SetAlternateDesktop, so we ignore it here too.
+  if (use_alternate_desktop_ && !alternate_desktop_handle_) {
+    return std::wstring();
+  }
+  if (use_alternate_winstation_ && (!alternate_desktop_handle_ ||
+                                    !alternate_winstation_handle_)) {
+    return std::wstring();
+  }
+
+  return GetFullDesktopName(alternate_winstation_handle_,
+                            alternate_desktop_handle_);
+}
+
+ResultCode PolicyBase::CreateAlternateDesktop(bool alternate_winstation) {
+  if (alternate_winstation) {
+    // Previously called with alternate_winstation = false?
+    if (!alternate_winstation_handle_ && alternate_desktop_handle_)
+      return SBOX_ERROR_UNSUPPORTED;
+
+    // Check if it's already created.
+    if (alternate_winstation_handle_ && alternate_desktop_handle_)
+      return SBOX_ALL_OK;
+
+    DCHECK(!alternate_winstation_handle_);
+    // Create the window station.
+    ResultCode result = CreateAltWindowStation(&alternate_winstation_handle_);
+    if (SBOX_ALL_OK != result)
+      return result;
+
+    // Verify that everything is fine.
+    if (!alternate_winstation_handle_ ||
+        GetWindowObjectName(alternate_winstation_handle_).empty())
+      return SBOX_ERROR_CANNOT_CREATE_DESKTOP;
+
+    // Create the destkop.
+    result = CreateAltDesktop(alternate_winstation_handle_,
+                              &alternate_desktop_handle_);
+    if (SBOX_ALL_OK != result)
+      return result;
+
+    // Verify that everything is fine.
+    if (!alternate_desktop_handle_ ||
+        GetWindowObjectName(alternate_desktop_handle_).empty())
+      return SBOX_ERROR_CANNOT_CREATE_DESKTOP;
+  } else {
+    // Previously called with alternate_winstation = true?
+    if (alternate_winstation_handle_)
+      return SBOX_ERROR_UNSUPPORTED;
+
+    // Check if it already exists.
+    if (alternate_desktop_handle_)
+      return SBOX_ALL_OK;
+
+    // Create the destkop.
+    ResultCode result = CreateAltDesktop(NULL, &alternate_desktop_handle_);
+    if (SBOX_ALL_OK != result)
+      return result;
+
+    // Verify that everything is fine.
+    if (!alternate_desktop_handle_ ||
+        GetWindowObjectName(alternate_desktop_handle_).empty())
+      return SBOX_ERROR_CANNOT_CREATE_DESKTOP;
+  }
+
   return SBOX_ALL_OK;
 }
 

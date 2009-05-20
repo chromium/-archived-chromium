@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
+// Copyright (c) 2006-2009 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
@@ -509,7 +509,7 @@ bool MainUIWindow::SpawnTarget() {
   policy->SetJobLevel(sandbox::JOB_LOCKDOWN, 0);
   policy->SetTokenLevel(sandbox::USER_RESTRICTED_SAME_ACCESS,
                         sandbox::USER_LOCKDOWN);
-  policy->SetDesktop(L"random_desktop_name");
+  policy->SetAlternateDesktop(true);
   policy->SetDelayedIntegrityLevel(sandbox::INTEGRITY_LEVEL_LOW);
 
   // Set the rule to allow the POC dll to be loaded by the target. Note that

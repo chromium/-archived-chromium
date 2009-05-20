@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
+// Copyright (c) 2006-2009 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
@@ -83,7 +83,6 @@ TargetProcess::TargetProcess(HANDLE initial_token, HANDLE lockdown_token,
       exe_name_(NULL),
       sandbox_process_(NULL),
       sandbox_thread_(NULL),
-      desktop_handle_(NULL),
       sandbox_process_id_(0) {
 }
 
@@ -113,8 +112,6 @@ TargetProcess::~TargetProcess() {
   ::CloseHandle(sandbox_process_);
   if (shared_section_)
     ::CloseHandle(shared_section_);
-  if (desktop_handle_)
-    ::CloseDesktop(desktop_handle_);
   free(exe_name_);
 }
 
@@ -130,15 +127,12 @@ DWORD TargetProcess::Create(const wchar_t* exe_path,
   scoped_ptr_malloc<wchar_t> cmd_line(_wcsdup(command_line));
   scoped_ptr_malloc<wchar_t> desktop_name(desktop ? _wcsdup(desktop) : NULL);
 
+  // Start the target process suspended.
   const DWORD flags = CREATE_SUSPENDED | CREATE_BREAKAWAY_FROM_JOB |
                       CREATE_UNICODE_ENVIRONMENT | DETACHED_PROCESS;
 
-  // Start the target process suspended
   STARTUPINFO startup_info = {sizeof(STARTUPINFO)};
   if (desktop) {
-    // Ensure that the desktop exists
-    desktop_handle_ = ::CreateDesktop(desktop_name.get(), NULL, NULL, 0,
-                                      DESKTOP_CREATEWINDOW, NULL);
     startup_info.lpDesktop = desktop_name.get();
   }
 

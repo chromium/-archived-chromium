@@ -4,8 +4,8 @@
 
 // Defines all the command-line switches used by Chrome.
 
-#ifndef CHROME_COMMON_CHROME_SWITCHES_H__
-#define CHROME_COMMON_CHROME_SWITCHES_H__
+#ifndef CHROME_COMMON_CHROME_SWITCHES_H_
+#define CHROME_COMMON_CHROME_SWITCHES_H_
 
 #include "base/base_switches.h"
 
@@ -35,6 +35,7 @@ extern const wchar_t kProcessPerTab[];
 extern const wchar_t kProcessPerSite[];
 extern const wchar_t kInProcessPlugins[];
 extern const wchar_t kNoSandbox[];
+extern const wchar_t kDisableAltWinstation[];
 extern const wchar_t kSafePlugins[];
 extern const wchar_t kTrustedPlugins[];
 extern const wchar_t kTestSandbox[];
@@ -179,4 +180,4 @@ extern const wchar_t kNewNewTabPage[];
 
 }  // namespace switches
 
-#endif  // CHROME_COMMON_CHROME_SWITCHES_H__
+#endif  // CHROME_COMMON_CHROME_SWITCHES_H_

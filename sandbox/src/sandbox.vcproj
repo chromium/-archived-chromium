@@ -183,6 +183,14 @@
 				RelativePath=".\sid.h"
 				>
 			</File>
+			<File
+				RelativePath=".\window.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\window.h"
+				>
+			</File>
 		</Filter>
 		<Filter
 			Name="Interception"

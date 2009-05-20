@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
+// Copyright (c) 2006-2009 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
@@ -26,8 +26,6 @@
 #include "webkit/glue/plugins/plugin_list.h"
 
 namespace {
-
-const wchar_t* const kDesktopName = L"ChromeRendererDesktop";
 
 // The DLLs listed here are known (or under strong suspicion) of causing crashes
 // when they are loaded in the renderer.
@@ -315,7 +313,8 @@ bool AddPolicyForPlugin(const CommandLine* cmd_line,
   return false;
 }
 
-void AddPolicyForRenderer(HDESK desktop, sandbox::TargetPolicy* policy) {
+void AddPolicyForRenderer(sandbox::TargetPolicy* policy,
+                          bool* on_sandbox_desktop) {
   policy->SetJobLevel(sandbox::JOB_LOCKDOWN, 0);
 
   sandbox::TokenLevel initial_token = sandbox::USER_UNPROTECTED;
@@ -328,9 +327,13 @@ void AddPolicyForRenderer(HDESK desktop, sandbox::TargetPolicy* policy) {
   policy->SetTokenLevel(initial_token, sandbox::USER_LOCKDOWN);
   policy->SetDelayedIntegrityLevel(sandbox::INTEGRITY_LEVEL_LOW);
 
-  if (desktop) {
-    policy->SetDesktop(kDesktopName);
+  bool use_winsta = !CommandLine::ForCurrentProcess()->HasSwitch(
+                        switches::kDisableAltWinstation);
+
+  if (sandbox::SBOX_ALL_OK ==  policy->SetAlternateDesktop(use_winsta)) {
+    *on_sandbox_desktop = true;
   } else {
+    *on_sandbox_desktop = false;
     DLOG(WARNING) << "Failed to apply desktop security to the renderer";
   }
 
@@ -391,14 +394,12 @@ base::ProcessHandle StartProcessWithAccess(CommandLine* cmd_line,
   PROCESS_INFORMATION target = {0};
   sandbox::TargetPolicy* policy = broker_service->CreatePolicy();
 
-  HDESK desktop = NULL;
+  bool on_sandbox_desktop = false;
   if (type == ChildProcessInfo::PLUGIN_PROCESS) {
     if (!AddPolicyForPlugin(cmd_line, policy))
       return 0;
   } else {
-    desktop = CreateDesktop(
-      kDesktopName, NULL, NULL, 0, DESKTOP_CREATEWINDOW, NULL);
-    AddPolicyForRenderer(desktop, policy);
+    AddPolicyForRenderer(policy, &on_sandbox_desktop);
   }
 
   if (!exposed_dir.empty()) {
@@ -418,8 +419,6 @@ base::ProcessHandle StartProcessWithAccess(CommandLine* cmd_line,
 
   if (!AddGenericPolicy(policy)) {
     NOTREACHED();
-    if (desktop)
-      CloseDesktop(desktop);
     return 0;
   }
 
@@ -429,14 +428,10 @@ base::ProcessHandle StartProcessWithAccess(CommandLine* cmd_line,
       policy, &target);
   policy->Release();
 
-  if (desktop)
-    CloseDesktop(desktop);
-
   if (sandbox::SBOX_ALL_OK != result)
     return 0;
 
   if (type == ChildProcessInfo::RENDER_PROCESS) {
-    bool on_sandbox_desktop = (desktop != NULL);
     NotificationService::current()->Notify(
         NotificationType::RENDERER_PROCESS_IN_SBOX,
         NotificationService::AllSources(),

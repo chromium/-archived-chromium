@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
+// Copyright (c) 2006-2009 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
@@ -105,8 +105,6 @@ class TargetProcess {
   void* base_address_;
   // Full name of the target executable.
   wchar_t* exe_name_;
-  // Desktop where the target process is running.
-  HDESK desktop_handle_;
 
   // Function used for testing.
   friend TargetProcess* MakeTestTargetProcess(HANDLE process,

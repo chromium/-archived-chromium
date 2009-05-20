@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
+// Copyright (c) 2006-2009 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
@@ -12,6 +12,14 @@
 void POCDLL_API TestSpyKeys(HANDLE log) {
   HandleToFile handle2file;
   FILE *output = handle2file.Translate(log, "w");
+
+  if (RegisterHotKey(NULL, 1, 0, 0x42)) {
+    fprintf(output, "[GRANTED] successfully registered hotkey\r\n");
+    UnregisterHotKey(NULL, 1);
+  } else {
+    fprintf(output, "[BLOCKED] Failed to register hotkey. Error = %d\r\n",
+            ::GetLastError());
+  }
 
   fprintf(output, "[INFO] Logging keystrokes for 15 seconds\r\n");
   fflush(output);

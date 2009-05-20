@@ -1,9 +1,11 @@
-// Copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
+// Copyright (c) 2006-2009 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
 #ifndef SANDBOX_SRC_SANDBOX_POLICY_H_
 #define SANDBOX_SRC_SANDBOX_POLICY_H_
+
+#include <string>
 
 #include "base/basictypes.h"
 #include "sandbox/src/sandbox_types.h"
@@ -80,8 +82,20 @@ class TargetPolicy {
   virtual ResultCode SetJobLevel(JobLevel job_level, uint32 ui_exceptions) = 0;
 
   // Specifies the desktop on which the application is going to run. If the
-  // desktop does not exist, it will be created.
-  virtual ResultCode SetDesktop(const wchar_t* desktop) = 0;
+  // desktop does not exist, it will be created. If alternate_winstation is
+  // set to true, the desktop will be created on an alternate window station.
+  virtual ResultCode SetAlternateDesktop(bool alternate_winstation) = 0;
+
+  // Returns the name of the alternate desktop used. If an alternate window
+  // station is specified, the name is prepended by the window station name,
+  // followed by a backslash.
+  virtual std::wstring GetAlternateDesktop() const = 0;
+
+  // Precreates the desktop and window station, if any.
+  virtual ResultCode CreateAlternateDesktop(bool alternate_winstation) = 0;
+
+  // Destroys the desktop and windows station.
+  virtual void DestroyAlternateDesktop() = 0;
 
   // Sets the integrity level of the process in the sandbox. The integrity level
   // will not take effect before you call LowerToken. User Interface Privilege

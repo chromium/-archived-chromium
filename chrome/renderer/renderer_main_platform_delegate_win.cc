@@ -18,15 +18,44 @@ namespace {
 // can be done with OpenThemeData() but it fails unless you pass a valid
 // window at least the first time. Interestingly, the very act of creating a
 // window also sets the connection to the theme service.
-void EnableThemeSupportForRenderer() {
+void EnableThemeSupportForRenderer(bool no_sandbox) {
+  HWINSTA current = NULL;
+  HWINSTA winsta0 = NULL;
+
+  if (!no_sandbox) {
+    current = ::GetProcessWindowStation();
+    winsta0 = ::OpenWindowStationW(L"WinSta0", FALSE, GENERIC_READ);
+    if (!winsta0 || !::SetProcessWindowStation(winsta0)) {
+      // Could not set the alternate window station. There is a possibility
+      // that the theme wont be correctly initialized on XP.
+      NOTREACHED() << "Unable to switch to WinSt0";
+    }
+  }
+
   HWND window = ::CreateWindowExW(0, L"Static", L"", WS_POPUP | WS_DISABLED,
                                   CW_USEDEFAULT, 0, 0, 0,  HWND_MESSAGE, NULL, 
                                   ::GetModuleHandleA(NULL), NULL);
   if (!window) {
     DLOG(WARNING) << "failed to enable theme support";
-    return;
+  } else {
+    ::DestroyWindow(window);
   }
-  ::DestroyWindow(window);
+
+  if (!no_sandbox) {
+    // Revert the window station.
+    if (!current || !::SetProcessWindowStation(current)) {
+      // We failed to switch back to the secure window station. This might
+      // confuse the renderer enough that we should kill it now.
+      CHECK(false) << "Failed to restore alternate window station";
+    }
+
+    if (!::CloseWindowStation(winsta0)) {
+      // We might be leaking a winsta0 handle.  This is a security risk, but
+      // since we allow fail over to no desktop protection in low memory
+      // condition, this is not a big risk.
+      NOTREACHED();
+    }
+  }
 }
 
 }  // namespace
@@ -43,7 +72,9 @@ RendererMainPlatformDelegate::~RendererMainPlatformDelegate() {
 void RendererMainPlatformDelegate::PlatformInitialize() {
   // Be mindful of what resources you acquire here. They can be used by
   // malicious code if the renderer gets compromised.
-  EnableThemeSupportForRenderer();
+  const CommandLine& command_line = parameters_.command_line_;
+  bool no_sandbox = command_line.HasSwitch(switches::kNoSandbox);
+  EnableThemeSupportForRenderer(no_sandbox);
 }
 
 void RendererMainPlatformDelegate::PlatformUninitialize() {

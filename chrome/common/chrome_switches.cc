@@ -96,6 +96,9 @@ const wchar_t kInProcessPlugins[]              = L"in-process-plugins";
 // Runs the renderer outside the sandbox.
 const wchar_t kNoSandbox[]                     = L"no-sandbox";
 
+// Disables the alternate window station for the renderer.
+const wchar_t kDisableAltWinstation[]         = L"disable-winsta";
+
 // Runs the plugin processes inside the sandbox.
 const wchar_t kSafePlugins[]                   = L"safe-plugins";
 

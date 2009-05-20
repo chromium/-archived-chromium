@@ -134,6 +134,8 @@
             'src/win2k_threadpool.h',
             'src/win_utils.cc',
             'src/win_utils.h',
+            'src/window.h',
+            'src/window.cc',
 
             # Precompiled headers.
             'src/stdafx.cc',
