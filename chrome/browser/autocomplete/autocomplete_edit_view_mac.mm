@@ -443,6 +443,10 @@ void AutocompleteEditViewMac::OnSetFocus(bool f) {
   model_->OnSetFocus(f);
 }
 void AutocompleteEditViewMac::OnKillFocus() {
+  // TODO(shess): This would seem to be a job for |model_|.
+  ClosePopup();
+
+  // Tell the model to reset itself.
   model_->OnKillFocus();
 }
 void AutocompleteEditViewMac::AcceptInput(
@@ -524,8 +528,10 @@ void AutocompleteEditViewMac::FocusLocation() {
   edit_view_->OnBeforePossibleChange();
 }
 
-- (void)controlTextDidEndEditing:(NSNotification*)aNotification {
+- (BOOL)control:(NSControl*)control textShouldEndEditing:(NSText*)fieldEditor {
   edit_view_->OnKillFocus();
+
+  return YES;
 
   // TODO(shess): Figure out where the selection belongs.  On GTK,
   // it's set to the start of the text.
