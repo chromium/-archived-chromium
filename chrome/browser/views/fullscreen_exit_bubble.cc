@@ -11,6 +11,7 @@
 #include "chrome/app/chrome_dll_resource.h"
 #include "grit/generated_resources.h"
 #include "views/widget/root_view.h"
+#include "views/widget/widget_win.h"
 
 // FullscreenExitView ----------------------------------------------------------
 
