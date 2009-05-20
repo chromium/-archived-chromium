@@ -314,7 +314,9 @@ bool BookmarkBarGtk::IsAlwaysShown() {
 
 void BookmarkBarGtk::ConfigureButtonForNode(BookmarkNode* node,
                                             GtkWidget* button) {
-  gtk_widget_set_tooltip_text(button, BuildTooltip(node).c_str());
+  std::string tooltip = BuildTooltip(node);
+  if (!tooltip.empty())
+    gtk_widget_set_tooltip_text(button, tooltip.c_str());
 
   // TODO(erg): Consider a soft maximum instead of this hard 15.
   std::wstring title = node->GetTitle();
