@@ -129,13 +129,6 @@ void HistoryURLProviderTest::OnProviderUpdate(bool updated_matches) {
 }
 
 void HistoryURLProviderTest::SetUp() {
-#if defined(OS_MACOSX)
-  FilePath path;
-  PathService::Get(base::DIR_EXE, &path);
-  path = path.AppendASCII(MAC_BROWSER_APP_NAME);
-  mac_util::SetOverrideAppBundlePath(path);
-#endif
-
   profile_.reset(new TestingProfile());
   profile_->CreateBookmarkModel(true);
   profile_->CreateHistoryService(true);
@@ -147,9 +140,6 @@ void HistoryURLProviderTest::SetUp() {
 }
 
 void HistoryURLProviderTest::TearDown() {
-#if defined(OS_MACOSX)
-  mac_util::SetOverrideAppBundle(NULL);
-#endif
   autocomplete_ = NULL;
 }
 
