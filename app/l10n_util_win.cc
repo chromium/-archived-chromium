@@ -11,7 +11,7 @@
 #include "base/string_util.h"
 #include "base/win_util.h"
 
-#include "grit/locale_settings.h"
+#include "grit/app_locale_settings.h"
 
 namespace {
 
