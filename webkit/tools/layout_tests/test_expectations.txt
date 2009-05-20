@@ -2605,7 +2605,6 @@ BUG12002 WIN LINUX : LayoutTests/fast/reflections/reflection-masks-opacity.html 
 BUG12002 WIN LINUX : LayoutTests/fast/reflections/reflection-masks.html = FAIL
 BUG12002 WIN LINUX : LayoutTests/svg/W3C-SVG-1.1/pservers-grad-16-b.svg = FAIL
 BUG12002 WIN : LayoutTests/svg/custom/gradient-stop-corner-cases.svg = FAIL
-BUG12002 WIN : LayoutTests/svg/custom/grayscale-gradient-mask.svg = FAIL
 BUG12002 LINUX : LayoutTests/svg/custom/circular-marker-reference-3.svg = FAIL
 // This one seems to have patterned stroke issues:
 BUG12003 WIN : LayoutTests/svg/custom/js-late-gradient-and-object-creation.svg = FAIL
@@ -2646,7 +2645,6 @@ BUG11898 WIN DEBUG : LayoutTests/http/tests/misc/submit-get-in-utf16be.html = TI
 BUG11812 MAC : LayoutTests/http/tests/xmlhttprequest/supported-xml-content-types.html = TIMEOUT
 
 // These tests started to fail after r43604 upstream.
-BUG11909 : LayoutTests/http/tests/navigation/new-window-redirect-history.html = FAIL
 BUG11909 : LayoutTests/http/tests/security/aboutBlank/security-context-grandchildren-lexical.html = FAIL
 BUG11909 : LayoutTests/http/tests/security/aboutBlank/security-context-grandchildren-write-lexical.html = FAIL
 BUG11909 : LayoutTests/http/tests/security/aboutBlank/security-context-grandchildren-writeln-lexical.html = FAIL
