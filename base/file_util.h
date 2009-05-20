@@ -176,7 +176,7 @@ bool CopyFile(const std::wstring& from_path, const std::wstring& to_path);
 // as well.
 // If there are files existing under to_path, always overwrite.
 // Returns true if successful, false otherwise.
-// Dont't use wildcards on the names, it may stop working without notice.
+// Don't use wildcards on the names, it may stop working without notice.
 //
 // If you only need to copy a file use CopyFile, it's faster.
 bool CopyDirectory(const FilePath& from_path, const FilePath& to_path,
