@@ -1,7 +1,7 @@
 include_rules = [
   "+app",
+  "+grit/app_strings.h",
   # TODO(beng): swap these with app/views specific generated resources.
-  "+grit/generated_resources.h",
   "+grit/theme_resources.h",
   "+skia/ext",
 ]
