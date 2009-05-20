@@ -41,6 +41,11 @@
 #include "webkit/api/public/WebFindOptions.h"
 #include "webkit/glue/autofill_form.h"
 
+#if defined(OS_WIN)
+// TODO(port): accessibility not yet implemented. See http://crbug.com/8288.
+#include "chrome/browser/browser_accessibility_manager.h"
+#endif
+
 using base::TimeDelta;
 using WebKit::WebConsoleMessage;
 using WebKit::WebFindOptions;
@@ -800,6 +805,8 @@ void RenderViewHost::OnMessageReceived(const IPC::Message& msg) {
                         OnMsgPasteFromSelectionClipboard)
     IPC_MESSAGE_HANDLER(ViewHostMsg_ExtensionPostMessage,
                         OnExtensionPostMessage)
+    IPC_MESSAGE_HANDLER(ViewHostMsg_AccessibilityFocusChange,
+                        OnAccessibilityFocusChange)
     // Have the super handle all other messages.
     IPC_MESSAGE_UNHANDLED(RenderWidgetHost::OnMessageReceived(msg))
   IPC_END_MESSAGE_MAP_EX()
@@ -1431,4 +1438,13 @@ void RenderViewHost::OnExtensionPostMessage(
   URLRequestContext* context = process()->profile()->GetRequestContext();
   ExtensionMessageService::GetInstance(context)->
       PostMessageFromRenderer(port_id, message);
+}
+
+void RenderViewHost::OnAccessibilityFocusChange(int acc_obj_id) {
+#if defined(OS_WIN)
+  BrowserAccessibilityManager::GetInstance()->
+      ChangeAccessibilityFocus(acc_obj_id, process()->pid(), routing_id());
+#else
+  // TODO(port): accessibility not yet implemented. See http://crbug.com/8288.
+#endif
 }

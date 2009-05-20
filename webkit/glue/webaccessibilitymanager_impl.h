@@ -10,10 +10,6 @@
 
 class GlueAccessibilityObject;
 
-namespace webkit_glue {
-typedef base::hash_map<int, GlueAccessibilityObject*> IntToAccObjMap;
-typedef base::hash_map<GlueAccessibilityObject*, int> AccObjToIntMap;
-
 ////////////////////////////////////////////////////////////////////////////////
 //
 // WebAccessibilityManagerImpl
@@ -24,21 +20,23 @@ typedef base::hash_map<GlueAccessibilityObject*, int> AccObjToIntMap;
 // the requested information from the active AccessibilityObject, through the
 // GlueAccessibilityObject.
 ////////////////////////////////////////////////////////////////////////////////
+
+namespace webkit_glue {
+
 class WebAccessibilityManagerImpl : public WebAccessibilityManager {
  public:
   // From WebAccessibilityManager.
   bool GetAccObjInfo(WebView* view, const WebAccessibility::InParams& in_params,
                      WebAccessibility::OutParams* out_params);
-
-  // From WebAccessibilityManager.
   bool ClearAccObjMap(int acc_obj_id, bool clear_all);
+  int FocusAccObj(WebCore::AccessibilityObject* acc_obj);
 
  protected:
   // Needed so WebAccessibilityManager::Create can call our constructor.
   friend class WebAccessibilityManager;
 
   WebAccessibilityManagerImpl();
-  ~WebAccessibilityManagerImpl() {}
+  ~WebAccessibilityManagerImpl();
 
  private:
   // From WebAccessibilityManager.
@@ -49,17 +47,21 @@ class WebAccessibilityManagerImpl : public WebAccessibilityManager {
   struct GlueAccessibilityObjectRoot;
   GlueAccessibilityObjectRoot* root_;
 
+  typedef base::hash_map<int, GlueAccessibilityObject*> IntToGlueAccObjMap;
+  typedef base::hash_map<WebCore::AccessibilityObject*, int> AccObjToIntMap;
+
   // Hashmap for cashing of elements in use by the AT, mapping id (int) to a
   // GlueAccessibilityObject pointer.
-  IntToAccObjMap int_to_acc_obj_map_;
+  IntToGlueAccObjMap int_to_glue_acc_obj_map_;
   // Hashmap for cashing of elements in use by the AT, mapping a
-  // GlueAccessibilityObject pointer to its id (int). Needed for reverse lookup,
+  // AccessibilityObject pointer to its id (int). Needed for reverse lookup,
   // to ensure unnecessary duplicate entries are not created in the
-  // IntToAccObjMap (above).
+  // IntToGlueAccObjMap (above) and for focus changes in WebKit.
   AccObjToIntMap acc_obj_to_int_map_;
 
-  // Unique identifier for retrieving a GlueAccessibilityObject from the page's
-  // hashmaps.
+  // Unique identifier for retrieving an accessibility object from the page's
+  // hashmaps. Id is always 0 for the root of the accessibility object
+  // hierarchy (on a per-renderer process basis).
   int acc_obj_id_;
 
   DISALLOW_COPY_AND_ASSIGN(WebAccessibilityManagerImpl);

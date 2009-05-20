@@ -406,7 +406,7 @@ IPC_BEGIN_MESSAGES(View)
   // id to clear a specific hashmap entry, and a bool; true clears all, false
   // does not.
   IPC_MESSAGE_ROUTED2(ViewMsg_ClearAccessibilityInfo,
-                      int  /* iaccessible_id */,
+                      int  /* accessibility object id */,
                       bool /* clear_all */)
 
   // Get all savable resource links from current webpage, include main
@@ -1380,6 +1380,13 @@ IPC_BEGIN_MESSAGES(ViewHost)
   // Message to show a popup menu using native cocoa controls (Mac only).
   IPC_MESSAGE_ROUTED1(ViewHostMsg_ShowPopup,
                       ViewHostMsg_ShowPopup_Params)
+
+  // Sent as a result of a focus change in the renderer (if accessibility is
+  // enabled), to notify the browser side that its accessibility focus needs to
+  // change as well. Takes the id of the accessibility object that now has
+  // focus.
+  IPC_MESSAGE_ROUTED1(ViewHostMsg_AccessibilityFocusChange,
+                      int /* accessibility object id */)
 
   //---------------------------------------------------------------------------
   // Utility process host messages:

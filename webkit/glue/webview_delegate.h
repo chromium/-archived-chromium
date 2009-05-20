@@ -37,6 +37,10 @@ namespace webkit_glue {
 class WebMediaPlayerDelegate;
 }
 
+namespace WebCore {
+class AccessibilityObject;
+}
+
 namespace WebKit {
 class WebDragData;
 class WebWorker;
@@ -167,6 +171,13 @@ class WebViewDelegate : virtual public WebWidgetDelegate {
   // Returns whether this WebView was opened by a user gesture.
   virtual bool WasOpenedByUserGesture() const {
     return true;
+  }
+
+  // Called by ChromeClientImpl::focus() if accessibility on the renderer side
+  // is enabled, and a focus change has occurred. Will retrieve the id of the
+  // input AccessibilityObject and send it through IPC for handling on the
+  // browser side.
+  virtual void FocusAccessibilityObject(WebCore::AccessibilityObject* acc_obj) {
   }
 
   // FrameLoaderClient -------------------------------------------------------

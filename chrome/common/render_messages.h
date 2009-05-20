@@ -509,6 +509,7 @@ struct ParamTraits<webkit_glue::WebAccessibility::InParams> {
     WriteParam(m, p.object_id);
     WriteParam(m, p.function_id);
     WriteParam(m, p.child_id);
+    WriteParam(m, p.direct_descendant);
     WriteParam(m, p.input_long1);
     WriteParam(m, p.input_long2);
   }
@@ -517,6 +518,7 @@ struct ParamTraits<webkit_glue::WebAccessibility::InParams> {
       ReadParam(m, iter, &p->object_id) &&
       ReadParam(m, iter, &p->function_id) &&
       ReadParam(m, iter, &p->child_id) &&
+      ReadParam(m, iter, &p->direct_descendant) &&
       ReadParam(m, iter, &p->input_long1) &&
       ReadParam(m, iter, &p->input_long2);
   }
@@ -527,6 +529,8 @@ struct ParamTraits<webkit_glue::WebAccessibility::InParams> {
     LogParam(p.function_id, l);
     l->append(L", ");
     LogParam(p.child_id, l);
+    l->append(L", ");
+    LogParam(p.direct_descendant, l);
     l->append(L", ");
     LogParam(p.input_long1, l);
     l->append(L", ");

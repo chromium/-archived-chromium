@@ -91,7 +91,6 @@
 
 using base::Time;
 using base::TimeDelta;
-using webkit_glue::WebAccessibility;
 using WebKit::WebConsoleMessage;
 using WebKit::WebDragData;
 using WebKit::WebRect;
@@ -2048,7 +2047,6 @@ void RenderView::DidDownloadImage(int id,
 void RenderView::OnDownloadImage(int id,
                                  const GURL& image_url,
                                  int image_size) {
-
   bool data_image_failed = false;
   if (image_url.SchemeIs("data")) {
     SkBitmap data_image = ImageFromDataUrl(image_url);
@@ -2765,8 +2763,10 @@ void RenderView::OnClearAccessibilityInfo(int acc_obj_id, bool clear_all) {
     // If accessibility is not activated, ignore clearing message.
     return;
   }
+
   if (!web_accessibility_manager_->ClearAccObjMap(acc_obj_id, clear_all))
     return;
+
 #else  // defined(OS_WIN)
   // TODO(port): accessibility not yet implemented
   NOTIMPLEMENTED();
@@ -3023,4 +3023,26 @@ void RenderView::DumpLoadHistograms() const {
     UMA_HISTOGRAM_TIMES(
       "Renderer.All.StartToFirstLayout", start_to_first_layout);
   }
+}
+
+void RenderView::FocusAccessibilityObject(
+    WebCore::AccessibilityObject* acc_obj) {
+#if defined(OS_WIN)
+  if (!web_accessibility_manager_.get()) {
+    web_accessibility_manager_.reset(
+        webkit_glue::WebAccessibilityManager::Create());
+  }
+
+  // Retrieve the accessibility object id of the AccessibilityObject.
+  int acc_obj_id = web_accessibility_manager_->FocusAccObj(acc_obj);
+
+  // If id is valid, alert the browser side that an accessibility focus change
+  // occurred.
+  if (acc_obj_id >= 0)
+    Send(new ViewHostMsg_AccessibilityFocusChange(routing_id_, acc_obj_id));
+
+#else  // defined(OS_WIN)
+  // TODO(port): accessibility not yet implemented
+  NOTIMPLEMENTED();
+#endif
 }

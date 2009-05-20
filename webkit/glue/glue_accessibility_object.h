@@ -27,6 +27,8 @@ class GlueAccessibilityObject : public WebCore::AccessibilityObjectWrapper {
  public:
   static GlueAccessibilityObject* CreateInstance(WebCore::AccessibilityObject*);
 
+  virtual ~GlueAccessibilityObject() {}
+
   // Performs the default action on a given object.
   bool DoDefaultAction(int child_id);
 
@@ -91,7 +93,6 @@ class GlueAccessibilityObject : public WebCore::AccessibilityObjectWrapper {
 
  protected:
   explicit GlueAccessibilityObject(WebCore::AccessibilityObject*);
-  virtual ~GlueAccessibilityObject() {}
 
   // Helper functions.
   WebCore::String name() const;

@@ -7,8 +7,11 @@
 #include "base/compiler_specific.h"
 
 MSVC_PUSH_WARNING_LEVEL(0);
+#include "AccessibilityObject.h"
+#include "AXObjectCache.h"
 #include "Console.h"
 #include "Cursor.h"
+#include "Document.h"
 #include "DocumentLoader.h"
 #include "FloatRect.h"
 #include "FileChooser.h"
@@ -16,6 +19,7 @@ MSVC_PUSH_WARNING_LEVEL(0);
 #include "FrameView.h"
 #include "HitTestResult.h"
 #include "IntRect.h"
+#include "Node.h"
 #include "Page.h"
 #include "PopupMenuChromium.h"
 #include "ScriptController.h"
@@ -29,7 +33,6 @@ MSVC_POP_WARNING();
 
 #include "webkit/glue/chrome_client_impl.h"
 
-#include "base/logging.h"
 #include "base/gfx/rect.h"
 #include "googleurl/src/gurl.h"
 #include "webkit/api/public/WebInputEvent.h"
@@ -141,6 +144,28 @@ void ChromeClientImpl::focus() {
   WebViewDelegate* delegate = webview_->delegate();
   if (delegate)
     delegate->Focus(webview_);
+
+  // If accessibility is enabled, we should notify assistive technology that the
+  // active AccessibilityObject changed.
+  WebCore::Document* doc = webview_->GetFocusedWebCoreFrame()->document();
+
+  if (doc && doc->axObjectCache()->accessibilityEnabled()) {
+    WebCore::Node* focused_node = webview_->GetFocusedNode();
+
+    if (!focused_node) {
+      // Could not retrieve focused Node.
+      return;
+    }
+
+    // Retrieve the focused AccessibilityObject.
+    WebCore::AccessibilityObject* focused_acc_obj =
+        doc->axObjectCache()->getOrCreate(focused_node->renderer());
+
+    // Alert assistive technology that focus changed.
+    if (focused_acc_obj) {
+      delegate->FocusAccessibilityObject(focused_acc_obj);
+    }
+  }
 }
 
 void ChromeClientImpl::unfocus() {
@@ -201,7 +226,8 @@ static inline bool CurrentEventShouldCauseBackgroundTab(
   if (input_event->type != WebInputEvent::MouseUp)
     return false;
 
-  const WebMouseEvent* mouse_event = static_cast<const WebMouseEvent*>(input_event);
+  const WebMouseEvent* mouse_event =
+      static_cast<const WebMouseEvent*>(input_event);
   return (mouse_event->button == WebMouseEvent::ButtonMiddle);
 }
 
@@ -294,7 +320,8 @@ void ChromeClientImpl::addMessageToConsole(WebCore::MessageSource source,
   }
   WebDevToolsAgentImpl* devtools_agent = webview_->GetWebDevToolsAgentImpl();
   if (devtools_agent) {
-    devtools_agent->AddMessageToConsole(source, level, message, line_no, source_id);
+    devtools_agent->AddMessageToConsole(source, level, message, line_no,
+                                        source_id);
   }
 }
 

@@ -134,7 +134,7 @@ GlueAccessibilityObject* GlueAccessibilityObject::Navigate(
 GlueAccessibilityObject* GlueAccessibilityObject::GetChild(int child_id) {
   AccessibilityObject* child_obj;
   if (!GetAccessibilityObjectForChild(child_id, child_obj))
-    return false;
+    return NULL;
 
   // TODO(klink): simple object child?
   ToWrapper(child_obj)->ref();

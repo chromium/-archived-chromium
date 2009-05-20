@@ -558,10 +558,6 @@ LRESULT WidgetWin::OnGetObject(UINT uMsg, WPARAM w_param, LPARAM l_param) {
         // Return with failure.
         return static_cast<LRESULT>(0L);
       }
-
-      // Notify that an instance of IAccessible was allocated for m_hWnd
-      ::NotifyWinEvent(EVENT_OBJECT_CREATE, GetNativeView(), OBJID_CLIENT,
-                       CHILDID_SELF);
     }
 
     // Create a reference to ViewAccessibility that MSAA will marshall

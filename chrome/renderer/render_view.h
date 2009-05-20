@@ -49,7 +49,6 @@ class FilePath;
 class GURL;
 class RenderThread;
 class ResourceDispatcher;
-class WebAccessibilityManager;
 class WebError;
 class WebFrame;
 class WebPluginDelegate;
@@ -307,6 +306,7 @@ class RenderView : public RenderWidget,
                                          int active_match_ordinal,
                                          const WebKit::WebRect& selection);
   virtual bool WasOpenedByUserGesture() const;
+  virtual void FocusAccessibilityObject(WebCore::AccessibilityObject* acc_obj);
   virtual void SpellCheck(const std::wstring& word, int& misspell_location,
                           int& misspell_length);
   virtual void GetAutoCorrectWord(const std::wstring& misspelled_word,

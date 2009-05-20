@@ -117,6 +117,10 @@ class WebAccessibility {
     // Id of accessible child, whose information is being requested.
     int child_id;
 
+    // Indicates if the |child_id| refers to a direct child of the active
+    // accessibility object (true) or not (false).
+    bool direct_descendant;
+
     // LONG input parameters, used differently depending on the function called.
     long input_long1;
     long input_long2;

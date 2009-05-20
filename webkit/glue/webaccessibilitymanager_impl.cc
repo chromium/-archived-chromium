@@ -34,7 +34,13 @@ WebAccessibilityManager* WebAccessibilityManager::Create() {
 
 // class WebAccessibilityManagerImpl
 WebAccessibilityManagerImpl::WebAccessibilityManagerImpl()
-    : root_(new GlueAccessibilityObjectRoot) {
+    : root_(new GlueAccessibilityObjectRoot),
+      acc_obj_id_(0) {
+}
+
+WebAccessibilityManagerImpl::~WebAccessibilityManagerImpl() {
+  int_to_glue_acc_obj_map_.clear();
+  acc_obj_to_int_map_.clear();
 }
 
 bool WebAccessibilityManagerImpl::GetAccObjInfo(WebView* view,
@@ -45,17 +51,27 @@ bool WebAccessibilityManagerImpl::GetAccObjInfo(WebView* view,
     return false;
   }
 
-  // Find GlueAccessibilityObject requested by [in_params.object_id].
-  IntToAccObjMap::iterator it =
-      int_to_acc_obj_map_.find(in_params.object_id);
-  if (it == int_to_acc_obj_map_.end() || !it->second) {
+  // Function input parameters.
+  int object_id = in_params.object_id;
+  int child_id = in_params.child_id;
+
+  if (!in_params.direct_descendant) {
+    // Object is not a direct child, re-map the input parameters accordingly.
+    // The object to be retrieved is referred to by the |in_params.child_id|, as
+    // a result of e.g. a focus event. The local |child_id| is set to 0, to
+    // indicate that any function call should refer to the object itself.
+    object_id = in_params.child_id;
+    child_id = 0;
+  }
+
+  // Find GlueAccessibilityObject requested by |object_id|.
+  IntToGlueAccObjMap::iterator it =
+      int_to_glue_acc_obj_map_.find(object_id);
+  if (it == int_to_glue_acc_obj_map_.end() || !it->second) {
     // Map did not contain a valid instance of the data requested.
     return false;
   }
   RefPtr<GlueAccessibilityObject> active_acc_obj = it->second;
-
-  // Function input parameters.
-  int child_id = in_params.child_id;
 
   // Temp paramters for holding output information.
   RefPtr<GlueAccessibilityObject> out_acc_obj = NULL;
@@ -156,7 +172,8 @@ bool WebAccessibilityManagerImpl::GetAccObjInfo(WebView* view,
     out_params->output_string = StringToString16(out_string);
 
   if (out_acc_obj) {
-    AccObjToIntMap::iterator it = acc_obj_to_int_map_.find(out_acc_obj.get());
+    AccObjToIntMap::iterator it =
+        acc_obj_to_int_map_.find(out_acc_obj->accessibilityObject());
 
     if (it != acc_obj_to_int_map_.end()) {
       // Data already present in map, return previously assigned id.
@@ -164,8 +181,8 @@ bool WebAccessibilityManagerImpl::GetAccObjInfo(WebView* view,
       out_params->output_long1 = -1;
     } else {
       // Insert new GlueAccessibilityObject in hashmaps.
-      int_to_acc_obj_map_[acc_obj_id_] = out_acc_obj.get();
-      acc_obj_to_int_map_[out_acc_obj.get()] = acc_obj_id_;
+      int_to_glue_acc_obj_map_[acc_obj_id_] = out_acc_obj.get();
+      acc_obj_to_int_map_[out_acc_obj->accessibilityObject()] = acc_obj_id_;
       out_params->object_id = acc_obj_id_++;
       out_params->output_long1 = -1;
     }
@@ -175,9 +192,6 @@ bool WebAccessibilityManagerImpl::GetAccObjInfo(WebView* view,
 }
 
 bool WebAccessibilityManagerImpl::InitAccObjRoot(WebView* view) {
-  // Root id is always 0.
-  acc_obj_id_ = 0;
-
   // Enable accessibility and retrieve Document.
   WebCore::AXObjectCache::enableAccessibility();
   WebFrameImpl* main_frame_impl =
@@ -199,8 +213,9 @@ bool WebAccessibilityManagerImpl::InitAccObjRoot(WebView* view) {
         axObjectCache()->getOrCreate(doc->renderer()));
   }
   // Insert root in hashmaps.
-  int_to_acc_obj_map_[acc_obj_id_] = root_->acc_obj_root_.get();
-  acc_obj_to_int_map_[root_->acc_obj_root_.get()] = acc_obj_id_++;
+  int_to_glue_acc_obj_map_[acc_obj_id_] = root_->acc_obj_root_.get();
+  acc_obj_to_int_map_[root_->acc_obj_root_->accessibilityObject()] =
+      acc_obj_id_++;
 
   return true;
 }
@@ -209,33 +224,55 @@ bool WebAccessibilityManagerImpl::ClearAccObjMap(int acc_obj_id,
                                                  bool clear_all) {
   if (clear_all) {
     // Clear maps and invalidate root.
-    int_to_acc_obj_map_.clear();
+    int_to_glue_acc_obj_map_.clear();
     acc_obj_to_int_map_.clear();
     root_->acc_obj_root_ = 0;
     return true;
   }
 
-  IntToAccObjMap::iterator it = int_to_acc_obj_map_.find(acc_obj_id);
+  IntToGlueAccObjMap::iterator it = int_to_glue_acc_obj_map_.find(acc_obj_id);
 
-  if (it == int_to_acc_obj_map_.end()) {
+  if (it == int_to_glue_acc_obj_map_.end()) {
     // Element not found.
     return false;
   }
 
   if (it->second) {
     // Erase element from reverse hashmap.
-    AccObjToIntMap::iterator it2 = acc_obj_to_int_map_.find(it->second);
+    AccObjToIntMap::iterator it2 =
+        acc_obj_to_int_map_.find(it->second->accessibilityObject());
 
     if (it2 != acc_obj_to_int_map_.end())
       acc_obj_to_int_map_.erase(it2);
   }
-  int_to_acc_obj_map_.erase(it);
+  int_to_glue_acc_obj_map_.erase(it);
 
   if (acc_obj_id == 0) {
     // Invalidate root.
     root_->acc_obj_root_ = 0;
   }
   return true;
+}
+
+int WebAccessibilityManagerImpl::FocusAccObj(
+    WebCore::AccessibilityObject* acc_obj) {
+  if (!acc_obj) {
+    // Return with failure.
+    return -1;
+  }
+
+  AccObjToIntMap::iterator it = acc_obj_to_int_map_.find(acc_obj);
+
+  if (it != acc_obj_to_int_map_.end())
+    return it->second;
+
+  // Insert new accessibility object in hashmaps and return its newly
+  // assigned accessibility object id.
+  int_to_glue_acc_obj_map_[acc_obj_id_] =
+      GlueAccessibilityObject::CreateInstance(acc_obj);
+  acc_obj_to_int_map_[acc_obj] = acc_obj_id_;
+
+  return acc_obj_id_++;
 }
 
 }  // namespace webkit_glue

@@ -6,7 +6,7 @@
 
 #include "chrome/browser/browser_accessibility.h"
 #include "chrome/browser/renderer_host/render_process_host.h"
-#include "chrome/browser/renderer_host/render_widget_host.h"
+#include "chrome/browser/renderer_host/render_view_host.h"
 #include "chrome/common/notification_service.h"
 #include "chrome/common/render_messages.h"
 
@@ -21,16 +21,14 @@ BrowserAccessibilityManager* BrowserAccessibilityManager::GetInstance() {
   return Singleton<BrowserAccessibilityManager>::get();
 }
 
-BrowserAccessibilityManager::BrowserAccessibilityManager()
-    : instance_id_(0) {
+BrowserAccessibilityManager::BrowserAccessibilityManager() {
   NotificationService::current()->AddObserver(this,
       NotificationType::RENDERER_PROCESS_TERMINATED,
       NotificationService::AllSources());
 }
 
 BrowserAccessibilityManager::~BrowserAccessibilityManager() {
-  // Clear hashmaps.
-  instance_map_.clear();
+  // Clear hashmap.
   render_process_host_map_.clear();
 
   // We don't remove ourselves as an observer because we are a Singleton object,
@@ -38,7 +36,8 @@ BrowserAccessibilityManager::~BrowserAccessibilityManager() {
 }
 
 STDMETHODIMP BrowserAccessibilityManager::CreateAccessibilityInstance(
-    REFIID iid, int acc_obj_id, int instance_id, void** interface_ptr) {
+    REFIID iid, int acc_obj_id, int routing_id, int process_id,
+    HWND parent_hwnd, void** interface_ptr) {
   if (IID_IUnknown == iid || IID_IDispatch == iid || IID_IAccessible == iid) {
     CComObject<BrowserAccessibility>* instance = NULL;
 
@@ -50,21 +49,16 @@ STDMETHODIMP BrowserAccessibilityManager::CreateAccessibilityInstance(
 
     CComPtr<IAccessible> accessibility_instance(instance);
 
-    // Set unique ids.
-    instance->set_iaccessible_id(acc_obj_id);
-    instance->set_instance_id(instance_id);
+    // Set class member variables.
+    instance->Initialize(acc_obj_id, routing_id, process_id, parent_hwnd);
 
-    // Retrieve the RenderWidgetHost connected to this request.
-    InstanceMap::iterator it = instance_map_.find(instance_id);
+    // Retrieve the RenderViewHost connected to this request.
+    RenderViewHost* rvh = RenderViewHost::FromID(process_id, routing_id);
 
-    if (it != instance_map_.end()) {
-      UniqueMembers* members = it->second;
-
-      if (!members || !members->render_widget_host_)
-        return E_FAIL;
-
-      render_process_host_map_[members->render_widget_host_->process()] =
-          instance;
+    // Update cache with RenderProcessHost/BrowserAccessibility pair.
+    if (rvh && rvh->process()) {
+      render_process_host_map_.insert(
+          MapEntry(rvh->process()->pid(), instance));
     } else {
       // No RenderProcess active for this instance.
       return E_FAIL;
@@ -80,73 +74,71 @@ STDMETHODIMP BrowserAccessibilityManager::CreateAccessibilityInstance(
 }
 
 bool BrowserAccessibilityManager::RequestAccessibilityInfo(
-    int acc_obj_id, int instance_id, int acc_func_id, int child_id, long input1,
-    long input2) {
+    WebAccessibility::InParams* in, int routing_id, int process_id) {
   // Create and populate IPC message structure, for retrieval of accessibility
   // information from the renderer.
   WebAccessibility::InParams in_params;
-  in_params.object_id = acc_obj_id;
-  in_params.function_id = acc_func_id;
-  in_params.child_id = child_id;
-  in_params.input_long1 = input1;
-  in_params.input_long2 = input2;
+  in_params.object_id = in->object_id;
+  in_params.function_id = in->function_id;
+  in_params.child_id = in->child_id;
+  in_params.direct_descendant = in->direct_descendant;
+  in_params.input_long1 = in->input_long1;
+  in_params.input_long2 = in->input_long2;
 
-  // Retrieve the RenderWidgetHost connected to this request.
-  InstanceMap::iterator it = instance_map_.find(instance_id);
+  // Retrieve the RenderViewHost connected to this request.
+  RenderViewHost* rvh = RenderViewHost::FromID(process_id, routing_id);
 
-  if (it == instance_map_.end()) {
-    // Id not found.
-    return false;
-  }
-
-  UniqueMembers* members = it->second;
-
-  if (!members || !members->render_widget_host_)
-    return false;
-
+  // Send accessibility information retrieval message to the renderer.
   bool success = false;
-  if (members->render_widget_host_->process() &&
-      members->render_widget_host_->process()->channel()) {
+  if (rvh && rvh->process() && rvh->process()->channel()) {
     IPC::SyncMessage* msg =
-        new ViewMsg_GetAccessibilityInfo(members->render_widget_host_->
-            routing_id(), in_params, &out_params_);
+        new ViewMsg_GetAccessibilityInfo(routing_id, in_params, &out_params_);
     // Necessary for the send to keep the UI responsive.
     msg->EnableMessagePumping();
-    success = members->render_widget_host_->process()->channel()->
-        SendWithTimeout(msg, kAccessibilityMessageTimeOut);
+    success = rvh->process()->channel()->SendWithTimeout(msg,
+        kAccessibilityMessageTimeOut);
   }
   return success;
+}
+
+bool BrowserAccessibilityManager::ChangeAccessibilityFocus(int acc_obj_id,
+                                                           int process_id,
+                                                           int routing_id) {
+  BrowserAccessibility* browser_acc =
+      GetBrowserAccessibility(process_id, routing_id);
+  if (browser_acc) {
+    // Indicate that the request for child information is referring to a non-
+    // direct descendant of the root.
+    browser_acc->set_direct_descendant(false);
+
+    // Notify Access Technology that there was a change in keyboard focus.
+    ::NotifyWinEvent(EVENT_OBJECT_FOCUS, browser_acc->parent_hwnd(),
+                     OBJID_CLIENT, static_cast<LONG>(acc_obj_id));
+    return true;
+  }
+  return false;
 }
 
 const WebAccessibility::OutParams& BrowserAccessibilityManager::response() {
   return out_params_;
 }
 
-HWND BrowserAccessibilityManager::parent_hwnd(int id) {
-  // Retrieve the parent HWND connected to the requester's id.
-  InstanceMap::iterator it = instance_map_.find(id);
+BrowserAccessibility* BrowserAccessibilityManager::GetBrowserAccessibility(
+    int process_id, int routing_id) {
+  // Retrieve the BrowserAccessibility connected to the requester's id. There
+  // could be multiple BrowserAccessibility connected to the given |process_id|,
+  // but they all have the same parent HWND, so using the first hit is fine.
+  RenderProcessHostMap::iterator it =
+      render_process_host_map_.lower_bound(process_id);
 
-  if (it == instance_map_.end()) {
-    // Id not found.
-    return NULL;
+  RenderProcessHostMap::iterator end_of_matching_objects =
+    render_process_host_map_.upper_bound(process_id);
+
+  for (; it != end_of_matching_objects; ++it) {
+    if (it->second && it->second->routing_id() == routing_id)
+      return it->second;
   }
-
-  UniqueMembers* members = it->second;
-
-  if (!members || !members->parent_hwnd_)
-    return NULL;
-
-  return members->parent_hwnd_;
-}
-
-int BrowserAccessibilityManager::SetMembers(BrowserAccessibility* browser_acc,
-    HWND parent_hwnd, RenderWidgetHost* render_widget_host) {
-  // Set HWND and RenderWidgetHost connected to |browser_acc|.
-  instance_map_[instance_id_] =
-      new UniqueMembers(parent_hwnd, render_widget_host);
-
-  render_process_host_map_[render_widget_host->process()] = browser_acc;
-  return instance_id_++;
+  return NULL;
 }
 
 void BrowserAccessibilityManager::Observe(NotificationType type,
@@ -155,22 +147,18 @@ void BrowserAccessibilityManager::Observe(NotificationType type,
   DCHECK(type == NotificationType::RENDERER_PROCESS_TERMINATED);
   RenderProcessHost* rph = Source<RenderProcessHost>(source).ptr();
   DCHECK(rph);
-  RenderProcessHostMap::iterator it = render_process_host_map_.find(rph);
 
-  if (it == render_process_host_map_.end() || !it->second) {
-    // RenderProcessHost not associated with any BrowserAccessibility instance.
-    return;
+  RenderProcessHostMap::iterator it =
+      render_process_host_map_.lower_bound(rph->pid());
+
+  RenderProcessHostMap::iterator end_of_matching_objects =
+    render_process_host_map_.upper_bound(rph->pid());
+
+  for (; it != end_of_matching_objects; ++it) {
+    if (it->second) {
+      // Set all matching BrowserAccessibility instances to inactive state.
+      // TODO(klink): Do more active memory cleanup as well.
+      it->second->set_instance_active(false);
+    }
   }
-
-  // Set BrowserAccessibility instance to inactive state.
-  it->second->set_instance_active(false);
-
-  // Delete entry also from InstanceMap.
-  InstanceMap::iterator it2 = instance_map_.find(it->second->instance_id());
-
-  if (it2 != instance_map_.end())
-    instance_map_.erase(it2);
-
-  // Only delete the first entry once it is no longer in use.
-  render_process_host_map_.erase(it);
 }

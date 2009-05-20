@@ -24,7 +24,7 @@ struct WindowFeatures;
 // Handles window-level notifications from WebCore on behalf of a WebView.
 class ChromeClientImpl : public WebCore::ChromeClientChromium {
  public:
-  ChromeClientImpl(WebViewImpl* webview);
+  explicit ChromeClientImpl(WebViewImpl* webview);
   virtual ~ChromeClientImpl();
 
   WebViewImpl* webview() const { return webview_; }
@@ -67,7 +67,8 @@ class ChromeClientImpl : public WebCore::ChromeClientChromium {
   virtual void setResizable(bool);
 
   virtual void addMessageToConsole(WebCore::MessageSource source,
-                                   WebCore::MessageLevel level, const WebCore::String& message,
+                                   WebCore::MessageLevel level,
+                                   const WebCore::String& message,
                                    unsigned int lineNumber,
                                    const WebCore::String& sourceID);
 

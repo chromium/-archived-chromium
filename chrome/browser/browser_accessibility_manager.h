@@ -5,8 +5,7 @@
 #ifndef CHROME_BROWSER_BROWSER_ACCESSIBILITY_MANAGER_H_
 #define CHROME_BROWSER_BROWSER_ACCESSIBILITY_MANAGER_H_
 
-#include <oaidl.h>  // Needed for VARIANT structure.
-#include <hash_map>
+#include <map>
 
 #include "base/singleton.h"
 #include "chrome/common/notification_observer.h"
@@ -15,6 +14,8 @@
 class BrowserAccessibility;
 class RenderProcessHost;
 class RenderWidgetHost;
+
+using webkit_glue::WebAccessibility;
 
 ////////////////////////////////////////////////////////////////////////////////
 //
@@ -35,35 +36,28 @@ class BrowserAccessibilityManager : public NotificationObserver {
   static BrowserAccessibilityManager* GetInstance();
 
   // Creates an instance of BrowserAccessibility, initializes it and sets the
-  // [acc_obj_id], which is used for IPC communication, and [instance_id],
+  // |acc_obj_id|, which is used for IPC communication, and |instance_id|,
   // which is used to identify the mapping between accessibility instance and
   // RenderProcess.
   STDMETHODIMP CreateAccessibilityInstance(REFIID iid,
                                            int acc_obj_id,
-                                           int instance_id,
+                                           int routing_id,
+                                           int process_id,
+                                           HWND parent_hwnd,
                                            void** interface_ptr);
 
   // Composes and sends a message for requesting needed accessibility
-  // information. Unused LONG input parameters should be NULL, and the VARIANT
-  // [var_id] an empty, valid instance.
-  bool RequestAccessibilityInfo(int acc_obj_id,
-                                int instance_id,
-                                int acc_func_id,
-                                int child_id,
-                                long input1,
-                                long input2);
+  // information.
+  bool RequestAccessibilityInfo(WebAccessibility::InParams* in,
+                                int routing_id,
+                                int process_id);
+
+  // Notifies assistive technology that renderer focus changed, through the
+  // platform-specific channels.
+  bool ChangeAccessibilityFocus(int acc_obj_id, int process_id, int routing_id);
 
   // Wrapper function, for cleaner code.
-  const webkit_glue::WebAccessibility::OutParams& response();
-
-  // Retrieves the parent HWND connected to the provided id.
-  HWND parent_hwnd(int id);
-
-  // Mutator, needed since constructor does not take any arguments, and to keep
-  // instance accessor clean.
-  int SetMembers(BrowserAccessibility* browser_acc,
-                 HWND parent_hwnd,
-                 RenderWidgetHost* render_widget_host);
+  const WebAccessibility::OutParams& response();
 
   // NotificationObserver implementation.
   virtual void Observe(NotificationType type,
@@ -78,32 +72,24 @@ class BrowserAccessibilityManager : public NotificationObserver {
   ~BrowserAccessibilityManager();
 
  private:
-  // Member variable structure, used in instance hashmap.
-  struct UniqueMembers {
-    RenderWidgetHost* render_widget_host_;
-    HWND parent_hwnd_;
+  // Retrieves the BrowserAccessibility instance connected to the
+  // RenderProcessHost identified by the process/routing id pair.
+  BrowserAccessibility* GetBrowserAccessibility(int process_id, int routing_id);
 
-    UniqueMembers(HWND parent_hwnd, RenderWidgetHost* render_widget_host)
-      : parent_hwnd_(parent_hwnd),
-        render_widget_host_(render_widget_host) {
-    }
-  };
+  // Multi-map from process id (key) to active BrowserAccessibility instances
+  // for that RenderProcessHost.
+  typedef std::multimap<int, BrowserAccessibility*> RenderProcessHostMap;
+  typedef std::pair<int, BrowserAccessibility*> MapEntry;
 
-  typedef stdext::hash_map<int, UniqueMembers*> InstanceMap;
-  typedef stdext::hash_map<RenderProcessHost*, BrowserAccessibility*>
-      RenderProcessHostMap;
-
-  // Caching of the unique member variables used to handle browser accessibility
-  // requests from multiple processes.
-  InstanceMap instance_map_;
-  int instance_id_;
-
-  // Reverse mapping to track which RenderProcessHosts are active. If a
-  // RenderProcessHost is found to be terminated, it should be removed from this
-  // mapping, and the connected BrowserAccessibility ids/instances invalidated.
+  // Mapping to track which RenderProcessHosts ids are active. If a
+  // RenderProcessHost is found to be terminated, its id (key) should be removed
+  // from this mapping, and the connected BrowserAccessibility ids/instances
+  // invalidated.
   RenderProcessHostMap render_process_host_map_;
 
-  webkit_glue::WebAccessibility::OutParams out_params_;
+  // Structure passed by reference to hold response parameters from the
+  // renderer.
+  WebAccessibility::OutParams out_params_;
 
   DISALLOW_COPY_AND_ASSIGN(BrowserAccessibilityManager);
 };

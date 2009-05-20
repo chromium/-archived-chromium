@@ -10,7 +10,6 @@
 
 #include <oleacc.h>
 
-#include "base/basictypes.h"
 #include "webkit/glue/webaccessibility.h"
 
 using webkit_glue::WebAccessibility;
@@ -33,8 +32,13 @@ class ATL_NO_VTABLE BrowserAccessibility
     COM_INTERFACE_ENTRY(IAccessible)
   END_COM_MAP()
 
-  BrowserAccessibility();
+  BrowserAccessibility() {}
   ~BrowserAccessibility() {}
+
+  HRESULT Initialize(int iaccessible_id,
+                     int routing_id,
+                     int process_id,
+                     HWND parent_hwnd);
 
   // Supported IAccessible methods.
 
@@ -91,7 +95,7 @@ class ATL_NO_VTABLE BrowserAccessibility
   STDMETHODIMP get_accValue(VARIANT var_id, BSTR* value);
 
   // Non-supported (by WebKit) IAccessible methods.
-  STDMETHODIMP accSelect(LONG flags_sel, VARIANT var_id);
+  STDMETHODIMP accSelect(LONG flags_sel, VARIANT var_id) { return E_NOTIMPL; }
 
   STDMETHODIMP get_accHelpTopic(BSTR* help_file,
                                 VARIANT var_id,
@@ -100,26 +104,24 @@ class ATL_NO_VTABLE BrowserAccessibility
   STDMETHODIMP get_accSelection(VARIANT* selected);
 
   // Deprecated functions, not implemented here.
-  STDMETHODIMP put_accName(VARIANT var_id, BSTR put_name);
-  STDMETHODIMP put_accValue(VARIANT var_id, BSTR put_val);
+  STDMETHODIMP put_accName(VARIANT var_id, BSTR put_name) { return E_NOTIMPL; }
+  STDMETHODIMP put_accValue(VARIANT var_id, BSTR put_val) { return E_NOTIMPL; }
 
-  // Modify/retrieve the unique id of this IAccessible instance.
-  void set_iaccessible_id(int iaccessible_id) {
-    iaccessible_id_ = iaccessible_id;
-  }
-  int iaccessible_id() const { return iaccessible_id_; }
-
-  // Modify/retrieve the unique id of this IAccessible's routing variables.
-  void set_instance_id(int instance_id) {
-    instance_id_ = instance_id;
-  }
-  int instance_id() const { return instance_id_; }
+  // Accessors/mutators.
+  HWND parent_hwnd() const { return parent_hwnd_;}
 
   // Modify/retrieve the state (active/inactive) of this instance.
   void set_instance_active(bool instance_active) {
     instance_active_ = instance_active;
   }
   int instance_active() const { return instance_active_; }
+
+  void set_direct_descendant(bool direct_descendant) {
+    direct_descendant_ = direct_descendant;
+  }
+  bool direct_descendant() const { return direct_descendant_; }
+
+  int routing_id() const { return routing_id_; }
 
  private:
   // Creates an empty VARIANT. Used as the equivalent of a NULL (unused) input
@@ -148,7 +150,6 @@ class ATL_NO_VTABLE BrowserAccessibility
 
   // Accessors.
   const WebAccessibility::OutParams& response();
-  HWND parent_hwnd();
 
   // Returns a conversion from the BrowserAccessibilityRole (as defined in
   // webkit/glue/webaccessibility.h) to an MSAA role.
@@ -162,10 +163,21 @@ class ATL_NO_VTABLE BrowserAccessibility
   // mapping it to the correct IAccessible on that side. Initialized to -1.
   int iaccessible_id_;
 
-  // The unique id of this IAccessible instance. Used to help
+  // The unique ids of this IAccessible instance. Used to help
   // BrowserAccessibilityManager instance retrieve the correct member
   // variables for this process.
-  int instance_id_;
+  int routing_id_;
+  int process_id_;
+
+  HWND parent_hwnd_;
+
+  // Indicates if an incoming request for child information relates to a child
+  // id of a direct child of the BrowserAccessibility object, or if it refers
+  // to an object elsewhere in the MSAA tree. Set by BrowserAccessibilityManager
+  // and applicable only to the root BrowserAccessibility object (id 0). Needed
+  // to properly handled MSAA focus events, where the child id is the only
+  // parameter in our control.
+  bool direct_descendant_;
 
   // The instance should only be active if there is a non-terminated
   // RenderProcessHost associated with it. The BrowserAccessibilityManager keeps

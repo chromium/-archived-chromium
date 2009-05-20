@@ -138,6 +138,9 @@ class WebViewImpl : public WebView, public base::RefCounted<WebViewImpl> {
 
   WebCore::Frame* GetFocusedWebCoreFrame();
 
+  // Returns the currently focused Node or NULL if no node has focus.
+  WebCore::Node* GetFocusedNode();
+
   static WebViewImpl* FromPage(WebCore::Page* page);
 
   WebViewDelegate* delegate() {
@@ -284,9 +287,6 @@ class WebViewImpl : public WebView, public base::RefCounted<WebViewImpl> {
   // the HitTestResult for it.
   WebCore::HitTestResult HitTestResultForWindowPos(
       const WebCore::IntPoint& pos);
-
-  // Returns the currently focused Node or NULL if no node has focus.
-  WebCore::Node* GetFocusedNode();
 
   // ImageResourceFetchers schedule via DownloadImage.
   std::set<ImageResourceFetcher*> image_fetchers_;
