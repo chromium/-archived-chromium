@@ -107,8 +107,6 @@ class FontDisplayView : public views::View {
   void SetFontType(const std::wstring& font_name,
                    int font_size);
 
-  void SetFontType(gfx::Font font);
-
   std::wstring font_name() { return font_name_; }
   int font_size() { return font_size_; }
 
@@ -136,24 +134,6 @@ FontDisplayView::FontDisplayView()
 }
 
 FontDisplayView::~FontDisplayView() {
-}
-
-void FontDisplayView::SetFontType(gfx::Font font) {
-  if (font.FontName().empty())
-    return;
-
-  font_name_ = font.FontName();
-  font_size_ = font.FontSize();
-
-  // Append the font type and size here.
-  std::wstring displayed_text = font_name_;
-  displayed_text += L", ";
-  displayed_text += UTF8ToWide(StringPrintf("%d", font_size_));
-  displayed_text += L"pt";
-
-  // Set Label.
-  font_text_label_->SetText(displayed_text);
-  font_text_label_->SetFont(font);
 }
 
 void FontDisplayView::SetFontType(const std::wstring& font_name,
