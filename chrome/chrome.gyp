@@ -2579,7 +2579,6 @@
           ],
           'sources!': [
             # TODO(port)
-            'app/chrome_main_uitest.cc',
             'browser/crash_recovery_uitest.cc',
             'browser/login_prompt_uitest.cc',
             'browser/metrics/metrics_service_uitest.cc',
