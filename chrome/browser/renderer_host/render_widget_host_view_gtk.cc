@@ -339,6 +339,14 @@ void RenderWidgetHostViewGtk::Destroy() {
     gtk_widget_destroy(gtk_widget_get_parent(view_.get()));
   }
 
+  // Remove |view_| from all containers now, so nothing else can hold a
+  // reference to |view_|'s widget except possibly a gtk signal handler if
+  // this code is currently executing within the context of a gtk signal
+  // handler.  Note that |view_| is still alive after this call.  It will be
+  // deallocated in the destructor.
+  // See http://www.crbug.com/11847 for details.
+  gtk_widget_destroy(view_.get());
+
   MessageLoop::current()->DeleteSoon(FROM_HERE, this);
 }
 
