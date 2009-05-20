@@ -1243,7 +1243,7 @@ void Browser::ExecuteCommandWithDisposition(
     case IDC_NEW_WINDOW_PROFILE_7:
     case IDC_NEW_WINDOW_PROFILE_8:
         NewProfileWindowByIndex(id - IDC_NEW_WINDOW_PROFILE_0);    break;
-#if defined(OS_WIN)
+#if defined(OS_WIN) || defined(OS_LINUX)
     case IDC_CLOSE_WINDOW:          CloseWindow();                 break;
 #endif
     case IDC_NEW_TAB:               NewTab();                      break;

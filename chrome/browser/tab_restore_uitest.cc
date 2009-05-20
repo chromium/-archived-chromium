@@ -484,9 +484,6 @@ TEST_F(TabRestoreUITest, RestoreCrossSiteWithExistingSiteInstance) {
   EXPECT_EQ(http_url2, GetActiveTabURL());
 }
 
-// TODO(estade): The browser currently ignores the CloseWindow command. We need
-// to enable that command before we can enable this test.
-#if defined(OS_WIN)
 TEST_F(TabRestoreUITest, RestoreWindow) {
   // Create a new window.
   int window_count;
@@ -542,4 +539,3 @@ TEST_F(TabRestoreUITest, RestoreWindow) {
   ASSERT_TRUE(restored_tab_proxy->GetCurrentURL(&url));
   EXPECT_TRUE(url == url2_);
 }
-#endif  // defined(OS_WIN)

@@ -405,12 +405,16 @@ void UITest::QuitBrowser() {
       browsers.push_back(browser_proxy);
     }
 
+// This is disabled for now on linux because it causes a crash. See
+// http://crbug.com/12334
+#if !defined(OS_LINUX)
     for (BrowserVector::iterator iter = browsers.begin();
       iter != browsers.end(); ++iter) {
       // Use ApplyAccelerator since it doesn't wait
       (*iter)->ApplyAccelerator(IDC_CLOSE_WINDOW);
       delete (*iter);
     }
+#endif
 
     // Now, drop the automation IPC channel so that the automation provider in
     // the browser notices and drops its reference to the browser process.
