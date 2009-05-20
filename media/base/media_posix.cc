@@ -27,6 +27,11 @@ int av_get_bits_per_sample_format(enum SampleFormat sample_fmt) {
   return av_get_bits_per_sample_format_ptr(sample_fmt);
 }
 
+int (*av_new_packet_ptr)(AVPacket* pkt, int size);
+int av_new_packet(AVPacket* pkt, int size) {
+  return av_new_packet_ptr(pkt, size);
+}
+
 void (*avcodec_init_ptr)(void) = NULL;
 void avcodec_init(void) {
   avcodec_init_ptr();
@@ -194,6 +199,9 @@ bool InitializeMediaLibrary(const FilePath& module_dir) {
   av_get_bits_per_sample_format_ptr =
       reinterpret_cast<int (*)(enum SampleFormat)>(
           dlsym(libs[FILE_LIBAVCODEC], "av_get_bits_per_sample_format"));
+  av_new_packet_ptr =
+      reinterpret_cast<int (*)(AVPacket*, int)>(
+          dlsym(libs[FILE_LIBAVCODEC], "av_new_packet"));
   avcodec_init_ptr =
       reinterpret_cast<void(*)(void)>(
           dlsym(libs[FILE_LIBAVCODEC], "avcodec_init"));
@@ -251,6 +259,7 @@ bool InitializeMediaLibrary(const FilePath& module_dir) {
 
   // Check that all the symbols were loaded correctly before returning true.
   if (av_get_bits_per_sample_format_ptr &&
+      av_new_packet_ptr &&
       avcodec_init_ptr &&
       avcodec_find_decoder_ptr &&
       avcodec_thread_init_ptr &&

@@ -328,6 +328,25 @@ void FFmpegDemuxer::DemuxTask() {
   DCHECK(packet->stream_index < static_cast<int>(packet_streams_.size()));
   FFmpegDemuxerStream* demuxer_stream = packet_streams_[packet->stream_index];
   if (demuxer_stream) {
+    // Duplicate the entire packet if we're dealing with MP3 due to an issue
+    // where previously demuxed packets can become corrupted by simply demuxing
+    // additional packets.
+    //
+    // TODO(scherkus): fix the MP3 packet copying hack.
+    if (demuxer_stream->av_stream()->codec->codec_id == CODEC_ID_MP3) {
+      scoped_ptr<AVPacket> clone(ClonePacket(packet.get()));
+      if (!clone.get()) {
+        NOTREACHED();
+        return;
+      }
+      // Free FFmpeg-allocated memory and swap original packet into |clone| so
+      // that it gets deleted as |clone| goes out of scope.
+      av_free_packet(packet.get());
+      packet.swap(clone);
+    }
+
+    // Queue the packet with the appropriate stream.  The stream takes
+    // ownership of the AVPacket.
     current_timestamp_ = demuxer_stream->EnqueuePacket(packet.release());
   } else {
     av_free_packet(packet.get());
@@ -348,6 +367,19 @@ bool FFmpegDemuxer::StreamsHavePendingReads() {
     }
   }
   return false;
+}
+
+AVPacket* FFmpegDemuxer::ClonePacket(AVPacket* packet) {
+  scoped_ptr<AVPacket> clone(new AVPacket());
+  if (!clone.get() || av_new_packet(clone.get(), packet->size) < 0) {
+    return NULL;
+  }
+  DCHECK_EQ(clone->size, packet->size);
+  clone->dts = packet->dts;
+  clone->pts = packet->pts;
+  clone->duration = packet->duration;
+  memcpy(clone->data, packet->data, clone->size);
+  return clone.release();
 }
 
 }  // namespace media

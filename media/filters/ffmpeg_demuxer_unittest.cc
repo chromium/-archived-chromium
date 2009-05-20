@@ -115,6 +115,9 @@ static base::WaitableEvent* g_seek_event = NULL;
 static int64_t g_expected_seek_timestamp = 0;
 static int g_expected_seek_flags = 0;
 
+// Counts outstanding packets allocated by av_new_frame().
+static int g_outstanding_packets_av_new_frame = 0;
+
 int av_open_input_file(AVFormatContext** format, const char* filename,
                        AVInputFormat* input_format, int buffer_size,
                        AVFormatParameters* parameters) {
@@ -138,6 +141,20 @@ int64 av_rescale_q(int64 a, AVRational bq, AVRational cq) {
   int64 num = bq.num * cq.den;
   int64 den = cq.num * bq.den;
   return a * num / den;
+}
+
+void DestructPacket(AVPacket* packet) {
+  delete [] packet->data;
+  --g_outstanding_packets_av_new_frame;
+}
+
+int av_new_packet(AVPacket* packet, int size) {
+  memset(packet, 0, sizeof(*packet));
+  packet->data = new uint8[size];
+  packet->size = size;
+  packet->destruct = &DestructPacket;
+  ++g_outstanding_packets_av_new_frame;
+  return 0;
 }
 
 void av_free(void* ptr) {
@@ -602,6 +619,60 @@ TEST_F(FFmpegDemuxerTest, ReadAndSeek) {
   // Manually release buffer, which should release any remaining AVPackets.
   reader = NULL;
   EXPECT_TRUE(PacketQueue::get()->WaitForOutstandingPackets(0));
+}
+
+// This tests our deep-copying workaround for FFmpeg's MP3 demuxer.  When we fix
+// the root cause this test will fail and should be removed.
+TEST_F(FFmpegDemuxerTest, MP3Hack) {
+  // Prepare some test data.
+  const int kPacketAudio = 0;  // Stream index relative to the container.
+  const int kAudio = 0;        // Stream index relative to Demuxer::GetStream().
+  const size_t kDataSize = 4;
+  uint8 audio_data[kDataSize] = {0, 1, 2, 3};
+
+  // Simulate media with a single MP3 audio stream.
+  g_format.nb_streams = 1;
+  g_format.streams[kPacketAudio] = &g_streams[0];
+  g_streams[0].duration = 10;
+  g_streams[0].codec = &g_audio_codec;
+  g_audio_codec.codec_id = CODEC_ID_MP3;
+
+  // Initialize the demuxer.
+  EXPECT_TRUE(demuxer_->Initialize(data_source_.get()));
+  EXPECT_TRUE(filter_host_->WaitForInitialized());
+  EXPECT_TRUE(filter_host_->IsInitialized());
+  EXPECT_EQ(PIPELINE_OK, pipeline_->GetError());
+
+  // Verify the stream was created.
+  EXPECT_EQ(1, demuxer_->GetNumberOfStreams());
+  scoped_refptr<DemuxerStream> audio_stream = demuxer_->GetStream(kAudio);
+  ASSERT_TRUE(audio_stream);
+
+  // Prepare our test audio packet.
+  PacketQueue::get()->Enqueue(kPacketAudio, kDataSize, audio_data);
+
+  // Audio read should perform a deep copy on the packet and instantly release
+  // the original packet.  The data pointers should not be the same, but the
+  // contents should match.
+  scoped_refptr<TestReader> reader = new TestReader();
+  reader->Read(audio_stream);
+  pipeline_->RunAllTasks();
+  EXPECT_TRUE(reader->WaitForRead());
+  EXPECT_TRUE(reader->called());
+  ASSERT_TRUE(reader->buffer());
+  EXPECT_FALSE(reader->buffer()->IsDiscontinuous());
+  EXPECT_NE(audio_data, reader->buffer()->GetData());
+  EXPECT_EQ(kDataSize, reader->buffer()->GetDataSize());
+  EXPECT_EQ(0, memcmp(audio_data, reader->buffer()->GetData(), kDataSize));
+
+  // Original AVPacket from the queue should have been released due to copying.
+  EXPECT_TRUE(PacketQueue::get()->WaitForOutstandingPackets(0));
+  EXPECT_EQ(1, g_outstanding_packets_av_new_frame);
+
+  // Now release our reference, which should destruct the packet allocated by
+  // av_new_packet().
+  reader = NULL;
+  EXPECT_EQ(0, g_outstanding_packets_av_new_frame);
 }
 
 }  // namespace

@@ -142,6 +142,10 @@ class FFmpegDemuxer : public Demuxer {
   // Safe to call on any thread.
   bool StreamsHavePendingReads();
 
+  // Helper function to deep copy an AVPacket's data, size and timestamps.
+  // Returns NULL if a packet could not be cloned (i.e., out of memory).
+  AVPacket* ClonePacket(AVPacket* packet);
+
   // FFmpeg context handle.
   scoped_ptr_malloc<AVFormatContext, ScopedPtrAVFree> format_context_;
 
