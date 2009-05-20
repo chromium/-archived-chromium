@@ -12,6 +12,42 @@
 #include "base/registry.h"
 #include "base/scoped_comptr_win.h"
 
+namespace {
+
+// Instantiates a IChromeHistoryIndexer COM object. Takes a COM class id
+// in |name| and returns the object in |indexer|. Returns false if the
+// operation fails.
+bool CoCreateIndexerFromName(const wchar_t* name,
+                             IChromeHistoryIndexer** indexer) {
+  CLSID clsid;
+  HRESULT hr = CLSIDFromString(const_cast<wchar_t*>(name), &clsid);
+  if (FAILED(hr))
+    return false;
+  hr = CoCreateInstance(clsid, NULL, CLSCTX_INPROC,
+                        __uuidof(IChromeHistoryIndexer),
+                        reinterpret_cast<void**>(indexer));
+  if (FAILED(hr))
+    return false;
+  return true;
+}
+
+// Instantiates the registered indexers from the registry |root| + |path| key
+// and adds them to the |indexers| list.
+void AddRegisteredIndexers(HKEY root, const wchar_t* path,
+    std::vector< ScopedComPtr<IChromeHistoryIndexer> >* indexers) {
+  IChromeHistoryIndexer* indexer;
+  RegistryKeyIterator r_iter(root, path);
+  while (r_iter.Valid()) {
+    if (CoCreateIndexerFromName(r_iter.Name(), &indexer)) {
+      indexers->push_back(ScopedComPtr<IChromeHistoryIndexer>(indexer));
+      indexer->Release();
+    }
+    ++r_iter;
+  }
+}
+
+}  // namespace
+
 namespace history {
 
 const wchar_t* const HistoryPublisher::kRegKeyRegisteredIndexersInfo =
@@ -52,23 +88,14 @@ bool HistoryPublisher::Init() {
   return ReadRegisteredIndexersFromRegistry();
 }
 
+// Peruse the registry for Indexer to instantiate and store in |indexers_|.
+// Return true if we found at least one indexer object. We look both in HKCU
+// and HKLM.
 bool HistoryPublisher::ReadRegisteredIndexersFromRegistry() {
-  RegistryKeyIterator iter(HKEY_CURRENT_USER, kRegKeyRegisteredIndexersInfo);
-  while (iter.Valid()) {
-    // The subkey name is the GUID of the Indexer COM object which implements
-    // the IChromeHistoryIndexer interface. We shall store that and use it to
-    // send historical data to the indexer.
-    CLSID clsid;
-    CLSIDFromString(static_cast<LPOLESTR>(
-        const_cast<TCHAR*>(iter.Name())), &clsid);
-    ScopedComPtr<IChromeHistoryIndexer> indexer;
-    HRESULT hr = CoCreateInstance(clsid, NULL, CLSCTX_INPROC,
-                                  __uuidof(IChromeHistoryIndexer),
-                                  reinterpret_cast<void**>(&indexer));
-    if (SUCCEEDED(hr) && indexer != NULL)
-      indexers_.push_back(indexer);
-    ++iter;
-  }
+  AddRegisteredIndexers(HKEY_CURRENT_USER,
+                        kRegKeyRegisteredIndexersInfo, &indexers_);
+  AddRegisteredIndexers(HKEY_LOCAL_MACHINE,
+                        kRegKeyRegisteredIndexersInfo, &indexers_);
   return indexers_.size() > 0;
 }
 
