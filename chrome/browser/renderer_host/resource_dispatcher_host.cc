@@ -106,7 +106,7 @@ const int kMaxOutstandingRequestsCostPerProcess = 26214400;
 bool ShouldServiceRequest(ChildProcessInfo::ProcessType process_type,
                           int process_id,
                           const ViewHostMsg_Resource_Request& request_data)  {
-  if (process_type != ChildProcessInfo::RENDER_PROCESS)
+  if (process_type == ChildProcessInfo::PLUGIN_PROCESS)
     return true;
 
   ChildProcessSecurityPolicy* policy = ChildProcessSecurityPolicy::GetInstance();
@@ -820,7 +820,7 @@ void ResourceDispatcherHost::OnReceivedRedirect(URLRequest* request,
 
   DCHECK(request->status().is_success());
 
-  if (info->process_type == ChildProcessInfo::RENDER_PROCESS &&
+  if (info->process_type != ChildProcessInfo::PLUGIN_PROCESS &&
       !ChildProcessSecurityPolicy::GetInstance()->
           CanRequestURL(info->process_id, new_url)) {
     LOG(INFO) << "Denied unauthorized request for " <<

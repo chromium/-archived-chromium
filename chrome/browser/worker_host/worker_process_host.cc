@@ -12,6 +12,7 @@
 #include "base/process_util.h"
 #include "base/string_util.h"
 #include "chrome/browser/browser_process.h"
+#include "chrome/browser/child_process_security_policy.h"
 #include "chrome/browser/renderer_host/render_view_host.h"
 #include "chrome/browser/worker_host/worker_service.h"
 #include "chrome/common/chrome_switches.h"
@@ -59,6 +60,8 @@ WorkerProcessHost::~WorkerProcessHost() {
     ui_loop->PostTask(FROM_HERE, new WorkerCrashTask(
         i->renderer_process_id, i->render_view_route_id));
   }
+
+  ChildProcessSecurityPolicy::GetInstance()->Remove(GetProcessId());
 }
 
 bool WorkerProcessHost::Init() {
@@ -89,6 +92,8 @@ bool WorkerProcessHost::Init() {
     return false;
   SetHandle(process);
 
+  ChildProcessSecurityPolicy::GetInstance()->Add(GetProcessId());
+
   return true;
 }
 
@@ -99,6 +104,9 @@ void WorkerProcessHost::CreateWorker(const GURL& url,
                                      IPC::Message::Sender* sender,
                                      int sender_pid,
                                      int sender_route_id) {
+  ChildProcessSecurityPolicy::GetInstance()->GrantRequestURL(
+      GetProcessId(), url);
+
   WorkerInstance instance;
   instance.url = url;
   instance.renderer_process_id = renderer_process_id;
