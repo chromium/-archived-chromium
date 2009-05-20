@@ -122,11 +122,6 @@ void av_free(void* ptr) {
   return av_free_ptr(ptr);
 }
 
-int64_t (*av_rescale_q_ptr)(int64_t a, AVRational bq, AVRational cq) = NULL;
-int64_t av_rescale_q(int64_t a, AVRational bq, AVRational cq) {
-  return av_rescale_q_ptr(a, bq, cq);
-}
-
 }  // extern "C"
 
 
@@ -245,9 +240,6 @@ bool InitializeMediaLibrary(const FilePath& module_dir) {
   av_free_ptr =
       reinterpret_cast<void (*)(void*)>(
           dlsym(libs[FILE_LIBAVUTIL], "av_free"));
-  av_rescale_q_ptr =
-      reinterpret_cast<int64_t (*)(int64_t, AVRational, AVRational)>(
-          dlsym(libs[FILE_LIBAVUTIL], "av_rescale_q"));
 
   // Check that all the symbols were loaded correctly before returning true.
   if (av_get_bits_per_sample_format_ptr &&
@@ -267,8 +259,7 @@ bool InitializeMediaLibrary(const FilePath& module_dir) {
       av_register_protocol_ptr &&
 
       av_malloc_ptr &&
-      av_free_ptr &&
-      av_rescale_q_ptr) {
+      av_free_ptr) {
     return true;
   }
 

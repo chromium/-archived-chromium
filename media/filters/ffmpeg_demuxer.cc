@@ -51,7 +51,7 @@ class AVPacketBuffer : public Buffer {
 FFmpegDemuxerStream::FFmpegDemuxerStream(FFmpegDemuxer* demuxer,
                                          AVStream* stream)
     : demuxer_(demuxer),
-      stream_(stream),
+      av_stream_(stream),
       discontinuous_(false) {
   DCHECK(demuxer_);
 
@@ -70,8 +70,12 @@ FFmpegDemuxerStream::FFmpegDemuxerStream(FFmpegDemuxer* demuxer,
       break;
   }
 
-  // Calculate the duration.
-  duration_ = ConvertTimestamp(stream->duration);
+  // Calculate the time base and duration in microseconds.
+  int64 time_base_us = static_cast<int64>(av_q2d(stream->time_base) *
+      base::Time::kMicrosecondsPerSecond);
+  int64 duration_us = static_cast<int64>(time_base_us * stream->duration);
+  time_base_ = base::TimeDelta::FromMicroseconds(time_base_us);
+  duration_ = base::TimeDelta::FromMicroseconds(duration_us);
 }
 
 FFmpegDemuxerStream::~FFmpegDemuxerStream() {
@@ -102,8 +106,8 @@ bool FFmpegDemuxerStream::HasPendingReads() {
 }
 
 base::TimeDelta FFmpegDemuxerStream::EnqueuePacket(AVPacket* packet) {
-  base::TimeDelta timestamp = ConvertTimestamp(packet->pts);
-  base::TimeDelta duration = ConvertTimestamp(packet->duration);
+  base::TimeDelta timestamp = time_base_ * packet->pts;
+  base::TimeDelta duration = time_base_ * packet->duration;
   Buffer* buffer = new AVPacketBuffer(packet, timestamp, duration);
   DCHECK(buffer);
   {
@@ -160,12 +164,6 @@ bool FFmpegDemuxerStream::FulfillPendingReads() {
     read_callback->Run(buffer);
   }
   return pending_reads;
-}
-
-base::TimeDelta FFmpegDemuxerStream::ConvertTimestamp(int64 timestamp) {
-  AVRational time_base = { 1, base::Time::kMicrosecondsPerSecond };
-  int64 microseconds = av_rescale_q(timestamp, stream_->time_base, time_base);
-  return base::TimeDelta::FromMicroseconds(microseconds);
 }
 
 
