@@ -68,6 +68,8 @@ ExtensionsDOMHandler::ExtensionsDOMHandler(DOMUI* dom_ui,
       NewCallback(this, &ExtensionsDOMHandler::HandleRequestExtensionsData));
   dom_ui_->RegisterMessageCallback("inspect",
       NewCallback(this, &ExtensionsDOMHandler::HandleInspectMessage));
+  dom_ui_->RegisterMessageCallback("uninstall",
+      NewCallback(this, &ExtensionsDOMHandler::HandleUninstallMessage));
 }
 
 void ExtensionsDOMHandler::HandleRequestExtensionsData(const Value* value) {
@@ -116,6 +118,15 @@ void ExtensionsDOMHandler::HandleInspectMessage(const Value* value) {
   }
 
   g_browser_process->devtools_manager()->OpenDevToolsWindow(host);
+}
+
+void ExtensionsDOMHandler::HandleUninstallMessage(const Value* value) {
+  CHECK(value->IsType(Value::TYPE_LIST));
+  const ListValue* list = static_cast<const ListValue*>(value);
+  CHECK(list->GetSize() == 1);
+  std::string extension_id;
+  CHECK(list->GetString(0, &extension_id));
+  extensions_service_->UninstallExtension(extension_id);
 }
 
 static void CreateScriptFileDetailValue(

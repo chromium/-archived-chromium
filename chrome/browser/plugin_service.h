@@ -17,6 +17,7 @@
 #include "base/singleton.h"
 #include "base/waitable_event_watcher.h"
 #include "chrome/browser/browser_process.h"
+#include "chrome/common/notification_observer.h"
 #include "webkit/glue/webplugininfo.h"
 
 #if defined(OS_WIN)
@@ -36,7 +37,9 @@ class ResourceMessageFilter;
 
 // This can be called on the main thread and IO thread.  However it must
 // be created on the main thread.
-class PluginService : base::WaitableEventWatcher::Delegate {
+class PluginService
+    : public base::WaitableEventWatcher::Delegate,
+      public NotificationObserver {
  public:
   // Returns the PluginService singleton.
   static PluginService* GetInstance();
@@ -116,7 +119,11 @@ class PluginService : base::WaitableEventWatcher::Delegate {
   ~PluginService();
 
   // base::WaitableEventWatcher::Delegate implementation.
-  void OnWaitableEventSignaled(base::WaitableEvent* waitable_event);
+  virtual void OnWaitableEventSignaled(base::WaitableEvent* waitable_event);
+
+  // NotificationObserver implementation
+  virtual void Observe(NotificationType type, const NotificationSource& source,
+                       const NotificationDetails& details);
 
   // mapping between plugin path and PluginProcessHost
   typedef base::hash_map<FilePath, PluginProcessHost*> PluginMap;

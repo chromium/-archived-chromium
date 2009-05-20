@@ -11,6 +11,7 @@
 #include "chrome/browser/extensions/extensions_service.h"
 #include "chrome/browser/views/browser_bubble.h"
 #include "chrome/common/notification_observer.h"
+#include "chrome/common/notification_registrar.h"
 #include "views/view.h"
 
 class Browser;
@@ -27,7 +28,6 @@ class ExtensionShelf : public views::View,
                        public BrowserBubble::Delegate {
  public:
   explicit ExtensionShelf(Browser* browser);
-  virtual ~ExtensionShelf();
 
   // Return the current active ExtensionShelfHandle (if any).
   BrowserBubble* GetHandle();
@@ -63,6 +63,9 @@ class ExtensionShelf : public views::View,
   // Inits the background bitmap.
   void InitBackground(gfx::Canvas* canvas, const SkRect& subset);
 
+  // Removes any toolstrips associated with an extension.
+  bool RemoveExtensionViews(Extension* extension);
+
   // Show / Hide the shelf handle.
   void ShowShelfHandle();
   void DoShowShelfHandle();
@@ -74,6 +77,9 @@ class ExtensionShelf : public views::View,
 
   // Which browser window this shelf is in.
   Browser* browser_;
+
+  // Manages our notification registrations.
+  NotificationRegistrar registrar_;
 
   // Background bitmap to draw under extension views.
   SkBitmap background_;

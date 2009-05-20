@@ -117,6 +117,25 @@ function sendInspectMessage(viewData) {
     String(viewData.renderProcessId), String(viewData.renderViewId)
   ]);
 }
+
+/**
+ * Handles an 'uninstall' button getting clicked.
+ */
+function handleUninstallExtension(node) {
+  // Tell the C++ ExtensionDOMHandler to uninstall an extension.
+  chrome.send('uninstall', [node.extensionId]);
+  
+  // Find the div above us with class 'extension' and remove it.
+  while (node) {
+    if (node.className == 'extension') {
+      node.parentNode.removeChild(node);
+      return;
+    }
+    node = node.parentNode;
+  }
+  
+  throw new Error("Couldn't find containing extension element.");
+}
 </script>
 <style>
 body {
@@ -142,8 +161,11 @@ div.extension-name {
   font-size: large;
   font-weight: bold;
   margin-top: 2em;
-  margin-bottom: 1em;
   text-align: left;
+}
+
+div.extension-uninstall {
+  margin-bottom: 1em;
 }
 
 dl {
@@ -189,10 +211,6 @@ th.desc {
   width: 50%;
 }
 
-th.enabled {
-  width: 10%;
-}
-
 #error-box {
   background-color:#D8D8D8;
   margin-top: 8px;
@@ -225,8 +243,13 @@ th.enabled {
 
         <div jsdisplay="extensions.length > 0">
           <div class="extension" jsselect="extensions">
-            <div class="extension-name" jscontent="name">
-                sExtension Name</div>
+            <div class="extension-name" jscontent="name">Extension Name</div>
+            <div class="extension-uninstall">
+              <button
+                jsvalues=".extensionId:id"
+                onclick="handleUninstallExtension(this)"
+                >Uninstall</button>
+            </div>
             <dl>
               <dd>Id: <span jscontent="id">0000000000000000000000000000000000000000</span></dd>
               <dd>
