@@ -305,7 +305,7 @@ TEST_F(RenderViewTest, OnPrintPages) {
   EXPECT_TRUE(did_print_msg);
   ViewHostMsg_DidPrintPage::Param post_did_print_page_param;
   ViewHostMsg_DidPrintPage::Read(did_print_msg, &post_did_print_page_param);
-  EXPECT_EQ(0, post_did_print_page_param.page_number);
+  EXPECT_EQ(0, post_did_print_page_param.a.page_number);
 #else
   NOTIMPLEMENTED();
 #endif

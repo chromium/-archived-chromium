@@ -1061,8 +1061,9 @@ template <class ParamType>
 class MessageWithTuple : public Message {
  public:
   typedef ParamType Param;
+  typedef typename ParamType::ParamTuple RefParam;
 
-  MessageWithTuple(int32 routing_id, uint16 type, const Param& p)
+  MessageWithTuple(int32 routing_id, uint16 type, const RefParam& p)
       : Message(routing_id, type, PRIORITY_NORMAL) {
     WriteParam(this, p);
   }
@@ -1093,7 +1094,7 @@ class MessageWithTuple : public Message {
                        void (T::*func)(const Message&, TA)) {
     Param p;
     if (Read(msg, &p)) {
-      (obj->*func)(*msg, p);
+      (obj->*func)(*msg, p.a);
       return true;
     }
     return false;
@@ -1222,10 +1223,11 @@ template <class SendParamType, class ReplyParamType>
 class MessageWithReply : public SyncMessage {
  public:
   typedef SendParamType SendParam;
+  typedef typename SendParam::ParamTuple RefSendParam;
   typedef ReplyParamType ReplyParam;
 
   MessageWithReply(int32 routing_id, uint16 type,
-                   const SendParam& send, const ReplyParam& reply)
+                   const RefSendParam& send, const ReplyParam& reply)
       : SyncMessage(routing_id, type, PRIORITY_NORMAL,
                     new ParamDeserializer<ReplyParam>(reply)) {
     WriteParam(this, send);

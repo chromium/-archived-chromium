@@ -275,11 +275,11 @@ TEST_F(RenderWidgetHostTest, Background) {
   const IPC::Message* set_background =
       process_->sink().GetUniqueMessageMatching(ViewMsg_SetBackground::ID);
   ASSERT_TRUE(set_background);
-  SkBitmap sent_background;
+  Tuple1<SkBitmap> sent_background;
   ViewMsg_SetBackground::Read(set_background, &sent_background);
-  EXPECT_EQ(background.getSize(), sent_background.getSize());
+  EXPECT_EQ(background.getSize(), sent_background.a.getSize());
   EXPECT_TRUE(0 == memcmp(background.getPixels(),
-                          sent_background.getPixels(),
+                          sent_background.a.getPixels(),
                           background.getSize()));
 #else
   // TODO(port): When custom backgrounds are implemented for other ports, this
@@ -377,9 +377,9 @@ TEST_F(RenderWidgetHostTest, HiddenPaint) {
   const IPC::Message* restored = process_->sink().GetUniqueMessageMatching(
       ViewMsg_WasRestored::ID);
   ASSERT_TRUE(restored);
-  bool needs_repaint;
+  Tuple1<bool> needs_repaint;
   ViewMsg_WasRestored::Read(restored, &needs_repaint);
-  EXPECT_TRUE(needs_repaint);
+  EXPECT_TRUE(needs_repaint.a);
 }
 
 TEST_F(RenderWidgetHostTest, HandleKeyEventsWeSent) {

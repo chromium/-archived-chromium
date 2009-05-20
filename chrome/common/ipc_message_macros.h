@@ -589,13 +589,13 @@ LogFunction g_log_function_mapping[LastMsgIndex];
   };
 
 #define IPC_MESSAGE_CONTROL1(msg_class, type1) \
-  class msg_class : public IPC::MessageWithTuple<type1> { \
+  class msg_class : public IPC::MessageWithTuple< Tuple1<type1> > { \
    public: \
    enum { ID = msg_class##__ID }; \
     msg_class(const type1& arg1) \
-        : IPC::MessageWithTuple<type1>(MSG_ROUTING_CONTROL, \
+        : IPC::MessageWithTuple< Tuple1<type1> >(MSG_ROUTING_CONTROL, \
                                        ID, \
-                                       arg1) {} \
+                                       MakeRefTuple(arg1)) {} \
   };
 
 #define IPC_MESSAGE_CONTROL2(msg_class, type1, type2) \
@@ -606,7 +606,7 @@ LogFunction g_log_function_mapping[LastMsgIndex];
         : IPC::MessageWithTuple< Tuple2<type1, type2> >( \
               MSG_ROUTING_CONTROL, \
               ID, \
-              MakeTuple(arg1, arg2)) {} \
+              MakeRefTuple(arg1, arg2)) {} \
   };
 
 #define IPC_MESSAGE_CONTROL3(msg_class, type1, type2, type3) \
@@ -618,7 +618,7 @@ LogFunction g_log_function_mapping[LastMsgIndex];
         : IPC::MessageWithTuple< Tuple3<type1, type2, type3> >( \
               MSG_ROUTING_CONTROL, \
               ID, \
-              MakeTuple(arg1, arg2, arg3)) {} \
+              MakeRefTuple(arg1, arg2, arg3)) {} \
   };
 
 #define IPC_MESSAGE_CONTROL4(msg_class, type1, type2, type3, type4) \
@@ -631,7 +631,7 @@ LogFunction g_log_function_mapping[LastMsgIndex];
         : IPC::MessageWithTuple< Tuple4<type1, type2, type3, type4> >( \
               MSG_ROUTING_CONTROL, \
               ID, \
-              MakeTuple(arg1, arg2, arg3, arg4)) {} \
+              MakeRefTuple(arg1, arg2, arg3, arg4)) {} \
   };
 
 #define IPC_MESSAGE_CONTROL5(msg_class, type1, type2, type3, type4, type5) \
@@ -644,7 +644,7 @@ LogFunction g_log_function_mapping[LastMsgIndex];
         : IPC::MessageWithTuple< Tuple5<type1, type2, type3, type4, type5> >( \
             MSG_ROUTING_CONTROL, \
             ID, \
-            MakeTuple(arg1, arg2, arg3, arg4, arg5)) {} \
+            MakeRefTuple(arg1, arg2, arg3, arg4, arg5)) {} \
   };
 
 #define IPC_MESSAGE_ROUTED0(msg_class) \
@@ -656,11 +656,12 @@ LogFunction g_log_function_mapping[LastMsgIndex];
   };
 
 #define IPC_MESSAGE_ROUTED1(msg_class, type1) \
-  class msg_class : public IPC::MessageWithTuple<type1> { \
+  class msg_class : public IPC::MessageWithTuple< Tuple1<type1> > { \
    public: \
     enum { ID = msg_class##__ID }; \
     msg_class(int32 routing_id, const type1& arg1) \
-        : IPC::MessageWithTuple<type1>(routing_id, ID, arg1) {} \
+        : IPC::MessageWithTuple< Tuple1<type1> >(routing_id, ID, \
+                                                 MakeRefTuple(arg1)) {} \
   };
 
 #define IPC_MESSAGE_ROUTED2(msg_class, type1, type2) \
@@ -669,7 +670,7 @@ LogFunction g_log_function_mapping[LastMsgIndex];
     enum { ID = msg_class##__ID }; \
     msg_class(int32 routing_id, const type1& arg1, const type2& arg2) \
         : IPC::MessageWithTuple< Tuple2<type1, type2> >( \
-            routing_id, ID, MakeTuple(arg1, arg2)) {} \
+            routing_id, ID, MakeRefTuple(arg1, arg2)) {} \
   };
 
 #define IPC_MESSAGE_ROUTED3(msg_class, type1, type2, type3) \
@@ -680,7 +681,7 @@ LogFunction g_log_function_mapping[LastMsgIndex];
     msg_class(int32 routing_id, const type1& arg1, const type2& arg2, \
               const type3& arg3) \
         : IPC::MessageWithTuple< Tuple3<type1, type2, type3> >( \
-            routing_id, ID, MakeTuple(arg1, arg2, arg3)) {} \
+            routing_id, ID, MakeRefTuple(arg1, arg2, arg3)) {} \
   };
 
 #define IPC_MESSAGE_ROUTED4(msg_class, type1, type2, type3, type4) \
@@ -691,7 +692,7 @@ LogFunction g_log_function_mapping[LastMsgIndex];
     msg_class(int32 routing_id, const type1& arg1, const type2& arg2, \
                const type3& arg3, const type4& arg4) \
         : IPC::MessageWithTuple< Tuple4<type1, type2, type3, type4> >( \
-            routing_id, ID, MakeTuple(arg1, arg2, arg3, arg4)) {} \
+            routing_id, ID, MakeRefTuple(arg1, arg2, arg3, arg4)) {} \
   };
 
 #define IPC_MESSAGE_ROUTED5(msg_class, type1, type2, type3, type4, type5) \
@@ -702,7 +703,7 @@ LogFunction g_log_function_mapping[LastMsgIndex];
     msg_class(int32 routing_id, const type1& arg1, const type2& arg2, \
               const type3& arg3, const type4& arg4, const type5& arg5) \
         : IPC::MessageWithTuple< Tuple5<type1, type2, type3, type4, type5> >( \
-            routing_id, ID, MakeTuple(arg1, arg2, arg3, arg4, arg5)) {} \
+            routing_id, ID, MakeRefTuple(arg1, arg2, arg3, arg4, arg5)) {} \
   };
 
 #define IPC_MESSAGE_ROUTED6(msg_class, type1, type2, type3, type4, type5, \
@@ -717,7 +718,7 @@ LogFunction g_log_function_mapping[LastMsgIndex];
               const type6& arg6)                                        \
       : IPC::MessageWithTuple< Tuple6<type1, type2, type3, type4, type5, \
       type6> >(                                                         \
-          routing_id, ID, MakeTuple(arg1, arg2, arg3, arg4, arg5, arg6)) {} \
+          routing_id, ID, MakeRefTuple(arg1, arg2, arg3, arg4, arg5, arg6)) {} \
   };
 
 #define IPC_SYNC_MESSAGE_CONTROL0_0(msg_class) \
@@ -768,48 +769,48 @@ LogFunction g_log_function_mapping[LastMsgIndex];
 
 #define IPC_SYNC_MESSAGE_CONTROL1_0(msg_class, type1_in) \
   class msg_class : \
-      public IPC::MessageWithReply<type1_in, Tuple0 > { \
+      public IPC::MessageWithReply<Tuple1<type1_in>, Tuple0 > { \
    public: \
    enum { ID = msg_class##__ID }; \
     msg_class(const type1_in& arg1) \
-        : IPC::MessageWithReply<type1_in, Tuple0 >( \
+        : IPC::MessageWithReply<Tuple1<type1_in>, Tuple0 >( \
             MSG_ROUTING_CONTROL, ID, \
-            arg1, MakeTuple()) {} \
+            MakeRefTuple(arg1), MakeTuple()) {} \
   };
 
 #define IPC_SYNC_MESSAGE_CONTROL1_1(msg_class, type1_in, type1_out) \
   class msg_class : \
-      public IPC::MessageWithReply<type1_in, Tuple1<type1_out&> > { \
+      public IPC::MessageWithReply<Tuple1<type1_in>, Tuple1<type1_out&> > { \
    public: \
    enum { ID = msg_class##__ID }; \
     msg_class(const type1_in& arg1, type1_out* arg2) \
-        : IPC::MessageWithReply<type1_in, Tuple1<type1_out&> >( \
+        : IPC::MessageWithReply<Tuple1<type1_in>, Tuple1<type1_out&> >( \
             MSG_ROUTING_CONTROL, ID, \
-            arg1, MakeRefTuple(*arg2)) {} \
+            MakeRefTuple(arg1), MakeRefTuple(*arg2)) {} \
   };
 
 #define IPC_SYNC_MESSAGE_CONTROL1_2(msg_class, type1_in, type1_out, type2_out) \
   class msg_class : \
-      public IPC::MessageWithReply<type1_in, Tuple2<type1_out&, type2_out&> > { \
+      public IPC::MessageWithReply<Tuple1<type1_in>, Tuple2<type1_out&, type2_out&> > { \
    public: \
    enum { ID = msg_class##__ID }; \
     msg_class(const type1_in& arg1, type1_out* arg2, type2_out* arg3) \
-        : IPC::MessageWithReply<type1_in, Tuple2<type1_out&, type2_out&> >( \
+        : IPC::MessageWithReply<Tuple1<type1_in>, Tuple2<type1_out&, type2_out&> >( \
             MSG_ROUTING_CONTROL, ID, \
-            arg1, MakeRefTuple(*arg2, *arg3)) {} \
+            MakeRefTuple(arg1), MakeRefTuple(*arg2, *arg3)) {} \
   };
 
 #define IPC_SYNC_MESSAGE_CONTROL1_3(msg_class, type1_in, type1_out, type2_out, type3_out) \
   class msg_class : \
-      public IPC::MessageWithReply<type1_in, \
+      public IPC::MessageWithReply<Tuple1<type1_in>, \
           Tuple3<type1_out&, type2_out&, type3_out&> >{ \
    public: \
    enum { ID = msg_class##__ID }; \
     msg_class(const type1_in& arg1, type1_out* arg2, type2_out* arg3, type3_out* arg4) \
-        : IPC::MessageWithReply<type1_in, \
+        : IPC::MessageWithReply<Tuple1<type1_in>, \
             Tuple3<type1_out&, type2_out&, type3_out&> >(MSG_ROUTING_CONTROL, \
             ID, \
-            arg1, MakeRefTuple(*arg2, *arg3, *arg4)) {} \
+            MakeRefTuple(arg1), MakeRefTuple(*arg2, *arg3, *arg4)) {} \
   };
 
 #define IPC_SYNC_MESSAGE_CONTROL2_0(msg_class, type1_in, type2_in) \
@@ -820,7 +821,7 @@ LogFunction g_log_function_mapping[LastMsgIndex];
     msg_class(const type1_in& arg1, const type2_in& arg2) \
         : IPC::MessageWithReply<Tuple2<type1_in, type2_in>, Tuple0 >( \
             MSG_ROUTING_CONTROL, ID, \
-            MakeTuple(arg1, arg2), MakeTuple()) {} \
+            MakeRefTuple(arg1, arg2), MakeTuple()) {} \
   };
 
 #define IPC_SYNC_MESSAGE_CONTROL2_1(msg_class, type1_in, type2_in, type1_out) \
@@ -831,7 +832,7 @@ LogFunction g_log_function_mapping[LastMsgIndex];
     msg_class(const type1_in& arg1, const type2_in& arg2, type1_out* arg3) \
         : IPC::MessageWithReply<Tuple2<type1_in, type2_in>, Tuple1<type1_out&> >( \
             MSG_ROUTING_CONTROL, ID, \
-            MakeTuple(arg1, arg2), MakeRefTuple(*arg3)) {} \
+            MakeRefTuple(arg1, arg2), MakeRefTuple(*arg3)) {} \
   };
 
 #define IPC_SYNC_MESSAGE_CONTROL2_2(msg_class, type1_in, type2_in, type1_out, type2_out) \
@@ -843,7 +844,7 @@ LogFunction g_log_function_mapping[LastMsgIndex];
     msg_class(const type1_in& arg1, const type2_in& arg2, type1_out* arg3, type2_out* arg4) \
         : IPC::MessageWithReply<Tuple2<type1_in, type2_in>, \
             Tuple2<type1_out&, type2_out&> >(MSG_ROUTING_CONTROL, ID, \
-            MakeTuple(arg1, arg2), MakeRefTuple(*arg3, *arg4)) {} \
+            MakeRefTuple(arg1, arg2), MakeRefTuple(*arg3, *arg4)) {} \
   };
 
 #define IPC_SYNC_MESSAGE_CONTROL2_3(msg_class, type1_in, type2_in, type1_out, type2_out, type3_out) \
@@ -856,7 +857,7 @@ LogFunction g_log_function_mapping[LastMsgIndex];
         : IPC::MessageWithReply<Tuple2<type1_in, type2_in>, \
             Tuple3<type1_out&, type2_out&, type3_out&> >(MSG_ROUTING_CONTROL, \
             ID, \
-            MakeTuple(arg1, arg2), MakeRefTuple(*arg3, *arg4, *arg5)) {} \
+            MakeRefTuple(arg1, arg2), MakeRefTuple(*arg3, *arg4, *arg5)) {} \
   };
 
 #define IPC_SYNC_MESSAGE_CONTROL3_1(msg_class, type1_in, type2_in, type3_in, type1_out) \
@@ -868,7 +869,7 @@ LogFunction g_log_function_mapping[LastMsgIndex];
     msg_class(const type1_in& arg1, const type2_in& arg2, const type3_in& arg3, type1_out* arg4) \
         : IPC::MessageWithReply<Tuple3<type1_in, type2_in, type3_in>, \
             Tuple1<type1_out&> >(MSG_ROUTING_CONTROL, ID, \
-            MakeTuple(arg1, arg2, arg3), MakeRefTuple(*arg4)) {} \
+            MakeRefTuple(arg1, arg2, arg3), MakeRefTuple(*arg4)) {} \
   };
 
 #define IPC_SYNC_MESSAGE_CONTROL3_2(msg_class, type1_in, type2_in, type3_in, type1_out, type2_out) \
@@ -880,7 +881,7 @@ LogFunction g_log_function_mapping[LastMsgIndex];
     msg_class(const type1_in& arg1, const type2_in& arg2, const type3_in& arg3, type1_out* arg4, type2_out* arg5) \
         : IPC::MessageWithReply<Tuple3<type1_in, type2_in, type3_in>, \
             Tuple2<type1_out&, type2_out&> >(MSG_ROUTING_CONTROL, ID, \
-            MakeTuple(arg1, arg2, arg3), MakeRefTuple(*arg4, *arg5)) {} \
+            MakeRefTuple(arg1, arg2, arg3), MakeRefTuple(*arg4, *arg5)) {} \
   };
 
 #define IPC_SYNC_MESSAGE_CONTROL3_3(msg_class, type1_in, type2_in, type3_in, type1_out, type2_out, type3_out) \
@@ -893,7 +894,7 @@ LogFunction g_log_function_mapping[LastMsgIndex];
         : IPC::MessageWithReply<Tuple3<type1_in, type2_in, type3_in>, \
             Tuple3<type1_out&, type2_out&, type3_out&> >(MSG_ROUTING_CONTROL, \
             ID, \
-            MakeTuple(arg1, arg2, arg3), MakeRefTuple(*arg4, *arg5, *arg6)) {} \
+            MakeRefTuple(arg1, arg2, arg3), MakeRefTuple(*arg4, *arg5, *arg6)) {} \
   };
 
 #define IPC_SYNC_MESSAGE_CONTROL4_1(msg_class, type1_in, type2_in, type3_in, type4_in, type1_out) \
@@ -905,7 +906,7 @@ LogFunction g_log_function_mapping[LastMsgIndex];
     msg_class(const type1_in& arg1, const type2_in& arg2, const type3_in& arg3, const type4_in& arg4, type1_out* arg6) \
         : IPC::MessageWithReply<Tuple4<type1_in, type2_in, type3_in, type4_in>, \
             Tuple1<type1_out&> >(MSG_ROUTING_CONTROL, ID, \
-            MakeTuple(arg1, arg2, arg3, arg4), MakeRefTuple(*arg6)) {} \
+            MakeRefTuple(arg1, arg2, arg3, arg4), MakeRefTuple(*arg6)) {} \
   };
 
 #define IPC_SYNC_MESSAGE_CONTROL4_2(msg_class, type1_in, type2_in, type3_in, type4_in, type1_out, type2_out) \
@@ -917,7 +918,7 @@ LogFunction g_log_function_mapping[LastMsgIndex];
     msg_class(const type1_in& arg1, const type2_in& arg2, const type3_in& arg3, const type4_in& arg4, type1_out* arg5, type2_out* arg6) \
         : IPC::MessageWithReply<Tuple4<type1_in, type2_in, type3_in, type4_in>, \
             Tuple2<type1_out&, type2_out&> >(MSG_ROUTING_CONTROL, ID, \
-            MakeTuple(arg1, arg2, arg3, arg4), MakeRefTuple(*arg5, *arg6)) {} \
+            MakeRefTuple(arg1, arg2, arg3, arg4), MakeRefTuple(*arg5, *arg6)) {} \
   };
 
 #define IPC_SYNC_MESSAGE_ROUTED0_1(msg_class, type1_out) \
@@ -965,59 +966,59 @@ LogFunction g_log_function_mapping[LastMsgIndex];
 
 #define IPC_SYNC_MESSAGE_ROUTED1_0(msg_class, type1_in) \
   class msg_class : \
-      public IPC::MessageWithReply<type1_in, Tuple0 > { \
+      public IPC::MessageWithReply<Tuple1<type1_in>, Tuple0 > { \
    public: \
    enum { ID = msg_class##__ID }; \
     msg_class(int routing_id, const type1_in& arg1) \
-        : IPC::MessageWithReply<type1_in, Tuple0 >( \
+        : IPC::MessageWithReply<Tuple1<type1_in>, Tuple0 >( \
             routing_id, ID, \
-            arg1, MakeTuple()) {} \
+            MakeRefTuple(arg1), MakeTuple()) {} \
   };
 
 #define IPC_SYNC_MESSAGE_ROUTED1_1(msg_class, type1_in, type1_out) \
   class msg_class : \
-      public IPC::MessageWithReply<type1_in, Tuple1<type1_out&> > { \
+      public IPC::MessageWithReply<Tuple1<type1_in>, Tuple1<type1_out&> > { \
    public: \
    enum { ID = msg_class##__ID }; \
     msg_class(int routing_id, const type1_in& arg1, type1_out* arg2) \
-        : IPC::MessageWithReply<type1_in, Tuple1<type1_out&> >( \
+        : IPC::MessageWithReply<Tuple1<type1_in>, Tuple1<type1_out&> >( \
             routing_id, ID, \
-            arg1, MakeRefTuple(*arg2)) {} \
+            MakeRefTuple(arg1), MakeRefTuple(*arg2)) {} \
   };
 
 #define IPC_SYNC_MESSAGE_ROUTED1_2(msg_class, type1_in, type1_out, type2_out) \
   class msg_class : \
-      public IPC::MessageWithReply<type1_in, Tuple2<type1_out&, type2_out&> > { \
+      public IPC::MessageWithReply<Tuple1<type1_in>, Tuple2<type1_out&, type2_out&> > { \
    public: \
    enum { ID = msg_class##__ID }; \
     msg_class(int routing_id, const type1_in& arg1, type1_out* arg2, type2_out* arg3) \
-        : IPC::MessageWithReply<type1_in, Tuple2<type1_out&, type2_out&> >( \
+        : IPC::MessageWithReply<Tuple1<type1_in>, Tuple2<type1_out&, type2_out&> >( \
             routing_id, ID, \
-            arg1, MakeRefTuple(*arg2, *arg3)) {} \
+            MakeRefTuple(arg1), MakeRefTuple(*arg2, *arg3)) {} \
   };
 
 #define IPC_SYNC_MESSAGE_ROUTED1_3(msg_class, type1_in, type1_out, type2_out, type3_out) \
   class msg_class : \
-      public IPC::MessageWithReply<type1_in, \
+      public IPC::MessageWithReply<Tuple1<type1_in>, \
           Tuple3<type1_out&, type2_out&, type3_out&> >{ \
    public: \
    enum { ID = msg_class##__ID }; \
     msg_class(int routing_id, const type1_in& arg1, type1_out* arg2, type2_out* arg3, type3_out* arg4) \
-        : IPC::MessageWithReply<type1_in, \
+        : IPC::MessageWithReply<Tuple1<type1_in>, \
             Tuple3<type1_out&, type2_out&, type3_out&> >(routing_id, ID, \
-            arg1, MakeRefTuple(*arg2, *arg3, *arg4)) {} \
+            MakeRefTuple(arg1), MakeRefTuple(*arg2, *arg3, *arg4)) {} \
   };
 
 #define IPC_SYNC_MESSAGE_ROUTED1_4(msg_class, type1_in, type1_out, type2_out, type3_out, type4_out) \
   class msg_class : \
-      public IPC::MessageWithReply<type1_in, \
+      public IPC::MessageWithReply<Tuple1<type1_in>, \
           Tuple4<type1_out&, type2_out&, type3_out&, type4_out&> >{ \
    public: \
    enum { ID = msg_class##__ID }; \
     msg_class(int routing_id, const type1_in& arg1, type1_out* arg2, type2_out* arg3, type3_out* arg4, type4_out* arg5) \
-        : IPC::MessageWithReply<type1_in, \
+        : IPC::MessageWithReply<Tuple1<type1_in>, \
             Tuple4<type1_out&, type2_out&, type3_out&, type4_out&> >(routing_id, ID, \
-            arg1, MakeRefTuple(*arg2, *arg3, *arg4, *arg5)) {} \
+            MakeRefTuple(arg1), MakeRefTuple(*arg2, *arg3, *arg4, *arg5)) {} \
   };
 
 #define IPC_SYNC_MESSAGE_ROUTED2_0(msg_class, type1_in, type2_in) \
@@ -1028,7 +1029,7 @@ LogFunction g_log_function_mapping[LastMsgIndex];
     msg_class(int routing_id, const type1_in& arg1, const type2_in& arg2) \
         : IPC::MessageWithReply<Tuple2<type1_in, type2_in>, Tuple0 >( \
             routing_id, ID, \
-            MakeTuple(arg1, arg2), MakeTuple()) {} \
+            MakeRefTuple(arg1, arg2), MakeTuple()) {} \
   };
 
 #define IPC_SYNC_MESSAGE_ROUTED2_1(msg_class, type1_in, type2_in, type1_out) \
@@ -1039,7 +1040,7 @@ LogFunction g_log_function_mapping[LastMsgIndex];
     msg_class(int routing_id, const type1_in& arg1, const type2_in& arg2, type1_out* arg3) \
         : IPC::MessageWithReply<Tuple2<type1_in, type2_in>, Tuple1<type1_out&> >( \
             routing_id, ID, \
-            MakeTuple(arg1, arg2), MakeRefTuple(*arg3)) {} \
+            MakeRefTuple(arg1, arg2), MakeRefTuple(*arg3)) {} \
   };
 
 #define IPC_SYNC_MESSAGE_ROUTED2_2(msg_class, type1_in, type2_in, type1_out, type2_out) \
@@ -1051,7 +1052,7 @@ LogFunction g_log_function_mapping[LastMsgIndex];
     msg_class(int routing_id, const type1_in& arg1, const type2_in& arg2, type1_out* arg3, type2_out* arg4) \
         : IPC::MessageWithReply<Tuple2<type1_in, type2_in>, \
             Tuple2<type1_out&, type2_out&> >(routing_id, ID, \
-            MakeTuple(arg1, arg2), MakeRefTuple(*arg3, *arg4)) {} \
+            MakeRefTuple(arg1, arg2), MakeRefTuple(*arg3, *arg4)) {} \
   };
 
 #define IPC_SYNC_MESSAGE_ROUTED2_3(msg_class, type1_in, type2_in, type1_out, type2_out, type3_out) \
@@ -1063,7 +1064,7 @@ LogFunction g_log_function_mapping[LastMsgIndex];
     msg_class(int routing_id, const type1_in& arg1, const type2_in& arg2, type1_out* arg3, type2_out* arg4, type3_out* arg5) \
         : IPC::MessageWithReply<Tuple2<type1_in, type2_in>, \
             Tuple3<type1_out&, type2_out&, type3_out&> >(routing_id, ID, \
-            MakeTuple(arg1, arg2), MakeRefTuple(*arg3, *arg4, *arg5)) {} \
+            MakeRefTuple(arg1, arg2), MakeRefTuple(*arg3, *arg4, *arg5)) {} \
   };
 
 #define IPC_SYNC_MESSAGE_ROUTED3_0(msg_class, type1_in, type2_in, type3_in) \
@@ -1074,7 +1075,7 @@ LogFunction g_log_function_mapping[LastMsgIndex];
     msg_class(int routing_id, const type1_in& arg1, const type2_in& arg2, const type3_in& arg3) \
         : IPC::MessageWithReply<Tuple3<type1_in, type2_in, type3_in>, Tuple0>( \
             routing_id, ID, \
-            MakeTuple(arg1, arg2, arg3), MakeTuple()) {} \
+            MakeRefTuple(arg1, arg2, arg3), MakeTuple()) {} \
   };
 
 #define IPC_SYNC_MESSAGE_ROUTED3_1(msg_class, type1_in, type2_in, type3_in, type1_out) \
@@ -1086,7 +1087,7 @@ LogFunction g_log_function_mapping[LastMsgIndex];
     msg_class(int routing_id, const type1_in& arg1, const type2_in& arg2, const type3_in& arg3, type1_out* arg4) \
         : IPC::MessageWithReply<Tuple3<type1_in, type2_in, type3_in>, \
             Tuple1<type1_out&> >(routing_id, ID, \
-            MakeTuple(arg1, arg2, arg3), MakeRefTuple(*arg4)) {} \
+            MakeRefTuple(arg1, arg2, arg3), MakeRefTuple(*arg4)) {} \
   };
 
 #define IPC_SYNC_MESSAGE_ROUTED3_2(msg_class, type1_in, type2_in, type3_in, type1_out, type2_out) \
@@ -1098,7 +1099,7 @@ LogFunction g_log_function_mapping[LastMsgIndex];
     msg_class(int routing_id, const type1_in& arg1, const type2_in& arg2, const type3_in& arg3, type1_out* arg4, type2_out* arg5) \
         : IPC::MessageWithReply<Tuple3<type1_in, type2_in, type3_in>, \
             Tuple2<type1_out&, type2_out&> >(routing_id, ID, \
-            MakeTuple(arg1, arg2, arg3), MakeRefTuple(*arg4, *arg5)) {} \
+            MakeRefTuple(arg1, arg2, arg3), MakeRefTuple(*arg4, *arg5)) {} \
   };
 
 #define IPC_SYNC_MESSAGE_ROUTED3_3(msg_class, type1_in, type2_in, type3_in, type1_out, type2_out, type3_out) \
@@ -1110,7 +1111,7 @@ LogFunction g_log_function_mapping[LastMsgIndex];
     msg_class(int routing_id, const type1_in& arg1, const type2_in& arg2, const type3_in& arg3, type1_out* arg4, type2_out* arg5, type3_out* arg6) \
         : IPC::MessageWithReply<Tuple3<type1_in, type2_in, type3_in>, \
             Tuple3<type1_out&, type2_out&, type3_out&> >(routing_id, ID, \
-            MakeTuple(arg1, arg2, arg3), MakeRefTuple(*arg4, *arg5, *arg6)) {} \
+            MakeRefTuple(arg1, arg2, arg3), MakeRefTuple(*arg4, *arg5, *arg6)) {} \
   };
 
 #define IPC_SYNC_MESSAGE_ROUTED4_0(msg_class, type1_in, type2_in, type3_in, type4_in) \
@@ -1122,7 +1123,7 @@ LogFunction g_log_function_mapping[LastMsgIndex];
     msg_class(int routing_id, const type1_in& arg1, const type2_in& arg2, const type3_in& arg3, const type4_in& arg4) \
         : IPC::MessageWithReply<Tuple4<type1_in, type2_in, type3_in, type4_in>, \
             Tuple0 >(routing_id, ID, \
-            MakeTuple(arg1, arg2, arg3, arg4), MakeTuple()) {} \
+            MakeRefTuple(arg1, arg2, arg3, arg4), MakeTuple()) {} \
   };
 
 #define IPC_SYNC_MESSAGE_ROUTED4_1(msg_class, type1_in, type2_in, type3_in, type4_in, type1_out) \
@@ -1134,7 +1135,7 @@ LogFunction g_log_function_mapping[LastMsgIndex];
     msg_class(int routing_id, const type1_in& arg1, const type2_in& arg2, const type3_in& arg3, const type4_in& arg4, type1_out* arg6) \
         : IPC::MessageWithReply<Tuple4<type1_in, type2_in, type3_in, type4_in>, \
             Tuple1<type1_out&> >(routing_id, ID, \
-            MakeTuple(arg1, arg2, arg3, arg4), MakeRefTuple(*arg6)) {} \
+            MakeRefTuple(arg1, arg2, arg3, arg4), MakeRefTuple(*arg6)) {} \
   };
 
 #define IPC_SYNC_MESSAGE_ROUTED4_2(msg_class, type1_in, type2_in, type3_in, type4_in, type1_out, type2_out) \
@@ -1146,7 +1147,7 @@ LogFunction g_log_function_mapping[LastMsgIndex];
     msg_class(int routing_id, const type1_in& arg1, const type2_in& arg2, const type3_in& arg3, const type4_in& arg4, type1_out* arg5, type2_out* arg6) \
         : IPC::MessageWithReply<Tuple4<type1_in, type2_in, type3_in, type4_in>, \
             Tuple2<type1_out&, type2_out&> >(routing_id, ID, \
-            MakeTuple(arg1, arg2, arg3, arg4), MakeRefTuple(*arg5, *arg6)) {} \
+            MakeRefTuple(arg1, arg2, arg3, arg4), MakeRefTuple(*arg5, *arg6)) {} \
   };
 
 #endif  // #if defined()

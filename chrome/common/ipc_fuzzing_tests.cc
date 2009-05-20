@@ -116,7 +116,7 @@ class MsgClassIS : public IPC::MessageWithTuple< Tuple2<int, std::wstring> > {
   enum { ID = SERVER_FIRST_IPC_TYPE };
   MsgClassIS(const int& arg1, const std::wstring& arg2)
       : IPC::MessageWithTuple< Tuple2<int, std::wstring> >(
-            MSG_ROUTING_CONTROL, ID, MakeTuple(arg1, arg2)) {}
+            MSG_ROUTING_CONTROL, ID, MakeRefTuple(arg1, arg2)) {}
 };
 
 // Generic message class that is a wstring followed by an int.
@@ -125,7 +125,7 @@ class MsgClassSI : public IPC::MessageWithTuple< Tuple2<std::wstring, int> > {
   enum { ID = SERVER_SECOND_IPC_TYPE };
   MsgClassSI(const std::wstring& arg1, const int& arg2)
       : IPC::MessageWithTuple< Tuple2<std::wstring, int> >(
-            MSG_ROUTING_CONTROL, ID, MakeTuple(arg1, arg2)) {}
+            MSG_ROUTING_CONTROL, ID, MakeRefTuple(arg1, arg2)) {}
 };
 
 // Message to create a mutex in the IPC server, using the received name.
@@ -134,7 +134,7 @@ class MsgDoMutex : public IPC::MessageWithTuple< Tuple2<std::wstring, int> > {
   enum { ID = SERVER_THIRD_IPC_TYPE };
   MsgDoMutex(const std::wstring& mutex_name, const int& unused)
       : IPC::MessageWithTuple< Tuple2<std::wstring, int> >(
-            MSG_ROUTING_CONTROL, ID, MakeTuple(mutex_name, unused)) {}
+            MSG_ROUTING_CONTROL, ID, MakeRefTuple(mutex_name, unused)) {}
 };
 
 class SimpleListener : public IPC::Channel::Listener {

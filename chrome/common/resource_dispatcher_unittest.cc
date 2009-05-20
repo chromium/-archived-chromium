@@ -120,11 +120,11 @@ class ResourceDispatcherTest : public testing::Test,
       message_queue_.erase(message_queue_.begin());
 
       // read the ack message.
-      int request_ack = -1;
+      Tuple1<int> request_ack;
       ASSERT_TRUE(ViewHostMsg_DataReceived_ACK::Read(
           &message_queue_[0], &request_ack));
 
-      ASSERT_EQ(request_ack, request_id);
+      ASSERT_EQ(request_ack.a, request_id);
 
       message_queue_.erase(message_queue_.begin());
     }
