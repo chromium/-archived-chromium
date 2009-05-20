@@ -137,7 +137,12 @@ void LocationBarViewGtk::OnChanged() {
 }
 
 void LocationBarViewGtk::OnInputInProgress(bool in_progress) {
-  NOTIMPLEMENTED();
+  // Here's a comment copied from the Windows code, which propagates this
+  // call up to the toolbar.
+  // "Called by the location bar view when the user starts typing in the edit.
+  // This forces our security style to be UNKNOWN for the duration of the
+  // editing."
+  // http://code.google.com/p/chromium/issues/detail?id=10965
 }
 
 SkBitmap LocationBarViewGtk::GetFavIcon() const {
