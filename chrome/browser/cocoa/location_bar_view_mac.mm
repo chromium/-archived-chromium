@@ -107,7 +107,7 @@ void LocationBarViewMac::OnAutocompleteAccept(const GURL& url,
 }
 
 void LocationBarViewMac::OnChanged() {
-  NOTIMPLEMENTED();
+  // http://crbug.com/12285
 }
 
 void LocationBarViewMac::OnInputInProgress(bool in_progress) {
