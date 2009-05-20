@@ -180,7 +180,7 @@ function refreshTab(tabId) {
 }
 
 chrome.tabs.onUpdated.addListener(function(tabId, props) {
-  appendToLog('tabs.onUpdated -- tab: ' + tabId + ' status ' + props.status);
+  appendToLog('tabs.onUpdated -- tab: ' + tabId + ' status ' + props.status + ' url ' + props.url);
   refreshTab(tabId);
 });
 

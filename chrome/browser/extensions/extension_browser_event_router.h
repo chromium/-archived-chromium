@@ -22,7 +22,8 @@
 // events from windows/tabs within a profile to extension processes in the same
 // profile.
 class ExtensionBrowserEventRouter : public TabStripModelObserver,
-                                    public BrowserList::Observer {
+                                    public BrowserList::Observer,
+                                    public NotificationObserver {
  public:
   // Get Browser-Global instance.
   static ExtensionBrowserEventRouter* GetInstance();
@@ -60,6 +61,11 @@ class ExtensionBrowserEventRouter : public TabStripModelObserver,
  private:
   // "Synthetic" event. Called from TabInsertedAt if new tab is detected.
   void TabCreatedAt(TabContents* contents, int index, bool foreground);
+
+  // Internal processing of tab updated events. Is called by both TabChangedAt
+  // and Observe/NAV_ENTRY_COMMITTED.
+  void TabUpdated(TabContents *contents, bool did_navigate);
+
   ExtensionBrowserEventRouter();
   friend struct DefaultSingletonTraits<ExtensionBrowserEventRouter>;
 
@@ -84,15 +90,29 @@ class ExtensionBrowserEventRouter : public TabStripModelObserver,
     // Returns the current state of the tab.
     ExtensionTabUtil::TabStatus state() const { return state_; }
 
-    // Update the state of the tab based on its TabContents.  Returns true if
-    // the state changed, false otherwise.  Whether the state has changed or not
-    // is used to determine if events needs to be sent to extensions during
-    // processing of TabChangedAt().
-    bool UpdateState(const TabContents* contents);
+    // Update the load state of the tab based on its TabContents.  Returns true
+    // if the state changed, false otherwise.  Whether the state has changed or
+    // not is used to determine if events needs to be sent to extensions during
+    // processing of TabChangedAt(). This method will "hold" a state-change
+    // to "loading", until the DidNavigate() method which should always follow
+    // it. Returns NULL if no updates should be sent.
+    DictionaryValue* UpdateLoadState(const TabContents* contents);
+
+    // Indicates that a tab load has resulted in a navigation and the
+    // destination url is available for inspection. Returns NULL if no updates
+    // should be sent.
+    DictionaryValue* DidNavigate(const TabContents* contents);
 
    private:
     // Tab state used for last notification to extensions.
     ExtensionTabUtil::TabStatus state_;
+
+    // Remember that the LOADING state has been captured, but not yet reported
+    // because it is waiting on the navigation event to know what the
+    // destination url is.
+    bool pending_navigate_;
+
+    GURL url_;
   };
 
   std::map<int, TabEntry> tab_entries_;

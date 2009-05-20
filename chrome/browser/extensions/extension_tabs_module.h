@@ -23,6 +23,36 @@ class ExtensionTabUtil {
     TAB_COMPLETE  // Tab loading and rendering is complete.
   };
 
+  // Keys used in serializing tab data & events.
+  static const wchar_t* kDataKey;
+  static const wchar_t* kFavIconUrlKey;
+  static const wchar_t* kFocusedKey;
+  static const wchar_t* kFromIndexKey;
+  static const wchar_t* kHeightKey;
+  static const wchar_t* kIdKey;
+  static const wchar_t* kIndexKey;
+  static const wchar_t* kLeftKey;
+  static const wchar_t* kNewPositionKey;
+  static const wchar_t* kNewWindowIdKey;
+  static const wchar_t* kOldPositionKey;
+  static const wchar_t* kOldWindowIdKey;
+  static const wchar_t* kPageActionIdKey;
+  static const wchar_t* kSelectedKey;
+  static const wchar_t* kStatusKey;
+  static const wchar_t* kTabIdKey;
+  static const wchar_t* kTabsKey;
+  static const wchar_t* kTabUrlKey;
+  static const wchar_t* kTitleKey;
+  static const wchar_t* kToIndexKey;
+  static const wchar_t* kTopKey;
+  static const wchar_t* kUrlKey;
+  static const wchar_t* kWidthKey;
+  static const wchar_t* kWindowIdKey;
+
+  // Value consts.
+  static const char* kStatusValueComplete;
+  static const char* kStatusValueLoading;
+
   static int GetWindowId(const Browser* browser);
   static int GetTabId(const TabContents* tab_contents);
   static TabStatus GetTabStatus(const TabContents* tab_contents);
@@ -32,7 +62,6 @@ class ExtensionTabUtil {
   static DictionaryValue* CreateTabValue(const TabContents* tab_contents,
                                          TabStripModel* tab_strip,
                                          int tab_index);
-  static DictionaryValue* CreateTabChangedValue(const TabContents* contents);
 
   // Any out parameter (|browser|, |tab_strip|, |contents|, & |tab_index|) may
   // be NULL and will not be set within the function.

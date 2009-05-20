@@ -10,34 +10,78 @@
 #include "chrome/browser/profile.h"
 #include "chrome/browser/extensions/extension.h"
 #include "chrome/browser/extensions/extension_message_service.h"
+#include "chrome/browser/tab_contents/navigation_entry.h"
 #include "chrome/common/notification_service.h"
 
 const char* kOnPageActionExecuted = "page-action-executed";
-const char* kOnTabCreated = "tab-created";
-const char* kOnTabUpdated = "tab-updated";
-const char* kOnTabMoved = "tab-moved";
-const char* kOnTabSelectionChanged = "tab-selection-changed";
 const char* kOnTabAttached = "tab-attached";
+const char* kOnTabCreated = "tab-created";
 const char* kOnTabDetached = "tab-detached";
+const char* kOnTabMoved = "tab-moved";
 const char* kOnTabRemoved = "tab-removed";
+const char* kOnTabSelectionChanged = "tab-selection-changed";
+const char* kOnTabUpdated = "tab-updated";
 const char* kOnWindowCreated = "window-created";
-const char* kOnWindowRemoved = "window-removed";
 const char* kOnWindowFocusedChanged = "window-focus-changed";
+const char* kOnWindowRemoved = "window-removed";
 
 ExtensionBrowserEventRouter::TabEntry::TabEntry()
-    : state_(ExtensionTabUtil::TAB_COMPLETE) {
+    : state_(ExtensionTabUtil::TAB_COMPLETE),
+      pending_navigate_(false),
+      url_() {
 }
 
 ExtensionBrowserEventRouter::TabEntry::TabEntry(const TabContents* contents)
-    : state_(ExtensionTabUtil::TAB_COMPLETE) {
-  UpdateState(contents);
+    : state_(ExtensionTabUtil::TAB_COMPLETE),
+      pending_navigate_(false),
+      url_(contents->GetURL()) {
+  UpdateLoadState(contents);
 }
 
-bool ExtensionBrowserEventRouter::TabEntry::UpdateState(
+DictionaryValue* ExtensionBrowserEventRouter::TabEntry::UpdateLoadState(
     const TabContents* contents) {
   ExtensionTabUtil::TabStatus old_state = state_;
   state_ = ExtensionTabUtil::GetTabStatus(contents);
-  return old_state != state_;
+
+  if (old_state == state_)
+    return false;
+
+  if (state_ == ExtensionTabUtil::TAB_LOADING) {
+    // Do not send "loading" state changed now. Wait for navigate so the new
+    // url is available.
+    pending_navigate_ = true;
+    return NULL;
+
+  } else if (state_ == ExtensionTabUtil::TAB_COMPLETE) {
+    // Send "complete" state change.
+    DictionaryValue* changed_properties = new DictionaryValue();
+    changed_properties->SetString(ExtensionTabUtil::kStatusKey,
+        ExtensionTabUtil::kStatusValueComplete);
+    return changed_properties;
+
+  } else {
+    NOTREACHED();
+    return NULL;
+  }
+}
+
+DictionaryValue* ExtensionBrowserEventRouter::TabEntry::DidNavigate(
+    const TabContents* contents) {
+  if(!pending_navigate_)
+    return NULL;
+
+  DictionaryValue* changed_properties = new DictionaryValue();
+  changed_properties->SetString(ExtensionTabUtil::kStatusKey,
+      ExtensionTabUtil::kStatusValueLoading);
+
+  GURL new_url = contents->GetURL();
+  if (new_url != url_) {
+    url_ = new_url;
+    changed_properties->SetString(ExtensionTabUtil::kUrlKey, url_.spec());
+  }
+
+  pending_navigate_ = false;
+  return changed_properties;
 }
 
 ExtensionBrowserEventRouter* ExtensionBrowserEventRouter::GetInstance() {
@@ -108,6 +152,10 @@ void ExtensionBrowserEventRouter::TabCreatedAt(TabContents* contents,
   JSONWriter::Write(&args, false, &json_args);
 
   DispatchEvent(contents->profile(), kOnTabCreated, json_args);
+
+  NotificationService::current()->AddObserver(
+      this, NotificationType::NAV_ENTRY_COMMITTED,
+      Source<NavigationController>(&contents->controller()));
 }
 
 void ExtensionBrowserEventRouter::TabInsertedAt(TabContents* contents,
@@ -126,9 +174,10 @@ void ExtensionBrowserEventRouter::TabInsertedAt(TabContents* contents,
   args.Append(Value::CreateIntegerValue(tab_id));
 
   DictionaryValue *object_args = new DictionaryValue();
-  object_args->Set(L"newWindowId", Value::CreateIntegerValue(
+  object_args->Set(ExtensionTabUtil::kNewWindowIdKey, Value::CreateIntegerValue(
       ExtensionTabUtil::GetWindowIdOfTab(contents)));
-  object_args->Set(L"newPosition", Value::CreateIntegerValue(index));
+  object_args->Set(ExtensionTabUtil::kNewPositionKey, Value::CreateIntegerValue(
+      index));
   args.Append(object_args);
 
   std::string json_args;
@@ -149,9 +198,10 @@ void ExtensionBrowserEventRouter::TabDetachedAt(TabContents* contents,
   args.Append(Value::CreateIntegerValue(tab_id));
 
   DictionaryValue *object_args = new DictionaryValue();
-  object_args->Set(L"oldWindowId", Value::CreateIntegerValue(
+  object_args->Set(ExtensionTabUtil::kOldWindowIdKey, Value::CreateIntegerValue(
       ExtensionTabUtil::GetWindowIdOfTab(contents)));
-  object_args->Set(L"oldPosition", Value::CreateIntegerValue(index));
+  object_args->Set(ExtensionTabUtil::kOldPositionKey, Value::CreateIntegerValue(
+      index));
   args.Append(object_args);
 
   std::string json_args;
@@ -174,6 +224,10 @@ void ExtensionBrowserEventRouter::TabClosingAt(TabContents* contents,
 
   int removed_count = tab_entries_.erase(tab_id);
   DCHECK(removed_count > 0);
+
+  NotificationService::current()->RemoveObserver(
+      this, NotificationType::NAV_ENTRY_COMMITTED,
+      Source<NavigationController>(&contents->controller()));
 }
 
 void ExtensionBrowserEventRouter::TabSelectedAt(TabContents* old_contents,
@@ -185,7 +239,7 @@ void ExtensionBrowserEventRouter::TabSelectedAt(TabContents* old_contents,
       ExtensionTabUtil::GetTabId(new_contents)));
 
   DictionaryValue *object_args = new DictionaryValue();
-  object_args->Set(L"windowId", Value::CreateIntegerValue(
+  object_args->Set(ExtensionTabUtil::kWindowIdKey, Value::CreateIntegerValue(
       ExtensionTabUtil::GetWindowIdOfTab(new_contents)));
   args.Append(object_args);
 
@@ -202,10 +256,12 @@ void ExtensionBrowserEventRouter::TabMoved(TabContents* contents,
   args.Append(Value::CreateIntegerValue(ExtensionTabUtil::GetTabId(contents)));
 
   DictionaryValue *object_args = new DictionaryValue();
-  object_args->Set(L"windowId", Value::CreateIntegerValue(
+  object_args->Set(ExtensionTabUtil::kWindowIdKey, Value::CreateIntegerValue(
       ExtensionTabUtil::GetWindowIdOfTab(contents)));
-  object_args->Set(L"fromIndex", Value::CreateIntegerValue(from_index));
-  object_args->Set(L"toIndex", Value::CreateIntegerValue(to_index));
+  object_args->Set(ExtensionTabUtil::kFromIndexKey, Value::CreateIntegerValue(
+      from_index));
+  object_args->Set(ExtensionTabUtil::kToIndexKey, Value::CreateIntegerValue(
+      to_index));
   args.Append(object_args);
 
   std::string json_args;
@@ -214,27 +270,49 @@ void ExtensionBrowserEventRouter::TabMoved(TabContents* contents,
   DispatchEvent(contents->profile(), kOnTabMoved, json_args);
 }
 
-void ExtensionBrowserEventRouter::TabChangedAt(TabContents* contents,
-                                               int index,
-                                               bool loading_only) {
+void ExtensionBrowserEventRouter::TabUpdated(TabContents* contents,
+                                             bool did_navigate) {
   int tab_id = ExtensionTabUtil::GetTabId(contents);
   std::map<int, TabEntry>::iterator i = tab_entries_.find(tab_id);
-  if (tab_entries_.end() == i)
-    return;
-
+  CHECK(tab_entries_.end() != i);
   TabEntry& entry = i->second;
-  if (entry.UpdateState(contents)) {
+
+  DictionaryValue* changed_properties = NULL;
+  if (did_navigate)
+    changed_properties = entry.DidNavigate(contents);
+  else
+    changed_properties = entry.UpdateLoadState(contents);
+
+  if (changed_properties) {
     // The state of the tab (as seen from the extension point of view) has
     // changed.  Send a notification to the extension.
     ListValue args;
     args.Append(Value::CreateIntegerValue(tab_id));
-    args.Append(ExtensionTabUtil::CreateTabChangedValue(contents));
+    args.Append(changed_properties);
 
     std::string json_args;
     JSONWriter::Write(&args, false, &json_args);
 
     DispatchEvent(contents->profile(), kOnTabUpdated, json_args);
   }
+}
+
+void ExtensionBrowserEventRouter::Observe(NotificationType type,
+                                          const NotificationSource& source,
+                                          const NotificationDetails& details) {
+  if (type == NotificationType::NAV_ENTRY_COMMITTED) {
+    NavigationController* source_controller =
+        Source<NavigationController>(source).ptr();
+    TabUpdated(source_controller->tab_contents(), true);
+  } else {
+    NOTREACHED();
+  }
+}
+
+void ExtensionBrowserEventRouter::TabChangedAt(TabContents* contents,
+                                               int index,
+                                               bool loading_only) {
+  TabUpdated(contents, false);
 }
 
 void ExtensionBrowserEventRouter::TabStripEmpty() { }
@@ -245,12 +323,12 @@ void ExtensionBrowserEventRouter::PageActionExecuted(Profile *profile,
                                                      std::string url) {
   ListValue args;
   DictionaryValue *object_args = new DictionaryValue();
-  object_args->Set(L"pageActionId", Value::CreateStringValue(page_action_id));
-
+  object_args->Set(ExtensionTabUtil::kPageActionIdKey,
+                   Value::CreateStringValue(page_action_id));
   DictionaryValue *data = new DictionaryValue();
-  data->Set(L"tabId", Value::CreateIntegerValue(tab_id));
-  data->Set(L"tabUrl", Value::CreateStringValue(url));
-  object_args->Set(L"data", data);
+  data->Set(ExtensionTabUtil::kTabIdKey, Value::CreateIntegerValue(tab_id));
+  data->Set(ExtensionTabUtil::kTabUrlKey, Value::CreateStringValue(url));
+  object_args->Set(ExtensionTabUtil::kDataKey, data);
 
   args.Append(object_args);
 
