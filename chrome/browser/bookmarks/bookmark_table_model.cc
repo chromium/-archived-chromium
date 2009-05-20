@@ -354,10 +354,10 @@ SkBitmap BookmarkTableModel::GetIcon(int row) {
   if (node->is_folder())
     return *folder_icon;
 
-  if (node->GetFavIcon().empty())
+  if (model_->GetFavIcon(node).empty())
     return *default_icon;
 
-  return node->GetFavIcon();
+  return model_->GetFavIcon(node);
 }
 
 void BookmarkTableModel::BookmarkModelBeingDeleted(BookmarkModel* model) {

@@ -75,7 +75,7 @@ void BookmarkMenuController::BookmarkNodeFavIconLoaded(BookmarkModel* model,
   std::map<BookmarkNode*, GtkWidget*>::iterator it =
       node_to_menu_widget_map_.find(node);
   if (it != node_to_menu_widget_map_.end())
-    SetImageMenuItem(it->second, node->GetFavIcon());
+    SetImageMenuItem(it->second, model->GetFavIcon(node));
 }
 
 void BookmarkMenuController::NavigateToMenuItem(
@@ -100,7 +100,7 @@ void BookmarkMenuController::BuildMenu(BookmarkNode* parent,
         WideToUTF8(node->GetTitle()).c_str());
 
     if (node->is_url()) {
-      SkBitmap icon = node->GetFavIcon();
+      SkBitmap icon = profile_->GetBookmarkModel()->GetFavIcon(node);
       if (icon.width() == 0) {
         icon = *ResourceBundle::GetSharedInstance().
             GetBitmapNamed(IDR_DEFAULT_FAVICON);

@@ -263,7 +263,7 @@ bool BookmarkCodec::DecodeNode(BookmarkModel* model,
       return false;
     // TODO(sky): this should ignore the node if not a valid URL.
     if (!node)
-      node = new BookmarkNode(model, id, GURL(WideToUTF8(url_string)));
+      node = new BookmarkNode(id, GURL(WideToUTF8(url_string)));
     else
       NOTREACHED();  // In case of a URL type node should always be NULL.
 
@@ -285,7 +285,7 @@ bool BookmarkCodec::DecodeNode(BookmarkModel* model,
       return false;
 
     if (!node) {
-      node = new BookmarkNode(model, id, GURL());
+      node = new BookmarkNode(id, GURL());
     } else if (persist_ids_) {
       // If a new node is not created, explicitly assign persisted ID to the
       // existing node.

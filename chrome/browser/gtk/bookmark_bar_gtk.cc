@@ -322,8 +322,8 @@ void BookmarkBarGtk::ConfigureButtonForNode(BookmarkNode* node,
   gtk_button_set_label(GTK_BUTTON(button), WideToUTF8(title).c_str());
 
   if (node->is_url()) {
-    if (node->GetFavIcon().width() != 0) {
-      GdkPixbuf* pixbuf = gfx::GdkPixbufFromSkBitmap(&node->GetFavIcon());
+    if (model_->GetFavIcon(node).width() != 0) {
+      GdkPixbuf* pixbuf = gfx::GdkPixbufFromSkBitmap(&model_->GetFavIcon(node));
       gtk_button_set_image(GTK_BUTTON(button),
                            gtk_image_new_from_pixbuf(pixbuf));
       g_object_unref(pixbuf);

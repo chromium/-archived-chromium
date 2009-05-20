@@ -56,10 +56,6 @@ class BookmarkNode : public TreeNode<BookmarkNode> {
  public:
   virtual ~BookmarkNode() {}
 
-  // Returns the favicon for the this node. If the favicon has not yet been
-  // loaded it is loaded and the observer of the model notified when done.
-  const SkBitmap& GetFavIcon();
-
   // Returns the URL.
   const GURL& GetURL() const { return url_; }
 
@@ -99,21 +95,23 @@ class BookmarkNode : public TreeNode<BookmarkNode> {
   // HistoryContentsProvider.
 
  private:
-  // Creates a new node with the given properties.
-  BookmarkNode(BookmarkModel* model, const GURL& url);
-  BookmarkNode(BookmarkModel* model, int id, const GURL& url);
+  // Creates a new node with the specified url and id of 0
+  explicit BookmarkNode(const GURL& url);
+  // Creates a new node with the specified url and id.
+  BookmarkNode(int id, const GURL& url);
+
+  // Returns the favicon for the this node. If the favicon has not yet been
+  // loaded it is loaded and the observer of the model notified when done.
+  const SkBitmap& favicon() const { return favicon_; }
 
   // helper to initialize various fields during construction.
-  void Initialize(BookmarkModel* model, int id);
+  void Initialize(int id);
 
   // Resets the properties of the node from the supplied entry.
   void Reset(const history::StarredEntry& entry);
 
   // Sets the id to the given value.
   void set_id(int id) { id_ = id; }
-
-  // The model. This is NULL when created by StarredURLDatabase for migration.
-  BookmarkModel* model_;
 
   // Unique identifier for this node.
   int id_;
@@ -248,6 +246,10 @@ class BookmarkModel : public NotificationObserver, public BookmarkService {
 
   // Moves the specified entry to a new location.
   void Move(BookmarkNode* node, BookmarkNode* new_parent, int index);
+
+  // Returns the favicon for |node|. If the favicon has not yet been
+  // loaded it is loaded and the observer of the model notified when done.
+  const SkBitmap& GetFavIcon(BookmarkNode* node);
 
   // Sets the title of the specified node.
   void SetTitle(BookmarkNode* node, const std::wstring& title);

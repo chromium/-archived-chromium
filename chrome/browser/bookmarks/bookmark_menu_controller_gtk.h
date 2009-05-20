@@ -76,6 +76,9 @@ class BookmarkMenuController : public BaseBookmarkModelObserver {
   // Parent window of this menu.
   GtkWindow* parent_window_;
 
+  // The bookmark model.
+  BookmarkModel* model_;
+
   // The node we're showing the contents of.
   BookmarkNode* node_;
 

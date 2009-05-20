@@ -1228,8 +1228,8 @@ void BookmarkBarView::ConfigureButton(BookmarkNode* node,
   button->SetContextMenuController(this);
   button->SetDragController(this);
   if (node->is_url()) {
-    if (node->GetFavIcon().width() != 0)
-      button->SetIcon(node->GetFavIcon());
+    if (model_->GetFavIcon(node).width() != 0)
+      button->SetIcon(model_->GetFavIcon(node));
     else
       button->SetIcon(*kDefaultFavIcon);
   }
