@@ -320,6 +320,8 @@ gboolean BrowserToolbarGtk::OnToolbarExpose(GtkWidget* widget,
                                             GdkEventExpose* e,
                                             BrowserToolbarGtk* toolbar) {
   cairo_t* cr = gdk_cairo_create(GDK_DRAWABLE(widget->window));
+  cairo_rectangle(cr, e->area.x, e->area.y, e->area.width, e->area.height);
+  cairo_clip(cr);
   // It would be more intuitive to pass |e->area.y| rather than 0, but the
   // toolbar is supposed to blend in with the active tab, so we have to pass
   // coordinates for the IDR_THEME_TOOLBAR bitmap relative to the top of the

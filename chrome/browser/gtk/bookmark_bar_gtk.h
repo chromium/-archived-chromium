@@ -17,6 +17,7 @@ class BookmarkContextMenu;
 class BookmarkMenuController;
 class Browser;
 class CustomContainerButton;
+class NineBox;
 class PageNavigator;
 class Profile;
 
@@ -118,6 +119,9 @@ class BookmarkBarGtk : public BookmarkModelObserver {
   // Finds the BookmarkNode from the model associated with |button|.
   BookmarkNode* GetNodeForToolButton(GtkWidget* button);
 
+  // Loads the background image into memory, or does nothing if already loaded.
+  void InitBackground();
+
   // Creates and displays a popup menu for BookmarkNode |node|.
   void PopupMenuForNode(GtkWidget* sender, BookmarkNode* node,
                         GdkEventButton* event);
@@ -129,8 +133,6 @@ class BookmarkBarGtk : public BookmarkModelObserver {
   static gboolean OnButtonReleased(GtkWidget* sender,
                                    GdkEventButton* event,
                                    BookmarkBarGtk* bar);
-  static gboolean OnButtonExpose(GtkWidget* widget, GdkEventExpose* e,
-                                 BookmarkBarGtk* button);
   static void OnButtonDragBegin(GtkWidget* widget,
                                 GdkDragContext* drag_context,
                                 BookmarkBarGtk* bar);
@@ -170,6 +172,11 @@ class BookmarkBarGtk : public BookmarkModelObserver {
                                     guint target_type, guint time,
                                     BookmarkBarGtk* bar);
 
+  // GtkHBox callbacks.
+  static gboolean OnHBoxExpose(GtkWidget* widget, GdkEventExpose* event,
+                               BookmarkBarGtk* window);
+
+
   Profile* profile_;
 
   // Used for opening urls.
@@ -181,12 +188,9 @@ class BookmarkBarGtk : public BookmarkModelObserver {
   // shown. This is owned by the Profile.
   BookmarkModel* model_;
 
-  // Top level container that contains |bookmark_hbox_| and spacers.
-  OwnedWidgetGtk container_;
-
   // Container that has all the individual members of
   // |current_bookmark_buttons_| as children.
-  GtkWidget* bookmark_hbox_;
+  OwnedWidgetGtk bookmark_hbox_;
 
   // A GtkLabel to display when there are no bookmark buttons to display.
   GtkWidget* instructions_;
@@ -218,6 +222,9 @@ class BookmarkBarGtk : public BookmarkModelObserver {
   // The last displayed left click menu, or NULL if no menus have been
   // displayed yet.
   scoped_ptr<BookmarkMenuController> current_menu_;
+
+  // Paints the background for our bookmark bar.
+  scoped_ptr<NineBox> background_ninebox_;
 };
 
 #endif  // CHROME_BROWSER_GTK_BOOKMARK_BAR_GTK_H_

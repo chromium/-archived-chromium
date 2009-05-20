@@ -18,6 +18,7 @@
 #include "chrome/browser/gtk/custom_button.h"
 #include "chrome/browser/gtk/dnd_registry.h"
 #include "chrome/browser/gtk/gtk_chrome_button.h"
+#include "chrome/browser/gtk/nine_box.h"
 #include "chrome/browser/metrics/user_metrics.h"
 #include "chrome/browser/profile.h"
 #include "chrome/common/gtk_util.h"
@@ -27,11 +28,6 @@
 #include "grit/theme_resources.h"
 
 namespace {
-
-const GdkColor kBackgroundColor = GDK_COLOR_RGB(0xe6, 0xed, 0xf4);
-
-// Padding around the container.
-const int kBarPadding = 2;
 
 // Maximum number of characters on a bookmark button.
 const size_t kMaxCharsOnAButton = 15;
@@ -74,7 +70,7 @@ BookmarkBarGtk::~BookmarkBarGtk() {
 
   RemoveAllBookmarkButtons();
   bookmark_toolbar_.Destroy();
-  container_.Destroy();
+  bookmark_hbox_.Destroy();
 }
 
 void BookmarkBarGtk::SetProfile(Profile* profile) {
@@ -111,20 +107,21 @@ void BookmarkBarGtk::Init(Profile* profile) {
   ResourceBundle& rb = ResourceBundle::GetSharedInstance();
   static GdkPixbuf* folder_icon = rb.GetPixbufNamed(IDR_BOOKMARK_BAR_FOLDER);
 
-  bookmark_hbox_ = gtk_hbox_new(FALSE, 0);
-  container_.Own(gtk_util::CreateGtkBorderBin(bookmark_hbox_, &kBackgroundColor,
-      kBarPadding, kBarPadding, kBarPadding, kBarPadding));
+  bookmark_hbox_.Own(gtk_hbox_new(FALSE, 0));
 
-  instructions_ =
-      gtk_label_new(
-          l10n_util::GetStringUTF8(IDS_BOOKMARKS_NO_ITEMS).c_str());
-  gtk_box_pack_start(GTK_BOX(bookmark_hbox_), instructions_,
+  instructions_ = gtk_label_new(
+      l10n_util::GetStringUTF8(IDS_BOOKMARKS_NO_ITEMS).c_str());
+  gtk_box_pack_start(GTK_BOX(bookmark_hbox_.get()), instructions_,
                      FALSE, FALSE, 0);
+  gtk_widget_set_app_paintable(bookmark_hbox_.get(), TRUE);
+  g_signal_connect(G_OBJECT(bookmark_hbox_.get()), "expose-event",
+                   G_CALLBACK(&OnHBoxExpose), this);
 
   bookmark_toolbar_.Own(gtk_toolbar_new());
+  gtk_widget_set_app_paintable(bookmark_toolbar_.get(), TRUE);
   g_signal_connect(G_OBJECT(bookmark_toolbar_.get()), "expose-event",
                    G_CALLBACK(&OnToolbarExpose), this);
-  gtk_box_pack_start(GTK_BOX(bookmark_hbox_), bookmark_toolbar_.get(),
+  gtk_box_pack_start(GTK_BOX(bookmark_hbox_.get()), bookmark_toolbar_.get(),
                      TRUE, TRUE, 0);
 
   gtk_drag_dest_set(bookmark_toolbar_.get(), GTK_DEST_DEFAULT_DROP,
@@ -141,7 +138,7 @@ void BookmarkBarGtk::Init(Profile* profile) {
   g_signal_connect(bookmark_toolbar_.get(), "button-press-event",
                    G_CALLBACK(&OnButtonPressed), this);
 
-  gtk_box_pack_start(GTK_BOX(bookmark_hbox_), gtk_vseparator_new(),
+  gtk_box_pack_start(GTK_BOX(bookmark_hbox_.get()), gtk_vseparator_new(),
                      FALSE, FALSE, 0);
 
   other_bookmarks_button_ = gtk_chrome_button_new();
@@ -152,16 +149,16 @@ void BookmarkBarGtk::Init(Profile* profile) {
   gtk_button_set_image(GTK_BUTTON(other_bookmarks_button_),
                        gtk_image_new_from_pixbuf(folder_icon));
 
-  gtk_box_pack_start(GTK_BOX(bookmark_hbox_), other_bookmarks_button_,
+  gtk_box_pack_start(GTK_BOX(bookmark_hbox_.get()), other_bookmarks_button_,
                      FALSE, FALSE, 0);
 }
 
 void BookmarkBarGtk::AddBookmarkbarToBox(GtkWidget* box) {
-  gtk_box_pack_start(GTK_BOX(box), container_.get(), FALSE, FALSE, 0);
+  gtk_box_pack_start(GTK_BOX(box), bookmark_hbox_.get(), FALSE, FALSE, 0);
 }
 
 void BookmarkBarGtk::Show() {
-  gtk_widget_show_all(container_.get());
+  gtk_widget_show_all(bookmark_hbox_.get());
 
   // Maybe show the instructions
   if (show_instructions_) {
@@ -172,7 +169,7 @@ void BookmarkBarGtk::Show() {
 }
 
 void BookmarkBarGtk::Hide() {
-  gtk_widget_hide_all(container_.get());
+  gtk_widget_hide_all(bookmark_hbox_.get());
 }
 
 bool BookmarkBarGtk::OnNewTabPage() {
@@ -434,6 +431,15 @@ BookmarkNode* BookmarkBarGtk::GetNodeForToolButton(GtkWidget* widget) {
     return model_->GetBookmarkBarNode()->GetChild(index_to_use);
 
   return NULL;
+}
+
+void BookmarkBarGtk::InitBackground() {
+  if (background_ninebox_.get())
+    return;
+
+  background_ninebox_.reset(new NineBox(
+      browser_->profile()->GetThemeProvider(),
+      0, IDR_THEME_TOOLBAR, 0, 0, 0, 0, 0, 0, 0));
 }
 
 void BookmarkBarGtk::PopupMenuForNode(GtkWidget* sender, BookmarkNode* node,
@@ -738,4 +744,21 @@ void BookmarkBarGtk::OnToolbarDragReceived(GtkWidget* widget,
   }
 
   gtk_drag_finish(context, dnd_success, delete_selection_data, time);
+}
+
+// static
+gboolean BookmarkBarGtk::OnHBoxExpose(GtkWidget* widget,
+                                      GdkEventExpose* event,
+                                      BookmarkBarGtk* bar) {
+  // Paint the background theme image.
+  cairo_t* cr = gdk_cairo_create(GDK_DRAWABLE(widget->window));
+  cairo_rectangle(cr, event->area.x, event->area.y,
+                  event->area.width, event->area.height);
+  cairo_clip(cr);
+  bar->InitBackground();
+  bar->background_ninebox_->RenderTopCenterStrip(cr, event->area.x,
+                                                 0, event->area.width);
+  cairo_destroy(cr);
+
+  return FALSE;  // Propagate expose to children.
 }
