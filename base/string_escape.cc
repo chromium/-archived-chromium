@@ -11,10 +11,13 @@
 namespace string_escape {
 
 // Try to escape |c| as a "SingleEscapeCharacter" (\n, etc).  If successful,
-// returns true and appends the escape sequence to |dst|.
+// returns true and appends the escape sequence to |dst|.  This isn't required
+// by the spec, but it's more readable by humans than the \uXXXX alternatives.
 template<typename CHAR>
-static bool JavascriptSingleEscapeChar(const CHAR c, std::string* dst) {
+static bool JsonSingleEscapeChar(const CHAR c, std::string* dst) {
   // WARNING: if you add a new case here, you need to update the reader as well.
+  // Note: \v is in the reader, but not here since the JSON spec doesn't
+  // allow it.
   switch (c) {
     case '\b':
       dst->append("\\b");
@@ -31,9 +34,6 @@ static bool JavascriptSingleEscapeChar(const CHAR c, std::string* dst) {
     case '\t':
       dst->append("\\t");
       break;
-    case '\v':
-      dst->append("\\v");
-      break;
     case '\\':
       dst->append("\\\\");
       break;
@@ -46,25 +46,24 @@ static bool JavascriptSingleEscapeChar(const CHAR c, std::string* dst) {
   return true;
 }
 
-void JavascriptDoubleQuote(const string16& str,
-                           bool put_in_quotes,
-                           std::string* dst) {
+template <class STR>
+void JsonDoubleQuoteT(const STR& str,
+                      bool put_in_quotes,
+                      std::string* dst) {
   if (put_in_quotes)
     dst->push_back('"');
 
-  for (string16::const_iterator it = str.begin(); it != str.end(); ++it) {
-    char16 c = *it;
-    if (!JavascriptSingleEscapeChar(c, dst)) {
-      if (c > 255) {
-        // Non-ascii values need to be unicode dst->
-        // TODO(tc): Some unicode values are handled specially. See
-        // spidermonkey code.
-        StringAppendF(dst, "\\u%04X", c);
-      } else if (c < 32 || c > 126) {
-        // Spidermonkey hex escapes these values.
-        StringAppendF(dst, "\\x%02X", c);
+  for (typename STR::const_iterator it = str.begin(); it != str.end(); ++it) {
+    typename ToUnsigned<typename STR::value_type>::Unsigned c = *it;
+    if (!JsonSingleEscapeChar(c, dst)) {
+      if (c < 32 || c > 126) {
+        // Technically, we could also pass through c > 126 as UTF8, but this is
+        // also optional.  It would also be a pain to implement here.
+        unsigned int as_uint = static_cast<unsigned int>(c);
+        StringAppendF(dst, "\\u%04X", as_uint);
       } else {
-        dst->push_back(static_cast<char>(c));
+        unsigned char ascii = static_cast<unsigned char>(*it);
+        dst->push_back(ascii);
       }
     }
   }
@@ -73,26 +72,16 @@ void JavascriptDoubleQuote(const string16& str,
     dst->push_back('"');
 }
 
-void JavascriptDoubleQuote(const std::string& str,
-                           bool put_in_quotes,
-                           std::string* dst) {
-  if (put_in_quotes)
-    dst->push_back('"');
+void JsonDoubleQuote(const std::string& str,
+                     bool put_in_quotes,
+                     std::string* dst) {
+  JsonDoubleQuoteT(str, put_in_quotes, dst);
+}
 
-  for (std::string::const_iterator it = str.begin(); it != str.end(); ++it) {
-    unsigned char c = *it;
-    if (!JavascriptSingleEscapeChar(c, dst)) {
-      // Hex encode if the character is non-printable 7bit ascii
-      if (c < 32 || c == 127) {
-        StringAppendF(dst, "\\x%02X", c);
-      } else {
-        dst->push_back(static_cast<char>(c));
-      }
-    }
-  }
-
-  if (put_in_quotes)
-    dst->push_back('"');
+void JsonDoubleQuote(const string16& str,
+                     bool put_in_quotes,
+                     std::string* dst) {
+  JsonDoubleQuoteT(str, put_in_quotes, dst);
 }
 
 }  // namespace string_escape

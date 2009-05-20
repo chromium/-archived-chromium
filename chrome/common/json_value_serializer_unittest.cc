@@ -73,19 +73,24 @@ TEST(JSONValueSerializerTest, StringEscape) {
   // for (var i = 1; i < 256; ++i) { s += String.fromCharCode(i); }
   // uneval(s).replace(/\\/g, "\\\\");
   std::string all_chars_expected =
-      "\\x01\\x02\\x03\\x04\\x05\\x06\\x07\\b\\t\\n\\v\\f\\r\\x0E\\x0F\\x10"
-      "\\x11\\x12\\x13\\x14\\x15\\x16\\x17\\x18\\x19\\x1A\\x1B\\x1C\\x1D\\x1E"
-      "\\x1F !\\\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\"
-      "\\]^_`abcdefghijklmnopqrstuvwxyz{|}~\\x7F\\x80\\x81\\x82\\x83\\x84\\x85"
-      "\\x86\\x87\\x88\\x89\\x8A\\x8B\\x8C\\x8D\\x8E\\x8F\\x90\\x91\\x92\\x93"
-      "\\x94\\x95\\x96\\x97\\x98\\x99\\x9A\\x9B\\x9C\\x9D\\x9E\\x9F\\xA0\\xA1"
-      "\\xA2\\xA3\\xA4\\xA5\\xA6\\xA7\\xA8\\xA9\\xAA\\xAB\\xAC\\xAD\\xAE\\xAF"
-      "\\xB0\\xB1\\xB2\\xB3\\xB4\\xB5\\xB6\\xB7\\xB8\\xB9\\xBA\\xBB\\xBC\\xBD"
-      "\\xBE\\xBF\\xC0\\xC1\\xC2\\xC3\\xC4\\xC5\\xC6\\xC7\\xC8\\xC9\\xCA\\xCB"
-      "\\xCC\\xCD\\xCE\\xCF\\xD0\\xD1\\xD2\\xD3\\xD4\\xD5\\xD6\\xD7\\xD8\\xD9"
-      "\\xDA\\xDB\\xDC\\xDD\\xDE\\xDF\\xE0\\xE1\\xE2\\xE3\\xE4\\xE5\\xE6\\xE7"
-      "\\xE8\\xE9\\xEA\\xEB\\xEC\\xED\\xEE\\xEF\\xF0\\xF1\\xF2\\xF3\\xF4\\xF5"
-      "\\xF6\\xF7\\xF8\\xF9\\xFA\\xFB\\xFC\\xFD\\xFE\\xFF";
+      "\\u0001\\u0002\\u0003\\u0004\\u0005\\u0006\\u0007\\b\\t\\n\\u000B\\f\\r"
+      "\\u000E\\u000F\\u0010\\u0011\\u0012\\u0013\\u0014\\u0015\\u0016\\u0017"
+      "\\u0018\\u0019\\u001A\\u001B\\u001C\\u001D\\u001E"
+      "\\u001F !\\\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\"
+      "\\]^_`abcdefghijklmnopqrstuvwxyz{|}~\\u007F\\u0080\\u0081\\u0082\\u0083"
+      "\\u0084\\u0085\\u0086\\u0087\\u0088\\u0089\\u008A\\u008B\\u008C\\u008D"
+      "\\u008E\\u008F\\u0090\\u0091\\u0092\\u0093\\u0094\\u0095\\u0096\\u0097"
+      "\\u0098\\u0099\\u009A\\u009B\\u009C\\u009D\\u009E\\u009F\\u00A0\\u00A1"
+      "\\u00A2\\u00A3\\u00A4\\u00A5\\u00A6\\u00A7\\u00A8\\u00A9\\u00AA\\u00AB"
+      "\\u00AC\\u00AD\\u00AE\\u00AF\\u00B0\\u00B1\\u00B2\\u00B3\\u00B4\\u00B5"
+      "\\u00B6\\u00B7\\u00B8\\u00B9\\u00BA\\u00BB\\u00BC\\u00BD\\u00BE\\u00BF"
+      "\\u00C0\\u00C1\\u00C2\\u00C3\\u00C4\\u00C5\\u00C6\\u00C7\\u00C8\\u00C9"
+      "\\u00CA\\u00CB\\u00CC\\u00CD\\u00CE\\u00CF\\u00D0\\u00D1\\u00D2\\u00D3"
+      "\\u00D4\\u00D5\\u00D6\\u00D7\\u00D8\\u00D9\\u00DA\\u00DB\\u00DC\\u00DD"
+      "\\u00DE\\u00DF\\u00E0\\u00E1\\u00E2\\u00E3\\u00E4\\u00E5\\u00E6\\u00E7"
+      "\\u00E8\\u00E9\\u00EA\\u00EB\\u00EC\\u00ED\\u00EE\\u00EF\\u00F0\\u00F1"
+      "\\u00F2\\u00F3\\u00F4\\u00F5\\u00F6\\u00F7\\u00F8\\u00F9\\u00FA\\u00FB"
+      "\\u00FC\\u00FD\\u00FE\\u00FF";
 
   std::string expected_output = "{\"all_chars\":\"" + all_chars_expected +
                                  "\"}";
@@ -132,7 +137,7 @@ TEST(JSONValueSerializerTest, HexStrings) {
   std::wstring test(L"\x01\x02");
   root.SetString(L"test", test);
 
-  std::string expected = "{\"test\":\"\\x01\\x02\"}";
+  std::string expected = "{\"test\":\"\\u0001\\u0002\"}";
 
   std::string actual;
   JSONStringValueSerializer serializer(&actual);
@@ -150,7 +155,7 @@ TEST(JSONValueSerializerTest, HexStrings) {
   ASSERT_EQ(test, test_value);
 
   // Test converting escaped regular chars
-  std::string escaped_chars = "{\"test\":\"\\x67\\x6f\"}";
+  std::string escaped_chars = "{\"test\":\"\\u0067\\u006f\"}";
   JSONStringValueSerializer deserializer2(escaped_chars);
   deserial_root.reset(deserializer2.Deserialize(NULL));
   ASSERT_TRUE(deserial_root.get());

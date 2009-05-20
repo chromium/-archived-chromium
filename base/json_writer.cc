@@ -92,16 +92,15 @@ void JSONWriter::BuildJSONString(const Value* const node,
 
     case Value::TYPE_STRING:
       {
+        std::string value;
+        bool result = node->GetAsString(&value);
+        DCHECK(result);
         if (escape) {
-          std::wstring value;
-          bool result = node->GetAsString(&value);
-          DCHECK(result);
-          AppendQuotedString(value);
+          string_escape::JsonDoubleQuote(UTF8ToUTF16(value),
+                                         true,
+                                         json_string_);
         } else {
-          std::string value;
-          bool result = node->GetAsString(&value);
-          DCHECK(result);
-          string_escape::JavascriptDoubleQuote(value, true, json_string_);
+          string_escape::JsonDoubleQuote(value, true, json_string_);
         }
         break;
       }
@@ -182,9 +181,9 @@ void JSONWriter::BuildJSONString(const Value* const node,
 }
 
 void JSONWriter::AppendQuotedString(const std::wstring& str) {
-  string_escape::JavascriptDoubleQuote(WideToUTF16Hack(str),
-                                       true,
-                                       json_string_);
+  string_escape::JsonDoubleQuote(WideToUTF16Hack(str),
+                                 true,
+                                 json_string_);
 }
 
 void JSONWriter::IndentLine(int depth) {

@@ -6,59 +6,90 @@
 #include "base/string_escape.h"
 #include "base/string_util.h"
 
-TEST(StringEscapeTest, JavascriptDoubleQuote) {
-  static const char* kToEscape          = "\b\001aZ\"\\wee";
-  static const char* kEscaped           = "\\b\\x01aZ\\\"\\\\wee";
-  static const char* kEscapedQuoted     = "\"\\b\\x01aZ\\\"\\\\wee\"";
-  static const wchar_t* kUToEscape      = L"\b\x0001" L"a\x123fZ\"\\wee";
-  static const char* kUEscaped          = "\\b\\x01a\\u123FZ\\\"\\\\wee";
-  static const char* kUEscapedQuoted    = "\"\\b\\x01a\\u123FZ\\\"\\\\wee\"";
+namespace {
 
+const struct json_narrow_test_data {
+  const char* to_escape;
+  const char* escaped;
+} json_narrow_cases[] = {
+  {"\b\001aZ\"\\wee", "\\b\\u0001aZ\\\"\\\\wee"},
+  {"a\b\f\n\r\t\v\1\\.\"z",
+      "a\\b\\f\\n\\r\\t\\u000B\\u0001\\\\.\\\"z"},
+  {"b\x0f\x7f\xf0\xff!", "b\\u000F\\u007F\\u00F0\\u00FF!"},
+};
+
+}
+
+TEST(StringEscapeTest, JsonDoubleQuoteNarrow) {
+  for (size_t i = 0; i < arraysize(json_narrow_cases); ++i) {
+    std::string in = json_narrow_cases[i].to_escape;
+    std::string out;
+    string_escape::JsonDoubleQuote(in, false, &out);
+    EXPECT_EQ(std::string(json_narrow_cases[i].escaped), out);
+  }
+
+  std::string in = json_narrow_cases[0].to_escape;
   std::string out;
+  string_escape::JsonDoubleQuote(in, false, &out);
 
-  // Test wide unicode escaping
-  out = "testy: ";
-  string_escape::JavascriptDoubleQuote(WideToUTF16(kUToEscape), false, &out);
-  ASSERT_EQ(std::string("testy: ") + kUEscaped, out);
+  // test quoting
+  std::string out_quoted;
+  string_escape::JsonDoubleQuote(in, true, &out_quoted);
+  EXPECT_EQ(out.length() + 2, out_quoted.length());
+  EXPECT_EQ(out_quoted.find(out), 1U);
 
-  out = "testy: ";
-  string_escape::JavascriptDoubleQuote(WideToUTF16(kUToEscape), true, &out);
-  ASSERT_EQ(std::string("testy: ") + kUEscapedQuoted, out);
+  // now try with a NULL in the string
+  std::string null_prepend = "test";
+  null_prepend.push_back(0);
+  in = null_prepend + in;
+  std::string expected = "test\\u0000";
+  expected += json_narrow_cases[0].escaped;
+  out.clear();
+  string_escape::JsonDoubleQuote(in, false, &out);
+  EXPECT_EQ(expected, out);
+}
 
-  // Test null and high bit / negative unicode values
-  string16 str16 = UTF8ToUTF16("TeSt");
-  str16.push_back(0);
-  str16.push_back(0xffb1);
-  str16.push_back(0x00ff);
+namespace {
 
-  out = "testy: ";
-  string_escape::JavascriptDoubleQuote(str16, false, &out);
-  ASSERT_EQ("testy: TeSt\\x00\\uFFB1\\xFF", out);
+const struct json_wide_test_data {
+  const wchar_t* to_escape;
+  const char* escaped;
+} json_wide_cases[] = {
+  {L"b\uffb1\u00ff", "b\\uFFB1\\u00FF"},
+  {L"\b\001aZ\"\\wee", "\\b\\u0001aZ\\\"\\\\wee"},
+  {L"a\b\f\n\r\t\v\1\\.\"z",
+      "a\\b\\f\\n\\r\\t\\u000B\\u0001\\\\.\\\"z"},
+  {L"b\x0f\x7f\xf0\xff!", "b\\u000F\\u007F\\u00F0\\u00FF!"},
+};
 
-  // Test escaping of 7bit ascii
-  out = "testy: ";
-  string_escape::JavascriptDoubleQuote(std::string(kToEscape), false, &out);
-  ASSERT_EQ(std::string("testy: ") + kEscaped, out);
+}
 
-  out = "testy: ";
-  string_escape::JavascriptDoubleQuote(std::string(kToEscape), true, &out);
-  ASSERT_EQ(std::string("testy: ") + kEscapedQuoted, out);
+TEST(StringEscapeTest, JsonDoubleQuoteWide) {
 
-  // Test null, non-printable, and non-7bit
-  std::string str("TeSt");
-  str.push_back(0);
-  str.push_back(15);
-  str.push_back(127);
-  str.push_back(-16);
-  str.push_back(-128);
-  str.push_back('!');
+  for (size_t i = 0; i < arraysize(json_wide_cases); ++i) {
+    std::string out;
+    string16 in = WideToUTF16(json_wide_cases[i].to_escape);
+    string_escape::JsonDoubleQuote(in, false, &out);
+    EXPECT_EQ(std::string(json_wide_cases[i].escaped), out);
+  }
 
-  out = "testy: ";
-  string_escape::JavascriptDoubleQuote(str, false, &out);
-  ASSERT_EQ("testy: TeSt\\x00\\x0F\\x7F\xf0\x80!", out);
+  string16 in = WideToUTF16(json_wide_cases[0].to_escape);
+  std::string out;
+  string_escape::JsonDoubleQuote(in, false, &out);
 
-  // Test escape sequences
-  out = "testy: ";
-  string_escape::JavascriptDoubleQuote("a\b\f\n\r\t\v\1\\.\"z", false, &out);
-  ASSERT_EQ("testy: a\\b\\f\\n\\r\\t\\v\\x01\\\\.\\\"z", out);
+  // test quoting
+  std::string out_quoted;
+  string_escape::JsonDoubleQuote(in, true, &out_quoted);
+  EXPECT_EQ(out.length() + 2, out_quoted.length());
+  EXPECT_EQ(out_quoted.find(out), 1U);
+
+  // now try with a NULL in the string
+  string16 null_prepend = WideToUTF16(L"test");
+  null_prepend.push_back(0);
+  in = null_prepend + in;
+  std::string expected = "test\\u0000";
+  expected += json_wide_cases[0].escaped;
+  out.clear();
+  string_escape::JsonDoubleQuote(in, false, &out);
+  EXPECT_EQ(expected, out);
 }

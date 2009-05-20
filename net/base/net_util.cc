@@ -824,7 +824,7 @@ std::string GetDirectoryListingHeader(const std::string& title) {
   std::string result(header.data(), header.size());
 
   result.append("<script>start(");
-  string_escape::JavascriptDoubleQuote(title, true, &result);
+  string_escape::JsonDoubleQuote(title, true, &result);
   result.append(");</script>\n");
 
   return result;
@@ -836,17 +836,16 @@ std::string GetDirectoryListingEntry(const std::string& name,
                                      const Time& modified) {
   std::string result;
   result.append("<script>addRow(");
-  string_escape::JavascriptDoubleQuote(name, true, &result);
+  string_escape::JsonDoubleQuote(name, true, &result);
   result.append(",");
-  string_escape::JavascriptDoubleQuote(
-      EscapePath(name), true, &result);
+  string_escape::JsonDoubleQuote(EscapePath(name), true, &result);
   if (is_dir) {
     result.append(",1,");
   } else {
     result.append(",0,");
   }
 
-  string_escape::JavascriptDoubleQuote(
+  string_escape::JsonDoubleQuote(
       WideToUTF16Hack(FormatBytes(size, GetByteDisplayUnits(size), true)), true,
       &result);
 
@@ -857,7 +856,7 @@ std::string GetDirectoryListingEntry(const std::string& name,
   if (!modified.is_null()) {
     modified_str = WideToUTF16Hack(base::TimeFormatShortDateAndTime(modified));
   }
-  string_escape::JavascriptDoubleQuote(modified_str, true, &result);
+  string_escape::JsonDoubleQuote(modified_str, true, &result);
 
   result.append(");</script>\n");
 
