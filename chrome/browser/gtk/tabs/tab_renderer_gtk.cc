@@ -451,8 +451,12 @@ void TabRendererGtk::SchedulePaint() {
   gtk_widget_queue_draw(tab_.get());
 }
 
+gfx::Rect TabRendererGtk::GetLocalBounds() {
+  return gfx::Rect(0, 0, bounds_.width(), bounds_.height());
+}
+
 void TabRendererGtk::Layout() {
-  gfx::Rect local_bounds = bounds_;
+  gfx::Rect local_bounds = GetLocalBounds();
   if (local_bounds.IsEmpty())
     return;
   local_bounds.Inset(kLeftPadding, kTopPadding, kRightPadding, kBottomPadding);
@@ -508,7 +512,7 @@ void TabRendererGtk::Layout() {
 
   int title_width;
   if (close_button_bounds_.width() && close_button_bounds_.height()) {
-    title_width = std::max(bounds_.x() + close_button_bounds_.x() -
+    title_width = std::max(close_button_bounds_.x() -
                            kTitleCloseButtonSpacing - title_left, 0);
   } else {
     title_width = std::max(local_bounds.width() - title_left, 0);
@@ -535,6 +539,10 @@ void TabRendererGtk::PaintTab(GdkEventExpose* event) {
   if (canvas.isEmpty())
     return;
 
+  // The tab is rendered into a windowless widget whose offset is at the
+  // coordinate [x(), y()].  Translate by that offset so we can render at (0,0)
+  // to match windows rendering metrics.
+  canvas.TranslateInt(x(), y());
   Paint(&canvas);
 }
 
@@ -588,7 +596,7 @@ void TabRendererGtk::PaintInactiveTabBackground(gfx::Canvas* canvas) {
       tab_l, *tab_alpha.image_l);
   canvas->DrawBitmapInt(theme_l,
       0, 0, theme_l.width(), theme_l.height() - 1,
-      bounds_.x(), bounds_.y(), theme_l.width(), theme_l.height() - 1,
+      0, 0, theme_l.width(), theme_l.height() - 1,
       false);
 
   // Draw right edge.
@@ -600,22 +608,20 @@ void TabRendererGtk::PaintInactiveTabBackground(gfx::Canvas* canvas) {
       tab_r, *tab_alpha.image_r);
   canvas->DrawBitmapInt(theme_r,
       0, 0, theme_r.width(), theme_r.height() - 1,
-      bounds_.x() + width() - theme_r.width(), bounds_.y(),
-      theme_r.width(), theme_r.height() - 1,
+      width() - theme_r.width(), 0, theme_r.width(), theme_r.height() - 1,
       false);
 
   // Draw center.
   canvas->TileImageInt(*tab_bg,
       offset + tab_active_.l_width, kDropShadowOffset + offset_y,
-      bounds_.x() + tab_active_.l_width, bounds_.y() + 2,
+      tab_active_.l_width, 2,
       width() - tab_active_.l_width - tab_active_.r_width, height() - 3);
 
-  canvas->DrawBitmapInt(*tab_inactive_.image_l, bounds_.x(), bounds_.y());
+  canvas->DrawBitmapInt(*tab_inactive_.image_l, 0, 0);
   canvas->TileImageInt(*tab_inactive_.image_c, tab_inactive_.l_width, 0,
-      bounds_.x() + width() - tab_inactive_.l_width - tab_inactive_.r_width,
-      bounds_.y() + height());
+      width() - tab_inactive_.l_width - tab_inactive_.r_width, height());
   canvas->DrawBitmapInt(*tab_inactive_.image_r,
-      bounds_.x() + width() - tab_inactive_.r_width, bounds_.y());
+      width() - tab_inactive_.r_width, 0);
 }
 
 void TabRendererGtk::PaintActiveTabBackground(gfx::Canvas* canvas) {
@@ -628,7 +634,7 @@ void TabRendererGtk::PaintActiveTabBackground(gfx::Canvas* canvas) {
       *tab_bg, offset, 0, tab_active_.l_width, height());
   SkBitmap theme_l = skia::ImageOperations::CreateMaskedBitmap(
       tab_l, *tab_alpha.image_l);
-  canvas->DrawBitmapInt(theme_l, bounds_.x(), bounds_.y());
+  canvas->DrawBitmapInt(theme_l, 0, 0);
 
   // Draw right edge.
   SkBitmap tab_r = skia::ImageOperations::CreateTiledBitmap(
@@ -637,21 +643,18 @@ void TabRendererGtk::PaintActiveTabBackground(gfx::Canvas* canvas) {
       tab_active_.r_width, height());
   SkBitmap theme_r = skia::ImageOperations::CreateMaskedBitmap(
       tab_r, *tab_alpha.image_r);
-  canvas->DrawBitmapInt(theme_r,
-      bounds_.x() + width() - tab_active_.r_width, bounds_.y());
+  canvas->DrawBitmapInt(theme_r, width() - tab_active_.r_width, 0);
 
   // Draw center.
   canvas->TileImageInt(*tab_bg,
       offset + tab_active_.l_width, 2,
-      bounds_.x() + tab_active_.l_width, bounds_.y() + 2,
+      tab_active_.l_width, 2,
       width() - tab_active_.l_width - tab_active_.r_width, height() - 2);
 
-  canvas->DrawBitmapInt(*tab_active_.image_l, bounds_.x(), bounds_.y());
-  canvas->TileImageInt(*tab_active_.image_c,
-      bounds_.x() + tab_active_.l_width, bounds_.y(),
+  canvas->DrawBitmapInt(*tab_active_.image_l, 0, 0);
+  canvas->TileImageInt(*tab_active_.image_c, tab_active_.l_width, 0,
       width() - tab_active_.l_width - tab_active_.r_width, height());
-  canvas->DrawBitmapInt(*tab_active_.image_r,
-      bounds_.x() + width() - tab_active_.r_width, bounds_.y());
+  canvas->DrawBitmapInt(*tab_active_.image_r, width() - tab_active_.r_width, 0);
 }
 
 void TabRendererGtk::PaintLoadingAnimation(gfx::Canvas* canvas) {
@@ -666,8 +669,8 @@ void TabRendererGtk::PaintLoadingAnimation(gfx::Canvas* canvas) {
   // Just like with the Tab's title and favicon, the position for the page
   // loading animation also needs to be mirrored if the UI layout is RTL.
   // TODO(willchan): Handle RTL.
-  // dst_x = x() + width() - kLeftPadding - image_size;
-  int dst_x = x() + kLeftPadding;
+  // dst_x = width() - kLeftPadding - image_size;
+  int dst_x = kLeftPadding;
 
   canvas->DrawBitmapInt(*frames, image_offset, 0, image_size,
                         image_size, dst_x, dst_y, image_size, image_size,

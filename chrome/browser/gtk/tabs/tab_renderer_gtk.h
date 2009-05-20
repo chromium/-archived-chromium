@@ -194,6 +194,10 @@ class TabRendererGtk : public AnimationDelegate {
   // Generates the bounds for the interior items of the tab.
   void Layout();
 
+  // Returns the local bounds of the tab.  This returns the rect
+  // {0, 0, width(), height()} for now, as we don't yet support borders.
+  gfx::Rect GetLocalBounds();
+
   // Moves the close button widget within the GtkFixed container.
   void MoveCloseButtonWidget();
 
