@@ -40,6 +40,7 @@ class WebWorkerClientProxy : public WebKit::WebWorkerClient,
   virtual void confirmMessageFromWorkerObject(bool has_pending_activity);
   virtual void reportPendingActivity(bool has_pending_activity);
   virtual void workerContextDestroyed();
+  virtual WebKit::WebWorker* createWorker(WebKit::WebWorkerClient* client);
 
   // IPC::Channel::Listener implementation.
   virtual void OnMessageReceived(const IPC::Message& message);
