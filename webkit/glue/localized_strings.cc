@@ -118,6 +118,12 @@ String WebCore::AXLinkActionVerb() {
   return GetLocalizedString(IDS_AX_LINK_ACTION_VERB);
 }
 
+String WebCore::multipleFileUploadText(unsigned number_of_files) {
+  return webkit_glue::String16ToString(ReplaceStringPlaceholders(
+      webkit_glue::GetLocalizedString(IDS_FORM_FILE_MULTIPLE_UPLOAD),
+      WideToUTF16Hack(UintToWString(number_of_files)),
+      NULL));
+}
 // Used in FTPDirectoryDocument.cpp
 String WebCore::unknownFileSizeText() {
   return String();

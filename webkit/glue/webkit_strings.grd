@@ -230,6 +230,9 @@ below:
       <message name="IDS_FORM_FILE_NO_FILE_DRAG_LABEL" desc="text to display in file button used in HTML forms when no file is selected to indicate that files can be dragged onto the file button">
         Drag file here
       </message>
+      <message name="IDS_FORM_FILE_MULTIPLE_UPLOAD" desc="text to display next to file buttons in HTML forms when 2 or more files are selected for uploading. This is not used for a case that just 1 file is selected.">
+        <ph name="NUMBER_OF_FILES">$1<ex>3</ex></ph> files
+      </message>
 
       <message name="IDS_RECENT_SEARCHES_NONE" desc="Label for only item in menu that appears when clicking on the search field image, when no searches have been performed">
         No recent searches
