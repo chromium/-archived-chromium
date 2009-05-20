@@ -454,6 +454,18 @@ const wchar_t kDisableAudio[]                  = L"disable-audio";
 // is cleaned up and playback testing completed.
 const wchar_t kSimpleDataSource[]              = L"simple-data-source";
 
+// Some field tests may be performed in the browser, and the randomly selected
+// outcome needs to be propogated to the renderer to appropriately modify the
+// histogram names that will be tested.  This command line argument is only
+// parsed by the renderer, and consists of a field test name, and a forced
+// selection of an outcome.  For example, if a field test "DnsImpact" has
+// selected "_disabled_prefetch" as a current test, then the render should be
+// passed the command line:
+//      force-fieldtest=DnsImpact/_disabled_prefetch
+// The renderer will then force said named field test to exist, and will force
+// the selected outcome to have the indicated text value.
+const wchar_t kForceFieldTestNameAndValue[]    = L"force-fieldtest";
+
 // Enables the prototype of the next version of the New Tab page.
 const wchar_t kNewNewTabPage[]                 = L"new-new-tab-page";
 

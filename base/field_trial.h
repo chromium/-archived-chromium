@@ -75,6 +75,11 @@ class FieldTrial : public base::RefCounted<FieldTrial> {
  public:
   static const int kNotParticipating;
 
+  // Define a separator charactor to use when creating a persistent form of an
+  // instance.  This is intended for use as a command line argument, passed to a
+  // second process to mimic our state (i.e., provide the same group name).
+  static const char kPersistentStringSeparator;  // Currently a slash.
+
   typedef int Probability;  // Use scaled up probability.
 
   // The name is used to register the instance with the FieldTrialList class,
@@ -106,6 +111,18 @@ class FieldTrial : public base::RefCounted<FieldTrial> {
   // name of a HISTOGRAM.  Use the original histogram name as the name_prefix.
   static std::string MakeName(const std::string& name_prefix,
                               const std::string& trial_name);
+
+  // Create a persistent representation of the instance that could be resurected
+  // in another process.  This allows randomization to be done in one process,
+  // and secondary processes can by synchronized on the result.
+  // The resulting string contains only the name, the trial name, and a "/"
+  // separator.
+  std::string MakePersistentString() const;
+
+  // Using a string created by MakePersistentString(), construct a new instance
+  // that has the same state as the original instance.  Currently only the
+  // group_name_ and name_ are restored.
+  static FieldTrial* RestorePersistentString(const std::string &persistent);
 
  private:
   // The name of the field trial, as can be found via the FieldTrialList.

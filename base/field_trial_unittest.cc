@@ -114,3 +114,44 @@ TEST_F(FieldTrialTest, OneWinner) {
   EXPECT_EQ(trial->group(), winner_index);
   EXPECT_EQ(winner_name, trial->group_name());
 }
+
+TEST_F(FieldTrialTest, Save) {
+  FieldTrial* trial = new FieldTrial("Some name", 10);
+  // There is no winner yet, so no textual group name is associated with trial.
+  EXPECT_EQ(trial->group_name(), "");
+  EXPECT_EQ(trial->MakePersistentString(), "Some name/");
+
+  // Create a winning group.
+  trial->AppendGroup("Winner", 10);
+  EXPECT_EQ(trial->MakePersistentString(), "Some name/Winner");
+}
+
+TEST_F(FieldTrialTest, Restore) {
+  FieldTrial* trial = FieldTrial::RestorePersistentString("Some name/winner");
+  EXPECT_EQ(trial->group_name(), "winner");
+  EXPECT_EQ(trial->name(), "Some name");
+}
+
+TEST_F(FieldTrialTest, BogusRestore) {
+  const FieldTrial *trial = FieldTrial::RestorePersistentString("MissingSlash");
+  EXPECT_EQ(trial, static_cast<FieldTrial *>(NULL));
+
+  trial = FieldTrial::RestorePersistentString("MissingGroupName/");
+  EXPECT_EQ(trial, static_cast<FieldTrial *>(NULL));
+
+  trial = FieldTrial::RestorePersistentString("/MissingName");
+  EXPECT_EQ(trial, static_cast<FieldTrial *>(NULL));
+}
+
+TEST_F(FieldTrialTest, DuplicateRestore) {
+  FieldTrial* trial = new FieldTrial("Some name", 10);
+  trial->AppendGroup("Winner", 10);
+  EXPECT_EQ(trial->MakePersistentString(), "Some name/Winner");
+
+  // It is OK if we redundantly specify a winner.
+  EXPECT_EQ(trial, FieldTrial::RestorePersistentString("Some name/Winner"));
+
+  // But it is an error to try to change to a different winner.
+  EXPECT_EQ(FieldTrial::RestorePersistentString("Some name/Loser"),
+            static_cast<FieldTrial *>(NULL));
+}

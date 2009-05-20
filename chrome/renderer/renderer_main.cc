@@ -5,6 +5,7 @@
 #include "app/l10n_util.h"
 #include "app/resource_bundle.h"
 #include "base/command_line.h"
+#include "base/field_trial.h"
 #include "base/histogram.h"
 #include "base/message_loop.h"
 #include "base/path_service.h"
@@ -88,10 +89,20 @@ int RendererMain(const MainFunctionParams& parameters) {
   platform.InitSandboxTests(no_sandbox);
 
   // Initialize histogram statistics gathering system.
-  // Don't create StatisticsRecorde in the single process mode.
+  // Don't create StatisticsRecorder in the single process mode.
   scoped_ptr<StatisticsRecorder> statistics;
   if (!StatisticsRecorder::WasStarted()) {
     statistics.reset(new StatisticsRecorder());
+  }
+
+  // Initialize statistical testing infrastructure.
+  FieldTrialList field_trial;
+  // Ensure any field trials in browser are reflected into renderer.
+  if (parsed_command_line.HasSwitch(switches::kForceFieldTestNameAndValue)) {
+    std::string persistent(WideToASCII(parsed_command_line.GetSwitchValue(
+        switches::kForceFieldTestNameAndValue)));
+    FieldTrial *field_trial = FieldTrial::RestorePersistentString(persistent);
+    DCHECK(field_trial);
   }
 
   {

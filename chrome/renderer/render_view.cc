@@ -15,6 +15,7 @@
 #include "app/resource_bundle.h"
 #include "base/command_line.h"
 #include "base/compiler_specific.h"
+#include "base/field_trial.h"
 #include "base/gfx/png_encoder.h"
 #include "base/gfx/native_widget_types.h"
 #include "base/string_piece.h"
@@ -249,7 +250,7 @@ RenderView* RenderView::Create(
 void RenderView::SetNextPageID(int32 next_page_id) {
   // This method should only be called during process startup, and the given
   // page id had better not exceed our current next page id!
-  DCHECK(next_page_id_ == 1);
+  DCHECK_EQ(next_page_id_, 1);
   DCHECK(next_page_id >= next_page_id_);
   next_page_id_ = next_page_id;
 }
@@ -534,7 +535,7 @@ void RenderView::PrintPage(const ViewMsg_PrintPage_Params& params,
 
   // Get the size of the compiled EMF.
   unsigned buf_size = emf.GetDataSize();
-  DCHECK(buf_size > 128);
+  DCHECK_GT(buf_size, 128u);
   ViewHostMsg_DidPrintPage_Params page_params;
   page_params.data_size = 0;
   page_params.emf_data_handle = NULL;
@@ -1532,7 +1533,7 @@ void RenderView::DocumentElementAvailable(WebFrame* frame) {
     frame->GrantUniversalAccess();
 
   // Tell extensions to self-register their js contexts.
-  // TODO:(rafaelw): This is kind of gross. We need a way to call through
+  // TODO(rafaelw): This is kind of gross. We need a way to call through
   // the glue layer to retrieve the current v8::Context.
   if (frame->GetURL().SchemeIs(chrome::kExtensionScheme))
     ExtensionProcessBindings::RegisterExtensionContext(frame);
@@ -3009,19 +3010,33 @@ void RenderView::DumpLoadHistograms() const {
 
   // Client side redirects will have no request time
   if (request_time.ToInternalValue() != 0) {
-    UMA_HISTOGRAM_TIMES("Renderer.All.RequestToStart", request_to_start);
-    UMA_HISTOGRAM_TIMES("Renderer.All.RequestToFinish", request_to_finish);
+    UMA_HISTOGRAM_MEDIUM_TIMES(
+        FieldTrial::MakeName("Renderer2.RequestToStart", "DnsImpact").data(),
+        request_to_start);
+    UMA_HISTOGRAM_MEDIUM_TIMES(
+        FieldTrial::MakeName("Renderer2.RequestToFinish", "DnsImpact").data(),
+        request_to_finish);
     if (request_to_first_layout.ToInternalValue() >= 0) {
-      UMA_HISTOGRAM_TIMES(
-        "Renderer.All.RequestToFirstLayout", request_to_first_layout);
+      UMA_HISTOGRAM_MEDIUM_TIMES(
+          FieldTrial::MakeName("Renderer2.RequestToFirstLayout",
+                               "DnsImpact").data(),
+          request_to_first_layout);
     }
   }
-  UMA_HISTOGRAM_TIMES("Renderer.All.StartToFinishDoc", start_to_finish_doc);
-  UMA_HISTOGRAM_TIMES("Renderer.All.FinishDocToFinish", finish_doc_to_finish);
-  UMA_HISTOGRAM_TIMES("Renderer.All.StartToFinish", start_to_finish);
+  UMA_HISTOGRAM_MEDIUM_TIMES(
+      FieldTrial::MakeName("Renderer2.StartToFinishDoc", "DnsImpact").data(),
+      start_to_finish_doc);
+  UMA_HISTOGRAM_MEDIUM_TIMES(
+      FieldTrial::MakeName("Renderer2.FinishDocToFinish", "DnsImpact").data(),
+      finish_doc_to_finish);
+  UMA_HISTOGRAM_MEDIUM_TIMES(
+      FieldTrial::MakeName("Renderer2.StartToFinish", "DnsImpact").data(),
+      start_to_finish);
   if (start_to_first_layout.ToInternalValue() >= 0) {
-    UMA_HISTOGRAM_TIMES(
-      "Renderer.All.StartToFirstLayout", start_to_first_layout);
+    UMA_HISTOGRAM_MEDIUM_TIMES(
+        FieldTrial::MakeName("Renderer2.StartToFirstLayout",
+                             "DnsImpact").data(),
+        start_to_first_layout);
   }
 }
 

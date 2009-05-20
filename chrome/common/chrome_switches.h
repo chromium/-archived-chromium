@@ -173,6 +173,8 @@ extern const wchar_t kEnableOmnibox2[];
 extern const wchar_t kDisableAudio[];
 extern const wchar_t kSimpleDataSource[];
 
+extern const wchar_t kForceFieldTestNameAndValue[];
+
 extern const wchar_t kNewNewTabPage[];
 
 }  // namespace switches

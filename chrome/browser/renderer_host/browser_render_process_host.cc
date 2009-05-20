@@ -16,6 +16,7 @@
 #include "app/win_util.h"
 #endif
 #include "base/command_line.h"
+#include "base/field_trial.h"
 #include "base/linked_ptr.h"
 #include "base/logging.h"
 #include "base/path_service.h"
@@ -280,6 +281,16 @@ bool BrowserRenderProcessHost::Init() {
   // Pass on the browser locale.
   const std::wstring locale = g_browser_process->GetApplicationLocale();
   cmd_line.AppendSwitchWithValue(switches::kLang, locale);
+
+  // If we run a FieldTrial that we want to pass to the renderer, this is where
+  // the SINGULAR trial name and value should be specified.  Note that only one
+  // such flag should be passed/set in the renderer command line.
+
+  // Today we're watching the impact of DNS on some page load times.
+  FieldTrial* field_trial = FieldTrialList::Find("DnsImpact");
+  if (field_trial && (field_trial->group() != FieldTrial::kNotParticipating))
+    cmd_line.AppendSwitchWithValue(switches::kForceFieldTestNameAndValue,
+        ASCIIToWide(field_trial->MakePersistentString()));
 
 #if defined(OS_POSIX)
   if (browser_command_line.HasSwitch(switches::kRendererCmdPrefix)) {
