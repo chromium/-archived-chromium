@@ -25,6 +25,12 @@ const int64 kPositionNotSpecified = -1;
 const int kHttpOK = 200;
 const int kHttpPartialContent = 206;
 
+// Backward capacity of the buffer, by default 2MB.
+const size_t kBackwardCapcity = 2048000;
+
+// Forward capacity of the buffer, by default 10MB.
+const size_t kForwardCapacity = 10240000;
+
 // A helper method that accepts only HTTP, HTTPS and FILE protocol.
 bool IsSchemeSupported(const GURL& url) {
   return url.SchemeIs(kHttpScheme) ||
@@ -44,9 +50,7 @@ BufferedResourceLoader::BufferedResourceLoader(int32 routing_id,
       bridge_(NULL),
       offset_(0),
       content_length_(kPositionNotSpecified),
-      buffered_bytes_(0),
-      buffer_limit_(10240000),  // By default 10MB.
-      buffer_event_(false, false),
+      buffer_(new media::SeekableBuffer(kBackwardCapcity, kForwardCapacity)),
       deferred_(false),
       stopped_(false),
       completed_(false),
@@ -56,11 +60,11 @@ BufferedResourceLoader::BufferedResourceLoader(int32 routing_id,
       url_(url),
       first_byte_position_(first_byte_position),
       last_byte_position_(last_byte_position),
-      render_loop_(RenderThread::current()->message_loop()) {
+      render_loop_(RenderThread::current()->message_loop()),
+      buffer_available_(&lock_) {
 }
 
 BufferedResourceLoader::~BufferedResourceLoader() {
-  STLDeleteElements<BufferQueue>(&buffers_);
 }
 
 int BufferedResourceLoader::Start(net::CompletionCallback* start_callback) {
@@ -112,22 +116,17 @@ int BufferedResourceLoader::Start(net::CompletionCallback* start_callback) {
   // Start() may get called on demuxer thread while Stop() is called on
   // pipeline thread, so we want to protect the posting of OnStart() task
   // with a lock.
-  bool task_posted = false;
   {
     AutoLock auto_lock(lock_);
     if (!stopped_) {
-      task_posted =  true;
       render_loop_->PostTask(FROM_HERE,
           NewRunnableMethod(this, &BufferedResourceLoader::OnStart));
+
+      // Wait for response to arrive if we don't have an async start.
+      if (!async_start_)
+        buffer_available_.Wait();
     }
-  }
 
-  // Wait for response to arrive we don't have an async start.
-  if (task_posted && !async_start_)
-    buffer_event_.Wait();
-
-  {
-    AutoLock auto_lock(lock_);
     // We may have stopped because of a bad response from the server.
     if (stopped_)
       return net::ERR_ABORTED;
@@ -140,59 +139,43 @@ int BufferedResourceLoader::Start(net::CompletionCallback* start_callback) {
 }
 
 void BufferedResourceLoader::Stop() {
-  BufferQueue delete_queue;
   {
     AutoLock auto_lock(lock_);
     stopped_ = true;
-    // Use of |buffers_| is protected by the lock, we can destroy it safely.
-    delete_queue.swap(buffers_);
-    buffers_.clear();
-  }
-  STLDeleteElements<BufferQueue>(&delete_queue);
+    buffer_.reset();
 
-  // Wakes up the waiting thread so they can catch the stop signal.
+    // Wakes up the waiting thread so they can catch the stop signal.
+    buffer_available_.Signal();
+  }
+
   render_loop_->PostTask(FROM_HERE,
       NewRunnableMethod(this, &BufferedResourceLoader::OnDestroy));
-  buffer_event_.Signal();
 }
 
 size_t BufferedResourceLoader::Read(uint8* data, size_t size) {
   size_t taken = 0;
-  while (taken < size) {
-    Buffer* buffer = NULL;
-    {
-      AutoLock auto_lock(lock_);
+  {
+    AutoLock auto_lock(lock_);
+    while (taken < size) {
+      // If stopped or the request has been completed, break the loop.
       if (stopped_)
         break;
-      if (!buffers_.empty())
-        buffer = buffers_.front();
-      else if (completed_)
+      // Read into |data|.
+      size_t unread_bytes = size - taken;
+      size_t bytes_read = buffer_->Read(unread_bytes, data + taken);
+      taken += bytes_read;
+      DCHECK_LE(taken, size);
+      if (taken == size)
         break;
-    }
-    if (buffer) {
-      size_t copy = std::min(size - taken, buffer->size - buffer->taken);
-      memcpy(data + taken, buffer->data.get() + buffer->taken, copy);
-      taken += copy;
-      buffer->taken += copy;
-      if (buffer->taken == buffer->size) {
-        // The buffer has been consumed, remove it.
-        {
-          AutoLock auto_lock(lock_);
-          buffers_.pop_front();
-        }
-        delete buffer;
-      }
-    } else {
-      buffer_event_.Wait();
+      if (completed_ && bytes_read < unread_bytes)
+        break;
+      buffer_available_.Wait();
     }
   }
+
+  // Adjust the offset and disable defer loading if needed.
   if (taken > 0) {
     offset_ += taken;
-    {
-      AutoLock auto_lock(lock_);
-      buffered_bytes_ -= taken;
-      DCHECK(buffered_bytes_ >= 0);
-    }
     if (ShouldDisableDefer()) {
       AutoLock auto_lock(lock_);
       if (!stopped_) {
@@ -205,87 +188,60 @@ size_t BufferedResourceLoader::Read(uint8* data, size_t size) {
   return taken;
 }
 
-bool BufferedResourceLoader::SeekForward(int64 position) {
+bool BufferedResourceLoader::Seek(int64 position) {
   // Use of |offset_| is safe without a lock, because it's modified only in
-  // Read() and this method after Start(). Read() and SeekForward() happens
+  // Read() and this method after Start(). Read() and Seek() happens
   // on the same thread.
-  // Seeking backward.
-  if (position < offset_)
-    return false;
-  // Done seeking forward.
-  else if (position == offset_)
+  if (position == offset_)
     return true;
 
-  while(true) {
-    {
-      AutoLock auto_lock(lock_);
-      // Loader has stopped.
-      if (stopped_)
-        return false;
-      // Seek position exceeds bufferable range, buffer_limit_ can be changed.
-      if (position >= offset_ + buffer_limit_)
-        return false;
-      // Response completed and seek position exceeds buffered range.
-      if (completed_ && position >= offset_ + buffered_bytes_)
-        return false;
+  // Use the conditions to avoid overflow, since |position| and |offset_| are
+  // int64, their difference can be greater than an int32.
+  if (position > offset_ + kint32max)
+    return false;
+  else if (position < offset_ + kint32min)
+    return false;
 
-      if (!buffers_.empty()) {
-        Buffer* buffer = buffers_.front();
-        int64 bytes_to_take = position - offset_;
-        if (!buffers_.empty()) {
-          size_t available_bytes_in_buffer = buffer->size - buffer->taken;
-          size_t taken = 0;
-          if (available_bytes_in_buffer <= bytes_to_take) {
-            taken = available_bytes_in_buffer;
-            buffers_.pop_front();
-            delete buffer;
-          } else {
-            taken = static_cast<size_t>(bytes_to_take);
-            buffer->taken += taken;
-          }
-          offset_ += taken;
-          if (bytes_to_take == taken)
-            return true;
-        }
-        continue;
-      }
+  int32 offset = static_cast<int32>(position - offset_);
+  // Backward data are served directly from the buffer and will not be
+  // downloaded in the future so we perform a backward seek now.
+  if (offset < 0) {
+    AutoLock auto_lock(lock_);
+    if (buffer_->Seek(offset)) {
+      offset_ = position;
+      return true;
     }
-    buffer_event_.Wait();
+    return false;
   }
+
+  // If we are seeking too far ahead that the buffer cannot serve, return false.
+  // We only perform this check for forward seeking because we don't want to
+  // wait too long for data very far ahead to be downloaded, and of course we
+  // will never be able to seek to that position.
+  if (position >= offset_ + buffer_->forward_capacity())
+    return false;
+
+  // Perform seeking forward until we get to the offset.
+  AutoLock auto_lock(lock_);
+  while(true) {
+    // Loader has stopped.
+    if (stopped_)
+      return false;
+    // Response completed and seek position exceeds buffered range.
+    if (completed_ && position >= offset_ + buffer_->forward_bytes())
+      return false;
+    if (buffer_->Seek(offset)) {
+      offset_ = position;
+      break;
+    }
+    buffer_available_.Wait();
+  }
+  return true;
 }
 
 int64 BufferedResourceLoader::GetOffset() {
   AutoLock auto_lock(lock_);
   return offset_;
-}
-
-int64 BufferedResourceLoader::GetBufferLimit() {
-  AutoLock auto_lock(lock_);
-  return buffer_limit_;
-}
-
-void BufferedResourceLoader::SetBufferLimit(size_t buffer_limit) {
-  {
-    AutoLock auto_lock(lock_);
-    buffer_limit_ = buffer_limit;
-  }
-
-  if (ShouldDisableDefer()) {
-    AutoLock auto_lock(lock_);
-    if (!stopped_) {
-      render_loop_->PostTask(FROM_HERE,
-          NewRunnableMethod(this,
-                            &BufferedResourceLoader::OnDisableDeferLoading));
-    }
-  }
-  if (ShouldEnableDefer()) {
-    AutoLock auto_lock(lock_);
-    if (!stopped_) {
-      render_loop_->PostTask(FROM_HERE,
-          NewRunnableMethod(this,
-                            &BufferedResourceLoader::OnEnableDeferLoading));
-    }
-  }
 }
 
 size_t BufferedResourceLoader::GetTimeout() {
@@ -351,14 +307,15 @@ void BufferedResourceLoader::OnReceivedResponse(
     // We only care about the first byte position if it's given by the server.
     if (first_byte_position != kPositionNotSpecified)
       offset_ = first_byte_position;
+
+    // If this is not an asynchronous start, signal the thread called Start().
+    if (!async_start_)
+      buffer_available_.Signal();
   }
 
-  // If we have started asynchronously we just need to invoke the callback or
-  // we need to signal the Start() method to wake up.
+  // If we have started asynchronously we need to invoke the callback.
   if (async_start_)
     InvokeAndResetStartCallback(net::OK);
-  else
-    buffer_event_.Signal();
 }
 
 void BufferedResourceLoader::OnReceivedData(const char* data, int len) {
@@ -383,31 +340,26 @@ void BufferedResourceLoader::OnCompletedRequest(
 /////////////////////////////////////////////////////////////////////////////
 // BufferedResourceLoader, private
 void BufferedResourceLoader::AppendToBuffer(const uint8* data, size_t size) {
-  {
-    AutoLock auto_lock(lock_);
-    if (!stopped_) {
-      Buffer* buffer = new Buffer(size);
-      memcpy(buffer->data.get(), data, size);
-      buffers_.push_back(buffer);
-      buffered_bytes_ += size;
-    }
-  }
-  buffer_event_.Signal();
+  AutoLock auto_lock(lock_);
+  if (!stopped_)
+    buffer_->Append(size, data);
+  buffer_available_.Signal();
 }
 
 void BufferedResourceLoader::SignalComplete() {
-  {
-    AutoLock auto_lock(lock_);
-    completed_ = true;
-  }
-  buffer_event_.Signal();
+  AutoLock auto_lock(lock_);
+  completed_ = true;
+  buffer_available_.Signal();
 }
 
 bool BufferedResourceLoader::ShouldEnableDefer() {
   AutoLock auto_lock(lock_);
-  if (deferred_) {
+
+  // If the resource loader has been stopped, we should not use |buffer_|.
+  if (stopped_)
     return false;
-  } else if (buffered_bytes_ >= buffer_limit_) {
+
+  if (!deferred_ && buffer_->forward_bytes() >= buffer_->forward_capacity()) {
     deferred_ = true;
     return true;
   }
@@ -416,10 +368,16 @@ bool BufferedResourceLoader::ShouldEnableDefer() {
 
 bool BufferedResourceLoader::ShouldDisableDefer() {
   AutoLock auto_lock(lock_);
-  if (deferred_ && buffered_bytes_ < buffer_limit_ / 2)
-    return true;
-  else
+
+  // If the resource loader has been stopped, we should not use |buffer_|.
+  if (stopped_)
     return false;
+
+  if (deferred_ && buffer_->forward_bytes() < buffer_->forward_capacity() / 2) {
+    deferred_ = false;
+    return true;
+  }
+  return false;
 }
 
 void BufferedResourceLoader::OnStart() {
@@ -431,6 +389,7 @@ void BufferedResourceLoader::OnStart() {
 void BufferedResourceLoader::OnDestroy() {
   DCHECK(MessageLoop::current() == render_loop_);
   if (bridge_.get()) {
+    // Cancel the resource request.
     bridge_->Cancel();
     bridge_.reset();
   }
@@ -527,7 +486,7 @@ bool BufferedDataSource::Initialize(const std::string& url) {
 
 size_t BufferedDataSource::Read(uint8* data, size_t size) {
   // We try two times here:
-  // 1. Use the existing resource loader to seek forward and read from it.
+  // 1. Use the existing resource loader to seek and read from it.
   // 2. If any of the above operations failed, we create a new resource loader
   //    starting with a new range. Goto 1.
   // TODO(hclam): change the logic here to do connection recovery and allow a
@@ -539,7 +498,7 @@ size_t BufferedDataSource::Read(uint8* data, size_t size) {
       resource_loader = buffered_resource_loader_;
     }
 
-    if (resource_loader && resource_loader->SeekForward(position_)) {
+    if (resource_loader && resource_loader->Seek(position_)) {
       size_t read = resource_loader->Read(data, size);
       if (read >= 0) {
         position_ += read;
@@ -592,8 +551,13 @@ bool BufferedDataSource::GetPosition(int64* position_out) {
 }
 
 bool BufferedDataSource::SetPosition(int64 position) {
-  position_ = position;
-  return true;
+  // |total_bytes_| can be -1 for pure streaming. There may be a problem with
+  // seeking for this case.
+  if (position < total_bytes_) {
+    position_ = position;
+    return true;
+  }
+  return false;
 }
 
 bool BufferedDataSource::GetSize(int64* size_out) {

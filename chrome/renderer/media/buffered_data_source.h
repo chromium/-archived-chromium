@@ -10,11 +10,12 @@
 
 #include "base/lock.h"
 #include "base/scoped_ptr.h"
-#include "base/waitable_event.h"
+#include "base/condition_variable.h"
 #include "media/base/factory.h"
 #include "media/base/filters.h"
 #include "media/base/media_format.h"
 #include "media/base/pipeline.h"
+#include "media/base/seekable_buffer.h"
 #include "net/base/completion_callback.h"
 #include "net/base/file_stream.h"
 #include "webkit/glue/resource_loader_bridge.h"
@@ -59,23 +60,19 @@ class BufferedResourceLoader :
   // the current position referred by calling GetOffset(). This method call is
   // synchronous, it returns only the required amount of bytes is read, the
   // loader is stopped, this resource loading has completed or the read has
-  // timed out. Read() and SeekForward() cannot be called concurrently.
+  // timed out. Read() and Seek() cannot be called concurrently.
   size_t Read(uint8* buffer, size_t size);
 
-  // Seek forward to |position| in bytes in the entire instance of the media
+  // Seek to |position| in bytes in the entire instance of the media
   // object, returns true if successful. If the seek operation cannot be
   // performed because it's seeking backward, the loader has been stopped,
   // the seek |position| exceed bufferable range or the seek operation has
   // timed out, returns false.
-  // There cannot be SeekForward() while another thread is calling Read().
-  bool SeekForward(int64 position);
+  // There cannot be Seek() while another thread is calling Read().
+  bool Seek(int64 position);
 
   // Returns the position in bytes that this loader is downloading from.
   int64 GetOffset();
-
-  // Gets and sets the buffering limit of this loader.
-  int64 GetBufferLimit();
-  void SetBufferLimit(size_t buffe_limit);
 
   // Gets and sets the timeout for the synchronous operations.
   size_t GetTimeout();
@@ -113,26 +110,12 @@ class BufferedResourceLoader :
 
   void InvokeAndResetStartCallback(int error);
 
-  struct Buffer {
-    Buffer(size_t len) : taken(0), size(len), data(new uint8[len]) { }
-
-    // The amount of buffer in bytes consumed in this buffer starting from
-    // index 0.
-    size_t taken;
-    size_t size;
-    scoped_array<uint8> data;
-  };
-
   scoped_ptr<net::CompletionCallback> start_callback_;
   scoped_ptr<webkit_glue::ResourceLoaderBridge> bridge_;
   int64 offset_;
   int64 content_length_;
 
-  typedef std::deque<Buffer*> BufferQueue;
-  BufferQueue buffers_;
-  size_t buffered_bytes_;
-  size_t buffer_limit_;
-  base::WaitableEvent buffer_event_;
+  scoped_ptr<media::SeekableBuffer> buffer_;
 
   bool deferred_;
   bool stopped_;
@@ -147,13 +130,12 @@ class BufferedResourceLoader :
 
   MessageLoop* render_loop_;
   // A lock that protects usage of the following members:
-  // - buffers_
-  // - buffered_bytes_
-  // - buffered_limit_
+  // - buffer_
   // - deferred_
   // - stopped_
   // - completed_
   Lock lock_;
+  ConditionVariable buffer_available_;
 
   DISALLOW_COPY_AND_ASSIGN(BufferedResourceLoader);
 };
