@@ -87,7 +87,7 @@ void DevToolsManager::ForwardToDevToolsClient(RenderViewHost* inspected_rvh,
 void DevToolsManager::OpenDevToolsWindow(RenderViewHost* inspected_rvh) {
   DevToolsClientHost* host = GetDevToolsClientHostFor(inspected_rvh);
   if (!host) {
-    host = DevToolsWindow::Create(
+    host = new DevToolsWindow(
         inspected_rvh->site_instance()->browsing_instance()->profile());
     RegisterDevToolsClientHostFor(inspected_rvh, host);
   }

@@ -5,30 +5,48 @@
 #ifndef CHROME_BROWSER_DEBUGGER_DEV_TOOLS_WINDOW_H_
 #define CHROME_BROWSER_DEBUGGER_DEV_TOOLS_WINDOW_H_
 
-#include "base/basictypes.h"
-#include "chrome/browser/debugger/devtools_client_host.h"
+#include <string>
 
+#include "base/basictypes.h"
+#include "base/scoped_ptr.h"
+#include "chrome/browser/debugger/devtools_client_host.h"
+#include "chrome/browser/tabs/tab_strip_model.h"
+
+namespace IPC {
+class Message;
+}
+
+class Browser;
 class Profile;
 class RenderViewHost;
+class TabContents;
 
-class DevToolsWindow : public DevToolsClientHost {
+class DevToolsWindow : public DevToolsClientHost,
+                              TabStripModelObserver {
  public:
   // Factory method for creating platform specific devtools windows.
-  static DevToolsWindow* Create(Profile* profile);
-
-  virtual ~DevToolsWindow() {}
+  DevToolsWindow(Profile* profile);
+  virtual ~DevToolsWindow();
 
   // Show this window.
-  virtual void Show() = 0;
-  virtual RenderViewHost* GetRenderViewHost() const = 0;
+  void Show();
+
+  RenderViewHost* GetRenderViewHost() const;
 
   // DevToolsClientHost override.
-  virtual DevToolsWindow* AsDevToolsWindow() { return this; }
+  virtual DevToolsWindow* AsDevToolsWindow();
+  virtual void InspectedTabClosing();
+  virtual void SetInspectedTabUrl(const std::string& url);
+  virtual void SendMessageToClient(const IPC::Message& message);
 
- protected:
-  DevToolsWindow() : DevToolsClientHost() {}
+  // TabStripModelObserver implementation
+  virtual void TabClosingAt(TabContents* contents, int index);
 
  private:
+  scoped_ptr<Browser> browser_;
+  TabContents* tab_contents_;
+  std::string inspected_url_;
+  bool inspected_tab_closing_;
   DISALLOW_COPY_AND_ASSIGN(DevToolsWindow);
 };
 

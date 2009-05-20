@@ -262,23 +262,11 @@
 			>
 		</File>
 		<File
-			RelativePath=".\devtools_view.cc"
-			>
-		</File>
-		<File
-			RelativePath=".\devtools_view.h"
+			RelativePath=".\devtools_window.cc"
 			>
 		</File>
 		<File
 			RelativePath=".\devtools_window.h"
-			>
-		</File>
-		<File
-			RelativePath=".\devtools_window_win.cc"
-			>
-		</File>
-		<File
-			RelativePath=".\devtools_window_win.h"
 			>
 		</File>
 		<File
