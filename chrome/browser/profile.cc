@@ -39,6 +39,7 @@
 #include "chrome/common/pref_names.h"
 #include "chrome/common/render_messages.h"
 #include "grit/locale_settings.h"
+#include "net/base/force_tls_state.h"
 
 using base::Time;
 using base::TimeDelta;
@@ -169,6 +170,13 @@ class OffTheRecordProfileImpl : public Profile,
 
     DCHECK(ssl_host_state_->CalledOnValidThread());
     return ssl_host_state_.get();
+  }
+
+  virtual net::ForceTLSState* GetForceTLSState() {
+    if (!force_tls_state_.get())
+      force_tls_state_.reset(new net::ForceTLSState());
+
+    return force_tls_state_.get();
   }
 
   virtual HistoryService* GetHistoryService(ServiceAccessType sat) {
@@ -388,6 +396,9 @@ class OffTheRecordProfileImpl : public Profile,
   // profile because then the main profile would learn some of the host names
   // the user visited while OTR.
   scoped_ptr<SSLHostState> ssl_host_state_;
+
+  // The ForceTLSState that only stores enabled sites in memory.
+  scoped_ptr<net::ForceTLSState> force_tls_state_;
 
   // Extensions run in a different context in incognito mode.
   scoped_ptr<ExtensionProcessManager> extension_process_manager_;
@@ -625,6 +636,13 @@ SSLHostState* ProfileImpl::GetSSLHostState() {
 
   DCHECK(ssl_host_state_->CalledOnValidThread());
   return ssl_host_state_.get();
+}
+
+net::ForceTLSState* ProfileImpl::GetForceTLSState() {
+  if (!force_tls_state_.get())
+    force_tls_state_.reset(new net::ForceTLSState());
+
+  return force_tls_state_.get();
 }
 
 PrefService* ProfileImpl::GetPrefs() {

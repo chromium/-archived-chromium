@@ -67,8 +67,13 @@ class URLRequestHttpJob : public URLRequestJob {
   std::string AssembleRequestCookies();
   void FetchResponseCookies();
 
+  // Process the X-Force-TLS header, if one exists.
+  void ProcessForceTLSHeader();
+
   void OnStartCompleted(int result);
   void OnReadCompleted(int result);
+
+  bool ShouldTreatAsCertificateError(int result);
 
   void RestartTransactionWithAuth(const std::wstring& username,
                                   const std::wstring& password);

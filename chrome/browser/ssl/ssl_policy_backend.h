@@ -13,6 +13,9 @@
 #include "net/base/x509_certificate.h"
 #include "webkit/api/public/WebConsoleMessage.h"
 
+namespace net {
+class ForceTLSState;
+}
 class NavigationController;
 class SSLHostState;
 class Task;
@@ -68,6 +71,9 @@ class SSLPolicyBackend {
   // Returns whether the specified host is allowed to show mixed content.
   bool DidAllowMixedContentForHost(const std::string& host) const;
 
+  // Returns whether ForceTLS is enabled for |host|.
+  bool IsForceTLSEnabledForHost(const std::string& host) const;
+
   // Reloads the tab.
   void Reload();
 
@@ -111,6 +117,10 @@ class SSLPolicyBackend {
 
   // SSL state specific for each host.
   SSLHostState* ssl_host_state_;
+
+  // ForceTLS state.
+  // TODO(abarth): Consider combining with SSLHostState?
+  net::ForceTLSState* force_tls_state_;
 
   // The list of messages that should be displayed (in info bars) when the page
   // currently loading had loaded.

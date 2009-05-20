@@ -90,6 +90,9 @@ class TestingProfile : public Profile {
   virtual SSLHostState* GetSSLHostState() {
     return NULL;
   }
+  virtual net::ForceTLSState* GetForceTLSState() {
+    return NULL;
+  }
   virtual HistoryService* GetHistoryService(ServiceAccessType access) {
     return history_service_.get();
   }

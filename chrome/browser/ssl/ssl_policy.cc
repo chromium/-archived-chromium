@@ -6,6 +6,8 @@
 
 #include "app/l10n_util.h"
 #include "app/resource_bundle.h"
+#include "base/base_switches.h"
+#include "base/command_line.h"
 #include "base/singleton.h"
 #include "base/string_piece.h"
 #include "base/string_util.h"
@@ -117,11 +119,15 @@ void SSLPolicy::OnMixedContent(SSLMixedContentHandler* handler) {
 
   // If the user has added an exception, doctor the |filter_policy|.
   std::string host = GURL(handler->main_frame_origin()).host();
-  if (backend_->DidAllowMixedContentForHost(host) ||
-      backend_->DidMarkHostAsBroken(host, handler->pid()))
+  if (CommandLine::ForCurrentProcess()->HasSwitch(switches::kForceHTTPS) &&
+      backend_->IsForceTLSEnabledForHost(host)) {
+    // We're supposed to block all mixed content for this host.
+    filter_policy = FilterPolicy::FILTER_ALL;
+  } else if (backend_->DidAllowMixedContentForHost(host) ||
+             backend_->DidMarkHostAsBroken(host, handler->pid())) {
+    // Let the mixed content through.
     filter_policy = FilterPolicy::DONT_FILTER;
-
-  if (filter_policy != FilterPolicy::DONT_FILTER) {
+  } else if (filter_policy != FilterPolicy::DONT_FILTER) {
     backend_->ShowMessageWithLink(
         l10n_util::GetString(IDS_SSL_INFO_BAR_FILTERED_CONTENT),
         l10n_util::GetString(IDS_SSL_INFO_BAR_SHOW_CONTENT),

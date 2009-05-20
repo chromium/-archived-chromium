@@ -292,6 +292,8 @@ ChromeURLRequestContext::ChromeURLRequestContext(Profile* profile)
   cookie_policy_.SetType(net::CookiePolicy::FromInt(
       prefs_->GetInteger(prefs::kCookieBehavior)));
 
+  force_tls_state_ = profile->GetForceTLSState();
+
   if (profile->GetExtensionsService()) {
     const ExtensionList* extensions =
         profile->GetExtensionsService()->extensions();

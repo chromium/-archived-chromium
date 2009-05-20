@@ -75,6 +75,8 @@
         'base/file_stream_win.cc',
         'base/filter.cc',
         'base/filter.h',
+        'base/force_tls_state.cc',
+        'base/force_tls_state.h',
         'base/gzip_filter.cc',
         'base/gzip_filter.h',
         'base/gzip_header.cc',

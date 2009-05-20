@@ -17,6 +17,7 @@
 
 namespace net {
 class CookieMonster;
+class ForceTLSState;
 class FtpTransactionFactory;
 class HttpTransactionFactory;
 class ProxyService;
@@ -30,7 +31,8 @@ class URLRequestContext :
       : proxy_service_(NULL),
         http_transaction_factory_(NULL),
         ftp_transaction_factory_(NULL),
-        cookie_store_(NULL) {
+        cookie_store_(NULL),
+        force_tls_state_(NULL) {
   }
 
   // Get the proxy service for this context.
@@ -53,6 +55,8 @@ class URLRequestContext :
 
   // Gets the cookie policy for this context.
   net::CookiePolicy* cookie_policy() { return &cookie_policy_; }
+
+  net::ForceTLSState* force_tls_state() { return force_tls_state_; }
 
   // Gets the FTP authentication cache for this context.
   net::FtpAuthCache* ftp_auth_cache() { return &ftp_auth_cache_; }
@@ -89,6 +93,7 @@ class URLRequestContext :
   net::FtpTransactionFactory* ftp_transaction_factory_;
   net::CookieMonster* cookie_store_;
   net::CookiePolicy cookie_policy_;
+  net::ForceTLSState* force_tls_state_;;
   net::FtpAuthCache ftp_auth_cache_;
   std::string accept_language_;
   std::string accept_charset_;

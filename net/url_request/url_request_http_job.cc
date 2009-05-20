@@ -12,8 +12,10 @@
 #include "base/message_loop.h"
 #include "base/rand_util.h"
 #include "base/string_util.h"
+#include "net/base/cert_status_flags.h"
 #include "net/base/cookie_monster.h"
 #include "net/base/filter.h"
+#include "net/base/force_tls_state.h"
 #include "net/base/load_flags.h"
 #include "net/base/net_errors.h"
 #include "net/base/net_util.h"
@@ -47,7 +49,10 @@ URLRequestJob* URLRequestHttpJob::Factory(URLRequest* request,
   // network request.
   static const bool kForceHTTPS =
       CommandLine::ForCurrentProcess()->HasSwitch(switches::kForceHTTPS);
-  if (kForceHTTPS && scheme != "https")
+  if (kForceHTTPS && scheme == "http" &&
+      request->context()->force_tls_state() &&
+      request->context()->force_tls_state()->IsEnabledForHost(
+          request->url().host()))
     return new URLRequestErrorJob(request, net::ERR_DISALLOWED_URL_SCHEME);
 
   return new URLRequestHttpJob(request);
@@ -441,9 +446,7 @@ void URLRequestHttpJob::OnStartCompleted(int result) {
 
   if (result == net::OK) {
     NotifyHeadersComplete();
-  } else if (net::IsCertificateError(result) &&
-             !CommandLine::ForCurrentProcess()->HasSwitch(
-                 switches::kForceHTTPS)) {
+  } else if (ShouldTreatAsCertificateError(result)) {
     // We encountered an SSL certificate error.  Ask our delegate to decide
     // what we should do.
     // TODO(wtc): also pass ssl_info.cert_status, or just pass the whole
@@ -470,6 +473,22 @@ void URLRequestHttpJob::OnReadCompleted(int result) {
   NotifyReadComplete(result);
 }
 
+bool URLRequestHttpJob::ShouldTreatAsCertificateError(int result) {
+  if (!net::IsCertificateError(result))
+    return false;
+
+  // Hide the fancy processing behind a command line switch.
+  if (!CommandLine::ForCurrentProcess()->HasSwitch(switches::kForceHTTPS))
+    return true;
+
+  // Check whether our context is using ForceTLS.
+  if (!context_->force_tls_state())
+    return true;
+
+  return !context_->force_tls_state()->IsEnabledForHost(
+      request_info_.url.host());
+}
+
 void URLRequestHttpJob::NotifyHeadersComplete() {
   DCHECK(!response_info_);
 
@@ -493,6 +512,8 @@ void URLRequestHttpJob::NotifyHeadersComplete() {
                                                  options);
     }
   }
+
+  ProcessForceTLSHeader();
 
   if (SdchManager::Global() &&
       SdchManager::Global()->IsInSupportedDomain(request_->url())) {
@@ -656,4 +677,32 @@ void URLRequestHttpJob::FetchResponseCookies() {
   void* iter = NULL;
   while (response_info_->headers->EnumerateHeader(&iter, name, &value))
     response_cookies_.push_back(value);
+}
+
+
+void URLRequestHttpJob::ProcessForceTLSHeader() {
+  DCHECK(response_info_);
+
+  // Hide processing behind a command line flag.
+  if (!CommandLine::ForCurrentProcess()->HasSwitch(switches::kForceHTTPS))
+    return;
+
+  // Only process X-Force-TLS from HTTPS responses.
+  if (request_info_.url.scheme() != "https")
+    return;
+
+  // Only process X-Force-TLS from responses with valid certificates.
+  if (response_info_->ssl_info.cert_status & net::CERT_STATUS_ALL_ERRORS)
+    return;
+
+  URLRequestContext* ctx = request_->context();
+  if (!ctx || !ctx->force_tls_state())
+    return;
+
+  std::string name = "X-Force-TLS";
+  std::string value;
+
+  void* iter = NULL;
+  while (response_info_->headers->EnumerateHeader(&iter, name, &value))
+    ctx->force_tls_state()->DidReceiveHeader(request_info_.url, value);
 }

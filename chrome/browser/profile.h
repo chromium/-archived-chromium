@@ -20,6 +20,9 @@
 #endif
 #include "chrome/common/notification_observer.h"
 
+namespace net {
+class ForceTLSState;
+}
 class BookmarkModel;
 class ChromeURLRequestContext;
 class DownloadManager;
@@ -127,6 +130,11 @@ class Profile {
   // The SSLHostState is lazily created the first time that this method is
   // called.
   virtual SSLHostState* GetSSLHostState() = 0;
+
+  // Retrieves a pointer to the ForceTLStSate associated with this profile.
+  // The ForceTLSState is lazily created the first time that this method is
+  // called.
+  virtual net::ForceTLSState* GetForceTLSState() = 0;
 
   // Retrieves a pointer to the HistoryService associated with this
   // profile.  The HistoryService is lazily created the first time
@@ -301,6 +309,7 @@ class ProfileImpl : public Profile,
   virtual VisitedLinkMaster* GetVisitedLinkMaster();
   virtual UserScriptMaster* GetUserScriptMaster();
   virtual SSLHostState* GetSSLHostState();
+  virtual net::ForceTLSState* GetForceTLSState();
   virtual ExtensionsService* GetExtensionsService();
   virtual ExtensionProcessManager* GetExtensionProcessManager();
   virtual HistoryService* GetHistoryService(ServiceAccessType sat);
@@ -371,6 +380,7 @@ class ProfileImpl : public Profile,
   scoped_refptr<UserScriptMaster> user_script_master_;
   scoped_ptr<ExtensionProcessManager> extension_process_manager_;
   scoped_ptr<SSLHostState> ssl_host_state_;
+  scoped_ptr<net::ForceTLSState> force_tls_state_;
   scoped_ptr<PrefService> prefs_;
   scoped_ptr<TemplateURLFetcher> template_url_fetcher_;
   scoped_ptr<TemplateURLModel> template_url_model_;
