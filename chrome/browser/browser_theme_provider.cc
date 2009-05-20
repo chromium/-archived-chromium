@@ -107,6 +107,14 @@ BrowserThemeProvider::BrowserThemeProvider()
 
 BrowserThemeProvider::~BrowserThemeProvider() {
   FreeImages();
+#if defined(OS_LINUX)
+  // Free GdkPixbufs.
+  for (GdkPixbufMap::iterator i = gdk_pixbufs_.begin();
+       i != gdk_pixbufs_.end(); i++) {
+    g_object_unref(i->second);
+  }
+  gdk_pixbufs_.clear();
+#endif
 }
 
 void BrowserThemeProvider::Init(Profile* profile) {

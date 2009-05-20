@@ -11,9 +11,14 @@
 
 #include "app/resource_bundle.h"
 #include "app/theme_provider.h"
+#include "base/basictypes.h"
 #include "base/non_thread_safe.h"
 #include "base/ref_counted.h"
 #include "skia/ext/skia_utils.h"
+
+#if defined(OS_LINUX)
+#include <gdk/gdk.h>
+#endif
 
 class Extension;
 class Profile;
@@ -51,6 +56,9 @@ class BrowserThemeProvider : public base::RefCounted<BrowserThemeProvider>,
   // ThemeProvider implementation.
   virtual SkBitmap* GetBitmapNamed(int id);
   virtual SkColor GetColor(int id);
+#if defined(OS_LINUX)
+  virtual GdkPixbuf* GetPixbufNamed(int id);
+#endif
 
   // Set the current theme to the theme defined in |extension|.
   void SetTheme(Extension* extension);
@@ -119,6 +127,10 @@ class BrowserThemeProvider : public base::RefCounted<BrowserThemeProvider>,
   // track of the pointers.
   typedef std::map<int, SkBitmap*> ImageCache;
   ImageCache image_cache_;
+#if defined(OS_LINUX)
+  typedef std::map<int, GdkPixbuf*> GdkPixbufMap;
+  GdkPixbufMap gdk_pixbufs_;
+#endif
 
   // List of generate images that aren't stored in ResourceBundles image cache
   // and need to be freed.

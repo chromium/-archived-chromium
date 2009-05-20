@@ -592,6 +592,7 @@
         'browser/browser_process_impl.h',
         'browser/browser_shutdown.cc',
         'browser/browser_shutdown.h',
+        'browser/browser_theme_provider_gtk.cc',
         'browser/browser_theme_provider.cc',
         'browser/browser_theme_provider.h',
         'browser/browser_trial.cc',

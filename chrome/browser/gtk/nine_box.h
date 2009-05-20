@@ -54,8 +54,6 @@ class NineBox {
 
  private:
   GdkPixbuf* images_[9];
-  // Determine if we own and need to free images_.
-  bool ninebox_owns_images_;
 };
 
 #endif  // CHROME_BROWSER_GTK_NINE_BOX_H_

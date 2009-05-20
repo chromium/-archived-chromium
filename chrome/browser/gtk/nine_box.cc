@@ -28,15 +28,10 @@ void TileImage(cairo_t* cr, GdkPixbuf* src,
   cairo_fill(cr);
 }
 
-GdkPixbuf* GetPixbufNamed(ThemeProvider* theme_provider, int name) {
-  return gfx::GdkPixbufFromSkBitmap(theme_provider->GetBitmapNamed(name));
-}
-
 }  // namespace
 
 NineBox::NineBox(int top_left, int top, int top_right, int left, int center,
-                 int right, int bottom_left, int bottom, int bottom_right)
-    : ninebox_owns_images_(false) {
+                 int right, int bottom_left, int bottom, int bottom_right) {
   ResourceBundle& rb = ResourceBundle::GetSharedInstance();
   images_[0] = top_left ? rb.GetPixbufNamed(top_left) : NULL;
   images_[1] = top ? rb.GetPixbufNamed(top) : NULL;
@@ -51,35 +46,28 @@ NineBox::NineBox(int top_left, int top, int top_right, int left, int center,
 
 NineBox::NineBox(ThemeProvider* theme_provider,
                  int top_left, int top, int top_right, int left, int center,
-                 int right, int bottom_left, int bottom, int bottom_right)
-    : ninebox_owns_images_(true) {
+                 int right, int bottom_left, int bottom, int bottom_right) {
   images_[0] = top_left ?
-               GetPixbufNamed(theme_provider, top_left) : NULL;
+               theme_provider->GetPixbufNamed(top_left) : NULL;
   images_[1] = top ?
-               GetPixbufNamed(theme_provider, top) : NULL;
+               theme_provider->GetPixbufNamed(top) : NULL;
   images_[2] = top_right ?
-               GetPixbufNamed(theme_provider, top_right) : NULL;
+               theme_provider->GetPixbufNamed(top_right) : NULL;
   images_[3] = left ?
-               GetPixbufNamed(theme_provider, left) : NULL;
+               theme_provider->GetPixbufNamed(left) : NULL;
   images_[4] = center ?
-               GetPixbufNamed(theme_provider, center) : NULL;
+               theme_provider->GetPixbufNamed(center) : NULL;
   images_[5] = right ?
-               GetPixbufNamed(theme_provider, right) : NULL;
+               theme_provider->GetPixbufNamed(right) : NULL;
   images_[6] = bottom_left ?
-               GetPixbufNamed(theme_provider, bottom_left) : NULL;
+               theme_provider->GetPixbufNamed(bottom_left) : NULL;
   images_[7] = bottom ?
-               GetPixbufNamed(theme_provider, bottom) : NULL;
+               theme_provider->GetPixbufNamed(bottom) : NULL;
   images_[8] = bottom_right ?
-               GetPixbufNamed(theme_provider, bottom_right) : NULL;
+               theme_provider->GetPixbufNamed(bottom_right) : NULL;
 }
 
 NineBox::~NineBox() {
-  if (ninebox_owns_images_) {
-    for (size_t i = 0; i < 9; i++) {
-      if (images_[i])
-        g_object_unref(images_[i]);
-    }
-  }
 }
 
 void NineBox::RenderToWidget(GtkWidget* dst) const {
