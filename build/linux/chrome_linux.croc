@@ -1,0 +1,89 @@
+# -*- python -*-
+# Crocodile config file for Chromium linux
+
+{
+  # List of rules, applied in order
+  'rules' : [
+    # Files/paths to include.  Specify these before the excludes, since rules
+    # are in order.
+    {
+      'regexp' : '^#/src/(base|media|net|printing)/',
+      'include' : 1,
+    },
+    # Don't include subversion or mercurial SCM dirs
+    {
+      'regexp' : '.*/(\\.svn|\\.hg)/',
+      'include' : 0,
+    },
+    # Don't include output dirs
+    {
+      'regexp' : '.*/(Debug|Release|sconsbuild|xcodebuild)/',
+      'include' : 0,
+    },
+    # Don't include third-party source
+    {
+      'regexp' : '.*/third_party/',
+      'include' : 0,
+    },
+    # Don't include windows or mac specific files
+    {
+      'regexp' : '.*(_|/)(mac|win)(\\.|_)',
+      'include' : 0,
+    },
+
+    # Groups
+    {
+      'regexp' : '',
+      'group' : 'source',
+    },
+    {
+      'regexp' : '.*_(test|test_linux|unittest)\\.',
+      'group' : 'test',
+    },
+
+    # Languages
+    {
+      'regexp' : '.*\\.(c|h)$',
+      'language' : 'C',
+    },
+    {
+      'regexp' : '.*\\.(cc|cpp|hpp)$',
+      'language' : 'C++',
+    },
+  ],
+
+  # Paths to add source from
+  'add_files' : [
+    '#/src'
+  ],
+
+  # Statistics to print
+  'print_stats' : [
+    {
+      'stat' : 'files_executable',
+      'format' : '*RESULT FilesKnown: files_executable= %d files',
+    },
+    {
+      'stat' : 'files_instrumented',
+      'format' : '*RESULT FilesInstrumented: files_instrumented= %d files',
+    },
+    {
+      'stat' : '100.0 * files_instrumented / files_executable',
+      'format' : '*RESULT FilesInstrumentedPercent: files_instrumented_percent= %g',
+    },
+    {
+      'stat' : 'lines_instrumented',
+      'format' : '*RESULT LinesInstrumented: lines_instrumented= %d lines',
+    },
+    {
+      'stat' : 'lines_covered',
+      'format' : '*RESULT LinesCoveredSource: lines_covered_source= %d lines',
+      'group' : 'source',
+    },
+    {
+      'stat' : 'lines_covered',
+      'format' : '*RESULT LinesCoveredTest: lines_covered_test= %d lines',
+      'group' : 'test',
+    },
+  ],
+}
