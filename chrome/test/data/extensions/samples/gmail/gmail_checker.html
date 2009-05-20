@@ -2,10 +2,92 @@
 <head>
 <link rel="stylesheet" type="text/css" href="styles.css">
 <script>
-gmail_atom_href = "http://mail.google.com/mail/feed/atom";
-var poll_timeout = 1000 * 60;  // 1 minute
+var gmail = "http://mail.google.com/";
+var gmailAtomRef = "http://mail.google.com/mail/feed/atom";
+var pollInterval = 1000 * 60;  // 1 minute
+var requestTimeout = 1000 * 5;  // 5 seconds
 var unreadCount;
-var debug = true;
+
+function init() {
+  window.setTimeout(startRequest, 0);
+}
+
+function scheduleRequest() {
+  window.setTimeout(startRequest, pollInterval);
+}
+
+// ajax stuff
+function startRequest() {  
+  getInboxCount(
+    function(count) {
+      toggleLoggedInState();
+      updateUnreadCount(count);
+      scheduleRequest();
+    },
+    function() {
+      toggleLoggedOutState();
+      scheduleRequest();
+    }
+  );
+}
+
+function getInboxCount(onSuccess, onError) {
+  var xhr = new XMLHttpRequest();
+  var abortTimerId = window.setTimeout(function() {
+    xhr.abort();
+    onError();
+  }, requestTimeout);
+
+  function handleSuccess(count) {
+    window.clearTimeout(abortTimerId);
+    onSuccess(count);
+  }
+
+  function handleError() {
+    window.clearTimeout(abortTimerId);
+    onError();
+  }
+
+  try {
+    console.log("request..");
+    xhr.onreadystatechange = function(){
+      console.log("readystate: " + xhr.readyState);
+      if (xhr.readyState == 4) {
+        console.log("responseText: " + xhr.responseText.substring(0, 200) +
+                    "...");
+        if (xhr.responseXML) {
+          var xmlDoc = xhr.responseXML;
+          var fullCountSet = xmlDoc.evaluate("/gmail:feed/gmail:fullcount", 
+              xmlDoc, gmailNSResolver, XPathResult.ANY_TYPE, null);
+          var fullCountNode = fullCountSet.iterateNext();
+          if (fullCountNode) {
+            handleSuccess(fullCountNode.textContent);
+          } else {
+            console.log("fullcount not found!");
+            console.error("Error: feed retrieved, but no <fullcount> node " +
+                          "found");
+            handleError();
+          }
+        } else {
+          console.log("No responseXML!");
+        }
+      }
+    }
+    
+    xhr.onerror = function(error) {
+      console.log("error");
+      console.log(error);
+      handleError();
+    }
+
+    xhr.open("GET", gmailAtomRef, true);
+    xhr.send(null);
+  } catch(e) {
+    console.log("ex: " + e);
+    console.error("exception: " + e);
+    handleError();
+  }
+}
 
 function gmailNSResolver(prefix) {
   if(prefix == 'gmail') {
@@ -13,21 +95,15 @@ function gmailNSResolver(prefix) {
   }
 }
 
-function startFlip() {
+// ui stuff
+function toggleLoggedInState() {
   document.getElementById("notLoggedIn").style.display = "none";
   document.getElementById("loggedIn").style.display = "";
-  document.getElementById("unreadCount").className = 'mid-flip';
-  setTimeout("midFlip();", 500);
 }
 
-function midFlip() {
-  document.getElementById("unreadCount").className = 'post-flip';  
-  document.getElementById("unreadCount").innerHTML = "(" + unreadCount + ")";
-  setTimeout("endFlip();", 500);
-}
-
-function endFlip() {
-  document.getElementById("unreadCount").className = 'base-flip';  
+function toggleLoggedOutState() {
+  document.getElementById("loggedIn").style.display = "none";
+  document.getElementById("notLoggedIn").style.display = "";
 }
 
 function updateUnreadCount(count) {
@@ -37,65 +113,33 @@ function updateUnreadCount(count) {
   }
 }
 
-function requestUnreadFeed() {  
-  var xhr = new XMLHttpRequest();
-  try {
-    console.log("request..");
-    xhr.onreadystatechange = function(){
-      console.log("readystate: " + xhr.readyState);
-      if (xhr.readyState == 4) {
-        if (xhr.responseXML) {
-          window.clearTimeout(timerId);
-
-          console.log("response..");
-          var xmlDoc = xhr.responseXML;
-          var fullCountSet = xmlDoc.evaluate("/gmail:feed/gmail:fullcount", 
-              xmlDoc, gmailNSResolver, XPathResult.ANY_TYPE, null);
-          var fullCountNode = fullCountSet.iterateNext();
-          if (fullCountNode) {
-            updateUnreadCount(fullCountNode.textContent);
-          } else {
-            console.log("fullcount not found!");
-            console.error("Error: feed retrieved, but no <fullcount> node found");
-          }
-        }
-
-        window.setTimeout(requestUnreadFeed, poll_timeout);
-      }
-    }
-    
-    xhr.onerror = function(error) {
-  	  console.log("error: " + error);
-      window.setTimeout(requestUnreadFeed, poll_timeout);
-    }
-
-    xhr.open("GET", gmail_atom_href, true);
-    xhr.send(null);
-
-    // Give up after 5 seconds
-    var timerId = window.setTimeout(function() {
-      document.getElementById("loggedIn").style.display = "none";
-      document.getElementById("notLoggedIn").style.display = "";
-      xhr.abort();
-    }, 5000);
-  } catch(e) {
-    console.log("ex: " + e);
-    console.error("exception: " + e);
-    window.setTimeout(requestUnreadFeed, poll_timeout);
-  }
+function goToInbox() {
+  chrome.tabs.create({url: gmail});
 }
 
-function goToInbox() {
-  chrome.tabs.create({url:"http://www.gmail.com/"});
+// animation
+function startFlip() {
+  document.getElementById("unreadCount").className = 'mid-flip';
+  setTimeout(midFlip, 500);
+}
+
+function midFlip() {
+  document.getElementById("unreadCount").className = 'post-flip';  
+  document.getElementById("unreadCount").innerHTML = "(" + unreadCount + ")";
+  setTimeout(endFlip, 500);
+}
+
+function endFlip() {
+  document.getElementById("unreadCount").className = 'base-flip';  
 }
 
 </script>
 </head>
-<body onload="window.setTimeout(requestUnreadFeed, 0)" onclick="goToInbox()">
+<body onload="init()" onclick="goToInbox()">
   <div class="toolstrip-button">
     <img src="gmail.png" style="width:auto; height:auto">
     <span id="notLoggedIn" style="display:none;">Login</span>
-    <span id="loggedIn">Gmail - Inbox <span style="display: inline-block;" id="unreadCount" class="base-flip" onclick="startFlip();"></span></span>
+    <span id="loggedIn">Gmail - Inbox <span style="display: inline-block;" id="unreadCount" class="base-flip"></span></span>
   </div>
 </body>
 </html>
