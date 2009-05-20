@@ -134,6 +134,12 @@ int av_find_stream_info(AVFormatContext* format) {
   return g_av_find_stream_info;
 }
 
+int64 av_rescale_q(int64 a, AVRational bq, AVRational cq) {
+  int64 num = bq.num * cq.den;
+  int64 den = cq.num * bq.den;
+  return a * num / den;
+}
+
 void av_free(void* ptr) {
   if (ptr) {
     EXPECT_EQ(&g_format, ptr);

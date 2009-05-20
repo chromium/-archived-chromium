@@ -34,6 +34,10 @@ class FFmpegAudioDecoder : public DecoderBase<AudioDecoder, Buffer> {
   FFmpegAudioDecoder();
   virtual ~FFmpegAudioDecoder();
 
+  // Calculates the duration of an audio buffer based on the sample rate,
+  // channels and bits per sample given the size in bytes.
+  base::TimeDelta CalculateDuration(size_t size);
+
   // A FFmpeg defined structure that holds decoder information, this variable
   // is initialized in OnInitialize().
   AVCodecContext* codec_context_;

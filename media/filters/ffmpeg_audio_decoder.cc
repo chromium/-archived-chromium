@@ -36,11 +36,16 @@ bool FFmpegAudioDecoder::OnInitialize(DemuxerStream* demuxer_stream) {
           QueryInterface<FFmpegDemuxerStream>(&ffmpeg_demuxer_stream))
     return false;
 
-  // Setting the media format.
+  // Grab the AVStream's codec context and make sure we have sensible values.
+  codec_context_ = ffmpeg_demuxer_stream->av_stream()->codec;
+  DCHECK_GT(codec_context_->channels, 0);
+  DCHECK_GT(av_get_bits_per_sample_format(codec_context_->sample_fmt), 0);
+  DCHECK_GT(codec_context_->sample_rate, 0);
+
+  // Set the media format.
   // TODO(hclam): Reuse the information provided by the demuxer for now, we may
   // need to wait until the first buffer is decoded to know the correct
   // information.
-  codec_context_ = ffmpeg_demuxer_stream->av_stream()->codec;
   media_format_.SetAsInteger(MediaFormat::kChannels, codec_context_->channels);
   media_format_.SetAsInteger(MediaFormat::kSampleBits,
       av_get_bits_per_sample_format(codec_context_->sample_fmt));
@@ -90,10 +95,29 @@ void FFmpegAudioDecoder::OnDecode(Buffer* input) {
     DataBuffer* result_buffer = new DataBuffer();
     memcpy(result_buffer->GetWritableData(output_buffer_size),
            output_buffer, output_buffer_size);
+
+    // Determine the duration if the demuxer couldn't figure it out, otherwise
+    // copy it over.
+    if (input->GetDuration().InMicroseconds() == 0) {
+      result_buffer->SetDuration(CalculateDuration(output_buffer_size));
+    } else {
+      result_buffer->SetDuration(input->GetDuration());
+    }
+
+    // Copy over the timestamp.
     result_buffer->SetTimestamp(input->GetTimestamp());
-    result_buffer->SetDuration(input->GetDuration());
+
     EnqueueResult(result_buffer);
   }
+}
+
+base::TimeDelta FFmpegAudioDecoder::CalculateDuration(size_t size) {
+  int64 denominator = codec_context_->channels *
+      av_get_bits_per_sample_format(codec_context_->sample_fmt) / 8 *
+      codec_context_->sample_rate;
+  double microseconds = size /
+      (denominator / static_cast<double>(base::Time::kMicrosecondsPerSecond));
+  return base::TimeDelta::FromMicroseconds(static_cast<int64>(microseconds));
 }
 
 }  // namespace
