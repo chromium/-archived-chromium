@@ -254,7 +254,7 @@ X509Certificate::Fingerprint X509Certificate::CalculateFingerprint(
 
 // TODO(port): Implement properly on Linux.
 bool X509Certificate::IsEV(int status) const {
-  NOTIMPLEMENTED();
+  // http://code.google.com/p/chromium/issues/detail?id=10911
   return false;
 }
 
