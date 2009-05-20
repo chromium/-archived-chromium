@@ -2672,11 +2672,17 @@ BUG12105 DEBUG : LayoutTests/svg/dom/svglist-exception-on-out-bounds-error.html 
 // New test, added in http://trac.webkit.org/changeset/43822, fails for us
 BUG12197 : LayoutTests/editing/pasteboard/get-data-text-plain-drop.html = FAIL
 
-// xhtml mp tests added with http://trac.webkit.org/changeset/43865 and skipped
-// on all platforms upstream.
+// xhtml mp tests were added in http://trac.webkit.org/changeset/43865 and are
+// skipped on all platforms upstream.
 BUG12254 SKIP : LayoutTests/fast/xhtmlmp/check-doctype-declaration.xhtml = FAIL
 BUG12254 SKIP : LayoutTests/fast/xhtmlmp/check-rootelement.xhtml = FAIL
 BUG12254 SKIP : LayoutTests/fast/xhtmlmp/noscript-in-multiscripts.xhtml = FAIL
 BUG12254 SKIP : LayoutTests/fast/xhtmlmp/noscript-nested.xhtml = FAIL
 BUG12254 SKIP : LayoutTests/fast/xhtmlmp/noscript.xhtml = FAIL
 
+// wap css tests were added in http://trac.webkit.org/changeset/43887 and are
+// skipped on all platforms upstream.
+BUG12310 SKIP : LayoutTests/fast/wcss/marquee-dir.xhtml = FAIL
+BUG12310 SKIP : LayoutTests/fast/wcss/marquee-loop.xhtml = FAIL
+BUG12310 SKIP : LayoutTests/fast/wcss/marquee-speed.xhtml = FAIL
+BUG12310 SKIP : LayoutTests/fast/wcss/marquee-style.xhtml = FAIL
