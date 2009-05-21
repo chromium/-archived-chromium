@@ -78,7 +78,8 @@ class ContentView : public views::View,
   // views::TextField::Controller overrides:
   virtual void ContentsChanged(views::TextField* sender,
                                const std::wstring& new_contents);
-  virtual bool HandleKeystroke(views::TextField*, UINT, TCHAR, UINT, UINT) {
+  virtual bool HandleKeystroke(views::TextField*,
+                               const views::TextField::Keystroke&) {
     return false;
   }
 
@@ -197,10 +198,10 @@ void ContentView::FocusFirstFocusableControl() {
 }
 
 WinInputWindowDialog::WinInputWindowDialog(HWND parent,
-                       const std::wstring& window_title,
-                       const std::wstring& label,
-                       const std::wstring& contents,
-                       Delegate* delegate)
+                                           const std::wstring& window_title,
+                                           const std::wstring& label,
+                                           const std::wstring& contents,
+                                           Delegate* delegate)
     : window_title_(window_title),
       label_(label),
       contents_(contents),

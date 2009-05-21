@@ -619,8 +619,7 @@ void GeneralPageView::ContentsChanged(views::TextField* sender,
 }
 
 bool GeneralPageView::HandleKeystroke(views::TextField* sender,
-                                      UINT message, TCHAR key,
-                                      UINT repeat_count, UINT flags) {
+                                      const views::TextField::Keystroke&) {
   return false;
 }
 

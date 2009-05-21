@@ -50,10 +50,9 @@ class GeneralPageView : public OptionsPageView,
 
   // views::TextField::Controller implementation:
   virtual void ContentsChanged(views::TextField* sender,
-     const std::wstring& new_contents);
+                               const std::wstring& new_contents);
   virtual bool HandleKeystroke(views::TextField* sender,
-     UINT message, TCHAR key, UINT repeat_count,
-     UINT flags);
+                               const views::TextField::Keystroke& key);
 
   // OptionsPageView implementation:
   virtual void InitControlLayout();

@@ -620,16 +620,13 @@ void CookiesView::ContentsChanged(views::TextField* sender,
           &CookiesView::UpdateSearchResults), kSearchFilterDelayMs);
 }
 
-bool CookiesView::HandleKeystroke(views::TextField* sender, UINT message,
-                                  TCHAR key, UINT repeat_count, UINT flags) {
-  switch (key) {
-    case VK_ESCAPE:
-      ResetSearchQuery();
-      break;
-    case VK_RETURN:
-      search_update_factory_.RevokeAll();
-      UpdateSearchResults();
-      break;
+bool CookiesView::HandleKeystroke(views::TextField* sender,
+                                  const views::TextField::Keystroke& key) {
+  if (views::TextField::IsKeystrokeEscape(key)) { 
+    ResetSearchQuery();
+  } else if (views::TextField::IsKeystrokeEnter(key)) {
+    search_update_factory_.RevokeAll();
+    UpdateSearchResults();
   }
   return false;
 }

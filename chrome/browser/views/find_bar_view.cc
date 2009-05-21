@@ -456,31 +456,29 @@ void FindBarView::ContentsChanged(views::TextField* sender,
   }
 }
 
-bool FindBarView::HandleKeystroke(views::TextField* sender, UINT message,
-                                  TCHAR key, UINT repeat_count, UINT flags) {
+bool FindBarView::HandleKeystroke(views::TextField* sender,
+                                  const views::TextField::Keystroke& key) {
   // If the dialog is not visible, there is no reason to process keyboard input.
   if (!container_->IsVisible())
     return false;
 
   // TODO(port): Handle this for other platforms.
   #if defined(OS_WIN)
-  if (container_->MaybeForwardKeystrokeToWebpage(message, key, flags))
+  if (container_->MaybeForwardKeystrokeToWebpage(key.message, key.key,
+                                                 key.flags))
     return true;  // Handled, we are done!
-  #endif
 
-  switch (key) {
-    case VK_RETURN: {
-      // Pressing Return/Enter starts the search (unless text box is empty).
-      std::wstring find_string = find_text_->GetText();
-      if (!find_string.empty()) {
-        // Search forwards for enter, backwards for shift-enter.
-        container_->GetFindBarController()->tab_contents()->StartFinding(
-            find_string,
-            GetKeyState(VK_SHIFT) >= 0);
-      }
-      break;
+  if (views::TextField::IsKeystrokeEnter(key)) {
+    // Pressing Return/Enter starts the search (unless text box is empty).
+    std::wstring find_string = find_text_->GetText();
+    if (!find_string.empty()) {
+      // Search forwards for enter, backwards for shift-enter.
+      container_->GetFindBarController()->tab_contents()->StartFinding(
+          find_string,
+          GetKeyState(VK_SHIFT) >= 0);
     }
   }
+  #endif
 
   return false;
 }

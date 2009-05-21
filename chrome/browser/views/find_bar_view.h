@@ -67,8 +67,8 @@ class FindBarView : public views::View,
   // Overridden from views::TextField::Controller:
   virtual void ContentsChanged(views::TextField* sender,
                                const std::wstring& new_contents);
-  virtual bool HandleKeystroke(views::TextField* sender, UINT message,
-                               TCHAR key, UINT repeat_count, UINT flags);
+  virtual bool HandleKeystroke(views::TextField* sender,
+                               const views::TextField::Keystroke& key);
 
   // Set whether or not we're attempting to blend with the toolbar.
   void set_toolbar_blend(bool toolbar_blend) { toolbar_blend_ = toolbar_blend; }

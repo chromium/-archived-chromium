@@ -51,8 +51,7 @@ class CookiesView : public views::View,
   virtual void ContentsChanged(views::TextField* sender,
                                const std::wstring& new_contents);
   virtual bool HandleKeystroke(views::TextField* sender,
-                               UINT message, TCHAR key, UINT repeat_count,
-                               UINT flags);
+                               const views::TextField::Keystroke& key);
 
   // views::WindowDelegate implementation:
   virtual int GetDialogButtons() const {

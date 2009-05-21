@@ -455,11 +455,10 @@ void BookmarkManagerView::ContentsChanged(views::TextField* sender,
       kSearchDelayMS);
 }
 
-bool BookmarkManagerView::HandleKeystroke(views::TextField* sender,
-                                          UINT message, TCHAR key,
-                                          UINT repeat_count,
-                                          UINT flags) {
-  if (key == VK_RETURN) {
+bool BookmarkManagerView::HandleKeystroke(
+    views::TextField* sender,
+    const views::TextField::Keystroke& key) {
+  if (views::TextField::IsKeystrokeEnter(key)) {
     PerformSearch();
     search_tf_->SelectAll();
   }

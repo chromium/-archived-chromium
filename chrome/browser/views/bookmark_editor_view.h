@@ -84,8 +84,9 @@ class BookmarkEditorView : public BookmarkEditor,
   virtual void ContentsChanged(views::TextField* sender,
                                const std::wstring& new_contents);
   virtual bool HandleKeystroke(views::TextField* sender,
-                               UINT message, TCHAR key, UINT repeat_count,
-                               UINT flags) { return false; }
+                               const views::TextField::Keystroke&) {
+    return false;
+  }
 
   // NativeButton.
   virtual void ButtonPressed(views::Button* sender);

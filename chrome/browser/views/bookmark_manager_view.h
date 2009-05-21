@@ -137,8 +137,7 @@ class BookmarkManagerView : public views::View,
                                const std::wstring& new_contents);
   // If return has been pressed this performs an immediate search.
   virtual bool HandleKeystroke(views::TextField* sender,
-                               UINT message, TCHAR key, UINT repeat_count,
-                               UINT flags);
+                               const views::TextField::Keystroke& key);
 
   // ContextMenuController.
   virtual void ShowContextMenu(views::View* source,

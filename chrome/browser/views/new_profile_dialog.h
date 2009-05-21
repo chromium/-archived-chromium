@@ -40,8 +40,9 @@ class NewProfileDialog : public views::DialogDelegate,
   virtual void ContentsChanged(views::TextField* sender,
                                const std::wstring& new_contents);
   virtual bool HandleKeystroke(views::TextField* sender,
-                               UINT message, TCHAR key, UINT repeat_count,
-                               UINT flags) { return false; }
+                               const views::TextField::Keystroke& key) {
+    return false;
+  }
 
   // views::WindowDelegate methods.
   virtual views::View* GetContentsView();

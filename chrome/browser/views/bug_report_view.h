@@ -53,8 +53,7 @@ class BugReportView : public views::View,
   virtual void ContentsChanged(views::TextField* sender,
                                const std::wstring& new_contents);
   virtual bool HandleKeystroke(views::TextField* sender,
-                               UINT message, TCHAR key,
-                               UINT repeat_count, UINT flags);
+                               const views::TextField::Keystroke& key);
 
   // views::ComboBox::Listener implementation:
   virtual void ItemChanged(views::ComboBox* combo_box, int prev_index,

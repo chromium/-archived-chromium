@@ -158,11 +158,9 @@ void EditKeywordController::ContentsChanged(TextField* sender,
   UpdateImageViews();
 }
 
-bool EditKeywordController::HandleKeystroke(TextField* sender,
-                                            UINT message,
-                                            TCHAR key,
-                                            UINT repeat_count,
-                                            UINT flags) {
+bool EditKeywordController::HandleKeystroke(
+    TextField* sender,
+    const views::TextField::Keystroke& key) {
   return false;
 }
 
