@@ -11,15 +11,21 @@
 #include "app/gfx/font.h"
 #include "base/gfx/rect.h"
 #include "chrome/browser/autocomplete/autocomplete_edit.h"
-#include "chrome/browser/autocomplete/autocomplete_edit_view_win.h"
 #include "chrome/browser/location_bar.h"
 #include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/browser/toolbar_model.h"
 #include "chrome/browser/views/info_bubble.h"
-#include "views/controls/hwnd_view.h"
 #include "views/controls/image_view.h"
 #include "views/controls/label.h"
 #include "views/painter.h"
+
+#if defined(OS_WIN)
+#include "chrome/browser/autocomplete/autocomplete_edit_view_win.h"
+#include "views/controls/hwnd_view.h"
+#else
+#include "chrome/browser/autocomplete/autocomplete_edit_view_gtk.h"
+#include "views/controls/native_view_host_gtk.h"
+#endif
 
 class AutocompletePopupPositioner;
 class CommandUpdater;
@@ -86,10 +92,13 @@ class LocationBarView : public LocationBar,
   // to close its popup.
   virtual void VisibleBoundsInRootChanged();
 
+
+#if defined(OS_WIN)
   // Event Handlers
   virtual bool OnMousePressed(const views::MouseEvent& event);
   virtual bool OnMouseDragged(const views::MouseEvent& event);
   virtual void OnMouseReleased(const views::MouseEvent& event, bool canceled);
+#endif
 
   // AutocompleteEditController
   virtual void OnAutocompleteAccept(const GURL& url,
@@ -126,7 +135,7 @@ class LocationBarView : public LocationBar,
   }
 
   static const int kVertMargin;
-  static const COLORREF kBackgroundColorByLevel[];
+  static const SkColor kBackgroundColorByLevel[];
 
  protected:
   void Focus();
@@ -400,7 +409,7 @@ class LocationBarView : public LocationBar,
 
   // Retrieves a vector of all page actions, irrespective of which
   // extension they belong to.
-  std::vector<PageAction*> LocationBarView::GetPageActions();
+  std::vector<PageAction*> GetPageActions();
 
   // Update the views for the Page Actions, to reflect state changes for
   // PageActions.
@@ -417,8 +426,10 @@ class LocationBarView : public LocationBar,
   // changed.
   bool ToggleVisibility(bool new_vis, views::View* view);
 
+#if defined(OS_WIN)
   // Helper for the Mouse event handlers that does all the real work.
   void OnMouseEvent(const views::MouseEvent& event, UINT msg);
+#endif
 
   // Helper to show the first run info bubble.
   void ShowFirstRunBubbleInternal(bool use_OEM_bubble);
@@ -427,7 +438,11 @@ class LocationBarView : public LocationBar,
   Profile* profile_;
 
   // The Autocomplete Edit field.
+#if defined(OS_WIN)
   scoped_ptr<AutocompleteEditViewWin> location_entry_;
+#else
+  scoped_ptr<AutocompleteEditViewGtk> location_entry_;
+#endif
 
   // The CommandUpdater for the Browser object that corresponds to this View.
   CommandUpdater* command_updater_;
@@ -452,7 +467,11 @@ class LocationBarView : public LocationBar,
   gfx::Font font_;
 
   // Location_entry view wrapper
+#if defined(OS_WIN)
   views::HWNDView* location_entry_view_;
+#else
+  views::NativeViewHostGtk* location_entry_view_;
+#endif
 
   // The following views are used to provide hints and remind the user as to
   // what is going in the edit. They are all added a children of the

@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CHROME_BROWSER_VIEWS_PAGE_INFO_WINDOW_H__
-#define CHROME_BROWSER_VIEWS_PAGE_INFO_WINDOW_H__
+#ifndef CHROME_BROWSER_VIEWS_PAGE_INFO_WINDOW_H_
+#define CHROME_BROWSER_VIEWS_PAGE_INFO_WINDOW_H_
 
 #include "chrome/browser/tab_contents/navigation_entry.h"
 #include "googleurl/src/gurl.h"
@@ -82,7 +82,7 @@ class PageInfoWindow : public views::DialogDelegate,
 
   // Offsets the specified rectangle so it is showing on the screen and shifted
   // from its original location.
-  void CalculateWindowBounds(CRect* bounds);
+  void CalculateWindowBounds(gfx::Rect* bounds);
 
   // Shows various information for the specified certificate in a new dialog.
   void ShowCertDialog(int cert_id);
@@ -98,7 +98,7 @@ class PageInfoWindow : public views::DialogDelegate,
   // A counter of how many page info windows are currently opened.
   static int opened_window_count_;
 
-  DISALLOW_EVIL_CONSTRUCTORS(PageInfoWindow);
+  DISALLOW_COPY_AND_ASSIGN(PageInfoWindow);
 };
 
-#endif  // #define CHROME_BROWSER_VIEWS_PAGE_INFO_WINDOW_H__
+#endif  // #define CHROME_BROWSER_VIEWS_PAGE_INFO_WINDOW_H_

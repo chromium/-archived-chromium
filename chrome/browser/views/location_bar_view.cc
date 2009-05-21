@@ -8,7 +8,6 @@
 #include "app/gfx/favicon_size.h"
 #include "app/l10n_util.h"
 #include "app/resource_bundle.h"
-#include "app/win_util.h"
 #include "base/file_util.h"
 #include "base/path_service.h"
 #include "base/string_util.h"
@@ -29,26 +28,28 @@
 #include "chrome/browser/view_ids.h"
 #include "chrome/browser/views/info_bubble.h"
 #include "chrome/browser/views/first_run_bubble.h"
-#include "chrome/browser/views/page_info_window.h"
 #include "chrome/common/page_action.h"
 #include "grit/generated_resources.h"
 #include "grit/theme_resources.h"
 #include "skia/ext/image_operations.h"
-#include "views/background.h"
-#include "views/border.h"
 #include "views/focus/focus_manager.h"
 #include "views/widget/root_view.h"
 #include "views/widget/widget.h"
 #include "webkit/glue/image_decoder.h"
 
+#if defined(OS_WIN)
+#include "app/win_util.h"
+#include "chrome/browser/views/page_info_window.h"
+#endif
+
 using views::View;
 
 const int LocationBarView::kVertMargin = 2;
 
-const COLORREF LocationBarView::kBackgroundColorByLevel[] = {
-  RGB(255, 245, 195),  // SecurityLevel SECURE: Yellow.
-  RGB(255, 255, 255),  // SecurityLevel NORMAL: White.
-  RGB(255, 255, 255),  // SecurityLevel INSECURE: White.
+const SkColor LocationBarView::kBackgroundColorByLevel[] = {
+  SkColorSetRGB(255, 245, 195),  // SecurityLevel SECURE: Yellow.
+  SkColorSetRGB(255, 255, 255),  // SecurityLevel NORMAL: White.
+  SkColorSetRGB(255, 255, 255),  // SecurityLevel INSECURE: White.
 };
 
 // Padding on the right and left of the entry field.
@@ -129,29 +130,44 @@ void LocationBarView::Init() {
   }
 
   // URL edit field.
+  // View container for URL edit field.
+#if defined(OS_WIN)
   views::Widget* widget = GetWidget();
   location_entry_.reset(new AutocompleteEditViewWin(font_, this, model_, this,
                                                     widget->GetNativeView(),
                                                     profile_, command_updater_,
                                                     popup_window_mode_,
                                                     popup_positioner_));
-
-  // View container for URL edit field.
   location_entry_view_ = new views::HWNDView;
+#else
+  location_entry_.reset(new AutocompleteEditViewGtk(this, model_, profile_,
+                                                    command_updater_,
+                                                    popup_positioner_));
+  location_entry_view_ = new views::NativeViewHostGtk;
+#endif
   DCHECK(location_entry_view_) << "LocationBarView::Init - OOM!";
   location_entry_view_->SetID(VIEW_ID_AUTOCOMPLETE);
   AddChildView(location_entry_view_);
   location_entry_view_->SetAssociatedFocusView(this);
+#if defined(OS_WIN)
   location_entry_view_->Attach(location_entry_->m_hWnd);
+#else
+  location_entry_view_->Attach(location_entry_->widget());
+#endif
 
   AddChildView(&selected_keyword_view_);
   selected_keyword_view_.SetFont(font_);
   selected_keyword_view_.SetVisible(false);
   selected_keyword_view_.SetParentOwned(false);
 
+#if defined(OS_WIN)
   DWORD sys_color = GetSysColor(COLOR_GRAYTEXT);
   SkColor gray = SkColorSetRGB(GetRValue(sys_color), GetGValue(sys_color),
                                GetBValue(sys_color));
+#else
+  NOTIMPLEMENTED();
+  SkColor gray = SK_ColorGRAY;
+#endif
 
   AddChildView(&type_to_search_view_);
   type_to_search_view_.SetVisible(false);
@@ -204,7 +220,11 @@ void LocationBarView::UpdatePageActions() {
 }
 
 void LocationBarView::Focus() {
+#if defined(OS_WIN)
   ::SetFocus(location_entry_->m_hWnd);
+#else
+  gtk_widget_grab_focus(location_entry_->widget());
+#endif
 }
 
 void LocationBarView::SetProfile(Profile* profile) {
@@ -230,10 +250,7 @@ void LocationBarView::Layout() {
 void LocationBarView::Paint(gfx::Canvas* canvas) {
   View::Paint(canvas);
 
-  SkColor bg = SkColorSetRGB(
-      GetRValue(kBackgroundColorByLevel[model_->GetSchemeSecurityLevel()]),
-      GetGValue(kBackgroundColorByLevel[model_->GetSchemeSecurityLevel()]),
-      GetBValue(kBackgroundColorByLevel[model_->GetSchemeSecurityLevel()]));
+  SkColor bg = kBackgroundColorByLevel[model_->GetSchemeSecurityLevel()];
 
   const SkBitmap* background =
       popup_window_mode_ ? kPopupBackground : kBackground;
@@ -247,6 +264,7 @@ void LocationBarView::VisibleBoundsInRootChanged() {
   location_entry_->ClosePopup();
 }
 
+#if defined(OS_WIN)
 bool LocationBarView::OnMousePressed(const views::MouseEvent& event) {
   UINT msg;
   if (event.IsLeftMouseButton()) {
@@ -288,6 +306,7 @@ void LocationBarView::OnMouseReleased(const views::MouseEvent& event,
   }
   OnMouseEvent(event, msg);
 }
+#endif
 
 void LocationBarView::OnAutocompleteAccept(
     const GURL& url,
@@ -344,11 +363,6 @@ void LocationBarView::DoLayout(const bool force_layout) {
   if (!location_entry_.get())
     return;
 
-  RECT formatting_rect;
-  location_entry_->GetRect(&formatting_rect);
-  RECT edit_bounds;
-  location_entry_->GetClientRect(&edit_bounds);
-
   int entry_width = width() - (kEntryPadding * 2);
 
   gfx::Size page_action_size;
@@ -370,8 +384,17 @@ void LocationBarView::DoLayout(const bool force_layout) {
     entry_width -= (info_label_size.width() + kInnerPadding);
   }
 
-  const int max_edit_width = entry_width - formatting_rect.left -
-                             (edit_bounds.right - formatting_rect.right);
+#if defined(OS_WIN)
+  RECT formatting_rect;
+  location_entry_->GetRect(&formatting_rect);
+  RECT edit_bounds;
+  location_entry_->GetClientRect(&edit_bounds);
+  int max_edit_width = entry_width - formatting_rect.left -
+                       (edit_bounds.right - formatting_rect.right);
+#else
+  int max_edit_width = entry_width;
+#endif
+
   if (max_edit_width < 0)
     return;
   const int text_width = TextDisplayWidth();
@@ -435,12 +458,17 @@ int LocationBarView::TopMargin() const {
 }
 
 int LocationBarView::TextDisplayWidth() {
+#if defined(OS_WIN)
   POINT last_char_position =
       location_entry_->PosFromChar(location_entry_->GetTextLength());
   POINT scroll_position;
   location_entry_->GetScrollPos(&scroll_position);
   const int position_x = last_char_position.x + scroll_position.x;
   return UILayoutIsRightToLeft() ? width() - position_x : position_x;
+#else
+  NOTIMPLEMENTED();
+  return 0;
+#endif
 }
 
 bool LocationBarView::UsePref(int pref_width, int text_width, int max_width) {
@@ -585,7 +613,7 @@ void LocationBarView::RefreshPageActionViews() {
 
   TabContents* contents = delegate_->GetTabContents();
   if (!page_action_image_views_.empty() && contents) {
-    GURL url = GURL(model_->GetText());
+    GURL url = GURL(WideToUTF8(model_->GetText()));
 
     for (size_t i = 0; i < page_action_image_views_.size(); i++)
       page_action_image_views_[i]->UpdateVisibility(contents, url);
@@ -610,6 +638,7 @@ bool LocationBarView::ToggleVisibility(bool new_vis, View* view) {
   return false;
 }
 
+#if defined(OS_WIN)
 void LocationBarView::OnMouseEvent(const views::MouseEvent& event, UINT msg) {
   UINT flags = 0;
   if (event.IsControlDown())
@@ -628,6 +657,7 @@ void LocationBarView::OnMouseEvent(const views::MouseEvent& event, UINT msg) {
 
   location_entry_->HandleExternalMsg(msg, flags, screen_point.ToPOINT());
 }
+#endif
 
 bool LocationBarView::GetAccessibleRole(AccessibilityTypes::Role* role) {
   DCHECK(role);
@@ -858,6 +888,7 @@ bool LocationBarView::SkipDefaultKeyEventProcessing(const views::KeyEvent& e) {
     return true;
   }
 
+#if defined(OS_WIN)
   int c = e.GetCharacter();
   // We don't process ALT + numpad digit as accelerators, they are used for
   // entering special characters.
@@ -894,6 +925,10 @@ bool LocationBarView::SkipDefaultKeyEventProcessing(const views::KeyEvent& e) {
   default:
     return false;
   }
+#else
+  NOTIMPLEMENTED();
+  return false;
+#endif
 }
 
 // ShowInfoBubbleTask-----------------------------------------------------------
@@ -914,8 +949,8 @@ class LocationBarView::ShowInfoBubbleTask : public Task {
 
 LocationBarView::ShowInfoBubbleTask::ShowInfoBubbleTask(
     LocationBarView::LocationBarImageView* image_view)
-    : cancelled_(false),
-      image_view_(image_view) {
+    : image_view_(image_view),
+      cancelled_(false) {
 }
 
 void LocationBarView::ShowInfoBubbleTask::Run() {
@@ -973,8 +1008,8 @@ void LocationBarView::ShowFirstRunBubbleInternal(bool use_OEM_bubble) {
 // LocationBarImageView---------------------------------------------------------
 
 LocationBarView::LocationBarImageView::LocationBarImageView()
-  : show_info_bubble_task_(NULL),
-    info_bubble_(NULL) {
+  : info_bubble_(NULL),
+    show_info_bubble_task_(NULL) {
 }
 
 LocationBarView::LocationBarImageView::~LocationBarImageView() {
@@ -1084,10 +1119,14 @@ bool LocationBarView::SecurityImageView::OnMousePressed(
     NOTREACHED();
     return true;
   }
+#if defined(OS_WIN)
   PageInfoWindow::CreatePageInfo(profile_,
                                  nav_entry,
                                  GetRootView()->GetWidget()->GetNativeView(),
                                  PageInfoWindow::SECURITY);
+#else
+  NOTIMPLEMENTED();
+#endif
   return true;
 }
 
@@ -1139,8 +1178,8 @@ class LocationBarView::PageActionImageView::LoadImageTask : public Task {
   LoadImageTask(ImageLoadingTracker* tracker,
                 const FilePath& path)
     : callback_loop_(MessageLoop::current()),
-      path_(path),
-      tracker_(tracker) {}
+      tracker_(tracker),
+      path_(path) {}
 
   void ReportBack(SkBitmap* image) {
     DCHECK(image);
@@ -1197,11 +1236,11 @@ LocationBarView::PageActionImageView::PageActionImageView(
     LocationBarView* owner,
     Profile* profile,
     const PageAction* page_action)
-  : owner_(owner),
-    profile_(profile),
-    page_action_(page_action),
-    tracker_(new ImageLoadingTracker(this)),
-    LocationBarImageView() {
+    : LocationBarImageView(),
+      owner_(owner),
+      profile_(profile),
+      page_action_(page_action),
+      tracker_(new ImageLoadingTracker(this)) {
   // Load the images this view needs asynchronously on the file thread. We'll
   // get a call back into OnImageLoaded if the image loads successfully. If not,
   // the ImageView will have no image and will not appear in the Omnibox.
@@ -1248,7 +1287,12 @@ void LocationBarView::PageActionImageView::OnImageLoaded(SkBitmap* image) {
 
 bool LocationBarView::OverrideAccelerator(
     const views::Accelerator& accelerator)  {
+#if defined(OS_WIN)
   return location_entry_->OverrideAccelerator(accelerator);
+#else
+  NOTIMPLEMENTED();
+  return false;
+#endif
 }
 
 ////////////////////////////////////////////////////////////////////////////////

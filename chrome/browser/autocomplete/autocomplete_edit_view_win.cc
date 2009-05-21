@@ -540,8 +540,8 @@ void AutocompleteEditViewWin::Update(
 
   const ToolbarModel::SecurityLevel security_level =
       toolbar_model_->GetSchemeSecurityLevel();
-  const COLORREF background_color =
-      LocationBarView::kBackgroundColorByLevel[security_level];
+  const COLORREF background_color = skia::SkColorToCOLORREF(
+      LocationBarView::kBackgroundColorByLevel[security_level]);
   const bool changed_security_level =
       (security_level != scheme_security_level_);
 

@@ -430,6 +430,7 @@ class RepostFormWarningDialog {
   virtual ~RepostFormWarningDialog() { }
 };
 
+#if !defined(TOOLKIT_VIEWS)
 class PageInfoWindow {
  public:
   enum TabID {
@@ -446,6 +447,7 @@ class PageInfoWindow {
     NOTIMPLEMENTED();
   }
 };
+#endif
 
 class FontsLanguagesWindowView {
  public:

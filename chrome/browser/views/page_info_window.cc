@@ -4,16 +4,13 @@
 
 #include "chrome/browser/views/page_info_window.h"
 
+#if defined(OS_WIN)
 #include <cryptuiapi.h>
 #pragma comment(lib, "cryptui.lib")
-
-#include <atlbase.h>
-#include <atlapp.h>
-#include <atlmisc.h>
+#endif
 
 #include "app/l10n_util.h"
 #include "app/resource_bundle.h"
-#include "app/win_util.h"
 #include "base/string_util.h"
 #include "base/time_format.h"
 #include "chrome/browser/browser_process.h"
@@ -36,6 +33,10 @@
 #include "views/controls/label.h"
 #include "views/controls/separator.h"
 #include "views/standard_layout.h"
+
+#if defined(OS_WIN)
+#include "app/win_util.h"
+#endif
 
 using base::Time;
 
@@ -560,9 +561,8 @@ void PageInfoWindow::Init(Profile* profile,
     gfx::Rect bounds;
     bool maximized = false;
     if (GetSavedWindowBounds(&bounds) && GetSavedMaximizedState(&maximized)) {
-      CRect bounds_crect(bounds.ToRECT());
-      CalculateWindowBounds(&bounds_crect);
-      SaveWindowPlacement(gfx::Rect(bounds_crect), maximized);
+      CalculateWindowBounds(&bounds);
+      SaveWindowPlacement(bounds, maximized);
     }
   }
 
@@ -625,42 +625,49 @@ void PageInfoWindow::ButtonPressed(views::Button* sender) {
   }
 }
 
-void PageInfoWindow::CalculateWindowBounds(CRect* bounds) {
+void PageInfoWindow::CalculateWindowBounds(gfx::Rect* bounds) {
   const int kDefaultOffset = 15;
 
-  gfx::Rect window_bounds(*bounds);
-  gfx::Rect monitor_bounds(win_util::GetMonitorBoundsForRect(window_bounds));
+#if defined(OS_WIN)
+  gfx::Rect monitor_bounds(win_util::GetMonitorBoundsForRect(*bounds));
+#else
+  gfx::Rect monitor_bounds;
+  NOTIMPLEMENTED();
+#endif
+
+  if (monitor_bounds.IsEmpty())
+    return;
 
   // If necessary, move the window so it is visible on the screen.
-  gfx::Rect adjusted_bounds = window_bounds.AdjustToFit(monitor_bounds);
-  if (adjusted_bounds != window_bounds) {
+  gfx::Rect adjusted_bounds = bounds->AdjustToFit(monitor_bounds);
+  if (adjusted_bounds != *bounds) {
     // The bounds have moved, we are done.
-    RECT rect = adjusted_bounds.ToRECT();
-    bounds->CopyRect(&rect);
+    *bounds = adjusted_bounds;
     return;
   }
 
   // Move the window from its specified position, trying to keep it entirely
   // visible.
   int x_offset, y_offset;
-  if (window_bounds.right() + kDefaultOffset >= monitor_bounds.right() &&
-      abs(monitor_bounds.x() - window_bounds.x()) >= kDefaultOffset) {
+  if (bounds->right() + kDefaultOffset >= monitor_bounds.right() &&
+      abs(monitor_bounds.x() - bounds->x()) >= kDefaultOffset) {
     x_offset = -kDefaultOffset;
   } else {
     x_offset = kDefaultOffset;
   }
 
-  if (window_bounds.bottom() + kDefaultOffset >= monitor_bounds.bottom() &&
-      abs(monitor_bounds.y() - window_bounds.y()) >= kDefaultOffset) {
+  if (bounds->bottom() + kDefaultOffset >= monitor_bounds.bottom() &&
+      abs(monitor_bounds.y() - bounds->y()) >= kDefaultOffset) {
     y_offset = -kDefaultOffset;
   } else {
     y_offset = kDefaultOffset;
   }
 
-  bounds->OffsetRect(x_offset, y_offset);
+  bounds->Offset(x_offset, y_offset);
 }
 
 void PageInfoWindow::ShowCertDialog(int cert_id) {
+#if defined(OS_WIN)
   scoped_refptr<net::X509Certificate> cert;
   CertStore::GetSharedInstance()->RetrieveCert(cert_id, &cert);
   if (!cert.get()) {
@@ -686,4 +693,5 @@ void PageInfoWindow::ShowCertDialog(int cert_id) {
   // This next call blocks but keeps processing windows messages, making it
   // modal to the browser window.
   BOOL rv = ::CryptUIDlgViewCertificate(&view_info, &properties_changed);
+#endif
 }

@@ -1628,6 +1628,8 @@
                 ['include', '^browser/views/frame/browser_frame_gtk.h'],
                 ['include', '^browser/views/info_bubble.cc'],
                 ['include', '^browser/views/info_bubble.h'],
+                ['include', '^browser/views/location_bar_view.cc'],
+                ['include', '^browser/views/location_bar_view.h'],
                 ['include', '^browser/views/tabs/dragged_tab_view.cc'],
                 ['include', '^browser/views/tabs/dragged_tab_view.h'],
                 ['include', '^browser/views/tabs/tab.cc'],
