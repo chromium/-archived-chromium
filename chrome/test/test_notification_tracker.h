@@ -7,6 +7,7 @@
 
 #include <vector>
 
+#include "chrome/common/notification_registrar.h"
 #include "chrome/common/notification_service.h"
 
 // Provides an easy way for tests to verify that a given set of notifications
@@ -67,9 +68,7 @@ class TestNotificationTracker : public NotificationObserver {
                        const NotificationSource& source,
                        const NotificationDetails& details);
 
-  // Lists all type/source combinations that we're listening for. These will
-  // need to be unregistered when we are destroyed.
-  std::vector< std::pair<NotificationType, NotificationSource> > listening_;
+  NotificationRegistrar registrar_;
 
   // Lists all received since last cleared, in the order they were received.
   std::vector<Event> events_;
