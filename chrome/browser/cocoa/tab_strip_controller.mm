@@ -379,9 +379,6 @@
   if (!loading)
     [self setTabTitle:[tabArray_ objectAtIndex:index] withContents:contents];
 
-#if 1
-// TODO(pinkerton): Enabling this slowed down the tab_cold startup test by
-// close to 5 seconds. Turning it off to see if the bot returns to normal.
   // Update the current loading state, replacing the icon with a throbber, or
   // vice versa. This will get called repeatedly with the same state during a
   // load, so we need to make sure we're not creating the throbber view over and
@@ -402,18 +399,9 @@
     }
     if (image) {
       NSRect frame = NSMakeRect(0, 0, 16, 16);
-#if 0
-      NSProgressIndicator* p = 
-          [[[NSProgressIndicator alloc] initWithFrame:frame] autorelease];
-      [p setIndeterminate:YES];
-      [p setStyle:NSProgressIndicatorSpinningStyle];
-      [p startAnimation:self];
-      [tabController setIconView:p];
-#else
       ThrobberView* throbber =
           [[[ThrobberView alloc] initWithFrame:frame image:image] autorelease];
       [tabController setIconView:throbber];
-#endif
     }
     else if (!contents->is_loading()) {
       // Set everything back to normal, we're done loading.
@@ -422,7 +410,6 @@
       [tabController setLoading:NO];
     }
   }
-#endif
 
   TabContentsController* updatedController =
       [tabContentsArray_ objectAtIndex:index];

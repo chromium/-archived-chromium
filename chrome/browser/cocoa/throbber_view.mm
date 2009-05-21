@@ -61,6 +61,17 @@ const float kAnimationIntervalSeconds = 0.03;  // 30ms, same as windows
     }
     image_.reset([[CIImage alloc] initWithBitmapImageRep:rep]);
 
+#if 0
+// TODO(pinkerton): The invalidation of the view to trigger re-draw causes
+// the entire title-bar to redraw (you can see it with QuartzDebug). For some
+// reason, setting isOpaque on this view, or any of its parent views, doesn't
+// help. As a result, enabling this timer causes new tab to take a very long
+// time on a loaded machine, crushing our perf bot when it's under load. For
+// now, I'm disabling the timer so we draw the first frame of the animation,
+// but nothing more. There are a couple of ways we can fix this:
+// 1) Try to figure out why the invalidate is invalidating the entire title bar
+// 2) Find some way to draw only the pixels we want and nothing else, but I
+// don't know how we'd do that.
     // Start a timer for the animation frames.
     target_.reset([[TimerTarget alloc] initWithThrobber:self]);
     timer_ =
@@ -69,6 +80,7 @@ const float kAnimationIntervalSeconds = 0.03;  // 30ms, same as windows
                                        selector:@selector(animate:)
                                        userInfo:nil
                                         repeats:YES];
+#endif
   }
   return self;
 }
@@ -76,10 +88,6 @@ const float kAnimationIntervalSeconds = 0.03;  // 30ms, same as windows
 - (void)dealloc {
   [timer_ invalidate];
   [super dealloc];
-}
-
-- (BOOL)isOpaque {
-  return YES;
 }
 
 - (void)removeFromSuperview {
@@ -98,7 +106,6 @@ const float kAnimationIntervalSeconds = 0.03;  // 30ms, same as windows
 
 // Overridden to draw the appropriate frame in the image strip.
 - (void)drawRect:(NSRect)rect {
-#if 0
   float imageDimension = [image_ extent].size.height;
   float xOffset = animationFrame_ * imageDimension;
   NSRect sourceImageRect =
@@ -107,7 +114,6 @@ const float kAnimationIntervalSeconds = 0.03;  // 30ms, same as windows
              fromRect:sourceImageRect
             operation:NSCompositeSourceOver
              fraction:1.0];
-#endif
 }
 
 @end
