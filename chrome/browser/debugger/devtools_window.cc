@@ -21,16 +21,29 @@
 DevToolsWindow::DevToolsWindow(Profile* profile)
     : TabStripModelObserver(),
       inspected_tab_closing_(false) {
-  static bool g_prefs_registered = false;
-  if (!g_prefs_registered) {
-    std::wstring window_pref(prefs::kBrowserWindowPlacement);
-    window_pref.append(L"_");
-    window_pref.append(L"DevToolsApp");
+  static std::wstring g_wp_key = L"";
+  if (g_wp_key.empty()) {
+    // TODO(pfeldman): Make browser's getter for this key static.
+    g_wp_key.append(prefs::kBrowserWindowPlacement);
+    g_wp_key.append(L"_");
+    g_wp_key.append(L"DevToolsApp");
+
     PrefService* prefs = g_browser_process->local_state();
-    prefs->RegisterDictionaryPref(window_pref.c_str());
-    g_prefs_registered = true;
+    prefs->RegisterDictionaryPref(g_wp_key.c_str());
+    
+    const DictionaryValue* wp_pref = prefs->GetDictionary(g_wp_key.c_str());
+    if (!wp_pref) {
+      DictionaryValue* defaults = prefs->GetMutableDictionary(
+          g_wp_key.c_str());
+      defaults->SetInteger(L"left", 100);
+      defaults->SetInteger(L"top", 100);
+      defaults->SetInteger(L"right", 740);
+      defaults->SetInteger(L"bottom", 740);
+      defaults->SetBoolean(L"maximized", false);
+      defaults->SetBoolean(L"always_on_top", false);
+    }
   }
-  
+
   browser_.reset(Browser::CreateForApp(L"DevToolsApp", profile, false));
   GURL contents(std::string(chrome::kChromeUIDevToolsURL) + "devtools.html");
   browser_->AddTabWithURL(contents, GURL(), PageTransition::START_PAGE, true,
