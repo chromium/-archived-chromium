@@ -93,10 +93,15 @@ void StatusBubbleGtk::SetStatusBubbleSize() {
         0);
     widget_allocation.x = 0;
     widget_allocation.y = child_y;
-    widget_allocation.width = std::min(requisition.width,
-                                       parent_allocation_.width);
-    widget_allocation.height = requisition.height;
-    gtk_widget_size_allocate(container_.get(), &widget_allocation);
+    widget_allocation.width = std::max(1, std::min(requisition.width,
+                                                   parent_allocation_.width));
+    widget_allocation.height = std::max(1, requisition.height);
+
+    if (memcmp(&widget_allocation, &container_.get()->allocation,
+        sizeof widget_allocation) != 0) {
+      // Only do something when we are actually changing sizes.
+      gtk_widget_size_allocate(container_.get(), &widget_allocation);
+    }
   }
 }
 

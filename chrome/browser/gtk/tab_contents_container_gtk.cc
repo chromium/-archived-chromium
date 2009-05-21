@@ -14,11 +14,15 @@ namespace {
 
 // Allocates all normal tab contents views to the size of the passed in
 // |allocation|. Ignores StatusBubbles, which are handled separately.
-void ChildrenSizeAllocate(GtkWidget* widget, void* param) {
+void ResizeChildren(GtkWidget* widget, void* param) {
   GtkAllocation* allocation = reinterpret_cast<GtkAllocation*>(param);
 
   if (strcmp(gtk_widget_get_name(widget), "status-bubble") != 0) {
-    gtk_widget_size_allocate(widget, allocation);
+    if (widget->allocation.width != allocation->width ||
+        widget->allocation.height != allocation->height) {
+      gtk_widget_set_size_request(widget, allocation->width,
+                                  allocation->height);
+    }
   }
 }
 
@@ -158,8 +162,7 @@ void TabContentsContainerGtk::OnFixedSizeAllocate(
     GtkAllocation* allocation,
     TabContentsContainerGtk* container) {
   // Set all the tab contents GtkWidgets to the size of the allocation.
-  gtk_container_foreach(GTK_CONTAINER(fixed), ChildrenSizeAllocate,
-                        allocation);
+  gtk_container_foreach(GTK_CONTAINER(fixed), ResizeChildren, allocation);
 
   // Tell the status bubble about how large it can be.
   container->status_bubble_->SetParentAllocation(fixed, allocation);
