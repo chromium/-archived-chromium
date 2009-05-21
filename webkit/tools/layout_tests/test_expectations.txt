@@ -2645,11 +2645,6 @@ BUG11898 WIN DEBUG : LayoutTests/http/tests/misc/submit-get-in-utf16be.html = TI
 // This test is marked as Slow on other platforms but still times out on Mac debug
 BUG11812 MAC : LayoutTests/http/tests/xmlhttprequest/supported-xml-content-types.html = TIMEOUT
 
-// These tests started to fail after r43604 upstream.
-BUG11909 : LayoutTests/http/tests/security/aboutBlank/security-context-grandchildren-lexical.html = FAIL
-BUG11909 : LayoutTests/http/tests/security/aboutBlank/security-context-grandchildren-write-lexical.html = FAIL
-BUG11909 : LayoutTests/http/tests/security/aboutBlank/security-context-grandchildren-writeln-lexical.html = FAIL
-
 BUG11933 LINUX : LayoutTests/fast/frames/content-opacity-1.html = FAIL
 BUG11933 LINUX : LayoutTests/fast/frames/content-opacity-2.html = FAIL
 
