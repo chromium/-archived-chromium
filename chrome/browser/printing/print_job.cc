@@ -56,8 +56,8 @@ void PrintJob::Initialize(PrintJobWorkerOwner* job,
   UpdatePrintedDocument(new PrintedDocument(settings_, source_, job->cookie()));
 
   // Don't forget to register to our own messages.
-  NotificationService::current()->AddObserver(
-      this, NotificationType::PRINT_JOB_EVENT, Source<PrintJob>(this));
+  registrar_.Add(this, NotificationType::PRINT_JOB_EVENT,
+                 Source<PrintJob>(this));
 }
 
 void PrintJob::Observe(NotificationType type,
@@ -152,8 +152,8 @@ void PrintJob::Stop() {
     ControlledWorkerShutdown();
 
     is_job_pending_ = false;
-    NotificationService::current()->RemoveObserver(
-        this, NotificationType::PRINT_JOB_EVENT, Source<PrintJob>(this));
+    registrar_.Remove(this, NotificationType::PRINT_JOB_EVENT,
+                      Source<PrintJob>(this));
   }
   // Flush the cached document.
   UpdatePrintedDocument(NULL);
@@ -230,19 +230,15 @@ void PrintJob::UpdatePrintedDocument(PrintedDocument* new_document) {
     return;
   // Unregisters.
   if (document_.get()) {
-    NotificationService::current()->RemoveObserver(
-        this,
-        NotificationType::PRINTED_DOCUMENT_UPDATED,
-        Source<PrintedDocument>(document_.get()));
+    registrar_.Remove(this, NotificationType::PRINTED_DOCUMENT_UPDATED,
+                      Source<PrintedDocument>(document_.get()));
   }
   document_ = new_document;
 
   // Registers.
   if (document_.get()) {
-    NotificationService::current()->AddObserver(
-        this,
-        NotificationType::PRINTED_DOCUMENT_UPDATED,
-        Source<PrintedDocument>(document_.get()));
+    registrar_.Add(this, NotificationType::PRINTED_DOCUMENT_UPDATED,
+                   Source<PrintedDocument>(document_.get()));
     settings_ = document_->settings();
   }
 

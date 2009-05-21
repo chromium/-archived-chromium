@@ -264,10 +264,8 @@ bool PrintViewManager::CreateNewPrintJob(PrintJobWorkerOwner* job) {
 
   print_job_ = new PrintJob();
   print_job_->Initialize(job, this);
-  NotificationService::current()->AddObserver(
-      this,
-      NotificationType::PRINT_JOB_EVENT,
-      Source<PrintJob>(print_job_.get()));
+  registrar_.Add(this, NotificationType::PRINT_JOB_EVENT,
+                 Source<PrintJob>(print_job_.get()));
   return true;
 }
 
@@ -315,11 +313,9 @@ void PrintViewManager::ReleasePrintJob() {
   DCHECK_EQ(waiting_to_print_, false);
   if (!print_job_.get())
     return;
-  NotificationService::current()->RemoveObserver(
-      this,
-      NotificationType::PRINT_JOB_EVENT,
-      Source<PrintJob>(print_job_.get()));
 
+  registrar_.Remove(this, NotificationType::PRINT_JOB_EVENT,
+                    Source<PrintJob>(print_job_.get()));
   print_job_->DisconnectSource();
   // Don't close the worker thread.
   print_job_ = NULL;

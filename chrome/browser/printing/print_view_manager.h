@@ -7,7 +7,7 @@
 
 #include "base/ref_counted.h"
 #include "chrome/browser/printing/printed_pages_source.h"
-#include "chrome/common/notification_observer.h"
+#include "chrome/common/notification_registrar.h"
 
 class RenderViewHost;
 class TabContents;
@@ -102,6 +102,8 @@ class PrintViewManager : public NotificationObserver,
   // control flow, print_job_ is initialized whenever possible. No-op is
   // print_job_ is initialized.
   bool OpportunisticallyCreatePrintJob(int cookie);
+
+  NotificationRegistrar registrar_;
 
   // Manages the low-level talk to the printer.
   scoped_refptr<PrintJob> print_job_;

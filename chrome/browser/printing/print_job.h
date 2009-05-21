@@ -10,7 +10,7 @@
 #include "base/message_loop.h"
 #include "base/ref_counted.h"
 #include "chrome/browser/printing/print_job_worker_owner.h"
-#include "chrome/common/notification_observer.h"
+#include "chrome/common/notification_registrar.h"
 
 class GURL;
 class Thread;
@@ -116,6 +116,8 @@ class PrintJob : public base::RefCountedThreadSafe<PrintJob>,
   // Terminates the worker thread in a very controlled way, to work around any
   // eventual deadlock.
   void ControlledWorkerShutdown();
+
+  NotificationRegistrar registrar_;
 
   // Main message loop reference. Used to send notifications in the right
   // thread.

@@ -17,34 +17,20 @@ namespace printing {
 
 PrintJobManager::PrintJobManager()
     : debug_dump_path_() {
-  NotificationService::current()->AddObserver(
-      this,
-      NotificationType::PRINT_JOB_EVENT,
-      NotificationService::AllSources());
-  NotificationService::current()->AddObserver(
-      this,
-      NotificationType::PRINTED_DOCUMENT_UPDATED,
-      NotificationService::AllSources());
+  registrar_.Add(this, NotificationType::PRINT_JOB_EVENT,
+                 NotificationService::AllSources());
+  registrar_.Add(this, NotificationType::PRINTED_DOCUMENT_UPDATED,
+                 NotificationService::AllSources());
 }
 
 PrintJobManager::~PrintJobManager() {
-  // When this object is destroyed, the shared NotificationService instance is
-  // already destroyed.
   AutoLock lock(lock_);
   queued_queries_.clear();
-  NotificationService::current()->RemoveObserver(
-      this,
-      NotificationType::PRINT_JOB_EVENT,
-      NotificationService::AllSources());
-  NotificationService::current()->RemoveObserver(
-      this,
-      NotificationType::PRINTED_DOCUMENT_UPDATED,
-      NotificationService::AllSources());
 }
 
 void PrintJobManager::OnQuit() {
   // Common case, no print job pending.
-  if (current_jobs_.size() == 0)
+  if (current_jobs_.empty())
     return;
   {
     // Don't take a chance and copy the array since it can be modified in
@@ -61,15 +47,7 @@ void PrintJobManager::OnQuit() {
     }
   }
   current_jobs_.clear();
-  NotificationService::current()->RemoveObserver(
-      this,
-      NotificationType::PRINT_JOB_EVENT,
-      NotificationService::AllSources());
-  NotificationService::current()->RemoveObserver(
-      this,
-      NotificationType::PRINTED_DOCUMENT_UPDATED,
-      NotificationService::AllSources());
-  DCHECK_EQ(current_jobs_.size(), 0);
+  registrar_.RemoveAll();
 }
 
 void PrintJobManager::QueuePrinterQuery(PrinterQuery* job) {

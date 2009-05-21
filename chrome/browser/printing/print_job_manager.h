@@ -10,7 +10,7 @@
 
 #include "base/lock.h"
 #include "base/ref_counted.h"
-#include "chrome/common/notification_observer.h"
+#include "chrome/common/notification_registrar.h"
 
 namespace printing {
 
@@ -67,6 +67,8 @@ class PrintJobManager : public NotificationObserver {
   // pages and to dump their EMF buffer.
   void OnPrintedDocumentUpdated(const PrintedDocument& document,
                                 const PrintedPage& page);
+
+  NotificationRegistrar registrar_;
 
   // Used to serialize access to queued_workers_.
   Lock lock_;
