@@ -122,14 +122,15 @@ NSEvent* EventWithMenuAction(BOOL item_chosen, int window_num,
     NSPoint key_pos;
     key_pos.x = 0;
     key_pos.y = 0;
-    event = [NSEvent keyEventWithType:NSKeyUp
+    NSString* escape_str = [NSString stringWithFormat:@"%c", 0x1B];
+    event = [NSEvent keyEventWithType:NSKeyDown
                              location:key_pos
                         modifierFlags:0
                             timestamp:event_time
                          windowNumber:window_num
                               context:nil
                            characters:@""
-          charactersIgnoringModifiers:@""
+          charactersIgnoringModifiers:escape_str
                             isARepeat:NO
                               keyCode:0x1B];
   }
