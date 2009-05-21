@@ -78,7 +78,7 @@ const float kAnimationIntervalSeconds = 0.03;  // 30ms, same as windows
 // counter and mark as needing display.
 - (void)animate {
   animationFrame_ = ++animationFrame_ % numFrames_;
-  [self setNeedsDisplay:YES];
+  //[self setNeedsDisplay:YES];
 }
 
 // Overridden to draw the appropriate frame in the image strip.
