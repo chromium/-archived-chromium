@@ -26,10 +26,10 @@ class Extension {
   // What an extension was loaded from.
   enum Location {
     INVALID,
-    INTERNAL,  // A crx file from the internal Extensions directory
+    INTERNAL,  // A crx file from the internal Extensions directory.
     EXTERNAL,  // A crx file from an external directory (via eg the registry
-               // on Windows)
-    LOAD  // --load-extension 
+               // on Windows).
+    LOAD  // --load-extension.
   };
 
   // The name of the manifest inside an extension.
@@ -101,7 +101,6 @@ class Extension {
   static const char* kInvalidThemeColorsError;
   static const char* kInvalidThemeTintsError;
   static const char* kMissingFileError;
-  static const char* kMissingPageActionIcon;
 
   // The number of bytes in a legal id.
   static const size_t kIdSize;

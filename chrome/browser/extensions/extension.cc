@@ -112,8 +112,6 @@ const char* Extension::kInvalidZipHashError =
     "Required key 'zip_hash' is missing or invalid.";
 const char* Extension::kMissingFileError =
     "At least one js or css file is required for 'content_scripts[*]'.";
-const char* Extension::kMissingPageActionIcon =
-    "Unable to find 'page_actions[*].icon'";
 const char* Extension::kInvalidThemeError =
     "Invalid value for 'theme'.";
 const char* Extension::kInvalidThemeImagesError =
@@ -363,11 +361,6 @@ PageAction* Extension::LoadPageActionHelper(
     return NULL;
   }
   FilePath icon_path = path_.AppendASCII(icon);
-  if (!file_util::PathExists(icon_path)) {
-    *error = ExtensionErrorUtils::FormatErrorMessage(kMissingPageActionIcon,
-        IntToString(definition_index));
-    return NULL;
-  }
   result->set_icon_path(icon_path);
 
   // Read the page action |id|.

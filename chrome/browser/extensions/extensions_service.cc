@@ -490,7 +490,7 @@ Extension* ExtensionsServiceBackend::LoadExtension(
     extension->set_location(Extension::INTERNAL);
 
   // TODO(glen): Add theme resource validation here. http://crbug.com/11678
-  // Validate that claimed script resources actually exist. 
+  // Validate that claimed script resources actually exist.
   for (size_t i = 0; i < extension->content_scripts().size(); ++i) {
     const UserScript& script = extension->content_scripts()[i];
 
@@ -498,8 +498,8 @@ Extension* ExtensionsServiceBackend::LoadExtension(
       const FilePath& path = script.js_scripts()[j].path();
       if (!file_util::PathExists(path)) {
         ReportExtensionLoadError(extension_path,
-          StringPrintf("Could not load '%s' for content script.",
-          WideToUTF8(path.ToWStringHack()).c_str()));
+            StringPrintf("Could not load '%s' for content script.",
+            WideToUTF8(path.ToWStringHack()).c_str()));
         return NULL;
       }
     }
@@ -508,10 +508,24 @@ Extension* ExtensionsServiceBackend::LoadExtension(
       const FilePath& path = script.css_scripts()[j].path();
       if (!file_util::PathExists(path)) {
         ReportExtensionLoadError(extension_path,
-          StringPrintf("Could not load '%s' for content script.",
-          WideToUTF8(path.ToWStringHack()).c_str()));
+            StringPrintf("Could not load '%s' for content script.",
+            WideToUTF8(path.ToWStringHack()).c_str()));
         return NULL;
       }
+    }
+  }
+
+  // Validate icon location for page actions.
+  const PageActionMap& page_actions = extension->page_actions();
+  for (PageActionMap::const_iterator i(page_actions.begin());
+       i != page_actions.end(); ++i) {
+    PageAction* page_action = i->second;
+    FilePath path = page_action->icon_path();
+    if (!file_util::PathExists(path)) {
+      ReportExtensionLoadError(extension_path,
+          StringPrintf("Could not load icon '%s' for page action.",
+          WideToUTF8(path.ToWStringHack()).c_str()));
+      return NULL;
     }
   }
 
