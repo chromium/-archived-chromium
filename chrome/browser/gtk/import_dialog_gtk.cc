@@ -4,8 +4,6 @@
 
 #include "chrome/browser/gtk/import_dialog_gtk.h"
 
-#include <gtk/gtk.h>
-
 #include "app/l10n_util.h"
 #include "app/resource_bundle.h"
 #include "chrome/browser/profile.h"

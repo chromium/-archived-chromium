@@ -7,8 +7,6 @@
 
 #include "chrome/browser/importer/importer.h"
 
-#include <gtk/gtk.h>
-
 class Profile;
 typedef struct _GtkWindow GtkWindow;
 
@@ -23,9 +21,8 @@ class ImportDialogGtk {
 
   static void HandleOnResponseDialog(GtkWidget* widget,
                                      int response,
-                                     gpointer user_data) {
-    reinterpret_cast<ImportDialogGtk*>(user_data)->OnDialogResponse(widget,
-                                                                    response);
+                                     ImportDialogGtk* user_data) {
+    user_data->OnDialogResponse(widget, response);
   }
   void OnDialogResponse(GtkWidget* widget, int response);
 
