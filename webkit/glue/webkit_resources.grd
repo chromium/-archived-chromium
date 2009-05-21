@@ -22,6 +22,11 @@
       <include name="IDR_DEVTOOLS_JSON_JS" file="devtools\js\json.js" type="BINDATA" />
       <include name="IDR_DEVTOOLS_INJECT_DISPATCH_JS" file="devtools\js\inject_dispatch.js" type="BINDATA" />
       <include name="IDR_DEVTOOLS_INJECT_JS" file="devtools\js\inject.js" type="BINDATA" />
+      <include name="IDR_MEDIA_PLAY_BUTTON" file="resources\media_play.png" type="BINDATA" />
+      <include name="IDR_MEDIA_PAUSE_BUTTON" file="resources\media_pause.png" type="BINDATA" />
+      <include name="IDR_MEDIA_SOUND_FULL_BUTTON" file="resources\media_sound_full.png" type="BINDATA" />
+      <include name="IDR_MEDIA_SOUND_NONE_BUTTON" file="resources\media_sound_none.png" type="BINDATA" />
+
       <if expr="os == 'linux2'">
         <include name="IDR_LINUX_CHECKBOX_OFF" file="resources\linux-checkbox-off.png" type="BINDATA" />
         <include name="IDR_LINUX_CHECKBOX_ON" file="resources\linux-checkbox-on.png" type="BINDATA" />

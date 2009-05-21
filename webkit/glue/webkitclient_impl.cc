@@ -94,6 +94,10 @@ WebData WebKitClientImpl::loadResource(const char* name) {
     { "searchCancelPressed", IDR_SEARCH_CANCEL_PRESSED },
     { "searchMagnifier", IDR_SEARCH_MAGNIFIER },
     { "searchMagnifierResults", IDR_SEARCH_MAGNIFIER_RESULTS },
+    { "mediaPlay", IDR_MEDIA_PLAY_BUTTON },
+    { "mediaPause", IDR_MEDIA_PAUSE_BUTTON },
+    { "mediaSoundFull", IDR_MEDIA_SOUND_FULL_BUTTON },
+    { "mediaSoundNone", IDR_MEDIA_SOUND_NONE_BUTTON },
 #if defined(OS_LINUX)
     { "linuxCheckboxOff", IDR_LINUX_CHECKBOX_OFF },
     { "linuxCheckboxOn", IDR_LINUX_CHECKBOX_ON },
