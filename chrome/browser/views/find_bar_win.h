@@ -110,6 +110,11 @@ class FindBarWin : public views::FocusChangeListener,
   // Get the offset with which to paint the theme image.
   void GetThemePosition(gfx::Rect* bounds);
 
+  // During testing we can disable animations by setting this flag to true,
+  // so that opening and closing the Find box happens instantly, instead of
+  // having to poll it while it animates to open/closed status.
+  static bool disable_animations_during_testing_;
+
  private:
   // Retrieves the boundaries that the find bar has to work with within the
   // Chrome frame window. The resulting rectangle will be a rectangle that

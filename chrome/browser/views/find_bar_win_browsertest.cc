@@ -14,6 +14,7 @@
 #include "chrome/test/in_process_browser_test.h"
 #include "chrome/test/ui_test_utils.h"
 
+const std::wstring kSimplePage = L"404_is_enough_for_us.html";
 const std::wstring kFramePage = L"files/find_in_page/frames.html";
 const std::wstring kFrameData = L"files/find_in_page/framedata_general.html";
 const std::wstring kUserSelectPage = L"files/find_in_page/user-select.html";
@@ -103,6 +104,12 @@ class FindInPageControllerTest : public InProcessBrowserTest {
     if (ordinal)
       *ordinal = observer.active_match_ordinal();
     return observer.number_of_matches();
+  }
+
+  void GetFindBarWindowInfo(gfx::Point* position, bool* fully_visible) {
+    FindBarTesting* find_bar =
+        browser()->find_bar()->find_bar()->GetFindBarTesting();
+    find_bar->GetFindBarWindowInfo(position, fully_visible);
   }
 };
 
@@ -403,3 +410,80 @@ IN_PROC_BROWSER_TEST_F(FindInPageControllerTest,
   EXPECT_EQ(2, FindInPage(L"html ", FWD, IGNORE_CASE, false, &ordinal));
   EXPECT_EQ(1, ordinal);
 }
+
+// Make sure Find box disappears on Navigate but not on Refresh.
+IN_PROC_BROWSER_TEST_F(FindInPageControllerTest, FindDisappearOnNavigate) {
+  HTTPTestServer* server = StartHTTPServer();
+
+  // First we navigate to our special focus tracking page.
+  GURL url = server->TestServerPageW(kSimplePage);
+  GURL url2 = server->TestServerPageW(kFramePage);
+  ui_test_utils::NavigateToURL(browser(), url);
+
+  // Open the Find window with animations disabled.
+  FindBarWin::disable_animations_during_testing_ = true;
+  browser()->ShowFindBar();
+
+  gfx::Point position;
+  bool fully_visible = false;
+
+  // Make sure it is open.
+  GetFindBarWindowInfo(&position, &fully_visible);
+  EXPECT_TRUE(fully_visible);
+
+  // Reload the tab and make sure Find window doesn't go away.
+  browser()->Reload();
+
+  GetFindBarWindowInfo(&position, &fully_visible);
+  EXPECT_TRUE(fully_visible);
+
+  // Navigate and make sure the Find window goes away.
+  ui_test_utils::NavigateToURL(browser(), url2);
+
+  GetFindBarWindowInfo(&position, &fully_visible);
+  EXPECT_FALSE(fully_visible);
+}
+
+// Make sure Find box disappears when History/Downloads page is opened, and
+// when a New Tab is opened.
+IN_PROC_BROWSER_TEST_F(FindInPageControllerTest,
+                       FindDisappearOnNewTabAndHistory) {
+  HTTPTestServer* server = StartHTTPServer();
+
+  // First we navigate to our special focus tracking page.
+  GURL url = server->TestServerPageW(kSimplePage);
+  ui_test_utils::NavigateToURL(browser(), url);
+
+  // Open the Find window with animations disabled.
+  FindBarWin::disable_animations_during_testing_ = true;
+  browser()->ShowFindBar();
+
+  gfx::Point position;
+  bool fully_visible = false;
+
+  // Make sure it is open.
+  GetFindBarWindowInfo(&position, &fully_visible);
+  EXPECT_TRUE(fully_visible);
+
+  // Open another tab (tab B).
+  browser()->NewTab();
+  ui_test_utils::NavigateToURL(browser(), url);
+
+  // Make sure Find box is closed.
+  GetFindBarWindowInfo(&position, &fully_visible);
+  EXPECT_FALSE(fully_visible);
+
+  // Close tab B.
+  browser()->CloseTab();
+
+  // Make sure Find window appears again.
+  GetFindBarWindowInfo(&position, &fully_visible);
+  EXPECT_TRUE(fully_visible);
+
+  browser()->ShowHistoryTab();
+
+  // Make sure Find box is closed.
+  GetFindBarWindowInfo(&position, &fully_visible);
+  EXPECT_FALSE(fully_visible);
+}
+

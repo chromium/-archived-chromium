@@ -23,6 +23,9 @@
 // The minimum space between the FindInPage window and the search result.
 static const int kMinFindWndDistanceFromSelection = 5;
 
+// static
+bool FindBarWin::disable_animations_during_testing_ = false;
+
 ////////////////////////////////////////////////////////////////////////////////
 // FindBarWin, public:
 
@@ -153,7 +156,7 @@ void FindBarWin::UpdateWindowEdges(const gfx::Rect& new_pos) {
                    views::NativeScrollBar::GetVerticalScrollBarWidth() +
                    1;
   if (difference > 0) {
-    POINT exclude[4];
+    POINT exclude[4] = {0};
     exclude[0].x = max_x - difference;  // Top left corner.
     exclude[0].y = 0;
 
@@ -177,8 +180,13 @@ void FindBarWin::UpdateWindowEdges(const gfx::Rect& new_pos) {
 }
 
 void FindBarWin::Show() {
-  animation_->Reset();
-  animation_->Show();
+  if (disable_animations_during_testing_) {
+    animation_->Reset(1);
+    MoveWindowIfNecessary(gfx::Rect(), true);
+  } else {
+    animation_->Reset();
+    animation_->Show();
+  }
 }
 
 void FindBarWin::SetFocusAndSelection() {
@@ -190,7 +198,7 @@ bool FindBarWin::IsAnimating() {
 }
 
 void FindBarWin::Hide(bool animate) {
-  if (animate) {
+  if (animate && !disable_animations_during_testing_) {
     animation_->Reset(1.0);
     animation_->Hide();
   } else {
