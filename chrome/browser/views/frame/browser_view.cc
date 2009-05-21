@@ -407,6 +407,10 @@ int BrowserView::GetTabStripHeight() const {
   return IsTabStripVisible() ? tabstrip_->GetPreferredSize().height() : 0;
 }
 
+gfx::Rect BrowserView::GetTabStripBounds() const {
+  return frame_->GetBoundsForTabStrip(tabstrip_);
+}
+
 bool BrowserView::IsToolbarVisible() const {
   return browser_->SupportsWindowFeature(Browser::FEATURE_TOOLBAR) ||
          browser_->SupportsWindowFeature(Browser::FEATURE_LOCATIONBAR);

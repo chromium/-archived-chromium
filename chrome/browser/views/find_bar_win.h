@@ -106,6 +106,10 @@ class FindBarWin : public views::FocusChangeListener,
   // FindBarTesting implementation:
   virtual bool GetFindBarWindowInfo(gfx::Point* position,
                                     bool* fully_visible);
+
+  // Get the offset with which to paint the theme image.
+  void GetThemePosition(gfx::Rect* bounds);
+
  private:
   // Retrieves the boundaries that the find bar has to work with within the
   // Chrome frame window. The resulting rectangle will be a rectangle that

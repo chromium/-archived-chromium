@@ -70,9 +70,6 @@ class FindBarView : public views::View,
   virtual bool HandleKeystroke(views::TextField* sender,
                                const views::TextField::Keystroke& key);
 
-  // Set whether or not we're attempting to blend with the toolbar.
-  void set_toolbar_blend(bool toolbar_blend) { toolbar_blend_ = toolbar_blend; }
-
  private:
   // Resets the background for the match count label.
   void ResetMatchCountBackground();
@@ -108,10 +105,6 @@ class FindBarView : public views::View,
   views::ImageButton* find_previous_button_;
   views::ImageButton* find_next_button_;
   views::ImageButton* close_button_;
-
-  // Whether or not we're attempting to blend with the toolbar (this is
-  // false if the bookmarks bar is visible).
-  bool toolbar_blend_;
 
   // While animating, the controller clips the window and draws only the bottom
   // part of it. The view needs to know the pixel offset at which we are drawing

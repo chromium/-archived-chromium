@@ -167,9 +167,17 @@
       <include name="IDR_STOP" file="stop.png" type="BINDATA" />
       <include name="IDR_STOP_H" file="stop_h.png" type="BINDATA" />
       <include name="IDR_STOP_P" file="stop_p.png" type="BINDATA" />
+      <!-- The following (IDR_FIND_DLG_[LEFT|RIGHT|MIDDLE]_[BB]_BACKGROUND) are deprecated but are kept around for the Linux port -->
       <include name="IDR_FIND_DLG_LEFT_BACKGROUND" file="find_dlg_left_bg.png" type="BINDATA" />
       <include name="IDR_FIND_DLG_RIGHT_BACKGROUND" file="find_dlg_right_bg.png" type="BINDATA" />
       <include name="IDR_FIND_DLG_MIDDLE_BACKGROUND" file="find_dlg_middle_bg.png" type="BINDATA" />
+      <include name="IDR_FIND_DLG_LEFT_BB_BACKGROUND" file="find_dlg_left_bb_bg.png" type="BINDATA" />
+      <include name="IDR_FIND_DLG_RIGHT_BB_BACKGROUND" file="find_dlg_right_bb_bg.png" type="BINDATA" />
+      <include name="IDR_FIND_DLG_MIDDLE_BB_BACKGROUND" file="find_dlg_middle_bb_bg.png" type="BINDATA" />
+      <!-- End deprecated files -->
+      <include name="IDR_FIND_DIALOG_LEFT" file="find_dialog_left.png" type="BINDATA" />
+      <include name="IDR_FIND_DIALOG_MIDDLE" file="find_dialog_middle.png" type="BINDATA" />
+      <include name="IDR_FIND_DIALOG_RIGHT" file="find_dialog_right.png" type="BINDATA" />
       <include name="IDR_PAGEINFO_GOOD" file="pageinfo_good.png" type="BINDATA" />
       <include name="IDR_PAGEINFO_BAD" file="pageinfo_bad.png" type="BINDATA" />
       <include name="IDR_NEWTAB_BUTTON" file="newtab.png" type="BINDATA" />
@@ -262,9 +270,6 @@
       <include name="IDR_FOLDER_CLOSED_RTL" file="folder_closed_rtl.png" type="BINDATA" />
       <include name="IDR_FOLDER_OPEN_RTL" file="folder_open_rtl.png" type="BINDATA" />
       <include name="IDR_BOOKMARK_BAR_FOLDER" file="bookmark_bar_folder.png" type="BINDATA" />
-      <include name="IDR_FIND_DLG_LEFT_BB_BACKGROUND" file="find_dlg_left_bb_bg.png" type="BINDATA" />
-      <include name="IDR_FIND_DLG_RIGHT_BB_BACKGROUND" file="find_dlg_right_bb_bg.png" type="BINDATA" />
-      <include name="IDR_FIND_DLG_MIDDLE_BB_BACKGROUND" file="find_dlg_middle_bb_bg.png" type="BINDATA" />
       <include name="IDR_THROBBER_LIGHT" file="throbber_light.png" type="BINDATA" />
       <include name="IDR_OTR_ICON_STANDALONE" file="otr_icon_standalone.png" type="BINDATA" />
       <include name="IDR_BOOKMARK_MANAGER_RECENT_ICON" file="bookmark_manager_recent.png" type="BINDATA" />

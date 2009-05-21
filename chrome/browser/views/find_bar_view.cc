@@ -10,6 +10,7 @@
 #include "app/l10n_util.h"
 #include "app/resource_bundle.h"
 #include "base/string_util.h"
+#include "chrome/browser/browser_theme_provider.h"
 #include "chrome/browser/find_bar_controller.h"
 #include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/browser/views/find_bar_win.h"
@@ -52,15 +53,9 @@ static const SkColor kBackgroundColorNoMatch = SkColorSetRGB(255, 102, 102);
 // and a right part. The middle part determines the height of the dialog. The
 // middle part is stretched to fill any remaining part between the left and the
 // right image, after sizing the dialog to kWindowWidth.
-static const SkBitmap* kDlgBackground_left = NULL;
-static const SkBitmap* kDlgBackground_middle = NULL;
-static const SkBitmap* kDlgBackground_right = NULL;
-
-// These are versions of the above images but for use when the bookmarks bar
-// is extended (when toolbar_blend_ = false).
-static const SkBitmap* kDlgBackground_bb_left = NULL;
-static const SkBitmap* kDlgBackground_bb_middle = NULL;
-static const SkBitmap* kDlgBackground_bb_right = NULL;
+static const SkBitmap* kDialog_left = NULL;
+static const SkBitmap* kDialog_middle = NULL;
+static const SkBitmap* kDialog_right = NULL;
 
 // When we are animating, we draw only the top part of the left and right
 // edges to give the illusion that the find dialog is attached to the
@@ -89,8 +84,7 @@ FindBarView::FindBarView(FindBarWin* container)
       find_previous_button_(NULL),
       find_next_button_(NULL),
       close_button_(NULL),
-      animation_offset_(0),
-      toolbar_blend_(true) {
+      animation_offset_(0) {
   ResourceBundle& rb = ResourceBundle::GetSharedInstance();
 
   find_text_ = new views::TextField();
@@ -150,17 +144,11 @@ FindBarView::FindBarView(FindBarWin* container)
       l10n_util::GetString(IDS_FIND_IN_PAGE_CLOSE_TOOLTIP));
   AddChildView(close_button_);
 
-  if (kDlgBackground_left == NULL) {
+  if (kDialog_left == NULL) {
     // Background images for the dialog.
-    kDlgBackground_left = rb.GetBitmapNamed(IDR_FIND_DLG_LEFT_BACKGROUND);
-    kDlgBackground_middle = rb.GetBitmapNamed(IDR_FIND_DLG_MIDDLE_BACKGROUND);
-    kDlgBackground_right = rb.GetBitmapNamed(IDR_FIND_DLG_RIGHT_BACKGROUND);
-    kDlgBackground_bb_left =
-        rb.GetBitmapNamed(IDR_FIND_DLG_LEFT_BB_BACKGROUND);
-    kDlgBackground_bb_middle =
-        rb.GetBitmapNamed(IDR_FIND_DLG_MIDDLE_BB_BACKGROUND);
-    kDlgBackground_bb_right =
-        rb.GetBitmapNamed(IDR_FIND_DLG_RIGHT_BB_BACKGROUND);
+    kDialog_left = rb.GetBitmapNamed(IDR_FIND_DIALOG_LEFT);
+    kDialog_middle = rb.GetBitmapNamed(IDR_FIND_DIALOG_MIDDLE);
+    kDialog_right = rb.GetBitmapNamed(IDR_FIND_DIALOG_RIGHT);
 
     // Background images for the Find edit box.
     kBackground = rb.GetBitmapNamed(IDR_FIND_BOX_BACKGROUND);
@@ -248,26 +236,25 @@ void FindBarView::Paint(gfx::Canvas* canvas) {
   // controller, so the whitespace in the left and right background images is
   // actually outside the window region and is therefore not drawn. See
   // FindInPageWidgetWin::CreateRoundedWindowEdges() for details.
-  const SkBitmap *bg_left =
-      toolbar_blend_ ? kDlgBackground_left : kDlgBackground_bb_left;
-  const SkBitmap *bg_middle =
-      toolbar_blend_ ? kDlgBackground_middle : kDlgBackground_bb_middle;
-  const SkBitmap *bg_right =
-      toolbar_blend_ ? kDlgBackground_right : kDlgBackground_bb_right;
+  ThemeProvider* tp = GetThemeProvider();
+  gfx::Rect bounds;
+  container_->GetThemePosition(&bounds);
+  canvas->TileImageInt(*tp->GetBitmapNamed(IDR_THEME_TOOLBAR),
+                       bounds.x(), bounds.y(), 0, 0, lb.width(), lb.height());
 
-  canvas->DrawBitmapInt(*bg_left, 0, 0);
+  canvas->DrawBitmapInt(*kDialog_left, 0, 0);
 
   // Stretch the middle background to cover all of the area between the two
   // other images.
-  canvas->TileImageInt(*bg_middle,
-                        bg_left->width(),
+  canvas->TileImageInt(*kDialog_middle,
+                        kDialog_left->width(),
                         0,
                         lb.width() -
-                            bg_left->width() -
-                            bg_right->width(),
-                        bg_middle->height());
+                            kDialog_left->width() -
+                            kDialog_right->width(),
+                        kDialog_middle->height());
 
-  canvas->DrawBitmapInt(*bg_right, lb.right() - bg_right->width(), 0);
+  canvas->DrawBitmapInt(*kDialog_right, lb.right() - kDialog_right->width(), 0);
 
   // Then we draw the background image for the Find TextField. We start by
   // calculating the position of background images for the Find text box.
@@ -309,15 +296,15 @@ void FindBarView::Paint(gfx::Canvas* canvas) {
   if (animation_offset_ > 0) {
     // While animating we draw the curved edges at the point where the
     // controller told us the top of the window is: |animation_offset_|.
-    canvas->TileImageInt(*bg_left,
+    canvas->TileImageInt(*kDialog_left,
                          lb.x(),
                          animation_offset_,
-                         bg_left->width(),
+                         kDialog_left->width(),
                          kAnimatingEdgeHeight);
-    canvas->TileImageInt(*bg_right,
-                         lb.right() - bg_right->width(),
+    canvas->TileImageInt(*kDialog_right,
+                         lb.right() - kDialog_right->width(),
                          animation_offset_,
-                         bg_right->width(),
+                         kDialog_right->width(),
                          kAnimatingEdgeHeight);
   }
 }
@@ -392,7 +379,7 @@ void FindBarView::ViewHierarchyChanged(bool is_add, View *parent, View *child) {
 
 gfx::Size FindBarView::GetPreferredSize() {
   gfx::Size prefsize = find_text_->GetPreferredSize();
-  prefsize.set_height(kDlgBackground_middle->height());
+  prefsize.set_height(kDialog_middle->height());
 
   // Add up all the preferred sizes and margins of the rest of the controls.
   prefsize.Enlarge(kMarginLeftOfCloseButton + kMarginRightOfCloseButton +

@@ -107,6 +107,10 @@ class BrowserView : public BrowserWindow,
   // avatar icon.
   int GetTabStripHeight() const;
 
+  // Returns the bounds of the TabStrip. Used by themed views to determine the
+  // offset of IDR_THEME_TOOLBAR.
+  gfx::Rect GetTabStripBounds() const;
+
   // Accessor for the TabStrip.
   TabStrip* tabstrip() const { return tabstrip_; }
 

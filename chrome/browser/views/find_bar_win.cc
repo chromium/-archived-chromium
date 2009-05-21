@@ -358,6 +358,12 @@ void FindBarWin::AnimationEnded(const Animation* animation) {
   }
 }
 
+void FindBarWin::GetThemePosition(gfx::Rect* bounds) {
+  *bounds = GetDialogPosition(gfx::Rect());
+  gfx::Rect tab_strip_bounds = browser_view_->GetTabStripBounds();
+  bounds->Offset(-tab_strip_bounds.x(), -tab_strip_bounds.y());
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 // FindBarTesting implementation:
 
@@ -382,8 +388,6 @@ void FindBarWin::GetDialogBounds(gfx::Rect* bounds) {
   // The BrowserView does Layout for the components that we care about
   // positioning relative to, so we ask it to tell us where we should go.
   *bounds = browser_view_->GetFindBarBoundingBox();
-  view_->set_toolbar_blend(
-      !browser_view_->ShouldFindBarBlendWithBookmarksBar());
 }
 
 gfx::Rect FindBarWin::GetDialogPosition(gfx::Rect avoid_overlapping_rect) {
