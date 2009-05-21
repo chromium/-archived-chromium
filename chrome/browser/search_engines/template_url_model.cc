@@ -92,30 +92,21 @@ TemplateURLModel::~TemplateURLModel() {
   }
 
   STLDeleteElements(&template_urls_);
-
-  NotificationService* ns = NotificationService::current();
-  if (profile_) {
-    ns->RemoveObserver(this, NotificationType::HISTORY_URL_VISITED,
-                       Source<Profile>(profile_->GetOriginalProfile()));
-  }
-  ns->RemoveObserver(this, NotificationType::GOOGLE_URL_UPDATED,
-                     NotificationService::AllSources());
 }
 
 void TemplateURLModel::Init(const Initializer* initializers,
                             int num_initializers) {
   // Register for notifications.
-  NotificationService* ns = NotificationService::current();
   if (profile_) {
     // TODO(sky): bug 1166191. The keywords should be moved into the history
     // db, which will mean we no longer need this notification and the history
     // backend can handle automatically adding the search terms as the user
     // navigates.
-    ns->AddObserver(this, NotificationType::HISTORY_URL_VISITED,
-                    Source<Profile>(profile_->GetOriginalProfile()));
+    registrar_.Add(this, NotificationType::HISTORY_URL_VISITED,
+                   Source<Profile>(profile_->GetOriginalProfile()));
   }
-  ns->AddObserver(this, NotificationType::GOOGLE_URL_UPDATED,
-                  NotificationService::AllSources());
+  registrar_.Add(this, NotificationType::GOOGLE_URL_UPDATED,
+                 NotificationService::AllSources());
 
   // Add specific initializers, if any.
   for (int i(0); i < num_initializers; ++i) {

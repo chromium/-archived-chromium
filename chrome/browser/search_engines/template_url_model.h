@@ -13,7 +13,7 @@
 #include "chrome/browser/history/history_notifications.h"
 #include "chrome/browser/history/history_types.h"
 #include "chrome/browser/webdata/web_data_service.h"
-#include "chrome/common/notification_observer.h"
+#include "chrome/common/notification_registrar.h"
 
 class GURL;
 class PrefService;
@@ -217,6 +217,8 @@ class TemplateURLModel : public WebDataServiceConsumer,
 
   typedef std::map<std::wstring, const TemplateURL*> KeywordToTemplateMap;
   typedef std::vector<const TemplateURL*> TemplateURLVector;
+  typedef std::set<const TemplateURL*> TemplateURLSet;
+  typedef std::map<std::string, TemplateURLSet> HostToURLsMap;
 
   // Helper functor for FindMatchingKeywords(), for finding the range of
   // keywords which begin with a prefix.
@@ -298,6 +300,8 @@ class TemplateURLModel : public WebDataServiceConsumer,
   // {google:baseSuggestURL}.
   void GoogleBaseURLChanged();
 
+  NotificationRegistrar registrar_;
+
   // Mapping from keyword to the TemplateURL.
   KeywordToTemplateMap keyword_to_template_map_;
 
@@ -306,8 +310,6 @@ class TemplateURLModel : public WebDataServiceConsumer,
   ObserverList<TemplateURLModelObserver> model_observers_;
 
   // Maps from host to set of TemplateURLs whose search url host is host.
-  typedef std::set<const TemplateURL*> TemplateURLSet;
-  typedef std::map<std::string, TemplateURLSet> HostToURLsMap;
   HostToURLsMap host_to_urls_map_;
 
   // Used to obtain the WebDataService.
