@@ -204,8 +204,12 @@ void RenderWidgetHostViewGtk::InitAsPopup(
     parent_host_view->Blur();
   }
 
-  gtk_window_set_default_size(GTK_WINDOW(popup),
-                              pos.width(), pos.height());
+  gtk_widget_set_size_request(view_.get(), pos.width(), pos.height());
+
+  gtk_window_set_default_size(GTK_WINDOW(popup), -1, -1);
+  // Don't allow the window to be resized. This also forces the window to
+  // shrink down to the size of its child contents.
+  gtk_window_set_resizable(GTK_WINDOW(popup), FALSE);
   gtk_window_move(GTK_WINDOW(popup), pos.x(), pos.y());
   gtk_widget_show_all(popup);
 }
@@ -233,7 +237,12 @@ void RenderWidgetHostViewGtk::WasHidden() {
 }
 
 void RenderWidgetHostViewGtk::SetSize(const gfx::Size& size) {
-  // We rely on our parent GTK container to size us.
+  // This is called when webkit has sent us a Move message.
+  // If we are a popup, we want to handle this.
+  // TODO(estade): are there other situations where we want to respect the
+  // request?
+  if (parent_)
+    gtk_widget_set_size_request(view_.get(), size.width(), size.height());
 }
 
 gfx::NativeView RenderWidgetHostViewGtk::GetPluginNativeView() {
