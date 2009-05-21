@@ -446,6 +446,7 @@
         'chrome_resources',
         'chrome_strings',
         'theme_resources',
+        '../app/app.gyp:app_resources',
         '../media/media.gyp:media',
         '../net/net.gyp:net_resources',
         '../skia/skia.gyp:skia',
