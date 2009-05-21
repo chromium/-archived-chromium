@@ -143,6 +143,10 @@
 			RelativePath="$(OutDir)\grit_derived_sources\theme_resources.rc"
 			>
 		</File>
+		<File
+			RelativePath="$(IntDir)\..\global_intermediate\app\app_resources.rc"
+			>
+		</File>
 	</Files>
 	<Globals>
 	</Globals>

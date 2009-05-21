@@ -20,6 +20,7 @@
 #include "chrome/common/notification_service.h"
 #include "chrome/common/render_messages.h"
 #include "chrome/common/url_constants.h"
+#include "grit/app_resources.h"
 #include "webkit/glue/webkit_glue.h"
 
 #if defined(OS_WIN)

@@ -54,11 +54,12 @@ TEST_F(DOMUISourcesTest, ThemeSourceMimeTypes) {
 TEST_F(DOMUISourcesTest, ThemeSourceImages) {
   // Our test data. Rather than comparing the data itself, we just compare
   // its size.
-  SkBitmap* image = ResourceBundle::GetSharedInstance().GetBitmapNamed(IDR_THEME_FRAME);
+  SkBitmap* image = ResourceBundle::GetSharedInstance().GetBitmapNamed(
+      IDR_THEME_FRAME_INCOGNITO);
   std::vector<unsigned char> png_bytes;
   PNGEncoder::EncodeBGRASkBitmap(*image, false, &png_bytes);
 
-  theme_source()->StartDataRequest("theme_frame", 1);
+  theme_source()->StartDataRequest("theme_frame_incognito", 1);
   EXPECT_EQ(theme_source()->result_request_id_, 1);
   EXPECT_EQ(theme_source()->result_data_size_, png_bytes.size());
 

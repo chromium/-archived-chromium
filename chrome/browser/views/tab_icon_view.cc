@@ -15,6 +15,7 @@
 #include "base/path_service.h"
 #include "chrome/app/chrome_dll_resource.h"
 #include "chrome/browser/tab_contents/tab_contents.h"
+#include "grit/app_resources.h"
 #include "grit/theme_resources.h"
 
 static bool g_initialized = false;

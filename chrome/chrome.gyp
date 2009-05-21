@@ -458,6 +458,7 @@
         'chrome_resources',
         'chrome_strings',
         'theme_resources',
+        '../app/app.gyp:app_resources',
         '../media/media.gyp:media',
         '../net/net.gyp:net_resources',
         '../skia/skia.gyp:skia',
@@ -2169,6 +2170,7 @@
               'action_name': 'repack_theme',
               'variables': {
                 'pak_inputs': [
+                  '<(SHARED_INTERMEDIATE_DIR)/app/app_resources.pak',
                   '<(SHARED_INTERMEDIATE_DIR)/chrome/theme_resources.pak',
                 ],
               },
@@ -2706,6 +2708,7 @@
         'chrome_resources',
         'chrome_strings',
         'test_support_unit',
+        '../app/app.gyp:app_resources',
         '../net/net.gyp:net_test_support',
         '../printing/printing.gyp:printing',
         '../webkit/webkit.gyp:webkit',

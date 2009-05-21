@@ -14,6 +14,7 @@
 #include "chrome/browser/search_engines/template_url_model.h"
 #include "chrome/browser/views/keyword_editor_view.h"
 #include "googleurl/src/gurl.h"
+#include "grit/app_resources.h"
 #include "grit/generated_resources.h"
 #include "grit/theme_resources.h"
 #include "views/controls/label.h"

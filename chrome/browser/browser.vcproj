@@ -43,6 +43,7 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
+				AdditionalIncludeDirectories="$(IntDir)\..\global_intermediate\app"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -97,6 +98,7 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
+				AdditionalIncludeDirectories="$(IntDir)\..\global_intermediate\app"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -754,15 +756,15 @@
 				>
 			</File>
 			<File
-				RelativePath=".\dock_info_win.cc"
-				>
-			</File>
-			<File
 				RelativePath=".\dock_info.cc"
 				>
 			</File>
 			<File
 				RelativePath=".\dock_info.h"
+				>
+			</File>
+			<File
+				RelativePath=".\dock_info_win.cc"
 				>
 			</File>
 			<File
