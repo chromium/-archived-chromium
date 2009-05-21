@@ -14,7 +14,6 @@
 #include "chrome/browser/tab_contents/page_navigator.h"
 #include "chrome/browser/views/event_utils.h"
 #include "chrome/common/page_transition_types.h"
-#include "grit/app_resources.h"
 #include "grit/generated_resources.h"
 #include "grit/theme_resources.h"
 

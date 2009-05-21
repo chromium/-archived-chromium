@@ -14,7 +14,6 @@
 #include "chrome/browser/theme_resources_util.h"
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
-#include "grit/app_resources.h"
 #include "grit/theme_resources.h"
 #include "net/base/file_stream.h"
 #include "net/base/net_errors.h"

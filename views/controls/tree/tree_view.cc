@@ -15,7 +15,7 @@
 #include "app/resource_bundle.h"
 #include "base/stl_util-inl.h"
 #include "base/win_util.h"
-#include "grit/app_resources.h"
+#include "grit/theme_resources.h"
 #include "views/focus/focus_manager.h"
 #include "views/widget/widget.h"
 

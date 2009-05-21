@@ -13,7 +13,7 @@
 #include "app/win_util.h"
 #include "base/win_util.h"
 #endif
-#include "grit/app_resources.h"
+#include "grit/theme_resources.h"
 #include "views/window/client_view.h"
 #if defined(OS_LINUX)
 #include "views/window/hit_test.h"

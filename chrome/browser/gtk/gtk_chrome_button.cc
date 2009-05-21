@@ -7,7 +7,7 @@
 #include "base/basictypes.h"
 #include "chrome/browser/gtk/nine_box.h"
 
-#include "grit/app_resources.h"
+#include "grit/theme_resources.h"
 
 namespace {
 

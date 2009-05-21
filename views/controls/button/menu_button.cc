@@ -10,7 +10,7 @@
 #include "app/resource_bundle.h"
 #include "app/win_util.h"
 #include "grit/app_strings.h"
-#include "grit/app_resources.h"
+#include "grit/theme_resources.h"
 #include "views/controls/button/button.h"
 #include "views/controls/menu/view_menu_delegate.h"
 #include "views/event.h"

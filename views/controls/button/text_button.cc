@@ -10,7 +10,7 @@
 #include "app/resource_bundle.h"
 #include "views/controls/button/button.h"
 #include "views/event.h"
-#include "grit/app_resources.h"
+#include "grit/theme_resources.h"
 
 namespace views {
 

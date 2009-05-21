@@ -10,7 +10,6 @@
 #include "chrome/browser/browser_theme_provider.h"
 #include "chrome/browser/views/frame/browser_view.h"
 #include "chrome/browser/views/tabs/tab_strip.h"
-#include "grit/app_resources.h"
 #include "grit/theme_resources.h"
 #include "views/window/client_view.h"
 #include "views/window/window_resources.h"
