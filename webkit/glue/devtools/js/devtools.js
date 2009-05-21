@@ -895,5 +895,5 @@ WebInspector.ProfileDataGridNode.prototype._populate = function(event) {
  */
 WebInspector.UIString = function(string)
 {
-  return string;
+  return String.vsprintf(string, Array.prototype.slice.call(arguments, 1));
 }
