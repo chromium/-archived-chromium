@@ -42,6 +42,8 @@ class DownloadItemGtk : public DownloadItem::Observer,
   void OnLoadIconComplete(IconManager::Handle handle, SkBitmap* icon_bitmap);
 
  private:
+  friend class DownloadShelfContextMenuGtk;
+
   // Functions for controlling the progress animation.
   // Repaint the download progress.
   void UpdateDownloadProgress();
@@ -102,6 +104,10 @@ class DownloadItemGtk : public DownloadItem::Observer,
 
   // The widget that creates a dropdown menu when pressed.
   GtkWidget* menu_button_;
+
+  // Whether the menu is currently showing for |menu_button_|. Affects how we
+  // draw the button.
+  bool menu_showing_;
 
   // The widget that contains the animation progress and the file's icon
   // (as well as the complete animation).

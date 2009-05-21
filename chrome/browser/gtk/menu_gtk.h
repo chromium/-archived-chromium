@@ -30,6 +30,11 @@ class MenuGtk {
     // Executes the command.
     virtual void ExecuteCommand(int command_id) = 0;
 
+    // Called when the menu stops showing. This will be called along with
+    // ExecuteCommand if the user clicks an item, but will also be called when
+    // the user clicks away from the menu.
+    virtual void StoppedShowing() { };
+
     // Functions needed for creation of non-static menus.
     virtual int GetItemCount() const { return 0; }
     virtual bool IsItemSeparator(int command_id) const { return false; }
@@ -46,6 +51,9 @@ class MenuGtk {
   // menu using |delegate| if |load| is true.
   MenuGtk(MenuGtk::Delegate* delegate, bool load);
   ~MenuGtk();
+
+  // Initialize GTK signal handlers.
+  void ConnectSignalHandlers();
 
   // These methods are used to build the menu dynamically.
   void AppendMenuItemWithLabel(int command_id, const std::string& label);
@@ -70,11 +78,6 @@ class MenuGtk {
   // Closes the menu.
   void Cancel();
 
-  // Sets an icon for an item with a given item_id. This method searches both
-  // this MenuGtk object and all child submenus. Returns false if the item with
-  // |item_id| is not found.
-  bool SetIcon(const SkBitmap& icon, int item_id);
-
   // Change windows accelerator style to GTK style. (GTK uses _ for
   // accelerators.  Windows uses & with && as an escape for &.)
   static std::string ConvertAcceleratorsFromWindowsStyle(
@@ -91,6 +94,7 @@ class MenuGtk {
                                int* y,
                                gboolean* push_in,
                                void* void_widget);
+
  private:
   // A recursive function that transforms a MenuCreateMaterial tree into a set
   // of GtkMenuItems.
@@ -120,6 +124,9 @@ class MenuGtk {
 
   // Sets the check mark and enabled/disabled state on our menu items.
   static void SetMenuItemInfo(GtkWidget* widget, void* raw_menu);
+
+  // Sets the activating widget back to a normal appearance.
+  static void OnMenuHidden(GtkWidget* widget, MenuGtk* menu);
 
   // Queries this object about the menu state.
   MenuGtk::Delegate* delegate_;

@@ -17,6 +17,7 @@ MenuGtk::MenuGtk(MenuGtk::Delegate* delegate,
     : delegate_(delegate),
       dummy_accel_group_(gtk_accel_group_new()),
       menu_(gtk_menu_new()) {
+  ConnectSignalHandlers();
   BuildMenuIn(menu_.get(), menu_data, accel_group);
 }
 
@@ -24,6 +25,7 @@ MenuGtk::MenuGtk(MenuGtk::Delegate* delegate, bool load)
     : delegate_(delegate),
       dummy_accel_group_(NULL),
       menu_(gtk_menu_new()) {
+  ConnectSignalHandlers();
   if (load)
     BuildMenuFromDelegate();
 }
@@ -32,6 +34,10 @@ MenuGtk::~MenuGtk() {
   menu_.Destroy();
   if (dummy_accel_group_)
     g_object_unref(dummy_accel_group_);
+}
+
+void MenuGtk::ConnectSignalHandlers() {
+  g_signal_connect(menu_.get(), "hide", G_CALLBACK(OnMenuHidden), this);
 }
 
 void MenuGtk::AppendMenuItemWithLabel(int command_id,
@@ -265,8 +271,11 @@ void MenuGtk::MenuPositionFunc(GtkMenu* menu,
   gdk_screen_get_monitor_geometry(screen, monitor,
                                   &screen_rect);
 
-  *x += widget->allocation.x;
-  *y += widget->allocation.y + widget->allocation.height;
+  if (GTK_WIDGET_NO_WINDOW(widget)) {
+    *x += widget->allocation.x;
+    *y += widget->allocation.y;
+  }
+  *y += widget->allocation.height;
 
   // g_object_get_data() returns NULL if no such object is found. |left_align|
   // acts as a boolean, but we can't actually cast it to bool because gcc
@@ -278,6 +287,11 @@ void MenuGtk::MenuPositionFunc(GtkMenu* menu,
     *y -= menu_req.height;
 
   *push_in = FALSE;
+}
+
+// static
+void MenuGtk::OnMenuHidden(GtkWidget* widget, MenuGtk* menu) {
+  menu->delegate_->StoppedShowing();
 }
 
 // static

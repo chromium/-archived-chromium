@@ -60,8 +60,10 @@ class DownloadShelfContextMenuGtk : public DownloadShelfContextMenu,
   // |model| is the download item model associated with this context menu,
   // |widget| is the button that popped up this context menu, and |e| is
   // the button press event that caused this menu to be created.
-  DownloadShelfContextMenuGtk(BaseDownloadItemModel* model)
+  DownloadShelfContextMenuGtk(BaseDownloadItemModel* model,
+                              DownloadItemGtk* download_item)
       : DownloadShelfContextMenu(model),
+        download_item_(download_item),
         menu_is_for_complete_download_(false) {
   }
 
@@ -94,6 +96,11 @@ class DownloadShelfContextMenuGtk : public DownloadShelfContextMenu,
     return ExecuteItemCommand(id);
   }
 
+  virtual void StoppedShowing() {
+    download_item_->menu_showing_ = false;
+    gtk_widget_queue_draw(download_item_->menu_button_);
+  }
+
  private:
   // The menu we show on Popup(). We keep a pointer to it for a couple reasons:
   //  * we don't want to have to recreate the menu every time it's popped up.
@@ -101,6 +108,9 @@ class DownloadShelfContextMenuGtk : public DownloadShelfContextMenu,
   //    completing the user-selected action races against the menu's
   //    destruction.
   scoped_ptr<MenuGtk> menu_;
+
+  // The download item that created us.
+  DownloadItemGtk* download_item_;
 
   // If true, the MenuGtk in |menu_| refers to a finished download menu.
   bool menu_is_for_complete_download_;
@@ -148,6 +158,7 @@ NineBox* DownloadItemGtk::menu_nine_box_active_ = NULL;
 DownloadItemGtk::DownloadItemGtk(DownloadShelfGtk* parent_shelf,
                                  BaseDownloadItemModel* download_model)
     : parent_shelf_(parent_shelf),
+      menu_showing_(false),
       progress_angle_(download_util::kStartAngleDegrees),
       download_model_(download_model),
       bounding_widget_(parent_shelf->GetRightBoundingWidget()),
@@ -412,6 +423,12 @@ gboolean DownloadItemGtk::OnExpose(GtkWidget* widget, GdkEventExpose* e,
   else
     nine_box = is_body ? body_nine_box_normal_ : menu_nine_box_normal_;
 
+  // When the button is showing, we want to draw it as active. We have to do
+  // this explicitly because the button's state will be NORMAL while the menu
+  // has focus.
+  if (!is_body && download_item->menu_showing_)
+    nine_box = menu_nine_box_active_;
+
   nine_box->RenderToWidget(widget);
 
   GtkWidget* child = gtk_bin_get_child(GTK_BIN(widget));
@@ -470,9 +487,11 @@ gboolean DownloadItemGtk::OnMenuButtonPressEvent(GtkWidget* button,
     if (event_button->button == 1) {
       if (item->menu_.get() == NULL) {
         item->menu_.reset(new DownloadShelfContextMenuGtk(
-            item->download_model_.get()));
+                          item->download_model_.get(), item));
       }
       item->menu_->Popup(button, event);
+      item->menu_showing_ = true;
+      gtk_widget_queue_draw(button);
     }
   }
 
