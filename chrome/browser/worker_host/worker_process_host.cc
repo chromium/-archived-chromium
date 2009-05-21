@@ -172,6 +172,7 @@ void WorkerProcessHost::OnMessageReceived(const IPC::Message& message) {
 void WorkerProcessHost::SenderShutdown(IPC::Message::Sender* sender) {
   for (Instances::iterator i = instances_.begin(); i != instances_.end();) {
     if (i->sender == sender) {
+      Send(new WorkerMsg_TerminateWorkerContext(i->worker_route_id));
       i = instances_.erase(i);
     } else {
       ++i;

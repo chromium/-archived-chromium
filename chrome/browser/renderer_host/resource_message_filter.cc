@@ -193,6 +193,13 @@ void ResourceMessageFilter::OnChannelConnected(int32 peer_pid) {
       resource_dispatcher_host_, ui_loop());
 }
 
+void ResourceMessageFilter::OnChannelError() {
+  NotificationService::current()->Notify(
+      NotificationType::RESOURCE_MESSAGE_FILTER_SHUTDOWN,
+      Source<ResourceMessageFilter>(this),
+      NotificationService::NoDetails());
+}
+
 // Called on the IPC thread:
 void ResourceMessageFilter::OnChannelClosing() {
   channel_ = NULL;

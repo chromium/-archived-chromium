@@ -77,6 +77,7 @@ class ResourceMessageFilter : public IPC::ChannelProxy::MessageFilter,
   // IPC::ChannelProxy::MessageFilter methods:
   virtual void OnFilterAdded(IPC::Channel* channel);
   virtual void OnChannelConnected(int32 peer_pid);
+  virtual void OnChannelError();
   virtual void OnChannelClosing();
   virtual bool OnMessageReceived(const IPC::Message& message);
 

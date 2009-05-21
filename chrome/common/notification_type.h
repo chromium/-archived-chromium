@@ -170,7 +170,9 @@ class NotificationType {
     SSL_INTERNAL_STATE_CHANGED,
 
     // Lets resource handlers and other interested observers know when the
-    // message filter is being deleted and can no longer be used.
+    // message filter is being deleted and can no longer be used.  This will
+    // also get sent if the renderer crashes (and in that case, it'll be sent
+    // twice).
     RESOURCE_MESSAGE_FILTER_SHUTDOWN,
 
     // Views -------------------------------------------------------------------
