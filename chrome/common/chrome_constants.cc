@@ -19,7 +19,7 @@ const wchar_t kBrowserProcessExecutableName[] = L"chrome";
 #elif defined(OS_MACOSX)
 const wchar_t kBrowserProcessExecutableName[] =
 #if defined(GOOGLE_CHROME_BUILD)
-    L"Chrome";
+    L"Google Chrome";
 #else
     L"Chromium";
 #endif  // GOOGLE_CHROME_BUILD
