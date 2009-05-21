@@ -129,7 +129,7 @@ WebKeyboardEvent WebInputEventFactory::keyboardEvent(HWND hwnd, UINT message,
     if (GetKeyState(VK_CONTROL) & 0x8000)
         result.modifiers |= WebInputEvent::ControlKey;
     if (GetKeyState(VK_MENU) & 0x8000)
-        result.modifiers |= (WebInputEvent::AltKey | WebInputEvent::MetaKey);
+        result.modifiers |= WebInputEvent::AltKey;
 
     if (LOWORD(lparam) > 1)
         result.modifiers |= WebInputEvent::IsAutoRepeat;
@@ -271,7 +271,7 @@ WebMouseEvent WebInputEventFactory::mouseEvent(HWND hwnd, UINT message,
     if (wparam & MK_SHIFT)
         result.modifiers |= WebInputEvent::ShiftKey;
     if (GetKeyState(VK_MENU) & 0x8000)
-        result.modifiers |= (WebInputEvent::AltKey | WebInputEvent::MetaKey);  // FIXME: set META properly
+        result.modifiers |= WebInputEvent::AltKey;
 
     return result;
 }
@@ -353,7 +353,7 @@ WebMouseWheelEvent WebInputEventFactory::mouseWheelEvent(HWND hwnd, UINT message
     if (keyState & MK_CONTROL)
         result.modifiers |= WebInputEvent::ControlKey;
     if (getKeyState(VK_MENU) & 0x8000)
-        result.modifiers |= (WebInputEvent::AltKey | WebInputEvent::MetaKey);
+        result.modifiers |= WebInputEvent::AltKey;
 
     // Set coordinates by translating event coordinates from screen to client.
     POINT clientPoint = { result.globalX, result.globalY };
