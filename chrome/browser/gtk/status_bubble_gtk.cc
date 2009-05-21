@@ -7,6 +7,7 @@
 #include <gtk/gtk.h>
 
 #include "base/gfx/gtk_util.h"
+#include "base/message_loop.h"
 #include "base/string_util.h"
 #include "chrome/browser/gtk/slide_animator_gtk.h"
 #include "chrome/common/gtk_util.h"
@@ -24,10 +25,14 @@ const int kInternalLeftRightPadding = 2;
 // Border of color kFrameBorderColor around the status bubble.
 const int kBorderPadding = 1;
 
+// Milliseconds before we hide the status bubble widget when you mouseout.
+static const int kHideDelay = 250;
+
 }  // namespace
 
 StatusBubbleGtk::StatusBubbleGtk()
-    : parent_(NULL) {
+    : parent_(NULL),
+      timer_factory_(this) {
   InitWidgets();
 }
 
@@ -37,7 +42,7 @@ StatusBubbleGtk::~StatusBubbleGtk() {
 
 void StatusBubbleGtk::SetStatus(const std::string& status) {
   if (status.empty()) {
-    Hide();
+    HideInASecond();
     return;
   }
 
@@ -62,6 +67,9 @@ void StatusBubbleGtk::SetURL(const GURL& url, const std::wstring& languages) {
 }
 
 void StatusBubbleGtk::Show() {
+  // If we were going to hide, stop.
+  timer_factory_.RevokeAll();
+
   SetStatusBubbleSize();
   gtk_widget_show_all(container_.get());
 
@@ -71,6 +79,15 @@ void StatusBubbleGtk::Show() {
 
 void StatusBubbleGtk::Hide() {
   gtk_widget_hide_all(container_.get());
+}
+
+void StatusBubbleGtk::HideInASecond() {
+  if (!timer_factory_.empty())
+    timer_factory_.RevokeAll();
+
+  MessageLoop::current()->PostDelayedTask(FROM_HERE,
+      timer_factory_.NewRunnableMethod(&StatusBubbleGtk::Hide),
+      kHideDelay);
 }
 
 void StatusBubbleGtk::SetStatusBubbleSize() {

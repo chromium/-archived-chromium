@@ -10,6 +10,7 @@
 #include <string>
 
 #include "base/scoped_ptr.h"
+#include "base/task.h"
 #include "chrome/browser/status_bubble.h"
 #include "chrome/common/owned_widget_gtk.h"
 
@@ -47,6 +48,9 @@ class StatusBubbleGtk : public StatusBubble {
   // and makes sure that the status bubble has the highest z-order.
   void Show();
 
+  // Sets an internal timer to hide the status bubble after a delay.
+  void HideInASecond();
+
   // Builds the widgets, containers, etc.
   void InitWidgets();
 
@@ -68,6 +72,9 @@ class StatusBubbleGtk : public StatusBubble {
   // |parent_|'s GtkAllocation. We make sure that |container_| lives along the
   // bottom of this and doesn't protrude.
   GtkAllocation parent_allocation_;
+
+  // A timer that hides our window after a delay.
+  ScopedRunnableMethodFactory<StatusBubbleGtk> timer_factory_;
 };
 
 #endif  // CHROME_BROWSER_GTK_STATUS_BUBBLE_GTK_H_
