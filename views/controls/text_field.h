@@ -22,6 +22,33 @@ class HWNDView;
 // This class implements a ChromeView that wraps a native text (edit) field.
 class TextField : public View {
  public:
+  // Keystroke provides a platform-dependent way to send keystroke events.
+  // Cross-platform code can use IsKeystrokeEnter/Escape to check for these
+  // two common key events.
+  // TODO(brettw) this should be cleaned up to be more cross-platform.
+#if defined(OS_WIN)
+  struct Keystroke {
+    Keystroke(unsigned int m,
+              wchar_t k,
+              int r,
+              unsigned int f)
+        : message(m),
+          key(k),
+          repeat_count(r),
+          flags(f) {
+    }
+
+    unsigned int message;
+    wchar_t key;
+    int repeat_count;
+    unsigned int flags;
+  };
+#else
+  struct Keystroke {
+    // TODO(brettw) figure out what this should be on GTK.
+  };
+#endif
+
   // This defines the callback interface for other code to be notified of
   // changes in the state of a text field.
   class Controller {
@@ -34,8 +61,7 @@ class TextField : public View {
     // This method returns true if the message was handled and should not be
     // processed further. If it returns false the processing continues.
     virtual bool HandleKeystroke(TextField* sender,
-                                 UINT message, TCHAR key, UINT repeat_count,
-                                 UINT flags) = 0;
+                                 const TextField::Keystroke& keystroke) = 0;
   };
 
   enum StyleFlags {
@@ -146,6 +172,15 @@ class TextField : public View {
   // Disable the edit control.
   // NOTE: this does NOT change the read only property.
   void SetEnabled(bool enabled);
+
+  // Provides a cross-platform way of checking whether a keystroke is one of
+  // these common keys. Most code only checks keystrokes against these two keys,
+  // so the caller can be cross-platform by implementing the platform-specific
+  // parts in here.
+  // TODO(brettw) we should use a more cross-platform representation of
+  // keyboard events so these are not necessary.
+  static bool IsKeystrokeEnter(const Keystroke& key);
+  static bool IsKeystrokeEscape(const Keystroke& key);
 
  private:
   class Edit;

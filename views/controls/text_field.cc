@@ -366,6 +366,16 @@ void TextField::Edit::SetEnabled(bool enabled) {
               static_cast<WPARAM>(enabled), 0);
 }
 
+// static
+bool TextField::IsKeystrokeEnter(const Keystroke& key) {
+  return key.key == VK_RETURN;
+}
+
+// static
+bool TextField::IsKeystrokeEscape(const Keystroke& key) {
+  return key.key == VK_ESCAPE;
+}
+
 void TextField::Edit::SetBackgroundColor(COLORREF bg_color) {
   CRichEditCtrl::SetBackgroundColor(bg_color);
   bg_color_ = bg_color;
@@ -811,8 +821,8 @@ void TextField::Edit::HandleKeystroke(UINT message,
   TextField::Controller* controller = parent_->GetController();
   bool handled = false;
   if (controller) {
-    handled =
-        controller->HandleKeystroke(parent_, message, key, repeat_count, flags);
+    handled = controller->HandleKeystroke(parent_,
+        TextField::Keystroke(message, key, repeat_count, flags));
   }
 
   if (!handled) {
