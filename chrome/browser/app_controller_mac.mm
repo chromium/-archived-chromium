@@ -60,6 +60,26 @@
   [self initMenuState];
 }
 
+// If the auto-update interval is not set, make it 5 hours.
+// This code is specific to Mac Chrome Dev Channel.
+// Placed here for 2 reasons:
+// 1) Same spot as other Pref stuff
+// 2) Try and be friendly by keeping this after app launch
+// TODO(jrg): remove once we go Beta.
+- (void)setUpdateCheckInterval {
+#if defined(GOOGLE_CHROME_BUILD)
+  CFStringRef app = (CFStringRef)@"com.google.Keystone.Agent";
+  CFStringRef checkInterval = (CFStringRef)@"checkInterval";
+  CFPropertyListRef plist = CFPreferencesCopyAppValue(checkInterval, app);
+  if (!plist) {
+    const float fiveHoursInSeconds = 5.0 * 60.0 * 60.0;
+    NSNumber *value = [NSNumber numberWithFloat:fiveHoursInSeconds];
+    CFPreferencesSetAppValue(checkInterval, value, app);
+    CFPreferencesAppSynchronize(app);
+  }
+#endif
+}
+
 // This is called after profiles have been loaded and preferences registered.
 // It is safe to access the default profile here.
 - (void)applicationDidFinishLaunching:(NSNotification*)notify {
@@ -83,6 +103,7 @@
   // Register any Mac-specific preferences.
   PrefService* prefs = [self defaultProfile]->GetPrefs();
   prefs->RegisterBooleanPref(prefs::kShowPageOptionsButtons, false);
+  [self setUpdateCheckInterval];
 
   // Build up the encoding menu, the order of the items differs based on the
   // current locale (see http://crbug.com/7647 for details).
