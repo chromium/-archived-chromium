@@ -265,6 +265,11 @@ gboolean OnButtonPressEvent(GtkWidget* widget, GdkEventButton* event,
   return FALSE;
 }
 
+gboolean OnFocusIn(GtkWidget* widget, GdkEventFocus* event, Browser* browser) {
+  BrowserList::SetLastActive(browser);
+  return FALSE;
+}
+
 }  // namespace
 
 // TODO(estade): Break up this constructor into helper functions to improve
@@ -290,6 +295,8 @@ BrowserWindowGtk::BrowserWindowGtk(Browser* browser)
                    G_CALLBACK(OnKeyPress), browser_.get());
   g_signal_connect(window_, "button-press-event",
                    G_CALLBACK(OnButtonPressEvent), browser_.get());
+  g_signal_connect(window_, "focus-in-event",
+                   G_CALLBACK(OnFocusIn), browser_.get());
   ConnectAccelerators();
   bounds_ = GetInitialWindowBounds(window_);
 
