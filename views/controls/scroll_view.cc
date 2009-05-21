@@ -6,7 +6,6 @@
 
 #include "app/resource_bundle.h"
 #include "base/logging.h"
-#include "grit/theme_resources.h"
 #include "views/controls/scrollbar/native_scroll_bar.h"
 #include "views/widget/root_view.h"
 
