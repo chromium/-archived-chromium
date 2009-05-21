@@ -78,6 +78,10 @@ const float kAnimationIntervalSeconds = 0.03;  // 30ms, same as windows
   [super dealloc];
 }
 
+- (BOOL)isOpaque {
+  return YES;
+}
+
 - (void)removeFromSuperview {
   [timer_ invalidate];
   timer_ = nil;
@@ -94,6 +98,7 @@ const float kAnimationIntervalSeconds = 0.03;  // 30ms, same as windows
 
 // Overridden to draw the appropriate frame in the image strip.
 - (void)drawRect:(NSRect)rect {
+#if 0
   float imageDimension = [image_ extent].size.height;
   float xOffset = animationFrame_ * imageDimension;
   NSRect sourceImageRect =
@@ -102,6 +107,7 @@ const float kAnimationIntervalSeconds = 0.03;  // 30ms, same as windows
              fromRect:sourceImageRect
             operation:NSCompositeSourceOver
              fraction:1.0];
+#endif
 }
 
 @end
