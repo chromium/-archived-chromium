@@ -237,7 +237,7 @@ TEST_F(TCPClientSocketTest, Read_Interrupted) {
   EXPECT_NE(0, rv);
 }
 
-TEST_F(TCPClientSocketTest, FullDuplex_ReadFirst) {
+TEST_F(TCPClientSocketTest, DISABLED_FullDuplex_ReadFirst) {
   TestCompletionCallback callback;
   int rv = sock_->Connect(&callback);
   if (rv != OK) {
@@ -279,7 +279,7 @@ TEST_F(TCPClientSocketTest, FullDuplex_ReadFirst) {
   EXPECT_GE(rv, 0);
 }
 
-TEST_F(TCPClientSocketTest, FullDuplex_WriteFirst) {
+TEST_F(TCPClientSocketTest, DISABLED_FullDuplex_WriteFirst) {
   TestCompletionCallback callback;
   int rv = sock_->Connect(&callback);
   if (rv != OK) {
