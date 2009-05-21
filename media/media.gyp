@@ -31,6 +31,9 @@
       'sources': [
         'audio/audio_output.h',
         'audio/linux/audio_manager_linux.cc',
+        'audio/linux/audio_manager_linux.h',
+        'audio/linux/alsa_output.cc',
+        'audio/linux/alsa_output.h',
         'audio/mac/audio_manager_mac.cc',
         'audio/mac/audio_manager_mac.h',
         'audio/mac/audio_output_mac.cc',
@@ -107,6 +110,11 @@
         ['OS =="linux"', {
           'sources/': [ ['exclude', '_(mac|win)\\.cc$'],
                         ['exclude', '\\.mm?$' ] ],
+          'link_settings': {
+            'libraries': [
+              '-lasound',
+            ],
+          },
         }],
         ['OS =="mac"', {
           'link_settings': {

@@ -43,9 +43,11 @@ class AudioOutputStream {
  public:
   enum State {
     STATE_CREATED = 0,  // The output stream is created.
+    STATE_OPENED,       // The output stream is opened.
     STATE_STARTED,      // The output stream is started.
     STATE_PAUSED,       // The output stream is paused.
     STATE_STOPPED,      // The output stream is stopped.
+    STATE_CLOSING,      // The output stream is being closed.
     STATE_CLOSED,       // The output stream is closed.
     STATE_ERROR,        // The output stream is in error state.
   };
@@ -82,6 +84,9 @@ class AudioOutputStream {
   // two buffers of |packet_size| size are created, one will be locked for
   // playback and one will be ready to be filled in the call to
   // AudioSourceCallback::OnMoreData().
+  //
+  // TODO(ajwong): Streams are not reusable, so try to move packet_size into the
+  // constructor.
   virtual bool Open(size_t packet_size) = 0;
 
   // Starts playing audio and generating AudioSourceCallback::OnMoreData().
@@ -89,9 +94,11 @@ class AudioOutputStream {
   // after calling this method initial buffers are fetched. User of this
   // object should prepare |AudioOutputStream::GetNumBuffers()| before calling
   // AudioOutputStream::Start().
+  //
+  // The output stream does not take ownership of this callback.
   virtual void Start(AudioSourceCallback* callback) = 0;
 
-  // Stops playing audio. Effect might no be instantaneous as the hardware
+  // Stops playing audio. Effect might not be instantaneous as the hardware
   // might have locked audio data that is processing.
   virtual void Stop() = 0;
 
