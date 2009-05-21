@@ -632,7 +632,14 @@ void BrowserToolbarView::RunPageMenu(const gfx::Point& pt, HWND hwnd) {
   menu->AppendSeparator();
   views::Menu* developer_menu = menu->AppendSubMenu(IDC_DEVELOPER_MENU,
       l10n_util::GetString(IDS_DEVELOPER_MENU));
+
+  const CommandLine& command_line = *CommandLine::ForCurrentProcess();
+  bool new_tools = !command_line.HasSwitch(
+      switches::kDisableOutOfProcessDevTools);
+
   for (int i = 0; i < arraysize(developer_menu_materials); ++i) {
+    if (new_tools && developer_menu_materials[i].menu_id == IDC_DEBUGGER)
+      continue;
     if (developer_menu_materials[i].menu_id) {
       developer_menu->AppendMenuItemWithLabel(
           developer_menu_materials[i].menu_id,
