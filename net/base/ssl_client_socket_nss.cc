@@ -64,6 +64,7 @@ int NetErrorFromNSPRError(PRErrorCode err) {
     case SEC_ERROR_REVOKED_CERTIFICATE:
     case SEC_ERROR_REVOKED_KEY:
       return ERR_CERT_REVOKED;
+    case SEC_ERROR_CA_CERT_INVALID:
     case SEC_ERROR_UNKNOWN_ISSUER:
     case SEC_ERROR_UNTRUSTED_CERT:
     case SEC_ERROR_UNTRUSTED_ISSUER:
@@ -141,7 +142,7 @@ int SSLClientSocketNSS::Init() {
 class ConnectCallbackWrapper :
       public CompletionCallbackImpl<ConnectCallbackWrapper> {
  public:
-  ConnectCallbackWrapper(CompletionCallback* user_callback)
+  explicit ConnectCallbackWrapper(CompletionCallback* user_callback)
       : ALLOW_THIS_IN_INITIALIZER_LIST(
           CompletionCallbackImpl<ConnectCallbackWrapper>(this,
                                  &ConnectCallbackWrapper::ReturnValueWrapper)),
