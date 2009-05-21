@@ -36,6 +36,15 @@ struct _GtkChromeButtonClass {
 
 GtkWidget* gtk_chrome_button_new();
 
+GType gtk_chrome_button_get_type();
+
+// Set the paint state to |state|. This overrides the widget's current state.
+void gtk_chrome_button_set_paint_state(GtkChromeButton* button,
+                                       GtkStateType state);
+
+// Revert to using the widget's current state for painting.
+void gtk_chrome_button_unset_paint_state(GtkChromeButton* button);
+
 G_END_DECLS
 
 #endif  // CHROME_BROWSER_GTK_GTK_CHROME_BUTTON_H_

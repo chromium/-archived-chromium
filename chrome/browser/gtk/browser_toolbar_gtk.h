@@ -58,6 +58,7 @@ class BrowserToolbarGtk : public CommandUpdater::CommandObserver,
   virtual bool IsCommandEnabled(int command_id) const;
   virtual bool IsItemChecked(int id) const;
   virtual void ExecuteCommand(int command_id);
+  virtual void StoppedShowing();
 
   // NotificationObserver implementation.
   void Observe(NotificationType type,

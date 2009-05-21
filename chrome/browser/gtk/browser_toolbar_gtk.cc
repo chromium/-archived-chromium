@@ -52,6 +52,8 @@ const int kMenuTimerDelay = 500;
 
 }  // namespace
 
+// BrowserToolbarGtk, public ---------------------------------------------------
+
 BrowserToolbarGtk::BrowserToolbarGtk(Browser* browser)
     : toolbar_(NULL),
       location_bar_(new LocationBarViewGtk(browser->command_updater(),
@@ -179,6 +181,8 @@ LocationBar* BrowserToolbarGtk::GetLocationBar() const {
   return location_bar_.get();
 }
 
+// CommandUpdater::CommandObserver ---------------------------------------------
+
 void BrowserToolbarGtk::EnabledStateChangedForCommand(int id, bool enabled) {
   GtkWidget* widget = NULL;
   switch (id) {
@@ -206,6 +210,8 @@ void BrowserToolbarGtk::EnabledStateChangedForCommand(int id, bool enabled) {
     gtk_widget_set_sensitive(widget, enabled);
 }
 
+// MenuGtk::Delegate -----------------------------------------------------------
+
 bool BrowserToolbarGtk::IsCommandEnabled(int command_id) const {
   return browser_->command_updater()->IsCommandEnabled(command_id);
 }
@@ -223,6 +229,15 @@ void BrowserToolbarGtk::ExecuteCommand(int id) {
   browser_->ExecuteCommand(id);
 }
 
+void BrowserToolbarGtk::StoppedShowing() {
+  gtk_chrome_button_unset_paint_state(
+      GTK_CHROME_BUTTON(page_menu_button_.get()));
+  gtk_chrome_button_unset_paint_state(
+      GTK_CHROME_BUTTON(app_menu_button_.get()));
+}
+
+// NotificationObserver --------------------------------------------------------
+
 void BrowserToolbarGtk::Observe(NotificationType type,
                                 const NotificationSource& source,
                                 const NotificationDetails& details) {
@@ -234,6 +249,8 @@ void BrowserToolbarGtk::Observe(NotificationType type,
     }
   }
 }
+
+// BrowserToolbarGtk, public ---------------------------------------------------
 
 void BrowserToolbarGtk::SetProfile(Profile* profile) {
   if (profile == profile_)
@@ -266,6 +283,8 @@ gfx::Rect BrowserToolbarGtk::GetPopupBounds() const {
   return gfx::Rect(star_x + kPopupLeftRightMargin, star_y + kPopupTopMargin,
                    go_x - star_x - (2 * kPopupLeftRightMargin), 0);
 }
+
+// BrowserToolbarGtk, private --------------------------------------------------
 
 CustomDrawButton* BrowserToolbarGtk::BuildToolbarButton(
     int normal_id, int active_id, int highlight_id, int depressed_id,
@@ -360,18 +379,20 @@ void BrowserToolbarGtk::OnButtonClick(GtkWidget* button,
 gboolean BrowserToolbarGtk::OnMenuButtonPressEvent(GtkWidget* button,
                                                    GdkEvent* event,
                                                    BrowserToolbarGtk* toolbar) {
-  // TODO(port): this never puts the button into the "active" state,
-  // which means we never display the button-pressed-down graphics.  I
-  // suspect a better way to do it is just to use a real GtkMenuShell
-  // with our custom drawing.
   if (event->type == GDK_BUTTON_PRESS) {
     GdkEventButton* event_button = reinterpret_cast<GdkEventButton*>(event);
     if (event_button->button == 1) {
       // We have a button press we should respond to.
       if (button == toolbar->page_menu_button_.get()) {
+        gtk_chrome_button_set_paint_state(
+            GTK_CHROME_BUTTON(toolbar->page_menu_button_.get()),
+            GTK_STATE_ACTIVE);
         toolbar->RunPageMenu(event);
         return TRUE;
       } else if (button == toolbar->app_menu_button_.get()) {
+        gtk_chrome_button_set_paint_state(
+            GTK_CHROME_BUTTON(toolbar->app_menu_button_.get()),
+            GTK_STATE_ACTIVE);
         toolbar->RunAppMenu(event);
         return TRUE;
       }
