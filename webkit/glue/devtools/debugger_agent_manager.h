@@ -6,6 +6,7 @@
 #define WEBKIT_GLUE_DEVTOOLS_DEBUGGER_AGENT_MANAGER_H_
 
 #include <wtf/HashMap.h>
+#include <wtf/HashSet.h>
 
 #include "base/basictypes.h"
 #include "v8/include/v8-debug.h"
@@ -61,10 +62,11 @@ class DebuggerAgentManager {
   static void SendContinueCommandToV8();
 
   static DebuggerAgentImpl* FindAgentForCurrentV8Context();
-  static DebuggerAgentImpl* DebuggerAgentForHostId(int host_id);
+  static DebuggerAgentImpl* FindDebuggerAgentForToolsAgent(
+      int caller_id);
 
-  typedef HashMap<int, DebuggerAgentImpl*> AttachedAgentsMap;
-  static AttachedAgentsMap* attached_agents_map_;
+  typedef HashSet<DebuggerAgentImpl*> AttachedAgentsSet;
+  static AttachedAgentsSet* attached_agents_;
 
   static WebDevToolsAgent::MessageLoopDispatchHandler
       message_loop_dispatch_handler_;
