@@ -18,29 +18,24 @@ static void CreateBackgroundHosts(
   for (ExtensionList::const_iterator extension = extensions->begin();
        extension != extensions->end(); ++extension) {
     // Start the process for the master page, if it exists.
-    if ((*extension)->background_url().is_valid()) {
+    if ((*extension)->background_url().is_valid())
       manager->CreateBackgroundHost(*extension, (*extension)->background_url());
-    }
   }
 }
 
 ExtensionProcessManager::ExtensionProcessManager(Profile* profile)
     : browsing_instance_(new BrowsingInstance(profile)) {
-  // TODO: register notification, and load any hosts for existing exts.
-  NotificationService::current()->AddObserver(this,
-      NotificationType::EXTENSIONS_LOADED,
-      NotificationService::AllSources());
+  registrar_.Add(this, NotificationType::EXTENSIONS_LOADED,
+                 NotificationService::AllSources());
 
-  if (profile->GetExtensionsService()) {
+  if (profile->GetExtensionsService())
     CreateBackgroundHosts(this, profile->GetExtensionsService()->extensions());
-  }
 }
 
 ExtensionProcessManager::~ExtensionProcessManager() {
   for (ExtensionHostList::iterator iter = background_hosts_.begin();
-      iter != background_hosts_.end(); ++iter) {
+      iter != background_hosts_.end(); ++iter)
     delete *iter;
-  }
 }
 
 ExtensionView* ExtensionProcessManager::CreateView(Extension* extension,

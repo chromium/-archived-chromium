@@ -74,14 +74,10 @@ void ExtensionMessageService::Init() {
 
   ui_loop_ = MessageLoop::current();
 
-  // Note: we never stop observing because we live longer than
-  // NotificationService.
-  NotificationService::current()->AddObserver(this,
-      NotificationType::RENDERER_PROCESS_TERMINATED,
-      NotificationService::AllSources());
-  NotificationService::current()->AddObserver(this,
-      NotificationType::RENDERER_PROCESS_CLOSED,
-      NotificationService::AllSources());
+  registrar_.Add(this, NotificationType::RENDERER_PROCESS_TERMINATED,
+                 NotificationService::AllSources());
+  registrar_.Add(this, NotificationType::RENDERER_PROCESS_CLOSED,
+                 NotificationService::AllSources());
 }
 
 void ExtensionMessageService::RegisterExtension(

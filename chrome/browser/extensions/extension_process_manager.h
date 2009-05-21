@@ -8,7 +8,7 @@
 #include <list>
 
 #include "base/ref_counted.h"
-#include "chrome/common/notification_observer.h"
+#include "chrome/common/notification_registrar.h"
 
 class Browser;
 class BrowsingInstance;
@@ -45,8 +45,11 @@ class ExtensionProcessManager : public NotificationObserver {
                        const NotificationDetails& details);
 
  private:
-  // The list of running viewless background extensions.
   typedef std::list<ExtensionHost*> ExtensionHostList;
+
+  NotificationRegistrar registrar_;
+
+  // The list of running viewless background extensions.
   ExtensionHostList background_hosts_;
 
   // The BrowsingInstance shared by all extensions in this profile.  This

@@ -11,6 +11,7 @@
 #include "base/message_loop.h"
 #include "base/path_service.h"
 #include "base/string_util.h"
+#include "chrome/common/notification_registrar.h"
 #include "chrome/common/notification_service.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
@@ -36,18 +37,11 @@ class UserScriptMasterTest : public testing::Test,
     file_util::CreateDirectory(script_dir_);
 
     // Register for all user script notifications.
-    NotificationService::current()->AddObserver(
-        this,
-        NotificationType::USER_SCRIPTS_LOADED,
-        NotificationService::AllSources());
+    registrar_.Add(this, NotificationType::USER_SCRIPTS_LOADED,
+                   NotificationService::AllSources());
   }
 
   virtual void TearDown() {
-    NotificationService::current()->RemoveObserver(
-        this,
-        NotificationType::USER_SCRIPTS_LOADED,
-        NotificationService::AllSources());
-
     // Clean up test directory.
     ASSERT_TRUE(file_util::Delete(script_dir_, true));
     ASSERT_FALSE(file_util::PathExists(script_dir_));
@@ -62,6 +56,8 @@ class UserScriptMasterTest : public testing::Test,
     if (MessageLoop::current() == &message_loop_)
       MessageLoop::current()->Quit();
   }
+
+  NotificationRegistrar registrar_;
 
   // MessageLoop used in tests.
   MessageLoop message_loop_;

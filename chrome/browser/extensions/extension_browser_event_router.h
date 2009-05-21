@@ -14,7 +14,7 @@
 #include "chrome/browser/browser_list.h"
 #include "chrome/browser/extensions/extension_tabs_module.h"
 #include "chrome/browser/tabs/tab_strip_model.h"
-#include "chrome/common/notification_observer.h"
+#include "chrome/common/notification_registrar.h"
 
 // The ExtensionBrowserEventRouter listens to Browser window & tab events
 // and routes them to listeners inside extension process renderers.
@@ -68,6 +68,8 @@ class ExtensionBrowserEventRouter : public TabStripModelObserver,
 
   ExtensionBrowserEventRouter();
   friend struct DefaultSingletonTraits<ExtensionBrowserEventRouter>;
+
+  NotificationRegistrar registrar_;
 
   bool initialized_;
 

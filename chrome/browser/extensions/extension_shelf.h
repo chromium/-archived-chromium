@@ -10,7 +10,7 @@
 #include "chrome/browser/extensions/extension_view.h"
 #include "chrome/browser/extensions/extensions_service.h"
 #include "chrome/browser/views/browser_bubble.h"
-#include "chrome/common/notification_observer.h"
+#include "chrome/common/notification_registrar.h"
 #include "views/view.h"
 
 class Browser;
@@ -71,6 +71,8 @@ class ExtensionShelf : public views::View,
 
   // Adjust shelf handle size and position.
   void LayoutShelfHandle();
+
+  NotificationRegistrar registrar_;
 
   // Which browser window this shelf is in.
   Browser* browser_;

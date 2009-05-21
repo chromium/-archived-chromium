@@ -153,9 +153,8 @@ void ExtensionBrowserEventRouter::TabCreatedAt(TabContents* contents,
 
   DispatchEvent(contents->profile(), kOnTabCreated, json_args);
 
-  NotificationService::current()->AddObserver(
-      this, NotificationType::NAV_ENTRY_COMMITTED,
-      Source<NavigationController>(&contents->controller()));
+  registrar_.Add(this, NotificationType::NAV_ENTRY_COMMITTED,
+                 Source<NavigationController>(&contents->controller()));
 }
 
 void ExtensionBrowserEventRouter::TabInsertedAt(TabContents* contents,
@@ -225,9 +224,8 @@ void ExtensionBrowserEventRouter::TabClosingAt(TabContents* contents,
   int removed_count = tab_entries_.erase(tab_id);
   DCHECK(removed_count > 0);
 
-  NotificationService::current()->RemoveObserver(
-      this, NotificationType::NAV_ENTRY_COMMITTED,
-      Source<NavigationController>(&contents->controller()));
+  registrar_.Remove(this, NotificationType::NAV_ENTRY_COMMITTED,
+                    Source<NavigationController>(&contents->controller()));
 }
 
 void ExtensionBrowserEventRouter::TabSelectedAt(TabContents* old_contents,

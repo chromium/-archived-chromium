@@ -146,10 +146,8 @@ ExtensionShelf::ExtensionShelf(Browser* browser)
       current_handle_view_(NULL),
       ALLOW_THIS_IN_INITIALIZER_LIST(timer_factory_(this)) {
   // Watch extensions loaded notification.
-  NotificationService* ns = NotificationService::current();
-  Source<Profile> ns_source(browser->profile()->GetOriginalProfile());
-  ns->AddObserver(this, NotificationType::EXTENSIONS_LOADED,
-                  NotificationService::AllSources());
+  registrar_.Add(this, NotificationType::EXTENSIONS_LOADED,
+                 NotificationService::AllSources());
 
   // Add any already-loaded extensions now, since we missed the notification for
   // those.
@@ -163,9 +161,6 @@ ExtensionShelf::ExtensionShelf(Browser* browser)
 }
 
 ExtensionShelf::~ExtensionShelf() {
-  NotificationService* ns = NotificationService::current();
-  ns->RemoveObserver(this, NotificationType::EXTENSIONS_LOADED,
-                     NotificationService::AllSources());
 }
 
 BrowserBubble* ExtensionShelf::GetHandle() {

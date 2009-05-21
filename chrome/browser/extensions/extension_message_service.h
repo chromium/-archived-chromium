@@ -11,7 +11,7 @@
 
 #include "base/lock.h"
 #include "chrome/browser/renderer_host/render_process_host.h"
-#include "chrome/common/notification_observer.h"
+#include "chrome/common/notification_registrar.h"
 
 class MessageLoop;
 class RenderProcessHost;
@@ -93,6 +93,8 @@ class ExtensionMessageService : public NotificationObserver {
 
   int OpenChannelToExtensionImpl(const std::string& extension_id,
                                  IPC::Message::Sender* source);
+
+  NotificationRegistrar registrar_;
 
   // The UI message loop, used for posting tasks.
   MessageLoop* ui_loop_;
