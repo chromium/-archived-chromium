@@ -59,6 +59,7 @@ class MenuGtk {
   void AppendMenuItemWithLabel(int command_id, const std::string& label);
   void AppendMenuItemWithIcon(int command_id, const std::string& label,
                               const SkBitmap& icon);
+  void AppendCheckMenuItemWithLabel(int command_id, const std::string& label);
   void AppendSeparator();
 
   // Displays the menu. |timestamp| is the time of activation. The popup is

@@ -42,7 +42,7 @@ void MenuGtk::ConnectSignalHandlers() {
 
 void MenuGtk::AppendMenuItemWithLabel(int command_id,
                                       const std::string& label) {
-  GtkWidget* menu_item = gtk_menu_item_new_with_label(label.c_str());
+  GtkWidget* menu_item = gtk_menu_item_new_with_mnemonic(label.c_str());
   AddMenuItemWithId(menu_item, command_id);
 }
 
@@ -50,6 +50,12 @@ void MenuGtk::AppendMenuItemWithIcon(int command_id,
                                      const std::string& label,
                                      const SkBitmap& icon) {
   GtkWidget* menu_item = BuildMenuItemWithImage(label, icon);
+  AddMenuItemWithId(menu_item, command_id);
+}
+
+void MenuGtk::AppendCheckMenuItemWithLabel(int command_id,
+                                           const std::string& label) {
+  GtkWidget* menu_item = gtk_check_menu_item_new_with_mnemonic(label.c_str());
   AddMenuItemWithId(menu_item, command_id);
 }
 
@@ -186,7 +192,7 @@ void MenuGtk::BuildMenuIn(GtkWidget* menu,
 
 GtkWidget* MenuGtk::BuildMenuItemWithImage(const std::string& label,
                                            const SkBitmap& icon) {
-  GtkWidget* menu_item = gtk_image_menu_item_new_with_label(label.c_str());
+  GtkWidget* menu_item = gtk_image_menu_item_new_with_mnemonic(label.c_str());
 
   GdkPixbuf* pixbuf = gfx::GdkPixbufFromSkBitmap(&icon);
   gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(menu_item),

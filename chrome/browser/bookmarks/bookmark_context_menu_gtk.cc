@@ -33,8 +33,7 @@ void BookmarkContextMenu::AppendSeparator() {
 }
 
 void BookmarkContextMenu::AppendCheckboxItem(int id) {
-  // TODO(erg): Add support for checkbox items to gtk.
-  menu_->AppendMenuItemWithLabel(
+  menu_->AppendCheckMenuItemWithLabel(
       id,
       MenuGtk::ConvertAcceleratorsFromWindowsStyle(
           l10n_util::GetStringUTF8(id)));
