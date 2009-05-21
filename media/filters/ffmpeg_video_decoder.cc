@@ -57,6 +57,10 @@ bool FFmpegVideoDecoder::OnInitialize(DemuxerStream* demuxer_stream) {
 
   codec_context_ = ffmpeg_demuxer_stream->av_stream()->codec;
   codec_context_->flags2 |= CODEC_FLAG2_FAST;  // Enable faster H264 decode.
+  // Enable motion vector search (potentially slow), strong deblocking filter
+  // for damaged macroblocks, and set our error detection sensitivity.
+  codec_context_->error_concealment = FF_EC_GUESS_MVS | FF_EC_DEBLOCK;
+  codec_context_->error_recognition = FF_ER_CAREFUL;
   AVCodec* codec = avcodec_find_decoder(codec_context_->codec_id);
   if (!codec ||
       avcodec_thread_init(codec_context_, kDecodeThreads) < 0 ||
@@ -89,14 +93,21 @@ void FFmpegVideoDecoder::OnDecode(Buffer* buffer) {
   int result = avcodec_decode_video(codec_context_, yuv_frame.get(), &decoded,
                                     data_in, size_in);
 
+  // Log the problem if we can't decode a video frame.
   if (result < 0) {
-    host_->Error(PIPELINE_ERROR_DECODE);
-    return;
+    LOG(INFO) << "Error decoding a video frame with timestamp: "
+              << buffer->GetTimestamp().InMicroseconds() << " us"
+              << " , duration: "
+              << buffer->GetDuration().InMicroseconds() << " us"
+              << " , packet size: "
+              << buffer->GetDataSize() << " bytes";
   }
 
-  if (result == 0 || decoded == 0) {
+  // Check for a decoded frame instead of checking the return value of
+  // avcodec_decode_video(). We don't need to stop the pipeline on
+  // decode errors.
+  if (!decoded)
     return;
-  }
 
   // J (Motion JPEG) versions of YUV are full range 0..255.
   // Regular (MPEG) YUV is 16..240.
