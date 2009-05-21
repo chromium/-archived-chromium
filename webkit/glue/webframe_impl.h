@@ -221,10 +221,6 @@ class WebFrameImpl : public WebFrame, public base::RefCounted<WebFrameImpl> {
     return frame_ ? frame_->view() : NULL;
   }
 
-  // Update the given datasource with currently_loading_request's info.
-  // If currently_loading_request is NULL, does nothing.
-  void CacheCurrentRequestInfo(WebDataSourceImpl* datasource);
-
   // Getters for the impls corresponding to Get(Provisional)DataSource. They
   // may return NULL if there is no corresponding data source.
   WebDataSourceImpl* GetDataSourceImpl() const;

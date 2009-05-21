@@ -140,14 +140,12 @@ static const char* const kUnreachableWebDataURL =
 
 static const char* const kBackForwardNavigationScheme = "history";
 
-namespace {
-
 // Associated with browser-initiated navigations to hold tracking data.
-class RenderViewExtraRequestData : public WebRequest::ExtraData {
+class RenderView::NavigationState : public WebDataSource::ExtraData {
  public:
-  RenderViewExtraRequestData(int32 pending_page_id,
-                             PageTransition::Type transition,
-                             Time request_time)
+  NavigationState(int32 pending_page_id,
+                  PageTransition::Type transition,
+                  Time request_time)
       : transition_type(transition),
         request_time(request_time),
         request_committed(false),
@@ -163,6 +161,8 @@ class RenderViewExtraRequestData : public WebRequest::ExtraData {
   // Contains the transition type that the browser specified when it
   // initiated the load.
   PageTransition::Type transition_type;
+
+  // The time that this navigation was requested.
   Time request_time;
 
   // True if we have already processed the "DidCommitLoad" event for this
@@ -172,10 +172,8 @@ class RenderViewExtraRequestData : public WebRequest::ExtraData {
  private:
   int32 pending_page_id_;
 
-  DISALLOW_COPY_AND_ASSIGN(RenderViewExtraRequestData);
+  DISALLOW_COPY_AND_ASSIGN(NavigationState);
 };
-
-}  // namespace
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -807,8 +805,14 @@ void RenderView::OnNavigate(const ViewMsg_Navigate_Params& params) {
 
   scoped_ptr<WebRequest> request(WebRequest::Create(params.url));
   request->SetCachePolicy(cache_policy);
-  request->SetExtraData(new RenderViewExtraRequestData(
-      params.page_id, params.transition, params.request_time));
+
+  // A navigation resulting from loading a javascript URL should not be treated
+  // as a browser initiated event.  Instead, we want it to look as if the page
+  // initiated any load resulting from JS execution.
+  if (!params.url.SchemeIs(chrome::kJavaScriptScheme)) {
+    pending_navigation_state_.reset(new NavigationState(
+        params.page_id, params.transition, params.request_time));
+  }
 
   // If we are reloading, then WebKit will use the state of the current page.
   // Otherwise, we give it the state to navigate to.
@@ -821,6 +825,9 @@ void RenderView::OnNavigate(const ViewMsg_Navigate_Params& params) {
   }
 
   main_frame->LoadRequest(request.get());
+
+  // In case LoadRequest failed before DidCreateDataSource was called.
+  pending_navigation_state_.reset();
 }
 
 // Stop loading the current page
@@ -977,10 +984,9 @@ void RenderView::UpdateURL(WebFrame* frame) {
   const WebRequest& initial_request = ds->GetInitialRequest();
   const WebResponse& response = ds->GetResponse();
 
-  // We don't hold a reference to the extra data. The request's reference will
-  // be sufficient because we won't modify it during our call. MAY BE NULL.
-  RenderViewExtraRequestData* extra_data =
-      static_cast<RenderViewExtraRequestData*>(request.GetExtraData());
+  // This will be null if we did not initiate the navigation.
+  NavigationState* navigation_state =
+      static_cast<NavigationState*>(ds->GetExtraData());
 
   ViewHostMsg_FrameNavigate_Params params;
   params.http_status_code = response.GetHttpStatusCode();
@@ -1024,7 +1030,7 @@ void RenderView::UpdateURL(WebFrame* frame) {
   params.gesture = navigation_gesture_;
   navigation_gesture_ = NavigationGestureUnknown;
 
-  if (webview()->GetMainFrame() == frame) {
+  if (!frame->GetParent()) {
     // Top-level navigation.
 
     // Update contents MIME type for main frame.
@@ -1032,8 +1038,8 @@ void RenderView::UpdateURL(WebFrame* frame) {
 
     // We assume top level navigations initiated by the renderer are link
     // clicks.
-    params.transition = extra_data ?
-        extra_data->transition_type : PageTransition::LINK;
+    params.transition = navigation_state ?
+        navigation_state->transition_type : PageTransition::LINK;
     if (!PageTransition::IsMainFrame(params.transition)) {
       // If the main frame does a load, it should not be reported as a subframe
       // navigation.  This can occur in the following case:
@@ -1084,8 +1090,6 @@ void RenderView::UpdateURL(WebFrame* frame) {
     else
       params.transition = PageTransition::AUTO_SUBFRAME;
 
-    // The browser should never initiate a subframe navigation.
-    DCHECK(!extra_data);
     Send(new ViewHostMsg_FrameNavigate(routing_id_, params));
   }
 
@@ -1094,8 +1098,8 @@ void RenderView::UpdateURL(WebFrame* frame) {
 
   // If we end up reusing this WebRequest (for example, due to a #ref click),
   // we don't want the transition type to persist.
-  if (extra_data)
-    extra_data->transition_type = PageTransition::LINK;  // Just clear it.
+  if (navigation_state)
+    navigation_state->transition_type = PageTransition::LINK;  // Just clear it.
 
 #if defined(OS_WIN)
   if (web_accessibility_manager_.get()) {
@@ -1194,6 +1198,10 @@ void RenderView::DidStopLoading(WebView* webview) {
   ResetPendingUpload();
 }
 
+void RenderView::DidCreateDataSource(WebFrame* frame, WebDataSource* ds) {
+  ds->SetExtraData(pending_navigation_state_.release());
+}
+
 void RenderView::DidStartProvisionalLoadForFrame(
     WebView* webview,
     WebFrame* frame,
@@ -1207,12 +1215,10 @@ void RenderView::DidStartProvisionalLoadForFrame(
 
   WebDataSource* ds = frame->GetProvisionalDataSource();
   if (ds) {
-    const WebRequest& req = ds->GetRequest();
-    RenderViewExtraRequestData* extra_data =
-        static_cast<RenderViewExtraRequestData*>(req.GetExtraData());
-    if (extra_data) {
-      ds->SetRequestTime(extra_data->request_time);
-    }
+    NavigationState* navigation_state =
+        static_cast<NavigationState*>(ds->GetExtraData());
+    if (navigation_state)
+      ds->SetRequestTime(navigation_state->request_time);
   }
   Send(new ViewHostMsg_DidStartProvisionalLoadForFrame(
        routing_id_, webview->GetMainFrame() == frame,
@@ -1284,9 +1290,9 @@ void RenderView::DidFailProvisionalLoadWithError(WebView* webview,
   // 'replace' load.  This is necessary to avoid messing up session history.
   // Otherwise, we do a normal load, which simulates a 'go' navigation as far
   // as session history is concerned.
-  RenderViewExtraRequestData* extra_data =
-      static_cast<RenderViewExtraRequestData*>(failed_request.GetExtraData());
-  bool replace = extra_data && !extra_data->is_new_navigation();
+  NavigationState* navigation_state =
+      static_cast<NavigationState*>(ds->GetExtraData());
+  bool replace = navigation_state && !navigation_state->is_new_navigation();
 
   // Use the alternate error page service if this is a DNS failure or
   // connection failure.  ERR_CONNECTION_FAILED can be dropped once we no longer
@@ -1353,10 +1359,8 @@ void RenderView::LoadNavigationErrorPage(WebFrame* frame,
 
 void RenderView::DidCommitLoadForFrame(WebView *webview, WebFrame* frame,
                                        bool is_new_navigation) {
-  const WebRequest& request =
-      webview->GetMainFrame()->GetDataSource()->GetRequest();
-  RenderViewExtraRequestData* extra_data =
-      static_cast<RenderViewExtraRequestData*>(request.GetExtraData());
+  NavigationState* navigation_state = static_cast<NavigationState*>(
+      frame->GetDataSource()->GetExtraData());
 
   if (is_new_navigation) {
     // When we perform a new navigation, we need to update the previous session
@@ -1371,22 +1375,22 @@ void RenderView::DidCommitLoadForFrame(WebView *webview, WebFrame* frame,
                                           page_id_, true),
         kDelayForForcedCaptureMs);
   } else {
-    // Inspect the extra_data on the main frame (set in our Navigate method) to
-    // see if the navigation corresponds to a session history navigation...
-    // Note: |frame| may or may not be the toplevel frame, but for the case
-    // of capturing session history, the first committed frame suffices.  We
-    // keep track of whether we've seen this commit before so that only capture
-    // session history once per navigation.
+    // Inspect the navigation_state on the main frame (set in our Navigate
+    // method) to see if the navigation corresponds to a session history
+    // navigation...  Note: |frame| may or may not be the toplevel frame, but
+    // for the case of capturing session history, the first committed frame
+    // suffices.  We keep track of whether we've seen this commit before so
+    // that only capture session history once per navigation.
     //
     // Note that we need to check if the page ID changed. In the case of a
     // reload, the page ID doesn't change, and UpdateSessionHistory gets the
     // previous URL and the current page ID, which would be wrong.
-    if (extra_data && !extra_data->is_new_navigation() &&
-        !extra_data->request_committed &&
-        page_id_ != extra_data->pending_page_id()) {
+    if (navigation_state && !navigation_state->is_new_navigation() &&
+        !navigation_state->request_committed &&
+        page_id_ != navigation_state->pending_page_id()) {
       // This is a successful session history navigation!
       UpdateSessionHistory(frame);
-      page_id_ = extra_data->pending_page_id();
+      page_id_ = navigation_state->pending_page_id();
     }
   }
 
@@ -1395,8 +1399,8 @@ void RenderView::DidCommitLoadForFrame(WebView *webview, WebFrame* frame,
   // a session history navigation, because if we attempted a session history
   // navigation without valid HistoryItem state, WebCore will think it is a
   // new navigation.
-  if (extra_data)
-    extra_data->request_committed = true;
+  if (navigation_state)
+    navigation_state->request_committed = true;
 
   UpdateURL(frame);
 
@@ -1447,7 +1451,16 @@ void RenderView::DidHandleOnloadEventsForFrame(WebView* webview,
 void RenderView::DidChangeLocationWithinPageForFrame(WebView* webview,
                                                      WebFrame* frame,
                                                      bool is_new_navigation) {
+  // If this was a reference fragment navigation that we initiated, then we
+  // could end up having a non-null pending navigation state.  We just need to
+  // update the ExtraData on the datasource so that others who read the
+  // ExtraData will get the new NavigationState.  Similarly, if we did not
+  // initiate this navigation, then we need to take care to clear any pre-
+  // existing navigation state.
+  frame->GetDataSource()->SetExtraData(pending_navigation_state_.release());
+
   DidCommitLoadForFrame(webview, frame, is_new_navigation);
+
   const string16& title =
       webview->GetMainFrame()->GetDataSource()->GetPageTitle();
   UpdateTitle(frame, UTF16ToWideHack(title));
@@ -1550,27 +1563,30 @@ WindowOpenDisposition RenderView::DispositionForNavigationAction(
     WebNavigationType type,
     WindowOpenDisposition disposition,
     bool is_redirect) {
+  // GetExtraData is NULL when we did not issue the request ourselves (see
+  // OnNavigate), and so such a request may correspond to a link-click,
+  // script, or drag-n-drop initiated navigation.
+  bool is_content_initiated =
+      !frame->GetProvisionalDataSource()->GetExtraData();
+
   // Webkit is asking whether to navigate to a new URL.
   // This is fine normally, except if we're showing UI from one security
   // context and they're trying to navigate to a different context.
   const GURL& url = request->GetURL();
+
   // We only care about navigations that are within the current tab (as opposed
   // to, for example, opening a new window).
   // But we sometimes navigate to about:blank to clear a tab, and we want to
   // still allow that.
-  if (disposition == CURRENT_TAB && !(url.SchemeIs(chrome::kAboutScheme))) {
-    // GetExtraData is NULL when we did not issue the request ourselves (see
-    // OnNavigate), and so such a request may correspond to a link-click,
-    // script, or drag-n-drop initiated navigation.
-    if (frame == webview->GetMainFrame() && !request->GetExtraData()) {
-      // When we received such unsolicited navigations, we sometimes want to
-      // punt them up to the browser to handle.
-      if (BindingsPolicy::is_dom_ui_enabled(enabled_bindings_) ||
-          frame->GetInViewSourceMode() ||
-          url.SchemeIs(chrome::kViewSourceScheme)) {
-        OpenURL(webview, url, GURL(), disposition);
-        return IGNORE_ACTION;  // Suppress the load here.
-      }
+  if (disposition == CURRENT_TAB && is_content_initiated &&
+      frame->GetParent() == NULL && !url.SchemeIs(chrome::kAboutScheme)) {
+    // When we received such unsolicited navigations, we sometimes want to
+    // punt them up to the browser to handle.
+    if (BindingsPolicy::is_dom_ui_enabled(enabled_bindings_) ||
+        frame->GetInViewSourceMode() ||
+        url.SchemeIs(chrome::kViewSourceScheme)) {
+      OpenURL(webview, url, GURL(), disposition);
+      return IGNORE_ACTION;  // Suppress the load here.
     }
   }
 
@@ -1596,9 +1612,8 @@ WindowOpenDisposition RenderView::DispositionForNavigationAction(
       frame->GetOpener() == NULL &&
       // Must be a top-level frame.
       frame->GetParent() == NULL &&
-      // Must not have issued the request from this page.  GetExtraData is NULL
-      // when the navigation is being done by something outside the page.
-      !request->GetExtraData() &&
+      // Must not have issued the request from this page.
+      is_content_initiated &&
       // Must be targeted at the current tab.
       disposition == CURRENT_TAB &&
       // Must be a JavaScript navigation, which appears as "other".
@@ -2863,11 +2878,11 @@ void RenderView::DidAddHistoryItem() {
   WebDataSource* ds = main_frame->GetDataSource();
   DCHECK(ds != NULL);
 
-  const WebRequest& request = ds->GetRequest();
-  RenderViewExtraRequestData* extra_data =
-      static_cast<RenderViewExtraRequestData*>(request.GetExtraData());
+  NavigationState* navigation_state =
+      static_cast<NavigationState*>(ds->GetExtraData());
 
-  if (extra_data && extra_data->transition_type == PageTransition::START_PAGE)
+  if (navigation_state &&
+      navigation_state->transition_type == PageTransition::START_PAGE)
     return;
 
   history_back_list_count_++;

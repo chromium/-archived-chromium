@@ -687,12 +687,6 @@ void WebFrameLoaderClient::dispatchDidChangeLocationWithinPage() {
     // Regardless of how we got here, we are navigating to a URL so we need to
     // add it to the redirect chain.
     ds->AppendRedirect(url);
-
-    // WebKit will re-use requests for in-page navigations, but we want to
-    // think of it as a new request that has a page ID in session history.
-    // This will set the proper page ID, etc. on the request so that the
-    // browser will treat it properly.
-    webframe_->CacheCurrentRequestInfo(ds);
   }
 
   bool is_new_navigation;
@@ -1347,7 +1341,9 @@ PassRefPtr<DocumentLoader> WebFrameLoaderClient::createDocumentLoader(
     const ResourceRequest& request,
     const SubstituteData& data) {
   RefPtr<WebDataSourceImpl> ds = WebDataSourceImpl::Create(request, data);
-  webframe_->CacheCurrentRequestInfo(ds.get());
+  WebViewDelegate* d = webframe_->GetWebViewImpl()->delegate();
+  if (d)
+    d->DidCreateDataSource(webframe_, ds.get());
   return ds.release();
 }
 

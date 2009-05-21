@@ -462,13 +462,6 @@ void WebFrameImpl::InternalLoadRequest(const WebRequest* request,
   // WebFrameLoaderClient::createDocumentLoader.
   currently_loading_request_ = request;
 
-  // If we have a current datasource, save the request info on it immediately.
-  // This is because WebCore may not actually initiate a load on the toplevel
-  // frame for some subframe navigations, so we want to update its request.
-  WebDataSourceImpl* datasource = GetDataSourceImpl();
-  if (datasource)
-    CacheCurrentRequestInfo(datasource);
-
   if (data.isValid()) {
     frame_->loader()->load(resource_request, data, false);
     if (replace) {
@@ -657,20 +650,6 @@ WebDataSource* WebFrameImpl::GetProvisionalDataSource() const {
 
 WebDataSourceImpl* WebFrameImpl::GetProvisionalDataSourceImpl() const {
   return static_cast<WebDataSourceImpl*>(GetProvisionalDataSource());
-}
-
-void WebFrameImpl::CacheCurrentRequestInfo(WebDataSourceImpl* datasource) {
-  // Cache our current request info on the data source.  It contains its
-  // own requests, so the extra data needs to be transferred.
-  scoped_refptr<WebRequest::ExtraData> extra;
-
-  // Our extra data may come from a request issued via LoadRequest.
-  if (currently_loading_request_)
-    extra = currently_loading_request_->GetExtraData();
-
-  // We must only update this if it is valid, or the valid state will be lost.
-  if (extra)
-    datasource->SetExtraData(extra);
 }
 
 void WebFrameImpl::StopLoading() {

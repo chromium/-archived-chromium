@@ -22,6 +22,7 @@
 
 #include "base/basictypes.h"
 #include "base/ref_counted.h"
+#include "base/scoped_ptr.h"
 #include "webkit/glue/webcursor.h"
 #include "webkit/glue/webview_delegate.h"
 #include "webkit/glue/webwidget_delegate.h"
@@ -29,6 +30,7 @@
 #include "webkit/tools/test_shell/drag_delegate.h"
 #include "webkit/tools/test_shell/drop_delegate.h"
 #endif
+#include "webkit/tools/test_shell/test_navigation_controller.h"
 
 struct WebPreferences;
 class GURL;
@@ -123,6 +125,8 @@ class TestWebViewDelegate : public base::RefCounted<TestWebViewDelegate>,
                                int edit_flags,
                                const std::string& security_info,
                                const std::string& frame_charset);
+  virtual void DidCreateDataSource(WebFrame* frame,
+                                   WebDataSource* ds);
   virtual void DidStartProvisionalLoadForFrame(
     WebView* webview,
     WebFrame* frame,
@@ -261,6 +265,10 @@ class TestWebViewDelegate : public base::RefCounted<TestWebViewDelegate>,
     captured_context_menu_events_.clear();
   }
 
+  void set_pending_extra_data(TestShellExtraData* extra_data) {
+    pending_extra_data_.reset(extra_data);
+  }
+
   // Methods for modifying WebPreferences
   void SetUserStyleSheetEnabled(bool is_enabled);
   void SetUserStyleSheetLocation(const GURL& location);
@@ -326,6 +334,8 @@ class TestWebViewDelegate : public base::RefCounted<TestWebViewDelegate>,
   // For tracking session history.  See RenderView.
   int page_id_;
   int last_page_id_updated_;
+
+  scoped_ptr<TestShellExtraData> pending_extra_data_;
 
   // Maps resource identifiers to a descriptive string.
   typedef std::map<uint32, std::string> ResourceMap;

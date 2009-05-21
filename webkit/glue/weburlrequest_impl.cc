@@ -44,14 +44,6 @@ WebRequest* WebRequestImpl::Clone() const {
   return new WebRequestImpl(*this);
 }
 
-void WebRequestImpl::SetExtraData(ExtraData* extra) {
-  extra_data_ = extra;
-}
-
-WebRequest::ExtraData* WebRequestImpl::GetExtraData() const {
-  return extra_data_.get();
-}
-
 GURL WebRequestImpl::GetURL() const {
   return webkit_glue::KURLToGURL(request_.resourceRequest().url());
 }

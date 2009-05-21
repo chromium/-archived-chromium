@@ -23,8 +23,6 @@ class WebRequestImpl : public WebRequest {
 
   // WebRequest
   virtual WebRequest* Clone() const;
-  virtual void SetExtraData(ExtraData* extra);
-  virtual ExtraData* GetExtraData() const;
   virtual void SetURL(const GURL& url);
   virtual GURL GetURL() const;
   virtual void SetMainDocumentURL(const GURL& url);
@@ -63,7 +61,6 @@ class WebRequestImpl : public WebRequest {
  protected:
   WebCore::FrameLoadRequest request_;
   RefPtr<WebCore::HistoryItem> history_item_;
-  scoped_refptr<ExtraData> extra_data_;
 };
 
 #endif  // #ifndef WEBKIT_GLUE_WEBURLREQUEST_IMPL_H_

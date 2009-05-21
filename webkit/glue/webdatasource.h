@@ -32,6 +32,13 @@ enum WebNavigationType {
 
 class WebDataSource {
  public:
+  // A base class for extra data that may be associated with this datasource.
+  // See Set/GetExtraData below.
+  class ExtraData {
+   public:
+    virtual ~ExtraData() {}
+  };
+
   virtual ~WebDataSource() {}
 
   // Returns a reference to the original request data that created the
@@ -119,6 +126,13 @@ class WebDataSource {
 
   // Returns the reason the document was loaded.
   virtual WebNavigationType GetNavigationType() const = 0;
+
+  // Extra data associated with this datasource.  If non-null, the extra data
+  // pointer will be deleted when the datasource is destroyed.  Setting the
+  // extra data pointer will cause any existing non-null extra data pointer to
+  // be deleted.
+  virtual ExtraData* GetExtraData() const = 0;
+  virtual void SetExtraData(ExtraData* extra_data) = 0;
 };
 
 #endif  // #ifndef WEBKIT_GLUE_WEBDATASOURCE_H_

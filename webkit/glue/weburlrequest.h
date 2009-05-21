@@ -27,34 +27,11 @@ class WebRequest {
  public:
   typedef std::map<std::string, std::string> HeaderMap;
 
-  // Extra information that is associated with a request. The embedder derives
-  // from this REFERENCE COUNTED class to associated data with a request and
-  // get it back when the page loads.
-  //
-  // Note that for reloads (and possibly things like back/forward), there is no
-  // way to specify the request that it will use, so the extra data pointer
-  // will be invalid. Users should always check for NULL.
-  class ExtraData : public base::RefCounted<ExtraData> {
-   public:
-    virtual ~ExtraData() {}
-  };
-
   // Creates a WebRequest.
   static WebRequest* Create(const GURL& url);
 
   // Creates a copy of this WebRequest.
   virtual WebRequest* Clone() const = 0;
-
-  // Sets the extra request info that the embedder can retrieve later. This
-  // will AddRef the ExtraData and store it with the request.
-  virtual void SetExtraData(ExtraData* extra) = 0;
-
-  // Returns any previously set request info. It does not AddRef, the caller
-  // is assumed to assign this to a RefPtr. This may return NULL if no extra
-  // data has been set on this request. Even if the embedder sets request info
-  // for every request, WebRequests can get created during reload operations
-  // so callers should not assume the data is always valid.
-  virtual ExtraData* GetExtraData() const = 0;
 
   // Get/set the URL.
   virtual GURL GetURL() const = 0;

@@ -229,6 +229,11 @@ class WebViewDelegate : virtual public WebWidgetDelegate {
 
   // FrameLoadDelegate -------------------------------------------------------
 
+  // A datasource has been created for a new navigation.  The given datasource
+  // will become the provisional datasource for the frame.
+  virtual void DidCreateDataSource(WebFrame* frame, WebDataSource* ds) {
+  }
+
   // Notifies the delegate that the provisional load of a specified frame in a
   // given WebView has started. By the time the provisional load for a frame has
   // started, we know whether or not the current load is due to a client

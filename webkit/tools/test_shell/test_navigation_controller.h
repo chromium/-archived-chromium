@@ -12,17 +12,16 @@
 #include "base/linked_ptr.h"
 #include "base/ref_counted.h"
 #include "googleurl/src/gurl.h"
-#include "webkit/glue/weburlrequest.h"
+#include "webkit/glue/webdatasource.h"
 
 class GURL;
 class TestShell;
 
 // Associated with browser-initated navigations to hold tracking data.
-class TestShellExtraRequestData : public WebRequest::ExtraData {
+class TestShellExtraData : public WebDataSource::ExtraData {
  public:
-  TestShellExtraRequestData(int32 pending_page_id)
-      : WebRequest::ExtraData(),
-        pending_page_id(pending_page_id),
+  TestShellExtraData(int32 pending_page_id)
+      : pending_page_id(pending_page_id),
         request_committed(false) {
   }
 

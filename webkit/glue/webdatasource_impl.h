@@ -44,16 +44,11 @@ class WebDataSourceImpl : public WebCore::DocumentLoader, public WebDataSource {
   virtual base::Time GetFinishLoadTime() const;
   virtual base::Time GetFirstLayoutTime() const;
   virtual WebNavigationType GetNavigationType() const;
+  virtual ExtraData* GetExtraData() const;
+  virtual void SetExtraData(ExtraData*);
 
   static WebNavigationType NavigationTypeToWebNavigationType(
       WebCore::NavigationType type);
-
-  // Called after creating a new data source if there is request info
-  // available. Since we store copies of the WebRequests, the original
-  // WebRequest that the embedder created was lost, and the exra data would
-  // go with it. This preserves the request info so retrieving the requests
-  // later will have the same data.
-  void SetExtraData(WebRequest::ExtraData* extra);
 
   void ClearRedirectChain();
   void AppendRedirect(const GURL& url);
@@ -126,6 +121,8 @@ class WebDataSourceImpl : public WebCore::DocumentLoader, public WebDataSource {
 
   scoped_ptr<const SearchableFormData> searchable_form_data_;
   scoped_ptr<const PasswordForm> password_form_data_;
+
+  OwnPtr<ExtraData> extra_data_;
 
   bool form_submit_;
 

@@ -60,11 +60,6 @@ const WebResponse& WebDataSourceImpl::GetResponse() const {
   return response_;
 }
 
-void WebDataSourceImpl::SetExtraData(WebRequest::ExtraData* extra) {
-  initial_request_.SetExtraData(extra);
-  request_.SetExtraData(extra);
-}
-
 GURL WebDataSourceImpl::GetUnreachableURL() const {
   const WebCore::KURL& url = unreachableURL();
   return url.isEmpty() ? GURL() : webkit_glue::KURLToGURL(url);
@@ -128,6 +123,14 @@ base::Time WebDataSourceImpl::GetFirstLayoutTime() const {
 
 WebNavigationType WebDataSourceImpl::GetNavigationType() const {
   return NavigationTypeToWebNavigationType(triggeringAction().type());
+}
+
+WebDataSource::ExtraData* WebDataSourceImpl::GetExtraData() const {
+  return extra_data_.get();
+}
+
+void WebDataSourceImpl::SetExtraData(ExtraData* extra_data) {
+  extra_data_.set(extra_data);
 }
 
 WebNavigationType WebDataSourceImpl::NavigationTypeToWebNavigationType(

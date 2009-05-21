@@ -510,8 +510,13 @@ bool TestShell::Navigate(const TestNavigationEntry& entry, bool reload) {
     if (!reload)
       request->SetHistoryState(entry.GetContentState());
 
-    request->SetExtraData(
-        new TestShellExtraRequestData(entry.GetPageID()));
+    // A navigation resulting from loading a javascript URL should not be
+    // treated as a browser initiated event.  Instead, we want it to look as if
+    // the page initiated any load resulting from JS execution.
+    if (!entry.GetURL().SchemeIs("javascript")) {
+      delegate_->set_pending_extra_data(
+          new TestShellExtraData(entry.GetPageID()));
+    }
 
     // Get the right target frame for the entry.
     WebFrame* frame = webView()->GetMainFrame();
@@ -521,6 +526,10 @@ bool TestShell::Navigate(const TestNavigationEntry& entry, bool reload) {
     // back/forward navigations maintain the target frame?
 
     frame->LoadRequest(request.get());
+
+    // In case LoadRequest failed before DidCreateDataSource was called.
+    delegate_->set_pending_extra_data(NULL);
+
     // Restore focus to the main frame prior to loading new request.
     // This makes sure that we don't have a focused iframe. Otherwise, that
     // iframe would keep focus when the SetFocus called immediately after

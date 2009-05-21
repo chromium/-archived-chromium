@@ -243,6 +243,11 @@ void TestWebViewDelegate::DidFailLoadingWithError(WebView* webview,
   resource_identifier_map_.erase(identifier);
 }
 
+void TestWebViewDelegate::DidCreateDataSource(WebFrame* frame,
+                                              WebDataSource* ds) {
+  ds->SetExtraData(pending_extra_data_.release());
+}
+
 void TestWebViewDelegate::DidStartProvisionalLoadForFrame(
     WebView* webview,
     WebFrame* frame,
@@ -296,13 +301,13 @@ void TestWebViewDelegate::DidFailProvisionalLoadWithError(
   if (error.GetErrorCode() == net::ERR_ABORTED)
     return;
 
-  const WebRequest& failed_request =
-      frame->GetProvisionalDataSource()->GetRequest();
-  TestShellExtraRequestData* extra_data =
-      static_cast<TestShellExtraRequestData*>(failed_request.GetExtraData());
+  const WebDataSource* failed_ds = frame->GetProvisionalDataSource();
+
+  TestShellExtraData* extra_data =
+      static_cast<TestShellExtraData*>(failed_ds->GetExtraData());
   bool replace = extra_data && extra_data->pending_page_id != -1;
 
-  scoped_ptr<WebRequest> request(failed_request.Clone());
+  scoped_ptr<WebRequest> request(failed_ds->GetRequest().Clone());
 
   std::string error_text =
       StringPrintf("Error %d when loading url %s", error.GetErrorCode(),
@@ -386,6 +391,8 @@ void TestWebViewDelegate::DidHandleOnloadEventsForFrame(WebView* webview,
 
 void TestWebViewDelegate::DidChangeLocationWithinPageForFrame(
     WebView* webview, WebFrame* frame, bool is_new_navigation) {
+  frame->GetDataSource()->SetExtraData(pending_extra_data_.release());
+
   if (shell_->ShouldDumpFrameLoadCallbacks()) {
     printf("%S - didChangeLocationWithinPageForFrame\n",
            GetFrameDescription(frame).c_str());
@@ -809,13 +816,9 @@ WebWidgetHost* TestWebViewDelegate::GetHostForWidget(WebWidget* webwidget) {
 
 void TestWebViewDelegate::UpdateForCommittedLoad(WebFrame* frame,
                                                  bool is_new_navigation) {
-  WebView* webview = shell_->webView();
-
   // Code duplicated from RenderView::DidCommitLoadForFrame.
-  const WebRequest& request =
-      webview->GetMainFrame()->GetDataSource()->GetRequest();
-  TestShellExtraRequestData* extra_data =
-      static_cast<TestShellExtraRequestData*>(request.GetExtraData());
+  TestShellExtraData* extra_data = static_cast<TestShellExtraData*>(
+      frame->GetDataSource()->GetExtraData());
 
   if (is_new_navigation) {
     // New navigation.
