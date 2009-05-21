@@ -94,6 +94,9 @@ class ChromeURLRequestContext : public URLRequestContext,
   // Callback for when new extensions are loaded.
   void OnNewExtensions(ExtensionPaths* new_paths);
 
+  // Callback for when an extension is unloaded.
+  void OnUnloadedExtension(const std::string& id);
+
   // Destructor.
   virtual ~ChromeURLRequestContext();
 

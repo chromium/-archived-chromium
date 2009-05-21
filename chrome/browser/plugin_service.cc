@@ -12,11 +12,15 @@
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/chrome_plugin_host.h"
 #include "chrome/browser/chrome_thread.h"
+#include "chrome/browser/extensions/extension.h"
+#include "chrome/browser/extensions/extensions_service.h"
 #include "chrome/browser/plugin_process_host.h"
 #include "chrome/browser/renderer_host/render_process_host.h"
 #include "chrome/common/chrome_plugin_lib.h"
 #include "chrome/common/chrome_switches.h"
 #include "chrome/common/logging_chrome.h"
+#include "chrome/common/notification_type.h"
+#include "chrome/common/notification_service.h"
 #include "chrome/common/render_messages.h"
 #include "webkit/glue/plugins/plugin_constants_win.h"
 #include "webkit/glue/plugins/plugin_list.h"
@@ -53,6 +57,11 @@ PluginService::PluginService()
     hklm_watcher_.StartWatching(hklm_event_.get(), this);
   }
 #endif
+
+  registrar_.Add(this, NotificationType::EXTENSIONS_LOADED,
+                 NotificationService::AllSources());
+  registrar_.Add(this, NotificationType::EXTENSION_UNLOADED,
+                 NotificationService::AllSources());
 }
 
 PluginService::~PluginService() {
@@ -213,4 +222,33 @@ void PluginService::OnWaitableEventSignaled(base::WaitableEvent* waitable_event)
     it->second->Send(new ViewMsg_PurgePluginListCache());
   }
 #endif
+}
+
+void PluginService::Observe(NotificationType type,
+                            const NotificationSource& source,
+                            const NotificationDetails& details) {
+  switch (type.value) {
+    case NotificationType::EXTENSIONS_LOADED: {
+      // TODO(mpcomplete): We also need to force a renderer to refresh its
+      // cache of the plugin list when we inject user scripts, since it could
+      // have a stale version by the time extensions are loaded.
+      // See: http://code.google.com/p/chromium/issues/detail?id=12306
+      ExtensionList* extensions = Details<ExtensionList>(details).ptr();
+      for (ExtensionList::iterator extension = extensions->begin();
+           extension != extensions->end(); ++extension)
+        if (!(*extension)->plugins_dir().empty())
+          AddExtraPluginDir((*extension)->plugins_dir());
+      break;
+    }
+
+    case NotificationType::EXTENSION_UNLOADED: {
+      // TODO(aa): Implement this. Also, will it be possible to delete the
+      // extension folder if this isn't unloaded?
+      // See: http://code.google.com/p/chromium/issues/detail?id=12306
+      break;
+    }
+
+    default:
+      DCHECK(false);
+  }
 }

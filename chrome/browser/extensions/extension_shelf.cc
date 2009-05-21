@@ -145,8 +145,10 @@ ExtensionShelf::ExtensionShelf(Browser* browser)
       handle_visible_(false),
       current_handle_view_(NULL),
       ALLOW_THIS_IN_INITIALIZER_LIST(timer_factory_(this)) {
-  // Watch extensions loaded notification.
+  // Watch extensions loaded and unloaded notifications.
   registrar_.Add(this, NotificationType::EXTENSIONS_LOADED,
+                 NotificationService::AllSources());
+  registrar_.Add(this, NotificationType::EXTENSION_UNLOADED,
                  NotificationService::AllSources());
 
   // Add any already-loaded extensions now, since we missed the notification for
@@ -158,9 +160,6 @@ ExtensionShelf::ExtensionShelf(Browser* browser)
       SchedulePaint();
     }
   }
-}
-
-ExtensionShelf::~ExtensionShelf() {
 }
 
 BrowserBubble* ExtensionShelf::GetHandle() {
@@ -266,6 +265,11 @@ void ExtensionShelf::Observe(NotificationType type,
       AddExtensionViews(extensions);
       break;
     }
+    case NotificationType::EXTENSION_UNLOADED: {
+      Extension* extension = Details<Extension>(details).ptr();
+      RemoveExtensionViews(extension);
+      break;
+    }
     default:
       DCHECK(false) << "Unhandled notification of type: " << type.value;
       break;
@@ -299,6 +303,28 @@ bool ExtensionShelf::AddExtensionViews(const ExtensionList* extensions) {
       PreferredSizeChanged();
   }
   return added_toolstrip;
+}
+
+bool ExtensionShelf::RemoveExtensionViews(Extension* extension) {
+  if (!HasExtensionViews())
+    return false;
+
+  bool removed_toolstrip = false;
+  int count = GetChildViewCount();
+  for (int i = count - 1; i >= 0; --i) {
+    ExtensionView* view = static_cast<ExtensionView*>(GetChildViewAt(i));
+    if (view->host()->extension()->id() == extension->id()) {
+      RemoveChildView(view);
+      delete view;
+      removed_toolstrip = true;
+    }
+  }
+
+  if (removed_toolstrip) {
+    SchedulePaint();
+    PreferredSizeChanged();
+  }
+  return removed_toolstrip;
 }
 
 bool ExtensionShelf::HasExtensionViews() {

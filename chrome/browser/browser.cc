@@ -19,6 +19,7 @@
 #include "chrome/browser/debugger/debugger_host.h"
 #include "chrome/browser/debugger/devtools_manager.h"
 #include "chrome/browser/download/download_manager.h"
+#include "chrome/browser/extensions/extension.h"
 #include "chrome/browser/find_bar.h"
 #include "chrome/browser/find_bar_controller.h"
 #include "chrome/browser/location_bar.h"
@@ -188,6 +189,10 @@ Browser::Browser(Type type, Profile* profile)
       this,
       NotificationType::SSL_VISIBLE_STATE_CHANGED,
       NotificationService::AllSources());
+  NotificationService::current()->AddObserver(
+      this,
+      NotificationType::EXTENSION_UNLOADED,
+      NotificationService::AllSources());
 
   InitCommandState();
   BrowserList::AddBrowser(this);
@@ -232,6 +237,10 @@ Browser::~Browser() {
   NotificationService::current()->RemoveObserver(
       this,
       NotificationType::SSL_VISIBLE_STATE_CHANGED,
+      NotificationService::AllSources());
+  NotificationService::current()->RemoveObserver(
+      this,
+      NotificationType::EXTENSION_UNLOADED,
       NotificationService::AllSources());
 
   if (profile_->IsOffTheRecord() &&
@@ -2044,6 +2053,20 @@ void Browser::Observe(NotificationType type,
           Source<NavigationController>(source).ptr())
         UpdateToolbar(false);
       break;
+
+    case NotificationType::EXTENSION_UNLOADED: {
+      // Close any tabs from the unloaded extension.
+      Extension* extension = Details<Extension>(details).ptr();
+      for (int i = 0; i < tabstrip_model_.count(); i++) {
+        TabContents* tc = tabstrip_model_.GetTabContentsAt(i);
+        if (tc->GetURL().SchemeIs(chrome::kExtensionScheme) &&
+            tc->GetURL().host() == extension->id()) {
+          CloseTabContents(tc);
+          return;
+        }
+      }
+      break;
+    }
 
     default:
       NOTREACHED() << "Got a notification we didn't register for.";

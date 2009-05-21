@@ -312,6 +312,9 @@ ChromeURLRequestContext::ChromeURLRequestContext(Profile* profile)
   NotificationService::current()->AddObserver(
       this, NotificationType::EXTENSIONS_LOADED,
       NotificationService::AllSources());
+  NotificationService::current()->AddObserver(
+      this, NotificationType::EXTENSION_UNLOADED,
+      NotificationService::AllSources());
 }
 
 // NotificationObserver implementation.
@@ -349,6 +352,11 @@ void ChromeURLRequestContext::Observe(NotificationType type,
     g_browser_process->io_thread()->message_loop()->PostTask(FROM_HERE,
         NewRunnableMethod(this, &ChromeURLRequestContext::OnNewExtensions,
                           new_paths));
+  } else if (NotificationType::EXTENSION_UNLOADED == type) {
+    Extension* extension = Details<Extension>(details).ptr();
+    g_browser_process->io_thread()->message_loop()->PostTask(FROM_HERE,
+        NewRunnableMethod(this, &ChromeURLRequestContext::OnUnloadedExtension,
+                          extension->id()));
   } else {
     NOTREACHED();
   }
@@ -362,6 +370,9 @@ void ChromeURLRequestContext::CleanupOnUIThread() {
 
   NotificationService::current()->RemoveObserver(
       this, NotificationType::EXTENSIONS_LOADED,
+      NotificationService::AllSources());
+  NotificationService::current()->RemoveObserver(
+      this, NotificationType::EXTENSION_UNLOADED,
       NotificationService::AllSources());
 }
 
@@ -397,6 +408,13 @@ void ChromeURLRequestContext::OnCookiePolicyChange(
 void ChromeURLRequestContext::OnNewExtensions(ExtensionPaths* new_paths) {
   extension_paths_.insert(new_paths->begin(), new_paths->end());
   delete new_paths;
+}
+
+void ChromeURLRequestContext::OnUnloadedExtension(
+    const std::string& extension_id) {
+  ExtensionPaths::iterator iter = extension_paths_.find(extension_id);
+  DCHECK(iter != extension_paths_.end());
+  extension_paths_.erase(iter);
 }
 
 ChromeURLRequestContext::~ChromeURLRequestContext() {
