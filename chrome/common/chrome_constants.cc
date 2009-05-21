@@ -31,7 +31,7 @@ const wchar_t kBrowserProcessExecutablePath[] = L"chrome";
 #elif defined(OS_MACOSX)
 const wchar_t kBrowserProcessExecutablePath[] =
 #if defined(GOOGLE_CHROME_BUILD)
-    L"Chrome.app/Contents/MacOS/Chrome";
+    L"Google Chrome.app/Contents/MacOS/Google Chrome";
 #else
     L"Chromium.app/Contents/MacOS/Chromium";
 #endif  // GOOGLE_CHROME_BUILD
