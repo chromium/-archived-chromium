@@ -379,7 +379,7 @@
   if (!loading)
     [self setTabTitle:[tabArray_ objectAtIndex:index] withContents:contents];
 
-#if 1
+#if 0
 // TODO(pinkerton): Enabling this slowed down the tab_cold startup test by
 // close to 5 seconds. Turning it off to see if the bot returns to normal.
   // Update the current loading state, replacing the icon with a throbber, or
