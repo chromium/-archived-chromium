@@ -302,9 +302,14 @@ void MenuGtk::OnMenuHidden(GtkWidget* widget, MenuGtk* menu) {
 
 // static
 void MenuGtk::SetMenuItemInfo(GtkWidget* widget, gpointer userdata) {
+  if (GTK_IS_SEPARATOR_MENU_ITEM(widget)) {
+    // We need to explicitly handle this case because otherwise we'll ask the
+    // menu delegate about something with an invalid id.
+    return;
+  }
+
   MenuGtk* menu = reinterpret_cast<MenuGtk*>(userdata);
   int id;
-
   const MenuCreateMaterial* data =
       reinterpret_cast<const MenuCreateMaterial*>(
           g_object_get_data(G_OBJECT(widget), "menu-data"));
