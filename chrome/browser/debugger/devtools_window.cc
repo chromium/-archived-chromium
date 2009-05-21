@@ -60,11 +60,6 @@ void DevToolsWindow::InspectedTabClosing() {
   browser_->CloseAllTabs();
 }
 
-void DevToolsWindow::SetInspectedTabUrl(const std::string& url) {
-  inspected_url_ = url;
-  //TODO(pfeldman): Restore this.
-}
-
 void DevToolsWindow::SendMessageToClient(const IPC::Message& message) {
   RenderViewHost* target_host = tab_contents_->render_view_host();
   IPC::Message* m =  new IPC::Message(message);

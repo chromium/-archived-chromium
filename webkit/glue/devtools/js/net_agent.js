@@ -120,4 +120,7 @@ devtools.NetAgent.prototype.didFinishLoading = function(identifier, value) {
   resource.endTime = value.endTime;
   resource.finished = true;
   resource.failed = !!value.errorCode;
+  if (resource.mainResource) {
+    document.title = 'Developer Tools - ' + resource.url;
+  }
 };

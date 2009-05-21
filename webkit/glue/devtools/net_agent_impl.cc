@@ -140,15 +140,16 @@ void NetAgentImpl::DidFinishLoading(
     return;
   }
 
+  Resource* resource = pending_resources_.get(identifier);
+  resource->end_time = WTF::currentTime();
+
   // This is the first command being dispatched after
   // DidCommitMainResourceLoad, we know that the first resource to be reported
   // as loaded is main resource.
   if (!main_loader_.get()) {
     main_loader_ = loader;
+    resource->main_resource = true;
   }
-
-  Resource* resource = pending_resources_.get(identifier);
-  resource->end_time = WTF::currentTime();
 
   pending_resources_.remove(identifier);
   finished_resources_.append(std::make_pair(identifier, resource));
@@ -303,7 +304,7 @@ void NetAgentImpl::Serialize(const Resource& resource,
   value->Set(L"responseHeaders",
              BuildValueForHeaders(resource.response_headers));
 
-  value->SetBoolean(L"isMainResource", false);
+  value->SetBoolean(L"isMainResource", resource.main_resource);
   value->SetBoolean(L"cached", false);
 
   if (resource.error_code) {
@@ -315,9 +316,10 @@ void NetAgentImpl::Serialize(const Resource& resource,
 
 void NetAgentImpl::ExpireFinishedResourcesCache() {
   if (finished_resources_.size() > 100) {
-    for (int i = 0; i < 20; ++i) {
+    // Preserve main resource.
+    for (int i = 1; i < 21; ++i) {
       delete finished_resources_[i].second;
     }
-    finished_resources_.remove(0, 20);
+    finished_resources_.remove(1, 21);
   }
 }

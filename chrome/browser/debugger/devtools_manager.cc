@@ -91,8 +91,6 @@ void DevToolsManager::OpenDevToolsWindow(RenderViewHost* inspected_rvh) {
         inspected_rvh->site_instance()->browsing_instance()->profile());
     RegisterDevToolsClientHostFor(inspected_rvh, host);
   }
-  host->SetInspectedTabUrl(
-      inspected_rvh->delegate()->GetURL().possibly_invalid_spec());
   DevToolsWindow* window = host->AsDevToolsWindow();
   if (window)
     window->Show();
@@ -145,7 +143,6 @@ void DevToolsManager::OnNavigatingToPendingEntry(RenderViewHost* inspected_rvh,
   DevToolsClientHost* client_host =
       GetDevToolsClientHostFor(inspected_rvh);
   if (client_host) {
-    client_host->SetInspectedTabUrl(gurl.possibly_invalid_spec());
     inspected_rvh_to_client_host_.erase(inspected_rvh);
     inspected_rvh_to_client_host_[dest_rvh] = client_host;
     client_host_to_inspected_rvh_[client_host] = dest_rvh;

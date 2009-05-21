@@ -35,10 +35,6 @@ class DevToolsClientHost {
   // closing.
   virtual void InspectedTabClosing() = 0;
 
-  // This method is called when tab inspected by this devtools client has
-  // navigated to some url.
-  virtual void SetInspectedTabUrl(const std::string& url) = 0;
-
   // Sends the message to the devtools client hosted by this object.
   virtual void SendMessageToClient(const IPC::Message& msg) = 0;
 

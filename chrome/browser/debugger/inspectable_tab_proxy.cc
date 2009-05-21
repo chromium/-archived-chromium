@@ -23,10 +23,6 @@ void DevToolsClientHostImpl::InspectedTabClosing() {
   delete this;
 }
 
-void DevToolsClientHostImpl::SetInspectedTabUrl(const std::string& url) {
-  // TODO(apavlov): Notify debugger on the url update if necessary.
-}
-
 void DevToolsClientHostImpl::SendMessageToClient(
     const IPC::Message& msg) {
   IPC_BEGIN_MESSAGE_MAP(DevToolsClientHostImpl, msg)

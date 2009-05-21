@@ -36,7 +36,6 @@ class DevToolsWindow : public DevToolsClientHost,
   // DevToolsClientHost override.
   virtual DevToolsWindow* AsDevToolsWindow();
   virtual void InspectedTabClosing();
-  virtual void SetInspectedTabUrl(const std::string& url);
   virtual void SendMessageToClient(const IPC::Message& message);
 
   // TabStripModelObserver implementation

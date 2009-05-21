@@ -88,13 +88,16 @@ class NetAgentImpl : public NetAgent {
  private:
   struct Resource {
     Resource()
-        : start_time(0),
+        : main_resource(false),
+          start_time(0),
           response_received_time(0),
           end_time(0),
           expected_content_length(0),
           http_status_code(0),
           error_code(0) {
     }
+    bool main_resource;
+
     double start_time;
     double response_received_time;
     double end_time;
