@@ -32,7 +32,9 @@ Value* DevToolsRpc::ParseMessage(const std::string& raw_msg) {
 // static
 std::string DevToolsRpc::Serialize(const Value& value) {
   std::string json;
-  JSONWriter::WriteWithOptionalEscape(&value, false, false, &json);
+  // TODO(pfeldman): find out why faster way in no longer working.
+  // JSONWriter::WriteWithOptionalEscape(&value, false, false, &json);
+  JSONWriter::Write(&value, false, &json);
   return json;
 }
 
