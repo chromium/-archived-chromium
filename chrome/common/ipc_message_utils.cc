@@ -16,6 +16,8 @@
 
 namespace IPC {
 
+const int kMaxRecursionDepth = 100;
+
 #ifndef EXCLUDE_SKIA_DEPENDENCIES
 
 namespace {
@@ -54,8 +56,6 @@ struct SkBitmap_Data {
     return true;
   }
 };
-
-const int kMaxRecursionDepth = 100;
 
 }  // namespace
 
