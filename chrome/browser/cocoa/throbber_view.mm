@@ -48,7 +48,18 @@ const float kAnimationIntervalSeconds = 0.03;  // 30ms, same as windows
     DCHECK((int)imageSize.width % (int)imageSize.height == 0);
     numFrames_ = (int)imageSize.width / (int)imageSize.height;
     DCHECK(numFrames_);
-    image_.reset([image retain]);
+
+    // First check if we have a bitmap image rep and use it, otherwise fall
+    // back to creating one.
+    NSBitmapImageRep* rep = [[image representations] objectAtIndex:0];
+    if (![rep isKindOfClass:[NSBitmapImageRep class]]) {
+      [image lockFocus];
+      NSRect imageRect = NSMakeRect(0, 0, imageSize.width, imageSize.height);
+      rep = [[[NSBitmapImageRep alloc] initWithFocusedViewRect:imageRect]
+                autorelease];
+      [image unlockFocus];
+    }
+    image_.reset([[CIImage alloc] initWithBitmapImageRep:rep]);
 
     // Start a timer for the animation frames.
     target_.reset([[TimerTarget alloc] initWithThrobber:self]);
@@ -78,18 +89,19 @@ const float kAnimationIntervalSeconds = 0.03;  // 30ms, same as windows
 // counter and mark as needing display.
 - (void)animate {
   animationFrame_ = ++animationFrame_ % numFrames_;
-  //[self setNeedsDisplay:YES];
+  [self setNeedsDisplay:YES];
 }
 
 // Overridden to draw the appropriate frame in the image strip.
 - (void)drawRect:(NSRect)rect {
-  float imageDimension = [image_ size].height;
+  float imageDimension = [image_ extent].size.height;
   float xOffset = animationFrame_ * imageDimension;
   NSRect sourceImageRect =
       NSMakeRect(xOffset, 0, imageDimension, imageDimension);
-  [image_ compositeToPoint:NSMakePoint(0, 0)
-                  fromRect:sourceImageRect
-                 operation:NSCompositeSourceOver];
+  [image_ drawInRect:[self bounds]
+             fromRect:sourceImageRect
+            operation:NSCompositeSourceOver
+             fraction:1.0];
 }
 
 @end

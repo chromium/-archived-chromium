@@ -19,7 +19,7 @@
 
 @interface ThrobberView : NSView {
  @private
-  scoped_nsobject<NSImage> image_;
+  scoped_nsobject<CIImage> image_;
   scoped_nsobject<TimerTarget> target_;  // Target of animation timer.
   NSTimer* timer_;  // Animation timer. Weak, owned by runloop.
   unsigned int numFrames_;  // Number of frames in this animation.

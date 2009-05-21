@@ -1562,6 +1562,11 @@
             '../third_party/GTM',
             '../third_party/GTM/AppKit',
           ],
+          'link_settings': {
+            'libraries': [
+              '$(SDKROOT)/System/Library/Frameworks/QuartzCore.framework',
+            ],
+          },
         }],
         ['OS=="win"', {
           'defines': [
