@@ -485,12 +485,17 @@ void RenderViewContextMenu::ExecuteItemCommand(int id) {
         ssl.set_cert_status(cert_status);
         ssl.set_security_bits(security_bits);
       }
+#if defined(OS_WIN)
       PageInfoWindow::CreateFrameInfo(
           source_tab_contents_->profile(),
           params_.frame_url,
           ssl,
           source_tab_contents_->GetContentNativeView(),
           PageInfoWindow::SECURITY);
+#else
+      // TODO(port): port PageInfoWindow.
+      NOTIMPLEMENTED() << "IDS_CONTENT_CONTEXT_VIEWFRAMEINFO";
+#endif
       break;
     }
 
