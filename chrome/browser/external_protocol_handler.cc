@@ -25,6 +25,10 @@
 #if defined(OS_WIN)
 #include "base/registry.h"
 #include "chrome/browser/views/external_protocol_dialog.h"
+#elif defined(OS_MACOSX)
+#include <ApplicationServices/ApplicationServices.h>
+#include "base/scoped_cftyperef.h"
+#include "base/sys_string_conversions.h"
 #endif
 
 // static
@@ -111,7 +115,7 @@ ExternalProtocolHandler::BlockState ExternalProtocolHandler::GetBlockState(
 void ExternalProtocolHandler::LaunchUrl(const GURL& url,
                                         int render_process_host_id,
                                         int tab_contents_id) {
-#if defined(OS_WIN)
+#if !defined(OS_LINUX)
   // Escape the input scheme to be sure that the command does not
   // have parameters unexpected by the external program.
   std::string escaped_url_string = EscapeExternalHandlerValue(url.spec());
@@ -120,6 +124,7 @@ void ExternalProtocolHandler::LaunchUrl(const GURL& url,
   if (block_state == BLOCK)
     return;
 
+#if defined(OS_WIN)
   if (block_state == UNKNOWN) {
     std::wstring command = ExternalProtocolDialog::GetApplicationForProtocol(
                                escaped_url);
@@ -136,6 +141,12 @@ void ExternalProtocolHandler::LaunchUrl(const GURL& url,
                                                       tab_contents_id);
     return;
   }
+#else
+  // For now, allow only whitelisted protocols to fire.
+  // TODO(port): implement dialog for Mac
+  if (block_state == UNKNOWN)
+    return;
+#endif
 
   // Put this work on the file thread since ShellExecute may block for a
   // significant amount of time.
@@ -149,7 +160,7 @@ void ExternalProtocolHandler::LaunchUrl(const GURL& url,
       NewRunnableFunction(
           &ExternalProtocolHandler::LaunchUrlWithoutSecurityCheck,
           escaped_url));
-#elif defined(OS_POSIX)
+#else
   // TODO(port): Implement launching external handler.
   NOTIMPLEMENTED();
 #endif
@@ -199,7 +210,20 @@ void ExternalProtocolHandler::LaunchUrlWithoutSecurityCheck(const GURL& url) {
     // bug 1136923.
     return;
   }
-#elif defined(OS_POSIX)
+#elif defined(OS_MACOSX)
+  scoped_cftyperef<CFStringRef> string_ref(
+      base::SysUTF8ToCFStringRef(url.spec()));
+  if (!string_ref)
+    return;
+
+  scoped_cftyperef<CFURLRef> url_ref(CFURLCreateWithString(kCFAllocatorDefault,
+                                                           string_ref,
+                                                           NULL));
+  if (!url_ref)
+    return;
+
+  LSOpenCFURLRef(url_ref, NULL);
+#elif defined(OS_LINUX)
   // TODO(port): Implement launching external handler.
   NOTIMPLEMENTED();
 #endif
