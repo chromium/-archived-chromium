@@ -122,8 +122,8 @@ v8::Handle<v8::Value> ChromeNode::PropGetter(v8::Handle<v8::String> prop,
     return (new FunctionNode<DebuggerShell>(DebuggerShell::SetDebuggerBreak,
                                             debugger_))->NewInstance();
   }
-  return (prop->Equals(v8::String::New("foo"))) ?
-      static_cast<v8::Handle<v8::Value> >(v8::Undefined()) : prop;
+  return static_cast<v8::Handle<v8::Value> >(
+      prop->Equals(v8::String::New("foo")) ? v8::Undefined() : prop);
 }
 
 /////////////////////////////////////////////
