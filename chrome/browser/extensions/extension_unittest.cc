@@ -254,3 +254,20 @@ TEST(ExtensionTest, GetResourceURLAndPath) {
   EXPECT_EQ(FilePath().value(),
             Extension::GetResourcePath(extension.path(), "../baz.js").value());
 }
+
+TEST(ExtensionTest, Location) {
+  Extension extension;
+  EXPECT_EQ(Extension::INVALID, extension.location());
+
+  extension.set_location(Extension::INTERNAL);
+  EXPECT_EQ(Extension::INTERNAL, extension.location());
+  EXPECT_TRUE(extension.is_uninstallable());
+
+  extension.set_location(Extension::EXTERNAL);
+  EXPECT_EQ(Extension::EXTERNAL, extension.location());
+  EXPECT_FALSE(extension.is_uninstallable());
+
+  extension.set_location(Extension::LOAD);
+  EXPECT_EQ(Extension::LOAD, extension.location());
+  EXPECT_FALSE(extension.is_uninstallable());
+}

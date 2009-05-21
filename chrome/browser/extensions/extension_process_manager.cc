@@ -30,9 +30,6 @@ ExtensionProcessManager::ExtensionProcessManager(Profile* profile)
   NotificationService::current()->AddObserver(this,
       NotificationType::EXTENSIONS_LOADED,
       NotificationService::AllSources());
-  NotificationService::current()->AddObserver(this,
-      NotificationType::EXTENSION_UNLOADED,
-      NotificationService::AllSources());
 
   if (profile->GetExtensionsService()) {
     CreateBackgroundHosts(this, profile->GetExtensionsService()->extensions());
@@ -68,28 +65,7 @@ SiteInstance* ExtensionProcessManager::GetSiteInstanceForURL(const GURL& url) {
 void ExtensionProcessManager::Observe(NotificationType type,
                                       const NotificationSource& source,
                                       const NotificationDetails& details) {
-  switch (type.value) {
-    case NotificationType::EXTENSIONS_LOADED: {
-      const ExtensionList* extensions = Details<ExtensionList>(details).ptr();
-      CreateBackgroundHosts(this, extensions);
-      break;
-    }
-
-    case NotificationType::EXTENSION_UNLOADED: {
-      Extension* extension = Details<Extension>(details).ptr();
-      for (ExtensionHostList::iterator iter = background_hosts_.begin();
-           iter != background_hosts_.end(); ++iter) {
-        ExtensionHost* host = *iter;
-        if (host->extension()->id() == extension->id()) {
-          background_hosts_.erase(iter);
-          delete host;
-          break;
-        }
-      }
-      break;
-    }
-
-    default:
-      NOTREACHED();
-  }
+  DCHECK(type == NotificationType::EXTENSIONS_LOADED);
+  const ExtensionList* extensions = Details<ExtensionList>(details).ptr();
+  CreateBackgroundHosts(this, extensions);
 }

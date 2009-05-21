@@ -127,6 +127,23 @@ const char* Extension::kInvalidThemeTintsError =
 
 const size_t Extension::kIdSize = 20;  // SHA1 (160 bits) == 20 bytes
 
+Extension::Extension(const Extension& rhs)
+    : path_(rhs.path_),
+      extension_url_(rhs.extension_url_),
+      id_(rhs.id_),
+      version_(new Version(*rhs.version_)),
+      name_(rhs.name_),
+      description_(rhs.description_),
+      content_scripts_(rhs.content_scripts_),
+      page_actions_(rhs.page_actions_),
+      plugins_dir_(rhs.plugins_dir_),
+      zip_hash_(rhs.zip_hash_),
+      is_theme_(rhs.is_theme_) {
+  theme_images_.reset(rhs.GetThemeImages());
+  theme_colors_.reset(rhs.GetThemeColors());
+  theme_tints_.reset(rhs.GetThemeTints());
+}
+
 Extension::~Extension() {
   for (PageActionMap::iterator i = page_actions_.begin();
        i != page_actions_.end(); ++i)

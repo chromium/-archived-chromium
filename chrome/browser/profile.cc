@@ -477,10 +477,7 @@ void ProfileImpl::InitExtensions() {
   ExtensionErrorReporter::Init(true);  // allow noisy errors.
   user_script_master_ = new UserScriptMaster(
       g_browser_process->file_thread()->message_loop(), script_dir);
-  extensions_service_ = new ExtensionsService(
-      this, MessageLoop::current(),
-      g_browser_process->file_thread()->message_loop(),
-      std::string());  // Use default registry path
+  extensions_service_ = new ExtensionsService(this, user_script_master_.get());
 
   // If we have extensions, the extension service will kick off the first scan
   // after extensions are loaded. Otherwise, we need to do that now.
