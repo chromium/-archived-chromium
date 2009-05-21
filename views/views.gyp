@@ -214,9 +214,6 @@
       ],
       'conditions': [
         ['OS=="linux"', {
-          'dependencies': [
-            '../build/linux/system.gyp:gtk',
-          ],
           'sources!': [
             'accelerator.cc',
             'accessibility/accessible_wrapper.cc',
@@ -266,6 +263,7 @@
             '../chrome/chrome.gyp:chrome_resources',
             '../chrome/chrome.gyp:chrome_strings',
             '../chrome/chrome.gyp:theme_resources',
+            '../build/linux/system.gyp:gtk',
           ],
         }],
         ['OS=="win"', {
