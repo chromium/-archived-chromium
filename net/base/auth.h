@@ -17,8 +17,8 @@ class AuthChallengeInfo :
     public base::RefCountedThreadSafe<AuthChallengeInfo> {
  public:
   bool is_proxy;  // true for Proxy-Authenticate, false for WWW-Authenticate.
-  std::wstring host;  // the domain name of the server asking for auth
-                      // (could be the proxy).
+  std::wstring host_and_port;  // <host>:<port> of the server asking for auth
+                               // (could be the proxy).
   std::wstring scheme;  // "Basic", "Digest", or whatever other method is used.
   std::wstring realm;  // the realm provided by the server, if there is one.
 

@@ -35,19 +35,26 @@ GURL FilePathToFileURL(const FilePath& path);
 // valid file URL. On failure, *file_path will be empty.
 bool FileURLToFilePath(const GURL& url, FilePath* file_path);
 
-// Split an input of the form <host>[":"<port>] into its consitituent parts.
+// Splits an input of the form <host>[":"<port>] into its consitituent parts.
 // Saves the result into |*host| and |*port|. If the input did not have
 // the optional port, sets |*port| to -1.
 // Returns true if the parsing was successful, false otherwise.
 // The returned host is NOT canonicalized, and may be invalid. If <host> is
 // an IPv6 literal address, the returned host includes the square brackets.
-bool GetHostAndPort(std::string::const_iterator host_and_port_begin,
-                    std::string::const_iterator host_and_port_end,
-                    std::string* host,
-                    int* port);
-bool GetHostAndPort(const std::string& host_and_port,
-                    std::string* host,
-                    int* port);
+bool ParseHostAndPort(std::string::const_iterator host_and_port_begin,
+                      std::string::const_iterator host_and_port_end,
+                      std::string* host,
+                      int* port);
+bool ParseHostAndPort(const std::string& host_and_port,
+                      std::string* host,
+                      int* port);
+
+// Returns a host:port string for the given URL.
+std::string GetHostAndPort(const GURL& url);
+
+// Returns a host[:port] string for the given URL, where the port is omitted
+// if it is the default for the URL's scheme.
+std::string GetHostAndOptionalPort(const GURL& url);
 
 // Returns the string representation of an address, like "192.168.0.1".
 // Returns empty string on failure.

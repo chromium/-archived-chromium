@@ -279,7 +279,8 @@ void URLRequestFtpJob::GetAuthChallengeInfo(
          (server_auth_->state == net::AUTH_STATE_NEED_AUTH));
   scoped_refptr<net::AuthChallengeInfo> auth_info = new net::AuthChallengeInfo;
   auth_info->is_proxy = false;
-  auth_info->host = UTF8ToWide(request_->url().host());
+  auth_info->host_and_port = ASCIIToWide(
+      net::GetHostAndPort(request_->url()));
   auth_info->scheme = L"";
   auth_info->realm = L"";
   result->swap(auth_info);

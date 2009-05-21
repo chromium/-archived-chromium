@@ -54,7 +54,7 @@ std::string GetSignonRealm(const GURL& url,
                            const net::AuthChallengeInfo& auth_info) {
   std::string signon_realm;
   if (auth_info.is_proxy) {
-    signon_realm = WideToASCII(auth_info.host);
+    signon_realm = WideToASCII(auth_info.host_and_port);
     signon_realm.append("/");
   } else {
     // Take scheme, host, and port from the url.
@@ -344,9 +344,9 @@ class LoginDialogTask : public Task {
 
     wstring explanation = auth_info_->realm.empty() ?
         l10n_util::GetStringF(IDS_LOGIN_DIALOG_DESCRIPTION_NO_REALM,
-                              auth_info_->host) :
+                              auth_info_->host_and_port) :
         l10n_util::GetStringF(IDS_LOGIN_DIALOG_DESCRIPTION,
-                              auth_info_->host,
+                              auth_info_->host_and_port,
                               auth_info_->realm);
     LoginView* view = new LoginView(explanation);
 

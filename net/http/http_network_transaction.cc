@@ -46,12 +46,9 @@ void BuildRequestHeaders(const HttpRequestInfo* request_info,
       HttpUtil::SpecForRequest(request_info->url) :
       HttpUtil::PathForRequest(request_info->url);
   *request_headers =
-      StringPrintf("%s %s HTTP/1.1\r\nHost: %s",
+      StringPrintf("%s %s HTTP/1.1\r\nHost: %s\r\n",
                    request_info->method.c_str(), path.c_str(),
-                   request_info->url.host().c_str());
-  if (request_info->url.IntPort() != -1)
-    *request_headers += ":" + request_info->url.port();
-  *request_headers += "\r\n";
+                   GetHostAndOptionalPort(request_info->url).c_str());
 
   // For compat with HTTP/1.0 servers and proxies:
   if (using_proxy)
@@ -107,12 +104,9 @@ void BuildTunnelRequest(const HttpRequestInfo* request_info,
                         std::string* request_headers) {
   // RFC 2616 Section 9 says the Host request-header field MUST accompany all
   // HTTP/1.1 requests.
-  *request_headers = StringPrintf("CONNECT %s:%d HTTP/1.1\r\n",
-      request_info->url.host().c_str(), request_info->url.EffectiveIntPort());
-  *request_headers += "Host: " + request_info->url.host();
-  if (request_info->url.has_port())
-    *request_headers += ":" + request_info->url.port();
-  *request_headers += "\r\n";
+  *request_headers = StringPrintf("CONNECT %s HTTP/1.1\r\nHost: %s\r\n",
+      GetHostAndPort(request_info->url).c_str(),
+      GetHostAndOptionalPort(request_info->url).c_str());
 
   if (!request_info->user_agent.empty())
     StringAppendF(request_headers, "User-Agent: %s\r\n",
@@ -1115,8 +1109,8 @@ void HttpNetworkTransaction::LogTransactionMetrics() const {
 void HttpNetworkTransaction::LogBlockedTunnelResponse(
     int response_code) const {
   LOG(WARNING) << "Blocked proxy response with status " << response_code
-               << " to CONNECT request for " << request_->url.host() << ":"
-               << request_->url.EffectiveIntPort() << ".";
+               << " to CONNECT request for "
+               << GetHostAndPort(request_->url) << ".";
 }
 
 int HttpNetworkTransaction::DidReadResponseHeaders() {
@@ -1678,12 +1672,15 @@ void HttpNetworkTransaction::PopulateAuthChallenge(HttpAuth::Target target) {
   auth_info->scheme = ASCIIToWide(auth_handler_[target]->scheme());
   // TODO(eroman): decode realm according to RFC 2047.
   auth_info->realm = ASCIIToWide(auth_handler_[target]->realm());
+
+  std::string host_and_port;
   if (target == HttpAuth::AUTH_PROXY) {
-    auth_info->host = ASCIIToWide(proxy_info_.proxy_server().host_and_port());
+    host_and_port = proxy_info_.proxy_server().host_and_port();
   } else {
     DCHECK(target == HttpAuth::AUTH_SERVER);
-    auth_info->host = ASCIIToWide(request_->url.host());
+    host_and_port = GetHostAndPort(request_->url);
   }
+  auth_info->host_and_port = ASCIIToWide(host_and_port);
   response_.auth_challenge = auth_info;
 }
 

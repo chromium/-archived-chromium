@@ -944,10 +944,10 @@ int SetNonBlocking(int fd) {
 #endif
 }
 
-bool GetHostAndPort(std::string::const_iterator host_and_port_begin,
-                    std::string::const_iterator host_and_port_end,
-                    std::string* host,
-                    int* port) {
+bool ParseHostAndPort(std::string::const_iterator host_and_port_begin,
+                      std::string::const_iterator host_and_port_end,
+                      std::string* host,
+                      int* port) {
   if (host_and_port_begin >= host_and_port_end)
     return false;
 
@@ -991,10 +991,25 @@ bool GetHostAndPort(std::string::const_iterator host_and_port_begin,
   return true;  // Success.
 }
 
-bool GetHostAndPort(const std::string& host_and_port,
-                    std::string* host,
-                    int* port) {
-  return GetHostAndPort(host_and_port.begin(), host_and_port.end(), host, port);
+bool ParseHostAndPort(const std::string& host_and_port,
+                      std::string* host,
+                      int* port) {
+  return ParseHostAndPort(
+      host_and_port.begin(), host_and_port.end(), host, port);
+}
+
+std::string GetHostAndPort(const GURL& url) {
+  // For IPv6 literals, GURL::host() already includes the brackets so it is
+  // safe to just append a colon.
+  return StringPrintf("%s:%d", url.host().c_str(), url.EffectiveIntPort());
+}
+
+std::string GetHostAndOptionalPort(const GURL& url) {
+  // For IPv6 literals, GURL::host() already includes the brackets
+  // so it is safe to just append a colon.
+  if (url.has_port())
+    return StringPrintf("%s:%s", url.host().c_str(), url.port().c_str());
+  return url.host();
 }
 
 std::string NetAddressToString(const struct addrinfo* net_address) {

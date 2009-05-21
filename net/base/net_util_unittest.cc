@@ -884,7 +884,7 @@ TEST(NetUtilTest, GetDirectoryListingEntry) {
 
 #endif
 
-TEST(NetUtilTest, GetHostAndPort) {
+TEST(NetUtilTest, ParseHostAndPort) {
   const struct {
     const char* input;
     bool success;
@@ -918,7 +918,7 @@ TEST(NetUtilTest, GetHostAndPort) {
   for (size_t i = 0; i < ARRAYSIZE_UNSAFE(tests); ++i) {
     std::string host;
     int port;
-    bool ok = net::GetHostAndPort(tests[i].input, &host, &port);
+    bool ok = net::ParseHostAndPort(tests[i].input, &host, &port);
 
     EXPECT_EQ(tests[i].success, ok);
 
@@ -928,6 +928,43 @@ TEST(NetUtilTest, GetHostAndPort) {
     }
   }
 }
+
+TEST(NetUtilTest, GetHostAndPort) {
+  const struct {
+    GURL url;
+    const char* expected_host_and_port;
+  } tests[] = {
+    { GURL("http://www.foo.com/x"), "www.foo.com:80"},
+    { GURL("http://www.foo.com:21/x"), "www.foo.com:21"},
+
+    // For IPv6 literals should always include the brackets.
+    { GURL("http://[1::2]/x"), "[1::2]:80"},
+    { GURL("http://[::a]:33/x"), "[::a]:33"},
+  };
+  for (size_t i = 0; i < ARRAYSIZE_UNSAFE(tests); ++i) {
+    std::string host_and_port = net::GetHostAndPort(tests[i].url);
+    EXPECT_EQ(std::string(tests[i].expected_host_and_port), host_and_port);
+  }
+}
+
+TEST(NetUtilTest, GetHostAndOptionalPort) {
+  const struct {
+    GURL url;
+    const char* expected_host_and_port;
+  } tests[] = {
+    { GURL("http://www.foo.com/x"), "www.foo.com"},
+    { GURL("http://www.foo.com:21/x"), "www.foo.com:21"},
+
+    // For IPv6 literals should always include the brackets.
+    { GURL("http://[1::2]/x"), "[1::2]"},
+    { GURL("http://[::a]:33/x"), "[::a]:33"},
+  };
+  for (size_t i = 0; i < ARRAYSIZE_UNSAFE(tests); ++i) {
+    std::string host_and_port = net::GetHostAndOptionalPort(tests[i].url);
+    EXPECT_EQ(std::string(tests[i].expected_host_and_port), host_and_port);
+  }
+}
+
 
 TEST(NetUtilTest, NetAddressToString_IPv4) {
   const struct {

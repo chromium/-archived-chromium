@@ -970,8 +970,7 @@ TEST_F(HttpNetworkTransactionTest, BasicAuth) {
   // The password prompt info should have been set in response->auth_challenge.
   EXPECT_FALSE(response->auth_challenge.get() == NULL);
 
-  // TODO(eroman): this should really include the effective port (80)
-  EXPECT_EQ(L"www.google.com", response->auth_challenge->host);
+  EXPECT_EQ(L"www.google.com:80", response->auth_challenge->host_and_port);
   EXPECT_EQ(L"MyRealm1", response->auth_challenge->realm);
   EXPECT_EQ(L"basic", response->auth_challenge->scheme);
 
@@ -1048,8 +1047,7 @@ TEST_F(HttpNetworkTransactionTest, BasicAuthKeepAlive) {
   // The password prompt info should have been set in response->auth_challenge.
   EXPECT_FALSE(response->auth_challenge.get() == NULL);
 
-  // TODO(eroman): this should really include the effective port (80)
-  EXPECT_EQ(L"www.google.com", response->auth_challenge->host);
+  EXPECT_EQ(L"www.google.com:80", response->auth_challenge->host_and_port);
   EXPECT_EQ(L"MyRealm1", response->auth_challenge->realm);
   EXPECT_EQ(L"basic", response->auth_challenge->scheme);
 
@@ -1129,8 +1127,7 @@ TEST_F(HttpNetworkTransactionTest, BasicAuthKeepAliveNoBody) {
   // The password prompt info should have been set in response->auth_challenge.
   EXPECT_FALSE(response->auth_challenge.get() == NULL);
 
-  // TODO(eroman): this should really include the effective port (80)
-  EXPECT_EQ(L"www.google.com", response->auth_challenge->host);
+  EXPECT_EQ(L"www.google.com:80", response->auth_challenge->host_and_port);
   EXPECT_EQ(L"MyRealm1", response->auth_challenge->realm);
   EXPECT_EQ(L"basic", response->auth_challenge->scheme);
 
@@ -1213,8 +1210,7 @@ TEST_F(HttpNetworkTransactionTest, BasicAuthKeepAliveLargeBody) {
   // The password prompt info should have been set in response->auth_challenge.
   EXPECT_FALSE(response->auth_challenge.get() == NULL);
 
-  // TODO(eroman): this should really include the effective port (80)
-  EXPECT_EQ(L"www.google.com", response->auth_challenge->host);
+  EXPECT_EQ(L"www.google.com:80", response->auth_challenge->host_and_port);
   EXPECT_EQ(L"MyRealm1", response->auth_challenge->realm);
   EXPECT_EQ(L"basic", response->auth_challenge->scheme);
 
@@ -1304,8 +1300,7 @@ TEST_F(HttpNetworkTransactionTest, BasicAuthProxyKeepAlive) {
   // The password prompt info should have been set in response->auth_challenge.
   EXPECT_FALSE(response->auth_challenge.get() == NULL);
 
-  // TODO(eroman): this should really include the effective port (80)
-  EXPECT_EQ(L"myproxy:70", response->auth_challenge->host);
+  EXPECT_EQ(L"myproxy:70", response->auth_challenge->host_and_port);
   EXPECT_EQ(L"MyRealm1", response->auth_challenge->realm);
   EXPECT_EQ(L"basic", response->auth_challenge->scheme);
 
@@ -1329,8 +1324,7 @@ TEST_F(HttpNetworkTransactionTest, BasicAuthProxyKeepAlive) {
   // The password prompt info should have been set in response->auth_challenge.
   EXPECT_FALSE(response->auth_challenge.get() == NULL);
 
-  // TODO(eroman): this should really include the effective port (80)
-  EXPECT_EQ(L"myproxy:70", response->auth_challenge->host);
+  EXPECT_EQ(L"myproxy:70", response->auth_challenge->host_and_port);
   EXPECT_EQ(L"MyRealm1", response->auth_challenge->realm);
   EXPECT_EQ(L"basic", response->auth_challenge->scheme);
 }
@@ -1712,7 +1706,7 @@ TEST_F(HttpNetworkTransactionTest, BasicAuthProxyThenServer) {
   // The password prompt info should have been set in response->auth_challenge.
   EXPECT_FALSE(response->auth_challenge.get() == NULL);
 
-  EXPECT_EQ(L"myproxy:70", response->auth_challenge->host);
+  EXPECT_EQ(L"myproxy:70", response->auth_challenge->host_and_port);
   EXPECT_EQ(L"MyRealm1", response->auth_challenge->realm);
   EXPECT_EQ(L"basic", response->auth_challenge->scheme);
 
@@ -1728,8 +1722,7 @@ TEST_F(HttpNetworkTransactionTest, BasicAuthProxyThenServer) {
   EXPECT_FALSE(response == NULL);
   EXPECT_FALSE(response->auth_challenge.get() == NULL);
 
-  // TODO(eroman): this should really include the effective port (80)
-  EXPECT_EQ(L"www.google.com", response->auth_challenge->host);
+  EXPECT_EQ(L"www.google.com:80", response->auth_challenge->host_and_port);
   EXPECT_EQ(L"MyRealm1", response->auth_challenge->realm);
   EXPECT_EQ(L"basic", response->auth_challenge->scheme);
 
@@ -1860,8 +1853,7 @@ TEST_F(HttpNetworkTransactionTest, NTLMAuth1) {
   // The password prompt info should have been set in response->auth_challenge.
   EXPECT_FALSE(response->auth_challenge.get() == NULL);
 
-  // TODO(eroman): this should really include the effective port (80)
-  EXPECT_EQ(L"172.22.68.17", response->auth_challenge->host);
+  EXPECT_EQ(L"172.22.68.17:80", response->auth_challenge->host_and_port);
   EXPECT_EQ(L"", response->auth_challenge->realm);
   EXPECT_EQ(L"ntlm", response->auth_challenge->scheme);
 
@@ -2041,8 +2033,7 @@ TEST_F(HttpNetworkTransactionTest, NTLMAuth2) {
   // The password prompt info should have been set in response->auth_challenge.
   EXPECT_FALSE(response->auth_challenge.get() == NULL);
 
-  // TODO(eroman): this should really include the effective port (80)
-  EXPECT_EQ(L"172.22.68.17", response->auth_challenge->host);
+  EXPECT_EQ(L"172.22.68.17:80", response->auth_challenge->host_and_port);
   EXPECT_EQ(L"", response->auth_challenge->realm);
   EXPECT_EQ(L"ntlm", response->auth_challenge->scheme);
 
@@ -2069,8 +2060,7 @@ TEST_F(HttpNetworkTransactionTest, NTLMAuth2) {
   // The password prompt info should have been set in response->auth_challenge.
   EXPECT_FALSE(response->auth_challenge.get() == NULL);
 
-  // TODO(eroman): this should really include the effective port (80)
-  EXPECT_EQ(L"172.22.68.17", response->auth_challenge->host);
+  EXPECT_EQ(L"172.22.68.17:80", response->auth_challenge->host_and_port);
   EXPECT_EQ(L"", response->auth_challenge->realm);
   EXPECT_EQ(L"ntlm", response->auth_challenge->scheme);
 
@@ -2553,8 +2543,7 @@ TEST_F(HttpNetworkTransactionTest, BasicAuthCacheAndPreauth) {
     // response->auth_challenge.
     EXPECT_FALSE(response->auth_challenge.get() == NULL);
 
-    // TODO(eroman): this should really include the effective port (80)
-    EXPECT_EQ(L"www.google.com", response->auth_challenge->host);
+    EXPECT_EQ(L"www.google.com:80", response->auth_challenge->host_and_port);
     EXPECT_EQ(L"MyRealm1", response->auth_challenge->realm);
     EXPECT_EQ(L"basic", response->auth_challenge->scheme);
 
@@ -2644,8 +2633,7 @@ TEST_F(HttpNetworkTransactionTest, BasicAuthCacheAndPreauth) {
     // response->auth_challenge.
     EXPECT_FALSE(response->auth_challenge.get() == NULL);
 
-    // TODO(eroman): this should really include the effective port (80)
-    EXPECT_EQ(L"www.google.com", response->auth_challenge->host);
+    EXPECT_EQ(L"www.google.com:80", response->auth_challenge->host_and_port);
     EXPECT_EQ(L"MyRealm2", response->auth_challenge->realm);
     EXPECT_EQ(L"basic", response->auth_challenge->scheme);
 
@@ -2884,8 +2872,7 @@ TEST_F(HttpNetworkTransactionTest, BasicAuthCacheAndPreauth) {
     // response->auth_challenge.
     EXPECT_FALSE(response->auth_challenge.get() == NULL);
 
-    // TODO(eroman): this should really include the effective port (80)
-    EXPECT_EQ(L"www.google.com", response->auth_challenge->host);
+    EXPECT_EQ(L"www.google.com:80", response->auth_challenge->host_and_port);
     EXPECT_EQ(L"MyRealm1", response->auth_challenge->realm);
     EXPECT_EQ(L"basic", response->auth_challenge->scheme);
 

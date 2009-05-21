@@ -609,6 +609,7 @@ bool ProxyService::ShouldBypassProxyForURL(const GURL& url) {
   // percent-encoded characters.
   StringToLowerASCII(&url_domain);
 
+  // TODO(eroman): use GetHostAndPort().
   std::string url_domain_and_port = url_domain + ":"
       + IntToString(url.EffectiveIntPort());
 

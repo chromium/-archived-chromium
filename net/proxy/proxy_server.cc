@@ -205,7 +205,7 @@ ProxyServer ProxyServer::FromSchemeHostAndPort(
 
   if (scheme != SCHEME_INVALID && scheme != SCHEME_DIRECT) {
     // If the scheme has a host/port, parse it.
-    bool ok = net::GetHostAndPort(begin, end, &host, &port);
+    bool ok = net::ParseHostAndPort(begin, end, &host, &port);
     if (!ok)
       return ProxyServer();  // Invalid -- failed parsing <host>[":"<port>]
   }
