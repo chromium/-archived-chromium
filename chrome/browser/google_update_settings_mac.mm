@@ -23,14 +23,14 @@ namespace google_update {
 const wchar_t kRegUsageStatsField[] = L"usagestats";
 
 // Declared in a public namespace for testing purposes.
-// If pref not set, assume true.
+// If pref not set, assume false.
 bool GetCollectStatsConsentFromDictionary(NSDictionary* dict) {
   NSString* collect_stats_key = base::SysWideToNSString(
       google_update::kRegUsageStatsField);
   NSNumber* val = [dict objectForKey:collect_stats_key];
 
   if (![val respondsToSelector:@selector(boolValue)]) {
-    return true;
+    return false;
   }
 
   return ([val boolValue] == YES);
@@ -52,8 +52,12 @@ bool GoogleUpdateSettings::GetCollectStatsConsent() {
 
 // static
 bool GoogleUpdateSettings::SetCollectStatsConsent(bool consented) {
-  NOTIMPLEMENTED();
-  return false;
+  NSString* collect_stats_key = base::SysWideToNSString(
+        google_update::kRegUsageStatsField);
+  NSUserDefaults* std_defaults = [NSUserDefaults standardUserDefaults];
+  BOOL val_to_store = consented ? YES : NO;
+  [std_defaults setBool:val_to_store forKey:collect_stats_key];
+  return [std_defaults synchronize];
 }
 
 // static

@@ -135,11 +135,17 @@ bool ShellIntegration::IsDefaultBrowser() {
 
 //--------------------------------------------------------------------------
 
+#if defined(OS_LINUX)
 // static
 bool FirstRun::IsChromeFirstRun() {
   // http://code.google.com/p/chromium/issues/detail?id=11971
   return false;
 }
+
+void OpenFirstRunDialog(Profile* profile, ProcessSingleton* process_singleton) {
+  NOTIMPLEMENTED();
+}
+#endif  // defined(OS_LINUX)
 
 // static
 bool FirstRun::ProcessMasterPreferences(const FilePath& user_data_dir,
@@ -172,10 +178,6 @@ bool Upgrade::RelaunchChromeBrowser(const CommandLine& command_line) {
 bool Upgrade::SwapNewChromeExeIfPresent() {
   // http://code.google.com/p/chromium/issues/detail?id=9295
   return true;
-}
-
-void OpenFirstRunDialog(Profile* profile, ProcessSingleton* process_singleton) {
-  NOTIMPLEMENTED();
 }
 
 //--------------------------------------------------------------------------

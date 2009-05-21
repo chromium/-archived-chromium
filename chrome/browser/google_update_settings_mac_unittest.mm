@@ -24,9 +24,9 @@ class GoogleUpdateTest : public PlatformTest {
 TEST_F(GoogleUpdateTest, StatsConstent) {
   using google_update::GetCollectStatsConsentFromDictionary;
 
-  // Stats are on by default.
+  // Stats are off by default.
   NSDictionary* empty_dict = [NSDictionary dictionary];
-  ASSERT_TRUE(GetCollectStatsConsentFromDictionary(empty_dict));
+  ASSERT_FALSE(GetCollectStatsConsentFromDictionary(empty_dict));
 
   NSString* collect_stats_key = base::SysWideToNSString(
       google_update::kRegUsageStatsField);
@@ -49,5 +49,5 @@ TEST_F(GoogleUpdateTest, StatsConstent) {
   NSDictionary* wrong_type_dict = [NSDictionary
       dictionaryWithObject:empty_dict
                     forKey:collect_stats_key];
-  ASSERT_TRUE(GetCollectStatsConsentFromDictionary(wrong_type_dict));
+  ASSERT_FALSE(GetCollectStatsConsentFromDictionary(wrong_type_dict));
 }

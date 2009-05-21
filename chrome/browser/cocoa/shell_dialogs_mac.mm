@@ -11,7 +11,7 @@
 
 #include "base/logging.h"
 #include "base/scoped_cftyperef.h"
-#include "base/scoped_nsobject.h"
+#import "base/scoped_nsobject.h"
 #include "base/sys_string_conversions.h"
 
 static const int kFileTypePopupTag = 1234;

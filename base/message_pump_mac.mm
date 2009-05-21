@@ -190,7 +190,12 @@ void MessagePumpCFRunLoopBase::RunIdleWork(CFRunLoopObserverRef observer,
   // autoreleased objects to ensure they go away sooner.
   ScopedNSAutoreleasePool autorelease_pool;
 
-  if (self->delegate_->DoIdleWork()) {
+  // The "self->delegate_ &&" part of the clause is needed for the case of
+  // the temporary modal first run dialog.  The dialog is displayed really
+  // early in the Chrome launch process at which time self->delegate_ is null.
+  // TODO: remove the "self->delegate_ &&" clause from the bellow condition once
+  // we remove the modal first run dialog.
+  if (self->delegate_ && self->delegate_->DoIdleWork()) {
     // If idle work was done, don't let the loop go to sleep.  More idle work
     // might be waiting.
     CFRunLoopWakeUp(self->run_loop_);

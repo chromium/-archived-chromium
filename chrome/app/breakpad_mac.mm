@@ -16,6 +16,9 @@
 #include "chrome/installer/util/google_update_settings.h"
 
 #if !defined(GOOGLE_CHROME_BUILD)
+
+extern "C" {
+
 // If we aren't compiling as a branded build, then add dummy versions of the
 // Breakpad functions so we don't have to link against Breakpad.
 
@@ -34,6 +37,8 @@ void BreakpadSetKeyValue(BreakpadRef ref, NSString *key, NSString *value) {
 
 void BreakpadRemoveKeyValue(BreakpadRef ref, NSString *key) {
   NOTREACHED();
+}
+
 }
 
 #endif  // !defined(GOOGLE_CHROME_BUILD)
