@@ -2665,6 +2665,7 @@
         'chrome_resources',
         'chrome_strings',
         'test_support_unit',
+        '../app/app.gyp:app_resources',
         '../net/net.gyp:net_test_support',
         '../printing/printing.gyp:printing',
         '../webkit/webkit.gyp:webkit',
