@@ -121,8 +121,10 @@ void DownloadStartedAnimationWin::Reposition() {
   // Align the image with the bottom left of the web contents (so that it
   // points to the newly created download).
   gfx::Size size = GetPreferredSize();
+  int x = UILayoutIsRightToLeft() ?
+      tab_contents_bounds_.right() - size.width() : tab_contents_bounds_.x();
   popup_->MoveWindow(
-      tab_contents_bounds_.x(),
+      x,
       static_cast<int>(tab_contents_bounds_.bottom() -
           size.height() - size.height() * (1 - GetCurrentValue())),
       size.width(),
