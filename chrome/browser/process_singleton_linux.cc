@@ -204,8 +204,8 @@ void ProcessSingleton::LinuxWatcher::SocketReader::OnFileCanReadWithoutBlocking(
     return;
   }
 
-  // Validate the message.  The shortest message is kStartToken\0x\0x\0
-  const ssize_t kMinMessageLength = strlen(kStartToken) + 5;
+  // Validate the message.  The shortest message is kStartToken\0x\0x
+  const ssize_t kMinMessageLength = strlen(kStartToken) + 4;
   if (rv < kMinMessageLength) {
     LOG(ERROR) << "Invalid socket message (wrong length):" << buf;
     return;
@@ -264,7 +264,7 @@ bool ProcessSingleton::NotifyOtherProcess() {
   setsockopt(socket, SOL_SOCKET, SO_SNDTIMEO, &timeout, sizeof(timeout));
 
   // Found another process, prepare our command line
-  // format is "START\0<current dir>\0<argv[0]>\0...\0<argv[n]>\0".
+  // format is "START\0<current dir>\0<argv[0]>\0...\0<argv[n]>".
   std::string to_send(kStartToken);
   to_send.push_back(kTokenDelimiter);
 
@@ -272,14 +272,13 @@ bool ProcessSingleton::NotifyOtherProcess() {
   if (!PathService::Get(base::DIR_CURRENT, &current_dir))
     return false;
   to_send.append(current_dir.value());
-  to_send.push_back(kTokenDelimiter);
 
   const std::vector<std::string>& argv =
       CommandLine::ForCurrentProcess()->argv();
   for (std::vector<std::string>::const_iterator it = argv.begin();
       it != argv.end(); ++it) {
-    to_send.append(*it);
     to_send.push_back(kTokenDelimiter);
+    to_send.append(*it);
   }
 
   // Send the message
