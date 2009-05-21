@@ -1958,7 +1958,7 @@
         'app/theme/star.pdf',
         'app/theme/starred.pdf',
         'app/theme/stop.pdf',
-        'app/theme/throbber.png',
+        '../app/resources/throbber.png',
         'app/theme/throbber_waiting.png',
         'app/app-Info.plist',
       ],
