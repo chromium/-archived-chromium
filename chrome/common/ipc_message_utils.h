@@ -25,6 +25,8 @@
 // Forward declarations.
 class GURL;
 class SkBitmap;
+class DictionaryValue;
+class ListValue;
 
 namespace gfx {
 class Point;
@@ -355,6 +357,22 @@ struct ParamTraits<SkBitmap> {
   // r->SetConfig() and r->SetPixels() are called.
   static bool Read(const Message* m, void** iter, param_type* r);
 
+  static void Log(const param_type& p, std::wstring* l);
+};
+
+template <>
+struct ParamTraits<DictionaryValue> {
+  typedef DictionaryValue param_type;
+  static void Write(Message* m, const param_type& p);
+  static bool Read(const Message* m, void** iter, param_type* r);
+  static void Log(const param_type& p, std::wstring* l);
+};
+
+template <>
+struct ParamTraits<ListValue> {
+  typedef ListValue param_type;
+  static void Write(Message* m, const param_type& p);
+  static bool Read(const Message* m, void** iter, param_type* r);
   static void Log(const param_type& p, std::wstring* l);
 };
 
