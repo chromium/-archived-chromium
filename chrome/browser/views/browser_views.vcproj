@@ -37,6 +37,7 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
+				AdditionalIncludeDirectories="$(IntDir)\..\global_intermediate\app"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -329,15 +330,15 @@
 				>
 			</File>
 			<File
+				RelativePath=".\tabs\native_view_photobooth.h"
+				>
+			</File>
+			<File
 				RelativePath=".\tabs\native_view_photobooth_win.cc"
 				>
 			</File>
 			<File
 				RelativePath=".\tabs\native_view_photobooth_win.h"
-				>
-			</File>
-			<File
-				RelativePath=".\tabs\native_view_photobooth.h"
 				>
 			</File>
 			<File

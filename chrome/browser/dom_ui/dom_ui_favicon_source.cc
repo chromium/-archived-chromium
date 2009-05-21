@@ -7,7 +7,7 @@
 #include "app/resource_bundle.h"
 #include "chrome/browser/profile.h"
 #include "chrome/common/url_constants.h"
-#include "grit/theme_resources.h"
+#include "grit/app_resources.h"
 
 DOMUIFavIconSource::DOMUIFavIconSource(Profile* profile)
     : DataSource(chrome::kChromeUIFavIconPath, MessageLoop::current()),
