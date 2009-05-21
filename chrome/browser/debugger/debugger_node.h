@@ -15,8 +15,9 @@
 #define CHROME_BROWSER_DEBUGGER_DEBUGGER_NODE_H_
 
 #include "base/basictypes.h"
+#include "base/scoped_ptr.h"
 #include "base/ref_counted.h"
-#include "chrome/common/notification_observer.h"
+#include "chrome/common/notification_registrar.h"
 #include "v8/include/v8.h"
 
 class Browser;
@@ -48,8 +49,6 @@ class DebuggerNode : public NotificationObserver {
   virtual void Observe(NotificationType type,
                        const NotificationSource& source,
                        const NotificationDetails& details);
-  void StopObserving();
-  virtual void StopObserving(NotificationService *service);
 
   // Index getter callback from V8 for objects where IsCollection is true
   virtual v8::Handle<v8::Value> IndexGetter(uint32_t index,
@@ -73,17 +72,13 @@ class DebuggerNode : public NotificationObserver {
   static v8::Handle<v8::Value> NodeFunc(const v8::Arguments& args);
 
  protected:
-  void *data_;
+  NotificationRegistrar registrar_;
+  void* data_;
   bool valid_;
-  bool observing_;
-
- private:
 };
 
-// A wrapper around the proxy to handle two issues:
-// - call virtual methods to stop observing at destruction time
-// - call virtual methods during callbacks from V8 after a static_cast
-//   from void*
+// A wrapper around the proxy to handle calling virtual methods during callbacks
+// from V8 after a static_cast from void*.
 // The point here is that we'd like to be able to stick DebuggerNode* objects
 // into V8.  To do that, we need to cast them to void*, which means we need
 // this additional layer of wrapper to protect them from the harmful effects
@@ -93,13 +88,10 @@ class DebuggerNode : public NotificationObserver {
 class DebuggerNodeWrapper : public base::RefCounted<DebuggerNodeWrapper> {
  public:
   DebuggerNodeWrapper(DebuggerNode* node) : node_(node) {}
-  virtual ~DebuggerNodeWrapper() {
-    node_->StopObserving();
-    delete node_;
-  }
-  DebuggerNode* node() { return node_; }
+  virtual ~DebuggerNodeWrapper() {}
+  DebuggerNode* node() { return node_.get(); }
  private:
-  DebuggerNode* node_;
+  scoped_ptr<DebuggerNode> node_;
 };
 
 // top level chrome object implements:
@@ -117,10 +109,7 @@ class ChromeNode : public DebuggerNode {
   virtual v8::Handle<v8::Value> PropGetter(v8::Handle<v8::String> prop,
                                            const v8::AccessorInfo& info);
 
-  virtual void StopObserving(NotificationService *service);
-
  private:
-
   DebuggerShell* debugger_;
 };
 
@@ -133,8 +122,6 @@ class BrowserListNode : public DebuggerNode {
 
   virtual v8::Handle<v8::Value> IndexGetter(uint32_t index,
                                             const v8::AccessorInfo& info);
-  virtual void StopObserving(NotificationService *service);
-
   static BrowserListNode* BrowserList();
 
  private:
@@ -153,8 +140,6 @@ class BrowserNode : public DebuggerNode {
 
   static BrowserNode* BrowserAtIndex(int index);
 
-  virtual void StopObserving(NotificationService *service);
-
   virtual v8::Handle<v8::Value> PropGetter(v8::Handle<v8::String> prop,
                                            const v8::AccessorInfo& info);
 
@@ -170,8 +155,6 @@ class TabListNode : public DebuggerNode {
   bool IsCollection() { return true; }
   bool IsFunction() { return false; }
   bool IsObject() { return false; }
-
-  virtual void StopObserving(NotificationService *service);
 
   virtual v8::Handle<v8::Value> IndexGetter(uint32_t index,
                                             const v8::AccessorInfo& info);
@@ -195,7 +178,6 @@ class TabNode : public DebuggerNode {
   bool IsObject() { return true; }
 
   TabNode(TabContents* c);
-  virtual void StopObserving(NotificationService* service);
   virtual v8::Handle<v8::Value> PropGetter(v8::Handle<v8::String> prop,
                                            const v8::AccessorInfo& info);
  private:
@@ -222,8 +204,8 @@ class FunctionNode : public DebuggerNode {
 
   typedef v8::Handle<v8::Value> (*Callback)(const v8::Arguments& args, T* data);
 
-  FunctionNode(Callback f, T* data) :
-      function_(f), data_(data) {};
+  FunctionNode(Callback f, T* data)
+      : function_(f), data_(data) {}
 
 private:
   // Functor callback from V8 for objects where IsFunction is true

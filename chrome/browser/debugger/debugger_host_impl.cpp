@@ -11,55 +11,36 @@
 #include "chrome/browser/debugger/debugger_wrapper.h"
 #include "chrome/browser/renderer_host/render_view_host.h"
 #include "chrome/browser/tab_contents/tab_contents.h"
+#include "chrome/common/notification_registrar.h"
 #include "chrome/common/notification_service.h"
 
 class TabContentsReference : public NotificationObserver {
  public:
   TabContentsReference(TabContents *c) : navigation_controller_(NULL) {
     navigation_controller_ = &c->controller();
-
-    NotificationService* service = NotificationService::current();
-    DCHECK(service);
-    service->AddObserver(this,
-                         NotificationType::TAB_CLOSING,
-                         Source<NavigationController>(navigation_controller_));
-    observing_ = true;
+    registrar_.Add(this, NotificationType::TAB_CLOSING,
+                   Source<NavigationController>(navigation_controller_));
   }
 
   virtual ~TabContentsReference() {
-    StopObserving();
   }
 
   // NotificationObserver impl
   virtual void Observe(NotificationType type,
                        const NotificationSource& source,
                        const NotificationDetails& details) {
-    StopObserving();
+    registrar_.RemoveAll();
     navigation_controller_ = NULL;
   }
 
   TabContents* GetTabContents() {
-    if (navigation_controller_) {
-      return navigation_controller_->tab_contents();
-    } else {
-      return NULL;
-    }
-  }
- private:
-  void StopObserving() {
-    if (observing_ && navigation_controller_) {
-      NotificationService* service = NotificationService::current();
-      DCHECK(service);
-      service->RemoveObserver(
-          this,
-          NotificationType::TAB_CLOSING,
-          Source<NavigationController>(navigation_controller_));
-      observing_ = false;
-    }
+    return navigation_controller_ ?
+        navigation_controller_->tab_contents() : NULL;
   }
 
+ private:
+  NotificationRegistrar registrar_;
   NavigationController* navigation_controller_;
-  bool observing_;
 
   DISALLOW_COPY_AND_ASSIGN(TabContentsReference);
 };

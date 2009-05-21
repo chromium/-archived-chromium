@@ -15,32 +15,20 @@
 #include "chrome/browser/debugger/debugger_shell.h"
 #include "chrome/common/notification_service.h"
 
-DebuggerNode::DebuggerNode() : data_(NULL), valid_(true), observing_(false) {
+DebuggerNode::DebuggerNode() : data_(NULL), valid_(true) {
 }
 
 void DebuggerNode::Observe(NotificationType type,
                            const NotificationSource& source,
                            const NotificationDetails& details) {
-  StopObserving();
+  registrar_.RemoveAll();
+  data_ = NULL;
   Invalidate();
 }
 
 DebuggerNode::~DebuggerNode() {
 }
 
-
-void DebuggerNode::StopObserving() {
-  if (observing_ && valid_) {
-    NotificationService* service = NotificationService::current();
-    DCHECK(service);
-    StopObserving(service);
-    observing_ = false;
-  }
-  data_ = NULL;
-}
-
-void DebuggerNode::StopObserving(NotificationService *service) {
-}
 
 v8::Handle<v8::Value> DebuggerNode::IndexGetter(uint32_t index,
                                                 const v8::AccessorInfo& info) {
@@ -89,11 +77,8 @@ v8::Handle<v8::Value> DebuggerNode::NodeGetter(v8::Local<v8::String> prop,
   DebuggerNodeWrapper* w = static_cast<DebuggerNodeWrapper*>(v8::External::Cast(
         *info.Data())->Value());
   DebuggerNode* n = w->node();
-  if (n->IsValid() && n->IsObject()) {
-    return n->PropGetter(prop, info);
-  } else {
-    return v8::Undefined();
-  }
+  return (n->IsValid() && n->IsObject()) ? n->PropGetter(prop, info) :
+      static_cast<v8::Handle<v8::Value> >(v8::Undefined());
 }
 
 v8::Handle<v8::Value> DebuggerNode::NodeIndex(uint32_t index,
@@ -101,24 +86,17 @@ v8::Handle<v8::Value> DebuggerNode::NodeIndex(uint32_t index,
   DebuggerNodeWrapper* w = static_cast<DebuggerNodeWrapper*>(v8::External::Cast(
       *info.Data())->Value());
   DebuggerNode* n = w->node();
-  if (n->IsValid() && n->IsCollection()) {
-    return n->IndexGetter(index, info);
-  } else {
-    return v8::Undefined();
-  }
+  return (n->IsValid() && n->IsCollection()) ? n->IndexGetter(index, info) :
+      static_cast<v8::Handle<v8::Value> >(v8::Undefined());
 }
 
 v8::Handle<v8::Value> DebuggerNode::NodeFunc(const v8::Arguments& args) {
   DebuggerNodeWrapper* w = static_cast<DebuggerNodeWrapper*>(v8::External::Cast(
       *args.Data())->Value());
   DebuggerNode* n = w->node();
-  if (n->IsValid() && n->IsFunction()) {
-    return n->Function(args);
-  } else {
-    return v8::Undefined();
-  }
+  return (n->IsValid() && n->IsFunction()) ? n->Function(args) :
+      static_cast<v8::Handle<v8::Value> >(v8::Undefined());
 }
-
 
 
 /////////////////////////////////////////////
@@ -132,58 +110,36 @@ ChromeNode::~ChromeNode() {
 
 v8::Handle<v8::Value> ChromeNode::PropGetter(v8::Handle<v8::String> prop,
                                              const v8::AccessorInfo& info) {
-  if (prop->Equals(v8::String::New("pid"))) {
+  if (prop->Equals(v8::String::New("pid")))
     return v8::Number::New(base::GetCurrentProcId());
-  } else if (prop->Equals(v8::String::New("browser"))) {
-    BrowserListNode *node = BrowserListNode::BrowserList();
-    return node->NewInstance();
-  } else if (prop->Equals(v8::String::New("setDebuggerReady"))) {
-    FunctionNode<DebuggerShell>* f =
-      new FunctionNode<DebuggerShell>(DebuggerShell::SetDebuggerReady,
-                                      debugger_);
-    return f->NewInstance();
-  } else if (prop->Equals(v8::String::New("setDebuggerBreak"))) {
-    FunctionNode<DebuggerShell>* f =
-      new FunctionNode<DebuggerShell>(DebuggerShell::SetDebuggerBreak,
-                                      debugger_);
-    return f->NewInstance();
-  } else if (prop->Equals(v8::String::New("foo"))) {
-    return v8::Undefined();
-  } else {
-    return prop;
+  if (prop->Equals(v8::String::New("browser")))
+    return BrowserListNode::BrowserList()->NewInstance();
+  if (prop->Equals(v8::String::New("setDebuggerReady"))) {
+    return (new FunctionNode<DebuggerShell>(DebuggerShell::SetDebuggerReady,
+                                            debugger_))->NewInstance();
   }
-}
-
-void ChromeNode::StopObserving(NotificationService *service) {
+  if (prop->Equals(v8::String::New("setDebuggerBreak"))) {
+    return (new FunctionNode<DebuggerShell>(DebuggerShell::SetDebuggerBreak,
+                                            debugger_))->NewInstance();
+  }
+  return (prop->Equals(v8::String::New("foo"))) ?
+      static_cast<v8::Handle<v8::Value> >(v8::Undefined()) : prop;
 }
 
 /////////////////////////////////////////////
 
 BrowserNode::BrowserNode(Browser *b) {
   data_ = b;
-
-  NotificationService* service = NotificationService::current();
-  DCHECK(service);
-  service->AddObserver(
-      this, NotificationType::BROWSER_CLOSED, Source<Browser>(b));
-  observing_ = true;
-}
-
-void BrowserNode::StopObserving(NotificationService *service) {
-  Browser *b = static_cast<Browser*>(data_);
-  service->RemoveObserver(
-      this, NotificationType::BROWSER_CLOSED, Source<Browser>(b));
+  registrar_.Add(this, NotificationType::BROWSER_CLOSED, Source<Browser>(b));
 }
 
 BrowserNode* BrowserNode::BrowserAtIndex(int index) {
   if (index >= 0) {
     BrowserList::const_iterator iter = BrowserList::begin();
-
-    for (; (iter != BrowserList::end()) && (index > 0); ++iter, --index);
-
-    if (iter != BrowserList::end()) {
+    for (; (iter != BrowserList::end()) && (index > 0); ++iter, --index)
+      ;
+    if (iter != BrowserList::end())
       return new BrowserNode(*iter);
-    }
   }
   return NULL;
 }
@@ -192,26 +148,19 @@ BrowserNode::~BrowserNode() {
 }
 
 Browser* BrowserNode::GetBrowser() {
-  if (IsValid()) {
-    return static_cast<Browser *>(data_);
-  } else {
-    return NULL;
-  }
+  return IsValid() ? static_cast<Browser*>(data_) : NULL;
 }
 
 v8::Handle<v8::Value> BrowserNode::PropGetter(v8::Handle<v8::String> prop,
                                               const v8::AccessorInfo& info) {
-  Browser *b = GetBrowser();
+  Browser* b = GetBrowser();
   if (b != NULL) {
     if (prop->Equals(v8::String::New("title"))) {
-      const TabContents *t = b->GetSelectedTabContents();
-      std::wstring title = UTF16ToWideHack(t->GetTitle());
-      std::string title2 = WideToUTF8(title);
-      return v8::String::New(title2.c_str());
-    } else if (prop->Equals(v8::String::New("tab"))) {
-      TabListNode* node = TabListNode::TabList(b);
-      return node->NewInstance();
+      return v8::String::New(UTF16ToUTF8(
+          b->GetSelectedTabContents()->GetTitle()).c_str());
     }
+    if (prop->Equals(v8::String::New("tab")))
+      return TabListNode::TabList(b)->NewInstance();
   }
   return v8::Undefined();
 }
@@ -233,25 +182,15 @@ v8::Handle<v8::Value> BrowserListNode::IndexGetter(
     uint32_t index,
     const v8::AccessorInfo& info) {
   BrowserNode* b = BrowserNode::BrowserAtIndex(index);
-  if (!b) {
-    return v8::Undefined();
-  }
-  return b->NewInstance();
-}
-
-void BrowserListNode::StopObserving(NotificationService *service) {
+  return b ? b->NewInstance() :
+      static_cast<v8::Handle<v8::Value> >(v8::Undefined());
 }
 
 /////////////////////////////////////////////
 
 TabListNode::TabListNode(Browser* b) {
   data_ = b;
-
-  NotificationService* service = NotificationService::current();
-  DCHECK(service);
-  service->AddObserver(
-      this, NotificationType::BROWSER_CLOSED, Source<Browser>(b));
-  observing_ = true;
+  registrar_.Add(this, NotificationType::BROWSER_CLOSED, Source<Browser>(b));
 }
 
 TabListNode::~TabListNode() {
@@ -262,17 +201,7 @@ TabListNode* TabListNode::TabList(Browser* b) {
 }
 
 Browser* TabListNode::GetBrowser() {
-  if (IsValid()) {
-    return static_cast<Browser *>(data_);
-  } else {
-    return NULL;
-  }
-}
-
-void TabListNode::StopObserving(NotificationService *service) {
-  Browser *b = static_cast<Browser*>(data_);
-  service->RemoveObserver(
-      this, NotificationType::BROWSER_CLOSED, Source<Browser>(b));
+  return IsValid() ? static_cast<Browser*>(data_) : NULL;
 }
 
 v8::Handle<v8::Value> TabListNode::IndexGetter(uint32_t index,
@@ -280,41 +209,27 @@ v8::Handle<v8::Value> TabListNode::IndexGetter(uint32_t index,
   Browser* b = GetBrowser();
   if (b != NULL) {
     TabContents* tab_contents = b->GetTabContentsAt(index);
-    if (tab_contents) {
-      TabNode* node = new TabNode(tab_contents);
-      return node->NewInstance();
-    }
+    if (tab_contents)
+      return (new TabNode(tab_contents))->NewInstance();
   }
   return v8::Undefined();
 }
 
 /////////////////////////////////////////////
 
-TabNode::TabNode(TabContents *c) {
-  data_ = &c->controller();
-
-  NotificationService* service = NotificationService::current();
-  DCHECK(service);
-  service->AddObserver(this, NotificationType::TAB_CLOSING,
-                       Source<NavigationController>(&c->controller()));
-  observing_ = true;
+TabNode::TabNode(TabContents* c) {
+  NavigationController* controller = &c->controller();
+  data_ = controller;
+  registrar_.Add(this, NotificationType::TAB_CLOSING,
+                 Source<NavigationController>(controller));
 }
 
 TabNode::~TabNode() {
 }
 
-void TabNode::StopObserving(NotificationService *service) {
-  NavigationController *c = static_cast<NavigationController*>(data_);
-  service->RemoveObserver(this, NotificationType::TAB_CLOSING,
-                          Source<NavigationController>(c));
-}
-
 TabContents* TabNode::GetTab() {
-  if (IsValid()) {
-    return static_cast<NavigationController*>(data_)->tab_contents();
-  } else {
-    return NULL;
-  }
+  return IsValid() ?
+      static_cast<NavigationController*>(data_)->tab_contents() : NULL;
 }
 
 v8::Handle<v8::Value> TabNode::SendToDebugger(const v8::Arguments& args,
@@ -322,8 +237,7 @@ v8::Handle<v8::Value> TabNode::SendToDebugger(const v8::Arguments& args,
   RenderViewHost* host = tab->render_view_host();
   if (args.Length() == 1) {
     std::wstring cmd;
-    v8::Handle<v8::Value> obj;
-    obj = args[0];
+    v8::Handle<v8::Value> obj = args[0];
     DebuggerShell::ObjectToString(obj, &cmd);
     host->DebugCommand(cmd);
   }
@@ -334,26 +248,20 @@ v8::Handle<v8::Value> TabNode::Attach(const v8::Arguments& args,
                                       TabContents* tab) {
   RenderViewHost* host = tab->render_view_host();
   host->DebugAttach();
-  RenderProcessHost* proc = host->process();
-  return v8::Int32::New(proc->process().pid());
+  return v8::Int32::New(host->process()->process().pid());
 }
 
 v8::Handle<v8::Value> TabNode::Detach(const v8::Arguments& args,
                                       TabContents* tab) {
   RenderViewHost* host = tab->render_view_host();
   host->DebugDetach();
-  RenderProcessHost* proc = host->process();
-  return v8::Int32::New(proc->process().pid());
+  return v8::Int32::New(host->process()->process().pid());
 }
 
 v8::Handle<v8::Value> TabNode::Break(const v8::Arguments& args,
                                      TabContents* tab) {
-  RenderViewHost* host = tab->render_view_host();
-  bool force = false;
-  if (args.Length() >= 1) {
-    force = args[0]->BooleanValue();
-  }
-  host->DebugBreak(force);
+  tab->render_view_host()->DebugBreak((args.Length() >= 1) ?
+      args[0]->BooleanValue() : false);
   return v8::Undefined();
 }
 
@@ -361,27 +269,23 @@ v8::Handle<v8::Value> TabNode::PropGetter(v8::Handle<v8::String> prop,
                                           const v8::AccessorInfo& info) {
   TabContents* tab = GetTab();
   if (tab != NULL) {
-    if (prop->Equals(v8::String::New("title"))) {
-      std::string title = UTF16ToUTF8(tab->GetTitle());
-      return v8::String::New(title.c_str());
-    } else {
-      if (prop->Equals(v8::String::New("attach"))) {
-        FunctionNode<TabContents>* f =
-            new FunctionNode<TabContents>(TabNode::Attach, tab);
-        return f->NewInstance();
-      } else if (prop->Equals(v8::String::New("detach"))) {
-        FunctionNode<TabContents>* f =
-            new FunctionNode<TabContents>(TabNode::Detach, tab);
-        return f->NewInstance();
-      } else if (prop->Equals(v8::String::New("sendToDebugger"))) {
-        FunctionNode<TabContents>* f =
-            new FunctionNode<TabContents>(TabNode::SendToDebugger, tab);
-        return f->NewInstance();
-      } else if (prop->Equals(v8::String::New("debugBreak"))) {
-        FunctionNode<TabContents>* f =
-            new FunctionNode<TabContents>(TabNode::Break, tab);
-        return f->NewInstance();
-      }
+    if (prop->Equals(v8::String::New("title")))
+      return v8::String::New(UTF16ToUTF8(tab->GetTitle()).c_str());
+    if (prop->Equals(v8::String::New("attach"))) {
+      return (new FunctionNode<TabContents>(TabNode::Attach,
+                                            tab))->NewInstance();
+    }
+    if (prop->Equals(v8::String::New("detach"))) {
+      return (new FunctionNode<TabContents>(TabNode::Detach,
+                                            tab))->NewInstance();
+    }
+    if (prop->Equals(v8::String::New("sendToDebugger"))) {
+      return (new FunctionNode<TabContents>(TabNode::SendToDebugger,
+                                            tab))->NewInstance();
+    }
+    if (prop->Equals(v8::String::New("debugBreak"))) {
+      return (new FunctionNode<TabContents>(TabNode::Break,
+                                            tab))->NewInstance();
     }
   }
   return v8::Undefined();
