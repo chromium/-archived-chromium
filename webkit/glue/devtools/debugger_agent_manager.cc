@@ -171,6 +171,13 @@ void DebuggerAgentManager::OnV8DebugMessage(const v8::Debug::Message& message) {
   } // Otherwise it's an event message.
   DCHECK(message.IsEvent());
 
+  // Ignore unsupported event types.
+  if (message.GetEvent() != v8::AfterCompile &&
+      message.GetEvent() != v8::Break &&
+      message.GetEvent() != v8::Exception) {
+    return;
+  }
+
   v8::Handle<v8::Context> context = message.GetEventContext();
   // If the context is from one of the inpected tabs it must have host_id in
   // the data field. See DebuggerAgentManager::SetHostId for more details.
