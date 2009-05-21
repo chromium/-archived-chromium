@@ -298,11 +298,6 @@ class WebFrameImpl : public WebFrame, public base::RefCounted<WebFrameImpl> {
   // ourselves is held while frame_ is valid.  See our Closing method.
   WebCore::Frame* frame_;
 
-  // This holds the request passed to LoadRequest, for access by the
-  // WebFrameLoaderClient.  Unfortunately we have no other way to pass this
-  // information to him.  Only non-NULL during a call to LoadRequest.
-  const WebRequest* currently_loading_request_;
-
   // Plugins sometimes need to be notified when loads are complete so we keep
   // a pointer back to the appropriate plugin.
   WebPluginDelegate* plugin_delegate_;

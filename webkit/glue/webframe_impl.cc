@@ -363,12 +363,8 @@ WebFrame* WebFrame::RetrieveFrameForCurrentContext() {
 }
 
 WebFrameImpl::WebFrameImpl()
-// Don't complain about using "this" in initializer list.
-MSVC_PUSH_DISABLE_WARNING(4355)
-  : frame_loader_client_(this),
-    scope_matches_factory_(this),
-MSVC_POP_WARNING()
-    currently_loading_request_(NULL),
+  : ALLOW_THIS_IN_INITIALIZER_LIST(frame_loader_client_(this)),
+    ALLOW_THIS_IN_INITIALIZER_LIST(scope_matches_factory_(this)),
     plugin_delegate_(NULL),
     active_match_frame_(NULL),
     active_match_index_(-1),
@@ -457,11 +453,6 @@ void WebFrameImpl::InternalLoadRequest(const WebRequest* request,
 
   StopLoading();  // make sure existing activity stops
 
-  // Keep track of the request temporarily.  This is effectively a way of
-  // passing the request to callbacks that may need it.  See
-  // WebFrameLoaderClient::createDocumentLoader.
-  currently_loading_request_ = request;
-
   if (data.isValid()) {
     frame_->loader()->load(resource_request, data, false);
     if (replace) {
@@ -492,8 +483,6 @@ void WebFrameImpl::InternalLoadRequest(const WebRequest* request,
   } else {
     frame_->loader()->load(resource_request, false);
   }
-
-  currently_loading_request_ = NULL;
 }
 
 void WebFrameImpl::LoadHTMLString(const std::string& html_text,
