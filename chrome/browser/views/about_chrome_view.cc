@@ -37,7 +37,6 @@ namespace {
 const int kVersionFieldWidth = 195;
 
 // The URLs that you navigate to when clicking the links in the About dialog.
-const wchar_t* const kChromiumUrl = L"http://www.chromium.org/";
 const wchar_t* const kAcknowledgements = L"about:credits";
 const wchar_t* const kTOS = L"about:terms";
 
@@ -690,7 +689,7 @@ void AboutChromeView::LinkActivated(views::Link* source,
   if (source == terms_of_service_url_)
     url = GURL(kTOS);
   else if (source == chromium_url_)
-    url = GURL(kChromiumUrl);
+    url = GURL(l10n_util::GetString(IDS_CHROMIUM_PROJECT_URL));
   else if (source == open_source_url_)
     url = GURL(kAcknowledgements);
   else

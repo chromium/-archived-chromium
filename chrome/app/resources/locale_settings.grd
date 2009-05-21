@@ -573,6 +573,11 @@
       <message name="IDS_NEW_PROFILE_DIALOG_WIDTH_CHARS" use_name_for_id="true">
         60
       </message>
+
+      <!-- The URL for Chromium project used in About dialog. -->
+      <message name="IDS_CHROMIUM_PROJECT_URL" translateable="false">
+        http://code.google.com/chromium/?hl=[GRITLANGCODE]
+      </message>
     </messages>
   </release>
 </grit>
