@@ -155,15 +155,15 @@ NTSTATUS WINAPI TargetNtOpenKey(NtOpenKeyFunction orig_OpenKey, PHANDLE key,
 NTSTATUS WINAPI TargetNtOpenKeyEx(NtOpenKeyExFunction orig_OpenKeyEx,
                                   PHANDLE key, ACCESS_MASK desired_access,
                                   POBJECT_ATTRIBUTES object_attributes,
-                                  DWORD unknown) {
+                                  DWORD open_options) {
   // Check if the process can open it first.
   NTSTATUS status = orig_OpenKeyEx(key, desired_access, object_attributes,
-                                   unknown);
+                                   open_options);
 
-  // TODO(nsylvain): We don't know what the last parameter is. If it's not
-  // zero, we don't attempt to proxy the call. We need to find out what it is!
-  // See bug 7611
-  if (NT_SUCCESS(status) || unknown != 0)
+  // We do not support open_options at this time. The 2 current known values
+  // are REG_OPTION_CREATE_LINK, to open a symbolic link, and
+  // REG_OPTION_BACKUP_RESTORE to open the key with special privileges.
+  if (NT_SUCCESS(status) || open_options != 0)
     return status;
 
   return CommonNtOpenKey(status, key, desired_access, object_attributes);
