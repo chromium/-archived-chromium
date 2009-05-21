@@ -50,7 +50,6 @@ const float kAnimationIntervalSeconds = 0.03;  // 30ms, same as windows
     DCHECK(numFrames_);
     image_.reset([image retain]);
 
-#if 0
     // Start a timer for the animation frames.
     target_.reset([[TimerTarget alloc] initWithThrobber:self]);
     timer_ =
@@ -59,7 +58,6 @@ const float kAnimationIntervalSeconds = 0.03;  // 30ms, same as windows
                                        selector:@selector(animate:)
                                        userInfo:nil
                                         repeats:YES];
-#endif
   }
   return self;
 }
@@ -67,6 +65,13 @@ const float kAnimationIntervalSeconds = 0.03;  // 30ms, same as windows
 - (void)dealloc {
   [timer_ invalidate];
   [super dealloc];
+}
+
+- (void)removeFromSuperview {
+  [timer_ invalidate];
+  timer_ = nil;
+
+  [super removeFromSuperview];
 }
 
 // Called when the TimerTarget gets tickled by our timer. Increment the frame
