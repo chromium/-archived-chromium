@@ -5,6 +5,18 @@
 {
   'variables': {
     'chromium_code': 1,
+    # Define the common dependencies that contain all the actual
+    # Chromium functionality.  This list gets pulled in below by
+    # the link of the actual chrome (or chromium) executable on
+    # Linux or Mac, and into chrome.dll on Windows.
+    'chromium_dependencies': [
+      'common',
+      'browser',
+      'renderer',
+      'utility',
+      '../printing/printing.gyp:printing',
+      '../webkit/webkit.gyp:inspector_resources',
+    ],
   },
   'includes': [
     '../build/common.gypi',
@@ -1883,22 +1895,12 @@
       'target_name': 'app',
       'type': 'executable',
       'mac_bundle': 1,
-      'dependencies': [
-        'common',
-        'browser',
-        'renderer',
-        'utility',
-        '../printing/printing.gyp:printing',
-        '../webkit/webkit.gyp:inspector_resources',
-      ],
       'sources': [
         # All .cc, .h, .m, and .mm files under app except for tests.
         'app/breakpad_win.cc',
         'app/breakpad_win.h',
         'app/breakpad_mac.mm',
         'app/breakpad_mac.h',
-        'app/chrome_dll_main.cc',
-        'app/chrome_dll_resource.h',
         'app/chrome_exe_main.cc',
         'app/chrome_exe_main.mm',
         'app/chrome_exe_main_gtk.cc',
@@ -2095,17 +2097,35 @@
           ],
         }],
         ['OS=="win"', {
-          'include_dirs': [
-            'third_party/wtl/include',
-          ],
           'dependencies': [
+            # On Windows, make sure we've built chrome.dll, which
+            # contains all of the library code with Chromium
+            # functionality.
+            'chrome_dll',
+            'installer/installer.gyp:installer_util',
+            'installer/installer.gyp:installer_util_strings',
             '../breakpad/breakpad.gyp:breakpad_handler',
             '../breakpad/breakpad.gyp:breakpad_sender',
             '../sandbox/sandbox.gyp:sandbox',
             '../views/views.gyp:views',
             'worker',
           ],
+          'msvs_settings': {
+            'VCLinkerTool': {
+              'ImportLibrary': '$(OutDir)\\lib\\chrome_exe.lib',
+            },
+          },
         },{  # 'OS!="win"
+          'dependencies': [
+            # On Linux and Mac, link the dependencies (libraries)
+            # that make up actual Chromium functionality directly
+            # into the executable.
+            '<@(chromium_dependencies)',
+          ],
+          'sources': [
+            'app/chrome_dll_main.cc',
+            'app/chrome_dll_resource.h',
+          ],
           'variables': {
             'repack_path': '../tools/data_pack/repack.py',
           },
@@ -3206,6 +3226,100 @@
     }],  # OS!="mac"
     ['OS=="win"',
       { 'targets': [
+        {
+          'target_name': 'chrome_dll',
+          'type': 'shared_library',
+          'product_name': 'chrome',
+          'include_dirs': [
+            'third_party/wtl/include',
+          ],
+          'dependencies': [
+            # On Windows, link the dependencies (libraries) that make
+            # up actual Chromium functionality into this .dll.
+            '<@(chromium_dependencies)',
+            'chrome_resources',
+            'installer/installer.gyp:installer_util_strings',
+            'worker',
+            '../net/net.gyp:net_resources',
+            '../views/views.gyp:views',
+            '../webkit/webkit.gyp:webkit_resources',
+          ],
+          'rules': [
+            {
+              'rule_name': 'win_version',
+              'extension': 'version',
+              'variables': {
+                'version_py': '../chrome/tools/build/version.py',
+                'VERSION': '../chrome/VERSION',
+                'template_input_path': 'app/chrome_dll_version.rc.version',
+                'template_output_path':
+                '<(SHARED_INTERMEDIATE_DIR)/chrome/chrome_dll_version.rc',
+              },
+              'conditions': [
+                [ 'branding == "Chrome"', {
+                  'variables': {
+                     'BRANDING':
+                       '../chrome/app/theme/google_chrome/BRANDING',
+                  },
+                }, { # else branding!="Chrome"
+                  'variables': {
+                     'BRANDING':
+                       '../chrome/app/theme/chromium/BRANDING',
+                  },
+                }],
+              ],
+              'inputs': [
+                '<(template_input_path)',
+                '<(VERSION)',
+                '<(BRANDING)',
+              ],
+              'outputs': [
+                # Use a non-existant output so this action always runs and
+                # generates version information, e.g. to capture revision
+                # changes, which aren't captured by file dependencies.
+                '<(SHARED_INTERMEDIATE_DIR)/chrome/chrome_dll_version.bogus',
+
+                # And this is the real output, so that the build system knows
+                # what action generates it.
+                '<(template_output_path)',
+              ],
+              'action': [
+                'python',
+                '<(version_py)',
+                '-f', '<(VERSION)',
+                '-f', '<(BRANDING)',
+                '<(template_input_path)',
+                '<(template_output_path)',
+              ],
+              'process_outputs_as_sources': 1,
+              'message': 'Generating version information'
+            },
+          ],
+          'sources': [
+            'app/chrome_dll.rc',
+            'app/chrome_dll_main.cc',
+            'app/chrome_dll_resource.h',
+            'app/chrome_dll_version.rc.version',
+
+            '../webkit/glue/resources/aliasb.cur',
+            '../webkit/glue/resources/cell.cur',
+            '../webkit/glue/resources/col_resize.cur',
+            '../webkit/glue/resources/copy.cur',
+            '../webkit/glue/resources/row_resize.cur',
+            '../webkit/glue/resources/vertical_text.cur',
+            '../webkit/glue/resources/zoom_in.cur',
+            '../webkit/glue/resources/zoom_out.cur',
+            # TODO(sgk):  left-over from pre-gyp build, figure out
+            # if we still need them and/or how to update to gyp.
+            #'app/check_dependents.bat',
+            #'app/chrome.dll.deps',
+          ],
+          'msvs_settings': {
+            'VCLinkerTool': {
+              'ImportLibrary': '$(OutDir)\\lib\\chrome_dll.lib',
+            },
+          },
+        },
         {
           'target_name': 'interactive_ui_tests',
           'type': 'executable',
