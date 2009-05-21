@@ -50,6 +50,7 @@ const float kAnimationIntervalSeconds = 0.03;  // 30ms, same as windows
     DCHECK(numFrames_);
     image_.reset([image retain]);
 
+#if 0
     // Start a timer for the animation frames.
     target_.reset([[TimerTarget alloc] initWithThrobber:self]);
     timer_ =
@@ -58,6 +59,7 @@ const float kAnimationIntervalSeconds = 0.03;  // 30ms, same as windows
                                        selector:@selector(animate:)
                                        userInfo:nil
                                         repeats:YES];
+#endif
   }
   return self;
 }
