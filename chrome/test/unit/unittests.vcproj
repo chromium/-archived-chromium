@@ -109,6 +109,7 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
+				AdditionalIncludeDirectories="$(IntDir)\..\global_intermediate\app"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
