@@ -99,7 +99,7 @@ void ImportDialogGtk::OnDialogResponse(GtkWidget* widget, int response) {
     // TODO(rahulk): We should not do the import on this thread. Instead
     // we need to start this asynchronously and launch a UI that shows the
     // progress of import.
-    importer_host_->StartImportSettings(source_profile, items,
+    importer_host_->StartImportSettings(source_profile, profile_, items,
                                         new ProfileWriter(profile_), false);
   }
 

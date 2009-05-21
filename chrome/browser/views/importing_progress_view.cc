@@ -308,7 +308,7 @@ void StartImportingWithUI(HWND parent_window,
   if (!coordinator->is_headless())
     window->Show();
 
-  coordinator->StartImportSettings(source_profile, items,
+  coordinator->StartImportSettings(source_profile, target_profile, items,
                                    new ProfileWriter(target_profile),
                                    first_run);
 }
