@@ -688,6 +688,10 @@ void RenderWidgetHost::OnMsgShowPopup(const IPC::Message& message) {
 void RenderWidgetHost::PaintBackingStoreRect(TransportDIB* bitmap,
                                              const gfx::Rect& bitmap_rect,
                                              const gfx::Size& view_size) {
+  // The view may be destroyed already.
+  if (!view_)
+    return;
+
   if (is_hidden_) {
     // Don't bother updating the backing store when we're hidden. Just mark it
     // as being totally invalid. This will cause a complete repaint when the
