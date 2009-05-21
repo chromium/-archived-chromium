@@ -79,10 +79,14 @@ void AudioRendererBase::OnReadComplete(Buffer* buffer_in) {
   }
 }
 
+// TODO(scherkus): clean up FillBuffer().. it's overly complex!!
 size_t AudioRendererBase::FillBuffer(uint8* dest, size_t dest_len,
                                      float rate) {
-  // Update the pipeline's time.
-  host_->SetTime(last_fill_buffer_time_);
+  // Update the pipeline's time if it was set last time.
+  if (last_fill_buffer_time_.InMicroseconds() > 0) {
+    host_->SetTime(last_fill_buffer_time_);
+    last_fill_buffer_time_ = base::TimeDelta();
+  }
 
   size_t buffers_released = 0;
   size_t dest_written = 0;
@@ -128,7 +132,9 @@ size_t AudioRendererBase::FillBuffer(uint8* dest, size_t dest_len,
       // Update the time.  If this is the last buffer in the queue, we'll
       // drop out of the loop before len == 0, so we need to always update
       // the time here.
-      last_fill_buffer_time_ = buffer->GetTimestamp() + buffer->GetDuration();
+      if (buffer->GetTimestamp().InMicroseconds() > 0) {
+        last_fill_buffer_time_ = buffer->GetTimestamp() + buffer->GetDuration();
+      }
 
       // Dequeue the buffer.
       queue_.pop_front();
@@ -142,8 +148,11 @@ size_t AudioRendererBase::FillBuffer(uint8* dest, size_t dest_len,
       // Integer divide so multiply before divide to work properly.
       int64 us_written = (buffer->GetDuration().InMicroseconds() *
                           data_offset_) / buffer->GetDataSize();
-      last_fill_buffer_time_ = buffer->GetTimestamp() +
-                               base::TimeDelta::FromMicroseconds(us_written);
+
+      if (buffer->GetTimestamp().InMicroseconds() > 0) {
+        last_fill_buffer_time_ = buffer->GetTimestamp() +
+            base::TimeDelta::FromMicroseconds(us_written);
+      }
     }
   }
 
