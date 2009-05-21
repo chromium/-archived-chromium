@@ -50,6 +50,8 @@ class WebWorkerClientProxy : public WebKit::WebWorkerClient,
 
   bool Send(IPC::Message* message);
 
+  void OnTerminateWorkerContext();
+
   // The source url for this worker.
   GURL url_;
 

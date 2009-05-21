@@ -4,7 +4,9 @@
 
 #include "chrome/worker/webworkerclient_proxy.h"
 
+#include "base/command_line.h"
 #include "chrome/common/child_process.h"
+#include "chrome/common/chrome_switches.h"
 #include "chrome/common/ipc_logging.h"
 #include "chrome/common/worker_messages.h"
 #include "chrome/renderer/webworker_proxy.h"
@@ -16,6 +18,26 @@
 using WebKit::WebString;
 using WebKit::WebWorker;
 using WebKit::WebWorkerClient;
+
+namespace {
+
+// How long to wait for worker to finish after it's been told to terminate.
+static const int kMaxTimeForRunawayWorkerMs = 3000;
+
+class KillProcessTask : public Task {
+ public:
+  KillProcessTask(WebWorkerClientProxy* proxy) : proxy_(proxy) { }
+  void Run() {
+    // This shuts down the process cleanly from the perspective of the browser
+    // process, and avoids the crashed worker infobar from appearing to the new
+    // page.
+    proxy_->workerContextDestroyed();
+  }
+ private:
+  WebWorkerClientProxy* proxy_;
+};
+
+}
 
 WebWorkerClientProxy::WebWorkerClientProxy(const GURL& url, int route_id)
     : url_(url),
@@ -87,11 +109,27 @@ void WebWorkerClientProxy::OnMessageReceived(const IPC::Message& message) {
   IPC_BEGIN_MESSAGE_MAP(WebWorkerClientProxy, message)
     IPC_MESSAGE_FORWARD(WorkerMsg_StartWorkerContext, impl_,
                         WebWorker::startWorkerContext)
-    IPC_MESSAGE_FORWARD(WorkerMsg_TerminateWorkerContext, impl_,
-                        WebWorker::terminateWorkerContext)
+    IPC_MESSAGE_HANDLER(WorkerMsg_TerminateWorkerContext,
+                        OnTerminateWorkerContext)
     IPC_MESSAGE_FORWARD(WorkerMsg_PostMessageToWorkerContext, impl_,
                         WebWorker::postMessageToWorkerContext)
     IPC_MESSAGE_FORWARD(WorkerMsg_WorkerObjectDestroyed, impl_,
                         WebWorker::workerObjectDestroyed)
   IPC_END_MESSAGE_MAP()
+}
+
+void WebWorkerClientProxy::OnTerminateWorkerContext() {
+  impl_->terminateWorkerContext();
+
+  // Avoid a worker doing a while(1) from never exiting.
+  if (CommandLine::ForCurrentProcess()->HasSwitch(
+          switches::kWebWorkerShareProcesses)) {
+    // Can't kill the process since there could be workers from other
+    // renderer process.
+    NOTIMPLEMENTED();
+    return;
+  }
+
+  MessageLoop::current()->PostDelayedTask(FROM_HERE,
+      new KillProcessTask(this), kMaxTimeForRunawayWorkerMs);
 }
