@@ -2309,10 +2309,14 @@ void TabContents::OnFindReply(int request_id,
   if (active_match_ordinal == -1)
     active_match_ordinal = find_result_.active_match_ordinal();
 
+  gfx::Rect selection = selection_rect;
+  if (selection.IsEmpty())
+    selection = find_result_.selection_rect();
+
   // Notify the UI, automation and any other observers that a find result was
   // found.
   find_result_ = FindNotificationDetails(request_id, number_of_matches,
-                                         selection_rect, active_match_ordinal,
+                                         selection, active_match_ordinal,
                                          final_update);
   NotificationService::current()->Notify(
       NotificationType::FIND_RESULT_AVAILABLE,

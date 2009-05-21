@@ -22,6 +22,7 @@ const std::wstring kCrashPage = L"files/find_in_page/crash_1341577.html";
 const std::wstring kTooFewMatchesPage = L"files/find_in_page/bug_1155639.html";
 const std::wstring kEndState = L"files/find_in_page/end_state.html";
 const std::wstring kPrematureEnd = L"files/find_in_page/premature_end.html";
+const std::wstring kMoveIfOver = L"files/find_in_page/move_if_obscuring.html";
 
 class FindInPageNotificationObserver : public NotificationObserver {
  public:
@@ -487,3 +488,42 @@ IN_PROC_BROWSER_TEST_F(FindInPageControllerTest,
   EXPECT_FALSE(fully_visible);
 }
 
+// Make sure Find box moves out of the way if it is obscuring the active match.
+IN_PROC_BROWSER_TEST_F(FindInPageControllerTest, FindMovesWhenObscuring) {
+  HTTPTestServer* server = StartHTTPServer();
+
+  GURL url = server->TestServerPageW(kMoveIfOver);
+  ui_test_utils::NavigateToURL(browser(), url);
+
+  // Open the Find window with animations disabled.
+  FindBarWin::disable_animations_during_testing_ = true;
+  browser()->ShowFindBar();
+
+  gfx::Point start_position;
+  gfx::Point position;
+  bool fully_visible = false;
+
+  // Make sure it is open.
+  GetFindBarWindowInfo(&start_position, &fully_visible);
+  EXPECT_TRUE(fully_visible);
+
+  // Search for 'dream' which the Find box is obscuring.
+  int ordinal = 0;
+  EXPECT_EQ(1, FindInPage(L"dream", FWD, IGNORE_CASE, false, &ordinal));
+  EXPECT_EQ(1, ordinal);
+
+  // Make sure Find box has moved.
+  GetFindBarWindowInfo(&position, &fully_visible);
+  EXPECT_EQ(start_position.y(), position.y());
+  EXPECT_NE(start_position.x(), position.x());
+  EXPECT_TRUE(fully_visible);
+
+  // Search for 'Too much' which the Find box is not obscuring.
+  EXPECT_EQ(1, FindInPage(L"Too much", FWD, IGNORE_CASE, false, &ordinal));
+  EXPECT_EQ(1, ordinal);
+
+  // Make sure Find box has moved back to its original location.
+  GetFindBarWindowInfo(&position, &fully_visible);
+  EXPECT_EQ(start_position, position);
+  EXPECT_TRUE(fully_visible);
+}
