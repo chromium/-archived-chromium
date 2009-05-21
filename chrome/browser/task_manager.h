@@ -98,10 +98,6 @@ class TaskManager {
   // Close the task manager.
   void Close();
 
-  // Do the cleanup that can't be done during singleton destruction by
-  // AtExitManager. Does nothing if the TaskManager hasn't been initialized.
-  static void EnsureShutdown();
-
   // Returns true if the current selection includes the browser process.
   bool BrowserProcessIsSelected();
 
@@ -136,9 +132,6 @@ class TaskManager {
 
   // Returns the singleton instance (and initializes it if necessary).
   static TaskManager* GetInstance();
-
-  // Flag set to true when TaskManager is initialized.
-  static bool initialized_;
 
   // The model used for gathering and processing task data. It is ref counted
   // because it is passed as a parameter to MessageLoop::InvokeLater().

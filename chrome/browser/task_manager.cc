@@ -688,9 +688,6 @@ bool TaskManagerModel::GetProcessMetricsForRows(
 ////////////////////////////////////////////////////////////////////////////////
 
 // static
-bool TaskManager::initialized_ = false;
-
-// static
 void TaskManager::RegisterPrefs(PrefService* prefs) {
   prefs->RegisterDictionaryPref(prefs::kTaskManagerWindowPlacement);
 }
@@ -698,7 +695,6 @@ void TaskManager::RegisterPrefs(PrefService* prefs) {
 TaskManager::TaskManager()
     : ALLOW_THIS_IN_INITIALIZER_LIST(model_(new TaskManagerModel(this))) {
   Init();
-  initialized_ = true;
 }
 
 TaskManager::~TaskManager() {
@@ -713,19 +709,6 @@ void TaskManager::Open() {
 void TaskManager::Close() {
   model_->StopUpdating();
   model_->Clear();
-}
-
-// static
-void TaskManager::EnsureShutdown() {
-  if (!initialized_)
-    return;
-
-  // TaskManager is a singleton, which means it's destroyed by AtExitManager.
-  // At that point it can't register AtExit callbacks etc. It turns out that
-  // view destruction code does it on Windows, so we destroy the view now.
-  TaskManager* task_manager = GetInstance();
-  task_manager->view_.reset();
-  initialized_ = false;
 }
 
 bool TaskManager::BrowserProcessIsSelected() {

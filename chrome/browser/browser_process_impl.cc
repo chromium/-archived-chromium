@@ -26,7 +26,6 @@
 #include "chrome/browser/renderer_host/render_process_host.h"
 #include "chrome/browser/renderer_host/resource_dispatcher_host.h"
 #include "chrome/browser/safe_browsing/safe_browsing_service.h"
-#include "chrome/browser/task_manager.h"
 #include "chrome/common/chrome_paths.h"
 #include "chrome/common/chrome_switches.h"
 #include "chrome/common/notification_service.h"
@@ -212,13 +211,6 @@ BrowserProcessImpl::~BrowserProcessImpl() {
   // Wait for the pending print jobs to finish.
   print_job_manager_->OnQuit();
   print_job_manager_.reset();
-
-#if defined(OS_WIN) || defined(OS_LINUX)
-  // TODO(port): Remove #ifdef when TaskManager is ported to Mac.
-  // Make sure that TaskManager destroys things that can't be safely destroyed
-  // by AtExitManager. Does nothing if TaskManager has not been initialized.
-  TaskManager::EnsureShutdown();
-#endif  // defined(OS_WIN) || defined(OS_LINUX)
 
   // Now OK to destroy NotificationService.
   main_notification_service_.reset();
