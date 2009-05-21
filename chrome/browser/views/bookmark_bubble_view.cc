@@ -111,7 +111,7 @@ void BookmarkBubbleView::RecentlyUsedFoldersModel::RemoveNode(
 BookmarkBubbleView* BookmarkBubbleView::bubble_ = NULL;
 
 // static
-void BookmarkBubbleView::Show(HWND parent,
+void BookmarkBubbleView::Show(views::Window* parent,
                               const gfx::Rect& bounds,
                               InfoBubbleDelegate* delegate,
                               Profile* profile,

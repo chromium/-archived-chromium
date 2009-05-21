@@ -347,7 +347,7 @@ void FirstRunBubble::InfoBubbleClosing(InfoBubble* info_bubble,
 }
 
 // static
-FirstRunBubble* FirstRunBubble::Show(Profile* profile, HWND parent_hwnd,
+FirstRunBubble* FirstRunBubble::Show(Profile* profile, views::Window* parent,
                                      const gfx::Rect& position_relative_to,
                                      bool use_OEM_bubble) {
   FirstRunBubble* window = new FirstRunBubble();
@@ -358,7 +358,7 @@ FirstRunBubble* FirstRunBubble::Show(Profile* profile, HWND parent_hwnd,
     view = new FirstRunBubbleView(window, profile);
   window->SetDelegate(window);
   window->set_view(view);
-  window->Init(parent_hwnd, position_relative_to, view);
+  window->Init(parent, position_relative_to, view);
   window->ShowWindow(SW_SHOW);
   views::FocusManager* focus_manager =
       views::FocusManager::GetFocusManager(window->GetNativeView());

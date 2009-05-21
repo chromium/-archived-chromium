@@ -7,7 +7,12 @@
 
 #include "app/slide_animation.h"
 #include "views/view.h"
+
+#if defined(OS_WIN)
 #include "views/widget/widget_win.h"
+#elif defined(OS_LINUX)
+#include "views/widget/widget_gtk.h"
+#endif
 
 // InfoBubble is used to display an arbitrary view above all other windows.
 // Think of InfoBubble as a tooltip that allows you to embed an arbitrary view
@@ -19,8 +24,13 @@
 // content typically shouldn't have any additional margins around the view.
 
 class InfoBubble;
+
 namespace views {
 class Window;
+}
+
+namespace gfx {
+class Path;
 }
 
 class InfoBubbleDelegate {
@@ -35,10 +45,16 @@ class InfoBubbleDelegate {
   virtual bool CloseOnEscape() = 0;
 };
 
-class InfoBubble : public views::WidgetWin,
-                   public AnimationDelegate {
+// TODO: this code is ifdef-tastic. It might be cleaner to refactor the
+// WidgetFoo subclass into a separate class that calls into InfoBubble.
+// That way InfoBubble has no (or very few) ifdefs.
+#if defined(OS_WIN)
+class InfoBubble : public views::WidgetWin, public AnimationDelegate {
+#else
+class InfoBubble : public views::WidgetGtk, public AnimationDelegate {
+#endif
  public:
-  // Shows the InfoBubble. The InfoBubble is parented to parent_hwnd, contains
+  // Shows the InfoBubble. The InfoBubble is parented to parent, contains
   // the View content and positioned relative to the screen position
   // position_relative_to. Show takes ownership of content and deletes the
   // created InfoBubble when another window is activated. You can explicitly
@@ -46,7 +62,7 @@ class InfoBubble : public views::WidgetWin,
   // to be notified when the InfoBubble is closed and to prevent the InfoBubble
   // from being closed when the Escape key is pressed (which is the default
    // behavior if there is no delegate).
-  static InfoBubble* Show(HWND parent_hwnd,
+  static InfoBubble* Show(views::Window* parent,
                           const gfx::Rect& position_relative_to,
                           views::View* content,
                           InfoBubbleDelegate* delegate);
@@ -55,18 +71,20 @@ class InfoBubble : public views::WidgetWin,
   virtual ~InfoBubble();
 
   // Creates the InfoBubble.
-  void Init(HWND parent_hwnd,
+  void Init(views::Window* parent,
             const gfx::Rect& position_relative_to,
             views::View* content);
 
   // Sets the delegate for that InfoBubble.
   void SetDelegate(InfoBubbleDelegate* delegate) { delegate_ = delegate; }
 
+#if defined(OS_WIN)
   // The InfoBubble is automatically closed when it loses activation status.
   virtual void OnActivate(UINT action, BOOL minimized, HWND window);
 
   // Return our rounded window shape.
   virtual void OnSize(UINT param, const CSize& size);
+#endif
 
   // Overridden to notify the owning ChromeFrame the bubble is closing.
   virtual void Close();
@@ -78,7 +96,6 @@ class InfoBubble : public views::WidgetWin,
   virtual void AnimationProgressed(const Animation* animation);
 
  protected:
-
   // InfoBubble::CreateContentView() creates one of these. ContentView houses
   // the supplied content as its only child view, renders the arrow/border of
   // the bubble and sizes the content.
@@ -100,11 +117,9 @@ class InfoBubble : public views::WidgetWin,
 
     // Returns the bounds for the window to contain this view.
     //
-    // This invokes the method of the same name that doesn't take an HWND, if
-    // the returned bounds don't fit on the monitor containing parent_hwnd,
-    // the arrow edge is adjusted.
-    virtual gfx::Rect CalculateWindowBounds(
-        HWND parent_hwnd,
+    // This invokes CalculateWindowBounds, if the returned bounds don't fit on
+    // the monitor containing position_relative_to, the arrow edge is adjusted.
+    virtual gfx::Rect CalculateWindowBoundsAndAjust(
         const gfx::Rect& position_relative_to);
 
     // Sets the edge the arrow is rendered at.
@@ -118,7 +133,7 @@ class InfoBubble : public views::WidgetWin,
     virtual void Layout();
 
     // Return the mask for the content view.
-    HRGN GetMask(const CSize& size);
+    void GetMask(const gfx::Size& size, gfx::Path* mask);
 
     // Paints the background and arrow appropriately.
     virtual void Paint(gfx::Canvas* canvas);

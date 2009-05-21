@@ -1621,6 +1621,8 @@
                 ['include', '^browser/dock_info.h'],
                 ['include', '^browser/views/frame/browser_frame_gtk.cc'],
                 ['include', '^browser/views/frame/browser_frame_gtk.h'],
+                ['include', '^browser/views/info_bubble.cc'],
+                ['include', '^browser/views/info_bubble.h'],
                 ['include', '^browser/views/tabs/dragged_tab_view.cc'],
                 ['include', '^browser/views/tabs/dragged_tab_view.h'],
                 ['include', '^browser/views/tabs/tab.cc'],

@@ -42,10 +42,8 @@ void ToolbarStarToggle::ShowStarBubble(const GURL& url, bool newly_bookmarked) {
   // of the star.
   gfx::Rect star_bounds(star_location.x() + 1, star_location.y(), width(),
                         height());
-  HWND parent_hwnd =
-      reinterpret_cast<HWND>(host_->browser()->window()->GetNativeHandle());
-  BookmarkBubbleView::Show(parent_hwnd, star_bounds, this, host_->profile(),
-                           url, newly_bookmarked);
+  BookmarkBubbleView::Show(host_->GetWindow(), star_bounds, this,
+                           host_->profile(), url, newly_bookmarked);
 }
 
 bool ToolbarStarToggle::OnMousePressed(const views::MouseEvent& e) {

@@ -14,7 +14,7 @@ class Profile;
 class FirstRunBubble : public InfoBubble,
                        public InfoBubbleDelegate {
  public:
-  static FirstRunBubble* Show(Profile* profile, HWND parent_hwnd,
+  static FirstRunBubble* Show(Profile* profile, views::Window* window,
                               const gfx::Rect& position_relative_to,
                               bool use_OEM_bubble);
 
@@ -32,8 +32,10 @@ class FirstRunBubble : public InfoBubble,
 
   void set_view(FirstRunBubbleViewBase* view) { view_ = view; }
 
+#if defined(OS_WIN)
   // Overridden from InfoBubble:
   virtual void OnActivate(UINT action, BOOL minimized, HWND window);
+#endif
 
   // InfoBubbleDelegate.
   virtual void InfoBubbleClosing(InfoBubble* info_bubble,

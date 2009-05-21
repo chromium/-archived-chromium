@@ -967,9 +967,7 @@ void LocationBarView::ShowFirstRunBubbleInternal(bool use_OEM_bubble) {
   if (UILayoutIsRightToLeft())
     bounds.set_x(location.x() - 20);
 
-  FirstRunBubble::Show(profile_,
-      location_entry_view_->GetRootView()->GetWidget()->GetNativeView(),
-      bounds, use_OEM_bubble);
+  FirstRunBubble::Show(profile_, GetWindow(), bounds, use_OEM_bubble);
 }
 
 // LocationBarImageView---------------------------------------------------------
@@ -1037,8 +1035,7 @@ void LocationBarView::LocationBarImageView::ShowInfoBubbleImpl(
   label->SetHorizontalAlignment(views::Label::ALIGN_LEFT);
   label->SizeToFit(0);
   DCHECK(info_bubble_ == NULL);
-  info_bubble_ = InfoBubble::Show(GetRootView()->GetWidget()->GetNativeView(),
-                                  bounds, label, this);
+  info_bubble_ = InfoBubble::Show(GetWindow(), bounds, label, this);
   show_info_bubble_task_ = NULL;
 }
 
