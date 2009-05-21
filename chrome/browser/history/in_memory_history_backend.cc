@@ -17,22 +17,10 @@ namespace history {
 static const StarID kBogusStarredID = 0x0FFFFFFF;
 
 InMemoryHistoryBackend::InMemoryHistoryBackend()
-    : profile_(NULL),
-      registered_for_notifications_(false) {
+    : profile_(NULL) {
 }
 
 InMemoryHistoryBackend::~InMemoryHistoryBackend() {
-  if (registered_for_notifications_) {
-    NotificationService* service = NotificationService::current();
-
-    Source<Profile> source(profile_);
-    service->RemoveObserver(this, NotificationType::HISTORY_URL_VISITED,
-                            source);
-    service->RemoveObserver(this, NotificationType::HISTORY_TYPED_URLS_MODIFIED,
-                            source);
-    service->RemoveObserver(this, NotificationType::HISTORY_URLS_DELETED,
-                            source);
-  }
 }
 
 bool InMemoryHistoryBackend::Init(const std::wstring& history_filename) {
@@ -46,9 +34,7 @@ void InMemoryHistoryBackend::AttachToHistoryService(Profile* profile) {
     return;
   }
 
-  // We only want notifications for the associated profile.
   profile_ = profile;
-  Source<Profile> source(profile_);
 
   // TODO(evanm): this is currently necessitated by generate_profile, which
   // runs without a browser process. generate_profile should really create
@@ -57,15 +43,11 @@ void InMemoryHistoryBackend::AttachToHistoryService(Profile* profile) {
     return;
 
   // Register for the notifications we care about.
-  // TODO(tc): Make a ScopedNotificationObserver so we don't have to remember
-  // to remove these manually.
-  registered_for_notifications_ = true;
-  NotificationService* service = NotificationService::current();
-  service->AddObserver(this, NotificationType::HISTORY_URL_VISITED, source);
-  service->AddObserver(this,
-                       NotificationType::HISTORY_TYPED_URLS_MODIFIED,
-                       source);
-  service->AddObserver(this, NotificationType::HISTORY_URLS_DELETED, source);
+  // We only want notifications for the associated profile.
+  Source<Profile> source(profile_);
+  registrar_.Add(this, NotificationType::HISTORY_URL_VISITED, source);
+  registrar_.Add(this, NotificationType::HISTORY_TYPED_URLS_MODIFIED, source);
+  registrar_.Add(this, NotificationType::HISTORY_URLS_DELETED, source);
 }
 
 void InMemoryHistoryBackend::Observe(NotificationType type,

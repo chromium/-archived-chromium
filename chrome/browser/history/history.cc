@@ -103,9 +103,8 @@ HistoryService::HistoryService()
       backend_loaded_(false) {
   // Is NULL when running generate_profile.
   if (NotificationService::current()) {
-    NotificationService::current()->AddObserver(
-        this, NotificationType::HISTORY_URLS_DELETED,
-        Source<Profile>(profile_));
+    registrar_.Add(this, NotificationType::HISTORY_URLS_DELETED,
+                   Source<Profile>(profile_));
   }
 }
 
@@ -113,21 +112,13 @@ HistoryService::HistoryService(Profile* profile)
     : thread_(new base::Thread(kHistoryThreadName)),
       profile_(profile),
       backend_loaded_(false) {
-  NotificationService::current()->AddObserver(
-      this, NotificationType::HISTORY_URLS_DELETED, Source<Profile>(profile_));
+  registrar_.Add(this, NotificationType::HISTORY_URLS_DELETED,
+                 Source<Profile>(profile_));
 }
 
 HistoryService::~HistoryService() {
   // Shutdown the backend. This does nothing if Cleanup was already invoked.
   Cleanup();
-
-  // Unregister for notifications.
-  // Is NULL when running generate_profile.
-  if (NotificationService::current()) {
-    NotificationService::current()->RemoveObserver(
-        this, NotificationType::HISTORY_URLS_DELETED,
-        Source<Profile>(profile_));
-  }
 }
 
 bool HistoryService::Init(const FilePath& history_dir,

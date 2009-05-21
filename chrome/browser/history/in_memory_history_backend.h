@@ -18,7 +18,7 @@
 #include "base/basictypes.h"
 #include "base/scoped_ptr.h"
 #include "chrome/browser/history/history_notifications.h"
-#include "chrome/common/notification_observer.h"
+#include "chrome/common/notification_registrar.h"
 #include "testing/gtest/include/gtest/gtest_prod.h"
 
 class HistoryDatabase;
@@ -62,16 +62,13 @@ class InMemoryHistoryBackend : public NotificationObserver {
   // Handler for NOTIFY_HISTORY_URLS_DELETED.
   void OnURLsDeleted(const URLsDeletedDetails& details);
 
+  NotificationRegistrar registrar_;
+
   scoped_ptr<InMemoryDatabase> db_;
 
   // The profile that this object is attached. May be NULL before
   // initialization.
   Profile* profile_;
-
-  // Set when this object has registered for notifications. This is done so we
-  // know whether to unregister (the initialization may have failed, so we
-  // may be destroyed before attaching to the main thread.
-  bool registered_for_notifications_;
 
   DISALLOW_COPY_AND_ASSIGN(InMemoryHistoryBackend);
 };

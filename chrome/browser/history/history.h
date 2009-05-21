@@ -19,7 +19,7 @@
 #include "chrome/browser/history/history_notifications.h"
 #include "chrome/browser/history/history_types.h"
 #include "chrome/browser/search_engines/template_url.h"
-#include "chrome/common/notification_observer.h"
+#include "chrome/common/notification_registrar.h"
 #include "chrome/common/page_transition_types.h"
 #include "chrome/common/ref_counted_util.h"
 
@@ -736,6 +736,8 @@ class HistoryService : public CancelableRequestProvider,
     ScheduleTask(priority, NewRunnableMethod(history_backend_.get(), func,
                                              a, b, c, d));
   }
+
+  NotificationRegistrar registrar_;
 
   // Some void primitives require some internal processing in the main thread
   // when done. We use this internal consumer for this purpose.
