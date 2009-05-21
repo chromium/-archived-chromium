@@ -42,6 +42,7 @@ const char kTokenDelimiter = '\0';
 // messages that come in on the singleton socket.
 class ProcessSingleton::LinuxWatcher
     : public MessageLoopForIO::Watcher,
+      public MessageLoop::DestructionObserver,
       public base::RefCountedThreadSafe<ProcessSingleton::LinuxWatcher> {
  public:
   class SocketReader : public MessageLoopForIO::Watcher {
@@ -55,6 +56,7 @@ class ProcessSingleton::LinuxWatcher
     MessageLoopForIO::FileDescriptorWatcher* fd_reader() {
       return &fd_reader_;
     }
+
     // MessageLoopForIO::Watcher impl.
     virtual void OnFileCanReadWithoutBlocking(int fd);
     virtual void OnFileCanWriteWithoutBlocking(int fd) {
@@ -81,18 +83,24 @@ class ProcessSingleton::LinuxWatcher
   }
   virtual ~LinuxWatcher() {}
 
+  // Start listening for connections on the socket.  This method should be
+  // called from the IO thread.
+  void StartListening(int socket);
+
   // This method determines if we should use the same process and if we should,
   // opens a new browser tab.  This runs on the UI thread.
   void HandleMessage(std::string current_dir, std::vector<std::string> argv);
 
-  MessageLoopForIO::FileDescriptorWatcher* fd_watcher() {
-    return &fd_watcher_;
-  }
   // MessageLoopForIO::Watcher impl.  These run on the IO thread.
   virtual void OnFileCanReadWithoutBlocking(int fd);
   virtual void OnFileCanWriteWithoutBlocking(int fd) {
     // ProcessSingleton only watches for accept (read) events.
     NOTREACHED();
+  }
+
+  // MessageLoop::DestructionObserver
+  virtual void WillDestroyCurrentMessageLoop() {
+    fd_watcher_.StopWatchingFileDescriptor();
   }
 
  private:
@@ -130,8 +138,19 @@ void ProcessSingleton::LinuxWatcher::OnFileCanReadWithoutBlocking(int fd) {
       true, MessageLoopForIO::WATCH_READ, reader_->fd_reader(), reader_.get());
 }
 
+void ProcessSingleton::LinuxWatcher::StartListening(int socket) {
+  DCHECK(ChromeThread::GetMessageLoop(ChromeThread::IO) ==
+         MessageLoop::current());
+  // Watch for client connections on this socket.
+  MessageLoopForIO* ml = MessageLoopForIO::current();
+  ml->AddDestructionObserver(this);
+  ml->WatchFileDescriptor(socket, true, MessageLoopForIO::WATCH_READ,
+                          &fd_watcher_, this);
+}
+
 void ProcessSingleton::LinuxWatcher::HandleMessage(std::string current_dir,
     std::vector<std::string> argv) {
+  DCHECK(ui_message_loop_ == MessageLoop::current());
   // Ignore the request if the browser process is already in shutdown path.
   if (!g_browser_process || g_browser_process->IsShuttingDown()) {
     LOG(WARNING) << "Not handling interprocess notification as browser"
@@ -303,10 +322,10 @@ void ProcessSingleton::Create() {
   // socket.
   MessageLoop* ml = g_browser_process->io_thread()->message_loop();
   DCHECK(ml);
-
-  // Watch for client connections on this socket.
-  static_cast<MessageLoopForIO*>(ml)->WatchFileDescriptor(sock, true,
-      MessageLoopForIO::WATCH_READ, watcher_->fd_watcher(), watcher_.get());
+  ml->PostTask(FROM_HERE, NewRunnableMethod(
+    watcher_.get(),
+    &ProcessSingleton::LinuxWatcher::StartListening,
+    sock));
 }
 
 void ProcessSingleton::SetupSocket(int* sock, struct sockaddr_un* addr) {
