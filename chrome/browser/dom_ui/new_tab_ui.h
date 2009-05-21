@@ -6,7 +6,7 @@
 #define CHROME_BROWSER_DOM_UI_NEW_TAB_UI_H_
 
 #include "chrome/browser/dom_ui/dom_ui.h"
-#include "chrome/common/notification_observer.h"
+#include "chrome/common/notification_registrar.h"
 
 class GURL;
 class PrefService;
@@ -32,6 +32,8 @@ class NewTabUI : public DOMUI,
   void Observe(NotificationType type,
                const NotificationSource& source,
                const NotificationDetails& details);
+
+  NotificationRegistrar registrar_;
 
   // The message id that should be displayed in this NewTabUIContents
   // instance's motd area.

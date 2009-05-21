@@ -1193,14 +1193,11 @@ NewTabUI::NewTabUI(TabContents* contents)
   }
 
   // Listen for theme installation.
-  NotificationService::current()->AddObserver(this,
-      NotificationType::THEME_INSTALLED, NotificationService::AllSources());
+  registrar_.Add(this, NotificationType::THEME_INSTALLED,
+                 NotificationService::AllSources());
 }
 
 NewTabUI::~NewTabUI() {
-  // Remove theme observer.
-  NotificationService::current()->RemoveObserver(this,
-      NotificationType::THEME_INSTALLED, NotificationService::AllSources());
 }
 
 void NewTabUI::Observe(NotificationType type,

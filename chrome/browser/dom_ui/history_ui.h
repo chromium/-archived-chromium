@@ -11,6 +11,7 @@
 #include "chrome/browser/dom_ui/dom_ui.h"
 #include "chrome/browser/cancelable_request.h"
 #include "chrome/browser/history/history.h"
+#include "chrome/common/notification_registrar.h"
 
 class GURL;
 
@@ -66,6 +67,8 @@ class BrowsingHistoryHandler : public DOMMessageHandler,
 
   // Figure out the query options for a month-wide query.
   history::QueryOptions CreateMonthQueryOptions(int month);
+
+  NotificationRegistrar registrar_;
 
   // Current search text.
   std::wstring search_text_;

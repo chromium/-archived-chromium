@@ -113,20 +113,12 @@ BrowsingHistoryHandler::BrowsingHistoryHandler(DOMUI* dom_ui)
                         new DOMUIFavIconSource(dom_ui_->GetProfile())));
 
   // Get notifications when history is cleared.
-  NotificationService* service = NotificationService::current();
-  service->AddObserver(this, NotificationType::HISTORY_URLS_DELETED,
-                       Source<Profile>(
-                           dom_ui_->GetProfile()->GetOriginalProfile()));
+  registrar_.Add(this, NotificationType::HISTORY_URLS_DELETED,
+                 Source<Profile>(dom_ui_->GetProfile()->GetOriginalProfile()));
 }
 
 BrowsingHistoryHandler::~BrowsingHistoryHandler() {
   cancelable_consumer_.CancelAllRequests();
-
-  NotificationService* service = NotificationService::current();
-  service->RemoveObserver(this, NotificationType::HISTORY_URLS_DELETED,
-                          Source<Profile>(
-                              dom_ui_->GetProfile()->GetOriginalProfile()));
-
   if (remover_.get())
     remover_->RemoveObserver(this);
 }
