@@ -33,7 +33,7 @@
 #include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/browser/tab_contents/tab_contents_view.h"
 #include "chrome/common/chrome_paths.h"
-#include "chrome/common/notification_registrar.h"
+#include "chrome/common/notification_service.h"
 #include "chrome/common/platform_util.h"
 #include "chrome/common/pref_service.h"
 #include "chrome/test/automation/automation_messages.h"
@@ -114,19 +114,11 @@ class NewTabUILoadObserver : public NotificationObserver {
  public:
   explicit NewTabUILoadObserver(AutomationProvider* automation)
       : automation_(automation) {
-    NotificationService::current()->AddObserver(
-        this, NotificationType::INITIAL_NEW_TAB_UI_LOAD,
-        NotificationService::AllSources());
+    registrar_.Add(this, NotificationType::INITIAL_NEW_TAB_UI_LOAD,
+                   NotificationService::AllSources());
   }
 
   ~NewTabUILoadObserver() {
-    Unregister();
-  }
-
-  void Unregister() {
-    NotificationService::current()->RemoveObserver(
-        this, NotificationType::INITIAL_NEW_TAB_UI_LOAD,
-        NotificationService::AllSources());
   }
 
   virtual void Observe(NotificationType type,
@@ -142,6 +134,7 @@ class NewTabUILoadObserver : public NotificationObserver {
   }
 
  private:
+  NotificationRegistrar registrar_;
   AutomationProvider* automation_;
 };
 
@@ -149,26 +142,19 @@ class NavigationControllerRestoredObserver : public NotificationObserver {
  public:
   NavigationControllerRestoredObserver(AutomationProvider* automation,
                                        NavigationController* controller,
-                                       int32 routing_id,
                                        IPC::Message* reply_message)
       : automation_(automation),
         controller_(controller),
-        routing_id_(routing_id),
         reply_message_(reply_message) {
     if (FinishedRestoring()) {
-      registered_ = false;
       SendDone();
     } else {
-      registered_ = true;
-      NotificationService* service = NotificationService::current();
-      service->AddObserver(this, NotificationType::LOAD_STOP,
-                           NotificationService::AllSources());
+      registrar_.Add(this, NotificationType::LOAD_STOP,
+                     NotificationService::AllSources());
     }
   }
 
   ~NavigationControllerRestoredObserver() {
-    if (registered_)
-      Unregister();
   }
 
   virtual void Observe(NotificationType type,
@@ -176,18 +162,11 @@ class NavigationControllerRestoredObserver : public NotificationObserver {
                        const NotificationDetails& details) {
     if (FinishedRestoring()) {
       SendDone();
-      Unregister();
+      registrar_.RemoveAll();
     }
   }
 
  private:
-  void Unregister() {
-    NotificationService* service = NotificationService::current();
-    service->RemoveObserver(this, NotificationType::LOAD_STOP,
-                            NotificationService::AllSources());
-    registered_ = false;
-  }
-
   bool FinishedRestoring() {
     return (!controller_->needs_reload() && !controller_->pending_entry() &&
             !controller_->tab_contents()->is_loading());
@@ -198,10 +177,9 @@ class NavigationControllerRestoredObserver : public NotificationObserver {
     automation_->Send(reply_message_);
   }
 
-  bool registered_;
+  NotificationRegistrar registrar_;
   AutomationProvider* automation_;
   NavigationController* controller_;
-  const int routing_id_;
   IPC::Message* reply_message_;
 
   DISALLOW_COPY_AND_ASSIGN(NavigationControllerRestoredObserver);
@@ -223,21 +201,26 @@ class NavigationNotificationObserver : public NotificationObserver {
       success_code_(success_code),
       auth_needed_code_(auth_needed_code),
       failed_code_(failed_code) {
-    NotificationService* service = NotificationService::current();
-    service->AddObserver(this, NotificationType::NAV_ENTRY_COMMITTED,
-                         Source<NavigationController>(controller_));
-    service->AddObserver(this, NotificationType::LOAD_START,
-                         Source<NavigationController>(controller_));
-    service->AddObserver(this, NotificationType::LOAD_STOP,
-                         Source<NavigationController>(controller_));
-    service->AddObserver(this, NotificationType::AUTH_NEEDED,
-                         Source<NavigationController>(controller_));
-    service->AddObserver(this, NotificationType::AUTH_SUPPLIED,
-                         Source<NavigationController>(controller_));
+    Source<NavigationController> source(controller_);
+    registrar_.Add(this, NotificationType::NAV_ENTRY_COMMITTED, source);
+    registrar_.Add(this, NotificationType::LOAD_START, source);
+    registrar_.Add(this, NotificationType::LOAD_STOP, source);
+    registrar_.Add(this, NotificationType::AUTH_NEEDED, source);
+    registrar_.Add(this, NotificationType::AUTH_SUPPLIED, source);
   }
 
   ~NavigationNotificationObserver() {
-    Unregister();
+    if (reply_message_) {
+      // This means we did not receive a notification for this navigation.
+      // Send over a failed navigation status back to the caller to ensure that
+      // the caller does not hang waiting for the response.
+      IPC::ParamTraits<NavigationCodeType>::Write(reply_message_,
+                                                  failed_code_);
+      automation_->Send(reply_message_);
+      reply_message_ = NULL;
+    }
+
+    automation_->RemoveNavigationStatusListener(this);
   }
 
   void ConditionMet(NavigationCodeType navigation_result) {
@@ -249,32 +232,6 @@ class NavigationNotificationObserver : public NotificationObserver {
     reply_message_ = NULL;
 
     delete this;
-  }
-
-  void Unregister() {
-    // This means we did not receive a notification for this navigation.
-    // Send over a failed navigation status back to the caller to ensure that
-    // the caller does not hang waiting for the response.
-    if (reply_message_) {
-      IPC::ParamTraits<NavigationCodeType>::Write(reply_message_,
-                                                  failed_code_);
-      automation_->Send(reply_message_);
-      reply_message_ = NULL;
-    }
-
-    automation_->RemoveNavigationStatusListener(this);
-
-    NotificationService* service = NotificationService::current();
-    service->RemoveObserver(this, NotificationType::NAV_ENTRY_COMMITTED,
-                            Source<NavigationController>(controller_));
-    service->RemoveObserver(this, NotificationType::LOAD_START,
-                            Source<NavigationController>(controller_));
-    service->RemoveObserver(this, NotificationType::LOAD_STOP,
-                            Source<NavigationController>(controller_));
-    service->RemoveObserver(this, NotificationType::AUTH_NEEDED,
-                            Source<NavigationController>(controller_));
-    service->RemoveObserver(this, NotificationType::AUTH_SUPPLIED,
-                            Source<NavigationController>(controller_));
   }
 
   virtual void Observe(NotificationType type,
@@ -326,6 +283,7 @@ class NavigationNotificationObserver : public NotificationObserver {
   }
 
  private:
+  NotificationRegistrar registrar_;
   AutomationProvider* automation_;
   IPC::Message* reply_message_;
   NavigationController* controller_;
@@ -337,23 +295,14 @@ class NavigationNotificationObserver : public NotificationObserver {
 
 class TabStripNotificationObserver : public NotificationObserver {
  public:
-  TabStripNotificationObserver(Browser* parent, NotificationType notification,
-    AutomationProvider* automation, int32 routing_id)
-    : automation_(automation),
-      parent_(parent),
-      notification_(notification),
-      routing_id_(routing_id) {
-    NotificationService::current()->
-        AddObserver(this, notification_, NotificationService::AllSources());
+  TabStripNotificationObserver(NotificationType notification,
+                               AutomationProvider* automation)
+      : automation_(automation),
+        notification_(notification) {
+    registrar_.Add(this, notification_, NotificationService::AllSources());
   }
 
   virtual ~TabStripNotificationObserver() {
-    Unregister();
-  }
-
-  void Unregister() {
-    NotificationService::current()->
-        RemoveObserver(this, notification_, NotificationService::AllSources());
   }
 
   virtual void Observe(NotificationType type,
@@ -373,27 +322,26 @@ class TabStripNotificationObserver : public NotificationObserver {
   virtual void ObserveTab(NavigationController* controller) = 0;
 
  protected:
+  NotificationRegistrar registrar_;
   AutomationProvider* automation_;
-  Browser* parent_;
   NotificationType notification_;
-  int32 routing_id_;
 };
 
 class TabAppendedNotificationObserver : public TabStripNotificationObserver {
  public:
   TabAppendedNotificationObserver(Browser* parent,
-      AutomationProvider* automation, int32 routing_id,
-      IPC::Message* reply_message)
-      : TabStripNotificationObserver(parent, NotificationType::TAB_PARENTED,
-                                     automation, routing_id),
+                                  AutomationProvider* automation,
+                                  IPC::Message* reply_message)
+      : TabStripNotificationObserver(NotificationType::TAB_PARENTED,
+                                     automation),
+        parent_(parent),
         reply_message_(reply_message) {
   }
 
   virtual void ObserveTab(NavigationController* controller) {
-    int tab_index =
-        automation_->GetIndexForNavigationController(controller, parent_);
-    if (tab_index == TabStripModel::kNoTab) {
-      // This tab notification doesn't belong to the parent_
+    if (automation_->GetIndexForNavigationController(controller, parent_) ==
+        TabStripModel::kNoTab) {
+      // This tab notification doesn't belong to the parent_.
       return;
     }
 
@@ -404,37 +352,36 @@ class TabAppendedNotificationObserver : public TabStripNotificationObserver {
   }
 
  protected:
+  Browser* parent_;
   IPC::Message* reply_message_;
 };
 
 class TabClosedNotificationObserver : public TabStripNotificationObserver {
  public:
-  TabClosedNotificationObserver(Browser* parent,
-                                AutomationProvider* automation,
-                                int32 routing_id,
+  TabClosedNotificationObserver(AutomationProvider* automation,
                                 bool wait_until_closed,
                                 IPC::Message* reply_message)
-      : TabStripNotificationObserver(parent,
-            wait_until_closed ? NotificationType::TAB_CLOSED :
-                NotificationType::TAB_CLOSING,
-            automation,
-            routing_id),
-         reply_message_(reply_message),
-         for_browser_command_(false) {
+      : TabStripNotificationObserver(wait_until_closed ?
+            NotificationType::TAB_CLOSED : NotificationType::TAB_CLOSING,
+            automation),
+        reply_message_(reply_message),
+        for_browser_command_(false) {
   }
 
   virtual void ObserveTab(NavigationController* controller) {
-    if (for_browser_command_)
+    if (for_browser_command_) {
       AutomationMsg_WindowExecuteCommand::WriteReplyParams(reply_message_,
                                                            true);
-    else
+    } else {
       AutomationMsg_CloseTab::WriteReplyParams(reply_message_, true);
+    }
     automation_->Send(reply_message_);
   }
 
   void set_for_browser_command(bool for_browser_command) {
     for_browser_command_ = for_browser_command;
   }
+
  protected:
   IPC::Message* reply_message_;
   bool for_browser_command_;
@@ -458,9 +405,10 @@ class BrowserOpenedNotificationObserver : public NotificationObserver {
                        const NotificationSource& source,
                        const NotificationDetails& details) {
     if (type == NotificationType::BROWSER_OPENED) {
-      if (for_browser_command_)
+      if (for_browser_command_) {
         AutomationMsg_WindowExecuteCommand::WriteReplyParams(reply_message_,
                                                              true);
+      }
       automation_->Send(reply_message_);
       delete this;
     } else {
@@ -471,10 +419,11 @@ class BrowserOpenedNotificationObserver : public NotificationObserver {
   void set_for_browser_command(bool for_browser_command) {
     for_browser_command_ = for_browser_command;
   }
+
  private:
+  NotificationRegistrar registrar_;
   AutomationProvider* automation_;
   IPC::Message* reply_message_;
-  NotificationRegistrar registrar_;
   bool for_browser_command_;
 };
 
@@ -482,10 +431,8 @@ class BrowserClosedNotificationObserver : public NotificationObserver {
  public:
   BrowserClosedNotificationObserver(Browser* browser,
                                     AutomationProvider* automation,
-                                    int32 routing_id,
                                     IPC::Message* reply_message)
       : automation_(automation),
-        routing_id_(routing_id),
         reply_message_(reply_message),
         for_browser_command_(false) {
     registrar_.Add(this, NotificationType::BROWSER_CLOSED,
@@ -498,12 +445,13 @@ class BrowserClosedNotificationObserver : public NotificationObserver {
     DCHECK(type == NotificationType::BROWSER_CLOSED);
     Details<bool> close_app(details);
     DCHECK(reply_message_ != NULL);
-    if (for_browser_command_)
+    if (for_browser_command_) {
       AutomationMsg_WindowExecuteCommand::WriteReplyParams(reply_message_,
                                                            true);
-    else
+    } else {
       AutomationMsg_CloseBrowser::WriteReplyParams(reply_message_, true,
                                                    *(close_app.ptr()));
+    }
     automation_->Send(reply_message_);
     reply_message_ = NULL;
     delete this;
@@ -512,11 +460,11 @@ class BrowserClosedNotificationObserver : public NotificationObserver {
   void set_for_browser_command(bool for_browser_command) {
     for_browser_command_ = for_browser_command;
   }
+
  private:
-  AutomationProvider* automation_;
-  int32 routing_id_;
-  IPC::Message* reply_message_;
   NotificationRegistrar registrar_;
+  AutomationProvider* automation_;
+  IPC::Message* reply_message_;
   bool for_browser_command_;
 };
 
@@ -552,24 +500,20 @@ class ExecuteBrowserCommandObserver : public NotificationObserver {
       case IDC_NEW_WINDOW:
       case IDC_NEW_INCOGNITO_WINDOW: {
         BrowserOpenedNotificationObserver* observer =
-            new BrowserOpenedNotificationObserver(automation,
-                                                  reply_message);
+            new BrowserOpenedNotificationObserver(automation, reply_message);
         observer->set_for_browser_command(true);
         break;
       }
       case IDC_CLOSE_WINDOW: {
         BrowserClosedNotificationObserver* observer =
             new BrowserClosedNotificationObserver(browser, automation,
-                                                  reply_message->routing_id(),
                                                   reply_message);
         observer->set_for_browser_command(true);
         break;
       }
       case IDC_CLOSE_TAB: {
         TabClosedNotificationObserver* observer =
-            new TabClosedNotificationObserver(browser, automation,
-                                              reply_message->routing_id(),
-                                              true, reply_message);
+            new TabClosedNotificationObserver(automation, true, reply_message);
         observer->set_for_browser_command(true);
         break;
       }
@@ -621,8 +565,7 @@ class ExecuteBrowserCommandObserver : public NotificationObserver {
   bool Register(int command) {
     if (!GetNotificationType(command, &notification_type_))
       return false;
-    registrar_.Add(this, notification_type_,
-                   NotificationService::AllSources());
+    registrar_.Add(this, notification_type_, NotificationService::AllSources());
     return true;
   }
 
@@ -640,42 +583,30 @@ class ExecuteBrowserCommandObserver : public NotificationObserver {
     return found;
   }
 
+  NotificationRegistrar registrar_;
   AutomationProvider* automation_;
   NotificationType::Type notification_type_;
   IPC::Message* reply_message_;
-  NotificationRegistrar registrar_;
 };
 
 class FindInPageNotificationObserver : public NotificationObserver {
  public:
   FindInPageNotificationObserver(AutomationProvider* automation,
                                  TabContents* parent_tab,
-                                 int32 routing_id,
                                  IPC::Message* reply_message)
       : automation_(automation),
-        parent_tab_(parent_tab),
-        routing_id_(routing_id),
         active_match_ordinal_(-1),
         reply_message_(reply_message) {
-    NotificationService::current()->AddObserver(
-        this,
-        NotificationType::FIND_RESULT_AVAILABLE,
-        Source<TabContents>(parent_tab_));
+    registrar_.Add(this, NotificationType::FIND_RESULT_AVAILABLE,
+                   Source<TabContents>(parent_tab));
   }
 
   ~FindInPageNotificationObserver() {
-    Unregister();
   }
 
-  void Unregister() {
-    DCHECK(reply_message_ == NULL);
-    NotificationService::current()->
-        RemoveObserver(this, NotificationType::FIND_RESULT_AVAILABLE,
-                       Source<TabContents>(parent_tab_));
-  }
-
-  virtual void Observe(NotificationType type, const NotificationSource& source,
-      const NotificationDetails& details) {
+  virtual void Observe(NotificationType type,
+                       const NotificationSource& source,
+                       const NotificationDetails& details) {
     if (type == NotificationType::FIND_RESULT_AVAILABLE) {
       Details<FindNotificationDetails> find_details(details);
       if (find_details->request_id() == kFindInPageRequestId) {
@@ -686,9 +617,8 @@ class FindInPageNotificationObserver : public NotificationObserver {
         if (find_details->final_update()) {
           DCHECK(reply_message_ != NULL);
 
-          AutomationMsg_FindInPage::WriteReplyParams(
-              reply_message_, active_match_ordinal_,
-              find_details->number_of_matches());
+          AutomationMsg_FindInPage::WriteReplyParams(reply_message_,
+              active_match_ordinal_, find_details->number_of_matches());
 
           automation_->Send(reply_message_);
           reply_message_ = NULL;
@@ -709,10 +639,10 @@ class FindInPageNotificationObserver : public NotificationObserver {
   // don't need a rolling id to identify each search. But, we still need to
   // specify one, so we just use a fixed one - its value does not matter.
   static const int kFindInPageRequestId;
+
  private:
+  NotificationRegistrar registrar_;
   AutomationProvider* automation_;
-  TabContents* parent_tab_;
-  int32 routing_id_;
   // We will at some point (before final update) be notified of the ordinal and
   // we need to preserve it so we can send it later.
   int active_match_ordinal_;
@@ -725,31 +655,30 @@ class DomOperationNotificationObserver : public NotificationObserver {
  public:
   explicit DomOperationNotificationObserver(AutomationProvider* automation)
       : automation_(automation) {
-    NotificationService::current()->
-        AddObserver(this, NotificationType::DOM_OPERATION_RESPONSE,
-                    NotificationService::AllSources());
+    registrar_.Add(this, NotificationType::DOM_OPERATION_RESPONSE,
+                   NotificationService::AllSources());
   }
 
   ~DomOperationNotificationObserver() {
-    NotificationService::current()->
-        RemoveObserver(this, NotificationType::DOM_OPERATION_RESPONSE,
-                       NotificationService::AllSources());
   }
 
-  virtual void Observe(NotificationType type, const NotificationSource& source,
-      const NotificationDetails& details) {
+  virtual void Observe(NotificationType type,
+                       const NotificationSource& source,
+                       const NotificationDetails& details) {
     if (NotificationType::DOM_OPERATION_RESPONSE == type) {
       Details<DomOperationNotificationDetails> dom_op_details(details);
 
       IPC::Message* reply_message = automation_->reply_message_release();
       DCHECK(reply_message != NULL);
 
-      AutomationMsg_DomOperation::WriteReplyParams(
-          reply_message, dom_op_details->json());
+      AutomationMsg_DomOperation::WriteReplyParams(reply_message,
+                                                   dom_op_details->json());
       automation_->Send(reply_message);
     }
   }
+
  private:
+  NotificationRegistrar registrar_;
   AutomationProvider* automation_;
 };
 
@@ -757,17 +686,11 @@ class DomInspectorNotificationObserver : public NotificationObserver {
  public:
   explicit DomInspectorNotificationObserver(AutomationProvider* automation)
       : automation_(automation) {
-    NotificationService::current()->AddObserver(
-        this,
-        NotificationType::DOM_INSPECT_ELEMENT_RESPONSE,
-        NotificationService::AllSources());
+    registrar_.Add(this, NotificationType::DOM_INSPECT_ELEMENT_RESPONSE,
+                   NotificationService::AllSources());
   }
 
   ~DomInspectorNotificationObserver() {
-    NotificationService::current()->RemoveObserver(
-        this,
-        NotificationType::DOM_INSPECT_ELEMENT_RESPONSE,
-        NotificationService::AllSources());
   }
 
   virtual void Observe(NotificationType type, const NotificationSource& source,
@@ -779,6 +702,7 @@ class DomInspectorNotificationObserver : public NotificationObserver {
   }
 
  private:
+  NotificationRegistrar registrar_;
   AutomationProvider* automation_;
 };
 
@@ -787,16 +711,12 @@ class DomInspectorNotificationObserver : public NotificationObserver {
 class DocumentPrintedNotificationObserver : public NotificationObserver {
  public:
   DocumentPrintedNotificationObserver(AutomationProvider* automation,
-                                      int32 routing_id,
                                       IPC::Message* reply_message)
       : automation_(automation),
-        routing_id_(routing_id),
         success_(false),
         reply_message_(reply_message) {
-    NotificationService::current()->AddObserver(
-        this,
-        NotificationType::PRINT_JOB_EVENT,
-        NotificationService::AllSources());
+    registrar_.Add(this, NotificationType::PRINT_JOB_EVENT,
+                   NotificationService::AllSources());
   }
 
   ~DocumentPrintedNotificationObserver() {
@@ -804,10 +724,6 @@ class DocumentPrintedNotificationObserver : public NotificationObserver {
     AutomationMsg_PrintNow::WriteReplyParams(reply_message_, success_);
     automation_->Send(reply_message_);
     automation_->RemoveNavigationStatusListener(this);
-    NotificationService::current()->RemoveObserver(
-        this,
-        NotificationType::PRINT_JOB_EVENT,
-        NotificationService::AllSources());
   }
 
   virtual void Observe(NotificationType type, const NotificationSource& source,
@@ -845,8 +761,8 @@ class DocumentPrintedNotificationObserver : public NotificationObserver {
   }
 
  private:
+  NotificationRegistrar registrar_;
   scoped_refptr<AutomationProvider> automation_;
-  int32 routing_id_;
   bool success_;
   IPC::Message* reply_message_;
 };
@@ -946,10 +862,10 @@ void AutomationProvider::RemoveNavigationStatusListener(
 }
 
 NotificationObserver* AutomationProvider::AddTabStripObserver(
-    Browser* parent, int32 routing_id, IPC::Message* reply_message) {
+    Browser* parent,
+    IPC::Message* reply_message) {
   NotificationObserver* observer =
-      new TabAppendedNotificationObserver(parent, this, routing_id,
-                                          reply_message);
+      new TabAppendedNotificationObserver(parent, this, reply_message);
   notification_observer_list_.AddObserver(observer);
 
   return observer;
@@ -1007,8 +923,7 @@ int AutomationProvider::GetIndexForNavigationController(
 
 void AutomationProvider::OnMessageReceived(const IPC::Message& message) {
   IPC_BEGIN_MESSAGE_MAP(AutomationProvider, message)
-    IPC_MESSAGE_HANDLER_DELAY_REPLY(AutomationMsg_CloseBrowser,
-                                    CloseBrowser)
+    IPC_MESSAGE_HANDLER_DELAY_REPLY(AutomationMsg_CloseBrowser, CloseBrowser)
     IPC_MESSAGE_HANDLER(AutomationMsg_CloseBrowserRequestAsync,
                         CloseBrowserAsync)
     IPC_MESSAGE_HANDLER(AutomationMsg_ActivateTab, ActivateTab)
@@ -1017,20 +932,17 @@ void AutomationProvider::OnMessageReceived(const IPC::Message& message) {
     IPC_MESSAGE_HANDLER_DELAY_REPLY(AutomationMsg_CloseTab, CloseTab)
     IPC_MESSAGE_HANDLER(AutomationMsg_GetCookies, GetCookies)
     IPC_MESSAGE_HANDLER(AutomationMsg_SetCookie, SetCookie)
-    IPC_MESSAGE_HANDLER_DELAY_REPLY(AutomationMsg_NavigateToURL,
-                                    NavigateToURL)
+    IPC_MESSAGE_HANDLER_DELAY_REPLY(AutomationMsg_NavigateToURL, NavigateToURL)
     IPC_MESSAGE_HANDLER(AutomationMsg_NavigationAsync, NavigationAsync)
     IPC_MESSAGE_HANDLER_DELAY_REPLY(AutomationMsg_GoBack, GoBack)
     IPC_MESSAGE_HANDLER_DELAY_REPLY(AutomationMsg_GoForward, GoForward)
     IPC_MESSAGE_HANDLER_DELAY_REPLY(AutomationMsg_Reload, Reload)
     IPC_MESSAGE_HANDLER_DELAY_REPLY(AutomationMsg_SetAuth, SetAuth)
-    IPC_MESSAGE_HANDLER_DELAY_REPLY(AutomationMsg_CancelAuth,
-                                    CancelAuth)
+    IPC_MESSAGE_HANDLER_DELAY_REPLY(AutomationMsg_CancelAuth, CancelAuth)
     IPC_MESSAGE_HANDLER(AutomationMsg_NeedsAuth, NeedsAuth)
     IPC_MESSAGE_HANDLER_DELAY_REPLY(AutomationMsg_RedirectsFrom,
                                     GetRedirectsFrom)
-    IPC_MESSAGE_HANDLER(AutomationMsg_BrowserWindowCount,
-                        GetBrowserWindowCount)
+    IPC_MESSAGE_HANDLER(AutomationMsg_BrowserWindowCount, GetBrowserWindowCount)
     IPC_MESSAGE_HANDLER(AutomationMsg_NormalBrowserWindowCount,
                         GetNormalBrowserWindowCount)
     IPC_MESSAGE_HANDLER(AutomationMsg_BrowserWindow, GetBrowserWindow)
@@ -1040,7 +952,7 @@ void AutomationProvider::OnMessageReceived(const IPC::Message& message) {
     IPC_MESSAGE_HANDLER(AutomationMsg_FindNormalBrowserWindow,
                         FindNormalBrowserWindow)
     IPC_MESSAGE_HANDLER(AutomationMsg_IsWindowActive, IsWindowActive)
-    IPC_MESSAGE_HANDLER(AutomationMsg_ActivateWindow, ActivateWindow);
+    IPC_MESSAGE_HANDLER(AutomationMsg_ActivateWindow, ActivateWindow)
 #if defined(OS_WIN)
     IPC_MESSAGE_HANDLER(AutomationMsg_WindowHWND, GetWindowHWND)
 #endif  // defined(OS_WIN)
@@ -1048,14 +960,11 @@ void AutomationProvider::OnMessageReceived(const IPC::Message& message) {
                         ExecuteBrowserCommandAsync)
     IPC_MESSAGE_HANDLER_DELAY_REPLY(AutomationMsg_WindowExecuteCommand,
                         ExecuteBrowserCommand)
-    IPC_MESSAGE_HANDLER(AutomationMsg_WindowViewBounds,
-                        WindowGetViewBounds)
-    IPC_MESSAGE_HANDLER(AutomationMsg_SetWindowVisible,
-                        SetWindowVisible)
+    IPC_MESSAGE_HANDLER(AutomationMsg_WindowViewBounds, WindowGetViewBounds)
+    IPC_MESSAGE_HANDLER(AutomationMsg_SetWindowVisible, SetWindowVisible)
 #if defined(OS_WIN)
     IPC_MESSAGE_HANDLER(AutomationMsg_WindowClick, WindowSimulateClick)
-    IPC_MESSAGE_HANDLER(AutomationMsg_WindowKeyPress,
-                        WindowSimulateKeyPress)
+    IPC_MESSAGE_HANDLER(AutomationMsg_WindowKeyPress, WindowSimulateKeyPress)
     IPC_MESSAGE_HANDLER_DELAY_REPLY(AutomationMsg_WindowDrag,
                                     WindowSimulateDrag)
 #endif  // defined(OS_WIN)
@@ -1068,46 +977,36 @@ void AutomationProvider::OnMessageReceived(const IPC::Message& message) {
     IPC_MESSAGE_HANDLER(AutomationMsg_TabTitle, GetTabTitle)
     IPC_MESSAGE_HANDLER(AutomationMsg_TabIndex, GetTabIndex)
     IPC_MESSAGE_HANDLER(AutomationMsg_TabURL, GetTabURL)
-    IPC_MESSAGE_HANDLER(AutomationMsg_ShelfVisibility,
-                        GetShelfVisibility)
+    IPC_MESSAGE_HANDLER(AutomationMsg_ShelfVisibility, GetShelfVisibility)
     IPC_MESSAGE_HANDLER(AutomationMsg_HandleUnused, HandleUnused)
-    IPC_MESSAGE_HANDLER(AutomationMsg_ApplyAccelerator,
-                        ApplyAccelerator)
+    IPC_MESSAGE_HANDLER(AutomationMsg_ApplyAccelerator, ApplyAccelerator)
     IPC_MESSAGE_HANDLER_DELAY_REPLY(AutomationMsg_DomOperation,
                                     ExecuteJavascript)
     IPC_MESSAGE_HANDLER(AutomationMsg_ConstrainedWindowCount,
                         GetConstrainedWindowCount)
-    IPC_MESSAGE_HANDLER(AutomationMsg_ConstrainedWindow,
-                        GetConstrainedWindow)
-    IPC_MESSAGE_HANDLER(AutomationMsg_ConstrainedTitle,
-                        GetConstrainedTitle)
-    IPC_MESSAGE_HANDLER(AutomationMsg_FindInPage,
-                        HandleFindInPageRequest)
-    IPC_MESSAGE_HANDLER(AutomationMsg_GetFocusedViewID,
-                        GetFocusedViewID)
+    IPC_MESSAGE_HANDLER(AutomationMsg_ConstrainedWindow, GetConstrainedWindow)
+    IPC_MESSAGE_HANDLER(AutomationMsg_ConstrainedTitle, GetConstrainedTitle)
+    IPC_MESSAGE_HANDLER(AutomationMsg_FindInPage, HandleFindInPageRequest)
+    IPC_MESSAGE_HANDLER(AutomationMsg_GetFocusedViewID, GetFocusedViewID)
     IPC_MESSAGE_HANDLER_DELAY_REPLY(AutomationMsg_InspectElement,
                                     HandleInspectElementRequest)
-    IPC_MESSAGE_HANDLER(AutomationMsg_SetFilteredInet,
-                        SetFilteredInet);
-    IPC_MESSAGE_HANDLER(AutomationMsg_DownloadDirectory,
-                        GetDownloadDirectory);
+    IPC_MESSAGE_HANDLER(AutomationMsg_SetFilteredInet, SetFilteredInet)
+    IPC_MESSAGE_HANDLER(AutomationMsg_DownloadDirectory, GetDownloadDirectory)
     IPC_MESSAGE_HANDLER_DELAY_REPLY(AutomationMsg_OpenNewBrowserWindow,
-                                    OpenNewBrowserWindow);
-    IPC_MESSAGE_HANDLER(AutomationMsg_WindowForBrowser,
-                        GetWindowForBrowser);
+                                    OpenNewBrowserWindow)
+    IPC_MESSAGE_HANDLER(AutomationMsg_WindowForBrowser, GetWindowForBrowser)
     IPC_MESSAGE_HANDLER(AutomationMsg_AutocompleteEditForBrowser,
-                        GetAutocompleteEditForBrowser);
-    IPC_MESSAGE_HANDLER(AutomationMsg_BrowserForWindow,
-                        GetBrowserForWindow);
+                        GetAutocompleteEditForBrowser)
+    IPC_MESSAGE_HANDLER(AutomationMsg_BrowserForWindow, GetBrowserForWindow)
 #if defined(OS_WIN)
     IPC_MESSAGE_HANDLER(AutomationMsg_CreateExternalTab, CreateExternalTab)
 #endif
     IPC_MESSAGE_HANDLER(AutomationMsg_NavigateInExternalTab,
                         NavigateInExternalTab)
     IPC_MESSAGE_HANDLER_DELAY_REPLY(AutomationMsg_ShowInterstitialPage,
-                                    ShowInterstitialPage);
+                                    ShowInterstitialPage)
     IPC_MESSAGE_HANDLER(AutomationMsg_HideInterstitialPage,
-                        HideInterstitialPage);
+                        HideInterstitialPage)
 #if defined(OS_WIN)
     IPC_MESSAGE_HANDLER(AutomationMsg_SetAcceleratorsForTab,
                         SetAcceleratorsForTab)
@@ -1116,15 +1015,12 @@ void AutomationProvider::OnMessageReceived(const IPC::Message& message) {
 #endif
     IPC_MESSAGE_HANDLER_DELAY_REPLY(AutomationMsg_WaitForTabToBeRestored,
                                     WaitForTabToBeRestored)
-    IPC_MESSAGE_HANDLER(AutomationMsg_SetInitialFocus,
-                        SetInitialFocus)
+    IPC_MESSAGE_HANDLER(AutomationMsg_SetInitialFocus, SetInitialFocus)
 #if defined(OS_WIN)
     IPC_MESSAGE_HANDLER(AutomationMsg_TabReposition, OnTabReposition)
 #endif
-    IPC_MESSAGE_HANDLER(AutomationMsg_GetSecurityState,
-                        GetSecurityState)
-    IPC_MESSAGE_HANDLER(AutomationMsg_GetPageType,
-                        GetPageType)
+    IPC_MESSAGE_HANDLER(AutomationMsg_GetSecurityState, GetSecurityState)
+    IPC_MESSAGE_HANDLER(AutomationMsg_GetPageType, GetPageType)
     IPC_MESSAGE_HANDLER_DELAY_REPLY(AutomationMsg_ActionOnSSLBlockingPage,
                                     ActionOnSSLBlockingPage)
     IPC_MESSAGE_HANDLER(AutomationMsg_BringBrowserToFront, BringBrowserToFront)
@@ -1146,42 +1042,36 @@ void AutomationProvider::OnMessageReceived(const IPC::Message& message) {
                         HandleOpenFindInPageRequest)
     IPC_MESSAGE_HANDLER(AutomationMsg_HandleMessageFromExternalHost,
                         OnMessageFromExternalHost)
-    IPC_MESSAGE_HANDLER_DELAY_REPLY(AutomationMsg_Find,
-                                    HandleFindRequest)
+    IPC_MESSAGE_HANDLER_DELAY_REPLY(AutomationMsg_Find, HandleFindRequest)
     IPC_MESSAGE_HANDLER(AutomationMsg_FindWindowVisibility,
                         GetFindWindowVisibility)
     IPC_MESSAGE_HANDLER(AutomationMsg_FindWindowLocation,
                         HandleFindWindowLocationRequest)
     IPC_MESSAGE_HANDLER(AutomationMsg_BookmarkBarVisibility,
                         GetBookmarkBarVisibility)
-    IPC_MESSAGE_HANDLER(AutomationMsg_GetSSLInfoBarCount,
-                        GetSSLInfoBarCount)
+    IPC_MESSAGE_HANDLER(AutomationMsg_GetSSLInfoBarCount, GetSSLInfoBarCount)
     IPC_MESSAGE_HANDLER_DELAY_REPLY(AutomationMsg_ClickSSLInfoBarLink,
                                     ClickSSLInfoBarLink)
     IPC_MESSAGE_HANDLER(AutomationMsg_GetLastNavigationTime,
                         GetLastNavigationTime)
     IPC_MESSAGE_HANDLER_DELAY_REPLY(AutomationMsg_WaitForNavigation,
                                     WaitForNavigation)
-    IPC_MESSAGE_HANDLER(AutomationMsg_SetIntPreference,
-                        SetIntPreference)
+    IPC_MESSAGE_HANDLER(AutomationMsg_SetIntPreference, SetIntPreference)
     IPC_MESSAGE_HANDLER(AutomationMsg_ShowingAppModalDialog,
                         GetShowingAppModalDialog)
     IPC_MESSAGE_HANDLER(AutomationMsg_ClickAppModalDialogButton,
                         ClickAppModalDialogButton)
-    IPC_MESSAGE_HANDLER(AutomationMsg_SetStringPreference,
-                        SetStringPreference)
+    IPC_MESSAGE_HANDLER(AutomationMsg_SetStringPreference, SetStringPreference)
     IPC_MESSAGE_HANDLER(AutomationMsg_GetBooleanPreference,
                         GetBooleanPreference)
     IPC_MESSAGE_HANDLER(AutomationMsg_SetBooleanPreference,
                         SetBooleanPreference)
     IPC_MESSAGE_HANDLER(AutomationMsg_GetPageCurrentEncoding,
                         GetPageCurrentEncoding)
-    IPC_MESSAGE_HANDLER(AutomationMsg_OverrideEncoding,
-                        OverrideEncoding)
+    IPC_MESSAGE_HANDLER(AutomationMsg_OverrideEncoding, OverrideEncoding)
     IPC_MESSAGE_HANDLER(AutomationMsg_SavePackageShouldPromptUser,
                         SavePackageShouldPromptUser)
-    IPC_MESSAGE_HANDLER(AutomationMsg_WindowTitle,
-                        GetWindowTitle)
+    IPC_MESSAGE_HANDLER(AutomationMsg_WindowTitle, GetWindowTitle)
     IPC_MESSAGE_HANDLER(AutomationMsg_SetEnableExtensionAutomation,
                         SetEnableExtensionAutomation)
   IPC_END_MESSAGE_MAP()
@@ -1205,8 +1095,7 @@ void AutomationProvider::AppendTab(int handle, const GURL& url,
 
   if (browser_tracker_->ContainsHandle(handle)) {
     Browser* browser = browser_tracker_->GetResource(handle);
-    observer = AddTabStripObserver(browser, reply_message->routing_id(),
-                                   reply_message);
+    observer = AddTabStripObserver(browser, reply_message);
     TabContents* tab_contents = browser->AddTabWithURL(url, GURL(),
                                                        PageTransition::TYPED,
                                                        true, -1, false, NULL);
@@ -1413,7 +1302,6 @@ void AutomationProvider::GetRedirectsFrom(int tab_handle,
       // Schedule a history query for redirects. The response will be sent
       // asynchronously from the callback the history system uses to notify us
       // that it's done: OnRedirectQueryComplete.
-      redirect_query_routing_id_ = reply_message->routing_id();
       redirect_query_ = history_service->QueryRedirectsFrom(
           source_url, &consumer_,
           NewCallback(this, &AutomationProvider::OnRedirectQueryComplete));
@@ -1679,10 +1567,9 @@ class InvokeTaskLaterTask : public Task {
 // loop) have been processed by the time this is sent.
 class WindowDragResponseTask : public Task {
  public:
-  WindowDragResponseTask(AutomationProvider* provider, int routing_id,
+  WindowDragResponseTask(AutomationProvider* provider,
                          IPC::Message* reply_message)
-      : provider_(provider), routing_id_(routing_id),
-        reply_message_(reply_message) {}
+      : provider_(provider), reply_message_(reply_message) {}
   virtual ~WindowDragResponseTask() {}
 
   virtual void Run() {
@@ -1693,7 +1580,6 @@ class WindowDragResponseTask : public Task {
 
  private:
   AutomationProvider* provider_;
-  int routing_id_;
   IPC::Message* reply_message_;
 
   DISALLOW_COPY_AND_ASSIGN(WindowDragResponseTask);
@@ -1792,10 +1678,8 @@ void AutomationProvider::WindowSimulateDrag(int handle,
     SendMessage(top_level_hwnd, up_message, wparam_flags,
                 MAKELPARAM(end.x, end.y));
 
-    MessageLoop::current()->PostTask(FROM_HERE,
-        new InvokeTaskLaterTask(
-            new WindowDragResponseTask(this, reply_message->routing_id(),
-                                       reply_message)));
+    MessageLoop::current()->PostTask(FROM_HERE, new InvokeTaskLaterTask(
+        new WindowDragResponseTask(this, reply_message)));
   } else {
     AutomationMsg_WindowDrag::WriteReplyParams(reply_message, true);
     Send(reply_message);
@@ -2153,9 +2037,7 @@ void AutomationProvider::HandleFindRequest(
   TabContents* tab_contents = nav->tab_contents();
 
   find_in_page_observer_.reset(new
-      FindInPageNotificationObserver(this, tab_contents,
-                                     reply_message->routing_id(),
-                                     reply_message));
+      FindInPageNotificationObserver(this, tab_contents, reply_message));
 
   tab_contents->set_current_find_request_id(
       FindInPageNotificationObserver::kFindInPageRequestId);
@@ -2231,7 +2113,6 @@ void AutomationProvider::HandleInspectElementRequest(
     reply_message_ = reply_message;
 
     tab_contents->render_view_host()->InspectElementAt(x, y);
-    inspect_element_routing_id_ = reply_message->routing_id();
   } else {
     AutomationMsg_InspectElement::WriteReplyParams(reply_message, -1);
     Send(reply_message);
@@ -2402,9 +2283,7 @@ void AutomationProvider::CloseTab(int tab_handle,
     int index;
     Browser* browser = Browser::GetBrowserForController(controller, &index);
     DCHECK(browser);
-    new TabClosedNotificationObserver(browser, this,
-                                      reply_message->routing_id(),
-                                      wait_until_closed, reply_message);
+    new TabClosedNotificationObserver(this, wait_until_closed, reply_message);
     browser->CloseContents(controller->tab_contents());
     return;
   }
@@ -2417,7 +2296,6 @@ void AutomationProvider::CloseBrowser(int browser_handle,
   if (browser_tracker_->ContainsHandle(browser_handle)) {
     Browser* browser = browser_tracker_->GetResource(browser_handle);
     new BrowserClosedNotificationObserver(browser, this,
-                                          reply_message->routing_id(),
                                           reply_message);
     browser->window()->Close();
   } else {
@@ -2501,9 +2379,7 @@ void AutomationProvider::WaitForTabToBeRestored(int tab_handle,
   if (tab_tracker_->ContainsHandle(tab_handle)) {
     NavigationController* tab = tab_tracker_->GetResource(tab_handle);
     restore_tracker_.reset(
-        new NavigationControllerRestoredObserver(this, tab,
-                                                 reply_message->routing_id(),
-                                                 reply_message));
+        new NavigationControllerRestoredObserver(this, tab, reply_message));
   }
 }
 
@@ -2623,9 +2499,7 @@ void AutomationProvider::PrintNow(int tab_handle,
   if (tab_contents) {
     FindAndActivateTab(tab);
     notification_observer_list_.AddObserver(
-        new DocumentPrintedNotificationObserver(this,
-                                                reply_message->routing_id(),
-                                                reply_message));
+        new DocumentPrintedNotificationObserver(this, reply_message));
     if (tab_contents->PrintNow())
       return;
   }
@@ -2778,17 +2652,11 @@ ExternalTabContainer* AutomationProvider::GetExternalTabForHandle(int handle) {
 TestingAutomationProvider::TestingAutomationProvider(Profile* profile)
     : AutomationProvider(profile) {
   BrowserList::AddObserver(this);
-  NotificationService::current()->AddObserver(
-      this,
-      NotificationType::SESSION_END,
-      NotificationService::AllSources());
+  registrar_.Add(this, NotificationType::SESSION_END,
+                 NotificationService::AllSources());
 }
 
 TestingAutomationProvider::~TestingAutomationProvider() {
-  NotificationService::current()->RemoveObserver(
-      this,
-      NotificationType::SESSION_END,
-      NotificationService::AllSources());
   BrowserList::RemoveObserver(this);
 }
 

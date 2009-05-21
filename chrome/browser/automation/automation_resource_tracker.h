@@ -9,6 +9,7 @@
 
 #include "base/basictypes.h"
 #include "chrome/common/ipc_message.h"
+#include "chrome/common/notification_registrar.h"
 #include "chrome/common/notification_service.h"
 
 // Template trick so that AutomationResourceTracker can be used with non-pointer
@@ -28,7 +29,7 @@ struct AutomationResourceTraits<T*> {
 class AutomationResourceTrackerImpl {
 public:
   AutomationResourceTrackerImpl(IPC::Message::Sender* sender)
-    : cleared_mappings_(false), sender_(sender) {}
+    : sender_(sender) {}
 
   virtual ~AutomationResourceTrackerImpl() {}
 
@@ -43,13 +44,11 @@ public:
   int GenerateHandle();
   bool ContainsResourceImpl(void* resource);
   bool ContainsHandleImpl(int handle);
-  void ClearAllMappingsImpl();
   void* GetResourceImpl(int handle);
   int GetHandleImpl(void* resource);
   void HandleCloseNotification(void* resource);
 
 protected:
-  bool cleared_mappings_;
   typedef std::map<void*, int> ResourceToHandleMap;
   typedef std::map<int, void*> HandleToResourceMap;
   ResourceToHandleMap resource_to_handle_;
@@ -65,7 +64,7 @@ private:
 // a particular kind of application resource (like windows or tabs) for
 // automation purposes.  The only things that a subclass should need to
 // define are AddObserver and RemoveObserver for the given resource's
-// close notifications, ***and a destructor that calls ClearAllMappings***.
+// close notifications.
 template <class T>
 class AutomationResourceTracker : public NotificationObserver,
                                   private AutomationResourceTrackerImpl {
@@ -74,17 +73,6 @@ class AutomationResourceTracker : public NotificationObserver,
     : AutomationResourceTrackerImpl(automation) {}
 
   virtual ~AutomationResourceTracker() {
-    // NOTE: Be sure to call ClearAllMappings() from the destructor of your
-    //       subclass!  It can't be called here, because it eventually uses
-    //       the subclass's RemoveObserver, which no longer exists by the time
-    //       this base class destructor is executed.
-    DCHECK(cleared_mappings_);
-  }
-
-  // Removes all mappings from this tracker, including unregistering from
-  // any associated resource notifications (via Remove calling RemoveObserver).
-  void ClearAllMappings() {
-    ClearAllMappingsImpl();
   }
 
   // The implementations for these should call the NotificationService
@@ -140,16 +128,20 @@ class AutomationResourceTracker : public NotificationObserver,
 
      HandleCloseNotification(resource);
   }
- private:
-   // These proxy calls from the base Impl class to the template's subclss.
-   virtual void AddObserverTypeProxy(void* resource) {
-     AddObserver(static_cast<T>(resource));
-   }
-   virtual void RemoveObserverTypeProxy(void* resource) {
-     RemoveObserver(static_cast<T>(resource));
-   }
 
-  DISALLOW_EVIL_CONSTRUCTORS(AutomationResourceTracker);
+ protected:
+  NotificationRegistrar registrar_;
+
+ private:
+  // These proxy calls from the base Impl class to the template's subclss.
+  virtual void AddObserverTypeProxy(void* resource) {
+    AddObserver(static_cast<T>(resource));
+  }
+  virtual void RemoveObserverTypeProxy(void* resource) {
+    RemoveObserver(static_cast<T>(resource));
+  }
+
+  DISALLOW_COPY_AND_ASSIGN(AutomationResourceTracker);
 };
 
 #endif  // CHROME_BROWSER_AUTOMATION_AUTOMATION_RESOURCE_TRACKER_H__

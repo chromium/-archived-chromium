@@ -25,7 +25,7 @@
 #include "chrome/browser/tab_contents/navigation_entry.h"
 #include "chrome/common/ipc_message.h"
 #include "chrome/common/ipc_sync_channel.h"
-#include "chrome/common/notification_observer.h"
+#include "chrome/common/notification_registrar.h"
 #include "chrome/test/automation/automation_messages.h"
 #if defined(OS_WIN)
 #include "views/event.h"
@@ -87,7 +87,6 @@ class AutomationProvider : public base::RefCounted<AutomationProvider>,
   // NOT be deleted and should be released by calling the corresponding
   // RemoveTabStripObserver method.
   NotificationObserver* AddTabStripObserver(Browser* parent,
-                                            int32 routing_id,
                                             IPC::Message* reply_message);
   void RemoveTabStripObserver(NotificationObserver* obs);
 
@@ -486,14 +485,8 @@ class AutomationProvider : public base::RefCounted<AutomationProvider>,
   // Handle for an in-process redirect query. We expect only one redirect query
   // at a time (we should have only one caller, and it will block while waiting
   // for the results) so there is only one handle. When non-0, indicates a
-  // query in progress. The routing ID will be set when the query is valid so
-  // we know where to send the response.
+  // query in progress.
   HistoryService::Handle redirect_query_;
-  int redirect_query_routing_id_;
-
-  // routing id for inspect element request so that we can send back the
-  // response later
-  int inspect_element_routing_id_;
 
   // Consumer for asynchronous history queries.
   CancelableRequestConsumer consumer_;
@@ -533,6 +526,8 @@ class TestingAutomationProvider : public AutomationProvider,
                        const NotificationDetails& details);
 
   void OnRemoveProvider();  // Called via PostTask
+
+  NotificationRegistrar registrar_;
 };
 
 #endif  // CHROME_BROWSER_AUTOMATION_AUTOMATION_PROVIDER_H_

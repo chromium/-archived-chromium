@@ -8,6 +8,8 @@
 #include "chrome/browser/autocomplete/autocomplete_edit.h"
 #include "chrome/browser/autocomplete/autocomplete_edit_view.h"
 #include "chrome/browser/automation/automation_resource_tracker.h"
+#include "chrome/common/notification_source.h"
+#include "chrome/common/notification_type.h"
 
 class AutomationAutocompleteEditTracker :
     public AutomationResourceTracker<AutocompleteEditView*> {
@@ -16,19 +18,16 @@ class AutomationAutocompleteEditTracker :
       : AutomationResourceTracker<AutocompleteEditView*>(automation) { }
 
   virtual ~AutomationAutocompleteEditTracker() {
-    ClearAllMappings();
   }
 
   virtual void AddObserver(AutocompleteEditView* resource) {
-    NotificationService::current()->AddObserver(
-        this, NotificationType::AUTOCOMPLETE_EDIT_DESTROYED,
-        Source<AutocompleteEditView>(resource));
+    registrar_.Add(this, NotificationType::AUTOCOMPLETE_EDIT_DESTROYED,
+                   Source<AutocompleteEditView>(resource));
   }
 
   virtual void RemoveObserver(AutocompleteEditView* resource) {
-    NotificationService::current()->RemoveObserver(
-        this, NotificationType::AUTOCOMPLETE_EDIT_DESTROYED,
-        Source<AutocompleteEditView>(resource));
+    registrar_.Remove(this, NotificationType::AUTOCOMPLETE_EDIT_DESTROYED,
+                      Source<AutocompleteEditView>(resource));
   }
 };
 

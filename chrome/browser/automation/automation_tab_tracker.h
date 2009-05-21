@@ -19,7 +19,6 @@ public:
       : AutomationResourceTracker<NavigationController*>(automation) {}
 
   virtual ~AutomationTabTracker() {
-    ClearAllMappings();
   }
 
   virtual void AddObserver(NavigationController* resource) {
@@ -83,8 +82,6 @@ public:
   }
 
  private:
-  NotificationRegistrar registrar_;
-
   // Last time a navigation occurred.
   std::map<NavigationController*, base::Time> last_navigation_times_;
 

@@ -17,19 +17,16 @@ public:
       : AutomationResourceTracker(automation) {}
 
   virtual ~AutomationConstrainedWindowTracker() {
-    ClearAllMappings();
   }
 
   virtual void AddObserver(ConstrainedWindow* resource) {
-    NotificationService::current()->AddObserver(
-        this, NotificationType::CWINDOW_CLOSED,
-        Source<ConstrainedWindow>(resource));
+    registrar_.Add(this, NotificationType::CWINDOW_CLOSED,
+                   Source<ConstrainedWindow>(resource));
   }
 
   virtual void RemoveObserver(ConstrainedWindow* resource) {
-    NotificationService::current()->RemoveObserver(
-        this, NotificationType::CWINDOW_CLOSED,
-        Source<ConstrainedWindow>(resource));
+    registrar_.Remove(this, NotificationType::CWINDOW_CLOSED,
+                      Source<ConstrainedWindow>(resource));
   }
 };
 

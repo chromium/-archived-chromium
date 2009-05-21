@@ -16,17 +16,16 @@ public:
       : AutomationResourceTracker<Browser*>(automation) { }
 
   virtual ~AutomationBrowserTracker() {
-    ClearAllMappings();
   }
 
   virtual void AddObserver(Browser* resource) {
-    NotificationService::current()->AddObserver(
-        this, NotificationType::BROWSER_CLOSED, Source<Browser>(resource));
+    registrar_.Add(this, NotificationType::BROWSER_CLOSED,
+                   Source<Browser>(resource));
   }
 
   virtual void RemoveObserver(Browser* resource) {
-    NotificationService::current()->RemoveObserver(
-        this, NotificationType::BROWSER_CLOSED, Source<Browser>(resource));
+    registrar_.Remove(this, NotificationType::BROWSER_CLOSED,
+                      Source<Browser>(resource));
   }
 };
 

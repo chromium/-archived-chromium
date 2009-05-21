@@ -35,19 +35,16 @@ class AutomationWindowTracker
   AutomationWindowTracker(IPC::Message::Sender* automation)
       : AutomationResourceTracker<gfx::NativeWindow>(automation) { }
   virtual ~AutomationWindowTracker() {
-    ClearAllMappings();
   }
 
   virtual void AddObserver(gfx::NativeWindow resource) {
-    NotificationService::current()->AddObserver(
-        this, NotificationType::WINDOW_CLOSED,
-        Source<gfx::NativeWindow>(resource));
+    registrar_.Add(this, NotificationType::WINDOW_CLOSED,
+                   Source<gfx::NativeWindow>(resource));
   }
 
   virtual void RemoveObserver(gfx::NativeWindow resource) {
-    NotificationService::current()->RemoveObserver(
-        this, NotificationType::WINDOW_CLOSED,
-        Source<gfx::NativeWindow>(resource));
+    registrar_.Remove(this, NotificationType::WINDOW_CLOSED,
+                      Source<gfx::NativeWindow>(resource));
   }
 };
 

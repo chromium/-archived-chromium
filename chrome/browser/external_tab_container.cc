@@ -16,6 +16,7 @@
 #include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/browser/views/tab_contents_container_view.h"
 #include "chrome/common/chrome_constants.h"
+#include "chrome/common/notification_service.h"
 #include "chrome/test/automation/automation_messages.h"
 // Included for SetRootViewForHWND.
 #include "views/widget/widget_win.h"

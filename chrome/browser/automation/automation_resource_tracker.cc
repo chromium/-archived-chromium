@@ -48,13 +48,6 @@ bool AutomationResourceTrackerImpl::ContainsHandleImpl(int handle) {
   return handle_to_resource_.find(handle) != handle_to_resource_.end();
 }
 
-void AutomationResourceTrackerImpl::ClearAllMappingsImpl() {
-  while (!resource_to_handle_.empty()) {
-    RemoveImpl(resource_to_handle_.begin()->first);
-  }
-  cleared_mappings_ = true;
-}
-
 void* AutomationResourceTrackerImpl::GetResourceImpl(int handle) {
   HandleToResourceMap::const_iterator iter = handle_to_resource_.find(handle);
   if (iter == handle_to_resource_.end())
