@@ -41,16 +41,31 @@ class SSLUITest : public UITest {
     EXPECT_TRUE(browser_proxy->AppendTab(url));
   }
 
+  // Before using returned value you should check that the assertion below
+  // didn't fail. To do so, use HasFailure().
   scoped_refptr<HTTPTestServer> PlainServer() {
-    return HTTPTestServer::CreateServer(kDocRoot, NULL);
+    scoped_refptr<HTTPTestServer> server(
+        HTTPTestServer::CreateServer(kDocRoot, NULL));
+    EXPECT_TRUE(server.get());
+    return server;
   }
 
+  // Before using returned value you should check that the assertion below
+  // didn't fail. To do so, use HasFailure().
   scoped_refptr<HTTPSTestServer> GoodCertServer() {
-    return HTTPSTestServer::CreateGoodServer(kDocRoot);
+    scoped_refptr<HTTPSTestServer> server(
+        HTTPSTestServer::CreateGoodServer(kDocRoot));
+    EXPECT_TRUE(server.get());
+    return server;
   }
 
+  // Before using returned value you should check that the assertion below
+  // didn't fail. To do so, use HasFailure().
   scoped_refptr<HTTPSTestServer> BadCertServer() {
-    return HTTPSTestServer::CreateExpiredServer(kDocRoot);
+    scoped_refptr<HTTPSTestServer> server(
+        HTTPSTestServer::CreateExpiredServer(kDocRoot));
+    EXPECT_TRUE(server.get());
+    return server;
   }
 
  protected:
@@ -62,6 +77,8 @@ class SSLUITest : public UITest {
 // Visits a regular page over http.
 TEST_F(SSLUITest, TestHTTP) {
   scoped_refptr<HTTPTestServer> server = PlainServer();
+  if (HasFailure())
+    return;
 
   scoped_ptr<TabProxy> tab(GetActiveTabProxy());
   NavigateTab(tab.get(), server->TestServerPageW(L"files/ssl/google.html"));
@@ -85,6 +102,8 @@ TEST_F(SSLUITest, TestHTTP) {
 TEST_F(SSLUITest, TestHTTPWithBrokenHTTPSResource) {
   scoped_refptr<HTTPTestServer> http_server = PlainServer();
   scoped_refptr<HTTPSTestServer> bad_https_server = BadCertServer();
+  if (HasFailure())
+    return;
   scoped_ptr<TabProxy> tab(GetActiveTabProxy());
 
   NavigateTab(
@@ -105,6 +124,8 @@ TEST_F(SSLUITest, TestHTTPWithBrokenHTTPSResource) {
 // Visits a page over OK https:
 TEST_F(SSLUITest, TestOKHTTPS) {
   scoped_refptr<HTTPSTestServer> https_server = GoodCertServer();
+  if (HasFailure())
+    return;
   scoped_ptr<TabProxy> tab(GetActiveTabProxy());
   NavigateTab(tab.get(),
               https_server->TestServerPageW(L"files/ssl/google.html"));
@@ -126,6 +147,8 @@ TEST_F(SSLUITest, TestOKHTTPS) {
 // Visits a page with https error and proceed:
 TEST_F(SSLUITest, TestHTTPSExpiredCertAndProceed) {
   scoped_refptr<HTTPSTestServer> bad_https_server = BadCertServer();
+  if (HasFailure())
+    return;
   scoped_ptr<TabProxy> tab(GetActiveTabProxy());
   NavigateTab(tab.get(),
               bad_https_server->TestServerPageW(L"files/ssl/google.html"));
@@ -161,6 +184,8 @@ TEST_F(SSLUITest, TestHTTPSExpiredCertAndDontProceed) {
   scoped_refptr<HTTPTestServer> http_server = PlainServer();
   scoped_refptr<HTTPSTestServer> good_https_server = GoodCertServer();
   scoped_refptr<HTTPSTestServer> bad_https_server = BadCertServer();
+  if (HasFailure())
+    return;
   scoped_ptr<TabProxy> tab(GetActiveTabProxy());
 
   // First navigate to an OK page.
@@ -221,6 +246,8 @@ TEST_F(SSLUITest, TestHTTPSExpiredCertAndDontProceed) {
 TEST_F(SSLUITest, TestMixedContents) {
   scoped_refptr<HTTPSTestServer> https_server = GoodCertServer();
   scoped_refptr<HTTPTestServer> http_server = PlainServer();
+  if (HasFailure())
+    return;
 
   // Load a page with mixed-content, the default behavior is to show the mixed
   // content.
@@ -248,6 +275,8 @@ TEST_F(SSLUITest, TestMixedContents) {
 TEST_F(SSLUITest, TestMixedContentsFilterAll) {
   scoped_refptr<HTTPSTestServer> https_server = GoodCertServer();
   scoped_refptr<HTTPTestServer> http_server = PlainServer();
+  if (HasFailure())
+    return;
 
   // Now select the block mixed-content pref and reload the page.
   scoped_ptr<BrowserProxy> browser_proxy(automation()->GetBrowserWindow(0));
@@ -314,6 +343,8 @@ TEST_F(SSLUITest, TestMixedContentsFilterAll) {
 TEST_F(SSLUITest, TestMixedContentsRandomizeHash) {
   scoped_refptr<HTTPSTestServer> https_server = GoodCertServer();
   scoped_refptr<HTTPTestServer> http_server = PlainServer();
+  if (HasFailure())
+    return;
 
   scoped_ptr<TabProxy> tab(GetActiveTabProxy());
   NavigateTab(
@@ -340,6 +371,8 @@ TEST_F(SSLUITest, TestMixedContentsRandomizeHash) {
 TEST_F(SSLUITest, TestUnsafeContents) {
   scoped_refptr<HTTPSTestServer> good_https_server = GoodCertServer();
   scoped_refptr<HTTPSTestServer> bad_https_server = BadCertServer();
+  if (HasFailure())
+    return;
 
   scoped_ptr<TabProxy> tab(GetActiveTabProxy());
   NavigateTab(tab.get(),
@@ -390,6 +423,8 @@ TEST_F(SSLUITest, TestUnsafeContents) {
 TEST_F(SSLUITest, TestMixedContentsLoadedFromJS) {
   scoped_refptr<HTTPSTestServer> https_server = GoodCertServer();
   scoped_refptr<HTTPTestServer> http_server = PlainServer();
+  if (HasFailure())
+    return;
 
   scoped_ptr<TabProxy> tab(GetActiveTabProxy());
   NavigateTab(tab.get(), https_server->TestServerPageW(
@@ -430,6 +465,8 @@ TEST_F(SSLUITest, TestMixedContentsLoadedFromJS) {
 TEST_F(SSLUITest, TestMixedContentsTwoTabs) {
   scoped_refptr<HTTPSTestServer> https_server = GoodCertServer();
   scoped_refptr<HTTPTestServer> http_server = PlainServer();
+  if (HasFailure())
+    return;
 
   scoped_ptr<TabProxy> tab1(GetActiveTabProxy());
   NavigateTab(
@@ -481,6 +518,8 @@ TEST_F(SSLUITest, TestMixedContentsTwoTabs) {
 TEST_F(SSLUITest, TestCachedMixedContents) {
   scoped_refptr<HTTPSTestServer> https_server = GoodCertServer();
   scoped_refptr<HTTPTestServer> http_server = PlainServer();
+  if (HasFailure())
+    return;
 
   scoped_ptr<TabProxy> tab(GetActiveTabProxy());
   NavigateTab(tab.get(), http_server->TestServerPageW(
@@ -588,6 +627,8 @@ TEST_F(SSLUITest, DISABLED_TestCNInvalidStickiness) {
 // Test that navigating to a #ref does not change a bad security state.
 TEST_F(SSLUITest, TestRefNavigation) {
   scoped_refptr<HTTPSTestServer> bad_https_server = BadCertServer();
+  if (HasFailure())
+    return;
   scoped_ptr<TabProxy> tab(GetActiveTabProxy());
   NavigateTab(
       tab.get(),
@@ -633,6 +674,8 @@ TEST_F(SSLUITest, TestRefNavigation) {
 TEST_F(SSLUITest, DISABLED_TestCloseTabWithUnsafePopup) {
   scoped_refptr<HTTPTestServer> http_server = PlainServer();
   scoped_refptr<HTTPSTestServer> bad_https_server = BadCertServer();
+  if (HasFailure())
+    return;
 
   scoped_ptr<TabProxy> tab(GetActiveTabProxy());
   NavigateTab(tab.get(),
@@ -658,6 +701,8 @@ TEST_F(SSLUITest, DISABLED_TestCloseTabWithUnsafePopup) {
 TEST_F(SSLUITest, TestRedirectBadToGoodHTTPS) {
   scoped_refptr<HTTPSTestServer> good_https_server = GoodCertServer();
   scoped_refptr<HTTPSTestServer> bad_https_server = BadCertServer();
+  if (HasFailure())
+    return;
 
   scoped_ptr<TabProxy> tab(GetActiveTabProxy());
   GURL url1 = bad_https_server->TestServerPageW(L"server-redirect?");
@@ -691,6 +736,8 @@ TEST_F(SSLUITest, TestRedirectBadToGoodHTTPS) {
 TEST_F(SSLUITest, TestRedirectGoodToBadHTTPS) {
   scoped_refptr<HTTPSTestServer> good_https_server = GoodCertServer();
   scoped_refptr<HTTPSTestServer> bad_https_server = BadCertServer();
+  if (HasFailure())
+    return;
 
   scoped_ptr<TabProxy> tab(GetActiveTabProxy());
   GURL url1 = good_https_server->TestServerPageW(L"server-redirect?");
@@ -720,6 +767,8 @@ TEST_F(SSLUITest, TestRedirectHTTPToHTTPS) {
   scoped_refptr<HTTPTestServer> http_server = PlainServer();
   scoped_refptr<HTTPSTestServer> good_https_server = GoodCertServer();
   scoped_refptr<HTTPSTestServer> bad_https_server = BadCertServer();
+  if (HasFailure())
+    return;
 
   // HTTP redirects to good HTTPS.
   scoped_ptr<TabProxy> tab(GetActiveTabProxy());
@@ -762,6 +811,8 @@ TEST_F(SSLUITest, TestRedirectHTTPToHTTPS) {
 TEST_F(SSLUITest, TestRedirectHTTPSToHTTP) {
   scoped_refptr<HTTPTestServer> http_server = PlainServer();
   scoped_refptr<HTTPSTestServer> https_server = GoodCertServer();
+  if (HasFailure())
+    return;
 
   scoped_ptr<TabProxy> tab(GetActiveTabProxy());
   GURL https_url = https_server->TestServerPageW(L"server-redirect?");
@@ -819,6 +870,8 @@ TEST_F(SSLUITest, TestGoodFrameNavigation) {
   scoped_refptr<HTTPTestServer> http_server = PlainServer();
   scoped_refptr<HTTPSTestServer> good_https_server = GoodCertServer();
   scoped_refptr<HTTPSTestServer> bad_https_server = BadCertServer();
+  if (HasFailure())
+    return;
 
   scoped_ptr<TabProxy> tab(GetActiveTabProxy());
   NavigateTab(tab.get(),
@@ -914,6 +967,8 @@ TEST_F(SSLUITest, TestGoodFrameNavigation) {
 TEST_F(SSLUITest, TestBadFrameNavigation) {
   scoped_refptr<HTTPSTestServer> good_https_server = GoodCertServer();
   scoped_refptr<HTTPSTestServer> bad_https_server = BadCertServer();
+  if (HasFailure())
+    return;
 
   scoped_ptr<TabProxy> tab(GetActiveTabProxy());
   NavigateTab(tab.get(),
@@ -957,6 +1012,8 @@ TEST_F(SSLUITest, TestUnauthenticatedFrameNavigation) {
   scoped_refptr<HTTPTestServer> http_server = PlainServer();
   scoped_refptr<HTTPSTestServer> good_https_server = GoodCertServer();
   scoped_refptr<HTTPSTestServer> bad_https_server = BadCertServer();
+  if (HasFailure())
+    return;
 
   scoped_ptr<TabProxy> tab(GetActiveTabProxy());
   NavigateTab(tab.get(),
