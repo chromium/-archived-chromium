@@ -139,7 +139,6 @@
    Memcheck:Param
    write(buf)
    ...
-   fun:sqlite3OsWrite
    fun:writeJournalHdr
 }
 
@@ -599,4 +598,12 @@
    fun:_ZN16Toolbar5Importer27LocateNextTagWithStopByNameEP9XmlReaderRKSsS3_
    fun:_ZN16Toolbar5Importer24ParseBookmarksFromReaderEP9XmlReaderPSt6vectorIN13ProfileWriter13BookmarkEntryESaIS4_EE
    fun:_ZN39Toolbar5ImporterTest_BookmarkParse_Test8TestBodyEv
+}
+{
+   bug_12366
+   Memcheck:Leak
+   fun:malloc
+   ...
+   fun:cairo_image_surface_create
+   fun:_ZN3gfx6Canvas13SizeStringIntERKSbIwSt11char_traitsIwESaIwEERKNS_4FontEPiSA_i
 }
