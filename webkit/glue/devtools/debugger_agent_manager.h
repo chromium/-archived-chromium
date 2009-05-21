@@ -57,7 +57,7 @@ class DebuggerAgentManager {
 
   static void V8DebugHostDispatchHandler();
   static void OnV8DebugMessage(const v8::Debug::Message& message);
-  static void SendCommandToV8(const std::wstring& cmd,
+  static void SendCommandToV8(const string16& cmd,
                               v8::Debug::ClientData* data);
   static void SendContinueCommandToV8();
 

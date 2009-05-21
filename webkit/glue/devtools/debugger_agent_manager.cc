@@ -226,7 +226,7 @@ void DebuggerAgentManager::OnV8DebugMessage(const v8::Debug::Message& message) {
 void DebuggerAgentManager::ExecuteDebuggerCommand(
     const std::string& command,
     int caller_id) {
-  SendCommandToV8(UTF8ToWide(command), new CallerIdWrapper(caller_id));
+  SendCommandToV8(UTF8ToUTF16(command), new CallerIdWrapper(caller_id));
 }
 
 // static
@@ -258,7 +258,7 @@ void DebuggerAgentManager::OnWebViewClosed(WebViewImpl* webview) {
 }
 
 // static
-void DebuggerAgentManager::SendCommandToV8(const std::wstring& cmd,
+void DebuggerAgentManager::SendCommandToV8(const string16& cmd,
                                            v8::Debug::ClientData* data) {
 #if USE(V8)
   v8::Debug::SendCommand(reinterpret_cast<const uint16_t*>(cmd.data()),
@@ -270,7 +270,7 @@ void DebuggerAgentManager::SendCommandToV8(const std::wstring& cmd,
 void DebuggerAgentManager::SendContinueCommandToV8() {
   std::wstring continue_cmd(
       L"{\"seq\":1,\"type\":\"request\",\"command\":\"continue\"}");
-  SendCommandToV8(continue_cmd, new CallerIdWrapper());
+  SendCommandToV8(WideToUTF16(continue_cmd), new CallerIdWrapper());
 }
 
 // static
