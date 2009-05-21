@@ -183,13 +183,19 @@ void BookmarkEditorGtk::Init(GtkWindow* parent_window) {
 
     tree_selection_ = gtk_tree_view_get_selection(GTK_TREE_VIEW(tree_view_));
 
+    GtkTreePath* path = NULL;
     if (selected_id) {
-      GtkTreePath* path = gtk_tree_model_get_path(GTK_TREE_MODEL(tree_store_),
-                                                  &selected_iter);
-      gtk_tree_view_expand_to_path(GTK_TREE_VIEW(tree_view_), path);
-      gtk_tree_selection_select_path(tree_selection_, path);
-      gtk_tree_path_free(path);
+      path = gtk_tree_model_get_path(GTK_TREE_MODEL(tree_store_),
+                                     &selected_iter);
+    } else {
+      // We don't have a selected parent (Probably because we're making a new
+      // bookmark). Select the first item in the list.
+      path = gtk_tree_path_new_from_string("0");
     }
+
+    gtk_tree_view_expand_to_path(GTK_TREE_VIEW(tree_view_), path);
+    gtk_tree_selection_select_path(tree_selection_, path);
+    gtk_tree_path_free(path);
 
     GtkWidget* scroll_window = gtk_scrolled_window_new(NULL, NULL);
     gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scroll_window),
