@@ -18,7 +18,6 @@ enum {
   DIR_USER_DATA,         // directory where user data can be written
   DIR_CRASH_DUMPS,       // directory where crash dumps are written
   DIR_USER_DESKTOP,      // directory that correspond to the desktop
-  DIR_RESOURCES,         // directory where application resources are stored
   DIR_INSPECTOR,         // directory where web inspector is located
   DIR_APP_DICTIONARIES,  // directory where the global dictionaries are
   DIR_USER_DOCUMENTS,    // directory for a user's "My Documents"

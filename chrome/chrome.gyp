@@ -2085,6 +2085,15 @@
             },
           ],
         }],
+        ['OS=="mac"', {
+          # Copy web inspector resources to the Contents/Resources folder.
+          'copies': [
+            {
+              'destination': '<(PRODUCT_DIR)/<(mac_product_name).app/Contents/Resources',
+              'files': ['<(PRODUCT_DIR)/resources/inspector/'],
+            },
+          ],
+        }],
         ['OS=="win"', {
           'include_dirs': [
             'third_party/wtl/include',

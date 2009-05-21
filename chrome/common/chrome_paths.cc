@@ -80,17 +80,17 @@ bool PathProvider(int key, FilePath* result) {
       if (!GetUserDesktop(&cur))
         return false;
       break;
-    case chrome::DIR_RESOURCES:
-      if (!PathService::Get(chrome::DIR_APP, &cur))
-        return false;
-      cur = cur.Append(FILE_PATH_LITERAL("resources"));
-      create_dir = true;
-      break;
     case chrome::DIR_INSPECTOR:
       if (!PathService::Get(chrome::DIR_APP, &cur))
         return false;
+#if defined(OS_MACOSX)
+      cur = cur.DirName();
+      cur = cur.Append(FILE_PATH_LITERAL("Resources"));
+      cur = cur.Append(FILE_PATH_LITERAL("inspector"));
+#else
       cur = cur.Append(FILE_PATH_LITERAL("resources"));
       cur = cur.Append(FILE_PATH_LITERAL("inspector"));
+#endif
       break;
     case chrome::DIR_APP_DICTIONARIES:
 #if defined(OS_LINUX)
