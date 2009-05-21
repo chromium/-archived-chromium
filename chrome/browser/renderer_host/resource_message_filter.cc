@@ -140,6 +140,10 @@ ResourceMessageFilter::ResourceMessageFilter(
 }
 
 ResourceMessageFilter::~ResourceMessageFilter() {
+  // This function should be called on the IO thread.
+  DCHECK(MessageLoop::current() ==
+         ChromeThread::GetMessageLoop(ChromeThread::IO));
+
   // Let interested observers know we are being deleted.
   NotificationService::current()->Notify(
       NotificationType::RESOURCE_MESSAGE_FILTER_SHUTDOWN,
@@ -148,14 +152,6 @@ ResourceMessageFilter::~ResourceMessageFilter() {
 
   if (handle())
     base::CloseProcessHandle(handle());
-
-  // This function should be called on the IO thread.
-  DCHECK(MessageLoop::current() ==
-         ChromeThread::GetMessageLoop(ChromeThread::IO));
-  NotificationService::current()->RemoveObserver(
-      this,
-      NotificationType::SPELLCHECKER_REINITIALIZED,
-      Source<Profile>(static_cast<Profile*>(profile_)));
 }
 
 void ResourceMessageFilter::Init(int render_process_id) {
@@ -169,10 +165,8 @@ void ResourceMessageFilter::OnFilterAdded(IPC::Channel* channel) {
   channel_ = channel;
 
   // Add the observers to intercept.
-  NotificationService::current()->AddObserver(
-      this,
-      NotificationType::SPELLCHECKER_REINITIALIZED,
-      Source<Profile>(static_cast<Profile*>(profile_)));
+  registrar_.Add(this, NotificationType::SPELLCHECKER_REINITIALIZED,
+                 Source<Profile>(static_cast<Profile*>(profile_)));
 }
 
 // Called on the IPC thread:

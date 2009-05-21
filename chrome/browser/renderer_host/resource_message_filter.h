@@ -21,7 +21,7 @@
 #include "chrome/browser/renderer_host/resource_dispatcher_host.h"
 #include "chrome/common/ipc_channel_proxy.h"
 #include "chrome/common/modal_dialog_event.h"
-#include "chrome/common/notification_observer.h"
+#include "chrome/common/notification_registrar.h"
 #include "chrome/common/transport_dib.h"
 #include "webkit/api/public/WebCache.h"
 
@@ -224,6 +224,8 @@ class ResourceMessageFilter : public IPC::ChannelProxy::MessageFilter,
   // thread. This instance of the clipboard should be accessed only on the IO
   // thread.
   static Clipboard* GetClipboard();
+
+  NotificationRegistrar registrar_;
 
   // The channel associated with the renderer connection. This pointer is not
   // owned by this class.

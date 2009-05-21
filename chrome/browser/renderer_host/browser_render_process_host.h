@@ -18,7 +18,7 @@
 #include "chrome/common/transport_dib.h"
 #include "chrome/browser/renderer_host/audio_renderer_host.h"
 #include "chrome/browser/renderer_host/render_process_host.h"
-#include "chrome/common/notification_observer.h"
+#include "chrome/common/notification_registrar.h"
 #include "webkit/api/public/WebCache.h"
 
 class CommandLine;
@@ -119,6 +119,8 @@ class BrowserRenderProcessHost : public RenderProcessHost,
   // Callers can reduce the RenderProcess' priority.
   // Returns true if the priority is backgrounded; false otherwise.
   void SetBackgrounded(bool boost);
+
+  NotificationRegistrar registrar_;
 
   // The count of currently visible widgets.  Since the host can be a container
   // for multiple widgets, it uses this count to determine when it should be

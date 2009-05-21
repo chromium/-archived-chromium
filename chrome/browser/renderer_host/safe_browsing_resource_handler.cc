@@ -29,8 +29,7 @@ SafeBrowsingResourceHandler::SafeBrowsingResourceHandler(
       safe_browsing_(safe_browsing),
       queued_error_request_id_(-1),
       rdh_(resource_dispatcher_host),
-      resource_type_(resource_type),
-      receiver_(receiver) {
+      resource_type_(resource_type) {
   if (safe_browsing_->CheckUrl(url, this)) {
     safe_browsing_result_ = SafeBrowsingService::URL_SAFE;
     safe_browsing_->LogPauseDelay(base::TimeDelta());  // No delay.
@@ -40,22 +39,12 @@ SafeBrowsingResourceHandler::SafeBrowsingResourceHandler(
     // Can't pause now because it's too early, so we'll do it in OnWillRead.
   }
 
-  NotificationService::current()->AddObserver(
-      this,
-      NotificationType::RESOURCE_MESSAGE_FILTER_SHUTDOWN,
-      Source<ResourceMessageFilter>(
-          static_cast<ResourceMessageFilter*>(receiver_)));
+  registrar_.Add(this, NotificationType::RESOURCE_MESSAGE_FILTER_SHUTDOWN,
+                 Source<ResourceMessageFilter>(
+                     static_cast<ResourceMessageFilter*>(receiver)));
 }
 
 SafeBrowsingResourceHandler::~SafeBrowsingResourceHandler() {
-  NotificationService* notification_service = NotificationService::current();
-  if (notification_service) {
-    notification_service->RemoveObserver(
-        this,
-        NotificationType::RESOURCE_MESSAGE_FILTER_SHUTDOWN,
-        Source<ResourceMessageFilter>(
-            static_cast<ResourceMessageFilter*>(receiver_)));
-  }
 }
 
 bool SafeBrowsingResourceHandler::OnUploadProgress(int request_id,

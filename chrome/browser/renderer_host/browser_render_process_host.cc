@@ -133,9 +133,8 @@ BrowserRenderProcessHost::BrowserRenderProcessHost(Profile* profile)
             this, &BrowserRenderProcessHost::ClearTransportDIBCache)) {
   widget_helper_ = new RenderWidgetHelper();
 
-  NotificationService::current()->AddObserver(this,
-      NotificationType::USER_SCRIPTS_LOADED,
-      NotificationService::AllSources());
+  registrar_.Add(this, NotificationType::USER_SCRIPTS_LOADED,
+                 NotificationService::AllSources());
 
   if (run_renderer_in_process()) {
     // We need a "renderer pid", but we don't have one when there's no renderer
@@ -169,9 +168,6 @@ BrowserRenderProcessHost::~BrowserRenderProcessHost() {
   if (process_.handle() && !run_renderer_in_process()) {
     ProcessWatcher::EnsureProcessTerminated(process_.handle());
   }
-
-  NotificationService::current()->RemoveObserver(this,
-      NotificationType::USER_SCRIPTS_LOADED, NotificationService::AllSources());
 
   ClearTransportDIBCache();
 }

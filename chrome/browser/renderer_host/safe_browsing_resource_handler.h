@@ -11,7 +11,7 @@
 #include "chrome/browser/renderer_host/resource_dispatcher_host.h"
 #include "chrome/browser/renderer_host/resource_handler.h"
 #include "chrome/browser/safe_browsing/safe_browsing_service.h"
-#include "chrome/common/notification_observer.h"
+#include "chrome/common/notification_registrar.h"
 
 // Checks that a url is safe.
 class SafeBrowsingResourceHandler : public ResourceHandler,
@@ -55,6 +55,7 @@ class SafeBrowsingResourceHandler : public ResourceHandler,
                const NotificationDetails& details);
 
  private:
+  NotificationRegistrar registrar_;
   scoped_refptr<ResourceHandler> next_handler_;
   int render_process_host_id_;
   int render_view_id_;
@@ -69,7 +70,6 @@ class SafeBrowsingResourceHandler : public ResourceHandler,
   ResourceDispatcherHost* rdh_;
   base::Time pause_time_;
   ResourceType::Type resource_type_;
-  ResourceDispatcherHost::Receiver* receiver_;
 
   DISALLOW_COPY_AND_ASSIGN(SafeBrowsingResourceHandler);
 };
