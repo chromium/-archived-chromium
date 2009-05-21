@@ -5,7 +5,7 @@
 #ifndef CHROME_BROWSER_VIEWS_INFOBARS_INFOBAR_CONTAINER_H_
 #define CHROME_BROWSER_VIEWS_INFOBARS_INFOBAR_CONTAINER_H_
 
-#include "chrome/common/notification_observer.h"
+#include "chrome/common/notification_registrar.h"
 #include "views/view.h"
 
 class BrowserView;
@@ -60,6 +60,8 @@ class InfoBarContainer : public views::View,
   // notification from the selected TabContents. The InfoBar's disappearance
   // will be animated.
   void RemoveInfoBar(InfoBarDelegate* delegate);
+
+  NotificationRegistrar registrar_;
 
   // The BrowserView that hosts this InfoBarContainer.
   BrowserView* browser_view_;

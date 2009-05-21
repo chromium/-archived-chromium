@@ -10,6 +10,7 @@
 #include "chrome/browser/bookmarks/bookmark_menu_controller_win.h"
 #include "chrome/browser/bookmarks/bookmark_model.h"
 #include "chrome/browser/extensions/extensions_service.h"
+#include "chrome/common/notification_registrar.h"
 #include "views/controls/button/menu_button.h"
 #include "views/controls/label.h"
 #include "views/controls/menu/menu.h"
@@ -334,11 +335,6 @@ class BookmarkBarView : public views::View,
                        const NotificationSource& source,
                        const NotificationDetails& details);
 
-  // If we have registered an observer on the notification service, this
-  // unregisters it. This does nothing if we have not installed ourself as an
-  // observer.
-  void RemoveNotificationObservers();
-
   // If the ModelChangedListener is non-null, ModelChanged is invoked on it.
   void NotifyModelChanged();
 
@@ -372,6 +368,8 @@ class BookmarkBarView : public views::View,
   // the throb stops immediately, otherwise it stops after a couple more
   // throbs.
   void StopThrobbing(bool immediate);
+
+  NotificationRegistrar registrar_;
 
   Profile* profile_;
 

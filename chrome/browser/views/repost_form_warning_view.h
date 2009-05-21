@@ -5,7 +5,7 @@
 #ifndef CHROME_BROWSER_VIEWS_REPOST_FORM_WARNING_VIEW_H_
 #define CHROME_BROWSER_VIEWS_REPOST_FORM_WARNING_VIEW_H_
 
-#include "chrome/common/notification_observer.h"
+#include "chrome/common/notification_registrar.h"
 #include "views/window/dialog_delegate.h"
 
 class MessageBoxView;
@@ -40,6 +40,8 @@ class RepostFormWarningView : public views::DialogDelegate,
   virtual void Observe(NotificationType type,
                        const NotificationSource& source,
                        const NotificationDetails& details);
+
+  NotificationRegistrar registrar_;
 
   // The message box view whose commands we handle.
   MessageBoxView* message_box_view_;

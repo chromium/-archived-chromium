@@ -26,26 +26,18 @@ InfoBarContainer::~InfoBarContainer() {
 }
 
 void InfoBarContainer::ChangeTabContents(TabContents* contents) {
-  if (tab_contents_) {
-    NotificationService::current()->RemoveObserver(
-        this, NotificationType::TAB_CONTENTS_INFOBAR_ADDED,
-        Source<TabContents>(tab_contents_));
-    NotificationService::current()->RemoveObserver(
-        this, NotificationType::TAB_CONTENTS_INFOBAR_REMOVED,
-        Source<TabContents>(tab_contents_));
-  }
+  registrar_.RemoveAll();
   // No need to delete the child views here, their removal from the view
   // hierarchy does this automatically (see InfoBar::InfoBarRemoved).
   RemoveAllChildViews(false);
   tab_contents_ = contents;
   if (tab_contents_) {
     UpdateInfoBars();
-    NotificationService::current()->AddObserver(
-        this, NotificationType::TAB_CONTENTS_INFOBAR_ADDED,
-        Source<TabContents>(tab_contents_));
-    NotificationService::current()->AddObserver(
-        this, NotificationType::TAB_CONTENTS_INFOBAR_REMOVED,
-        Source<TabContents>(tab_contents_));
+    Source<TabContents> tc_source(tab_contents_);
+    registrar_.Add(this, NotificationType::TAB_CONTENTS_INFOBAR_ADDED,
+                   tc_source);
+    registrar_.Add(this, NotificationType::TAB_CONTENTS_INFOBAR_REMOVED,
+                   tc_source);
   }
 }
 

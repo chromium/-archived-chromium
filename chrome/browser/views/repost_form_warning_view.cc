@@ -36,17 +36,14 @@ RepostFormWarningView::RepostFormWarningView(
         window()->GetNativeHandle());
   }
   views::Window::CreateChromeWindow(root_hwnd, gfx::Rect(), this)->Show();
-  NotificationService::current()->AddObserver(
-      this, NotificationType::LOAD_START, NotificationService::AllSources());
-  NotificationService::current()->AddObserver(
-      this, NotificationType::TAB_CLOSING, NotificationService::AllSources());
+
+  registrar_.Add(this, NotificationType::LOAD_START,
+                 NotificationService::AllSources());
+  registrar_.Add(this, NotificationType::TAB_CLOSING,
+                 NotificationService::AllSources());
 }
 
 RepostFormWarningView::~RepostFormWarningView() {
-  NotificationService::current()->RemoveObserver(
-      this, NotificationType::LOAD_START, NotificationService::AllSources());
-  NotificationService::current()->RemoveObserver(
-      this, NotificationType::TAB_CLOSING, NotificationService::AllSources());
 }
 
 //////////////////////////////////////////////////////////////////////////////

@@ -386,7 +386,6 @@ BookmarkBarView::BookmarkBarView(Profile* profile, Browser* browser)
 
 BookmarkBarView::~BookmarkBarView() {
   NotifyModelChanged();
-  RemoveNotificationObservers();
   if (model_)
     model_->RemoveObserver(this);
   StopShowFolderDropMenuTimer();
@@ -401,6 +400,7 @@ void BookmarkBarView::SetProfile(Profile* profile) {
 
   // Cancels the current cancelable.
   NotifyModelChanged();
+  registrar_.RemoveAll();
 
   profile_ = profile;
 
@@ -411,11 +411,10 @@ void BookmarkBarView::SetProfile(Profile* profile) {
   // loaded.
   other_bookmarked_button_->SetEnabled(false);
 
-  NotificationService* ns = NotificationService::current();
   Source<Profile> ns_source(profile_->GetOriginalProfile());
-  ns->AddObserver(this, NotificationType::BOOKMARK_BUBBLE_SHOWN, ns_source);
-  ns->AddObserver(this, NotificationType::BOOKMARK_BUBBLE_HIDDEN, ns_source);
-  ns->AddObserver(this, NotificationType::BOOKMARK_BAR_VISIBILITY_PREF_CHANGED,
+  registrar_.Add(this, NotificationType::BOOKMARK_BUBBLE_SHOWN, ns_source);
+  registrar_.Add(this, NotificationType::BOOKMARK_BUBBLE_HIDDEN, ns_source);
+  registrar_.Add(this, NotificationType::BOOKMARK_BAR_VISIBILITY_PREF_CHANGED,
                   NotificationService::AllSources());
 
   model_ = profile_->GetBookmarkModel();
@@ -1269,16 +1268,6 @@ void BookmarkBarView::Observe(NotificationType type,
       bubble_url_ = GURL();
       break;
   }
-}
-
-void BookmarkBarView::RemoveNotificationObservers() {
-  NotificationService* ns = NotificationService::current();
-  Source<Profile> ns_source(profile_->GetOriginalProfile());
-  ns->RemoveObserver(this, NotificationType::BOOKMARK_BUBBLE_SHOWN, ns_source);
-  ns->RemoveObserver(this, NotificationType::BOOKMARK_BUBBLE_HIDDEN, ns_source);
-  ns->RemoveObserver(this,
-                     NotificationType::BOOKMARK_BAR_VISIBILITY_PREF_CHANGED,
-                     NotificationService::AllSources());
 }
 
 void BookmarkBarView::NotifyModelChanged() {
