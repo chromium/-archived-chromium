@@ -35,6 +35,9 @@ class NotificationRegistrar {
   // Unregisters all notifications.
   void RemoveAll();
 
+  // Returns true if no notifications are registered.
+  bool IsEmpty() const;
+
  private:
   struct Record;
 

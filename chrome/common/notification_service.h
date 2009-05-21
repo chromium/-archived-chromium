@@ -30,6 +30,9 @@ class NotificationService {
   NotificationService();
   ~NotificationService();
 
+  // NOTE: Rather than using this directly, you you probably want to use a
+  // NotificationRegistrar.  It's generally easier and less error-prone.
+  //
   // Registers a NotificationObserver to be called whenever a matching
   // notification is posted.  Observer is a pointer to an object subclassing
   // NotificationObserver to be notified when an event matching the other two
@@ -48,6 +51,9 @@ class NotificationService {
   void AddObserver(NotificationObserver* observer,
                    NotificationType type, const NotificationSource& source);
 
+  // NOTE: Rather than using this directly, you you probably want to use a
+  // NotificationRegistrar.  It's generally easier and less error-prone.
+  //
   // Removes the object pointed to by observer from receiving notifications
   // that match type and source.  If no object matching the parameters is
   // currently registered, this method is a no-op.

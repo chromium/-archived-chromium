@@ -57,15 +57,27 @@ void NotificationRegistrar::Remove(NotificationObserver* observer,
     NOTREACHED();
   }
 
-  NotificationService::current()->RemoveObserver(observer, type, source);
+  // This can be NULL if our owner outlives the NotificationService, e.g. if our
+  // owner is a Singleton.
+  NotificationService* service = NotificationService::current();
+  if (service)
+    service->RemoveObserver(observer, type, source);
 }
 
 void NotificationRegistrar::RemoveAll() {
+  // This can be NULL if our owner outlives the NotificationService, e.g. if our
+  // owner is a Singleton.
   NotificationService* service = NotificationService::current();
-  for (size_t i = 0; i < registered_.size(); i++) {
-    service->RemoveObserver(registered_[i].observer,
-                            registered_[i].type,
-                            registered_[i].source);
+  if (service) {
+    for (size_t i = 0; i < registered_.size(); i++) {
+      service->RemoveObserver(registered_[i].observer,
+                              registered_[i].type,
+                              registered_[i].source);
+    }
   }
   registered_.clear();
+}
+
+bool NotificationRegistrar::IsEmpty() const {
+  return registered_.empty();
 }
