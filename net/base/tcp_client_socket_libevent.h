@@ -8,6 +8,8 @@
 #include <sys/socket.h>  // for struct sockaddr
 
 #include "base/message_loop.h"
+#include "base/ref_counted.h"
+#include "base/scoped_ptr.h"
 #include "net/base/address_list.h"
 #include "net/base/client_socket.h"
 #include "net/base/completion_callback.h"
@@ -17,15 +19,14 @@ struct event;  // From libevent
 namespace net {
 
 // A client socket that uses TCP as the transport layer.
-class TCPClientSocketLibevent : public ClientSocket,
-                                public MessageLoopForIO::Watcher {
+class TCPClientSocketLibevent : public ClientSocket {
  public:
   // The IP address(es) and port number to connect to.  The TCP socket will try
   // each IP address in the list until it succeeds in establishing a
   // connection.
   explicit TCPClientSocketLibevent(const AddressList& addresses);
 
-  ~TCPClientSocketLibevent();
+  virtual ~TCPClientSocketLibevent();
 
   // ClientSocket methods:
   virtual int Connect(CompletionCallback* callback);
@@ -44,9 +45,46 @@ class TCPClientSocketLibevent : public ClientSocket,
   virtual int GetPeerName(struct sockaddr *name, socklen_t *namelen);
 
  private:
-  // Called by MessagePumpLibevent when the socket is ready to do I/O
-  void OnFileCanReadWithoutBlocking(int fd);
-  void OnFileCanWriteWithoutBlocking(int fd);
+  class ReadWatcher : public MessageLoopForIO::Watcher {
+   public:
+    explicit ReadWatcher(TCPClientSocketLibevent* socket) : socket_(socket) {}
+
+    // MessageLoopForIO::Watcher methods
+
+    virtual void OnFileCanReadWithoutBlocking(int /* fd */) {
+      if (socket_->read_callback_)
+        socket_->DidCompleteRead();
+    }
+
+    virtual void OnFileCanWriteWithoutBlocking(int /* fd */) {}
+
+   private:
+    TCPClientSocketLibevent* const socket_;
+
+    DISALLOW_COPY_AND_ASSIGN(ReadWatcher);
+  };
+
+  class WriteWatcher : public MessageLoopForIO::Watcher {
+   public:
+    explicit WriteWatcher(TCPClientSocketLibevent* socket) : socket_(socket) {}
+
+    // MessageLoopForIO::Watcher methods
+
+    virtual void OnFileCanReadWithoutBlocking(int /* fd */) {}
+
+    virtual void OnFileCanWriteWithoutBlocking(int /* fd */) {
+      if (socket_->waiting_connect_) {
+        socket_->DidCompleteConnect();
+      } else if (socket_->write_callback_) {
+        socket_->DidCompleteWrite();
+      }
+    }
+
+   private:
+    TCPClientSocketLibevent* const socket_;
+
+    DISALLOW_COPY_AND_ASSIGN(WriteWatcher);
+  };
 
   void DoReadCallback(int rv);
   void DoWriteCallback(int rv);
@@ -67,8 +105,13 @@ class TCPClientSocketLibevent : public ClientSocket,
   // Whether we're currently waiting for connect() to complete
   bool waiting_connect_;
 
-  // The socket's libevent wrapper
-  MessageLoopForIO::FileDescriptorWatcher socket_watcher_;
+  // The socket's libevent wrappers
+  MessageLoopForIO::FileDescriptorWatcher read_socket_watcher_;
+  MessageLoopForIO::FileDescriptorWatcher write_socket_watcher_;
+
+  // The corresponding watchers for reads and writes.
+  ReadWatcher read_watcher_;
+  WriteWatcher write_watcher_;
 
   // The buffer used by OnSocketReady to retry Read requests
   scoped_refptr<IOBuffer> read_buf_;
