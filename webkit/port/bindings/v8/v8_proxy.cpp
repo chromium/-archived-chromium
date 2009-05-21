@@ -1653,6 +1653,15 @@ Frame* V8Proxy::retrieveFrameForCurrentContext()
 }
 
 
+Frame* V8Proxy::retrieveFrameForCallingContext()
+{
+    v8::Handle<v8::Context> context = v8::Context::GetCalling();
+    if (context.IsEmpty())
+        return 0;
+    return retrieveFrame(context);
+}
+
+
 Frame* V8Proxy::retrieveFrame()
 {
     DOMWindow* window = retrieveWindow();
