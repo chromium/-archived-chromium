@@ -223,6 +223,9 @@ class TabStripGtk : public TabStripModelObserver,
   // Our model.
   TabStripModel* model_;
 
+  // The bitmap we use to paint the colored background.
+  SkBitmap* background_;
+
   // The currently running animation.
   scoped_ptr<TabAnimation> active_animation_;
 

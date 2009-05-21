@@ -34,8 +34,6 @@ const int kHorizontalMoveThreshold = 16;  // pixels
 // which results in overlapping tabs.
 const int kTabHOffset = -16;
 
-SkBitmap* background = NULL;
-
 inline int Round(double x) {
   return static_cast<int>(x + 0.5);
 }
@@ -455,9 +453,9 @@ void TabStripGtk::Init(int width, Profile* profile) {
 
   model_->AddObserver(this);
 
-  if (!background) {
-    background = theme_provider->GetBitmapNamed(IDR_THEME_FRAME);
-  }
+  int background_type = profile->IsOffTheRecord() ?
+      IDR_THEME_FRAME_INCOGNITO : IDR_THEME_FRAME;
+  background_ = theme_provider->GetBitmapNamed(background_type);
 
   tabstrip_.Own(gtk_fixed_new());
   gtk_fixed_set_has_window(GTK_FIXED(tabstrip_.get()), TRUE);
@@ -1062,7 +1060,7 @@ void TabStripGtk::OnNewTabClicked(GtkWidget* widget, TabStripGtk* tabstrip) {
 
 void TabStripGtk::PaintBackground(GdkEventExpose* event) {
   gfx::CanvasPaint canvas(event);
-  canvas.TileImageInt(*background, 0, 0, bounds_.width(), bounds_.height());
+  canvas.TileImageInt(*background_, 0, 0, bounds_.width(), bounds_.height());
 }
 
 void TabStripGtk::SetTabBounds(TabGtk* tab, const gfx::Rect& bounds) {
