@@ -90,10 +90,9 @@ bool DownloadShelfContextMenu::IsItemCommandEnabled(int id) const {
     case ALWAYS_OPEN_TYPE:
 #if defined(OS_WIN)
       return download_util::CanOpenDownload(download_);
-#else
-      // TODO(port): port download_util
-      NOTIMPLEMENTED();
-      return true;
+#elif defined(OS_LINUX)
+      // Need to implement dangerous download stuff: http://crbug.com/11780
+      return false;
 #endif
     case CANCEL:
       return download_->state() == DownloadItem::IN_PROGRESS;
