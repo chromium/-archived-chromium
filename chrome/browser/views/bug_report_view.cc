@@ -8,6 +8,8 @@
 #include <fstream>
 
 #include "app/l10n_util.h"
+#include "app/win_util.h"
+#include "base/file_version_info.h"
 #include "base/string_util.h"
 #include "chrome/browser/net/url_fetcher.h"
 #include "chrome/browser/profile.h"
@@ -26,6 +28,7 @@
 #include "views/controls/label.h"
 #include "views/grid_layout.h"
 #include "views/standard_layout.h"
+#include "views/widget/widget.h"
 #include "views/window/client_view.h"
 #include "views/window/window.h"
 
@@ -110,6 +113,25 @@ class BugReportView::PostCleanup : public URLFetcher::Delegate {
   DISALLOW_COPY_AND_ASSIGN(PostCleanup);
 };
 
+// Global "display this dialog" function declared in browser_dialogs.h.
+void ShowBugReportView(views::Widget* parent,
+                       Profile* profile,
+                       TabContents* tab) {
+  BugReportView* view = new BugReportView(profile, tab);
+
+  // Grab an exact snapshot of the window that the user is seeing (i.e. as
+  // rendered--do not re-render, and include windowed plugins)
+  std::vector<unsigned char> *screenshot_png = new std::vector<unsigned char>;
+  win_util::GrabWindowSnapshot(parent->GetNativeView(), screenshot_png);
+  // the BugReportView takes ownership of the png data, and will dispose of
+  // it in its destructor.
+  view->set_png_data(screenshot_png);
+
+  // Create and show the dialog.
+  views::Window::CreateChromeWindow(parent->GetNativeView(), gfx::Rect(),
+                                    view)->Show();
+}
+
 BugReportView::PostCleanup::PostCleanup() {
 }
 
@@ -138,6 +160,22 @@ BugReportView::BugReportView(Profile* profile, TabContents* tab)
       problem_type_(0) {
   DCHECK(profile);
   SetupControl();
+
+  // We want to use the URL of the current committed entry (the current URL may
+  // actually be the pending one).
+  if (tab->controller().GetActiveEntry()) {
+    page_url_text_->SetText(UTF8ToWide(
+        tab->controller().GetActiveEntry()->url().spec()));
+  }
+
+  // Retrieve the application version info.
+  scoped_ptr<FileVersionInfo> version_info(
+      FileVersionInfo::CreateFileVersionInfoForCurrentModule());
+  if (version_info.get()) {
+    version_ = version_info->product_name() + L" - " +
+        version_info->file_version() +
+        L" (" + version_info->last_change() + L")";
+  }
 }
 
 BugReportView::~BugReportView() {
@@ -317,10 +355,6 @@ bool BugReportView::Accept() {
 
 views::View* BugReportView::GetContentsView() {
   return this;
-}
-
-void BugReportView::SetUrl(const GURL& url) {
-  page_url_text_->SetText(UTF8ToWide(url.spec()));
 }
 
 // SetOSVersion copies the maj.minor.build + servicePack_string

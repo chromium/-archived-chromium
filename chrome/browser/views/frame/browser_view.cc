@@ -9,9 +9,7 @@
 #include "app/l10n_util.h"
 #include "app/os_exchange_data.h"
 #include "app/resource_bundle.h"
-#include "app/win_util.h"
 #include "base/command_line.h"
-#include "base/file_version_info.h"
 #include "base/time.h"
 #include "chrome/app/chrome_dll_resource.h"
 #include "chrome/browser/app_modal_dialog_queue.h"
@@ -28,6 +26,7 @@
 #include "chrome/browser/views/bookmark_bubble_view.h"
 #include "chrome/browser/views/bookmark_manager_view.h"
 #include "chrome/browser/views/browser_bubble.h"
+#include "chrome/browser/views/browser_dialogs.h"
 #include "chrome/browser/views/bug_report_view.h"
 #include "chrome/browser/views/chrome_views_delegate.h"
 #include "chrome/browser/views/clear_browsing_data.h"
@@ -810,38 +809,7 @@ void BrowserView::ShowReportBugDialog() {
   TabContents* current_tab = browser_->GetSelectedTabContents();
   if (!current_tab)
     return;
-
-  BugReportView* bug_report_view = new BugReportView(browser_->profile(),
-                                                     current_tab);
-
-  if (current_tab->controller().GetLastCommittedEntry()) {
-    // URL for the current page
-    bug_report_view->SetUrl(
-        current_tab->controller().GetActiveEntry()->url());
-  }
-
-  // retrieve the application version info
-  std::wstring version;
-  scoped_ptr<FileVersionInfo> version_info(
-      FileVersionInfo::CreateFileVersionInfoForCurrentModule());
-  if (version_info.get()) {
-    version = version_info->product_name() + L" - " +
-    version_info->file_version() +
-    L" (" + version_info->last_change() + L")";
-  }
-  bug_report_view->set_version(version);
-
-  // Grab an exact snapshot of the window that the user is seeing (i.e. as
-  // rendered--do not re-render, and include windowed plugins)
-  std::vector<unsigned char> *screenshot_png = new std::vector<unsigned char>;
-  win_util::GrabWindowSnapshot(GetWidget()->GetNativeView(), screenshot_png);
-  // the BugReportView takes ownership of the png data, and will dispose of
-  // it in its destructor.
-  bug_report_view->set_png_data(screenshot_png);
-
-  // Create and show the dialog
-  views::Window::CreateChromeWindow(GetWidget()->GetNativeView(), gfx::Rect(),
-                                    bug_report_view)->Show();
+  ShowBugReportView(GetWidget(), browser_->profile(), current_tab);
 }
 
 void BrowserView::ShowClearBrowsingDataDialog() {

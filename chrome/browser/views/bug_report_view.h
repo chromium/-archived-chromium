@@ -40,7 +40,6 @@ class BugReportView : public views::View,
   explicit BugReportView(Profile* profile, TabContents* tab);
   virtual ~BugReportView();
 
-  void set_version(const std::wstring& version) { version_ = version; }
   // NOTE: set_png_data takes ownership of the vector
   void set_png_data(std::vector<unsigned char> *png_data) {
     png_data_.reset(png_data);
@@ -71,8 +70,6 @@ class BugReportView : public views::View,
   virtual std::wstring GetWindowTitle() const;
   virtual bool Accept();
   virtual views::View* GetContentsView();
-
-  void SetUrl(const GURL& url);
 
  private:
   class PostCleanup;
