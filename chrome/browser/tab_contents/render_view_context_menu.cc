@@ -221,6 +221,9 @@ bool RenderViewContextMenu::IsItemCommandEnabled(int id) const {
     case IDS_CONTENT_CONTEXT_VIEWPAGESOURCE:
     case IDS_CONTENT_CONTEXT_VIEWFRAMESOURCE:
     case IDS_CONTENT_CONTEXT_INSPECTELEMENT:
+    // Viewing page info is not a delveloper command but is meaningful for the
+    // same set of pages which developer commands are meaningful for.
+    case IDS_CONTENT_CONTEXT_VIEWPAGEINFO:
       return IsDevCommandEnabled(id);
 
     case IDS_CONTENT_CONTEXT_OPENLINKNEWTAB:
@@ -288,9 +291,6 @@ bool RenderViewContextMenu::IsItemCommandEnabled(int id) const {
 
     case IDS_CONTENT_CONTEXT_ADD_TO_DICTIONARY:
       return !params_.misspelled_word.empty();
-
-    case IDS_CONTENT_CONTEXT_VIEWPAGEINFO:
-      return (source_tab_contents_->controller().GetActiveEntry() != NULL);
 
     case IDS_CONTENT_CONTEXT_RELOAD:
     case IDS_CONTENT_CONTEXT_COPYIMAGE:
