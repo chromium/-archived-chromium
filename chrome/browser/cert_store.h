@@ -10,7 +10,7 @@
 
 #include "base/lock.h"
 #include "base/singleton.h"
-#include "chrome/common/notification_observer.h"
+#include "chrome/common/notification_registrar.h"
 #include "net/base/x509_certificate.h"
 
 // The purpose of the cert store is to provide an easy way to store/retrieve
@@ -62,6 +62,8 @@ class CertStore : public NotificationObserver {
   typedef std::map<int, scoped_refptr<net::X509Certificate> > CertMap;
   typedef std::map<net::X509Certificate*, int, net::X509Certificate::LessThan>
       ReverseCertMap;
+
+  NotificationRegistrar registrar_;
 
   IDMap process_id_to_cert_id_;
   IDMap cert_id_to_process_id_;

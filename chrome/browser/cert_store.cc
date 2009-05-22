@@ -36,14 +36,10 @@ CertStore::CertStore() : next_cert_id_(1) {
   //                removed from cache, and remove the cert when we know it
   //                is not used anymore.
 
-  // TODO(tc): This notification observer never gets removed because the
-  // CertStore is never deleted.
-  NotificationService::current()->AddObserver(this,
-      NotificationType::RENDERER_PROCESS_TERMINATED,
-      NotificationService::AllSources());
-  NotificationService::current()->AddObserver(this,
-      NotificationType::RENDERER_PROCESS_CLOSED,
-      NotificationService::AllSources());
+  registrar_.Add(this, NotificationType::RENDERER_PROCESS_TERMINATED,
+                 NotificationService::AllSources());
+  registrar_.Add(this, NotificationType::RENDERER_PROCESS_CLOSED,
+                 NotificationService::AllSources());
 }
 
 CertStore::~CertStore() {
