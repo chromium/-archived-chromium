@@ -22,7 +22,6 @@
 #include "chrome/browser/find_bar.h"
 #include "chrome/browser/find_bar_controller.h"
 #include "chrome/browser/view_ids.h"
-#include "chrome/browser/views/about_chrome_view.h"
 #include "chrome/browser/views/bookmark_bar_view.h"
 #include "chrome/browser/views/browser_bubble.h"
 #include "chrome/browser/views/browser_dialogs.h"
@@ -56,7 +55,9 @@
 #include "views/fill_layout.h"
 #include "views/view.h"
 #include "views/widget/root_view.h"
+#include "views/window/dialog_delegate.h"
 #include "views/window/non_client_view.h"
+#include "views/window/window.h"
 
 using base::TimeDelta;
 
