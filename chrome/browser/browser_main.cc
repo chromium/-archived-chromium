@@ -65,6 +65,10 @@
 #include <signal.h>
 #endif
 
+#if defined(OS_LINUX)
+#include "chrome/app/breakpad_linux.h"
+#endif
+
 // TODO(port): several win-only methods have been pulled out of this, but
 // BrowserMain() as a whole needs to be broken apart so that it's usable by
 // other platforms. For now, it's just a stub. This is a serious work in
@@ -246,6 +250,10 @@ int BrowserMain(const MainFunctionParams& parameters) {
   memset(&action, 0, sizeof(action));
   action.sa_handler = SIGCHLDHandler;
   CHECK(sigaction(SIGCHLD, &action, NULL) == 0);
+#endif
+
+#if defined(OS_LINUX)
+  EnableCrashDumping();
 #endif
 
   // Do platform-specific things (such as finishing initializing Cocoa)

@@ -34,6 +34,9 @@
 #include "chrome/browser/history/history.h"
 #include "chrome/browser/plugin_service.h"
 #include "chrome/browser/profile.h"
+#if defined(OS_LINUX)
+#include "chrome/browser/renderer_host/render_crash_handler_host_linux.h"
+#endif
 #include "chrome/browser/renderer_host/render_view_host.h"
 #include "chrome/browser/renderer_host/render_widget_helper.h"
 #include "chrome/browser/renderer_host/render_widget_host.h"
@@ -337,6 +340,12 @@ bool BrowserRenderProcessHost::Init() {
     channel_->GetClientFileDescriptorMapping(&src_fd, &dest_fd);
     if (src_fd > -1)
       fds_to_map.push_back(std::pair<int, int>(src_fd, dest_fd));
+#if defined(OS_LINUX)
+    const int crash_signal_fd =
+        Singleton<RenderCrashHandlerHostLinux>()->GetDeathSignalSocket();
+    if (crash_signal_fd >= 0)
+      fds_to_map.push_back(std::make_pair(crash_signal_fd, 4));
+#endif
     base::LaunchApp(cmd_line.argv(), fds_to_map, false, &process);
 #endif
     if (!process) {

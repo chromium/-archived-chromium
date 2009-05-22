@@ -205,5 +205,113 @@
         },
       ],
     }],
+    [ 'OS=="linux"', {
+      'targets': [
+        {
+          'target_name': 'breakpad_client',
+          'type': '<(library)',
+
+          'sources': [
+            'linux/exception_handler.cc',
+            'linux/linux_dumper.cc',
+            'linux/minidump_writer.cc',
+            'src/common/linux/guid_creator.cc',
+            'src/common/string_conversion.cc',
+            'src/common/convert_UTF.c',
+
+            # TODO(agl): unfork this file
+            'linux/minidump_file_writer.cc',
+          ],
+
+          'include_dirs': [
+            'src',
+            '..',
+            '.',
+          ],
+        },
+        {
+          'target_name': 'breakpad_unittests',
+          'type': 'executable',
+          'dependencies': [
+            '../testing/gtest.gyp:gtest',
+            '../testing/gtest.gyp:gtestmain',
+            'breakpad_client',
+          ],
+
+          'sources': [
+            'linux/directory_reader_unittest.cc',
+            'linux/exception_handler_unittest.cc',
+            'linux/line_reader_unittest.cc',
+            'linux/linux_dumper_unittest.cc',
+            'linux/linux_libc_support_unittest.cc',
+            'linux/memory_unittest.cc',
+            'linux/minidump_writer_unittest.cc',
+          ],
+
+          'include_dirs': [
+            'src',
+            '..',
+            '.',
+          ],
+        },
+        {
+          'target_name': 'generate_test_dump',
+          'type': 'executable',
+
+          'sources': [
+            'linux/generate-test-dump.cc',
+          ],
+
+          'dependencies': [
+            'breakpad_client',
+          ],
+
+          'include_dirs': [
+            '..',
+          ],
+        },
+        {
+          'target_name': 'minidump_2_core',
+          'type': 'executable',
+
+          'sources': [
+            'linux/minidump-2-core.cc',
+          ],
+
+          'include_dirs': [
+            'src',
+            '..',
+          ],
+        },
+        {
+          'target_name': 'symupload',
+          'type': 'executable',
+
+          'sources': [
+            'src/tools/linux/symupload/sym_upload.cc',
+            'src/common/linux/http_upload.cc',
+          ],
+
+          'include_dirs': [
+            'src',
+          ],
+        },
+        {
+          'target_name': 'dump_syms',
+          'type': 'executable',
+
+          'sources': [
+            'src/tools/linux/dump_syms/dump_syms.cc',
+            'src/common/linux/dump_symbols.cc',
+            'src/common/linux/file_id.cc',
+            'src/common/md5.c',
+          ],
+
+          'include_dirs': [
+            'src',
+          ],
+        },
+      ],
+    }],
   ],
 }

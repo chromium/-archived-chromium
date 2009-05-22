@@ -1541,14 +1541,25 @@
             '../build/linux/system.gyp:gtk',
           ],
           'sources!': [
-	    # TODO(port): add this to the Linux build once a
-	    #  window_sizer_linux.cc is written
+            # TODO(port): add this to the Linux build once a
+            #  window_sizer_linux.cc is written
             'browser/window_sizer.cc',
             'browser/debugger/debugger_shell_stubs.cc',
             # Windows-specific files.
             'browser/download/download_exe.cc',
             'browser/password_manager/password_store_win.cc',
             'browser/password_manager/password_store_win.h',
+          ],
+          'conditions': [
+            ['linux_breakpad==1', {
+              'sources': [
+                'browser/renderer_host/render_crash_handler_host_linux.cc',
+              ],
+            }, {
+              'sources': [
+                'browser/renderer_host/render_crash_handler_host_linux_stub.cc',
+              ],
+            }],
           ],
         }],
         ['OS=="linux" and toolkit_views==0', {
@@ -1885,6 +1896,18 @@
           'dependencies': [
             '../build/linux/system.gyp:gtk',
           ],
+          'conditions': [
+            ['linux_breakpad==1', {
+              'sources': [
+                'renderer/render_crash_handler_linux.cc',
+                'renderer/render_crash_handler_linux.h',
+              ],
+            }, {
+              'sources': [
+                'renderer/render_crash_handler_linux_stub.cc',
+              ],
+            }]
+          ],
         }],
         # Windows-specific rules.
         ['OS=="win"', {
@@ -2026,11 +2049,32 @@
               'files': ['<(INTERMEDIATE_DIR)/repack/default.pak'],
             },
           ],
+          'include_dirs': [
+            # Needed in order to be able to read the raw
+            # file_version_info_linux.h file.
+            '<(SHARED_INTERMEDIATE_DIR)',
+          ],
+          'conditions': [
+            ['linux_breakpad==1', {
+              'sources': [
+                'app/breakpad_linux.cc',
+                'app/breakpad_linux.h',
+              ],
+              'dependencies': [
+                '../breakpad/breakpad.gyp:breakpad_client',
+              ],
+            }, {
+              'sources': [
+                'app/breakpad_linux_stub.cc',
+                'app/breakpad_linux.h',
+              ],
+            }],
+          ]
         }],
         ['OS=="linux" and toolkit_views==1', {
           'dependencies': [
             '../views/views.gyp:views',
-	         ],
+          ],
         }],
         ['OS=="mac"', {
           # 'branding' is a variable defined in common.gypi
@@ -3155,6 +3199,17 @@
       }
     }],
     ['OS=="linux"', {
+      'conditions': [
+        ['branding=="Chrome"', {
+          'variables': {
+            'linux_breakpad%': 1,
+          },
+        }, {
+          'variables': {
+            'linux_breakpad%': 0,
+          },
+        }],
+      ],
       'targets': [
         {
           'target_name': 'convert_dict',

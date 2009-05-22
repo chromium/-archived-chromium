@@ -246,6 +246,8 @@
             'cflags': [
               '-O<(debug_optimize)',
               '-g',
+              # One can use '-gstabs' to enable building the debugging
+              # information in STABS format for breakpad's dumpsyms.
             ],
             'ldflags': [
               '-rdynamic',  # Allows backtrace to resolve symbols.
@@ -262,6 +264,13 @@
               '-fdata-sections',
               '-ffunction-sections',
             ],
+          },
+          # Some utility binaries need to be build with the host's native
+          # config (i.e. no 32-bit override).
+          'Tool': {
+            'cflags!': ['-m32', '-march=pentium4', '-msse2', '-mfpmath=sse'],
+            'ldflags!': ['-m32'],
+            'cflags': [ '-O2' ],
           },
         },
         'variants': {
@@ -314,18 +323,12 @@
             # used during computation does not change depending on how the
             # compiler optimized the code, since the value is always kept
             # in its specified precision.
-            'conditions': [
-              ['branding=="Chromium"', {
-                'cflags': [
-                  '-march=pentium4',
-                  '-msse2',
-                  '-mfpmath=sse',
-                ],
-              }],
-            ],
             'cflags': [
               '-m32',
+              '-march=pentium4',
               '-fno-exceptions',
+              '-msse2',
+              '-mfpmath=sse',
               '-Wall',
             ],
             'ldflags': [
@@ -365,20 +368,6 @@
           }],
           ['_mac_bundle', {
             'xcode_settings': {'OTHER_LDFLAGS': ['-Wl,-ObjC']},
-          }],
-          ['_type=="executable" and _mac_bundle', {
-            'postbuilds': [
-              {
-                'variables': {
-                  # Define remove_target_headers in a variable ending in _path
-                  # so that gyp understands it's a path and performs proper
-                  # relativization during dict merging.
-                  'remove_target_headers_path': 'mac/remove_target_headers',
-                },
-                'postbuild_name': 'Remove Target Headers',
-                'action': ['<(remove_target_headers_path)'],
-              },
-            ],
           }],
           ['_type=="executable"', {
             'postbuilds': [
