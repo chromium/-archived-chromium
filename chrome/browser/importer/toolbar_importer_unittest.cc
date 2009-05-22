@@ -310,6 +310,7 @@ static const char* kBadBookmarkNoLabels =
 // description of all the tests run please see the comments immediately before
 // the string constants above.
 TEST(Toolbar5ImporterTest, DISABLED_BookmarkParse) {
+#if 0  // Compile breaks if you remove this and leave the test disabled
   XmlReader reader;
   std::string bookmark_xml;
   std::vector<ProfileWriter::BookmarkEntry> bookmarks;
@@ -470,4 +471,5 @@ TEST(Toolbar5ImporterTest, DISABLED_BookmarkParse) {
   EXPECT_TRUE(reader13.Load(bookmark_xml));
   EXPECT_FALSE(Toolbar5Importer::ParseBookmarksFromReader(&reader13,
                                                           &bookmarks));
+#endif
 }
