@@ -255,7 +255,7 @@ class Browser : public TabStripModelDelegate,
   // string input to use during initialization). |parent_window| is the window
   // that should be parent of the dialog, or NULL for the default.
   void BrowserShowHtmlDialog(HtmlDialogUIDelegate* delegate,
-                             void* parent_window);
+                             gfx::NativeWindow parent_window);
 
   // Called when a popup select is about to be displayed.
   void BrowserRenderWidgetShowing();
@@ -491,7 +491,7 @@ class Browser : public TabStripModelDelegate,
                                  bool* proceed_to_fire_unload);
   virtual gfx::Rect GetRootWindowResizerRect() const;
   virtual void ShowHtmlDialog(HtmlDialogUIDelegate* delegate,
-                              void* parent_window);
+                              gfx::NativeWindow parent_window);
   virtual void SetFocusToLocationBar();
   virtual void RenderWidgetShowing();
   virtual ExtensionFunctionDispatcher *CreateExtensionFunctionDispatcher(

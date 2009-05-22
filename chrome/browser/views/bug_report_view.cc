@@ -113,6 +113,8 @@ class BugReportView::PostCleanup : public URLFetcher::Delegate {
   DISALLOW_COPY_AND_ASSIGN(PostCleanup);
 };
 
+namespace browser {
+
 // Global "display this dialog" function declared in browser_dialogs.h.
 void ShowBugReportView(views::Widget* parent,
                        Profile* profile,
@@ -131,6 +133,8 @@ void ShowBugReportView(views::Widget* parent,
   views::Window::CreateChromeWindow(parent->GetNativeView(), gfx::Rect(),
                                     view)->Show();
 }
+
+}  // namespace browser
 
 BugReportView::PostCleanup::PostCleanup() {
 }

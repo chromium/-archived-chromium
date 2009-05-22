@@ -7,7 +7,7 @@
 #include "app/resource_bundle.h"
 #include "chrome/browser/bookmarks/bookmark_model.h"
 #include "chrome/browser/browser.h"
-#include "chrome/browser/views/bookmark_bubble_view.h"
+#include "chrome/browser/views/browser_dialogs.h"
 #include "chrome/browser/views/toolbar_view.h"
 #include "googleurl/src/gurl.h"
 #include "grit/theme_resources.h"
@@ -42,8 +42,8 @@ void ToolbarStarToggle::ShowStarBubble(const GURL& url, bool newly_bookmarked) {
   // of the star.
   gfx::Rect star_bounds(star_location.x() + 1, star_location.y(), width(),
                         height());
-  BookmarkBubbleView::Show(host_->GetWindow(), star_bounds, this,
-                           host_->profile(), url, newly_bookmarked);
+  browser::ShowBookmarkBubbleView(host_->GetWindow(), star_bounds, this,
+                                  host_->profile(), url, newly_bookmarked);
 }
 
 bool ToolbarStarToggle::OnMousePressed(const views::MouseEvent& e) {
@@ -64,12 +64,12 @@ void ToolbarStarToggle::OnDragDone() {
 }
 
 void ToolbarStarToggle::NotifyClick(int mouse_event_flags) {
-  if (!ignore_click_ && !BookmarkBubbleView::IsShowing())
+  if (!ignore_click_ && !browser::IsBookmarkBubbleViewShowing())
     ToggleImageButton::NotifyClick(mouse_event_flags);
 }
 
 SkBitmap ToolbarStarToggle::GetImageToPaint() {
-  if (BookmarkBubbleView::IsShowing()) {
+  if (browser::IsBookmarkBubbleViewShowing()) {
     ResourceBundle &rb = ResourceBundle::GetSharedInstance();
     return *rb.GetBitmapNamed(IDR_STARRED_P);
   }

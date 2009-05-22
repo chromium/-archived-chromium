@@ -47,6 +47,30 @@ static const size_t kMaxMRUFolders = 5;
 // Bubble close image.
 static SkBitmap* kCloseImage = NULL;
 
+// Declared in browser_dialogs.h so callers don't have to depend on our header.
+
+namespace browser {
+
+void ShowBookmarkBubbleView(views::Window* parent,
+                            const gfx::Rect& bounds,
+                            InfoBubbleDelegate* delegate,
+                            Profile* profile,
+                            const GURL& url,
+                            bool newly_bookmarked) {
+  BookmarkBubbleView::Show(parent, bounds, delegate, profile, url,
+                           newly_bookmarked);
+}
+
+void HideBookmarkBubbleView() {
+  BookmarkBubbleView::Hide();
+}
+
+bool IsBookmarkBubbleViewShowing() {
+  return BookmarkBubbleView::IsShowing();
+}
+
+}  // namespace browser
+
 // RecentlyUsedFoldersModel ---------------------------------------------------
 
 BookmarkBubbleView::RecentlyUsedFoldersModel::RecentlyUsedFoldersModel(

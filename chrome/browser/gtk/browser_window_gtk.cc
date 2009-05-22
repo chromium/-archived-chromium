@@ -595,7 +595,7 @@ void BrowserWindowGtk::ShowNewProfileDialog() {
 }
 
 void BrowserWindowGtk::ShowHTMLDialog(HtmlDialogUIDelegate* delegate,
-                                      void* parent_window) {
+                                      gfx::NativeWindow parent_window) {
   NOTIMPLEMENTED();
 }
 

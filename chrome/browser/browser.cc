@@ -577,7 +577,7 @@ void Browser::CloseTabContents(TabContents* contents) {
 }
 
 void Browser::BrowserShowHtmlDialog(HtmlDialogUIDelegate* delegate,
-                                    void* parent_window) {
+                                    gfx::NativeWindow parent_window) {
   ShowHtmlDialog(delegate, parent_window);
 }
 
@@ -1983,7 +1983,7 @@ gfx::Rect Browser::GetRootWindowResizerRect() const {
 }
 
 void Browser::ShowHtmlDialog(HtmlDialogUIDelegate* delegate,
-                             void* parent_window) {
+                             gfx::NativeWindow parent_window) {
   window_->ShowHTMLDialog(delegate, parent_window);
 }
 

@@ -220,7 +220,7 @@ void BrowserWindowCocoa::ConfirmBrowserCloseWithPendingDownloads() {
 }
 
 void BrowserWindowCocoa::ShowHTMLDialog(HtmlDialogUIDelegate* delegate,
-                                        void* parent_window) {
+                                        gfx::NativeWindow parent_window) {
   NOTIMPLEMENTED();
 }
 

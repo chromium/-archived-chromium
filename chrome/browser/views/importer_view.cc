@@ -12,10 +12,22 @@
 #include "views/controls/label.h"
 #include "views/grid_layout.h"
 #include "views/standard_layout.h"
+#include "views/widget/widget.h"
 #include "views/window/window.h"
 
 using views::ColumnSet;
 using views::GridLayout;
+
+namespace browser {
+
+// Declared in browser_dialogs.h so caller's don't have to depend on our header.
+void ShowImporterView(views::Widget* parent,
+                      Profile* profile) {
+  views::Window::CreateChromeWindow(parent->GetNativeView(), gfx::Rect(),
+                                    new ImporterView(profile))->Show();
+}
+
+}  // namespace browser
 
 ImporterView::ImporterView(Profile* profile)
     : import_from_label_(NULL),

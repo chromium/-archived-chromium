@@ -17,6 +17,7 @@
 #include "views/controls/label.h"
 #include "views/controls/throbber.h"
 #include "views/standard_layout.h"
+#include "views/widget/widget.h"
 #include "views/window/window.h"
 
 // The combo box is vertically aligned to the 'time-period' label, which makes
@@ -24,6 +25,18 @@
 // standard layout to separate them. We therefore add a little extra margin to
 // the label, giving it a little breathing space.
 static const int kExtraMarginForTimePeriodLabel = 3;
+
+namespace browser {
+
+// Defined in browser_dialogs.h for creation of the view.
+void ShowClearBrowsingDataView(views::Widget* parent,
+                               Profile* profile) {
+  views::Window::CreateChromeWindow(
+      parent->GetNativeView(), gfx::Rect(),
+      new ClearBrowsingDataView(profile))->Show();
+}
+
+}  // namespace browser
 
 ////////////////////////////////////////////////////////////////////////////////
 // ClearBrowsingDataView, public:

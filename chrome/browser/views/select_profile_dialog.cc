@@ -25,6 +25,15 @@
 using views::ColumnSet;
 using views::GridLayout;
 
+namespace browser {
+
+// Defined in browser_dialogs so callers don't have to depend on our header.
+void ShowSelectProfileDialog() {
+  SelectProfileDialog::RunDialog();
+}
+
+}  // namespace browser
+
 // static
 void SelectProfileDialog::RunDialog() {
   // When the window closes, it will delete itself.

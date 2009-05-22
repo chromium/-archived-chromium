@@ -6,6 +6,7 @@
 #define CHROME_BROWSER_TAB_CONTENTS_TAB_CONTENTS_DELEGATE_H_
 
 #include "base/basictypes.h"
+#include "base/gfx/native_widget_types.h"
 #include "base/gfx/rect.h"
 #include "chrome/common/page_transition_types.h"
 #include "webkit/glue/window_open_disposition.h"
@@ -120,7 +121,7 @@ class TabContentsDelegate {
   // string input to use during initialization). |parent_window| is the window
   // that should be parent of the dialog, or NULL for the default.
   virtual void ShowHtmlDialog(HtmlDialogUIDelegate* delegate,
-                              void* parent_window) { }
+                              gfx::NativeWindow parent_window) { }
 
   // Tells us that we've finished firing this tab's beforeunload event.
   // The proceed bool tells us whether the user chose to proceed closing the

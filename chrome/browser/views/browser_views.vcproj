@@ -512,6 +512,10 @@
 			>
 		</File>
 		<File
+			RelativePath=".\browser_dialogs.h"
+			>
+		</File>
+		<File
 			RelativePath=".\bug_report_view.cc"
 			>
 		</File>

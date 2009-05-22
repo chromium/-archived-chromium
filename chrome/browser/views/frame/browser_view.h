@@ -219,7 +219,7 @@ class BrowserView : public BrowserWindow,
   virtual void ShowNewProfileDialog();
   virtual void ConfirmBrowserCloseWithPendingDownloads();
   virtual void ShowHTMLDialog(HtmlDialogUIDelegate* delegate,
-                              void* parent_window);
+                              gfx::NativeWindow parent_window);
   virtual void UserChangedTheme();
   virtual int GetExtraRenderViewHeight() const;
 

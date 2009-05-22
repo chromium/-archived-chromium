@@ -23,24 +23,19 @@
 #include "chrome/browser/view_ids.h"
 #include "chrome/browser/views/about_chrome_view.h"
 #include "chrome/browser/views/bookmark_bar_view.h"
-#include "chrome/browser/views/bookmark_bubble_view.h"
 #include "chrome/browser/views/bookmark_manager_view.h"
 #include "chrome/browser/views/browser_bubble.h"
 #include "chrome/browser/views/browser_dialogs.h"
 #include "chrome/browser/views/bug_report_view.h"
 #include "chrome/browser/views/chrome_views_delegate.h"
-#include "chrome/browser/views/clear_browsing_data.h"
 #include "chrome/browser/views/download_shelf_view.h"
 #include "chrome/browser/views/find_bar_win.h"
 #include "chrome/browser/views/frame/browser_frame.h"
 #include "chrome/browser/views/fullscreen_exit_bubble.h"
-#include "chrome/browser/views/html_dialog_view.h"
-#include "chrome/browser/views/importer_view.h"
 #include "chrome/browser/views/infobars/infobar_container.h"
 #include "chrome/browser/views/keyword_editor_view.h"
 #include "chrome/browser/views/new_profile_dialog.h"
 #include "chrome/browser/views/options/passwords_exceptions_window_view.h"
-#include "chrome/browser/views/select_profile_dialog.h"
 #include "chrome/browser/views/status_bubble_views.h"
 #include "chrome/browser/views/tab_contents_container_view.h"
 #include "chrome/browser/views/tabs/tab_strip.h"
@@ -338,7 +333,7 @@ void BrowserView::WindowMoved() {
     (*bubble)->BrowserWindowMoved();
   }
 
-  BookmarkBubbleView::Hide();
+  browser::HideBookmarkBubbleView();
 
   // Close the omnibox popup, if any.
   if (toolbar_->GetLocationBarView())
@@ -796,9 +791,7 @@ void BrowserView::ToggleBookmarkBar() {
 }
 
 void BrowserView::ShowAboutChromeDialog() {
-  views::Window::CreateChromeWindow(
-      GetWidget()->GetNativeView(), gfx::Rect(),
-      new AboutChromeView(browser_->profile()))->Show();
+  browser::ShowAboutChromeView(GetWidget(), browser_->profile());
 }
 
 void BrowserView::ShowBookmarkManager() {
@@ -814,19 +807,15 @@ void BrowserView::ShowReportBugDialog() {
   TabContents* current_tab = browser_->GetSelectedTabContents();
   if (!current_tab)
     return;
-  ShowBugReportView(GetWidget(), browser_->profile(), current_tab);
+  browser::ShowBugReportView(GetWidget(), browser_->profile(), current_tab);
 }
 
 void BrowserView::ShowClearBrowsingDataDialog() {
-  views::Window::CreateChromeWindow(
-      GetWidget()->GetNativeView(), gfx::Rect(),
-      new ClearBrowsingDataView(browser_->profile()))->Show();
+  browser::ShowClearBrowsingDataView(GetWidget(), browser_->profile());
 }
 
 void BrowserView::ShowImportDialog() {
-  views::Window::CreateChromeWindow(
-      GetWidget()->GetNativeView(), gfx::Rect(),
-      new ImporterView(browser_->profile()))->Show();
+  browser::ShowImporterView(GetWidget(), browser_->profile());
 }
 
 void BrowserView::ShowSearchEnginesDialog() {
@@ -838,7 +827,7 @@ void BrowserView::ShowPasswordManager() {
 }
 
 void BrowserView::ShowSelectProfileDialog() {
-  SelectProfileDialog::RunDialog();
+  ShowSelectProfileDialog();
 }
 
 void BrowserView::ShowNewProfileDialog() {
@@ -853,17 +842,11 @@ void BrowserView::ConfirmBrowserCloseWithPendingDownloads() {
 }
 
 void BrowserView::ShowHTMLDialog(HtmlDialogUIDelegate* delegate,
-                                 void* parent_window) {
-#if defined(OS_WIN)
-  HWND parent_hwnd = reinterpret_cast<HWND>(parent_window);
-  parent_hwnd = parent_hwnd ? parent_hwnd : GetWidget()->GetNativeView();
-  HtmlDialogView* html_view = new HtmlDialogView(browser_.get(), delegate);
-  views::Window::CreateChromeWindow(parent_hwnd, gfx::Rect(), html_view);
-  html_view->InitDialog();
-  html_view->window()->Show();
-#else
-  NOTIMPLEMENTED();
-#endif
+                                 gfx::NativeWindow parent_window) {
+  // Default to using our window as the parent if the argument is not specified.
+  gfx::NativeWindow parent = parent_window ? parent_window
+                                           : GetWidget()->GetNativeView();
+  browser::ShowHtmlDialogView(parent_window, browser_.get(), delegate);
 }
 
 void BrowserView::UserChangedTheme() {

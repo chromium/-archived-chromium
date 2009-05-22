@@ -26,6 +26,7 @@
 #include "views/controls/text_field.h"
 #include "views/controls/throbber.h"
 #include "views/standard_layout.h"
+#include "views/widget/widget.h"
 #include "views/window/window.h"
 #include "webkit/glue/webkit_glue.h"
 
@@ -61,6 +62,17 @@ std::wstring StringSubRange(const std::wstring& text, size_t start,
 }
 
 }  // namespace
+
+namespace browser {
+
+// Declared in browser_dialogs.h so that others don't need to depend on our .h. 
+void ShowAboutChromeView(views::Widget* parent,
+                         Profile* profile) {
+  views::Window::CreateChromeWindow(parent->GetNativeView(), gfx::Rect(),
+                                    new AboutChromeView(profile))->Show();
+}
+
+}  // namespace browser
 
 ////////////////////////////////////////////////////////////////////////////////
 // AboutChromeView, public:

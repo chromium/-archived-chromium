@@ -9,6 +9,19 @@
 #include "views/widget/root_view.h"
 #include "views/window/window.h"
 
+namespace browser {
+
+// Declared in browser_dialogs.h so that others don't need to depend on our .h. 
+void ShowHtmlDialogView(gfx::NativeWindow parent, Browser* browser,
+                        HtmlDialogUIDelegate* delegate) {
+  HtmlDialogView* html_view = new HtmlDialogView(browser, delegate);
+  views::Window::CreateChromeWindow(parent, gfx::Rect(), html_view);
+  html_view->InitDialog();
+  html_view->window()->Show();
+}
+
+}  // namespace browser
+
 ////////////////////////////////////////////////////////////////////////////////
 // HtmlDialogView, public:
 

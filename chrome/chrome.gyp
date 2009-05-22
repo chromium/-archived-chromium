@@ -1356,6 +1356,7 @@
         'browser/views/browser_bubble.cc',
         'browser/views/browser_bubble.h',
         'browser/views/browser_bubble_win.cc',
+        'browser/views/browser_dialogs.h',
         'browser/views/bug_report_view.cc',
         'browser/views/bug_report_view.h',
         'browser/views/chrome_views_delegate.cc',
