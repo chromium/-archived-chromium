@@ -49,13 +49,11 @@ void WebRequestImpl::SetURL(const GURL& url) {
 }
 
 GURL WebRequestImpl::GetFirstPartyForCookies() const {
-  return webkit_glue::KURLToGURL(
-      request_.resourceRequest().firstPartyForCookies());
+  return webkit_glue::KURLToGURL(request_.firstPartyForCookies());
 }
 
 void WebRequestImpl::SetFirstPartyForCookies(const GURL& url) {
-  request_.resourceRequest().setFirstPartyForCookies(
-      webkit_glue::GURLToKURL(url));
+  request_.setFirstPartyForCookies(webkit_glue::GURLToKURL(url));
 }
 
 WebRequestCachePolicy WebRequestImpl::GetCachePolicy() const {
