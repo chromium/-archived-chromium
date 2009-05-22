@@ -2296,7 +2296,12 @@
               'conditions': [
                 ['OS=="mac"', {
                   'outputs': [
-                    '<(INTERMEDIATE_DIR)/repack/da.lproj/locale.pak',
+                    # TODO(port): We can't simply emit the strings file without
+                    # the nibs too, or the app fails to launch in this language.
+                    # Currently, this is only for ui_tests, which won't work on
+                    # the Mac anyway, so temporarily disable until we have the
+                    # full strategy figured out. This goes for he and zh below.
+                    # '<(INTERMEDIATE_DIR)/repack/da.lproj/locale.pak',
                   ],
                 }, {  # else: OS!="mac"
                   'outputs': [
@@ -2375,7 +2380,7 @@
               'conditions': [
                 ['OS=="mac"', {
                   'outputs': [
-                    '<(INTERMEDIATE_DIR)/repack/he.lproj/locale.pak',
+                    # '<(INTERMEDIATE_DIR)/repack/he.lproj/locale.pak',
                   ],
                 }, {  # else: OS!="mac"
                   'outputs': [
@@ -2414,7 +2419,7 @@
               'conditions': [
                 ['OS=="mac"', {
                   'outputs': [
-                    '<(INTERMEDIATE_DIR)/repack/zh.lproj/locale.pak',
+                    # '<(INTERMEDIATE_DIR)/repack/zh.lproj/locale.pak',
                   ],
                 }, {  # else: OS!="mac"
                   'outputs': [
