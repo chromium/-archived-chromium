@@ -61,7 +61,7 @@ void SetActiveRendererURLImpl(const GURL& url,
 
 void SetActiveRendererURL(const GURL& url) {
   // If Breakpad isn't initialized then bail.
-  if (IsCrashReporterEnabled()) {
+  if (IsCrashReporterDisabled()) {
     return;
   }
 

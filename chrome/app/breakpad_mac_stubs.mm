@@ -7,8 +7,8 @@
 // Stubbed out versions of breakpad integration functions so we can compile
 // unit tests without linking in Breakpad.
 
-bool IsCrashReporterEnabled() {
-  return false;
+bool IsCrashReporterDisabled() {
+  return true;
 }
 
 void InitCrashProcessInfo() {

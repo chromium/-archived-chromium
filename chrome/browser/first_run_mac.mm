@@ -35,7 +35,7 @@ void OpenFirstRunDialog(Profile* profile, ProcessSingleton* process_singleton) {
   // but display a confirmation dialog before sending a crash report so we
   // respect a user's privacy while still getting any crashes that might happen
   // before this point.  Then remove the need for that dialog here.
-  DCHECK(!IsCrashReporterEnabled());
+  DCHECK(IsCrashReporterDisabled());
 
   scoped_nsobject<FirstRunDialogController> dialog(
       [[FirstRunDialogController alloc] init]);
@@ -49,6 +49,7 @@ void OpenFirstRunDialog(Profile* profile, ProcessSingleton* process_singleton) {
   // stats, enable breakpad.
   if (stats_enabled) {
     InitCrashReporter();
+    InitCrashProcessInfo();
   }
 #endif  // defined(GOOGLE_CHROME_BUILD)
 }

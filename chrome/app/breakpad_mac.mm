@@ -49,8 +49,8 @@ BreakpadRef gBreakpadRef = NULL;
 
 } // namespace
 
-bool IsCrashReporterEnabled() {
-  return gBreakpadRef != NULL;
+bool IsCrashReporterDisabled() {
+  return gBreakpadRef == NULL;
 }
 
 void DestructCrashReporter() {

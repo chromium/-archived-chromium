@@ -272,7 +272,7 @@ int ChromeMain(int argc, const char** argv) {
 #if defined(OS_MACOSX)
   // If Breakpad is not present then turn off os crash dumps so we don't have
   // to wait eons for Apple's Crash Reporter to generate a dump.
-  if (!IsCrashReporterEnabled()) {
+  if (IsCrashReporterDisabled()) {
     DebugUtil::DisableOSCrashDumps();
   }
 #endif
