@@ -8,10 +8,8 @@
 
 namespace {
 
-class NotificationServiceTest: public testing::Test {
- protected:
-  NotificationRegistrar registrar_;
-};
+// Bogus class to act as a NotificationSource for the messages.
+class TestSource {};
 
 class TestObserver : public NotificationObserver {
 public:
@@ -29,11 +27,13 @@ private:
   int notification_count_;
 };
 
-// Bogus class to act as a NotificationSource for the messages.
-class TestSource {};
-
 }  // namespace
 
+
+class NotificationServiceTest : public testing::Test {
+ protected:
+  NotificationRegistrar registrar_;
+};
 
 TEST_F(NotificationServiceTest, Basic) {
   TestSource test_source;
