@@ -111,20 +111,14 @@ class OffTheRecordProfileImpl : public Profile,
     // Register for browser close notifications so we can detect when the last
     // off-the-record window is closed, in which case we can clean our states
     // (cookies, downloads...).
-    NotificationService::current()->AddObserver(
-        this,
-        NotificationType::BROWSER_CLOSED,
-        NotificationService::AllSources());
+    registrar_.Add(this, NotificationType::BROWSER_CLOSED,
+                   NotificationService::AllSources());
   }
 
   virtual ~OffTheRecordProfileImpl() {
     CleanupRequestContext(request_context_);
     CleanupRequestContext(media_request_context_);
     CleanupRequestContext(extensions_request_context_);
-    NotificationService::current()->RemoveObserver(
-        this,
-        NotificationType::BROWSER_CLOSED,
-        NotificationService::AllSources());
   }
 
   virtual FilePath GetPath() { return profile_->GetPath(); }
@@ -375,6 +369,8 @@ class OffTheRecordProfileImpl : public Profile,
   }
 
  private:
+  NotificationRegistrar registrar_;
+
   // The real underlying profile.
   Profile* profile_;
 
@@ -445,8 +441,8 @@ ProfileImpl::ProfileImpl(const FilePath& path)
 #endif
 
   // Listen for theme installation.
-  NotificationService::current()->AddObserver(this,
-    NotificationType::THEME_INSTALLED, NotificationService::AllSources());
+  registrar_.Add(this, NotificationType::THEME_INSTALLED,
+                 NotificationService::AllSources());
 }
 
 void ProfileImpl::InitExtensions() {
@@ -514,10 +510,6 @@ ProfileImpl::~ProfileImpl() {
 #ifdef CHROME_PERSONALIZATION
   personalization_.reset();
 #endif
-
-  // Remove theme observer.
-  NotificationService::current()->RemoveObserver(this,
-      NotificationType::THEME_INSTALLED, NotificationService::AllSources());
 
   // Both HistoryService and WebDataService maintain threads for background
   // processing. Its possible each thread still has tasks on it that have

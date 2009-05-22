@@ -18,7 +18,7 @@
 #ifdef CHROME_PERSONALIZATION
 #include "chrome/personalization/personalization.h"
 #endif
-#include "chrome/common/notification_observer.h"
+#include "chrome/common/notification_registrar.h"
 
 namespace net {
 class ForceTLSState;
@@ -373,6 +373,8 @@ class ProfileImpl : public Profile,
   // The |need_to_broadcast| parameter tells it whether to broadcast the new
   // spellchecker to the resource message filters.
   void InitializeSpellChecker(bool need_to_broadcast);
+
+  NotificationRegistrar registrar_;
 
   FilePath path_;
   scoped_ptr<VisitedLinkMaster> visited_link_master_;
