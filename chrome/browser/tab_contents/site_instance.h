@@ -7,7 +7,7 @@
 
 #include "chrome/browser/browsing_instance.h"
 #include "chrome/browser/renderer_host/render_process_host.h"
-#include "chrome/common/notification_observer.h"
+#include "chrome/common/notification_registrar.h"
 #include "googleurl/src/gurl.h"
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -143,6 +143,8 @@ class SiteInstance : public base::RefCounted<SiteInstance>,
   void Observe(NotificationType type,
                const NotificationSource& source,
                const NotificationDetails& details);
+
+  NotificationRegistrar registrar_;
 
   // BrowsingInstance to which this SiteInstance belongs.
   scoped_refptr<BrowsingInstance> browsing_instance_;

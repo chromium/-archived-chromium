@@ -10,7 +10,7 @@
 #include "base/gfx/size.h"
 #include "chrome/browser/dom_ui/html_dialog_ui.h"
 #include "chrome/common/ipc_message.h"
-#include "chrome/common/notification_observer.h"
+#include "chrome/common/notification_registrar.h"
 
 // This class can only be used on the UI thread.
 class ModalHtmlDialogDelegate
@@ -38,10 +38,7 @@ class ModalHtmlDialogDelegate
   virtual void OnDialogClosed(const std::string& json_retval);
 
  private:
-  // Invoked from the destructor or when we receive notification the web
-  // contents has been disconnnected. Removes the observer from the TabContents
-  // and NULLs out contents_.
-  void RemoveObserver();
+  NotificationRegistrar registrar_;
 
   // The TabContents that opened the dialog.
   TabContents* contents_;

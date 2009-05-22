@@ -17,9 +17,8 @@ SiteInstance::SiteInstance(BrowsingInstance* browsing_instance)
       has_site_(false) {
   DCHECK(browsing_instance);
 
-  NotificationService::current()->AddObserver(this,
-      NotificationType::RENDERER_PROCESS_TERMINATED,
-      NotificationService::AllSources());
+  registrar_.Add(this, NotificationType::RENDERER_PROCESS_TERMINATED,
+                 NotificationService::AllSources());
 }
 
 SiteInstance::~SiteInstance() {
@@ -28,10 +27,6 @@ SiteInstance::~SiteInstance() {
   // (within the same BrowsingInstance) can safely create a new SiteInstance.
   if (has_site_)
     browsing_instance_->UnregisterSiteInstance(this);
-
-  NotificationService::current()->RemoveObserver(this,
-      NotificationType::RENDERER_PROCESS_TERMINATED,
-      NotificationService::AllSources());
 }
 
 RenderProcessHost* SiteInstance::GetProcess() {

@@ -15,9 +15,8 @@ ModalHtmlDialogDelegate::ModalHtmlDialogDelegate(
     : contents_(contents),
       sync_response_(sync_result) {
   // Listen for when the TabContents or its renderer dies.
-  NotificationService::current()->
-      AddObserver(this, NotificationType::TAB_CONTENTS_DISCONNECTED,
-      Source<TabContents>(contents_));
+  registrar_.Add(this, NotificationType::TAB_CONTENTS_DISCONNECTED,
+                 Source<TabContents>(contents_));
 
   // This information is needed to show the dialog HTML content.
   params_.url = url;
@@ -27,7 +26,6 @@ ModalHtmlDialogDelegate::ModalHtmlDialogDelegate(
 }
 
 ModalHtmlDialogDelegate::~ModalHtmlDialogDelegate() {
-  RemoveObserver();
 }
 
 void ModalHtmlDialogDelegate::Observe(NotificationType type,
@@ -35,7 +33,8 @@ void ModalHtmlDialogDelegate::Observe(NotificationType type,
                                       const NotificationDetails& details) {
   DCHECK(type == NotificationType::TAB_CONTENTS_DISCONNECTED);
   DCHECK(Source<TabContents>(source).ptr() == contents_);
-  RemoveObserver();
+  registrar_.RemoveAll();
+  contents_ = NULL;
 }
 
 bool ModalHtmlDialogDelegate::IsDialogModal() const {
@@ -64,15 +63,4 @@ void ModalHtmlDialogDelegate::OnDialogClosed(const std::string& json_retval) {
 
   // We are done with this request, so delete us.
   delete this;
-}
-
-void ModalHtmlDialogDelegate::RemoveObserver() {
-  if (!contents_)
-    return;
-
-  NotificationService::current()->RemoveObserver(
-      this,
-      NotificationType::TAB_CONTENTS_DISCONNECTED,
-      Source<TabContents>(contents_));
-  contents_ = NULL;  // No longer safe to access.
 }
