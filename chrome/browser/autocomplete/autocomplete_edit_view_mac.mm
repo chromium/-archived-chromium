@@ -10,6 +10,31 @@
 #include "chrome/browser/autocomplete/autocomplete_popup_view_mac.h"
 #include "chrome/browser/tab_contents/tab_contents.h"
 
+// Focus-handling between |field_| and |model_| is a bit subtle.
+// Other platforms detect change of focus, which is inconvenient
+// without subclassing NSTextField (even with a subclass, the use of a
+// field editor may complicate things).
+//
+// |model_| doesn't actually do anything when it gains focus, it just
+// initializes.  Visible activity happens only after the user edits.
+// NSTextField delegate receives messages around starting and ending
+// edits, so that sufcices to catch focus changes.  Since all calls
+// into |model_| start from AutocompleteEditViewMac, in the worst case
+// we can add code to sync up the sense of focus as needed.
+//
+// I've added DCHECK(IsFirstResponder()) in the places which I believe
+// should only be reachable when |field_| is being edited.  If these
+// fire, it probably means someone unexpected is calling into
+// |model_|.
+//
+// Other platforms don't appear to have the sense of "key window" that
+// Mac does (I believe their fields lose focus when the window loses
+// focus).  Rather than modifying focus outside the control's edit
+// scope, when the window resigns key the autocomplete popup is
+// closed.  |model_| still believes it has focus, and the popup will
+// be regenerated on the user's next edit.  That seems to match how
+// things work on other platforms.
+
 namespace {
 
 // TODO(shess): This is ugly, find a better way.  Using it right now
@@ -98,7 +123,6 @@ NSRange ComponentToNSRange(const url_parse::Component& component) {
 }
 - initWithEditView:(AutocompleteEditViewMac*)view;
 - (void)windowDidResignKey:(NSNotification*)notification;
-- (void)windowDidBecomeKey:(NSNotification*)notification;
 @end
 
 AutocompleteEditViewMac::AutocompleteEditViewMac(
@@ -131,10 +155,6 @@ AutocompleteEditViewMac::AutocompleteEditViewMac(
   [nc addObserver:edit_helper_
          selector:@selector(windowDidResignKey:) 
              name:NSWindowDidResignKeyNotification
-           object:[field_ window]];
-  [nc addObserver:edit_helper_
-         selector:@selector(windowDidBecomeKey:) 
-             name:NSWindowDidBecomeKeyNotification
            object:[field_ window]];
 }
 
@@ -399,12 +419,22 @@ void AutocompleteEditViewMac::OnRevertTemporaryText() {
   SetSelectedRange(saved_temporary_selection_);
 }
 
+bool AutocompleteEditViewMac::IsFirstResponder() const {
+  return [field_ currentEditor] != nil ? true : false;
+}
+
 void AutocompleteEditViewMac::OnBeforePossibleChange() {
+  // We should only arrive here when the field is focussed.
+  DCHECK(IsFirstResponder());
+
   selection_before_change_ = GetSelectedRange();
   text_before_change_ = GetText();
 }
 
 bool AutocompleteEditViewMac::OnAfterPossibleChange() {
+  // We should only arrive here when the field is focussed.
+  DCHECK(IsFirstResponder());
+
   const NSRange new_selection(GetSelectedRange());
   const std::wstring new_text(GetText());
   const size_t length = new_text.length();
@@ -450,27 +480,50 @@ bool AutocompleteEditViewMac::OnAfterPossibleChange() {
 }
 
 void AutocompleteEditViewMac::OnUpOrDownKeyPressed(bool up, bool by_page) {
+  // We should only arrive here when the field is focussed.
+  DCHECK(IsFirstResponder());
+
   const int count = by_page ? model_->result().size() : 1;
   model_->OnUpOrDownKeyPressed(up ? -count : count);
 }
+
 void AutocompleteEditViewMac::OnEscapeKeyPressed() {
+  // We should only arrive here when the field is focussed.
+  DCHECK(IsFirstResponder());
+
   model_->OnEscapeKeyPressed();
 }
-void AutocompleteEditViewMac::OnSetFocus(bool f) {
-  // Only forward if we actually do have the focus.
-  if ([field_ currentEditor]) {
-    model_->OnSetFocus(f);
-  }
+
+void AutocompleteEditViewMac::OnWillBeginEditing() {
+  // We should only arrive here when the field is focussed.
+  DCHECK([field_ currentEditor]);
+
+  // TODO(shess): Having the control key depressed changes the desired
+  // TLD for autocomplete, which changes the results.  Not sure if we
+  // can detect that without subclassing NSTextField.
+  const bool controlDown = false;
+  model_->OnSetFocus(controlDown);
+
+  // Capture the current state.
+  OnBeforePossibleChange();
 }
-void AutocompleteEditViewMac::OnKillFocus() {
-  // TODO(shess): This would seem to be a job for |model_|.
+
+void AutocompleteEditViewMac::OnDidEndEditing() {
   ClosePopup();
 
   // Tell the model to reset itself.
   model_->OnKillFocus();
 }
+
+void AutocompleteEditViewMac::OnDidResignKey() {
+  ClosePopup();
+}
+
 void AutocompleteEditViewMac::AcceptInput(
     WindowOpenDisposition disposition, bool for_drop) {
+  // We should only arrive here when the field is focussed.
+  DCHECK([field_ currentEditor]);
+
   model_->AcceptInput(disposition, for_drop);
 }
 
@@ -534,10 +587,7 @@ void AutocompleteEditViewMac::FocusLocation() {
 }
 
 - (void)controlTextDidBeginEditing:(NSNotification*)aNotification {
-  edit_view_->OnSetFocus(false);
-
-  // Capture the current state.
-  edit_view_->OnBeforePossibleChange();
+  edit_view_->OnWillBeginEditing();
 }
 
 - (void)controlTextDidChange:(NSNotification*)aNotification {
@@ -549,7 +599,7 @@ void AutocompleteEditViewMac::FocusLocation() {
 }
 
 - (BOOL)control:(NSControl*)control textShouldEndEditing:(NSText*)fieldEditor {
-  edit_view_->OnKillFocus();
+  edit_view_->OnDidEndEditing();
 
   return YES;
 
@@ -559,12 +609,7 @@ void AutocompleteEditViewMac::FocusLocation() {
 
 // Signal that we've lost focus when the window resigns key.
 - (void)windowDidResignKey:(NSNotification*)notification {
-  edit_view_->OnKillFocus();
-}
-
-// Signal that we may have regained focus.
-- (void)windowDidBecomeKey:(NSNotification*)notification {
-  edit_view_->OnSetFocus(false);
+  edit_view_->OnDidResignKey();
 }
 
 @end

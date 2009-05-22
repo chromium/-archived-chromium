@@ -80,13 +80,22 @@ class AutocompleteEditViewMac : public AutocompleteEditView {
   virtual void OnBeforePossibleChange();
   virtual bool OnAfterPossibleChange();
 
-  // Helper functions which forward to |model_|, for use from
-  // AutocompleteEditHelper Objective-C class.
+  // Helper functions for use from AutocompleteEditHelper Objective-C
+  // class.
   void OnUpOrDownKeyPressed(bool up, bool by_page);
   void OnEscapeKeyPressed();
-  // Only forwards to |model_| if the field_ has focus.
-  void OnSetFocus(bool f);
-  void OnKillFocus();
+
+  // Called when editing begins in the field, and before the results
+  // of any editing are communicated to |model_|.
+  void OnWillBeginEditing();
+
+  // Called when editing ends in the field.
+  void OnDidEndEditing();
+
+  // Called when the window |field_| is in loses key to clean up
+  // visual state (such as closing the popup).
+  void OnDidResignKey();
+
   void AcceptInput(WindowOpenDisposition disposition, bool for_drop);
 
   // Helper for LocationBarBridge.
@@ -96,6 +105,11 @@ class AutocompleteEditViewMac : public AutocompleteEditView {
   // Returns the field's currently selected range.  Only valid if the
   // field has focus.
   NSRange GetSelectedRange() const;
+
+  // Returns true if |field_| is first-responder in the window.  Used
+  // in various DCHECKS to make sure code is running in appropriate
+  // situations.
+  bool IsFirstResponder() const;
 
   // Grab focus if needed and set the selection to |range|.
   void SetSelectedRange(const NSRange range);
