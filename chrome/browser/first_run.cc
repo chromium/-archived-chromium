@@ -56,6 +56,8 @@ bool GetFirstRunSentinelFilePath(FilePath* path) {
 
 }  // namespace
 
+// TODO(port): Mac should share this code.
+#if !defined(OS_MACOSX)
 bool FirstRun::IsChromeFirstRun() {
   // A troolean, 0 means not yet set, 1 means set to true, 2 set to false.
   static int first_run = 0;
@@ -71,6 +73,7 @@ bool FirstRun::IsChromeFirstRun() {
   first_run = 1;
   return true;
 }
+#endif
 
 bool FirstRun::RemoveSentinel() {
   FilePath first_run_sentinel;
