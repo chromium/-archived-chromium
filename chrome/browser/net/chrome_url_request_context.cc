@@ -313,9 +313,8 @@ ChromeURLRequestContext::ChromeURLRequestContext(Profile* profile)
 
   registrar_.Add(this, NotificationType::EXTENSIONS_LOADED,
                  NotificationService::AllSources());
-  NotificationService::current()->AddObserver(
-      this, NotificationType::EXTENSION_UNLOADED,
-      NotificationService::AllSources());
+  registrar_.Add(this, NotificationType::EXTENSION_UNLOADED,
+                 NotificationService::AllSources());
 }
 
 // NotificationObserver implementation.
@@ -370,9 +369,6 @@ void ChromeURLRequestContext::CleanupOnUIThread() {
   prefs_ = NULL;
 
   registrar_.RemoveAll();
-  NotificationService::current()->RemoveObserver(
-      this, NotificationType::EXTENSION_UNLOADED,
-      NotificationService::AllSources());
 }
 
 FilePath ChromeURLRequestContext::GetPathForExtension(const std::string& id) {
