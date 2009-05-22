@@ -100,6 +100,14 @@ class BookmarkCodecTest : public testing::Test {
     return value.release();
   }
 
+  bool Decode(BookmarkCodec* codec, BookmarkModel* model, const Value& value) {
+    int max_id;
+    bool result = codec->Decode(model->GetBookmarkBarNode(),
+                                model->other_node(), &max_id, value);
+    model->set_next_node_id(max_id);
+    return result;
+  }
+
   BookmarkModel* DecodeHelper(const Value& value,
                               const std::string& expected_stored_checksum,
                               std::string* computed_checksum,
@@ -110,7 +118,7 @@ class BookmarkCodecTest : public testing::Test {
     EXPECT_EQ("", decoder.stored_checksum());
 
     scoped_ptr<BookmarkModel> model(new BookmarkModel(NULL));
-    EXPECT_TRUE(decoder.Decode(model.get(), value));
+    EXPECT_TRUE(Decode(&decoder, model.get(), value));
 
     *computed_checksum = decoder.computed_checksum();
     const std::string& stored_checksum = decoder.stored_checksum();
@@ -192,7 +200,7 @@ TEST_F(BookmarkCodecTest, PersistIDsTest) {
 
   BookmarkModel decoded_model(NULL);
   BookmarkCodec decoder(true);
-  ASSERT_TRUE(decoder.Decode(&decoded_model, *model_value.get()));
+  ASSERT_TRUE(Decode(&decoder, &decoded_model, *model_value.get()));
   BookmarkModelTestUtils::AssertModelsEqual(model_to_encode.get(),
                                             &decoded_model,
                                             true);
@@ -211,7 +219,7 @@ TEST_F(BookmarkCodecTest, PersistIDsTest) {
 
   BookmarkModel decoded_model2(NULL);
   BookmarkCodec decoder2(true);
-  ASSERT_TRUE(decoder2.Decode(&decoded_model2, *model_value2.get()));
+  ASSERT_TRUE(Decode(&decoder2, &decoded_model2, *model_value2.get()));
   BookmarkModelTestUtils::AssertModelsEqual(&decoded_model,
                                             &decoded_model2,
                                             true);

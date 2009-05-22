@@ -7,6 +7,8 @@
 
 #include "base/file_path.h"
 #include "base/ref_counted.h"
+#include "base/scoped_ptr.h"
+#include "chrome/browser/bookmarks/bookmark_index.h"
 #include "chrome/common/important_file_writer.h"
 #include "chrome/common/notification_observer.h"
 #include "chrome/common/notification_registrar.h"
@@ -30,12 +32,55 @@ class BookmarkStorage : public NotificationObserver,
                         public ImportantFileWriter::DataSerializer,
                         public base::RefCountedThreadSafe<BookmarkStorage> {
  public:
+  // LoadDetails is used by BookmarkStorage when loading bookmarks.
+  // BookmarkModel creates a LoadDetails and passes it (including ownership) to
+  // BookmarkStorage. BoomarkStorage loads the bookmarks (and index) in the
+  // background thread, then calls back to the BookmarkModel (on the main
+  // thread) when loading is done, passing ownership back to the BookmarkModel.
+  // While loading BookmarkModel does not maintain references to the contents
+  // of the LoadDetails, this ensures we don't have any threading problems.
+  class LoadDetails {
+   public:
+    LoadDetails(BookmarkNode* bb_node,
+                BookmarkNode* other_folder_node,
+                BookmarkIndex* index,
+                int max_id)
+        : bb_node_(bb_node),
+          other_folder_node_(other_folder_node),
+          index_(index),
+          max_id_(max_id) {
+    }
+
+    void release() {
+      bb_node_.release();
+      other_folder_node_.release();
+      index_.release();
+    }
+
+    BookmarkNode* bb_node() { return bb_node_.get(); }
+    BookmarkNode* other_folder_node() { return other_folder_node_.get(); }
+    BookmarkIndex* index() { return index_.get(); }
+
+    // Max id of the nodes.
+    void set_max_id(int max_id) { max_id_ = max_id; }
+    int max_id() const { return max_id_; }
+
+   private:
+    scoped_ptr<BookmarkNode> bb_node_;
+    scoped_ptr<BookmarkNode> other_folder_node_;
+    scoped_ptr<BookmarkIndex> index_;
+    int max_id_;
+
+    DISALLOW_COPY_AND_ASSIGN(LoadDetails);
+  };
+
   // Creates a BookmarkStorage for the specified model
   BookmarkStorage(Profile* profile, BookmarkModel* model);
   ~BookmarkStorage();
 
-  // Loads the bookmarks into the model, notifying the model when done.
-  void LoadBookmarks();
+  // Loads the bookmarks into the model, notifying the model when done. This
+  // takes ownership of |details|. See LoadDetails for details.
+  void LoadBookmarks(LoadDetails* details);
 
   // Schedules saving the bookmark bar model to disk.
   void ScheduleSave();
@@ -53,8 +98,8 @@ class BookmarkStorage : public NotificationObserver,
   // Callback from backend with the results of the bookmark file.
   // This may be called multiple times, with different paths. This happens when
   // we migrate bookmark data from database.
-  void OnLoadFinished(bool file_exists, const FilePath& path,
-                      Value* root_value);
+  void OnLoadFinished(bool file_exists,
+                      const FilePath& path);
 
   // Loads bookmark data from |file| and notifies the model when finished.
   void DoLoadBookmarks(const FilePath& file);
@@ -85,9 +130,6 @@ class BookmarkStorage : public NotificationObserver,
   // Returns the thread the backend is run on.
   const base::Thread* backend_thread() const { return backend_thread_; }
 
-  // Adds node to the model's index, recursing through all children as well.
-  void AddBookmarksToIndex(BookmarkNode* node);
-
   // Keep the pointer to profile, we may need it for migration from history.
   Profile* profile_;
 
@@ -106,6 +148,9 @@ class BookmarkStorage : public NotificationObserver,
 
   // Path to temporary file created during migrating bookmarks from history.
   const FilePath tmp_history_path_;
+
+  // See class description of LoadDetails for details on this.
+  scoped_ptr<LoadDetails> details_;
 
   DISALLOW_COPY_AND_ASSIGN(BookmarkStorage);
 };

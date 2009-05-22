@@ -65,35 +65,66 @@ class FileDeleteTask : public Task {
 
 class BookmarkStorage::LoadTask : public Task {
  public:
-  LoadTask(const FilePath& path, MessageLoop* loop,
-           BookmarkStorage* storage)
+  LoadTask(const FilePath& path,
+           MessageLoop* loop,
+           BookmarkStorage* storage,
+           LoadDetails* details)
       : path_(path),
         loop_(loop),
-        storage_(storage) {
+        storage_(storage),
+        details_(details) {
   }
 
   virtual void Run() {
     bool bookmark_file_exists = file_util::PathExists(path_);
-    Value* root = NULL;
     if (bookmark_file_exists) {
       JSONFileValueSerializer serializer(path_);
-      root = serializer.Deserialize(NULL);
+      scoped_ptr<Value> root(serializer.Deserialize(NULL));
+
+      if (root.get()) {
+        // Building the index cane take a while, so we do it on the background
+        // thread.
+        int max_node_id = 0;
+        BookmarkCodec codec;
+        TimeTicks start_time = TimeTicks::Now();
+        codec.Decode(details_->bb_node(), details_->other_folder_node(),
+                     &max_node_id, *root.get());
+        details_->set_max_id(std::max(max_node_id, details_->max_id()));
+        UMA_HISTOGRAM_TIMES("Bookmarks.DecodeTime",
+                            TimeTicks::Now() - start_time);
+
+        start_time = TimeTicks::Now();
+        AddBookmarksToIndex(details_->bb_node());
+        AddBookmarksToIndex(details_->other_folder_node());
+        UMA_HISTOGRAM_TIMES("Bookmarks.CreateBookmarkIndexTime",
+                            TimeTicks::Now() - start_time);
+      }
     }
 
-    // BookmarkStorage takes ownership of root.
     if (loop_) {
       loop_->PostTask(FROM_HERE, NewRunnableMethod(
           storage_.get(), &BookmarkStorage::OnLoadFinished,
-          bookmark_file_exists, path_, root));
+          bookmark_file_exists, path_));
     } else {
-      storage_->OnLoadFinished(bookmark_file_exists, path_, root);
+      storage_->OnLoadFinished(bookmark_file_exists, path_);
     }
   }
 
  private:
+  // Adds node to the model's index, recursing through all children as well.
+  void AddBookmarksToIndex(BookmarkNode* node) {
+    if (node->is_url()) {
+      details_->index()->Add(node);
+    } else {
+      for (int i = 0; i < node->GetChildCount(); ++i)
+        AddBookmarksToIndex(node->GetChild(i));
+    }
+  }
+
   const FilePath path_;
   MessageLoop* loop_;
   scoped_refptr<BookmarkStorage> storage_;
+  LoadDetails* details_;
 
   DISALLOW_COPY_AND_ASSIGN(LoadTask);
 };
@@ -117,14 +148,18 @@ BookmarkStorage::~BookmarkStorage() {
     writer_.DoScheduledWrite();
 }
 
-void BookmarkStorage::LoadBookmarks() {
+void BookmarkStorage::LoadBookmarks(LoadDetails* details) {
+  DCHECK(!details_.get());
+  DCHECK(details);
+  details_.reset(details);
   DoLoadBookmarks(writer_.path());
 }
 
 void BookmarkStorage::DoLoadBookmarks(const FilePath& path) {
   Task* task = new LoadTask(path,
                             backend_thread() ? MessageLoop::current() : NULL,
-                            this);
+                            this,
+                            details_.get());
   RunTaskOnBackendThread(task);
 }
 
@@ -136,7 +171,7 @@ void BookmarkStorage::MigrateFromHistory() {
   if (!history) {
     // This happens in unit tests.
     if (model_)
-      model_->DoneLoading();
+      model_->DoneLoading(details_.release());
     return;
   }
   if (!history->backend_loaded()) {
@@ -177,10 +212,7 @@ bool BookmarkStorage::SerializeData(std::string* output) {
   return serializer.Serialize(*(value.get()));
 }
 
-void BookmarkStorage::OnLoadFinished(bool file_exists, const FilePath& path,
-                                     Value* root_value) {
-  scoped_ptr<Value> value_ref(root_value);
-
+void BookmarkStorage::OnLoadFinished(bool file_exists, const FilePath& path) {
   if (path == writer_.path() && !file_exists) {
     // The file doesn't exist. This means one of two things:
     // 1. A clean profile.
@@ -195,20 +227,7 @@ void BookmarkStorage::OnLoadFinished(bool file_exists, const FilePath& path,
   if (!model_)
     return;
 
-  if (root_value) {
-    TimeTicks start_time = TimeTicks::Now();
-    BookmarkCodec codec;
-    codec.Decode(model_, *root_value);
-    UMA_HISTOGRAM_TIMES("Bookmarks.DecodeTime",
-                        TimeTicks::Now() - start_time);
-
-    start_time = TimeTicks::Now();
-    AddBookmarksToIndex(model_->root_node());
-    UMA_HISTOGRAM_TIMES("Bookmarks.CreatebookmarkIndexTime",
-                        TimeTicks::Now() - start_time);
-  }
-
-  model_->DoneLoading();
+  model_->DoneLoading(details_.release());
 
   if (path == tmp_history_path_) {
     // We just finished migration from history. Save now to new file,
@@ -255,14 +274,5 @@ void BookmarkStorage::RunTaskOnBackendThread(Task* task) const {
   } else {
     task->Run();
     delete task;
-  }
-}
-
-void BookmarkStorage::AddBookmarksToIndex(BookmarkNode* node) {
-  if (node->is_url()) {
-    model_->index_.Add(node);
-  } else {
-    for (int i = 0; i < node->GetChildCount(); ++i)
-      AddBookmarksToIndex(node->GetChild(i));
   }
 }

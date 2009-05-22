@@ -8,6 +8,7 @@
 #include "base/gfx/png_decoder.h"
 #include "base/scoped_vector.h"
 #include "build/build_config.h"
+#include "chrome/browser/bookmarks/bookmark_index.h"
 #include "chrome/browser/bookmarks/bookmark_utils.h"
 #include "chrome/browser/bookmarks/bookmark_storage.h"
 #include "chrome/browser/browser_process.h"
@@ -89,20 +90,9 @@ BookmarkModel::BookmarkModel(Profile* profile)
       next_node_id_(1),
       observers_(ObserverList<BookmarkModelObserver>::NOTIFY_EXISTING_ONLY),
       loaded_signal_(TRUE, FALSE) {
-  // Create the bookmark bar and other bookmarks folders. These always exist.
-  CreateBookmarkNode();
-  CreateOtherBookmarksNode();
-
-  // And add them to the root.
-  //
-  // WARNING: order is important here, various places assume bookmark bar then
-  // other node.
-  root_.Add(0, bookmark_bar_node_);
-  root_.Add(1, other_node_);
-
   if (!profile_) {
     // Profile is null during testing.
-    DoneLoading();
+    DoneLoading(CreateLoadDetails());
   }
 }
 
@@ -134,7 +124,7 @@ void BookmarkModel::Load() {
 
   // Load the bookmarks. BookmarkStorage notifies us when done.
   store_ = new BookmarkStorage(profile_, this);
-  store_->LoadBookmarks();
+  store_->LoadBookmarks(CreateLoadDetails());
 }
 
 BookmarkNode* BookmarkModel::GetParentForNewNodes() {
@@ -210,11 +200,11 @@ void BookmarkModel::SetTitle(BookmarkNode* node,
 
   // The title index doesn't support changing the title, instead we remove then
   // add it back.
-  index_.Remove(node);
+  index_->Remove(node);
 
   node->SetTitle(title);
 
-  index_.Add(node);
+  index_->Add(node);
 
   if (store_.get())
     store_->ScheduleSave();
@@ -376,7 +366,10 @@ void BookmarkModel::GetBookmarksWithTitlesMatching(
     const std::wstring& text,
     size_t max_count,
     std::vector<bookmark_utils::TitleMatch>* matches) {
-  index_.GetBookmarksWithTitlesMatching(text, max_count, matches);
+  if (!loaded_)
+    return;
+
+  index_->GetBookmarksWithTitlesMatching(text, max_count, matches);
 }
 
 void BookmarkModel::ClearStore() {
@@ -416,7 +409,7 @@ void BookmarkModel::RemoveNode(BookmarkNode* node,
     nodes_ordered_by_url_set_.erase(i);
     removed_urls->insert(node->GetURL());
 
-    index_.Remove(node);
+    index_->Remove(node);
   }
 
   CancelPendingFavIconLoadRequests(node);
@@ -426,8 +419,26 @@ void BookmarkModel::RemoveNode(BookmarkNode* node,
     RemoveNode(node->GetChild(i), removed_urls);
 }
 
-void BookmarkModel::DoneLoading() {
-  DCHECK(!loaded_);
+void BookmarkModel::DoneLoading(
+    BookmarkStorage::LoadDetails* details_delete_me) {
+  DCHECK(details_delete_me);
+  scoped_ptr<BookmarkStorage::LoadDetails> details(details_delete_me);
+  if (loaded_) {
+    // We should only ever be loaded once.
+    NOTREACHED();
+    return;
+  }
+
+  bookmark_bar_node_ = details->bb_node();
+  other_node_ = details->other_folder_node();
+  next_node_id_ = details->max_id();
+  index_.reset(details->index());
+  details->release();
+
+  // WARNING: order is important here, various places assume bookmark bar then
+  // other node.
+  root_.Add(0, bookmark_bar_node_);
+  root_.Add(1, other_node_);
 
   {
     AutoLock url_lock(url_lock_);
@@ -513,7 +524,7 @@ BookmarkNode* BookmarkModel::AddNode(BookmarkNode* parent,
   FOR_EACH_OBSERVER(BookmarkModelObserver, observers_,
                     BookmarkNodeAdded(this, parent, index));
 
-  index_.Add(node);
+  index_->Add(node);
 
   if (node->GetType() == history::StarredEntry::URL && !was_bookmarked) {
     history::URLsStarredDetails details(true);
@@ -559,16 +570,16 @@ void BookmarkModel::SetDateGroupModified(BookmarkNode* parent,
     store_->ScheduleSave();
 }
 
-void BookmarkModel::CreateBookmarkNode() {
+BookmarkNode* BookmarkModel::CreateBookmarkNode() {
   history::StarredEntry entry;
   entry.type = history::StarredEntry::BOOKMARK_BAR;
-  bookmark_bar_node_ = CreateRootNodeFromStarredEntry(entry);
+  return CreateRootNodeFromStarredEntry(entry);
 }
 
-void BookmarkModel::CreateOtherBookmarksNode() {
+BookmarkNode* BookmarkModel::CreateOtherBookmarksNode() {
   history::StarredEntry entry;
   entry.type = history::StarredEntry::OTHER;
-  other_node_ = CreateRootNodeFromStarredEntry(entry);
+  return CreateRootNodeFromStarredEntry(entry);
 }
 
 BookmarkNode* BookmarkModel::CreateRootNodeFromStarredEntry(
@@ -670,4 +681,11 @@ void BookmarkModel::PopulateNodesByURL(BookmarkNode* node) {
 
 int BookmarkModel::generate_next_node_id() {
   return next_node_id_++;
+}
+
+BookmarkStorage::LoadDetails* BookmarkModel::CreateLoadDetails() {
+  BookmarkNode* bb_node = CreateBookmarkNode();
+  BookmarkNode* other_folder_node = CreateOtherBookmarksNode();
+  return new BookmarkStorage::LoadDetails(
+      bb_node, other_folder_node, new BookmarkIndex(), next_node_id_);
 }

@@ -114,13 +114,16 @@ Value* BookmarkCodec::Encode(BookmarkNode* bookmark_bar_node,
   return main;
 }
 
-bool BookmarkCodec::Decode(BookmarkModel* model, const Value& value) {
+bool BookmarkCodec::Decode(BookmarkNode* bb_node,
+                           BookmarkNode* other_folder_node,
+                           int* max_id,
+                           const Value& value) {
   id_generator_.Reset();
   stored_checksum_.clear();
   InitializeChecksum();
-  bool success = DecodeHelper(model, value);
+  bool success = DecodeHelper(bb_node, other_folder_node, max_id, value);
   FinalizeChecksum();
-  model->set_next_node_id(id_generator_.current_max() + 1);
+  *max_id = id_generator_.current_max() + 1;
   return success;
 }
 
@@ -155,7 +158,10 @@ Value* BookmarkCodec::EncodeNode(BookmarkNode* node) {
   return value;
 }
 
-bool BookmarkCodec::DecodeHelper(BookmarkModel* model, const Value& value) {
+bool BookmarkCodec::DecodeHelper(BookmarkNode* bb_node,
+                                 BookmarkNode* other_folder_node,
+                                 int* max_id,
+                                 const Value& value) {
   if (value.GetType() != Value::TYPE_DICTIONARY)
     return false;  // Unexpected type.
 
@@ -174,7 +180,6 @@ bool BookmarkCodec::DecodeHelper(BookmarkModel* model, const Value& value) {
       return false;
   }
 
-
   Value* roots;
   if (!d_value.Get(kRootsKey, &roots))
     return false;  // No roots.
@@ -191,25 +196,23 @@ bool BookmarkCodec::DecodeHelper(BookmarkModel* model, const Value& value) {
       other_folder_value->GetType() != Value::TYPE_DICTIONARY)
     return false;  // Invalid type for root folder and/or other folder.
 
-  DecodeNode(model, *static_cast<DictionaryValue*>(root_folder_value),
-             NULL, model->GetBookmarkBarNode());
-  DecodeNode(model, *static_cast<DictionaryValue*>(other_folder_value),
-             NULL, model->other_node());
+  DecodeNode(*static_cast<DictionaryValue*>(root_folder_value), NULL,
+             bb_node);
+  DecodeNode(*static_cast<DictionaryValue*>(other_folder_value), NULL,
+             other_folder_node);
   // Need to reset the type as decoding resets the type to FOLDER. Similarly
   // we need to reset the title as the title is persisted and restored from
   // the file.
-  model->GetBookmarkBarNode()->type_ = history::StarredEntry::BOOKMARK_BAR;
-  model->other_node()->type_ = history::StarredEntry::OTHER;
-  model->GetBookmarkBarNode()->SetTitle(
-      l10n_util::GetString(IDS_BOOMARK_BAR_FOLDER_NAME));
-  model->other_node()->SetTitle(
+  bb_node->type_ = history::StarredEntry::BOOKMARK_BAR;
+  other_folder_node->type_ = history::StarredEntry::OTHER;
+  bb_node->SetTitle(l10n_util::GetString(IDS_BOOMARK_BAR_FOLDER_NAME));
+  other_folder_node->SetTitle(
       l10n_util::GetString(IDS_BOOMARK_BAR_OTHER_FOLDER_NAME));
 
   return true;
 }
 
-bool BookmarkCodec::DecodeChildren(BookmarkModel* model,
-                                   const ListValue& child_value_list,
+bool BookmarkCodec::DecodeChildren(const ListValue& child_value_list,
                                    BookmarkNode* parent) {
   for (size_t i = 0; i < child_value_list.GetSize(); ++i) {
     Value* child_value;
@@ -219,7 +222,7 @@ bool BookmarkCodec::DecodeChildren(BookmarkModel* model,
     if (child_value->GetType() != Value::TYPE_DICTIONARY)
       return false;
 
-    if (!DecodeNode(model, *static_cast<DictionaryValue*>(child_value), parent,
+    if (!DecodeNode(*static_cast<DictionaryValue*>(child_value), parent,
                     NULL)) {
       return false;
     }
@@ -227,8 +230,7 @@ bool BookmarkCodec::DecodeChildren(BookmarkModel* model,
   return true;
 }
 
-bool BookmarkCodec::DecodeNode(BookmarkModel* model,
-                               const DictionaryValue& value,
+bool BookmarkCodec::DecodeNode(const DictionaryValue& value,
                                BookmarkNode* parent,
                                BookmarkNode* node) {
   std::string id_string;
@@ -301,7 +303,7 @@ bool BookmarkCodec::DecodeNode(BookmarkModel* model,
       parent->Add(parent->GetChildCount(), node);
 
     UpdateChecksumWithFolderNode(id_string, title);
-    if (!DecodeChildren(model, *static_cast<ListValue*>(child_values), node))
+    if (!DecodeChildren(*static_cast<ListValue*>(child_values), node))
       return false;
   }
 

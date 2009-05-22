@@ -81,11 +81,15 @@ class BookmarkCodec {
   Value* Encode(BookmarkNode* bookmark_bar_node,
                 BookmarkNode* other_folder_node);
 
-  // Decodes the previously encoded value to the specified model. Returns true
-  // on success, false otherwise. If there is an error (such as unexpected
-  // version) all children are removed from the bookmark bar and other folder
-  // nodes.
-  bool Decode(BookmarkModel* model, const Value& value);
+  // Decodes the previously encoded value to the specified nodes as well as
+  // setting |max_node_id| to the greatest node id. Returns true on success,
+  // false otherwise. If there is an error (such as unexpected version) all
+  // children are removed from the bookmark bar and other folder nodes. On exit
+  // |max_node_id| is set to the max id of the nodes.
+  bool Decode(BookmarkNode* bb_node,
+              BookmarkNode* other_folder_node,
+              int* max_node_id,
+              const Value& value);
 
   // Returns the checksum computed during last encoding/decoding call.
   const std::string& computed_checksum() const { return computed_checksum_; }
@@ -121,18 +125,19 @@ class BookmarkCodec {
   Value* EncodeNode(BookmarkNode* node);
 
   // Helper to perform decoding.
-  bool DecodeHelper(BookmarkModel* model, const Value& value);
+  bool DecodeHelper(BookmarkNode* bb_node,
+                    BookmarkNode* other_folder_node,
+                    int* max_id,
+                    const Value& value);
 
   // Decodes the children of the specified node. Returns true on success.
-  bool DecodeChildren(BookmarkModel* model,
-                      const ListValue& child_value_list,
+  bool DecodeChildren(const ListValue& child_value_list,
                       BookmarkNode* parent);
 
   // Decodes the supplied node from the supplied value. Child nodes are
   // created appropriately by way of DecodeChildren. If node is NULL a new
   // node is created and added to parent, otherwise node is used.
-  bool DecodeNode(BookmarkModel* model,
-                  const DictionaryValue& value,
+  bool DecodeNode(const DictionaryValue& value,
                   BookmarkNode* parent,
                   BookmarkNode* node);
 

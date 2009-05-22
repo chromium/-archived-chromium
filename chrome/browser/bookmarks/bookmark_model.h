@@ -14,7 +14,6 @@
 #include "base/lock.h"
 #include "base/observer_list.h"
 #include "base/waitable_event.h"
-#include "chrome/browser/bookmarks/bookmark_index.h"
 #include "chrome/browser/bookmarks/bookmark_service.h"
 #include "chrome/browser/bookmarks/bookmark_storage.h"
 #include "chrome/browser/bookmarks/bookmark_utils.h"
@@ -27,6 +26,7 @@
 #include "testing/gtest/include/gtest/gtest_prod.h"
 
 class BookmarkEditorView;
+class BookmarkIndex;
 class BookmarkModel;
 class BookmarkCodec;
 class Profile;
@@ -205,8 +205,7 @@ class BookmarkModelObserver {
 // Profile.
 
 class BookmarkModel : public NotificationObserver, public BookmarkService {
-  friend class BookmarkCodec;
-  friend class BookmarkNode;
+  friend class BookmarkCodecTest;
   friend class BookmarkModelTest;
   friend class BookmarkStorage;
 
@@ -222,10 +221,10 @@ class BookmarkModel : public NotificationObserver, public BookmarkService {
   // the root node.
   BookmarkNode* root_node() { return &root_; }
 
-  // Returns the bookmark bar node.
+  // Returns the bookmark bar node. This is NULL until loaded.
   BookmarkNode* GetBookmarkBarNode() { return bookmark_bar_node_; }
 
-  // Returns the 'other' node.
+  // Returns the 'other' node. This is NULL until loaded.
   BookmarkNode* other_node() { return other_node_; }
 
   // Returns the parent the last node was added to. This never returns NULL
@@ -348,7 +347,8 @@ class BookmarkModel : public NotificationObserver, public BookmarkService {
   void RemoveNode(BookmarkNode* node, std::set<GURL>* removed_urls);
 
   // Invoked when loading is finished. Sets loaded_ and notifies observers.
-  void DoneLoading();
+  // BookmarkModel takes ownership of |details|.
+  void DoneLoading(BookmarkStorage::LoadDetails* details);
 
   // Populates nodes_ordered_by_url_set_ from root.
   void PopulateNodesByURL(BookmarkNode* node);
@@ -376,8 +376,8 @@ class BookmarkModel : public NotificationObserver, public BookmarkService {
 
   // Creates the bookmark bar/other nodes. These call into
   // CreateRootNodeFromStarredEntry.
-  void CreateBookmarkNode();
-  void CreateOtherBookmarksNode();
+  BookmarkNode* CreateBookmarkNode();
+  BookmarkNode* CreateOtherBookmarksNode();
 
   // Creates a root node (either the bookmark bar node or other node) from the
   // specified starred entry.
@@ -414,6 +414,10 @@ class BookmarkModel : public NotificationObserver, public BookmarkService {
   // persisted.
   void set_next_node_id(int id) { next_node_id_ = id; }
 
+  // Creates and returns a new LoadDetails. It's up to the caller to delete
+  // the returned object.
+  BookmarkStorage::LoadDetails* CreateLoadDetails();
+
   NotificationRegistrar registrar_;
 
   Profile* profile_;
@@ -448,7 +452,7 @@ class BookmarkModel : public NotificationObserver, public BookmarkService {
   // Reads/writes bookmarks to disk.
   scoped_refptr<BookmarkStorage> store_;
 
-  BookmarkIndex index_;
+  scoped_ptr<BookmarkIndex> index_;
 
   base::WaitableEvent loaded_signal_;
 
