@@ -3347,6 +3347,45 @@
     ['OS=="win"',
       { 'targets': [
         {
+          # TODO(sgk):  remove this when we change the buildbots to
+          # use the generated build\all.sln file to build the world.
+          'target_name': 'pull_in_all',
+          'type': 'none',
+          'dependencies': [
+            '../app/app.gyp:*',
+            '../base/base.gyp:*',
+            '../media/media.gyp:*',
+            '../net/net.gyp:*',
+            '../printing/printing.gyp:*',
+            '../sdch/sdch.gyp:*',
+            '../skia/skia.gyp:*',
+            '../testing/gtest.gyp:*',
+            '../third_party/bzip2/bzip2.gyp:*',
+            '../third_party/codesighs/codesighs.gyp:*',
+            '../third_party/ffmpeg/ffmpeg.gyp:*',
+            '../third_party/icu38/icu38.gyp:*',
+            '../third_party/libjpeg/libjpeg.gyp:*',
+            '../third_party/libpng/libpng.gyp:*',
+            '../third_party/libxml/libxml.gyp:*',
+            '../third_party/libxslt/libxslt.gyp:*',
+            '../third_party/lzma_sdk/lzma_sdk.gyp:*',
+            '../third_party/modp_b64/modp_b64.gyp:*',
+            '../third_party/npapi/npapi.gyp:*',
+            '../third_party/sqlite/sqlite.gyp:*',
+            '../third_party/zlib/zlib.gyp:*',
+            '../webkit/tools/test_shell/test_shell.gyp:*',
+            '../webkit/webkit.gyp:*',
+
+            '../build/temp_gyp/googleurl.gyp:*',
+
+            '../sandbox/sandbox.gyp:*',
+            '../courgette/courgette.gyp:*',
+            '../webkit/activex_shim/activex_shim.gyp:*',
+            '../webkit/activex_shim_dll/activex_shim_dll.gyp:*',
+            '../breakpad/breakpad.gyp:*',
+          ],
+        },
+        {
           'target_name': 'chrome_dll',
           'type': 'shared_library',
           'product_name': 'chrome',
