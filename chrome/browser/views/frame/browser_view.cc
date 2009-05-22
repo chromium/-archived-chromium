@@ -31,7 +31,7 @@
 #include "chrome/browser/views/fullscreen_exit_bubble.h"
 #include "chrome/browser/views/infobars/infobar_container.h"
 #include "chrome/browser/views/status_bubble_views.h"
-#include "chrome/browser/views/tab_contents_container_view.h"
+#include "chrome/browser/views/tab_contents/tab_contents_container.h"
 #include "chrome/browser/views/tabs/tab_strip.h"
 #include "chrome/browser/views/toolbar_star_toggle.h"
 #include "chrome/browser/views/toolbar_view.h"
@@ -362,7 +362,7 @@ gfx::Rect BrowserView::GetFindBarBoundingBox() const {
   // This function returns the area the Find Bar can be laid out within. This
   // basically implies the "user-perceived content area" of the browser window
   // excluding the vertical scrollbar. This is not quite so straightforward as
-  // positioning based on the TabContentsContainerView since the BookmarkBarView
+  // positioning based on the TabContentsContainer since the BookmarkBarView
   // may be visible but not persistent (in the New Tab case) and we position
   // the Find Bar over the top of it in that case since the BookmarkBarView is
   // not _visually_ connected to the Toolbar.
@@ -594,9 +594,9 @@ StatusBubble* BrowserView::GetStatusBubble() {
 
 void BrowserView::SelectedTabToolbarSizeChanged(bool is_animating) {
   if (is_animating) {
-    contents_container_->set_fast_resize(true);
+    contents_container_->SetFastResize(true);
     UpdateUIForContents(browser_->GetSelectedTabContents());
-    contents_container_->set_fast_resize(false);
+    contents_container_->SetFastResize(false);
   } else {
     UpdateUIForContents(browser_->GetSelectedTabContents());
     contents_container_->Layout();
@@ -892,7 +892,7 @@ void BrowserView::TabDetachedAt(TabContents* contents, int index) {
     // freed. This is because the focus manager performs some operations
     // on the selected TabContents when it is removed.
     infobar_container_->ChangeTabContents(NULL);
-    contents_container_->SetTabContents(NULL);
+    contents_container_->ChangeTabContents(NULL);
   }
 }
 
@@ -911,8 +911,8 @@ void BrowserView::TabSelectedAt(TabContents* old_contents,
   // Update various elements that are interested in knowing the current
   // TabContents.
   infobar_container_->ChangeTabContents(new_contents);
-  contents_container_->SetTabContents(new_contents);
-  // TODO(beng): This should be called automatically by SetTabContents, but I
+  contents_container_->ChangeTabContents(new_contents);
+  // TODO(beng): This should be called automatically by ChangeTabContents, but I
   //             am striving for parity now rather than cleanliness. This is
   //             required to make features like Duplicate Tab, Undo Close Tab,
   //             etc not result in sad tab.
@@ -1278,7 +1278,7 @@ void BrowserView::Init() {
   infobar_container_ = new InfoBarContainer(this);
   AddChildView(infobar_container_);
 
-  contents_container_ = new TabContentsContainerView;
+  contents_container_ = new TabContentsContainer;
   set_contents_view(contents_container_);
   AddChildView(contents_container_);
 

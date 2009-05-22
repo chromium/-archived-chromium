@@ -18,7 +18,7 @@
 class DebuggerView;
 class DebuggerWindow;
 class TabContents;
-class TabContentsContainerView;
+class TabContentsContainer;
 class Value;
 
 class DebuggerView : public views::View,
@@ -90,7 +90,7 @@ class DebuggerView : public views::View,
   DebuggerWindow* window_;
   gfx::Font font_;
   TabContents* tab_contents_;
-  TabContentsContainerView* web_container_;
+  TabContentsContainer* web_container_;
   std::vector<std::wstring> pending_output_;
   std::vector<std::string> pending_events_;
   bool output_ready_;

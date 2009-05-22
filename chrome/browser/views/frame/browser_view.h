@@ -33,7 +33,7 @@ class FullscreenExitBubble;
 class HtmlDialogUIDelegate;
 class InfoBarContainer;
 class StatusBubbleViews;
-class TabContentsContainerView;
+class TabContentsContainer;
 class TabStrip;
 
 namespace views {
@@ -178,6 +178,12 @@ class BrowserView : public BrowserWindow,
   // Attach/Detach a BrowserBubble to the browser.
   void AttachBrowserBubble(BrowserBubble *bubble);
   void DetachBrowserBubble(BrowserBubble *bubble);
+
+#ifdef UNIT_TEST
+  TabContentsContainer* contents_container() const {
+    return contents_container_;
+  }
+#endif
 
   // Overridden from BrowserWindow:
   virtual void Show();
@@ -377,7 +383,7 @@ class BrowserView : public BrowserWindow,
   int find_bar_y_;
 
   // The view that contains the selected TabContents.
-  TabContentsContainerView* contents_container_;
+  TabContentsContainer* contents_container_;
 
   // The Status information bubble that appears at the bottom of the window.
   scoped_ptr<StatusBubbleViews> status_bubble_;

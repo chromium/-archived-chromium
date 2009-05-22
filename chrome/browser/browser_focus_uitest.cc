@@ -11,6 +11,7 @@
 #include "chrome/browser/view_ids.h"
 #include "chrome/browser/views/frame/browser_view.h"
 #include "chrome/browser/views/location_bar_view.h"
+#include "chrome/browser/views/tab_contents/tab_contents_container.h"
 #include "chrome/common/chrome_paths.h"
 #include "chrome/test/in_process_browser_test.h"
 #include "chrome/test/ui_test_utils.h"
@@ -110,14 +111,16 @@ IN_PROC_BROWSER_TEST_F(BrowserFocusTest, DISABLED_BrowsersRememberFocus) {
       views::FocusManager::GetFocusManager(hwnd);
   ASSERT_TRUE(focus_manager);
 
-  EXPECT_EQ(browser_view->GetContentsView(), focus_manager->GetFocusedView());
+  EXPECT_EQ(browser_view->contents_container()->GetFocusView(),
+            focus_manager->GetFocusedView());
 
   // Now hide the window, show it again, the focus should not have changed.
   // TODO(jcampan): retrieve the WidgetWin and show/hide on it instead of
   // using Windows API.
   ::ShowWindow(hwnd, SW_HIDE);
   ::ShowWindow(hwnd, SW_SHOW);
-  EXPECT_EQ(browser_view->GetContentsView(), focus_manager->GetFocusedView());
+  EXPECT_EQ(browser_view->contents_container()->GetFocusView(),
+            focus_manager->GetFocusedView());
 
   // Click on the location bar.
   LocationBarView* location_bar = browser_view->GetLocationBarView();
@@ -147,7 +150,8 @@ IN_PROC_BROWSER_TEST_F(BrowserFocusTest, DISABLED_BrowsersRememberFocus) {
   views::FocusManager* focus_manager2 =
       views::FocusManager::GetFocusManager(hwnd2);
   ASSERT_TRUE(focus_manager2);
-  EXPECT_EQ(browser_view2->GetContentsView(), focus_manager2->GetFocusedView());
+  EXPECT_EQ(browser_view2->contents_container()->GetFocusView(),
+            focus_manager2->GetFocusedView());
 
   // Switch to the 1st browser window, focus should still be on the location
   // bar and the second browser should have nothing focused.
@@ -158,7 +162,8 @@ IN_PROC_BROWSER_TEST_F(BrowserFocusTest, DISABLED_BrowsersRememberFocus) {
   // Switch back to the second browser, focus should still be on the page.
   browser2->window()->Activate();
   EXPECT_EQ(NULL, focus_manager->GetFocusedView());
-  EXPECT_EQ(browser_view2->GetContentsView(), focus_manager2->GetFocusedView());
+  EXPECT_EQ(browser_view->contents_container()->GetFocusView(),
+            focus_manager2->GetFocusedView());
 
   // Close the 2nd browser to avoid a DCHECK().
   browser_view2->Close();
@@ -200,7 +205,7 @@ IN_PROC_BROWSER_TEST_F(BrowserFocusTest, TabsRememberFocus) {
 
       // Activate the location bar or the page.
       views::View* view_to_focus = kFocusPage[i][j] ?
-          browser_view->GetContentsView() :
+          browser_view->contents_container()->GetFocusView() :
           browser_view->GetLocationBarView();
 
       ui_controls::MoveMouseToCenterAndPress(view_to_focus,
@@ -218,7 +223,7 @@ IN_PROC_BROWSER_TEST_F(BrowserFocusTest, TabsRememberFocus) {
 
       // Activate the location bar or the page.
       views::View* view = kFocusPage[i][j] ?
-          browser_view->GetContentsView() :
+          browser_view->contents_container()->GetFocusView() :
           browser_view->GetLocationBarView();
       EXPECT_EQ(view, focus_manager->GetFocusedView());
     }
@@ -391,7 +396,8 @@ IN_PROC_BROWSER_TEST_F(BrowserFocusTest, FocusTraversalOnInterstitial) {
       views::FocusManager::GetFocusManager(hwnd);
 
   // Focus should be on the page.
-  EXPECT_EQ(browser_view->GetContentsView(), focus_manager->GetFocusedView());
+  EXPECT_EQ(browser_view->contents_container()->GetFocusView(),
+            focus_manager->GetFocusedView());
 
   // Let's show an interstitial.
   TestInterstitialPage* interstitial_page =
@@ -485,7 +491,8 @@ IN_PROC_BROWSER_TEST_F(BrowserFocusTest, InterstitialFocus) {
       views::FocusManager::GetFocusManager(hwnd);
 
   // Page should have focus.
-  EXPECT_EQ(browser_view->GetContentsView(), focus_manager->GetFocusedView());
+  EXPECT_EQ(browser_view->contents_container()->GetFocusView(),
+            focus_manager->GetFocusedView());
   EXPECT_TRUE(browser()->GetSelectedTabContents()->render_view_host()->view()->
       HasFocus());
 
@@ -501,14 +508,16 @@ IN_PROC_BROWSER_TEST_F(BrowserFocusTest, InterstitialFocus) {
   ui_test_utils::RunMessageLoop();
 
   // The interstitial should have focus now.
-  EXPECT_EQ(browser_view->GetContentsView(), focus_manager->GetFocusedView());
+  EXPECT_EQ(browser_view->contents_container()->GetFocusView(),
+            focus_manager->GetFocusedView());
   EXPECT_TRUE(interstitial_page->HasFocus());
 
   // Hide the interstitial.
   interstitial_page->DontProceed();
 
   // Focus should be back on the original page.
-  EXPECT_EQ(browser_view->GetContentsView(), focus_manager->GetFocusedView());
+  EXPECT_EQ(browser_view->contents_container()->GetFocusView(),
+            focus_manager->GetFocusedView());
   EXPECT_TRUE(browser()->GetSelectedTabContents()->render_view_host()->view()->
       HasFocus());
 }
@@ -565,12 +574,14 @@ IN_PROC_BROWSER_TEST_F(BrowserFocusTest, FindFocusTest) {
   EXPECT_EQ(VIEW_ID_FIND_IN_PAGE_TEXT_FIELD, focused_view->GetID());
 
   // Set focus to the page.
-  ui_controls::MoveMouseToCenterAndPress(browser_view->GetContentsView(),
-                                         ui_controls::LEFT,
-                                         ui_controls::DOWN | ui_controls::UP,
-                                         new MessageLoop::QuitTask());
+  ui_controls::MoveMouseToCenterAndPress(
+      browser_view->contents_container()->GetFocusView(),
+      ui_controls::LEFT,
+      ui_controls::DOWN | ui_controls::UP,
+      new MessageLoop::QuitTask());
   ui_test_utils::RunMessageLoop();
-  EXPECT_EQ(browser_view->GetContentsView(), focus_manager->GetFocusedView());
+  EXPECT_EQ(browser_view->contents_container()->GetFocusView(),
+            focus_manager->GetFocusedView());
 
   // Now press Ctrl+F again and focus should move to the Find box.
   ui_controls::SendKeyPressNotifyWhenDone(VK_F, true, false, false,
@@ -599,7 +610,8 @@ IN_PROC_BROWSER_TEST_F(BrowserFocusTest, TabInitialFocus) {
 
   // Open the history tab, focus should be on the tab contents.
   browser()->ShowHistoryTab();
-  EXPECT_EQ(browser_view->GetContentsView(), focus_manager->GetFocusedView());
+  EXPECT_EQ(browser_view->contents_container()->GetFocusView(),
+            focus_manager->GetFocusedView());
 
   // Open the new tab, focus should be on the location bar.
   browser()->NewTab();
@@ -608,5 +620,6 @@ IN_PROC_BROWSER_TEST_F(BrowserFocusTest, TabInitialFocus) {
 
   // Open the download tab, focus should be on the tab contents.
   browser()->ShowDownloadsTab();
-  EXPECT_EQ(browser_view->GetContentsView(), focus_manager->GetFocusedView());
+  EXPECT_EQ(browser_view->contents_container()->GetFocusView(),
+            focus_manager->GetFocusedView());
 }

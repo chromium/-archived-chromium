@@ -14,7 +14,7 @@
 #include "chrome/browser/profile.h"
 #include "chrome/browser/tab_contents/provisional_load_details.h"
 #include "chrome/browser/tab_contents/tab_contents.h"
-#include "chrome/browser/views/tab_contents_container_view.h"
+#include "chrome/browser/views/tab_contents/tab_contents_container.h"
 #include "chrome/common/chrome_constants.h"
 #include "chrome/common/notification_service.h"
 #include "chrome/test/automation/automation_messages.h"
@@ -73,12 +73,12 @@ bool ExternalTabContainer::Init(Profile* profile, HWND parent,
   tab_contents_->set_delegate(this);
   tab_contents_->render_view_host()->AllowExternalHostBindings();
 
-  // Create a TabContentsContainerView to handle focus cycling using Tab and
+  // Create a TabContentsContainer to handle focus cycling using Tab and
   // Shift-Tab.
-  tab_contents_container_ = new TabContentsContainerView();
+  tab_contents_container_ = new TabContentsContainer;
   root_view_.AddChildView(tab_contents_container_);
   // Note that SetTabContents must be called after AddChildView is called
-  tab_contents_container_->SetTabContents(tab_contents_);
+  tab_contents_container_->ChangeTabContents(tab_contents_);
 
   NavigationController* controller = &tab_contents_->controller();
   registrar_.Add(this, NotificationType::NAV_ENTRY_COMMITTED,

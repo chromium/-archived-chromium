@@ -23,7 +23,7 @@
 class AutomationProvider;
 class TabContents;
 class Profile;
-class TabContentsContainerView;
+class TabContentsContainer;
 // This class serves as the container window for an external tab.
 // An external tab is a Chrome tab that is meant to displayed in an
 // external process. This class provides the FocusManger needed by the
@@ -162,7 +162,7 @@ class ExternalTabContainer : public TabContentsDelegate,
   HACCEL external_accel_table_;
   unsigned int external_accel_entry_count_;
   // A view to handle focus cycling
-  TabContentsContainerView* tab_contents_container_;
+  TabContentsContainer* tab_contents_container_;
 
  private:
   int tab_handle_;

@@ -19,7 +19,7 @@
 #include "chrome/browser/renderer_host/render_view_host.h"
 #include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/browser/view_ids.h"
-#include "chrome/browser/views/tab_contents_container_view.h"
+#include "chrome/browser/views/tab_contents/tab_contents_container.h"
 #include "chrome/common/url_constants.h"
 #include "grit/debugger_resources.h"
 #include "views/grid_layout.h"
@@ -31,7 +31,7 @@
 
 DebuggerView::DebuggerView(DebuggerWindow* window)
     : window_(window), output_ready_(false) {
-  web_container_ = new TabContentsContainerView();
+  web_container_ = new TabContentsContainer;
   AddChildView(web_container_);
   AddAccelerator(views::Accelerator(VK_ESCAPE, false, false, false));
 }
@@ -101,7 +101,7 @@ void DebuggerView::OnInit() {
   tab_contents_ = new TabContents(profile, NULL, MSG_ROUTING_NONE, NULL);
 
   tab_contents_->set_delegate(this);
-  web_container_->SetTabContents(tab_contents_);
+  web_container_->ChangeTabContents(tab_contents_);
   tab_contents_->render_view_host()->AllowDOMUIBindings();
 
   GURL contents(std::string(chrome::kChromeUIScheme) +
@@ -115,7 +115,7 @@ void DebuggerView::OnShow() {
 }
 
 void DebuggerView::OnClose() {
-  web_container_->SetTabContents(NULL);
+  web_container_->ChangeTabContents(NULL);
   delete tab_contents_;
 }
 

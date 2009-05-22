@@ -411,6 +411,30 @@
 				>
 			</File>
 		</Filter>
+		<Filter
+			Name="TabContents"
+			>
+			<File
+				RelativePath=".\tab_contents\native_tab_contents_container.h"
+				>
+			</File>
+			<File
+				RelativePath=".\tab_contents\native_tab_contents_container_win.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\tab_contents\native_tab_contents_container_win.h"
+				>
+			</File>
+			<File
+				RelativePath=".\tab_contents\tab_contents_container.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\tab_contents\tab_contents_container.h"
+				>
+			</File>
+		</Filter>
 		<File
 			RelativePath=".\about_chrome_view.cc"
 			>
@@ -821,14 +845,6 @@
 		</File>
 		<File
 			RelativePath=".\status_bubble_views.h"
-			>
-		</File>
-		<File
-			RelativePath=".\tab_contents_container_view.cc"
-			>
-		</File>
-		<File
-			RelativePath=".\tab_contents_container_view.h"
 			>
 		</File>
 		<File
