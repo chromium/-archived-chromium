@@ -2,5 +2,7 @@ This tests that slider controls get mousedown, mousemove, input, and mouseup eve
 
 mousemove
 mousedown
+mousemove
 input
+mouseup
 
