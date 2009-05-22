@@ -100,6 +100,7 @@ void WebDevToolsAgentImpl::Attach() {
 }
 
 void WebDevToolsAgentImpl::Detach() {
+  HideDOMNodeHighlight();
   debugger_agent_impl_.set(NULL);
   dom_agent_impl_.set(NULL);
   net_agent_impl_->Detach();
@@ -185,7 +186,9 @@ void WebDevToolsAgentImpl::HighlightDOMNode(int node_id) {
 
 void WebDevToolsAgentImpl::HideDOMNodeHighlight() {
   Page* page = web_view_impl_->page();
-  page->inspectorController()->hideHighlight();
+  if (page) {
+    page->inspectorController()->hideHighlight();
+  }
 }
 
 void WebDevToolsAgentImpl::EvaluateJavaScript(int call_id, const String& js) {
