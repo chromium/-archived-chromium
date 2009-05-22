@@ -37,8 +37,6 @@ class WebRequestImpl : public WebRequest {
   virtual void GetHttpHeaders(HeaderMap* headers) const;
   virtual void SetHttpHeaders(const HeaderMap& headers);
   virtual std::string GetHttpReferrer() const;
-  virtual std::string GetHistoryState() const;
-  virtual void SetHistoryState(const std::string& value);
   virtual std::string GetSecurityInfo() const;
   virtual void SetSecurityInfo(const std::string& value);
   virtual bool HasUploadData() const;
@@ -54,13 +52,8 @@ class WebRequestImpl : public WebRequest {
     request_ = request;
   }
 
-  PassRefPtr<WebCore::HistoryItem> history_item() const {
-    return history_item_;
-  }
-
  protected:
   WebCore::FrameLoadRequest request_;
-  RefPtr<WebCore::HistoryItem> history_item_;
 };
 
 #endif  // #ifndef WEBKIT_GLUE_WEBURLREQUEST_IMPL_H_

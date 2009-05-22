@@ -494,51 +494,53 @@ void TestShell::LoadURL(const wchar_t* url) {
 }
 
 bool TestShell::Navigate(const TestNavigationEntry& entry, bool reload) {
+  // Get the right target frame for the entry.
+  WebFrame* frame = webView()->GetMainFrame();
+  if (!entry.GetTargetFrame().empty())
+      frame = webView()->GetFrameWithName(entry.GetTargetFrame());
+  // TODO(mpcomplete): should we clear the target frame, or should
+  // back/forward navigations maintain the target frame?
+
+  // A navigation resulting from loading a javascript URL should not be
+  // treated as a browser initiated event.  Instead, we want it to look as if
+  // the page initiated any load resulting from JS execution.
+  if (!entry.GetURL().SchemeIs("javascript")) {
+    delegate_->set_pending_extra_data(
+        new TestShellExtraData(entry.GetPageID()));
+  }
+
+  // If we are reloading, then WebKit will use the state of the current page.
+  // Otherwise, we give it the state to navigate to.
+  if (!reload && !entry.GetContentState().empty()) {
+    DCHECK(entry.GetPageID() != -1);
+    frame->LoadHistoryState(entry.GetContentState());
+  } else {
     WebRequestCachePolicy cache_policy;
     if (reload) {
       cache_policy = WebRequestReloadIgnoringCacheData;
-    } else if (entry.GetPageID() != -1) {
-      cache_policy = WebRequestReturnCacheDataElseLoad;
     } else {
+      DCHECK(entry.GetPageID() == -1);
       cache_policy = WebRequestUseProtocolCachePolicy;
     }
 
     scoped_ptr<WebRequest> request(WebRequest::Create(entry.GetURL()));
     request->SetCachePolicy(cache_policy);
-    // If we are reloading, then WebKit will use the state of the current page.
-    // Otherwise, we give it the state to navigate to.
-    if (!reload)
-      request->SetHistoryState(entry.GetContentState());
-
-    // A navigation resulting from loading a javascript URL should not be
-    // treated as a browser initiated event.  Instead, we want it to look as if
-    // the page initiated any load resulting from JS execution.
-    if (!entry.GetURL().SchemeIs("javascript")) {
-      delegate_->set_pending_extra_data(
-          new TestShellExtraData(entry.GetPageID()));
-    }
-
-    // Get the right target frame for the entry.
-    WebFrame* frame = webView()->GetMainFrame();
-    if (!entry.GetTargetFrame().empty())
-        frame = webView()->GetFrameWithName(entry.GetTargetFrame());
-    // TODO(mpcomplete): should we clear the target frame, or should
-    // back/forward navigations maintain the target frame?
 
     frame->LoadRequest(request.get());
+  }
 
-    // In case LoadRequest failed before DidCreateDataSource was called.
-    delegate_->set_pending_extra_data(NULL);
+  // In case LoadRequest failed before DidCreateDataSource was called.
+  delegate_->set_pending_extra_data(NULL);
 
-    // Restore focus to the main frame prior to loading new request.
-    // This makes sure that we don't have a focused iframe. Otherwise, that
-    // iframe would keep focus when the SetFocus called immediately after
-    // LoadRequest, thus making some tests fail (see http://b/issue?id=845337
-    // for more details).
-    webView()->SetFocusedFrame(frame);
-    SetFocus(webViewHost(), true);
+  // Restore focus to the main frame prior to loading new request.
+  // This makes sure that we don't have a focused iframe. Otherwise, that
+  // iframe would keep focus when the SetFocus called immediately after
+  // LoadRequest, thus making some tests fail (see http://b/issue?id=845337
+  // for more details).
+  webView()->SetFocusedFrame(frame);
+  SetFocus(webViewHost(), true);
 
-    return true;
+  return true;
 }
 
 void TestShell::GoBackOrForward(int offset) {

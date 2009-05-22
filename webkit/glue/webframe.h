@@ -76,6 +76,10 @@ class WebFrame {
   // Loads the given WebRequest.
   virtual void LoadRequest(WebRequest* request) = 0;
 
+  // Loads the given history state.  This corresponds to a back/forward
+  // navigation.
+  virtual void LoadHistoryState(const std::string& history_state) = 0;
+
   // This method is short-hand for calling LoadAlternateHTMLString with a dummy
   // request for the given base_url.
   virtual void LoadHTMLString(const std::string& html_text,

@@ -77,10 +77,6 @@ class WebRequest {
   //
   virtual std::string GetHttpReferrer() const = 0;
 
-  // Get/set the opaque history state (used for back/forward navigations).
-  virtual std::string GetHistoryState() const = 0;
-  virtual void SetHistoryState(const std::string& state) = 0;
-
   // Get/set an opaque value containing the security info (including SSL
   // connection state) that should be reported as used in the response for that
   // request, or an empty string if no security info should be reported.  This

@@ -79,6 +79,7 @@ class WebFrameImpl : public WebFrame, public base::RefCounted<WebFrameImpl> {
 
   // WebFrame
   virtual void LoadRequest(WebRequest* request);
+  virtual void LoadHistoryState(const std::string& history_state);
   virtual void LoadHTMLString(const std::string& html_text,
                               const GURL& base_url);
   virtual void LoadAlternateHTMLString(const WebRequest* request,
@@ -392,6 +393,7 @@ class WebFrameImpl : public WebFrame, public base::RefCounted<WebFrameImpl> {
 
   void InternalLoadRequest(const WebRequest* request,
                            const WebCore::SubstituteData& data,
+                           PassRefPtr<WebCore::HistoryItem> history_item,
                            bool replace);
 
   // Clears the map of password listeners.

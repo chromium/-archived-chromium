@@ -127,16 +127,6 @@ std::string WebRequestImpl::GetHttpReferrer() const {
       request_.resourceRequest().httpReferrer());
 }
 
-std::string WebRequestImpl::GetHistoryState() const {
-  std::string value;
-  webkit_glue::HistoryItemToString(history_item_, &value);
-  return value;
-}
-
-void WebRequestImpl::SetHistoryState(const std::string& value) {
-  history_item_ = webkit_glue::HistoryItemFromString(value);
-}
-
 std::string WebRequestImpl::GetSecurityInfo() const {
   return webkit_glue::CStringToStdString(
       request_.resourceRequest().securityInfo());

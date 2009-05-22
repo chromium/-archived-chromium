@@ -794,18 +794,6 @@ void RenderView::OnNavigate(const ViewMsg_Navigate_Params& params) {
     is_reload = false;
   }
 
-  WebRequestCachePolicy cache_policy;
-  if (is_reload) {
-    cache_policy = WebRequestReloadIgnoringCacheData;
-  } else if (params.page_id != -1 || main_frame->GetInViewSourceMode()) {
-    cache_policy = WebRequestReturnCacheDataElseLoad;
-  } else {
-    cache_policy = WebRequestUseProtocolCachePolicy;
-  }
-
-  scoped_ptr<WebRequest> request(WebRequest::Create(params.url));
-  request->SetCachePolicy(cache_policy);
-
   // A navigation resulting from loading a javascript URL should not be treated
   // as a browser initiated event.  Instead, we want it to look as if the page
   // initiated any load resulting from JS execution.
@@ -814,17 +802,39 @@ void RenderView::OnNavigate(const ViewMsg_Navigate_Params& params) {
         params.page_id, params.transition, params.request_time));
   }
 
-  // If we are reloading, then WebKit will use the state of the current page.
-  // Otherwise, we give it the state to navigate to.
-  if (!is_reload)
-    request->SetHistoryState(params.state);
+  // If we are reloading, then WebKit will use the history state of the current
+  // page, so we should just ignore any given history state.  Otherwise, if we
+  // have history state, then we need to navigate to it, which corresponds to a
+  // back/forward navigation event.
+  if (!is_reload && !params.state.empty()) {
+    // We must know the page ID of the page we are navigating back to.
+    DCHECK(params.page_id != -1);
+    main_frame->LoadHistoryState(params.state);
+  } else {
+    // Navigate to the given URL.
+    scoped_ptr<WebRequest> request(WebRequest::Create(params.url));
 
-  if (params.referrer.is_valid()) {
-    request->SetHttpHeaderValue("Referer",
-                                params.referrer.spec());
+    // TODO(darin): WebFrame should just have a Reload method.
+
+    WebRequestCachePolicy cache_policy;
+    if (is_reload) {
+      cache_policy = WebRequestReloadIgnoringCacheData;
+    } else {
+      // A session history navigation should have been accompanied by state.
+      DCHECK(params.page_id == -1);
+      if (main_frame->GetInViewSourceMode()) {
+        cache_policy = WebRequestReturnCacheDataElseLoad;
+      } else {
+        cache_policy = WebRequestUseProtocolCachePolicy;
+      }
+    }
+    request->SetCachePolicy(cache_policy);
+
+    if (params.referrer.is_valid())
+      request->SetHttpHeaderValue("Referer", params.referrer.spec());
+
+    main_frame->LoadRequest(request.get());
   }
-
-  main_frame->LoadRequest(request.get());
 
   // In case LoadRequest failed before DidCreateDataSource was called.
   pending_navigation_state_.reset();

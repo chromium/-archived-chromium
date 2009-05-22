@@ -408,12 +408,21 @@ void WebFrameImpl::InitMainFrame(WebViewImpl* webview_impl) {
 }
 
 void WebFrameImpl::LoadRequest(WebRequest* request) {
-  SubstituteData data;
-  InternalLoadRequest(request, data, false);
+  InternalLoadRequest(request, SubstituteData(), NULL, false);
+}
+
+void WebFrameImpl::LoadHistoryState(const std::string& history_state) {
+  RefPtr<HistoryItem> history_item =
+      webkit_glue::HistoryItemFromString(history_state);
+  DCHECK(history_item.get());
+
+  WebRequestImpl dummy_request;
+  InternalLoadRequest(&dummy_request, SubstituteData(), history_item, false);
 }
 
 void WebFrameImpl::InternalLoadRequest(const WebRequest* request,
                                        const SubstituteData& data,
+                                       PassRefPtr<HistoryItem> history_item,
                                        bool replace) {
   const WebRequestImpl* request_impl =
       static_cast<const WebRequestImpl*>(request);
@@ -460,7 +469,7 @@ void WebFrameImpl::InternalLoadRequest(const WebRequest* request,
       // loaded page.
       frame_->loader()->setReplacing();
     }
-  } else if (request_impl->history_item()) {
+  } else if (history_item.get()) {
     // Use the history item if we have one, otherwise fall back to standard
     // load.
     RefPtr<HistoryItem> current_item = frame_->loader()->currentHistoryItem();
@@ -476,7 +485,7 @@ void WebFrameImpl::InternalLoadRequest(const WebRequest* request,
       GetWebViewImpl()->SetCurrentHistoryItem(current_item.get());
     }
 
-    frame_->loader()->goToItem(request_impl->history_item().get(),
+    frame_->loader()->goToItem(history_item.get(),
                                WebCore::FrameLoadTypeIndexedBackForward);
   } else if (resource_request.cachePolicy() == ReloadIgnoringCacheData) {
     frame_->loader()->reload();
@@ -503,7 +512,7 @@ void WebFrameImpl::LoadAlternateHTMLString(const WebRequest* request,
       webkit_glue::GURLToKURL(display_url));
   DCHECK(subst_data.isValid());
 
-  InternalLoadRequest(request, subst_data, replace);
+  InternalLoadRequest(request, subst_data, NULL, replace);
 }
 
 GURL WebFrameImpl::GetURL() const {
