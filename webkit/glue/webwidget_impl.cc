@@ -189,9 +189,18 @@ bool WebWidgetImpl::HandleInputEvent(const WebInputEvent* input_event) {
       MouseUp(*static_cast<const WebMouseEvent*>(input_event));
       return true;
 
+    // In Windows, RawKeyDown only has information about the physical key, but
+    // for "selection", we need the information about the character the key
+    // translated into. For English, the physical key value and the character
+    // value are the same, hence, "selection" works for English. But for other
+    // languages, such as Hebrew, the character value is different from the
+    // physical key value. Thus, without accepting Char event type which
+    // contains the key's character value, the "selection" won't work for
+    // non-English languages, such as Hebrew.
     case WebInputEvent::RawKeyDown:
     case WebInputEvent::KeyDown:
     case WebInputEvent::KeyUp:
+    case WebInputEvent::Char:
       return KeyEvent(*static_cast<const WebKeyboardEvent*>(input_event));
 
     default:
