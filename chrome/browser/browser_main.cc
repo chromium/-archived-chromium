@@ -335,8 +335,8 @@ int BrowserMain(const MainFunctionParams& parameters) {
   local_state->RegisterStringPref(prefs::kApplicationLocale, L"");
   local_state->RegisterBooleanPref(prefs::kMetricsReportingEnabled, false);
 
-#if defined(OS_POSIX)
-  // On POSIX we display the first run dialog as early as possible, so we can
+#if defined(OS_MACOSX)
+  // On Mac OS X we display the first run dialog as early as possible, so we can
   // get the stats enabled.
   // TODO:
   // We check the kNoFirstRun command line switch explicitly here since the
@@ -350,8 +350,7 @@ int BrowserMain(const MainFunctionParams& parameters) {
     Profile* profile = NULL;
     OpenFirstRunDialog(profile, &process_singleton);
   }
-#endif  // OS_POSIX
-
+#endif  // OS_MACOSX
 
   // During first run we read the google_update registry key to find what
   // language the user selected when downloading the installer. This
@@ -538,11 +537,11 @@ int BrowserMain(const MainFunctionParams& parameters) {
   process_singleton.Create();
 
   // TODO: This block of code should probably be used on all platforms!
-  // On POSIX we need to display this dialog before setting the value of
+  // On Mac OS X we display this dialog before setting the value of
   // kMetricsReportingEnabled, so we display this dialog much earlier.
   // On Windows a download is tagged with stats enabled/disabled so the UI
   // can be displayed later in the startup process.
-#if defined(OS_WIN)
+#if !defined(OS_MACOSX)
   // Show the First Run UI if this is the first time Chrome has been run on
   // this computer, or we're being compelled to do so by a command line flag.
   // Note that this be done _after_ the PrefService is initialized and all
@@ -551,7 +550,7 @@ int BrowserMain(const MainFunctionParams& parameters) {
   if (is_first_run && !first_run_ui_bypass) {
     OpenFirstRunDialog(profile, &process_singleton);
   }
-#endif  // OS_WIN
+#endif  // OS_MACOSX
 
   // Sets things up so that if we crash from this point on, a dialog will
   // popup asking the user to restart chrome. It is done this late to avoid

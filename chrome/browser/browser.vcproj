@@ -380,6 +380,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\first_run_win.cc"
+				>
+			</File>
+			<File
 				RelativePath=".\google_url_tracker.cc"
 				>
 			</File>
@@ -1528,15 +1532,11 @@
 				>
 			</File>
 			<File
-				RelativePath=".\password_manager\password_store.h"
-				>
-			</File>
-			<File
 				RelativePath=".\password_manager\password_store.cc"
 				>
 			</File>
 			<File
-				RelativePath=".\password_manager\password_store_default.h"
+				RelativePath=".\password_manager\password_store.h"
 				>
 			</File>
 			<File
@@ -1544,11 +1544,15 @@
 				>
 			</File>
 			<File
-				RelativePath=".\password_manager\password_store_win.h"
+				RelativePath=".\password_manager\password_store_default.h"
 				>
 			</File>
 			<File
 				RelativePath=".\password_manager\password_store_win.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\password_manager\password_store_win.h"
 				>
 			</File>
 		</Filter>

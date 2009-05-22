@@ -88,7 +88,7 @@ class FirstRun {
 
  private:
   // This class is for scoping purposes.
-  DISALLOW_COPY_AND_ASSIGN(FirstRun);
+  DISALLOW_IMPLICIT_CONSTRUCTORS(FirstRun);
 };
 
 // This class contains the actions that need to be performed when an upgrade

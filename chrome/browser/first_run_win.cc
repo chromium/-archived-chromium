@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
+// Copyright (c) 2006-2009 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
@@ -11,6 +11,7 @@
 
 #include <sstream>
 
+// TODO(port): trim this include list once first run has been refactored fully.
 #include "app/app_switches.h"
 #include "app/resource_bundle.h"
 #include "base/command_line.h"
@@ -51,28 +52,6 @@
 
 namespace {
 
-// The kSentinelFile file absence will tell us it is a first run.
-const wchar_t kSentinelFile[] = L"First Run";
-
-// Gives the full path to the sentinel file. The file might not exist.
-bool GetFirstRunSentinelFilePath(std::wstring* path) {
-  std::wstring exe_path;
-  if (!PathService::Get(base::DIR_EXE, &exe_path))
-    return false;
-
-  std::wstring first_run_sentinel;
-  if (InstallUtil::IsPerUserInstall(exe_path.c_str())) {
-    first_run_sentinel = exe_path;
-  } else {
-    if (!PathService::Get(chrome::DIR_USER_DATA, &first_run_sentinel))
-      return false;
-  }
-
-  file_util::AppendToPath(&first_run_sentinel, kSentinelFile);
-  *path = first_run_sentinel;
-  return true;
-}
-
 bool GetNewerChromeFile(std::wstring* path) {
   if (!PathService::Get(base::DIR_EXE, path))
     return false;
@@ -87,18 +66,17 @@ bool GetBackupChromeFile(std::wstring* path) {
   return true;
 }
 
-std::wstring GetDefaultPrefFilePath(bool create_profile_dir,
-                                    const std::wstring& user_data_dir) {
-  FilePath default_pref_dir = ProfileManager::GetDefaultProfileDir(
-      FilePath::FromWStringHack(user_data_dir));
+FilePath GetDefaultPrefFilePath(bool create_profile_dir,
+                                const FilePath& user_data_dir) {
+  FilePath default_pref_dir =
+      ProfileManager::GetDefaultProfileDir(user_data_dir);
   if (create_profile_dir) {
     if (!file_util::PathExists(default_pref_dir)) {
       if (!file_util::CreateDirectory(default_pref_dir))
-        return std::wstring();
+        return FilePath();
     }
   }
-  return ProfileManager::GetDefaultProfilePath(default_pref_dir)
-      .ToWStringHack();
+  return ProfileManager::GetDefaultProfilePath(default_pref_dir);
 }
 
 bool InvokeGoogleUpdateForRename() {
@@ -152,22 +130,6 @@ bool WriteEULAtoTempFile(FilePath* eula_path) {
 
 }  // namespace
 
-bool FirstRun::IsChromeFirstRun() {
-  // A troolean, 0 means not yet set, 1 means set to true, 2 set to false.
-  static int first_run = 0;
-  if (first_run != 0)
-    return first_run == 1;
-
-  std::wstring first_run_sentinel;
-  if (!GetFirstRunSentinelFilePath(&first_run_sentinel) ||
-      file_util::PathExists(first_run_sentinel)) {
-    first_run = 2;
-    return false;
-  }
-  first_run = 1;
-  return true;
-}
-
 bool FirstRun::CreateChromeDesktopShortcut() {
   std::wstring chrome_exe;
   if (!PathService::Get(base::FILE_EXE, &chrome_exe))
@@ -189,26 +151,6 @@ bool FirstRun::CreateChromeQuickLaunchShortcut() {
       true);  // create if doesn't exist.
 }
 
-bool FirstRun::RemoveSentinel() {
-  std::wstring first_run_sentinel;
-  if (!GetFirstRunSentinelFilePath(&first_run_sentinel))
-    return false;
-  return file_util::Delete(first_run_sentinel, false);
-}
-
-bool FirstRun::CreateSentinel() {
-  std::wstring first_run_sentinel;
-  if (!GetFirstRunSentinelFilePath(&first_run_sentinel))
-    return false;
-  HANDLE file = ::CreateFileW(first_run_sentinel.c_str(),
-                              FILE_READ_DATA | FILE_WRITE_DATA,
-                              FILE_SHARE_READ | FILE_SHARE_WRITE,
-                              NULL, CREATE_ALWAYS, 0, NULL);
-  if (INVALID_HANDLE_VALUE == file)
-    return false;
-  ::CloseHandle(file);
-  return true;
-}
 
 bool FirstRun::ProcessMasterPreferences(const FilePath& user_data_dir,
                                         const FilePath& master_prefs_path,
@@ -218,19 +160,17 @@ bool FirstRun::ProcessMasterPreferences(const FilePath& user_data_dir,
   if (preference_details)
     *preference_details = 0;
 
-  std::wstring master_prefs;
-  if (master_prefs_path.empty()) {
+  FilePath master_prefs = master_prefs_path;
+  if (master_prefs.empty()) {
     // The default location of the master prefs is next to the chrome exe.
-    std::wstring master_path;
-    if (!PathService::Get(base::DIR_EXE, &master_path))
+    // TODO(port): port installer_util and use this.
+    if (!PathService::Get(base::DIR_EXE, &master_prefs))
       return true;
-    file_util::AppendToPath(&master_path, installer_util::kDefaultMasterPrefs);
-    master_prefs = master_path;
-  } else {
-    master_prefs = master_prefs_path.ToWStringHack();
+    master_prefs = master_prefs.Append(installer_util::kDefaultMasterPrefs);
   }
 
-  int parse_result = installer_util::ParseDistributionPreferences(master_prefs);
+  int parse_result = installer_util::ParseDistributionPreferences(
+      master_prefs.ToWStringHack());
   if (preference_details)
     *preference_details = parse_result;
 
@@ -238,7 +178,7 @@ bool FirstRun::ProcessMasterPreferences(const FilePath& user_data_dir,
     return true;
 
   if (new_tabs)
-    *new_tabs = installer_util::ParseFirstRunTabs(master_prefs);
+    *new_tabs = installer_util::ParseFirstRunTabs(master_prefs.ToWStringHack());
 
   if (parse_result & installer_util::MASTER_PROFILE_REQUIRE_EULA) {
     // Show the post-installation EULA. This is done by setup.exe and the
@@ -250,7 +190,7 @@ bool FirstRun::ProcessMasterPreferences(const FilePath& user_data_dir,
     FilePath inner_html;
     if (WriteEULAtoTempFile(&inner_html)) {
       int retcode = 0;
-      const std::wstring& eula =  installer_util::switches::kShowEula;
+      const std::wstring& eula = installer_util::switches::kShowEula;
       if (!LaunchSetupWithParam(eula, inner_html.ToWStringHack(), &retcode) ||
           (retcode == installer_util::EULA_REJECTED)) {
         LOG(WARNING) << "EULA rejected. Fast exit.";
@@ -269,14 +209,13 @@ bool FirstRun::ProcessMasterPreferences(const FilePath& user_data_dir,
   if (parse_result & installer_util::MASTER_PROFILE_OEM_FIRST_RUN_BUBBLE)
     FirstRun::SetOEMFirstRunBubblePref();
 
-  FilePath user_prefs = FilePath::FromWStringHack(
-      GetDefaultPrefFilePath(true, user_data_dir.ToWStringHack()));
+  FilePath user_prefs = GetDefaultPrefFilePath(true, user_data_dir);
   if (user_prefs.empty())
     return true;
 
   // The master prefs are regular prefs so we can just copy the file
   // to the default place and they just work.
-  if (!file_util::CopyFile(master_prefs, user_prefs.ToWStringHack()))
+  if (!file_util::CopyFile(master_prefs, user_prefs))
     return true;
 
   if (!(parse_result & installer_util::MASTER_PROFILE_NO_FIRST_RUN_UI))

@@ -135,17 +135,18 @@ bool ShellIntegration::IsDefaultBrowser() {
 
 //--------------------------------------------------------------------------
 
-#if defined(OS_LINUX)
-// static
-bool FirstRun::IsChromeFirstRun() {
-  // http://code.google.com/p/chromium/issues/detail?id=11971
-  return false;
-}
 
+#if defined(OS_LINUX)
 void OpenFirstRunDialog(Profile* profile, ProcessSingleton* process_singleton) {
+  // http://code.google.com/p/chromium/issues/detail?id=11971
+  //
+  // Note that on Windows, this eventually calls into
+  // FirstRunViewBase::FirstRunComplete, which then creates the First
+  // Run sentinel.  We should refactor that out into the caller of
+  // this function.
   NOTIMPLEMENTED();
 }
-#endif  // defined(OS_LINUX)
+#endif
 
 // static
 bool FirstRun::ProcessMasterPreferences(const FilePath& user_data_dir,
@@ -153,13 +154,24 @@ bool FirstRun::ProcessMasterPreferences(const FilePath& user_data_dir,
                                         int* preference_details,
                                         std::vector<std::wstring>* new_tabs) {
   // http://code.google.com/p/chromium/issues/detail?id=11971
-  return false;
+  // Pretend we processed them correctly.
+  return true;
 }
 
 // static
 int FirstRun::ImportNow(Profile* profile, const CommandLine& cmdline) {
   // http://code.google.com/p/chromium/issues/detail?id=11971
   return 0;
+}
+
+bool FirstRun::CreateChromeDesktopShortcut() {
+  NOTIMPLEMENTED();
+  return false;
+}
+
+bool FirstRun::CreateChromeQuickLaunchShortcut() {
+  NOTIMPLEMENTED();
+  return false;
 }
 
 // static
