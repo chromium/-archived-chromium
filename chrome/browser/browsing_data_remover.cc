@@ -51,7 +51,6 @@ BrowsingDataRemover::BrowsingDataRemover(Profile* profile,
     : profile_(profile),
       delete_begin_(CalculateBeginDeleteTime(time_period)),
       delete_end_(delete_end),
-      waiting_for_keywords_(false),
       waiting_for_clear_history_(false),
       waiting_for_clear_cache_(false) {
   DCHECK(profile);
