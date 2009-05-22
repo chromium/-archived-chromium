@@ -15,6 +15,7 @@
 
 namespace {
 
+const GdkColor kTextColor = GDK_COLOR_RGB(100, 100, 100);
 const GdkColor kBackgroundColor = GDK_COLOR_RGB(0xe6, 0xed, 0xf4);
 const GdkColor kFrameBorderColor = GDK_COLOR_RGB(0xbe, 0xc8, 0xd4);
 
@@ -133,6 +134,7 @@ void StatusBubbleGtk::MouseMoved() {
 
 void StatusBubbleGtk::InitWidgets() {
   label_ = gtk_label_new(NULL);
+  gtk_widget_modify_fg(label_, GTK_STATE_NORMAL, &kTextColor);
 
   GtkWidget* padding = gtk_alignment_new(0, 0, 1, 1);
   gtk_alignment_set_padding(GTK_ALIGNMENT(padding),
