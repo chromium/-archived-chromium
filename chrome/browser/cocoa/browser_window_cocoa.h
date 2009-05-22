@@ -7,6 +7,7 @@
 
 #include "chrome/browser/browser_window.h"
 #include "chrome/browser/bookmarks/bookmark_model.h"
+#include "chrome/common/notification_registrar.h"
 
 class Browser;
 @class BrowserWindowController;
@@ -81,6 +82,7 @@ class BrowserWindowCocoa : public BrowserWindow,
   virtual void DestroyBrowser();
 
  private:
+  NotificationRegistrar registrar_;
   NSWindow* window_;  // weak, owned by controller
   Browser* browser_;  // weak, owned by controller
   BrowserWindowController* controller_;  // weak, owns us

@@ -19,16 +19,12 @@ BrowserWindowCocoa::BrowserWindowCocoa(Browser* browser,
                                        NSWindow* window)
   : window_(window), browser_(browser), controller_(controller) {
   // This pref applies to all windows, so all must watch for it.
-  NotificationService* ns = NotificationService::current();
-  ns->AddObserver(this, NotificationType::BOOKMARK_BAR_VISIBILITY_PREF_CHANGED,
-                  NotificationService::AllSources());
+  registrar_.AddObserver(this,
+                         NotificationType::BOOKMARK_BAR_VISIBILITY_PREF_CHANGED,
+                         NotificationService::AllSources());
 }
 
 BrowserWindowCocoa::~BrowserWindowCocoa() {
-  NotificationService* ns = NotificationService::current();
-  ns->RemoveObserver(this,
-                     NotificationType::BOOKMARK_BAR_VISIBILITY_PREF_CHANGED,
-                     NotificationService::AllSources());
 }
 
 void BrowserWindowCocoa::Show() {
