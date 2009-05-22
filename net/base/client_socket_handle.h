@@ -11,19 +11,17 @@
 #include "base/scoped_ptr.h"
 #include "net/base/client_socket.h"
 #include "net/base/completion_callback.h"
+#include "net/base/load_states.h"
 
 namespace net {
 
 class ClientSocketPool;
 
-// A container for a connected ClientSocket.
+// A container for a ClientSocket.
 //
 // The handle's |group_name| uniquely identifies the origin and type of the
 // connection.  It is used by the ClientSocketPool to group similar connected
 // client socket objects.
-//
-// A handle is initialized with a null socket.  It is the consumer's job to
-// initialize a ClientSocket object and set it on the handle.
 //
 class ClientSocketHandle {
  public:
@@ -31,20 +29,25 @@ class ClientSocketHandle {
   ~ClientSocketHandle();
 
   // Initializes a ClientSocketHandle object, which involves talking to the
-  // ClientSocketPool to locate a socket to possibly reuse.  This method
-  // returns either OK or ERR_IO_PENDING.  On ERR_IO_PENDING, |priority| is
-  // used to determine the placement in ClientSocketPool's wait list.
+  // ClientSocketPool to obtain a connected socket, possibly reusing one.  This
+  // method returns either OK or ERR_IO_PENDING.  On ERR_IO_PENDING, |priority|
+  // is used to determine the placement in ClientSocketPool's wait list.
   //
   // If this method succeeds, then the socket member will be set to an existing
-  // socket if an existing socket was available to reuse.  Otherwise, the
-  // consumer should set the socket member of this handle.
+  // connected socket if an existing connected socket was available to reuse,
+  // otherwise it will be set to a new connected socket.  Consumers can then
+  // call is_reused() to see if the socket was reused.  If not reusing an
+  // existing socket, ClientSocketPool may need to establish a new 
+  // connection to the |host| |port| pair.
   //
   // This method returns ERR_IO_PENDING if it cannot complete synchronously, in
-  // which case the consumer should wait for the completion callback to run.
+  // which case the consumer will be notified of completion via |callback|.
   //
   // Init may be called multiple times.
   //
   int Init(const std::string& group_name,
+           const std::string& host,
+           int port,
            int priority,
            CompletionCallback* callback);
 
@@ -54,25 +57,40 @@ class ClientSocketHandle {
   // the socket may be kept alive for use by a subsequent ClientSocketHandle.
   //
   // NOTE: To prevent the socket from being kept alive, be sure to call its
-  // Disconnect method.
-  //
+  // Disconnect method.  This will result in the ClientSocketPool deleting the
+  // ClientSocket.
   void Reset();
 
-  // Returns true when Init has completed successfully.
+  // Used after Init() is called, but before the ClientSocketPool has
+  // initialized the ClientSocketHandle.
+  LoadState GetLoadState() const;
+
+  // Returns true when Init() has completed successfully.
   bool is_initialized() const { return socket_ != NULL; }
+
+  // Used by ClientSocketPool to initialize the ClientSocketHandle.
+  void set_is_reused(bool is_reused) { is_reused_ = is_reused; }
+  void set_socket(ClientSocket* s) { socket_.reset(s); }
 
   // These may only be used if is_initialized() is true.
   const std::string& group_name() const { return group_name_; }
-  ClientSocket* socket() { return socket_->get(); }
-  ClientSocket* release_socket() { return socket_->release(); }
-  void set_socket(ClientSocket* s) { socket_->reset(s); }
+  ClientSocket* socket() { return socket_.get(); }
+  ClientSocket* release_socket() { return socket_.release(); }
+  bool is_reused() const { return is_reused_; }
 
  private:
-  friend class ClientSocketPool;
+  void OnIOComplete(int result);
+
+  // Resets the state of the ClientSocketHandle.  |cancel| indicates whether or
+  // not to try to cancel the request with the ClientSocketPool.
+  void ResetInternal(bool cancel);
 
   scoped_refptr<ClientSocketPool> pool_;
-  scoped_ptr<ClientSocket>* socket_;
+  scoped_ptr<ClientSocket> socket_;
   std::string group_name_;
+  bool is_reused_;
+  CompletionCallbackImpl<ClientSocketHandle> callback_;
+  CompletionCallback* user_callback_;
 
   DISALLOW_COPY_AND_ASSIGN(ClientSocketHandle);
 };
