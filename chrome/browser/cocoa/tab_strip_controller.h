@@ -35,6 +35,7 @@ class ToolbarModel;
   TabContents* currentTab_;   // weak, tab for which we're showing state
   TabStripView* tabView_;  // weak
   NSView* switchView_;  // weak
+  scoped_nsobject<NSView> dragBlockingView_;  // avoid bad window server drags
   NSButton* newTabButton_;  // weak, obtained from the nib.
   scoped_ptr<TabStripModelObserverBridge> bridge_;
   TabStripModel* tabModel_;  // weak
@@ -47,10 +48,15 @@ class ToolbarModel;
   // this is kept in the same order as the tab strip model.
   scoped_nsobject<NSMutableArray> tabArray_;
 
-  // These values are only used during a drag, and override tab positioning
+  // These values are only used during a drag, and override tab positioning.
   TabView* placeholderTab_; // weak. Tab being dragged
   NSRect placeholderFrame_;  // Frame to use
-  CGFloat placeholderStretchiness_; // Vertical force indicated by streching tab
+  CGFloat placeholderStretchiness_; // Vertical force shown by streching tab.
+  // Frame targets for all the current views.
+  // target frames are used because repeated requests to [NSView animator].
+  // aren't coalesced, so we store frames to avoid redundant calls.  
+  scoped_nsobject<NSMutableDictionary> targetFrames_;
+  NSRect newTabTargetFrame_;
 }
 
 // Initialize the controller with a view and browser that contains
@@ -68,6 +74,9 @@ class ToolbarModel;
 
 // Return the view for the currently selected tab.
 - (NSView *)selectedTabView;
+
+// Set the frame of the selected tab, also updates the internal frame dict.
+- (void)setFrameOfSelectedTab:(NSRect)frame;
 
 // Move the given tab at index |from| in this window to the location of the
 // current placeholder.

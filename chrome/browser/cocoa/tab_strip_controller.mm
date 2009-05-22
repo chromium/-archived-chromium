@@ -22,6 +22,15 @@
 #include "chrome/browser/tabs/tab_strip_model.h"
 #include "grit/generated_resources.h"
 
+// A simple view class that prevents the windowserver from dragging the
+// area behind tabs. Sometimes core animation confuses it.
+@interface TabStripControllerDragBlockingView : NSView
+@end
+@implementation TabStripControllerDragBlockingView
+- (BOOL)mouseDownCanMoveWindow {return NO;}
+- (void)drawRect:(NSRect)rect {}
+@end
+
 @implementation TabStripController
 
 - (id)initWithView:(TabStripView*)view
@@ -44,8 +53,11 @@
     [newTabButton_ setTarget:nil];
     [newTabButton_ setAction:@selector(commandDispatch:)];
     [newTabButton_ setTag:IDC_NEW_TAB];
-
+    targetFrames_.reset([[NSMutableDictionary alloc] init]);
     [tabView_ setWantsLayer:YES];
+    dragBlockingView_.reset([[TabStripControllerDragBlockingView alloc]
+                              initWithFrame:NSZeroRect]);
+    [view addSubview:dragBlockingView_];
   }
   return self;
 }
@@ -167,6 +179,7 @@
   const float kMaxTabWidth = [TabController maxTabWidth];
   const float kMinTabWidth = [TabController minTabWidth];
 
+  NSRect enclosingRect = NSZeroRect;
   [NSAnimationContext beginGrouping];
   [[NSAnimationContext currentContext] setDuration:0.2];
 
@@ -198,9 +211,20 @@
     }
 
     if (isPlaceholder) {
+      // Move the current tab to the correct location intantly.
+      // We need a duration or else it doesn't cancel an inflight animation.
+      [NSAnimationContext beginGrouping];
+      [[NSAnimationContext currentContext] setDuration:0.000001];
       tabFrame.origin.x = placeholderFrame_.origin.x;
-      tabFrame.size.height += 10.0 * placeholderStretchiness_;
-      [[tab view] setFrame:tabFrame];
+      // TODO(alcor): reenable this
+      //tabFrame.size.height += 10.0 * placeholderStretchiness_;
+      [[[tab view] animator] setFrame:tabFrame];
+      [NSAnimationContext endGrouping];
+      
+      // Store the frame by identifier to aviod redundant calls to animator.
+      NSValue *identifier = [NSValue valueWithPointer:[tab view]];
+      [targetFrames_ setObject:[NSValue valueWithRect:tabFrame]
+                        forKey:identifier];  
       continue;
     } else {
       // If our left edge is to the left of the placeholder's left, but our mid
@@ -212,20 +236,23 @@
         tabFrame.origin.x = offset;
       }
 
-#if 0
       // Animate the tab in by putting it below the horizon.
-      // TODO(pinkerton/alcor): While this looks nice, it confuses the heck
-      // out of the window server and causes the window to think that there's
-      // no tab there. The net result is that dragging the tab also drags
-      // the window. We need to find another way to do this.
       if (newTab && visible) {
         [[tab view] setFrame:NSOffsetRect(tabFrame, 0, -NSHeight(tabFrame))];
       }
-#endif
 
       id frameTarget = visible ? [[tab view] animator] : [tab view];
       tabFrame.size.width = [tab selected] ? kMaxTabWidth : baseTabWidth;
-      [frameTarget setFrame:tabFrame];
+      
+      // Check the frame by identifier to avoid redundant calls to animator.
+      NSValue *identifier = [NSValue valueWithPointer:[tab view]];
+      NSRect oldTarget = [[targetFrames_ objectForKey:identifier] rectValue];
+      if (!NSEqualRects(oldTarget, tabFrame)) {
+        [frameTarget setFrame:tabFrame];
+        [targetFrames_ setObject:[NSValue valueWithRect:tabFrame]
+                          forKey:identifier];        
+      }
+      enclosingRect = NSUnionRect(tabFrame, enclosingRect);
     }
 
     if (offset < availableWidth) {
@@ -234,12 +261,24 @@
     }
     i++;
   }
+  
+  NSRect newTabNewFrame = [newTabButton_ frame];
+  newTabNewFrame.origin =
+      NSMakePoint(MIN(availableWidth, offset + kNewTabButtonOffset), 0);
+  newTabNewFrame.origin.x = MAX(newTabNewFrame.origin.x,
+                                NSMaxX(placeholderFrame_));
+  if (i > 0 && [newTabButton_ isHidden]) {  
+    [[newTabButton_ animator] setHidden:NO];
+  }
+  
+  if (!NSEqualRects(newTabTargetFrame_, newTabNewFrame)) {
+    [newTabButton_ setFrame:newTabNewFrame];
+    newTabTargetFrame_ = newTabNewFrame;
+    // Move the new tab button into place.
+  }
 
-  // Move the new tab button into place
-  [[newTabButton_ animator] setFrameOrigin:
-      NSMakePoint(MIN(availableWidth, offset + kNewTabButtonOffset), 0)];
-  if (i > 0) [[newTabButton_ animator] setHidden:NO];
   [NSAnimationContext endGrouping];
+  [dragBlockingView_ setFrame:enclosingRect];
 }
 
 // Handles setting the title of the tab based on the given |contents|. Uses
@@ -352,6 +391,9 @@
   NSView* tab = [self viewAtIndex:index];
   [tab removeFromSuperview];
 
+  NSValue *identifier = [NSValue valueWithPointer:tab];
+  [targetFrames_ removeObjectForKey:identifier];
+
   // Once we're totally done with the tab, delete its controller
   [tabArray_ removeObjectAtIndex:index];
 
@@ -431,6 +473,14 @@
   [tabArray_ insertObject:movedView.get() atIndex:to];
 
   [self layoutTabs];
+}
+
+- (void)setFrameOfSelectedTab:(NSRect)frame {
+  NSView *view = [self selectedTabView];
+  NSValue *identifier = [NSValue valueWithPointer:view];
+  [targetFrames_ setObject:[NSValue valueWithRect:frame]
+                    forKey:identifier];  
+  [view setFrame:frame];
 }
 
 - (NSView *)selectedTabView {

@@ -191,6 +191,8 @@ willPositionSheet:(NSWindow *)sheet
 // required to get us to the closing state and (by watching for all the tabs
 // going away) will again call to close the window when it's finally ready.
 - (BOOL)windowShouldClose:(id)sender {
+  // Disable updates while closing all tabs to avoid flickering.
+  NSDisableScreenUpdates();
   // Give beforeunload handlers the chance to cancel the close before we hide
   // the window below.
   if (!browser_->ShouldCloseWindow())
@@ -209,6 +211,7 @@ willPositionSheet:(NSWindow *)sheet
     browser_->OnWindowClosing();
     return NO;
   }
+  NSEnableScreenUpdates();
 
   // the tab strip is empty, it's ok to close the window
   return YES;
@@ -398,6 +401,10 @@ willPositionSheet:(NSWindow *)sheet
 
 - (NSView *)selectedTabView {
   return [tabStripController_ selectedTabView];
+}  
+
+- (TabStripController *)tabStripController {
+  return tabStripController_;
 }
 
 - (void)setIsLoading:(BOOL)isLoading {
@@ -426,6 +433,9 @@ willPositionSheet:(NSWindow *)sheet
 }
 
 - (TabWindowController*)detachTabToNewWindow:(TabView*)tabView {
+  // Disable screen updates so that this appears as a single visual change.
+  NSDisableScreenUpdates();
+  
   // Fetch the tab contents for the tab being dragged
   int index = [tabStripController_ indexForTabView:tabView];
   TabContents* contents = browser_->tabstrip_model()->GetTabContentsAt(index);
@@ -459,15 +469,17 @@ willPositionSheet:(NSWindow *)sheet
                                                      dockInfo);
 
   // Get the new controller by asking the new window for its delegate.
-  TabWindowController* controller =
+  BrowserWindowController* controller =
       [newBrowser->window()->GetNativeHandle() delegate];
   DCHECK(controller && [controller isKindOfClass:[TabWindowController class]]);
 
-  // Force the added tab to the right size (remove stretching)
+  // Force the added tab to the right size (remove stretching.)
   tabRect.size.height = [TabStripController defaultTabHeight];
-  NSView *newTabView = [controller selectedTabView];
-  [newTabView setFrame:tabRect];
 
+  // And make sure we use the correct frame in the new view.
+  [[controller tabStripController] setFrameOfSelectedTab:tabRect];
+  
+  NSEnableScreenUpdates();
   return controller;
 }
 
