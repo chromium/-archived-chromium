@@ -22,6 +22,7 @@
 #include "chrome/browser/search_engines/template_url_model.h"
 #include "chrome/common/chrome_paths.h"
 #include "chrome/common/env_vars.h"
+#include "chrome/common/notification_registrar.h"
 #include "chrome/common/notification_service.h"
 #include "chrome/installer/util/google_update_settings.h"
 
@@ -123,9 +124,8 @@ bool SendFinancialPing(const wchar_t* brand, const wchar_t* lang,
 class OmniBoxUsageObserver : public NotificationObserver {
  public:
   OmniBoxUsageObserver() {
-    NotificationService::current()->AddObserver(this,
-        NotificationType::OMNIBOX_OPENED_URL,
-        NotificationService::AllSources());
+    registrar_.Add(this, NotificationType::OMNIBOX_OPENED_URL,
+                   NotificationService::AllSources());
     omnibox_used_ = false;
     DCHECK(!instance_);
     instance_ = this;
@@ -155,9 +155,6 @@ class OmniBoxUsageObserver : public NotificationObserver {
  private:
   // Dtor is private so the object cannot be created on the stack.
   ~OmniBoxUsageObserver() {
-    NotificationService::current()->RemoveObserver(this,
-        NotificationType::OMNIBOX_OPENED_URL,
-        NotificationService::AllSources());
     instance_ = NULL;
   }
 
@@ -166,8 +163,10 @@ class OmniBoxUsageObserver : public NotificationObserver {
   // There should only be one instance created at a time, and instance_ points
   // to that instance.
   // NOTE: this is only non-null for the amount of time it is needed. Once the
-  // instance_ is no longer needed (or Chrome is exitting), this is null.
+  // instance_ is no longer needed (or Chrome is exiting), this is null.
   static OmniBoxUsageObserver* instance_;
+
+  NotificationRegistrar registrar_;
 };
 
 bool OmniBoxUsageObserver::omnibox_used_ = false;
