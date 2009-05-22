@@ -224,7 +224,7 @@ void ProxyScriptFetcherImpl::OnResponseStarted(URLRequest* request) {
     if (logging::GetMinLogLevel() <= logging::LOG_INFO) {
       std::string mime_type;
       cur_request_->GetMimeType(&mime_type);
-      if (!!IsPacMimeType(mime_type)) {
+      if (!IsPacMimeType(mime_type)) {
         LOG(INFO) << "Fetched PAC script does not have a proper mime type: "
                   << mime_type;
       }
