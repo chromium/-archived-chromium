@@ -277,22 +277,21 @@ void AutocompletePopupViewMac::UpdatePopupAppearance() {
   // because the popup doesn't need any of the field-like aspects of
   // field_.  The edit view could expose helper methods for attaching
   // the window to the field.
-  NSRect r = [field_ bounds];
-  r = [field_ convertRectToBase:r];
+  
+  // Locate |field_| on the screen.
+  NSRect r = [field_ convertRect:[field_ bounds] toView:nil];
   r.origin = [[field_ window] convertBaseToScreen:r.origin];
+  DCHECK_GT(r.size.width, 0.0);
 
   // Set the cell size to fit a line of text in the cell's font.  All
-  // cells should use the same font and layout to one line.
-  NSRect bigRect = [matrix bounds];
-  // TODO(shess): Why 1000.0?  Because it's "big enough".  Find
-  // something better.
-  bigRect.size.height = 1000.0;
-  NSSize cellSize = [[matrix cellAtRow:0 column:0] cellSizeForBounds:bigRect];
+  // cells should use the same font and each should layout in one
+  // line, so they should all be about the same height.
+  const NSSize cellSize = [[matrix cellAtRow:0 column:0] cellSize];
+  DCHECK_GT(cellSize.height, 0.0);
   [matrix setCellSize:NSMakeSize(r.size.width, cellSize.height)];
 
   // Make the matrix big enough to hold all the cells.
   [matrix sizeToCells];
-  [matrix setFrameSize:NSMakeSize(r.size.width, [matrix frame].size.height)];
 
   // Make the window just as big.
   r.size.height = [matrix frame].size.height;
