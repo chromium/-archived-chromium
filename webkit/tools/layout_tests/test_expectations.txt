@@ -1963,9 +1963,9 @@ BUG10464 WIN : LayoutTests/http/tests/xmlhttprequest/small-chunks-response-text.
 BUG10464 WIN LINUX : LayoutTests/transitions/interrupt-zero-duration.html = FAIL PASS
 
 // New tests, need Chromium baseline.
-BUG10465 WIN LINUX : LayoutTests/compositing/direct-image-compositing.html = FAIL
-BUG10465 WIN LINUX : LayoutTests/fast/borders/border-image-border-radius.html = FAIL
-BUG10465 WIN LINUX : LayoutTests/fast/clip/overflow-border-radius-clip.html = FAIL
+BUG10465 LINUX : LayoutTests/compositing/direct-image-compositing.html = FAIL
+BUG10465 LINUX : LayoutTests/fast/borders/border-image-border-radius.html = FAIL
+BUG10465 LINUX : LayoutTests/fast/clip/overflow-border-radius-clip.html = FAIL
   
 // Need rebaseline, see  WebKit 41993.
 BUG10466 WIN LINUX : LayoutTests/fast/css/getComputedStyle/computed-style-without-renderer.html = FAIL
