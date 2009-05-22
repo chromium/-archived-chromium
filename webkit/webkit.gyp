@@ -517,6 +517,7 @@
             '../third_party/WebKit/WebCore/css/themeWinQuirks.css',
             '../third_party/WebKit/WebCore/css/svg.css',
             '../third_party/WebKit/WebCore/css/mediaControls.css',
+            '../third_party/WebKit/WebCore/css/mediaControlsChromium.css',
           ],
           'outputs': [
             '<(INTERMEDIATE_DIR)/UserAgentStyleSheets.h',
