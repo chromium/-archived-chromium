@@ -50,7 +50,7 @@ class TestURLRequestContext : public URLRequestContext {
   explicit TestURLRequestContext(const std::string& proxy) {
     net::ProxyConfig proxy_config;
     proxy_config.proxy_rules.ParseFromString(proxy);
-    proxy_service_ = net::ProxyService::Create(&proxy_config);
+    proxy_service_ = net::ProxyService::CreateFixed(proxy_config);
     http_transaction_factory_ =
         net::HttpNetworkLayer::CreateFactory(proxy_service_);
   }

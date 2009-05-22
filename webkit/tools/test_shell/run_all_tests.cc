@@ -76,7 +76,7 @@ int main(int argc, char* argv[]) {
 
   // Allocate a message loop for this thread.  Although it is not used
   // directly, its constructor sets up some necessary state.
-  MessageLoop main_message_loop;
+  MessageLoopForUI main_message_loop;
 
   // Load ICU data tables
   icu_util::Initialize();

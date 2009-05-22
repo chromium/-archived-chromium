@@ -89,21 +89,29 @@ class ProxyService {
   // Creates a proxy service using the specified settings. If |pc| is NULL then
   // the system's default proxy settings will be used (on Windows this will
   // use IE's settings).
-  static ProxyService* Create(const ProxyConfig* pc);
-
-  // Creates a proxy service using the specified settings. If |pc| is NULL then
-  // the system's default proxy settings will be used. This is basically the
-  // same as Create(const ProxyConfig*), however under the hood it uses a
-  // different implementation (V8). |url_request_context| is the URL request
-  // context that will be used if a PAC script needs to be fetched.
+  // Iff |use_v8_resolver| is true, then the V8 implementation is
+  // used.
+  // |url_request_context| is only used when use_v8_resolver is true:
+  // it specifies the URL request context that will be used if a PAC
+  // script needs to be fetched.
+  // |io_loop| points to the IO thread's message loop. It is only used
+  // when pc is NULL. If both pc and io_loop are NULL, then monitoring
+  // of gconf setting changes will be disabled in
+  // ProxyConfigServiceLinux.
   // ##########################################################################
   // # See the warnings in net/proxy/proxy_resolver_v8.h describing the
   // # multi-threading model. In order for this to be safe to use, *ALL* the
   // # other V8's running in the process must use v8::Locker.
   // ##########################################################################
-  static ProxyService* CreateUsingV8Resolver(
+  static ProxyService* Create(
       const ProxyConfig* pc,
-      URLRequestContext* url_request_context);
+      bool use_v8_resolver,
+      URLRequestContext* url_request_context,
+      MessageLoop* io_loop);
+
+  // Convenience method that creates a proxy service using the
+  // specified fixed settings. |pc| must not be NULL.
+  static ProxyService* CreateFixed(const ProxyConfig& pc);
 
   // Creates a proxy service that always fails to fetch the proxy configuration,
   // so it falls back to direct connect.
@@ -114,7 +122,8 @@ class ProxyService {
 
   // Creates a config service appropriate for this platform that fetches the
   // system proxy settings.
-  static ProxyConfigService* CreateSystemProxyConfigService();
+  static ProxyConfigService* CreateSystemProxyConfigService(
+      MessageLoop* io_loop);
 
   // Creates a proxy resolver appropriate for this platform that doesn't rely
   // on V8.

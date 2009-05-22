@@ -207,33 +207,35 @@ ProxyService::ProxyService(ProxyConfigService* config_service,
 }
 
 // static
-ProxyService* ProxyService::Create(const ProxyConfig* pc) {
+ProxyService* ProxyService::Create(
+    const ProxyConfig* pc,
+    bool use_v8_resolver,
+    URLRequestContext* url_request_context,
+    MessageLoop* io_loop) {
   // Choose the system configuration service appropriate for each platform.
   ProxyConfigService* proxy_config_service = pc ?
       new ProxyConfigServiceFixed(*pc) :
-      CreateSystemProxyConfigService();
+      CreateSystemProxyConfigService(io_loop);
 
-  // Try to choose a non-v8 proxy resolver implementation.
-  return new ProxyService(proxy_config_service, CreateNonV8ProxyResolver());
+  ProxyResolver* proxy_resolver = use_v8_resolver ?
+      new ProxyResolverV8() : CreateNonV8ProxyResolver();
+
+  ProxyService* proxy_service = new ProxyService(
+      proxy_config_service, proxy_resolver);
+
+  if (!proxy_resolver->does_fetch()) {
+    // Configure PAC script downloads to be issued using |url_request_context|.
+    DCHECK(url_request_context);
+    proxy_service->SetProxyScriptFetcher(
+        ProxyScriptFetcher::Create(url_request_context));
+  }
+
+  return proxy_service;
 }
 
 // static
-ProxyService* ProxyService::CreateUsingV8Resolver(
-    const ProxyConfig* pc, URLRequestContext* url_request_context) {
-  // Choose the system configuration service appropriate for each platform.
-  ProxyConfigService* proxy_config_service = pc ?
-      new ProxyConfigServiceFixed(*pc) :
-      CreateSystemProxyConfigService();
-
-  // Create a ProxyService that uses V8 to evaluate PAC scripts.
-  ProxyService* proxy_service = new ProxyService(
-      proxy_config_service, new ProxyResolverV8());
-
-  // Configure PAC script downloads to be issued using |url_request_context|.
-  proxy_service->SetProxyScriptFetcher(
-      ProxyScriptFetcher::Create(url_request_context));
-
-  return proxy_service;
+ProxyService* ProxyService::CreateFixed(const ProxyConfig& pc) {
+  return Create(&pc, false, NULL, NULL);
 }
 
 // static
@@ -529,13 +531,28 @@ void ProxyService::DidCompletePacRequest(int config_id, int result_code) {
 }
 
 // static
-ProxyConfigService* ProxyService::CreateSystemProxyConfigService() {
+ProxyConfigService* ProxyService::CreateSystemProxyConfigService(
+    MessageLoop* io_loop) {
 #if defined(OS_WIN)
   return new ProxyConfigServiceWin();
 #elif defined(OS_MACOSX)
   return new ProxyConfigServiceMac();
 #elif defined(OS_LINUX)
-  return new ProxyConfigServiceLinux();
+  ProxyConfigServiceLinux* linux_config_service
+      = new ProxyConfigServiceLinux();
+
+  // Assume we got called from the UI loop, which runs the default
+  // glib main loop, so the current thread is where we should be
+  // running gconf calls from.
+  MessageLoop* glib_default_loop = MessageLoopForUI::current();
+
+  // Synchronously fetch the current proxy config (since we are
+  // running on glib_default_loop). Additionally register for gconf
+  // notifications (delivered in |glib_default_loop|) to keep us
+  // updated on when the proxy config has changed.
+  linux_config_service->SetupAndFetchInitialConfig(glib_default_loop, io_loop);
+
+  return linux_config_service;
 #else
   LOG(WARNING) << "Failed to choose a system proxy settings fetcher "
                   "for this platform.";

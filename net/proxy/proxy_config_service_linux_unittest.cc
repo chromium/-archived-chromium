@@ -10,13 +10,15 @@
 
 #include "base/logging.h"
 #include "base/string_util.h"
+#include "base/task.h"
+#include "base/thread.h"
+#include "base/waitable_event.h"
 #include "net/proxy/proxy_config.h"
 #include "net/proxy/proxy_config_service_common_unittest.h"
 
 #include "testing/gtest/include/gtest/gtest.h"
 
 namespace net {
-
 namespace {
 
 // Set of values for all environment variables that we might
@@ -30,6 +32,10 @@ struct EnvVarValues {
       *SOCKS_SERVER, *SOCKS_VERSION,
       *no_proxy;
 };
+
+// Undo macro pollution from GDK includes (from message_loop.h).
+#undef TRUE
+#undef FALSE
 
 // So as to distinguish between an unset gconf boolean variable and
 // one that is false.
@@ -84,11 +90,11 @@ class MockEnvironmentVariableGetter
     ENTRY(SOCKS_SERVER);
     ENTRY(SOCKS_VERSION);
 #undef ENTRY
-    reset();
+    Reset();
   }
 
   // Zeros all environment values.
-  void reset() {
+  void Reset() {
     EnvVarValues zero_values = { 0 };
     values = zero_values;
   }
@@ -138,19 +144,22 @@ class MockGConfSettingGetter
 #undef ENTRY
     string_lists_table.settings["/system/http_proxy/ignore_hosts"] =
       &values.ignore_hosts;
-    reset();
+    Reset();
   }
 
   // Zeros all environment values.
-  void reset() {
-    GConfValues zero_values;
+  void Reset() {
+    GConfValues zero_values = { 0 };
     values = zero_values;
   }
 
-  virtual void Enter() {}
-  virtual void Leave() {}
+  virtual bool Init() {
+    return true;
+  }
 
-  virtual bool InitIfNeeded() {
+  virtual void Release() {}
+
+  virtual bool SetupNotification(void* callback_user_data) {
     return true;
   }
 
@@ -201,11 +210,99 @@ class MockGConfSettingGetter
 };
 
 }  // namespace
+}  // namespace net
+
+// This helper class runs ProxyConfigServiceLinux::GetProxyConfig() on
+// the IO thread and synchronously waits for the result.
+// Some code duplicated from proxy_script_fetcher_unittest.cc.
+class SynchConfigGetter {
+ public:
+  explicit SynchConfigGetter(net::ProxyConfigServiceLinux* config_service)
+      : event_(false, false),
+        io_thread_("IO_Thread"),
+        config_service_(config_service) {
+    // Start an IO thread.
+    base::Thread::Options options;
+    options.message_loop_type = MessageLoop::TYPE_IO;
+    io_thread_.StartWithOptions(options);
+
+    // Make sure the thread started.
+    io_thread_.message_loop()->PostTask(FROM_HERE, NewRunnableMethod(
+        this, &SynchConfigGetter::Init));
+    Wait();
+  }
+
+  ~SynchConfigGetter() {
+    // Cleanup the IO thread.
+    io_thread_.message_loop()->PostTask(FROM_HERE, NewRunnableMethod(
+        this, &SynchConfigGetter::Cleanup));
+    Wait();
+  }
+
+  // Does a reset, gconf setup and initial fetch of the proxy config,
+  // all on the calling thread (meant to be the thread with the
+  // default glib main loop, which is the UI thread).
+  void SetupAndInitialFetch() {
+    config_service_->Reset();
+    config_service_->SetupAndFetchInitialConfig(
+        MessageLoop::current(), io_thread_.message_loop());
+  }
+  // Synchronously gets the proxy config.
+  int SyncGetProxyConfig(net::ProxyConfig* config) {
+    io_thread_.message_loop()->PostTask(FROM_HERE, NewRunnableMethod(
+        this, &SynchConfigGetter::GetConfigOnIOThread));
+    Wait();
+    *config = proxy_config_;
+    return get_config_result_;
+  }
+
+ private:
+  // [Runs on |io_thread_|]
+  void Init() {
+    event_.Signal();
+  }
+
+  // Calls GetProxyConfig, running on |io_thread_|] Signals |event_|
+  // on completion.
+  void GetConfigOnIOThread() {
+    get_config_result_ = config_service_->GetProxyConfig(&proxy_config_);
+    event_.Signal();
+  }
+
+  // [Runs on |io_thread_|] Signals |event_| on cleanup completion.
+  void Cleanup() {
+    MessageLoop::current()->RunAllPending();
+    event_.Signal();
+  }
+
+  void Wait() {
+    event_.Wait();
+    event_.Reset();
+  }
+
+  base::WaitableEvent event_;
+  base::Thread io_thread_;
+
+  net::ProxyConfigServiceLinux* config_service_;
+
+  // The config obtained by |io_thread_| and read back by the main
+  // thread.
+  net::ProxyConfig proxy_config_;
+  int get_config_result_;  // Return value from GetProxyConfig().
+};
+
+template<>
+void RunnableMethodTraits<SynchConfigGetter>::RetainCallee(
+    SynchConfigGetter* remover) {}
+template<>
+void RunnableMethodTraits<SynchConfigGetter>::ReleaseCallee(
+    SynchConfigGetter* remover) {}
+
+namespace net {
 
 // Builds an identifier for each test in an array.
 #define TEST_DESC(desc) StringPrintf("at line %d <%s>", __LINE__, desc)
 
-#if 0  // gconf temporarily disabled.
 TEST(ProxyConfigServiceLinuxTest, BasicGConfTest) {
   MockEnvironmentVariableGetter* env_getter =
       new MockEnvironmentVariableGetter;
@@ -450,15 +547,15 @@ TEST(ProxyConfigServiceLinuxTest, BasicGConfTest) {
     },
   };
 
+  SynchConfigGetter sync_config_getter(&service);
+
   for (size_t i = 0; i < ARRAYSIZE_UNSAFE(tests); ++i) {
     SCOPED_TRACE(StringPrintf("Test[%d] %s", i, tests[i].description.c_str()));
     ProxyConfig config;
     gconf_getter->values = tests[i].values;
-    service.GetProxyConfig(&config);
+    sync_config_getter.SetupAndInitialFetch();
+    sync_config_getter.SyncGetProxyConfig(&config);
 
-    // TODO(sdoyon): Add a description field to each test, and a
-    // corresponding message to the EXPECT statements, so that it is
-    // possible to identify which one of the tests failed.
     EXPECT_EQ(tests[i].auto_detect, config.auto_detect);
     EXPECT_EQ(tests[i].pac_url, config.pac_url);
     EXPECT_EQ(tests[i].proxy_bypass_list,
@@ -467,7 +564,6 @@ TEST(ProxyConfigServiceLinuxTest, BasicGConfTest) {
     EXPECT_EQ(tests[i].proxy_rules, config.proxy_rules);
   }
 }
-#endif  // 0 (gconf disabled)
 
 TEST(ProxyConfigServiceLinuxTest, BasicEnvTest) {
   MockEnvironmentVariableGetter* env_getter =
@@ -720,11 +816,14 @@ TEST(ProxyConfigServiceLinuxTest, BasicEnvTest) {
     },
   };
 
+  SynchConfigGetter sync_config_getter(&service);
+
   for (size_t i = 0; i < ARRAYSIZE_UNSAFE(tests); ++i) {
     SCOPED_TRACE(StringPrintf("Test[%d] %s", i, tests[i].description.c_str()));
     ProxyConfig config;
     env_getter->values = tests[i].values;
-    service.GetProxyConfig(&config);
+    sync_config_getter.SetupAndInitialFetch();
+    sync_config_getter.SyncGetProxyConfig(&config);
 
     EXPECT_EQ(tests[i].auto_detect, config.auto_detect);
     EXPECT_EQ(tests[i].pac_url, config.pac_url);
@@ -753,10 +852,38 @@ TEST(ProxyConfigServiceLinuxTest, FallbackOnEnv) {
   env_getter->values.auto_proxy = "http://correct/wpad.dat";
 
   ProxyConfig config;
-  service.GetProxyConfig(&config);
+
+  SynchConfigGetter sync_config_getter(&service);
+  sync_config_getter.SetupAndInitialFetch();
+  sync_config_getter.SyncGetProxyConfig(&config);
 
   // Then we expect the environment variable to win.
   EXPECT_EQ(GURL(env_getter->values.auto_proxy), config.pac_url);
+}
+
+TEST(ProxyConfigServiceLinuxTest, GconfNotification) {
+  MockEnvironmentVariableGetter* env_getter =
+      new MockEnvironmentVariableGetter;
+  MockGConfSettingGetter* gconf_getter = new MockGConfSettingGetter;
+  ProxyConfigServiceLinux service(env_getter, gconf_getter);
+  ProxyConfig config;
+  SynchConfigGetter sync_config_getter(&service);
+
+  // Use gconf configuration.
+  env_getter->values.GNOME_DESKTOP_SESSION_ID = "defined";
+
+  // Start with no proxy.
+  gconf_getter->values.mode = "none";
+  sync_config_getter.SetupAndInitialFetch();
+  sync_config_getter.SyncGetProxyConfig(&config);
+  EXPECT_FALSE(config.auto_detect);
+
+  // Now set to auto-detect.
+  gconf_getter->values.mode = "auto";
+  // Simulate gconf notification callback.
+  service.OnCheckProxyConfigSettings();
+  sync_config_getter.SyncGetProxyConfig(&config);
+  EXPECT_TRUE(config.auto_detect);
 }
 
 }  // namespace net

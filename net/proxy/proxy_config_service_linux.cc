@@ -5,12 +5,12 @@
 #include "net/proxy/proxy_config_service_linux.h"
 
 #include <gconf/gconf-client.h>
-#include <gdk/gdk.h>
 #include <stdlib.h>
 
 #include "base/logging.h"
 #include "base/string_tokenizer.h"
 #include "base/string_util.h"
+#include "base/task.h"
 #include "googleurl/src/url_canon.h"
 #include "net/base/net_errors.h"
 #include "net/http/http_util.h"
@@ -71,8 +71,7 @@ std::string FixupProxyHostScheme(ProxyServer::Scheme scheme,
   std::string::size_type at_sign = host.find("@");
   // Should this be supported?
   if (at_sign != std::string::npos) {
-    LOG(ERROR) << "ProxyConfigServiceLinux: proxy authentication "
-        "not supported";
+    LOG(ERROR) << "Proxy authentication not supported";
     // Disregard the authentication parameters and continue with this hostname.
     host = host.substr(at_sign + 1);
   }
@@ -88,7 +87,7 @@ std::string FixupProxyHostScheme(ProxyServer::Scheme scheme,
 
 }  // namespace
 
-bool ProxyConfigServiceLinux::GetProxyFromEnvVarForScheme(
+bool ProxyConfigServiceLinux::Delegate::GetProxyFromEnvVarForScheme(
     const char* variable, ProxyServer::Scheme scheme,
     ProxyServer* result_server) {
   std::string env_value;
@@ -100,21 +99,20 @@ bool ProxyConfigServiceLinux::GetProxyFromEnvVarForScheme(
         *result_server = proxy_server;
         return true;
       } else {
-        LOG(ERROR) << "ProxyConfigServiceLinux: failed to parse "
-                   << "environment variable " << variable;
+        LOG(ERROR) << "Failed to parse environment variable " << variable;
       }
     }
   }
   return false;
 }
 
-bool ProxyConfigServiceLinux::GetProxyFromEnvVar(
+bool ProxyConfigServiceLinux::Delegate::GetProxyFromEnvVar(
     const char* variable, ProxyServer* result_server) {
   return GetProxyFromEnvVarForScheme(variable, ProxyServer::SCHEME_HTTP,
                                      result_server);
 }
 
-bool ProxyConfigServiceLinux::GetConfigFromEnv(ProxyConfig* config) {
+bool ProxyConfigServiceLinux::Delegate::GetConfigFromEnv(ProxyConfig* config) {
   // Check for automatic configuration first, in
   // "auto_proxy". Possibly only the "environment_proxy" firefox
   // extension has ever used this, but it still sounds like a good
@@ -160,7 +158,7 @@ bool ProxyConfigServiceLinux::GetConfigFromEnv(ProxyConfig* config) {
     ProxyServer::Scheme scheme = ProxyServer::SCHEME_SOCKS4;
     std::string env_version;
     if (env_var_getter_->Getenv("SOCKS_VERSION", &env_version)
-        && env_version.compare("5") == 0)
+        && env_version == "5")
       scheme = ProxyServer::SCHEME_SOCKS5;
     if (GetProxyFromEnvVarForScheme("SOCKS_SERVER", scheme, &proxy_server)) {
       config->proxy_rules.type = ProxyConfig::ProxyRules::TYPE_SINGLE_PROXY;
@@ -183,37 +181,101 @@ bool ProxyConfigServiceLinux::GetConfigFromEnv(ProxyConfig* config) {
 
 namespace {
 
+// static
+// gconf notification callback, dispatched from the default
+// glib main loop.
+void OnGConfChangeNotification(
+    GConfClient* client, guint cnxn_id,
+    GConfEntry* entry, gpointer user_data) {
+  // It would be nice to debounce multiple callbacks in quick
+  // succession, since I guess we'll get one for each changed key. As
+  // it is we will read settings from gconf once for each callback.
+  LOG(INFO) << "gconf change notification for key "
+            << gconf_entry_get_key(entry);
+  // We don't track which key has changed, just that something did change.
+  // Forward to a method on the proxy config service delegate object.
+  ProxyConfigServiceLinux::Delegate* config_service_delegate =
+      reinterpret_cast<ProxyConfigServiceLinux::Delegate*>(user_data);
+  config_service_delegate->OnCheckProxyConfigSettings();
+}
+
 class GConfSettingGetterImpl
     : public ProxyConfigServiceLinux::GConfSettingGetter {
  public:
-  GConfSettingGetterImpl() : client_(NULL) {}
+  GConfSettingGetterImpl() : client_(NULL), loop_(NULL) {}
+
   virtual ~GConfSettingGetterImpl() {
-    if (client_)
-      g_object_unref(client_);
+    LOG(INFO) << "~GConfSettingGetterImpl called";
+    // client_ should have been released before now, from
+    // Delegate::OnDestroy(), while running on the UI thread.
+    DCHECK(!client_);
   }
 
-  virtual void Enter() {
-    gdk_threads_enter();
-  }
-  virtual void Leave() {
-    gdk_threads_leave();
-  }
-
-  virtual bool InitIfNeeded() {
+  virtual bool Init() {
+    DCHECK(!client_);
+    DCHECK(!loop_);
+    loop_ = MessageLoopForUI::current();
+    client_ = gconf_client_get_default();
     if (!client_) {
-      Enter();
-      client_ = gconf_client_get_default();
-      Leave();
       // It's not clear whether/when this can return NULL.
-      if (!client_)
-        LOG(ERROR) << "ProxyConfigServiceLinux: Unable to create "
-            "a gconf client";
+      LOG(ERROR) << "Unable to create a gconf client";
+      loop_ = NULL;
+      return false;
     }
-    return client_ != NULL;
+    GError* error = NULL;
+    // We need to add the directories for which we'll be asking
+    // notifications, and we might as well ask to preload them.
+    gconf_client_add_dir(client_, "/system/proxy",
+                         GCONF_CLIENT_PRELOAD_ONELEVEL, &error);
+    if (error == NULL) {
+      gconf_client_add_dir(client_, "/system/http_proxy",
+                           GCONF_CLIENT_PRELOAD_ONELEVEL, &error);
+    }
+    if (error != NULL) {
+      LOG(ERROR) << "Error requesting gconf directory: " << error->message;
+      g_error_free(error);
+      Release();
+      return false;
+    }
+    return true;
+  }
+
+  void Release() {
+    if (client_) {
+      DCHECK(MessageLoop::current() == loop_);
+      // This also disables gconf notifications.
+      g_object_unref(client_);
+      client_ = NULL;
+      loop_ = NULL;
+    }
+  }
+
+  bool SetupNotification(void* callback_user_data) {
+    DCHECK(client_);
+    DCHECK(MessageLoop::current() == loop_);
+    GError* error = NULL;
+    gconf_client_notify_add(
+        client_, "/system/proxy",
+        OnGConfChangeNotification, callback_user_data,
+        NULL, &error);
+    if (error == NULL) {
+      gconf_client_notify_add(
+          client_, "/system/http_proxy",
+          OnGConfChangeNotification, callback_user_data,
+          NULL, &error);
+    }
+    if (error != NULL) {
+      LOG(ERROR) << "Error requesting gconf notifications: " << error->message;
+      g_error_free(error);
+      Release();
+      return false;
+    }
+    return true;
   }
 
   virtual bool GetString(const char* key, std::string* result) {
-    CHECK(client_);
+    DCHECK(client_);
+    DCHECK(MessageLoop::current() == loop_);
     GError* error = NULL;
     gchar* value = gconf_client_get_string(client_, key, &error);
     if (HandleGError(error, key))
@@ -225,7 +287,8 @@ class GConfSettingGetterImpl
     return true;
   }
   virtual bool GetBoolean(const char* key, bool* result) {
-    CHECK(client_);
+    DCHECK(client_);
+    DCHECK(MessageLoop::current() == loop_);
     GError* error = NULL;
     // We want to distinguish unset values from values defaulting to
     // false. For that we need to use the type-generic
@@ -247,7 +310,8 @@ class GConfSettingGetterImpl
     return true;
   }
   virtual bool GetInt(const char* key, int* result) {
-    CHECK(client_);
+    DCHECK(client_);
+    DCHECK(MessageLoop::current() == loop_);
     GError* error = NULL;
     int value = gconf_client_get_int(client_, key, &error);
     if (HandleGError(error, key))
@@ -259,7 +323,8 @@ class GConfSettingGetterImpl
   }
   virtual bool GetStringList(const char* key,
                              std::vector<std::string>* result) {
-    CHECK(client_);
+    DCHECK(client_);
+    DCHECK(MessageLoop::current() == loop_);
     GError* error = NULL;
     GSList* list = gconf_client_get_list(client_, key,
                                          GCONF_VALUE_STRING, &error);
@@ -282,8 +347,8 @@ class GConfSettingGetterImpl
   // (error is NULL).
   bool HandleGError(GError* error, const char* key) {
     if (error != NULL) {
-      LOG(ERROR) << "ProxyConfigServiceLinux: error getting gconf value for "
-                 << key << ": " << error->message;
+      LOG(ERROR) << "Error getting gconf value for " << key
+                 << ": " << error->message;
       g_error_free(error);
       return true;
     }
@@ -292,12 +357,17 @@ class GConfSettingGetterImpl
 
   GConfClient* client_;
 
+  // Message loop of the thread that we make gconf calls on. It should
+  // be the UI thread and all our methods should be called on this
+  // thread. Only for assertions.
+  MessageLoop* loop_;
+
   DISALLOW_COPY_AND_ASSIGN(GConfSettingGetterImpl);
 };
 
 }  // namespace
 
-bool ProxyConfigServiceLinux::GetProxyFromGConf(
+bool ProxyConfigServiceLinux::Delegate::GetProxyFromGConf(
     const char* key_prefix, bool is_socks, ProxyServer* result_server) {
   std::string key(key_prefix);
   std::string host;
@@ -324,7 +394,8 @@ bool ProxyConfigServiceLinux::GetProxyFromGConf(
   return false;
 }
 
-bool ProxyConfigServiceLinux::GetConfigFromGConf(ProxyConfig* config) {
+bool ProxyConfigServiceLinux::Delegate::GetConfigFromGConf(
+    ProxyConfig* config) {
   std::string mode;
   if (!gconf_getter_->GetString("/system/proxy/mode", &mode)) {
     // We expect this to always be set, so if we don't see it then we
@@ -332,11 +403,12 @@ bool ProxyConfigServiceLinux::GetConfigFromGConf(ProxyConfig* config) {
     // proxy config.
     return false;
   }
-  if (mode.compare("none") == 0)
+  if (mode == "none") {
     // Specifically specifies no proxy.
     return true;
+  }
 
-  if (mode.compare("auto") == 0) {
+  if (mode == "auto") {
     // automatic proxy config
     std::string pac_url_str;
     if (gconf_getter_->GetString("/system/proxy/autoconfig_url",
@@ -353,7 +425,7 @@ bool ProxyConfigServiceLinux::GetConfigFromGConf(ProxyConfig* config) {
     return true;
   }
 
-  if (mode.compare("manual") != 0) {
+  if (mode != "manual") {
     // Mode is unrecognized.
     return false;
   }
@@ -419,8 +491,7 @@ bool ProxyConfigServiceLinux::GetConfigFromGConf(ProxyConfig* config) {
   gconf_getter_->GetBoolean("/system/http_proxy/use_authentication",
                             &use_auth);
   if (use_auth)
-    LOG(ERROR) << "ProxyConfigServiceLinux: proxy authentication "
-        "not supported";
+    LOG(ERROR) << "Proxy authentication not supported";
 
   // Now the bypass list.
   gconf_getter_->GetStringList("/system/http_proxy/ignore_hosts",
@@ -431,64 +502,160 @@ bool ProxyConfigServiceLinux::GetConfigFromGConf(ProxyConfig* config) {
   return true;
 }
 
-ProxyConfigServiceLinux::ProxyConfigServiceLinux(
+ProxyConfigServiceLinux::Delegate::Delegate(
     EnvironmentVariableGetter* env_var_getter,
     GConfSettingGetter* gconf_getter)
-    : env_var_getter_(env_var_getter), gconf_getter_(gconf_getter) {
+    : env_var_getter_(env_var_getter), gconf_getter_(gconf_getter),
+      glib_default_loop_(NULL), io_loop_(NULL) {
 }
 
-ProxyConfigServiceLinux::ProxyConfigServiceLinux()
-    : env_var_getter_(new EnvironmentVariableGetterImpl()),
-      gconf_getter_(new GConfSettingGetterImpl()) {
-}
-
-int ProxyConfigServiceLinux::GetProxyConfig(ProxyConfig* config) {
+bool ProxyConfigServiceLinux::Delegate::ShouldTryGConf() {
   // GNOME_DESKTOP_SESSION_ID being defined is a good indication that
   // we are probably running under GNOME.
   // Note: KDE_FULL_SESSION is a corresponding env var to recognize KDE.
   std::string dummy, desktop_session;
-  bool ok = false;
-#if 0  // gconf temporarily disabled because of races.
-       // See http://crbug.com/11442.
-  if (env_var_getter_->Getenv("GNOME_DESKTOP_SESSION_ID", &dummy)
+  return env_var_getter_->Getenv("GNOME_DESKTOP_SESSION_ID", &dummy)
       || (env_var_getter_->Getenv("DESKTOP_SESSION", &desktop_session)
-          && desktop_session.compare("gnome") == 0)) {
-    // Get settings from gconf.
-    //
-    // I (sdoyon) would have liked to prioritize environment variables
-    // and only fallback to gconf if env vars were unset. But
-    // gnome-terminal "helpfully" sets http_proxy and no_proxy, and it
-    // does so even if the proxy mode is set to auto, which would
-    // mislead us.
-    //
-    // We could introduce a CHROME_PROXY_OBEY_ENV_VARS variable...??
-    if (gconf_getter_->InitIfNeeded()) {
-      gconf_getter_->Enter();
-      ok = GetConfigFromGConf(config);
-      gconf_getter_->Leave();
-      if (ok)
-        LOG(INFO) << "ProxyConfigServiceLinux: obtained proxy setting "
-            "from gconf";
+          && desktop_session == "gnome");
+  // I (sdoyon) would have liked to prioritize environment variables
+  // and only fallback to gconf if env vars were unset. But
+  // gnome-terminal "helpfully" sets http_proxy and no_proxy, and it
+  // does so even if the proxy mode is set to auto, which would
+  // mislead us.
+  //
+  // We could introduce a CHROME_PROXY_OBEY_ENV_VARS variable...??
+}
+
+void ProxyConfigServiceLinux::Delegate::SetupAndFetchInitialConfig(
+    MessageLoop* glib_default_loop, MessageLoop* io_loop) {
+  // We should be running on the default glib main loop thread right
+  // now. gconf can only be accessed from this thread.
+  DCHECK(MessageLoop::current() == glib_default_loop);
+  glib_default_loop_ = glib_default_loop;
+  io_loop_ = io_loop;
+
+  // If we are passed a NULL io_loop, then we don't setup gconf
+  // notifications. This should not be the usual case but is intended
+  // to simplify test setups.
+  if (!io_loop_)
+    LOG(INFO) << "Monitoring of gconf setting changes is disabled";
+
+  // Fetch and cache the current proxy config. The config is left in
+  // cached_config_, where GetProxyConfig() running on the IO thread
+  // will expect to find it. This is safe to do because we return
+  // before this ProxyConfigServiceLinux is passed on to
+  // the ProxyService.
+  bool got_config = false;
+  if (ShouldTryGConf() &&
+      gconf_getter_->Init() &&
+      (!io_loop || gconf_getter_->SetupNotification(this))) {
+    if (GetConfigFromGConf(&cached_config_)) {
+      cached_config_.set_id(1);  // mark it as valid
+      got_config = true;
+      LOG(INFO) << "Obtained proxy setting from gconf";
       // If gconf proxy mode is "none", meaning direct, then we take
-      // that to be a valid config and will not check environment variables.
-      // The alternative would have been to look for a proxy whereever
-      // we can find one.
+      // that to be a valid config and will not check environment
+      // variables.  The alternative would have been to look for a proxy
+      // where ever we can find one.
       //
-      // TODO(sdoyon): Consider wiring in the gconf notification
-      // system. Cache this result config to return on subsequent calls,
-      // and only call GetConfigFromGConf() when we know things have
-      // actually changed.
+      // Keep a copy of the config for use from this thread for
+      // comparison with updated settings when we get notifications.
+      reference_config_ = cached_config_;
+      reference_config_.set_id(1);  // mark it as valid
+    } else {
+      gconf_getter_->Release();  // Stop notifications
     }
   }
-#endif  // 0 (gconf disabled)
-  // An implementation for KDE settings would be welcome here.
-  if (!ok) {
-    ok = GetConfigFromEnv(config);
-    if (ok)
-      LOG(INFO) << "ProxyConfigServiceLinux: obtained proxy setting "
-          "from environment variables";
+  if (!got_config) {
+    // An implementation for KDE settings would be welcome here.
+    //
+    // Consulting environment variables doesn't need to be done from
+    // the default glib main loop, but it's a tiny enough amount of
+    // work.
+    if (GetConfigFromEnv(&cached_config_)) {
+      cached_config_.set_id(1);  // mark it as valid
+      LOG(INFO) << "Obtained proxy setting from environment variables";
+    }
   }
-  return ok ? OK : ERR_FAILED;
+}
+
+void ProxyConfigServiceLinux::Delegate::Reset() {
+  DCHECK(!glib_default_loop_ || MessageLoop::current() == glib_default_loop_);
+  gconf_getter_->Release();
+  cached_config_ = ProxyConfig();
+}
+
+int ProxyConfigServiceLinux::Delegate::GetProxyConfig(ProxyConfig* config) {
+  // This is called from the IO thread.
+  DCHECK(!io_loop_ || MessageLoop::current() == io_loop_);
+
+  // Simply return the last proxy configuration that glib_default_loop
+  // notified us of.
+  *config = cached_config_;
+  return cached_config_.is_valid() ? OK : ERR_FAILED;
+}
+
+void ProxyConfigServiceLinux::Delegate::OnCheckProxyConfigSettings() {
+  // This should be dispatched from the thread with the default glib
+  // main loop, which allows us to access gconf.
+  DCHECK(MessageLoop::current() == glib_default_loop_);
+
+  ProxyConfig new_config;
+  bool valid = GetConfigFromGConf(&new_config);
+  if (valid)
+    new_config.set_id(1);  // mark it as valid
+
+  // See if it is different than what we had before.
+  if (new_config.is_valid() != reference_config_.is_valid() ||
+      !new_config.Equals(reference_config_)) {
+    // Post a task to |io_loop| with the new configuration, so it can
+    // update |cached_config_|.
+    io_loop_->PostTask(
+        FROM_HERE,
+        NewRunnableMethod(
+            this,
+            &ProxyConfigServiceLinux::Delegate::SetNewProxyConfig,
+            new_config));
+  }
+}
+
+void ProxyConfigServiceLinux::Delegate::SetNewProxyConfig(
+    const ProxyConfig& new_config) {
+  DCHECK(MessageLoop::current() == io_loop_);
+  LOG(INFO) << "Proxy configuration changed";
+  cached_config_ = new_config;
+}
+
+void ProxyConfigServiceLinux::Delegate::PostDestroyTask() {
+  if (MessageLoop::current() == glib_default_loop_) {
+    // Already on the right thread, call directly.
+    // This is the case for the unittests.
+    OnDestroy();
+  } else {
+    // Post to UI thread. Note that on browser shutdown, we may quit
+    // the UI MessageLoop and exit the program before ever running
+    // this.
+    glib_default_loop_->PostTask(
+        FROM_HERE,
+        NewRunnableMethod(
+            this,
+            &ProxyConfigServiceLinux::Delegate::OnDestroy));
+  }
+}
+void ProxyConfigServiceLinux::Delegate::OnDestroy() {
+  DCHECK(!glib_default_loop_ || MessageLoop::current() == glib_default_loop_);
+  gconf_getter_->Release();
+}
+
+ProxyConfigServiceLinux::ProxyConfigServiceLinux()
+    : delegate_(new Delegate(new EnvironmentVariableGetterImpl(),
+                             new GConfSettingGetterImpl())) {
+}
+
+ProxyConfigServiceLinux::ProxyConfigServiceLinux(
+    EnvironmentVariableGetter* env_var_getter,
+    GConfSettingGetter* gconf_getter)
+    : delegate_(new Delegate(env_var_getter, gconf_getter)) {
 }
 
 }  // namespace net

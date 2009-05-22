@@ -469,18 +469,12 @@ int ChromeMain(int argc, const char** argv) {
 #endif
   } else if (process_type.empty()) {
 #if defined(OS_LINUX)
-    // Glib/GDK type system and threading initializations. Needed at
-    // least for gconf usage in net/proxy/proxy_config_service_linux.cc.
-    // TODO(sdoyon): confirm whether gconf truly needs this. If so,
-    // the GTK main loop (message pump) must also be made to call
-    // gdk_threads_enter/leave(). Similar issue with the clipboard
-    // (estade@ deanm@).
+    // Glib type system initialization. Needed at least for gconf,
+    // used in net/proxy/proxy_config_service_linux.cc. Most likely
+    // this is superfluous as gtk_init() ought to do this. It's
+    // definitely harmless, so retained as a reminder of this
+    // requirement for gconf.
     g_type_init();
-#if 0  // gconf temporarily disabled because of races.
-       // See http://crbug.com/11442.
-    g_thread_init(NULL);
-    gdk_threads_init();
-#endif  // 0 (gconf disabled)
     // gtk_init() can change |argc| and |argv|, but nobody else uses them.
     gtk_init(&argc, const_cast<char***>(&argv));
     SetUpGLibLogHandler();

@@ -28,6 +28,7 @@ class ProxyConfig {
   // Used to numerically identify this configuration.
   ID id() const { return id_; }
   void set_id(int id) { id_ = id; }
+  bool is_valid() { return id_ != INVALID_ID; }
 
   // True if the proxy configuration should be auto-detected.
   bool auto_detect;

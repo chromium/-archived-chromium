@@ -95,9 +95,11 @@ static net::ProxyService* CreateProxyService(URLRequestContext* context,
     use_v8 = false;  // Fallback to non-v8 implementation.
   }
 
-  return use_v8 ?
-      net::ProxyService::CreateUsingV8Resolver(proxy_config.get(), context) :
-      net::ProxyService::Create(proxy_config.get());
+  return net::ProxyService::Create(
+      proxy_config.get(),
+      use_v8,
+      context,
+      g_browser_process->io_thread()->message_loop());
 }
 
 // static

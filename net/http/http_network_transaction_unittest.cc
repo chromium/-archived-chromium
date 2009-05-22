@@ -347,7 +347,7 @@ ProxyService* CreateNullProxyService() {
 ProxyService* CreateFixedProxyService(const std::string& proxy) {
   net::ProxyConfig proxy_config;
   proxy_config.proxy_rules.ParseFromString(proxy);
-  return ProxyService::Create(&proxy_config);
+  return ProxyService::CreateFixed(proxy_config);
 }
 
 
