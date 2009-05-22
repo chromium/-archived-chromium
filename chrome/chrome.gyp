@@ -853,6 +853,7 @@
         'browser/first_run.h',
         'browser/first_run_mac.mm',
         'browser/first_run_win.cc',
+        'browser/first_run_gtk.cc',
         'browser/gears_integration.cc',
         'browser/gears_integration.h',
         'browser/google_update.cc',

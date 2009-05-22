@@ -30,13 +30,12 @@ const char kSentinelFile[] = "First Run Alpha";
 
 // Gives the full path to the sentinel file. The file might not exist.
 bool GetFirstRunSentinelFilePath(FilePath* path) {
-  FilePath exe_path;
-  if (!PathService::Get(base::DIR_EXE, &exe_path))
-    return false;
-
   FilePath first_run_sentinel;
 
 #if defined(OS_WIN)
+  FilePath exe_path;
+  if (!PathService::Get(base::DIR_EXE, &exe_path))
+    return false;
   if (InstallUtil::IsPerUserInstall(exe_path.value().c_str())) {
     first_run_sentinel = exe_path;
   } else {
@@ -44,7 +43,7 @@ bool GetFirstRunSentinelFilePath(FilePath* path) {
       return false;
   }
 #else
-  // TODO(port): logic as above.  Not important for our "First Run Dev" file.
+  // TODO(port): logic as above.  Not important for our "First Run Alpha" file.
   if (!PathService::Get(chrome::DIR_USER_DATA, &first_run_sentinel))
     return false;
 #endif

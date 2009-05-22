@@ -136,18 +136,6 @@ bool ShellIntegration::IsDefaultBrowser() {
 //--------------------------------------------------------------------------
 
 
-#if defined(OS_LINUX)
-void OpenFirstRunDialog(Profile* profile, ProcessSingleton* process_singleton) {
-  // http://code.google.com/p/chromium/issues/detail?id=11971
-  //
-  // Note that on Windows, this eventually calls into
-  // FirstRunViewBase::FirstRunComplete, which then creates the First
-  // Run sentinel.  We should refactor that out into the caller of
-  // this function.
-  NOTIMPLEMENTED();
-}
-#endif
-
 // static
 bool FirstRun::ProcessMasterPreferences(const FilePath& user_data_dir,
                                         const FilePath& master_prefs_path,

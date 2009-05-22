@@ -536,6 +536,12 @@ int BrowserMain(const MainFunctionParams& parameters) {
 
   process_singleton.Create();
 
+#if defined(TOOLKIT_GTK)
+  // It is important for this to happen before the first run dialog, as it
+  // styles the dialog as well.
+  gtk_util::InitRCStyles();
+#endif
+
   // TODO: This block of code should probably be used on all platforms!
   // On Mac OS X we display this dialog before setting the value of
   // kMetricsReportingEnabled, so we display this dialog much earlier.
@@ -612,9 +618,6 @@ int BrowserMain(const MainFunctionParams& parameters) {
   // file thread to be run sometime later. If this is the first run we record
   // the installation event.
   RLZTracker::InitRlzDelayed(base::DIR_MODULE, is_first_run);
-#endif
-#if defined(TOOLKIT_GTK)
-  gtk_util::InitRCStyles();
 #endif
 
   // Config the network module so it has access to resources.
