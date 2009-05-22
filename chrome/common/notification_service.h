@@ -30,36 +30,6 @@ class NotificationService {
   NotificationService();
   ~NotificationService();
 
-  // NOTE: Rather than using this directly, you you probably want to use a
-  // NotificationRegistrar.  It's generally easier and less error-prone.
-  //
-  // Registers a NotificationObserver to be called whenever a matching
-  // notification is posted.  Observer is a pointer to an object subclassing
-  // NotificationObserver to be notified when an event matching the other two
-  // parameters is posted to this service.  Type is the type of events to
-  // be notified about (or NOTIFY_ALL to receive events of all types).
-  // Source is a NotificationSource object (created using
-  // "Source<classname>(pointer)"), if this observer only wants to
-  // receive events from that object, or NotificationService::AllSources()
-  // to receive events from all sources.
-  //
-  // A given observer can be registered only once for each combination of
-  // type and source.  If the same object is registered more than once,
-  // it must be removed for each of those combinations of type and source later.
-  //
-  // The caller retains ownership of the object pointed to by observer.
-  void AddObserver(NotificationObserver* observer,
-                   NotificationType type, const NotificationSource& source);
-
-  // NOTE: Rather than using this directly, you you probably want to use a
-  // NotificationRegistrar.  It's generally easier and less error-prone.
-  //
-  // Removes the object pointed to by observer from receiving notifications
-  // that match type and source.  If no object matching the parameters is
-  // currently registered, this method is a no-op.
-  void RemoveObserver(NotificationObserver* observer,
-                      NotificationType type, const NotificationSource& source);
-
   // Synchronously posts a notification to all interested observers.
   // Source is a reference to a NotificationSource object representing
   // the object originating the notification (can be
@@ -81,6 +51,8 @@ class NotificationService {
   static Details<void> NoDetails() { return Details<void>(NULL); }
 
  private:
+  friend class NotificationRegistrar;
+
   typedef ObserverList<NotificationObserver> NotificationObserverList;
   typedef std::map<uintptr_t, NotificationObserverList*> NotificationSourceMap;
 
@@ -88,6 +60,36 @@ class NotificationService {
   // NotificationObserverList in the given map;
   static bool HasKey(const NotificationSourceMap& map,
                      const NotificationSource& source);
+
+  // NOTE: Rather than using this directly, you should use a
+  // NotificationRegistrar.
+  //
+  // Registers a NotificationObserver to be called whenever a matching
+  // notification is posted.  Observer is a pointer to an object subclassing
+  // NotificationObserver to be notified when an event matching the other two
+  // parameters is posted to this service.  Type is the type of events to
+  // be notified about (or NOTIFY_ALL to receive events of all types).
+  // Source is a NotificationSource object (created using
+  // "Source<classname>(pointer)"), if this observer only wants to
+  // receive events from that object, or NotificationService::AllSources()
+  // to receive events from all sources.
+  //
+  // A given observer can be registered only once for each combination of
+  // type and source.  If the same object is registered more than once,
+  // it must be removed for each of those combinations of type and source later.
+  //
+  // The caller retains ownership of the object pointed to by observer.
+  void AddObserver(NotificationObserver* observer,
+                   NotificationType type, const NotificationSource& source);
+
+  // NOTE: Rather than using this directly, you should use a
+  // NotificationRegistrar.
+  //
+  // Removes the object pointed to by observer from receiving notifications
+  // that match type and source.  If no object matching the parameters is
+  // currently registered, this method is a no-op.
+  void RemoveObserver(NotificationObserver* observer,
+                      NotificationType type, const NotificationSource& source);
 
   // Keeps track of the observers for each type of notification.
   // Until we get a prohibitively large number of notification types,
