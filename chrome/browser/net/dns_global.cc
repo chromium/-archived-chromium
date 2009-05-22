@@ -286,10 +286,13 @@ class OffTheRecordObserver : public NotificationObserver {
   ~OffTheRecordObserver() { }
 
   void Register() {
-    registrar_.Add(this, NotificationType::BROWSER_CLOSED,
-                   NotificationService::AllSources());
-    registrar_.Add(this, NotificationType::BROWSER_OPENED,
-                   NotificationService::AllSources());
+    // TODO(pkasting): This test should not be necessary.  See crbug.com/12475.
+    if (registrar_.IsEmpty()) {
+      registrar_.Add(this, NotificationType::BROWSER_CLOSED,
+                     NotificationService::AllSources());
+      registrar_.Add(this, NotificationType::BROWSER_OPENED,
+                     NotificationService::AllSources());
+    }
   }
 
   void Observe(NotificationType type, const NotificationSource& source,
