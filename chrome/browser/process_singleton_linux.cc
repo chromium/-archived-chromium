@@ -11,17 +11,23 @@
 #include "chrome/browser/process_singleton.h"
 
 #include <errno.h>
+#include <fcntl.h>
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <sys/un.h>
+#include <set>
 
 #include "base/base_paths.h"
+#include "base/basictypes.h"
 #include "base/command_line.h"
 #include "base/eintr_wrapper.h"
 #include "base/logging.h"
 #include "base/message_loop.h"
 #include "base/path_service.h"
+#include "base/stl_util-inl.h"
 #include "base/string_util.h"
+#include "base/time.h"
+#include "base/timer.h"
 #include "chrome/browser/browser_init.h"
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/chrome_thread.h"
@@ -31,9 +37,23 @@
 #include "chrome/common/chrome_paths.h"
 
 namespace {
-const char* kStartToken = "START";
+
+const char kStartToken[] = "START";
 const char kTokenDelimiter = '\0';
+const int kTimeOutInSeconds = 5;
+const int kMaxMessageLength = 32 * 1024;
+
+// Return 0 on success, -1 on failure.
+int SetNonBlocking(int fd) {
+  int flags = fcntl(fd, F_GETFL, 0);
+  if (-1 == flags)
+    return flags;
+  if (flags & O_NONBLOCK)
+    return 0;
+  return fcntl(fd, F_SETFL, flags | O_NONBLOCK);
 }
+
+}  // namespace
 
 ///////////////////////////////////////////////////////////////////////////////
 // ProcessSingleton::LinuxWatcher
@@ -45,43 +65,15 @@ class ProcessSingleton::LinuxWatcher
       public MessageLoop::DestructionObserver,
       public base::RefCountedThreadSafe<ProcessSingleton::LinuxWatcher> {
  public:
-  class SocketReader : public MessageLoopForIO::Watcher {
-   public:
-    SocketReader(ProcessSingleton::LinuxWatcher* parent,
-                 MessageLoop* ui_message_loop)
-        : parent_(parent),
-          ui_message_loop_(ui_message_loop) {}
-    virtual ~SocketReader() {}
-
-    MessageLoopForIO::FileDescriptorWatcher* fd_reader() {
-      return &fd_reader_;
-    }
-
-    // MessageLoopForIO::Watcher impl.
-    virtual void OnFileCanReadWithoutBlocking(int fd);
-    virtual void OnFileCanWriteWithoutBlocking(int fd) {
-      // ProcessSingleton only watches for accept (read) events.
-      NOTREACHED();
-    }
-
-   private:
-    MessageLoopForIO::FileDescriptorWatcher fd_reader_;
-
-    // The ProcessSingleton::LinuxWatcher that owns us.
-    ProcessSingleton::LinuxWatcher* parent_;
-
-    // A reference to the UI message loop.
-    MessageLoop* ui_message_loop_;
-
-    DISALLOW_COPY_AND_ASSIGN(SocketReader);
-  };
-
   // We expect to only be constructed on the UI thread.
   explicit LinuxWatcher(ProcessSingleton* parent)
       : ui_message_loop_(MessageLoop::current()),
         parent_(parent) {
   }
-  virtual ~LinuxWatcher() {}
+
+  virtual ~LinuxWatcher() {
+    STLDeleteElements(&readers_);
+  }
 
   // Start listening for connections on the socket.  This method should be
   // called from the IO thread.
@@ -104,6 +96,67 @@ class ProcessSingleton::LinuxWatcher
   }
 
  private:
+  class SocketReader : public MessageLoopForIO::Watcher {
+   public:
+    SocketReader(ProcessSingleton::LinuxWatcher* parent,
+                 MessageLoop* ui_message_loop,
+                 int fd)
+        : parent_(parent),
+          ui_message_loop_(ui_message_loop),
+          fd_(fd),
+          bytes_read_(0) {
+      // Wait for reads.
+      MessageLoopForIO::current()->WatchFileDescriptor(
+          fd, true, MessageLoopForIO::WATCH_READ, &fd_reader_, this);
+      timer_.Start(base::TimeDelta::FromSeconds(kTimeOutInSeconds),
+                   this, &SocketReader::OnTimerExpiry);
+    }
+
+    virtual ~SocketReader() {
+      int rv = HANDLE_EINTR(close(fd_));
+      DCHECK_EQ(0, rv) << "Error closing socket: " << strerror(errno);
+    }
+
+    // MessageLoopForIO::Watcher impl.
+    virtual void OnFileCanReadWithoutBlocking(int fd);
+    virtual void OnFileCanWriteWithoutBlocking(int fd) {
+      // SocketReader only watches for accept (read) events.
+      NOTREACHED();
+    }
+
+   private:
+    // If we haven't completed in a reasonable amount of time, give up.
+    void OnTimerExpiry() {
+      parent_->RemoveSocketReader(this);
+      // We're deleted beyond this point.
+    }
+
+    MessageLoopForIO::FileDescriptorWatcher fd_reader_;
+
+    // The ProcessSingleton::LinuxWatcher that owns us.
+    ProcessSingleton::LinuxWatcher* const parent_;
+
+    // A reference to the UI message loop.
+    MessageLoop* const ui_message_loop_;
+
+    // The file descriptor we're reading.
+    const int fd_;
+
+    // Store the message in this buffer.
+    char buf_[kMaxMessageLength];
+
+    // Tracks the number of bytes we've read in case we're getting partial
+    // reads.
+    size_t bytes_read_;
+
+    base::OneShotTimer<SocketReader> timer_;
+
+    DISALLOW_COPY_AND_ASSIGN(SocketReader);
+  };
+
+  // Removes and deletes the SocketReader.
+  void RemoveSocketReader(SocketReader* reader);
+
   MessageLoopForIO::FileDescriptorWatcher fd_watcher_;
 
   // A reference to the UI message loop (i.e., the message loop we were
@@ -111,12 +164,9 @@ class ProcessSingleton::LinuxWatcher
   MessageLoop* ui_message_loop_;
 
   // The ProcessSingleton that owns us.
-  ProcessSingleton* parent_;
+  ProcessSingleton* const parent_;
 
-  // The MessageLoopForIO::Watcher that actually reads data from the socket.
-  // TODO(tc): We shouldn't need to keep a pointer to this.  That way we can
-  // handle multiple concurrent requests.
-  scoped_ptr<SocketReader> reader_;
+  std::set<SocketReader*> readers_;
 
   DISALLOW_COPY_AND_ASSIGN(LinuxWatcher);
 };
@@ -131,11 +181,10 @@ void ProcessSingleton::LinuxWatcher::OnFileCanReadWithoutBlocking(int fd) {
     LOG(ERROR) << "accept() failed: " << strerror(errno);
     return;
   }
-  reader_.reset(new SocketReader(this, ui_message_loop_));
-
-  // Wait for reads.
-  MessageLoopForIO::current()->WatchFileDescriptor(connection_socket,
-      true, MessageLoopForIO::WATCH_READ, reader_->fd_reader(), reader_.get());
+  SocketReader* reader = new SocketReader(this,
+                                          ui_message_loop_,
+                                          connection_socket);
+  readers_.insert(reader);
 }
 
 void ProcessSingleton::LinuxWatcher::StartListening(int socket) {
@@ -190,28 +239,50 @@ void ProcessSingleton::LinuxWatcher::HandleMessage(std::string current_dir,
                                   false, profile, NULL);
 }
 
+void ProcessSingleton::LinuxWatcher::RemoveSocketReader(SocketReader* reader) {
+  DCHECK(reader);
+  readers_.erase(reader);
+  delete reader;
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 // ProcessSingleton::LinuxWatcher::SocketReader
 //
 
 void ProcessSingleton::LinuxWatcher::SocketReader::OnFileCanReadWithoutBlocking(
     int fd) {
-  const int kMaxMessageLength = 32 * 1024;
-  char buf[kMaxMessageLength];
-  ssize_t rv = HANDLE_EINTR(read(fd, buf, sizeof(buf)));
-  if (rv < 0) {
-    LOG(ERROR) << "recv() failed: " << strerror(errno);
-    return;
+  DCHECK_EQ(fd, fd_);
+  while (bytes_read_ < sizeof(buf_)) {
+    ssize_t rv = HANDLE_EINTR(
+        read(fd, buf_ + bytes_read_, sizeof(buf_) - bytes_read_));
+    if (rv < 0) {
+      if (errno != EAGAIN && errno != EWOULDBLOCK) {
+        LOG(ERROR) << "read() failed: " << strerror(errno);
+        rv = HANDLE_EINTR(close(fd));
+        DCHECK_EQ(0, rv) << "Error closing socket: " << strerror(errno);
+        return;
+      } else {
+        // It would block, so we just return and continue to watch for the next
+        // opportunity to read.
+        return;
+      }
+    } else if (!rv) {
+      // No more data to read.  It's time to process the message.
+      break;
+    } else {
+      bytes_read_ += rv;
+    }
   }
 
   // Validate the message.  The shortest message is kStartToken\0x\0x
-  const ssize_t kMinMessageLength = strlen(kStartToken) + 4;
-  if (rv < kMinMessageLength) {
-    LOG(ERROR) << "Invalid socket message (wrong length):" << buf;
+  const size_t kMinMessageLength = arraysize(kStartToken) + 4;
+  if (bytes_read_ < kMinMessageLength) {
+    buf_[bytes_read_] = 0;
+    LOG(ERROR) << "Invalid socket message (wrong length):" << buf_;
     return;
   }
 
-  std::string str(buf, rv);
+  std::string str(buf_, bytes_read_);
   std::vector<std::string> tokens;
   SplitString(str, kTokenDelimiter, &tokens);
 
@@ -233,6 +304,9 @@ void ProcessSingleton::LinuxWatcher::SocketReader::OnFileCanReadWithoutBlocking(
       current_dir,
       tokens));
   fd_reader_.StopWatchingFileDescriptor();
+
+  parent_->RemoveSocketReader(this);
+  // We are deleted beyond this point.
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -282,21 +356,34 @@ bool ProcessSingleton::NotifyOtherProcess() {
   }
 
   // Send the message
-  int rv = HANDLE_EINTR(write(socket, to_send.data(), to_send.length()));
-  if (rv < 0) {
-    if (errno == EAGAIN) {
-      // TODO(tc): We should kill the hung process here.
-      NOTIMPLEMENTED() << "browser process hung, don't know how to kill it";
+  int bytes_written = 0;
+  const int buf_len = to_send.length();
+  do {
+    int rv = HANDLE_EINTR(
+        write(socket, to_send.data() + bytes_written, buf_len - bytes_written));
+    if (rv < 0) {
+      if (errno == EAGAIN || errno == EWOULDBLOCK) {
+        // The socket shouldn't block, we're sending so little data.  Just give
+        // up here, since NotifyOtherProcess() doesn't have an asynchronous api.
+        LOG(ERROR) << "ProcessSingleton would block on write(), so it gave up.";
+        return false;
+      }
+      LOG(ERROR) << "write() failed: " << strerror(errno);
       return false;
     }
-    LOG(ERROR) << "send() failed: " << strerror(errno);
-    return false;
+    bytes_written += rv;
+  } while (bytes_written < buf_len);
+
+  int rv = shutdown(socket, SHUT_WR);
+  if (rv < 0) {
+    LOG(ERROR) << "shutdown() failed: " << strerror(errno);
+  } else {
+    // TODO(tc): We should wait for an ACK, and if we don't get it in a certain
+    // time period, kill the other process.
   }
 
-  // TODO(tc): We should wait for an ACK, and if we don't get it in a certain
-  // time period, kill the other process.
-
-  HANDLE_EINTR(close(socket));
+  rv = HANDLE_EINTR(close(socket));
+  DCHECK_EQ(0, rv) << strerror(errno);
 
   // Assume the other process is handling the request.
   return true;
@@ -331,6 +418,9 @@ void ProcessSingleton::SetupSocket(int* sock, struct sockaddr_un* addr) {
   *sock = socket(PF_UNIX, SOCK_STREAM, 0);
   if (*sock < 0)
     LOG(FATAL) << "socket() failed: " << strerror(errno);
+
+  int rv = SetNonBlocking(*sock);
+  DCHECK_EQ(0, rv) << "Failed to make non-blocking socket.";
 
   addr->sun_family = AF_UNIX;
   if (socket_path_.value().length() > sizeof(addr->sun_path) - 1)
