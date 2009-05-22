@@ -12,8 +12,8 @@
 #include "chrome/common/libxml_utils.h"
 #include "googleurl/src/gurl.h"
 
-
-namespace toolbar_importer_unittest {
+TEST(Toolbar5ImporterTest, DISABLED_BookmarkParse) {
+#if 0  // Compile breaks if you remove this and leave the test disabled
 static const wchar_t* kTitle = L"MyTitle";
 static const char* kUrl = "http://www.google.com/";
 static const wchar_t* kFolder = L"Google";
@@ -304,13 +304,7 @@ static const char* kBadBookmarkNoLabels =
     "<attribute> <name>section_name</name> <value>My section 0 "
     "</value> </attribute> </attributes> "
     "</bookmark> </bookmarks>";
-}  // namespace toolbar_importer_unittest
 
-// The parsing tests for Toolbar5Importer use the string above.  For a
-// description of all the tests run please see the comments immediately before
-// the string constants above.
-TEST(Toolbar5ImporterTest, DISABLED_BookmarkParse) {
-#if 0  // Compile breaks if you remove this and leave the test disabled
   XmlReader reader;
   std::string bookmark_xml;
   std::vector<ProfileWriter::BookmarkEntry> bookmarks;
