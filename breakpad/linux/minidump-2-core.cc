@@ -36,6 +36,7 @@
 #include <vector>
 
 #include <stdio.h>
+#include <string.h>
 
 #include <elf.h>
 #include <errno.h>
