@@ -518,6 +518,12 @@ void ProxyService::SetProxyScriptFetcher(
   proxy_script_fetcher_.reset(proxy_script_fetcher);
 }
 
+void ProxyService::ResetConfigService(
+    ProxyConfigService* new_proxy_config_service) {
+  config_service_.reset(new_proxy_config_service);
+  UpdateConfig();
+}
+
 void ProxyService::DidCompletePacRequest(int config_id, int result_code) {
   // If we get an error that indicates a bad PAC config, then we should
   // remember that, and not try the PAC config again for a while.

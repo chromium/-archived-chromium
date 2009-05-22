@@ -138,6 +138,14 @@ class ResultFuture : public base::RefCountedThreadSafe<ResultFuture> {
     started_.Wait();
   }
 
+  void StartResetConfigService(
+      net::ProxyConfigService* new_proxy_config_service) {
+    DCHECK(MessageLoop::current() != io_message_loop_);
+    io_message_loop_->PostTask(FROM_HERE, NewRunnableMethod(
+        this, &ResultFuture::DoResetConfigService, new_proxy_config_service));
+    started_.Wait();
+  }
+
   // Called on |io_message_loop_|.
   void DoStartRequest(const GURL& url, RequestMethod method) {
     DCHECK(MessageLoop::current() == io_message_loop_);
@@ -147,6 +155,14 @@ class ResultFuture : public base::RefCountedThreadSafe<ResultFuture> {
       OnCompletion(rv);
     }
     started_.Signal();
+  }
+
+  // Called on |io_message_loop_|.
+  void DoResetConfigService(net::ProxyConfigService* new_proxy_config_service) {
+    DCHECK(MessageLoop::current() == io_message_loop_);
+    service_->ResetConfigService(new_proxy_config_service);
+    started_.Signal();
+    OnCompletion(0);
   }
 
   // Called on |io_message_loop_|.
@@ -230,6 +246,13 @@ class ProxyServiceWithFutures {
     (*result)->StartReconsider(url, proxy_info);
   }
 
+  void ResetConfigService(scoped_refptr<ResultFuture>* result,
+                          net::ProxyConfigService* new_proxy_config_service) {
+    *result = new ResultFuture(io_thread_.message_loop(),
+                               io_thread_state_->service);
+    (*result)->StartResetConfigService(new_proxy_config_service);
+  }
+
   void SetProxyScriptFetcher(net::ProxyScriptFetcher* proxy_script_fetcher) {
     io_thread_.message_loop()->PostTask(FROM_HERE, NewRunnableMethod(
         io_thread_state_.get(), &IOThreadState::DoSetProxyScriptFetcher,
@@ -289,6 +312,12 @@ class SyncProxyService {
     scoped_refptr<ResultFuture> result;
     service_.ReconsiderProxyAfterError(&result, url, *proxy_info);
     *proxy_info = result->GetProxyInfo();
+    return result->GetResultCode();
+  }
+
+  int ResetConfigService(net::ProxyConfigService* new_proxy_config_service) {
+    scoped_refptr<ResultFuture> result;
+    service_.ResetConfigService(&result, new_proxy_config_service);
     return result->GetResultCode();
   }
 
@@ -1095,4 +1124,25 @@ TEST(ProxyServiceTest, CancelWhilePACFetching) {
   EXPECT_EQ(net::OK, result3->GetResultCode());
   EXPECT_EQ("pac-v1.request3:80",
             result3->GetProxyInfo().proxy_server().ToURI());
+}
+
+TEST(ProxyServiceTest, ResetProxyConfigService) {
+  net::ProxyConfig config1;
+  config1.proxy_rules.ParseFromString("foopy1:8080");
+  config1.auto_detect = false;
+  scoped_ptr<SyncProxyService> service(
+      new SyncProxyService(new MockProxyConfigService(config1),
+                           new MockProxyResolverWithoutFetch));
+
+  net::ProxyInfo info;
+  service->ResolveProxy(GURL("http://request1"), &info);
+  EXPECT_EQ("foopy1:8080", info.proxy_server().ToURI());
+
+  net::ProxyConfig config2;
+  config2.proxy_rules.ParseFromString("foopy2:8080");
+  config2.auto_detect = false;
+  int result = service->ResetConfigService(new MockProxyConfigService(config2));
+  DCHECK(result == 0);
+  service->ResolveProxy(GURL("http://request2"), &info);
+  EXPECT_EQ("foopy2:8080", info.proxy_server().ToURI());
 }
