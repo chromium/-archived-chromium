@@ -158,8 +158,16 @@ class TestObserver : public ProfileWriter,
     return true;
   }
 
+  virtual void AddBookmarkModelObserver(BookmarkModelObserver* observer) {
+    NOTREACHED();
+  }
+
   virtual bool TemplateURLModelIsLoaded() const {
     return true;
+  }
+
+  virtual void AddTemplateURLModelObserver(NotificationObserver* observer) {
+    NOTREACHED();
   }
 
   virtual void AddPasswordForm(const PasswordForm& form) {
@@ -339,8 +347,7 @@ TEST_F(ImporterTest, IEImporter) {
 
   loop->PostTask(FROM_HERE, NewRunnableMethod(host.get(),
       &ImporterHost::StartImportSettings, profile_info,
-      static_cast<Profile*>(NULL), HISTORY | PASSWORDS | FAVORITES, observer,
-      true));
+      HISTORY | PASSWORDS | FAVORITES, observer, true));
   loop->Run();
 
   // Cleans up.
@@ -506,8 +513,16 @@ class FirefoxObserver : public ProfileWriter,
     return true;
   }
 
+  virtual void AddBookmarkModelObserver(BookmarkModelObserver* observer) {
+    NOTREACHED();
+  }
+
   virtual bool TemplateURLModelIsLoaded() const {
     return true;
+  }
+
+  virtual void AddTemplateURLModelObserver(NotificationObserver* observer) {
+    NOTREACHED();
   }
 
   virtual void AddPasswordForm(const PasswordForm& form) {
@@ -615,7 +630,6 @@ TEST_F(ImporterTest, Firefox2Importer) {
 
   loop->PostTask(FROM_HERE, NewRunnableMethod(host.get(),
       &ImporterHost::StartImportSettings, profile_info,
-      static_cast<Profile*>(NULL),
       HISTORY | PASSWORDS | FAVORITES | SEARCH_ENGINES, observer, true));
   loop->Run();
 }
@@ -696,8 +710,16 @@ class Firefox3Observer : public ProfileWriter,
     return true;
   }
 
+  virtual void AddBookmarkModelObserver(BookmarkModelObserver* observer) {
+    NOTREACHED();
+  }
+
   virtual bool TemplateURLModelIsLoaded() const {
     return true;
+  }
+
+  virtual void AddTemplateURLModelObserver(NotificationObserver* observer) {
+    NOTREACHED();
   }
 
   virtual void AddPasswordForm(const PasswordForm& form) {
@@ -809,7 +831,6 @@ TEST_F(ImporterTest, Firefox3Importer) {
   host->SetObserver(observer);
   loop->PostTask(FROM_HERE, NewRunnableMethod(host.get(),
       &ImporterHost::StartImportSettings, profile_info,
-      static_cast<Profile*>(NULL),
       HISTORY | PASSWORDS | FAVORITES | SEARCH_ENGINES, observer, true));
   loop->Run();
 }

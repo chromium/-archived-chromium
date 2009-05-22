@@ -51,8 +51,21 @@ bool ProfileWriter::BookmarkModelIsLoaded() const {
   return profile_->GetBookmarkModel()->IsLoaded();
 }
 
+void ProfileWriter::AddBookmarkModelObserver(BookmarkModelObserver* observer) {
+  profile_->GetBookmarkModel()->AddObserver(observer);
+}
+
 bool ProfileWriter::TemplateURLModelIsLoaded() const {
   return profile_->GetTemplateURLModel()->loaded();
+}
+
+void ProfileWriter::AddTemplateURLModelObserver(
+    NotificationObserver* observer) {
+  TemplateURLModel* model = profile_->GetTemplateURLModel();
+  NotificationService::current()->AddObserver(
+      observer, NotificationType::TEMPLATE_URL_MODEL_LOADED,
+      Source<TemplateURLModel>(model));
+  model->Load();
 }
 
 void ProfileWriter::AddPasswordForm(const PasswordForm& form) {
@@ -398,6 +411,7 @@ ImporterHost::ImporterHost()
       importer_(NULL),
       file_loop_(g_browser_process->file_thread()->message_loop()),
       waiting_for_bookmarkbar_model_(false),
+      waiting_for_template_url_model_(false),
       is_source_readable_(true),
       headless_(false) {
   DetectSourceProfiles();
@@ -409,6 +423,7 @@ ImporterHost::ImporterHost(MessageLoop* file_loop)
       importer_(NULL),
       file_loop_(file_loop),
       waiting_for_bookmarkbar_model_(false),
+      waiting_for_template_url_model_(false),
       is_source_readable_(true),
       headless_(false) {
   DetectSourceProfiles();
@@ -430,7 +445,11 @@ void ImporterHost::Observe(NotificationType type,
                            const NotificationSource& source,
                            const NotificationDetails& details) {
   DCHECK(type == NotificationType::TEMPLATE_URL_MODEL_LOADED);
-  registrar_.RemoveAll();
+  TemplateURLModel* model = Source<TemplateURLModel>(source).ptr();
+  NotificationService::current()->RemoveObserver(
+      this, NotificationType::TEMPLATE_URL_MODEL_LOADED,
+      Source<TemplateURLModel>(model));
+  waiting_for_template_url_model_ = false;
   InvokeTaskIfDone();
 }
 
@@ -471,7 +490,6 @@ void ImporterHost::OnLockViewEnd(bool is_continue) {
 }
 
 void ImporterHost::StartImportSettings(const ProfileInfo& profile_info,
-                                       Profile* target_profile,
                                        uint16 items,
                                        ProfileWriter* writer,
                                        bool first_run) {
@@ -526,7 +544,7 @@ void ImporterHost::StartImportSettings(const ProfileInfo& profile_info,
   // BookmarkModel should be loaded before adding IE favorites. So we observe
   // the BookmarkModel if needed, and start the task after it has been loaded.
   if ((items & FAVORITES) && !writer_->BookmarkModelIsLoaded()) {
-    target_profile->GetBookmarkModel()->AddObserver(this);
+    writer_->AddBookmarkModelObserver(this);
     waiting_for_bookmarkbar_model_ = true;
   }
 
@@ -535,10 +553,8 @@ void ImporterHost::StartImportSettings(const ProfileInfo& profile_info,
   // we can import bookmark keywords from Firefox as search engines.
   if ((items & SEARCH_ENGINES) || (items & FAVORITES)) {
     if (!writer_->TemplateURLModelIsLoaded()) {
-      TemplateURLModel* model = target_profile->GetTemplateURLModel();
-      registrar_.Add(this, NotificationType::TEMPLATE_URL_MODEL_LOADED,
-                     Source<TemplateURLModel>(model));
-      model->Load();
+      writer_->AddTemplateURLModelObserver(this);
+      waiting_for_template_url_model_ = true;
     }
   }
 
@@ -556,7 +572,7 @@ void ImporterHost::SetObserver(Observer* observer) {
 }
 
 void ImporterHost::InvokeTaskIfDone() {
-  if (waiting_for_bookmarkbar_model_ || !registrar_.IsEmpty() ||
+  if (waiting_for_bookmarkbar_model_ || waiting_for_template_url_model_ ||
       !is_source_readable_)
     return;
   file_loop_->PostTask(FROM_HERE, task_);

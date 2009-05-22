@@ -20,7 +20,7 @@
 #endif
 #include "chrome/browser/profile.h"
 #include "chrome/browser/search_engines/template_url.h"
-#include "chrome/common/notification_registrar.h"
+#include "chrome/common/notification_observer.h"
 #include "googleurl/src/gurl.h"
 #include "webkit/glue/password_form.h"
 
@@ -79,8 +79,15 @@ class ProfileWriter : public base::RefCounted<ProfileWriter> {
   explicit ProfileWriter(Profile* profile) : profile_(profile) { }
   virtual ~ProfileWriter() { }
 
+  // Methods for monitoring BookmarkModel status.
   virtual bool BookmarkModelIsLoaded() const;
+  virtual void AddBookmarkModelObserver(
+      BookmarkModelObserver* observer);
+
+  // Methods for monitoring TemplateURLModel status.
   virtual bool TemplateURLModelIsLoaded() const;
+  virtual void AddTemplateURLModelObserver(
+      NotificationObserver* observer);
 
   // A bookmark entry.
   struct BookmarkEntry {
@@ -205,7 +212,6 @@ class ImporterHost : public base::RefCounted<ImporterHost>,
   // Starts the process of importing the settings and data depending
   // on what the user selected.
   void StartImportSettings(const ProfileInfo& profile_info,
-                           Profile* target_profile,
                            uint16 items,
                            ProfileWriter* writer,
                            bool first_run);
@@ -284,8 +290,6 @@ class ImporterHost : public base::RefCounted<ImporterHost>,
   void DetectFirefoxProfiles();
   void DetectGoogleToolbarProfiles();
 
-  NotificationRegistrar registrar_;
-
   // The list of profiles with the default one first.
   std::vector<ProfileInfo*> source_profiles_;
 
@@ -303,6 +307,7 @@ class ImporterHost : public base::RefCounted<ImporterHost>,
 
   // True if we're waiting for the model to finish loading.
   bool waiting_for_bookmarkbar_model_;
+  bool waiting_for_template_url_model_;
 
   // True if source profile is readable.
   bool is_source_readable_;
