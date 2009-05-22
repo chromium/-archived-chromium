@@ -376,6 +376,13 @@ bool Channel::ChannelImpl::ProcessIncomingMessages() {
       if (bytes_read < 0) {
         if (errno == EAGAIN) {
           return true;
+#if defined(OS_MACOSX)
+        } else if (errno == EPERM) {
+          // On OSX, reading from a pipe with no listener returns EPERM
+          // treat this as a special case to prevent spurious error messages
+          // to the console.
+          return false;
+#endif  // defined(OS_MACOSX)
         } else {
           LOG(ERROR) << "pipe error (" << pipe_ << "): " << strerror(errno);
           return false;
