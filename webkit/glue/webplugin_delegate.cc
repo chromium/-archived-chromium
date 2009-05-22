@@ -27,10 +27,8 @@ const gfx::Rect& WebPluginDelegate::GetClipRect() const {
   return GetRect();
 }
 
-#if defined(OS_WIN)
 // Returns a combinaison of PluginQuirks.
 int WebPluginDelegate::GetQuirks() const {
   NOTREACHED();
   return 0;
 }
-#endif

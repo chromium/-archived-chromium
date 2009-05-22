@@ -32,19 +32,18 @@ class Rect;
 // This is the interface that a plugin implementation needs to provide.
 class WebPluginDelegate {
  public:
-#if defined(OS_WIN)
   enum PluginQuirks {
-    PLUGIN_QUIRK_SETWINDOW_TWICE = 1,
-    PLUGIN_QUIRK_THROTTLE_WM_USER_PLUS_ONE = 2,
-    PLUGIN_QUIRK_DONT_CALL_WND_PROC_RECURSIVELY = 4,
-    PLUGIN_QUIRK_DONT_SET_NULL_WINDOW_HANDLE_ON_DESTROY = 8,
-    PLUGIN_QUIRK_DONT_ALLOW_MULTIPLE_INSTANCES = 16,
-    PLUGIN_QUIRK_DIE_AFTER_UNLOAD = 32,
-    PLUGIN_QUIRK_PATCH_TRACKPOPUP_MENU = 64,
-    PLUGIN_QUIRK_PATCH_SETCURSOR = 128,
-    PLUGIN_QUIRK_BLOCK_NONSTANDARD_GETURL_REQUESTS = 256,
+    PLUGIN_QUIRK_SETWINDOW_TWICE = 1,  // Win32
+    PLUGIN_QUIRK_THROTTLE_WM_USER_PLUS_ONE = 2,  // Win32
+    PLUGIN_QUIRK_DONT_CALL_WND_PROC_RECURSIVELY = 4,  // Win32
+    PLUGIN_QUIRK_DONT_SET_NULL_WINDOW_HANDLE_ON_DESTROY = 8,  // Win32
+    PLUGIN_QUIRK_DONT_ALLOW_MULTIPLE_INSTANCES = 16,  // Win32
+    PLUGIN_QUIRK_DIE_AFTER_UNLOAD = 32,  // Win32
+    PLUGIN_QUIRK_PATCH_TRACKPOPUP_MENU = 64,  // Win32
+    PLUGIN_QUIRK_PATCH_SETCURSOR = 128,  // Win32
+    PLUGIN_QUIRK_BLOCK_NONSTANDARD_GETURL_REQUESTS = 256,  // Win32
+    PLUGIN_QUIRK_WINDOWLESS_OFFSET_WINDOW_TO_DRAW = 512,  // Linux
   };
-#endif
 
   WebPluginDelegate() {}
   virtual ~WebPluginDelegate() {}
@@ -151,10 +150,8 @@ class WebPluginDelegate {
 
   virtual const gfx::Rect& GetClipRect() const;
 
-#if defined(OS_WIN)
-  // Returns a combinaison of PluginQuirks.
+  // Returns a combination of PluginQuirks.
   virtual int GetQuirks() const;
-#endif
 
  private:
   DISALLOW_COPY_AND_ASSIGN(WebPluginDelegate);

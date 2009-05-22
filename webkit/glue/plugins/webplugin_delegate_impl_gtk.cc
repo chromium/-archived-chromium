@@ -67,6 +67,11 @@ WebPluginDelegateImpl::WebPluginDelegateImpl(
       parent_(containing_view),
       quirks_(0) {
   memset(&window_, 0, sizeof(window_));
+  if (instance_->mime_type() == "application/x-shockwave-flash") {
+    // Flash is tied to Firefox's whacky behavior with windowless plugins. See
+    // comments in WindowlessPaint
+    quirks_ |= PLUGIN_QUIRK_WINDOWLESS_OFFSET_WINDOW_TO_DRAW;
+  }
 }
 
 WebPluginDelegateImpl::~WebPluginDelegateImpl() {
@@ -483,12 +488,6 @@ void WebPluginDelegateImpl::WindowlessPaint(cairo_surface_t* context,
 
   DCHECK(context);
 
-  // We need to pass the DC to the plugin via NPP_SetWindow in the
-  // first paint to ensure that it initiates rect invalidations.
-  // TODO(evanm): for now, it appears we always need to do this.
-  if (true)
-    windowless_needs_set_window_ = true;
-
   // TODO(darin): we should avoid calling NPP_SetWindow here since it may
   // cause page layout to be invalidated.
 
@@ -497,45 +496,119 @@ void WebPluginDelegateImpl::WindowlessPaint(cairo_surface_t* context,
   if (windowless_needs_set_window_)
     WindowlessSetWindow(false);
 
-  // The actual dirty region is just the intersection of the plugin
-  // window with the damage region.  However, the plugin wants to draw
-  // relative to the containing window's origin, so our pixmap must be
-  // from the window's origin down to the bottom-right edge of the
-  // dirty region.
+  // The actual dirty region is just the intersection of the plugin window and
+  // the clip window with the damage region. However, the plugin wants to draw
+  // relative to the containing window's origin, so our pixmap must be from the
+  // window's origin down to the bottom-right edge of the dirty region.
   //
-  // +-----------------------------+-----------------------------+
-  // |                             |                             |
-  // |    pixmap     +-------------+                             |
-  // |               |   damage    |                window       |
-  // |               |             |                             |
-  // |       +-------+-------------+----------+                  |
-  // |       |       | draw        |          |                  |
-  // +-------+-------+-------------+          |                  |
-  // |       |                                |                  |
-  // |       |        plugin                  |                  |
-  // |       +--------------------------------+                  |
-  // |                                                           |
-  // |                                                           |
-  // +-----------------------------------------------------------+
+  // Typical case:
+  // X-----------------------------------+-----------------------------+
+  // |                                   |                             |
+  // |    pixmap     +-------------------+                             |
+  // |               |   damage          |                window       |
+  // |               |                   |                             |
+  // |           +---+-------------------+-------------+               |
+  // |           |   |                   |   clip      |               |
+  // |       +---+---+-------------------+----------+  |               |
+  // |       |   |   |                   |          |  |               |
+  // |       |   |   | draw              |          |  |               |
+  // |       |   |   |                   |          |  |               |
+  // +-------+---+---+-------------------+----------+--+               |
+  // |       |       |                   |          |                  |
+  // |       |       +-------------------+          |                  |
+  // |       |                                      |                  |
+  // |       |        plugin                        |                  |
+  // |       +--------------------------------------+                  |
+  // |                                                                 |
+  // |                                                                 |
+  // +-----------------------------------------------------------------+
+  // X = origin
   //
-  // TOOD(evanm): on Windows, we instead just translate the origin of
-  // the DC that we hand to the plugin.  Does such a thing exist on X?
-  // TODO(evanm): make use of the clip rect as well.
+  // NPAPI doesn't properly define which coordinates each of
+  // - window.clipRect, window.x and window.y in the SetWindow call
+  // - x and y in GraphicsExpose HandleEvent call
+  // are relative to, nor does it define what the pixmap is relative to.
+  //
+  // Any sane values for them just don't work with the flash plugin. Firefox
+  // has some interesting behavior. Experiments showed that:
+  // - window.clipRect is always in the same space as window.x and window.y
+  // - in the first SetWindow call, or when scrolling, window.x and window.y are
+  // the coordinates of the plugin relative to the window.
+  // - whenever only a part of the plugin is drawn, Firefox issues a SetWindow
+  // call before each GraphicsExpose event, that sets the drawing origin to
+  // (0, 0) as if the plugin was scrolled to be partially out of the view. The
+  // GraphicsExpose event has coordinates relative to the "window" (assuming
+  // that virtual scroll). The pixmap is also relative to the window. It always
+  // sets the clip rect to the draw rect.
+  //
+  // Attempts to deviate from that makes Flash render at the wrong place in the
+  // pixmap, or render the wrong pixels.
+  //
+  // Flash plugin:
+  // X-----------------------------------------------------------------+
+  // |                                                                 |
+  // |               +-------------------+        "real" window        |
+  // |               |   damage          |                             |
+  // |               |                   |                             |
+  // |           +---+-------------------+-------------+               |
+  // |           |   |                   | "real" clip |               |
+  // |       +---+---O===================#==========#==#===============#
+  // |       |   |   H draw              |          |  |               H
+  // |       |   |   H = pixmap          |          |  |               H
+  // |       |   |   H = "apparent" clip |          |  |               H
+  // |       +   +---#-------------------+----------+--+               H
+  // |       |       H                   |          |                  H
+  // |       |       H-------------------+          |                  H
+  // |       |       H                              |                  H
+  // |       |       H  plugin                      |                  H
+  // |       +-------#------------------------------+                  H
+  // |               H                                                 H
+  // |               H                  "apparent" window              H
+  // +---------------#=================================================#
+  // X = "real" origin
+  // O = "apparent" origin
+  // "real" means as seen by Chrome
+  // "apparent" means as seen by the plugin.
 
-  gfx::Rect plugin_rect(window_.x, window_.y, window_.width, window_.height);
-  gfx::Rect draw_rect = plugin_rect.Intersect(damage_rect);
+  gfx::Rect draw_rect = window_rect_.Intersect(damage_rect);
+
+  // clip_rect_ is relative to the plugin
+  gfx::Rect clip_rect_window = clip_rect_;
+  clip_rect_window.Offset(window_rect_.x(), window_rect_.y());
+  draw_rect = draw_rect.Intersect(clip_rect_window);
+
+  // These offsets represent by how much the view is shifted to accomodate
+  // Flash (the coordinates of X relative to O in the diagram above).
+  int offset_x = 0;
+  int offset_y = 0;
+  if (quirks_ & PLUGIN_QUIRK_WINDOWLESS_OFFSET_WINDOW_TO_DRAW) {
+    offset_x = -draw_rect.x();
+    offset_y = -draw_rect.y();
+    window_.clipRect.top = 0;
+    window_.clipRect.left = 0;
+    window_.clipRect.bottom = draw_rect.height();
+    window_.clipRect.right = draw_rect.width();
+    window_.height = window_rect_.height();
+    window_.width = window_rect_.width();
+    window_.x = window_rect_.x() - draw_rect.x();
+    window_.y = window_rect_.y() - draw_rect.y();
+    window_.type = NPWindowTypeDrawable;
+    DCHECK(window_.ws_info);
+    NPError err = instance()->NPP_SetWindow(&window_);
+    DCHECK_EQ(err, NPERR_NO_ERROR);
+  }
 
   gfx::Rect pixmap_rect(0, 0,
-                        draw_rect.x() + draw_rect.width(),
-                        draw_rect.y() + draw_rect.height());
+                        draw_rect.x() + offset_x + draw_rect.width(),
+                        draw_rect.y() + offset_y + draw_rect.height());
 
   EnsurePixmapAtLeastSize(pixmap_rect.width(), pixmap_rect.height());
 
   // Copy the current image into the pixmap, so the plugin can draw over
   // this background.
   cairo_t* cairo = gdk_cairo_create(pixmap_);
-  cairo_set_source_surface(cairo, context, 0, 0);
-  cairo_rectangle(cairo, draw_rect.x(), draw_rect.y(),
+  cairo_set_source_surface(cairo, context, offset_x, offset_y);
+  cairo_rectangle(cairo, draw_rect.x() + offset_x, draw_rect.y() + offset_y,
                   draw_rect.width(), draw_rect.height());
   cairo_clip(cairo);
   cairo_paint(cairo);
@@ -547,8 +620,8 @@ void WebPluginDelegateImpl::WindowlessPaint(cairo_surface_t* context,
   event.type = GraphicsExpose;
   event.display = GDK_DISPLAY();
   event.drawable = GDK_PIXMAP_XID(pixmap_);
-  event.x = draw_rect.x();
-  event.y = draw_rect.y();
+  event.x = draw_rect.x() + offset_x;
+  event.y = draw_rect.y() + offset_y;
   event.width = draw_rect.width();
   event.height = draw_rect.height();
 
@@ -560,7 +633,7 @@ void WebPluginDelegateImpl::WindowlessPaint(cairo_surface_t* context,
 
   // Now copy the rendered image pixmap back into the drawing buffer.
   cairo = cairo_create(context);
-  gdk_cairo_set_source_pixmap(cairo, pixmap_, 0, 0);
+  gdk_cairo_set_source_pixmap(cairo, pixmap_, -offset_x, -offset_y);
   cairo_rectangle(cairo, draw_rect.x(), draw_rect.y(),
                   draw_rect.width(), draw_rect.height());
   cairo_clip(cairo);
@@ -588,10 +661,12 @@ void WebPluginDelegateImpl::WindowlessSetWindow(bool force_set_window) {
   // plugins; rather, the window is passed during the GraphicsExpose event.
   DCHECK(window_.window == 0);
 
-  window_.clipRect.top = clip_rect_.y();
-  window_.clipRect.left = clip_rect_.x();
-  window_.clipRect.bottom = clip_rect_.y() + clip_rect_.height();
-  window_.clipRect.right = clip_rect_.x() + clip_rect_.width();
+  window_.clipRect.top = clip_rect_.y() + window_rect_.y();
+  window_.clipRect.left = clip_rect_.x() + window_rect_.x();
+  window_.clipRect.bottom =
+      clip_rect_.y() + clip_rect_.height() + window_rect_.y();
+  window_.clipRect.right =
+      clip_rect_.x() + clip_rect_.width() + window_rect_.x();
   window_.height = window_rect_.height();
   window_.width = window_rect_.width();
   window_.x = window_rect_.x();
