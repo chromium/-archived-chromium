@@ -41,8 +41,6 @@ TabContentsContainerGtk::TabContentsContainerGtk(StatusBubbleGtk* status_bubble)
 }
 
 TabContentsContainerGtk::~TabContentsContainerGtk() {
-  if (tab_contents_)
-    RemoveObservers();
 }
 
 void TabContentsContainerGtk::AddContainerToBox(GtkWidget* box) {
@@ -57,7 +55,10 @@ void TabContentsContainerGtk::SetTabContents(TabContents* tab_contents) {
 
     tab_contents_->WasHidden();
 
-    RemoveObservers();
+    registrar_.Remove(this, NotificationType::RENDER_VIEW_HOST_CHANGED,
+        Source<NavigationController>(&tab_contents_->controller()));
+    registrar_.Remove(this, NotificationType::TAB_CONTENTS_DESTROYED,
+                      Source<TabContents>(tab_contents_));
   }
 
   tab_contents_ = tab_contents;
@@ -65,7 +66,14 @@ void TabContentsContainerGtk::SetTabContents(TabContents* tab_contents) {
   // When detaching the last tab of the browser SetTabContents is invoked
   // with NULL. Don't attempt to do anything in that case.
   if (tab_contents_) {
-    AddObservers();
+    // TabContents can change their RenderViewHost and hence the GtkWidget that
+    // is shown. I'm not entirely sure that we need to observe this event under
+    // GTK, but am putting a stub implementation and a comment saying that if
+    // we crash after that NOTIMPLEMENTED(), we'll need it.
+    registrar_.Add(this, NotificationType::RENDER_VIEW_HOST_CHANGED,
+                   Source<NavigationController>(&tab_contents_->controller()));
+    registrar_.Add(this, NotificationType::TAB_CONTENTS_DESTROYED,
+                   Source<TabContents>(tab_contents_));
 
     gfx::NativeView widget = tab_contents_->GetNativeView();
     if (widget) {
@@ -109,37 +117,6 @@ void TabContentsContainerGtk::Observe(NotificationType type,
   } else {
     NOTREACHED();
   }
-}
-
-void TabContentsContainerGtk::AddObservers() {
-  DCHECK(tab_contents_);
-
-  // TabContents can change their RenderViewHost and hence the GtkWidget that
-  // is shown. I'm not entirely sure that we need to observe this event under
-  // GTK, but am putting a stub implementation and a comment saying that if
-  // we crash after that NOTIMPLEMENTED(), we'll need it.
-  NotificationService::current()->AddObserver(
-      this, NotificationType::RENDER_VIEW_HOST_CHANGED,
-      Source<NavigationController>(&tab_contents_->controller()));
-
-  NotificationService::current()->AddObserver(
-      this,
-      NotificationType::TAB_CONTENTS_DESTROYED,
-      Source<TabContents>(tab_contents_));
-}
-
-void TabContentsContainerGtk::RemoveObservers() {
-  DCHECK(tab_contents_);
-
-  NotificationService::current()->RemoveObserver(
-      this,
-      NotificationType::RENDER_VIEW_HOST_CHANGED,
-      Source<NavigationController>(&tab_contents_->controller()));
-
-  NotificationService::current()->RemoveObserver(
-      this,
-      NotificationType::TAB_CONTENTS_DESTROYED,
-      Source<TabContents>(tab_contents_));
 }
 
 void TabContentsContainerGtk::RenderViewHostChanged(RenderViewHost* old_host,

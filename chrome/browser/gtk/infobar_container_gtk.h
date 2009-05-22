@@ -6,7 +6,7 @@
 #define CHROME_BROWSER_GTK_INFOBAR_CONTAINER_GTK_H_
 
 #include "base/basictypes.h"
-#include "chrome/common/notification_observer.h"
+#include "chrome/common/notification_registrar.h"
 #include "chrome/common/owned_widget_gtk.h"
 
 class BrowserWindow;
@@ -56,6 +56,8 @@ class InfoBarContainerGtk : public NotificationObserver {
   // notification from the selected TabContents. The InfoBar's disappearance
   // will be animated.
   void RemoveInfoBar(InfoBarDelegate* delegate);
+
+  NotificationRegistrar registrar_;
 
   // The BrowserView that hosts this InfoBarContainer.
   BrowserWindow* browser_window_;

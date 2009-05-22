@@ -354,17 +354,11 @@ BrowserWindowGtk::BrowserWindowGtk(Browser* browser)
 
   HideUnsupportedWindowFeatures();
 
-  NotificationService* ns = NotificationService::current();
-  ns->AddObserver(this, NotificationType::BOOKMARK_BAR_VISIBILITY_PREF_CHANGED,
-                  NotificationService::AllSources());
+  registrar_.Add(this, NotificationType::BOOKMARK_BAR_VISIBILITY_PREF_CHANGED,
+                 NotificationService::AllSources());
 }
 
 BrowserWindowGtk::~BrowserWindowGtk() {
-  NotificationService* ns = NotificationService::current();
-  ns->RemoveObserver(this,
-                     NotificationType::BOOKMARK_BAR_VISIBILITY_PREF_CHANGED,
-                     NotificationService::AllSources());
-
   browser_->tabstrip_model()->RemoveObserver(this);
 }
 

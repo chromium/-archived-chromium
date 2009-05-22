@@ -8,7 +8,7 @@
 #include <gtk/gtk.h>
 
 #include "base/basictypes.h"
-#include "chrome/common/notification_observer.h"
+#include "chrome/common/notification_registrar.h"
 
 class RenderViewHost;
 class StatusBubbleGtk;
@@ -57,6 +57,8 @@ class TabContentsContainerGtk : public NotificationObserver {
       GtkWidget* fixed,
       GtkAllocation* allocation,
       TabContentsContainerGtk* container);
+
+  NotificationRegistrar registrar_;
 
   // The currently visible TabContents.
   TabContents* tab_contents_;

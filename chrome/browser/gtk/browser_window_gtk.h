@@ -12,7 +12,7 @@
 #include "base/timer.h"
 #include "chrome/browser/browser_window.h"
 #include "chrome/browser/tabs/tab_strip_model.h"
-#include "chrome/common/notification_observer.h"
+#include "chrome/common/notification_registrar.h"
 
 class BookmarkBarGtk;
 class BrowserToolbarGtk;
@@ -166,6 +166,8 @@ class BrowserWindowGtk : public BrowserWindow,
   bool IsTabStripSupported();
 
   bool IsToolbarSupported();
+
+  NotificationRegistrar registrar_;
 
   gfx::Rect bounds_;
   GdkWindowState state_;

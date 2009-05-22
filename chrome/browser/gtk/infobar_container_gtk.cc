@@ -61,26 +61,18 @@ InfoBarContainerGtk::~InfoBarContainerGtk() {
 }
 
 void InfoBarContainerGtk::ChangeTabContents(TabContents* contents) {
-  if (tab_contents_) {
-    NotificationService::current()->RemoveObserver(
-        this, NotificationType::TAB_CONTENTS_INFOBAR_ADDED,
-        Source<TabContents>(tab_contents_));
-    NotificationService::current()->RemoveObserver(
-        this, NotificationType::TAB_CONTENTS_INFOBAR_REMOVED,
-        Source<TabContents>(tab_contents_));
-  }
+  if (tab_contents_)
+    registrar_.RemoveAll();
 
   gtk_util::RemoveAllChildren(widget());
 
   tab_contents_ = contents;
   if (tab_contents_) {
     UpdateInfoBars();
-    NotificationService::current()->AddObserver(
-        this, NotificationType::TAB_CONTENTS_INFOBAR_ADDED,
-        Source<TabContents>(tab_contents_));
-    NotificationService::current()->AddObserver(
-        this, NotificationType::TAB_CONTENTS_INFOBAR_REMOVED,
-        Source<TabContents>(tab_contents_));
+    Source<TabContents> source(tab_contents_);
+    registrar_.Add(this, NotificationType::TAB_CONTENTS_INFOBAR_ADDED, source);
+    registrar_.Add(this, NotificationType::TAB_CONTENTS_INFOBAR_REMOVED,
+                   source);
   }
 }
 
