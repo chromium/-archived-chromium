@@ -23,7 +23,7 @@
 #if defined(OS_WIN)
 #define socklen_t int
 #elif defined(OS_POSIX)
-const int INVALID_SOCKET = -1; // Used same name as in Windows to avoid #ifdef
+const int INVALID_SOCKET = -1;  // Used same name as in Windows to avoid #ifdef
 const int SOCKET_ERROR = -1;
 #endif
 
@@ -31,7 +31,9 @@ const int kReadBufSize = 200;
 
 ListenSocket::ListenSocket(SOCKET s, ListenSocketDelegate *del)
     : socket_(s),
-      socket_delegate_(del) {
+      socket_delegate_(del),
+      reads_paused_(false),
+      has_pending_reads_(false) {
 #if defined(OS_WIN)
   socket_event_ = WSACreateEvent();
   // TODO(ibrar): error handling in case of socket_event_ == WSA_INVALID_EVENT
@@ -83,7 +85,7 @@ ListenSocket* ListenSocket::Listen(std::string ip, int port,
 }
 
 void ListenSocket::Listen() {
-  int backlog = 10; // TODO(erikkay): maybe don't allow any backlog?
+  int backlog = 10;  // TODO(erikkay): maybe don't allow any backlog?
   listen(socket_, backlog);
   // TODO(erikkay): error handling
 #if defined(OS_POSIX)
@@ -118,7 +120,7 @@ void ListenSocket::Accept() {
 }
 
 void ListenSocket::Read() {
-  char buf[kReadBufSize + 1]; // +1 for null termination
+  char buf[kReadBufSize + 1];  // +1 for null termination
   int len;
   do {
     len = HANDLE_EINTR(recv(socket_, buf, kReadBufSize, 0));
@@ -143,7 +145,7 @@ void ListenSocket::Read() {
     } else {
       // TODO(ibrar): maybe change DidRead to take a length instead
       DCHECK(len > 0 && len <= kReadBufSize);
-      buf[len] = 0; // already create a buffer with +1 length
+      buf[len] = 0;  // already create a buffer with +1 length
       socket_delegate_->DidRead(this, buf);
     }
   } while (len == kReadBufSize);
@@ -198,7 +200,7 @@ void ListenSocket::SendInternal(const char* bytes, int len) {
 #elif defined(OS_POSIX)
     if (errno == EWOULDBLOCK || errno == EAGAIN) {
 #endif
-    // TODO (ibrar): there should be logic here to handle this because
+    // TODO(ibrar): there should be logic here to handle this because
     // it is not an error
     }
   } else if (sent != len) {
@@ -217,7 +219,21 @@ void ListenSocket::Send(const std::string& str, bool append_linefeed) {
   Send(str.data(), static_cast<int>(str.length()), append_linefeed);
 }
 
-// TODO (ibrar): We can add these functions into OS dependent files
+void ListenSocket::PauseReads() {
+  DCHECK(!reads_paused_);
+  reads_paused_ = true;
+}
+
+void ListenSocket::ResumeReads() {
+  DCHECK(reads_paused_);
+  reads_paused_ = false;
+  if (has_pending_reads_) {
+    has_pending_reads_ = false;
+    Read();
+  }
+}
+
+// TODO(ibrar): We can add these functions into OS dependent files
 #if defined(OS_WIN)
 // MessageLoop watcher callback
 void ListenSocket::OnObjectSignaled(HANDLE object) {
@@ -239,7 +255,11 @@ void ListenSocket::OnObjectSignaled(HANDLE object) {
     Accept();
   }
   if (ev.lNetworkEvents & FD_READ) {
-    Read();
+    if (reads_paused_) {
+      has_pending_reads_ = true;
+    } else {
+      Read();
+    }
   }
   if (ev.lNetworkEvents & FD_CLOSE) {
     Close();
@@ -251,7 +271,11 @@ void ListenSocket::OnFileCanReadWithoutBlocking(int fd) {
     Accept();
   }
   if (wait_state_ == WAITING_READ) {
-    Read();
+    if (reads_paused_) {
+      has_pending_reads_ = true;
+    } else {
+      Read();
+    }
   }
   if (wait_state_ == WAITING_CLOSE) {
     // Close() is called by Read() in the Linux case.
