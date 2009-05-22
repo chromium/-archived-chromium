@@ -53,16 +53,12 @@ void PluginHelper::DestroyAllHelpersForPlugin(ChromePluginLib* plugin) {
 
 PluginHelper::PluginHelper(ChromePluginLib* plugin) : plugin_(plugin) {
   DCHECK(CalledOnValidThread());
-  NotificationService::current()->AddObserver(
-      this, NotificationType::CHROME_PLUGIN_UNLOADED,
-      Source<ChromePluginLib>(plugin_));
+  registrar_.Add(this, NotificationType::CHROME_PLUGIN_UNLOADED,
+                 Source<ChromePluginLib>(plugin_));
 }
 
 PluginHelper::~PluginHelper() {
   DCHECK(CalledOnValidThread());
-  NotificationService::current()->RemoveObserver(
-      this, NotificationType::CHROME_PLUGIN_UNLOADED,
-      Source<ChromePluginLib>(plugin_));
 }
 
 void PluginHelper::Observe(NotificationType type,

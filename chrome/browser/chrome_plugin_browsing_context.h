@@ -9,7 +9,7 @@
 
 #include "base/id_map.h"
 #include "chrome/common/chrome_plugin_api.h"
-#include "chrome/common/notification_observer.h"
+#include "chrome/common/notification_registrar.h"
 
 class URLRequestContext;
 
@@ -50,6 +50,8 @@ class CPBrowsingContextManager : public NotificationObserver {
 
   typedef IDMap<URLRequestContext> Map;
   typedef std::map<URLRequestContext*, CPBrowsingContext> ReverseMap;
+
+  NotificationRegistrar registrar_;
 
   Map map_;  // map of CPBrowsingContext -> URLRequestContext
   ReverseMap reverse_map_;  // map of URLRequestContext -> CPBrowsingContext

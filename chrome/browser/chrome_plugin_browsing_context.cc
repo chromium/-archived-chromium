@@ -21,14 +21,11 @@ CPBrowsingContextManager* CPBrowsingContextManager::Instance() {
 }
 
 CPBrowsingContextManager::CPBrowsingContextManager() {
-  NotificationService::current()->AddObserver(
-      this, NotificationType::URL_REQUEST_CONTEXT_RELEASED,
-      NotificationService::AllSources());
+  registrar_.Add(this, NotificationType::URL_REQUEST_CONTEXT_RELEASED,
+                 NotificationService::AllSources());
 }
 
 CPBrowsingContextManager::~CPBrowsingContextManager() {
-  // We don't remove ourselves as an observer because we are a Singleton object,
-  // and NotifcationService is likely gone by this point.
 }
 
 CPBrowsingContext CPBrowsingContextManager::Allocate(
