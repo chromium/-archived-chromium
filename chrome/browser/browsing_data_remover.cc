@@ -21,8 +21,6 @@
 #include "net/url_request/url_request_context.h"
 #include "webkit/glue/password_form.h"
 
-using base::Time;
-
 // Done so that we can use invokeLater on BrowsingDataRemovers and not have
 // BrowsingDataRemover implement RefCounted.
 template<>
@@ -36,10 +34,23 @@ void RunnableMethodTraits<BrowsingDataRemover>::ReleaseCallee(
 
 bool BrowsingDataRemover::removing_ = false;
 
-BrowsingDataRemover::BrowsingDataRemover(Profile* profile, Time delete_begin,
-                                         Time delete_end)
+BrowsingDataRemover::BrowsingDataRemover(Profile* profile,
+                                         base::Time delete_begin,
+                                         base::Time delete_end)
     : profile_(profile),
       delete_begin_(delete_begin),
+      delete_end_(delete_end),
+      waiting_for_keywords_(false),
+      waiting_for_clear_history_(false),
+      waiting_for_clear_cache_(false) {
+  DCHECK(profile);
+}
+
+BrowsingDataRemover::BrowsingDataRemover(Profile* profile,
+                                         TimePeriod time_period,
+                                         base::Time delete_end)
+    : profile_(profile),
+      delete_begin_(CalculateBeginDeleteTime(time_period)),
       delete_end_(delete_end),
       waiting_for_keywords_(false),
       waiting_for_clear_history_(false),
@@ -154,6 +165,30 @@ void BrowsingDataRemover::OnHistoryDeletionDone() {
   NotifyAndDeleteIfDone();
 }
 
+base::Time BrowsingDataRemover::CalculateBeginDeleteTime(
+    TimePeriod time_period) {
+  base::TimeDelta diff;
+  base::Time delete_begin_time = base::Time::Now();
+  switch (time_period) {
+    case LAST_DAY:
+      diff = base::TimeDelta::FromHours(24);
+      break;
+    case LAST_WEEK:
+      diff = base::TimeDelta::FromHours(7*24);
+      break;
+    case FOUR_WEEKS:
+      diff = base::TimeDelta::FromHours(4*7*24);
+      break;
+    case EVERYTHING:
+      delete_begin_time = base::Time();
+      break;
+    default:
+      NOTREACHED() << L"Missing item";
+      break;
+  }
+  return delete_begin_time - diff;
+}
+
 void BrowsingDataRemover::Observe(NotificationType type,
                                   const NotificationSource& source,
                                   const NotificationDetails& details) {
@@ -195,8 +230,8 @@ void BrowsingDataRemover::ClearedCache() {
   NotifyAndDeleteIfDone();
 }
 
-void BrowsingDataRemover::ClearCacheOnIOThread(Time delete_begin,
-                                               Time delete_end,
+void BrowsingDataRemover::ClearCacheOnIOThread(base::Time delete_begin,
+                                               base::Time delete_end,
                                                MessageLoop* ui_loop) {
   // This function should be called on the IO thread.
   DCHECK(MessageLoop::current() ==

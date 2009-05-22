@@ -875,6 +875,8 @@
         'browser/gtk/browser_window_factory_gtk.cc',
         'browser/gtk/browser_window_gtk.cc',
         'browser/gtk/browser_window_gtk.h',
+        'browser/gtk/clear_browsing_data_dialog_gtk.cc',
+        'browser/gtk/clear_browsing_data_dialog_gtk.h',
         'browser/gtk/custom_button.cc',
         'browser/gtk/custom_button.h',
         'browser/gtk/dialogs_gtk.cc',

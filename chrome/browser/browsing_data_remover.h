@@ -18,6 +18,14 @@ class Profile;
 
 class BrowsingDataRemover : public NotificationObserver {
  public:
+  // Time period ranges available when doing browsing data removals.
+  enum TimePeriod {
+    LAST_DAY = 0,
+    LAST_WEEK,
+    FOUR_WEEKS,
+    EVERYTHING
+  };
+
   // Mask used for Remove.
 
   // In addition to visits, this removes keywords and the last session.
@@ -38,6 +46,11 @@ class BrowsingDataRemover : public NotificationObserver {
   // Creates a BrowsingDataRemover to remove browser data from the specified
   // profile in the specified time range. Use Remove to initiate the removal.
   BrowsingDataRemover(Profile* profile, base::Time delete_begin,
+                      base::Time delete_end);
+
+  // Creates a BrowsingDataRemover to remove browser data from the specified
+  // profile in the specified time range.
+  BrowsingDataRemover(Profile* profile, TimePeriod time_period,
                       base::Time delete_end);
   ~BrowsingDataRemover();
 
@@ -71,6 +84,9 @@ class BrowsingDataRemover : public NotificationObserver {
   void ClearCacheOnIOThread(base::Time delete_begin,
                             base::Time delete_end,
                             MessageLoop* ui_loop);
+
+  // Calculate the begin time for the deletion range specified by |time_period|.
+  base::Time CalculateBeginDeleteTime(TimePeriod time_period);
 
   // Returns true if we're all done.
   bool all_done() {

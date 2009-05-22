@@ -19,9 +19,6 @@
 #include "views/standard_layout.h"
 #include "views/window/window.h"
 
-using base::Time;
-using base::TimeDelta;
-
 // The combo box is vertically aligned to the 'time-period' label, which makes
 // the combo box look a little too close to the check box above it when we use
 // standard layout to separate them. We therefore add a little extra margin to
@@ -399,19 +396,7 @@ static bool IsCheckBoxEnabledAndSelected(views::Checkbox* cb) {
 }
 
 void ClearBrowsingDataView::OnDelete() {
-  TimeDelta diff;
-  Time delete_begin = Time::Now();
-
   int period_selected = time_period_combobox_->GetSelectedItem();
-  switch (period_selected) {
-    case 0: diff = TimeDelta::FromHours(24); break;        // Last day.
-    case 1: diff = TimeDelta::FromHours(7*24); break;      // Last week.
-    case 2: diff = TimeDelta::FromHours(4*7*24); break;    // Four weeks.
-    case 3: delete_begin = Time(); break;                  // Everything.
-    default: NOTREACHED() << L"Missing item"; break;
-  }
-
-  delete_begin = delete_begin - diff;
 
   int remove_mask = 0;
   if (IsCheckBoxEnabledAndSelected(del_history_checkbox_))
@@ -431,8 +416,9 @@ void ClearBrowsingDataView::OnDelete() {
   UpdateControlEnabledState();
 
   // BrowsingDataRemover deletes itself when done.
-  remover_ =
-      new BrowsingDataRemover(profile_, delete_begin, Time());
+  remover_ = new BrowsingDataRemover(profile_,
+      static_cast<BrowsingDataRemover::TimePeriod>(period_selected),
+      base::Time());
   remover_->AddObserver(this);
   remover_->Remove(remove_mask);
 }

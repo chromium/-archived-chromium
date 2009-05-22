@@ -1130,12 +1130,10 @@ void Browser::ShowDownloadsTab() {
   ShowSingleDOMUITab(GURL(chrome::kChromeUIDownloadsURL));
 }
 
-#if defined(OS_WIN)
 void Browser::OpenClearBrowsingDataDialog() {
   UserMetrics::RecordAction(L"ClearBrowsingData_ShowDlg", profile_);
   window_->ShowClearBrowsingDataDialog();
 }
-#endif
 
 void Browser::OpenOptionsDialog() {
   UserMetrics::RecordAction(L"ShowOptions", profile_);
@@ -1371,7 +1369,6 @@ void Browser::ExecuteCommandWithDisposition(
     case IDC_P13N_INFO:
       Personalization::HandleMenuItemClick(profile());             break;
 #endif
-    case IDC_CLEAR_BROWSING_DATA:   OpenClearBrowsingDataDialog(); break;
 #endif
     case IDC_OPTIONS:               OpenOptionsDialog();           break;
 #if defined(OS_WIN)
@@ -1379,6 +1376,7 @@ void Browser::ExecuteCommandWithDisposition(
     case IDC_VIEW_PASSWORDS:        OpenPasswordManager();         break;
 #endif
 #if defined(OS_WIN) || defined(OS_LINUX)
+    case IDC_CLEAR_BROWSING_DATA:   OpenClearBrowsingDataDialog(); break;
     case IDC_IMPORT_SETTINGS:       OpenImportSettingsDialog();    break;
 #endif
     case IDC_ABOUT:                 OpenAboutChromeDialog();       break;

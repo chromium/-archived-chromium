@@ -370,9 +370,7 @@ class Browser : public TabStripModelDelegate,
 #endif
   void ShowHistoryTab();
   void ShowDownloadsTab();
-#if defined(OS_WIN)
   void OpenClearBrowsingDataDialog();
-#endif
   void OpenOptionsDialog();
 #if defined(OS_WIN)
   void OpenKeywordEditor();

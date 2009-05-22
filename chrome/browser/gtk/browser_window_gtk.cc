@@ -21,6 +21,7 @@
 #include "chrome/browser/gtk/about_chrome_dialog.h"
 #include "chrome/browser/gtk/bookmark_bar_gtk.h"
 #include "chrome/browser/gtk/browser_toolbar_gtk.h"
+#include "chrome/browser/gtk/clear_browsing_data_dialog_gtk.h"
 #include "chrome/browser/gtk/go_button_gtk.h"
 #include "chrome/browser/gtk/import_dialog_gtk.h"
 #include "chrome/browser/gtk/infobar_container_gtk.h"
@@ -569,7 +570,7 @@ void BrowserWindowGtk::ShowReportBugDialog() {
 }
 
 void BrowserWindowGtk::ShowClearBrowsingDataDialog() {
-  NOTIMPLEMENTED();
+  ClearBrowsingDataDialogGtk::Show(window_, browser_->profile());
 }
 
 void BrowserWindowGtk::ShowImportDialog() {
