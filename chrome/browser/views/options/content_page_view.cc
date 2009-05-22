@@ -221,7 +221,7 @@ void ContentPageView::ButtonPressed(views::Button* sender) {
                                         profile()->GetPrefs()->GetString(
                                         prefs::kDownloadDefaultDirectory)),
                                     NULL, 0, std::wstring(),
-                                    GetRootWindow(),
+                                    GetWindow()->GetNativeWindow(),
                                     NULL);
   } else if (sender == download_ask_for_save_location_checkbox_) {
     bool enabled = download_ask_for_save_location_checkbox_->checked();
@@ -259,7 +259,7 @@ void ContentPageView::ButtonPressed(views::Button* sender) {
     form_autofill_.SetValue(enabled);
   } else if (sender == change_content_fonts_button_) {
     views::Window::CreateChromeWindow(
-        GetRootWindow(),
+        GetWindow()->GetNativeWindow(),
         gfx::Rect(),
         new FontsLanguagesWindowView(profile()))->Show();
   } else if (sender == themes_reset_button_) {
@@ -272,7 +272,7 @@ void ContentPageView::ButtonPressed(views::Button* sender) {
 // ContentPageView, OptionsPageView implementation:
 
 bool ContentPageView::CanClose() const {
-  return !select_file_dialog_->IsRunning(GetRootWindow());
+  return !select_file_dialog_->IsRunning(GetWindow()->GetNativeWindow());
 }
 
 void ContentPageView::InitControlLayout() {

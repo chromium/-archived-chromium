@@ -507,7 +507,7 @@ void LanguagesPageView::ButtonPressed(views::Button* sender) {
     language_table_edited_ = true;
   } else if (sender == add_button_) {
     views::Window::CreateChromeWindow(
-        GetWidget()->GetNativeView(),
+        GetWindow()->GetNativeWindow(),
         gfx::Rect(),
         new AddLanguageWindowView(this, profile()))->Show();
     language_table_edited_ = true;
@@ -741,7 +741,7 @@ void LanguagesPageView::ItemChanged(views::ComboBox* sender,
       ui_language_index_selected_ = new_index;
 
     if (!language_warning_shown_) {
-      RestartMessageBox::ShowMessageBox(GetRootWindow());
+      RestartMessageBox::ShowMessageBox(GetWindow()->GetNativeWindow());
       language_warning_shown_ = true;
     }
   } else if (sender == change_dictionary_language_combobox_) {

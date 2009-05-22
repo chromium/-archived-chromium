@@ -157,7 +157,8 @@ void AdvancedPageView::ResetToDefaults() {
 void AdvancedPageView::ButtonPressed(views::Button* sender) {
   if (sender == reset_to_default_button_) {
     UserMetricsRecordAction(L"Options_ResetToDefaults", NULL);
-    ResetDefaultsConfirmBox::ShowConfirmBox(GetRootWindow(), this);
+    ResetDefaultsConfirmBox::ShowConfirmBox(
+        GetWindow()->GetNativeWindow(), this);
   }
 }
 

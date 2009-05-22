@@ -1000,7 +1000,7 @@ void GeneralPageView::SaveStartupPref() {
 
 void GeneralPageView::AddURLToStartupURLs() {
   ShelfItemDialog* dialog = new ShelfItemDialog(this, profile(), false);
-  dialog->Show(GetRootWindow());
+  dialog->Show(GetWindow()->GetNativeWindow());
 }
 
 void GeneralPageView::RemoveURLsFromStartupURLs() {

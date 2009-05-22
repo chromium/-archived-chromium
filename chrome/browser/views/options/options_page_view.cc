@@ -52,9 +52,3 @@ void OptionsPageView::ViewHierarchyChanged(bool is_add,
     NotifyPrefChanged(NULL);
   }
 }
-
-HWND OptionsPageView::GetRootWindow() const {
-  // Our Widget is the TabbedPane content HWND, which is a child HWND.
-  // We need the root HWND for parenting.
-  return GetAncestor(GetWidget()->GetNativeView(), GA_ROOT);
-}

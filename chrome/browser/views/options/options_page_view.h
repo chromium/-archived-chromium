@@ -63,9 +63,6 @@ class OptionsPageView : public views::View,
                                     views::View* parent,
                                     views::View* child);
 
-  // Returns the HWND on which created windows should be parented.
-  HWND GetRootWindow() const;
-
  private:
   // The Profile associated with this page.
   Profile* profile_;

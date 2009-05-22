@@ -431,7 +431,7 @@ void PrivacySection::ButtonPressed(views::Button* sender) {
                             profile()->GetPrefs());
     ResolveMetricsReportingEnabled();
     if (enabled == reporting_enabled_checkbox_->checked())
-      RestartMessageBox::ShowMessageBox(GetRootWindow());
+      RestartMessageBox::ShowMessageBox(GetWindow()->GetNativeWindow());
     enable_metrics_recording_.SetValue(enabled);
   } else if (sender == show_cookies_button_) {
     UserMetricsRecordAction(L"Options_ShowCookies", NULL);
@@ -817,7 +817,7 @@ void SecuritySection::ButtonPressed(views::Button* sender) {
     UserMetricsRecordAction(L"Options_ManagerCerts", NULL);
     CRYPTUI_CERT_MGR_STRUCT cert_mgr = { 0 };
     cert_mgr.dwSize = sizeof(CRYPTUI_CERT_MGR_STRUCT);
-    cert_mgr.hwndParent = GetRootWindow();
+    cert_mgr.hwndParent = GetWindow()->GetNativeWindow();
     ::CryptUIDlgCertMgr(&cert_mgr);
   }
 }
