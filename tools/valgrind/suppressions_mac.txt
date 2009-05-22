@@ -171,3 +171,25 @@
    fun:ScratchInit
    fun:CMOpenOrNewAccess
 }
+{
+   bug_12525
+   Memcheck:Cond
+   ...
+   fun:gldGetTextureLevel
+   fun:gldUpdateDispatch
+   fun:glBegin_Exec
+   fun:fe_gl_begin
+   fun:fe_tree_render_apply_1
+   fun:apply_tile_callback
+   fun:fe_gl_texture_tile_map
+   fun:image_buffer_texture_tile_map
+   fun:fe_texture_tile_map
+}
+{
+   # Jump on uninitialized value in OpenGL.framework's GLEngine.bundle
+   bug_12528
+   Memcheck:Cond
+   ...
+   fun:ripc_DrawShading
+   fun:CGContextDrawShading
+}
