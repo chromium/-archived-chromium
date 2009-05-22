@@ -412,9 +412,9 @@ bool ResourceHandleInternal::Start(
   // TODO(abarth): These are wrong!  I need to figure out how to get the right
   //               strings here.  See: http://crbug.com/8706
   std::string frame_origin =
-      webkit_glue::StringToStdString(request_.mainDocumentURL().string());
+      webkit_glue::StringToStdString(request_.firstPartyForCookies().string());
   std::string main_frame_origin =
-      webkit_glue::StringToStdString(request_.mainDocumentURL().string());
+      webkit_glue::StringToStdString(request_.firstPartyForCookies().string());
 
   // TODO(darin): is latin1 really correct here?  It is if the strings are
   // already ASCII (i.e., if they are already escaped properly).
