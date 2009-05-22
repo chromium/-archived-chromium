@@ -443,10 +443,41 @@ void MetricsService::SetRecording(bool enabled) {
       }
     }
     StartRecording();
-    ListenerRegistration(true);
+
+    registrar_.Add(this, NotificationType::BROWSER_OPENED,
+                   NotificationService::AllSources());
+    registrar_.Add(this, NotificationType::BROWSER_CLOSED,
+                   NotificationService::AllSources());
+    registrar_.Add(this, NotificationType::USER_ACTION,
+                   NotificationService::AllSources());
+    registrar_.Add(this, NotificationType::TAB_PARENTED,
+                   NotificationService::AllSources());
+    registrar_.Add(this, NotificationType::TAB_CLOSING,
+                   NotificationService::AllSources());
+    registrar_.Add(this, NotificationType::LOAD_START,
+                   NotificationService::AllSources());
+    registrar_.Add(this, NotificationType::LOAD_STOP,
+                   NotificationService::AllSources());
+    registrar_.Add(this, NotificationType::RENDERER_PROCESS_IN_SBOX,
+                   NotificationService::AllSources());
+    registrar_.Add(this, NotificationType::RENDERER_PROCESS_CLOSED,
+                   NotificationService::AllSources());
+    registrar_.Add(this, NotificationType::RENDERER_PROCESS_HANG,
+                   NotificationService::AllSources());
+    registrar_.Add(this, NotificationType::CHILD_PROCESS_HOST_CONNECTED,
+                   NotificationService::AllSources());
+    registrar_.Add(this, NotificationType::CHILD_INSTANCE_CREATED,
+                   NotificationService::AllSources());
+    registrar_.Add(this, NotificationType::CHILD_PROCESS_CRASHED,
+                   NotificationService::AllSources());
+    registrar_.Add(this, NotificationType::TEMPLATE_URL_MODEL_LOADED,
+                   NotificationService::AllSources());
+    registrar_.Add(this, NotificationType::OMNIBOX_OPENED_URL,
+                   NotificationService::AllSources());
+    registrar_.Add(this, NotificationType::BOOKMARK_MODEL_LOADED,
+                   NotificationService::AllSources());
   } else {
-    // Turn off all observers.
-    ListenerRegistration(false);
+    registrar_.RemoveAll();
     PushPendingLogsToUnsentLists();
     DCHECK(!pending_log());
     if (state_ > INITIAL_LOG_READY && unsent_logs())
@@ -785,46 +816,6 @@ void MetricsService::StopRecording(MetricsLog** log) {
   else
     delete current_log_;
   current_log_ = NULL;
-}
-
-void MetricsService::ListenerRegistration(bool start_listening) {
-  AddOrRemoveObserver(this, NotificationType::BROWSER_OPENED, start_listening);
-  AddOrRemoveObserver(this, NotificationType::BROWSER_CLOSED, start_listening);
-  AddOrRemoveObserver(this, NotificationType::USER_ACTION, start_listening);
-  AddOrRemoveObserver(this, NotificationType::TAB_PARENTED, start_listening);
-  AddOrRemoveObserver(this, NotificationType::TAB_CLOSING, start_listening);
-  AddOrRemoveObserver(this, NotificationType::LOAD_START, start_listening);
-  AddOrRemoveObserver(this, NotificationType::LOAD_STOP, start_listening);
-  AddOrRemoveObserver(this, NotificationType::RENDERER_PROCESS_IN_SBOX,
-                      start_listening);
-  AddOrRemoveObserver(this, NotificationType::RENDERER_PROCESS_CLOSED,
-                      start_listening);
-  AddOrRemoveObserver(this, NotificationType::RENDERER_PROCESS_HANG,
-                      start_listening);
-  AddOrRemoveObserver(this, NotificationType::CHILD_PROCESS_HOST_CONNECTED,
-                      start_listening);
-  AddOrRemoveObserver(this, NotificationType::CHILD_INSTANCE_CREATED,
-                      start_listening);
-  AddOrRemoveObserver(this, NotificationType::CHILD_PROCESS_CRASHED,
-                      start_listening);
-  AddOrRemoveObserver(this, NotificationType::TEMPLATE_URL_MODEL_LOADED,
-                      start_listening);
-  AddOrRemoveObserver(this, NotificationType::OMNIBOX_OPENED_URL,
-                      start_listening);
-  AddOrRemoveObserver(this, NotificationType::BOOKMARK_MODEL_LOADED,
-                      start_listening);
-}
-
-// static
-void MetricsService::AddOrRemoveObserver(NotificationObserver* observer,
-                                         NotificationType type,
-                                         bool is_add) {
-  NotificationService* service = NotificationService::current();
-
-  if (is_add)
-    service->AddObserver(observer, type, NotificationService::AllSources());
-  else
-    service->RemoveObserver(observer, type, NotificationService::AllSources());
 }
 
 void MetricsService::PushPendingLogsToUnsentLists() {

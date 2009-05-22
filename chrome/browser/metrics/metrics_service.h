@@ -20,7 +20,7 @@
 #include "base/values.h"
 #include "chrome/browser/metrics/metrics_log.h"
 #include "chrome/browser/net/url_fetcher.h"
-#include "chrome/common/notification_observer.h"
+#include "chrome/common/notification_registrar.h"
 #include "webkit/glue/webplugin.h"
 
 class BookmarkModel;
@@ -176,14 +176,6 @@ class MetricsService : public NotificationObserver,
   // ownership of the resulting MetricsLog object via the log parameter,
   // or passes in NULL to indicate that the log should simply be deleted.
   void StopRecording(MetricsLog** log);
-
-  void ListenerRegistration(bool start_listening);
-
-  // Adds or Removes (depending on the value of is_add) the given observer
-  // to the given notification type for all sources.
-  static void AddOrRemoveObserver(NotificationObserver* observer,
-                                  NotificationType type,
-                                  bool is_add);
 
   // Deletes pending_log_ and current_log_, and pushes their text into the
   // appropriate unsent_log vectors.  Called when Chrome shuts down.
@@ -376,6 +368,8 @@ class MetricsService : public NotificationObserver,
 
   // Sets the value of the specified path in prefs and schedules a save.
   void RecordBooleanPrefValue(const wchar_t* path, bool value);
+
+  NotificationRegistrar registrar_;
 
   // Indicate whether recording and reporting are currently happening.
   // These should not be set directly, but by calling SetRecording and
