@@ -8,7 +8,7 @@
 #include <map>
 
 #include "base/singleton.h"
-#include "chrome/common/notification_registrar.h"
+#include "chrome/common/notification_observer.h"
 #include "webkit/glue/webaccessibility.h"
 
 class BrowserAccessibility;
@@ -80,8 +80,6 @@ class BrowserAccessibilityManager : public NotificationObserver {
   // for that RenderProcessHost.
   typedef std::multimap<int, BrowserAccessibility*> RenderProcessHostMap;
   typedef std::pair<int, BrowserAccessibility*> MapEntry;
-
-  NotificationRegistrar registrar_;
 
   // Mapping to track which RenderProcessHosts ids are active. If a
   // RenderProcessHost is found to be terminated, its id (key) should be removed
