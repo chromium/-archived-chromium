@@ -6,7 +6,6 @@
 
 #include <algorithm>
 
-#include "app/gfx/text_elider.h"
 #include "base/basictypes.h"
 #include "base/histogram.h"
 #include "base/message_loop.h"
@@ -832,9 +831,8 @@ AutocompleteMatch HistoryURLProvider::HistoryMatchToACMatch(
       !!info.visit_count(), AutocompleteMatch::HISTORY_URL);
   match.destination_url = info.url();
   DCHECK(match.destination_url.is_valid());
-  match.fill_into_edit = gfx::GetCleanStringFromUrl(info.url(),
-      match_type == WHAT_YOU_TYPED ? std::wstring() : params->languages,
-      NULL, NULL);
+  match.fill_into_edit = net::FormatUrl(info.url(),
+      match_type == WHAT_YOU_TYPED ? std::wstring() : params->languages);
   if (!params->input.prevent_inline_autocomplete()) {
     match.inline_autocomplete_offset =
         history_match.input_location + params->input.text().length();

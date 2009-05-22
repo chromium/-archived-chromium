@@ -4,7 +4,6 @@
 
 #include "chrome/browser/toolbar_model.h"
 
-#include "app/gfx/text_elider.h"
 #include "app/l10n_util.h"
 #include "chrome/browser/cert_store.h"
 #include "chrome/browser/ssl/ssl_error_info.h"
@@ -41,7 +40,7 @@ std::wstring ToolbarModel::GetText() {
       url = entry->display_url();
     }
   }
-  return gfx::GetCleanStringFromUrl(url, languages, NULL, NULL);
+  return net::FormatUrl(url, languages);
 }
 
 ToolbarModel::SecurityLevel ToolbarModel::GetSecurityLevel() {

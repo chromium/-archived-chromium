@@ -337,6 +337,16 @@ struct SuggestedFilenameCase {
   const wchar_t* expected_filename;
 };
 
+struct UrlTestData {
+  const char* description;
+  const char* input;
+  const std::wstring languages;
+  bool omit;
+  bool unescape;
+  const std::wstring output;
+  size_t prefix_len;
+};
+
 // Returns an addrinfo for the given 32-bit address (IPv4.)
 // The result lives in static storage, so don't delete it.
 const struct addrinfo* GetIPv4Address(const uint8 bytes[4]) {
@@ -1007,4 +1017,158 @@ TEST(NetUtilTest, GetHostName) {
   // code path, and check that things "look about right".
   std::string hostname = net::GetHostName();
   EXPECT_FALSE(hostname.empty());
+}
+
+TEST(NetUtilTest, FormatUrl) {
+  const UrlTestData tests[] = {
+    {"Empty URL", "", L"", true, true, L"", 0},
+
+    {"Simple URL",
+     "http://www.google.com/", L"", true, true,
+     L"http://www.google.com/", 7},
+
+    {"With a port number and a reference",
+     "http://www.google.com:8080/#\xE3\x82\xB0", L"", true, true,
+     L"http://www.google.com:8080/#\x30B0", 7},
+
+    // -------- IDN tests --------
+    {"Japanese IDN with ja",
+     "http://xn--l8jvb1ey91xtjb.jp", L"ja", true, true,
+     L"http://\x671d\x65e5\x3042\x3055\x3072.jp/", 7},
+
+    {"Japanese IDN with en",
+     "http://xn--l8jvb1ey91xtjb.jp", L"en", true, true,
+     L"http://xn--l8jvb1ey91xtjb.jp/", 7},
+
+    {"Japanese IDN without any languages",
+     "http://xn--l8jvb1ey91xtjb.jp", L"", true, true,
+     // Single script is safe for empty languages.
+     L"http://\x671d\x65e5\x3042\x3055\x3072.jp/", 7},
+
+    {"mailto: with Japanese IDN",
+     "mailto:foo@xn--l8jvb1ey91xtjb.jp", L"ja", true, true,
+     // GURL doesn't assume an email address's domain part as a host name.
+     L"mailto:foo@xn--l8jvb1ey91xtjb.jp", 7},
+
+    {"file: with Japanese IDN",
+     "file://xn--l8jvb1ey91xtjb.jp/config.sys", L"ja", true, true,
+     L"file://\x671d\x65e5\x3042\x3055\x3072.jp/config.sys", 7},
+
+    {"ftp: with Japanese IDN",
+     "ftp://xn--l8jvb1ey91xtjb.jp/config.sys", L"ja", true, true,
+     L"ftp://\x671d\x65e5\x3042\x3055\x3072.jp/config.sys", 6},
+
+    // -------- omit_username_password flag tests --------
+    {"With username and password, omit_username_password=false",
+     "http://user:passwd@example.com/foo", L"", false, true,
+     L"http://user:passwd@example.com/foo", 19},
+
+    {"With username and password, omit_username_password=true",
+     "http://user:passwd@example.com/foo", L"", true, true,
+     L"http://example.com/foo", 7},
+
+    {"With username and no password",
+     "http://user@example.com/foo", L"", true, true,
+     L"http://example.com/foo", 7},
+
+    {"Just '@' without username and password",
+     "http://@example.com/foo", L"", true, true,
+     L"http://example.com/foo", 7},
+
+    // GURL doesn't think local-part of an email address is username for URL.
+    {"mailto:, omit_username_password=true",
+     "mailto:foo@example.com", L"", true, true,
+     L"mailto:foo@example.com", 7},
+
+    // -------- unescape flag tests --------
+    {"unescape=false",
+     "http://%E3%82%B0%E3%83%BC%E3%82%B0%E3%83%AB.jp/"
+     "%E3%82%B0%E3%83%BC%E3%82%B0%E3%83%AB"
+     "?q=%E3%82%B0%E3%83%BC%E3%82%B0%E3%83%AB", L"en", true, false,
+     // GURL parses %-encoded hostnames into Punycode.
+     L"http://xn--qcka1pmc.jp/%E3%82%B0%E3%83%BC%E3%82%B0%E3%83%AB"
+     L"?q=%E3%82%B0%E3%83%BC%E3%82%B0%E3%83%AB", 7},
+
+    {"unescape=true",
+     "http://%E3%82%B0%E3%83%BC%E3%82%B0%E3%83%AB.jp/"
+     "%E3%82%B0%E3%83%BC%E3%82%B0%E3%83%AB"
+     "?q=%E3%82%B0%E3%83%BC%E3%82%B0%E3%83%AB", L"en", true, true,
+     L"http://xn--qcka1pmc.jp/\x30B0\x30FC\x30B0\x30EB"
+     L"?q=\x30B0\x30FC\x30B0\x30EB", 7},
+
+    /*
+    {"unescape=true with some special characters",
+    "http://user%3A:%40passwd@example.com/foo%3Fbar?q=b%26z", L"", false, true,
+    L"http://user%3A:%40passwd@example.com/foo%3Fbar?q=b%26z", 25},
+    */
+    // Disabled: the resultant URL becomes "...user%253A:%2540passwd...".
+  };
+
+  for (size_t i = 0; i < arraysize(tests); ++i) {
+    size_t prefix_len;
+    std::wstring formatted = net::FormatUrl(
+        GURL(tests[i].input), tests[i].languages, tests[i].omit,
+        tests[i].unescape, NULL, &prefix_len);
+    EXPECT_EQ(tests[i].output, formatted) << tests[i].description;
+    EXPECT_EQ(tests[i].prefix_len, prefix_len) << tests[i].description;
+  }
+}
+
+TEST(NetUtilTest, FormatUrlParsed) {
+  // No unescape case.
+  url_parse::Parsed parsed;
+  std::wstring formatted = net::FormatUrl(
+      GURL("http://\xE3\x82\xB0:\xE3\x83\xBC@xn--qcka1pmc.jp:8080/"
+           "%E3%82%B0/?q=%E3%82%B0#\xE3\x82\xB0"),
+      L"ja", false, false, &parsed, NULL);
+  EXPECT_EQ(L"http://%E3%82%B0:%E3%83%BC@\x30B0\x30FC\x30B0\x30EB.jp:8080"
+      L"/%E3%82%B0/?q=%E3%82%B0#\x30B0", formatted);
+  EXPECT_EQ(L"%E3%82%B0",
+      formatted.substr(parsed.username.begin, parsed.username.len));
+  EXPECT_EQ(L"%E3%83%BC",
+      formatted.substr(parsed.password.begin, parsed.password.len));
+  EXPECT_EQ(L"\x30B0\x30FC\x30B0\x30EB.jp",
+      formatted.substr(parsed.host.begin, parsed.host.len));
+  EXPECT_EQ(L"8080", formatted.substr(parsed.port.begin, parsed.port.len));
+  EXPECT_EQ(L"/%E3%82%B0/",
+      formatted.substr(parsed.path.begin, parsed.path.len));
+  EXPECT_EQ(L"q=%E3%82%B0",
+      formatted.substr(parsed.query.begin, parsed.query.len));
+  EXPECT_EQ(L"\x30B0", formatted.substr(parsed.ref.begin, parsed.ref.len));
+
+  // Unescape case.
+  formatted = net::FormatUrl(
+      GURL("http://\xE3\x82\xB0:\xE3\x83\xBC@xn--qcka1pmc.jp:8080/"
+           "%E3%82%B0/?q=%E3%82%B0#\xE3\x82\xB0"),
+      L"ja", false, true, &parsed, NULL);
+  EXPECT_EQ(L"http://\x30B0:\x30FC@\x30B0\x30FC\x30B0\x30EB.jp:8080"
+      L"/\x30B0/?q=\x30B0#\x30B0", formatted);
+  EXPECT_EQ(L"\x30B0",
+      formatted.substr(parsed.username.begin, parsed.username.len));
+  EXPECT_EQ(L"\x30FC",
+      formatted.substr(parsed.password.begin, parsed.password.len));
+  EXPECT_EQ(L"\x30B0\x30FC\x30B0\x30EB.jp",
+      formatted.substr(parsed.host.begin, parsed.host.len));
+  EXPECT_EQ(L"8080", formatted.substr(parsed.port.begin, parsed.port.len));
+  EXPECT_EQ(L"/\x30B0/", formatted.substr(parsed.path.begin, parsed.path.len));
+  EXPECT_EQ(L"q=\x30B0",
+      formatted.substr(parsed.query.begin, parsed.query.len));
+  EXPECT_EQ(L"\x30B0", formatted.substr(parsed.ref.begin, parsed.ref.len));
+
+  // Omit_username_password + unescape case.
+  formatted = net::FormatUrl(
+      GURL("http://\xE3\x82\xB0:\xE3\x83\xBC@xn--qcka1pmc.jp:8080/"
+           "%E3%82%B0/?q=%E3%82%B0#\xE3\x82\xB0"),
+      L"ja", true, true, &parsed, NULL);
+  EXPECT_EQ(L"http://\x30B0\x30FC\x30B0\x30EB.jp:8080"
+      L"/\x30B0/?q=\x30B0#\x30B0", formatted);
+  EXPECT_FALSE(parsed.username.is_valid());
+  EXPECT_FALSE(parsed.password.is_valid());
+  EXPECT_EQ(L"\x30B0\x30FC\x30B0\x30EB.jp",
+      formatted.substr(parsed.host.begin, parsed.host.len));
+  EXPECT_EQ(L"8080", formatted.substr(parsed.port.begin, parsed.port.len));
+  EXPECT_EQ(L"/\x30B0/", formatted.substr(parsed.path.begin, parsed.path.len));
+  EXPECT_EQ(L"q=\x30B0",
+      formatted.substr(parsed.query.begin, parsed.query.len));
+  EXPECT_EQ(L"\x30B0", formatted.substr(parsed.ref.begin, parsed.ref.len));
 }

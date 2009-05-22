@@ -11,10 +11,14 @@
 #include "base/string_util.h"
 #include "base/time_format.h"
 #include "chrome/browser/bookmarks/bookmark_utils.h"
+#include "chrome/browser/profile.h"
+#include "chrome/common/pref_names.h"
+#include "chrome/common/pref_service.h"
 #include "googleurl/src/gurl.h"
 #include "grit/app_resources.h"
 #include "grit/generated_resources.h"
 #include "grit/theme_resources.h"
+#include "net/base/net_util.h"
 
 namespace {
 
@@ -308,7 +312,11 @@ std::wstring BookmarkTableModel::GetText(int row, int column_id) {
     case IDS_BOOKMARK_TABLE_URL: {
       if (!node->is_url())
         return std::wstring();
-      std::wstring url_text = UTF8ToWide(node->GetURL().spec());
+      std::wstring languages = model_ && model_->profile()
+          ? model_->profile()->GetPrefs()->GetString(prefs::kAcceptLanguages)
+          : std::wstring();
+      std::wstring url_text =
+          net::FormatUrl(node->GetURL(), languages, false, true, NULL, NULL);
       if (l10n_util::GetTextDirection() == l10n_util::RIGHT_TO_LEFT)
         l10n_util::WrapStringWithLTRFormatting(&url_text);
       return url_text;

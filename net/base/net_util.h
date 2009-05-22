@@ -23,6 +23,10 @@ namespace base {
 class Time;
 }
 
+namespace url_parse {
+struct Parsed;
+}
+
 namespace net {
 
 // Given the full path to a file name, creates a file: URL. The returned URL
@@ -169,6 +173,35 @@ bool IsPortAllowedByFtp(int port);
 
 // Set socket to non-blocking mode
 int SetNonBlocking(int fd);
+
+// Appends the given part of the original URL to the output string formatted for
+// the user. The given parsed structure will be updated. The host name formatter
+// also takes the same accept languages component as ElideURL. |new_parsed| may
+// be null.
+void AppendFormattedHost(const GURL& url, const std::wstring& languages,
+                         std::wstring* output, url_parse::Parsed* new_parsed);
+
+// Creates a string representation of |url|. The IDN host name may
+// be in Unicode if |languages| accepts the Unicode representation.
+// If |omit_username_password| is true, the username and the password are
+// omitted. If |unescape| is true and the path part and the query part seem to
+// be encoded in %-encoded UTF-8, decodes %-encoding and UTF-8.
+// |new_parsed| will have parsing parameters of the resultant URL. |prefix_end|
+// will be the length before the hostname of the resultant URL. |new_parsed|
+// and |prefix_end| may be NULL.
+std::wstring FormatUrl(const GURL& url,
+                       const std::wstring& languages,
+                       bool omit_username_password,
+                       bool unescape,
+                       url_parse::Parsed* new_parsed,
+                       size_t* prefix_end);
+
+// Creates a string representation of |url| for display to the user.
+// This is a shorthand of the above function with omit_username_password=true,
+// unescape=true, new_parsed=NULL, and prefix_end=NULL.
+inline std::wstring FormatUrl(const GURL& url, const std::wstring& languages) {
+  return FormatUrl(url, languages, true, true, NULL, NULL);
+}
 
 }  // namespace net
 

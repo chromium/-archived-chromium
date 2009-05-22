@@ -6,7 +6,6 @@
 
 #include <algorithm>
 
-#include "app/gfx/text_elider.h"
 #include "app/l10n_util.h"
 #include "base/basictypes.h"
 #include "base/string_util.h"
@@ -492,9 +491,9 @@ void AutocompleteProvider::UpdateStarredStateOfMatches() {
 std::wstring AutocompleteProvider::StringForURLDisplay(
     const GURL& url,
     bool check_accept_lang) const {
-  return gfx::GetCleanStringFromUrl(url, (check_accept_lang && profile_) ?
-      profile_->GetPrefs()->GetString(prefs::kAcceptLanguages) : std::wstring(),
-      NULL, NULL);
+  std::wstring languages = (check_accept_lang && profile_) ?
+      profile_->GetPrefs()->GetString(prefs::kAcceptLanguages) : std::wstring();
+  return net::FormatUrl(url, languages);
 }
 
 // AutocompleteResult ---------------------------------------------------------

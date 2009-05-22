@@ -4,13 +4,13 @@
 
 #include "chrome/browser/tab_contents/navigation_entry.h"
 
-#include "app/gfx/text_elider.h"
 #include "app/resource_bundle.h"
 #include "chrome/browser/tab_contents/navigation_controller.h"
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
 #include "chrome/common/url_constants.h"
 #include "grit/app_resources.h"
+#include "net/base/net_util.h"
 
 // Use this to get a new unique ID for a NavigationEntry during construction.
 // The returned ID is guaranteed to be nonzero (which is the "no ID" indicator).
@@ -80,11 +80,10 @@ const string16& NavigationEntry::GetTitleForDisplay(
           prefs::kAcceptLanguages);
   }
   if (!display_url_.is_empty()) {
-    cached_display_title_ = WideToUTF16Hack(gfx::GetCleanStringFromUrl(
-        display_url_, languages, NULL, NULL));
+    cached_display_title_ = WideToUTF16Hack(net::FormatUrl(
+        display_url_, languages));
   } else if (!url_.is_empty()) {
-    cached_display_title_ = WideToUTF16Hack(gfx::GetCleanStringFromUrl(
-        url_, languages, NULL, NULL));
+    cached_display_title_ = WideToUTF16Hack(net::FormatUrl(url_, languages));
   }
   return cached_display_title_;
 }

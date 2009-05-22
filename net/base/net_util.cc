@@ -655,6 +655,15 @@ void IDNToUnicodeOneComponent(const char16* comp,
 
 namespace net {
 
+// Appends the substring |in_component| inside of the URL |spec| to |output|,
+// and the resulting range will be filled into |out_component|.  Calls the
+// unescaper for the substring if |unescape| is true.
+static void AppendFormattedComponent(const std::string& spec,
+                                     const url_parse::Component& in_component,
+                                     bool unescape,
+                                     std::wstring* output,
+                                     url_parse::Component* out_component);
+
 GURL FilePathToFileURL(const FilePath& path) {
   // Produce a URL like "file:///C:/foo" for a regular file, or
   // "file://///server/path" for UNC. The URL canonicalizer will fix up the
@@ -1043,6 +1052,141 @@ std::string GetHostName() {
     buffer[0] = '\0';
   }
   return std::string(buffer);
+}
+
+void AppendFormattedHost(const GURL& url,
+                         const std::wstring& languages,
+                         std::wstring* output,
+                         url_parse::Parsed* new_parsed) {
+  const url_parse::Component& host =
+      url.parsed_for_possibly_invalid_spec().host;
+
+  if (host.is_nonempty()) {
+    // Handle possible IDN in the host name.
+    if (new_parsed)
+      new_parsed->host.begin = static_cast<int>(output->length());
+
+    const std::string& spec = url.possibly_invalid_spec();
+    DCHECK(host.begin >= 0 &&
+           ((spec.length() == 0 && host.begin == 0) ||
+            host.begin < static_cast<int>(spec.length())));
+    net::IDNToUnicode(&spec[host.begin], host.len, languages, output);
+
+    if (new_parsed) {
+      new_parsed->host.len =
+          static_cast<int>(output->length()) - new_parsed->host.begin;
+    }
+  } else if (new_parsed) {
+    new_parsed->host.reset();
+  }
+}
+
+/* static */
+void AppendFormattedComponent(const std::string& spec,
+                              const url_parse::Component& in_component,
+                              bool unescape,
+                              std::wstring* output,
+                              url_parse::Component* out_component) {
+  if (in_component.is_nonempty()) {
+    out_component->begin = static_cast<int>(output->length());
+    if (unescape) {
+      output->append(UnescapeAndDecodeUTF8URLComponent(
+          spec.substr(in_component.begin, in_component.len),
+          UnescapeRule::NORMAL));
+    } else {
+      output->append(UTF8ToWide(spec.substr(
+          in_component.begin, in_component.len)));
+    }
+    out_component->len =
+        static_cast<int>(output->length()) - out_component->begin;
+  } else {
+    out_component->reset();
+  }
+}
+
+std::wstring FormatUrl(
+    const GURL& url, const std::wstring& languages, bool omit_username_password,
+    bool unescape, url_parse::Parsed* new_parsed, size_t* prefix_end) {
+  url_parse::Parsed parsed_temp;
+  if (!new_parsed)
+    new_parsed = &parsed_temp;
+
+  std::wstring url_string;
+
+  // Check for empty URLs or 0 available text width.
+  if (url.is_empty()) {
+    if (prefix_end)
+      *prefix_end = 0;
+    return url_string;
+  }
+
+  // We handle both valid and invalid URLs (this will give us the spec
+  // regardless of validity).
+  const std::string& spec = url.possibly_invalid_spec();
+  const url_parse::Parsed& parsed = url.parsed_for_possibly_invalid_spec();
+
+  // Copy everything before the username (the scheme and the separators.)
+  // These are ASCII.
+  int pre_end = parsed.CountCharactersBefore(url_parse::Parsed::USERNAME, true);
+  for (int i = 0; i < pre_end; ++i)
+    url_string.push_back(spec[i]);
+  new_parsed->scheme = parsed.scheme;
+
+  if (omit_username_password) {
+    // Remove the username and password fields. We don't want to display those
+    // to the user since they can be used for attacks,
+    // e.g. "http://google.com:search@evil.ru/"
+    new_parsed->username.reset();
+    new_parsed->password.reset();
+  } else {
+    AppendFormattedComponent(
+        spec, parsed.username, unescape, &url_string, &new_parsed->username);
+    if (parsed.password.is_valid()) {
+      url_string.push_back(':');
+    }
+    AppendFormattedComponent(
+        spec, parsed.password, unescape, &url_string, &new_parsed->password);
+    if (parsed.username.is_valid() || parsed.password.is_valid()) {
+      url_string.push_back('@');
+    }
+  }
+  if (prefix_end)
+    *prefix_end = static_cast<size_t>(url_string.length());
+
+  AppendFormattedHost(url, languages, &url_string, new_parsed);
+
+  // Port.
+  if (parsed.port.is_nonempty()) {
+    url_string.push_back(':');
+    int begin = url_string.length();
+    for (int i = parsed.port.begin; i < parsed.port.end(); ++i)
+      url_string.push_back(spec[i]);
+    new_parsed->port.begin = begin;
+    new_parsed->port.len = url_string.length() - begin;
+  } else {
+    new_parsed->port.reset();
+  }
+
+  // Path and query both get the same general unescape & convert treatment.
+  AppendFormattedComponent(
+      spec, parsed.path, unescape, &url_string, &new_parsed->path);
+  if (parsed.query.is_valid())
+    url_string.push_back('?');
+  AppendFormattedComponent(
+      spec, parsed.query, unescape, &url_string, &new_parsed->query);
+
+  // Reference is stored in valid, unescaped UTF-8, so we can just convert.
+  if (parsed.ref.is_valid()) {
+    url_string.push_back('#');
+    int begin = url_string.length();
+    if (parsed.ref.len > 0)
+      url_string.append(UTF8ToWide(std::string(&spec[parsed.ref.begin],
+                                               parsed.ref.len)));
+    new_parsed->ref.begin = begin;
+    new_parsed->ref.len = url_string.length() - begin;
+  }
+
+  return url_string;
 }
 
 }  // namespace net

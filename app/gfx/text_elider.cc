@@ -16,23 +16,6 @@ const wchar_t kEllipsis[] = L"\x2026";
 
 namespace gfx {
 
-// Appends the given part of the original URL to the output string formatted for
-// the user. The given parsed structure will be updated. The host name formatter
-// also takes the same accept languages component as ElideURL. |new_parsed| may
-// be null.
-static void AppendFormattedHost(const GURL& url,
-                                const std::wstring& languages,
-                                std::wstring* output,
-                                url_parse::Parsed* new_parsed);
-
-// Calls the unescaper for the substring |in_component| inside of the URL
-// |spec|. The decoded string will be appended to |output| and the resulting
-// range will be filled into |out_component|.
-static void AppendFormattedComponent(const std::string& spec,
-                                     const url_parse::Component& in_component,
-                                     std::wstring* output,
-                                     url_parse::Component* out_component);
-
 // This function takes a GURL object and elides it. It returns a string
 // which composed of parts from subdomain, domain, path, filename and query.
 // A "..." is added automatically at the end if the elided string is bigger
@@ -49,8 +32,8 @@ std::wstring ElideUrl(const GURL& url,
                       const std::wstring& languages) {
   // Get a formatted string and corresponding parsing of the url.
   url_parse::Parsed parsed;
-  std::wstring url_string = GetCleanStringFromUrl(url, languages, &parsed,
-                                                  NULL);
+  std::wstring url_string =
+      net::FormatUrl(url, languages, true, true, &parsed, NULL);
   if (available_pixel_width <= 0)
     return url_string;
 
@@ -338,124 +321,15 @@ std::wstring ElideText(const std::wstring& text,
   return text.substr(0, lo) + kEllipsis;
 }
 
-void AppendFormattedHost(const GURL& url,
-                         const std::wstring& languages,
-                         std::wstring* output,
-                         url_parse::Parsed* new_parsed) {
-  const url_parse::Component& host =
-      url.parsed_for_possibly_invalid_spec().host;
-
-  if (host.is_nonempty()) {
-    // Handle possible IDN in the host name.
-    if (new_parsed)
-      new_parsed->host.begin = static_cast<int>(output->length());
-
-    const std::string& spec = url.possibly_invalid_spec();
-    DCHECK(host.begin >= 0 &&
-           ((spec.length() == 0 && host.begin == 0) ||
-            host.begin < static_cast<int>(spec.length())));
-    net::IDNToUnicode(&spec[host.begin], host.len, languages, output);
-
-    if (new_parsed) {
-      new_parsed->host.len =
-          static_cast<int>(output->length()) - new_parsed->host.begin;
-    }
-  } else if (new_parsed) {
-    new_parsed->host.reset();
-  }
-}
-
-void AppendFormattedComponent(const std::string& spec,
-                              const url_parse::Component& in_component,
-                              std::wstring* output,
-                              url_parse::Component* out_component) {
-  if (in_component.is_nonempty()) {
-    out_component->begin = static_cast<int>(output->length());
-
-    output->append(UnescapeAndDecodeUTF8URLComponent(
-        spec.substr(in_component.begin, in_component.len),
-        UnescapeRule::NORMAL));
-
-    out_component->len =
-        static_cast<int>(output->length()) - out_component->begin;
-  } else {
-    out_component->reset();
-  }
-}
-
-std::wstring GetCleanStringFromUrl(const GURL& url,
-                                   const std::wstring& languages,
-                                   url_parse::Parsed* new_parsed,
-                                   size_t* prefix_end) {
-  url_parse::Parsed parsed_temp;
-  if (!new_parsed)
-    new_parsed = &parsed_temp;
-
-  std::wstring url_string;
-
-  // Check for empty URLs or 0 available text width.
-  if (url.is_empty()) {
-    if (prefix_end)
-      *prefix_end = 0;
-    return url_string;
-  }
-
-  // We handle both valid and invalid URLs (this will give us the spec
-  // regardless of validity).
-  const std::string& spec = url.possibly_invalid_spec();
-  const url_parse::Parsed& parsed = url.parsed_for_possibly_invalid_spec();
-
-  // Construct a new URL with the username and password fields removed. We
-  // don't want to display those to the user since they can be used for
-  // attacks, e.g. "http://google.com:search@evil.ru/"
-  //
-  // Copy everything before the host name we want (the scheme and the
-  // separators), minus the username start we computed above. These are ASCII.
-  int pre_end = parsed.CountCharactersBefore(
-      url_parse::Parsed::USERNAME, true);
-  for (int i = 0; i < pre_end; ++i)
-    url_string.push_back(spec[i]);
-  if (prefix_end)
-    *prefix_end = static_cast<size_t>(pre_end);
-  new_parsed->scheme = parsed.scheme;
-  new_parsed->username.reset();
-  new_parsed->password.reset();
-
-  AppendFormattedHost(url, languages, &url_string, new_parsed);
-
-  // Port.
-  if (parsed.port.is_nonempty()) {
-    url_string.push_back(':');
-    for (int i = parsed.port.begin; i < parsed.port.end(); ++i)
-      url_string.push_back(spec[i]);
-  }
-
-  // Path and query both get the same general unescape & convert treatment.
-  AppendFormattedComponent(spec, parsed.path, &url_string, &new_parsed->path);
-  if (parsed.query.is_valid())
-    url_string.push_back('?');
-  AppendFormattedComponent(spec, parsed.query, &url_string, &new_parsed->query);
-
-  // Reference is stored in valid, unescaped UTF-8, so we can just convert.
-  if (parsed.ref.is_valid()) {
-    url_string.push_back('#');
-    if (parsed.ref.len > 0)
-      url_string.append(UTF8ToWide(std::string(&spec[parsed.ref.begin],
-                                               parsed.ref.len)));
-  }
-
-  return url_string;
-}
-
 SortedDisplayURL::SortedDisplayURL(const GURL& url,
                                    const std::wstring& languages) {
   std::wstring host;
-  AppendFormattedHost(url, languages, &host, NULL);
+  net::AppendFormattedHost(url, languages, &host, NULL);
   sort_host_ = WideToUTF16Hack(host);
   string16 host_minus_www = WideToUTF16Hack(net::StripWWW(host));
   url_parse::Parsed parsed;
-  display_url_ = WideToUTF16Hack(GetCleanStringFromUrl(url, languages,
-      &parsed, &prefix_end_));
+  display_url_ = WideToUTF16Hack(net::FormatUrl(url, languages,
+      true, true, &parsed, &prefix_end_));
   if (sort_host_.length() > host_minus_www.length()) {
     prefix_end_ += sort_host_.length() - host_minus_www.length();
     sort_host_.swap(host_minus_www);

@@ -6,7 +6,6 @@
 
 #include <algorithm>
 
-#include "app/gfx/text_elider.h"
 #include "base/file_util.h"
 #include "base/logging.h"
 #include "base/string_util.h"
@@ -122,8 +121,7 @@ static string FixupPath(const string& text) {
   // Here, we know the input looks like a file.
   GURL file_url = net::FilePathToFileURL(FilePath(filename));
   if (file_url.is_valid()) {
-    return WideToUTF8(gfx::GetCleanStringFromUrl(file_url, std::wstring(),
-                                                 NULL, NULL));
+    return WideToUTF8(net::FormatUrl(file_url, std::wstring()));
   }
 
   // Invalid file URL, just return the input.
@@ -522,8 +520,7 @@ string URLFixerUpper::FixupRelativeFile(const FilePath& base_dir,
   if (is_file) {
     GURL file_url = net::FilePathToFileURL(full_path);
     if (file_url.is_valid())
-      return WideToUTF8(gfx::GetCleanStringFromUrl(file_url, std::wstring(),
-                                                   NULL, NULL));
+      return WideToUTF8(net::FormatUrl(file_url, std::wstring()));
     // Invalid files fall through to regular processing.
   }
 

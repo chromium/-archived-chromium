@@ -12,10 +12,13 @@
 #include "chrome/browser/history/history.h"
 #include "chrome/browser/profile.h"
 #include "chrome/browser/net/url_fixer_upper.h"
+#include "chrome/common/pref_names.h"
+#include "chrome/common/pref_service.h"
 #include "googleurl/src/gurl.h"
 #include "grit/chromium_strings.h"
 #include "grit/generated_resources.h"
 #include "grit/locale_settings.h"
+#include "net/base/net_util.h"
 #include "views/background.h"
 #include "views/focus/focus_manager.h"
 #include "views/grid_layout.h"
@@ -246,7 +249,17 @@ void BookmarkEditorView::Init() {
   title_tf_.SetText(node_ ? node_->GetTitle() : std::wstring());
   title_tf_.SetController(this);
 
-  url_tf_.SetText(node_ ? UTF8ToWide(node_->GetURL().spec()) : std::wstring());
+  std::wstring url_text;
+  if (node_) {
+    std::wstring languages = profile_
+        ? profile_->GetPrefs()->GetString(prefs::kAcceptLanguages)
+        : std::wstring();
+    // The following URL is user-editable.  We specify omit_username_password=
+    // false and unescape=false to show the original URL except IDN.
+    url_text =
+        net::FormatUrl(node_->GetURL(), languages, false, false, NULL, NULL);
+  }
+  url_tf_.SetText(url_text);
   url_tf_.SetController(this);
 
   if (show_tree_) {
