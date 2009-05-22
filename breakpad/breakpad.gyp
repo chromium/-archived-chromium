@@ -299,21 +299,21 @@
 #            'src',
 #          ],
 #        },
-        {
-          'target_name': 'dump_syms',
-          'type': 'executable',
-
-          'sources': [
-            'src/tools/linux/dump_syms/dump_syms.cc',
-            'src/common/linux/dump_symbols.cc',
-            'src/common/linux/file_id.cc',
-            'src/common/md5.c',
-          ],
-
-          'include_dirs': [
-            'src',
-          ],
-        },
+#        {
+#          'target_name': 'dump_syms',
+#          'type': 'executable',
+#
+#          'sources': [
+#            'src/tools/linux/dump_syms/dump_syms.cc',
+#            'src/common/linux/dump_symbols.cc',
+#            'src/common/linux/file_id.cc',
+#            'src/common/md5.c',
+#          ],
+#
+#          'include_dirs': [
+#            'src',
+#          ],
+#        },
       ],
     }],
   ],
