@@ -10,10 +10,8 @@
 #include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/browser/child_process_security_policy.h"
 #include "chrome/browser/renderer_host/render_process_host.h"
-#include "chrome/common/chrome_paths.h"
 #include "chrome/test/in_process_browser_test.h"
 #include "chrome/test/ui_test_utils.h"
-#include "net/base/net_util.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
 class ChildProcessSecurityPolicyInProcessBrowserTest
@@ -33,11 +31,7 @@ class ChildProcessSecurityPolicyInProcessBrowserTest
 };
 
 IN_PROC_BROWSER_TEST_F(ChildProcessSecurityPolicyInProcessBrowserTest, NoLeak) {
-  FilePath path;
-  PathService::Get(chrome::DIR_TEST_DATA, &path);
-  path = path.Append(FilePath::FromWStringHack(L"google"));
-  path = path.Append(FilePath::FromWStringHack(L"google.html"));
-  GURL url = net::FilePathToFileURL(path);
+  GURL url(ui_test_utils::GetTestUrl(L"google", L"google.html"));
 
   ui_test_utils::NavigateToURL(browser(), url);
   EXPECT_EQ(

@@ -17,6 +17,7 @@
 #include "base/singleton.h"
 #include "base/task.h"
 #include "base/time.h"
+#include "testing/gtest/include/gtest/gtest_prod.h"
 #include "webkit/api/public/WebCache.h"
 
 class PrefService;
@@ -24,6 +25,7 @@ class PrefService;
 class WebCacheManager {
   // Unit tests are our friends.
   friend class WebCacheManagerTest;
+  FRIEND_TEST(WebCacheManagerBrowserTest, CrashOnceOnly);
 
  public:
   static void RegisterPrefs(PrefService* prefs);

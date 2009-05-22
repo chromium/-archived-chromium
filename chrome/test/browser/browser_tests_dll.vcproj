@@ -314,6 +314,14 @@
 				>
 			</File>
 		</Filter>
+		<Filter
+			Name="TestWebCacheManager"
+			>
+			<File
+				RelativePath="..\..\browser\renderer_host\web_cache_manager_browser_test.cc"
+				>
+			</File>
+		</Filter>
 	</Files>
 	<Globals>
 	</Globals>

@@ -70,6 +70,8 @@ bool ExecuteJavaScriptAndExtractString(TabContents* tab_contents,
                                        const std::wstring& frame_xpath,
                                        const std::wstring& script,
                                        std::string* result);
+
+GURL GetTestUrl(const std::wstring& dir, const std::wstring file);
 }
 
 #endif  // CHROME_TEST_UI_TEST_UTILS_H_

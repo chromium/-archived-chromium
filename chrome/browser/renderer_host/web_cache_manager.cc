@@ -95,12 +95,13 @@ void WebCacheManager::Remove(int renderer_id) {
 }
 
 void WebCacheManager::ObserveActivity(int renderer_id) {
+  StatsMap::iterator item = stats_.find(renderer_id);
+  if (item == stats_.end())
+    return;  // We might see stats for a renderer that has been destroyed.
+
   // Record activity.
   active_renderers_.insert(renderer_id);
-
-  StatsMap::iterator item = stats_.find(renderer_id);
-  if (item != stats_.end())
-    item->second.access = Time::Now();
+  item->second.access = Time::Now();
 
   std::set<int>::iterator elmt = inactive_renderers_.find(renderer_id);
   if (elmt != inactive_renderers_.end()) {

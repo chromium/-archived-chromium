@@ -6,13 +6,16 @@
 
 #include "base/json_reader.h"
 #include "base/message_loop.h"
+#include "base/path_service.h"
 #include "chrome/browser/browser.h"
 #include "chrome/browser/dom_operation_notification_details.h"
 #include "chrome/browser/tab_contents/navigation_controller.h"
 #include "chrome/browser/tab_contents/tab_contents.h"
+#include "chrome/common/chrome_paths.h"
 #include "chrome/common/notification_registrar.h"
 #include "chrome/common/notification_service.h"
 #include "googleurl/src/gurl.h"
+#include "net/base/net_util.h"
 #include "views/widget/accelerator_handler.h"
 
 namespace ui_test_utils {
@@ -189,4 +192,13 @@ bool ExecuteJavaScriptAndExtractString(TabContents* tab_contents,
 
   return value->GetAsString(result);
 }
+
+GURL GetTestUrl(const std::wstring& dir, const std::wstring file) {
+  FilePath path;
+  PathService::Get(chrome::DIR_TEST_DATA, &path);
+  path = path.Append(FilePath::FromWStringHack(dir));
+  path = path.Append(FilePath::FromWStringHack(file));
+  return net::FilePathToFileURL(path);
+}
+
 }  // namespace ui_test_utils
