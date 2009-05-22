@@ -345,6 +345,17 @@ class DockInfo {
 };
 #endif
 
+#if defined(OS_LINUX)
+class WindowSizer {
+ public:
+  static void GetBrowserWindowBounds(const std::wstring& app_name,
+                                     const gfx::Rect& specified_bounds,
+                                     Browser* browser,
+                                     gfx::Rect* window_bounds,
+                                     bool* maximized);
+};
+#endif
+
 //---------------------------------------------------------------------------
 // These stubs are for Profile
 
