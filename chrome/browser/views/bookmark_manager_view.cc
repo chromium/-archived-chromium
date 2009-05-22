@@ -347,6 +347,19 @@ void BookmarkManagerView::OnDoubleClick() {
       GetWidget()->GetNativeView(), profile_, NULL, nodes, CURRENT_TAB);
 }
 
+void BookmarkManagerView::OnMiddleClick() {
+  std::vector<BookmarkNode*> nodes = GetSelectedTableNodes();
+  if (nodes.empty())
+    return;
+  if (nodes.size() == 1 && nodes[0]->is_folder()) {
+    // Middle clicking on a folder results in no action.
+    return;
+  }
+
+  bookmark_utils::OpenAll(
+      GetWidget()->GetNativeView(), profile_, NULL, nodes, NEW_FOREGROUND_TAB);
+}
+
 void BookmarkManagerView::OnTableViewDelete(views::TableView* table) {
   std::vector<BookmarkNode*> nodes = GetSelectedTableNodes();
   if (nodes.empty())

@@ -284,6 +284,9 @@ class TableViewObserver {
   // Optional method invoked when the user double clicks on the table.
   virtual void OnDoubleClick() {}
 
+  // Optional method invoked when the user middle clicks on the table.
+  virtual void OnMiddleClick() {}
+
   // Optional method invoked when the user hits a key with the table in focus.
   virtual void OnKeyDown(unsigned short virtual_keycode) {}
 
@@ -451,6 +454,9 @@ class TableView : public NativeControl,
 
   // Notification from the ListView that the used double clicked the table.
   virtual void OnDoubleClick();
+
+  // Notification from the ListView that the user middle clicked the table.
+  virtual void OnMiddleClick();
 
   // Subclasses can implement this method if they need to be notified of a key
   // press event.  Other wise, it appeals to table_view_observer_

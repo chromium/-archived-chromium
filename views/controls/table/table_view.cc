@@ -649,6 +649,19 @@ LRESULT CALLBACK TableView::TableWndProc(HWND window,
       return 0;
     }
 
+    case WM_MBUTTONDOWN: {
+      if (w_param == MK_MBUTTON) {
+        int view_index = GetViewIndexFromMouseEvent(window, l_param);
+        if (view_index != -1) {
+          int model_index = table_view->view_to_model(view_index);
+          // Clear all and select the row that was middle clicked.
+          table_view->Select(model_index);
+          table_view->OnMiddleClick();
+        }
+      }
+      return 0;
+    }
+
     case WM_LBUTTONUP: {
       if (in_mouse_down) {
         in_mouse_down = false;
@@ -1476,6 +1489,11 @@ void TableView::OnDoubleClick() {
   if (!ignore_listview_change_ && table_view_observer_) {
     table_view_observer_->OnDoubleClick();
   }
+}
+
+void TableView::OnMiddleClick() {
+  if (!ignore_listview_change_ && table_view_observer_)
+    table_view_observer_->OnMiddleClick();
 }
 
 void TableView::OnSelectedStateChanged() {

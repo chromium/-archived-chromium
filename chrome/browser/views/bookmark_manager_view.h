@@ -98,6 +98,7 @@ class BookmarkManagerView : public views::View,
   virtual void OnSelectionChanged() {}
   // Overriden to open the selected table nodes in the current browser.
   virtual void OnDoubleClick();
+  virtual void OnMiddleClick();
   virtual void OnTableViewDelete(views::TableView* table);
   virtual void OnKeyDown(unsigned short virtual_keycode);
 
