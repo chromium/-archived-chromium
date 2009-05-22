@@ -836,6 +836,7 @@ static inline int modifiersFromEvent(NSEvent* event) {
         modifiers |= WebInputEvent::AltKey;
     if ([event modifierFlags] & NSCommandKeyMask)
         modifiers |= WebInputEvent::MetaKey;
+    // TODO(port): Set mouse button states
 
     return modifiers;
 }
@@ -898,6 +899,8 @@ WebKeyboardEvent WebInputEventFactory::keyboardEvent(NSEvent* event)
     [identifierStr getCString:&result.keyIdentifier[0]
                     maxLength:sizeof(result.keyIdentifier)
                      encoding:NSASCIIStringEncoding];
+
+    result.timeStampSeconds = [event timestamp];
 
     return result;
 }
@@ -970,6 +973,8 @@ WebMouseEvent WebInputEventFactory::mouseEvent(NSEvent* event, NSView* view)
     location = [view convertPoint:windowLocal fromView:nil];
     result.y = [view frame].size.height - location.y;  // flip y
     result.x = location.x;
+    result.windowX = result.x;
+    result.windowY = result.y;
 
     result.modifiers = modifiersFromEvent(event);
 
@@ -997,6 +1002,8 @@ WebMouseWheelEvent WebInputEventFactory::mouseWheelEvent(NSEvent* event, NSView*
     location = [view convertPoint:windowLocal fromView:nil];
     result.x = location.x;
     result.y = [view frame].size.height - location.y;  // flip y
+    result.windowX = result.x;
+    result.windowY = result.y;
 
     // Of Mice and Men
     // ---------------
@@ -1124,6 +1131,8 @@ WebMouseWheelEvent WebInputEventFactory::mouseWheelEvent(NSEvent* event, NSView*
         result.deltaX = [event deltaX] * scrollbarPixelsPerCocoaTick;
         result.deltaY = [event deltaY] * scrollbarPixelsPerCocoaTick;
     }
+
+    result.timeStampSeconds = [event timestamp];
 
     return result;
 }

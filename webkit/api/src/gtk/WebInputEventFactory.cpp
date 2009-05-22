@@ -62,6 +62,12 @@ static int gdkStateToWebEventModifiers(guint state)
     if (state & GDK_META_MASK)
         modifiers |= WebInputEvent::MetaKey;
 #endif
+    if (state & GDK_BUTTON1_MASK)
+        modifiers |= WebInputEvent::LeftButtonDown;
+    if (state & GDK_BUTTON2_MASK)
+        modifiers |= WebInputEvent::MiddleButtonDown;
+    if (state & GDK_BUTTON3_MASK)
+        modifiers |= WebInputEvent::RightButtonDown;
     return modifiers;
 }
 
@@ -71,6 +77,7 @@ WebKeyboardEvent WebInputEventFactory::keyboardEvent(const GdkEventKey* event)
 {
     WebKeyboardEvent result;
 
+    result.timeStampSeconds = gdkEventTimeToWebEventTime(event->time);
     result.modifiers = gdkStateToWebEventModifiers(event->state);
 
     switch (event->type) {
@@ -123,6 +130,8 @@ WebMouseEvent WebInputEventFactory::mouseEvent(const GdkEventButton* event)
     result.modifiers = gdkStateToWebEventModifiers(event->state);
     result.x = static_cast<int>(event->x);
     result.y = static_cast<int>(event->y);
+    result.windowX = result.x;
+    result.windowY = result.y;
     result.globalX = static_cast<int>(event->x_root);
     result.globalY = static_cast<int>(event->y_root);
     result.clickCount = 0;
@@ -165,6 +174,8 @@ WebMouseEvent WebInputEventFactory::mouseEvent(const GdkEventMotion* event)
     result.modifiers = gdkStateToWebEventModifiers(event->state);
     result.x = static_cast<int>(event->x);
     result.y = static_cast<int>(event->y);
+    result.windowX = result.x;
+    result.windowY = result.y;
     result.globalX = static_cast<int>(event->x_root);
     result.globalY = static_cast<int>(event->y_root);
 
@@ -200,6 +211,8 @@ WebMouseWheelEvent WebInputEventFactory::mouseWheelEvent(const GdkEventScroll* e
     result.modifiers = gdkStateToWebEventModifiers(event->state);
     result.x = static_cast<int>(event->x);
     result.y = static_cast<int>(event->y);
+    result.windowX = result.x;
+    result.windowY = result.y;
     result.globalX = static_cast<int>(event->x_root);
     result.globalY = static_cast<int>(event->y_root);
 

@@ -15,7 +15,10 @@ MSVC_PUSH_WARNING_LEVEL(0);
 MSVC_POP_WARNING();
 
 namespace WebCore {
-  class Widget;
+class FrameView;
+class KeyboardEvent;
+class MouseEvent;
+class Widget;
 }
 
 namespace WebKit {
@@ -45,5 +48,20 @@ class MakePlatformKeyboardEvent : public WebCore::PlatformKeyboardEvent {
   void SetKeyType(Type type);
   bool IsCharacterKey() const;
 };
+
+// Converts a WebCore::MouseEvent to a corresponding WebMouseEvent. view is the
+// FrameView corresponding to the event.
+// Returns true if successful.
+// NOTE: This is only implemented for mousemove, mouseover, mouseout, mousedown
+// and mouseup.
+bool ToWebMouseEvent(const WebCore::FrameView& view,
+                     const WebCore::MouseEvent& event,
+                     WebKit::WebMouseEvent* web_event);
+
+// Converts a WebCore::KeyboardEvent to a corresponding WebKeyboardEvent.
+// Returns true if successful.
+// NOTE: This is only implemented for keydown and keyup.
+bool ToWebKeyboardEvent(const WebCore::KeyboardEvent& event,
+                        WebKit::WebKeyboardEvent* web_event);
 
 #endif  // WEBKIT_GLUE_EVENT_CONVERSION_H_

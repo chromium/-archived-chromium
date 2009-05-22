@@ -2,17 +2,6 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-// HACK: we need this #define in place before npapi.h is included for
-// plugins to work. However, all sorts of headers include npapi.h, so
-// the only way to be certain the define is in place is to put it
-// here.  You might ask, "Why not set it in npapi.h directly, or in
-// this directory's SConscript, then?"  but it turns out this define
-// makes npapi.h include Xlib.h, which in turn defines a ton of symbols
-// like None and Status, causing conflicts with the aforementioned
-// many headers that include npapi.h.  Ugh.
-// See also plugin_host.cc.
-#define MOZ_X11 1
-
 #include "webkit/glue/plugins/webplugin_delegate_impl.h"
 
 #include <string>
@@ -27,6 +16,7 @@
 #include "base/process_util.h"
 #include "base/stats_counters.h"
 #include "base/string_util.h"
+#include "webkit/api/public/WebInputEvent.h"
 // #include "webkit/default_plugin/plugin_impl.h"
 #include "webkit/glue/glue_util.h"
 #include "webkit/glue/webplugin.h"
@@ -36,6 +26,13 @@
 #include "webkit/glue/plugins/plugin_list.h"
 #include "webkit/glue/plugins/plugin_stream_url.h"
 #include "webkit/glue/webkit_glue.h"
+#if defined(OS_LINUX)
+#include "third_party/npapi/bindings/npapi_x11.h"
+#endif
+
+using WebKit::WebKeyboardEvent;
+using WebKit::WebInputEvent;
+using WebKit::WebMouseEvent;
 
 WebPluginDelegate* WebPluginDelegate::Create(
     const FilePath& filename,
@@ -63,13 +60,13 @@ WebPluginDelegateImpl::WebPluginDelegateImpl(
       windowed_did_set_window_(false),
       windowless_(false),
       plugin_(NULL),
+      windowless_needs_set_window_(true),
       instance_(instance),
       pixmap_(NULL),
+      first_event_time_(-1.0),
       parent_(containing_view),
-      quirks_(0)
- {
+      quirks_(0) {
   memset(&window_, 0, sizeof(window_));
-
 }
 
 WebPluginDelegateImpl::~WebPluginDelegateImpl() {
@@ -120,7 +117,7 @@ bool WebPluginDelegateImpl::Initialize(const GURL& url,
     // a valid window handle causes subtle bugs with plugins which retreive
     // the window handle and validate the same. The window handle can be
     // retreived via NPN_GetValue of NPNVnetscapeWindow.
-    // instance_->set_window_handle(parent_);
+    instance_->set_window_handle(parent_);
     // CreateDummyWindowForActivation();
     // handle_event_pump_messages_event_ = CreateEvent(NULL, TRUE, FALSE, NULL);
   } else {
@@ -393,7 +390,7 @@ void WebPluginDelegateImpl::WindowedSetWindow() {
     return;
   }
 
-  // XXX instance()->set_window_handle(windowed_handle_);
+  instance()->set_window_handle(windowed_handle_);
 
   DCHECK(!instance()->windowless());
 
@@ -545,7 +542,8 @@ void WebPluginDelegateImpl::WindowlessPaint(cairo_surface_t* context,
   cairo_destroy(cairo);
 
   // Construct the paint message, targeting the pixmap.
-  XGraphicsExposeEvent event = {0};
+  NPEvent np_event = {0};
+  XGraphicsExposeEvent &event = np_event.xgraphicsexpose;
   event.type = GraphicsExpose;
   event.display = GDK_DISPLAY();
   event.drawable = GDK_PIXMAP_XID(pixmap_);
@@ -557,7 +555,7 @@ void WebPluginDelegateImpl::WindowlessPaint(cairo_surface_t* context,
   // Tell the plugin to paint into the pixmap.
   static StatsRate plugin_paint("Plugin.Paint");
   StatsScope<StatsRate> scope(plugin_paint);
-  NPError err = instance()->NPP_HandleEvent(reinterpret_cast<XEvent*>(&event));
+  NPError err = instance()->NPP_HandleEvent(&np_event);
   DCHECK_EQ(err, NPERR_NO_ERROR);
 
   // Now copy the rendered image pixmap back into the drawing buffer.
@@ -621,18 +619,201 @@ void WebPluginDelegateImpl::WindowlessSetWindow(bool force_set_window) {
 void WebPluginDelegateImpl::SetFocus() {
   DCHECK(instance()->windowless());
 
-  NOTIMPLEMENTED();
-  /*  NPEvent focus_event;
-  focus_event.event = WM_SETFOCUS;
-  focus_event.wParam = 0;
-  focus_event.lParam = 0;
-
-  instance()->NPP_HandleEvent(&focus_event);*/
+  NPEvent np_event = {0};
+  XFocusChangeEvent &event = np_event.xfocus;
+  event.type = FocusIn;
+  event.display = GDK_DISPLAY();
+  // Same values as Firefox. .serial and .window stay 0.
+  event.mode = -1;
+  event.detail = NotifyDetailNone;
+  instance()->NPP_HandleEvent(&np_event);
 }
 
-bool WebPluginDelegateImpl::HandleEvent(NPEvent* event,
-                                        WebCursor* cursor) {
-  bool ret = instance()->NPP_HandleEvent(event) != 0;
+// Converts a WebInputEvent::Modifiers bitfield into a
+// corresponding X modifier state.
+static int GetXModifierState(int modifiers) {
+  int x_state = 0;
+  if (modifiers & WebInputEvent::ControlKey)
+    x_state |= ControlMask;
+  if (modifiers & WebInputEvent::ShiftKey)
+    x_state |= ShiftMask;
+  if (modifiers & WebInputEvent::AltKey)
+    x_state |= Mod1Mask;
+  if (modifiers & WebInputEvent::MetaKey)
+    x_state |= Mod2Mask;
+  if (modifiers & WebInputEvent::LeftButtonDown)
+    x_state |= Button1Mask;
+  if (modifiers & WebInputEvent::MiddleButtonDown)
+    x_state |= Button2Mask;
+  if (modifiers & WebInputEvent::RightButtonDown)
+    x_state |= Button3Mask;
+  // TODO(piman@google.com): There are other modifiers, e.g. Num Lock, that
+  // should be set (and Firefox does), but we didn't keep the information in
+  // the WebKit event.
+  return x_state;
+}
+
+static bool NPEventFromWebMouseEvent(const WebMouseEvent& event,
+                                     Time timestamp,
+                                     NPEvent *np_event) {
+  np_event->xany.display = GDK_DISPLAY();
+  // NOTE: Firefox keeps xany.serial and xany.window as 0.
+
+  int modifier_state = GetXModifierState(event.modifiers);
+
+  Window root = GDK_ROOT_WINDOW();
+  switch (event.type) {
+    case WebInputEvent::MouseMove: {
+      np_event->type = MotionNotify;
+      XMotionEvent &motion_event = np_event->xmotion;
+      motion_event.root = root;
+      motion_event.time = timestamp;
+      motion_event.x = event.x;
+      motion_event.y = event.y;
+      motion_event.x_root = event.globalX;
+      motion_event.y_root = event.globalY;
+      motion_event.state = modifier_state;
+      motion_event.is_hint = NotifyNormal;
+      motion_event.same_screen = True;
+      break;
+    }
+    case WebInputEvent::MouseLeave:
+    case WebInputEvent::MouseEnter: {
+      if (event.type == WebInputEvent::MouseEnter) {
+        np_event->type = EnterNotify;
+      } else {
+        np_event->type = LeaveNotify;
+      }
+      XCrossingEvent &crossing_event = np_event->xcrossing;
+      crossing_event.root = root;
+      crossing_event.time = timestamp;
+      crossing_event.x = event.x;
+      crossing_event.y = event.y;
+      crossing_event.x_root = event.globalX;
+      crossing_event.y_root = event.globalY;
+      crossing_event.mode = -1;  // This is what Firefox sets it to.
+      crossing_event.detail = NotifyDetailNone;
+      crossing_event.same_screen = True;
+      // TODO(piman@google.com): set this to the correct value. Firefox does. I
+      // don't know where to get the information though, we get focus
+      // notifications, but no unfocus.
+      crossing_event.focus = 0;
+      crossing_event.state = modifier_state;
+      break;
+    }
+    case WebInputEvent::MouseUp:
+    case WebInputEvent::MouseDown: {
+      if (event.type == WebInputEvent::MouseDown) {
+        np_event->type = ButtonPress;
+      } else {
+        np_event->type = ButtonRelease;
+      }
+      XButtonEvent &button_event = np_event->xbutton;
+      button_event.root = root;
+      button_event.time = timestamp;
+      button_event.x = event.x;
+      button_event.y = event.y;
+      button_event.x_root = event.globalX;
+      button_event.y_root = event.globalY;
+      button_event.state = modifier_state;
+      switch (event.button) {
+        case WebMouseEvent::ButtonLeft:
+          button_event.button = Button1;
+          break;
+        case WebMouseEvent::ButtonMiddle:
+          button_event.button = Button2;
+          break;
+        case WebMouseEvent::ButtonRight:
+          button_event.button = Button3;
+          break;
+      }
+      button_event.same_screen = True;
+      break;
+    }
+    default:
+      NOTREACHED();
+      return false;
+  }
+  return true;
+}
+
+static bool NPEventFromWebKeyboardEvent(const WebKeyboardEvent& event,
+                                        Time timestamp,
+                                        NPEvent *np_event) {
+  np_event->xany.display = GDK_DISPLAY();
+  // NOTE: Firefox keeps xany.serial and xany.window as 0.
+
+  switch (event.type) {
+    case WebKeyboardEvent::KeyDown:
+      np_event->type = KeyPress;
+      break;
+    case WebKeyboardEvent::KeyUp:
+      np_event->type = KeyRelease;
+      break;
+    default:
+      NOTREACHED();
+      return false;
+  }
+  XKeyEvent &key_event = np_event->xkey;
+  key_event.send_event = False;
+  key_event.display = GDK_DISPLAY();
+  // NOTE: Firefox keeps xany.serial and xany.window as 0.
+  // TODO(piman@google.com): is this right for multiple screens ?
+  key_event.root = DefaultRootWindow(key_event.display);
+  key_event.time = timestamp;
+  // NOTE: We don't have the correct information for x/y/x_root/y_root. Firefox
+  // doesn't have it either, so we pass the same values.
+  key_event.x = 0;
+  key_event.y = 0;
+  key_event.x_root = -1;
+  key_event.y_root = -1;
+  key_event.state = GetXModifierState(event.modifiers);
+  key_event.keycode = event.nativeKeyCode;
+  key_event.same_screen = True;
+  return true;
+}
+
+static bool NPEventFromWebInputEvent(const WebInputEvent& event,
+                                     Time timestamp,
+                                     NPEvent* np_event) {
+  switch (event.type) {
+    case WebInputEvent::MouseMove:
+    case WebInputEvent::MouseLeave:
+    case WebInputEvent::MouseEnter:
+    case WebInputEvent::MouseDown:
+    case WebInputEvent::MouseUp:
+      if (event.size < sizeof(WebMouseEvent)) {
+        NOTREACHED();
+        return false;
+      }
+      return NPEventFromWebMouseEvent(
+          *static_cast<const WebMouseEvent*>(&event), timestamp, np_event);
+    case WebInputEvent::KeyDown:
+    case WebInputEvent::KeyUp:
+      if (event.size < sizeof(WebKeyboardEvent)) {
+        NOTREACHED();
+        return false;
+      }
+      return NPEventFromWebKeyboardEvent(
+          *static_cast<const WebKeyboardEvent*>(&event), timestamp, np_event);
+    default:
+      return false;
+  }
+}
+
+bool WebPluginDelegateImpl::HandleInputEvent(const WebInputEvent& event,
+                                             WebCursor* cursor) {
+  DCHECK(windowless_) << "events should only be received in windowless mode";
+
+  if (first_event_time_ < 0.0)
+    first_event_time_ = event.timeStampSeconds;
+  Time timestamp = static_cast<Time>(
+      (event.timeStampSeconds - first_event_time_) * 1.0e3);
+  NPEvent np_event = {0};
+  if (!NPEventFromWebInputEvent(event, timestamp, &np_event)) {
+    return false;
+  }
+  bool ret = instance()->NPP_HandleEvent(&np_event) != 0;
 
 #if 0
   if (event->event == WM_MOUSEMOVE) {

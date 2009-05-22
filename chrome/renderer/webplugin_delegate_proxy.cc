@@ -610,15 +610,16 @@ void WebPluginDelegateProxy::SetFocus() {
   Send(new PluginMsg_SetFocus(instance_id_));
 }
 
-bool WebPluginDelegateProxy::HandleEvent(NPEvent* event, WebCursor* cursor) {
+bool WebPluginDelegateProxy::HandleInputEvent(
+    const WebKit::WebInputEvent& event,
+    WebCursor* cursor) {
   bool handled;
   // A windowless plugin can enter a modal loop in the context of a
   // NPP_HandleEvent call, in which case we need to pump messages to
   // the plugin. We pass of the corresponding event handle to the
   // plugin process, which is set if the plugin does enter a modal loop.
-  IPC::SyncMessage* message = new PluginMsg_HandleEvent(instance_id_,
-                                                        *event, &handled,
-                                                        cursor);
+  IPC::SyncMessage* message = new PluginMsg_HandleInputEvent(
+      instance_id_, &event, &handled, cursor);
   message->set_pump_messages_event(modal_loop_pump_messages_event_.get());
   Send(message);
   return handled;

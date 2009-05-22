@@ -5,7 +5,11 @@
 #include "config.h"
 #include "webkit/glue/event_conversion.h"
 
+#include "EventNames.h"
+#include "FrameView.h"
 #include "KeyboardCodes.h"
+#include "KeyboardEvent.h"
+#include "MouseEvent.h"
 #include "StringImpl.h"  // This is so that the KJS build works
 #include "PlatformKeyboardEvent.h"
 #include "PlatformMouseEvent.h"
@@ -147,5 +151,90 @@ bool MakePlatformKeyboardEvent::IsCharacterKey() const {
     default:
       break;
   }
+  return true;
+}
+
+static int GetWebInputModifiers(const WebCore::UIEventWithKeyState& event) {
+  int modifiers = 0;
+  if (event.ctrlKey())
+    modifiers |= WebInputEvent::ControlKey;
+  if (event.shiftKey())
+    modifiers |= WebInputEvent::ShiftKey;
+  if (event.altKey())
+    modifiers |= WebInputEvent::AltKey;
+  if (event.metaKey())
+    modifiers |= WebInputEvent::MetaKey;
+  return modifiers;
+}
+
+
+bool ToWebMouseEvent(const WebCore::FrameView& view,
+                     const WebCore::MouseEvent& event,
+                     WebKit::WebMouseEvent* web_event) {
+  if (event.type() == WebCore::eventNames().mousemoveEvent) {
+    web_event->type = WebInputEvent::MouseMove;
+  } else if (event.type() == WebCore::eventNames().mouseoutEvent) {
+    web_event->type = WebInputEvent::MouseLeave;
+  } else if (event.type() == WebCore::eventNames().mouseoverEvent) {
+    web_event->type = WebInputEvent::MouseEnter;
+  } else if (event.type() == WebCore::eventNames().mousedownEvent) {
+    web_event->type = WebInputEvent::MouseDown;
+  } else if (event.type() == WebCore::eventNames().mouseupEvent) {
+    web_event->type = WebInputEvent::MouseUp;
+  } else {
+    // Skip all other mouse events.
+    return false;
+  }
+  web_event->timeStampSeconds = event.timeStamp() * 1.0e-3;
+  switch (event.button()) {
+    case WebCore::LeftButton:
+      web_event->button = WebMouseEvent::ButtonLeft;
+      break;
+    case WebCore::MiddleButton:
+      web_event->button = WebMouseEvent::ButtonMiddle;
+      break;
+    case WebCore::RightButton:
+      web_event->button = WebMouseEvent::ButtonRight;
+      break;
+  }
+  web_event->modifiers = GetWebInputModifiers(event);
+  if (event.buttonDown()) {
+    switch (event.button()) {
+      case WebCore::LeftButton:
+        web_event->modifiers |= WebInputEvent::LeftButtonDown;
+        break;
+      case WebCore::MiddleButton:
+        web_event->modifiers |= WebInputEvent::MiddleButtonDown;
+        break;
+      case WebCore::RightButton:
+        web_event->modifiers |= WebInputEvent::RightButtonDown;
+        break;
+    }
+  }
+  WebCore::IntPoint p = view.contentsToWindow(WebCore::IntPoint(event.pageX(),
+                                                                event.pageY()));
+  web_event->globalX = event.screenX();
+  web_event->globalY = event.screenY();
+  web_event->windowX = p.x();
+  web_event->windowY = p.y();
+  web_event->x = event.offsetX();
+  web_event->y = event.offsetY();
+  return true;
+}
+
+bool ToWebKeyboardEvent(const WebCore::KeyboardEvent& event,
+                        WebKeyboardEvent* web_event) {
+  if (event.type() == WebCore::eventNames().keydownEvent) {
+    web_event->type = WebInputEvent::KeyDown;
+  } else if (event.type() == WebCore::eventNames().keyupEvent) {
+    web_event->type = WebInputEvent::KeyUp;
+  } else {
+    // Skip all other keyboard events.
+    return false;
+  }
+  web_event->modifiers = GetWebInputModifiers(event);
+  web_event->timeStampSeconds = event.timeStamp() * 1.0e-3;
+  web_event->windowsKeyCode = event.keyCode();
+  web_event->nativeKeyCode = event.keyEvent()->nativeVirtualKeyCode();
   return true;
 }

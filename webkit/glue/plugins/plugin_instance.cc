@@ -5,9 +5,6 @@
 #include "config.h"
 
 #include "build/build_config.h"
-#if defined(OS_LINUX)
-#define MOZ_X11 1
-#endif
 
 #include "webkit/glue/plugins/plugin_instance.h"
 
@@ -41,9 +38,7 @@ PluginInstance::PluginInstance(PluginLib *plugin, const std::string &mime_type)
       npp_(0),
       host_(PluginHost::Singleton()),
       npp_functions_(plugin->functions()),
-#if defined(OS_WIN)
-      hwnd_(0),
-#endif
+      window_handle_(0),
       windowless_(false),
       transparent_(true),
       webplugin_(0),

@@ -53,9 +53,10 @@ class WebPluginDelegateImpl : public WebPluginDelegate {
   virtual void Print(gfx::NativeDrawingContext context);
 
   virtual void SetFocus();  // only called when windowless
-// only called when windowless
-  virtual bool HandleEvent(NPEvent* event,
-                           WebCursor* cursor);
+  // only called when windowless
+  // See NPAPI NPP_HandleEvent for more information.
+  virtual bool HandleInputEvent(const WebKit::WebInputEvent& event,
+                                WebCursor* cursor);
   virtual NPObject* GetPluginScriptableObject();
   virtual void DidFinishLoadWithReason(NPReason reason);
   virtual int GetProcessId();
@@ -146,7 +147,6 @@ class WebPluginDelegateImpl : public WebPluginDelegate {
   // See NPAPI NPP_SetWindow for more information.
   void WindowlessSetWindow(bool force_set_window);
 
-
   //-----------------------------------------
   // used for windowed and windowless plugins
 
@@ -186,6 +186,7 @@ class WebPluginDelegateImpl : public WebPluginDelegate {
 #if defined(OS_LINUX)
   // The pixmap we're drawing into, for a windowless plugin.
   GdkPixmap* pixmap_;
+  double first_event_time_;
 
   // Ensure pixmap_ exists and is at least width by height pixels.
   void EnsurePixmapAtLeastSize(int width, int height);

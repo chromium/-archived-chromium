@@ -91,6 +91,12 @@ WebKeyboardEvent WebInputEventFactory::keyboardEvent(HWND hwnd, UINT message,
 {
     WebKeyboardEvent result;
 
+    // TODO(pkasting): http://b/1117926 Are we guaranteed that the message that
+    // GetMessageTime() refers to is the same one that we're passed in? Perhaps
+    // one of the construction parameters should be the time passed by the
+    // caller, who would know for sure.
+    result.timeStampSeconds = GetMessageTime() / 1000.0;
+
     result.windowsKeyCode = result.nativeKeyCode = static_cast<int>(wparam);
 
     switch (message) {
@@ -130,6 +136,8 @@ WebKeyboardEvent WebInputEventFactory::keyboardEvent(HWND hwnd, UINT message,
         result.modifiers |= WebInputEvent::ControlKey;
     if (GetKeyState(VK_MENU) & 0x8000)
         result.modifiers |= WebInputEvent::AltKey;
+    // NOTE: There doesn't seem to be a way to query the mouse button state in
+    // this case.
 
     if (LOWORD(lparam) > 1)
         result.modifiers |= WebInputEvent::IsAutoRepeat;
@@ -222,6 +230,8 @@ WebMouseEvent WebInputEventFactory::mouseEvent(HWND hwnd, UINT message,
 
     result.x = static_cast<short>(LOWORD(lparam));
     result.y = static_cast<short>(HIWORD(lparam));
+    result.windowX = result.x;
+    result.windowY = result.y;
 
     POINT globalPoint = { result.x, result.y };
     ClientToScreen(hwnd, &globalPoint);
@@ -272,6 +282,12 @@ WebMouseEvent WebInputEventFactory::mouseEvent(HWND hwnd, UINT message,
         result.modifiers |= WebInputEvent::ShiftKey;
     if (GetKeyState(VK_MENU) & 0x8000)
         result.modifiers |= WebInputEvent::AltKey;
+    if (wparam & MK_LBUTTON)
+        result.modifiers |= WebInputEvent::LeftButtonDown;
+    if (wparam & MK_MBUTTON)
+        result.modifiers |= WebInputEvent::MiddleButtonDown;
+    if (wparam & MK_RBUTTON)
+        result.modifiers |= WebInputEvent::RightButtonDown;
 
     return result;
 }
@@ -284,6 +300,13 @@ WebMouseWheelEvent WebInputEventFactory::mouseWheelEvent(HWND hwnd, UINT message
     WebMouseWheelEvent result; //(WebInputEvent::Uninitialized());
 
     result.type = WebInputEvent::MouseWheel;
+
+    // TODO(pkasting): http://b/1117926 Are we guaranteed that the message that
+    // GetMessageTime() refers to is the same one that we're passed in? Perhaps
+    // one of the construction parameters should be the time passed by the
+    // caller, who would know for sure.
+    result.timeStampSeconds = GetMessageTime() / 1000.0;
+
     result.button = WebMouseEvent::ButtonNone;
 
     // Get key state, coordinates, and wheel delta from event.
@@ -302,6 +325,8 @@ WebMouseWheelEvent WebInputEventFactory::mouseWheelEvent(HWND hwnd, UINT message
             keyState |= MK_SHIFT;
         if (getKeyState(VK_CONTROL))
             keyState |= MK_CONTROL;
+        // NOTE: There doesn't seem to be a way to query the mouse button state
+        // in this case.
 
         POINT cursorPosition = {0};
         GetCursorPos(&cursorPosition);
@@ -354,12 +379,20 @@ WebMouseWheelEvent WebInputEventFactory::mouseWheelEvent(HWND hwnd, UINT message
         result.modifiers |= WebInputEvent::ControlKey;
     if (getKeyState(VK_MENU) & 0x8000)
         result.modifiers |= WebInputEvent::AltKey;
+    if (keyState & MK_LBUTTON)
+        result.modifiers |= WebInputEvent::LeftButtonDown;
+    if (keyState & MK_MBUTTON)
+        result.modifiers |= WebInputEvent::MiddleButtonDown;
+    if (keyState & MK_RBUTTON)
+        result.modifiers |= WebInputEvent::RightButtonDown;
 
     // Set coordinates by translating event coordinates from screen to client.
     POINT clientPoint = { result.globalX, result.globalY };
     MapWindowPoints(NULL, hwnd, &clientPoint, 1);
     result.x = clientPoint.x;
     result.y = clientPoint.y;
+    result.windowX = result.x;
+    result.windowY = result.y;
 
     // Convert wheel delta amount to a number of pixels to scroll.
     //

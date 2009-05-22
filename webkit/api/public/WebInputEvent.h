@@ -49,7 +49,11 @@ namespace WebKit {
 
     class WebInputEvent {
     public:
-        WebInputEvent() : type(None), modifiers(0) { }
+        WebInputEvent(unsigned sizeParam = sizeof(WebInputEvent))
+            : size(sizeParam)
+            , type(Undefined)
+            , modifiers(0)
+            , timeStampSeconds(0.0) { }
 
         // There are two schemes used for keyboard input. On Windows (and,
         // interestingly enough, on Mac Carbon) there are two events for a
@@ -65,12 +69,13 @@ namespace WebKit {
         // indicate this.
 
         enum Type {
-            None = -1,
+            Undefined = -1,
 
             // WebMouseEvent
             MouseDown,
             MouseUp,
             MouseMove,
+            MouseEnter,
             MouseLeave,
 
             // WebMouseWheelEvent
@@ -85,18 +90,25 @@ namespace WebKit {
 
         enum Modifiers {
             // modifiers for all events:
-            ShiftKey      = 1 << 0,
-            ControlKey    = 1 << 1,
-            AltKey        = 1 << 2,
-            MetaKey       = 1 << 3,
+            ShiftKey         = 1 << 0,
+            ControlKey       = 1 << 1,
+            AltKey           = 1 << 2,
+            MetaKey          = 1 << 3,
 
             // modifiers for keyboard events:
-            IsKeyPad      = 1 << 4,
-            IsAutoRepeat  = 1 << 5
+            IsKeyPad         = 1 << 4,
+            IsAutoRepeat     = 1 << 5,
+
+            // modifiers for mouse events:
+            LeftButtonDown   = 1 << 6,
+            MiddleButtonDown = 1 << 7,
+            RightButtonDown  = 1 << 8,
         };
 
+        unsigned size;   // The size of this structure, for serialization.
         Type type;
         int modifiers;
+        double timeStampSeconds;   // Seconds since epoch.
 
         // Returns true if the WebInputEvent |type| is a keyboard event.
         static bool isKeyboardEventType(int type)
@@ -151,8 +163,9 @@ namespace WebKit {
         // easier to leave it always false than ifdef.
         bool isSystemKey;
 
-        WebKeyboardEvent()
-            : windowsKeyCode(0)
+        WebKeyboardEvent(unsigned sizeParam = sizeof(WebKeyboardEvent))
+            : WebInputEvent(sizeParam)
+            , windowsKeyCode(0)
             , nativeKeyCode(0)
             , isSystemKey(false)
         {
@@ -181,18 +194,21 @@ namespace WebKit {
         Button button;
         int x;
         int y;
+        int windowX;
+        int windowY;
         int globalX;
         int globalY;
-        double timeStampSeconds;   // Seconds since epoch.
         int clickCount;
 
-        WebMouseEvent()
-            : button(ButtonNone)
+        WebMouseEvent(unsigned sizeParam = sizeof(WebMouseEvent))
+            : WebInputEvent(sizeParam)
+            , button(ButtonNone)
             , x(0)
             , y(0)
+            , windowX(0)
+            , windowY(0)
             , globalX(0)
             , globalY(0)
-            , timeStampSeconds(0.0)
             , clickCount(0)
         {
         }
@@ -208,8 +224,9 @@ namespace WebKit {
         float wheelTicksY;
         bool scrollByPage;
 
-        WebMouseWheelEvent()
-            : deltaX(0.0f)
+        WebMouseWheelEvent(unsigned sizeParam = sizeof(WebMouseWheelEvent))
+            : WebMouseEvent(sizeParam)
+            , deltaX(0.0f)
             , deltaY(0.0f)
             , wheelTicksX(0.0f)
             , wheelTicksY(0.0f)

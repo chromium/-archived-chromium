@@ -3,20 +3,11 @@
 // found in the LICENSE file.
 
 #include "build/build_config.h"
-#if defined(OS_LINUX)
-// HACK: we need this #define in place before npapi.h is included for
-// plugins to work. However, all sorts of headers include npapi.h, so
-// the only way to be certain the define is in place is to put it
-// here.  You might ask, "Why not set it in npapi.h directly, or in
-// this directory's SConscript, then?"  but it turns out this define
-// makes npapi.h include Xlib.h, which in turn defines a ton of symbols
-// like None and Status, causing conflicts with the aforementioned
-// many headers that include npapi.h.  Ugh.
-#define MOZ_X11 1
-#endif
-
 #include "webkit/glue/plugins/test/plugin_javascript_open_popup.h"
 
+#if defined(OS_LINUX)
+#include "third_party/npapi/bindings/npapi_x11.h"
+#endif
 #include "webkit/glue/plugins/test/plugin_client.h"
 
 namespace NPAPIClient {

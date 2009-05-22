@@ -148,8 +148,8 @@ IPC_BEGIN_MESSAGES(Plugin)
 
   IPC_SYNC_MESSAGE_ROUTED0_0(PluginMsg_SetFocus)
 
-  IPC_SYNC_MESSAGE_ROUTED1_2(PluginMsg_HandleEvent,
-                             NPEvent /* event */,
+  IPC_SYNC_MESSAGE_ROUTED1_2(PluginMsg_HandleInputEvent,
+                             IPC::WebInputEventPointer /* event */,
                              bool /* handled */,
                              WebCursor /* cursor type*/)
 

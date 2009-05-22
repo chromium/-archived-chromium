@@ -30,7 +30,9 @@
 #include "Page.h"
 #include "PlatformContextSkia.h"
 #include "PlatformMouseEvent.h"
+#include "PlatformKeyboardEvent.h"
 #include "PlatformString.h"
+#include "PlatformWidget.h"
 #include "RenderBox.h"
 #include "ResourceHandle.h"
 #include "ResourceHandleClient.h"
@@ -47,11 +49,13 @@
 #include "base/string_util.h"
 #include "base/sys_string_conversions.h"
 #include "net/base/escape.h"
+#include "webkit/api/public/WebInputEvent.h"
 #include "webkit/api/public/WebKit.h"
 #include "webkit/api/public/WebKitClient.h"
 #include "webkit/api/public/WebString.h"
 #include "webkit/api/public/WebURL.h"
 #include "webkit/glue/chrome_client_impl.h"
+#include "webkit/glue/event_conversion.h"
 #include "webkit/glue/glue_util.h"
 #include "webkit/glue/multipart_response_delegate.h"
 #include "webkit/glue/webcursor.h"
@@ -61,6 +65,10 @@
 #include "webkit/glue/stacking_order_iterator.h"
 #include "webkit/glue/webview_impl.h"
 #include "googleurl/src/gurl.h"
+
+using WebKit::WebKeyboardEvent;
+using WebKit::WebInputEvent;
+using WebKit::WebMouseEvent;
 
 // This class handles individual multipart responses. It is instantiated when
 // we receive HTTP status code 206 in the HTTP response. This indicates
@@ -768,42 +776,16 @@ void WebPluginImpl::handleEvent(WebCore::Event* event) {
 }
 
 void WebPluginImpl::handleMouseEvent(WebCore::MouseEvent* event) {
-#if defined(OS_WIN)
   DCHECK(parent()->isFrameView());
   // We cache the parent FrameView here as the plugin widget could be deleted
   // in the call to HandleEvent. See http://b/issue?id=1362948
   WebCore::FrameView* parent_view = static_cast<WebCore::FrameView*>(parent());
 
-  WebCore::IntPoint p =
-      parent_view->contentsToWindow(WebCore::IntPoint(event->pageX(),
-                                                      event->pageY()));
-  NPEvent np_event;
-  np_event.lParam = static_cast<uint32>(MAKELPARAM(p.x(), p.y()));
-  np_event.wParam = 0;
+  WebMouseEvent web_event;
+  if (!ToWebMouseEvent(*parent_view, *event, &web_event))
+    return;
 
-  if (event->ctrlKey())
-    np_event.wParam |= MK_CONTROL;
-  if (event->shiftKey())
-    np_event.wParam |= MK_SHIFT;
-
-  if ((event->type() == WebCore::eventNames().mousemoveEvent) ||
-      (event->type() == WebCore::eventNames().mouseoutEvent) ||
-      (event->type() == WebCore::eventNames().mouseoverEvent)) {
-    np_event.event = WM_MOUSEMOVE;
-    if (event->buttonDown()) {
-      switch (event->button()) {
-        case WebCore::LeftButton:
-          np_event.wParam |= MK_LBUTTON;
-          break;
-        case WebCore::MiddleButton:
-          np_event.wParam |= MK_MBUTTON;
-          break;
-        case WebCore::RightButton:
-          np_event.wParam |= MK_RBUTTON;
-          break;
-      }
-    }
-  } else if (event->type() == WebCore::eventNames().mousedownEvent) {
+  if (event->type() == WebCore::eventNames().mousedownEvent) {
     // Ensure that the frame containing the plugin has focus.
     WebCore::Frame* containing_frame = webframe_->frame();
     if (WebCore::Page* current_page = containing_frame->page()) {
@@ -811,46 +793,13 @@ void WebPluginImpl::handleMouseEvent(WebCore::MouseEvent* event) {
     }
     // Give focus to our containing HTMLPluginElement.
     containing_frame->document()->setFocusedNode(element_);
-
-    // Ideally we'd translate to WM_xBUTTONDBLCLK here if the click count were
-    // a multiple of 2.  But there seems to be no way to get at the click count
-    // or the original Windows message from the WebCore::Event.
-    switch (event->button()) {
-      case WebCore::LeftButton:
-        np_event.event = WM_LBUTTONDOWN;
-        np_event.wParam |= MK_LBUTTON;
-        break;
-      case WebCore::MiddleButton:
-        np_event.event = WM_MBUTTONDOWN;
-        np_event.wParam |= MK_MBUTTON;
-        break;
-      case WebCore::RightButton:
-        np_event.event = WM_RBUTTONDOWN;
-        np_event.wParam |= MK_RBUTTON;
-        break;
-    }
-  } else if (event->type() == WebCore::eventNames().mouseupEvent) {
-    switch (event->button()) {
-      case WebCore::LeftButton:
-        np_event.event = WM_LBUTTONUP;
-        break;
-      case WebCore::MiddleButton:
-        np_event.event = WM_MBUTTONUP;
-        break;
-      case WebCore::RightButton:
-        np_event.event = WM_RBUTTONUP;
-        break;
-    }
-  } else {
-    // Skip all other mouse events.
-    return;
   }
 
   // TODO(pkasting): http://b/1119691 This conditional seems exactly backwards,
   // but it matches Safari's code, and if I reverse it, giving focus to a
   // transparent (windowless) plugin fails.
   WebCursor cursor;
-  if (!delegate_->HandleEvent(&np_event, &cursor))
+  if (!delegate_->HandleInputEvent(web_event, &cursor))
     event->setDefaultHandled();
 
   WebCore::Page* page = parent_view->frame()->page();
@@ -864,35 +813,16 @@ void WebPluginImpl::handleMouseEvent(WebCore::MouseEvent* event) {
   // event. We need to reflect the changed cursor in the frame view as the
   // mouse is moved in the boundaries of the windowless plugin.
   chrome_client->SetCursorForPlugin(cursor);
-
-#else
-  NOTIMPLEMENTED();
-#endif
 }
 
 void WebPluginImpl::handleKeyboardEvent(WebCore::KeyboardEvent* event) {
-#if defined(OS_WIN)
-  NPEvent np_event;
-  np_event.wParam = event->keyCode();
-
-  if (event->type() == WebCore::eventNames().keydownEvent) {
-    np_event.event = WM_KEYDOWN;
-    np_event.lParam = 0;
-  } else if (event->type() == WebCore::eventNames().keyupEvent) {
-    np_event.event = WM_KEYUP;
-    np_event.lParam = 0x8000;
-  } else {
-    // Skip all other keyboard events.
+  WebKeyboardEvent web_event;
+  if (!ToWebKeyboardEvent(*event, &web_event))
     return;
-  }
-
   // TODO(pkasting): http://b/1119691 See above.
   WebCursor current_web_cursor;
-  if (!delegate_->HandleEvent(&np_event, &current_web_cursor))
+  if (!delegate_->HandleInputEvent(web_event, &current_web_cursor))
     event->setDefaultHandled();
-#else
-  NOTIMPLEMENTED();
-#endif
 }
 
 NPObject* WebPluginImpl::GetPluginScriptableObject() {

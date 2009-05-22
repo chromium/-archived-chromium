@@ -17,8 +17,10 @@
 #include "base/gfx/rect.h"
 #include "base/basictypes.h"
 #include "chrome/common/ipc_message_utils.h"
+#include "chrome/common/webkit_param_traits.h"
 #include "googleurl/src/gurl.h"
 #include "third_party/npapi/bindings/npapi.h"
+#include "webkit/api/public/WebInputEvent.h"
 #include "webkit/glue/npruntime_util.h"
 
 // Name prefix of the event handle when a message box is displayed.
@@ -263,91 +265,43 @@ struct ParamTraits<PluginMsg_DidReceiveResponseParams> {
   }
 };
 
+typedef const WebKit::WebInputEvent* WebInputEventPointer;
 template <>
-struct ParamTraits<NPEvent> {
-  typedef NPEvent param_type;
+struct ParamTraits<WebInputEventPointer> {
+  typedef WebInputEventPointer param_type;
   static void Write(Message* m, const param_type& p) {
-    m->WriteData(reinterpret_cast<const char*>(&p), sizeof(NPEvent));
+    m->WriteData(reinterpret_cast<const char*>(p), p->size);
   }
+  // Note: upon read, the event has the lifetime of the message.
   static bool Read(const Message* m, void** iter, param_type* r) {
-    const char *data;
-    int data_size = 0;
-    bool result = m->ReadData(iter, &data, &data_size);
-    if (!result || data_size != sizeof(NPEvent)) {
+    const char* data;
+    int data_length;
+    if (!m->ReadData(iter, &data, &data_length)) {
       NOTREACHED();
       return false;
     }
-
-    memcpy(r, data, sizeof(NPEvent));
+    if (data_length < static_cast<int>(sizeof(WebKit::WebInputEvent))) {
+      NOTREACHED();
+      return false;
+    }
+    param_type event = reinterpret_cast<param_type>(data);
+    // Check that the data size matches that of the event (we check the latter
+    // in the delegate).
+    if (data_length != static_cast<int>(event->size)) {
+      NOTREACHED();
+      return false;
+    }
+    *r = event;
     return true;
   }
   static void Log(const param_type& p, std::wstring* l) {
-#if defined(OS_WIN)
-    std::wstring event, wparam, lparam;
-    lparam = StringPrintf(L"(%d, %d)", LOWORD(p.lParam), HIWORD(p.lParam));
-    switch(p.event) {
-     case WM_KEYDOWN:
-      event = L"WM_KEYDOWN";
-      wparam = StringPrintf(L"%d", p.wParam);
-      lparam = StringPrintf(L"%d", p.lParam);
-      break;
-     case WM_KEYUP:
-      event = L"WM_KEYDOWN";
-      wparam = StringPrintf(L"%d", p.wParam);
-      lparam = StringPrintf(L"%x", p.lParam);
-      break;
-     case WM_MOUSEMOVE:
-      event = L"WM_MOUSEMOVE";
-      if (p.wParam & MK_LBUTTON) {
-        wparam = L"MK_LBUTTON";
-      } else if (p.wParam & MK_MBUTTON) {
-        wparam = L"MK_MBUTTON";
-      } else if (p.wParam & MK_RBUTTON) {
-        wparam = L"MK_RBUTTON";
-      }
-      break;
-     case WM_LBUTTONDOWN:
-      event = L"WM_LBUTTONDOWN";
-      break;
-     case WM_MBUTTONDOWN:
-      event = L"WM_MBUTTONDOWN";
-      break;
-     case WM_RBUTTONDOWN:
-      event = L"WM_RBUTTONDOWN";
-      break;
-     case WM_LBUTTONUP:
-      event = L"WM_LBUTTONUP";
-      break;
-     case WM_MBUTTONUP:
-      event = L"WM_MBUTTONUP";
-      break;
-     case WM_RBUTTONUP:
-      event = L"WM_RBUTTONUP";
-      break;
-    }
-
-    if (p.wParam & MK_CONTROL) {
-      if (!wparam.empty())
-        wparam += L" ";
-      wparam += L"MK_CONTROL";
-    }
-
-    if (p.wParam & MK_SHIFT) {
-      if (!wparam.empty())
-        wparam += L" ";
-      wparam += L"MK_SHIFT";
-    }
-
     l->append(L"(");
-    LogParam(event, l);
+    LogParam(p->size, l);
     l->append(L", ");
-    LogParam(wparam, l);
+    LogParam(p->type, l);
     l->append(L", ");
-    LogParam(lparam, l);
+    LogParam(p->timeStampSeconds, l);
     l->append(L")");
-#else
-    l->append(L"<NPEvent>");
-#endif
   }
 };
 

@@ -14,6 +14,7 @@
 
 #include "base/basictypes.h"
 #include "base/file_path.h"
+#include "base/gfx/native_widget_types.h"
 #include "base/ref_counted.h"
 #include "base/scoped_ptr.h"
 #include "webkit/glue/plugins/nphostapi.h"
@@ -68,11 +69,9 @@ class PluginInstance : public base::RefCountedThreadSafe<PluginInstance> {
   // NPAPI's instance identifier for this instance
   NPP npp() { return npp_; }
 
-#if defined(OS_WIN)
-  // Get/Set for the instance's HWND.
-  HWND window_handle() { return hwnd_; }
-  void set_window_handle(HWND value) { hwnd_ = value; }
-#endif
+  // Get/Set for the instance's window handle.
+  gfx::NativeView window_handle() { return window_handle_; }
+  void set_window_handle(gfx::NativeView value) { window_handle_ = value; }
 
   // Get/Set whether this instance is in Windowless mode.
   // Default is false.
@@ -224,9 +223,7 @@ class PluginInstance : public base::RefCountedThreadSafe<PluginInstance> {
   scoped_refptr<PluginHost>                host_;
   NPPluginFuncs*                           npp_functions_;
   std::vector<scoped_refptr<PluginStream> > open_streams_;
-#if defined(OS_WIN)
-  HWND                                     hwnd_;
-#endif
+  gfx::NativeView                          window_handle_;
   bool                                     windowless_;
   bool                                     transparent_;
   WebPlugin*                               webplugin_;

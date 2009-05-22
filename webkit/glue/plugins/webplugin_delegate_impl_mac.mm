@@ -13,6 +13,7 @@
 #include "base/message_loop.h"
 #include "base/stats_counters.h"
 #include "base/string_util.h"
+#include "webkit/api/public/WebInputEvent.h"
 #include "webkit/default_plugin/plugin_impl.h"
 #include "webkit/glue/glue_util.h"
 #include "webkit/glue/webplugin.h"
@@ -22,6 +23,10 @@
 #include "webkit/glue/plugins/plugin_list.h"
 #include "webkit/glue/plugins/plugin_stream_url.h"
 #include "webkit/glue/webkit_glue.h"
+
+using WebKit::WebKeyboardEvent;
+using WebKit::WebInputEvent;
+using WebKit::WebMouseEvent;
 
 namespace {
 
@@ -413,10 +418,11 @@ void WebPluginDelegateImpl::SetFocus() {
   instance()->NPP_HandleEvent(&focus_event);
 }
 
-bool WebPluginDelegateImpl::HandleEvent(NPEvent* event,
-                                        WebCursor* cursor) {
+bool WebPluginDelegateImpl::HandleInputEvent(const WebInputEvent& event,
+                                             WebCursor* cursor) {
   DCHECK(windowless_) << "events should only be received in windowless mode";
   DCHECK(cursor != NULL);
+  // TODO: convert event into a NPEvent, and call NPP_HandleEvent(np_event).
 
   return true;
 }

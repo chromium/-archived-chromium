@@ -21,6 +21,10 @@ class WebCursor;
 class WebPlugin;
 class WebPluginResourceClient;
 
+namespace WebKit {
+class WebInputEvent;
+}
+
 namespace gfx {
 class Rect;
 }
@@ -87,7 +91,8 @@ class WebPluginDelegate {
 
   // For windowless plugins, gives them a user event like mouse/keyboard.
   // Returns whether the event was handled.
-  virtual bool HandleEvent(NPEvent* event, WebCursor* cursor) = 0;
+  virtual bool HandleInputEvent(const WebKit::WebInputEvent& event,
+                                WebCursor* cursor) = 0;
 
   // Gets the NPObject associated with the plugin for scripting.
   virtual NPObject* GetPluginScriptableObject() = 0;

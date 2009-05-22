@@ -107,6 +107,7 @@
 // On Linux and Mac, be sure to set Mozilla-specific macros.
 #if defined(OS_LINUX)
 #define XP_UNIX 1
+#define MOZ_X11 1
 #elif defined(OS_MACOSX)
 #ifndef XP_MACOSX
 #define XP_MACOSX 1
@@ -133,10 +134,16 @@
 
 #if defined(XP_UNIX) 
 #	include <stdio.h>
+// BEGIN GOOGLE MODIFICATIONS
+#if 0
+// END GOOGLE MODIFICATIONS
 #	if defined(MOZ_X11)
 #		include <X11/Xlib.h>
 #		include <X11/Xutil.h>
 #	endif
+// BEGIN GOOGLE MODIFICATIONS
+#endif
+// END GOOGLE MODIFICATIONS
 #endif
 
 /*----------------------------------------------------------------------*/
@@ -341,16 +348,9 @@ typedef struct
   int32 type;
 } NPAnyCallbackStruct;
 
-typedef struct
-{
-  int32        type;
-#ifdef MOZ_X11
-  Display*     display;
-  Visual*      visual;
-  Colormap     colormap;
-  unsigned int depth;
-#endif
-} NPSetWindowCallbackStruct;
+// BEGIN GOOGLE MODIFICATIONS
+typedef struct _NPSetWindowCallbackStruct NPSetWindowCallbackStruct;
+// END GOOGLE MODIFICATIONS
 
 typedef struct
 {
@@ -564,6 +564,9 @@ typedef struct _NPEvent
   uint32 lParam;
 } NPEvent;
 #elif defined (XP_UNIX) && defined(MOZ_X11)
+// BEGIN GOOGLE MODIFICATIONS
+typedef union _XEvent XEvent;
+// END GOOGLE MODIFICATIONS
 typedef XEvent NPEvent;
 #else
 typedef void*			NPEvent;
@@ -578,6 +581,9 @@ typedef CGPathRef NPCGRegion;
 #elif defined(XP_WIN)
 typedef HRGN NPRegion;
 #elif defined(XP_UNIX) && defined(MOZ_X11)
+// BEGIN GOOGLE MODIFICATIONS
+typedef struct _XRegion *Region;
+// END GOOGLE MODIFICATIONS
 typedef Region NPRegion;
 #else
 typedef void *NPRegion;

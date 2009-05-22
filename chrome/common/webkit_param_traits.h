@@ -165,6 +165,9 @@ struct ParamTraits<WebKit::WebInputEvent::Type> {
      case WebKit::WebInputEvent::MouseLeave:
       type = L"MouseLeave";
       break;
+     case WebKit::WebInputEvent::MouseEnter:
+      type = L"MouseEnter";
+      break;
      case WebKit::WebInputEvent::MouseWheel:
       type = L"MouseWheel";
       break;

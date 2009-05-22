@@ -24,6 +24,10 @@ struct PluginMsg_DidReceiveResponseParams;
 struct PluginMsg_URLRequestReply_Params;
 class WebCursor;
 
+namespace WebKit {
+class WebInputEvent;
+}
+
 // Converts the IPC messages from WebPluginDelegateProxy into calls to the
 // actual WebPluginDelegate object.
 class WebPluginDelegateStub : public IPC::Channel::Listener,
@@ -57,8 +61,8 @@ class WebPluginDelegateStub : public IPC::Channel::Listener,
 
   void OnDidFinishLoadWithReason(int reason);
   void OnSetFocus();
-  void OnHandleEvent(const NPEvent& event, bool* handled,
-                     WebCursor* cursor);
+  void OnHandleInputEvent(const WebKit::WebInputEvent* event,
+                          bool* handled, WebCursor* cursor);
 
   void OnPaint(const gfx::Rect& damaged_rect);
   void OnDidPaint();

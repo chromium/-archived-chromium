@@ -13,6 +13,7 @@
 #include "base/message_loop.h"
 #include "base/stats_counters.h"
 #include "base/string_util.h"
+#include "webkit/api/public/WebInputEvent.h"
 #include "webkit/default_plugin/plugin_impl.h"
 #include "webkit/glue/glue_util.h"
 #include "webkit/glue/webplugin.h"
@@ -22,6 +23,10 @@
 #include "webkit/glue/plugins/plugin_list.h"
 #include "webkit/glue/plugins/plugin_stream_url.h"
 #include "webkit/glue/webkit_glue.h"
+
+using WebKit::WebKeyboardEvent;
+using WebKit::WebInputEvent;
+using WebKit::WebMouseEvent;
 
 namespace {
 
@@ -260,7 +265,6 @@ bool WebPluginDelegateImpl::Initialize(const GURL& url,
   }
 
   plugin->SetWindow(windowed_handle_);
-#if defined(OS_WIN)
   if (windowless_) {
     // For windowless plugins we should set the containing window handle
     // as the instance window handle. This is what Safari does. Not having
@@ -268,11 +272,12 @@ bool WebPluginDelegateImpl::Initialize(const GURL& url,
     // the window handle and validate the same. The window handle can be
     // retreived via NPN_GetValue of NPNVnetscapeWindow.
     instance_->set_window_handle(parent_);
+#if defined(OS_WIN)
     CreateDummyWindowForActivation();
     handle_event_pump_messages_event_ = CreateEvent(NULL, TRUE, FALSE, NULL);
     plugin->SetWindowlessPumpEvent(handle_event_pump_messages_event_);
-  }
 #endif
+  }
   plugin_url_ = url.spec();
 
   // The windowless version of the Silverlight plugin calls the
@@ -999,10 +1004,116 @@ void WebPluginDelegateImpl::SetFocus() {
   instance()->NPP_HandleEvent(&focus_event);
 }
 
-bool WebPluginDelegateImpl::HandleEvent(NPEvent* event,
-                                        WebCursor* cursor) {
+static bool NPEventFromWebMouseEvent(const WebMouseEvent& event,
+                                     NPEvent *np_event) {
+  np_event->lParam = static_cast<uint32>(MAKELPARAM(event.windowX,
+                                                   event.windowY));
+  np_event->wParam = 0;
+
+  if (event.modifiers & WebInputEvent::ControlKey)
+    np_event->wParam |= MK_CONTROL;
+  if (event.modifiers & WebInputEvent::ShiftKey)
+    np_event->wParam |= MK_SHIFT;
+  if (event.modifiers & WebInputEvent::LeftButtonDown)
+    np_event->wParam |= MK_LBUTTON;
+  if (event.modifiers & WebInputEvent::MiddleButtonDown)
+    np_event->wParam |= MK_MBUTTON;
+  if (event.modifiers & WebInputEvent::RightButtonDown)
+    np_event->wParam |= MK_RBUTTON;
+
+  switch (event.type) {
+    case WebInputEvent::MouseMove:
+    case WebInputEvent::MouseLeave:
+    case WebInputEvent::MouseEnter:
+      np_event->event = WM_MOUSEMOVE;
+      return true;
+    case WebInputEvent::MouseDown:
+      switch (event.button) {
+        case WebMouseEvent::ButtonLeft:
+          np_event->event = WM_LBUTTONDOWN;
+          break;
+        case WebMouseEvent::ButtonMiddle:
+          np_event->event = WM_MBUTTONDOWN;
+          break;
+        case WebMouseEvent::ButtonRight:
+          np_event->event = WM_RBUTTONDOWN;
+          break;
+      }
+      return true;
+    case WebInputEvent::MouseUp:
+      switch (event.button) {
+        case WebMouseEvent::ButtonLeft:
+          np_event->event = WM_LBUTTONUP;
+          break;
+        case WebMouseEvent::ButtonMiddle:
+          np_event->event = WM_MBUTTONUP;
+          break;
+        case WebMouseEvent::ButtonRight:
+          np_event->event = WM_RBUTTONUP;
+          break;
+      }
+      return true;
+    default:
+      NOTREACHED();
+      return false;
+  }
+}
+
+static bool NPEventFromWebKeyboardEvent(const WebKeyboardEvent& event,
+                                        NPEvent *np_event) {
+  np_event->wParam = event.windowsKeyCode;
+
+  switch (event.type) {
+    case WebInputEvent::KeyDown:
+      np_event->event = WM_KEYDOWN;
+      np_event->lParam = 0;
+      return true;
+    case WebInputEvent::KeyUp:
+      np_event->event = WM_KEYUP;
+      np_event->lParam = 0x8000;
+      return true;
+    default:
+      NOTREACHED();
+      return false;
+  }
+}
+
+static bool NPEventFromWebInputEvent(const WebInputEvent& event,
+                                     NPEvent* np_event) {
+  switch (event.type) {
+    case WebInputEvent::MouseMove:
+    case WebInputEvent::MouseLeave:
+    case WebInputEvent::MouseEnter:
+    case WebInputEvent::MouseDown:
+    case WebInputEvent::MouseUp:
+      if (event.size < sizeof(WebMouseEvent)) {
+        NOTREACHED();
+        return false;
+      }
+      return NPEventFromWebMouseEvent(
+          *static_cast<const WebMouseEvent*>(&event), np_event);
+    case WebInputEvent::KeyDown:
+    case WebInputEvent::KeyUp:
+      if (event.size < sizeof(WebKeyboardEvent)) {
+        NOTREACHED();
+        return false;
+      }
+      return NPEventFromWebKeyboardEvent(
+          *static_cast<const WebKeyboardEvent*>(&event), np_event);
+    default:
+      return false;
+  }
+}
+
+bool WebPluginDelegateImpl::HandleInputEvent(const WebInputEvent& event,
+                                             WebCursor* cursor) {
   DCHECK(windowless_) << "events should only be received in windowless mode";
   DCHECK(cursor != NULL);
+
+  NPEvent np_event;
+  if (!NPEventFromWebInputEvent(event, &np_event)) {
+    return false;
+  }
 
   // To ensure that the plugin receives keyboard events we set focus to the
   // dummy window.
@@ -1011,11 +1122,11 @@ bool WebPluginDelegateImpl::HandleEvent(NPEvent* event,
   // also require some changes in RenderWidgetHost to detect this in the
   // WM_MOUSEACTIVATE handler and inform the renderer accordingly.
   HWND prev_focus_window = NULL;
-  if (event->event == WM_RBUTTONDOWN) {
+  if (np_event.event == WM_RBUTTONDOWN) {
     prev_focus_window = ::SetFocus(dummy_window_for_activation_);
   }
 
-  if (ShouldTrackEventForModalLoops(event)) {
+  if (ShouldTrackEventForModalLoops(&np_event)) {
     // A windowless plugin can enter a modal loop in a NPP_HandleEvent call.
     // For e.g. Flash puts up a context menu when we right click on the
     // windowless plugin area. We detect this by setting up a message filter
@@ -1042,14 +1153,14 @@ bool WebPluginDelegateImpl::HandleEvent(NPEvent* event,
 
   bool pop_user_gesture = false;
 
-  if (IsUserGestureMessage(event->event)) {
+  if (IsUserGestureMessage(np_event.event)) {
     pop_user_gesture = true;
     instance()->PushPopupsEnabledState(true);
   }
 
-  bool ret = instance()->NPP_HandleEvent(event) != 0;
+  bool ret = instance()->NPP_HandleEvent(&np_event) != 0;
 
-  if (event->event == WM_MOUSEMOVE) {
+  if (np_event.event == WM_MOUSEMOVE) {
     // Snag a reference to the current cursor ASAP in case the plugin modified
     // it. There is a nasty race condition here with the multiprocess browser
     // as someone might be setting the cursor in the main process as well.
@@ -1078,7 +1189,7 @@ bool WebPluginDelegateImpl::HandleEvent(NPEvent* event,
     ResetEvent(handle_event_pump_messages_event_);
   }
 
-  if (event->event == WM_RBUTTONUP && ::IsWindow(prev_focus_window)) {
+  if (np_event.event == WM_RBUTTONUP && ::IsWindow(prev_focus_window)) {
     ::SetFocus(prev_focus_window);
   }
 
