@@ -19,6 +19,8 @@
 #include "chrome/common/notification_service.h"
 #include "chrome/common/unzip.h"
 #include "chrome/common/url_constants.h"
+#include "third_party/skia/include/core/SkBitmap.h"
+#include "webkit/glue/image_decoder.h"
 
 namespace {
 const char kCurrentVersionFileName[] = "Current Version";
@@ -59,12 +61,47 @@ const char kExternalInstallFile[] = "EXTERNAL_INSTALL";
 
 // The version of the extension package that this code understands.
 const uint32 kExpectedVersion = 1;
+}  // namespace
+
+static SkBitmap DecodeImage(const FilePath& path) {
+  // Read the file from disk.
+  std::string file_contents;
+  if (!file_util::PathExists(path) ||
+      !file_util::ReadFileToString(path, &file_contents)) {
+    return SkBitmap();
+  }
+
+  // Decode the image using WebKit's image decoder.
+  const unsigned char* data =
+      reinterpret_cast<const unsigned char*>(file_contents.data());
+  webkit_glue::ImageDecoder decoder;
+  return decoder.Decode(data, file_contents.length());
+}
+
+static bool PathContainsParentDirectory(const FilePath& path) {
+  const FilePath::StringType kSeparators(FilePath::kSeparators);
+  const FilePath::StringType kParentDirectory(FilePath::kParentDirectory);
+  const size_t npos = FilePath::StringType::npos;
+  const FilePath::StringType& value = path.value();
+
+  for (size_t i = 0; i < value.length(); ) {
+    i = value.find(kParentDirectory, i);
+    if (i != npos) {
+      if ((i == 0 || kSeparators.find(value[i-1]) == npos) &&
+          (i+1 < value.length() || kSeparators.find(value[i+1]) == npos)) {
+        return true;
+      }
+      ++i;
+    }
+  }
+
+  return false;
 }
 
 // The extension file format is a header, followed by the manifest, followed
 // by the zip file.  The header is a magic number, a version, the size of the
 // header, and the size of the manifest.  These ints are 4 byte little endian.
-DictionaryValue* ExtensionUnpacker::ReadManifest() {
+DictionaryValue* ExtensionUnpacker::ReadPackageHeader() {
   ScopedStdioHandle file(file_util::OpenFile(extension_path_, "rb"));
   if (!file.get()) {
     SetError("no such extension file");
@@ -166,44 +203,114 @@ DictionaryValue* ExtensionUnpacker::ReadManifest() {
   return manifest;
 }
 
+DictionaryValue* ExtensionUnpacker::ReadManifest() {
+  FilePath manifest_path =
+      temp_install_dir_.AppendASCII(Extension::kManifestFilename);
+  if (!file_util::PathExists(manifest_path)) {
+    SetError(Extension::kInvalidManifestError);
+    return NULL;
+  }
+
+  JSONFileValueSerializer serializer(manifest_path);
+  std::string error;
+  scoped_ptr<Value> root(serializer.Deserialize(&error));
+  if (!root.get()) {
+    SetError(error);
+    return NULL;
+  }
+
+  if (!root->IsType(Value::TYPE_DICTIONARY)) {
+    SetError(Extension::kInvalidManifestError);
+    return NULL;
+  }
+
+  return static_cast<DictionaryValue*>(root.release());
+}
+
 bool ExtensionUnpacker::Run() {
   LOG(INFO) << "Installing extension " << extension_path_.value();
 
   // Read and verify the extension.
-  scoped_ptr<DictionaryValue> manifest(ReadManifest());
-  if (!manifest.get()) {
-    // ReadManifest has already reported the extension error.
-    return false;
-  }
-  Extension extension;
-  std::string error;
-  if (!extension.InitFromValue(*manifest,
-                               true,  // require ID
-                               &error)) {
-    SetError("Invalid extension manifest.");
+  scoped_ptr<DictionaryValue> header_manifest(ReadPackageHeader());
+  if (!header_manifest.get()) {
+    // ReadPackageHeader has already reported the extension error.
     return false;
   }
 
-  // ID is required for installed extensions.
-  if (extension.id().empty()) {
-    SetError("Required value 'id' is missing.");
+  // TODO(mpcomplete): it looks like this isn't actually necessary.  We don't
+  // use header_extension, and we check that the unzipped manifest is valid.
+  Extension header_extension;
+  std::string error;
+  if (!header_extension.InitFromValue(*header_manifest,
+                                      true,  // require ID
+                                      &error)) {
+    SetError(error);
     return false;
   }
 
   // <profile>/Extensions/INSTALL_TEMP/<version>
-  std::string version = extension.VersionString();
-  FilePath temp_install =
+  temp_install_dir_ =
       extension_path_.DirName().AppendASCII(kTempExtensionName);
-  if (!file_util::CreateDirectory(temp_install)) {
+  if (!file_util::CreateDirectory(temp_install_dir_)) {
     SetError("Couldn't create directory for unzipping.");
     return false;
   }
 
-  if (!Unzip(extension_path_, temp_install, NULL)) {
+  if (!Unzip(extension_path_, temp_install_dir_, NULL)) {
     SetError("Couldn't unzip extension.");
     return false;
   }
 
+  // Parse the manifest.
+  parsed_manifest_.reset(ReadManifest());
+  if (!parsed_manifest_.get())
+    return false;  // Error was already reported.
+
+  // Re-read the actual manifest into our extension struct.
+  Extension extension;
+  if (!extension.InitFromValue(*parsed_manifest_,
+                               true,  // require ID
+                               &error)) {
+    SetError(error);
+    return false;
+  }
+
+  // Decode any images that the browser needs to display.
+  DictionaryValue* images = extension.GetThemeImages();
+  if (images) {
+    for (DictionaryValue::key_iterator it = images->begin_keys();
+         it != images->end_keys(); ++it) {
+      std::wstring val;
+      if (images->GetString(*it, &val)) {
+        if (!AddDecodedImage(FilePath::FromWStringHack(val)))
+          return false;  // Error was already reported.
+      }
+    }
+  }
+
+  for (PageActionMap::const_iterator it = extension.page_actions().begin();
+       it != extension.page_actions().end(); ++it) {
+    if (!AddDecodedImage(it->second->icon_path()))
+      return false;  // Error was already reported.
+  }
+
+  return true;
+}
+
+bool ExtensionUnpacker::AddDecodedImage(const FilePath& path) {
+  // Make sure it's not referencing a file outside the extension's subdir.
+  if (path.IsAbsolute() || PathContainsParentDirectory(path)) {
+    SetError("Path names must not be absolute or contain '..'.");
+    return false;
+  }
+
+  SkBitmap image_bitmap = DecodeImage(temp_install_dir_.Append(path));
+  if (image_bitmap.isNull()) {
+    SetError("Could not decode theme image.");
+    return false;
+  }
+
+  decoded_images_.push_back(MakeTuple(image_bitmap, path));
   return true;
 }
 

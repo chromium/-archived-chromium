@@ -6,16 +6,22 @@
 #define CHROME_COMMON_EXTENSIONS_EXTENSION_UNPACKER_H_
 
 #include <string>
+#include <vector>
 
 #include "base/file_path.h"
+#include "base/scoped_ptr.h"
+#include "base/tuple.h"
 
 class DictionaryValue;
+class SkBitmap;
 
 // Implements IO for the ExtensionsService.
 // TODO(aa): Extract an interface out of this for testing the frontend, once the
 // frontend has significant logic to test.
 class ExtensionUnpacker {
  public:
+  typedef std::vector< Tuple2<SkBitmap, FilePath> > DecodedImages;
+
   explicit ExtensionUnpacker(const FilePath& extension_path)
       : extension_path_(extension_path) {}
 
@@ -24,17 +30,39 @@ class ExtensionUnpacker {
   bool Run();
 
   const std::string& error_message() { return error_message_; }
+  DictionaryValue* parsed_manifest() {
+    return parsed_manifest_.get();
+  }
+  const DecodedImages& decoded_images() { return decoded_images_; }
 
  private:
-  // Read the manifest from the front of the extension file.
+  // Parse the header on the front of the extension file and return the manifest
+  // inside it. Caller takes ownership of return value.
+  DictionaryValue* ReadPackageHeader();
+
+  // Parse the manifest.json file inside the extension (not in the header).
   // Caller takes ownership of return value.
   DictionaryValue* ReadManifest();
+
+  // Decodes the image at the given path and puts it in our list of decoded
+  // images.
+  bool AddDecodedImage(const FilePath& path);
 
   // Set the error message.
   void SetError(const std::string& error);
 
   // The extension to unpack.
   FilePath extension_path_;
+
+  // The place we unpacked the extension to.
+  FilePath temp_install_dir_;
+
+  // The parsed version of the manifest JSON contained in the extension.
+  scoped_ptr<DictionaryValue> parsed_manifest_;
+
+  // A list of decoded images and the paths where those images came from.  Paths
+  // are relative to the manifest file.
+  DecodedImages decoded_images_;
 
   // The last error message that was set.  Empty if there were no errors.
   std::string error_message_;

@@ -22,6 +22,7 @@ class GURL;
 class PrefService;
 class Profile;
 class ResourceDispatcherHost;
+class SkBitmap;
 class SiteInstance;
 class UserScriptMaster;
 typedef std::vector<Extension*> ExtensionList;
@@ -171,10 +172,15 @@ class ExtensionsServiceBackend
   // Finish installing an extension after it has been unpacked to
   // |temp_extension_dir| by our utility process.  If |expected_id| is not
   // empty, it's verified against the extension's manifest before installation.
-  void OnExtensionUnpacked(const FilePath& extension_path,
-                           const FilePath& temp_extension_dir,
-                           const std::string expected_id,
-                           bool from_external);
+  // |manifest| and |images| are parsed information from the extension that
+  // we want to write to disk in the browser process.
+  void OnExtensionUnpacked(
+      const FilePath& extension_path,
+      const FilePath& temp_extension_dir,
+      const std::string expected_id,
+      bool from_external,
+      const DictionaryValue& manifest,
+      const std::vector< Tuple2<SkBitmap, FilePath> >& images);
 
   // Notify the frontend that there was an error loading an extension.
   void ReportExtensionLoadError(const FilePath& extension_path,

@@ -16,6 +16,7 @@
 #include "base/gfx/rect.h"
 #include "base/gfx/native_widget_types.h"
 #include "base/shared_memory.h"
+#include "base/values.h"
 #include "chrome/common/ipc_message_macros.h"
 #include "chrome/common/transport_dib.h"
 #include "third_party/skia/include/core/SkBitmap.h"
@@ -1393,9 +1394,16 @@ IPC_BEGIN_MESSAGES(ViewHost)
   // These are messages from the utility process to the browser.  They're here
   // because we ran out of spare message types.
 
-  // Reply when the utility process is done unpacking an extension.  |success|
-  // argument is true if the extension unpacked and verified successfully.
-  IPC_MESSAGE_CONTROL2(UtilityHostMsg_UnpackExtension_Reply,
-                       bool /* success */,
+  // Reply when the utility process is done unpacking an extension.  |manifest|
+  // is the parsed manifest.json file.  |images| is a list of decoded images
+  // and the path to where they should be written to, relative to the
+  // manifest file.
+  IPC_MESSAGE_CONTROL2(UtilityHostMsg_UnpackExtension_Succeeded,
+                       DictionaryValue /* manifest */,
+                       std::vector<UnpackExtension_ImagePathPair> /* images */)
+
+  // Reply when the utility process has failed while unpacking an extension.
+  // |error_message| is a user-displayable explanation of what went wrong.
+  IPC_MESSAGE_CONTROL1(UtilityHostMsg_UnpackExtension_Failed,
                        std::string /* error_message, if any */)
 IPC_END_MESSAGES(ViewHost)

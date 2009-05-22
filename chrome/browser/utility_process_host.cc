@@ -81,7 +81,9 @@ void UtilityProcessHost::OnChannelError() {
 void UtilityProcessHost::Client::OnMessageReceived(
     const IPC::Message& message) {
   IPC_BEGIN_MESSAGE_MAP(UtilityProcessHost, message)
-    IPC_MESSAGE_HANDLER(UtilityHostMsg_UnpackExtension_Reply,
-                        Client::OnUnpackExtensionReply)
+    IPC_MESSAGE_HANDLER(UtilityHostMsg_UnpackExtension_Succeeded,
+                        Client::OnUnpackExtensionSucceeded)
+    IPC_MESSAGE_HANDLER(UtilityHostMsg_UnpackExtension_Failed,
+                        Client::OnUnpackExtensionFailed)
   IPC_END_MESSAGE_MAP_EX()
 }

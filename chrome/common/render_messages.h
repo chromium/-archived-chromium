@@ -47,6 +47,8 @@ namespace base {
 class Time;
 }
 
+class SkBitmap;
+
 // Parameters structure for ViewMsg_Navigate, which has too many data
 // parameters to be reasonably put in a predefined IPC message.
 struct ViewMsg_Navigate_Params {
@@ -384,6 +386,10 @@ struct ViewHostMsg_ShowPopup_Params {
   // The entire list of items in the popup menu.
   std::vector<WebMenuItem> popup_items;
 };
+
+// Used by UtilityHostMsg_UnpackExtension_Succeeded.  We must define a typedef
+// because the preprocessor is stupid about commas inside macros.
+typedef Tuple2<SkBitmap, FilePath> UnpackExtension_ImagePathPair;
 
 namespace IPC {
 

@@ -5,6 +5,7 @@
 #include "chrome/browser/extensions/extensions_service.h"
 
 #include "base/file_util.h"
+#include "base/gfx/png_encoder.h"
 #include "base/scoped_handle.h"
 #include "base/scoped_temp_dir.h"
 #include "base/string_util.h"
@@ -29,6 +30,7 @@
 #include "chrome/common/pref_service.h"
 #include "chrome/common/unzip.h"
 #include "chrome/common/url_constants.h"
+#include "third_party/skia/include/core/SkBitmap.h"
 
 #if defined(OS_WIN)
 #include "base/registry.h"
@@ -129,35 +131,42 @@ class ExtensionsServiceBackend::UnpackerClient
       // Cheesy... but if we don't have a ResourceDispatcherHost, assume we're
       // in a unit test and run the unpacker directly in-process.
       ExtensionUnpacker unpacker(temp_extension_path_);
-      bool success = unpacker.Run();
-      OnUnpackExtensionReply(success, unpacker.error_message());
+      if (unpacker.Run()) {
+        OnUnpackExtensionSucceeded(*unpacker.parsed_manifest(),
+                                   unpacker.decoded_images());
+      } else {
+        OnUnpackExtensionFailed(unpacker.error_message());
+      }
     }
   }
 
  private:
   // UtilityProcessHost::Client
   virtual void OnProcessCrashed() {
-    OnUnpackExtensionReply(false, "Chrome crashed while trying to install");
+    OnUnpackExtensionFailed("Chrome crashed while trying to install");
   }
 
-  virtual void OnUnpackExtensionReply(bool success,
-                                      const std::string& error_message) {
-    if (success) {
-      // The extension was unpacked to the temp dir inside our unpacking dir.
-      FilePath extension_dir = temp_extension_path_.DirName().AppendASCII(
-          ExtensionsServiceBackend::kTempExtensionName);
-      backend_->OnExtensionUnpacked(extension_path_, extension_dir,
-                                    expected_id_, from_external_);
-    } else {
-      backend_->ReportExtensionInstallError(extension_path_, error_message);
-    }
+  virtual void OnUnpackExtensionSucceeded(
+      const DictionaryValue& manifest,
+      const std::vector< Tuple2<SkBitmap, FilePath> >& images) {
+    // The extension was unpacked to the temp dir inside our unpacking dir.
+    FilePath extension_dir = temp_extension_path_.DirName().AppendASCII(
+        ExtensionsServiceBackend::kTempExtensionName);
+    backend_->OnExtensionUnpacked(extension_path_, extension_dir,
+                                  expected_id_, from_external_,
+                                  manifest, images);
     Cleanup();
-    Release();  // balanced in Run()
+  }
+
+  virtual void OnUnpackExtensionFailed(const std::string& error_message) {
+    backend_->ReportExtensionInstallError(extension_path_, error_message);
+    Cleanup();
   }
 
   // Cleans up our temp directory.
   void Cleanup() {
     file_util::Delete(temp_extension_path_.DirName(), true);
+    Release();  // balanced in Run()
   }
 
   // Starts the utility process that unpacks our extension.
@@ -812,19 +821,12 @@ void ExtensionsServiceBackend::OnExtensionUnpacked(
     const FilePath& extension_path,
     const FilePath& temp_extension_dir,
     const std::string expected_id,
-    bool from_external) {
-  // TODO(mpcomplete): the utility process should pass up a parsed manifest that
-  // we rewrite in the browser.
-  // Bug http://code.google.com/p/chromium/issues/detail?id=11680
-  scoped_ptr<DictionaryValue> manifest(ReadManifest(extension_path));
-  if (!manifest.get()) {
-    // ReadManifest has already reported the extension error.
-    return;
-  }
-
+    bool from_external,
+    const DictionaryValue& manifest,
+    const std::vector< Tuple2<SkBitmap, FilePath> >& images) {
   Extension extension;
   std::string error;
-  if (!extension.InitFromValue(*manifest,
+  if (!extension.InitFromValue(manifest,
                                true,  // require ID
                                &error)) {
     ReportExtensionInstallError(extension_path, "Invalid extension manifest.");
@@ -849,16 +851,61 @@ void ExtensionsServiceBackend::OnExtensionUnpacked(
     was_update = true;
   }
 
+  // Write our parsed manifest back to disk, to ensure it doesn't contain an
+  // exploitable bug that can be used to compromise the browser.
+  std::string manifest_json;
+  JSONStringValueSerializer serializer(&manifest_json);
+  serializer.set_pretty_print(true);
+  if (!serializer.Serialize(manifest)) {
+    ReportExtensionInstallError(extension_path,
+                                "Error serializing manifest.json.");
+    return;
+  }
+
+  FilePath manifest_path =
+      temp_extension_dir.AppendASCII(Extension::kManifestFilename);
+  if (!file_util::WriteFile(manifest_path,
+                            manifest_json.data(), manifest_json.size())) {
+    ReportExtensionInstallError(extension_path, "Error saving manifest.json.");
+    return;
+  }
+
+  // Write our parsed images back to disk as well.
+  for (size_t i = 0; i < images.size(); ++i) {
+    const SkBitmap& image = images[i].a;
+    FilePath path = temp_extension_dir.Append(images[i].b);
+
+    std::vector<unsigned char> image_data;
+    // TODO(mpcomplete): It's lame that we're encoding all images as PNG, even
+    // though they may originally be .jpg, etc.  Figure something out.
+    // http://code.google.com/p/chromium/issues/detail?id=12459
+    if (!PNGEncoder::EncodeBGRASkBitmap(image, false, &image_data)) {
+      ReportExtensionInstallError(extension_path,
+                                  "Error re-encoding theme image.");
+      return;
+    }
+
+    // Note: we're overwriting existing files that the utility process wrote,
+    // so we can be sure the directory exists.
+    const char* image_data_ptr = reinterpret_cast<const char*>(&image_data[0]);
+    if (!file_util::WriteFile(path, image_data_ptr, image_data.size())) {
+      ReportExtensionInstallError(extension_path, "Error saving theme image.");
+      return;
+    }
+  }
+
   // <profile>/Extensions/<dir_name>/<version>
   FilePath version_dir = dest_dir.AppendASCII(version);
+
+  // If anything fails after this, we want to delete the extension dir.
+  ScopedTempDir scoped_version_dir;
+  scoped_version_dir.Set(version_dir);
+
   if (!InstallDirSafely(temp_extension_dir, version_dir))
     return;
 
-  if (!SetCurrentVersion(dest_dir, version)) {
-    if (!file_util::Delete(version_dir, true))
-      LOG(WARNING) << "Can't remove " << dest_dir.value();
+  if (!SetCurrentVersion(dest_dir, version))
     return;
-  }
 
   // To mark that this extension was installed from an external source, create a
   // zero-length file.  At load time, this is used to indicate that the
@@ -872,7 +919,7 @@ void ExtensionsServiceBackend::OnExtensionUnpacked(
   // Load the extension immediately and then report installation success. We
   // don't load extensions for external installs because external installation
   // occurs before the normal startup so we just let startup pick them up. We
-  // don't notify installation because there is no UI or external install so
+  // don't notify installation because there is no UI for external install so
   // there is nobody to notify.
   if (!from_external) {
     Extension* extension = LoadExtension(version_dir, true);  // require id
@@ -890,6 +937,8 @@ void ExtensionsServiceBackend::OnExtensionUnpacked(
     // Hand off ownership of the loaded extensions to the frontend.
     ReportExtensionsLoaded(extensions.release());
   }
+
+  scoped_version_dir.Take();
 }
 
 void ExtensionsServiceBackend::ReportExtensionInstallError(

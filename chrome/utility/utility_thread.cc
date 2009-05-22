@@ -4,6 +4,7 @@
 
 #include "chrome/utility/utility_thread.h"
 
+#include "base/values.h"
 #include "chrome/common/child_process.h"
 #include "chrome/common/extensions/extension_unpacker.h"
 #include "chrome/common/render_messages.h"
@@ -32,9 +33,13 @@ void UtilityThread::OnControlMessageReceived(const IPC::Message& msg) {
 
 void UtilityThread::OnUnpackExtension(const FilePath& extension_path) {
   ExtensionUnpacker unpacker(extension_path);
-  bool success = unpacker.Run();
-  Send(new UtilityHostMsg_UnpackExtension_Reply(success,
-                                                unpacker.error_message()));
+  if (unpacker.Run()) {
+    Send(new UtilityHostMsg_UnpackExtension_Succeeded(
+        *unpacker.parsed_manifest(), unpacker.decoded_images()));
+  } else {
+    Send(new UtilityHostMsg_UnpackExtension_Failed(
+        unpacker.error_message()));
+  }
 
   ChildProcess::current()->ReleaseProcess();
 }

@@ -6,6 +6,7 @@
 #define CHROME_BROWSER_UTILITY_PROCESS_HOST_H_
 
 #include <string>
+#include <vector>
 
 #include "base/basictypes.h"
 #include "base/ref_counted.h"
@@ -14,7 +15,9 @@
 #include "chrome/common/ipc_channel.h"
 
 class CommandLine;
+class DictionaryValue;
 class MessageLoop;
+class SkBitmap;
 
 // This class acts as the browser-side host to a utility child process.  A
 // utility process is a short-lived sandboxed process that is created to run
@@ -32,10 +35,17 @@ class UtilityProcessHost : public ChildProcessHost {
     // Called when the process has crashed.
     virtual void OnProcessCrashed() {}
 
-    // Called when the process sends a reply to an UnpackExtension message.
-    // If success if false, error_message contains a description of the problem.
-    virtual void OnUnpackExtensionReply(bool success,
-                                        const std::string& error_message) {}
+    // Called when the extension has unpacked successfully.  |manifest| is the
+    // parsed manifest.json file.  |images| contains a list of decoded images
+    // and the associated paths where those images live on disk.
+    virtual void OnUnpackExtensionSucceeded(
+        const DictionaryValue& manifest,
+        const std::vector< Tuple2<SkBitmap, FilePath> >& images) {}
+
+    // Called when an error occurred while unpacking the extension.
+    // |error_message| contains a description of the problem.
+    virtual void OnUnpackExtensionFailed(const std::string& error_message) {}
+
    private:
     friend class UtilityProcessHost;
     void OnMessageReceived(const IPC::Message& message);

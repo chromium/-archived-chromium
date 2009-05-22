@@ -77,6 +77,7 @@ class ExtensionsServiceTest
     profile_.reset(new TestingProfile());
     service_ = new ExtensionsService(profile_.get(), &loop_, &loop_,
                                      registry_path_);
+    total_successes_ = 0;
   }
 
   static void SetUpTestCase() {
@@ -126,10 +127,13 @@ class ExtensionsServiceTest
     loop_.RunAllPending();
     std::vector<std::string> errors = GetErrors();
     if (should_succeed) {
+      ++total_successes_;
+
       EXPECT_TRUE(installed_) << path.value();
       EXPECT_EQ(1u, loaded_.size()) << path.value();
       EXPECT_EQ(0u, errors.size()) << path.value();
-      EXPECT_EQ(1u, service_->extensions()->size()) << path.value();
+      EXPECT_EQ(total_successes_, service_->extensions()->size()) <<
+          path.value();
       EXPECT_TRUE(service_->GetExtensionByID(loaded_[0]->id())) << path.value();
       for (std::vector<std::string>::iterator err = errors.begin();
         err != errors.end(); ++err) {
@@ -148,6 +152,7 @@ class ExtensionsServiceTest
  protected:
   scoped_ptr<TestingProfile> profile_;
   scoped_refptr<ExtensionsService> service_;
+  size_t total_successes_;
   MessageLoop loop_;
   std::vector<Extension*> loaded_;
   std::string unloaded_id_;
@@ -303,6 +308,14 @@ TEST_F(ExtensionsServiceTest, InstallExtension) {
   TestInstallExtension(path, true);
   // TODO(erikkay): verify the contents of the installed extension.
 
+  // An extension with theme images.
+  path = extensions_path.AppendASCII("theme.crx");
+  TestInstallExtension(path, true);
+
+  // An extension with page actions.
+  path = extensions_path.AppendASCII("page_action.crx");
+  TestInstallExtension(path, true);
+
   // 0-length extension file.
   path = extensions_path.AppendASCII("not_an_extension.crx");
   TestInstallExtension(path, false);
@@ -369,6 +382,7 @@ TEST_F(ExtensionsServiceTest, UninstallExtension) {
 
   // Uninstall it.
   service_->UninstallExtension(extension_id);
+  total_successes_ = 0;
 
   // We should get an unload notification.
   ASSERT_TRUE(unloaded_id_.length());
