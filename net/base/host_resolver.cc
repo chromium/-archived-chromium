@@ -42,7 +42,8 @@ static int HostResolverProc(
   struct addrinfo hints = {0};
   hints.ai_family = AF_UNSPEC;
 
-  // DO NOT USE AI_ADDRCONFIG.
+#if defined(OS_WIN)
+  // DO NOT USE AI_ADDRCONFIG ON WINDOWS.
   //
   // The following comment in <winsock2.h> is the best documentation I found
   // on AI_ADDRCONFIG for Windows:
@@ -63,6 +64,9 @@ static int HostResolverProc(
   //   address.
   // See http://crbug.com/5234.
   hints.ai_flags = 0;
+#else
+  hints.ai_flags = AI_ADDRCONFIG;
+#endif
 
   // Restrict result set to only this socket type to avoid duplicates.
   hints.ai_socktype = SOCK_STREAM;
