@@ -338,7 +338,13 @@ int BrowserMain(const MainFunctionParams& parameters) {
 #if defined(OS_POSIX)
   // On POSIX we display the first run dialog as early as possible, so we can
   // get the stats enabled.
-  if (is_first_run && !first_run_ui_bypass) {
+  // TODO:
+  // We check the kNoFirstRun command line switch explicitly here since the
+  // early placement of this block happens before that's factored into
+  // first_run_ui_bypass, we probably want to move that block up
+  // and remove the explicit check from here in the long run.
+  if (is_first_run && !first_run_ui_bypass &&
+      !parsed_command_line.HasSwitch(switches::kNoFirstRun)) {
     // Dummy value, we don't need the profile for the OS X version of this
     // method at present.
     Profile* profile = NULL;
