@@ -88,7 +88,7 @@ bool UITest::DieFileDie(const FilePath& file, bool recurse) {
   for (int i = 0; i < 10; ++i) {
     if (file_util::Delete(file, recurse))
       return true;
-    PlatformThread::Sleep(action_max_timeout_ms() / 10);
+    PlatformThread::Sleep(sleep_timeout_ms() / 10);
   }
   return false;
 }
@@ -214,7 +214,7 @@ void UITest::LaunchBrowserAndServer() {
   if (wait_for_initial_loads_)
     ASSERT_TRUE(server_->WaitForInitialLoads());
   else
-    PlatformThread::Sleep(2000);
+    PlatformThread::Sleep(sleep_timeout_ms());
 
   automation()->SetFilteredInet(true);
 }
@@ -493,10 +493,10 @@ void UITest::NavigateToURL(const GURL& url) {
 }
 
 bool UITest::WaitForDownloadShelfVisible(TabProxy* tab) {
-  const int kCycles = 20;
+  const int kCycles = 10;
   for (int i = 0; i < kCycles; i++) {
     // Give it a chance to catch up.
-    PlatformThread::Sleep(action_max_timeout_ms() / kCycles);
+    PlatformThread::Sleep(sleep_timeout_ms() / kCycles);
 
     bool visible = false;
     if (!tab->IsShelfVisible(&visible))
@@ -513,7 +513,7 @@ bool UITest::WaitForDownloadShelfVisible(TabProxy* tab) {
 #if defined(OS_WIN)
 bool UITest::WaitForFindWindowVisibilityChange(BrowserProxy* browser,
                                                bool wait_for_open) {
-  const int kCycles = 20;
+  const int kCycles = 10;
   for (int i = 0; i < kCycles; i++) {
     bool visible = false;
     if (!browser->IsFindWindowFullyVisible(&visible))
@@ -529,7 +529,7 @@ bool UITest::WaitForFindWindowVisibilityChange(BrowserProxy* browser,
 
 bool UITest::WaitForBookmarkBarVisibilityChange(BrowserProxy* browser,
                                                 bool wait_for_open) {
-  const int kCycles = 20;
+  const int kCycles = 10;
   for (int i = 0; i < kCycles; i++) {
     bool visible = false;
     bool animating = true;
@@ -859,7 +859,7 @@ bool UITest::EvictFileFromSystemCacheWrapper(const FilePath& path) {
   for (int i = 0; i < 10; i++) {
     if (file_util::EvictFileFromSystemCache(path))
       return true;
-    PlatformThread::Sleep(1000);
+    PlatformThread::Sleep(sleep_timeout_ms() / 10);
   }
   return false;
 }
