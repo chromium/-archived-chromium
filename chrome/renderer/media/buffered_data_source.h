@@ -5,7 +5,6 @@
 #ifndef CHROME_RENDERER_MEDIA_BUFFERED_DATA_SOURCE_H_
 #define CHROME_RENDERER_MEDIA_BUFFERED_DATA_SOURCE_H_
 
-#include <deque>
 #include <string>
 
 #include "base/lock.h"
@@ -39,10 +38,15 @@ class BufferedResourceLoader :
 
   // Start the resource loading with the specified URL and range.
   // This method call can operate in two modes, synchronous and asynchronous.
-  // If |start_callback| is NULL, this method operates in synchronous mode and
-  // it returns true if the load has started successfully, false otherwise. It
-  // returns only if a resource is received from the server or this loader is
-  // called to stop.
+  // If |start_callback| is NULL, this method operates in synchronous mode. It
+  // has the following return values in this mode:
+  // net::OK
+  //   The load has started successfully.
+  // net::ERR_FAILED
+  //   The load cannot be started.
+  // net::ERR_TIMEOUT
+  //   The start operation took too long and has timed out.
+  //
   // If |start_callback| is not NULL, this method operates in asynchronous mode
   // and it returns net::ERR_IO_PENDING if the request is going to start.
   // Once there's a response from the server, success or fail |start_callback|
@@ -54,29 +58,30 @@ class BufferedResourceLoader :
   // Stops this loader. Wakes up all synchronous actions.
   void Stop();
 
-  // Reads the specified |size| into |buffer| and returns number of bytes copied
-  // into the buffer. Returns 0 if the response has completed and there's no
-  // no buffer left. Returns media::kReadError on error. The read starts from
-  // the current position referred by calling GetOffset(). This method call is
-  // synchronous, it returns only the required amount of bytes is read, the
-  // loader is stopped, this resource loading has completed or the read has
-  // timed out. Read() and Seek() cannot be called concurrently.
-  size_t Read(uint8* buffer, size_t size);
-
-  // Seek to |position| in bytes in the entire instance of the media
-  // object, returns true if successful. If the seek operation cannot be
-  // performed because it's seeking backward, the loader has been stopped,
-  // the seek |position| exceed bufferable range or the seek operation has
-  // timed out, returns false.
-  // There cannot be Seek() while another thread is calling Read().
-  bool Seek(int64 position);
+  // Reads the specified |read_size| from |position| into |buffer| and returns
+  // number of bytes read into variable |bytes_read|. This method call is
+  // synchronous, when it returns it may not be able to fulfill what has been
+  // requested.
+  //
+  // Produces the following return values:
+  // net::OK
+  //   The read operation was successful. |bytes_read| may be less than
+  //   |read_size| even if the request was successful, which happens when the
+  //   request has completed normally but there wasn't enough bytes to serve
+  //   the request.
+  // net::ERR_TIMEOUT
+  //   The read operation has timed out and we didn't get enough bytes for what
+  //   we requested.
+  // net::ERR_FAILED
+  //   The read operation has failed because the request completed abnormally
+  //   or |position| is too far from the current position of this loader that
+  //   we cannot serve.
+  // net::ERR_ABORTED
+  //   The loader has been stopped.
+  int Read(uint8* buffer, size_t* bytes_read, int64 position, size_t read_size);
 
   // Returns the position in bytes that this loader is downloading from.
   int64 GetOffset();
-
-  // Gets and sets the timeout for the synchronous operations.
-  size_t GetTimeout();
-  void SetTimeout(size_t milliseconds);
 
   // Gets the content length in bytes of the instance after this loader has been
   // started.
@@ -95,11 +100,48 @@ class BufferedResourceLoader :
   std::string GetURLForDebugging() { return url_.spec(); }
 
  private:
+  // Reads the specified |read_size| into |buffer| and returns number of bytes
+  // read into variable |bytes_read|. This method call is synchronous, when it
+  // returns it may not be able to fulfill what has been requested.
+  //
+  // Produces the following return values:
+  // net::OK
+  //   The read operation was successful. |bytes_read| may be less than
+  //   |read_size| even if the request was successful, this happens when the
+  //   request has completed normally but there isn't enough bytes to serve
+  //   the request.
+  // net::ERR_TIMEOUT
+  //   The read operation has timed out and we didn't get enough bytes for what
+  //   we have requested.
+  // net::ERR_FAILED
+  //   The read operation has failed because the request was completed
+  //   abnormally.
+  // net::ERR_ABORTED
+  //   The loader has been stopped.
+  int ReadInternal(uint8* buffer, size_t* bytes_read, size_t read_size);
+
+  // Seek to |position| in bytes in the entire instance of the media
+  // object. This method call is synchronous. It has the following return
+  // values:
+  //
+  // net::OK
+  //   The seek operation was successful.
+  // net::ERR_FAILED
+  //   The desired |position| is too far from the current offset, and we decided
+  //   not to serve the |position| either because we don't want to wait too long
+  //   for data to be downloaded or |position| was too far in the past that we
+  //   don't have the data buffered.
+  //   We may get this error if the request has completed abnormally.
+  // net::ERR_TIMEOUT
+  //   The seek operation took too long and timed out.
+  // net::ERR_ABORTED
+  //   The loader has been stopped.
+  int SeekInternal(int64 position);
+
   // Append buffer to the queue of buffers.
   void AppendToBuffer(const uint8* buffer, size_t size);
 
-  // Destroy buffers in |buffers_|.
-  void SignalComplete();
+  void SignalComplete(int error);
   bool ShouldEnableDefer();
   bool ShouldDisableDefer();
 
@@ -114,6 +156,7 @@ class BufferedResourceLoader :
   scoped_ptr<webkit_glue::ResourceLoaderBridge> bridge_;
   int64 offset_;
   int64 content_length_;
+  int completion_error_;
 
   scoped_ptr<media::SeekableBuffer> buffer_;
 

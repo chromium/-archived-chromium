@@ -25,11 +25,32 @@ const int64 kPositionNotSpecified = -1;
 const int kHttpOK = 200;
 const int kHttpPartialContent = 206;
 
+// Define the number of bytes in a megabyte.
+const size_t kMegabyte = 1024 * 1024;
+
 // Backward capacity of the buffer, by default 2MB.
-const size_t kBackwardCapcity = 2048000;
+const size_t kBackwardCapcity = 2 * kMegabyte;
 
 // Forward capacity of the buffer, by default 10MB.
-const size_t kForwardCapacity = 10240000;
+const size_t kForwardCapacity = 10 * kMegabyte;
+
+// The threshold of bytes that we should wait until the data arrives in the
+// future instead of restarting a new connection. This number is defined in the
+// number of bytes, we should determine this value from typical connection speed
+// and amount of time for a suitable wait. Now I just make a guess for this
+// number to be 2MB.
+// TODO(hclam): determine a better value for this.
+const size_t kForwardWaitThreshold = 2 * kMegabyte;
+
+// Defines how long we should wait for more data before we declare a connection
+// timeout and start a new request.
+// TODO(hclam): set it to 5s, calibrate this value later.
+const int64 kDataTransferTimeoutSeconds = 5;
+
+// Defines how many times we should try to read from a buffered resource loader
+// before we declare a read error. After each failure of read from a buffered
+// resource loader, a new one is created to be read.
+const size_t kReadTrials = 3;
 
 // A helper method that accepts only HTTP, HTTPS and FILE protocol.
 bool IsSchemeSupported(const GURL& url) {
@@ -50,6 +71,7 @@ BufferedResourceLoader::BufferedResourceLoader(int32 routing_id,
       bridge_(NULL),
       offset_(0),
       content_length_(kPositionNotSpecified),
+      completion_error_(net::OK),
       buffer_(new media::SeekableBuffer(kBackwardCapcity, kForwardCapacity)),
       deferred_(false),
       stopped_(false),
@@ -68,6 +90,8 @@ BufferedResourceLoader::~BufferedResourceLoader() {
 }
 
 int BufferedResourceLoader::Start(net::CompletionCallback* start_callback) {
+  AutoLock auto_lock(lock_);
+
   // Make sure we only start no more than once.
   DCHECK(!bridge_.get());
   DCHECK(!start_callback_.get());
@@ -114,143 +138,70 @@ int BufferedResourceLoader::Start(net::CompletionCallback* start_callback) {
 
   // We may receive stop signal while we are inside this method, it's because
   // Start() may get called on demuxer thread while Stop() is called on
-  // pipeline thread, so we want to protect the posting of OnStart() task
-  // with a lock.
-  {
-    AutoLock auto_lock(lock_);
-    if (!stopped_) {
-      render_loop_->PostTask(FROM_HERE,
-          NewRunnableMethod(this, &BufferedResourceLoader::OnStart));
+  // pipeline thread.
+  if (!stopped_) {
+    render_loop_->PostTask(FROM_HERE,
+        NewRunnableMethod(this, &BufferedResourceLoader::OnStart));
 
-      // Wait for response to arrive if we don't have an async start.
-      if (!async_start_)
-        buffer_available_.Wait();
-    }
-
-    // We may have stopped because of a bad response from the server.
-    if (stopped_)
-      return net::ERR_ABORTED;
-    else if (completed_)
-      return net::ERR_FAILED;
-    else if (async_start_)
-      return net::ERR_IO_PENDING;
-    return net::OK;
+    // Wait for response to arrive if we don't have an async start.
+    // TODO(hclam): implement start timeout.
+    if (!async_start_)
+      buffer_available_.Wait();
   }
+
+  // We may have stopped because of a bad response from the server.
+  if (stopped_)
+    return net::ERR_ABORTED;
+  else if (completed_)
+    return completion_error_;
+  else if (async_start_)
+    return net::ERR_IO_PENDING;
+  return net::OK;
 }
 
 void BufferedResourceLoader::Stop() {
-  {
-    AutoLock auto_lock(lock_);
-    stopped_ = true;
-    buffer_.reset();
+  AutoLock auto_lock(lock_);
+  stopped_ = true;
+  buffer_.reset();
 
-    // Wakes up the waiting thread so they can catch the stop signal.
-    buffer_available_.Signal();
-  }
+  // Wakes up the waiting thread so they can catch the stop signal.
+  buffer_available_.Signal();
 
   render_loop_->PostTask(FROM_HERE,
       NewRunnableMethod(this, &BufferedResourceLoader::OnDestroy));
 }
 
-size_t BufferedResourceLoader::Read(uint8* data, size_t size) {
-  size_t taken = 0;
-  {
+int BufferedResourceLoader::Read(uint8* buffer,
+                                 size_t* bytes_read,
+                                 int64 position,
+                                 size_t read_size) {
+  // We are given the position to read from, so we will perform a seek first.
+  int error = SeekInternal(position);
+  if (error != net::OK)
+    return error;
+
+  // Then we perform a read.
+  error = ReadInternal(buffer, bytes_read, read_size);
+  if (error != net::OK)
+    return error;
+
+  // After a read operation, determine whether or not we need to disable
+  // defer loading.
+  if (ShouldDisableDefer()) {
     AutoLock auto_lock(lock_);
-    while (taken < size) {
-      // If stopped or the request has been completed, break the loop.
-      if (stopped_)
-        break;
-      // Read into |data|.
-      size_t unread_bytes = size - taken;
-      size_t bytes_read = buffer_->Read(unread_bytes, data + taken);
-      taken += bytes_read;
-      DCHECK_LE(taken, size);
-      if (taken == size)
-        break;
-      if (completed_ && bytes_read < unread_bytes)
-        break;
-      buffer_available_.Wait();
+    if (!stopped_) {
+      render_loop_->PostTask(FROM_HERE,
+          NewRunnableMethod(this,
+                            &BufferedResourceLoader::OnDisableDeferLoading));
     }
   }
 
-  // Adjust the offset and disable defer loading if needed.
-  if (taken > 0) {
-    offset_ += taken;
-    if (ShouldDisableDefer()) {
-      AutoLock auto_lock(lock_);
-      if (!stopped_) {
-        render_loop_->PostTask(FROM_HERE,
-            NewRunnableMethod(this,
-                              &BufferedResourceLoader::OnDisableDeferLoading));
-      }
-    }
-  }
-  return taken;
-}
-
-bool BufferedResourceLoader::Seek(int64 position) {
-  // Use of |offset_| is safe without a lock, because it's modified only in
-  // Read() and this method after Start(). Read() and Seek() happens
-  // on the same thread.
-  if (position == offset_)
-    return true;
-
-  // Use the conditions to avoid overflow, since |position| and |offset_| are
-  // int64, their difference can be greater than an int32.
-  if (position > offset_ + kint32max)
-    return false;
-  else if (position < offset_ + kint32min)
-    return false;
-
-  int32 offset = static_cast<int32>(position - offset_);
-  // Backward data are served directly from the buffer and will not be
-  // downloaded in the future so we perform a backward seek now.
-  if (offset < 0) {
-    AutoLock auto_lock(lock_);
-    if (buffer_->Seek(offset)) {
-      offset_ = position;
-      return true;
-    }
-    return false;
-  }
-
-  // If we are seeking too far ahead that the buffer cannot serve, return false.
-  // We only perform this check for forward seeking because we don't want to
-  // wait too long for data very far ahead to be downloaded, and of course we
-  // will never be able to seek to that position.
-  if (position >= offset_ + buffer_->forward_capacity())
-    return false;
-
-  // Perform seeking forward until we get to the offset.
-  AutoLock auto_lock(lock_);
-  while(true) {
-    // Loader has stopped.
-    if (stopped_)
-      return false;
-    // Response completed and seek position exceeds buffered range.
-    if (completed_ && position >= offset_ + buffer_->forward_bytes())
-      return false;
-    if (buffer_->Seek(offset)) {
-      offset_ = position;
-      break;
-    }
-    buffer_available_.Wait();
-  }
-  return true;
+  return net::OK;
 }
 
 int64 BufferedResourceLoader::GetOffset() {
   AutoLock auto_lock(lock_);
   return offset_;
-}
-
-size_t BufferedResourceLoader::GetTimeout() {
-  // TODO(hclam): implement.
-  return 0;
-}
-
-void BufferedResourceLoader::SetTimeout(size_t milliseconds) {
-  // TODO(hclam): implement.
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -328,7 +279,9 @@ void BufferedResourceLoader::OnReceivedData(const char* data, int len) {
 
 void BufferedResourceLoader::OnCompletedRequest(
     const URLRequestStatus& status, const std::string& security_info) {
-  SignalComplete();
+  // Save the status error before we signal a the completion of the request
+  // so blocked methods can pick the error and do interpretations.
+  SignalComplete(status.os_error());
 
   // After the response has completed, we don't need the bridge any more.
   bridge_.reset();
@@ -339,6 +292,146 @@ void BufferedResourceLoader::OnCompletedRequest(
 
 /////////////////////////////////////////////////////////////////////////////
 // BufferedResourceLoader, private
+int BufferedResourceLoader::ReadInternal(uint8* buffer,
+                                         size_t* bytes_read,
+                                         size_t read_size) {
+  DCHECK(buffer);
+  DCHECK(bytes_read);
+
+  AutoLock auto_lock(lock_);
+
+  // Return value for this method.
+  int error = net::OK;
+  // Ever waited for data to be downloaded.
+  bool waited_for_buffer = false;
+  // Total amount of bytes read from buffer.
+  size_t taken = 0;
+  while (taken < read_size) {
+    // If stopped or the request has been completed, break the loop.
+    if (stopped_) {
+      error = net::ERR_ABORTED;
+      break;
+    }
+
+    // The request has completed and the buffer is empty, don't wait. Return
+    // the completion error that we got from OnCompletedRequest().
+    if (completed_ && !buffer_->forward_bytes()) {
+      error = completion_error_;
+      break;
+    }
+
+    // Read into |data|.
+    size_t unread_bytes = read_size - taken;
+    size_t bytes_read_this_time = buffer_->Read(unread_bytes, buffer + taken);
+
+    // If we have waited for data in the last iteration but there isn't any
+    // more data in the buffer, declare a timeout situation.
+    if (waited_for_buffer && !bytes_read_this_time) {
+      error = net::ERR_TIMED_OUT;
+      break;
+    }
+
+    // Increment the total bytes read from the buffer so we know when to stop
+    // reading.
+    taken += bytes_read_this_time;
+    DCHECK_LE(taken, read_size);
+
+    // We have got enough bytes so we don't need to read anymore.
+    if (taken == read_size)
+      break;
+
+    buffer_available_.TimedWait(
+        base::TimeDelta::FromSeconds(kDataTransferTimeoutSeconds));
+    waited_for_buffer = true;
+  }
+
+  // Adjust the offset and disable defer loading if needed.
+  if (taken > 0)
+    offset_ += taken;
+  *bytes_read = taken;
+  return error;
+}
+
+int BufferedResourceLoader::SeekInternal(int64 position) {
+  // Use of |offset_| is safe without a lock, because it's modified only in
+  // Read() and this method after Start(). Read() and Seek() happens
+  // on the same thread.
+  if (position == offset_)
+    return net::OK;
+
+  // Use the conditions to avoid overflow, since |position| and |offset_| are
+  // int64, their difference can be greater than an int32.
+  if (position > offset_ + kint32max)
+    return net::ERR_FAILED;
+  else if (position < offset_ + kint32min)
+    return net::ERR_FAILED;
+
+  int32 offset = static_cast<int32>(position - offset_);
+  // Backward data are served directly from the buffer and will not be
+  // downloaded in the future so we perform a backward seek now.
+  if (offset < 0) {
+    AutoLock auto_lock(lock_);
+    if (buffer_->Seek(offset)) {
+      offset_ = position;
+      return net::OK;
+    }
+    return net::ERR_FAILED;
+  }
+
+  // If we are seeking too far ahead that we'll wait too long, return false.
+  // We only perform this check for forward seeking because we don't want to
+  // wait too long for data very far ahead to be downloaded.
+  if (position >= offset_ + kForwardWaitThreshold)
+    return net::ERR_FAILED;
+
+  AutoLock auto_lock(lock_);
+
+  // Ever waited for data to be downloaded.
+  bool waited_for_buffer = false;
+  // Perform seeking forward until we get to the offset.
+  while(offset_ < position) {
+    // Loader has stopped.
+    if (stopped_)
+      return net::ERR_ABORTED;
+
+    // Response completed and seek position exceeds buffered range, we won't
+    // receive any more data so return immediately. We have |completion_error_|
+    // from OnCompletedRequest() so return it straight.
+    if (completed_ && position >= offset_ + buffer_->forward_bytes())
+      return completion_error_;
+
+    // Seek as much as possible until we get the desired position.
+    int32 forward_seek = std::min(static_cast<int32>(buffer_->forward_bytes()),
+                                  offset);
+
+    // If we have waited for buffer in the last loop iteration and we don't
+    // get any more buffer, declare a timeout situation.
+    if (waited_for_buffer && !forward_seek)
+      return net::ERR_TIMED_OUT;
+
+    if (!buffer_->Seek(forward_seek)) {
+      NOTREACHED() << "We should have enough bytes but forward seek failed";
+    }
+
+    // Keep track of the total amount that we should seek forward. Decrements
+    // this so we will hit the end of loop condition.
+    offset -= forward_seek;
+
+    // Increments the offset in the whole instance.
+    offset_ += forward_seek;
+    DCHECK_LE(offset_, position);
+
+    // Break the loop if we reached the target position so we don't wait.
+    if (offset_ == position)
+      break;
+
+    buffer_available_.TimedWait(
+        base::TimeDelta::FromSeconds(kDataTransferTimeoutSeconds));
+    waited_for_buffer = true;
+  }
+  return net::OK;
+}
+
 void BufferedResourceLoader::AppendToBuffer(const uint8* data, size_t size) {
   AutoLock auto_lock(lock_);
   if (!stopped_)
@@ -346,9 +439,10 @@ void BufferedResourceLoader::AppendToBuffer(const uint8* data, size_t size) {
   buffer_available_.Signal();
 }
 
-void BufferedResourceLoader::SignalComplete() {
+void BufferedResourceLoader::SignalComplete(int error) {
   AutoLock auto_lock(lock_);
   completed_ = true;
+  completion_error_ = error;
   buffer_available_.Signal();
 }
 
@@ -489,17 +583,19 @@ size_t BufferedDataSource::Read(uint8* data, size_t size) {
   // 1. Use the existing resource loader to seek and read from it.
   // 2. If any of the above operations failed, we create a new resource loader
   //    starting with a new range. Goto 1.
-  // TODO(hclam): change the logic here to do connection recovery and allow a
-  // maximum of trials.
-  for (int trials = 2; trials > 0; --trials) {
+  for (size_t trials = kReadTrials; trials > 0; --trials) {
     scoped_refptr<BufferedResourceLoader> resource_loader = NULL;
     {
       AutoLock auto_lock(lock_);
       resource_loader = buffered_resource_loader_;
     }
 
-    if (resource_loader && resource_loader->Seek(position_)) {
-      size_t read = resource_loader->Read(data, size);
+    size_t read = 0;
+    int error = net::ERR_FAILED;
+    if (resource_loader)
+      error = resource_loader->Read(data, &read, position_, size);
+
+    if (error == net::OK) {
       if (read >= 0) {
         position_ += read;
         return read;
@@ -507,38 +603,38 @@ size_t BufferedDataSource::Read(uint8* data, size_t size) {
         return DataSource::kReadError;
       }
     } else {
-      // We enter here because the current resource loader cannot serve the
-      // range requested, we will need to create a new request for doing it.
-      scoped_refptr<BufferedResourceLoader> old_resource_loader = NULL;
+      // We don't need the old BufferedResourceLoader, stop it and release the
+      // reference.
+      if (resource_loader) {
+        resource_loader->Stop();
+        resource_loader = NULL;
+      }
+
+      // Create a new request if we have not stopped.
       {
         AutoLock auto_lock(lock_);
-        if (stopped_)
-          return DataSource::kReadError;
-
-        // Save the reference to the old resource loader, if we have a local
-        // reference, use this local reference instead of creating a new one.
-        if (resource_loader)
-          old_resource_loader = resource_loader;
-        else
-          old_resource_loader = buffered_resource_loader_;
-
-        // Create a new resource loader.
-        resource_loader =
-            new BufferedResourceLoader(routing_id_, url_, position_,
-                                       kPositionNotSpecified);
-        buffered_resource_loader_ = resource_loader;
-      }
-      if (old_resource_loader) {
-        old_resource_loader->Stop();
-        old_resource_loader = NULL;
-      }
-      if (resource_loader) {
-        if (net::OK != resource_loader->Start(NULL)) {
-          // We have started a new request but failed, report that.
-          // TODO(hclam): should allow some retry mechanism here.
-          HandleError(media::PIPELINE_ERROR_NETWORK);
+        if (stopped_) {
+          buffered_resource_loader_ = NULL;
           return DataSource::kReadError;
         }
+
+        // Create a new resource loader.
+        buffered_resource_loader_ =
+            new BufferedResourceLoader(routing_id_, url_, position_,
+                                       kPositionNotSpecified);
+        // Save the local copy.
+        resource_loader = buffered_resource_loader_;
+      }
+
+      // Start the new resource loader.
+      DCHECK(resource_loader);
+      int error = resource_loader->Start(NULL);
+
+      // Always fail if we can't start.
+      // TODO(hclam): should handle timeout.
+      if (error != net::OK) {
+        HandleError(media::PIPELINE_ERROR_NETWORK);
+        return DataSource::kReadError;
       }
     }
   }
