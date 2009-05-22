@@ -72,7 +72,8 @@ gfx::Point GetWidgetScreenPosition(GtkWidget* widget) {
   while (parent) {
     if (GTK_IS_WINDOW(parent)) {
       int window_x, window_y;
-      gtk_window_get_position(GTK_WINDOW(parent), &window_x, &window_y);
+      // Returns the origin of the window, excluding the frame if one is exists.
+      gdk_window_get_origin(parent->window, &window_x, &window_y);
       x += window_x;
       y += window_y;
       return gfx::Point(x, y);
