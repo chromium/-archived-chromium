@@ -2,6 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+#include "chrome/browser/cocoa/tab_controller.h"
 #include "chrome/browser/cocoa/tab_view.h"
 #include "chrome/browser/cocoa/tab_window_controller.h"
 
@@ -302,6 +303,13 @@
   }
 
   [sourceController removePlaceholder];
+}
+
+- (void)otherMouseUp:(NSEvent*) theEvent {
+  // Support middle-click-to-close.
+  if ([theEvent buttonNumber] == 2) {
+    [controller_ closeTab:self];
+  }
 }
 
 @end
