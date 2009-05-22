@@ -122,6 +122,16 @@ class RenderWidgetHostViewGtkWidget {
   static gboolean ButtonPressReleaseEvent(
       GtkWidget* widget, GdkEventButton* event,
       RenderWidgetHostViewGtk* host_view) {
+    // We want to translate the coordinates of events that do not originate
+    // from this widget to be relative to the top left of the widget.
+    GtkWidget* event_widget = gtk_get_event_widget((GdkEvent*)event);
+    if (event_widget != widget) {
+      int x = 0;
+      int y = 0;
+      gtk_widget_get_pointer(widget, &x, &y);
+      event->x = x;
+      event->y = y;
+    }
     host_view->GetRenderWidgetHost()->ForwardMouseEvent(
         WebInputEventFactory::mouseEvent(event));
 
@@ -135,6 +145,16 @@ class RenderWidgetHostViewGtkWidget {
 
   static gboolean MouseMoveEvent(GtkWidget* widget, GdkEventMotion* event,
                                  RenderWidgetHostViewGtk* host_view) {
+    // We want to translate the coordinates of events that do not originate
+    // from this widget to be relative to the top left of the widget.
+    GtkWidget* event_widget = gtk_get_event_widget((GdkEvent*)event);
+    if (event_widget != widget) {
+      int x = 0;
+      int y = 0;
+      gtk_widget_get_pointer(widget, &x, &y);
+      event->x = x;
+      event->y = y;
+    }
     host_view->GetRenderWidgetHost()->ForwardMouseEvent(
         WebInputEventFactory::mouseEvent(event));
     return FALSE;
