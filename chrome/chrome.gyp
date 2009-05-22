@@ -1073,9 +1073,20 @@
         'browser/password_manager/ie7_password.h',
         'browser/password_manager/password_form_manager.cc',
         'browser/password_manager/password_form_manager.h',
-        'browser/password_manager/password_form_manager_win.cc',
         'browser/password_manager/password_manager.cc',
         'browser/password_manager/password_manager.h',
+        'browser/password_manager/password_store.cc',
+        'browser/password_manager/password_store.h',
+        'browser/password_manager/password_store_default.cc',
+        'browser/password_manager/password_store_default.h',
+        # Temporarily disabled while we figure some stuff out.
+        # http://code.google.com/p/chromium/issues/detail?id=12351
+        # 'browser/password_manager/password_store_gnome.h',
+        # 'browser/password_manager/password_store_gnome.cc',
+        # 'browser/password_manager/password_store_kwallet.h',
+        # 'browser/password_manager/password_store_kwallet.cc',
+        'browser/password_manager/password_store_win.h',
+        'browser/password_manager/password_store_win.cc',
         'browser/plugin_installer.cc',
         'browser/plugin_installer.h',
         'browser/plugin_process_host.cc',
@@ -1523,6 +1534,10 @@
         }],
         ['OS=="linux"', {
           'dependencies': [
+            # Temporarily disabled while we figure some stuff out.
+            # http://code.google.com/p/chromium/issues/detail?id=12351
+            # '../build/linux/system.gyp:dbus-glib',
+            # '../build/linux/system.gyp:gnome-keyring',
             '../build/linux/system.gyp:gtk',
           ],
           'sources!': [
@@ -1532,6 +1547,8 @@
             'browser/debugger/debugger_shell_stubs.cc',
             # Windows-specific files.
             'browser/download/download_exe.cc',
+            'browser/password_manager/password_store_win.cc',
+            'browser/password_manager/password_store_win.h',
           ],
         }],
         ['OS=="linux" and toolkit_views==0', {
@@ -1553,6 +1570,12 @@
             'browser/bookmarks/bookmark_context_menu.cc',
             'browser/bookmarks/bookmark_drop_info.cc',
             'browser/debugger/debugger_shell_stubs.cc',
+            'browser/password_manager/password_store_gnome.h',
+            'browser/password_manager/password_store_gnome.cc',
+            'browser/password_manager/password_store_kwallet.h',
+            'browser/password_manager/password_store_kwallet.cc',
+            'browser/password_manager/password_store_win.cc',
+            'browser/password_manager/password_store_win.h',
           ],
           'sources': [
             # Build the necessary GTM sources
@@ -1599,6 +1622,10 @@
           'sources!': [
             'browser/debugger/debugger_shell_stubs.cc',
             'browser/history/history_publisher_none.cc',
+            'browser/password_manager/password_store_gnome.h',
+            'browser/password_manager/password_store_gnome.cc',
+            'browser/password_manager/password_store_kwallet.h',
+            'browser/password_manager/password_store_kwallet.cc',
           ],
           'configurations': {
             'Debug': {

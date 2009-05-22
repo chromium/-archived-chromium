@@ -102,6 +102,9 @@ class TestingProfile : public Profile {
   virtual WebDataService* GetWebDataService(ServiceAccessType access) {
     return NULL;
   }
+  virtual PasswordStore* GetPasswordStore(ServiceAccessType access) {
+    return NULL;
+  }
   virtual PrefService* GetPrefs() {
     FilePath prefs_filename;
     PathService::Get(base::DIR_TEMP, &prefs_filename);

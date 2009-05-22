@@ -1520,15 +1520,35 @@
 				>
 			</File>
 			<File
-				RelativePath=".\password_manager\password_form_manager_win.cc"
-				>
-			</File>
-			<File
 				RelativePath=".\password_manager\password_manager.cc"
 				>
 			</File>
 			<File
 				RelativePath=".\password_manager\password_manager.h"
+				>
+			</File>
+			<File
+				RelativePath=".\password_manager\password_store.h"
+				>
+			</File>
+			<File
+				RelativePath=".\password_manager\password_store.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\password_manager\password_store_default.h"
+				>
+			</File>
+			<File
+				RelativePath=".\password_manager\password_store_default.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\password_manager\password_store_win.h"
+				>
+			</File>
+			<File
+				RelativePath=".\password_manager\password_store_win.cc"
 				>
 			</File>
 		</Filter>
