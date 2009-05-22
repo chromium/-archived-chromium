@@ -65,6 +65,9 @@ SUBSTRING : history::historybackend::~historybackend
 # 7701
 PREFIX : iat_patch::getiatfunction___iat_patch::restoreimportedfunction___iat_patch::iatpatchfunction::unpatch
 
+# 12479
+PREFIX : messageloop::posttask___webdataservice::scheduletask___webdataservice::getie7login___passwordstorewin::onwebdataservicerequestdone
+
 # 10770
 PREFIX : npapi::pluginstream::trywritetoplugin___npapi::pluginstream::writetoplugin___npapi::pluginstream::write
 
