@@ -30,10 +30,8 @@ WorkerService::WorkerService()
       resource_dispatcher_host_(NULL),
       ui_loop_(NULL) {
   // Receive a notification if the message filter is deleted.
-  NotificationService::current()->AddObserver(
-      this,
-      NotificationType::RESOURCE_MESSAGE_FILTER_SHUTDOWN,
-      NotificationService::AllSources());
+  registrar_.Add(this, NotificationType::RESOURCE_MESSAGE_FILTER_SHUTDOWN,
+                 NotificationService::AllSources());
 }
 
 void WorkerService::Initialize(ResourceDispatcherHost* rdh,

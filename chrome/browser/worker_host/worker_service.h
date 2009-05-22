@@ -10,7 +10,7 @@
 #include "base/basictypes.h"
 #include "base/singleton.h"
 #include "chrome/common/ipc_message.h"
-#include "chrome/common/notification_observer.h"
+#include "chrome/common/notification_registrar.h"
 #include "googleurl/src/gurl.h"
 
 
@@ -67,6 +67,7 @@ class WorkerService : public NotificationObserver {
   // number of worker instance running.
   WorkerProcessHost* GetLeastLoadedWorker();
 
+  NotificationRegistrar registrar_;
   int next_worker_route_id_;
   ResourceDispatcherHost* resource_dispatcher_host_;
   MessageLoop* ui_loop_;
