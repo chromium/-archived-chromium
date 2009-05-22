@@ -306,6 +306,14 @@
 			</File>
 		</Filter>
 		<File
+			RelativePath=".\automation_constants.cc"
+			>
+		</File>
+		<File
+			RelativePath=".\automation_constants.h"
+			>
+		</File>
+		<File
 			RelativePath=".\bindings_policy.h"
 			>
 		</File>

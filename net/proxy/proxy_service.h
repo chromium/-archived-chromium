@@ -86,6 +86,13 @@ class ProxyService {
   // |proxy_script_fetcher|.
   void SetProxyScriptFetcher(ProxyScriptFetcher* proxy_script_fetcher);
 
+  // Tells this ProxyService to start using a new ProxyConfigService to
+  // retrieve its ProxyConfig from. The new ProxyConfigService will immediately
+  // be queried for new config info which will be used for all subsequent
+  // ResolveProxy calls. ProxyService takes ownership of
+  // |new_proxy_config_service|.
+  void ResetConfigService(ProxyConfigService* new_proxy_config_service);
+
   // Creates a proxy service using the specified settings. If |pc| is NULL then
   // the system's default proxy settings will be used (on Windows this will
   // use IE's settings).

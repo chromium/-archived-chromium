@@ -145,6 +145,10 @@ class AutomationProxy : public IPC::Channel::Listener,
   // false if the message fails to send to the browser.
   bool SetFilteredInet(bool enabled);
 
+  // Sends the browser a new proxy configuration to start using. Returns true
+  // if the proxy config was successfully sent, false otherwise.
+  bool SendProxyConfig(const std::string& new_proxy_config);
+
   // These methods are intended to be called by the background thread
   // to signal that the given event has occurred, and that any corresponding
   // Wait... function can return.

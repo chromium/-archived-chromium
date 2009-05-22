@@ -754,7 +754,7 @@ IPC_BEGIN_MESSAGES(Automation)
 
   // A message for an external host.
   IPC_MESSAGE_ROUTED4(AutomationMsg_ForwardMessageToExternalHost,
-                      int, // handle
+                      int, /* handle */
                       std::string /* message */,
                       std::string /* origin */,
                       std::string /* target */)
@@ -921,5 +921,10 @@ IPC_BEGIN_MESSAGES(Automation)
   IPC_SYNC_MESSAGE_ROUTED1_0(AutomationMsg_SetEnableExtensionAutomation,
                              bool /* true to enable extension automation */)
 
+  // This message tells the browser to start using the new proxy configuration
+  // represented by the given JSON string. The parameters used in the JSON
+  // string are defined in automation_constants.h.
+  IPC_SYNC_MESSAGE_ROUTED1_0(AutomationMsg_SetProxyConfig,
+                             std::string /* proxy_config_json_string */)
 
 IPC_END_MESSAGES(Automation)

@@ -211,6 +211,7 @@ class AutomationProvider : public base::RefCounted<AutomationProvider>,
                          IPC::Message* reply_message);
   void GetShelfVisibility(int handle, bool* visible);
   void SetFilteredInet(const IPC::Message& message, bool enabled);
+  void SetProxyConfig(const std::string& new_proxy_config);
 
 #if defined(OS_WIN)
   // TODO(port): Replace POINT.
