@@ -37,10 +37,10 @@ class WebRequest {
   virtual GURL GetURL() const = 0;
   virtual void SetURL(const GURL& url) = 0;
 
-  // Get/set the main document URL, which may be different from the URL for a
-  // subframe load.
-  virtual GURL GetMainDocumentURL() const = 0;
-  virtual void SetMainDocumentURL(const GURL& url) = 0;
+  // Get/set the URL of the first party for cookies, which may be different
+  // from the URL for a subframe load.
+  virtual GURL GetFirstPartyForCookies() const = 0;
+  virtual void SetFirstPartyForCookies(const GURL& url) = 0;
 
   // Get/set the cache policy.
   virtual WebRequestCachePolicy GetCachePolicy() const = 0;

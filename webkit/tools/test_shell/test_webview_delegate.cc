@@ -794,7 +794,8 @@ void TestWebViewDelegate::UpdateAddressBar(WebView* webView) {
   if (!dataSource)
     return;
 
-  SetAddressBarURL(dataSource->GetRequest().GetMainDocumentURL());
+  // TODO(abarth): This is wrong!
+  SetAddressBarURL(dataSource->GetRequest().GetFirstPartyForCookies());
 }
 
 void TestWebViewDelegate::LocationChangeDone(WebFrame* frame) {

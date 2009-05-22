@@ -20,8 +20,8 @@ class WebRequestImpl : public WebRequest {
   virtual WebRequest* Clone() const;
   virtual void SetURL(const GURL& url);
   virtual GURL GetURL() const;
-  virtual void SetMainDocumentURL(const GURL& url);
-  virtual GURL GetMainDocumentURL() const;
+  virtual void SetFirstPartyForCookies(const GURL& url);
+  virtual GURL GetFirstPartyForCookies() const;
   virtual WebRequestCachePolicy GetCachePolicy() const;
   virtual void SetCachePolicy(WebRequestCachePolicy policy);
   virtual std::string GetHttpMethod() const;

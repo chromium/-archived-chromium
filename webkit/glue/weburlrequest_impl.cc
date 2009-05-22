@@ -48,12 +48,14 @@ void WebRequestImpl::SetURL(const GURL& url) {
   request_.setURL(webkit_glue::GURLToKURL(url));
 }
 
-GURL WebRequestImpl::GetMainDocumentURL() const {
-  return webkit_glue::KURLToGURL(request_.mainDocumentURL());
+GURL WebRequestImpl::GetFirstPartyForCookies() const {
+  return webkit_glue::KURLToGURL(
+      request_.resourceRequest().firstPartyForCookies());
 }
 
-void WebRequestImpl::SetMainDocumentURL(const GURL& url) {
-  request_.setMainDocumentURL(webkit_glue::GURLToKURL(url));
+void WebRequestImpl::SetFirstPartyForCookies(const GURL& url) {
+  request_.resourceRequest().setFirstPartyForCookies(
+      webkit_glue::GURLToKURL(url));
 }
 
 WebRequestCachePolicy WebRequestImpl::GetCachePolicy() const {

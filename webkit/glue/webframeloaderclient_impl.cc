@@ -224,15 +224,16 @@ void WebFrameLoaderClient::dispatchWillSendRequest(
   // first-party request.
   if (request.targetType() != ResourceRequest::TargetIsMainFrame &&
       webframe_->frame()->document()) {
-    request.setPolicyURL(webframe_->frame()->document()->policyBaseURL());
+    request.setPolicyURL(
+        webframe_->frame()->document()->firstPartyForCookies());
   }
 
   // FrameLoader::loadEmptyDocumentSynchronously() creates an empty document
   // with no URL.  We don't like that, so we'll rename it to about:blank.
   if (request.url().isEmpty())
     request.setURL(KURL("about:blank"));
-  if (request.mainDocumentURL().isEmpty())
-    request.setMainDocumentURL(KURL("about:blank"));
+  if (request.firstPartyForCookies().isEmpty())
+    request.setFirstPartyForCookies(KURL("about:blank"));
 
   // Give the delegate a crack at the request.
   WebViewImpl* webview = webframe_->GetWebViewImpl();
