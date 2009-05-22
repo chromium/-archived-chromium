@@ -21,7 +21,7 @@
 //   MessageLoopForUI message_loop;
 //   // Create and register factory.
 //   TestURLFetcherFactory factory;
-//   URLFetcher::SetFactory(&factory);
+//   URLFetcher::set_factory(&factory);
 //   // Do something that triggers creation of a URLFetcher.
 //   TestURLFetcher* fetcher = factory.GetFetcherByID(expected_id);
 //   ASSERT(fetcher);
@@ -30,7 +30,7 @@
 //   // Make sure consumer of URLFetcher does the right thing.
 //   ...
 //   // Reset factory.
-//   URLFetcher::SetFactory(NULL);
+//   URLFetcher::set_factory(NULL);
 
 
 class TestURLFetcher : public URLFetcher {
