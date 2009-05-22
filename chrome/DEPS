@@ -26,4 +26,7 @@ include_rules = [
 
   # Brett's test. Contact him for questions.
   "+frame_window",
+
+  # On Linux, we include some breakpad headers
+  "+breakpad/linux",
 ]
