@@ -33,6 +33,9 @@ class InspectableTabProxy {
   // the map.
   const ControllersMap& controllers_map();
 
+  // Returns a DevToolsClientHostImpl for the given tab |id|.
+  DevToolsClientHostImpl* ClientHostForTabId(int32 id);
+
   // Creates a new DevToolsClientHost implementor instance.
   // |id| is the UID of the tab to debug.
   // |service| is the DebuggerRemoteService instance the DevToolsClient
@@ -69,6 +72,8 @@ class DevToolsClientHostImpl : public DevToolsClientHost {
   DebuggerRemoteService* debugger_remote_service() {
     return service_;
   }
+
+  void Close();
 
   // DevToolsClientHost interface
   virtual void InspectedTabClosing();

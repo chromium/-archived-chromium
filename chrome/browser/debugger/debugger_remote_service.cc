@@ -211,7 +211,7 @@ void DebuggerRemoteService::AttachToTab(const std::string& destination,
     return;
   }
   if (tab_uid == 0) {  // single tab_uid
-    // We've been asked to open a new tab with URL.
+    // We've been asked to open a new tab with URL
     // TODO(apavlov): implement
     NOTIMPLEMENTED();
     response->SetInteger(kResultWide, RESULT_UNKNOWN_TAB);
@@ -224,20 +224,20 @@ void DebuggerRemoteService::AttachToTab(const std::string& destination,
     return;
   }
   RenderViewHost* target_host = tab_contents->render_view_host();
-  if (g_browser_process->devtools_manager()->GetDevToolsClientHostFor(
-          target_host) == NULL) {
-    DevToolsClientHost* client_host =
+  DevToolsClientHost* client_host =
+      delegate_->inspectable_tab_proxy()->ClientHostForTabId(tab_uid);
+  if (client_host == NULL) {
+    client_host =
         delegate_->inspectable_tab_proxy()->NewClientHost(tab_uid, this);
     DevToolsManager* manager = g_browser_process->devtools_manager();
     if (manager != NULL) {
       manager->RegisterDevToolsClientHostFor(target_host, client_host);
-      manager->ForwardToDevToolsAgent(client_host, DevToolsAgentMsg_Attach());
       response->SetInteger(kResultWide, RESULT_OK);
     } else {
       response->SetInteger(kResultWide, RESULT_DEBUGGER_ERROR);
     }
   } else {
-    // DevToolsClientHost for this tab already registered
+    // DevToolsClientHost for this tab is already registered
     response->SetInteger(kResultWide, RESULT_ILLEGAL_TAB_STATE);
   }
 }
@@ -257,28 +257,14 @@ void DebuggerRemoteService::DetachFromTab(const std::string& destination,
     return;
   }
   int result_code;
-  TabContents* tab_contents = ToTabContents(tab_uid);
-  if (tab_contents == NULL) {
-    // Unknown tab
-    result_code = RESULT_UNKNOWN_TAB;
+  DevToolsClientHostImpl* client_host =
+      delegate_->inspectable_tab_proxy()->ClientHostForTabId(tab_uid);
+  if (client_host != NULL) {
+    client_host->Close();
+    result_code = RESULT_OK;
   } else {
-    DevToolsManager* manager = g_browser_process->devtools_manager();
-    if (manager != NULL) {
-      DevToolsClientHost* client_host =
-          manager->GetDevToolsClientHostFor(tab_contents->render_view_host());
-      if (client_host != NULL) {
-        manager->ForwardToDevToolsAgent(
-            client_host, DevToolsAgentMsg_Detach());
-        client_host->InspectedTabClosing();
-        result_code = RESULT_OK;
-      } else {
-        // No client host registered
-        result_code = RESULT_UNKNOWN_TAB;
-      }
-    } else {
-      // No DevToolsManager
-      result_code = RESULT_DEBUGGER_ERROR;
-    }
+    // No client host registered for |tab_uid|.
+    result_code = RESULT_UNKNOWN_TAB;
   }
   if (response != NULL) {
     response->SetInteger(kResultWide, result_code);

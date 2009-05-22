@@ -16,9 +16,14 @@
 #include "chrome/browser/tabs/tab_strip_model.h"
 #include "chrome/common/devtools_messages.h"
 
+// The debugged tab has closed.
 void DevToolsClientHostImpl::InspectedTabClosing() {
-  static const std::string kEmptyUrl = "";
   TabClosed();
+  delete this;
+}
+
+// The remote debugger has detached.
+void DevToolsClientHostImpl::Close() {
   NotifyCloseListener();
   delete this;
 }
@@ -84,6 +89,16 @@ const InspectableTabProxy::ControllersMap&
     }
   }
   return controllers_map_;
+}
+
+DevToolsClientHostImpl* InspectableTabProxy::ClientHostForTabId(
+    int32 id) {
+  InspectableTabProxy::IdToClientHostMap::const_iterator it =
+      id_to_client_host_map_.find(id);
+  if (it == id_to_client_host_map_.end()) {
+    return NULL;
+  }
+  return it->second;
 }
 
 DevToolsClientHost* InspectableTabProxy::NewClientHost(
