@@ -392,6 +392,8 @@ class MostVisitedHandler : public DOMMessageHandler,
   // Returns the key used in url_blacklist_ for the passed |url|.
   std::wstring GetBlacklistKeyForURL(const std::string& url);
 
+  NotificationRegistrar registrar_;
+
   // Our consumer for the history service.
   CancelableRequestConsumerTSimple<PageUsageData*> cancelable_consumer_;
 
@@ -441,15 +443,11 @@ MostVisitedHandler::MostVisitedHandler(DOMUI* dom_ui)
   }
 
   // Get notifications when history is cleared.
-  NotificationService* service = NotificationService::current();
-  service->AddObserver(this, NotificationType::HISTORY_URLS_DELETED,
-                       Source<Profile>(dom_ui_->GetProfile()));
+  registrar_.Add(this, NotificationType::HISTORY_URLS_DELETED,
+                 Source<Profile>(dom_ui_->GetProfile()));
 }
 
 MostVisitedHandler::~MostVisitedHandler() {
-  NotificationService* service = NotificationService::current();
-  service->RemoveObserver(this, NotificationType::HISTORY_URLS_DELETED,
-                          Source<Profile>(dom_ui_->GetProfile()));
 }
 
 void MostVisitedHandler::HandleGetMostVisited(const Value* value) {
