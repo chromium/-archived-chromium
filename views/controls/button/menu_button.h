@@ -5,8 +5,6 @@
 #ifndef VIEWS_CONTROLS_BUTTON_MENU_BUTTON_H_
 #define VIEWS_CONTROLS_BUTTON_MENU_BUTTON_H_
 
-#include <windows.h>
-
 #include "app/gfx/font.h"
 #include "base/time.h"
 #include "views/background.h"
@@ -59,16 +57,15 @@ class MenuButton : public TextButton {
   virtual bool GetAccessibleState(AccessibilityTypes::State* state);
 
  protected:
-  // true if the menu is currently visible.
+  // True if the menu is currently visible.
   bool menu_visible_;
 
  private:
+  friend class TextButtonBackground;
 
   // Compute the maximum X coordinate for the current screen. MenuButtons
   // use this to make sure a menu is never shown off screen.
   int GetMaximumScreenXCoordinate();
-
-  DISALLOW_EVIL_CONSTRUCTORS(MenuButton);
 
   // We use a time object in order to keep track of when the menu was closed.
   // The time is used for simulating menu behavior for the menu button; that
@@ -84,7 +81,7 @@ class MenuButton : public TextButton {
   // Whether or not we're showing a drop marker.
   bool show_menu_marker_;
 
-  friend class TextButtonBackground;
+  DISALLOW_COPY_AND_ASSIGN(MenuButton);
 };
 
 }  // namespace views

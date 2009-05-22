@@ -14,7 +14,6 @@
 #include "chrome/browser/encoding_menu_controller_delegate.h"
 #include "chrome/browser/user_data_manager.h"
 #include "chrome/browser/views/autocomplete/autocomplete_popup_contents_view.h"
-#include "chrome/browser/views/dom_view.h"
 #include "chrome/browser/views/go_button.h"
 #include "chrome/browser/views/location_bar_view.h"
 #include "chrome/common/pref_member.h"
@@ -72,7 +71,8 @@ class BrowserToolbarView : public views::View,
   virtual bool GetAcceleratorInfo(int id, views::Accelerator* accel);
 
   // views::MenuDelegate
-  virtual void RunMenu(views::View* source, const gfx::Point& pt, HWND hwnd);
+  virtual void RunMenu(views::View* source, const gfx::Point& pt,
+                       gfx::NativeView hwnd);
 
   // GetProfilesHelper::Delegate method.
   virtual void OnGetProfilesDone(const std::vector<std::wstring>& profiles);
@@ -157,10 +157,10 @@ class BrowserToolbarView : public views::View,
   void SetSecurityLevel(ToolbarModel::SecurityLevel security_level);
 
   // Show the page menu.
-  void RunPageMenu(const gfx::Point& pt, HWND hwnd);
+  void RunPageMenu(const gfx::Point& pt, gfx::NativeView hwnd);
 
   // Show the app menu.
-  void RunAppMenu(const gfx::Point& pt, HWND hwnd);
+  void RunAppMenu(const gfx::Point& pt, gfx::NativeView hwnd);
 
   // Overridden from View, to pass keyboard triggering of the right-click
   // context menu on to the toolbar child view that currently has the

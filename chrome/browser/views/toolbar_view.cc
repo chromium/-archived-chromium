@@ -457,10 +457,10 @@ void BrowserToolbarView::DidGainFocus() {
     view_index = acc_focused_view_->GetID();
   }
 
-  HWND hwnd = GetWidget()->GetNativeView();
+  gfx::NativeView wnd = GetWidget()->GetNativeView();
 
   // Notify Access Technology that there was a change in keyboard focus.
-  ::NotifyWinEvent(EVENT_OBJECT_FOCUS, hwnd, OBJID_CLIENT,
+  ::NotifyWinEvent(EVENT_OBJECT_FOCUS, wnd, OBJID_CLIENT,
                    static_cast<LONG>(view_index));
 }
 
@@ -530,7 +530,7 @@ bool BrowserToolbarView::OnKeyPressed(const views::KeyEvent& e) {
 
     // Retrieve information to generate an MSAA focus event.
     int view_id = acc_focused_view_->GetID();
-    HWND hwnd = GetWidget()->GetNativeView();
+    gfx::NativeView wnd = GetWidget()->GetNativeView();
 
     // Show the tooltip for the view that got the focus.
     if (GetWidget()->GetTooltipManager()) {
@@ -538,7 +538,7 @@ bool BrowserToolbarView::OnKeyPressed(const views::KeyEvent& e) {
           ShowKeyboardTooltip(GetChildViewAt(next_view));
     }
     // Notify Access Technology that there was a change in keyboard focus.
-    ::NotifyWinEvent(EVENT_OBJECT_FOCUS, hwnd, OBJID_CLIENT,
+    ::NotifyWinEvent(EVENT_OBJECT_FOCUS, wnd, OBJID_CLIENT,
                      static_cast<LONG>(view_id));
     return true;
   }
@@ -582,12 +582,13 @@ gfx::Size BrowserToolbarView::GetPreferredSize() {
       vertical_spacing);
 }
 
-void BrowserToolbarView::RunPageMenu(const gfx::Point& pt, HWND hwnd) {
+void BrowserToolbarView::RunPageMenu(const gfx::Point& pt,
+                                     gfx::NativeView parent) {
   views::Menu::AnchorPoint anchor = views::Menu::TOPRIGHT;
   if (UILayoutIsRightToLeft())
     anchor = views::Menu::TOPLEFT;
 
-  scoped_ptr<views::Menu> menu(views::Menu::Create(this, anchor, hwnd));
+  scoped_ptr<views::Menu> menu(views::Menu::Create(this, anchor, parent));
   menu->AppendMenuItemWithLabel(IDC_CREATE_SHORTCUTS,
       l10n_util::GetString(IDS_CREATE_SHORTCUTS));
   menu->AppendSeparator();
@@ -656,12 +657,13 @@ void BrowserToolbarView::RunPageMenu(const gfx::Point& pt, HWND hwnd) {
   menu->RunMenuAt(pt.x(), pt.y());
 }
 
-void BrowserToolbarView::RunAppMenu(const gfx::Point& pt, HWND hwnd) {
+void BrowserToolbarView::RunAppMenu(const gfx::Point& pt,
+                                    gfx::NativeView parent) {
   views::Menu::AnchorPoint anchor = views::Menu::TOPRIGHT;
   if (UILayoutIsRightToLeft())
     anchor = views::Menu::TOPLEFT;
 
-  scoped_ptr<views::Menu> menu(views::Menu::Create(this, anchor, hwnd));
+  scoped_ptr<views::Menu> menu(views::Menu::Create(this, anchor, parent));
   menu->AppendMenuItemWithLabel(IDC_NEW_TAB, l10n_util::GetString(IDS_NEW_TAB));
   menu->AppendMenuItemWithLabel(IDC_NEW_WINDOW,
                                 l10n_util::GetString(IDS_NEW_WINDOW));
@@ -726,13 +728,13 @@ bool BrowserToolbarView::IsItemChecked(int id) const {
 }
 
 void BrowserToolbarView::RunMenu(views::View* source, const gfx::Point& pt,
-                                 HWND hwnd) {
+                                 gfx::NativeView parent) {
   switch (source->GetID()) {
     case VIEW_ID_PAGE_MENU:
-      RunPageMenu(pt, hwnd);
+      RunPageMenu(pt, parent);
       break;
     case VIEW_ID_APP_MENU:
-      RunAppMenu(pt, hwnd);
+      RunAppMenu(pt, parent);
       break;
     default:
       NOTREACHED() << "Invalid source menu.";
