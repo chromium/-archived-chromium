@@ -1,12 +1,16 @@
 This contains FFmpeg's public header files from the output of a "make install"
-command.  The header files are from FFmpeg revision 18286.
+command.  The header files are from Chromium's copy of FFmpeg.
 
 Steps to reproduce:
-  1) If on Windows, refer to http://ffmpeg.arrozcru.org for environment setup
-  2) Check out FFmpeg from their repository
-  3) ./configure --prefix=/path/to/chrome/src/third_party/ffmpeg
-  4) make && make install
-  5) Remove bin and lib folders, leaving the include folder behind
+  1) If on Windows, refer to our MinGW/MSYS environment setup:
+       http://src.chromium.org/viewvc/chrome/trunk/deps/third_party/mingw/
+  2) Grab Chromium's copy of FFmpeg:
+       http://src.chromium.org/viewvc/chrome/trunk/deps/third_party/ffmpeg/
+  3) Follow the instructions to build and install.
+  4) Go to your install location and copy the following into the Chromium tree:
+       /path/to/install/include/libavcodec
+       /path/to/install/include/libavformat
+       /path/to/install/include/libavutil
 
 The project contains some hand-written DEF files used to generate import
 libraries to permit dynamically loading FFmpeg.  The libaries are linked in
@@ -17,4 +21,3 @@ export every method by ordinal, which makes binary compatability with different
 builds of FFmpeg difficult if not impossible.  Furthermore, it is much easier
 to update a DEF file instead of rebuilding FFmpeg to generate new import
 libraries.
-

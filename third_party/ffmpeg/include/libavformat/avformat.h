@@ -63,7 +63,7 @@ struct AVFormatContext;
  *    want to store, e.g., the email address of the child of producer Alice
  *    and actor Bob, that could have key=alice_and_bobs_childs_email_address.
  * 3. A tag whose value is localized for a particular language is appended
- *    with a dash character ('-') and the ISO 639 3-letter language code.
+ *    with a dash character ('-') and the ISO 639-2/B 3-letter language code.
  *    For example: Author-ger=Michael, Author-eng=Mike
  *    The original/default language is in the unqualified "Author" tag.
  *    A demuxer should set a default if it sets any translated tag.
@@ -114,78 +114,6 @@ void av_metadata_free(AVMetadata **m);
 
 /* packet functions */
 
-typedef struct AVPacket {
-    /**
-     * Presentation timestamp in time_base units; the time at which the
-     * decompressed packet will be presented to the user.
-     * Can be AV_NOPTS_VALUE if it is not stored in the file.
-     * pts MUST be larger or equal to dts as presentation cannot happen before
-     * decompression, unless one wants to view hex dumps. Some formats misuse
-     * the terms dts and pts/cts to mean something different. Such timestamps
-     * must be converted to true pts/dts before they are stored in AVPacket.
-     */
-    int64_t pts;
-    /**
-     * Decompression timestamp in time_base units; the time at which the
-     * packet is decompressed.
-     * Can be AV_NOPTS_VALUE if it is not stored in the file.
-     */
-    int64_t dts;
-    uint8_t *data;
-    int   size;
-    int   stream_index;
-    int   flags;
-    /**
-     * Duration of this packet in time_base units, 0 if unknown.
-     * Equals next_pts - this_pts in presentation order.
-     */
-    int   duration;
-    void  (*destruct)(struct AVPacket *);
-    void  *priv;
-    int64_t pos;                            ///< byte position in stream, -1 if unknown
-
-    /**
-     * Time difference in stream time base units from the pts of this
-     * packet to the point at which the output from the decoder has converged
-     * independent from the availability of previous frames. That is, the
-     * frames are virtually identical no matter if decoding started from
-     * the very first frame or from this keyframe.
-     * Is AV_NOPTS_VALUE if unknown.
-     * This field is not the display duration of the current packet.
-     *
-     * The purpose of this field is to allow seeking in streams that have no
-     * keyframes in the conventional sense. It corresponds to the
-     * recovery point SEI in H.264 and match_time_delta in NUT. It is also
-     * essential for some types of subtitle streams to ensure that all
-     * subtitles are correctly displayed after seeking.
-     */
-    int64_t convergence_duration;
-} AVPacket;
-#define PKT_FLAG_KEY   0x0001
-
-void av_destruct_packet_nofree(AVPacket *pkt);
-
-/**
- * Default packet destructor.
- */
-void av_destruct_packet(AVPacket *pkt);
-
-/**
- * Initialize optional fields of a packet with default values.
- *
- * @param pkt packet
- */
-void av_init_packet(AVPacket *pkt);
-
-/**
- * Allocate the payload of a packet and initialize its fields with
- * default values.
- *
- * @param pkt packet
- * @param size wanted payload size
- * @return 0 if OK, AVERROR_xxx otherwise
- */
-int av_new_packet(AVPacket *pkt, int size);
 
 /**
  * Allocate and read the payload of a packet and initialize its fields with
@@ -197,23 +125,6 @@ int av_new_packet(AVPacket *pkt, int size);
  */
 int av_get_packet(ByteIOContext *s, AVPacket *pkt, int size);
 
-/**
- * @warning This is a hack - the packet memory allocation stuff is broken. The
- * packet is allocated if it was not really allocated.
- */
-int av_dup_packet(AVPacket *pkt);
-
-/**
- * Free a packet.
- *
- * @param pkt packet to free
- */
-static inline void av_free_packet(AVPacket *pkt)
-{
-    if (pkt && pkt->destruct) {
-        pkt->destruct(pkt);
-    }
-}
 
 /*************************************************/
 /* fractional numbers for exact pts handling */
@@ -338,7 +249,10 @@ typedef struct AVInputFormat {
                        AVFormatParameters *ap);
     /** Read one packet and put it in 'pkt'. pts and flags are also
        set. 'av_new_stream' can be called only if the flag
-       AVFMTCTX_NOHEADER is used. */
+       AVFMTCTX_NOHEADER is used.
+       @return 0 on success, < 0 on error.
+               When returning an error, pkt must not have been allocated
+               or must be freed before returning */
     int (*read_packet)(struct AVFormatContext *, AVPacket *pkt);
     /** Close the stream. The AVFormatContext and AVStreams are not
        freed by this function */
@@ -476,7 +390,7 @@ typedef struct AVStream {
     int64_t duration;
 
 #if LIBAVFORMAT_VERSION_INT < (53<<16)
-    char language[4]; /** ISO 639 3-letter language code (empty string if undefined) */
+    char language[4]; /** ISO 639-2/B 3-letter language code (empty string if undefined) */
 #endif
 
     /* av_read_frame() support */

@@ -74,13 +74,18 @@ void FFmpegAudioDecoder::OnStop() {
 }
 
 void FFmpegAudioDecoder::OnDecode(Buffer* input) {
+  // Due to FFmpeg API changes we no longer have const read-only pointers.
+  AVPacket packet;
+  av_init_packet(&packet);
+  packet.data = const_cast<uint8*>(input->GetData());
+  packet.size = input->GetDataSize();
+
   int16_t* output_buffer = reinterpret_cast<int16_t*>(output_buffer_.get());
   int output_buffer_size = kOutputBufferSize;
-  int result = avcodec_decode_audio2(codec_context_,
+  int result = avcodec_decode_audio3(codec_context_,
                                      output_buffer,
                                      &output_buffer_size,
-                                     input->GetData(),
-                                     input->GetDataSize());
+                                     &packet);
 
   // TODO(ajwong): Consider if kOutputBufferSize should just be an int instead
   // of a size_t.

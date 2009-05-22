@@ -143,6 +143,14 @@ int64 av_rescale_q(int64 a, AVRational bq, AVRational cq) {
   return a * num / den;
 }
 
+void av_free_packet(AVPacket* packet) {
+  if (packet->destruct) {
+    packet->destruct(packet);
+    packet->data = NULL;
+    packet->size = 0;
+  }
+}
+
 void DestructPacket(AVPacket* packet) {
   delete [] packet->data;
   --g_outstanding_packets_av_new_frame;

@@ -189,12 +189,12 @@ int main(int argc, const char** argv) {
       base::TimeTicks decode_start = base::TimeTicks::HighResNow();
       if (target_codec == CODEC_TYPE_AUDIO) {
         int size_out = AVCODEC_MAX_AUDIO_FRAME_SIZE;
-        result = avcodec_decode_audio2(codec_context, samples, &size_out,
-                                       packet.data, packet.size);
+        result = avcodec_decode_audio3(codec_context, samples, &size_out,
+                                       &packet);
       } else if (target_codec == CODEC_TYPE_VIDEO) {
         int got_picture = 0;
-        result = avcodec_decode_video(codec_context, frame, &got_picture,
-                                      packet.data, packet.size);
+        result = avcodec_decode_video2(codec_context, frame, &got_picture,
+                                       &packet);
       } else {
         NOTREACHED();
       }

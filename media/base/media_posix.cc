@@ -13,43 +13,37 @@
 #include "base/path_service.h"
 #include "media/filters/ffmpeg_common.h"
 
-// We create stub references to dynamically loaded functions in ffmpeg
+// We create stub references to dynamically loaded functions in FFmpeg
 // for ease of linking.
 //
 // TODO(ajwong): We need to find a more maintainable way to have this work.
-// Also, this code should really be in the ffmpeg wrapper, and not here
+// Also, this code should really be in the FFmpeg wrapper, and not here
 // in the media level.  The concept of "weak symbols" looks like it might
 // be promising, but I don't quite understand it yet.
+//
+// TODO(scherkus): I am *this close* to writing the world's coolest macro to
+// make modifying this file easier.
 extern "C" {
 
-int (*av_get_bits_per_sample_format_ptr)(enum SampleFormat sample_fmt);
+// libavcodec functions.
+void (*av_free_packet_ptr)(AVPacket* pkt) = NULL;
+void av_free_packet(AVPacket* pkt) {
+  av_free_packet_ptr(pkt);
+}
+
+int (*av_get_bits_per_sample_format_ptr)(enum SampleFormat sample_fmt) = NULL;
 int av_get_bits_per_sample_format(enum SampleFormat sample_fmt) {
   return av_get_bits_per_sample_format_ptr(sample_fmt);
 }
 
-int (*av_new_packet_ptr)(AVPacket* pkt, int size);
+void (*av_init_packet_ptr)(AVPacket* pkt) = NULL;
+void av_init_packet(AVPacket* pkt) {
+  av_init_packet_ptr(pkt);
+}
+
+int (*av_new_packet_ptr)(AVPacket* pkt, int size) = NULL;
 int av_new_packet(AVPacket* pkt, int size) {
   return av_new_packet_ptr(pkt, size);
-}
-
-void (*avcodec_init_ptr)(void) = NULL;
-void avcodec_init(void) {
-  avcodec_init_ptr();
-}
-
-AVCodec* (*avcodec_find_decoder_ptr)(enum CodecID id) = NULL;
-AVCodec* avcodec_find_decoder(enum CodecID id) {
-  return avcodec_find_decoder_ptr(id);
-}
-
-int (*avcodec_thread_init_ptr)(AVCodecContext* s, int thread_count) = NULL;
-int avcodec_thread_init(AVCodecContext* s, int thread_count) {
-  return avcodec_thread_init_ptr(s, thread_count);
-}
-
-int (*avcodec_open_ptr)(AVCodecContext* avctx, AVCodec* codec) = NULL;
-int avcodec_open(AVCodecContext* avctx, AVCodec* codec) {
-  return avcodec_open_ptr(avctx, codec);
 }
 
 AVFrame* (*avcodec_alloc_frame_ptr)(void) = NULL;
@@ -57,32 +51,45 @@ AVFrame* avcodec_alloc_frame(void) {
   return avcodec_alloc_frame_ptr();
 }
 
-int (*avcodec_decode_audio2_ptr)(AVCodecContext* avctx, int16_t* samples,
-                                 int* frame_size_ptr, const uint8_t* buf,
-                                 int buf_size) = NULL;
-int avcodec_decode_audio2(AVCodecContext* avctx, int16_t* samples,
-                          int* frame_size_ptr,
-                          const uint8_t* buf, int buf_size) {
+int (*avcodec_decode_audio3_ptr)(AVCodecContext* avctx, int16_t* samples,
+                                 int* frame_size_ptr, AVPacket* avpkt) = NULL;
+int avcodec_decode_audio3(AVCodecContext* avctx, int16_t* samples,
+                          int* frame_size_ptr, AVPacket* avpkt) {
+  return avcodec_decode_audio3_ptr(avctx, samples, frame_size_ptr, avpkt);
+}
 
-  return avcodec_decode_audio2_ptr(avctx, samples, frame_size_ptr, buf,
-                                   buf_size);
+int (*avcodec_decode_video2_ptr)(AVCodecContext* avctx, AVFrame* picture,
+                                 int* got_picture_ptr, AVPacket* avpkt) = NULL;
+int avcodec_decode_video2(AVCodecContext* avctx, AVFrame* picture,
+                         int* got_picture_ptr, AVPacket* avpkt) {
+  return avcodec_decode_video2_ptr(avctx, picture, got_picture_ptr, avpkt);
+}
+
+AVCodec* (*avcodec_find_decoder_ptr)(enum CodecID id) = NULL;
+AVCodec* avcodec_find_decoder(enum CodecID id) {
+  return avcodec_find_decoder_ptr(id);
+}
+
+void (*avcodec_init_ptr)(void) = NULL;
+void avcodec_init(void) {
+  avcodec_init_ptr();
+}
+
+int (*avcodec_open_ptr)(AVCodecContext* avctx, AVCodec* codec) = NULL;
+int avcodec_open(AVCodecContext* avctx, AVCodec* codec) {
+  return avcodec_open_ptr(avctx, codec);
+}
+
+int (*avcodec_thread_init_ptr)(AVCodecContext* s, int thread_count) = NULL;
+int avcodec_thread_init(AVCodecContext* s, int thread_count) {
+  return avcodec_thread_init_ptr(s, thread_count);
 }
 
 
-int (*avcodec_decode_video_ptr)(AVCodecContext* avctx, AVFrame* picture,
-                                int* got_picture_ptr, const uint8_t* buf,
-                                int buf_size) = NULL;
-int avcodec_decode_video(AVCodecContext* avctx, AVFrame* picture,
-                         int* got_picture_ptr, const uint8_t* buf,
-                         int buf_size) {
-  return avcodec_decode_video_ptr(avctx, picture, got_picture_ptr, buf,
-                                  buf_size);
-}
-
-
-void (*av_register_all_ptr)(void);
-void av_register_all(void) {
-  av_register_all_ptr();
+// libavformat functions.
+int (*av_find_stream_info_ptr)(AVFormatContext* ic) = NULL;
+int av_find_stream_info(AVFormatContext* ic) {
+  return av_find_stream_info_ptr(ic);
 }
 
 int (*av_open_input_file_ptr)(AVFormatContext** ic_ptr, const char* filename,
@@ -94,14 +101,19 @@ int av_open_input_file(AVFormatContext** ic_ptr, const char* filename,
   return av_open_input_file_ptr(ic_ptr, filename, fmt, buf_size, ap);
 }
 
-int (*av_find_stream_info_ptr)(AVFormatContext* ic) = NULL;
-int av_find_stream_info(AVFormatContext* ic) {
-  return av_find_stream_info_ptr(ic);
-}
-
 int (*av_read_frame_ptr)(AVFormatContext* s, AVPacket* pkt) = NULL;
 int av_read_frame(AVFormatContext* s, AVPacket* pkt) {
   return av_read_frame_ptr(s, pkt);
+}
+
+void (*av_register_all_ptr)(void) = NULL;
+void av_register_all(void) {
+  av_register_all_ptr();
+}
+
+int (*av_register_protocol_ptr)(URLProtocol* protocol) = NULL;
+int av_register_protocol(URLProtocol* protocol) {
+  return av_register_protocol_ptr(protocol);
 }
 
 int (*av_seek_frame_ptr)(AVFormatContext* s, int stream_index,
@@ -111,20 +123,16 @@ int av_seek_frame(AVFormatContext* s, int stream_index,
   return av_seek_frame_ptr(s, stream_index, timestamp, flags);
 }
 
-int (*av_register_protocol_ptr)(URLProtocol* protocol) = NULL;
-int av_register_protocol(URLProtocol* protocol) {
-  return av_register_protocol_ptr(protocol);
-}
 
+// libavutil functions.
+void (*av_free_ptr)(void* ptr) = NULL;
+void av_free(void* ptr) {
+  return av_free_ptr(ptr);
+}
 
 void* (*av_malloc_ptr)(unsigned int size) = NULL;
 void* av_malloc(unsigned int size) {
   return av_malloc_ptr(size);
-}
-
-void (*av_free_ptr)(void* ptr) = NULL;
-void av_free(void* ptr) {
-  return av_free_ptr(ptr);
 }
 
 int64_t (*av_rescale_q_ptr)(int64_t a, AVRational bq, AVRational cq) = NULL;
@@ -196,87 +204,97 @@ bool InitializeMediaLibrary(const FilePath& module_dir) {
   // TODO(ajwong): Extract this to somewhere saner, and hopefully
   // autogenerate the bindings from the .def files.  Having all this
   // code here is incredibly ugly.
+
+  // libavcodec functions.
+  av_free_packet_ptr =
+      reinterpret_cast<void (*)(AVPacket*)>(
+          dlsym(libs[FILE_LIBAVCODEC], "av_free_packet"));
   av_get_bits_per_sample_format_ptr =
       reinterpret_cast<int (*)(enum SampleFormat)>(
           dlsym(libs[FILE_LIBAVCODEC], "av_get_bits_per_sample_format"));
+  av_init_packet_ptr =
+      reinterpret_cast<void (*)(AVPacket*)>(
+          dlsym(libs[FILE_LIBAVCODEC], "av_init_packet"));
   av_new_packet_ptr =
       reinterpret_cast<int (*)(AVPacket*, int)>(
           dlsym(libs[FILE_LIBAVCODEC], "av_new_packet"));
-  avcodec_init_ptr =
-      reinterpret_cast<void(*)(void)>(
-          dlsym(libs[FILE_LIBAVCODEC], "avcodec_init"));
-  avcodec_find_decoder_ptr =
-      reinterpret_cast<AVCodec* (*)(enum CodecID)>(
-          dlsym(libs[FILE_LIBAVCODEC], "avcodec_find_decoder"));
-  avcodec_thread_init_ptr =
-      reinterpret_cast<int (*)(AVCodecContext*, int)>(
-          dlsym(libs[FILE_LIBAVCODEC], "avcodec_thread_init"));
-  avcodec_open_ptr =
-      reinterpret_cast<int (*)(AVCodecContext*, AVCodec*)>(
-          dlsym(libs[FILE_LIBAVCODEC], "avcodec_open"));
   avcodec_alloc_frame_ptr =
       reinterpret_cast<AVFrame* (*)(void)>(
           dlsym(libs[FILE_LIBAVCODEC], "avcodec_alloc_frame"));
-  avcodec_decode_audio2_ptr =
-      reinterpret_cast<int (*)(AVCodecContext*, int16_t*, int*,
-                               const uint8_t*, int)>(
-          dlsym(libs[FILE_LIBAVCODEC], "avcodec_decode_audio2"));
-  avcodec_decode_video_ptr =
-      reinterpret_cast<int (*)(AVCodecContext*, AVFrame*, int*,
-                               const uint8_t*, int)>(
-          dlsym(libs[FILE_LIBAVCODEC], "avcodec_decode_video"));
+  avcodec_decode_audio3_ptr =
+      reinterpret_cast<int (*)(AVCodecContext*, int16_t*, int*, AVPacket*)>(
+          dlsym(libs[FILE_LIBAVCODEC], "avcodec_decode_audio3"));
+  avcodec_decode_video2_ptr =
+      reinterpret_cast<int (*)(AVCodecContext*, AVFrame*, int*, AVPacket*)>(
+          dlsym(libs[FILE_LIBAVCODEC], "avcodec_decode_video2"));
+  avcodec_find_decoder_ptr =
+      reinterpret_cast<AVCodec* (*)(enum CodecID)>(
+          dlsym(libs[FILE_LIBAVCODEC], "avcodec_find_decoder"));
+  avcodec_init_ptr =
+      reinterpret_cast<void (*)(void)>(
+          dlsym(libs[FILE_LIBAVCODEC], "avcodec_init"));
+  avcodec_open_ptr =
+      reinterpret_cast<int (*)(AVCodecContext*, AVCodec*)>(
+          dlsym(libs[FILE_LIBAVCODEC], "avcodec_open"));
+  avcodec_thread_init_ptr =
+      reinterpret_cast<int (*)(AVCodecContext*, int)>(
+          dlsym(libs[FILE_LIBAVCODEC], "avcodec_thread_init"));
 
-  av_register_all_ptr =
-      reinterpret_cast<void(*)(void)>(
-          dlsym(libs[FILE_LIBAVFORMAT], "av_register_all"));
+  // libavformat functions.
+  av_find_stream_info_ptr =
+      reinterpret_cast<int (*)(AVFormatContext*)>(
+          dlsym(libs[FILE_LIBAVFORMAT], "av_find_stream_info"));
   av_open_input_file_ptr =
       reinterpret_cast<int (*)(AVFormatContext**, const char*,
                                AVInputFormat*, int,
                                AVFormatParameters*)>(
           dlsym(libs[FILE_LIBAVFORMAT], "av_open_input_file"));
-  av_find_stream_info_ptr =
-      reinterpret_cast<int (*)(AVFormatContext*)>(
-          dlsym(libs[FILE_LIBAVFORMAT], "av_find_stream_info"));
   av_read_frame_ptr =
       reinterpret_cast<int (*)(AVFormatContext*, AVPacket*)>(
           dlsym(libs[FILE_LIBAVFORMAT], "av_read_frame"));
-  av_seek_frame_ptr =
-      reinterpret_cast<int (*)(AVFormatContext*, int, int64_t, int)>(
-          dlsym(libs[FILE_LIBAVFORMAT], "av_seek_frame"));
+  av_register_all_ptr =
+      reinterpret_cast<void (*)(void)>(
+          dlsym(libs[FILE_LIBAVFORMAT], "av_register_all"));
   av_register_protocol_ptr =
       reinterpret_cast<int (*)(URLProtocol*)>(
           dlsym(libs[FILE_LIBAVFORMAT], "av_register_protocol"));
+  av_seek_frame_ptr =
+      reinterpret_cast<int (*)(AVFormatContext*, int, int64_t, int)>(
+          dlsym(libs[FILE_LIBAVFORMAT], "av_seek_frame"));
 
-  av_malloc_ptr =
-      reinterpret_cast<void* (*)(unsigned int)>(
-          dlsym(libs[FILE_LIBAVUTIL], "av_malloc"));
+  // libavutil functions.
   av_free_ptr =
       reinterpret_cast<void (*)(void*)>(
           dlsym(libs[FILE_LIBAVUTIL], "av_free"));
+  av_malloc_ptr =
+      reinterpret_cast<void* (*)(unsigned int)>(
+          dlsym(libs[FILE_LIBAVUTIL], "av_malloc"));
   av_rescale_q_ptr =
       reinterpret_cast<int64_t (*)(int64_t, AVRational, AVRational)>(
           dlsym(libs[FILE_LIBAVUTIL], "av_rescale_q"));
 
   // Check that all the symbols were loaded correctly before returning true.
-  if (av_get_bits_per_sample_format_ptr &&
+  if (av_free_packet_ptr &&
+      av_get_bits_per_sample_format_ptr &&
+      av_init_packet_ptr &&
       av_new_packet_ptr &&
-      avcodec_init_ptr &&
-      avcodec_find_decoder_ptr &&
-      avcodec_thread_init_ptr &&
-      avcodec_open_ptr &&
       avcodec_alloc_frame_ptr &&
-      avcodec_decode_audio2_ptr &&
-      avcodec_decode_video_ptr &&
+      avcodec_decode_audio3_ptr &&
+      avcodec_decode_video2_ptr &&
+      avcodec_find_decoder_ptr &&
+      avcodec_init_ptr &&
+      avcodec_open_ptr &&
+      avcodec_thread_init_ptr &&
 
-      av_register_all_ptr &&
-      av_open_input_file_ptr &&
       av_find_stream_info_ptr &&
+      av_open_input_file_ptr &&
       av_read_frame_ptr &&
-      av_seek_frame_ptr &&
+      av_register_all_ptr &&
       av_register_protocol_ptr &&
+      av_seek_frame_ptr &&
 
-      av_malloc_ptr &&
       av_free_ptr &&
+      av_malloc_ptr &&
       av_rescale_q_ptr) {
     return true;
   }

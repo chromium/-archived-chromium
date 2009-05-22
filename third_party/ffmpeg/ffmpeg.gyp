@@ -23,7 +23,6 @@
         'include/libavcodec/opt.h',
         'include/libavcodec/vdpau.h',
         'include/libavcodec/xvmc.h',
-        'include/libavdevice/avdevice.h',
         'include/libavformat/avformat.h',
         'include/libavformat/avio.h',
         'include/libavutil/adler32.h',

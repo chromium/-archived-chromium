@@ -81,17 +81,20 @@ void FFmpegVideoDecoder::OnDecode(Buffer* buffer) {
   times.duration = buffer->GetDuration();
   time_queue_.push(times);
 
-  // Cast everything to FFmpeg types.
-  const uint8_t* data_in = buffer->GetData();
-  const size_t size_in = buffer->GetDataSize();
+  // Create a packet for input data.
+  // Due to FFmpeg API changes we no longer have const read-only pointers.
+  AVPacket packet;
+  av_init_packet(&packet);
+  packet.data = const_cast<uint8*>(buffer->GetData());
+  packet.size = buffer->GetDataSize();
 
   // We don't allocate AVFrame on the stack since different versions of FFmpeg
   // may change the size of AVFrame, causing stack corruption.  The solution is
   // to let FFmpeg allocate the structure via avcodec_alloc_frame().
   int decoded = 0;
   scoped_ptr_malloc<AVFrame, ScopedPtrAVFree> yuv_frame(avcodec_alloc_frame());
-  int result = avcodec_decode_video(codec_context_, yuv_frame.get(), &decoded,
-                                    data_in, size_in);
+  int result = avcodec_decode_video2(codec_context_, yuv_frame.get(), &decoded,
+                                     &packet);
 
   // Log the problem if we can't decode a video frame.
   if (result < 0) {
