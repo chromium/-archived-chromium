@@ -123,15 +123,17 @@ void ChromiumBridge::clipboardWriteImage(const NativeImageSkia* image,
 
 // Cookies --------------------------------------------------------------------
 
-void ChromiumBridge::setCookies(const KURL& url, const KURL& policyURL,
+void ChromiumBridge::setCookies(const KURL& url,
+                                const KURL& firstPartyForCookies,
                                 const String& cookie)
 {
-    webKitClient()->setCookies(url, policyURL, cookie);
+    webKitClient()->setCookies(url, firstPartyForCookies, cookie);
 }
 
-String ChromiumBridge::cookies(const KURL& url, const KURL& policyURL)
+String ChromiumBridge::cookies(const KURL& url,
+                               const KURL& firstPartyForCookies)
 {
-    return webKitClient()->cookies(url, policyURL);
+    return webKitClient()->cookies(url, firstPartyForCookies);
 }
 
 // DNS ------------------------------------------------------------------------

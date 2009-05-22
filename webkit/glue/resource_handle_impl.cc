@@ -423,7 +423,7 @@ bool ResourceHandleInternal::Start(
   bridge_.reset(ResourceLoaderBridge::Create(
       webkit_glue::CStringToStdString(method),
       url,
-      webkit_glue::KURLToGURL(request_.policyURL()),
+      webkit_glue::KURLToGURL(request_.firstPartyForCookies()),
       referrer,
       frame_origin,
       main_frame_origin,

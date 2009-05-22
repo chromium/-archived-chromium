@@ -76,8 +76,8 @@ namespace WebKit {
         WEBKIT_API void setURL(const WebURL&) = 0;
 
         // Used to implement third-party cookie blocking.
-        WEBKIT_API WebURL policyBaseURL() const = 0;
-        WEBKIT_API void setPolicyBaseURL(const WebURL&) = 0;
+        WEBKIT_API WebURL firstPartyForCookies() const = 0;
+        WEBKIT_API void setFirstPartyForCookies(const WebURL&) = 0;
 
         WEBKIT_API CachePolicy cachePolicy() const = 0;
         WEBKIT_API void setCachePolicy(CachePolicy) = 0;

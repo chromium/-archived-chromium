@@ -218,16 +218,6 @@ void WebFrameLoaderClient::dispatchWillSendRequest(
     request.setTargetType(DetermineTargetTypeFromLoader(loader));
   }
 
-  // Inherit the policy URL from the request's frame. However, if the request
-  // is for a main frame, the current document's policyBaseURL is the old
-  // document, so we leave policyURL empty to indicate that the request is a
-  // first-party request.
-  if (request.targetType() != ResourceRequest::TargetIsMainFrame &&
-      webframe_->frame()->document()) {
-    request.setPolicyURL(
-        webframe_->frame()->document()->firstPartyForCookies());
-  }
-
   // FrameLoader::loadEmptyDocumentSynchronously() creates an empty document
   // with no URL.  We don't like that, so we'll rename it to about:blank.
   if (request.url().isEmpty())
