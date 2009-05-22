@@ -1968,9 +1968,9 @@ BUG10465 LINUX : LayoutTests/fast/borders/border-image-border-radius.html = FAIL
 BUG10465 LINUX : LayoutTests/fast/clip/overflow-border-radius-clip.html = FAIL
   
 // Need rebaseline, see  WebKit 41993.
-BUG10466 WIN LINUX : LayoutTests/fast/css/getComputedStyle/computed-style-without-renderer.html = FAIL
-BUG10466 WIN LINUX : LayoutTests/fast/css/getComputedStyle/computed-style.html = FAIL
-BUG10466 WIN LINUX : LayoutTests/svg/css/getComputedStyle-basic.xhtml = FAIL
+BUG10466 LINUX : LayoutTests/fast/css/getComputedStyle/computed-style-without-renderer.html = FAIL
+BUG10466 LINUX : LayoutTests/fast/css/getComputedStyle/computed-style.html = FAIL
+BUG10466 LINUX : LayoutTests/svg/css/getComputedStyle-basic.xhtml = FAIL
   
 // Needs rebaseline. See WebKit 41972.
 BUG10467 WIN LINUX : LayoutTests/fast/forms/slider-thumb-stylability.html = FAIL
