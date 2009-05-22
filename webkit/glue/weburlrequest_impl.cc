@@ -3,13 +3,10 @@
 // found in the LICENSE file.
 
 #include "config.h"
-#include "base/compiler_specific.h"
 
-MSVC_PUSH_WARNING_LEVEL(0);
 #include "FormData.h"
 #include "HTTPHeaderMap.h"
 #include "ResourceRequest.h"
-MSVC_POP_WARNING();
 
 #undef LOG
 #include "base/logging.h"
@@ -19,7 +16,10 @@ MSVC_POP_WARNING();
 #include "webkit/glue/glue_serialize.h"
 #include "webkit/glue/glue_util.h"
 
-using WebCore::FrameLoadRequest;
+using WebCore::FormData;
+using WebCore::FormDataElement;
+using WebCore::HTTPHeaderMap;
+using WebCore::ResourceRequest;
 using WebCore::ResourceRequestCachePolicy;
 using WebCore::String;
 
@@ -29,14 +29,10 @@ WebRequestImpl::WebRequestImpl() {
 }
 
 WebRequestImpl::WebRequestImpl(const GURL& url)
-    : request_(FrameLoadRequest(webkit_glue::GURLToKURL(url))) {
+    : request_(ResourceRequest(webkit_glue::GURLToKURL(url))) {
 }
 
-WebRequestImpl::WebRequestImpl(const WebCore::ResourceRequest& request)
-    : request_(FrameLoadRequest(request)) {
-}
-
-WebRequestImpl::WebRequestImpl(const WebCore::FrameLoadRequest& request)
+WebRequestImpl::WebRequestImpl(const ResourceRequest& request)
     : request_(request) {
 }
 
@@ -45,52 +41,48 @@ WebRequest* WebRequestImpl::Clone() const {
 }
 
 GURL WebRequestImpl::GetURL() const {
-  return webkit_glue::KURLToGURL(request_.resourceRequest().url());
+  return webkit_glue::KURLToGURL(request_.url());
 }
 
 void WebRequestImpl::SetURL(const GURL& url) {
-  request_.resourceRequest().setURL(webkit_glue::GURLToKURL(url));
+  request_.setURL(webkit_glue::GURLToKURL(url));
 }
 
 GURL WebRequestImpl::GetMainDocumentURL() const {
-  return webkit_glue::KURLToGURL(request_.resourceRequest().mainDocumentURL());
+  return webkit_glue::KURLToGURL(request_.mainDocumentURL());
 }
 
 void WebRequestImpl::SetMainDocumentURL(const GURL& url) {
-  request_.resourceRequest().setMainDocumentURL(webkit_glue::GURLToKURL(url));
+  request_.setMainDocumentURL(webkit_glue::GURLToKURL(url));
 }
 
 WebRequestCachePolicy WebRequestImpl::GetCachePolicy() const {
   // WebRequestCachePolicy mirrors ResourceRequestCachePolicy
-  return static_cast<WebRequestCachePolicy>(
-      request_.resourceRequest().cachePolicy());
+  return static_cast<WebRequestCachePolicy>(request_.cachePolicy());
 }
 
 void WebRequestImpl::SetCachePolicy(WebRequestCachePolicy policy) {
   // WebRequestCachePolicy mirrors ResourceRequestCachePolicy
-  request_.resourceRequest().setCachePolicy(
-      static_cast<WebCore::ResourceRequestCachePolicy>(policy));
+  request_.setCachePolicy(
+      static_cast<ResourceRequestCachePolicy>(policy));
 }
 
 std::string WebRequestImpl::GetHttpMethod() const {
-  return webkit_glue::StringToStdString(
-      request_.resourceRequest().httpMethod());
+  return webkit_glue::StringToStdString(request_.httpMethod());
 }
 
 void WebRequestImpl::SetHttpMethod(const std::string& method) {
-  request_.resourceRequest().setHTTPMethod(
-      webkit_glue::StdStringToString(method));
+  request_.setHTTPMethod(webkit_glue::StdStringToString(method));
 }
 
 std::string WebRequestImpl::GetHttpHeaderValue(const std::string& field) const {
   return webkit_glue::StringToStdString(
-      request_.resourceRequest().httpHeaderField(
-          webkit_glue::StdStringToString(field)));
+      request_.httpHeaderField(webkit_glue::StdStringToString(field)));
 }
 
 void WebRequestImpl::SetHttpHeaderValue(const std::string& field,
                                         const std::string& value) {
-  request_.resourceRequest().setHTTPHeaderField(
+  request_.setHTTPHeaderField(
       webkit_glue::StdStringToString(field),
       webkit_glue::StdStringToString(value));
 }
@@ -98,62 +90,55 @@ void WebRequestImpl::SetHttpHeaderValue(const std::string& field,
 void WebRequestImpl::GetHttpHeaders(HeaderMap* headers) const {
   headers->clear();
 
-  const WebCore::HTTPHeaderMap& map =
-      request_.resourceRequest().httpHeaderFields();
-  WebCore::HTTPHeaderMap::const_iterator end = map.end();
-  WebCore::HTTPHeaderMap::const_iterator it = map.begin();
+  const HTTPHeaderMap& map = request_.httpHeaderFields();
+  HTTPHeaderMap::const_iterator end = map.end();
+  HTTPHeaderMap::const_iterator it = map.begin();
   for (; it != end; ++it) {
-    headers->insert(
-        std::make_pair(
-            webkit_glue::StringToStdString(it->first),
-            webkit_glue::StringToStdString(it->second)));
+    headers->insert(std::make_pair(
+        webkit_glue::StringToStdString(it->first),
+        webkit_glue::StringToStdString(it->second)));
   }
 }
 
 void WebRequestImpl::SetHttpHeaders(const HeaderMap& headers) {
-  WebCore::ResourceRequest& request = request_.resourceRequest();
-
   HeaderMap::const_iterator end = headers.end();
   HeaderMap::const_iterator it = headers.begin();
   for (; it != end; ++it) {
-    request.setHTTPHeaderField(
+    request_.setHTTPHeaderField(
         webkit_glue::StdStringToString(it->first),
         webkit_glue::StdStringToString(it->second));
   }
 }
 
 std::string WebRequestImpl::GetHttpReferrer() const {
-  return webkit_glue::StringToStdString(
-      request_.resourceRequest().httpReferrer());
+  return webkit_glue::StringToStdString(request_.httpReferrer());
 }
 
 std::string WebRequestImpl::GetSecurityInfo() const {
-  return webkit_glue::CStringToStdString(
-      request_.resourceRequest().securityInfo());
+  return webkit_glue::CStringToStdString(request_.securityInfo());
 }
 
 void WebRequestImpl::SetSecurityInfo(const std::string& value) {
-  request_.resourceRequest().setSecurityInfo(
-      webkit_glue::StdStringToCString(value));
+  request_.setSecurityInfo(webkit_glue::StdStringToCString(value));
 }
 
 bool WebRequestImpl::HasUploadData() const {
-  WebCore::FormData* formdata = request_.resourceRequest().httpBody();
+  FormData* formdata = request_.httpBody();
   return formdata && !formdata->isEmpty();
 }
 
 void WebRequestImpl::GetUploadData(net::UploadData* data) const {
-  WebCore::FormData* formdata = request_.resourceRequest().httpBody();
+  FormData* formdata = request_.httpBody();
   if (!formdata)
     return;
 
-  const Vector<WebCore::FormDataElement>& elements = formdata->elements();
-  Vector<WebCore::FormDataElement>::const_iterator it = elements.begin();
+  const Vector<FormDataElement>& elements = formdata->elements();
+  Vector<FormDataElement>::const_iterator it = elements.begin();
   for (; it != elements.end(); ++it) {
-    const WebCore::FormDataElement& element = (*it);
-    if (element.m_type == WebCore::FormDataElement::data) {
+    const FormDataElement& element = (*it);
+    if (element.m_type == FormDataElement::data) {
       data->AppendBytes(element.m_data.data(), element.m_data.size());
-    } else if (element.m_type == WebCore::FormDataElement::encodedFile) {
+    } else if (element.m_type == FormDataElement::encodedFile) {
       data->AppendFile(
           FilePath(webkit_glue::StringToFilePathString(element.m_filename)));
     } else {
@@ -166,7 +151,7 @@ void WebRequestImpl::GetUploadData(net::UploadData* data) const {
 
 void WebRequestImpl::SetUploadData(const net::UploadData& data)
 {
-  RefPtr<WebCore::FormData> formdata = WebCore::FormData::create();
+  RefPtr<FormData> formdata = FormData::create();
 
   const std::vector<net::UploadData::Element>& elements = data.elements();
   std::vector<net::UploadData::Element>::const_iterator it = elements.begin();
@@ -186,11 +171,11 @@ void WebRequestImpl::SetUploadData(const net::UploadData& data)
 
   formdata->setIdentifier(data.identifier());
 
-  request_.resourceRequest().setHTTPBody(formdata);
+  request_.setHTTPBody(formdata);
 }
 
 void WebRequestImpl::SetRequestorID(int requestor_id) {
-  request_.resourceRequest().setRequestorID(requestor_id);
+  request_.setRequestorID(requestor_id);
 }
 
 // static

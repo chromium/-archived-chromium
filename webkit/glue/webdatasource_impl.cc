@@ -42,16 +42,14 @@ WebDataSourceImpl::~WebDataSourceImpl() {
 const WebRequest& WebDataSourceImpl::GetInitialRequest() const {
   // WebKit may change the frame load request as it sees fit, so we must sync
   // our request object.
-  initial_request_.set_frame_load_request(
-      WebCore::FrameLoadRequest(originalRequest()));
+  initial_request_.set_resource_request(originalRequest());
   return initial_request_;
 }
 
 const WebRequest& WebDataSourceImpl::GetRequest() const {
   // WebKit may change the frame load request as it sees fit, so we must sync
   // our request object.
-  request_.set_frame_load_request(
-      WebCore::FrameLoadRequest(request()));
+  request_.set_resource_request(request());
   return request_;
 }
 

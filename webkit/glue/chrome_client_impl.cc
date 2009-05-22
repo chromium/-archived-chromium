@@ -210,7 +210,7 @@ WebCore::Page* ChromeClientImpl::createWindow(
   // The request is empty when we are just being asked to open a blank window.
   // This corresponds to window.open(""), for example.
   if (!r.resourceRequest().isEmpty()) {
-    WebRequestImpl request(r);
+    WebRequestImpl request(r.resourceRequest());
     new_view->main_frame()->LoadRequest(&request);
   }
 

@@ -427,8 +427,7 @@ void WebFrameImpl::InternalLoadRequest(const WebRequest* request,
   const WebRequestImpl* request_impl =
       static_cast<const WebRequestImpl*>(request);
 
-  const ResourceRequest& resource_request =
-      request_impl->frame_load_request().resourceRequest();
+  const ResourceRequest& resource_request = request_impl->resource_request();
 
   // Special-case javascript URLs.  Do not interrupt the existing load when
   // asked to load a javascript URL unless the script generates a result.

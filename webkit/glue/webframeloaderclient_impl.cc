@@ -240,7 +240,7 @@ void WebFrameLoaderClient::dispatchWillSendRequest(
   if (d) {
     WebRequestImpl webreq(request);
     d->WillSendRequest(webview, identifier, &webreq);
-    request = webreq.frame_load_request().resourceRequest();
+    request = webreq.resource_request();
   }
   NetAgentImpl* net_agent = GetNetAgentImpl();
   if (net_agent) {

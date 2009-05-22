@@ -5,13 +5,9 @@
 #ifndef WEBKIT_GLUE_WEBURLREQUEST_IMPL_H_
 #define WEBKIT_GLUE_WEBURLREQUEST_IMPL_H_
 
-#include "base/compiler_specific.h"
 #include "webkit/glue/weburlrequest.h"
 
-MSVC_PUSH_WARNING_LEVEL(0);
-#include "FrameLoadRequest.h"
-#include "HistoryItem.h"
-MSVC_POP_WARNING();
+#include "ResourceRequest.h"
 
 class WebRequestImpl : public WebRequest {
  public:
@@ -19,7 +15,6 @@ class WebRequestImpl : public WebRequest {
 
   explicit WebRequestImpl(const GURL& url);
   explicit WebRequestImpl(const WebCore::ResourceRequest& request);
-  explicit WebRequestImpl(const WebCore::FrameLoadRequest& request);
 
   // WebRequest
   virtual WebRequest* Clone() const;
@@ -45,15 +40,15 @@ class WebRequestImpl : public WebRequest {
   virtual void SetRequestorID(int requestor_id);
 
   // WebRequestImpl
-  const WebCore::FrameLoadRequest& frame_load_request() const {
+  const WebCore::ResourceRequest& resource_request() const {
     return request_;
   }
-  void set_frame_load_request(const WebCore::FrameLoadRequest& request) {
+  void set_resource_request(const WebCore::ResourceRequest& request) {
     request_ = request;
   }
 
  protected:
-  WebCore::FrameLoadRequest request_;
+  WebCore::ResourceRequest request_;
 };
 
 #endif  // #ifndef WEBKIT_GLUE_WEBURLREQUEST_IMPL_H_
