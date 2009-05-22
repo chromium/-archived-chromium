@@ -3491,6 +3491,29 @@
           },
         },
         {
+          'target_name': 'crash_service',
+          'type': 'executable',
+          'dependencies': [
+            'common',
+            '../base/base.gyp:base',
+            '../breakpad/breakpad.gyp:breakpad_handler',
+            '../breakpad/breakpad.gyp:breakpad_sender',
+          ],
+          'include_dirs': [
+            '..',
+          ],
+          'sources': [
+            'tools/crash_service/crash_service.cc',
+            'tools/crash_service/crash_service.h',
+            'tools/crash_service/main.cc',
+          ],
+          'msvs_settings': {
+            'VCLinkerTool': {
+              'SubSystem': '2',         # Set /SUBSYSTEM:WINDOWS
+            },
+          },
+        },
+        {
           'target_name': 'interactive_ui_tests',
           'type': 'executable',
           'dependencies': [
@@ -3538,6 +3561,26 @@
           },
         },
         {
+          'target_name': 'memory_test',
+          'type': 'executable',
+          'dependencies': [
+            'test_support_common',
+            'test_support_ui',
+            'theme_resources',
+            '../skia/skia.gyp:skia',
+            '../testing/gtest.gyp:gtest',
+          ],
+          'include_dirs': [
+            '..',
+          ],
+          'sources': [
+            'test/memory_test/memory_test.cc',
+            # TODO(sgk):  remove duplication of perf/mem_usage.cc
+            'test/perf/mem_usage.cc',
+            'test/perf/mem_usage.h',
+          ],
+        },
+        {
           'target_name': 'plugin_tests',
           'type': 'executable',
           'dependencies': [
@@ -3568,6 +3611,29 @@
           },
         },
         {
+          'target_name': 'reliability_tests',
+          'type': 'executable',
+          'dependencies': [
+            'test_support_common',
+            'test_support_ui',
+            'theme_resources',
+            '../skia/skia.gyp:skia',
+            '../testing/gtest.gyp:gtest',
+          ],
+          'include_dirs': [
+            '..',
+          ],
+          'sources': [
+            'test/reliability/page_load_test.cc',
+            'test/reliability/page_load_test.h',
+            'test/reliability/reliability_test_suite.h',
+            'test/reliability/run_all_unittests.cc',
+            # TODO(sgk):  remove duplication of perf/mem_usage.cc
+            'test/perf/mem_usage.cc',
+            'test/perf/mem_usage.h',
+          ],
+        },
+        {
           'target_name': 'selenium_tests',
           'type': 'executable',
           'dependencies': [
@@ -3593,6 +3659,40 @@
               'msvs_precompiled_source': 'tools/build/win/precompiled_wtl.cc',
             },
           },
+        },
+        {
+          'target_name': 'tab_switching_test',
+          'type': 'executable',
+          'dependencies': [
+            'test_support_common',
+            'test_support_ui',
+            'theme_resources',
+            '../skia/skia.gyp:skia',
+            '../testing/gtest.gyp:gtest',
+          ],
+          'include_dirs': [
+            '..',
+          ],
+          'sources': [
+            'test/tab_switching/tab_switching_test.cc',
+          ],
+        },
+        {
+          'target_name': 'url_fetch_test',
+          'type': 'executable',
+          'dependencies': [
+            'test_support_common',
+            'test_support_ui',
+            'theme_resources',
+            '../skia/skia.gyp:skia',
+            '../testing/gtest.gyp:gtest',
+          ],
+          'include_dirs': [
+            '..',
+          ],
+          'sources': [
+            'test/url_fetch_test/url_fetch_test.cc',
+          ],
         },
         {
           'target_name': 'worker',
