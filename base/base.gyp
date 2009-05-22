@@ -758,6 +758,11 @@
           'sources': [
             'debug_message.cc',
           ],
+          'msvs_settings': {
+            'VCLinkerTool': {
+              'SubSystem': '2',         # Set /SUBSYSTEM:WINDOWS
+            },
+          },
         },
       ],
     }],
