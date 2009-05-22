@@ -23,6 +23,10 @@
 #include "views/window/non_client_view.h"
 #include "views/window/window.h"
 
+#ifdef WIN32
+#include "app/win_util.h"
+#endif
+
 static const int kLeftPadding = 16;
 static const int kTopPadding = 6;
 static const int kRightPadding = 15;
@@ -93,6 +97,26 @@ void InitResources() {
            loading_animation_frames->height() == 0);
     loading_animation_frame_count =
         loading_animation_frames->width() / loading_animation_frames->height();
+
+    // We get a DIV0 further down when the throbber is replaced by an image
+    // which is taller than wide. In this case we cannot deduce an animation
+    // sequence from it since we assume that each animation frame has the width
+    // of the image's height.
+    if (loading_animation_frame_count == 0) {
+#ifdef WIN32
+      // TODO(idanan): Remove this when we have a way to handle theme errors.
+      // See: http://code.google.com/p/chromium/issues/detail?id=12531
+      // For now, this is Windows-specific because some users have downloaded
+      // a DLL from outside of Google to override the theme.
+      std::wstring text = l10n_util::GetString(IDS_RESOURCE_ERROR);
+      std::wstring caption = l10n_util::GetString(IDS_RESOURCE_ERROR_CAPTION);
+      UINT flags = MB_OK | MB_ICONWARNING | MB_TOPMOST;
+      win_util::MessageBox(NULL, text, caption, flags);
+#endif
+      CHECK(loading_animation_frame_count) << "Invalid throbber size. Width = "
+          << loading_animation_frames->width() << ", height = "
+          << loading_animation_frames->height();
+    }
 
     waiting_animation_frames = rb.GetBitmapNamed(IDR_THROBBER_WAITING);
     DCHECK(waiting_animation_frames);

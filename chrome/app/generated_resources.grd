@@ -2369,6 +2369,12 @@ each locale. -->
       <message name="IDS_UPGRADE_ERROR" desc="Status label: Error occurred during upgrade">
         Update server not available (error: <ph name="ERROR_NUMBER">$1<ex>1</ex></ph>)
       </message>
+      <message name="IDS_RESOURCE_ERROR" desc="Error loading resource">
+        An error was encountered while loading a program resource. Try reinstalling.
+      </message>
+      <message name="IDS_RESOURCE_ERROR_CAPTION" desc="Error loading resource caption">
+        Resource Error
+      </message>
 
       <!-- Print -->
       <message name="IDS_DEFAULT_PRINT_DOCUMENT_TITLE" desc="Default title for a print document">
