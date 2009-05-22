@@ -19,23 +19,18 @@
 #include "chrome/browser/download/download_manager.h"
 #include "chrome/browser/encoding_menu_controller_delegate.h"
 #include "chrome/browser/extensions/extension_shelf.h"
+#include "chrome/browser/find_bar.h"
 #include "chrome/browser/find_bar_controller.h"
 #include "chrome/browser/view_ids.h"
 #include "chrome/browser/views/about_chrome_view.h"
 #include "chrome/browser/views/bookmark_bar_view.h"
-#include "chrome/browser/views/bookmark_manager_view.h"
 #include "chrome/browser/views/browser_bubble.h"
 #include "chrome/browser/views/browser_dialogs.h"
-#include "chrome/browser/views/bug_report_view.h"
 #include "chrome/browser/views/chrome_views_delegate.h"
 #include "chrome/browser/views/download_shelf_view.h"
-#include "chrome/browser/views/find_bar_win.h"
 #include "chrome/browser/views/frame/browser_frame.h"
 #include "chrome/browser/views/fullscreen_exit_bubble.h"
 #include "chrome/browser/views/infobars/infobar_container.h"
-#include "chrome/browser/views/keyword_editor_view.h"
-#include "chrome/browser/views/new_profile_dialog.h"
-#include "chrome/browser/views/options/passwords_exceptions_window_view.h"
 #include "chrome/browser/views/status_bubble_views.h"
 #include "chrome/browser/views/tab_contents_container_view.h"
 #include "chrome/browser/views/tabs/tab_strip.h"
@@ -793,7 +788,7 @@ void BrowserView::ShowAboutChromeDialog() {
 }
 
 void BrowserView::ShowBookmarkManager() {
-  BookmarkManagerView::Show(browser_->profile());
+  browser::ShowBookmarkManagerView(browser_->profile());
 }
 
 void BrowserView::ShowBookmarkBubble(const GURL& url, bool already_bookmarked) {
@@ -817,19 +812,19 @@ void BrowserView::ShowImportDialog() {
 }
 
 void BrowserView::ShowSearchEnginesDialog() {
-  KeywordEditorView::Show(browser_->profile());
+  browser::ShowKeywordEditorView(browser_->profile());
 }
 
 void BrowserView::ShowPasswordManager() {
-  PasswordsExceptionsWindowView::Show(browser_->profile());
+  browser::ShowPasswordsExceptionsWindowView(browser_->profile());
 }
 
 void BrowserView::ShowSelectProfileDialog() {
-  ShowSelectProfileDialog();
+  browser::ShowSelectProfileDialog();
 }
 
 void BrowserView::ShowNewProfileDialog() {
-  NewProfileDialog::RunDialog();
+  browser::ShowNewProfileDialog();
 }
 
 void BrowserView::ConfirmBrowserCloseWithPendingDownloads() {
@@ -1683,7 +1678,7 @@ BrowserWindow* BrowserWindow::CreateBrowserWindow(Browser* browser) {
 
 // static
 FindBar* BrowserWindow::CreateFindBar(Browser* browser) {
-  return new FindBarWin(static_cast<BrowserView*>(browser->window()));
+  return browser::CreateFindBar(static_cast<BrowserView*>(browser->window()));
 }
 
 // static

@@ -16,6 +16,15 @@ static const int kDefaultWindowWidth = 530;
 static const int kDefaultWindowHeight = 240;
 static const int kDialogPadding = 7;
 
+namespace browser {
+
+// Declared in browser_dialogs.h so others don't have to depend on our header.
+void ShowPasswordsExceptionsWindowView(Profile* profile) {
+  PasswordsExceptionsWindowView::Show(profile);
+}
+
+}  // namespace browser
+
 ///////////////////////////////////////////////////////////////////////////////
 // PasswordsExceptionsWindowView, public
 

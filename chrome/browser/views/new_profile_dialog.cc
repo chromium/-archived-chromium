@@ -19,6 +19,15 @@
 #include "views/view.h"
 #include "views/window/window.h"
 
+namespace browser {
+
+// Declared in browser_dialogs.h so others don't have to depend on our header.
+void ShowNewProfileDialog() {
+  NewProfileDialog::RunDialog();
+}
+
+}  // namespace browser
+
 // static
 void NewProfileDialog::RunDialog() {
   NewProfileDialog* dlg = new NewProfileDialog();

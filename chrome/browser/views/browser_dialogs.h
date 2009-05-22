@@ -56,6 +56,9 @@ void ShowBookmarkBubbleView(views::Window* parent,
 void HideBookmarkBubbleView();
 bool IsBookmarkBubbleViewShowing();
 
+// Shows the bookmark manager.
+void ShowBookmarkManagerView(Profile* profile);
+
 // Shows the about dialog. See AboutChromeView.
 void ShowAboutChromeView(views::Widget* parent,
                          Profile* profile);
@@ -63,6 +66,19 @@ void ShowAboutChromeView(views::Widget* parent,
 // Shows an HTML dialog. See HtmlDialogView.
 void ShowHtmlDialogView(gfx::NativeWindow parent, Browser* browser,
                         HtmlDialogUIDelegate* delegate);
+
+// Creates and returns a find bar for the given browser window. See FindBarWin.
+FindBar* CreateFindBar(BrowserView* browser_view);
+
+// Shows the "Save passwords and exceptions" dialog.
+// See PasswordsExceptionsWindowView.
+void ShowPasswordsExceptionsWindowView(Profile* profile);
+
+// Shows the keyword editor. See KeywordEditorView.
+void ShowKeywordEditorView(Profile* profile);
+
+// Shows the "new profile" dialog box. See NewProfileDialog.
+void ShowNewProfileDialog();
 
 }  // namespace browser
 

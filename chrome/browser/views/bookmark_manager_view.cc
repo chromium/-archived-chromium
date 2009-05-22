@@ -133,6 +133,15 @@ BookmarkManagerView::CutCopyPasteType KeyCodeToCutCopyPaste(
 
 }  // namespace
 
+namespace browser {
+
+// Declared in browser_dialogs.h so others don't need to depend on our header.
+void ShowBookmarkManagerView(Profile* profile) {
+  BookmarkManagerView::Show(profile);
+}
+
+}  // namespace browser
+
 BookmarkManagerView::BookmarkManagerView(Profile* profile)
     : profile_(profile->GetOriginalProfile()),
       table_view_(NULL),

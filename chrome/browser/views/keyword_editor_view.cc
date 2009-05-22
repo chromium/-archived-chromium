@@ -42,6 +42,15 @@ using views::TableColumn;
 static const int kMainGroupID = 0;
 static const int kOtherGroupID = 1;
 
+namespace browser {
+
+// Declared in browser_dialogs.h so others don't have to depend on our header.
+void ShowKeywordEditorView(Profile* profile) {
+  KeywordEditorView::Show(profile);
+}
+
+}  // namespace browser
+
 // ModelEntry ----------------------------------------------------
 
 // ModelEntry wraps a TemplateURL as returned from the TemplateURL.

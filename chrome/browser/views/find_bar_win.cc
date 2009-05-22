@@ -26,6 +26,15 @@ static const int kMinFindWndDistanceFromSelection = 5;
 // static
 bool FindBarWin::disable_animations_during_testing_ = false;
 
+namespace browser {
+
+// Declared in browser_dialogs.h so others don't have to depend on our header.
+FindBar* CreateFindBar(BrowserView* browser_view) {
+  return new FindBarWin(browser_view);
+}
+
+}  // namespace browser
+
 ////////////////////////////////////////////////////////////////////////////////
 // FindBarWin, public:
 
