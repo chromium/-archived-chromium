@@ -730,7 +730,7 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\browser\site_instance_unittest.cc"
+				RelativePath="..\..\browser\tab_contents\site_instance_unittest.cc"
 				>
 			</File>
 			<File
