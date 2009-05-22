@@ -527,6 +527,20 @@ CPError STDCALL CPB_HandleCommand(
   return CPERR_FAILURE;
 }
 
+CPError STDCALL CPB_GetDragData(
+    CPID id, CPBrowsingContext context, struct NPObject* event, bool add_data,
+    int32* identity, int32* event_id, char** drag_type, char** drag_data) {
+  *identity = *event_id = 0;
+  NOTREACHED() << "Should not be called in the browser process.";
+  return CPERR_FAILURE;
+}
+
+CPError STDCALL CPB_SetDropEffect(
+    CPID id, CPBrowsingContext context, struct NPObject* event, int effect) {
+  NOTREACHED() << "Should not be called in the browser process.";
+  return CPERR_FAILURE;
+}
+
 //
 // Functions related to network interception
 //
@@ -768,6 +782,8 @@ CPBrowserFuncs* GetCPBrowserFuncsForBrowser() {
     browser_funcs.send_sync_message = CPB_SendSyncMessage;
     browser_funcs.plugin_thread_async_call = CPB_PluginThreadAsyncCall;
     browser_funcs.open_file_dialog = CPB_OpenFileDialog;
+    browser_funcs.get_drag_data = CPB_GetDragData;
+    browser_funcs.set_drop_effect = CPB_SetDropEffect;
 
     request_funcs.size = sizeof(request_funcs);
     request_funcs.start_request = CPR_StartRequest;

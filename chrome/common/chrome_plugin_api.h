@@ -30,7 +30,7 @@ extern "C" {
 // The current version of the API, used by the 'version' field of CPPluginFuncs
 // and CPBrowserFuncs.
 #define CP_MAJOR_VERSION 0
-#define CP_MINOR_VERSION 9
+#define CP_MINOR_VERSION 10
 #define CP_VERSION       ((CP_MAJOR_VERSION << 8) | (CP_MINOR_VERSION))
 
 #define CP_GET_MAJOR_VERSION(version) ((version & 0xff00) >> 8)
@@ -414,6 +414,37 @@ typedef void (STDCALL *CPP_OnFileDialogResultFunc)(void *data,
                                                    const char **files,
                                                    uint32 files_len);
 
+// Asks the browser to verify that NPObject* 'event' is the current drag event
+// the browser is dispatching, and extract drag data from the event if so.  On
+// success, returns the drag 'identity' (an up-counter that the browser chrome
+// increases each time a user drag enters a renderer tab), the drag 'event_id'
+// and the 'drag_type' being a utf8 encoded string with values "Files", "Text"
+// or "URL".  If 'add_data' is true, also return the 'drag_data', again a utf8
+// encoded string with the data for the drag type.  For drag type "Files", the
+// data is a backspace delimited list of file paths.
+//
+// The call fails with a CPError if 'event' is an invalid drag event, and sets
+// the 'identity' and 'event_id' to 0.  Note: on success, non-NULL 'drag_type'
+// and 'drag_data' should be freed with CPB_Free() when done.
+typedef CPError (STDCALL *CPB_GetDragDataFunc)(
+    CPID id, CPBrowsingContext context, struct NPObject* event, bool add_data,
+    int32* identity, int32* event_id, char** drag_type, char** drag_data);
+
+// Asks the browser to verify that NPObject* 'event' is the current drag event
+// the browser is dispatching and show the requested drop 'effect' if so.  The
+// browser displays drop effects during dragenter and dragover events, to give
+// user visible feedback (with a drag cursor, typically) to indicate whether a
+// subsequent drop event will succeed or not.  The implementation supports the
+// so-called "copy" and "none" effects.  When 'effect' is non-zero, the "copy"
+// effect is shown.  Otherwise, the "none" effect is shown, which prevents the
+// subsequent drop event from succeeding.  Returns CPError on failure, meaning
+// the 'event' is an invalid drag event.
+//
+// Note: 'effect' is int to allow for new effects in future.  For example, the
+// HTML5-defined drop effects "move" and "link".
+typedef CPError (STDCALL *CPB_SetDropEffectFunc)(
+    CPID id, CPBrowsingContext context, struct NPObject* event, int effect);
+
 // Function table for issuing requests using via the other side's network stack.
 // For the plugin, this functions deal with issuing requests through the
 // browser.  For the browser, these functions deal with allowing the plugin to
@@ -488,6 +519,8 @@ typedef struct _CPBrowserFuncs {
   CPB_SendSyncMessageFunc send_sync_message;
   CPB_PluginThreadAsyncCallFunc plugin_thread_async_call;
   CPB_OpenFileDialogFunc open_file_dialog;
+  CPB_GetDragDataFunc get_drag_data;
+  CPB_SetDropEffectFunc set_drop_effect;
 } CPBrowserFuncs;
 
 

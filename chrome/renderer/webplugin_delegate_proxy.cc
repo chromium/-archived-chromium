@@ -23,11 +23,15 @@
 #include "chrome/common/render_messages.h"
 #include "chrome/plugin/npobject_proxy.h"
 #include "chrome/plugin/npobject_stub.h"
+#include "chrome/plugin/npobject_util.h"
 #include "chrome/renderer/render_thread.h"
 #include "chrome/renderer/render_view.h"
 #include "googleurl/src/gurl.h"
 #include "grit/generated_resources.h"
 #include "net/base/mime_util.h"
+#include "webkit/api/public/WebDragData.h"
+#include "webkit/api/public/WebString.h"
+#include "webkit/api/public/WebVector.h"
 #include "webkit/glue/webframe.h"
 #include "webkit/glue/webkit_glue.h"
 #include "webkit/glue/webplugin.h"
@@ -36,6 +40,11 @@
 #if defined(OS_WIN)
 #include "chrome/common/gfx/emf.h"
 #endif
+
+using WebKit::WebInputEvent;
+using WebKit::WebDragData;
+using WebKit::WebVector;
+using WebKit::WebString;
 
 // Proxy for WebPluginResourceClient.  The object owns itself after creation,
 // deleting itself after its callback has been called.
@@ -339,6 +348,8 @@ void WebPluginDelegateProxy::OnMessageReceived(const IPC::Message& msg) {
     IPC_MESSAGE_HANDLER(PluginHostMsg_GetCookies, OnGetCookies)
     IPC_MESSAGE_HANDLER(PluginHostMsg_ShowModalHTMLDialog,
                         OnShowModalHTMLDialog)
+    IPC_MESSAGE_HANDLER(PluginHostMsg_GetDragData, OnGetDragData);
+    IPC_MESSAGE_HANDLER(PluginHostMsg_SetDropEffect, OnSetDropEffect);
     IPC_MESSAGE_HANDLER(PluginHostMsg_MissingPluginStatus,
                         OnMissingPluginStatus)
     IPC_MESSAGE_HANDLER(PluginHostMsg_URLRequest, OnHandleURLRequest)
@@ -611,7 +622,7 @@ void WebPluginDelegateProxy::SetFocus() {
 }
 
 bool WebPluginDelegateProxy::HandleInputEvent(
-    const WebKit::WebInputEvent& event,
+    const WebInputEvent& event,
     WebCursor* cursor) {
   bool handled;
   // A windowless plugin can enter a modal loop in the context of a
@@ -727,6 +738,94 @@ void WebPluginDelegateProxy::OnShowModalHTMLDialog(
                                       json_retval);
 }
 
+static void EncodeDragData(const WebDragData& data, bool add_data,
+                           NPVariant* drag_type, NPVariant* drag_data) {
+  const NPString* np_drag_type;
+  if (data.hasFileNames()) {
+    static const NPString kFiles = { "Files", 5 };
+    np_drag_type = &kFiles;
+  } else {
+    static const NPString kEmpty = { "" , 0 };
+    np_drag_type = &kEmpty;
+    add_data = false;
+  }
+
+  STRINGN_TO_NPVARIANT(np_drag_type->UTF8Characters,
+                       np_drag_type->UTF8Length,
+                       *drag_type);
+  if (!add_data) {
+    VOID_TO_NPVARIANT(*drag_data);
+    return;
+  }
+
+  WebVector<WebString> files;
+  data.fileNames(files);
+
+  static std::string utf8;
+  utf8.clear();
+  for (size_t i = 0; i < files.size(); ++i) {
+    static const char kBackspaceDelimiter('\b');
+    if (i != 0)
+      utf8.append(1, kBackspaceDelimiter);
+    utf8.append(UTF16ToUTF8(files[i]));
+  }
+
+  STRINGN_TO_NPVARIANT(utf8.data(), utf8.length(), *drag_data);
+}
+
+void WebPluginDelegateProxy::OnGetDragData(const NPVariant_Param& object,
+                                           bool add_data,
+                                           std::vector<NPVariant_Param>* values,
+                                           bool* success) {
+  DCHECK(values && success);
+  *success = false;
+
+  WebView* webview = NULL;
+  if (render_view_)
+    webview = render_view_->webview();
+  if (!webview)
+    return;
+
+  int event_id;
+  WebDragData data;
+  NPObject* event = reinterpret_cast<NPObject*>(object.npobject_pointer);
+  const int32 drag_id = webview->GetDragIdentity();
+  if (!drag_id || !webkit_glue::GetDragData(event, &event_id, &data))
+    return;
+
+  NPVariant results[4];
+  INT32_TO_NPVARIANT(drag_id, results[0]);
+  INT32_TO_NPVARIANT(event_id, results[1]);
+  EncodeDragData(data, add_data, &results[2], &results[3]);
+
+  for (size_t i = 0; i < arraysize(results); ++i) {
+    values->push_back(NPVariant_Param());
+    CreateNPVariantParam(results[i], NULL, &values->back(), false, NULL);
+  }
+
+  *success = true;
+}
+
+void WebPluginDelegateProxy::OnSetDropEffect(const NPVariant_Param& object,
+                                             int effect,
+                                             bool* success) {
+  DCHECK(success);
+  *success = false;
+
+  WebView* webview = NULL;
+  if (render_view_)
+    webview = render_view_->webview();
+  if (!webview)
+    return;
+
+  NPObject* event = reinterpret_cast<NPObject*>(object.npobject_pointer);
+  const int32 drag_id = webview->GetDragIdentity();
+  if (!drag_id || !webkit_glue::IsDragEvent(event))
+    return;
+
+  *success = webview->SetDropEffect(effect != 0);
+}
+
 void WebPluginDelegateProxy::OnMissingPluginStatus(int status) {
   if (render_view_)
     render_view_->OnMissingPluginStatus(this, status);
@@ -826,8 +925,8 @@ void WebPluginDelegateProxy::OnCancelDocumentLoad() {
 }
 
 void WebPluginDelegateProxy::OnInitiateHTTPRangeRequest(
-   const std::string& url, const std::string& range_info,
-   intptr_t existing_stream, bool notify_needed, intptr_t notify_data) {
+    const std::string& url, const std::string& range_info,
+    intptr_t existing_stream, bool notify_needed, intptr_t notify_data) {
   plugin_->InitiateHTTPRangeRequest(url.c_str(), range_info.c_str(),
                                     existing_stream, notify_needed,
                                     notify_data);

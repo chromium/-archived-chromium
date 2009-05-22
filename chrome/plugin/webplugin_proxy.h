@@ -5,6 +5,8 @@
 #ifndef CHROME_PLUGIN_PLUGIN_WEBPLUGIN_PROXY_H__
 #define CHROME_PLUGIN_PLUGIN_WEBPLUGIN_PROXY_H__
 
+#include <string>
+
 #include "base/hash_tables.h"
 #include "base/ref_counted.h"
 #include "base/scoped_handle.h"
@@ -55,6 +57,14 @@ class WebPluginProxy : public WebPlugin {
   void ShowModalHTMLDialog(const GURL& url, int width, int height,
                            const std::string& json_arguments,
                            std::string* json_retval);
+
+  // Called by gears over the CPAPI interface to verify that the given event is
+  // the current (javascript) drag event the browser is dispatching, and return
+  // the drag data, or control the drop effect (drag cursor), if so.
+  bool GetDragData(struct NPObject* event, bool add_data, int32* identity,
+                   int32* event_id, std::string* type, std::string* data);
+  bool SetDropEffect(struct NPObject* event, int effect);
+
   void OnMissingPluginStatus(int status);
   // class-specific methods
 

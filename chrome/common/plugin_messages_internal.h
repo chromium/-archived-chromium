@@ -261,6 +261,17 @@ IPC_BEGIN_MESSAGES(PluginHost)
                               std::string /* json_arguments */,
                               std::string /* json_retval */)
 
+  IPC_SYNC_MESSAGE_ROUTED2_2(PluginHostMsg_GetDragData,
+                             NPVariant_Param /* event */,
+                             bool /* add_data */,
+                             std::vector<NPVariant_Param> /* result_values */,
+                             bool /* result_success */)
+
+  IPC_SYNC_MESSAGE_ROUTED2_1(PluginHostMsg_SetDropEffect,
+                             NPVariant_Param /* event */,
+                             int /* effect */,
+                             bool /* result_success */)
+
   IPC_MESSAGE_ROUTED1(PluginHostMsg_MissingPluginStatus,
                       int /* status */)
 
