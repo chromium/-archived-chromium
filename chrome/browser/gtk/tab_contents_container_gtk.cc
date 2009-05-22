@@ -87,7 +87,7 @@ void TabContentsContainerGtk::SetTabContents(TabContents* tab_contents) {
 }
 
 void TabContentsContainerGtk::DetachTabContents(TabContents* tab_contents) {
-  gfx::NativeView widget = tab_contents_->GetNativeView();
+  gfx::NativeView widget = tab_contents->GetNativeView();
   // It is possible to detach an unrealized, unparented TabContents if you
   // slow things down enough in valgrind. Might happen in the real world, too.
   if (widget && widget->parent) {
