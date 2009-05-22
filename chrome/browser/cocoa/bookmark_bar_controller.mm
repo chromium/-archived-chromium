@@ -34,6 +34,11 @@
   return self;
 }
 
+- (void)dealloc {
+  [bookmarkView_ release];
+  [super dealloc];
+}
+
 // Initializes the bookmark bar at the top edge of |contentArea_| and the
 // view's visibility to match the pref. This doesn't move the content view at
 // all, you need to call |-showBookmarkBar:| to do that.

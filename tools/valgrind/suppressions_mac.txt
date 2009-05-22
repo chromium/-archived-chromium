@@ -159,20 +159,6 @@
    fun:_ZN13CVDisplayLink11runIOThreadEv
 }
 {
-   # Mac unit_tests BookmarkBarControllerTest.ShowHide, http://crbug.com/11286
-   # Only suppress for tests for now.
-   bug_11286
-   Memcheck:Leak
-   fun:calloc
-   fun:_internal_class_createInstanceFromZone
-   fun:_internal_class_createInstance
-   fun:+[NSObject allocWithZone:]
-   fun:+[NSObject alloc]
-   fun:-[BookmarkBarController initWithProfile:contentArea:]
-   ...
-   fun:*Test*
-}
-{
    # Mac leak in CMOpenOrNewAccess in unit_tests PlatformCanvas_SkLayer_Test, 
    # ToolbarControllerTest_FocusLocation_Test. See http://crbug.com/11333.
    # (was: http://crbug.com/9563 )
