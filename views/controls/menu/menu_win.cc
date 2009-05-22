@@ -236,6 +236,11 @@ Menu* Menu::Create(Delegate* delegate,
   return new MenuWin(delegate, anchor, parent);
 }
 
+// static
+Menu* Menu::GetSystemMenu(gfx::NativeView parent) {
+  return new views::MenuWin(::GetSystemMenu(parent, FALSE));
+}
+
 MenuWin::MenuWin(Delegate* d, AnchorPoint anchor, HWND owner)
     : Menu(d, anchor),
       menu_(CreatePopupMenu()),

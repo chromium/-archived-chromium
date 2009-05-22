@@ -56,14 +56,12 @@
 #include "grit/generated_resources.h"
 #include "grit/theme_resources.h"
 #include "grit/webkit_resources.h"
-#include "views/controls/menu/menu_win.h"
+#include "views/controls/menu/menu.h"
 #include "views/controls/scrollbar/native_scroll_bar.h"
 #include "views/fill_layout.h"
 #include "views/view.h"
 #include "views/widget/root_view.h"
 #include "views/window/non_client_view.h"
-#include "views/window/window_win.h"
-
 
 using base::TimeDelta;
 
@@ -135,7 +133,7 @@ class ResizeCorner : public views::View {
   ResizeCorner() { }
 
   virtual void Paint(gfx::Canvas* canvas) {
-    views::WindowWin* window = GetWindow();
+    views::Window* window = GetWindow();
     if (!window || (window->IsMaximized() || window->IsFullscreen()))
       return;
 
@@ -163,7 +161,7 @@ class ResizeCorner : public views::View {
   }
 
   virtual gfx::Size GetPreferredSize() {
-    views::WindowWin* window = GetWindow();
+    views::Window* window = GetWindow();
     return (!window || window->IsMaximized() || window->IsFullscreen()) ?
         gfx::Size() : GetSize();
   }
@@ -182,9 +180,9 @@ class ResizeCorner : public views::View {
  private:
   // Returns the WindowWin we're displayed in. Returns NULL if we're not
   // currently in a window.
-  views::WindowWin* GetWindow() {
+  views::Window* GetWindow() {
     views::Widget* widget = GetWidget();
-    return widget ? static_cast<views::WindowWin*>(widget) : NULL;
+    return widget ? widget->GetWindow() : NULL;
   }
 
   DISALLOW_COPY_AND_ASSIGN(ResizeCorner);
@@ -1300,9 +1298,8 @@ void BrowserView::Init() {
 }
 
 void BrowserView::InitSystemMenu() {
-  HMENU system_menu = GetSystemMenu(frame_->GetWindow()->GetNativeWindow(),
-                                    FALSE);
-  system_menu_.reset(new views::MenuWin(system_menu));
+  system_menu_.reset(
+      views::Menu::GetSystemMenu(frame_->GetWindow()->GetNativeWindow()));
   int insertion_index = std::max(0, system_menu_->ItemCount() - 1);
   // We add the menu items in reverse order so that insertion_index never needs
   // to change.

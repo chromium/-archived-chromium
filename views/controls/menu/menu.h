@@ -180,6 +180,10 @@ class Menu {
                       AnchorPoint anchor,
                       gfx::NativeView parent);
 
+  // Creates a new menu with the contents of the system menu for the given
+  // parent window. The caller owns the returned pointer.
+  static Menu* GetSystemMenu(gfx::NativeView parent);
+
   void set_delegate(Delegate* delegate) { delegate_ = delegate; }
   Delegate* delegate() const { return delegate_; }
 
