@@ -4,7 +4,7 @@
 
 #include "base/file_path.h"
 #include "chrome/common/net/cookie_monster_sqlite.h"
-#include "chrome/common/notification_observer.h"
+#include "chrome/common/notification_registrar.h"
 #include "chrome/common/pref_service.h"
 #include "net/url_request/url_request_context.h"
 
@@ -99,6 +99,8 @@ class ChromeURLRequestContext : public URLRequestContext,
 
   // Destructor.
   virtual ~ChromeURLRequestContext();
+
+  NotificationRegistrar registrar_;
 
   // Maps extension IDs to paths on disk. This is initialized in the
   // construtor and updated when extensions changed.

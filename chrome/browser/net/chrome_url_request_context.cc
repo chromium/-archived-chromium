@@ -309,9 +309,8 @@ ChromeURLRequestContext::ChromeURLRequestContext(Profile* profile)
   prefs_->AddPrefObserver(prefs::kAcceptLanguages, this);
   prefs_->AddPrefObserver(prefs::kCookieBehavior, this);
 
-  NotificationService::current()->AddObserver(
-      this, NotificationType::EXTENSIONS_LOADED,
-      NotificationService::AllSources());
+  registrar_.Add(this, NotificationType::EXTENSIONS_LOADED,
+                 NotificationService::AllSources());
   NotificationService::current()->AddObserver(
       this, NotificationType::EXTENSION_UNLOADED,
       NotificationService::AllSources());
@@ -368,9 +367,7 @@ void ChromeURLRequestContext::CleanupOnUIThread() {
   prefs_->RemovePrefObserver(prefs::kCookieBehavior, this);
   prefs_ = NULL;
 
-  NotificationService::current()->RemoveObserver(
-      this, NotificationType::EXTENSIONS_LOADED,
-      NotificationService::AllSources());
+  registrar_.RemoveAll();
   NotificationService::current()->RemoveObserver(
       this, NotificationType::EXTENSION_UNLOADED,
       NotificationService::AllSources());

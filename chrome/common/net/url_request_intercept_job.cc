@@ -33,23 +33,19 @@ URLRequestInterceptJob::URLRequestInterceptJob(URLRequest* request,
       read_buffer_(NULL) {
   cprequest_->data = this;  // see FromCPRequest().
 
-  NotificationService::current()->AddObserver(
-      this, NotificationType::CHROME_PLUGIN_UNLOADED,
-      Source<ChromePluginLib>(plugin_));
+  registrar_.Add(this, NotificationType::CHROME_PLUGIN_UNLOADED,
+                 Source<ChromePluginLib>(plugin_));
 }
 
 URLRequestInterceptJob::~URLRequestInterceptJob() {
   if (plugin_) {
     plugin_->functions().request_funcs->end_request(cprequest_.get(),
                                                     CPERR_SUCCESS);
-    DetachPlugin();
   }
 }
 
 void URLRequestInterceptJob::DetachPlugin() {
-  NotificationService::current()->RemoveObserver(
-      this, NotificationType::CHROME_PLUGIN_UNLOADED,
-      Source<ChromePluginLib>(plugin_));
+  registrar_.RemoveAll();
   plugin_ = NULL;
 }
 
@@ -211,6 +207,5 @@ void URLRequestInterceptJob::Observe(NotificationType type,
                                      const NotificationDetails& details) {
   DCHECK(type == NotificationType::CHROME_PLUGIN_UNLOADED);
   DCHECK(plugin_ == Source<ChromePluginLib>(source).ptr());
-
   DetachPlugin();
 }

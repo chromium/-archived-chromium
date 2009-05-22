@@ -16,7 +16,7 @@
 #include "chrome/browser/net/referrer.h"
 #include "chrome/browser/profile.h"
 #include "chrome/browser/session_startup_pref.h"
-#include "chrome/common/notification_type.h"
+#include "chrome/common/notification_registrar.h"
 #include "chrome/common/notification_service.h"
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
@@ -285,15 +285,11 @@ class OffTheRecordObserver : public NotificationObserver {
 
   ~OffTheRecordObserver() { }
 
-  // Register as an observer, and rely on the NotificationSystem shutdown
-  // to unregister us (at the last possible moment).
   void Register() {
-    NotificationService* service = NotificationService::current();
-    // TODO(tc): These notification observers are never removed.
-    service->AddObserver(this, NotificationType::BROWSER_CLOSED,
-                         NotificationService::AllSources());
-    service->AddObserver(this, NotificationType::BROWSER_OPENED,
-                         NotificationService::AllSources());
+    registrar_.Add(this, NotificationType::BROWSER_CLOSED,
+                   NotificationService::AllSources());
+    registrar_.Add(this, NotificationType::BROWSER_OPENED,
+                   NotificationService::AllSources());
   }
 
   void Observe(NotificationType type, const NotificationSource& source,
@@ -329,15 +325,14 @@ class OffTheRecordObserver : public NotificationObserver {
   }
 
  private:
+  NotificationRegistrar registrar_;
   Lock lock_;
   int count_off_the_record_windows_;
 
   DISALLOW_COPY_AND_ASSIGN(OffTheRecordObserver);
 };
 
-// TODO(jar): Use static class object so that I don't have to get the
-// destruction time right (which requires unregistering just before the
-// notification-service shuts down).
+// TODO(pkasting): Should this be a Singleton or something?
 static OffTheRecordObserver off_the_record_observer;
 
 //------------------------------------------------------------------------------

@@ -12,7 +12,7 @@
 #include "chrome/browser/chrome_plugin_host.h"
 #include "chrome/common/chrome_plugin_api.h"
 #include "chrome/common/chrome_plugin_util.h"
-#include "chrome/common/notification_observer.h"
+#include "chrome/common/notification_registrar.h"
 
 class ChromePluginLib;
 class URLRequest;
@@ -52,6 +52,7 @@ class URLRequestInterceptJob
   void StartAsync();
   void DetachPlugin();
 
+  NotificationRegistrar registrar_;
   scoped_ptr<ScopableCPRequest> cprequest_;
   ChromePluginLib* plugin_;
   bool got_headers_;
