@@ -17,8 +17,6 @@ FindBarController::FindBarController(FindBar* find_bar)
 }
 
 FindBarController::~FindBarController() {
-  // Web contents should have been NULLed out. If not, then we're leaking
-  // notification observers.
   DCHECK(!tab_contents_);
 }
 
@@ -52,12 +50,7 @@ void FindBarController::EndFindSession() {
 
 void FindBarController::ChangeTabContents(TabContents* contents) {
   if (tab_contents_) {
-    NotificationService::current()->RemoveObserver(
-        this, NotificationType::FIND_RESULT_AVAILABLE,
-        Source<TabContents>(tab_contents_));
-    NotificationService::current()->RemoveObserver(
-        this, NotificationType::NAV_ENTRY_COMMITTED,
-        Source<NavigationController>(&tab_contents_->controller()));
+    registrar_.RemoveAll();
     find_bar_->StopAnimation();
   }
 
@@ -73,12 +66,10 @@ void FindBarController::ChangeTabContents(TabContents* contents) {
   if (!tab_contents_)
     return;
 
-  NotificationService::current()->AddObserver(
-      this, NotificationType::FIND_RESULT_AVAILABLE,
-      Source<TabContents>(tab_contents_));
-  NotificationService::current()->AddObserver(
-      this, NotificationType::NAV_ENTRY_COMMITTED,
-      Source<NavigationController>(&tab_contents_->controller()));
+  registrar_.Add(this, NotificationType::FIND_RESULT_AVAILABLE,
+                 Source<TabContents>(tab_contents_));
+  registrar_.Add(this, NotificationType::NAV_ENTRY_COMMITTED,
+                 Source<NavigationController>(&tab_contents_->controller()));
 
   // Find out what we should show in the find text box. Usually, this will be
   // the last search in this tab, but if no search has been issued in this tab

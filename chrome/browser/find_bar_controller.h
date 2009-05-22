@@ -7,7 +7,7 @@
 
 #include "base/basictypes.h"
 #include "base/scoped_ptr.h"
-#include "chrome/common/notification_observer.h"
+#include "chrome/common/notification_registrar.h"
 
 class FindBar;
 class TabContents;
@@ -44,6 +44,8 @@ class FindBarController : public NotificationObserver {
   // tab_contents_ must be non-NULL before this call. Theis handles
   // de-flickering in addition to just calling the update function.
   void UpdateFindBarForCurrentResult();
+
+  NotificationRegistrar registrar_;
 
   scoped_ptr<FindBar> find_bar_;
 
