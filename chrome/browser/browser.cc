@@ -37,6 +37,7 @@
 #include "chrome/browser/tab_contents/site_instance.h"
 #include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/browser/tab_contents/tab_contents_view.h"
+#include "chrome/browser/window_sizer.h"
 #include "chrome/common/chrome_constants.h"
 #include "chrome/common/chrome_switches.h"
 #include "chrome/common/notification_service.h"
@@ -76,10 +77,6 @@
 #include "chrome/browser/views/location_bar_view.h"
 #include "chrome/common/child_process_host.h"
 #endif  // OS_WIN
-
-#if defined(OS_WIN) || defined(OS_MACOSX)
-#include "chrome/browser/window_sizer.h"
-#endif
 
 #if defined(TOOLKIT_VIEWS)
 #include "chrome/browser/dock_info.h"
@@ -1802,7 +1799,8 @@ void Browser::AddNewContents(TabContents* source,
     // AddTabContents method does.
     if (type_ & TYPE_APP)
       transition = PageTransition::START_PAGE;
-    b->tabstrip_model()->AddTabContents(new_contents, -1, false, transition, true);
+    b->tabstrip_model()->AddTabContents(new_contents, -1, false, transition,
+                                        true);
     b->window()->Show();
     return;
   }
@@ -1815,7 +1813,8 @@ void Browser::AddNewContents(TabContents* source,
                             initial_pos, user_gesture);
     browser->window()->Show();
   } else if (disposition != SUPPRESS_OPEN) {
-    tabstrip_model_.AddTabContents(new_contents, -1, false, PageTransition::LINK,
+    tabstrip_model_.AddTabContents(new_contents, -1, false,
+                                   PageTransition::LINK,
                                    disposition == NEW_FOREGROUND_TAB);
   }
 }
@@ -2364,8 +2363,10 @@ void Browser::ProcessPendingUIUpdates() {
 
     // Updating the URL happens synchronously in ScheduleUIUpdate.
     TabContents* selected_tab = GetSelectedTabContents();
-    if (selected_tab && flags & TabContents::INVALIDATE_LOAD && GetStatusBubble())
+    if (selected_tab &&
+        flags & TabContents::INVALIDATE_LOAD && GetStatusBubble()) {
       GetStatusBubble()->SetStatus(selected_tab->GetStatusText());
+    }
 
     if (flags & TabContents::INVALIDATE_TAB) {
       tabstrip_model_.UpdateTabContentsStateAt(

@@ -1519,6 +1519,7 @@
         'browser/window_sizer.cc',
         'browser/window_sizer.h',
         'browser/window_sizer_mac.mm',
+        'browser/window_sizer_linux.cc',
         'browser/window_sizer_win.cc',
         'browser/worker_host/worker_process_host.cc',
         'browser/worker_host/worker_process_host.h',
@@ -1545,9 +1546,6 @@
             '../build/linux/system.gyp:gtk',
           ],
           'sources!': [
-            # TODO(port): add this to the Linux build once a
-            #  window_sizer_linux.cc is written
-            'browser/window_sizer.cc',
             'browser/debugger/debugger_shell_stubs.cc',
             # Windows-specific files.
             'browser/download/download_exe.cc',

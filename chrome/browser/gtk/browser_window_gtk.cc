@@ -746,13 +746,21 @@ void BrowserWindowGtk::AddFindBar(FindBarGtk* findbar) {
 }
 
 void BrowserWindowGtk::SetGeometryHints() {
-  gtk_window_set_default_size(window_, 640, 480);
-
   // Allow the user to resize us arbitrarily small.
   GdkGeometry geometry;
   geometry.min_width = 1;
   geometry.min_height = 1;
   gtk_window_set_geometry_hints(window_, NULL, &geometry, GDK_HINT_MIN_SIZE);
+
+  if (browser_->GetSavedMaximizedState())
+    gtk_window_maximize(window_);
+  else
+    gtk_window_unmaximize(window_);
+
+  gfx::Rect rect = browser_->GetSavedWindowBounds();
+  gtk_window_set_default_size(window_,
+                              static_cast<gint>(rect.width()),
+                              static_cast<gint>(rect.height()));
 }
 
 void BrowserWindowGtk::SetWindowIcon() {
@@ -832,4 +840,3 @@ bool BrowserWindowGtk::IsToolbarSupported() {
   return browser_->SupportsWindowFeature(Browser::FEATURE_TOOLBAR) ||
          browser_->SupportsWindowFeature(Browser::FEATURE_LOCATIONBAR);
 }
-
