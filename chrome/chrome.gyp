@@ -1676,6 +1676,8 @@
                 ['include', '^browser/dock_info_gtk.cc'],
                 ['include', '^browser/dock_info.cc'],
                 ['include', '^browser/dock_info.h'],
+                ['include', '^browser/views/toolbar_star_toggle.h'],
+                ['include', '^browser/views/toolbar_star_toggle.cc'],
                 ['include', '^browser/views/frame/browser_frame_gtk.cc'],
                 ['include', '^browser/views/frame/browser_frame_gtk.h'],
                 ['include', '^browser/views/info_bubble.cc'],

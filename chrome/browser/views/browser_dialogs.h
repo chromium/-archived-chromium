@@ -13,6 +13,7 @@
 // allowing the callers to not depend on the classes implementing the dialogs.
 
 class Browser;
+class BrowserView;
 class GURL;
 class HtmlDialogUIDelegate;
 class InfoBubbleDelegate;
