@@ -42,14 +42,14 @@
   if (findBarBridge_)
     findBarBridge_->GetFindBarController()->tab_contents()->StartFinding(
         base::SysNSStringToUTF16([findText_ stringValue]),
-        false);
+        false, false);
 }
 
 - (IBAction)nextResult:(id)sender {
   if (findBarBridge_)
     findBarBridge_->GetFindBarController()->tab_contents()->StartFinding(
         base::SysNSStringToUTF16([findText_ stringValue]),
-        true);
+        true, false);
 }
 
 // Positions the find bar view in the correct location based on the
@@ -87,7 +87,7 @@
 
   string16 findText = base::SysNSStringToUTF16([findText_ stringValue]);
   if (findText.length() > 0) {
-    tab_contents->StartFinding(findText, true);
+    tab_contents->StartFinding(findText, true, false);
   } else {
     // The textbox is empty so we reset.
     tab_contents->StopFinding(true);  // true = clear selection on page.

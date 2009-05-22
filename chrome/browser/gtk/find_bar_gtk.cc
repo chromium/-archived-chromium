@@ -322,7 +322,8 @@ void FindBarGtk::FindEntryTextInContents(bool forward_search) {
   std::string new_contents(gtk_entry_get_text(GTK_ENTRY(text_entry_)));
 
   if (new_contents.length() > 0) {
-    tab_contents->StartFinding(UTF8ToUTF16(new_contents), forward_search);
+    tab_contents->StartFinding(UTF8ToUTF16(new_contents), forward_search,
+                               false);  // Not case sensitive.
   } else {
     // The textbox is empty so we reset.
     tab_contents->StopFinding(true);  // true = clear selection on page.

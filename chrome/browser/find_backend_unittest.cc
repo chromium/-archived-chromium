@@ -27,8 +27,9 @@ TEST_F(FindBackendTest, InternalState) {
   string16 search_term2 = L" but the economy ";
   string16 search_term3 = L" eated it.       ";
 
-  // Start searching in the first TabContents.
-  contents()->StartFinding(search_term1, true);  // true=forward.
+  // Start searching in the first TabContents, searching forwards but not case
+  // sensitive (as indicated by the last two params).
+  contents()->StartFinding(search_term1, true, false);
 
   // Pre-populate string should always match between the two, but find_text
   // should not.
@@ -37,8 +38,9 @@ TEST_F(FindBackendTest, InternalState) {
   EXPECT_EQ(search_term1, contents2.find_prepopulate_text());
   EXPECT_EQ(string16(), contents2.find_text());
 
-  // Now search in the other TabContents.
-  contents2.StartFinding(search_term2, true);  // true=forward.
+  // Now search in the other TabContents, searching forwards but not case
+  // sensitive (as indicated by the last two params).
+  contents2.StartFinding(search_term2, true, false);
 
   // Again, pre-populate string should always match between the two, but
   // find_text should not.
@@ -47,8 +49,9 @@ TEST_F(FindBackendTest, InternalState) {
   EXPECT_EQ(search_term2, contents2.find_prepopulate_text());
   EXPECT_EQ(search_term2, contents2.find_text());
 
-  // Search again in the first TabContents.
-  contents()->StartFinding(search_term3, true);  // true=forward.
+  // Search again in the first TabContents, searching forwards but not case
+  // sensitive (as indicated by the last two params).
+  contents()->StartFinding(search_term3, true, false);
 
   // Once more, pre-populate string should always match between the two, but
   // find_text should not.

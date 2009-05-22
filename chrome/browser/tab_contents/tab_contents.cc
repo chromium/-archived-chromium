@@ -241,8 +241,9 @@ TabContents::TabContents(Profile* profile,
       find_op_aborted_(false),
       current_find_request_id_(find_request_id_counter_++),
       find_text_(),
-      find_prepopulate_text_(NULL),
-      find_result_(),
+      last_search_case_sensitive_(false),
+      last_search_prepopulate_text_(NULL),
+      last_search_result_(),
       capturing_contents_(false),
       is_being_destroyed_(false),
       notify_disconnection_(false),
@@ -276,7 +277,7 @@ TabContents::TabContents(Profile* profile,
 
   // Keep a global copy of the previous search string (if any).
   static string16 global_last_search = string16();
-  find_prepopulate_text_ = &global_last_search;
+  last_search_prepopulate_text_ = &global_last_search;
 }
 
 TabContents::~TabContents() {
@@ -1014,12 +1015,17 @@ void TabContents::DidMoveOrResize(ConstrainedWindow* window) {
 #endif
 }
 
-void TabContents::StartFinding(const string16& find_text,
-                               bool forward_direction) {
+void TabContents::StartFinding(string16 find_text,
+                               bool forward_direction,
+                               bool case_sensitive) {
   // If find_text is empty, it means FindNext was pressed with a keyboard
   // shortcut so unless we have something to search for we return early.
-  if (find_text.empty() && find_text_.empty())
-    return;
+  if (find_text.empty() && find_text_.empty()) {
+    if (last_search_prepopulate_text_->empty())
+      return;
+    // Try whatever we searched for last in any tab.
+    find_text = *last_search_prepopulate_text_;
+  }
 
   // This is a FindNext operation if we are searching for the same text again,
   // or if the passed in search text is empty (FindNext keyboard shortcut). The
@@ -1028,29 +1034,31 @@ void TabContents::StartFinding(const string16& find_text,
   // therefore treat FindNext after an aborted Find operation as a full fledged
   // Find.
   bool find_next = (find_text_ == find_text || find_text.empty()) &&
+                   (last_search_case_sensitive_ == case_sensitive) &&
                    !find_op_aborted_;
   if (!find_next)
     current_find_request_id_ = find_request_id_counter_++;
 
   if (!find_text.empty())
     find_text_ = find_text;
+  last_search_case_sensitive_ = case_sensitive;
 
   find_op_aborted_ = false;
 
   // Keep track of what the last search was across the tabs.
-  *find_prepopulate_text_ = find_text;
+  *last_search_prepopulate_text_ = find_text;
 
   render_view_host()->StartFinding(current_find_request_id_,
                                    find_text_,
                                    forward_direction,
-                                   false,  // case sensitive
+                                   case_sensitive,
                                    find_next);
 }
 
 void TabContents::StopFinding(bool clear_selection) {
   find_ui_active_ = false;
   find_op_aborted_ = true;
-  find_result_ = FindNotificationDetails();
+  last_search_result_ = FindNotificationDetails();
   render_view_host()->StopFinding(clear_selection);
 }
 
@@ -2305,23 +2313,23 @@ void TabContents::OnFindReply(int request_id,
     return;
 
   if (number_of_matches == -1)
-    number_of_matches = find_result_.number_of_matches();
+    number_of_matches = last_search_result_.number_of_matches();
   if (active_match_ordinal == -1)
-    active_match_ordinal = find_result_.active_match_ordinal();
+    active_match_ordinal = last_search_result_.active_match_ordinal();
 
   gfx::Rect selection = selection_rect;
   if (selection.IsEmpty())
-    selection = find_result_.selection_rect();
+    selection = last_search_result_.selection_rect();
 
   // Notify the UI, automation and any other observers that a find result was
   // found.
-  find_result_ = FindNotificationDetails(request_id, number_of_matches,
-                                         selection, active_match_ordinal,
-                                         final_update);
+  last_search_result_ = FindNotificationDetails(request_id, number_of_matches,
+                                                selection, active_match_ordinal,
+                                                final_update);
   NotificationService::current()->Notify(
       NotificationType::FIND_RESULT_AVAILABLE,
       Source<TabContents>(this),
-      Details<FindNotificationDetails>(&find_result_));
+      Details<FindNotificationDetails>(&last_search_result_));
 }
 
 bool TabContents::IsExternalTabContainer() const {

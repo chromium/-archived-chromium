@@ -401,7 +401,8 @@ void FindBarView::ButtonPressed(views::Button* sender) {
       if (!find_text_->GetText().empty()) {
         container_->GetFindBarController()->tab_contents()->StartFinding(
             find_text_->GetText(),
-            sender->tag() == FIND_NEXT_TAG);
+            sender->tag() == FIND_NEXT_TAG,
+            false);  // Not case sensitive.
       }
       // Move the focus back to the text-field, we don't want the button
       // focused.
@@ -435,7 +436,8 @@ void FindBarView::ContentsChanged(views::TextField* sender,
   // if the textbox contains something we set it as the new search string and
   // initiate search (even though old searches might be in progress).
   if (!new_contents.empty()) {
-    controller->tab_contents()->StartFinding(new_contents, true);
+    // The last two params here are forward (true) and case sensitive (false).
+    controller->tab_contents()->StartFinding(new_contents, true, false);
   } else {
     // The textbox is empty so we reset.  true = clear selection on page.
     controller->tab_contents()->StopFinding(true);
@@ -462,7 +464,8 @@ bool FindBarView::HandleKeystroke(views::TextField* sender,
       // Search forwards for enter, backwards for shift-enter.
       container_->GetFindBarController()->tab_contents()->StartFinding(
           find_string,
-          GetKeyState(VK_SHIFT) >= 0);
+          GetKeyState(VK_SHIFT) >= 0,
+          false);  // Not case sensitive.
     }
   }
   #endif

@@ -2610,7 +2610,8 @@ void Browser::FindInPage(bool find_next, bool forward_direction) {
   ShowFindBar();
   if (find_next) {
     GetSelectedTabContents()->StartFinding(string16(),
-                                           forward_direction);
+                                           forward_direction,
+                                           false);  // Not case sensitive.
   }
 }
 

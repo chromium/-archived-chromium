@@ -469,7 +469,9 @@ class TabContents : public PageNavigator,
   // function does not block while a search is in progress. The controller will
   // receive the results through the notification mechanism. See Observe(...)
   // for details.
-  void StartFinding(const string16& find_text, bool forward_direction);
+  void StartFinding(string16 find_text,
+                    bool forward_direction,
+                    bool case_sensitive);
 
   // Stops the current Find operation. If |clear_selection| is true, it will
   // also clear the selection on the focused frame.
@@ -486,9 +488,8 @@ class TabContents : public PageNavigator,
     find_op_aborted_ = find_op_aborted;
   }
 
-  // Used _only_ by testing to set the current request ID, since it calls
-  // StartFinding on the RenderViewHost directly, rather than by using
-  // StartFinding's more limited API.
+  // Used _only_ by testing to get or set the current request ID.
+  int current_find_request_id() { return current_find_request_id_; }
   void set_current_find_request_id(int current_find_request_id) {
     current_find_request_id_ = current_find_request_id;
   }
@@ -497,12 +498,16 @@ class TabContents : public PageNavigator,
   // active searches.
   string16 find_text() const { return find_text_; }
 
-  // Accessor for find_prepopulate_text_. Used to access the last search
+  // Accessor for last_search_prepopulate_text_. Used to access the last search
   // string entered, whatever tab that search was performed in.
-  string16 find_prepopulate_text() const { return *find_prepopulate_text_; }
+  string16 find_prepopulate_text() const {
+    return *last_search_prepopulate_text_;
+  }
 
   // Accessor for find_result_.
-  const FindNotificationDetails& find_result() const { return find_result_; }
+  const FindNotificationDetails& find_result() const {
+    return last_search_result_;
+  }
 
   // Misc state & callbacks ----------------------------------------------------
 
@@ -1030,13 +1035,16 @@ class TabContents : public PageNavigator,
   // Find or a FindNext operation (FindNext should not increase the request id).
   string16 find_text_;
 
+  // Whether the last search was case sensitive or not.
+  bool last_search_case_sensitive_;
+
   // Keeps track of the last search string that was used to search in any tab.
-  string16* find_prepopulate_text_;
+  string16* last_search_prepopulate_text_;
 
   // The last find result. This object contains details about the number of
   // matches, the find selection rectangle, etc. The UI can access this
   // information to build its presentation.
-  FindNotificationDetails find_result_;
+  FindNotificationDetails last_search_result_;
 
   // Data for Page Actions -----------------------------------------------------
 
