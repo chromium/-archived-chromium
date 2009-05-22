@@ -20,7 +20,7 @@
 #include "chrome/browser/tabs/tab_strip_model.h"
 #include "chrome/browser/tab_contents/tab_contents_delegate.h"
 #include "chrome/browser/toolbar_model.h"
-#include "chrome/common/notification_observer.h"
+#include "chrome/common/notification_registrar.h"
 #include "chrome/common/pref_member.h"
 #include "base/gfx/rect.h"
 #include "base/scoped_ptr.h"
@@ -643,6 +643,8 @@ class Browser : public TabStripModelDelegate,
   static void RegisterAppPrefs(const std::wstring& app_name);
 
   // Data members /////////////////////////////////////////////////////////////
+
+  NotificationRegistrar registrar_;
 
   // This Browser's type.
   Type type_;

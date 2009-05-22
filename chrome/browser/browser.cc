@@ -185,14 +185,10 @@ Browser::Browser(Type type, Profile* profile)
       idle_task_(new BrowserIdleTimer) {
   tabstrip_model_.AddObserver(this);
 
-  NotificationService::current()->AddObserver(
-      this,
-      NotificationType::SSL_VISIBLE_STATE_CHANGED,
-      NotificationService::AllSources());
-  NotificationService::current()->AddObserver(
-      this,
-      NotificationType::EXTENSION_UNLOADED,
-      NotificationService::AllSources());
+  registrar_.Add(this, NotificationType::SSL_VISIBLE_STATE_CHANGED,
+                 NotificationService::AllSources());
+  registrar_.Add(this, NotificationType::EXTENSION_UNLOADED,
+                 NotificationService::AllSources());
 
   InitCommandState();
   BrowserList::AddBrowser(this);
@@ -233,15 +229,6 @@ Browser::~Browser() {
   TabRestoreService* tab_restore_service = profile()->GetTabRestoreService();
   if (tab_restore_service)
     tab_restore_service->BrowserClosed(this);
-
-  NotificationService::current()->RemoveObserver(
-      this,
-      NotificationType::SSL_VISIBLE_STATE_CHANGED,
-      NotificationService::AllSources());
-  NotificationService::current()->RemoveObserver(
-      this,
-      NotificationType::EXTENSION_UNLOADED,
-      NotificationService::AllSources());
 
   if (profile_->IsOffTheRecord() &&
       !BrowserList::IsOffTheRecordSessionActive()) {
@@ -1572,10 +1559,8 @@ void Browser::TabInsertedAt(TabContents* contents,
 
   // If the tab crashes in the beforeunload or unload handler, it won't be
   // able to ack. But we know we can close it.
-  NotificationService::current()->AddObserver(
-      this,
-      NotificationType::TAB_CONTENTS_DISCONNECTED,
-      Source<TabContents>(contents));
+  registrar_.Add(this, NotificationType::TAB_CONTENTS_DISCONNECTED,
+                 Source<TabContents>(contents));
 }
 
 void Browser::TabClosingAt(TabContents* contents, int index) {
@@ -1598,10 +1583,8 @@ void Browser::TabDetachedAt(TabContents* contents, int index) {
   if (find_bar_controller_.get() && index == tabstrip_model_.selected_index())
     find_bar_controller_->ChangeTabContents(NULL);
 
-  NotificationService::current()->RemoveObserver(
-      this,
-      NotificationType::TAB_CONTENTS_DISCONNECTED,
-      Source<TabContents>(contents));
+  registrar_.Remove(this, NotificationType::TAB_CONTENTS_DISCONNECTED,
+                    Source<TabContents>(contents));
 }
 
 void Browser::TabSelectedAt(TabContents* old_contents,
