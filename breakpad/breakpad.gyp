@@ -298,6 +298,11 @@
 #          'include_dirs': [
 #            'src',
 #          ],
+#         'link_settings': {
+#            'libraries': [
+#              '-ldl',
+#            ],
+#          },
 #        },
 #        {
 #          'target_name': 'dump_syms',
