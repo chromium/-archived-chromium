@@ -3031,7 +3031,7 @@
             'browser/download/download_manager_unittest.cc',
             'browser/gtk/go_button_gtk_unittest.cc',
             'browser/gtk/tabs/tab_renderer_gtk_unittest.cc',
-            'browser/navigation_controller_unittest.cc',
+            'browser/tab_contents/navigation_controller_unittest.cc',
             'browser/task_manager_unittest.cc',
             'test/test_notification_tracker.cc',
             'test/test_notification_tracker.h',
