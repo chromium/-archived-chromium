@@ -283,19 +283,22 @@
             '..',
           ],
         },
-        {
-          'target_name': 'symupload',
-          'type': 'executable',
-
-          'sources': [
-            'src/tools/linux/symupload/sym_upload.cc',
-            'src/common/linux/http_upload.cc',
-          ],
-
-          'include_dirs': [
-            'src',
-          ],
-        },
+# This needs libcurl, which means that it cannot be built with the default
+# configuration as we don't have 32-bit libcurl. Uncomment this and use
+# BUILDTYPE=Tool to build with the default host config.
+#       {
+#          'target_name': 'symupload',
+#          'type': 'executable',
+#
+#          'sources': [
+#            'src/tools/linux/symupload/sym_upload.cc',
+#            'src/common/linux/http_upload.cc',
+#          ],
+#
+#          'include_dirs': [
+#            'src',
+#          ],
+#        },
         {
           'target_name': 'dump_syms',
           'type': 'executable',
