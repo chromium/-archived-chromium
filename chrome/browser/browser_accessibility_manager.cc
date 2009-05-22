@@ -22,17 +22,13 @@ BrowserAccessibilityManager* BrowserAccessibilityManager::GetInstance() {
 }
 
 BrowserAccessibilityManager::BrowserAccessibilityManager() {
-  NotificationService::current()->AddObserver(this,
-      NotificationType::RENDERER_PROCESS_TERMINATED,
-      NotificationService::AllSources());
+  registrar_.Add(this, NotificationType::RENDERER_PROCESS_TERMINATED,
+                 NotificationService::AllSources());
 }
 
 BrowserAccessibilityManager::~BrowserAccessibilityManager() {
   // Clear hashmap.
   render_process_host_map_.clear();
-
-  // We don't remove ourselves as an observer because we are a Singleton object,
-  // and NotifcationService is likely gone by this point.
 }
 
 STDMETHODIMP BrowserAccessibilityManager::CreateAccessibilityInstance(
