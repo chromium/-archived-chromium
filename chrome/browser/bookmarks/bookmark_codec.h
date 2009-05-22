@@ -104,7 +104,7 @@ class BookmarkCodec {
   // Names of the various keys written to the Value.
   static const wchar_t* kRootsKey;
   static const wchar_t* kRootFolderNameKey;
-  static const wchar_t* kOtherBookmarFolderNameKey;
+  static const wchar_t* kOtherBookmarkFolderNameKey;
   static const wchar_t* kVersionKey;
   static const wchar_t* kChecksumKey;
   static const wchar_t* kIdKey;

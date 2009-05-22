@@ -68,7 +68,7 @@ void UniqueIDGenerator::Reset() {
 
 const wchar_t* BookmarkCodec::kRootsKey = L"roots";
 const wchar_t* BookmarkCodec::kRootFolderNameKey = L"bookmark_bar";
-const wchar_t* BookmarkCodec::kOtherBookmarFolderNameKey = L"other";
+const wchar_t* BookmarkCodec::kOtherBookmarkFolderNameKey = L"other";
 const wchar_t* BookmarkCodec::kVersionKey = L"version";
 const wchar_t* BookmarkCodec::kChecksumKey = L"checksum";
 const wchar_t* BookmarkCodec::kIdKey = L"id";
@@ -101,7 +101,7 @@ Value* BookmarkCodec::Encode(BookmarkNode* bookmark_bar_node,
   InitializeChecksum();
   DictionaryValue* roots = new DictionaryValue();
   roots->Set(kRootFolderNameKey, EncodeNode(bookmark_bar_node));
-  roots->Set(kOtherBookmarFolderNameKey, EncodeNode(other_folder_node));
+  roots->Set(kOtherBookmarkFolderNameKey, EncodeNode(other_folder_node));
 
   DictionaryValue* main = new DictionaryValue();
   main->SetInteger(kVersionKey, kCurrentVersion);
@@ -192,7 +192,7 @@ bool BookmarkCodec::DecodeHelper(BookmarkNode* bb_node,
   Value* other_folder_value;
   if (!roots_d_value->Get(kRootFolderNameKey, &root_folder_value) ||
       root_folder_value->GetType() != Value::TYPE_DICTIONARY ||
-      !roots_d_value->Get(kOtherBookmarFolderNameKey, &other_folder_value) ||
+      !roots_d_value->Get(kOtherBookmarkFolderNameKey, &other_folder_value) ||
       other_folder_value->GetType() != Value::TYPE_DICTIONARY)
     return false;  // Invalid type for root folder and/or other folder.
 
@@ -288,9 +288,8 @@ bool BookmarkCodec::DecodeNode(const DictionaryValue& value,
 
     if (!node) {
       node = new BookmarkNode(id, GURL());
-    } else if (persist_ids_) {
-      // If a new node is not created, explicitly assign persisted ID to the
-      // existing node.
+    } else {
+      // If a new node is not created, explicitly assign ID to the existing one.
       DCHECK(id != 0);
       node->set_id(id);
     }

@@ -271,14 +271,14 @@ TEST_F(UniqueIDGeneratorTest, SerialNumbersTest) {
   }
 }
 
-TEST_F(UniqueIDGeneratorTest, UniquSortedNumbersTest) {
+TEST_F(UniqueIDGeneratorTest, UniqueSortedNumbersTest) {
   UniqueIDGenerator gen;
   for (int i = 1; i <= 10; i += 2) {
     EXPECT_EQ(i, gen.GetUniqueID(i));
   }
 }
 
-TEST_F(UniqueIDGeneratorTest, UniquUnsortedConsecutiveNumbersTest) {
+TEST_F(UniqueIDGeneratorTest, UniqueUnsortedConsecutiveNumbersTest) {
   UniqueIDGenerator gen;
   int numbers[] = {2, 10, 6, 3, 8, 5, 1, 7, 4, 9};
   for (int i = 0; i < ARRAYSIZE(numbers); ++i) {
@@ -286,7 +286,7 @@ TEST_F(UniqueIDGeneratorTest, UniquUnsortedConsecutiveNumbersTest) {
   }
 }
 
-TEST_F(UniqueIDGeneratorTest, UniquUnsortedNumbersTest) {
+TEST_F(UniqueIDGeneratorTest, UniqueUnsortedNumbersTest) {
   UniqueIDGenerator gen;
   int numbers[] = {20, 100, 60, 30, 80, 50, 10, 70, 40, 90};
   for (int i = 0; i < ARRAYSIZE(numbers); ++i) {

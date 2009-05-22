@@ -99,7 +99,7 @@ class Writer : public Task {
     if (!roots_d_value->Get(BookmarkCodec::kRootFolderNameKey,
                             &root_folder_value) ||
         root_folder_value->GetType() != Value::TYPE_DICTIONARY ||
-        !roots_d_value->Get(BookmarkCodec::kOtherBookmarFolderNameKey,
+        !roots_d_value->Get(BookmarkCodec::kOtherBookmarkFolderNameKey,
                             &other_folder_value) ||
         other_folder_value->GetType() != Value::TYPE_DICTIONARY) {
       NOTREACHED();

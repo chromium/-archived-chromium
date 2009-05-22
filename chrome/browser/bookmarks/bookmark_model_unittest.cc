@@ -2,7 +2,9 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+#include "app/tree_node_iterator.h"
 #include "app/tree_node_model.h"
+#include "base/hash_tables.h"
 #include "base/string_util.h"
 #include "chrome/browser/bookmarks/bookmark_codec.h"
 #include "chrome/browser/bookmarks/bookmark_model.h"
@@ -564,6 +566,13 @@ class BookmarkModelTestWithProfile : public testing::Test,
     }
   }
 
+  void VerifyNoDuplicateIDs(BookmarkModel* model) {
+    TreeNodeIterator<BookmarkNode> it(model->root_node());
+    base::hash_set<int> ids;
+    while (it.has_next())
+      ASSERT_TRUE(ids.insert(it.Next()->id()).second);
+  }
+
   void BlockTillBookmarkModelLoaded() {
     bb_model_ = profile_->GetBookmarkModel();
     if (!bb_model_->IsLoaded())
@@ -657,6 +666,7 @@ TEST_F(BookmarkModelTestWithProfile, CreateAndRestore) {
 
     VerifyModelMatchesNode(&bbn, bb_model_->GetBookmarkBarNode());
     VerifyModelMatchesNode(&other, bb_model_->other_node());
+    VerifyNoDuplicateIDs(bb_model_);
   }
 }
 
