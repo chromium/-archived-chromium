@@ -6,8 +6,8 @@
 #define CHROME_TEST_AUTOMATION_AUTOMATION_CONSTANTS_H__
 
 namespace automation {
-// Amount of time to wait before querying the browser.
-static const int kSleepTime = 250;
+  // Amount of time to wait before querying the browser.
+  static const int kSleepTime = 250;
 }
 
 // Used by AutomationProxy, declared here so that other headers don't need

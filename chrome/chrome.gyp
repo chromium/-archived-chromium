@@ -255,8 +255,6 @@
         'common/app_cache/app_cache_dispatcher.h',
         'common/app_cache/app_cache_dispatcher_host.cc',
         'common/app_cache/app_cache_dispatcher_host.h',
-        'common/automation_constants.cc',
-        'common/automation_constants.h',
         'common/bindings_policy.h',
         'common/child_process.cc',
         'common/child_process.h',

@@ -370,10 +370,6 @@ bool AutomationProxy::SetFilteredInet(bool enabled) {
   return Send(new AutomationMsg_SetFilteredInet(0, enabled));
 }
 
-bool AutomationProxy::SendProxyConfig(const std::string& new_proxy_config) {
-  return Send(new AutomationMsg_SetProxyConfig(0, new_proxy_config));
-}
-
 void AutomationProxy::Disconnect() {
   channel_.reset();
 }

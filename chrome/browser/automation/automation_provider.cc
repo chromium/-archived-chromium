@@ -11,7 +11,6 @@
 #include "base/stl_util-inl.h"
 #include "base/string_util.h"
 #include "base/thread.h"
-#include "base/values.h"
 #include "chrome/app/chrome_dll_resource.h"
 #include "chrome/browser/app_modal_dialog.h"
 #include "chrome/browser/app_modal_dialog_queue.h"
@@ -28,22 +27,17 @@
 #include "chrome/browser/find_bar_controller.h"
 #include "chrome/browser/find_notification_details.h"
 #include "chrome/browser/location_bar.h"
-#include "chrome/browser/profile_manager.h"
 #include "chrome/browser/renderer_host/render_view_host.h"
 #include "chrome/browser/ssl/ssl_manager.h"
 #include "chrome/browser/ssl/ssl_blocking_page.h"
 #include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/browser/tab_contents/tab_contents_view.h"
-#include "chrome/common/automation_constants.h"
 #include "chrome/common/chrome_paths.h"
-#include "chrome/common/json_value_serializer.h"
 #include "chrome/common/notification_service.h"
 #include "chrome/common/platform_util.h"
 #include "chrome/common/pref_service.h"
 #include "chrome/test/automation/automation_messages.h"
 #include "net/base/cookie_monster.h"
-#include "net/proxy/proxy_service.h"
-#include "net/proxy/proxy_config_service_fixed.h"
 #include "net/url_request/url_request_context.h"
 #include "net/url_request/url_request_filter.h"
 
@@ -998,7 +992,6 @@ void AutomationProvider::OnMessageReceived(const IPC::Message& message) {
                                     HandleInspectElementRequest)
     IPC_MESSAGE_HANDLER(AutomationMsg_SetFilteredInet, SetFilteredInet)
     IPC_MESSAGE_HANDLER(AutomationMsg_DownloadDirectory, GetDownloadDirectory)
-    IPC_MESSAGE_HANDLER(AutomationMsg_SetProxyConfig, SetProxyConfig);
     IPC_MESSAGE_HANDLER_DELAY_REPLY(AutomationMsg_OpenNewBrowserWindow,
                                     OpenNewBrowserWindow)
     IPC_MESSAGE_HANDLER(AutomationMsg_WindowForBrowser, GetWindowForBrowser)
@@ -2165,97 +2158,6 @@ void AutomationProvider::SetFilteredInet(const IPC::Message& message,
   // run on the main thread.
   g_browser_process->io_thread()->message_loop()->PostTask(FROM_HERE,
       new SetFilteredInetTask(enabled));
-}
-
-class SetProxyConfigTask : public Task {
- public:
-  explicit SetProxyConfigTask(net::ProxyService* proxy_service,
-                              const std::string& new_proxy_config)
-      : proxy_service_(proxy_service), proxy_config_(new_proxy_config) {}
-  virtual void Run() {
-    // First, deserialize the JSON string. If this fails, log and bail.
-    JSONStringValueSerializer deserializer(proxy_config_);
-    std::string error_message;
-    scoped_ptr<Value> root(deserializer.Deserialize(&error_message));
-    if (!root.get() || root->GetType() != Value::TYPE_DICTIONARY) {
-      DLOG(WARNING) << "Received bad JSON string for ProxyConfig: "
-                    << error_message;
-      return;
-    }
-
-    scoped_ptr<DictionaryValue> dict(
-        static_cast<DictionaryValue*>(root.release()));
-    // Now put together a proxy configuration from the deserialized string.
-    net::ProxyConfig pc;
-    PopulateProxyConfig(*dict.get(), &pc);
-
-    DCHECK(proxy_service_);
-    scoped_ptr<net::ProxyConfigService> proxy_config_service(
-        new net::ProxyConfigServiceFixed(pc));
-    proxy_service_->ResetConfigService(proxy_config_service.release());
-  }
-
-  void PopulateProxyConfig(const DictionaryValue& dict, net::ProxyConfig* pc) {
-    DCHECK(pc);
-    bool no_proxy = false;
-    if (dict.GetBoolean(automation::kJSONProxyNoProxy, &no_proxy)) {
-      // Make no changes to the ProxyConfig.
-      return;
-    }
-    bool auto_config;
-    if (dict.GetBoolean(automation::kJSONProxyAutoconfig, &auto_config)) {
-      pc->auto_detect = true;
-    }
-    std::string pac_url;
-    if (dict.GetString(automation::kJSONProxyPacUrl, &pac_url)) {
-      pc->pac_url = GURL(pac_url);
-    }
-    std::string proxy_bypass_list;
-    if (dict.GetString(automation::kJSONProxyBypassList, &proxy_bypass_list)) {
-      pc->ParseNoProxyList(proxy_bypass_list);
-    }
-    std::string proxy_server;
-    if (dict.GetString(automation::kJSONProxyServer, &proxy_server)) {
-      pc->proxy_rules.ParseFromString(proxy_server);
-    }
-  }
-
- private:
-  net::ProxyService* proxy_service_;
-  std::string proxy_config_;
-};
-
-
-void AutomationProvider::SetProxyConfig(const std::string& new_proxy_config) {
-  URLRequestContext* context = Profile::GetDefaultRequestContext();
-  // If we don't have a default request context yet then we have to create
-  // one.
-  bool run_on_ui_thread = false;
-  if (!context) {
-    FilePath user_data_dir;
-    PathService::Get(chrome::DIR_USER_DATA, &user_data_dir);
-    ProfileManager* profile_manager = g_browser_process->profile_manager();
-    DCHECK(profile_manager);
-    Profile* profile = profile_manager->GetDefaultProfile(user_data_dir);
-    DCHECK(profile);
-    context = profile->GetRequestContext();
-    run_on_ui_thread = true;
-  }
-  DCHECK(context);
-  // Every URLRequestContext should have a proxy service.
-  net::ProxyService* proxy_service = context->proxy_service();
-  DCHECK(proxy_service);
-
-  // If we just now created the URLRequestContext then we can immediately
-  // set the proxy settings on this (the UI) thread. If there was already
-  // a URLRequestContext, then run the reset on the IO thread.
-  if (run_on_ui_thread) {
-    SetProxyConfigTask set_proxy_config_task(proxy_service, new_proxy_config);
-    set_proxy_config_task.Run();
-  } else {
-    g_browser_process->io_thread()->message_loop()->PostTask(FROM_HERE,
-        new SetProxyConfigTask(proxy_service, new_proxy_config));
-  }
 }
 
 void AutomationProvider::GetDownloadDirectory(
