@@ -170,8 +170,13 @@ void SSLPolicy::UpdateEntry(NavigationEntry* entry) {
     return;
   }
 
-  if (backend_->DidMarkHostAsBroken(entry->url().host(),
-                                   entry->site_instance()->GetProcess()->pid()))
+  SiteInstance* site_instance = entry->site_instance();
+  // Note that |site_instance| can be NULL here because NavigationEntries don't
+  // necessarily have site instances.  Without a process, the entry can't
+  // possibly have mixed content.  See bug http://crbug.com/12423.
+  if (site_instance &&
+      backend_->DidMarkHostAsBroken(entry->url().host(),
+                                    site_instance->GetProcess()->pid()))
     entry->ssl().set_has_mixed_content();
 }
 
