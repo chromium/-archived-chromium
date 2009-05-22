@@ -8,7 +8,7 @@
 #include <string>
 
 #include "chrome/browser/net/url_fetcher.h"
-#include "chrome/common/notification_observer.h"
+#include "chrome/common/notification_registrar.h"
 #include "googleurl/src/gurl.h"
 #include "testing/gtest/include/gtest/gtest_prod.h"
 
@@ -90,6 +90,7 @@ class GoogleURLTracker : public URLFetcher::Delegate,
 
   static const char kDefaultGoogleHomepage[];
 
+  NotificationRegistrar registrar_;
   GURL google_url_;
   ScopedRunnableMethodFactory<GoogleURLTracker> fetcher_factory_;
   scoped_ptr<URLFetcher> fetcher_;

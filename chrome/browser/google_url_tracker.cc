@@ -25,9 +25,8 @@ GoogleURLTracker::GoogleURLTracker()
       already_fetched_(false),
       need_to_fetch_(false),
       request_context_available_(!!Profile::GetDefaultRequestContext()) {
-  NotificationService::current()->AddObserver(this,
-      NotificationType::DEFAULT_REQUEST_CONTEXT_AVAILABLE,
-      NotificationService::AllSources());
+  registrar_.Add(this, NotificationType::DEFAULT_REQUEST_CONTEXT_AVAILABLE,
+                 NotificationService::AllSources());
 
   // Because this function can be called during startup, when kicking off a URL
   // fetch can eat up 20 ms of time, we delay five seconds, which is hopefully
@@ -42,9 +41,6 @@ GoogleURLTracker::GoogleURLTracker()
 }
 
 GoogleURLTracker::~GoogleURLTracker() {
-  NotificationService::current()->RemoveObserver(this,
-      NotificationType::DEFAULT_REQUEST_CONTEXT_AVAILABLE,
-      NotificationService::AllSources());
 }
 
 // static

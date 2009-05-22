@@ -8,7 +8,7 @@
 #include "base/observer_list.h"
 #include "base/time.h"
 #include "chrome/browser/cancelable_request.h"
-#include "chrome/common/notification_observer.h"
+#include "chrome/common/notification_registrar.h"
 
 class MessageLoop;
 class Profile;
@@ -90,9 +90,11 @@ class BrowsingDataRemover : public NotificationObserver {
 
   // Returns true if we're all done.
   bool all_done() {
-    return !waiting_for_keywords_ && !waiting_for_clear_cache_ &&
+    return registrar_.IsEmpty() && !waiting_for_clear_cache_ &&
            !waiting_for_clear_history_;
   }
+
+  NotificationRegistrar registrar_;
 
   // Profile we're to remove from.
   Profile* profile_;
@@ -105,9 +107,6 @@ class BrowsingDataRemover : public NotificationObserver {
 
   // True if Remove has been invoked.
   static bool removing_;
-
-  // True if we're waiting for the TemplateURLModel to finish loading.
-  bool waiting_for_keywords_;
 
   // True if we're waiting for the history to be deleted.
   bool waiting_for_clear_history_;
