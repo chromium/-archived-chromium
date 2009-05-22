@@ -21,7 +21,7 @@
 #include "chrome/browser/cancelable_request.h"
 #include "chrome/browser/history/history.h"
 #include "chrome/browser/history/history_types.h"
-#include "chrome/common/notification_observer.h"
+#include "chrome/common/notification_registrar.h"
 #include "googleurl/src/gurl.h"
 #include "third_party/skia/include/core/SkBitmap.h"
 #include "testing/gtest/include/gtest/gtest_prod.h"
@@ -413,6 +413,8 @@ class BookmarkModel : public NotificationObserver, public BookmarkService {
   // decoding since during decoding codec can assign IDs to nodes if IDs are
   // persisted.
   void set_next_node_id(int id) { next_node_id_ = id; }
+
+  NotificationRegistrar registrar_;
 
   Profile* profile_;
 

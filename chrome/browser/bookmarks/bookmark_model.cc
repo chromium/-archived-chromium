@@ -107,11 +107,6 @@ BookmarkModel::BookmarkModel(Profile* profile)
 }
 
 BookmarkModel::~BookmarkModel() {
-  if (profile_ && store_.get()) {
-    NotificationService::current()->RemoveObserver(
-        this, NotificationType::FAVICON_CHANGED, Source<Profile>(profile_));
-  }
-
   FOR_EACH_OBSERVER(BookmarkModelObserver, observers_,
                     BookmarkModelBeingDeleted(this));
 
@@ -134,8 +129,8 @@ void BookmarkModel::Load() {
 
   // Listen for changes to favicons so that we can update the favicon of the
   // node appropriately.
-  NotificationService::current()->AddObserver(
-      this,NotificationType::FAVICON_CHANGED, Source<Profile>(profile_));
+  registrar_.Add(this, NotificationType::FAVICON_CHANGED,
+                 Source<Profile>(profile_));
 
   // Load the bookmarks. BookmarkStorage notifies us when done.
   store_ = new BookmarkStorage(profile_, this);
@@ -385,10 +380,7 @@ void BookmarkModel::GetBookmarksWithTitlesMatching(
 }
 
 void BookmarkModel::ClearStore() {
-  if (profile_ && store_.get()) {
-    NotificationService::current()->RemoveObserver(
-        this, NotificationType::FAVICON_CHANGED, Source<Profile>(profile_));
-  }
+  registrar_.RemoveAll();
   store_ = NULL;
 }
 

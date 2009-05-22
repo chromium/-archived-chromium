@@ -48,6 +48,8 @@ class TabLoader : public NotificationObserver {
   void LoadTabs();
 
  private:
+  typedef std::set<NavigationController*> TabsLoading;
+
   // NotificationObserver method. Removes the specified tab and loads the next
   // tab.
   virtual void Observe(NotificationType type,
@@ -59,18 +61,13 @@ class TabLoader : public NotificationObserver {
   // from.
   void RemoveTab(NavigationController* tab);
 
-  // Adds the necessary listeners for the specified tab.
-  void AddListeners(NavigationController* controller);
-
-  // Removes the necessary listeners for the specified tab.
-  void RemoveListeners(NavigationController* controller);
+  NotificationRegistrar registrar_;
 
   // Has Load been invoked?
   bool loading_;
 
   // The set of tabs we've initiated loading on. This does NOT include the
   // selected tabs.
-  typedef std::set<NavigationController*> TabsLoading;
   TabsLoading tabs_loading_;
 
   // The tabs we need to load.
@@ -90,7 +87,10 @@ void TabLoader::AddTab(NavigationController* controller) {
     DCHECK(find(tabs_to_load_.begin(), tabs_to_load_.end(), controller) ==
            tabs_to_load_.end());
     tabs_to_load_.push_back(controller);
-    AddListeners(controller);
+    registrar_.Add(this, NotificationType::TAB_CLOSED,
+                   Source<NavigationController>(controller));
+    registrar_.Add(this, NotificationType::LOAD_STOP,
+                   Source<NavigationController>(controller));
   } else {
     // Should never get a NULL tab.
     NOTREACHED();
@@ -123,10 +123,6 @@ void TabLoader::LoadTabs() {
   }
 
   if (tabs_to_load_.empty()) {
-    for (TabsLoading::iterator i = tabs_loading_.begin();
-         i != tabs_loading_.end(); ++i) {
-      RemoveListeners(*i);
-    }
     tabs_loading_.clear();
     delete this;
   }
@@ -146,7 +142,10 @@ void TabLoader::Observe(NotificationType type,
 }
 
 void TabLoader::RemoveTab(NavigationController* tab) {
-  RemoveListeners(tab);
+  registrar_.Remove(this, NotificationType::TAB_CLOSED,
+                    Source<NavigationController>(tab));
+  registrar_.Remove(this, NotificationType::LOAD_STOP,
+                    Source<NavigationController>(tab));
 
   TabsLoading::iterator i = tabs_loading_.find(tab);
   if (i != tabs_loading_.end())
@@ -156,24 +155,6 @@ void TabLoader::RemoveTab(NavigationController* tab) {
       find(tabs_to_load_.begin(), tabs_to_load_.end(), tab);
   if (j != tabs_to_load_.end())
     tabs_to_load_.erase(j);
-}
-
-void TabLoader::AddListeners(NavigationController* controller) {
-  NotificationService::current()->AddObserver(
-      this, NotificationType::TAB_CLOSED,
-      Source<NavigationController>(controller));
-  NotificationService::current()->AddObserver(
-      this, NotificationType::LOAD_STOP,
-      Source<NavigationController>(controller));
-}
-
-void TabLoader::RemoveListeners(NavigationController* controller) {
-  NotificationService::current()->RemoveObserver(
-      this, NotificationType::TAB_CLOSED,
-      Source<NavigationController>(controller));
-  NotificationService::current()->RemoveObserver(
-      this, NotificationType::LOAD_STOP,
-      Source<NavigationController>(controller));
 }
 
 // SessionRestoreImpl ---------------------------------------------------------
