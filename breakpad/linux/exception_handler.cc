@@ -65,17 +65,18 @@
 
 #include "breakpad/linux/exception_handler.h"
 
-#include <unistd.h>
-#include <fcntl.h>
-#include <sys/mman.h>
 #include <errno.h>
+#include <fcntl.h>
+#include <linux/limits.h>
+#include <sched.h>
 #include <signal.h>
+#include <sys/mman.h>
 #include <sys/signal.h>
+#include <sys/syscall.h>
 #include <sys/ucontext.h>
 #include <sys/user.h>
-#include <sys/syscall.h>
 #include <sys/wait.h>
-#include <sched.h>
+#include <unistd.h>
 
 #include "breakpad/linux/linux_syscall_support.h"
 #include "breakpad/linux/memory.h"
