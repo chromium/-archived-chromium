@@ -97,6 +97,11 @@
     ],
     'default_configuration': 'Debug',
     'configurations': {
+       # VCLinkerTool LinkIncremental values below:
+       #   0 == default
+       #   1 == /INCREMENTAL:NO
+       #   2 == /INCREMENTAL
+       # Debug links incremental, Release does not.
       'Debug': {
         'conditions': [
           [ 'OS=="mac"', {
@@ -120,7 +125,7 @@
                 'RuntimeLibrary': '1',
               },
               'VCLinkerTool': {
-                'LinkIncremental': '1',
+                'LinkIncremental': '2',
               },
               'VCResourceCompilerTool': {
                 'PreprocessorDefinitions': ['_DEBUG'],
@@ -142,6 +147,13 @@
           [ 'OS=="win" and msvs_use_common_release', {
             'configuration_platform': 'Win32',
             'msvs_props': ['release.vsprops'],
+          }],
+          [ 'OS=="win"', {
+            'msvs_settings': {
+              'VCLinkerTool': {
+                'LinkIncremental': '1',
+              },
+            },
           }],
         ],
       },
@@ -442,6 +454,13 @@
             'ImportLibrary': '$(OutDir)\\lib\\$(TargetName).lib',
             'TargetMachine': '1',
             'FixedBaseAddress': '1',
+            # SubSystem values:
+            #   0 == not set
+            #   1 == /SUBSYSTEM:CONSOLE
+            #   2 == /SUBSYSTEM:WINDOWS
+            # Most of the executables we'll ever create are tests
+            # and utilities with console output.
+            'SubSystem': '1',
           },
           'VCMIDLTool': {
             'GenerateStublessProxies': 'true',

@@ -2129,6 +2129,8 @@
           'msvs_settings': {
             'VCLinkerTool': {
               'ImportLibrary': '$(OutDir)\\lib\\chrome_exe.lib',
+              # Set /SUBSYSTEM:WINDOWS for chrome.exe itself.
+              'SubSystem': '2',
             },
           },
         },{  # 'OS!="win"
@@ -2985,6 +2987,15 @@
           'dependencies': [
             '../views/views.gyp:views',
           ],
+          'configurations': {
+            'Debug': {
+              'msvs_settings': {
+                'VCLinkerTool': {
+                  'LinkIncremental': '1',       # /INCREMENTAL:NO
+                },
+              },
+            },
+          },
         }, { # else: OS != "win"
           'sources!': [
             'browser/bookmarks/bookmark_codec_unittest.cc',
@@ -3239,6 +3250,15 @@
               ],
             }],
           ],
+          'configurations': {
+            'Debug': {
+              'msvs_settings': {
+                'VCLinkerTool': {
+                  'LinkIncremental': '1',       # /INCREMENTAL:NO
+                },
+              },
+            },
+          },
         },
       ],
     }],  # OS!="mac"
@@ -3335,6 +3355,17 @@
           'msvs_settings': {
             'VCLinkerTool': {
               'ImportLibrary': '$(OutDir)\\lib\\chrome_dll.lib',
+              # Set /SUBSYSTEM:WINDOWS for chrome.dll (for consistency).
+              'SubSystem': '2',
+            },
+          },
+          'configurations': {
+            'Debug': {
+              'msvs_settings': {
+                'VCLinkerTool': {
+                  'LinkIncremental': '1',       # /INCREMENTAL:NO
+                },
+              },
             },
           },
         },
@@ -3377,6 +3408,11 @@
             'Debug': {
               'msvs_precompiled_header': 'tools/build/win/precompiled_wtl.h',
               'msvs_precompiled_source': 'tools/build/win/precompiled_wtl.cc',
+              'msvs_settings': {
+                'VCLinkerTool': {
+                  'LinkIncremental': '1',       # /INCREMENTAL:NO
+                },
+              },
             },
           },
         },

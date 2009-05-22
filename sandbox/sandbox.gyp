@@ -283,6 +283,11 @@
               '-lcomctl32.lib',
             ],
           },
+          'msvs_settings': {
+            'VCLinkerTool': {
+              'SubSystem': '2',         # Set /SUBSYSTEM:WINDOWS
+            },
+          },
           'configurations': {
             'Debug': {
               'msvs_precompiled_header': 'sandbox_poc/stdafx.h',

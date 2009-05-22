@@ -226,6 +226,11 @@
 	    'player/wtl_renderer.cc',
 	    'player/wtl_renderer.h',
 	  ],
+          'msvs_settings': {
+            'VCLinkerTool': {
+              'SubSystem': '2',         # Set /SUBSYSTEM:WINDOWS
+            },
+          },
         },
       ],
     }],
