@@ -352,6 +352,8 @@ BrowserWindowGtk::BrowserWindowGtk(Browser* browser)
   gtk_widget_show_all(window_vbox_);
   browser_->tabstrip_model()->AddObserver(this);
 
+  HideUnsupportedWindowFeatures();
+
   NotificationService* ns = NotificationService::current();
   ns->AddObserver(this, NotificationType::BOOKMARK_BAR_VISIBILITY_PREF_CHANGED,
                   NotificationService::AllSources());
@@ -508,8 +510,7 @@ void BrowserWindowGtk::SetFullscreen(bool fullscreen) {
   } else {
     full_screen_ = false;
     gtk_window_unfullscreen(window_);
-    toolbar_->Show();
-    tabstrip_->Show();
+    ShowSupportedWindowFeatures();
   }
 }
 
@@ -806,3 +807,29 @@ void BrowserWindowGtk::ExecuteBrowserCommand(int id) {
   if (browser_->command_updater()->IsCommandEnabled(id))
     browser_->ExecuteCommand(id);
 }
+
+void BrowserWindowGtk::ShowSupportedWindowFeatures() {
+  if (IsTabStripSupported())
+    tabstrip_->Show();
+
+  if (IsToolbarSupported())
+    toolbar_->Show();
+}
+
+void BrowserWindowGtk::HideUnsupportedWindowFeatures() {
+  if (!IsTabStripSupported())
+    tabstrip_->Hide();
+
+  if (!IsToolbarSupported())
+    toolbar_->Hide();
+}
+
+bool BrowserWindowGtk::IsTabStripSupported() {
+  return browser_->SupportsWindowFeature(Browser::FEATURE_TABSTRIP);
+}
+
+bool BrowserWindowGtk::IsToolbarSupported() {
+  return browser_->SupportsWindowFeature(Browser::FEATURE_TOOLBAR) ||
+         browser_->SupportsWindowFeature(Browser::FEATURE_LOCATIONBAR);
+}
+

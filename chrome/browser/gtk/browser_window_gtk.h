@@ -157,6 +157,16 @@ class BrowserWindowGtk : public BrowserWindow,
   // Callback for the loading animation(s) associated with this window.
   void LoadingAnimationCallback();
 
+  // Shows UI elements for supported window features.
+  void ShowSupportedWindowFeatures();
+
+  // Hides UI elements for unsupported window features.
+  void HideUnsupportedWindowFeatures();
+
+  bool IsTabStripSupported();
+
+  bool IsToolbarSupported();
+
   gfx::Rect bounds_;
   GdkWindowState state_;
 
