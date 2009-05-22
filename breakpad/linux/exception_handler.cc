@@ -70,6 +70,7 @@
 #include <linux/limits.h>
 #include <sched.h>
 #include <signal.h>
+#include <stdio.h>
 #include <sys/mman.h>
 #include <sys/signal.h>
 #include <sys/syscall.h>
