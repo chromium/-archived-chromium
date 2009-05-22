@@ -32,6 +32,7 @@
 #include "media/player/wtl_renderer.h"
 #include "media/player/view.h"
 #include "media/player/props.h"
+#include "media/player/seek.h"
 #include "media/player/list.h"
 #include "media/player/mainfrm.h"
 

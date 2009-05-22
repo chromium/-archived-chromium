@@ -29,6 +29,15 @@ class Movie : public Singleton<Movie> {
   // Set playback rate.
   float GetPlayRate();
 
+  // Get movie duration in seconds.
+  float GetDuration();
+
+  // Get current movie position in seconds.
+  float GetPosition();
+
+  // Set current movie position in seconds.
+  void SetPosition(float position);
+
   // Set playback pause.
   void SetPause(bool pause);
 

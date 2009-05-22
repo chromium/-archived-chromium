@@ -220,6 +220,7 @@
 	    'player/player_wtl.cc',
 	    'player/player_wtl.rc',
 	    'player/props.h',
+	    'player/seek.h',
 	    'player/resource.h',
 	    'player/stdafx.h',
 	    'player/view.h',

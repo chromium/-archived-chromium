@@ -107,6 +107,31 @@ float Movie::GetPlayRate() {
   return play_rate_;
 }
 
+// Get movie duration in seconds.
+float Movie::GetDuration() {
+  float duration = 0.f;
+  if (pipeline_.get())
+    duration = (pipeline_->GetDuration()).InMicroseconds() / 1000000.0f;
+  return duration;
+}
+
+// Get current movie position in seconds.
+float Movie::GetPosition() {
+  float position = 0.f;
+  if (pipeline_.get())
+    position = (pipeline_->GetInterpolatedTime()).InMicroseconds() / 1000000.0f;
+  return position;
+}
+
+// Set current movie position in seconds.
+void Movie::SetPosition(float position) {
+  int64 us = static_cast<int64>(position * 1000000);
+  base::TimeDelta time = base::TimeDelta::FromMicroseconds(us);
+  if (pipeline_.get())
+    pipeline_->Seek(time, NULL);
+}
+
+
 // Set playback pause.
 void Movie::SetPause(bool pause) {
   enable_pause_ = pause;

@@ -120,6 +120,16 @@ class CPageOne : public CPropertyPageImpl<CPageOne> {
         wchar_t szBuff[100];
         wsprintf(szBuff, L"%i KB", nSizeK);
         SetDlgItemText(IDC_FILESIZE, szBuff);
+
+        // TODO(fbarchard): We need a pipeline property for frame rate.
+        float duration = media::Movie::get()->GetDuration();
+        float fps = 29.97f;
+        wsprintf(szBuff, L"%i.%2i Seconds, %i Frames",
+                 static_cast<int>(duration),
+                 static_cast<int>(duration * 100) % 100,
+                 static_cast<int>(duration * fps));
+        SetDlgItemText(IDC_FILEDURATION, szBuff);
+
         SYSTEMTIME st;
         ::FileTimeToSystemTime(&find_data.ftCreationTime, &st);
         ::GetDateFormat(LOCALE_USER_DEFAULT, 0, &st,

@@ -8,22 +8,13 @@
 #ifndef MEDIA_PLAYER_MAINFRM_H_
 #define MEDIA_PLAYER_MAINFRM_H_
 
-namespace media {
-// TODO(fbarchard): Reenable this. But it affects ffmpeg filters and got
-// removed in the move to SVN, so I've commented it out for now.
-// It may also hook it to YUV.
-// Both require some pipeline changes to do it in a formal way,
-// or a short term hack to test the feature.
-// g_enablemmx is in ffmpeg_video.
-// extern bool g_enablemmx;
-}
-
 const int POPUP_MENU_POSITION = 0;
 const int FILE_MENU_POSITION = 0;
 const int RECENT_MENU_POSITION = 6;
 
 const wchar_t g_lpcstrMRURegKey[] = L"Software\\Google\\Video\\MediaPlayer";
 const wchar_t g_lpcstrApp[] = L"MediaPlayer";
+
 
 class CMainFrame : public CFrameWindowImpl<CMainFrame>,
     public CUpdateUI<CMainFrame>,
@@ -38,6 +29,7 @@ class CMainFrame : public CFrameWindowImpl<CMainFrame>,
   WtlVideoWindow m_view;
 
   wchar_t m_szFilePath[MAX_PATH];
+  bool enable_exit;
 
   // printing support
   CPrinter m_printer;
@@ -53,6 +45,7 @@ class CMainFrame : public CFrameWindowImpl<CMainFrame>,
     m_printer.OpenDefaultPrinter();
     m_devmode.CopyFromPrinter(m_printer);
     m_szFilePath[0] = 0;
+    enable_exit = false;
   }
 
   virtual BOOL PreTranslateMessage(MSG* pMsg) {
@@ -65,6 +58,14 @@ class CMainFrame : public CFrameWindowImpl<CMainFrame>,
   virtual BOOL OnIdle() {
     BOOL bEnable = !m_view.bmp_.IsNull();
     BOOL bMovieOpen = media::Movie::get()->IsOpen() ? true : false;
+
+    float current_position = media::Movie::get()->GetPosition();
+    float duration = media::Movie::get()->GetDuration();
+    if (enable_exit && bEnable &&
+        duration > 0.0f && current_position >= duration) {
+      OnFileExit(0, 0, 0);
+    }
+
     UIEnable(ID_FILE_PRINT, bEnable);
     UIEnable(ID_FILE_PRINT_PREVIEW, bEnable);
     UISetCheck(ID_FILE_PRINT_PREVIEW, m_bPrintPreview);
@@ -86,16 +87,25 @@ class CMainFrame : public CFrameWindowImpl<CMainFrame>,
     UIEnable(ID_VIEW_ROTATE270, true);
     UIEnable(ID_VIEW_MIRROR_HORIZONTAL, true);
     UIEnable(ID_VIEW_MIRROR_VERTICAL, true);
-    UIEnable(ID_PLAY_PLAY_PAUSE, bMovieOpen);   // if no movie open.
+    UIEnable(ID_PLAY_PLAY_PAUSE, bMovieOpen);  // If no movie open.
+    UIEnable(ID_PLAY_STEP_FORWARD, bMovieOpen);
+    UIEnable(ID_PLAY_STEP_BACKWARD, bMovieOpen);
+    UIEnable(ID_PLAY_GOTO_START, bMovieOpen);
+    UIEnable(ID_PLAY_GOTO_END, bMovieOpen);
+    UIEnable(ID_PLAY_GOTO_FRAME, false);  // Not working yet.
     UIEnable(ID_PLAY_HALFSPEED, true);
     UIEnable(ID_PLAY_NORMALSPEED, true);
     UIEnable(ID_PLAY_DOUBLESPEED, true);
+    UIEnable(ID_PLAY_TRIPLESPEED, true);
+    UIEnable(ID_PLAY_QUADRUPLESPEED, true);
+    UIEnable(ID_PLAY_EIGHTSPEED, true);
+    UIEnable(ID_PLAY_SIXTEENSPEED, true);
 #ifdef _OPENMP
     UIEnable(ID_OPTIONS_OPENMP, true);
 #else
     UIEnable(ID_OPTIONS_OPENMP, false);
 #endif
-    UIEnable(ID_OPTIONS_MMX, false);  // Not currently implemented.
+    UIEnable(ID_OPTIONS_EXIT, true);  // Not currently implemented.
     UIEnable(ID_OPTIONS_SWSCALER, true);
     UIEnable(ID_OPTIONS_DRAW, true);
     UIEnable(ID_OPTIONS_AUDIO, !bMovieOpen);  // Disable while playing.
@@ -220,11 +230,16 @@ class CMainFrame : public CFrameWindowImpl<CMainFrame>,
                              OnViewRotate)
     COMMAND_ID_HANDLER_EX(ID_VIEW_PROPERTIES, OnViewProperties)
     COMMAND_ID_HANDLER_EX(ID_PLAY_PLAY_PAUSE, OnPlayPlayPause)
-    COMMAND_RANGE_HANDLER_EX(ID_PLAY_HALFSPEED, ID_PLAY_DOUBLESPEED,
+    COMMAND_ID_HANDLER_EX(ID_PLAY_STEP_FORWARD, OnPlayStepForward)
+    COMMAND_ID_HANDLER_EX(ID_PLAY_STEP_BACKWARD, OnPlayStepBackward)
+    COMMAND_ID_HANDLER_EX(ID_PLAY_GOTO_START, OnPlayGotoStart)
+    COMMAND_ID_HANDLER_EX(ID_PLAY_GOTO_END, OnPlayGotoEnd)
+    COMMAND_ID_HANDLER_EX(ID_PLAY_GOTO_FRAME, OnPlayGotoFrame)
+    COMMAND_RANGE_HANDLER_EX(ID_PLAY_HALFSPEED, ID_PLAY_SIXTEENSPEED,
                              OnPlaySpeed)
     COMMAND_ID_HANDLER_EX(ID_APP_ABOUT, OnAppAbout)
     COMMAND_ID_HANDLER_EX(ID_OPTIONS_OPENMP, OnOptionsOpenMP)
-    COMMAND_ID_HANDLER_EX(ID_OPTIONS_MMX, OnOptionsMMX)
+    COMMAND_ID_HANDLER_EX(ID_OPTIONS_EXIT, OnOptionsExit)
     COMMAND_ID_HANDLER_EX(ID_OPTIONS_SWSCALER, OnOptionsSWScaler)
     COMMAND_ID_HANDLER_EX(ID_OPTIONS_DRAW, OnOptionsDraw)
     COMMAND_ID_HANDLER_EX(ID_OPTIONS_AUDIO, OnOptionsAudio)
@@ -258,11 +273,20 @@ class CMainFrame : public CFrameWindowImpl<CMainFrame>,
     UPDATE_ELEMENT(ID_VIEW_MIRROR_VERTICAL, UPDUI_MENUPOPUP)
     UPDATE_ELEMENT(ID_VIEW_PROPERTIES, UPDUI_MENUPOPUP | UPDUI_TOOLBAR)
     UPDATE_ELEMENT(ID_PLAY_PLAY_PAUSE, UPDUI_MENUPOPUP | UPDUI_TOOLBAR)
+    UPDATE_ELEMENT(ID_PLAY_STEP_FORWARD, UPDUI_MENUPOPUP)
+    UPDATE_ELEMENT(ID_PLAY_STEP_BACKWARD, UPDUI_MENUPOPUP)
+    UPDATE_ELEMENT(ID_PLAY_GOTO_START, UPDUI_MENUPOPUP)
+    UPDATE_ELEMENT(ID_PLAY_GOTO_END, UPDUI_MENUPOPUP)
+    UPDATE_ELEMENT(ID_PLAY_GOTO_FRAME, UPDUI_MENUPOPUP)
     UPDATE_ELEMENT(ID_PLAY_HALFSPEED, UPDUI_MENUPOPUP)
     UPDATE_ELEMENT(ID_PLAY_NORMALSPEED, UPDUI_MENUPOPUP)
     UPDATE_ELEMENT(ID_PLAY_DOUBLESPEED, UPDUI_MENUPOPUP)
+    UPDATE_ELEMENT(ID_PLAY_TRIPLESPEED, UPDUI_MENUPOPUP)
+    UPDATE_ELEMENT(ID_PLAY_QUADRUPLESPEED, UPDUI_MENUPOPUP)
+    UPDATE_ELEMENT(ID_PLAY_EIGHTSPEED, UPDUI_MENUPOPUP)
+    UPDATE_ELEMENT(ID_PLAY_SIXTEENSPEED, UPDUI_MENUPOPUP)
     UPDATE_ELEMENT(ID_OPTIONS_OPENMP, UPDUI_MENUPOPUP)
-    UPDATE_ELEMENT(ID_OPTIONS_MMX, UPDUI_MENUPOPUP)
+    UPDATE_ELEMENT(ID_OPTIONS_EXIT, UPDUI_MENUPOPUP)
     UPDATE_ELEMENT(ID_OPTIONS_SWSCALER, UPDUI_MENUPOPUP)
     UPDATE_ELEMENT(ID_OPTIONS_DRAW, UPDUI_MENUPOPUP)
     UPDATE_ELEMENT(ID_OPTIONS_AUDIO, UPDUI_MENUPOPUP)
@@ -285,9 +309,13 @@ class CMainFrame : public CFrameWindowImpl<CMainFrame>,
   void UpdateSpeedUICheck() {
     if (media::Movie::get()) {
       float play_rate = media::Movie::get()->GetPlayRate();
-      UISetCheck(ID_PLAY_HALFSPEED,   (play_rate == 0.5f));
-      UISetCheck(ID_PLAY_NORMALSPEED, (play_rate == 1.0f));
-      UISetCheck(ID_PLAY_DOUBLESPEED, (play_rate == 2.0f));
+      UISetCheck(ID_PLAY_HALFSPEED,      (play_rate == 0.5f));
+      UISetCheck(ID_PLAY_NORMALSPEED,    (play_rate == 1.0f));
+      UISetCheck(ID_PLAY_DOUBLESPEED,    (play_rate == 2.0f));
+      UISetCheck(ID_PLAY_TRIPLESPEED,    (play_rate == 3.0f));
+      UISetCheck(ID_PLAY_QUADRUPLESPEED, (play_rate == 4.0f));
+      UISetCheck(ID_PLAY_EIGHTSPEED,     (play_rate == 8.0f));
+      UISetCheck(ID_PLAY_SIXTEENSPEED,   (play_rate == 16.0f));
     }
   }
 
@@ -349,6 +377,7 @@ class CMainFrame : public CFrameWindowImpl<CMainFrame>,
     UISetCheck(ID_VIEW_STATUS_BAR, 1);
     UISetCheck(ID_VIEW_ROTATE0, 1);
     UISetCheck(ID_OPTIONS_OPENMP, 0);
+    UISetCheck(ID_OPTIONS_EXIT, 0);
     UISetCheck(ID_OPTIONS_DRAW, 1);
     UISetCheck(ID_OPTIONS_AUDIO, 1);
     UpdateSizeUICheck();
@@ -611,11 +640,38 @@ class CMainFrame : public CFrameWindowImpl<CMainFrame>,
     media::Movie::get()->SetPause(paused);
   }
 
+  void OnPlayStepForward(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wnd*/) {
+    float current_position = media::Movie::get()->GetPosition();
+    media::Movie::get()->SetPosition(current_position + 10.0f);
+  }
+
+  void OnPlayStepBackward(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wnd*/) {
+    float current_position = media::Movie::get()->GetPosition();
+    media::Movie::get()->SetPosition(current_position - 10.0f);
+  }
+
+  void OnPlayGotoStart(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wnd*/) {
+    media::Movie::get()->SetPosition(0.0);
+  }
+
+  void OnPlayGotoEnd(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wnd*/) {
+    float current_position = media::Movie::get()->GetDuration();
+    media::Movie::get()->SetPosition(current_position - 30.0f);
+  }
+
   void SetPlayRate(int play_speed) {
     if (play_speed == 0) {
       media::Movie::get()->Play(0.5f);
     } else if (play_speed == 2) {
       media::Movie::get()->Play(2.0f);
+    } else if (play_speed == 3) {
+      media::Movie::get()->Play(3.0f);
+    } else if (play_speed == 4) {
+      media::Movie::get()->Play(4.0f);
+    } else if (play_speed == 5) {
+      media::Movie::get()->Play(8.0f);
+    } else if (play_speed == 6) {
+      media::Movie::get()->Play(16.0f);
     } else {
       media::Movie::get()->Play(1.0f);
     }
@@ -637,10 +693,10 @@ class CMainFrame : public CFrameWindowImpl<CMainFrame>,
     UpdateLayout();
   }
 
-  void OnOptionsMMX(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wnd*/) {
+  void OnOptionsExit(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wnd*/) {
     // TODO(fbarchard): Implement when pipeline exposes properties.
-    // media::g_enablemmx = !media::g_enablemmx;
-    // UISetCheck(ID_OPTIONS_MMX, media::g_enablemmx);
+    enable_exit = !enable_exit;
+    UISetCheck(ID_OPTIONS_EXIT, enable_exit);
     UpdateLayout();
   }
 
@@ -675,6 +731,12 @@ class CMainFrame : public CFrameWindowImpl<CMainFrame>,
   void OnAppAbout(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wnd*/) {
     CSimpleDialog<IDD_ABOUTBOX> dlg;
     dlg.DoModal();
+  }
+
+
+  void OnPlayGotoFrame(UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wnd*/) {
+    CSeek seek;
+    seek.DoModal();
   }
 };
 
