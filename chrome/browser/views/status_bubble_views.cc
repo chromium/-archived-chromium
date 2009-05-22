@@ -516,9 +516,6 @@ void StatusBubbleViews::SetURL(const GURL& url, const std::wstring& languages) {
   ::GetWindowRect(popup_->GetNativeView(), &parent_rect);
   int text_width = static_cast<int>(parent_rect.right - parent_rect.left -
       (kShadowThickness * 2) - kTextPositionX - kTextHorizPadding - 1);
-  url_parse::Parsed parsed;
-  std::wstring url_string = gfx::GetCleanStringFromUrl(url, languages,
-                                                       &parsed, NULL);
   url_text_ = gfx::ElideUrl(url, view_->Label::GetFont(), text_width,
                             languages);
 
