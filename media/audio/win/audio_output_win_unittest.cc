@@ -5,11 +5,16 @@
 #include <windows.h>
 
 #include "base/basictypes.h"
+#include "base/base_paths.h"
+#include "base/file_util.h"
 #include "media/audio/audio_output.h"
 #include "media/audio/simple_sources.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
 namespace {
+
+const wchar_t kAudioFile1_16b_m_16K[]
+    = L"media\\test\\data\\sweep02_16b_mono_16KHz.raw";
 
 // This class allows to find out if the callbacks are occurring as
 // expected and if any error has been reported.
@@ -105,7 +110,7 @@ class TestSourceDoubleBuffer : public TestSourceBasic {
 // in the OnMoreData callback.
 class TestSourceLaggy : public TestSourceBasic {
  public:
-  TestSourceLaggy(int laggy_after_buffer, int lag_in_ms) 
+  TestSourceLaggy(int laggy_after_buffer, int lag_in_ms)
       : laggy_after_buffer_(laggy_after_buffer), lag_in_ms_(lag_in_ms) {
   }
   virtual size_t OnMoreData(AudioOutputStream* stream,
@@ -122,6 +127,53 @@ class TestSourceLaggy : public TestSourceBasic {
   int lag_in_ms_;
 };
 
+// Helper class to memory map an entire file. The mapping is read-only. Don't
+// use for gigabyte-sized files. Attempts to write to this memory generate
+// memory access violations.
+class ReadOnlyMappedFile {
+ public:
+  ReadOnlyMappedFile(const wchar_t* file_name)
+      : fmap_(NULL), start_(NULL), size_(0) {
+    HANDLE file = ::CreateFileW(file_name, GENERIC_READ, FILE_SHARE_READ, NULL,
+                                OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+    if (INVALID_HANDLE_VALUE == file)
+      return;
+    fmap_ = ::CreateFileMappingW(file, NULL, PAGE_READONLY, 0, 0, NULL);
+    ::CloseHandle(file);
+    if (!fmap_)
+      return;
+    start_ = reinterpret_cast<char*>(::MapViewOfFile(fmap_, FILE_MAP_READ,
+                                                     0, 0, 0));
+    if (!start_)
+      return;
+    MEMORY_BASIC_INFORMATION mbi = {0};
+    ::VirtualQuery(start_, &mbi, sizeof(mbi));
+    size_ = mbi.RegionSize;
+  }
+  ~ReadOnlyMappedFile() {
+    if (start_) {
+      ::UnmapViewOfFile(start_);
+      ::CloseHandle(fmap_);
+    }
+  }
+  // Returns true if the file was successfully mapped.
+  bool is_valid() const {
+    return ((start_ > 0) && (size_ > 0));
+  }
+  // Returns the size in bytes of the mapped memory.
+  size_t size() const {
+    return size_;
+  }
+  // Returns the memory backing the file.
+  const void* GetChunkAt(size_t offset) {
+    return &start_[offset];
+  }
+
+ private:
+  HANDLE fmap_;
+  char* start_;
+  size_t size_;
+};
 
 // ============================================================================
 // Validate that the AudioManager::AUDIO_MOCK callbacks work.
@@ -259,7 +311,7 @@ TEST(WinAudioTest, PCMWaveSlowSource) {
   ASSERT_TRUE(NULL != oas);
   TestSourceLaggy test_laggy(2, 90);
   EXPECT_TRUE(oas->Open(512));
-  // The test parameters cause a callback every 32 ms and the source is 
+  // The test parameters cause a callback every 32 ms and the source is
   // sleeping for 90 ms, so it is guaranteed that we run out of ready buffers.
   oas->Start(&test_laggy);
   ::Sleep(1000);
@@ -335,3 +387,58 @@ TEST(WinAudioTest, PCMWaveStreamPlay200HzTone22Kss) {
   oas->Close();
 }
 
+// Uses the PushSource to play a 2 seconds file clip for about 5 seconds. We
+// try hard to generate situation where the two threads are accessing the
+// object roughly at the same time. What you hear is a sweeping tone from 1KHz
+// to 2KHz with a bit of fade out at the end for one second. The file is two
+// of these sweeping tones back to back.
+TEST(WinAudioTest, PushSourceFile16KHz)  {
+  if (IsRunningHeadless())
+    return;
+  // Open sweep02_16b_mono_16KHz.raw which has no format. It contains the
+  // raw 16 bit samples for a single channel in little-endian format. The
+  // creation sample rate is 16KHz.
+  FilePath audio_file;
+  ASSERT_TRUE(PathService::Get(base::DIR_SOURCE_ROOT, &audio_file));
+  audio_file = audio_file.Append(kAudioFile1_16b_m_16K);
+  // Map the entire file in memory.
+  ReadOnlyMappedFile file_reader(audio_file.value().c_str());
+  ASSERT_TRUE(file_reader.is_valid());
+
+  AudioManager* audio_man = AudioManager::GetAudioManager();
+  ASSERT_TRUE(NULL != audio_man);
+  if (!audio_man->HasAudioDevices())
+    return;
+  AudioOutputStream* oas =
+      audio_man->MakeAudioStream(AudioManager::AUDIO_PCM_LINEAR, 1, 16000, 16);
+  ASSERT_TRUE(NULL != oas);
+
+  // compute buffer size for 100ms of audio. Which is 3200 bytes.
+  const size_t kSize50ms = 2 * (16000 / 1000) * 100;
+  EXPECT_TRUE(oas->Open(kSize50ms));
+
+  size_t offset = 0;
+  const size_t kMaxStartOffset = file_reader.size() - kSize50ms;
+
+  // We buffer and play at the same time, buffering happens every ~10ms and the
+  // consuming of the buffer happens every ~50ms. We do 100 buffers which
+  // effectively wrap around the file more than once.
+  PushSource push_source(kSize50ms);
+  for (size_t ix = 0; ix != 100; ++ix) {
+    push_source.Write(file_reader.GetChunkAt(offset), kSize50ms);
+    if (ix == 2) {
+      // For glitch free, start playing after some buffers are in.
+      oas->Start(&push_source);
+    }
+    ::Sleep(10);
+    offset += kSize50ms;
+    if (offset > kMaxStartOffset)
+      offset = 0;
+  }
+
+  // Play a little bit more of the file.
+  ::Sleep(4000);
+
+  oas->Stop();
+  oas->Close();
+}

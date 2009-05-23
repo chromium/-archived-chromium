@@ -2,12 +2,16 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+#include <algorithm>
 #include <math.h>
 
 #include "base/basictypes.h"
 #include "base/logging.h"
 #include "media/audio/audio_output.h"
 #include "media/audio/simple_sources.h"
+
+//////////////////////////////////////////////////////////////////////////////
+// SineWaveAudioSource implementation.
 
 SineWaveAudioSource::SineWaveAudioSource(Format format, int channels,
                                          double freq, double sample_freq)
@@ -40,4 +44,71 @@ void SineWaveAudioSource::OnClose(AudioOutputStream* stream) {
 
 void SineWaveAudioSource::OnError(AudioOutputStream* stream, int code) {
   NOTREACHED();
+}
+
+//////////////////////////////////////////////////////////////////////////////
+// PushSource implementation.
+
+PushSource::PushSource(size_t packet_size)
+    : packet_size_(packet_size), buffered_bytes_(0) {
+}
+
+PushSource::~PushSource() {
+  CleanUp();
+}
+
+size_t PushSource::OnMoreData(AudioOutputStream* stream,
+                              void* dest, size_t max_size) {
+  Packet packet;
+  {
+    AutoLock auto_lock(lock_);
+    // Under lock processing in this scope.
+    if (!packets_.size())
+      return 0;
+    packet = packets_.front();
+    packets_.pop_front();
+    buffered_bytes_ -= packet.size;
+  }
+  size_t size = std::min(max_size, packet.size);
+  memcpy(dest, packet.buffer, size);
+  delete [] packet.buffer;
+  return size;
+}
+
+void PushSource::OnClose(AudioOutputStream* stream) {
+  CleanUp();
+}
+
+void PushSource::OnError(AudioOutputStream* stream, int code) {
+  NOTREACHED();
+}
+
+// TODO(cpu): Manage arbitrary large sizes.
+bool PushSource::Write(const void *data, size_t len) {
+  if ((len == 0) || (len > packet_size_)) {
+    NOTREACHED();
+    return false;
+  }
+  Packet packet = { new char[len], len };
+  memcpy(packet.buffer, data, packet.size);
+  // Under lock processing here.
+  AutoLock auto_lock(lock_);
+  packets_.push_back(packet);
+  buffered_bytes_ += len;
+  return true;
+}
+
+size_t PushSource::UnProcessedBytes() {
+  AutoLock auto_lock(lock_);
+  return buffered_bytes_;
+}
+
+void PushSource::CleanUp() {
+  AutoLock auto_lock(lock_);
+  PacketList::const_iterator it;
+  for (it = packets_.begin(); it != packets_.end(); ++it) {
+    delete it->buffer;
+    buffered_bytes_ -= it->size;
+  }
+  packets_.clear();
 }
