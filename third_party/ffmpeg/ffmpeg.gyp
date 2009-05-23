@@ -68,7 +68,10 @@
               ],
             },
           },
-          'dependencies': ['../../build/win/system.gyp:cygwin'],
+          'dependencies': [
+            'ffmpeg_binaries',
+            '../../build/win/system.gyp:cygwin',
+          ],
           'rules': [
             {
               'rule_name': 'generate_libs',
@@ -88,6 +91,36 @@
               },
               'action': ['python', '<@(_inputs)', '-o', '<(PRODUCT_DIR)/lib', '<@(RULE_INPUT_PATH)'],
               'message': 'Generating import libraries',
+            },
+          ],
+        }],
+      ],
+    },
+    {
+      'target_name': 'ffmpeg_binaries',
+      'type': 'none',
+      'msvs_guid': '4E4070E1-EFD9-4ef1-8634-3960956F6F10',
+      'conditions': [
+        ['OS=="win"', {
+          'sources': [
+            'binaries/avcodec-52.dll',
+            'binaries/avformat-52.dll',
+            'binaries/avutil-50.dll',
+            'binaries/pthreadGC2.dll',
+          ],
+          'dependencies': ['../../build/win/system.gyp:cygwin'],
+          'rules': [
+            {
+              'rule_name': 'copy_binaries',
+              'extension': 'dll',
+              'inputs': [
+                'copy_binaries.sh',
+              ],
+              'outputs': [
+                '<(PRODUCT_DIR)/<(RULE_INPUT_NAME)',
+              ],
+              'action': ['./copy_binaries.sh', '"<@(RULE_INPUT_PATH)"', '"<@(PRODUCT_DIR)/<@(RULE_INPUT_NAME)"'],
+              'message': 'Copying binaries...',
             },
           ],
         }],
