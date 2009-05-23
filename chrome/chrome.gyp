@@ -2533,6 +2533,8 @@
         'test/chrome_process_util_win.cc',
         'test/in_process_browser_test.cc',
         'test/in_process_browser_test.h',
+        'test/perf/mem_usage.cc',
+        'test/perf/mem_usage.h',
         'test/testing_profile.cc',
         'test/testing_profile.h',
         'test/ui_test_utils.cc',
@@ -2552,6 +2554,8 @@
           'sources!': [
             'test/in_process_browser_test.cc',
             'test/in_process_browser_test.h',
+            'test/perf/mem_usage.cc',
+            'test/perf/mem_usage.h',
             'test/ui_test_utils.cc',
             'test/ui_test_utils.h',
           ],
@@ -2714,8 +2718,6 @@
         'test/accessibility/tab_impl.h',
         'test/automation/automation_proxy_uitest.cc',
         'test/chrome_process_util_uitest.cc',
-        'test/perf/mem_usage.cc',
-        'test/perf/mem_usage.h',
         'test/reliability/page_load_test.cc',
         'test/reliability/page_load_test.h',
         'test/ui/dom_checker_uitest.cc',
@@ -2769,6 +2771,7 @@
             'third_party/wtl/include',
           ],
           'dependencies': [
+            'test_support_common',
             '../google_update/google_update.gyp:google_update',
             '../views/views.gyp:views',
           ],
@@ -2791,7 +2794,6 @@
             'test/accessibility/keyboard_util.cc',
             'test/accessibility/registry_util.cc',
             'test/accessibility/tab_impl.cc',
-            'test/perf/mem_usage.cc',
             'test/ui/npapi_uitest.cc',
             'test/ui/sandbox_uitests.cc',
           ],
@@ -3178,8 +3180,6 @@
       ],
       'sources': [
         'test/page_cycler/page_cycler_test.cc',
-        'test/perf/mem_usage.cc',
-        'test/perf/mem_usage.h',
         'tools/build/win/precompiled.cc',
         'tools/build/win/precompiled.h',
       ],
@@ -3192,11 +3192,6 @@
         ['OS=="win" or (OS=="linux" and toolkit_views==1)', {
           'dependencies': [
             '../views/views.gyp:views',
-          ],
-        }],
-        ['OS!="win"', {
-          'sources!': [
-            'test/perf/mem_usage.cc',
           ],
         }],
       ],
@@ -3602,9 +3597,6 @@
           ],
           'sources': [
             'test/memory_test/memory_test.cc',
-            # TODO(sgk):  remove duplication of perf/mem_usage.cc
-            'test/perf/mem_usage.cc',
-            'test/perf/mem_usage.h',
           ],
         },
         {
@@ -3655,9 +3647,6 @@
             'test/reliability/page_load_test.h',
             'test/reliability/reliability_test_suite.h',
             'test/reliability/run_all_unittests.cc',
-            # TODO(sgk):  remove duplication of perf/mem_usage.cc
-            'test/perf/mem_usage.cc',
-            'test/perf/mem_usage.h',
           ],
         },
         {
