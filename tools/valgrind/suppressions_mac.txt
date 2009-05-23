@@ -97,7 +97,7 @@
    fun:_ZN4skia23BitmapPlatformDeviceMac6CreateEP9CGContextiib
 }
 {
-   # Mac test_shell_tests; skia leak?   See http://crbug.com/9563 
+   # Mac test_shell_tests; skia leak?   See http://crbug.com/9563
    bug_9563b
    Memcheck:Leak
    fun:malloc_zone_calloc
@@ -159,7 +159,7 @@
    fun:_ZN13CVDisplayLink11runIOThreadEv
 }
 {
-   # Mac leak in CMOpenOrNewAccess in unit_tests PlatformCanvas_SkLayer_Test, 
+   # Mac leak in CMOpenOrNewAccess in unit_tests PlatformCanvas_SkLayer_Test,
    # ToolbarControllerTest_FocusLocation_Test. See http://crbug.com/11333.
    # (was: http://crbug.com/9563 )
    bug_11333
@@ -193,3 +193,12 @@
    fun:ripc_DrawShading
    fun:CGContextDrawShading
 }
+{
+   # Mac test_shell_tests leak.
+   bug_12571
+   Memcheck:Leak
+   fun:calloc
+   ...
+   fun:_Z14MakeTestButtonP7_NSRectP8NSStringP6NSView
+}
+
