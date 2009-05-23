@@ -3513,6 +3513,30 @@
           },
         },
         {
+          'target_name': 'convert_dict',
+          'type': 'executable',
+          'dependencies': [
+            '../base/base.gyp:base',
+          ],
+          'include_dirs': [
+            '..',
+          ],
+          'sources': [
+            'third_party/hunspell/google/bdict.h',
+            'third_party/hunspell/google/bdict_reader.cc',
+            'third_party/hunspell/google/bdict_reader.h',
+            'third_party/hunspell/google/bdict_writer.cc',
+            'third_party/hunspell/google/bdict_writer.h',
+            'tools/convert_dict/aff_reader.cc',
+            'tools/convert_dict/aff_reader.h',
+            'tools/convert_dict/convert_dict.cc',
+            'tools/convert_dict/dic_reader.cc',
+            'tools/convert_dict/dic_reader.h',
+            'tools/convert_dict/hunspell_reader.cc',
+            'tools/convert_dict/hunspell_reader.h',
+          ],
+        },
+        {
           'target_name': 'crash_service',
           'type': 'executable',
           'dependencies': [
@@ -3534,6 +3558,36 @@
               'SubSystem': '2',         # Set /SUBSYSTEM:WINDOWS
             },
           },
+        },
+        {
+          'target_name': 'flush_cache',
+          'type': 'executable',
+          'dependencies': [
+            '../base/base.gyp:base',
+          ],
+          'include_dirs': [
+            '..',
+          ],
+          'sources': [
+            'tools/perf/flush_cache/flush_cache.cc',
+          ],
+        },
+        {
+          'target_name': 'generate_profile',
+          'type': 'executable',
+          'dependencies': [
+            'browser',
+            'renderer',
+            '../base/base.gyp:base',
+            '../skia/skia.gyp:skia',
+          ],
+          'include_dirs': [
+            '..',
+          ],
+          'sources': [
+            'tools/profiles/generate_profile.cc',
+            'tools/profiles/thumbnail-inl.h',
+          ],
         },
         {
           'target_name': 'interactive_ui_tests',
