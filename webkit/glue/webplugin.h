@@ -118,6 +118,10 @@ class WebPlugin {
   // Returns true iff in off the record (Incognito) mode.
   virtual bool IsOffTheRecord() = 0;
 
+  // Called when the WebPluginResourceClient instance is deleted.
+  virtual void ResourceClientDeleted(
+      WebPluginResourceClient* resource_client) {}
+
  private:
   DISALLOW_EVIL_CONSTRUCTORS(WebPlugin);
 };

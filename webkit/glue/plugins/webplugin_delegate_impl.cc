@@ -1205,8 +1205,6 @@ WebPluginResourceClient* WebPluginDelegateImpl::CreateResourceClient(
     NPAPI::PluginStream* plugin_stream =
         reinterpret_cast<NPAPI::PluginStream*>(existing_stream);
 
-    plugin_stream->CancelRequest();
-
     return plugin_stream->AsResourceClient();
   }
 

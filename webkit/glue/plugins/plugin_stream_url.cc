@@ -26,6 +26,9 @@ PluginStreamUrl::PluginStreamUrl(
 }
 
 PluginStreamUrl::~PluginStreamUrl() {
+  if (instance() && instance()->webplugin()) {
+    instance()->webplugin()->ResourceClientDeleted(AsResourceClient());
+  }
 }
 
 bool PluginStreamUrl::Close(NPReason reason) {

@@ -112,6 +112,8 @@ class WebPluginProxy : public WebPlugin {
 
   bool IsOffTheRecord();
 
+  void ResourceClientDeleted(WebPluginResourceClient* resource_client);
+
   base::WaitableEvent* modal_dialog_event() {
     return modal_dialog_event_.get();
   }
