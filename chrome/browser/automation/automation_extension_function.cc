@@ -8,16 +8,9 @@
 
 #include "base/json_reader.h"
 #include "base/json_writer.h"
+#include "chrome/browser/automation/extension_automation_constants.h"
 #include "chrome/browser/extensions/extension_function_dispatcher.h"
 #include "chrome/browser/renderer_host/render_view_host.h"
-#include "chrome/test/automation/extension_automation_constants.h"
-
-// We are the only compilation unit outside of test code that needs the
-// definition of these constants.  Including the .cc file here instead of
-// putting it into chrome.gyp (SCons builds on Linux don't like it when you
-// have the same file in two different projects) or linking to the test support
-// lib.
-#include "chrome/test/automation/extension_automation_constants.cc"
 
 bool AutomationExtensionFunction::enabled_ = false;
 

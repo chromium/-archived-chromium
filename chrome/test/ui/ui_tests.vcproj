@@ -301,6 +301,10 @@
 				RelativePath="..\automation\automation_proxy_uitest.cc"
 				>
 			</File>
+			<File
+				RelativePath="..\automation\automation_proxy_uitest.h"
+				>
+			</File>
 		</Filter>
 		<Filter
 			Name="TestNPAPI"
@@ -591,6 +595,14 @@
 			>
 			<File
 				RelativePath=".\v8_benchmark_uitest.cc"
+				>
+			</File>
+		</Filter>
+		<Filter
+			Name="TestExtensions"
+			>
+			<File
+				RelativePath="..\..\browser\extensions\extension_uitest.cc"
 				>
 			</File>
 		</Filter>

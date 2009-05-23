@@ -916,6 +916,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\automation\extension_automation_constants.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\automation\extension_automation_constants.h"
+				>
+			</File>
+			<File
 				RelativePath=".\automation\extension_port_container.cc"
 				>
 			</File>
