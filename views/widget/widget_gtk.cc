@@ -67,7 +67,8 @@ WidgetGtk::~WidgetGtk() {
   MessageLoopForUI::current()->RemoveObserver(this);
 }
 
-void WidgetGtk::Init(const gfx::Rect& bounds,
+void WidgetGtk::Init(GtkWidget* parent,
+                     const gfx::Rect& bounds,
                      bool has_own_focus_manager) {
   // Force creation of the RootView if it hasn't been created yet.
   GetRootView();
@@ -148,6 +149,13 @@ void WidgetGtk::Init(const gfx::Rect& bounds,
   //                  G_CALLBACK(drag_drop_event_cb), NULL);
   // g_signal_connect(G_OBJECT(widget_), "drag_data_received",
   //                  G_CALLBACK(drag_data_received_event_cb), NULL);
+
+  if (type_ == TYPE_CHILD) {
+    WidgetGtk* parent_widget = GetViewForNative(parent);
+    parent_widget->AddChild(widget_);
+    parent_widget->PositionChild(widget_, bounds.x(), bounds.y(),
+                                 bounds.width(), bounds.height());
+  }
 }
 
 void WidgetGtk::AddChild(GtkWidget* child) {
@@ -160,7 +168,9 @@ void WidgetGtk::RemoveChild(GtkWidget* child) {
 
 void WidgetGtk::PositionChild(GtkWidget* child, int x, int y, int w, int h) {
   GtkAllocation alloc = { x, y, w, h };
+  // For some reason we need to do both of these to size a widget.
   gtk_widget_size_allocate(child, &alloc);
+  gtk_widget_set_size_request(child, w, h);
   gtk_fixed_move(GTK_FIXED(child_widget_parent_), child, x, y);
 }
 
@@ -206,6 +216,16 @@ void WidgetGtk::Show() {
 void WidgetGtk::Hide() {
   if (widget_)
     gtk_widget_hide(widget_);
+}
+
+void WidgetGtk::SetBounds(const gfx::Rect& bounds) {
+  if (type_ == TYPE_CHILD) {
+    WidgetGtk* parent_widget = GetViewForNative(gtk_widget_get_parent(widget_));
+    parent_widget->PositionChild(widget_, bounds.x(), bounds.y(),
+                                 bounds.width(), bounds.height());
+  } else {
+    NOTIMPLEMENTED();
+  }
 }
 
 void WidgetGtk::GetBounds(gfx::Rect* out, bool including_frame) const {
@@ -296,6 +316,7 @@ const Window* WidgetGtk::GetWindow() const {
 void WidgetGtk::CreateGtkWidget() {
   if (type_ == TYPE_CHILD) {
     child_widget_parent_ = widget_ = gtk_fixed_new();
+    gtk_fixed_set_has_window(GTK_FIXED(widget_), true);
     SetViewForNative(widget_, this);
   } else {
     widget_ = gtk_window_new(

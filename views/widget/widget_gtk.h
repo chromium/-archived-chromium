@@ -37,7 +37,9 @@ class WidgetGtk : public Widget, public MessageLoopForUI::Observer {
   virtual ~WidgetGtk();
 
   // Initializes this widget.
-  void Init(const gfx::Rect& bounds, bool has_own_focus_manager);
+  void Init(GtkWidget* parent,
+            const gfx::Rect& bounds,
+            bool has_own_focus_manager);
 
   // Sets whether or not we are deleted when the widget is destroyed. The
   // default is true.
@@ -61,6 +63,9 @@ class WidgetGtk : public Widget, public MessageLoopForUI::Observer {
   void CloseNow();
   virtual void Show();
   virtual void Hide();
+
+  // Sets the bounds of the widget.
+  virtual void SetBounds(const gfx::Rect& bounds);
 
   // Overridden from Widget:
   virtual void GetBounds(gfx::Rect* out, bool including_frame) const;

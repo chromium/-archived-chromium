@@ -199,7 +199,7 @@ void WindowGtk::Init(const gfx::Rect& bounds) {
     // BecomeModal();
   }
 
-  WidgetGtk::Init(bounds, true);
+  WidgetGtk::Init(NULL, bounds, true);
 
   // Create the ClientView, add it to the NonClientView and add the
   // NonClientView to the RootView. This will cause everything to be parented.

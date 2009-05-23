@@ -71,8 +71,11 @@ class TextField : public View {
     STYLE_LOWERCASE = 1<<2
   };
 
-  TextField::TextField()
-      : native_view_(NULL),
+  TextField()
+      :
+#if defined(OS_WIN)
+        native_view_(NULL),
+#endif
         edit_(NULL),
         controller_(NULL),
         style_(STYLE_DEFAULT),
@@ -83,8 +86,11 @@ class TextField : public View {
         num_lines_(1) {
     SetFocusable(true);
   }
-  explicit TextField::TextField(StyleFlags style)
-      : native_view_(NULL),
+  explicit TextField(StyleFlags style)
+      :
+#if defined(OS_WIN)
+        native_view_(NULL),
+#endif
         edit_(NULL),
         controller_(NULL),
         style_(style),
@@ -122,7 +128,9 @@ class TextField : public View {
   // Overridden from Chrome::View.
   virtual bool SkipDefaultKeyEventProcessing(const KeyEvent& e);
 
+#if defined(OS_WIN)
   virtual HWND GetNativeComponent();
+#endif
 
   // Returns the text currently displayed in the text field.
   std::wstring GetText() const;
@@ -197,8 +205,10 @@ class TextField : public View {
   // Resets the background color of the edit.
   void UpdateEditBackgroundColor();
 
+#if defined(OS_WIN)
   // This encapsulates the HWND of the native text field.
   HWNDView* native_view_;
+#endif
 
   // This inherits from the native text field.
   Edit* edit_;

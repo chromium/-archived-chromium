@@ -6,6 +6,7 @@
 #define CHROME_BROWSER_VIEWS_FIND_BAR_VIEW_H_
 
 #include "base/gfx/size.h"
+#include "base/string16.h"
 #include "chrome/browser/find_notification_details.h"
 #include "views/controls/button/button.h"
 #include "views/controls/text_field.h"
@@ -41,12 +42,12 @@ class FindBarView : public views::View,
   virtual ~FindBarView();
 
   // Sets the text displayed in the text box.
-  void SetFindText(const std::wstring& find_text);
+  void SetFindText(const string16& find_text);
 
   // Updates the label inside the Find text box that shows the ordinal of the
   // active item and how many matches were found.
   void UpdateForResult(const FindNotificationDetails& result,
-                       const std::wstring& find_text);
+                       const string16& find_text);
 
   // Claims focus for the text field and selects its contents.
   void SetFocusAndSelection();

@@ -4,12 +4,12 @@
 
 #include "chrome/browser/views/find_bar_win.h"
 
+#include "app/slide_animation.h"
 #include "chrome/browser/browser.h"
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/find_bar_controller.h"
 #include "chrome/browser/renderer_host/render_view_host.h"
 #include "chrome/browser/view_ids.h"
-#include "chrome/browser/views/bookmark_bar_view.h"
 #include "chrome/browser/views/find_bar_view.h"
 #include "chrome/browser/views/frame/browser_view.h"
 #include "chrome/browser/tab_contents/tab_contents.h"
@@ -18,13 +18,59 @@
 #include "views/focus/view_storage.h"
 #include "views/controls/scrollbar/native_scroll_bar.h"
 #include "views/widget/root_view.h"
+
+#if defined(OS_WIN)
 #include "views/widget/widget_win.h"
+#else
+#include "views/widget/widget_gtk.h"
+#endif
 
 // The minimum space between the FindInPage window and the search result.
 static const int kMinFindWndDistanceFromSelection = 5;
 
 // static
 bool FindBarWin::disable_animations_during_testing_ = false;
+
+// Host is the actual widget containing FindBarView.
+#if defined(OS_WIN)
+class FindBarWin::Host : public views::WidgetWin {
+ public:
+  Host(FindBarWin* find_bar) : find_bar_(find_bar) {
+    // Don't let WidgetWin manage our lifetime. We want our lifetime to
+    // coincide with TabContents.
+    set_delete_on_destroy(false);
+    set_window_style(WS_CHILD | WS_CLIPCHILDREN);
+    set_window_ex_style(WS_EX_TOPMOST);
+  }
+
+  void OnFinalMessage(HWND window) {
+    find_bar_->OnFinalMessage();
+  }
+
+ private:
+  FindBarWin* find_bar_;
+
+  DISALLOW_COPY_AND_ASSIGN(Host);
+};
+#else
+class FindBarWin::Host : public views::WidgetGtk {
+ public:
+  Host(FindBarWin* find_bar) : WidgetGtk(TYPE_CHILD), find_bar_(find_bar) {
+    // Don't let WidgetWin manage our lifetime. We want our lifetime to
+    // coincide with TabContents.
+    set_delete_on_destroy(false);
+  }
+
+  void OnDestroy(GtkWidget* widget) {
+    find_bar_->OnFinalMessage();
+  }
+
+ private:
+  FindBarWin* find_bar_;
+
+  DISALLOW_COPY_AND_ASSIGN(Host);
+};
+#endif
 
 namespace browser {
 
@@ -44,31 +90,26 @@ FindBarWin::FindBarWin(BrowserView* browser_view)
       focus_manager_(NULL),
       old_accel_target_for_esc_(NULL),
       find_bar_controller_(NULL) {
-  HWND parent_hwnd = browser_view->GetWidget()->GetNativeView();
+  gfx::NativeView parent_view = browser_view->GetWidget()->GetNativeView();
 
   // Start listening to focus changes, so we can register and unregister our
   // own handler for Escape.
-  SetFocusChangeListener(parent_hwnd);
-
-  // Don't let WidgetWin manage our lifetime. We want our lifetime to
-  // coincide with TabContents.
-  WidgetWin::set_delete_on_destroy(false);
+  SetFocusChangeListener(parent_view);
 
   view_ = new FindBarView(this);
 
   views::FocusManager* focus_manager = views::FocusManager::GetFocusManager(
-      parent_hwnd);
+      parent_view);
   DCHECK(focus_manager);
 
   // Stores the currently focused view, and tracks focus changes so that we can
   // restore focus when the find box is closed.
   focus_tracker_.reset(new views::ExternalFocusTracker(view_, focus_manager));
 
-  // Initialize the native window.
-  set_window_style(WS_CHILD | WS_CLIPCHILDREN);
-  set_window_ex_style(WS_EX_TOPMOST);
-  WidgetWin::Init(parent_hwnd, gfx::Rect(), false);
-  SetContentsView(view_);
+  // Initialize the host.
+  host_.reset(new Host(this));
+  host_->Init(parent_view, gfx::Rect(), false);
+  host_->SetContentsView(view_);
 
   // Start the process of animating the opening of the window.
   animation_.reset(new SlideAnimation(this));
@@ -81,6 +122,7 @@ FindBarWin::~FindBarWin() {
 // charge of these regions. CustomFrameWindow will do this for us. It will also
 // let us set a path for the window region which will avoid some logic here.
 void FindBarWin::UpdateWindowEdges(const gfx::Rect& new_pos) {
+#if defined(OS_WIN)
   // |w| is used to make it easier to create the part of the polygon that curves
   // the right side of the Find window. It essentially keeps track of the
   // x-pixel position of the right-most background image inside the view.
@@ -185,7 +227,8 @@ void FindBarWin::UpdateWindowEdges(const gfx::Rect& new_pos) {
   }
 
   // The system now owns the region, so we do not delete it.
-  SetWindowRgn(region, TRUE);  // TRUE = Redraw.
+  host_->SetWindowRgn(region, TRUE);  // TRUE = Redraw.
+#endif
 }
 
 void FindBarWin::Show() {
@@ -211,12 +254,12 @@ void FindBarWin::Hide(bool animate) {
     animation_->Reset(1.0);
     animation_->Hide();
   } else {
-    ShowWindow(SW_HIDE);
+    host_->Hide();
   }
 }
 
 void FindBarWin::ClearResults(const FindNotificationDetails& results) {
-  view_->UpdateForResult(results, std::wstring());
+  view_->UpdateForResult(results, string16());
 }
 
 void FindBarWin::StopAnimation() {
@@ -229,7 +272,7 @@ void FindBarWin::SetFindText(const string16& find_text) {
 }
 
 bool FindBarWin::IsFindBarVisible() {
-  return IsVisible();
+  return host_->IsVisible();
 }
 
 void FindBarWin::MoveWindowIfNecessary(const gfx::Rect& selection_rect,
@@ -249,6 +292,7 @@ void FindBarWin::MoveWindowIfNecessary(const gfx::Rect& selection_rect,
   view_->SchedulePaint();
 }
 
+#if defined(OS_WIN)
 bool FindBarWin::MaybeForwardKeystrokeToWebpage(
     UINT message, TCHAR key, UINT flags) {
   // We specifically ignore WM_CHAR. See http://crbug.com/10509.
@@ -285,11 +329,9 @@ bool FindBarWin::MaybeForwardKeystrokeToWebpage(
       NativeWebKeyboardEvent(hwnd, message, key, 0));
   return true;
 }
+#endif
 
-////////////////////////////////////////////////////////////////////////////////
-// FindBarWin, views::WidgetWin implementation:
-
-void FindBarWin::OnFinalMessage(HWND window) {
+void FindBarWin::OnFinalMessage() {
   // TODO(beng): Destroy the RootView before destroying the Focus Manager will
   //             allow us to remove this method.
 
@@ -302,6 +344,10 @@ void FindBarWin::OnFinalMessage(HWND window) {
   // focus manager.
   focus_tracker_.reset(NULL);
 };
+
+bool FindBarWin::IsVisible() {
+  return host_->IsVisible();
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 // FindBarWin, views::FocusChangeListener implementation:
@@ -333,7 +379,9 @@ void FindBarWin::FocusWillChange(views::View* focused_before,
 // FindBarWin, views::AcceleratorTarget implementation:
 
 bool FindBarWin::AcceleratorPressed(const views::Accelerator& accelerator) {
+#if defined(OS_WIN)
   DCHECK(accelerator.GetKeyCode() == VK_ESCAPE);  // We only expect Escape key.
+#endif
   // This will end the Find session and hide the window, causing it to loose
   // focus and in the process unregister us as the handler for the Escape
   // accelerator through the FocusWillChange event.
@@ -369,7 +417,7 @@ void FindBarWin::AnimationEnded(const Animation* animation) {
 
   if (!animation_->IsShowing()) {
     // Animation has finished closing.
-    ShowWindow(SW_HIDE);
+    host_->Hide();
   } else {
     // Animation has finished opening.
   }
@@ -386,17 +434,22 @@ void FindBarWin::GetThemePosition(gfx::Rect* bounds) {
 
 bool FindBarWin::GetFindBarWindowInfo(gfx::Point* position,
                                       bool* fully_visible) {
-  CRect window_rect;
   if (!find_bar_controller_ ||
-      !::IsWindow(GetNativeView()) ||
-      !::GetWindowRect(GetNativeView(), &window_rect)) {
+#if defined(OS_WIN)
+      !::IsWindow(host_->GetNativeView())) {
+#else
+      false) {
+      // TODO: figure out linux side.
+#endif
     *position = gfx::Point();
     *fully_visible = false;
     return false;
   }
 
-  *position = window_rect.TopLeft();
-  *fully_visible = IsVisible() && !IsAnimating();
+  gfx::Rect window_rect;
+  host_->GetBounds(&window_rect, true);
+  *position = window_rect.origin();
+  *fully_visible = host_->IsVisible() && !IsAnimating();
   return true;
 }
 
@@ -443,12 +496,16 @@ gfx::Rect FindBarWin::GetDialogPosition(gfx::Rect avoid_overlapping_rect) {
     // For comparison (with the Intersects function below) we need to account
     // for the fact that we draw the Find dialog relative to the window,
     // whereas the selection rect is relative to the page.
+#if defined(OS_WIN)
     RECT frame_rect = {0}, webcontents_rect = {0};
-    ::GetWindowRect(GetParent(), &frame_rect);
+    ::GetWindowRect(host_->GetParent(), &frame_rect);
     ::GetWindowRect(
         find_bar_controller_->tab_contents()->view()->GetNativeView(),
         &webcontents_rect);
     avoid_overlapping_rect.Offset(0, webcontents_rect.top - frame_rect.top);
+#else
+    NOTIMPLEMENTED();
+#endif
   }
 
   // If the selection rectangle intersects the current position on screen then
@@ -491,21 +548,26 @@ void FindBarWin::SetDialogPosition(const gfx::Rect& new_pos, bool no_redraw) {
   // of it it doesn't look like the window crumbles into the toolbar.
   UpdateWindowEdges(new_pos);
 
-  CRect window_rect;
-  GetWindowRect(&window_rect);
+#if defined(OS_WIN)
+  gfx::Rect window_rect;
+  host_->GetBounds(&window_rect, true);
   DWORD swp_flags = SWP_NOOWNERZORDER;
-  if (!window_rect.IsRectEmpty())
+  if (!window_rect.IsEmpty())
     swp_flags |= SWP_NOSIZE;
   if (no_redraw)
     swp_flags |= SWP_NOREDRAW;
-  if (!IsVisible())
+  if (!host_->IsVisible())
     swp_flags |= SWP_SHOWWINDOW;
 
-  ::SetWindowPos(GetNativeView(), HWND_TOP, new_pos.x(), new_pos.y(),
+  ::SetWindowPos(host_->GetNativeView(), HWND_TOP, new_pos.x(), new_pos.y(),
                  new_pos.width(), new_pos.height(), swp_flags);
+#else
+  host_->SetBounds(new_pos);
+#endif
 }
 
-void FindBarWin::SetFocusChangeListener(HWND parent_hwnd) {
+void FindBarWin::SetFocusChangeListener(gfx::NativeView parent_view) {
+#if defined(OS_WIN)
   // When tabs get torn off the tab-strip they get a new window with a new
   // FocusManager, which means we need to clean up old listener and start a new
   // one with the new FocusManager.
@@ -516,9 +578,12 @@ void FindBarWin::SetFocusChangeListener(HWND parent_hwnd) {
   }
 
   // Register as a listener with the new focus manager.
-  focus_manager_ = views::FocusManager::GetFocusManager(parent_hwnd);
+  focus_manager_ = views::FocusManager::GetFocusManager(parent_view);
   DCHECK(focus_manager_);
   focus_manager_->AddFocusChangeListener(this);
+#else
+  NOTIMPLEMENTED();
+#endif
 }
 
 void FindBarWin::RestoreSavedFocus() {
@@ -535,6 +600,7 @@ FindBarTesting* FindBarWin::GetFindBarTesting() {
 }
 
 void FindBarWin::RegisterEscAccelerator() {
+#if defined(OS_WIN)
   views::Accelerator escape(VK_ESCAPE, false, false, false);
 
   // TODO(finnur): Once we fix issue 1307173 we should not remember any old
@@ -544,17 +610,24 @@ void FindBarWin::RegisterEscAccelerator() {
 
   if (!old_accel_target_for_esc_)
     old_accel_target_for_esc_ = old_target;
+#else
+  NOTIMPLEMENTED();
+#endif
 }
 
 void FindBarWin::UnregisterEscAccelerator() {
+#if defined(OS_WIN)
   // TODO(finnur): Once we fix issue 1307173 we should not remember any old
   // accelerator targets and just Register and Unregister when needed.
   DCHECK(old_accel_target_for_esc_ != NULL);
   views::Accelerator escape(VK_ESCAPE, false, false, false);
   views::AcceleratorTarget* current_target =
       focus_manager_->GetTargetForAccelerator(escape);
-  if (current_target == this)
+  if (current_target == host_.get())
     focus_manager_->RegisterAccelerator(escape, old_accel_target_for_esc_);
+#else
+  NOTIMPLEMENTED();
+#endif
 }
 
 void FindBarWin::UpdateUIForFindResult(const FindNotificationDetails& result,
@@ -572,5 +645,9 @@ void FindBarWin::UpdateUIForFindResult(const FindNotificationDetails& result,
 }
 
 void FindBarWin::AudibleAlert() {
+#if defined(OS_WIN)
   MessageBeep(MB_OK);
+#else
+  NOTIMPLEMENTED();
+#endif
 }

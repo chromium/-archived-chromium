@@ -162,12 +162,12 @@ FindBarView::FindBarView(FindBarWin* container)
 FindBarView::~FindBarView() {
 }
 
-void FindBarView::SetFindText(const std::wstring& find_text) {
-  find_text_->SetText(find_text);
+void FindBarView::SetFindText(const string16& find_text) {
+  find_text_->SetText(UTF16ToWide(find_text));
 }
 
 void FindBarView::UpdateForResult(const FindNotificationDetails& result,
-                                  const std::wstring& find_text) {
+                                  const string16& find_text) {
   bool have_valid_range =
       result.number_of_matches() != -1 && result.active_match_ordinal() != -1;
 
@@ -176,7 +176,7 @@ void FindBarView::UpdateForResult(const FindNotificationDetails& result,
   // repopulate the Find box with what was passed in.
   std::wstring search_string = find_text_->GetText();
   if (search_string.empty() && !find_text.empty()) {
-    find_text_->SetText(find_text);
+    find_text_->SetText(UTF16ToWide(find_text));
     find_text_->SelectAll();
   }
 
@@ -400,7 +400,7 @@ void FindBarView::ButtonPressed(views::Button* sender) {
     case FIND_NEXT_TAG:
       if (!find_text_->GetText().empty()) {
         container_->GetFindBarController()->tab_contents()->StartFinding(
-            find_text_->GetText(),
+            WideToUTF16(find_text_->GetText()),
             sender->tag() == FIND_NEXT_TAG,
             false);  // Not case sensitive.
       }
@@ -437,11 +437,11 @@ void FindBarView::ContentsChanged(views::TextField* sender,
   // initiate search (even though old searches might be in progress).
   if (!new_contents.empty()) {
     // The last two params here are forward (true) and case sensitive (false).
-    controller->tab_contents()->StartFinding(new_contents, true, false);
+    controller->tab_contents()->StartFinding(WideToUTF16(new_contents), true, false);
   } else {
     // The textbox is empty so we reset.  true = clear selection on page.
     controller->tab_contents()->StopFinding(true);
-    UpdateForResult(controller->tab_contents()->find_result(), std::wstring());
+    UpdateForResult(controller->tab_contents()->find_result(), string16());
   }
 }
 

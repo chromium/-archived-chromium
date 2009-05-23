@@ -5,14 +5,14 @@
 #ifndef VIEWS_FOCUS_FOCUS_MANAGER_H_
 #define VIEWS_FOCUS_FOCUS_MANAGER_H_
 
-#include "base/basictypes.h"
-
 #if defined(OS_WIN)
 #include <windows.h>
 #endif
 #include <vector>
 #include <map>
 
+#include "base/basictypes.h"
+#include "base/gfx/native_widget_types.h"
 #include "views/accelerator.h"
 
 // The FocusManager class is used to handle focus traversal, store/restore
@@ -169,9 +169,11 @@ class FocusManager {
 
   // Uninstalls the window subclass installed by InstallFocusSubclass.
   static void UninstallFocusSubclass(HWND window);
+#endif
 
-  static FocusManager* GetFocusManager(HWND window);
+  static FocusManager* GetFocusManager(gfx::NativeView window);
 
+#if defined(OS_WIN)
   // Message handlers (for messages received from registered windows).
   // Should return true if the message should be forwarded to the window
   // original proc function, false otherwise.

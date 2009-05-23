@@ -7,9 +7,11 @@
 
 #include "app/animation.h"
 #include "base/gfx/rect.h"
+#include "base/gfx/native_widget_types.h"
+#include "base/scoped_ptr.h"
 #include "chrome/browser/find_bar.h"
 #include "chrome/browser/renderer_host/render_view_host_delegate.h"
-#include "views/widget/widget_win.h"
+#include "views/focus/focus_manager.h"
 
 class BrowserView;
 class FindBarController;
@@ -22,6 +24,8 @@ namespace views {
 class ExternalFocusTracker;
 class View;
 }
+
+// TODO(sky): rename this to FindBarViews.
 
 ////////////////////////////////////////////////////////////////////////////////
 //
@@ -37,17 +41,14 @@ class View;
 // is attached to the frame's Widget for the first time.
 //
 ////////////////////////////////////////////////////////////////////////////////
-class FindBarWin : public views::FocusChangeListener,
-                   public views::WidgetWin,
+class FindBarWin : public views::AcceleratorTarget,
+                   public views::FocusChangeListener,
                    public AnimationDelegate,
                    public FindBar,
                    public FindBarTesting {
  public:
   explicit FindBarWin(BrowserView* browser_view);
   virtual ~FindBarWin();
-
-  // Moves the window according to the new window size.
-  void RespondToResize(const gfx::Size& new_size);
 
   // Whether we are animating the position of the Find window.
   bool IsAnimating();
@@ -56,14 +57,20 @@ class FindBarWin : public views::FocusChangeListener,
   // Escape when we get focus and unregister it when we looses focus. This
   // function unregisters our old Escape accelerator (if registered) and
   // registers a new one with the FocusManager associated with the
-  // new |parent_hwnd|.
-  void SetFocusChangeListener(HWND parent_hwnd);
+  // new |parent_view|.
+  void SetFocusChangeListener(gfx::NativeView parent_view);
 
+#if defined(OS_WIN)
   // Forwards selected keystrokes to the renderer. This is useful to make sure
   // that arrow keys and PageUp and PageDown result in scrolling, instead of
   // being eaten because the FindBar has focus. Returns true if the keystroke
   // was forwarded, false if not.
   bool MaybeForwardKeystrokeToWebpage(UINT message, TCHAR key, UINT flags);
+#endif
+
+  void OnFinalMessage();
+
+  bool IsVisible();
 
   // FindBar implementation:
   virtual FindBarController* GetFindBarController() const {
@@ -89,9 +96,6 @@ class FindBarWin : public views::FocusChangeListener,
   virtual void RestoreSavedFocus();
   virtual FindBarTesting* GetFindBarTesting();
 
-  // Overridden from views::WidgetWin:
-  virtual void OnFinalMessage(HWND window);
-
   // Overridden from views::FocusChangeListener:
   virtual void FocusWillChange(views::View* focused_before,
                                views::View* focused_now);
@@ -116,6 +120,8 @@ class FindBarWin : public views::FocusChangeListener,
   static bool disable_animations_during_testing_;
 
  private:
+  class Host;
+
   // Retrieves the boundaries that the find bar has to work with within the
   // Chrome frame window. The resulting rectangle will be a rectangle that
   // overlaps the bottom of the Chrome toolbar by one pixel (so we can create
@@ -171,6 +177,10 @@ class FindBarWin : public views::FocusChangeListener,
 
   // A pointer back to the owning controller.
   FindBarController* find_bar_controller_;
+
+  // Host is the Widget implementation that is created and maintained by the
+  // find bar. It contains the FindBarView.
+  scoped_ptr<Host> host_;
 
   DISALLOW_COPY_AND_ASSIGN(FindBarWin);
 };
