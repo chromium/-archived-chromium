@@ -229,7 +229,6 @@
             'controls/button/radio_button.cc',
             'controls/combo_box.cc',
             'controls/hwnd_view.cc',
-            'controls/link.cc',
             'controls/menu/chrome_menu.cc',
             'controls/menu/menu.cc',
             'controls/message_box_view.cc',

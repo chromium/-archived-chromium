@@ -5,11 +5,14 @@
 #include "views/controls/link.h"
 
 #include "app/gfx/font.h"
+#include "base/logging.h"
 #include "views/event.h"
 
 namespace views {
 
+#if defined(OS_WIN)
 static HCURSOR g_hand_cursor = NULL;
+#endif
 
 // Default colors used for links.
 static const SkColor kHighlightedColor = SkColorSetRGB(255, 0x00, 0x00);
@@ -103,7 +106,14 @@ void Link::OnMouseReleased(const MouseEvent& e, bool canceled) {
 }
 
 bool Link::OnKeyPressed(const KeyEvent& e) {
-  if ((e.GetCharacter() == VK_SPACE) || (e.GetCharacter() == VK_RETURN)) {
+#if defined(OS_WIN)
+  bool activate = ((e.GetCharacter() == VK_SPACE) ||
+                   (e.GetCharacter() == VK_RETURN));
+#else
+  bool activate = false;
+  NOTIMPLEMENTED();
+#endif
+  if (activate) {
     SetHighlighted(false);
 
     // Focus the link on key pressed.
@@ -118,8 +128,13 @@ bool Link::OnKeyPressed(const KeyEvent& e) {
 }
 
 bool Link::OverrideAccelerator(const Accelerator& accelerator) {
+#if defined(OS_WIN)
   return (accelerator.GetKeyCode() == VK_SPACE) ||
          (accelerator.GetKeyCode() == VK_RETURN);
+#else
+  NOTIMPLEMENTED();
+  return false;
+#endif
 }
 
 void Link::SetHighlighted(bool f) {
@@ -169,6 +184,7 @@ void Link::SetEnabled(bool f) {
   }
 }
 
+#if defined(OS_WIN)
 HCURSOR Link::GetCursorForPoint(Event::EventType event_type, int x, int y) {
   if (enabled_) {
     if (!g_hand_cursor) {
@@ -179,5 +195,6 @@ HCURSOR Link::GetCursorForPoint(Event::EventType event_type, int x, int y) {
     return NULL;
   }
 }
+#endif
 
 }  // namespace views

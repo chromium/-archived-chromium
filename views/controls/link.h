@@ -32,7 +32,7 @@ class LinkController {
 ////////////////////////////////////////////////////////////////////////////////
 class Link : public Label {
  public:
-  static const char Link::kViewClassName[];
+  static const char kViewClassName[];
 
   Link();
   Link(const std::wstring& title);
@@ -54,7 +54,9 @@ class Link : public Label {
   // Set whether the link is enabled.
   virtual void SetEnabled(bool f);
 
+#if defined(OS_WIN)
   virtual HCURSOR GetCursorForPoint(Event::EventType event_type, int x, int y);
+#endif
 
   virtual std::string GetClassName() const;
 
