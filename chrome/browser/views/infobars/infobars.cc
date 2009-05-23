@@ -284,11 +284,11 @@ AlertInfoBarDelegate* AlertInfoBar::GetDelegate() {
 // LinkInfoBar, public: --------------------------------------------------------
 
 LinkInfoBar::LinkInfoBar(LinkInfoBarDelegate* delegate)
-    : icon_(new views::ImageView),
+    : InfoBar(delegate),
+      icon_(new views::ImageView),
       label_1_(new views::Label),
       label_2_(new views::Label),
-      link_(new views::Link),
-      InfoBar(delegate) {
+      link_(new views::Link) {
   // Set up the icon.
   if (delegate->GetIcon())
     icon_->SetImage(delegate->GetIcon());
@@ -384,10 +384,10 @@ LinkInfoBarDelegate* LinkInfoBar::GetDelegate() {
 // ConfirmInfoBar, public: -----------------------------------------------------
 
 ConfirmInfoBar::ConfirmInfoBar(ConfirmInfoBarDelegate* delegate)
-    : ok_button_(NULL),
+    : AlertInfoBar(delegate),
+      ok_button_(NULL),
       cancel_button_(NULL),
-      initialized_(false),
-      AlertInfoBar(delegate) {
+      initialized_(false) {
   ok_button_ = new views::NativeButton(
       this, delegate->GetButtonLabel(ConfirmInfoBarDelegate::BUTTON_OK));
   if (delegate->GetButtons() & ConfirmInfoBarDelegate::BUTTON_OK_DEFAULT)

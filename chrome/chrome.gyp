@@ -1684,6 +1684,7 @@
                 ['include', '^browser/views/toolbar_star_toggle.cc'],
                 ['include', '^browser/views/frame/browser_frame_gtk.cc'],
                 ['include', '^browser/views/frame/browser_frame_gtk.h'],
+                ['include', '^browser/views/infobars/*'],
                 ['include', '^browser/views/info_bubble.cc'],
                 ['include', '^browser/views/info_bubble.h'],
                 ['include', '^browser/views/location_bar_view.cc'],
