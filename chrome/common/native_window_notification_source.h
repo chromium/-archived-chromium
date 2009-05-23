@@ -2,23 +2,24 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CHROME_COMMON_HWND_NOTIFICATION_SOURCE_H_
-#define CHROME_COMMON_HWND_NOTIFICATION_SOURCE_H_
+#ifndef CHROME_COMMON_NATIVE_WINDOW_NOTIFICATION_SOURCE_H_
+#define CHROME_COMMON_NATIVE_WINDOW_NOTIFICATION_SOURCE_H_
 
+#include "base/gfx/native_widget_types.h"
 #include "chrome/common/notification_source.h"
 
 // Specialization of the Source class for HWND.  This is needed as the Source
 // class expects a pointer type.
 template<>
-class Source<HWND> : public NotificationSource {
+class Source<gfx::NativeWindow> : public NotificationSource {
  public:
-  explicit Source(HWND hwnd) : NotificationSource(hwnd) {}
+  explicit Source(gfx::NativeWindow wnd) : NotificationSource(wnd) {}
 
   explicit Source(const NotificationSource& other)
       : NotificationSource(other) {}
 
   HWND operator->() const { return ptr(); }
-  HWND ptr() const { return static_cast<HWND>(ptr_); }
+  HWND ptr() const { return static_cast<gfx::NativeWindow>(ptr_); }
 };
 
-#endif  // #define CHROME_COMMON_HWND_NOTIFICATION_SOURCE_H_
+#endif  // CHROME_COMMON_NATIVE_WINDOW_NOTIFICATION_SOURCE_H_

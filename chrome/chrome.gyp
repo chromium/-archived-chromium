@@ -336,6 +336,7 @@
         'common/native_web_keyboard_event_linux.cc',
         'common/native_web_keyboard_event_mac.mm',
         'common/native_web_keyboard_event_win.cc',
+        'common/native_window_notification_source.h',
         'common/notification_details.h',
         'common/notification_observer.h',
         'common/notification_registrar.cc',

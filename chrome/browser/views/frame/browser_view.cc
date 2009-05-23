@@ -41,7 +41,7 @@
 #include "chrome/browser/tab_contents/tab_contents_view.h"
 #include "chrome/browser/window_sizer.h"
 #include "chrome/common/chrome_switches.h"
-#include "chrome/common/hwnd_notification_source.h"
+#include "chrome/common/native_window_notification_source.h"
 #include "chrome/common/notification_service.h"
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
@@ -1088,7 +1088,7 @@ bool BrowserView::CanClose() const {
   // Empty TabStripModel, it's now safe to allow the Window to be closed.
   NotificationService::current()->Notify(
       NotificationType::WINDOW_CLOSED,
-      Source<HWND>(frame_->GetWindow()->GetNativeWindow()),
+      Source<gfx::NativeWindow>(frame_->GetWindow()->GetNativeWindow()),
       NotificationService::NoDetails());
   return true;
 }

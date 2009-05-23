@@ -454,10 +454,6 @@
 			>
 		</File>
 		<File
-			RelativePath=".\hwnd_notification_source.h"
-			>
-		</File>
-		<File
 			RelativePath=".\important_file_writer.cc"
 			>
 		</File>
@@ -519,6 +515,10 @@
 		</File>
 		<File
 			RelativePath=".\native_web_keyboard_event_win.cc"
+			>
+		</File>
+		<File
+			RelativePath=".\native_window_notification_source.h"
 			>
 		</File>
 		<File
