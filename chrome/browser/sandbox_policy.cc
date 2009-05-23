@@ -66,7 +66,8 @@ const wchar_t* const kTroublesomeDlls[] = {
   L"sbrige.dll",                  // Unknown.
   L"sc2hook.dll",                 // Supercopier 2.
   L"sguard.dll",                  // Iolo (System Guard).
-  L"smumhook.dll",                // Spyware Doctor version 5 and above.
+  L"smum32.dll",                  // Spyware Doctor version 6.
+  L"smumhook.dll",                // Spyware Doctor version 5.
   L"ssldivx.dll",                 // DivX.
   L"syncor11.dll",                // SynthCore Midi interface.
   L"systools.dll",                // Panda Antivirus.
