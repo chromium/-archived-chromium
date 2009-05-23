@@ -481,7 +481,7 @@ void PluginProcessHost::OnGetCookies(uint32 request_context,
   if (!context)
     context = Profile::GetDefaultRequestContext();
 
-  // Note: We don't have a policy_url check because plugins bypass the
+  // Note: We don't have a first_party_for_cookies check because plugins bypass
   // third-party cookie blocking.
   *cookies = context->cookie_store()->GetCookies(url);
 }

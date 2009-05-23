@@ -226,8 +226,10 @@ class URLRequest {
 
   // The URL that should be consulted for the third-party cookie blocking
   // policy.
-  const GURL& policy_url() const { return policy_url_; }
-  void set_policy_url(const GURL& policy_url);
+  const GURL& first_party_for_cookies() const {
+      return first_party_for_cookies_;
+  }
+  void set_first_party_for_cookies(const GURL& first_party_for_cookies);
 
   // The request method, as an uppercase string.  "GET" is the default value.
   // The request method may only be changed before Start() is called and
@@ -505,7 +507,7 @@ class URLRequest {
   scoped_refptr<net::UploadData> upload_;
   GURL url_;
   GURL original_url_;
-  GURL policy_url_;
+  GURL first_party_for_cookies_;
   std::string method_;  // "GET", "POST", etc. Should be all uppercase.
   std::string referrer_;
   std::string extra_request_headers_;

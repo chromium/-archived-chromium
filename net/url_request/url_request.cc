@@ -221,9 +221,10 @@ bool URLRequest::IsHandledURL(const GURL& url) {
   return IsHandledProtocol(url.scheme());
 }
 
-void URLRequest::set_policy_url(const GURL& policy_url) {
+void URLRequest::set_first_party_for_cookies(
+    const GURL& first_party_for_cookies) {
   DCHECK(!is_pending_);
-  policy_url_ = policy_url;
+  first_party_for_cookies_ = first_party_for_cookies;
 }
 
 void URLRequest::set_method(const std::string& method) {

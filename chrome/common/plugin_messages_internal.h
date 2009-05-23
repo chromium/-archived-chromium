@@ -243,12 +243,12 @@ IPC_BEGIN_MESSAGES(PluginHost)
 
   IPC_MESSAGE_ROUTED3(PluginHostMsg_SetCookie,
                       GURL /* url */,
-                      GURL /* policy_url */,
+                      GURL /* first_party_for_cookies */,
                       std::string /* cookie */)
 
   IPC_SYNC_MESSAGE_ROUTED2_1(PluginHostMsg_GetCookies,
                              GURL /* url */,
-                             GURL /* policy_url */,
+                             GURL /* first_party_for_cookies */,
                              std::string /* cookies */)
 
   // Asks the browser to show a modal HTML dialog.  The dialog is passed the

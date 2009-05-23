@@ -104,9 +104,11 @@ class ResourceMessageFilter : public IPC::ChannelProxy::MessageFilter,
   void OnMsgCreateWindow(int opener_id, bool user_gesture, int* route_id,
                          ModalDialogEvent* modal_dialog_event);
   void OnMsgCreateWidget(int opener_id, bool activatable, int* route_id);
-  void OnSetCookie(const GURL& url, const GURL& policy_url,
+  void OnSetCookie(const GURL& url,
+                   const GURL& first_party_for_cookies,
                    const std::string& cookie);
-  void OnGetCookies(const GURL& url, const GURL& policy_url,
+  void OnGetCookies(const GURL& url,
+                    const GURL& first_party_for_cookies,
                     std::string* cookies);
   void OnGetDataDir(std::wstring* data_dir);
   void OnPluginMessage(const FilePath& plugin_path,

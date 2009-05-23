@@ -36,7 +36,7 @@ static ViewHostMsg_Resource_Request CreateResourceRequest(const char* method,
   ViewHostMsg_Resource_Request request;
   request.method = std::string(method);
   request.url = url;
-  request.policy_url = url;  // bypass third-party cookie blocking
+  request.first_party_for_cookies = url;  // bypass third-party cookie blocking
   // init the rest to default values to prevent getting UMR.
   request.frame_origin = "null";
   request.main_frame_origin = "null";

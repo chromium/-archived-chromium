@@ -715,18 +715,18 @@ void WebPluginDelegateProxy::OnGetPluginElement(
 }
 
 void WebPluginDelegateProxy::OnSetCookie(const GURL& url,
-                                         const GURL& policy_url,
+                                         const GURL& first_party_for_cookies,
                                          const std::string& cookie) {
   if (plugin_)
-    plugin_->SetCookie(url, policy_url, cookie);
+    plugin_->SetCookie(url, first_party_for_cookies, cookie);
 }
 
 void WebPluginDelegateProxy::OnGetCookies(const GURL& url,
-                                          const GURL& policy_url,
+                                          const GURL& first_party_for_cookies,
                                           std::string* cookies) {
   DCHECK(cookies);
   if (plugin_)
-    *cookies = plugin_->GetCookies(url, policy_url);
+    *cookies = plugin_->GetCookies(url, first_party_for_cookies);
 }
 
 void WebPluginDelegateProxy::OnShowModalHTMLDialog(

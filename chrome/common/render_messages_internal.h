@@ -784,13 +784,13 @@ IPC_BEGIN_MESSAGES(ViewHost)
   // available to a subsequent ViewHostMsg_GetCookies request.
   IPC_MESSAGE_CONTROL3(ViewHostMsg_SetCookie,
                        GURL /* url */,
-                       GURL /* policy_url */,
+                       GURL /* first_party_for_cookies */,
                        std::string /* cookie */)
 
   // Used to get cookies for the given URL
   IPC_SYNC_MESSAGE_CONTROL2_1(ViewHostMsg_GetCookies,
                               GURL /* url */,
-                              GURL /* policy_url */,
+                              GURL /* first_party_for_cookies */,
                               std::string /* cookies */)
 
   // Used to get the list of plugins

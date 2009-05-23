@@ -22,11 +22,11 @@ class RendererWebKitClientImpl : public webkit_glue::WebKitClientImpl {
   virtual unsigned long long visitedLinkHash(
       const char* canonicalURL, size_t length);
   virtual bool isLinkVisited(unsigned long long linkHash);
-  virtual void setCookies(
-      const WebKit::WebURL& url, const WebKit::WebURL& policy_url,
-      const WebKit::WebString&);
+  virtual void setCookies(const WebKit::WebURL& url,
+                          const WebKit::WebURL& first_party_for_cookies,
+                          const WebKit::WebString&);
   virtual WebKit::WebString cookies(
-      const WebKit::WebURL& url, const WebKit::WebURL& policy_url);
+      const WebKit::WebURL& url, const WebKit::WebURL& first_party_for_cookies);
   virtual void prefetchHostName(const WebKit::WebString&);
   virtual WebKit::WebString defaultLocale();
   virtual void suddenTerminationChanged(bool enabled);

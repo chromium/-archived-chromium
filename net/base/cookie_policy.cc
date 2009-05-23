@@ -10,7 +10,8 @@
 
 namespace net {
 
-bool CookiePolicy::CanGetCookies(const GURL& url, const GURL& policy_url) {
+bool CookiePolicy::CanGetCookies(const GURL& url,
+                                 const GURL& first_party_for_cookies) {
   switch (type_) {
     case CookiePolicy::ALLOW_ALL_COOKIES:
       return true;
@@ -24,15 +25,16 @@ bool CookiePolicy::CanGetCookies(const GURL& url, const GURL& policy_url) {
   }
 }
 
-bool CookiePolicy::CanSetCookie(const GURL& url, const GURL& policy_url) {
+bool CookiePolicy::CanSetCookie(const GURL& url,
+                                const GURL& first_party_for_cookies) {
   switch (type_) {
     case CookiePolicy::ALLOW_ALL_COOKIES:
       return true;
     case CookiePolicy::BLOCK_THIRD_PARTY_COOKIES:
-      if (policy_url.is_empty())
-        return true;  // Empty policy URL should indicate a first-party request
-      return net::RegistryControlledDomainService::SameDomainOrHost(url,
-                                                                    policy_url);
+      if (first_party_for_cookies.is_empty())
+        return true;  // Empty first-party URL indicates a first-party request.
+      return net::RegistryControlledDomainService::SameDomainOrHost(
+          url, first_party_for_cookies);
     case CookiePolicy::BLOCK_ALL_COOKIES:
       return false;
     default:

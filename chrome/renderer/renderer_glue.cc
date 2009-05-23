@@ -215,7 +215,7 @@ bool GetPlugins(bool refresh, std::vector<WebPluginInfo>* plugins) {
 ResourceLoaderBridge* ResourceLoaderBridge::Create(
     const std::string& method,
     const GURL& url,
-    const GURL& policy_url,
+    const GURL& first_party_for_cookies,
     const GURL& referrer,
     const std::string& frame_origin,
     const std::string& main_frame_origin,
@@ -226,7 +226,7 @@ ResourceLoaderBridge* ResourceLoaderBridge::Create(
     int app_cache_context_id,
     int routing_id) {
   ResourceDispatcher* dispatch = RenderThread::current()->resource_dispatcher();
-  return dispatch->CreateBridge(method, url, policy_url, referrer,
+  return dispatch->CreateBridge(method, url, first_party_for_cookies, referrer,
                                 frame_origin, main_frame_origin, headers,
                                 load_flags, origin_pid, resource_type, 0,
                                 app_cache_context_id, routing_id);

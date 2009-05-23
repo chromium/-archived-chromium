@@ -46,7 +46,7 @@ class IPCResourceLoaderBridge : public ResourceLoaderBridge {
   IPCResourceLoaderBridge(ResourceDispatcher* dispatcher,
                           const std::string& method,
                           const GURL& url,
-                          const GURL& policy_url,
+                          const GURL& first_party_for_cookies,
                           const GURL& referrer,
                           const std::string& frame_origin,
                           const std::string& main_frame_origin,
@@ -100,7 +100,7 @@ IPCResourceLoaderBridge::IPCResourceLoaderBridge(
     ResourceDispatcher* dispatcher,
     const std::string& method,
     const GURL& url,
-    const GURL& policy_url,
+    const GURL& first_party_for_cookies,
     const GURL& referrer,
     const std::string& frame_origin,
     const std::string& main_frame_origin,
@@ -118,7 +118,7 @@ IPCResourceLoaderBridge::IPCResourceLoaderBridge(
   DCHECK(dispatcher_) << "no resource dispatcher";
   request_.method = method;
   request_.url = url;
-  request_.policy_url = policy_url;
+  request_.first_party_for_cookies = first_party_for_cookies;
   request_.referrer = referrer;
   request_.frame_origin = frame_origin;
   request_.main_frame_origin = main_frame_origin;
@@ -534,7 +534,7 @@ void ResourceDispatcher::FlushDeferredMessages(int request_id) {
 webkit_glue::ResourceLoaderBridge* ResourceDispatcher::CreateBridge(
     const std::string& method,
     const GURL& url,
-    const GURL& policy_url,
+    const GURL& first_party_for_cookies,
     const GURL& referrer,
     const std::string& frame_origin,
     const std::string& main_frame_origin,
@@ -545,7 +545,8 @@ webkit_glue::ResourceLoaderBridge* ResourceDispatcher::CreateBridge(
     uint32 request_context,
     int app_cache_context_id,
     int route_id) {
-  return new webkit_glue::IPCResourceLoaderBridge(this, method, url, policy_url,
+  return new webkit_glue::IPCResourceLoaderBridge(this, method, url,
+                                                  first_party_for_cookies,
                                                   referrer, frame_origin,
                                                   main_frame_origin, headers,
                                                   flags, origin_pid,

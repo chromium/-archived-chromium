@@ -48,19 +48,20 @@ bool RendererWebKitClientImpl::isLinkVisited(unsigned long long link_hash) {
   return RenderThread::current()->visited_link_slave()->IsVisited(link_hash);
 }
 
-void RendererWebKitClientImpl::setCookies(
-    const WebURL& url, const WebURL& policy_url, const WebString& value) {
+void RendererWebKitClientImpl::setCookies(const WebURL& url,
+                                          const WebURL& first_party_for_cookies,
+                                          const WebString& value) {
   std::string value_utf8;
   UTF16ToUTF8(value.data(), value.length(), &value_utf8);
   RenderThread::current()->Send(
-      new ViewHostMsg_SetCookie(url, policy_url, value_utf8));
+      new ViewHostMsg_SetCookie(url, first_party_for_cookies, value_utf8));
 }
 
 WebString RendererWebKitClientImpl::cookies(
-    const WebURL& url, const WebURL& policy_url) {
+    const WebURL& url, const WebURL& first_party_for_cookies) {
   std::string value_utf8;
   RenderThread::current()->Send(
-      new ViewHostMsg_GetCookies(url, policy_url, &value_utf8));
+      new ViewHostMsg_GetCookies(url, first_party_for_cookies, &value_utf8));
   return WebString::fromUTF8(value_utf8);
 }
 

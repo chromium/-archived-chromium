@@ -121,9 +121,9 @@ class WebPluginDelegateProxy : public WebPluginDelegate,
                                  intptr_t* npobject_ptr);
   void OnGetPluginElement(int route_id, bool* success, intptr_t* npobject_ptr);
   void OnSetCookie(const GURL& url,
-                   const GURL& policy_url,
+                   const GURL& first_party_for_cookies,
                    const std::string& cookie);
-  void OnGetCookies(const GURL& url, const GURL& policy_url,
+  void OnGetCookies(const GURL& url, const GURL& first_party_for_cookies,
                     std::string* cookies);
   void OnShowModalHTMLDialog(const GURL& url, int width, int height,
                              const std::string& json_arguments,

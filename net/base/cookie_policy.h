@@ -15,17 +15,17 @@ namespace net {
 class CookiePolicy {
  public:
   // Consult the user's third-party cookie blocking preferences to determine
-  // whether the URL's cookies can be read if the top-level window is policy_url
-  bool CanGetCookies(const GURL& url, const GURL& policy_url);
+  // whether the URL's cookies can be read.
+  bool CanGetCookies(const GURL& url, const GURL& first_party_for_cookies);
 
   // Consult the user's third-party cookie blocking preferences to determine
-  // whether the URL's cookies can be set if the top-level window is policy_url
-  bool CanSetCookie(const GURL& url, const GURL& policy_url);
+  // whether the URL's cookies can be set.
+  bool CanSetCookie(const GURL& url, const GURL& first_party_for_cookies);
 
   enum Type {
-    ALLOW_ALL_COOKIES = 0,      // do not perform any cookie blocking
-    BLOCK_THIRD_PARTY_COOKIES,  // prevent third-party cookies from being sent
-    BLOCK_ALL_COOKIES           // disable cookies
+    ALLOW_ALL_COOKIES = 0,      // Do not perform any cookie blocking.
+    BLOCK_THIRD_PARTY_COOKIES,  // Prevent third-party cookies from being set.
+    BLOCK_ALL_COOKIES           // Disable cookies.
   };
 
   static bool ValidType(int32 type) {

@@ -37,7 +37,7 @@ class ResourceDispatcher {
   // implementation.
   webkit_glue::ResourceLoaderBridge* CreateBridge(const std::string& method,
     const GURL& url,
-    const GURL& policy_url,
+    const GURL& first_party_for_cookies,
     const GURL& referrer,
     const std::string& frame_origin,
     const std::string& main_frame_origin,

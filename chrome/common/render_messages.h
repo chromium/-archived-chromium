@@ -229,12 +229,12 @@ struct ViewHostMsg_Resource_Request {
   // The requested URL.
   GURL url;
 
-  // The URL of the document in the top-level window, which may be checked by
-  // the third-party cookie blocking policy. Leaving it empty may lead to
-  // undesired cookie blocking. Third-party cookie blocking can be bypassed by
-  // setting policy_url = url, but this should ideally only be done if there
-  // really is no way to determine the correct value.
-  GURL policy_url;
+  // Usually the URL of the document in the top-level window, which may be
+  // checked by the third-party cookie blocking policy. Leaving it empty may
+  // lead to undesired cookie blocking. Third-party cookie blocking can be
+  // bypassed by setting first_party_for_cookies = url, but this should ideally
+  // only be done if there really is no way to determine the correct value.
+  GURL first_party_for_cookies;
 
   // The referrer to use (may be empty).
   GURL referrer;
@@ -1178,7 +1178,7 @@ struct ParamTraits<ViewHostMsg_Resource_Request> {
   static void Write(Message* m, const param_type& p) {
     WriteParam(m, p.method);
     WriteParam(m, p.url);
-    WriteParam(m, p.policy_url);
+    WriteParam(m, p.first_party_for_cookies);
     WriteParam(m, p.referrer);
     WriteParam(m, p.frame_origin);
     WriteParam(m, p.main_frame_origin);
@@ -1194,7 +1194,7 @@ struct ParamTraits<ViewHostMsg_Resource_Request> {
     return
       ReadParam(m, iter, &r->method) &&
       ReadParam(m, iter, &r->url) &&
-      ReadParam(m, iter, &r->policy_url) &&
+      ReadParam(m, iter, &r->first_party_for_cookies) &&
       ReadParam(m, iter, &r->referrer) &&
       ReadParam(m, iter, &r->frame_origin) &&
       ReadParam(m, iter, &r->main_frame_origin) &&

@@ -335,7 +335,7 @@ void ResourceDispatcherHost::BeginRequest(
   // Construct the request.
   URLRequest* request = new URLRequest(request_data.url, this);
   request->set_method(request_data.method);
-  request->set_policy_url(request_data.policy_url);
+  request->set_first_party_for_cookies(request_data.first_party_for_cookies);
   request->set_referrer(request_data.referrer.spec());
   request->SetExtraRequestHeaders(request_data.headers);
   request->set_load_flags(request_data.load_flags);

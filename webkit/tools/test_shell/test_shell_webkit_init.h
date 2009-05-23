@@ -71,15 +71,18 @@ class TestShellWebKitInit : public webkit_glue::WebKitClientImpl {
     return false;
   }
 
-  virtual void setCookies(
-      const WebKit::WebURL& url, const WebKit::WebURL& policy_url,
-      const WebKit::WebString& value) {
-    SimpleResourceLoaderBridge::SetCookie(url, policy_url, UTF16ToUTF8(value));
+  virtual void setCookies(const WebKit::WebURL& url,
+                          const WebKit::WebURL& first_party_for_cookies,
+                          const WebKit::WebString& value) {
+    SimpleResourceLoaderBridge::SetCookie(
+        url, first_party_for_cookies, UTF16ToUTF8(value));
   }
 
   virtual WebKit::WebString cookies(
-      const WebKit::WebURL& url, const WebKit::WebURL& policy_url) {
-    return UTF8ToUTF16(SimpleResourceLoaderBridge::GetCookies(url, policy_url));
+      const WebKit::WebURL& url,
+      const WebKit::WebURL& first_party_for_cookies) {
+    return UTF8ToUTF16(SimpleResourceLoaderBridge::GetCookies(
+        url, first_party_for_cookies));
   }
 
   virtual void prefetchHostName(const WebKit::WebString&) {

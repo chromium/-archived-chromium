@@ -96,7 +96,7 @@ bool EnsureIOThread() {
 struct RequestParams {
   std::string method;
   GURL url;
-  GURL policy_url;
+  GURL first_party_for_cookies;
   GURL referrer;
   std::string headers;
   int load_flags;
@@ -202,7 +202,7 @@ class RequestProxy : public URLRequest::Delegate,
   void AsyncStart(RequestParams* params) {
     request_.reset(new URLRequest(params->url, this));
     request_->set_method(params->method);
-    request_->set_policy_url(params->policy_url);
+    request_->set_first_party_for_cookies(params->first_party_for_cookies);
     request_->set_referrer(params->referrer.spec());
     request_->SetExtraRequestHeaders(params->headers);
     request_->set_load_flags(params->load_flags);
@@ -427,7 +427,7 @@ class ResourceLoaderBridgeImpl : public ResourceLoaderBridge {
  public:
   ResourceLoaderBridgeImpl(const std::string& method,
                            const GURL& url,
-                           const GURL& policy_url,
+                           const GURL& first_party_for_cookies,
                            const GURL& referrer,
                            const std::string& headers,
                            int load_flags,
@@ -436,7 +436,7 @@ class ResourceLoaderBridgeImpl : public ResourceLoaderBridge {
         proxy_(NULL) {
     params_->method = method;
     params_->url = url;
-    params_->policy_url = policy_url;
+    params_->first_party_for_cookies = first_party_for_cookies;
     params_->referrer = referrer;
     params_->headers = headers;
     params_->load_flags = load_flags;
@@ -566,7 +566,7 @@ namespace webkit_glue {
 ResourceLoaderBridge* ResourceLoaderBridge::Create(
     const std::string& method,
     const GURL& url,
-    const GURL& policy_url,
+    const GURL& first_party_for_cookies,
     const GURL& referrer,
     const std::string& frame_origin,
     const std::string& main_frame_origin,
@@ -576,7 +576,7 @@ ResourceLoaderBridge* ResourceLoaderBridge::Create(
     ResourceType::Type request_type,
     int app_cache_context_id,
     int routing_id) {
-  return new ResourceLoaderBridgeImpl(method, url, policy_url,
+  return new ResourceLoaderBridgeImpl(method, url, first_party_for_cookies,
                                       referrer, headers, load_flags,
                                       app_cache_context_id);
 }
@@ -627,8 +627,9 @@ void SimpleResourceLoaderBridge::Shutdown() {
   }
 }
 
-void SimpleResourceLoaderBridge::SetCookie(
-    const GURL& url, const GURL& policy_url, const std::string& cookie) {
+void SimpleResourceLoaderBridge::SetCookie(const GURL& url,
+                                           const GURL& first_party_for_cookies,
+                                           const std::string& cookie) {
   // Proxy to IO thread to synchronize w/ network loading.
 
   if (!EnsureIOThread()) {
@@ -642,7 +643,7 @@ void SimpleResourceLoaderBridge::SetCookie(
 }
 
 std::string SimpleResourceLoaderBridge::GetCookies(
-    const GURL& url, const GURL& policy_url) {
+    const GURL& url, const GURL& first_party_for_cookies) {
   // Proxy to IO thread to synchronize w/ network loading
 
   if (!EnsureIOThread()) {

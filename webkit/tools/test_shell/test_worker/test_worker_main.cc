@@ -60,13 +60,14 @@ class WorkerWebKitClientImpl : public webkit_glue::WebKitClientImpl {
   }
 
   virtual void setCookies(const WebKit::WebURL& url,
-                          const WebKit::WebURL& policy_url,
+                          const WebKit::WebURL& first_party_for_cookies,
                           const WebKit::WebString& value) {
     NOTREACHED();
   }
 
-  virtual WebKit::WebString cookies(const WebKit::WebURL& url,
-                                    const WebKit::WebURL& policy_url) {
+  virtual WebKit::WebString cookies(
+      const WebKit::WebURL& url,
+      const WebKit::WebURL& first_party_for_cookies) {
     NOTREACHED();
     return WebKit::WebString();
   }
@@ -122,7 +123,7 @@ __attribute__((visibility("default")))
 ResourceLoaderBridge* ResourceLoaderBridge::Create(
     const std::string& method,
     const GURL& url,
-    const GURL& policy_url,
+    const GURL& first_party_for_cookies,
     const GURL& referrer,
     const std::string& frame_origin,
     const std::string& main_frame_origin,
