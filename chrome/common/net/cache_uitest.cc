@@ -42,7 +42,7 @@ class CacheTest : public UITest {
 
   private:
     // Class constants
-    static const int kWaitForCacheUpdateMsec = 2000;
+    static const int kWaitForCacheUpdateMsec = 1000;
     static const int kCacheWaitMultiplier = 4;  // Used to increase delay
 
     // Appends a new tab to the test chrome window and loads the specified

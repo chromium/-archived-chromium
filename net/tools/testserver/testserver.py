@@ -263,7 +263,7 @@ class TestPageHandler(BaseHTTPServer.BaseHTTPRequestHandler):
 
     self.send_response(200)
     self.send_header('Content-type', 'text/html')
-    self.send_header('Cache-Control', 'max-age=5, private')
+    self.send_header('Cache-Control', 'max-age=3, private')
     self.end_headers()
 
     self.wfile.write('<html><head><title>%s</title></head></html>' %
@@ -280,7 +280,7 @@ class TestPageHandler(BaseHTTPServer.BaseHTTPRequestHandler):
 
     self.send_response(200)
     self.send_header('Content-type', 'text/html')
-    self.send_header('Cache-Control', 'max-age=5, public')
+    self.send_header('Cache-Control', 'max-age=3, public')
     self.end_headers()
 
     self.wfile.write('<html><head><title>%s</title></head></html>' %
