@@ -185,6 +185,7 @@ void StatusBubbleViews::StatusView::Show() {
   Stop();
   CancelTimer();
   SetOpacity(1.0);
+  popup_->Show();
   stage_ = BUBBLE_SHOWN;
   PaintNow();
 }
@@ -194,6 +195,7 @@ void StatusBubbleViews::StatusView::Hide() {
   CancelTimer();
   SetOpacity(0.0);
   text_.clear();
+  popup_->Hide();
   stage_ = BUBBLE_HIDDEN;
 }
 
@@ -266,6 +268,7 @@ void StatusBubbleViews::StatusView::StartHiding() {
 
 void StatusBubbleViews::StatusView::StartShowing() {
   if (stage_ == BUBBLE_HIDDEN) {
+    popup_->Show();
     stage_ = BUBBLE_SHOWING_TIMER;
     StartTimer(kShowDelay);
   } else if (stage_ == BUBBLE_HIDING_TIMER) {
@@ -309,6 +312,7 @@ void StatusBubbleViews::StatusView::AnimationEnded(
 
   if (stage_ == BUBBLE_HIDING_FADE) {
     stage_ = BUBBLE_HIDDEN;
+    popup_->Hide();
   } else if (stage_ == BUBBLE_SHOWING_FADE) {
     stage_ = BUBBLE_SHOWN;
   }
