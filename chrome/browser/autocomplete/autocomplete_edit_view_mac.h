@@ -111,7 +111,8 @@ class AutocompleteEditViewMac : public AutocompleteEditView {
   // situations.
   bool IsFirstResponder() const;
 
-  // Grab focus if needed and set the selection to |range|.
+  // If |model_| believes it has focus, grab focus if needed and set
+  // the selection to |range|.  Otherwise does nothing.
   void SetSelectedRange(const NSRange range);
 
   // Update the field with |display_text| and highlight the host and

@@ -179,8 +179,10 @@ AutocompleteEditViewMac::~AutocompleteEditViewMac() {
 void AutocompleteEditViewMac::SaveStateToTab(TabContents* tab) {
   DCHECK(tab);
 
+  const bool hasFocus = [field_ currentEditor] ? true : false;
+
   NSRange range;
-  if (model_->has_focus()) {
+  if (hasFocus) {
     range = GetSelectedRange();
   } else {
     // If we are not focussed, there is no selection.  Manufacture
@@ -189,7 +191,7 @@ void AutocompleteEditViewMac::SaveStateToTab(TabContents* tab) {
   }
 
   AutocompleteEditViewMacState state(model_->GetStateForTabSwitch(),
-                                     model_->has_focus(), range);
+                                     hasFocus, range);
   StoreStateToTab(tab, state);
 }
 
@@ -212,14 +214,20 @@ void AutocompleteEditViewMac::Update(
       // Should restore the user's text via SetUserText().
       model_->RestoreState(state->model_state);
 
-      // Restore user's selection.
-      // TODO(shess): The model_ does not restore the focus state.  If
-      // field_ was in focus when we switched away, I presume it
-      // should be in focus when we switch back.  Figure out if model_
-      // not restoring focus is an oversight, or intentional for some
-      // subtle reason.
+      // Restore focus and selection if they were present when the tab
+      // was switched away.
       if (state->has_focus) {
-        SetSelectedRange(state->selection);
+        // TODO(shess): Unfortunately, there is no safe way to update
+        // this because TabStripController -selectTabWithContents:* is
+        // also messing with focus.  Both parties need to agree to
+        // store existing state before anyone tries to setup the new
+        // state.  Anyhow, it would look something like this.
+#if 0
+        FocusLocation();
+
+        // Must restore directly to evade model_->has_focus() guard.
+        [[field_ currentEditor] setSelectedRange:state->selection];
+#endif
       }
     }
   } else if (user_visible) {
@@ -278,15 +286,17 @@ NSRange AutocompleteEditViewMac::GetSelectedRange() const {
 }
 
 void AutocompleteEditViewMac::SetSelectedRange(const NSRange range) {
-  // TODO(shess): Check if we should steal focus or not.  We can't set
-  // the selection without focus, though.
-  FocusLocation();
+  if (model_->has_focus()) {
+    // TODO(shess): This should not be necessary.  Try to convert to
+    // DCHECK(IsFirstResponder()).
+    FocusLocation();
 
-  // TODO(shess): What if it didn't get first responder, and there is
-  // no field editor?  This will do nothing.  Well, at least it won't
-  // crash.  Think of something more productive to do, or prove that
-  // it cannot occur and DCHECK appropriately.
-  [[field_ currentEditor] setSelectedRange:range];
+    // TODO(shess): What if it didn't get first responder, and there is
+    // no field editor?  This will do nothing.  Well, at least it won't
+    // crash.  Think of something more productive to do, or prove that
+    // it cannot occur and DCHECK appropriately.
+    [[field_ currentEditor] setSelectedRange:range];
+  }
 }
 
 void AutocompleteEditViewMac::SetWindowTextAndCaretPos(const std::wstring& text,
