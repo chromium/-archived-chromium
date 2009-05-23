@@ -66,8 +66,7 @@ SUBSTRING : history::historybackend::~historybackend
 PREFIX : iat_patch::getiatfunction___iat_patch::restoreimportedfunction___iat_patch::iatpatchfunction::unpatch
 
 # 12479
-PREFIX : messageloop::posttask___webdataservice::scheduletask___webdataservice::getie7login___passwordstorewin::onwebdataservicerequestdone
-PREFIX : std::_tree<std::_tmap_traits<int,void *,std::less<int>,std::allocator<std::pair<int const ,void *> >,0> >::insert___passwordstorewin::onwebdataservicerequestdone___webdataservice::requestcompleted
+SUBSTRING : ___passwordstorewin::onwebdataservicerequestdone___webdataservice::requestcompleted___
 
 # 10770
 PREFIX : npapi::pluginstream::trywritetoplugin___npapi::pluginstream::writetoplugin___npapi::pluginstream::write
