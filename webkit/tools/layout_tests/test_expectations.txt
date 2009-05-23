@@ -2689,3 +2689,7 @@ BUG12477 : LayoutTests/http/tests/mime/accept-all-text-types.html = FAIL
 BUG12477 : LayoutTests/http/tests/local/drag-over-remote-content.html = FAIL
 BUG12477 : LayoutTests/http/tests/security/drag-over-remote-content-iframe.html = FAIL
 
+// Test failures from WebKit 44049:44065
+BUG12563 LINUX : LayoutTests/fast/css/clip-zooming.html = FAIL
+BUG12563 LINUX : LayoutTests/fast/forms/search-zoomed.html = FAIL
+
