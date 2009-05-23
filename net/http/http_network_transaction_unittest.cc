@@ -7,6 +7,7 @@
 #include "base/compiler_specific.h"
 #include "net/base/client_socket_factory.h"
 #include "net/base/completion_callback.h"
+#include "net/base/socket_test_util.h"
 #include "net/base/ssl_client_socket.h"
 #include "net/base/ssl_info.h"
 #include "net/base/test_completion_callback.h"
@@ -22,322 +23,6 @@
 //-----------------------------------------------------------------------------
 
 namespace net {
-
-struct MockConnect {
-  // Asynchronous connection success.
-  MockConnect() : async(true), result(OK) { }
-  MockConnect(bool a, int r) : async(a), result(r) { }
-
-  bool async;
-  int result;
-};
-
-struct MockRead {
-  // Read failure (no data).
-  MockRead(bool async, int result) : async(async) , result(result), data(NULL),
-      data_len(0) { }
-
-  // Asynchronous read success (inferred data length).
-  explicit MockRead(const char* data) : async(true),  result(0), data(data),
-      data_len(strlen(data)) { }
-
-  // Read success (inferred data length).
-  MockRead(bool async, const char* data) : async(async), result(0), data(data),
-      data_len(strlen(data)) { }
-
-  // Read success.
-  MockRead(bool async, const char* data, int data_len) : async(async),
-      result(0), data(data), data_len(data_len) { }
-
-  bool async;
-  int result;
-  const char* data;
-  int data_len;
-};
-
-// MockWrite uses the same member fields as MockRead, but with different
-// meanings. The expected input to MockTCPClientSocket::Write() is given
-// by {data, data_len}, and the return value of Write() is controlled by
-// {async, result}.
-typedef MockRead MockWrite;
-
-struct MockSocket {
-  MockSocket() : reads(NULL), writes(NULL) { }
-  MockSocket(MockRead* r, MockWrite* w) : reads(r), writes(w) { }
-
-  MockConnect connect;
-  MockRead* reads;
-  MockWrite* writes;
-};
-
-// Holds an array of MockSocket elements.  As MockTCPClientSocket objects get
-// instantiated, they take their data from the i'th element of this array.
-//
-// Tests should assign the first N entries of mock_sockets to point to valid
-// MockSocket objects.  The first unused entry should be NULL'd.
-//
-MockSocket* mock_sockets[10];
-
-// MockSSLSockets only need to keep track of the return code from calls to
-// Connect().
-struct  MockSSLSocket {
-  MockSSLSocket(bool async, int result) : connect(async, result) { }
-
-  MockConnect connect;
-};
-MockSSLSocket* mock_ssl_sockets[10];
-
-// Index of the next mock_sockets element to use.
-int mock_sockets_index;
-int mock_ssl_sockets_index;
-
-class MockClientSocket : public SSLClientSocket {
- public:
-  explicit MockClientSocket()
-      : ALLOW_THIS_IN_INITIALIZER_LIST(method_factory_(this)),
-        callback_(NULL),
-        connected_(false) {
-  }
-
-  // ClientSocket methods:
-  virtual int Connect(CompletionCallback* callback) = 0;
-
-  // SSLClientSocket methods:
-  virtual void GetSSLInfo(SSLInfo* ssl_info) {
-    NOTREACHED();
-  }
-
-  virtual void Disconnect() {
-    connected_ = false;
-    callback_ = NULL;
-  }
-  virtual bool IsConnected() const {
-    return connected_;
-  }
-  virtual bool IsConnectedAndIdle() const {
-    return connected_;
-  }
-  // Socket methods:
-  virtual int Read(IOBuffer* buf, int buf_len,
-                   CompletionCallback* callback) = 0;
-  virtual int Write(IOBuffer* buf, int buf_len,
-                    CompletionCallback* callback) = 0;
-
-#if defined(OS_LINUX)
-  virtual int GetPeerName(struct sockaddr *name, socklen_t *namelen) {
-    memset(reinterpret_cast<char *>(name), 0, *namelen);
-    return OK;
-  }
-#endif
-
-
- protected:
-  void RunCallbackAsync(CompletionCallback* callback, int result) {
-    callback_ = callback;
-    MessageLoop::current()->PostTask(FROM_HERE,
-        method_factory_.NewRunnableMethod(
-            &MockClientSocket::RunCallback, result));
-  }
-
-  void RunCallback(int result) {
-    CompletionCallback* c = callback_;
-    callback_ = NULL;
-    if (c)
-      c->Run(result);
-  }
-
-  ScopedRunnableMethodFactory<MockClientSocket> method_factory_;
-  CompletionCallback* callback_;
-  bool connected_;
-};
-
-class MockTCPClientSocket : public MockClientSocket {
- public:
-  explicit MockTCPClientSocket(const AddressList& addresses)
-      : data_(mock_sockets[mock_sockets_index++]),
-        read_index_(0),
-        read_offset_(0),
-        write_index_(0) {
-    DCHECK(data_) << "overran mock_sockets array";
-  }
-
-  // ClientSocket methods:
-  virtual int Connect(CompletionCallback* callback) {
-    DCHECK(!callback_);
-    if (connected_)
-      return OK;
-    connected_ = true;
-    if (data_->connect.async) {
-      RunCallbackAsync(callback, data_->connect.result);
-      return ERR_IO_PENDING;
-    }
-    return data_->connect.result;
-  }
-
-  // Socket methods:
-  virtual int Read(IOBuffer* buf, int buf_len, CompletionCallback* callback) {
-    DCHECK(!callback_);
-    MockRead& r = data_->reads[read_index_];
-    int result = r.result;
-    if (r.data) {
-      if (r.data_len - read_offset_ > 0) {
-        result = std::min(buf_len, r.data_len - read_offset_);
-        memcpy(buf->data(), r.data + read_offset_, result);
-        read_offset_ += result;
-        if (read_offset_ == r.data_len) {
-          read_index_++;
-          read_offset_ = 0;
-        }
-      } else {
-        result = 0;  // EOF
-      }
-    }
-    if (r.async) {
-      RunCallbackAsync(callback, result);
-      return ERR_IO_PENDING;
-    }
-    return result;
-  }
-
-  virtual int Write(IOBuffer* buf, int buf_len,
-                    CompletionCallback* callback) {
-    DCHECK(buf);
-    DCHECK(buf_len > 0);
-    DCHECK(!callback_);
-    // Not using mock writes; succeed synchronously.
-    if (!data_->writes)
-      return buf_len;
-
-    // Check that what we are writing matches the expectation.
-    // Then give the mocked return value.
-    MockWrite& w = data_->writes[write_index_++];
-    int result = w.result;
-    if (w.data) {
-      std::string expected_data(w.data, w.data_len);
-      std::string actual_data(buf->data(), buf_len);
-      EXPECT_EQ(expected_data, actual_data);
-      if (expected_data != actual_data)
-        return ERR_UNEXPECTED;
-      if (result == OK)
-        result = w.data_len;
-    }
-    if (w.async) {
-      RunCallbackAsync(callback, result);
-      return ERR_IO_PENDING;
-    }
-    return result;
-  }
-
- private:
-  MockSocket* data_;
-  int read_index_;
-  int read_offset_;
-  int write_index_;
-};
-
-class MockSSLClientSocket : public MockClientSocket {
- public:
-  explicit MockSSLClientSocket(
-      ClientSocket* transport_socket,
-      const std::string& hostname,
-      const SSLConfig& ssl_config)
-      : transport_(transport_socket),
-        data_(mock_ssl_sockets[mock_ssl_sockets_index++]) {
-    DCHECK(data_) << "overran mock_ssl_sockets array";
-  }
-
-  ~MockSSLClientSocket() {
-    Disconnect();
-  }
-
-  virtual void GetSSLInfo(SSLInfo* ssl_info) {
-    ssl_info->Reset();
-  }
-
-  friend class ConnectCallback;
-  class ConnectCallback :
-      public CompletionCallbackImpl<ConnectCallback> {
-   public:
-    ConnectCallback(MockSSLClientSocket *ssl_client_socket,
-                    CompletionCallback* user_callback,
-                    int rv)
-        : ALLOW_THIS_IN_INITIALIZER_LIST(
-              CompletionCallbackImpl<ConnectCallback>(
-                  this, &ConnectCallback::Wrapper)),
-          ssl_client_socket_(ssl_client_socket),
-          user_callback_(user_callback),
-          rv_(rv) {
-    }
-
-   private:
-    void Wrapper(int rv) {
-      if (rv_ == OK)
-        ssl_client_socket_->connected_ = true;
-      user_callback_->Run(rv_);
-      delete this;
-    }
-
-    MockSSLClientSocket* ssl_client_socket_;
-    CompletionCallback* user_callback_;
-    int rv_;
-  };
-
-  virtual int Connect(CompletionCallback* callback) {
-    DCHECK(!callback_);
-    ConnectCallback* connect_callback = new ConnectCallback(
-        this, callback, data_->connect.result);
-    int rv = transport_->Connect(connect_callback);
-    if (rv == OK) {
-      delete connect_callback;
-      if (data_->connect.async) {
-        RunCallbackAsync(callback, data_->connect.result);
-        return ERR_IO_PENDING;
-      }
-      if (data_->connect.result == OK)
-        connected_ = true;
-      return data_->connect.result;
-    }
-    return rv;
-  }
-
-  virtual void Disconnect() {
-    MockClientSocket::Disconnect();
-    if (transport_ != NULL)
-      transport_->Disconnect();
-  }
-
-  // Socket methods:
-  virtual int Read(IOBuffer* buf, int buf_len, CompletionCallback* callback) {
-    DCHECK(!callback_);
-    return transport_->Read(buf, buf_len, callback);
-  }
-
-  virtual int Write(IOBuffer* buf, int buf_len,
-                    CompletionCallback* callback) {
-    DCHECK(!callback_);
-    return transport_->Write(buf, buf_len, callback);
-  }
-
- private:
-  scoped_ptr<ClientSocket> transport_;
-  MockSSLSocket* data_;
-};
-
-class MockClientSocketFactory : public ClientSocketFactory {
- public:
-  virtual ClientSocket* CreateTCPClientSocket(
-      const AddressList& addresses) {
-    return new MockTCPClientSocket(addresses);
-  }
-  virtual SSLClientSocket* CreateSSLClientSocket(
-      ClientSocket* transport_socket,
-      const std::string& hostname,
-      const SSLConfig& ssl_config) {
-    return new MockSSLClientSocket(transport_socket, hostname, ssl_config);
-  }
-};
-
-MockClientSocketFactory mock_socket_factory;
 
 // Create a proxy service which fails on all requests (falls back to direct).
 ProxyService* CreateNullProxyService() {
@@ -357,13 +42,6 @@ HttpNetworkSession* CreateSession(ProxyService* proxy_service) {
 
 class HttpNetworkTransactionTest : public PlatformTest {
  public:
-  virtual void SetUp() {
-    PlatformTest::SetUp();
-    mock_sockets[0] = NULL;
-    mock_sockets_index = 0;
-    mock_ssl_sockets_index = 0;
-  }
-
   virtual void TearDown() {
     // Empty the current queue.
     MessageLoop::current()->RunAllPending();
@@ -372,51 +50,57 @@ class HttpNetworkTransactionTest : public PlatformTest {
 
  protected:
   void KeepAliveConnectionResendRequestTest(const MockRead& read_failure);
-};
 
-struct SimpleGetHelperResult {
-  int rv;
-  std::string status_line;
-  std::string response_data;
-};
+  struct SimpleGetHelperResult {
+    int rv;
+    std::string status_line;
+    std::string response_data;
+  };
 
-SimpleGetHelperResult SimpleGetHelper(MockRead data_reads[]) {
-  SimpleGetHelperResult out;
+  SimpleGetHelperResult SimpleGetHelper(MockRead data_reads[]) {
+    SimpleGetHelperResult out;
 
-  scoped_ptr<ProxyService> proxy_service(CreateNullProxyService());
-  scoped_ptr<HttpTransaction> trans(new HttpNetworkTransaction(
-      CreateSession(proxy_service.get()), &mock_socket_factory));
+    scoped_ptr<ProxyService> proxy_service(CreateNullProxyService());
+    scoped_ptr<HttpTransaction> trans(new HttpNetworkTransaction(
+        CreateSession(proxy_service.get()), &mock_socket_factory_));
 
-  HttpRequestInfo request;
-  request.method = "GET";
-  request.url = GURL("http://www.google.com/");
-  request.load_flags = 0;
+    HttpRequestInfo request;
+    request.method = "GET";
+    request.url = GURL("http://www.google.com/");
+    request.load_flags = 0;
 
-  MockSocket data;
-  data.reads = data_reads;
-  mock_sockets[0] = &data;
-  mock_sockets[1] = NULL;
+    MockSocket data;
+    data.reads = data_reads;
+    mock_socket_factory_.AddMockSocket(&data);
 
-  TestCompletionCallback callback;
+    TestCompletionCallback callback;
 
-  int rv = trans->Start(&request, &callback);
-  EXPECT_EQ(ERR_IO_PENDING, rv);
+    int rv = trans->Start(&request, &callback);
+    EXPECT_EQ(ERR_IO_PENDING, rv);
 
-  out.rv = callback.WaitForResult();
-  if (out.rv != OK)
+    out.rv = callback.WaitForResult();
+    if (out.rv != OK)
+      return out;
+
+    const HttpResponseInfo* response = trans->GetResponseInfo();
+    EXPECT_TRUE(response != NULL);
+
+    EXPECT_TRUE(response->headers != NULL);
+    out.status_line = response->headers->GetStatusLine();
+
+    rv = ReadTransaction(trans.get(), &out.response_data);
+    EXPECT_EQ(OK, rv);
+
     return out;
+  }
 
-  const HttpResponseInfo* response = trans->GetResponseInfo();
-  EXPECT_TRUE(response != NULL);
+  void ConnectStatusHelperWithExpectedStatus(const MockRead& status,
+                                             int expected_status);
 
-  EXPECT_TRUE(response->headers != NULL);
-  out.status_line = response->headers->GetStatusLine();
+  void ConnectStatusHelper(const MockRead& status);
 
-  rv = ReadTransaction(trans.get(), &out.response_data);
-  EXPECT_EQ(OK, rv);
-
-  return out;
-}
+  MockClientSocketFactory mock_socket_factory_;
+};
 
 // Fill |str| with a long header list that consumes >= |size| bytes.
 void FillLargeHeadersString(std::string* str, int size) {
@@ -467,7 +151,7 @@ std::string MockGetHostName() {
 TEST_F(HttpNetworkTransactionTest, Basic) {
   scoped_ptr<ProxyService> proxy_service(CreateNullProxyService());
   scoped_ptr<HttpTransaction> trans(new HttpNetworkTransaction(
-      CreateSession(proxy_service.get()), &mock_socket_factory));
+      CreateSession(proxy_service.get()), &mock_socket_factory_));
 }
 
 TEST_F(HttpNetworkTransactionTest, SimpleGET) {
@@ -578,7 +262,7 @@ TEST_F(HttpNetworkTransactionTest, StopsReading204) {
 TEST_F(HttpNetworkTransactionTest, Head) {
   scoped_ptr<ProxyService> proxy_service(CreateNullProxyService());
   scoped_ptr<HttpTransaction> trans(new HttpNetworkTransaction(
-      CreateSession(proxy_service.get()), &mock_socket_factory));
+      CreateSession(proxy_service.get()), &mock_socket_factory_));
 
   HttpRequestInfo request;
   request.method = "HEAD";
@@ -603,8 +287,7 @@ TEST_F(HttpNetworkTransactionTest, Head) {
   MockSocket data1;
   data1.reads = data_reads1;
   data1.writes = data_writes1;
-  mock_sockets[0] = &data1;
-  mock_sockets[1] = NULL;
+  mock_socket_factory_.AddMockSocket(&data1);
 
   TestCompletionCallback callback1;
 
@@ -651,8 +334,7 @@ TEST_F(HttpNetworkTransactionTest, ReuseConnection) {
   };
   MockSocket data;
   data.reads = data_reads;
-  mock_sockets[0] = &data;
-  mock_sockets[1] = NULL;
+  mock_socket_factory_.AddMockSocket(&data);
 
   const char* kExpectedResponseData[] = {
     "hello", "world"
@@ -660,7 +342,7 @@ TEST_F(HttpNetworkTransactionTest, ReuseConnection) {
 
   for (int i = 0; i < 2; ++i) {
     scoped_ptr<HttpTransaction> trans(
-        new HttpNetworkTransaction(session, &mock_socket_factory));
+        new HttpNetworkTransaction(session, &mock_socket_factory_));
 
     HttpRequestInfo request;
     request.method = "GET";
@@ -691,7 +373,7 @@ TEST_F(HttpNetworkTransactionTest, ReuseConnection) {
 TEST_F(HttpNetworkTransactionTest, Ignores100) {
   scoped_ptr<ProxyService> proxy_service(CreateNullProxyService());
   scoped_ptr<HttpTransaction> trans(new HttpNetworkTransaction(
-      CreateSession(proxy_service.get()), &mock_socket_factory));
+      CreateSession(proxy_service.get()), &mock_socket_factory_));
 
   HttpRequestInfo request;
   request.method = "POST";
@@ -708,8 +390,7 @@ TEST_F(HttpNetworkTransactionTest, Ignores100) {
   };
   MockSocket data;
   data.reads = data_reads;
-  mock_sockets[0] = &data;
-  mock_sockets[1] = NULL;
+  mock_socket_factory_.AddMockSocket(&data);
 
   TestCompletionCallback callback;
 
@@ -737,7 +418,7 @@ TEST_F(HttpNetworkTransactionTest, Ignores100) {
 TEST_F(HttpNetworkTransactionTest, Ignores1xx) {
   scoped_ptr<ProxyService> proxy_service(CreateNullProxyService());
   scoped_ptr<HttpTransaction> trans(new HttpNetworkTransaction(
-      CreateSession(proxy_service.get()), &mock_socket_factory));
+      CreateSession(proxy_service.get()), &mock_socket_factory_));
 
   HttpRequestInfo request;
   request.method = "GET";
@@ -752,8 +433,7 @@ TEST_F(HttpNetworkTransactionTest, Ignores1xx) {
   };
   MockSocket data;
   data.reads = data_reads;
-  mock_sockets[0] = &data;
-  mock_sockets[1] = NULL;
+  mock_socket_factory_.AddMockSocket(&data);
 
   TestCompletionCallback callback;
 
@@ -795,7 +475,7 @@ void HttpNetworkTransactionTest::KeepAliveConnectionResendRequestTest(
   };
   MockSocket data1;
   data1.reads = data1_reads;
-  mock_sockets[0] = &data1;
+  mock_socket_factory_.AddMockSocket(&data1);
 
   MockRead data2_reads[] = {
     MockRead("HTTP/1.1 200 OK\r\nContent-Length: 5\r\n\r\n"),
@@ -804,7 +484,7 @@ void HttpNetworkTransactionTest::KeepAliveConnectionResendRequestTest(
   };
   MockSocket data2;
   data2.reads = data2_reads;
-  mock_sockets[1] = &data2;
+  mock_socket_factory_.AddMockSocket(&data2);
 
   const char* kExpectedResponseData[] = {
     "hello", "world"
@@ -814,7 +494,7 @@ void HttpNetworkTransactionTest::KeepAliveConnectionResendRequestTest(
     TestCompletionCallback callback;
 
     scoped_ptr<HttpTransaction> trans(
-        new HttpNetworkTransaction(session, &mock_socket_factory));
+        new HttpNetworkTransaction(session, &mock_socket_factory_));
 
     int rv = trans->Start(&request, &callback);
     EXPECT_EQ(ERR_IO_PENDING, rv);
@@ -848,7 +528,7 @@ TEST_F(HttpNetworkTransactionTest, KeepAliveConnectionEOF) {
 TEST_F(HttpNetworkTransactionTest, NonKeepAliveConnectionReset) {
   scoped_ptr<ProxyService> proxy_service(CreateNullProxyService());
   scoped_ptr<HttpTransaction> trans(new HttpNetworkTransaction(
-      CreateSession(proxy_service.get()), &mock_socket_factory));
+      CreateSession(proxy_service.get()), &mock_socket_factory_));
 
   HttpRequestInfo request;
   request.method = "GET";
@@ -863,8 +543,7 @@ TEST_F(HttpNetworkTransactionTest, NonKeepAliveConnectionReset) {
   };
   MockSocket data;
   data.reads = data_reads;
-  mock_sockets[0] = &data;
-  mock_sockets[1] = NULL;
+  mock_socket_factory_.AddMockSocket(&data);
 
   TestCompletionCallback callback;
 
@@ -903,7 +582,7 @@ TEST_F(HttpNetworkTransactionTest, NonKeepAliveConnectionEOF) {
 TEST_F(HttpNetworkTransactionTest, BasicAuth) {
   scoped_ptr<ProxyService> proxy_service(CreateNullProxyService());
   scoped_ptr<HttpTransaction> trans(new HttpNetworkTransaction(
-      CreateSession(proxy_service.get()), &mock_socket_factory));
+      CreateSession(proxy_service.get()), &mock_socket_factory_));
 
   HttpRequestInfo request;
   request.method = "GET";
@@ -952,9 +631,8 @@ TEST_F(HttpNetworkTransactionTest, BasicAuth) {
   MockSocket data2;
   data2.reads = data_reads2;
   data2.writes = data_writes2;
-  mock_sockets[0] = &data1;
-  mock_sockets[1] = &data2;
-  mock_sockets[2] = NULL;
+  mock_socket_factory_.AddMockSocket(&data1);
+  mock_socket_factory_.AddMockSocket(&data2);
 
   TestCompletionCallback callback1;
 
@@ -993,7 +671,7 @@ TEST_F(HttpNetworkTransactionTest, BasicAuth) {
 TEST_F(HttpNetworkTransactionTest, BasicAuthKeepAlive) {
   scoped_ptr<ProxyService> proxy_service(CreateNullProxyService());
   scoped_ptr<HttpTransaction> trans(new HttpNetworkTransaction(
-      CreateSession(proxy_service.get()), &mock_socket_factory));
+      CreateSession(proxy_service.get()), &mock_socket_factory_));
 
   HttpRequestInfo request;
   request.method = "GET";
@@ -1030,8 +708,7 @@ TEST_F(HttpNetworkTransactionTest, BasicAuthKeepAlive) {
   MockSocket data1;
   data1.reads = data_reads1;
   data1.writes = data_writes1;
-  mock_sockets[0] = &data1;
-  mock_sockets[1] = NULL;
+  mock_socket_factory_.AddMockSocket(&data1);
 
   TestCompletionCallback callback1;
 
@@ -1070,7 +747,7 @@ TEST_F(HttpNetworkTransactionTest, BasicAuthKeepAlive) {
 TEST_F(HttpNetworkTransactionTest, BasicAuthKeepAliveNoBody) {
   scoped_ptr<ProxyService> proxy_service(CreateNullProxyService());
   scoped_ptr<HttpTransaction> trans(new HttpNetworkTransaction(
-      CreateSession(proxy_service.get()), &mock_socket_factory));
+      CreateSession(proxy_service.get()), &mock_socket_factory_));
 
   HttpRequestInfo request;
   request.method = "GET";
@@ -1110,8 +787,7 @@ TEST_F(HttpNetworkTransactionTest, BasicAuthKeepAliveNoBody) {
   MockSocket data1;
   data1.reads = data_reads1;
   data1.writes = data_writes1;
-  mock_sockets[0] = &data1;
-  mock_sockets[1] = NULL;
+  mock_socket_factory_.AddMockSocket(&data1);
 
   TestCompletionCallback callback1;
 
@@ -1150,7 +826,7 @@ TEST_F(HttpNetworkTransactionTest, BasicAuthKeepAliveNoBody) {
 TEST_F(HttpNetworkTransactionTest, BasicAuthKeepAliveLargeBody) {
   scoped_ptr<ProxyService> proxy_service(CreateNullProxyService());
   scoped_ptr<HttpTransaction> trans(new HttpNetworkTransaction(
-      CreateSession(proxy_service.get()), &mock_socket_factory));
+      CreateSession(proxy_service.get()), &mock_socket_factory_));
 
   HttpRequestInfo request;
   request.method = "GET";
@@ -1193,8 +869,7 @@ TEST_F(HttpNetworkTransactionTest, BasicAuthKeepAliveLargeBody) {
   MockSocket data1;
   data1.reads = data_reads1;
   data1.writes = data_writes1;
-  mock_sockets[0] = &data1;
-  mock_sockets[1] = NULL;
+  mock_socket_factory_.AddMockSocket(&data1);
 
   TestCompletionCallback callback1;
 
@@ -1239,7 +914,7 @@ TEST_F(HttpNetworkTransactionTest, BasicAuthProxyKeepAlive) {
       CreateSession(proxy_service.get()));
 
   scoped_ptr<HttpTransaction> trans(new HttpNetworkTransaction(
-      session.get(), &mock_socket_factory));
+      session.get(), &mock_socket_factory_));
 
   HttpRequestInfo request;
   request.method = "GET";
@@ -1278,8 +953,7 @@ TEST_F(HttpNetworkTransactionTest, BasicAuthProxyKeepAlive) {
   MockSocket data1;
   data1.writes = data_writes1;
   data1.reads = data_reads1;
-  mock_sockets[0] = &data1;
-  mock_sockets[1] = NULL;
+  mock_socket_factory_.AddMockSocket(&data1);
 
   TestCompletionCallback callback1;
 
@@ -1340,7 +1014,7 @@ TEST_F(HttpNetworkTransactionTest, BasicAuthProxyCancelTunnel) {
       CreateSession(proxy_service.get()));
 
   scoped_ptr<HttpTransaction> trans(new HttpNetworkTransaction(
-      session.get(), &mock_socket_factory));
+      session.get(), &mock_socket_factory_));
 
   HttpRequestInfo request;
   request.method = "GET";
@@ -1364,8 +1038,7 @@ TEST_F(HttpNetworkTransactionTest, BasicAuthProxyCancelTunnel) {
   MockSocket data;
   data.writes = data_writes;
   data.reads = data_reads;
-  mock_sockets[0] = &data;
-  mock_sockets[1] = NULL;
+  mock_socket_factory_.AddMockSocket(&data);
 
   TestCompletionCallback callback;
 
@@ -1388,7 +1061,7 @@ TEST_F(HttpNetworkTransactionTest, BasicAuthProxyCancelTunnel) {
   EXPECT_EQ(ERR_TUNNEL_CONNECTION_FAILED, rv);
 }
 
-static void ConnectStatusHelperWithExpectedStatus(
+void HttpNetworkTransactionTest::ConnectStatusHelperWithExpectedStatus(
     const MockRead& status, int expected_status) {
   // Configure against proxy server "myproxy:70".
   scoped_ptr<ProxyService> proxy_service(
@@ -1398,7 +1071,7 @@ static void ConnectStatusHelperWithExpectedStatus(
       CreateSession(proxy_service.get()));
 
   scoped_ptr<HttpTransaction> trans(new HttpNetworkTransaction(
-      session.get(), &mock_socket_factory));
+      session.get(), &mock_socket_factory_));
 
   HttpRequestInfo request;
   request.method = "GET";
@@ -1421,8 +1094,7 @@ static void ConnectStatusHelperWithExpectedStatus(
   MockSocket data;
   data.writes = data_writes;
   data.reads = data_reads;
-  mock_sockets[0] = &data;
-  mock_sockets[1] = NULL;
+  mock_socket_factory_.AddMockSocket(&data);
 
   TestCompletionCallback callback;
 
@@ -1433,7 +1105,7 @@ static void ConnectStatusHelperWithExpectedStatus(
   EXPECT_EQ(expected_status, rv);
 }
 
-static void ConnectStatusHelper(const MockRead& status) {
+void HttpNetworkTransactionTest::ConnectStatusHelper(const MockRead& status) {
   ConnectStatusHelperWithExpectedStatus(
       status, ERR_TUNNEL_CONNECTION_FAILED);
 }
@@ -1612,7 +1284,7 @@ TEST_F(HttpNetworkTransactionTest, BasicAuthProxyThenServer) {
   // Configure against proxy server "myproxy:70".
   scoped_ptr<HttpTransaction> trans(new HttpNetworkTransaction(
       CreateSession(proxy_service.get()),
-      &mock_socket_factory));
+      &mock_socket_factory_));
 
   HttpRequestInfo request;
   request.method = "GET";
@@ -1687,10 +1359,9 @@ TEST_F(HttpNetworkTransactionTest, BasicAuthProxyThenServer) {
   MockSocket data3;
   data3.reads = data_reads3;
   data3.writes = data_writes3;
-  mock_sockets[0] = &data1;
-  mock_sockets[1] = &data2;
-  mock_sockets[2] = &data3;
-  mock_sockets[3] = NULL;
+  mock_socket_factory_.AddMockSocket(&data1);
+  mock_socket_factory_.AddMockSocket(&data2);
+  mock_socket_factory_.AddMockSocket(&data3);
 
   TestCompletionCallback callback1;
 
@@ -1750,7 +1421,7 @@ TEST_F(HttpNetworkTransactionTest, NTLMAuth1) {
 
   scoped_ptr<ProxyService> proxy_service(CreateNullProxyService());
   scoped_ptr<HttpTransaction> trans(new HttpNetworkTransaction(
-      CreateSession(proxy_service.get()), &mock_socket_factory));
+      CreateSession(proxy_service.get()), &mock_socket_factory_));
 
   HttpRequestInfo request;
   request.method = "GET";
@@ -1827,9 +1498,8 @@ TEST_F(HttpNetworkTransactionTest, NTLMAuth1) {
   MockSocket data2;
   data2.reads = data_reads2;
   data2.writes = data_writes2;
-  mock_sockets[0] = &data1;
-  mock_sockets[1] = &data2;
-  mock_sockets[2] = NULL;
+  mock_socket_factory_.AddMockSocket(&data1);
+  mock_socket_factory_.AddMockSocket(&data2);
 
   TestCompletionCallback callback1;
 
@@ -1877,7 +1547,7 @@ TEST_F(HttpNetworkTransactionTest, NTLMAuth2) {
 
   scoped_ptr<ProxyService> proxy_service(CreateNullProxyService());
   scoped_ptr<HttpTransaction> trans(new HttpNetworkTransaction(
-      CreateSession(proxy_service.get()), &mock_socket_factory));
+      CreateSession(proxy_service.get()), &mock_socket_factory_));
 
   HttpRequestInfo request;
   request.method = "GET";
@@ -2006,10 +1676,9 @@ TEST_F(HttpNetworkTransactionTest, NTLMAuth2) {
   MockSocket data3;
   data3.reads = data_reads3;
   data3.writes = data_writes3;
-  mock_sockets[0] = &data1;
-  mock_sockets[1] = &data2;
-  mock_sockets[2] = &data3;
-  mock_sockets[3] = NULL;
+  mock_socket_factory_.AddMockSocket(&data1);
+  mock_socket_factory_.AddMockSocket(&data2);
+  mock_socket_factory_.AddMockSocket(&data3);
 
   TestCompletionCallback callback1;
 
@@ -2084,7 +1753,7 @@ TEST_F(HttpNetworkTransactionTest, NTLMAuth2) {
 TEST_F(HttpNetworkTransactionTest, LargeHeadersNoBody) {
   scoped_ptr<ProxyService> proxy_service(CreateNullProxyService());
   scoped_ptr<HttpTransaction> trans(new HttpNetworkTransaction(
-      CreateSession(proxy_service.get()), &mock_socket_factory));
+      CreateSession(proxy_service.get()), &mock_socket_factory_));
 
   HttpRequestInfo request;
   request.method = "GET";
@@ -2103,8 +1772,7 @@ TEST_F(HttpNetworkTransactionTest, LargeHeadersNoBody) {
   };
   MockSocket data;
   data.reads = data_reads;
-  mock_sockets[0] = &data;
-  mock_sockets[1] = NULL;
+  mock_socket_factory_.AddMockSocket(&data);
 
   TestCompletionCallback callback;
 
@@ -2130,7 +1798,7 @@ TEST_F(HttpNetworkTransactionTest, DontRecycleTCPSocketForSSLTunnel) {
       CreateSession(proxy_service.get()));
 
   scoped_ptr<HttpTransaction> trans(new HttpNetworkTransaction(
-      session.get(), &mock_socket_factory));
+      session.get(), &mock_socket_factory_));
 
   HttpRequestInfo request;
   request.method = "GET";
@@ -2155,8 +1823,7 @@ TEST_F(HttpNetworkTransactionTest, DontRecycleTCPSocketForSSLTunnel) {
   MockSocket data1;
   data1.writes = data_writes1;
   data1.reads = data_reads1;
-  mock_sockets[0] = &data1;
-  mock_sockets[1] = NULL;
+  mock_socket_factory_.AddMockSocket(&data1);
 
   TestCompletionCallback callback1;
 
@@ -2189,7 +1856,7 @@ TEST_F(HttpNetworkTransactionTest, RecycleSocket) {
       CreateSession(proxy_service.get()));
 
   scoped_ptr<HttpTransaction> trans(new HttpNetworkTransaction(
-      session.get(), &mock_socket_factory));
+      session.get(), &mock_socket_factory_));
 
   HttpRequestInfo request;
   request.method = "GET";
@@ -2208,8 +1875,7 @@ TEST_F(HttpNetworkTransactionTest, RecycleSocket) {
 
   MockSocket data;
   data.reads = data_reads;
-  mock_sockets[0] = &data;
-  mock_sockets[1] = NULL;
+  mock_socket_factory_.AddMockSocket(&data);
 
   TestCompletionCallback callback;
 
@@ -2249,7 +1915,7 @@ TEST_F(HttpNetworkTransactionTest, RecycleSocketAfterZeroContentLength) {
       CreateSession(proxy_service.get()));
 
   scoped_ptr<HttpTransaction> trans(new HttpNetworkTransaction(
-      session.get(), &mock_socket_factory));
+      session.get(), &mock_socket_factory_));
 
   HttpRequestInfo request;
   request.method = "GET";
@@ -2269,8 +1935,7 @@ TEST_F(HttpNetworkTransactionTest, RecycleSocketAfterZeroContentLength) {
 
   MockSocket data;
   data.reads = data_reads;
-  mock_sockets[0] = &data;
-  mock_sockets[1] = NULL;
+  mock_socket_factory_.AddMockSocket(&data);
 
   TestCompletionCallback callback;
 
@@ -2360,9 +2025,8 @@ TEST_F(HttpNetworkTransactionTest, ResendRequestOnWriteBodyError) {
   data2.reads = data_reads2;
   data2.writes = data_writes2;
 
-  mock_sockets[0] = &data1;
-  mock_sockets[1] = &data2;
-  mock_sockets[2] = NULL;
+  mock_socket_factory_.AddMockSocket(&data1);
+  mock_socket_factory_.AddMockSocket(&data2);
 
   const char* kExpectedResponseData[] = {
     "hello world", "welcome"
@@ -2370,7 +2034,7 @@ TEST_F(HttpNetworkTransactionTest, ResendRequestOnWriteBodyError) {
 
   for (int i = 0; i < 2; ++i) {
     scoped_ptr<HttpTransaction> trans(
-        new HttpNetworkTransaction(session, &mock_socket_factory));
+        new HttpNetworkTransaction(session, &mock_socket_factory_));
 
     TestCompletionCallback callback;
 
@@ -2399,7 +2063,7 @@ TEST_F(HttpNetworkTransactionTest, ResendRequestOnWriteBodyError) {
 TEST_F(HttpNetworkTransactionTest, AuthIdentityInUrl) {
   scoped_ptr<ProxyService> proxy_service(CreateNullProxyService());
   scoped_ptr<HttpTransaction> trans(new HttpNetworkTransaction(
-      CreateSession(proxy_service.get()), &mock_socket_factory));
+      CreateSession(proxy_service.get()), &mock_socket_factory_));
 
   HttpRequestInfo request;
   request.method = "GET";
@@ -2441,9 +2105,8 @@ TEST_F(HttpNetworkTransactionTest, AuthIdentityInUrl) {
   MockSocket data2;
   data2.reads = data_reads2;
   data2.writes = data_writes2;
-  mock_sockets[0] = &data1;
-  mock_sockets[1] = &data2;
-  mock_sockets[2] = NULL;
+  mock_socket_factory_.AddMockSocket(&data1);
+  mock_socket_factory_.AddMockSocket(&data2);
 
   TestCompletionCallback callback1;
 
@@ -2482,7 +2145,7 @@ TEST_F(HttpNetworkTransactionTest, BasicAuthCacheAndPreauth) {
   // Transaction 1: authenticate (foo, bar) on MyRealm1
   {
     scoped_ptr<HttpTransaction> trans(new HttpNetworkTransaction(
-        session, &mock_socket_factory));
+        session, &mock_socket_factory_));
 
     HttpRequestInfo request;
     request.method = "GET";
@@ -2523,10 +2186,8 @@ TEST_F(HttpNetworkTransactionTest, BasicAuthCacheAndPreauth) {
     MockSocket data2;
     data2.reads = data_reads2;
     data2.writes = data_writes2;
-    mock_sockets_index = 0;
-    mock_sockets[0] = &data1;
-    mock_sockets[1] = &data2;
-    mock_sockets[2] = NULL;
+    mock_socket_factory_.AddMockSocket(&data1);
+    mock_socket_factory_.AddMockSocket(&data2);
 
     TestCompletionCallback callback1;
 
@@ -2566,7 +2227,7 @@ TEST_F(HttpNetworkTransactionTest, BasicAuthCacheAndPreauth) {
   // Transaction 2: authenticate (foo2, bar2) on MyRealm2
   {
     scoped_ptr<HttpTransaction> trans(new HttpNetworkTransaction(
-        session, &mock_socket_factory));
+        session, &mock_socket_factory_));
 
     HttpRequestInfo request;
     request.method = "GET";
@@ -2613,10 +2274,9 @@ TEST_F(HttpNetworkTransactionTest, BasicAuthCacheAndPreauth) {
     MockSocket data2;
     data2.reads = data_reads2;
     data2.writes = data_writes2;
-    mock_sockets_index = 0;
-    mock_sockets[0] = &data1;
-    mock_sockets[1] = &data2;
-    mock_sockets[2] = NULL;
+
+    mock_socket_factory_.AddMockSocket(&data1);
+    mock_socket_factory_.AddMockSocket(&data2);
 
     TestCompletionCallback callback1;
 
@@ -2657,7 +2317,7 @@ TEST_F(HttpNetworkTransactionTest, BasicAuthCacheAndPreauth) {
   // succeed with preemptive authorization.
   {
     scoped_ptr<HttpTransaction> trans(new HttpNetworkTransaction(
-        session, &mock_socket_factory));
+        session, &mock_socket_factory_));
 
     HttpRequestInfo request;
     request.method = "GET";
@@ -2683,9 +2343,7 @@ TEST_F(HttpNetworkTransactionTest, BasicAuthCacheAndPreauth) {
     MockSocket data1;
     data1.reads = data_reads1;
     data1.writes = data_writes1;
-    mock_sockets_index = 0;
-    mock_sockets[0] = &data1;
-    mock_sockets[1] = NULL;
+    mock_socket_factory_.AddMockSocket(&data1);
 
     TestCompletionCallback callback1;
 
@@ -2708,7 +2366,7 @@ TEST_F(HttpNetworkTransactionTest, BasicAuthCacheAndPreauth) {
   // url is not known to belong to the protection space, so no pre-auth).
   {
     scoped_ptr<HttpTransaction> trans(new HttpNetworkTransaction(
-        session, &mock_socket_factory));
+        session, &mock_socket_factory_));
 
     HttpRequestInfo request;
     request.method = "GET";
@@ -2749,10 +2407,8 @@ TEST_F(HttpNetworkTransactionTest, BasicAuthCacheAndPreauth) {
     MockSocket data2;
     data2.reads = data_reads2;
     data2.writes = data_writes2;
-    mock_sockets_index = 0;
-    mock_sockets[0] = &data1;
-    mock_sockets[1] = &data2;
-    mock_sockets[2] = NULL;
+    mock_socket_factory_.AddMockSocket(&data1);
+    mock_socket_factory_.AddMockSocket(&data2);
 
     TestCompletionCallback callback1;
 
@@ -2782,7 +2438,7 @@ TEST_F(HttpNetworkTransactionTest, BasicAuthCacheAndPreauth) {
   // cached identity. Should invalidate and re-prompt.
   {
     scoped_ptr<HttpTransaction> trans(new HttpNetworkTransaction(
-        session, &mock_socket_factory));
+        session, &mock_socket_factory_));
 
     HttpRequestInfo request;
     request.method = "GET";
@@ -2843,11 +2499,9 @@ TEST_F(HttpNetworkTransactionTest, BasicAuthCacheAndPreauth) {
     MockSocket data3;
     data3.reads = data_reads3;
     data3.writes = data_writes3;
-    mock_sockets_index = 0;
-    mock_sockets[0] = &data1;
-    mock_sockets[1] = &data2;
-    mock_sockets[2] = &data3;
-    mock_sockets[3] = NULL;
+    mock_socket_factory_.AddMockSocket(&data1);
+    mock_socket_factory_.AddMockSocket(&data2);
+    mock_socket_factory_.AddMockSocket(&data3);
 
     TestCompletionCallback callback1;
 
@@ -2896,7 +2550,7 @@ TEST_F(HttpNetworkTransactionTest, ResetStateForRestart) {
   // Create a transaction (the dependencies aren't important).
   scoped_ptr<ProxyService> proxy_service(CreateNullProxyService());
   scoped_ptr<HttpNetworkTransaction> trans(new HttpNetworkTransaction(
-      CreateSession(proxy_service.get()), &mock_socket_factory));
+      CreateSession(proxy_service.get()), &mock_socket_factory_));
 
   // Setup some state (which we expect ResetStateForRestart() will clear).
   trans->header_buf_->Realloc(10);
@@ -2954,7 +2608,7 @@ TEST_F(HttpNetworkTransactionTest, ResetStateForRestart) {
 TEST_F(HttpNetworkTransactionTest, HTTPSBadCertificate) {
   scoped_ptr<ProxyService> proxy_service(CreateNullProxyService());
   scoped_ptr<HttpTransaction> trans(new HttpNetworkTransaction(
-      CreateSession(proxy_service.get()), &mock_socket_factory));
+      CreateSession(proxy_service.get()), &mock_socket_factory_));
 
   HttpRequestInfo request;
   request.method = "GET";
@@ -2979,13 +2633,10 @@ TEST_F(HttpNetworkTransactionTest, HTTPSBadCertificate) {
   MockSSLSocket ssl_bad(true, ERR_CERT_AUTHORITY_INVALID);
   MockSSLSocket ssl(true, OK);
 
-  mock_sockets[0] = &ssl_bad_certificate;
-  mock_sockets[1] = &data;
-  mock_sockets[2] = NULL;
-
-  mock_ssl_sockets[0] = &ssl_bad;
-  mock_ssl_sockets[1] = &ssl;
-  mock_ssl_sockets[2] = NULL;
+  mock_socket_factory_.AddMockSocket(&ssl_bad_certificate);
+  mock_socket_factory_.AddMockSocket(&data);
+  mock_socket_factory_.AddMockSSLSocket(&ssl_bad);
+  mock_socket_factory_.AddMockSSLSocket(&ssl);
 
   TestCompletionCallback callback;
 
@@ -3049,22 +2700,18 @@ TEST_F(HttpNetworkTransactionTest, HTTPSBadCertificateViaProxy) {
   MockSSLSocket ssl_bad(true, ERR_CERT_AUTHORITY_INVALID);
   MockSSLSocket ssl(true, OK);
 
-  mock_sockets[0] = &ssl_bad_certificate;
-  mock_sockets[1] = &data;
-  mock_sockets[2] = NULL;
-
-  mock_ssl_sockets[0] = &ssl_bad;
-  mock_ssl_sockets[1] = &ssl;
-  mock_ssl_sockets[2] = NULL;
+  mock_socket_factory_.AddMockSocket(&ssl_bad_certificate);
+  mock_socket_factory_.AddMockSocket(&data);
+  mock_socket_factory_.AddMockSSLSocket(&ssl_bad);
+  mock_socket_factory_.AddMockSSLSocket(&ssl);
 
   TestCompletionCallback callback;
 
   for (int i = 0; i < 2; i++) {
-    mock_sockets_index = 0;
-    mock_ssl_sockets_index = 0;
+    mock_socket_factory_.ResetNextMockIndexes();
 
     scoped_ptr<HttpTransaction> trans(new HttpNetworkTransaction(
-        CreateSession(proxy_service.get()), &mock_socket_factory));
+        CreateSession(proxy_service.get()), &mock_socket_factory_));
 
     int rv = trans->Start(&request, &callback);
     EXPECT_EQ(ERR_IO_PENDING, rv);
@@ -3088,7 +2735,7 @@ TEST_F(HttpNetworkTransactionTest, HTTPSBadCertificateViaProxy) {
 TEST_F(HttpNetworkTransactionTest, BuildRequest_UserAgent) {
   scoped_ptr<ProxyService> proxy_service(CreateNullProxyService());
   scoped_ptr<HttpTransaction> trans(new HttpNetworkTransaction(
-      CreateSession(proxy_service.get()), &mock_socket_factory));
+      CreateSession(proxy_service.get()), &mock_socket_factory_));
 
   HttpRequestInfo request;
   request.method = "GET";
@@ -3113,8 +2760,7 @@ TEST_F(HttpNetworkTransactionTest, BuildRequest_UserAgent) {
   MockSocket data;
   data.reads = data_reads;
   data.writes = data_writes;
-  mock_sockets[0] = &data;
-  mock_sockets[1] = NULL;
+  mock_socket_factory_.AddMockSocket(&data);
 
   TestCompletionCallback callback;
 
@@ -3128,7 +2774,7 @@ TEST_F(HttpNetworkTransactionTest, BuildRequest_UserAgent) {
 TEST_F(HttpNetworkTransactionTest, BuildRequest_Referer) {
   scoped_ptr<ProxyService> proxy_service(CreateNullProxyService());
   scoped_ptr<HttpTransaction> trans(new HttpNetworkTransaction(
-      CreateSession(proxy_service.get()), &mock_socket_factory));
+      CreateSession(proxy_service.get()), &mock_socket_factory_));
 
   HttpRequestInfo request;
   request.method = "GET";
@@ -3154,8 +2800,7 @@ TEST_F(HttpNetworkTransactionTest, BuildRequest_Referer) {
   MockSocket data;
   data.reads = data_reads;
   data.writes = data_writes;
-  mock_sockets[0] = &data;
-  mock_sockets[1] = NULL;
+  mock_socket_factory_.AddMockSocket(&data);
 
   TestCompletionCallback callback;
 
@@ -3169,7 +2814,7 @@ TEST_F(HttpNetworkTransactionTest, BuildRequest_Referer) {
 TEST_F(HttpNetworkTransactionTest, BuildRequest_PostContentLengthZero) {
   scoped_ptr<ProxyService> proxy_service(CreateNullProxyService());
   scoped_ptr<HttpTransaction> trans(new HttpNetworkTransaction(
-      CreateSession(proxy_service.get()), &mock_socket_factory));
+      CreateSession(proxy_service.get()), &mock_socket_factory_));
 
   HttpRequestInfo request;
   request.method = "POST";
@@ -3193,8 +2838,7 @@ TEST_F(HttpNetworkTransactionTest, BuildRequest_PostContentLengthZero) {
   MockSocket data;
   data.reads = data_reads;
   data.writes = data_writes;
-  mock_sockets[0] = &data;
-  mock_sockets[1] = NULL;
+  mock_socket_factory_.AddMockSocket(&data);
 
   TestCompletionCallback callback;
 
@@ -3208,7 +2852,7 @@ TEST_F(HttpNetworkTransactionTest, BuildRequest_PostContentLengthZero) {
 TEST_F(HttpNetworkTransactionTest, BuildRequest_PutContentLengthZero) {
   scoped_ptr<ProxyService> proxy_service(CreateNullProxyService());
   scoped_ptr<HttpTransaction> trans(new HttpNetworkTransaction(
-      CreateSession(proxy_service.get()), &mock_socket_factory));
+      CreateSession(proxy_service.get()), &mock_socket_factory_));
 
   HttpRequestInfo request;
   request.method = "PUT";
@@ -3232,8 +2876,7 @@ TEST_F(HttpNetworkTransactionTest, BuildRequest_PutContentLengthZero) {
   MockSocket data;
   data.reads = data_reads;
   data.writes = data_writes;
-  mock_sockets[0] = &data;
-  mock_sockets[1] = NULL;
+  mock_socket_factory_.AddMockSocket(&data);
 
   TestCompletionCallback callback;
 
@@ -3247,7 +2890,7 @@ TEST_F(HttpNetworkTransactionTest, BuildRequest_PutContentLengthZero) {
 TEST_F(HttpNetworkTransactionTest, BuildRequest_HeadContentLengthZero) {
   scoped_ptr<ProxyService> proxy_service(CreateNullProxyService());
   scoped_ptr<HttpTransaction> trans(new HttpNetworkTransaction(
-      CreateSession(proxy_service.get()), &mock_socket_factory));
+      CreateSession(proxy_service.get()), &mock_socket_factory_));
 
   HttpRequestInfo request;
   request.method = "HEAD";
@@ -3271,8 +2914,7 @@ TEST_F(HttpNetworkTransactionTest, BuildRequest_HeadContentLengthZero) {
   MockSocket data;
   data.reads = data_reads;
   data.writes = data_writes;
-  mock_sockets[0] = &data;
-  mock_sockets[1] = NULL;
+  mock_socket_factory_.AddMockSocket(&data);
 
   TestCompletionCallback callback;
 
@@ -3286,7 +2928,7 @@ TEST_F(HttpNetworkTransactionTest, BuildRequest_HeadContentLengthZero) {
 TEST_F(HttpNetworkTransactionTest, BuildRequest_CacheControlNoCache) {
   scoped_ptr<ProxyService> proxy_service(CreateNullProxyService());
   scoped_ptr<HttpTransaction> trans(new HttpNetworkTransaction(
-      CreateSession(proxy_service.get()), &mock_socket_factory));
+      CreateSession(proxy_service.get()), &mock_socket_factory_));
 
   HttpRequestInfo request;
   request.method = "GET";
@@ -3312,8 +2954,7 @@ TEST_F(HttpNetworkTransactionTest, BuildRequest_CacheControlNoCache) {
   MockSocket data;
   data.reads = data_reads;
   data.writes = data_writes;
-  mock_sockets[0] = &data;
-  mock_sockets[1] = NULL;
+  mock_socket_factory_.AddMockSocket(&data);
 
   TestCompletionCallback callback;
 
@@ -3328,7 +2969,7 @@ TEST_F(HttpNetworkTransactionTest,
        BuildRequest_CacheControlValidateCache) {
   scoped_ptr<ProxyService> proxy_service(CreateNullProxyService());
   scoped_ptr<HttpTransaction> trans(new HttpNetworkTransaction(
-      CreateSession(proxy_service.get()), &mock_socket_factory));
+      CreateSession(proxy_service.get()), &mock_socket_factory_));
 
   HttpRequestInfo request;
   request.method = "GET";
@@ -3353,8 +2994,7 @@ TEST_F(HttpNetworkTransactionTest,
   MockSocket data;
   data.reads = data_reads;
   data.writes = data_writes;
-  mock_sockets[0] = &data;
-  mock_sockets[1] = NULL;
+  mock_socket_factory_.AddMockSocket(&data);
 
   TestCompletionCallback callback;
 
@@ -3368,7 +3008,7 @@ TEST_F(HttpNetworkTransactionTest,
 TEST_F(HttpNetworkTransactionTest, BuildRequest_ExtraHeaders) {
   scoped_ptr<ProxyService> proxy_service(CreateNullProxyService());
   scoped_ptr<HttpTransaction> trans(new HttpNetworkTransaction(
-      CreateSession(proxy_service.get()), &mock_socket_factory));
+      CreateSession(proxy_service.get()), &mock_socket_factory_));
 
   HttpRequestInfo request;
   request.method = "GET";
@@ -3393,8 +3033,7 @@ TEST_F(HttpNetworkTransactionTest, BuildRequest_ExtraHeaders) {
   MockSocket data;
   data.reads = data_reads;
   data.writes = data_writes;
-  mock_sockets[0] = &data;
-  mock_sockets[1] = NULL;
+  mock_socket_factory_.AddMockSocket(&data);
 
   TestCompletionCallback callback;
 

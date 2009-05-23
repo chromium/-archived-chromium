@@ -18,7 +18,7 @@
         '../build/temp_gyp/googleurl.gyp:googleurl',
         '../sdch/sdch.gyp:sdch',
         # TODO:  various targets end up using
-        # testing::internal::AssertHelper through references here.  
+        # testing::internal::AssertHelper through references here.
         # Good candidate for refactoring.
         '../testing/gtest.gyp:gtest',
         '../third_party/bzip2/bzip2.gyp:bzip2',
@@ -566,8 +566,11 @@
       'dependencies': [
         'net',
         '../base/base.gyp:base',
+        '../testing/gtest.gyp:gtest',
       ],
       'sources': [
+        'base/socket_test_util.cc',
+        'base/socket_test_util.h',
         'disk_cache/disk_cache_test_util.cc',
         'disk_cache/disk_cache_test_util.h',
         'proxy/proxy_config_service_common_unittest.cc',
