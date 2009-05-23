@@ -2,6 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+#include "base/file_util.h"
 #include "chrome/common/native_web_keyboard_event.h"
 #include "chrome/common/render_messages.h"
 #include "chrome/test/render_view_test.h"
@@ -306,6 +307,93 @@ TEST_F(RenderViewTest, OnPrintPages) {
   ViewHostMsg_DidPrintPage::Param post_did_print_page_param;
   ViewHostMsg_DidPrintPage::Read(did_print_msg, &post_did_print_page_param);
   EXPECT_EQ(0, post_did_print_page_param.a.page_number);
+#else
+  NOTIMPLEMENTED();
+#endif
+}
+
+// Tests if we can print a page and verify its results.
+// This test prints HTML pages into a pseudo printer and check their outputs,
+// i.e. a simplified version of the PrintingLayoutTextTest UI test.
+namespace {
+// Test cases used in this test.
+const struct {
+  const char* page;
+  int printed_pages;
+  int width;
+  int height;
+  const char* checksum;
+  const wchar_t* file;
+} kTestPages[] = {
+  {"<html>"
+  "<head>"
+  "<meta"
+  "  http-equiv=\"Content-Type\""
+  "  content=\"text/html; charset=utf-8\"/>"
+  "<title>Test 1</title>"
+  "</head>"
+  "<body style=\"background-color: white;\">"
+  "<p style=\"font-family: arial;\">Hello World!</p>"
+  "</body>",
+  1, 764, 42,
+  NULL,
+  NULL,
+  },
+};
+}  // namespace
+
+TEST_F(RenderViewTest, PrintLayoutTest) {
+#if defined(OS_WIN)
+  bool baseline = false;
+
+  EXPECT_TRUE(render_thread_.printer() != NULL);
+  for (size_t i = 0; i < arraysize(kTestPages); ++i) {
+    // Load an HTML page and print it.
+    LoadHTML(kTestPages[i].page);
+    view_->OnPrintPages();
+
+    // MockRenderThread::Send() just calls MockRenderThread::OnMsgReceived().
+    // So, all IPC messages sent in the above RenderView::OnPrintPages() call
+    // has been handled by the MockPrinter object, i.e. this printing job
+    // has been already finished.
+    // So, we can start checking the output pages of this printing job.
+    // Retrieve the number of pages actually printed.
+    size_t pages = render_thread_.printer()->GetPrintedPages();
+    EXPECT_EQ(kTestPages[i].printed_pages, pages);
+
+    // Retrieve the width and height of the output page.
+    int width = render_thread_.printer()->GetWidth(0);
+    int height = render_thread_.printer()->GetHeight(0);
+    EXPECT_EQ(kTestPages[i].width, width);
+    EXPECT_EQ(kTestPages[i].height, height);
+
+    // Retrieve the checksum of the bitmap data from the pseudo printer and
+    // compare it with the expected result.
+    std::string bitmap_actual;
+    EXPECT_TRUE(render_thread_.printer()->GetBitmapChecksum(0, &bitmap_actual));
+    if (kTestPages[i].checksum)
+      EXPECT_EQ(kTestPages[i].checksum, bitmap_actual);
+
+    // Retrieve the bitmap data from the pseudo printer.
+    // TODO(hbono): implement a function which retrieves an expected result
+    // from a file and compares it with this bitmap data.
+    const void* bitmap_data;
+    size_t bitmap_size;
+    EXPECT_TRUE(render_thread_.printer()->GetBitmap(0, &bitmap_data,
+                                                    &bitmap_size));
+
+    if (baseline) {
+      // Save the source data and the bitmap data into temporary files to
+      // create base-line results.
+      FilePath source_path;
+      file_util::CreateTemporaryFileName(&source_path);
+      render_thread_.printer()->SaveSource(0, source_path.value());
+
+      FilePath bitmap_path;
+      file_util::CreateTemporaryFileName(&bitmap_path);
+      render_thread_.printer()->SaveBitmap(0, bitmap_path.value());
+    }
+  }
 #else
   NOTIMPLEMENTED();
 #endif

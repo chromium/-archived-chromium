@@ -973,6 +973,22 @@
 					>
 				</File>
 				<File
+					RelativePath="..\..\renderer\mock_printer.cc"
+					>
+				</File>
+				<File
+					RelativePath="..\..\renderer\mock_printer.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\renderer\mock_printer_driver_win.cc"
+					>
+				</File>
+				<File
+					RelativePath="..\..\renderer\mock_printer_driver_win.h"
+					>
+				</File>
+				<File
 					RelativePath="..\..\renderer\mock_render_process.h"
 					>
 				</File>

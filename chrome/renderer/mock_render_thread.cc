@@ -12,7 +12,8 @@ MockRenderThread::MockRenderThread()
     : routing_id_(0),
       opener_id_(0),
       widget_(NULL),
-      reply_deserializer_(NULL) {
+      reply_deserializer_(NULL),
+      printer_(new MockPrinter) {
 }
 
 MockRenderThread::~MockRenderThread() {
@@ -78,6 +79,10 @@ void MockRenderThread::OnMessageReceived(const IPC::Message& msg) {
                         OnGetDefaultPrintSettings);
     IPC_MESSAGE_HANDLER(ViewHostMsg_ScriptedPrint,
                         OnScriptedPrint);
+    IPC_MESSAGE_HANDLER(ViewHostMsg_DidGetPrintedPagesCount,
+                        OnDidGetPrintedPagesCount)
+    IPC_MESSAGE_HANDLER(ViewHostMsg_DidPrintPage, OnDidPrintPage)
+    IPC_MESSAGE_HANDLER(ViewHostMsg_DuplicateSection, OnDuplicateSection)
 #endif
     IPC_MESSAGE_UNHANDLED(handled = false)
   IPC_END_MESSAGE_MAP_EX()
@@ -96,21 +101,34 @@ void MockRenderThread::OnMsgOpenChannelToExtension(
   *channel_id = 0;
 }
 
+void MockRenderThread::OnDuplicateSection(
+    base::SharedMemoryHandle renderer_handle,
+    base::SharedMemoryHandle* browser_handle) {
+  // We don't have to duplicate the input handles since RenderViewTest does not
+  // separate a browser process from a renderer process.
+  *browser_handle = renderer_handle;
+}
+
 void MockRenderThread::OnGetDefaultPrintSettings(ViewMsg_Print_Params* params) {
-  memset(params, 0, sizeof(ViewMsg_Print_Params));
-  params->dpi = 72;
-  params->desired_dpi = 72;
-  params->document_cookie = 1;
-  params->printable_size = gfx::Size(500, 500);
+  if (printer_.get())
+    printer_->GetDefaultPrintSettings(params);
 }
 
 void MockRenderThread::OnScriptedPrint(gfx::NativeViewId host_window,
                                        int cookie,
                                        int expected_pages_count,
                                        ViewMsg_PrintPages_Params* settings) {
-  memset(settings, 0, sizeof(ViewMsg_PrintPages_Params));
-  settings->params.dpi = 72;
-  settings->params.document_cookie = 1;
-  settings->params.desired_dpi = 72;
-  settings->params.printable_size = gfx::Size(500, 500);
+  if (printer_.get())
+    printer_->ScriptedPrint(cookie, expected_pages_count, settings);
+}
+
+void MockRenderThread::OnDidGetPrintedPagesCount(int cookie, int number_pages) {
+  if (printer_.get())
+    printer_->SetPrintedPagesCount(cookie, number_pages);
+}
+
+void MockRenderThread::OnDidPrintPage(
+    const ViewHostMsg_DidPrintPage_Params& params) {
+  if (printer_.get())
+    printer_->PrintPage(params);
 }
