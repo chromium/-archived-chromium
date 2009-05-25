@@ -105,13 +105,11 @@ bool WindowGtk::IsVisible() const {
 }
 
 bool WindowGtk::IsMaximized() const {
-  NOTIMPLEMENTED();
-  return false;
+  return window_maximized_;
 }
 
 bool WindowGtk::IsMinimized() const {
-  NOTIMPLEMENTED();
-  return false;
+  return window_minimized_;
 }
 
 void WindowGtk::SetFullscreen(bool fullscreen) {
@@ -208,6 +206,12 @@ void WindowGtk::Init(const gfx::Rect& bounds) {
 
   UpdateWindowTitle();
 
+  GtkWindow* gtk_window = GetNativeWindow();
+  g_signal_connect(G_OBJECT(gtk_window),
+                   "window-state-event",
+                   G_CALLBACK(CallWindowStateEvent),
+                   NULL);
+
   //  SetInitialBounds(bounds);
 
   // if (!IsAppWindow()) {
@@ -226,6 +230,16 @@ void WindowGtk::SaveWindowPosition() {
     return;
 
   NOTIMPLEMENTED();
+}
+
+// static
+void WindowGtk::CallWindowStateEvent(GtkWidget* widget,
+                                     GdkEventWindowState* window_state) {
+  WindowGtk* window_gtk = GetWindowForNative(widget);
+  window_gtk->window_maximized_ =
+      window_state->new_window_state & GDK_WINDOW_STATE_MAXIMIZED;
+  window_gtk->window_minimized_ =
+      window_state->new_window_state & GDK_WINDOW_STATE_ICONIFIED;
 }
 
 }  // namespace views

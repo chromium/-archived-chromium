@@ -71,6 +71,10 @@ class WindowGtk : public WidgetGtk, public Window {
   void Init(const gfx::Rect& bounds);
 
  private:
+  // Used to track window state changes
+  static void CallWindowStateEvent(GtkWidget* widget,
+                                   GdkEventWindowState* window_state);
+
   // Asks the delegate if any to save the window's location and size.
   void SaveWindowPosition();
 
@@ -90,6 +94,12 @@ class WindowGtk : public WidgetGtk, public Window {
 
   // Set to true if the window is in the process of closing.
   bool window_closed_;
+
+  // Set to true if the window is maximized
+  bool window_maximized_;
+
+  // Set to true of the window is minimized
+  bool window_minimized_;
 
   DISALLOW_COPY_AND_ASSIGN(WindowGtk);
 };
