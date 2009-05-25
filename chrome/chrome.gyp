@@ -3513,6 +3513,39 @@
           },
         },
         {
+          'target_name': 'automated_ui_tests',
+          'type': 'executable',
+          'dependencies': [
+            'browser',
+            'renderer',
+            'test_support_common',
+            'test_support_ui',
+            'theme_resources',
+            '../base/base.gyp:base',
+            '../skia/skia.gyp:skia',
+            '../third_party/libxml/libxml.gyp:libxml',
+            '../testing/gtest.gyp:gtest',
+          ],
+          'include_dirs': [
+            '..',
+            'third_party/wtl/include',
+          ],
+          'sources': [
+            'test/automated_ui_tests/automated_ui_tests.cc',
+            'test/automated_ui_tests/automated_ui_tests.h',
+            'test/automated_ui_tests/automated_ui_test_base.cc',
+            'test/automated_ui_tests/automated_ui_test_base.h',
+            'tools/build/win/precompiled_wtl.h',
+            'tools/build/win/precompiled_wtl.cc',
+          ],
+          'configurations': {
+            'Debug': {
+              'msvs_precompiled_header': 'tools/build/win/precompiled_wtl.h',
+              'msvs_precompiled_source': 'tools/build/win/precompiled_wtl.cc',
+            },
+          },
+        },
+        {
           'target_name': 'convert_dict',
           'type': 'executable',
           'dependencies': [
