@@ -1171,9 +1171,7 @@ BUG10351 MAC : LayoutTests/fast/dom/Window/Plug-ins.html = FAIL
 BUG10351 MAC : LayoutTests/fast/js/navigator-mimeTypes-length.html = FAIL
 BUG10351 MAC : LayoutTests/accessibility/plugin.html = FAIL CRASH
 BUG10351 MAC LINUX : LayoutTests/fast/dom/object-embed-plugin-scripting.html = FAIL
-BUG10351 MAC : LayoutTests/fast/dynamic/flash-replacement-test.html = FAIL CRASH
 BUG10351 MAC : LayoutTests/fast/events/tabindex-focus-blur-all.html = FAIL PASS
-BUG10351 MAC : LayoutTests/fast/loader/loadInProgress.html = CRASH
 BUG10351 MAC : LayoutTests/tables/mozilla_expected_failures/bugs/bug8499.html = FAIL
 BUG10673 LINUX : chrome/plugins/call-as-function.html = CRASH FAIL
 BUG10673 MAC : chrome/plugins/call-as-function.html = FAIL
@@ -1213,7 +1211,6 @@ BUG10667 LINUX MAC : chrome/plugins/refcount-leaks.html = FAIL
 BUG10667 LINUX MAC : chrome/plugins/return-npobject.html = FAIL
 BUG10667 LINUX MAC : chrome/plugins/script-object-invoke.html = FAIL
 BUG10667 MAC : pending/plugins/iframe-shims.html = FAIL CRASH
-BUG10667 MAC : LayoutTests/plugins/return-error-from-new-stream-callback-in-full-frame-plugin.html = FAIL
 
 // NEW FOR MERGE 36102:37604
 
@@ -1957,9 +1954,6 @@ BUG10465 LINUX : LayoutTests/compositing/direct-image-compositing.html = FAIL
 BUG10465 LINUX : LayoutTests/fast/borders/border-image-border-radius.html = FAIL
 BUG10465 LINUX : LayoutTests/fast/clip/overflow-border-radius-clip.html = FAIL
   
-// Need rebaseline, see  WebKit 41993.
-BUG10466 LINUX : LayoutTests/svg/css/getComputedStyle-basic.xhtml = FAIL
-  
 // Needs rebaseline. See WebKit 41948
 BUG10468 MAC WIN LINUX : LayoutTests/fast/replaced/border-radius-clip.html = FAIL CRASH
   
@@ -2211,7 +2205,6 @@ BUG9992 WIN LINUX : LayoutTests/fast/text/shadow-no-blur.html = FAIL
 // Regressions from WebKit merge 43264:42403, unknown cause(s)
 BUG10055 LINUX DEBUG : LayoutTests/editing/execCommand/paste-1.html = FAIL PASS
 BUG10055 MAC : LayoutTests/fast/events/updateLayoutForHitTest.html = FAIL
-BUG10055 LINUX : LayoutTests/svg/text/text-tselect-02-f.svg = FAIL
 
 // This test was changed upstream in http://trac.webkit.org/changeset/42447
 // to include window.showModalDialog, which we give as undefined.
@@ -2289,7 +2282,6 @@ BUG11123 LINUX : LayoutTests/editing/pasteboard/paste-blockquote-into-blockquote
 BUG11123 LINUX : LayoutTests/fast/css/nested-layers-with-hover.html = FAIL
 BUG11123 LINUX : LayoutTests/fast/forms/textarea-scrollbar.html = FAIL
 BUG11123 LINUX : LayoutTests/fast/forms/textarea-scrolled-type.html = FAIL
-BUG11123 LINUX : LayoutTests/fast/overflow/overflow-focus-ring.html = FAIL
 
 // Mysteriously started failing right around the v8 scons->gyp change.
 BUG11176 MAC : LayoutTests/fast/css/first-child-pseudo-class.html = FAIL PASS
@@ -2297,7 +2289,6 @@ BUG11176 LINUX MAC WIN : LayoutTests/fast/forms/input-align-image.html = FAIL PA
 
 // New failures from WebKit Merge 42932:42994
 BUG11604 DEBUG WIN : LayoutTests/transitions/repeated-firing-background-color.html = FAIL PASS
-BUG11604 MAC : LayoutTests/fast/dom/Document/open-with-pending-load.html = CRASH
 
 // New tests from WebKit Merge 42932:42994
 BUG11179 : LayoutTests/http/tests/xmlhttprequest/detaching-frame-2.html = FAIL TIMEOUT
@@ -2359,14 +2350,13 @@ BUG11613 LINUX : LayoutTests/fast/forms/textAreaLineHeight.html = FAIL
 BUG11613 LINUX : LayoutTests/fast/forms/textarea-align.html = FAIL
 BUG11613 LINUX : LayoutTests/fast/forms/textarea-scroll-height.html = FAIL
 BUG11613 LINUX : LayoutTests/fast/forms/textarea-setinnerhtml.html = FAIL
-BUG11613 LINUX MAC : LayoutTests/fast/overflow/overflow-x-y.html = FAIL
+BUG11613 LINUX : LayoutTests/fast/overflow/overflow-x-y.html = FAIL
 BUG11613 LINUX : LayoutTests/fast/parser/entity-comment-in-textarea.html = FAIL
 BUG11613 LINUX : LayoutTests/fast/parser/open-comment-in-textarea.html = FAIL
 BUG11613 LINUX : LayoutTests/fast/table/003.html = FAIL
 BUG11613 LINUX MAC : LayoutTests/http/tests/navigation/anchor-frames.html = FAIL TIMEOUT
 BUG11613 LINUX : LayoutTests/tables/mozilla/bugs/bug194024.html = FAIL
 BUG11613 LINUX : LayoutTests/tables/mozilla/bugs/bug30559.html = FAIL
-BUG11613 LINUX : LayoutTests/tables/mozilla/bugs/bug30692.html = FAIL
 
 // Caused by WebKit merge 43346:43361.  These likely just need re-baselining.
 // Most likely caused by http://trac.webkit.org/changeset/43355
@@ -2528,7 +2518,6 @@ BUG11613 LINUX : LayoutTests/tables/mozilla/bugs/bug18359.html = FAIL
 BUG11613 LINUX : LayoutTests/tables/mozilla/bugs/bug24200.html = FAIL
 BUG11613 LINUX : LayoutTests/tables/mozilla/bugs/bug2479-2.html = FAIL
 BUG11613 LINUX : LayoutTests/tables/mozilla/bugs/bug2479-3.html = FAIL
-BUG11613 LINUX : LayoutTests/tables/mozilla/bugs/bug2479-4.html = FAIL
 BUG11613 LINUX : LayoutTests/tables/mozilla/bugs/bug26178.html = FAIL
 BUG11613 LINUX : LayoutTests/tables/mozilla/bugs/bug28928.html = FAIL
 BUG11613 LINUX : LayoutTests/tables/mozilla/bugs/bug29326.html = FAIL
@@ -2557,7 +2546,6 @@ BUG11613 LINUX : LayoutTests/tables/mozilla/dom/tableDom.html = FAIL
 BUG11613 LINUX : LayoutTests/tables/mozilla/other/move_row.html = FAIL
 BUG11613 LINUX : LayoutTests/tables/mozilla_expected_failures/bugs/bug1725.html = FAIL
 BUG11613 LINUX : LayoutTests/tables/mozilla_expected_failures/bugs/bug2479-5.html = FAIL
-BUG11613 LINUX : LayoutTests/tables/mozilla_expected_failures/bugs/bug45621.html = FAIL
 BUG11613 LINUX : LayoutTests/tables/mozilla_expected_failures/bugs/bug58402-2.html = FAIL
 BUG11613 LINUX : LayoutTests/tables/mozilla_expected_failures/bugs/bug92647-1.html = FAIL
 BUG11613 LINUX : LayoutTests/tables/mozilla_expected_failures/collapsing_borders/bug41262-5.html = FAIL
@@ -2623,8 +2611,8 @@ BUG12054 MAC : LayoutTests/editing/execCommand/outdent-blockquote-test1.html = F
 BUG12054 MAC : LayoutTests/editing/execCommand/outdent-blockquote-test2.html = FAIL
 BUG12054 MAC : LayoutTests/editing/execCommand/outdent-blockquote-test3.html = FAIL
 BUG12054 MAC : LayoutTests/editing/execCommand/outdent-blockquote-test4.html = FAIL
-BUG12054 MAC LINUX : LayoutTests/fast/text/international/danda-space.html = FAIL
-BUG12054 MAC LINUX : LayoutTests/fast/text/international/thai-baht-space.html = FAIL
+BUG12054 LINUX : LayoutTests/fast/text/international/danda-space.html = FAIL
+BUG12054 LINUX : LayoutTests/fast/text/international/thai-baht-space.html = FAIL
 
 // New test, added in http://trac.webkit.org/changeset/43793, fails for us.
 BUG12104 WIN LINUX : LayoutTests/fast/backgrounds/background-clip-text.html = FAIL
