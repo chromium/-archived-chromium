@@ -19,8 +19,24 @@
 #include "base/file_util.h"
 #include "base/logging.h"
 #include "base/singleton.h"
+#include "base/string_util.h"
 
 namespace {
+
+std::string GetDefaultConfigDirectory() {
+  const char* home = getenv("HOME");
+  if (home == NULL) {
+    LOG(ERROR) << "$HOME is not set.";
+    return "";
+  }
+  FilePath dir(home);
+  dir = dir.AppendASCII(".pki").AppendASCII("nssdb");
+  if (!file_util::CreateDirectory(dir)) {
+    LOG(ERROR) << "Failed to create ~/.pki/nssdb directory.";
+    return "";
+  }
+  return dir.value();
+}
 
 // Load nss's built-in root certs.
 SECMODModule *InitDefaultRootCerts() {
@@ -41,15 +57,25 @@ SECMODModule *InitDefaultRootCerts() {
 class NSSInitSingleton {
  public:
   NSSInitSingleton() {
-    // Initialize without using a persistant database (e.g. ~/.netscape)
-    SECStatus status = NSS_NoDB_Init(".");
+    SECStatus status;
+    std::string database_dir = GetDefaultConfigDirectory();
+    if (!database_dir.empty()) {
+      // Initialize with a persistant database (~/.pki/nssdb).
+      // Use "sql:" which can be shared by multiple processes safely.
+      status = NSS_InitReadWrite(
+          StringPrintf("sql:%s", database_dir.c_str()).c_str());
+    } else {
+      LOG(WARNING) << "Initialize NSS without using a persistent database "
+                   << "(~/.pki/nssdb).";
+      status = NSS_NoDB_Init(".");
+    }
     if (status != SECSuccess) {
       char buffer[513] = "Couldn't retrieve error";
       PRInt32 err_length = PR_GetErrorTextLength();
       if (err_length > 0 && static_cast<size_t>(err_length) < sizeof(buffer))
         PR_GetErrorText(buffer);
 
-      NOTREACHED() << "Error calling NSS_NoDB_Init: " << buffer;
+      NOTREACHED() << "Error initializing NSS: " << buffer;
     }
 
     root_ = InitDefaultRootCerts();
