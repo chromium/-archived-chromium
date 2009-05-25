@@ -2205,6 +2205,7 @@ BUG9992 WIN LINUX : LayoutTests/fast/text/shadow-no-blur.html = FAIL
 // Regressions from WebKit merge 43264:42403, unknown cause(s)
 BUG10055 LINUX DEBUG : LayoutTests/editing/execCommand/paste-1.html = FAIL PASS
 BUG10055 MAC : LayoutTests/fast/events/updateLayoutForHitTest.html = FAIL
+BUG10055 LINUX : LayoutTests/svg/text/text-tselect-02-f.svg = FAIL
 
 // This test was changed upstream in http://trac.webkit.org/changeset/42447
 // to include window.showModalDialog, which we give as undefined.
@@ -2289,6 +2290,7 @@ BUG11176 LINUX MAC WIN : LayoutTests/fast/forms/input-align-image.html = FAIL PA
 
 // New failures from WebKit Merge 42932:42994
 BUG11604 DEBUG WIN : LayoutTests/transitions/repeated-firing-background-color.html = FAIL PASS
+BUG11604 MAC : LayoutTests/fast/dom/Document/open-with-pending-load.html = CRASH
 
 // New tests from WebKit Merge 42932:42994
 BUG11179 : LayoutTests/http/tests/xmlhttprequest/detaching-frame-2.html = FAIL TIMEOUT
