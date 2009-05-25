@@ -9,26 +9,15 @@
 #include "base/json_writer.h"
 #include "chrome/common/render_messages.h"
 #include "chrome/browser/automation/automation_provider.h"
+#include "chrome/browser/automation/extension_automation_constants.h"
 #include "chrome/browser/chrome_thread.h"
 #include "chrome/browser/extensions/extension_message_service.h"
 #include "chrome/browser/profile.h"
 #include "chrome/browser/renderer_host/render_view_host.h"
 
 // TODO(siggi): Find a more structured way to read and write JSON messages.
-// TODO(siggi): move these constants to
-//    chrome/test/automation/extension_automation_constants.cc
-const char ExtensionPortContainer::kAutomationOrigin[] = "__priv_xtapi";
-const char ExtensionPortContainer::kAutomationRequestTarget[] =
-  "__priv_prtreq";
-const char ExtensionPortContainer::kAutomationResponseTarget[] =
-  "__priv_prtres";
 
-const wchar_t ExtensionPortContainer::kAutomationRequestIdKey[] = L"rqid";
-const wchar_t ExtensionPortContainer::kAutomationConnectionIdKey[] = L"connid";
-const wchar_t ExtensionPortContainer::kAutomationExtensionIdKey[] = L"extid";
-const wchar_t ExtensionPortContainer::kAutomationPortIdKey[] = L"portid";
-const wchar_t ExtensionPortContainer::kAutomationMessageDataKey[] = L"data";
-
+namespace ext = extension_automation_constants;
 
 ExtensionPortContainer::ExtensionPortContainer(AutomationProvider* automation,
                                                int tab_handle) :
@@ -50,18 +39,17 @@ bool ExtensionPortContainer::PostResponseToExternalPort(
     const std::string& message) {
   return automation_->Send(
       new AutomationMsg_ForwardMessageToExternalHost(
-          0, tab_handle_, message, kAutomationOrigin,
-          kAutomationResponseTarget));
+          0, tab_handle_, message, ext::kAutomationOrigin,
+          ext::kAutomationPortResponseTarget));
 }
 
 bool ExtensionPortContainer::PostMessageToExternalPort(
     const std::string& message) {
   return automation_->Send(
-      new AutomationMsg_ForwardMessageToExternalHost(0,
-                                                     tab_handle_,
-                                                     message,
-                                                     kAutomationOrigin,
-                                                     kAutomationRequestTarget));
+      new AutomationMsg_ForwardMessageToExternalHost(
+          0, tab_handle_, message,
+          ext::kAutomationOrigin,
+          ext::kAutomationPortRequestTarget));
 }
 
 void ExtensionPortContainer::PostMessageFromExternalPort(
@@ -88,9 +76,9 @@ void ExtensionPortContainer::SendConnectionResponse(int connection_id,
                                                     int port_id) {
   // Compose the reply message.
   scoped_ptr<DictionaryValue> msg_dict(new DictionaryValue());
-  msg_dict->SetInteger(kAutomationRequestIdKey, CHANNEL_OPENED);
-  msg_dict->SetInteger(kAutomationConnectionIdKey, connection_id);
-  msg_dict->SetInteger(kAutomationPortIdKey, port_id);
+  msg_dict->SetInteger(ext::kAutomationRequestIdKey, ext::CHANNEL_OPENED);
+  msg_dict->SetInteger(ext::kAutomationConnectionIdKey, connection_id);
+  msg_dict->SetInteger(ext::kAutomationPortIdKey, port_id);
 
   std::string msg_json;
   JSONWriter::Write(msg_dict.get(), false, &msg_json);
@@ -115,9 +103,9 @@ void ExtensionPortContainer::OnExtensionHandleMessage(
     const std::string& message, int source_port_id) {
   // Compose the reply message and fire it away.
   scoped_ptr<DictionaryValue> msg_dict(new DictionaryValue());
-  msg_dict->SetInteger(kAutomationRequestIdKey, POST_MESSAGE);
-  msg_dict->SetInteger(kAutomationPortIdKey, port_id_);
-  msg_dict->SetString(kAutomationMessageDataKey, message);
+  msg_dict->SetInteger(ext::kAutomationRequestIdKey, ext::POST_MESSAGE);
+  msg_dict->SetInteger(ext::kAutomationPortIdKey, port_id_);
+  msg_dict->SetString(ext::kAutomationMessageDataKey, message);
 
   std::string msg_json;
   JSONWriter::Write(msg_dict.get(), false, &msg_json);
@@ -129,10 +117,10 @@ bool ExtensionPortContainer::InterceptMessageFromExternalHost(
     const std::string& message, const std::string& origin,
     const std::string& target, AutomationProvider* automation,
     RenderViewHost *view_host, int tab_handle) {
-  if (target != kAutomationRequestTarget)
+  if (target != ext::kAutomationPortRequestTarget)
     return false;
 
-  if (origin != kAutomationOrigin) {
+  if (origin != ext::kAutomationOrigin) {
     // TODO(siggi): Should we block the message on wrong origin?
     LOG(WARNING) << "Wrong origin on automation port message " << origin;
   }
@@ -146,22 +134,23 @@ bool ExtensionPortContainer::InterceptMessageFromExternalHost(
       reinterpret_cast<DictionaryValue*>(message_value.get());
 
   int command = -1;
-  bool got_value = message_dict->GetInteger(kAutomationRequestIdKey, &command);
+  bool got_value = message_dict->GetInteger(ext::kAutomationRequestIdKey,
+                                            &command);
   DCHECK(got_value);
   if (!got_value)
     return true;
 
-  if (command == OPEN_CHANNEL) {
+  if (command == ext::OPEN_CHANNEL) {
     // Extract the "extension_id" and "connection_id" parameters.
     std::string extension_id;
-    got_value = message_dict->GetString(kAutomationExtensionIdKey,
+    got_value = message_dict->GetString(ext::kAutomationExtensionIdKey,
                                         &extension_id);
     DCHECK(got_value);
     if (!got_value)
       return true;
 
     int connection_id;
-    got_value = message_dict->GetInteger(kAutomationConnectionIdKey,
+    got_value = message_dict->GetInteger(ext::kAutomationConnectionIdKey,
                                          &connection_id);
     DCHECK(got_value);
     if (!got_value)
@@ -177,15 +166,15 @@ bool ExtensionPortContainer::InterceptMessageFromExternalHost(
       // We have a successful connection.
       automation->AddPortContainer(port.release());
     }
-  } else if (command == POST_MESSAGE) {
+  } else if (command == ext::POST_MESSAGE) {
     int port_id = -1;
-    got_value = message_dict->GetInteger(kAutomationPortIdKey, &port_id);
+    got_value = message_dict->GetInteger(ext::kAutomationPortIdKey, &port_id);
     DCHECK(got_value);
     if (!got_value)
       return true;
 
     std::string data;
-    got_value = message_dict->GetString(kAutomationMessageDataKey, &data);
+    got_value = message_dict->GetString(ext::kAutomationMessageDataKey, &data);
     DCHECK(got_value);
     if (!got_value)
       return true;

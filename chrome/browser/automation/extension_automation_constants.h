@@ -35,6 +35,13 @@ extern const char kAutomationPortRequestTarget[];
 // All external port message responses have this target.
 extern const char kAutomationPortResponseTarget[];
 
+// The command codes for our private port protocol.
+enum PrivatePortCommand {
+  OPEN_CHANNEL = 0,
+  CHANNEL_OPENED = 1,
+  POST_MESSAGE = 2,
+};
+
 };  // namespace automation_extension_constants
 
 #endif  // CHROME_BROWSER_AUTOMATION_EXTENSION_AUTOMATION_CONSTANTS_H_

@@ -21,26 +21,6 @@ class RenderViewHost;
 class ExtensionPortContainer : public IPC::Message::Sender {
  public:
 
-  // All external port related messages will have this origin.
-  static const char kAutomationOrigin[];
-  // All external port message requests should have this target.
-  static const char kAutomationRequestTarget[];
-  // All external port message responses have this target.
-  static const char kAutomationResponseTarget[];
-
-  static const wchar_t kAutomationRequestIdKey[];
-  static const wchar_t kAutomationConnectionIdKey[];
-  static const wchar_t kAutomationExtensionIdKey[];
-  static const wchar_t kAutomationPortIdKey[];
-  static const wchar_t kAutomationMessageDataKey[];
-
-  // The command codes for our private message protocol.
-  enum PrivateMessageCommand {
-    OPEN_CHANNEL = 0,
-    CHANNEL_OPENED = 1,
-    POST_MESSAGE = 2,
-  };
-
   // Intercepts and processes a message posted through the automation interface.
   // Returns true if the message was intercepted.
   static bool InterceptMessageFromExternalHost(const std::string& message,
