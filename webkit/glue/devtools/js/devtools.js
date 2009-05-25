@@ -288,6 +288,17 @@ WebInspector.Console.prototype._evalInInspectedWindow = function(expr) {
 
 
 /**
+ * Disable autocompletion in the console.
+ * TODO(yurys): change WebKit implementation to allow asynchronous completion.
+ * @override
+ */
+WebInspector.Console.prototype.completions = function(
+    wordRange, bestMatchOnly) {
+  return null;
+};
+
+
+/**
  * @override
  */
 WebInspector.ElementsPanel.prototype.updateStyles = function(forceUpdate) {
