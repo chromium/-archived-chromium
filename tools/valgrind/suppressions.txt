@@ -84,6 +84,15 @@
    fun:SECMOD_LoadUserModule
 }
 {
+   bug_12614
+   Memcheck:Leak
+   fun:malloc
+   ...
+   fun:PR_LoadLibraryWithFlags
+   ...
+   fun:SECMOD_LoadModule
+}
+{
    Error in ICU
    Memcheck:Overlap
    fun:memcpy
