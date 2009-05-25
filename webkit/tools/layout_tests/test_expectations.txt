@@ -1938,7 +1938,6 @@ BUG10462 WIN LINUX : LayoutTests/http/tests/misc/generated-content-inside-table.
 BUG10463 WIN LINUX : LayoutTests/editing/selection/hit-test-anonymous.html = FAIL
 BUG10463 LINUX : LayoutTests/fast/clip/016.html = FAIL
 BUG10463 WIN LINUX : LayoutTests/fast/forms/listbox-hit-test-zoomed.html = FAIL
-BUG10463 WIN : LayoutTests/fast/forms/slider-transformed.html = FAIL
 BUG10463 WIN LINUX : LayoutTests/fast/forms/slider-zoomed.html = FAIL
 BUG10463 WIN : LayoutTests/svg/W3C-SVG-1.1/animate-elem-36-t.svg = FAIL
 BUG10463 WIN : LayoutTests/svg/W3C-SVG-1.1/animate-elem-39-t.svg = FAIL
@@ -2681,10 +2680,6 @@ BUG12354 : LayoutTests/plugins/netscape-invoke-browserfuncs.html = FAIL
 BUG12355 : LayoutTests/editing/pasteboard/file-input-files-access.html = FAIL
 BUG12361 : LayoutTests/http/tests/cookies/double-quoted-value-with-semi-colon.html = FAIL
 
-// webkit 44016 introducted this new test
-BUG12477 : LayoutTests/fast/js/global-function-resolve.html = FAIL
-// webkit 43991 fixed the test
-BUG12477 : LayoutTests/http/tests/mime/accept-all-text-types.html = FAIL
 // webkit 44010+44027 introducted new tests
 BUG12477 : LayoutTests/http/tests/local/drag-over-remote-content.html = FAIL
 BUG12477 : LayoutTests/http/tests/security/drag-over-remote-content-iframe.html = FAIL
@@ -2692,4 +2687,7 @@ BUG12477 : LayoutTests/http/tests/security/drag-over-remote-content-iframe.html 
 // Test failures from WebKit 44049:44065
 BUG12563 LINUX : LayoutTests/fast/css/clip-zooming.html = FAIL
 BUG12563 LINUX : LayoutTests/fast/forms/search-zoomed.html = FAIL
+
+// Test failures from WebKit 44065:44094
+BUG12611 : LayoutTests/fast/js/exception-for-nonobject.html = FAIL
 
