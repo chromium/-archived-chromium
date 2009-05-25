@@ -103,7 +103,7 @@ static std::ostream& operator<<(std::ostream& out, const Color& c)
 
 TEST(TransparencyWin, NoLayer)
 {
-    std::auto_ptr<ImageBuffer> src(ImageBuffer::create(IntSize(16, 16), false));
+    OwnPtr<ImageBuffer> src(ImageBuffer::create(IntSize(16, 16), false));
 
     // KeepTransform
     {
@@ -142,7 +142,7 @@ TEST(TransparencyWin, NoLayer)
 
 TEST(TransparencyWin, WhiteLayer)
 {
-    std::auto_ptr<ImageBuffer> src(ImageBuffer::create(IntSize(16, 16), false));
+    OwnPtr<ImageBuffer> src(ImageBuffer::create(IntSize(16, 16), false));
 
     // KeepTransform
     {
@@ -194,7 +194,7 @@ TEST(TransparencyWin, WhiteLayer)
 
 TEST(TransparencyWin, TextComposite)
 {
-    std::auto_ptr<ImageBuffer> src(ImageBuffer::create(IntSize(16, 16), false));
+    OwnPtr<ImageBuffer> src(ImageBuffer::create(IntSize(16, 16), false));
 
     // KeepTransform is the only valid transform mode for TextComposite.
     {
@@ -213,7 +213,7 @@ TEST(TransparencyWin, TextComposite)
 
 TEST(TransparencyWin, OpaqueCompositeLayer)
 {
-    std::auto_ptr<ImageBuffer> src(ImageBuffer::create(IntSize(16, 16), false));
+    OwnPtr<ImageBuffer> src(ImageBuffer::create(IntSize(16, 16), false));
 
     // KeepTransform
     {
@@ -283,7 +283,7 @@ TEST(TransparencyWin, OpaqueCompositeLayer)
 TEST(TransparencyWin, WhiteLayerPixelTest)
 {
     // Make a total transparent buffer, and draw the white layer inset by 1 px.
-    std::auto_ptr<ImageBuffer> src(ImageBuffer::create(IntSize(16, 16), false));
+    OwnPtr<ImageBuffer> src(ImageBuffer::create(IntSize(16, 16), false));
 
     {
         TransparencyWin helper;
@@ -312,7 +312,7 @@ TEST(TransparencyWin, OpaqueCompositeLayerPixel)
     Color green(0xFF00FF00);
 
     // Make a red bottom layer, followed by a half green next layer @ 50%.
-    std::auto_ptr<ImageBuffer> src(ImageBuffer::create(IntSize(16, 16), false));
+    OwnPtr<ImageBuffer> src(ImageBuffer::create(IntSize(16, 16), false));
 
     FloatRect fullRect(0, 0, 16, 16);
     src->context()->fillRect(fullRect, red);
@@ -365,7 +365,7 @@ TEST(TransparencyWin, OpaqueCompositeLayerPixel)
 TEST(TransparencyWin, TranslateOpaqueCompositeLayer)
 {
     // Fill with white.
-    std::auto_ptr<ImageBuffer> src(ImageBuffer::create(IntSize(16, 16), false));
+    OwnPtr<ImageBuffer> src(ImageBuffer::create(IntSize(16, 16), false));
     Color white(0xFFFFFFFF);
     FloatRect fullRect(0, 0, 16, 16);
     src->context()->fillRect(fullRect, white);
@@ -402,7 +402,7 @@ TEST(TransparencyWin, TranslateOpaqueCompositeLayer)
 // tests that the propert transform is applied to the copied layer.
 TEST(TransparencyWin, RotateOpaqueCompositeLayer)
 {
-    std::auto_ptr<ImageBuffer> src(ImageBuffer::create(IntSize(16, 16), false));
+    OwnPtr<ImageBuffer> src(ImageBuffer::create(IntSize(16, 16), false));
 
     // The background is white.
     Color white(0xFFFFFFFF);
@@ -484,7 +484,7 @@ TEST(TransparencyWin, RotateOpaqueCompositeLayer)
 
 TEST(TransparencyWin, TranslateScaleOpaqueCompositeLayer)
 {
-    std::auto_ptr<ImageBuffer> src(ImageBuffer::create(IntSize(16, 16), false));
+    OwnPtr<ImageBuffer> src(ImageBuffer::create(IntSize(16, 16), false));
 
     // The background is white on top with red on bottom.
     Color white(0xFFFFFFFF);
@@ -532,7 +532,7 @@ TEST(TransparencyWin, TranslateScaleOpaqueCompositeLayer)
 TEST(TransparencyWin, Scale)
 {
     // Create an opaque white buffer.
-    std::auto_ptr<ImageBuffer> src(ImageBuffer::create(IntSize(16, 16), false));
+    OwnPtr<ImageBuffer> src(ImageBuffer::create(IntSize(16, 16), false));
     FloatRect fullBuffer(0, 0, 16, 16);
     src->context()->fillRect(fullBuffer, Color::white);
 
@@ -587,7 +587,7 @@ TEST(TransparencyWin, Scale)
 TEST(TransparencyWin, ScaleTransparency)
 {
     // Create an opaque white buffer.
-    std::auto_ptr<ImageBuffer> src(ImageBuffer::create(IntSize(16, 16), false));
+    OwnPtr<ImageBuffer> src(ImageBuffer::create(IntSize(16, 16), false));
     FloatRect fullBuffer(0, 0, 16, 16);
     src->context()->fillRect(fullBuffer, Color::white);
 
@@ -645,7 +645,7 @@ TEST(TransparencyWin, ScaleTransparency)
 
 TEST(TransparencyWin, Text)
 {
-    std::auto_ptr<ImageBuffer> src(ImageBuffer::create(IntSize(16, 16), false));
+    OwnPtr<ImageBuffer> src(ImageBuffer::create(IntSize(16, 16), false));
 
     // Our text should end up 50% transparent blue-green.
     Color fullResult(0x80008080);

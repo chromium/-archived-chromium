@@ -38,7 +38,7 @@ void HTMLInputDelegate::OnFinishedAutocompleting() {
   // having a yellow background.
   element_->setAutofilled(true);
   // Notify any changeEvent listeners.
-  element_->onChange();
+  element_->dispatchFormControlChangeEvent();
 }
 
 PasswordAutocompleteListener::PasswordAutocompleteListener(

@@ -137,7 +137,7 @@ class ChromeClientImpl : public WebCore::ChromeClientChromium {
 
   virtual void formStateDidChange(const WebCore::Node*);
 
-  virtual WebCore::HTMLParserQuirks* createHTMLParserQuirks() { return 0; }
+  virtual PassOwnPtr<WebCore::HTMLParserQuirks> createHTMLParserQuirks() { return 0; }
 
  private:
   WebViewImpl* webview_;  // weak pointer

@@ -236,7 +236,7 @@ static bool FillFormToUploadFileImpl(WebCore::HTMLFormElement* fe,
   std::vector<WebCore::HTMLInputElement*>::iterator changed_ie;
   for (changed_ie = changed.begin(); changed_ie != changed.end();
        ++changed_ie) {
-    (*changed_ie)->onChange();
+    (*changed_ie)->dispatchFormControlChangeEvent();
     (*changed_ie)->deref();
   }
 
@@ -302,7 +302,7 @@ static bool FillFormImpl(FormElements* fe, const FormData& data, bool submit) {
       continue;
     it->second->setValue(StdWStringToString(data_map[it->first]));
     it->second->setAutofilled(true);
-    it->second->onChange();
+    it->second->dispatchFormControlChangeEvent();
   }
 
   if (submit && submit_found) {
