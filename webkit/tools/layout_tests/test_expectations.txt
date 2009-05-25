@@ -1230,7 +1230,6 @@ BUG10352 : LayoutTests/http/tests/plugins/local-geturl-from-remote.html = FAIL
 // These two depend on which webkit features are enabled.  For instance, it checks
 // if the Audio constructor is available which is only the case if AUDIO is enabled.
 BUG10352 : LayoutTests/fast/dom/constructors-cached-navigate.html = FAIL
-BUG10352 LINUX MAC : LayoutTests/fast/dom/constructors-cached.html = FAIL
 
 // MERGE REGRESSIONS 36102:37604
 
@@ -1906,7 +1905,6 @@ BUG10457 DEBUG WIN : LayoutTests/fast/js/large-expressions.html = FAIL
 // Perhaps just needs new baseline?
 // These tests were rebaselined with failure long ago. We shouldn't do this, and
 // instead work upstream to improve tests so that they don't fail.
-BUG10458 LINUX : LayoutTests/fast/forms/textarea-appearance-wrap.html = FAIL
 // Linux-only failures
 BUG10458 LINUX : LayoutTests/editing/inserting/6633727.html = FAIL
 BUG10458 LINUX : LayoutTests/fast/block/float/overlapping-floats-with-overflow-hidden.html = FAIL
@@ -1960,13 +1958,8 @@ BUG10465 LINUX : LayoutTests/fast/borders/border-image-border-radius.html = FAIL
 BUG10465 LINUX : LayoutTests/fast/clip/overflow-border-radius-clip.html = FAIL
   
 // Need rebaseline, see  WebKit 41993.
-BUG10466 LINUX : LayoutTests/fast/css/getComputedStyle/computed-style-without-renderer.html = FAIL
-BUG10466 LINUX : LayoutTests/fast/css/getComputedStyle/computed-style.html = FAIL
 BUG10466 LINUX : LayoutTests/svg/css/getComputedStyle-basic.xhtml = FAIL
   
-// Needs rebaseline. See WebKit 41972.
-BUG10467 LINUX : LayoutTests/fast/forms/slider-thumb-stylability.html = FAIL
-
 // Needs rebaseline. See WebKit 41948
 BUG10468 MAC WIN LINUX : LayoutTests/fast/replaced/border-radius-clip.html = FAIL CRASH
   
@@ -2355,38 +2348,31 @@ BUG_DARIN LINUX : LayoutTests/svg/transforms/text-with-pattern-with-svg-transfor
 BUG_DARIN LINUX : LayoutTests/transitions/mask-transitions.html = FAIL PASS
 
 // Need rebaselines from http://trac.webkit.org/changeset/43355
-BUG11613 MAC : LayoutTests/editing/inserting/4960120-1.html = FAIL
-BUG11613 LINUX MAC : LayoutTests/editing/pasteboard/nested-blocks-with-text-area.html = FAIL
-BUG11613 LINUX MAC : LayoutTests/editing/pasteboard/pasting-tabs.html = FAIL
+BUG11613 LINUX : LayoutTests/editing/pasteboard/nested-blocks-with-text-area.html = FAIL
+BUG11613 LINUX : LayoutTests/editing/pasteboard/pasting-tabs.html = FAIL
 BUG11613 LINUX : LayoutTests/fast/css/resize-corner-tracking.html = FAIL
-BUG11613 LINUX MAC : LayoutTests/fast/dom/HTMLTextAreaElement/reset-textarea.html = FAIL
-BUG11613 LINUX MAC : LayoutTests/fast/dynamic/008.html = FAIL
-BUG11613 LINUX MAC : LayoutTests/fast/forms/form-element-geometry.html = FAIL
-BUG11613 LINUX MAC : LayoutTests/fast/forms/linebox-overflow-in-textarea-padding.html = FAIL
-BUG11613 MAC : LayoutTests/fast/forms/negativeLineHeight.html = FAIL
-BUG11613 LINUX MAC : LayoutTests/fast/forms/textAreaLineHeight.html = FAIL
-BUG11613 LINUX MAC : LayoutTests/fast/forms/textarea-align.html = FAIL
-BUG11613 LINUX MAC : LayoutTests/fast/forms/textarea-scroll-height.html = FAIL
-BUG11613 MAC : LayoutTests/fast/forms/textarea-scrollbar.html = FAIL
-BUG11613 MAC : LayoutTests/fast/forms/textarea-scrolled-type.html = FAIL
-BUG11613 LINUX MAC : LayoutTests/fast/forms/textarea-setinnerhtml.html = FAIL
+BUG11613 LINUX : LayoutTests/fast/dom/HTMLTextAreaElement/reset-textarea.html = FAIL
+BUG11613 LINUX : LayoutTests/fast/dynamic/008.html = FAIL
+BUG11613 LINUX : LayoutTests/fast/forms/form-element-geometry.html = FAIL
+BUG11613 LINUX : LayoutTests/fast/forms/linebox-overflow-in-textarea-padding.html = FAIL
+BUG11613 LINUX : LayoutTests/fast/forms/textAreaLineHeight.html = FAIL
+BUG11613 LINUX : LayoutTests/fast/forms/textarea-align.html = FAIL
+BUG11613 LINUX : LayoutTests/fast/forms/textarea-scroll-height.html = FAIL
+BUG11613 LINUX : LayoutTests/fast/forms/textarea-setinnerhtml.html = FAIL
 BUG11613 LINUX MAC : LayoutTests/fast/overflow/overflow-x-y.html = FAIL
 BUG11613 LINUX : LayoutTests/fast/parser/entity-comment-in-textarea.html = FAIL
 BUG11613 LINUX : LayoutTests/fast/parser/open-comment-in-textarea.html = FAIL
 BUG11613 LINUX : LayoutTests/fast/table/003.html = FAIL
 BUG11613 LINUX MAC : LayoutTests/http/tests/navigation/anchor-frames.html = FAIL TIMEOUT
-BUG11613 MAC : LayoutTests/http/tests/navigation/javascriptlink-frames.html = FAIL
-BUG11613 LINUX MAC : LayoutTests/http/tests/navigation/relativeanchor-basic.html = FAIL
-BUG11613 LINUX MAC : LayoutTests/http/tests/navigation/relativeanchor-frames.html = FAIL
 BUG11613 LINUX : LayoutTests/tables/mozilla/bugs/bug194024.html = FAIL
 BUG11613 LINUX : LayoutTests/tables/mozilla/bugs/bug30559.html = FAIL
 BUG11613 LINUX : LayoutTests/tables/mozilla/bugs/bug30692.html = FAIL
 
 // Caused by WebKit merge 43346:43361.  These likely just need re-baselining.
 // Most likely caused by http://trac.webkit.org/changeset/43355
-BUG11613 LINUX MAC : LayoutTests/editing/deleting/5168598.html = FAIL
-BUG11613 LINUX MAC : LayoutTests/editing/inserting/5607069-2.html = FAIL
-BUG11613 LINUX MAC : LayoutTests/editing/inserting/5607069-3.html = FAIL
+BUG11613 LINUX : LayoutTests/editing/deleting/5168598.html = FAIL
+BUG11613 LINUX : LayoutTests/editing/inserting/5607069-2.html = FAIL
+BUG11613 LINUX : LayoutTests/editing/inserting/5607069-3.html = FAIL
 BUG11613 LINUX : LayoutTests/editing/inserting/before-after-input-element.html = FAIL
 BUG11613 LINUX : LayoutTests/editing/inserting/typing-tab-designmode-forms.html = FAIL
 BUG11613 LINUX : LayoutTests/editing/pasteboard/4641033.html = FAIL
@@ -2418,7 +2404,6 @@ BUG11613 LINUX : LayoutTests/fast/block/positioning/inline-block-relposition.htm
 BUG11613 LINUX : LayoutTests/fast/css/continuationCrash.html = FAIL
 BUG11613 LINUX : LayoutTests/fast/css/line-height.html = FAIL
 BUG11613 LINUX : LayoutTests/fast/css/margin-top-bottom-dynamic.html = FAIL
-BUG11613 LINUX : LayoutTests/fast/dynamic/positioned-movement-with-positioned-children.html = FAIL
 BUG11613 LINUX : LayoutTests/fast/events/autoscroll.html = FAIL
 BUG11613 LINUX : LayoutTests/fast/events/label-focus.html = FAIL
 BUG11613 LINUX : LayoutTests/fast/forms/003.html = FAIL
@@ -2445,9 +2430,7 @@ BUG11613 LINUX : LayoutTests/fast/forms/disabled-select-change-index.html = FAIL
 BUG11613 LINUX : LayoutTests/fast/forms/encoding-test.html = FAIL
 BUG11613 LINUX : LayoutTests/fast/forms/fieldset-align.html = FAIL
 BUG11613 LINUX : LayoutTests/fast/forms/floating-textfield-relayout.html = FAIL
-BUG11613 LINUX : LayoutTests/fast/forms/focus-selection-textarea.html = FAIL
 BUG11613 LINUX : LayoutTests/fast/forms/formmove3.html = FAIL
-BUG11613 LINUX : LayoutTests/fast/forms/hidden-listbox.html = FAIL
 BUG11613 LINUX : LayoutTests/fast/forms/input-align.html = FAIL
 BUG11613 LINUX : LayoutTests/fast/forms/input-appearance-bkcolor.html = FAIL
 BUG11613 LINUX : LayoutTests/fast/forms/input-appearance-default-bkcolor.html = FAIL
@@ -2504,7 +2487,6 @@ BUG11613 LINUX : LayoutTests/fast/forms/select-change-listbox-size.html = FAIL
 BUG11613 LINUX : LayoutTests/fast/forms/select-change-listbox-to-popup.html = FAIL
 BUG11613 LINUX : LayoutTests/fast/forms/select-change-popup-to-listbox.html = FAIL
 BUG11613 LINUX : LayoutTests/fast/forms/select-disabled-appearance.html = FAIL
-BUG11613 LINUX : LayoutTests/fast/forms/select-empty-option-height.html = FAIL
 BUG11613 LINUX : LayoutTests/fast/forms/select-list-box-with-height.html = FAIL
 BUG11613 LINUX : LayoutTests/fast/forms/select-selected.html = FAIL
 BUG11613 LINUX : LayoutTests/fast/forms/select-size.html = FAIL
@@ -2536,7 +2518,6 @@ BUG11613 LINUX : LayoutTests/fast/text/drawBidiText.html = FAIL
 BUG11613 LINUX : LayoutTests/fast/text/international/bidi-listbox.html = FAIL
 BUG11613 LINUX : LayoutTests/fast/text/international/bidi-menulist.html = FAIL
 BUG11613 LINUX : LayoutTests/fast/text/textIteratorNilRenderer.html = FAIL
-BUG11613 LINUX : LayoutTests/http/tests/security/cross-frame-access-call.html = FAIL
 BUG11613 LINUX : LayoutTests/svg/custom/inline-svg-in-xhtml.xml = FAIL
 BUG11613 LINUX : LayoutTests/svg/hixie/mixed/003.xml = FAIL
 BUG11613 LINUX : LayoutTests/tables/mozilla/bugs/bug1188.html = FAIL
@@ -2586,7 +2567,6 @@ BUG11613 LINUX : chrome/fast/forms/basic-buttons.html = FAIL
 BUG11613 LINUX : chrome/fast/forms/basic-inputs.html = FAIL
 BUG11613 LINUX : chrome/fast/forms/basic-textareas-quirks.html = FAIL
 BUG11613 LINUX : chrome/fast/forms/basic-textareas.html = FAIL
-BUG11613 MAC : LayoutTests/fast/forms/text-control-intrinsic-widths.html = FAIL
 BUG11613 MAC : LayoutTests/http/tests/security/cross-frame-access-call.html = FAIL
 BUG11613 WIN : LayoutTests/http/tests/navigation/anchor-frames.html = FAIL
 BUG11613 WIN : LayoutTests/http/tests/navigation/javascriptlink-frames.html = FAIL
@@ -2617,7 +2597,7 @@ BUG11795 : LayoutTests/http/tests/misc/favicon-as-image.html = FAIL
 BUG11795 MAC : LayoutTests/fast/images/favicon-as-image.html = FAIL
 
 // Already baselined for chromium-win, may need to be done for mac/linux as well.
-BUG11796 MAC LINUX : LayoutTests/fast/forms/search-styled.html = FAIL
+BUG11796 LINUX : LayoutTests/fast/forms/search-styled.html = FAIL
 
 // Flaky Mac tests
 BUG11810 MAC : LayoutTests/http/tests/navigation/post-goback-same-url.html = TIMEOUT PASS
@@ -2637,20 +2617,17 @@ BUG11898 WIN DEBUG : LayoutTests/http/tests/misc/submit-get-in-utf16be.html = TI
 // This test is marked as Slow on other platforms but still times out on Mac debug
 BUG11812 MAC : LayoutTests/http/tests/xmlhttprequest/supported-xml-content-types.html = TIMEOUT
 
-BUG11933 LINUX : LayoutTests/fast/frames/content-opacity-1.html = FAIL
-BUG11933 LINUX : LayoutTests/fast/frames/content-opacity-2.html = FAIL
-
 // Need LINUX/Mac rebaselines after WebKit Update 437150:43770
-BUG12054 MAC LINUX : LayoutTests/fast/canvas/canvas-bg-zoom.html = FAIL
-BUG12054 MAC LINUX : LayoutTests/editing/execCommand/outdent-blockquote-test1.html = FAIL
-BUG12054 MAC LINUX : LayoutTests/editing/execCommand/outdent-blockquote-test2.html = FAIL
-BUG12054 MAC LINUX : LayoutTests/editing/execCommand/outdent-blockquote-test3.html = FAIL
-BUG12054 MAC LINUX : LayoutTests/editing/execCommand/outdent-blockquote-test4.html = FAIL
+BUG12054 LINUX : LayoutTests/fast/canvas/canvas-bg-zoom.html = FAIL
+BUG12054 MAC : LayoutTests/editing/execCommand/outdent-blockquote-test1.html = FAIL
+BUG12054 MAC : LayoutTests/editing/execCommand/outdent-blockquote-test2.html = FAIL
+BUG12054 MAC : LayoutTests/editing/execCommand/outdent-blockquote-test3.html = FAIL
+BUG12054 MAC : LayoutTests/editing/execCommand/outdent-blockquote-test4.html = FAIL
 BUG12054 MAC LINUX : LayoutTests/fast/text/international/danda-space.html = FAIL
 BUG12054 MAC LINUX : LayoutTests/fast/text/international/thai-baht-space.html = FAIL
 
 // New test, added in http://trac.webkit.org/changeset/43793, fails for us.
-BUG12104 : LayoutTests/fast/backgrounds/background-clip-text.html = FAIL
+BUG12104 WIN LINUX : LayoutTests/fast/backgrounds/background-clip-text.html = FAIL
 
 // New test, added in http://trac.webkit.org/changeset/43822, fails for us
 BUG12197 : LayoutTests/editing/pasteboard/get-data-text-plain-drop.html = FAIL
@@ -2673,9 +2650,8 @@ BUG12310 SKIP : LayoutTests/fast/wcss/marquee-style.xhtml = FAIL
 // Details for all of these are in the bugs.
 BUG12340 WIN : LayoutTests/fast/body-propagation/overflow/004-xhtml.xhtml = PASS FAIL
 BUG12341 WIN : LayoutTests/editing/selection/4975120.html = PASS FAIL
-BUG12350 MAC : LayoutTests/fast/forms/select-style.html = FAIL
-BUG12352 : LayoutTests/fast/canvas/canvas-composite.html = FAIL
-BUG12352 : LayoutTests/fast/backgrounds/bgCompositeCopy.html = FAIL
+BUG12353 WIN LINUX : LayoutTests/fast/canvas/canvas-composite.html = FAIL
+BUG12352 WIN LINUX : LayoutTests/fast/backgrounds/bgCompositeCopy.html = FAIL
 BUG12354 : LayoutTests/plugins/netscape-invoke-browserfuncs.html = FAIL
 BUG12355 : LayoutTests/editing/pasteboard/file-input-files-access.html = FAIL
 BUG12361 : LayoutTests/http/tests/cookies/double-quoted-value-with-semi-colon.html = FAIL
