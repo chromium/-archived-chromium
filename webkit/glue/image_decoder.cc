@@ -11,6 +11,7 @@
 MSVC_PUSH_WARNING_LEVEL(0);
 #if defined(OS_WIN) || defined(OS_LINUX)
 #include "ImageSourceSkia.h"
+#include "NativeImageSkia.h"
 #elif defined(OS_MACOSX)
 #include "ImageSource.h"
 #include "RetainPtr.h"
@@ -64,8 +65,11 @@ SkBitmap ImageDecoder::Decode(const unsigned char* data, size_t size) const {
     return SkBitmap();
 
 #if defined(OS_WIN) || defined(OS_LINUX)
-  return *reinterpret_cast<SkBitmap*>(frame0);
+  SkBitmap retval = *reinterpret_cast<SkBitmap*>(frame0);
+  delete frame0;
+  return retval;
 #elif defined(OS_MACOSX)
+  // TODO(port): should we delete frame0 like Linux/Windows do above?
   // BitmapImage releases automatically, but we're bypassing it so we'll need
   // to do the releasing.
   RetainPtr<CGImageRef> image(AdoptCF, frame0);
