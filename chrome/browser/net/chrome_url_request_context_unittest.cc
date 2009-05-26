@@ -32,13 +32,13 @@ TEST(ChromeUrlRequestContextTest, CreateProxyConfigTest) {
   per_scheme_proxy_bypass.AppendSwitchWithValue(switches::kProxyServer,
       L"http=httpproxy:8888;ftp=ftpproxy:8889");
   per_scheme_proxy_bypass.AppendSwitchWithValue(
-      switches::kProxyBypassUrls,
+      switches::kProxyBypassList,
       L".google.com, foo.com:99, 1.2.3.4:22, 127.0.0.1/8");
   CommandLine with_pac_url(L"foo.exe");
   with_pac_url.AppendSwitchWithValue(switches::kProxyPacUrl,
       L"http://wpad/wpad.dat");
   with_pac_url.AppendSwitchWithValue(
-      switches::kProxyBypassUrls,
+      switches::kProxyBypassList,
       L".google.com, foo.com:99, 1.2.3.4:22, 127.0.0.1/8");
   CommandLine with_auto_detect(L"foo.exe");
   with_auto_detect.AppendSwitch(switches::kProxyAutoDetect);

@@ -30,7 +30,7 @@ net::ProxyConfig* CreateProxyConfig(const CommandLine& command_line) {
     switches::kProxyServer,
     switches::kProxyPacUrl,
     switches::kProxyAutoDetect,
-    switches::kProxyBypassUrls
+    switches::kProxyBypassList
   };
 
   bool found_enable_proxy_switch = false;
@@ -73,10 +73,10 @@ net::ProxyConfig* CreateProxyConfig(const CommandLine& command_line) {
     proxy_config->auto_detect = true;
   }
 
-  if (command_line.HasSwitch(switches::kProxyBypassUrls)) {
+  if (command_line.HasSwitch(switches::kProxyBypassList)) {
     proxy_config->ParseNoProxyList(
         WideToASCII(command_line.GetSwitchValue(
-            switches::kProxyBypassUrls)));
+            switches::kProxyBypassList)));
   }
 
   return proxy_config;

@@ -239,11 +239,11 @@ const wchar_t kProxyServer[]                   = L"proxy-server";
 // other proxy server flags that are passed.
 const wchar_t kNoProxyServer[]                 = L"no-proxy-server";
 
-// Specify a list of URLs for whom we bypass proxy settings and use direct
+// Specify a list of hosts for whom we bypass proxy settings and use direct
 // connections. Ignored if --proxy-auto-detect or --no-proxy-server are
 // also specified.
-// TODO(robertshield): Specify URL format.
-const wchar_t kProxyBypassUrls[]         = L"proxy-bypass-urls";
+// TODO(robertshield): Specify host format.
+const wchar_t kProxyBypassList[]         = L"proxy-bypass-list";
 
 // Force proxy auto-detection.
 const wchar_t kProxyAutoDetect[]         = L"proxy-auto-detect";

@@ -79,7 +79,7 @@ extern const wchar_t kMakeDefaultBrowser[];
 
 extern const wchar_t kProxyServer[];
 extern const wchar_t kNoProxyServer[];
-extern const wchar_t kProxyBypassUrls[];
+extern const wchar_t kProxyBypassList[];
 extern const wchar_t kProxyAutoDetect[];
 extern const wchar_t kProxyPacUrl[];
 extern const wchar_t kWinHttpProxyResolver[];
