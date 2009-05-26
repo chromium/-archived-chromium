@@ -1935,6 +1935,8 @@ BUG10462 WIN LINUX : LayoutTests/fast/replaced/percent-height-in-anonymous-block
 BUG10462 WIN LINUX : LayoutTests/http/tests/misc/generated-content-inside-table.html = FAIL
 
 // New failures from merge
+BUG10463 LINUX : LayoutTests/fast/css/clip-zooming.html = FAIL
+BUG10463 LINUX : LayoutTests/fast/forms/search-zoomed.html = FAIL
 BUG10463 WIN LINUX : LayoutTests/editing/selection/hit-test-anonymous.html = FAIL
 BUG10463 LINUX : LayoutTests/fast/clip/016.html = FAIL
 BUG10463 WIN LINUX : LayoutTests/fast/forms/listbox-hit-test-zoomed.html = FAIL
@@ -2655,10 +2657,5 @@ BUG12361 : LayoutTests/http/tests/cookies/double-quoted-value-with-semi-colon.ht
 BUG12477 : LayoutTests/http/tests/local/drag-over-remote-content.html = FAIL
 BUG12477 : LayoutTests/http/tests/security/drag-over-remote-content-iframe.html = FAIL
 
-// Test failures from WebKit 44049:44065
-BUG12563 LINUX : LayoutTests/fast/css/clip-zooming.html = FAIL
-BUG12563 LINUX : LayoutTests/fast/forms/search-zoomed.html = FAIL
-
 // Test failures from WebKit 44065:44094
 BUG12611 : LayoutTests/fast/js/exception-for-nonobject.html = FAIL
-
