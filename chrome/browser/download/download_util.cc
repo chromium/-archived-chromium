@@ -22,8 +22,11 @@
 #include "third_party/skia/include/core/SkPath.h"
 #include "third_party/skia/include/core/SkShader.h"
 
-#if defined(OS_WIN)
+#if defined(OS_WIN) || defined(TOOLKIT_VIEWS)
 #include "app/os_exchange_data.h"
+#endif
+
+#if defined(OS_WIN)
 #include "base/base_drag_source.h"
 #include "views/drag_utils.h"
 #endif
@@ -66,7 +69,7 @@ SkBitmap* g_foreground_32 = NULL;
 SkBitmap* g_background_32 = NULL;
 
 void PaintDownloadProgress(gfx::Canvas* canvas,
-#if defined(OS_WIN)
+#if defined(OS_WIN) || defined(TOOLKIT_VIEWS)
                            views::View* containing_view,
 #endif
                            int origin_x,
@@ -96,7 +99,7 @@ void PaintDownloadProgress(gfx::Canvas* canvas,
   gfx::Rect foreground_bounds(origin_x, origin_y,
                               foreground->width(), foreground->height());
 
-#if defined(OS_WIN)
+#if defined(OS_WIN) || defined(TOOLKIT_VIEWS)
   // Mirror the positions if necessary.
   int mirrored_x = containing_view->MirroredLeftPointForRect(background_bounds);
   background_bounds.set_x(mirrored_x);
@@ -165,7 +168,7 @@ void PaintDownloadProgress(gfx::Canvas* canvas,
 }
 
 void PaintDownloadComplete(gfx::Canvas* canvas,
-#if defined(OS_WIN)
+#if defined(OS_WIN) || defined(TOOLKIT_VIEWS)
                            views::View* containing_view,
 #endif
                            int origin_x,
@@ -183,7 +186,7 @@ void PaintDownloadComplete(gfx::Canvas* canvas,
 
   gfx::Rect complete_bounds(origin_x, origin_y,
                             complete->width(), complete->height());
-#if defined(OS_WIN)
+#if defined(OS_WIN) || defined(TOOLKIT_VIEWS)
   // Mirror the positions if necessary.
   complete_bounds.set_x(
       containing_view->MirroredLeftPointForRect(complete_bounds));
@@ -230,9 +233,10 @@ int GetBigProgressIconOffset() {
   return (GetBigProgressIconSize() - kBigIconSize) / 2;
 }
 
-#if defined(OS_WIN)
+#if defined(OS_WIN) || defined(TOOLKIT_VIEWS)
 // Download dragging
 void DragDownload(const DownloadItem* download, SkBitmap* icon) {
+#if defined(OS_WIN)
   DCHECK(download);
 
   // Set up our OLE machinery
@@ -247,6 +251,9 @@ void DragDownload(const DownloadItem* download, SkBitmap* icon) {
   DWORD effects;
   DoDragDrop(data.get(), drag_source.get(), DROPEFFECT_COPY | DROPEFFECT_LINK,
              &effects);
+#else
+  NOTIMPLEMENTED();
+#endif
 }
 #endif
 

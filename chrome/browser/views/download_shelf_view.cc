@@ -23,7 +23,7 @@
 
 // Max number of download views we'll contain. Any time a view is added and
 // we already have this many download views, one is removed.
-static const int kMaxDownloadViews = 15;
+static const size_t kMaxDownloadViews = 15;
 
 // Padding from left edge and first download view.
 static const int kLeftPadding = 2;

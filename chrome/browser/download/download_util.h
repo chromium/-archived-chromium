@@ -14,7 +14,7 @@
 #include "base/basictypes.h"
 #include "base/task.h"
 
-#if defined(OS_WIN)
+#if defined(OS_WIN) || defined(TOOLKIT_VIEWS)
 #include "views/view.h"
 #endif
 
@@ -98,7 +98,7 @@ enum PaintDownloadProgressSize {
 // drawing in a right-to-left locale, we need to mirror the position of the
 // progress animation within the containing View.
 void PaintDownloadProgress(gfx::Canvas* canvas,
-#if defined(OS_WIN)
+#if defined(OS_WIN) || defined(TOOLKIT_VIEWS)
                            views::View* containing_view,
 #endif
                            int origin_x,
@@ -108,7 +108,7 @@ void PaintDownloadProgress(gfx::Canvas* canvas,
                            PaintDownloadProgressSize size);
 
 void PaintDownloadComplete(gfx::Canvas* canvas,
-#if defined(OS_WIN)
+#if defined(OS_WIN) || defined(TOOLKIT_VIEWS)
                            views::View* containing_view,
 #endif
                            int origin_x,
@@ -116,7 +116,7 @@ void PaintDownloadComplete(gfx::Canvas* canvas,
                            double animation_progress,
                            PaintDownloadProgressSize size);
 
-#if defined(OS_WIN)
+#if defined(OS_WIN) || defined(TOOLKIT_VIEWS)
 // Drag support ----------------------------------------------------------------
 
 // Helper function for download views to use when acting as a drag source for a

@@ -10,9 +10,9 @@
 #include "app/gfx/text_elider.h"
 #include "app/l10n_util.h"
 #include "app/resource_bundle.h"
-#include "app/win_util.h"
 #include "base/file_path.h"
 #include "base/string_util.h"
+#include "base/sys_string_conversions.h"
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/download/download_item_model.h"
 #include "chrome/browser/download/download_util.h"
@@ -23,6 +23,10 @@
 #include "views/controls/menu/menu.h"
 #include "views/widget/root_view.h"
 #include "views/widget/widget.h"
+
+#if defined(OS_WIN)
+#include "app/win_util.h"
+#endif
 
 using base::TimeDelta;
 
@@ -67,11 +71,10 @@ static const int kDisabledOnOpenDuration = 3000;
 class DownloadShelfContextMenuWin : public DownloadShelfContextMenu,
                                     public views::Menu::Delegate {
  public:
-  DownloadShelfContextMenuWin::DownloadShelfContextMenuWin(
-     BaseDownloadItemModel* model,
-     HWND window,
-     const gfx::Point& point)
-       : DownloadShelfContextMenu(model) {
+  DownloadShelfContextMenuWin(BaseDownloadItemModel* model,
+                              gfx::NativeView window,
+                              const gfx::Point& point)
+      : DownloadShelfContextMenu(model) {
     DCHECK(model);
 
     // The menu's anchor point is determined based on the UI layout.
@@ -130,25 +133,25 @@ class DownloadShelfContextMenuWin : public DownloadShelfContextMenu,
 DownloadItemView::DownloadItemView(DownloadItem* download,
     DownloadShelfView* parent,
     BaseDownloadItemModel* model)
-  : download_(download),
+  : warning_icon_(NULL),
+    download_(download),
     parent_(parent),
-    model_(model),
-    progress_angle_(download_util::kStartAngleDegrees),
-    body_state_(NORMAL),
-    drop_down_state_(NORMAL),
-    drop_down_pressed_(false),
     status_text_(l10n_util::GetString(IDS_DOWNLOAD_STATUS_STARTING)),
     show_status_text_(true),
+    body_state_(NORMAL),
+    drop_down_state_(NORMAL),
+    progress_angle_(download_util::kStartAngleDegrees),
+    drop_down_pressed_(false),
     dragging_(false),
     starting_drag_(false),
-    warning_icon_(NULL),
+    model_(model),
     save_button_(NULL),
     discard_button_(NULL),
     dangerous_download_label_(NULL),
     dangerous_download_label_sized_(false),
+    disabled_while_opening_(false),
     creation_time_(base::Time::Now()),
-    ALLOW_THIS_IN_INITIALIZER_LIST(reenable_method_factory_(this)),
-    disabled_while_opening_(false) {
+    ALLOW_THIS_IN_INITIALIZER_LIST(reenable_method_factory_(this)) {
   // TODO(idana) Bug# 1163334
   //
   // We currently do not mirror each download item on the download shelf (even
@@ -276,12 +279,21 @@ DownloadItemView::DownloadItemView(DownloadItem* download,
 
     // Extract the file extension (if any).
     FilePath filepath(download->original_name());
+#if defined(OS_LINUX)
+    std::wstring extension = base::SysNativeMBToWide(filepath.Extension());
+#else
     std::wstring extension = filepath.Extension();
+#endif
 
     // Remove leading '.'
     if (extension.length() > 0)
       extension = extension.substr(1);
+#if defined(OS_LINUX)
+    std::wstring rootname =
+        base::SysNativeMBToWide(filepath.BaseName().RemoveExtension().value());
+#else
     std::wstring rootname = filepath.BaseName().RemoveExtension().value();
+#endif
 
     // Elide giant extensions (this shouldn't currently be hit, but might
     // in future, should we ever notice unsafe giant extensions).
@@ -548,8 +560,14 @@ void DownloadItemView::Paint(gfx::Canvas* canvas) {
       filename = gfx::ElideFilename(download_->GetFileName(),
                                     font_, kTextWidth);
     } else {
-      FilePath filepath(l10n_util::GetStringF(IDS_DOWNLOAD_STATUS_OPENING,
-                                download_->GetFileName().ToWStringHack()));
+      std::wstring tmp_name =
+          l10n_util::GetStringF(IDS_DOWNLOAD_STATUS_OPENING,
+                                download_->GetFileName().ToWStringHack());
+#if defined(OS_WIN)
+      FilePath filepath(tmp_name);
+#else
+      FilePath filepath(base::SysWideToNativeMB(tmp_name));
+#endif
       filename = gfx::ElideFilename(filepath, font_, kTextWidth);
     }
 
@@ -826,8 +844,9 @@ bool DownloadItemView::OnMouseDragged(const views::MouseEvent& event) {
       if (icon)
         download_util::DragDownload(download_, icon);
     }
-  } else if (win_util::IsDrag(drag_start_point_.ToPOINT(),
-                              event.location().ToPOINT())) {
+  } else if (ExceededDragThreshold(
+                 event.location().x() - drag_start_point_.x(),
+                 event.location().y() - drag_start_point_.y())) {
     dragging_ = true;
   }
   return true;
@@ -903,7 +922,7 @@ void DownloadItemView::SizeLabelToMinWidth() {
 
   gfx::Size size;
   int min_width = -1;
-  int sp_index = text.find(L" ");
+  size_t sp_index = text.find(L" ");
   while (sp_index != std::wstring::npos) {
     text.replace(sp_index, 1, L"\n");
     dangerous_download_label_->SetText(text);
