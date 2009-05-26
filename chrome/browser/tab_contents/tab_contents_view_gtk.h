@@ -40,12 +40,6 @@ class TabContentsViewGtk : public TabContentsView,
   virtual void SetPageTitle(const std::wstring& title);
   virtual void Invalidate();
   virtual void SizeContents(const gfx::Size& size);
-  virtual void FindInPage(const Browser& browser,
-                          bool find_next, bool forward_direction);
-  virtual void HideFindBar(bool end_session);
-  virtual void ReparentFindWindow(Browser* new_browser) const;
-  virtual bool GetFindBarWindowInfo(gfx::Point* position,
-                                    bool* fully_visible) const;
   virtual void Focus();
   virtual void SetInitialFocus();
   virtual void StoreFocus();
@@ -57,11 +51,6 @@ class TabContentsViewGtk : public TabContentsView,
   virtual void UpdateDragCursor(bool is_drop_target);
   virtual void TakeFocus(bool reverse);
   virtual void HandleKeyboardEvent(const NativeWebKeyboardEvent& event);
-  virtual void OnFindReply(int request_id,
-                           int number_of_matches,
-                           const gfx::Rect& selection_rect,
-                           int active_match_ordinal,
-                           bool final_update);
 
   // NotificationObserver implementation ---------------------------------------
 

@@ -11,6 +11,7 @@
 #include "base/gfx/point.h"
 #include "base/gfx/rect.h"
 #include "base/gfx/size.h"
+#include "build/build_config.h"
 #include "chrome/browser/download/download_shelf.h"
 #include "chrome/browser/gtk/browser_window_gtk.h"
 #include "chrome/browser/gtk/sad_tab_gtk.h"
@@ -183,25 +184,6 @@ void TabContentsViewGtk::SizeContents(const gfx::Size& size) {
   // control the size of the contents on linux, so do nothing.
 }
 
-void TabContentsViewGtk::FindInPage(const Browser& browser,
-                                    bool find_next, bool forward_direction) {
-  NOTIMPLEMENTED();
-}
-
-void TabContentsViewGtk::HideFindBar(bool end_session) {
-  NOTIMPLEMENTED();
-}
-
-void TabContentsViewGtk::ReparentFindWindow(Browser* new_browser) const {
-  NOTIMPLEMENTED();
-}
-
-bool TabContentsViewGtk::GetFindBarWindowInfo(gfx::Point* position,
-                                              bool* fully_visible) const {
-  NOTIMPLEMENTED();
-  return false;
-}
-
 void TabContentsViewGtk::Focus() {
   if (tab_contents()->showing_interstitial_page()) {
     tab_contents()->interstitial_page()->Focus();
@@ -243,6 +225,9 @@ void TabContentsViewGtk::TakeFocus(bool reverse) {
 
 void TabContentsViewGtk::HandleKeyboardEvent(
     const NativeWebKeyboardEvent& event) {
+#if defined(TOOLKIT_VIEWS)
+    NOTIMPLEMENTED();
+#else
   // This may be an accelerator. Try to pass it on to our browser window
   // to handle.
   GtkWindow* window = GetTopLevelNativeWindow();
@@ -256,14 +241,7 @@ void TabContentsViewGtk::HandleKeyboardEvent(
   DCHECK(browser_window);
   browser_window->HandleAccelerator(event.os_event->keyval,
       static_cast<GdkModifierType>(event.os_event->state));
-}
-
-void TabContentsViewGtk::OnFindReply(int request_id,
-                                     int number_of_matches,
-                                     const gfx::Rect& selection_rect,
-                                     int active_match_ordinal,
-                                     bool final_update) {
-  NOTIMPLEMENTED();
+#endif
 }
 
 void TabContentsViewGtk::Observe(NotificationType type,
