@@ -321,10 +321,8 @@ class FocusManager {
   // had focus.
   int stored_focused_view_storage_id_;
 
-#if defined(OS_WIN)
   // The window associated with this focus manager.
-  HWND root_;
-#endif
+  gfx::NativeView root_;
 
   // Used to allow setting the focus on an HWND without changing the currently
   // focused view.

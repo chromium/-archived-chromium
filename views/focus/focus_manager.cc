@@ -4,15 +4,24 @@
 
 #include <algorithm>
 
+#include "build/build_config.h"
+
+#if defined(OS_LINUX)
+#include <gtk/gtk.h>
+#endif
+
 #include "base/histogram.h"
 #include "base/logging.h"
-#include "base/win_util.h"
 #include "views/accelerator.h"
 #include "views/focus/focus_manager.h"
 #include "views/focus/view_storage.h"
 #include "views/view.h"
 #include "views/widget/root_view.h"
 #include "views/widget/widget.h"
+
+#if defined(OS_WIN)
+#include "base/win_util.h"
+#endif
 
 // The following keys are used in SetProp/GetProp to associate additional
 // information needed for focus tracking with a window.
@@ -41,6 +50,7 @@ static const wchar_t* const kFocusSubclassInstalled =
 
 namespace views {
 
+#if defined(OS_WIN)
 // Callback installed via InstallFocusSubclass.
 static LRESULT CALLBACK FocusWindowCallback(HWND window, UINT message,
                                             WPARAM wParam, LPARAM lParam) {
@@ -89,8 +99,11 @@ static LRESULT CALLBACK FocusWindowCallback(HWND window, UINT message,
   return CallWindowProc(original_handler, window, message, wParam, lParam);
 }
 
+#endif
+
 // FocusManager -----------------------------------------------------
 
+#if defined(OS_WIN)
 // static
 FocusManager* FocusManager::CreateFocusManager(HWND window,
                                                RootView* root_view) {
@@ -131,8 +144,11 @@ void FocusManager::UninstallFocusSubclass(HWND window) {
   }
 }
 
+#endif
+
 // static
-FocusManager* FocusManager::GetFocusManager(HWND window) {
+FocusManager* FocusManager::GetFocusManager(gfx::NativeView window) {
+#if defined(OS_WIN)
   DCHECK(window);
 
   // In case parent windows belong to a different process, yet
@@ -149,17 +165,21 @@ FocusManager* FocusManager::GetFocusManager(HWND window) {
         GetProp(window, kFocusManagerKey));
   }
   return focus_manager;
+#else
+  NOTIMPLEMENTED();
+  return NULL;
+#endif
 }
 
+#if defined(OS_WIN)
 // static
-View* FocusManager::GetViewForWindow(HWND window, bool look_in_parents) {
+View* FocusManager::GetViewForWindow(gfx::NativeView window, bool look_in_parents) {
   DCHECK(window);
   do {
     View* v = reinterpret_cast<View*>(GetProp(window, kViewKey));
     if (v)
       return v;
   } while (look_in_parents && (window = ::GetParent(window)));
-
   return NULL;
 }
 
@@ -172,6 +192,7 @@ FocusManager::FocusManager(HWND root, RootView* root_view)
       ViewStorage::GetSharedInstance()->CreateStorageID();
   DCHECK(root_);
 }
+#endif
 
 FocusManager::~FocusManager() {
   // If there are still registered FocusChange listeners, chances are they were
@@ -179,6 +200,7 @@ FocusManager::~FocusManager() {
   DCHECK(focus_change_listeners_.empty());
 }
 
+#if defined(OS_WIN)
 // Message handlers.
 bool FocusManager::OnSetFocus(HWND window) {
   if (ignore_set_focus_msg_)
@@ -327,6 +349,7 @@ bool FocusManager::OnPostActivate(HWND window,
   }
   return false;
 }
+#endif
 
 void FocusManager::ValidateFocusedView() {
   if (focused_view_) {
@@ -348,11 +371,15 @@ bool FocusManager::ContainsView(View* view) {
   if (!widget)
     return false;
 
-  HWND window = widget->GetNativeView();
+  gfx::NativeView window = widget->GetNativeView();
   while (window) {
     if (window == root_)
       return true;
+#if defined(OS_WIN)
     window = ::GetParent(window);
+#else
+    window = gtk_widget_get_parent(window);
+#endif
   }
   return false;
 }
@@ -451,7 +478,7 @@ View* FocusManager::FindLastFocusableView() {
   // Just walk the entire focus loop from where we're at until we reach the end.
   View* new_focused = NULL;
   View* last_focused = focused_view_;
-  while (new_focused = GetNextFocusableView(last_focused, false, true))
+  while ((new_focused = GetNextFocusableView(last_focused, false, true)))
     last_focused = new_focused;
   return last_focused;
 }
@@ -493,10 +520,15 @@ void FocusManager::ClearFocus() {
 void FocusManager::ClearHWNDFocus() {
   // Keep the top root window focused so we get keyboard events.
   ignore_set_focus_msg_ = true;
+#if defined(OS_WIN)
   ::SetFocus(root_);
+#else
+  NOTIMPLEMENTED();
+#endif
   ignore_set_focus_msg_ = false;
 }
 
+#if defined(OS_WIN)
 void FocusManager::FocusHWND(HWND hwnd) {
   ignore_set_focus_msg_ = true;
   // Only reset focus if hwnd is not already focused.
@@ -504,6 +536,7 @@ void FocusManager::FocusHWND(HWND hwnd) {
     ::SetFocus(hwnd);
   ignore_set_focus_msg_ = false;
 }
+#endif
 
 void FocusManager::StoreFocusedView() {
   ViewStorage* view_storage = ViewStorage::GetSharedInstance();
@@ -560,7 +593,11 @@ void FocusManager::ClearStoredFocusedView() {
 }
 
 FocusManager* FocusManager::GetParentFocusManager() const {
+#if defined(OS_WIN)
   HWND parent = ::GetParent(root_);
+#else
+  GtkWidget* parent = gtk_widget_get_parent(root_);
+#endif
   // If we are a top window, we don't have a parent FocusManager.
   if (!parent)
     return NULL;
@@ -666,7 +703,12 @@ AcceleratorTarget* FocusManager::GetTargetForAccelerator(
 
 // static
 bool FocusManager::IsTabTraversalKeyEvent(const KeyEvent& key_event) {
+#if defined(OS_WIN)
   return key_event.GetCharacter() == VK_TAB && !win_util::IsCtrlPressed();
+#else
+  NOTIMPLEMENTED();
+  return false;
+#endif
 }
 
 void FocusManager::ViewRemoved(View* parent, View* removed) {
