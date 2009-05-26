@@ -15,6 +15,7 @@
 #include "app/resource_bundle.h"
 #include "base/command_line.h"
 #include "base/time.h"
+#include "build/build_config.h"
 #include "chrome/app/chrome_dll_resource.h"
 #include "chrome/browser/app_modal_dialog_queue.h"
 #include "chrome/browser/bookmarks/bookmark_utils.h"
@@ -100,7 +101,7 @@ static int explicit_show_state = -1;
 // Returned from BrowserView::GetClassName.
 static const char kBrowserViewClassName[] = "browser/views/BrowserView";
 
-static const struct {
+static const struct MenuLayout {
   bool separator;
   int command;
   int label;
@@ -284,8 +285,10 @@ BrowserView::BrowserView(Browser* browser)
       contents_container_(NULL),
       initialized_(false),
       ignore_layout_(false),
+#if defined(OS_WIN)
       hung_window_detector_(&hung_plugin_action_),
       ticker_(0),
+#endif
       extension_shelf_(NULL) {
   InitClass();
   browser_->tabstrip_model()->AddObserver(this);
@@ -294,9 +297,11 @@ BrowserView::BrowserView(Browser* browser)
 BrowserView::~BrowserView() {
   browser_->tabstrip_model()->RemoveObserver(this);
 
+#if defined(OS_WIN)
   // Stop hung plugin monitoring.
   ticker_.Stop();
   ticker_.UnregisterTickHandler(&hung_window_detector_);
+#endif
 }
 
 // static
@@ -320,11 +325,16 @@ int BrowserView::GetShowState() const {
   if (explicit_show_state != -1)
     return explicit_show_state;
 
+#if defined(OS_WIN)
   STARTUPINFO si = {0};
   si.cb = sizeof(si);
   si.dwFlags = STARTF_USESHOWWINDOW;
   GetStartupInfo(&si);
   return si.wShowWindow;
+#else
+  NOTIMPLEMENTED();
+  return 0;
+#endif
 }
 
 void BrowserView::WindowMoved() {
@@ -594,7 +604,7 @@ void BrowserView::FlashFrame() {
 }
 
 gfx::NativeWindow BrowserView::GetNativeHandle() {
-  return GetWidget()->GetNativeView();
+  return GetWidget()->GetWindow()->GetNativeWindow();
 }
 
 BrowserWindowTesting* BrowserView::GetBrowserWindowTesting() {
@@ -844,7 +854,7 @@ void BrowserView::ShowNewProfileDialog() {
 void BrowserView::ConfirmBrowserCloseWithPendingDownloads() {
   DownloadInProgressConfirmDialogDelegate* delegate =
       new DownloadInProgressConfirmDialogDelegate(browser_.get());
-  views::Window::CreateChromeWindow(GetWidget()->GetNativeView(), gfx::Rect(),
+  views::Window::CreateChromeWindow(GetNativeHandle(), gfx::Rect(),
                                     delegate)->Show();
 }
 
@@ -852,7 +862,7 @@ void BrowserView::ShowHTMLDialog(HtmlDialogUIDelegate* delegate,
                                  gfx::NativeWindow parent_window) {
   // Default to using our window as the parent if the argument is not specified.
   gfx::NativeWindow parent = parent_window ? parent_window
-                                           : GetWidget()->GetNativeView();
+                                           : GetNativeHandle();
   browser::ShowHtmlDialogView(parent_window, browser_.get(), delegate);
 }
 
@@ -1530,6 +1540,7 @@ bool BrowserView::UpdateChildViewAndLayout(views::View* new_view,
 }
 
 void BrowserView::LoadAccelerators() {
+#if defined(OS_WIN)
   HACCEL accelerator_table = AtlLoadAccelerators(IDR_MAINFRAME);
   DCHECK(accelerator_table);
 
@@ -1562,6 +1573,9 @@ void BrowserView::LoadAccelerators() {
 
   // We don't need the Windows accelerator table anymore.
   free(accelerators);
+#else
+  NOTIMPLEMENTED();
+#endif
 }
 
 void BrowserView::BuildMenuForTabStriplessWindow(views::Menu* menu,
@@ -1569,7 +1583,7 @@ void BrowserView::BuildMenuForTabStriplessWindow(views::Menu* menu,
   encoding_menu_delegate_.reset(new EncodingMenuControllerDelegate(
       browser_.get()));
 
-  for (int i = 0; i < arraysize(kMenuLayout); ++i) {
+  for (size_t i = 0; i < arraysize(kMenuLayout); ++i) {
     if (kMenuLayout[i].separator) {
       menu->AddSeparator(insertion_index);
     } else {
@@ -1604,6 +1618,7 @@ void BrowserView::BuildMenuForTabStriplessWindow(views::Menu* menu,
 }
 
 int BrowserView::GetCommandIDForAppCommandID(int app_command_id) const {
+#if defined(OS_WIN)
   switch (app_command_id) {
     // NOTE: The order here matches the APPCOMMAND declaration order in the
     // Windows headers.
@@ -1629,6 +1644,10 @@ int BrowserView::GetCommandIDForAppCommandID(int app_command_id) const {
     case APPCOMMAND_SPELL_CHECK:
     default:                          return -1;
   }
+#else
+  // App commands are Windows-specific so there's nothing to do here.
+  return -1;
+#endif
 }
 
 void BrowserView::LoadingAnimationCallback() {
@@ -1650,6 +1669,7 @@ void BrowserView::LoadingAnimationCallback() {
 }
 
 void BrowserView::InitHangMonitor() {
+#if defined(OS_WIN)
   PrefService* pref_service = g_browser_process->local_state();
   if (!pref_service)
     return;
@@ -1670,6 +1690,7 @@ void BrowserView::InitHangMonitor() {
     pref_service->SetInteger(prefs::kHungPluginDetectFrequency,
                              hung_plugin_detect_freq);
   }
+#endif
 }
 
 // static
