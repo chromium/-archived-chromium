@@ -146,9 +146,9 @@ void BackingStore::PaintRectWithoutXrender(TransportDIB* bitmap,
     for (int y = 0; y < height; ++y) {
       for (int x = 0; x < width; ++x) {
         const uint32_t pixel = *(bitmap_in++);
-        uint16_t out_pixel = (pixel >> 8) & 0xf800 |
-                             (pixel >> 5) & 0x07e0 |
-                             (pixel >> 3) & 0x001f;
+        uint16_t out_pixel = ((pixel >> 8) & 0xf800) |
+                             ((pixel >> 5) & 0x07e0) |
+                             ((pixel >> 3) & 0x001f);
         *(bitmap16++) = out_pixel;
       }
     }
