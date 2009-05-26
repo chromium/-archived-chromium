@@ -71,7 +71,7 @@ struct BookmarkDragData {
   explicit BookmarkDragData(BookmarkNode* node);
   explicit BookmarkDragData(const std::vector<BookmarkNode*>& nodes);
 
-#if defined(OS_WIN)
+#if defined(TOOLKIT_VIEWS)
   // Writes elements to data. If there is only one element and it is a URL
   // the URL and title are written to the clipboard in a format other apps can
   // use.

@@ -1667,6 +1667,7 @@
                 ['include', '^browser/dock_info_gtk.cc'],
                 ['include', '^browser/dock_info.cc'],
                 ['include', '^browser/dock_info.h'],
+                ['include', '^browser/views/bookmark_menu_controller_views.cc'],
                 ['include', '^browser/views/download_item_view.cc'],
                 ['include', '^browser/views/download_item_view.h'],
                 ['include', '^browser/views/download_shelf_view.cc'],
@@ -1702,6 +1703,8 @@
                 ['include', '^browser/views/tabs/tab_renderer.h'],
                 ['include', '^browser/views/tabs/tab_strip.cc'],
                 ['include', '^browser/views/tabs/tab_strip.h'],
+                ['include', '^browser/window_sizer.cc'],
+                ['include', '^browser/window_sizer.h'],
 
                 # Exclude all of browser/gtk, then include the things we want.
                 ['exclude', '^browser/gtk'],
@@ -1718,6 +1721,9 @@
                 ['include', '^browser/gtk/menu_gtk.h'],
                 ['include', '^browser/gtk/sad_tab_gtk.cc'],
                 ['include', '^browser/gtk/sad_tab_gtk.h'],
+
+                # More GTK stuff to exclude outside of the browser/gtk directory
+                ['exclude', '^browser/bookmarks/bookmark_context_menu_gtk.cc'],
               ],
             }],
             ['toolkit_views==0',{

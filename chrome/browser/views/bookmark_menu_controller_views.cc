@@ -48,10 +48,15 @@ void BookmarkMenuController::RunMenuAt(
     bool for_drop) {
   for_drop_ = for_drop;
   profile_->GetBookmarkModel()->AddObserver(this);
+#if defined(OS_WIN)
+  gfx::NativeView widget = parent_;
+#else
+  gfx::NativeView widget = GTK_WIDGET(parent_);
+#endif
   if (for_drop) {
-    menu_->RunMenuForDropAt(parent_, bounds, position);
+    menu_->RunMenuForDropAt(widget, bounds, position);
   } else {
-    menu_->RunMenuAt(parent_, bounds, position, false);
+    menu_->RunMenuAt(widget, bounds, position, false);
     delete this;
   }
 }
@@ -94,7 +99,6 @@ bool BookmarkMenuController::CanDrop(views::MenuItemView* menu,
   // the dragged node is not a parent of the node menu represents.
   BookmarkNode* drop_node = menu_id_to_node_map_[menu->GetCommand()];
   DCHECK(drop_node);
-  BookmarkNode* node = drop_node;
   while (drop_node && drop_node != drag_node)
     drop_node = drop_node->GetParent();
   return (drop_node == NULL);
