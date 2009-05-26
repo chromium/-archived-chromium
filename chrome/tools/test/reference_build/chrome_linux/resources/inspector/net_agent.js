@@ -10,7 +10,6 @@
 goog.provide('devtools.NetAgent');
 
 devtools.NetAgent = function() {
-  this.resources_ = {};
   this.id_for_url_ = {};
 
   RemoteNetAgent.GetResourceContentResult =
@@ -28,18 +27,7 @@ devtools.NetAgent = function() {
  * Resets dom agent to its initial state.
  */
 devtools.NetAgent.prototype.reset = function() {
-  this.resources_ = {};
   this.id_for_url_ = {};
-};
-
-
-/**
- * Returns resource object for given identifier.
- * @param {number} identifier Identifier to get resource for.
- * @return {WebInspector.Resouce} Resulting resource.
- */
-devtools.NetAgent.prototype.getResource = function(identifier) {
-  return this.resources_[identifier];
 };
 
 
@@ -51,7 +39,7 @@ devtools.NetAgent.prototype.getResource = function(identifier) {
  */
 devtools.NetAgent.prototype.getResourceContentAsync = function(identifier, 
     opt_callback) {
-  var resource = this.resources_[identifier];
+  var resource = WebInspector.resources[identifier];
   if (!resource) {
     return;
   }
@@ -71,20 +59,15 @@ devtools.NetAgent.prototype.getResourceContentAsync = function(identifier,
  */
 devtools.NetAgent.prototype.willSendRequest = function(identifier, request) {
   // Resource object is already created.
-  var resource = this.resources_[identifier];
+  var resource = WebInspector.resources[identifier];
   if (resource) {
     return;
   }
 
-  var mainResource = false;
-  var cached = false;
-  var resource = new WebInspector.Resource(request.requestHeaders, 
-      request.url, request.domain, request.path, request.lastPathComponent,
-      identifier, mainResource, cached);
+  WebInspector.addResource(identifier, request);
+  var resource = WebInspector.resources[identifier];
   resource.startTime = request.startTime;
-  WebInspector.addResource(resource);
-  this.resources_[identifier] = resource;
-  this.id_for_url_[request.url] = identifier;
+  this.id_for_url_[resource.url] = identifier;
 };
 
 
@@ -93,7 +76,7 @@ devtools.NetAgent.prototype.willSendRequest = function(identifier, request) {
  * {@inheritDoc}.
  */
 devtools.NetAgent.prototype.didReceiveResponse = function(identifier, response) {
-  var resource = this.resources_[identifier];
+  var resource = WebInspector.resources[identifier];
   if (!resource) {
     return;
   }
@@ -130,11 +113,14 @@ devtools.NetAgent.prototype.didFinishLoading = function(identifier, value) {
   this.willSendRequest(identifier, value);
   this.didReceiveResponse(identifier, value);
 
-  var resource = this.resources_[identifier];
+  var resource = WebInspector.resources[identifier];
   if (!resource) {
     return;
   }
   resource.endTime = value.endTime;
   resource.finished = true;
   resource.failed = !!value.errorCode;
+  if (resource.mainResource) {
+    document.title = 'Developer Tools - ' + resource.url;
+  }
 };

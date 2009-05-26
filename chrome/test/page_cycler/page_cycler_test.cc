@@ -259,8 +259,6 @@ class PageCyclerReferenceTest : public PageCyclerTest {
   }
 };
 
-#if !defined(OS_LINUX)
-
 // file-URL tests
 TEST_F(PageCyclerTest, MozFile) {
   RunTest("moz", false);
@@ -358,7 +356,5 @@ TEST_F(PageCyclerReferenceTest, BloatHttp) {
   RunTest("bloat", true);
 }
 #endif
-
-#endif  // !defined(OS_LINUX)
 
 }  // namespace

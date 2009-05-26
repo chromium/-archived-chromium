@@ -13,6 +13,29 @@ goog.require('devtools.DebuggerAgent');
 goog.require('devtools.DomAgent');
 goog.require('devtools.NetAgent');
 
+
+/**
+ * Dispatches raw message from the host.
+ * @param {Object} msg Message to dispatch.
+ */
+devtools.dispatch = function(msg) {
+  var delegate = msg[0];
+  var methodName = msg[1];
+  var remoteName = 'Remote' + delegate.substring(0, delegate.length - 8);
+  var agent = window[remoteName];
+  if (!agent) {
+    debugPrint('No remote agent "' + remoteName + '" found.');
+    return;
+  }
+  var method = agent[methodName];
+  if (!method) {
+    debugPrint('No method "' + remoteName + '.' + methodName + '" found.');
+    return;
+  }
+  method.apply(this, msg.slice(2));
+};
+
+
 devtools.ToolsAgent = function() {
   RemoteToolsAgent.DidEvaluateJavaScript = devtools.Callback.processCallback;
   RemoteToolsAgent.DidExecuteUtilityFunction =
@@ -38,7 +61,6 @@ devtools.ToolsAgent.prototype.reset = function() {
   this.debuggerAgent_.reset();
   
   this.domAgent_.getDocumentElementAsync();
-  this.debuggerAgent_.requestScripts();
 };
 
 
@@ -266,6 +288,17 @@ WebInspector.Console.prototype._evalInInspectedWindow = function(expr) {
 
 
 /**
+ * Disable autocompletion in the console.
+ * TODO(yurys): change WebKit implementation to allow asynchronous completion.
+ * @override
+ */
+WebInspector.Console.prototype.completions = function(
+    wordRange, bestMatchOnly) {
+  return null;
+};
+
+
+/**
  * @override
  */
 WebInspector.ElementsPanel.prototype.updateStyles = function(forceUpdate) {
@@ -309,7 +342,7 @@ WebInspector.ElementsPanel.prototype.invokeWithStyleSet_ =
   
   if (node && node.nodeType == Node.ELEMENT_NODE) {
     var callback = function(stylesStr) {
-      var styles = goog.json.parse(stylesStr);
+      var styles = JSON.parse(stylesStr);
       if (!styles.computedStyle) {
         return;
       }
@@ -375,7 +408,7 @@ WebInspector.PropertiesSidebarPane.prototype.update = function(object) {
   devtools.tools.getDomAgent().getNodePrototypesAsync(object.id_, 
       function(json) {
         // Get array of prototype user-friendly names.
-        var prototypes = goog.json.parse(json);
+        var prototypes = JSON.parse(json);
         for (var i = 0; i < prototypes.length; ++i) {
           var prototype = {};
           prototype.id_ = object.id_;
@@ -469,7 +502,7 @@ WebInspector.SourceView.prototype.setupSourceFrameIfNeeded = function() {
   var netAgent = devtools.tools.getNetAgent();
 
   netAgent.getResourceContentAsync(identifier, function(source) {
-    var resource = netAgent.getResource(identifier);
+    var resource = WebInspector.resources[identifier];
     if (InspectorController.addSourceToFrame(resource.mimeType, source,
                                              element)) {
       delete self._frameNeedsSetup;
@@ -483,6 +516,48 @@ WebInspector.SourceView.prototype.setupSourceFrameIfNeeded = function() {
     }
   });
   return true;
+};
+
+
+/**
+ * This override is necessary for adding script source asynchronously.
+ * @override
+ */
+WebInspector.ScriptView.prototype.setupSourceFrameIfNeeded = function() {
+  if (!this._frameNeedsSetup) {
+    return;
+  }
+
+  this.attach();
+  
+  if (this.script.source) {
+    this.didResolveScriptSource_();
+  } else {
+    var self = this;
+    devtools.tools.getDebuggerAgent().resolveScriptSource(
+        this.script.sourceID,
+        function(source) {
+          self.script.source = source || '<source is not available>';
+          self.didResolveScriptSource_();
+        });
+  }
+};
+
+
+/**
+ * Performs source frame setup when script source is aready resolved.
+ */
+WebInspector.ScriptView.prototype.didResolveScriptSource_ = function() {
+  if (!InspectorController.addSourceToFrame(
+      "text/javascript", this.script.source, this.sourceFrame.element)) {
+    return;
+  }
+
+  delete this._frameNeedsSetup;
+
+  this.sourceFrame.addEventListener(
+      "syntax highlighting complete", this._syntaxHighlightingComplete, this);
+  this.sourceFrame.syntaxHighlightJavascript();
 };
 
 
@@ -505,7 +580,7 @@ WebInspector.dummyFunction_ = function() {};
  */
 WebInspector.didGetNodePropertiesAsync_ = function(treeOutline, constructor,
     nodeId, path, json) {
-  var props = goog.json.parse(json);
+  var props = JSON.parse(json);
   var properties = [];
   var obj = {};
   obj.devtools$$nodeId_ = nodeId;
@@ -596,7 +671,7 @@ WebInspector.ScopeChainSidebarPane.TreeElement.inherits(
  */
 WebInspector.ScopeChainSidebarPane.TreeElement.prototype.onpopulate =
     function() {
-  var obj = this.parentObject[this.propertyName].value;
+  var obj = this.parentObject[this.propertyName];
   devtools.tools.getDebuggerAgent().resolveChildren(obj,
       goog.bind(this.didResolveChildren_, this));
 };
@@ -608,8 +683,8 @@ WebInspector.ScopeChainSidebarPane.TreeElement.prototype.onpopulate =
 WebInspector.ScopeChainSidebarPane.TreeElement.prototype.didResolveChildren_ =
     function(object) {
   this.removeChildren();
-  
   var constructor = this.treeOutline.section.treeElementConstructor;
+  object = object.resolvedValue;
   for (var name in object) {
     this.appendChild(new constructor(object, name));
   }
@@ -705,3 +780,131 @@ WebInspector.Console.prototype._evalInInspectedWindow = function(expression) {
   // the command log message.
   return 'evaluating...';
 };
+
+
+(function() {
+  var oldShow = WebInspector.ScriptsPanel.prototype.show;
+  WebInspector.ScriptsPanel.prototype.show =  function() {
+    devtools.tools.getDebuggerAgent().initializeScriptsCache();
+    oldShow.call(this);
+  };
+})();
+
+
+/**
+ * We don't use WebKit's BottomUpProfileDataGridTree, instead using
+ * our own (because BottomUpProfileDataGridTree's functionality is
+ * implemented in profile_view.js for V8's Tick Processor).
+ *
+ * @param {WebInspector.ProfileView} profileView Profile view.
+ * @param {devtools.profiler.ProfileView} profile Profile.
+ */
+WebInspector.BottomUpProfileDataGridTree = function(profileView, profile) {
+  return WebInspector.buildProfileDataGridTree_(
+      profileView, profile.heavyProfile);
+};
+
+
+/**
+ * We don't use WebKit's TopDownProfileDataGridTree, instead using
+ * our own (because TopDownProfileDataGridTree's functionality is
+ * implemented in profile_view.js for V8's Tick Processor).
+ *
+ * @param {WebInspector.ProfileView} profileView Profile view.
+ * @param {devtools.profiler.ProfileView} profile Profile.
+ */
+WebInspector.TopDownProfileDataGridTree = function(profileView, profile) {
+  return WebInspector.buildProfileDataGridTree_(
+      profileView, profile.treeProfile);
+};
+
+
+/**
+ * A helper function, checks whether a profile node has visible children.
+ *
+ * @param {devtools.profiler.ProfileView.Node} profileNode Profile node.
+ * @return {boolean} Whether a profile node has visible children.
+ */
+WebInspector.nodeHasChildren_ = function(profileNode) {
+  var children = profileNode.children;
+  for (var i = 0, n = children.length; i < n; ++i) {
+    if (children[i].visible) {
+      return true;
+    }
+  }
+  return false;
+};
+
+
+/**
+ * Common code for populating a profiler grid node or a tree with
+ * given profile nodes.
+ *
+ * @param {WebInspector.ProfileDataGridNode|
+ *     WebInspector.ProfileDataGridTree} viewNode Grid node or a tree.
+ * @param {WebInspector.ProfileView} profileView Profile view.
+ * @param {Array<devtools.profiler.ProfileView.Node>} children Profile nodes.
+ * @param {WebInspector.ProfileDataGridTree} owningTree Grid tree.
+ */
+WebInspector.populateNode_ = function(
+    viewNode, profileView, children, owningTree) {
+  for (var i = 0, n = children.length; i < n; ++i) {
+    var child = children[i];
+    if (child.visible) {
+      viewNode.appendChild(
+          new WebInspector.ProfileDataGridNode(
+              profileView, child, owningTree,
+              WebInspector.nodeHasChildren_(child)));
+    }
+  }
+};
+
+
+/**
+ * A helper function for building a profile grid tree.
+ *
+ * @param {WebInspector.ProfileView} profileview Profile view.
+ * @param {devtools.profiler.ProfileView} profile Profile.
+ * @return {WebInspector.ProfileDataGridTree} Profile grid tree.
+ */
+WebInspector.buildProfileDataGridTree_ = function(profileView, profile) {
+  var children = profile.head.children;
+  var dataGridTree = new WebInspector.ProfileDataGridTree(
+      profileView, profile.head);
+  WebInspector.populateNode_(dataGridTree, profileView, children, dataGridTree);
+  return dataGridTree;
+};
+
+
+/**
+ * @override
+ */
+WebInspector.ProfileDataGridNode.prototype._populate = function(event) {
+  var children = this.profileNode.children;
+  WebInspector.populateNode_(this, this.profileView, children, this.tree);
+  this.removeEventListener("populate", this._populate, this);
+};
+
+
+// As columns in data grid can't be changed after initialization,
+// we need to intercept the constructor and modify columns upon creation.
+(function InterceptDataGridForProfiler() {
+   var originalDataGrid = WebInspector.DataGrid;
+   WebInspector.DataGrid = function(columns) {
+     if (('average' in columns) && ('calls' in columns)) {
+       delete columns['average'];
+       delete columns['calls'];
+     }
+     return new originalDataGrid(columns);
+   };
+})();
+
+
+/**
+ * @override
+ * TODO(pfeldman): Add l10n.
+ */
+WebInspector.UIString = function(string)
+{
+  return String.vsprintf(string, Array.prototype.slice.call(arguments, 1));
+}

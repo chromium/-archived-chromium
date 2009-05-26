@@ -13,18 +13,37 @@
 RemoteDebuggerAgentStub = function() {
 };
 
-RemoteDebuggerAgentStub.prototype.DebugAttach = function() {
-};
-
-RemoteDebuggerAgentStub.prototype.DebugDetach = function() {
-};
-
-RemoteDebuggerAgentStub.prototype.DebugCommand = function() {
-};
-
 RemoteDebuggerAgentStub.prototype.DebugBreak = function() {
 };
 
+RemoteDebuggerAgentStub.prototype.GetContextId = function() {
+  RemoteDebuggerAgent.DidGetContextId(3);
+};
+
+RemoteDebuggerAgentStub.prototype.StopProfiling = function() {
+};
+
+RemoteDebuggerAgentStub.prototype.StartProfiling = function() {
+};
+
+RemoteDebuggerAgentStub.prototype.IsProfilingStarted = function() {
+  setTimeout(function() {
+      RemoteDebuggerAgent.DidIsProfilingStarted(true);
+  }, 100);
+};
+
+RemoteDebuggerAgentStub.prototype.GetLogLines = function(pos) {
+  if (pos < RemoteDebuggerAgentStub.ProfilerLogBuffer.length) {
+    setTimeout(function() {
+        RemoteDebuggerAgent.DidGetLogLines(
+            RemoteDebuggerAgentStub.ProfilerLogBuffer,
+            pos + RemoteDebuggerAgentStub.ProfilerLogBuffer.length);
+        },
+        100);
+  } else {
+    setTimeout(function() { RemoteDebuggerAgent.DidGetLogLines('', pos); }, 100);
+  }
+};
 
 /**
  * @constructor
@@ -38,7 +57,7 @@ RemoteDomAgentStub.sendDocumentElement_ = function() {
     1,       // id
     1,       // type = Node.ELEMENT_NODE,
     'HTML',  // nodeName
-    '',      // nodeValue 
+    '',      // nodeValue
     ['foo','bar'],  // attributes
     2,       // childNodeCount
   ]);
@@ -53,7 +72,7 @@ RemoteDomAgentStub.sendChildNodes_ = function(id) {
          2,       // id
          1,       // type = Node.ELEMENT_NODE,
          'DIV',   // nodeName
-         '',      // nodeValue 
+         '',      // nodeValue
          ['foo','bar'],  // attributes
          1,       // childNodeCount
         ],
@@ -61,17 +80,17 @@ RemoteDomAgentStub.sendChildNodes_ = function(id) {
          3,  // id
          3,  // type = Node.TEXT_NODE,
          '', // nodeName
-         'Text', // nodeValue 
+         'Text', // nodeValue
         ]
       ]);
   } else if (id == 2) {
-    RemoteDomAgent.SetChildNodes(id, 
+    RemoteDomAgent.SetChildNodes(id,
       [
         [
         4,       // id
         1,       // type = Node.ELEMENT_NODE,
         'span',   // nodeName
-        '',      // nodeValue 
+        '',      // nodeValue
         ['foo','bar'],  // attributes
         0,       // childNodeCount
       ]
@@ -154,7 +173,7 @@ RemoteToolsAgentStub.prototype.EvaluateJavaScript = function(callId, script) {
 };
 
 
-RemoteToolsAgentStub.prototype.ExecuteUtilityFunction = function(callId, 
+RemoteToolsAgentStub.prototype.ExecuteUtilityFunction = function(callId,
     functionName, nodeId, args) {
   setTimeout(function() {
     var result = [];
@@ -193,7 +212,7 @@ RemoteToolsAgentStub.prototype.ExecuteUtilityFunction = function(callId,
       alert('Unexpected utility function:' + functionName);
     }
     RemoteToolsAgent.DidExecuteUtilityFunction(callId,
-        goog.json.serialize(result), '');
+        JSON.stringify(result), '');
   }, 0);
 };
 
@@ -201,13 +220,27 @@ RemoteToolsAgentStub.prototype.ExecuteUtilityFunction = function(callId,
 RemoteToolsAgentStub.prototype.GetNodePrototypes = function(callId, nodeId) {
   setTimeout(function() {
     RemoteToolsAgent.DidGetNodePrototypes(callId,
-        goog.json.serialize());
+        JSON.stringify());
   }, 0);
 };
 
 
 RemoteToolsAgentStub.prototype.ClearConsoleMessages = function() {
 };
+
+
+RemoteDebuggerAgentStub.ProfilerLogBuffer =
+  'code-creation,LazyCompile,0x1000,256,"test1 http://aaa.js:1"\n' +
+  'code-creation,LazyCompile,0x2000,256,"test2 http://bbb.js:2"\n' +
+  'code-creation,LazyCompile,0x3000,256,"test3 http://ccc.js:3"\n' +
+  'tick,0x1010,0x0,3\n' +
+  'tick,0x2020,0x0,3,0x1010\n' +
+  'tick,0x2020,0x0,3,0x1010\n' +
+  'tick,0x3010,0x0,3,0x2020, 0x1010\n' +
+  'tick,0x2020,0x0,3,0x1010\n' +
+  'tick,0x2030,0x0,3,0x2020, 0x1010\n' +
+  'tick,0x2020,0x0,3,0x1010\n' +
+  'tick,0x1010,0x0,3\n';
 
 
 /**
@@ -217,7 +250,7 @@ RemoteDebuggerCommandExecutorStub = function() {
 };
 
 
-RemoteDebuggerCommandExecutorStub.prototype.DebuggerCommand = function() {
+RemoteDebuggerCommandExecutorStub.prototype.DebuggerCommand = function(cmd) {
 };
 
 

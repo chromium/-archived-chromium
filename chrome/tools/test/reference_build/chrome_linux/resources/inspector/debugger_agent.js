@@ -15,13 +15,25 @@ goog.provide('devtools.DebuggerAgent');
 devtools.DebuggerAgent = function() {
   RemoteDebuggerAgent.DebuggerOutput =
       goog.bind(this.handleDebuggerOutput_, this);
-      
+  RemoteDebuggerAgent.DidGetContextId =
+      goog.bind(this.didGetContextId_, this);
+  RemoteDebuggerAgent.DidIsProfilingStarted =
+      goog.bind(this.didIsProfilingStarted_, this);
+  RemoteDebuggerAgent.DidGetLogLines =
+      goog.bind(this.didGetLogLines_, this);
+
+  /**
+   * Id of the inspected page global context. It is used for filtering scripts.
+   * @type {number}
+   */
+  this.contextId_ = null;
+
   /**
    * Mapping from script id to script info.
    * @type {Object}
    */
   this.parsedScripts_ = null;
-  
+
   /**
    * Mapping from the request id to the devtools.BreakpointInfo for the
    * breakpoints whose v8 ids are not set yet. These breakpoints are waiting for
@@ -30,36 +42,74 @@ devtools.DebuggerAgent = function() {
    * @type {Object}
    */
   this.requestNumberToBreakpointInfo_ = null;
-  
+
   /**
    * Information on current stack top frame.
    * See JavaScriptCallFrame.idl.
    * @type {?devtools.CallFrame}
    */
   this.currentCallFrame_ = null;
-  
+
   /**
    * Whether to stop in the debugger on the exceptions.
    * @type {boolean}
    */
   this.pauseOnExceptions_ = true;
-  
+
   /**
    * Mapping: request sequence number->callback.
    * @type {Object}
    */
-  this.requestSeqToCallback_ = null;  
+  this.requestSeqToCallback_ = null;
+
+  /**
+   * Whether the scripts list has been requested.
+   * @type {boolean}
+   */
+  this.scriptsCacheInitialized_ = false;
+
+  /**
+   * Whether user has stopped profiling and we are retrieving the rest of
+   * profiler's log.
+   * @type {boolean}
+   */
+  this.isProcessingProfile_ = false;
+
+  /**
+   * The position in log file to read from.
+   * @type {number}
+   */
+  this.lastProfileLogPosition_ = 0;
+
+  /**
+   * Profiler processor instance.
+   * @type {devtools.profiler.Processor}
+   */
+  this.profilerProcessor_ = new devtools.profiler.Processor();
 };
 
 
 /**
  * Resets debugger agent to its initial state.
  */
- devtools.DebuggerAgent.prototype.reset = function() {
-   this.parsedScripts_ = {};
-   this.requestNumberToBreakpointInfo_ = {};
-   this.currentCallFrame_ = null;
-   this.requestSeqToCallback_ = {};
+devtools.DebuggerAgent.prototype.reset = function() {
+  this.scriptsCacheInitialized_ = false;
+  this.contextId_ = null;
+  this.parsedScripts_ = {};
+  this.requestNumberToBreakpointInfo_ = {};
+  this.currentCallFrame_ = null;
+  this.requestSeqToCallback_ = {};
+};
+
+
+/**
+ * Requests scripts list if it has not been requested yet.
+ */
+devtools.DebuggerAgent.prototype.initializeScriptsCache = function() {
+  if (!this.scriptsCacheInitialized_) {
+    this.scriptsCacheInitialized_ = true;
+    this.requestScripts();
+  }
 };
 
 
@@ -68,12 +118,51 @@ devtools.DebuggerAgent = function() {
  * processed in handleScriptsResponse_.
  */
 devtools.DebuggerAgent.prototype.requestScripts = function() {
+  if (this.contextId_ === null) {
+    // Update context id first to filter the scripts.
+    RemoteDebuggerAgent.GetContextId();
+    return;
+  }
   var cmd = new devtools.DebugCommand('scripts', {
+    'includeSource': false
+  });
+  devtools.DebuggerAgent.sendCommand_(cmd);
+  // Force v8 execution so that it gets to processing the requested command.
+  devtools.tools.evaluateJavaScript('javascript:void(0)');
+};
+
+
+/**
+ * Asynchronously requests the debugger for the script source.
+ * @param {number} scriptId Id of the script whose source should be resolved.
+ * @param {function(source:?string):void} callback Function that will be called
+ *     when the source resolution is completed. 'source' parameter will be null
+ *     if the resolution fails.
+ */
+devtools.DebuggerAgent.prototype.resolveScriptSource = function(
+    scriptId, callback) {
+  var script = this.parsedScripts_[scriptId];
+  if (!script) {
+    callback(null);
+    return;
+  }
+
+  var cmd = new devtools.DebugCommand('scripts', {
+    'ids': [scriptId],
     'includeSource': true
   });
   devtools.DebuggerAgent.sendCommand_(cmd);
   // Force v8 execution so that it gets to processing the requested command.
   devtools.tools.evaluateJavaScript('javascript:void(0)');
+
+  this.requestSeqToCallback_[cmd.getSequenceNumber()] = function(msg) {
+    if (msg.isSuccess()) {
+      var scriptJson = msg.getBody()[0];
+      callback(scriptJson.source);
+    } else {
+      callback(null);
+    }
+  };
 };
 
 
@@ -94,14 +183,14 @@ devtools.DebuggerAgent.prototype.addBreakpoint = function(sourceId, line) {
   if (!script) {
     return;
   }
-  
+
   line = devtools.DebuggerAgent.webkitToV8LineNumber_(line);
-  
+
   var breakpointInfo = script.getBreakpointInfo(line);
   if (breakpointInfo) {
     return;
   }
-  
+
   breakpointInfo = new devtools.BreakpointInfo(sourceId, line);
   script.addBreakpointInfo(breakpointInfo);
 
@@ -110,9 +199,9 @@ devtools.DebuggerAgent.prototype.addBreakpoint = function(sourceId, line) {
     'target': sourceId,
     'line': line
   });
-  
+
   this.requestNumberToBreakpointInfo_[cmd.getSequenceNumber()] = breakpointInfo;
-  
+
   devtools.DebuggerAgent.sendCommand_(cmd);
 };
 
@@ -126,7 +215,7 @@ devtools.DebuggerAgent.prototype.removeBreakpoint = function(sourceId, line) {
   if (!script) {
     return;
   }
-  
+
   line = devtools.DebuggerAgent.webkitToV8LineNumber_(line);
 
   var breakpointInfo = script.getBreakpointInfo(line);
@@ -182,7 +271,7 @@ devtools.DebuggerAgent.prototype.resumeExecution = function() {
  * @return {boolean} True iff the debugger will pause execution on the
  * exceptions.
  */
-devtools.DebuggerAgent.prototype.pauseOnExceptions = function() { 
+devtools.DebuggerAgent.prototype.pauseOnExceptions = function() {
   return this.pauseOnExceptions_;
 };
 
@@ -229,28 +318,51 @@ devtools.DebuggerAgent.prototype.requestEvaluate = function(
  *     children are resolved.
  */
 devtools.DebuggerAgent.prototype.resolveChildren = function(object, callback) {
-  var handles = [];
-  var names = [];
-  for (var name in object) {
-    var value = object[name];
-    if (goog.isObject(value) && 'ref' in value) {
-      handles.push(value.ref);
-      names.push(name);
+  if ('ref' in object) {
+    this.requestLookup_([object.ref], function(msg) {
+      var result = {};
+      if (msg.isSuccess()) {
+        var handleToObject = msg.getBody();
+        var resolved = handleToObject[object.ref];
+        devtools.DebuggerAgent.formatObjectProperties_(resolved, result);
+      } else {
+        result.error = 'Failed to resolve children: ' + msg.getMessage();
+      }
+      object.resolvedValue = result;
+      callback(object);
+    });
+
+    return;
+  } else {
+    if (!object.resolvedValue) {
+      var message = 'Corrupted object: ' + JSON.stringify(object);
+      object.resolvedValue = {};
+      object.resolvedValue.error = message;
     }
-  }
-  if (handles.length == 0) {
     callback(object);
+  }
+};
+
+
+/**
+ * Starts (resumes) profiling.
+ */
+devtools.DebuggerAgent.prototype.startProfiling = function() {
+  if (this.isProcessingProfile_) {
     return;
   }
-  this.requestLookup_(handles, function(msg) {
-    var handleToObject = msg.getBody();
-    for (var i = 0; i < names.length; i++) {
-      var name = names[i];
-      var jsonObj = handleToObject[object[name].ref]
-      object[name] = devtools.DebuggerAgent.formatValue_(jsonObj, msg);
-    }
-    callback(object);
-  });
+  RemoteDebuggerAgent.StartProfiling();
+  // Query if profiling has been really started.
+  RemoteDebuggerAgent.IsProfilingStarted();
+};
+
+
+/**
+ * Stops (pauses) profiling.
+ */
+devtools.DebuggerAgent.prototype.stopProfiling = function() {
+  this.isProcessingProfile_ = true;
+  RemoteDebuggerAgent.StopProfiling();
 };
 
 
@@ -271,7 +383,9 @@ devtools.DebuggerAgent.prototype.requestClearBreakpoint_ = function(
  * Sends 'backtrace' request to v8.
  */
 devtools.DebuggerAgent.prototype.requestBacktrace_ = function() {
-  var cmd = new devtools.DebugCommand('backtrace');
+  var cmd = new devtools.DebugCommand('backtrace', {
+    'compactFormat':true
+  });
   devtools.DebuggerAgent.sendCommand_(cmd);
 };
 
@@ -304,10 +418,22 @@ devtools.DebuggerAgent.prototype.stepCommand_ = function(action) {
  */
 devtools.DebuggerAgent.prototype.requestLookup_ = function(handles, callback) {
   var cmd = new devtools.DebugCommand('lookup', {
+    'compactFormat':true,
     'handles': handles
   });
   devtools.DebuggerAgent.sendCommand_(cmd);
   this.requestSeqToCallback_[cmd.getSequenceNumber()] = callback;
+};
+
+
+/**
+ * Handles GetContextId response.
+ * @param {number} contextId Id of the inspected page global context.
+ */
+devtools.DebuggerAgent.prototype.didGetContextId_ = function(contextId) {
+  this.contextId_ = contextId;
+  // Update scripts.
+  this.requestScripts();
 };
 
 
@@ -325,8 +451,8 @@ devtools.DebuggerAgent.prototype.handleDebuggerOutput_ = function(output) {
     debugPrint('Failed to handle debugger reponse:\n' + e);
     throw e;
   }
-  
-  
+
+
   if (msg.getType() == 'event') {
     if (msg.getEvent() == 'break') {
       this.handleBreakEvent_(msg);
@@ -383,15 +509,15 @@ devtools.DebuggerAgent.prototype.handleExceptionEvent_ = function(msg) {
     if (body.script) {
       sourceId = body.script.id;
     }
-    
+
     var line = devtools.DebuggerAgent.v8ToWwebkitLineNumber_(body.sourceLine);
-    
+
     this.currentCallFrame_ = new devtools.CallFrame();
     this.currentCallFrame_.sourceID = sourceId;
     this.currentCallFrame_.line = line;
     this.currentCallFrame_.script = body.script;
     this.requestBacktrace_();
-  } else {             
+  } else {
     this.resumeExecution();
   }
 };
@@ -401,10 +527,19 @@ devtools.DebuggerAgent.prototype.handleExceptionEvent_ = function(msg) {
  * @param {devtools.DebuggerMessage} msg
  */
 devtools.DebuggerAgent.prototype.handleScriptsResponse_ = function(msg) {
+  if (this.invokeCallbackForResponse_(msg)) {
+    return;
+  }
+
   var scripts = msg.getBody();
   for (var i = 0; i < scripts.length; i++) {
     var script = scripts[i];
-    
+
+    // Skip scripts from other tabs.
+    if (!this.isScriptFromInspectedContext_(script, msg)) {
+      continue;
+    }
+
     // We may already have received the info in an afterCompile event.
     if (script.id in this.parsedScripts_) {
       continue;
@@ -415,11 +550,33 @@ devtools.DebuggerAgent.prototype.handleScriptsResponse_ = function(msg) {
 
 
 /**
+ * @param {Object} script Json object representing script.
+ * @param {devtools.DebuggerMessage} msg Debugger response.
+ */
+devtools.DebuggerAgent.prototype.isScriptFromInspectedContext_ = function(
+    script, msg) {
+  if (!script.context) {
+    // Always ignore scripts from the utility context.
+    return false;
+  }
+  var context = msg.lookup(script.context.ref);
+  var scriptContextId = context.data;
+  if (!goog.isDef(scriptContextId)) {
+    return false; // Always ignore scripts from the utility context.
+  }
+  if (this.contextId_ === null) {
+    return true;
+  }
+  return (scriptContextId == this.contextId_);
+};
+
+
+/**
  * @param {devtools.DebuggerMessage} msg
  */
 devtools.DebuggerAgent.prototype.handleSetBreakpointResponse_ = function(msg) {
   var requestSeq = msg.getRequestSeq();
-  var breakpointInfo = this.requestNumberToBreakpointInfo_[requestSeq]; 
+  var breakpointInfo = this.requestNumberToBreakpointInfo_[requestSeq];
   if (!breakpointInfo) {
     // TODO(yurys): handle this case
     return;
@@ -431,7 +588,7 @@ devtools.DebuggerAgent.prototype.handleSetBreakpointResponse_ = function(msg) {
   }
   var idInV8 = msg.getBody().breakpoint;
   breakpointInfo.setV8Id(idInV8);
-  
+
   if (breakpointInfo.isRemoved()) {
     this.requestClearBreakpoint_(idInV8);
   }
@@ -443,7 +600,46 @@ devtools.DebuggerAgent.prototype.handleSetBreakpointResponse_ = function(msg) {
  */
 devtools.DebuggerAgent.prototype.handleAfterCompileEvent_ = function(msg) {
   var script = msg.getBody().script;
+  // Ignore scripts from other tabs.
+  if (!this.isScriptFromInspectedContext_(script, msg)) {
+    return;
+  }
   this.addScriptInfo_(script);
+};
+
+
+/**
+ * Handles current profiler status.
+ */
+devtools.DebuggerAgent.prototype.didIsProfilingStarted_ = function(
+    is_started) {
+  if (is_started) {
+    // Start to query log data.
+    RemoteDebuggerAgent.GetLogLines(this.lastProfileLogPosition_);
+  }
+  WebInspector.setRecordingProfile(is_started);
+};
+
+
+/**
+ * Handles a portion of a profiler log retrieved by GetLogLines call.
+ * @param {string} log A portion of profiler log.
+ * @param {number} newPosition The position in log file to read from
+ *     next time.
+ */
+devtools.DebuggerAgent.prototype.didGetLogLines_ = function(
+    log, newPosition) {
+  if (log.length > 0) {
+    this.profilerProcessor_.processLogChunk(log);
+    this.lastProfileLogPosition_ = newPosition;
+  } else if (this.isProcessingProfile_) {
+    this.isProcessingProfile_ = false;
+    WebInspector.setRecordingProfile(false);
+    WebInspector.addProfile(this.profilerProcessor_.createProfileForView());
+    return;
+  }
+  setTimeout(function() { RemoteDebuggerAgent.GetLogLines(newPosition); },
+    this.isProcessingProfile_ ? 100 : 1000);
 };
 
 
@@ -477,9 +673,9 @@ devtools.DebuggerAgent.prototype.handleBacktraceResponse_ = function(msg) {
   if (!this.currentCallFrame_) {
     return;
   }
-  
+
   var script = this.currentCallFrame_.script;
-  
+
   var callerFrame = null;
   var f = null;
   var frames = msg.getBody().frames;
@@ -490,9 +686,9 @@ devtools.DebuggerAgent.prototype.handleBacktraceResponse_ = function(msg) {
     f.caller = callerFrame;
     callerFrame = f;
   }
-  
+
   this.currentCallFrame_ = f;
-  
+
   WebInspector.pausedScript();
   DevToolsHost.activateWindow();
 };
@@ -501,15 +697,18 @@ devtools.DebuggerAgent.prototype.handleBacktraceResponse_ = function(msg) {
 /**
  * Handles response to a command by invoking its callback (if any).
  * @param {devtools.DebuggerMessage} msg
+ * @return {boolean} Whether a callback for the given message was found and
+ *     excuted.
  */
 devtools.DebuggerAgent.prototype.invokeCallbackForResponse_ = function(msg) {
   var callback = this.requestSeqToCallback_[msg.getRequestSeq()];
   if (!callback) {
     // It may happend if reset was called.
-    return;
+    return false;
   }
   delete this.requestSeqToCallback_[msg.getRequestSeq()];
   callback(msg);
+  return true;
 };
 
 
@@ -526,26 +725,24 @@ devtools.DebuggerAgent.prototype.evaluateInCallFrame_ = function(expression) {
  */
 devtools.DebuggerAgent.formatCallFrame_ = function(stackFrame, script, msg) {
   var sourceId = script.id;
-  var func = msg.lookup(stackFrame.func.ref);
-  var funcScript = msg.lookup(func.script.ref);
-  if (funcScript && 'id' in funcScript) {
-    sourceId = funcScript.id;
-  }
 
-  var funcName = devtools.DebuggerAgent.formatFunctionCall_(stackFrame, msg);
-  
+  var func = stackFrame.func;
+  var sourceId = func.scriptId;
+  var funcName = func.name || func.inferredName || '(anonymous function)';
+
   var scope = {};
-  
-  // Add arguments.
-  devtools.DebuggerAgent.valuesArrayToMap_(stackFrame.arguments, scope, msg);
-  
-  // Add local variables.
-  devtools.DebuggerAgent.valuesArrayToMap_(stackFrame.locals, scope, msg);
 
-  var thisObject = msg.lookup(stackFrame.receiver.ref);
+  // Add arguments.
+  devtools.DebuggerAgent.argumentsArrayToMap_(stackFrame.arguments, scope);
+
+  // Add local variables.
+  devtools.DebuggerAgent.propertiesToMap_(stackFrame.locals, scope);
+
+  var thisObject = devtools.DebuggerAgent.formatObjectReference_(
+      stackFrame.receiver);
   // Add variable with name 'this' to the scope.
-  scope['this'] = devtools.DebuggerAgent.formatObject_(thisObject, msg);
-  
+  scope['this'] = thisObject;
+
   var line = devtools.DebuggerAgent.v8ToWwebkitLineNumber_(stackFrame.line);
   var result = new devtools.CallFrame();
   result.sourceID = sourceId;
@@ -560,187 +757,86 @@ devtools.DebuggerAgent.formatCallFrame_ = function(stackFrame, script, msg) {
 
 
 /**
- * Returns user-friendly representation of the function call from the stack
- * frame.
- * @param {Object} stackFrame Frame json object from 'backtrace' response.
- * @return {!string} Function name with argument values.
- */
-devtools.DebuggerAgent.formatFunctionCall_ = function(stackFrame, msg) {
-  var func = msg.lookup(stackFrame.func.ref);
-  return func.name || func.inferredName || '(anonymous function)';
-};
-
-
-/**
- * Converts an object from the debugger response to the format understandable
- * by ScriptsPanel.
- * @param {Object} object An object from the debugger protocol response.
- * @param {devtools.DebuggerMessage} msg Parsed debugger response.
- * @return {!Object} Object describing 'object' in the format expected by
- *     ScriptsPanel and its panes.
- */
-devtools.DebuggerAgent.formatObject_ = function(object, msg) {
-  var result = {};
-  devtools.DebuggerAgent.formatObjectProperties_(object, msg, result);
-  return { 'value': result };
-};
-
-
-/**
- * Converts a function from the debugger response to the format understandable
- * by ScriptsPanel.
- * @param {Object} func Function object from the debugger protocol response.
- * @param {devtools.DebuggerMessage} msg Parsed debugger response.
- * @return {!Object} Object describing 'func' in the format expected by
- *     ScriptsPanel and its panes.
- */
-devtools.DebuggerAgent.formatFunction_ = function(func, msg) {
-  var result = {};
-  devtools.DebuggerAgent.formatObjectProperties_(func, msg, result);
-  result.name = func.name;
-  
-  var holder = function() {};
-  holder.value = result;
-  return holder;
-};
-
-
-/**
  * Collects properties for an object from the debugger response.
  * @param {Object} object An object from the debugger protocol response.
- * @param {devtools.DebuggerMessage} msg Parsed debugger response.
  * @param {Object} result A map to put the properties in.
  */
-devtools.DebuggerAgent.formatObjectProperties_ = function(object,
-    msg, result) {
-  devtools.DebuggerAgent.propertiesToMap_(object.properties, result, msg);
+devtools.DebuggerAgent.formatObjectProperties_ = function(object, result) {
+  devtools.DebuggerAgent.propertiesToMap_(object.properties, result);
   result.protoObject = devtools.DebuggerAgent.formatObjectReference_(
-      object.protoObject, msg);
+      object.protoObject);
   result.prototypeObject = devtools.DebuggerAgent.formatObjectReference_(
-      object.prototypeObject, msg);
+      object.prototypeObject);
   result.constructorFunction = devtools.DebuggerAgent.formatObjectReference_(
-      object.constructorFunction, msg);
+      object.constructorFunction);
 };
 
 
 /**
  * For each property in 'properties' puts its name and user-friendly value into
  * 'map'.
- * @param {Array.<Object>} properties Receiver properties array from 'backtrace'
- *     response.
+ * @param {Array.<Object>} properties Receiver properties or locals array from
+ *     'backtrace' response.
  * @param {Object} map Result holder.
- * @param {devtools.DebuggerMessage} msg Parsed 'backtrace' response.
  */
-devtools.DebuggerAgent.propertiesToMap_ = function(properties, map, msg) {
+devtools.DebuggerAgent.propertiesToMap_ = function(properties, map) {
   for (var j = 0; j < properties.length; j++) {
     var nextValue = properties[j];
-    map[nextValue.name] = devtools.DebuggerAgent.formatObjectReference_(
-        nextValue, msg);
+    // Skip unnamed properties. They may appear e.g. when number of actual
+    // parameters is greater the that of formal. In that case the superfluous
+    // parameters will be present in the arguments list as elements without
+    // names.
+    if (nextValue.name) {
+      map[nextValue.name] =
+          devtools.DebuggerAgent.formatObjectReference_(nextValue.value);
+    }
   }
 };
 
 
 /**
- * For each property in 'array' puts its name and user-friendly value into
- * 'map'. Each object referenced from the array is expected to be included in
- * the message.
- * @param {Array.<Object>} array Arguments or locals array from 'backtrace'
- *     response.
+ * Puts arguments from the protocol arguments array to the map assigning names
+ * to the anonymous arguments.
+ * @param {Array.<Object>} array Arguments array from 'backtrace' response.
  * @param {Object} map Result holder.
- * @param {devtools.DebuggerMessage} msg Parsed 'backtrace' response.
  */
-devtools.DebuggerAgent.valuesArrayToMap_ = function(array, map, msg) {
+devtools.DebuggerAgent.argumentsArrayToMap_ = function(array, map) {
   for (var j = 0; j < array.length; j++) {
     var nextValue = array[j];
-    
-    var object = msg.lookup(nextValue.value.ref);
-    var val = object ?
-              devtools.DebuggerAgent.formatValue_(object, msg) :
-              '<unresolved ref: ' + nextValue.value.ref + '>';
-    map[nextValue.name] = val;
+    // Skip unnamed properties. They may appear e.g. when number of actual
+    // parameters is greater the that of formal. In that case the superfluous
+    // parameters will be present in the arguments list as elements without
+    // names.
+    var name = nextValue.name ? nextValue.name : '<arg #' + j + '>';
+    map[name] = devtools.DebuggerAgent.formatObjectReference_(nextValue.value);
   }
 };
 
 
 /**
- * TODO(yurys): we should merge all this formatting code with the one for
- * elements tree.
- * @param {Object} object An object reference from the debugger response. 
- * @param {devtools.DebuggerMessage} msg Parsed debugger response.
- * @return {*} The reference representation expected by ScriptsPanel.
- */
-devtools.DebuggerAgent.formatObjectReference_ = function(objectRef, msg) {
-  if (!('ref' in objectRef)) {
-    return objectRef;
-  }
-  var object = msg.lookup(objectRef.ref);
-  if (!object) {
-    return objectRef;
-  }
-  switch (object.type) {
-    case 'number':
-    case 'string':
-    case 'boolean':
-      return object.value;
-    case 'undefined':
-      return undefined;
-    case 'null':
-      return null;
-    case 'function': {
-      var result = function() {};
-      result.ref = objectRef.ref;
-      return result;
-    }
-    case 'object':
-      return objectRef;
-    default:
-      return objectRef;
-  };
-};
-
-
-/**
- * @param {Object} object An object from the debugger response. 
- * @param {devtools.DebuggerMessage} msg Parsed debugger response.
+ * @param {Object} v An object reference from the debugger response.
  * @return {*} The value representation expected by ScriptsPanel.
  */
-devtools.DebuggerAgent.formatValue_ = function(object, msg) {
-  if (!object) {
-    return object;
+devtools.DebuggerAgent.formatObjectReference_ = function(v) {
+  if (v.type == 'object') {
+    return v;
+  } else if (v.type == 'function') {
+    var f = function() {};
+    f.ref = v.ref;
+    return f;
+  } else if (goog.isDef(v.value)) {
+    return v.value;
+  } else if (v.type == 'undefined') {
+    return 'undefined';
+  } else if (v.type == 'null') {
+    return 'null';
+  } else if (v.name) {
+    return v.name;
+  } else if (v.className) {
+    return v.className;
+  } else {
+    return '<unresolved ref: ' + v.ref + ', type: ' + v.type + '>';
   }
-  switch (object.type) {
-    case 'number':
-    case 'string':
-    case 'boolean':
-      return object.value;
-    case 'undefined':
-      return undefined;
-    case 'null':
-      return null;
-    case 'function':
-      return devtools.DebuggerAgent.formatFunction_(object, msg);
-    case 'object':
-      return devtools.DebuggerAgent.formatObject_(object, msg);
-    default:
-      return '<invalid value>';
-  };
-};
-
-
-devtools.DebuggerAgent.formatObjectReference_old = function(objectRef, msg) {
-  if (!objectRef.ref) {
-    return 'illegal ref';
-  }
-  
-  var object = msg.lookup(objectRef.ref);
-  if (!object) {
-    return '{ref: ' + objectRef.ref + '}';
-  }
-  
-  if ('value' in object) {
-    return object.value;
-  }
-  return '[' + object.type + ']';
 };
 
 
@@ -773,7 +869,7 @@ devtools.DebuggerAgent.v8ToWwebkitLineNumber_ = function(line) {
 devtools.ScriptInfo = function(scriptId, lineOffset) {
   this.scriptId_ = scriptId;
   this.lineOffset_ = lineOffset;
-  
+
   this.lineToBreakpointInfo_ = {};
 };
 
@@ -823,7 +919,7 @@ devtools.ScriptInfo.prototype.removeBreakpointInfo = function(breakpoint) {
  */
 devtools.BreakpointInfo = function(sourceId, line) {
   this.sourceId_ = sourceId;
-  this.line_ = line; 
+  this.line_ = line;
   this.v8id_ = -1;
   this.removed_ = false;
 };
@@ -922,7 +1018,7 @@ devtools.CallFrame.prototype.evaluate = function(expression) {
  */
 devtools.CallFrame.handleEvaluateResponse_ = function(response) {
   var body = response.getBody();
-  var value = devtools.DebuggerAgent.formatValue_(body);
+  var value = devtools.DebuggerAgent.formatObjectReference_(body);
   WebInspector.addMessageToConsole(new WebInspector.ConsoleCommandResult(
       value, false /* exception */, null /* commandMessage */));
 };
@@ -936,7 +1032,7 @@ devtools.CallFrame.handleEvaluateResponse_ = function(response) {
  */
 devtools.DebugCommand = function(command, opt_arguments) {
   this.command_ = command;
-  this.type_ = 'request';	
+  this.type_ = 'request';
   this.seq_ = ++devtools.DebugCommand.nextSeq_;
   if (opt_arguments) {
     this.arguments_ = opt_arguments;
@@ -971,9 +1067,8 @@ devtools.DebugCommand.prototype.toJSONProtocol = function() {
   if (this.arguments_) {
     json.arguments = this.arguments_;
   }
-  return goog.json.serialize(json);
+  return JSON.stringify(json);
 };
-
 
 
 /**
