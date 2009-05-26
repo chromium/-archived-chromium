@@ -100,8 +100,6 @@
         'controls/menu/controller.h',
         'controls/menu/menu.cc',
         'controls/menu/menu.h',
-        'controls/menu/menu_gtk.cc',
-        'controls/menu/menu_gtk.h',
         'controls/menu/menu_win.cc',
         'controls/menu/menu_win.h',
         'controls/menu/view_menu_delegate.h',
