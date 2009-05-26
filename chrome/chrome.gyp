@@ -2944,7 +2944,6 @@
         'browser/net/url_fixer_upper_unittest.cc',
         'browser/password_manager/encryptor_unittest.cc',
         'browser/password_manager/password_form_manager_unittest.cc',
-        'browser/password_manager/password_store_mac_unittest.cc',
         'browser/printing/page_number_unittest.cc',
         'browser/printing/page_overlays_unittest.cc',
         'browser/printing/page_range_unittest.cc',
