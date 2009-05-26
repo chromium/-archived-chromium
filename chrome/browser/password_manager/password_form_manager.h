@@ -8,7 +8,6 @@
 #include "build/build_config.h"
 
 #include "base/stl_util-inl.h"
-#include "chrome/browser/password_manager/password_store.h"
 #include "chrome/browser/webdata/web_data_service.h"
 #include "webkit/glue/password_form.h"
 
@@ -17,7 +16,7 @@ class Profile;
 
 // Per-password-form-{on-page, dialog} class responsible for interactions
 // between a given form, the per-tab PasswordManager, and the web database.
-class PasswordFormManager : public PasswordStoreConsumer {
+class PasswordFormManager : public WebDataServiceConsumer {
  public:
   // web_data_service allows access to current profile's Web Data
   // password_manager owns this object
@@ -35,6 +34,9 @@ class PasswordFormManager : public PasswordStoreConsumer {
 
   // Retrieves potential matching logins from the database.
   void FetchMatchingLoginsFromWebDatabase();
+#if defined(OS_WIN)
+  void FetchMatchingIE7LoginFromWebDatabase();
+#endif
 
   // Simple state-check to verify whether this object as received a callback
   // from the web database and completed its matching phase. Note that the
@@ -58,12 +60,19 @@ class PasswordFormManager : public PasswordStoreConsumer {
   // managed by this.
   bool IsNewLogin();
 
-  // Determines if we need to autofill given the results of the query.
-  void OnRequestDone(int handle, const std::vector<PasswordForm*>& result);
+  // WebDataServiceConsumer implementation. If matches were found
+  // (in *result), this is where we determine we need to autofill.
+  virtual void OnWebDataServiceRequestDone(WebDataService::Handle h,
+                                           const WDTypedResult* result);
 
-  // PasswordStoreConsumer implementation.
-  virtual void OnPasswordStoreRequestDone(
-      int handle, const std::vector<PasswordForm*>& result);
+  // Determines if we need to autofill given the results of the query.
+  void OnRequestDone(WebDataService::Handle h, const WDTypedResult* result);
+
+#if defined(OS_WIN)
+  // Determines if we need to autofill given the results of the query in the
+  // ie7_password table.
+  void OnIE7RequestDone(WebDataService::Handle h, const WDTypedResult* result);
+#endif
 
   // A user opted to 'never remember' passwords for this form.
   // Blacklist it so that from now on when it is seen we ignore it.
@@ -132,7 +141,7 @@ class PasswordFormManager : public PasswordStoreConsumer {
   const PasswordManager* const password_manager_;
 
   // Handle to any pending WebDataService::GetLogins query.
-  int pending_login_query_;
+  WebDataService::Handle pending_login_query_;
 
   // Convenience pointer to entry in best_matches_ that is marked
   // as preferred. This is only allowed to be null if there are no best matches
