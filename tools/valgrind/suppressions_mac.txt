@@ -194,11 +194,29 @@
    fun:CGContextDrawShading
 }
 {
-   # Mac test_shell_tests leak.
-   bug_12571
-   Memcheck:Leak
-   fun:calloc
+   # Mac unit_tests.  See http://crbug.com/11271
+   bug_12640a
+   Memcheck:Cond
+   fun:png_write_find_filter
+   fun:webkit_png_write_row
+   fun:_ZN10PNGEncoder6EncodeEPKhNS_11ColorFormatEiiibPSt6vectorIhSaIhEE
    ...
-   fun:_Z14MakeTestButtonP7_NSRectP8NSStringP6NSView
+   fun:_ZN24ExtensionsServiceBackend24InstallOrUpdateExtensionERK8FilePathRKSsb
 }
-
+{
+   bug_12640b
+   Memcheck:Value4
+   ...
+   fun:png_write_find_filter
+   fun:webkit_png_write_row
+   fun:_ZN10PNGEncoder6EncodeEPKhNS_11ColorFormatEiiibPSt6vectorIhSaIhEE
+   ...
+   fun:_ZN24ExtensionsServiceBackend24InstallOrUpdateExtensionERK8FilePathRKSsb
+}
+{
+   bug_12640c
+   Memcheck:Param
+   write(buf)
+   fun:write$UNIX2003
+   fun:_ZN24ExtensionsServiceBackend19OnExtensionUnpackedERK8FilePathS2_SsbRK15DictionaryValueRKSt6vectorI6Tuple2I8SkBitmapS0_ESaIS9_EE
+}
