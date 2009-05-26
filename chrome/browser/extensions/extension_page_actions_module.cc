@@ -9,17 +9,12 @@
 #include "chrome/browser/profile.h"
 #include "chrome/browser/extensions/extension.h"
 #include "chrome/browser/extensions/extension_error_utils.h"
+#include "chrome/browser/extensions/extension_page_actions_module_constants.h"
 #include "chrome/browser/extensions/extension_tabs_module.h"
 #include "chrome/browser/extensions/extensions_service.h"
 #include "chrome/browser/tab_contents/navigation_entry.h"
 
-namespace {
-  // Error messages.
-  const char* kNoExtensionError = "No extension with id: *.";
-  const char* kNoTabError = "No tab with id: *.";
-  const char* kNoPageActionError = "No PageAction with id: *.";
-  const char* kUrlNotActiveError = "This url is no longer active: *.";
-}
+namespace keys = extension_page_actions_module_constants;
 
 bool EnablePageActionFunction::RunImpl() {
   EXTENSION_FUNCTION_VALIDATE(args_->IsType(Value::TYPE_LIST));
@@ -31,22 +26,23 @@ bool EnablePageActionFunction::RunImpl() {
   EXTENSION_FUNCTION_VALIDATE(args->GetDictionary(1, &action));
 
   int tab_id;
-  EXTENSION_FUNCTION_VALIDATE(action->GetInteger(L"tabId", &tab_id));
+  EXTENSION_FUNCTION_VALIDATE(action->GetInteger(keys::kTabIdKey, &tab_id));
   std::string url;
-  EXTENSION_FUNCTION_VALIDATE(action->GetString(L"url", &url));
+  EXTENSION_FUNCTION_VALIDATE(action->GetString(keys::kUrlKey, &url));
 
   // Find the TabContents that contains this tab id.
   TabContents* contents = NULL;
   ExtensionTabUtil::GetTabById(tab_id, profile(), NULL, NULL, &contents, NULL);
   if (!contents) {
-    error_ = ExtensionErrorUtils::FormatErrorMessage(kNoTabError,
+    error_ = ExtensionErrorUtils::FormatErrorMessage(keys::kNoTabError,
                                                      IntToString(tab_id));
     return false;
   }
 
   // Make sure the URL hasn't changed.
   if (url != contents->controller().GetActiveEntry()->url().spec()) {
-    error_ = ExtensionErrorUtils::FormatErrorMessage(kUrlNotActiveError, url);
+    error_ = ExtensionErrorUtils::FormatErrorMessage(keys::kUrlNotActiveError,
+                                                     url);
     return false;
   }
 
@@ -55,14 +51,14 @@ bool EnablePageActionFunction::RunImpl() {
   ExtensionsService* service = profile()->GetExtensionsService();
   extension = service->GetExtensionByID(extension_id());
   if (!extension) {
-    error_ = ExtensionErrorUtils::FormatErrorMessage(kNoExtensionError,
+    error_ = ExtensionErrorUtils::FormatErrorMessage(keys::kNoExtensionError,
                                                      extension_id());
     return false;
   }
 
   const PageAction* page_action = extension->GetPageAction(page_action_id);
   if (!page_action) {
-    error_ = ExtensionErrorUtils::FormatErrorMessage(kNoPageActionError,
+    error_ = ExtensionErrorUtils::FormatErrorMessage(keys::kNoPageActionError,
                                                      page_action_id);
     return false;
   }

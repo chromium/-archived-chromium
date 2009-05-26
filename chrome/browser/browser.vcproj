@@ -2028,6 +2028,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\extensions\extension_bookmarks_module_constants.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\extensions\extension_bookmarks_module_constants.h"
+				>
+			</File>
+			<File
 				RelativePath=".\extensions\extension_browser_event_router.cc"
 				>
 			</File>
@@ -2049,6 +2057,14 @@
 			</File>
 			<File
 				RelativePath=".\extensions\extension_error_utils.h"
+				>
+			</File>
+			<File
+				RelativePath=".\extensions\extension_event_names.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\extensions\extension_event_names.h"
 				>
 			</File>
 			<File
@@ -2092,6 +2108,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\extensions\extension_page_actions_module_constants.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\extensions\extension_page_actions_module_constants.h"
+				>
+			</File>
+			<File
 				RelativePath=".\extensions\extension_process_manager.cc"
 				>
 			</File>
@@ -2121,6 +2145,14 @@
 			</File>
 			<File
 				RelativePath=".\extensions\extension_tabs_module.h"
+				>
+			</File>
+			<File
+				RelativePath=".\extensions\extension_tabs_module_constants.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\extensions\extension_tabs_module_constants.h"
 				>
 			</File>
 			<File

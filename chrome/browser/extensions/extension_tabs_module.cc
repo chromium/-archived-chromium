@@ -10,6 +10,7 @@
 #include "chrome/browser/extensions/extension.h"
 #include "chrome/browser/extensions/extension_error_utils.h"
 #include "chrome/browser/extensions/extension_function_dispatcher.h"
+#include "chrome/browser/extensions/extension_tabs_module_constants.h"
 #include "chrome/browser/extensions/extensions_service.h"
 #include "chrome/browser/renderer_host/render_view_host_delegate.h"
 #include "chrome/browser/tab_contents/navigation_entry.h"
@@ -21,12 +22,7 @@
 #include "chrome/common/temp_scaffolding_stubs.h"
 #endif
 
-namespace {
-// Error messages.
-const char* kWindowNotFoundError = "No window with id: *.";
-const char* kTabNotFoundError = "No tab with id: *.";
-const char* kInvalidUrlError = "Invalid url: \"*\".";
-}
+namespace keys = extension_tabs_module_constants;
 
 // Forward declare static helper functions defined below.
 static DictionaryValue* CreateWindowValue(Browser* browser, bool populate_tabs);
@@ -49,36 +45,6 @@ static bool GetTabById(int tab_id, Profile* profile, Browser** browser,
 static GURL AbsolutePath(Profile* profile, std::string extension_id,
                          std::string relative_url);
 
-// ExtensionTabUtil
-const wchar_t* ExtensionTabUtil::kDataKey = L"data";
-const wchar_t* ExtensionTabUtil::kFavIconUrlKey = L"favIconUrl";
-const wchar_t* ExtensionTabUtil::kFocusedKey = L"focused";
-const wchar_t* ExtensionTabUtil::kFromIndexKey = L"fromIndex";
-const wchar_t* ExtensionTabUtil::kHeightKey = L"height";
-const wchar_t* ExtensionTabUtil::kIdKey = L"id";
-const wchar_t* ExtensionTabUtil::kIndexKey = L"index";
-const wchar_t* ExtensionTabUtil::kLeftKey = L"left";
-const wchar_t* ExtensionTabUtil::kNewPositionKey = L"newPosition";
-const wchar_t* ExtensionTabUtil::kNewWindowIdKey = L"newWindowId";
-const wchar_t* ExtensionTabUtil::kOldPositionKey = L"oldPosition";
-const wchar_t* ExtensionTabUtil::kOldWindowIdKey = L"oldWindowId";
-const wchar_t* ExtensionTabUtil::kPageActionIdKey = L"pageActionId";
-const wchar_t* ExtensionTabUtil::kSelectedKey = L"selected";
-const wchar_t* ExtensionTabUtil::kStatusKey = L"status";
-const wchar_t* ExtensionTabUtil::kTabIdKey = L"tabId";
-const wchar_t* ExtensionTabUtil::kTabsKey = L"tabs";
-const wchar_t* ExtensionTabUtil::kTabUrlKey = L"tabUrl";
-const wchar_t* ExtensionTabUtil::kTitleKey = L"title";
-const wchar_t* ExtensionTabUtil::kToIndexKey = L"toIndex";
-const wchar_t* ExtensionTabUtil::kTopKey = L"top";
-const wchar_t* ExtensionTabUtil::kUrlKey = L"url";
-const wchar_t* ExtensionTabUtil::kWidthKey = L"width";
-const wchar_t* ExtensionTabUtil::kWindowIdKey = L"windowId";
-
-// Value consts.
-const char* ExtensionTabUtil::kStatusValueComplete = "complete";
-const char* ExtensionTabUtil::kStatusValueLoading = "loading";
-
 int ExtensionTabUtil::GetWindowId(const Browser* browser) {
   return browser->session_id().id();
 }
@@ -96,10 +62,10 @@ std::string ExtensionTabUtil::GetTabStatusText(TabStatus status) {
   std::string text;
   switch (status) {
     case TAB_LOADING:
-      text = kStatusValueLoading;
+      text = keys::kStatusValueLoading;
       break;
     case TAB_COMPLETE:
-      text = kStatusValueComplete;
+      text = keys::kStatusValueComplete;
       break;
   }
 
@@ -131,22 +97,22 @@ DictionaryValue* ExtensionTabUtil::CreateTabValue(
   TabStatus status = GetTabStatus(contents);
 
   DictionaryValue* result = new DictionaryValue();
-  result->SetInteger(kIdKey, ExtensionTabUtil::GetTabId(contents));
-  result->SetInteger(kIndexKey, tab_index);
-  result->SetInteger(kWindowIdKey,
+  result->SetInteger(keys::kIdKey, ExtensionTabUtil::GetTabId(contents));
+  result->SetInteger(keys::kIndexKey, tab_index);
+  result->SetInteger(keys::kWindowIdKey,
                      ExtensionTabUtil::GetWindowIdOfTab(contents));
-  result->SetString(kUrlKey, contents->GetURL().spec());
-  result->SetString(kStatusKey, GetTabStatusText(status));
-  result->SetBoolean(kSelectedKey,
+  result->SetString(keys::kUrlKey, contents->GetURL().spec());
+  result->SetString(keys::kStatusKey, GetTabStatusText(status));
+  result->SetBoolean(keys::kSelectedKey,
                      tab_strip && tab_index == tab_strip->selected_index());
 
   if (status != TAB_LOADING) {
-    result->SetString(kTitleKey, UTF16ToWide(contents->GetTitle()));
+    result->SetString(keys::kTitleKey, UTF16ToWide(contents->GetTitle()));
 
     NavigationEntry* entry = contents->controller().GetActiveEntry();
     if (entry) {
       if (entry->favicon().is_valid())
-        result->SetString(kFavIconUrlKey, entry->favicon().url().spec());
+        result->SetString(keys::kFavIconUrlKey, entry->favicon().url().spec());
     }
   }
 
@@ -238,12 +204,12 @@ bool CreateWindowFunction::RunImpl() {
     EXTENSION_FUNCTION_VALIDATE(args_->IsType(Value::TYPE_DICTIONARY));
     const DictionaryValue *args = static_cast<const DictionaryValue*>(args_);
     std::string url_input;
-    if (args->HasKey(ExtensionTabUtil::kUrlKey)) {
-      EXTENSION_FUNCTION_VALIDATE(args->GetString(ExtensionTabUtil::kUrlKey,
+    if (args->HasKey(keys::kUrlKey)) {
+      EXTENSION_FUNCTION_VALIDATE(args->GetString(keys::kUrlKey,
                                                   &url_input));
       url.reset(new GURL(url_input));
       if (!url->is_valid()) {
-        error_ = ExtensionErrorUtils::FormatErrorMessage(kInvalidUrlError,
+        error_ = ExtensionErrorUtils::FormatErrorMessage(keys::kInvalidUrlError,
             url_input);
         return false;
       }
@@ -264,26 +230,26 @@ bool CreateWindowFunction::RunImpl() {
   if (args_->IsType(Value::TYPE_DICTIONARY)) {
     const DictionaryValue *args = static_cast<const DictionaryValue*>(args_);
     int bounds_val;
-    if (args->HasKey(ExtensionTabUtil::kLeftKey)) {
-      EXTENSION_FUNCTION_VALIDATE(args->GetInteger(ExtensionTabUtil::kLeftKey,
+    if (args->HasKey(keys::kLeftKey)) {
+      EXTENSION_FUNCTION_VALIDATE(args->GetInteger(keys::kLeftKey,
                                                    &bounds_val));
       bounds.set_x(bounds_val);
     }
 
-    if (args->HasKey(ExtensionTabUtil::kTopKey)) {
-      EXTENSION_FUNCTION_VALIDATE(args->GetInteger(ExtensionTabUtil::kTopKey,
+    if (args->HasKey(keys::kTopKey)) {
+      EXTENSION_FUNCTION_VALIDATE(args->GetInteger(keys::kTopKey,
                                                    &bounds_val));
       bounds.set_y(bounds_val);
     }
 
-    if (args->HasKey(ExtensionTabUtil::kWidthKey)) {
-      EXTENSION_FUNCTION_VALIDATE(args->GetInteger(ExtensionTabUtil::kWidthKey,
+    if (args->HasKey(keys::kWidthKey)) {
+      EXTENSION_FUNCTION_VALIDATE(args->GetInteger(keys::kWidthKey,
                                                    &bounds_val));
       bounds.set_width(bounds_val);
     }
 
-    if (args->HasKey(ExtensionTabUtil::kHeightKey)) {
-      EXTENSION_FUNCTION_VALIDATE(args->GetInteger(ExtensionTabUtil::kHeightKey,
+    if (args->HasKey(keys::kHeightKey)) {
+      EXTENSION_FUNCTION_VALIDATE(args->GetInteger(keys::kHeightKey,
                                                    &bounds_val));
       bounds.set_height(bounds_val);
     }
@@ -318,30 +284,30 @@ bool UpdateWindowFunction::RunImpl() {
   gfx::Rect bounds = browser->window()->GetNormalBounds();
   // Any part of the bounds can optionally be set by the caller.
   int bounds_val;
-  if (update_props->HasKey(ExtensionTabUtil::kLeftKey)) {
+  if (update_props->HasKey(keys::kLeftKey)) {
     EXTENSION_FUNCTION_VALIDATE(update_props->GetInteger(
-        ExtensionTabUtil::kLeftKey,
+        keys::kLeftKey,
         &bounds_val));
     bounds.set_x(bounds_val);
   }
 
-  if (update_props->HasKey(ExtensionTabUtil::kTopKey)) {
+  if (update_props->HasKey(keys::kTopKey)) {
     EXTENSION_FUNCTION_VALIDATE(update_props->GetInteger(
-        ExtensionTabUtil::kTopKey,
+        keys::kTopKey,
         &bounds_val));
     bounds.set_y(bounds_val);
   }
 
-  if (update_props->HasKey(ExtensionTabUtil::kWidthKey)) {
+  if (update_props->HasKey(keys::kWidthKey)) {
     EXTENSION_FUNCTION_VALIDATE(update_props->GetInteger(
-        ExtensionTabUtil::kWidthKey,
+        keys::kWidthKey,
         &bounds_val));
     bounds.set_width(bounds_val);
   }
 
-  if (update_props->HasKey(ExtensionTabUtil::kHeightKey)) {
+  if (update_props->HasKey(keys::kHeightKey)) {
     EXTENSION_FUNCTION_VALIDATE(update_props->GetInteger(
-        ExtensionTabUtil::kHeightKey,
+        keys::kHeightKey,
         &bounds_val));
     bounds.set_height(bounds_val);
   }
@@ -418,9 +384,9 @@ bool CreateTabFunction::RunImpl() {
   Browser *browser;
   // windowId defaults to "current" window.
   int window_id = -1;
-  if (args->HasKey(ExtensionTabUtil::kWindowIdKey)) {
+  if (args->HasKey(keys::kWindowIdKey)) {
     EXTENSION_FUNCTION_VALIDATE(args->GetInteger(
-        ExtensionTabUtil::kWindowIdKey, &window_id));
+        keys::kWindowIdKey, &window_id));
     browser = GetBrowserInProfileWithId(profile(), window_id, &error_);
     if (!browser)
       return false;
@@ -436,15 +402,15 @@ bool CreateTabFunction::RunImpl() {
 
   std::string url_string;
   scoped_ptr<GURL> url(new GURL());
-  if (args->HasKey(ExtensionTabUtil::kUrlKey)) {
-    EXTENSION_FUNCTION_VALIDATE(args->GetString(ExtensionTabUtil::kUrlKey,
+  if (args->HasKey(keys::kUrlKey)) {
+    EXTENSION_FUNCTION_VALIDATE(args->GetString(keys::kUrlKey,
                                                 &url_string));
     url.reset(new GURL(url_string));
     if (!url->is_valid()) {
       // The path as passed in is not valid. Try converting to absolute path.
       *url = AbsolutePath(profile(), extension_id(), url_string);
       if (!url->is_valid()) {
-        error_ = ExtensionErrorUtils::FormatErrorMessage(kInvalidUrlError,
+        error_ = ExtensionErrorUtils::FormatErrorMessage(keys::kInvalidUrlError,
                                                          url_string);
         return false;
       }
@@ -454,14 +420,14 @@ bool CreateTabFunction::RunImpl() {
   // Default to foreground for the new tab. The presence of 'selected' property
   // will override this default.
   bool selected = true;
-  if (args->HasKey(ExtensionTabUtil::kSelectedKey))
-    EXTENSION_FUNCTION_VALIDATE(args->GetBoolean(ExtensionTabUtil::kSelectedKey,
+  if (args->HasKey(keys::kSelectedKey))
+    EXTENSION_FUNCTION_VALIDATE(args->GetBoolean(keys::kSelectedKey,
                                                  &selected));
   // If index is specified, honor the value, but keep it bound to
   // 0 <= index <= tab_strip->count()
   int index = -1;
-  if (args->HasKey(ExtensionTabUtil::kIndexKey))
-    EXTENSION_FUNCTION_VALIDATE(args->GetInteger(ExtensionTabUtil::kIndexKey,
+  if (args->HasKey(keys::kIndexKey))
+    EXTENSION_FUNCTION_VALIDATE(args->GetInteger(keys::kIndexKey,
                                                  &index));
 
   if (index < 0) {
@@ -522,16 +488,17 @@ bool UpdateTabFunction::RunImpl() {
 
   // Navigate the tab to a new location if the url different.
   std::string url;
-  if (update_props->HasKey(ExtensionTabUtil::kUrlKey)) {
+  if (update_props->HasKey(keys::kUrlKey)) {
     EXTENSION_FUNCTION_VALIDATE(update_props->GetString(
-        ExtensionTabUtil::kUrlKey, &url));
+        keys::kUrlKey, &url));
     GURL new_gurl(url);
 
     if (!new_gurl.is_valid()) {
       // The path as passed in is not valid. Try converting to absolute path.
       new_gurl = AbsolutePath(profile(), extension_id(), url);
       if (!new_gurl.is_valid()) {
-        error_ = ExtensionErrorUtils::FormatErrorMessage(kInvalidUrlError, url);
+        error_ = ExtensionErrorUtils::FormatErrorMessage(keys::kInvalidUrlError,
+                                                         url);
         return false;
       }
     }
@@ -542,9 +509,9 @@ bool UpdateTabFunction::RunImpl() {
   bool selected = false;
   // TODO(rafaelw): Setting |selected| from js doesn't make much sense.
   // Move tab selection management up to window.
-  if (update_props->HasKey(ExtensionTabUtil::kSelectedKey)) {
+  if (update_props->HasKey(keys::kSelectedKey)) {
     EXTENSION_FUNCTION_VALIDATE(update_props->GetBoolean(
-        ExtensionTabUtil::kSelectedKey,
+        keys::kSelectedKey,
         &selected));
     if (selected && tab_strip->selected_index() != tab_index) {
       tab_strip->SelectTabContentsAt(tab_index, false);
@@ -564,7 +531,7 @@ bool MoveTabFunction::RunImpl() {
 
   int new_index;
   EXTENSION_FUNCTION_VALIDATE(update_props->GetInteger(
-      ExtensionTabUtil::kIndexKey, &new_index));
+      keys::kIndexKey, &new_index));
   EXTENSION_FUNCTION_VALIDATE(new_index >= 0);
 
   Browser* source_browser = NULL;
@@ -574,11 +541,11 @@ bool MoveTabFunction::RunImpl() {
       &tab_index, &error_))
     return false;
 
-  if (update_props->HasKey(ExtensionTabUtil::kWindowIdKey)) {
+  if (update_props->HasKey(keys::kWindowIdKey)) {
     Browser* target_browser;
     int window_id;
     EXTENSION_FUNCTION_VALIDATE(update_props->GetInteger(
-        ExtensionTabUtil::kWindowIdKey, &window_id));
+        keys::kWindowIdKey, &window_id));
     target_browser = GetBrowserInProfileWithId(profile(), window_id,
         &error_);
     if (!target_browser)
@@ -591,7 +558,7 @@ bool MoveTabFunction::RunImpl() {
       TabContents *contents = source_tab_strip->DetachTabContentsAt(tab_index);
       if (!contents) {
         error_ = ExtensionErrorUtils::FormatErrorMessage(
-            kTabNotFoundError, IntToString(tab_id));
+            keys::kTabNotFoundError, IntToString(tab_id));
         return false;
       }
 
@@ -640,20 +607,20 @@ bool RemoveTabFunction::RunImpl() {
 static DictionaryValue* CreateWindowValue(Browser* browser,
                                           bool populate_tabs) {
   DictionaryValue* result = new DictionaryValue();
-  result->SetInteger(ExtensionTabUtil::kIdKey, ExtensionTabUtil::GetWindowId(
+  result->SetInteger(keys::kIdKey, ExtensionTabUtil::GetWindowId(
       browser));
-  result->SetBoolean(ExtensionTabUtil::kFocusedKey,
+  result->SetBoolean(keys::kFocusedKey,
       browser->window()->IsActive());
   gfx::Rect bounds = browser->window()->GetNormalBounds();
 
   // TODO(rafaelw): zIndex ?
-  result->SetInteger(ExtensionTabUtil::kLeftKey, bounds.x());
-  result->SetInteger(ExtensionTabUtil::kTopKey, bounds.y());
-  result->SetInteger(ExtensionTabUtil::kWidthKey, bounds.width());
-  result->SetInteger(ExtensionTabUtil::kHeightKey, bounds.height());
+  result->SetInteger(keys::kLeftKey, bounds.x());
+  result->SetInteger(keys::kTopKey, bounds.y());
+  result->SetInteger(keys::kWidthKey, bounds.width());
+  result->SetInteger(keys::kHeightKey, bounds.height());
 
   if (populate_tabs) {
-    result->Set(ExtensionTabUtil::kTabsKey, CreateTabList(browser));
+    result->Set(keys::kTabsKey, CreateTabList(browser));
   }
 
   return result;
@@ -682,7 +649,7 @@ static Browser* GetBrowserInProfileWithId(Profile* profile,
 
   if (error_message)
     *error_message= ExtensionErrorUtils::FormatErrorMessage(
-        kWindowNotFoundError, IntToString(window_id));
+        keys::kWindowNotFoundError, IntToString(window_id));
 
   return NULL;
 }
@@ -705,7 +672,7 @@ static bool GetTabById(int tab_id, Profile* profile, Browser** browser,
 
   if (error_message)
     *error_message = ExtensionErrorUtils::FormatErrorMessage(
-        kTabNotFoundError, IntToString(tab_id));
+        keys::kTabNotFoundError, IntToString(tab_id));
 
   return false;
 }

@@ -8,10 +8,13 @@
 #include "base/singleton.h"
 #include "base/values.h"
 #include "chrome/browser/extensions/extension_bookmarks_module.h"
+#include "chrome/browser/extensions/extension_bookmarks_module_constants.h"
 #include "chrome/browser/extensions/extension_function.h"
 #include "chrome/browser/extensions/extension_message_service.h"
 #include "chrome/browser/extensions/extension_page_actions_module.h"
+#include "chrome/browser/extensions/extension_page_actions_module_constants.h"
 #include "chrome/browser/extensions/extension_tabs_module.h"
+#include "chrome/browser/extensions/extension_tabs_module_constants.h"
 #include "chrome/browser/profile.h"
 #include "chrome/browser/renderer_host/render_process_host.h"
 #include "chrome/browser/renderer_host/render_view_host.h"
@@ -60,46 +63,62 @@ FactoryRegistry* FactoryRegistry::instance() {
 void FactoryRegistry::ResetFunctions() {
   // Register all functions here.
 
+  namespace tabs = extension_tabs_module_constants;
+  namespace page_actions = extension_page_actions_module_constants;
+  namespace bookmarks = extension_bookmarks_module_constants;
+
   // Windows
-  factories_["GetWindow"] = &NewExtensionFunction<GetWindowFunction>;
-  factories_["GetCurrentWindow"] =
+  factories_[tabs::kGetWindowFunction] = 
+      &NewExtensionFunction<GetWindowFunction>;
+  factories_[tabs::kGetCurrentWindowFunction] =
       &NewExtensionFunction<GetCurrentWindowFunction>;
-  factories_["GetLastFocusedWindow"] =
+  factories_[tabs::kGetLastFocusedWindowFunction] =
       &NewExtensionFunction<GetLastFocusedWindowFunction>;
-  factories_["GetAllWindows"] = &NewExtensionFunction<GetAllWindowsFunction>;
-  factories_["CreateWindow"] = &NewExtensionFunction<CreateWindowFunction>;
-  factories_["UpdateWindow"] = &NewExtensionFunction<UpdateWindowFunction>;
-  factories_["RemoveWindow"] = &NewExtensionFunction<RemoveWindowFunction>;
+  factories_[tabs::kGetAllWindowsFunction] =
+      &NewExtensionFunction<GetAllWindowsFunction>;
+  factories_[tabs::kCreateWindowFunction] = 
+      &NewExtensionFunction<CreateWindowFunction>;
+  factories_[tabs::kUpdateWindowFunction] = 
+      &NewExtensionFunction<UpdateWindowFunction>;
+  factories_[tabs::kRemoveWindowFunction] = 
+      &NewExtensionFunction<RemoveWindowFunction>;
 
   // Tabs
-  factories_["GetTab"] = &NewExtensionFunction<GetTabFunction>;
-  factories_["GetSelectedTab"] =
+  factories_[tabs::kGetTabFunction] = 
+      &NewExtensionFunction<GetTabFunction>;
+  factories_[tabs::kGetSelectedTabFunction] =
       &NewExtensionFunction<GetSelectedTabFunction>;
-  factories_["GetAllTabsInWindow"] =
+  factories_[tabs::kGetAllTabsInWindowFunction] =
       &NewExtensionFunction<GetAllTabsInWindowFunction>;
-  factories_["CreateTab"] = &NewExtensionFunction<CreateTabFunction>;
-  factories_["UpdateTab"] = &NewExtensionFunction<UpdateTabFunction>;
-  factories_["MoveTab"] = &NewExtensionFunction<MoveTabFunction>;
-  factories_["RemoveTab"] = &NewExtensionFunction<RemoveTabFunction>;
+  factories_[tabs::kCreateTabFunction] = 
+      &NewExtensionFunction<CreateTabFunction>;
+  factories_[tabs::kUpdateTabFunction] = 
+      &NewExtensionFunction<UpdateTabFunction>;
+  factories_[tabs::kMoveTabFunction] = 
+      &NewExtensionFunction<MoveTabFunction>;
+  factories_[tabs::kRemoveTabFunction] = 
+      &NewExtensionFunction<RemoveTabFunction>;
 
   // Page Actions.
-  factories_["EnablePageAction"] =
+  factories_[page_actions::kEnablePageActionFunction] =
       &NewExtensionFunction<EnablePageActionFunction>;
 
   // Bookmarks.
-  factories_["GetBookmarks"] = &NewExtensionFunction<GetBookmarksFunction>;
-  factories_["GetBookmarkChildren"] =
+  factories_[bookmarks::kGetBookmarksFunction] =
+      &NewExtensionFunction<GetBookmarksFunction>;
+  factories_[bookmarks::kGetBookmarkChildrenFunction] =
       &NewExtensionFunction<GetBookmarkChildrenFunction>;
-  factories_["GetBookmarkTree"] =
+  factories_[bookmarks::kGetBookmarkTreeFunction] =
       &NewExtensionFunction<GetBookmarkTreeFunction>;
-  factories_["SearchBookmarks"] =
+  factories_[bookmarks::kSearchBookmarksFunction] =
       &NewExtensionFunction<SearchBookmarksFunction>;
-  factories_["RemoveBookmark"] =
+  factories_[bookmarks::kRemoveBookmarkFunction] =
       &NewExtensionFunction<RemoveBookmarkFunction>;
-  factories_["CreateBookmark"] =
+  factories_[bookmarks::kCreateBookmarkFunction] =
       &NewExtensionFunction<CreateBookmarkFunction>;
-  factories_["MoveBookmark"] = &NewExtensionFunction<MoveBookmarkFunction>;
-  factories_["SetBookmarkTitle"] =
+  factories_[bookmarks::kMoveBookmarkFunction] =
+      &NewExtensionFunction<MoveBookmarkFunction>;
+  factories_[bookmarks::kSetBookmarkTitleFunction] =
       &NewExtensionFunction<SetBookmarkTitleFunction>;
 }
 
