@@ -30,6 +30,17 @@ void TestShellRequestContext::Init(
   accept_charset_ = "iso-8859-1,*,utf-8";
 
   net::ProxyConfig proxy_config;
+#if defined(OS_LINUX)
+  // Force no_proxy to true so as to use a fixed proxy configuration
+  // and bypass ProxyConfigServiceLinux. Enabling use of the
+  // ProxyConfigServiceLinux requires:
+  // -Calling from a thread with a TYPE_UI MessageLoop,
+  // -If at all possible, passing in a pointer to the IO thread's MessageLoop,
+  // -Keep in mind that proxy auto configuration is also
+  //  non-functional on linux in this context because of v8 threading
+  //  issues.
+  no_proxy = true;
+#endif
   proxy_service_ = net::ProxyService::Create(no_proxy ? &proxy_config : NULL,
                                              false, NULL, NULL);
 
