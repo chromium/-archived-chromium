@@ -51,7 +51,7 @@ class CallerIdWrapper : public v8::Debug::ClientData {
 
 void DebuggerAgentManager::V8DebugHostDispatchHandler() {
   if (!DebuggerAgentManager::message_loop_dispatch_handler_ ||
-      !attached_agents_) {
+      !attached_agents_map_) {
     return;
   }
   if (in_host_dispatch_handler_) {
@@ -61,10 +61,10 @@ void DebuggerAgentManager::V8DebugHostDispatchHandler() {
 
   Vector<WebViewImpl*> views;
   // 1. Disable active objects and input events.
-  for (AttachedAgentsSet::iterator it = attached_agents_->begin();
-       it != attached_agents_->end();
+  for (AttachedAgentsMap::iterator it = attached_agents_map_->begin();
+       it != attached_agents_map_->end();
        ++it) {
-    DebuggerAgentImpl* agent = *it;
+    DebuggerAgentImpl* agent = it->second;
     page_deferrers_.set(
         agent->web_view(),
         new WebCore::PageGroupLoadDeferrer(agent->GetPage(), true));
@@ -88,7 +88,7 @@ void DebuggerAgentManager::V8DebugHostDispatchHandler() {
   page_deferrers_.clear();
 
   in_host_dispatch_handler_ = false;
-  if (!attached_agents_) {
+  if (!attached_agents_map_) {
     // Remove handlers if all agents were detached within host dispatch.
     v8::Debug::SetMessageHandler(NULL);
     v8::Debug::SetHostDispatchHandler(NULL);
@@ -96,34 +96,35 @@ void DebuggerAgentManager::V8DebugHostDispatchHandler() {
 }
 
 // static
-DebuggerAgentManager::AttachedAgentsSet*
-    DebuggerAgentManager::attached_agents_ = NULL;
+DebuggerAgentManager::AttachedAgentsMap*
+    DebuggerAgentManager::attached_agents_map_ = NULL;
 
 // static
 void DebuggerAgentManager::DebugAttach(DebuggerAgentImpl* debugger_agent) {
-#if USE(V8)
-  if (!attached_agents_) {
-    attached_agents_ = new AttachedAgentsSet();
+  if (!attached_agents_map_) {
+    attached_agents_map_ = new AttachedAgentsMap();
     v8::Debug::SetMessageHandler2(&DebuggerAgentManager::OnV8DebugMessage);
     v8::Debug::SetHostDispatchHandler(
         &DebuggerAgentManager::V8DebugHostDispatchHandler, 100 /* ms */);
   }
-  attached_agents_->add(debugger_agent);
-#endif
+  int host_id = debugger_agent->webdevtools_agent()->host_id();
+  DCHECK(host_id != 0);
+  attached_agents_map_->set(host_id, debugger_agent);
 }
 
 // static
 void DebuggerAgentManager::DebugDetach(DebuggerAgentImpl* debugger_agent) {
-#if USE(V8)
-  if (!attached_agents_) {
+  if (!attached_agents_map_) {
     NOTREACHED();
     return;
   }
-  DCHECK(attached_agents_->contains(debugger_agent));
-  attached_agents_->remove(debugger_agent);
-  if (attached_agents_->isEmpty()) {
-    delete attached_agents_;
-    attached_agents_ = NULL;
+  int host_id = debugger_agent->webdevtools_agent()->host_id();
+  DCHECK(attached_agents_map_->get(host_id) == debugger_agent);
+  attached_agents_map_->remove(host_id);
+
+  if (attached_agents_map_->isEmpty()) {
+    delete attached_agents_map_;
+    attached_agents_map_ = NULL;
     // Note that we do not empty handlers while in dispatch - we schedule
     // continue and do removal once we are out of the dispatch.
     if (!in_host_dispatch_handler_) {
@@ -134,13 +135,13 @@ void DebuggerAgentManager::DebugDetach(DebuggerAgentImpl* debugger_agent) {
       SendContinueCommandToV8();
     }
   }
-#endif
 }
 
 // static
 void DebuggerAgentManager::DebugBreak(DebuggerAgentImpl* debugger_agent) {
 #if USE(V8)
-  DCHECK(attached_agents_->contains(debugger_agent));
+  DCHECK(DebuggerAgentForHostId(debugger_agent->webdevtools_agent()->host_id())
+             == debugger_agent);
   v8::Debug::DebugBreak();
 #endif
 }
@@ -158,10 +159,13 @@ void DebuggerAgentManager::OnV8DebugMessage(const v8::Debug::Message& message) {
       // Just ignore messages sent by this manager.
       return;
     }
-    DebuggerAgentImpl* debugger_agent = FindDebuggerAgentForToolsAgent(
-        wrapper->caller_id());
+    DebuggerAgentImpl* debugger_agent =
+        DebuggerAgentForHostId(wrapper->caller_id());
     if (debugger_agent) {
       debugger_agent->DebuggerOutput(out);
+    } else if (!message.WillStartRunning()) {
+      // Autocontinue execution if there is no handler.
+      SendContinueCommandToV8();
     }
     return;
   } // Otherwise it's an event message.
@@ -174,44 +178,15 @@ void DebuggerAgentManager::OnV8DebugMessage(const v8::Debug::Message& message) {
     return;
   }
 
-  // Filter out events from the utility context.
-  // TODO(yurys): add global context accessor to v8 API.
-  if (message.GetEvent() == v8::AfterCompile) {
-    // Note that message.GetEventContext() will return context active when we
-    // entered the debugger. It's not necessarily the global context where the
-    // script is compiled so to get the scripts' context we call JS methods on
-    // the event data.
-    v8::Handle<v8::Object> compileEvent = message.GetEventData();
-    v8::Handle<v8::Value> scriptGetter =
-        compileEvent->Get(v8::String::New("script"));
-    v8::Local<v8::Function> fun = v8::Function::Cast(*scriptGetter);
-    v8::Local<v8::Object> script_mirror =
-        v8::Object::Cast(*fun->Call(compileEvent, 0, NULL));
-
-    v8::Handle<v8::Value> contextGetter =
-        script_mirror->Get(v8::String::New("context"));
-    v8::Local<v8::Function> contextGetterFunc =
-        v8::Function::Cast(*contextGetter);
-    v8::Local<v8::Object> context_mirror =
-        v8::Object::Cast(*contextGetterFunc->Call(script_mirror, 0, NULL));
-
-    v8::Handle<v8::Value> dataGetter =
-        context_mirror->Get(v8::String::New("data"));
-    v8::Local<v8::Function> dataGetterFunc =
-        v8::Function::Cast(*dataGetter);
-    v8::Local<v8::Value> data =
-        *dataGetterFunc->Call(context_mirror, 0, NULL);
-
-    // If the context is from one of the inpected tabs it must have host_id in
-    // the data field. See DebuggerAgentManager::SetHostId for more details.
-    if (data.IsEmpty() || !data->IsInt32()) {
-      return;
-    }
+  v8::Handle<v8::Context> context = message.GetEventContext();
+  // If the context is from one of the inpected tabs it must have host_id in
+  // the data field. See DebuggerAgentManager::SetHostId for more details.
+  if (context.IsEmpty() || !context->GetData()->IsInt32()) {
+    // Unknown context, skip the event.
+    return;
   }
-
-  // Agent that should be used for sending events is determined based
-  // on the active Frame.
-  DebuggerAgentImpl* agent = FindAgentForCurrentV8Context();
+  int host_id = context->GetData()->Int32Value();
+  DebuggerAgentImpl* agent = DebuggerAgentForHostId(host_id);
   if (agent) {
     agent->DebuggerOutput(out);
   } else if (!message.WillStartRunning()) {
@@ -220,7 +195,6 @@ void DebuggerAgentManager::OnV8DebugMessage(const v8::Debug::Message& message) {
     SendContinueCommandToV8();
   }
 }
-
 
 // static
 void DebuggerAgentManager::ExecuteDebuggerCommand(
@@ -275,32 +249,29 @@ void DebuggerAgentManager::SendContinueCommandToV8() {
 
 // static
 DebuggerAgentImpl* DebuggerAgentManager::FindAgentForCurrentV8Context() {
-  if (!attached_agents_) {
+  if (!attached_agents_map_) {
     return NULL;
   }
-  DCHECK(!attached_agents_->isEmpty());
+  DCHECK(!attached_agents_map_->isEmpty());
 
   WebCore::Frame* frame = WebCore::V8Proxy::retrieveFrameForEnteredContext();
   if (!frame) {
     return NULL;
   }
   WebCore::Page* page = frame->page();
-  for (AttachedAgentsSet::iterator it = attached_agents_->begin();
-       it != attached_agents_->end(); ++it) {
-    if ((*it)->GetPage() == page) {
-      return *it;
+  for (AttachedAgentsMap::iterator it = attached_agents_map_->begin();
+       it != attached_agents_map_->end(); ++it) {
+    if (it->second->GetPage() == page) {
+      return it->second;
     }
   }
   return NULL;
 }
 
-DebuggerAgentImpl* DebuggerAgentManager::FindDebuggerAgentForToolsAgent(
-    int caller_id) {
-  for (AttachedAgentsSet::iterator it = attached_agents_->begin();
-       it != attached_agents_->end(); ++it) {
-    if ((*it)->webdevtools_agent()->host_id() == caller_id) {
-      return *it;
-    }
+// static
+DebuggerAgentImpl* DebuggerAgentManager::DebuggerAgentForHostId(int host_id) {
+  if (!attached_agents_map_) {
+    return NULL;
   }
-  return NULL;
+  return attached_agents_map_->get(host_id);
 }
