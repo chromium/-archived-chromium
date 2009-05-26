@@ -413,12 +413,9 @@ void UITest::QuitBrowser() {
 #if !defined(OS_LINUX)
     for (BrowserVector::iterator iter = browsers.begin();
       iter != browsers.end(); ++iter) {
-      bool application_closed = false;
-      CloseBrowserWithTimeout(*iter, &application_closed,
-                              action_timeout_ms(), NULL);
+      // Use ApplyAccelerator since it doesn't wait
+      (*iter)->ApplyAccelerator(IDC_CLOSE_WINDOW);
       delete (*iter);
-      if (application_closed)
-        break;
     }
 #endif
 
@@ -747,31 +744,22 @@ void UITest::CloseBrowserAsync(BrowserProxy* browser) const {
 
 bool UITest::CloseBrowser(BrowserProxy* browser,
                           bool* application_closed) const {
-  return CloseBrowserWithTimeout(browser, application_closed,
-                                 base::kNoTimeout, NULL);
-}
-
-bool UITest::CloseBrowserWithTimeout(BrowserProxy* browser,
-                                     bool* application_closed,
-                                     int timeout_ms,
-                                     bool* is_timeout) const {
   DCHECK(application_closed);
   if (!browser->is_valid() || !browser->handle())
     return false;
 
   bool result = true;
 
-  bool succeeded = server_->SendWithTimeout(
-      new AutomationMsg_CloseBrowser(
-          0, browser->handle(), &result, application_closed),
-      timeout_ms, is_timeout);
+  bool succeeded = server_->Send(new AutomationMsg_CloseBrowser(
+      0, browser->handle(), &result, application_closed));
 
   if (!succeeded)
     return false;
 
   if (*application_closed) {
     // Let's wait until the process dies (if it is not gone already).
-    result = base::WaitForSingleProcess(process_, timeout_ms);
+    bool success = base::WaitForSingleProcess(process_, base::kNoTimeout);
+    DCHECK(success);
   }
 
   return result;
