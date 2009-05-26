@@ -29,7 +29,10 @@ void ShowItemInFolder(const FilePath& full_path) {
 }
 
 gfx::NativeWindow GetTopLevel(gfx::NativeView view) {
-  return GTK_WINDOW(gtk_widget_get_toplevel(view));
+  // A detached widget won't have a toplevel window as an ancestor, so we can't
+  // assume that the query for toplevel will return a window.
+  GtkWidget* toplevel = gtk_widget_get_ancestor(view, GTK_TYPE_WINDOW);
+  return GTK_IS_WINDOW(toplevel) ? GTK_WINDOW(toplevel) : NULL;
 }
 
 string16 GetWindowTitle(gfx::NativeWindow window) {
