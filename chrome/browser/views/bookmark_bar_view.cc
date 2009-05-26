@@ -265,11 +265,13 @@ class BookmarkFolderButton : public views::MenuButton {
   DISALLOW_COPY_AND_ASSIGN(BookmarkFolderButton);
 };
 
+}  // namespace
+
 // DropInfo -------------------------------------------------------------------
 
 // Tracks drops on the BookmarkBarView.
 
-struct DropInfo {
+struct BookmarkBarView::DropInfo {
   DropInfo() : drop_index(-1), is_menu_showing(false), valid(false) {}
 
   // Whether the data is valid.
@@ -304,7 +306,7 @@ struct DropInfo {
 
 // ButtonSeparatorView  --------------------------------------------------------
 
-class ButtonSeparatorView : public views::View {
+class BookmarkBarView::ButtonSeparatorView : public views::View {
  public:
   ButtonSeparatorView() {}
   virtual ~ButtonSeparatorView() {}
@@ -340,8 +342,6 @@ class ButtonSeparatorView : public views::View {
  private:
   DISALLOW_COPY_AND_ASSIGN(ButtonSeparatorView);
 };
-
-}  // namespace
 
 // BookmarkBarView ------------------------------------------------------------
 
@@ -1091,7 +1091,7 @@ int BookmarkBarView::GetDragOperations(View* sender, int x, int y) {
 
 void BookmarkBarView::RunMenu(views::View* view,
                               const gfx::Point& pt,
-                              HWND hwnd) {
+                              gfx::NativeView hwnd) {
   BookmarkNode* node;
   MenuItemView::AnchorPosition anchor_point = MenuItemView::TOPLEFT;
 

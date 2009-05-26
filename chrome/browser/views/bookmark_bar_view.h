@@ -22,12 +22,6 @@ class Browser;
 class PageNavigator;
 class PrefService;
 
-namespace {
-class MenuRunner;
-class ButtonSeparatorView;
-struct DropInfo;
-}
-
 namespace views {
 class MenuItemView;
 }
@@ -183,6 +177,9 @@ class BookmarkBarView : public views::View,
   static bool testing_;
 
  private:
+  class ButtonSeparatorView;
+  struct DropInfo;
+
   // Task that invokes ShowDropFolderForNode when run. ShowFolderDropMenuTask
   // deletes itself once run.
   class ShowFolderDropMenuTask : public Task {
@@ -301,7 +298,8 @@ class BookmarkBarView : public views::View,
   // . menu for star groups.
   // The latter two are handled by a MenuRunner, which builds the appropriate
   // menu.
-  virtual void RunMenu(views::View* view, const gfx::Point& pt, HWND hwnd);
+  virtual void RunMenu(views::View* view, const gfx::Point& pt,
+                       gfx::NativeView parent);
 
   // Invoked when a star entry corresponding to a URL on the bookmark bar is
   // pressed. Forwards to the PageNavigator to open the URL.

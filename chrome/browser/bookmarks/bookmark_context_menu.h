@@ -64,7 +64,7 @@ class BookmarkContextMenu : public BookmarkModelObserver,
                       ConfigurationType configuration);
   virtual ~BookmarkContextMenu();
 
-#if defined(OS_WIN)
+#if defined(TOOLKIT_VIEWS)
   // Shows the menu at the specified place.
   void RunMenuAt(int x, int y);
 
