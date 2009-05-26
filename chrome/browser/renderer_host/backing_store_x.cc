@@ -136,6 +136,36 @@ void BackingStore::PaintRectWithoutXrender(TransportDIB* bitmap,
               width, height);
 
     free(bitmap24);
+  } else if (pixmap_bpp_ == 16) {
+    // Some folks have VNC setups which still use 16-bit visuals and VNC
+    // doesn't include Xrender.
+
+    uint16_t* bitmap16 = static_cast<uint16_t*>(malloc(2 * width * height));
+    uint16_t* const orig_bitmap16 = bitmap16;
+    const uint32_t* bitmap_in = static_cast<const uint32_t*>(bitmap->memory());
+    for (int y = 0; y < height; ++y) {
+      for (int x = 0; x < width; ++x) {
+        const uint32_t pixel = *(bitmap_in++);
+        uint16_t out_pixel = (pixel >> 8) & 0xf800 |
+                             (pixel >> 5) & 0x07e0 |
+                             (pixel >> 3) & 0x001f;
+        *(bitmap16++) = out_pixel;
+      }
+    }
+
+    image.depth = visual_depth_;
+    image.bits_per_pixel = 16;
+    image.bytes_per_line = width * 2;
+    image.data = reinterpret_cast<char*>(orig_bitmap16);
+
+    image.red_mask = 0xf800;
+    image.green_mask = 0x07e0;
+    image.blue_mask = 0x001f;
+
+    XPutImage(display_, pixmap, static_cast<GC>(pixmap_gc_), &image,
+              0, 0 /* source x, y */, 0, 0 /* dest x, y */,
+              width, height);
+    free(orig_bitmap16);
   } else {
     CHECK(false) << "Sorry, we don't support your visual depth without "
                     "Xrender support (depth:" << visual_depth_
