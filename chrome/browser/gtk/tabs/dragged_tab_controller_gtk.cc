@@ -486,6 +486,12 @@ TabGtk* DraggedTabControllerGtk::GetTabMatchingDraggedContents(
 }
 
 bool DraggedTabControllerGtk::EndDragImpl(EndDragType type) {
+  // In gtk, it's possible to receive a drag-begin signal and an drag-end signal
+  // without ever getting a drag-motion signal.  In this case, dragged_tab_ has
+  // never been created, so bail out.
+  if (!dragged_tab_.get())
+    return true;
+
   // WARNING: this may be invoked multiple times. In particular, if deletion
   // occurs after a delay (as it does when the tab is released in the original
   // tab strip) and the navigation controller/tab contents is deleted before
