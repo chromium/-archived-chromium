@@ -43,8 +43,14 @@ class TabStripGtk : public TabStripModelObserver,
   // Sets the bounds of the tabs.
   void Layout();
 
+  // Queues a draw for the tabstrip widget.
+  void SchedulePaint();
+
   // Sets the bounds of the tabstrip.
   void SetBounds(const gfx::Rect& bounds);
+
+  // Returns the bounds of the tabstrip.
+  const gfx::Rect& bounds() const { return bounds_; }
 
   // Updates loading animations for the TabStrip.
   void UpdateLoadingAnimations();
@@ -55,6 +61,9 @@ class TabStripGtk : public TabStripModelObserver,
 
   // Destroys the active drag controller.
   void DestroyDragController();
+
+  // Removes the drag source tab from this tabstrip, and deletes it.
+  void DestroyDraggedSourceTab(TabGtk* tab);
 
   // Retrieve the ideal bounds for the Tab at the specified index.
   gfx::Rect GetIdealBounds(int index);

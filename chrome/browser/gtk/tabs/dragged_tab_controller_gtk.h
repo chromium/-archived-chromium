@@ -12,6 +12,9 @@
 #include "chrome/browser/tab_contents/tab_contents_delegate.h"
 #include "chrome/common/notification_registrar.h"
 
+// TODO(jhawkins): Remove once DockInfo is ported.
+#include "chrome/common/temp_scaffolding_stubs.h"
+
 class DraggedTabGtk;
 class TabGtk;
 class TabStripGtk;
@@ -37,6 +40,9 @@ class DraggedTabControllerGtk : public NotificationObserver,
   // is true so the helper can revert the state to the world before the drag
   // begun. Returns whether the tab has been destroyed.
   bool EndDrag(bool canceled);
+
+  // Returns true if the specified tab matches the tab being dragged.
+  bool IsDragSourceTab(TabGtk* tab) const;
 
  private:
   // Enumeration of the ways a drag session can end.
@@ -82,6 +88,10 @@ class DraggedTabControllerGtk : public NotificationObserver,
   // in |GetWindowCreatePoint|.
   void InitWindowCreatePoint();
 
+  // Returns the point where a detached window should be created given the
+  // current mouse position.
+  gfx::Point GetWindowCreatePoint() const;
+
   // Sets the TabContents being dragged with the specified |new_contents|.
   void SetDraggedContents(TabContents* new_contents);
 
@@ -95,6 +105,11 @@ class DraggedTabControllerGtk : public NotificationObserver,
   // Returns the compatible TabStrip that is under the specified point (screen
   // coordinates), or NULL if there is none.
   TabStripGtk* GetTabStripForPoint(const gfx::Point& screen_point);
+
+  // Returns the specified |tabstrip| if it contains the specified point
+  // (screen coordinates), NULL if it does not.
+  TabStripGtk* GetTabStripIfItContains(TabStripGtk* tabstrip,
+                                       const gfx::Point& screen_point) const;
 
   // Attach the dragged Tab to the specified TabStrip.
   void Attach(TabStripGtk* attached_tabstrip, const gfx::Point& screen_point);
@@ -145,6 +160,9 @@ class DraggedTabControllerGtk : public NotificationObserver,
   // Utility to convert the specified TabStripModel index to something valid
   // for the attached TabStrip.
   int NormalizeIndexToAttachedTabStrip(int index) const;
+
+  // Cleans up a source tab that is no longer used.
+  void CleanUpSourceTab();
 
   // Completes the drag session after the view has animated to its final
   // position.
@@ -205,6 +223,9 @@ class DraggedTabControllerGtk : public NotificationObserver,
   // The horizontal position of the mouse cursor in screen coordinates at the
   // time of the last re-order event.
   int last_move_screen_x_;
+
+  // DockInfo for the tabstrip.
+  DockInfo dock_info_;
 
   // Timer used to bring the window under the cursor to front. If the user
   // stops moving the mouse for a brief time over a browser window, it is

@@ -26,24 +26,27 @@ class DraggedTabGtk : public AnimationDelegate {
                 const gfx::Size& contents_size);
   virtual ~DraggedTabGtk();
 
-  // Moves the DraggedTabView to the appropriate location given the mouse
+  // Moves the dragged tab to the appropriate location given the mouse
   // pointer at |screen_point|.
   void MoveTo(const gfx::Point& screen_point);
 
-  // Notifies the DraggedTabView that it has become attached to a TabStrip.
+  // Notifies the dragged tab that it has become attached to a tabstrip.
   void Attach(int selected_width);
 
-  // Notifies the DraggedTabView that it should update itself.
+  // Notifies the dragged tab that it has been detached from a tabstrip.
+  void Detach();
+
+  // Notifies the dragged tab that it should update itself.
   void Update();
 
-  // Animates the DraggedTabView to the specified bounds, then calls back to
+  // Animates the dragged tab to the specified bounds, then calls back to
   // |callback|.
   typedef Callback0::Type AnimateToBoundsCallback;
   void AnimateToBounds(const gfx::Rect& bounds,
                        AnimateToBoundsCallback* callback);
 
-  // Returns the size of the DraggedTabView. Used when attaching to a TabStrip
-  // to determine where to place the Tab in the attached TabStrip.
+  // Returns the size of the dragged tab. Used when attaching to a tabstrip
+  // to determine where to place the tab in the attached tabstrip.
   gfx::Size attached_tab_size() const { return attached_tab_size_; }
 
  private:
@@ -87,24 +90,24 @@ class DraggedTabGtk : public AnimationDelegate {
   // The renderer that paints the dragged tab.
   scoped_ptr<TabRendererGtk> renderer_;
 
-  // True if the view is currently attached to a TabStrip. Controls rendering
+  // True if the view is currently attached to a tabstrip. Controls rendering
   // and sizing modes.
   bool attached_;
 
-  // The unscaled offset of the mouse from the top left of the dragged Tab.
+  // The unscaled offset of the mouse from the top left of the dragged tab.
   // This is used to maintain an appropriate offset for the mouse pointer when
   // dragging scaled and unscaled representations, and also to calculate the
   // position of detached windows.
   gfx::Point mouse_tab_offset_;
 
-  // The desired width of the TabRenderer when the DraggedTabView is attached
-  // to a TabStrip.
+  // The desired width of the tab renderer when the dragged tab is attached
+  // to a tabstrip.
   gfx::Size attached_tab_size_;
 
   // The dimensions of the TabContents being dragged.
   gfx::Size contents_size_;
 
-  // The animation used to slide the attached view to its final location.
+  // The animation used to slide the attached tab to its final location.
   SlideAnimation close_animation_;
 
   // A callback notified when the animation is complete.

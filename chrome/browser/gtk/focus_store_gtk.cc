@@ -17,19 +17,17 @@ FocusStoreGtk::~FocusStoreGtk() {
 }
 
 void FocusStoreGtk::Store(GtkWidget* widget) {
+  DisconnectDestroyHandler();
   if (!widget) {
-    DisconnectDestroyHandler();
     widget_ = NULL;
     return;
   }
 
   GtkWindow* window = platform_util::GetTopLevel(widget);
   if (!window) {
-    NOTREACHED();
+    widget_ = NULL;
     return;
   }
-
-  DisconnectDestroyHandler();
 
   widget_ = window->focus_widget;
   if (widget_) {

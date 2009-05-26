@@ -508,6 +508,10 @@ void TabStripGtk::Layout() {
   gtk_widget_queue_draw(tabstrip_.get());
 }
 
+void TabStripGtk::SchedulePaint() {
+  gtk_widget_queue_draw(tabstrip_.get());
+}
+
 void TabStripGtk::SetBounds(const gfx::Rect& bounds) {
   bounds_ = bounds;
 }
@@ -539,6 +543,33 @@ bool TabStripGtk::IsAnimating() const {
 void TabStripGtk::DestroyDragController() {
   if (IsDragSessionActive())
     drag_controller_.reset(NULL);
+}
+
+void TabStripGtk::DestroyDraggedSourceTab(TabGtk* tab) {
+  // We could be running an animation that references this Tab.
+  if (active_animation_.get())
+    active_animation_->Stop();
+
+  // Make sure we leave the tab_data_ vector in a consistent state, otherwise
+  // we'll be pointing to tabs that have been deleted and removed from the
+  // child view list.
+  std::vector<TabData>::iterator it = tab_data_.begin();
+  for (; it != tab_data_.end(); ++it) {
+    if (it->tab == tab) {
+      if (!model_->closing_all())
+        NOTREACHED() << "Leaving in an inconsistent state!";
+      tab_data_.erase(it);
+      break;
+    }
+  }
+
+  gtk_container_remove(GTK_CONTAINER(tabstrip_.get()), tab->widget());
+  delete tab;
+
+  // Force a layout here, because if we've just quickly drag detached a Tab,
+  // the stopping of the active animation above may have left the TabStrip in a
+  // bad (visual) state.
+  Layout();
 }
 
 gfx::Rect TabStripGtk::GetIdealBounds(int index) {
@@ -771,7 +802,10 @@ void TabStripGtk::RemoveTabAt(int index) {
   // Remove the Tab from the TabStrip's list.
   tab_data_.erase(tab_data_.begin() + index);
 
-  delete removed;
+  if (!IsDragSessionActive() || !drag_controller_->IsDragSourceTab(removed)) {
+    gtk_container_remove(GTK_CONTAINER(tabstrip_.get()), removed->widget());
+    delete removed;
+  }
 }
 
 void TabStripGtk::GenerateIdealBounds() {
@@ -892,7 +926,7 @@ void TabStripGtk::ResizeLayoutTabs() {
   double unselected, selected;
   GetDesiredTabWidths(GetTabCount(), &unselected, &selected);
   TabGtk* first_tab = GetTabAt(0);
-  int w = Round(first_tab->IsSelected() ? selected : selected);
+  int w = Round(first_tab->IsSelected() ? selected : unselected);
 
   // We only want to run the animation if we're not already at the desired
   // size.

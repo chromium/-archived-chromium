@@ -70,7 +70,7 @@ class TabGtk : public TabRendererGtk {
   // Access the delegate.
   TabDelegate* delegate() const { return delegate_; }
 
-  GtkWidget* widget() const { return event_box_.get(); }
+  GtkWidget* widget() const { return event_box_; }
 
   // Used to set/check whether this Tab is being animated closed.
   void set_closing(bool closing) { closing_ = closing; }
@@ -139,8 +139,13 @@ class TabGtk : public TabRendererGtk {
   // The context menu controller.
   scoped_ptr<ContextMenuController> menu_controller_;
 
-  // The windowless widget used to collect input events for the tab.
-  OwnedWidgetGtk event_box_;
+  // The windowless widget used to collect input events for the tab.  We can't
+  // use an OwnedWidgetGtk because of the way the dragged tab controller
+  // destroys the source tab.  The source tab is destroyed when the drag ends
+  // before we let gtk handle the end of the drag.  This results in the widget
+  // having an extra reference, which will cause OwnedWidgetGtk.Destroy to
+  // DCHECK.
+  GtkWidget* event_box_;
 
   // True if this tab is being dragged.
   bool dragging_;

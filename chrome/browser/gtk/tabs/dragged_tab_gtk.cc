@@ -75,6 +75,10 @@ void DraggedTabGtk::Attach(int selected_width) {
   Update();
 }
 
+void DraggedTabGtk::Detach() {
+  attached_ = false;
+}
+
 void DraggedTabGtk::Update() {
   gtk_widget_queue_draw(container_);
 }

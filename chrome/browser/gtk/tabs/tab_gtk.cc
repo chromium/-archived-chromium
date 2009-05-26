@@ -103,30 +103,31 @@ TabGtk::TabGtk(TabDelegate* delegate)
       delegate_(delegate),
       closing_(false),
       dragging_(false) {
-  event_box_.Own(gtk_event_box_new());
-  gtk_event_box_set_visible_window(GTK_EVENT_BOX(event_box_.get()), FALSE);
-  gtk_drag_source_set(event_box_.get(), GDK_BUTTON1_MASK,
+  event_box_ = gtk_event_box_new();
+  g_object_ref(event_box_);
+  gtk_event_box_set_visible_window(GTK_EVENT_BOX(event_box_), FALSE);
+  gtk_drag_source_set(event_box_, GDK_BUTTON1_MASK,
                       target_table, G_N_ELEMENTS(target_table),
                       GDK_ACTION_MOVE);
-  g_signal_connect(G_OBJECT(event_box_.get()), "button-press-event",
+  g_signal_connect(G_OBJECT(event_box_), "button-press-event",
                    G_CALLBACK(OnMousePress), this);
-  g_signal_connect(G_OBJECT(event_box_.get()), "button-release-event",
+  g_signal_connect(G_OBJECT(event_box_), "button-release-event",
                    G_CALLBACK(OnMouseRelease), this);
-  g_signal_connect(G_OBJECT(event_box_.get()), "enter-notify-event",
+  g_signal_connect(G_OBJECT(event_box_), "enter-notify-event",
                    G_CALLBACK(OnEnterNotify), this);
-  g_signal_connect(G_OBJECT(event_box_.get()), "leave-notify-event",
+  g_signal_connect(G_OBJECT(event_box_), "leave-notify-event",
                    G_CALLBACK(OnLeaveNotify), this);
-  g_signal_connect_after(G_OBJECT(event_box_.get()), "drag-begin",
+  g_signal_connect_after(G_OBJECT(event_box_), "drag-begin",
                            G_CALLBACK(OnDragBegin), this);
-  g_signal_connect_after(G_OBJECT(event_box_.get()), "drag-end",
+  g_signal_connect_after(G_OBJECT(event_box_), "drag-end",
                          G_CALLBACK(OnDragEnd), this);
-  g_signal_connect_after(G_OBJECT(event_box_.get()), "drag-failed",
+  g_signal_connect_after(G_OBJECT(event_box_), "drag-failed",
                            G_CALLBACK(OnDragFailed), this);
-  gtk_widget_add_events(event_box_.get(),
+  gtk_widget_add_events(event_box_,
         GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK |
         GDK_LEAVE_NOTIFY_MASK | GDK_LEAVE_NOTIFY_MASK);
-  gtk_container_add(GTK_CONTAINER(event_box_.get()), TabRendererGtk::widget());
-  gtk_widget_show_all(event_box_.get());
+  gtk_container_add(GTK_CONTAINER(event_box_), TabRendererGtk::widget());
+  gtk_widget_show_all(event_box_);
 }
 
 TabGtk::~TabGtk() {
@@ -138,7 +139,10 @@ TabGtk::~TabGtk() {
     ContextMenuClosed();
   }
 
-  event_box_.Destroy();
+  gtk_widget_destroy(event_box_);
+
+  // Reset the user data pointer for our event handler.
+  gdk_event_handler_set(TabGtk::GdkEventHandler, NULL, NULL);
 }
 
 // static
@@ -200,7 +204,7 @@ void TabGtk::OnDragBegin(GtkWidget* widget, GdkDragContext* context,
   gdk_event_handler_set(TabGtk::GdkEventHandler, tab, NULL);
 
   int x, y;
-  gdk_window_get_pointer(tab->event_box_.get()->window, &x, &y, NULL);
+  gdk_window_get_pointer(tab->event_box_->window, &x, &y, NULL);
 
   // Make the mouse coordinate relative to the tab.
   x -= tab->bounds().x();
@@ -236,7 +240,10 @@ gboolean TabGtk::OnDragMotion(GtkWidget* widget,
 gboolean TabGtk::OnDragFailed(GtkWidget* widget, GdkDragContext* context,
                               GtkDragResult result,
                               TabGtk* tab) {
-  tab->delegate_->EndDrag(false);
+  // TODO(jhawkins): Implement an EndDrag method that wraps up functionality
+  // of OnDragEnd and OnDragFailed.  Take |result| into account for a canceled
+  // drag action.
+  OnDragEnd(widget, context, tab);
   return TRUE;
 }
 
@@ -248,14 +255,14 @@ bool TabGtk::IsSelected() const {
 }
 
 bool TabGtk::IsVisible() const {
-  return GTK_WIDGET_FLAGS(event_box_.get()) & GTK_VISIBLE;
+  return GTK_WIDGET_FLAGS(event_box_) & GTK_VISIBLE;
 }
 
 void TabGtk::SetVisible(bool visible) const {
   if (visible) {
-    gtk_widget_show(event_box_.get());
+    gtk_widget_show(event_box_);
   } else {
-    gtk_widget_hide(event_box_.get());
+    gtk_widget_hide(event_box_);
   }
 }
 
