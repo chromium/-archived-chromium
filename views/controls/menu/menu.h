@@ -182,7 +182,7 @@ class Menu {
 
   // Creates a new menu with the contents of the system menu for the given
   // parent window. The caller owns the returned pointer.
-  static Menu* GetSystemMenu(gfx::NativeView parent);
+  static Menu* GetSystemMenu(gfx::NativeWindow parent);
 
   void set_delegate(Delegate* delegate) { delegate_ = delegate; }
   Delegate* delegate() const { return delegate_; }

@@ -237,7 +237,7 @@ Menu* Menu::Create(Delegate* delegate,
 }
 
 // static
-Menu* Menu::GetSystemMenu(gfx::NativeView parent) {
+Menu* Menu::GetSystemMenu(gfx::NativeWindow parent) {
   return new views::MenuWin(::GetSystemMenu(parent, FALSE));
 }
 
