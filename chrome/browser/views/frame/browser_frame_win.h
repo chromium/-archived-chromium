@@ -10,25 +10,12 @@
 #include "views/window/window_win.h"
 
 class AeroGlassNonClientView;
+class BrowserNonClientFrameView;
 class BrowserRootView;
 class BrowserView;
 class NonClientFrameView;
 class Profile;
 class TabStrip;
-
-// A specialization of the NonClientFrameView object that provides additional
-// Browser-specific methods.
-class BrowserNonClientFrameView : public views::NonClientFrameView {
- public:
-  BrowserNonClientFrameView() : NonClientFrameView() {}
-  virtual ~BrowserNonClientFrameView() {}
-
-  // Returns the bounds within which the TabStrip should be laid out.
-  virtual gfx::Rect GetBoundsForTabStrip(TabStrip* tabstrip) const = 0;
-
-  // Updates the throbber.
-  virtual void UpdateThrobber(bool running) = 0;
-};
 
 ///////////////////////////////////////////////////////////////////////////////
 // BrowserFrameWin

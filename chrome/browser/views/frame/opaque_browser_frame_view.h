@@ -5,7 +5,8 @@
 #ifndef CHROME_BROWSER_VIEWS_FRAME_OPAQUE_BROWSER_FRAME_VIEW_H_
 #define CHROME_BROWSER_VIEWS_FRAME_OPAQUE_BROWSER_FRAME_VIEW_H_
 
-#include "chrome/browser/views/frame/browser_frame_win.h"
+#include "chrome/browser/views/frame/browser_frame.h"
+#include "chrome/browser/views/frame/browser_non_client_frame_view.h"
 #include "chrome/browser/views/tab_icon_view.h"
 #include "views/controls/button/button.h"
 #include "views/window/non_client_view.h"

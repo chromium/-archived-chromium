@@ -10,7 +10,6 @@
 #include "app/l10n_util.h"
 #include "app/resource_bundle.h"
 #include "app/theme_provider.h"
-#include "app/win_util.h"
 #include "chrome/browser/browser_theme_provider.h"
 #include "chrome/browser/views/frame/browser_frame.h"
 #include "chrome/browser/views/frame/browser_view.h"
@@ -21,7 +20,16 @@
 #include "grit/theme_resources.h"
 #include "views/controls/button/image_button.h"
 #include "views/widget/root_view.h"
+#include "views/window/window.h"
 #include "views/window/window_resources.h"
+
+#if defined(OS_WIN)
+#include "app/win_util.h"
+#endif
+
+#if defined(OS_LINUX)
+#include "views/window/hit_test.h"
+#endif
 
 // static
 SkBitmap* OpaqueBrowserFrameView::distributor_logo_ = NULL;
@@ -969,7 +977,12 @@ void OpaqueBrowserFrameView::InitClass() {
 void OpaqueBrowserFrameView::InitAppWindowResources() {
   static bool initialized = false;
   if (!initialized) {
+#if defined(OS_WIN)
     title_font_ = new gfx::Font(win_util::GetWindowTitleFont());
+#else
+    NOTIMPLEMENTED();
+    title_font_ = new gfx::Font();
+#endif
     initialized = true;
   }
 }

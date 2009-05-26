@@ -9,6 +9,9 @@
 #include "chrome/browser/views/frame/browser_frame.h"
 #include "views/window/window_gtk.h"
 
+class BrowserNonClientFrameView;
+class BrowserRootView;
+
 class BrowserFrameGtk : public BrowserFrame,
                         public views::WindowGtk {
  public:
@@ -29,9 +32,21 @@ class BrowserFrameGtk : public BrowserFrame,
   virtual void UpdateThrobber(bool running);
   virtual ThemeProvider* GetThemeProviderForFrame() const;
 
+ protected:
+  // WidgetGtk overrides.
+  virtual views::RootView* CreateRootView();
+
  private:
   // The BrowserView is our ClientView. This is a pointer to it.
   BrowserView* browser_view_;
+
+  // A pointer to our NonClientFrameView as a BrowserNonClientFrameView.
+  BrowserNonClientFrameView* browser_frame_view_;
+
+  // An unowning reference to the root view associated with the window. We save
+  // a copy as a BrowserRootView to avoid evil casting later, when we need to
+  // call functions that only exist on BrowserRootView (versus RootView).
+  BrowserRootView* root_view_;
 
   Profile* profile_;
 

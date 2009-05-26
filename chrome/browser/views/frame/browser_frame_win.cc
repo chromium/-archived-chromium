@@ -11,6 +11,7 @@
 #include "app/win_util.h"
 #include "chrome/browser/profile.h"
 #include "chrome/browser/browser_list.h"
+#include "chrome/browser/views/frame/browser_non_client_frame_view.h"
 #include "chrome/browser/views/frame/browser_root_view.h"
 #include "chrome/browser/views/frame/browser_view.h"
 #include "chrome/browser/views/frame/glass_browser_frame_view.h"
