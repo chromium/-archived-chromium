@@ -142,6 +142,12 @@ void TabContentsViewMac::RestoreFocus() {
   if (latent_focus_view_.get()) {
     [[cocoa_view_.get() window] makeFirstResponder:latent_focus_view_.get()];
     latent_focus_view_.reset();
+  } else {
+    // TODO(shess): If location-bar gets focus by default, this will
+    // select-all in the field.  If there was a specific selection in
+    // the field when we navigated away from it, we should restore
+    // that selection.
+    SetInitialFocus();
   }
 }
 
