@@ -80,7 +80,11 @@ static const int kStatusBubbleHeight = 20;
 static const int kSeparationLineHeight = 1;
 // The name of a key to store on the window handle so that other code can
 // locate this object using just the handle.
+#if defined(OS_WIN)
 static const wchar_t* kBrowserViewKey = L"__BROWSER_VIEW__";
+#else
+static const char* kBrowserViewKey = "__BROWSER_VIEW__";
+#endif
 // How frequently we check for hung plugin windows.
 static const int kDefaultHungPluginDetectFrequency = 2000;
 // How long do we wait before we consider a window hung (in ms).
@@ -305,8 +309,8 @@ BrowserView* BrowserView::GetBrowserViewForNativeView(gfx::NativeView window) {
   }
 #else
   if (window) {
-    return reinterpret_cast<BrowserView*>(
-        g_object_set_data(G_OBJECT(window), kBrowserViewKey, this));
+    return static_cast<BrowserView*>(
+        g_object_get_data(G_OBJECT(window), kBrowserViewKey));
   }
 #endif
   return NULL;
