@@ -542,10 +542,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\browser\extensions\extension_unittest.cc"
-				>
-			</File>
-			<File
 				RelativePath="..\..\browser\extensions\extension_view_unittest.cc"
 				>
 			</File>
@@ -1015,6 +1011,10 @@
 			</File>
 			<File
 				RelativePath="..\..\common\gfx\emf_unittest.cc"
+				>
+			</File>
+			<File
+				RelativePath="..\..\common\extensions\extension_unittest.cc"
 				>
 			</File>
 			<File

@@ -196,10 +196,6 @@ class ExtensionsServiceBackend
   // Notify the frontend that the extension had already been installed.
   void ReportExtensionVersionReinstalled(const std::string& id);
 
-  // Read the manifest from the front of the extension file.
-  // Caller takes ownership of return value.
-  DictionaryValue* ReadManifest(const FilePath& extension_path);
-
   // Reads the Current Version file from |dir| into |version_string|.
   bool ReadCurrentVersion(const FilePath& dir, std::string* version_string);
 

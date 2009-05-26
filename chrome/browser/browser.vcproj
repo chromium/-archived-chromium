@@ -2012,14 +2012,6 @@
 			Name="Extensions"
 			>
 			<File
-				RelativePath=".\extensions\extension.cc"
-				>
-			</File>
-			<File
-				RelativePath=".\extensions\extension.h"
-				>
-			</File>
-			<File
 				RelativePath=".\extensions\extension_bookmarks_module.cc"
 				>
 			</File>
@@ -2041,22 +2033,6 @@
 			</File>
 			<File
 				RelativePath=".\extensions\extension_browser_event_router.h"
-				>
-			</File>
-			<File
-				RelativePath=".\extensions\extension_error_reporter.cc"
-				>
-			</File>
-			<File
-				RelativePath=".\extensions\extension_error_reporter.h"
-				>
-			</File>
-			<File
-				RelativePath=".\extensions\extension_error_utils.cc"
-				>
-			</File>
-			<File
-				RelativePath=".\extensions\extension_error_utils.h"
 				>
 			</File>
 			<File

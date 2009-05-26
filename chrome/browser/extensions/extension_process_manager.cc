@@ -5,12 +5,12 @@
 #include "chrome/browser/extensions/extension_process_manager.h"
 
 #include "chrome/browser/browsing_instance.h"
-#include "chrome/browser/extensions/extension.h"
 #include "chrome/browser/extensions/extension_host.h"
 #include "chrome/browser/extensions/extension_view.h"
 #include "chrome/browser/extensions/extensions_service.h"
 #include "chrome/browser/profile.h"
 #include "chrome/browser/tab_contents/site_instance.h"
+#include "chrome/common/extensions/extension.h"
 #include "chrome/common/notification_service.h"
 
 static void CreateBackgroundHosts(

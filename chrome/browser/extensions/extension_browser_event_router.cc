@@ -8,11 +8,11 @@
 #include "base/values.h"
 #include "chrome/browser/browser.h"
 #include "chrome/browser/profile.h"
-#include "chrome/browser/extensions/extension.h"
 #include "chrome/browser/extensions/extension_event_names.h"
 #include "chrome/browser/extensions/extension_message_service.h"
 #include "chrome/browser/extensions/extension_tabs_module_constants.h"
 #include "chrome/browser/tab_contents/navigation_entry.h"
+#include "chrome/common/extensions/extension.h"
 #include "chrome/common/notification_service.h"
 
 namespace events = extension_event_names;

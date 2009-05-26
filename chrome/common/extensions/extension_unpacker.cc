@@ -13,8 +13,7 @@
 #include "base/thread.h"
 #include "base/values.h"
 #include "net/base/file_stream.h"
-// TODO(mpcomplete): move to common
-#include "chrome/browser/extensions/extension.h"
+#include "chrome/common/extensions/extension.h"
 #include "chrome/common/json_value_serializer.h"
 #include "chrome/common/notification_service.h"
 #include "chrome/common/unzip.h"

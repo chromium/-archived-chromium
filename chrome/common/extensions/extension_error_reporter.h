@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CHROME_BROWSER_EXTENSIONS_ERROR_REPORTER_H_
-#define CHROME_BROWSER_EXTENSIONS_ERROR_REPORTER_H_
+#ifndef CHROME_COMMON_EXTENSIONS_ERROR_REPORTER_H_
+#define CHROME_COMMON_EXTENSIONS_ERROR_REPORTER_H_
 
 #include <string>
 #include <vector>
@@ -47,4 +47,4 @@ class ExtensionErrorReporter {
   bool enable_noisy_errors_;
 };
 
-#endif  // CHROME_BROWSER_EXTENSIONS_ERROR_REPORTER_H_
+#endif  // CHROME_COMMON_EXTENSIONS_ERROR_REPORTER_H_

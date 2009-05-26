@@ -7,13 +7,13 @@
 #include "base/string_util.h"
 #include "chrome/browser/browser.h"
 #include "chrome/browser/browser_list.h"
-#include "chrome/browser/extensions/extension.h"
-#include "chrome/browser/extensions/extension_error_utils.h"
 #include "chrome/browser/extensions/extension_function_dispatcher.h"
 #include "chrome/browser/extensions/extension_tabs_module_constants.h"
 #include "chrome/browser/extensions/extensions_service.h"
 #include "chrome/browser/renderer_host/render_view_host_delegate.h"
 #include "chrome/browser/tab_contents/navigation_entry.h"
+#include "chrome/common/extensions/extension.h"
+#include "chrome/common/extensions/extension_error_utils.h"
 
 // TODO(port): Port these files.
 #if defined(OS_WIN) || defined(OS_MACOSX)

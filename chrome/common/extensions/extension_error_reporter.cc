@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "chrome/browser/extensions/extension_error_reporter.h"
+#include "chrome/common/extensions/extension_error_reporter.h"
 
 #if defined(OS_WIN)
 #include "app/win_util.h"

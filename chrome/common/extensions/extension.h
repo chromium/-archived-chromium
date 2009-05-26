@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CHROME_BROWSER_EXTENSIONS_EXTENSION_H_
-#define CHROME_BROWSER_EXTENSIONS_EXTENSION_H_
+#ifndef CHROME_COMMON_EXTENSIONS_EXTENSION_H_
+#define CHROME_COMMON_EXTENSIONS_EXTENSION_H_
 
 #include <string>
 #include <vector>
@@ -14,7 +14,7 @@
 #include "base/string16.h"
 #include "base/values.h"
 #include "base/version.h"
-#include "chrome/browser/extensions/user_script_master.h"
+#include "chrome/common/extensions/user_script.h"
 #include "chrome/common/extensions/url_pattern.h"
 #include "chrome/common/page_action.h"
 #include "googleurl/src/gurl.h"
@@ -244,4 +244,4 @@ class Extension {
   DISALLOW_COPY_AND_ASSIGN(Extension);
 };
 
-#endif  // CHROME_BROWSER_EXTENSIONS_EXTENSION_H_
+#endif  // CHROME_COMMON_EXTENSIONS_EXTENSION_H_

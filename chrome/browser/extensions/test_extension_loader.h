@@ -5,7 +5,7 @@
 #ifndef CHROME_BROWSER_EXTENSIONS_TEST_EXTENSION_LOADER_H_
 #define CHROME_BROWSER_EXTENSIONS_TEST_EXTENSION_LOADER_H_
 
-#include "chrome/browser/extensions/extension.h"
+#include "chrome/common/extensions/extension.h"
 #include "chrome/common/notification_observer.h"
 #include "chrome/common/notification_registrar.h"
 

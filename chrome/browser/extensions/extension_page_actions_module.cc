@@ -7,12 +7,12 @@
 #include "chrome/browser/browser.h"
 #include "chrome/browser/browser_list.h"
 #include "chrome/browser/profile.h"
-#include "chrome/browser/extensions/extension.h"
-#include "chrome/browser/extensions/extension_error_utils.h"
 #include "chrome/browser/extensions/extension_page_actions_module_constants.h"
 #include "chrome/browser/extensions/extension_tabs_module.h"
 #include "chrome/browser/extensions/extensions_service.h"
 #include "chrome/browser/tab_contents/navigation_entry.h"
+#include "chrome/common/extensions/extension.h"
+#include "chrome/common/extensions/extension_error_utils.h"
 
 namespace keys = extension_page_actions_module_constants;
 

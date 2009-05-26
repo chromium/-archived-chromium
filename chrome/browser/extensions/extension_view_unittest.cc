@@ -6,7 +6,6 @@
 #include "chrome/browser/browser.h"
 #include "chrome/browser/renderer_host/render_view_host.h"
 #include "chrome/browser/extensions/extension_shelf.h"
-#include "chrome/browser/extensions/extension_error_reporter.h"
 #include "chrome/browser/extensions/extension_host.h"
 #include "chrome/browser/extensions/extension_process_manager.h"
 #include "chrome/browser/extensions/extensions_service.h"
@@ -14,6 +13,7 @@
 #include "chrome/browser/tab_contents/site_instance.h"
 #include "chrome/common/chrome_paths.h"
 #include "chrome/common/chrome_switches.h"
+#include "chrome/common/extensions/extension_error_reporter.h"
 #include "chrome/test/in_process_browser_test.h"
 #include "chrome/test/ui_test_utils.h"
 

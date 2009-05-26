@@ -4,9 +4,9 @@
 
 #include "base/path_service.h"
 #include "base/string_util.h"
-#include "chrome/browser/extensions/extension.h"
 #include "chrome/browser/extensions/extensions_ui.h"
 #include "chrome/common/chrome_paths.h"
+#include "chrome/common/extensions/extension.h"
 #include "chrome/common/json_value_serializer.h"
 #include "testing/gtest/include/gtest/gtest.h"
 

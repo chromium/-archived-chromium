@@ -253,6 +253,30 @@
 			Name="extensions"
 			>
 			<File
+				RelativePath=".\extensions\extension.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\extensions\extension.h"
+				>
+			</File>
+			<File
+				RelativePath=".\extensions\extension_error_reporter.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\extensions\extension_error_reporter.h"
+				>
+			</File>
+			<File
+				RelativePath=".\extensions\extension_error_utils.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\extensions\extension_error_utils.h"
+				>
+			</File>
+			<File
 				RelativePath=".\extensions\extension_unpacker.cc"
 				>
 			</File>

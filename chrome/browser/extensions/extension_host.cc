@@ -9,7 +9,6 @@
 #include "chrome/browser/browser_list.h"
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/debugger/devtools_manager.h"
-#include "chrome/browser/extensions/extension.h"
 #include "chrome/browser/extensions/extension_message_service.h"
 #include "chrome/browser/extensions/extension_view.h"
 #include "chrome/browser/profile.h"
@@ -20,6 +19,7 @@
 #include "chrome/browser/tab_contents/site_instance.h"
 #include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/browser/tab_contents/tab_contents_view.h"
+#include "chrome/common/extensions/extension.h"
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
 

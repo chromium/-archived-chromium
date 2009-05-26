@@ -18,12 +18,12 @@
 #include "chrome/browser/browser_list.h"
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/chrome_thread.h"
-#include "chrome/browser/extensions/extension.h"
 #include "chrome/browser/extensions/extension_browser_event_router.h"
-#include "chrome/browser/extensions/extension_error_reporter.h"
 #include "chrome/browser/extensions/extension_process_manager.h"
 #include "chrome/browser/profile.h"
 #include "chrome/browser/utility_process_host.h"
+#include "chrome/common/extensions/extension.h"
+#include "chrome/common/extensions/extension_error_reporter.h"
 #include "chrome/common/extensions/extension_unpacker.h"
 #include "chrome/common/json_value_serializer.h"
 #include "chrome/common/notification_service.h"
@@ -557,136 +557,6 @@ void ExtensionsServiceBackend::ReportExtensionsLoaded(
     ExtensionList* extensions) {
   frontend_loop_->PostTask(FROM_HERE, NewRunnableMethod(
       frontend_, &ExtensionsService::OnExtensionsLoaded, extensions));
-}
-
-// The extension file format is a header, followed by the manifest, followed
-// by the zip file.  The header is a magic number, a version, the size of the
-// header, and the size of the manifest.  These ints are 4 byte little endian.
-DictionaryValue* ExtensionsServiceBackend::ReadManifest(
-    const FilePath& extension_path) {
-  ScopedStdioHandle file(file_util::OpenFile(extension_path, "rb"));
-  if (!file.get()) {
-    ReportExtensionInstallError(extension_path, "no such extension file");
-    return NULL;
-  }
-
-  // Read and verify the header.
-  ExtensionHeader header;
-  size_t len;
-
-  // TODO(erikkay): Yuck.  I'm not a big fan of this kind of code, but it
-  // appears that we don't have any endian/alignment aware serialization
-  // code in the code base.  So for now, this assumes that we're running
-  // on a little endian machine with 4 byte alignment.
-  len = fread(&header, 1, sizeof(ExtensionHeader), file.get());
-  if (len < sizeof(ExtensionHeader)) {
-    ReportExtensionInstallError(extension_path, "invalid extension header");
-    return NULL;
-  }
-  if (strncmp(kExtensionFileMagic, header.magic, sizeof(header.magic))) {
-    ReportExtensionInstallError(extension_path, "bad magic number");
-    return NULL;
-  }
-  if (header.version != kExpectedVersion) {
-    ReportExtensionInstallError(extension_path, "bad version number");
-    return NULL;
-  }
-  if (header.header_size > sizeof(ExtensionHeader))
-    fseek(file.get(), header.header_size - sizeof(ExtensionHeader), SEEK_CUR);
-
-  char buf[1 << 16];
-  std::string manifest_str;
-  size_t read_size = std::min(sizeof(buf), header.manifest_size);
-  size_t remainder = header.manifest_size;
-  while ((len = fread(buf, 1, read_size, file.get())) > 0) {
-    manifest_str.append(buf, len);
-    if (len <= remainder)
-      break;
-    remainder -= len;
-    read_size = std::min(sizeof(buf), remainder);
-  }
-
-  // Verify the JSON
-  JSONStringValueSerializer json(manifest_str);
-  std::string error;
-  scoped_ptr<Value> val(json.Deserialize(&error));
-  if (!val.get()) {
-    ReportExtensionInstallError(extension_path, error);
-    return NULL;
-  }
-  if (!val->IsType(Value::TYPE_DICTIONARY)) {
-    ReportExtensionInstallError(extension_path,
-                                "manifest isn't a JSON dictionary");
-    return NULL;
-  }
-  DictionaryValue* manifest = static_cast<DictionaryValue*>(val.get());
-
-  // Check the version before proceeding.  Although we verify the version
-  // again later, checking it here allows us to skip some potentially expensive
-  // work.
-  std::string id;
-  if (!manifest->GetString(Extension::kIdKey, &id)) {
-    ReportExtensionInstallError(extension_path, "missing id key");
-    return NULL;
-  }
-  FilePath dest_dir = install_directory_.AppendASCII(id.c_str());
-  if (file_util::PathExists(dest_dir)) {
-    std::string version;
-    if (!manifest->GetString(Extension::kVersionKey, &version)) {
-      ReportExtensionInstallError(extension_path, "missing version key");
-      return NULL;
-    }
-    std::string current_version;
-    if (ReadCurrentVersion(dest_dir, &current_version)) {
-      if (!CheckCurrentVersion(version, current_version, dest_dir))
-        return NULL;
-    }
-  }
-
-  std::string zip_hash;
-  if (!manifest->GetString(Extension::kZipHashKey, &zip_hash)) {
-    ReportExtensionInstallError(extension_path, "missing zip_hash key");
-    return NULL;
-  }
-  if (zip_hash.size() != kZipHashHexBytes) {
-    ReportExtensionInstallError(extension_path, "invalid zip_hash key");
-    return NULL;
-  }
-
-  // Read the rest of the zip file and compute a hash to compare against
-  // what the manifest claims.  Compute the hash incrementally since the
-  // zip file could be large.
-  const unsigned char* ubuf = reinterpret_cast<const unsigned char*>(buf);
-  SHA256Context ctx;
-  SHA256_Begin(&ctx);
-  while ((len = fread(buf, 1, sizeof(buf), file.get())) > 0)
-    SHA256_Update(&ctx, ubuf, len);
-  uint8 hash[32];
-  SHA256_End(&ctx, hash, NULL, sizeof(hash));
-
-  std::vector<uint8> zip_hash_bytes;
-  if (!HexStringToBytes(zip_hash, &zip_hash_bytes)) {
-    ReportExtensionInstallError(extension_path, "invalid zip_hash key");
-    return NULL;
-  }
-  if (zip_hash_bytes.size() != kZipHashBytes) {
-    ReportExtensionInstallError(extension_path, "invalid zip_hash key");
-    return NULL;
-  }
-  for (size_t i = 0; i < kZipHashBytes; ++i) {
-    if (zip_hash_bytes[i] != hash[i]) {
-      ReportExtensionInstallError(extension_path,
-                                  "zip_hash key didn't match zip hash");
-      return NULL;
-    }
-  }
-
-  // TODO(erikkay): The manifest will also contain a signature of the hash
-  // (or perhaps the whole manifest) for authentication purposes.
-
-  // The caller owns val (now cast to manifest).
-  val.release();
-  return manifest;
 }
 
 bool ExtensionsServiceBackend::ReadCurrentVersion(const FilePath& dir,
