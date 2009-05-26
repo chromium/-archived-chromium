@@ -5,15 +5,12 @@
 #include "chrome/browser/gtk/back_forward_menu_model_gtk.h"
 
 #include "base/string_util.h"
-
-// static
-BackForwardMenuModel* BackForwardMenuModel::Create(Browser* browser,
-                                                   ModelType model_type) {
-  return new BackForwardMenuModelGtk(browser, model_type);
-}
+#include "chrome/browser/gtk/back_forward_button_gtk.h"
 
 BackForwardMenuModelGtk::BackForwardMenuModelGtk(Browser* browser,
-                                                 ModelType model_type) {
+                                                 ModelType model_type,
+                                                 BackForwardButtonGtk* button)
+    : button_(button) {
   browser_ = browser;
   model_type_ = model_type;
 }
@@ -44,4 +41,8 @@ bool BackForwardMenuModelGtk::IsCommandEnabled(int command_id) const {
 
 void BackForwardMenuModelGtk::ExecuteCommand(int command_id) {
   ExecuteCommandById(command_id);
+}
+
+void BackForwardMenuModelGtk::StoppedShowing() {
+  button_->StoppedShowingMenu();
 }

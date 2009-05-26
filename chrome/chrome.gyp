@@ -874,6 +874,8 @@
         'browser/google_util.h',
         'browser/gtk/about_chrome_dialog.cc',
         'browser/gtk/about_chrome_dialog.h',
+        'browser/gtk/back_forward_button_gtk.cc',
+        'browser/gtk/back_forward_button_gtk.h',
         'browser/gtk/back_forward_menu_model_gtk.cc',
         'browser/gtk/back_forward_menu_model_gtk.h',
         'browser/gtk/bookmark_bar_gtk.cc',

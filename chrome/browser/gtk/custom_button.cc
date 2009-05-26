@@ -14,7 +14,8 @@ CustomDrawButtonBase::CustomDrawButtonBase(
     int normal_id,
     int active_id,
     int highlight_id,
-    int depressed_id) {
+    int depressed_id)
+    : paint_override_(-1) {
   // Load the button images from the resource bundle.
   ResourceBundle& rb = ResourceBundle::GetSharedInstance();
   pixbufs_[GTK_STATE_NORMAL] = normal_id ? rb.GetPixbufNamed(normal_id) : NULL;
@@ -30,11 +31,12 @@ CustomDrawButtonBase::~CustomDrawButtonBase() {
 }
 
 gboolean CustomDrawButtonBase::OnExpose(GtkWidget* widget, GdkEventExpose* e) {
-  GdkPixbuf* pixbuf = pixbufs(GTK_WIDGET_STATE(widget));
+  GdkPixbuf* pixbuf = pixbufs_[paint_override_ >= 0 ?
+                               paint_override_ : GTK_WIDGET_STATE(widget)];
 
   // Fall back to the default image if we don't have one for this state.
   if (!pixbuf)
-    pixbuf = pixbufs(GTK_STATE_NORMAL);
+    pixbuf = pixbufs_[GTK_STATE_NORMAL];
 
   if (!pixbuf)
     return FALSE;
@@ -71,6 +73,16 @@ CustomDrawButton::CustomDrawButton(
 
 CustomDrawButton::~CustomDrawButton() {
   widget_.Destroy();
+}
+
+void CustomDrawButton::SetPaintOverride(GtkStateType state) {
+  button_base_.set_paint_override(state);
+  gtk_widget_queue_draw(widget_.get());
+}
+
+void CustomDrawButton::UnsetPaintOverride() {
+  button_base_.set_paint_override(-1);
+  gtk_widget_queue_draw(widget_.get());
 }
 
 // static

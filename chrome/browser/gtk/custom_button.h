@@ -33,10 +33,15 @@ class CustomDrawButtonBase {
 
   gboolean OnExpose(GtkWidget* widget, GdkEventExpose* e);
 
+  void set_paint_override(int state) { paint_override_ = state; }
+
  private:
   // We store one GdkPixbuf* for each possible state of the button;
   // INSENSITIVE is the last available state;
   GdkPixbuf* pixbufs_[GTK_STATE_INSENSITIVE + 1];
+
+  // If non-negative, the state to paint the button.
+  int paint_override_;
 
   DISALLOW_COPY_AND_ASSIGN(CustomDrawButtonBase);
 };
@@ -64,6 +69,13 @@ class CustomDrawButton {
   }
 
   int width() const { return widget_.get()->allocation.width; }
+
+  // Set the state to draw. We will paint the widget as if it were in this
+  // state.
+  void SetPaintOverride(GtkStateType state);
+
+  // Resume normal drawing of the widget's state.
+  void UnsetPaintOverride();
 
   // This is a convenience function for creating a widget that closes
   // a bar (find bar, download shelf, info bars). The button will be packed in

@@ -10,12 +10,15 @@
 #include "chrome/browser/back_forward_menu_model.h"
 #include "chrome/browser/gtk/menu_gtk.h"
 
+class BackForwardButtonGtk;
+
 // For the most part, this class simply passes calls through to
 // the BackForwardMenuModel.
 class BackForwardMenuModelGtk : public BackForwardMenuModel,
                                 public MenuGtk::Delegate {
  public:
-  BackForwardMenuModelGtk(Browser* browser, ModelType model_type);
+  BackForwardMenuModelGtk(Browser* browser, ModelType model_type,
+                          BackForwardButtonGtk* button);
 
   // MenuGtk::Delegate
   virtual int GetItemCount() const;
@@ -25,8 +28,11 @@ class BackForwardMenuModelGtk : public BackForwardMenuModel,
   virtual const SkBitmap* GetIcon(int menu_id) const;
   virtual bool IsCommandEnabled(int command_id) const;
   virtual void ExecuteCommand(int command_id);
+  virtual void StoppedShowing();
 
  private:
+  BackForwardButtonGtk* button_;
+
   DISALLOW_COPY_AND_ASSIGN(BackForwardMenuModelGtk);
 };
 

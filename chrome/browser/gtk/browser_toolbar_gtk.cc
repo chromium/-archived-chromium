@@ -14,7 +14,7 @@
 #include "chrome/app/chrome_dll_resource.h"
 #include "chrome/browser/browser.h"
 #include "chrome/browser/browser_theme_provider.h"
-#include "chrome/browser/gtk/back_forward_menu_model_gtk.h"
+#include "chrome/browser/gtk/back_forward_button_gtk.h"
 #include "chrome/browser/gtk/custom_button.h"
 #include "chrome/browser/gtk/go_button_gtk.h"
 #include "chrome/browser/gtk/gtk_chrome_button.h"
@@ -46,10 +46,6 @@ const int kPopupTopMargin = 0;
 // to leave 1 pixel on both side here so that the borders line up.
 const int kPopupLeftRightMargin = 1;
 
-// For the back/forward dropdown menus, the time in milliseconds between
-// when the user clicks and the popup menu appears.
-const int kMenuTimerDelay = 500;
-
 }  // namespace
 
 // BrowserToolbarGtk, public ---------------------------------------------------
@@ -61,30 +57,23 @@ BrowserToolbarGtk::BrowserToolbarGtk(Browser* browser)
                                            this)),
       model_(browser->toolbar_model()),
       browser_(browser),
-      profile_(NULL),
-      show_menu_factory_(this) {
+      profile_(NULL) {
   browser_->command_updater()->AddCommandObserver(IDC_BACK, this);
   browser_->command_updater()->AddCommandObserver(IDC_FORWARD, this);
   browser_->command_updater()->AddCommandObserver(IDC_RELOAD, this);
   browser_->command_updater()->AddCommandObserver(IDC_HOME, this);
   browser_->command_updater()->AddCommandObserver(IDC_STAR, this);
 
-  back_menu_model_.reset(new BackForwardMenuModelGtk(
-      browser, BackForwardMenuModel::BACKWARD_MENU_DELEGATE));
-  forward_menu_model_.reset(new BackForwardMenuModelGtk(
-      browser, BackForwardMenuModel::FORWARD_MENU_DELEGATE));
-
   InitNineBox();
 }
 
 BrowserToolbarGtk::~BrowserToolbarGtk() {
   // When we created our MenuGtk objects, we pass them a pointer to our accel
-  // group.  Make sure to tear them down before |accel_group_|.
+  // group. Make sure to tear them down before |accel_group_|.
   page_menu_.reset();
   app_menu_.reset();
   page_menu_button_.Destroy();
   app_menu_button_.Destroy();
-  back_forward_menu_.reset();
   g_object_unref(accel_group_);
 }
 
@@ -100,7 +89,7 @@ void BrowserToolbarGtk::Init(Profile* profile,
   // Demand we're always at least kToolbarHeight tall.
   // -1 for width means "let GTK do its normal sizing".
   gtk_widget_set_size_request(toolbar_, -1, kToolbarHeight);
-  g_signal_connect(G_OBJECT(toolbar_), "expose-event",
+  g_signal_connect(toolbar_, "expose-event",
                    G_CALLBACK(&OnToolbarExpose), this);
 
   // A GtkAccelGroup is not InitiallyUnowned, meaning we get a real reference
@@ -111,28 +100,28 @@ void BrowserToolbarGtk::Init(Profile* profile,
   accel_group_ = gtk_accel_group_new();
   gtk_window_add_accel_group(top_level_window, accel_group_);
 
-  back_.reset(BuildBackForwardButton(IDR_BACK, IDR_BACK_P, IDR_BACK_H,
-              IDR_BACK_D,
-              l10n_util::GetStringUTF8(IDS_TOOLTIP_BACK)));
-  AddAcceleratorToButton(back_, GDK_Left, GDK_MOD1_MASK);
-  AddAcceleratorToButton(back_, GDK_BackSpace, 0);
-  forward_.reset(BuildBackForwardButton(IDR_FORWARD, IDR_FORWARD_P,
-                 IDR_FORWARD_H, IDR_FORWARD_D,
-                 l10n_util::GetStringUTF8(IDS_TOOLTIP_FORWARD)));
-  AddAcceleratorToButton(forward_, GDK_Right, GDK_MOD1_MASK);
-  AddAcceleratorToButton(forward_, GDK_BackSpace, GDK_SHIFT_MASK);
+  back_.reset(new BackForwardButtonGtk(browser_, false));
+  gtk_box_pack_start(GTK_BOX(toolbar_), back_->widget(), FALSE, FALSE, 0);
+  AddAcceleratorToButton(back_->widget(), GDK_Left, GDK_MOD1_MASK);
+  AddAcceleratorToButton(back_->widget(), GDK_BackSpace, 0);
 
-  // TODO(estade): These blank labels are kind of ghetto. Padding should be
-  // handled differently (via spacing parameters or padding widgets that use
-  // gtk_widget_set_size_request).
+  forward_.reset(new BackForwardButtonGtk(browser_, true));
+  gtk_box_pack_start(GTK_BOX(toolbar_), forward_->widget(), FALSE, FALSE, 0);
+  AddAcceleratorToButton(forward_->widget(), GDK_Right, GDK_MOD1_MASK);
+  AddAcceleratorToButton(forward_->widget(), GDK_BackSpace, GDK_SHIFT_MASK);
+
+  // TODO(estade): These blank labels will change size when the user changes
+  // system font size. We should hard code their size in pixels.
   gtk_box_pack_start(GTK_BOX(toolbar_), gtk_label_new(" "), FALSE, FALSE, 0);
 
   reload_.reset(BuildToolbarButton(IDR_RELOAD, IDR_RELOAD_P, IDR_RELOAD_H, 0,
       l10n_util::GetStringUTF8(IDS_TOOLTIP_RELOAD)));
-  AddAcceleratorToButton(reload_, GDK_r, GDK_CONTROL_MASK);
+  AddAcceleratorToButton(reload_->widget(),
+                         GDK_r, GDK_CONTROL_MASK);
   // Any modifier except alt can be combined with f5 (this matches windows
   // chromium).
-  AddAcceleratorToButton(reload_, GDK_F5, GDK_MODIFIER_MASK & ~GDK_MOD1_MASK);
+  AddAcceleratorToButton(reload_->widget(),
+                         GDK_F5, GDK_MODIFIER_MASK & ~GDK_MOD1_MASK);
 
   // TODO(port): we need to dynamically react to changes in show_home_button_
   // and hide/show home appropriately.  But we don't have a UI for it yet.
@@ -294,7 +283,7 @@ CustomDrawButton* BrowserToolbarGtk::BuildToolbarButton(
 
   gtk_widget_set_tooltip_text(button->widget(),
                               localized_tooltip.c_str());
-  g_signal_connect(G_OBJECT(button->widget()), "clicked",
+  g_signal_connect(button->widget(), "clicked",
                    G_CALLBACK(OnButtonClick), this);
 
   gtk_box_pack_start(GTK_BOX(toolbar_), button->widget(), FALSE, FALSE, 0);
@@ -307,7 +296,7 @@ ToolbarStarToggleGtk* BrowserToolbarGtk::BuildStarButton(
 
   gtk_widget_set_tooltip_text(button->widget(),
                               localized_tooltip.c_str());
-  g_signal_connect(G_OBJECT(button->widget()), "clicked",
+  g_signal_connect(button->widget(), "clicked",
                    G_CALLBACK(OnButtonClick), this);
 
   gtk_box_pack_start(GTK_BOX(toolbar_), button->widget(), FALSE, FALSE, 0);
@@ -327,7 +316,7 @@ void BrowserToolbarGtk::BuildToolbarMenuButton(
                     gtk_image_new_from_pixbuf(rb.GetPixbufNamed(icon_id)));
 
   gtk_widget_set_tooltip_text(button, localized_tooltip.c_str());
-  g_signal_connect(G_OBJECT(button), "button-press-event",
+  g_signal_connect(button, "button-press-event",
                    G_CALLBACK(OnMenuButtonPressEvent), this);
   GTK_WIDGET_UNSET_FLAGS(button, GTK_CAN_FOCUS);
 
@@ -358,18 +347,11 @@ void BrowserToolbarGtk::OnButtonClick(GtkWidget* button,
                                       BrowserToolbarGtk* toolbar) {
   int tag = -1;
   if (button == toolbar->back_->widget())
-    tag = IDC_BACK;
-  else if (button == toolbar->forward_->widget())
-    tag = IDC_FORWARD;
-  else if (button == toolbar->reload_->widget())
     tag = IDC_RELOAD;
   else if (toolbar->home_.get() && button == toolbar->home_->widget())
     tag = IDC_HOME;
   else if (button == toolbar->star_->widget())
     tag = IDC_STAR;
-
-  if (tag == IDC_BACK || tag == IDC_FORWARD)
-    toolbar->show_menu_factory_.RevokeAll();
 
   DCHECK_NE(tag, -1) << "Impossible button click callback";
   toolbar->browser_->ExecuteCommand(tag);
@@ -377,95 +359,27 @@ void BrowserToolbarGtk::OnButtonClick(GtkWidget* button,
 
 // static
 gboolean BrowserToolbarGtk::OnMenuButtonPressEvent(GtkWidget* button,
-                                                   GdkEvent* event,
+                                                   GdkEventButton* event,
                                                    BrowserToolbarGtk* toolbar) {
-  if (event->type == GDK_BUTTON_PRESS) {
-    GdkEventButton* event_button = reinterpret_cast<GdkEventButton*>(event);
-    if (event_button->button == 1) {
-      // We have a button press we should respond to.
-      if (button == toolbar->page_menu_button_.get()) {
-        gtk_chrome_button_set_paint_state(
-            GTK_CHROME_BUTTON(toolbar->page_menu_button_.get()),
-            GTK_STATE_ACTIVE);
-        toolbar->RunPageMenu(event);
-        return TRUE;
-      } else if (button == toolbar->app_menu_button_.get()) {
-        gtk_chrome_button_set_paint_state(
-            GTK_CHROME_BUTTON(toolbar->app_menu_button_.get()),
-            GTK_STATE_ACTIVE);
-        toolbar->RunAppMenu(event);
-        return TRUE;
-      }
-    }
-  }
+  if (event->button != 1)
+    return FALSE;
 
-  return FALSE;
-}
+  gtk_chrome_button_set_paint_state(GTK_CHROME_BUTTON(button),
+                                    GTK_STATE_ACTIVE);
+  MenuGtk* menu = button == toolbar->page_menu_button_.get() ?
+                  toolbar->page_menu_.get() : toolbar->app_menu_.get();
+  menu->Popup(button, reinterpret_cast<GdkEvent*>(event));
 
-CustomDrawButton* BrowserToolbarGtk::BuildBackForwardButton(
-    int normal_id,
-    int active_id,
-    int highlight_id,
-    int depressed_id,
-    const std::string& localized_tooltip) {
-  CustomDrawButton* button = new CustomDrawButton(normal_id, active_id,
-                                                  highlight_id, depressed_id);
-
-  gtk_widget_set_tooltip_text(button->widget(),
-                              localized_tooltip.c_str());
-
-  g_signal_connect(G_OBJECT(button->widget()), "button-press-event",
-                   G_CALLBACK(OnBackForwardPressEvent), this);
-  g_signal_connect(G_OBJECT(button->widget()), "clicked",
-                   G_CALLBACK(OnButtonClick), this);
-
-  gtk_box_pack_start(GTK_BOX(toolbar_), button->widget(), FALSE, FALSE, 0);
-  // Popup the menu as left-aligned relative to this widget rather than the
-  // default of right aligned.
-  g_object_set_data(G_OBJECT(button->widget()), "left-align-popup",
-                    reinterpret_cast<void*>(true));
-  return button;
+  return TRUE;
 }
 
 void BrowserToolbarGtk::AddAcceleratorToButton(
-    const scoped_ptr<CustomDrawButton>& button,
+    GtkWidget* widget,
     unsigned int accelerator,
     unsigned int accelerator_mod) {
   gtk_widget_add_accelerator(
-      button->widget(), "clicked", accel_group_, accelerator,
+      widget, "clicked", accel_group_, accelerator,
       GdkModifierType(accelerator_mod), GtkAccelFlags(0));
-}
-
-// static
-gboolean BrowserToolbarGtk::OnBackForwardPressEvent(GtkWidget* widget,
-    GdkEventButton* event,
-    BrowserToolbarGtk* toolbar) {
-  // TODO(port): only allow left clicks to open the menu.
-  MessageLoop::current()->PostDelayedTask(FROM_HERE,
-      toolbar->show_menu_factory_.NewRunnableMethod(
-          &BrowserToolbarGtk::ShowBackForwardMenu,
-          widget, event->button),
-      kMenuTimerDelay);
-  return FALSE;
-}
-
-void BrowserToolbarGtk::ShowBackForwardMenu(GtkWidget* widget,
-                                            gint button_type) {
-  if (widget == back_->widget()) {
-    back_forward_menu_.reset(new MenuGtk(back_menu_model_.get(), true));
-  } else {
-    back_forward_menu_.reset(new MenuGtk(forward_menu_model_.get(), true));
-  }
-
-  back_forward_menu_->Popup(widget, button_type, gtk_get_current_event_time());
-}
-
-void BrowserToolbarGtk::RunPageMenu(GdkEvent* button_press_event) {
-  page_menu_->Popup(page_menu_button_.get(), button_press_event);
-}
-
-void BrowserToolbarGtk::RunAppMenu(GdkEvent* button_press_event) {
-  app_menu_->Popup(app_menu_button_.get(), button_press_event);
 }
 
 CustomDrawButton* BrowserToolbarGtk::MakeHomeButton() {
