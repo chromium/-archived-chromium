@@ -20,3 +20,6 @@ ExtensionViewTest.BottomBar
 
 # issue 9897
 ExtensionContentScriptInjectTest.Simple
+
+# issue 12661
+ExtensionsServiceTest.InstallExtension
