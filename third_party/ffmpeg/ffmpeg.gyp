@@ -99,7 +99,7 @@
     {
       'target_name': 'ffmpeg_binaries',
       'type': 'none',
-      'msvs_guid': '4E4070E1-EFD9-4ef1-8634-3960956F6F10',
+      'msvs_guid': '4E4070E1-EFD9-4EF1-8634-3960956F6F10',
       'conditions': [
         ['OS=="win"', {
           'sources': [
