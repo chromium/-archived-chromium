@@ -6,7 +6,7 @@
 body {
   display:-webkit-box;
   -webkit-box-orient:horizontal;
-  -webkit-box-align:stretch;
+  -webkit-box-align:center;
   white-space:nowrap;
   overflow: hidden;
   margin: 0;
@@ -16,6 +16,14 @@ body {
   text-shadow: #FFFFFF 1px 1px 0px;
   -webkit-user-select:none;
   cursor:default;
+}
+
+/**
+ * This, combined with -webkit-box-align:center on body, makes content inside
+ * the body tag center itself vertically by default.
+ */
+body>* {
+  display:-webkit-box;
 }
 
 /**
@@ -31,7 +39,6 @@ body {
  * fixed.
  */
 div.toolstrip-button {
-  display:-webkit-box;
   -webkit-box-orient:horizontal;
   -webkit-box-align:center;
   border:6px solid transparent;
