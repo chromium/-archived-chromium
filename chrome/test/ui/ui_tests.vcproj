@@ -606,6 +606,14 @@
 				>
 			</File>
 		</Filter>
+		<Filter
+			Name="TestWorker"
+			>
+			<File
+				RelativePath="..\..\worker\worker_uitest.cc"
+				>
+			</File>
+		</Filter>
 	</Files>
 	<Globals>
 	</Globals>
