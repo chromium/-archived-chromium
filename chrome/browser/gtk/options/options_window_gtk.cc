@@ -120,6 +120,9 @@ OptionsWindowGtk::OptionsWindowGtk(Profile* profile)
   gtk_box_pack_start(GTK_BOX(metrics_vbox),
                      gtk_label_new("TODO rest of the advanced options"),
                      FALSE, FALSE, 0);
+  bool logging = g_browser_process->local_state()->GetBoolean(
+      prefs::kMetricsReportingEnabled);
+  gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(metrics), logging);
   g_signal_connect(metrics, "clicked", G_CALLBACK(OnLoggingChange), this);
 
   gtk_notebook_append_page(
@@ -200,12 +203,10 @@ void OptionsWindowGtk::OnWindowDestroy(GtkWidget* widget,
 }
 
 void OptionsWindowGtk::LoggingChanged(GtkWidget* metrics) {
-  // TODO: Once crash reporting is working for Linux, make the actual call to
-  // enable/disable it.
-  if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(metrics)))
-    LOG(INFO) << "Reporting enabled";
-  else
-    LOG(INFO) << "Reporting disabled";
+  bool logging = (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(metrics)) ==
+                  TRUE);
+  g_browser_process->local_state()->SetBoolean(prefs::kMetricsReportingEnabled,
+                                               logging);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
