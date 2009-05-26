@@ -405,6 +405,10 @@ void ExtensionsServiceBackend::LoadExtensionsFromInstallDirectory(
        extension_path = enumerator.Next()) {
     std::string extension_id = WideToASCII(
         extension_path.BaseName().ToWStringHack());
+    // The utility process might be in the middle of unpacking an extension, so
+    // ignore the temp unpacking directory.
+    if (extension_id == kUnpackExtensionDir)
+      continue;
 
     // If there is no Current Version file, just delete the directory and move
     // on. This can legitimately happen when an uninstall does not complete, for
