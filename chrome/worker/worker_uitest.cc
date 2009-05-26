@@ -9,7 +9,7 @@
 const char kTestCompleteCookie[] = "status";
 const char kTestCompleteSuccess[] = "OK";
 const int kTestIntervalMs = 250;
-const int kTestWaitTimeoutMs = 10 * 1000;
+const int kTestWaitTimeoutMs = 30 * 1000;
 
 class WorkerTest : public UITest {
  protected:
