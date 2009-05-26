@@ -332,7 +332,17 @@ std::wstring DownloadsDOMHandler::GetProgressStatusText(
                                                 &speed_text_localized))
     speed_text.assign(speed_text_localized);
 
-  return l10n_util::GetStringF(IDS_DOWNLOAD_TAB_PROGRESS_SPEED,
-                               speed_text,
-                               amount);
+  base::TimeDelta remaining;
+  std::wstring time_remaining;
+  if (download->is_paused())
+    time_remaining = l10n_util::GetString(IDS_DOWNLOAD_PROGRESS_PAUSED);
+  else if (download->TimeRemaining(&remaining))
+    time_remaining = TimeFormat::TimeRemaining(remaining);
+
+  if (time_remaining.empty()) {
+    return l10n_util::GetStringF(IDS_DOWNLOAD_TAB_PROGRESS_STATUS_TIME_UNKNOWN, 
+                                 speed_text, amount);
+  }
+  return l10n_util::GetStringF(IDS_DOWNLOAD_TAB_PROGRESS_STATUS, amount, 
+                               time_remaining);
 }

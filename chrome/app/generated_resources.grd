@@ -1553,9 +1553,13 @@ each locale. -->
                desc="Cancel link text">
         Cancelled
       </message>
-      <message name="IDS_DOWNLOAD_TAB_PROGRESS_SPEED"
-               desc="Speed and received byte counts">
+      <message name="IDS_DOWNLOAD_TAB_PROGRESS_STATUS_TIME_UNKNOWN"
+               desc="The status text for a download in progress in the download manager. This includes information such as speed and received byte counts and is used when we do not know the remaining time">
         <ph name="SPEED">$1<ex>10kB/s</ex></ph> - <ph name="RECEIVED_AMOUNT">$2<ex>40kB</ex></ph>
+      </message>
+      <message name="IDS_DOWNLOAD_TAB_PROGRESS_STATUS"
+               desc="The status text for a download in progress in the download manager. This includes information such as speed, received byte counts as well as remaining time">
+        <ph name="SPEED">$1<ex>10kB/s</ex></ph> - <ph name="RECEIVED_AMOUNT">$2<ex>40kB</ex></ph>, <ph name="TIME_REMAINING">$3<ex>42 mins left</ex></ph>
       </message>
       <message name="IDS_DOWNLOAD_TAB_PROGRESS_SIZE"
                desc="Speed and received byte counts (with total)">
