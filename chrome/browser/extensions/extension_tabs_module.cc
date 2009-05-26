@@ -12,15 +12,10 @@
 #include "chrome/browser/extensions/extensions_service.h"
 #include "chrome/browser/renderer_host/render_view_host_delegate.h"
 #include "chrome/browser/tab_contents/navigation_entry.h"
+#include "chrome/browser/window_sizer.h"
 #include "chrome/common/extensions/extension.h"
 #include "chrome/common/extensions/extension_error_utils.h"
 
-// TODO(port): Port these files.
-#if defined(OS_WIN) || defined(OS_MACOSX)
-#include "chrome/browser/window_sizer.h"
-#else
-#include "chrome/common/temp_scaffolding_stubs.h"
-#endif
 
 namespace keys = extension_tabs_module_constants;
 

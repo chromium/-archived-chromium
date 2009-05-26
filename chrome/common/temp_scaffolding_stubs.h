@@ -339,22 +339,8 @@ class FaviconStatus {
 #if !defined(TOOLKIT_VIEWS)
 class DockInfo {
  public:
-  bool GetNewWindowBounds(gfx::Rect*, bool*) const {
-    NOTIMPLEMENTED();
-    return false;
-  }
+  bool GetNewWindowBounds(gfx::Rect*, bool*) const;
   void AdjustOtherWindowBounds() const { NOTIMPLEMENTED(); }
-};
-#endif
-
-#if defined(OS_LINUX) && !defined(TOOLKIT_VIEWS)
-class WindowSizer {
- public:
-  static void GetBrowserWindowBounds(const std::wstring& app_name,
-                                     const gfx::Rect& specified_bounds,
-                                     Browser* browser,
-                                     gfx::Rect* window_bounds,
-                                     bool* maximized);
 };
 #endif
 
