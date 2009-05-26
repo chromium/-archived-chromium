@@ -7,6 +7,7 @@
 #include <map>
 #include <string>
 
+#include "base/singleton.h"
 #include "base/stats_counters.h"
 #include "base/string_util.h"
 #include "base/values.h"
@@ -281,10 +282,6 @@ Results* PrefetchObserver::first_resolutions = NULL;
 
 class OffTheRecordObserver : public NotificationObserver {
  public:
-  OffTheRecordObserver() : lock_(), count_off_the_record_windows_(0) { }
-
-  ~OffTheRecordObserver() { }
-
   void Register() {
     // TODO(pkasting): This test should not be necessary.  See crbug.com/12475.
     if (registrar_.IsEmpty()) {
@@ -328,15 +325,16 @@ class OffTheRecordObserver : public NotificationObserver {
   }
 
  private:
+  friend struct DefaultSingletonTraits<OffTheRecordObserver>;
+  OffTheRecordObserver() : lock_(), count_off_the_record_windows_(0) { }
+  ~OffTheRecordObserver() { }
+
   NotificationRegistrar registrar_;
   Lock lock_;
   int count_off_the_record_windows_;
 
   DISALLOW_COPY_AND_ASSIGN(OffTheRecordObserver);
 };
-
-// TODO(pkasting): Should this be a Singleton or something?
-static OffTheRecordObserver off_the_record_observer;
 
 //------------------------------------------------------------------------------
 // This section supports the about:dns page.
@@ -381,7 +379,7 @@ void InitDnsPrefetch(PrefService* user_prefs) {
     dns_master = new DnsMaster();
     // We did the initialization, so we should prime the pump, and set up
     // the DNS resolution system to run.
-    off_the_record_observer.Register();
+    Singleton<OffTheRecordObserver>::get()->Register();
 
     if (user_prefs) {
       bool enabled = user_prefs->GetBoolean(prefs::kDnsPrefetchingEnabled);
