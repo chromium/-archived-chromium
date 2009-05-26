@@ -752,9 +752,7 @@ void BrowserWindowGtk::SetGeometryHints() {
     gtk_window_unmaximize(window_);
 
   gfx::Rect rect = browser_->GetSavedWindowBounds();
-  gtk_window_set_default_size(window_,
-                              static_cast<gint>(rect.width()),
-                              static_cast<gint>(rect.height()));
+  SetBounds(rect);
 }
 
 void BrowserWindowGtk::SetWindowIcon() {

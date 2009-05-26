@@ -311,8 +311,6 @@ void ShowOptionsWindow(OptionsPage page,
 bool DockInfo::GetNewWindowBounds(gfx::Rect* new_window_bounds,
                                   bool* maximize_new_window) const {
   NOTIMPLEMENTED();
-  // Return a reasonable default
-  *new_window_bounds = gfx::Rect(640, 480);
   return true;
 }
 #endif

@@ -37,6 +37,8 @@ class TabStripGtk : public TabStripModelObserver,
 
   TabStripModel* model() const { return model_; }
 
+  GtkWidget* widget() const { return tabstrip_.get(); }
+
   // Returns true if there is an active drag session.
   bool IsDragSessionActive() const { return drag_controller_.get() != NULL; }
 

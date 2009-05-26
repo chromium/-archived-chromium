@@ -11,6 +11,7 @@
 #include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/common/gtk_util.h"
 #include "chrome/common/notification_service.h"
+#include "chrome/common/platform_util.h"
 
 namespace {
 
@@ -576,7 +577,12 @@ bool DraggedTabControllerGtk::CompleteDrag() {
     destroy_immediately = false;
   } else {
     // Compel the model to construct a new window for the detached TabContents.
-    gfx::Rect browser_rect = source_tabstrip_->bounds();
+    GtkWindow* browser_window =
+        platform_util::GetTopLevel(source_tabstrip_->widget());
+    gint x, y, width, height;
+    gtk_window_get_position(browser_window, &x, &y);
+    gtk_window_get_size(browser_window, &width, &height);
+    gfx::Rect browser_rect = gfx::Rect(x, y, width, height);
     gfx::Rect window_bounds(
         GetWindowCreatePoint(),
         gfx::Size(browser_rect.width(), browser_rect.height()));
