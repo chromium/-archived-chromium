@@ -567,7 +567,7 @@
         'browser/bookmarks/bookmark_codec.cc',
         'browser/bookmarks/bookmark_codec.h',
         'browser/bookmarks/bookmark_context_menu_gtk.cc',
-        'browser/bookmarks/bookmark_context_menu_win.cc',
+        'browser/bookmarks/bookmark_context_menu_views.cc',
         'browser/bookmarks/bookmark_context_menu.cc',
         'browser/bookmarks/bookmark_context_menu.h',
         'browser/bookmarks/bookmark_drag_data.cc',

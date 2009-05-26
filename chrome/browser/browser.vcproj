@@ -600,7 +600,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\bookmarks\bookmark_context_menu_win.cc"
+				RelativePath=".\bookmarks\bookmark_context_menu_views.cc"
 				>
 			</File>
 			<File
