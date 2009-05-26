@@ -88,9 +88,6 @@ class RenderWidgetHostViewGtk : public RenderWidgetHostView {
   // The native view of our parent, equivalent to
   // parent_host_view_->GetPluginNativeView().
   GtkWidget* parent_;
-  // We connect to the parent's focus out event. When we are destroyed, we need
-  // to remove this handler, so we must keep track of its id.
-  gulong popup_signal_id_;
   // This is true when we are currently painting and thus should handle extra
   // paint requests by expanding the invalid rect rather than actually
   // painting.
@@ -106,6 +103,10 @@ class RenderWidgetHostViewGtk : public RenderWidgetHostView {
 
   // Whether or not this widget is hidden.
   bool is_hidden_;
+
+  // We ignore the first mouse release on popups.  This allows the popup to
+  // stay open.
+  bool is_popup_first_mouse_release_;
 };
 
 #endif  // CHROME_BROWSER_RENDERER_HOST_RENDER_WIDGET_HOST_VIEW_GTK_H_

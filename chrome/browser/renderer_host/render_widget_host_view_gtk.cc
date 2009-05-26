@@ -129,9 +129,19 @@ class RenderWidgetHostViewGtkWidget {
       int x = 0;
       int y = 0;
       gtk_widget_get_pointer(widget, &x, &y);
+      // If the mouse release happens outside our popup, force the popup to
+      // close.  We do this so a hung renderer doesn't prevent us from
+      // releasing the x pointer grab.
+      bool click_in_popup = x >= 0 && y >= 0 && x < widget->allocation.width &&
+          y < widget->allocation.height;
+      if (!host_view->is_popup_first_mouse_release_ && !click_in_popup) {
+        host_view->host_->Shutdown();
+        return FALSE;
+      }
       event->x = x;
       event->y = y;
     }
+    host_view->is_popup_first_mouse_release_ = false;
     host_view->GetRenderWidgetHost()->ForwardMouseEvent(
         WebInputEventFactory::mouseEvent(event));
 
@@ -170,12 +180,6 @@ class RenderWidgetHostViewGtkWidget {
   DISALLOW_IMPLICIT_CONSTRUCTORS(RenderWidgetHostViewGtkWidget);
 };
 
-static gboolean OnPopupParentFocusOut(GtkWidget* parent, GdkEventFocus* focus,
-                                      RenderWidgetHost* host) {
-  host->Shutdown();
-  return FALSE;
-}
-
 // static
 RenderWidgetHostView* RenderWidgetHostView::CreateViewForWidget(
     RenderWidgetHost* widget) {
@@ -186,10 +190,10 @@ RenderWidgetHostViewGtk::RenderWidgetHostViewGtk(RenderWidgetHost* widget_host)
     : host_(widget_host),
       parent_host_view_(NULL),
       parent_(NULL),
-      popup_signal_id_(0),
       about_to_validate_and_paint_(false),
       is_loading_(false),
-      is_hidden_(false) {
+      is_hidden_(false),
+      is_popup_first_mouse_release_(true) {
   host_->set_view(this);
 }
 
@@ -216,9 +220,17 @@ void RenderWidgetHostViewGtk::InitAsPopup(
     // Grab all input for the app. If a click lands outside the bounds of the
     // popup, WebKit will notice and destroy us.
     gtk_grab_add(view_.get());
-    // We also destroy ourselves if our parent loses focus.
-    popup_signal_id_ = g_signal_connect(parent_, "focus-out-event",
-        G_CALLBACK(OnPopupParentFocusOut), host_);
+    // Now grab all of X's input.
+    gdk_pointer_grab(
+        parent_->window,
+        TRUE,  // Only events outside of the window are reported with respect
+               // to |parent_->window|.
+        static_cast<GdkEventMask>(GDK_BUTTON_PRESS_MASK |
+            GDK_BUTTON_RELEASE_MASK | GDK_POINTER_MOTION_MASK),
+        NULL,
+        NULL,
+        GDK_CURRENT_TIME);
+
     // Our parent widget actually keeps GTK focus within its window, but we have
     // to make the webkit selection box disappear to maintain appearances.
     parent_host_view->Blur();
@@ -362,7 +374,8 @@ void RenderWidgetHostViewGtk::Destroy() {
   // parent and destroy the popup window.
   if (parent_) {
     if (activatable()) {
-      g_signal_handler_disconnect(parent_, popup_signal_id_);
+      GdkDisplay *display = gtk_widget_get_display(parent_);
+      gdk_display_pointer_ungrab(display, GDK_CURRENT_TIME);
       parent_host_view_->Focus();
     }
     gtk_widget_destroy(gtk_widget_get_parent(view_.get()));
