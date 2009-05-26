@@ -201,7 +201,6 @@ WebPluginDelegateImpl::WebPluginDelegateImpl(
   } else if (filename == "npctrl.dll") {
     // Explanation for this quirk can be found in
     // WebPluginDelegateImpl::Initialize.
-    quirks_ |= PLUGIN_QUIRK_PATCH_TRACKPOPUP_MENU;
     quirks_ |= PLUGIN_QUIRK_PATCH_SETCURSOR;
   }
 }
@@ -288,8 +287,7 @@ bool WebPluginDelegateImpl::Initialize(const GURL& url,
   // lives on the browser thread. Our workaround is to intercept the
   // TrackPopupMenu API for Silverlight and replace the window handle
   // with the dummy activation window.
-  if (windowless_ && !g_iat_patch_track_popup_menu.Pointer()->is_patched() &&
-      (quirks_ & PLUGIN_QUIRK_PATCH_TRACKPOPUP_MENU)) {
+  if (windowless_ && !g_iat_patch_track_popup_menu.Pointer()->is_patched()) {
     g_iat_patch_track_popup_menu.Pointer()->Patch(
         GetPluginPath().value().c_str(), "user32.dll", "TrackPopupMenu",
         WebPluginDelegateImpl::TrackPopupMenuPatch);
@@ -1115,17 +1113,6 @@ bool WebPluginDelegateImpl::HandleInputEvent(const WebInputEvent& event,
     return false;
   }
 
-  // To ensure that the plugin receives keyboard events we set focus to the
-  // dummy window.
-  // TODO(iyengar) We need a framework in the renderer to identify which
-  // windowless plugin is under the mouse and to handle this. This would
-  // also require some changes in RenderWidgetHost to detect this in the
-  // WM_MOUSEACTIVATE handler and inform the renderer accordingly.
-  HWND prev_focus_window = NULL;
-  if (np_event.event == WM_RBUTTONDOWN) {
-    prev_focus_window = ::SetFocus(dummy_window_for_activation_);
-  }
-
   if (ShouldTrackEventForModalLoops(&np_event)) {
     // A windowless plugin can enter a modal loop in a NPP_HandleEvent call.
     // For e.g. Flash puts up a context menu when we right click on the
@@ -1177,20 +1164,11 @@ bool WebPluginDelegateImpl::HandleInputEvent(const WebInputEvent& event,
 
   MessageLoop::current()->SetNestableTasksAllowed(old_task_reentrancy_state);
 
-  if (handle_event_message_filter_hook_) {
-    UnhookWindowsHookEx(handle_event_message_filter_hook_);
-    handle_event_message_filter_hook_ = NULL;
-  }
-
   // We could have multiple NPP_HandleEvent calls nested together in case
   // the plugin enters a modal loop. Reset the pump messages event when
   // the outermost NPP_HandleEvent call unwinds.
   if (handle_event_depth_ == 0) {
     ResetEvent(handle_event_pump_messages_event_);
-  }
-
-  if (np_event.event == WM_RBUTTONUP && ::IsWindow(prev_focus_window)) {
-    ::SetFocus(prev_focus_window);
   }
 
   return ret;
@@ -1265,6 +1243,9 @@ void WebPluginDelegateImpl::OnUserGestureEnd() {
 BOOL WINAPI WebPluginDelegateImpl::TrackPopupMenuPatch(
     HMENU menu, unsigned int flags, int x, int y, int reserved,
     HWND window, const RECT* rect) {
+
+  HWND last_focus_window = NULL;
+
   if (g_current_plugin_instance) {
     unsigned long window_process_id = 0;
     unsigned long window_thread_id =
@@ -1274,8 +1255,26 @@ BOOL WINAPI WebPluginDelegateImpl::TrackPopupMenuPatch(
     if (::GetCurrentThreadId() != window_thread_id) {
       window = g_current_plugin_instance->dummy_window_for_activation_;
     }
+
+    // To ensure that the plugin receives keyboard events we set focus to the
+    // dummy window.
+    // TODO(iyengar) We need a framework in the renderer to identify which
+    // windowless plugin is under the mouse and to handle this. This would
+    // also require some changes in RenderWidgetHost to detect this in the
+    // WM_MOUSEACTIVATE handler and inform the renderer accordingly.
+    if (g_current_plugin_instance->dummy_window_for_activation_) {
+      last_focus_window =
+          ::SetFocus(g_current_plugin_instance->dummy_window_for_activation_);
+    }
   }
-  return TrackPopupMenu(menu, flags, x, y, reserved, window, rect);
+  
+  BOOL result = TrackPopupMenu(menu, flags, x, y, reserved, window, rect);
+
+  if (IsWindow(last_focus_window)) {
+    ::SetFocus(last_focus_window);
+  }
+
+  return result;
 }
 
 HCURSOR WINAPI WebPluginDelegateImpl::SetCursorPatch(HCURSOR cursor) {
