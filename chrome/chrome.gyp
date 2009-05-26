@@ -1651,6 +1651,7 @@
             'installer/installer.gyp:installer_util',
             '../printing/printing.gyp:printing',
             '../views/views.gyp:views',
+            '../gears/gears.gyp:gears',
           ],
           'export_dependent_settings': [
             '../views/views.gyp:views',

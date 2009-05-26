@@ -66,6 +66,7 @@
             '../webkit/activex_shim/activex_shim.gyp:*',
             '../webkit/activex_shim_dll/activex_shim_dll.gyp:*',
             '../breakpad/breakpad.gyp:*',
+            '../gears/gears.gyp:*',
           ],
         }, {
           'dependencies': [
