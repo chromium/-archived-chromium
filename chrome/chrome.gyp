@@ -24,25 +24,25 @@
   'target_defaults': {
     'sources/': [
       ['exclude', '/(cocoa|gtk|win)/'],
-      ['exclude', '_(cocoa|gtk|linux|mac|posix|skia|win|views|x)\\.(cc|mm?)$'],
+      ['exclude', '_(cocoa|gtk|linux|mac|posix|skia|win|views|x)(_unittest)?\\.(cc|mm?)$'],
       ['exclude', '/(gtk|win|x11)_[^/]*\\.cc$'],
     ],
     'conditions': [
       ['OS=="linux"', {'sources/': [
         ['include', '/gtk/'],
-        ['include', '_(gtk|linux|posix|skia|x)\\.cc$'],
+        ['include', '_(gtk|linux|posix|skia|x)(_unittest)?\\.cc$'],
         ['include', '/(gtk|x11)_[^/]*\\.cc$'],
       ]}],
       ['OS=="mac"', {'sources/': [
         ['include', '/cocoa/'],
-        ['include', '_(cocoa|mac|posix)\\.(cc|mm?)$'],
+        ['include', '_(cocoa|mac|posix)(_unittest)?\\.(cc|mm?)$'],
       ]}, { # else: OS != "mac"
         'sources/': [
           ['exclude', '\\.mm?$'],
         ],
       }],
       ['OS=="win"', {'sources/': [
-        ['include', '_(win)\\.cc$'],
+        ['include', '_(win)(_unittest)?\\.cc$'],
         ['include', '/win/'],
         ['include', '/(views|win)_[^/]*\\.cc$'],
       ]}],
@@ -1039,6 +1039,8 @@
         'browser/jankometer.h',
         'browser/jsmessage_box_handler.cc',
         'browser/jsmessage_box_handler.h',
+        'browser/keychain_mac.cc',
+        'browser/keychain_mac.h',
         'browser/load_from_memory_cache_details.h',
         'browser/load_notification_details.h',
         'browser/location_bar.h',
@@ -1101,6 +1103,9 @@
         # 'browser/password_manager/password_store_gnome.cc',
         # 'browser/password_manager/password_store_kwallet.h',
         # 'browser/password_manager/password_store_kwallet.cc',
+        'browser/password_manager/password_store_mac_internal.h',
+        'browser/password_manager/password_store_mac.h',
+        'browser/password_manager/password_store_mac.cc',
         'browser/password_manager/password_store_win.h',
         'browser/password_manager/password_store_win.cc',
         'browser/plugin_installer.cc',
@@ -2946,6 +2951,7 @@
         'browser/net/url_fixer_upper_unittest.cc',
         'browser/password_manager/encryptor_unittest.cc',
         'browser/password_manager/password_form_manager_unittest.cc',
+        'browser/password_manager/password_store_mac_unittest.cc',
         'browser/printing/page_number_unittest.cc',
         'browser/printing/page_overlays_unittest.cc',
         'browser/printing/page_range_unittest.cc',
