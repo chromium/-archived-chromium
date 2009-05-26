@@ -648,14 +648,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\bookmarks\bookmark_menu_controller_win.cc"
-				>
-			</File>
-			<File
-				RelativePath=".\bookmarks\bookmark_menu_controller_win.h"
-				>
-			</File>
-			<File
 				RelativePath=".\bookmarks\bookmark_model.cc"
 				>
 			</File>

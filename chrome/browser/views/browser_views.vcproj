@@ -516,6 +516,14 @@
 			>
 		</File>
 		<File
+			RelativePath=".\bookmark_menu_controller_views.cc"
+			>
+		</File>
+		<File
+			RelativePath=".\bookmark_menu_controller_views.h"
+			>
+		</File>
+		<File
 			RelativePath=".\bookmark_table_view.cc"
 			>
 		</File>

@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "chrome/browser/bookmarks/bookmark_menu_controller_win.h"
+#include "chrome/browser/views/bookmark_menu_controller_views.h"
 
 #include "app/l10n_util.h"
 #include "app/os_exchange_data.h"
@@ -21,14 +21,14 @@
 BookmarkMenuController::BookmarkMenuController(Browser* browser,
                                                Profile* profile,
                                                PageNavigator* navigator,
-                                               HWND hwnd,
+                                               gfx::NativeWindow parent,
                                                BookmarkNode* node,
                                                int start_child_index,
                                                bool show_other_folder)
     : browser_(browser),
       profile_(profile),
       page_navigator_(navigator),
-      hwnd_(hwnd),
+      parent_(parent),
       node_(node),
       observer_(NULL),
       for_drop_(false),
@@ -49,9 +49,9 @@ void BookmarkMenuController::RunMenuAt(
   for_drop_ = for_drop;
   profile_->GetBookmarkModel()->AddObserver(this);
   if (for_drop) {
-    menu_->RunMenuForDropAt(hwnd_, bounds, position);
+    menu_->RunMenuForDropAt(parent_, bounds, position);
   } else {
-    menu_->RunMenuAt(hwnd_, bounds, position, false);
+    menu_->RunMenuAt(parent_, bounds, position, false);
     delete this;
   }
 }
@@ -160,7 +160,7 @@ bool BookmarkMenuController::ShowContextMenu(views::MenuItemView* source,
   std::vector<BookmarkNode*> nodes;
   nodes.push_back(menu_id_to_node_map_[id]);
   context_menu_.reset(
-      new BookmarkContextMenu(hwnd_,
+      new BookmarkContextMenu(parent_,
                               profile_,
                               browser_,
                               page_navigator_,

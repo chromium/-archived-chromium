@@ -2,11 +2,12 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CHROME_BROWSER_BOOKMARKS_BOOKMARK_MENU_CONTROLLER_WIN_H_
-#define CHROME_BROWSER_BOOKMARKS_BOOKMARK_MENU_CONTROLLER_WIN_H_
+#ifndef CHROME_BROWSER_VIEWS_BOOKMARK_MENU_CONTROLLER_VIEWS_H_
+#define CHROME_BROWSER_VIEWS_BOOKMARK_MENU_CONTROLLER_VIEWS_H_
 
 #include <map>
 
+#include "base/gfx/native_widget_types.h"
 #include "chrome/browser/bookmarks/base_bookmark_model_observer.h"
 #include "chrome/browser/bookmarks/bookmark_context_menu.h"
 #include "chrome/browser/bookmarks/bookmark_drag_data.h"
@@ -37,7 +38,7 @@ class BookmarkMenuController : public BaseBookmarkModelObserver,
   BookmarkMenuController(Browser* browser,
                          Profile* profile,
                          PageNavigator* page_navigator,
-                         HWND hwnd,
+                         gfx::NativeWindow parent,
                          BookmarkNode* node,
                          int start_child_index,
                          bool show_other_folder);
@@ -109,7 +110,7 @@ class BookmarkMenuController : public BaseBookmarkModelObserver,
   PageNavigator* page_navigator_;
 
   // Parent of menus.
-  HWND hwnd_;
+  gfx::NativeWindow parent_;
 
   // The node we're showing the contents of.
   BookmarkNode* node_;
@@ -142,4 +143,4 @@ class BookmarkMenuController : public BaseBookmarkModelObserver,
   DISALLOW_COPY_AND_ASSIGN(BookmarkMenuController);
 };
 
-#endif  // CHROME_BROWSER_BOOKMARKS_BOOKMARK_MENU_CONTROLLER_WIN_H_
+#endif  // CHROME_BROWSER_VIEWS_BOOKMARK_MENU_CONTROLLER_VIEWS_H_

@@ -24,7 +24,7 @@
   'target_defaults': {
     'sources/': [
       ['exclude', '/(cocoa|gtk|win)/'],
-      ['exclude', '_(cocoa|gtk|linux|mac|posix|skia|win|x)\\.(cc|mm?)$'],
+      ['exclude', '_(cocoa|gtk|linux|mac|posix|skia|win|views|x)\\.(cc|mm?)$'],
       ['exclude', '/(gtk|win|x11)_[^/]*\\.cc$'],
     ],
     'conditions': [
@@ -44,7 +44,10 @@
       ['OS=="win"', {'sources/': [
         ['include', '_(win)\\.cc$'],
         ['include', '/win/'],
-        ['include', '/win_[^/]*\\.cc$'],
+        ['include', '/(views|win)_[^/]*\\.cc$'],
+      ]}],
+      ['OS=="linux" and toolkit_views==1', {'sources/': [
+        ['include', '/views_[^/]*\\.cc$'],
       ]}],
     ],
   },
@@ -578,10 +581,6 @@
         'browser/bookmarks/bookmark_index.h',
         'browser/bookmarks/bookmark_html_writer.cc',
         'browser/bookmarks/bookmark_html_writer.h',
-        'browser/bookmarks/bookmark_menu_controller_gtk.cc',
-        'browser/bookmarks/bookmark_menu_controller_gtk.h',
-        'browser/bookmarks/bookmark_menu_controller_win.cc',
-        'browser/bookmarks/bookmark_menu_controller_win.h',
         'browser/bookmarks/bookmark_model.cc',
         'browser/bookmarks/bookmark_model.h',
         'browser/bookmarks/bookmark_service.h',
@@ -883,6 +882,8 @@
         'browser/gtk/bookmark_bubble_gtk.h',
         'browser/gtk/bookmark_editor_gtk.cc',
         'browser/gtk/bookmark_editor_gtk.h',
+        'browser/gtk/bookmark_menu_controller_gtk.cc',
+        'browser/gtk/bookmark_menu_controller_gtk.h',
         'browser/gtk/bookmark_tree_model.cc',
         'browser/gtk/bookmark_tree_model.h',
         'browser/gtk/browser_toolbar_gtk.cc',
@@ -1366,6 +1367,8 @@
         'browser/views/bookmark_manager_view.h',
         'browser/views/bookmark_menu_button.cc',
         'browser/views/bookmark_menu_button.h',
+        'browser/views/bookmark_menu_controller_views.cc',
+        'browser/views/bookmark_menu_controller_views.h',
         'browser/views/bookmark_table_view.cc',
         'browser/views/bookmark_table_view.h',
         'browser/views/browser_bubble.cc',
