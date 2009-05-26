@@ -2835,6 +2835,7 @@
         'chrome_strings',
         'test_support_unit',
         '../app/app.gyp:app_resources',
+        '../breakpad/breakpad.gyp:breakpad_client',
         '../net/net.gyp:net_test_support',
         '../printing/printing.gyp:printing',
         '../webkit/webkit.gyp:webkit',
@@ -2849,6 +2850,8 @@
         '..',
       ],
       'sources': [
+        'app/breakpad_linux.h',
+        'app/breakpad_linux_stub.cc',
         'app/breakpad_mac_stubs.mm',
 	# *NO* files in chrome/app have unit tests (except keystone_glue)!!!
 	# It seems a waste to have an app_unittests target, so for now

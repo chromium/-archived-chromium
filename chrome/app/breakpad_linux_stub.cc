@@ -7,3 +7,8 @@
 
 void EnableCrashDumping() {
 }
+
+int UploadCrashDump(const char* filename, const char* crash_url,
+                      unsigned crash_url_length) {
+  return -1;
+}
