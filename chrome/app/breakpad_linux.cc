@@ -323,7 +323,7 @@ pid_t UploadCrashDump(const char* filename, const char* crash_url,
     const pid_t child = sys_fork();
     if (child) {
       sys_close(fds[1]);
-      char buf[32];
+      char buf[17];
       HANDLE_EINTR(read(fds[0], buf, sizeof(buf) - 1));
       buf[sizeof(buf) - 1] = 0;
       static const char msg[] = "\nCrash dump id: ";
@@ -371,7 +371,7 @@ static bool CrashDone(const char* dump_path,
   const unsigned dump_path_len = my_strlen(dump_path);
   const unsigned minidump_id_len = my_strlen(minidump_id);
   char *const path = reinterpret_cast<char*>(allocator.Alloc(
-      dump_path_len + 1 /* '/' */ + minidump_id_len + 
+      dump_path_len + 1 /* '/' */ + minidump_id_len +
       4 /* ".dmp" */ + 1 /* NUL */));
   memcpy(path, dump_path, dump_path_len);
   path[dump_path_len] = '/';
