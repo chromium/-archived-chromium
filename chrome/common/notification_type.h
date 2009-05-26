@@ -545,7 +545,7 @@ class NotificationType {
 
     // Sent when there are new user scripts available.  The details are a
     // pointer to SharedMemory containing the new scripts.
-    USER_SCRIPTS_LOADED,
+    USER_SCRIPTS_UPDATED,
 
     // Extensions --------------------------------------------------------------
 

@@ -157,7 +157,8 @@ IPC_BEGIN_MESSAGES(View)
   // Notification that the user scripts have been updated. It has one
   // SharedMemoryHandle argument consisting of the pickled script data. This
   // handle is valid in the context of the renderer.
-  IPC_MESSAGE_CONTROL1(ViewMsg_UserScripts_NewScripts, base::SharedMemoryHandle)
+  IPC_MESSAGE_CONTROL1(ViewMsg_UserScripts_UpdatedScripts,
+                       base::SharedMemoryHandle)
 
   // Sent when the user wants to search for a word on the page (find in page).
   IPC_MESSAGE_ROUTED3(ViewMsg_Find,

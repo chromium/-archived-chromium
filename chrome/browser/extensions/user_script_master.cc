@@ -188,8 +188,6 @@ static void LoadLoneScripts(UserScriptList* lone_scripts) {
 
 // Pickle user scripts and return pointer to the shared memory.
 static base::SharedMemory* Serialize(UserScriptList& scripts) {
-  if (scripts.empty())
-    return NULL;  // Nothing to serialize
   Pickle pickle;
   pickle.WriteSize(scripts.size());
   for (size_t i = 0; i < scripts.size(); i++) {
@@ -303,7 +301,7 @@ void UserScriptMaster::NewScriptsAvailable(base::SharedMemory* handle) {
     shared_memory_.swap(handle_deleter);
 
     NotificationService::current()->Notify(
-        NotificationType::USER_SCRIPTS_LOADED,
+        NotificationType::USER_SCRIPTS_UPDATED,
         NotificationService::AllSources(),
         Details<base::SharedMemory>(handle));
   }

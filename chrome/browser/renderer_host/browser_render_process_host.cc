@@ -136,7 +136,7 @@ BrowserRenderProcessHost::BrowserRenderProcessHost(Profile* profile)
             this, &BrowserRenderProcessHost::ClearTransportDIBCache)) {
   widget_helper_ = new RenderWidgetHelper();
 
-  registrar_.Add(this, NotificationType::USER_SCRIPTS_LOADED,
+  registrar_.Add(this, NotificationType::USER_SCRIPTS_UPDATED,
                  NotificationService::AllSources());
 
   if (run_renderer_in_process()) {
@@ -483,7 +483,7 @@ void BrowserRenderProcessHost::SendUserScriptsUpdate(
                                          &handle_for_process);
   DCHECK(r);
   if (base::SharedMemory::IsHandleValid(handle_for_process)) {
-    channel_->Send(new ViewMsg_UserScripts_NewScripts(handle_for_process));
+    channel_->Send(new ViewMsg_UserScripts_UpdatedScripts(handle_for_process));
   }
 }
 
@@ -793,7 +793,7 @@ void BrowserRenderProcessHost::Observe(NotificationType type,
                                        const NotificationSource& source,
                                        const NotificationDetails& details) {
   switch (type.value) {
-    case NotificationType::USER_SCRIPTS_LOADED: {
+    case NotificationType::USER_SCRIPTS_UPDATED: {
       base::SharedMemory* shared_memory =
           Details<base::SharedMemory>(details).ptr();
       if (shared_memory) {

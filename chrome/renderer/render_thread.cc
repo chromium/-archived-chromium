@@ -215,7 +215,7 @@ void RenderThread::OnControlMessageReceived(const IPC::Message& msg) {
                           OnGetRendererHistograms)
     IPC_MESSAGE_HANDLER(ViewMsg_GetCacheResourceStats,
                         OnGetCacheResourceStats)
-    IPC_MESSAGE_HANDLER(ViewMsg_UserScripts_NewScripts,
+    IPC_MESSAGE_HANDLER(ViewMsg_UserScripts_UpdatedScripts,
                         OnUpdateUserScripts)
     // TODO(rafaelw): create an ExtensionDispatcher that handles extension
     // messages seperates their handling from the RenderThread.

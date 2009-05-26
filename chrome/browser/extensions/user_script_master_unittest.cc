@@ -37,7 +37,7 @@ class UserScriptMasterTest : public testing::Test,
     file_util::CreateDirectory(script_dir_);
 
     // Register for all user script notifications.
-    registrar_.Add(this, NotificationType::USER_SCRIPTS_LOADED,
+    registrar_.Add(this, NotificationType::USER_SCRIPTS_UPDATED,
                    NotificationService::AllSources());
   }
 
@@ -50,7 +50,7 @@ class UserScriptMasterTest : public testing::Test,
   virtual void Observe(NotificationType type,
                        const NotificationSource& source,
                        const NotificationDetails& details) {
-    DCHECK(type == NotificationType::USER_SCRIPTS_LOADED);
+    DCHECK(type == NotificationType::USER_SCRIPTS_UPDATED);
 
     shared_memory_ = Details<base::SharedMemory>(details).ptr();
     if (MessageLoop::current() == &message_loop_)
@@ -69,10 +69,8 @@ class UserScriptMasterTest : public testing::Test,
   base::SharedMemory* shared_memory_;
 };
 
-// Test that we *don't* get spurious notifications.
+// Test that we get notified even when there are no scripts.
 TEST_F(UserScriptMasterTest, NoScripts) {
-  // Set shared_memory_ to something non-NULL, so we can check it became NULL.
-  shared_memory_ = reinterpret_cast<base::SharedMemory*>(1);
 
   scoped_refptr<UserScriptMaster> master(
       new UserScriptMaster(MessageLoop::current(), script_dir_));
@@ -80,9 +78,7 @@ TEST_F(UserScriptMasterTest, NoScripts) {
   message_loop_.PostTask(FROM_HERE, new MessageLoop::QuitTask);
   message_loop_.Run();
 
-  // There were no scripts in the script dir, so we shouldn't have gotten
-  // a notification.
-  ASSERT_EQ(NULL, shared_memory_);
+  ASSERT_TRUE(shared_memory_ != NULL);
 }
 
 // TODO(shess): Disabled on Linux because of missing DirectoryWatcher.
