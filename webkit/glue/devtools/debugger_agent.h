@@ -23,6 +23,9 @@
   /* Stops profiling (samples collection). */ \
   METHOD0(StopProfiling) \
   \
+  /* Requests current profiler status. */ \
+  METHOD0(IsProfilingStarted) \
+  \
   /* Retrieves a portion of profiler log. */ \
   METHOD1(GetLogLines, int /* position */)
 
@@ -35,6 +38,10 @@ DEFINE_RPC_CLASS(DebuggerAgent, DEBUGGER_AGENT_STRUCT)
   /* Response to GetContextId. */ \
   METHOD1(DidGetContextId, int /* context id */) \
   \
+  /* Response to IsProfilingStarted. */ \
+  METHOD1(DidIsProfilingStarted, bool /* is_started */) \
+  \
+  /* Response to GetLogLines. */ \
   METHOD2(DidGetLogLines, std::string /* log */, int /* new_position */)
 
 DEFINE_RPC_CLASS(DebuggerAgentDelegate, DEBUGGER_AGENT_DELEGATE_STRUCT)

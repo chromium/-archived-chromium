@@ -42,11 +42,11 @@ class DebuggerAgentImpl : public DebuggerAgent {
 
   virtual void StopProfiling();
 
+  virtual void IsProfilingStarted();
+
   virtual void GetLogLines(int position);
 
   void DebuggerOutput(const std::string& out);
-
-  void DidGetLogLines(const std::string& log, int new_position);
 
   // Executes function with the given name in the utility context. Passes node
   // and json args as parameters. Note that the function called must be

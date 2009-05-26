@@ -26,6 +26,12 @@ RemoteDebuggerAgentStub.prototype.StopProfiling = function() {
 RemoteDebuggerAgentStub.prototype.StartProfiling = function() {
 };
 
+RemoteDebuggerAgentStub.prototype.IsProfilingStarted = function() {
+  setTimeout(function() {
+      RemoteDebuggerAgent.DidIsProfilingStarted(true);
+  }, 100);
+};
+
 RemoteDebuggerAgentStub.prototype.GetLogLines = function(pos) {
   if (pos < RemoteDebuggerAgentStub.ProfilerLogBuffer.length) {
     setTimeout(function() {
@@ -51,7 +57,7 @@ RemoteDomAgentStub.sendDocumentElement_ = function() {
     1,       // id
     1,       // type = Node.ELEMENT_NODE,
     'HTML',  // nodeName
-    '',      // nodeValue 
+    '',      // nodeValue
     ['foo','bar'],  // attributes
     2,       // childNodeCount
   ]);
@@ -66,7 +72,7 @@ RemoteDomAgentStub.sendChildNodes_ = function(id) {
          2,       // id
          1,       // type = Node.ELEMENT_NODE,
          'DIV',   // nodeName
-         '',      // nodeValue 
+         '',      // nodeValue
          ['foo','bar'],  // attributes
          1,       // childNodeCount
         ],
@@ -74,17 +80,17 @@ RemoteDomAgentStub.sendChildNodes_ = function(id) {
          3,  // id
          3,  // type = Node.TEXT_NODE,
          '', // nodeName
-         'Text', // nodeValue 
+         'Text', // nodeValue
         ]
       ]);
   } else if (id == 2) {
-    RemoteDomAgent.SetChildNodes(id, 
+    RemoteDomAgent.SetChildNodes(id,
       [
         [
         4,       // id
         1,       // type = Node.ELEMENT_NODE,
         'span',   // nodeName
-        '',      // nodeValue 
+        '',      // nodeValue
         ['foo','bar'],  // attributes
         0,       // childNodeCount
       ]
@@ -167,7 +173,7 @@ RemoteToolsAgentStub.prototype.EvaluateJavaScript = function(callId, script) {
 };
 
 
-RemoteToolsAgentStub.prototype.ExecuteUtilityFunction = function(callId, 
+RemoteToolsAgentStub.prototype.ExecuteUtilityFunction = function(callId,
     functionName, nodeId, args) {
   setTimeout(function() {
     var result = [];

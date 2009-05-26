@@ -59,6 +59,10 @@ void DebuggerAgentImpl::GetContextId() {
 }
 
 void DebuggerAgentImpl::StartProfiling() {
+  v8::HandleScope scope;
+  WebCore::V8Proxy* proxy = V8Proxy::retrieve(GetPage()->mainFrame());
+  DCHECK(proxy && proxy->ContextInitialized());
+  v8::Context::Scope context_scope(proxy->GetContext());
   v8::V8::ResumeProfiler();
 }
 
@@ -66,21 +70,20 @@ void DebuggerAgentImpl::StopProfiling() {
   v8::V8::PauseProfiler();
 }
 
+void DebuggerAgentImpl::IsProfilingStarted() {
+  delegate_->DidIsProfilingStarted(!v8::V8::IsProfilerPaused());
+}
+
 void DebuggerAgentImpl::GetLogLines(int position) {
   static char buffer[65536];
   int read_size = v8::V8::GetLogLines(position, buffer, sizeof(buffer) - 1);
   buffer[read_size] = '\0';
-  DidGetLogLines(buffer, position + read_size);
+  delegate_->DidGetLogLines(buffer, position + read_size);
 }
 
 void DebuggerAgentImpl::DebuggerOutput(const std::string& command) {
   delegate_->DebuggerOutput(command);
   webdevtools_agent_->ForceRepaint();
-}
-
-void DebuggerAgentImpl::DidGetLogLines(
-    const std::string& log, int new_position) {
-  delegate_->DidGetLogLines(log, new_position);
 }
 
 // static
