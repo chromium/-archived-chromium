@@ -75,6 +75,7 @@ class TextField::Edit
     MESSAGE_HANDLER_EX(WM_IME_CHAR, OnImeChar)
     MESSAGE_HANDLER_EX(WM_IME_STARTCOMPOSITION, OnImeStartComposition)
     MESSAGE_HANDLER_EX(WM_IME_COMPOSITION, OnImeComposition)
+    MESSAGE_HANDLER_EX(WM_IME_ENDCOMPOSITION, OnImeEndComposition)
     MSG_WM_KEYDOWN(OnKeyDown)
     MSG_WM_LBUTTONDBLCLK(OnLButtonDblClk)
     MSG_WM_LBUTTONDOWN(OnLButtonDown)
@@ -123,6 +124,7 @@ class TextField::Edit
   LRESULT OnImeChar(UINT message, WPARAM wparam, LPARAM lparam);
   LRESULT OnImeStartComposition(UINT message, WPARAM wparam, LPARAM lparam);
   LRESULT OnImeComposition(UINT message, WPARAM wparam, LPARAM lparam);
+  LRESULT OnImeEndComposition(UINT message, WPARAM wparam, LPARAM lparam);
   void OnKeyDown(TCHAR key, UINT repeat_count, UINT flags);
   void OnLButtonDblClk(UINT keys, const CPoint& point);
   void OnLButtonDown(UINT keys, const CPoint& point);
@@ -502,6 +504,20 @@ LRESULT TextField::Edit::OnImeComposition(UINT message,
 
   OnAfterPossibleChange();
   return result;
+}
+
+LRESULT TextField::Edit::OnImeEndComposition(UINT message,
+                                             WPARAM wparam,
+                                             LPARAM lparam) {
+  // Bug 11863: Korean IMEs send a WM_IME_ENDCOMPOSITION message without
+  // sending any WM_IME_COMPOSITION messages when a user deletes all
+  // composition characters, i.e. a composition string becomes empty. To handle
+  // this case, we need to update the find results when a composition is
+  // finished or canceled.
+  parent_->SyncText();
+  if (parent_->GetController())
+    parent_->GetController()->ContentsChanged(parent_, GetText());
+  return DefWindowProc(message, wparam, lparam);
 }
 
 void TextField::Edit::OnKeyDown(TCHAR key, UINT repeat_count, UINT flags) {
