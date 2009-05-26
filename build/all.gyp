@@ -28,7 +28,6 @@
         '../printing/printing.gyp:*',
         '../sdch/sdch.gyp:*',
         '../skia/skia.gyp:*',
-        '../testing/gmock.gyp:*',
         '../testing/gtest.gyp:*',
         '../third_party/bzip2/bzip2.gyp:*',
         '../third_party/codesighs/codesighs.gyp:*',

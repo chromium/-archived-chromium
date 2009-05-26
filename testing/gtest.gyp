@@ -3,6 +3,9 @@
 # found in the LICENSE file.
 
 {
+  'variables': {
+    'chromium_code': 1,
+  },
   'includes': [
     '../build/common.gypi',
   ],
@@ -53,7 +56,8 @@
           'UNIT_TEST',
         ],
         'include_dirs': [
-          'gtest/include',  # So that gtest headers can find themselves.
+          'gtest',
+          'gtest/include',
         ],
         'target_conditions': [
           ['_type=="executable"', {'test': 1}],
