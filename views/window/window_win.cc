@@ -127,10 +127,6 @@ gfx::Rect WindowWin::GetNormalBounds() const {
   return gfx::Rect(wp.rcNormalPosition);
 }
 
-void WindowWin::SetBounds(const gfx::Rect& bounds) {
-  SetBounds(bounds, NULL);
-}
-
 void WindowWin::SetBounds(const gfx::Rect& bounds,
                           gfx::NativeWindow other_window) {
   win_util::SetChildBounds(GetNativeView(), GetParent(), other_window, bounds,
@@ -1213,7 +1209,7 @@ void WindowWin::SetInitialBounds(const gfx::Rect& create_bounds) {
       SizeWindowToDefault();
     } else {
       // Use the supplied initial bounds.
-      SetBounds(create_bounds);
+      SetBounds(create_bounds, NULL);
     }
   }
 }

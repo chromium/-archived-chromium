@@ -6,11 +6,14 @@
 #define CHROME_BROWSER_VIEWS_STATUS_BUBBLE_VIEWS_H_
 
 #include "base/gfx/rect.h"
+#include "base/logging.h"
+#include "base/scoped_ptr.h"
 #include "chrome/browser/status_bubble.h"
-#include "views/widget/widget.h"
-#include "views/widget/widget_win.h"
 
 class GURL;
+namespace views {
+class Widget;
+}
 
 // StatusBubble displays a bubble of text that fades in, hovers over the
 // browser chrome and fades away when not needed. It is primarily designed
@@ -53,15 +56,15 @@ class StatusBubbleViews : public StatusBubble {
   std::wstring url_text_;
 
   // Position relative to the parent window.
-  CPoint position_;
-  CSize size_;
+  gfx::Point position_;
+  gfx::Size size_;
 
   // How vertically offset the bubble is from its root position_.
   int offset_;
 
   // We use a HWND for the popup so that it may float above any HWNDs in our
   // UI (the location bar, for example).
-  scoped_ptr<views::WidgetWin> popup_;
+  scoped_ptr<views::Widget> popup_;
   double opacity_;
 
   views::Widget* frame_;

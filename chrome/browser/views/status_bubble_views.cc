@@ -9,7 +9,9 @@
 #include "app/gfx/canvas.h"
 #include "app/gfx/text_elider.h"
 #include "app/l10n_util.h"
+#if defined(OS_WIN)
 #include "app/l10n_util_win.h"
+#endif
 #include "app/animation.h"
 #include "app/resource_bundle.h"
 #include "base/string_util.h"
@@ -22,7 +24,10 @@
 #include "third_party/skia/include/core/SkRect.h"
 #include "views/controls/label.h"
 #include "views/widget/root_view.h"
+#include "views/widget/widget.h"
+#if defined(OS_WIN)
 #include "views/widget/widget_win.h"
+#endif
 
 // The color of the background bubble.
 static const SkColor kBubbleColor = SkColorSetRGB(222, 234, 248);
@@ -69,13 +74,13 @@ class StatusBubbleViews::StatusView : public views::Label,
                                       public Animation,
                                       public AnimationDelegate {
  public:
-  StatusView(StatusBubble* status_bubble, views::WidgetWin* popup)
+  StatusView(StatusBubble* status_bubble, views::Widget* popup)
       : Animation(kFramerate, this),
-        status_bubble_(status_bubble),
-        popup_(popup),
         stage_(BUBBLE_HIDDEN),
         style_(STYLE_STANDARD),
         timer_factory_(this),
+        status_bubble_(status_bubble),
+        popup_(popup),
         opacity_start_(0),
         opacity_end_(0) {
     ResourceBundle& rb = ResourceBundle::GetSharedInstance();
@@ -83,7 +88,7 @@ class StatusBubbleViews::StatusView : public views::Label,
     SetFont(font);
   }
 
-  ~StatusView() {
+  virtual ~StatusView() {
     Stop();
     CancelTimer();
   }
@@ -155,8 +160,8 @@ class StatusBubbleViews::StatusView : public views::Label,
   // Manager, owns us.
   StatusBubble* status_bubble_;
 
-  // Handle to the HWND that contains us.
-  views::WidgetWin* popup_;
+  // Handle to the widget that contains us.
+  views::Widget* popup_;
 
   // The currently-displayed text.
   std::wstring text_;
@@ -219,9 +224,8 @@ void StatusBubbleViews::StatusView::OnTimer() {
 }
 
 void StatusBubbleViews::StatusView::CancelTimer() {
-  if (!timer_factory_.empty()) {
+  if (!timer_factory_.empty())
     timer_factory_.RevokeAll();
-  }
 }
 
 void StatusBubbleViews::StatusView::RestartTimer(int delay) {
@@ -298,7 +302,7 @@ double StatusBubbleViews::StatusView::GetCurrentOpacity() {
 }
 
 void StatusBubbleViews::StatusView::SetOpacity(double opacity) {
-  popup_->SetLayeredAlpha(static_cast<BYTE>(opacity * 255));
+  popup_->SetOpacity(static_cast<unsigned char>(opacity * 255));
   SchedulePaint();
 }
 
@@ -331,8 +335,8 @@ void StatusBubbleViews::StatusView::Paint(gfx::Canvas* canvas) {
   paint.setFlags(SkPaint::kAntiAlias_Flag);
   paint.setColor(kBubbleColor);
 
-  RECT parent_rect;
-  ::GetWindowRect(popup_->GetNativeView(), &parent_rect);
+  gfx::Rect popup_bounds;
+  popup_->GetBounds(&popup_bounds, true);
 
   // Figure out how to round the bubble's four corners.
   SkScalar rad[8];
@@ -392,8 +396,8 @@ void StatusBubbleViews::StatusView::Paint(gfx::Canvas* canvas) {
   }
 
   // Draw the bubble's shadow.
-  int width = parent_rect.right - parent_rect.left;
-  int height = parent_rect.bottom - parent_rect.top;
+  int width = popup_bounds.width();
+  int height = popup_bounds.height();
   SkRect rect;
   rect.set(0, 0,
            SkIntToScalar(width),
@@ -449,42 +453,40 @@ void StatusBubbleViews::StatusView::Paint(gfx::Canvas* canvas) {
 const int StatusBubbleViews::kShadowThickness = 1;
 
 StatusBubbleViews::StatusBubbleViews(views::Widget* frame)
-    : popup_(NULL),
-      frame_(frame),
-      view_(NULL),
+    : offset_(0),
+      popup_(NULL),
       opacity_(0),
-      position_(0, 0),
-      size_(0, 0),
-      offset_(0) {
+      frame_(frame),
+      view_(NULL) {
 }
 
 StatusBubbleViews::~StatusBubbleViews() {
   if (popup_.get())
     popup_->CloseNow();
-
-  position_ = NULL;
-  size_ = NULL;
 }
 
 void StatusBubbleViews::Init() {
   if (!popup_.get()) {
-    popup_.reset(new views::WidgetWin());
-    popup_->set_delete_on_destroy(false);
+#if defined(OS_WIN)
+    views::WidgetWin* popup = new views::WidgetWin;
+    popup->set_delete_on_destroy(false);
 
     if (!view_)
-      view_ = new StatusView(this, popup_.get());
+      view_ = new StatusView(this, popup);
 
-    gfx::Rect rc(0, 0, 0, 0);
-
-    popup_->set_window_style(WS_POPUP);
-    popup_->set_window_ex_style(WS_EX_LAYERED | WS_EX_TOOLWINDOW |
-                                WS_EX_TRANSPARENT |
-                                l10n_util::GetExtendedTooltipStyles());
-    popup_->SetLayeredAlpha(0x00);
-    popup_->Init(frame_->GetNativeView(), rc, false);
-    popup_->SetContentsView(view_);
+    popup->set_window_style(WS_POPUP);
+    popup->set_window_ex_style(WS_EX_LAYERED | WS_EX_TOOLWINDOW |
+                               WS_EX_TRANSPARENT |
+                               l10n_util::GetExtendedTooltipStyles());
+    popup->SetOpacity(0x00);
+    popup->Init(frame_->GetNativeView(), gfx::Rect(), false);
+    popup->SetContentsView(view_);
     Reposition();
-    popup_->Show();
+    popup->Show();
+    popup_.reset(popup);
+#else
+    NOTIMPLEMENTED();
+#endif
   }
 }
 
@@ -516,9 +518,9 @@ void StatusBubbleViews::SetURL(const GURL& url, const std::wstring& languages) {
   }
 
   // Set Elided Text corresponding to the GURL object.
-  RECT parent_rect;
-  ::GetWindowRect(popup_->GetNativeView(), &parent_rect);
-  int text_width = static_cast<int>(parent_rect.right - parent_rect.left -
+  gfx::Rect popup_bounds;
+  popup_->GetBounds(&popup_bounds, true);
+  int text_width = static_cast<int>(popup_bounds.width() -
       (kShadowThickness * 2) - kTextPositionX - kTextHorizPadding - 1);
   url_text_ = gfx::ElideUrl(url, view_->Label::GetFont(), text_width,
                             languages);
@@ -555,8 +557,14 @@ void StatusBubbleViews::AvoidMouse() {
   // Our status bubble is located in screen coordinates, so we should get
   // those rather than attempting to reverse decode the web contents
   // coordinates.
-  CPoint cursor_location;
-  GetCursorPos(&cursor_location);
+  gfx::Point cursor_location;
+#if defined(OS_WIN)
+  POINT tmp = { 0, 0 };
+  GetCursorPos(&tmp);
+  cursor_location = tmp;
+#else
+  NOTIMPLEMENTED();
+#endif
 
   // Get the position of the frame.
   gfx::Point top_left;
@@ -564,32 +572,32 @@ void StatusBubbleViews::AvoidMouse() {
   views::View::ConvertPointToScreen(root, &top_left);
 
   // Get the cursor position relative to the popup.
-  cursor_location.x -= (top_left.x() + position_.x);
-  cursor_location.y -= (top_left.y() + position_.y);
+  cursor_location.set_x(cursor_location.x() - (top_left.x() + position_.x()));
+  cursor_location.set_y(cursor_location.y() - (top_left.y() + position_.y()));
 
   // If the mouse is in a position where we think it would move the
   // status bubble, figure out where and how the bubble should be moved.
-  if (cursor_location.y > -kMousePadding &&
-      cursor_location.x < size_.cx + kMousePadding) {
-    int offset = kMousePadding + cursor_location.y;
+  if (cursor_location.y() > -kMousePadding &&
+      cursor_location.x() < size_.width() + kMousePadding) {
+    int offset = kMousePadding + cursor_location.y();
 
     // Make the movement non-linear.
     offset = offset * offset / kMousePadding;
 
     // When the mouse is entering from the right, we want the offset to be
     // scaled by how horizontally far away the cursor is from the bubble.
-    if (cursor_location.x > size_.cx) {
+    if (cursor_location.x() > size_.width()) {
       offset = static_cast<int>(static_cast<float>(offset) * (
           static_cast<float>(kMousePadding -
-              (cursor_location.x - size_.cx)) /
+              (cursor_location.x() - size_.width())) /
           static_cast<float>(kMousePadding)));
     }
 
     // Cap the offset and change the visual presentation of the bubble
     // depending on where it ends up (so that rounded corners square off
     // and mate to the edges of the tab content).
-    if (offset >= size_.cy - kShadowThickness * 2) {
-      offset = size_.cy - kShadowThickness * 2;
+    if (offset >= size_.height() - kShadowThickness * 2) {
+      offset = size_.height() - kShadowThickness * 2;
       view_->SetStyle(StatusView::STYLE_BOTTOM);
     } else if (offset > kBubbleCornerRadius / 2 - kShadowThickness) {
       view_->SetStyle(StatusView::STYLE_FLOATING);
@@ -598,12 +606,17 @@ void StatusBubbleViews::AvoidMouse() {
     }
 
     // Check if the bubble sticks out from the monitor.
+#if defined(OS_WIN)
     MONITORINFO monitor_info;
     monitor_info.cbSize = sizeof(monitor_info);
     GetMonitorInfo(MonitorFromWindow(frame_->GetNativeView(),
                                      MONITOR_DEFAULTTONEAREST), &monitor_info);
     gfx::Rect monitor_rect(monitor_info.rcWork);
-    const int bubble_bottom_y = top_left.y() + position_.y + size_.cy;
+#else
+    gfx::Rect monitor_rect;
+    NOTIMPLEMENTED();
+#endif
+    const int bubble_bottom_y = top_left.y() + position_.y() + size_.height();
 
     if (bubble_bottom_y + offset > monitor_rect.height()) {
       // The offset is still too large. Move the bubble to the right and reset
@@ -613,26 +626,23 @@ void StatusBubbleViews::AvoidMouse() {
 
       int root_width = root->GetLocalBounds(true).width();  // border included.
       // Substract border width + bubble width.
-      int right_position_x = root_width - (position_.x + size_.cx);
-      popup_->MoveWindow(top_left.x() + right_position_x,
-                         top_left.y() + position_.y,
-                         size_.cx,
-                         size_.cy);
+      int right_position_x = root_width - (position_.x() + size_.width());
+      popup_->SetBounds(gfx::Rect(top_left.x() + right_position_x,
+                                  top_left.y() + position_.y(),
+                                  size_.width(), size_.height()));
     } else {
       offset_ = offset;
-      popup_->MoveWindow(top_left.x() + position_.x,
-                         top_left.y() + position_.y + offset_,
-                         size_.cx,
-                         size_.cy);
+      popup_->SetBounds(gfx::Rect(top_left.x() + position_.x(),
+                                  top_left.y() + position_.y() + offset_,
+                                  size_.width(), size_.height()));
     }
   } else if (offset_ != 0 ||
       view_->GetStyle() == StatusView::STYLE_STANDARD_RIGHT) {
     offset_ = 0;
     view_->SetStyle(StatusView::STYLE_STANDARD);
-    popup_->MoveWindow(top_left.x() + position_.x,
-                       top_left.y() + position_.y,
-                       size_.cx,
-                       size_.cy);
+    popup_->SetBounds(gfx::Rect(top_left.x() + position_.x(),
+                                top_left.y() + position_.y(),
+                                size_.width(), size_.height()));
   }
 }
 
@@ -641,10 +651,9 @@ void StatusBubbleViews::Reposition() {
     gfx::Point top_left;
     views::View::ConvertPointToScreen(frame_->GetRootView(), &top_left);
 
-    popup_->MoveWindow(top_left.x() + position_.x,
-                       top_left.y() + position_.y,
-                       size_.cx,
-                       size_.cy);
+    popup_->SetBounds(gfx::Rect(top_left.x() + position_.x(),
+                                top_left.y() + position_.y(),
+                                size_.width(), size_.height()));
   }
 }
 

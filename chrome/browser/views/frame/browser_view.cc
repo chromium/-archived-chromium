@@ -569,7 +569,7 @@ void BrowserView::Show() {
 }
 
 void BrowserView::SetBounds(const gfx::Rect& bounds) {
-  frame_->GetWindow()->SetBounds(bounds);
+  GetWidget()->SetBounds(bounds);
 }
 
 void BrowserView::Close() {

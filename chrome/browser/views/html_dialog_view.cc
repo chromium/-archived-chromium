@@ -7,6 +7,7 @@
 #include "chrome/browser/browser.h"
 #include "chrome/browser/tab_contents/tab_contents.h"
 #include "views/widget/root_view.h"
+#include "views/widget/widget.h"
 #include "views/window/window.h"
 
 namespace browser {
@@ -157,7 +158,7 @@ void HtmlDialogView::CloseContents(TabContents* source) {
 void HtmlDialogView::MoveContents(TabContents* source, const gfx::Rect& pos) {
   // The contained web page wishes to resize itself. We let it do this because
   // if it's a dialog we know about, we trust it not to be mean to the user.
-  window()->SetBounds(pos);
+  GetWidget()->SetBounds(pos);
 }
 
 bool HtmlDialogView::IsPopup(TabContents* source) {

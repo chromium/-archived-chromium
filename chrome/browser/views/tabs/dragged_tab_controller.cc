@@ -169,7 +169,7 @@ class DraggedTabController::DockDisplayer : public AnimationDelegate {
     popup->set_window_style(WS_POPUP);
     popup->set_window_ex_style(WS_EX_LAYERED | WS_EX_TOOLWINDOW |
                                WS_EX_TOPMOST);
-    popup->SetLayeredAlpha(0x00);
+    popup->SetOpacity(0x00);
     popup->Init(NULL, info.GetPopupRect(), false);
     popup->SetContentsView(new DockView(info.type()));
     if (info.in_enable_area())
@@ -237,7 +237,7 @@ class DraggedTabController::DockDisplayer : public AnimationDelegate {
   virtual void UpdateLayeredAlpha() {
 #if defined(OS_WIN)
     double scale = in_enable_area_ ? 1 : .5;
-    static_cast<views::WidgetWin*>(popup_)->SetLayeredAlpha(
+    static_cast<views::WidgetWin*>(popup_)->SetOpacity(
         static_cast<BYTE>(animation_.GetCurrentValue() * scale * 255.0));
     popup_->GetRootView()->SchedulePaint();
 #else

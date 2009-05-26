@@ -110,8 +110,16 @@ class ExternalTabContainer : public TabContentsDelegate,
   // views::Widget
   /////////////////////////////////////////////////////////////////////////////
   virtual void GetBounds(gfx::Rect* out, bool including_frame) const;
+  virtual void SetBounds(const gfx::Rect& bounds);
+  virtual void SetBounds(const gfx::Rect& bounds,
+                         gfx::NativeWindow other_window);
+  virtual void Close();
+  virtual void CloseNow();
+  virtual void Show();
+  virtual void Hide();
   virtual gfx::NativeView GetNativeView() const;
   virtual void PaintNow(const gfx::Rect& update_rect);
+  virtual void SetOpacity(unsigned char opacity);
   virtual views::RootView* GetRootView();
   virtual Widget* GetRootWidget() const { return NULL; }
   virtual bool IsVisible() const;

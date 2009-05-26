@@ -50,10 +50,9 @@ class WindowWin : public WidgetWin,
     focus_on_creation_ = focus_on_creation;
   }
 
-  // Window overrides:
+  // Overridden from Window:
   virtual gfx::Rect GetBounds() const;
   virtual gfx::Rect GetNormalBounds() const;
-  virtual void SetBounds(const gfx::Rect& bounds);
   virtual void SetBounds(const gfx::Rect& bounds,
                          gfx::NativeWindow other_window);
   virtual void Show();

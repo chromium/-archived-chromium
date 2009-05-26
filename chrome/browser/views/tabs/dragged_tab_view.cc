@@ -104,7 +104,7 @@ void DraggedTabView::Attach(int selected_width) {
   photobooth_ = NULL;
   attached_tab_size_.set_width(selected_width);
 #if defined(OS_WIN)
-  container_->SetLayeredAlpha(kOpaqueAlpha);
+  container_->SetOpacity(kOpaqueAlpha);
 #else
   NOTIMPLEMENTED();
 #endif
@@ -116,7 +116,7 @@ void DraggedTabView::Detach(NativeViewPhotobooth* photobooth) {
   attached_ = false;
   photobooth_ = photobooth;
 #if defined(OS_WIN)
-  container_->SetLayeredAlpha(kTransparentAlpha);
+  container_->SetOpacity(kTransparentAlpha);
 #else
   NOTIMPLEMENTED();
 #endif

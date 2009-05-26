@@ -253,6 +253,54 @@ void WidgetWin::GetBounds(gfx::Rect* out, bool including_frame) const {
                crect.Width(), crect.Height());
 }
 
+void WidgetWin::SetBounds(const gfx::Rect& bounds) {
+  SetWindowPos(NULL, bounds.x(), bounds.y(), bounds.width(), bounds.height(),
+               SWP_NOACTIVATE);
+}
+
+void WidgetWin::Close() {
+  if (!IsWindow())
+    return;  // No need to do anything.
+
+  // Let's hide ourselves right away.
+  Hide();
+  if (close_widget_factory_.empty()) {
+    // And we delay the close so that if we are called from an ATL callback,
+    // we don't destroy the window before the callback returned (as the caller
+    // may delete ourselves on destroy and the ATL callback would still
+    // dereference us when the callback returns).
+    MessageLoop::current()->PostTask(FROM_HERE,
+        close_widget_factory_.NewRunnableMethod(
+            &WidgetWin::CloseNow));
+  }
+}
+
+void WidgetWin::CloseNow() {
+  // We may already have been destroyed if the selection resulted in a tab
+  // switch which will have reactivated the browser window and closed us, so
+  // we need to check to see if we're still a window before trying to destroy
+  // ourself.
+  if (IsWindow())
+    DestroyWindow();
+}
+
+void WidgetWin::Show() {
+  if (IsWindow())
+    ShowWindow(SW_SHOWNOACTIVATE);
+}
+
+void WidgetWin::Hide() {
+  if (IsWindow()) {
+    // NOTE: Be careful not to activate any windows here (for example, calling
+    // ShowWindow(SW_HIDE) will automatically activate another window).  This
+    // code can be called while a window is being deactivated, and activating
+    // another window will screw up the activation that is already in progress.
+    SetWindowPos(NULL, 0, 0, 0, 0,
+                 SWP_HIDEWINDOW | SWP_NOACTIVATE | SWP_NOMOVE |
+                 SWP_NOREPOSITION | SWP_NOSIZE | SWP_NOZORDER);
+  }
+}
+
 gfx::NativeView WidgetWin::GetNativeView() const {
   return hwnd_;
 }
@@ -316,6 +364,10 @@ void WidgetWin::PaintNow(const gfx::Rect& update_rect) {
   }
 }
 
+void WidgetWin::SetOpacity(unsigned char opacity) {
+  layered_alpha_ = static_cast<BYTE>(opacity);
+}
+
 RootView* WidgetWin::GetRootView() {
   if (!root_view_.get()) {
     // First time the root view is being asked for, create it now.
@@ -359,13 +411,6 @@ const Window* WidgetWin::GetWindow() const {
   return GetWindowImpl(hwnd_);
 }
 
-void WidgetWin::SetLayeredAlpha(BYTE layered_alpha) {
-  layered_alpha_ = layered_alpha;
-
-//  if (hwnd_)
-//    UpdateWindowFromContents(contents_->getTopPlatformDevice().getBitmapDC());
-}
-
 void WidgetWin::SetUseLayeredBuffer(bool use_layered_buffer) {
   if (use_layered_buffer_ == use_layered_buffer)
     return;
@@ -405,49 +450,6 @@ RootView* WidgetWin::FindRootView(HWND hwnd) {
   EnumChildWindows(hwnd, EnumChildProc, reinterpret_cast<LPARAM>(&root_view));
 
   return root_view;
-}
-
-void WidgetWin::Close() {
-  if (!IsWindow())
-    return;  // No need to do anything.
-
-  // Let's hide ourselves right away.
-  Hide();
-  if (close_widget_factory_.empty()) {
-    // And we delay the close so that if we are called from an ATL callback,
-    // we don't destroy the window before the callback returned (as the caller
-    // may delete ourselves on destroy and the ATL callback would still
-    // dereference us when the callback returns).
-    MessageLoop::current()->PostTask(FROM_HERE,
-        close_widget_factory_.NewRunnableMethod(
-            &WidgetWin::CloseNow));
-  }
-}
-
-void WidgetWin::Hide() {
-  if (IsWindow()) {
-    // NOTE: Be careful not to activate any windows here (for example, calling
-    // ShowWindow(SW_HIDE) will automatically activate another window).  This
-    // code can be called while a window is being deactivated, and activating
-    // another window will screw up the activation that is already in progress.
-    SetWindowPos(NULL, 0, 0, 0, 0,
-                 SWP_HIDEWINDOW | SWP_NOACTIVATE | SWP_NOMOVE |
-                 SWP_NOREPOSITION | SWP_NOSIZE | SWP_NOZORDER);
-  }
-}
-
-void WidgetWin::Show() {
-  if (IsWindow())
-    ShowWindow(SW_SHOWNOACTIVATE);
-}
-
-void WidgetWin::CloseNow() {
-  // We may already have been destroyed if the selection resulted in a tab
-  // switch which will have reactivated the browser window and closed us, so
-  // we need to check to see if we're still a window before trying to destroy
-  // ourself.
-  if (IsWindow())
-    DestroyWindow();
 }
 
 ///////////////////////////////////////////////////////////////////////////////

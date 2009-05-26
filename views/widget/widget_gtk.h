@@ -59,18 +59,16 @@ class WidgetGtk : public Widget, public MessageLoopForUI::Observer {
 
   virtual void SetContentsView(View* view);
 
-  virtual void Close();
-  void CloseNow();
-  virtual void Show();
-  virtual void Hide();
-
-  // Sets the bounds of the widget.
-  virtual void SetBounds(const gfx::Rect& bounds);
-
   // Overridden from Widget:
   virtual void GetBounds(gfx::Rect* out, bool including_frame) const;
+  virtual void SetBounds(const gfx::Rect& bounds);
+  virtual void Close();
+  virtual void CloseNow();
+  virtual void Show();
+  virtual void Hide();
   virtual gfx::NativeView GetNativeView() const;
   virtual void PaintNow(const gfx::Rect& update_rect);
+  virtual void SetOpacity(unsigned char opacity);
   virtual RootView* GetRootView();
   virtual Widget* GetRootWidget() const;
   virtual bool IsVisible() const;

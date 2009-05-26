@@ -323,6 +323,31 @@ void ExternalTabContainer::GetBounds(gfx::Rect* out,
   *out = gfx::Rect(crect);
 }
 
+void ExternalTabContainer::SetBounds(const gfx::Rect& bounds) {
+  SetBounds(bounds, NULL);
+}
+
+void ExternalTabContainer::SetBounds(const gfx::Rect& bounds,
+                                     gfx::NativeView other_window) {
+  NOTIMPLEMENTED();
+}
+
+void ExternalTabContainer::Close() {
+  NOTIMPLEMENTED();
+}
+
+void ExternalTabContainer::CloseNow() {
+  NOTIMPLEMENTED();
+}
+
+void ExternalTabContainer::Show() {
+  NOTIMPLEMENTED();
+}
+
+void ExternalTabContainer::Hide() {
+  NOTIMPLEMENTED();
+}
+
 gfx::NativeView ExternalTabContainer::GetNativeView() const {
   return m_hWnd;
 }
@@ -332,6 +357,10 @@ void ExternalTabContainer::PaintNow(const gfx::Rect& update_rect) {
   RedrawWindow(&native_update_rect,
                NULL,
                RDW_INVALIDATE | RDW_ALLCHILDREN | RDW_NOERASE);
+}
+
+void ExternalTabContainer::SetOpacity(unsigned char opacity) {
+  NOTIMPLEMENTED();
 }
 
 views::RootView* ExternalTabContainer::GetRootView() {

@@ -16,7 +16,7 @@ void BrowserBubble::InitPopup() {
   pop->set_window_ex_style(WS_EX_LAYERED |
                            WS_EX_TOOLWINDOW |
                            l10n_util::GetExtendedTooltipStyles());
-  pop->SetLayeredAlpha(0xFF);
+  pop->SetOpacity(0xFF);
   pop->Init(native_view, bounds_, false);
   pop->SetContentsView(view_);
   popup_.reset(pop);

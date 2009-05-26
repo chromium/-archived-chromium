@@ -46,11 +46,32 @@ class Widget {
   // including_frame is ignored.
   virtual void GetBounds(gfx::Rect* out, bool including_frame) const = 0;
 
+  // Sizes and/or places the widget to the specified bounds, size or position.
+  virtual void SetBounds(const gfx::Rect& bounds) = 0;
+
+  // Hides the widget then closes it after a return to the message loop.
+  virtual void Close() = 0;
+
+  // Closes the widget immediately. Compare to |Close|. This will destroy the
+  // window handle associated with this Widget, so should not be called from
+  // any code that expects it to be valid beyond this call.
+  virtual void CloseNow() = 0;
+
+  // Shows or hides the widget, without changing activation state.
+  virtual void Show() = 0;
+  virtual void Hide() = 0;
+
   // Returns the gfx::NativeView associated with this Widget.
   virtual gfx::NativeView GetNativeView() const = 0;
 
   // Forces a paint of a specified rectangle immediately.
   virtual void PaintNow(const gfx::Rect& update_rect) = 0;
+
+  // Sets the opacity of the widget. This may allow widgets behind the widget
+  // in the Z-order to become visible, depending on the capabilities of the
+  // underlying windowing system. Note that the caller must then schedule a
+  // repaint to allow this change to take effect.
+  virtual void SetOpacity(unsigned char opacity) = 0;
 
   // Returns the RootView contained by this Widget.
   virtual RootView* GetRootView() = 0;

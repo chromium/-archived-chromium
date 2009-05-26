@@ -50,12 +50,10 @@ class Window {
   // Retrieves the restored bounds for the window.
   virtual gfx::Rect GetNormalBounds() const = 0;
 
-  // Sizes and/or places the window to the specified bounds, size or position.
-  virtual void SetBounds(const gfx::Rect& bounds) = 0;
-
-  // As above, except the window is inserted after |other_window| in the window
-  // Z-order. If this window is not yet visible, other_window's monitor  is used
-  // as the constraining rectangle, rather than this window's monitor.
+  // Sets the Window's bounds. The window is inserted after |other_window| in
+  // the window Z-order. If this window is not yet visible, other_window's
+  // monitor is used as the constraining rectangle, rather than this window's
+  // monitor.
   virtual void SetBounds(const gfx::Rect& bounds,
                          gfx::NativeWindow other_window) = 0;
 

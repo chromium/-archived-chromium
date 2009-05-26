@@ -51,6 +51,9 @@ static int GetFlagsForEventButton(const GdkEventButton& event) {
   return flags;
 }
 
+////////////////////////////////////////////////////////////////////////////////
+// WidgetGtk, public:
+
 WidgetGtk::WidgetGtk(Type type)
     : is_window_(false),
       type_(type),
@@ -189,6 +192,44 @@ void WidgetGtk::SetContentsView(View* view) {
   OnSizeAllocate(widget_, &(widget_->allocation));
 }
 
+////////////////////////////////////////////////////////////////////////////////
+// WidgetGtk, Widget implementation:
+
+void WidgetGtk::GetBounds(gfx::Rect* out, bool including_frame) const {
+  DCHECK(widget_);
+
+  int x = 0, y = 0, w, h;
+  if (GTK_IS_WINDOW(widget_)) {
+    gtk_window_get_position(GTK_WINDOW(widget_), &x, &y);
+    gtk_window_get_size(GTK_WINDOW(widget_), &w, &h);
+  } else {
+    // TODO: make sure this is right. Docs indicate gtk_window_get_position
+    // returns a value useful to the window manager, which may not be the same
+    // as the actual location on the screen.
+    GetWidgetPositionOnScreen(widget_, &x, &y);
+    w = widget_->allocation.width;
+    h = widget_->allocation.height;
+  }
+
+  if (including_frame) {
+    // TODO: Docs indicate it isn't possible to get at this value. We may need
+    // to turn off all decorations so that the frame is always of a 0x0 size.
+    NOTIMPLEMENTED();
+  }
+
+  return out->SetRect(x, y, w, h);
+}
+
+void WidgetGtk::SetBounds(const gfx::Rect& bounds) {
+  if (type_ == TYPE_CHILD) {
+    WidgetGtk* parent_widget = GetViewForNative(gtk_widget_get_parent(widget_));
+    parent_widget->PositionChild(widget_, bounds.x(), bounds.y(),
+                                 bounds.width(), bounds.height());
+  } else {
+    NOTIMPLEMENTED();
+  }
+}
+
 void WidgetGtk::Close() {
   if (!widget_)
     return;  // No need to do anything.
@@ -218,41 +259,6 @@ void WidgetGtk::Hide() {
     gtk_widget_hide(widget_);
 }
 
-void WidgetGtk::SetBounds(const gfx::Rect& bounds) {
-  if (type_ == TYPE_CHILD) {
-    WidgetGtk* parent_widget = GetViewForNative(gtk_widget_get_parent(widget_));
-    parent_widget->PositionChild(widget_, bounds.x(), bounds.y(),
-                                 bounds.width(), bounds.height());
-  } else {
-    NOTIMPLEMENTED();
-  }
-}
-
-void WidgetGtk::GetBounds(gfx::Rect* out, bool including_frame) const {
-  DCHECK(widget_);
-
-  int x = 0, y = 0, w, h;
-  if (GTK_IS_WINDOW(widget_)) {
-    gtk_window_get_position(GTK_WINDOW(widget_), &x, &y);
-    gtk_window_get_size(GTK_WINDOW(widget_), &w, &h);
-  } else {
-    // TODO: make sure this is right. Docs indicate gtk_window_get_position
-    // returns a value useful to the window manager, which may not be the same
-    // as the actual location on the screen.
-    GetWidgetPositionOnScreen(widget_, &x, &y);
-    w = widget_->allocation.width;
-    h = widget_->allocation.height;
-  }
-
-  if (including_frame) {
-    // TODO: Docs indicate it isn't possible to get at this value. We may need
-    // to turn off all decorations so that the frame is always of a 0x0 size.
-    NOTIMPLEMENTED();
-  }
-
-  return out->SetRect(x, y, w, h);
-}
-
 gfx::NativeView WidgetGtk::GetNativeView() const {
   return widget_;
 }
@@ -260,6 +266,11 @@ gfx::NativeView WidgetGtk::GetNativeView() const {
 void WidgetGtk::PaintNow(const gfx::Rect& update_rect) {
   gtk_widget_queue_draw_area(widget_, update_rect.x(), update_rect.y(),
                              update_rect.width(), update_rect.height());
+}
+
+void WidgetGtk::SetOpacity(unsigned char opacity) {
+  // TODO(port): implement this feature.
+  NOTIMPLEMENTED();
 }
 
 RootView* WidgetGtk::GetRootView() {
@@ -304,14 +315,20 @@ Window* WidgetGtk::GetWindow() {
   return GetWindowImpl(widget_);
 }
 
+const Window* WidgetGtk::GetWindow() const {
+  return GetWindowImpl(widget_);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// WidgetGtk, MessageLoopForUI::Observer implementation:
+
 void WidgetGtk::DidProcessEvent(GdkEvent* event) {
   if (root_view_->NeedsPainting(true))
     PaintNow(root_view_->GetScheduledPaintRect());
 }
 
-const Window* WidgetGtk::GetWindow() const {
-  return GetWindowImpl(widget_);
-}
+////////////////////////////////////////////////////////////////////////////////
+// TODO(beng): organize into sections:
 
 void WidgetGtk::CreateGtkWidget() {
   if (type_ == TYPE_CHILD) {

@@ -111,10 +111,6 @@ class WidgetWin : public Widget,
     delete_on_destroy_ = delete_on_destroy;
   }
 
-  // Sets the initial opacity of a layered window, or updates the window's
-  // opacity if it is on the screen.
-  void SetLayeredAlpha(BYTE layered_alpha);
-
   // See description of use_layered_buffer_ for details.
   void SetUseLayeredBuffer(bool use_layered_buffer);
 
@@ -125,23 +121,6 @@ class WidgetWin : public Widget,
 
   // Returns the RootView associated with the specified HWND (if any).
   static RootView* FindRootView(HWND hwnd);
-
-  // Closes the window asynchronously by scheduling a task for it.  The window
-  // is destroyed as a result.
-  // This invokes Hide to hide the window, and schedules a task that
-  // invokes CloseNow.
-  virtual void Close();
-
-  // Hides the window. This does NOT delete the window, it just hides it.
-  virtual void Hide();
-
-  // Shows the window without changing size/position/activation state.
-  virtual void Show();
-
-  // Closes the window synchronously.  Note that this should not be called from
-  // an ATL message callback as it deletes the WidgetWin and ATL will
-  // dereference it after the callback is processed.
-  void CloseNow();
 
   // All classes registered by WidgetWin start with this name.
   static const wchar_t* const kBaseClassName;
@@ -234,8 +213,14 @@ class WidgetWin : public Widget,
 
   // Overridden from Widget:
   virtual void GetBounds(gfx::Rect* out, bool including_frame) const;
+  virtual void SetBounds(const gfx::Rect& bounds);
+  virtual void Close();
+  virtual void CloseNow();
+  virtual void Show();
+  virtual void Hide();
   virtual gfx::NativeView GetNativeView() const;
   virtual void PaintNow(const gfx::Rect& update_rect);
+  virtual void SetOpacity(unsigned char opacity);
   virtual RootView* GetRootView();
   virtual Widget* GetRootWidget() const;
   virtual bool IsVisible() const;
@@ -514,6 +499,8 @@ class WidgetWin : public Widget,
   // is true.
   virtual bool ReleaseCaptureOnMouseReleased() { return true; }
 
+  // Creates the RootView to be used within this Widget. Can be overridden to
+  // create specialized RootView implementations.
   virtual RootView* CreateRootView();
 
   // Returns true if this WidgetWin is opaque.

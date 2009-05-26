@@ -1690,6 +1690,8 @@
                 ['include', '^browser/views/info_bubble.h'],
                 ['include', '^browser/views/location_bar_view.cc'],
                 ['include', '^browser/views/location_bar_view.h'],
+                ['include', '^browser/views/status_bubble_views.cc'],
+                ['include', '^browser/views/status_bubble_views.h'],
                 ['include', '^browser/views/tab_contents/native_tab_contents_container_gtk.cc'],
                 ['include', '^browser/views/tab_contents/native_tab_contents_container_gtk.h'],
                 ['include', '^browser/views/tabs/dragged_tab_view.cc'],

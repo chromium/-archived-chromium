@@ -105,7 +105,7 @@ DownloadStartedAnimationWin::DownloadStartedAnimationWin(
   popup_->set_window_style(WS_POPUP);
   popup_->set_window_ex_style(WS_EX_LAYERED | WS_EX_TOOLWINDOW |
                               WS_EX_TRANSPARENT);
-  popup_->SetLayeredAlpha(0x00);
+  popup_->SetOpacity(0x00);
   popup_->Init(tab_contents_->GetNativeView(), rc, false);
   popup_->SetContentsView(this);
   Reposition();
@@ -157,8 +157,8 @@ void DownloadStartedAnimationWin::AnimateToState(double state) {
     double opacity = std::min(1.0 - pow(GetCurrentValue() - 0.5, 2) * 4.0,
                               static_cast<double>(1.0));
 
-    popup_->SetLayeredAlpha(
-        static_cast<BYTE>(opacity * 255.0));
+    popup_->SetOpacity(
+        static_cast<SkColor>(opacity * 255.0));
     SchedulePaint();  // Reposition() calls MoveWindow() which never picks up
                       // alpha changes, so we need to force a paint.
   }
