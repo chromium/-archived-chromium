@@ -7,6 +7,7 @@
 
 #include <set>
 
+#include "base/gfx/native_widget_types.h"
 #include "build/build_config.h"
 #include "chrome/browser/browser.h"
 #include "chrome/browser/browser_window.h"
@@ -64,12 +65,10 @@ class BrowserView : public BrowserWindow,
   void set_frame(BrowserFrame* frame) { frame_ = frame; }
   BrowserFrame* frame() const { return frame_; }
 
-#if defined(OS_WIN)
   // Returns a pointer to the BrowserView* interface implementation (an
-  // instance of this object, typically) for a given HWND, or NULL if there is
-  // no such association.
-  static BrowserView* GetBrowserViewForHWND(HWND window);
-#endif
+  // instance of this object, typically) for a given native window, or NULL if
+  // there is no such association.
+  static BrowserView* GetBrowserViewForNativeView(gfx::NativeView window);
 
   // Returns the show flag that should be used to show the frame containing
   // this view.

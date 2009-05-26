@@ -4,6 +4,10 @@
 
 #include "chrome/browser/views/frame/browser_view.h"
 
+#if defined(OS_LINUX)
+#include <gtk/gtk.h>
+#endif
+
 #include "app/drag_drop_types.h"
 #include "app/gfx/canvas.h"
 #include "app/l10n_util.h"
@@ -291,17 +295,22 @@ BrowserView::~BrowserView() {
   ticker_.UnregisterTickHandler(&hung_window_detector_);
 }
 
-#if defined(OS_WIN)
 // static
-BrowserView* BrowserView::GetBrowserViewForHWND(HWND window) {
+BrowserView* BrowserView::GetBrowserViewForNativeView(gfx::NativeView window) {
+#if defined(OS_WIN)
   if (IsWindow(window)) {
     HANDLE data = GetProp(window, kBrowserViewKey);
     if (data)
       return reinterpret_cast<BrowserView*>(data);
   }
+#else
+  if (window) {
+    return reinterpret_cast<BrowserView*>(
+        g_object_set_data(G_OBJECT(window), kBrowserViewKey, this));
+  }
+#endif
   return NULL;
 }
-#endif
 
 int BrowserView::GetShowState() const {
   if (explicit_show_state != -1)
@@ -1251,8 +1260,12 @@ void BrowserView::ChildPreferredSizeChanged(View* child) {
 
 void BrowserView::Init() {
   // Stow a pointer to this object onto the window handle so that we can get
-  // at it later when all we have is a HWND.
+  // at it later when all we have is a native view.
+#if defined(OS_WIN)
   SetProp(GetWidget()->GetNativeView(), kBrowserViewKey, this);
+#else
+  g_object_set_data(G_OBJECT(GetWidget()->GetNativeView()), kBrowserViewKey, this);
+#endif
 
   // Start a hung plugin window detector for this browser object (as long as
   // hang detection is not disabled).

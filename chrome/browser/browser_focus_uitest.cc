@@ -105,7 +105,7 @@ IN_PROC_BROWSER_TEST_F(BrowserFocusTest, DISABLED_BrowsersRememberFocus) {
 
   // The focus should be on the Tab contents.
   HWND hwnd = reinterpret_cast<HWND>(browser()->window()->GetNativeHandle());
-  BrowserView* browser_view = BrowserView::GetBrowserViewForHWND(hwnd);
+  BrowserView* browser_view = BrowserView::GetBrowserViewForNativeView(hwnd);
   ASSERT_TRUE(browser_view);
   views::FocusManager* focus_manager =
       views::FocusManager::GetFocusManager(hwnd);
@@ -145,7 +145,7 @@ IN_PROC_BROWSER_TEST_F(BrowserFocusTest, DISABLED_BrowsersRememberFocus) {
   ui_test_utils::NavigateToURL(browser2, url);
 
   HWND hwnd2 = reinterpret_cast<HWND>(browser2->window()->GetNativeHandle());
-  BrowserView* browser_view2 = BrowserView::GetBrowserViewForHWND(hwnd2);
+  BrowserView* browser_view2 = BrowserView::GetBrowserViewForNativeView(hwnd2);
   ASSERT_TRUE(browser_view2);
   views::FocusManager* focus_manager2 =
       views::FocusManager::GetFocusManager(hwnd2);
@@ -178,7 +178,7 @@ IN_PROC_BROWSER_TEST_F(BrowserFocusTest, TabsRememberFocus) {
   ui_test_utils::NavigateToURL(browser(), url);
 
   HWND hwnd = reinterpret_cast<HWND>(browser()->window()->GetNativeHandle());
-  BrowserView* browser_view = BrowserView::GetBrowserViewForHWND(hwnd);
+  BrowserView* browser_view = BrowserView::GetBrowserViewForNativeView(hwnd);
   ASSERT_TRUE(browser_view);
 
   views::FocusManager* focus_manager =
@@ -254,13 +254,13 @@ IN_PROC_BROWSER_TEST_F(BrowserFocusTest, BackgroundBrowserDontStealFocus) {
 
   // Make sure the first browser is still active.
   HWND hwnd = reinterpret_cast<HWND>(browser()->window()->GetNativeHandle());
-  BrowserView* browser_view = BrowserView::GetBrowserViewForHWND(hwnd);
+  BrowserView* browser_view = BrowserView::GetBrowserViewForNativeView(hwnd);
   ASSERT_TRUE(browser_view);
   EXPECT_TRUE(browser_view->frame()->GetWindow()->IsActive());
 
   // Close the 2nd browser to avoid a DCHECK().
   HWND hwnd2 = reinterpret_cast<HWND>(browser2->window()->GetNativeHandle());
-  BrowserView* browser_view2 = BrowserView::GetBrowserViewForHWND(hwnd2);
+  BrowserView* browser_view2 = BrowserView::GetBrowserViewForNativeView(hwnd2);
   browser_view2->Close();
 }
 
@@ -273,7 +273,7 @@ IN_PROC_BROWSER_TEST_F(BrowserFocusTest, LocationBarLockFocus) {
   ui_test_utils::NavigateToURL(browser(), url);
 
   HWND hwnd = reinterpret_cast<HWND>(browser()->window()->GetNativeHandle());
-  BrowserView* browser_view = BrowserView::GetBrowserViewForHWND(hwnd);
+  BrowserView* browser_view = BrowserView::GetBrowserViewForNativeView(hwnd);
   views::FocusManager* focus_manager =
       views::FocusManager::GetFocusManager(hwnd);
 
@@ -301,7 +301,7 @@ IN_PROC_BROWSER_TEST_F(BrowserFocusTest, FocusTraversal) {
   ui_test_utils::NavigateToURL(browser(), url);
 
   HWND hwnd = reinterpret_cast<HWND>(browser()->window()->GetNativeHandle());
-  BrowserView* browser_view = BrowserView::GetBrowserViewForHWND(hwnd);
+  BrowserView* browser_view = BrowserView::GetBrowserViewForNativeView(hwnd);
   views::FocusManager* focus_manager =
       views::FocusManager::GetFocusManager(hwnd);
 
@@ -391,7 +391,7 @@ IN_PROC_BROWSER_TEST_F(BrowserFocusTest, FocusTraversalOnInterstitial) {
   ui_test_utils::NavigateToURL(browser(), url);
 
   HWND hwnd = reinterpret_cast<HWND>(browser()->window()->GetNativeHandle());
-  BrowserView* browser_view = BrowserView::GetBrowserViewForHWND(hwnd);
+  BrowserView* browser_view = BrowserView::GetBrowserViewForNativeView(hwnd);
   views::FocusManager* focus_manager =
       views::FocusManager::GetFocusManager(hwnd);
 
@@ -486,7 +486,7 @@ IN_PROC_BROWSER_TEST_F(BrowserFocusTest, InterstitialFocus) {
   ui_test_utils::NavigateToURL(browser(), url);
 
   HWND hwnd = reinterpret_cast<HWND>(browser()->window()->GetNativeHandle());
-  BrowserView* browser_view = BrowserView::GetBrowserViewForHWND(hwnd);
+  BrowserView* browser_view = BrowserView::GetBrowserViewForNativeView(hwnd);
   views::FocusManager* focus_manager =
       views::FocusManager::GetFocusManager(hwnd);
 
@@ -531,7 +531,7 @@ IN_PROC_BROWSER_TEST_F(BrowserFocusTest, FindFocusTest) {
   ui_test_utils::NavigateToURL(browser(), url);
 
   HWND hwnd = reinterpret_cast<HWND>(browser()->window()->GetNativeHandle());
-  BrowserView* browser_view = BrowserView::GetBrowserViewForHWND(hwnd);
+  BrowserView* browser_view = BrowserView::GetBrowserViewForNativeView(hwnd);
   views::FocusManager* focus_manager =
       views::FocusManager::GetFocusManager(hwnd);
   LocationBarView* location_bar = browser_view->GetLocationBarView();
@@ -602,7 +602,7 @@ IN_PROC_BROWSER_TEST_F(BrowserFocusTest, FindFocusTest) {
 // types of tabs.
 IN_PROC_BROWSER_TEST_F(BrowserFocusTest, TabInitialFocus) {
   HWND hwnd = reinterpret_cast<HWND>(browser()->window()->GetNativeHandle());
-  BrowserView* browser_view = BrowserView::GetBrowserViewForHWND(hwnd);
+  BrowserView* browser_view = BrowserView::GetBrowserViewForNativeView(hwnd);
   ASSERT_TRUE(browser_view);
   views::FocusManager* focus_manager =
       views::FocusManager::GetFocusManager(hwnd);

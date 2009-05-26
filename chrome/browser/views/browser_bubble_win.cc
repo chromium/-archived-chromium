@@ -22,7 +22,8 @@ void BrowserBubble::InitPopup() {
   popup_.reset(pop);
   Reposition();
 
-  BrowserView* browser_view = BrowserView::GetBrowserViewForHWND(native_view);
+  BrowserView* browser_view =
+      BrowserView::GetBrowserViewForNativeView(native_view);
   DCHECK(browser_view);
   if (browser_view)
     browser_view->AttachBrowserBubble(this);
@@ -30,7 +31,8 @@ void BrowserBubble::InitPopup() {
 
 void BrowserBubble::DestroyPopup() {
   gfx::NativeView native_view = frame_->GetNativeView();
-  BrowserView* browser_view = BrowserView::GetBrowserViewForHWND(native_view);
+  BrowserView* browser_view =
+      BrowserView::GetBrowserViewForNativeView(native_view);
   if (browser_view)
     browser_view->DetachBrowserBubble(this);
 }
