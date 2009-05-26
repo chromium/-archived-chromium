@@ -677,7 +677,7 @@ void EditorClientImpl::handleInputMethodKeydown(WebCore::KeyboardEvent* keyEvent
 void EditorClientImpl::textFieldDidBeginEditing(WebCore::Element*) {
 }
 
-void EditorClientImpl::textFieldDidEndEditing(WebCore::Element*) {
+void EditorClientImpl::textFieldDidEndEditing(WebCore::Element* element) {
   // Notification that focus was lost.  Be careful with this, it's also sent
   // when the page is being closed.
 
@@ -686,6 +686,26 @@ void EditorClientImpl::textFieldDidEndEditing(WebCore::Element*) {
 
   // Hide any showing popup.
   web_view_->HideAutoCompletePopup();
+  
+  // Notify any password-listener of the focus change.
+  WebCore::HTMLInputElement* input_element =
+      webkit_glue::ElementToHTMLInputElement(element);
+  if (!input_element)
+    return;
+
+  WebFrameImpl* webframe =
+      WebFrameImpl::FromFrame(input_element->document()->frame());
+  if (webframe->GetView() && !webframe->GetView()->GetDelegate())
+    return;  // The page is getting closed, don't fill the password.
+
+  webkit_glue::PasswordAutocompleteListener* listener =
+      webframe->GetPasswordListener(input_element);
+  if (!listener)
+    return;
+
+  std::wstring value =
+      webkit_glue::StringToStdWString(input_element->value());
+  listener->OnBlur(input_element, value);
 }
 
 void EditorClientImpl::textDidChangeInTextField(WebCore::Element* element) {

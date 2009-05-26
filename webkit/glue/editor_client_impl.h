@@ -77,7 +77,7 @@ class EditorClientImpl : public WebCore::EditorClient {
   virtual void handleInputMethodKeydown(WebCore::KeyboardEvent*);
 
   virtual void textFieldDidBeginEditing(WebCore::Element*);
-  virtual void textFieldDidEndEditing(WebCore::Element*);
+  virtual void textFieldDidEndEditing(WebCore::Element* element);
   virtual void textDidChangeInTextField(WebCore::Element*);
   virtual bool doTextFieldCommandFromEvent(WebCore::Element*,WebCore::KeyboardEvent*);
   virtual void textWillBeDeletedInTextField(WebCore::Element*);
