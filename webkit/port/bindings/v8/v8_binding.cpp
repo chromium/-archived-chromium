@@ -94,6 +94,10 @@ String v8ValueToWebCoreString(v8::Handle<v8::Value> obj) {
   } else {
     v8::TryCatch block;
     v8::Handle<v8::String> v8_str = obj->ToString();
+    // Check for empty handles to handle the case where an exception
+    // is thrown as part of invoking toString on the object.
+    if (v8_str.IsEmpty())
+      return StringImpl::empty();
     return v8StringToWebCoreString(v8_str, false);
   }
 }
