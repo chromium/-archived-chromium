@@ -328,7 +328,10 @@ void RenderThread::EnsureWebKitInitialized() {
   WebKit::registerURLSchemeAsLocal(chrome_ui_scheme);
   WebKit::registerURLSchemeAsNoAccess(chrome_ui_scheme);
 
+#if defined(OS_WIN)
+  // We don't yet support Gears on non-Windows, so don't tell pages that we do.
   WebKit::registerExtension(extensions_v8::GearsExtension::Get());
+#endif
   WebKit::registerExtension(extensions_v8::IntervalExtension::Get());
   WebKit::registerExtension(extensions_v8::LoadTimesExtension::Get());
   WebKit::registerExtension(extensions_v8::ExternalExtension::Get());
