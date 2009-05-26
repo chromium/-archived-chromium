@@ -863,7 +863,7 @@ void BrowserView::ShowHTMLDialog(HtmlDialogUIDelegate* delegate,
   // Default to using our window as the parent if the argument is not specified.
   gfx::NativeWindow parent = parent_window ? parent_window
                                            : GetNativeHandle();
-  browser::ShowHtmlDialogView(parent_window, browser_.get(), delegate);
+  browser::ShowHtmlDialogView(parent, browser_.get(), delegate);
 }
 
 void BrowserView::UserChangedTheme() {

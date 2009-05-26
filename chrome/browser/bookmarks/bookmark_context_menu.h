@@ -12,7 +12,7 @@
 #include "chrome/browser/bookmarks/bookmark_model.h"
 
 // TODO(port): Port this file.
-#if defined(OS_WIN)
+#if defined(OS_WIN) || defined(TOOLKIT_VIEWS)
 #include "views/controls/menu/chrome_menu.h"
 #elif defined(OS_LINUX)
 #include "chrome/browser/gtk/menu_gtk.h"
@@ -27,7 +27,7 @@ class PageNavigator;
 // bookmark bar, items on the bookmark bar, submenus of the bookmark bar and
 // the bookmark manager.
 class BookmarkContextMenu : public BookmarkModelObserver,
-#if defined(OS_WIN)
+#if defined(OS_WIN) || defined(TOOLKIT_VIEWS)
                             public views::MenuDelegate
 #elif defined(OS_LINUX)
                             public MenuGtk::Delegate
@@ -139,7 +139,7 @@ class BookmarkContextMenu : public BookmarkModelObserver,
   BookmarkModel* model_;
   ConfigurationType configuration_;
 
-#if defined(OS_WIN)
+#if defined(OS_WIN) || defined(TOOLKIT_VIEWS)
   scoped_ptr<views::MenuItemView> menu_;
 #elif defined(OS_LINUX)
   scoped_ptr<MenuGtk> menu_;
