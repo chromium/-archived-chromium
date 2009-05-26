@@ -1554,6 +1554,7 @@ bool WebFrameImpl::CaptureImage(scoped_ptr<skia::BitmapPlatformDevice>* image,
 #elif defined(OS_MACOSX)
   CGContextRef context = canvas.beginPlatformPaint();
   GraphicsContext gc(context);
+  WebCore::LocalCurrentGraphicsContext localContext(&gc);
 #endif
   frameview()->paint(&gc, IntRect(0, 0, frameview()->width(),
                                   frameview()->height()));
@@ -1842,6 +1843,7 @@ float WebFrameImpl::PrintPage(int page, skia::PlatformCanvas* canvas) {
 #elif defined(OS_MACOSX)
   CGContextRef context = canvas->beginPlatformPaint();
   GraphicsContext spool(context);
+  WebCore::LocalCurrentGraphicsContext localContext(&spool);
 #endif
 
   return print_context_->spoolPage(spool, page);
