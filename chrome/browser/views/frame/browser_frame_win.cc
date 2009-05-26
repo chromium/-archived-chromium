@@ -93,15 +93,6 @@ ThemeProvider* BrowserFrameWin::GetDialogThemeProvider() const {
   return profile_->GetThemeProvider();
 }
 
-#if defined(FRAME_WINDOW)
-void BrowserFrameWin::SetBrowserNonClientFrameView(
-    BrowserNonClientFrameView* view) {
-  GetNonClientView()->SetFrameView(view);
-  // SetFrameView deletes the old browser_frame_view_.
-  browser_frame_view_ = view;
-}
-#endif
-
 ///////////////////////////////////////////////////////////////////////////////
 // BrowserFrame, views::WidgetWin overrides:
 

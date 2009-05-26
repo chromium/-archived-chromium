@@ -51,10 +51,6 @@
 #include "base/win_util.h"
 #endif
 
-#ifdef FRAME_WINDOW
-#include "frame_window/frame_window.h"
-#endif
-
 namespace {
 
 class SetAsDefaultBrowserTask : public Task {
@@ -316,10 +312,6 @@ bool LaunchBrowser(const CommandLine& command_line, Profile* profile,
                    int* return_code, BrowserInit* browser_init) {
   in_startup = process_startup;
   DCHECK(profile);
-#ifdef FRAME_WINDOW
-  FrameWindow::Show(profile);
-  return true;
-#endif
 
   // Continue with the off-the-record profile from here on if --incognito
   if (command_line.HasSwitch(switches::kIncognito))
