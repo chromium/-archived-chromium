@@ -313,32 +313,34 @@ int BufferedResourceLoader::ReadInternal(uint8* buffer,
       break;
     }
 
-    // The request has completed and the buffer is empty, don't wait. Return
-    // the completion error that we got from OnCompletedRequest().
-    if (completed_ && !buffer_->forward_bytes()) {
-      error = completion_error_;
-      break;
-    }
-
     // Read into |data|.
     size_t unread_bytes = read_size - taken;
     size_t bytes_read_this_time = buffer_->Read(unread_bytes, buffer + taken);
-
-    // If we have waited for data in the last iteration but there isn't any
-    // more data in the buffer, declare a timeout situation.
-    if (waited_for_buffer && !bytes_read_this_time) {
-      error = net::ERR_TIMED_OUT;
-      break;
-    }
 
     // Increment the total bytes read from the buffer so we know when to stop
     // reading.
     taken += bytes_read_this_time;
     DCHECK_LE(taken, read_size);
 
-    // We have got enough bytes so we don't need to read anymore.
-    if (taken == read_size)
+    // There are three conditions when we should terminate this loop:
+    // 1. We have read enough bytes so we don't need to read anymore.
+    // 2. The request has completed and the buffer is empty. We don't want to
+    //    wait an additional iteration, so break on condition of empty forward
+    //    buffer instead of breaking on failed read.
+    // 3. The request has timed out. We waited for data in the last iteration
+    //    but there isn't any more data in the buffer.
+    if (taken == read_size) {
       break;
+    }
+    if (completed_ && buffer_->forward_bytes() == 0) {
+      // We should return the completion error received.
+      error = completion_error_;
+      break;
+    }
+    if (waited_for_buffer && bytes_read_this_time == 0) {
+      error = net::ERR_TIMED_OUT;
+      break;
+    }
 
     buffer_available_.TimedWait(
         base::TimeDelta::FromSeconds(kDataTransferTimeoutSeconds));
