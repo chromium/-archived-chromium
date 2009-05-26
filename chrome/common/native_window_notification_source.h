@@ -18,8 +18,8 @@ class Source<gfx::NativeWindow> : public NotificationSource {
   explicit Source(const NotificationSource& other)
       : NotificationSource(other) {}
 
-  HWND operator->() const { return ptr(); }
-  HWND ptr() const { return static_cast<gfx::NativeWindow>(ptr_); }
+  gfx::NativeWindow operator->() const { return ptr(); }
+  gfx::NativeWindow ptr() const { return static_cast<gfx::NativeWindow>(ptr_); }
 };
 
 #endif  // CHROME_COMMON_NATIVE_WINDOW_NOTIFICATION_SOURCE_H_

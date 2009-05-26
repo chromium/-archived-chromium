@@ -205,6 +205,7 @@ class TableModel {
   virtual int RowCount() = 0;
 };
 
+#if !defined(TOOLKIT_VIEWS)
 class MenuItemView {
  public:
   enum Type {
@@ -235,6 +236,7 @@ class MenuItemView {
 
 class MenuDelegate {
 };
+#endif
 
 #if !defined(OS_LINUX)
 class Window {
@@ -345,7 +347,7 @@ class DockInfo {
 };
 #endif
 
-#if defined(OS_LINUX)
+#if defined(OS_LINUX) && !defined(TOOLKIT_VIEWS)
 class WindowSizer {
  public:
   static void GetBrowserWindowBounds(const std::wstring& app_name,
