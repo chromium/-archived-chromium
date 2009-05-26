@@ -478,6 +478,11 @@ BUG10271 SKIP : LayoutTests/http/tests/workers = TIMEOUT FAIL
 BUG10271 SKIP : LayoutTests/http/tests/xmlhttprequest/workers = TIMEOUT FAIL
 BUG10271 MAC LINUX : LayoutTests/fast/events/dispatchEvent-crash.html = CRASH FAIL
 
+// This is expected to fail after we remove the uses of v8::Locker when we
+// switch to process-per-worker model. Re-enable this when we fully support
+// worker thread.
+BUG12428 SKIP : LayoutTests/fast/workers/worker-terminate.html = CRASH FAIL
+
 // -----------------------------------------------------------------
 // PENDING TESTS (forked to pending/, need to be sent upstream)
 // -----------------------------------------------------------------
