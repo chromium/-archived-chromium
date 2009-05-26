@@ -240,6 +240,9 @@ void UITest::LaunchBrowser(const CommandLine& arguments, bool clear_profile) {
     command_line.AppendLooseValue(extra_chrome_flags);
   }
 
+  // No first-run dialogs, please.
+  command_line.AppendSwitch(switches::kNoFirstRun);
+
   // We need cookies on file:// for things like the page cycler.
   if (enable_file_cookies_)
     command_line.AppendSwitch(switches::kEnableFileCookies);
