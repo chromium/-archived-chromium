@@ -52,7 +52,7 @@ void FindBarBridge::MoveWindowIfNecessary(const gfx::Rect& selection_rect,
 }
 
 void FindBarBridge::StopAnimation() {
-  NOTIMPLEMENTED();
+  // Do nothing here, this appears necessary only for the windows impl.
 }
 
 gfx::Rect FindBarBridge::GetDialogPosition(gfx::Rect avoid_overlapping_rect) {
@@ -63,10 +63,9 @@ gfx::Rect FindBarBridge::GetDialogPosition(gfx::Rect avoid_overlapping_rect) {
 void FindBarBridge::SetDialogPosition(const gfx::Rect& new_pos,
                                       bool no_redraw) {
   // TODO(rohitrao): Do something useful here.  For now, just show the findbar.
-  NOTIMPLEMENTED();
   Show();
 }
 
 void FindBarBridge::RestoreSavedFocus() {
-  NOTIMPLEMENTED();
+  // http://crbug.com/12657
 }
