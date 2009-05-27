@@ -58,6 +58,7 @@ class DefaultMonitorInfoProvider : public WindowSizer::MonitorInfoProvider {
   // Get the available screen space as a gfx::Rect, or return false if
   // if it's unavailable (i.e. the window manager doesn't support
   // retrieving this).
+  // TODO(thestig) Use _NET_CURRENT_DESKTOP here as well?
   bool GetScreenWorkArea(gfx::Rect* out_rect) const {
     gboolean ok;
     guchar* raw_data = NULL;
@@ -76,7 +77,7 @@ class DefaultMonitorInfoProvider : public WindowSizer::MonitorInfoProvider {
       return false;
 
     // We expect to get four longs back: x1, y1, x2, y2.
-    if (data_len != 4 * sizeof(glong)) {
+    if (data_len < static_cast<gint>(4 * sizeof(glong))) {
       NOTREACHED();
       g_free(raw_data);
       return false;
