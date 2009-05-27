@@ -14,6 +14,7 @@
 #endif
 #include "app/animation.h"
 #include "app/resource_bundle.h"
+#include "base/message_loop.h"
 #include "base/string_util.h"
 #include "googleurl/src/gurl.h"
 #include "grit/generated_resources.h"
