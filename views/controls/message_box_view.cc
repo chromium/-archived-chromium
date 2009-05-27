@@ -94,6 +94,10 @@ bool MessageBoxView::AcceleratorPressed(
   // We only accepts Ctrl-C.
   DCHECK(accelerator.GetKeyCode() == 'C' && accelerator.IsCtrlDown());
 
+  // We must not intercept Ctrl-C when we have a text box and it's focused.
+  if (prompt_field_ && prompt_field_->HasFocus())
+    return false;
+
   if (!views::ViewsDelegate::views_delegate)
     return false;
 
