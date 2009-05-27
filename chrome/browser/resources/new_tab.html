@@ -415,15 +415,16 @@ document.addEventListener('DOMContentLoaded', handleDOMContentLoaded);
     </div>
     <a href="#"
        class="manage non-edit-visible"
-       onClick="enterEditMode(); return false">
+       onclick="enterEditMode(); return false"
+       id="editthumbnails">
       <span jscontent="editthumbnails"></span></a>
-    <button type="button" class="edit-visible" onClick="exitEditMode();"
+    <button type="button" class="edit-visible" onclick="exitEditMode();"
             jscontent="doneediting"></button>
-    <button type="button" class="edit-visible" onClick="cancelEdits();"
+    <button type="button" class="edit-visible" onclick="cancelEdits();"
             jscontent="cancelediting"></button>
     <a href="#"
        class="manage edit-visible"
-       onClick="restoreThumbnails(); return false">
+       onclick="restoreThumbnails(); return false">
       <span jscontent="restorethumbnails"></span></a>
     <a href="#"
        jsvalues="href:showhistoryurl"
@@ -592,11 +593,12 @@ function renderMostVisitedPages(pages) {
   // Show the most visited helptext if most visited is still useless. This is
   // a crappy heuristic.
   if (pages.length < 3) {
-    document.getElementById("mostvisitedintro").style.display = "block";
+    $('mostvisitedintro').style.display = 'block';
+    $('editthumbnails').style.display = 'none';
     return;
   }
 
-  document.getElementById('mostvisitedintro').style.display = 'none';
+  $('mostvisitedintro').style.display = 'none';
 
   // Create the items and add them to rows.
   var rows = [];
