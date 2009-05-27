@@ -48,6 +48,9 @@ PREFIX : iat_patch::getiatfunction___iat_patch::restoreimportedfunction___iat_pa
 # 8020
 PREFIX : passwordformdommanager::findpasswordformfields___passwordformdommanager::createpasswordform___webframeloaderclient::dispatchdidfinishdocumentload
 
+# 12156
+SUBSTRING : views::focuswindowcallback___base::messagepumpforui::dorunloop
+
 # 9947
 SUBSTRING : webcore::frameloader::didreceiveresponse___webcore::resourceloader::didreceiveresponse___webcore::subresourceloader::didreceiveresponse___webcore::resourceloader::didreceiveresponse___webcore::resourcehandleinternal::onreceivedresponse
 
