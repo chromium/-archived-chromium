@@ -22,6 +22,7 @@
 #include "chrome/common/pref_service.h"
 #include "chrome/common/url_constants.h"
 #include "grit/generated_resources.h"
+#include "net/base/net_util.h"
 
 #if defined(OS_WIN)
 #include "chrome/browser/views/options/fonts_languages_window_view.h"
@@ -207,8 +208,7 @@ bool RenderViewContextMenu::IsItemCommandEnabled(int id) const {
   // Allow Spell Check language items on sub menu for text area context menu.
   if ((id >= IDC_SPELLCHECK_LANGUAGES_FIRST) &&
       (id < IDC_SPELLCHECK_LANGUAGES_LAST)) {
-    return source_tab_contents_->profile()->GetPrefs()->GetBoolean(
-        prefs::kEnableSpellCheck);
+    return profile_->GetPrefs()->GetBoolean(prefs::kEnableSpellCheck);
   }
 
   switch (id) {
@@ -282,12 +282,10 @@ bool RenderViewContextMenu::IsItemCommandEnabled(int id) const {
       return !!(params_.edit_flags & ContextNode::CAN_SELECT_ALL);
 
     case IDS_CONTENT_CONTEXT_OPENLINKOFFTHERECORD:
-      return !source_tab_contents_->profile()->IsOffTheRecord() &&
-             params_.link_url.is_valid();
+      return !profile_->IsOffTheRecord() && params_.link_url.is_valid();
 
     case IDS_CONTENT_CONTEXT_OPENFRAMEOFFTHERECORD:
-      return !source_tab_contents_->profile()->IsOffTheRecord() &&
-             params_.frame_url.is_valid();
+      return !profile_->IsOffTheRecord() && params_.frame_url.is_valid();
 
     case IDS_CONTENT_CONTEXT_ADD_TO_DICTIONARY:
       return !params_.misspelled_word.empty();
@@ -307,8 +305,7 @@ bool RenderViewContextMenu::IsItemCommandEnabled(int id) const {
       return true;
 
     case IDC_CHECK_SPELLING_OF_THIS_FIELD:
-      return source_tab_contents_->profile()->GetPrefs()->GetBoolean(
-          prefs::kEnableSpellCheck);
+      return profile_->GetPrefs()->GetBoolean(prefs::kEnableSpellCheck);
 
     case IDS_CONTENT_CONTEXT_SAVEFRAMEAS:
     case IDS_CONTENT_CONTEXT_PRINTFRAME:
@@ -321,9 +318,8 @@ bool RenderViewContextMenu::IsItemCommandEnabled(int id) const {
 bool RenderViewContextMenu::ItemIsChecked(int id) const {
   // Check box for 'Check the Spelling of this field'.
   if (id == IDC_CHECK_SPELLING_OF_THIS_FIELD) {
-    PrefService* prefs = source_tab_contents_->profile()->GetPrefs();
     return (params_.spellcheck_enabled &&
-            prefs->GetBoolean(prefs::kEnableSpellCheck));
+            profile_->GetPrefs()->GetBoolean(prefs::kEnableSpellCheck));
   }
 
   // Don't bother getting the display language vector if this isn't a spellcheck
@@ -333,8 +329,7 @@ bool RenderViewContextMenu::ItemIsChecked(int id) const {
     return false;
 
   SpellChecker::Languages languages;
-  return SpellChecker::GetSpellCheckLanguages(
-      source_tab_contents_->profile(), &languages) ==
+  return SpellChecker::GetSpellCheckLanguages(profile_, &languages) ==
       (id - IDC_SPELLCHECK_LANGUAGES_FIRST);
 }
 
@@ -344,12 +339,11 @@ void RenderViewContextMenu::ExecuteItemCommand(int id) {
       id < IDC_SPELLCHECK_LANGUAGES_LAST) {
     const size_t language_number = id - IDC_SPELLCHECK_LANGUAGES_FIRST;
     SpellChecker::Languages languages;
-    SpellChecker::GetSpellCheckLanguages(
-        source_tab_contents_->profile(), &languages);
+    SpellChecker::GetSpellCheckLanguages(profile_, &languages);
     if (language_number < languages.size()) {
       StringPrefMember dictionary_language;
       dictionary_language.Init(prefs::kSpellCheckDictionary,
-          source_tab_contents_->profile()->GetPrefs(), NULL);
+          profile_->GetPrefs(), NULL);
       dictionary_language.SetValue(ASCIIToWide(languages[language_number]));
     }
 
@@ -377,8 +371,7 @@ void RenderViewContextMenu::ExecuteItemCommand(int id) {
       const GURL& url =
           (id == IDS_CONTENT_CONTEXT_SAVELINKAS ? params_.link_url :
                                                   params_.image_url);
-      DownloadManager* dlm =
-          source_tab_contents_->profile()->GetDownloadManager();
+      DownloadManager* dlm = profile_->GetDownloadManager();
       dlm->DownloadUrl(url, referrer, params_.frame_charset,
                        source_tab_contents_);
       break;
@@ -434,7 +427,7 @@ void RenderViewContextMenu::ExecuteItemCommand(int id) {
       NavigationEntry* nav_entry =
           source_tab_contents_->controller().GetActiveEntry();
       PageInfoWindow::CreatePageInfo(
-          source_tab_contents_->profile(),
+          profile_,
           nav_entry,
           source_tab_contents_->GetContentNativeView(),
           PageInfoWindow::SECURITY);
@@ -487,7 +480,7 @@ void RenderViewContextMenu::ExecuteItemCommand(int id) {
       }
 #if defined(OS_WIN)
       PageInfoWindow::CreateFrameInfo(
-          source_tab_contents_->profile(),
+          profile_,
           params_.frame_url,
           ssl,
           source_tab_contents_->GetContentNativeView(),
@@ -528,8 +521,8 @@ void RenderViewContextMenu::ExecuteItemCommand(int id) {
       break;
 
     case IDS_CONTENT_CONTEXT_SEARCHWEBFOR: {
-      const TemplateURL* const default_provider = source_tab_contents_->
-          profile()->GetTemplateURLModel()->GetDefaultSearchProvider();
+      const TemplateURL* const default_provider =
+          profile_->GetTemplateURLModel()->GetDefaultSearchProvider();
       DCHECK(default_provider);  // The context menu should not contain this
                                  // item when there is no provider.
       const TemplateURLRef* const search_url = default_provider->url();
@@ -562,7 +555,7 @@ void RenderViewContextMenu::ExecuteItemCommand(int id) {
       // TODO(yusukes): This should be moved to some shared place of commands
       // for the options stuff so that we don't have to do all this work here.
       FontsLanguagesWindowView* window_ = new FontsLanguagesWindowView(
-          source_tab_contents_->profile());
+          profile_);
       views::Window::CreateChromeWindow(
           platform_util::GetTopLevel(
               source_tab_contents_->GetContentNativeView()),
@@ -612,8 +605,7 @@ bool RenderViewContextMenu::IsDevCommandEnabled(int id) const {
 
   // Don't enable the web inspector if JavaScript is disabled
   if (id == IDS_CONTENT_CONTEXT_INSPECTELEMENT) {
-    PrefService* prefs = source_tab_contents_->profile()->GetPrefs();
-    if (!prefs->GetBoolean(prefs::kWebKitJavascriptEnabled) ||
+    if (!profile_->GetPrefs()->GetBoolean(prefs::kWebKitJavascriptEnabled) ||
         command_line.HasSwitch(switches::kDisableJavaScript))
       return false;
   }
@@ -650,8 +642,16 @@ void RenderViewContextMenu::WriteTextToClipboard(
 }
 
 void RenderViewContextMenu::WriteURLToClipboard(const GURL& url) {
-  if (url.SchemeIs(chrome::kMailToScheme))
+  if (url.SchemeIs(chrome::kMailToScheme)) {
     WriteTextToClipboard(UTF8ToUTF16(url.path()));
-  else
-    WriteTextToClipboard(UTF8ToUTF16(url.spec()));
+  } else {
+    std::wstring languages =
+        profile_->GetPrefs()->GetString(prefs::kAcceptLanguages);
+    // Unescaping path and query is not a good idea because other
+    // applications may not enocode non-ASCII characters in UTF-8.
+    // So the 4th parameter of net::FormatUrl() should be false.
+    // See crbug.com/2820.
+    WriteTextToClipboard(WideToUTF16(
+        net::FormatUrl(url, languages, false, false, NULL, NULL)));
+  }
 }
