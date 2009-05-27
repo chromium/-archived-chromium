@@ -59,6 +59,7 @@
 
 #if defined(OS_WIN)
 #include "chrome/browser/views/bookmark_bar_view.h"
+#include "views/widget/root_view.h"
 #include "views/widget/widget_win.h"
 #include "views/window/window.h"
 #endif
@@ -2428,7 +2429,7 @@ void AutomationProvider::CreateExternalTab(HWND parent,
   if (tab_contents) {
     *tab_handle = tab_tracker_->Add(&tab_contents->controller());
     external_tab_container->set_tab_handle(*tab_handle);
-    *tab_container_window = *external_tab_container;
+    *tab_container_window = external_tab_container->GetNativeView();
   } else {
     delete external_tab_container;
   }
