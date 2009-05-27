@@ -95,8 +95,8 @@ class TaskManager {
   // moved to the front.
   static void Open();
 
-  // Close the task manager.
-  void Close();
+  // Close the task manager if it's currently opened.
+  static void Close();
 
   // Returns true if the current selection includes the browser process.
   bool BrowserProcessIsSelected();
@@ -117,6 +117,8 @@ class TaskManager {
   // on the ResourceProviders.
   void AddResource(Resource* resource);
   void RemoveResource(Resource* resource);
+
+  void OnWindowClosed();
 
  private:
   FRIEND_TEST(TaskManagerTest, Basic);
@@ -354,6 +356,7 @@ class TaskManagerView {
   virtual void GetFocused(std::vector<int>* focused) = 0;
 
   virtual void OpenWindow() = 0;
+  virtual void CloseWindow() = 0;
 };
 
 #endif  // CHROME_BROWSER_TASK_MANAGER_H_

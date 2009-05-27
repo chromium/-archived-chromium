@@ -11,9 +11,11 @@ class TaskManagerBrowserTest : public InProcessBrowserTest {
 };
 
 // Regression test for http://crbug.com/11180
+IN_PROC_BROWSER_TEST_F(TaskManagerBrowserTest, OpenClose) {
+  TaskManager::Open();
+  TaskManager::Close();
+}
+
 IN_PROC_BROWSER_TEST_F(TaskManagerBrowserTest, ShutdownWhileOpen) {
   TaskManager::Open();
 }
-
-// TODO(phajdan.jr): Write another test which explicitly closes TaskManager.
-// This requires a small refactoring.

@@ -706,9 +706,10 @@ void TaskManager::Open() {
   task_manager->view_->OpenWindow();
 }
 
+// static
 void TaskManager::Close() {
-  model_->StopUpdating();
-  model_->Clear();
+  TaskManager* task_manager = GetInstance();
+  task_manager->view_->CloseWindow();
 }
 
 bool TaskManager::BrowserProcessIsSelected() {
@@ -783,6 +784,11 @@ void TaskManager::AddResource(Resource* resource) {
 
 void TaskManager::RemoveResource(Resource* resource) {
   model_->RemoveResource(resource);
+}
+
+void TaskManager::OnWindowClosed() {
+  model_->StopUpdating();
+  model_->Clear();
 }
 
 // static

@@ -21,6 +21,7 @@ class TaskManagerViewImpl : public TaskManagerView,
   virtual void GetSelection(std::vector<int>* selection);
   virtual void GetFocused(std::vector<int>* focused);
   virtual void OpenWindow();
+  virtual void CloseWindow();
 
   // TaskManagerModelObserver
   virtual void OnModelChanged();
@@ -38,6 +39,10 @@ void TaskManagerViewImpl::GetFocused(std::vector<int>* focused) {
 }
 
 void TaskManagerViewImpl::OpenWindow() {
+  NOTIMPLEMENTED();
+}
+
+void TaskManagerViewImpl::CloseWindow() {
   NOTIMPLEMENTED();
 }
 

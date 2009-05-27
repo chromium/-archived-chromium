@@ -184,6 +184,7 @@ class TaskManagerViewImpl : public TaskManagerView,
   virtual void GetSelection(std::vector<int>* selection);
   virtual void GetFocused(std::vector<int>* focused);
   virtual void OpenWindow();
+  virtual void CloseWindow();
 
   // ButtonListener implementation.
   virtual void ButtonPressed(views::Button* sender);
@@ -434,6 +435,12 @@ void TaskManagerViewImpl::OpenWindow() {
   }
 }
 
+void TaskManagerViewImpl::CloseWindow() {
+  if (!window())
+    return;
+  window()->HideWindow();
+}
+
 // ButtonListener implementation.
 void TaskManagerViewImpl::ButtonPressed(views::Button* sender) {
   if (sender == kill_button_.get())
@@ -498,7 +505,7 @@ void TaskManagerViewImpl::WindowClosing() {
   // ViewHierarchyChanged notification to unhook the extra buttons from the
   // non-client view.
   GetParent()->RemoveChildView(this);
-  task_manager_->Close();
+  task_manager_->OnWindowClosed();
 }
 
 void TaskManagerViewImpl::DeleteDelegate() {
