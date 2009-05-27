@@ -55,6 +55,7 @@ namespace download_util {
  * ***** END LICENSE BLOCK ***** */
 
 static const char* const g_executables[] = {
+#if defined(OS_WIN)
   "ad",
   "ade",
   "adp",
@@ -136,7 +137,15 @@ static const char* const g_executables[] = {
   "wsh",
   "xht",
   "xhtm",
-  "xhtml"
+  "xhtml",
+#elif defined(OS_LINUX)
+  // TODO(estade): lengthen this list.
+  "exe",
+  "pl",
+  "py",
+  "rb",
+  "sh",
+#endif  // defined(OS_LINUX)
 };
 
 void InitializeExeTypes(std::set<std::string>* exe_extensions) {

@@ -185,10 +185,10 @@ void FindBarGtk::InitWidgets() {
   gtk_box_pack_start(GTK_BOX(centering_vbox), border_bin_aa, TRUE, FALSE, 0);
   gtk_box_pack_end(GTK_BOX(hbox), centering_vbox, FALSE, FALSE, 0);
 
-  // We show just the GtkFixed and |border_| (but not the dialog).
+  // We take care to avoid showing the slide animator widget.
+  gtk_widget_show_all(container_);
   gtk_widget_show(widget());
   gtk_widget_show(border_);
-  gtk_widget_show(match_count_label_);
 }
 
 GtkWidget* FindBarGtk::slide_widget() {

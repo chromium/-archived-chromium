@@ -44,6 +44,11 @@ class DownloadItemGtk : public DownloadItem::Observer,
  private:
   friend class DownloadShelfContextMenuGtk;
 
+  DownloadItem* get_download();
+
+  // Returns true IFF the download is dangerous and unconfirmed.
+  bool IsDangerous();
+
   // Functions for controlling the progress animation.
   // Repaint the download progress.
   void UpdateDownloadProgress();
@@ -76,6 +81,14 @@ class DownloadItemGtk : public DownloadItem::Observer,
                              GtkAllocation *allocation,
                              DownloadItemGtk* item);
 
+  // Dangerous download related. -----------------------------------------------
+  static gboolean OnDangerousPromptExpose(GtkWidget* widget,
+                                         GdkEventExpose* event,
+                                         DownloadItemGtk* item);
+
+  static void OnDangerousAccept(GtkWidget* button, DownloadItemGtk* item);
+  static void OnDangerousDecline(GtkWidget* button, DownloadItemGtk* item);
+
   // Nineboxes for the body area.
   static NineBox* body_nine_box_normal_;
   static NineBox* body_nine_box_prelight_;
@@ -85,6 +98,9 @@ class DownloadItemGtk : public DownloadItem::Observer,
   static NineBox* menu_nine_box_normal_;
   static NineBox* menu_nine_box_prelight_;
   static NineBox* menu_nine_box_active_;
+
+  // Ninebox for the background of the dangerous download prompt.
+  static NineBox* dangerous_nine_box_;
 
   // The shelf on which we are displayed.
   DownloadShelfGtk* parent_shelf_;
@@ -126,6 +142,13 @@ class DownloadItemGtk : public DownloadItem::Observer,
   // This is the leftmost widget on |parent_shelf_| that is not a download item.
   // We do not want to overlap it.
   GtkWidget* bounding_widget_;
+
+  // The dangerous download dialog. This will be null for safe downloads.
+  GtkWidget* dangerous_prompt_;
+
+  // An hbox for holding components of the dangerous download dialog.
+  GtkWidget* dangerous_hbox_;
+  int dangerous_hbox_full_width_;
 
   // The ID of the handler for the parent shelf's "size-allocate" event. We save
   // it so we can disconnect when we are destroyed.

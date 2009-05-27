@@ -43,9 +43,13 @@
 
 #if defined(OS_WIN)
 #include "app/win_util.h"
-// TODO(port): some of these need porting.
 #include "base/registry.h"
 #include "base/win_util.h"
+#endif
+
+#if !defined(OS_MACOSX)
+// Used for initializing the list of dangerous extensions. We don't support it
+// yet on mac.
 #include "chrome/browser/download/download_util.h"
 #endif
 
@@ -503,8 +507,8 @@ bool DownloadManager::Init(Profile* profile) {
   file_loop_->PostTask(FROM_HERE, NewRunnableFunction(
       CreateDirectoryPtr, download_path()));
 
-#if defined(OS_WIN)
-  // We use this on windows to determine possibly dangerous downloads.
+#if defined(OS_WIN) || defined(OS_LINUX)
+  // We use this to determine possibly dangerous downloads.
   download_util::InitializeExeTypes(&exe_types_);
 #endif
 
@@ -1320,19 +1324,21 @@ bool DownloadManager::IsExecutableMimeType(const std::string& mime_type) {
 }
 
 bool DownloadManager::IsExecutable(const FilePath::StringType& extension) {
-#if defined(OS_WIN)
+#if defined(OS_MACOSX)
+  // We don't have dangerous download support on mac yet.
+  return false;
+#else
   if (!IsStringASCII(extension))
     return false;
+#if defined(OS_WIN)
   std::string ascii_extension = WideToASCII(extension);
+#elif defined(OS_LINUX)
+  std::string ascii_extension = extension;
+#endif
   StringToLowerASCII(&ascii_extension);
 
   return exe_types_.find(ascii_extension) != exe_types_.end();
-#elif defined(OS_POSIX)
-  // TODO(port): we misght not want to call this function on other platforms.
-  // Figure it out.
-  NOTIMPLEMENTED();
-  return false;
-#endif
+#endif  // !defined(OS_MACOSX)
 }
 
 void DownloadManager::ResetAutoOpenFiles() {

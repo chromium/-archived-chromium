@@ -176,6 +176,8 @@ class LinkInfoBar : public InfoBar {
       gtk_box_pack_start(GTK_BOX(hbox), trailing_label, FALSE, FALSE, 0);
       gtk_box_pack_start(GTK_BOX(hbox_), hbox, FALSE, FALSE, 0);
     }
+
+    gtk_widget_show_all(border_bin_.get());
   }
 
  private:
@@ -199,6 +201,8 @@ class ConfirmInfoBar : public AlertInfoBar {
       : AlertInfoBar(delegate) {
     AddConfirmButton(ConfirmInfoBarDelegate::BUTTON_CANCEL);
     AddConfirmButton(ConfirmInfoBarDelegate::BUTTON_OK);
+
+    gtk_widget_show_all(border_bin_.get());
   }
 
  private:

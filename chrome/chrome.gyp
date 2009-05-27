@@ -1563,7 +1563,6 @@
           'sources!': [
             'browser/debugger/debugger_shell_stubs.cc',
             # Windows-specific files.
-            'browser/download/download_exe.cc',
           ],
           'conditions': [
             ['linux_breakpad==1', {

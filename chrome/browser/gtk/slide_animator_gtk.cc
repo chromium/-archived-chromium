@@ -66,7 +66,7 @@ SlideAnimatorGtk::~SlideAnimatorGtk() {
 
 void SlideAnimatorGtk::Open() {
   is_closing_ = false;
-  gtk_widget_show_all(widget_.get());
+  gtk_widget_show(widget_.get());
   animation_->Show();
 }
 

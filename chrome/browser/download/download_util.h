@@ -122,14 +122,13 @@ void PaintDownloadComplete(gfx::Canvas* canvas,
 // Helper function for download views to use when acting as a drag source for a
 // DownloadItem. If 'icon' is NULL, no image will be accompany the drag.
 void DragDownload(const DownloadItem* download, SkBitmap* icon);
+#endif
 
 // Executable file support -----------------------------------------------------
 
 // Copy all executable file extensions.
 void InitializeExeTypes(std::set<std::string>* exe_extensions);
-#endif
 
 }  // namespace download_util
-
 
 #endif  // CHROME_BROWSER_DOWNLOAD_DOWNLOAD_UTIL_H_
