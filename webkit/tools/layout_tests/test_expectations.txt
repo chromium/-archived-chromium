@@ -2655,3 +2655,8 @@ BUG12361 : LayoutTests/http/tests/cookies/double-quoted-value-with-semi-colon.ht
 // webkit 44010+44027 introducted new tests
 BUG12477 : LayoutTests/http/tests/local/drag-over-remote-content.html = FAIL
 BUG12477 : LayoutTests/http/tests/security/drag-over-remote-content-iframe.html = FAIL
+
+// WebKit 44152-44202 introduced new tests
+BUG12753 : LayoutTests/fast/dynamic/window-resize-scrollbars-test.html = FAIL
+BUG12753 : LayoutTests/fast/dynamic/window-scrollbars-test.html = FAIL
+
