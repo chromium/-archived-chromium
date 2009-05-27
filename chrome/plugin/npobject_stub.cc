@@ -64,6 +64,7 @@ void NPObjectStub::OnMessageReceived(const IPC::Message& msg) {
     IPC_MESSAGE_HANDLER(NPObjectMsg_RemoveProperty, OnRemoveProperty);
     IPC_MESSAGE_HANDLER(NPObjectMsg_Invalidate, OnInvalidate);
     IPC_MESSAGE_HANDLER(NPObjectMsg_Enumeration, OnEnumeration);
+    IPC_MESSAGE_HANDLER_DELAY_REPLY(NPObjectMsg_Construct, OnConstruct);
     IPC_MESSAGE_HANDLER_DELAY_REPLY(NPObjectMsg_Evaluate, OnEvaluate);
     IPC_MESSAGE_HANDLER(NPObjectMsg_SetException, OnSetException);
     IPC_MESSAGE_UNHANDLED_ERROR()
@@ -265,6 +266,45 @@ void NPObjectStub::OnEnumeration(std::vector<NPIdentifier_Param>* value,
   }
 
   NPN_MemFree(value_np);
+}
+
+void NPObjectStub::OnConstruct(const std::vector<NPVariant_Param>& args,
+                               IPC::Message* reply_msg) {
+  scoped_refptr<PluginChannelBase> local_channel = channel_;
+  bool return_value = false;
+  NPVariant_Param result_param;
+  NPVariant result_var;
+
+  VOID_TO_NPVARIANT(result_var);
+
+  int arg_count = static_cast<int>(args.size());
+  NPVariant* args_var = new NPVariant[arg_count];
+  for (int i = 0; i < arg_count; ++i) {
+    CreateNPVariant(
+        args[i], local_channel, &(args_var[i]), modal_dialog_event_);
+  }
+
+  if (IsPluginProcess()) {
+    if (npobject_->_class->construct) {
+      return_value = npobject_->_class->construct(
+          npobject_, args_var, arg_count, &result_var);
+    } else {
+      return_value = false;
+    }
+  } else {
+    return_value = NPN_Construct(
+        0, npobject_, args_var, arg_count, &result_var);
+  }
+
+  for (int i = 0; i < arg_count; ++i)
+    NPN_ReleaseVariantValue(&(args_var[i]));
+
+  delete[] args_var;
+
+  CreateNPVariantParam(
+      result_var, local_channel, &result_param, true, modal_dialog_event_);
+  NPObjectMsg_Invoke::WriteReplyParams(reply_msg, result_param, return_value);
+  local_channel->Send(reply_msg);
 }
 
 void NPObjectStub::OnEvaluate(const std::string& script,

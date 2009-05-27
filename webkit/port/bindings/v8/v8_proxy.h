@@ -258,6 +258,11 @@ class V8Proxy {
                                     int argc,
                                     v8::Handle<v8::Value> argv[]);
 
+  // Call the function as constructor with the given arguments.
+  v8::Local<v8::Value> NewInstance(v8::Handle<v8::Function> constructor,
+                                   int argc,
+                                   v8::Handle<v8::Value> argv[]);
+
   // Returns the dom constructor function for the given node type.
   v8::Local<v8::Function> GetConstructor(V8ClassIndex::V8WrapperType type);
 

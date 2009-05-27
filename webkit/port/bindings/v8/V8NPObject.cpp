@@ -46,7 +46,8 @@ using namespace WebCore;
 
 enum InvokeFunctionType {
     INVOKE_METHOD = 1,
-    INVOKE_DEFAULT = 2
+    INVOKE_CONSTRUCT = 2,
+    INVOKE_DEFAULT = 3
 };
 
 // TODO(mbelshe): need comments.
@@ -101,16 +102,13 @@ static v8::Handle<v8::Value> NPObjectInvokeImpl(const v8::Arguments& args, Invok
             npobject->_class->invoke(npobject, ident, npArgs, argc, &result);
         }
         break;
+    case INVOKE_CONSTRUCT:
+        if (npobject->_class->construct)
+            npobject->_class->construct(npobject, npArgs, argc, &result);
+        break;
     case INVOKE_DEFAULT:
         if (npobject->_class->invokeDefault)
             npobject->_class->invokeDefault(npobject, npArgs, argc, &result);
-        // The call might be a construct call on an NPObject.
-        // See http://code.google.com/p/chromium/issues/detail?id=3285
-        //
-        // TODO: when V8 passes in the correct flag args.is_construct_call_,
-        // make a separate NPN_Construct case.
-        else if (npobject->_class->construct)
-            npobject->_class->construct(npobject, npArgs, argc, &result);
         break;
     default:
         break;
@@ -136,7 +134,10 @@ v8::Handle<v8::Value> NPObjectMethodHandler(const v8::Arguments& args)
 
 v8::Handle<v8::Value> NPObjectInvokeDefaultHandler(const v8::Arguments& args)
 {
-    return NPObjectInvokeImpl(args, INVOKE_DEFAULT);
+    if (args.IsConstructCall())
+        return NPObjectInvokeImpl(args, INVOKE_CONSTRUCT);
+    else
+        return NPObjectInvokeImpl(args, INVOKE_DEFAULT);
 }
 
 

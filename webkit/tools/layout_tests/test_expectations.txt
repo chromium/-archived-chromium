@@ -1264,7 +1264,7 @@ BUG10353 DEBUG MAC : LayoutTests/http/tests/misc/dns-prefetch-control.html = TIM
 // New tests. We should fix these, but they doesn't need to block the current
 // release
 BUG10354 WIN LINUX : LayoutTests/fast/layers/opacity-transforms.html = FAIL
-BUG10354 : LayoutTests/plugins/netscape-construct.html = FAIL
+BUG10354 MAC LINUX : LayoutTests/plugins/netscape-construct.html = FAIL
 
 // MERGE 37604:38097 REGRESSIONS
 // New test. We should fix it, but it doesn't need to block the current release

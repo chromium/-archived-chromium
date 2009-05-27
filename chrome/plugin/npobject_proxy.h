@@ -47,7 +47,7 @@ class NPObjectProxy : public IPC::Channel::Listener,
   // process).
   intptr_t npobject_ptr() { return npobject_ptr_; }
 
-  // The next 8 functions are called on NPObjects from the plugin and browser.
+  // The next 9 functions are called on NPObjects from the plugin and browser.
   static bool NPHasMethod(NPObject *obj,
                           NPIdentifier name);
   static bool NPInvoke(NPObject *obj,
@@ -72,6 +72,10 @@ class NPObjectProxy : public IPC::Channel::Listener,
   static bool NPNEnumerate(NPObject *obj,
                            NPIdentifier **value,
                            uint32_t *count);
+  static bool NPNConstruct(NPObject *npobj,
+                           const NPVariant *args,
+                           uint32_t arg_count,
+                           NPVariant *result);
 
   // The next two functions are only called on NPObjects from the browser.
   static bool NPNEvaluate(NPP npp,

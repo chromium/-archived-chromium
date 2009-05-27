@@ -18,7 +18,7 @@ struct NPObjectWrapper {
 };
 
 NPClass NPObjectProxy::npclass_proxy_ = {
-  2,
+  NP_CLASS_STRUCT_VERSION,
   NPObjectProxy::NPAllocate,
   NPObjectProxy::NPDeallocate,
   NPObjectProxy::NPPInvalidate,
@@ -29,7 +29,8 @@ NPClass NPObjectProxy::npclass_proxy_ = {
   NPObjectProxy::NPGetProperty,
   NPObjectProxy::NPSetProperty,
   NPObjectProxy::NPRemoveProperty,
-  NPObjectProxy::NPNEnumerate
+  NPObjectProxy::NPNEnumerate,
+  NPObjectProxy::NPNConstruct
 };
 
 NPObjectProxy* NPObjectProxy::GetProxy(NPObject* object) {
@@ -336,6 +337,50 @@ bool NPObjectProxy::NPNEnumerate(NPObject *obj,
   for (unsigned int i = 0; i < *count; ++i)
     (*value)[i] = CreateNPIdentifier(value_param[i]);
 
+  return true;
+}
+
+bool NPObjectProxy::NPNConstruct(NPObject *obj,
+                                 const NPVariant *args,
+                                 uint32_t arg_count,
+                                 NPVariant *np_result) {
+  NPObjectProxy* proxy = GetProxy(obj);
+  if (!proxy) {
+    return obj->_class->construct(obj, args, arg_count, np_result);
+  }
+
+  bool result = false;
+
+  // Note: This instance can get destroyed in the context of
+  // Send so addref the channel in this scope.
+  scoped_refptr<PluginChannelBase> channel_copy = proxy->channel_;
+  std::vector<NPVariant_Param> args_param;
+  for (unsigned int i = 0; i < arg_count; ++i) {
+    NPVariant_Param param;
+    CreateNPVariantParam(
+        args[i], channel_copy, &param, false, proxy->modal_dialog_event_);
+    args_param.push_back(param);
+  }
+
+  NPVariant_Param param_result;
+  NPObjectMsg_Construct* msg = new NPObjectMsg_Construct(
+      proxy->route_id_, args_param, &param_result, &result);
+
+  // See comment in NPObjectProxy::NPInvokePrivate.
+  msg->set_pump_messages_event(proxy->modal_dialog_event_);
+
+  base::WaitableEvent* modal_dialog_event_handle = proxy->modal_dialog_event_;
+
+  proxy->Send(msg);
+
+  // Send may delete proxy.
+  proxy = NULL;
+
+  if (!result)
+    return false;
+
+  CreateNPVariant(
+      param_result, channel_copy, np_result, modal_dialog_event_handle);
   return true;
 }
 

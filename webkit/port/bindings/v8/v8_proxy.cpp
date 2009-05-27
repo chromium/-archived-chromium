@@ -1157,6 +1157,29 @@ v8::Local<v8::Value> V8Proxy::CallFunction(v8::Handle<v8::Function> function,
 }
 
 
+v8::Local<v8::Value> V8Proxy::NewInstance(v8::Handle<v8::Function> constructor,
+                                          int argc,
+                                          v8::Handle<v8::Value> args[])
+{
+  // No artificial limitations on the depth of recursion, see comment in
+  // V8Proxy::CallFunction.
+  v8::Local<v8::Value> result;
+  {
+    ConsoleMessageScope scope;
+
+    // See comment in V8Proxy::CallFunction.
+    m_frame->keepAlive();
+
+    result = constructor->NewInstance(argc, args);
+  }
+
+  if (v8::V8::IsDead())
+    HandleFatalErrorInV8();
+
+  return result;
+}
+
+
 v8::Local<v8::Function> V8Proxy::GetConstructor(V8ClassIndex::V8WrapperType t){
   // A DOM constructor is a function instance created from a DOM constructor
   // template. There is one instance per context. A DOM constructor is

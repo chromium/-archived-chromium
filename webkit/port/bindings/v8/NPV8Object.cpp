@@ -482,10 +482,40 @@ bool NPN_Construct(NPP npp, NPObject* npobj, const NPVariant* args, uint32_t arg
     if (!npobj)
         return false;
 
-    // FIXME(estade): implement this case.
     if (npobj->_class == npScriptObjectClass) {
-        VOID_TO_NPVARIANT(*result);
-        return false;
+        V8NPObject *object = reinterpret_cast<V8NPObject*>(npobj);
+
+        v8::HandleScope handleScope;
+        v8::Handle<v8::Context> context = getV8Context(npp, npobj);
+        if (context.IsEmpty())
+            return false;
+        v8::Context::Scope scope(context);
+
+        // Lookup the constructor function.
+        v8::Handle<v8::Object> ctorObj(object->v8Object);
+        if (!ctorObj->IsFunction())
+            return false;
+
+        // Call the constructor.
+        v8::Local<v8::Value> resultObj;
+        v8::Handle<v8::Function> ctor(v8::Function::Cast(*ctorObj));
+        if (!ctor->IsNull()) {
+            WebCore::V8Proxy* proxy = GetV8Proxy(npobj);
+            ASSERT(proxy);
+
+            // Create list of args to pass to v8.
+            v8::Handle<v8::Value>* argv = listFromVariantArgs(args, argCount, npobj);
+            resultObj = proxy->NewInstance(ctor, argCount, argv);
+            delete[] argv;
+        }
+
+        // If we had an error return false.
+        if (resultObj.IsEmpty())
+            return false;
+
+        // Convert the result back to an NPVariant.
+        convertV8ObjectToNPVariant(resultObj, npobj, result);
+        return true;
     }
 
     if (NP_CLASS_STRUCT_VERSION_HAS_CTOR(npobj->_class) && npobj->_class->construct)

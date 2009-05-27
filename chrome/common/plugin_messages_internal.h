@@ -331,6 +331,11 @@ IPC_BEGIN_MESSAGES(NPObject)
                              std::vector<NPIdentifier_Param> /* value */,
                              bool /* result */)
 
+  IPC_SYNC_MESSAGE_ROUTED1_2(NPObjectMsg_Construct,
+                             std::vector<NPVariant_Param> /* args */,
+                             NPVariant_Param /* result_param */,
+                             bool /* result */)
+
   IPC_SYNC_MESSAGE_ROUTED2_2(NPObjectMsg_Evaluate,
                              std::string /* script */,
                              bool /* popups_allowed */,
