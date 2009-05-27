@@ -93,6 +93,10 @@ class BookmarkManagerView : public views::View,
 
   Profile* profile() const { return profile_; }
 
+ protected:
+  // View methods.
+  virtual bool AcceleratorPressed(const views::Accelerator& accelerator);
+
  private:
   // TableViewObserver methods.
   virtual void OnSelectionChanged() {}
