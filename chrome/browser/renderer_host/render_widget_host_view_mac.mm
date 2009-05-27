@@ -455,8 +455,12 @@ void RenderWidgetHostViewMac::ShutdownHost() {
 }
 
 - (BOOL)becomeFirstResponder {
+  if (![self superview]) {
+    // We're dead, so becoming first responder is probably a bad idea.
+    return NO;
+  }
+  
   renderWidgetHostView_->render_widget_host_->Focus();
-
   return YES;
 }
 
