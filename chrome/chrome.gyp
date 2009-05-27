@@ -1569,10 +1569,21 @@
             ['linux_breakpad==1', {
               'sources': [
                 'browser/renderer_host/render_crash_handler_host_linux.cc',
+                'app/breakpad_linux.cc',
+                'app/breakpad_linux.h',
+              ],
+              'dependencies': [
+                '../breakpad/breakpad.gyp:breakpad_client',
+              ],
+              'include_dirs': [
+                # breakpad_linux.cc wants file_version_info_linux.h
+                '<(SHARED_INTERMEDIATE_DIR)',
               ],
             }, {
               'sources': [
                 'browser/renderer_host/render_crash_handler_host_linux_stub.cc',
+                'app/breakpad_linux_stub.cc',
+                'app/breakpad_linux.h',
               ],
             }],
           ],
@@ -2103,27 +2114,6 @@
               'files': ['<(INTERMEDIATE_DIR)/repack/default.pak'],
             },
           ],
-          'include_dirs': [
-            # Needed in order to be able to read the raw
-            # file_version_info_linux.h file.
-            '<(SHARED_INTERMEDIATE_DIR)',
-          ],
-          'conditions': [
-            ['linux_breakpad==1', {
-              'sources': [
-                'app/breakpad_linux.cc',
-                'app/breakpad_linux.h',
-              ],
-              'dependencies': [
-                '../breakpad/breakpad.gyp:breakpad_client',
-              ],
-            }, {
-              'sources': [
-                'app/breakpad_linux_stub.cc',
-                'app/breakpad_linux.h',
-              ],
-            }],
-          ]
         }],
         ['OS=="linux" and toolkit_views==1', {
           'dependencies': [
