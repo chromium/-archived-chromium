@@ -13,6 +13,7 @@
 #include "chrome/common/notification_service.h"
 #include "chrome/test/in_process_browser_test.h"
 #include "chrome/test/ui_test_utils.h"
+#include "views/focus/focus_manager.h"
 
 const std::wstring kSimplePage = L"404_is_enough_for_us.html";
 const std::wstring kFramePage = L"files/find_in_page/frames.html";
@@ -519,7 +520,7 @@ IN_PROC_BROWSER_TEST_F(FindInPageControllerTest,
                        FindNextInNewTabUsesPrepopulate) {
   HTTPTestServer* server = StartHTTPServer();
 
-  // First we navigate to our special focus tracking page.
+  // First we navigate to any page.
   GURL url = server->TestServerPageW(kSimplePage);
   ui_test_utils::NavigateToURL(browser(), url);
 
@@ -545,4 +546,38 @@ IN_PROC_BROWSER_TEST_F(FindInPageControllerTest,
   // response here (a hang means search was aborted).
   EXPECT_EQ(0, FindInPage(std::wstring(), FWD, IGNORE_CASE, &ordinal));
   EXPECT_EQ(0, ordinal);
+}
+
+// Make sure Find box grabs the Esc accelerator and restores it again.
+IN_PROC_BROWSER_TEST_F(FindInPageControllerTest, AcceleratorRestoring) {
+  HTTPTestServer* server = StartHTTPServer();
+
+  // First we navigate to any page.
+  GURL url = server->TestServerPageW(kSimplePage);
+  ui_test_utils::NavigateToURL(browser(), url);
+
+  views::FocusManager* focus_manager = views::FocusManager::GetFocusManager(
+      browser()->window()->GetNativeHandle());
+
+  // See where Escape is registered.
+  views::Accelerator escape(VK_ESCAPE, false, false, false);
+  views::AcceleratorTarget* old_target =
+      focus_manager->GetTargetForAccelerator(escape);
+  EXPECT_TRUE(old_target != NULL);
+
+  // Open the Find box.
+  browser()->ShowFindBar();
+
+  // Our Find bar should be the new target.
+  views::AcceleratorTarget* new_target =
+      focus_manager->GetTargetForAccelerator(escape);
+
+  EXPECT_TRUE(new_target != NULL);
+  EXPECT_NE(new_target, old_target);
+
+  // Close the Find box.
+  browser()->find_bar()->EndFindSession();
+
+  // The accelerator for Escape should be back to what it was before.
+  EXPECT_EQ(old_target, focus_manager->GetTargetForAccelerator(escape));
 }

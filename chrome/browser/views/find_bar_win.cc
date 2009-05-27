@@ -35,7 +35,7 @@ bool FindBarWin::disable_animations_during_testing_ = false;
 #if defined(OS_WIN)
 class FindBarWin::Host : public views::WidgetWin {
  public:
-  Host(FindBarWin* find_bar) : find_bar_(find_bar) {
+  explicit Host(FindBarWin* find_bar) : find_bar_(find_bar) {
     // Don't let WidgetWin manage our lifetime. We want our lifetime to
     // coincide with TabContents.
     set_delete_on_destroy(false);
@@ -55,7 +55,9 @@ class FindBarWin::Host : public views::WidgetWin {
 #else
 class FindBarWin::Host : public views::WidgetGtk {
  public:
-  Host(FindBarWin* find_bar) : WidgetGtk(TYPE_CHILD), find_bar_(find_bar) {
+  explicit Host(FindBarWin* find_bar)
+    : WidgetGtk(TYPE_CHILD),
+      find_bar_(find_bar) {
     // Don't let WidgetWin manage our lifetime. We want our lifetime to
     // coincide with TabContents.
     set_delete_on_destroy(false);
@@ -439,7 +441,7 @@ bool FindBarWin::GetFindBarWindowInfo(gfx::Point* position,
       !::IsWindow(host_->GetNativeView())) {
 #else
       false) {
-      // TODO: figure out linux side.
+      // TODO(sky): figure out linux side.
 #endif
     *position = gfx::Point();
     *fully_visible = false;
@@ -623,7 +625,7 @@ void FindBarWin::UnregisterEscAccelerator() {
   views::Accelerator escape(VK_ESCAPE, false, false, false);
   views::AcceleratorTarget* current_target =
       focus_manager_->GetTargetForAccelerator(escape);
-  if (current_target == host_.get())
+  if (current_target == this)
     focus_manager_->RegisterAccelerator(escape, old_accel_target_for_esc_);
 #else
   NOTIMPLEMENTED();
