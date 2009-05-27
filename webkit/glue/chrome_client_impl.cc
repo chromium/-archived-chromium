@@ -34,11 +34,11 @@ MSVC_POP_WARNING();
 #include "webkit/glue/chrome_client_impl.h"
 
 #include "base/gfx/rect.h"
+#include "base/logging.h"
 #include "googleurl/src/gurl.h"
 #include "webkit/api/public/WebInputEvent.h"
 #include "webkit/api/public/WebKit.h"
 #include "webkit/glue/glue_util.h"
-#include "webkit/glue/webdevtoolsagent_impl.h"
 #include "webkit/glue/webframe_impl.h"
 #include "webkit/glue/webkit_glue.h"
 #include "webkit/glue/weburlrequest_impl.h"
@@ -317,11 +317,6 @@ void ChromeClientImpl::addMessageToConsole(WebCore::MessageSource source,
     std::wstring wstr_source_id = webkit_glue::StringToStdWString(source_id);
     delegate->AddMessageToConsole(webview_, wstr_message,
                                   line_no, wstr_source_id);
-  }
-  WebDevToolsAgentImpl* devtools_agent = webview_->GetWebDevToolsAgentImpl();
-  if (devtools_agent) {
-    devtools_agent->AddMessageToConsole(source, level, message, line_no,
-                                        source_id);
   }
 }
 

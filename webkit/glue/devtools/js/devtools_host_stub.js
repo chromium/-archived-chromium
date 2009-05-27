@@ -257,13 +257,6 @@ RemoteDebuggerCommandExecutorStub.prototype.DebuggerCommand = function(cmd) {
 /**
  * @constructor
  */
-RemoteNetAgentStub = function() {
-};
-
-
-/**
- * @constructor
- */
 DevToolsHostStub = function() {
 };
 
@@ -282,7 +275,6 @@ if (!window['DevToolsHost']) {
   window['RemoteDebuggerCommandExecutor'] =
       new RemoteDebuggerCommandExecutorStub();
   window['RemoteDomAgent'] = new RemoteDomAgentStub();
-  window['RemoteNetAgent'] = new RemoteNetAgentStub();
   window['RemoteToolsAgent'] = new RemoteToolsAgentStub();
   window['DevToolsHost'] = new DevToolsHostStub();
 }

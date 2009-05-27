@@ -31,3 +31,19 @@ function devtools$$dispatch(functionName, node, json_args) {
   var result = devtools$$obj[functionName].apply(devtools$$obj, params);
   return JSON.stringify(result);
 };
+
+
+/**
+ * This is called by the InspectorFrontend for serialization.
+ * We serialize the call and send it to the client over the IPC
+ * using dispatchOut bound method.
+ */
+var dispatch = function(method, var_args) {
+  // Handle all messages with non-primitieve arguments here.
+  // TODO(pfeldman): Add more.
+  if (method == 'inspectedWindowCleared') {
+    return;
+  }
+  var call = JSON.stringify(Array.prototype.slice.call(arguments));
+  RemoteWebInspector.dispatch(call);
+};

@@ -8,12 +8,10 @@
 #include <string>
 
 #include <wtf/OwnPtr.h>
-#include <wtf/Vector.h>
 
 #include "v8.h"
 #include "webkit/glue/devtools/devtools_rpc.h"
 #include "webkit/glue/devtools/dom_agent.h"
-#include "webkit/glue/devtools/net_agent.h"
 #include "webkit/glue/devtools/tools_agent.h"
 #include "webkit/glue/webdevtoolsagent.h"
 
@@ -23,6 +21,7 @@ class Node;
 class String;
 }
 
+class BoundObject;
 class DebuggerAgentDelegateStub;
 class DebuggerAgentImpl;
 class DomAgentImpl;
@@ -52,6 +51,9 @@ class WebDevToolsAgentImpl
       int node_id,
       const WebCore::String& json_args);
   virtual void ClearConsoleMessages();
+  virtual void GetResourceContent(
+      int call_id,
+      int identifier);
 
   // WebDevToolsAgent implementation.
   virtual void Attach();
@@ -67,38 +69,15 @@ class WebDevToolsAgentImpl
   void DidCommitLoadForFrame(WebViewImpl* webview,
                              WebFrame* frame,
                              bool is_new_navigation);
-  void AddMessageToConsole(
-      int source,
-      int level,
-      const WebCore::String& message,
-      unsigned int line_no,
-      const WebCore::String& source_id);
 
   void WindowObjectCleared(WebFrameImpl* webframe);
 
   void ForceRepaint();
 
   int host_id() { return host_id_; }
-  NetAgentImpl* net_agent_impl() { return net_agent_impl_.get(); }
 
  private:
-  struct ConsoleMessage {
-    ConsoleMessage(
-        int src, int lvl, const String& m, unsigned li, const String& sid)
-        : source(src),
-          level(lvl),
-          text(m),
-          line_no(li),
-          source_id(sid) {
-    }
-    int source;
-    int level;
-    WebCore::String text;
-    WebCore::String source_id;
-    unsigned int line_no;
-  };
-
-  static void Serialize(const ConsoleMessage& message, DictionaryValue* value);
+  static v8::Handle<v8::Value> JsDispatchOnClient(const v8::Arguments& args);
 
   int host_id_;
   WebDevToolsAgentDelegate* delegate_;
@@ -106,16 +85,14 @@ class WebDevToolsAgentImpl
   WebCore::Document* document_;
   OwnPtr<DebuggerAgentDelegateStub> debugger_agent_delegate_stub_;
   OwnPtr<DomAgentDelegateStub> dom_agent_delegate_stub_;
-  OwnPtr<NetAgentDelegateStub> net_agent_delegate_stub_;
   OwnPtr<ToolsAgentDelegateStub> tools_agent_delegate_stub_;
   OwnPtr<DebuggerAgentImpl> debugger_agent_impl_;
   OwnPtr<DomAgentImpl> dom_agent_impl_;
-  OwnPtr<NetAgentImpl> net_agent_impl_;
-  Vector<ConsoleMessage> console_log_;
   bool attached_;
   // TODO(pfeldman): This should not be needed once GC styles issue is fixed
   // for matching rules.
   v8::Persistent<v8::Context> utility_context_;
+  OwnPtr<BoundObject> web_inspector_stub_;
   DISALLOW_COPY_AND_ASSIGN(WebDevToolsAgentImpl);
 };
 

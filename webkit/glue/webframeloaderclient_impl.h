@@ -26,7 +26,6 @@ class Widget;
 }
 
 class Alt404PageResourceFetcher;
-class NetAgentImpl;
 class WebFrameImpl;
 class WebPluginContainer;
 
@@ -222,9 +221,6 @@ class WebFrameLoaderClient : public WebCore::FrameLoaderClient {
 
   // Called when a dummy back-forward navigation is intercepted.
   void HandleBackForwardNavigation(const GURL&);
-
-  // Returns NetAgent instance if network tracking is enabled.
-  NetAgentImpl* GetNetAgentImpl();
 
   // The WebFrame that owns this object and manages its lifetime. Therefore,
   // the web frame object is guaranteed to exist.

@@ -11,7 +11,6 @@ goog.provide('devtools.Tools');
 
 goog.require('devtools.DebuggerAgent');
 goog.require('devtools.DomAgent');
-goog.require('devtools.NetAgent');
 
 
 /**
@@ -41,14 +40,17 @@ devtools.ToolsAgent = function() {
   RemoteToolsAgent.DidExecuteUtilityFunction =
       devtools.Callback.processCallback;
   RemoteToolsAgent.UpdateFocusedNode =
-      goog.bind(this.updateFocusedNode, this);
+      goog.bind(this.updateFocusedNode_, this);
   RemoteToolsAgent.FrameNavigate =
-      goog.bind(this.frameNavigate, this);
+      goog.bind(this.frameNavigate_, this);
   RemoteToolsAgent.AddMessageToConsole =
-      goog.bind(this.addMessageToConsole, this);
+      goog.bind(this.addMessageToConsole_, this);
+  RemoteToolsAgent.DispatchOnClient =
+      goog.bind(this.dispatchOnClient_, this);
+  RemoteToolsAgent.DidGetResourceContent =
+      devtools.Callback.processCallback;
   this.debuggerAgent_ = new devtools.DebuggerAgent();
   this.domAgent_ = new devtools.DomAgent();
-  this.netAgent_ = new devtools.NetAgent();
 };
 
 
@@ -57,7 +59,6 @@ devtools.ToolsAgent = function() {
  */
 devtools.ToolsAgent.prototype.reset = function() {
   this.domAgent_.reset();
-  this.netAgent_.reset();
   this.debuggerAgent_.reset();
   
   this.domAgent_.getDocumentElementAsync();
@@ -93,18 +94,10 @@ devtools.ToolsAgent.prototype.getDomAgent = function() {
 
 
 /**
- * NetAgent accessor.
- * @return {devtools.NetAgent} Net agent instance.
- */
-devtools.ToolsAgent.prototype.getNetAgent = function() {
-  return this.netAgent_;
-};
-
-
-/**
  * @see tools_agent.h
+ * @private
  */
-devtools.ToolsAgent.prototype.updateFocusedNode = function(nodeId) {
+devtools.ToolsAgent.prototype.updateFocusedNode_ = function(nodeId) {
   var node = this.domAgent_.getNodeForId(nodeId);
   WebInspector.updateFocusedNode(node);
 };
@@ -114,8 +107,9 @@ devtools.ToolsAgent.prototype.updateFocusedNode = function(nodeId) {
  * @param {string} url Url frame navigated to.
  * @param {bool} topLevel True iff top level navigation occurred.
  * @see tools_agent.h
+ * @private
  */
-devtools.ToolsAgent.prototype.frameNavigate = function(url, topLevel) {
+devtools.ToolsAgent.prototype.frameNavigate_ = function(url, topLevel) {
   if (topLevel) {
     this.reset();
     WebInspector.reset();
@@ -126,8 +120,9 @@ devtools.ToolsAgent.prototype.frameNavigate = function(url, topLevel) {
 /**
  * @param {Object} message Message object to add.
  * @see tools_agent.h
+ * @private
  */
-devtools.ToolsAgent.prototype.addMessageToConsole = function(message) {
+devtools.ToolsAgent.prototype.addMessageToConsole_ = function(message) {
   var console = WebInspector.console;
   if (console) {
     console.addMessage(new WebInspector.ConsoleMessage(
@@ -138,11 +133,38 @@ devtools.ToolsAgent.prototype.addMessageToConsole = function(message) {
 
 
 /**
+ * @param {string} message Serialized call to be dispatched on WebInspector.
+ * @private
+ */
+devtools.ToolsAgent.prototype.dispatchOnClient_ = function(message) {
+  var messageObj = JSON.parse(message);
+  WebInspector.dispatch.apply(WebInspector, messageObj);
+};
+
+
+/**
  * Evaluates js expression.
  * @param {string} expr
  */
 devtools.ToolsAgent.prototype.evaluate = function(expr) {
   RemoteToolsAgent.evaluate(expr);
+};
+
+
+/**
+ * Asynchronously queries for the resource content.
+ * @param {number} identifier Resource identifier.
+ * @param {function(string):undefined} opt_callback Callback to call when 
+ *     result is available.
+ */
+devtools.ToolsAgent.prototype.getResourceContentAsync = function(identifier, 
+    opt_callback) {
+  var resource = WebInspector.resources[identifier];
+  if (!resource) {
+    return;
+  }
+  RemoteToolsAgent.GetResourceContent(
+      devtools.Callback.wrap(opt_callback), identifier);
 };
 
 
@@ -499,9 +521,8 @@ WebInspector.SourceView.prototype.setupSourceFrameIfNeeded = function() {
   var self = this;
   var identifier = this.resource.identifier;
   var element = this.sourceFrame.element;
-  var netAgent = devtools.tools.getNetAgent();
 
-  netAgent.getResourceContentAsync(identifier, function(source) {
+  devtools.tools.getResourceContentAsync(identifier, function(source) {
     var resource = WebInspector.resources[identifier];
     if (InspectorController.addSourceToFrame(resource.mimeType, source,
                                              element)) {
@@ -904,7 +925,20 @@ WebInspector.ProfileDataGridNode.prototype._populate = function(event) {
  * @override
  * TODO(pfeldman): Add l10n.
  */
-WebInspector.UIString = function(string)
-{
+WebInspector.UIString = function(string) {
   return String.vsprintf(string, Array.prototype.slice.call(arguments, 1));
-}
+};
+
+
+// There is no clear way of setting frame title yet. So sniffing main resource
+// load.
+(function OverrideUpdateResource() {
+  var originalUpdateResource = WebInspector.updateResource;
+  WebInspector.updateResource = function(identifier, payload) {
+    originalUpdateResource.call(this, identifier, payload);
+    var resource = this.resources[identifier];
+    if (resource && resource.mainResource && resource.finished) {
+      document.title = 'Developer Tools - ' + resource.url;
+    }
+  };
+})();

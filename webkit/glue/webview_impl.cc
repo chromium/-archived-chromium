@@ -906,7 +906,6 @@ void WebViewImpl::Close() {
   // Do this first to prevent reentrant notifications from being sent to the
   // initiator of the close.
   delegate_ = NULL;
-  devtools_agent_.reset(NULL);
 
   if (page_.get()) {
     // Initiate shutdown for the entire frameset.  This will cause a lot of
@@ -915,6 +914,9 @@ void WebViewImpl::Close() {
       page_->mainFrame()->loader()->frameDetached();
     page_.reset();
   }
+  
+  // Should happen after page_.reset().
+  devtools_agent_.reset(NULL);
 
   Release();  // Balances AddRef from WebView::Create
 }

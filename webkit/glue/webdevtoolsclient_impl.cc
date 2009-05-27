@@ -25,10 +25,10 @@
 #include "base/string_util.h"
 #include "base/values.h"
 #include "webkit/api/public/WebScriptSource.h"
+#include "webkit/glue/devtools/bound_object.h"
 #include "webkit/glue/devtools/debugger_agent.h"
 #include "webkit/glue/devtools/devtools_rpc_js.h"
 #include "webkit/glue/devtools/dom_agent.h"
-#include "webkit/glue/devtools/net_agent.h"
 #include "webkit/glue/devtools/tools_agent.h"
 #include "webkit/glue/glue_util.h"
 #include "webkit/glue/webdevtoolsclient_delegate.h"
@@ -44,8 +44,6 @@ DEFINE_RPC_JS_BOUND_OBJ(DebuggerAgent, DEBUGGER_AGENT_STRUCT,
     DebuggerAgentDelegate, DEBUGGER_AGENT_DELEGATE_STRUCT)
 DEFINE_RPC_JS_BOUND_OBJ(DomAgent, DOM_AGENT_STRUCT,
     DomAgentDelegate, DOM_AGENT_DELEGATE_STRUCT)
-DEFINE_RPC_JS_BOUND_OBJ(NetAgent, NET_AGENT_STRUCT,
-    NetAgentDelegate, NET_AGENT_DELEGATE_STRUCT)
 DEFINE_RPC_JS_BOUND_OBJ(ToolsAgent, TOOLS_AGENT_STRUCT,
     ToolsAgentDelegate, TOOLS_AGENT_DELEGATE_STRUCT)
 
@@ -99,57 +97,28 @@ WebDevToolsClientImpl::WebDevToolsClientImpl(
   debugger_agent_obj_.set(new JsDebuggerAgentBoundObj(
       this, frame, L"RemoteDebuggerAgent"));
   dom_agent_obj_.set(new JsDomAgentBoundObj(this, frame, L"RemoteDomAgent"));
-  net_agent_obj_.set(new JsNetAgentBoundObj(this, frame, L"RemoteNetAgent"));
   tools_agent_obj_.set(
       new JsToolsAgentBoundObj(this, frame, L"RemoteToolsAgent"));
-  WebDevToolsClientImpl::InitBoundObject();
 
   v8::HandleScope scope;
   v8::Handle<v8::Context> frame_context = V8Proxy::GetContext(frame->frame());
-  v8::Context::Scope frame_scope(frame_context);
-
-  v8::Local<v8::Function> constructor = host_template_->GetFunction();
-  v8::Local<v8::Object> host_obj = SafeAllocation::NewInstance(constructor);
-
-  v8::Handle<v8::Object> global = frame_context->Global();
-  global->Set(v8::String::New("DevToolsHost"), host_obj);
+  dev_tools_host_.set(new BoundObject(frame_context, this, "DevToolsHost"));
+  dev_tools_host_->AddProtoFunction(
+      "addSourceToFrame",
+      WebDevToolsClientImpl::JsAddSourceToFrame);
+  dev_tools_host_->AddProtoFunction(
+      "loaded",
+      WebDevToolsClientImpl::JsLoaded);
+  dev_tools_host_->AddProtoFunction(
+      "search",
+      WebCore::V8Custom::v8InspectorControllerSearchCallback);
+  dev_tools_host_->AddProtoFunction(
+      "activateWindow",
+      WebDevToolsClientImpl::JsActivateWindow);
+  dev_tools_host_->Build();
 }
 
 WebDevToolsClientImpl::~WebDevToolsClientImpl() {
-  host_template_.Dispose();
-  v8_this_.Dispose();
-}
-
-void WebDevToolsClientImpl::InitBoundObject() {
-  v8::HandleScope scope;
-  v8::Local<v8::FunctionTemplate> local_template =
-      v8::FunctionTemplate::New(V8Proxy::CheckNewLegal);
-  host_template_ = v8::Persistent<v8::FunctionTemplate>::New(local_template);
-  v8_this_ = v8::Persistent<v8::External>::New(v8::External::New(this));
-
-  InitProtoFunction("addSourceToFrame",
-                    WebDevToolsClientImpl::JsAddSourceToFrame);
-  InitProtoFunction("loaded",
-                    WebDevToolsClientImpl::JsLoaded);
-  InitProtoFunction("search",
-                    WebCore::V8Custom::v8InspectorControllerSearchCallback);
-  InitProtoFunction("activateWindow",
-                    WebDevToolsClientImpl::JsActivateWindow);
-  host_template_->SetClassName(v8::String::New("DevToolsHost"));
-}
-
-void WebDevToolsClientImpl::InitProtoFunction(
-    const char* name,
-    v8::InvocationCallback callback) {
-  v8::Local<v8::Signature> signature = v8::Signature::New(host_template_);
-  v8::Local<v8::ObjectTemplate> proto = host_template_->PrototypeTemplate();
-  proto->Set(
-      v8::String::New(name),
-      v8::FunctionTemplate::New(
-          callback,
-          v8_this_,
-          signature),
-      static_cast<v8::PropertyAttribute>(v8::DontDelete));
 }
 
 void WebDevToolsClientImpl::DispatchMessageFromAgent(

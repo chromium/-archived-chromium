@@ -49,6 +49,9 @@ void WebInspectorClient::inspectorDestroyed() {
 }
 
 Page* WebInspectorClient::createPage() {
+  if (inspected_web_view_->GetWebDevToolsAgentImpl())
+    return NULL;
+
   WebCore::Page* page;
 
   if (inspector_web_view_ != NULL) {
@@ -98,6 +101,9 @@ Page* WebInspectorClient::createPage() {
 }
 
 void WebInspectorClient::showWindow() {
+  if (inspected_web_view_->GetWebDevToolsAgentImpl())
+    return;
+
   InspectorController* inspector = inspected_web_view_->page()->inspectorController();
   inspector->setWindowVisible(true);
 
@@ -108,6 +114,9 @@ void WebInspectorClient::showWindow() {
 }
 
 void WebInspectorClient::closeWindow() {
+  if (inspected_web_view_->GetWebDevToolsAgentImpl())
+    return;
+
   inspector_web_view_ = NULL;
 
   hideHighlight();
@@ -117,6 +126,9 @@ void WebInspectorClient::closeWindow() {
 }
 
 bool WebInspectorClient::windowVisible() {
+  if (inspected_web_view_->GetWebDevToolsAgentImpl())
+    return false;
+
   if (inspector_web_view_ != NULL) {
     Page* page = inspector_web_view_->page();
     ASSERT(page != NULL);

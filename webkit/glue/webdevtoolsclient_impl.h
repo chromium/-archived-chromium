@@ -20,6 +20,7 @@ class Page;
 class String;
 }
 
+class BoundObject;
 class JsDebuggerAgentBoundObj;
 class JsDomAgentBoundObj;
 class JsNetAgentBoundObj;
@@ -47,20 +48,15 @@ class WebDevToolsClientImpl : public WebDevToolsClient,
   static v8::Handle<v8::Value> JsLoaded(const v8::Arguments& args);
   static v8::Handle<v8::Value> JsActivateWindow(const v8::Arguments& args);
 
-  void InitBoundObject();
-  void InitProtoFunction(const char* name, v8::InvocationCallback callback);
-
   WebViewImpl* web_view_impl_;
   WebDevToolsClientDelegate* delegate_;
   OwnPtr<CppBoundClass> debugger_command_executor_obj_;
   OwnPtr<JsDebuggerAgentBoundObj> debugger_agent_obj_;
   OwnPtr<JsDomAgentBoundObj> dom_agent_obj_;
-  OwnPtr<JsNetAgentBoundObj> net_agent_obj_;
   OwnPtr<JsToolsAgentBoundObj> tools_agent_obj_;
   bool loaded_;
   Vector<std::string> pending_incoming_messages_;
-  v8::Persistent<v8::FunctionTemplate> host_template_;
-  v8::Persistent<v8::External> v8_this_;
+  OwnPtr<BoundObject> dev_tools_host_;
   DISALLOW_COPY_AND_ASSIGN(WebDevToolsClientImpl);
 };
 

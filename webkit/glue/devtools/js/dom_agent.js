@@ -483,17 +483,17 @@ devtools.DomAgent = function() {
   RemoteDomAgent.DidSetTextNodeValue =
       devtools.Callback.processCallback;
   RemoteDomAgent.AttributesUpdated =
-      goog.bind(this.attributesUpdated, this);
+      goog.bind(this.attributesUpdated_, this);
   RemoteDomAgent.SetDocumentElement =
-      goog.bind(this.setDocumentElement, this);
+      goog.bind(this.setDocumentElement_, this);
   RemoteDomAgent.SetChildNodes =
-      goog.bind(this.setChildNodes, this);
+      goog.bind(this.setChildNodes_, this);
   RemoteDomAgent.HasChildrenUpdated =
-      goog.bind(this.hasChildrenUpdated, this);
+      goog.bind(this.hasChildrenUpdated_, this);
   RemoteDomAgent.ChildNodeInserted =
-      goog.bind(this.childNodeInserted, this);
+      goog.bind(this.childNodeInserted_, this);
   RemoteDomAgent.ChildNodeRemoved =
-      goog.bind(this.childNodeRemoved, this);
+      goog.bind(this.childNodeRemoved_, this);
 
   /**
    * Top-level (and the only) document.
@@ -625,6 +625,7 @@ devtools.DomAgent.prototype.setTextNodeValueAsync = function(node, text,
  * @param {devtools.DomNode} node Node to apply local changes on.
  * @param {Function} callback Post-operation call.
  * @param {boolean} success True iff operation has completed successfully.
+ * @private
  */
 devtools.DomAgent.prototype.didApplyDomChange_ = function(node, 
     callback, success) {
@@ -642,8 +643,9 @@ devtools.DomAgent.prototype.didApplyDomChange_ = function(node,
 /**
  * @see DomAgentDelegate.
  * {@inheritDoc}.
+ * @private
  */
-devtools.DomAgent.prototype.attributesUpdated = function(nodeId, attrsArray) {
+devtools.DomAgent.prototype.attributesUpdated_ = function(nodeId, attrsArray) {
   var node = this.idToDomNode_[nodeId];
   node.setAttributesPayload_(attrsArray);
 };
@@ -662,14 +664,15 @@ devtools.DomAgent.prototype.getNodeForId = function(nodeId) {
 /**
  * @see DomAgentDelegate.
  * {@inheritDoc}.
+ * @private
  */
-devtools.DomAgent.prototype.setDocumentElement = function(payload) {
+devtools.DomAgent.prototype.setDocumentElement_ = function(payload) {
   var doc = this.getDocument();
   if (doc.documentElement) {
     this.reset();
     doc = this.getDocument();
   }
-  this.setChildNodes(0, [payload]);
+  this.setChildNodes_(0, [payload]);
   doc.documentElement = doc.firstChild;
   doc.documentElement.ownerDocument = doc;
   WebInspector.panels.elements.reset();
@@ -679,8 +682,9 @@ devtools.DomAgent.prototype.setDocumentElement = function(payload) {
 /**
  * @see DomAgentDelegate.
  * {@inheritDoc}.
+ * @private
  */
-devtools.DomAgent.prototype.setChildNodes = function(parentId, payloads) {
+devtools.DomAgent.prototype.setChildNodes_ = function(parentId, payloads) {
   var parent = this.idToDomNode_[parentId];
   if (parent.children) {
     return;
@@ -693,6 +697,7 @@ devtools.DomAgent.prototype.setChildNodes = function(parentId, payloads) {
 /**
  * Binds nodes to ids recursively.
  * @param {Array.<devtools.DomNode>} children Nodes to bind.
+ * @private
  */
 devtools.DomAgent.prototype.bindNodes_ = function(children) {
   for (var i = 0; i < children.length; ++i) {
@@ -708,8 +713,9 @@ devtools.DomAgent.prototype.bindNodes_ = function(children) {
 /**
  * @see DomAgentDelegate.
  * {@inheritDoc}.
+ * @private
  */
-devtools.DomAgent.prototype.hasChildrenUpdated = function(nodeId, newValue) {
+devtools.DomAgent.prototype.hasChildrenUpdated_ = function(nodeId, newValue) {
   var node = this.idToDomNode_[nodeId];
   var outline = WebInspector.panels.elements.treeOutline;
   var treeElement = outline.findTreeElement(node);
@@ -723,8 +729,9 @@ devtools.DomAgent.prototype.hasChildrenUpdated = function(nodeId, newValue) {
 /**
  * @see DomAgentDelegate.
  * {@inheritDoc}.
+ * @private
  */
-devtools.DomAgent.prototype.childNodeInserted = function(
+devtools.DomAgent.prototype.childNodeInserted_ = function(
     parentId, prevId, payload) {
   var parent = this.idToDomNode_[parentId];
   var prev = this.idToDomNode_[prevId];
@@ -738,8 +745,9 @@ devtools.DomAgent.prototype.childNodeInserted = function(
 /**
  * @see DomAgentDelegate.
  * {@inheritDoc}.
+ * @private
  */
-devtools.DomAgent.prototype.childNodeRemoved = function(
+devtools.DomAgent.prototype.childNodeRemoved_ = function(
     parentId, nodeId) {
   var parent = this.idToDomNode_[parentId];
   var node = this.idToDomNode_[nodeId];
@@ -789,6 +797,7 @@ devtools.DomAgent.prototype.searchCanceled = function(callback) {
  * @param {function(Array.<devtools.DomNode>)} callback to accept the result.
  * @param {Array.<number>} searchResults to be populated.
  * @param {Array.<number>} nodeIds Ids to highlight.
+ * @private
  */
 devtools.DomAgent.prototype.performSearchCallback_ = function(callback,
     searchResults, nodeIds) {

@@ -25,7 +25,10 @@
       String /* json_args */) \
   \
   /* Clears cached console messages. */ \
-  METHOD0(ClearConsoleMessages)
+  METHOD0(ClearConsoleMessages) \
+  /* Requests that the agent sends content of the resource with given id to the
+     delegate. */ \
+  METHOD2(GetResourceContent, int /* call_id */, int /* identifier */)
 
 DEFINE_RPC_CLASS(ToolsAgent, TOOLS_AGENT_STRUCT)
 
@@ -44,8 +47,11 @@ DEFINE_RPC_CLASS(ToolsAgent, TOOLS_AGENT_STRUCT)
   METHOD3(DidExecuteUtilityFunction, int /* call_id */, String /* result */, \
       String /* exception */) \
   \
-  /* Adds message to console. */ \
-  METHOD1(AddMessageToConsole, Value /* message */)
+  /* Sends InspectorFrontend message to be dispatched on client. */ \
+  METHOD1(DispatchOnClient, String /* data */) \
+  \
+  /* Response to the async call. */ \
+  METHOD2(DidGetResourceContent, int /* call_id */, String /* content */)
 
 DEFINE_RPC_CLASS(ToolsAgentDelegate, TOOLS_AGENT_DELEGATE_STRUCT)
 
