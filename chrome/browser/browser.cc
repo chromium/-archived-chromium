@@ -1571,6 +1571,9 @@ void Browser::TabClosingAt(TabContents* contents, int index) {
 }
 
 void Browser::TabDetachedAt(TabContents* contents, int index) {
+  // Save what the user's currently typing.
+  window_->GetLocationBar()->SaveStateToContents(contents);
+
   contents->set_delegate(NULL);
   if (!tabstrip_model_.closing_all())
     SyncHistoryWithTabs(0);
