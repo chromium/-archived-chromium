@@ -109,12 +109,14 @@ void VideoRendererImpl::SlowPaint(media::VideoFrame* video_frame,
     last_converted_timestamp_ = timestamp;
     media::VideoSurface frame_in;
     if (video_frame->Lock(&frame_in)) {
-      // TODO(hclam): Support more video formats than just YV12.
-      DCHECK(frame_in.format == media::VideoSurface::YV12);
+      DCHECK(frame_in.format == media::VideoSurface::YV12 ||
+             frame_in.format == media::VideoSurface::YV16);
       DCHECK(frame_in.strides[media::VideoSurface::kUPlane] ==
              frame_in.strides[media::VideoSurface::kVPlane]);
       DCHECK(frame_in.planes == media::VideoSurface::kNumYUVPlanes);
       bitmap_.lockPixels();
+      media::YUVType yuv_type = (frame_in.format == media::VideoSurface::YV12) ?
+                                media::YV12 : media::YV16;
       media::ConvertYUVToRGB32(frame_in.data[media::VideoSurface::kYPlane],
                                frame_in.data[media::VideoSurface::kUPlane],
                                frame_in.data[media::VideoSurface::kVPlane],
@@ -124,7 +126,7 @@ void VideoRendererImpl::SlowPaint(media::VideoFrame* video_frame,
                                frame_in.strides[media::VideoSurface::kYPlane],
                                frame_in.strides[media::VideoSurface::kUPlane],
                                bitmap_.rowBytes(),
-                               media::YV12);
+                               yuv_type);
       bitmap_.unlockPixels();
       video_frame->Unlock();
     } else {
@@ -151,12 +153,15 @@ void VideoRendererImpl::FastPaint(media::VideoFrame* video_frame,
                                   const gfx::Rect& dest_rect) {
   media::VideoSurface frame_in;
   if (video_frame->Lock(&frame_in)) {
-    // TODO(hclam): Support more video formats than just YV12.
-    DCHECK(frame_in.format == media::VideoSurface::YV12);
+    DCHECK(frame_in.format == media::VideoSurface::YV12 ||
+           frame_in.format == media::VideoSurface::YV16);
     DCHECK(frame_in.strides[media::VideoSurface::kUPlane] ==
            frame_in.strides[media::VideoSurface::kVPlane]);
     DCHECK(frame_in.planes == media::VideoSurface::kNumYUVPlanes);
     const SkBitmap& bitmap = canvas->getDevice()->accessBitmap(true);
+    media::YUVType yuv_type = (frame_in.format == media::VideoSurface::YV12) ?
+                              media::YV12 : media::YV16;
+    int y_shift = yuv_type;  // 1 for YV12, 0 for YV16.
 
     // Create a rectangle backed by SkScalar.
     SkRect scalar_dest_rect;
@@ -216,11 +221,11 @@ void VideoRendererImpl::FastPaint(media::VideoFrame* video_frame,
       // in Y, U and V planes.
       size_t y_offset = frame_in.strides[media::VideoSurface::kYPlane] *
                         frame_clip_top + frame_clip_left;
-      // Since the format is YV12, there is one U, V value per 2x2 block, thus
-      // the math here.
-      // TODO(hclam): handle formats other than YV12.
-      size_t uv_offset = frame_in.strides[media::VideoSurface::kUPlane] *
-                         (frame_clip_top / 2) + frame_clip_left / 2;
+      // For format YV12, there is one U, V value per 2x2 block.
+      // For format YV16, there is one u, V value per 2x1 block.
+      size_t uv_offset = (frame_in.strides[media::VideoSurface::kUPlane] *
+                         (frame_clip_top >> y_shift)) +
+                         (frame_clip_left >> 1);
       uint8* frame_clip_y = frame_in.data[media::VideoSurface::kYPlane] +
                             y_offset;
       uint8* frame_clip_u = frame_in.data[media::VideoSurface::kUPlane] +
@@ -228,6 +233,7 @@ void VideoRendererImpl::FastPaint(media::VideoFrame* video_frame,
       uint8* frame_clip_v = frame_in.data[media::VideoSurface::kVPlane] +
                             uv_offset;
       bitmap.lockPixels();
+
       // TODO(hclam): do rotation and mirroring here.
       media::ScaleYUVToRGB32(frame_clip_y,
                              frame_clip_u,
@@ -240,7 +246,7 @@ void VideoRendererImpl::FastPaint(media::VideoFrame* video_frame,
                              frame_in.strides[media::VideoSurface::kYPlane],
                              frame_in.strides[media::VideoSurface::kUPlane],
                              bitmap.rowBytes(),
-                             media::YV12,
+                             yuv_type,
                              media::ROTATE_0);
       bitmap.unlockPixels();
     }
