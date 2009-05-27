@@ -206,9 +206,6 @@ BookmarkManagerView::BookmarkManagerView(Profile* profile)
   layout->StartRow(1, split_cs_id);
   layout->AddView(split_view_);
 
-  // Press Ctrl-W to close bookmark manager window.
-  AddAccelerator(views::Accelerator('W', false, true, false));
-
   BookmarkModel* bookmark_model = profile_->GetBookmarkModel();
   if (!bookmark_model->IsLoaded())
     bookmark_model->AddObserver(this);
@@ -341,14 +338,6 @@ std::wstring BookmarkManagerView::GetWindowName() const {
 void BookmarkManagerView::WindowClosing() {
   g_browser_process->local_state()->SetInteger(
       prefs::kBookmarkManagerSplitLocation, split_view_->divider_x());
-}
-
-bool BookmarkManagerView::AcceleratorPressed(
-    const views::Accelerator& accelerator) {
-  // Ctrl-W to close bookmark manager.
-  DCHECK(accelerator.GetKeyCode() == 'W' && accelerator.IsCtrlDown());
-  window()->Close();
-  return true;
 }
 
 void BookmarkManagerView::OnDoubleClick() {
