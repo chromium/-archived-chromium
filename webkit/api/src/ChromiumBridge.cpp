@@ -313,9 +313,12 @@ void ChromiumBridge::paintTextField(
     const IntRect& rect, const Color& color, bool fillContentArea,
     bool drawEdges)
 {
+    // Fallback to white when |color| is invalid.
+    RGBA32 backgroundColor = color.isValid() ? color.rgb() : Color::white;
+
     webKitClient()->themeEngine()->paintTextField(
         gc->platformContext()->canvas(), part, state, classicState, rect,
-        color.rgb(), fillContentArea, drawEdges);
+        backgroundColor, fillContentArea, drawEdges);
 }
 
 void ChromiumBridge::paintTrackbar(
