@@ -14,6 +14,7 @@
 
 class Browser;
 class BrowserView;
+class FindBar;
 class GURL;
 class HtmlDialogUIDelegate;
 class InfoBubbleDelegate;
