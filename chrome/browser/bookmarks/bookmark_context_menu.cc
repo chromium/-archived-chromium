@@ -56,7 +56,7 @@ class EditFolderController : public InputWindowDialog::Delegate,
   }
 
   static void Show(Profile* profile,
-                   gfx::NativeWindow wnd,
+                   gfx::NativeView wnd,
                    BookmarkNode* node,
                    bool is_new,
                    bool show_in_manager) {
@@ -68,7 +68,7 @@ class EditFolderController : public InputWindowDialog::Delegate,
 
  private:
   EditFolderController(Profile* profile,
-                       gfx::NativeWindow wnd,
+                       gfx::NativeView wnd,
                        BookmarkNode* node,
                        bool is_new,
                        bool show_in_manager)
@@ -214,7 +214,7 @@ class SelectOnCreationHandler : public BookmarkEditor::Handler {
 // BookmarkContextMenu -------------------------------------------
 
 BookmarkContextMenu::BookmarkContextMenu(
-    gfx::NativeWindow wnd,
+    gfx::NativeView wnd,
     Profile* profile,
     Browser* browser,
     PageNavigator* navigator,

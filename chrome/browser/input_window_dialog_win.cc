@@ -223,7 +223,7 @@ void WinInputWindowDialog::Close() {
 }
 
 // static
-InputWindowDialog* InputWindowDialog::Create(gfx::NativeWindow parent,
+InputWindowDialog* InputWindowDialog::Create(HWND parent,
                                              const std::wstring& window_title,
                                              const std::wstring& label,
                                              const std::wstring& contents,

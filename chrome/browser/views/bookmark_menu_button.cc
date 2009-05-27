@@ -4,6 +4,12 @@
 
 #include "chrome/browser/views/bookmark_menu_button.h"
 
+#include "build/build_config.h"
+
+#if defined(OS_GTK)
+#include <gtk/gtk.h>
+#endif
+
 #include "app/resource_bundle.h"
 #include "app/os_exchange_data.h"
 #include "chrome/browser/bookmarks/bookmark_model.h"
@@ -129,9 +135,13 @@ void BookmarkMenuButton::StartShowFolderDropMenuTimer() {
   if (show_drop_menu_timer_.IsRunning())
     return;
 
+#if defined(OS_WIN)
   static DWORD delay = 0;
   if (!delay && !SystemParametersInfo(SPI_GETMENUSHOWDELAY, 0, &delay, 0))
     delay = 400;
+#else
+  static int delay = 400;
+#endif
   show_drop_menu_timer_.Start(base::TimeDelta::FromMilliseconds(delay),
                               this, &BookmarkMenuButton::ShowDropMenu);
 }

@@ -33,7 +33,7 @@ static const int kTreeHeight = 150;
 }  // namespace
 
 // static
-void BookmarkEditor::Show(gfx::NativeWindow parent_hwnd,
+void BookmarkEditor::Show(gfx::NativeView parent_hwnd,
                           Profile* profile,
                           BookmarkNode* parent,
                           BookmarkNode* node,
@@ -41,8 +41,8 @@ void BookmarkEditor::Show(gfx::NativeWindow parent_hwnd,
                           Handler* handler) {
   DCHECK(profile);
   BookmarkEditorGtk* editor =
-      new BookmarkEditorGtk(parent_hwnd, profile, parent, node, configuration,
-                            handler);
+      new BookmarkEditorGtk(GTK_WINDOW(gtk_widget_get_toplevel(parent_hwnd)),
+                            profile, parent, node, configuration, handler);
   editor->Show();
 }
 

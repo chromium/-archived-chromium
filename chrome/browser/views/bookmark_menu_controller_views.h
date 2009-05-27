@@ -38,7 +38,7 @@ class BookmarkMenuController : public BaseBookmarkModelObserver,
   BookmarkMenuController(Browser* browser,
                          Profile* profile,
                          PageNavigator* page_navigator,
-                         gfx::NativeWindow parent,
+                         gfx::NativeView parent,
                          BookmarkNode* node,
                          int start_child_index,
                          bool show_other_folder);
@@ -110,7 +110,7 @@ class BookmarkMenuController : public BaseBookmarkModelObserver,
   PageNavigator* page_navigator_;
 
   // Parent of menus.
-  gfx::NativeWindow parent_;
+  gfx::NativeView parent_;
 
   // The node we're showing the contents of.
   BookmarkNode* node_;

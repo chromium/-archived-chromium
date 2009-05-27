@@ -44,10 +44,6 @@ gfx::Rect GetWidgetScreenBounds(GtkWidget* widget);
 // Initialize some GTK settings so that our dialogs are consistent.
 void InitRCStyles();
 
-// Returns the closest ancestor of |widget| which is a top level window or NULL
-// if there is no such ancestor. The search starts at |widget|.
-GtkWindow* ParentWindow(GtkWidget* widget);
-
 }  // namespace gtk_util
 
 #endif  // CHROME_COMMON_GTK_UTIL_H_

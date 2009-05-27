@@ -122,13 +122,4 @@ void InitRCStyles() {
   gtk_rc_parse_string(kRCText);
 }
 
-GtkWindow* ParentWindow(GtkWidget* widget) {
-  while (widget) {
-    if (GTK_IS_WINDOW(widget))
-      return GTK_WINDOW(widget);
-    widget = gtk_widget_get_parent(widget);
-  }
-  return NULL;
-}
-
 }  // namespace gtk_util

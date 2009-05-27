@@ -73,14 +73,14 @@ void CloneDragData(BookmarkModel* model,
 // |navigator| is used to open the URLs. If |navigator| is NULL the last
 // tabbed browser with the profile |profile| is used. If there is no browser
 // with the specified profile a new one is created.
-void OpenAll(gfx::NativeWindow parent,
+void OpenAll(gfx::NativeView parent,
              Profile* profile,
              PageNavigator* navigator,
              const std::vector<BookmarkNode*>& nodes,
              WindowOpenDisposition initial_disposition);
 
 // Convenience for opening a single BookmarkNode.
-void OpenAll(gfx::NativeWindow parent,
+void OpenAll(gfx::NativeView parent,
              Profile* profile,
              PageNavigator* navigator,
              BookmarkNode* node,

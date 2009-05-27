@@ -21,7 +21,7 @@
 BookmarkMenuController::BookmarkMenuController(Browser* browser,
                                                Profile* profile,
                                                PageNavigator* navigator,
-                                               gfx::NativeWindow parent,
+                                               gfx::NativeView parent,
                                                BookmarkNode* node,
                                                int start_child_index,
                                                bool show_other_folder)
@@ -48,15 +48,10 @@ void BookmarkMenuController::RunMenuAt(
     bool for_drop) {
   for_drop_ = for_drop;
   profile_->GetBookmarkModel()->AddObserver(this);
-#if defined(OS_WIN)
-  gfx::NativeView widget = parent_;
-#else
-  gfx::NativeView widget = GTK_WIDGET(parent_);
-#endif
   if (for_drop) {
-    menu_->RunMenuForDropAt(widget, bounds, position);
+    menu_->RunMenuForDropAt(parent_, bounds, position);
   } else {
-    menu_->RunMenuAt(widget, bounds, position, false);
+    menu_->RunMenuAt(parent_, bounds, position, false);
     delete this;
   }
 }

@@ -27,10 +27,9 @@ class InputWindowDialog {
     virtual void InputCanceled() = 0;
   };
 
-  // Creates a new input window dialog from the parent window
-  // |parent|, Ownership of |delegate| is taken by InputWindowDialog or
-  // InputWindowDialog's owner.
-  static InputWindowDialog* Create(gfx::NativeWindow parent,
+  // Creates a new input window dialog parented to |parent|. Ownership of
+  // |delegate| is taken by InputWindowDialog or InputWindowDialog's owner.
+  static InputWindowDialog* Create(gfx::NativeView parent,
                                    const std::wstring& window_title,
                                    const std::wstring& label,
                                    const std::wstring& contents,

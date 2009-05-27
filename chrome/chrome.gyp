@@ -1686,6 +1686,8 @@
                 ['include', '^browser/dock_info_gtk.cc'],
                 ['include', '^browser/dock_info.cc'],
                 ['include', '^browser/dock_info.h'],
+                ['include', '^browser/views/bookmark_menu_button.cc'],
+                ['include', '^browser/views/bookmark_menu_button.h'],
                 ['include', '^browser/views/bookmark_menu_controller_views.cc'],
                 ['include', '^browser/views/dialog_stubs_gtk.cc'],
                 ['include', '^browser/views/download_item_view.cc'],
