@@ -25,7 +25,7 @@
 #       If the type is not listed, it defaults to PREFIX.
 
 # Any crash due to out of memory is ignored.
-PREFIX : `anonymous namespace'::onnomemory____callnewh___malloc
+PREFIX : `anonymous namespace'::onnomemory
 
 # Mysterious crashes. Leave them for now.
 
@@ -44,6 +44,12 @@ SUBSTRING : history::historybackend::~historybackend
 
 # 7701
 PREFIX : iat_patch::getiatfunction___iat_patch::restoreimportedfunction___iat_patch::iatpatchfunction::unpatch
+
+# 10791
+PREFIX : npapi::plugininstance::npp_destroy___webplugindelegateimpl::destroyinstance___webplugindelegateimpl::~webplugindelegateimpl
+
+# 5545
+PREFIX : npapi::plugininstance::npp_handleevent___webplugindelegateimpl::windowlesspaint___webpluginproxy::paint___webpluginproxy::onpaint
 
 # 8020
 PREFIX : passwordformdommanager::findpasswordformfields___passwordformdommanager::createpasswordform___webframeloaderclient::dispatchdidfinishdocumentload
