@@ -155,6 +155,14 @@
 			RelativePath="$(OutDir)\grit_derived_sources\strings$(CHROMIUM_BUILD)_kn.rc"
 			>
 		</File>
+		<File
+			RelativePath="$(OutDir)\obj\global_intermediate\app\app_strings_kn.rc"
+			>
+		</File>
+		<File
+			RelativePath="$(OutDir)\obj\global_intermediate\app\app_locale_settings_kn.rc"
+			>
+		</File>
 	</Files>
 	<Globals>
 	</Globals>
