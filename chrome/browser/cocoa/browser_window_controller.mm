@@ -231,6 +231,13 @@ willPositionSheet:(NSWindow *)sheet
 // regardless.
 - (NSRect)windowWillUseStandardFrame:(NSWindow*)window
                         defaultFrame:(NSRect)frame {
+  // If the shift key is down, maximize. Hopefully this should make the
+  // "switchers" happy.
+  if ([[[NSApplication sharedApplication] currentEvent] modifierFlags] & 
+          NSShiftKeyMask) {
+    return [[window screen] visibleFrame];
+  }
+  
   const int kMinimumIntrinsicWidth = 700;
   const int kScrollbarWidth = 16;
   const int kSpaceForIcons = 50;
