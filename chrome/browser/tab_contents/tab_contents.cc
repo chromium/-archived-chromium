@@ -314,20 +314,24 @@ TabContents::~TabContents() {
       window->CloseConstrainedWindow();
   }
 
-  // Notify any lasting InfobarDelegates that have not yet been removed that
-  // whatever infobar they were handling in this TabContents has closed,
-  // because the TabContents is going away entirely.
-  for (int i = 0; i < infobar_delegate_count(); ++i) {
-    InfoBarDelegate* delegate = GetInfoBarDelegateAt(i);
-    delegate->InfoBarClosed();
-  }
-  infobar_delegates_.clear();
-
   // Notify any observer that have a reference on this tab contents.
   NotificationService::current()->Notify(
       NotificationType::TAB_CONTENTS_DESTROYED,
       Source<TabContents>(this),
       NotificationService::NoDetails());
+
+  // Notify any lasting InfobarDelegates that have not yet been removed that
+  // whatever infobar they were handling in this TabContents has closed,
+  // because the TabContents is going away entirely.
+  // This must happen after the TAB_CONTENTS_DESTROYED notification as the
+  // notification may trigger infobars calls that access their delegate. (and
+  // some implementations of InfoBarDelegate do delete themselves on
+  // InfoBarClosed()).
+  for (int i = 0; i < infobar_delegate_count(); ++i) {
+    InfoBarDelegate* delegate = GetInfoBarDelegateAt(i);
+    delegate->InfoBarClosed();
+  }
+  infobar_delegates_.clear();
 
   // TODO(brettw) this should be moved to the view.
 #if defined(OS_WIN)
