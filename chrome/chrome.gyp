@@ -42,7 +42,7 @@
         ],
       }],
       ['OS=="win"', {'sources/': [
-        ['include', '_(win)(_unittest)?\\.cc$'],
+        ['include', '_(views|win)(_unittest)?\\.cc$'],
         ['include', '/win/'],
         ['include', '/(views|win)_[^/]*\\.cc$'],
       ]}],
