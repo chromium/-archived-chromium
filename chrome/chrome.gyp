@@ -2046,6 +2046,8 @@
         'app/scoped_ole_initializer.h',
       ],
       'mac_bundle_resources': [
+        # put any pdfs down in the sources block below so pdfsqueeze runs on
+        # them.
         'app/nibs/en.lproj/About.xib',
         'app/nibs/en.lproj/BrowserWindow.xib',
         'app/nibs/en.lproj/FindBar.xib',
@@ -2056,15 +2058,7 @@
         'app/nibs/en.lproj/TabContents.xib',
         'app/nibs/en.lproj/TabView.xib',
         'app/nibs/en.lproj/Toolbar.xib',
-        'app/theme/back.pdf',
-        'app/theme/close_bar.pdf',
-        'app/theme/close_bar_h.pdf',
-        'app/theme/close_bar_p.pdf',
-        'app/theme/forward.pdf',
-        'app/theme/go.pdf',
         'app/theme/grow_box.png',
-        'app/theme/nav.pdf',
-        'app/theme/newtab.pdf',
         'app/theme/o2_globe.png',
         'app/theme/o2_history.png',
         'app/theme/o2_more.png',
@@ -2072,9 +2066,6 @@
         'app/theme/o2_star.png',
         'app/theme/reload.pdf',
         'app/theme/sadtab.png',
-        'app/theme/star.pdf',
-        'app/theme/starred.pdf',
-        'app/theme/stop.pdf',
         '../app/resources/throbber.png',
         'app/theme/throbber_waiting.png',
         'app/app-Info.plist',
@@ -2183,6 +2174,38 @@
             'CHROMIUM_BUNDLE_ID': '<(bundle_id)',
             'CHROMIUM_SHORT_NAME': '<(branding)',
           },
+          # Bring in pdfsqueeze and run it on all pdfs
+          'sources': [
+            'app/theme/back.pdf',
+            'app/theme/close_bar.pdf',
+            'app/theme/close_bar_h.pdf',
+            'app/theme/close_bar_p.pdf',
+            'app/theme/forward.pdf',
+            'app/theme/go.pdf',
+            'app/theme/nav.pdf',
+            'app/theme/newtab.pdf',
+            'app/theme/star.pdf',
+            'app/theme/starred.pdf',
+            'app/theme/stop.pdf',
+          ],
+          'dependencies': [
+            '../build/temp_gyp/pdfsqueeze.gyp:pdfsqueeze',
+          ],
+          'rules': [
+            {
+              'rule_name': 'pdfsqueeze',
+              'extension': 'pdf',
+              'inputs': [
+                '<(PRODUCT_DIR)/pdfsqueeze',
+              ],
+              'outputs': [
+                '<(INTERMEDIATE_DIR)/pdfsqueeze/<(RULE_INPUT_ROOT).pdf',
+              ],
+              'action': ['<(PRODUCT_DIR)/pdfsqueeze', '<(RULE_INPUT_PATH)', '<@(_outputs)'],
+              'message': 'Running pdfsqueeze on <(RULE_INPUT_PATH)',
+              'process_outputs_as_mac_bundle_resources': 1,
+            },
+          ],
         }, { # else: OS != "mac"
           'conditions': [
             ['branding=="Chrome"', {
