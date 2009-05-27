@@ -1196,6 +1196,7 @@ int BrowserView::NonClientHitTest(const gfx::Point& point) {
   return views::ClientView::NonClientHitTest(point);
 #else
   NOTIMPLEMENTED();
+  return 0;
 #endif
 }
 

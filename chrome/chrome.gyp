@@ -1687,6 +1687,8 @@
                 ['include', '^browser/views/find_bar_win.h'],
                 ['include', '^browser/views/toolbar_star_toggle.h'],
                 ['include', '^browser/views/toolbar_star_toggle.cc'],
+                ['include', '^browser/views/frame/browser_view.cc'],
+                ['include', '^browser/views/frame/browser_view.h'],
                 ['include', '^browser/views/frame/browser_frame_gtk.cc'],
                 ['include', '^browser/views/frame/browser_frame_gtk.h'],
                 ['include', '^browser/views/frame/browser_root_view.cc'],

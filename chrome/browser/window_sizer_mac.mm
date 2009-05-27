@@ -10,6 +10,8 @@
 // opened windows.
 const int WindowSizer::kWindowTilePixels = 22;
 
+namespace {
+
 class DefaultMonitorInfoProvider : public WindowSizer::MonitorInfoProvider {
  public:
   DefaultMonitorInfoProvider() { }
@@ -57,6 +59,8 @@ class DefaultMonitorInfoProvider : public WindowSizer::MonitorInfoProvider {
  private:
   DISALLOW_COPY_AND_ASSIGN(DefaultMonitorInfoProvider);
 };
+
+}  // namespace
 
 // static
 WindowSizer::MonitorInfoProvider*
