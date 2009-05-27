@@ -478,8 +478,6 @@ gboolean DownloadItemGtk::OnMenuButtonPressEvent(GtkWidget* button,
     item->complete_animation_->End();
   }
 
-  item->complete_animation_->End();
-
   // TODO(port): this never puts the button into the "active" state,
   // so this may need to be changed. See note in BrowserToolbarGtk.
   if (event->type == GDK_BUTTON_PRESS) {
