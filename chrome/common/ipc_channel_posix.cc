@@ -607,6 +607,13 @@ bool Channel::ChannelImpl::ProcessOutgoingMessages() {
       msg->file_descriptor_set()->CommitAll();
 
     if (bytes_written < 0 && errno != EAGAIN) {
+#if defined(OS_MACOSX)
+      // On OSX writing to a pipe with no listener returns EPERM.
+      if (errno == EPERM) {
+        Close();
+        return false;
+      }
+#endif  // OS_MACOSX
       LOG(ERROR) << "pipe error: " << strerror(errno);
       return false;
     }
