@@ -17,6 +17,8 @@
 #import "chrome/browser/cocoa/encoding_menu_controller_delegate_mac.h"
 #import "chrome/browser/cocoa/menu_localizer.h"
 #import "chrome/browser/cocoa/preferences_window_controller.h"
+#import "chrome/browser/cocoa/tab_strip_controller.h"
+#import "chrome/browser/cocoa/tab_window_controller.h"
 #include "chrome/browser/command_updater.h"
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
@@ -31,6 +33,7 @@
      withReply:(NSAppleEventDescriptor*)reply;
 - (void)openFiles:(NSAppleEventDescriptor*)event
         withReply:(NSAppleEventDescriptor*)reply;
+- (void)windowLayeringDidChange:(NSNotification*)inNotification;
 @end
 
 @implementation AppController
@@ -56,8 +59,117 @@
         forEventClass:kCoreEventClass
            andEventID:kAEOpenDocuments];
 
+  // Register for various window layering changes. We use these to update
+  // various UI elements (command-key equivalents, etc) when the frontmost
+  // window changes.
+  NSNotificationCenter* notificationCenter =
+      [NSNotificationCenter defaultCenter];
+  [notificationCenter 
+      addObserver:self
+         selector:@selector(windowLayeringDidChange:)
+             name:NSWindowDidBecomeKeyNotification
+           object:nil];
+  [notificationCenter
+      addObserver:self
+         selector:@selector(windowLayeringDidChange:)
+             name:NSWindowDidResignKeyNotification
+           object:nil];
+  [notificationCenter
+      addObserver:self
+         selector:@selector(windowLayeringDidChange:)
+             name:NSWindowDidBecomeMainNotification
+           object:nil];
+  [notificationCenter
+      addObserver:self
+         selector:@selector(windowLayeringDidChange:)
+             name:NSWindowDidResignMainNotification
+           object:nil];
+
+  // Register for a notification that the number of tabs changes in windows
+  // so we can adjust the close tab/window command keys.
+  [notificationCenter
+      addObserver:self
+         selector:@selector(tabsChanged:)
+             name:kTabStripNumberOfTabsChanged
+           object:nil];
+
   // Set up the command updater for when there are no windows open
   [self initMenuState];
+}
+
+// Called when the app is shutting down. Clean-up as appropriate.
+- (void)applicationWillTerminate:(NSNotification *)aNotification {
+  [[NSNotificationCenter defaultCenter] removeObserver:self];
+}
+
+// Helper routine to get the window controller if the key window is a tabbed
+// window, or nil if not. Examples of non-tabbed windows are "about" or
+// "preferences".
+- (TabWindowController*)keyWindowTabController {
+  NSWindowController* keyWindowController =
+      [[[NSApplication sharedApplication] keyWindow] windowController];
+  if ([keyWindowController isKindOfClass:[TabWindowController class]])
+    return (TabWindowController*)keyWindowController;
+
+  return nil;
+}
+
+// If the window has tabs, make "close window" be cmd-shift-w, otherwise leave
+// it as the normal cmd-w. Capitalization of the key equivalent affects whether
+// the shift modifer is used.
+- (void)adjustCloseWindowMenuItemKeyEquivalent:(BOOL)inHaveTabs {
+  [closeWindowMenuItem_ setKeyEquivalent:(inHaveTabs ? @"W" : @"w")];
+}
+
+// If the window has tabs, make "close tab" take over cmd-w, otherwise it
+// shouldn't have any key-equivalent because it should be disabled.
+- (void)adjustCloseTabMenuItemKeyEquivalent:(BOOL)hasTabs {
+  if (hasTabs) {
+    [closeTabMenuItem_ setKeyEquivalent:@"w"];
+    [closeTabMenuItem_ setKeyEquivalentModifierMask:NSCommandKeyMask];
+  } else {
+    [closeTabMenuItem_ setKeyEquivalent:@""];
+    [closeTabMenuItem_ setKeyEquivalentModifierMask:0];
+  }
+}
+
+// See if we have a window with tabs open, and adjust the key equivalents for
+// Close Tab/Close Window accordingly
+- (void)fixCloseMenuItemKeyEquivalents {
+  TabWindowController* tabController = [self keyWindowTabController];
+  BOOL windowWithMultipleTabs =
+      (tabController && [tabController numberOfTabs] > 1);
+  [self adjustCloseWindowMenuItemKeyEquivalent:windowWithMultipleTabs];
+  [self adjustCloseTabMenuItemKeyEquivalent:windowWithMultipleTabs];
+  fileMenuUpdatePending_ = NO;
+}
+
+// Fix up the "close tab/close window" command-key equivalents. We do this
+// after a delay to ensure that window layer state has been set by the time
+// we do the enabling.
+- (void)delayedFixCloseMenuItemKeyEquivalents {
+  if (!fileMenuUpdatePending_) {
+    [self performSelector:@selector(fixCloseMenuItemKeyEquivalents)
+               withObject:nil
+               afterDelay:0];
+    fileMenuUpdatePending_ = YES;
+  }
+}
+
+// Called when we get a notification about the window layering changing to
+// update the UI based on the new main window.
+- (void)windowLayeringDidChange:(NSNotification*)notify {
+  [self delayedFixCloseMenuItemKeyEquivalents];
+  
+  // TODO(pinkerton): If we have other things here, such as inspector panels
+  // that follow the contents of the selected webpage, we would update those
+  // here.
+}
+
+// Called when the number of tabs changes in one of the browser windows. The
+// object is the tab strip controller, but we don't currently care.
+- (void)tabsChanged:(NSNotification*)notify {
+  [self delayedFixCloseMenuItemKeyEquivalents];
 }
 
 // If the auto-update interval is not set, make it 5 hours.

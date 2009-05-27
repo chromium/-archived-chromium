@@ -127,4 +127,11 @@ TEST_F(TabStripControllerTest, RearrangeTabs) {
   // if you don't do anything with it. http://crbug.com/10899
 }
 
+// Test that changing the number of tabs broadcasts a 
+// kTabStripNumberOfTabsChanged notifiction.
+TEST_F(TabStripControllerTest, Notifications) {
+  // TODO(pinkerton): Creating a TabContents crashes an unrelated test, even
+  // if you don't do anything with it. http://crbug.com/10899
+}
+
 }  // namespace

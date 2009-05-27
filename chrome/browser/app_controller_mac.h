@@ -34,6 +34,13 @@ class Profile;
   // only needed during early startup, it points to a valid vector during early
   // startup and is NULL during the rest of app execution.
   scoped_ptr<std::vector<GURL> > pendingURLs_;
+  
+  // Outlets for the close tab/window menu items so that we can adjust the
+  // commmand-key equivalent depending on the kind of window and how many
+  // tabs it has.
+  IBOutlet NSMenuItem* closeTabMenuItem_;
+  IBOutlet NSMenuItem* closeWindowMenuItem_;
+  BOOL fileMenuUpdatePending_;  // ensure we only do this once per notificaion.
 }
 
 - (IBAction)quit:(id)sender;

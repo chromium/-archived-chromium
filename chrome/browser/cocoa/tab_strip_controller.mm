@@ -22,6 +22,8 @@
 #include "chrome/browser/tabs/tab_strip_model.h"
 #include "grit/generated_resources.h"
 
+NSString* const kTabStripNumberOfTabsChanged = @"kTabStripNumberOfTabsChanged";
+
 // A simple view class that prevents the windowserver from dragging the
 // area behind tabs. Sometimes core animation confuses it.
 @interface TabStripControllerDragBlockingView : NSView
@@ -337,6 +339,11 @@
   if (!inForeground) {
     [self layoutTabs];
   }
+  
+  // Send a broadcast that the number of tabs have changed.
+  [[NSNotificationCenter defaultCenter]
+      postNotificationName:kTabStripNumberOfTabsChanged
+                    object:self];
 }
 
 // Called when a notification is received from the model to select a particular
@@ -396,6 +403,11 @@
 
   // Once we're totally done with the tab, delete its controller
   [tabArray_ removeObjectAtIndex:index];
+
+  // Send a broadcast that the number of tabs have changed.
+  [[NSNotificationCenter defaultCenter]
+      postNotificationName:kTabStripNumberOfTabsChanged
+                    object:self];
 
   [self layoutTabs];
 }
