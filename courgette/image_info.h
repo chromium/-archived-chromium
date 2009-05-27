@@ -119,7 +119,8 @@ class PEInfo {
     return start_ + offset;
   }
 
-  // Finds the first section at file_offset or above.
+  // Finds the first section at file_offset or above.  Does not return sections
+  // that have no raw bytes in the file.
   const Section* FindNextSection(uint32 file_offset) const;
   // Returns Section containing the relative virtual address, or NULL if none.
   const Section* RVAToSection(RVA rva) const;

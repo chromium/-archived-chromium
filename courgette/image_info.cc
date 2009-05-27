@@ -58,10 +58,12 @@ const Section* PEInfo::FindNextSection(uint32 fileOffset) const {
   const Section* best = 0;
   for (int i = 0; i < number_of_sections_; i++) {
     const Section* section = &sections_[i];
-    if (fileOffset <= section->file_offset_of_raw_data) {
-      if (best == 0 ||
-          section->file_offset_of_raw_data < best->file_offset_of_raw_data) {
-        best = section;
+    if (section->size_of_raw_data > 0) {  // i.e. has data in file.
+      if (fileOffset <= section->file_offset_of_raw_data) {
+        if (best == 0 ||
+            section->file_offset_of_raw_data < best->file_offset_of_raw_data) {
+          best = section;
+        }
       }
     }
   }
