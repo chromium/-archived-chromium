@@ -494,8 +494,14 @@ bool ShelfItemDialog::AcceleratorPressed(
 void ShelfItemDialog::OnSelectionChanged() {
   int selection = url_table_->FirstSelectedRow();
   if (selection >= 0 && selection < url_table_model_->RowCount()) {
-    url_field_->SetText(
-        UTF8ToWide(url_table_model_->GetURL(selection).spec()));
+    std::wstring languages =
+        profile_->GetPrefs()->GetString(prefs::kAcceptLanguages);
+    // Because the url_field_ is user-editable, we set the URL with
+    // username:password and escaped path and query.
+    std::wstring formatted = net::FormatUrl(
+        url_table_model_->GetURL(selection), languages,
+        false, false, NULL, NULL);
+    url_field_->SetText(formatted);
     if (title_field_)
       title_field_->SetText(url_table_model_->GetTitle(selection));
     GetDialogClientView()->UpdateDialogButtons();
