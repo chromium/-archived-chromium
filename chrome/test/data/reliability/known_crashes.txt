@@ -28,36 +28,16 @@
 PREFIX : `anonymous namespace'::onnomemory____callnewh___malloc
 
 # Mysterious crashes. Leave them for now.
-PREFIX : browserrenderprocesshost::inituserscripts___browserrenderprocesshost::init___renderviewhost::createrenderview___webcontents::createrenderviewforrendermanager___renderviewhostmanager::navigate
-
-PREFIX : chromeurldatamanager::dataavailable___runnablemethod<chromeurldatamanager,void (__thiscall chromeurldatamanager::*)(int,scoped_refptr<refcountedvector<unsigned char> >),tuple2<int,scoped_refptr<refcountedvector<unsigned char> > > >::run___messageloop::runtask___messageloop::dowork___base::messagepumpforio::dorunloop
 
 # It is too broad to exclude all purecall related crashes. Thus here we filter
 # any purecall crash immediately after runtask.
 SUBSTRING : purecall___messageloop::runtask
 REGEX : purecall___[^_]*___messageloop::runtask
 
-# 8352
-SUBSTRING : webcore::cache::revalidationsucceeded___webcore::loader::host::didreceiveresponse___webcore::subresourceloader::didreceiveresponse___webcore::resourceloader::didreceiveresponse___webcore::resourcehandleinternal::onreceivedresponse___resourcedispatcher::onreceivedresponse
-
 # 5359. Random memory corruption?
 PREFIX : v8::internal::sweepspace___v8::internal::markcompactcollector::sweepspaces___v8::internal::markcompactcollector::collectgarbage
 
 # End mysterious crash section.
-
-
-# 8577
-PREFIX : `anonymous namespace'::invalidparameter____invalid_parameter_noinfo___std::deque
-PREFIX : `anonymous namespace'::purecall____invalid_parameter_noinfo___std::deque
-
-# 10794
-SUBSTRING : base::waitableevent::waitableevent___webpluginproxy::setmodaldialogevent___webplugindelegatestub::oninit
-
-# 11757
-SUBSTRING : browserthemeprovider::generatebitmap___browserthemeprovider::getbitmapnamed___tabrenderer::paintinactivetabbackground___tabrenderer::painttabbackground
-
-# 11408
-PREFIX : confirminfobar::layout___bookmarkbarview::didchangebounds___views::view::setbounds___infobarcontainer::layout___bookmarkbarview::didchangebounds___views::view::setbounds___browserview::layoutinfobar___browserview::layoutbookmarkandinfobars___browserview::layout___browserview::selectedtabtoolbarsizechanged___infobarcontainer::viewhierarchychanged___views::view::propagateremovenotifications___views::view::doremovechildview___views::view::removeallchildviews___infobarcontainer::changetabcontents___browserview::tabdetachedat___tabstripmodel::detachtabcontentsat___tabstripmodel::observe___notificationservice::notify___tabcontents::~tabcontents
 
 # 9615
 SUBSTRING : history::historybackend::~historybackend
@@ -65,35 +45,15 @@ SUBSTRING : history::historybackend::~historybackend
 # 7701
 PREFIX : iat_patch::getiatfunction___iat_patch::restoreimportedfunction___iat_patch::iatpatchfunction::unpatch
 
-# 10770
-PREFIX : npapi::pluginstream::trywritetoplugin___npapi::pluginstream::writetoplugin___npapi::pluginstream::write
-
-# 10791
-PREFIX : npapi::plugininstance::npp_destroy___webplugindelegateimpl::destroyinstance___webplugindelegateimpl::~webplugindelegateimpl
-
 # 8020
 PREFIX : passwordformdommanager::findpasswordformfields___passwordformdommanager::createpasswordform___webframeloaderclient::dispatchdidfinishdocumentload
-
-# 7694
-PREFIX : webcore::containernode::willremove
 
 # 9947
 SUBSTRING : webcore::frameloader::didreceiveresponse___webcore::resourceloader::didreceiveresponse___webcore::subresourceloader::didreceiveresponse___webcore::resourceloader::didreceiveresponse___webcore::resourcehandleinternal::onreceivedresponse
 
-# 7570
-PREFIX : webcore::renderbox::calcabsolutehorizontalreplaced___webcore::renderbox::calcabsolutehorizontal___webcore::renderbox::calcwidth
-
 # 10978
 PREFIX : webcore::renderobject::localtoabsolute___webcore::layoutstate::layoutstate___webcore::renderview::pushlayoutstate___webcore::frameview::layout
-
-# 8648
-PREFIX : webcore::rendertext::destroy___webcore::node::detach___webcore::containernode::detach
-
-# 7367
-PREFIX : webcore::token::reset___webcore::htmltokenizer::processtoken___webcore::htmltokenizer::parsetag___webcore::htmltokenizer::write
 
 # 8033
 SUBSTRING : windowdragresponsetask::run___messageloop::runtask___messageloop::dowork
 
-# 8875
-PREFIX : _87except____startoneargerrorhandling___sqrt___v8::internal::invoke___v8::internal::execution::call
