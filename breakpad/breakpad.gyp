@@ -294,7 +294,6 @@
 #            'src/tools/linux/symupload/sym_upload.cc',
 #            'src/common/linux/http_upload.cc',
 #          ],
-#
 #          'include_dirs': [
 #            'src',
 #          ],
@@ -309,14 +308,16 @@
 #          'type': 'executable',
 #
 #          'sources': [
-#            'src/tools/linux/dump_syms/dump_syms.cc',
-#            'src/common/linux/dump_symbols.cc',
-#            'src/common/linux/file_id.cc',
-#            'src/common/md5.c',
+#            'linux/dump_syms.cc',
+#            'linux/dump_symbols.cc',
+#            'linux/dump_symbols.h',
+#            'linux/file_id.cc',
+#            'linux/file_id.h',
 #          ],
 #
 #          'include_dirs': [
 #            'src',
+#            '..',
 #          ],
 #        },
       ],
