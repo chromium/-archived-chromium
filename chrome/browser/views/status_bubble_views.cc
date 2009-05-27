@@ -576,9 +576,15 @@ void StatusBubbleViews::AvoidMouse() {
   gfx::Point top_left;
   views::RootView* root = frame_->GetRootView();
   views::View::ConvertPointToScreen(root, &top_left);
+  int window_width = root->GetLocalBounds(true).width();  // border included.
 
   // Get the cursor position relative to the popup.
-  cursor_location.set_x(cursor_location.x() - (top_left.x() + position_.x()));
+  if (view_->UILayoutIsRightToLeft()) {
+    int top_right_x = top_left.x() + window_width;
+    cursor_location.set_x(top_right_x - cursor_location.x());
+  } else {
+    cursor_location.set_x(cursor_location.x() - (top_left.x() + position_.x()));
+  }
   cursor_location.set_y(cursor_location.y() - (top_left.y() + position_.y()));
 
   // If the mouse is in a position where we think it would move the
@@ -633,9 +639,8 @@ void StatusBubbleViews::AvoidMouse() {
       view_->SetStyle(StatusView::STYLE_STANDARD_RIGHT);
       offset_ = 0;
 
-      int root_width = root->GetLocalBounds(true).width();  // border included.
       // Substract border width + bubble width.
-      int right_position_x = root_width - (position_.x() + size_.width());
+      int right_position_x = window_width - (position_.x() + size_.width());
       popup_->SetBounds(gfx::Rect(top_left.x() + right_position_x,
                                   top_left.y() + position_.y(),
                                   size_.width(), size_.height()));
