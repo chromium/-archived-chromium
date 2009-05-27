@@ -124,8 +124,10 @@ void ExternalTabContainer::SetInitialFocus(bool reverse) {
 
 // static
 bool ExternalTabContainer::IsExternalTabContainer(HWND window) {
-  std::wstring class_name = win_util::GetClassName(window);
-  return _wcsicmp(class_name.c_str(), chrome::kExternalTabWindowClass) == 0;
+  if (GetProp(window, kWindowObjectKey) != NULL)
+    return true;
+  
+  return false;
 }
 
 // static

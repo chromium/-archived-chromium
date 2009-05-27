@@ -43,7 +43,6 @@ const char    kStatsFilename[] = "ChromeStats2";
 const wchar_t kBrowserAppName[] = L"Chromium";
 const char    kStatsFilename[] = "ChromiumStats2";
 #endif
-const wchar_t kExternalTabWindowClass[] = L"Chrome_ExternalTabContainer";
 const wchar_t kMessageWindowClass[] = L"Chrome_MessageWindow";
 const wchar_t kCrashReportLog[] = L"Reported Crashes.txt";
 const wchar_t kTestingInterfaceDLL[] = L"testing_interface.dll";

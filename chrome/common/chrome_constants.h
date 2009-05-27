@@ -15,7 +15,6 @@ extern const wchar_t kBrowserProcessExecutableName[];
 extern const wchar_t kBrowserProcessExecutablePath[];
 extern const wchar_t kBrowserAppName[];
 extern const wchar_t kMessageWindowClass[];
-extern const wchar_t kExternalTabWindowClass[];
 extern const wchar_t kCrashReportLog[];
 extern const wchar_t kTestingInterfaceDLL[];
 extern const wchar_t kNotSignedInProfile[];
