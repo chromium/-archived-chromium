@@ -67,6 +67,8 @@ private:
   void SendAttachToAgent(RenderViewHost* inspected_rvh);
   void SendDetachToAgent(RenderViewHost* inspected_rvh);
 
+  void EnableDevToolsInPrefs(RenderViewHost* inspected_rvh);
+
   // These two maps are for tracking dependencies between inspected tabs and
   // their DevToolsClientHosts. They are usful for routing devtools messages
   // and allow us to have at most one devtools client host per tab. We use

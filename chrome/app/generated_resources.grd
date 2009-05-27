@@ -3673,6 +3673,10 @@ each locale. -->
         Don't reset
       </message>
       
+      <message name="IDS_OPTIONS_ENABLE_DEVTOOLS" desc="The label of the Enable Developer Tools checkbox in the 'Advanced options'">
+        Enable Developer Tools
+      </message>
+
       <!-- Can't write to user data directory dialog -->
       <message name="IDS_CANT_WRITE_USER_DIRECTORY_TITLE" desc="Title of dialog that is displayed when we can't create a directory for this user.">
         Failed To Create Data Directory
@@ -3715,6 +3719,9 @@ each locale. -->
       </message>
       <message name="IDS_OPTIONS_ADVANCED_SECTION_TITLE_NETWORK">
         Network
+      </message>
+      <message name="IDS_OPTIONS_ADVANCED_SECTION_TITLE_DEVTOOLS">
+        Developer Tools
       </message>
 
       <!-- Script Timeout Dialog -->
