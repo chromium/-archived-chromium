@@ -321,9 +321,11 @@ class BookmarkEditorView {
 //---------------------------------------------------------------------------
 // These stubs are for Browser
 
+#if !defined(TOOLKIT_VIEWS)
 namespace download_util {
 void DragDownload(const DownloadItem* download, SkBitmap* icon);
 }  // namespace download_util
+#endif
 
 class DebuggerWindow : public base::RefCountedThreadSafe<DebuggerWindow> {
  public:

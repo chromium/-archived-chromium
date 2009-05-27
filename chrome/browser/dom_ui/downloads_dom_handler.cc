@@ -21,7 +21,7 @@
 #include "grit/browser_resources.h"
 #include "grit/generated_resources.h"
 
-#if defined(OS_WIN)
+#if defined(TOOLKIT_VIEWS)
 // TODO(port): re-enable when download_util is ported
 #include "chrome/browser/download/download_util.h"
 #else

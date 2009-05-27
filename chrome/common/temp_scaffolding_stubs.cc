@@ -274,6 +274,7 @@ DownloadRequestDialogDelegate* DownloadRequestDialogDelegate::Create(
   return NULL;
 }
 
+#if !defined(TOOLKIT_VIEWS)
 namespace download_util {
 
 void DragDownload(const DownloadItem* download, SkBitmap* icon) {
@@ -281,6 +282,7 @@ void DragDownload(const DownloadItem* download, SkBitmap* icon) {
 }
 
 }  // namespace download_util
+#endif
 
 #if defined(OS_MACOSX)
 void HungRendererDialog::HideForTabContents(TabContents*) {
