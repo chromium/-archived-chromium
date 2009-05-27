@@ -1,0 +1,160 @@
+<!--
+Copyright 2009, Google Inc.
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are
+met:
+
+    * Redistributions of source code must retain the above copyright
+notice, this list of conditions and the following disclaimer.
+    * Redistributions in binary form must reproduce the above
+copyright notice, this list of conditions and the following disclaimer
+in the documentation and/or other materials provided with the
+distribution.
+    * Neither the name of Google Inc. nor the names of its
+contributors may be used to endorse or promote products derived from
+this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+-->
+
+<!--
+O3D Tutorial A1
+
+In this tutorial, we load and display a scene in O3D.
+-->
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+  "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<title>
+Tutorial A1: Loading a scene
+</title>
+<!-- Include sample javascript library functions-->
+<script type="text/javascript" src="o3djs/base.js"></script>
+
+<!-- Our javascript code -->
+<script type="text/javascript">
+o3djs.require('o3djs.util');
+o3djs.require('o3djs.math');
+o3djs.require('o3djs.rendergraph');
+o3djs.require('o3djs.camera');
+o3djs.require('o3djs.pack');
+o3djs.require('o3djs.scene');
+
+// Events
+// init() once the page has finished loading.
+window.onload = init;
+
+// global variables
+var g_o3d;
+var g_math;
+var g_client;
+var g_viewInfo;
+var g_pack;
+var g_finished = false;  // for selenium testing
+
+/**
+ * Loads a scene into the transform graph.
+ * @param {!o3d.Pack} pack Pack to load scene into.
+ * @param {string} fileName filename of the scene.
+ * @param {!o3d.Transform} parent parent node in the transform graph to
+ *      which to load the scene into.
+ */
+function loadScene(pack, fileName, parent) {
+  // Get our full path to the scene
+  var scenePath = o3djs.util.getCurrentURI() + fileName;
+
+  // Load the file given the full path, and call the callback function
+  // when its done loading.
+  o3djs.scene.loadScene(g_client, pack, parent, scenePath, callback);
+
+  /**
+   * Our callback is called once the scene has been loaded into memory
+   * from the web or locally.
+   * @param {!o3d.Pack} pack The pack that was passed in above.
+   * @param {!o3d.Transform} parent The parent that was passed in above.
+   * @param {*} exception null if loading succeeded.
+   */
+  function callback(pack, parent, exception) {
+    if (exception) {
+      alert('Could not load: ' + fileName + '\n' + exception);
+      return;
+    }
+    // Get a CameraInfo (an object with a view and projection matrix)
+    // using our javascript library function
+    var cameraInfo = o3djs.camera.getViewAndProjectionFromCameras(
+        parent,
+        g_client.width,
+        g_client.height);
+
+    // Copy the view and projection to the draw context.
+    g_viewInfo.drawContext.view = cameraInfo.view;
+    g_viewInfo.drawContext.projection = cameraInfo.projection;
+
+    // Generate draw elements and setup material draw lists.
+    o3djs.pack.preparePack(pack, g_viewInfo);
+
+    g_finished = true;  // for selenium testing.
+  }
+}
+
+/**
+ * Creates the client area.
+ */
+function init() {
+  o3djs.util.makeClients(initStep2);
+}
+
+/**
+ * Initializes O3D and loads the scene into the transform graph.
+ * @param {Array} clientElements Array of o3d object elements.
+ */
+function initStep2(clientElements) {
+  // Initializes global variables and libraries.
+  var o3dElement = clientElements[0];
+  g_o3d = o3dElement.o3d;
+  g_math = o3djs.math;
+  g_client = o3dElement.client;
+
+  // Creates a pack to manage our resources/assets
+  g_pack = g_client.createPack();
+
+  // Create the render graph for a view.
+  g_viewInfo = o3djs.rendergraph.createBasicView(
+      g_pack,
+      g_client.root,
+      g_client.renderGraphRoot);
+
+  // Creates a transform to put our data on.
+  var myDataRoot = g_pack.createObject('Transform');
+
+  // Connects our root to the client root.
+  myDataRoot.parent = g_client.root;
+
+  // Load the scene into the transform graph as a child myDataRoot
+  loadScene(g_pack, 'assets/teapot.o3dtgz', myDataRoot);
+}
+</script>
+</head>
+<body>
+<h1>Loading a scene.</h1>
+This tutorial shows how we load and display a scene in O3D.
+<br/>
+<!-- Start of O3D plugin -->
+<div id="o3d" style="width: 600px; height: 600px;"></div>
+<!-- End of O3D plugin -->
+</body>
+</html>

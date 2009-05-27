@@ -1,0 +1,17 @@
+HKCU
+{
+  Software
+  {
+    Classes
+    {
+      NoRemove AppID
+      {
+        '%APPID%' = s 'o3d_host'
+        'o3d_host.DLL'
+        {
+          val AppID = s '%APPID%'
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,265 @@
+/*
+ * Copyright 2009, Google Inc.
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are
+ * met:
+ *
+ *     * Redistributions of source code must retain the above copyright
+ * notice, this list of conditions and the following disclaimer.
+ *     * Redistributions in binary form must reproduce the above
+ * copyright notice, this list of conditions and the following disclaimer
+ * in the documentation and/or other materials provided with the
+ * distribution.
+ *     * Neither the name of Google Inc. nor the names of its
+ * contributors may be used to endorse or promote products derived from
+ * this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+ * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+ * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+ * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+ * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
+
+namespace o3d {
+
+%[
+  A Param operation that takes 2 floats to produce a Float2.
+%]
+[nocpp, include="core/cross/param_operation.h"]
+class ParamOp2FloatsToFloat2 : ParamObject {
+  %[
+    The first value for the Float2.
+  %]
+  [getter, setter] float input_0;
+
+  %[
+    The second value for the Float2.
+  %]
+  [getter, setter] float input_1;
+
+  %[
+    The Float2 that results from the inputs.
+  %]
+  [getter] Float2 output;
+};
+
+%[
+  A Param operation that takes 3 floats to produce a Float3.
+%]
+[nocpp, include="core/cross/param_operation.h"]
+class ParamOp3FloatsToFloat3 : ParamObject {
+  %[
+    The first value for the Float3.
+  %]
+  [getter, setter] float input_0;
+
+  %[
+    The second value for the Float3.
+  %]
+  [getter, setter] float input_1;
+
+  %[
+    The third value for the Float3.
+  %]
+  [getter, setter] float input_2;
+
+  %[
+    The Float3 that results from the inputs.
+  %]
+  [getter] Float3 output;
+};
+
+%[
+  A Param operation that takes 4 floats to produce a Float4.
+%]
+[nocpp, include="core/cross/param_operation.h"]
+class ParamOp4FloatsToFloat4 : ParamObject {
+  %[
+    The first value for the Float4.
+  %]
+  [getter, setter] float input_0;
+
+  %[
+    The second value for the Float4.
+  %]
+  [getter, setter] float input_1;
+
+  %[
+    The third value for the Float4.
+  %]
+  [getter, setter] float input_2;
+
+  %[
+    The fourth value for the Float4.
+  %]
+  [getter, setter] float input_3;
+
+  %[
+    The Float4 that results from the inputs.
+  %]
+  [getter] Float4 output;
+};
+
+%[
+  A Param operation that takes 16 floats to produce a Matrix4.
+%]
+[nocpp, include="core/cross/param_operation.h"]
+class ParamOp16FloatsToMatrix4 : ParamObject {
+  %[
+    The first value for the Float4.
+  %]
+  [getter, setter] float input_0;
+
+  %[
+    The second value for the Float4.
+  %]
+  [getter, setter] float input_1;
+
+  %[
+    The third value for the Float4.
+  %]
+  [getter, setter] float input_2;
+
+  %[
+    The fourth value for the Float4.
+  %]
+  [getter, setter] float input_3;
+
+  %[
+    The fifth value for the Float4.
+  %]
+  [getter, setter] float input_4;
+
+  %[
+    The sixth value for the Float4.
+  %]
+  [getter, setter] float input_5;
+
+  %[
+    The seventh value for the Float4.
+  %]
+  [getter, setter] float input_6;
+
+  %[
+    The eighth value for the Float4.
+  %]
+  [getter, setter] float input_7;
+
+  %[
+    The ninth value for the Float4.
+  %]
+  [getter, setter] float input_8;
+
+  %[
+    The tenth value for the Float4.
+  %]
+  [getter, setter] float input_9;
+
+  %[
+    The eleventh value for the Float4.
+  %]
+  [getter, setter] float input_10;
+
+  %[
+    The twelfth value for the Float4.
+  %]
+  [getter, setter] float input_11;
+
+  %[
+    The thirteenth value for the Float4.
+  %]
+  [getter, setter] float input_12;
+
+  %[
+    The fourteenth value for the Float4.
+  %]
+  [getter, setter] float input_13;
+
+  %[
+    The fifteenth value for the Float4.
+  %]
+  [getter, setter] float input_14;
+
+  %[
+    The sixteenth value for the Float4.
+  %]
+  [getter, setter] float input_15;
+
+  %[
+    The Matrix4 that results from the inputs.
+  %]
+  [getter] Vectormath::Aos::Matrix4 output;
+};
+
+%[
+  A Param operation that takes 9 floats to produce a 4-by-4 matrix.
+  The 9 floats encode a translation vector, angles of rotation around the x, y,
+  and z axes, and three scaling factors.  The resulting transformation scales
+  first, then then rotates around the z-axis, then the y-axis, then the x-axis,
+  then translates.
+%]
+[nocpp, include="core/cross/param_operation.h"]
+class TRSToMatrix4 : ParamObject {
+  %[
+    The x translation for the Matrix4.
+  %]
+  [getter, setter] float translate_x;
+
+  %[
+    The y translation for the Matrix4.
+  %]
+  [getter, setter] float translate_y;
+
+  %[
+    The z translation for the Matrix4.
+  %]
+  [getter, setter] float translate_z;
+
+  %[
+    The x rotation for the Matrix4.
+  %]
+  [getter, setter] float rotate_x;
+
+  %[
+    The y rotation for the Matrix4.
+  %]
+  [getter, setter] float rotate_y;
+
+  %[
+    The z rotation for the Matrix4.
+  %]
+  [getter, setter] float rotate_z;
+
+  %[
+    The x scale for the Matrix4.
+  %]
+  [getter, setter] float scale_x;
+
+  %[
+    The y scale for the Matrix4.
+  %]
+  [getter, setter] float scale_y;
+
+  %[
+    The z scale for the Matrix4.
+  %]
+  [getter, setter] float scale_z;
+
+  %[
+    The Matrix4 that results from the inputs.
+  %]
+  [getter] Vectormath::Aos::Matrix4 output;
+};
+
+}  // namespace o3d
+
+

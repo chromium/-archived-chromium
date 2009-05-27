@@ -1,0 +1,100 @@
+# Copyright 2009, Google Inc.
+# All rights reserved.
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions are
+# met:
+#
+#     * Redistributions of source code must retain the above copyright
+# notice, this list of conditions and the following disclaimer.
+#     * Redistributions in binary form must reproduce the above
+# copyright notice, this list of conditions and the following disclaimer
+# in the documentation and/or other materials provided with the
+# distribution.
+#     * Neither the name of Google Inc. nor the names of its
+# contributors may be used to endorse or promote products derived from
+# this software without specific prior written permission.
+#
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+# "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+# LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+# A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+# OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+# SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+# LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+# DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+# THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+# (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+# OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+
+Import('env')
+
+env.Append(
+  CPPDEFINES = [
+    '_MIDL_USE_GUIDDEF_',
+    'DLL_NPAPI_HOST_CONTROL_EXPORT'
+  ],
+  CCFLAGS = [
+    '/Wp64',
+    '/TP',
+    '/FIplugin/npapi_host_control/win/precompile.h'
+  ],
+  CPPPATH = [
+    'win',
+    '$SCONSTRUCT_DIR/plugin/npapi_host_control/win',
+  ],
+  LINKFLAGS = [
+    '/DEF:$SCONSTRUCT_DIR/plugin/npapi_host_control/win/npapi_host_control.def'
+  ],
+)
+
+env.Append(
+    CPPDEFINES = [
+        ('O3D_PLUGIN_NAME', '\\"$O3D_PLUGIN_NAME\\"'),
+        ('O3D_PLUGIN_DESCRIPTION', '\\"$O3D_PLUGIN_DESCRIPTION\\"'),
+        ('O3D_PLUGIN_VERSION', '\\"$O3D_PLUGIN_VERSION\\"')
+    ])
+
+resource_files = env.RES('win/npapi_host_control.rc'),
+
+inputs = [
+  'win/npapi_host_control_i.c',
+  'win/npapi_host_control.cc',
+  'win/host_control.cc',
+  'win/np_browser_proxy.cc',
+  'win/np_object_proxy.cc',
+  'win/np_plugin_proxy.cc',
+  'win/dispatch_proxy.cc',
+  'win/stream_operation.cc',
+  'win/variant_utils.cc',
+  resource_files,
+]
+
+if env['TARGET_PLATFORM'] == 'WINDOWS':
+  env['PCH'], obj  = env.PCH('win/precompile.cc')
+  env['PCHSTOP'] = 'plugin/npapi_host_control/win/precompile.h'
+  inputs += [obj]
+else:
+  inputs += ['precompile.cc']
+
+
+type_lib = env.TypeLibrary(source=['win/npapi_host_control.idl'])
+
+# Must not register the plugin while building. Only installing should
+# register the plugin.
+o3d_host_control = env.SharedLibrary('o3d_host', inputs)
+env.Requires(o3d_host_control, type_lib)
+env.Requires(resource_files, type_lib)
+
+env.Replicate('$ARTIFACTS_DIR', o3d_host_control)
+
+# TODO: have a common way to do colliding installs like this.
+# Do the install step only if this variant is the first target.
+if env.Bit('windows'):
+  if (env['BUILD_TYPE'] == ARGUMENTS.get('MODE') or
+      (ARGUMENTS.get('MODE', 'default') == 'default' and
+       env['BUILD_TYPE'] == 'dbg-d3d')):
+    i = env.Replicate('$IE_PLUGIN_DIR', o3d_host_control[0])
+    c = env.AddPostAction(i, '$REGSVR $REGSVRFLAGS $TARGET')
+    env.Alias('install', c)

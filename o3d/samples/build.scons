@@ -1,0 +1,348 @@
+# Copyright 2009, Google Inc.
+# All rights reserved.
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions are
+# met:
+#
+#     * Redistributions of source code must retain the above copyright
+# notice, this list of conditions and the following disclaimer.
+#     * Redistributions in binary form must reproduce the above
+# copyright notice, this list of conditions and the following disclaimer
+# in the documentation and/or other materials provided with the
+# distribution.
+#     * Neither the name of Google Inc. nor the names of its
+# contributors may be used to endorse or promote products derived from
+# this software without specific prior written permission.
+#
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+# "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+# LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+# A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+# OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+# SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+# LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+# DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+# THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+# (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+# OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+
+import __builtin__
+import os.path
+import re
+Import('env')
+
+class Error(Exception):
+  pass
+
+samples_output_dir = env.Dir('$OBJ_ROOT/samples').abspath
+samples_artifact_dir = env.Dir('$ARTIFACTS_DIR/samples').abspath
+
+copyright_header = """/*
+ * Copyright 2009, Google Inc.
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are
+ * met:
+ *
+ *     * Redistributions of source code must retain the above copyright
+ * notice, this list of conditions and the following disclaimer.
+ *     * Redistributions in binary form must reproduce the above
+ * copyright notice, this list of conditions and the following disclaimer
+ * in the documentation and/or other materials provided with the
+ * distribution.
+ *     * Neither the name of Google Inc. nor the names of its
+ * contributors may be used to endorse or promote products derived from
+ * this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+ * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+ * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+ * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+ * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
+"""
+
+def sample_emitter(env, target, source):
+  target.append(env.subst('${TARGET.base}.js', target=target, source=source))
+  return (target, source)
+
+def sample_action(target, source, env):
+  content = source[0].get_contents()
+  regexp = re.compile(r'(.*)<script(\s+type="text/javascript")' +
+                      r'(\s+charset="utf-8")?\s*>(.*)</script>(.*)', re.DOTALL)
+  m = regexp.match(content)
+  if not m:
+    raise Error('Regexp failed on input file %s' % source.abspath)
+  (html_start, type, charset, script, html_end) = m.groups()
+  if not type:
+    raise Error('Found a script that lacked the javascript tag!');
+  if not charset:
+    charset = ''
+
+  html_content = (
+      '%(html_start)s<script %(type)s%(charset)s '
+      'src="%(js_path)s"></script>%(html_end)s' %
+      {
+        'html_start' : html_start,
+        'type' : type,
+        'charset' : charset,
+        'js_path' : target[1].name,
+        'html_end' : html_end
+      })
+
+  print "Writing sample HTML to %s" % target[0].abspath
+  file(target[0].abspath, 'wb').write(html_content)
+  print "Writing sample JS to %s" % target[1].abspath
+  file(target[1].abspath, 'wb').write(copyright_header + script)
+  return None
+
+sample_builder = Builder(action = sample_action, emitter = sample_emitter)
+
+env.Append(BUILDERS = {'SplitSampleHTML' : sample_builder})
+
+# These are the files we process for the interactive sampler.
+# TODO: We don't currently verify that these samples are included in
+# interactive_samples.js, which constructs the sampler, or that all the files
+# in there are mentioned here.  The build script should validate that the lists
+# match, and should also run whenever interactive_samples.js changes.
+samples = [
+  '2d.html',
+  'animated-scene.html',
+  'animation.html',
+  'canvas-texturedraw.html',
+  'canvas.html',
+  'convolution.html',
+  'culling.html',
+  'customcamera.html',
+  'displayfps.html',
+  'error-texture.html',
+  'generate-texture.html',
+  'hellocube-colors.html',
+  'hellocube-textures.html',
+  'hellocube.html',
+  'helloworld.html',
+  'hud-2d-overlay.html',
+  'instance-override.html',
+  'instancing.html',
+  'juggler.html',
+  'julia.html',
+  'multiple-clients.html',
+  'multiple-views.html',
+  'particles.html',
+  'phongshading.html',
+  'picking.html',
+  'primitives.html',
+  'procedural-texture.html',
+  'render-mode.html',
+  'render-targets.html',
+  'rotatemodel.html',
+  'scatter-chart.html',
+  'shader-test.html',
+  'simple.html',
+  'simpletexture.html',
+  'skinning.html',
+  'sobel.html',
+  'stencil_example.html',
+  'texturesamplers.html',
+  'tutorial-primitive.html',
+  'vertex-shader.html',
+  'vertex-shader-animation.html',
+  'zsorting.html'
+]
+
+# Split the samples into separate HTML and JS files
+for input_file in samples:
+  destdir = os.path.join(samples_artifact_dir, os.path.dirname(input_file))
+#   env.SplitSampleHTML(os.path.join(destdir, 'sampler_' + input_file),
+#                       input_file)
+
+  # We want all the samples unprocessed, as well.
+  env.Replicate(destdir, input_file)
+
+env.Alias('samples_export', samples_artifact_dir)
+
+######################################################################
+#
+#  PLEASE NOTE: If you add samples you MUST add their files to the
+#  MANIFEST file in this directory for them to be included in the docs.
+#
+######################################################################
+
+# Here we load up the manifest so that we only include the files that
+# are part of the samples, and not any spurious test files or images
+# that might be left around.
+manifest = env.File("MANIFEST").get_contents().strip().split('\n')
+manifest = [x.strip() for x in manifest]
+
+def DeferManifestInstall(env):
+  # Only do this if we tried to convert at least some samples (which
+  # means that at least some existed when we declared their build steps).
+  if len(env.GetPublished('samples', 'asset_files')) > 0:
+    for manifest_item in manifest:
+      # TODO: Why doesn't replicate hookup things correctly?
+      env.Command('$ARTIFACTS_DIR/samples/' + manifest_item,
+                  '$MAIN_DIR/samples/' + manifest_item,
+                  [Delete('$TARGET'),
+                   Copy('$TARGET', '$SOURCE'),
+                   Chmod('$TARGET', 0777)])
+
+env.Defer(DeferManifestInstall)
+
+#######
+# Build JSON sample assets from zipped Collada files. Put them in the assets
+# directory in the source tree (so that we can run the samples from the source
+# tree).  If one is needed in the scons-out artifacts directory, that's handled
+# by the MANIFEST file.
+
+if env.Bit('mac'):
+  converter_path = env.subst('$ARTIFACTS_DIR/converter/o3dConverter$PROGSUFFIX')
+else:
+  converter_path = env.subst('$ARTIFACTS_DIR/o3dConverter$PROGSUFFIX')
+serializer_version_path = env.subst(
+    '$SCONSTRUCT_DIR/serializer/cross/version.h')
+
+def model_emitter(env, target, source):
+  # Massage the target a little bit.
+  sample_file = env.subst('${TARGET.srcdir}/${TARGET.filebase}.o3dtgz',
+                          target=target, source=source)
+  sample_file = sample_file.replace('convert_','')
+  target = [env.File(sample_file)]
+  source.append(serializer_version_path)
+  source.append(converter_path)
+  return (target, source)
+
+def model_action(target, source, env):
+  import shutil
+  import subprocess
+  import stat
+
+  # Invoke converter to generate target.
+  error = subprocess.call([
+      converter_path,
+      '--no-condition',
+      '--up-axis=%s' % env['UP_AXIS'],
+      source[0].abspath,
+      target[0].abspath,
+      ], env={'LD_LIBRARY_PATH': env.Dir('$ARTIFACTS_DIR').abspath})
+  if error != 0:
+    raise Exception('Failed to run o3dConverter on %s to produce %s' %
+        (source[0].abspath, target[0].abspath))
+
+  # Copy generated target to remaining targets. This should be faster than
+  # running the converter several times.
+  for item in target[1:]:
+    shutil.copy(target[0].abspath, item.abspath)
+    os.chmod(item.abspath, stat.S_IWRITE | stat.S_IREAD)
+
+model_builder = Builder(action = model_action, emitter = model_emitter)
+
+env.Append(BUILDERS = {'ConvertJsonSampleAssets' : model_builder})
+
+x_up_env = env.Clone(UP_AXIS='1,0,0')
+y_up_env = env.Clone(UP_AXIS='0,1,0')
+z_up_env = env.Clone(UP_AXIS='0,0,1')
+
+models = [
+  {'path': 'beachdemo/convert_assets/beachdemo.zip', 'env': z_up_env},
+  {'path': 'beachdemo/convert_assets/beach-low-poly.dae', 'env': z_up_env},
+
+
+  {'path': 'home-configurators/convert_cbassets/House_Roofless.kmz',
+      'env': z_up_env},
+  {'path': 'home-configurators/convert_cbassets/Agra_Rug.kmz', 'env': z_up_env},
+  {'path': 'home-configurators/convert_cbassets/Asimi_Rug.kmz', 'env': z_up_env},
+  {'path': 'home-configurators/convert_cbassets/Camden_Chair.kmz',
+      'env': z_up_env},
+  {'path': 'home-configurators/convert_cbassets/Elements_Bookshelf.kmz',
+      'env': z_up_env},
+  {'path': 'home-configurators/convert_cbassets/Ferrara_Rug.kmz',
+      'env': z_up_env},
+  {'path': 'home-configurators/convert_cbassets/Lounge_Chair.kmz',
+      'env': z_up_env},
+  {'path': 'home-configurators/convert_cbassets/Lounge_Chaise.kmz',
+      'env': z_up_env},
+  {'path': 'home-configurators/convert_cbassets/Lounge_Sofa.kmz',
+      'env': z_up_env},
+  {'path': 'home-configurators/convert_cbassets/Lounge_Storage_Ottoman.kmz',
+      'env': z_up_env},
+  {'path': 'home-configurators/convert_cbassets/Madison_Dining_Table.kmz',
+      'env': z_up_env},
+  {'path': 'home-configurators/convert_cbassets/Miles_Side_Chair.kmz',
+      'env': z_up_env},
+  {'path': 'home-configurators/convert_cbassets/Pullman_Bar_Stool.kmz',
+      'env': z_up_env},
+  {'path': 'home-configurators/convert_cbassets/Puzzle_TV_Stand.kmz',
+      'env': z_up_env},
+  {'path': 'home-configurators/convert_cbassets/Stow_Leather_Ottoman.kmz',
+      'env': z_up_env},
+  {'path': 'home-configurators/convert_cbassets/Tivoli_Dining_Table.kmz',
+      'env': z_up_env},
+  {'path': 'home-configurators/convert_cbassets/Tivoli_Miles_Dining_Set.kmz',
+      'env': z_up_env},
+  {'path': 'home-configurators/convert_cbassets/Troy_Chair.kmz',
+      'env': z_up_env},
+  {'path': 'home-configurators/convert_cbassets/Troy_Ottoman.kmz',
+      'env': z_up_env},
+  {'path': 'home-configurators/convert_cbassets/Troy_Sofa.kmz',
+      'env': z_up_env},
+  {'path': 'home-configurators/convert_cbassets/Troy_Storage_Ottoman.kmz',
+      'env': z_up_env},
+  {'path': 'home-configurators/convert_cbassets/Troy_Twin_Sleeper.kmz',
+      'env': z_up_env},
+
+
+  {'path': 'io/convert_levels/all_actors.kmz', 'env': y_up_env},
+  {'path': 'io/convert_levels/map1.kmz', 'env': y_up_env},
+
+  {'path': 'simpleviewer/convert_assets/cube.zip', 'env': y_up_env},
+
+  {'path': 'convert_assets/dome1.zip', 'env': y_up_env},
+  {'path': 'convert_assets/dome2.zip', 'env': y_up_env},
+  {'path': 'convert_assets/dome3.zip', 'env': y_up_env},
+  {'path': 'convert_assets/dome4.zip', 'env': y_up_env},
+  {'path': 'convert_assets/kitty_151_idle_stand05_cff1.zip', 'env': y_up_env},
+  {'path': 'convert_assets/part1.zip', 'env': y_up_env},
+  {'path': 'convert_assets/part2.zip', 'env': y_up_env},
+  {'path': 'convert_assets/part3.zip', 'env': y_up_env},
+  {'path': 'convert_assets/seven_shapes.zip', 'env': y_up_env},
+  {'path': 'convert_assets/stencil_frame.zip', 'env': y_up_env},
+  {'path': 'convert_assets/teapot.zip', 'env': y_up_env},
+  {'path': 'convert_assets/yard.zip', 'env': y_up_env},
+
+  {'path': 'waterdemo/convert_assets/bamboo.zip', 'env': y_up_env},
+  {'path': 'waterdemo/convert_assets/coconuts.zip', 'env': y_up_env},
+  {'path': 'waterdemo/convert_assets/driftwood.zip', 'env': y_up_env},
+  {'path': 'waterdemo/convert_assets/island.zip', 'env': y_up_env},
+  {'path': 'waterdemo/convert_assets/lazy_bridge.zip', 'env': y_up_env},
+  {'path': 'waterdemo/convert_assets/palm_leaves.zip', 'env': y_up_env},
+  {'path': 'waterdemo/convert_assets/palm_trees.zip', 'env': y_up_env},
+  {'path': 'waterdemo/convert_assets/rocks.9.zip', 'env': y_up_env},
+  {'path': 'waterdemo/convert_assets/rocks.zip', 'env': y_up_env},
+  ]
+
+# Little dance to do this only once so MODE=all works.
+try:
+  _ = __builtin__.done_json_assets
+except AttributeError:
+  __builtin__.done_json_assets = True
+  for model in models:
+    # We generate the sample assets into the samples directory directly,
+    # and the artifacts directory in the name of sanity -- so we don't
+    # have to do a build whenever we change a .js file in order to test
+    # the change.  We only generate them if the sources exist because we
+    # might not map them in all the time.
+    if os.path.exists(
+      model['env'].File("$SAMPLE_ASSETS/" + model['path']).abspath):
+      converted = model['env'].ConvertJsonSampleAssets(
+          source = "$SAMPLE_ASSETS/" + model['path'],
+          target = model['path'])
+      model['env'].Publish('samples', 'asset_files', converted);

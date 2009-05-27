@@ -1,0 +1,168 @@
+# Copyright 2009, Google Inc.
+# All rights reserved.
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions are
+# met:
+#
+#     * Redistributions of source code must retain the above copyright
+# notice, this list of conditions and the following disclaimer.
+#     * Redistributions in binary form must reproduce the above
+# copyright notice, this list of conditions and the following disclaimer
+# in the documentation and/or other materials provided with the
+# distribution.
+#     * Neither the name of Google Inc. nor the names of its
+# contributors may be used to endorse or promote products derived from
+# this software without specific prior written permission.
+#
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+# "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+# LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+# A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+# OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+# SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+# LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+# DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+# THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+# (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+# OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+
+Import('env')
+
+env.Prepend(
+  CPPPATH = [
+    '$SKIA_DIR/include/core',
+    '$SKIA_DIR/include/ports',
+    '$SKIA_DIR/include/effects',
+  ],
+)
+
+inputs = [
+    'core/Sk64',
+    'core/SkAlphaRuns',
+    'core/SkBitmap',
+    'core/SkBitmapProcShader',
+    'core/SkBitmapProcState',
+    'core/SkBitmapProcState_matrixProcs',
+    'core/SkBitmapSampler',
+    'core/SkBitmapShader',
+    'core/SkBitmap_scroll',
+    'core/SkBlitRow_D16',
+    'core/SkBlitRow_D4444',
+    'core/SkBlitter',
+    'core/SkBlitter_4444',
+    'core/SkBlitter_A1',
+    'core/SkBlitter_A8',
+    'core/SkBlitter_ARGB32',
+    'core/SkBlitter_RGB16',
+    'core/SkBlitter_Sprite',
+    'core/SkBuffer',
+    'core/SkCanvas',
+    'core/SkChunkAlloc',
+    'core/SkColor',
+    'core/SkColorFilter',
+    'core/SkColorTable',
+    'core/SkComposeShader',
+    'core/SkCordic',
+    'core/SkDebug',
+    'core/SkDebug_stdio',
+    'core/SkDeque',
+    'core/SkDevice',
+    'core/SkDither',
+    'core/SkDraw',
+    'core/SkEdge',
+    'core/SkFilterProc',
+    'core/SkFlattenable',
+    'core/SkFloat',
+    'core/SkFloatBits',
+    'core/SkGeometry',
+    'core/SkGlobals',
+    'core/SkGlyphCache',
+    'core/SkGraphics',
+    'core/SkMask',
+    'core/SkMaskFilter',
+    'core/SkMath',
+    'core/SkMatrix',
+    'core/SkMemory_stdlib',
+#    'core/SkMMapStream',
+    'core/SkPackBits',
+    'core/SkPaint',
+    'core/SkPath',
+    'core/SkPathEffect',
+    'core/SkPathHeap',
+    'core/SkPathMeasure',
+    'core/SkPicture',
+    'core/SkPictureFlat',
+    'core/SkPicturePlayback',
+    'core/SkPictureRecord',
+    'core/SkPixelRef',
+    'core/SkPoint',
+    'core/SkProcSpriteBlitter',
+    'core/SkPtrRecorder',
+    'core/SkQuadClipper',
+    'core/SkRasterizer',
+    'core/SkRect',
+    'core/SkRefCnt',
+    'core/SkRegion',
+    'core/SkRegion_path',
+    'core/SkScalerContext',
+    'core/SkScan',
+    'core/SkScan_Antihair',
+    'core/SkScan_AntiPath',
+    'core/SkScan_Hairline',
+    'core/SkScan_Path',
+    'core/SkShader',
+    'core/SkSpriteBlitter_ARGB32',
+    'core/SkSpriteBlitter_RGB16',
+    'core/SkStream',
+    'core/SkString',
+    'core/SkStroke',
+    'core/SkStrokerPriv',
+    'core/SkTSearch',
+    'core/SkTypeface',
+    'core/SkUnPreMultiply',
+    'core/SkUtils',
+    'core/SkWriter32',
+    'core/SkXfermode',
+
+    'effects/SkBlurDrawLooper',
+    'effects/SkBlurMask',
+    'effects/SkBlurMaskFilter',
+    'effects/SkGradientShader',
+    'effects/SkLayerDrawLooper',
+    'effects/SkStrokeDrawLooper',
+
+    'ports/SkOSFile_stdio',
+    'ports/SkGlobals_global',
+ ]
+
+if env.Bit('windows'):
+  inputs += [
+    'ports/SkFontHost_win',
+    'ports/SkThread_win',
+  ]
+
+if env.Bit('mac'):
+  inputs += [
+    'ports/SkFontHost_mac',
+    'ports/SkThread_pthread'
+  ]
+
+# TODO: Until the appropriate SkFontHost file is substituted here,
+#                 we won't have font support on linux.
+if env.Bit('linux'):
+  inputs += [
+    'ports/SkFontHost_none',
+    'ports/SkThread_pthread'
+  ]
+
+# gcc crashes on SkDraw.cpp when run with the -O3 flag so
+# we compile Skia with -O2 instead.
+if env.Bit('mac') or env.Bit('linux'):
+  if not env['DEBUG']:
+    env.FilterOut(CCFLAGS=['-O3'])
+    env.Append(CCFLAGS=['-O2'])
+
+objects = env.MakeObjects(inputs, '$SKIA_DIR/src', 'cpp')
+env.ComponentLibrary('skia', inputs)

@@ -1,0 +1,32 @@
+The verifier is a command line utility that will verify shader files.
+
+This utility is used to verify that a shader will compile when given
+to O3D to render.  On Windows, it will test-compile the given shader
+with both Cg and HLSL compilers.  On Mac and Linux platforms, it will
+only compile using Cg (since DirectX isn't available on those
+platforms).  This will help users on Windows verify that their shaders
+will run when displayed on Mac or Linux platforms, and will help
+everyone verify that their shaders compile.
+
+If an output file is specified, it can be used to convert shaders to a
+form that can be used directly in O3D.  It strips out unneeded blocks
+(like the technique/pass blocks) and replaces them with the O3D
+comments which describe the shader entry points.
+
+The command line arguments are as follows:
+
+Usage: o3dVerifier.exe [--no-condition] <infile.fx> [ <outfile.fx> ]
+
+--no-condition: This will prevent conditioning of the shaders into the
+                form expected by O3D.  Specifying this causes the
+                verifier to ignore any output file specified (since
+                that would just be copying the file, and not doing any
+                conditioning).  This option is useful only for
+                verifying pre-conditioned shaders.
+
+<infile.fx>: This is the input filename of the shader to be validated.
+
+<outfile.fx>: An optional argument giving the name of the desired
+              output location of the conditioned shader file in the
+              form expected by O3D.  If you don't specify this, then
+              no output is created.

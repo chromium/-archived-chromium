@@ -1,0 +1,126 @@
+<!--
+Copyright 2009, Google Inc.
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are
+met:
+
+    * Redistributions of source code must retain the above copyright
+notice, this list of conditions and the following disclaimer.
+    * Redistributions in binary form must reproduce the above
+copyright notice, this list of conditions and the following disclaimer
+in the documentation and/or other materials provided with the
+distribution.
+    * Neither the name of Google Inc. nor the names of its
+contributors may be used to endorse or promote products derived from
+this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+-->
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+        "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+	<meta http-equiv="content-type" content="text/html; charset=utf-8">
+	<title>Keyboard Events</title>
+
+	<style>
+    div.debug {
+      border:thin dotted gray;
+      padding:1em;
+      height:150px;
+      overflow:scroll;
+    }
+  </style>
+
+
+<script type="text/javascript" charset="utf-8">
+
+function propsOf(event) {
+  var property, propCollection = "";
+  for(property in event)
+    propCollection += (property + ":" + event[property] + "/");
+  return propCollection;
+}
+
+
+function charValue(c) {
+  return (c == 0) ? 'none' : String.fromCharCode(c);
+}
+
+function keyPropsOf(event) {
+  var props = ['type', 'keyCode', 'charCode', 'keyIdentifier', 'which',
+               'timeStamp', 'isTrusted'];
+  var property, propCollection = "";
+  for(property in props) {
+    var pName = props[property];
+    propCollection += (pName + ":" + event[pName] + '<br>');
+  }
+  propCollection += 'unicode (char, key): ' + charValue(event.charCode) + ', ' +
+                    charValue(event.keyCode);
+  return propCollection;
+}
+
+function setField(the_id, the_value) {
+  var field = document.getElementById(the_id);
+  field.innerHTML = the_value;
+}
+
+function debugLogEvent(in_event, name) {
+ var cb = document.getElementById('checkbox');
+ var event = (in_event) ? in_event : window.event;
+ setField(name,  ((cb.checked) ?  propsOf(event) : keyPropsOf(event)));
+}
+
+function keyUp(event) {
+  debugLogEvent(event, 'KeyUp_Field');
+}
+
+function keyDown(event) {
+  setField('KeyUp_Field', '');
+  setField('KeyDown_Field', '');
+  setField('KeyPress_Field', '');
+  debugLogEvent(event, 'KeyDown_Field');
+}
+
+
+function keyPressed(event) {
+  debugLogEvent(event, 'KeyPress_Field');
+}
+
+function init() {
+  var field = document.getElementById('KeyDown_Field');
+  field.focus();
+}
+
+window.document.onkeypress = keyPressed;
+window.document.onkeyup = keyUp;
+window.document.onkeydown = keyDown;
+window.onload = init;
+
+</script>
+</head>
+<body>
+
+<div id='KeyDown_Field' class='debug'> </div>
+<div id='KeyPress_Field' class='debug'> </div>
+<div id='KeyUp_Field' class='debug'> </div>
+<form>
+<br>
+<input name="Display All Fields" type="checkbox" id='checkbox'>Display All</input>
+</form>
+
+</body>
+</html>

@@ -1,0 +1,16 @@
+README for samples/shaders
+
+This directory contains files of shader code. In order to use them, they should
+be loaded into an html textarea in your application or loaded using
+o3djs.effect.loadEffect. NOTE: o3djs.effect.loadEffect can only load
+files from the same domain as the application webpage and the files must be at
+or below the current directory of the webpage
+
+The purpose of this directory is not to be *the* library of shaders, but to
+provide some sample shaders as examples and starting points for people to build
+their own.
+
+Each shader has its own requirements. Some shaders need different streams or
+require certain types of texture samplers so a shader will not work with just
+any 3d object. Look at the shader and determine what its requirements are before
+using it in your application.

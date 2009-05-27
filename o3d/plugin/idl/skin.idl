@@ -1,0 +1,274 @@
+/*
+ * Copyright 2009, Google Inc.
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are
+ * met:
+ *
+ *     * Redistributions of source code must retain the above copyright
+ * notice, this list of conditions and the following disclaimer.
+ *     * Redistributions in binary form must reproduce the above
+ * copyright notice, this list of conditions and the following disclaimer
+ * in the documentation and/or other materials provided with the
+ * distribution.
+ *     * Neither the name of Google Inc. nor the names of its
+ * contributors may be used to endorse or promote products derived from
+ * this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+ * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+ * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+ * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+ * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
+
+
+// This file contains the idlglue declaration of Skin and SkinEval.
+
+namespace o3d {
+
+%[
+  A Skin holds an array of matrix indices and influences for vertices in a skin.
+  A Skin is data only and can be used by one or more SkinEvals to implement
+  skinning.
+%]
+[nocpp, include="core/cross/skin.h"] class Skin
+    : NamedObject {
+
+  %[
+    Sets the influences for an individual vertex.
+
+    \param vertex_index The index of the vertex to set influences for
+    \param influences An array of pairs of numbers where the first number
+        is the index of the matrix to influence the vertex and the second
+        number is the amount of influence where 0 = no influence and 1 = 100%
+        influence.
+  %]
+  [userglue] void SetVertexInfluences(unsigned int vertex_index,
+                                      NumberArray influences);
+
+  %[
+    Gets the influences for an individual vertex.
+    \param vertex_index the index of the vertex to get influences from.
+    \return Returns an Array of number pairs where the first number of each
+        pair is the index of a matrix that influences this vertex and the
+        second number is the amount of influence where 0 = no influence
+        and 1 = 100% influcence.
+  %]
+  [const, userglue] NumberArray GetVertexInfluences(unsigned int vertex_index);
+
+  %[
+    An array with one element per vertex, where each element is an array of
+    influences consisting of a number pair, where the first number is a
+    matrix index and the second is the amount of influence.
+  %]
+  [getter,userglue_getter,setter,userglue_setter]
+  NumberArray[] influences_;
+
+  %[
+    Sets the inverse bind pose matrix for a particular joint/bone/transform.
+    \param index index of bone/joint/transform.
+    \param matrix Inverse bind pose matrix for that joint.
+  %]
+  void SetInverseBindPoseMatrix(unsigned int index,
+                                Vectormath::Aos::Matrix4 matrix);
+
+  %[
+    The array of inverse bone matrices
+  %]
+  [getter,setter] Vectormath::Aos::Matrix4[]
+      inverse_bind_pose_matrices_;
+
+  // TODO: Add setter that takes an array of matrices and sets all
+  //   of the matrix arrays.
+  // TODO: Add SetNumberInverseBindPoseMatrices
+  // TODO: Add SetNumberVertexInflucences
+
+  %[
+    Deserializes from the skin data given a RawData object.
+
+    \param raw_data contains skin data
+    \param offset is a byte offset from the start of raw_data
+    \param length is the byte length of the data to set
+    \return True if operation was successful.
+  %]
+  bool Set(o3d::RawData raw_data,
+           size_t offset,
+           size_t length);
+
+  %[
+    Deserializes from the skin data given a RawData object.
+    \param raw_data entire contents contains skin data
+    \return True if operation was successful.
+  %]
+  bool Set(o3d::RawData raw_data);
+
+  [verbatim=cpp_glue] %{
+    void userglue_method_SetVertexInfluences(o3d::Skin* self,
+                                             unsigned int vertex_index,
+                                             const std::vector<float>& values) {
+      if (values.size() % 2 != 0) {
+        O3D_ERROR(self->service_locator())
+            << "odd number of values passed into SetVertexInfluence. "
+            << "Even number required as they are pairs.";
+      } else {
+        o3d::Skin::Influences influences;
+        for (unsigned ii = 0; ii < values.size(); ii += 2) {
+          influences.push_back(o3d::Skin::Influence(
+              static_cast<unsigned int>(values[ii]),
+              values[ii + 1]));
+        }
+        self->SetVertexInfluences(vertex_index, influences);
+      }
+    }
+    std::vector<std::vector<float> > userglue_getter_influences_(
+        o3d::Skin* _this) {
+      const o3d::Skin::InfluencesArray& influences = _this->influences();
+      std::vector<std::vector<float> > result(influences.size());
+      for (int i = 0; i != influences.size(); ++i) {
+        const o3d::Skin::Influences& vertex_influences = influences[i];
+        for (int j = 0; j != vertex_influences.size(); ++j) {
+          const o3d::Skin::Influence& influence = vertex_influences[j];
+          result[i].push_back(static_cast<float>(influence.matrix_index));
+          result[i].push_back(influence.weight);
+        }
+      }
+      return result;
+    }
+    void userglue_setter_influences_(
+        o3d::Skin* _this,
+        const std::vector<std::vector<float> >& input) {
+      for (int i = 0; i != input.size(); ++i) {
+        const std::vector<float>& vertex_input = input[i];
+        o3d::Skin::Influences influences(vertex_input.size() / 2);
+        for (int j = 0; j != vertex_input.size() / 2; ++j) {
+          influences[j] = o3d::Skin::Influence(
+              static_cast<int>(vertex_input[j * 2]),
+              vertex_input[j * 2 + 1]);
+        }
+        _this->SetVertexInfluences(i, influences);
+      }
+    }
+    std::vector<float> userglue_method_GetVertexInfluences(
+        o3d::Skin* self,
+        unsigned int vertex_index) {
+      std::vector<float> values;
+      const o3d::Skin::Influences* influences =
+          self->GetVertexInfluences(vertex_index);
+      if (influences) {
+        values.resize(influences->size() * 2);
+        for (unsigned ii = 0; ii < influences->size(); ++ii) {
+          values[ii * 2 + 0] =
+              static_cast<float>((*influences)[ii].matrix_index);
+          values[ii * 2 + 1] = (*influences)[ii].weight;
+        }
+      }
+      return values;
+    }
+  %}
+
+};  // Skin
+
+%[
+  A SkinEval is a VertexSource that takes its Streams, a ParamArray of 4-by-4
+  matrices and a Skin and skins the vertices in its streams storing the results
+  in bound output streams.
+%]
+[nocpp, include="core/cross/skin.h"] class SkinEval
+    : VertexSource {
+
+  %[
+    The Skin to use for skinning.
+  %]
+  [getter, setter] Skin? skin;
+
+  %[
+    The array of matrices to use for skinning.
+  %]
+  [getter, setter] ParamArray matrices;
+
+  %[
+    The base matrix to subtract from the matrices before skinning.
+  %]
+  [getter, setter] Vectormath::Aos::Matrix4 base;
+
+  %[
+    Binds a SourceBuffer field to the SkinEval and defines how the data in the
+    field should be interpreted. The field's buffer must be of a
+    compatible type otherwise the binding fails and the function returns false.
+    \param semantic The particular use of this stream.
+    \param semantic_index Which index of a particular semantic to use.
+    \param field The field containing information for this stream.
+    \param start_index The first element to use.
+    \return True if successful.
+  %]
+  [virtual] bool SetVertexStream(Stream::Semantic semantic,
+                                 int semantic_index,
+                                 Field field,
+                                 unsigned int start_index);
+
+
+  %[
+    Removes a vertex stream from this SkinEval.
+    \param semantic The particular use of this stream.
+    \param semantic_index Which index of a particular semantic to use.
+    \return true if the specified stream existed.
+  %]
+  bool RemoveVertexStream(Stream::Semantic semantic, int semantic_index);
+
+  %[
+    Searches the vertex streams bound to the SkinEval for one with the given
+    stream semantic.
+    \param semantic The particular use of this stream.
+    \param semantic_index Which index of a particular semantic to use.
+    \return The found stream or NULL if it does not exist.
+  %]
+  [userglue]
+  Stream GetVertexStream(Stream::Semantic semantic, int semantic_index);
+
+  %[
+    A vector of the vertex streams on this SkinEval.
+  %]
+  [userglue_getter, getter] StreamVector vertex_streams;
+
+  [verbatim=cpp_glue] %{
+    std::vector<o3d::Stream*> userglue_getter_vertex_streams(
+        o3d::SkinEval* self) {
+      std::vector<o3d::Stream*> streams;
+      const o3d::StreamParamVector& stream_params =
+          self->vertex_stream_params();
+      streams.reserve(stream_params.size());
+      for (unsigned ii = 0; ii < stream_params.size(); ++ii) {
+        streams.push_back(
+            const_cast<o3d::Stream*>(&stream_params[ii]->stream()));
+      }
+      return streams;
+    }
+    o3d::Stream* userglue_method_GetVertexStream(
+        o3d::SkinEval* self,
+        o3d::Stream::Semantic semantic,
+        int semantic_index) {
+      return const_cast<o3d::Stream*>(
+          self->GetVertexStream(semantic, semantic_index));
+    }
+  %}
+};  // SkinEval
+
+%[
+  A Param which stores a Skin.
+%]
+[nocpp, include="core/cross/skin.h"] class ParamSkin : Param {
+  %[
+    The Skin stored by the Param.
+  %]
+  [getter, setter] Skin? value_;
+};
+
+}  // namespace o3d

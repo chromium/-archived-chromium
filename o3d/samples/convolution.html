@@ -1,0 +1,397 @@
+<!--
+Copyright 2009, Google Inc.
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are
+met:
+
+    * Redistributions of source code must retain the above copyright
+notice, this list of conditions and the following disclaimer.
+    * Redistributions in binary form must reproduce the above
+copyright notice, this list of conditions and the following disclaimer
+in the documentation and/or other materials provided with the
+distribution.
+    * Neither the name of Google Inc. nor the names of its
+contributors may be used to endorse or promote products derived from
+this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+-->
+
+<!--
+This sample shows how to create a separable convolution shader using
+render targets.  The kernel here is a Gaussian blur, but the same code
+could be used for any kernel.
+-->
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+  "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<title>
+O3D: Convolution Shader Sample
+</title>
+<!-- Include sample javascript library functions-->
+<script type="text/javascript" src="o3djs/base.js"></script>
+<script type="text/javascript">
+o3djs.require('o3djs.util');
+o3djs.require('o3djs.math');
+o3djs.require('o3djs.camera');
+o3djs.require('o3djs.rendergraph');
+o3djs.require('o3djs.pack');
+o3djs.require('o3djs.primitives');
+o3djs.require('o3djs.scene');
+
+// Events
+// init() once the page has finished loading.
+window.onload = init;
+window.onunload = uninit;
+
+// constants.
+var RENDER_TARGET_WIDTH = 512;
+var RENDER_TARGET_HEIGHT = 512;
+
+// global variables
+var g_o3d;
+var g_client;
+var g_math;
+var g_pack;
+var g_teapotRoot;
+var g_renderGraphRoot;
+var g_clock = 0;
+var g_timeMult = 1;
+var g_finished = false;  // for selenium testing.
+
+/**
+ * Loads a scene into the transform graph.
+ * @param {!o3d.Pack} pack Pack to load scene into.
+ * @param {string} fileName filename of the scene.
+ * @param {!o3d.Transform} parent parent node in the transform graph to
+ *     which to load the scene into.
+ * @param {!o3djs.rendergraph.ViewInfo} viewInfo who's view and projection will
+ *     be set from the scene after it's loaded.
+ */
+function loadScene(pack, fileName, parent, viewInfo) {
+  // Get our full path to the scene.
+  var scenePath = o3djs.util.getCurrentURI() + fileName;
+
+  // Load the scene given the full path, and call the callback function
+  // when its done loading.
+  o3djs.scene.loadScene(g_client, pack, parent, scenePath, callback);
+
+  /**
+   * Our callback is called once the scene has been loaded into memory from the
+   * web or locally.
+   * @param {!o3d.Pack} pack The pack that was passed in above.
+   * @param {!o3d.Transform} parent The parent that was passed in above.
+   * @param {*} exception null if loading succeeded.
+   */
+  function callback(pack, parent, exception) {
+    if (exception) {
+      alert('Could not load: ' + fileName + '\n' + exception);
+      return;
+    }
+    // Get a CameraInfo (an object with a view and projection matrix)
+    // using our javascript library function
+    var cameraInfo = o3djs.camera.getViewAndProjectionFromCameras(
+        parent,
+        RENDER_TARGET_WIDTH,
+        RENDER_TARGET_HEIGHT);
+
+    // Copy the view and projection to the passed in viewInfo structure..
+    viewInfo.drawContext.view = cameraInfo.view;
+    viewInfo.drawContext.projection = cameraInfo.projection;
+
+    // Generate draw elements and setup material draw lists.
+    o3djs.pack.preparePack(pack, viewInfo);
+
+    g_finished = true;  // for selenium testing.
+  }
+}
+
+/**
+ * Creates the client area.
+ */
+function init() {
+  o3djs.util.makeClients(initStep2);
+}
+
+/**
+ * Initializes O3D and loads the scene into the transform graph.
+ * @param {Array} clientElements Array of o3d object elements.
+ */
+function initStep2(clientElements) {
+  // Initializes global variables and libraries.
+  var o3d = clientElements[0];
+  g_o3d = o3d.o3d;
+  g_math = o3djs.math;
+  g_client = o3d.client;
+
+  // Creates a pack to manage our resources/assets.
+  g_pack = g_client.createPack();
+
+  // Create the texture required for the color render-target.
+  var texture1 = g_pack.createTexture2D(RENDER_TARGET_WIDTH,
+                                        RENDER_TARGET_HEIGHT,
+                                        g_o3d.Texture.XRGB8, 1, true);
+
+  // Create the texture required for the color render-target.
+  var texture2 = g_pack.createTexture2D(RENDER_TARGET_WIDTH,
+                                        RENDER_TARGET_HEIGHT,
+                                        g_o3d.Texture.XRGB8, 1, true);
+
+  g_teapotRoot = g_pack.createObject('Transform');
+
+  var renderGraphRoot = g_client.renderGraphRoot;
+
+  var xSigma = 4.0, ySigma = 4.0;
+  var xKernel = buildKernel(xSigma);
+  var yKernel = buildKernel(ySigma);
+
+  var renderSurfaceSet1 = createRenderSurfaceSet(texture1);
+  var renderSurfaceSet2 = createRenderSurfaceSet(texture2);
+
+  // Create the render graph for the teapot view, drawing the teapot into
+  // texture1 (via renderSurfaceSet1).
+  var teapotViewInfo = o3djs.rendergraph.createBasicView(
+      g_pack,
+      g_teapotRoot,
+      renderSurfaceSet1,
+      [1, 1, 1, 1]);
+
+  // Create a Y convolution pass that convolves texture1 into texture2, using
+  // the X kernel.
+  var renderNode1 = createConvolutionPass(texture1,
+                                          renderSurfaceSet2,
+                                          xKernel,
+                                          1.0 / texture1.width,
+                                          0.0);
+
+  // Create a Y convolution pass that convolves texture2 into the framebuffer,
+  // using the Y kernel.
+  var renderNode2 = createConvolutionPass(texture2,
+                                          g_client.renderGraphRoot,
+                                          yKernel,
+                                          0.0,
+                                          1.0 / texture2.height);
+
+  // Load the scene into the transform graph as a child g_teapotRoot
+  loadScene(g_pack, 'assets/teapot.o3dtgz', g_teapotRoot, teapotViewInfo);
+
+  // Set a render callback.
+  g_client.setRenderCallback(onRender);
+}
+
+// We lop off the sqrt(2 * pi) * sigma term, since we're going to normalize
+// anyway.
+function gauss(x, sigma) {
+  return Math.exp(- (x * x) / (2.0 * sigma * sigma));
+}
+
+function buildKernel(sigma) {
+  var kMaxKernelSize = 25;
+  var kernelSize = 2 * Math.ceil(sigma * 3.0) + 1;
+  if (kernelSize > kMaxKernelSize) {
+    kernelSize = kMaxKernelSize;
+  }
+  var halfWidth = (kernelSize - 1) * 0.5
+  var values = new Array(kernelSize);
+  var sum = 0.0;
+  for (var i = 0; i < kernelSize; ++i) {
+    values[i] = gauss(i - halfWidth, sigma);
+    sum += values[i];
+  }
+  // Now normalize the kernel.
+  for (var i = 0; i < kernelSize; ++i) {
+    values[i] /= sum;
+  }
+  return values;
+}
+
+function createConvolutionMaterial(viewInfo, kernelSize) {
+  var convFXString = document.getElementById('convFX').value;
+  convFXString = convFXString.replace(/KERNEL_WIDTH/g, kernelSize);
+  var convEffect = g_pack.createObject('Effect');
+  convEffect.loadFromFXString(convFXString);
+
+  var convMaterial = g_pack.createObject('Material');
+  convMaterial.drawList = viewInfo.performanceDrawList;
+  convMaterial.effect = convEffect;
+  convEffect.createUniformParameters(convMaterial);
+  return convMaterial;
+}
+
+function createRenderSurfaceSet(texture) {
+  var renderSurface = texture.getRenderSurface(0, g_pack);
+
+  // Create the depth-stencil buffer required when rendering this pass.
+  var depthSurface = g_pack.createDepthStencilSurface(RENDER_TARGET_WIDTH,
+                                                      RENDER_TARGET_HEIGHT);
+
+  var renderSurfaceSet = g_pack.createObject('RenderSurfaceSet');
+  renderSurfaceSet.renderSurface = renderSurface;
+  renderSurfaceSet.renderDepthStencilSurface = depthSurface;
+  renderSurfaceSet.parent = g_client.renderGraphRoot;
+  return renderSurfaceSet;
+}
+
+function createConvolutionPass(srcTexture, renderGraphRoot, kernel, x, y) {
+  // Create a root Transform for the convolution scene.
+  var root = g_pack.createObject('Transform');
+
+  // Create a basic view for the convolution scene.
+  var viewInfo = o3djs.rendergraph.createBasicView(
+      g_pack,
+      root,
+      renderGraphRoot,
+      [1, 1, 1, 1]);
+
+  var material = createConvolutionMaterial(viewInfo, kernel.length);
+  var quadShape = o3djs.primitives.createPlane(g_pack,
+                                               material,
+                                               2.0,
+                                               2.0,
+                                               1,
+                                               1);
+
+  // Attach the quad to the root of the convolution graph.
+  root.addShape(quadShape);
+
+  // Rotate the view so we're looking at the XZ plane (where our quad is)
+  // Point the camera along the -Y axis
+  var target = [0, -1, 0];
+  // Put the camera at the origin.
+  var eye = [0, 0, 0];
+  // Define the up-vector as +Z
+  var up = [0, 0, 1];
+  viewInfo.drawContext.view = g_math.matrix4.lookAt(eye, target, up);
+
+  // Create an orthographic projection.
+  viewInfo.drawContext.projection = g_math.matrix4.orthographic(-1, 1, -1, 1, -1, 1);
+
+  // Generate draw elements and setup material draw lists for the
+  // convolution scene.
+  o3djs.pack.preparePack(g_pack, viewInfo);
+
+  setConvolutionParameters(material, srcTexture, kernel, kernel.length, x, y);
+  return renderGraphRoot;
+}
+
+function setConvolutionParameters(material, texture, kernel, kernelSize,
+                                  xIncrement, yIncrement) {
+  var imageParam = material.getParam('image');
+  var kernelParam = material.getParam('kernel');
+  var imageIncrement = material.getParam('imageIncrement');
+  var sampler = g_pack.createObject('Sampler');
+  sampler.texture = texture;
+  sampler.addressModeU = g_o3d.Sampler.CLAMP;
+  sampler.addressModeV = g_o3d.Sampler.CLAMP;
+  sampler.minFilter = g_o3d.Sampler.POINT;
+  sampler.magFilter = g_o3d.Sampler.POINT;
+  sampler.mipFilter = g_o3d.Sampler.NONE;
+  imageParam.value = sampler;
+  imageIncrement.value = [xIncrement, yIncrement];
+  var paramArray = g_pack.createObject('ParamArray');
+  var halfWidth = (kernelSize - 1) * 0.5;
+  for (var i = 0; i < kernelSize; ++i) {
+    var element = paramArray.createParam(i, 'ParamFloat');
+    element.value = kernel[i];
+  }
+  kernelParam.value = paramArray;
+}
+
+/**
+ * Called every frame.
+ * @param {o3d.RenderEvent} renderEvent Rendering Information.
+ */
+function onRender(renderEvent) {
+  var elapsedTime = renderEvent.elapsedTime;
+  g_clock += elapsedTime * g_timeMult;
+
+  g_teapotRoot.identity();
+  g_teapotRoot.rotateX(g_clock);
+  g_teapotRoot.rotateY(g_clock * 1.3);
+}
+
+/**
+ * Cleanup before exiting.
+ */
+function uninit() {
+  if (g_client) {
+    g_client.cleanup();
+  }
+}
+</script>
+</head>
+<body>
+<h1>Convolution Shader Example</h1>
+<p>This sample shows how to do 2D image processing using render targets.  This
+sample uses a convolution shader to do a 2D Gaussian blur, but the
+same code could be used for any separable convolution kernel.</p>
+<br/>
+<!-- Start of O3D plugin -->
+<div id="o3d" style="width: 512px; height: 512px;"></div>
+<!-- End of O3D plugin -->
+<!--
+ We embed the code for our effect inside this hidden textarea.
+ Effects contain the functions that define
+ the vertex and pixel shaders used by our shape.
+-->
+<!-- Don't render the textarea -->
+<div style="display:none">
+<textarea id="convFX" name="convFX" cols="80" rows="20">
+float4x4 worldViewProjection : WorldViewProjection;
+sampler2D image;
+float kernel[KERNEL_WIDTH];
+float2 imageIncrement;
+
+struct VertexShaderInput {
+  float4 position : POSITION;
+  float2 imageCoord : TEXCOORD0;
+};
+
+struct PixelShaderInput {
+  float4 position : POSITION;
+  float2 imageCoord : TEXCOORD0;
+};
+
+PixelShaderInput ConvolutionVS(VertexShaderInput input) {
+  PixelShaderInput output;
+  output.position = mul(input.position, worldViewProjection);
+
+  // Offset image coords by half of kernel width, in image texels
+  output.imageCoord = input.imageCoord -
+    ((KERNEL_WIDTH - 1) / 2) * imageIncrement;
+
+  return output;
+}
+
+float4 ConvolutionPS(PixelShaderInput input) : COLOR {
+  float2 imageCoord = input.imageCoord;
+  float4 sum = float4(0.0, 0.0, 0.0, 0.0);
+  for (int i = 0; i < KERNEL_WIDTH; ++i) {
+    sum += tex2D(image, imageCoord) * kernel[i];
+    imageCoord += imageIncrement;
+  }
+  return sum;
+}
+
+// #o3d VertexShaderEntryPoint ConvolutionVS
+// #o3d PixelShaderEntryPoint ConvolutionPS
+// #o3d MatrixLoadOrder RowMajor
+</textarea>
+</div>
+</body>
+
+</html>

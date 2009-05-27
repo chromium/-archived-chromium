@@ -1,0 +1,100 @@
+/*
+ * Copyright 2009, Google Inc.
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are
+ * met:
+ *
+ *     * Redistributions of source code must retain the above copyright
+ * notice, this list of conditions and the following disclaimer.
+ *     * Redistributions in binary form must reproduce the above
+ * copyright notice, this list of conditions and the following disclaimer
+ * in the documentation and/or other materials provided with the
+ * distribution.
+ *     * Neither the name of Google Inc. nor the names of its
+ * contributors may be used to endorse or promote products derived from
+ * this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+ * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+ * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+ * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+ * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
+
+// npapi_host2.idl : IDL source for npapi_host2
+//
+
+// This file will be processed by the MIDL tool to
+// produce the type library (npapi_host2.tlb) and marshalling code.
+
+#include "olectl.h"
+import "dispex.idl";
+import "oaidl.idl";
+import "ocidl.idl";
+
+[
+  object,
+  uuid(56D79537-181C-4A38-ADF5-E12EC24D7FC7),
+  dual,
+  nonextensible,
+  helpstring("IHostControl Interface"),
+  pointer_default(unique)
+]
+interface IHostControl : IDispatchEx {
+  // Note the assignement of the ids here:  These values will not conflict
+  // with the auto-generated ids for the hosted NPAPI plugin object.
+  [propget, helpstring("The description of the installed plugin."), id(1)]
+  HRESULT description([out, retval] BSTR* returned_description);
+  [propget, helpstring("The name of the installed plugin."), id(2)]
+  HRESULT name([out, retval] BSTR* returned_name);
+};
+
+[
+  object,
+  uuid(89681DED-6CE8-407f-989C-C4FEDE5330A8),
+  pointer_default(unique)
+]
+interface INPObjectProxy : IDispatchEx {
+  // The following set of routines are not remoteable, as they all reference
+  // a void pointer, which is relevant to the in-proc instance of classes
+  // implementing this interface.
+  [local] HRESULT GetNPObjectInstance([out] void ** instance);
+  [local] HRESULT SetBrowserProxy([in] void* browser_proxy);
+  [local] HRESULT SetHostedObject([in] void* hosted_object);
+  [local] HRESULT ReleaseHosted();
+};
+
+[
+  uuid(D4F6E31C-E952-48FE-9833-6AE308BD79C6),
+  version(1.0),
+  helpstring("npapi_host2 1.0 Type Library")
+]
+library npapi_host_controlLib
+{
+  importlib("stdole2.tlb");
+  [
+    uuid(9666A772-407E-4F90-BC37-982E8160EB2D),
+    //control,
+    helpstring("HostControl Class")
+  ]
+  coclass HostControl
+  {
+    [default] interface IHostControl;
+  };
+
+  [
+    uuid(1D68424D-7A71-4b61-AE5C-56DBCD8B0E53),
+  ]
+  coclass NPObjectProxy
+  {
+    [default] interface INPObjectProxy;
+  };
+};

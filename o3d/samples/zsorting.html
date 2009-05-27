@@ -1,0 +1,221 @@
+<!--
+Copyright 2009, Google Inc.
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are
+met:
+
+    * Redistributions of source code must retain the above copyright
+notice, this list of conditions and the following disclaimer.
+    * Redistributions in binary form must reproduce the above
+copyright notice, this list of conditions and the following disclaimer
+in the documentation and/or other materials provided with the
+distribution.
+    * Neither the name of Google Inc. nor the names of its
+contributors may be used to endorse or promote products derived from
+this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+-->
+
+<!--
+O3D ZSorting.
+-->
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+  "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<title>
+ZSorting.
+</title>
+<!-- Include sample javascript library functions-->
+<script type="text/javascript" src="o3djs/base.js"></script>
+
+<!-- Our javascript code -->
+<script type="text/javascript">
+o3djs.require('o3djs.util');
+o3djs.require('o3djs.math');
+o3djs.require('o3djs.rendergraph');
+o3djs.require('o3djs.primitives');
+o3djs.require('o3djs.effect');
+
+// Events
+// init() once the page has finished loading.
+// unload() when the page is unloaded.
+window.onload = init;
+window.onunload = unload;
+
+// global variables
+var g_timeMult = 1.0;
+var g_framesRendered = 0;
+var g_o3d;
+var g_math;
+var g_client;
+var g_viewInfo;
+var g_pack;
+var g_clock = 0;
+var g_finished = false;  // for selenium testing
+var g_groupTransforms = [];
+var GROUPS_ACROSS = 2;
+var UNITS_ACROSS_GROUP = 2;
+var TOTAL_ACROSS = GROUPS_ACROSS * UNITS_ACROSS_GROUP;
+var HALF_WIDTH = TOTAL_ACROSS * 0.0;
+var UNIT_SPACING = 100;
+
+/**
+ * Make a grid of transforms and put a teapot instance on each one
+ * @param {!o3d.Pack} pack Pack to create transforms in.
+ * @param {!o3d.Shape} shape Shape to instance.
+ */
+function createInstances(pack, shape) {
+  for (var g = 0; g < GROUPS_ACROSS; g++) {
+    for (var h = 0; h < GROUPS_ACROSS; h++) {
+      for (var i = 0; i < GROUPS_ACROSS; i++) {
+        var groupTransform = pack.createObject('Transform');
+        g_groupTransforms[g_groupTransforms.length] = groupTransform;
+        groupTransform.parent = g_client.root;
+        groupTransform.translate(
+            (g * UNITS_ACROSS_GROUP - HALF_WIDTH) * UNIT_SPACING,
+            (h * UNITS_ACROSS_GROUP - HALF_WIDTH) * UNIT_SPACING,
+            (i * UNITS_ACROSS_GROUP - HALF_WIDTH) * UNIT_SPACING);
+        for (var x = 0; x < UNITS_ACROSS_GROUP; x++) {
+          for (var y = 0; y < UNITS_ACROSS_GROUP; y++) {
+            for (var z = 0; z < UNITS_ACROSS_GROUP; z++) {
+              var transform = pack.createObject('Transform');
+              transform.parent = groupTransform;
+              transform.addShape(shape);
+              transform.translate(
+                  (x - UNITS_ACROSS_GROUP * 0.5) * UNIT_SPACING,
+                  (y - UNITS_ACROSS_GROUP * 0.5) * UNIT_SPACING,
+                  (z - UNITS_ACROSS_GROUP * 0.5) * UNIT_SPACING);
+              transform.createParam('colorMult', 'ParamFloat4').value = [
+                  (g * UNITS_ACROSS_GROUP + x) * (1 / TOTAL_ACROSS),
+                  (h * UNITS_ACROSS_GROUP + y) * (1 / TOTAL_ACROSS),
+                  (i * UNITS_ACROSS_GROUP + z) * (1 / TOTAL_ACROSS),
+                  0.5];
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+/**
+ * Creates the client area.
+ */
+function init() {
+  o3djs.util.makeClients(initStep2);
+}
+
+/**
+ * Initializes O3D and creates one shape.
+ * @param {Array} clientElements Array of o3d object elements.
+ */
+function initStep2(clientElements) {
+  // Initialize global variables and libraries.
+  var o3dElement = clientElements[0];
+  g_o3d = o3dElement.o3d;
+  g_math = o3djs.math;
+  g_client = o3dElement.client;
+
+  // Creates a pack to manage our resources/assets
+  g_pack = g_client.createPack();
+
+  g_viewInfo = o3djs.rendergraph.createBasicView(
+      g_pack,
+      g_client.root,
+      g_client.renderGraphRoot);
+
+  // Create our projection matrix, with a vertical field of view of 45
+  // degrees a near clipping plane of 0.1 and far clipping plane of 10000.
+  g_viewInfo.drawContext.projection = g_math.matrix4.perspective(
+      g_math.degToRad(45),
+      g_client.width / g_client.height,
+      0.1,
+      10000);
+
+  // Create and load the effect.
+  var effect = g_pack.createObject('Effect');
+  o3djs.effect.loadEffect(effect, 'shaders/phong-with-colormult.shader');
+
+  // Create a Material for the effect.
+  var material = g_pack.createObject('Material');
+
+  // Apply our effect to this material.
+  material.effect = effect;
+
+  // Set the material's drawList
+  material.drawList = g_viewInfo.zOrderedDrawList;
+
+  // Create the params the effect needs on the material.
+  effect.createUniformParameters(material);
+
+  // Set the material parameters.
+  material.getParam('lightWorldPos').value = [1000, 1000, 0];
+  material.getParam('lightIntensity').value = [1, 1, 1, 1];
+  material.getParam('ambientIntensity').value = [0.1, 0.1, 0.1, 1];
+  material.getParam('ambient').value = [1, 1, 1, 1];
+  material.getParam('diffuse').value = [1, 1, 1, 1];
+  material.getParam('specular').value = [0.5, 0.5, 0.5, 1];
+  material.getParam('shininess').value = 50;
+
+  // Create a sphere.
+  var shape = o3djs.primitives.createSphere(g_pack, material, 30, 20, 20);
+
+  createInstances(g_pack, shape);
+
+  // Setup an onrender callback for animation.
+  g_client.setRenderCallback(onrender);
+
+  g_finished = true;  // for selenium testing.
+}
+
+// spin the camera.
+function onrender(renderEvent) {
+  g_framesRendered++;
+  // Get the number of seconds since the last render.
+  var elapsedTime = renderEvent.elapsedTime;
+  g_clock += elapsedTime * g_timeMult;
+
+  var x = Math.sin(g_clock * 0.1) * 400;
+  var z = Math.cos(g_clock * 0.1) * 400;
+  var y = Math.sin(g_clock * 0.2) * 400;
+
+  g_viewInfo.drawContext.view = g_math.matrix4.lookAt(
+      [x, y, z],  // eye
+      [0, 0, 0],  // target
+      [0, 1, 0]); // up
+}
+
+/**
+ * Removes any callbacks so they don't get called after the page has unloaded.
+ */
+function unload() {
+  if (g_client) {
+    g_client.cleanup();
+  }
+}
+</script>
+</head>
+<body>
+<h1>ZSorting</h1>
+Objects get zsorted for transparency.
+<br/>
+<!-- Start of O3D plugin -->
+<div id="o3d" style="width: 800px; height: 600px"></div>
+<!-- End of O3D plugin -->
+</body>
+</html>

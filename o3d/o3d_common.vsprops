@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+<VisualStudioPropertySheet 
+	ProjectType="Visual C++" 
+	Version="8.00" 
+	Name="o3d common vc settings">
+	<Tool 
+		Name="VCCLCompilerTool" 
+    PreprocessorDefinitions="_WINDOWS;WIN32;OS_WINDOWS;COMPILER_MSVC;STL_MSVC;WIN32_LEAN_AND_MEAN;NOMINMAX;_WIN32_WINNT=0x0500;_CRT_NON_CONFORMING_SWPRINTFS;_CRT_SECURE_NO_DEPRECATE;_CRT_SECURE_NO_WARNINGS;NACL_WINDOWS=1"
+  />
+</VisualStudioPropertySheet>

@@ -1,0 +1,288 @@
+<!--
+Copyright 2009, Google Inc.
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are
+met:
+
+    * Redistributions of source code must retain the above copyright
+notice, this list of conditions and the following disclaimer.
+    * Redistributions in binary form must reproduce the above
+copyright notice, this list of conditions and the following disclaimer
+in the documentation and/or other materials provided with the
+distribution.
+    * Neither the name of Google Inc. nor the names of its
+contributors may be used to endorse or promote products derived from
+this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+-->
+
+<!--
+O3D Picking Example.
+
+This example shows one way to implement picking. Because O3D is shader
+agnostic we can't handle picking automatically since we have no way of knowing
+what the developer is going to do with their shaders. On the other hand, we can
+provide various functions that make it possible to do your own picking. Only you
+know which objects are pickable and which are not. For example if you are
+making an RTS game, only you would know that units are pickable but ground and
+explosions are not and that neither is your HUD.
+
+It's possible that someone, maybe us, will create an engine to use o3d
+that given a bunch of restrictions and flags on the data it excepts can
+do picking in a more automatic way but that is not the goal of the o3d api.
+Its goal is to provide a LOW-LEVEL shader agnostic API.
+-->
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+  "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<title>
+O3D Picking Example.
+</title>
+<!-- Include default javascript library functions-->
+<script type="text/javascript" src="o3djs/base.js"></script>
+<!-- Our javascript code -->
+<script type="text/javascript">
+o3djs.require('o3djs.util');
+o3djs.require('o3djs.math');
+o3djs.require('o3djs.rendergraph');
+o3djs.require('o3djs.pack');
+o3djs.require('o3djs.camera');
+o3djs.require('o3djs.picking');
+o3djs.require('o3djs.scene');
+
+// Events
+// init() once the page has finished loading.
+// unload() when the page is unloaded.
+window.onload = init;
+window.onunload = unload;
+
+// global variables
+var g_o3d;
+var g_math;
+var g_client;
+var g_pack;
+var g_viewInfo;
+var g_treeInfo;  // information about the transform graph.
+var g_pickInfoElem;
+var g_selectedInfo = null;
+var g_flashTimer = 0;
+var g_highlightMaterial;
+var g_highlightShape;
+var g_finished = false;  // for selenium testing.
+
+function updateInfo() {
+  if (!g_treeInfo) {
+    g_treeInfo = o3djs.picking.createTransformInfo(g_client.root,
+                                                        null);
+  }
+  g_treeInfo.update();
+}
+
+function unSelectAll() {
+  if (g_selectedInfo) {
+    // Remove it from the transform of the selected object.
+    g_selectedInfo.shapeInfo.parent.transform.removeShape(g_highlightShape);
+    // Remove everything related to it.
+    o3djs.shape.deleteDuplicateShape(g_highlightShape, g_pack);
+    g_highlightShape = null;
+    g_selectedInfo = null;
+  }
+}
+
+function select(pickInfo) {
+  unSelectAll();
+  if (pickInfo) {
+    g_selectedInfo = pickInfo;
+    // make a copy of the selected shape so we can use it to highlight.
+    g_highlightShape = o3djs.shape.duplicateShape(
+        g_pack,
+        g_selectedInfo.shapeInfo.shape,
+        'highlight_');
+    // Set all of it's elements to use the highlight material.
+    var elements = g_highlightShape.elements;
+    for (var ee = 0; ee < elements.length; ee++) {
+      elements[ee].material = g_highlightMaterial;
+    }
+
+    // Add it to the same transform
+    g_selectedInfo.shapeInfo.parent.transform.addShape(g_highlightShape);
+    g_flashTimer = 0.0;  // make it change color immediately.
+  }
+}
+
+function pick(e) {
+  var worldRay = o3djs.picking.clientPositionToWorldRay(
+      e.x,
+      e.y,
+      g_viewInfo.drawContext,
+      g_client.width,
+      g_client.height);
+  unSelectAll();
+
+  // Update the entire tree in case anything moved.
+  g_treeInfo.update();
+
+  var pickInfo = g_treeInfo.pick(worldRay);
+  if (pickInfo) {
+    select(pickInfo);
+    g_pickInfoElem.innerHTML = pickInfo.shapeInfo.shape.name;
+  } else {
+    g_pickInfoElem.innerHTML = '--nothing--';
+  }
+}
+
+function onrender(renderEvent) {
+  g_flashTimer += renderEvent.elapsedTime;
+  g_flashTimer = g_flashTimer % 0.5;
+  if (g_selectedInfo) {
+    if (g_flashTimer < 0.25) {
+      g_highlightMaterial.getParam('color').value = [1, 1, 1, 1];
+    } else {
+      g_highlightMaterial.getParam('color').value = [0, 0, 0, 1];
+    }
+  }
+}
+
+/**
+ * Loads a scene into the transform graph.
+ * @param {!o3d.Pack} pack Pack to load scene into.
+ * @param {string} fileName filename of the scene.
+ * @param {!o3d.Transform} parent parent node in the transform graph to
+ *      which to load the scene into.
+ */
+function loadScene(pack, fileName, parent) {
+  // Get our full path to the scene
+  var scenePath = o3djs.util.getCurrentURI() + fileName;
+
+  // Load the file given the full path, and call the callback function
+  // when its done loading.
+  o3djs.scene.loadScene(g_client, pack, parent, scenePath, callback);
+
+  /**
+   * Our callback is called once the scene has been loaded into memory
+   * from the web or locally.
+   * @param {!o3d.Pack} pack The pack that was passed in above.
+   * @param {!o3d.Transform} parent The parent that was passed in above.
+   * @param {*} exception null if loading succeeded.
+   */
+  function callback(pack, parent, exception) {
+    if (exception) {
+      alert('Could not load: ' + fileName + '\n' + exception);
+      return;
+    }
+    // Get a cameraInfo (an object with a view and projection matrix)
+    // using our javascript library function
+    var cameraInfo = o3djs.camera.getViewAndProjectionFromCameras(
+        parent,
+        g_client.width,
+        g_client.height);
+
+    // Copy the one from the file to ours.
+    g_viewInfo.drawContext.view = cameraInfo.view;
+    g_viewInfo.drawContext.projection = cameraInfo.projection;
+
+    // Generate draw elements and setup material draw lists.
+    o3djs.pack.preparePack(pack, g_viewInfo);
+
+    // Update our info
+    updateInfo();
+
+    g_treeInfo.dump('');
+
+    g_finished = true;  // for selenium testing.
+  }
+}
+
+/**
+ * Creates the client area.
+ */
+function init() {
+  o3djs.util.makeClients(initStep2);
+}
+
+/**
+ * Initializes O3D and loads the scene into the transform graph.
+ * @param {Array} clientElements Array of o3d object elements.
+ */
+function initStep2(clientElements) {
+  // Initializes global variables and libraries.
+  var o3dElement = clientElements[0];
+  o3dElement.name = 'o3dObj';  // This is only for our selenium tests.
+  g_o3d = o3dElement.o3d;
+  g_math = o3djs.math;
+  g_client = o3dElement.client;
+
+  g_pickInfoElem = document.getElementById('pickInfo');
+
+  // Creates a pack to manage our resources/assets
+  g_pack = g_client.createPack();
+
+  // Create the render graph for a view.
+  g_viewInfo = o3djs.rendergraph.createBasicView(
+      g_pack,
+      g_client.root,
+      g_client.renderGraphRoot);
+
+  // Create a material for highlighting.
+  g_highlightMaterial = g_pack.createObject('Material');
+  g_highlightMaterial.drawList = g_viewInfo.performanceDrawList;
+  var effect = g_pack.createObject('Effect');
+  o3djs.effect.loadEffect(effect, 'shaders/solid-color.shader');
+  g_highlightMaterial.effect = effect;
+  effect.createUniformParameters(g_highlightMaterial);
+  // Setup a state to bring the lines forward.
+  var state = g_pack.createObject('State');
+  state.getStateParam('PolygonOffset2').value = -1.0;
+  state.getStateParam('FillMode').value = g_o3d.State.WIREFRAME;
+  g_highlightMaterial.state = state;
+
+  // Creates a transform to put our data on.
+  var my_data_root = g_pack.createObject('Transform');
+
+  // Connects our root to the client's root.
+  my_data_root.parent = g_client.root;
+
+  // Load the scene into the transform graph as a child of my_data_root
+  loadScene(g_pack, 'assets/seven_shapes.o3dtgz', my_data_root);
+
+  g_client.setRenderCallback(onrender);
+
+  // Start picking; it won't do anything until the scene finishes loading.
+  o3djs.event.addEventListener(o3dElement, 'mousedown', pick);
+}
+
+/**
+ * Removes any callbacks so they don't get called after the page has unloaded.
+ */
+function unload() {
+  if (g_client) {
+    g_client.cleanup();
+  }
+}
+</script>
+</head>
+<body>
+<h1>Picking</h1>
+Click on an object
+<br/>
+<!-- Start of O3D plugin -->
+<div id="o3d" style="width: 600px; height: 600px;"></div>
+<!-- End of O3D plugin -->
+<div style="font-family: sans-serif; font-size: large;">PICKED: <span id="pickInfo"></span></div>
+</body>
+</html>

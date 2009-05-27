@@ -1,0 +1,51 @@
+The converter is a command line utility that will convert from COLLADA
+to the form that the sample JavaScript scene loader (in
+samples/o3djs/serialization.js) can read.
+
+It is able to read COLLADA files as either DAE text files (and
+associated asset files in subdirectories), or as part of a ZIP archive
+(or KMZ file).  It outputs a gzip-compressed tar archive (.tgz) which
+contains a JSON file and any associated assets (textures, shaders,
+etc.) from the source COLLADA model.  By default we don't use the .tgz
+extension, as it can cause problems with some webservers; we put .o3dtgz on
+instead.
+
+In order to run the converter on Windows, you need the DirectX SDK installed.
+Installing it requires administrator privileges.  You can get it here:
+http://msdn.microsoft.com/en-us/library/bb219737(VS.85).aspx.
+
+The command line arguments are as follows:
+
+Usage: o3dConverter.exe [--base-path=<path>]
+                        [--up-axis=x,y,z]
+                        [--no-condition]
+                        [--pretty-print]
+                        <infile.dae> [ <outfile> ]
+
+--base-path=<path>: This specifies the path elements to remove from
+                    the beginning of the filenames placed into the
+                    .o3dtgz file (to avoid including sensitive paths in
+                    the .o3dtgz file).
+
+--up-axis=x,y,z: This specifies the up-axis for the resulting model,
+                 if you wish it to be different from the axis in the
+                 COLLADA file.
+
+--pretty-print: This simply formats the JSON file in the resulting
+                .o3dtgz file to be human readable, instead of compacted
+                into one line.
+
+--no-condition: This will prevent conditioning of the shaders from
+                COLLADA form to the form expected by O3D.  [This is
+                useful only for pre-release data conditioned before
+                the converter existed.]
+
+<infile.dae|infile.zip|infile.kmz>: This is the input file in one of
+                                    ZIP, KMZ, or DAE formats.  The
+                                    DAE format expects to find assets
+                                    relative to the .dae file.
+
+<outfile>: An optional argument giving the name of the
+           gzip-compressed tar archive output file.  By default
+           this has the same basename as the input file, and has the extension
+           .o3dtgz.

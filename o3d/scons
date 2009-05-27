@@ -1,0 +1,17 @@
+#!/bin/bash
+# @@REWRITE(insert sh-copyright)
+# @@REWRITE(delete-start)
+# Copyright 2009 Google Inc. All Rights Reserved.
+# Author: piman@google.com (Antoine Labour)
+# @@REWRITE(delete-end)
+
+readonly SCRIPT_DIR="$(dirname "$0")"
+readonly SCRIPT_DIR_ABS="$(cd "$SCRIPT_DIR" ; pwd)"
+
+# Use the batch file as an entry point if on cygwin.
+if [ "$OSTYPE" = "cygwin" ]; then
+  "$SCRIPT_DIR_ABS/scons.bat" "$@"
+else
+  "$SCRIPT_DIR_ABS/../third_party/scons/scons.py" -f main.scons "$@"
+fi
+

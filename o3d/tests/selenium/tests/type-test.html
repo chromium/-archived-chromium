@@ -1,0 +1,166 @@
+<!--
+Copyright 2009, Google Inc.
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are
+met:
+
+    * Redistributions of source code must retain the above copyright
+notice, this list of conditions and the following disclaimer.
+    * Redistributions in binary form must reproduce the above
+copyright notice, this list of conditions and the following disclaimer
+in the documentation and/or other materials provided with the
+distribution.
+    * Neither the name of Google Inc. nor the names of its
+contributors may be used to endorse or promote products derived from
+this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+-->
+
+<!--
+A Selenium test to make sure various math types convert.
+-->
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+  "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<title>
+Type Test
+</title>
+<!-- Our javascript code -->
+<script type="text/javascript" src="../../../samples/o3djs/base.js"></script>
+
+<script type="text/javascript">
+o3djs.require('o3djs.util');
+o3djs.require('o3djs.math');
+
+window.onload = init;
+
+// global variables
+var g_o3d;
+var g_math;
+var g_client;
+var g_pack;
+var g_testResult;
+
+function compare3(object, x, y, z) {
+  return object[0] == x &&
+         object[1] == y &&
+         object[2] == z;
+}
+
+function compare4(object, x, y, z, w) {
+  return object[0] == x &&
+         object[1] == y &&
+         object[2] == z &&
+         object[3] == w;
+}
+
+function compareArrays(array1, array2) {
+  if (array1.length != array2.length) {
+    return false;
+  }
+  for (var ii = 0; ii < array1.length; ++ii) {
+    if (array1[ii] !== array2[ii]) {
+      return false;
+    }
+  }
+  return true;
+}
+
+/**
+ * Creates the client area.
+ */
+function init() {
+  o3djs.util.makeClients(initStep2);
+}
+
+/**
+ * Initializes g_o3d, loads the effect, and draws the sphere.
+ * @param {Array} clientElements Array of o3d object elements.
+ */
+function initStep2(clientElements) {
+  // Initialize global variables and libraries.
+  var o3d = clientElements[0];
+  g_o3d = o3d.o3d;
+  g_math = o3djs.math;
+  g_client = o3d.client;
+
+  // Create a g_pack to manage our resources/assets
+  g_pack = g_client.createPack();
+
+  var good = true;
+  // we shouldn't get an error while we're testing any of these.
+  g_client.setErrorCallback(function(msg) { good = false; });
+
+  var transform = g_pack.createObject('Transform');
+  var paramFloat3 = transform.createParam('f3', 'ParamFloat3');
+  var paramFloat4 = transform.createParam('f4', 'ParamFloat4');
+  var float3;
+  var float4;
+  var test = 0;
+
+  // --- float3 ---
+
+  // Check that we can set a ParamFloat3 to an array
+  if (good) {
+    test++;
+    paramFloat3.value = [1, 2, 3];
+    good = good && compare3(paramFloat3.value, 1, 2, 3);
+  }
+
+  // Check that we can get an array from a ParamFloat3
+  if (good) {
+    test++;
+    float3 = paramFloat3.value;
+    good = good && compare3(float3, 1, 2, 3);
+  }
+
+  // --- float4 ---
+
+  // Check that we can set a ParamFloat4 to an array
+  if (good) {
+    test++;
+    paramFloat4.value = [1, 2, 3, 4];
+    good = good && compare4(paramFloat4.value, 1, 2, 3, 4);
+  }
+
+  // Check that we can get an array from a ParamFloat4
+  if (good) {
+    test++;
+    float4 = paramFloat4.value;
+    good = good && compare4(float4, 1, 2, 3, 4);
+  }
+
+  document.getElementById('testStatus').innerHTML = "Finished";
+  document.getElementById('testResults').innerHTML =
+    good ? "Passed" : ("Failed: at test# " + test);
+  g_testResult = good;
+}
+
+</script>
+</head>
+<body>
+<h1>Type Test</h1>
+<table>
+<tr><td>Tests:</td><td><span id="testStatus">Running</span></td></td>
+<tr><td>Results:</td><td><span id="testResults">---</span></td></td>
+</table>
+<!-- Start of g_o3d plugin -->
+<div id="o3d" style="width: 100px; height: 100px;"></div>
+<!-- End of g_o3d plugin -->
+</body>
+</html>

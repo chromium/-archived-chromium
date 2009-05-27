@@ -1,0 +1,337 @@
+<!--
+Copyright 2009, Google Inc.
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are
+met:
+
+    * Redistributions of source code must retain the above copyright
+notice, this list of conditions and the following disclaimer.
+    * Redistributions in binary form must reproduce the above
+copyright notice, this list of conditions and the following disclaimer
+in the documentation and/or other materials provided with the
+distribution.
+    * Neither the name of Google Inc. nor the names of its
+contributors may be used to endorse or promote products derived from
+this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+-->
+
+<!--
+O3D Vertex Shader Demo
+
+This sample uses a custom vertex shader to quickly adjust the positions and
+normals of many vertices in a plane to achieve a ripple effect without iterating
+through the vertices in javascript.
+-->
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+  "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<title>
+Vertex Shader
+</title>
+<script type="text/javascript" src="o3djs/base.js"></script>
+<script type="text/javascript">
+o3djs.require('o3djs.util');
+o3djs.require('o3djs.math');
+o3djs.require('o3djs.rendergraph');
+o3djs.require('o3djs.primitives');
+o3djs.require('o3djs.effect');
+
+// global variables
+var g_o3dElement;
+var g_client;
+var g_o3d;
+var g_math;
+var g_pack;
+var g_viewInfo;
+var g_clockParam;
+
+/**
+ * Creates the client area.
+ */
+function init() {
+  // These are here so that they are visible to both the browser (so
+  // selenium sees them) and the embedded V8 engine.
+  window.g_clock = 0;
+  window.g_timeMult = 1;
+  window.g_finished = false;  // for selenium testing.
+
+  // Comment out the line below to run the sample in the browser
+  // JavaScript engine.  This may be helpful for debugging.
+  o3djs.util.setMainEngine(o3djs.util.Engine.V8);
+
+  o3djs.util.makeClients(initStep2, 'LargeGeometry');
+}
+
+
+/**
+ * Initializes global variables, positions camera, creates the material, and
+ * draws the plane.
+ * @param {Array} clientElements Array of o3d object elements.
+ */
+function initStep2(clientElements) {
+  // Init global variables.
+  initGlobals(clientElements);
+
+  // Set up the view and projection transformations.
+  initContext();
+
+  // Add the shapes to the transform heirarchy.
+  createPlane();
+
+  // Setup render callback.
+  g_client.setRenderCallback(onRender);
+
+  window.g_finished = true;  // for selenium testing.
+}
+
+
+/**
+ * Initializes global variables and libraries.
+ * @param {Array} clientElements An array of o3d object elements assumed
+ *   to have one entry.
+ */
+function initGlobals(clientElements) {
+  g_o3dElement = clientElements[0];
+  g_o3d = g_o3dElement.o3d;
+  g_math = o3djs.math;
+
+  // Set window.g_client as well.  Otherwise when the sample runs in
+  // V8, selenium won't be able to find this variable (it can only see
+  // the browser environment).
+  window.g_client = g_client = g_o3dElement.client;
+
+  // Create a pack to manage the objects created.
+  g_pack = g_client.createPack();
+
+  // Create the render graph for a view.
+  g_viewInfo = o3djs.rendergraph.createBasicView(
+      g_pack,
+      g_client.root,
+      g_client.renderGraphRoot);
+}
+
+
+/**
+ * Sets up reasonable view and projection matrices.
+ */
+function initContext() {
+  // Set up a perspective transformation for the projection.
+  g_viewInfo.drawContext.projection = g_math.matrix4.perspective(
+      g_math.degToRad(30), // 30 degree frustum.
+      g_client.width / g_client.height, // Aspect ratio.
+      1,                  // Near plane.
+      5000);              // Far plane.
+
+  // Set up our view transformation to look towards the world origin where the
+  // cube is located.
+  g_viewInfo.drawContext.view = g_math.matrix4.lookAt(
+      [4, 4, 4],   // eye
+      [0, 0, 0],   // target
+      [0, 1, 0]);  // up
+}
+
+
+/**
+ * Creates an effect using the shaders in the textarea in the document, applies
+ * the effect to a new material, binds the uniform parameters of the shader
+ * to parameters of the material, and sets certain parameters: the light and
+ * camera position.
+ * @return {Material} The material.
+ */
+function createMaterial() {
+  // Create a new, empty Material and Effect object.
+  var material = g_pack.createObject('Material');
+  var effect = g_pack.createObject('Effect');
+
+  // Load shader string from document.
+  var shaderString = o3djs.util.getElementContentById('effect');
+  effect.loadFromFXString(shaderString);
+
+  // Apply the effect to this material.
+  material.effect = effect;
+
+  // Bind uniform parameters declared in shader to parameters of material.
+  effect.createUniformParameters(material);
+
+  // Set the material's drawList.
+  material.drawList = g_viewInfo.performanceDrawList;
+
+  // Set light and camera positions for the pixel shader.
+  material.getParam('lightWorldPos').value = [3, 10, 0];
+  material.getParam('cameraWorldPos').value = [1, 3, 12];
+
+  // Look up clock param.
+  g_clockParam = material.getParam('clock');
+
+  return material;
+}
+
+
+/**
+ * Creates the plane using the primitives utility library, and adds it to the
+ * transform graph at the root node.
+ */
+function createPlane() {
+  // This will create a plane subdivided into 180,000 triangles.
+  var plane = o3djs.primitives.createPlane(
+      g_pack, createMaterial(), 4, 4, 300, 300);
+
+  // Add the shape to the transform heirarchy.
+  g_client.root.addShape(plane);
+}
+
+
+/**
+ * Updates the clock for the animation.
+ * @param {!o3d.RenderEvent} renderEvent Rendering Information.
+ */
+function onRender(renderEvent) {
+  var elapsedTime = renderEvent.elapsedTime;
+
+  // Update g_clock in the browser and cache a V8 copy that can be
+  // accessed efficiently. g_clock must be in the browser for selenium.
+  var clock = window.g_clock + elapsedTime * window.g_timeMult;
+  window.g_clock = clock;
+
+  g_clockParam.value = clock;
+}
+
+
+/**
+ * Cleanup before exiting.
+ */
+function unload() {
+  if (g_client) {
+    g_client.cleanup();
+  }
+}
+</script>
+</head>
+<body onload="init()" onunload="unload()">
+<h1>Vertex Shader</h1>
+This sample uses a custom vertex shader to quickly adjust the positions and
+normals of many vertices in a plane to achieve a ripple effect without iterating
+through the vertices in javascript.
+<br/>
+<!-- Start of O3D plugin -->
+<div id="o3d" style="width: 600px; height: 600px;"></div>
+<!-- End of O3D plugin -->
+
+<!-- Text area to hold the shaders -->
+<textarea id="effect" name="effect" cols="80" rows="20"
+       style="display: none;">
+uniform float4x4 world : WORLD;
+uniform float4x4 worldViewProjection : WORLDVIEWPROJECTION;
+uniform float4x4 worldInverseTranspose : WORLDINVERSETRANSPOSE;
+uniform float clock;
+uniform float3 lightWorldPos;
+uniform float3 cameraWorldPos;
+
+
+// Input parameters for the vertex shader.
+struct VertexShaderInput {
+  float4 position : POSITION;
+  float3 normal : NORMAL;
+  float4 color : COLOR;
+};
+
+
+// Input parameters for the pixel shader (also the output parameters for the
+// vertex shader.)
+struct PixelShaderInput {
+  float4 position : POSITION;          // the position in clip space
+  float3 objectPosition : TEXCOORD0;   // the position in world space
+  float3 normal : TEXCOORD1;           // the normal in world space
+  float4 color : COLOR;
+};
+
+
+/**
+ * A function defining the shape of the wave.  Takes a single float2 as an
+ * argument the entries of which are the x and z components of a point in the
+ * plane.  Returns the height of that point.
+ *
+ * @param {float2} v The x and z components of the point in a single float2.
+ */
+float wave(float2 v) {
+  float d = length(v);
+  return 0.15 * sin(15 * d - 5 * clock) / (1 + d * d);
+}
+
+
+/**
+ * vertexShaderFunction - The vertex shader perturbs the vertices of the plane
+ * to achieve the ripples.  Then it applies the worldViewProjection matrix.
+ *
+ * @param input.position Position vector of vertex in object coordinates.
+ * @param input.normal Normal of vertex in object coordinates.
+ * @param input.color Color of vertex.
+ */
+PixelShaderInput vertexShaderFunction(VertexShaderInput input) {
+  PixelShaderInput output;
+
+  float4 p = input.position;
+
+  // The height of the point p is adjusted according to the wave function.
+  p.y = wave(p.xz);
+
+  // Step size used to approximate the partial derivatives of the wave function.
+  float h = 0.001;
+
+  // We take the derivative numerically so that the wave function can be
+  // modified and the normal will still be correct.
+  float3 n = normalize(float3(
+      wave(float2(p.x - h, p.z)) - wave(float2(p.x + h, p.z)), 2 * h,
+      wave(float2(p.x, p.z - h)) - wave(float2(p.x, p.z + h))));
+
+  output.position = mul(p, worldViewProjection);
+  output.objectPosition = mul(p, world).xyz;
+  output.normal = mul(float4(n, 1), worldInverseTranspose).xyz;
+  output.color = input.color;
+
+  return output;
+}
+
+
+/**
+ * This pixel shader is meant to be minimal since the vertex shader is
+ * the focus of the sample.
+ */
+float4 pixelShaderFunction(PixelShaderInput input) : COLOR {
+  float3 p = input.objectPosition;          // The point in question.
+  float3 l = normalize(lightWorldPos - p);  // Unit-length vector toward light.
+  float3 n = normalize(input.normal);       // Unit-length normal vector.
+  float3 v = normalize(cameraWorldPos - p); // Unit-length vector toward camera.
+  float3 r = normalize(-reflect(v, n));     // Reflection of v across n.
+
+  float3 q = (lightWorldPos - p);
+  float ldotr = dot(r, l);
+  float specular = clamp(ldotr, 0, 1) /
+      (1 + length(q - length(q) * ldotr * r));
+
+  return float4(0, 0.6, 0.7, 1) * dot(n, l) + specular;
+}
+
+
+// #o3d VertexShaderEntryPoint vertexShaderFunction
+// #o3d PixelShaderEntryPoint pixelShaderFunction
+// #o3d MatrixLoadOrder RowMajor
+</textarea>
+</body>
+</html>

@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CFBundleName</key>
+	<string>O3D Plugin</string>
+	<key>CFBundleDevelopmentRegion</key>
+	<string>English</string>
+	<key>CFBundleExecutable</key>
+	<string>o3d</string>
+	<key>CFBundleIconFile</key>
+	<string></string>
+	<key>CFBundleIdentifier</key>
+	<string>com.google.o3d</string>
+	<key>CFBundleInfoDictionaryVersion</key>
+	<string>6.0</string>
+	<key>CFBundlePackageType</key>
+	<string>BRPL</string>
+	<key>CFBundleSignature</key>
+	<string>TEST</string>
+	<key>CFBundleVersion</key>
+	<string>@@@ProductVersion@@@</string>
+	<key>CFBundleShortVersionString</key>
+	<string>@@@ProductVersion@@@</string>
+	<key>CCFBundleGetInfoString</key>
+	<string>"Version @@@ProductVersion@@@, Copyright 2009, Google Inc."</string>
+	<key>CSResourcesFileMapped</key>
+	<true/>
+	<key>WebPluginDescription</key>
+	<string>@@@PluginDescription@@@</string>
+	<key>WebPluginMIMETypes</key>
+	<dict>
+		<key>@@@PluginMimeType@@@</key>
+		<dict>
+			<key>WebPluginTypeDescription</key>
+			<string>@@@PluginName@@@ Type</string>
+		</dict>
+	</dict>
+	<key>WebPluginName</key>
+	<string>@@@PluginName@@@</string>
+
+	<key>BreakpadProduct</key>
+	<string>O3D</string>
+	<key>BreakpadProductDisplay</key>
+	<string>O3D browser plugin</string>
+	<key>BreakpadVendor</key>
+	<string>Google</string>
+	<key>BreakpadVersion</key>
+	<string>@@@ProductVersion@@@ (mac)</string>
+	<key>BreakpadSendAndExit</key>
+	<string>1</string>
+	<key>BreakpadReportInterval</key>
+	<string>3600</string>
+	<key>BreakpadURL</key>
+	<string>https://clients2.google.com/cr</string>
+
+</dict>
+</plist>

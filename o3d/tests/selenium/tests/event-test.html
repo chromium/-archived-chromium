@@ -1,0 +1,284 @@
+<!--
+Copyright 2009, Google Inc.
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are
+met:
+
+    * Redistributions of source code must retain the above copyright
+notice, this list of conditions and the following disclaimer.
+    * Redistributions in binary form must reproduce the above
+copyright notice, this list of conditions and the following disclaimer
+in the documentation and/or other materials provided with the
+distribution.
+    * Neither the name of Google Inc. nor the names of its
+contributors may be used to endorse or promote products derived from
+this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+-->
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+ "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<title>
+Event Test
+</title>
+</head>
+<body>
+<h1>Event Test</h1>
+This tests the event-handler functions in the event.js library.
+<br/>
+<script type="text/javascript"
+  src="../../../samples/o3djs/base.js"></script>
+<script type="text/javascript">
+
+o3djs.require('o3djs.event');
+o3djs.require('o3djs.test');
+
+var g_event = {};
+
+function FakeClient() {
+};
+
+FakeClient.prototype.getCallbacks = function() {
+  this.callbacks = this.callbacks || [];
+  return this.callbacks;
+};
+
+FakeClient.prototype.setEventCallback = function(type, callback) {
+  this.getCallbacks()[type] = callback;
+};
+
+FakeClient.prototype.clearEventCallback = function(type) {
+  this.getCallbacks()[type] = null;
+};
+
+FakeClient.prototype.handleEvent = function(type, event) {
+  var callback = this.getCallbacks()[type];
+  if (callback) {
+    g_test.assertTrue(typeof(callback) == 'function');
+    callback(event);
+  }
+};
+
+function FakePlugin() {
+  this.client = new FakeClient();
+}
+
+FakePlugin.prototype.handleEvent = function(type, event) {
+  this.client.handleEvent(type, event);
+};
+
+var g_a;
+function incA(event) {
+  g_test.assertTrue(event != null);
+  g_test.assertTrue(event == g_event);
+  ++g_a;
+}
+
+var incAAsEventListener = {
+  handleEvent: incA
+};
+
+var g_b;
+function incB(event) {
+  g_test.assertTrue(event != null);
+  g_test.assertTrue(event == g_event);
+  ++g_b;
+}
+
+var g_suite = {};
+
+g_suite.testSimpleHandler = function() {
+  var fakePlugin = new FakePlugin;
+  g_a = 0;
+  g_b = 0;
+  o3djs.event.addEventListener(fakePlugin, 'click', incA);
+  g_test.assertEquals(0, g_a);
+  g_test.assertEquals(0, g_b);
+  fakePlugin.handleEvent('click', g_event);
+  g_test.assertEquals(1, g_a);
+  g_test.assertEquals(0, g_b);
+}
+
+g_suite.testMultipleHandlers = function() {
+  var fakePlugin = new FakePlugin;
+  g_a = 0;
+  g_b = 0;
+  o3djs.event.addEventListener(fakePlugin, 'click', incA);
+  o3djs.event.addEventListener(fakePlugin, 'click', incB);
+  g_test.assertEquals(0, g_a);
+  g_test.assertEquals(0, g_b);
+  fakePlugin.handleEvent('click', g_event);
+  g_test.assertEquals(1, g_a);
+  g_test.assertEquals(1, g_b);
+}
+
+g_suite.testAddingHandlerIsIdempotent = function() {
+  var fakePlugin = new FakePlugin;
+  g_a = 0;
+  g_b = 0;
+  o3djs.event.addEventListener(fakePlugin, 'click', incA);
+  o3djs.event.addEventListener(fakePlugin, 'click', incA);
+  g_test.assertEquals(0, g_a);
+  g_test.assertEquals(0, g_b);
+  fakePlugin.handleEvent('click', g_event);
+  g_test.assertEquals(1, g_a);
+  g_test.assertEquals(0, g_b);
+}
+
+g_suite.testAddingAndRemovingHandlers = function() {
+  var fakePlugin = new FakePlugin;
+  g_a = 0;
+  g_b = 0;
+  o3djs.event.addEventListener(fakePlugin, 'click', incA);
+  o3djs.event.addEventListener(fakePlugin, 'click', incB);
+  g_test.assertEquals(0, g_a);
+  g_test.assertEquals(0, g_b);
+  fakePlugin.handleEvent('click', g_event);
+  g_test.assertEquals(1, g_a);
+  g_test.assertEquals(1, g_b);
+  // Check that it's repeatable.
+  fakePlugin.handleEvent('click', g_event);
+  g_test.assertEquals(2, g_a);
+  g_test.assertEquals(2, g_b);
+  o3djs.event.removeEventListener(fakePlugin, 'click', incA);
+  fakePlugin.handleEvent('click', g_event);
+  g_test.assertEquals(2, g_a);
+  g_test.assertEquals(3, g_b);
+  o3djs.event.removeEventListener(fakePlugin, 'click', incB);
+  fakePlugin.handleEvent('click', g_event);
+  g_test.assertEquals(2, g_a);
+  g_test.assertEquals(3, g_b);
+  // Check that removing in the opposite order works too.
+  var fakePlugin = new FakePlugin;
+  g_a = 0;
+  g_b = 0;
+  o3djs.event.addEventListener(fakePlugin, 'click', incA);
+  o3djs.event.addEventListener(fakePlugin, 'click', incB);
+  g_test.assertEquals(0, g_a);
+  g_test.assertEquals(0, g_b);
+  fakePlugin.handleEvent('click', g_event);
+  g_test.assertEquals(1, g_a);
+  g_test.assertEquals(1, g_b);
+  // Check that it's repeatable.
+  fakePlugin.handleEvent('click', g_event);
+  g_test.assertEquals(2, g_a);
+  g_test.assertEquals(2, g_b);
+  o3djs.event.removeEventListener(fakePlugin, 'click', incB);
+  fakePlugin.handleEvent('click', g_event);
+  g_test.assertEquals(3, g_a);
+  g_test.assertEquals(2, g_b);
+  o3djs.event.removeEventListener(fakePlugin, 'click', incA);
+  fakePlugin.handleEvent('click', g_event);
+  g_test.assertEquals(3, g_a);
+  g_test.assertEquals(2, g_b);
+}
+
+g_suite.testRemovingHandlerIsIdempotent = function() {
+  var fakePlugin = new FakePlugin;
+  g_a = 0;
+  g_b = 0;
+  o3djs.event.addEventListener(fakePlugin, 'click', incA);
+  o3djs.event.addEventListener(fakePlugin, 'click', incA);
+  g_test.assertEquals(0, g_a);
+  g_test.assertEquals(0, g_b);
+  fakePlugin.handleEvent('click', g_event);
+  g_test.assertEquals(1, g_a);
+  g_test.assertEquals(0, g_b);
+  o3djs.event.removeEventListener(fakePlugin, 'click', incA);
+  fakePlugin.handleEvent('click', g_event);
+  g_test.assertEquals(1, g_a);
+  g_test.assertEquals(0, g_b);
+  o3djs.event.removeEventListener(fakePlugin, 'click', incA);
+  fakePlugin.handleEvent('click', g_event);
+  g_test.assertEquals(1, g_a);
+  g_test.assertEquals(0, g_b);
+}
+
+g_suite.testEventListenerIsLikeFunction = function() {
+  var fakePlugin = new FakePlugin;
+  g_a = 0;
+  g_b = 0;
+  o3djs.event.addEventListener(fakePlugin, 'click', incA);
+  o3djs.event.addEventListener(fakePlugin, 'click', incAAsEventListener);
+  g_test.assertEquals(0, g_a);
+  g_test.assertEquals(0, g_b);
+  fakePlugin.handleEvent('click', g_event);
+  g_test.assertEquals(2, g_a);
+  g_test.assertEquals(0, g_b);
+  o3djs.event.removeEventListener(fakePlugin, 'click', incA);
+  fakePlugin.handleEvent('click', g_event);
+  g_test.assertEquals(3, g_a);
+  g_test.assertEquals(0, g_b);
+  o3djs.event.removeEventListener(fakePlugin, 'click', incA);
+  fakePlugin.handleEvent('click', g_event);
+  g_test.assertEquals(4, g_a);
+  g_test.assertEquals(0, g_b);
+  o3djs.event.removeEventListener(fakePlugin, 'click',
+      incAAsEventListener);
+  fakePlugin.handleEvent('click', g_event);
+  g_test.assertEquals(4, g_a);
+  g_test.assertEquals(0, g_b);
+}
+
+g_suite.testMultipleDifferentEvents = function() {
+  var fakePlugin = new FakePlugin;
+  g_a = 0;
+  g_b = 0;
+  o3djs.event.addEventListener(fakePlugin, 'click', incA);
+  o3djs.event.addEventListener(fakePlugin, 'mousedown', incB);
+  g_test.assertEquals(0, g_a);
+  g_test.assertEquals(0, g_b);
+  fakePlugin.handleEvent('click', g_event);
+  g_test.assertEquals(1, g_a);
+  g_test.assertEquals(0, g_b);
+  fakePlugin.handleEvent('mousedown', g_event);
+  g_test.assertEquals(1, g_a);
+  g_test.assertEquals(1, g_b);
+  o3djs.event.removeEventListener(fakePlugin, 'mousedown', incA);
+  o3djs.event.removeEventListener(fakePlugin, 'click', incB);
+  fakePlugin.handleEvent('click', g_event);
+  g_test.assertEquals(2, g_a);
+  g_test.assertEquals(1, g_b);
+  fakePlugin.handleEvent('mousedown', g_event);
+  g_test.assertEquals(2, g_a);
+  g_test.assertEquals(2, g_b);
+  o3djs.event.removeEventListener(fakePlugin, 'click', incA);
+  fakePlugin.handleEvent('click', g_event);
+  g_test.assertEquals(2, g_a);
+  g_test.assertEquals(2, g_b);
+  fakePlugin.handleEvent('mousedown', g_event);
+  g_test.assertEquals(2, g_a);
+  g_test.assertEquals(3, g_b);
+  o3djs.event.removeEventListener(fakePlugin, 'mousedown', incB);
+  fakePlugin.handleEvent('click', g_event);
+  g_test.assertEquals(2, g_a);
+  g_test.assertEquals(3, g_b);
+  fakePlugin.handleEvent('mousedown', g_event);
+  g_test.assertEquals(2, g_a);
+  g_test.assertEquals(3, g_b);
+}
+
+window.onload = function() {
+  window.g_test = o3djs.test;
+  window.g_testResult = g_test.runTests(g_suite);
+};
+
+</script>
+</body>
+</html>

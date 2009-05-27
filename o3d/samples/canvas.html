@@ -1,0 +1,341 @@
+<!--
+Copyright 2009, Google Inc.
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are
+met:
+
+    * Redistributions of source code must retain the above copyright
+notice, this list of conditions and the following disclaimer.
+    * Redistributions in binary form must reproduce the above
+copyright notice, this list of conditions and the following disclaimer
+in the documentation and/or other materials provided with the
+distribution.
+    * Neither the name of Google Inc. nor the names of its
+contributors may be used to endorse or promote products derived from
+this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+-->
+
+<!--
+Sample demonstrating the O3D Canvas API.
+-->
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+  "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<title>
+O3D Canvas
+</title>
+<!-- Include sample javascript library functions-->
+<script type="text/javascript" src="o3djs/base.js"></script>
+
+<!-- Our javascript code -->
+<script type="text/javascript">
+o3djs.require('o3djs.util');
+o3djs.require('o3djs.math');
+o3djs.require('o3djs.primitives');
+o3djs.require('o3djs.effect');
+o3djs.require('o3djs.canvas');
+o3djs.require('o3djs.rendergraph');
+
+// Events
+// init() once the page has finished loading.
+// unload() when the page is unloaded.
+window.onload = createClients;
+window.onunload= unload;
+
+// Globals
+var g_o3d;
+var g_math;
+var g_client;
+var g_pack;
+var g_viewInfo;
+var g_paint;
+var g_counterCanvas;
+var g_clock = 0;
+var g_canvasLib;
+var g_timeMult = 1;   // controls how fast the text counter will update
+var g_finished = false;  // for selenium testing
+
+/**
+ * Remove any callbacks so they don't get called after the page has unloaded.
+ */
+function unload() {
+  if (g_client) {
+    g_client.cleanup();
+  }
+}
+
+function createClients() {
+  o3djs.util.makeClients(init);
+}
+
+function init(clientElements) {
+  // Initializes global variables and libraries.
+  var o3dElement = clientElements[0];
+  g_o3d = o3dElement.o3d;
+  g_math = o3djs.math;
+  g_client = o3dElement.client;
+
+  // Creates a pack to manage our resources/assets
+  g_pack = g_client.createPack();
+
+  g_viewInfo = o3djs.rendergraph.createBasicView(
+      g_pack,
+      g_client.root,
+      g_client.renderGraphRoot);
+
+  // Set the background color to purple.
+  g_viewInfo.clearBuffer.clearColor = [0.5, 0.1, 1, 1];
+
+  // Setup an orthographic projection camera.
+  g_viewInfo.drawContext.projection = g_math.matrix4.orthographic(
+      0 + 0.5,
+      g_client.width + 0.5,
+      g_client.height + 0.5,
+      0 + 0.5,
+      0.001,
+      1000);
+
+  g_viewInfo.drawContext.view = g_math.matrix4.lookAt(
+      [0, 0, 1],   // eye
+      [0, 0, 0],   // target
+      [0, 1, 0]); // up
+
+  // Create the global paint object that's used by multiple draw operations.
+  g_paint = g_pack.createObject('CanvasPaint');
+
+  // Creates an instance of the canvas utilities library.
+  g_canvasLib = o3djs.canvas.create(g_pack, g_client.root, g_viewInfo);
+
+  // Create the quads that populate the scene.
+  createSceneContents();
+
+  g_client.setRenderCallback(updateCounter);
+}
+
+/**
+ * Uses a linear gradient that transitions between 5 colors to
+ * draw a rectangle of the specified width and height inside the
+ * given canvasQuad object.
+ */
+function drawStripedRectangle(canvasQuad, width, height) {
+  // Initialize the array of colors and relative positions that will be used
+  // by the gradient.
+  var colors = [[1, 0, 0, 1],
+                [0, 1, 0, 1],
+                [0, 0, 1, 1],
+                [1, 0, 1, 1],
+                [0, 1, 1, 1]];
+  var numSubdivisions = colors.length;
+  var rectWidth = 1 / numSubdivisions;
+  var paint = g_paint;
+  var positions = [];
+  for (var ii = 0; ii < numSubdivisions; ii++)
+    positions[ii] = ii / (numSubdivisions-1);
+
+  // Create a gradient object that will use the entire width of the rectangle.
+  var gradientShader = g_pack.createObject('CanvasLinearGradient');
+  gradientShader.startPoint = [0, 0];
+  gradientShader.endPoint = [width, 0];
+  gradientShader.colors = colors;
+  gradientShader.positions = positions;
+  paint.shader = gradientShader;
+
+  // Draw the rectangle starting from the upper left corner of the canvas quad.
+  canvasQuad.canvas.drawRect(0, 0, width, height, paint);
+
+  // We don't need the shader anymore so we can delete it.
+  g_pack.removeObject(gradientShader);
+
+  canvasQuad.updateTexture();
+}
+
+// Updates the counter canvas with the new counter value.
+function updateCounter() {
+  var counter = Math.floor(g_clock);
+  g_clock += g_timeMult;
+  if (g_clock > 99) {
+    g_clock = 0;
+  }
+
+  // Clear to completely transparent.
+  g_counterCanvas.canvas.clear([0, 0, 0, 0]);
+
+  // Reuse the global paint object
+  var paint = g_paint;
+  paint.color = [1, 1, 1, 1];
+  paint.textSize = 60;
+  paint.textTypeface = 'Comic Sans MS';
+  paint.textAlign = g_o3d.CanvasPaint.RIGHT;
+  paint.shader = null;
+  g_counterCanvas.canvas.drawText(counter.toString(), 100, 70, paint);
+
+  g_counterCanvas.updateTexture();
+}
+/**
+ * Creates the individual quads that demonstrate different features of the
+ * Canvas API.
+ */
+function createSceneContents() {
+  // Creates a Canvas Quad and position it with z = -2 so that it is drawn
+  // behind the rest of the elements.  Draw a rectangle with a linear gradient
+  // going through 5 colors along its width.
+  var stripeQuad = g_canvasLib.createXYQuad(50, 50, -2, 700, 500, false);
+  drawStripedRectangle(stripeQuad, 700, 500);
+
+  // Create a 600 x 400 canvas that can host transparent content.
+  var frontCanvas = g_canvasLib.createXYQuad(100, 100, -1, 600, 400, true);
+
+  // Clear the canvas with semi-transparent yellow.
+  frontCanvas.canvas.clear([1, 1, 0, 0.6]);
+
+  // Create a couple of paint objects that will be reused throughout the
+  // code.  Note that a snapshot of the settings of the paint object is taken
+  // at the time the paint is being used for one of the canvas methods.
+  // Subsequent changes to the paint object don't affect already drawn elements.
+  var paint = g_pack.createObject('CanvasPaint');
+  var backgroundPaint = g_pack.createObject('CanvasPaint');
+
+  // Create a linear gradient shader that goes diagonally from white to red
+  // (and repeats).  Use the shader to fill a rectangle.
+  var gradientShader = g_pack.createObject('CanvasLinearGradient');
+  var colors = [[1, 0, 0, 1], [1, 1, 1, 1]];
+  var positions = [0, 1];
+  gradientShader.startPoint = [0, 0];
+  gradientShader.endPoint = [100, 100];
+  gradientShader.colors = colors;
+  gradientShader.positions = positions;
+  gradientShader.tileMode = g_o3d.CanvasShader.REPEAT;
+  backgroundPaint.shader = gradientShader;
+  frontCanvas.canvas.drawRect(0, 100, 300, 400, backgroundPaint);
+
+  // Modify the previously created gradient shader to go from blue to red
+  // vertically and use the shader to draw another rectangle.
+  var colors = [[0, 0, 1, 1], [1, 0, 0, 1]];
+  var positions = [0, 1];
+  gradientShader.startPoint = [0, 0];
+  gradientShader.endPoint = [0, 401];
+  gradientShader.colors = colors;
+  gradientShader.positions = positions;
+  gradientShader.tileMode = g_o3d.CanvasShader.REPEAT;
+  backgroundPaint.shader = gradientShader;
+  frontCanvas.canvas.drawRect(300, 100, 600, 400, backgroundPaint);
+
+  // Simple centered text writing, with a shadow.
+  paint.color = [1, 1, 1, 1];
+  paint.textAlign = g_o3d.CanvasPaint.CENTER;
+  paint.textSize = 40;
+  paint.setShadow(3, 3, 3, [0, 0, 0, 1]);
+  frontCanvas.canvas.drawText('Hello O3D', 300, 60, paint);
+
+  // Clear the shadow.
+  paint.setShadow(0, 0, 0, [1, 0, 0, 1]);
+
+  // Draw text along a circular path defined as a series of (x, y) points.
+  var numPathPoints = 30;
+  var path = [];
+  var circle = { x: 150, y: 250, r: 70 };
+  for (var ii = 0; ii < numPathPoints; ii++) {
+    var xx = circle.x + circle.r * Math.cos(2.0 * 3.1415 * ii / numPathPoints);
+    var yy = circle.y + circle.r * Math.sin(2.0 * 3.1415 * ii / numPathPoints);
+    path[ii] = [xx, yy];
+  }
+  paint.textSize = 64;
+  paint.textTypeface = 'Comic Sans MS';
+  paint.textAlign = g_o3d.CanvasPaint.LEFT;
+
+  frontCanvas.canvas.drawTextOnPath('Hello O3D',
+                                    path,
+                                    0,
+                                    0,
+                                    paint);
+
+  paint.textTypeface = 'arial';
+  paint.textSize = 18;
+  var metrics = paint.fontMetrics;
+  var ascent = metrics.ascent;
+  var stringDimensions = paint.measureText('Hello O3D');
+  
+  paint.textStyle = g_o3d.CanvasPaint.BOLD;
+  paint.textAlign = g_o3d.CanvasPaint.LEFT;
+
+  // Use the canvas transformation methods to draw text in 4 different
+  // orientations.  Notice how we offset the text vertically by -ascent/2
+  // in order to center it vertically along the drawing line.
+  var textBoxPaint = g_pack.createObject('CanvasPaint');
+  var colors = [[1, 0, 0, 1],    // red
+                [0, 1, 0, 1],    // green
+                [0, 0, 1, 1],    // blue
+                [1, 1, 0, 1]]    // yellow
+
+  for (var ii = 0; ii < 4; ii++) {
+    // Save the existing drawing transform so that we can get it back when we're
+    // done rendering the text line.
+    frontCanvas.canvas.saveMatrix();
+
+    // First rotate by the desired angle and then translate to the desired
+    // center point.  Notice that drawing transforms are pre-multiplied which
+    // means that we first need to apply the translate and then the rotate to
+    // get the rotation to happen before the translation.
+    frontCanvas.canvas.translate(450, 250);
+    frontCanvas.canvas.rotate(ii * 90);
+
+    textBoxPaint.color = colors[ii];
+
+    // Draw a rectangle under the text.
+    frontCanvas.canvas.drawRect(10,
+                                -ascent / 2 + 2,
+                                stringDimensions[2] - stringDimensions[0] + 10,
+                                -ascent / 2 + 12,
+                                textBoxPaint);
+
+    paint.color = colors[ii];
+
+    // Draw the actual text with a vertical offset which will center it
+    // along the text drawing line.
+    frontCanvas.canvas.drawText('Hello O3D', 10, -ascent / 2, paint);
+
+    // Restore the original drawing transform.
+    frontCanvas.canvas.restoreMatrix();
+  }
+
+  // Copy the contents of the canvas to the o3d texture.
+  frontCanvas.updateTexture();
+
+  // Create a canvas that will be used to display the counter.
+  g_counterCanvas = g_canvasLib.createXYQuad(0, 0, 0, 200, 150, true);
+
+  // Display the counter.
+  updateCounter();
+
+  g_finished = true;
+}
+
+</script>
+</head>
+
+<body>
+<h1>O3D Canvas Sample</h1>
+<br/>
+<!-- Start of O3D plugin -->
+<div id="o3d" style="width: 800px; height: 600px;"></div>
+<!-- End of O3D plugin -->
+</body>
+</html>
+

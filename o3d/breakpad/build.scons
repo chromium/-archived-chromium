@@ -1,0 +1,86 @@
+# Copyright 2009, Google Inc.
+# All rights reserved.
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions are
+# met:
+#
+#     * Redistributions of source code must retain the above copyright
+# notice, this list of conditions and the following disclaimer.
+#     * Redistributions in binary form must reproduce the above
+# copyright notice, this list of conditions and the following disclaimer
+# in the documentation and/or other materials provided with the
+# distribution.
+#     * Neither the name of Google Inc. nor the names of its
+# contributors may be used to endorse or promote products derived from
+# this software without specific prior written permission.
+#
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+# "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+# LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+# A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+# OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+# SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+# LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+# DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+# THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+# (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+# OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+
+# Import the build environment that was decided in the project SConstruct.
+# This may be the Debug or Optimized environment
+Import('env')
+
+env.Append(
+    CPPPATH = [
+        '$BREAKPAD_DIR',
+    ],
+)
+# Create a list of the files used to build the target library.
+library_inputs = [
+    'win/exception_handler_win32.cc',
+    'win/breakpad_config.cc',
+    'win/bluescreen_detector.cc',
+]
+
+library_breakpad_inputs = [
+    'client/windows/handler/exception_handler',
+    'client/windows/crash_generation/crash_generation_client',
+    'common/windows/guid_string',
+    'common/windows/http_upload',
+    'common/windows/string_utils',
+]
+library_breakpad_objects = env.MakeObjects(library_breakpad_inputs,
+                                           '$BREAKPAD_DIR',
+                                           'cc')
+
+# Create a target library from the sources called 'o3dBreakpad'
+env.ComponentLibrary('o3dBreakpad', library_inputs + library_breakpad_objects)
+
+# Create a list of the files used to build 'reporter.exe'.
+reporter_inputs = [
+    'win/crash_sender_win32.cc',
+]
+reporter_breakpad_inputs = [
+    'client/windows/sender/crash_report_sender',
+]
+reporter_breakpad_objects = env.MakeObjects(reporter_breakpad_inputs,
+                                            '$BREAKPAD_DIR',
+                                            'cc')
+
+env.Append(
+    LIBS = [
+        'AdvAPI32',
+        'WinInet',
+        'shlwapi',
+        'o3dBreakpad',
+    ],
+)
+
+# Create the breakpad 'reporter.exe' tool for uploading crash reports
+reporter = env.ComponentProgram('reporter',
+                                reporter_inputs + reporter_breakpad_objects)
+
+# Copy the resulting executable to the Artifacts directory.
+env.Replicate('$ARTIFACTS_DIR', reporter)

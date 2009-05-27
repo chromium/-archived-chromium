@@ -1,0 +1,243 @@
+<!--
+Copyright 2009, Google Inc.
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are
+met:
+
+    * Redistributions of source code must retain the above copyright
+notice, this list of conditions and the following disclaimer.
+    * Redistributions in binary form must reproduce the above
+copyright notice, this list of conditions and the following disclaimer
+in the documentation and/or other materials provided with the
+distribution.
+    * Neither the name of Google Inc. nor the names of its
+contributors may be used to endorse or promote products derived from
+this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+-->
+
+<!--
+This sample demonstrates running more than 1 instance of the plugin at
+the same time.
+-->
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+  "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<title>
+Multiple Clients
+</title>
+<!-- Our javascript code -->
+<script type="text/javascript" src="o3djs/base.js"></script>
+<script type="text/javascript">
+o3djs.require('o3djs.util');
+o3djs.require('o3djs.math');
+o3djs.require('o3djs.io');
+o3djs.require('o3djs.rendergraph');
+o3djs.require('o3djs.primitives');
+
+// Events
+// Run the init() function once the page has finished loading.
+//         uninit() when the page is unloaded.
+window.onload = init;
+window.onunload = uninit;
+
+// global variables
+var g_o3d;
+var g_math;
+var g_clients = [];
+var g_packs = [];
+var g_viewInfos = [];
+var g_num_clients;
+var g_setupDone = false;
+
+var g_animate_angle = [];
+var g_eye;
+
+var NUM_ACROSS = 10;
+var NUM_DOWN = 5;
+
+/**
+ * Initializes O3D, loads the effect, and draws the cube.
+ */
+function init() {
+  // Create a bunch of clients.
+  var ii = 0;
+  var tbodyElem = document.getElementById('clients');
+  for (var row = 0; row < NUM_DOWN; row++) {
+    var trElem = document.createElement('tr');
+    for (var column = 0; column < NUM_ACROSS; column++) {
+      var tdElem = document.createElement('td');
+      var objElem = o3djs.util.createClient(tdElem);
+      objElem.style.width = '60px';
+      objElem.style.height = '60px';
+      objElem.id = 'o3d' + ii;
+      objElem.name = 'o3d' + ii;
+      trElem.appendChild(tdElem);
+      ii++;
+    }
+    tbodyElem.appendChild(trElem);
+  }
+  g_num_clients = ii;
+
+  var chromeWorkaround = o3djs.base.IsChrome10();
+  // wait for the browser to settle down.
+  var clearId = window.setInterval(function() {
+    var element = document.o3d0
+    if (!element.o3d) {
+      if (chromeWorkaround) {
+        if (element.style.width != '60px') {
+          element.style.width = '60px';
+        } else {
+          element.style.width = '1px';
+        }
+      }
+      return;
+    }
+    if (chromeWorkaround && element.style.width != '60px') {
+      // The plugin has loaded but it may not be the right size yet.
+      element.style.width = '60px';
+      return;
+    }
+    window.clearInterval(clearId);
+    setup();
+  }, 10);
+}
+
+function setup() {
+  // Lookup all the clients.
+  for (var ii = 0; ii < g_num_clients; ++ii) {
+    g_clients[ii] = document.getElementById('o3d' + ii).client;
+  }
+
+  // Get constants and math functions.
+  g_o3d = document.o3d0.o3d;
+  g_math = o3djs.math;
+
+  // Init our sample helper libraries. We need to call this manually since
+  // we did not use o3djs.base.makeClients.
+  o3djs.base.init(document.o3d0);
+
+  var effectSource =
+      o3djs.io.loadTextFileSynchronous('shaders/vertex-color.shader');
+
+  // For each client make a cube, context, effect,...
+  for (ii = 0; ii < g_num_clients; ii++) {
+    // Create a pack to manage our resources/assets
+    g_packs[ii] = g_clients[ii].createPack();
+
+    // Create the render graph for a view.
+    g_viewInfos[ii] = o3djs.rendergraph.createBasicView(
+        g_packs[ii],
+        g_clients[ii].root,
+        g_clients[ii].renderGraphRoot);
+
+    g_animate_angle[ii] = 0;
+
+    // Create our projection matrix, with a vertical field of view of 45 degrees
+    // a near clipping plane of 0.1 and far clipping plane of 100.
+    g_viewInfos[ii].drawContext.projection = g_math.matrix4.perspective(
+        g_math.degToRad(45),
+        128 / 128,
+        0.1,
+        100);
+
+    // Create and load the effect.
+    var effect = g_packs[ii].createObject('Effect');
+    effect.loadFromFXString(effectSource);
+
+    // Create a material for it.
+    var material = g_packs[ii].createObject('Material');
+
+    // Set the material's drawList
+    material.drawList = g_viewInfos[ii].performanceDrawList;
+
+    // Apply our effect to this material.
+    material.effect = effect;
+    effect.createUniformParameters(material);
+
+    // Create a cube using the effect we have loaded.
+    createCube(g_clients[ii].root, g_packs[ii], material);
+  }
+
+  // Set our render callback for animation.
+  // This sets a function to be executed every time a frame is rendered.
+  g_clients[0].setRenderCallback(onrender);
+  g_setupDone = true;
+}
+
+/**
+ * Creates a cube with the given effect.
+ *
+ * @param {!o3d.Transform} parent Transform to parent shape to.
+ * @param {!o3d.Pack} pack Pack to use.
+ * @param {!o3d.Material} material Material to use.
+ */
+function createCube(parent, pack, material) {
+  // First, create a 'shape' node to store our sphere.
+  var myShape = o3djs.primitives.createRainbowCube(pack, material, 0.5);
+
+  // Attach the cube to the root of the transform graph.
+  parent.addShape(myShape);
+}
+
+// Animates the cubes.
+// This function executes on each frame.
+// It was set using document.o3d.setEventCallback(..) in setup().
+function onrender(render_event) {
+  var elapsedTime = render_event.elapsedTime;
+  for (var ii = 0; ii < g_num_clients; ii++) {
+    // Rotate frame rate independently.
+    g_animate_angle[ii] += (0.1 + 0.1 * ii) * elapsedTime;
+
+    // Eye-position, this is where our camera is at.
+    var eye = [
+        0.0 + Math.sin(g_animate_angle[ii]) * 1.0,
+        1.0,
+        0.0 + Math.cos(g_animate_angle[ii]) * 1.0
+    ];
+
+    // Target, this is where our camera is pointed at.
+    var target = [0, 0, 0];
+
+    // Up-vector, this tells the camera which direction is 'up'.
+    // We define the positive y-direction to be up in this example.
+    var up = [0, 1, 0];
+
+    g_viewInfos[ii].drawContext.view = g_math.matrix4.lookAt(eye, target, up);
+  }
+}
+
+/**
+ * Removes any callbacks so they don't get called after the page has unloaded.
+ */
+function uninit() {
+  if (g_clients[0]) {
+    g_clients[0].cleanup();
+  }
+}
+
+</script>
+</head>
+<body>
+<h1>Multiple Clients</h1>
+<table>
+  <tbody id="clients">
+  </tbody>
+</table>
+</body>
+</html>

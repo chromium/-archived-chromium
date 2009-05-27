@@ -1,0 +1,173 @@
+<!--
+Copyright 2009, Google Inc.
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are
+met:
+
+    * Redistributions of source code must retain the above copyright
+notice, this list of conditions and the following disclaimer.
+    * Redistributions in binary form must reproduce the above
+copyright notice, this list of conditions and the following disclaimer
+in the documentation and/or other materials provided with the
+distribution.
+    * Neither the name of Google Inc. nor the names of its
+contributors may be used to endorse or promote products derived from
+this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+-->
+
+<html>
+  <title>The Journies of Prince IO: An O3D Adventure</title>
+  <link href="ui/io.css" rel="stylesheet" type="text/css"/>
+  <script type="text/javascript" src="../o3djs/base.js"></script>
+  <script type="text/javascript" src="dynamic_lights.js"></script>
+  <script type="text/javascript" src="init.js"></script>
+  <script type="text/javascript" src="autoincludes.js"></script>
+  <script type="text/javascript" src="gamelogic.js"></script>
+  <script type="text/javascript" src="cutscenes.js"></script>
+  <script type="text/javascript" src="sound/soundplayer.js"></script>
+</head>
+
+<body onload="init();" onscroll="cancelScroll()" onunload="uninit();">
+
+<table id="table-main"><tr><td valign=center>
+
+<table id="table-middle" cellspacing="0" cellpadding="0" border="0">
+  <tr>
+    <td id="book-left" width="50%"><div id="innercover-div"><img id="innercover" src="ui/book_innercover.jpg"></div></td>
+    <td id="book-center" width="1000"><div id="cover-div"><img id="cover-shadow" src="ui/covershadow.png"><img onclick="animateCover()" id="cover" src="ui/book_cover.jpg"></div><img src="ui/book_captop.jpg" width="988" height="39"><br><div id="cover-seam"></div><div id="content">
+
+      Choose a level...
+
+    </div><div id="container" name="container" >
+      <div id="o3d" style="width: 1px; height: 1px;"></div>
+    </div><img id="page1" src="ui/book_page1.jpg" onclick="animatePage('page1')"><img id="page2" src="ui/book_page2.jpg" onclick="animatePage('page2')"><img id="page3" src="ui/book_page3.jpg" onclick="animatePage('page3')"><img src="ui/book_pageblank.jpg" width="951" height="549"><img src="ui/book_capright.jpg" width="37" height="549"><br><img src="ui/book_capbottom.jpg" width="988" height="90"></td>
+    <td id="book-right" width="50%">&nbsp;</td>
+  </tr>
+</table>
+
+</td></tr></table>
+
+<form>
+<input id="focusHolder" style="position:absolute;top:-100px;">
+</form>
+
+<div id="footer"><div id="output"></div><div id="fps"></div><img src="ui/logo.gif" alt="Google"></div>
+<div id="fx" style="visibility:hidden">
+<textarea id="global_effect">
+struct a2v {
+  float4 position : POSITION;
+  float3 normal : NORMAL;
+  float2 texCoord : TEXCOORD0;
+};
+
+struct v2f {
+  float4 position : POSITION;
+  float3 worldPosition : TEXCOORD0;
+  float2 texCoord : TEXCOORD1;
+  float3 n : TEXCOORD2;
+  float3 l : TEXCOORD3;
+};
+
+float4x4 worldViewProj : WorldViewProjection;
+float4x4 world : World;
+float4x4 worldIT : WorldInverseTranspose;
+
+uniform float4 ambientLightColor;
+uniform float3 sunlightDirection;
+uniform float4 sunlightColor;
+uniform float3 cameraEye;
+uniform float3 cameraTarget;
+
+uniform float3 light0_location;
+uniform float3 light1_location;
+uniform float3 light2_location;
+uniform float3 light3_location;
+uniform float3 light4_location;
+
+uniform float4 light0_color;
+uniform float4 light1_color;
+uniform float4 light2_color;
+uniform float4 light3_color;
+uniform float4 light4_color;
+uniform float4 fog_color;
+
+// The texture from a sketchup6 file
+// A diffuseTexture and a diffuse color (when there isn't a texture)
+uniform float4 diffuse;  // The color, unless texture
+sampler2D diffuseSampler;
+
+v2f vsMain(a2v IN) {
+  v2f OUT;
+  OUT.position = mul(IN.position, worldViewProj);
+  OUT.worldPosition = mul(IN.position, world).xyz;
+  OUT.texCoord = IN.texCoord;
+
+  OUT.n = mul(float4(IN.normal,0), worldIT).xyz;
+  OUT.l = IN.normal;
+  return OUT;
+}
+
+float4 fsMain(v2f IN): COLOR {
+  float4 textureColor = tex2D(diffuseSampler, IN.texCoord);
+  float3 normalDirection = normalize(IN.n);
+  float3 viewDirection = normalize(cameraEye - IN.worldPosition.xyz);
+  // Only diffuse light until we can get better than face normals.
+  float4 litWorld = lit(dot(normalDirection.xyz, sunlightDirection), 0, 0);
+  float4 total_color = ambientLightColor + litWorld.yyyy * sunlightColor;
+
+  float3 light_direction = light0_location - IN.worldPosition.xyz;
+  float attenuation = light0_color.a / length(light_direction);
+  light_direction = normalize(light_direction);
+  float4 litLight = lit(dot(normalDirection.xyz, light_direction), 0, 0);
+  litLight.y *= clamp(attenuation * attenuation, 0, 1);
+  total_color.rgb += litLight.yyy * light0_color.rgb;
+
+  light_direction = light1_location - IN.worldPosition.xyz;
+  attenuation = light1_color.a / length(light_direction);
+  light_direction = normalize(light_direction);
+  litLight = lit(dot(normalDirection.xyz, light_direction), 0, 0);
+  litLight.y *= clamp(attenuation * attenuation, 0, 1);
+  total_color.rgb += litLight.yyy * light1_color.rgb;
+
+  light_direction = light2_location - IN.worldPosition.xyz;
+  attenuation = light2_color.a / length(light_direction);
+  light_direction = normalize(light_direction);
+  litLight = lit(dot(normalDirection.xyz, light_direction), 0, 0);
+  litLight.y *= clamp(attenuation * attenuation, 0, 1);
+  total_color.rgb += litLight.yyy * light2_color.rgb;
+
+  light_direction = light3_location - IN.worldPosition.xyz;
+  attenuation = light3_color.a / length(light_direction);
+  light_direction = normalize(light_direction);
+  litLight = lit(dot(normalDirection.xyz, light_direction), 0, 0);
+  litLight.y *= clamp(attenuation * attenuation, 0, 1);
+  total_color.rgb += litLight.yyy * light3_color.rgb;
+
+  textureColor.rgb += diffuse.rgb;
+  total_color *= textureColor;
+
+  // Fog
+  float fog = saturate(pow(2.718, -.005 * (length(cameraEye - IN.worldPosition.xyz) - 300)));
+  return lerp(fog_color, total_color, fog);
+}
+
+// #o3d VertexShaderEntryPoint vsMain
+// #o3d PixelShaderEntryPoint fsMain
+// #o3d MatrixLoadOrder RowMajor
+</textarea>
+</div>
+</body>

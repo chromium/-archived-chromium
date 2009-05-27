@@ -1,0 +1,459 @@
+<!--
+Copyright 2009, Google Inc.
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are
+met:
+
+    * Redistributions of source code must retain the above copyright
+notice, this list of conditions and the following disclaimer.
+    * Redistributions in binary form must reproduce the above
+copyright notice, this list of conditions and the following disclaimer
+in the documentation and/or other materials provided with the
+distribution.
+    * Neither the name of Google Inc. nor the names of its
+contributors may be used to endorse or promote products derived from
+this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+-->
+
+<!--
+O3D Culling and ZSorting Test.
+
+Make sure things off screen get culled.
+-->
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+  "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<title>
+Culling and ZSorting Test.
+</title>
+<!-- Include sample javascript library functions-->
+<script type="text/javascript" src="../../../samples/o3djs/base.js"></script>
+
+<!-- Our javascript code -->
+<script type="text/javascript">
+o3djs.require('o3djs.util');
+o3djs.require('o3djs.math');
+o3djs.require('o3djs.rendergraph');
+o3djs.require('o3djs.primitives');
+
+// Events
+// init() once the page has finished loading.
+// unload() when the page is unloaded.
+window.onload = init;
+window.onunload= unload;
+
+// global variables
+var g_timeMult = 1.0;
+var g_framesRendered = 0;
+var g_o3d;
+var g_math;
+var g_client;
+var g_viewInfos = [];
+var g_pack;
+var g_o3d_width;  // width of our client area
+var g_o3d_height;  // height of our client area
+var g_clock = 0;
+var g_totalTransformsElement;
+var g_transformsProcessedElement;
+var g_transformsCulledElement;
+var g_totalDrawElementsElement;
+var g_drawElementsProcessedElement;
+var g_drawElementsCulledElement;
+var g_drawElementsRenderedElement;
+var g_primitivesRenderedElement;
+var GROUPS_ACROSS = 4;
+var UNITS_ACROSS_GROUP = 3;
+var TOTAL_ACROSS = GROUPS_ACROSS * UNITS_ACROSS_GROUP;
+var HALF_WIDTH = TOTAL_ACROSS * 0.5;
+var UNIT_SPACING = 100;
+
+/**
+ * Returns the path of where the file is located
+ * with the trailing slash
+ */
+function getCurrentPath() {
+  var path = window.location.href;
+  var index = path.lastIndexOf('/');
+  return path.substring(0, index + 1);
+}
+
+function createInstances(pack, shape) {
+  // now make a grid of transforms and put a teapot instance on each one
+  for (var g = 0; g < GROUPS_ACROSS; g++) {
+    for (var h = 0; h < GROUPS_ACROSS; h++) {
+      for (var i = 0; i < GROUPS_ACROSS; i++) {
+        var groupTransform = pack.createObject('Transform');
+        groupTransform.parent = g_client.root;
+        groupTransform.cull = true;
+        var boundingBox = g_o3d.BoundingBox([0, 0, 0],
+                                            [0, 0, 0]);
+        groupTransform.localMatrix = g_math.matrix4.translation([
+            (g * UNITS_ACROSS_GROUP - HALF_WIDTH) * UNIT_SPACING,
+            (h * UNITS_ACROSS_GROUP - HALF_WIDTH) * UNIT_SPACING,
+            (i * UNITS_ACROSS_GROUP - HALF_WIDTH) * UNIT_SPACING]);
+        for (var x = 0; x < UNITS_ACROSS_GROUP; x++) {
+          for (var y = 0; y < UNITS_ACROSS_GROUP; y++) {
+            for (var z = 0; z < UNITS_ACROSS_GROUP; z++) {
+              var transform = pack.createObject('Transform');
+              transform.parent = groupTransform;
+              transform.cull = true;
+              transform.addShape(shape);
+              var elements = shape.elements;
+              var box = elements[0].boundingBox;
+              for (var ee = 1; ee < elements.length; ee++) {
+                box = box.add(elements[ee].boundingBox);
+              }
+              transform.boundingBox = box;
+              transform.localMatrix = g_math.matrix4.translation([
+                  (x - UNITS_ACROSS_GROUP * 0.5) * UNIT_SPACING,
+                  (y - UNITS_ACROSS_GROUP * 0.5) * UNIT_SPACING,
+                  (z - UNITS_ACROSS_GROUP * 0.5) * UNIT_SPACING]);
+              transform.createParam('colorMult', 'ParamFloat4').value = [
+                  (g * UNITS_ACROSS_GROUP + x) * (1 / TOTAL_ACROSS),
+                  (h * UNITS_ACROSS_GROUP + y) * (1 / TOTAL_ACROSS),
+                  (i * UNITS_ACROSS_GROUP + z) * (1 / TOTAL_ACROSS),
+                  1];
+              var box = transform.boundingBox.mul(transform.localMatrix);
+              boundingBox = boundingBox.add(box);
+            }
+          }
+        }
+        groupTransform.boundingBox = boundingBox;
+      }
+    }
+  }
+}
+
+/**
+ * Creates the client area.
+ */
+function init() {
+  o3djs.util.makeClients(initStep2);
+}
+
+/**
+ * Initializes O3D and creates one shape.
+ * @param {Array} clientElements Array of o3d object elements.
+ */
+function initStep2(clientElements) {
+  // Initializes global variables and libraries.
+  var o3d = clientElements[0];
+  g_o3d = o3d.o3d;
+  g_math = o3djs.math;
+  g_client = o3d.client;
+
+  g_totalTransformsElement =
+      document.getElementById('totalTransforms');
+  g_transformsProcessedElement =
+      document.getElementById('transformsProcessed');
+  g_transformsCulledElement =
+      document.getElementById('transformsCulled');
+  g_totalDrawElementsElement =
+      document.getElementById('totalDrawElements');
+  g_drawElementsProcessedElement =
+      document.getElementById('drawElementsProcessed');
+  g_drawElementsCulledElement =
+      document.getElementById('drawElementsCulled');
+  g_drawElementsRenderedElement =
+      document.getElementById('drawElementsRendered');
+  g_primitivesRenderedElement =
+      document.getElementById('primitivesRendered');
+
+  // Get the width and height of our client area. We will need this to create
+  // a projection matrix.
+  g_o3d_width  = o3d.clientWidth;
+  g_o3d_height = o3d.clientHeight;
+
+  // Creates a pack to manage our resources/assets
+  g_pack = g_client.createPack();
+
+  // Create the render graph for a view.
+  for (var yy = 0; yy < 2; yy++) {
+    for (var xx = 0; xx < 2; xx++) {
+      var viewInfo;
+      var ii = yy * 2 + xx;
+      if (xx == 0 && yy == 0) {
+        viewInfo = o3djs.rendergraph.createBasicView(
+            g_pack,
+            g_client.root,
+            g_client.renderGraphRoot,
+            [0.5, 0.5, 0.5, 1],
+            0,
+            [0, 0, 0.5, 0.5]);
+
+      } else {
+        viewInfo = o3djs.rendergraph.createExtraView(
+              g_viewInfos[0],
+              [xx * 0.5, yy * 0.5, 0.5, 0.5],  // top-right
+              [0.5, 0.2 + xx * 0.5, 0.7 - yy * 0.5, 1.0]);
+      }
+      g_viewInfos[ii] = viewInfo;
+
+      // Create our projection matrix, with a vertical field of view of 45
+      // degrees a near clipping plane of 0.1 and far clipping plane of 100.
+      viewInfo.drawContext.projection = g_math.matrix4.perspective(
+          45 * 3.14159 / 180,
+          g_o3d_width / g_o3d_height,
+          0.1,
+          10000);
+    }
+  }
+
+  /* Load the effect for our sphere from our file.
+     Effects, stored in a hidden textarea for simplicity, contain the
+     functions that define the vertex and pixel shaders used by our shape.
+
+     Here, we calculate phong illumination in our vertex shader and pass the
+     resultant color to our pixel shader, which does nothing except output its
+     given (input) color.
+  */
+  var defaultEffect = g_pack.createObject('Effect');
+  defaultEffect.loadFromFXString(document.getElementById('shader').value);
+
+  // Create a Material for the effect.
+  var material = g_pack.createObject('Material');
+
+  // Apply our effect to this material.
+  material.effect = defaultEffect;
+
+  // Set the material's drawList
+  material.drawList = g_viewInfos[0].zOrderedDrawList;
+
+  // create params the effect needs on the material.
+  defaultEffect.createUniformParameters(material);
+
+  // Light position
+  var light_pos_param = material.getParam('light_pos');
+  light_pos_param.value = [1000, 1000, 0];
+
+  // Phong components of the light source
+  var light_ambient_param = material.getParam('light_ambient');
+  var light_diffuse_param = material.getParam('light_diffuse');
+  var light_specular_param = material.getParam('light_specular');
+
+  // White ambient light
+  light_ambient_param.value = [0.1, 0.1, 0.1, 1];
+  // Reddish diffuse light
+  light_diffuse_param.value = [1, 1, 1, 1];
+  // White specular light
+  light_specular_param.value = [0.5, 0.5, 0.5, 1];
+
+  // Shininess of the material (for specular lighting)
+  var shininess_param = material.getParam('shininess');
+  shininess_param.value = 5.0;
+
+  // Position of the camera.
+  // (should be the same as the 'eye' position given below)
+  var camera_pos_param = material.getParam('camera_pos');
+  // Camera is at (0, 0, 3).
+  camera_pos_param.value = [0, 0, 3];
+
+  // Create 2 spheres.
+  var shape1 = o3djs.primitives.createSphere(
+      g_pack,
+      material,
+      20,
+      10,
+      12,
+      g_math.matrix4.translation([-25, 0, 0]));
+
+  var shape2 = o3djs.primitives.createSphere(
+      g_pack,
+      material,
+      20,
+      10,
+      12,
+      g_math.matrix4.translation([25, 0, 0]));
+
+  // Create a shape and move the 2 sphere primitives to the same shape.
+  var shape = g_pack.createObject('Shape');
+  shape1.elements[0].owner = shape;
+  shape2.elements[0].owner = shape;
+  g_pack.removeObject(shape1);
+  g_pack.removeObject(shape2);
+  var elements = shape.elements;
+  elements[0].cull = true;
+  elements[1].cull = true;
+
+  createInstances(g_pack, shape);
+
+  g_totalDrawElementsElement.innerHTML = g_client.getObjectsByClassName(
+      'o3d.DrawElement').length;
+  g_totalTransformsElement.innerHTML = g_client.getObjectsByClassName(
+      'o3d.Transform').length;
+
+  // Setup an onrender callback for animation.
+  g_client.setRenderCallback(onrender);
+}
+
+// spin the camera.
+function onrender(renderEvent) {
+  g_framesRendered++;
+  // Get the number of seconds since the last render.
+  var elapsedTime = renderEvent.elapsedTime;
+  g_clock += elapsedTime * g_timeMult;
+
+  for (var vv = 0; vv < 4; vv++) {
+    var clock = g_clock * (vv * 0.1 + 1);
+    var x = Math.sin(clock * 0.1) * 400;
+    var z = Math.cos(clock * 0.1) * 400;
+    var y = Math.sin(clock * 0.2) * 400;
+
+    g_viewInfos[vv].drawContext.view = g_math.matrix4.lookAt(
+        [x, y, z],
+        [0, 0, 0],
+        [0, 1, 0]);
+  }
+
+  g_transformsProcessedElement.innerHTML = renderEvent.transformsProcessed;
+  g_transformsCulledElement.innerHTML = renderEvent.transformsCulled;
+  g_drawElementsProcessedElement.innerHTML = renderEvent.drawElementsProcessed;
+  g_drawElementsCulledElement.innerHTML = renderEvent.drawElementsCulled;
+  g_drawElementsRenderedElement.innerHTML = renderEvent.drawElementsRendered;
+  g_primitivesRenderedElement.innerHTML = renderEvent.primitivesRendered;
+}
+
+/**
+ * Remove any callbacks so they don't get called after the page has unloaded.
+ */
+function unload() {
+  if (g_client) {
+    g_client.cleanup();
+  }
+}
+</script>
+</head>
+<body>
+<h1>Culling and ZSort Test</h1>
+Objects off screen should get culled and nothing in the front should zbuffer out
+stuff in the back.
+<br/>
+<!-- Start of O3D plugin -->
+<div id="o3d" style="width: 800px; height: 600px;"></div>
+<!-- End of O3D plugin -->
+<table>
+<tr><td>Total Transforms:</td><td><span id="totalTransforms">-</span></td></tr>
+<tr><td>Transforms Processed:</td><td><span id="transformsProcessed">-</span></td></tr>
+<tr><td>Transforms Culled:</td><td><span id="transformsCulled">-</span></td></tr>
+<tr><td>Total DrawElements:</td><td><span id="totalDrawElements">-</span></td></tr>
+<tr><td>DrawElements Processed:</td><td><span id="drawElementsProcessed">-</span></td></tr>
+<tr><td>DrawElements Culled:</td><td><span id="drawElementsCulled">-</span></td></tr>
+<tr><td>DrawElements Rendered:</td><td><span id="drawElementsRendered">-</span></td></tr>
+<tr><td>Primitives Rendered:</td><td><span id="primitivesRendered">-</span></td></tr>
+</table>
+<!-- Don't render the textarea -->
+<div style="display:none">
+<textarea id="shader" name="fx" cols="80" rows="20">
+// The 4x4 world view projection matrix.
+float4x4 worldViewProjection : WorldViewProjection;
+float4x4 worldInverseTranspose : WorldInverseTranspose;
+float4x4 world : World;
+
+// positions of the light and camera
+float3 light_pos;
+float3 camera_pos;
+
+// lighting components of the light source
+float4 light_ambient;
+float4 light_diffuse;
+float4 light_specular;
+
+//  shininess of the material. (for specular lighting)
+float shininess;
+
+float4 colorMult;
+
+// input parameters for our vertex shader
+struct a2v {
+  float4 pos : POSITION;
+  float3 normal : NORMAL;
+  float4 col : COLOR;
+};
+
+// input parameters for our pixel shader
+// also the output parameters for our vertex shader
+struct v2f {
+  float4 pos : POSITION;
+  float4 pos2 : TEXCOORD0;
+  float3 norm : TEXCOORD1;
+  float3 light : TEXCOORD2;
+  float4 col : COLOR;
+};
+
+/**
+ * vsMain - our vertex shader
+ *
+ * @param IN.pos Position vector of vertex
+ * @param IN.normal Normal of vertex
+ * @param IN.col Color of vertex
+ */
+v2f vsMain(a2v IN) {
+  /**
+   * We use the standard phong illumination equation here.
+   * We restrict (clamp) the dot products so that we
+   * don't get any negative values.
+   * All vectors are normalized for proper calculations.
+   *
+   * The output color is the summation of the
+   * ambient, diffuse, and specular contributions.
+   *
+   * Note that we have to transform each vertex and normal
+   * by the view projection matrix first.
+   */
+  v2f OUT;
+
+  OUT.pos = mul(IN.pos, worldViewProjection);
+  OUT.pos2 = OUT.pos;
+  OUT.norm = mul(float4(IN.normal, 0), worldInverseTranspose).xyz;
+  OUT.light = light_pos - mul(IN.pos, world).xyz;
+  OUT.col = IN.col;
+  return OUT;
+}
+/**
+ * psMain - pixel shader
+ *
+ * @param IN.pos Position vector of vertex
+ * @param IN.col Color of vertex
+ */
+float4 psMain(v2f IN): COLOR {
+  float3 light = normalize(IN.light);
+  float3 normal = normalize(IN.norm);
+  float3 litR = normalize(2 * dot(light, normal) * normal - light);
+  float3 v = normalize(mul(float4(camera_pos, 1),
+                           worldViewProjection).xyz - IN.pos2.xyz);
+
+  // use lit function to calculate phong shading
+  float4 phong_coeff = lit(dot(normal, light), dot(litR, v), shininess);
+  float4 ambient = light_ambient * phong_coeff.x * IN.col;
+  float4 diffuse = light_diffuse * phong_coeff.y * IN.col;
+  float4 specular = light_specular * phong_coeff.z * IN.col;
+
+  return float4(((ambient + diffuse) * colorMult + specular).xyz, 0.5);
+}
+
+// Here we tell our effect file *which* functions are
+// our vertex and pixel shaders.
+
+// #o3d VertexShaderEntryPoint vsMain
+// #o3d PixelShaderEntryPoint psMain
+// #o3d MatrixLoadOrder RowMajor
+</textarea>
+</div>
+</body>
+</html>

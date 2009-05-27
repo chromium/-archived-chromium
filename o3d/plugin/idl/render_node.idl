@@ -1,0 +1,135 @@
+/*
+ * Copyright 2009, Google Inc.
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are
+ * met:
+ *
+ *     * Redistributions of source code must retain the above copyright
+ * notice, this list of conditions and the following disclaimer.
+ *     * Redistributions in binary form must reproduce the above
+ * copyright notice, this list of conditions and the following disclaimer
+ * in the documentation and/or other materials provided with the
+ * distribution.
+ *     * Neither the name of Google Inc. nor the names of its
+ * contributors may be used to endorse or promote products derived from
+ * this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+ * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+ * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+ * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+ * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
+
+namespace o3d {
+
+%[
+  RenderNode is the base of all RenderNodes in the render graph. All
+  RenderNodes have o3d.priority, o3d.active parameters.
+  RenderNodes are rendered in order of priority.
+%]
+[nocpp, include="core/cross/render_node.h"]
+  class RenderNode : ParamObject {
+
+  %[
+    Sets the priority of this render node. lower priorities are rendered first.
+  %]
+  [getter, setter] float priority_;
+
+  %[
+    Setting false skips this render node. Setting true processes this render
+    node. (ie, renders
+    whatever it's supposed to render)
+  %]
+  [getter, setter] bool active_;
+
+  %[
+    Sets the parent of the node by re-parenting the node under parent_node.
+    Setting parent_node to null removes the node and the entire subtree below
+    it from the render graph.
+  %]
+  [setter, userglue_setter] RenderNode? parent_;
+
+  %[
+    The immediate children of this RenderNode.
+
+    Each access to this field gets the entire list so it is best to get it
+    just once. For example:
+    \code
+    var children = renderNode.children;
+    for (var i = 0; i < children.length; i++) {
+      var child = children[i];
+    }
+    \endcode
+
+    Note that modifications to this array [e.g. push()] will not affect
+    the underlying RenderNode, while modifications to the array's members
+    <strong>will</strong> affect them.
+  %]
+  [userglue_getter, getter] RenderNodeArray children_;
+
+  %[
+    Returns this render node and all its descendants. Note that this render node
+    might not be in the render graph.
+
+    Note that modifications to this array [e.g. push()] will not affect
+    the underlying RenderNode, while modifications to the array's members
+    <strong>will</strong> affect them.
+
+    \return An array containing all render nodes of the subtree.
+  %]
+  [nocpp] RenderNodeArray GetRenderNodesInTree();
+
+  %[
+    Searches for render nodes that match the given name in the hierarchy under
+    and including this render node. Since there can be several render nodes with
+    a given name the results are returned in an array.
+
+    Note that modifications to this array [e.g. push()] will not affect
+    the underlying RenderNode, while modifications to the array's members
+    <strong>will</strong> affect them.
+
+    \param name Rendernode name to look for.
+    \return An array containing all nodes among this node and its decendants
+        that have the given name.
+  %]
+  [nocpp] RenderNodeArray GetRenderNodesByNameInTree(String name);
+
+  %[
+    Searches for render nodes that match the given class name in the hierarchy
+    under and including this render node.
+
+    Note that modifications to this array [e.g. push()] will not affect
+    the underlying RenderNode, while modifications to the array's members
+    <strong>will</strong> affect them.
+
+    \param class_name class name to look for.
+    \return An array containing all nodes among this node and its decendants
+        whose type is class_name.
+  %]
+  RenderNodeArray GetRenderNodesByClassNameInTree(String class_name);
+
+  [verbatim=cpp_glue] %{
+    void userglue_setter_parent_(
+        o3d::RenderNode* _this,
+        o3d::RenderNode* parent) {
+      _this->SetParent(parent);
+    }
+    o3d::RenderNodeArray userglue_getter_children_(
+      o3d::RenderNode *self) {
+      return self->GetChildren();
+    }
+  %}
+};  // RenderNode
+
+typedef RenderNode[] RenderNodeArray;
+
+}  // namespace o3d

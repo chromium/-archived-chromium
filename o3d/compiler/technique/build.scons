@@ -1,0 +1,94 @@
+# Copyright 2009, Google Inc.
+# All rights reserved.
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions are
+# met:
+#
+#     * Redistributions of source code must retain the above copyright
+# notice, this list of conditions and the following disclaimer.
+#     * Redistributions in binary form must reproduce the above
+# copyright notice, this list of conditions and the following disclaimer
+# in the documentation and/or other materials provided with the
+# distribution.
+#     * Neither the name of Google Inc. nor the names of its
+# contributors may be used to endorse or promote products derived from
+# this software without specific prior written permission.
+#
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+# "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+# LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+# A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+# OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+# SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+# LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+# DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+# THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+# (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+# OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+
+import os.path
+
+Import('env')
+
+env.Append(
+    CPPPATH = [
+      # Include path for generated headers.
+      env.Dir('$OBJ_ROOT/compiler/technique'),
+      # Include path for Antlr C runtime headers.
+      env.Dir('$ANTLRLIBC_DIR/include'),
+    ],
+    LIBPATH = [
+        env.Dir('$ANTLRLIBC_DIR/lib'),
+    ],
+    LIBS = [
+        'antlr3c',
+    ],
+)
+
+# Define a builder for Antlr grammars.
+def TechniqueEmitter(target, source, env):
+  # TODO this path operation is horrible, please make '.base' work
+  base_name = os.path.splitext(source[0].abspath)[0]
+  generated_targets = [env.File(base_name + 'Lexer.c'),
+                       env.File(base_name + 'Lexer.h'),
+                       env.File(base_name + 'Parser.c'),
+                       env.File(base_name + 'Parser.h'), ]
+  return generated_targets, source
+
+if env.Bit('windows'):
+  env.Append(
+    CCFLAGS=['/Wp64', '/TP'],
+  )
+else:
+  env.Append(
+    CCFLAGS = ['-x', 'c++'],
+  )
+
+# To enable ANTLRworks debugging, replace
+#   org.antlr.Tool $SOURCE
+# below, with
+#   org.antlr.Tool -debug $SOURCE
+
+env['BUILDERS']['Antlr'] = Builder(
+    action = ' '.join([
+      '$JAVA_EXE',
+      '-cp $ANTLR_DIR/antlr-3.1.1.jar',
+      'org.antlr.Tool $SOURCE',
+      '-fo $TARGET.dir']),
+    emitter = TechniqueEmitter)
+
+# Generate the parser and lexer files
+antlr_output_files = env.Antlr( env.File('Technique.g3pl') )
+# filter out only the C files from the generated files.
+antlr_c_files = [f for f in antlr_output_files if f.suffix == '.c']
+
+# Compile the resulting C and C++ files as C++ to build a library
+inputs = [
+    antlr_c_files,
+    'technique_error.cc',
+    'technique_parser.cc',
+    'technique_structures.cc',
+]
+env.ComponentLibrary('technique', inputs)

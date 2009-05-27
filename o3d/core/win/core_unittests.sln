@@ -1,0 +1,39 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 9.00
+# Visual Studio 2005
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "core_unittests", "core_unittests.vcproj", "{A330B4F2-1340-41F9-AE61-BF5471772624}"
+	ProjectSection(ProjectDependencies) = postProject
+		{B57C4010-AE66-47A2-8B1F-F839B6E6A67B} = {B57C4010-AE66-47A2-8B1F-F839B6E6A67B}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "o3dCore", "core_win.vcproj", "{B57C4010-AE66-47A2-8B1F-F839B6E6A67B}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		DebugD3D9|Win32 = DebugD3D9|Win32
+		DebugGL|Win32 = DebugGL|Win32
+		ReleaseD3D9|Win32 = ReleaseD3D9|Win32
+		ReleaseGL|Win32 = ReleaseGL|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{A330B4F2-1340-41F9-AE61-BF5471772624}.DebugD3D9|Win32.ActiveCfg = DebugD3D9|Win32
+		{A330B4F2-1340-41F9-AE61-BF5471772624}.DebugD3D9|Win32.Build.0 = DebugD3D9|Win32
+		{A330B4F2-1340-41F9-AE61-BF5471772624}.DebugGL|Win32.ActiveCfg = DebugGL|Win32
+		{A330B4F2-1340-41F9-AE61-BF5471772624}.DebugGL|Win32.Build.0 = DebugGL|Win32
+		{A330B4F2-1340-41F9-AE61-BF5471772624}.ReleaseD3D9|Win32.ActiveCfg = ReleaseD3D9|Win32
+		{A330B4F2-1340-41F9-AE61-BF5471772624}.ReleaseD3D9|Win32.Build.0 = ReleaseD3D9|Win32
+		{A330B4F2-1340-41F9-AE61-BF5471772624}.ReleaseGL|Win32.ActiveCfg = ReleaseGL|Win32
+		{A330B4F2-1340-41F9-AE61-BF5471772624}.ReleaseGL|Win32.Build.0 = ReleaseGL|Win32
+		{B57C4010-AE66-47A2-8B1F-F839B6E6A67B}.DebugD3D9|Win32.ActiveCfg = DebugD3D9|Win32
+		{B57C4010-AE66-47A2-8B1F-F839B6E6A67B}.DebugD3D9|Win32.Build.0 = DebugD3D9|Win32
+		{B57C4010-AE66-47A2-8B1F-F839B6E6A67B}.DebugGL|Win32.ActiveCfg = DebugGL|Win32
+		{B57C4010-AE66-47A2-8B1F-F839B6E6A67B}.DebugGL|Win32.Build.0 = DebugGL|Win32
+		{B57C4010-AE66-47A2-8B1F-F839B6E6A67B}.ReleaseD3D9|Win32.ActiveCfg = ReleaseD3D9|Win32
+		{B57C4010-AE66-47A2-8B1F-F839B6E6A67B}.ReleaseD3D9|Win32.Build.0 = ReleaseD3D9|Win32
+		{B57C4010-AE66-47A2-8B1F-F839B6E6A67B}.ReleaseGL|Win32.ActiveCfg = ReleaseGL|Win32
+		{B57C4010-AE66-47A2-8B1F-F839B6E6A67B}.ReleaseGL|Win32.Build.0 = ReleaseGL|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

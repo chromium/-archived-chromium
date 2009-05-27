@@ -1,0 +1,340 @@
+<!--
+Copyright 2009, Google Inc.
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are
+met:
+
+    * Redistributions of source code must retain the above copyright
+notice, this list of conditions and the following disclaimer.
+    * Redistributions in binary form must reproduce the above
+copyright notice, this list of conditions and the following disclaimer
+in the documentation and/or other materials provided with the
+distribution.
+    * Neither the name of Google Inc. nor the names of its
+contributors may be used to endorse or promote products derived from
+this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+-->
+
+<!--
+This sample shows how to setup a basic render graph making use of RenderSurface
+nodes to implement render-target functionality.
+-->
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+  "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<title>
+O3D:  Render-Target Sample
+</title>
+<!-- Include sample javascript library functions-->
+<script type="text/javascript" src="o3djs/base.js"></script>
+<script type="text/javascript">
+o3djs.require('o3djs.util');
+o3djs.require('o3djs.math');
+o3djs.require('o3djs.rendergraph');
+o3djs.require('o3djs.pack');
+o3djs.require('o3djs.camera');
+o3djs.require('o3djs.primitives');
+o3djs.require('o3djs.scene');
+
+// constants.
+var RENDER_TARGET_WIDTH = 512;
+var RENDER_TARGET_HEIGHT = 512;
+
+// global variables
+var g_o3d;
+var g_math;
+var g_client;
+var g_viewInfo;
+var g_pack;
+var g_teapotPack;
+var g_teapotRoot;
+var g_cubeRoot;
+
+/**
+ * Loads a scene into the transform graph.
+ * @param {!o3d.Pack} pack Pack to load scene into.
+ * @param {string} fileName filename of the scene.
+ * @param {!o3d.Transform} parent parent node in the transform graph to
+ *     which to load the scene into.
+ * @param {!o3djs.rendergraph.ViewInfo} viewInfo who's view and projection will
+ *     be set from the scene after it's loaded.
+ */
+function loadScene(pack, fileName, parent, viewInfo) {
+  // Get our full path to the scene
+  var scenePath = o3djs.util.getCurrentURI() + fileName;
+
+  // Load the file given the full path, and call the callback function
+  // when its done loading.
+  o3djs.scene.loadScene(g_client, pack, parent, scenePath, callback);
+
+  /**
+   * Our callback is called once the scene has been loaded into memory
+   * from the web or locally.
+   * @param {!o3d.Pack} pack The pack that was passed in above.
+   * @param {!o3d.Transform} parent The parent that was passed in above.
+   * @param {*} exception null if loading succeeded.
+   */
+  function callback(pack, parent, exception) {
+    if (exception) {
+      alert('Could not load: ' + fileName + '\n' + exception);
+      return;
+    }
+    // Get a CameraInfo (an object with a view and projection matrix)
+    // using our javascript library function
+    var cameraInfo = o3djs.camera.getViewAndProjectionFromCameras(
+        parent,
+        RENDER_TARGET_WIDTH,
+        RENDER_TARGET_HEIGHT);
+
+    // Copy the view and projection to the passed in viewInfo structure..
+    viewInfo.drawContext.view = cameraInfo.view;
+    viewInfo.drawContext.projection = cameraInfo.projection;
+
+    // Generate draw elements and setup material draw lists.
+    o3djs.pack.preparePack(pack, viewInfo);
+
+    window.g_finished = true;  // for selenium testing.
+  }
+}
+
+/**
+ * Creates the client area.
+ */
+function init() {
+  // These are here so that they are visible to both the browser (so
+  // selenium sees them) and the embedded V8 engine.
+  window.g_clock = 0;
+  window.g_timeMult = 1;
+  window.g_finished = false;  // for selenium testing.
+
+  // Comment out the line below to run the sample in the browser
+  // JavaScript engine.  This may be helpful for debugging.
+  o3djs.util.setMainEngine(o3djs.util.Engine.V8);
+
+  o3djs.util.makeClients(initStep2);
+}
+
+/**
+ * Initializes O3D and loads the scene into the transform graph.
+ * @param {Array} clientElements Array of o3d object elements.
+ */
+function initStep2(clientElements) {
+  // Initializes global variables and libraries.
+  var o3d = clientElements[0];
+  g_o3d = o3d.o3d;
+  g_math = o3djs.math;
+
+  // Set window.g_client as well.  Otherwise when the sample runs in
+  // V8, selenium won't be able to find this variable (it can only see
+  // the browser environment).
+  window.g_client = g_client = o3d.client;
+
+  // Creates a pack to manage our resources/assets
+  g_pack = g_client.createPack();
+
+  // Create a sub-pack to manage the resources required for the teapot.
+  g_teapotPack = g_client.createPack();
+
+  // Create the texture required for the color render-target.
+  var texture2d = g_pack.createTexture2D(RENDER_TARGET_WIDTH,
+                                         RENDER_TARGET_HEIGHT,
+                                         g_o3d.Texture.XRGB8, 1, true);
+  var renderSurface = texture2d.getRenderSurface(0, g_pack);
+
+  // Create the depth-stencil buffer required when rendering the teapot.
+  var depthSurface = g_pack.createDepthStencilSurface(RENDER_TARGET_WIDTH,
+                                                      RENDER_TARGET_HEIGHT);
+
+  g_cubeRoot = g_pack.createObject('Transform');
+  g_teapotRoot = g_pack.createObject('Transform');
+  g_cubeRoot.parent = g_client.root;
+  g_teapotRoot.parent = g_client.root;
+
+  var teapotRenderRoot = g_pack.createObject('RenderNode');
+  teapotRenderRoot.priority = 0;
+  var cubeRenderRoot = g_pack.createObject('RenderNode');
+  cubeRenderRoot.priority = 1;
+
+  teapotRenderRoot.parent = g_client.renderGraphRoot;
+  cubeRenderRoot.parent = g_client.renderGraphRoot;
+
+  var renderSurfaceSet = g_pack.createObject('RenderSurfaceSet');
+  renderSurfaceSet.renderSurface = renderSurface;
+  renderSurfaceSet.renderDepthStencilSurface = depthSurface;
+  renderSurfaceSet.parent = teapotRenderRoot;
+
+  // Create the render graph for a view.
+  var teapotViewInfo = o3djs.rendergraph.createBasicView(
+      g_teapotPack,
+      g_teapotRoot,
+      renderSurfaceSet);
+
+  var cubeViewInfo = o3djs.rendergraph.createBasicView(
+      g_pack,
+      g_cubeRoot,
+      cubeRenderRoot);
+
+  var myMaterial = g_pack.createObject('Material');
+  myMaterial.drawList = cubeViewInfo.performanceDrawList;
+
+  var effect = g_pack.createObject('Effect');
+  var fxString = o3djs.util.getElementContentById('fx');
+  effect.loadFromFXString(fxString);
+
+  // Apply our effect to this material.
+  myMaterial.effect = effect;
+  effect.createUniformParameters(myMaterial);
+
+  var samplerParam = myMaterial.getParam('texSampler0');
+  var sampler = g_pack.createObject('Sampler');
+  sampler.texture = texture2d;
+  samplerParam.value = sampler;
+
+  // Create a transform to put our data on.
+  var myDataRoot = g_pack.createObject('Transform');
+
+  // Connect our root to the client.
+  myDataRoot.parent = g_teapotRoot;
+  var vec3 = [0.5, 0.5, 0.5];
+
+  var cubeShape = o3djs.primitives.createCube(g_pack,
+                                              myMaterial,
+                                              300.0);
+
+  // Attach the cube to the root of the transform graph.
+  g_cubeRoot.addShape(cubeShape);
+
+  o3djs.pack.preparePack(g_pack, cubeViewInfo);
+
+  // Points at the origin.
+  var target = [0, 0, 0];
+  // Puts the camera outside the origin.
+  var eye = [500, 500, 500];
+  // Defines UP as Y up.
+  var up = [0, 1, 0];
+  cubeViewInfo.drawContext.view =  g_math.matrix4.lookAt(eye,
+                                                 target,
+                                                 up);
+
+  cubeViewInfo.drawContext.projection = g_math.matrix4.perspective(
+    g_math.degToRad(30),
+    g_client.width / g_client.height, 1, 5000);
+
+  // Load the scene into the transform graph as a child myDataRoot
+  loadScene(g_teapotPack, 'assets/teapot.o3dtgz', myDataRoot, teapotViewInfo);
+
+  // Set a render callback.
+  g_client.setRenderCallback(onRender);
+}
+
+/**
+ * Called every frame.
+ * @param {!o3d.RenderEvent} renderEvent Rendering Information.
+ */
+function onRender(renderEvent) {
+  var elapsedTime = renderEvent.elapsedTime;
+  // Update g_clock in the browser and cache a V8 copy that can be
+  // accessed efficiently. g_clock must be in the browser for selenium.
+  var clock = window.g_clock + elapsedTime * window.g_timeMult;
+  window.g_clock = clock;
+
+  g_teapotRoot.identity();
+  g_teapotRoot.rotateX(clock);
+  g_teapotRoot.rotateY(clock * 1.3);
+
+  g_cubeRoot.identity();
+  g_cubeRoot.rotateX(clock * 0.4);
+  g_cubeRoot.rotateY(clock * 0.1);
+}
+
+/**
+ * Cleanup before exiting.
+ */
+function unload() {
+  if (g_client) {
+    g_client.cleanup();
+  }
+}
+</script>
+</head>
+<body onload="init()" onunload="unload()">
+<h1>Basic Render-Target Example</h1>
+<br/>
+<!-- Start of O3D plugin -->
+<div id="o3d" style="width: 600px; height: 600px;"></div>
+<!-- End of O3D plugin -->
+<!--
+ We embed the code for our effect inside this hidden textarea.
+ Effects contain the functions that define
+ the vertex and pixel shaders used by our shape.
+-->
+<!-- Don't render the textarea -->
+<div style="display:none">
+<textarea id="fx" name="fx" cols="80" rows="20">
+  // The 4x4 world view projection matrix.
+  float4x4 viewProjection : WorldViewProjection;
+
+  sampler texSampler0;
+
+  // input parameters for our vertex shader
+  struct VertexShaderInput {
+    float4 position : POSITION;
+    float2 texcoord : TEXCOORD0;
+  };
+
+  // input parameters for our pixel shader
+  // also the output parameters for our vertex shader
+  struct PixelShaderInput {
+    float4 position : POSITION;
+    float2 texcoord : TEXCOORD0;
+  };
+
+  /**
+   * Vertex Shader performing basic viewing transformation.
+   */
+  PixelShaderInput vertexShaderFunction(VertexShaderInput input) {
+    /**
+     * We transform each vertex by the view projection matrix to bring
+     * it from world space to projection space.
+     *
+     * We return its color unchanged.
+     */
+    PixelShaderInput output;
+
+    output.position = mul(input.position, viewProjection);
+    output.texcoord = input.texcoord;
+    return output;
+  }
+  /**
+   * Pixel Shader
+   */
+  float4 pixelShaderFunction(PixelShaderInput input): COLOR {
+    return tex2D(texSampler0, input.texcoord * 5) + float4(0.2, 0.2, 0.0, 1.0);
+  }
+
+  // Here we tell our effect file the functions which specify our vertex
+  // and pixel shaders.
+  // #o3d VertexShaderEntryPoint vertexShaderFunction
+  // #o3d PixelShaderEntryPoint pixelShaderFunction
+  // #o3d MatrixLoadOrder RowMajor
+</textarea>
+</div>
+</body>
+
+</html>

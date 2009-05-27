@@ -1,0 +1,895 @@
+<!--
+Copyright 2009, Google Inc.
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are
+met:
+
+    * Redistributions of source code must retain the above copyright
+notice, this list of conditions and the following disclaimer.
+    * Redistributions in binary form must reproduce the above
+copyright notice, this list of conditions and the following disclaimer
+in the documentation and/or other materials provided with the
+distribution.
+    * Neither the name of Google Inc. nor the names of its
+contributors may be used to endorse or promote products derived from
+this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+-->
+
+<!--
+Checker Game Example
+
+This sample demonstates usage of primitive functions and simple 3d animation techniques.
+-->
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+  "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<title>
+3D Checkers Game
+</title>
+<script type="text/javascript" src="o3djs/base.js"></script>
+
+<!-- Our javascript code -->
+<script type="text/javascript" id="o3d">
+o3djs.require('o3djs.util');
+o3djs.require('o3djs.rendergraph');
+o3djs.require('o3djs.effect');
+o3djs.require('o3djs.primitives');
+o3djs.require('o3djs.arcball');
+o3djs.require('o3djs.picking');
+o3djs.require('o3djs.math');
+o3djs.require('o3djs.quaternions');
+
+// global variables
+var g_o3dElement;
+var g_client;
+var g_o3d;
+var g_math;
+var g_quaternions;
+var g_pack;
+var g_viewInfo;
+var g_sceneRoot;
+var g_eyeView;
+var g_cubeShape;
+var g_cylinderShape;
+var g_prismShape;
+var g_material;
+var g_aball;
+var g_thisRot;
+var g_lastRot;
+var g_zoomFactor;
+var g_dragging = false;
+var g_treeInfo;  // information about the transform graph.
+var g_statusInfoElem;
+
+// Animation globals.
+var g_flashTimer;
+var g_moveTimer;
+var g_moveDuration;
+var g_oldFlashTimer;
+
+// Checkers globals.
+var g_board;
+var g_boardSize;
+var g_boardSquare;
+var g_boardHeight;
+var g_pieceHeight;
+var g_selectedPiece;
+var g_selectedSquare;
+var g_player;
+var g_canJump;
+
+/**
+ * Creates the client area.
+ */
+function initClient() {
+  window.g_finished = false;  // for selenium testing.
+
+  // Runs the sample in V8. Comment out this line to run it in the browser
+  // JavaScript engine, for example if you want to debug it.
+  o3djs.util.setMainEngine(o3djs.util.Engine.V8);
+
+  o3djs.util.makeClients(main);
+}
+
+/**
+ * Initializes global variables, positions camera, draws the 3D chart.
+ * @param {Array} clientElements Array of o3d object elements.
+ */
+function main(clientElements) {
+  // Init global variables.
+  initGlobals(clientElements);
+
+  // Set up the view and projection transformations.
+  initContext();
+
+  // Add the checkers board to the transform hierarchy.
+  createCheckersBoard();
+
+  // Register mouse events handlers
+  o3djs.event.addEventListener(g_o3dElement, 'mousedown', startDragging);
+  o3djs.event.addEventListener(g_o3dElement, 'mousemove', drag);
+  o3djs.event.addEventListener(g_o3dElement, 'mouseup', stopDragging);
+  o3djs.event.addEventListener(g_o3dElement, 'wheel', scrollMe);
+
+  // Set the rendering callback
+  g_client.setRenderCallback(onrender);
+
+  window.g_finished = true;  // for selenium testing.
+}
+
+/**
+ * Initializes global variables and libraries.
+ */
+function initGlobals(clientElements) {
+  // init o3d globals.
+  g_o3dElement = clientElements[0];
+  window.g_client = g_client = g_o3dElement.client;
+  g_o3d = g_o3dElement.o3d;
+  g_math = o3djs.math;
+  g_quaternions = o3djs.quaternions;
+
+  // Create an arcball.
+  g_aball = o3djs.arcball.create(g_client.width, g_client.height);
+
+  // Create a pack to manage the objects created.
+  g_pack = g_client.createPack();
+
+  // Create a transform node to act as the 'root' of the scene.
+  // Attach it to the root of the transform graph.
+  g_sceneRoot = g_pack.createObject('Transform');
+  g_sceneRoot.parent = g_client.root;
+
+  // Create the render graph for the view.
+  var clearColor = [.98, .98, .98, 1];
+  g_viewInfo = o3djs.rendergraph.createBasicView(
+    g_pack,
+    g_client.root,
+    g_client.renderGraphRoot,
+    clearColor);
+
+  // Create a material for the objects rendered.
+  g_material = createPhongMaterial([1, 1, 1, 1]);
+
+  // Initialize checkers piece and square data.
+  g_boardSize = 8;
+  g_boardSquare = 10;
+  g_boardHeight = g_boardSquare / 5;
+  g_pieceHeight = g_boardHeight * 0.75;
+  g_selectedPiece = null;
+  g_selectedSquare = null;
+
+  // Create a cube shape for the board squares.
+  g_cubeShape = o3djs.primitives.createCube(
+      g_pack,
+      g_material,
+      1);
+
+  // Create a cylinder shape for the checkers pieces.
+  g_cylinderShape = o3djs.primitives.createCylinder(
+      g_pack,
+      g_material,
+      g_boardSquare / 2 - 1,   // Radius.
+      g_pieceHeight,           // Depth.
+      100,                     // Number of subdivisions.
+      1);
+
+  // use an extruded poligon to create a 'crown' for the king piece.
+  var polygon = [[0, 0], [1, 0], [1.5, 1.5], [0.5, 0.5],
+                 [0, 2], [-0.5, 0.5], [-1.5, 1.5], [-1, 0]];
+
+  // use the 'prism' primitive for the crown.
+  g_prismShape = o3djs.primitives.createPrism(
+      g_pack,
+      g_material,
+      polygon,     // The profile polygon to be extruded.
+      1);          // The depth of the extrusion.
+
+  // Get the status element.
+  g_statusInfoElem = o3djs.util.getElementById('statusInfo');
+
+  // Initialize player data.
+  g_player = 1;  // red player starts first.
+  g_canJump = false;
+
+  // Initialize various animation globals.
+  g_flashTimer = 0;
+  g_moveTimer = 0;
+  g_moveDuration = 1.3;
+  g_oldFlashTimer = 0;
+}
+
+/**
+ * Initialize the original view of the scene.
+ */
+function initContext() {
+  g_eyeView = [-5, 120, 100];
+  g_zoomFactor = 1.03;
+  g_dragging = false;
+  g_sceneRoot.identity();
+  g_lastRot = g_math.matrix4.identity();
+  g_thisRot = g_math.matrix4.identity();
+
+  // Set up a perspective transformation for the projection.
+  g_viewInfo.drawContext.projection = g_math.matrix4.perspective(
+      Math.PI * 40 / 180,    // 30 degree frustum.
+      g_o3dElement.clientWidth / g_o3dElement.clientHeight,  // Aspect ratio.
+      1,                     // Near plane.
+      10000);                // Far plane.
+
+  // Set up our view transformation to look towards the axes origin.
+  g_viewInfo.drawContext.view = g_math.matrix4.lookAt(
+      g_eyeView,       // eye
+      [0, 0, 0],       // target
+      [0, 1, 0]);      // up
+}
+
+/**
+ * Creates a phong material based on the given single color.
+ * @param {!o3djs.math.Vector4} baseColor An array with 4 entries,
+ * the R,G,B, and A components of a color.
+ * @return {!o3d.Material} A phong material whose overall pigment
+ * is baseColor.
+ */
+function createPhongMaterial(baseColor) {
+  // Create a new, empty Material object.
+  var material = g_pack.createObject('Material');
+
+  var lightPosition = [1000, 2000, 3000];
+  o3djs.effect.attachStandardShader(
+      g_pack, material, lightPosition, 'phong');
+
+  material.drawList = g_viewInfo.performanceDrawList;
+
+  // Assign parameters to the phong material.
+  material.getParam('emissive').value = [0, 0, 0, 1];
+  material.getParam('ambient').value =
+     [.1 * baseColor[0], .1 * baseColor[1], .1 * baseColor[2], 1];
+  material.getParam('diffuse').value =
+     [.9 * baseColor[0], .9 * baseColor[1], .9 * baseColor[2], 1];
+  material.getParam('specular').value = [.5, .5, .5, 1];
+  material.getParam('shininess').value = 50;
+  material.getParam('lightColor').value = [1, 1, 1, 1];
+
+  return material;
+}
+
+/**
+ * Creates a Coord object used to hold a set of 2D coordinates.
+ *
+ * @private
+ * @constructor
+ * @param {number} x X coordinate.
+ * @param {number} y Y coordinate.
+ */
+function Coord(x, y) {
+ this.x = x;
+ this.y = y;
+}
+
+/**
+ * Creates a BoardInfo object to hold board information.
+ *
+ * @private
+ * @constructor
+ * @param {number} x X coordinate on the checkers board.
+ * @param {number} y Y coordinate on the checkers board.
+ */
+function BoardInfo(x, y) {
+  this.x = x;
+  this.y = y;
+  this.square = null;
+  this.type = 0;
+  this.pieceParent = null;
+  this.piece = null;
+  this.king = false;
+}
+
+/**
+ * Returns the initial settings for a given position on the board.
+ *
+ * @param {number} x X coordinate on the checkers board.
+ * @param {number} y Y coordinate on the checkers board.
+ * @return {number} 0 = no piece, 1 = red piece, -1 = white piece
+ */
+function getSquarePiece(x, y) {
+  // if bad coordinates, no piece.
+  if (x >= g_boardSize || x < 0 || y >= g_boardSize || y < 0)
+    return 0;
+  // if on rows 3 and 4 or on a white square - no piece.
+  if (y == 3 || y == 4 || ((x + y) % 2 == 1))
+    return 0;
+  // if on rows 0-2 it is a red piece, otherwise white piece.
+  if (0 <= y && y < 3) return 1;
+  if (5 <= y && y < 8) return -1;
+  // Any not covered case.
+  return 0;
+}
+
+/**
+ * Creates the checkers board.
+ */
+function createCheckersBoard() {
+  g_board = [];
+  // Create a checker board (black at 0,0).
+  for (var i = 0; i < g_boardSize; i += 1) {    // columns.
+    g_board[i] = [];
+    for (var j = 0; j < g_boardSize; j += 1) {  // rows.
+      // create the transform for the board squares.
+      var square = g_pack.createObject('Transform');
+      square.parent = g_sceneRoot;
+      square.addShape(g_cubeShape);
+      // translate and scale the squares correctly relative to origin.
+      var offset = g_boardSquare * (1 - g_boardSize) / 2;
+      square.translate(offset + g_boardSquare * i ,
+                       0, -(offset + g_boardSquare * j));
+      square.scale(g_boardSquare, g_boardHeight, g_boardSquare);
+      // set the square color.
+      var isBlack = (i + j) % 2 == 0 ? true : false;
+      var squareColor = isBlack ?
+                        [0.15, 0.15, 0.15, 1] : [0.85, 0.85, 0.75, 1];
+      square.createParam('diffuse', 'ParamFloat4').value = squareColor;
+
+      // add this square and its info to the board.
+      g_board[i][j] = new BoardInfo(i, j);
+      g_board[i][j].square = square;
+
+      // create the piece for this square and update the board position.
+      // skip if the square has no piece.
+      var pieceType = getSquarePiece(i, j);
+      if (pieceType == 0)
+        continue;
+
+      // create a parent transform for this piece.
+      var pieceParent = g_pack.createObject('Transform');
+      pieceParent.parent = g_sceneRoot;
+
+      // create the checkers piece.
+      var piece = g_pack.createObject('Transform');
+      piece.parent = pieceParent;
+      piece.addShape(g_cylinderShape);
+
+      // place the piece on the correct location on the board.
+      pieceParent.translate(0, (g_pieceHeight + g_boardHeight) / 2, 0);
+      pieceParent.translate(offset + g_boardSquare * i ,
+                            0, -(offset + g_boardSquare * j));
+
+      // pick the piece color (red or white).
+      piece.createParam('diffuse', 'ParamFloat4').value =
+          getPieceColor(pieceType);
+
+      // update the board info to include this piece.
+      g_board[i][j].piece = piece;
+      g_board[i][j].pieceParent = pieceParent;
+      g_board[i][j].type = pieceType;
+    }
+  }
+
+  // Update our tree info.
+  updateTreeInfo();
+
+  // update status.
+  updateStatus('Game starting... RED moves first.', true);
+}
+
+/**
+ * Checks if a piece has become a 'king' piece and updates it.
+ *
+ * @param {number} x X coordinate on the checkers board.
+ * @param {number} y Y coordinate on the checkers board.
+ */
+function checkAndUpdateKing(x, y) {
+  // if the piece is not on the king row, nothing to do.
+  if ( y > 0 && y < g_boardSize - 1 ) return;
+
+  // ignore if no piece or the piece is already king
+  var selSquare = g_board[x][y];
+  if (!selSquare.piece || selSquare.king) return;
+
+  // change the king piece color.
+  selSquare.king = true;
+
+  // create the crown shape.
+  var crown = g_pack.createObject('Transform');
+  crown.parent = selSquare.piece;
+  crown.addShape(g_prismShape);
+  var crownSize = g_pieceHeight;
+  crown.scale(crownSize, crownSize, crownSize);
+  crown.translate(0, g_pieceHeight / 2, 0);
+  crown.createParam('diffuse', 'ParamFloat4').value = [1, 1, 0, 0];
+}
+
+
+/**
+ * Updates the transform tree info.
+ */
+function updateTreeInfo() {
+  if (!g_treeInfo) {
+    g_treeInfo = o3djs.picking.createTransformInfo(g_client.root, null);
+  }
+  g_treeInfo.update();
+}
+
+/**
+ * Check if a player selection is a jump.
+ *
+ * @param {BoardInfo} piece The board info for the piece.
+ * @param {BoardInfo} square The board info for the landing square.
+ * @return {boolean} true if this is a jump.
+ */
+function isJump(piece, square) {
+  return (Math.abs(piece.x - square.x) == 2 &&
+          Math.abs(piece.y - square.y) == 2 );
+}
+
+function isLegalMove(piece, square) {
+  var orig = new Coord(piece.x, piece.y);
+  var dest = new Coord(square.x, square.y);
+
+  // it must be this player's turn to make a move.
+  if (piece.type != g_player) return false;
+
+  // the destination must be un-occupied.
+  if (square.type != 0 ) return false;
+
+  // must move diagonally.
+  var diag = new Coord(dest.x - orig.x, dest.y - orig.y);
+  if (Math.abs(diag.x) != Math.abs(diag.y)) return false;
+
+  // cannot move more than 2.
+  if (Math.abs(diag.x) > 2) return false;
+
+  // make sure the piece is moved in the 'forward' direction
+  // unless this is a 'king' piece.
+  if (!piece.king && g_player * diag.y < 0) return false;
+
+  // if a jump check if valid.
+  if (Math.abs(diag.x) == 2) {
+    var jumpType = g_board[(orig.x + dest.x)/2][(orig.y + dest.y)/2].type;
+    if (jumpType == piece.type || jumpType == 0)
+      return false;
+  }
+
+  return true;
+}
+
+/**
+ * Update the status message.
+ *
+ * @param {string} statusMsg The message to display.
+ * @param {boolean} opt_hidePlayer Prefix the status with the name of the player.
+ */
+function updateStatus(statusMsg, opt_hidePlayer) {
+  var status = (g_player == 1) ? 'RED: ' : 'WHITE: ';
+  g_statusInfoElem.innerHTML = (opt_hidePlayer ? '' : status) + statusMsg;
+}
+
+
+/**
+ * Check if a valid boad coordinate.
+ *
+ * @param {number} x X coordinate on the checkers board.
+ * @param {number} y Y coordinate on the checkers board.
+ * @return {boolean} True if a valid coordinate.
+ */
+function isValidCoord(x, y) {
+  if ( x < 0 || x >= g_boardSize ) return false;
+  if ( y < 0 || y >= g_boardSize ) return false;
+  return true;
+}
+
+
+/**
+ * Check if a piece has a valid sliding move.
+ *
+ * @param {!BoardInfo} piece The board info for the piece.
+ * @return {boolean} True if the piece can slide.
+ */
+function pieceCanSlide(piece) {
+  var x = piece.x;
+  var y = piece.y;
+
+  for (var i = -1; i <= 1; i += 2) {
+    for (var j = -1; j <= 1; j += 2) {
+      if (isValidCoord(x + i, y + j))
+        if (isLegalMove(piece, g_board[x + i][y + j]))
+          return true;
+    }
+  }
+  return false;
+}
+
+/**
+ * Check if a piece has a valid jumping move.
+ *
+ * @param {!BoardInfo} piece The board info for the piece.
+ * @return {boolean} True if the piece can jump.
+ */
+function pieceCanJump(piece) {
+  var x = piece.x;
+  var y = piece.y;
+
+  for (var i = -2; i <= 2; i += 4) {
+    for (var j = -2; j <= 2; j += 4) {
+      if (isValidCoord(x + i, y + j))
+        if (isLegalMove(piece, g_board[x + i][y + j]))
+          return true;
+    }
+  }
+  return false;
+}
+
+/**
+ * Check if the current player has any moves available.
+ *
+ * @return {boolean} True if the player can move.
+ */
+function currentPlayerCanMove() {
+  var canSlide = false;
+  for (var x = 0; x < g_boardSize; x += 1) {
+    for (var y = 0; y < g_boardSize; y += 1) {
+      var sel = g_board[x][y];
+      if (sel.piece == null) continue;
+      // if jump set the canJump variable and return.
+      g_canJump = pieceCanJump(sel);
+      if (g_canJump) return true;
+      if (pieceCanSlide(sel)) {
+        canSlide = true;
+      }
+    }
+  }
+  return canSlide;
+}
+
+/**
+ * Check if a forced jump is required for the current player.
+ *
+ * @return {boolean} True if a jump is required.
+ */
+function checkForcedJump() {
+  for (var x = 0; x < g_boardSize; x += 1) {
+    for (var y = 0; y < g_boardSize; y += 1) {
+      var sel = g_board[x][y];
+      if (sel.piece && pieceCanJump(sel)) {
+        g_forcedJump = true;
+        return true;
+      }
+    }
+  }
+  g_forcedJump = false;
+  return false;
+}
+
+/**
+ * Check if the game is over.
+ *
+ * @return {boolean} True if the game is over.
+ */
+function isGameOver() {
+  // the game is over when a player has no pieces left
+  // or it cannot make a valid move.
+  if (!currentPlayerCanMove()) {
+    var statusStr = (g_player == 1) ? 'White Won!' : 'Red Won!';
+    updateStatus(statusStr, true);
+    return true;
+  }
+  return false;
+}
+
+/**
+ * Detect a mouse click an element of the checkers board.
+ *
+ * @param {event} e event.
+ */
+function detectSelection(e) {
+  var worldRay = o3djs.picking.clientPositionToWorldRay(e.x,
+                                                        e.y,
+                                                        g_viewInfo.drawContext,
+                                                        g_client.width,
+                                                        g_client.height);
+
+  // check if we picked any objects.
+  var pickInfo = g_treeInfo.pick(worldRay);
+  if (pickInfo) {
+    // get the parent transform of this object.
+    var pickTrans = pickInfo.shapeInfo.parent.transform;
+
+    // check if a board square or a piece.
+    for (var x = 0; x < g_boardSize; x += 1) {
+      for (var y = 0; y < g_boardSize; y += 1) {
+        if (pickTrans === g_board[x][y].piece) {
+          // do not select another player's piece.
+          if (g_player != g_board[x][y].type) return;
+
+          // if a previous piece selection, clear it.
+          if (g_selectedPiece) {
+              g_selectedPiece.piece.getParam('diffuse').value =
+                  getPieceColor(g_selectedPiece.type);
+          }
+
+          // check if a forced jump.
+          if (g_canJump) {
+            if (!pieceCanJump(g_board[x][y])) {
+              updateStatus('Must jump, incorrect piece!');
+              return;
+            }
+          }
+
+          SelectPiece(x, y);
+          return;
+        } else if (pickTrans === g_board[x][y].square) {
+          // selected the landing square if a piece move is pending.
+          if (g_selectedPiece) {
+            // check if a forced jump.
+            if (g_canJump && !isJump(g_selectedPiece, g_board[x][y])) {
+               updateStatus('Must jump!');
+              return;
+            }
+            // check if a legal move, then move the piece.
+            if (isLegalMove(g_selectedPiece, g_board[x][y])) {
+              SelectSquare(x, y);
+            } else {
+              updateStatus('Illegal move!');
+            }
+          }
+          return;
+        }
+      }
+    }
+  }
+}
+
+/**
+ * Select a piece on the checkers board.
+ */
+function SelectPiece(x, y) {
+  g_selectedPiece = g_board[x][y];
+  // update status message.
+  updateStatus('Selected piece at (' + x + ',' + y  + ')');
+}
+
+/**
+ * Select a square on the checkers board.
+ */
+function SelectSquare(x, y) {
+  updateStatus('Moving piece from (' + g_selectedPiece.x + ',' +
+             g_selectedPiece.y + ') to (' + x + ',' + y  + ')');
+  g_selectedSquare = g_board[x][y];
+  g_moveTimer = 0;
+}
+
+/**
+ * Return the color for the given piece type.
+ *
+ * @param {number} type Type of the checkers piece.
+ * @return {Array} Array representing the color.
+ */
+function getPieceColor(type) {
+  return (type == 1) ? [1, 0.15, 0.15, 1] : [1, 1, 1, 1];
+}
+
+/**
+ * Called every frame.
+ * @param {o3d.RenderEvent} renderEvent Rendering Information.
+ */
+function onrender(renderEvent) {
+  g_flashTimer += renderEvent.elapsedTime;
+  g_flashTimer = g_flashTimer % 0.5;
+
+  if (g_selectedPiece) {
+    var origColor = getPieceColor(g_selectedPiece.type);
+    // flash highlight the selected piece as long as selected.
+    if (g_oldFlashTimer > g_flashTimer ) {
+      g_selectedPiece.piece.getParam('diffuse').value = [0.6, 1, 1, 1];
+    } else if (g_flashTimer >= 0.25 && g_oldFlashTimer < 0.25) {
+      g_selectedPiece.piece.getParam('diffuse').value = origColor;
+    }
+
+    // check if we selected a square to move the piece.
+    if (g_selectedSquare) {
+      moveSelectedPiece(renderEvent.elapsedTime);
+    }
+  }
+  g_oldFlashTimer = g_flashTimer;
+}
+
+
+/**
+ * Slides or jumps the selected piece.
+ * This method is used to simulate the animation of the moving piece.
+ * @param {number} elapsedTime The elapsed time in seconds since the last call.
+ */
+function moveSelectedPiece(elapsedTime) {
+  g_moveTimer += elapsedTime;
+  // animate the piece one iteration at the time.
+  var lerp = g_moveTimer / g_moveDuration;
+
+  // get the board coordinates of the curent and future position.
+  var x0 = g_selectedPiece.x;
+  var y0 = g_selectedPiece.y;
+  var x1 = g_selectedSquare.x;
+  var y1 = g_selectedSquare.y;
+
+  // get the coordinates relative to axis origin.
+  var offset = g_boardSquare * (1 - g_boardSize) / 2;
+  var xc0 = offset + g_boardSquare * x0;
+  var zc0 = -(offset + g_boardSquare * y0);
+  var xc1 = offset + g_boardSquare * x1;
+  var zc1 = -(offset + g_boardSquare * y1);
+  var yc = (g_pieceHeight + g_boardHeight) / 2;
+
+  // Our piece's position and rotation.
+  var px;
+  var pz;
+  var jump = 0;
+  var rotation = 0;
+  var done = false;
+
+  if (lerp < 1) {
+    // check if this is a jump.
+    if (isJump(g_selectedPiece, g_selectedSquare)) {
+      // compute the jump height.
+      jump = Math.sin(Math.PI * lerp) * g_pieceHeight * 13;
+      // simulate a spinning of the jumping piece.
+      rotation = -lerp * 4 * Math.PI;
+    }
+    px = xc0 + (xc1 - xc0) * lerp;
+    pz = zc0 + (zc1 - zc0) * lerp;
+  } else {
+    // done with the move.
+    px = xc1;
+    pz = zc1;
+    done = true;
+  }
+
+  // move the piece to the new position.
+  var pieceParent = g_board[x0][y0].pieceParent;
+  pieceParent.identity();
+  pieceParent.translate(px, yc + jump, pz);
+
+  // spin the piece
+  g_selectedPiece.piece.identity();
+  g_selectedPiece.piece.rotateX(rotation);
+
+  if (done) {
+    // stop flashing - restore the original color.
+    var origColor = getPieceColor(g_selectedPiece.type);
+    g_selectedPiece.piece.getParam('diffuse').value = origColor;
+
+    // if a jump destroy the jumped piece.
+    var wasJump = isJump(g_selectedPiece, g_selectedSquare);
+    if (wasJump) {
+      var xj = (x0 + x1)/2;
+      var yj = (y0 + y1)/2;
+      g_board[xj][yj].type = 0;
+      g_board[xj][yj].pieceParent.parent = null;
+      g_board[xj][yj].pieceParent = null;
+      g_board[xj][yj].piece = null;
+    }
+
+    // the new square has a new piece.
+    g_board[x1][y1].type = g_selectedPiece.type;
+    g_board[x1][y1].king = g_selectedPiece.king;
+    g_board[x1][y1].piece = g_selectedPiece.piece;
+    g_board[x1][y1].pieceParent = g_selectedPiece.pieceParent;
+
+    // the original square is now empty.
+    g_board[x0][y0].type = 0;
+    g_board[x0][y0].piece = null;
+    g_board[x0][y0].pieceParent = null;
+
+    // check if the moved piece became king.
+    checkAndUpdateKing(x1, y1);
+
+    g_selectedPiece = null;
+    g_selectedSquare = null;
+    g_moveTimer = 0;
+
+    // update the tree info.
+    updateTreeInfo();
+
+    // check if current player can jump again.
+    if (wasJump && pieceCanJump(g_board[x1][y1])) {
+      g_selectedPiece = g_board[x1][y1];
+      updateStatus('Must jump again ...');
+    } else {
+      // this player is done, switch players.
+      g_player = -g_player;
+      // check if game over; also checks if the current player must jump.
+      if (!isGameOver()) {
+        updateStatus(g_canJump ? 'Must jump...' : 'Next turn...');
+      }
+    }
+  }
+}
+
+
+/**
+ * Zooms the scene in / out by changing the viewpoint.
+ * @param {number} zoom zooming factor.
+ */
+function ZoomInOut(zoom) {
+  for (i = 0; i < g_eyeView.length; i += 1) {
+    g_eyeView[i] = g_eyeView[i] / zoom;
+  }
+
+  g_viewInfo.drawContext.view = g_math.matrix4.lookAt(
+      g_eyeView,   // eye.
+      [0, 0, 0],     // target.
+      [0, 1, 0]);   // up.
+}
+
+/**
+ * Start mouse dragging.
+ * @param {event} e event.
+ */
+function startDragging(e) {
+  detectSelection(e);
+  g_lastRot = g_thisRot;
+
+  g_aball.click([e.x, e.y]);
+  g_dragging = true;
+}
+
+/**
+ * Use the arcball to rotate the scene.
+ * Computes the rotation matrix.
+ * @param {event} e event.
+ */
+function drag(e) {
+  if (g_dragging) {
+    var rotationQuat = g_aball.drag([e.x, e.y]);
+    var rot_mat = g_quaternions.quaternionToRotation(rotationQuat);
+
+    g_thisRot = g_math.matrix4.mul(g_lastRot, rot_mat);
+    var m = g_sceneRoot.localMatrix;
+    g_math.matrix4.setUpper3x3(m, g_thisRot);
+    g_sceneRoot.localMatrix = m;
+  }
+}
+
+/**
+ * Stop dragging.
+ * @param {event} e event.
+ */
+function stopDragging(e) {
+  g_dragging = false;
+}
+
+/**
+ * Using the mouse wheel zoom in and out of the scene.
+ * @param {event} e event.
+ */
+function scrollMe(e) {
+  var zoom = (e.deltaY < 0) ? 1 / g_zoomFactor : g_zoomFactor;
+  ZoomInOut(zoom);
+  g_client.render();
+}
+
+</script>
+</head>
+
+<body onload="initClient()">
+<h2>3D Checkers Game</h2>
+<div style="font-size:10;"><span id="statusInfo"></span></div>
+<!-- Start of O3D plugin -->
+<div id="o3d" style="width: 600px; height: 600px;"></div>
+<!-- End of O3D plugin -->
+
+</body>
+</html>

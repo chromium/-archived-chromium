@@ -1,0 +1,1228 @@
+<!--
+Copyright 2009, Google Inc.
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are
+met:
+
+    * Redistributions of source code must retain the above copyright
+notice, this list of conditions and the following disclaimer.
+    * Redistributions in binary form must reproduce the above
+copyright notice, this list of conditions and the following disclaimer
+in the documentation and/or other materials provided with the
+distribution.
+    * Neither the name of Google Inc. nor the names of its
+contributors may be used to endorse or promote products derived from
+this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+-->
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+  "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+  <title>
+  Beach Demo
+  </title>
+<style type="text/css">
+html, body {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  height: 100%;
+}
+textarea {
+ width: 95%;
+ height: 95%;
+}
+#proppanel {
+  font-size: xx-small;
+  background-color: lightblue;
+  font-family: Arial, san-serif;
+}
+#materialpanel table {
+  width: 100%;
+}
+#proppanel .even {
+  background-color: #ccddff;
+}
+#proppanel .odd {
+  background-color: #ffffff;
+}
+
+#materialpanel {
+  font-size: xx-small;
+  font-family: Arial, san-serif;
+}
+#materialpanel table {
+  width: 100%;
+}
+#materialpanel input[type=text] {
+  font-size: x-small;
+}
+#materialpanel .even {
+  background-color: #ccddff;
+}
+#materialpanel .odd {
+  background-color: #ccddff;
+}
+
+#materialpanel label {
+}
+#materialpanel .field {
+  white-space: nowrap;
+}
+#materialpanel label {
+}
+#effectpanel {
+  background-color: lightgreen;
+}
+#effecttabs {
+}
+#effecttabs .tab {
+}
+#effecttabs .selected {
+  background-color: yellow;
+}
+</style>
+</head>
+<body onload="init()" onunload="uninit()">
+<script type="text/javascript" src="../o3djs/base.js"></script>
+<script type="text/javascript" src="beachdemo.js"></script>
+<div style="width: 100%; height: 100%;">
+  <div id="upperpanel" style="width: 100%; height: 100%;">
+  <div
+    id="o3d"
+    style="
+      width: 100%;
+      height: 100%;
+      float: left;
+      background-color: blue;
+  "></div>
+  <div
+    id="materialpanel"
+    style="
+      width: 20%;
+      height: 100%;
+      overflow: auto;
+      display: none;
+  "><table><tr><td><input type="text" value="foogoo"/></td></tr></table></div>
+  <div
+    id="proppanel"
+    style="
+      width: 20%;
+      height: 100%;
+      overflow: auto;
+      display: none;
+  "></div>
+  </div>
+  <div
+    id="effectpanel"
+    style="
+      width: 100%;
+      height: 30%;
+      display: none;
+      overflow: auto;
+  ">
+<div style="height:10%;">
+  <input type="button" value="Compile" id="compileButton"></input>
+  <span id="effecttabs"></span>
+</div>
+<div style="height:90%;"><textarea id="effecttextarea"></textarea>
+</div>
+  </div>
+</div>
+<script type="text/o3deffect" id="watershader">
+// The 4x4 world view projection matrix.
+float4x4 world : WORLD;
+float4x4 worldInverseTranspose : WORLDINVERSETRANSPOSE;
+float4x4 view : VIEW;
+float4x4 viewProjection : VIEWPROJECTION;
+float4x4 worldViewProjection : WORLDVIEWPROJECTION;
+float3   viewPosition;
+float4   waterColor;
+float    reflectionRefractionOffset;
+float    clock;
+
+samplerCUBE environmentSampler;
+sampler2D fresnelSampler;  // TODO: should be 1D.
+sampler2D refractionSampler;   // This is a render target.
+sampler2D reflectionSampler;   // This is a render target.
+sampler2D noiseSampler;
+sampler2D noiseSampler2;
+sampler2D noiseSampler3;
+
+// input parameters for our vertex shader
+struct VertexShaderInput {
+  float4 position : POSITION;
+  float2 texcoord : TEXCOORD0;
+};
+
+// input parameters for our pixel shader
+// also the output parameters for our vertex shader
+struct PixelShaderInput {
+  float4 position          : POSITION;
+  float2 texcoord          : TEXCOORD0;
+  float3 viewVector        : TEXCOORD1;
+  float3 screenPosition    : TEXCOORD2;
+};
+
+/**
+ * Vertex Shader
+ */
+PixelShaderInput vertexShaderFunction(VertexShaderInput input) {
+  /**
+   * We transform each vertex by the world view projection matrix to bring
+   * it from world space to projection space.
+   *
+   * We return its color unchanged.
+   */
+  PixelShaderInput output;
+
+  float4 worldPosition = mul(input.position, world);
+  output.position = mul(worldPosition, viewProjection);
+  output.viewVector = normalize(worldPosition.xyz - viewPosition.xyz);
+  output.texcoord = input.texcoord;
+
+  float4 tpos = mul(float4(worldPosition.x, worldPosition.y, 0, 1),
+                    viewProjection);
+  output.screenPosition = tpos.xyz / tpos.w;
+  output.screenPosition.xy = 0.5 + 0.5 * output.screenPosition.xy *
+                             float2(1, -1);
+  output.screenPosition.z = reflectionRefractionOffset /
+                            output.screenPosition.z;
+
+  return output;
+}
+/**
+ * Pixel Shader - pixel shader does nothing but return the color.
+ */
+float4 pixelShaderFunction(PixelShaderInput input): COLOR {
+  float3 viewVector = float3(input.viewVector.x,
+                             input.viewVector.z,
+                             -input.viewVector.y);
+
+  float2 texcoord = input.texcoord * 4;
+  float3 n1 = tex2D(noiseSampler,
+                    texcoord +
+                    float2(clock * 0.01, clock * 0.02));
+  float3 n2 = tex2D(noiseSampler2,
+                    texcoord +
+                    float2(clock * 0.03, clock * 0.01));
+  float3 n3 = tex2D(noiseSampler3,
+                    texcoord +
+                    float2(clock * 0.005, clock * 0.007));
+
+  float3 N = normalize(n1 + n2 * 2 + n3 * 4 + float3(-3.5, 16, -3.5));
+
+  float3 R = normalize(reflect(viewVector, N));
+  R.y = R.y < 0.01 ? 0.01 : R.y;
+
+  //float f = tex1D(fresnelSampler, dot(R, N));
+  float f = tex2D(fresnelSampler, float2(dot(R, N), 0.5)).x;
+  float4 reflection = tex2D(
+      reflectionSampler,
+      input.screenPosition.xy - input.screenPosition.z * N.xy + float2(0, 0.1));
+  // I still don't understand where my math is wrong such that I need this 0.1
+  // fudge factor.
+
+  // Lookup the sky color
+  float3 skyReflection = texCUBE(environmentSampler, R);
+
+  // lerping with reflection.a means that where there is terrain reflected
+  // we get terrain, otherwise we get sky.
+  float3 color = lerp(skyReflection,
+                      reflection.rgb, reflection.a);
+
+  // lookup the refraction color.
+  float3 refraction = tex2D(
+      refractionSampler,
+      (input.screenPosition.xy - input.screenPosition.z * N.xz +
+       float2(0, 0.05)) * float2(1, 0.95));  // fudge
+
+  float3 finalColor = lerp(refraction, color, f);
+
+  // Uncomment any one of the lines below to see just part of the water
+  // calculation.
+
+  //finalColor = skyReflection;  // sky only.
+  //finalColor = reflection.xyz;  // reflection only.
+  //finalColor = refraction;  // refraction only.
+  //finalColor = lerp(float3(0,1,0), float3(1,0,0), f); // reflection/refraction mix
+  //finalColor = color;  // sky only.
+  return float4(finalColor, 1);
+}
+
+// Here we tell our effect file the functions
+// which specify our vertex and pixel shaders.
+
+// #o3d VertexShaderEntryPoint vertexShaderFunction
+// #o3d PixelShaderEntryPoint pixelShaderFunction
+// #o3d MatrixLoadOrder RowMajor
+</script>
+<script type="text/o3deffect" id="watercolorandskyshader">
+// The 4x4 world view projection matrix.
+float4x4 world : WORLD;
+float4x4 worldInverseTranspose : WORLDINVERSETRANSPOSE;
+float4x4 view : VIEW;
+float4x4 viewProjection : VIEWPROJECTION;
+float4x4 worldViewProjection : WORLDVIEWPROJECTION;
+float3   viewPosition;
+float4   waterColor;
+float    reflectionRefractionOffset;
+float    clock;
+
+samplerCUBE environmentSampler;
+sampler2D fresnelSampler;  // TODO: should be 1D.
+sampler2D noiseSampler;
+sampler2D noiseSampler2;
+sampler2D noiseSampler3;
+
+// input parameters for our vertex shader
+struct VertexShaderInput {
+  float4 position : POSITION;
+  float2 texcoord : TEXCOORD0;
+};
+
+// input parameters for our pixel shader
+// also the output parameters for our vertex shader
+struct PixelShaderInput {
+  float4 position          : POSITION;
+  float2 texcoord          : TEXCOORD0;
+  float3 viewVector        : TEXCOORD1;
+  float3 screenPosition    : TEXCOORD2;
+};
+
+/**
+ * Vertex Shader
+ */
+PixelShaderInput vertexShaderFunction(VertexShaderInput input) {
+  /**
+   * We transform each vertex by the world view projection matrix to bring
+   * it from world space to projection space.
+   *
+   * We return its color unchanged.
+   */
+  PixelShaderInput output;
+
+  float4 worldPosition = mul(input.position, world);
+  output.position = mul(worldPosition, viewProjection);
+  output.viewVector = normalize(worldPosition.xyz - viewPosition.xyz);
+  output.texcoord = input.texcoord;
+
+  float4 tpos = mul(float4(worldPosition.x, worldPosition.y, 0, 1),
+                    viewProjection);
+  output.screenPosition = tpos.xyz / tpos.w;
+  output.screenPosition.xy = 0.5 + 0.5 * output.screenPosition.xy *
+                             float2(1, -1);
+  output.screenPosition.z = reflectionRefractionOffset /
+                            output.screenPosition.z;
+
+  return output;
+}
+/**
+ * Pixel Shader - pixel shader does nothing but return the color.
+ */
+float4 pixelShaderFunction(PixelShaderInput input): COLOR {
+  float3 viewVector = float3(input.viewVector.x,
+                             input.viewVector.z,
+                             -input.viewVector.y);
+
+  float2 texcoord = input.texcoord * 4;
+  float3 n1 = tex2D(noiseSampler,
+                    texcoord +
+                    float2(clock * 0.01, clock * 0.02));
+  float3 n2 = tex2D(noiseSampler2,
+                    texcoord +
+                    float2(clock * 0.03, clock * 0.01));
+  float3 n3 = tex2D(noiseSampler3,
+                    texcoord +
+                    float2(clock * 0.005, clock * 0.007));
+
+  float3 N = normalize(n1 + n2 * 2 + n3 * 4 + float3(-3.5, 16, -3.5));
+
+  float3 R = normalize(reflect(viewVector, N));
+  R.y = R.y < 0.01 ? 0.01 : R.y;
+
+  //float f = tex1D(fresnelSampler, dot(R, N));
+  float f = tex2D(fresnelSampler, float2(dot(R, N), 0.5)).x;
+
+  // Lookup the sky color
+  float3 skyReflection = texCUBE(environmentSampler, R);
+
+  float3 color = lerp(waterColor.xyz, skyReflection, f);
+
+  return float4(color, 1);
+}
+
+// Here we tell our effect file the functions
+// which specify our vertex and pixel shaders.
+
+// #o3d VertexShaderEntryPoint vertexShaderFunction
+// #o3d PixelShaderEntryPoint pixelShaderFunction
+// #o3d MatrixLoadOrder RowMajor
+</script>
+<script type="text/o3deffect" id="waterstyle2">
+// The 4x4 world view projection matrix.
+float4x4 worldViewProjection : WORLDVIEWPROJECTION;
+
+// input parameters for our vertex shader
+struct VertexShaderInput {
+  float4 position : POSITION;
+};
+
+// input parameters for our pixel shader
+// also the output parameters for our vertex shader
+struct PixelShaderInput {
+  float4 position          : POSITION;
+};
+
+/**
+ * Vertex Shader
+ */
+PixelShaderInput vertexShaderFunction(VertexShaderInput input) {
+  /**
+   * We transform each vertex by the world view projection matrix to bring
+   * it from world space to projection space.
+   *
+   * We return its color unchanged.
+   */
+  PixelShaderInput output;
+
+  output.position = mul(input.position, worldViewProjection);
+  return output;
+}
+/**
+ * Pixel Shader - pixel shader does nothing but return the color.
+ */
+float4 pixelShaderFunction(PixelShaderInput input): COLOR {
+  return float4(0, 0, 0.5, 1);
+}
+
+// Here we tell our effect file the functions
+// which specify our vertex and pixel shaders.
+
+// #o3d VertexShaderEntryPoint vertexShaderFunction
+// #o3d PixelShaderEntryPoint pixelShaderFunction
+// #o3d MatrixLoadOrder RowMajor
+</script>
+<script type="text/o3deffect" id="underwatershader">
+uniform float4x4 world : WORLD;
+uniform float4x4 viewProjection : VIEWPROJECTION;
+uniform float4   waterColor;
+uniform float3   sunVector;
+uniform float    fadeFudge;
+
+sampler diffuseSampler;
+
+// input parameters for our vertex shader
+struct VertexShaderInput {
+  float4 position : POSITION;
+  float3 normal   : NORMAL;
+  float2 texcoord : TEXCOORD0;
+};
+
+// input parameters for our pixel shader
+// also the output parameters for our vertex shader
+struct PixelShaderInput {
+  float4 position          : POSITION;
+  float2 texcoord          : TEXCOORD0;
+  float fade               : TEXCOORD1;
+  float4 color             : TEXCOORD2;
+  float4 worldPosition     : TEXCOORD3;
+};
+
+PixelShaderInput vertexShaderFunction(VertexShaderInput input) {
+  PixelShaderInput output;
+  float4 worldPosition = mul(input.position, world);
+  output.position = mul(float4(worldPosition.xyz, 1), viewProjection);
+  output.worldPosition = worldPosition;
+  output.texcoord = input.texcoord;
+  output.color    = dot(sunVector,
+                        normalize(mul(float4(input.normal, 0), world)));
+  output.fade     = 0.2 + 0.8 * saturate(worldPosition.z * fadeFudge);
+
+  return output;
+}
+
+float4 pixelShaderFunction(PixelShaderInput input) : COLOR {
+  float4 color = tex2D(diffuseSampler, input.texcoord);
+//  float4 diffuse = tex2D(diffuseSampler, input.texcoord);
+//  float4 color = lerp(diffuse * input.color, waterColor, input.fade);
+  float alpha = input.worldPosition.z < 100 ? color.a : 0;
+  return float4(color.xyz, alpha);
+}
+
+// #o3d VertexShaderEntryPoint vertexShaderFunction
+// #o3d PixelShaderEntryPoint pixelShaderFunction
+// #o3d MatrixLoadOrder RowMajor
+</script>
+<script type="text/o3deffect" id="skydomeshader">
+uniform float4x4 worldViewProjectionInverse : VIEWPROJECTIONINVERSE;
+uniform float4x4 viewInverse : VIEWINVERSE;
+samplerCUBE environmentSampler;
+
+struct VertexShaderInput {
+  float4 position : POSITION;
+};
+
+struct PixelShaderInput {
+  float4 position : POSITION;
+  float3 worldPosition : TEXCOORD0;
+};
+
+PixelShaderInput vertexShaderFunction(VertexShaderInput input) {
+  PixelShaderInput output;
+  output.position = input.position;
+  float4 temp = mul(input.position, worldViewProjectionInverse);
+  output.worldPosition = temp.xyz / temp.w;
+  return output;
+}
+
+float4 pixelShaderFunction(PixelShaderInput input) : COLOR {
+  float3 viewVector = normalize(viewInverse[3].xyz - input.worldPosition);
+  return texCUBE(environmentSampler, float3(viewVector.x,
+                                            abs(-viewVector.z) + 0.01,
+                                            -viewVector.y));
+}
+
+// #o3d VertexShaderEntryPoint vertexShaderFunction
+// #o3d PixelShaderEntryPoint pixelShaderFunction
+// #o3d MatrixLoadOrder RowMajor
+</script>
+<script type="text/o3deffect" id="waterfallshader">
+uniform float4x4 worldViewProjection : WORLDVIEWPROJECTION;
+uniform float4x4 world : WORLD;
+uniform float4x4 viewInverse : VIEWINVERSE;
+uniform float4x4 worldInverseTranspose : WORLDINVERSETRANSPOSE;
+uniform float3 lightWorldPos;
+uniform float vOffset;
+
+sampler diffuseSampler;
+
+struct VertexShaderInput {
+  float4 position : POSITION;
+  float4 normal : NORMAL;
+  float2 texcoord : TEXCOORD0;
+};
+
+struct PixelShaderInput {
+  float4 position : POSITION;
+  float3 normal : TEXCOORD0;
+  float3 worldPosition : TEXCOORD1;
+  float2 texcoord : TEXCOORD2;
+};
+
+PixelShaderInput vertexShaderFunction(VertexShaderInput input) {
+  PixelShaderInput output;
+  output.position = mul(input.position, worldViewProjection);
+  float3 worldPosition = mul(input.position, world).xyz;
+  output.normal = mul(input.normal, worldInverseTranspose).xyz;
+  output.worldPosition = worldPosition;
+  output.texcoord = input.texcoord;
+  return output;
+}
+
+float4 pixelShaderFunction(PixelShaderInput input) : COLOR {
+  float3 surfaceToLight = normalize(lightWorldPos - input.worldPosition);
+  float3 worldNormal = normalize(input.normal);
+  float3 surfaceToView = normalize(viewInverse[3].xyz - input.worldPosition);
+  float3 halfVector = normalize(surfaceToLight + surfaceToView);
+  float4 litResult = lit(dot(worldNormal, surfaceToLight),
+                         dot(worldNormal, halfVector), 0);
+  float4 diffuse = tex2D(diffuseSampler, float2(input.texcoord.x,
+                                                input.texcoord.y + vOffset));
+  float4 outColor = (diffuse * litResult.y);
+  return diffuse;
+  //return float4(outColor.rgb, 1);
+}
+
+// #o3d VertexShaderEntryPoint vertexShaderFunction
+// #o3d PixelShaderEntryPoint pixelShaderFunction
+// #o3d MatrixLoadOrder RowMajor
+</script>
+<script type="text/o3deffect" id="imageshader">
+uniform float4x4 worldViewProjection : WORLDVIEWPROJECTION;
+
+float4 colorMult;
+sampler diffuseSampler;
+
+
+struct VertexShaderInput {
+  float4 position : POSITION;
+  float2 texcoord : TEXCOORD0;
+};
+
+struct PixelShaderInput {
+  float4 position : POSITION;
+  float2 texcoord : TEXCOORD2;
+};
+
+PixelShaderInput vertexShaderFunction(VertexShaderInput input) {
+  PixelShaderInput output;
+  output.position = mul(input.position, worldViewProjection);
+  output.texcoord = input.texcoord;
+  return output;
+}
+
+float4 pixelShaderFunction(PixelShaderInput input) : COLOR {
+  return tex2D(diffuseSampler, input.texcoord) * colorMult;
+}
+
+// #o3d VertexShaderEntryPoint vertexShaderFunction
+// #o3d PixelShaderEntryPoint pixelShaderFunction
+// #o3d MatrixLoadOrder RowMajor
+</script>
+<script type="text/o3deffect" id="simpleshader">
+uniform float4x4 worldViewProjection : WORLDVIEWPROJECTION;
+uniform float4 simpleColor;
+
+struct VertexShaderInput {
+  float4 position : POSITION;
+};
+
+struct PixelShaderInput {
+  float4 position : POSITION;
+};
+
+PixelShaderInput vertexShaderFunction(VertexShaderInput input) {
+  PixelShaderInput output;
+  output.position = mul(input.position, worldViewProjection);
+  return output;
+}
+
+float4 pixelShaderFunction(PixelShaderInput input) : COLOR {
+  return simpleColor;
+}
+
+// #o3d VertexShaderEntryPoint vertexShaderFunction
+// #o3d PixelShaderEntryPoint pixelShaderFunction
+// #o3d MatrixLoadOrder RowMajor
+</script>
+<script type="text/o3deffect" id="particleshader">
+float4x4 worldViewProjection : WORLDVIEWPROJECTION;
+float4x4 viewInverse : VIEWINVERSE;
+float timeRange;
+float time;
+
+// We need to implement 1D!
+sampler rampSampler;
+sampler colorSampler;
+
+struct VertexShaderInput {
+  float4 uvLifeTimeStartTime : POSITION;  // u, v, lifeTime, startTime
+  float4 positionSpinSpeed : TEXCOORD0;   // position.xyz, spinSpeed
+  float4 velocityStartSize : TEXCOORD1;   // velocity.xyz, startSize
+  float4 accelerationEndSize : TEXCOORD2; // acceleration.xyz, endSize
+  float4 colorMult : COLOR; //
+};
+
+struct PixelShaderInput {
+  float4 position : POSITION;
+  float2 texcoord : TEXCOORD0;
+  float1 percentLife : TEXCOORD1;
+  float4 colorMult: TEXCOORD2;
+};
+
+PixelShaderInput vertexShaderFunction(VertexShaderInput input) {
+  PixelShaderInput output;
+
+  float2 uv = input.uvLifeTimeStartTime.xy;
+  float lifeTime = input.uvLifeTimeStartTime.z;
+  float startTime = input.uvLifeTimeStartTime.w;
+  float3 position = input.positionSpinSpeed.xyz;
+  float spinSpeed = input.positionSpinSpeed.w;
+  float3 velocity = input.velocityStartSize.xyz;
+  float startSize = input.velocityStartSize.w;
+  float3 acceleration = input.accelerationEndSize.xyz;
+  float endSize = input.accelerationEndSize.w;
+
+  output.texcoord = float4(uv + 0.5, 0, 0);
+  output.colorMult = input.colorMult;
+
+  float localTime = (time - startTime) % timeRange;
+  float percentLife = localTime / lifeTime;
+
+  float3 basisX = viewInverse[0].xyz;
+  float3 basisZ = viewInverse[1].xyz;
+
+  float size = lerp(startSize, endSize, percentLife);
+  float s = sin(spinSpeed * localTime);
+  float c = cos(spinSpeed * localTime);
+
+  float2 rotatedPoint = float2(uv.x * c + uv.y * s, -uv.x * s + uv.y * c);
+  float3 localPosition = float3(basisX * rotatedPoint.x +
+                                basisZ * rotatedPoint.y) * size +
+                         velocity * localTime +
+                         acceleration * pow(localTime, 2) + position;
+
+  output.position = mul(float4(localPosition, 1) , worldViewProjection);
+  output.percentLife = percentLife;
+  return output;
+}
+
+float4 pixelShaderFunction(PixelShaderInput input): COLOR {
+  float4 colorMult = tex2D(rampSampler, float2(input.percentLife, 0.5)) *
+                     input.colorMult;
+  float4 color = tex2D(colorSampler, input.texcoord) * colorMult;
+  return color;
+}
+
+// #o3d VertexShaderEntryPoint vertexShaderFunction
+// #o3d PixelShaderEntryPoint pixelShaderFunction
+// #o3d MatrixLoadOrder RowMajor
+</script>
+<script type="text/o3deffect" id="diffuse_bump">
+uniform float4x4 world : WORLD;
+uniform float4x4 worldViewProjection : WORLDVIEWPROJECTION;
+uniform float3 lightWorldPos;
+uniform float4 lightColor;
+uniform float clipHeight;
+uniform float4x4 viewInverse : VIEWINVERSE;
+uniform float4x4 worldInverseTranspose : WORLDINVERSETRANSPOSE;
+uniform float4 emissive;
+uniform float4 ambient;
+sampler2D diffuseSampler;
+uniform float4 specular;
+sampler2D bumpSampler;
+uniform float shininess;
+
+struct InVertex {
+  float4 position : POSITION;
+  float4 normal : NORMAL;
+  float2 diffuseUV : TEXCOORD0;
+  float3 tangent : TANGENT;
+  float3 binormal : BINORMAL;
+};
+
+struct OutVertex {
+  float4 position : POSITION;
+  float2 diffuseUV : TEXCOORD0;
+  float3 tangent : TEXCOORD1;
+  float3 binormal : TEXCOORD2;
+  float4 worldPosition: TEXCOORD3;
+  float3 normal : TEXCOORD4;
+};
+
+OutVertex vertexShaderFunction(InVertex input) {
+  OutVertex output;
+  output.position = mul(input.position, worldViewProjection);
+  output.worldPosition = mul(input.position, world);
+  output.diffuseUV = input.diffuseUV;
+  output.normal = mul(float4(input.normal.xyz,0), worldInverseTranspose).xyz;
+  output.binormal = mul(float4(input.binormal,0), worldInverseTranspose).xyz;
+  output.tangent = mul(float4(input.tangent,0), worldInverseTranspose).xyz;
+  return output;
+}
+
+float4 pixelShaderFunction(OutVertex input) : COLOR {
+  float4 diffuse = tex2D(diffuseSampler, input.diffuseUV);
+  float3x3 tangentToWorld = float3x3(input.tangent,
+                                     input.binormal,
+                                     input.normal);
+  float3 tangentNormal = tex2D(bumpSampler, input.diffuseUV.xy).xyz -
+                         float3(0.5, 0.5, 0.5);
+  float3 normal = mul(tangentNormal, tangentToWorld);
+  normal = normalize(normal);
+  float3 surfaceToLight = normalize(lightWorldPos - input.worldPosition);
+  float3 surfaceToView = normalize(viewInverse[3] - input.worldPosition);
+  float3 halfVector = normalize(surfaceToLight + surfaceToView);
+  float4 litR = lit(dot(normal, surfaceToLight),
+                    dot(normal, halfVector),
+                    shininess);
+  float alpha = input.worldPosition.z > clipHeight ? 0 : diffuse.a;
+  return float4((emissive + lightColor *
+                 (ambient * diffuse +
+                  diffuse * litR.y +
+                  specular * litR.z)).rgb, alpha);
+}
+
+// #o3d VertexShaderEntryPoint vertexShaderFunction
+// #o3d PixelShaderEntryPoint pixelShaderFunction
+// #o3d MatrixLoadOrder RowMajor
+</script>
+<script type="text/o3deffect" id="diffuse_bump_blend">
+uniform float4x4 world : WORLD;
+uniform float4x4 worldViewProjection : WORLDVIEWPROJECTION;
+uniform float3 lightWorldPos;
+uniform float4 lightColor;
+uniform float clipHeight;
+uniform float4x4 viewInverse : VIEWINVERSE;
+uniform float4x4 worldInverseTranspose : WORLDINVERSETRANSPOSE;
+uniform float4 emissive;
+uniform float4 ambient;
+sampler2D diffuseSampler;
+sampler2D diffuse2Sampler;
+uniform float4 specular;
+sampler2D bumpSampler;
+uniform float shininess;
+
+struct InVertex {
+  float4 position : POSITION;
+  float4 normal : NORMAL;
+  float2 diffuseUV : TEXCOORD0;
+  float2 diffuse2UV : TEXCOORD1;
+  float3 tangent : TANGENT;
+  float3 tangent2 : TANGENT1;
+  float3 binormal : BINORMAL;
+  float3 binormal2 : BINORMAL1;
+  float4 color : COLOR;
+};
+
+struct OutVertex {
+  float4 position : POSITION;
+  float4 diffuseUV : TEXCOORD0;
+  float3 tangent : TEXCOORD1;
+  float3 tangent2 : TEXCOORD2;
+  float3 binormal : TEXCOORD3;
+  float3 binormal2 : TEXCOORD4;
+  float4 worldPosition: TEXCOORD5;
+  float3 normal : TEXCOORD6;
+  float4 color : COLOR;
+};
+
+OutVertex vertexShaderFunction(InVertex input) {
+  OutVertex output;
+  output.position = mul(input.position, worldViewProjection);
+  output.worldPosition = mul(input.position, world);
+  output.diffuseUV = float4(input.diffuseUV, input.diffuse2UV);
+  output.normal = mul(float4(input.normal.xyz,0), worldInverseTranspose).xyz;
+  output.binormal = mul(float4(input.binormal,0), worldInverseTranspose).xyz;
+  output.tangent = mul(float4(input.tangent,0), worldInverseTranspose).xyz;
+  output.binormal2 = mul(float4(input.binormal2,0), worldInverseTranspose).xyz;
+  output.tangent2 = mul(float4(input.tangent2,0), worldInverseTranspose).xyz;
+  output.color = output.color;
+  return output;
+}
+
+float4 pixelShaderFunction(OutVertex input) : COLOR {
+  float4 diffuse1 = tex2D(diffuseSampler, input.diffuseUV.xy);
+  float4 diffuse2 = tex2D(diffuse2Sampler, input.diffuseUV.zw);
+  float3x3 tangentToWorld = float3x3(input.tangent,
+                                     input.binormal,
+                                     input.normal);
+  float3 tangentNormal = tex2D(bumpSampler, input.diffuseUV.xy).xyz -
+                         float3(0.5, 0.5, 0.5);
+  float3 normal = mul(tangentNormal, tangentToWorld);
+  normal = normalize(normal);
+  tangentToWorld = float3x3(input.tangent2, input.binormal2, input.normal);
+  tangentNormal = tex2D(bumpSampler, input.diffuseUV.zw).xyz -
+                  float3(0.5, 0.5, 0.5);
+  float3 normal2 = mul(tangentNormal, tangentToWorld);
+  normal2 = normalize(normal2);
+  float3 surfaceToLight = normalize(lightWorldPos - input.worldPosition);
+  float3 surfaceToView = normalize(viewInverse[3] - input.worldPosition);
+  float3 halfVector = normalize(surfaceToLight + surfaceToView);
+  float4 litR = lit(dot(normal, surfaceToLight),
+                    dot(normal, halfVector),
+                    shininess);
+  float4 diffuse = lerp(diffuse1, diffuse2, input.color.a);
+  float alpha = input.worldPosition.z > clipHeight ? 0 : diffuse.a;
+  return float4((emissive + lightColor *
+                 (ambient * diffuse +
+                  diffuse * litR.y +
+                  specular * litR.z)).rgb, alpha);
+}
+
+// #o3d VertexShaderEntryPoint vertexShaderFunction
+// #o3d PixelShaderEntryPoint pixelShaderFunction
+// #o3d MatrixLoadOrder RowMajor
+</script>
+<script type="text/o3deffect" id="diffuse_bump_blend_underwater">
+uniform float4x4 world : WORLD;
+uniform float4x4 worldViewProjection : WORLDVIEWPROJECTION;
+uniform float3 lightWorldPos;
+uniform float4 lightColor;
+uniform float4x4 viewInverse : VIEWINVERSE;
+uniform float4x4 worldInverseTranspose : WORLDINVERSETRANSPOSE;
+uniform float4 emissive;
+uniform float4 ambient;
+sampler2D diffuseSampler;
+sampler2D diffuse2Sampler;
+uniform float4 specular;
+sampler2D bumpSampler;
+uniform float shininess;
+
+struct InVertex {
+  float4 position : POSITION;
+  float4 normal : NORMAL;
+  float2 diffuseUV : TEXCOORD0;
+  float2 diffuse2UV : TEXCOORD1;
+  float3 tangent : TANGENT;
+  float3 tangent2 : TANGENT1;
+  float3 binormal : BINORMAL;
+  float3 binormal2 : BINORMAL1;
+  float4 color : COLOR;
+};
+
+struct OutVertex {
+  float4 position : POSITION;
+  float4 diffuseUV : TEXCOORD0;
+  float3 tangent : TEXCOORD1;
+  float3 tangent2 : TEXCOORD2;
+  float3 binormal : TEXCOORD3;
+  float3 binormal2 : TEXCOORD4;
+  float4 worldPosition: TEXCOORD5;
+  float3 normal : TEXCOORD6;
+  float4 color : COLOR;
+};
+
+OutVertex vertexShaderFunction(InVertex input) {
+  OutVertex output;
+  output.position = mul(input.position, worldViewProjection);
+  output.worldPosition = mul(input.position, world);
+  output.diffuseUV = float4(input.diffuseUV, input.diffuse2UV);
+  output.normal = mul(float4(input.normal.xyz,0), worldInverseTranspose).xyz;
+  output.binormal = mul(float4(input.binormal,0), worldInverseTranspose).xyz;
+  output.tangent = mul(float4(input.tangent,0), worldInverseTranspose).xyz;
+  output.binormal2 = mul(float4(input.binormal2,0), worldInverseTranspose).xyz;
+  output.tangent2 = mul(float4(input.tangent2,0), worldInverseTranspose).xyz;
+  output.color = output.color;
+  return output;
+}
+
+float4 pixelShaderFunction(OutVertex input) : COLOR {
+  float4 diffuse1 = tex2D(diffuseSampler, input.diffuseUV.xy);
+  float4 diffuse2 = tex2D(diffuse2Sampler, input.diffuseUV.zw);
+  float3x3 tangentToWorld = float3x3(input.tangent,
+                                     input.binormal,
+                                     input.normal);
+  float3 tangentNormal = tex2D(bumpSampler, input.diffuseUV.xy).xyz -
+                         float3(0.5, 0.5, 0.5);
+  float3 normal = mul(tangentNormal, tangentToWorld);
+  normal = normalize(normal);
+  tangentToWorld = float3x3(input.tangent2, input.binormal2, input.normal);
+  tangentNormal = tex2D(bumpSampler, input.diffuseUV.zw).xyz -
+                  float3(0.5, 0.5, 0.5);
+  float3 normal2 = mul(tangentNormal, tangentToWorld);
+  normal2 = normalize(normal2);
+  float3 surfaceToLight = normalize(lightWorldPos - input.worldPosition);
+  float3 surfaceToView = normalize(viewInverse[3] - input.worldPosition);
+  float3 halfVector = normalize(surfaceToLight + surfaceToView);
+  float4 litR = lit(dot(normal, surfaceToLight),
+                    dot(normal, halfVector),
+                    shininess);
+  float4 diffuse = lerp(diffuse1, diffuse2, input.color.a);
+  float alpha = input.worldPosition.z > 0 ? 0 : diffuse.a;
+  return float4((emissive + lightColor *
+                 (ambient * diffuse +
+                  diffuse * litR.y +
+                  specular * litR.z)).rgb, alpha);
+}
+
+// #o3d VertexShaderEntryPoint vertexShaderFunction
+// #o3d PixelShaderEntryPoint pixelShaderFunction
+// #o3d MatrixLoadOrder RowMajor
+</script>
+<script type="text/o3deffect" id="diffuse_bump_2textures">
+uniform float4x4 world : WORLD;
+uniform float4x4 worldViewProjection : WORLDVIEWPROJECTION;
+uniform float3 lightWorldPos;
+uniform float4 lightColor;
+uniform float4x4 viewInverse : VIEWINVERSE;
+uniform float4x4 worldInverseTranspose : WORLDINVERSETRANSPOSE;
+uniform float4 emissive;
+uniform float4 ambient;
+sampler2D diffuseSampler;
+sampler2D diffuse2Sampler;
+uniform float4 specular;
+sampler2D bumpSampler;
+uniform float shininess;
+
+struct InVertex {
+  float4 position : POSITION;
+  float4 normal : NORMAL;
+  float2 diffuseUV : TEXCOORD0;
+  float3 tangent : TANGENT;
+  float3 binormal : BINORMAL;
+  float4 color : COLOR;
+};
+
+struct OutVertex {
+  float4 position : POSITION;
+  float2 diffuseUV : TEXCOORD0;
+  float3 tangent : TEXCOORD1;
+  float3 binormal : TEXCOORD2;
+  float4 worldPosition: TEXCOORD3;
+  float3 normal : TEXCOORD4;
+  float4 color : COLOR;
+};
+
+OutVertex vertexShaderFunction(InVertex input) {
+  OutVertex output;
+  output.position = mul(input.position, worldViewProjection);
+  output.worldPosition = mul(input.position, world);
+  output.diffuseUV = input.diffuseUV;
+  output.normal = mul(float4(input.normal.xyz,0), worldInverseTranspose).xyz;
+  output.binormal = mul(float4(input.binormal,0), worldInverseTranspose).xyz;
+  output.tangent = mul(float4(input.tangent,0), worldInverseTranspose).xyz;
+  output.color = input.color;
+  return output;
+}
+
+float4 pixelShaderFunction(OutVertex input) : COLOR {
+  float4 diffuse = tex2D(diffuseSampler, input.diffuseUV);
+  float4 diffuse2 = tex2D(diffuse2Sampler, input.diffuseUV);
+  diffuse = lerp(diffuse, diffuse2, input.color);
+  float3x3 tangentToWorld = float3x3(input.tangent,
+                                     input.binormal,
+                                     input.normal);
+  float3 tangentNormal = tex2D(bumpSampler, input.diffuseUV.xy).xyz -
+                         float3(0.5, 0.5, 0.5);
+  float3 normal = mul(tangentNormal, tangentToWorld);
+  normal = normalize(normal);
+  float3 surfaceToLight = normalize(lightWorldPos - input.worldPosition);
+  float3 surfaceToView = normalize(viewInverse[3] - input.worldPosition);
+  float3 halfVector = normalize(surfaceToLight + surfaceToView);
+  float4 litR = lit(dot(normal, surfaceToLight),
+                    dot(normal, halfVector),
+                    shininess);
+  float alpha = input.worldPosition.z < 0 ? diffuse.a : 0;
+  return float4((emissive +
+                 (ambient * diffuse +
+                  diffuse * litR.y +
+                  specular * litR.z)).rgb, alpha);
+}
+
+// #o3d VertexShaderEntryPoint vertexShaderFunction
+// #o3d PixelShaderEntryPoint pixelShaderFunction
+// #o3d MatrixLoadOrder RowMajor
+</script>
+<script type="text/o3deffect" id="diffuse">
+uniform float4x4 world : WORLD;
+uniform float4x4 worldViewProjection : WORLDVIEWPROJECTION;
+uniform float3 lightWorldPos;
+uniform float4 lightColor;
+uniform float clipHeight;
+uniform float4x4 viewInverse : VIEWINVERSE;
+uniform float4x4 worldInverseTranspose : WORLDINVERSETRANSPOSE;
+uniform float4 emissive;
+uniform float4 ambient;
+sampler2D diffuseSampler;
+uniform float4 specular;
+uniform float shininess;
+
+struct InVertex {
+  float4 position : POSITION;
+  float4 normal : NORMAL;
+  float2 diffuseUV : TEXCOORD0;
+};
+
+struct OutVertex {
+  float4 position : POSITION;
+  float2 diffuseUV : TEXCOORD0;
+  float4 worldPosition: TEXCOORD1;
+  float3 normal : TEXCOORD2;
+};
+
+OutVertex vertexShaderFunction(InVertex input) {
+  OutVertex output;
+  output.position = mul(input.position, worldViewProjection);
+  output.worldPosition = mul(input.position, world);
+  output.diffuseUV = input.diffuseUV;
+  output.normal = mul(float4(input.normal.xyz,0), worldInverseTranspose).xyz;
+  return output;
+}
+
+float4 pixelShaderFunction(OutVertex input) : COLOR {
+  float4 diffuse = tex2D(diffuseSampler, input.diffuseUV);
+  float3 normal = normalize(input.normal);
+  float3 surfaceToLight = normalize(lightWorldPos - input.worldPosition);
+  float3 surfaceToView = normalize(viewInverse[3] - input.worldPosition);
+  float3 halfVector = normalize(surfaceToLight + surfaceToView);
+  float4 litR = lit(dot(normal, surfaceToLight), dot(normal, halfVector), shininess);
+  float alpha = input.worldPosition.z > clipHeight ? 0 : diffuse.a;
+  return float4((emissive + lightColor * (ambient * diffuse + diffuse * litR.y + specular * litR.z)).rgb, alpha);
+}
+// #o3d VertexShaderEntryPoint vertexShaderFunction
+// #o3d PixelShaderEntryPoint pixelShaderFunction
+// #o3d MatrixLoadOrder RowMajor
+</script>
+<script type="text/o3deffect" id="diffuse_bump_specular">
+uniform float4x4 world : WORLD;
+uniform float4x4 worldViewProjection : WORLDVIEWPROJECTION;
+uniform float3 lightWorldPos;
+uniform float4 lightColor;
+uniform float clipHeight;
+uniform float4x4 viewInverse : VIEWINVERSE;
+uniform float4x4 worldInverseTranspose : WORLDINVERSETRANSPOSE;
+uniform float4 emissive;
+uniform float4 ambient;
+sampler2D diffuseSampler;
+sampler2D specularSampler;
+sampler2D bumpSampler;
+uniform float shininess;
+
+struct InVertex {
+  float4 position : POSITION;
+  float4 normal : NORMAL;
+  float2 diffuseUV : TEXCOORD0;
+  float3 tangent : TANGENT;
+  float3 binormal : BINORMAL;
+};
+
+struct OutVertex {
+  float4 position : POSITION;
+  float2 diffuseUV : TEXCOORD0;
+  float3 tangent : TEXCOORD1;
+  float3 binormal : TEXCOORD2;
+  float4 worldPosition: TEXCOORD3;
+  float3 normal : TEXCOORD4;
+};
+
+OutVertex vertexShaderFunction(InVertex input) {
+  OutVertex output;
+  output.position = mul(input.position, worldViewProjection);
+  output.worldPosition = mul(input.position, world);
+  output.diffuseUV = input.diffuseUV;
+  output.normal = mul(float4(input.normal.xyz,0), worldInverseTranspose).xyz;
+  output.binormal = mul(float4(input.binormal,0), worldInverseTranspose).xyz;
+  output.tangent = mul(float4(input.tangent,0), worldInverseTranspose).xyz;
+  return output;
+}
+
+float4 pixelShaderFunction(OutVertex input) : COLOR {
+  float4 diffuse = tex2D(diffuseSampler, input.diffuseUV);
+  float4 specular = tex2D(specularSampler, input.diffuseUV);
+  float3x3 tangentToWorld = float3x3(input.tangent, input.binormal, input.normal);
+  float3 tangentNormal = tex2D(bumpSampler, input.diffuseUV.xy).xyz -
+                         float3(0.5, 0.5, 0.5);
+  float3 normal = mul(tangentNormal, tangentToWorld);
+  normal = normalize(normal);
+  float3 surfaceToLight = normalize(lightWorldPos - input.worldPosition);
+  float3 surfaceToView = normalize(viewInverse[3] - input.worldPosition);
+  float3 halfVector = normalize(surfaceToLight + surfaceToView);
+  float4 litR = lit(dot(normal, surfaceToLight),
+                    dot(normal, halfVector),
+                    shininess);
+  float alpha = input.worldPosition.z > clipHeight ? 0 : diffuse.a;
+  return float4((emissive + lightColor *
+                 (ambient * diffuse +
+                  diffuse * litR.y +
+                  specular * litR.z)).rgb, alpha);
+}
+
+// #o3d VertexShaderEntryPoint vertexShaderFunction
+// #o3d PixelShaderEntryPoint pixelShaderFunction
+// #o3d MatrixLoadOrder RowMajor
+</script>
+<script type="text/o3deffect" id="just_color">
+uniform float4x4 world : WORLD;
+uniform float4x4 worldViewProjection : WORLDVIEWPROJECTION;
+uniform float3 lightWorldPos;
+uniform float4 lightColor;
+uniform float clipHeight;
+uniform float4x4 viewInverse : VIEWINVERSE;
+uniform float4x4 worldInverseTranspose : WORLDINVERSETRANSPOSE;
+uniform float4 emissive;
+uniform float4 ambient;
+uniform float4 diffuse;
+uniform float4 specular;
+uniform float shininess;
+
+struct InVertex {
+  float4 position : POSITION;
+  float4 normal : NORMAL;
+};
+
+struct OutVertex {
+  float4 position : POSITION;
+  float4 worldPosition: TEXCOORD0;
+  float3 normal : TEXCOORD1;
+};
+
+OutVertex vertexShaderFunction(InVertex input) {
+  OutVertex output;
+  output.position = mul(input.position, worldViewProjection);
+  output.worldPosition = mul(input.position, world);
+  output.normal = mul(float4(input.normal.xyz,0), worldInverseTranspose).xyz;
+  return output;
+}
+
+float4 pixelShaderFunction(OutVertex input) : COLOR {
+  float3 normal = normalize(input.normal);
+  float3 surfaceToLight = normalize(lightWorldPos - input.worldPosition);
+  float3 surfaceToView = normalize(viewInverse[3] - input.worldPosition);
+  float3 halfVector = normalize(surfaceToLight + surfaceToView);
+  float4 litR = lit(dot(normal, surfaceToLight),
+                    dot(normal, halfVector),
+                    shininess);
+  float alpha = input.worldPosition.z > clipHeight ? 0 : diffuse.a;
+  return float4((emissive + lightColor *
+                 (ambient * diffuse +
+                  diffuse * litR.y +
+                  specular * litR.z)).rgb, alpha);
+}
+
+// #o3d VertexShaderEntryPoint vertexShaderFunction
+// #o3d PixelShaderEntryPoint pixelShaderFunction
+// #o3d MatrixLoadOrder RowMajor
+</script>
+<script type="text/o3deffect" id="proxy">
+uniform float4x4 world : WORLD;
+uniform float4x4 worldViewProjection : WORLDVIEWPROJECTION;
+uniform float3 lightWorldPos;
+uniform float4 lightColor;
+uniform float4x4 viewInverse : VIEWINVERSE;
+uniform float4x4 worldInverseTranspose : WORLDINVERSETRANSPOSE;
+uniform float4 emissive;
+uniform float4 ambient;
+uniform float4 diffuse;
+uniform float4 specular;
+uniform float shininess;
+uniform float offset;
+
+struct InVertex {
+  float4 position : POSITION;
+  float4 normal : NORMAL;
+};
+
+struct OutVertex {
+  float4 position : POSITION;
+  float4 worldPosition: TEXCOORD0;
+  float3 normal : TEXCOORD1;
+};
+
+OutVertex vertexShaderFunction(InVertex input) {
+  OutVertex output;
+  output.position = mul(input.position, worldViewProjection);
+  output.worldPosition = mul(input.position, world);
+  output.normal = mul(float4(input.normal.xyz,0), worldInverseTranspose).xyz;
+  return output;
+}
+
+float4 pixelShaderFunction(OutVertex input) : COLOR {
+  float3 normal = normalize(input.normal);
+  float3 surfaceToLight = normalize(lightWorldPos - input.worldPosition);
+  float3 surfaceToView = normalize(viewInverse[3] - input.worldPosition);
+  float3 halfVector = normalize(surfaceToLight + surfaceToView);
+  float4 litR = lit(dot(normal, surfaceToLight),
+                    dot(normal, halfVector),
+                    shininess);
+  float alpha = input.worldPosition.z > offset ? 0 : diffuse.a;
+  return float4((emissive + lightColor *
+                 (ambient * diffuse +
+                  diffuse * litR.y +
+                  specular * litR.z)).rgb, alpha);
+}
+
+// #o3d VertexShaderEntryPoint vertexShaderFunction
+// #o3d PixelShaderEntryPoint pixelShaderFunction
+// #o3d MatrixLoadOrder RowMajor
+</script>
+</body>
+</html>
+
+

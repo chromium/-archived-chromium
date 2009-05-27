@@ -1,0 +1,206 @@
+<!--
+Copyright 2009, Google Inc.
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are
+met:
+
+    * Redistributions of source code must retain the above copyright
+notice, this list of conditions and the following disclaimer.
+    * Redistributions in binary form must reproduce the above
+copyright notice, this list of conditions and the following disclaimer
+in the documentation and/or other materials provided with the
+distribution.
+    * Neither the name of Google Inc. nor the names of its
+contributors may be used to endorse or promote products derived from
+this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+-->
+
+<!--
+
+O3D YUV to RGB conversion Tutorial
+
+In this sample we convert from a Y'UV420p encoded video frame to an
+RGB texture using a shader to do the conversion on the video hardware.
+-->
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+          "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<title>YUV to RGB Conversion in a shader.</title>
+<script type="text/javascript" src="o3djs/base.js"></script>
+<script type="text/javascript">
+o3djs.require('o3djs.util');
+o3djs.require('o3djs.math');
+o3djs.require('o3djs.rendergraph');
+o3djs.require('o3djs.primitives');
+o3djs.require('o3djs.effect');
+o3djs.require('o3djs.io');
+
+// Events
+// Run the init() once the page has finished loading.
+window.onload = init;
+
+// global variables
+var g_o3d;
+var g_math;
+var g_client;
+var g_pack;
+var g_viewInfo;
+var g_finished = false;  // for selenium testing
+
+/**
+ * Creates the client area and sets up the secondary init entry point.
+ */
+function init() {
+  o3djs.util.makeClients(initStep2);
+}
+
+/**
+ * Initializes O3D, loads the effect, and draws the quad that
+ * will display the texture.
+ *
+ * @param {Array} clientElements Array of o3d object elements.
+ */
+function initStep2(clientElements) {
+  // Initialize global variables and libraries.
+  var o3dElement = clientElements[0];
+  g_o3d = o3dElement.o3d;
+  g_math = o3djs.math;
+  g_client = o3dElement.client;
+
+  // Create a pack to manage our resources/assets
+  g_pack = g_client.createPack();
+
+  // Create the render graph for a view.
+  g_viewInfo = o3djs.rendergraph.createBasicView(
+      g_pack,
+      g_client.root,
+      g_client.renderGraphRoot);
+
+  // Setup an orthographic projection
+  // Offset by half a pixel to avoid roundoff errors.
+  g_viewInfo.drawContext.projection = g_math.matrix4.orthographic(
+    -g_client.width * 0.5 + 0.5,
+    g_client.width * 0.5 + 0.5,
+    -g_client.height * 0.5 - 0.5,
+    g_client.height * 0.5 - 0.5,
+    0.1,
+    1000);
+
+  g_viewInfo.drawContext.view = g_math.matrix4.lookAt(
+      [0, 500, 0],
+      [0, 0, 0],
+      [0, 0, -1]);
+
+  // Create and load the effect and the shader.
+  var effect = g_pack.createObject('Effect');
+  o3djs.effect.loadEffect(effect, 'shaders/yuv2rgb.shader');
+
+  // Create a Material for the effect.
+  var myMaterial = g_pack.createObject('Material');
+
+  // Set the material's drawList
+  myMaterial.drawList = g_viewInfo.performanceDrawList;
+
+  // Apply our effect to this material.
+  myMaterial.effect = effect;
+
+  // Create the params the effect needs on the material.
+  effect.createUniformParameters(myMaterial);
+
+  // Creates a quad using the effect that has a 1:1 aspect ratio.
+  var myShape = o3djs.primitives.createPlane(g_pack,
+                                             myMaterial,
+                                             720,  // width
+                                             720,  // height
+                                             1,    // quads across
+                                             1);   // quads down
+
+  // Get the material's sampler parameter
+  var sampler_param = myMaterial.getParam('textureSampler');
+  var sampler = g_pack.createObject('Sampler');
+  sampler.addressModeU = g_o3d.Sampler.WRAP;
+  sampler.addressModeV = g_o3d.Sampler.WRAP;
+  sampler.magFilter = g_o3d.Sampler.POINT;
+  sampler.minFilter = g_o3d.Sampler.POINT;
+
+  // Be sure to turn off MIP-mapping, since that causes problems when
+  // jumping around the image the way we are.
+  sampler.mipFilter = g_o3d.Sampler.NONE;
+  sampler_param.value = sampler;
+
+  // Set the source image width
+  var width_param = myMaterial.getParam('imageWidth');
+  width_param.value = 720.0;
+
+  // Set the source image height
+  var height_param = myMaterial.getParam('imageHeight');
+  height_param.value = 486.0;
+
+  // Load our Y'UV420p texture, encoded as a greyscale PNG image. This
+  // happens asynchronously.
+  var url = o3djs.util.getCurrentURI() + 'assets/shaving_cream.png';
+  o3djs.io.loadTexture(g_pack, url, function(texture, exception) {
+    if (exception) {
+      alert(exception);
+      return;
+    }
+    sampler.texture = texture;
+    // adjust the scale of our transform to match the aspect ratio of
+    // the texture. Of course we could also have waited until now to build
+    // our quad and set its width and height to match instead of scaling
+    // here.
+    var textureWidth = texture.width;
+
+    // Account for additional data on bottom of image.
+    var textureHeight = texture.height * 2.0 / 3.0;
+    var hScale = 1;
+    var vScale = 1;
+    if (textureWidth > textureHeight) {
+      vScale = textureHeight / textureWidth;
+    } else if (textureHeight > textureWidth) {
+      hScale = textureWidth / textureHeight;
+    }
+    // We now attach our quad to the root of the transform graph.  We do
+    // this after the texture has loaded, otherwise we'd be attempting
+    // to display something invalid.
+    var root = g_client.root;
+    root.addShape(myShape);
+    root.scale(hScale, 1, vScale);
+
+    g_finished = true;  // for selenium testing.
+  });
+}
+</script>
+</head>
+<body>
+<h1>YUV to RGB Conversion</h1>
+<p>This how to do image colorspace and format conversion in a shader.</p>
+<p>Here is the YUV encoded image (treated as an 8-bit greyscale image):</p>
+<p><img src="assets/shaving_cream.png" style="width: 720px; height: 729px"
+        alt="YUV encoded image"/></p>
+<p>Here is the original image, encoded as a JPEG image:</p>
+<p><img src="assets/shaving_cream.jpg" style="width: 720px; height: 486px"
+        alt="Original JPG encoded image"/></p>
+<p>Here is the O3D plugin loading the YUV image, and converting it
+to RGB in the shader on the fly.</p>
+<!-- Start of O3D plugin -->
+<div id="o3d" style="width: 720px; height: 486px"></div>
+<!-- End of O3D plugin -->
+</body>
+</html>

@@ -1,0 +1,367 @@
+<!--
+Copyright 2009, Google Inc.
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are
+met:
+
+    * Redistributions of source code must retain the above copyright
+notice, this list of conditions and the following disclaimer.
+    * Redistributions in binary form must reproduce the above
+copyright notice, this list of conditions and the following disclaimer
+in the documentation and/or other materials provided with the
+distribution.
+    * Neither the name of Google Inc. nor the names of its
+contributors may be used to endorse or promote products derived from
+this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+-->
+
+<!--
+O3D Tutorial B5
+
+In this tutorial, we generate a simple spherical mesh using Javascript and
+shade it using Phong illumination.
+
+We calculate the various lighting components (ambient,diffuse,specular)
+and combine them in our vertex/pixel shaders to draw the correct color for each
+pixel in the scene.
+
+The scene is illuminated by a single red light and the sphere is white.
+(ie ambient, diffuse, and specular reflection constants of the material = 1)
+
+In this sample, we generate the projection matrix dynamically from the size
+of the o3d plugin.
+-->
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+  "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<title>
+Tutorial B5: Phong Shading
+</title>
+<!-- Our javascript code -->
+<script type="text/javascript" src="o3djs/base.js"></script>
+<script type="text/javascript">
+o3djs.require('o3djs.util');
+o3djs.require('o3djs.math');
+o3djs.require('o3djs.rendergraph');
+o3djs.require('o3djs.primitives');
+
+// Events
+// Run the init() function once the page has finished loading.
+//         unload() when the page is unloaded.
+window.onload = init;
+window.onunload = unload;
+
+// global variables
+var g_o3d;
+var g_math;
+var g_client;
+var g_o3dElement;
+var g_viewInfo;
+var g_pack;
+var g_o3dWidth = -1;
+var g_o3dHeight = -1;
+
+// Our view and projection matrices
+// The view matrix transforms objects from world space to view space.
+var g_view_matrix;
+// The projection matrix projects objects from view space to the screen.
+var g_proj_matrix;
+
+/**
+ * Creates the client area.
+ */
+function init() {
+  o3djs.util.makeClients(initStep2);
+}
+
+/**
+ * Initializes O3D, loads the effect, and draws the sphere.
+ * @param {Array} clientElements Array of o3d object elements.
+ */
+function initStep2(clientElements) {
+  // Initializes global variables and libraries.
+  g_o3dElement = clientElements[0];
+  g_o3d = g_o3dElement.o3d;
+  g_math = o3djs.math;
+  g_client = g_o3dElement.client;
+
+  // Create a g_pack to manage our resources/assets
+  g_pack = g_client.createPack();
+
+  // Create the render graph for a view.
+  g_viewInfo = o3djs.rendergraph.createBasicView(
+      g_pack,
+      g_client.root,
+      g_client.renderGraphRoot);
+
+  /* Load the effect for our sphere from our file.
+     Effects, stored in a hidden textarea for simplicity, contain the
+     functions that define the vertex and pixel shaders used by our shape.
+
+     Here, we calculate phong illumination in our vertex shader and pass the
+     resultant color to our pixel shader, which does nothing except output its
+     given (input) color.
+  */
+  var effect = g_pack.createObject('Effect');
+  effect.loadFromFXString(document.getElementById('shader').value);
+
+  // Create a Material for the effect.
+  var myMaterial = g_pack.createObject('Material');
+
+  // Apply our effect to this material.
+  myMaterial.effect = effect;
+
+  // Set the material's drawList
+  myMaterial.drawList = g_viewInfo.performanceDrawList;
+
+  // Create the params the effect needs on the material.
+  effect.createUniformParameters(myMaterial);
+
+  // Create a sphere at the origin with radius 1.
+  var myShape = o3djs.primitives.createSphere(g_pack,
+                                              myMaterial,
+                                              1,
+                                              70,
+                                              70);
+
+  // Set up the individual parameters in our effect file.
+
+  // Light position
+  var light_pos_param = myMaterial.getParam('light_pos');
+  light_pos_param.value = [10, 10, 20];
+
+  // Phong components of the light source
+  var light_ambient_param = myMaterial.getParam('light_ambient');
+  var light_diffuse_param = myMaterial.getParam('light_diffuse');
+  var light_specular_param = myMaterial.getParam('light_specular');
+
+  // White ambient light
+  light_ambient_param.value = [0.04, 0.04, 0.04, 1];
+  // Reddish diffuse light
+  light_diffuse_param.value = [0.8, 0, 0, 1];
+  // White specular light
+  light_specular_param.value = [0.5, 0.5, 0.5, 1];
+
+  // Shininess of the material (for specular lighting)
+  var shininess_param = myMaterial.getParam('shininess');
+  shininess_param.value = 30.0;
+
+  // Position of the camera.
+  // (should be the same as the 'eye' position given below)
+  var camera_pos_param = myMaterial.getParam('camera_pos');
+  // Camera is at (0, 0, 3).
+  camera_pos_param.value = [0, 0, 3];
+
+  // Now create our view matrix by defining coordinates for the
+  // target, eye, and up vectors and using the g_math.matrix4.lookAt(..)
+  // helper function to create the matrix.
+
+  // Eye-position, this is where our camera is at.
+  var eye = [0, 0, 3];
+
+  // Target, this is where our camera is pointed at.
+  var target = [0, 0, 0];
+
+  // Up-vector, this tells the camera which direction is 'up'.
+  // We define the positive y-direction to be up in this example.
+  var up = [0, 1, 0];
+
+  g_view_matrix = g_math.matrix4.lookAt(eye, target, up);
+
+  // Generate the projection and viewProjection matrices based
+  // on the g_o3d plugin size by calling resize().
+  resize();
+
+  // Now attach the sphere to the root of the transform graph.
+  var root = g_client.root;
+  root.addShape(myShape);
+
+  // If we don't check the size of the client area every frame we don't get a
+  // chance to adjust the perspective matrix fast enough to keep up with the
+  // browser resizing us.
+  g_client.setRenderCallback(resize);
+}
+
+// Generates the projection matrix based on the size of the o3d plugin
+// and calculates the view-projection matrix.
+function resize() {
+  var newWidth  = g_client.width;
+  var newHeight = g_client.height;
+
+  if (newWidth != g_o3dWidth || newHeight != g_o3dHeight) {
+    g_o3dWidth = newWidth;
+    g_o3dHeight = newHeight;
+
+    // Create our projection matrix, with a vertical field of view of 45 degrees
+    // a near clipping plane of 0.1 and far clipping plane of 100.
+    g_proj_matrix = g_math.matrix4.perspective(
+        g_math.degToRad(45),
+        g_o3dWidth / g_o3dHeight,
+        0.1,
+        100);
+
+    // Set the view and projection matrix
+    g_viewInfo.drawContext.view = g_view_matrix;
+    g_viewInfo.drawContext.projection = g_proj_matrix;
+  }
+}
+
+/**
+ * Removes any callbacks so they don't get called after the page has unloaded.
+ */
+function unload() {
+  if (g_client) {
+    g_client.cleanup();
+  }
+}
+</script>
+</head>
+<body>
+<table width="100%" style="height:100%;">
+  <tr><td>
+<h1>Phong shading</h1>
+<p>
+This tutorial shows how we generate a custom mesh and
+perform Phong illumination using a shader.
+</p>
+<p>
+This sample displays a Phong shaded white sphere lit by a single red light.
+</p>
+<table id="container" width="90%" style="height:60%;"><tr><td height="100%">
+<!-- Start of g_o3d plugin -->
+<div id="o3d" style="width: 600px; height: 600px;"></div>
+<!-- End of g_o3d plugin -->
+</td></tr></table>
+<!-- a simple way to get a multiline string -->
+<textarea id="shader" name="shader" cols="80" rows="20"
+ style="display: none;">
+// The 4x4 world view projection matrix.
+float4x4 worldViewProjection : WorldViewProjection;
+
+// positions of the light and camera
+float3 light_pos;
+float3 camera_pos;
+
+// phong lighting components of the light source
+float4 light_ambient;
+float4 light_diffuse;
+float4 light_specular;
+
+//  shininess of the material. (for specular lighting)
+float shininess;
+
+// input parameters for our vertex shader
+struct VertexShaderInput {
+  float4 postion : POSITION;
+  float3 normal : NORMAL;
+  float4 color : COLOR;
+};
+
+// input parameters for our pixel shader
+// also the output parameters for our vertex shader
+struct PixelShaderInput {
+  float4 postion : POSITION;
+  float3 lightVector : TEXCOORD0;
+  float3 normal : TEXCOORD1;
+  float3 viewPosition : TEXCOORD2;
+  float4 color : COLOR;
+};
+
+/**
+ * Vertex Shader - vertex shader for phong illumination
+ */
+PixelShaderInput vertexShaderFunction(VertexShaderInput input) {
+  /**
+   * We use the standard phong illumination equation here.
+   * We restrict (clamp) the dot products so that we
+   * don't get any negative values.
+   * All vectors are normalized for proper calculations.
+   *
+   * The output color is the summation of the
+   * ambient, diffuse, and specular contributions.
+   *
+   * Note that we have to transform each vertex and normal
+   * by the world view projection matrix first.
+   */
+  PixelShaderInput output;
+
+  output.postion = mul(input.postion, worldViewProjection);
+
+  /**
+   * lightVector - light vector
+   * normal - normal vector
+   * viewPosition - view vector (from camera)
+   */
+
+  // NOTE: In this case we do not need to multiply by any matrices since the
+  // WORLD transformation matrix is the identity. If you were moving the
+  // object such that the WORLD transform matrix was not the identity, you
+  // would need to multiply the normal by the WORLDINVERSETTRANSFORM matrix
+  // since the normal is in object space. Other values (light_pos, camera_pos)
+  // are already in world space.
+  float3 lightVector = light_pos - input.postion.xyz;
+  float3 normal = input.normal;
+  float3 viewPosition = camera_pos - input.postion.xyz;
+
+  output.lightVector = lightVector;
+  output.normal = normal;
+  output.viewPosition = viewPosition;
+  output.color = input.color;
+  return output;
+}
+
+/**
+ * Pixel Shader
+ */
+float4 pixelShaderFunction(PixelShaderInput input): COLOR {
+  float3 lightVector = normalize(input.lightVector);
+  float3 normal = normalize(input.normal);
+  float3 viewPosition = normalize(input.viewPosition);
+  float3 halfVector = normalize(lightVector + viewPosition);
+
+  // use lit function to calculate phong shading
+  // x component contains the ambient coefficient
+  // y component contains the diffuse coefficient:
+  //     max(dot(normal, lightVector),0)
+  // z component contains the specular coefficient:
+  //     dot(normal, lightVector) < 0 || dot(normal, halfVector) < 0 ?
+  //         0 : pow(dot(normal, halfVector), shininess)
+  // NOTE: This is actually Blinn-Phong shading, not Phong shading
+  // which would use the reflection vector instead of the half vector
+
+  float4 phong_coeff = lit(dot(normal, lightVector),
+                           dot(normal, halfVector), shininess);
+
+  float4 ambient = light_ambient * phong_coeff.x * input.color;
+  float4 diffuse = light_diffuse * phong_coeff.y * input.color;
+  float4 specular = light_specular * phong_coeff.z * input.color;
+
+  return ambient + diffuse + specular;
+}
+
+// Here we tell our effect file *which* functions are
+// our vertex and pixel shaders.
+
+// #o3d VertexShaderEntryPoint vertexShaderFunction
+// #o3d PixelShaderEntryPoint pixelShaderFunction
+// #o3d MatrixLoadOrder RowMajor
+</textarea>
+</td></tr></table>
+</body>
+</html>

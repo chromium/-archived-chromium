@@ -1,0 +1,372 @@
+/*
+ * Copyright 2009, Google Inc.
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are
+ * met:
+ *
+ *     * Redistributions of source code must retain the above copyright
+ * notice, this list of conditions and the following disclaimer.
+ *     * Redistributions in binary form must reproduce the above
+ * copyright notice, this list of conditions and the following disclaimer
+ * in the documentation and/or other materials provided with the
+ * distribution.
+ *     * Neither the name of Google Inc. nor the names of its
+ * contributors may be used to endorse or promote products derived from
+ * this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+ * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+ * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+ * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+ * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
+
+namespace o3d {
+
+typedef Shape[] ShapeArray;
+
+%[
+  The Transform defines parent child relationship and a localMatrix..
+  A Transform can have one or no parents and
+  an arbitrary number of children.
+%]
+[nocpp, include="core/cross/transform.h"] class Transform
+   : ParamObject {
+  %[
+    The Visibility for this transform.
+  %]
+  [getter, setter] bool visible_;
+
+  %[
+    Sets the parent of the transform by re-parenting the transform under
+    parent. Setting parent to null removes the transform and the
+    entire subtree below it from the transform graph.
+    If the operation would create a cycle it fails.
+  %]
+  [setter, userglue_setter] Transform? parent_;
+
+  %[
+    The immediate children of this Transform.
+
+    Each access to this field gets the entire list, so it is best to get it
+    just once. For example:
+    \code
+    var children = transform.children;
+    for (var i = 0; i < children.length; i++) {
+      var child = children[i];
+    }
+    \endcode
+
+    Note that modifications to this array [e.g. additions to it] will not affect
+    the underlying Transform, while modifications to the members of the array
+    <strong>will</strong> affect them.
+  %]
+  [userglue_getter, getter] TransformArray children_;
+
+  %[
+    Returns all the transforms under this transform including this one.
+
+    Note that modifications to this array [e.g. additions to it] will not affect
+    the underlying Transform, while modifications to the members of the array
+    <strong>will</strong> affect them.
+
+    \return An array containing the transforms of the subtree.
+  %]
+  TransformArray GetTransformsInTree();
+
+  %[
+    Searches for transforms that match the given name in the hierarchy under and
+    including this transform. Since there can be more than one transform with a
+    given name, results are returned in an array.
+
+    Note that modifications to this array [e.g. additions to it] will not affect
+    the underlying Transform, while modifications to the members of the array
+    <strong>will</strong> affect them.
+
+    \param name Transform name to look for.
+    \return An array containing the transforms of the under and including this
+        transform matching the given name.
+  %]
+  TransformArray GetTransformsByNameInTree(String name);
+
+  %[
+    Evaluates and returns the current world matrix.
+
+    \return The updated world matrix.
+  %]
+  Vectormath::Aos::Matrix4 GetUpdatedWorldMatrix();
+
+  %[
+    Adds a shape do this transform.
+    \param shape Shape to add.
+  %]
+  void AddShape(Shape shape);
+
+  %[
+    Removes a shape from this transform.
+    \param shape Shape to remove.
+    \return true if successful, false if shape was not in this transform.
+  %]
+  bool RemoveShape(Shape shape);
+
+  %[
+    Gets the shapes owned by this transform.
+
+    Each access to this field gets the entire list so it is best to get it
+    just once. For example:
+    \code
+    var shapes = transform.shapes;
+    for (var i = 0; i < shapes.length; i++) {
+      var shape = shapes[i];
+    }
+    \endcode
+
+    Note that modifications to this array [e.g. additions to it] will not affect
+    the underlying Transform, while modifications to the members of the array
+    <strong>will</strong> affect them.
+  %]
+  [userglue_getter, getter, userglue_setter, setter]
+  ShapeArray shapes_;
+
+  %[
+    Walks the tree of transforms starting with this transform and creates
+    draw elements. If an Element already has a DrawElement that uses material a
+    new DrawElement will not be created.
+    \param pack Pack used to manage created elements.
+    \param material Material to use for each element. If you pass null, it will
+         use the material on the element to which a draw element is being added.
+         In other words, a DrawElement will use the material of the
+         corresponding Element if material is null. This allows you to easily
+         setup the default (just draw as is) by passing null or setup a shadow
+         pass by passing in a shadow material.
+  %]
+  void CreateDrawElements(Pack pack,
+                          Material? material);
+
+  %[
+    World (model) matrix as it was last computed.
+  %]
+  [getter] Vectormath::Aos::Matrix4 world_matrix;
+
+  %[
+    Local transformation matrix.
+  %]
+  [getter, setter, nocpp] Vectormath::Aos::Matrix4 local_matrix;
+
+  %[
+    The cull setting for this transform. If true this Transform will be culled
+    by having its bounding box compared to the view frustum of any draw context
+    it is used with.
+  %]
+  [getter, setter] bool cull_;
+
+  %[
+    The BoundingBox for this Transform. If culling is on this bounding box will
+    be tested against the view frustum of any draw context used to with this
+    Transform.
+  %]
+  [getter, setter] BoundingBox bounding_box_;
+
+  %[
+    Sets the local matrix of this transform to the identity matrix.
+  %]
+  [userglue] void identity();
+
+  %[
+    Pre-composes the local matrix of this Transform with a translation.  For
+    example, if the local matrix is a rotation then new local matrix will
+    translate by the given vector and then rotated.
+
+    \param translation vector of 3 entries by which to translate.
+  %]
+  [userglue] void translate(Vectormath::Aos::Vector3 translation);
+
+  %[
+    Pre-composes the local matrix of this Transform with a translation.  For
+    example, if the local matrix is a rotation then the new local matrix will
+    translate by the given amounts and then rotate.
+
+    \param x amount to translate in x.
+    \param y amount to translate in y.
+    \param z amount to translate in z.
+  %]
+  [userglue] void translate(float x, float y, float z);
+
+  %[
+    Pre-composes the local matrix of this Transform with a rotation about the
+    x-axis.  For example, if the local matrix is a tranlsation, the new local
+    matrix will rotate around the x-axis and then translate.
+
+    \param radians The number of radians to rotate around x-axis.
+  %]
+  [userglue] void rotateX(float radians);
+
+  %[
+    Pre-composes the local matrix of this Transform with a rotation about the
+    y-axis.  For example, if the local matrix is a translation, the new local
+    matrix will rotate around the y-axis and then translate.
+
+    \param radians The number of radians to rotate around y-axis.
+  %]
+  [userglue] void rotateY(float radians);
+
+  %[
+    Pre-composes the local matrix of this Transform with a rotation about the
+    z-axis.  For example, if the local matrix is a translation, the new local
+    matrix will rotate around the z-axis and then translate.
+
+    \param radians The number of radians to rotate around z-axis.
+  %]
+  [userglue] void rotateZ(float radians);
+
+  %[
+    Pre-composes the local matrix of this Transform with a rotation.
+    Interprets the three entries of the given vector as angles by which to
+    rotate around the x, y and z axes.  Rotates around the x-axis first,
+    then the y-axis, then the z-axis.
+
+    \param radiansXYZ A vector of angles (in radians) by which to rotate
+        around the x, y and z axes.
+  %]
+  [userglue] void rotateZYX(Vectormath::Aos::Vector3 radiansXYZ);
+
+  %[
+    Pre-composes the local matrix of this Transform with a rotation around the
+    given axis.  For example, if the local matrix is a translation, the new
+    local matrix will rotate around the given axis and then translate.
+
+    \param radians The number of radians to rotate.
+    \param axis a non-zero vector representing the axis around which to rotate.
+  %]
+  [userglue] void axisRotate(Vectormath::Aos::Vector3 axis, float radians);
+
+  %[
+    Pre-composes the local matrix of this Transform with a rotation defined by
+    the given quaternion.
+
+    \param unit_quat A non-zero quaternion to be interpreted as a rotation.
+  %]
+  [userglue] void quaternionRotate(Vectormath::Aos::Quat unit_quat);
+
+  %[
+    Pre-composes the local matrix of this transform by a scaling transformation.
+    For example, if the local matrix is a rotation, the new local matrix will
+    scale and then rotate.
+
+    \param scale amount to scale.
+  %]
+  [userglue] void scale(Vectormath::Aos::Vector3 scale);
+
+  %[
+    Pre-composes the local matrix of this transform by a scaling transformation.
+    For example, if the local matrix is a rotation, the new local matrix will
+    scale and then rotate.
+
+    \param x amount to scale in the x dimension.
+    \param y amount to scale in the y dimension.
+    \param z amount to scale in the z dimension.
+  %]
+  [userglue] void scale(float x, float y, float z);
+
+  [verbatim=cpp_glue] %{
+    void userglue_setter_parent_(
+        o3d::Transform* _this,
+        o3d::Transform* parent) {
+      _this->SetParent(parent);
+    }
+    o3d::TransformArray userglue_getter_children_(
+      o3d::Transform *self) {
+      return self->GetChildren();
+    }
+    o3d::ShapeArray userglue_getter_shapes_(
+      o3d::Transform *self) {
+      return self->GetShapes();
+    }
+    void userglue_setter_shapes_(
+      o3d::Transform *self,
+      const o3d::ShapeArray& shapes) {
+      self->SetShapes(shapes);
+    }
+    void userglue_method_identity(o3d::Transform* self) {
+      self->set_local_matrix(Vectormath::Aos::Matrix4::identity());
+    }
+    void userglue_method_translate(
+        o3d::Transform* self,
+        const Vectormath::Aos::Vector3& translation) {
+      self->set_local_matrix(
+          self->local_matrix() *
+          Vectormath::Aos::Matrix4::translation(translation));
+    }
+    void userglue_method_translate(o3d::Transform* self,
+                                   float x,
+                                   float y,
+                                   float z) {
+      self->set_local_matrix(self->local_matrix() *
+                              Vectormath::Aos::Matrix4::translation(
+                                 Vectormath::Aos::Vector3(x, y, z)));
+    }
+    void userglue_method_rotateX(o3d::Transform* self,
+                                 float radians) {
+      self->set_local_matrix(self->local_matrix() *
+                              Vectormath::Aos::Matrix4::rotationX(radians));
+    }
+    void userglue_method_rotateY(o3d::Transform* self,
+                                 float radians) {
+      self->set_local_matrix(self->local_matrix() *
+                              Vectormath::Aos::Matrix4::rotationY(radians));
+    }
+    void userglue_method_rotateZ(o3d::Transform* self,
+                                 float radians) {
+      self->set_local_matrix(self->local_matrix() *
+                              Vectormath::Aos::Matrix4::rotationZ(radians));
+    }
+    void userglue_method_rotateZYX(o3d::Transform* self,
+        const Vectormath::Aos::Vector3& radiansXYZ) {
+      self->set_local_matrix(self->local_matrix() *
+          Vectormath::Aos::Matrix4::rotationZYX(radiansXYZ));
+    }
+    void userglue_method_axisRotate(o3d::Transform* self,
+                                    const Vectormath::Aos::Vector3& axis,
+                                    float radians) {
+      self->set_local_matrix(
+          self->local_matrix() *
+              Vectormath::Aos::Matrix4::rotation(radians,
+                  Vectormath::Aos::normalize(axis)));
+    }
+    void userglue_method_quaternionRotate(o3d::Transform* self,
+                                          const Vectormath::Aos::Quat& quat) {
+      self->set_local_matrix(self->local_matrix() *
+                              Vectormath::Aos::Matrix4::rotation(
+                                  Vectormath::Aos::normalize(quat)));
+    }
+    void userglue_method_scale(
+        o3d::Transform* self,
+        const Vectormath::Aos::Vector3& scale) {
+      self->set_local_matrix(self->local_matrix() *
+          Vectormath::Aos::Matrix4::scale(scale));
+    }
+    void userglue_method_scale(o3d::Transform* self,
+                               float x,
+                               float y,
+                               float z) {
+      self->set_local_matrix(
+          self->local_matrix() *
+          Vectormath::Aos::Matrix4::scale(Vectormath::Aos::Vector3(x, y, z)));
+    }
+  %}
+};  // Transform
+
+%[
+  TransformArray is a typdef for an array of Transforms.
+%]
+typedef Transform[] TransformArray;
+
+}  // namespace o3d

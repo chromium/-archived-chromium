@@ -1,0 +1,866 @@
+<!--
+Copyright 2009, Google Inc.
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are
+met:
+
+    * Redistributions of source code must retain the above copyright
+notice, this list of conditions and the following disclaimer.
+    * Redistributions in binary form must reproduce the above
+copyright notice, this list of conditions and the following disclaimer
+in the documentation and/or other materials provided with the
+distribution.
+    * Neither the name of Google Inc. nor the names of its
+contributors may be used to endorse or promote products derived from
+this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+-->
+
+<!--
+TODO:
+  O Set Sun to correct location for time.
+  O Put in moon
+  O Put in Google satellite
+  O Put in Star Shader that uses star data from a texture
+  O Add Halo
+  O Add Sun Model
+    O with glowing rays.
+-->
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+  "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<title>
+Google Trends Visualizer
+</title>
+<style>
+  html, body {
+      border: 0;
+      margin: 0;
+      height: 100%;
+      height: 100%;
+      text-align: center;
+    }
+</style>
+</head>
+<body onload="init();" onunload="uninit();">
+<script type="text/javascript" src="../o3djs/base.js"></script>
+<script type="text/javascript">
+o3djs.require('o3djs.util');
+o3djs.require('o3djs.math');
+o3djs.require('o3djs.quaternions');
+o3djs.require('o3djs.rendergraph');
+o3djs.require('o3djs.primitives');
+o3djs.require('o3djs.arcball');
+o3djs.require('o3djs.io');
+
+var g = {
+  EARTH_RADIUS: 25,
+  ENERGY_WIDTH: 0.5,
+  ENERGY_HEIGHT: 10
+};
+
+g.camera = {
+ eye: [0, 0, 75],
+ target: [0, 0, 0]
+};
+
+var g_finished = false;  // for selenium.
+var dragging = false;
+
+function startDragging(e) {
+  g.lastRot = g.thisRot;
+  g.aball.click([e.x, e.y]);
+  dragging = true;
+}
+
+function drag(e) {
+  if (dragging) {
+    var rotationQuat = g.aball.drag([e.x, e.y]);
+    var rot_mat = g.quaternions.quaternionToRotation(rotationQuat);
+    g.thisRot = g.math.matrix4.mul(g.lastRot, rot_mat);
+
+    var m = g.root.localMatrix;
+    g.math.matrix4.setUpper3x3(m, g.thisRot);
+    g.root.localMatrix = m;
+  }
+}
+
+function stopDragging(e) {
+  dragging = false;
+}
+
+function updateViewFromCamera() {
+  var target = g.camera.target;
+  var eye = g.camera.eye;
+  var up = [0, 1, 0];
+  g.viewInfo.drawContext.view = g.math.matrix4.lookAt(eye, target, up);
+  g.eyePosParam.value = eye;
+}
+
+function scrollMe(e) {
+  if (e.deltaY > 0) {
+    g.camera.eye[0] *= 11 / 12;
+    g.camera.eye[1] *= 11 / 12;
+    g.camera.eye[2] *= 11 / 12;
+
+  } else {
+    g.camera.eye[0] *= (1 + 1 / 12);
+    g.camera.eye[1] *= (1 + 1 / 12);
+    g.camera.eye[2] *= (1 + 1 / 12);
+  }
+  updateViewFromCamera();
+}
+
+function getURL(path) {
+  var base = window.location.href;
+  var index = base.lastIndexOf('/');
+  base = base.substring(0, index + 1);
+  return base + path;
+}
+
+function setClientSize() {
+  var newWidth = g.client.width;
+  var newHeight = g.client.height;
+
+  if (newWidth != g.o3dWidth || newHeight != g.o3dHeight) {
+    g.o3dWidth  = newWidth;
+    g.o3dHeight = newHeight;
+
+    // Create a perspective projection matrix
+    g.viewInfo.drawContext.projection = g.math.matrix4.perspective(
+      g.math.degToRad(45), g.o3dWidth / g.o3dHeight, 0.1, 5000);
+
+    // Sets a new area size for arcball.
+    g.aball.setAreaSize(g.o3dWidth, g.o3dHeight);
+  }
+}
+
+function onRender() {
+  setClientSize();
+}
+
+function createEnergyShape(pack, material, width, height) {
+  var vertexInfo = o3djs.primitives.createVertexInfo();
+  var positionStream = vertexInfo.addStream(
+      3, g.o3d.Stream.POSITION);
+  var normalStream = vertexInfo.addStream(
+      3, g.o3d.Stream.NORMAL);
+  var colorStream = vertexInfo.addStream(
+      4, g.o3d.Stream.COLOR);
+  var texCoordStream = vertexInfo.addStream(
+      2, g.o3d.Stream.TEXCOORD, 0);
+
+  var vScale = 1;
+  positionStream.addElement(width * -0.5, height, 0);
+  normalStream.addElement(0, 0, 1);
+  colorStream.addElement(1, 1, 1, 0);
+  texCoordStream.addElement(0, 0);
+  positionStream.addElement(width *  0.5, height, 0);
+  normalStream.addElement(0, 0, 1);
+  colorStream.addElement(1, 1, 1, 0);
+  texCoordStream.addElement(1, 0);
+  positionStream.addElement(width * -0.5, 0, 0);
+  normalStream.addElement(0, 0, 1);
+  colorStream.addElement(1, 1, 1, 1);
+  texCoordStream.addElement(0, vScale);
+  positionStream.addElement(width *  0.5, 0, 0);
+  normalStream.addElement(0, 0, 1);
+  colorStream.addElement(1, 1, 1, 1);
+  texCoordStream.addElement(1, vScale);
+  positionStream.addElement(0, height, width * -0.5);
+  normalStream.addElement(1, 0, 0);
+  colorStream.addElement(1, 1, 1, 0);
+  texCoordStream.addElement(0, 0);
+  positionStream.addElement(0, height, width *  0.5);
+  normalStream.addElement(1, 0, 0);
+  colorStream.addElement(1, 1, 1, 0);
+  texCoordStream.addElement(1, 0);
+  positionStream.addElement(0, 0, width * -0.5);
+  normalStream.addElement(1, 0, 0);
+  colorStream.addElement(1, 1, 1, 1);
+  texCoordStream.addElement(0, vScale);
+  positionStream.addElement(0, 0, width *  0.5);
+  normalStream.addElement(1, 0, 0);
+  colorStream.addElement(1, 1, 1, 1);
+  texCoordStream.addElement(1, vScale);
+
+  vertexInfo.addTriangle(0, 1, 2);
+  vertexInfo.addTriangle(1, 2, 3);
+  vertexInfo.addTriangle(4, 5, 6);
+  vertexInfo.addTriangle(5, 6, 7);
+
+  return vertexInfo.createShape(pack, material);
+}
+
+// A geo is a float where the integer part is in degrees and the fractional
+// part is in 60ths
+function geoToRad(geo) {
+  var sign = geo >= 0 ? 1 : -1;
+  geo = Math.abs(geo);
+  var integerPart = Math.floor(geo);
+  var fractionalPart = (geo % 1) * 100;
+  fractionalPart = fractionalPart / 60;
+  return g.math.degToRad(integerPart + fractionalPart);
+}
+
+function addEnergyShard(latitude, longitude, energy, height, color) {
+  var transform = g.pack.createObject('Transform');
+  transform.rotateZ(geoToRad(latitude));
+  transform.rotateY(geoToRad(-longitude));
+  transform.rotateZ(g.math.degToRad(90));
+  transform.translate(0, g.EARTH_RADIUS, 0);
+  transform.parent = g.root;
+  transform.addShape(g.energyShape);
+  transform.createParam('colorMult', 'ParamFloat4').value = color;
+  transform.createParam('offset', 'ParamFloat').value = Math.random();
+  return transform;
+}
+
+/**
+ * Creates the client area.
+ */
+function init() {
+  o3djs.util.makeClients(initStep2);
+}
+/**
+ * Initializes o3d
+ * @param {Array} clientElements Array of o3d object elements.
+ */
+function initStep2(clientElements) {
+  var path = window.location.href;
+  var index = path.lastIndexOf('/');
+
+  g.o3dElement = clientElements[0];
+  g.o3d = g.o3dElement.o3d;
+  g.math = o3djs.math;
+  g.quaternions = o3djs.quaternions;
+  g.client = g.o3dElement.client;
+
+  g.pack = g.client.createPack();
+
+  // Create the render graph for a view.
+  g.viewInfo = o3djs.rendergraph.createBasicView(
+      g.pack,
+      g.client.root,
+      g.client.renderGraphRoot);
+
+  // Set the background color to black.
+  g.viewInfo.clearBuffer.clearColor = [0, 0, 0, 0];
+
+  // Set states for shards.
+  g.viewInfo.zOrderedState.getStateParam('CullMode').value =
+      g.o3d.State.CULL_NONE;
+  g.viewInfo.zOrderedState.getStateParam('DestinationBlendFunction').value =
+      g.o3d.State.BLENDFUNC_ONE;
+  g.viewInfo.zOrderedState.getStateParam('ZWriteEnable').value = false;
+
+  g.viewInfo.performanceDrawPass.sortMethod = g.o3d.DrawList.BY_PRIORITY;
+
+  g.lastRot = g.math.matrix4.identity();
+  g.thisRot = g.math.matrix4.identity();
+
+  var root = g.client.root;
+
+  // Create a param for the sun and eye positions that we can bind
+  // to auto update a bunch of materials.
+  g.globalParams = g.pack.createObject('ParamObject');
+  g.sunPosParam = g.globalParams.createParam('sunPos', 'ParamFloat3');
+  g.sunPosParam.value = [1000, 200, 100];
+  g.eyePosParam = g.globalParams.createParam('eyePos', 'ParamFloat3');
+
+  updateViewFromCamera();
+
+  g.aball = o3djs.arcball.create(100, 100);
+  setClientSize();
+
+  g.client.setRenderCallback(onRender);
+
+
+  // Create Materials.
+  var effectNames = [
+    "noTexture",
+    "dayOnly",
+    "nightAndDay",
+    "mask",
+    "energy",
+    "atmosphere"
+    ];
+  g.materials = [];
+  for (var ii = 0; ii < effectNames.length; ++ii) {
+    var effectName = effectNames[ii];
+    var effect = g.pack.createObject('Effect');
+    effect.loadFromFXString(document.getElementById(effectName).value);
+
+    // Create a Material for the effect.
+    var material = g.pack.createObject('Material');
+
+    // Apply our effect to this material. The effect tells the 3D hardware
+    // which shader to use.
+    material.effect = effect;
+
+    // Set the material's drawList
+    material.drawList = g.viewInfo.performanceDrawList;
+
+    // This will create the effects's params on the material.
+    effect.createUniformParameters(material);
+
+    // Bind the sun position to a global value so we can easily change it
+    // globally.
+    var sunParam = material.getParam('sunPos');
+    if (sunParam) {
+      sunParam.bind(g.sunPosParam);
+    }
+
+    // Save off the material.
+    g.materials.push(material);
+  }
+  g.noTextureMaterial = g.materials[0];
+  g.dayOnlyMaterial = g.materials[1];
+  g.nightAndDayMaterial = g.materials[2];
+  g.maskMaterial = g.materials[3];
+  g.energyMaterial = g.materials[4];
+  g.energyMaterial.drawList = g.viewInfo.zOrderedDrawList;
+  g.atmosphereMaterial = g.materials[5];
+
+  // create samplers
+  g.samplers = [];
+  for (var ii = 0; ii < 4; ++ii) {
+    var sampler = g.pack.createObject('Sampler');
+    g.samplers[ii] = sampler;
+  }
+
+  g.daySampler = g.samplers[0];
+  g.nightSampler = g.samplers[1];
+  g.maskSampler = g.samplers[2];
+  g.energySampler = g.samplers[3];
+
+  // set the material samplers.
+  g.dayOnlyMaterial.getParam('daySampler').value = g.daySampler;
+  g.nightAndDayMaterial.getParam('daySampler').value = g.daySampler;
+  g.nightAndDayMaterial.getParam('nightSampler').value = g.nightSampler;
+  g.maskMaterial.getParam('daySampler').value = g.daySampler;
+  g.maskMaterial.getParam('maskSampler').value = g.maskSampler;
+  g.maskMaterial.getParam('nightSampler').value = g.nightSampler;
+  g.energyMaterial.getParam('energySampler').value = g.energySampler;
+
+  // Create energy texture(s)
+  {
+    var dots = [ 0, 1, 0, 1, 0, 0, 1, 0,
+                 1, 0, 0, 1, 0, 1, 0, 0,
+                 1, 0, 1, 0, 0, 0, 1, 0,
+                 0, 1, 0, 1, 0, 0, 1, 0 ];
+    var texture = g.pack.createTexture2D(3,
+                                         dots.length,
+                                         g.o3d.Texture.XRGB8,
+                                         1,
+                                         false);
+    var pixels = [];
+    for (var yy = 0; yy < dots.length; ++yy) {
+      for (var xx = 0; xx < 3; ++xx) {
+        var pixelOffset = (yy * 3 + xx) * 3;
+        var color = (xx == 1) ? dots[yy] : 0;
+        for (var cc = 0; cc < 3; ++cc) {
+          pixels[pixelOffset + cc] = color;
+        }
+      }
+    }
+    texture.set(0, pixels);
+    g.energySampler.texture = texture;
+  }
+
+  // Setup counters for shard animation.
+  g.shardCounter = g.pack.createObject('SecondCounter');
+  g.shardCounter.multiplier = 0.1;
+  g.energyMaterial.getParam('time').bind(
+      g.shardCounter.getParam('count'));
+
+  // Setup counters to fade in textures.
+  g.flatToDayCounter = g.pack.createObject('SecondCounter');
+  g.flatToDayCounter.end = 1;
+  g.flatToDayCounter.multiplier = 0.5;
+  g.flatToDayCounter.countMode = g.o3d.Counter.ONCE;
+  g.flatToDayCounter.running = false;
+  g.flatToDayCounter.addCallback(1, loadNightTexture);
+  g.dayOnlyMaterial.getParam('mix').bind(
+      g.flatToDayCounter.getParam('count'));
+
+  g.dayOnlyToNightCounter = g.pack.createObject('SecondCounter');
+  g.dayOnlyToNightCounter.end = 1;
+  g.dayOnlyToNightCounter.multiplier = 0.5;
+  g.dayOnlyToNightCounter.countMode = g.o3d.Counter.ONCE;
+  g.dayOnlyToNightCounter.running = false;
+  g.dayOnlyToNightCounter.addCallback(1, loadMaskTexture);
+  g.nightAndDayMaterial.getParam('mix').bind(
+      g.dayOnlyToNightCounter.getParam('count'));
+
+  g.noMaskToMaskCounter = g.pack.createObject('SecondCounter');
+  g.noMaskToMaskCounter.end = 1;
+  g.noMaskToMaskCounter.multiplier = 0.5;
+  g.noMaskToMaskCounter.countMode = g.o3d.Counter.ONCE;
+  g.noMaskToMaskCounter.running = false;
+  g.maskMaterial.getParam('mix').bind(
+      g.noMaskToMaskCounter.getParam('count'));
+
+  // Create a sphere at the origin for the earth.
+  var earth = o3djs.primitives.createSphere(g.pack,
+                                            g.noTextureMaterial,
+                                            25,
+                                            50,
+                                            50);
+
+  // Get a the element so we can set its material later.
+  g.earthPrimitive = earth.elements[0];
+  g.atmosphereState = g.pack.createObject('State');
+  g.atmosphereState.getStateParam('AlphaBlendEnable').value = true;
+  g.atmosphereState.getStateParam('SourceBlendFunction').value =
+      g.o3d.State.BLENDFUNC_SOURCE_ALPHA;
+  g.atmosphereState.getStateParam('DestinationBlendFunction').value =
+      g.o3d.State.BLENDFUNC_INVERSE_SOURCE_ALPHA;
+  g.atmosphereState.getStateParam('ZWriteEnable').value = false;
+  g.atmosphereMaterial.state = g.atmosphereState;
+
+  g.root = g.pack.createObject('Transform');
+  g.root.parent = g.client.root;
+  g.earth = g.pack.createObject('Transform');
+  g.earth.addShape(earth);
+  g.earth.parent = g.root;
+
+  // Create a sphere at the origin for the atmosphere.
+  var atmosphere = o3djs.primitives.createSphere(g.pack,
+                                                 g.atmosphereMaterial,
+                                                 26,
+                                                 50,
+                                                 50);
+  g.atmospherePrimitive = atmosphere.elements[0];
+  g.atmospherePrimitive.priority = 1;
+  g.atmosphere = g.pack.createObject('Transform');
+  g.atmosphere.addShape(atmosphere);
+  g.atmosphere.parent = g.root;
+
+  g.energyShape = createEnergyShape(g.pack,
+                                    g.energyMaterial,
+                                    g.ENERGY_WIDTH,
+                                    g.ENERGY_HEIGHT);
+
+  addEnergyShard(0, 0, 1, 1, [1, 1, 1, 1]);
+
+  // Honolulu, Hawaii, 21, 18, 157, 50
+  addEnergyShard(21.18, 157.50, 1, 1, [0, 1, 0, 1]);
+  // San Francisco, Calif. 37 47 122 26
+  addEnergyShard(37.47, 122.26, 1, 1, [1, 0.5, 0.5, 1]);
+
+  for (var ii = 0; ii < 24; ++ii) {
+    var longitude = Math.random() * 360;
+    var latitude = Math.random() * 360 - 180;
+    var color = [ Math.random() * 0.5 + 0.2,
+                  Math.random() * 0.5 + 0.2,
+                  Math.random() * 0.5 + 0.2,
+                  1 ];
+    for (var jj = 0; jj < 24; ++jj) {
+      addEnergyShard(latitude + (Math.random() - 0.5) * 10,
+                     longitude + (Math.random() - 0.5) * 10,
+                     1,
+                     1,
+                     color);
+    }
+  }
+
+  o3djs.event.addEventListener(g.o3dElement, 'mousedown', startDragging);
+  o3djs.event.addEventListener(g.o3dElement, 'mousemove', drag);
+  o3djs.event.addEventListener(g.o3dElement, 'mouseup', stopDragging);
+  o3djs.event.addEventListener(g.o3dElement, 'wheel', scrollMe);
+
+  loadDayTexture();
+}
+
+function loadTexture(path, callback) {
+  var url = getURL(path);
+  o3djs.io.loadTexture(g.pack, url, function(texture, exception) {
+      if (exception) {
+        alert(exception);
+      } else {
+        callback(texture);
+      }
+    });
+}
+
+function loadDayTexture() {
+  loadTexture('assets/earth.jpg', function(texture) {
+      g.daySampler.texture = texture;
+      g.earthPrimitive.material = g.dayOnlyMaterial;
+      g.flatToDayCounter.running = true;
+    });
+}
+
+function loadNightTexture() {
+  loadTexture('assets/night.jpg', function(texture) {
+      g.nightSampler.texture = texture;
+      g.earthPrimitive.material = g.nightAndDayMaterial;
+      g.dayOnlyToNightCounter.running = true;
+    });
+}
+
+function loadMaskTexture() {
+  loadTexture('assets/earth-large-with-ocean-mask.png', function(texture) {
+      g.maskSampler.texture = texture;
+      g.earthPrimitive.material = g.maskMaterial;
+      g.noMaskToMaskCounter.running = true;
+      g_finished = true;  // for selenium
+    });
+}
+
+function uninit() {
+  // TODO: We should clean up any counters that have callbacks here.
+  if (g.client) {
+    g.client.cleanup();
+  }
+}
+
+</script>
+<!--<h1>
+Google Trends Visualizer.
+</h1>-->
+<div id="o3d" style="width:100%; height: 100%;"></div>
+<div style="display:none">
+<textarea id="noTexture" name="fx" cols="80" rows="20">
+float4x4 worldViewProjection : WorldViewProjection;
+float4x4 world : World;
+float4x4 view : View;
+
+float3 sunPos;
+
+struct a2v {
+  float4 pos : POSITION;
+  float3 normal : NORMAL;
+};
+
+struct v2f {
+  float4 pos : POSITION;
+  float3 normal : TEXCOORD0;
+  float3 sun : TEXCOORD1;
+  float3 view : TEXCOORD2;
+};
+
+v2f vsMain(a2v IN) {
+  v2f OUT;
+
+  OUT.pos = mul(IN.pos, worldViewProjection);
+  OUT.normal = mul(float4(IN.normal, 0), world).xyz;
+  float3 worldPos = mul(IN.pos, world).xyz;
+  OUT.sun = sunPos - worldPos;
+  OUT.view = (view[3] - worldPos);
+
+  return OUT;
+}
+
+float4 psMain(v2f IN): COLOR {
+  float3 norm = normalize(IN.normal);
+  float3 sun = normalize(IN.sun);
+  float  light = dot(norm, sun);
+  float  lightSign = sign(light);
+  float  dayNight = 1 - sqrt(light);
+  dayNight = dayNight * dayNight;
+  dayNight = (1 - dayNight) * lightSign;
+  dayNight = clamp(dayNight, 0, 1);
+  float3 view = normalize(IN.view);
+  float3 r = normalize(reflect(norm, sun));
+  float4 litR = lit(light, dot(r, view), 0.0).y;
+  float3 day = float3(0.5, 0.5, 1.0) * litR.y + float3(1,1,1) * litR.z;
+  float3 night = float3(0.2, 0.2, 0.5);
+  return float4(lerp(night, day, dayNight),1);
+}
+
+// #o3d VertexShaderEntryPoint vsMain
+// #o3d PixelShaderEntryPoint psMain
+// #o3d MatrixLoadOrder RowMajor
+</textarea>
+<textarea id="dayOnly" name="fx" cols="80" rows="20">
+float4x4 worldViewProjection : WorldViewProjection;
+float4x4 world : World;
+float4x4 view : View;
+
+float3 sunPos;
+float mix;
+
+sampler2D daySampler;
+
+struct a2v {
+  float4 pos : POSITION;
+  float3 normal : NORMAL;
+  float2 uv : TEXCOORD0;
+};
+
+struct v2f {
+  float4 pos : POSITION;
+  float2 uv : TEXCOORD0;
+  float3 normal : TEXCOORD1;
+  float3 sun : TEXCOORD2;
+  float3 view : TEXCOORD3;
+};
+
+v2f vsMain(a2v IN) {
+  v2f OUT;
+
+  OUT.pos = mul(IN.pos, worldViewProjection);
+  OUT.uv = IN.uv;
+  OUT.normal = mul(float4(IN.normal, 0), world).xyz;
+  float3 worldPos = mul(IN.pos, world).xyz;
+  OUT.sun = sunPos - worldPos;
+  OUT.view = (view[3] - worldPos);
+
+  return OUT;
+}
+
+float4 psMain(v2f IN): COLOR {
+  float3 norm = normalize(IN.normal);
+  float3 sun = normalize(IN.sun);
+  float  light = dot(norm, sun);
+  float  lightSign = sign(light);
+  float  dayNight = 1 - sqrt(light);
+  dayNight = dayNight * dayNight;
+  dayNight = (1 - dayNight) * lightSign;
+  dayNight = clamp(dayNight, 0, 1);
+  float3 view = normalize(IN.view);
+  float3 r = normalize(reflect(norm, sun));
+  float4 litR = lit(light, dot(r, view), 0.0).y;
+  float3 earth = tex2D(daySampler, IN.uv).xyz;
+  float3 day = lerp(float3(0.5, 0.5, 1.0), earth, mix);
+  day = day * litR.y + float3(1,1,1) * litR.z;
+  float3 night = lerp(float3(0.2, 0.2, 0.5), earth * 0.3, mix);
+  return float4(lerp(night, day, dayNight),1);
+}
+
+// #o3d VertexShaderEntryPoint vsMain
+// #o3d PixelShaderEntryPoint psMain
+// #o3d MatrixLoadOrder RowMajor
+</textarea>
+<textarea id="nightAndDay" name="fx" cols="80" rows="20">
+float4x4 worldViewProjection : WorldViewProjection;
+float4x4 world : World;
+float4x4 view : View;
+
+float3 sunPos;
+float mix;
+
+sampler2D daySampler;
+sampler2D nightSampler;
+
+struct a2v {
+  float4 pos : POSITION;
+  float3 normal : NORMAL;
+  float2 uv : TEXCOORD0;
+};
+
+struct v2f {
+  float4 pos : POSITION;
+  float2 uv : TEXCOORD0;
+  float3 normal : TEXCOORD1;
+  float3 sun : TEXCOORD2;
+  float3 view : TEXCOORD3;
+};
+
+v2f vsMain(a2v IN) {
+  v2f OUT;
+
+  OUT.pos = mul(IN.pos, worldViewProjection);
+  OUT.uv = IN.uv;
+  OUT.normal = mul(float4(IN.normal, 0), world).xyz;
+  float3 worldPos = mul(IN.pos, world).xyz;
+  OUT.sun = sunPos - worldPos;
+  OUT.view = (view[3] - worldPos);
+
+  return OUT;
+}
+
+float4 psMain(v2f IN): COLOR {
+  float3 norm = normalize(IN.normal);
+  float3 sun = normalize(IN.sun);
+  float  light = dot(norm, sun);
+  float  lightSign = sign(light);
+  float  dayNight = 1 - sqrt(light);
+  dayNight = dayNight * dayNight;
+  dayNight = (1 - dayNight) * lightSign;
+  dayNight = clamp(dayNight, 0, 1);
+  float3 view = normalize(IN.view);
+  float3 r = normalize(reflect(norm, sun));
+  float4 litR = lit(light, dot(r, view), 0.0).y;
+  float3 earth = tex2D(daySampler, IN.uv).xyz;
+  float3 day = tex2D(daySampler, IN.uv).xyz;
+  float3 night = lerp(day * 0.3, tex2D(nightSampler, IN.uv).xyz, mix);
+  day = day * litR.y + float3(1,1,1) * litR.z;
+  return float4(lerp(night, day, dayNight),1);
+}
+
+// #o3d VertexShaderEntryPoint vsMain
+// #o3d PixelShaderEntryPoint psMain
+// #o3d MatrixLoadOrder RowMajor
+</textarea>
+<!--
+This shader renders the ocean different then the non-ocean using a mask
+stored in the alpha channel of the maskSampler
+-->
+<textarea id="mask" name="fx" cols="80" rows="20">
+float4x4 worldViewProjection : WorldViewProjection;
+float4x4 world : World;
+float4x4 view : View;
+
+float3 sunPos;
+float mix;
+
+sampler2D daySampler;
+sampler2D nightSampler;
+sampler2D maskSampler;
+
+struct a2v {
+  float4 pos : POSITION;
+  float3 normal : NORMAL;
+  float2 uv : TEXCOORD0;
+};
+
+struct v2f {
+  float4 pos : POSITION;
+  float2 uv : TEXCOORD0;
+  float3 normal : TEXCOORD1;
+  float3 sun : TEXCOORD2;
+  float3 view : TEXCOORD3;
+};
+
+v2f vsMain(a2v IN) {
+  v2f OUT;
+
+  OUT.pos = mul(IN.pos, worldViewProjection);
+  OUT.uv = IN.uv;
+  OUT.normal = mul(float4(IN.normal, 0), world).xyz;
+  float3 worldPos = mul(IN.pos, world).xyz;
+  OUT.sun = sunPos - worldPos;
+  OUT.view = (view[3] - worldPos);
+
+  return OUT;
+}
+
+float4 psMain(v2f IN): COLOR {
+  float3 norm = normalize(IN.normal);
+  float3 sun = normalize(IN.sun);
+  float  light = dot(norm, sun);
+  float  lightSign = sign(light);
+  float  dayNight = 1 - sqrt(light);
+  dayNight = dayNight * dayNight;
+  dayNight = (1 - dayNight) * lightSign;
+  dayNight = clamp(dayNight, 0, 1);
+  float3 view = normalize(IN.view);
+  float3 r = normalize(reflect(norm, sun));
+  float4 litR = lit(light, dot(r, view), 0.0).y;
+  float3 earth = tex2D(daySampler, IN.uv).xyz;
+  float4 mask = tex2D(maskSampler, IN.uv);
+  float3 day = lerp(tex2D(daySampler, IN.uv).xyz,
+                    mask.xyz, mix);
+  float3 night = tex2D(nightSampler, IN.uv).xyz;
+  day = day * litR.y + float3(1,1,1) * litR.z * (1 - mask.w * mix);
+
+  float3 color = lerp(night, day, dayNight);
+  return float4(color,1);
+}
+
+// #o3d VertexShaderEntryPoint vsMain
+// #o3d PixelShaderEntryPoint psMain
+// #o3d MatrixLoadOrder RowMajor
+</textarea>
+<textarea id="energy" name="fx" cols="80" rows="20">
+float4x4 worldViewProjection : WorldViewProjection;
+
+// time is used to scroll the UV coords
+float time;
+
+// offset is used to allow each shard to scroll over a different part of the
+// texture.
+float offset;
+
+// Sets the color of the shard.
+float4 colorMult;
+
+// Provides the dots on the shard.
+sampler2D energySampler;
+
+struct a2v {
+  float4 pos : POSITION;
+  float3 norm : NORMAL;
+  float4 color : COLOR;
+  float2 uv : TEXCOORD0;
+};
+
+struct v2f {
+  float4 pos : POSITION;
+  float2 uv : TEXCOORD0;
+  float4 color : TEXCOORD1;
+};
+
+v2f vsMain(a2v IN) {
+  v2f OUT;
+
+  OUT.pos = mul(IN.pos, worldViewProjection);
+  OUT.uv = float2(IN.uv.x, IN.uv.y + time + offset);
+  OUT.color = IN.color;
+
+  return OUT;
+}
+
+float4 psMain(v2f IN): COLOR {
+  return float4(tex2D(energySampler, IN.uv)) * IN.color * colorMult;
+}
+
+// #o3d VertexShaderEntryPoint vsMain
+// #o3d PixelShaderEntryPoint psMain
+// #o3d MatrixLoadOrder RowMajor
+</textarea>
+<textarea id="atmosphere" name="fx" cols="80" rows="20">
+float4x4 worldViewProjection : WorldViewProjection;
+float4x4 worldView : WorldView;
+float3 sunPos;
+float3 eyePos;
+
+struct a2v {
+  float4 pos : POSITION;
+  float3 norm : NORMAL;
+};
+
+struct v2f {
+  float4 pos : POSITION;
+  float3 normal : TEXCOORD0;
+};
+
+v2f vsMain(a2v IN) {
+  v2f OUT;
+
+  OUT.pos = mul(IN.pos, worldViewProjection);
+  OUT.normal = normalize(mul(float4(IN.norm,0), worldView).xyz);
+  return OUT;
+}
+
+float4 psMain(v2f IN): COLOR {
+  float n = 1 - log(2 * normalize(IN.normal).z);
+  return float4(0.3, 0.3, 1, n * n * n * n);
+}
+
+// #o3d VertexShaderEntryPoint vsMain
+// #o3d PixelShaderEntryPoint psMain
+// #o3d MatrixLoadOrder RowMajor
+</textarea>
+</div>
+</body>
+</html>
+
+

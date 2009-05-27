@@ -1,0 +1,497 @@
+<!--
+Copyright 2009, Google Inc.
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are
+met:
+
+    * Redistributions of source code must retain the above copyright
+notice, this list of conditions and the following disclaimer.
+    * Redistributions in binary form must reproduce the above
+copyright notice, this list of conditions and the following disclaimer
+in the documentation and/or other materials provided with the
+distribution.
+    * Neither the name of Google Inc. nor the names of its
+contributors may be used to endorse or promote products derived from
+this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+-->
+
+<!--
+Particles.
+
+This example shows using the javascript particle library.
+-->
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+  "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<title>
+Particles.
+</title>
+<!-- Include sample javascript library functions-->
+<script type="text/javascript" src="o3djs/base.js"></script>
+
+<!-- Our javascript code -->
+<script type="text/javascript">
+o3djs.require('o3djs.util');
+o3djs.require('o3djs.math');
+o3djs.require('o3djs.quaternions');
+o3djs.require('o3djs.rendergraph');
+o3djs.require('o3djs.particles');
+o3djs.require('o3djs.loader');
+
+// global variables
+var g_o3d;
+var g_math;
+var g_client;
+var g_viewInfo;
+var g_pack;
+var g_particleSystem;
+var g_clockParam;
+var g_textures = [];
+var g_emitters = [];  // so we can find in the debugger to edit in real time.
+
+/**
+ * Loads a texture.
+ * @param {!o3djs.loader.Loader} loader Loader to use to load texture.
+ * @param {string} url relativel url of texture.
+ * @param {number} index Index at which to record texture.
+ */
+function loadTexture(loader, url, index) {
+  loader.loadTexture(
+      g_pack,
+      o3djs.util.getAbsoluteURI(url),
+      function(texture, exception) {
+        if (exception) {
+          alert(exception);
+        } else {
+          g_textures[index] = texture;
+        }
+      });
+}
+
+/**
+ * Returns a deterministic pseudorandom number bewteen 0 and 1
+ * @return {number} a random number between 0 and 1
+ */
+var g_randSeed = 0;
+var g_randRange = Math.pow(2, 32);
+function pseudoRandom() {
+  return (g_randSeed = (134775813 * g_randSeed + 1) % g_randRange) /
+         g_randRange;
+}
+
+/**
+ * Creates the client area.
+ */
+function init() {
+  // These are here so they are shared by both V8 and the browser.
+  window.g_finished = false;  // for selenium
+  window.g_timeMult = 1;
+  window.g_clock = 0;
+
+  // Comment out the line below to run the sample in the browser JavaScript
+  // engine. This may be helpful for debugging.
+  o3djs.util.setMainEngine(o3djs.util.Engine.V8);
+
+  o3djs.util.makeClients(initStep2);
+}
+
+/**
+ * Initializes O3D and creates one shape.
+ * @param {Array} clientElements Array of o3d object elements.
+ */
+function initStep2(clientElements) {
+  // Initializes global variables and libraries.
+  var o3dElement = clientElements[0];
+  g_o3d = o3dElement.o3d;
+  g_math = o3djs.math;
+  window.g_client = g_client = o3dElement.client;
+
+  // Creates a pack to manage our resources/assets
+  g_pack = g_client.createPack();
+
+  g_viewInfo = o3djs.rendergraph.createBasicView(
+      g_pack,
+      g_client.root,
+      g_client.renderGraphRoot);
+
+  g_viewInfo.drawContext.projection = g_math.matrix4.perspective(
+      g_math.degToRad(30), // 30 degree fov.
+      g_client.width / g_client.height,
+      0.1,                // Near plane.
+      5000);              // Far plane.
+
+  g_viewInfo.drawContext.view = g_math.matrix4.lookAt(
+      [500, 1000, 1000], // eye
+      [0, 200, 0],   // target
+      [0, 1, 0]);  // up
+
+
+
+  // Load textures. This happens asynchronously.
+  var loader = o3djs.loader.createLoader(initStep3);
+  loadTexture(loader, 'assets/particle-anim.png', 0);
+  loadTexture(loader, 'assets/ripple.png', 1);
+  loader.finish();
+}
+
+function initStep3() {
+  // Normally we wouldn't pass in a clock and the particle system would handle
+  // this for me but for selenium testing we need to be able to control the
+  // clock so we're passing in our own clock param.
+  var paramObject = g_pack.createObject('ParamObject');
+  g_clockParam = paramObject.createParam('clock', 'ParamFloat');
+
+  // Normally we wouldn't pass in a random function but for selenium we need
+  // the particle system to produce the exact same results each time so
+  // we're passing in a predictable random function.
+  g_particleSystem = o3djs.particles.createParticleSystem(g_pack,
+                                                          g_viewInfo,
+                                                          g_clockParam,
+                                                          pseudoRandom);
+  setupFlame();
+  setupNaturalGasFlame();
+  setupSmoke();
+  setupWhiteEnergy();
+  setupGoogle();
+  setupRain();
+  setupRipples();
+  setupAnim();
+  setupBall();
+  setupCube();
+
+  // Setup an onrender callback for animation.
+  g_client.setRenderCallback(onrender);
+
+  window.g_finished = true;  // for selenium testing.
+}
+
+function setupFlame() {
+  var transform = g_pack.createObject('Transform');
+  transform.parent = g_client.root;
+  transform.translate(-300, 0, 0);
+
+  var emitter = g_particleSystem.createParticleEmitter();
+  g_emitters.push(emitter);
+  emitter.setState(o3djs.particles.ParticleStateIds.ADD);
+  emitter.setColorRamp(
+      [1, 1, 0, 1,
+       1, 0, 0, 1,
+       0, 0, 0, 1,
+       0, 0, 0, 0.5,
+       0, 0, 0, 0]);
+  emitter.setParameters({
+    numParticles: 20,
+    lifeTime: 2,
+    timeRange: 2,
+    startSize: 50,
+    endSize: 90,
+    velocity:[0, 60, 0], velocityRange: [15, 15, 15],
+    worldAcceleration: [0, -20, 0],
+    spinSpeedRange: 4});
+  transform.addShape(emitter.shape);
+}
+
+function setupNaturalGasFlame() {
+  var transform = g_pack.createObject('Transform');
+  transform.parent = g_client.root;
+  transform.translate(-200, 0, 0);
+
+  var emitter = g_particleSystem.createParticleEmitter();
+  g_emitters.push(emitter);
+  emitter.setState(o3djs.particles.ParticleStateIds.ADD);
+  emitter.setColorRamp(
+      [0.2, 0.2, 1, 1,
+       0, 0, 1, 1,
+       0, 0, 1, 0.5,
+       0, 0, 1, 0]);
+  emitter.setParameters({
+    numParticles: 20,
+    lifeTime: 2,
+    timeRange: 2,
+    startSize: 50,
+    endSize: 20,
+    velocity:[0, 60, 0],
+    worldAcceleration: [0, -20, 0],
+    spinSpeedRange: 4});
+  transform.addShape(emitter.shape);
+}
+
+function setupSmoke() {
+  var transform = g_pack.createObject('Transform');
+  transform.parent = g_client.root;
+  transform.translate(-100, 0, 0);
+
+  var emitter = g_particleSystem.createParticleEmitter();
+  g_emitters.push(emitter);
+  emitter.setState(o3djs.particles.ParticleStateIds.BLEND);
+  emitter.setColorRamp(
+      [0, 0, 0, 1,
+       0, 0, 0, 0]);
+  emitter.setParameters({
+    numParticles: 20,
+    lifeTime: 2,
+    timeRange: 2,
+    startSize: 100,
+    endSize: 150,
+    velocity: [0, 200, 0], velocityRange: [20, 0, 20],
+    worldAcceleration: [0, -25, 0],
+    spinSpeedRange: 4});
+  transform.addShape(emitter.shape);
+}
+
+function setupWhiteEnergy() {
+  var transform = g_pack.createObject('Transform');
+  transform.parent = g_client.root;
+  transform.translate(0, 0, 0);
+
+  var emitter = g_particleSystem.createParticleEmitter();
+  g_emitters.push(emitter);
+  emitter.setState(o3djs.particles.ParticleStateIds.ADD);
+  emitter.setColorRamp(
+      [1, 1, 1, 1,
+       1, 1, 1, 0]);
+  emitter.setParameters({
+    numParticles: 80,
+    lifeTime: 2,
+    timeRange: 2,
+    startSize: 100,
+    endSize: 100,
+    positionRange: [100, 0, 100],
+    velocityRange: [20, 0, 20]});
+  transform.addShape(emitter.shape);
+}
+
+function setupRipples() {
+  var transform = g_pack.createObject('Transform');
+  transform.parent = g_client.root;
+  transform.translate(-200, 0, 300);
+
+  var emitter = g_particleSystem.createParticleEmitter(g_textures[1]);
+  g_emitters.push(emitter);
+  emitter.setState(o3djs.particles.ParticleStateIds.BLEND);
+  emitter.setColorRamp(
+      [0.7, 0.8, 1, 1,
+       1, 1, 1, 0]);
+  emitter.setParameters({
+    numParticles: 20,
+    lifeTime: 2,
+    timeRange: 2,
+    startSize: 50,
+    endSize: 200,
+    positionRange: [100, 0, 100],
+    billboard: false});
+  transform.addShape(emitter.shape);
+}
+
+function setupGoogle() {
+  var image = [
+    '.XXXX...XXXXX...XXXXX.',
+    'X....X.......X..X....X',
+    'X....X...XXXXX..X....X',
+    'X....X.......X..X....X',
+    '.XXXX...XXXXX...XXXXX.'];
+  var height = image.length;
+  var width = image[0].length;
+
+  // Make an array of positions based on the text image.
+  var positions = [];
+    for (var yy = 0; yy < height; ++yy) {
+        for (var xx = 0; xx < width; ++xx) {
+      if (image[yy].substring(xx, xx + 1) == 'X') {
+        positions.push([(xx - width * 0.5) * 10,
+                       -(yy - height * 0.5) * 10]);
+      }
+    }
+  }
+  var transform = g_pack.createObject('Transform');
+  transform.parent = g_client.root;
+  transform.translate(100, 200, 0);
+
+  var emitter = g_particleSystem.createParticleEmitter();
+  g_emitters.push(emitter);
+  emitter.setState(o3djs.particles.ParticleStateIds.ADD);
+  emitter.setColorRamp(
+      [1, 0, 0, 1,
+       0, 1, 0, 1,
+       0, 0, 1, 1,
+       1, 1, 0, 0]);
+  emitter.setParameters({
+    numParticles: positions.length * 4,
+    lifeTime: 2,
+    timeRange: 2,
+    startSize: 25,
+    endSize: 50,
+    positionRange: [2, 0, 2],
+    velocity: [1, 0, 1]},
+    function(particleIndex, parameters) {
+      //var index = particleIndex;
+      var index = Math.floor(pseudoRandom() * positions.length);
+      index = Math.min(index, positions.length - 1);
+      parameters.position[0] = positions[index][0];
+      parameters.position[1] = positions[index][1];
+    });
+  transform.addShape(emitter.shape);
+}
+
+function setupRain() {
+  var transform = g_pack.createObject('Transform');
+  transform.parent = g_client.root;
+  transform.translate(200, 200, 0);
+
+  var emitter = g_particleSystem.createParticleEmitter();
+  g_emitters.push(emitter);
+  emitter.setState(o3djs.particles.ParticleStateIds.BLEND);
+  emitter.setColorRamp(
+      [0.2, 0.2, 1, 1]);
+  emitter.setParameters({
+    numParticles: 80,
+    lifeTime: 2,
+    timeRange: 2,
+    startSize: 5,
+    endSize: 5,
+    positionRange: [100, 0, 100],
+    velocity: [0,-150,0]});
+  transform.addShape(emitter.shape);
+}
+
+function setupAnim(texture) {
+  var transform = g_pack.createObject('Transform');
+  transform.parent = g_client.root;
+  transform.translate(300, 0, 0);
+
+  var emitter = g_particleSystem.createParticleEmitter(g_textures[0]);
+  g_emitters.push(emitter);
+  emitter.setColorRamp(
+      [1, 1, 1, 1,
+       1, 1, 1, 1,
+       1, 1, 1, 0]);
+  emitter.setParameters({
+    numParticles: 20,
+    numFrames: 8,
+    frameDuration: 0.25,
+    frameStartRange: 8,
+    lifeTime: 2,
+    timeRange: 2,
+    startSize: 50,
+    endSize: 90,
+    positionRange: [10, 10, 10],
+    velocity:[0, 200, 0], velocityRange: [75, 15, 75],
+    acceleration: [0, -150, 0],
+    spinSpeedRange: 1});
+  transform.addShape(emitter.shape);
+}
+
+function setupBall() {
+  var transform = g_pack.createObject('Transform');
+  transform.parent = g_client.root;
+  transform.translate(-400, 0, -200);
+
+  var emitter = g_particleSystem.createParticleEmitter(g_textures[1]);
+  g_emitters.push(emitter);
+  emitter.setState(o3djs.particles.ParticleStateIds.BLEND);
+  emitter.setColorRamp(
+      [1, 1, 1, 1,
+       1, 1, 1, 0]);
+  emitter.setParameters({
+    numParticles: 300,
+    lifeTime: 2,
+    timeRange: 2,
+    startSize: 10,
+    endSize: 50,
+    colorMult: [1, 1, 0.5, 1], colorMultRange: [0, 0, 0.5, 0],
+    billboard: false},
+    function(particleIndex, parameters) {
+      var matrix = g_math.matrix4.rotationY(pseudoRandom() * Math.PI * 2);
+      g_math.matrix4.rotateX(matrix, pseudoRandom() * Math.PI);
+      var position = g_math.matrix4.transformDirection(matrix, [0, 100, 0]);
+      parameters.position = position;
+      parameters.orientation = o3djs.quaternions.rotationToQuaternion(matrix);
+    });
+  transform.addShape(emitter.shape);
+}
+
+function setupCube() {
+  var transform = g_pack.createObject('Transform');
+  transform.parent = g_client.root;
+  transform.translate(200, 0, -300);
+
+  var emitter = g_particleSystem.createParticleEmitter(g_textures[1]);
+  g_emitters.push(emitter);
+  emitter.setState(o3djs.particles.ParticleStateIds.ADD);
+  emitter.setColorRamp(
+      [1, 1, 1, 1,
+       0, 0, 1, 1,
+       1, 1, 1, 0]);
+  emitter.setParameters({
+    numParticles: 300,
+    lifeTime: 2,
+    timeRange: 2,
+    startSize: 10,
+    endSize: 50,
+    colorMult: [0.8, 0.9, 1, 1],
+    billboard: false},
+    function(particleIndex, parameters) {
+      var matrix = g_math.matrix4.rotationY(
+          Math.floor(pseudoRandom() * 4) * Math.PI * 0.5);
+      g_math.matrix4.rotateX(matrix,
+                             Math.floor(pseudoRandom() * 3) * Math.PI * 0.5);
+      parameters.orientation = o3djs.quaternions.rotationToQuaternion(matrix);
+      var position = g_math.matrix4.transformDirection(
+          matrix,
+          [pseudoRandom() * 200 - 100, 100, pseudoRandom() * 200 - 100]);
+      parameters.position = position;
+    });
+  transform.addShape(emitter.shape);
+}
+
+/**
+ * Called every frame.
+ * @param {!o3d.RenderEvent} renderEvent Rendering Information.
+ */
+function onrender(renderEvent) {
+  var elapsedTime = renderEvent.elapsedTime;
+  window.g_clock += elapsedTime * window.g_timeMult;
+
+  var cameraClock = window.g_clock * 0.3;
+  g_viewInfo.drawContext.view = g_math.matrix4.lookAt(
+      [Math.sin(cameraClock) * 1500, 500, Math.cos(cameraClock) * 1500], // eye
+      [0, 100, 0],   // target
+      [0, 1, 0]);  // up
+
+  g_clockParam.value = window.g_clock;
+}
+
+/**
+ * Remove any callbacks so they don't get called after the page has unloaded.
+ */
+function unload() {
+  if (g_client) {
+    g_client.cleanup();
+  }
+}
+</script>
+</head>
+<body onload="init();" onunload="unload();">
+<h1>Particles</h1>
+<br/>
+<!-- Start of O3D plugin -->
+<div id="o3d" style="width: 800px; height: 600px;"></div>
+<!-- End of O3D plugin -->
+</body>
+</html>

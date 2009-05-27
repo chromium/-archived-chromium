@@ -1,0 +1,249 @@
+<!--
+Copyright 2009, Google Inc.
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are
+met:
+
+    * Redistributions of source code must retain the above copyright
+notice, this list of conditions and the following disclaimer.
+    * Redistributions in binary form must reproduce the above
+copyright notice, this list of conditions and the following disclaimer
+in the documentation and/or other materials provided with the
+distribution.
+    * Neither the name of Google Inc. nor the names of its
+contributors may be used to endorse or promote products derived from
+this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+-->
+
+<!--
+O3D Texture Samplers example.
+
+Demonstrates how to create samplers and set their various states.
+-->
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+  "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<title>
+Texture Samplers
+</title>
+<script type="text/javascript" src="o3djs/base.js"></script>
+<script type="text/javascript">
+o3djs.require('o3djs.util');
+o3djs.require('o3djs.math');
+o3djs.require('o3djs.rendergraph');
+o3djs.require('o3djs.primitives');
+o3djs.require('o3djs.effect');
+o3djs.require('o3djs.event');
+o3djs.require('o3djs.io');
+
+// Events
+// Run the init() once the page has finished loading.
+window.onload = init;
+
+// global variables
+var g_o3d;
+var g_math;
+var g_client;
+var g_pack;
+var g_viewInfo;
+var g_commonEffect;
+var g_eye;
+var g_target;
+var g_up;
+var g_finished = false;  // for selenium testing
+
+function scrollMe(e) {
+  g_eye = g_math.mulScalarVector((e.deltaY < 0 ? 11 : 13) / 12, g_eye);
+  g_viewInfo.drawContext.view = g_math.matrix4.lookAt(g_eye, g_target, g_up);
+}
+
+/**
+ * Creates the client area.
+ */
+function init() {
+  o3djs.util.makeClients(initStep2);
+}
+
+/**
+ * Initializes O3D, loads the effect, and draws the quads.
+ * @param {Array} clientElements Array of o3d object elements.
+ */
+function initStep2(clientElements) {
+  // Initialize global variables and libraries.
+  var o3dElement = clientElements[0];
+  g_o3d = o3dElement.o3d;
+  g_math = o3djs.math;
+  g_client = o3dElement.client;
+
+  // Create a pack to manage our resources/assets
+  g_pack = g_client.createPack();
+
+  // Create the render graph for a view.
+  g_viewInfo = o3djs.rendergraph.createBasicView(
+      g_pack,
+      g_client.root,
+      g_client.renderGraphRoot);
+
+  // Create and load the effect.
+  g_commonEffect = g_pack.createObject('Effect');
+  o3djs.effect.loadEffect(g_commonEffect, 'shaders/texture-only.shader');
+
+  // Create our projection matrix, with a vertical field of view of 45 degrees
+  // a near clipping plane of 0.1 and far clipping plane of 100.
+  var proj_matrix = g_math.matrix4.perspective(
+      g_math.degToRad(45),
+      g_client.width / g_client.height,
+      0.1,
+      100);
+
+  // Create the view matrix which tells the camera which way to point to.
+  g_eye = [0, 4, 0];
+  g_target = [0, 0, 0];
+  g_up = [0, 0, -1];
+  var view_matrix = g_math.matrix4.lookAt(g_eye, g_target, g_up);
+
+  g_viewInfo.drawContext.view = view_matrix;
+  g_viewInfo.drawContext.projection = proj_matrix;
+
+  var samplers = [];
+  var transforms = [];
+  for (var xx = 0; xx < 3; xx++) {
+    for (var yy = 0; yy < 2; yy++) {
+      var index = yy * 3 + xx;
+
+      // Create a new Material for the quad.
+      var material = g_pack.createObject('Material');
+
+      // Set the material's drawList
+      material.drawList = g_viewInfo.performanceDrawList;
+      material.effect = g_commonEffect;
+
+      // Create Params on the material for all the uniform parameters needed by
+      // the effect. The one we are really interested in is the Param for the
+      // sampler which will be called "texSampler0"
+      // (the name it has in the shader string).
+      g_commonEffect.createUniformParameters(material);
+
+      // Create a quad and position it.
+      var verts = o3djs.primitives.createPlaneVertices(1, 1, 1, 1);
+      var texCoordStream = verts.findStream(g_o3d.Stream.TEXCOORD, 0);
+      // make the UVs go from 0 to 2 instead of 0 to 1
+      for (var v = 0; v < texCoordStream.elements.length; ++v) {
+        texCoordStream.elements[v] *= 2;
+      }
+      var shape = verts.createShape(g_pack, material);
+
+      // Make a transform for each quad.
+      var transform = g_pack.createObject('Transform');
+      transform.translate([(xx - 1) * 1.2, 0, (0.5 - yy) * -1.2]);
+      transform.addShape(shape);
+
+      // Find the material used by the shape.
+      var primitive = shape.elements[0];
+      var material = primitive.material;
+      var p = material.params;
+
+      // Get the sampler param on the material.
+      var samplerParam = material.getParam('texSampler0');
+
+      // Create a new sampler for the material.
+      var sampler = g_pack.createObject('Sampler');
+      samplerParam.value = sampler;
+      samplers[index] = sampler;
+      transforms[index] = transform;
+    }
+  }
+
+  // Set the sampler states on each sampler.
+  // Looking at the generated image, the samplers correspond to the
+  // following quads:
+  //  [0] [1] [2]
+  //  [3] [4] [5]
+  // Sampler states not specified assume their default values which are:
+  //  addressModeU = Sampler.WRAP
+  //  addressModeV = Sampler.WRAP
+  //  minFilter = Sampler.LINEAR
+  //  magFilter = Sampler.LINEAR
+  //  mipFilter = Sampler.POINT
+  //  borderColor = Float4(0, 0, 0, 0)
+  //  maxAnisotropy = 1
+
+  // Rotates quad and uses anisotropic filtering.
+  transforms[1].rotateZ(-Math.PI / 2.5);
+  samplers[1].addressModeU = g_o3d.Sampler.WRAP;
+  samplers[1].addressModeV = g_o3d.Sampler.WRAP;
+  samplers[1].minFilter = g_o3d.Sampler.ANISOTROPIC;
+  samplers[1].maxAnisotropy = 4;
+
+  // Uses BORDER addressing mode with a red border.
+  samplers[2].addressModeU = g_o3d.Sampler.BORDER;
+  samplers[2].addressModeV = g_o3d.Sampler.BORDER;
+  samplers[2].borderColor = [1, 0, 0, 1];
+
+  // Uses POINT sampling for minification.
+  samplers[3].addressModeU = g_o3d.Sampler.WRAP;
+  samplers[3].addressModeV = g_o3d.Sampler.WRAP;
+  samplers[3].minFilter = g_o3d.Sampler.POINT;
+
+  // Rotates quad and uses default (linear) filtering.
+  // Compare results to quad #1.
+  transforms[4].rotateZ(-Math.PI / 2.5);
+  samplers[4].addressModeU = g_o3d.Sampler.WRAP;
+  samplers[4].addressModeV = g_o3d.Sampler.WRAP;
+  samplers[4].minFilter = g_o3d.Sampler.LINEAR;
+  samplers[4].magFilter = g_o3d.Sampler.LINEAR;
+
+  // Uses MIRROR addressing mode to mirror the texture on both axes.
+  samplers[5].addressModeU = g_o3d.Sampler.MIRROR;
+  samplers[5].addressModeV = g_o3d.Sampler.MIRROR;
+
+  // Load our texture!
+  var url = o3djs.util.getCurrentURI() + 'assets/texture_b3.jpg';
+  o3djs.io.loadTexture(g_pack, url, function(texture, exception) {
+    if (exception) {
+      alert(exception);
+    } else {
+      // Use the same texture for all the samplers.
+      for (var ii = 0; ii < samplers.length; ii++) {
+        samplers[ii].texture = texture;
+      }
+      // Parent the transforms. We do this here because until the texture
+      // is loaded our quads are not ready to display.
+      for (var ii = 0; ii < transforms.length; ii++) {
+        transforms[ii].parent = g_client.root;
+      }
+      g_finished = true;  // for selenium testing.
+    }
+  });
+
+  o3djs.event.addEventListener(o3dElement, 'wheel', scrollMe);
+}
+</script>
+</head>
+<body>
+<h1>Texture Sampler Example</h1>
+This tutorial demonstrates various texture sampler settings.
+<br/>
+<!-- Start of O3D plugin -->
+<div id="o3d" style="width: 700px; height: 600px"></div>
+<p>Scrollwheel To Zoom</p><br/>
+<!-- End of O3D plugin -->
+</body>
+</html>

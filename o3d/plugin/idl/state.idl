@@ -1,0 +1,277 @@
+/*
+ * Copyright 2009, Google Inc.
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are
+ * met:
+ *
+ *     * Redistributions of source code must retain the above copyright
+ * notice, this list of conditions and the following disclaimer.
+ *     * Redistributions in binary form must reproduce the above
+ * copyright notice, this list of conditions and the following disclaimer
+ * in the documentation and/or other materials provided with the
+ * distribution.
+ *     * Neither the name of Google Inc. nor the names of its
+ * contributors may be used to endorse or promote products derived from
+ * this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+ * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+ * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+ * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+ * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
+
+namespace o3d {
+
+%[
+  A State object sets the RenderStates for a particular material or StateSet.
+%]
+[nocpp, include="core/cross/state.h"] class State : ParamObject {
+  %[
+    \var Comparison
+    \li CMP_NEVER  (Never)
+    \li CMP_LESS  (Less Than)
+    \li CMP_EQUAL  (Equal To)
+    \li CMP_LEQUAL  (Less Than or Equal To)
+    \li CMP_GREATER  (Greater Than)
+    \li CMP_NOTEQUAL  (Not Equal To)
+    \li CMP_GEQUAL  (Greater Than or Equal To)
+    \li CMP_ALWAYS  (Always)
+  %]
+  enum Comparison {
+    CMP_NEVER,  /* Never */
+    CMP_LESS,  /* Less Than */
+    CMP_EQUAL,  /* Equal To */
+    CMP_LEQUAL,  /* Less Than or Equal To */
+    CMP_GREATER,  /* Greater Than */
+    CMP_NOTEQUAL,  /* Not Equal To */
+    CMP_GEQUAL,  /* Greater Than or Equal To */
+    CMP_ALWAYS  /* Always */
+  };
+
+  %[
+    \var Cull
+    \li CULL_NONE  Don't Cull by face
+    \li CULL_CW  Cull clock-wise faces
+    \li CULL_CCW  Cull counter clock-wise faces
+  %]
+  enum Cull {
+    CULL_NONE,  /* Don't Cull by face */
+    CULL_CW,  /* Cull clock-wise faces*/
+    CULL_CCW  /* Cull counter clock-wise faces */
+  };
+
+  %[
+    \var Fill
+    \li POINT
+    \li WIREFRAME
+    \li SOLID
+  %]
+  enum Fill {
+    POINT,  /* Points */
+    WIREFRAME,  /* Wireframe */
+    SOLID  /* Solid */
+  };
+
+  %[
+    \var BlendingFunction
+    \li BLENDFUNC_ZERO
+    \li BLENDFUNC_ONE
+    \li BLENDFUNC_SOURCE_COLOR
+    \li BLENDFUNC_INVERSE_SOURCE_COLOR
+    \li BLENDFUNC_SOURCE_ALPHA
+    \li BLENDFUNC_INVERSE_SOURCE_ALPHA
+    \li BLENDFUNC_DESTINATION_ALPHA
+    \li BLENDFUNC_INVERSE_DESTINATION_ALPHA
+    \li BLENDFUNC_DESTINATION_COLOR
+    \li BLENDFUNC_INVERSE_DESTINATION_COLOR
+    \li BLENDFUNC_SOURCE_ALPHA_SATUTRATE
+  %]
+  enum BlendingFunction {
+    BLENDFUNC_ZERO,
+    BLENDFUNC_ONE,
+    BLENDFUNC_SOURCE_COLOR,
+    BLENDFUNC_INVERSE_SOURCE_COLOR,
+    BLENDFUNC_SOURCE_ALPHA,
+    BLENDFUNC_INVERSE_SOURCE_ALPHA,
+    BLENDFUNC_DESTINATION_ALPHA,
+    BLENDFUNC_INVERSE_DESTINATION_ALPHA,
+    BLENDFUNC_DESTINATION_COLOR,
+    BLENDFUNC_INVERSE_DESTINATION_COLOR,
+    BLENDFUNC_SOURCE_ALPHA_SATUTRATE
+  };
+
+  %[
+    \var BlendingEquation
+    \li BLEND_ADD
+    \li BLEND_SUBTRACT
+    \li BLEND_REVERSE_SUBTRACT
+    \li BLEND_MIN
+    \li BLEND_MAX
+  %]
+  enum BlendingEquation {
+    BLEND_ADD,
+    BLEND_SUBTRACT,
+    BLEND_REVERSE_SUBTRACT,
+    BLEND_MIN,
+    BLEND_MAX
+  };
+
+  %[
+    \var StencilOperation
+    \li STENCIL_KEEP
+    \li STENCIL_ZERO
+    \li STENCIL_REPLACE
+    \li STENCIL_INCREMENT_SATURATE
+    \li STENCIL_DECREMENT_SATURATE
+    \li STENCIL_INVERT
+    \li STENCIL_INCREMENT
+    \li STENCIL_DECREMENT
+  %]
+  enum StencilOperation {
+    STENCIL_KEEP,
+    STENCIL_ZERO,
+    STENCIL_REPLACE,
+    STENCIL_INCREMENT_SATURATE,
+    STENCIL_DECREMENT_SATURATE,
+    STENCIL_INVERT,
+    STENCIL_INCREMENT,
+    STENCIL_DECREMENT
+  };
+
+  %[
+    Returns a Param for a given state. If the param does not already exist it
+    will be created. If the state_name is invalid it will return null.
+    \param state_name name of the state
+    \return param or null if no matching state.
+
+    Example:
+    \code
+    // Gets the client.
+    g_o3d = document.o3d.o3d;
+    ...
+    // Creates a state object.
+    var state = my_pack.createState("my_state");
+
+    // Sets some states.
+    state.getStateParam('o3d.StencilEnable').value = true;
+    state.getStateParam('o3d.StencilReference').value = 25;
+    state.getStateParam('o3d.StencilPassOperation').value =
+        g_o3d.State.STENCIL_REPLACE;
+    state.getStateParam('o3d.StencilComparisonFunction').value =
+        g_o3d.State.CMP_ALWAYS;
+    state.getStateParam('o3d.ZEnable').value = false;
+    state.getStateParam('o3d.ZWriteEnable').value = false;
+    state.getStateParam('o3d.ColorWriteEnable').value = 0;
+    \endcode
+    Valid states:
+    <table>
+    <tr><td>State Name</td><td>Type</td><td>Default Value</td></tr>
+    <tr><td>o3d.AlphaTestEnable</td><td>ParamBoolean</td>
+        <td>default = false</td></tr>
+    <tr><td>o3d.AlphaReference</td><td>ParamFloat 0-1</td>
+        <td>default = 0</td></tr>
+    <tr><td>o3d.AlphaComparisonFunction</td><td>ParamInteger,
+        State.Comparison</td><td>default = State.CMP_ALWAYS</td></tr>
+    <tr><td>o3d.CullMode</td><td>ParamInteger, State.Cull</td>
+        <td>default = State.CULL_CW</td></tr>
+    <tr><td>o3d.DitherEnable</td><td>ParamBoolean</td>
+        <td>default = false</td></tr>
+    <tr><td>o3d.LineSmoothEnable</td><td>ParamBoolean</td>
+        <td>default = false</td></tr>
+    <tr><td>o3d.PointSpriteEnable</td><td>ParamBoolean</td>
+        <td>default = false</td></tr>
+    <tr><td>o3d.PointSize</td><td>ParamFloat</td><td>TBD</td></tr>
+    <tr><td>o3d.PolygonOffset1</td><td>ParamFloat<td>TBD</td></tr>
+    <tr><td>o3d.PolygonOffset2</td><td>ParamFloat<td>TBD</td></tr>
+    <tr><td>o3d.FillMode</td><td>ParamInteger, State.Fill</td>
+        <td>default = State.SOLID</td></tr>
+    <tr><td>o3d.ZEnable</td><td>ParamBoolean</td>
+        <td>default = true</td></tr>
+    <tr><td>o3d.ZWriteEnable</td><td>ParamBoolean</td>
+        <td>default = true</td></tr>
+    <tr><td>o3d.ZComparisonFunction</td>
+        <td>ParamInteger, State.Comparison</td>
+        <td>default = State.CMP_ALWAYS</td></tr>
+    <tr><td>o3d.AlphaBlendEnable</td><td>ParamBoolean</td>
+        <td>default = false</td></tr>
+    <tr><td>o3d.SourceBlendFunction</td>
+        <td>ParamInteger, State.BlendingFunction</td>
+        <td>default = State.BLENDFUNC_ONE</td></tr>
+    <tr><td>o3d.DestinationBlendFunction</td>
+        <td>ParamInteger, State.BlendingFunction</td>
+        <td>default = State.BLENDFUNC_ZERO</td></tr>
+    <tr><td>o3d.StencilEnable</td><td>ParamBoolean</td>
+        <td>default = false</td></tr>
+    <tr><td>o3d.StencilFailOperation</td>
+        <td>ParamInteger, State.StencilOperation</td>
+        <td>default = State.STENCIL_KEEP</td></tr>
+    <tr><td>o3d.StencilZFailOperation</td>
+        <td>ParamInteger, State.StencilOperation</td>
+        <td>default = State.STENCIL_KEEP</td></tr>
+    <tr><td>o3d.StencilPassOperation</td>
+        <td>ParamInteger, State.StencilOperation</td>
+        <td>default = State.STENCIL_KEEP</td></tr>
+    <tr><td>o3d.StencilComparisonFunction</td>
+        <td>ParamInteger, State.Comparison</td>
+        <td>default = State.CMP_ALWAYS</td></tr>
+    <tr><td>o3d.StencilReference</td><td>ParamInteger 0-255</td>
+        <td>default = 0</td></tr>
+    <tr><td>o3d.StencilMask</td><td>ParamInteger 0-255</td>
+        <td>default = 255</td></tr>
+    <tr><td>o3d.StencilWriteMask</td><td>ParamInteger 0-255</td>
+        <td>default = 255</td></tr>
+    <tr><td>o3d.ColorWriteEnable</td>
+        <td>ParamInteger 0-15 bit 0 = red, bit 1 = green,
+        bit 2 = blue, bit 3 = alpha</td><td>default = 15</td></tr>
+    <tr><td>o3d.BlendEquation</td>
+        <td>ParamInteger, State.BlendingEquation</td>
+        <td>default = State.BLEND_ADD</td></tr>
+    <tr><td>o3d.TwoSidedStencilEnable</td><td>ParamBoolean</td>
+        <td>default = false</td></tr>
+    <tr><td>o3d.CCWStencilFailOperation</td>
+        <td>ParamInteger, State.StencilOperation</td>
+        <td>default = State.STENCIL_KEEP</td></tr>
+    <tr><td>o3d.CCWStencilZFailOperation</td>
+        <td>ParamInteger, State.StencilOperation</td>
+        <td>default = State.STENCIL_KEEP</td></tr>
+    <tr><td>o3d.CCWStencilPassOperation</td>
+        <td>ParamInteger, State.StencilOperation</td>
+        <td>default = State.STENCIL_KEEP</td></tr>
+    <tr><td>o3d.CCWStencilComparisonFunction</td>
+        <td>ParamInteger, State.Comparison</td>
+        <td>default = State.CMP_ALWAYS</td></tr>
+    <tr><td>o3d.SeparateAlphaBlendEnable</td><td>ParamBoolean</td>
+        <td>default = false;</td></tr>
+    <tr><td>o3d.SourceBlendAlphaFunction</td>
+        <td>ParamInteger, State.BlendingFunction</td>
+        <td>default = State.BLENDFUNC_ONE</td></tr>
+    <tr><td>o3d.DestinationBlendAlphaFunction</td>
+        <td>ParamInteger, State.BlendingFunction</td>
+        <td>default = State.BLENDFUNC_ZERO</td></tr>
+    <tr><td>o3d.BlendAlphaEquation</td>
+        <td>ParamInteger, State.BlendingEquation</td>
+        <td>default = State.BLEND_ADD</td></tr>
+    </table>
+
+  %]
+  [nocpp, userglue] Param? GetStateParam(String state_name);
+
+  [verbatim=cpp_glue] %{
+    o3d::Param* userglue_method_GetStateParam(
+        o3d::State *self,
+        const o3d::String& state_name) {
+      return self->GetUntypedStateParam(state_name);
+    }
+  %}
+};
+
+}  // namespace o3d

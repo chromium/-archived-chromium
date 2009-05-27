@@ -1,0 +1,65 @@
+{!
+thisClass = data;
+!}
+
+<!-- ============================== header ================================= -->
+                <!-- begin static/header.html -->
+                {+include("static/header.html")+}
+                <!-- end static/header.html -->
+
+<div id="doxygen-ref">
+<!-- Genreated by jsdoctoolkit 2.1.0 -->
+<div class="navigation" id="top">
+</div>
+
+<div class="contents">
+<h1>{+thisClass.alias+} Member List</h1>
+This is the complete list of members for
+<a class="el" href="{+getLinkToClassByAlias(thisClass.alias)+}">{+thisClass.alias+}</a>, including all inherited members.
+<p/>
+<table>
+
+<!-- ========== CONSTRUCTOR SUMMARY ============== -->
+<if test="!data.isPrivate && !data.isBuiltin() && !data.isNamespace && data.is('CONSTRUCTOR')">
+<tr class="memlist"><td><a class="el" href="{+getLinkToClassByAlias(thisClass.alias)+}#{+data.name+}">{+data.alias+}</a><if test="data.classType != 'Namespace '">{+ makeSignature(data.params) +}</if></td><td><a class="el" href="{+getLinkToClassByAlias(thisClass.memberOf)+}">{+thisClass.memberOf+}</a></td><td></td></tr>
+</if>
+
+<!-- ========== METHOD SUMMARY =========== -->
+<if test="thisClass.methods.length">
+  {! var ownMethods = data.methods.sort(makeSortby("name")); !}
+  <if test="ownMethods.length">
+    <for each="method" in="ownMethods">
+    <if test="!method.isPrivate">
+    <tr class="memlist"><td><a class="el" href="{+getLinkToClassByAlias(thisClass.alias)+}#{+method.name+}">{+method.name+}</a>{+ makeSignature(method.params) +}</td><td><a class="el" href="{+getLinkToClassByAlias(method.memberOf)+}">{+method.memberOf+}</a></td><td></td></tr>
+    </if>
+    </for>
+  </if>
+</if>
+
+<!-- =========== FIELD SUMMARY =========== -->
+<if test="data.properties.length">
+  {! var ownProperties = data.properties.sort(makeSortby("name")); !}
+  <if test="ownProperties.length">
+    <for each="property" in="ownProperties">
+    <if test="!property.isPrivate">
+    <tr class="memlist"><td><a class="el" href="{+getLinkToClassByAlias(thisClass.alias)+}#{+property.name+}">{+property.name+}</a></td><td><a class="el" href="{+getLinkToClassByAlias(property.memberOf)+}">{+property.memberOf+}</a></td><td></td></tr>
+    </if>
+    </for>
+  </if>
+</if>
+
+</table>
+
+
+<!-- =========== END FIELD SUMMARY =========== -->
+
+</div><!-- end contents -->
+</div><!-- end doxygen-ref -->
+
+<!-- ============================== footer ================================= -->
+                <!-- begin static/footer.html -->
+                {+include("static/footer.html")+}
+                <!-- end static/footer.html -->
+
+
+

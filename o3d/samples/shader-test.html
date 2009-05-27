@@ -1,0 +1,403 @@
+<!--
+Copyright 2009, Google Inc.
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are
+met:
+
+    * Redistributions of source code must retain the above copyright
+notice, this list of conditions and the following disclaimer.
+    * Redistributions in binary form must reproduce the above
+copyright notice, this list of conditions and the following disclaimer
+in the documentation and/or other materials provided with the
+distribution.
+    * Neither the name of Google Inc. nor the names of its
+contributors may be used to endorse or promote products derived from
+this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+-->
+
+<!--
+O3D Tutorial
+
+In this tutorial, we load a scene file and then apply various shaders to it.
+-->
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+  "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<title>
+Shader Test
+</title>
+<style type="text/css">
+  html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    border: none;
+  }
+</style>
+<!-- Include sample javascript library functions-->
+<script type="text/javascript" src="o3djs/base.js"></script>
+
+<!-- Our javascript code -->
+<script type="text/javascript">
+o3djs.require('o3djs.util');
+o3djs.require('o3djs.rendergraph');
+o3djs.require('o3djs.pack');
+o3djs.require('o3djs.math');
+o3djs.require('o3djs.camera');
+o3djs.require('o3djs.effect');
+o3djs.require('o3djs.loader');
+
+// Events
+// init() once the page has finished loading.
+// unload() when the page is unloaded.
+window.onload = init;
+window.onunload = unload;
+
+// global variables
+var g_o3d;
+var g_client;
+var g_viewInfo;
+var g_o3dElement;
+var g_pack;
+var g_root;
+var g_math;
+var g_timeMult = 1;
+var g_finished = false;  // for selenium testing
+var g_currentTimeParam;
+var g_clock = 0;
+var g_shaderSelection = 0;
+var g_rotateOn = true;
+var g_o3dWidth;  // width of our client area
+var g_o3dHeight;  // height of our client area
+var g_shaders = ['diffuse',
+                 'checker',
+                 'bump',
+                 'bump',
+                 'texture-only',
+                 'texture-colormult',
+                 'tangent',
+                 'binormal',
+                 'normal',
+                 'solid-color',
+                 'vertex-color',
+                 'phong-with-colormult'];
+var g_effects = [];
+var g_bumpTextureSampler;
+var g_bumpBumpsSampler;
+
+// Our view and projection matrices
+// The view matrix transforms objects from world space to view space.
+var g_viewMatrix;
+// The projection matrix projects objects from view space to the screen.
+var g_projMatrix;
+
+/**
+ * Returns the path of where the file is located
+ * with the trailing slash
+ */
+function getCurrentPath() {
+  var path = window.location.href;
+  var index = path.lastIndexOf('/');
+  return path.substring(0, index + 1);
+}
+
+/**
+ * Turn rotation on.
+ */
+function turnRotateOn() {
+  g_rotateOn = true;
+}
+
+/**
+ * Turn rotation off.
+ */
+function turnRotateOff() {
+  g_rotateOn = false;
+}
+
+/**
+ * This is the code to animate the rotation.
+ * @param {o3d.RenderEvent} render_event The render event.
+ */
+function onrender(render_event) {
+  var elapsedTime = render_event.elapsedTime * g_timeMult;
+  var newWidth = g_client.width;
+  var newHeight = g_client.height;
+  if (newWidth != g_o3dWidth || newHeight != g_o3dHeight) {
+    g_o3dWidth = newWidth;
+    g_o3dHeight = newHeight;
+    setupCamera(g_pack, g_root);
+  }
+
+  g_clock += elapsedTime * (g_rotateOn ? 1 : 0);
+  g_root.identity();
+  g_root.rotateY(g_clock);
+
+  g_currentTimeParam.value = g_clock;
+}
+
+/**
+ * Sets the camera based on the imported file.
+ * @param {!o3d.Pack} pack Pack to create context in.
+ * @param {!o3d.Transform} root Root of tree to search for camera info.
+ */
+function setupCamera(pack, root) {
+  // Get a CameraInfo (an object with a view and projection matrix)
+  // using our javascript library function
+  var cameraInfo = o3djs.camera.getViewAndProjectionFromCameras(root,
+                                                                g_o3dWidth,
+                                                                g_o3dHeight);
+
+  // Copy the view and projection to the draw context.
+  g_viewInfo.drawContext.view = cameraInfo.view;
+  g_viewInfo.drawContext.projection = cameraInfo.projection;
+}
+
+/**
+ * Our callback is called once the scene has been loaded into memory
+ * from the web or locally.
+ * @param {!o3d.Pack} pack Variable referring to the scene's pack.
+ * @param {!o3d.Transform} parent Transform parent.
+ * @param {*} exception null if loading succeeded.
+ */
+function sceneCallback(pack, parent, exception) {
+  if (exception) {
+    alert('Could not load scene\n' + exception);
+    return;
+  }
+  setupCamera(pack, parent);
+
+  // Start with diffuse as default
+  applyShader(pack, 0);
+
+  // Add some vertex colors because the teapot does not have any
+  // and yet the vertex color shader requires them.
+  var streamBanks = pack.getObjectsByClassName('o3d.StreamBank');
+  for (var ss = 0; ss < streamBanks.length; ++ss) {
+    var streamBank = streamBanks[ss];
+    if (!streamBank.getVertexStream(g_o3d.Stream.COLOR, 0)) {
+      var positionField = streamBank.getVertexStream(g_o3d.Stream.POSITION,
+                                                     0).field;
+      var buffer = positionField.buffer;
+      var numElements = buffer.numElements;
+      var colorField = buffer.createField('FloatField', 4);
+
+      var colors = [];
+      for (var nn = 0; nn < numElements; ++nn) {
+        colors.push((nn * 40 / numElements) % 1,
+                    (nn * 61 / numElements) % 1,
+                    (nn * 83 / numElements) % 1,
+                    1);
+      }
+      colorField.setAt(0, colors);
+      streamBank.setVertexStream(g_o3d.Stream.COLOR, 0, colorField, 0);
+    }
+  }
+
+  // Generate draw elements and setup material draw lists.
+  o3djs.pack.preparePack(pack, g_viewInfo);
+}
+
+/**
+ * Looks up a Param and if it exists sets its value.
+ * @param {!o3d.ParamObject} object object to look for param on.
+ * @param {string} name name of Param to look up.
+ * @param {*} value Value to set param.
+ */
+function setParam(object, paramName, value) {
+  var param = object.getParam(paramName);
+  if (param) {
+    param.value = value;
+  }
+}
+
+/**
+ * Apply the desired shader to our scene.
+ * @param {!o3d.Pack} pack Variable referring to the scene's pack.
+ * @param {number} shaderNumber Index into g_effects of which shader to use.
+ */
+function applyShader(pack, shaderNumber) {
+  var materials = pack.getObjectsByClassName('o3d.Material');
+  // Make the change to each material. For our teapot, there is only one
+  // material.
+  for (var m = 0; m < materials.length; m++) {
+    var material = materials[m];
+    g_effects[shaderNumber].createUniformParameters(material);
+    material.effect = g_effects[shaderNumber];
+
+    // Set our shader values
+    var colorParamValue = [0.8, 0.8, 0.8, 1];
+    var lightPosParamValue = [600, 600, 1000];
+
+    setParam(material, 'lightPos', lightPosParamValue);
+    setParam(material, 'lightWorldPos', lightPosParamValue);
+    setParam(material, 'cameraEye', [197.58, -63.5702, 0]);
+    setParam(material, 'color', colorParamValue);
+    setParam(material, 'colorMult', [.75, .75, 75., 1]);
+    // only use the texture input addition to bump mapping if on selection 3
+    setParam(material, 'useTexture', (g_shaderSelection == 3) ? 1 : 0);
+    setParam(material, 'lightIntensity', [0.8, 0.8, 0.8, 1]);
+    setParam(material, 'ambientIntensity', [0.2, 0.2, 0.2, 1]);
+    setParam(material, 'emissive', [0, 0, 0, 1]);
+    setParam(material, 'ambient', [1, 1, 1, 1]);
+    setParam(material, 'diffuse', colorParamValue);
+    setParam(material, 'specular', [0.5, 0.5, 0.5, 1]);
+    setParam(material, 'shininess', 50);
+    setParam(material, 'BumpSampler', g_bumpBumpsSampler);
+    setParam(material, 'AmbientSampler', g_bumpTextureSampler);
+    setParam(material, 'DiffuseSampler', g_bumpTextureSampler);
+    setParam(material, 'texSampler0', g_bumpTextureSampler);
+
+    var timeParam = material.getParam('inputTime');
+    if (timeParam) {
+      timeParam.bind(g_currentTimeParam);
+    }
+  }
+}
+
+/**
+ * Creates our client area by looking for <div>s with an id that starts with
+ * "o3d".
+ */
+function init() {
+  o3djs.util.makeClients(initStep2);
+}
+
+/**
+ * Initializes O3D and loads the scene into the transform graph.
+ */
+function initStep2(clientElements) {
+  // Initialize global variables and libraries.
+  g_o3dElement = clientElements[0];
+  g_o3d = g_o3dElement.o3d;
+  g_math = o3djs.math;
+  g_client = g_o3dElement.client;
+
+  // Get the width and height of our client area. We will need this to create
+  // a projection matrix.
+  g_o3dWidth  = g_client.width;
+  g_o3dHeight = g_client.height;
+
+  // Creates a pack to manage our resources/assets
+  g_pack = g_client.createPack();
+
+  // Create the render graph for a view.
+  g_viewInfo = o3djs.rendergraph.createBasicView(
+      g_pack,
+      g_client.root,
+      g_client.renderGraphRoot);
+
+  // Creates a transform to put our data on.
+  g_root = g_pack.createObject('Transform');
+
+  // Connects our root to the client's root.
+  g_root.parent = g_client.root;
+
+  var paramObject = g_pack.createObject('ParamObject');
+  g_currentTimeParam = paramObject.createParam('timeParam','ParamFloat');
+
+  // Load effects
+  for(var s = 0; s < g_shaders.length; s++) {
+    g_effects[s] = g_pack.createObject('Effect');
+    var shaderString = 'shaders/' + g_shaders[s] + '.shader';
+    o3djs.effect.loadEffect(g_effects[s], shaderString);
+  }
+
+  var loader = o3djs.loader.createLoader(initStep3);
+  loader.loadTexture(g_pack, 'assets/normalmap.dds',
+                     function(texture, exception) {
+                       if (exception) {
+                         alert(exception);
+                       } else {
+                         g_bumpBumpsSampler = g_pack.createObject('Sampler');
+                         g_bumpBumpsSampler.texture = texture;
+                         g_bumpBumpsSampler.mipFilter = g_o3d.Sampler.LINEAR;
+                       }
+                     });
+  loader.loadTexture(g_pack, 'assets/rock_texture.jpg',
+                     function(texture, exception) {
+                       if (exception) {
+                         alert(exception);
+                       } else {
+                         g_bumpTextureSampler = g_pack.createObject('Sampler');
+                         g_bumpTextureSampler.texture = texture;
+                         g_bumpTextureSampler.mipFilter = g_o3d.Sampler.LINEAR;
+                       }
+                     });
+  var scenePath = getCurrentPath() + 'assets/teapot.o3dtgz';
+  loader.loadScene(g_client, g_pack, g_root, scenePath, sceneCallback);
+  loader.finish();
+}
+
+function initStep3() {
+  o3djs.event.addEventListener(g_o3dElement, 'mousedown', turnRotateOff);
+  o3djs.event.addEventListener(g_o3dElement, 'mouseup', turnRotateOn);
+
+  g_rotateOn = true;
+
+  // Tell our example to rotate.
+  g_client.setRenderCallback(onrender);
+
+  g_finished = true;  // for selenium testing.
+}
+
+/**
+ * Swaps which shader we are using and applies it.
+ */
+function changeShader() {
+  var shaderNumber = document.getElementById("shaderSelect").value;
+  g_shaderSelection = parseFloat(shaderNumber);
+  applyShader(g_pack, g_shaderSelection);
+}
+
+/**
+ * Removes any callbacks so they don't get called after the page has unloaded.
+ */
+function unload() {
+  if (g_client) {
+    g_client.cleanup();
+  }
+}
+
+</script>
+</head>
+<body>
+<h1>Shader Test</h1>
+This example is useful for testing a shader or checking a scene. Clicking on the scene will temporarily stop rotation.
+<br/>
+<!-- Start of O3D plugin -->
+<div id="o3d" style="width: 100%; height: 80%;"></div>
+<!-- End of O3D plugin -->
+<p>
+<select id='shaderSelect' name='shaderSelect' onChange='changeShader()'>
+<option value='0' selected>Diffuse</option>
+<option value='1'>Checker</option>
+<option value='2'>Bump</option>
+<option value='3'>Bump With Texture</option>
+<option value='4'>Texture Only</option>
+<option value='5'>Texture with Color Multiplier</option>
+<option value='6'>Tangent</option>
+<option value='7'>Binormal</option>
+<option value='8'>Normal</option>
+<option value='9'>Solid Color</option>
+<option value='10'>Vertex Color</option>
+<option value='11'>Blinn-Phong with Color Multiplier</option>
+</select>
+</body>
+</html>

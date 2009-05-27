@@ -1,0 +1,171 @@
+<!--
+Copyright 2009, Google Inc.
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are
+met:
+
+    * Redistributions of source code must retain the above copyright
+notice, this list of conditions and the following disclaimer.
+    * Redistributions in binary form must reproduce the above
+copyright notice, this list of conditions and the following disclaimer
+in the documentation and/or other materials provided with the
+distribution.
+    * Neither the name of Google Inc. nor the names of its
+contributors may be used to endorse or promote products derived from
+this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+-->
+
+<html>
+<title>
+  O3D Home Designer Demo
+</title>
+<style type="text/css">
+BODY {
+  background-image: url(cb_images/unbranded_bg.png);
+  background-position: top center;
+  background-repeat: no-repeat;
+  background-color: white;
+}
+
+#intro {
+  font-family: sans-serif;
+  color: 666666;
+  font-size: 12px;
+  padding: 12px 8px 0px 8px;
+}
+
+#toolpanel {
+  width: 400px;
+  height: 36px;
+  padding-top: 1px;
+}
+
+#toolselector {
+  width: 38px;
+  height: 38px;
+  background-image: url(cb_images/toolselector.gif);
+  position: relative;
+  left: 9px;
+  border: 0px;
+}
+
+.catalogItem {
+  -moz-user-select:none;
+  cursor: pointer;
+  width: 62px;
+  height: 62px;
+  border: 1px solid silver;
+  margin: 1px;
+  float: left;
+  background-image: url(cb_images/cb_item_thumbnails.jpg);
+}
+
+#itemlist {
+  padding-left: 8px;
+
+}
+
+</style>
+  <script type="text/javascript" src="../o3djs/base.js"></script>
+  <script type="text/javascript" src="viewer.js"></script>
+  <script type="text/javascript" src="rotatetool.js"></script>
+  <script type="text/javascript" src="movetool.js"></script>
+  <script type="text/javascript" src="orbittool.js"></script>
+  <script type="text/javascript" src="pantool.js"></script>
+  <script type="text/javascript" src="zoomtool.js"></script>
+  <script type="text/javascript" src="deletetool.js"></script>
+
+<script type="text/javascript">
+/**
+ * A structure to store our list of catalog items that can be dragged in.
+ * If the url doesn't start with 'http:' then we assume it's a local
+ * file to be loaded from the /assets subdirectory.
+ */
+g_items = [
+  { url: 'Agra_Rug.o3dtgz', cost: 100, title: 'Agra Rug' },
+  { url: 'Asimi_Rug.o3dtgz', cost: 100, title: 'Asimi Rug' },
+  { url: 'Camden_Chair.o3dtgz', cost: 100, title: 'Camden Chair' },
+  { url: 'Elements_Bookshelf.o3dtgz', cost: 100, title: 'Elements Bookshelf' },
+  { url: 'Ferrara_Rug.o3dtgz', cost: 100, title: 'Ferrara Rug' },
+  { url: 'Lounge_Chair.o3dtgz', cost: 100, title: 'Lounge Chair' },
+  { url: 'Lounge_Chaise.o3dtgz', cost: 100, title: 'Lounge Chaise' },
+  { url: 'Lounge_Sofa.o3dtgz', cost: 100, title: 'Lounge Sofa' },
+  { url: 'Lounge_Storage_Ottoman.o3dtgz', cost: 100,
+        title: 'Lounge_Storage_Ottoman' },
+  { url: 'Madison_Dining_Table.o3dtgz', cost: 100, title: 'Madison Dining Table' },
+  { url: 'Miles_Side_Chair.o3dtgz', cost: 100, title: 'Miles Side Chair' },
+  { url: 'Pullman_Bar_Stool.o3dtgz', cost: 100, title: 'Pullman Bar Stool' },
+  { url: 'Puzzle_TV_Stand.o3dtgz', cost: 100, title: 'Puzzle TV Stand' },
+  { url: 'Stow_Leather_Ottoman.o3dtgz', cost: 100, title: 'Stow Leather Ottoman' },
+  { url: 'Tivoli_Dining_Table.o3dtgz', cost: 100, title: 'Tivoli Dining Table' },
+  { url: 'Tivoli_Miles_Dining_Set.o3dtgz', cost: 100,
+        title: 'Tivoli_Miles_Dining_Set' },
+  { url: 'Troy_Chair.o3dtgz', cost: 100, title: 'Troy Chair' },
+  { url: 'Troy_Ottoman.o3dtgz', cost: 100, title: 'Troy Ottoman' },
+  { url: 'Troy_Sofa.o3dtgz', cost: 100, title: 'Troy Sofa' },
+  { url: 'Troy_Storage_Ottoman.o3dtgz', cost: 100, title: 'Troy Storage Ottoman' },
+  { url: 'Troy_Twin_Sleeper.o3dtgz', cost: 100, title: 'Troy Twin Sleeper' }
+];
+
+var g_assetPath = '/cbassets/';
+var g_buildingAsset = '/cbassets/House_Roofless.o3dtgz';
+
+</script>
+<body onload="init();" onresize="resize();">
+
+<div style="position:absolute;top:104px;left:0px;text-align:center;width:100%">
+
+
+<table style="width:900px;" align="center"><tr>
+    <td width="100%" valign="top">
+
+      <table id="container" width="676" height="545" border="0"><tr><td>
+      <div id="o3d" style="width:100%; height:100%"></div>
+      </td></tr></table>
+      <div id="toolpanel"><div id="toolselector"></div></div>
+    </td>
+    <td valign="top" style="padding-right:8px">
+      <div id="contentpanel" style="width:222px;height:365px">
+      <div id="intro">
+      <span style="font-size: 18px">Most Popular Items</span>
+      <p>Drag and drop objects into the
+      <br>rooms on the left.
+      </div>
+      <div id="itemlist">
+      </div>
+
+
+      </div><br>
+    </td>
+</tr></table>
+</div>
+
+<!-- hide the old UI -->
+<div style="display:none">
+  <input type="text" id="url" size="100">
+  <input type="button" onclick="doload();" value="load"><BR>
+  <div id="output">
+  </div>
+  <div style="display:none">
+
+  </div>
+</div>
+
+</body>
+</html>
+
+

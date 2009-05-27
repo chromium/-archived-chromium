@@ -1,0 +1,10 @@
+﻿/*
+	File:		InfoPlist.strings
+
+	Description:Finder Bundle Information
+
+	Localized versions of Info.plist keys */
+
+CFBundleName = "O3D Plugin";
+
+NSHumanReadableCopyright = "Copyright 2009, Google, Inc.";

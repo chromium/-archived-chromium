@@ -1,0 +1,5 @@
+This directory contains a subset of Box2D-JS, available at
+http://box2d-js.sourceforge.net/ under the zlib/libpng license (see
+License.txt).
+The software was not modified, but only the portions under js/box2d in the
+original distribution are here.

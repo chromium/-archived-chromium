@@ -1,0 +1,267 @@
+# Copyright 2009, Google Inc.
+# All rights reserved.
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions are
+# met:
+#
+#     * Redistributions of source code must retain the above copyright
+# notice, this list of conditions and the following disclaimer.
+#     * Redistributions in binary form must reproduce the above
+# copyright notice, this list of conditions and the following disclaimer
+# in the documentation and/or other materials provided with the
+# distribution.
+#     * Neither the name of Google Inc. nor the names of its
+# contributors may be used to endorse or promote products derived from
+# this software without specific prior written permission.
+#
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+# "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+# LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+# A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+# OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+# SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+# LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+# DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+# THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+# (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+# OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+
+Import('env')
+
+c_sources = [
+  'LibXML/DOCBparser',
+  'LibXML/HTMLparser',
+  'LibXML/HTMLtree',
+  'LibXML/SAX',
+  'LibXML/SAX2',
+  'LibXML/c14n',
+  'LibXML/catalog',
+  'LibXML/chvalid',
+  'LibXML/debugXML',
+  'LibXML/dict',
+  'LibXML/encoding',
+  'LibXML/entities',
+  'LibXML/error',
+  'LibXML/globals',
+  'LibXML/hash',
+  'LibXML/legacy',
+  'LibXML/list',
+  'LibXML/nanoftp',
+  'LibXML/nanohttp',
+  'LibXML/parser',
+  'LibXML/parserInternals',
+  'LibXML/pattern',
+  'LibXML/relaxng',
+  'LibXML/threads',
+  'LibXML/tree',
+  'LibXML/uri',
+  'LibXML/valid',
+  'LibXML/xinclude',
+  'LibXML/xlink',
+  'LibXML/xmlIO',
+  'LibXML/xmlcatalog',
+  'LibXML/xmlmemory',
+  'LibXML/xmlmodule',
+  'LibXML/xmlreader',
+  'LibXML/xmlregexp',
+  'LibXML/xmlsave',
+  'LibXML/xmlstring',
+  'LibXML/xmlunicode',
+  'LibXML/xmlwriter',
+]
+
+cpp_sources = [
+  'DLLEntry',
+  'FCollada',
+  'FColladaPlugin',
+  'StdAfx',
+
+  'FArchiveXML/FAXAnimationExport',
+  'FArchiveXML/FAXAnimationImport',
+  'FArchiveXML/FAXCameraExport',
+  'FArchiveXML/FAXCameraImport',
+  'FArchiveXML/FAXColladaParser',
+  'FArchiveXML/FAXColladaWriter',
+  'FArchiveXML/FAXControllerExport',
+  'FArchiveXML/FAXControllerImport',
+  'FArchiveXML/FAXEmitterExport',
+  'FArchiveXML/FAXEmitterImport',
+  'FArchiveXML/FAXEntityExport',
+  'FArchiveXML/FAXEntityImport',
+  'FArchiveXML/FAXForceFieldExport',
+  'FArchiveXML/FAXForceFieldImport',
+  'FArchiveXML/FAXGeometryExport',
+  'FArchiveXML/FAXGeometryImport',
+  'FArchiveXML/FAXImportLinking',
+  'FArchiveXML/FAXInstanceExport',
+  'FArchiveXML/FAXInstanceImport',
+  'FArchiveXML/FAXLightExport',
+  'FArchiveXML/FAXLightImport',
+  'FArchiveXML/FAXMaterialExport',
+  'FArchiveXML/FAXMaterialImport',
+  'FArchiveXML/FAXPhysicsExport',
+  'FArchiveXML/FAXPhysicsImport',
+  'FArchiveXML/FAXSceneExport',
+  'FArchiveXML/FAXSceneImport',
+  'FArchiveXML/FArchiveXML',
+  'FArchiveXML/StdAfx',
+
+  'FCDocument/FCDAnimated',
+  'FCDocument/FCDAnimation',
+  'FCDocument/FCDAnimationChannel',
+  'FCDocument/FCDAnimationClip',
+  'FCDocument/FCDAnimationClipTools',
+  'FCDocument/FCDAnimationCurve',
+  'FCDocument/FCDAnimationCurveTools',
+  'FCDocument/FCDAnimationKey',
+  'FCDocument/FCDAnimationMultiCurve',
+  'FCDocument/FCDAsset',
+  'FCDocument/FCDCamera',
+  'FCDocument/FCDController',
+  'FCDocument/FCDControllerInstance',
+  'FCDocument/FCDControllerTools',
+  'FCDocument/FCDEffect',
+  'FCDocument/FCDEffectCode',
+  'FCDocument/FCDEffectParameter',
+  'FCDocument/FCDEffectParameterFactory',
+  'FCDocument/FCDEffectParameterSampler',
+  'FCDocument/FCDEffectParameterSurface',
+  'FCDocument/FCDEffectPass',
+  'FCDocument/FCDEffectPassShader',
+  'FCDocument/FCDEffectPassState',
+  'FCDocument/FCDEffectProfile',
+  'FCDocument/FCDEffectProfileFX',
+  'FCDocument/FCDEffectStandard',
+  'FCDocument/FCDEffectTechnique',
+  'FCDocument/FCDEffectTools',
+  'FCDocument/FCDEmitter',
+  'FCDocument/FCDEmitterInstance',
+  'FCDocument/FCDEmitterObject',
+  'FCDocument/FCDEmitterParticle',
+  'FCDocument/FCDEntity',
+  'FCDocument/FCDEntityInstance',
+  'FCDocument/FCDEntityReference',
+  'FCDocument/FCDExternalReferenceManager',
+  'FCDocument/FCDExtra',
+  'FCDocument/FCDForceDeflector',
+  'FCDocument/FCDForceDrag',
+  'FCDocument/FCDForceField',
+  'FCDocument/FCDForceGravity',
+  'FCDocument/FCDForcePBomb',
+  'FCDocument/FCDForceWind',
+  'FCDocument/FCDGeometry',
+  'FCDocument/FCDGeometryInstance',
+  'FCDocument/FCDGeometryMesh',
+  'FCDocument/FCDGeometryNURBSSurface',
+  'FCDocument/FCDGeometryPolygons',
+  'FCDocument/FCDGeometryPolygonsInput',
+  'FCDocument/FCDGeometryPolygonsTools',
+  'FCDocument/FCDGeometrySource',
+  'FCDocument/FCDGeometrySpline',
+  'FCDocument/FCDImage',
+  'FCDocument/FCDLibrary',
+  'FCDocument/FCDLight',
+  'FCDocument/FCDLightTools',
+  'FCDocument/FCDMaterial',
+  'FCDocument/FCDMaterialInstance',
+  'FCDocument/FCDMorphController',
+  'FCDocument/FCDObject',
+  'FCDocument/FCDObjectWithId',
+  'FCDocument/FCDParameterAnimatable',
+  'FCDocument/FCDParticleModifier',
+  'FCDocument/FCDPhysicsAnalyticalGeometry',
+  'FCDocument/FCDPhysicsForceFieldInstance',
+  'FCDocument/FCDPhysicsMaterial',
+  'FCDocument/FCDPhysicsModel',
+  'FCDocument/FCDPhysicsModelInstance',
+  'FCDocument/FCDPhysicsRigidBody',
+  'FCDocument/FCDPhysicsRigidBodyInstance',
+  'FCDocument/FCDPhysicsRigidBodyParameters',
+  'FCDocument/FCDPhysicsRigidConstraint',
+  'FCDocument/FCDPhysicsRigidConstraintInstance',
+  'FCDocument/FCDPhysicsScene',
+  'FCDocument/FCDPhysicsShape',
+  'FCDocument/FCDPlaceHolder',
+  'FCDocument/FCDSceneNode',
+  'FCDocument/FCDSceneNodeIterator',
+  'FCDocument/FCDSceneNodeTools',
+  'FCDocument/FCDSkinController',
+  'FCDocument/FCDTargetedEntity',
+  'FCDocument/FCDTexture',
+  'FCDocument/FCDTransform',
+  'FCDocument/FCDVersion',
+  'FCDocument/FCDocument',
+  'FCDocument/FCDocumentTools',
+
+  'FMath/FMAllocator',
+  'FMath/FMAngleAxis',
+  'FMath/FMColor',
+  'FMath/FMInterpolation',
+  'FMath/FMLookAt',
+  'FMath/FMMatrix33',
+  'FMath/FMMatrix44',
+  'FMath/FMQuaternion',
+  'FMath/FMRandom',
+  'FMath/FMSkew',
+  'FMath/FMVector3',
+  'FMath/FMVolume',
+  'FMath/StdAfx',
+
+  'FUtils/FUAssert',
+  'FUtils/FUBase64',
+  'FUtils/FUBoundingBox',
+  'FUtils/FUBoundingSphere',
+  'FUtils/FUCrc32',
+  'FUtils/FUCriticalSection',
+  'FUtils/FUDaeEnum',
+  'FUtils/FUDateTime',
+  'FUtils/FUDebug',
+  'FUtils/FUError',
+  'FUtils/FUErrorLog',
+  'FUtils/FUFile',
+  'FUtils/FUFileManager',
+  'FUtils/FULogFile',
+  'FUtils/FUObject',
+  'FUtils/FUObjectType',
+  'FUtils/FUParameter',
+  'FUtils/FUParameterizable',
+  'FUtils/FUPluginManager',
+  'FUtils/FUSemaphore',
+  'FUtils/FUStringBuilder',
+  'FUtils/FUStringConversion',
+  'FUtils/FUSynchronizableObject',
+  'FUtils/FUThread',
+  'FUtils/FUTracker',
+  'FUtils/FUUniqueStringMap',
+  'FUtils/FUUniqueStringMapTest',
+  'FUtils/FUUri',
+  'FUtils/FUXmlDocument',
+  'FUtils/FUXmlParser',
+  'FUtils/FUXmlWriter',
+  'FUtils/StdAfx',
+]
+
+env.Append(CPPPATH=['$COLLADA_DIR/LibXML/include', '$COLLADA_DIR'],
+           # Always set RETAIL so that we don't link in tests.
+           CPPDEFINES=['RETAIL'])
+
+# TESTING is added on our test- targets but messes up fcollada
+env.FilterOut(CPPDEFINES=['TESTING'])
+
+if env.Bit('mac'):
+  # LibXML needs this define on Mac.
+  env.Append(CPPDEFINES = ['OS_MACINTOSH'])
+
+if env.Bit('linux'):
+  # On linux, -O3 seems to cause problems with template instantiation, -O2 is
+  # fine.
+  if not env['DEBUG']:
+    env.FilterOut(CCFLAGS=['-O3'])
+    env.Append(CCFLAGS=['-O2'])
+
+inputs = env.MakeObjects(c_sources, '$COLLADA_DIR', 'c')
+inputs += env.MakeObjects(cpp_sources, '$COLLADA_DIR', 'cpp')
+
+env.ComponentLibrary('FColladaU', inputs)
