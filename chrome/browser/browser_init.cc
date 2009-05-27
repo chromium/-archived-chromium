@@ -41,6 +41,7 @@
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
 #include "chrome/common/result_codes.h"
+#include "chrome/common/url_constants.h"
 #include "grit/chromium_strings.h"
 #include "grit/generated_resources.h"
 #include "grit/locale_settings.h"
@@ -477,8 +478,13 @@ bool BrowserInit::LaunchWithProfile::OpenStartupURLs(
       // When the user launches the app only open the default set of URLs if
       // we aren't going to open any URLs on the command line.
       if (urls_to_open.empty()) {
-        if (pref.urls.empty())
-          return false;  // No URLs to open.
+        if (pref.urls.empty()) {
+          // Open a New Tab page.
+          std::vector<GURL> urls;
+          urls.push_back(GURL(chrome::kChromeUINewTabURL));
+          OpenURLsInBrowser(NULL, is_process_startup, urls);
+          return true;
+        }
         OpenURLsInBrowser(NULL, is_process_startup, pref.urls);
         return true;
       }
