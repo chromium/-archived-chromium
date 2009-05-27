@@ -89,6 +89,9 @@ class TabContentsDelegate {
   // Notification that the target URL has changed
   virtual void UpdateTargetURL(TabContents* source, const GURL& url) = 0;
 
+  // Notification that the download shelf visibility state has been toggled.
+  virtual void UpdateDownloadShelfVisibility(bool visible) { }
+
   // Notification that there was a mouse event
   virtual void ContentsMouseEvent(TabContents* source, bool motion) { }
 

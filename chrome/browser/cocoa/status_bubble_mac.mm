@@ -188,6 +188,10 @@ void StatusBubbleMac::MouseMoved() {
   }
 }
 
+void StatusBubbleMac::UpdateDownloadShelfVisibility(bool visible) {
+  NOTIMPLEMENTED();
+}
+
 void StatusBubbleMac::Create() {
   if (window_)
     return;

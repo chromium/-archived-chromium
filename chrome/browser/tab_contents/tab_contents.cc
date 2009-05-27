@@ -931,6 +931,9 @@ void TabContents::SetDownloadShelfVisible(bool visible) {
     shelf_visible_ = visible;
 
     NotifyNavigationStateChanged(INVALIDATE_TAB);
+
+    if (delegate())
+      delegate()->UpdateDownloadShelfVisibility(visible);
   }
 
   // SetShelfVisible can force-close the shelf, so make sure we lay out

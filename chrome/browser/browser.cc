@@ -1911,6 +1911,10 @@ void Browser::UpdateTargetURL(TabContents* source, const GURL& url) {
   }
 }
 
+void Browser::UpdateDownloadShelfVisibility(bool visible) {
+  GetStatusBubble()->UpdateDownloadShelfVisibility(visible);
+}
+
 void Browser::ContentsZoomChange(bool zoom_in) {
   ExecuteCommand(zoom_in ? IDC_ZOOM_PLUS : IDC_ZOOM_MINUS);
 }

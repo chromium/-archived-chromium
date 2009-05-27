@@ -31,6 +31,11 @@ class StatusBubbleGtk : public StatusBubble {
   virtual void Hide();
   virtual void MouseMoved();
 
+  // Called when the download shelf becomes visible or invisible.
+  // This is used by to ensure that the status bubble does not obscure
+  // the download shelf, when it is visible.
+  virtual void UpdateDownloadShelfVisibility(bool visible) { }
+
   void SetStatus(const std::string& status_utf8);
 
   // Notification from our parent GtkFixed about its size. |allocation| is the

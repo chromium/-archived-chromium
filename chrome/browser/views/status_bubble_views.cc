@@ -458,7 +458,8 @@ StatusBubbleViews::StatusBubbleViews(views::Widget* frame)
       popup_(NULL),
       opacity_(0),
       frame_(frame),
-      view_(NULL) {
+      view_(NULL),
+      download_shelf_is_visible_(false) {
 }
 
 StatusBubbleViews::~StatusBubbleViews() {
@@ -554,6 +555,10 @@ void StatusBubbleViews::MouseMoved() {
   }
 }
 
+void StatusBubbleViews::UpdateDownloadShelfVisibility(bool visible) {
+  download_shelf_is_visible_ = visible;
+}
+
 void StatusBubbleViews::AvoidMouse() {
   // Our status bubble is located in screen coordinates, so we should get
   // those rather than attempting to reverse decode the web contents
@@ -606,7 +611,8 @@ void StatusBubbleViews::AvoidMouse() {
       view_->SetStyle(StatusView::STYLE_STANDARD);
     }
 
-    // Check if the bubble sticks out from the monitor.
+    // Check if the bubble sticks out from the monitor or will obscure
+    // download shelf.
 #if defined(OS_WIN)
     MONITORINFO monitor_info;
     monitor_info.cbSize = sizeof(monitor_info);
@@ -619,7 +625,9 @@ void StatusBubbleViews::AvoidMouse() {
 #endif
     const int bubble_bottom_y = top_left.y() + position_.y() + size_.height();
 
-    if (bubble_bottom_y + offset > monitor_rect.height()) {
+    if (bubble_bottom_y + offset > monitor_rect.height() ||
+        (download_shelf_is_visible_ &&
+         view_->GetStyle() == StatusView::STYLE_FLOATING)) {
       // The offset is still too large. Move the bubble to the right and reset
       // Y offset_ to zero.
       view_->SetStyle(StatusView::STYLE_STANDARD_RIGHT);

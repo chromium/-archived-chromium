@@ -38,6 +38,7 @@ class StatusBubbleViews : public StatusBubble {
   virtual void SetURL(const GURL& url, const std::wstring& languages);
   virtual void Hide();
   virtual void MouseMoved();
+  virtual void UpdateDownloadShelfVisibility(bool visible);
 
  private:
   class StatusView;
@@ -69,6 +70,9 @@ class StatusBubbleViews : public StatusBubble {
 
   views::Widget* frame_;
   StatusView* view_;
+
+  // If the download shelf is visible, do not obscure it.
+  bool download_shelf_is_visible_;
 
   DISALLOW_COPY_AND_ASSIGN(StatusBubbleViews);
 };

@@ -24,6 +24,7 @@ class StatusBubbleMac : public StatusBubble {
   virtual void SetURL(const GURL& url, const std::wstring& languages);
   virtual void Hide();
   virtual void MouseMoved();
+  virtual void UpdateDownloadShelfVisibility(bool visible);
 
  private:
   friend class StatusBubbleMacTest;

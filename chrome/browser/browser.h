@@ -481,6 +481,7 @@ class Browser : public TabStripModelDelegate,
   // is the mouse leaving the view.
   virtual void ContentsMouseEvent(TabContents* source, bool motion);
   virtual void UpdateTargetURL(TabContents* source, const GURL& url);
+  virtual void UpdateDownloadShelfVisibility(bool visible);
 
   virtual void ContentsZoomChange(bool zoom_in);
   virtual bool IsApplication() const;
