@@ -65,6 +65,7 @@ struct ThreadInfo {
 struct MappingInfo {
   uintptr_t start_addr;
   size_t size;
+  size_t offset;  // offset into the backed file.
   char name[NAME_MAX];
 };
 

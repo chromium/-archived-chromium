@@ -126,26 +126,29 @@ LinuxDumper::EnumerateMappings(wasteful_vector<MappingInfo*> *result) const {
   const char *line;
   unsigned line_len;
   while (line_reader->GetNextLine(&line, &line_len)) {
-    uintptr_t start_addr;
-    uintptr_t end_addr;
+    uintptr_t start_addr, end_addr, offset;
 
     const char* i1 = my_read_hex_ptr(&start_addr, line);
     if (*i1 == '-') {
       const char *i2 = my_read_hex_ptr(&end_addr, i1 + 1);
       if (*i2 == ' ') {
-        MappingInfo *const module = new(allocator_) MappingInfo;
-        memset(module, 0, sizeof(MappingInfo));
-        module->start_addr = start_addr;
-        module->size = end_addr - start_addr;
-        const char *name = NULL;
-        // Only copy name if the name is a valid path name.
-        if ((name = my_strchr(line, '/')) != NULL) {
-          const unsigned l = my_strlen(name);
-          if (l < sizeof(module->name))
-            memcpy(module->name, name, l);
-        }
+        const char *i3 = my_read_hex_ptr(&offset, i2 + 6 /* skip ' rwxp ' */);
+        if (*i3 == ' ') {
+          MappingInfo *const module = new(allocator_) MappingInfo;
+          memset(module, 0, sizeof(MappingInfo));
+          module->start_addr = start_addr;
+          module->size = end_addr - start_addr;
+          module->offset = offset;
+          const char *name = NULL;
+          // Only copy name if the name is a valid path name.
+          if ((name = my_strchr(line, '/')) != NULL) {
+            const unsigned l = my_strlen(name);
+            if (l < sizeof(module->name))
+              memcpy(module->name, name, l);
+          }
 
-        result->push_back(module);
+          result->push_back(module);
+        }
       }
     }
 

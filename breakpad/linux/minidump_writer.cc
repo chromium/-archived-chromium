@@ -325,7 +325,7 @@ class MinidumpWriter {
   bool Dump() {
     // A minidump file contains a number of tagged streams. This is the number
     // of stream which we write.
-    static const unsigned kNumWriters = 10;
+    static const unsigned kNumWriters = 11;
 
     TypedMDRVA<MDRawHeader> header(&minidump_writer_);
     TypedMDRVA<MDRawDirectory> dir(&minidump_writer_);
@@ -353,6 +353,10 @@ class MinidumpWriter {
     dir.CopyIndex(dir_index++, &dirent);
 
     if (!WriteExceptionStream(&dirent))
+      return false;
+    dir.CopyIndex(dir_index++, &dirent);
+
+    if (!WriteSystemInfoStream(&dirent))
       return false;
     dir.CopyIndex(dir_index++, &dirent);
 
@@ -467,29 +471,73 @@ class MinidumpWriter {
     return true;
   }
 
+  static bool ShouldIncludeMapping(const MappingInfo& mapping) {
+    if (mapping.name[0] == 0 || // we only want modules with filenames.
+        mapping.offset || // we only want to include one mapping per shared lib.
+        mapping.size < 4096) {  // too small to get a signature for.
+      return false;
+    }
+
+    return true;
+  }
+
   // Write information about the mappings in effect. Because we are using the
   // minidump format, the information about the mappings is pretty limited.
   // Because of this, we also include the full, unparsed, /proc/$x/maps file in
   // another stream in the file.
   bool WriteMappings(MDRawDirectory* dirent) {
     const unsigned num_mappings = dumper_.mappings().size();
+    unsigned num_output_mappings = 0;
+
+    for (unsigned i = 0; i < dumper_.mappings().size(); ++i) {
+      const MappingInfo& mapping = *dumper_.mappings()[i];
+      if (ShouldIncludeMapping(mapping))
+        num_output_mappings++;
+    }
 
     TypedMDRVA<uint32_t> list(&minidump_writer_);
-    if (!list.AllocateObjectAndArray(num_mappings, sizeof(MDRawModule)))
+    if (!list.AllocateObjectAndArray(num_output_mappings, sizeof(MDRawModule)))
       return false;
 
     dirent->stream_type = MD_MODULE_LIST_STREAM;
     dirent->location = list.location();
-    *list.get() = num_mappings;
+    *list.get() = num_output_mappings;
 
-    for (unsigned i = 0; i < num_mappings; ++i) {
+    for (unsigned i = 0, j = 0; i < num_mappings; ++i) {
       const MappingInfo& mapping = *dumper_.mappings()[i];
+      if (!ShouldIncludeMapping(mapping))
+        continue;
+
       MDRawModule mod;
       my_memset(&mod, 0, sizeof(mod));
       mod.base_of_image = mapping.start_addr;
       mod.size_of_image = mapping.size;
       UntypedMDRVA memory(&minidump_writer_);
       const size_t filename_len = my_strlen(mapping.name);
+
+      TypedMDRVA<MDCVInfoPDB70> cv(&minidump_writer_);
+      if (!cv.Allocate())
+        return false;
+      my_memset(cv.get(), 0, sizeof(MDCVInfoPDB70));
+      cv.get()->cv_signature = MD_CVINFOPDB70_SIGNATURE;
+
+      {
+        // We XOR the first page of the file to get a signature for it.
+        uint8_t xor_buf[sizeof(MDGUID)];
+        size_t done = 0;
+        uint8_t* const signature = (uint8_t*) &cv.get()->signature;
+
+        while (done < 4096) {
+          dumper_.CopyFromProcess(xor_buf, crashing_tid_,
+                                  (void *) (mod.base_of_image + done),
+                                  sizeof(xor_buf));
+          for (unsigned i = 0; i < sizeof(xor_buf); ++i)
+            signature[i] ^= xor_buf[i];
+          done += sizeof(xor_buf);
+        }
+      }
+
+      mod.cv_record = cv.location();
 
       if (filename_len) {
         MDLocationDescriptor ld;
@@ -498,7 +546,7 @@ class MinidumpWriter {
         mod.module_name_rva = ld.rva;
       }
 
-      list.CopyIndexAfterObject(i, &mod, sizeof(mod));
+      list.CopyIndexAfterObject(j++, &mod, sizeof(mod));
     }
 
     return true;
@@ -518,6 +566,25 @@ class MinidumpWriter {
     exc.get()->exception_record.exception_address =
         (uintptr_t) siginfo_->si_addr;
     exc.get()->thread_context = crashing_thread_context_;
+
+    return true;
+  }
+
+  bool WriteSystemInfoStream(MDRawDirectory* dirent) {
+    TypedMDRVA<MDRawSystemInfo> si(&minidump_writer_);
+    if (!si.Allocate())
+      return false;
+    my_memset(si.get(), 0, sizeof(MDRawSystemInfo));
+
+    dirent->stream_type = MD_SYSTEM_INFO_STREAM;
+    dirent->location = si.location();
+
+    si.get()->processor_architecture =
+#if defined(__i386)
+        MD_CPU_ARCHITECTURE_X86;
+#elif defined(__x86_64)
+        MD_CPU_ARCHITECTURE_AMD64;
+#endif
 
     return true;
   }
