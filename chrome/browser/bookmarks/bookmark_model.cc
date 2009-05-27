@@ -14,6 +14,7 @@
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/profile.h"
 #include "chrome/common/notification_service.h"
+#include "chrome/common/pref_service.h"
 #include "grit/generated_resources.h"
 
 using base::Time;
@@ -54,6 +55,9 @@ void BookmarkNode::Reset(const history::StarredEntry& entry) {
 
 namespace {
 
+// Constant for persist IDs prefernece.
+const wchar_t kPrefPersistIDs[] = L"bookmarks.persist_ids";
+
 // Comparator used when sorting bookmarks. Folders are sorted first, then
   // bookmarks.
 class SortComparator : public std::binary_function<BookmarkNode*,
@@ -84,6 +88,7 @@ class SortComparator : public std::binary_function<BookmarkNode*,
 BookmarkModel::BookmarkModel(Profile* profile)
     : profile_(profile),
       loaded_(false),
+      persist_ids_(false),
       root_(GURL()),
       bookmark_bar_node_(NULL),
       other_node_(NULL),
@@ -94,6 +99,8 @@ BookmarkModel::BookmarkModel(Profile* profile)
     // Profile is null during testing.
     DoneLoading(CreateLoadDetails());
   }
+  RegisterPreferences();
+  LoadPreferences();
 }
 
 BookmarkModel::~BookmarkModel() {
@@ -375,6 +382,16 @@ void BookmarkModel::GetBookmarksWithTitlesMatching(
 void BookmarkModel::ClearStore() {
   registrar_.RemoveAll();
   store_ = NULL;
+}
+
+void BookmarkModel::SetPersistIDs(bool value) {
+  if (value == persist_ids_)
+    return;
+  persist_ids_ = value;
+  if (profile_) {
+    PrefService* pref_service = profile_->GetPrefs();
+    pref_service->SetBoolean(kPrefPersistIDs, persist_ids_);
+  }
 }
 
 bool BookmarkModel::IsBookmarkedNoLock(const GURL& url) {
@@ -688,4 +705,19 @@ BookmarkStorage::LoadDetails* BookmarkModel::CreateLoadDetails() {
   BookmarkNode* other_folder_node = CreateOtherBookmarksNode();
   return new BookmarkStorage::LoadDetails(
       bb_node, other_folder_node, new BookmarkIndex(), next_node_id_);
+}
+
+void BookmarkModel::RegisterPreferences() {
+  if (!profile_)
+    return;
+  PrefService* pref_service = profile_->GetPrefs();
+  if (!pref_service->IsPrefRegistered(kPrefPersistIDs))
+    pref_service->RegisterBooleanPref(kPrefPersistIDs, false);
+}
+
+void BookmarkModel::LoadPreferences() {
+  if (!profile_)
+    return;
+  PrefService* pref_service = profile_->GetPrefs();
+  persist_ids_ = pref_service->GetBoolean(kPrefPersistIDs);
 }

@@ -324,6 +324,10 @@ class BookmarkModel : public NotificationObserver, public BookmarkService {
   // testing.
   void ClearStore();
 
+  // Sets/returns whether or not bookmark IDs are persisted or not.
+  bool PersistIDs() const { return persist_ids_; }
+  void SetPersistIDs(bool value);
+
  private:
   // Used to order BookmarkNodes by URL.
   class NodeURLComparator {
@@ -418,12 +422,20 @@ class BookmarkModel : public NotificationObserver, public BookmarkService {
   // the returned object.
   BookmarkStorage::LoadDetails* CreateLoadDetails();
 
+  // Registers bookmarks related prefs.
+  void RegisterPreferences();
+  // Loads bookmark related preferences.
+  void LoadPreferences();
+
   NotificationRegistrar registrar_;
 
   Profile* profile_;
 
   // Whether the initial set of data has been loaded.
   bool loaded_;
+
+  // Whether to persist bookmark IDs.
+  bool persist_ids_;
 
   // The root node. This contains the bookmark bar node and the 'other' node as
   // children.
