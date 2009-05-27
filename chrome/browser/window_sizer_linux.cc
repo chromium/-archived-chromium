@@ -21,8 +21,12 @@ class DefaultMonitorInfoProvider : public WindowSizer::MonitorInfoProvider {
   DefaultMonitorInfoProvider() { }
 
   virtual gfx::Rect GetPrimaryMonitorWorkArea() const {
-    gfx::Rect rect = GetScreenWorkArea();
-    return rect.Intersect(GetPrimaryMonitorBounds());
+    gfx::Rect rect;
+    if (GetScreenWorkArea(&rect))
+      return rect.Intersect(GetPrimaryMonitorBounds());
+
+    // Return the best we've got.
+    return GetPrimaryMonitorBounds();
   }
 
   virtual gfx::Rect GetPrimaryMonitorBounds() const {
@@ -51,29 +55,42 @@ class DefaultMonitorInfoProvider : public WindowSizer::MonitorInfoProvider {
   }
 
  private:
-  gfx::Rect GetScreenWorkArea() const {
-    gboolean r;
-    guchar* raw_data;
-    gint data_len;
-    r = gdk_property_get(gdk_get_default_root_window(),  // a gdk window
-                         gdk_atom_intern("_NET_WORKAREA", FALSE),  // property
-                         gdk_atom_intern("CARDINAL", FALSE),  // property type
-                         0,  // byte offset into property
-                         0xff,  // property length to retrieve
-                         false,  // delete property after retrieval?
-                         NULL,  // returned property type
-                         NULL,  // returned data format
-                         &data_len,  // returned data len
-                         &raw_data);  // returned data
-    CHECK(r);
-    CHECK(data_len >= 16);
+  // Get the available screen space as a gfx::Rect, or return false if
+  // if it's unavailable (i.e. the window manager doesn't support
+  // retrieving this).
+  bool GetScreenWorkArea(gfx::Rect* out_rect) const {
+    gboolean ok;
+    guchar* raw_data = NULL;
+    gint data_len = 0;
+    ok = gdk_property_get(gdk_get_default_root_window(),  // a gdk window
+                          gdk_atom_intern("_NET_WORKAREA", FALSE),  // property
+                          gdk_atom_intern("CARDINAL", FALSE),  // property type
+                          0,  // byte offset into property
+                          0xff,  // property length to retrieve
+                          false,  // delete property after retrieval?
+                          NULL,  // returned property type
+                          NULL,  // returned data format
+                          &data_len,  // returned data len
+                          &raw_data);  // returned data
+    if (!ok)
+      return false;
+
+    // We expect to get four longs back: x1, y1, x2, y2.
+    if (data_len != 4 * sizeof(glong)) {
+      NOTREACHED();
+      g_free(raw_data);
+      return false;
+    }
+
     glong* data = reinterpret_cast<glong*>(raw_data);
     gint x = data[0];
     gint y = data[1];
     gint width = data[0] + data[2];
     gint height = data[1] + data[3];
-    g_free(data);
-    return gfx::Rect(x, y, width, height);
+    g_free(raw_data);
+
+    out_rect->SetRect(x, y, width, height);
+    return true;
   }
 
   DISALLOW_COPY_AND_ASSIGN(DefaultMonitorInfoProvider);
