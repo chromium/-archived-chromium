@@ -25,6 +25,8 @@ class URLRequestFileJob : public URLRequestJob {
   virtual void Kill();
   virtual bool ReadRawData(net::IOBuffer* buf, int buf_size, int* bytes_read);
   virtual bool IsRedirectResponse(GURL* location, int* http_status_code);
+  virtual bool GetContentEncodings(
+      std::vector<Filter::FilterType>* encoding_type);
   virtual bool GetMimeType(std::string* mime_type) const;
   virtual void GetResponseInfo(net::HttpResponseInfo* info);
   virtual void SetExtraRequestHeaders(const std::string& headers);

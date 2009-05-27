@@ -167,6 +167,17 @@ bool URLRequestFileJob::ReadRawData(net::IOBuffer* dest, int dest_size,
   return false;
 }
 
+bool URLRequestFileJob::GetContentEncodings(
+    std::vector<Filter::FilterType>* encoding_types) {
+  DCHECK(encoding_types->empty());
+
+  // Bug 9936 - .svgz files needs to be decompressed.
+  if (LowerCaseEqualsASCII(file_path_.Extension(), ".svgz"))
+    encoding_types->push_back(Filter::FILTER_TYPE_GZIP);
+
+  return !encoding_types->empty();
+}
+
 bool URLRequestFileJob::GetMimeType(std::string* mime_type) const {
   DCHECK(request_);
   return net::GetMimeTypeFromFile(file_path_, mime_type);
