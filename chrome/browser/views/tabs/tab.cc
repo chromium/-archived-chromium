@@ -272,7 +272,7 @@ void Tab::MakePathForTab(gfx::Path* path) const {
   path->lineTo(w - kTabCapWidth, 0);
 
   // Right end cap.
-  path->lineTo(w - kTabCapWidth - kTabTopCurveWidth, kTabTopCurveWidth);
+  path->lineTo(w - kTabCapWidth + kTabTopCurveWidth, kTabTopCurveWidth);
   path->lineTo(w - kTabBottomCurveWidth, h - kTabBottomCurveWidth);
   path->lineTo(w, h);
 
