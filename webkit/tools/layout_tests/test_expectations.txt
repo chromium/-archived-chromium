@@ -2615,13 +2615,12 @@ BUG11898 WIN DEBUG : LayoutTests/http/tests/misc/submit-get-in-utf16be.html = TI
 BUG11812 MAC : LayoutTests/http/tests/xmlhttprequest/supported-xml-content-types.html = TIMEOUT
 
 // Need LINUX/Mac rebaselines after WebKit Update 437150:43770
-BUG12054 LINUX : LayoutTests/fast/canvas/canvas-bg-zoom.html = FAIL
-BUG12054 MAC : LayoutTests/editing/execCommand/outdent-blockquote-test1.html = FAIL
-BUG12054 MAC : LayoutTests/editing/execCommand/outdent-blockquote-test2.html = FAIL
-BUG12054 MAC : LayoutTests/editing/execCommand/outdent-blockquote-test3.html = FAIL
-BUG12054 MAC : LayoutTests/editing/execCommand/outdent-blockquote-test4.html = FAIL
-BUG12054 LINUX : LayoutTests/fast/text/international/danda-space.html = FAIL
-BUG12054 LINUX : LayoutTests/fast/text/international/thai-baht-space.html = FAIL
+BUG12053 MAC : LayoutTests/editing/execCommand/outdent-blockquote-test1.html = FAIL
+BUG12053 MAC : LayoutTests/editing/execCommand/outdent-blockquote-test2.html = FAIL
+BUG12053 MAC : LayoutTests/editing/execCommand/outdent-blockquote-test3.html = FAIL
+BUG12053 MAC : LayoutTests/editing/execCommand/outdent-blockquote-test4.html = FAIL
+BUG12053 LINUX : LayoutTests/fast/text/international/danda-space.html = FAIL
+BUG12053 LINUX : LayoutTests/fast/text/international/thai-baht-space.html = FAIL
 
 // New test, added in http://trac.webkit.org/changeset/43793, fails for us.
 BUG12104 WIN LINUX : LayoutTests/fast/backgrounds/background-clip-text.html = FAIL
