@@ -90,11 +90,11 @@ class NewTabUIStartupTest : public UITest {
 
 // TODO(pamg): run these tests with a reference build?
 TEST_F(NewTabUIStartupTest, PerfCold) {
-  RunStartupTest("tab_cold", false /* not cold */, true /* important */);
+  RunStartupTest("tab_cold", false /* cold */, true /* important */);
 }
 
 TEST_F(NewTabUIStartupTest, DISABLED_PerfWarm) {
-  RunStartupTest("tab_warm", true /* cold */, false /* not important */);
+  RunStartupTest("tab_warm", true /* warm */, false /* not important */);
 }
 
 }  // namespace
