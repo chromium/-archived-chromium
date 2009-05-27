@@ -11,6 +11,9 @@
 #include <netdb.h>
 #include <sys/socket.h>
 #endif
+#if defined(OS_LINUX)
+#include <resolv.h>
+#endif
 
 #include "base/message_loop.h"
 #include "base/string_util.h"
@@ -72,6 +75,13 @@ static int HostResolverProc(
   hints.ai_socktype = SOCK_STREAM;
 
   int err = getaddrinfo(host.c_str(), port.c_str(), &hints, out);
+#if defined(OS_LINUX)
+  // If we fail, re-initialise the resolver just in case there have been any
+  // changes to /etc/resolv.conf and retry. See http://crbug.com/11380 for info.
+  if (err && !res_init())
+    err = getaddrinfo(host.c_str(), port.c_str(), &hints, out);
+#endif
+
   return err ? ERR_NAME_NOT_RESOLVED : OK;
 }
 
