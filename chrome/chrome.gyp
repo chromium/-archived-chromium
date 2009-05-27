@@ -3450,11 +3450,14 @@
 
             '../build/temp_gyp/googleurl.gyp:*',
 
-            '../sandbox/sandbox.gyp:*',
+            '../breakpad/breakpad.gyp:*',
             '../courgette/courgette.gyp:*',
+            '../gears/gears.gyp:*',
+            '../rlz/rlz.gyp:*',
+            '../sandbox/sandbox.gyp:*',
+            '../tools/memory_watcher/memory_watcher.gyp:*',
             '../webkit/activex_shim/activex_shim.gyp:*',
             '../webkit/activex_shim_dll/activex_shim_dll.gyp:*',
-            '../breakpad/breakpad.gyp:*',
           ],
         },
         {
@@ -3563,6 +3566,32 @@
           },
         },
         {
+          'target_name': 'activex_test_control',
+          'type': 'shared_library',
+          'include_dirs': [
+            '..',
+            '<(INTERMEDIATE_DIR)',
+          ],
+          'link_settings': {
+            'libraries': [
+	      '-lcomsuppw.lib',
+            ],
+          },
+          'sources': [
+            'test/activex_test_control/activex_test_control.cc',
+            'test/activex_test_control/activex_test_control.def',
+            'test/activex_test_control/activex_test_control.idl',
+            'test/activex_test_control/activex_test_control.rc',
+            'test/activex_test_control/activex_test_control.rgs',
+            'test/activex_test_control/chrome_test_control.bmp',
+            'test/activex_test_control/chrome_test_control.cc',
+            'test/activex_test_control/chrome_test_control.h',
+            'test/activex_test_control/chrome_test_control.rgs',
+            'test/activex_test_control/chrome_test_control_cp.h',
+            'test/activex_test_control/resource.h',
+          ],
+        },
+        {
           'target_name': 'automated_ui_tests',
           'type': 'executable',
           'dependencies': [
@@ -3587,6 +3616,76 @@
             'test/automated_ui_tests/automated_ui_test_base.h',
             'tools/build/win/precompiled_wtl.h',
             'tools/build/win/precompiled_wtl.cc',
+          ],
+          'configurations': {
+            'Debug': {
+              'msvs_precompiled_header': 'tools/build/win/precompiled_wtl.h',
+              'msvs_precompiled_source': 'tools/build/win/precompiled_wtl.cc',
+            },
+          },
+        },
+        {
+          'target_name': 'browser_tests',
+          'type': 'executable',
+          'dependencies': [
+            'installer/installer.gyp:installer_util',
+          ],
+          'include_dirs': [
+            '..',
+          ],
+          'sources': [
+            'test/browser/browser_tests_launcher.cc',
+          ],
+        },
+        {
+          'target_name': 'browser_tests_dll',
+          'type': 'shared_library',
+          'product_name': 'browser_tests',
+          'dependencies': [
+            'browser',
+            'chrome_resources',
+            'renderer',
+            'installer/installer.gyp:installer_util_strings',
+            '../base/base.gyp:base',
+            '../base/base.gyp:base_gfx',
+            '../net/net.gyp:net',
+            '../net/net.gyp:net_resources',
+            '../skia/skia.gyp:skia',
+            '../testing/gtest.gyp:gtest',
+            '../webkit/webkit.gyp:glue',
+            '../webkit/webkit.gyp:webkit_resources',
+          ],
+          'include_dirs': [
+            '..',
+            'third_party/wtl/include',
+          ],
+          'sources': [
+            '../webkit/glue/resources/aliasb.cur',
+            '../webkit/glue/resources/cell.cur',
+            '../webkit/glue/resources/col_resize.cur',
+            '../webkit/glue/resources/copy.cur',
+            '../webkit/glue/resources/row_resize.cur',
+            '../webkit/glue/resources/vertical_text.cur',
+            '../webkit/glue/resources/zoom_in.cur',
+            '../webkit/glue/resources/zoom_out.cur',
+            'app/chrome_dll.rc',
+            'app/chrome_dll_resource.h',
+            'app/chrome_dll_version.rc.version',
+            'browser/child_process_security_policy_browser_test.cc',
+            'browser/renderer_host/web_cache_manager_browser_test.cc',
+            'browser/ssl/ssl_browser_tests.cc',
+            'browser/task_manager_browsertest.cc',
+            'browser/views/find_bar_win_browsertest.cc',
+            'test/browser/run_all_unittests.cc',
+            'test/data/resource.h',
+            'test/data/resource.rc',
+            'test/in_process_browser_test.cc',
+            'test/in_process_browser_test.h',
+            'test/ui_test_utils.cc',
+            'test/ui_test_utils.h',
+            'test/unit/chrome_test_suite.h',
+            'tools/build/win/precompiled_wtl.cc',
+            'tools/build/win/precompiled_wtl.h',
           ],
           'configurations': {
             'Debug': {
@@ -3787,6 +3886,21 @@
           ],
         },
         {
+          'target_name': 'security_tests',
+          'type': 'shared_library',
+          'include_dirs': [
+            '..',
+          ],
+          'sources': [
+            'test/injection_test_dll.h',
+            'test/security_tests/ipc_security_tests.cc',
+            'test/security_tests/ipc_security_tests.h',
+            'test/security_tests/security_tests.cc',
+            '../sandbox/tests/validation_tests/commands.cc',
+            '../sandbox/tests/validation_tests/commands.h',
+          ],
+        },
+        {
           'target_name': 'selenium_tests',
           'type': 'executable',
           'dependencies': [
@@ -3829,6 +3943,56 @@
           'sources': [
             'test/tab_switching/tab_switching_test.cc',
           ],
+        },
+        {
+          'target_name': 'test_chrome_plugin',
+          'type': 'shared_library',
+          'dependencies': [
+            '../base/base.gyp:base',
+            '../build/temp_gyp/googleurl.gyp:googleurl',
+          ],
+          'include_dirs': [
+            '..',
+          ],
+          'link_settings': {
+            'libraries': [
+              '-lwinmm.lib',
+            ],
+          },
+          'sources': [
+            'test/chrome_plugin/test_chrome_plugin.cc',
+            'test/chrome_plugin/test_chrome_plugin.def',
+            'test/chrome_plugin/test_chrome_plugin.h',
+          ],
+        },
+        {
+          'target_name': 'theme_dll',
+          'type': 'shared_library',
+          'product_name': 'default',
+          'dependencies': [
+            'theme_resources',
+            '../app/app.gyp:app_resources',
+          ],
+          'sources': [
+            '<(grit_out_dir)/theme_resources.rc',
+            '<(SHARED_INTERMEDIATE_DIR)/app/app_resources.rc',
+          ],
+          'msvs_settings': {
+            'VCLinkerTool': {
+              'BaseAddress': '0x3CE00000',
+              'OutputFile': '<(PRODUCT_DIR)/themes/default.dll',
+              'ResourceOnlyDLL': 'true',
+            },
+          },
+          'configurations': {
+            'Debug': {
+              'msvs_settings': {
+                'VCLinkerTool': {
+                  'LinkIncremental': '1',       # /INCREMENTAL:NO
+                },
+              },
+            },
+          },
         },
         {
           'target_name': 'url_fetch_test',
