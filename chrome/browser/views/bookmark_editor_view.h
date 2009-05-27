@@ -12,7 +12,7 @@
 #include "chrome/browser/bookmarks/bookmark_model.h"
 #include "views/controls/button/button.h"
 #include "views/controls/menu/menu.h"
-#include "views/controls/text_field.h"
+#include "views/controls/textfield/textfield.h"
 #include "views/controls/tree/tree_view.h"
 #include "views/window/dialog_delegate.h"
 
@@ -38,7 +38,7 @@ class BookmarkEditorView : public BookmarkEditor,
                            public views::ButtonListener,
                            public views::TreeViewController,
                            public views::DialogDelegate,
-                           public views::TextField::Controller,
+                           public views::Textfield::Controller,
                            public views::ContextMenuController,
                            public views::Menu::Delegate,
                            public BookmarkModelObserver {
@@ -80,11 +80,11 @@ class BookmarkEditorView : public BookmarkEditor,
   virtual void OnTreeViewSelectionChanged(views::TreeView* tree_view);
   virtual bool CanEdit(views::TreeView* tree_view, TreeModelNode* node);
 
-  // TextField::Controller methods.
-  virtual void ContentsChanged(views::TextField* sender,
+  // Textfield::Controller methods.
+  virtual void ContentsChanged(views::Textfield* sender,
                                const std::wstring& new_contents);
-  virtual bool HandleKeystroke(views::TextField* sender,
-                               const views::TextField::Keystroke&) {
+  virtual bool HandleKeystroke(views::Textfield* sender,
+                               const views::Textfield::Keystroke&) {
     return false;
   }
 
@@ -206,7 +206,7 @@ class BookmarkEditorView : public BookmarkEditor,
   std::wstring GetInputTitle() const;
 
   // Invoked when the url or title has possibly changed. Updates the background
-  // of textfields and ok button appropriately.
+  // of Textfields and ok button appropriately.
   void UserInputChanged();
 
   // Creates a new group as a child of the selected node. If no node is
@@ -232,10 +232,10 @@ class BookmarkEditorView : public BookmarkEditor,
   scoped_ptr<views::NativeButton> new_group_button_;
 
   // Used for editing the URL.
-  views::TextField url_tf_;
+  views::Textfield url_tf_;
 
   // Used for editing the title.
-  views::TextField title_tf_;
+  views::Textfield title_tf_;
 
   // Initial parent to select. Is only used if node_ is NULL.
   BookmarkNode* parent_;

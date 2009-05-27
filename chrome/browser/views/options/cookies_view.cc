@@ -23,8 +23,8 @@
 #include "views/grid_layout.h"
 #include "views/controls/label.h"
 #include "views/controls/button/native_button.h"
-#include "views/controls/text_field.h"
 #include "views/controls/table/table_view.h"
+#include "views/controls/textfield/textfield.h"
 #include "views/standard_layout.h"
 
 // static
@@ -339,19 +339,19 @@ class CookieInfoView : public views::View {
 
   // Individual property labels
   views::Label* name_label_;
-  views::TextField* name_value_field_;
+  views::Textfield* name_value_field_;
   views::Label* content_label_;
-  views::TextField* content_value_field_;
+  views::Textfield* content_value_field_;
   views::Label* domain_label_;
-  views::TextField* domain_value_field_;
+  views::Textfield* domain_value_field_;
   views::Label* path_label_;
-  views::TextField* path_value_field_;
+  views::Textfield* path_value_field_;
   views::Label* send_for_label_;
-  views::TextField* send_for_value_field_;
+  views::Textfield* send_for_value_field_;
   views::Label* created_label_;
-  views::TextField* created_value_field_;
+  views::Textfield* created_value_field_;
   views::Label* expires_label_;
-  views::TextField* expires_value_field_;
+  views::Textfield* expires_value_field_;
 
   DISALLOW_COPY_AND_ASSIGN(CookieInfoView);
 };
@@ -453,25 +453,25 @@ void CookieInfoView::Init() {
 
   name_label_ = new views::Label(
       l10n_util::GetString(IDS_COOKIES_COOKIE_NAME_LABEL));
-  name_value_field_ = new views::TextField;
+  name_value_field_ = new views::Textfield;
   content_label_ = new views::Label(
       l10n_util::GetString(IDS_COOKIES_COOKIE_CONTENT_LABEL));
-  content_value_field_ = new views::TextField;
+  content_value_field_ = new views::Textfield;
   domain_label_ = new views::Label(
       l10n_util::GetString(IDS_COOKIES_COOKIE_DOMAIN_LABEL));
-  domain_value_field_ = new views::TextField;
+  domain_value_field_ = new views::Textfield;
   path_label_ = new views::Label(
       l10n_util::GetString(IDS_COOKIES_COOKIE_PATH_LABEL));
-  path_value_field_ = new views::TextField;
+  path_value_field_ = new views::Textfield;
   send_for_label_ = new views::Label(
       l10n_util::GetString(IDS_COOKIES_COOKIE_SENDFOR_LABEL));
-  send_for_value_field_ = new views::TextField;
+  send_for_value_field_ = new views::Textfield;
   created_label_ = new views::Label(
       l10n_util::GetString(IDS_COOKIES_COOKIE_CREATED_LABEL));
-  created_value_field_ = new views::TextField;
+  created_value_field_ = new views::Textfield;
   expires_label_ = new views::Label(
       l10n_util::GetString(IDS_COOKIES_COOKIE_EXPIRES_LABEL));
-  expires_value_field_ = new views::TextField;
+  expires_value_field_ = new views::Textfield;
 
   using views::GridLayout;
   using views::ColumnSet;
@@ -521,7 +521,7 @@ void CookieInfoView::Init() {
 
   // Color these borderless text areas the same as the containing dialog.
   SkColor text_area_background = color_utils::GetSysSkColor(COLOR_3DFACE);
-  // Now that the TextFields are in the view hierarchy, we can initialize them.
+  // Now that the Textfields are in the view hierarchy, we can initialize them.
   name_value_field_->SetReadOnly(true);
   name_value_field_->RemoveBorder();
   name_value_field_->SetBackgroundColor(text_area_background);
@@ -610,9 +610,9 @@ void CookiesView::OnTableViewDelete(views::TableView* table_view) {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-// CookiesView, views::TextField::Controller implementation:
+// CookiesView, views::Textfield::Controller implementation:
 
-void CookiesView::ContentsChanged(views::TextField* sender,
+void CookiesView::ContentsChanged(views::Textfield* sender,
                                   const std::wstring& new_contents) {
   search_update_factory_.RevokeAll();
   MessageLoop::current()->PostDelayedTask(FROM_HERE,
@@ -620,11 +620,11 @@ void CookiesView::ContentsChanged(views::TextField* sender,
           &CookiesView::UpdateSearchResults), kSearchFilterDelayMs);
 }
 
-bool CookiesView::HandleKeystroke(views::TextField* sender,
-                                  const views::TextField::Keystroke& key) {
-  if (views::TextField::IsKeystrokeEscape(key)) { 
+bool CookiesView::HandleKeystroke(views::Textfield* sender,
+                                  const views::Textfield::Keystroke& key) {
+  if (views::Textfield::IsKeystrokeEscape(key)) { 
     ResetSearchQuery();
-  } else if (views::TextField::IsKeystrokeEnter(key)) {
+  } else if (views::Textfield::IsKeystrokeEnter(key)) {
     search_update_factory_.RevokeAll();
     UpdateSearchResults();
   }
@@ -700,7 +700,7 @@ CookiesView::CookiesView(Profile* profile)
 void CookiesView::Init() {
   search_label_ = new views::Label(
       l10n_util::GetString(IDS_COOKIES_SEARCH_LABEL));
-  search_field_ = new views::TextField;
+  search_field_ = new views::Textfield;
   search_field_->SetController(this);
   clear_search_button_ = new views::NativeButton(
       this, l10n_util::GetString(IDS_COOKIES_CLEAR_SEARCH_LABEL));

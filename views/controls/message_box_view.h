@@ -10,7 +10,7 @@
 #include "base/task.h"
 #include "views/controls/image_view.h"
 #include "views/controls/label.h"
-#include "views/controls/text_field.h"
+#include "views/controls/textfield/textfield.h"
 #include "views/view.h"
 
 namespace views {
@@ -32,7 +32,7 @@ class MessageBoxView : public views::View {
                  const std::wstring& default_prompt);
 
   // Returns the text box.
-  views::TextField* text_box() { return prompt_field_; }
+  views::Textfield* text_box() { return prompt_field_; }
 
   // Returns user entered data in the prompt field.
   std::wstring GetInputText();
@@ -75,7 +75,7 @@ class MessageBoxView : public views::View {
   views::Label* message_label_;
 
   // Input text field for the message box.
-  views::TextField* prompt_field_;
+  views::Textfield* prompt_field_;
 
   // Icon displayed in the upper left corner of the message box.
   views::ImageView* icon_;

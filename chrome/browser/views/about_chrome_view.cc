@@ -23,7 +23,7 @@
 #include "grit/generated_resources.h"
 #include "grit/locale_settings.h"
 #include "grit/theme_resources.h"
-#include "views/controls/text_field.h"
+#include "views/controls/textfield/textfield.h"
 #include "views/controls/throbber.h"
 #include "views/standard_layout.h"
 #include "views/widget/widget.h"
@@ -172,7 +172,7 @@ void AboutChromeView::Init() {
   AddChildView(about_title_label_);
 
   // This is a text field so people can copy the version number from the dialog.
-  version_label_ = new views::TextField();
+  version_label_ = new views::Textfield();
   version_label_->SetText(current_version_);
   version_label_->SetReadOnly(true);
   version_label_->RemoveBorder();

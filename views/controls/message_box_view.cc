@@ -137,7 +137,7 @@ void MessageBoxView::Init(int dialog_flags,
   }
 
   if (dialog_flags & MessageBoxFlags::kFlagHasPromptField) {
-    prompt_field_ = new views::TextField;
+    prompt_field_ = new views::Textfield;
     prompt_field_->SetText(default_prompt);
   }
 
@@ -169,7 +169,7 @@ void MessageBoxView::ResetLayoutManager() {
   column_set->AddColumn(GridLayout::FILL, GridLayout::FILL, 1,
                         GridLayout::FIXED, message_width_, 0);
 
-  // Column set for prompt textfield, if one has been set.
+  // Column set for prompt Textfield, if one has been set.
   const int textfield_column_view_set_id = 1;
   if (prompt_field_) {
     column_set = layout->AddColumnSet(textfield_column_view_set_id);

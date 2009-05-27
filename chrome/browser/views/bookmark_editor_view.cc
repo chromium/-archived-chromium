@@ -33,7 +33,7 @@ using views::ColumnSet;
 using views::GridLayout;
 using views::Label;
 using views::NativeButton;
-using views::TextField;
+using views::Textfield;
 
 // Background color of text field when URL is invalid.
 static const SkColor kErrorColor = SkColorSetRGB(0xFF, 0xBC, 0xBC);
@@ -170,7 +170,7 @@ bool BookmarkEditorView::CanEdit(views::TreeView* tree_view,
   return (bb_node->GetParent() && bb_node->GetParent()->GetParent());
 }
 
-void BookmarkEditorView::ContentsChanged(TextField* sender,
+void BookmarkEditorView::ContentsChanged(Textfield* sender,
                                          const std::wstring& new_contents) {
   UserInputChanged();
 }
@@ -207,9 +207,9 @@ void BookmarkEditorView::Show(HWND parent_hwnd) {
   if (show_tree_ && bb_model_->IsLoaded())
     ExpandAndSelect();
   window()->Show();
-  // Select all the text in the name textfield.
+  // Select all the text in the name Textfield.
   title_tf_.SelectAll();
-  // Give focus to the name textfield.
+  // Give focus to the name Textfield.
   title_tf_.RequestFocus();
 }
 

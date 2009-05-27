@@ -11,7 +11,7 @@
 #include "base/basictypes.h"
 #include "base/message_loop.h"
 #include "chrome/browser/shell_dialogs.h"
-#include "views/controls/text_field.h"
+#include "views/controls/textfield/textfield.h"
 #include "views/window/dialog_delegate.h"
 
 class MessageBoxView;
@@ -22,7 +22,7 @@ class Window;
 
 // Dialog that prompts the user to create a new profile.
 class NewProfileDialog : public views::DialogDelegate,
-                         public views::TextField::Controller {
+                         public views::Textfield::Controller {
  public:
   // Creates and runs the dialog.
   static void RunDialog();
@@ -36,11 +36,11 @@ class NewProfileDialog : public views::DialogDelegate,
   virtual std::wstring GetWindowTitle() const;
   virtual void DeleteDelegate();
 
-  // views::TextField::Controller methods.
-  virtual void ContentsChanged(views::TextField* sender,
+  // views::Textfield::Controller methods.
+  virtual void ContentsChanged(views::Textfield* sender,
                                const std::wstring& new_contents);
-  virtual bool HandleKeystroke(views::TextField* sender,
-                               const views::TextField::Keystroke& key) {
+  virtual bool HandleKeystroke(views::Textfield* sender,
+                               const views::Textfield::Keystroke& key) {
     return false;
   }
 

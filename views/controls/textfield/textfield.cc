@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "views/controls/text_field.h"
+#include "views/controls/textfield/textfield.h"
 
 #include <atlbase.h>
 #include <atlapp.h>
@@ -35,15 +35,15 @@ namespace views {
 
 static const int kDefaultEditStyle = WS_CHILD | WS_VISIBLE;
 
-class TextField::Edit
-    : public CWindowImpl<TextField::Edit, CRichEditCtrl,
+class Textfield::Edit
+    : public CWindowImpl<Textfield::Edit, CRichEditCtrl,
                          CWinTraits<kDefaultEditStyle> >,
-      public CRichEditCommands<TextField::Edit>,
+      public CRichEditCommands<Textfield::Edit>,
       public Menu::Delegate {
  public:
-  DECLARE_WND_CLASS(L"ChromeViewsTextFieldEdit");
+  DECLARE_WND_CLASS(L"ChromeViewsTextfieldEdit");
 
-  Edit(TextField* parent, bool draw_border);
+  Edit(Textfield* parent, bool draw_border);
   ~Edit();
 
   std::wstring GetText() const;
@@ -186,7 +186,7 @@ class TextField::Edit
 
   static bool did_load_library_;
 
-  TextField* parent_;
+  Textfield* parent_;
 
   // The context menu for the edit.
   scoped_ptr<Menu> context_menu_;
@@ -215,7 +215,7 @@ class TextField::Edit
 ///////////////////////////////////////////////////////////////////////////////
 // Helper classes
 
-TextField::Edit::ScopedFreeze::ScopedFreeze(TextField::Edit* edit,
+Textfield::Edit::ScopedFreeze::ScopedFreeze(Textfield::Edit* edit,
                                             ITextDocument* text_object_model)
     : edit_(edit),
       text_object_model_(text_object_model) {
@@ -226,7 +226,7 @@ TextField::Edit::ScopedFreeze::ScopedFreeze(TextField::Edit* edit,
   }
 }
 
-TextField::Edit::ScopedFreeze::~ScopedFreeze() {
+Textfield::Edit::ScopedFreeze::~ScopedFreeze() {
   // Unfreeze the screen.
   if (text_object_model_) {
     long count;
@@ -242,11 +242,11 @@ TextField::Edit::ScopedFreeze::~ScopedFreeze() {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-// TextField::Edit
+// Textfield::Edit
 
-bool TextField::Edit::did_load_library_ = false;
+bool Textfield::Edit::did_load_library_ = false;
 
-TextField::Edit::Edit(TextField* parent, bool draw_border)
+Textfield::Edit::Edit(Textfield* parent, bool draw_border)
     : parent_(parent),
       tracking_double_click_(false),
       double_click_time_(0),
@@ -261,13 +261,13 @@ TextField::Edit::Edit(TextField* parent, bool draw_border)
     did_load_library_ = !!LoadLibrary(L"riched20.dll");
 
   DWORD style = kDefaultEditStyle;
-  if (parent->GetStyle() & TextField::STYLE_PASSWORD)
+  if (parent->GetStyle() & Textfield::STYLE_PASSWORD)
     style |= ES_PASSWORD;
 
   if (parent->read_only_)
     style |= ES_READONLY;
 
-  if (parent->GetStyle() & TextField::STYLE_MULTILINE)
+  if (parent->GetStyle() & Textfield::STYLE_MULTILINE)
     style |= ES_MULTILINE | ES_WANTRETURN | ES_AUTOVSCROLL;
   else
     style |= ES_AUTOHSCROLL;
@@ -277,8 +277,8 @@ TextField::Edit::Edit(TextField* parent, bool draw_border)
   RECT r = {0, 0, parent_->width(), parent_->height()};
   Create(parent_->GetWidget()->GetNativeView(), r, NULL, style, ex_style);
 
-  if (parent->GetStyle() & TextField::STYLE_LOWERCASE) {
-    DCHECK((parent->GetStyle() & TextField::STYLE_PASSWORD) == 0);
+  if (parent->GetStyle() & Textfield::STYLE_LOWERCASE) {
+    DCHECK((parent->GetStyle() & Textfield::STYLE_PASSWORD) == 0);
     SetEditStyle(SES_LOWERCASE, SES_LOWERCASE);
   }
 
@@ -302,17 +302,17 @@ TextField::Edit::Edit(TextField* parent, bool draw_border)
                                          l10n_util::GetString(IDS_APP_SELECT_ALL));
 }
 
-TextField::Edit::~Edit() {
+Textfield::Edit::~Edit() {
 }
 
-std::wstring TextField::Edit::GetText() const {
+std::wstring Textfield::Edit::GetText() const {
   int len = GetTextLength() + 1;
   std::wstring str;
   GetWindowText(WriteInto(&str, len), len);
   return str;
 }
 
-void TextField::Edit::SetText(const std::wstring& text) {
+void Textfield::Edit::SetText(const std::wstring& text) {
   // Adjusting the string direction before setting the text in order to make
   // sure both RTL and LTR strings are displayed properly.
   std::wstring text_to_set;
@@ -323,14 +323,14 @@ void TextField::Edit::SetText(const std::wstring& text) {
   SetWindowText(text_to_set.c_str());
 }
 
-void TextField::Edit::AppendText(const std::wstring& text) {
+void Textfield::Edit::AppendText(const std::wstring& text) {
   int text_length = GetWindowTextLength();
   ::SendMessage(m_hWnd, TBM_SETSEL, true, MAKELPARAM(text_length, text_length));
   ::SendMessage(m_hWnd, EM_REPLACESEL, false,
                 reinterpret_cast<LPARAM>(text.c_str()));
 }
 
-std::wstring TextField::Edit::GetSelectedText() const {
+std::wstring Textfield::Edit::GetSelectedText() const {
   // Figure out the length of the selection.
   long start;
   long end;
@@ -343,17 +343,17 @@ std::wstring TextField::Edit::GetSelectedText() const {
   return str;
 }
 
-void TextField::Edit::SelectAll() {
+void Textfield::Edit::SelectAll() {
   // Select from the end to the front so that the first part of the text is
   // always visible.
   SetSel(GetTextLength(), 0);
 }
 
-void TextField::Edit::ClearSelection() {
+void Textfield::Edit::ClearSelection() {
   SetSel(GetTextLength(), GetTextLength());
 }
 
-void TextField::Edit::RemoveBorder() {
+void Textfield::Edit::RemoveBorder() {
   if (!draw_border_)
     return;
 
@@ -363,27 +363,27 @@ void TextField::Edit::RemoveBorder() {
                SWP_NOOWNERZORDER | SWP_NOSIZE);
 }
 
-void TextField::Edit::SetEnabled(bool enabled) {
+void Textfield::Edit::SetEnabled(bool enabled) {
   SendMessage(parent_->GetNativeComponent(), WM_ENABLE,
               static_cast<WPARAM>(enabled), 0);
 }
 
 // static
-bool TextField::IsKeystrokeEnter(const Keystroke& key) {
+bool Textfield::IsKeystrokeEnter(const Keystroke& key) {
   return key.key == VK_RETURN;
 }
 
 // static
-bool TextField::IsKeystrokeEscape(const Keystroke& key) {
+bool Textfield::IsKeystrokeEscape(const Keystroke& key) {
   return key.key == VK_ESCAPE;
 }
 
-void TextField::Edit::SetBackgroundColor(COLORREF bg_color) {
+void Textfield::Edit::SetBackgroundColor(COLORREF bg_color) {
   CRichEditCtrl::SetBackgroundColor(bg_color);
   bg_color_ = bg_color;
 }
 
-bool TextField::Edit::IsCommandEnabled(int id) const {
+bool Textfield::Edit::IsCommandEnabled(int id) const {
   switch (id) {
     case IDS_APP_UNDO:       return !parent_->IsReadOnly() && !!CanUndo();
     case IDS_APP_CUT:        return !parent_->IsReadOnly() &&
@@ -396,7 +396,7 @@ bool TextField::Edit::IsCommandEnabled(int id) const {
   }
 }
 
-void TextField::Edit::ExecuteCommand(int id) {
+void Textfield::Edit::ExecuteCommand(int id) {
   ScopedFreeze freeze(this, GetTextObjectModel());
   OnBeforePossibleChange();
   switch (id) {
@@ -410,11 +410,11 @@ void TextField::Edit::ExecuteCommand(int id) {
   OnAfterPossibleChange();
 }
 
-void TextField::Edit::OnChar(TCHAR ch, UINT repeat_count, UINT flags) {
+void Textfield::Edit::OnChar(TCHAR ch, UINT repeat_count, UINT flags) {
   HandleKeystroke(GetCurrentMessage()->message, ch, repeat_count, flags);
 }
 
-void TextField::Edit::OnContextMenu(HWND window, const CPoint& point) {
+void Textfield::Edit::OnContextMenu(HWND window, const CPoint& point) {
   CPoint p(point);
   if (point.x == -1 || point.y == -1) {
     GetCaretPos(&p);
@@ -423,7 +423,7 @@ void TextField::Edit::OnContextMenu(HWND window, const CPoint& point) {
   context_menu_->RunMenuAt(p.x, p.y);
 }
 
-void TextField::Edit::OnCopy() {
+void Textfield::Edit::OnCopy() {
   if (parent_->IsPassword())
     return;
 
@@ -435,7 +435,7 @@ void TextField::Edit::OnCopy() {
   }
 }
 
-void TextField::Edit::OnCut() {
+void Textfield::Edit::OnCut() {
   if (parent_->IsReadOnly() || parent_->IsPassword())
     return;
 
@@ -446,7 +446,7 @@ void TextField::Edit::OnCut() {
   ReplaceSel(L"", true);
 }
 
-LRESULT TextField::Edit::OnImeChar(UINT message, WPARAM wparam, LPARAM lparam) {
+LRESULT Textfield::Edit::OnImeChar(UINT message, WPARAM wparam, LPARAM lparam) {
   // http://crbug.com/7707: a rich-edit control may crash when it receives a
   // WM_IME_CHAR message while it is processing a WM_IME_COMPOSITION message.
   // Since view controls don't need WM_IME_CHAR messages, we prevent WM_IME_CHAR
@@ -455,7 +455,7 @@ LRESULT TextField::Edit::OnImeChar(UINT message, WPARAM wparam, LPARAM lparam) {
   return 0;
 }
 
-LRESULT TextField::Edit::OnImeStartComposition(UINT message,
+LRESULT Textfield::Edit::OnImeStartComposition(UINT message,
                                                WPARAM wparam,
                                                LPARAM lparam) {
   // Users may press alt+shift or control+shift keys to change their keyboard
@@ -470,7 +470,7 @@ LRESULT TextField::Edit::OnImeStartComposition(UINT message,
   return DefWindowProc(message, wparam, lparam);
 }
 
-LRESULT TextField::Edit::OnImeComposition(UINT message,
+LRESULT Textfield::Edit::OnImeComposition(UINT message,
                                           WPARAM wparam,
                                           LPARAM lparam) {
   text_before_change_.clear();
@@ -506,7 +506,7 @@ LRESULT TextField::Edit::OnImeComposition(UINT message,
   return result;
 }
 
-LRESULT TextField::Edit::OnImeEndComposition(UINT message,
+LRESULT Textfield::Edit::OnImeEndComposition(UINT message,
                                              WPARAM wparam,
                                              LPARAM lparam) {
   // Bug 11863: Korean IMEs send a WM_IME_ENDCOMPOSITION message without
@@ -520,7 +520,7 @@ LRESULT TextField::Edit::OnImeEndComposition(UINT message,
   return DefWindowProc(message, wparam, lparam);
 }
 
-void TextField::Edit::OnKeyDown(TCHAR key, UINT repeat_count, UINT flags) {
+void Textfield::Edit::OnKeyDown(TCHAR key, UINT repeat_count, UINT flags) {
   // NOTE: Annoyingly, ctrl-alt-<key> generates WM_KEYDOWN rather than
   // WM_SYSKEYDOWN, so we need to check (flags & KF_ALTDOWN) in various places
   // in this function even with a WM_SYSKEYDOWN handler.
@@ -599,7 +599,7 @@ void TextField::Edit::OnKeyDown(TCHAR key, UINT repeat_count, UINT flags) {
   HandleKeystroke(GetCurrentMessage()->message, key, repeat_count, flags);
 }
 
-void TextField::Edit::OnLButtonDblClk(UINT keys, const CPoint& point) {
+void Textfield::Edit::OnLButtonDblClk(UINT keys, const CPoint& point) {
   // Save the double click info for later triple-click detection.
   tracking_double_click_ = true;
   double_click_point_ = point;
@@ -612,7 +612,7 @@ void TextField::Edit::OnLButtonDblClk(UINT keys, const CPoint& point) {
   OnAfterPossibleChange();
 }
 
-void TextField::Edit::OnLButtonDown(UINT keys, const CPoint& point) {
+void Textfield::Edit::OnLButtonDown(UINT keys, const CPoint& point) {
   // Check for triple click, then reset tracker.  Should be safe to subtract
   // double_click_time_ from the current message's time even if the timer has
   // wrapped in between.
@@ -629,7 +629,7 @@ void TextField::Edit::OnLButtonDown(UINT keys, const CPoint& point) {
   OnAfterPossibleChange();
 }
 
-void TextField::Edit::OnLButtonUp(UINT keys, const CPoint& point) {
+void Textfield::Edit::OnLButtonUp(UINT keys, const CPoint& point) {
   ScopedFreeze freeze(this, GetTextObjectModel());
   OnBeforePossibleChange();
   DefWindowProc(WM_LBUTTONUP, keys,
@@ -637,11 +637,11 @@ void TextField::Edit::OnLButtonUp(UINT keys, const CPoint& point) {
   OnAfterPossibleChange();
 }
 
-void TextField::Edit::OnMouseLeave() {
+void Textfield::Edit::OnMouseLeave() {
   SetContainsMouse(false);
 }
 
-LRESULT TextField::Edit::OnMouseWheel(UINT message,
+LRESULT Textfield::Edit::OnMouseWheel(UINT message,
                                       WPARAM w_param, LPARAM l_param) {
   // Reroute the mouse-wheel to the window under the mouse pointer if
   // applicable.
@@ -650,7 +650,7 @@ LRESULT TextField::Edit::OnMouseWheel(UINT message,
   return DefWindowProc(message, w_param, l_param);;
 }
 
-void TextField::Edit::OnMouseMove(UINT keys, const CPoint& point) {
+void Textfield::Edit::OnMouseMove(UINT keys, const CPoint& point) {
   SetContainsMouse(true);
   // Clamp the selection to the visible text so the user can't drag to select
   // the "phantom newline".  In theory we could achieve this by clipping the X
@@ -704,7 +704,7 @@ void TextField::Edit::OnMouseMove(UINT keys, const CPoint& point) {
   }
 }
 
-int TextField::Edit::OnNCCalcSize(BOOL w_param, LPARAM l_param) {
+int Textfield::Edit::OnNCCalcSize(BOOL w_param, LPARAM l_param) {
   content_insets_.Set(0, 0, 0, 0);
   parent_->CalculateInsets(&content_insets_);
   if (w_param) {
@@ -724,7 +724,7 @@ int TextField::Edit::OnNCCalcSize(BOOL w_param, LPARAM l_param) {
   return 0;
 }
 
-void TextField::Edit::OnNCPaint(HRGN region) {
+void Textfield::Edit::OnNCPaint(HRGN region) {
   if (!draw_border_)
     return;
 
@@ -786,7 +786,7 @@ void TextField::Edit::OnNCPaint(HRGN region) {
   ReleaseDC(hdc);
 }
 
-void TextField::Edit::OnNonLButtonDown(UINT keys, const CPoint& point) {
+void Textfield::Edit::OnNonLButtonDown(UINT keys, const CPoint& point) {
   // Interestingly, the edit doesn't seem to cancel triple clicking when the
   // x-buttons (which usually means "thumb buttons") are pressed, so we only
   // call this for M and R down.
@@ -794,7 +794,7 @@ void TextField::Edit::OnNonLButtonDown(UINT keys, const CPoint& point) {
   SetMsgHandled(false);
 }
 
-void TextField::Edit::OnPaste() {
+void Textfield::Edit::OnPaste() {
   if (parent_->IsReadOnly() || !ViewsDelegate::views_delegate)
     return;
 
@@ -816,7 +816,7 @@ void TextField::Edit::OnPaste() {
   }
 }
 
-void TextField::Edit::OnSysChar(TCHAR ch, UINT repeat_count, UINT flags) {
+void Textfield::Edit::OnSysChar(TCHAR ch, UINT repeat_count, UINT flags) {
   // Nearly all alt-<xxx> combos result in beeping rather than doing something
   // useful, so we discard most.  Exceptions:
   //   * ctrl-alt-<xxx>, which is sometimes important, generates WM_CHAR instead
@@ -828,17 +828,17 @@ void TextField::Edit::OnSysChar(TCHAR ch, UINT repeat_count, UINT flags) {
     SetMsgHandled(false);
 }
 
-void TextField::Edit::HandleKeystroke(UINT message,
+void Textfield::Edit::HandleKeystroke(UINT message,
                                       TCHAR key,
                                       UINT repeat_count,
                                       UINT flags) {
   ScopedFreeze freeze(this, GetTextObjectModel());
 
-  TextField::Controller* controller = parent_->GetController();
+  Textfield::Controller* controller = parent_->GetController();
   bool handled = false;
   if (controller) {
     handled = controller->HandleKeystroke(parent_,
-        TextField::Keystroke(message, key, repeat_count, flags));
+        Textfield::Keystroke(message, key, repeat_count, flags));
   }
 
   if (!handled) {
@@ -848,12 +848,12 @@ void TextField::Edit::HandleKeystroke(UINT message,
   }
 }
 
-void TextField::Edit::OnBeforePossibleChange() {
+void Textfield::Edit::OnBeforePossibleChange() {
   // Record our state.
   text_before_change_ = GetText();
 }
 
-void TextField::Edit::OnAfterPossibleChange() {
+void Textfield::Edit::OnAfterPossibleChange() {
   // Prevent the user from selecting the "phantom newline" at the end of the
   // edit.  If they try, we just silently move the end of the selection back to
   // the end of the real text.
@@ -886,7 +886,7 @@ void TextField::Edit::OnAfterPossibleChange() {
   }
 }
 
-LONG TextField::Edit::ClipXCoordToVisibleText(LONG x,
+LONG Textfield::Edit::ClipXCoordToVisibleText(LONG x,
                                               bool is_triple_click) const {
   // Clip the X coordinate to the left edge of the text.  Careful:
   // PosFromChar(0) may return a negative X coordinate if the beginning of the
@@ -942,7 +942,7 @@ LONG TextField::Edit::ClipXCoordToVisibleText(LONG x,
   return is_triple_click ? (right_bound - 1) : right_bound;
 }
 
-void TextField::Edit::SetContainsMouse(bool contains_mouse) {
+void Textfield::Edit::SetContainsMouse(bool contains_mouse) {
   if (contains_mouse == contains_mouse_)
     return;
 
@@ -964,7 +964,7 @@ void TextField::Edit::SetContainsMouse(bool contains_mouse) {
   RedrawWindow(NULL, NULL, RDW_INVALIDATE | RDW_FRAME);
 }
 
-ITextDocument* TextField::Edit::GetTextObjectModel() const {
+ITextDocument* Textfield::Edit::GetTextObjectModel() const {
   if (!text_object_model_) {
     CComPtr<IRichEditOle> ole_interface;
     ole_interface.Attach(GetOleInterface());
@@ -974,9 +974,9 @@ ITextDocument* TextField::Edit::GetTextObjectModel() const {
 }
 
 /////////////////////////////////////////////////////////////////////////////
-// TextField
+// Textfield
 
-TextField::~TextField() {
+Textfield::~Textfield() {
   if (edit_) {
     // If the edit hwnd still exists, we need to destroy it explicitly.
     if (*edit_)
@@ -985,7 +985,7 @@ TextField::~TextField() {
   }
 }
 
-void TextField::ViewHierarchyChanged(bool is_add, View* parent, View* child) {
+void Textfield::ViewHierarchyChanged(bool is_add, View* parent, View* child) {
   Widget* widget;
 
   if (is_add && (widget = GetWidget())) {
@@ -1022,14 +1022,14 @@ void TextField::ViewHierarchyChanged(bool is_add, View* parent, View* child) {
   }
 }
 
-void TextField::Layout() {
+void Textfield::Layout() {
   if (native_view_) {
     native_view_->SetBounds(GetLocalBounds(true));
     native_view_->Layout();
   }
 }
 
-gfx::Size TextField::GetPreferredSize() {
+gfx::Size Textfield::GetPreferredSize() {
   gfx::Insets insets;
   CalculateInsets(&insets);
   return gfx::Size(font_.GetExpectedTextWidth(default_width_in_chars_) +
@@ -1037,23 +1037,23 @@ gfx::Size TextField::GetPreferredSize() {
                    num_lines_ * font_.height() + insets.height());
 }
 
-std::wstring TextField::GetText() const {
+std::wstring Textfield::GetText() const {
   return text_;
 }
 
-void TextField::SetText(const std::wstring& text) {
+void Textfield::SetText(const std::wstring& text) {
   text_ = text;
   if (edit_)
     edit_->SetText(text);
 }
 
-void TextField::AppendText(const std::wstring& text) {
+void Textfield::AppendText(const std::wstring& text) {
   text_ += text;
   if (edit_)
     edit_->AppendText(text);
 }
 
-void TextField::CalculateInsets(gfx::Insets* insets) {
+void Textfield::CalculateInsets(gfx::Insets* insets) {
   DCHECK(insets);
 
   if (!draw_border_)
@@ -1067,32 +1067,32 @@ void TextField::CalculateInsets(gfx::Insets* insets) {
   insets->Set(3, 3, 3, 3);
 }
 
-void TextField::SyncText() {
+void Textfield::SyncText() {
   if (edit_)
     text_ = edit_->GetText();
 }
 
-void TextField::SetController(Controller* controller) {
+void Textfield::SetController(Controller* controller) {
   controller_ = controller;
 }
 
-TextField::Controller* TextField::GetController() const {
+Textfield::Controller* Textfield::GetController() const {
   return controller_;
 }
 
-bool TextField::IsReadOnly() const {
+bool Textfield::IsReadOnly() const {
   return edit_ ? ((edit_->GetStyle() & ES_READONLY) != 0) : read_only_;
 }
 
-bool TextField::IsPassword() const {
-  return GetStyle() & TextField::STYLE_PASSWORD;
+bool Textfield::IsPassword() const {
+  return GetStyle() & Textfield::STYLE_PASSWORD;
 }
 
-bool TextField::IsMultiLine() const {
+bool Textfield::IsMultiLine() const {
   return (style_ & STYLE_MULTILINE) != 0;
 }
 
-void TextField::SetReadOnly(bool read_only) {
+void Textfield::SetReadOnly(bool read_only) {
   read_only_ = read_only;
   if (edit_) {
     edit_->SetReadOnly(read_only);
@@ -1100,46 +1100,46 @@ void TextField::SetReadOnly(bool read_only) {
   }
 }
 
-void TextField::Focus() {
+void Textfield::Focus() {
   ::SetFocus(native_view_->GetHWND());
 }
 
-void TextField::SelectAll() {
+void Textfield::SelectAll() {
   if (edit_)
     edit_->SelectAll();
 }
 
-void TextField::ClearSelection() const {
+void Textfield::ClearSelection() const {
   if (edit_)
     edit_->ClearSelection();
 }
 
-HWND TextField::GetNativeComponent() {
+HWND Textfield::GetNativeComponent() {
   return native_view_->GetHWND();
 }
 
-void TextField::SetBackgroundColor(SkColor color) {
+void Textfield::SetBackgroundColor(SkColor color) {
   background_color_ = color;
   use_default_background_color_ = false;
   UpdateEditBackgroundColor();
 }
 
-void TextField::SetDefaultBackgroundColor() {
+void Textfield::SetDefaultBackgroundColor() {
   use_default_background_color_ = true;
   UpdateEditBackgroundColor();
 }
 
-void TextField::SetFont(const gfx::Font& font) {
+void Textfield::SetFont(const gfx::Font& font) {
   font_ = font;
   if (edit_)
     edit_->SetFont(font.hfont());
 }
 
-gfx::Font TextField::GetFont() const {
+gfx::Font Textfield::GetFont() const {
   return font_;
 }
 
-bool TextField::SetHorizontalMargins(int left, int right) {
+bool Textfield::SetHorizontalMargins(int left, int right) {
   // SendMessage expects the two values to be packed into one using MAKELONG
   // so we truncate to 16 bits if necessary.
   return ERROR_SUCCESS == SendMessage(GetNativeComponent(),
@@ -1149,12 +1149,12 @@ bool TextField::SetHorizontalMargins(int left, int right) {
                                                         right & 0xFFFF));
 }
 
-void TextField::SetHeightInLines(int num_lines) {
+void Textfield::SetHeightInLines(int num_lines) {
   DCHECK(IsMultiLine());
   num_lines_ = num_lines;
 }
 
-void TextField::RemoveBorder() {
+void Textfield::RemoveBorder() {
   if (!draw_border_)
     return;
 
@@ -1163,20 +1163,20 @@ void TextField::RemoveBorder() {
     edit_->RemoveBorder();
 }
 
-void TextField::SetEnabled(bool enabled) {
+void Textfield::SetEnabled(bool enabled) {
   View::SetEnabled(enabled);
   edit_->SetEnabled(enabled);
 }
 
-bool TextField::IsFocusable() const {
+bool Textfield::IsFocusable() const {
   return IsEnabled() && !IsReadOnly();
 }
 
-void TextField::AboutToRequestFocusFromTabTraversal(bool reverse) {
+void Textfield::AboutToRequestFocusFromTabTraversal(bool reverse) {
   SelectAll();
 }
 
-bool TextField::SkipDefaultKeyEventProcessing(const KeyEvent& e) {
+bool Textfield::SkipDefaultKeyEventProcessing(const KeyEvent& e) {
   // TODO(hamaji): Figure out which keyboard combinations we need to add here,
   //               similar to LocationBarView::SkipDefaultKeyEventProcessing.
   if (e.GetCharacter() == VK_BACK)
@@ -1191,7 +1191,7 @@ bool TextField::SkipDefaultKeyEventProcessing(const KeyEvent& e) {
   return false;
 }
 
-void TextField::UpdateEditBackgroundColor() {
+void Textfield::UpdateEditBackgroundColor() {
   if (!edit_)
     return;
 

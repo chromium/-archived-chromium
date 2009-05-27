@@ -28,7 +28,7 @@ static const int kWhiteSpaceAfterMatchCountLabel = 3;
 // The margins around the search field and the close button.
 static const int kMarginLeftOfCloseButton = 3;
 static const int kMarginRightOfCloseButton = 7;
-static const int kMarginLeftOfFindTextField = 12;
+static const int kMarginLeftOfFindTextfield = 12;
 
 // The margins around the match count label (We add extra space so that the
 // background highlight extends beyond just the text).
@@ -87,7 +87,7 @@ FindBarView::FindBarView(FindBarWin* container)
       animation_offset_(0) {
   ResourceBundle& rb = ResourceBundle::GetSharedInstance();
 
-  find_text_ = new views::TextField();
+  find_text_ = new views::Textfield();
   find_text_->SetID(VIEW_ID_FIND_IN_PAGE_TEXT_FIELD);
   find_text_->SetFont(rb.GetFont(ResourceBundle::BaseFont));
   find_text_->set_default_width_in_chars(kDefaultCharWidth);
@@ -256,7 +256,7 @@ void FindBarView::Paint(gfx::Canvas* canvas) {
 
   canvas->DrawBitmapInt(*kDialog_right, lb.right() - kDialog_right->width(), 0);
 
-  // Then we draw the background image for the Find TextField. We start by
+  // Then we draw the background image for the Find Textfield. We start by
   // calculating the position of background images for the Find text box.
   gfx::Rect find_text_rect;
   gfx::Rect back_button_rect;
@@ -352,7 +352,7 @@ void FindBarView::Layout() {
 
   // And whatever space is left in between, gets filled up by the find edit box.
   sz = find_text_->GetPreferredSize();
-  sz.set_width(match_count_text_->x() - kMarginLeftOfFindTextField);
+  sz.set_width(match_count_text_->x() - kMarginLeftOfFindTextfield);
   find_text_->SetBounds(match_count_text_->x() - sz.width(),
                         (height() - sz.height()) / 2 + 1,
                         sz.width(),
@@ -383,7 +383,7 @@ gfx::Size FindBarView::GetPreferredSize() {
 
   // Add up all the preferred sizes and margins of the rest of the controls.
   prefsize.Enlarge(kMarginLeftOfCloseButton + kMarginRightOfCloseButton +
-                       kMarginLeftOfFindTextField,
+                       kMarginLeftOfFindTextfield,
                    0);
   prefsize.Enlarge(find_previous_button_->GetPreferredSize().width(), 0);
   prefsize.Enlarge(find_next_button_->GetPreferredSize().width(), 0);
@@ -420,9 +420,9 @@ void FindBarView::ButtonPressed(views::Button* sender) {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-// FindBarView, views::TextField::Controller implementation:
+// FindBarView, views::Textfield::Controller implementation:
 
-void FindBarView::ContentsChanged(views::TextField* sender,
+void FindBarView::ContentsChanged(views::Textfield* sender,
                                   const std::wstring& new_contents) {
   FindBarController* controller = container_->GetFindBarController();
   DCHECK(controller);
@@ -445,8 +445,8 @@ void FindBarView::ContentsChanged(views::TextField* sender,
   }
 }
 
-bool FindBarView::HandleKeystroke(views::TextField* sender,
-                                  const views::TextField::Keystroke& key) {
+bool FindBarView::HandleKeystroke(views::Textfield* sender,
+                                  const views::Textfield::Keystroke& key) {
   // If the dialog is not visible, there is no reason to process keyboard input.
   if (!container_->IsVisible())
     return false;
@@ -457,7 +457,7 @@ bool FindBarView::HandleKeystroke(views::TextField* sender,
                                                  key.flags))
     return true;  // Handled, we are done!
 
-  if (views::TextField::IsKeystrokeEnter(key)) {
+  if (views::Textfield::IsKeystrokeEnter(key)) {
     // Pressing Return/Enter starts the search (unless text box is empty).
     std::wstring find_string = find_text_->GetText();
     if (!find_string.empty()) {

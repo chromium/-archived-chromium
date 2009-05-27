@@ -12,7 +12,7 @@
 
 #include <windows.h>
 
-#include "views/controls/text_field.h"
+#include "views/controls/textfield/textfield.h"
 #include "views/window/dialog_delegate.h"
 
 namespace views {
@@ -26,7 +26,7 @@ class Profile;
 class TemplateURL;
 class TemplateURLModel;
 
-class EditKeywordController : public views::TextField::Controller,
+class EditKeywordController : public views::Textfield::Controller,
                               public views::DialogDelegate {
  public:
   // The template_url and/or keyword_editor_view may be NULL.
@@ -51,13 +51,13 @@ class EditKeywordController : public views::TextField::Controller,
   virtual bool Accept();
   virtual views::View* GetContentsView();
 
-  // views::TextField::Controller overrides. Updates whether the user can
+  // views::Textfield::Controller overrides. Updates whether the user can
   // accept the dialog as well as updating image views showing whether value is
   // valid.
-  virtual void ContentsChanged(views::TextField* sender,
+  virtual void ContentsChanged(views::Textfield* sender,
                                const std::wstring& new_contents);
-  virtual bool HandleKeystroke(views::TextField* sender,
-                               const views::TextField::Keystroke& key);
+  virtual bool HandleKeystroke(views::Textfield* sender,
+                               const views::Textfield::Keystroke& key);
 
  private:
   void Init();
@@ -66,8 +66,8 @@ class EditKeywordController : public views::TextField::Controller,
   views::Label* CreateLabel(int message_id);
 
   // Creates a text field with the specified text. If |lowercase| is true, the
-  // textfield is configured to map all input to lower case.
-  views::TextField* CreateTextField(const std::wstring& text, bool lowercase);
+  // Textfield is configured to map all input to lower case.
+  views::Textfield* CreateTextfield(const std::wstring& text, bool lowercase);
 
   // Returns true if the currently input URL is valid. The URL is valid if it
   // contains no search terms and is a valid url, or if it contains a search
@@ -117,9 +117,9 @@ class EditKeywordController : public views::TextField::Controller,
   Profile* profile_;
 
   // Text fields.
-  views::TextField* title_tf_;
-  views::TextField* keyword_tf_;
-  views::TextField* url_tf_;
+  views::Textfield* title_tf_;
+  views::Textfield* keyword_tf_;
+  views::Textfield* url_tf_;
 
   // Shows error images.
   views::ImageView* title_iv_;

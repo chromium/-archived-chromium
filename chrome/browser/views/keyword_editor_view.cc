@@ -28,7 +28,7 @@
 #include "views/background.h"
 #include "views/grid_layout.h"
 #include "views/controls/button/native_button.h"
-#include "views/controls/text_field.h"
+#include "views/controls/textfield/textfield.h"
 #include "views/standard_layout.h"
 #include "views/widget/widget.h"
 #include "views/window/dialog_delegate.h"

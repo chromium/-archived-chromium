@@ -11,7 +11,7 @@
 
 namespace views {
 class TextButton;
-class TextField;
+class Textfield;
 }  // namespace views
 
 class AboutNetworkDialog : public views::DialogDelegate,
@@ -53,7 +53,7 @@ class AboutNetworkDialog : public views::DialogDelegate,
   views::TextButton* track_toggle_;
   views::TextButton* show_button_;
   views::TextButton* clear_button_;
-  views::TextField* text_field_;
+  views::Textfield* text_field_;
 
   // Set to true when we're tracking network status.
   bool tracking_;

@@ -12,7 +12,7 @@
 #include "net/url_request/url_request_job_tracker.h"
 #include "views/grid_layout.h"
 #include "views/controls/button/text_button.h"
-#include "views/controls/text_field.h"
+#include "views/controls/textfield/textfield.h"
 #include "views/standard_layout.h"
 #include "views/window/window.h"
 
@@ -300,8 +300,8 @@ void AboutNetworkDialog::SetupControls() {
   show_button_ = new views::TextButton(this, kShowCurrentLabel);
   clear_button_ = new views::TextButton(this, kClearLabel);
 
-  text_field_ = new views::TextField(static_cast<views::TextField::StyleFlags>(
-                                     views::TextField::STYLE_MULTILINE));
+  text_field_ = new views::Textfield(static_cast<views::Textfield::StyleFlags>(
+                                     views::Textfield::STYLE_MULTILINE));
   text_field_->SetReadOnly(true);
 
   // TODO(brettw): We may want to add this in the future. It can't be called

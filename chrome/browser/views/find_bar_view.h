@@ -9,7 +9,7 @@
 #include "base/string16.h"
 #include "chrome/browser/find_notification_details.h"
 #include "views/controls/button/button.h"
-#include "views/controls/text_field.h"
+#include "views/controls/textfield/textfield.h"
 
 class FindBarWin;
 
@@ -29,7 +29,7 @@ class View;
 ////////////////////////////////////////////////////////////////////////////////
 class FindBarView : public views::View,
                     public views::ButtonListener,
-                    public views::TextField::Controller {
+                    public views::Textfield::Controller {
  public:
   // A tag denoting which button the user pressed.
   enum ButtonTag {
@@ -65,11 +65,11 @@ class FindBarView : public views::View,
   // Overridden from views::ButtonListener:
   virtual void ButtonPressed(views::Button* sender);
 
-  // Overridden from views::TextField::Controller:
-  virtual void ContentsChanged(views::TextField* sender,
+  // Overridden from views::Textfield::Controller:
+  virtual void ContentsChanged(views::Textfield* sender,
                                const std::wstring& new_contents);
-  virtual bool HandleKeystroke(views::TextField* sender,
-                               const views::TextField::Keystroke& key);
+  virtual bool HandleKeystroke(views::Textfield* sender,
+                               const views::Textfield::Keystroke& key);
 
  private:
   // Resets the background for the match count label.
@@ -84,13 +84,13 @@ class FindBarView : public views::View,
   class FocusForwarderView : public views::View {
    public:
     explicit FocusForwarderView(
-        views::TextField* view_to_focus_on_mousedown)
+        views::Textfield* view_to_focus_on_mousedown)
       : view_to_focus_on_mousedown_(view_to_focus_on_mousedown) {}
 
    private:
     virtual bool OnMousePressed(const views::MouseEvent& event);
 
-    views::TextField* view_to_focus_on_mousedown_;
+    views::Textfield* view_to_focus_on_mousedown_;
 
     DISALLOW_COPY_AND_ASSIGN(FocusForwarderView);
   };
@@ -100,7 +100,7 @@ class FindBarView : public views::View,
   FindBarWin* container_;
 
   // The controls in the window.
-  views::TextField* find_text_;
+  views::Textfield* find_text_;
   views::Label* match_count_text_;
   FocusForwarderView* focus_forwarder_view_;
   views::ImageButton* find_previous_button_;

@@ -28,7 +28,7 @@
 #include "skia/ext/skia_utils_win.h"
 #include "third_party/skia/include/core/SkBitmap.h"
 #include "views/controls/button/radio_button.h"
-#include "views/controls/text_field.h"
+#include "views/controls/textfield/textfield.h"
 #include "views/grid_layout.h"
 #include "views/standard_layout.h"
 #include "views/widget/widget.h"
@@ -40,7 +40,7 @@ static const int kPasswordSavingRadioGroup = 2;
 static const int kFileIconSize = 16;
 static const int kFileIconVerticalSpacing = 3;
 static const int kFileIconHorizontalSpacing = 3;
-static const int kFileIconTextFieldSpacing = 3;
+static const int kFileIconTextfieldSpacing = 3;
 }  // namespace
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -67,7 +67,7 @@ class FileDisplayArea : public views::View {
  private:
   void Init();
 
-  views::TextField* text_field_;
+  views::Textfield* text_field_;
   SkColor text_field_background_color_;
 
   gfx::Rect icon_bounds_;
@@ -84,7 +84,7 @@ class FileDisplayArea : public views::View {
 SkBitmap FileDisplayArea::default_folder_icon_;
 
 FileDisplayArea::FileDisplayArea()
-    : text_field_(new views::TextField),
+    : text_field_(new views::Textfield),
       text_field_background_color_(0),
       initialized_(false) {
   InitClass();
@@ -121,11 +121,11 @@ void FileDisplayArea::Layout() {
   icon_bounds_.SetRect(kFileIconHorizontalSpacing, kFileIconVerticalSpacing,
                        kFileIconSize, kFileIconSize);
   gfx::Size ps = text_field_->GetPreferredSize();
-  text_field_->SetBounds(icon_bounds_.right() + kFileIconTextFieldSpacing,
+  text_field_->SetBounds(icon_bounds_.right() + kFileIconTextfieldSpacing,
                          (height() - ps.height()) / 2,
                          width() - icon_bounds_.right() -
                              kFileIconHorizontalSpacing -
-                             kFileIconTextFieldSpacing, ps.height());
+                             kFileIconTextfieldSpacing, ps.height());
 }
 
 gfx::Size FileDisplayArea::GetPreferredSize() {

@@ -26,7 +26,7 @@
 
 using views::GridLayout;
 using views::ImageView;
-using views::TextField;
+using views::Textfield;
 
 
 namespace {
@@ -153,15 +153,15 @@ views::View* EditKeywordController::GetContentsView() {
   return view_;
 }
 
-void EditKeywordController::ContentsChanged(TextField* sender,
+void EditKeywordController::ContentsChanged(Textfield* sender,
                                             const std::wstring& new_contents) {
   GetDialogClientView()->UpdateDialogButtons();
   UpdateImageViews();
 }
 
 bool EditKeywordController::HandleKeystroke(
-    TextField* sender,
-    const views::TextField::Keystroke& key) {
+    Textfield* sender,
+    const views::Textfield::Keystroke& key) {
   return false;
 }
 
@@ -169,16 +169,16 @@ void EditKeywordController::Init() {
   // Create the views we'll need.
   view_ = new views::View();
   if (template_url_) {
-    title_tf_ = CreateTextField(template_url_->short_name(), false);
-    keyword_tf_ = CreateTextField(template_url_->keyword(), true);
-    url_tf_ = CreateTextField(GetDisplayURL(*template_url_), false);
+    title_tf_ = CreateTextfield(template_url_->short_name(), false);
+    keyword_tf_ = CreateTextfield(template_url_->keyword(), true);
+    url_tf_ = CreateTextfield(GetDisplayURL(*template_url_), false);
     // We don't allow users to edit prepopulate URLs. This is done as
     // occasionally we need to update the URL of prepopulated TemplateURLs.
     url_tf_->SetReadOnly(template_url_->prepopulate_id() != 0);
   } else {
-    title_tf_ = CreateTextField(std::wstring(), false);
-    keyword_tf_ = CreateTextField(std::wstring(), true);
-    url_tf_ = CreateTextField(std::wstring(), false);
+    title_tf_ = CreateTextfield(std::wstring(), false);
+    keyword_tf_ = CreateTextfield(std::wstring(), true);
+    url_tf_ = CreateTextfield(std::wstring(), false);
   }
   title_iv_ = new ImageView();
   keyword_iv_ = new ImageView();
@@ -206,7 +206,7 @@ void EditKeywordController::Init() {
                         GridLayout::USE_PREF, 0, 0);
   column_set->LinkColumnSizes(1, 3, -1);
 
-  // For the textfields.
+  // For the Textfields.
   column_set = layout->AddColumnSet(1);
   column_set->AddColumn(GridLayout::LEADING, GridLayout::CENTER, 0,
                         GridLayout::USE_PREF, 0, 0);
@@ -273,10 +273,10 @@ views::Label* EditKeywordController::CreateLabel(int message_id) {
   return label;
 }
 
-TextField* EditKeywordController::CreateTextField(const std::wstring& text,
+Textfield* EditKeywordController::CreateTextfield(const std::wstring& text,
                                                   bool lowercase) {
-  TextField* text_field = new TextField(
-      lowercase ? TextField::STYLE_LOWERCASE : TextField::STYLE_DEFAULT);
+  Textfield* text_field = new Textfield(
+      lowercase ? Textfield::STYLE_LOWERCASE : Textfield::STYLE_DEFAULT);
   text_field->SetText(text);
   text_field->SetController(this);
   return text_field;

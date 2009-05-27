@@ -8,7 +8,7 @@
 #include "base/task.h"
 #include "views/controls/button/button.h"
 #include "views/controls/table/table_view.h"
-#include "views/controls/text_field.h"
+#include "views/controls/textfield/textfield.h"
 #include "views/view.h"
 #include "views/window/dialog_delegate.h"
 #include "views/window/window.h"
@@ -27,7 +27,7 @@ class CookiesView : public views::View,
                     public views::DialogDelegate,
                     public views::ButtonListener,
                     public views::TableViewObserver,
-                    public views::TextField::Controller {
+                    public views::Textfield::Controller {
  public:
   // Show the Cookies Window, creating one if necessary.
   static void ShowCookiesWindow(Profile* profile);
@@ -47,11 +47,11 @@ class CookiesView : public views::View,
   // cookies.
   virtual void OnTableViewDelete(views::TableView* table_view);
 
-  // views::TextField::Controller implementation:
-  virtual void ContentsChanged(views::TextField* sender,
+  // views::Textfield::Controller implementation:
+  virtual void ContentsChanged(views::Textfield* sender,
                                const std::wstring& new_contents);
-  virtual bool HandleKeystroke(views::TextField* sender,
-                               const views::TextField::Keystroke& key);
+  virtual bool HandleKeystroke(views::Textfield* sender,
+                               const views::Textfield::Keystroke& key);
 
   // views::WindowDelegate implementation:
   virtual int GetDialogButtons() const {
@@ -90,7 +90,7 @@ class CookiesView : public views::View,
 
   // Assorted dialog controls
   views::Label* search_label_;
-  views::TextField* search_field_;
+  views::Textfield* search_field_;
   views::NativeButton* clear_search_button_;
   views::Label* description_label_;
   CookiesTableView* cookies_table_;

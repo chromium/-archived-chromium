@@ -10,7 +10,7 @@
 
 namespace views {
 class Label;
-class TextField;
+class Textfield;
 class LoginModel;
 
 // Simple Model & Observer interfaces for a LoginView to facilitate exchanging
@@ -60,8 +60,8 @@ class LoginView : public View, public LoginModelObserver {
   void FocusFirstField();
 
   // Non-owning refs to the input text fields.
-  TextField* username_field_;
-  TextField* password_field_;
+  Textfield* username_field_;
+  Textfield* password_field_;
 
   // Button labels
   Label* username_label_;

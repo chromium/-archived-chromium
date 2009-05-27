@@ -8,7 +8,7 @@
 #include "chrome/browser/net/url_fetcher.h"
 #include "googleurl/src/gurl.h"
 #include "views/controls/combo_box.h"
-#include "views/controls/text_field.h"
+#include "views/controls/textfield/textfield.h"
 #include "views/view.h"
 #include "views/window/dialog_delegate.h"
 
@@ -35,7 +35,7 @@ class BugReportComboBoxModel;
 class BugReportView : public views::View,
                       public views::DialogDelegate,
                       public views::ComboBox::Listener,
-                      public views::TextField::Controller {
+                      public views::Textfield::Controller {
  public:
   explicit BugReportView(Profile* profile, TabContents* tab);
   virtual ~BugReportView();
@@ -48,11 +48,11 @@ class BugReportView : public views::View,
   // Overridden from views::View:
   virtual gfx::Size GetPreferredSize();
 
-  // views::TextField::Controller implementation:
-  virtual void ContentsChanged(views::TextField* sender,
+  // views::Textfield::Controller implementation:
+  virtual void ContentsChanged(views::Textfield* sender,
                                const std::wstring& new_contents);
-  virtual bool HandleKeystroke(views::TextField* sender,
-                               const views::TextField::Keystroke& key);
+  virtual bool HandleKeystroke(views::Textfield* sender,
+                               const views::Textfield::Keystroke& key);
 
   // views::ComboBox::Listener implementation:
   virtual void ItemChanged(views::ComboBox* combo_box, int prev_index,
@@ -92,9 +92,9 @@ class BugReportView : public views::View,
   views::Label* page_title_label_;
   views::Label* page_title_text_;
   views::Label* page_url_label_;
-  views::TextField* page_url_text_;
+  views::Textfield* page_url_text_;
   views::Label* description_label_;
-  views::TextField* description_text_;
+  views::Textfield* description_text_;
   views::Checkbox* include_page_source_checkbox_;
   views::Checkbox* include_page_image_checkbox_;
 

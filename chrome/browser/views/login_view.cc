@@ -12,21 +12,21 @@
 #include "grit/generated_resources.h"
 #include "views/grid_layout.h"
 #include "views/controls/label.h"
-#include "views/controls/text_field.h"
+#include "views/controls/textfield/textfield.h"
 #include "views/standard_layout.h"
 #include "views/widget/root_view.h"
 
 namespace views {
 
 static const int kMessageWidth = 320;
-static const int kTextFieldStackHorizontalSpacing = 30;
+static const int kTextfieldStackHorizontalSpacing = 30;
 
 ///////////////////////////////////////////////////////////////////////////////
 // LoginView, public:
 
 LoginView::LoginView(const std::wstring& explanation)
-    : username_field_(new TextField),
-      password_field_(new TextField(TextField::STYLE_PASSWORD)),
+    : username_field_(new Textfield),
+      password_field_(new Textfield(Textfield::STYLE_PASSWORD)),
       username_label_(new Label(
           l10n_util::GetString(IDS_LOGIN_DIALOG_USERNAME_FIELD))),
       password_label_(new Label(
@@ -51,13 +51,13 @@ LoginView::LoginView(const std::wstring& explanation)
   // Add the column set for the user name and password fields and labels.
   const int labels_column_set_id = 1;
   column_set = layout->AddColumnSet(labels_column_set_id);
-  column_set->AddPaddingColumn(0, kTextFieldStackHorizontalSpacing);
+  column_set->AddPaddingColumn(0, kTextfieldStackHorizontalSpacing);
   column_set->AddColumn(GridLayout::LEADING, GridLayout::CENTER, 0,
                         GridLayout::USE_PREF, 0, 0);
   column_set->AddPaddingColumn(0, kRelatedControlHorizontalSpacing);
   column_set->AddColumn(GridLayout::FILL, GridLayout::CENTER, 1,
                         GridLayout::USE_PREF, 0, 0);
-  column_set->AddPaddingColumn(0, kTextFieldStackHorizontalSpacing);
+  column_set->AddPaddingColumn(0, kTextfieldStackHorizontalSpacing);
 
   layout->StartRow(0, single_column_view_set_id);
   layout->AddView(message_label_);

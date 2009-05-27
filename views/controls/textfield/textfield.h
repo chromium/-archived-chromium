@@ -2,11 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-// These classes define a text field widget that can be used in the views UI
-// toolkit.
-
-#ifndef VIEWS_CONTROLS_TEXT_FIELD_H_
-#define VIEWS_CONTROLS_TEXT_FIELD_H_
+#ifndef VIEWS_CONTROLS_TEXTFIELD_TEXTFIELD_H_
+#define VIEWS_CONTROLS_TEXTFIELD_TEXTFIELD_H_
 
 #include <string>
 
@@ -20,7 +17,7 @@ namespace views {
 class HWNDView;
 
 // This class implements a ChromeView that wraps a native text (edit) field.
-class TextField : public View {
+class Textfield : public View {
  public:
   // Keystroke provides a platform-dependent way to send keystroke events.
   // Cross-platform code can use IsKeystrokeEnter/Escape to check for these
@@ -54,14 +51,14 @@ class TextField : public View {
   class Controller {
    public:
     // This method is called whenever the text in the field changes.
-    virtual void ContentsChanged(TextField* sender,
+    virtual void ContentsChanged(Textfield* sender,
                                  const std::wstring& new_contents) = 0;
 
     // This method is called to get notified about keystrokes in the edit.
     // This method returns true if the message was handled and should not be
     // processed further. If it returns false the processing continues.
-    virtual bool HandleKeystroke(TextField* sender,
-                                 const TextField::Keystroke& keystroke) = 0;
+    virtual bool HandleKeystroke(Textfield* sender,
+                                 const Textfield::Keystroke& keystroke) = 0;
   };
 
   enum StyleFlags {
@@ -71,7 +68,7 @@ class TextField : public View {
     STYLE_LOWERCASE = 1<<2
   };
 
-  TextField()
+  Textfield()
       :
 #if defined(OS_WIN)
         native_view_(NULL),
@@ -86,7 +83,7 @@ class TextField : public View {
         num_lines_(1) {
     SetFocusable(true);
   }
-  explicit TextField(StyleFlags style)
+  explicit Textfield(StyleFlags style)
       :
 #if defined(OS_WIN)
         native_view_(NULL),
@@ -101,7 +98,7 @@ class TextField : public View {
         num_lines_(1) {
     SetFocusable(true);
   }
-  virtual ~TextField();
+  virtual ~Textfield();
 
   void ViewHierarchyChanged(bool is_add, View* parent, View* child);
 
@@ -157,7 +154,7 @@ class TextField : public View {
   // Set the font.
   void SetFont(const gfx::Font& font);
 
-  // Return the font used by this TextField.
+  // Return the font used by this Textfield.
   gfx::Font GetFont() const;
 
   // Sets the left and right margin (in pixels) within the text box. On Windows
@@ -220,7 +217,7 @@ class TextField : public View {
 
   gfx::Font font_;
 
-  // NOTE: this is temporary until we rewrite TextField to always work whether
+  // NOTE: this is temporary until we rewrite Textfield to always work whether
   // there is an HWND or not.
   // Used if the HWND hasn't been created yet.
   std::wstring text_;
@@ -238,16 +235,16 @@ class TextField : public View {
 
   bool use_default_background_color_;
 
-  // The number of lines of text this textfield displays at once.
+  // The number of lines of text this Textfield displays at once.
   int num_lines_;
 
  protected:
   // Calculates the insets for the text field.
   void CalculateInsets(gfx::Insets* insets);
 
-  DISALLOW_COPY_AND_ASSIGN(TextField);
+  DISALLOW_COPY_AND_ASSIGN(Textfield);
 };
 
 }  // namespace views
 
-#endif  // VIEWS_CONTROLS_TEXT_FIELD_H_
+#endif  // VIEWS_CONTROLS_TEXTFIELD_TEXTFIELD_H_

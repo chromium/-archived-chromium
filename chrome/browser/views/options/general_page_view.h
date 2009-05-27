@@ -20,7 +20,7 @@ class NativeButton;
 class RadioButton;
 class TableModel;
 class TableView;
-class TextField;
+class Textfield;
 }
 class CustomHomePagesTableModel;
 class OptionsGroupView;
@@ -32,7 +32,7 @@ class SearchEngineListModel;
 class GeneralPageView : public OptionsPageView,
                         public views::ComboBox::Listener,
                         public views::ButtonListener,
-                        public views::TextField::Controller,
+                        public views::Textfield::Controller,
                         public ShelfItemDialogDelegate,
                         public views::TableViewObserver {
  public:
@@ -48,11 +48,11 @@ class GeneralPageView : public OptionsPageView,
                            int prev_index,
                            int new_index);
 
-  // views::TextField::Controller implementation:
-  virtual void ContentsChanged(views::TextField* sender,
+  // views::Textfield::Controller implementation:
+  virtual void ContentsChanged(views::Textfield* sender,
                                const std::wstring& new_contents);
-  virtual bool HandleKeystroke(views::TextField* sender,
-                               const views::TextField::Keystroke& key);
+  virtual bool HandleKeystroke(views::Textfield* sender,
+                               const views::Textfield::Keystroke& key);
 
   // OptionsPageView implementation:
   virtual void InitControlLayout();
@@ -132,7 +132,7 @@ class GeneralPageView : public OptionsPageView,
   OptionsGroupView* homepage_group_;
   views::RadioButton* homepage_use_newtab_radio_;
   views::RadioButton* homepage_use_url_radio_;
-  views::TextField* homepage_use_url_textfield_;
+  views::Textfield* homepage_use_url_textfield_;
   views::Checkbox* homepage_show_home_button_checkbox_;
   BooleanPrefMember new_tab_page_is_home_page_;
   StringPrefMember homepage_;

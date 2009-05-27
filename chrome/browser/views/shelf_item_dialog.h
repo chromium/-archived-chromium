@@ -9,7 +9,7 @@
 #include "chrome/browser/history/history.h"
 #include "views/controls/button/native_button.h"
 #include "views/controls/table/table_view.h"
-#include "views/controls/text_field.h"
+#include "views/controls/textfield/textfield.h"
 #include "views/view.h"
 #include "views/window/dialog_delegate.h"
 #include "views/window/window.h"
@@ -42,7 +42,7 @@ class ShelfItemDialogDelegate {
 ////////////////////////////////////////////////////////////////////////////////
 class ShelfItemDialog : public views::View,
                         public views::DialogDelegate,
-                        public views::TextField::Controller,
+                        public views::Textfield::Controller,
                         public views::TableViewObserver {
  public:
   ShelfItemDialog(ShelfItemDialogDelegate* delegate,
@@ -66,10 +66,10 @@ class ShelfItemDialog : public views::View,
   virtual views::View* GetContentsView();
 
   // TextField::Controller.
-  virtual void ContentsChanged(views::TextField* sender,
+  virtual void ContentsChanged(views::Textfield* sender,
                                const std::wstring& new_contents);
-  virtual bool HandleKeystroke(views::TextField* sender,
-                               const views::TextField::Keystroke& key) {
+  virtual bool HandleKeystroke(views::Textfield* sender,
+                               const views::Textfield::Keystroke& key) {
     return false;
   }
 
@@ -102,10 +102,10 @@ class ShelfItemDialog : public views::View,
   Profile* profile_;
 
   // URL Field.
-  views::TextField* url_field_;
+  views::Textfield* url_field_;
 
   // Title field. This is NULL if we're not showing the title.
-  views::TextField* title_field_;
+  views::Textfield* title_field_;
 
   // The table model.
   scoped_ptr<PossibleURLModel> url_table_model_;

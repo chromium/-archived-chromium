@@ -10,14 +10,14 @@
 #include "base/task.h"
 #include "views/grid_layout.h"
 #include "views/controls/label.h"
-#include "views/controls/text_field.h"
+#include "views/controls/textfield/textfield.h"
 #include "views/standard_layout.h"
 #include "views/window/dialog_delegate.h"
 #include "views/window/window.h"
 #include "grit/generated_resources.h"
 
 // Width to make the text field, in pixels.
-static const int kTextFieldWidth = 200;
+static const int kTextfieldWidth = 200;
 
 class ContentView;
 
@@ -57,7 +57,7 @@ class WinInputWindowDialog : public InputWindowDialog {
 // It registers accelerators that accept/cancel the input.
 class ContentView : public views::View,
                     public views::DialogDelegate,
-                    public views::TextField::Controller {
+                    public views::Textfield::Controller {
  public:
   explicit ContentView(WinInputWindowDialog* delegate)
       : delegate_(delegate),
@@ -75,11 +75,11 @@ class ContentView : public views::View,
   virtual bool IsModal() const { return true; }
   virtual views::View* GetContentsView();
 
-  // views::TextField::Controller overrides:
-  virtual void ContentsChanged(views::TextField* sender,
+  // views::Textfield::Controller overrides:
+  virtual void ContentsChanged(views::Textfield* sender,
                                const std::wstring& new_contents);
-  virtual bool HandleKeystroke(views::TextField*,
-                               const views::TextField::Keystroke&) {
+  virtual bool HandleKeystroke(views::Textfield*,
+                               const views::Textfield::Keystroke&) {
     return false;
   }
 
@@ -95,14 +95,14 @@ class ContentView : public views::View,
   // Sets focus to the first focusable element within the dialog.
   void FocusFirstFocusableControl();
 
-  // The TextField that the user can type into.
-  views::TextField* text_field_;
+  // The Textfield that the user can type into.
+  views::Textfield* text_field_;
 
   // The delegate that the ContentView uses to communicate changes to the
   // caller.
   WinInputWindowDialog* delegate_;
 
-  // Helps us set focus to the first TextField in the window.
+  // Helps us set focus to the first Textfield in the window.
   ScopedRunnableMethodFactory<ContentView> focus_grabber_factory_;
 
   DISALLOW_COPY_AND_ASSIGN(ContentView);
@@ -143,9 +143,9 @@ views::View* ContentView::GetContentsView() {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-// ContentView, views::TextField::Controller implementation:
+// ContentView, views::Textfield::Controller implementation:
 
-void ContentView::ContentsChanged(views::TextField* sender,
+void ContentView::ContentsChanged(views::Textfield* sender,
                                   const std::wstring& new_contents) {
   GetDialogClientView()->UpdateDialogButtons();
 }
@@ -164,7 +164,7 @@ void ContentView::ViewHierarchyChanged(bool is_add,
 // ContentView, private:
 
 void ContentView::InitControlLayout() {
-  text_field_ = new views::TextField;
+  text_field_ = new views::Textfield;
   text_field_->SetText(delegate_->contents());
   text_field_->SetController(this);
 
@@ -180,7 +180,7 @@ void ContentView::InitControlLayout() {
                 GridLayout::USE_PREF, 0, 0);
   c1->AddPaddingColumn(0, kRelatedControlHorizontalSpacing);
   c1->AddColumn(GridLayout::FILL, GridLayout::CENTER, 1,
-                GridLayout::USE_PREF, kTextFieldWidth, kTextFieldWidth);
+                GridLayout::USE_PREF, kTextfieldWidth, kTextfieldWidth);
 
   layout->StartRow(0, 0);
   views::Label* label = new views::Label(delegate_->label());

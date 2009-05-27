@@ -28,7 +28,6 @@
 #include "grit/locale_settings.h"
 #include "third_party/skia/include/core/SkBitmap.h"
 #include "views/controls/button/native_button.h"
-#include "views/controls/text_field.h"
 #include "views/grid_layout.h"
 #include "views/standard_layout.h"
 #include "views/widget/widget.h"

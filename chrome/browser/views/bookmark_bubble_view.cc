@@ -19,7 +19,7 @@
 #include "grit/theme_resources.h"
 #include "views/standard_layout.h"
 #include "views/controls/button/native_button.h"
-#include "views/controls/text_field.h"
+#include "views/controls/textfield/textfield.h"
 
 using views::ComboBox;
 using views::ColumnSet;
@@ -285,7 +285,7 @@ void BookmarkBubbleView::Init() {
   layout->StartRow(0, 2);
   layout->AddView(
       new Label(l10n_util::GetString(IDS_BOOMARK_BUBBLE_TITLE_TEXT)));
-  title_tf_ = new views::TextField();
+  title_tf_ = new views::Textfield();
   title_tf_->SetText(GetTitle());
   layout->AddView(title_tf_);
 

@@ -20,7 +20,7 @@
 #include "views/controls/link.h"
 #include "views/controls/scroll_view.h"
 #include "views/controls/tabbed_pane.h"
-#include "views/controls/text_field.h"
+#include "views/controls/textfield/textfield.h"
 #include "views/widget/accelerator_handler.h"
 #include "views/widget/root_view.h"
 #include "views/widget/widget_win.h"
@@ -39,13 +39,13 @@ static int count = 1;
 static const int kTopCheckBoxID = count++;  // 1
 static const int kLeftContainerID = count++;
 static const int kAppleLabelID = count++;
-static const int kAppleTextFieldID = count++;
+static const int kAppleTextfieldID = count++;
 static const int kOrangeLabelID = count++;  // 5
-static const int kOrangeTextFieldID = count++;
+static const int kOrangeTextfieldID = count++;
 static const int kBananaLabelID = count++;
-static const int kBananaTextFieldID = count++;
+static const int kBananaTextfieldID = count++;
 static const int kKiwiLabelID = count++;
-static const int kKiwiTextFieldID = count++; // 10
+static const int kKiwiTextfieldID = count++; // 10
 static const int kFruitButtonID = count++;
 static const int kFruitCheckBoxID = count++;
 
@@ -80,7 +80,7 @@ static const int kItalicCheckBoxID = count++;
 static const int kUnderlinedCheckBoxID = count++;
 
 static const int kSearchContainerID = count++;
-static const int kSearchTextFieldID = count++;  // 40
+static const int kSearchTextfieldID = count++;  // 40
 static const int kSearchButtonID = count++;
 static const int kHelpLinkID = count++;
 
@@ -271,8 +271,8 @@ void TestViewWindow::Init() {
   left_container->AddChildView(label);
   label->SetBounds(label_x, y, label_width, label_height);
 
-  views::TextField* text_field = new views::TextField();
-  text_field->SetID(kAppleTextFieldID);
+  views::Textfield* text_field = new views::Textfield();
+  text_field->SetID(kAppleTextfieldID);
   left_container->AddChildView(text_field);
   text_field->SetBounds(label_x + label_width + 5, y,
                         text_field_width, label_height);
@@ -284,8 +284,8 @@ void TestViewWindow::Init() {
   left_container->AddChildView(label);
   label->SetBounds(label_x, y, label_width, label_height);
 
-  text_field = new views::TextField();
-  text_field->SetID(kOrangeTextFieldID);
+  text_field = new views::Textfield();
+  text_field->SetID(kOrangeTextfieldID);
   left_container->AddChildView(text_field);
   text_field->SetBounds(label_x + label_width + 5, y,
                         text_field_width, label_height);
@@ -297,8 +297,8 @@ void TestViewWindow::Init() {
   left_container->AddChildView(label);
   label->SetBounds(label_x, y, label_width, label_height);
 
-  text_field = new views::TextField();
-  text_field->SetID(kBananaTextFieldID);
+  text_field = new views::Textfield();
+  text_field->SetID(kBananaTextfieldID);
   left_container->AddChildView(text_field);
   text_field->SetBounds(label_x + label_width + 5, y,
                         text_field_width, label_height);
@@ -310,8 +310,8 @@ void TestViewWindow::Init() {
   left_container->AddChildView(label);
   label->SetBounds(label_x, y, label_width, label_height);
 
-  text_field = new views::TextField();
-  text_field->SetID(kKiwiTextFieldID);
+  text_field = new views::Textfield();
+  text_field->SetID(kKiwiTextfieldID);
   left_container->AddChildView(text_field);
   text_field->SetBounds(label_x + label_width + 5, y,
                         text_field_width, label_height);
@@ -457,10 +457,10 @@ void TestViewWindow::Init() {
   contents = new views::View();
   contents->set_background(
       views::Background::CreateSolidBackground(SK_ColorWHITE));
-  text_field = new views::TextField();
+  text_field = new views::Textfield();
   contents->AddChildView(text_field);
   text_field->SetBounds(10, 10, 100, 20);
-  text_field->SetID(kSearchTextFieldID);
+  text_field->SetID(kSearchTextfieldID);
 
   button = new views::NativeButton(NULL, L"Search");
   contents->AddChildView(button);
@@ -534,15 +534,15 @@ void FocusManagerTest::TearDown() {
 
 
 TEST_F(FocusManagerTest, NormalTraversal) {
-  const int kTraversalIDs[] = { kTopCheckBoxID,  kAppleTextFieldID,
-      kOrangeTextFieldID, kBananaTextFieldID, kKiwiTextFieldID,
+  const int kTraversalIDs[] = { kTopCheckBoxID,  kAppleTextfieldID,
+      kOrangeTextfieldID, kBananaTextfieldID, kKiwiTextfieldID,
       kFruitButtonID, kFruitCheckBoxID, kAsparagusButtonID, kRosettaLinkID,
       kStupeurEtTremblementLinkID,
       kDinerGameLinkID, kRidiculeLinkID, kClosetLinkID, kVisitingLinkID,
       kAmelieLinkID, kJoyeuxNoelLinkID, kCampingLinkID, kBriceDeNiceLinkID,
       kTaxiLinkID, kAsterixLinkID, kOKButtonID, kCancelButtonID, kHelpButtonID,
       kStyleContainerID, kBoldCheckBoxID, kItalicCheckBoxID,
-      kUnderlinedCheckBoxID, kSearchTextFieldID, kSearchButtonID, kHelpLinkID,
+      kUnderlinedCheckBoxID, kSearchTextfieldID, kSearchButtonID, kHelpLinkID,
       kThumbnailContainerID, kThumbnailStarID, kThumbnailSuperStarID };
 
   // Uncomment the following line if you want to test manually the UI of this
@@ -585,16 +585,16 @@ TEST_F(FocusManagerTest, NormalTraversal) {
 
 TEST_F(FocusManagerTest, TraversalWithNonEnabledViews) {
   const int kMainContentsDisabledIDs[] = {
-      kBananaTextFieldID, kFruitCheckBoxID, kAsparagusButtonID,
+      kBananaTextfieldID, kFruitCheckBoxID, kAsparagusButtonID,
       kCauliflowerButtonID, kClosetLinkID, kVisitingLinkID, kBriceDeNiceLinkID,
       kTaxiLinkID, kAsterixLinkID, kHelpButtonID };
 
   const int kStyleContentsDisabledIDs[] = { kBoldCheckBoxID };
 
-  const int kSearchContentsDisabledIDs[] = { kSearchTextFieldID, kHelpLinkID };
+  const int kSearchContentsDisabledIDs[] = { kSearchTextfieldID, kHelpLinkID };
 
-  const int kTraversalIDs[] = { kTopCheckBoxID,  kAppleTextFieldID,
-      kOrangeTextFieldID, kKiwiTextFieldID, kFruitButtonID, kBroccoliButtonID,
+  const int kTraversalIDs[] = { kTopCheckBoxID,  kAppleTextfieldID,
+      kOrangeTextfieldID, kKiwiTextfieldID, kFruitButtonID, kBroccoliButtonID,
       kRosettaLinkID, kStupeurEtTremblementLinkID, kDinerGameLinkID,
       kRidiculeLinkID, kAmelieLinkID, kJoyeuxNoelLinkID, kCampingLinkID,
       kOKButtonID, kCancelButtonID, kStyleContainerID,

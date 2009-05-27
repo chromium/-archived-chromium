@@ -147,7 +147,7 @@ BookmarkManagerView::BookmarkManagerView(Profile* profile)
       table_view_(NULL),
       tree_view_(NULL),
       ALLOW_THIS_IN_INITIALIZER_LIST(search_factory_(this)) {
-  search_tf_ = new views::TextField();
+  search_tf_ = new views::Textfield();
   search_tf_->set_default_width_in_chars(30);
 
   table_view_ = new BookmarkTableView(profile_, NULL);
@@ -480,7 +480,7 @@ void BookmarkManagerView::Loaded(BookmarkModel* model) {
   LoadedImpl();
 }
 
-void BookmarkManagerView::ContentsChanged(views::TextField* sender,
+void BookmarkManagerView::ContentsChanged(views::Textfield* sender,
                                           const std::wstring& new_contents) {
   search_factory_.RevokeAll();
   MessageLoop::current()->PostDelayedTask(FROM_HERE,
@@ -489,9 +489,9 @@ void BookmarkManagerView::ContentsChanged(views::TextField* sender,
 }
 
 bool BookmarkManagerView::HandleKeystroke(
-    views::TextField* sender,
-    const views::TextField::Keystroke& key) {
-  if (views::TextField::IsKeystrokeEnter(key)) {
+    views::Textfield* sender,
+    const views::Textfield::Keystroke& key) {
+  if (views::Textfield::IsKeystrokeEnter(key)) {
     PerformSearch();
     search_tf_->SelectAll();
   }

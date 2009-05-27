@@ -15,7 +15,7 @@
 #include "grit/generated_resources.h"
 #include "grit/locale_settings.h"
 #include "views/controls/message_box_view.h"
-#include "views/controls/text_field.h"
+#include "views/controls/textfield/textfield.h"
 #include "views/view.h"
 #include "views/window/window.h"
 
@@ -56,7 +56,7 @@ NewProfileDialog::~NewProfileDialog() {
 }
 
 views::View* NewProfileDialog::GetInitiallyFocusedView() {
-  views::TextField* text_box = message_box_view_->text_box();
+  views::Textfield* text_box = message_box_view_->text_box();
   DCHECK(text_box);
   return text_box;
 }
@@ -85,7 +85,7 @@ void NewProfileDialog::DeleteDelegate() {
   delete this;
 }
 
-void NewProfileDialog::ContentsChanged(views::TextField* sender,
+void NewProfileDialog::ContentsChanged(views::Textfield* sender,
                                        const std::wstring& new_contents) {
   GetDialogClientView()->UpdateDialogButtons();
 }

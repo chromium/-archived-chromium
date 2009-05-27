@@ -200,13 +200,13 @@ void BugReportView::SetupControl() {
   page_url_label_ = new views::Label(
       l10n_util::GetString(IDS_BUGREPORT_REPORT_URL_LABEL));
   // page_url_text_'s text (if any) is filled in after dialog creation
-  page_url_text_ = new views::TextField;
+  page_url_text_ = new views::Textfield;
   page_url_text_->SetController(this);
 
   description_label_ = new views::Label(
       l10n_util::GetString(IDS_BUGREPORT_DESCRIPTION_LABEL));
   description_text_ =
-      new views::TextField(views::TextField::STYLE_MULTILINE);
+      new views::Textfield(views::Textfield::STYLE_MULTILINE);
   description_text_->SetHeightInLines(kDescriptionLines);
 
   include_page_source_checkbox_ = new views::Checkbox(
@@ -298,12 +298,12 @@ void BugReportView::ItemChanged(views::ComboBox* combo_box,
   GetDialogClientView()->UpdateDialogButtons();
 }
 
-void BugReportView::ContentsChanged(views::TextField* sender,
+void BugReportView::ContentsChanged(views::Textfield* sender,
                                     const std::wstring& new_contents) {
 }
 
-bool BugReportView::HandleKeystroke(views::TextField* sender,
-                                    const views::TextField::Keystroke& key) {
+bool BugReportView::HandleKeystroke(views::Textfield* sender,
+                                    const views::Textfield::Keystroke& key) {
   return false;
 }
 

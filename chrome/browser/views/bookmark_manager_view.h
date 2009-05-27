@@ -12,7 +12,7 @@
 #include "chrome/browser/shell_dialogs.h"
 #include "views/controls/menu/view_menu_delegate.h"
 #include "views/controls/table/table_view.h"
-#include "views/controls/text_field.h"
+#include "views/controls/textfield/textfield.h"
 #include "views/controls/tree/tree_view.h"
 #include "views/view.h"
 #include "views/window/window_delegate.h"
@@ -38,7 +38,7 @@ class BookmarkManagerView : public views::View,
                             public views::WindowDelegate,
                             public views::TreeViewController,
                             public views::TableViewObserver,
-                            public views::TextField::Controller,
+                            public views::Textfield::Controller,
                             public BookmarkModelObserver,
                             public views::ContextMenuController,
                             public views::ViewMenuDelegate,
@@ -136,13 +136,13 @@ class BookmarkManagerView : public views::View,
   virtual void BookmarkNodeFavIconLoaded(BookmarkModel* model,
                                          BookmarkNode* node) {}
 
-  // TextField::Controller methods.
+  // Textfield::Controller methods.
   // Starts a timer to search for the search text.
-  virtual void ContentsChanged(views::TextField* sender,
+  virtual void ContentsChanged(views::Textfield* sender,
                                const std::wstring& new_contents);
   // If return has been pressed this performs an immediate search.
-  virtual bool HandleKeystroke(views::TextField* sender,
-                               const views::TextField::Keystroke& key);
+  virtual bool HandleKeystroke(views::Textfield* sender,
+                               const views::Textfield::Keystroke& key);
 
   // ContextMenuController.
   virtual void ShowContextMenu(views::View* source,
@@ -210,7 +210,7 @@ class BookmarkManagerView : public views::View,
   BookmarkFolderTreeView* tree_view_;
   scoped_ptr<BookmarkTableModel> table_model_;
   scoped_ptr<BookmarkFolderTreeModel> tree_model_;
-  views::TextField* search_tf_;
+  views::Textfield* search_tf_;
   views::SingleSplitView* split_view_;
 
   // Import/export file dialog.

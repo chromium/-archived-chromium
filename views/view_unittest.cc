@@ -13,7 +13,7 @@
 #include "views/controls/button/native_button_win.h"
 #endif
 #include "views/controls/scroll_view.h"
-#include "views/controls/text_field.h"
+#include "views/controls/textfield/textfield.h"
 #include "views/event.h"
 #include "views/focus/view_storage.h"
 #include "views/view.h"
@@ -593,8 +593,8 @@ TEST_F(ViewTest, HitTestMasks) {
 }
 
 #if defined(OS_WIN)
-// Tests that the TextField view respond appropiately to cut/copy/paste.
-TEST_F(ViewTest, TextFieldCutCopyPaste) {
+// Tests that the Textfield view respond appropiately to cut/copy/paste.
+TEST_F(ViewTest, TextfieldCutCopyPaste) {
   const std::wstring kNormalText = L"Normal";
   const std::wstring kReadOnlyText = L"Read only";
   const std::wstring kPasswordText = L"Password! ** Secret stuff **";
@@ -605,10 +605,10 @@ TEST_F(ViewTest, TextFieldCutCopyPaste) {
   window->Init(NULL, gfx::Rect(0, 0, 100, 100), true);
   RootView* root_view = window->GetRootView();
 
-  TextField* normal = new TextField();
-  TextField* read_only = new TextField();
+  Textfield* normal = new Textfield();
+  Textfield* read_only = new Textfield();
   read_only->SetReadOnly(true);
-  TextField* password = new TextField(TextField::STYLE_PASSWORD);
+  Textfield* password = new Textfield(Textfield::STYLE_PASSWORD);
 
   root_view->AddChildView(normal);
   root_view->AddChildView(read_only);
@@ -675,8 +675,8 @@ TEST_F(ViewTest, TextFieldCutCopyPaste) {
   //
   // Test Paste.
   //
-  // Note that we use GetWindowText instead of TextField::GetText below as the
-  // text in the TextField class is synced to the text of the HWND on
+  // Note that we use GetWindowText instead of Textfield::GetText below as the
+  // text in the Textfield class is synced to the text of the HWND on
   // WM_KEYDOWN messages that we are not simulating here.
 
   // Attempting to copy kNormalText in a read-only text-field should fail.
@@ -745,7 +745,7 @@ class TestViewWithControls : public View {
   TestViewWithControls() {
     button_ = new ButtonTest(NULL, L"Button");
     checkbox_ = new CheckboxTest(L"My checkbox");
-    text_field_ = new TextField();
+    text_field_ = new Textfield();
     AddChildView(button_);
     AddChildView(checkbox_);
     AddChildView(text_field_);
@@ -753,7 +753,7 @@ class TestViewWithControls : public View {
 
   ButtonTest* button_;
   CheckboxTest* checkbox_;
-  TextField* text_field_;
+  Textfield* text_field_;
 };
 
 class SimpleWindowDelegate : public WindowDelegate {

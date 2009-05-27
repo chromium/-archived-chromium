@@ -13,7 +13,7 @@
 #include "views/window/dialog_delegate.h"
 
 namespace views {
-class TextField;
+class Textfield;
 class Throbber;
 class Window;
 }
@@ -126,7 +126,7 @@ class AboutChromeView : public views::View,
   // UI elements on the dialog.
   views::ImageView* about_dlg_background_logo_;
   views::Label* about_title_label_;
-  views::TextField* version_label_;
+  views::Textfield* version_label_;
   views::Label* copyright_label_;
   views::Label* main_text_label_;
   int main_text_label_height_;

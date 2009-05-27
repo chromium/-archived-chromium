@@ -20,7 +20,7 @@ class BookmarkNode;
 
 namespace views {
 class NativeButton;
-class TextField;
+class Textfield;
 }
 
 // BookmarkBubbleView is a view intended to be used as the content of an
@@ -155,8 +155,8 @@ class BookmarkBubbleView : public views::View,
   // Button to close the window.
   views::NativeButton* close_button_;
 
-  // TextField showing the title of the bookmark.
-  views::TextField* title_tf_;
+  // Textfield showing the title of the bookmark.
+  views::Textfield* title_tf_;
 
   // ComboBox showing a handful of folders the user can choose from, including
   // the current parent.

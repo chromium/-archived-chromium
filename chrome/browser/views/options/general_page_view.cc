@@ -36,7 +36,7 @@
 #include "views/controls/button/radio_button.h"
 #include "views/controls/label.h"
 #include "views/controls/table/table_view.h"
-#include "views/controls/text_field.h"
+#include "views/controls/textfield/textfield.h"
 #include "views/grid_layout.h"
 #include "views/standard_layout.h"
 
@@ -606,9 +606,9 @@ void GeneralPageView::ItemChanged(views::ComboBox* combo_box,
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-// GeneralPageView, views::TextField::Controller implementation:
+// GeneralPageView, views::Textfield::Controller implementation:
 
-void GeneralPageView::ContentsChanged(views::TextField* sender,
+void GeneralPageView::ContentsChanged(views::Textfield* sender,
                                       const std::wstring& new_contents) {
   if (sender == homepage_use_url_textfield_) {
     // If the text field contains a valid URL, sync it to prefs. We run it
@@ -621,8 +621,8 @@ void GeneralPageView::ContentsChanged(views::TextField* sender,
   }
 }
 
-bool GeneralPageView::HandleKeystroke(views::TextField* sender,
-                                      const views::TextField::Keystroke&) {
+bool GeneralPageView::HandleKeystroke(views::Textfield* sender,
+                                      const views::Textfield::Keystroke&) {
   return false;
 }
 
@@ -874,7 +874,7 @@ void GeneralPageView::InitHomepageGroup() {
       l10n_util::GetString(IDS_OPTIONS_HOMEPAGE_USE_URL),
       kHomePageRadioGroup);
   homepage_use_url_radio_->set_listener(this);
-  homepage_use_url_textfield_ = new views::TextField;
+  homepage_use_url_textfield_ = new views::Textfield;
   homepage_use_url_textfield_->SetController(this);
   homepage_show_home_button_checkbox_ = new views::Checkbox(
       l10n_util::GetString(IDS_OPTIONS_HOMEPAGE_SHOW_BUTTON));

@@ -21,7 +21,7 @@
 #include "net/base/net_util.h"
 #include "views/background.h"
 #include "views/controls/label.h"
-#include "views/controls/text_field.h"
+#include "views/controls/textfield/textfield.h"
 #include "views/focus/focus_manager.h"
 #include "views/grid_layout.h"
 #include "views/standard_layout.h"
@@ -304,7 +304,7 @@ ShelfItemDialog::ShelfItemDialog(ShelfItemDialogDelegate* delegate,
     title_label->SetText(l10n_util::GetString(IDS_ASI_TITLE_LABEL));
     layout->AddView(title_label);
 
-    title_field_ = new views::TextField();
+    title_field_ = new views::Textfield();
     title_field_->SetController(this);
     layout->AddView(title_field_);
 
@@ -319,7 +319,7 @@ ShelfItemDialog::ShelfItemDialog(ShelfItemDialogDelegate* delegate,
   url_label->SetText(l10n_util::GetString(IDS_ASI_URL));
   layout->AddView(url_label);
 
-  url_field_ = new views::TextField();
+  url_field_ = new views::Textfield();
   url_field_->SetController(this);
   layout->AddView(url_field_);
 
@@ -397,7 +397,7 @@ void ShelfItemDialog::OnURLInfoAvailable(
     s = l10n_util::GetString(IDS_ASI_DEFAULT_TITLE);
 
   if (title_field_) {
-    // expected_title_handle_ is reset if the title textfield is edited so we
+    // expected_title_handle_ is reset if the title Textfield is edited so we
     // can safely set the value.
     title_field_->SetText(s);
     title_field_->SelectAll();
@@ -417,7 +417,7 @@ void ShelfItemDialog::InitiateTitleAutoFill(const GURL& url) {
       NewCallback(this, &ShelfItemDialog::OnURLInfoAvailable));
 }
 
-void ShelfItemDialog::ContentsChanged(views::TextField* sender,
+void ShelfItemDialog::ContentsChanged(views::Textfield* sender,
                                       const std::wstring& new_contents) {
   // If the user has edited the title field we no longer want to autofill it
   // so we reset the expected handle to an impossible value.
