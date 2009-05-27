@@ -77,11 +77,14 @@ class BrowserToolbarGtk : public CommandUpdater::CommandObserver,
 
  private:
   // Builds a toolbar button with all the properties set.
+  // |spacing| is the width of padding (in pixels) on the left and right of the
+  // button.
   CustomDrawButton* BuildToolbarButton(int normal_id,
                                        int active_id,
                                        int highlight_id,
                                        int depressed_id,
-                                       const std::string& localized_tooltip);
+                                       const std::string& localized_tooltip,
+                                       int spacing);
 
   ToolbarStarToggleGtk* BuildStarButton(const std::string& localized_tooltip);
 
