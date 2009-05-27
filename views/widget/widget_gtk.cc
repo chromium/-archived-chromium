@@ -13,8 +13,7 @@ namespace views {
 
 // Returns the position of a widget on screen.
 static void GetWidgetPositionOnScreen(GtkWidget* widget, int* x, int *y) {
-  GtkWidget* parent = widget;
-  while (parent) {
+  while (widget) {
     if (GTK_IS_WINDOW(widget)) {
       int window_x, window_y;
       gtk_window_get_position(GTK_WINDOW(widget), &window_x, &window_y);
@@ -25,7 +24,7 @@ static void GetWidgetPositionOnScreen(GtkWidget* widget, int* x, int *y) {
     // Not a window.
     *x += widget->allocation.x;
     *y += widget->allocation.y;
-    parent = gtk_widget_get_parent(parent);
+    widget = gtk_widget_get_parent(widget);
   }
 }
 

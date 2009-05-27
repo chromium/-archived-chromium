@@ -8,7 +8,6 @@
 #include "app/gfx/canvas.h"
 #include "app/l10n_util.h"
 #include "app/resource_bundle.h"
-#include "app/win_util.h"
 #include "grit/app_strings.h"
 #include "grit/app_resources.h"
 #include "views/controls/button/button.h"
@@ -16,6 +15,10 @@
 #include "views/event.h"
 #include "views/widget/root_view.h"
 #include "views/widget/widget.h"
+
+#if defined(OS_WIN)
+#include "app/win_util.h"
+#endif
 
 using base::Time;
 using base::TimeDelta;
@@ -109,6 +112,7 @@ int MenuButton::GetMaximumScreenXCoordinate() {
     return 0;
   }
 
+#if defined(OS_WIN)
   HWND hwnd = widget->GetNativeView();
   RECT t;
   ::GetWindowRect(hwnd, &t);
@@ -116,6 +120,10 @@ int MenuButton::GetMaximumScreenXCoordinate() {
   gfx::Rect r(t);
   gfx::Rect monitor_rect = win_util::GetMonitorBoundsForRect(r);
   return monitor_rect.x() + monitor_rect.width() - 1;
+#else
+  NOTIMPLEMENTED();
+  return 1000000;
+#endif
 }
 
 bool MenuButton::Activate() {
@@ -205,9 +213,13 @@ void MenuButton::OnMouseReleased(const MouseEvent& e,
 
 // When the space bar or the enter key is pressed we need to show the menu.
 bool MenuButton::OnKeyReleased(const KeyEvent& e) {
+#if defined(OS_WIN)
   if ((e.GetCharacter() == VK_SPACE) || (e.GetCharacter() == VK_RETURN)) {
     return Activate();
   }
+#else
+  NOTIMPLEMENTED();
+#endif
   return true;
 }
 
