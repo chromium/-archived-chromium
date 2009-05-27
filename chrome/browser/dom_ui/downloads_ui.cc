@@ -118,7 +118,8 @@ void DownloadsUIHTMLSource::StartDataRequest(const std::string& path,
 ///////////////////////////////////////////////////////////////////////////////
 
 DownloadsUI::DownloadsUI(TabContents* contents) : DOMUI(contents) {
-  DownloadManager* dlm = GetProfile()->GetDownloadManager();
+  DownloadManager* dlm = GetProfile()->GetOriginalProfile()->
+      GetDownloadManager();
 
   DownloadsDOMHandler* handler = new DownloadsDOMHandler(this, dlm);
   AddMessageHandler(handler);
