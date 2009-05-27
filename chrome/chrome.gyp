@@ -1710,6 +1710,8 @@
                 ['include', '^browser/views/tabs/tab_renderer.h'],
                 ['include', '^browser/views/tabs/tab_strip.cc'],
                 ['include', '^browser/views/tabs/tab_strip.h'],
+                ['include', '^browser/views/toolbar_view.cc'],
+                ['include', '^browser/views/toolbar_view.h'],
                 ['include', '^browser/window_sizer.cc'],
                 ['include', '^browser/window_sizer.h'],
 

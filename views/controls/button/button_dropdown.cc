@@ -116,7 +116,7 @@ void ButtonDropDown::ShowContextMenu(int x, int y, bool is_mouse_gesture) {
   SetState(BS_HOT);
 }
 
-void ButtonDropDown::ShowDropDownMenu(HWND window) {
+void ButtonDropDown::ShowDropDownMenu(gfx::NativeView window) {
   if (menu_delegate_) {
     gfx::Rect lb = GetLocalBounds(true);
 

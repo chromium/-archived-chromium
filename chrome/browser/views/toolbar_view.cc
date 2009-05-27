@@ -26,11 +26,9 @@
 #include "chrome/browser/browser_theme_provider.h"
 #include "chrome/browser/user_data_manager.h"
 #include "chrome/browser/views/bookmark_menu_button.h"
-#include "chrome/browser/views/dom_view.h"
 #include "chrome/browser/views/event_utils.h"
 #include "chrome/browser/views/go_button.h"
 #include "chrome/browser/views/location_bar_view.h"
-#include "chrome/browser/views/theme_helpers.h"
 #include "chrome/browser/views/toolbar_star_toggle.h"
 #include "chrome/browser/view_ids.h"
 #include "chrome/common/chrome_constants.h"
@@ -47,10 +45,11 @@
 #include "net/base/net_util.h"
 #include "views/background.h"
 #include "views/controls/button/button_dropdown.h"
-#include "views/controls/hwnd_view.h"
 #include "views/controls/label.h"
+#if defined(OS_WIN)
 #include "views/drag_utils.h"
 #include "views/widget/tooltip_manager.h"
+#endif
 #include "views/window/non_client_view.h"
 #include "views/window/window.h"
 
@@ -82,6 +81,7 @@ static SkBitmap* kPopupBackgroundEdge = NULL;
 BrowserToolbarView::BrowserToolbarView(Browser* browser)
     : EncodingMenuControllerDelegate(browser),
       model_(browser->toolbar_model()),
+      acc_focused_view_(NULL),
       back_(NULL),
       forward_(NULL),
       reload_(NULL),
@@ -89,12 +89,14 @@ BrowserToolbarView::BrowserToolbarView(Browser* browser)
       star_(NULL),
       location_bar_(NULL),
       go_(NULL),
+      page_menu_(NULL),
+      app_menu_(NULL),
+      bookmark_menu_(NULL),
       profile_(NULL),
-      acc_focused_view_(NULL),
       browser_(browser),
       tab_(NULL),
-      profiles_helper_(new GetProfilesHelper(this)),
-      profiles_menu_(NULL) {
+      profiles_menu_(NULL),      
+      profiles_helper_(new GetProfilesHelper(this)) {
   browser_->command_updater()->AddCommandObserver(IDC_BACK, this);
   browser_->command_updater()->AddCommandObserver(IDC_FORWARD, this);
   browser_->command_updater()->AddCommandObserver(IDC_RELOAD, this);
@@ -207,8 +209,6 @@ void BrowserToolbarView::CreateCenterStack(Profile *profile) {
 }
 
 void BrowserToolbarView::CreateRightSideControls(Profile* profile) {
-  ThemeProvider* tp = GetThemeProvider();
-
   page_menu_ = new views::MenuButton(NULL, std::wstring(), this, false);
   page_menu_->SetAccessibleName(l10n_util::GetString(IDS_ACCNAME_PAGE));
   page_menu_->SetTooltipText(l10n_util::GetString(IDS_PAGEMENU_TOOLTIP));
@@ -426,6 +426,7 @@ void BrowserToolbarView::Paint(gfx::Canvas* canvas) {
 }
 
 void BrowserToolbarView::DidGainFocus() {
+#if defined(OS_WIN)
   // Check to see if MSAA focus should be restored to previously focused button,
   // and if button is an enabled, visibled child of toolbar.
   if (!acc_focused_view_ ||
@@ -462,9 +463,14 @@ void BrowserToolbarView::DidGainFocus() {
   // Notify Access Technology that there was a change in keyboard focus.
   ::NotifyWinEvent(EVENT_OBJECT_FOCUS, wnd, OBJID_CLIENT,
                    static_cast<LONG>(view_index));
+#else
+  // TODO(port): deal with toolbar a11y focus.
+  NOTIMPLEMENTED();
+#endif
 }
 
 void BrowserToolbarView::WillLoseFocus() {
+#if defined(OS_WIN)
   if (acc_focused_view_) {
     // Resetting focus state.
     acc_focused_view_->SetHotTracked(false);
@@ -472,9 +478,14 @@ void BrowserToolbarView::WillLoseFocus() {
   // Any tooltips that are active should be hidden when toolbar loses focus.
   if (GetWidget() && GetWidget()->GetTooltipManager())
     GetWidget()->GetTooltipManager()->HideKeyboardTooltip();
+#else
+  // TODO(port): deal with toolbar a11y focus.
+  NOTIMPLEMENTED();
+#endif
 }
 
 bool BrowserToolbarView::OnKeyPressed(const views::KeyEvent& e) {
+#if defined(OS_WIN)
   // Paranoia check, button should be initialized upon toolbar gaining focus.
   if (!acc_focused_view_)
     return false;
@@ -542,6 +553,10 @@ bool BrowserToolbarView::OnKeyPressed(const views::KeyEvent& e) {
                      static_cast<LONG>(view_id));
     return true;
   }
+#else
+  // TODO(port): deal with toolbar a11y focus.
+  NOTIMPLEMENTED();
+#endif
   return false;
 }
 
@@ -619,11 +634,11 @@ void BrowserToolbarView::RunPageMenu(const gfx::Point& pt,
 
   EncodingMenuControllerDelegate::BuildEncodingMenu(profile_, encoding_menu);
 
-  struct MenuCreateMaterial {
+#if defined(OS_WIN)
+  const struct MenuCreateMaterial {
     unsigned int menu_id;
     unsigned int menu_label_id;
-  };
-  struct MenuCreateMaterial developer_menu_materials[] = {
+  } developer_menu_materials[] = {
     { IDC_VIEW_SOURCE, IDS_VIEW_SOURCE },
     { IDC_DEBUGGER, IDS_DEBUGGER },
     { IDC_JS_CONSOLE, IDS_JS_CONSOLE },
@@ -649,6 +664,7 @@ void BrowserToolbarView::RunPageMenu(const gfx::Point& pt,
       developer_menu->AppendSeparator();
     }
   }
+#endif
 
   menu->AppendSeparator();
 
@@ -851,7 +867,8 @@ void BrowserToolbarView::WriteDragData(views::View* sender,
       GetDragOperations(sender, press_x, press_y) != DragDropTypes::DRAG_NONE);
 
   UserMetrics::RecordAction(L"Toolbar_DragStar", profile_);
-
+  
+#if defined(OS_WIN)
   // If there is a bookmark for the URL, add the bookmark drag data for it. We
   // do this to ensure the bookmark is moved, rather than creating an new
   // bookmark.
@@ -868,6 +885,10 @@ void BrowserToolbarView::WriteDragData(views::View* sender,
                                  UTF16ToWideHack(tab_->GetTitle()),
                                  tab_->GetFavIcon(),
                                  data);
+#else
+  // TODO(port): do bookmark item drag & drop
+  NOTIMPLEMENTED();
+#endif
 }
 
 TabContents* BrowserToolbarView::GetTabContents() {

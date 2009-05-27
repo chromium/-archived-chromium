@@ -43,7 +43,7 @@ class ButtonDropDown : public ImageButton {
                                bool is_mouse_gesture);
 
   // Internal function to show the dropdown menu
-  void ShowDropDownMenu(HWND window);
+  void ShowDropDownMenu(gfx::NativeView window);
 
   // Specifies who to delegate populating the menu
   Menu::Delegate* menu_delegate_;
