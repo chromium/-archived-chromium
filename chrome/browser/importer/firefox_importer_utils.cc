@@ -83,8 +83,8 @@ class SetDllDirectoryCaller {
 
 }  // namespace
 
-int GetCurrentFirefoxMajorVersion() {
 #if defined(OS_WIN)
+int GetCurrentFirefoxMajorVersionFromRegistry() {
   TCHAR ver_buffer[128];
   DWORD ver_buffer_length = sizeof(ver_buffer);
   int highest_version = 0;
@@ -100,12 +100,27 @@ int GetCurrentFirefoxMajorVersion() {
     highest_version = std::max(highest_version, _wtoi(ver_buffer));
   }
   return highest_version;
-#else
-  // TODO(port): Read in firefox configuration.
-  NOTIMPLEMENTED();
-  return 0;
-#endif
 }
+
+std::wstring GetFirefoxInstallPathFromRegistry() {
+  // Detects the path that Firefox is installed in.
+  std::wstring registry_path = L"Software\\Mozilla\\Mozilla Firefox";
+  TCHAR buffer[MAX_PATH];
+  DWORD buffer_length = sizeof(buffer);
+  bool result;
+  result = ReadFromRegistry(HKEY_LOCAL_MACHINE, registry_path.c_str(),
+                            L"CurrentVersion", buffer, &buffer_length);
+  if (!result)
+    return std::wstring();
+  registry_path += L"\\" + std::wstring(buffer) + L"\\Main";
+  buffer_length = sizeof(buffer);
+  result = ReadFromRegistry(HKEY_LOCAL_MACHINE, registry_path.c_str(),
+                            L"Install Directory", buffer, &buffer_length);
+  if (!result)
+    return std::wstring();
+  return buffer;
+}
+#endif
 
 #if defined(OS_WIN) || defined(OS_LINUX)
 bool GetFirefoxVersionAndPathFromProfile(const std::wstring& profile_path,
@@ -208,31 +223,6 @@ void ParseProfileINI(std::wstring file, DictionaryValue* root) {
   }
 }
 #endif
-
-std::wstring GetFirefoxInstallPath() {
-#if defined(OS_WIN)
-  // Detects the path that Firefox is installed in.
-  std::wstring registry_path = L"Software\\Mozilla\\Mozilla Firefox";
-  TCHAR buffer[MAX_PATH];
-  DWORD buffer_length = sizeof(buffer);
-  bool result;
-  result = ReadFromRegistry(HKEY_LOCAL_MACHINE, registry_path.c_str(),
-                            L"CurrentVersion", buffer, &buffer_length);
-  if (!result)
-    return std::wstring();
-  registry_path += L"\\" + std::wstring(buffer) + L"\\Main";
-  buffer_length = sizeof(buffer);
-  result = ReadFromRegistry(HKEY_LOCAL_MACHINE, registry_path.c_str(),
-                            L"Install Directory", buffer, &buffer_length);
-  if (!result)
-    return std::wstring();
-  return buffer;
-#else
-  // TODO(port): Load firefox configuration.
-  NOTIMPLEMENTED();
-  return std::wstring();
-#endif
-}
 
 bool CanImportURL(const GURL& url) {
   const char* kInvalidSchemes[] = {"wyciwyg", "place", "about", "chrome"};

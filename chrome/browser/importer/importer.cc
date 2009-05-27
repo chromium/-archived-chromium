@@ -43,6 +43,8 @@
 #if defined(OS_WIN)
 #include "chrome/browser/views/importer_lock_view.h"
 #include "views/window/window.h"
+#elif defined(OS_LINUX)
+#include "chrome/browser/gtk/import_lock_dialog_gtk.h"
 #endif
 
 // ProfileWriter.
@@ -441,6 +443,8 @@ void ImporterHost::ShowWarningDialog() {
 #if defined(OS_WIN)
     views::Window::CreateChromeWindow(GetActiveWindow(), gfx::Rect(),
                                       new ImporterLockView(this))->Show();
+#elif defined(OS_LINUX)
+    ImportLockDialogGtk::Show(NULL, this);
 #else
     // TODO(port): Need CreateChromeWindow.
     NOTIMPLEMENTED();
@@ -711,9 +715,13 @@ void ImporterHost::DetectFirefoxProfiles() {
   // Detects which version of Firefox is installed.
   ProfileType firefox_type;
   std::wstring app_path;
-  int version = GetCurrentFirefoxMajorVersion();
+  int version = 0;
+#if defined(OS_WIN)
+  version = GetCurrentFirefoxMajorVersionFromRegistry();
+#endif
   if (version != 2 && version != 3)
     GetFirefoxVersionAndPathFromProfile(source_path, &version, &app_path);
+
   if (version == 2) {
     firefox_type = FIREFOX2;
   } else if (version == 3) {
@@ -728,7 +736,9 @@ void ImporterHost::DetectFirefoxProfiles() {
     firefox->description = l10n_util::GetString(IDS_IMPORT_FROM_FIREFOX);
     firefox->browser_type = firefox_type;
     firefox->source_path = source_path;
-    firefox->app_path = GetFirefoxInstallPath();
+#if defined(OS_WIN)
+    firefox->app_path = GetFirefoxInstallPathFromRegistry();
+#endif
     if (firefox->app_path.empty())
       firefox->app_path = app_path;
     firefox->services_supported = HISTORY | FAVORITES | COOKIES | PASSWORDS |

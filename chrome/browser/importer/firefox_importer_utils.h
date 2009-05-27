@@ -14,11 +14,17 @@
 class GURL;
 class TemplateURL;
 
+#if defined(OS_WIN)
 // Detects which version of Firefox is installed from registry. Returns its
 // major version, and drops the minor version. Returns 0 if
 // failed. If there are indicators of both FF2 and FF3 it is
 // biased to return the biggest version.
-int GetCurrentFirefoxMajorVersion();
+int GetCurrentFirefoxMajorVersionFromRegistry();
+
+// Detects where Firefox lives.  Returns a empty string if Firefox
+// is not installed.
+std::wstring GetFirefoxInstallPathFromRegistry();
+#endif
 
 #if defined(OS_WIN) || defined(OS_LINUX)
 // Detects version of Firefox and installation path from given Firefox profile
@@ -45,10 +51,6 @@ FilePath GetProfilesINI();
 // "Genenral.StartWithLastProfile" has the value "1".
 void ParseProfileINI(std::wstring file, DictionaryValue* root);
 #endif
-
-// Detects where Firefox lives.  Returns a empty string if Firefox
-// is not installed.
-std::wstring GetFirefoxInstallPath();
 
 // Returns true if we want to add the URL to the history. We filter
 // out the URL with a unsupported scheme.

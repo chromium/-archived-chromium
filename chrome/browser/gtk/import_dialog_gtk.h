@@ -7,13 +7,16 @@
 
 #include "chrome/browser/importer/importer.h"
 
-class Profile;
-typedef struct _GtkWindow GtkWindow;
+#include "chrome/browser/profile.h"
 
-class ImportDialogGtk {
+class ImportDialogGtk : public ImportObserver {
  public:
   // Displays the import box to import data from another browser into |profile|
   static void Show(GtkWindow* parent, Profile* profile);
+
+  // Overridden from ImportObserver:
+  virtual void ImportCanceled();
+  virtual void ImportComplete();
 
  private:
   ImportDialogGtk(GtkWindow* parent, Profile* profile);
@@ -25,6 +28,12 @@ class ImportDialogGtk {
     user_data->OnDialogResponse(widget, response);
   }
   void OnDialogResponse(GtkWidget* widget, int response);
+
+  // Parent window
+  GtkWindow* parent_;
+
+  // Import Dialog
+  GtkWidget* dialog_;
 
   // Combo box that displays list of profiles from which we can import.
   GtkWidget* combo_;

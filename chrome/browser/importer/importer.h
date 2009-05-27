@@ -416,7 +416,7 @@ class ImportObserver {
 };
 
 
-#if defined(OS_WIN)
+#if !defined(OS_MACOSX)
 // TODO(port): Make StartImportingWithUI portable.
 
 // Shows a UI for importing and begins importing the specified items from
@@ -424,7 +424,7 @@ class ImportObserver {
 // complete, can be NULL. parent is the window to parent the UI to, can be NULL
 // if there's nothing to parent to. first_run is true if it's invoked in the
 // first run UI.
-void StartImportingWithUI(HWND parent_window,
+void StartImportingWithUI(gfx::NativeWindow parent_window,
                           int16 items,
                           ImporterHost* coordinator,
                           const ProfileInfo& source_profile,

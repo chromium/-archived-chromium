@@ -6,7 +6,6 @@
 
 #include "app/l10n_util.h"
 #include "app/resource_bundle.h"
-#include "chrome/browser/profile.h"
 #include "grit/generated_resources.h"
 
 // static
@@ -14,10 +13,21 @@ void ImportDialogGtk::Show(GtkWindow* parent, Profile* profile) {
   new ImportDialogGtk(parent, profile);
 }
 
+////////////////////////////////////////////////////////////////////////////////
+// ImportObserver implementation:
+void ImportDialogGtk::ImportCanceled() {
+  ImportComplete();
+}
+
+void ImportDialogGtk::ImportComplete() {
+  gtk_widget_destroy(dialog_);
+  delete this;
+}
+
 ImportDialogGtk::ImportDialogGtk(GtkWindow* parent, Profile* profile) :
-    profile_(profile), importer_host_(new ImporterHost()) {
+    parent_(parent), profile_(profile), importer_host_(new ImporterHost()) {
   // Build the dialog.
-  GtkWidget* dialog = gtk_dialog_new_with_buttons(
+  dialog_ = gtk_dialog_new_with_buttons(
       l10n_util::GetStringUTF8(IDS_IMPORT_SETTINGS_TITLE).c_str(),
       parent,
       (GtkDialogFlags) (GTK_DIALOG_MODAL | GTK_DIALOG_NO_SEPARATOR),
@@ -29,9 +39,9 @@ ImportDialogGtk::ImportDialogGtk(GtkWindow* parent, Profile* profile) :
 
   // TODO(rahulk): find how to set size properly so that the dialog
   // box width is at least enough to display full title.
-  gtk_widget_set_size_request(dialog, 300, -1);
+  gtk_widget_set_size_request(dialog_, 300, -1);
 
-  GtkWidget* content_area = GTK_DIALOG(dialog)->vbox;
+  GtkWidget* content_area = GTK_DIALOG(dialog_)->vbox;
   gtk_box_set_spacing(GTK_BOX(content_area), 18);
 
   GtkWidget* combo_hbox = gtk_hbox_new(FALSE, 12);
@@ -75,13 +85,14 @@ ImportDialogGtk::ImportDialogGtk(GtkWindow* parent, Profile* profile) :
   gtk_box_pack_start(GTK_BOX(vbox), history_, FALSE, FALSE, 0);
   gtk_box_pack_start(GTK_BOX(content_area), vbox, FALSE, FALSE, 0);
 
-  g_signal_connect(dialog, "response",
+  g_signal_connect(dialog_, "response",
                    G_CALLBACK(HandleOnResponseDialog), this);
-  gtk_window_set_resizable(GTK_WINDOW(dialog), FALSE);
-  gtk_widget_show_all(dialog);
+  gtk_window_set_resizable(GTK_WINDOW(dialog_), FALSE);
+  gtk_widget_show_all(dialog_);
 }
 
 void ImportDialogGtk::OnDialogResponse(GtkWidget* widget, int response) {
+  gtk_widget_hide_all(dialog_);
   if (response == GTK_RESPONSE_ACCEPT) {
     uint16 items = NONE;
     if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(bookmarks_)))
@@ -95,14 +106,9 @@ void ImportDialogGtk::OnDialogResponse(GtkWidget* widget, int response) {
 
     const ProfileInfo& source_profile = importer_host_->GetSourceProfileInfoAt(
         gtk_combo_box_get_active(GTK_COMBO_BOX(combo_)));
-
-    // TODO(rahulk): We should not do the import on this thread. Instead
-    // we need to start this asynchronously and launch a UI that shows the
-    // progress of import.
-    importer_host_->StartImportSettings(source_profile, profile_, items,
-                                        new ProfileWriter(profile_), false);
+    StartImportingWithUI(parent_, items, importer_host_.get(),
+                         source_profile, profile_, this, false);
+  } else {
+    ImportCanceled();
   }
-
-  delete this;
-  gtk_widget_destroy(GTK_WIDGET(widget));
 }
