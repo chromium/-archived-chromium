@@ -69,7 +69,7 @@ static const unsigned int kTargetLatencyMicroseconds = 10000;
 // adjust accordingly.
 static const int64 kMinSleepMilliseconds = 10L;
 
-const char* AlsaPCMOutputStream::kDefaultDevice = "plug:default";
+const char* AlsaPCMOutputStream::kDefaultDevice = "default";
 
 AlsaPCMOutputStream::AlsaPCMOutputStream(const std::string& device_name,
                                          int min_buffer_ms,

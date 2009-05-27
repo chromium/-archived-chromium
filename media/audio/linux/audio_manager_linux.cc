@@ -22,7 +22,7 @@ AudioOutputStream* AudioManagerLinux::MakeAudioStream(Format format,
                                                       int channels,
                                                       int sample_rate,
                                                       char bits_per_sample) {
-  // TODO(ajwong): Do we want to be able to configure the device? plug:default
+  // TODO(ajwong): Do we want to be able to configure the device? default
   // should work correctly for all mono/stereo, but not surround, which needs
   // surround40, surround51, etc.
   //

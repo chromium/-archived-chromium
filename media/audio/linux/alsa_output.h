@@ -43,8 +43,9 @@ class AlsaPCMOutputStream :
     public AudioOutputStream,
     public base::RefCountedThreadSafe<AlsaPCMOutputStream> {
  public:
-  // Set to "plug:default" which should allow ALSA to do whatever is
-  // necessary to simulate an audio device capable of handling our PCMs.
+  // Set to "default" which should avoid locking the sound device and allow
+  // ALSA to multiplex sound from different processes that want to write PCM
+  // data.
   static const char* kDefaultDevice;
 
   // Create a PCM Output stream for the ALSA device identified by
