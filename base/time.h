@@ -228,6 +228,13 @@ class Time {
 #if defined(OS_WIN)
   static Time FromFileTime(FILETIME ft);
   FILETIME ToFileTime() const;
+
+  // Monitor system power state and disable high resolution timer when we're
+  // on battery. See time_win.cc for more details.
+  static void StartSystemMonitorObserver();
+
+  // Enable high resolution timer unconditionally. Only for test code.
+  static void EnableHiResClockForTests();
 #endif
 
   // Converts an exploded structure representing either the local time or UTC

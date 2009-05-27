@@ -265,6 +265,11 @@ int BrowserMain(const MainFunctionParams& parameters) {
 
   // Initialize the SystemMonitor
   base::SystemMonitor::Start();
+#if defined(OS_WIN)
+  // We want to monitor system power state to adjust our high resolution
+  // timer settings. But it's necessary only on Windows.
+  base::Time::StartSystemMonitorObserver();
+#endif  // defined(OS_WIN)
 
   // Initialize statistical testing infrastructure.
   FieldTrialList field_trial;

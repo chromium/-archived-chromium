@@ -18,6 +18,7 @@
 #include "base/logging.h"
 #include "base/multiprocess_test.h"
 #include "base/scoped_nsautorelease_pool.h"
+#include "base/time.h"
 #include "testing/gtest/include/gtest/gtest.h"
 #include "testing/multiprocess_func_list.h"
 
@@ -108,6 +109,11 @@ class TestSuite {
     logging::SetLogItems(true, true, true, true);
 
 #if defined(OS_WIN)
+    // For unit tests we turn on the high resolution timer and disable
+    // base::Time's use of SystemMonitor. Tests create and destroy the message
+    // loop, which causes a crash with SystemMonitor (http://crbug.com/12187).
+    base::Time::EnableHiResClockForTests();
+
     // In some cases, we do not want to see standard error dialogs.
     if (!IsDebuggerPresent() &&
         !CommandLine::ForCurrentProcess()->HasSwitch(L"show-error-dialogs")) {
@@ -116,9 +122,9 @@ class TestSuite {
       // When the code in this file moved around, bug 6436 resurfaced.
       // As a hack workaround, just #ifdef out this code for Purify builds.
       logging::SetLogAssertHandler(UnitTestAssertHandler);
-#endif
+#endif  // !defined(PURIFY)
     }
-#endif
+#endif  // defined(OS_WIN)
 
     icu_util::Initialize();
   }

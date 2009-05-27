@@ -88,6 +88,69 @@ void InitializeClock() {
   initial_time = CurrentWallclockMicroseconds();
 }
 
+class HighResolutionTimerManager : public base::SystemMonitor::PowerObserver {
+ public:
+  ~HighResolutionTimerManager() {
+    StopMonitoring();
+    UseHiResClock(false);
+  }
+
+  void Enable() {
+    StopMonitoring();
+    UseHiResClock(true);
+  }
+
+  void StartMonitoring() {
+    if (is_monitoring_)
+      return;
+    is_monitoring_ = true;
+    base::SystemMonitor* system = base::SystemMonitor::Get();
+    DCHECK(system);
+    system->AddObserver(this);
+    UseHiResClock(!system->BatteryPower());
+  }
+
+  void StopMonitoring() {
+    if (!is_monitoring_)
+      return;
+    is_monitoring_ = false;
+    base::SystemMonitor* monitor = base::SystemMonitor::Get();
+    if (monitor)
+      monitor->RemoveObserver(this);
+  }
+
+  // Interfaces for monitoring Power changes.
+  void OnPowerStateChange(base::SystemMonitor* system) {
+    UseHiResClock(!system->BatteryPower());
+  }
+
+  void OnSuspend(base::SystemMonitor* system) {}
+  void OnResume(base::SystemMonitor* system) {}
+
+ private:
+  HighResolutionTimerManager()
+      : is_monitoring_(false),
+        hi_res_clock_enabled_(false) {
+  }
+  friend struct DefaultSingletonTraits<HighResolutionTimerManager>;
+
+  // Enable or disable the faster multimedia timer.
+  void UseHiResClock(bool enabled) {
+    if (enabled == hi_res_clock_enabled_)
+      return;
+    if (enabled)
+      timeBeginPeriod(1);
+    else
+      timeEndPeriod(1);
+    hi_res_clock_enabled_ = enabled;
+  }
+
+  bool is_monitoring_;
+  bool hi_res_clock_enabled_;
+
+  DISALLOW_COPY_AND_ASSIGN(HighResolutionTimerManager);
+};
+
 }  // namespace
 
 // Time -----------------------------------------------------------------------
@@ -146,6 +209,16 @@ FILETIME Time::ToFileTime() const {
   FILETIME utc_ft;
   MicrosecondsToFileTime(us_, &utc_ft);
   return utc_ft;
+}
+
+// static
+void Time::StartSystemMonitorObserver() {
+  Singleton<HighResolutionTimerManager>()->StartMonitoring();
+}
+
+// static
+void Time::EnableHiResClockForTests() {
+  Singleton<HighResolutionTimerManager>()->Enable();
 }
 
 // static
@@ -227,22 +300,14 @@ DWORD (*tick_function)(void) = &timeGetTimeWrapper;
 // which will roll over the 32-bit value every ~49 days.  We try to track
 // rollover ourselves, which works if TimeTicks::Now() is called at least every
 // 49 days.
-class NowSingleton : public base::SystemMonitor::PowerObserver {
+class NowSingleton {
  public:
   NowSingleton()
     : rollover_(TimeDelta::FromMilliseconds(0)),
-      last_seen_(0),
-      hi_res_clock_enabled_(false) {
-    base::SystemMonitor* system = base::SystemMonitor::Get();
-    system->AddObserver(this);
-    UseHiResClock(!system->BatteryPower());
+      last_seen_(0) {
   }
 
   ~NowSingleton() {
-    UseHiResClock(false);
-    base::SystemMonitor* monitor = base::SystemMonitor::Get();
-    if (monitor)
-      monitor->RemoveObserver(this);
   }
 
   TimeDelta Now() {
@@ -256,30 +321,10 @@ class NowSingleton : public base::SystemMonitor::PowerObserver {
     return TimeDelta::FromMilliseconds(now) + rollover_;
   }
 
-  // Interfaces for monitoring Power changes.
-  void OnPowerStateChange(base::SystemMonitor* system) {
-    UseHiResClock(!system->BatteryPower());
-  }
-
-  void OnSuspend(base::SystemMonitor* system) {}
-  void OnResume(base::SystemMonitor* system) {}
-
  private:
-  // Enable or disable the faster multimedia timer.
-  void UseHiResClock(bool enabled) {
-    if (enabled == hi_res_clock_enabled_)
-      return;
-    if (enabled)
-      timeBeginPeriod(1);
-    else
-      timeEndPeriod(1);
-    hi_res_clock_enabled_ = enabled;
-  }
-
   Lock lock_;  // To protected last_seen_ and rollover_.
   TimeDelta rollover_;  // Accumulation of time lost due to rollover.
   DWORD last_seen_;  // The last timeGetTime value we saw, to detect rollover.
-  bool hi_res_clock_enabled_;
 
   DISALLOW_COPY_AND_ASSIGN(NowSingleton);
 };
