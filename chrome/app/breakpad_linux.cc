@@ -204,6 +204,9 @@ pid_t UploadCrashDump(const char* filename, const char* crash_url,
   if (crash_url_length) {
     unsigned i = 0, done = 0;
     static const unsigned kMaxCrashChunkSize = 64;
+    static const unsigned kMaxUrlLength = 8 * kMaxCrashChunkSize;
+    if (crash_url_length > kMaxUrlLength)
+      crash_url_length = kMaxUrlLength;
 
     while (crash_url_length) {
       char num[16];
