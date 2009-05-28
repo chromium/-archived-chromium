@@ -68,9 +68,11 @@ void RunJavascriptMessageBox(TabContents* tab_contents,
                              bool display_suppress_checkbox,
                              IPC::Message* reply_msg) {
   std::wstring title = GetWindowTitle(tab_contents, frame_url, dialog_flags);
-  AppModalDialogQueue::AddDialog(new AppModalDialog(tab_contents, title,
-      dialog_flags, MakeTextSafe(message_text), default_prompt_text,
-      display_suppress_checkbox, false, reply_msg));
+  Singleton<AppModalDialogQueue>()->AddDialog(
+      new AppModalDialog(tab_contents, title,
+                         dialog_flags, MakeTextSafe(message_text),
+                         default_prompt_text, display_suppress_checkbox,
+                         false, reply_msg));
 }
 
 void RunBeforeUnloadDialog(TabContents* tab_contents,
@@ -79,7 +81,7 @@ void RunBeforeUnloadDialog(TabContents* tab_contents,
   std::wstring full_message =
       message_text + L"\n\n" +
       l10n_util::GetString(IDS_BEFOREUNLOAD_MESSAGEBOX_FOOTER);
-  AppModalDialogQueue::AddDialog(new AppModalDialog(
+  Singleton<AppModalDialogQueue>()->AddDialog(new AppModalDialog(
       tab_contents, l10n_util::GetString(IDS_BEFOREUNLOAD_MESSAGEBOX_TITLE),
       MessageBoxFlags::kIsJavascriptConfirm, MakeTextSafe(message_text),
       std::wstring(), false, true, reply_msg));

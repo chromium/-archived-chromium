@@ -18,7 +18,8 @@ AppModalDialog::AppModalDialog(TabContents* tab_contents,
                                bool display_suppress_checkbox,
                                bool is_before_unload_dialog,
                                IPC::Message* reply_msg)
-    : tab_contents_(tab_contents),
+    : dialog_(NULL),
+      tab_contents_(tab_contents),
       title_(title),
       dialog_flags_(dialog_flags),
       message_text_(message_text),
@@ -62,7 +63,7 @@ void AppModalDialog::ShowModalDialog() {
   // If the TabContents that created this dialog navigated away before this
   // dialog became visible, simply show the next dialog if any.
   if (!tab_contents_) {
-    AppModalDialogQueue::ShowNextDialog();
+    Singleton<AppModalDialogQueue>()->ShowNextDialog();
     delete this;
     return;
   }
@@ -78,7 +79,7 @@ void AppModalDialog::OnCancel() {
   // that were still open in the ModalDialogQueue, which would send activation
   // back to this one. The framework should be improved to handle this, so this
   // is a temporary workaround.
-  AppModalDialogQueue::ShowNextDialog();
+  Singleton<AppModalDialogQueue>()->ShowNextDialog();
 
   if (tab_contents_) {
     tab_contents_->OnJavaScriptMessageBoxClosed(reply_msg_, false,
@@ -88,7 +89,7 @@ void AppModalDialog::OnCancel() {
 
 void AppModalDialog::OnAccept(const std::wstring& prompt_text,
                               bool suppress_js_messages) {
-  AppModalDialogQueue::ShowNextDialog();
+  Singleton<AppModalDialogQueue>()->ShowNextDialog();
 
   if (tab_contents_) {
     tab_contents_->OnJavaScriptMessageBoxClosed(reply_msg_, true,

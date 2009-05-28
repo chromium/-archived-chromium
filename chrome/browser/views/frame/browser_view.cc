@@ -471,13 +471,13 @@ bool BrowserView::GetAccelerator(int cmd_id, views::Accelerator* accelerator) {
 
 bool BrowserView::ActivateAppModalDialog() const {
   // If another browser is app modal, flash and activate the modal browser.
-  if (AppModalDialogQueue::HasActiveDialog()) {
+  if (Singleton<AppModalDialogQueue>()->HasActiveDialog()) {
     Browser* active_browser = BrowserList::GetLastActive();
     if (active_browser && (browser_ != active_browser)) {
       active_browser->window()->FlashFrame();
       active_browser->window()->Activate();
     }
-    AppModalDialogQueue::ActivateModalDialog();
+    Singleton<AppModalDialogQueue>()->ActivateModalDialog();
     return true;
   }
   return false;

@@ -1342,7 +1342,8 @@ void AutomationProvider::GetNormalBrowserWindowCount(int* window_count) {
 
 void AutomationProvider::GetShowingAppModalDialog(bool* showing_dialog,
                                                   int* dialog_button) {
-  AppModalDialog* dialog_delegate = AppModalDialogQueue::active_dialog();
+  AppModalDialog* dialog_delegate =
+      Singleton<AppModalDialogQueue>()->active_dialog();
   *showing_dialog = (dialog_delegate != NULL);
   if (*showing_dialog)
     *dialog_button = dialog_delegate->GetDialogButtons();
@@ -1353,7 +1354,8 @@ void AutomationProvider::GetShowingAppModalDialog(bool* showing_dialog,
 void AutomationProvider::ClickAppModalDialogButton(int button, bool* success) {
   *success = false;
 
-  AppModalDialog* dialog_delegate = AppModalDialogQueue::active_dialog();
+  AppModalDialog* dialog_delegate =
+      Singleton<AppModalDialogQueue>()->active_dialog();
   if (dialog_delegate &&
       (dialog_delegate->GetDialogButtons() & button) == button) {
     if ((button & MessageBoxFlags::DIALOGBUTTON_OK) ==
