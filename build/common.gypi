@@ -62,6 +62,11 @@
     'conditions': [
       ['branding=="Chrome"', {
         'defines': ['GOOGLE_CHROME_BUILD'],
+        'conditions': [
+          ['OS=="linux"', {
+            'cflags': [ '-gstabs' ],
+          }],
+        ],
       }, {  # else: branding!="Chrome"
         'defines': ['CHROMIUM_BUILD'],
       }],
