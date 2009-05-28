@@ -48,7 +48,8 @@ void NotificationRegistrar::Remove(NotificationObserver* observer,
   RecordVector::iterator found = std::find(
       registered_.begin(), registered_.end(), record);
   if (found == registered_.end()) {
-    NOTREACHED();
+    NOTREACHED() << "Trying to remove unregistered observer of type " <<
+        type.value << " from list of size " << registered_.size() << ".";
     return;
   }
   registered_.erase(found);
