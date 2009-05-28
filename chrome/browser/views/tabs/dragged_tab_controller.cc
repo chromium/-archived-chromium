@@ -653,7 +653,8 @@ TabStrip* DraggedTabController::GetTabStripForPoint(
   dock_windows_.erase(dragged_view);
   if (!local_window)
     return NULL;
-  BrowserView* browser = BrowserView::GetBrowserViewForNativeView(local_window);
+  BrowserView* browser =
+      BrowserView::GetBrowserViewForNativeWindow(local_window);
   if (!browser)
     return NULL;
 

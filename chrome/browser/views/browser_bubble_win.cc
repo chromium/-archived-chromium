@@ -7,9 +7,11 @@
 #include "app/l10n_util_win.h"
 #include "chrome/browser/views/frame/browser_view.h"
 #include "views/widget/widget_win.h"
+#include "views/window/window.h"
 
 void BrowserBubble::InitPopup() {
   gfx::NativeView native_view = frame_->GetNativeView();
+  gfx::NativeWindow native_window = frame_->GetWindow()->GetNativeWindow();
   views::WidgetWin* pop = new views::WidgetWin();
   pop->set_delete_on_destroy(false);
   pop->set_window_style(WS_POPUP);
@@ -23,16 +25,16 @@ void BrowserBubble::InitPopup() {
   Reposition();
 
   BrowserView* browser_view =
-      BrowserView::GetBrowserViewForNativeView(native_view);
+      BrowserView::GetBrowserViewForNativeWindow(native_window);
   DCHECK(browser_view);
   if (browser_view)
     browser_view->AttachBrowserBubble(this);
 }
 
 void BrowserBubble::DestroyPopup() {
-  gfx::NativeView native_view = frame_->GetNativeView();
+  gfx::NativeWindow native_window = frame_->GetWindow()->GetNativeWindow();
   BrowserView* browser_view =
-      BrowserView::GetBrowserViewForNativeView(native_view);
+      BrowserView::GetBrowserViewForNativeWindow(native_window);
   if (browser_view)
     browser_view->DetachBrowserBubble(this);
 }

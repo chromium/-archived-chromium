@@ -305,7 +305,8 @@ BrowserView::~BrowserView() {
 }
 
 // static
-BrowserView* BrowserView::GetBrowserViewForNativeView(gfx::NativeView window) {
+BrowserView* BrowserView::GetBrowserViewForNativeWindow(
+    gfx::NativeWindow window) {
 #if defined(OS_WIN)
   if (IsWindow(window)) {
     HANDLE data = GetProp(window, kBrowserViewKey);

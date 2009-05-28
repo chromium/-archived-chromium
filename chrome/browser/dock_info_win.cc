@@ -195,7 +195,7 @@ class DockToWindowFinder : public BaseWindowFinder {
 
  protected:
   virtual bool ShouldStopIterating(HWND hwnd) {
-    BrowserView* window = BrowserView::GetBrowserViewForNativeView(hwnd);
+    BrowserView* window = BrowserView::GetBrowserViewForNativeWindow(hwnd);
     CRect bounds;
     if (!window || !::IsWindowVisible(hwnd) ||
         !::GetWindowRect(hwnd, &bounds)) {

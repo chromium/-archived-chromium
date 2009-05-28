@@ -68,7 +68,7 @@ class BrowserView : public BrowserWindow,
   // Returns a pointer to the BrowserView* interface implementation (an
   // instance of this object, typically) for a given native window, or NULL if
   // there is no such association.
-  static BrowserView* GetBrowserViewForNativeView(gfx::NativeView window);
+  static BrowserView* GetBrowserViewForNativeWindow(gfx::NativeWindow window);
 
   // Returns the show flag that should be used to show the frame containing
   // this view.
