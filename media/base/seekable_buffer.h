@@ -43,36 +43,36 @@ namespace media {
 
 class SeekableBuffer {
  public:
-  // Construct an instance with forward capacity of |forward_capacity|
-  // and backward capacity of |backward_capacity|. The values are in bytes.
+  // Constructs an instance with |forward_capacity| and |backward_capacity|.
+  // The values are in bytes.
   SeekableBuffer(size_t backward_capacity, size_t forward_capacity);
 
   ~SeekableBuffer();
 
-  // Read a maximum of |size| bytes into |buffer| from the current read
-  // position. Return the number of bytes read.
-  // The current read position will advances by the amount of bytes read. If
-  // reading caused backward bytes to exceed backward_capacity(), an eviction
-  // of backward buffer will be done internally.
+  // Reads a maximum of |size| bytes into |buffer| from the current read
+  // position. Returns the number of bytes read.
+  // The current read position will advance by the amount of bytes read. If
+  // reading caused backward_bytes() to exceed backward_capacity(), an eviction
+  // of the backward buffer will be done internally.
   size_t Read(size_t size, uint8* buffer);
 
-  // Append |data| with |size| bytes to this buffer. If this buffer becomes full
-  // or is already full then return false, otherwise true.
-  // Append operations are always successful, a return value of false only means
-  // that there's more forward bytes than the capacity, data is still in this
-  // buffer, but user is advised not to write any more.
+  // Appends |data| with |size| bytes to this buffer. If this buffer becomes
+  // full or is already full then returns false, otherwise returns true.
+  // Append operations are always successful. A return value of false only means
+  // that forward_bytes() is greater than or equals to forward_capacity(). Data
+  // appended is still in this buffer but user is advised not to write any more.
   bool Append(size_t size, const uint8* data);
 
-  // Move the read position by an offset of |offset| bytes. If |offset| is
-  // positive, the current read position is moved forward. If negative, the
-  // current read position is moved backward. A zero |offset| value will keep
-  // the current read position stationary.
+  // Moves the read position by |offset| bytes. If |offset| is positive, the
+  // current read position is moved forward. If negative, the current read
+  // position is moved backward. A zero |offset| value will keep the current
+  // read position stationary.
   // If |offset| exceeds bytes buffered in either direction, reported by
   // forward_bytes() when seeking forward and backward_bytes() when seeking
   // backward, the seek operation will fail and return value will be false.
   // If the seek operation fails, the current read position will not be updated.
-  // If a forward seeking caused backward bytes to exceed backward_capacity(),
-  // this method call will cause an eviction of backward buffer.
+  // If a forward seeking caused backward_bytes() to exceed backward_capacity(),
+  // this method call will cause an eviction of the backward buffer.
   bool Seek(int32 offset);
 
   // Returns the number of bytes buffered beyond the current read position.
@@ -91,6 +91,18 @@ class SeekableBuffer {
   size_t backward_capacity() const { return backward_capacity_; }
 
  private:
+  // A structure that contains a block of data.
+  struct Buffer {
+    explicit Buffer(size_t len) : data(new uint8[len]), size(len) {}
+    // Pointer to data.
+    scoped_array<uint8> data;
+    // Size of this block.
+    size_t size;
+  };
+
+  // Definition of the buffer queue.
+  typedef std::list<Buffer*> BufferQueue;
+
   // A helper method to evict buffers in the backward direction until backward
   // bytes is within the backward capacity.
   void EvictBackwardBuffers();
@@ -102,20 +114,20 @@ class SeekableBuffer {
   // will advance but no data will be copied.
   size_t InternalRead(size_t size, uint8* data);
 
+  // A helper method that moves the current read position forward by |size|
+  // bytes.
+  // If the return value is true, the operation completed successfully.
+  // If the return value is false, |size| is greater than forward_bytes() and
+  // the seek operation failed. The current read position is not updated.
   bool SeekForward(size_t size);
 
+  // A helper method that moves the current read position backward by |size|
+  // bytes.
+  // If the return value is true, the operation completed successfully.
+  // If the return value is false, |size| is greater than backward_bytes() and
+  // the seek operation failed. The current read position is not updated.
   bool SeekBackward(size_t size);
 
-  // A structure that contains a block of data.
-  struct Buffer {
-    explicit Buffer(size_t len) : data(new uint8[len]), size(len) {}
-    // Pointer to data.
-    scoped_array<uint8> data;
-    // Size of this block.
-    size_t size;
-  };
-
-  typedef std::list<Buffer*> BufferQueue;
   BufferQueue::iterator current_buffer_;
   BufferQueue buffers_;
   size_t current_buffer_offset_;
