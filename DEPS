@@ -90,6 +90,7 @@ include_rules = [
 skip_child_includes = [
    "breakpad",
    "gears",
+   "o3d",
    "sdch",
    "skia",
    "testing",
