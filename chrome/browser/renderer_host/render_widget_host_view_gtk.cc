@@ -6,6 +6,7 @@
 
 #include <gtk/gtk.h>
 #include <gdk/gdk.h>
+#include <gdk/gdkkeysyms.h>
 #include <gdk/gdkx.h>
 #include <cairo/cairo.h>
 
@@ -95,8 +96,15 @@ class RenderWidgetHostViewGtkWidget {
 
   static gboolean KeyPressReleaseEvent(GtkWidget* widget, GdkEventKey* event,
                                        RenderWidgetHostViewGtk* host_view) {
-    NativeWebKeyboardEvent wke(event);
-    host_view->GetRenderWidgetHost()->ForwardKeyboardEvent(wke);
+    if (host_view->parent_ && host_view->activatable() &&
+        GDK_Escape == event->keyval) {
+      // Force popups to close on Esc just in case the renderer is hung.  This
+      // allows us to release our keyboard grab.
+      host_view->host_->Shutdown();
+    } else {
+      NativeWebKeyboardEvent wke(event);
+      host_view->GetRenderWidgetHost()->ForwardKeyboardEvent(wke);
+    }
     // We return TRUE because we did handle the event. If it turns out webkit
     // can't handle the event, we'll deal with it in
     // RenderView::UnhandledKeyboardEvent().
@@ -124,7 +132,8 @@ class RenderWidgetHostViewGtkWidget {
       RenderWidgetHostViewGtk* host_view) {
     // We want to translate the coordinates of events that do not originate
     // from this widget to be relative to the top left of the widget.
-    GtkWidget* event_widget = gtk_get_event_widget((GdkEvent*)event);
+    GtkWidget* event_widget = gtk_get_event_widget(
+        reinterpret_cast<GdkEvent*>(event));
     if (event_widget != widget) {
       int x = 0;
       int y = 0;
@@ -157,7 +166,8 @@ class RenderWidgetHostViewGtkWidget {
                                  RenderWidgetHostViewGtk* host_view) {
     // We want to translate the coordinates of events that do not originate
     // from this widget to be relative to the top left of the widget.
-    GtkWidget* event_widget = gtk_get_event_widget((GdkEvent*)event);
+    GtkWidget* event_widget = gtk_get_event_widget(
+        reinterpret_cast<GdkEvent*>(event));
     if (event_widget != widget) {
       int x = 0;
       int y = 0;
@@ -230,6 +240,8 @@ void RenderWidgetHostViewGtk::InitAsPopup(
         NULL,
         NULL,
         GDK_CURRENT_TIME);
+    // We grab keyboard events too so things like alt+tab are eaten.
+    gdk_keyboard_grab(parent_->window, TRUE, GDK_CURRENT_TIME);
 
     // Our parent widget actually keeps GTK focus within its window, but we have
     // to make the webkit selection box disappear to maintain appearances.
@@ -376,6 +388,7 @@ void RenderWidgetHostViewGtk::Destroy() {
     if (activatable()) {
       GdkDisplay *display = gtk_widget_get_display(parent_);
       gdk_display_pointer_ungrab(display, GDK_CURRENT_TIME);
+      gdk_display_keyboard_ungrab(display, GDK_CURRENT_TIME);
       parent_host_view_->Focus();
     }
     gtk_widget_destroy(gtk_widget_get_parent(view_.get()));
