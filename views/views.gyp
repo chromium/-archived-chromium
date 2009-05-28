@@ -252,8 +252,6 @@
             'controls/tabbed_pane.cc',
             'controls/table/table_view.cc',
             'controls/table/group_table_view.cc',
-            'controls/textfield/textfield.cc',
-            'controls/text_field.cc',
             'controls/tree/tree_view.cc',
             'event_win.cc',
             'resize_corner.cc',

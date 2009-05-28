@@ -13,7 +13,7 @@ namespace views {
 
 static const char kViewClassName[] = "views/HWNDView";
 
-HWNDView::HWNDView() {
+HWNDView::HWNDView() : NativeViewHost() {
 }
 
 HWNDView::~HWNDView() {

@@ -11,7 +11,9 @@
 
 namespace views {
 
-NativeViewHostGtk::NativeViewHostGtk() : destroy_signal_id_(0) {
+NativeViewHostGtk::NativeViewHostGtk()
+    : NativeViewHost(),
+      destroy_signal_id_(0) {
 }
 
 NativeViewHostGtk::~NativeViewHostGtk() {

@@ -10,7 +10,7 @@
 
 namespace views {
 
-NativeControlGtk::NativeControlGtk() {
+NativeControlGtk::NativeControlGtk() : NativeViewHostGtk() {
 }
 
 NativeControlGtk::~NativeControlGtk() {

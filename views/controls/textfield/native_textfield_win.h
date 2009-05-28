@@ -199,6 +199,6 @@ class NativeTextfieldWin
   DISALLOW_COPY_AND_ASSIGN(NativeTextfieldWin);
 };
 
-};
+}  // namespace views
 
 #endif  // VIEWS_CONTROLS_TEXTFIELD_NATIVE_TEXTFIELD_WIN_H_
