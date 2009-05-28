@@ -353,9 +353,16 @@
     return;
   }
 
+  Browser* browser = BrowserList::GetLastActive();
+  // if no browser window exists then create one with no tabs to be filled in
+  if (!browser) {
+    browser = Browser::Create([self defaultProfile]);
+    browser->window()->Show();    
+  }
+
   CommandLine dummy((std::wstring()));
   BrowserInit::LaunchWithProfile launch(std::wstring(), dummy);
-  launch.OpenURLsInBrowser(BrowserList::GetLastActive(), false, urls);
+  launch.OpenURLsInBrowser(browser, false, urls);
 }
 
 - (void)openPendingURLs {
