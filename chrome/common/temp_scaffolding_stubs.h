@@ -339,12 +339,14 @@ class FaviconStatus {
   GURL url_;
 };
 
-#if !defined(TOOLKIT_VIEWS)
+#if defined(OS_MACOSX)
 class DockInfo {
  public:
   bool GetNewWindowBounds(gfx::Rect*, bool*) const;
   void AdjustOtherWindowBounds() const { NOTIMPLEMENTED(); }
 };
+#else
+
 #endif
 
 //---------------------------------------------------------------------------
