@@ -131,7 +131,7 @@ function takeMeBack() {
       <div class="main"><a href="" jscontent="description3" onclick="learnMore(); return false;" onmousedown="return false;"></a></div>
       <div class="main">
         <form class="submission">
-          <input name="checky" type="checkbox" onclick="agreed(this.form)">&nbsp;<span jscontent="confirm_text"></span>
+          <input name="checky" id="checky" type="checkbox" onclick="agreed(this.form)">&nbsp;<label for="checky" jscontent="confirm_text"></label>
           <input type="button" name="continue_button" jsvalues="value:continue_button" disabled="true" onclick="proceed();"><br>
           <input type="button" name="back_button" jsvalues="value:back_button" onclick="takeMeBack()">
         </form>
