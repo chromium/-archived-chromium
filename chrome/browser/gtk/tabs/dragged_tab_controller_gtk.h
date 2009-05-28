@@ -9,11 +9,9 @@
 
 #include "base/scoped_ptr.h"
 #include "base/timer.h"
+#include "chrome/browser/dock_info.h"
 #include "chrome/browser/tab_contents/tab_contents_delegate.h"
 #include "chrome/common/notification_registrar.h"
-
-// TODO(jhawkins): Remove once DockInfo is ported.
-#include "chrome/common/temp_scaffolding_stubs.h"
 
 class DraggedTabGtk;
 class TabGtk;
