@@ -31,6 +31,8 @@ static const int kLeftPadding = 16;
 static const int kTopPadding = 6;
 static const int kRightPadding = 15;
 static const int kBottomPadding = 5;
+static const int kDropShadowHeight = 2;
+static const int kToolbarOverlap = 1;
 static const int kFavIconTitleSpacing = 4;
 static const int kTitleCloseButtonSpacing = 5;
 static const int kStandardTitleWidth = 175;
@@ -608,8 +610,11 @@ void TabRenderer::PaintInactiveTabBackground(gfx::Canvas* canvas) {
   bool is_otr = data_.off_the_record;
 
   // The tab image needs to be lined up with the background image
-  // so that it feels partially transparent.
+  // so that it feels partially transparent.  These offsets represent the tab
+  // position within the frame background image.
   int offset = GetX(views::View::APPLY_MIRRORING_TRANSFORMATION) + 1;
+  // TODO(glen): http://crbug.com/12761  This should use
+  // BrowserView::GetTabstripBounds() instead of a hardcoded constant.
   int offset_y = 20;
 
   int tab_id;
@@ -623,18 +628,19 @@ void TabRenderer::PaintInactiveTabBackground(gfx::Canvas* canvas) {
 
   SkBitmap* tab_bg = GetThemeProvider()->GetBitmapNamed(tab_id);
 
-  // Draw left edge.
+  // Draw left edge.  Don't draw over the toolbar, as we're not the foreground
+  // tab.
   SkBitmap tab_l = skia::ImageOperations::CreateTiledBitmap(
       *tab_bg, offset, offset_y,
       tab_active.l_width, height());
   SkBitmap theme_l = skia::ImageOperations::CreateMaskedBitmap(
       tab_l, *tab_alpha.image_l);
   canvas->DrawBitmapInt(theme_l,
-      0, 0, theme_l.width(), theme_l.height() - 1,
-      0, 0, theme_l.width(), theme_l.height() - 1,
+      0, 0, theme_l.width(), theme_l.height() - kToolbarOverlap,
+      0, 0, theme_l.width(), theme_l.height() - kToolbarOverlap,
       false);
 
-  // Draw right edge.
+  // Draw right edge.  Again, don't draw over the toolbar.
   SkBitmap tab_r = skia::ImageOperations::CreateTiledBitmap(
       *tab_bg,
       offset + width() - tab_active.r_width, offset_y,
@@ -642,16 +648,20 @@ void TabRenderer::PaintInactiveTabBackground(gfx::Canvas* canvas) {
   SkBitmap theme_r = skia::ImageOperations::CreateMaskedBitmap(
       tab_r, *tab_alpha.image_r);
   canvas->DrawBitmapInt(theme_r,
-      0, 0, theme_r.width(), theme_r.height() - 1,
-      width() - theme_r.width(), 0, theme_r.width(), theme_r.height() - 1,
-      false);
+      0, 0, theme_r.width(), theme_r.height() - kToolbarOverlap,
+      width() - theme_r.width(), 0, theme_r.width(),
+      theme_r.height() - kToolbarOverlap, false);
 
-  // Draw center.
+  // Draw center.  Instead of masking out the top portion we simply skip over it
+  // by incrementing by kDropShadowHeight, since it's a simple rectangle.  And
+  // again, don't draw over the toolbar.
   canvas->TileImageInt(*tab_bg,
-     offset + tab_active.l_width, 2 + offset_y,  // 2 is the drop shadow offset.
-     tab_active.l_width, 2,
-     width() - tab_active.l_width - tab_active.r_width, height() - 3);
+     offset + tab_active.l_width, offset_y + kDropShadowHeight,
+     tab_active.l_width, kDropShadowHeight,
+     width() - tab_active.l_width - tab_active.r_width,
+     height() - kDropShadowHeight - kToolbarOverlap);
 
+  // Now draw the highlights/shadows around the tab edge.
   canvas->DrawBitmapInt(*tab_inactive.image_l, 0, 0);
   canvas->TileImageInt(*tab_inactive.image_c,
                        tab_inactive.l_width, 0,
@@ -685,12 +695,15 @@ void TabRenderer::PaintActiveTabBackground(gfx::Canvas* canvas) {
       tab_r, *tab_alpha.image_r);
   canvas->DrawBitmapInt(theme_r, width() - tab_active.r_width, 0);
 
-  // Draw center.
+  // Draw center.  Instead of masking out the top portion we simply skip over it
+  // by incrementing by kDropShadowHeight, since it's a simple rectangle.
   canvas->TileImageInt(*tab_bg,
-     offset + tab_active.l_width, 2,
-     tab_active.l_width, 2,
-     width() - tab_active.l_width - tab_active.r_width, height() - 2);
+     offset + tab_active.l_width, kDropShadowHeight,
+     tab_active.l_width, kDropShadowHeight,
+     width() - tab_active.l_width - tab_active.r_width,
+     height() - kDropShadowHeight);
 
+  // Now draw the highlights/shadows around the tab edge.
   canvas->DrawBitmapInt(*tab_active.image_l, 0, 0);
   canvas->TileImageInt(*tab_active.image_c, tab_active.l_width, 0,
       width() - tab_active.l_width - tab_active.r_width, height());
