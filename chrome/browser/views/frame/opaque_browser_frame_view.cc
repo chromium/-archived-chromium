@@ -84,6 +84,9 @@ const int kOTRBottomSpacing = 2;
 // There are 2 px on each side of the OTR avatar (between the frame border and
 // it on the left, and between it and the tabstrip on the right).
 const int kOTRSideSpacing = 2;
+// The top 1 px of the tabstrip is shadow; in maximized mode we push this off
+// the top of the screen so the tabs appear flush against the screen edge.
+const int kTabstripTopShadowThickness = 1;
 // In restored mode, the New Tab button isn't at the same height as the caption
 // buttons, but the space will look cluttered if it actually slides under them,
 // so we stop it when the gap between the two is down to 5 px.
@@ -95,10 +98,6 @@ const int kNewTabCaptionMaximizedSpacing = 16;
 // When there's a distributor logo, we leave a 7 px gap between it and the
 // caption buttons.
 const int kLogoCaptionSpacing = 7;
-// The caption buttons are always drawn 1 px down from the visible top of the
-// window (the true top in restored mode, or the top of the screen in maximized
-// mode).
-const int kCaptionTopSpacing = 1;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -453,6 +452,9 @@ int OpaqueBrowserFrameView::NonClientTopBorderHeight() const {
   views::Window* window = frame_->GetWindow();
   if (window->GetDelegate()->ShouldShowWindowTitle())
     return TitleCoordinates(NULL, NULL);
+
+  if (browser_view_->IsTabStripVisible() && window->IsMaximized())
+    return FrameBorderThickness() - kTabstripTopShadowThickness;
 
   return FrameBorderThickness() +
       ((window->IsMaximized() || window->IsFullscreen()) ?
@@ -840,8 +842,7 @@ void OpaqueBrowserFrameView::LayoutWindowControls() {
   // drawn flush with the screen edge, they still obey Fitts' Law.
   bool is_maximized = frame_->GetWindow()->IsMaximized();
   int frame_thickness = FrameBorderThickness();
-  int caption_y = is_maximized ? frame_thickness : kCaptionTopSpacing;
-  int top_extra_height = is_maximized ? kCaptionTopSpacing : 0;
+  int caption_y = is_maximized ? frame_thickness : kFrameShadowThickness;
   // There should always be the same number of non-shadow pixels visible to the
   // side of the caption buttons.  In maximized mode we extend the rightmost
   // button to the screen corner to obey Fitts' Law.
@@ -851,7 +852,7 @@ void OpaqueBrowserFrameView::LayoutWindowControls() {
   close_button_->SetBounds(width() - close_button_size.width() -
       right_extra_width - frame_thickness, caption_y,
       close_button_size.width() + right_extra_width,
-      close_button_size.height() + top_extra_height);
+      close_button_size.height());
 
   // When the window is restored, we show a maximized button; otherwise, we show
   // a restore button.
@@ -868,7 +869,7 @@ void OpaqueBrowserFrameView::LayoutWindowControls() {
   gfx::Size visible_button_size = visible_button->GetPreferredSize();
   visible_button->SetBounds(close_button_->x() - visible_button_size.width(),
                             caption_y, visible_button_size.width(),
-                            visible_button_size.height() + top_extra_height);
+                            visible_button_size.height());
 
   minimize_button_->SetVisible(true);
   minimize_button_->SetImageAlignment(views::ImageButton::ALIGN_LEFT,
@@ -877,7 +878,7 @@ void OpaqueBrowserFrameView::LayoutWindowControls() {
   minimize_button_->SetBounds(
       visible_button->x() - minimize_button_size.width(), caption_y,
       minimize_button_size.width(),
-      minimize_button_size.height() + top_extra_height);
+      minimize_button_size.height());
 }
 
 void OpaqueBrowserFrameView::LayoutDistributorLogo() {

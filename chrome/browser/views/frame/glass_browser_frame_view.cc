@@ -41,6 +41,9 @@ const int kOTRBottomSpacing = 2;
 // There are 2 px on each side of the OTR avatar (between the frame border and
 // it on the left, and between it and the tabstrip on the right).
 const int kOTRSideSpacing = 2;
+// The top 1 px of the tabstrip is shadow; in maximized mode we push this off
+// the top of the screen so the tabs appear flush against the screen edge.
+const int kTabstripTopShadowThickness = 1;
 // In restored mode, the New Tab button isn't at the same height as the caption
 // buttons, but the space will look cluttered if it actually slides under them,
 // so we stop it when the gap between the two is down to 5 px.
@@ -219,8 +222,8 @@ int GlassBrowserFrameView::NonClientTopBorderHeight() const {
   // We'd like to use FrameBorderThickness() here, but the maximized Aero glass
   // frame has a 0 frame border around most edges and a CXSIZEFRAME-thick border
   // at the top (see AeroGlassFrame::OnGetMinMaxInfo()).
-  return GetSystemMetrics(SM_CXSIZEFRAME) +
-      (browser_view_->IsMaximized() ? 0 : kNonClientRestoredExtraThickness);
+  return GetSystemMetrics(SM_CXSIZEFRAME) + (browser_view_->IsMaximized() ?
+      -kTabstripTopShadowThickness : kNonClientRestoredExtraThickness);
 }
 
 void GlassBrowserFrameView::PaintDistributorLogo(gfx::Canvas* canvas) {
