@@ -1,4 +1,4 @@
-#/usr/bin/env python
+#!/usr/bin/env python
 # Copyright (c) 2009 The Chromium Authors. All rights reserved.
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
@@ -153,17 +153,21 @@ def main(argv=None):
   if argv is None:
     argv = sys.argv
 
-  short_options = 'f:h'
+  short_options = 'f:i:o:h'
   long_options = ['file=', 'help']
 
   helpstr = """\
-Usage:  version.py [-h] [-f FILE] INFILE OUTFILE
+Usage:  version.py [-h] [-f FILE] [[-i] FILE] [[-o] FILE]
 
   -f FILE, --file=FILE          Read variables from FILE.
+  -i FILE, --input=FILE         Read strings to substitute from FILE.
+  -o FILE, --output=FILE        Write substituted strings to FILE.
   -h, --help                    Print this help and exit.
 """
 
   variable_files = []
+  in_file = None
+  out_file = None
 
   try:
     try:
@@ -173,13 +177,20 @@ Usage:  version.py [-h] [-f FILE] INFILE OUTFILE
     for o, a in opts:
       if o in ('-f', '--file'):
         variable_files.append(a)
+      elif o in ('-i', '--input'):
+        in_file = a
+      elif o in ('-o', '--output'):
+        out_file = a
       elif o in ('-h', '--help'):
         print helpstr
         return 0
-    try:
-      in_file, out_file = args
-    except ValueError:
-      msg = 'Incorrect number of arguments: %r' % args
+    while len(args) and (in_file is None or out_file is None):
+      if in_file is None:
+        in_file = args.pop(0)
+      elif out_file is None:
+        out_file = args.pop(0)
+    if args:
+      msg = 'Unexpected arguments: %r' % args
       raise Usage(msg)
   except Usage, err:
     sys.stderr.write(err.msg)
@@ -188,9 +199,24 @@ Usage:  version.py [-h] [-f FILE] INFILE OUTFILE
 
   values = fetch_values(variable_files)
 
-  contents = subst_contents(in_file, values)
 
-  write_if_changed(out_file, contents)
+  if in_file:
+    contents = subst_contents(in_file, values)
+  else:
+    # Generate a default set of version information.
+    contents = """MAJOR=%(MAJOR)s
+MINOR=%(MINOR)s
+BUILD=%(BUILD)s
+PATCH=%(PATCH)s
+LASTCHANGE=%(LASTCHANGE)s
+OFFICIAL_BUILD=%(OFFICIAL_BUILD)s
+""" % values
+
+
+  if out_file:
+    write_if_changed(out_file, contents)
+  else:
+    print contents
 
   return 0
 
