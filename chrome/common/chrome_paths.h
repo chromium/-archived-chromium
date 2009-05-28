@@ -36,8 +36,6 @@ enum {
   // Valid only in development environment; TODO(darin): move these
   DIR_TEST_DATA,         // directory where unit test data resides
   DIR_TEST_TOOLS,        // directory where unit test tools reside
-  FILE_TEST_SERVER,      // simple HTTP server for testing the network stack
-  FILE_PYTHON_RUNTIME,   // Python runtime, used for running the test server
 
   PATH_END
 };

@@ -37,9 +37,11 @@ bool PathProvider(int key, FilePath* result) {
     case chrome::DIR_APP:
       return PathService::Get(base::DIR_MODULE, result);
     case chrome::DIR_LOGS:
-#ifndef NDEBUG
+#ifdef NDEBUG
+      // Release builds write to the data dir
       return PathService::Get(chrome::DIR_USER_DATA, result);
 #else
+      // Debug builds write next to the binary (in the build tree)
       return PathService::Get(base::DIR_EXE, result);
 #endif
     case chrome::FILE_RESOURCE_MODULE:
@@ -158,26 +160,6 @@ bool PathProvider(int key, FilePath* result) {
       cur = cur.Append(FILE_PATH_LITERAL("chrome"));
       cur = cur.Append(FILE_PATH_LITERAL("tools"));
       cur = cur.Append(FILE_PATH_LITERAL("test"));
-      if (!file_util::PathExists(cur))  // we don't want to create this
-        return false;
-      break;
-    case chrome::FILE_PYTHON_RUNTIME:
-      if (!PathService::Get(base::DIR_SOURCE_ROOT, &cur))
-        return false;
-      cur = cur.Append(FILE_PATH_LITERAL("third_party"));
-      cur = cur.Append(FILE_PATH_LITERAL("python_24"));
-      cur = cur.Append(FILE_PATH_LITERAL("python.exe"));
-      if (!file_util::PathExists(cur))  // we don't want to create this
-        return false;
-      break;
-    case chrome::FILE_TEST_SERVER:
-      if (!PathService::Get(base::DIR_SOURCE_ROOT, &cur))
-        return false;
-      cur = cur.Append(FILE_PATH_LITERAL("net"));
-      cur = cur.Append(FILE_PATH_LITERAL("tools"));
-      cur = cur.Append(FILE_PATH_LITERAL("test"));
-      cur = cur.Append(FILE_PATH_LITERAL("testserver"));
-      cur = cur.Append(FILE_PATH_LITERAL("testserver.py"));
       if (!file_util::PathExists(cur))  // we don't want to create this
         return false;
       break;
