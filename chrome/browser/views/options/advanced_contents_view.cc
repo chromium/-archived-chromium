@@ -1043,78 +1043,6 @@ void NetworkSection::InitControlLayout() {
 void NetworkSection::NotifyPrefChanged(const std::wstring* pref_name) {
 }
 
-////////////////////////////////////////////////////////////////////////////////
-// DevToolsSection
-
-class DevToolsSection : public AdvancedSection,
-                        public views::ButtonListener {
- public:
-  explicit DevToolsSection(Profile* profile);
-  virtual ~DevToolsSection() {}
-
-  // Overridden from views::ButtonListener:
-  virtual void ButtonPressed(views::Button* sender);
-
- protected:
-  // OptionsPageView overrides:
-  virtual void InitControlLayout();
-  virtual void NotifyPrefChanged(const std::wstring* pref_name);
-
- private:
-  // Controls for this section:
-  views::Checkbox* enable_devtools_checkbox_;
-
-  // Preferences for this section:
-  BooleanPrefMember enable_devtools_;
-
-  DISALLOW_COPY_AND_ASSIGN(DevToolsSection);
-};
-
-DevToolsSection::DevToolsSection(Profile* profile)
-    : enable_devtools_checkbox_(NULL),
-      AdvancedSection(profile,
-          l10n_util::GetString(IDS_OPTIONS_ADVANCED_SECTION_TITLE_DEVTOOLS)) {
-}
-
-void DevToolsSection::ButtonPressed(views::Button* sender) {
-  if (sender == enable_devtools_checkbox_) {
-    bool enabled = enable_devtools_checkbox_->checked();
-    UserMetricsRecordAction(enabled ?
-                                L"Options_DevToolsCheckbox_Enable" :
-                                L"Options_DevToolsCheckbox_Disable",
-                            profile()->GetPrefs());
-    enable_devtools_.SetValue(enabled);
-  }
-}
-
-void DevToolsSection::InitControlLayout() {
-  AdvancedSection::InitControlLayout();
-
-  enable_devtools_checkbox_ = new views::Checkbox(
-      l10n_util::GetString(IDS_OPTIONS_ENABLE_DEVTOOLS));
-  enable_devtools_checkbox_->set_listener(this);
-
-  GridLayout* layout = new GridLayout(contents_);
-  contents_->SetLayoutManager(layout);
-
-  const int single_column_view_set_id = 0;
-  AddWrappingColumnSet(layout, single_column_view_set_id);
-
-  AddWrappingCheckboxRow(layout, enable_devtools_checkbox_,
-                         single_column_view_set_id, false);
-
-  // Init member prefs so we can update the controls if prefs change.
-  enable_devtools_.Init(prefs::kWebKitDeveloperExtrasEnabled,
-                        profile()->GetPrefs(), this);
-}
-
-void DevToolsSection::NotifyPrefChanged(const std::wstring* pref_name) {
-  if (!pref_name || *pref_name == prefs::kWebKitDeveloperExtrasEnabled) {
-    enable_devtools_checkbox_->SetChecked(
-        enable_devtools_.GetValue());
-  }
-}
-
 }  // namespace
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -1210,8 +1138,6 @@ void AdvancedContentsView::InitControlLayout() {
   layout->AddView(new WebContentSection(profile()));
   layout->StartRow(0, single_column_view_set_id);
   layout->AddView(new SecuritySection(profile()));
-  layout->StartRow(0, single_column_view_set_id);
-  layout->AddView(new DevToolsSection(profile()));
 }
 
 ////////////////////////////////////////////////////////////////////////////////
