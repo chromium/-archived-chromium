@@ -78,7 +78,7 @@
 #include "chrome/common/child_process_host.h"
 #endif  // OS_WIN
 
-#if defined(OS_MACOSX)
+#if !defined(OS_MACOSX)
 #include "chrome/browser/dock_info.h"
 #endif
 
