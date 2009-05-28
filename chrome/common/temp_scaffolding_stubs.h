@@ -343,7 +343,7 @@ class FaviconStatus {
 class DockInfo {
  public:
   bool GetNewWindowBounds(gfx::Rect*, bool*) const;
-  void AdjustOtherWindowBounds() const { NOTIMPLEMENTED(); }
+  void AdjustOtherWindowBounds() const;
 };
 #else
 

@@ -26,6 +26,10 @@
 #include "chrome/browser/download/download_shelf.h"
 #endif
 
+#if defined(OS_LINUX)
+#include "chrome/browser/dock_info.h"
+#endif
+
 #if defined(TOOLKIT_VIEWS)
 #include "views/controls/menu/chrome_menu.h"
 #endif
@@ -315,11 +319,15 @@ void ShowOptionsWindow(OptionsPage page,
 }
 #endif
 
-#if defined(OS_MACOSX)
+#if !defined(TOOLKIT_VIEWS)
 bool DockInfo::GetNewWindowBounds(gfx::Rect* new_window_bounds,
                                   bool* maximize_new_window) const {
   NOTIMPLEMENTED();
   return true;
+}
+
+void DockInfo::AdjustOtherWindowBounds() const {
+  NOTIMPLEMENTED();
 }
 #endif
 
