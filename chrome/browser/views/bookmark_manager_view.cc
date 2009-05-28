@@ -579,7 +579,7 @@ void BookmarkManagerView::FileSelectionCanceled(void* params) {
 }
 
 BookmarkTableModel* BookmarkManagerView::CreateSearchTableModel() {
-  std::wstring search_text = search_tf_->GetText();
+  std::wstring search_text = search_tf_->text();
   if (search_text.empty())
     return NULL;
   return BookmarkTableModel::CreateSearchTableModel(GetBookmarkModel(),
@@ -599,13 +599,13 @@ void BookmarkManagerView::SetTableModel(BookmarkTableModel* new_table_model,
   table_model_.reset(new_table_model);
   if (!is_search || (new_table_model && new_table_model->RowCount() > 0)) {
     table_view_->SetAltText(std::wstring());
-  } else if (search_tf_->GetText().empty()) {
+  } else if (search_tf_->text().empty()) {
     table_view_->SetAltText(
         l10n_util::GetString(IDS_BOOKMARK_MANAGER_NO_SEARCH_TEXT));
   } else {
     table_view_->SetAltText(
         l10n_util::GetStringF(IDS_BOOKMARK_MANAGER_NO_RESULTS,
-                              search_tf_->GetText()));
+                              search_tf_->text()));
   }
 }
 

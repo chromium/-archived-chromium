@@ -114,14 +114,14 @@ class ContentView : public views::View,
 bool ContentView::IsDialogButtonEnabled(
     MessageBoxFlags::DialogButton button) const {
   if (button == MessageBoxFlags::DIALOGBUTTON_OK &&
-      !delegate_->delegate()->IsValid(text_field_->GetText())) {
+      !delegate_->delegate()->IsValid(text_field_->text())) {
     return false;
   }
   return true;
 }
 
 bool ContentView::Accept() {
-  delegate_->delegate()->InputAccepted(text_field_->GetText());
+  delegate_->delegate()->InputAccepted(text_field_->text());
   return true;
 }
 

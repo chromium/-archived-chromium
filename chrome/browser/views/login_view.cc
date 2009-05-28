@@ -83,11 +83,11 @@ LoginView::~LoginView() {
 }
 
 std::wstring LoginView::GetUsername() {
-  return username_field_->GetText();
+  return username_field_->text();
 }
 
 std::wstring LoginView::GetPassword() {
-  return password_field_->GetText();
+  return password_field_->text();
 }
 
 void LoginView::SetModel(LoginModel* model) {
@@ -107,7 +107,7 @@ void LoginView::ViewHierarchyChanged(bool is_add, View *parent, View *child) {
 
 void LoginView::OnAutofillDataAvailable(const std::wstring& username,
                                         const std::wstring& password) {
-  if (username_field_->GetText().empty()) {
+  if (username_field_->text().empty()) {
     username_field_->SetText(username);
     password_field_->SetText(password);
     username_field_->SelectAll();

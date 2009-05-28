@@ -570,7 +570,7 @@ void GeneralPageView::ButtonPressed(views::Button* sender) {
   } else if (sender == homepage_use_url_radio_) {
     UserMetricsRecordAction(L"Options_Homepage_UseURL",
                             profile()->GetPrefs());
-    SetHomepage(homepage_use_url_textfield_->GetText());
+    SetHomepage(homepage_use_url_textfield_->text());
     EnableHomepageURLField(true);
   } else if (sender == homepage_show_home_button_checkbox_) {
     bool show_button = homepage_show_home_button_checkbox_->checked();
@@ -615,7 +615,7 @@ void GeneralPageView::ContentsChanged(views::Textfield* sender,
     // through the fixer upper to allow input like "google.com" to be converted
     // to something valid ("http://google.com").
     std::wstring url_string = URLFixerUpper::FixupURL(
-        homepage_use_url_textfield_->GetText(), std::wstring());
+        homepage_use_url_textfield_->text(), std::wstring());
     if (GURL(url_string).is_valid())
       SetHomepage(url_string);
   }

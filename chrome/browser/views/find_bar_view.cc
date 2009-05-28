@@ -174,7 +174,7 @@ void FindBarView::UpdateForResult(const FindNotificationDetails& result,
   // If we don't have any results and something was passed in, then that means
   // someone pressed F3 while the Find box was closed. In that case we need to
   // repopulate the Find box with what was passed in.
-  std::wstring search_string = find_text_->GetText();
+  std::wstring search_string = find_text_->text();
   if (search_string.empty() && !find_text.empty()) {
     find_text_->SetText(UTF16ToWide(find_text));
     find_text_->SelectAll();
@@ -214,7 +214,7 @@ void FindBarView::UpdateForResult(const FindNotificationDetails& result,
 
 void FindBarView::SetFocusAndSelection() {
   find_text_->RequestFocus();
-  if (!find_text_->GetText().empty()) {
+  if (!find_text_->text().empty()) {
     find_text_->SelectAll();
 
     find_previous_button_->SetEnabled(true);
@@ -398,9 +398,9 @@ void FindBarView::ButtonPressed(views::Button* sender) {
   switch (sender->tag()) {
     case FIND_PREVIOUS_TAG:
     case FIND_NEXT_TAG:
-      if (!find_text_->GetText().empty()) {
+      if (!find_text_->text().empty()) {
         container_->GetFindBarController()->tab_contents()->StartFinding(
-            WideToUTF16(find_text_->GetText()),
+            WideToUTF16(find_text_->text()),
             sender->tag() == FIND_NEXT_TAG,
             false);  // Not case sensitive.
       }
@@ -459,7 +459,7 @@ bool FindBarView::HandleKeystroke(views::Textfield* sender,
 
   if (views::Textfield::IsKeystrokeEnter(key)) {
     // Pressing Return/Enter starts the search (unless text box is empty).
-    std::wstring find_string = find_text_->GetText();
+    std::wstring find_string = find_text_->text();
     if (!find_string.empty()) {
       // Search forwards for enter, backwards for shift-enter.
       container_->GetFindBarController()->tab_contents()->StartFinding(

@@ -47,7 +47,7 @@ MessageBoxView::MessageBoxView(int dialog_flags,
 
 std::wstring MessageBoxView::GetInputText() {
   if (prompt_field_)
-    return prompt_field_->GetText();
+    return prompt_field_->text();
   return EmptyWString();
 }
 

@@ -410,7 +410,7 @@ void BookmarkBubbleView::ApplyEdits() {
   BookmarkModel* model = profile_->GetBookmarkModel();
   BookmarkNode* node = model->GetMostRecentlyAddedNodeForURL(url_);
   if (node) {
-    const std::wstring new_title = title_tf_->GetText();
+    const std::wstring new_title = title_tf_->text();
     if (new_title != node->GetTitle()) {
       model->SetTitle(node, new_title);
       UserMetrics::RecordAction(L"BookmarkBubble_ChangeTitleInBubble",

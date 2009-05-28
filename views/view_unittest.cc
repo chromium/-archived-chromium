@@ -621,26 +621,26 @@ TEST_F(ViewTest, TextfieldCutCopyPaste) {
   //
   // Test cut.
   //
-  ASSERT_TRUE(normal->GetNativeComponent());
+  ASSERT_TRUE(normal->GetTestingHandle());
   normal->SelectAll();
-  ::SendMessage(normal->GetNativeComponent(), WM_CUT, 0, 0);
+  ::SendMessage(normal->GetTestingHandle(), WM_CUT, 0, 0);
 
   string16 result;
   clipboard.ReadText(&result);
   EXPECT_EQ(kNormalText, result);
   normal->SetText(kNormalText);  // Let's revert to the original content.
 
-  ASSERT_TRUE(read_only->GetNativeComponent());
+  ASSERT_TRUE(read_only->GetTestingHandle());
   read_only->SelectAll();
-  ::SendMessage(read_only->GetNativeComponent(), WM_CUT, 0, 0);
+  ::SendMessage(read_only->GetTestingHandle(), WM_CUT, 0, 0);
   result.clear();
   clipboard.ReadText(&result);
   // Cut should have failed, so the clipboard content should not have changed.
   EXPECT_EQ(kNormalText, result);
 
-  ASSERT_TRUE(password->GetNativeComponent());
+  ASSERT_TRUE(password->GetTestingHandle());
   password->SelectAll();
-  ::SendMessage(password->GetNativeComponent(), WM_CUT, 0, 0);
+  ::SendMessage(password->GetTestingHandle(), WM_CUT, 0, 0);
   result.clear();
   clipboard.ReadText(&result);
   // Cut should have failed, so the clipboard content should not have changed.
@@ -653,19 +653,19 @@ TEST_F(ViewTest, TextfieldCutCopyPaste) {
   // Let's start with read_only as the clipboard already contains the content
   // of normal.
   read_only->SelectAll();
-  ::SendMessage(read_only->GetNativeComponent(), WM_COPY, 0, 0);
+  ::SendMessage(read_only->GetTestingHandle(), WM_COPY, 0, 0);
   result.clear();
   clipboard.ReadText(&result);
   EXPECT_EQ(kReadOnlyText, result);
 
   normal->SelectAll();
-  ::SendMessage(normal->GetNativeComponent(), WM_COPY, 0, 0);
+  ::SendMessage(normal->GetTestingHandle(), WM_COPY, 0, 0);
   result.clear();
   clipboard.ReadText(&result);
   EXPECT_EQ(kNormalText, result);
 
   password->SelectAll();
-  ::SendMessage(password->GetNativeComponent(), WM_COPY, 0, 0);
+  ::SendMessage(password->GetTestingHandle(), WM_COPY, 0, 0);
   result.clear();
   clipboard.ReadText(&result);
   // We don't let you copy from a password field, clipboard should not have
@@ -681,23 +681,23 @@ TEST_F(ViewTest, TextfieldCutCopyPaste) {
 
   // Attempting to copy kNormalText in a read-only text-field should fail.
   read_only->SelectAll();
-  ::SendMessage(read_only->GetNativeComponent(), WM_KEYDOWN, 0, 0);
+  ::SendMessage(read_only->GetTestingHandle(), WM_KEYDOWN, 0, 0);
   wchar_t buffer[1024] = { 0 };
-  ::GetWindowText(read_only->GetNativeComponent(), buffer, 1024);
+  ::GetWindowText(read_only->GetTestingHandle(), buffer, 1024);
   EXPECT_EQ(kReadOnlyText, std::wstring(buffer));
 
   password->SelectAll();
-  ::SendMessage(password->GetNativeComponent(), WM_PASTE, 0, 0);
-  ::GetWindowText(password->GetNativeComponent(), buffer, 1024);
+  ::SendMessage(password->GetTestingHandle(), WM_PASTE, 0, 0);
+  ::GetWindowText(password->GetTestingHandle(), buffer, 1024);
   EXPECT_EQ(kNormalText, std::wstring(buffer));
 
   // Copy from read_only so the string we are pasting is not the same as the
   // current one.
   read_only->SelectAll();
-  ::SendMessage(read_only->GetNativeComponent(), WM_COPY, 0, 0);
+  ::SendMessage(read_only->GetTestingHandle(), WM_COPY, 0, 0);
   normal->SelectAll();
-  ::SendMessage(normal->GetNativeComponent(), WM_PASTE, 0, 0);
-  ::GetWindowText(normal->GetNativeComponent(), buffer, 1024);
+  ::SendMessage(normal->GetTestingHandle(), WM_PASTE, 0, 0);
+  ::GetWindowText(normal->GetTestingHandle(), buffer, 1024);
   EXPECT_EQ(kReadOnlyText, std::wstring(buffer));
 }
 #endif
@@ -810,12 +810,12 @@ TEST_F(ViewTest, DISABLED_RerouteMouseWheelTest) {
   EXPECT_EQ(60, scroll_view->GetVisibleRect().y());
 
   // Then the text-field.
-  ::SendMessage(view_with_controls->text_field_->GetNativeComponent(),
+  ::SendMessage(view_with_controls->text_field_->GetTestingHandle(),
                 WM_MOUSEWHEEL, MAKEWPARAM(0, -20), MAKELPARAM(250, 250));
   EXPECT_EQ(80, scroll_view->GetVisibleRect().y());
 
   // Ensure we don't scroll when the mouse is not over that window.
-  ::SendMessage(view_with_controls->text_field_->GetNativeComponent(),
+  ::SendMessage(view_with_controls->text_field_->GetTestingHandle(),
                 WM_MOUSEWHEEL, MAKEWPARAM(0, -20), MAKELPARAM(50, 50));
   EXPECT_EQ(80, scroll_view->GetVisibleRect().y());
 }

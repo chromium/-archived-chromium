@@ -567,7 +567,7 @@ CookiesView::~CookiesView() {
 }
 
 void CookiesView::UpdateSearchResults() {
-  cookies_table_model_->UpdateSearchResults(search_field_->GetText());
+  cookies_table_model_->UpdateSearchResults(search_field_->text());
   remove_all_button_->SetEnabled(cookies_table_model_->RowCount() > 0);
 }
 

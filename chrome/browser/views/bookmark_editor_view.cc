@@ -386,12 +386,12 @@ void BookmarkEditorView::Reset() {
   }
 }
 GURL BookmarkEditorView::GetInputURL() const {
-  std::wstring input = URLFixerUpper::FixupURL(url_tf_.GetText(), L"");
+  std::wstring input = URLFixerUpper::FixupURL(url_tf_.text(), L"");
   return GURL(input);
 }
 
 std::wstring BookmarkEditorView::GetInputTitle() const {
-  return title_tf_.GetText();
+  return title_tf_.text();
 }
 
 void BookmarkEditorView::UserInputChanged() {
@@ -399,7 +399,7 @@ void BookmarkEditorView::UserInputChanged() {
   if (!url.is_valid())
     url_tf_.SetBackgroundColor(kErrorColor);
   else
-    url_tf_.SetDefaultBackgroundColor();
+    url_tf_.UseDefaultBackgroundColor();
   GetDialogClientView()->UpdateDialogButtons();
 }
 

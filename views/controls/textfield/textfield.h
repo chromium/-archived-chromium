@@ -12,13 +12,21 @@
 #include "views/view.h"
 #include "third_party/skia/include/core/SkColor.h"
 
+#ifdef UNIT_TEST
+#include "base/gfx/native_widget_types.h"
+#include "views/controls/textfield/native_textfield_wrapper.h"
+#endif
+
 namespace views {
 
-class HWNDView;
+class NativeTextfieldWrapper;
 
 // This class implements a ChromeView that wraps a native text (edit) field.
 class Textfield : public View {
  public:
+  // The button's class name.
+  static const char kViewClassName[];
+
   // Keystroke provides a platform-dependent way to send keystroke events.
   // Cross-platform code can use IsKeystrokeEnter/Escape to check for these
   // two common key events.
@@ -68,77 +76,32 @@ class Textfield : public View {
     STYLE_LOWERCASE = 1<<2
   };
 
-  Textfield()
-      :
-#if defined(OS_WIN)
-        native_view_(NULL),
-#endif
-        edit_(NULL),
-        controller_(NULL),
-        style_(STYLE_DEFAULT),
-        read_only_(false),
-        default_width_in_chars_(0),
-        draw_border_(true),
-        use_default_background_color_(true),
-        num_lines_(1) {
-    SetFocusable(true);
-  }
-  explicit Textfield(StyleFlags style)
-      :
-#if defined(OS_WIN)
-        native_view_(NULL),
-#endif
-        edit_(NULL),
-        controller_(NULL),
-        style_(style),
-        read_only_(false),
-        default_width_in_chars_(0),
-        draw_border_(true),
-        use_default_background_color_(true),
-        num_lines_(1) {
-    SetFocusable(true);
-  }
+  Textfield();
+  explicit Textfield(StyleFlags style);
   virtual ~Textfield();
 
-  void ViewHierarchyChanged(bool is_add, View* parent, View* child);
-
-  // Overridden for layout purposes
-  virtual void Layout();
-  virtual gfx::Size GetPreferredSize();
 
   // Controller accessors
   void SetController(Controller* controller);
   Controller* GetController() const;
 
+  // Gets/Sets whether or not the Textfield is read-only.
+  bool read_only() const { return read_only_; }
   void SetReadOnly(bool read_only);
-  bool IsReadOnly() const;
 
+  // Returns true if the Textfield is a password field.
   bool IsPassword() const;
 
   // Whether the text field is multi-line or not, must be set when the text
   // field is created, using StyleFlags.
   bool IsMultiLine() const;
 
-  virtual bool IsFocusable() const;
-  virtual void AboutToRequestFocusFromTabTraversal(bool reverse);
-
-  // Overridden from Chrome::View.
-  virtual bool SkipDefaultKeyEventProcessing(const KeyEvent& e);
-
-#if defined(OS_WIN)
-  virtual HWND GetNativeComponent();
-#endif
-
-  // Returns the text currently displayed in the text field.
-  std::wstring GetText() const;
-
-  // Sets the text currently displayed in the text field.
+  // Gets/Sets the text currently displayed in the Textfield.
+  const std::wstring& text() const { return text_; }
   void SetText(const std::wstring& text);
 
   // Appends the given string to the previously-existing text in the field.
   void AppendText(const std::wstring& text);
-
-  virtual void Focus();
 
   // Causes the edit field to be fully selected.
   void SelectAll();
@@ -146,21 +109,29 @@ class Textfield : public View {
   // Clears the selection within the edit field and sets the caret to the end.
   void ClearSelection() const;
 
-  StyleFlags GetStyle() const { return style_; }
+  // Accessor for |style_|.
+  StyleFlags style() const { return style_; }
 
+  // Gets/Sets the background color to be used when painting the Textfield.
+  // Call |UseDefaultBackgroundColor| to return to the system default colors.
+  SkColor background_color() const { return background_color_; }
   void SetBackgroundColor(SkColor color);
-  void SetDefaultBackgroundColor();
 
-  // Set the font.
+  // Gets/Sets whether the default background color should be used when painting
+  // the Textfield.
+  bool use_default_background_color() const {
+    return use_default_background_color_;
+  }
+  void UseDefaultBackgroundColor();
+
+  // Gets/Sets the font used when rendering the text within the Textfield.
+  gfx::Font font() const { return font_; }
   void SetFont(const gfx::Font& font);
-
-  // Return the font used by this Textfield.
-  gfx::Font GetFont() const;
 
   // Sets the left and right margin (in pixels) within the text box. On Windows
   // this is accomplished by packing the left and right margin into a single
   // 32 bit number, so the left and right margins are effectively 16 bits.
-  bool SetHorizontalMargins(int left, int right);
+  void SetHorizontalMargins(int left, int right);
 
   // Should only be called on a multi-line text field. Sets how many lines of
   // text can be displayed at once by this text field.
@@ -172,11 +143,17 @@ class Textfield : public View {
   }
 
   // Removes the border from the edit box, giving it a 2D look.
+  bool draw_border() const { return draw_border_; }
   void RemoveBorder();
 
-  // Disable the edit control.
-  // NOTE: this does NOT change the read only property.
-  void SetEnabled(bool enabled);
+  // Calculates the insets for the text field.
+  void CalculateInsets(gfx::Insets* insets);
+
+  // Invoked by the edit control when the value changes. This method set
+  // the text_ member variable to the value contained in edit control.
+  // This is important because the edit control can be replaced if it has
+  // been deleted during a window close.
+  void SyncText();
 
   // Provides a cross-platform way of checking whether a keystroke is one of
   // these common keys. Most code only checks keystrokes against these two keys,
@@ -187,41 +164,42 @@ class Textfield : public View {
   static bool IsKeystrokeEnter(const Keystroke& key);
   static bool IsKeystrokeEscape(const Keystroke& key);
 
- private:
-  class Edit;
-
-  // Invoked by the edit control when the value changes. This method set
-  // the text_ member variable to the value contained in edit control.
-  // This is important because the edit control can be replaced if it has
-  // been deleted during a window close.
-  void SyncText();
-
-  // Reset the text field native control.
-  void ResetNativeControl();
-
-  // Resets the background color of the edit.
-  void UpdateEditBackgroundColor();
-
-#if defined(OS_WIN)
-  // This encapsulates the HWND of the native text field.
-  HWNDView* native_view_;
+#ifdef UNIT_TEST
+  gfx::NativeView GetTestingHandle() const {
+    return native_wrapper_ ? native_wrapper_->GetTestingHandle() : NULL;
+  }
 #endif
 
-  // This inherits from the native text field.
-  Edit* edit_;
+  // Overridden from View:
+  virtual void Layout();
+  virtual gfx::Size GetPreferredSize();
+  virtual bool IsFocusable() const;
+  virtual void AboutToRequestFocusFromTabTraversal(bool reverse);
+  virtual bool SkipDefaultKeyEventProcessing(const KeyEvent& e);
+  virtual void SetEnabled(bool enabled);
 
-  // This is the current listener for events from this control.
+ protected:
+  virtual void Focus();
+  virtual void ViewHierarchyChanged(bool is_add, View* parent, View* child);
+  virtual std::string GetClassName() const;
+
+ private:
+  // The object that actually implements the native text field.
+  NativeTextfieldWrapper* native_wrapper_;
+
+  // This is the current listener for events from this Textfield.
   Controller* controller_;
 
+  // The mask of style options for this Textfield.
   StyleFlags style_;
 
+  // The font used to render the text in the Textfield.
   gfx::Font font_;
 
-  // NOTE: this is temporary until we rewrite Textfield to always work whether
-  // there is an HWND or not.
-  // Used if the HWND hasn't been created yet.
+  // The text displayed in the Textfield.
   std::wstring text_;
 
+  // True if this Textfield cannot accept input and is read-only.
   bool read_only_;
 
   // The default number of average characters for the width of this text field.
@@ -231,16 +209,21 @@ class Textfield : public View {
   // Whether the border is drawn.
   bool draw_border_;
 
+  // The background color to be used when painting the Textfield, provided
+  // |use_default_background_color_| is set to false.
   SkColor background_color_;
 
+  // When true, the system colors for Textfields are used when painting this
+  // Textfield. When false, the value of |background_color_| determines the
+  // Textfield's background color.
   bool use_default_background_color_;
 
   // The number of lines of text this Textfield displays at once.
   int num_lines_;
 
- protected:
-  // Calculates the insets for the text field.
-  void CalculateInsets(gfx::Insets* insets);
+  // TODO(beng): remove this once NativeTextfieldWin subclasses
+  //             NativeControlWin.
+  bool initialized_;
 
   DISALLOW_COPY_AND_ASSIGN(Textfield);
 };

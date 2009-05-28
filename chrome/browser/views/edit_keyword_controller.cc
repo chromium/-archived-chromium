@@ -81,7 +81,7 @@ std::wstring EditKeywordController::GetWindowTitle() const {
 bool EditKeywordController::IsDialogButtonEnabled(
     MessageBoxFlags::DialogButton button) const {
   if (button == MessageBoxFlags::DIALOGBUTTON_OK) {
-    return (IsKeywordValid() && !title_tf_->GetText().empty() && IsURLValid());
+    return (IsKeywordValid() && !title_tf_->text().empty() && IsURLValid());
   }
   return true;
 }
@@ -99,7 +99,7 @@ bool EditKeywordController::Cancel() {
 bool EditKeywordController::Accept() {
   std::wstring url_string = GetURL();
   DCHECK(!url_string.empty());
-  const std::wstring& keyword = keyword_tf_->GetText();
+  const std::wstring& keyword = keyword_tf_->text();
 
   const TemplateURL* existing =
       profile_->GetTemplateURLModel()->GetTemplateURLForKeyword(keyword);
@@ -123,7 +123,7 @@ bool EditKeywordController::Accept() {
     // does in a similar situation (updating an existing TemplateURL with
     // data from a new one).
     TemplateURL* modifiable_url = const_cast<TemplateURL*>(template_url_);
-    modifiable_url->set_short_name(title_tf_->GetText());
+    modifiable_url->set_short_name(title_tf_->text());
     modifiable_url->set_keyword(keyword);
     modifiable_url->SetURL(url_string, 0, 0);
     // TemplateURLModel takes ownership of template_url_.
@@ -133,16 +133,16 @@ bool EditKeywordController::Accept() {
     // Adding a new entry via the KeywordEditorView.
     DCHECK(keyword_editor_view_);
     if (keyword_editor_view_)
-      keyword_editor_view_->AddTemplateURL(title_tf_->GetText(),
-                                           keyword_tf_->GetText(),
+      keyword_editor_view_->AddTemplateURL(title_tf_->text(),
+                                           keyword_tf_->text(),
                                            url_string);
   } else {
     // Modifying an entry via the KeywordEditorView.
     DCHECK(keyword_editor_view_);
     if (keyword_editor_view_) {
       keyword_editor_view_->ModifyTemplateURL(template_url_,
-                                              title_tf_->GetText(),
-                                              keyword_tf_->GetText(),
+                                              title_tf_->text(),
+                                              keyword_tf_->text(),
                                               url_string);
     }
   }
@@ -304,7 +304,7 @@ bool EditKeywordController::IsURLValid() const {
 
 std::wstring EditKeywordController::GetURL() const {
   std::wstring url;
-  TrimWhitespace(TemplateURLRef::DisplayURLToURLRef(url_tf_->GetText()),
+  TrimWhitespace(TemplateURLRef::DisplayURLToURLRef(url_tf_->text()),
                  TRIM_ALL, &url);
   if (url.empty())
     return url;
@@ -323,7 +323,7 @@ std::wstring EditKeywordController::GetURL() const {
 }
 
 bool EditKeywordController::IsKeywordValid() const {
-  std::wstring keyword = keyword_tf_->GetText();
+  std::wstring keyword = keyword_tf_->text();
   if (keyword.empty())
     return true;  // Always allow no keyword.
   const TemplateURL* turl_with_keyword =
@@ -335,7 +335,7 @@ void EditKeywordController::UpdateImageViews() {
   UpdateImageView(keyword_iv_, IsKeywordValid(),
                   IDS_SEARCH_ENGINES_INVALID_KEYWORD_TT);
   UpdateImageView(url_iv_, IsURLValid(), IDS_SEARCH_ENGINES_INVALID_URL_TT);
-  UpdateImageView(title_iv_, !title_tf_->GetText().empty(),
+  UpdateImageView(title_iv_, !title_tf_->text().empty(),
                   IDS_SEARCH_ENGINES_INVALID_TITLE_TT);
 }
 

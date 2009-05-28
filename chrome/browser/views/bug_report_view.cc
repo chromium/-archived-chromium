@@ -284,7 +284,7 @@ void BugReportView::ItemChanged(views::ComboBox* combo_box,
   description_text_->SetEnabled(!is_phishing_report);
   description_text_->SetReadOnly(is_phishing_report);
   if (is_phishing_report) {
-    old_report_text_ = description_text_->GetText();
+    old_report_text_ = description_text_->text();
     description_text_->SetText(std::wstring());
   } else if (!old_report_text_.empty()) {
     description_text_->SetText(old_report_text_);
@@ -438,7 +438,7 @@ void BugReportView::SendReport() {
                    "name=\"url\"\r\n\r\n");
 
   // convert URL to UTF8
-  std::string report_url = WideToUTF8(page_url_text_->GetText());
+  std::string report_url = WideToUTF8(page_url_text_->text());
   if (report_url.empty()) {
     post_body.append("n/a\r\n");
   } else {
@@ -479,7 +479,7 @@ void BugReportView::SendReport() {
   post_body.append("Content-Disposition: form-data; "
                    "name=\"description\"\r\n\r\n");
 
-  std::string description = WideToUTF8(description_text_->GetText());
+  std::string description = WideToUTF8(description_text_->text());
   if (description.empty()) {
     post_body.append("n/a\r\n");
   } else {
@@ -522,7 +522,7 @@ void BugReportView::SendReport() {
 void BugReportView::ReportPhishing() {
   tab_->controller().LoadURL(
       safe_browsing_util::GeneratePhishingReportUrl(
-          kReportPhishingUrl, WideToUTF8(page_url_text_->GetText())),
+          kReportPhishingUrl, WideToUTF8(page_url_text_->text())),
       GURL(),
       PageTransition::LINK);
 }

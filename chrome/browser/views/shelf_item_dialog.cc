@@ -453,7 +453,7 @@ void ShelfItemDialog::PerformModelChange() {
   DCHECK(delegate_);
   GURL url(GetInputURL());
   const std::wstring title =
-      title_field_ ? title_field_->GetText() : std::wstring();
+      title_field_ ? title_field_->text() : std::wstring();
   delegate_->AddBookmark(this, title, url);
 }
 
@@ -519,5 +519,5 @@ void ShelfItemDialog::OnDoubleClick() {
 }
 
 GURL ShelfItemDialog::GetInputURL() const {
-  return GURL(URLFixerUpper::FixupURL(url_field_->GetText(), L""));
+  return GURL(URLFixerUpper::FixupURL(url_field_->text(), L""));
 }
