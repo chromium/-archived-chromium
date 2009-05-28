@@ -891,8 +891,9 @@ bool LocationBarView::SkipDefaultKeyEventProcessing(const views::KeyEvent& e) {
 #if defined(OS_WIN)
   int c = e.GetCharacter();
   // We don't process ALT + numpad digit as accelerators, they are used for
-  // entering special characters.
-  if (e.IsAltDown() && win_util::IsNumPadDigit(c, e.IsExtendedKey()))
+  // entering special characters.  We do translate alt-home.
+  if (e.IsAltDown() && (c != VK_HOME) &&
+      win_util::IsNumPadDigit(c, e.IsExtendedKey()))
     return true;
 
   // Skip accelerators for key combinations omnibox wants to crack. This list
@@ -903,27 +904,27 @@ bool LocationBarView::SkipDefaultKeyEventProcessing(const views::KeyEvent& e) {
   // accelerators (e.g., F5 for reload the page should work even when the
   // Omnibox gets focused).
   switch (c) {
-  case VK_RETURN:
-    return true;
+    case VK_RETURN:
+      return true;
 
-  case VK_UP:
-  case VK_DOWN:
-    return !e.IsAltDown();
+    case VK_UP:
+    case VK_DOWN:
+      return !e.IsAltDown();
 
-  case VK_DELETE:
-  case VK_INSERT:
-    return !e.IsAltDown() && e.IsShiftDown() && !e.IsControlDown();
+    case VK_DELETE:
+    case VK_INSERT:
+      return !e.IsAltDown() && e.IsShiftDown() && !e.IsControlDown();
 
-  case 'X':
-  case 'V':
-    return !e.IsAltDown() && e.IsControlDown();
+    case 'X':
+    case 'V':
+      return !e.IsAltDown() && e.IsControlDown();
 
-  case VK_BACK:
-  case 0xbb:
-    return true;
+    case VK_BACK:
+    case 0xbb:
+      return true;
 
-  default:
-    return false;
+    default:
+      return false;
   }
 #else
   NOTIMPLEMENTED();

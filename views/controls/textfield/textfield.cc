@@ -197,13 +197,14 @@ bool Textfield::SkipDefaultKeyEventProcessing(const KeyEvent& e) {
 #if defined(OS_WIN)
   // TODO(hamaji): Figure out which keyboard combinations we need to add here,
   //               similar to LocationBarView::SkipDefaultKeyEventProcessing.
-  if (e.GetCharacter() == VK_BACK)
+  const int c = e.GetCharacter();
+  if (c == VK_BACK)
     return true;  // We'll handle BackSpace ourselves.
 
   // We don't translate accelerators for ALT + NumPad digit, they are used for
-  // entering special characters.
-  if (e.IsAltDown() &&
-      win_util::IsNumPadDigit(e.GetCharacter(), e.IsExtendedKey()))
+  // entering special characters.  We do translate alt-home.
+  if (e.IsAltDown() && (c != VK_HOME) &&
+      win_util::IsNumPadDigit(c, e.IsExtendedKey()))
     return true;
 #endif
   return false;
