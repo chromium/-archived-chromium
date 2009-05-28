@@ -330,6 +330,12 @@ int BrowserMain(const MainFunctionParams& parameters) {
   local_state->RegisterStringPref(prefs::kApplicationLocale, L"");
   local_state->RegisterBooleanPref(prefs::kMetricsReportingEnabled, false);
 
+#if defined(TOOLKIT_GTK)
+  // It is important for this to happen before the first run dialog, as it
+  // styles the dialog as well.
+  gtk_util::InitRCStyles();
+#endif
+
 #if defined(OS_POSIX)
   // On Mac OS X / Linux we display the first run dialog as early as possible,
   // so we can get the stats enabled.
@@ -537,12 +543,6 @@ int BrowserMain(const MainFunctionParams& parameters) {
     return ResultCodes::MACHINE_LEVEL_INSTALL_EXISTS;
 
   process_singleton.Create();
-
-#if defined(TOOLKIT_GTK)
-  // It is important for this to happen before the first run dialog, as it
-  // styles the dialog as well.
-  gtk_util::InitRCStyles();
-#endif
 
   // TODO(port): This block of code should probably be used on all platforms!
   // On Mac OS X / Linux we display this dialog before setting the value of
