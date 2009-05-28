@@ -1277,8 +1277,8 @@ void RenderViewHost::UnhandledKeyboardEvent(
   }
 }
 
-void RenderViewHost::OnEnterOrSpace() {
-  delegate_->OnEnterOrSpace();
+void RenderViewHost::OnUserGesture() {
+  delegate_->OnUserGesture();
 }
 
 void RenderViewHost::OnMissingPluginStatus(int status) {

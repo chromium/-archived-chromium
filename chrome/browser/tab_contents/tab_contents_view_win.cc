@@ -415,10 +415,6 @@ LRESULT TabContentsViewWin::OnMouseRange(UINT msg,
       // Make sure this TabContents is activated when it is clicked on.
       if (tab_contents()->delegate())
         tab_contents()->delegate()->ActivateContents(tab_contents());
-      DownloadRequestManager* drm =
-          g_browser_process->download_request_manager();
-      if (drm)
-        drm->OnUserGesture(tab_contents());
       break;
     }
     case WM_MOUSEMOVE:

@@ -275,10 +275,12 @@ class RenderWidgetHost : public IPC::Channel::Listener {
   // overridden by RenderView to send upwards to its delegate.
   virtual void UnhandledKeyboardEvent(const NativeWebKeyboardEvent& event) {}
 
-  // Notification that the user pressed the enter key or the spacebar. The
-  // render view host overrides this to forward the information to its delegate
-  // (see corresponding function in RenderViewHostDelegate).
-  virtual void OnEnterOrSpace() {}
+  // Notification that the user has made some kind of input that could
+  // perform an action. The render view host overrides this to forward the
+  // information to its delegate (see corresponding function in
+  // RenderViewHostDelegate). The gestures that count are 1) any mouse down
+  // event and 2) enter or space key presses.
+  virtual void OnUserGesture() {}
 
   // Callbacks for notification when the renderer becomes unresponsive to user
   // input events, and subsequently responsive again. RenderViewHost overrides

@@ -130,7 +130,7 @@ class BrowserProcess {
 
   virtual MemoryModel memory_model() = 0;
 
-#if defined(OS_WIN)
+#if defined(OS_WIN) || defined(OS_LINUX)
   DownloadRequestManager* download_request_manager();
 #endif
 

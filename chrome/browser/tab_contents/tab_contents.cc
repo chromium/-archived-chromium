@@ -2299,10 +2299,9 @@ void TabContents::OnDidGetApplicationInfo(
                   &GearsCreateShortcutCallbackFunctor::Run));
 }
 
-void TabContents::OnEnterOrSpace() {
-  // See comment in RenderViewHostDelegate::OnEnterOrSpace as to why we do this.
-#if defined(OS_WIN)
-  // TODO(port): this is stubbed in BrowserProcess
+void TabContents::OnUserGesture() {
+  // See comment in RenderViewHostDelegate::OnUserGesture as to why we do this.
+#if defined(OS_WIN) || defined(OS_LINUX)
   DownloadRequestManager* drm = g_browser_process->download_request_manager();
   if (drm)
     drm->OnUserGesture(this);

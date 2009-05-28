@@ -841,7 +841,7 @@ class TabContents : public PageNavigator,
   virtual void OnDidGetApplicationInfo(
       int32 page_id,
       const webkit_glue::WebApplicationInfo& info);
-  virtual void OnEnterOrSpace();
+  virtual void OnUserGesture();
   virtual void OnFindReply(int request_id,
                            int number_of_matches,
                            const gfx::Rect& selection_rect,

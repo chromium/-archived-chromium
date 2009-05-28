@@ -421,10 +421,10 @@ class RenderViewHostDelegate {
       int32 page_id,
       const webkit_glue::WebApplicationInfo& app_info) { }
 
-  // Notification the user has pressed enter or space while focus was on the
+  // Notification the user has made a gesture while focus was on the
   // page. This is used to avoid uninitiated user downloads (aka carpet
   // bombing), see DownloadRequestManager for details.
-  virtual void OnEnterOrSpace() { }
+  virtual void OnUserGesture() { }
 
   // If this view is used to host an external tab container.
   virtual bool IsExternalTabContainer() const { return false; }

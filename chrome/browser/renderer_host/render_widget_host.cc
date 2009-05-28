@@ -301,6 +301,8 @@ void RenderWidgetHost::ForwardMouseEvent(const WebMouseEvent& mouse_event) {
       return;
     }
     mouse_move_pending_ = true;
+  } else if (mouse_event.type == WebInputEvent::MouseDown) {
+    OnUserGesture();
   }
 
   ForwardInputEvent(mouse_event, sizeof(WebMouseEvent));
@@ -316,7 +318,7 @@ void RenderWidgetHost::ForwardKeyboardEvent(
   if (key_event.type == WebKeyboardEvent::Char &&
       (key_event.windowsKeyCode == base::VKEY_RETURN ||
        key_event.windowsKeyCode == base::VKEY_SPACE)) {
-    OnEnterOrSpace();
+    OnUserGesture();
   }
 
   // Double check the type to make sure caller hasn't sent us nonsense that

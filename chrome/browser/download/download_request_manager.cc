@@ -66,10 +66,15 @@ void DownloadRequestManager::TabDownloadState::PromptUserForDownload(
   if (is_showing_prompt())
     return;  // Already showing prompt.
 
-  if (DownloadRequestManager::delegate_)
+  if (DownloadRequestManager::delegate_) {
     NotifyCallbacks(DownloadRequestManager::delegate_->ShouldAllowDownload());
-  else
+  } else {
     dialog_delegate_ = DownloadRequestDialogDelegate::Create(tab, this);
+    // TODO(estade): the dialog delegate isn't yet implemented on linux. Just
+    // assume we shouldn't allow the download.
+    if (dialog_delegate_ == NULL)
+      NotifyCallbacks(false);
+  }
 }
 
 void DownloadRequestManager::TabDownloadState::Cancel() {
