@@ -93,9 +93,11 @@ bool PathProvider(int key, FilePath* result) {
 #endif
       break;
     case chrome::DIR_APP_DICTIONARIES:
-#if defined(OS_LINUX)
+#if defined(OS_LINUX) || defined(OS_MACOSX)
       // We can't write into the EXE dir on Linux, so keep dictionaries
       // alongside the safe browsing database in the user data dir.
+      // And we don't want to write into the bundle on the Mac, so push
+      // it to the user data dir there also.
       if (!PathService::Get(chrome::DIR_USER_DATA, &cur))
         return false;
 #else
