@@ -21,10 +21,10 @@
 #include "views/layout_manager.h"
 #include "views/views_delegate.h"
 #include "views/widget/root_view.h"
+#include "views/widget/tooltip_manager.h"
 #include "views/widget/widget.h"
 #include "views/window/window.h"
 #if defined(OS_WIN)
-#include "views/widget/tooltip_manager.h"
 #include "views/accessibility/view_accessibility_wrapper.h"
 #endif
 
@@ -1222,27 +1222,15 @@ bool View::GetTooltipTextOrigin(int x, int y, gfx::Point* loc) {
 }
 
 void View::TooltipTextChanged() {
-#if defined(OS_WIN)
   Widget* widget = GetWidget();
   if (widget && widget->GetTooltipManager())
     widget->GetTooltipManager()->TooltipTextChanged(this);
-#else
-  // TODO(port): Not actually windows specific; I just haven't ported this part
-  // yet.
-  NOTIMPLEMENTED();
-#endif
 }
 
 void View::UpdateTooltip() {
-#if defined(OS_WIN)
   Widget* widget = GetWidget();
   if (widget && widget->GetTooltipManager())
     widget->GetTooltipManager()->UpdateTooltip();
-#else
-  // TODO(port): Not actually windows specific; I just haven't ported this part
-  // yet.
-  NOTIMPLEMENTED();
-#endif
 }
 
 void View::SetParentOwned(bool f) {
