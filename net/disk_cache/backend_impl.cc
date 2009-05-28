@@ -789,7 +789,7 @@ void BackendImpl::CriticalError(int error) {
   ReportError(error);
 
   // Reset the mask_ if it was not given by the user.
-  if (mask_ == data_->header.table_len - 1)
+  if (static_cast<int>(mask_) == data_->header.table_len - 1)
     mask_ = 0;
 
   // Setting the index table length to an invalid value will force re-creation
@@ -988,7 +988,7 @@ void BackendImpl::RestartCache() {
 
 void BackendImpl::PrepareForRestart() {
   // Reset the mask_ if it was not given by the user.
-  if (mask_ == data_->header.table_len - 1)
+  if (static_cast<int>(mask_) == data_->header.table_len - 1)
     mask_ = 0;
 
   data_->header.crash = 0;
