@@ -3452,6 +3452,7 @@
           'target_name': 'pull_in_all',
           'type': 'none',
           'dependencies': [
+            'app/locales.gyp:*',
             '../app/app.gyp:*',
             '../base/base.gyp:*',
             '../media/media.gyp:*',
