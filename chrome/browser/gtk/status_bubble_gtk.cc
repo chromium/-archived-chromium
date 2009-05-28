@@ -32,8 +32,7 @@ static const int kHideDelay = 250;
 }  // namespace
 
 StatusBubbleGtk::StatusBubbleGtk()
-    : parent_(NULL),
-      timer_factory_(this) {
+    : timer_factory_(this) {
   InitWidgets();
 }
 
@@ -56,13 +55,6 @@ void StatusBubbleGtk::SetStatus(const std::wstring& status) {
   SetStatus(WideToUTF8(status));
 }
 
-void StatusBubbleGtk::SetParentAllocation(
-    GtkWidget* parent, GtkAllocation* allocation) {
-  parent_ = parent;
-  parent_allocation_ = *allocation;
-  SetStatusBubbleSize();
-}
-
 void StatusBubbleGtk::SetURL(const GURL& url, const std::wstring& languages) {
   SetStatus(url.possibly_invalid_spec());
 }
@@ -71,7 +63,6 @@ void StatusBubbleGtk::Show() {
   // If we were going to hide, stop.
   timer_factory_.RevokeAll();
 
-  SetStatusBubbleSize();
   gtk_widget_show_all(container_.get());
 
   if (container_.get()->window)
@@ -89,38 +80,6 @@ void StatusBubbleGtk::HideInASecond() {
   MessageLoop::current()->PostDelayedTask(FROM_HERE,
       timer_factory_.NewRunnableMethod(&StatusBubbleGtk::Hide),
       kHideDelay);
-}
-
-void StatusBubbleGtk::SetStatusBubbleSize() {
-  if (parent_) {
-    GtkRequisition requisition;
-    gtk_widget_size_request(container_.get(), &requisition);
-
-    // TODO(erg): Previously, I put a call to gtk_fixed_put() here. It appears
-    // that doing this sets off a size-allocate storm, since gtk_fixed_put()
-    // calls gtk_widget_queue_resize on the GtkFixed that caused this message.
-    // The real solution may be creating a subclass of GtkVBox that has extra
-    // code to deal with floating widgets, but this hack is good enough for
-    // Friday. evanm says that there's a a GtkFixed subclass in test_shell that
-    // we'll be stealing for plugin support anyway that should also do the same
-    // task.
-
-    GtkAllocation widget_allocation;
-    int child_y = std::max(
-        parent_allocation_.y + parent_allocation_.height - requisition.height,
-        0);
-    widget_allocation.x = 0;
-    widget_allocation.y = child_y;
-    widget_allocation.width = std::max(1, std::min(requisition.width,
-                                                   parent_allocation_.width));
-    widget_allocation.height = std::max(1, requisition.height);
-
-    if (memcmp(&widget_allocation, &container_.get()->allocation,
-        sizeof widget_allocation) != 0) {
-      // Only do something when we are actually changing sizes.
-      gtk_widget_size_allocate(container_.get(), &widget_allocation);
-    }
-  }
 }
 
 void StatusBubbleGtk::MouseMoved() {

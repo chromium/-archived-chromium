@@ -38,11 +38,6 @@ class StatusBubbleGtk : public StatusBubble {
 
   void SetStatus(const std::string& status_utf8);
 
-  // Notification from our parent GtkFixed about its size. |allocation| is the
-  // size of our |parent| GtkFixed, and we use it to position our status bubble
-  // directly on top of the current render view.
-  void SetParentAllocation(GtkWidget* parent, GtkAllocation* allocation);
-
   // Top of the widget hierarchy for a StatusBubble. This top level widget is
   // guarenteed to have its gtk_widget_name set to "status-bubble" for
   // identification.
@@ -59,24 +54,11 @@ class StatusBubbleGtk : public StatusBubble {
   // Builds the widgets, containers, etc.
   void InitWidgets();
 
-  // An ad hoc, informally-specified, bug-ridden, slow implementation of half
-  // of GTK's requisition/allocation system. We use this to position the status
-  // bubble on top of our parent GtkFixed.
-  void SetStatusBubbleSize();
-
   // A GtkAlignment that is the child of |slide_widget_|.
   OwnedWidgetGtk container_;
 
   // The GtkLabel holding the text.
   GtkWidget* label_;
-
-  // Our parent GtkFixed. (We don't own this; we only keep a reference as we
-  // set our own size by notifying |parent_| of our desired size.)
-  GtkWidget* parent_;
-
-  // |parent_|'s GtkAllocation. We make sure that |container_| lives along the
-  // bottom of this and doesn't protrude.
-  GtkAllocation parent_allocation_;
 
   // A timer that hides our window after a delay.
   ScopedRunnableMethodFactory<StatusBubbleGtk> timer_factory_;

@@ -14,10 +14,14 @@ class RenderViewHost;
 class StatusBubbleGtk;
 class TabContents;
 
+typedef struct _GtkFloatingContainer GtkFloatingContainer;
+
 class TabContentsContainerGtk : public NotificationObserver {
  public:
   explicit TabContentsContainerGtk(StatusBubbleGtk* status_bubble);
   ~TabContentsContainerGtk();
+
+  void Init();
 
   // Inserts our GtkWidget* hierarchy into a GtkBox managed by our owner.
   void AddContainerToBox(GtkWidget* widget);
@@ -58,6 +62,12 @@ class TabContentsContainerGtk : public NotificationObserver {
       GtkAllocation* allocation,
       TabContentsContainerGtk* container);
 
+  // Handler for |floating_|'s "set-floating-position" signal. During this
+  // callback, we manually set the position of the status bubble.
+  static void OnSetFloatingPosition(
+      GtkFloatingContainer* container, GtkAllocation* allocation,
+      TabContentsContainerGtk* tab_contents_container);
+
   NotificationRegistrar registrar_;
 
   // The currently visible TabContents.
@@ -66,13 +76,16 @@ class TabContentsContainerGtk : public NotificationObserver {
   // The status bubble manager.  Always non-NULL.
   StatusBubbleGtk* status_bubble_;
 
-  // We keep a GtkFixed which is inserted into this object's owner's GtkWidget
-  // hierarchy. We then insert and remove TabContents GtkWidgets into this
-  // fixed_. This should not be a GtkVBox since there were errors with timing
-  // where the vbox was horizontally split with the top half displaying the
-  // current TabContents and bottom half displaying the loading page. In
-  // addition, we need to position the status bubble on top of the currently
-  // displayed TabContents so we put that in this part of the hierarchy.
+  // Top of the TabContentsContainerGtk widget hierarchy. A cross between a
+  // GtkBin and a GtkFixed, |floating_| has |fixed_| as its one "real" child,
+  // and the various things that hang off the bottom (status bubble, etc) have
+  // their positions manually set in OnSetFloatingPosition.
+  GtkWidget* floating_;
+
+  // We insert and remove TabContents GtkWidgets into this fixed_. This should
+  // not be a GtkVBox since there were errors with timing where the vbox was
+  // horizontally split with the top half displaying the current TabContents
+  // and bottom half displaying the loading page.
   GtkWidget* fixed_;
 
   DISALLOW_COPY_AND_ASSIGN(TabContentsContainerGtk);
