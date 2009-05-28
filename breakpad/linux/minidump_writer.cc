@@ -512,21 +512,36 @@ class MinidumpWriter {
       my_memset(&mod, 0, sizeof(mod));
       mod.base_of_image = mapping.start_addr;
       mod.size_of_image = mapping.size;
-      UntypedMDRVA memory(&minidump_writer_);
-      const size_t filename_len = my_strlen(mapping.name);
+      const size_t filepath_len = my_strlen(mapping.name);
 
-      TypedMDRVA<MDCVInfoPDB70> cv(&minidump_writer_);
-      if (!cv.Allocate())
+      // Figure out file name from path
+      const char* filename_ptr = mapping.name + filepath_len - 1;
+      while (filename_ptr >= mapping.name) {
+        if (*filename_ptr == '/')
+          break;
+        filename_ptr--;
+      }
+      filename_ptr++;
+      const size_t filename_len = mapping.name + filepath_len - filename_ptr;
+
+      uint8_t cv_buf[MDCVInfoPDB70_minsize + NAME_MAX];
+      uint8_t* cv_ptr = cv_buf;
+      UntypedMDRVA cv(&minidump_writer_);
+      if (!cv.Allocate(MDCVInfoPDB70_minsize + filename_len + 1))
         return false;
-      my_memset(cv.get(), 0, sizeof(MDCVInfoPDB70));
-      cv.get()->cv_signature = MD_CVINFOPDB70_SIGNATURE;
+
+      const uint32_t cv_signature = MD_CVINFOPDB70_SIGNATURE;
+      memcpy(cv_ptr, &cv_signature, sizeof(cv_signature));
+      cv_ptr += sizeof(cv_signature);
 
       {
         // We XOR the first page of the file to get a signature for it.
         uint8_t xor_buf[sizeof(MDGUID)];
         size_t done = 0;
-        uint8_t* const signature = (uint8_t*) &cv.get()->signature;
+        uint8_t* signature = cv_ptr;
+        cv_ptr += sizeof(xor_buf);
 
+        my_memset(signature, 0, sizeof(xor_buf));
         while (done < 4096) {
           dumper_.CopyFromProcess(xor_buf, crashing_tid_,
                                   (void *) (mod.base_of_image + done),
@@ -535,16 +550,19 @@ class MinidumpWriter {
             signature[i] ^= xor_buf[i];
           done += sizeof(xor_buf);
         }
+        cv_ptr += sizeof(uint32_t);  // Skip age field
       }
+
+      // Write pdb_file_name
+      memcpy(cv_ptr, filename_ptr, filename_len + 1);
+      cv.Copy(cv_buf, MDCVInfoPDB70_minsize + filename_len + 1);
 
       mod.cv_record = cv.location();
 
-      if (filename_len) {
-        MDLocationDescriptor ld;
-        if (!minidump_writer_.WriteString(mapping.name, filename_len, &ld))
-          return false;
-        mod.module_name_rva = ld.rva;
-      }
+      MDLocationDescriptor ld;
+      if (!minidump_writer_.WriteString(mapping.name, filepath_len, &ld))
+        return false;
+      mod.module_name_rva = ld.rva;
 
       list.CopyIndexAfterObject(j++, &mod, sizeof(mod));
     }

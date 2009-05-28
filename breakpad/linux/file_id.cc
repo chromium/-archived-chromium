@@ -34,6 +34,7 @@
 
 #include "breakpad/linux/file_id.h"
 
+#include <arpa/inet.h>
 #include <elf.h>
 #include <fcntl.h>
 #include <link.h>
@@ -82,12 +83,23 @@ bool FileID::ElfFileIdentifier(uint8_t identifier[kMDGUIDSize]) {
 // static
 void FileID::ConvertIdentifierToString(const uint8_t identifier[kMDGUIDSize],
                                        char* buffer, int buffer_length) {
+  uint8_t identifier_swapped[kMDGUIDSize];
+
+  // Endian-ness swap to match dump processor expectation.
+  memcpy(identifier_swapped, identifier, kMDGUIDSize);
+  uint32_t* data1 = reinterpret_cast<uint32_t*>(identifier_swapped);
+  *data1 = htonl(*data1);
+  uint16_t* data2 = reinterpret_cast<uint16_t*>(identifier_swapped + 4);
+  *data2 = htons(*data2);
+  uint16_t* data3 = reinterpret_cast<uint16_t*>(identifier_swapped + 6);
+  *data3 = htons(*data3);
+
   int buffer_idx = 0;
   for (int idx = 0;
        (buffer_idx < buffer_length) && (idx < kMDGUIDSize);
        ++idx) {
-    int hi = (identifier[idx] >> 4) & 0x0F;
-    int lo = (identifier[idx]) & 0x0F;
+    int hi = (identifier_swapped[idx] >> 4) & 0x0F;
+    int lo = (identifier_swapped[idx]) & 0x0F;
 
     if (idx == 4 || idx == 6 || idx == 8 || idx == 10)
       buffer[buffer_idx++] = '-';
