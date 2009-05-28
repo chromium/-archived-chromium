@@ -5,7 +5,6 @@
 #ifndef VIEWS_DRAG_UTILS_H_
 #define VIEWS_DRAG_UTILS_H_
 
-#include <objidl.h>
 #include <string>
 
 namespace gfx {
@@ -30,7 +29,7 @@ void SetURLAndDragImage(const GURL& url,
 // portion will be truncated in the drag image.
 void CreateDragImageForFile(const std::wstring& file_name,
                             SkBitmap* icon,
-                            IDataObject* data_object);
+                            OSExchangeData* data_object);
 
 // Sets the drag image on data_object from the supplied canvas. width/height
 // are the size of the image to use, and the offsets give the location of
@@ -40,8 +39,7 @@ void SetDragImageOnDataObject(const gfx::Canvas& canvas,
                               int height,
                               int cursor_x_offset,
                               int cursor_y_offset,
-                              IDataObject* data_object);
-
+                              OSExchangeData* data_object);
 } // namespace drag_utils
 
 #endif  // #ifndef VIEWS_DRAG_UTILS_H_
