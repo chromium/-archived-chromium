@@ -11,6 +11,18 @@
 #include "base/process_util.h"
 #include "base/string_util.h"
 
+namespace {
+
+void XDGOpen(const FilePath& path) {
+  std::vector<std::string> argv;
+  argv.push_back("xdg-open");
+  argv.push_back(path.value());
+  base::file_handle_mapping_vector no_files;
+  base::LaunchApp(argv, no_files, false, NULL);
+}
+
+}  // namespace
+
 namespace platform_util {
 
 // TODO(estade): It would be nice to be able to select the file in the file
@@ -21,11 +33,11 @@ void ShowItemInFolder(const FilePath& full_path) {
   if (!file_util::DirectoryExists(dir))
     return;
 
-  std::vector<std::string> argv;
-  argv.push_back("xdg-open");
-  argv.push_back(dir.value());
-  base::file_handle_mapping_vector no_files;
-  base::LaunchApp(argv, no_files, false, NULL);
+  XDGOpen(dir);
+}
+
+void OpenItem(const FilePath& full_path) {
+  XDGOpen(full_path);
 }
 
 gfx::NativeWindow GetTopLevel(gfx::NativeView view) {

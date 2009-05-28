@@ -15,6 +15,9 @@ namespace platform_util {
 // Show the given file in a file manager. If possible, select the file.
 void ShowItemInFolder(const FilePath& full_path);
 
+// Open the given file in the desktop's default manner.
+void OpenItem(const FilePath& full_path);
+
 // Get the top level window for the native view. This can return NULL.
 gfx::NativeWindow GetTopLevel(gfx::NativeView view);
 

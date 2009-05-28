@@ -82,6 +82,10 @@ void ShowItemInFolder(const FilePath& full_path) {
                                      highlight, NULL);
 }
 
+void OpenItem(const FilePath& full_path) {
+  win_util::OpenItemViaShell(full_path);
+}
+
 gfx::NativeWindow GetTopLevel(gfx::NativeView view) {
   return GetAncestor(view, GA_ROOT);
 }

@@ -162,7 +162,7 @@ bool ShouldUseVistaFrame() {
 
 // Open an item via a shell execute command. Error code checking and casting
 // explanation: http://msdn2.microsoft.com/en-us/library/ms647732.aspx
-bool OpenItemViaShell(const FilePath& full_path, bool ask_for_app) {
+bool OpenItemViaShell(const FilePath& full_path) {
   HINSTANCE h = ::ShellExecuteW(
       NULL, NULL, full_path.value().c_str(), NULL,
       full_path.DirName().value().c_str(), SW_SHOWNORMAL);
@@ -171,14 +171,13 @@ bool OpenItemViaShell(const FilePath& full_path, bool ask_for_app) {
   if (error > 32)
     return true;
 
-  if ((error == SE_ERR_NOASSOC) && ask_for_app)
+  if ((error == SE_ERR_NOASSOC))
     return OpenItemWithExternalApp(full_path.value());
 
   return false;
 }
 
-bool OpenItemViaShellNoZoneCheck(const FilePath& full_path,
-                                 bool ask_for_app) {
+bool OpenItemViaShellNoZoneCheck(const FilePath& full_path) {
   SHELLEXECUTEINFO sei = { sizeof(sei) };
   sei.fMask = SEE_MASK_NOZONECHECKS | SEE_MASK_FLAG_DDEWAIT;
   sei.nShow = SW_SHOWNORMAL;
@@ -187,7 +186,7 @@ bool OpenItemViaShellNoZoneCheck(const FilePath& full_path,
   if (::ShellExecuteExW(&sei))
     return true;
   LONG_PTR error = reinterpret_cast<LONG_PTR>(sei.hInstApp);
-  if ((error == SE_ERR_NOASSOC) && ask_for_app)
+  if ((error == SE_ERR_NOASSOC))
     return OpenItemWithExternalApp(full_path.value());
   return false;
 }

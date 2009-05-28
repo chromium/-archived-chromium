@@ -21,6 +21,10 @@ void ShowItemInFolder(const FilePath& full_path) {
                    inFileViewerRootedAtPath:nil];
 }
 
+void OpenItem(const FilePath& full_path) {
+  NOTIMPLEMENTED();
+}
+
 gfx::NativeWindow GetTopLevel(gfx::NativeView view) {
   return [view window];
 }

@@ -117,16 +117,14 @@ bool ShouldUseVistaFrame();
 
 // Open or run a file via the Windows shell. In the event that there is no
 // default application registered for the file specified by 'full_path',
-// ask the user, via the Windows "Open With" dialog, for an application to use
-// if 'ask_for_app' is true.
+// ask the user, via the Windows "Open With" dialog.
 // Returns 'true' on successful open, 'false' otherwise.
-bool OpenItemViaShell(const FilePath& full_path, bool ask_for_app);
+bool OpenItemViaShell(const FilePath& full_path);
 
 // The download manager now writes the alternate data stream with the
 // zone on all downloads. This function is equivalent to OpenItemViaShell
 // without showing the zone warning dialog.
-bool OpenItemViaShellNoZoneCheck(const FilePath& full_path,
-                                 bool ask_for_app);
+bool OpenItemViaShellNoZoneCheck(const FilePath& full_path);
 
 // Ask the user, via the Windows "Open With" dialog, for an application to use
 // to open the file specified by 'full_path'.

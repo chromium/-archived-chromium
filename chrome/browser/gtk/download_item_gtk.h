@@ -68,6 +68,9 @@ class DownloadItemGtk : public DownloadItem::Observer,
   static gboolean OnExpose(GtkWidget* widget, GdkEventExpose* e,
                            DownloadItemGtk* download_item);
 
+  // Called when |body_| is clicked.
+  static void OnClick(GtkWidget* widget, DownloadItemGtk* item);
+
   // Used for the download icon.
   static gboolean OnProgressAreaExpose(GtkWidget* widget,
                                        GdkEventExpose* e,

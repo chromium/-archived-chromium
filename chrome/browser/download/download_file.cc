@@ -530,24 +530,23 @@ void DownloadFileManager::OnShowDownloadInShell(const FilePath& full_path) {
   platform_util::ShowItemInFolder(full_path);
 }
 
-// Launches the selected download using ShellExecute 'open' verb. If there is
-// a valid parent window, the 'safer' version will be used which can
+// Launches the selected download using ShellExecute 'open' verb. For windows,
+// if there is a valid parent window, the 'safer' version will be used which can
 // display a modal dialog asking for user consent on dangerous files.
 void DownloadFileManager::OnOpenDownloadInShell(const FilePath& full_path,
                                                 const GURL& url,
                                                 gfx::NativeView parent_window) {
-#if defined(OS_WIN)
   DCHECK(MessageLoop::current() == file_loop_);
+
+#if defined(OS_WIN)
   if (NULL != parent_window) {
     win_util::SaferOpenItemViaShell(parent_window, L"", full_path,
-                                    UTF8ToWide(url.spec()), true);
-  } else {
-    win_util::OpenItemViaShell(full_path, true);
+                                    UTF8ToWide(url.spec()));
+    return;
   }
-#else
-  // TODO(port) implement me.
-  NOTREACHED();
 #endif
+
+  platform_util::OpenItem(full_path);
 }
 
 // The DownloadManager in the UI thread has provided a final name for the

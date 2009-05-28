@@ -181,6 +181,8 @@ DownloadItemGtk::DownloadItemGtk(DownloadShelfGtk* parent_shelf,
   gtk_widget_set_app_paintable(body_, TRUE);
   g_signal_connect(body_, "expose-event",
                    G_CALLBACK(OnExpose), this);
+  g_signal_connect(body_, "clicked",
+                   G_CALLBACK(OnClick), this);
   GTK_WIDGET_UNSET_FLAGS(body_, GTK_CAN_FOCUS);
   // Remove internal padding on the button.
   GtkRcStyle* no_padding_style = gtk_rc_style_new();
@@ -562,6 +564,19 @@ gboolean DownloadItemGtk::OnExpose(GtkWidget* widget, GdkEventExpose* e,
     gtk_container_propagate_expose(GTK_CONTAINER(widget), child, e);
 
   return TRUE;
+}
+
+// static
+void DownloadItemGtk::OnClick(GtkWidget* widget, DownloadItemGtk* item) {
+  DownloadItem* download = item->get_download();
+
+  // TODO(estade): add clickjacking histogram stuff.
+  if (download->state() == DownloadItem::IN_PROGRESS) {
+    download->set_open_when_complete(
+        !download->open_when_complete());
+  } else if (download->state() == DownloadItem::COMPLETE) {
+    download_util::OpenDownload(download);
+  }
 }
 
 // static

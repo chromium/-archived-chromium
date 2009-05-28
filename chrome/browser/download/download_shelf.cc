@@ -14,10 +14,9 @@
 #include "chrome/common/url_constants.h"
 #include "grit/generated_resources.h"
 
-#if defined(OS_WIN)
+#if defined(OS_WIN) || defined(OS_LINUX)
+// TODO(port): port this for mac. See two uses below.
 #include "chrome/browser/download/download_util.h"
-#elif defined(OS_POSIX)
-#include "chrome/common/temp_scaffolding_stubs.h"
 #endif
 
 // DownloadShelf ---------------------------------------------------------------
@@ -88,10 +87,9 @@ bool DownloadShelfContextMenu::IsItemCommandEnabled(int id) const {
     case OPEN_WHEN_COMPLETE:
       return download_->state() != DownloadItem::CANCELLED;
     case ALWAYS_OPEN_TYPE:
-#if defined(OS_WIN)
+#if defined(OS_WIN) || defined(OS_LINUX)
       return download_util::CanOpenDownload(download_);
-#elif defined(OS_LINUX)
-      // Need to implement dangerous download stuff: http://crbug.com/11780
+#else
       return false;
 #endif
     case CANCEL:
@@ -107,11 +105,8 @@ void DownloadShelfContextMenu::ExecuteItemCommand(int id) {
       download_->manager()->ShowDownloadInShell(download_);
       break;
     case OPEN_WHEN_COMPLETE:
-#if defined(OS_WIN)
+#if defined(OS_WIN) || defined(OS_LINUX)
       download_util::OpenDownload(download_);
-#else
-      // TODO(port): port download_util
-      NOTIMPLEMENTED();
 #endif
       break;
     case ALWAYS_OPEN_TYPE: {
