@@ -136,7 +136,7 @@ TEST_F(NPAPITester, DISABLED_SelfDeletePluginInvokeAlert) {
 
   // Wait for the alert dialog and then close it.
   automation()->WaitForAppModalDialog(5000);
-  scoped_ptr<WindowProxy> window(automation()->GetActiveWindow());
+  scoped_refptr<WindowProxy> window(automation()->GetActiveWindow());
   ASSERT_TRUE(window.get());
   ASSERT_TRUE(window->SimulateOSKeyPress(VK_ESCAPE, 0));
 

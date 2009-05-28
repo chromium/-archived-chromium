@@ -67,7 +67,7 @@ class PageCyclerTest : public UITest {
         url_parse::Component(0, arraysize(query_string) - 1));
     test_url = test_url.ReplaceComponents(replacements);
 
-    scoped_ptr<TabProxy> tab(GetActiveTab());
+    scoped_refptr<TabProxy> tab(GetActiveTab());
     tab->NavigateToURL(test_url);
 
     // Wait for the test to finish.

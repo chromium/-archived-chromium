@@ -27,13 +27,13 @@ class InteractiveConstrainedWindowTest : public UITest {
   virtual void SetUp() {
     UITest::SetUp();
 
-    browser_.reset(automation()->GetBrowserWindow(0));
+    browser_ = automation()->GetBrowserWindow(0);
     ASSERT_TRUE(browser_.get());
 
-    window_.reset(browser_->GetWindow());
+    window_ = browser_->GetWindow();
     ASSERT_TRUE(window_.get());
 
-    tab_.reset(browser_->GetTab(0));
+    tab_ = browser_->GetTab(0);
     ASSERT_TRUE(tab_.get());
   }
 
@@ -44,7 +44,7 @@ class InteractiveConstrainedWindowTest : public UITest {
     ASSERT_TRUE(tab_->NavigateToURL(net::FilePathToFileURL(filename)));
   }
 
-  void SimulateClickInCenterOf(const scoped_ptr<WindowProxy>& window) {
+  void SimulateClickInCenterOf(const scoped_refptr<WindowProxy>& window) {
     gfx::Rect tab_view_bounds;
     ASSERT_TRUE(window->GetViewBounds(VIEW_ID_TAB_CONTAINER,
                                       &tab_view_bounds, true));
@@ -57,9 +57,9 @@ class InteractiveConstrainedWindowTest : public UITest {
                                         views::Event::EF_LEFT_BUTTON_DOWN));
   }
 
-  scoped_ptr<BrowserProxy> browser_;
-  scoped_ptr<WindowProxy> window_;
-  scoped_ptr<TabProxy> tab_;
+  scoped_refptr<BrowserProxy> browser_;
+  scoped_refptr<WindowProxy> window_;
+  scoped_refptr<TabProxy> tab_;
 };
 
 TEST_F(InteractiveConstrainedWindowTest, TestOpenAndResizeTo) {
@@ -68,9 +68,9 @@ TEST_F(InteractiveConstrainedWindowTest, TestOpenAndResizeTo) {
 
   ASSERT_TRUE(automation()->WaitForWindowCountToBecome(2, 1000));
 
-  scoped_ptr<BrowserProxy> popup_browser(automation()->GetBrowserWindow(1));
+  scoped_refptr<BrowserProxy> popup_browser(automation()->GetBrowserWindow(1));
   ASSERT_TRUE(popup_browser != NULL);
-  scoped_ptr<WindowProxy> popup_window(popup_browser->GetWindow());
+  scoped_refptr<WindowProxy> popup_window(popup_browser->GetWindow());
   ASSERT_TRUE(popup_window != NULL);
 
   // Make sure we were created with the correct width and height.
@@ -127,16 +127,16 @@ TEST_F(InteractiveConstrainedWindowTest, DontSpawnEndlessPopups) {
 
   ASSERT_TRUE(automation()->WaitForWindowCountToBecome(2, 1000));
 
-  scoped_ptr<BrowserProxy> popup_browser(automation()->GetBrowserWindow(1));
+  scoped_refptr<BrowserProxy> popup_browser(automation()->GetBrowserWindow(1));
   ASSERT_TRUE(popup_browser.get());
-  scoped_ptr<TabProxy> popup_tab(popup_browser->GetTab(0));
+  scoped_refptr<TabProxy> popup_tab(popup_browser->GetTab(0));
   ASSERT_TRUE(popup_tab.get());
 
   int constrained_window_count = 0;
   ASSERT_TRUE(popup_tab->WaitForChildWindowCountToChange(
                   0, &constrained_window_count, 10000));
   ASSERT_EQ(1, constrained_window_count);
-  scoped_ptr<ConstrainedWindowProxy> constrained_window(
+  scoped_refptr<ConstrainedWindowProxy> constrained_window(
       popup_tab->GetConstrainedWindow(0));
   ASSERT_TRUE(constrained_window.get());
 
@@ -183,13 +183,13 @@ TEST_F(InteractiveConstrainedWindowTest, WindowOpenWindowClosePopup) {
   PlatformThread::Sleep(1000);
 
   // Make sure we have a blocked popup notification
-  scoped_ptr<BrowserProxy> popup_browser(automation()->GetBrowserWindow(1));
+  scoped_refptr<BrowserProxy> popup_browser(automation()->GetBrowserWindow(1));
   ASSERT_TRUE(popup_browser.get());
-  scoped_ptr<WindowProxy> popup_window(popup_browser->GetWindow());
+  scoped_refptr<WindowProxy> popup_window(popup_browser->GetWindow());
   ASSERT_TRUE(popup_window.get());
-  scoped_ptr<TabProxy> popup_tab(popup_browser->GetTab(0));
+  scoped_refptr<TabProxy> popup_tab(popup_browser->GetTab(0));
   ASSERT_TRUE(popup_tab.get());
-  scoped_ptr<ConstrainedWindowProxy> popup_notification(
+  scoped_refptr<ConstrainedWindowProxy> popup_notification(
       popup_tab->GetConstrainedWindow(0));
   ASSERT_TRUE(popup_notification.get());
   std::wstring title;
@@ -214,7 +214,7 @@ TEST_F(InteractiveConstrainedWindowTest, BlockAlertFromBlockedPopup) {
   ASSERT_EQ(1, browser_window_count);
 
   // Ensure one blocked popup window: the popup didn't escape.
-  scoped_ptr<ConstrainedWindowProxy> popup_notification(
+  scoped_refptr<ConstrainedWindowProxy> popup_notification(
       tab_->GetConstrainedWindow(0));
   ASSERT_TRUE(popup_notification.get());
   std::wstring title;
@@ -230,11 +230,11 @@ TEST_F(InteractiveConstrainedWindowTest, ShowAlertFromNormalPopup) {
 
   ASSERT_TRUE(automation()->WaitForWindowCountToBecome(2, 5000));
 
-  scoped_ptr<BrowserProxy> popup_browser(automation()->GetBrowserWindow(1));
+  scoped_refptr<BrowserProxy> popup_browser(automation()->GetBrowserWindow(1));
   ASSERT_TRUE(popup_browser.get());
-  scoped_ptr<WindowProxy> popup_window(popup_browser->GetWindow());
+  scoped_refptr<WindowProxy> popup_window(popup_browser->GetWindow());
   ASSERT_TRUE(popup_window.get());
-  scoped_ptr<TabProxy> popup_tab(popup_browser->GetTab(0));
+  scoped_refptr<TabProxy> popup_tab(popup_browser->GetTab(0));
   ASSERT_TRUE(popup_tab.get());
 
   SimulateClickInCenterOf(popup_window);

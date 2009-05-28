@@ -19,7 +19,7 @@ class ViewSourceTest : public UITest {
   }
 
   bool IsPageMenuCommandEnabled(int command) {
-    scoped_ptr<BrowserProxy> window_proxy(automation()->GetBrowserWindow(0));
+    scoped_refptr<BrowserProxy> window_proxy(automation()->GetBrowserWindow(0));
     if (!window_proxy.get())
       return false;
 
@@ -45,7 +45,7 @@ TEST_F(ViewSourceTest, DoesBrowserRenderInViewSource) {
   // First we navigate to our view-source test page
   GURL url = server->TestServerPageW(test_html_);
   url = GURL("view-source:" + url.spec());
-  scoped_ptr<TabProxy> tab(GetActiveTab());
+  scoped_refptr<TabProxy> tab(GetActiveTab());
   tab->NavigateToURL(url);
   PlatformThread::Sleep(sleep_timeout_ms());
 

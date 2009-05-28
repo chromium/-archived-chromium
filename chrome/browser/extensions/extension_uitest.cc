@@ -52,7 +52,7 @@ class ExtensionUITest : public ParentTestType {
 
   void TestWithURL(const GURL& url) {
     HWND external_tab_container = NULL;
-    scoped_ptr<TabProxy> tab(automation()->CreateExternalTab(NULL, gfx::Rect(),
+    scoped_refptr<TabProxy> tab(automation()->CreateExternalTab(NULL, gfx::Rect(),
         WS_POPUP, false, &external_tab_container));
     ASSERT_TRUE(tab != NULL);
     ASSERT_NE(FALSE, ::IsWindow(external_tab_container));

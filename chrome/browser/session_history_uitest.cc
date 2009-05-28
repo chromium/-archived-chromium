@@ -31,12 +31,12 @@ class SessionHistoryTest : public UITest {
   virtual void SetUp() {
     UITest::SetUp();
 
-    window_.reset(automation()->GetBrowserWindow(0));
+    window_ = automation()->GetBrowserWindow(0);
     ASSERT_TRUE(window_.get());
 
     int active_tab_index = -1;
     ASSERT_TRUE(window_->GetActiveTabIndex(&active_tab_index));
-    tab_.reset(window_->GetTab(active_tab_index));
+    tab_ = window_->GetTab(active_tab_index);
     ASSERT_TRUE(tab_.get());
   }
 
@@ -98,8 +98,8 @@ class SessionHistoryTest : public UITest {
 
  protected:
   wstring url_prefix_;
-  scoped_ptr<BrowserProxy> window_;
-  scoped_ptr<TabProxy> tab_;
+  scoped_refptr<BrowserProxy> window_;
+  scoped_refptr<TabProxy> tab_;
 };
 
 TEST_F(SessionHistoryTest, BasicBackForward) {

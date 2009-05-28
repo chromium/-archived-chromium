@@ -168,7 +168,7 @@ class PageLoadTest : public UITest {
     // assertion when page loading fails. We log the result instead.
     {
       // TabProxy should be released before Browser is closed.
-      scoped_ptr<TabProxy> tab_proxy(GetActiveTab());
+      scoped_refptr<TabProxy> tab_proxy(GetActiveTab());
       if (tab_proxy.get()) {
         result = tab_proxy->NavigateToURLWithTimeout(url, timeout_ms,
                                                      &is_timeout);
@@ -177,9 +177,9 @@ class PageLoadTest : public UITest {
       if (!is_timeout && result == AUTOMATION_MSG_NAVIGATION_SUCCESS) {
         if (page_down) {
           // Page down twice.
-          scoped_ptr<BrowserProxy> browser(automation()->GetBrowserWindow(0));
+          scoped_refptr<BrowserProxy> browser(automation()->GetBrowserWindow(0));
           if (browser.get()) {
-            scoped_ptr<WindowProxy> window(browser->GetWindow());
+            scoped_refptr<WindowProxy> window(browser->GetWindow());
             if (window.get()) {
               bool activation_timeout;
               browser->BringToFrontWithTimeout(action_max_timeout_ms(),
@@ -372,7 +372,7 @@ class PageLoadTest : public UITest {
       LaunchBrowserAndServer();
       {
         // TabProxy should be released before Browser is closed.
-        scoped_ptr<TabProxy> tab_proxy(GetActiveTab());
+        scoped_refptr<TabProxy> tab_proxy(GetActiveTab());
         if (tab_proxy.get()) {
           tab_proxy->NavigateToURL(GURL(test_url_1));
         }

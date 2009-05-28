@@ -213,8 +213,8 @@ class MemoryTest : public UITest {
     size_t start_size = GetSystemCommitCharge();
 
     // Cycle through the URLs.
-    scoped_ptr<BrowserProxy> window(automation()->GetBrowserWindow(0));
-    scoped_ptr<TabProxy> tab(window->GetActiveTab());
+    scoped_refptr<BrowserProxy> window(automation()->GetBrowserWindow(0));
+    scoped_refptr<TabProxy> tab(window->GetActiveTab());
     int expected_tab_count = 1;
     for (unsigned counter = 0; counter < arraysize(urls); ++counter) {
       std::string url = urls[counter];
@@ -233,12 +233,12 @@ class MemoryTest : public UITest {
           EXPECT_TRUE(window->AppendTab(GURL(url)));
           expected_tab_count++;
           WaitUntilTabCount(expected_tab_count);
-          tab.reset(window->GetActiveTab());
+          tab = window->GetActiveTab();
           continue;
         }
 
         int tab_index = counter % num_target_tabs;  // A pseudo-random tab.
-        tab.reset(window->GetTab(tab_index));
+        tab = window->GetTab(tab_index);
       }
 
       const int kMaxWaitTime = 5000;

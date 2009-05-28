@@ -25,11 +25,11 @@ TEST_F(FindInPageControllerTest, FindMovesOnTabClose_Issue1343052) {
   ASSERT_TRUE(NULL != server.get());
 
   GURL url = server->TestServerPageW(kSimplePage);
-  scoped_ptr<TabProxy> tabA(GetActiveTab());
+  scoped_refptr<TabProxy> tabA(GetActiveTab());
   ASSERT_TRUE(tabA->NavigateToURL(url));
   WaitUntilTabCount(1);
 
-  scoped_ptr<BrowserProxy> browser(automation()->GetBrowserWindow(0));
+  scoped_refptr<BrowserProxy> browser(automation()->GetBrowserWindow(0));
   ASSERT_TRUE(browser.get() != NULL);
 
   // Toggle the bookmark bar state.
@@ -46,7 +46,7 @@ TEST_F(FindInPageControllerTest, FindMovesOnTabClose_Issue1343052) {
 
   // Open another tab (tab B).
   EXPECT_TRUE(browser->AppendTab(url));
-  scoped_ptr<TabProxy> tabB(GetActiveTab());
+  scoped_refptr<TabProxy> tabB(GetActiveTab());
 
   // Close tab B.
   EXPECT_TRUE(tabB->Close(true));
@@ -67,7 +67,7 @@ TEST_F(FindInPageControllerTest, FindMovesOnTabClose_Issue1343052) {
 
   // Open another tab (tab C).
   EXPECT_TRUE(browser->AppendTab(url));
-  scoped_ptr<TabProxy> tabC(GetActiveTab());
+  scoped_refptr<TabProxy> tabC(GetActiveTab());
 
   // Close it.
   EXPECT_TRUE(tabC->Close(true));

@@ -29,9 +29,9 @@ protected:
 // the position of Tab_2.
 // Disabled as per http://crbug.com/10941
 TEST_F(TabDraggingTest, DISABLED_Tab1Tab2) {
-  scoped_ptr<BrowserProxy> browser(automation()->GetBrowserWindow(0));
+  scoped_refptr<BrowserProxy> browser(automation()->GetBrowserWindow(0));
   ASSERT_TRUE(browser.get());
-  scoped_ptr<WindowProxy> window(browser->GetWindow());
+  scoped_refptr<WindowProxy> window(browser->GetWindow());
   ASSERT_TRUE(window.get());
 
   // Get initial tab count.
@@ -40,7 +40,7 @@ TEST_F(TabDraggingTest, DISABLED_Tab1Tab2) {
   ASSERT_TRUE(1 == initial_tab_count);
 
   // Get Tab_1 which comes with the browser window.
-  scoped_ptr<TabProxy> tab1(browser->GetTab(0));
+  scoped_refptr<TabProxy> tab1(browser->GetTab(0));
   ASSERT_TRUE(tab1.get());
   GURL tab1_url;
   ASSERT_TRUE(tab1->GetCurrentURL(&tab1_url));
@@ -48,13 +48,13 @@ TEST_F(TabDraggingTest, DISABLED_Tab1Tab2) {
   // Add Tab_2.
   GURL tab2_url("about:");
   ASSERT_TRUE(browser->AppendTab(tab2_url));
-  scoped_ptr<TabProxy> tab2(browser->GetTab(1));
+  scoped_refptr<TabProxy> tab2(browser->GetTab(1));
   ASSERT_TRUE(tab2.get());
 
   // Add Tab_3.
   GURL tab3_url("about:plugins");
   ASSERT_TRUE(browser->AppendTab(tab3_url));
-  scoped_ptr<TabProxy> tab3(browser->GetTab(2));
+  scoped_refptr<TabProxy> tab3(browser->GetTab(2));
   ASSERT_TRUE(tab3.get());
 
   // Make sure 3 tabs are open.
@@ -113,12 +113,12 @@ TEST_F(TabDraggingTest, DISABLED_Tab1Tab2) {
                                     false));
 
   // Now check for expected results.
-  tab1.reset(browser->GetTab(0));
+  tab1 = browser->GetTab(0);
   ASSERT_TRUE(tab1.get());
   GURL tab1_new_url;
   ASSERT_TRUE(tab1->GetCurrentURL(&tab1_new_url));
 
-  tab2.reset(browser->GetTab(1));
+  tab2 = browser->GetTab(1);
   ASSERT_TRUE(tab2.get());
   GURL tab2_new_url;
   ASSERT_TRUE(tab2->GetCurrentURL(&tab2_new_url));
@@ -130,9 +130,9 @@ TEST_F(TabDraggingTest, DISABLED_Tab1Tab2) {
 // Drag Tab_1 into the position of Tab_3.
 // Disabled as per http://crbug.com/10941
 TEST_F(TabDraggingTest, DISABLED_Tab1Tab3) {
-  scoped_ptr<BrowserProxy> browser(automation()->GetBrowserWindow(0));
+  scoped_refptr<BrowserProxy> browser(automation()->GetBrowserWindow(0));
   ASSERT_TRUE(browser.get());
-  scoped_ptr<WindowProxy> window(browser->GetWindow());
+  scoped_refptr<WindowProxy> window(browser->GetWindow());
   ASSERT_TRUE(window.get());
 
   // Get initial tab count.
@@ -141,7 +141,7 @@ TEST_F(TabDraggingTest, DISABLED_Tab1Tab3) {
   ASSERT_TRUE(1 == initial_tab_count);
 
   // Get Tab_1 which comes with the browser window.
-  scoped_ptr<TabProxy> tab1(browser->GetTab(0));
+  scoped_refptr<TabProxy> tab1(browser->GetTab(0));
   ASSERT_TRUE(tab1.get());
   GURL tab1_url;
   ASSERT_TRUE(tab1->GetCurrentURL(&tab1_url));
@@ -149,13 +149,13 @@ TEST_F(TabDraggingTest, DISABLED_Tab1Tab3) {
   // Add Tab_2.
   GURL tab2_url("about:");
   ASSERT_TRUE(browser->AppendTab(tab2_url));
-  scoped_ptr<TabProxy> tab2(browser->GetTab(1));
+  scoped_refptr<TabProxy> tab2(browser->GetTab(1));
   ASSERT_TRUE(tab2.get());
 
   // Add Tab_3.
   GURL tab3_url("about:plugins");
   ASSERT_TRUE(browser->AppendTab(tab3_url));
-  scoped_ptr<TabProxy> tab3(browser->GetTab(2));
+  scoped_refptr<TabProxy> tab3(browser->GetTab(2));
   ASSERT_TRUE(tab3.get());
 
   // Make sure 3 tabs are open.
@@ -214,17 +214,17 @@ TEST_F(TabDraggingTest, DISABLED_Tab1Tab3) {
                                     false));
 
   // Now check for expected results.
-  tab1.reset(browser->GetTab(0));
+  tab1 = browser->GetTab(0);
   ASSERT_TRUE(tab1.get());
   GURL tab1_new_url;
   ASSERT_TRUE(tab1->GetCurrentURL(&tab1_new_url));
 
-  tab2.reset(browser->GetTab(1));
+  tab2 = browser->GetTab(1);
   ASSERT_TRUE(tab2.get());
   GURL tab2_new_url;
   ASSERT_TRUE(tab2->GetCurrentURL(&tab2_new_url));
 
-  tab3.reset(browser->GetTab(2));
+  tab3 = browser->GetTab(2);
   ASSERT_TRUE(tab3.get());
   GURL tab3_new_url;
   ASSERT_TRUE(tab3->GetCurrentURL(&tab3_new_url));
@@ -237,9 +237,9 @@ TEST_F(TabDraggingTest, DISABLED_Tab1Tab3) {
 // Drag Tab_1 into the position of Tab_3, and press ESCAPE before releasing the
 // left mouse button.
 TEST_F(TabDraggingTest, Tab1Tab3Escape) {
-  scoped_ptr<BrowserProxy> browser(automation()->GetBrowserWindow(0));
+  scoped_refptr<BrowserProxy> browser(automation()->GetBrowserWindow(0));
   ASSERT_TRUE(browser.get());
-  scoped_ptr<WindowProxy> window(browser->GetWindow());
+  scoped_refptr<WindowProxy> window(browser->GetWindow());
   ASSERT_TRUE(window.get());
 
   // Get initial tab count.
@@ -248,7 +248,7 @@ TEST_F(TabDraggingTest, Tab1Tab3Escape) {
   ASSERT_TRUE(1 == initial_tab_count);
 
   // Get Tab_1 which comes with the browser window.
-  scoped_ptr<TabProxy> tab1(browser->GetTab(0));
+  scoped_refptr<TabProxy> tab1(browser->GetTab(0));
   ASSERT_TRUE(tab1.get());
   GURL tab1_url;
   ASSERT_TRUE(tab1->GetCurrentURL(&tab1_url));
@@ -256,13 +256,13 @@ TEST_F(TabDraggingTest, Tab1Tab3Escape) {
   // Add Tab_2.
   GURL tab2_url("about:");
   ASSERT_TRUE(browser->AppendTab(tab2_url));
-  scoped_ptr<TabProxy> tab2(browser->GetTab(1));
+  scoped_refptr<TabProxy> tab2(browser->GetTab(1));
   ASSERT_TRUE(tab2.get());
 
   // Add Tab_3.
   GURL tab3_url("about:plugins");
   ASSERT_TRUE(browser->AppendTab(tab3_url));
-  scoped_ptr<TabProxy> tab3(browser->GetTab(2));
+  scoped_refptr<TabProxy> tab3(browser->GetTab(2));
   ASSERT_TRUE(tab3.get());
 
   // Make sure 3 tabs are open.
@@ -324,17 +324,17 @@ TEST_F(TabDraggingTest, Tab1Tab3Escape) {
                                     true));
 
   // Now check for expected results.
-  tab1.reset(browser->GetTab(0));
+  tab1 = browser->GetTab(0);
   ASSERT_TRUE(tab1.get());
   GURL tab1_new_url;
   ASSERT_TRUE(tab1->GetCurrentURL(&tab1_new_url));
 
-  tab2.reset(browser->GetTab(1));
+  tab2 = browser->GetTab(1);
   ASSERT_TRUE(tab2.get());
   GURL tab2_new_url;
   ASSERT_TRUE(tab2->GetCurrentURL(&tab2_new_url));
 
-  tab3.reset(browser->GetTab(2));
+  tab3 = browser->GetTab(2);
   ASSERT_TRUE(tab3.get());
   GURL tab3_new_url;
   ASSERT_TRUE(tab3->GetCurrentURL(&tab3_new_url));
@@ -347,9 +347,9 @@ TEST_F(TabDraggingTest, Tab1Tab3Escape) {
 
 // Drag Tab_2 out of the Tab strip. A new window should open with this tab.
 TEST_F(TabDraggingTest, Tab2OutOfTabStrip) {
-  scoped_ptr<BrowserProxy> browser(automation()->GetBrowserWindow(0));
+  scoped_refptr<BrowserProxy> browser(automation()->GetBrowserWindow(0));
   ASSERT_TRUE(browser.get());
-  scoped_ptr<WindowProxy> window(browser->GetWindow());
+  scoped_refptr<WindowProxy> window(browser->GetWindow());
   ASSERT_TRUE(window.get());
 
   // Get initial tab count.
@@ -358,7 +358,7 @@ TEST_F(TabDraggingTest, Tab2OutOfTabStrip) {
   ASSERT_TRUE(1 == initial_tab_count);
 
   // Get Tab_1 which comes with the browser window.
-  scoped_ptr<TabProxy> tab1(browser->GetTab(0));
+  scoped_refptr<TabProxy> tab1(browser->GetTab(0));
   ASSERT_TRUE(tab1.get());
   GURL tab1_url;
   ASSERT_TRUE(tab1->GetCurrentURL(&tab1_url));
@@ -366,13 +366,13 @@ TEST_F(TabDraggingTest, Tab2OutOfTabStrip) {
   // Add Tab_2.
   GURL tab2_url("about:version");
   ASSERT_TRUE(browser->AppendTab(tab2_url));
-  scoped_ptr<TabProxy> tab2(browser->GetTab(1));
+  scoped_refptr<TabProxy> tab2(browser->GetTab(1));
   ASSERT_TRUE(tab2.get());
 
   // Add Tab_3.
   GURL tab3_url("about:plugins");
   ASSERT_TRUE(browser->AppendTab(tab3_url));
-  scoped_ptr<TabProxy> tab3(browser->GetTab(2));
+  scoped_refptr<TabProxy> tab3(browser->GetTab(2));
   ASSERT_TRUE(tab3.get());
 
   // Make sure 3 tabs are opened.
@@ -451,12 +451,12 @@ TEST_F(TabDraggingTest, Tab2OutOfTabStrip) {
   ASSERT_EQ(2, new_tab_count);
 
   // Get the two tabs - they are called Tab_1 and Tab_2 in the old window.
-  tab1.reset(browser->GetTab(0));
+  tab1 = browser->GetTab(0);
   ASSERT_TRUE(tab1.get());
   GURL tab1_new_url;
   ASSERT_TRUE(tab1->GetCurrentURL(&tab1_new_url));
 
-  tab2.reset(browser->GetTab(1));
+  tab2 = browser->GetTab(1);
   ASSERT_TRUE(tab2.get());
   GURL tab2_new_url;
   ASSERT_TRUE(tab2->GetCurrentURL(&tab2_new_url));
@@ -467,9 +467,9 @@ TEST_F(TabDraggingTest, Tab2OutOfTabStrip) {
   EXPECT_EQ(tab2_new_url.spec(), tab3_url.spec());
 
   // Now check to make sure a new window has opened.
-  scoped_ptr<BrowserProxy> browser2(automation()->GetBrowserWindow(1));
+  scoped_refptr<BrowserProxy> browser2(automation()->GetBrowserWindow(1));
   ASSERT_TRUE(browser2.get());
-  scoped_ptr<WindowProxy> window2(browser2->GetWindow());
+  scoped_refptr<WindowProxy> window2(browser2->GetWindow());
   ASSERT_TRUE(window2.get());
 
   // Make sure that the new window has only one tab.
@@ -478,7 +478,7 @@ TEST_F(TabDraggingTest, Tab2OutOfTabStrip) {
   ASSERT_EQ(1, tab_count_window_2);
 
   // Get Tab_1_2 which should be Tab_1 in Window 2.
-  scoped_ptr<TabProxy> tab1_2(browser2->GetTab(0));
+  scoped_refptr<TabProxy> tab1_2(browser2->GetTab(0));
   ASSERT_TRUE(tab1_2.get());
   GURL tab1_2_url;
   ASSERT_TRUE(tab1_2->GetCurrentURL(&tab1_2_url));

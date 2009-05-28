@@ -79,7 +79,7 @@ TEST_F(SavePageTest, SaveHTMLOnly) {
 
   GURL url = URLRequestMockHTTPJob::GetMockUrl(
       UTF8ToWide(kTestDir + "/" + file_name));
-  scoped_ptr<TabProxy> tab(GetActiveTab());
+  scoped_refptr<TabProxy> tab(GetActiveTab());
   ASSERT_TRUE(tab->NavigateToURL(url));
   WaitUntilTabCount(1);
 
@@ -99,7 +99,7 @@ TEST_F(SavePageTest, SaveCompleteHTML) {
 
   GURL url = URLRequestMockHTTPJob::GetMockUrl(UTF8ToWide(kTestDir + "/" +
                                                           file_name));
-  scoped_ptr<TabProxy> tab(GetActiveTab());
+  scoped_refptr<TabProxy> tab(GetActiveTab());
   ASSERT_TRUE(tab->NavigateToURL(url));
   WaitUntilTabCount(1);
 
@@ -121,7 +121,7 @@ TEST_F(SavePageTest, NoSave) {
   FilePath full_file_name = save_dir_.AppendASCII(file_name);
   FilePath dir = save_dir_.AppendASCII("c_files");
 
-  scoped_ptr<TabProxy> tab(GetActiveTab());
+  scoped_refptr<TabProxy> tab(GetActiveTab());
   ASSERT_TRUE(tab->NavigateToURL(GURL("about:blank")));
   WaitUntilTabCount(1);
 
@@ -141,11 +141,11 @@ TEST_F(SavePageTest, FilenameFromPageTitle) {
 
   GURL url = URLRequestMockHTTPJob::GetMockUrl(UTF8ToWide(kTestDir + "/" +
                                                file_name));
-  scoped_ptr<TabProxy> tab(GetActiveTab());
+  scoped_refptr<TabProxy> tab(GetActiveTab());
   ASSERT_TRUE(tab->NavigateToURL(url));
   WaitUntilTabCount(1);
 
-  scoped_ptr<BrowserProxy> browser(automation()->GetBrowserWindow(0));
+  scoped_refptr<BrowserProxy> browser(automation()->GetBrowserWindow(0));
   automation()->SavePackageShouldPromptUser(false);
   EXPECT_TRUE(browser->RunCommandAsync(IDC_SAVE_PAGE));
   EXPECT_TRUE(WaitForDownloadShelfVisible(tab.get()));
@@ -173,11 +173,11 @@ TEST_F(SavePageTest, CleanFilenameFromPageTitle) {
 
   GURL url = URLRequestMockHTTPJob::GetMockUrl(UTF8ToWide(kTestDir + "/" +
                                                file_name));
-  scoped_ptr<TabProxy> tab(GetActiveTab());
+  scoped_refptr<TabProxy> tab(GetActiveTab());
   ASSERT_TRUE(tab->NavigateToURL(url));
   WaitUntilTabCount(1);
 
-  scoped_ptr<BrowserProxy> browser(automation()->GetBrowserWindow(0));
+  scoped_refptr<BrowserProxy> browser(automation()->GetBrowserWindow(0));
   automation()->SavePackageShouldPromptUser(false);
   EXPECT_TRUE(browser->RunCommandAsync(IDC_SAVE_PAGE));
   EXPECT_TRUE(WaitForDownloadShelfVisible(tab.get()));

@@ -14,6 +14,7 @@
 #include <string>
 #include <vector>
 
+#include "base/observer_list.h"
 #include "chrome/browser/download/save_package.h"
 #include "chrome/browser/tab_contents/navigation_entry.h"
 #include "chrome/browser/tab_contents/security_style.h"
@@ -23,18 +24,22 @@
 class ConstrainedWindowProxy;
 class GURL;
 class Value;
+class IPC::Message;
 
 enum FindInPageDirection { BACK = 0, FWD = 1 };
 enum FindInPageCase { IGNORE_CASE = 0, CASE_SENSITIVE = 1 };
 
 class TabProxy : public AutomationResourceProxy {
  public:
+  class TabProxyDelegate {
+   public:
+    virtual void OnMessageReceived(TabProxy* tab, const IPC::Message& msg) {}
+  };
+
   TabProxy(AutomationMessageSender* sender,
            AutomationHandleTracker* tracker,
            int handle)
     : AutomationResourceProxy(tracker, sender, handle) {}
-
-  virtual ~TabProxy() {}
 
   // Gets the current url of the tab.
   bool GetCurrentURL(GURL* url) const;
@@ -51,7 +56,8 @@ class TabProxy : public AutomationResourceProxy {
   // Gets the proxy object for constrained window within this tab. Ownership
   // for the returned object is transfered to the caller. Returns NULL on
   // failure.
-  ConstrainedWindowProxy* GetConstrainedWindow(int window_index) const;
+  scoped_refptr<ConstrainedWindowProxy> GetConstrainedWindow(
+      int window_index) const;
 
   // Executes a javascript in a frame's context whose xpath is provided as the
   // first parameter and extract the values from the resulting json string.
@@ -295,7 +301,15 @@ class TabProxy : public AutomationResourceProxy {
                   int width, int height, int flags, HWND parent_window);
 #endif  // defined(OS_WIN)
 
+  // Calls delegates
+  void AddObserver(TabProxyDelegate* observer);
+  void RemoveObserver(TabProxyDelegate* observer);
+  void OnMessageReceived(const IPC::Message& message);
+ protected:
+  virtual ~TabProxy() {}
  private:
+  Lock list_lock_;  // Protects the observers_list_.
+  ObserverList<TabProxyDelegate> observers_list_;
   DISALLOW_COPY_AND_ASSIGN(TabProxy);
 };
 

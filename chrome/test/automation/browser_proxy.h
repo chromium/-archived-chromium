@@ -34,7 +34,6 @@ class BrowserProxy : public AutomationResourceProxy {
                AutomationHandleTracker* tracker,
                int handle)
     : AutomationResourceProxy(tracker, sender, handle) {}
-  virtual ~BrowserProxy() {}
 
   // Activates the tab corresponding to (zero-based) tab_index. Returns true if
   // successful.
@@ -89,26 +88,27 @@ class BrowserProxy : public AutomationResourceProxy {
   //
   // Use GetTabCount to see how many windows you can ask for. Tab numbers
   // are 0-based.
-  TabProxy* GetTab(int tab_index) const;
+  scoped_refptr<TabProxy> GetTab(int tab_index) const;
 
   // Returns the TabProxy for the currently active tab, transferring
   // ownership of the pointer to the caller. On failure, returns NULL.
-  TabProxy* GetActiveTab() const;
+  scoped_refptr<TabProxy> GetActiveTab() const;
 
   // Like GetActiveTab, but returns NULL if no response is received before
   // the specified timout.
-  TabProxy* GetActiveTabWithTimeout(uint32 timeout_ms, bool* is_timeout) const;
+  scoped_refptr<TabProxy> GetActiveTabWithTimeout(uint32 timeout_ms,
+      bool* is_timeout) const;
 
   // Returns the WindowProxy for this browser's window. It can be used to
   // retreive view bounds, simulate clicks and key press events.  The caller
   // owns the returned WindowProxy.
   // On failure, returns NULL.
-  WindowProxy* GetWindow() const;
+  scoped_refptr<WindowProxy> GetWindow() const;
 
   // Returns an AutocompleteEdit for this browser's window. It can be used to
   // manipulate the omnibox.  The caller owns the returned pointer.
   // On failure, returns NULL.
-  AutocompleteEditProxy* GetAutocompleteEdit();
+  scoped_refptr<AutocompleteEditProxy> GetAutocompleteEdit();
 
   // Apply the accelerator with given id (IDC_BACK, IDC_NEWTAB ...)
   // The list can be found at chrome/app/chrome_dll_resource.h
@@ -198,6 +198,8 @@ class BrowserProxy : public AutomationResourceProxy {
   // Sets the boolean value of the specified preference.
   bool SetBooleanPreference(const std::wstring& name, bool value);
 
+ protected:
+  virtual ~BrowserProxy() {}
  private:
   DISALLOW_COPY_AND_ASSIGN(BrowserProxy);
 };

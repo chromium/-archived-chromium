@@ -11,6 +11,8 @@
 #include <map>
 
 #include "base/basictypes.h"
+#include "base/lock.h"
+#include "base/ref_counted.h"
 
 // This represents a value that the app's AutomationProvider returns
 // when asked for a resource (like a window or tab).
@@ -19,7 +21,8 @@ typedef int AutomationHandle;
 class AutomationHandleTracker;
 class AutomationMessageSender;
 
-class AutomationResourceProxy {
+class AutomationResourceProxy
+    : public base::RefCountedThreadSafe<AutomationResourceProxy> {
  public:
   AutomationResourceProxy(AutomationHandleTracker* tracker,
                           AutomationMessageSender* sender,
@@ -88,15 +91,16 @@ class AutomationHandleTracker {
   // identified that resource.
   void InvalidateHandle(AutomationHandle handle);
 
+  AutomationResourceProxy* GetResource(AutomationHandle handle);
  private:
   typedef
-    std::multimap<AutomationHandle, AutomationResourceProxy*> HandleToObjectMap;
+    std::map<AutomationHandle, AutomationResourceProxy*> HandleToObjectMap;
   typedef std::pair<AutomationHandle, AutomationResourceProxy*> MapEntry;
 
   HandleToObjectMap handle_to_object_;
 
   AutomationMessageSender* sender_;
-
+  Lock map_lock_;
   DISALLOW_EVIL_CONSTRUCTORS(AutomationHandleTracker);
 };
 

@@ -27,7 +27,7 @@ class UrlFetchTest : public UITest {
   void RunTest(const GURL& url, const char *waitCookieName,
                const char *waitCookieValue, const wchar_t *varToFetch,
                UrlFetchTestResult *result) {
-    scoped_ptr<TabProxy> tab(GetActiveTab());
+    scoped_refptr<TabProxy> tab(GetActiveTab());
     tab->NavigateToURL(url);
 
     if (waitCookieName) {

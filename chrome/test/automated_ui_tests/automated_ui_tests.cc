@@ -591,7 +591,7 @@ bool AutomatedUITest::FuzzyTestDialog(int num_actions) {
 }
 
 bool AutomatedUITest::ForceCrash() {
-  scoped_ptr<TabProxy> tab(GetActiveTab());
+  scoped_refptr<TabProxy> tab(GetActiveTab());
   GURL test_url("about:crash");
   bool did_timeout;
   tab->NavigateToURLWithTimeout(test_url, kDebuggingTimeoutMsec, &did_timeout);
@@ -609,7 +609,7 @@ bool AutomatedUITest::DragActiveTab(bool drag_right, bool drag_out) {
     return false;
   }
 
-  scoped_ptr<WindowProxy> window(
+  scoped_refptr<WindowProxy> window(
       GetAndActivateWindowForBrowser(browser));
   if (window.get() == NULL) {
     AddErrorAttribute("active_window_not_found");
@@ -688,7 +688,7 @@ bool AutomatedUITest::DragActiveTab(bool drag_right, bool drag_out) {
   return true;
 }
 
-WindowProxy* AutomatedUITest::GetAndActivateWindowForBrowser(
+scoped_refptr<WindowProxy> AutomatedUITest::GetAndActivateWindowForBrowser(
     BrowserProxy* browser) {
   bool did_timeout;
   if (!browser->BringToFrontWithTimeout(action_max_timeout_ms(),
@@ -697,13 +697,12 @@ WindowProxy* AutomatedUITest::GetAndActivateWindowForBrowser(
     return NULL;
   }
 
-  WindowProxy* window = browser->GetWindow();
-  return window;
+  return browser->GetWindow();
 }
 
 
 bool AutomatedUITest::SimulateKeyPressInActiveWindow(wchar_t key, int flags) {
-  scoped_ptr<WindowProxy> window(automation()->GetActiveWindow());
+  scoped_refptr<WindowProxy> window(automation()->GetActiveWindow());
   if (window.get() == NULL) {
     AddErrorAttribute("active_window_not_found");
     return false;

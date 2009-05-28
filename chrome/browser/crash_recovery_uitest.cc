@@ -27,7 +27,7 @@ TEST_F(CrashRecoveryUITest, Reload) {
 
   std::wstring title1 = GetActiveTabTitle();
 
-  scoped_ptr<TabProxy> tab(GetActiveTab());
+  scoped_refptr<TabProxy> tab(GetActiveTab());
 
   // Cause the renderer to crash.
   expected_crashes_ = 1;
@@ -61,7 +61,7 @@ TEST_F(CrashRecoveryUITest, LoadInNewTab) {
   const std::wstring title(L"Title Of Awesomeness");
   EXPECT_EQ(title, GetActiveTabTitle());
 
-  scoped_ptr<TabProxy> tab(GetActiveTab());
+  scoped_refptr<TabProxy> tab(GetActiveTab());
 
   // Cause the renderer to crash.
   expected_crashes_ = 1;
@@ -70,7 +70,7 @@ TEST_F(CrashRecoveryUITest, LoadInNewTab) {
   // Wait for the browser to notice the renderer crash.
   PlatformThread::Sleep(1000);
 
-  scoped_ptr<BrowserProxy> browser_proxy(automation()->GetBrowserWindow(0));
+  scoped_refptr<BrowserProxy> browser_proxy(automation()->GetBrowserWindow(0));
   ASSERT_TRUE(browser_proxy->AppendTab(url));
 
   // Ensure the title of the new tab is updated, indicating that the navigation

@@ -2,7 +2,6 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "base/scoped_ptr.h"
 #include "chrome/app/chrome_dll_resource.h"
 #include "chrome/test/automated_ui_tests/automated_ui_test_base.h"
 #include "chrome/test/automation/browser_proxy.h"
@@ -66,8 +65,8 @@ bool AutomatedUITestBase::CloseActiveWindow() {
     LogErrorMessage("Application closed unexpectedly.");
     return false;
   }
-  BrowserProxy* browser = automation()->FindNormalBrowserWindow();
-  if (browser == NULL) {
+  scoped_refptr<BrowserProxy> browser(automation()->FindNormalBrowserWindow());
+  if (!browser.get()) {
     LogErrorMessage("Can't find browser window.");
     return false;
   }
@@ -88,7 +87,7 @@ bool AutomatedUITestBase::GoOffTheRecord() {
 }
 
 bool AutomatedUITestBase::OpenAndActivateNewBrowserWindow(
-    BrowserProxy** previous_browser) {
+    scoped_refptr<BrowserProxy>* previous_browser) {
   if (!automation()->OpenNewBrowserWindow(SW_SHOWNORMAL)) {
     LogWarningMessage("failed_to_open_new_browser_window");
     return false;
@@ -97,7 +96,7 @@ bool AutomatedUITestBase::OpenAndActivateNewBrowserWindow(
   automation()->GetBrowserWindowCount(&num_browser_windows);
   // Get the most recently opened browser window and activate the tab
   // in order to activate this browser window.
-  scoped_ptr<BrowserProxy> browser(
+  scoped_refptr<BrowserProxy> browser(
       automation()->GetBrowserWindow(num_browser_windows - 1));
   if (browser.get() == NULL) {
     LogErrorMessage("browser_window_not_found");
@@ -110,14 +109,17 @@ bool AutomatedUITestBase::OpenAndActivateNewBrowserWindow(
     return false;
   }
 
+  if (previous_browser) {
+    DCHECK(previous_browser->get() == NULL);
+    active_browser_.swap(*previous_browser);
+  }
+
   active_browser_.swap(browser);
-  if (previous_browser)
-    *previous_browser = browser.release();
   return true;
 }
 
 bool AutomatedUITestBase::Navigate(const GURL& url) {
-  scoped_ptr<TabProxy> tab(GetActiveTab());
+  scoped_refptr<TabProxy> tab(GetActiveTab());
   if (tab.get() == NULL) {
     LogErrorMessage("active_tab_not_found");
     return false;
@@ -176,7 +178,7 @@ bool AutomatedUITestBase::RunCommand(int browser_command) {
   return true;
 }
 
-TabProxy* AutomatedUITestBase::GetActiveTab() {
+scoped_refptr<TabProxy> AutomatedUITestBase::GetActiveTab() {
   BrowserProxy* browser = active_browser();
   if (browser == NULL) {
     LogErrorMessage("browser_window_not_found");
@@ -184,7 +186,7 @@ TabProxy* AutomatedUITestBase::GetActiveTab() {
   }
 
   bool did_timeout;
-  TabProxy* tab =
+  scoped_refptr<TabProxy> tab =
       browser->GetActiveTabWithTimeout(action_max_timeout_ms(), &did_timeout);
   if (did_timeout)
     return NULL;

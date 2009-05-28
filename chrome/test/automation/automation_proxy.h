@@ -120,13 +120,13 @@ class AutomationProxy : public IPC::Channel::Listener,
   //
   // Use GetBrowserWindowCount to see how many browser windows you can ask for.
   // Window numbers are 0-based.
-  BrowserProxy* GetBrowserWindow(int window_index);
+  scoped_refptr<BrowserProxy> GetBrowserWindow(int window_index);
 
   // Finds the first browser window that is not incognito mode and of type
   // TYPE_NORMAL, and returns its corresponding BrowserProxy, transferring
   // ownership of the pointer to the caller.
   // On failure, returns NULL.
-  BrowserProxy* FindNormalBrowserWindow();
+  scoped_refptr<BrowserProxy> FindNormalBrowserWindow();
 
   // Returns the BrowserProxy for the browser window which was last active,
   // transferring ownership of the pointer to the caller.
@@ -134,12 +134,12 @@ class AutomationProxy : public IPC::Channel::Listener,
   // browser window no longer exists (for example, if it was closed),
   // returns GetBrowserWindow(0). See crbug.com/10501. As for now this
   // function is flakey.
-  BrowserProxy* GetLastActiveBrowserWindow();
+  scoped_refptr<BrowserProxy> GetLastActiveBrowserWindow();
 
   // Returns the WindowProxy for the currently active window, transferring
   // ownership of the pointer to the caller.
   // On failure, returns NULL.
-  WindowProxy* GetActiveWindow();
+  scoped_refptr<WindowProxy> GetActiveWindow();
 
   // Tells the browser to enable or disable network request filtering.  Returns
   // false if the message fails to send to the browser.
@@ -192,9 +192,9 @@ class AutomationProxy : public IPC::Channel::Listener,
   // Creates a tab that can hosted in an external process. The function
   // returns a TabProxy representing the tab as well as a window handle
   // that can be reparented in another process.
-  TabProxy* CreateExternalTab(HWND parent, const gfx::Rect& dimensions,
-                              unsigned int style, bool incognito,
-                              HWND* external_tab_container);
+  scoped_refptr<TabProxy> CreateExternalTab(HWND parent,
+      const gfx::Rect& dimensions, unsigned int style, bool incognito,
+      HWND* external_tab_container);
 #endif  // defined(OS_WIN)
 
   int command_execution_timeout_ms() const {
@@ -216,6 +216,7 @@ class AutomationProxy : public IPC::Channel::Listener,
   }
 
  private:
+  template <class T> scoped_refptr<T> ProxyObjectFromHandle(int handle);
   void InitializeChannelID();
   void InitializeThread();
   void InitializeChannel();

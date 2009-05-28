@@ -108,7 +108,7 @@ TEST_F(RendererCrashTest, Crash) {
     // in process mode doesn't do the crashing.
     expected_crashes_ = 0;
   } else {
-    scoped_ptr<BrowserProxy> browser(automation()->GetBrowserWindow(0));
+    scoped_refptr<BrowserProxy> browser(automation()->GetBrowserWindow(0));
     ASSERT_TRUE(browser->WaitForTabCountToBecome(1, action_max_timeout_ms()));
     expected_crashes_ = 1;
   }

@@ -342,7 +342,7 @@ class AutomatedUITest : public AutomatedUITestBase {
   // Returns the WindowProxy associated with the given BrowserProxy
   // (transferring ownership of the pointer to the caller) and brings that
   // window to the top.
-  WindowProxy* GetAndActivateWindowForBrowser(BrowserProxy* browser);
+  scoped_refptr<WindowProxy> GetAndActivateWindowForBrowser(BrowserProxy* browser);
 
   // Calls SimulateOSKeyPress on the active window. Simulates a key press at
   // the OS level. |key| is the key pressed  and |flags| specifies which

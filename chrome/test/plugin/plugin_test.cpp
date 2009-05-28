@@ -116,7 +116,7 @@ class PluginTest : public UITest {
     const int kMaxIntervals = wait_time / kSleepTime;
 
     GURL url = GetTestUrl(L"done");
-    scoped_ptr<TabProxy> tab(GetActiveTab());
+    scoped_refptr<TabProxy> tab(GetActiveTab());
 
     std::string done_str;
     for (int i = 0; i < kMaxIntervals; ++i) {

@@ -44,17 +44,17 @@ TEST_F(AutomationProxyTest, GetBrowserWindowCount) {
 
 TEST_F(AutomationProxyTest, GetBrowserWindow) {
   {
-    scoped_ptr<BrowserProxy> window(automation()->GetBrowserWindow(0));
+    scoped_refptr<BrowserProxy> window(automation()->GetBrowserWindow(0));
     ASSERT_TRUE(window.get());
   }
 
   {
-    scoped_ptr<BrowserProxy> window(automation()->GetBrowserWindow(-1));
+    scoped_refptr<BrowserProxy> window(automation()->GetBrowserWindow(-1));
     ASSERT_FALSE(window.get());
   }
 
   {
-    scoped_ptr<BrowserProxy> window(automation()->GetBrowserWindow(1));
+    scoped_refptr<BrowserProxy> window(automation()->GetBrowserWindow(1));
     ASSERT_FALSE(window.get());
   }
 };
@@ -64,12 +64,12 @@ TEST_F(AutomationProxyTest, GetBrowserWindow) {
 #if defined(OS_WIN)
 TEST_F(AutomationProxyVisibleTest, WindowGetViewBounds) {
   {
-    scoped_ptr<BrowserProxy> browser(automation()->GetBrowserWindow(0));
+    scoped_refptr<BrowserProxy> browser(automation()->GetBrowserWindow(0));
     ASSERT_TRUE(browser.get());
-    scoped_ptr<WindowProxy> window(browser->GetWindow());
+    scoped_refptr<WindowProxy> window(browser->GetWindow());
     ASSERT_TRUE(window.get());
 
-    scoped_ptr<TabProxy> tab1(browser->GetTab(0));
+    scoped_refptr<TabProxy> tab1(browser->GetTab(0));
     ASSERT_TRUE(tab1.get());
     GURL tab1_url;
     ASSERT_TRUE(tab1->GetCurrentURL(&tab1_url));
@@ -77,7 +77,7 @@ TEST_F(AutomationProxyVisibleTest, WindowGetViewBounds) {
     // Add another tab so we can simulate dragging.
     ASSERT_TRUE(browser->AppendTab(GURL("about:")));
 
-    scoped_ptr<TabProxy> tab2(browser->GetTab(1));
+    scoped_refptr<TabProxy> tab2(browser->GetTab(1));
     ASSERT_TRUE(tab2.get());
     GURL tab2_url;
     ASSERT_TRUE(tab2->GetCurrentURL(&tab2_url));
@@ -121,12 +121,12 @@ TEST_F(AutomationProxyVisibleTest, WindowGetViewBounds) {
                                       views::Event::EF_LEFT_BUTTON_DOWN));
 
     // Check to see that the drag event successfully swapped the two tabs.
-    tab1.reset(browser->GetTab(0));
+    tab1 = browser->GetTab(0);
     ASSERT_TRUE(tab1.get());
     GURL tab1_new_url;
     ASSERT_TRUE(tab1->GetCurrentURL(&tab1_new_url));
 
-    tab2.reset(browser->GetTab(1));
+    tab2 = browser->GetTab(1);
     ASSERT_TRUE(tab2.get());
     GURL tab2_new_url;
     ASSERT_TRUE(tab2->GetCurrentURL(&tab2_new_url));
@@ -140,7 +140,7 @@ TEST_F(AutomationProxyVisibleTest, WindowGetViewBounds) {
 #endif  // defined(OS_WIN)
 
 TEST_F(AutomationProxyTest, GetTabCount) {
-  scoped_ptr<BrowserProxy> window(automation()->GetBrowserWindow(0));
+  scoped_refptr<BrowserProxy> window(automation()->GetBrowserWindow(0));
   ASSERT_TRUE(window.get());
 
   int tab_count = 0;
@@ -149,7 +149,7 @@ TEST_F(AutomationProxyTest, GetTabCount) {
 }
 
 TEST_F(AutomationProxyTest, GetActiveTabIndex) {
-  scoped_ptr<BrowserProxy> window(automation()->GetBrowserWindow(0));
+  scoped_refptr<BrowserProxy> window(automation()->GetBrowserWindow(0));
   ASSERT_TRUE(window.get());
 
   int active_tab_index = -1;
@@ -158,7 +158,7 @@ TEST_F(AutomationProxyTest, GetActiveTabIndex) {
 }
 
 TEST_F(AutomationProxyVisibleTest, AppendTab) {
-  scoped_ptr<BrowserProxy> window(automation()->GetBrowserWindow(0));
+  scoped_refptr<BrowserProxy> window(automation()->GetBrowserWindow(0));
   ASSERT_TRUE(window.get());
 
   int original_tab_count;
@@ -187,7 +187,7 @@ TEST_F(AutomationProxyVisibleTest, AppendTab) {
   // Append tab will also be active tab
   ASSERT_TRUE(window->GetActiveTabIndex(&appended_tab_index));
 
-  scoped_ptr<TabProxy> tab(window->GetTab(appended_tab_index));
+  scoped_refptr<TabProxy> tab(window->GetTab(appended_tab_index));
   ASSERT_TRUE(tab.get());
   std::wstring title;
   ASSERT_TRUE(tab->GetTabTitle(&title));
@@ -195,7 +195,7 @@ TEST_F(AutomationProxyVisibleTest, AppendTab) {
 }
 
 TEST_F(AutomationProxyTest, ActivateTab) {
-  scoped_ptr<BrowserProxy> window(automation()->GetBrowserWindow(0));
+  scoped_refptr<BrowserProxy> window(automation()->GetBrowserWindow(0));
   ASSERT_TRUE(window.get());
 
   ASSERT_TRUE(window->AppendTab(GURL("about:blank")));
@@ -214,10 +214,10 @@ TEST_F(AutomationProxyTest, ActivateTab) {
 
 
 TEST_F(AutomationProxyTest, GetTab) {
-  scoped_ptr<BrowserProxy> window(automation()->GetBrowserWindow(0));
+  scoped_refptr<BrowserProxy> window(automation()->GetBrowserWindow(0));
   ASSERT_TRUE(window.get());
   {
-    scoped_ptr<TabProxy> tab(window->GetTab(0));
+    scoped_refptr<TabProxy> tab(window->GetTab(0));
     ASSERT_TRUE(tab.get());
     std::wstring title;
     ASSERT_TRUE(tab->GetTabTitle(&title));
@@ -230,16 +230,15 @@ TEST_F(AutomationProxyTest, GetTab) {
   }
 
   {
-    scoped_ptr<TabProxy> tab;
-    tab.reset(window->GetTab(1));
+    scoped_refptr<TabProxy> tab(window->GetTab(1));
     ASSERT_FALSE(tab.get());
   }
 };
 
 TEST_F(AutomationProxyTest, NavigateToURL) {
-  scoped_ptr<BrowserProxy> window(automation()->GetBrowserWindow(0));
+  scoped_refptr<BrowserProxy> window(automation()->GetBrowserWindow(0));
   ASSERT_TRUE(window.get());
-  scoped_ptr<TabProxy> tab(window->GetTab(0));
+  scoped_refptr<TabProxy> tab(window->GetTab(0));
   ASSERT_TRUE(tab.get());
 
   std::wstring title;
@@ -258,9 +257,9 @@ TEST_F(AutomationProxyTest, NavigateToURL) {
 }
 
 TEST_F(AutomationProxyTest, NavigateToURLWithTimeout1) {
-  scoped_ptr<BrowserProxy> window(automation()->GetBrowserWindow(0));
+  scoped_refptr<BrowserProxy> window(automation()->GetBrowserWindow(0));
   ASSERT_TRUE(window.get());
-  scoped_ptr<TabProxy> tab(window->GetTab(0));
+  scoped_refptr<TabProxy> tab(window->GetTab(0));
   ASSERT_TRUE(tab.get());
 
   FilePath filename(test_data_directory_);
@@ -281,10 +280,9 @@ TEST_F(AutomationProxyTest, NavigateToURLWithTimeout1) {
 }
 
 TEST_F(AutomationProxyTest, NavigateToURLWithTimeout2) {
-  scoped_ptr<BrowserProxy> window(automation()->GetBrowserWindow(0));
+  scoped_refptr<BrowserProxy> window(automation()->GetBrowserWindow(0));
   ASSERT_TRUE(window.get());
-  scoped_ptr<TabProxy> tab(window->GetTab(0));
-  tab.reset(window->GetTab(0));
+  scoped_refptr<TabProxy> tab(window->GetTab(0));
   ASSERT_TRUE(tab.get());
 
   FilePath filename1(test_data_directory_);
@@ -303,9 +301,9 @@ TEST_F(AutomationProxyTest, NavigateToURLWithTimeout2) {
 }
 
 TEST_F(AutomationProxyTest, GoBackForward) {
-  scoped_ptr<BrowserProxy> window(automation()->GetBrowserWindow(0));
+  scoped_refptr<BrowserProxy> window(automation()->GetBrowserWindow(0));
   ASSERT_TRUE(window.get());
-  scoped_ptr<TabProxy> tab(window->GetTab(0));
+  scoped_refptr<TabProxy> tab(window->GetTab(0));
   ASSERT_TRUE(tab.get());
 
   std::wstring title;
@@ -338,9 +336,9 @@ TEST_F(AutomationProxyTest, GoBackForward) {
 }
 
 TEST_F(AutomationProxyTest, GetCurrentURL) {
-  scoped_ptr<BrowserProxy> window(automation()->GetBrowserWindow(0));
+  scoped_refptr<BrowserProxy> window(automation()->GetBrowserWindow(0));
   ASSERT_TRUE(window.get());
-  scoped_ptr<TabProxy> tab(window->GetTab(0));
+  scoped_refptr<TabProxy> tab(window->GetTab(0));
   ASSERT_TRUE(tab.get());
   GURL url;
   ASSERT_TRUE(tab->GetCurrentURL(&url));
@@ -371,7 +369,7 @@ class AutomationProxyTest2 : public AutomationProxyVisibleTest {
 };
 
 TEST_F(AutomationProxyTest2, GetActiveTabIndex) {
-  scoped_ptr<BrowserProxy> window(automation()->GetBrowserWindow(0));
+  scoped_refptr<BrowserProxy> window(automation()->GetBrowserWindow(0));
   ASSERT_TRUE(window.get());
 
   int active_tab_index = -1;
@@ -386,15 +384,15 @@ TEST_F(AutomationProxyTest2, GetActiveTabIndex) {
 }
 
 TEST_F(AutomationProxyTest2, GetTabTitle) {
-  scoped_ptr<BrowserProxy> window(automation()->GetBrowserWindow(0));
+  scoped_refptr<BrowserProxy> window(automation()->GetBrowserWindow(0));
   ASSERT_TRUE(window.get());
-  scoped_ptr<TabProxy> tab(window->GetTab(0));
+  scoped_refptr<TabProxy> tab(window->GetTab(0));
   ASSERT_TRUE(tab.get());
   std::wstring title;
   ASSERT_TRUE(tab->GetTabTitle(&title));
   ASSERT_STREQ(L"title1.html", title.c_str());
 
-  tab.reset(window->GetTab(1));
+  tab = window->GetTab(1);
   ASSERT_TRUE(tab.get());
   ASSERT_TRUE(tab->GetTabTitle(&title));
   ASSERT_STREQ(L"Title Of Awesomeness", title.c_str());
@@ -404,10 +402,10 @@ TEST_F(AutomationProxyTest, Cookies) {
   GURL url("http://mojo.jojo.google.com");
   std::string value_result;
 
-  scoped_ptr<BrowserProxy> window(automation()->GetBrowserWindow(0));
+  scoped_refptr<BrowserProxy> window(automation()->GetBrowserWindow(0));
   ASSERT_TRUE(window.get());
 
-  scoped_ptr<TabProxy> tab(window->GetTab(0));
+  scoped_refptr<TabProxy> tab(window->GetTab(0));
   ASSERT_TRUE(tab.get());
 
   // test setting the cookie:
@@ -436,9 +434,9 @@ TEST_F(AutomationProxyTest, Cookies) {
 // TODO(port): Determine what tests need this and port.
 #if defined(OS_WIN)
 TEST_F(AutomationProxyTest, GetHWND) {
-  scoped_ptr<BrowserProxy> browser(automation()->GetBrowserWindow(0));
+  scoped_refptr<BrowserProxy> browser(automation()->GetBrowserWindow(0));
   ASSERT_TRUE(browser.get());
-  scoped_ptr<WindowProxy> window(browser->GetWindow());
+  scoped_refptr<WindowProxy> window(browser->GetWindow());
   ASSERT_TRUE(window.get());
 
   HWND handle;
@@ -449,9 +447,9 @@ TEST_F(AutomationProxyTest, GetHWND) {
 
 TEST_F(AutomationProxyTest, NavigateToURLAsync) {
   AutomationProxy* automation_object = automation();
-  scoped_ptr<BrowserProxy> window(automation_object->GetBrowserWindow(0));
+  scoped_refptr<BrowserProxy> window(automation_object->GetBrowserWindow(0));
   ASSERT_TRUE(window.get());
-  scoped_ptr<TabProxy> tab(window->GetTab(0));
+  scoped_refptr<TabProxy> tab(window->GetTab(0));
   ASSERT_TRUE(tab.get());
 
   FilePath filename(test_data_directory_);
@@ -465,7 +463,7 @@ TEST_F(AutomationProxyTest, NavigateToURLAsync) {
 }
 
 TEST_F(AutomationProxyTest, AcceleratorNewTab) {
-  scoped_ptr<BrowserProxy> window(automation()->GetBrowserWindow(0));
+  scoped_refptr<BrowserProxy> window(automation()->GetBrowserWindow(0));
 
   int tab_count = -1;
   ASSERT_TRUE(window->GetTabCount(&tab_count));
@@ -474,7 +472,7 @@ TEST_F(AutomationProxyTest, AcceleratorNewTab) {
   ASSERT_TRUE(window->RunCommand(IDC_NEW_TAB));
   ASSERT_TRUE(window->GetTabCount(&tab_count));
   EXPECT_EQ(2, tab_count);
-  scoped_ptr<TabProxy> tab(window->GetTab(tab_count - 1));
+  scoped_refptr<TabProxy> tab(window->GetTab(tab_count - 1));
   ASSERT_TRUE(tab.get());
 }
 
@@ -494,10 +492,10 @@ std::wstring CreateJSString(const std::wstring& value) {
 }
 
 TEST_F(AutomationProxyTest4, StringValueIsEchoedByDomAutomationController) {
-  scoped_ptr<BrowserProxy> window(automation()->GetBrowserWindow(0));
+  scoped_refptr<BrowserProxy> window(automation()->GetBrowserWindow(0));
   ASSERT_TRUE(window.get());
 
-  scoped_ptr<TabProxy> tab(window->GetTab(0));
+  scoped_refptr<TabProxy> tab(window->GetTab(0));
   ASSERT_TRUE(tab.get());
 
   std::wstring expected(L"string");
@@ -516,10 +514,10 @@ std::wstring BooleanToString(bool bool_value) {
 }
 
 TEST_F(AutomationProxyTest4, BooleanValueIsEchoedByDomAutomationController) {
-  scoped_ptr<BrowserProxy> window(automation()->GetBrowserWindow(0));
+  scoped_refptr<BrowserProxy> window(automation()->GetBrowserWindow(0));
   ASSERT_TRUE(window.get());
 
-  scoped_ptr<TabProxy> tab(window->GetTab(0));
+  scoped_refptr<TabProxy> tab(window->GetTab(0));
   ASSERT_TRUE(tab.get());
 
   bool expected = true;
@@ -530,10 +528,10 @@ TEST_F(AutomationProxyTest4, BooleanValueIsEchoedByDomAutomationController) {
 }
 
 TEST_F(AutomationProxyTest4, NumberValueIsEchoedByDomAutomationController) {
-  scoped_ptr<BrowserProxy> window(automation()->GetBrowserWindow(0));
+  scoped_refptr<BrowserProxy> window(automation()->GetBrowserWindow(0));
   ASSERT_TRUE(window.get());
 
-  scoped_ptr<TabProxy> tab(window->GetTab(0));
+  scoped_refptr<TabProxy> tab(window->GetTab(0));
   ASSERT_TRUE(tab.get());
 
   int expected = 1;
@@ -571,10 +569,10 @@ std::wstring CreateJSStringForDOMQuery(const std::wstring& id) {
 }
 
 TEST_F(AutomationProxyTest3, FrameDocumentCanBeAccessed) {
-  scoped_ptr<BrowserProxy> window(automation()->GetBrowserWindow(0));
+  scoped_refptr<BrowserProxy> window(automation()->GetBrowserWindow(0));
   ASSERT_TRUE(window.get());
 
-  scoped_ptr<TabProxy> tab(window->GetTab(0));
+  scoped_refptr<TabProxy> tab(window->GetTab(0));
   ASSERT_TRUE(tab.get());
 
   std::wstring actual;
@@ -600,7 +598,7 @@ TEST_F(AutomationProxyTest3, FrameDocumentCanBeAccessed) {
 #if 0
   // Open a new Destinations tab to execute script inside.
   window->RunCommand(IDC_NEWTAB);
-  tab.reset(window->GetTab(1));
+  tab = window->GetTab(1);
   ASSERT_TRUE(tab.get());
   ASSERT_TRUE(window->ActivateTab(1));
 
@@ -611,11 +609,10 @@ TEST_F(AutomationProxyTest3, FrameDocumentCanBeAccessed) {
 // TODO(port): Need to port constrained_window_proxy.* first.
 #if defined(OS_WIN)
 TEST_F(AutomationProxyTest, ConstrainedWindowTest) {
-  scoped_ptr<BrowserProxy> window(automation()->GetBrowserWindow(0));
+  scoped_refptr<BrowserProxy> window(automation()->GetBrowserWindow(0));
   ASSERT_TRUE(window.get());
 
-  scoped_ptr<TabProxy> tab(window->GetTab(0));
-  tab.reset(window->GetTab(0));
+  scoped_refptr<TabProxy> tab(window->GetTab(0));
   ASSERT_TRUE(tab.get());
 
   FilePath filename(test_data_directory_);
@@ -629,22 +626,20 @@ TEST_F(AutomationProxyTest, ConstrainedWindowTest) {
 
   ASSERT_EQ(1, count);
 
-  ConstrainedWindowProxy* cwindow = tab->GetConstrainedWindow(0);
-  ASSERT_TRUE(cwindow);
+  scoped_refptr<ConstrainedWindowProxy> cwindow = tab->GetConstrainedWindow(0);
+  ASSERT_TRUE(cwindow.get());
 
   std::wstring title;
   ASSERT_TRUE(cwindow->GetTitle(&title));
   std::wstring window_title = L"Pop-ups Blocked: 2";
   ASSERT_STREQ(window_title.c_str(), title.c_str());
-  delete cwindow;
 }
 
 TEST_F(AutomationProxyTest, CantEscapeByOnloadMoveto) {
-  scoped_ptr<BrowserProxy> window(automation()->GetBrowserWindow(0));
+  scoped_refptr<BrowserProxy> window(automation()->GetBrowserWindow(0));
   ASSERT_TRUE(window.get());
 
-  scoped_ptr<TabProxy> tab(window->GetTab(0));
-  tab.reset(window->GetTab(0));
+  scoped_refptr<TabProxy> tab(window->GetTab(0));
   ASSERT_TRUE(tab.get());
 
   FilePath filename(test_data_directory_);
@@ -658,8 +653,8 @@ TEST_F(AutomationProxyTest, CantEscapeByOnloadMoveto) {
 
   ASSERT_EQ(1, count);
 
-  ConstrainedWindowProxy* cwindow = tab->GetConstrainedWindow(0);
-  ASSERT_TRUE(cwindow);
+  scoped_refptr<ConstrainedWindowProxy> cwindow = tab->GetConstrainedWindow(0);
+  ASSERT_TRUE(cwindow.get());
 
   gfx::Rect rect;
   bool is_timeout = false;
@@ -803,7 +798,7 @@ void AutomationProxyForExternalTab::OnForwardMessageToExternalHost(
 
 TEST_F(ExternalTabTestType, CreateExternalTab) {
   HWND external_tab_container = NULL;
-  scoped_ptr<TabProxy> tab(automation()->CreateExternalTab(NULL, gfx::Rect(),
+  scoped_refptr<TabProxy> tab(automation()->CreateExternalTab(NULL, gfx::Rect(),
       WS_POPUP, false, &external_tab_container));
   EXPECT_TRUE(tab != NULL);
   EXPECT_NE(FALSE, ::IsWindow(external_tab_container));
@@ -822,21 +817,21 @@ TEST_F(ExternalTabTestType, IncognitoMode) {
   std::string value_result;
 
   // Create incognito tab
-  scoped_ptr<TabProxy> tab(automation()->CreateExternalTab(NULL, gfx::Rect(),
+  scoped_refptr<TabProxy> tab(automation()->CreateExternalTab(NULL, gfx::Rect(),
       WS_POPUP, true, &external_tab_container));
   EXPECT_TRUE(tab->SetCookie(url, "robert=burton; "
                                   "expires=Thu, 13 Oct 2011 05:04:03 UTC;"));
   EXPECT_TRUE(tab->GetCookieByName(url, "robert", &value_result));
   EXPECT_EQ("burton", value_result);
-  tab.reset(NULL);
+  tab = NULL;
   CloseBrowserAndServer();
 
   value_result.empty();
   clear_profile_ = false;
   external_tab_container = NULL;
   LaunchBrowserAndServer();
-  tab.reset(automation()->CreateExternalTab(NULL, gfx::Rect(),
-      WS_POPUP, false, &external_tab_container));
+  tab = automation()->CreateExternalTab(NULL, gfx::Rect(),
+      WS_POPUP, false, &external_tab_container);
   EXPECT_TRUE(tab->GetCookieByName(url, "robert", &value_result));
   EXPECT_EQ("", value_result);
 }
@@ -846,7 +841,7 @@ TEST_F(ExternalTabTestType, ExternalTabPostMessage) {
       static_cast<AutomationProxyForExternalTab*>(automation());
 
   HWND external_tab_container = NULL;
-  scoped_ptr<TabProxy> tab(proxy->CreateExternalTab(NULL, gfx::Rect(),
+  scoped_refptr<TabProxy> tab(proxy->CreateExternalTab(NULL, gfx::Rect(),
       WS_POPUP, false, &external_tab_container));
   EXPECT_TRUE(tab != NULL);
   EXPECT_NE(FALSE, ::IsWindow(external_tab_container));
@@ -880,9 +875,9 @@ TEST_F(ExternalTabTestType, ExternalTabPostMessage) {
 // TODO(port): Need to port autocomplete_edit_proxy.* first.
 #if defined(OS_WIN) || defined(OS_LINUX)
 TEST_F(AutomationProxyTest, AutocompleteGetSetText) {
-  scoped_ptr<BrowserProxy> browser(automation()->GetBrowserWindow(0));
+  scoped_refptr<BrowserProxy> browser(automation()->GetBrowserWindow(0));
   ASSERT_TRUE(browser.get());
-  scoped_ptr<AutocompleteEditProxy> edit(
+  scoped_refptr<AutocompleteEditProxy> edit(
       browser->GetAutocompleteEdit());
   ASSERT_TRUE(edit.get());
   EXPECT_TRUE(edit->is_valid());
@@ -891,22 +886,22 @@ TEST_F(AutomationProxyTest, AutocompleteGetSetText) {
   EXPECT_TRUE(edit->SetText(text_to_set));
   EXPECT_TRUE(edit->GetText(&actual_text));
   EXPECT_EQ(text_to_set, actual_text);
-  scoped_ptr<AutocompleteEditProxy> edit2(
+  scoped_refptr<AutocompleteEditProxy> edit2(
       browser->GetAutocompleteEdit());
   EXPECT_TRUE(edit2->GetText(&actual_text));
   EXPECT_EQ(text_to_set, actual_text);
 }
 
 TEST_F(AutomationProxyTest, AutocompleteParallelProxy) {
-  scoped_ptr<BrowserProxy> browser1(automation()->GetBrowserWindow(0));
+  scoped_refptr<BrowserProxy> browser1(automation()->GetBrowserWindow(0));
   ASSERT_TRUE(browser1.get());
-  scoped_ptr<AutocompleteEditProxy> edit1(
+  scoped_refptr<AutocompleteEditProxy> edit1(
       browser1->GetAutocompleteEdit());
   ASSERT_TRUE(edit1.get());
   EXPECT_TRUE(browser1->RunCommand(IDC_NEW_WINDOW));
-  scoped_ptr<BrowserProxy> browser2(automation()->GetBrowserWindow(1));
+  scoped_refptr<BrowserProxy> browser2(automation()->GetBrowserWindow(1));
   ASSERT_TRUE(browser2.get());
-  scoped_ptr<AutocompleteEditProxy> edit2(
+  scoped_refptr<AutocompleteEditProxy> edit2(
       browser2->GetAutocompleteEdit());
   ASSERT_TRUE(edit2.get());
   EXPECT_TRUE(browser2->GetTab(0)->WaitForTabToBeRestored(
@@ -923,9 +918,9 @@ TEST_F(AutomationProxyTest, AutocompleteParallelProxy) {
 }
 
 TEST_F(AutomationProxyVisibleTest, AutocompleteMatchesTest) {
-  scoped_ptr<BrowserProxy> browser(automation()->GetBrowserWindow(0));
+  scoped_refptr<BrowserProxy> browser(automation()->GetBrowserWindow(0));
   ASSERT_TRUE(browser.get());
-  scoped_ptr<AutocompleteEditProxy> edit(
+  scoped_refptr<AutocompleteEditProxy> edit(
       browser->GetAutocompleteEdit());
   ASSERT_TRUE(edit.get());
   EXPECT_TRUE(browser->ApplyAccelerator(IDC_FOCUS_LOCATION));
@@ -943,10 +938,9 @@ TEST_F(AutomationProxyVisibleTest, AutocompleteMatchesTest) {
 
 // Disabled because flaky see bug #5314.
 TEST_F(AutomationProxyTest, DISABLED_AppModalDialogTest) {
-  scoped_ptr<BrowserProxy> browser(automation()->GetBrowserWindow(0));
+  scoped_refptr<BrowserProxy> browser(automation()->GetBrowserWindow(0));
   ASSERT_TRUE(browser.get());
-  scoped_ptr<TabProxy> tab(browser->GetTab(0));
-  tab.reset(browser->GetTab(0));
+  scoped_refptr<TabProxy> tab(browser->GetTab(0));
   ASSERT_TRUE(tab.get());
 
   bool modal_dialog_showing = false;
@@ -1039,10 +1033,10 @@ class AutomationProxyTest5 : public UITest {
 };
 
 TEST_F(AutomationProxyTest5, TestLifetimeOfDomAutomationController) {
-  scoped_ptr<BrowserProxy> window(automation()->GetBrowserWindow(0));
+  scoped_refptr<BrowserProxy> window(automation()->GetBrowserWindow(0));
   ASSERT_TRUE(window.get());
 
-  scoped_ptr<TabProxy> tab(window->GetTab(0));
+  scoped_refptr<TabProxy> tab(window->GetTab(0));
   ASSERT_TRUE(tab.get());
 
   FilePath filename(test_data_directory_);

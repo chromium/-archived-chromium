@@ -91,9 +91,9 @@ TEST_F(PreferenceServiceTest, PreservedWindowPlacementIsLoaded) {
   DictionaryValue* root_dict = static_cast<DictionaryValue*>(root.get());
 
   // Retrieve the screen rect for the launched window
-  scoped_ptr<BrowserProxy> browser(automation()->GetBrowserWindow(0));
+  scoped_refptr<BrowserProxy> browser(automation()->GetBrowserWindow(0));
   ASSERT_TRUE(browser.get());
-  scoped_ptr<WindowProxy> window(browser->GetWindow());
+  scoped_refptr<WindowProxy> window(browser->GetWindow());
 
   HWND hWnd;
   ASSERT_TRUE(window->GetHWND(&hWnd));

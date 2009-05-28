@@ -199,7 +199,7 @@ class DomCheckerTest : public UITest {
       test_url = net::FilePathToFileURL(test_path);
     }
 
-    scoped_ptr<TabProxy> tab(GetActiveTab());
+    scoped_refptr<TabProxy> tab(GetActiveTab());
     tab->NavigateToURL(test_url);
 
     // Wait for the test to finish.

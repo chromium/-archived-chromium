@@ -118,14 +118,14 @@ bool WindowProxy::GetFocusedViewID(int* view_id) {
                                                           view_id));
 }
 
-BrowserProxy* WindowProxy::GetBrowser() {
+scoped_refptr<BrowserProxy> WindowProxy::GetBrowser() {
   return GetBrowserWithTimeout(base::kNoTimeout, NULL);
 }
 
-BrowserProxy* WindowProxy::GetBrowserWithTimeout(uint32 timeout_ms,
-                                                 bool* is_timeout) {
+scoped_refptr<BrowserProxy> WindowProxy::GetBrowserWithTimeout(
+    uint32 timeout_ms, bool* is_timeout) {
   if (!is_valid())
-    return false;
+    return NULL;
 
   bool handle_ok = false;
   int browser_handle = 0;
@@ -135,5 +135,15 @@ BrowserProxy* WindowProxy::GetBrowserWithTimeout(uint32 timeout_ms,
   if (!handle_ok)
     return NULL;
 
-  return new BrowserProxy(sender_, tracker_, browser_handle);
+  BrowserProxy* browser =
+      static_cast<BrowserProxy*>(tracker_->GetResource(browser_handle));
+  if (!browser) {
+    browser = new BrowserProxy(sender_, tracker_, browser_handle);
+    browser->AddRef();
+  }
+
+  // Since there is no scoped_refptr::attach.
+  scoped_refptr<BrowserProxy> result;
+  result.swap(&browser);
+  return result;
 }

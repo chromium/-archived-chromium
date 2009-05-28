@@ -18,7 +18,7 @@ class WorkerTest : public UITest {
   }
 
   void RunTest(const std::wstring& test_case) {
-    scoped_ptr<TabProxy> tab(GetActiveTab());
+    scoped_refptr<TabProxy> tab(GetActiveTab());
 
     GURL url = GetTestUrl(L"workers", test_case);
     ASSERT_TRUE(tab->NavigateToURL(url));

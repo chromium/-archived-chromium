@@ -63,7 +63,7 @@ TEST_F(LayoutPluginTester, UnloadNoCrash) {
   NavigateToURL(net::FilePathToFileURL(path));
 
   std::wstring title;
-  TabProxy* tab = GetActiveTab();
+  scoped_refptr<TabProxy> tab = GetActiveTab();
   ASSERT_TRUE(tab);
   EXPECT_TRUE(tab->GetTabTitle(&title));
   EXPECT_EQ(L"Layout Test Plugin Test", title);
@@ -71,6 +71,4 @@ TEST_F(LayoutPluginTester, UnloadNoCrash) {
   ASSERT_TRUE(tab->GoBack());
   EXPECT_TRUE(tab->GetTabTitle(&title));
   EXPECT_EQ(L"", title);
-
-  delete tab;
 }

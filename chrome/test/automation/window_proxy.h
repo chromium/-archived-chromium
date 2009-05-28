@@ -34,7 +34,6 @@ class WindowProxy : public AutomationResourceProxy {
               AutomationHandleTracker* tracker,
               int handle)
     : AutomationResourceProxy(tracker, sender, handle) {}
-  virtual ~WindowProxy() {}
 
 #if defined(OS_WIN)
   // TODO(port): Use portable replacements for windowsisms.
@@ -89,12 +88,14 @@ class WindowProxy : public AutomationResourceProxy {
 
   // Returns the browser this window corresponds to, or NULL if this window
   // is not a browser.  The caller owns the returned BrowserProxy.
-  BrowserProxy* GetBrowser();
+  scoped_refptr<BrowserProxy> GetBrowser();
 
   // Same as GetWindow except return NULL if response isn't received
   // before the specified timeout.
-  BrowserProxy* GetBrowserWithTimeout(uint32 timeout_ms, bool* is_timeout);
-
+  scoped_refptr<BrowserProxy> GetBrowserWithTimeout(uint32 timeout_ms,
+      bool* is_timeout);
+ protected:
+  virtual ~WindowProxy() {}
  private:
   DISALLOW_COPY_AND_ASSIGN(WindowProxy);
 };

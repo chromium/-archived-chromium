@@ -103,7 +103,7 @@ class SeleniumTest : public UITest {
     file_util::AppendToPath(&test_path, L"TestRunner.html");
 
     GURL test_url(net::FilePathToFileURL(FilePath::FromWStringHack(test_path)));
-    scoped_ptr<TabProxy> tab(GetActiveTab());
+    scoped_refptr<TabProxy> tab(GetActiveTab());
     tab->NavigateToURL(test_url);
 
     // Wait for the test to finish.

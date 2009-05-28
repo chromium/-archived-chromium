@@ -27,8 +27,8 @@ class LoginPromptTest : public UITest {
         password_bad_(L"denyme") {
   }
 
-  TabProxy* GetActiveTabProxy() {
-    scoped_ptr<BrowserProxy> window_proxy(automation()->GetBrowserWindow(0));
+  scoped_refptr<TabProxy> GetActiveTabProxy() {
+    scoped_refptr<BrowserProxy> window_proxy(automation()->GetBrowserWindow(0));
     EXPECT_TRUE(window_proxy.get());
 
     int active_tab_index = 0;
@@ -41,7 +41,7 @@ class LoginPromptTest : public UITest {
   }
 
   void AppendTab(const GURL& url) {
-    scoped_ptr<BrowserProxy> window_proxy(automation()->GetBrowserWindow(0));
+    scoped_refptr<BrowserProxy> window_proxy(automation()->GetBrowserWindow(0));
     EXPECT_TRUE(window_proxy.get());
     EXPECT_TRUE(window_proxy->AppendTab(url));
   }
@@ -65,7 +65,7 @@ TEST_F(LoginPromptTest, TestBasicAuth) {
   scoped_refptr<HTTPTestServer> server =
       HTTPTestServer::CreateServer(kDocRoot, NULL);
   ASSERT_TRUE(NULL != server.get());
-  ::scoped_ptr<TabProxy> tab(GetActiveTabProxy());
+  scoped_refptr<TabProxy> tab(GetActiveTabProxy());
   NavigateTab(tab.get(), server->TestServerPageW(L"auth-basic"));
 
   EXPECT_TRUE(tab->NeedsAuth());
@@ -87,7 +87,7 @@ TEST_F(LoginPromptTest, TestDigestAuth) {
   scoped_refptr<HTTPTestServer> server =
       HTTPTestServer::CreateServer(kDocRoot, NULL);
   ASSERT_TRUE(NULL != server.get());
-  ::scoped_ptr<TabProxy> tab(GetActiveTabProxy());
+  scoped_refptr<TabProxy> tab(GetActiveTabProxy());
   NavigateTab(tab.get(), server->TestServerPageW(L"auth-digest"));
 
   EXPECT_TRUE(tab->NeedsAuth());
@@ -109,11 +109,11 @@ TEST_F(LoginPromptTest, TestTwoAuths) {
       HTTPTestServer::CreateServer(kDocRoot, NULL);
   ASSERT_TRUE(NULL != server.get());
 
-  ::scoped_ptr<TabProxy> basic_tab(GetActiveTabProxy());
+  scoped_refptr<TabProxy> basic_tab(GetActiveTabProxy());
   NavigateTab(basic_tab.get(), server->TestServerPageW(L"auth-basic"));
 
   AppendTab(GURL("about:blank"));
-  ::scoped_ptr<TabProxy> digest_tab(GetActiveTabProxy());
+  scoped_refptr<TabProxy> digest_tab(GetActiveTabProxy());
   NavigateTab(digest_tab.get(), server->TestServerPageW(L"auth-digest"));
 
   // TODO(devint): http://b/1158262 basic_tab is not active, so this logs in to
@@ -138,7 +138,7 @@ TEST_F(LoginPromptTest, TestCancelAuth) {
   scoped_refptr<HTTPTestServer> server =
       HTTPTestServer::CreateServer(kDocRoot, NULL);
   ASSERT_TRUE(NULL != server.get());
-  ::scoped_ptr<TabProxy> tab(GetActiveTabProxy());
+  scoped_refptr<TabProxy> tab(GetActiveTabProxy());
 
   // First navigate to a test server page so we have something to go back to.
   EXPECT_TRUE(tab->NavigateToURL(server->TestServerPageW(L"a")));

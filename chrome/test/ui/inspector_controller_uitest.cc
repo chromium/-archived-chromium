@@ -12,8 +12,8 @@
 
 class InspectorControllerTest : public UITest {
  protected:
-  TabProxy* GetActiveTabProxy() {
-    scoped_ptr<BrowserProxy> window_proxy(automation()->GetBrowserWindow(0));
+  scoped_refptr<TabProxy> GetActiveTabProxy() {
+    scoped_refptr<BrowserProxy> window_proxy(automation()->GetBrowserWindow(0));
     EXPECT_TRUE(window_proxy.get());
 
     int active_tab_index = 0;
@@ -36,7 +36,7 @@ TEST_F(InspectorControllerTest, DISABLED_InspectElement) {
       HTTPTestServer::CreateServer(L"chrome/test/data", NULL);
   ASSERT_TRUE(NULL != server.get());
 
-  ::scoped_ptr<TabProxy> tab(GetActiveTabProxy());
+  scoped_refptr<TabProxy> tab(GetActiveTabProxy());
   // We don't track resources until we've opened the inspector.
   NavigateTab(tab.get(), server->TestServerPageW(
       L"files/inspector/test1.html"));

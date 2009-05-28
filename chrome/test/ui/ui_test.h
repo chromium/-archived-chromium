@@ -427,10 +427,10 @@ class UITest : public testing::Test {
   // tab or there was some kind of error. Only looks at the first window, for
   // backward compatibility. The returned pointer MUST be deleted by the
   // caller if non-NULL.
-  TabProxy* GetActiveTab() { return GetActiveTab(0); }
+  scoped_refptr<TabProxy> GetActiveTab();
 
   // Like above, but looks at the window at the given index.
-  TabProxy* GetActiveTab(int window_index);
+  scoped_refptr<TabProxy> GetActiveTab(int window_index);
 
   // ********* Member variables *********
 

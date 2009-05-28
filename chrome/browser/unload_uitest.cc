@@ -146,7 +146,7 @@ class UnloadTest : public UITest {
 
   void LoadUrlAndQuitBrowser(const std::string& html_content,
                              const std::wstring& expected_title = L"") {
-    scoped_ptr<BrowserProxy> browser(automation()->GetBrowserWindow(0));
+    scoped_refptr<BrowserProxy> browser(automation()->GetBrowserWindow(0));
     NavigateToDataURL(html_content, expected_title);
     bool application_closed = false;
     EXPECT_TRUE(CloseBrowser(browser.get(), &application_closed));
@@ -239,7 +239,7 @@ TEST_F(UnloadTest, BrowserCloseUnload) {
 // Tests closing the browser with a beforeunload handler and clicking
 // OK in the beforeunload confirm dialog.
 TEST_F(UnloadTest, BrowserCloseBeforeUnloadOK) {
-  scoped_ptr<BrowserProxy> browser(automation()->GetBrowserWindow(0));
+  scoped_refptr<BrowserProxy> browser(automation()->GetBrowserWindow(0));
   NavigateToDataURL(BEFORE_UNLOAD_HTML, L"beforeunload");
 
   CloseBrowserAsync(browser.get());
@@ -251,7 +251,7 @@ TEST_F(UnloadTest, BrowserCloseBeforeUnloadOK) {
 // Tests closing the browser with a beforeunload handler and clicking
 // CANCEL in the beforeunload confirm dialog.
 TEST_F(UnloadTest, BrowserCloseBeforeUnloadCancel) {
-  scoped_ptr<BrowserProxy> browser(automation()->GetBrowserWindow(0));
+  scoped_refptr<BrowserProxy> browser(automation()->GetBrowserWindow(0));
   NavigateToDataURL(BEFORE_UNLOAD_HTML, L"beforeunload");
 
   CloseBrowserAsync(browser.get());
@@ -336,26 +336,26 @@ TEST_F(UnloadTest, BrowserCloseTabWhenOtherTabHasListener) {
   automation()->GetBrowserWindowCount(&window_count);
   ASSERT_EQ(2, window_count);
 
-  scoped_ptr<BrowserProxy> popup_browser_proxy(
+  scoped_refptr<BrowserProxy> popup_browser_proxy(
       automation()->GetBrowserWindow(1));
   ASSERT_TRUE(popup_browser_proxy.get());
   int popup_tab_count;
   EXPECT_TRUE(popup_browser_proxy->GetTabCount(&popup_tab_count));
   EXPECT_EQ(1, popup_tab_count);
-  scoped_ptr<TabProxy> popup_tab(popup_browser_proxy->GetActiveTab());
+  scoped_refptr<TabProxy> popup_tab(popup_browser_proxy->GetActiveTab());
   std::wstring popup_title;
   ASSERT_TRUE(popup_tab.get() != NULL);
   EXPECT_TRUE(popup_tab->GetTabTitle(&popup_title));
   EXPECT_EQ(std::wstring(L"popup"), popup_title);
   EXPECT_TRUE(popup_tab->Close(true));
 
-  scoped_ptr<BrowserProxy> main_browser_proxy(
+  scoped_refptr<BrowserProxy> main_browser_proxy(
       automation()->GetBrowserWindow(0));
   ASSERT_TRUE(main_browser_proxy.get());
   int main_tab_count;
   EXPECT_TRUE(main_browser_proxy->GetTabCount(&main_tab_count));
   EXPECT_EQ(1, main_tab_count);
-  scoped_ptr<TabProxy> main_tab(main_browser_proxy->GetActiveTab());
+  scoped_refptr<TabProxy> main_tab(main_browser_proxy->GetActiveTab());
   std::wstring main_title;
   ASSERT_TRUE(main_tab.get() != NULL);
   EXPECT_TRUE(main_tab->GetTabTitle(&main_title));

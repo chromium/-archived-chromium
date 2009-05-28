@@ -112,25 +112,34 @@ bool BrowserProxy::GetActiveTabIndexWithTimeout(int* active_tab_index,
   return succeeded;
 }
 
-TabProxy* BrowserProxy::GetTab(int tab_index) const {
+scoped_refptr<TabProxy> BrowserProxy::GetTab(int tab_index) const {
   if (!is_valid())
     return NULL;
 
-  int handle = 0;
+  int tab_handle = 0;
 
-  sender_->Send(new AutomationMsg_Tab(0, handle_, tab_index, &handle));
-  if (!handle)
+  sender_->Send(new AutomationMsg_Tab(0, handle_, tab_index, &tab_handle));
+  if (!tab_handle)
     return NULL;
 
-  return new TabProxy(sender_, tracker_, handle);
+  TabProxy* tab = static_cast<TabProxy*>(tracker_->GetResource(tab_handle));
+  if (!tab) {
+    tab = new TabProxy(sender_, tracker_, tab_handle);
+    tab->AddRef();
+  }
+
+  // Since there is no scoped_refptr::attach.
+  scoped_refptr<TabProxy> result;
+  result.swap(&tab);
+  return result;
 }
 
-TabProxy* BrowserProxy::GetActiveTab() const {
+scoped_refptr<TabProxy> BrowserProxy::GetActiveTab() const {
   return GetActiveTabWithTimeout(base::kNoTimeout, NULL);
 }
 
-TabProxy* BrowserProxy::GetActiveTabWithTimeout(uint32 timeout_ms,
-                                                bool* is_timeout) const {
+scoped_refptr<TabProxy> BrowserProxy::GetActiveTabWithTimeout(uint32 timeout_ms,
+    bool* is_timeout) const {
   int active_tab_index;
   if (!GetActiveTabIndexWithTimeout(&active_tab_index, timeout_ms, is_timeout))
     return NULL;
@@ -365,9 +374,9 @@ bool BrowserProxy::SetBooleanPreference(const std::wstring& name,
   return result;
 }
 
-WindowProxy* BrowserProxy::GetWindow() const {
+scoped_refptr<WindowProxy> BrowserProxy::GetWindow() const {
   if (!is_valid())
-    return false;
+    return NULL;
 
   bool handle_ok = false;
   int window_handle = 0;
@@ -377,10 +386,20 @@ WindowProxy* BrowserProxy::GetWindow() const {
   if (!handle_ok)
     return NULL;
 
-  return new WindowProxy(sender_, tracker_, window_handle);
+  WindowProxy* window =
+      static_cast<WindowProxy*>(tracker_->GetResource(window_handle));
+  if (!window) {
+    window = new WindowProxy(sender_, tracker_, window_handle);
+    window->AddRef();
+  }
+
+  // Since there is no scoped_refptr::attach.
+  scoped_refptr<WindowProxy> result;
+  result.swap(&window);
+  return result;
 }
 
-AutocompleteEditProxy* BrowserProxy::GetAutocompleteEdit() {
+scoped_refptr<AutocompleteEditProxy> BrowserProxy::GetAutocompleteEdit() {
   if (!is_valid())
     return NULL;
 
@@ -393,5 +412,16 @@ AutocompleteEditProxy* BrowserProxy::GetAutocompleteEdit() {
   if (!handle_ok)
     return NULL;
 
-  return new AutocompleteEditProxy(sender_, tracker_, autocomplete_edit_handle);
+  AutocompleteEditProxy* p = static_cast<AutocompleteEditProxy*>(
+        tracker_->GetResource(autocomplete_edit_handle));
+  
+  if (!p) {
+    p = new AutocompleteEditProxy(sender_, tracker_, autocomplete_edit_handle);
+    p->AddRef();
+  }
+
+  // Since there is no scoped_refptr::attach.
+  scoped_refptr<AutocompleteEditProxy> result;
+  result.swap(&p);
+  return result;
 }

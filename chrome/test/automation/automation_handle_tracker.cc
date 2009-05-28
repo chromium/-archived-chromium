@@ -33,40 +33,36 @@ AutomationHandleTracker::~AutomationHandleTracker() {
 }
 
 void AutomationHandleTracker::Add(AutomationResourceProxy* proxy) {
+  AutoLock lock(map_lock_);
   handle_to_object_.insert(MapEntry(proxy->handle(), proxy));
 }
 
 void AutomationHandleTracker::Remove(AutomationResourceProxy* proxy) {
+  AutoLock lock(map_lock_);
   HandleToObjectMap::iterator iter = handle_to_object_.find(proxy->handle());
-  if (iter == handle_to_object_.end())
-    return;
-
-  HandleToObjectMap::iterator end_of_matching_objects =
-    handle_to_object_.upper_bound(proxy->handle());
-
-  while(iter != end_of_matching_objects) {
-    if (iter->second == proxy) {
-      handle_to_object_.erase(iter);
-
-      // If we have no more proxy objects using this handle, tell the
-      // app that it can clean up that handle.  If the proxy isn't valid,
-      // that means that the app has already discarded this handle, and
-      // thus doesn't need to be notified that the handle is unused.
-      if (proxy->is_valid() && handle_to_object_.count(proxy->handle()) == 0) {
-        sender_->Send(new AutomationMsg_HandleUnused(0, proxy->handle()));
-      }
-      return;
-    }
-    ++iter;
+  if (iter != handle_to_object_.end()) {
+    handle_to_object_.erase(iter);
+    sender_->Send(new AutomationMsg_HandleUnused(0, proxy->handle()));
   }
 }
 
 void AutomationHandleTracker::InvalidateHandle(AutomationHandle handle) {
-  HandleToObjectMap::iterator iter = handle_to_object_.lower_bound(handle);
-  HandleToObjectMap::const_iterator end_of_matching_objects =
-    handle_to_object_.upper_bound(handle);
-
-  for (; iter != end_of_matching_objects; ++iter) {
+  // Called in background thread.
+  AutoLock lock(map_lock_);
+  HandleToObjectMap::iterator iter = handle_to_object_.find(handle);
+  if (iter != handle_to_object_.end()) {
     iter->second->Invalidate();
   }
+}
+
+AutomationResourceProxy* AutomationHandleTracker::GetResource(
+    AutomationHandle handle) {
+  DCHECK(handle);
+  AutoLock lock(map_lock_);
+  HandleToObjectMap::iterator iter = handle_to_object_.find(handle);
+  if (iter == handle_to_object_.end())
+    return NULL;
+
+  iter->second->AddRef();
+  return iter->second;
 }

@@ -56,21 +56,21 @@ TEST_F(FindInPageTest, CrashEscHandlers) {
       HTTPTestServer::CreateServer(kDocRoot, NULL);
   ASSERT_TRUE(NULL != server.get());
 
-  scoped_ptr<BrowserProxy> browser(automation()->GetBrowserWindow(0));
+  scoped_refptr<BrowserProxy> browser(automation()->GetBrowserWindow(0));
   ASSERT_TRUE(browser.get() != NULL);
-  scoped_ptr<WindowProxy> window(browser->GetWindow());
+  scoped_refptr<WindowProxy> window(browser->GetWindow());
   ASSERT_TRUE(window.get() != NULL);
 
   // First we navigate to our test page (tab A).
   GURL url = server->TestServerPageW(kSimplePage);
-  scoped_ptr<TabProxy> tabA(GetActiveTab());
+  scoped_refptr<TabProxy> tabA(GetActiveTab());
   EXPECT_NE(AUTOMATION_MSG_NAVIGATION_ERROR, tabA->NavigateToURL(url));
 
   EXPECT_TRUE(browser->OpenFindInPage());
 
   // Open another tab (tab B).
   EXPECT_TRUE(browser->AppendTab(url));
-  scoped_ptr<TabProxy> tabB(GetActiveTab());
+  scoped_refptr<TabProxy> tabB(GetActiveTab());
 
   EXPECT_TRUE(browser->OpenFindInPage());
 

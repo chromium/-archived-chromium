@@ -59,8 +59,8 @@ class NewTabUIStartupTest : public UITest {
 
       // Switch to the "new tab" tab, which should be any new tab after the
       // first (the first is about:blank).
-      BrowserProxy* window = automation()->GetBrowserWindow(0);
-      ASSERT_TRUE(window);
+      scoped_refptr<BrowserProxy> window(automation()->GetBrowserWindow(0));
+      ASSERT_TRUE(window.get());
       int tab_count = -1;
       ASSERT_TRUE(window->GetTabCount(&tab_count));
       ASSERT_EQ(1, tab_count);
@@ -80,7 +80,7 @@ class NewTabUIStartupTest : public UITest {
         timings[i] = TimeDelta::FromMilliseconds(load_time);
       }
 
-      delete window;
+      window = NULL;
       UITest::TearDown();
     }
 

@@ -391,7 +391,7 @@ void UITest::LaunchBrowser(const CommandLine& arguments, bool clear_profile) {
 }
 
 void UITest::QuitBrowser() {
-  typedef std::vector<BrowserProxy*> BrowserVector;
+  typedef std::vector<scoped_refptr<BrowserProxy> > BrowserVector;
 
   // There's nothing to do here if the browser is not running.
   if (IsBrowserRunning()) {
@@ -404,7 +404,8 @@ void UITest::QuitBrowser() {
     EXPECT_TRUE(automation()->GetBrowserWindowCount(&window_count));
 
     for (int i = 0; i < window_count; ++i) {
-      BrowserProxy* browser_proxy = automation()->GetBrowserWindow(i);
+      scoped_refptr<BrowserProxy> browser_proxy =
+          automation()->GetBrowserWindow(i);
       browsers.push_back(browser_proxy);
     }
 
@@ -415,9 +416,10 @@ void UITest::QuitBrowser() {
       iter != browsers.end(); ++iter) {
       // Use ApplyAccelerator since it doesn't wait
       (*iter)->ApplyAccelerator(IDC_CLOSE_WINDOW);
-      delete (*iter);
     }
 #endif
+
+    browsers.clear();
 
     // Now, drop the automation IPC channel so that the automation provider in
     // the browser notices and drops its reference to the browser process.
@@ -455,13 +457,13 @@ void UITest::CleanupAppProcesses() {
     AssertAppNotRunning(L"Unable to quit all browser processes.");
 }
 
-TabProxy* UITest::GetActiveTab(int window_index) {
+scoped_refptr<TabProxy> UITest::GetActiveTab(int window_index) {
   EXPECT_GE(window_index, 0);
   int window_count;
   // Use EXPECT rather than ASSERT here because ASSERT_* returns void.
   EXPECT_TRUE(automation()->GetBrowserWindowCount(&window_count));
   EXPECT_GT(window_count, window_index);
-  scoped_ptr<BrowserProxy> window_proxy(automation()->
+  scoped_refptr<BrowserProxy> window_proxy(automation()->
       GetBrowserWindow(window_index));
   if (!window_proxy.get())
     return NULL;
@@ -474,8 +476,12 @@ TabProxy* UITest::GetActiveTab(int window_index) {
   return window_proxy->GetTab(active_tab_index);
 }
 
+scoped_refptr<TabProxy> UITest::GetActiveTab() {
+  return GetActiveTab(0);
+}
+
 void UITest::NavigateToURLAsync(const GURL& url) {
-  scoped_ptr<TabProxy> tab_proxy(GetActiveTab());
+  scoped_refptr<TabProxy> tab_proxy(GetActiveTab());
   ASSERT_TRUE(tab_proxy.get());
   if (!tab_proxy.get())
     return;
@@ -484,7 +490,7 @@ void UITest::NavigateToURLAsync(const GURL& url) {
 }
 
 void UITest::NavigateToURL(const GURL& url) {
-  scoped_ptr<TabProxy> tab_proxy(GetActiveTab());
+  scoped_refptr<TabProxy> tab_proxy(GetActiveTab());
   ASSERT_TRUE(tab_proxy.get());
   if (!tab_proxy.get())
     return;
@@ -549,7 +555,7 @@ bool UITest::WaitForBookmarkBarVisibilityChange(BrowserProxy* browser,
 #endif  // defined(OS_WIN)
 
 GURL UITest::GetActiveTabURL(int window_index) {
-  scoped_ptr<TabProxy> tab_proxy(GetActiveTab(window_index));
+  scoped_refptr<TabProxy> tab_proxy(GetActiveTab(window_index));
   if (!tab_proxy.get())
     return GURL();
 
@@ -561,7 +567,7 @@ GURL UITest::GetActiveTabURL(int window_index) {
 
 std::wstring UITest::GetActiveTabTitle(int window_index) {
   std::wstring title;
-  scoped_ptr<TabProxy> tab_proxy(GetActiveTab(window_index));
+  scoped_refptr<TabProxy> tab_proxy(GetActiveTab(window_index));
   if (!tab_proxy.get())
     return title;
 
@@ -570,7 +576,7 @@ std::wstring UITest::GetActiveTabTitle(int window_index) {
 }
 
 int UITest::GetActiveTabIndex(int window_index) {
-  scoped_ptr<TabProxy> tab_proxy(GetActiveTab(window_index));
+  scoped_refptr<TabProxy> tab_proxy(GetActiveTab(window_index));
   if (!tab_proxy.get())
     return -1;
 
@@ -624,7 +630,7 @@ DictionaryValue* UITest::GetDefaultProfilePreferences() {
 #endif  // OS_WIN
 
 int UITest::GetTabCount() {
-  scoped_ptr<BrowserProxy> first_window(automation()->GetBrowserWindow(0));
+  scoped_refptr<BrowserProxy> first_window(automation()->GetBrowserWindow(0));
   if (!first_window.get())
     return 0;
 
@@ -728,7 +734,7 @@ void UITest::WaitUntilTabCount(int tab_count) {
 }
 
 std::wstring UITest::GetDownloadDirectory() {
-  scoped_ptr<TabProxy> tab_proxy(GetActiveTab());
+  scoped_refptr<TabProxy> tab_proxy(GetActiveTab());
   if (!tab_proxy.get())
     return false;
 
@@ -792,7 +798,7 @@ void UITest::WaitForFinish(const std::string &name,
   cookie_name.append(".");
   cookie_name.append(test_complete_cookie);
 
-  scoped_ptr<TabProxy> tab(GetActiveTab());
+  scoped_refptr<TabProxy> tab(GetActiveTab());
 
   bool test_result = WaitUntilCookieValue(tab.get(), url,
                                           cookie_name.c_str(),

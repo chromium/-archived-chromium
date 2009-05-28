@@ -67,8 +67,8 @@ TEST_F(ResourceDispatcherTest, SniffNoContentTypeNoData) {
   EXPECT_EQ(1, GetTabCount());
 
   // Make sure the download shelf is not showing.
-  scoped_ptr<BrowserProxy> browser(automation()->GetBrowserWindow(0));
-  scoped_ptr<TabProxy> dl_tab(browser->GetTab(0));
+  scoped_refptr<BrowserProxy> browser(automation()->GetBrowserWindow(0));
+  scoped_refptr<TabProxy> dl_tab(browser->GetTab(0));
   ASSERT_TRUE(dl_tab.get());
 
   bool visible = false;
@@ -91,9 +91,9 @@ TEST_F(ResourceDispatcherTest, SyncXMLHttpRequest) {
       HTTPTestServer::CreateServer(kDocRoot, NULL);
   ASSERT_TRUE(NULL != server.get());
 
-  scoped_ptr<BrowserProxy> browser_proxy(automation()->GetBrowserWindow(0));
+  scoped_refptr<BrowserProxy> browser_proxy(automation()->GetBrowserWindow(0));
   EXPECT_TRUE(browser_proxy.get());
-  scoped_ptr<TabProxy> tab(browser_proxy->GetActiveTab());
+  scoped_refptr<TabProxy> tab(browser_proxy->GetActiveTab());
   tab->NavigateToURL(server->TestServerPageW(
       L"files/sync_xmlhttprequest.html"));
 
@@ -111,9 +111,9 @@ TEST_F(ResourceDispatcherTest, SyncXMLHttpRequest_Disallowed) {
       HTTPTestServer::CreateServer(kDocRoot, NULL);
   ASSERT_TRUE(NULL != server.get());
 
-  scoped_ptr<BrowserProxy> browser_proxy(automation()->GetBrowserWindow(0));
+  scoped_refptr<BrowserProxy> browser_proxy(automation()->GetBrowserWindow(0));
   EXPECT_TRUE(browser_proxy.get());
-  scoped_ptr<TabProxy> tab(browser_proxy->GetActiveTab());
+  scoped_refptr<TabProxy> tab(browser_proxy->GetActiveTab());
   tab->NavigateToURL(server->TestServerPageW(
       L"files/sync_xmlhttprequest_disallowed.html"));
 
@@ -134,9 +134,9 @@ TEST_F(ResourceDispatcherTest, SyncXMLHttpRequest_DuringUnload) {
       HTTPTestServer::CreateServer(kDocRoot, NULL);
   ASSERT_TRUE(NULL != server.get());
 
-  scoped_ptr<BrowserProxy> browser_proxy(automation()->GetBrowserWindow(0));
+  scoped_refptr<BrowserProxy> browser_proxy(automation()->GetBrowserWindow(0));
   EXPECT_TRUE(browser_proxy.get());
-  scoped_ptr<TabProxy> tab(browser_proxy->GetActiveTab());
+  scoped_refptr<TabProxy> tab(browser_proxy->GetActiveTab());
 
   tab->NavigateToURL(
       server->TestServerPageW(L"files/sync_xmlhttprequest_during_unload.html"));
@@ -169,9 +169,9 @@ TEST_F(ResourceDispatcherTest, CrossSiteOnunloadCookie) {
       HTTPTestServer::CreateServer(kDocRoot, NULL);
   ASSERT_TRUE(NULL != server.get());
 
-  scoped_ptr<BrowserProxy> browser_proxy(automation()->GetBrowserWindow(0));
+  scoped_refptr<BrowserProxy> browser_proxy(automation()->GetBrowserWindow(0));
   EXPECT_TRUE(browser_proxy.get());
-  scoped_ptr<TabProxy> tab(browser_proxy->GetActiveTab());
+  scoped_refptr<TabProxy> tab(browser_proxy->GetActiveTab());
 
   GURL url(server->TestServerPageW(L"files/onunload_cookie.html"));
   tab->NavigateToURL(url);
@@ -209,9 +209,9 @@ TEST_F(ResourceDispatcherTest, CrossSiteAfterCrash) {
   if (in_process_renderer())
     return;
 
-  scoped_ptr<BrowserProxy> browser_proxy(automation()->GetBrowserWindow(0));
+  scoped_refptr<BrowserProxy> browser_proxy(automation()->GetBrowserWindow(0));
   EXPECT_TRUE(browser_proxy.get());
-  scoped_ptr<TabProxy> tab(browser_proxy->GetActiveTab());
+  scoped_refptr<TabProxy> tab(browser_proxy->GetActiveTab());
 
   // Cause the renderer to crash.
   expected_crashes_ = 1;
@@ -229,9 +229,9 @@ TEST_F(ResourceDispatcherTest, CrossSiteAfterCrash) {
 // Tests that cross-site navigations work when the new page does not go through
 // the BufferedEventHandler (e.g., non-http{s} URLs).  (Bug 1225872)
 TEST_F(ResourceDispatcherTest, CrossSiteNavigationNonBuffered) {
-  scoped_ptr<BrowserProxy> browser_proxy(automation()->GetBrowserWindow(0));
+  scoped_refptr<BrowserProxy> browser_proxy(automation()->GetBrowserWindow(0));
   EXPECT_TRUE(browser_proxy.get());
-  scoped_ptr<TabProxy> tab(browser_proxy->GetActiveTab());
+  scoped_refptr<TabProxy> tab(browser_proxy->GetActiveTab());
 
   // Start with an HTTP page.
   CheckTitleTest(L"content-sniffer-test0.html",
@@ -258,9 +258,9 @@ TEST_F(ResourceDispatcherTest, CrossSiteNavigationErrorPage) {
       HTTPTestServer::CreateServer(kDocRoot, NULL);
   ASSERT_TRUE(NULL != server.get());
 
-  scoped_ptr<BrowserProxy> browser_proxy(automation()->GetBrowserWindow(0));
+  scoped_refptr<BrowserProxy> browser_proxy(automation()->GetBrowserWindow(0));
   EXPECT_TRUE(browser_proxy.get());
-  scoped_ptr<TabProxy> tab(browser_proxy->GetActiveTab());
+  scoped_refptr<TabProxy> tab(browser_proxy->GetActiveTab());
 
   GURL url(server->TestServerPageW(L"files/onunload_cookie.html"));
   tab->NavigateToURL(url);

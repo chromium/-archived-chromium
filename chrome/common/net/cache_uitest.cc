@@ -95,7 +95,7 @@ void CacheTest::RunCacheTest(const std::wstring &url,
 // Appends a new tab to the test chrome window and loads the specified URL.
 void CacheTest::GetNewTab(AutomationProxy* automationProxy,
                           const GURL& tab_url) {
-  scoped_ptr<BrowserProxy> window_proxy(automationProxy->GetBrowserWindow(0));
+  scoped_refptr<BrowserProxy> window_proxy(automationProxy->GetBrowserWindow(0));
   ASSERT_TRUE(window_proxy.get());
   ASSERT_TRUE(window_proxy->AppendTab(tab_url));
 }

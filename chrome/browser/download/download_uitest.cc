@@ -124,14 +124,14 @@ class DownloadTest : public UITest {
 
       // Complete sending the request.  We do this by loading a second URL in a
       // separate tab.
-      scoped_ptr<BrowserProxy> window(automation()->GetBrowserWindow(0));
+      scoped_refptr<BrowserProxy> window(automation()->GetBrowserWindow(0));
       EXPECT_TRUE(window->AppendTab(GURL(
           URLRequestSlowDownloadJob::kFinishDownloadUrl)));
       EXPECT_EQ(2, GetTabCount());
       // TODO(tc): check download status text
 
       // Make sure the download shelf is showing.
-      scoped_ptr<TabProxy> dl_tab(window->GetTab(0));
+      scoped_refptr<TabProxy> dl_tab(window->GetTab(0));
       ASSERT_TRUE(dl_tab.get());
       EXPECT_TRUE(WaitForDownloadShelfVisible(dl_tab.get()));
     }
@@ -170,7 +170,7 @@ TEST_F(DownloadTest, DownloadMimeType) {
 
   CleanUpDownload(file);
 
-  scoped_ptr<TabProxy> tab_proxy(GetActiveTab());
+  scoped_refptr<TabProxy> tab_proxy(GetActiveTab());
   ASSERT_TRUE(tab_proxy.get());
   EXPECT_TRUE(WaitForDownloadShelfVisible(tab_proxy.get()));
 }
@@ -196,7 +196,7 @@ TEST_F(DownloadTest, NoDownload) {
   if (file_util::PathExists(file_path))
     ASSERT_TRUE(file_util::Delete(file_path, false));
 
-  scoped_ptr<TabProxy> tab_proxy(GetActiveTab());
+  scoped_refptr<TabProxy> tab_proxy(GetActiveTab());
   ASSERT_TRUE(tab_proxy.get());
   EXPECT_FALSE(WaitForDownloadShelfVisible(tab_proxy.get()));
 }
@@ -219,7 +219,7 @@ TEST_F(DownloadTest, ContentDisposition) {
   CleanUpDownload(download_file, file);
 
   // Ensure the download shelf is visible on the current tab.
-  scoped_ptr<TabProxy> tab_proxy(GetActiveTab());
+  scoped_refptr<TabProxy> tab_proxy(GetActiveTab());
   ASSERT_TRUE(tab_proxy.get());
   EXPECT_TRUE(WaitForDownloadShelfVisible(tab_proxy.get()));
 }

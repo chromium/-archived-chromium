@@ -62,7 +62,8 @@ class AutomatedUITestBase : public UITest {
   // If optional parameter previous_browser is passed in, it is set to be the
   // previous browser window when new window is successfully created, and the
   // caller owns previous_browser.
-  bool OpenAndActivateNewBrowserWindow(BrowserProxy** previous_browser);
+  bool OpenAndActivateNewBrowserWindow(
+      scoped_refptr<BrowserProxy>* previous_browser);
 
   // Reload the active tab.
   // Returns true if successful, false otherwise.
@@ -89,7 +90,7 @@ class AutomatedUITestBase : public UITest {
   bool RunCommand(int browser_command);
 
   void set_active_browser(BrowserProxy* browser) {
-    active_browser_.reset(browser);
+    active_browser_ = browser;
   }
   BrowserProxy* active_browser() const { return active_browser_.get(); }
 
@@ -97,9 +98,9 @@ class AutomatedUITestBase : public UITest {
   // create a corresponding TabProxy and transfer the ownership to caller.
   // If success return the pointer to the newly created TabProxy and the
   // caller owns the TabProxy. Return NULL otherwise.
-  TabProxy* GetActiveTab();
+  scoped_refptr<TabProxy> GetActiveTab();
  private:
-  scoped_ptr<BrowserProxy> active_browser_;
+  scoped_refptr<BrowserProxy> active_browser_;
 
   DISALLOW_COPY_AND_ASSIGN(AutomatedUITestBase);
 };

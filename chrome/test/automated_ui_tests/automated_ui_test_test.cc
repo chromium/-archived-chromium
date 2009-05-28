@@ -104,9 +104,8 @@ TEST_F(AutomatedUITestBase, OpenBrowserWindow) {
   active_browser()->GetTabCount(&tab_count);
   ASSERT_EQ(1, tab_count);
 
-  BrowserProxy* previous_browser;
-  ASSERT_TRUE(OpenAndActivateNewBrowserWindow(&previous_browser));
-  scoped_ptr<BrowserProxy>browser_1(previous_browser);
+  scoped_refptr<BrowserProxy> browser_1;
+  ASSERT_TRUE(OpenAndActivateNewBrowserWindow(&browser_1));
   automation()->GetBrowserWindowCount(&num_browser_windows);
   ASSERT_EQ(2, num_browser_windows);
   active_browser()->GetTabCount(&tab_count);
@@ -117,8 +116,8 @@ TEST_F(AutomatedUITestBase, OpenBrowserWindow) {
   active_browser()->GetTabCount(&tab_count);
   ASSERT_EQ(2, tab_count);
 
-  ASSERT_TRUE(OpenAndActivateNewBrowserWindow(&previous_browser));
-  scoped_ptr<BrowserProxy>browser_2(previous_browser);
+  scoped_refptr<BrowserProxy> browser_2;
+  ASSERT_TRUE(OpenAndActivateNewBrowserWindow(&browser_2));
   automation()->GetBrowserWindowCount(&num_browser_windows);
   ASSERT_EQ(3, num_browser_windows);
   active_browser()->GetTabCount(&tab_count);

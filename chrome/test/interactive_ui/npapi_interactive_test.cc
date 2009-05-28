@@ -45,7 +45,7 @@ const int kShortWaitTimeout = 5 * 1000;
 // a synchronous mousemove works correctly
 TEST_F(NPAPIVisiblePluginTester, SelfDeletePluginInvokeInSynchronousMouseMove) {
   if (!UITest::in_process_renderer()) {
-    scoped_ptr<TabProxy> tab_proxy(GetActiveTab());
+    scoped_refptr<TabProxy> tab_proxy(GetActiveTab());
     HWND tab_window = NULL;
     tab_proxy->GetHWND(&tab_window);
 

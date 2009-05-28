@@ -42,8 +42,8 @@ class BrowserTest : public UITest {
  protected:
 #if defined(OS_WIN)
   HWND GetMainWindow() {
-    scoped_ptr<BrowserProxy> browser(automation()->GetBrowserWindow(0));
-    scoped_ptr<WindowProxy> window(browser->GetWindow());
+    scoped_refptr<BrowserProxy> browser(automation()->GetBrowserWindow(0));
+    scoped_refptr<WindowProxy> window(browser->GetWindow());
 
     HWND window_handle;
     EXPECT_TRUE(window->GetHWND(&window_handle));
@@ -52,8 +52,8 @@ class BrowserTest : public UITest {
 #endif
 
   std::wstring GetWindowTitle() {
-    scoped_ptr<BrowserProxy> browser(automation()->GetBrowserWindow(0));
-    scoped_ptr<WindowProxy> window(browser->GetWindow());
+    scoped_refptr<BrowserProxy> browser(automation()->GetBrowserWindow(0));
+    scoped_refptr<WindowProxy> window(browser->GetWindow());
 
     string16 title;
     EXPECT_TRUE(window->GetWindowTitle(&title));
@@ -104,7 +104,7 @@ TEST_F(BrowserTest, ThirtyFourTabs) {
   FilePath test_file(test_data_directory_);
   test_file = test_file.AppendASCII("title2.html");
   GURL url(net::FilePathToFileURL(test_file));
-  scoped_ptr<BrowserProxy> window(automation()->GetBrowserWindow(0));
+  scoped_refptr<BrowserProxy> window(automation()->GetBrowserWindow(0));
   // There is one initial tab.
   for (int ix = 0; ix != 33; ++ix) {
     EXPECT_TRUE(window->AppendTab(url));
@@ -167,13 +167,13 @@ TEST_F(BrowserTest, WindowsSessionEnd) {
 
 // This test is flakey, see bug 5668 for details.
 TEST_F(BrowserTest, DISABLED_JavascriptAlertActivatesTab) {
-  scoped_ptr<BrowserProxy> window(automation()->GetBrowserWindow(0));
+  scoped_refptr<BrowserProxy> window(automation()->GetBrowserWindow(0));
   int start_index;
   ASSERT_TRUE(window->GetActiveTabIndex(&start_index));
   ASSERT_TRUE(window->AppendTab(GURL("about:blank")));
   int javascript_tab_index;
   ASSERT_TRUE(window->GetActiveTabIndex(&javascript_tab_index));
-  TabProxy* javascript_tab = window->GetActiveTab();
+  scoped_refptr<TabProxy> javascript_tab = window->GetActiveTab();
   // Switch back to the starting tab, then send the second tab a javascript
   // alert, which should force it to become active.
   ASSERT_TRUE(window->ActivateTab(start_index));
@@ -200,8 +200,8 @@ TEST_F(BrowserTest, NullOpenerRedirectForksProcess) {
       HTTPTestServer::CreateServer(kDocRoot, NULL);
   ASSERT_TRUE(NULL != server.get());
   FilePath test_file(test_data_directory_);
-  scoped_ptr<BrowserProxy> window(automation()->GetBrowserWindow(0));
-  scoped_ptr<TabProxy> tab(window->GetActiveTab());
+  scoped_refptr<BrowserProxy> window(automation()->GetBrowserWindow(0));
+  scoped_refptr<TabProxy> tab(window->GetActiveTab());
 
   // Start with a file:// url
   test_file = test_file.AppendASCII("title2.html");
@@ -242,8 +242,8 @@ TEST_F(BrowserTest, OtherRedirectsDontForkProcess) {
       HTTPTestServer::CreateServer(kDocRoot, NULL);
   ASSERT_TRUE(NULL != server.get());
   FilePath test_file(test_data_directory_);
-  scoped_ptr<BrowserProxy> window(automation()->GetBrowserWindow(0));
-  scoped_ptr<TabProxy> tab(window->GetActiveTab());
+  scoped_refptr<BrowserProxy> window(automation()->GetBrowserWindow(0));
+  scoped_refptr<TabProxy> tab(window->GetActiveTab());
 
   // Start with a file:// url
   test_file = test_file.AppendASCII("title2.html");

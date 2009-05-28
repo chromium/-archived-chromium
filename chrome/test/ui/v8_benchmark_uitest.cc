@@ -39,7 +39,7 @@ class V8BenchmarkTest : public UITest {
     test_path = test_path.Append(start_file);
     GURL test_url(net::FilePathToFileURL(test_path));
 
-    scoped_ptr<TabProxy> tab(GetActiveTab());
+    scoped_refptr<TabProxy> tab(GetActiveTab());
     tab->NavigateToURL(test_url);
 
     // Wait for the test to finish.

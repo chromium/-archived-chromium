@@ -24,7 +24,7 @@
 
 class MetricsServiceTest : public UITest {
  public:
-   MetricsServiceTest() : UITest(), window_(NULL) {
+   MetricsServiceTest() : UITest() {
      // We need to show the window so web content type tabs load.
      show_window_ = true;
    }
@@ -32,7 +32,7 @@ class MetricsServiceTest : public UITest {
   // Open a few tabs of random content
   void OpenTabs() {
     window_ = automation()->GetBrowserWindow(0);
-    ASSERT_TRUE(window_);
+    ASSERT_TRUE(window_.get());
 
     FilePath page1_path;
     ASSERT_TRUE(PathService::Get(chrome::DIR_TEST_DATA, &page1_path));
@@ -57,12 +57,12 @@ class MetricsServiceTest : public UITest {
   }
 
   virtual void TearDown() {
-    delete window_;
+    window_ = NULL;
     UITest::TearDown();
   }
 
  protected:
-  BrowserProxy* window_;
+  scoped_refptr<BrowserProxy> window_;
 };
 
 TEST_F(MetricsServiceTest, CloseRenderersNormally) {
@@ -88,7 +88,7 @@ TEST_F(MetricsServiceTest, CrashRenderers) {
   OpenTabs();
 
   // kill the process for one of the tabs
-  scoped_ptr<TabProxy> tab(window_->GetTab(1));
+  scoped_refptr<TabProxy> tab(window_->GetTab(1));
   ASSERT_TRUE(tab.get());
   int process_id = 0;
   ASSERT_TRUE(tab->GetProcessID(&process_id));

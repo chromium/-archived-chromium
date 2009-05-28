@@ -133,12 +133,12 @@ TEST_F(AccessibilityTest, DISABLED_TestBackBtnStatusOnNewTab) {
             GetState(acc_obj));
 
   // Now check Back status in different situations.
-  scoped_ptr<BrowserProxy> window(automation()->GetBrowserWindow(0));
+  scoped_refptr<BrowserProxy> window(automation()->GetBrowserWindow(0));
   ASSERT_TRUE(window.get());
   int tab_count = -1;
 
   // Set URL and check button status.
-  scoped_ptr<TabProxy> tab1(window->GetTab(0));
+  scoped_refptr<TabProxy> tab1(window->GetTab(0));
   ASSERT_TRUE(tab1.get());
   FilePath test_file1(test_data_directory_);
   test_file1 = test_file1.AppendASCII("title1.html");
@@ -235,12 +235,12 @@ TEST_F(AccessibilityTest, DISABLED_TestForwardBtnStatusOnNewTab) {
   }
 
   // Now check Back status in different situations.
-  scoped_ptr<BrowserProxy> window(automation()->GetBrowserWindow(0));
+  scoped_refptr<BrowserProxy> window(automation()->GetBrowserWindow(0));
   ASSERT_TRUE(window.get());
   int tab_count = -1;
 
   // Set URL and check button status.
-  scoped_ptr<TabProxy> tab1(window->GetTab(0));
+  scoped_refptr<TabProxy> tab1(window->GetTab(0));
   ASSERT_TRUE(tab1.get());
   FilePath test_file1(test_data_directory_);
   test_file1 = test_file1.AppendASCII("title1.html");
@@ -322,11 +322,11 @@ TEST_F(AccessibilityTest, DISABLED_TestStarBtnStatusOnNewTab) {
   EXPECT_EQ(STATE_SYSTEM_FOCUSABLE, GetState(acc_obj));
 
   // Now, check Star status in different situations.
-  scoped_ptr<BrowserProxy> window(automation()->GetBrowserWindow(0));
+  scoped_refptr<BrowserProxy> window(automation()->GetBrowserWindow(0));
   ASSERT_TRUE(window.get());
 
   // Set URL and check button status.
-  scoped_ptr<TabProxy> tab1(window->GetTab(0));
+  scoped_refptr<TabProxy> tab1(window->GetTab(0));
   ASSERT_TRUE(tab1.get());
   FilePath test_file1(test_data_directory_);
   test_file1 = test_file1.AppendASCII("title1.html");

@@ -39,7 +39,7 @@ class TabSwitchingUITest : public UITest {
 
   void RunTabSwitchingUITest() {
     // Create a browser proxy.
-    browser_proxy_.reset(automation()->GetBrowserWindow(0));
+    browser_proxy_ = automation()->GetBrowserWindow(0);
 
     // Open all the tabs.
     int initial_tab_count = 0;
@@ -128,7 +128,7 @@ class TabSwitchingUITest : public UITest {
 
   std::wstring path_prefix_;
   int number_of_tabs_to_open_;
-  scoped_ptr<BrowserProxy> browser_proxy_;
+  scoped_refptr<BrowserProxy> browser_proxy_;
 
  private:
   DISALLOW_EVIL_CONSTRUCTORS(TabSwitchingUITest);

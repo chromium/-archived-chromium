@@ -337,19 +337,31 @@ bool TabProxy::GetConstrainedWindowCount(int* count) const {
       0, handle_, count));
 }
 
-ConstrainedWindowProxy* TabProxy::GetConstrainedWindow(
+scoped_refptr<ConstrainedWindowProxy> TabProxy::GetConstrainedWindow(
     int window_index) const {
   if (!is_valid())
     return NULL;
 
   int handle = 0;
-  if (sender_->Send(new AutomationMsg_ConstrainedWindow(0, handle_,
+  if (!sender_->Send(new AutomationMsg_ConstrainedWindow(0, handle_,
                                                         window_index,
-                                                        &handle))) {
-    return new ConstrainedWindowProxy(sender_, tracker_, handle);
+                                                        &handle)))
+    return NULL;
+  
+  if (handle == 0)
+    return NULL;
+
+  ConstrainedWindowProxy* w = static_cast<ConstrainedWindowProxy*>(
+      tracker_->GetResource(handle));
+  if (!w) {
+    w = new ConstrainedWindowProxy(sender_, tracker_, handle);
+    w->AddRef();
   }
 
-  return NULL;
+  // Since there is no scoped_refptr::attach.
+  scoped_refptr<ConstrainedWindowProxy> result;
+  result.swap(&w);
+  return result;
 }
 
 bool TabProxy::WaitForChildWindowCountToChange(int count, int* new_count,
@@ -637,3 +649,20 @@ void TabProxy::Reposition(HWND window, HWND window_insert_after, int left,
 }
 
 #endif  // defined(OS_WIN)
+
+void TabProxy::AddObserver(TabProxyDelegate* observer) {
+  AutoLock lock(list_lock_);
+  observers_list_.AddObserver(observer);
+}
+
+void TabProxy::RemoveObserver(TabProxyDelegate* observer) {
+  AutoLock lock(list_lock_);
+  observers_list_.RemoveObserver(observer);
+}
+
+// Called on Channel background thread, if TabMessages filter is installed.
+void TabProxy::OnMessageReceived(const IPC::Message& message) {
+  AutoLock lock(list_lock_);
+  FOR_EACH_OBSERVER(TabProxyDelegate, observers_list_,
+                    OnMessageReceived(this, message));
+}

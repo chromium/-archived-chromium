@@ -219,7 +219,7 @@ class PrintingLayoutTest : public PrintingTest<UITest> {
 
  protected:
   void PrintNowTab() {
-    scoped_ptr<TabProxy> tab_proxy(GetActiveTab());
+    scoped_refptr<TabProxy> tab_proxy(GetActiveTab());
     ASSERT_TRUE(tab_proxy.get());
     if (!tab_proxy.get())
       return;
@@ -566,7 +566,7 @@ TEST_F(PrintingLayoutTest, DISABLED_Delayed) {
   ASSERT_TRUE(NULL != server.get());
 
   {
-    scoped_ptr<TabProxy> tab_proxy(GetActiveTab());
+    scoped_refptr<TabProxy> tab_proxy(GetActiveTab());
     ASSERT_TRUE(tab_proxy.get());
     bool is_timeout = true;
     GURL url = server->TestServerPage("files/printing/popup_delayed_print.htm");
@@ -601,7 +601,7 @@ TEST_F(PrintingLayoutTest, DISABLED_IFrame) {
   ASSERT_TRUE(NULL != server.get());
 
   {
-    scoped_ptr<TabProxy> tab_proxy(GetActiveTab());
+    scoped_refptr<TabProxy> tab_proxy(GetActiveTab());
     ASSERT_TRUE(tab_proxy.get());
     GURL url = server->TestServerPage("files/printing/iframe.htm");
     EXPECT_EQ(AUTOMATION_MSG_NAVIGATION_SUCCESS,
