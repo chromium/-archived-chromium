@@ -2,6 +2,7 @@ chrome.exe
 chrome.dll
 crash_service.exe
 First Run
+gears.dll
 icudt38.dll
 themes/default.dll
 resources
@@ -57,4 +58,3 @@ locales/uk.dll
 locales/vi.dll
 locales/zh-CN.dll
 locales/zh-TW.dll
-plugins/gears/gears.dll
