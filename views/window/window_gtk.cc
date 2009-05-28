@@ -25,6 +25,11 @@ Window* Window::CreateChromeWindow(gfx::NativeWindow parent,
   return window;
 }
 
+// static
+void Window::CloseAllSecondaryWindows() {
+  NOTIMPLEMENTED();
+}
+
 gfx::Rect WindowGtk::GetBounds() const {
   gfx::Rect bounds;
   WidgetGtk::GetBounds(&bounds, true);

@@ -26,6 +26,10 @@
 #include "chrome/browser/download/download_shelf.h"
 #endif
 
+#if defined(TOOLKIT_VIEWS)
+#include "views/controls/menu/chrome_menu.h"
+#endif
+
 class TabContents;
 
 //--------------------------------------------------------------------------
@@ -294,10 +298,12 @@ void HungRendererDialog::ShowForTabContents(TabContents*) {
 }
 #endif
 
+#if !defined(TOOLKIT_VIEWS)
 void BrowserList::AllBrowsersClosed() {
   // TODO(port): Close any dependent windows if necessary when the last browser
   //             window is closed.
 }
+#endif
 
 //--------------------------------------------------------------------------
 
@@ -315,4 +321,90 @@ bool DockInfo::GetNewWindowBounds(gfx::Rect* new_window_bounds,
   NOTIMPLEMENTED();
   return true;
 }
+#endif
+
+//------------------------------------------------------------------------------
+
+#if defined(OS_LINUX) && defined(TOOLKIT_VIEWS)
+namespace views {
+
+MenuItemView::MenuItemView(MenuDelegate* delegate) {
+}
+
+MenuItemView::~MenuItemView() {
+}
+
+MenuItemView* MenuItemView::AppendMenuItemInternal(int item_id,
+                                                   const std::wstring& label,
+                                                   const SkBitmap& icon,
+                                                   Type type) {
+  NOTIMPLEMENTED();
+  return NULL;
+}
+
+void MenuItemView::RunMenuAt(gfx::NativeView parent,
+               const gfx::Rect& bounds,
+               AnchorPosition anchor,
+               bool has_mnemonics) {
+  NOTIMPLEMENTED();
+}
+
+void MenuItemView::RunMenuForDropAt(gfx::NativeView parent,
+                      const gfx::Rect& bounds,
+                      AnchorPosition anchor) {
+  NOTIMPLEMENTED();
+}
+
+// Hides and cancels the menu. This does nothing if the menu is not open.
+void MenuItemView::Cancel() {
+  NOTIMPLEMENTED();
+}
+
+SubmenuView* MenuItemView::CreateSubmenu() {
+  NOTIMPLEMENTED();
+  return NULL;
+}
+
+void MenuItemView::SetSelected(bool selected) {
+  NOTIMPLEMENTED();
+}
+
+void MenuItemView::SetIcon(const SkBitmap& icon, int item_id) {
+  NOTIMPLEMENTED();
+}
+
+void MenuItemView::SetIcon(const SkBitmap& icon) {
+  NOTIMPLEMENTED();
+}
+
+void MenuItemView::Paint(gfx::Canvas* canvas) {
+  NOTIMPLEMENTED();
+}
+
+gfx::Size MenuItemView::GetPreferredSize() {
+  NOTIMPLEMENTED();
+  return gfx::Size();
+}
+
+MenuController* MenuItemView::GetMenuController() {
+  NOTIMPLEMENTED();
+  return NULL;
+}
+
+MenuDelegate* MenuItemView::GetDelegate() {
+  NOTIMPLEMENTED();
+  return NULL;
+}
+
+MenuItemView* MenuItemView::GetRootMenuItem() {
+  NOTIMPLEMENTED();
+  return NULL;
+}
+
+wchar_t MenuItemView::GetMnemonic() {
+  return 'a';
+}
+
+}  // namespace views
+
 #endif
