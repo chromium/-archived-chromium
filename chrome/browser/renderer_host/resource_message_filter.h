@@ -152,7 +152,8 @@ class ResourceMessageFilter : public IPC::ChannelProxy::MessageFilter,
   void OnGetAutoCorrectWord(const std::wstring& word,
                             IPC::Message* reply_msg);
   void OnDnsPrefetch(const std::vector<std::string>& hostnames);
-  void OnRendererHistograms(const std::vector<std::string>& histogram_info);
+  void OnRendererHistograms(int sequence_number,
+                            const std::vector<std::string>& histogram_info);
   void OnReceiveContextMenuMsg(const IPC::Message& msg);
   // Clipboard messages
   void OnClipboardWriteObjects(const Clipboard::ObjectMap& objects);

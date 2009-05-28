@@ -24,7 +24,7 @@ class RendererHistogramSnapshots {
   ~RendererHistogramSnapshots() {}
 
   // Send the histogram data.
-  void SendHistograms();
+  void SendHistograms(int sequence_number);
 
   // Maintain a map of histogram names to the sample stats we've sent.
   typedef std::map<std::string, Histogram::SampleSet> LoggedSampleMap;
@@ -33,7 +33,7 @@ class RendererHistogramSnapshots {
  private:
   // Extract snapshot data and then send it off the the Browser process.
   // Send only a delta to what we have already sent.
-  void UploadAllHistrograms();
+  void UploadAllHistrograms(int sequence_number);
   void UploadHistrogram(const Histogram& histogram,
                         HistogramPickledList* histograms);
   void UploadHistogramDelta(const Histogram& histogram,

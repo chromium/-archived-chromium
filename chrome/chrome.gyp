@@ -307,6 +307,8 @@
         'common/gears_api.h',
         'common/gtk_util.cc',
         'common/gtk_util.h',
+        'common/histogram_synchronizer.cc',
+        'common/histogram_synchronizer.h',
         'common/important_file_writer.cc',
         'common/important_file_writer.h',
         'common/ipc_channel.h',

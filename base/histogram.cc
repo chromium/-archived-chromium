@@ -364,16 +364,6 @@ std::string Histogram::SerializeHistogramInfo(const Histogram& histogram,
 }
 
 // static
-void Histogram::DeserializeHistogramList(
-    const std::vector<std::string>& histograms) {
-  for (std::vector<std::string>::const_iterator it = histograms.begin();
-       it < histograms.end();
-       ++it) {
-    DeserializeHistogramInfo(*it);
-  }
-}
-
-// static
 bool Histogram::DeserializeHistogramInfo(const std::string& histogram_info) {
   if (histogram_info.empty()) {
       return false;

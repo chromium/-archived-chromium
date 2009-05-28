@@ -25,6 +25,7 @@
 
 class BookmarkModel;
 class BookmarkNode;
+class HistogramSynchronizer;
 class PrefService;
 class Profile;
 class TemplateURLModel;
@@ -187,9 +188,15 @@ class MetricsService : public NotificationObserver,
 
   // Start timer for next log transmission.
   void StartLogTransmissionTimer();
-  // Do not call TryToStartTransmission() directly.
+
+  // Internal function to collect process memory information.
+  void LogTransmissionTimerDone();
+
+  // Do not call OnMemoryDetailCollectionDone() or
+  // OnHistogramSynchronizationDone() directly.
   // Use StartLogTransmissionTimer() to schedule a call.
-  void TryToStartTransmission();
+  void OnMemoryDetailCollectionDone();
+  void OnHistogramSynchronizationDone();
 
   // Takes whatever log should be uploaded next (according to the state_)
   // and makes it the pending log.  If pending_log_ is not NULL,
@@ -200,9 +207,6 @@ class MetricsService : public NotificationObserver,
   // the user whether the pending_log_ should be sent or discarded.  Called by
   // TryToStartTransmission.
   bool TransmissionPermitted() const;
-
-  // Internal function to collect process memory information.
-  void CollectMemoryDetails();
 
   // Check to see if there is a log that needs to be, or is being, transmitted.
   bool pending_log() const {

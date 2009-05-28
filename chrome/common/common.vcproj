@@ -478,6 +478,14 @@
 			>
 		</File>
 		<File
+			RelativePath=".\histogram_synchronizer.cc"
+			>
+		</File>
+		<File
+			RelativePath=".\histogram_synchronizer.h"
+			>
+		</File>
+		<File
 			RelativePath=".\important_file_writer.cc"
 			>
 		</File>

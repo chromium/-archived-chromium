@@ -457,7 +457,8 @@ IPC_BEGIN_MESSAGES(View)
   IPC_MESSAGE_CONTROL0(ViewMsg_GetCacheResourceStats)
 
   // Asks the renderer to send back Histograms.
-  IPC_MESSAGE_CONTROL0(ViewMsg_GetRendererHistograms)
+  IPC_MESSAGE_CONTROL1(ViewMsg_GetRendererHistograms,
+                       int /* sequence number of Renderer Histograms. */)
 
   // Notifies the renderer about ui theme changes
   IPC_MESSAGE_ROUTED0(ViewMsg_ThemeChanged)
@@ -1110,7 +1111,9 @@ IPC_BEGIN_MESSAGES(ViewHost)
                       std::wstring /* action */)
 
   // Send back histograms as vector of pickled-histogram strings.
-  IPC_MESSAGE_CONTROL1(ViewHostMsg_RendererHistograms, std::vector<std::string>)
+  IPC_MESSAGE_CONTROL2(ViewHostMsg_RendererHistograms,
+                       int, /* sequence number of Renderer Histograms. */
+                       std::vector<std::string>)
 
   // Request for a DNS prefetch of the names in the array.
   // NameList is typedef'ed std::vector<std::string>

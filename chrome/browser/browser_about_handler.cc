@@ -24,6 +24,7 @@
 #include "chrome/browser/net/dns_global.h"
 #include "chrome/browser/renderer_host/render_process_host.h"
 #include "chrome/browser/renderer_host/render_view_host.h"
+#include "chrome/common/histogram_synchronizer.h"
 #include "chrome/common/jstemplate_builder.h"
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
@@ -44,6 +45,9 @@
 #include "chrome/browser/views/about_ipc_dialog.h"
 #include "chrome/browser/views/about_network_dialog.h"
 #endif
+
+using base::Time;
+using base::TimeDelta;
 
 namespace {
 
@@ -137,16 +141,14 @@ std::string AboutDns() {
 }
 
 std::string AboutHistograms(const std::string& query) {
+  TimeDelta wait_time = TimeDelta::FromMilliseconds(10000);
+
+  HistogramSynchronizer* current_synchronizer =
+      HistogramSynchronizer::CurrentSynchronizer();
+  DCHECK(current_synchronizer != NULL);
+  current_synchronizer->FetchRendererHistogramsSynchronously(wait_time);
+
   std::string data;
-  for (RenderProcessHost::iterator it = RenderProcessHost::begin();
-       it != RenderProcessHost::end(); ++it) {
-    it->second->Send(new ViewMsg_GetRendererHistograms());
-  }
-
-  // TODO(raman): Delay page layout until we get respnoses
-  // back from renderers, and not have to use a fixed size delay.
-  PlatformThread::Sleep(1000);
-
   StatisticsRecorder::WriteHTMLGraph(query, &data);
   return data;
 }

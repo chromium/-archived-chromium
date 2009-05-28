@@ -23,6 +23,7 @@
 #include "chrome/common/app_cache/app_cache_dispatcher_host.h"
 #include "chrome/common/chrome_plugin_lib.h"
 #include "chrome/common/chrome_plugin_util.h"
+#include "chrome/common/histogram_synchronizer.h"
 #include "chrome/common/notification_service.h"
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
@@ -832,8 +833,9 @@ void ResourceMessageFilter::OnDnsPrefetch(
 }
 
 void ResourceMessageFilter::OnRendererHistograms(
+    int sequence_number,
     const std::vector<std::string>& histograms) {
-  Histogram::DeserializeHistogramList(histograms);
+  HistogramSynchronizer::DeserializeHistogramList(sequence_number, histograms);
 }
 
 #if defined(OS_MACOSX)

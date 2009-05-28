@@ -95,8 +95,8 @@ void RenderThread::Resolve(const char* name, size_t length) {
   return dns_master_->Resolve(name, length);
 }
 
-void RenderThread::SendHistograms() {
-  return histogram_snapshots_->SendHistograms();
+void RenderThread::SendHistograms(int sequence_number) {
+  return histogram_snapshots_->SendHistograms(sequence_number);
 }
 
 static WebAppCacheContext* CreateAppCacheContextForRenderer() {
@@ -212,7 +212,7 @@ void RenderThread::OnControlMessageReceived(const IPC::Message& msg) {
     IPC_MESSAGE_HANDLER(ViewMsg_New, OnCreateNewView)
     IPC_MESSAGE_HANDLER(ViewMsg_SetCacheCapacities, OnSetCacheCapacities)
     IPC_MESSAGE_HANDLER(ViewMsg_GetRendererHistograms,
-                          OnGetRendererHistograms)
+                        OnGetRendererHistograms)
     IPC_MESSAGE_HANDLER(ViewMsg_GetCacheResourceStats,
                         OnGetCacheResourceStats)
     IPC_MESSAGE_HANDLER(ViewMsg_UserScripts_UpdatedScripts,
@@ -274,8 +274,8 @@ void RenderThread::OnGetCacheResourceStats() {
   Send(new ViewHostMsg_ResourceTypeStats(stats));
 }
 
-void RenderThread::OnGetRendererHistograms() {
-  SendHistograms();
+void RenderThread::OnGetRendererHistograms(int sequence_number) {
+  SendHistograms(sequence_number);
 }
 
 void RenderThread::InformHostOfCacheStats() {

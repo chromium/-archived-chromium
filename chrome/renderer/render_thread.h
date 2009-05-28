@@ -97,7 +97,7 @@ class RenderThread : public RenderThreadBase,
   void Resolve(const char* name, size_t length);
 
   // Send all the Histogram data to browser.
-  void SendHistograms();
+  void SendHistograms(int sequence_number);
 
   // Invokes InformHostOfCacheStats after a short delay.  Used to move this
   // bookkeeping operation off the critical latency path.
@@ -125,7 +125,7 @@ class RenderThread : public RenderThreadBase,
   void OnGetCacheResourceStats();
 
   // Send all histograms to browser.
-  void OnGetRendererHistograms();
+  void OnGetRendererHistograms(int sequence_number);
 
   void OnExtensionHandleConnect(int channel_id, const std::string& tab_json);
   void OnExtensionHandleMessage(const std::string& message, int channel_id);

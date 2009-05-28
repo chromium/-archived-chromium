@@ -181,6 +181,7 @@
 #include "chrome/browser/search_engines/template_url_model.h"
 #include "chrome/common/child_process_info.h"
 #include "chrome/common/chrome_paths.h"
+#include "chrome/common/histogram_synchronizer.h"
 #include "chrome/common/libxml_utils.h"
 #include "chrome/common/notification_service.h"
 #include "chrome/common/pref_names.h"
@@ -208,6 +209,10 @@ static const char kMetricsType[] = "application/vnd.mozilla.metrics.bz2";
 
 // The delay, in seconds, after startup before sending the first log message.
 static const int kInitialInterlogDuration = 60;  // one minute
+
+// This specifies the amount of time to wait for all renderers to send their
+// data.
+static const int kMaxHistogramGatheringWaitDuration = 60000;  // 60 seconds.
 
 // The default maximum number of events in a log uploaded to the UMA server.
 static const int kInitialEventLimit = 2400;
@@ -881,15 +886,51 @@ void MetricsService::StartLogTransmissionTimer() {
 
   // Right before the UMA transmission gets started, there's one more thing we'd
   // like to record: the histogram of memory usage, so we spawn a task to
-  // collect the memory details and when that task is finished, we arrange for
-  // TryToStartTransmission to take over.
+  // collect the memory details and when that task is finished, it will call
+  // OnMemoryDetailCollectionDone, which will call HistogramSynchronization to
+  // collect histograms from all renderers and then we will call
+  // OnHistogramSynchronizationDone to continue processing.
   MessageLoop::current()->PostDelayedTask(FROM_HERE,
       log_sender_factory_.
-          NewRunnableMethod(&MetricsService::CollectMemoryDetails),
+          NewRunnableMethod(&MetricsService::LogTransmissionTimerDone),
       static_cast<int>(interlog_duration_.InMilliseconds()));
 }
 
-void MetricsService::TryToStartTransmission() {
+void MetricsService::LogTransmissionTimerDone() {
+  Task* task = log_sender_factory_.
+      NewRunnableMethod(&MetricsService::OnMemoryDetailCollectionDone);
+
+  MetricsMemoryDetails* details = new MetricsMemoryDetails(task);
+  details->StartFetch();
+
+  // Collect WebCore cache information to put into a histogram.
+  for (RenderProcessHost::iterator it = RenderProcessHost::begin();
+       it != RenderProcessHost::end(); ++it) {
+    it->second->Send(new ViewMsg_GetCacheResourceStats());
+  }
+}
+
+void MetricsService::OnMemoryDetailCollectionDone() {
+  DCHECK(IsSingleThreaded());
+
+  // HistogramSynchronizer will Collect histograms from all renderers and it
+  // will call OnHistogramSynchronizationDone (if wait time elapses before it
+  // heard from all renderers, then also it will call
+  // OnHistogramSynchronizationDone).
+
+  // Create a callback_task for OnHistogramSynchronizationDone.
+  Task* callback_task = log_sender_factory_.NewRunnableMethod(
+      &MetricsService::OnHistogramSynchronizationDone);
+
+  // Set up the callback to task to call after we receive histograms from all
+  // renderer processes. Wait time specifies how long to wait before absolutely
+  // calling us back on the task.
+  HistogramSynchronizer::FetchRendererHistogramsAsynchronously(
+      MessageLoop::current(), callback_task,
+      kMaxHistogramGatheringWaitDuration);
+}
+
+void MetricsService::OnHistogramSynchronizationDone() {
   DCHECK(IsSingleThreaded());
 
   // This function should only be called via timer, so timer_pending_
@@ -1032,19 +1073,6 @@ bool MetricsService::TransmissionPermitted() const {
     case SENDING_CURRENT_LOGS:
     default:
       return false;
-  }
-}
-
-void MetricsService::CollectMemoryDetails() {
-  Task* task = log_sender_factory_.
-      NewRunnableMethod(&MetricsService::TryToStartTransmission);
-  MetricsMemoryDetails* details = new MetricsMemoryDetails(task);
-  details->StartFetch();
-
-  // Collect WebCore cache information to put into a histogram.
-  for (RenderProcessHost::iterator it = RenderProcessHost::begin();
-       it != RenderProcessHost::end(); ++it) {
-    it->second->Send(new ViewMsg_GetCacheResourceStats());
   }
 }
 
@@ -1781,20 +1809,8 @@ void MetricsService::RecordCurrentState(PrefService* pref) {
   RecordPluginChanges(pref);
 }
 
-void MetricsService::CollectRendererHistograms() {
-  for (RenderProcessHost::iterator it = RenderProcessHost::begin();
-       it != RenderProcessHost::end(); ++it) {
-    it->second->Send(new ViewMsg_GetRendererHistograms());
-  }
-}
-
 void MetricsService::RecordCurrentHistograms() {
   DCHECK(current_log_);
-
-  CollectRendererHistograms();
-
-  // TODO(raman): Delay the metrics collection activities until we get all the
-  // updates from the renderers, or we time out (1 second?  3 seconds?).
 
   StatisticsRecorder::Histograms histograms;
   StatisticsRecorder::GetHistograms(&histograms);

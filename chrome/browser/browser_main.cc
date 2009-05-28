@@ -41,6 +41,7 @@
 #include "chrome/common/chrome_constants.h"
 #include "chrome/common/chrome_paths.h"
 #include "chrome/common/chrome_switches.h"
+#include "chrome/common/histogram_synchronizer.h"
 #include "chrome/common/jstemplate_builder.h"
 #include "chrome/common/main_function_params.h"
 #include "chrome/common/pref_names.h"
@@ -427,6 +428,13 @@ int BrowserMain(const MainFunctionParams& parameters) {
   // Initialize histogram statistics gathering system.
   StatisticsRecorder statistics;
 
+  // Initialize histogram synchronizer system. This is a singleton and is used
+  // for posting tasks via NewRunnableMethod. Its deleted when it goes out of
+  // scope. Even though NewRunnableMethod does AddRef and Release, the object
+  // will not be deleted after the Task is executed.
+  scoped_refptr<HistogramSynchronizer> histogram_synchronizer =
+      new HistogramSynchronizer();
+
   // Initialize the shared instance of user data manager.
   scoped_ptr<UserDataManager> user_data_manager(UserDataManager::Create());
 
@@ -565,14 +573,18 @@ int BrowserMain(const MainFunctionParams& parameters) {
   // Set up a field trial to see what disabling DNS pre-resolution does to
   // latency of network transactions.
   FieldTrial::Probability kDIVISOR = 100;
-  FieldTrial::Probability k_PROBABILITY_PER_GROUP = 10;  // 10%.
+  FieldTrial::Probability k_PROBABILITY_PER_GROUP = 10;  // 10% probability.
+  // For options we don't (currently) wish to test, we use zero probability.
+  FieldTrial::Probability k_PROBABILITY_DISABLED = 0;
   scoped_refptr<FieldTrial> dns_trial = new FieldTrial("DnsImpact", kDIVISOR);
 
   dns_trial->AppendGroup("_disabled_prefetch", k_PROBABILITY_PER_GROUP);
+  // Don't discard names (erase these lines) yet, as we may use them, and we
+  // have histogram data named for these options.
   int disabled_plus_4_connections = dns_trial->AppendGroup(
-      "_disabled_prefetch_4_connections", k_PROBABILITY_PER_GROUP);
+      "_disabled_prefetch_4_connections", k_PROBABILITY_DISABLED);
   int enabled_plus_4_connections = dns_trial->AppendGroup(
-      "_enabled_prefetch_4_connections", k_PROBABILITY_PER_GROUP);
+      "_enabled_prefetch_4_connections", k_PROBABILITY_DISABLED);
 
   scoped_ptr<chrome_browser_net::DnsPrefetcherInit> dns_prefetch_init;
   if (dns_trial->group() == FieldTrial::kNotParticipating ||

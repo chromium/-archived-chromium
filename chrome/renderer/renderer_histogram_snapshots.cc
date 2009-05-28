@@ -22,13 +22,13 @@ RendererHistogramSnapshots::RendererHistogramSnapshots()
 }
 
 // Send data quickly!
-void RendererHistogramSnapshots::SendHistograms() {
+void RendererHistogramSnapshots::SendHistograms(int sequence_number) {
   RenderThread::current()->message_loop()->PostTask(FROM_HERE,
       renderer_histogram_snapshots_factory_.NewRunnableMethod(
-          &RendererHistogramSnapshots::UploadAllHistrograms));
+          &RendererHistogramSnapshots::UploadAllHistrograms, sequence_number));
 }
 
-void RendererHistogramSnapshots::UploadAllHistrograms() {
+void RendererHistogramSnapshots::UploadAllHistrograms(int sequence_number) {
   StatisticsRecorder::Histograms histograms;
   StatisticsRecorder::GetHistograms(&histograms);
 
@@ -39,11 +39,11 @@ void RendererHistogramSnapshots::UploadAllHistrograms() {
        it++) {
     UploadHistrogram(**it, &pickled_histograms);
   }
-  // Send the handle over synchronous IPC.
-  if (pickled_histograms.size() > 0) {
-    RenderThread::current()->Send(
-        new ViewHostMsg_RendererHistograms(pickled_histograms));
-  }
+  // Send the sequence number and list of pickled histograms over synchronous
+  // IPC.
+  RenderThread::current()->Send(
+      new ViewHostMsg_RendererHistograms(
+          sequence_number, pickled_histograms));
 }
 
 // Extract snapshot data and then send it off the the Browser process

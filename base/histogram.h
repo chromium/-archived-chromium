@@ -298,9 +298,7 @@ class Histogram {
   // The following method accepts a list of pickled histograms and
   // builds a histogram and updates shadow copy of histogram data in the
   // browser process.
-  static void DeserializeHistogramList(
-      const std::vector<std::string>& histograms);
-  static bool DeserializeHistogramInfo(const std::string& state);
+  static bool DeserializeHistogramInfo(const std::string& histogram_info);
 
 
   //----------------------------------------------------------------------------
