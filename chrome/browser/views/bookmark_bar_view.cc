@@ -11,9 +11,7 @@
 #include "app/l10n_util.h"
 #include "app/os_exchange_data.h"
 #include "app/resource_bundle.h"
-#include "app/win_util.h"
 #include "base/string_util.h"
-#include "base/base_drag_source.h"
 #include "chrome/browser/bookmarks/bookmark_context_menu.h"
 #include "chrome/browser/bookmarks/bookmark_utils.h"
 #include "chrome/browser/browser.h"
@@ -44,6 +42,11 @@
 #include "views/widget/tooltip_manager.h"
 #include "views/widget/widget.h"
 #include "views/window/window.h"
+
+#if defined(OS_WIN)
+#include "app/win_util.h"
+#include "base/base_drag_source.h"
+#endif
 
 using views::CustomButton;
 using views::DropTargetEvent;
@@ -146,8 +149,13 @@ static std::wstring CreateToolTipForURLAndTitle(const gfx::Point& screen_loc,
                                                 const GURL& url,
                                                 const std::wstring& title,
                                                 const std::wstring& languages) {
-  const gfx::Rect monitor_bounds = win_util::GetMonitorBoundsForRect(
+#if defined(OS_WIN)
+  gfx::Rect monitor_bounds = win_util::GetMonitorBoundsForRect(
       gfx::Rect(screen_loc.x(), screen_loc.y(), 1, 1));
+#else
+  gfx::Rect monitor_bounds(0, 0, 10000, 10000);
+  NOTIMPLEMENTED();
+#endif
   gfx::Font tt_font = views::TooltipManager::GetDefaultFont();
   std::wstring result;
 
@@ -272,7 +280,7 @@ class BookmarkFolderButton : public views::MenuButton {
 // Tracks drops on the BookmarkBarView.
 
 struct BookmarkBarView::DropInfo {
-  DropInfo() : drop_index(-1), is_menu_showing(false), valid(false) {}
+  DropInfo() : valid(false), drop_index(-1), is_menu_showing(false) {}
 
   // Whether the data is valid.
   bool valid;
@@ -362,7 +370,6 @@ static const SkBitmap& GetGroupIcon() {
 
 BookmarkBarView::BookmarkBarView(Profile* profile, Browser* browser)
     : profile_(NULL),
-      browser_(browser),
       page_navigator_(NULL),
       model_(NULL),
       bookmark_menu_(NULL),
@@ -373,6 +380,7 @@ BookmarkBarView::BookmarkBarView(Profile* profile, Browser* browser)
       overflow_button_(NULL),
       instructions_(NULL),
       bookmarks_separator_view_(NULL),
+      browser_(browser),
       throbbing_view_(NULL) {
   SetID(VIEW_ID_BOOKMARK_BAR);
   Init();
@@ -1268,6 +1276,10 @@ void BookmarkBarView::Observe(NotificationType type,
       StopThrobbing(false);
       bubble_url_ = GURL();
       break;
+
+    default:
+      NOTREACHED();
+      break;
   }
 }
 
@@ -1348,10 +1360,13 @@ void BookmarkBarView::StartShowFolderDropMenuTimer(BookmarkNode* node) {
   }
   DCHECK(!show_folder_drop_menu_task_);
   show_folder_drop_menu_task_ = new ShowFolderDropMenuTask(this, node);
+#if defined(OS_WIN)
   static DWORD delay = 0;
-  if (!delay && !SystemParametersInfo(SPI_GETMENUSHOWDELAY, 0, &delay, 0)) {
+  if (!delay && !SystemParametersInfo(SPI_GETMENUSHOWDELAY, 0, &delay, 0))
     delay = kShowFolderDropMenuDelay;
-  }
+#else
+  int delay = kShowFolderDropMenuDelay;
+#endif
   MessageLoop::current()->PostDelayedTask(FROM_HERE,
                                           show_folder_drop_menu_task_, delay);
 }
