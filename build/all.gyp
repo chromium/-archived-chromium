@@ -63,6 +63,7 @@
         ['OS=="win"', {
           'dependencies': [
             '../breakpad/breakpad.gyp:*',
+            '../chrome/app/locales/locales.gyp:*',
             '../courgette/courgette.gyp:*',
             '../gears/gears.gyp:*',
             '../rlz/rlz.gyp:*',
