@@ -608,7 +608,6 @@
         'gfx/native_theme_unittest.cc',
         'gfx/png_codec_unittest.cc',
         'gfx/rect_unittest.cc',
-        'gmock_unittest.cc',
         'histogram_unittest.cc',
         'hmac_unittest.cc',
         'idletimer_unittest.cc',
@@ -674,7 +673,6 @@
         'base',
         'base_gfx',
         '../skia/skia.gyp:skia',
-        '../testing/gmock.gyp:gmock',
         '../testing/gtest.gyp:gtest',
       ],
       'conditions': [
