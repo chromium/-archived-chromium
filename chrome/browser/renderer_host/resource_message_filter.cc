@@ -386,20 +386,20 @@ void ResourceMessageFilter::OnMsgCreateWidget(int opener_id,
 }
 
 void ResourceMessageFilter::OnSetCookie(const GURL& url,
-                                        const GURL& policy_url,
+                                        const GURL& first_party_for_cookies,
                                         const std::string& cookie) {
   URLRequestContext* context = url.SchemeIs(chrome::kExtensionScheme) ?
       extensions_request_context_.get() : request_context_.get();
-  if (context->cookie_policy()->CanSetCookie(url, policy_url))
+  if (context->cookie_policy()->CanSetCookie(url, first_party_for_cookies))
     context->cookie_store()->SetCookie(url, cookie);
 }
 
 void ResourceMessageFilter::OnGetCookies(const GURL& url,
-                                         const GURL& policy_url,
+                                         const GURL& first_party_for_cookies,
                                          std::string* cookies) {
   URLRequestContext* context = url.SchemeIs(chrome::kExtensionScheme) ?
       extensions_request_context_.get() : request_context_.get();
-  if (context->cookie_policy()->CanGetCookies(url, policy_url))
+  if (context->cookie_policy()->CanGetCookies(url, first_party_for_cookies))
     *cookies = context->cookie_store()->GetCookies(url);
 }
 
