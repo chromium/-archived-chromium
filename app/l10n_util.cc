@@ -304,6 +304,11 @@ std::string GetStringUTF8(int message_id) {
   return UTF16ToUTF8(rb.GetLocalizedString(message_id));
 }
 
+string16 GetStringUTF16(int message_id) {
+  ResourceBundle& rb = ResourceBundle::GetSharedInstance();
+  return rb.GetLocalizedString(message_id);
+}
+
 static string16 GetStringF(int message_id,
                            const string16& a,
                            const string16& b,

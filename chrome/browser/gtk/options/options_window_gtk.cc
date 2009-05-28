@@ -9,6 +9,7 @@
 #include "app/l10n_util.h"
 #include "base/message_loop.h"
 #include "chrome/browser/browser_process.h"
+#include "chrome/browser/gtk/options/general_page_gtk.h"
 #include "chrome/browser/profile.h"
 #include "chrome/common/pref_member.h"
 #include "chrome/common/pref_names.h"
@@ -54,6 +55,9 @@ class OptionsWindowGtk {
   // The Profile associated with these options.
   Profile* profile_;
 
+  // The options pages
+  GeneralPageGtk general_page_;
+
   // The last page the user was on when they opened the Options window.
   IntegerPrefMember last_selected_page_;
 
@@ -69,7 +73,7 @@ OptionsWindowGtk::OptionsWindowGtk(Profile* profile)
       // Always show preferences for the original profile. Most state when off
       // the record comes from the original profile, but we explicitly use
       // the original profile to avoid potential problems.
-    : profile_(profile->GetOriginalProfile()) {
+    : profile_(profile->GetOriginalProfile()), general_page_(profile_) {
   // The download manager needs to be initialized before the contents of the
   // Options Window are created.
   profile_->GetDownloadManager();
@@ -93,7 +97,7 @@ OptionsWindowGtk::OptionsWindowGtk(Profile* profile)
 
   gtk_notebook_append_page(
       GTK_NOTEBOOK(notebook_),
-      gtk_label_new("TODO general"),
+      general_page_.get_page_widget(),
       gtk_label_new(
           l10n_util::GetStringUTF8(IDS_OPTIONS_GENERAL_TAB_LABEL).c_str()));
 

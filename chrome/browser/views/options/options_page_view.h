@@ -5,9 +5,7 @@
 #ifndef CHROME_BROWSER_VIEWS_OPTIONS_OPTIONS_PAGE_VIEW_H__
 #define CHROME_BROWSER_VIEWS_OPTIONS_OPTIONS_PAGE_VIEW_H__
 
-#include "chrome/browser/options_window.h"
-#include "chrome/browser/profile.h"
-#include "chrome/common/notification_observer.h"
+#include "chrome/browser/options_page_base.h"
 #include "views/controls/link.h"
 #include "views/controls/button/native_button.h"
 
@@ -20,7 +18,7 @@ class PrefService;
 //  initialization is done just once.
 //
 class OptionsPageView : public views::View,
-                        public NotificationObserver {
+                        public OptionsPageBase {
  public:
   virtual ~OptionsPageView();
 
@@ -29,34 +27,13 @@ class OptionsPageView : public views::View,
   // being closed when a modal dialog box is showing, for example.
   virtual bool CanClose() const { return true; }
 
-  // Highlights the specified group to attract the user's attention.
-  virtual void HighlightGroup(OptionsGroup highlight_group) { }
-
-  // Overridden from NotificationObserver:
-  virtual void Observe(NotificationType type,
-                       const NotificationSource& source,
-                       const NotificationDetails& details);
-
  protected:
   // This class cannot be instantiated directly, but its constructor must be
   // called by derived classes.
   explicit OptionsPageView(Profile* profile);
 
-  // Returns the Profile associated with this page.
-  Profile* profile() const { return profile_; }
-
-  // Records a user action and schedules the prefs file to be saved.
-  void UserMetricsRecordAction(const wchar_t* action, PrefService* prefs);
-
   // Initializes the layout of the controls within the panel.
   virtual void InitControlLayout() = 0;
-
-  // Allows the UI to update when a preference value changes. The parameter is
-  // the specific pref that changed, or NULL if all pref UI should be
-  // validated. This is also called immediately after InitControlLayout()
-  // during setup, but with NULL as the parameter to allow initial state to be
-  // set.
-  virtual void NotifyPrefChanged(const std::wstring* pref_name) { }
 
   // views::View overrides:
   virtual void ViewHierarchyChanged(bool is_add,
@@ -64,9 +41,6 @@ class OptionsPageView : public views::View,
                                     views::View* child);
 
  private:
-  // The Profile associated with this page.
-  Profile* profile_;
-
   // Whether or not the control layout has been initialized for this page.
   bool initialized_;
 

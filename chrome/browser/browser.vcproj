@@ -808,6 +808,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\options_page_base.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\options_page_base.h"
+				>
+			</File>
+			<File
 				RelativePath=".\options_window.h"
 				>
 			</File>

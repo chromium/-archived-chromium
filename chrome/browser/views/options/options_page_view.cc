@@ -14,28 +14,11 @@
 // OptionsPageView
 
 OptionsPageView::OptionsPageView(Profile* profile)
-    : profile_(profile),
+    : OptionsPageBase(profile),
       initialized_(false) {
 }
 
 OptionsPageView::~OptionsPageView() {
-}
-
-void OptionsPageView::UserMetricsRecordAction(const wchar_t* action,
-                                              PrefService* prefs) {
-  UserMetrics::RecordComputedAction(action, profile());
-  if (prefs)
-    prefs->ScheduleSavePersistentPrefs();
-}
-
-///////////////////////////////////////////////////////////////////////////////
-// OptionsPageView, NotificationObserver implementation:
-
-void OptionsPageView::Observe(NotificationType type,
-                              const NotificationSource& source,
-                              const NotificationDetails& details) {
-  if (type == NotificationType::PREF_CHANGED)
-    NotifyPrefChanged(Details<std::wstring>(details).ptr());
 }
 
 ///////////////////////////////////////////////////////////////////////////////
