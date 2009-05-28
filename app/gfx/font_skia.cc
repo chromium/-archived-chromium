@@ -85,7 +85,9 @@ Font Font::CreateFont(const std::wstring& font_family, int font_size) {
 
   SkTypeface* tf = SkTypeface::CreateFromName(
       base::SysWideToUTF8(font_family).c_str(), SkTypeface::kNormal);
-  DCHECK(tf) << "Could not find font: " << base::SysWideToUTF8(font_family);
+  // Temporary CHECK for tracking down
+  // http://code.google.com/p/chromium/issues/detail?id=12530
+  CHECK(tf) << "Could not find font: " << base::SysWideToUTF8(font_family);
   SkAutoUnref tf_helper(tf);
 
   return Font(tf, font_family, font_size, NORMAL);
