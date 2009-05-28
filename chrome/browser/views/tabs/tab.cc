@@ -12,9 +12,7 @@
 #include "base/gfx/size.h"
 #include "grit/generated_resources.h"
 #include "views/controls/menu/chrome_menu.h"
-#if defined(OS_WIN)
 #include "views/widget/tooltip_manager.h"
-#endif
 #include "views/widget/widget.h"
 
 const std::string Tab::kTabClassName = "browser/tabs/Tab";
