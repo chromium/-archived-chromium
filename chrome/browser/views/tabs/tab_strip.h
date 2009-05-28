@@ -75,11 +75,6 @@ class TabStrip : public views::View,
   // Returns true if there is an active drag session.
   bool IsDragSessionActive() const { return drag_controller_.get() != NULL; }
 
-  // Aborts any active drag session. This is called from XP/VistaFrame's
-  // end session handler to make sure there are no drag sessions in flight that
-  // could prevent the frame from being closed right away.
-  void AbortActiveDragSession() { EndDrag(true); }
-
   // Destroys the active drag controller.
   void DestroyDragController();
 

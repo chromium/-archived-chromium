@@ -74,7 +74,6 @@ void FullscreenExitBubble::FullscreenExitView::Layout() {
 
 void FullscreenExitBubble::FullscreenExitView::Paint(gfx::Canvas* canvas) {
   // Create a round-bottomed rect to fill the whole View.
-  CRect parent_rect;
   SkRect rect;
   SkScalar padding = SkIntToScalar(kPaddingPixels);
   // The "-padding" top coordinate ensures that the rect is always tall enough
