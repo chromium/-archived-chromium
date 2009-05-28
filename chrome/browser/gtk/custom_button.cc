@@ -93,13 +93,7 @@ gboolean CustomDrawButton::OnExpose(GtkWidget* widget,
 }
 
 // static
-CustomDrawButton* CustomDrawButton::AddBarCloseButton(GtkWidget* hbox,
-                                                      int padding) {
-  CustomDrawButton* rv = new CustomDrawButton(IDR_CLOSE_BAR, IDR_CLOSE_BAR_P,
-                                              IDR_CLOSE_BAR_H, 0);
-  GTK_WIDGET_UNSET_FLAGS(rv->widget(), GTK_CAN_FOCUS);
-  GtkWidget* centering_vbox = gtk_vbox_new(FALSE, 0);
-  gtk_box_pack_start(GTK_BOX(centering_vbox), rv->widget(), TRUE, FALSE, 0);
-  gtk_box_pack_end(GTK_BOX(hbox), centering_vbox, FALSE, FALSE, padding);
-  return rv;
+CustomDrawButton* CustomDrawButton::CloseButton() {
+  return new CustomDrawButton(IDR_CLOSE_BAR, IDR_CLOSE_BAR_P,
+                              IDR_CLOSE_BAR_H, 0);
 }

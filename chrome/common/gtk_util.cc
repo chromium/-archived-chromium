@@ -122,4 +122,14 @@ void InitRCStyles() {
   gtk_rc_parse_string(kRCText);
 }
 
+void CenterWidgetInHBox(GtkWidget* hbox, GtkWidget* widget, bool pack_at_end,
+                        int padding) {
+  GtkWidget* centering_vbox = gtk_vbox_new(FALSE, 0);
+  gtk_box_pack_start(GTK_BOX(centering_vbox), widget, TRUE, FALSE, 0);
+  if (pack_at_end)
+    gtk_box_pack_end(GTK_BOX(hbox), centering_vbox, FALSE, FALSE, padding);
+  else
+    gtk_box_pack_start(GTK_BOX(hbox), centering_vbox, FALSE, FALSE, padding);
+}
+
 }  // namespace gtk_util

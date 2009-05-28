@@ -77,11 +77,8 @@ class CustomDrawButton {
   // Resume normal drawing of the widget's state.
   void UnsetPaintOverride();
 
-  // This is a convenience function for creating a widget that closes
-  // a bar (find bar, download shelf, info bars). The button will be packed in
-  // |hbox|.
-  // The caller is responsible for destroying the returned CustomDrawButton.
-  static CustomDrawButton* AddBarCloseButton(GtkWidget* hbox, int padding);
+  // Returns a standard close button.
+  static CustomDrawButton* CloseButton();
 
  private:
   // Callback for expose, used to draw the custom graphics.

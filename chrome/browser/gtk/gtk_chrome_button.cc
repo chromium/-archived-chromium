@@ -69,6 +69,8 @@ static void gtk_chrome_button_init(GtkChromeButton* button) {
   priv->paint_state = -1;
 
   gtk_widget_set_app_paintable(GTK_WIDGET(button), TRUE);
+
+  GTK_WIDGET_UNSET_FLAGS(button, GTK_CAN_FOCUS);
 }
 
 static gboolean gtk_chrome_button_expose(GtkWidget* widget,

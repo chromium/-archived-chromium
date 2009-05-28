@@ -63,7 +63,8 @@ InfoBar::InfoBar(InfoBarDelegate* delegate)
     gtk_box_pack_start(GTK_BOX(hbox_), image, FALSE, FALSE, 0);
   }
 
-  close_button_.reset(CustomDrawButton::AddBarCloseButton(hbox_, 0));
+  close_button_.reset(CustomDrawButton::CloseButton());
+  gtk_util::CenterWidgetInHBox(hbox_, close_button_->widget(), true, 0);
   g_signal_connect(close_button_->widget(), "clicked",
                    G_CALLBACK(OnCloseButton), this);
 
@@ -171,8 +172,7 @@ class LinkInfoBar : public InfoBar {
       // this hbox that doesn't use kElementPadding.
       GtkWidget* hbox = gtk_hbox_new(FALSE, 0);
       gtk_box_pack_start(GTK_BOX(hbox), initial_label, FALSE, FALSE, 0);
-      gtk_box_pack_start(GTK_BOX(hbox), link_button_->widget(),
-                         FALSE, FALSE, 0);
+      gtk_util::CenterWidgetInHBox(hbox, link_button_->widget(), false, 0);
       gtk_box_pack_start(GTK_BOX(hbox), trailing_label, FALSE, FALSE, 0);
       gtk_box_pack_start(GTK_BOX(hbox_), hbox, FALSE, FALSE, 0);
     }
@@ -212,9 +212,7 @@ class ConfirmInfoBar : public AlertInfoBar {
     if (delegate_->AsConfirmInfoBarDelegate()->GetButtons() & type) {
       GtkWidget* button = gtk_button_new_with_label(WideToUTF8(
           delegate_->AsConfirmInfoBarDelegate()->GetButtonLabel(type)).c_str());
-      GtkWidget* centering_vbox = gtk_vbox_new(FALSE, 0);
-      gtk_box_pack_end(GTK_BOX(centering_vbox), button, TRUE, FALSE, 0);
-      gtk_box_pack_end(GTK_BOX(hbox_), centering_vbox, FALSE, FALSE, 0);
+      gtk_util::CenterWidgetInHBox(hbox_, button, true, 0);
       g_signal_connect(button, "clicked",
                        G_CALLBACK(type == ConfirmInfoBarDelegate::BUTTON_OK ?
                                   OnOkButton : OnCancelButton),

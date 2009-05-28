@@ -9,7 +9,6 @@
 
 // Creates a link button that shows |text| in blue and underlined. The cursor
 // changes to a hand when over the link.
-// TODO(estade): the link should turn red during the user's click.
 class LinkButtonGtk {
  public:
   explicit LinkButtonGtk(const char* text);

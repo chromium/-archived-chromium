@@ -24,7 +24,7 @@ WindowOpenDisposition DispositionFromEventFlags(guint state);
 
 namespace gtk_util {
 
-  // Create a GtkBin with |child| as its child widget.  This bin will paint a
+// Create a GtkBin with |child| as its child widget.  This bin will paint a
 // border of color |color| with the sizes specified in pixels.
 GtkWidget* CreateGtkBorderBin(GtkWidget* child, const GdkColor* color,
                               int top, int bottom, int left, int right);
@@ -43,6 +43,12 @@ gfx::Rect GetWidgetScreenBounds(GtkWidget* widget);
 
 // Initialize some GTK settings so that our dialogs are consistent.
 void InitRCStyles();
+
+// Stick the widget in the given hbox without expanding vertically. The widget
+// is packed at the start of the hbox. This is useful for widgets that would
+// otherwise expand to fill the vertical space of the hbox (e.g. buttons).
+void CenterWidgetInHBox(GtkWidget* hbox, GtkWidget* widget, bool pack_at_end,
+                        int padding);
 
 }  // namespace gtk_util
 

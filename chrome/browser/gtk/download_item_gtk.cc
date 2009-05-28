@@ -310,22 +310,14 @@ DownloadItemGtk::DownloadItemGtk(DownloadShelfGtk* parent_shelf,
         l10n_util::GetStringUTF8(IDS_SAVE_DOWNLOAD).c_str());
     g_signal_connect(dangerous_accept, "clicked",
                      G_CALLBACK(OnDangerousAccept), this);
-    GtkWidget* dangerous_accept_vbox = gtk_vbox_new(FALSE, 0);
-    gtk_box_pack_start(GTK_BOX(dangerous_accept_vbox), dangerous_accept,
-                       TRUE, FALSE, 0);
-    gtk_box_pack_start(GTK_BOX(dangerous_hbox_), dangerous_accept_vbox,
-                       FALSE, FALSE, 0);
+    gtk_util::CenterWidgetInHBox(dangerous_hbox_, dangerous_accept, false, 0);
 
     // Create the nevermind button.
     GtkWidget* dangerous_decline = gtk_button_new_with_label(
         l10n_util::GetStringUTF8(IDS_DISCARD_DOWNLOAD).c_str());
     g_signal_connect(dangerous_decline, "clicked",
                      G_CALLBACK(OnDangerousDecline), this);
-    GtkWidget* dangerous_decline_vbox = gtk_vbox_new(FALSE, 0);
-    gtk_box_pack_start(GTK_BOX(dangerous_decline_vbox), dangerous_decline,
-                       TRUE, FALSE, 0);
-    gtk_box_pack_start(GTK_BOX(dangerous_hbox_), dangerous_decline_vbox,
-                       FALSE, FALSE, 0);
+    gtk_util::CenterWidgetInHBox(dangerous_hbox_, dangerous_decline, false, 0);
 
     // Put it in an alignment so that padding will be added on the left and
     // right, and an event box so that drawing will be clipped correctly.

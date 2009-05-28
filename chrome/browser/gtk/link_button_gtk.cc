@@ -79,26 +79,33 @@ gboolean LinkButtonGtk::OnLeave(GtkWidget* widget,
   return FALSE;
 }
 
-// TODO(estade): we need some visual indication when this widget is focused.
 // static
 gboolean LinkButtonGtk::OnExpose(GtkWidget* widget,
                                  GdkEventExpose* event,
                                  LinkButtonGtk* link_button) {
+  GtkWidget* label = link_button->label_;
+
   if (GTK_WIDGET_STATE(widget) == GTK_STATE_ACTIVE && link_button->is_blue_) {
-    gtk_label_set_markup(GTK_LABEL(link_button->label_),
-                         link_button->red_markup);
+    gtk_label_set_markup(GTK_LABEL(label), link_button->red_markup);
     link_button->is_blue_ = false;
   } else if (GTK_WIDGET_STATE(widget) != GTK_STATE_ACTIVE &&
              !link_button->is_blue_) {
-    gtk_label_set_markup(GTK_LABEL(link_button->label_),
-                         link_button->blue_markup);
+    gtk_label_set_markup(GTK_LABEL(label), link_button->blue_markup);
     link_button->is_blue_ = true;
   }
 
   // Draw the link inside the button.
-  gtk_container_propagate_expose(GTK_CONTAINER(widget),
-                                 gtk_bin_get_child(GTK_BIN(widget)),
-                                 event);
+  gtk_container_propagate_expose(GTK_CONTAINER(widget), label, event);
+
+  // Draw the focus rectangle.
+  if (GTK_WIDGET_HAS_FOCUS(widget)) {
+    gtk_paint_focus(widget->style, widget->window,
+                    static_cast<GtkStateType>(GTK_WIDGET_STATE(widget)),
+                    &event->area, widget, NULL,
+                    widget->allocation.x, widget->allocation.y,
+                    widget->allocation.width, widget->allocation.height);
+  }
+
   // Don't let the button draw itself, ever.
   return TRUE;
 }

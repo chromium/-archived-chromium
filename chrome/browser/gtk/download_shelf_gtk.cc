@@ -87,7 +87,8 @@ DownloadShelfGtk::DownloadShelfGtk(TabContents* tab_contents)
   gtk_box_pack_start(GTK_BOX(shelf_.get()), padding_bg, FALSE, FALSE, 0);
 
   // Create and pack the close button.
-  close_button_.reset(CustomDrawButton::AddBarCloseButton(hbox_, 0));
+  close_button_.reset(CustomDrawButton::CloseButton());
+  gtk_util::CenterWidgetInHBox(hbox_, close_button_->widget(), true, 0);
   g_signal_connect(close_button_->widget(), "clicked",
                    G_CALLBACK(OnButtonClick), this);
 
@@ -108,9 +109,8 @@ DownloadShelfGtk::DownloadShelfGtk(TabContents* tab_contents)
 
   // Pack the link and the icon in an hbox.
   link_hbox_ = gtk_hbox_new(FALSE, 5);
-  gtk_box_pack_start(GTK_BOX(link_hbox_), download_image, FALSE, FALSE, 0);
-  gtk_box_pack_start(GTK_BOX(link_hbox_), link_button_->widget(),
-                     FALSE, FALSE, 0);
+  gtk_util::CenterWidgetInHBox(link_hbox_, download_image, false, 0);
+  gtk_util::CenterWidgetInHBox(link_hbox_, link_button_->widget(), false, 0);
   gtk_box_pack_end(GTK_BOX(hbox_), link_hbox_, FALSE, FALSE, 0);
 
   slide_widget_.reset(new SlideAnimatorGtk(shelf_.get(),
