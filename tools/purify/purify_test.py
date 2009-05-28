@@ -64,6 +64,7 @@ class Purify(common.Rational):
                             help="path where report files are saved")
 
   def ParseArgv(self):
+    script_dir = google.path_utils.ScriptDir()
     if common.Rational.ParseArgv(self):
       if self._options.exe:
         self._exe = self._options.exe;
