@@ -92,6 +92,8 @@ class BookmarkStorage::LoadTask : public Task {
         codec.Decode(details_->bb_node(), details_->other_folder_node(),
                      &max_node_id, *root.get());
         details_->set_max_id(std::max(max_node_id, details_->max_id()));
+        details_->set_computed_checksum(codec.computed_checksum());
+        details_->set_stored_checksum(codec.stored_checksum());
         UMA_HISTOGRAM_TIMES("Bookmarks.DecodeTime",
                             TimeTicks::Now() - start_time);
 

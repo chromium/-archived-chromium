@@ -89,6 +89,7 @@ BookmarkModel::BookmarkModel(Profile* profile)
     : profile_(profile),
       loaded_(false),
       persist_ids_(false),
+      file_changed_(false),
       root_(GURL()),
       bookmark_bar_node_(NULL),
       other_node_(NULL),
@@ -392,6 +393,9 @@ void BookmarkModel::SetPersistIDs(bool value) {
     PrefService* pref_service = profile_->GetPrefs();
     pref_service->SetBoolean(kPrefPersistIDs, persist_ids_);
   }
+  // Need to save the bookmark data if the value of persist IDs changes.
+  if (store_.get())
+    store_->ScheduleSave();
 }
 
 bool BookmarkModel::IsBookmarkedNoLock(const GURL& url) {
@@ -449,6 +453,8 @@ void BookmarkModel::DoneLoading(
   bookmark_bar_node_ = details->bb_node();
   other_node_ = details->other_folder_node();
   next_node_id_ = details->max_id();
+  if (details->computed_checksum() != details->stored_checksum())
+    SetFileChanged();
   index_.reset(details->index());
   details->release();
 
@@ -698,6 +704,16 @@ void BookmarkModel::PopulateNodesByURL(BookmarkNode* node) {
 
 int BookmarkModel::generate_next_node_id() {
   return next_node_id_++;
+}
+
+void BookmarkModel::SetFileChanged() {
+  file_changed_ = true;
+  // If bookmarks file changed externally, the IDs may have changed externally.
+  // in that case, the decoder may have reassigned IDs to make them unique.
+  // So when the file has changed externally and IDs are persisted, we should
+  // save the bookmarks file to persist new IDs.
+  if (persist_ids_ && store_.get())
+    store_->ScheduleSave();
 }
 
 BookmarkStorage::LoadDetails* BookmarkModel::CreateLoadDetails() {

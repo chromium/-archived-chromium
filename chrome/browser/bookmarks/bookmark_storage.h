@@ -65,11 +65,25 @@ class BookmarkStorage : public NotificationObserver,
     void set_max_id(int max_id) { max_id_ = max_id; }
     int max_id() const { return max_id_; }
 
+    // Computed checksum.
+    void set_computed_checksum(const std::string& value) {
+      computed_checksum_ = value;
+    }
+    const std::string& computed_checksum() const { return computed_checksum_; }
+
+    // Stored checksum.
+    void set_stored_checksum(const std::string& value) {
+      stored_checksum_ = value;
+    }
+    const std::string& stored_checksum() const { return stored_checksum_; }
+
    private:
     scoped_ptr<BookmarkNode> bb_node_;
     scoped_ptr<BookmarkNode> other_folder_node_;
     scoped_ptr<BookmarkIndex> index_;
     int max_id_;
+    std::string computed_checksum_;
+    std::string stored_checksum_;
 
     DISALLOW_COPY_AND_ASSIGN(LoadDetails);
   };

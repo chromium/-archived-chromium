@@ -328,6 +328,9 @@ class BookmarkModel : public NotificationObserver, public BookmarkService {
   bool PersistIDs() const { return persist_ids_; }
   void SetPersistIDs(bool value);
 
+  // Returns whether the bookmarks file changed externally.
+  bool file_changed() const { return file_changed_; }
+
  private:
   // Used to order BookmarkNodes by URL.
   class NodeURLComparator {
@@ -418,6 +421,9 @@ class BookmarkModel : public NotificationObserver, public BookmarkService {
   // persisted.
   void set_next_node_id(int id) { next_node_id_ = id; }
 
+  // Records that the bookmarks file was changed externally.
+  void SetFileChanged();
+
   // Creates and returns a new LoadDetails. It's up to the caller to delete
   // the returned object.
   BookmarkStorage::LoadDetails* CreateLoadDetails();
@@ -436,6 +442,10 @@ class BookmarkModel : public NotificationObserver, public BookmarkService {
 
   // Whether to persist bookmark IDs.
   bool persist_ids_;
+
+  // Whether the bookmarks file was changed externally. This is set after
+  // loading is complete and once set the value never changes.
+  bool file_changed_;
 
   // The root node. This contains the bookmark bar node and the 'other' node as
   // children.
