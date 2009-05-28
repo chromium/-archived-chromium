@@ -870,6 +870,8 @@
         'browser/gears_integration.h',
         'browser/google_update.cc',
         'browser/google_update.h',
+        'browser/google_update_settings_linux.cc',
+        'browser/google_update_settings_mac.mm',
         'browser/google_url_tracker.cc',
         'browser/google_url_tracker.h',
         'browser/google_util.cc',
@@ -959,7 +961,6 @@
         'browser/gtk/tabs/tab_strip_gtk.h',
         'browser/gtk/toolbar_star_toggle_gtk.cc',
         'browser/gtk/toolbar_star_toggle_gtk.h',
-        'browser/google_update_settings_mac.mm',
         'browser/hang_monitor/hung_plugin_action.cc',
         'browser/hang_monitor/hung_plugin_action.h',
         'browser/hang_monitor/hung_window_detector.cc',
@@ -1974,18 +1975,6 @@
           'dependencies': [
             '../build/linux/system.gyp:gtk',
           ],
-          'conditions': [
-            ['linux_breakpad==1', {
-              'sources': [
-                'renderer/render_crash_handler_linux.cc',
-                'renderer/render_crash_handler_linux.h',
-              ],
-            }, {
-              'sources': [
-                'renderer/render_crash_handler_linux_stub.cc',
-              ],
-            }]
-          ],
         }],
         # Windows-specific rules.
         ['OS=="win"', {
@@ -2897,9 +2886,9 @@
       ],
       'sources': [
         'app/breakpad_mac_stubs.mm',
-	# *NO* files in chrome/app have unit tests (except keystone_glue)!!!
-	# It seems a waste to have an app_unittests target, so for now
-	# I add keystone_glue.m explicitly to this target.
+        # *NO* files in chrome/app have unit tests (except keystone_glue)!!!
+        # It seems a waste to have an app_unittests target, so for now
+        # I add keystone_glue.m explicitly to this target.
         'app/keystone_glue.m',
         'app/keystone_glue_unittest.mm',
         # All unittests in browser, common, and renderer.
@@ -2975,6 +2964,7 @@
         'browser/extensions/user_script_master_unittest.cc',
         'browser/find_backend_unittest.cc',
         'browser/google_url_tracker_unittest.cc',
+        'browser/google_update_settings_linux_unittest.cc',
         'browser/google_update_settings_mac_unittest.mm',
         'browser/gtk/bookmark_editor_gtk_unittest.cc',
         'browser/gtk/go_button_gtk_unittest.cc',

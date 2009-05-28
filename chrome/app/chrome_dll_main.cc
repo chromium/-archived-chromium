@@ -47,6 +47,8 @@
 #endif
 #if defined(OS_MACOSX)
 #include "chrome/app/breakpad_mac.h"
+#elif defined(OS_LINUX)
+#include "chrome/app/breakpad_linux.h"
 #endif
 #include "chrome/app/scoped_ole_initializer.h"
 #include "chrome/browser/renderer_host/render_process_host.h"
@@ -302,7 +304,7 @@ int ChromeMain(int argc, const char** argv) {
   const CommandLine& parsed_command_line = *CommandLine::ForCurrentProcess();
 
 #if defined(OS_WIN)
-   // Must do this before any other usage of command line!
+  // Must do this before any other usage of command line!
   if (HasDeprecatedArguments(parsed_command_line.command_line_string()))
     return 1;
 #endif
@@ -391,6 +393,11 @@ int ChromeMain(int argc, const char** argv) {
       parsed_command_line.GetSwitchValue(switches::kUserDataDir);
   if (!user_data_dir.empty())
     CHECK(PathService::Override(chrome::DIR_USER_DATA, user_data_dir));
+
+#if defined(OS_LINUX)
+  // Needs to be called after we have chrome::DIR_USER_DATA.
+  InitCrashReporter();
+#endif
 
 #if defined(OS_POSIX)
   // Bug 11776: we mistakenly created directories world-readable.

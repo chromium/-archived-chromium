@@ -4,10 +4,12 @@
 
 #include "chrome/browser/first_run.h"
 
+#include "chrome/app/breakpad_linux.h"
 // We need to reach through the browser process to tweak the metrics flag.
 #include "chrome/browser/browser_process.h"
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
+#include "chrome/installer/util/google_update_settings.h"
 
 #include "base/message_loop.h"
 
@@ -94,11 +96,15 @@ void OpenFirstRunDialog(Profile* profile, ProcessSingleton* process_singleton) {
   MessageLoop::current()->Run();
   // End of above TODO.
 
-  if (response == GTK_RESPONSE_ACCEPT &&
-      gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(check))) {
-    // They opted in.
-    g_browser_process->local_state()->SetBoolean(
-        prefs::kMetricsReportingEnabled, true);
+  if (response == GTK_RESPONSE_ACCEPT) {
+    if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(check))) {
+      // They opted in.
+      if (GoogleUpdateSettings::SetCollectStatsConsent(true)) {
+        InitCrashReporter();
+      }
+    } else {
+      GoogleUpdateSettings::SetCollectStatsConsent(false);
+    }
   }
 
   gtk_widget_destroy(dialog);

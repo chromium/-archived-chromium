@@ -5,5 +5,5 @@
 // This is a stub file which is compiled in when we are building without
 // breakpad support.
 
-void EnableCrashDumping() {
+void InitCrashReporter() {
 }

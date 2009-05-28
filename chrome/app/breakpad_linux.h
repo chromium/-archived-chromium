@@ -5,7 +5,7 @@
 #ifndef CHROME_APP_BREAKPAD_LINUX_H_
 #define CHROME_APP_BREAKPAD_LINUX_H_
 
-extern void EnableCrashDumping();
+extern void InitCrashReporter();
 extern int UploadCrashDump(const char* filename, const char* crash_url,
                            unsigned crash_url_length);
 

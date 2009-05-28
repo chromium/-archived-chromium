@@ -21,9 +21,6 @@
 #include "chrome/common/logging_chrome.h"
 #include "chrome/common/main_function_params.h"
 #include "chrome/renderer/renderer_main_platform_delegate.h"
-#if defined(OS_LINUX)
-#include "chrome/renderer/render_crash_handler_linux.h"
-#endif
 #include "chrome/renderer/render_process.h"
 #include "grit/chromium_strings.h"
 #include "grit/generated_resources.h"
@@ -72,10 +69,6 @@ int RendererMain(const MainFunctionParams& parameters) {
   // Do not move this function down since that would mean we can't easily debug
   // whatever occurs before it.
   HandleRendererErrorTestParameters(parsed_command_line);
-
-#if defined(OS_LINUX)
-  EnableRendererCrashDumping();
-#endif
 
   RendererMainPlatformDelegate platform(parameters);
 

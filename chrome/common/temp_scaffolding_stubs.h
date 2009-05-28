@@ -51,42 +51,6 @@ class Message;
 //---------------------------------------------------------------------------
 // These stubs are for Browser_main()
 
-#if defined(OS_LINUX)
-class GoogleUpdateSettings {
- public:
-  static bool GetCollectStatsConsent() {
-    NOTIMPLEMENTED();
-    return false;
-  }
-  static bool SetCollectStatsConsent(bool consented) {
-    NOTIMPLEMENTED();
-    return false;
-  }
-  static bool GetBrowser(std::wstring* browser) {
-    NOTIMPLEMENTED();
-    return false;
-  }
-  static bool GetLanguage(std::wstring* language) {
-    NOTIMPLEMENTED();
-    return false;
-  }
-  static bool GetBrand(std::wstring* brand) {
-    NOTIMPLEMENTED();
-    return false;
-  }
-  static bool GetReferral(std::wstring* referral) {
-    NOTIMPLEMENTED();
-    return false;
-  }
-  static bool ClearReferral() {
-    NOTIMPLEMENTED();
-    return false;
-  }
- private:
-  DISALLOW_IMPLICIT_CONSTRUCTORS(GoogleUpdateSettings);
-};
-#endif  // OS_LINUX
-
 void OpenFirstRunDialog(Profile* profile, ProcessSingleton* process_singleton);
 
 void InstallJankometer(const CommandLine&);

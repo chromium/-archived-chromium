@@ -4,11 +4,6 @@
 
 #include "build/build_config.h"
 
-#if defined(OS_WIN)
-#include <windows.h>
-#include <commctrl.h>
-#endif
-
 #include <algorithm>
 
 #include "app/l10n_util.h"
@@ -51,6 +46,7 @@
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
 #include "chrome/common/result_codes.h"
+#include "chrome/installer/util/google_update_settings.h"
 #include "grit/chromium_strings.h"
 #include "grit/generated_resources.h"
 #include "grit/net_resources.h"
@@ -77,6 +73,7 @@
 #if defined(OS_WIN)
 
 #include <windows.h>
+#include <commctrl.h>
 #include <shellapi.h>
 
 #include "app/win_util.h"
@@ -110,10 +107,6 @@
 #if defined(TOOLKIT_GTK)
 #include "chrome/common/gtk_util.h"
 #endif
-
-#if defined(OS_WIN) || defined(OS_MACOSX)
-#include "chrome/installer/util/google_update_settings.h"
-#endif  // OS_WIN || OS_MACOSX
 
 namespace Platform {
 
@@ -252,10 +245,6 @@ int BrowserMain(const MainFunctionParams& parameters) {
   CHECK(sigaction(SIGCHLD, &action, NULL) == 0);
 #endif
 
-#if defined(OS_LINUX)
-  EnableCrashDumping();
-#endif
-
   // Do platform-specific things (such as finishing initializing Cocoa)
   // prior to instantiating the message loop. This could be turned into a
   // broadcast notification.
@@ -340,10 +329,10 @@ int BrowserMain(const MainFunctionParams& parameters) {
   local_state->RegisterStringPref(prefs::kApplicationLocale, L"");
   local_state->RegisterBooleanPref(prefs::kMetricsReportingEnabled, false);
 
-#if defined(OS_MACOSX)
-  // On Mac OS X we display the first run dialog as early as possible, so we can
-  // get the stats enabled.
-  // TODO:
+#if defined(OS_POSIX)
+  // On Mac OS X / Linux we display the first run dialog as early as possible,
+  // so we can get the stats enabled.
+  // TODO(port):
   // We check the kNoFirstRun command line switch explicitly here since the
   // early placement of this block happens before that's factored into
   // first_run_ui_bypass, we probably want to move that block up
@@ -355,7 +344,7 @@ int BrowserMain(const MainFunctionParams& parameters) {
     Profile* profile = NULL;
     OpenFirstRunDialog(profile, &process_singleton);
   }
-#endif  // OS_MACOSX
+#endif  // OS_POSIX
 
   // During first run we read the google_update registry key to find what
   // language the user selected when downloading the installer. This
@@ -547,12 +536,12 @@ int BrowserMain(const MainFunctionParams& parameters) {
   gtk_util::InitRCStyles();
 #endif
 
-  // TODO: This block of code should probably be used on all platforms!
-  // On Mac OS X we display this dialog before setting the value of
+  // TODO(port): This block of code should probably be used on all platforms!
+  // On Mac OS X / Linux we display this dialog before setting the value of
   // kMetricsReportingEnabled, so we display this dialog much earlier.
   // On Windows a download is tagged with stats enabled/disabled so the UI
   // can be displayed later in the startup process.
-#if !defined(OS_MACOSX)
+#if !defined(OS_POSIX)
   // Show the First Run UI if this is the first time Chrome has been run on
   // this computer, or we're being compelled to do so by a command line flag.
   // Note that this be done _after_ the PrefService is initialized and all
@@ -561,7 +550,7 @@ int BrowserMain(const MainFunctionParams& parameters) {
   if (is_first_run && !first_run_ui_bypass) {
     OpenFirstRunDialog(profile, &process_singleton);
   }
-#endif  // OS_MACOSX
+#endif  // OS_POSIX
 
   // Sets things up so that if we crash from this point on, a dialog will
   // popup asking the user to restart chrome. It is done this late to avoid
