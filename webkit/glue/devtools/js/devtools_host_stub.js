@@ -11,6 +11,7 @@
  * @constructor
  */
 RemoteDebuggerAgentStub = function() {
+  this.isProfiling_ = false;
 };
 
 RemoteDebuggerAgentStub.prototype.DebugBreak = function() {
@@ -21,14 +22,17 @@ RemoteDebuggerAgentStub.prototype.GetContextId = function() {
 };
 
 RemoteDebuggerAgentStub.prototype.StopProfiling = function() {
+  this.isProfiling_ = false;
 };
 
 RemoteDebuggerAgentStub.prototype.StartProfiling = function() {
+  this.isProfiling_ = true;
 };
 
 RemoteDebuggerAgentStub.prototype.IsProfilingStarted = function() {
+  var self = this;
   setTimeout(function() {
-      RemoteDebuggerAgent.DidIsProfilingStarted(true);
+      RemoteDebuggerAgent.DidIsProfilingStarted(self.isProfiling_);
   }, 100);
 };
 
@@ -230,6 +234,7 @@ RemoteToolsAgentStub.prototype.ClearConsoleMessages = function() {
 
 
 RemoteDebuggerAgentStub.ProfilerLogBuffer =
+  'profiler,resume\n' +
   'code-creation,LazyCompile,0x1000,256,"test1 http://aaa.js:1"\n' +
   'code-creation,LazyCompile,0x2000,256,"test2 http://bbb.js:2"\n' +
   'code-creation,LazyCompile,0x3000,256,"test3 http://ccc.js:3"\n' +
@@ -240,7 +245,8 @@ RemoteDebuggerAgentStub.ProfilerLogBuffer =
   'tick,0x2020,0x0,3,0x1010\n' +
   'tick,0x2030,0x0,3,0x2020, 0x1010\n' +
   'tick,0x2020,0x0,3,0x1010\n' +
-  'tick,0x1010,0x0,3\n';
+  'tick,0x1010,0x0,3\n' +
+  'profiler,pause\n';
 
 
 /**

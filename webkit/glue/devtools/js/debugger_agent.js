@@ -69,11 +69,10 @@ devtools.DebuggerAgent = function() {
   this.scriptsCacheInitialized_ = false;
 
   /**
-   * Whether user has stopped profiling and we are retrieving the rest of
-   * profiler's log.
+   * Whether profiling session is started.
    * @type {boolean}
    */
-  this.isProcessingProfile_ = false;
+  this.isProfilingStarted_ = false;
 
   /**
    * The position in log file to read from.
@@ -85,7 +84,8 @@ devtools.DebuggerAgent = function() {
    * Profiler processor instance.
    * @type {devtools.profiler.Processor}
    */
-  this.profilerProcessor_ = new devtools.profiler.Processor();
+  this.profilerProcessor_ = new devtools.profiler.Processor(
+      goog.bind(WebInspector.addProfile, WebInspector));
 };
 
 
@@ -348,11 +348,7 @@ devtools.DebuggerAgent.prototype.resolveChildren = function(object, callback) {
  * Starts (resumes) profiling.
  */
 devtools.DebuggerAgent.prototype.startProfiling = function() {
-  if (this.isProcessingProfile_) {
-    return;
-  }
   RemoteDebuggerAgent.StartProfiling();
-  // Query if profiling has been really started.
   RemoteDebuggerAgent.IsProfilingStarted();
 };
 
@@ -361,7 +357,6 @@ devtools.DebuggerAgent.prototype.startProfiling = function() {
  * Stops (pauses) profiling.
  */
 devtools.DebuggerAgent.prototype.stopProfiling = function() {
-  this.isProcessingProfile_ = true;
   RemoteDebuggerAgent.StopProfiling();
 };
 
@@ -613,11 +608,17 @@ devtools.DebuggerAgent.prototype.handleAfterCompileEvent_ = function(msg) {
  */
 devtools.DebuggerAgent.prototype.didIsProfilingStarted_ = function(
     is_started) {
-  if (is_started) {
+  if (is_started && !this.isProfilingStarted_) {
     // Start to query log data.
     RemoteDebuggerAgent.GetLogLines(this.lastProfileLogPosition_);
   }
+  this.isProfilingStarted_ = is_started;
+  // Update button.
   WebInspector.setRecordingProfile(is_started);
+  if (is_started) {
+    // Monitor profiler state. It can stop itself on buffer fill-up.
+    setTimeout(function() { RemoteDebuggerAgent.IsProfilingStarted(); }, 1000);
+  }
 };
 
 
@@ -632,14 +633,11 @@ devtools.DebuggerAgent.prototype.didGetLogLines_ = function(
   if (log.length > 0) {
     this.profilerProcessor_.processLogChunk(log);
     this.lastProfileLogPosition_ = newPosition;
-  } else if (this.isProcessingProfile_) {
-    this.isProcessingProfile_ = false;
-    WebInspector.setRecordingProfile(false);
-    WebInspector.addProfile(this.profilerProcessor_.createProfileForView());
+  } else if (!this.isProfilingStarted_) {
+    // No new data and profiling is stopped---suspend log reading.
     return;
   }
-  setTimeout(function() { RemoteDebuggerAgent.GetLogLines(newPosition); },
-    this.isProcessingProfile_ ? 100 : 1000);
+  setTimeout(function() { RemoteDebuggerAgent.GetLogLines(newPosition); }, 500);
 };
 
 

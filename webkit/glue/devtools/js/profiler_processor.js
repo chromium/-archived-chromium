@@ -36,14 +36,28 @@ devtools.profiler.JsProfile.prototype.skipThisFunction = function(name) {
 
 /**
  * Profiler processor. Consumes profiler log and builds profile views.
+ *
+ * @param {function(devtools.profiler.ProfileView)} newProfileCallback Callback
+ *     that receives a new processed profile.
  * @constructor
  */
-devtools.profiler.Processor = function() {
+devtools.profiler.Processor = function(newProfileCallback) {
   /**
-   * Current profile.
+   *
+   */
+  this.newProfileCallback_ = newProfileCallback;
+
+  /**
+   * Profiles array.
+   * @type {Array<devtools.profiler.JsProfile>}
+   */
+  this.profiles_ = [];
+
+  /**
+   * The current profile.
    * @type {devtools.profiler.JsProfile}
    */
-  this.profile_ = new devtools.profiler.JsProfile();
+  this.currentProfile_ = null;
 
   /**
    * Builder of profile views.
@@ -65,14 +79,16 @@ devtools.profiler.Processor = function() {
  */
 devtools.profiler.Processor.RecordsDispatch_ = {
   'code-creation': { parsers: [null, parseInt, parseInt, null],
-                     processor: 'processCodeCreation_' },
+                     processor: 'processCodeCreation_', needsProfile: true },
   'code-move': { parsers: [parseInt, parseInt],
-                 processor: 'processCodeMove_' },
-  'code-delete': { parsers: [parseInt], processor: 'processCodeDelete_' },
+                 processor: 'processCodeMove_', needsProfile: true },
+  'code-delete': { parsers: [parseInt],
+                   processor: 'processCodeDelete_', needsProfile: true },
   'tick': { parsers: [parseInt, parseInt, parseInt, 'var-args'],
-            processor: 'processTick_' },
+            processor: 'processTick_', needsProfile: true },
+  'profiler': { parsers: [null], processor: 'processProfiler_',
+                needsProfile: false },
   // Not used in DevTools Profiler.
-  'profiler': null,
   'shared-library': null,
   // Obsolete row types.
   'code-allocate': null,
@@ -129,7 +145,8 @@ devtools.profiler.Processor.prototype.dispatchLogRow_ = function(fields) {
   }
   var dispatch = devtools.profiler.Processor.RecordsDispatch_[command];
 
-  if (dispatch === null) {
+  if (dispatch === null ||
+      (dispatch.needsProfile && this.currentProfile_ == null)) {
     return;
   }
 
@@ -153,19 +170,40 @@ devtools.profiler.Processor.prototype.dispatchLogRow_ = function(fields) {
 };
 
 
+devtools.profiler.Processor.prototype.processProfiler_ = function(state) {
+  switch (state) {
+    case "resume":
+      this.currentProfile_ = new devtools.profiler.JsProfile();
+      this.profiles_.push(this.currentProfile_);
+      break;
+    case "pause":
+      if (this.currentProfile_ != null) {
+        this.newProfileCallback_(this.createProfileForView());
+        this.currentProfile_ = null;
+      }
+      break;
+    // These events are valid but are not used.
+    case "begin": break;
+    case "end": break;
+    default:
+      throw new Error("unknown profiler state: " + state);
+  }
+};
+
+
 devtools.profiler.Processor.prototype.processCodeCreation_ = function(
     type, start, size, name) {
-  this.profile_.addCode(type, name, start, size);
+  this.currentProfile_.addCode(type, name, start, size);
 };
 
 
 devtools.profiler.Processor.prototype.processCodeMove_ = function(from, to) {
-  this.profile_.moveCode(from, to);
+  this.currentProfile_.moveCode(from, to);
 };
 
 
 devtools.profiler.Processor.prototype.processCodeDelete_ = function(start) {
-  this.profile_.deleteCode(start);
+  this.currentProfile_.deleteCode(start);
 };
 
 
@@ -179,7 +217,7 @@ devtools.profiler.Processor.prototype.processTick_ = function(
       fullStack.push(parseInt(frame, 16));
     }
   }
-  this.profile_.recordTick(fullStack);
+  this.currentProfile_.recordTick(fullStack);
 };
 
 
@@ -194,8 +232,8 @@ devtools.profiler.Processor.prototype.createProfileForView = function() {
   // ProfileView.topDownProfileDataGridTree behavior.
   profile.head = profile;
   profile.heavyProfile = this.viewBuilder_.buildView(
-      this.profile_.getBottomUpProfile(), true);
+      this.currentProfile_.getBottomUpProfile(), true);
   profile.treeProfile = this.viewBuilder_.buildView(
-      this.profile_.getTopDownProfile());
+      this.currentProfile_.getTopDownProfile());
   return profile;
 };
