@@ -203,9 +203,9 @@ void WidgetWin::Init(HWND parent, const gfx::Rect& bounds,
   // that window controls in Chrome windows don't flicker when you move your
   // mouse over them. See comment in aero_tooltip_manager.h.
   if (win_util::ShouldUseVistaFrame()) {
-    tooltip_manager_.reset(new AeroTooltipManager(this, GetNativeView()));
+    tooltip_manager_.reset(new AeroTooltipManager(this));
   } else {
-    tooltip_manager_.reset(new TooltipManager(this, GetNativeView()));
+    tooltip_manager_.reset(new TooltipManagerWin(this));
   }
 
   // This message initializes the window so that focus border are shown for

@@ -18,8 +18,8 @@ namespace views {
 ///////////////////////////////////////////////////////////////////////////////
 // AeroTooltipManager, public:
 
-AeroTooltipManager::AeroTooltipManager(Widget* widget, HWND parent)
-    : TooltipManager(widget, parent),
+AeroTooltipManager::AeroTooltipManager(Widget* widget)
+    : TooltipManagerWin(widget),
       initial_delay_(0) {
 }
 
@@ -71,7 +71,7 @@ void AeroTooltipManager::Init() {
   tooltip_hwnd_ = CreateWindowEx(
       WS_EX_TRANSPARENT | l10n_util::GetExtendedTooltipStyles(),
       TOOLTIPS_CLASS, NULL, TTS_NOPREFIX, 0, 0, 0, 0,
-      parent_, NULL, NULL, NULL);
+      GetParent(), NULL, NULL, NULL);
 
   l10n_util::AdjustUIFontForWindow(tooltip_hwnd_);
 
@@ -81,10 +81,10 @@ void AeroTooltipManager::Init() {
   // We use tracking tooltips on Vista to allow us to manually control the
   // visibility of the tooltip.
   toolinfo_.uFlags = TTF_TRANSPARENT | TTF_IDISHWND | TTF_TRACK | TTF_ABSOLUTE;
-  toolinfo_.hwnd = parent_;
-  toolinfo_.uId = (UINT_PTR)parent_;
+  toolinfo_.hwnd = GetParent();
+  toolinfo_.uId = (UINT_PTR)GetParent();
 
-  // Setting this tells windows to call parent_ back (using a WM_NOTIFY
+  // Setting this tells windows to call GetParent() back (using a WM_NOTIFY
   // message) for the actual tooltip contents.
   toolinfo_.lpszText = LPSTR_TEXTCALLBACK;
   SetRectEmpty(&toolinfo_.rect);
@@ -97,7 +97,7 @@ void AeroTooltipManager::OnTimer() {
   POINT pt;
   pt.x = last_mouse_x_;
   pt.y = last_mouse_y_;
-  ::ClientToScreen(parent_, &pt);
+  ::ClientToScreen(GetParent(), &pt);
 
   // Set the position and visibility.
   if (!tooltip_showing_) {

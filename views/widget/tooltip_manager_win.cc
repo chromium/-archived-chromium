@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "views/widget/tooltip_manager.h"
+#include "views/widget/tooltip_manager_win.h"
 
 #include <windowsx.h>
 #include <limits>
@@ -19,8 +19,7 @@
 
 namespace views {
 
-//static
-int TooltipManager::tooltip_height_ = 0;
+static int tooltip_height_ = 0;
 
 // Default timeout for the tooltip displayed using keyboard.
 // Timeout is mentioned in milliseconds.
@@ -37,10 +36,10 @@ static void SplitTooltipString(const std::wstring& text,
                                std::vector<std::wstring>* lines) {
   size_t index = 0;
   size_t next_index;
-  while ((next_index = text.find(TooltipManager::GetLineSeparator(), index))
+  while ((next_index = text.find(TooltipManagerWin::GetLineSeparator(), index))
          != std::wstring::npos && lines->size() < kMaxLines) {
     lines->push_back(text.substr(index, next_index - index));
-    index = next_index + TooltipManager::GetLineSeparator().size();
+    index = next_index + TooltipManagerWin::GetLineSeparator().size();
   }
   if (next_index != text.size() && lines->size() < kMaxLines)
     lines->push_back(text.substr(index, text.size() - index));
@@ -78,9 +77,8 @@ const std::wstring& TooltipManager::GetLineSeparator() {
   return *separator;
 }
 
-TooltipManager::TooltipManager(Widget* widget, HWND parent)
+TooltipManagerWin::TooltipManagerWin(Widget* widget)
     : widget_(widget),
-      parent_(parent),
       last_mouse_x_(-1),
       last_mouse_y_(-1),
       tooltip_showing_(false),
@@ -90,23 +88,24 @@ TooltipManager::TooltipManager(Widget* widget, HWND parent)
       keyboard_tooltip_hwnd_(NULL),
 #pragma warning(suppress: 4355)
       keyboard_tooltip_factory_(this) {
-  DCHECK(widget && parent);
+  DCHECK(widget);
+  DCHECK(widget->GetNativeView());
   Init();
 }
 
-TooltipManager::~TooltipManager() {
+TooltipManagerWin::~TooltipManagerWin() {
   if (tooltip_hwnd_)
     DestroyWindow(tooltip_hwnd_);
   if (keyboard_tooltip_hwnd_)
     DestroyWindow(keyboard_tooltip_hwnd_);
 }
 
-void TooltipManager::Init() {
+void TooltipManagerWin::Init() {
   // Create the tooltip control.
   tooltip_hwnd_ = CreateWindowEx(
       WS_EX_TRANSPARENT | l10n_util::GetExtendedTooltipStyles(),
       TOOLTIPS_CLASS, NULL, TTS_NOPREFIX, 0, 0, 0, 0,
-      parent_, NULL, NULL, NULL);
+      GetParent(), NULL, NULL, NULL);
 
   l10n_util::AdjustUIFontForWindow(tooltip_hwnd_);
 
@@ -120,16 +119,20 @@ void TooltipManager::Init() {
   // Add one tool that is used for all tooltips.
   toolinfo_.cbSize = sizeof(toolinfo_);
   toolinfo_.uFlags = TTF_TRANSPARENT | TTF_IDISHWND;
-  toolinfo_.hwnd = parent_;
-  toolinfo_.uId = reinterpret_cast<UINT_PTR>(parent_);
-  // Setting this tells windows to call parent_ back (using a WM_NOTIFY
+  toolinfo_.hwnd = GetParent();
+  toolinfo_.uId = reinterpret_cast<UINT_PTR>(GetParent());
+  // Setting this tells windows to call GetParent() back (using a WM_NOTIFY
   // message) for the actual tooltip contents.
   toolinfo_.lpszText = LPSTR_TEXTCALLBACK;
   SetRectEmpty(&toolinfo_.rect);
   SendMessage(tooltip_hwnd_, TTM_ADDTOOL, 0, (LPARAM)&toolinfo_);
 }
 
-void TooltipManager::UpdateTooltip() {
+gfx::NativeView TooltipManagerWin::GetParent() {
+  return widget_->GetNativeView();
+}
+
+void TooltipManagerWin::UpdateTooltip() {
   // Set last_view_out_of_sync_ to indicate the view is currently out of sync.
   // This doesn't update the view under the mouse immediately as it may cause
   // timing problems.
@@ -139,12 +142,14 @@ void TooltipManager::UpdateTooltip() {
   SendMessage(tooltip_hwnd_, TTM_POP, 0, 0);
 }
 
-void TooltipManager::TooltipTextChanged(View* view) {
+void TooltipManagerWin::TooltipTextChanged(View* view) {
   if (view == last_tooltip_view_)
     UpdateTooltip(last_mouse_x_, last_mouse_y_);
 }
 
-LRESULT TooltipManager::OnNotify(int w_param, NMHDR* l_param, bool* handled) {
+LRESULT TooltipManagerWin::OnNotify(int w_param,
+                                    NMHDR* l_param,
+                                    bool* handled) {
   *handled = false;
   if (l_param->hwndFrom == tooltip_hwnd_ && keyboard_tooltip_hwnd_ == NULL) {
     switch (l_param->code) {
@@ -219,7 +224,7 @@ LRESULT TooltipManager::OnNotify(int w_param, NMHDR* l_param, bool* handled) {
   return 0;
 }
 
-bool TooltipManager::SetTooltipPosition(int text_x, int text_y) {
+bool TooltipManagerWin::SetTooltipPosition(int text_x, int text_y) {
   // NOTE: this really only tests that the y location fits on screen, but that
   // is good enough for our usage.
 
@@ -247,7 +252,7 @@ bool TooltipManager::SetTooltipPosition(int text_x, int text_y) {
   return true;
 }
 
-int TooltipManager::CalcTooltipHeight() {
+int TooltipManagerWin::CalcTooltipHeight() {
   // Ask the tooltip for it's font.
   int height;
   HFONT hfont = reinterpret_cast<HFONT>(
@@ -274,12 +279,12 @@ int TooltipManager::CalcTooltipHeight() {
   return height + tooltip_margin.top + tooltip_margin.bottom;
 }
 
-void TooltipManager::TrimTooltipToFit(std::wstring* text,
-                                      int* max_width,
-                                      int* line_count,
-                                      int position_x,
-                                      int position_y,
-                                      HWND window) {
+void TooltipManagerWin::TrimTooltipToFit(std::wstring* text,
+                                         int* max_width,
+                                         int* line_count,
+                                         int position_x,
+                                         int position_y,
+                                         HWND window) {
   *max_width = 0;
   *line_count = 0;
 
@@ -326,7 +331,7 @@ void TooltipManager::TrimTooltipToFit(std::wstring* text,
   *text = result;
 }
 
-void TooltipManager::UpdateTooltip(int x, int y) {
+void TooltipManagerWin::UpdateTooltip(int x, int y) {
   RootView* root_view = widget_->GetRootView();
   View* view = root_view->GetViewForPoint(gfx::Point(x, y));
   if (view != last_tooltip_view_) {
@@ -353,7 +358,7 @@ void TooltipManager::UpdateTooltip(int x, int y) {
   }
 }
 
-void TooltipManager::OnMouse(UINT u_msg, WPARAM w_param, LPARAM l_param) {
+void TooltipManagerWin::OnMouse(UINT u_msg, WPARAM w_param, LPARAM l_param) {
   int x = GET_X_LPARAM(l_param);
   int y = GET_Y_LPARAM(l_param);
 
@@ -373,14 +378,14 @@ void TooltipManager::OnMouse(UINT u_msg, WPARAM w_param, LPARAM l_param) {
   }
   // Forward the message onto the tooltip.
   MSG msg;
-  msg.hwnd = parent_;
+  msg.hwnd = GetParent();
   msg.message = u_msg;
   msg.wParam = w_param;
   msg.lParam = l_param;
   SendMessage(tooltip_hwnd_, TTM_RELAYEVENT, 0, (LPARAM)&msg);
 }
 
-void TooltipManager::ShowKeyboardTooltip(View* focused_view) {
+void TooltipManagerWin::ShowKeyboardTooltip(View* focused_view) {
   if (tooltip_showing_) {
     SendMessage(tooltip_hwnd_, TTM_POP, 0, 0);
     tooltip_text_.clear();
@@ -407,7 +412,7 @@ void TooltipManager::ShowKeyboardTooltip(View* focused_view) {
   TOOLINFO keyboard_toolinfo;
   memset(&keyboard_toolinfo, 0, sizeof(keyboard_toolinfo));
   keyboard_toolinfo.cbSize = sizeof(keyboard_toolinfo);
-  keyboard_toolinfo.hwnd = parent_;
+  keyboard_toolinfo.hwnd = GetParent();
   keyboard_toolinfo.uFlags = TTF_TRACK | TTF_TRANSPARENT | TTF_IDISHWND ;
   keyboard_toolinfo.lpszText = const_cast<WCHAR*>(tooltip_text.c_str());
   SendMessage(keyboard_tooltip_hwnd_, TTM_ADDTOOL, 0,
@@ -429,18 +434,19 @@ void TooltipManager::ShowKeyboardTooltip(View* focused_view) {
                  SWP_NOZORDER | SWP_NOACTIVATE | SWP_NOSIZE);
   MessageLoop::current()->PostDelayedTask(FROM_HERE,
       keyboard_tooltip_factory_.NewRunnableMethod(
-      &TooltipManager::DestroyKeyboardTooltipWindow, keyboard_tooltip_hwnd_),
+      &TooltipManagerWin::DestroyKeyboardTooltipWindow,
+      keyboard_tooltip_hwnd_),
       kDefaultTimeout);
 }
 
-void TooltipManager::HideKeyboardTooltip() {
+void TooltipManagerWin::HideKeyboardTooltip() {
   if (keyboard_tooltip_hwnd_ != NULL) {
     SendMessage(keyboard_tooltip_hwnd_, WM_CLOSE, 0, 0);
     keyboard_tooltip_hwnd_ = NULL;
   }
 }
 
-void TooltipManager::DestroyKeyboardTooltipWindow(HWND window_to_destroy) {
+void TooltipManagerWin::DestroyKeyboardTooltipWindow(HWND window_to_destroy) {
   if (keyboard_tooltip_hwnd_ == window_to_destroy)
     HideKeyboardTooltip();
 }

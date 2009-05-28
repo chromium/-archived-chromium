@@ -16,6 +16,7 @@ class Rect;
 
 namespace views {
 
+class TooltipManagerGtk;
 class View;
 class WindowGtk;
 
@@ -171,6 +172,8 @@ class WidgetGtk : public Widget, public MessageLoopForUI::Observer {
 
   // The root of the View hierarchy attached to this window.
   scoped_ptr<RootView> root_view_;
+
+  scoped_ptr<TooltipManagerGtk> tooltip_manager_;
 
   // If true, the mouse is currently down.
   bool is_mouse_down_;

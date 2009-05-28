@@ -7,6 +7,7 @@
 #include "base/compiler_specific.h"
 #include "views/fill_layout.h"
 #include "views/widget/root_view.h"
+#include "views/widget/tooltip_manager_gtk.h"
 #include "views/window/window_gtk.h"
 
 namespace views {
@@ -151,6 +152,8 @@ void WidgetGtk::Init(GtkWidget* parent,
   //                  G_CALLBACK(drag_drop_event_cb), NULL);
   // g_signal_connect(G_OBJECT(widget_), "drag_data_received",
   //                  G_CALLBACK(drag_data_received_event_cb), NULL);
+
+  tooltip_manager_.reset(new TooltipManagerGtk(this));
 
   if (type_ == TYPE_CHILD) {
     WidgetGtk* parent_widget = GetViewForNative(parent);
@@ -301,8 +304,7 @@ bool WidgetGtk::IsActive() const {
 }
 
 TooltipManager* WidgetGtk::GetTooltipManager() {
-  NOTIMPLEMENTED();
-  return NULL;
+  return tooltip_manager_.get();
 }
 
 bool WidgetGtk::GetAccelerator(int cmd_id, Accelerator* accelerator) {

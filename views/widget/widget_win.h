@@ -24,7 +24,7 @@ class Rect;
 namespace views {
 
 class RootView;
-class TooltipManager;
+class TooltipManagerWin;
 class DefaultThemeProvider;
 class Window;
 
@@ -506,7 +506,17 @@ class WidgetWin : public Widget,
   // Returns true if this WidgetWin is opaque.
   bool opaque() const { return opaque_; }
 
+  // The TooltipManager.
+  // WARNING: RootView's destructor calls into the TooltipManager. As such, this
+  // must be destroyed AFTER root_view_. This really only matters during
+  // WM_SESSIONEND, as normally the hwnd is destroyed which tiggers unsetting
+  // the widget in the RootView so that RootView's destructor doesn't call into
+  // the TooltipManager.
+  scoped_ptr<TooltipManagerWin> tooltip_manager_;
+
   // The root of the View hierarchy attached to this window.
+  // WARNING: see warning in tooltip_manager_ for ordering dependencies with
+  // this and tooltip_manager_.
   scoped_ptr<RootView> root_view_;
 
   // Whether or not we have capture the mouse.
@@ -514,8 +524,6 @@ class WidgetWin : public Widget,
 
   // If true, the mouse is currently down.
   bool is_mouse_down_;
-
-  scoped_ptr<TooltipManager> tooltip_manager_;
 
   // Are a subclass of WindowWin?
   bool is_window_;

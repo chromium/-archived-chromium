@@ -214,9 +214,7 @@ bool Tab::GetTooltipText(int x, int y, std::wstring* tooltip) {
 bool Tab::GetTooltipTextOrigin(int x, int y, gfx::Point* origin) {
   gfx::Font font;
   origin->set_x(title_bounds().x() + 10);
-#if defined(OS_WIN)
   origin->set_y(-views::TooltipManager::GetTooltipHeight() - 4);
-#endif
   return true;
 }
 

@@ -7,7 +7,7 @@
 
 #include "base/ref_counted.h"
 #include "base/task.h"
-#include "views/widget/tooltip_manager.h"
+#include "views/widget/tooltip_manager_win.h"
 
 namespace views {
 
@@ -26,9 +26,9 @@ namespace views {
 //  TTF_TRACKed tooltips.
 //
 // TODO(glen): Resolve this with Microsoft.
-class AeroTooltipManager : public TooltipManager {
+class AeroTooltipManager : public TooltipManagerWin {
  public:
-  AeroTooltipManager(Widget* widget, HWND parent);
+  explicit AeroTooltipManager(Widget* widget);
   virtual ~AeroTooltipManager();
 
   virtual void OnMouse(UINT u_msg, WPARAM w_param, LPARAM l_param);
