@@ -15,7 +15,9 @@
 namespace {
 
 const int kIdleSecondsBeforeExit = 10 * 60;
-const int kWorkerThreadStackSize = 64 * 1024;
+// A stack size of 64 KB is too small for the CERT_PKIXVerifyCert
+// function of NSS because of NSS bug 439169.
+const int kWorkerThreadStackSize = 128 * 1024;
 
 class WorkerPoolImpl {
  public:

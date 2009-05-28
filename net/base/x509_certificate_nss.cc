@@ -8,8 +8,10 @@
 // until NSS 3.12.2 comes out and we update to it.
 #define Lock FOO_NSS_Lock
 #include <cert.h>
+#include <pk11pub.h>
 #include <prtime.h>
 #include <secder.h>
+#include <secerr.h>
 #include <sechash.h>
 #undef Lock
 
@@ -17,11 +19,167 @@
 #include "base/pickle.h"
 #include "base/time.h"
 #include "base/nss_init.h"
+#include "net/base/cert_status_flags.h"
+#include "net/base/cert_verify_result.h"
 #include "net/base/net_errors.h"
 
 namespace net {
 
 namespace {
+
+class ScopedCERTCertificate {
+ public:
+  explicit ScopedCERTCertificate(CERTCertificate* cert)
+      : cert_(cert) {}
+
+  ~ScopedCERTCertificate() {
+    if (cert_)
+      CERT_DestroyCertificate(cert_);
+  }
+
+ private:
+  CERTCertificate* cert_;
+
+  DISALLOW_COPY_AND_ASSIGN(ScopedCERTCertificate);
+};
+
+class ScopedCERTCertList {
+ public:
+  explicit ScopedCERTCertList(CERTCertList* cert_list)
+      : cert_list_(cert_list) {}
+
+  ~ScopedCERTCertList() {
+    if (cert_list_)
+      CERT_DestroyCertList(cert_list_);
+  }
+
+ private:
+  CERTCertList* cert_list_;
+
+  DISALLOW_COPY_AND_ASSIGN(ScopedCERTCertList);
+};
+
+// ScopedCERTValOutParam manages destruction of values in the CERTValOutParam
+// array that cvout points to.  cvout must be initialized as passed to
+// CERT_PKIXVerifyCert, so that the array must be terminated with
+// cert_po_end type.
+// When it goes out of scope, it destroys values of cert_po_trustAnchor
+// and cert_po_certList types, but doesn't release the array itself.
+class ScopedCERTValOutParam {
+ public:
+  explicit ScopedCERTValOutParam(CERTValOutParam* cvout)
+      : cvout_(cvout) {}
+
+  ~ScopedCERTValOutParam() {
+    if (cvout_ == NULL)
+      return;
+    for (CERTValOutParam *p = cvout_; p->type != cert_po_end; p++) {
+      switch (p->type) {
+        case cert_po_trustAnchor:
+          if (p->value.pointer.cert) {
+            CERT_DestroyCertificate(p->value.pointer.cert);
+            p->value.pointer.cert = NULL;
+          }
+          break;
+        case cert_po_certList:
+          if (p->value.pointer.chain) {
+            CERT_DestroyCertList(p->value.pointer.chain);
+            p->value.pointer.chain = NULL;
+          }
+          break;
+        default:
+          break;
+      }
+    }
+  }
+
+ private:
+  CERTValOutParam* cvout_;
+
+  DISALLOW_COPY_AND_ASSIGN(ScopedCERTValOutParam);
+};
+
+// Map PORT_GetError() return values to our network error codes.
+int MapSecurityError(int err) {
+  switch (err) {
+    case SEC_ERROR_INVALID_TIME:
+    case SEC_ERROR_EXPIRED_CERTIFICATE:
+      return ERR_CERT_DATE_INVALID;
+    case SEC_ERROR_UNKNOWN_ISSUER:
+    case SEC_ERROR_UNTRUSTED_ISSUER:
+    case SEC_ERROR_CA_CERT_INVALID:
+    case SEC_ERROR_UNTRUSTED_CERT:
+      return ERR_CERT_AUTHORITY_INVALID;
+    case SEC_ERROR_REVOKED_CERTIFICATE:
+      return ERR_CERT_REVOKED;
+    case SEC_ERROR_BAD_DER:
+    case SEC_ERROR_BAD_SIGNATURE:
+    case SEC_ERROR_CERT_NOT_VALID:
+    // TODO(port): add an ERR_CERT_WRONG_USAGE error code.
+    case SEC_ERROR_CERT_USAGES_INVALID:
+      return ERR_CERT_INVALID;
+    default:
+      LOG(WARNING) << "Unknown error " << err << " mapped to net::ERR_FAILED";
+      return ERR_FAILED;
+  }
+}
+
+// Map PORT_GetError() return values to our cert status flags.
+int MapCertErrorToCertStatus(int err) {
+  switch (err) {
+    case SEC_ERROR_INVALID_TIME:
+    case SEC_ERROR_EXPIRED_CERTIFICATE:
+      return CERT_STATUS_DATE_INVALID;
+    case SEC_ERROR_UNTRUSTED_CERT:
+    case SEC_ERROR_UNKNOWN_ISSUER:
+    case SEC_ERROR_UNTRUSTED_ISSUER:
+    case SEC_ERROR_CA_CERT_INVALID:
+      return CERT_STATUS_AUTHORITY_INVALID;
+    case SEC_ERROR_REVOKED_CERTIFICATE:
+      return CERT_STATUS_REVOKED;
+    case SEC_ERROR_BAD_DER:
+    case SEC_ERROR_BAD_SIGNATURE:
+    case SEC_ERROR_CERT_NOT_VALID:
+    // TODO(port): add an CERT_STATUS_WRONG_USAGE error code.
+    case SEC_ERROR_CERT_USAGES_INVALID:
+      return CERT_STATUS_INVALID;
+    default:
+      return 0;
+  }
+}
+
+// Saves some information about the certificate chain cert_list in
+// *verify_result.  The caller MUST initialize *verify_result before calling
+// this function.
+// Note that cert_list[0] is the end entity certificate and cert_list doesn't
+// contain the root CA certificate.
+void GetCertChainInfo(CERTCertList* cert_list,
+                      CertVerifyResult* verify_result) {
+  int i = 0;
+  for (CERTCertListNode* node = CERT_LIST_HEAD(cert_list);
+       !CERT_LIST_END(node, cert_list);
+       node = CERT_LIST_NEXT(node), i++) {
+    SECAlgorithmID& signature = node->cert->signature;
+    SECOidTag oid_tag = SECOID_FindOIDTag(&signature.algorithm);
+    switch (oid_tag) {
+      case SEC_OID_PKCS1_MD5_WITH_RSA_ENCRYPTION:
+        verify_result->has_md5 = true;
+        if (i != 0)
+          verify_result->has_md5_ca = true;
+        break;
+      case SEC_OID_PKCS1_MD2_WITH_RSA_ENCRYPTION:
+        verify_result->has_md2 = true;
+        if (i != 0)
+          verify_result->has_md2_ca = true;
+        break;
+      case SEC_OID_PKCS1_MD4_WITH_RSA_ENCRYPTION:
+        verify_result->has_md4 = true;
+        break;
+      default:
+        break;
+    }
+  }
+}
 
 // TODO(port): Implement this more simply, and put it in the right place
 base::Time PRTimeToBaseTime(PRTime prtime) {
@@ -212,11 +370,122 @@ bool X509Certificate::HasExpired() const {
   return false;
 }
 
+// TODO(ukai): fix to use this method to verify certificate on SSL channel.
+// Note that it's not being used yet.  We need to fix SSLClientSocketNSS to
+// use this method to verify ssl certificate.
+// The problem is that we get segfault when unit tests is going to terminate
+// if PR_Cleanup is called in NSSInitSingleton destructor.
 int X509Certificate::Verify(const std::string& hostname,
                             bool rev_checking_enabled,
                             CertVerifyResult* verify_result) const {
+  verify_result->Reset();
+
+  // Make sure that the hostname matches with the common name of the cert.
+  SECStatus status = CERT_VerifyCertName(cert_handle_, hostname.c_str());
+  if (status != SECSuccess)
+    verify_result->cert_status |= CERT_STATUS_COMMON_NAME_INVALID;
+
+  // Make sure that the cert is valid now.
+  SECCertTimeValidity validity = CERT_CheckCertValidTimes(
+      cert_handle_, PR_Now(), PR_TRUE);
+  if (validity != secCertTimeValid)
+    verify_result->cert_status |= CERT_STATUS_DATE_INVALID;
+
+  CERTRevocationFlags revocation_flags;
+  // TODO(ukai): Fix to use OCSP.
+  // OCSP mode would fail with SEC_ERROR_UNKNOWN_ISSUER.
+  // We need to set up OCSP and install an HTTP client for NSS.
+  bool use_ocsp = false;
+
+  PRUint64 revocation_method_flags =
+      CERT_REV_M_TEST_USING_THIS_METHOD |
+      CERT_REV_M_ALLOW_NETWORK_FETCHING |
+      CERT_REV_M_ALLOW_IMPLICIT_DEFAULT_SOURCE |
+      CERT_REV_M_REQUIRE_INFO_ON_MISSING_SOURCE |
+      CERT_REV_M_STOP_TESTING_ON_FRESH_INFO;
+  PRUint64 revocation_method_independent_flags =
+      CERT_REV_MI_TEST_ALL_LOCAL_INFORMATION_FIRST |
+      CERT_REV_MI_REQUIRE_SOME_FRESH_INFO_AVAILABLE;
+  PRUint64 method_flags[2];
+  method_flags[cert_revocation_method_crl] = revocation_method_flags;
+  method_flags[cert_revocation_method_ocsp] = revocation_method_flags;
+
+  int number_of_defined_methods;
+  CERTRevocationMethodIndex preferred_revocation_methods[1];
+  if (use_ocsp) {
+    number_of_defined_methods = 2;
+    preferred_revocation_methods[0] = cert_revocation_method_ocsp;
+  } else {
+    number_of_defined_methods = 1;
+    preferred_revocation_methods[0] = cert_revocation_method_crl;
+  }
+
+  revocation_flags.leafTests.number_of_defined_methods =
+      number_of_defined_methods;
+  revocation_flags.leafTests.cert_rev_flags_per_method = method_flags;
+  revocation_flags.leafTests.number_of_preferred_methods =
+      arraysize(preferred_revocation_methods);
+  revocation_flags.leafTests.preferred_methods = preferred_revocation_methods;
+  revocation_flags.leafTests.cert_rev_method_independent_flags =
+      revocation_method_independent_flags;
+  revocation_flags.chainTests.number_of_defined_methods =
+      number_of_defined_methods;
+  revocation_flags.chainTests.cert_rev_flags_per_method = method_flags;
+  revocation_flags.chainTests.number_of_preferred_methods =
+      arraysize(preferred_revocation_methods);
+  revocation_flags.chainTests.preferred_methods = preferred_revocation_methods;
+  revocation_flags.chainTests.cert_rev_method_independent_flags =
+      revocation_method_independent_flags;
+
+  CERTValInParam cvin[2];
+  int cvin_index = 0;
+  // We can't use PK11_ListCerts(PK11CertListCA, NULL) for cert_pi_trustAnchors.
+  // We get SEC_ERROR_UNTRUSTED_ISSUER (-8172) for our test root CA cert with
+  // it by NSS 3.12.0.3.
+  // No need to set cert_pi_trustAnchors here.
+  // TODO(ukai): use cert_pi_useAIACertFetch (new feature in NSS 3.12.1).
+  cvin[cvin_index].type = cert_pi_revocationFlags;
+  cvin[cvin_index].value.pointer.revocation = &revocation_flags;
+  cvin_index++;
+  cvin[cvin_index].type = cert_pi_end;
+
+  CERTValOutParam cvout[3];
+  int cvout_index = 0;
+  cvout[cvout_index].type = cert_po_trustAnchor;
+  cvout[cvout_index].value.pointer.cert = NULL;
+  cvout_index++;
+  cvout[cvout_index].type = cert_po_certList;
+  cvout[cvout_index].value.pointer.chain = NULL;
+  int cvout_cert_list_index = cvout_index;
+  cvout_index++;
+  cvout[cvout_index].type = cert_po_end;
+  ScopedCERTValOutParam scoped_cvout(cvout);
+
+  status = CERT_PKIXVerifyCert(cert_handle_, certificateUsageSSLServer,
+                               cvin, cvout, NULL);
+  if (status != SECSuccess) {
+    int err = PORT_GetError();
+    LOG(ERROR) << "CERT_PKIXVerifyCert failed err=" << err;
+    // CERT_PKIXVerifyCert rerports the wrong error code for
+    // expired certificates (NSS bug 491174)
+    if (err == SEC_ERROR_CERT_NOT_VALID &&
+        (verify_result->cert_status & CERT_STATUS_DATE_INVALID) != 0)
+      err = SEC_ERROR_EXPIRED_CERTIFICATE;
+    verify_result->cert_status |= MapCertErrorToCertStatus(err);
+    return MapCertStatusToNetError(verify_result->cert_status);
+  }
+
+  GetCertChainInfo(cvout[cvout_cert_list_index].value.pointer.chain,
+                   verify_result);
+  if (IsCertStatusError(verify_result->cert_status))
+    return MapCertStatusToNetError(verify_result->cert_status);
+  return OK;
+}
+
+// TODO(port): Implement properly on Linux.
+bool X509Certificate::IsEV(int status) const {
   NOTIMPLEMENTED();
-  return ERR_NOT_IMPLEMENTED;
+  return false;
 }
 
 // static
@@ -250,12 +519,6 @@ X509Certificate::Fingerprint X509Certificate::CalculateFingerprint(
   DCHECK(rv == SECSuccess);
 
   return sha1;
-}
-
-// TODO(port): Implement properly on Linux.
-bool X509Certificate::IsEV(int status) const {
-  // http://code.google.com/p/chromium/issues/detail?id=10911
-  return false;
 }
 
 }  // namespace net
