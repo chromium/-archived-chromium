@@ -16,20 +16,29 @@
 
 namespace {
 
+// We stash pointers to widgets on the gtk_dialog so we can refer to them
+// after dialog creation.
+const char kPromptTextId[] = "chrome_prompt_text";
+const char kSuppressCheckboxId[] = "chrome_suppress_checkbox";
+
 // If there's a text entry in the dialog, get the text from the first one and
 // return it.
 std::wstring GetPromptText(GtkDialog* dialog) {
-  std::wstring text;
-  // TODO(tc): Replace with gtk_dialog_get_content_area() when using GTK 2.14+
-  GtkWidget* contents_vbox = dialog->vbox;
-  GList* first_child = gtk_container_get_children(GTK_CONTAINER(contents_vbox));
-  for (GList* item = first_child; item; item = g_list_next(item)) {
-    if (GTK_IS_ENTRY(item->data)) {
-      text = UTF8ToWide(gtk_entry_get_text(GTK_ENTRY(item->data)));
-    }
-  }
-  g_list_free(first_child);
-  return text;
+  GtkWidget* widget = static_cast<GtkWidget*>(
+      g_object_get_data(G_OBJECT(dialog), kPromptTextId));
+  if (widget)
+    return UTF8ToWide(gtk_entry_get_text(GTK_ENTRY(widget)));
+  return std::wstring();
+}
+
+// If there's a toggle button in the dialog, return the toggled state.
+// Otherwise, return false.
+bool ShouldSuppressJSDialogs(GtkDialog* dialog) {
+  GtkWidget* widget = static_cast<GtkWidget*>(
+      g_object_get_data(G_OBJECT(dialog), kSuppressCheckboxId));
+  if (widget)
+    return gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(widget));
+  return false;
 }
 
 void OnDialogResponse(GtkDialog* dialog, gint response_id,
@@ -38,7 +47,8 @@ void OnDialogResponse(GtkDialog* dialog, gint response_id,
     case GTK_RESPONSE_OK:
       // The first arg is the prompt text and the second is true if we want to
       // suppress additional popups from the page.
-      app_modal_dialog->OnAccept(GetPromptText(dialog), false);
+      app_modal_dialog->OnAccept(GetPromptText(dialog),
+                                 ShouldSuppressJSDialogs(dialog));
       break;
 
     case GTK_RESPONSE_CANCEL:
@@ -61,9 +71,11 @@ AppModalDialog::~AppModalDialog() {
 void AppModalDialog::CreateAndShowDialog() {
   GtkButtonsType buttons = GTK_BUTTONS_NONE;
   GtkMessageType message_type = GTK_MESSAGE_OTHER;
+  // We add in the OK button manually later because we want to focus it
+  // explicitly.
   switch (dialog_flags_) {
     case MessageBoxFlags::kIsJavascriptAlert:
-      buttons = GTK_BUTTONS_OK;
+      buttons = GTK_BUTTONS_NONE;
       message_type = GTK_MESSAGE_WARNING;
       break;
 
@@ -73,13 +85,13 @@ void AppModalDialog::CreateAndShowDialog() {
         // buttons.  We add the buttons using gtk_dialog_add_button below.
         buttons = GTK_BUTTONS_NONE;
       } else {
-        buttons = GTK_BUTTONS_OK_CANCEL;
+        buttons = GTK_BUTTONS_CANCEL;
       }
       message_type = GTK_MESSAGE_QUESTION;
       break;
 
     case MessageBoxFlags::kIsJavascriptPrompt:
-      buttons = GTK_BUTTONS_OK_CANCEL;
+      buttons = GTK_BUTTONS_CANCEL;
       message_type = GTK_MESSAGE_QUESTION;
       break;
 
@@ -92,6 +104,27 @@ void AppModalDialog::CreateAndShowDialog() {
       message_type, buttons, "%s", WideToUTF8(message_text_).c_str());
   gtk_window_set_title(GTK_WINDOW(dialog_), WideToUTF8(title_).c_str());
 
+  // Adjust content area as needed.
+  if (MessageBoxFlags::kIsJavascriptPrompt == dialog_flags_) {
+    // TODO(tc): Replace with gtk_dialog_get_content_area() when using GTK 2.14+
+    GtkWidget* contents_vbox = GTK_DIALOG(dialog_)->vbox;
+    GtkWidget* text_box = gtk_entry_new();
+    gtk_entry_set_text(GTK_ENTRY(text_box),
+                       WideToUTF8(default_prompt_text_).c_str());
+    gtk_box_pack_start(GTK_BOX(contents_vbox), text_box, TRUE, TRUE, 0);
+    g_object_set_data(G_OBJECT(dialog_), kPromptTextId, text_box);
+  }
+
+  if (display_suppress_checkbox_) {
+    GtkWidget* contents_vbox = GTK_DIALOG(dialog_)->vbox;
+    GtkWidget* check_box = gtk_check_button_new_with_label(
+        l10n_util::GetStringUTF8(
+            IDS_JAVASCRIPT_MESSAGEBOX_SUPPRESS_OPTION).c_str());
+    gtk_box_pack_start(GTK_BOX(contents_vbox), check_box, TRUE, TRUE, 0);
+    g_object_set_data(G_OBJECT(dialog_), kSuppressCheckboxId, check_box);
+  }
+
+  // Adjust buttons/action area as needed.
   if (is_before_unload_dialog_) {
     std::string button_text = l10n_util::GetStringUTF8(
         IDS_BEFOREUNLOAD_MESSAGEBOX_OK_BUTTON_LABEL);
@@ -102,18 +135,18 @@ void AppModalDialog::CreateAndShowDialog() {
         IDS_BEFOREUNLOAD_MESSAGEBOX_CANCEL_BUTTON_LABEL);
     gtk_dialog_add_button(GTK_DIALOG(dialog_), button_text.c_str(),
                           GTK_RESPONSE_CANCEL);
-  } else if (MessageBoxFlags::kIsJavascriptPrompt == dialog_flags_) {
-    // TODO(tc): Replace with gtk_dialog_get_content_area() when using GTK 2.14+
-    GtkWidget* contents_vbox = GTK_DIALOG(dialog_)->vbox;
-    GtkWidget* text_box = gtk_entry_new();
-    gtk_entry_set_text(GTK_ENTRY(text_box),
-                       WideToUTF8(default_prompt_text_).c_str());
-    gtk_widget_show(text_box);
-    gtk_box_pack_start(GTK_BOX(contents_vbox), text_box, TRUE, TRUE, 0);
+  } else {
+    // Add the OK button and focus it.
+    GtkWidget* ok_button = gtk_dialog_add_button(GTK_DIALOG(dialog_),
+        GTK_STOCK_OK, GTK_RESPONSE_OK);
+    if (MessageBoxFlags::kIsJavascriptPrompt != dialog_flags_)
+      gtk_widget_grab_focus(ok_button);
   }
 
+  gtk_dialog_set_default_response(GTK_DIALOG(dialog_), GTK_RESPONSE_OK);
   g_signal_connect(dialog_, "response", G_CALLBACK(OnDialogResponse), this);
-  gtk_widget_show(GTK_WIDGET(GTK_DIALOG(dialog_)));
+
+  gtk_widget_show_all(GTK_WIDGET(GTK_DIALOG(dialog_)));
 }
 
 void AppModalDialog::ActivateModalDialog() {
