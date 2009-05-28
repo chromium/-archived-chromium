@@ -413,9 +413,7 @@
           ],
           'direct_dependent_settings': {
             'include_dirs': [
-# TODO(ajwong): Enable with the gmock checkin.
-#              'boost_1_36_0/boost/tr1/tr1',
-#              'boost_1_36_0',
+              'boost_1_36_0',
             ],
           },
         }
