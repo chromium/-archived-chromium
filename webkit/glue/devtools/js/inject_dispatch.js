@@ -40,10 +40,23 @@ function devtools$$dispatch(functionName, node, json_args) {
  */
 var dispatch = function(method, var_args) {
   // Handle all messages with non-primitieve arguments here.
-  // TODO(pfeldman): Add more.
   if (method == 'inspectedWindowCleared') {
     return;
   }
-  var call = JSON.stringify(Array.prototype.slice.call(arguments));
+  var args = Array.prototype.slice.call(arguments);
+
+  // Serialize objects here.
+  if (method == 'addMessageToConsole') {
+    // Skip first argument since it is serializable.
+    for (var i = 1; i < args.length; ++i) {
+      var type = typeof args[i];
+      if (type == 'object') {
+        args[i] = Object.prototype.toString(args[i]);
+      } else if (type == 'function') {
+        args[i] = args[i].toString();
+      }
+    }
+  }
+  var call = JSON.stringify(args);
   RemoteWebInspector.dispatch(call);
 };
