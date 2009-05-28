@@ -30,7 +30,7 @@ void DialogResponseCallback(GtkDialog* dialog, gint response,
 void OpenFirstRunDialog(Profile* profile, ProcessSingleton* process_singleton) {
 #if defined(GOOGLE_CHROME_BUILD)
   GtkWidget* dialog = gtk_dialog_new_with_buttons(
-      "Google Chrome Alpha",
+      "Google Chrome Dev Build",
       NULL,  // No parent
       (GtkDialogFlags) (GTK_DIALOG_MODAL | GTK_DIALOG_NO_SEPARATOR),
       GTK_STOCK_OK, GTK_RESPONSE_ACCEPT,

@@ -25,7 +25,7 @@ const char kSentinelFile[] = "First Run";
 // On other platforms de intentionally use a different file name, so
 // when the remainder of this file is implemented, we can switch to
 // the proper file name and users will get the first run interface again.
-const char kSentinelFile[] = "First Run Alpha";
+const char kSentinelFile[] = "First Run Dev";
 #endif
 
 // Gives the full path to the sentinel file. The file might not exist.
@@ -43,7 +43,7 @@ bool GetFirstRunSentinelFilePath(FilePath* path) {
       return false;
   }
 #else
-  // TODO(port): logic as above.  Not important for our "First Run Alpha" file.
+  // TODO(port): logic as above.  Not important for our "First Run Dev" file.
   if (!PathService::Get(chrome::DIR_USER_DATA, &first_run_sentinel))
     return false;
 #endif
