@@ -912,7 +912,7 @@ bool LocationBarView::SkipDefaultKeyEventProcessing(const views::KeyEvent& e) {
 
   case VK_DELETE:
   case VK_INSERT:
-    return !e.IsAltDown() && e.IsShiftDown();
+    return !e.IsAltDown() && e.IsShiftDown() && !e.IsControlDown();
 
   case 'X':
   case 'V':
