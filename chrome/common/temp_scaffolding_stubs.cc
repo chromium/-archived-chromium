@@ -315,7 +315,7 @@ void ShowOptionsWindow(OptionsPage page,
 }
 #endif
 
-#if !defined(TOOLKIT_VIEWS)
+#if defined(OS_MACOSX)
 bool DockInfo::GetNewWindowBounds(gfx::Rect* new_window_bounds,
                                   bool* maximize_new_window) const {
   NOTIMPLEMENTED();
