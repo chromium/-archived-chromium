@@ -29,9 +29,9 @@
       <include name="IDR_MINIMIZE_H" file="minimize_h.png" type="BINDATA" />
       <include name="IDR_MINIMIZE_P" file="minimize_p.png" type="BINDATA" />
 
-      <!-- Frame Theme Images -->
-      <include name="IDR_THEME_FRAME" file="theme_frame_default.png" type="BINDATA" />
-      <include name="IDR_THEME_FRAME_INACTIVE" file="theme_frame_default_inactive.png" type="BINDATA" />
+      <!-- Frame Images -->
+      <include name="IDR_FRAME" file="frame_default.png" type="BINDATA" />
+      <include name="IDR_FRAME_INACTIVE" file="frame_default_inactive.png" type="BINDATA" />
 
       <!-- Frame Edge Images -->
       <include name="IDR_WINDOW_BOTTOM_CENTER" file="window_bottom_center.png" type="BINDATA" />

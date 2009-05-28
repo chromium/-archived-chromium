@@ -299,14 +299,14 @@ void CustomFrameView::PaintRestoredFrameBorder(gfx::Canvas* canvas) {
   // Window frame mode.
   ResourceBundle& rb = ResourceBundle::GetSharedInstance();
 
-  SkBitmap* theme_frame;
+  SkBitmap* frame_image;
   SkColor frame_color;
 
   if (frame_->IsActive()) {
-    theme_frame = rb.GetBitmapNamed(IDR_THEME_FRAME);
+    frame_image = rb.GetBitmapNamed(IDR_FRAME);
     frame_color = ResourceBundle::frame_color;
   } else {
-    theme_frame = rb.GetBitmapNamed(IDR_THEME_FRAME_INACTIVE);
+    frame_image = rb.GetBitmapNamed(IDR_FRAME_INACTIVE);
     frame_color = ResourceBundle::frame_color_inactive;
   }
 
@@ -324,14 +324,14 @@ void CustomFrameView::PaintRestoredFrameBorder(gfx::Canvas* canvas) {
 
   // Fill with the frame color first so we have a constant background for
   // areas not covered by the theme image.
-  canvas->FillRectInt(frame_color, 0, 0, width(), theme_frame->height());
+  canvas->FillRectInt(frame_color, 0, 0, width(), frame_image->height());
   // Now fill down the sides
   canvas->FillRectInt(frame_color,
-      0, theme_frame->height(),
-      left_edge->width(), height() - theme_frame->height());
+      0, frame_image->height(),
+      left_edge->width(), height() - frame_image->height());
   canvas->FillRectInt(frame_color,
-      width() - right_edge->width(), theme_frame->height(),
-      right_edge->width(), height() - theme_frame->height());
+      width() - right_edge->width(), frame_image->height(),
+      right_edge->width(), height() - frame_image->height());
   // Now fill the bottom area.
   canvas->FillRectInt(frame_color,
       left_edge->width(), height() - bottom_edge->height(),
@@ -339,7 +339,7 @@ void CustomFrameView::PaintRestoredFrameBorder(gfx::Canvas* canvas) {
       bottom_edge->height());
 
   // Draw the theme frame.
-  canvas->TileImageInt(*theme_frame, 0, 0, width(), theme_frame->height());
+  canvas->TileImageInt(*frame_image, 0, 0, width(), frame_image->height());
 
   // Top.
   canvas->DrawBitmapInt(*top_left_corner, 0, 0);
@@ -376,12 +376,12 @@ void CustomFrameView::PaintMaximizedFrameBorder(
     gfx::Canvas* canvas) {
   ResourceBundle& rb = ResourceBundle::GetSharedInstance();
 
-  SkBitmap* theme_frame = frame_->IsActive() ?
-        rb.GetBitmapNamed(IDR_THEME_FRAME) :
-        rb.GetBitmapNamed(IDR_THEME_FRAME_INACTIVE);
+  SkBitmap* frame_image = frame_->IsActive() ?
+        rb.GetBitmapNamed(IDR_FRAME) :
+        rb.GetBitmapNamed(IDR_FRAME_INACTIVE);
 
-  canvas->TileImageInt(*theme_frame, 0, FrameBorderThickness(), width(),
-                       theme_frame->height());
+  canvas->TileImageInt(*frame_image, 0, FrameBorderThickness(), width(),
+                       frame_image->height());
 
   // The bottom of the titlebar actually comes from the top of the Client Edge
   // graphic, with the actual client edge clipped off the bottom.

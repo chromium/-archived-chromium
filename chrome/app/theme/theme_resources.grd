@@ -248,6 +248,8 @@
       <include name="IDR_O2_STAR_SELECTED_DARK" file="o2_star_selected_dark.png" type="BINDATA" />
       <include name="IDR_CLOSED_WINDOW" file="closed_window.png" type="BINDATA" />
 
+      <include name="IDR_THEME_FRAME" file="theme_frame_default.png" type="BINDATA" />
+      <include name="IDR_THEME_FRAME_INACTIVE" file="theme_frame_default_inactive.png" type="BINDATA" />
       <include name="IDR_THEME_FRAME_INCOGNITO" file="theme_frame_default_incognito.png" type="BINDATA" />
       <include name="IDR_THEME_FRAME_INCOGNITO_INACTIVE" file="theme_frame_default_incognito_inactive.png" type="BINDATA" />
       <include name="IDR_THEME_TOOLBAR" file="theme_toolbar_default.png" type="BINDATA" />
