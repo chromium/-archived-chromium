@@ -14,6 +14,11 @@
       'dependencies': [
         '../bspatch/bspatch.gyp:bspatch',
       ],
+      'link_settings': {
+        'libraries': [
+          '-lWs2_32.lib',
+        ],
+      },
       'sources': [
         'mbsdiff.cc',
       ],
