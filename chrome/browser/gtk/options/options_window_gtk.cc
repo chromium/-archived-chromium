@@ -14,6 +14,7 @@
 #include "chrome/common/pref_member.h"
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
+#include "chrome/installer/util/google_update_settings.h"
 #ifdef CHROME_PERSONALIZATION
 #include "chrome/personalization/personalization.h"
 #endif
@@ -211,6 +212,7 @@ void OptionsWindowGtk::LoggingChanged(GtkWidget* metrics) {
                   TRUE);
   g_browser_process->local_state()->SetBoolean(prefs::kMetricsReportingEnabled,
                                                logging);
+  GoogleUpdateSettings::SetCollectStatsConsent(logging);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
