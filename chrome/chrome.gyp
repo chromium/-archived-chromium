@@ -47,7 +47,7 @@
         ['include', '/(views|win)_[^/]*\\.cc$'],
       ]}],
       ['OS=="linux" and toolkit_views==1', {'sources/': [
-        ['include', '/views_[^/]*\\.cc$'],
+        ['include', '_views\\.cc$'],
       ]}],
     ],
   },
@@ -1690,6 +1690,8 @@
                 ['include', '^browser/dock_info.h'],
                 ['include', '^browser/views/bookmark_bar_view.cc'],
                 ['include', '^browser/views/bookmark_bar_view.h'],
+                ['include', '^browser/views/bookmark_context_menu.cc'],
+                ['include', '^browser/views/bookmark_context_menu.h'],
                 ['include', '^browser/views/bookmark_menu_button.cc'],
                 ['include', '^browser/views/bookmark_menu_button.h'],
                 ['include', '^browser/views/bookmark_menu_controller_views.cc'],
