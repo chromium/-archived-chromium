@@ -59,28 +59,27 @@
 medium  2d                                screenshot pdiff_threshold(41200)
 medium  animation
 large   animated-scene                    screenshot timeout(45000) pdiff_threshold(200)
-large   beachdemo/beachdemo               screenshot timeout(120000) pdiff_threshold(15500) except(*iexplore)
+large   beachdemo/beachdemo               screenshot timeout(120000) pdiff_threshold(100) downsample(1) except(*iexplore)
 medium  canvas                            screenshot pdiff_threshold(4700) pdiff_threshold_mac(14600)
 medium  canvas-fonts                      screenshot pdiff_threshold(1100) pdiff_threshold_mac(21900)
 medium  canvas-texturedraw
 medium  checkers                          screenshot pdiff_threshold(1100)
 medium  convolution                       screenshot pdiff_threshold(200)
-medium  culling                           screenshot pdiff_threshold(3400)
+medium  culling                           screenshot pdiff_threshold(1000) downsample(1)
 medium  debugging                         screenshot pdiff_threshold(2000) pdiff_threshold_mac(3000)
 medium  displayfps
-small   generate-texture                  screenshot pdiff_threshold(30000)  except(*iexplore)
+small   generate-texture                  screenshot pdiff_threshold(30000) except(*iexplore)
 medium  hellocube                         screenshot pdiff_threshold(1000)
-medium  hellocube-colors                  screenshot pdiff_threshold(1000)
+medium  hellocube-colors                  screenshot pdiff_threshold(50) downsample(2)
 medium  helloworld                        screenshot pdiff_threshold(900)
 medium  hud-2d-overlay                    screenshot pdiff_threshold(11300) pdiff_threshold_win(39800)
 medium  instance-override                 screenshot pdiff_threshold(10500)
 medium  instancing                        screenshot pdiff_threshold(14300)
-medium  juggler                           screenshot
-# NOTE: temporarily disabled while we investigate failures
-# medium  julia                             screenshot
+medium  juggler                           screenshot downsample(1)
+medium  julia                             screenshot
 small   multiple-views                    screenshot pdiff_threshold(1900)
 medium  particles                         screenshot pdiff_threshold(35500)
-medium  primitives                        screenshot pdiff_threshold(17200) pdiff_threshold_mac(20000)
+medium  primitives                        screenshot pdiff_threshold(17200) pdiff_threshold_mac(20000) colorfactor(.7)
 medium  procedural-texture                screenshot pdiff_threshold(1300)
 medium  render-targets                    screenshot pdiff_threshold(1400)
 medium  scatter-chart                     screenshot pdiff_threshold(10100) pdiff_threshold_mac(10600)

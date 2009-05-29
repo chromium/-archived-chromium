@@ -421,10 +421,12 @@ o3djs.simple.SimpleInfo.prototype.createSphere = function(radius,
  * Loads a scene from a URL.
  * TODO: Implement
  * @param {string} url Url of scene to load.
- * @return {!o3djs.simple.Scene} A Javascript object to manage th scene.
+ * @return {!o3djs.simple.Scene} A Javascript object to manage the scene.
  */
 o3djs.simple.SimpleInfo.prototype.loadScene = function(url) {
-  throw('not implemented');
+  if (true) {
+    throw('not implemented');
+  }
   return null;
 };
 

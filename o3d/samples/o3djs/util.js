@@ -310,7 +310,7 @@ o3djs.util.requiredVersionAvailable = function(requiredVersion) {
   var haveParts = version.split('.');
   var requiredParts = requiredVersion.split('.');
   if (requiredParts.length > 4) {
-    throw RangeError('requiredVersion has more than 4 parts!');
+    throw Error('requiredVersion has more than 4 parts!');
   }
   for (var pp = 0; pp < requiredParts.length; ++pp) {
     var have = parseInt(haveParts[pp], 10);
@@ -511,7 +511,6 @@ o3djs.util.getElementContentById = function(id) {
       throw 'getElementContentById does not no how to get content from a ' +
           node.tagName + ' element';
   }
-  return node.value;
 };
 
 /**

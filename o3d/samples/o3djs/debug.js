@@ -387,7 +387,7 @@ o3djs.debug.createLineSphereVertices = function(radius,
                                                 subdivisionsHeight,
                                                 opt_matrix) {
   if (subdivisionsAxis <= 0 || subdivisionsHeight <= 0) {
-    throw RangeError('subdivisionAxis and subdivisionHeight must be > 0');
+    throw Error('subdivisionAxis and subdivisionHeight must be > 0');
   }
 
   // We are going to generate our sphere by iterating through its
@@ -474,8 +474,19 @@ o3djs.debug.createLineSphere = function(pack,
  *     this line belongs too.
  */
 o3djs.debug.DebugLine = function(debugLineGroup) {
+  /**
+   * The DebugLineGroup this DebugLine is managed by.
+   * @private
+   * @type {!o3djs.debug.DebugLineGroup}
+   */
   this.debugLineGroup_ = debugLineGroup;
   var pack = debugLineGroup.getPack();
+
+  /**
+   * The transform for this DebugLine.
+   * @private
+   * @type {!o3d.Transform}
+   */
   this.transform_ = pack.createObject('Transform');
   this.transform_.name = O3D_DEBUG_LINE_SHAPE_NAME;
   this.transform_.addShape(debugLineGroup.getLineShape());

@@ -703,7 +703,7 @@ o3djs.primitives.createSphereVertices = function(radius,
                                                  subdivisionsHeight,
                                                  opt_matrix) {
   if (subdivisionsAxis <= 0 || subdivisionsHeight <= 0) {
-    throw RangeError('subdivisionAxis and subdivisionHeight must be > 0');
+    throw Error('subdivisionAxis and subdivisionHeight must be > 0');
   }
 
   // We are going to generate our sphere by iterating through its
@@ -1016,7 +1016,7 @@ o3djs.primitives.createDiscVertices = function(radius,
                                                opt_stackPower,
                                                opt_matrix) {
   if (divisions < 3) {
-    throw RangeError('divisions must be at least 3');
+    throw Error('divisions must be at least 3');
   }
 
   var stacks = opt_stacks ? opt_stacks : 1;
@@ -1148,11 +1148,11 @@ o3djs.primitives.createCylinderVertices = function(radius,
                                                    verticalSubdivisions,
                                                    opt_matrix) {
   if (radialSubdivisions < 1) {
-    throw RangeError('radialSubdivisions must be 1 or greater');
+    throw Error('radialSubdivisions must be 1 or greater');
   }
 
   if (verticalSubdivisions < 1) {
-    throw RangeError('verticalSubdivisions must be 1 or greater');
+    throw Error('verticalSubdivisions must be 1 or greater');
   }
 
   var vertexInfo = o3djs.primitives.createVertexInfo();
@@ -1417,7 +1417,7 @@ o3djs.primitives.createPrismVertices = function(points,
                                                 depth,
                                                 opt_matrix) {
   if (points.length < 3) {
-    throw RangeError('there must be 3 or more points');
+    throw Error('there must be 3 or more points');
   }
 
   var backZ = -0.5 * depth;
@@ -1573,7 +1573,7 @@ o3djs.primitives.createPlaneVertices = function(width,
                                                 subdivisionsDepth,
                                                 opt_matrix) {
   if (subdivisionsWidth <= 0 || subdivisionsDepth <= 0) {
-    throw RangeError('subdivisionWidth and subdivisionDepth must be > 0');
+    throw Error('subdivisionWidth and subdivisionDepth must be > 0');
   }
 
   var vertexInfo = o3djs.primitives.createVertexInfo();
