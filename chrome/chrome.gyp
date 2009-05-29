@@ -1721,6 +1721,8 @@
                 ['include', '^browser/dock_info_gtk.cc'],
                 ['include', '^browser/dock_info.cc'],
                 ['include', '^browser/dock_info.h'],
+                ['include', '^browser/encoding_menu_controller_delegate.cc'],
+                ['include', '^browser/encoding_menu_controller_delegate.h'],
                 ['include', '^browser/views/bookmark_bar_view.cc'],
                 ['include', '^browser/views/bookmark_bar_view.h'],
                 ['include', '^browser/views/bookmark_context_menu.cc'],
@@ -1801,14 +1803,6 @@
               ],
             }],
           ],
-          'conditions': [
-            ['toolkit_views==0',{
-              # Exclude files that only compile on views for non-Windows.
-              'sources/': [
-                ['exclude', '^browser/encoding_menu_controller_delegate.cc'],
-              ],
-            }],
-          ],
           # Exclude files that should be excluded for all non-Windows platforms.
           'sources!': [
             'browser/autocomplete/autocomplete_accessibility.cc',
@@ -1822,6 +1816,7 @@
             'browser/extensions/extension_shelf.cc',
             'browser/dock_info.cc',
             'browser/dom_ui/html_dialog_contents.cc',
+            'browser/encoding_menu_controller_delegate.cc',
             'browser/external_tab_container.cc',
             'browser/google_update.cc',
             'browser/history/history_indexer.idl',
