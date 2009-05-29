@@ -29,7 +29,11 @@
 #include "webkit/glue/context_menu.h"
 
 ExtensionHost::ExtensionHost(Extension* extension, SiteInstance* site_instance)
-    : extension_(extension), view_(NULL), did_stop_loading_(false) {
+    : extension_(extension),
+#if defined(OS_WIN)
+      view_(NULL),
+#endif
+      did_stop_loading_(false) {
   render_view_host_ = new RenderViewHost(
       site_instance, this, MSG_ROUTING_NONE, NULL);
   render_view_host_->AllowExtensionBindings();
@@ -52,8 +56,10 @@ void ExtensionHost::CreateRenderView(const GURL& url,
 }
 
 void ExtensionHost::UpdatePreferredWidth(int pref_width) {
+#if defined(OS_WIN)
   if (view_)
     view_->DidContentsPreferredWidthChange(pref_width);
+#endif
 }
 
 WebPreferences ExtensionHost::GetWebkitPrefs() {
@@ -86,8 +92,10 @@ void ExtensionHost::DidStopLoading(RenderViewHost* render_view_host) {
   render_view_host->WasResized();
   did_stop_loading_ = true;
 
+#if defined(OS_WIN)
   if (view_)
     view_->ShowIfCompletelyLoaded();
+#endif
 }
 
 ExtensionFunctionDispatcher* ExtensionHost::
@@ -158,18 +166,24 @@ void ExtensionHost::HandleKeyboardEvent(const NativeWebKeyboardEvent& event) {
 }
 
 void ExtensionHost::HandleMouseEvent() {
+#if defined(OS_WIN)
   if (view_)
     view_->HandleMouseEvent();
+#endif
 }
 
 void ExtensionHost::HandleMouseLeave() {
+#if defined(OS_WIN)
   if (view_)
     view_->HandleMouseLeave();
+#endif
 }
 
 Browser* ExtensionHost::GetBrowser() {
+#if defined(OS_WIN)
   if (view_)
     return view_->browser();
+#endif
   Browser* browser = BrowserList::GetLastActiveWithProfile(
       render_view_host()->process()->profile());
   // TODO(mpcomplete): what this verifies doesn't actually happen yet.

@@ -27,8 +27,10 @@ class ExtensionHost : public RenderViewHostDelegate,
   ExtensionHost(Extension* extension, SiteInstance* site_instance);
   ~ExtensionHost();
 
+#if defined(OS_WIN)
   void set_view(ExtensionView* view) { view_ = view; }
   ExtensionView* view() const { return view_; }
+#endif
   Extension* extension() { return extension_; }
   RenderViewHost* render_view_host() const { return render_view_host_; }
   SiteInstance* site_instance() const;
@@ -84,8 +86,10 @@ class ExtensionHost : public RenderViewHostDelegate,
   // The extension that we're hosting in this view.
   Extension* extension_;
 
+#if defined(OS_WIN)
   // Optional view that shows the rendered content in the UI.
   ExtensionView* view_;
+#endif
 
   // The host for our HTML content.
   RenderViewHost* render_view_host_;
