@@ -84,7 +84,7 @@ class NativeViewHost : public View {
 
   // A platform-specific wrapper that does the OS-level manipulation of the
   // attached gfx::NativeView.
-  NativeViewHostWrapper* native_wrapper_;
+  scoped_ptr<NativeViewHostWrapper> native_wrapper_;
 
   // The preferred size of this View
   gfx::Size preferred_size_;

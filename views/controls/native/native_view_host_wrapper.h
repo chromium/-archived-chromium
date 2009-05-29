@@ -14,6 +14,8 @@ class NativeViewHost;
 // native view when attached, detached, moved and sized.
 class NativeViewHostWrapper {
  public:
+  virtual ~NativeViewHostWrapper() {}
+
   // Called when a gfx::NativeView has been attached to the associated
   // NativeViewHost, allowing the wrapper to perform platform-specific
   // initialization.

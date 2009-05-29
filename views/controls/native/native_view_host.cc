@@ -19,7 +19,6 @@ const char NativeViewHost::kViewClassName[] = "views/NativeViewHost";
 
 NativeViewHost::NativeViewHost()
     : native_view_(NULL),
-      native_wrapper_(NULL),
       fast_resize_(false),
       focus_view_(NULL) {
   // The native widget is placed relative to the root. As such, we need to
@@ -62,7 +61,7 @@ gfx::Size NativeViewHost::GetPreferredSize() {
 }
 
 void NativeViewHost::Layout() {
-  if (!native_view_ || !native_wrapper_)
+  if (!native_view_ || !native_wrapper_.get())
     return;
 
   // Since widgets know nothing about the View hierarchy (they are direct
@@ -75,7 +74,7 @@ void NativeViewHost::Layout() {
   gfx::Rect vis_bounds = GetVisibleBounds();
   bool visible = !vis_bounds.IsEmpty();
 
-  if (visible && !fast_resize_ && native_wrapper_) {
+  if (visible && !fast_resize_) {
     if (vis_bounds.size() != size()) {
       // Only a portion of the Widget is really visible.
       int x = vis_bounds.x();
@@ -118,8 +117,8 @@ void NativeViewHost::VisibleBoundsInRootChanged() {
 void NativeViewHost::ViewHierarchyChanged(bool is_add, View* parent,
                                           View* child) {
   if (is_add && GetWidget()) {
-    if (!native_wrapper_)
-      native_wrapper_ = NativeViewHostWrapper::CreateWrapper(this);  
+    if (!native_wrapper_.get())
+      native_wrapper_.reset(NativeViewHostWrapper::CreateWrapper(this));
     native_wrapper_->AddedToWidget();
   } else if (!is_add) {
     native_wrapper_->RemovedFromWidget();
