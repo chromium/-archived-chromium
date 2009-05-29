@@ -130,7 +130,7 @@ void FindBarGtk::InitWidgets() {
   gtk_widget_set_size_request(widget(), -1, 0);
 
   close_button_.reset(CustomDrawButton::CloseButton());
-  gtk_util::CenterWidgetInHBox(hbox, close_button_->widget(), false,
+  gtk_util::CenterWidgetInHBox(hbox, close_button_->widget(), true,
                                kCloseButtonPaddingLeft);
   g_signal_connect(G_OBJECT(close_button_->widget()), "clicked",
                    G_CALLBACK(OnClicked), this);
