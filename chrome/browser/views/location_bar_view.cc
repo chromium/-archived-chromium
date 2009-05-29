@@ -4,6 +4,8 @@
 
 #include "chrome/browser/views/location_bar_view.h"
 
+#include "build/build_config.h"
+
 #include "app/gfx/canvas.h"
 #include "app/gfx/favicon_size.h"
 #include "app/l10n_util.h"
@@ -40,6 +42,9 @@
 #include "app/win_util.h"
 #include "chrome/browser/views/first_run_bubble.h"
 #include "chrome/browser/views/page_info_window.h"
+#else
+#include "base/gfx/gtk_util.h"
+#include "chrome/browser/gtk/location_bar_view_gtk.h"
 #endif
 
 using views::View;
@@ -51,6 +56,14 @@ const SkColor LocationBarView::kBackgroundColorByLevel[] = {
   SkColorSetRGB(255, 255, 255),  // SecurityLevel NORMAL: White.
   SkColorSetRGB(255, 255, 255),  // SecurityLevel INSECURE: White.
 };
+#if defined(OS_LINUX)
+// static
+const GdkColor LocationBarViewGtk::kBackgroundColorByLevel[3] = {
+  GDK_COLOR_RGB(255, 245, 195),  // SecurityLevel SECURE: Yellow.
+  GDK_COLOR_RGB(255, 255, 255),  // SecurityLevel NORMAL: White.
+  GDK_COLOR_RGB(255, 255, 255),  // SecurityLevel INSECURE: White.
+};
+#endif
 
 // Padding on the right and left of the entry field.
 static const int kEntryPadding = 3;

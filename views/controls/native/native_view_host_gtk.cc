@@ -130,6 +130,10 @@ void NativeViewHostGtk::InstallClip(int x, int y, int w, int h) {
   installed_clip_ = true;
 }
 
+bool NativeViewHostGtk::HasInstalledClip() {
+  return installed_clip_;
+}
+
 void NativeViewHostGtk::UninstallClip() {
   gtk_widget_shape_combine_mask(host_->native_view(), NULL, 0, 0);
   installed_clip_ = false;
