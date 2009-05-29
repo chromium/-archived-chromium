@@ -4,6 +4,10 @@
 
 #include "net/base/cert_verifier.h"
 
+#if defined(OS_LINUX)
+#include <private/pprthred.h>  // PR_DetatchThread
+#endif
+
 #include "base/message_loop.h"
 #include "base/worker_pool.h"
 #include "net/base/cert_verify_result.h"
@@ -36,6 +40,16 @@ class CertVerifier::Request :
   void DoVerify() {
     // Running on the worker thread
     error_ = cert_->Verify(hostname_, rev_checking_enabled_, &result_);
+#if defined(OS_LINUX)
+    // Detach the thread from NSPR.
+    // Calling NSS functions attaches the thread to NSPR, which stores
+    // the NSPR thread ID in thread-specific data.
+    // The threads in our thread pool terminate after we have called
+    // PR_Cleanup.  Unless we detach them from NSPR, net_unittests gets
+    // segfaults on shutdown when the threads' thread-specific data
+    // destructors run.
+    PR_DetachThread();
+#endif
 
     Task* reply = NewRunnableMethod(this, &Request::DoCallback);
 
