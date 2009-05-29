@@ -24,8 +24,8 @@ class ThumbnailStore {
   ~ThumbnailStore();
 
   // Must be called after creation but before other methods are called.
-  // file_path is where a new database should be created or the
-  // location of an existing databse.
+  // file_path is a directory where a new database should be created
+  // or the location of an existing databse.
   // If false is returned, no other methods should be called.
   bool Init(const FilePath& file_path);
 
@@ -39,12 +39,19 @@ class ThumbnailStore {
   // Returns false if there is not data for the given url or some other
   // error occurred.
   bool GetPageThumbnail(const GURL& url,
-                        SkBitmap* thumbnail,
-                        ThumbnailScore* score);
+                        SkBitmap** thumbnail,
+                        ThumbnailScore& score);
 
  private:
   // The location of the thumbnail store.
   FilePath file_path_;
+
+  // Pack the given ThumbnailScore into the given Pickle.
+  void PackScore(const ThumbnailScore& score, Pickle& packed);
+
+  // Unpack a ThumbnailScore from a given Pickle and associated iterator.
+  // Returns false is a ThumbnailScore could not be unpacked.
+  bool UnpackScore(ThumbnailScore* score, const Pickle& packed, void*& iter);
 
   DISALLOW_COPY_AND_ASSIGN(ThumbnailStore);
 };
