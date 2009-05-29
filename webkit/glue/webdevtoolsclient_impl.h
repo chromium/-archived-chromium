@@ -38,12 +38,17 @@ class WebDevToolsClientImpl : public WebDevToolsClient,
   virtual ~WebDevToolsClientImpl();
 
   // DevToolsRpc::Delegate implementation.
-  virtual void SendRpcMessage(const std::string& raw_msg);
+  virtual void SendRpcMessage(const std::string& class_name,
+                              const std::string& method_name,
+                              const std::string& raw_msg);
 
   // WebDevToolsClient implementation.
-  virtual void DispatchMessageFromAgent(const std::string& raw_msg);
+  virtual void DispatchMessageFromAgent(const std::string& class_name,
+                                        const std::string& method_name,
+                                        const std::string& raw_msg);
 
  private:
+  void ExecuteScript(const std::string& expr);
   static v8::Handle<v8::Value> JsAddSourceToFrame(const v8::Arguments& args);
   static v8::Handle<v8::Value> JsLoaded(const v8::Arguments& args);
   static v8::Handle<v8::Value> JsActivateWindow(const v8::Arguments& args);

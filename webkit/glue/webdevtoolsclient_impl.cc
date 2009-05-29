@@ -122,18 +122,31 @@ WebDevToolsClientImpl::~WebDevToolsClientImpl() {
 }
 
 void WebDevToolsClientImpl::DispatchMessageFromAgent(
-    const std::string& raw_msg) {
+      const std::string& class_name,
+      const std::string& method_name,
+      const std::string& raw_msg) {
+  std::string expr = StringPrintf(
+      "devtools.dispatch('%s','%s',%s)",
+      class_name.c_str(),
+      method_name.c_str(),
+      raw_msg.c_str());
   if (!loaded_) {
-    pending_incoming_messages_.append(raw_msg);
+    pending_incoming_messages_.append(expr);
     return;
   }
-  std::string expr = StringPrintf("devtools.dispatch(%s)", raw_msg.c_str());
+  ExecuteScript(expr);
+}
+
+void WebDevToolsClientImpl::ExecuteScript(const std::string& expr) {
   web_view_impl_->GetMainFrame()->ExecuteScript(
       WebScriptSource(WebString::fromUTF8(expr)));
 }
 
-void WebDevToolsClientImpl::SendRpcMessage(const std::string& raw_msg) {
-  delegate_->SendMessageToAgent(raw_msg);
+
+void WebDevToolsClientImpl::SendRpcMessage(const std::string& class_name,
+                                           const std::string& method_name,
+                                           const std::string& raw_msg) {
+  delegate_->SendMessageToAgent(class_name, method_name, raw_msg);
 }
 
 // static
@@ -180,7 +193,7 @@ v8::Handle<v8::Value> WebDevToolsClientImpl::JsLoaded(
            client->pending_incoming_messages_.begin();
        it != client->pending_incoming_messages_.end();
        ++it) {
-    client->DispatchMessageFromAgent(*it);
+    client->ExecuteScript(*it);
   }
   client->pending_incoming_messages_.clear();
   return v8::Undefined();

@@ -81,7 +81,9 @@ class DevToolsClientHostImpl : public DevToolsClientHost {
 
  private:
   // Message handling routines
-  void OnRpcMessage(const std::string& msg);
+  void OnRpcMessage(const std::string& class_name,
+                    const std::string& message_name,
+                    const std::string& msg);
   void DebuggerOutput(const std::string& msg);
   void FrameNavigate(const std::string& url);
   void TabClosed();

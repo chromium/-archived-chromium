@@ -37,8 +37,10 @@ bool DevToolsClient::OnMessageReceived(const IPC::Message& message) {
   return handled;
 }
 
-void DevToolsClient::SendMessageToAgent(const std::string& raw_msg) {
-  Send(DevToolsAgentMsg_RpcMessage(raw_msg));
+void DevToolsClient::SendMessageToAgent(const std::string& class_name,
+                                        const std::string& method_name,
+                                        const std::string& raw_msg) {
+  Send(DevToolsAgentMsg_RpcMessage(class_name, method_name, raw_msg));
 }
 
 void DevToolsClient::SendDebuggerCommandToAgent(const std::string& command) {
@@ -49,6 +51,8 @@ void DevToolsClient::ActivateWindow() {
   render_view_->TakeFocus(render_view_->webview(), false);
 }
 
-void DevToolsClient::OnRpcMessage(const std::string& raw_msg) {
-  web_tools_client_->DispatchMessageFromAgent(raw_msg);
+void DevToolsClient::OnRpcMessage(const std::string& class_name,
+                                  const std::string& method_name,
+                                  const std::string& raw_msg) {
+  web_tools_client_->DispatchMessageFromAgent(class_name, method_name, raw_msg);
 }

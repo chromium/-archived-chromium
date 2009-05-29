@@ -231,10 +231,13 @@ void WebDevToolsAgentImpl::GetResourceContent(
 }
 
 void WebDevToolsAgentImpl::DispatchMessageFromClient(
+    const std::string& class_name,
+    const std::string& method_name,
     const std::string& raw_msg) {
   OwnPtr<ListValue> message(
       static_cast<ListValue*>(DevToolsRpc::ParseMessage(raw_msg)));
-  if (ToolsAgentDispatch::Dispatch(this, *message.get())) {
+  if (ToolsAgentDispatch::Dispatch(
+      this, class_name, method_name, *message.get())) {
     return;
   }
 
@@ -244,12 +247,13 @@ void WebDevToolsAgentImpl::DispatchMessageFromClient(
 
   if (debugger_agent_impl_.get() &&
       DebuggerAgentDispatch::Dispatch(
-          debugger_agent_impl_.get(),
+          debugger_agent_impl_.get(), class_name, method_name,
           *message.get())) {
     return;
   }
 
-  if (DomAgentDispatch::Dispatch(dom_agent_impl_.get(), *message.get())) {
+  if (DomAgentDispatch::Dispatch(
+      dom_agent_impl_.get(), class_name, method_name, *message.get())) {
     return;
   }
 }
@@ -264,8 +268,11 @@ void WebDevToolsAgentImpl::InspectElement(int x, int y) {
   tools_agent_delegate_stub_->UpdateFocusedNode(node_id);
 }
 
-void WebDevToolsAgentImpl::SendRpcMessage(const std::string& raw_msg) {
-  delegate_->SendMessageToClient(raw_msg);
+void WebDevToolsAgentImpl::SendRpcMessage(
+    const std::string& class_name,
+    const std::string& method_name,
+    const std::string& raw_msg) {
+  delegate_->SendMessageToClient(class_name, method_name, raw_msg);
 }
 
 // static

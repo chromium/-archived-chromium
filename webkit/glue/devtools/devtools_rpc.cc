@@ -20,8 +20,10 @@ DevToolsRpc::DevToolsRpc(Delegate* delegate) : delegate_(delegate) {
 DevToolsRpc::~DevToolsRpc() {
 }
 
-void DevToolsRpc::SendValueMessage(const Value& value) {
-  delegate_->SendRpcMessage(Serialize(value));
+void DevToolsRpc::SendValueMessage(const std::string& class_name,
+                                   const std::string& method_name,
+                                   const Value& value) {
+  delegate_->SendRpcMessage(class_name, method_name, Serialize(value));
 }
 
 // static

@@ -174,7 +174,7 @@ if (method_name == #Method) { \
 #define TOOLS_RPC_DISPATCH1(Method, T1) \
 if (method_name == #Method) { \
   RpcTypeTrait<T1>::DispatchType t1; \
-  DevToolsRpc::GetListValue(message, 2, &t1); \
+  DevToolsRpc::GetListValue(message, 0, &t1); \
   delegate->Method( \
       RpcTypeTrait<T1>::Pass(t1)); \
   return true; \
@@ -184,8 +184,8 @@ if (method_name == #Method) { \
 if (method_name == #Method) { \
   RpcTypeTrait<T1>::DispatchType t1; \
   RpcTypeTrait<T2>::DispatchType t2; \
-  DevToolsRpc::GetListValue(message, 2, &t1); \
-  DevToolsRpc::GetListValue(message, 3, &t2); \
+  DevToolsRpc::GetListValue(message, 0, &t1); \
+  DevToolsRpc::GetListValue(message, 1, &t2); \
   delegate->Method( \
       RpcTypeTrait<T1>::Pass(t1), \
       RpcTypeTrait<T2>::Pass(t2) \
@@ -198,9 +198,9 @@ if (method_name == #Method) { \
   RpcTypeTrait<T1>::DispatchType t1; \
   RpcTypeTrait<T2>::DispatchType t2; \
   RpcTypeTrait<T3>::DispatchType t3; \
-  DevToolsRpc::GetListValue(message, 2, &t1); \
-  DevToolsRpc::GetListValue(message, 3, &t2); \
-  DevToolsRpc::GetListValue(message, 4, &t3); \
+  DevToolsRpc::GetListValue(message, 0, &t1); \
+  DevToolsRpc::GetListValue(message, 1, &t2); \
+  DevToolsRpc::GetListValue(message, 2, &t3); \
   delegate->Method( \
       RpcTypeTrait<T1>::Pass(t1), \
       RpcTypeTrait<T2>::Pass(t2), \
@@ -215,10 +215,10 @@ if (method_name == #Method) { \
   RpcTypeTrait<T2>::DispatchType t2; \
   RpcTypeTrait<T3>::DispatchType t3; \
   RpcTypeTrait<T4>::DispatchType t4; \
-  DevToolsRpc::GetListValue(message, 2, &t1); \
-  DevToolsRpc::GetListValue(message, 3, &t2); \
-  DevToolsRpc::GetListValue(message, 4, &t3); \
-  DevToolsRpc::GetListValue(message, 5, &t4); \
+  DevToolsRpc::GetListValue(message, 0, &t1); \
+  DevToolsRpc::GetListValue(message, 1, &t2); \
+  DevToolsRpc::GetListValue(message, 2, &t3); \
+  DevToolsRpc::GetListValue(message, 3, &t4); \
   delegate->Method( \
       RpcTypeTrait<T1>::Pass(t1), \
       RpcTypeTrait<T2>::Pass(t2), \
@@ -273,20 +273,22 @@ class Class##Dispatch { \
   Class##Dispatch() {} \
   virtual ~Class##Dispatch() {} \
   \
-  static bool Dispatch(Class* delegate, const std::string& raw_msg) { \
+  static bool Dispatch(Class* delegate, \
+                       const std::string& class_name, \
+                       const std::string& method_name, \
+                       const std::string& raw_msg) { \
     OwnPtr<ListValue> message( \
         static_cast<ListValue*>(DevToolsRpc::ParseMessage(raw_msg))); \
-    return Dispatch(delegate, *message.get()); \
+    return Dispatch(delegate, class_name, method_name, *message.get()); \
   } \
   \
-  static bool Dispatch(Class* delegate, const ListValue& message) { \
-    std::string class_name; \
-    message.GetString(0, &class_name); \
+  static bool Dispatch(Class* delegate, \
+                       const std::string& class_name, \
+                       const std::string& method_name, \
+                       const ListValue& message) { \
     if (class_name != #Class) { \
       return false; \
     } \
-    std::string method_name; \
-    message.GetString(1, &method_name); \
     typedef Class CLASS; \
     STRUCT( \
         TOOLS_RPC_DISPATCH0, \
@@ -308,7 +310,9 @@ class DevToolsRpc {
    public:
     Delegate() {}
     virtual ~Delegate() {}
-    virtual void SendRpcMessage(const std::string& msg) = 0;
+    virtual void SendRpcMessage(const std::string& class_name,
+                                const std::string& method_name,
+                                const std::string& raw_msg) = 0;
    private:
     DISALLOW_COPY_AND_ASSIGN(Delegate);
   };
@@ -320,9 +324,7 @@ class DevToolsRpc {
       const std::string& class_name,
       const std::string& method_name) {
     ListValue message;
-    message.Append(CreateValue(&class_name));
-    message.Append(CreateValue(&method_name));
-    SendValueMessage(message);
+    SendValueMessage(class_name, method_name, message);
   }
 
   template<typename T1>
@@ -331,10 +333,8 @@ class DevToolsRpc {
       const std::string& method_name,
       T1 t1) {
     ListValue message;
-    message.Append(CreateValue(&class_name));
-    message.Append(CreateValue(&method_name));
     message.Append(CreateValue(t1));
-    SendValueMessage(message);
+    SendValueMessage(class_name, method_name, message);
   }
 
   template<typename T1, typename T2>
@@ -343,11 +343,9 @@ class DevToolsRpc {
       const std::string& method_name,
       T1 t1, T2 t2) {
     ListValue message;
-    message.Append(CreateValue(&class_name));
-    message.Append(CreateValue(&method_name));
     message.Append(CreateValue(t1));
     message.Append(CreateValue(t2));
-    SendValueMessage(message);
+    SendValueMessage(class_name, method_name, message);
   }
 
   template<typename T1, typename T2, typename T3>
@@ -356,12 +354,10 @@ class DevToolsRpc {
       const std::string& method_name,
       T1 t1, T2 t2, T3 t3) {
     ListValue message;
-    message.Append(CreateValue(&class_name));
-    message.Append(CreateValue(&method_name));
     message.Append(CreateValue(t1));
     message.Append(CreateValue(t2));
     message.Append(CreateValue(t3));
-    SendValueMessage(message);
+    SendValueMessage(class_name, method_name, message);
   }
 
   template<typename T1, typename T2, typename T3, typename T4>
@@ -370,13 +366,11 @@ class DevToolsRpc {
       const std::string& method_name,
       T1 t1, T2 t2, T3 t3, T4 t4) {
     ListValue message;
-    message.Append(CreateValue(&class_name));
-    message.Append(CreateValue(&method_name));
     message.Append(CreateValue(t1));
     message.Append(CreateValue(t2));
     message.Append(CreateValue(t3));
     message.Append(CreateValue(t4));
-    SendValueMessage(message);
+    SendValueMessage(class_name, method_name, message);
   }
 
   static Value* ParseMessage(const std::string& raw_msg);
@@ -405,7 +399,9 @@ class DevToolsRpc {
   static Value* CreateValue(bool* value);
   static Value* CreateValue(const Value* value);
 
-  void SendValueMessage(const Value& value);
+  void SendValueMessage(const std::string& class_name,
+                        const std::string& method_name,
+                        const Value& value);
 
   Delegate* delegate_;
   DISALLOW_COPY_AND_ASSIGN(DevToolsRpc);

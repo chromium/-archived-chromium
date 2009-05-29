@@ -52,21 +52,28 @@ class DevToolsRpcTests : public testing::Test {
 TEST_F(DevToolsRpcTests, TestSerialize) {
   MockTestRpcClass mock;
   mock.Method0();
-  EXPECT_EQ("[\"TestRpcClass\",\"Method0\"]", mock.get_log());
+  EXPECT_EQ("TestRpcClass", mock.last_class_name());
+  EXPECT_EQ("Method0", mock.last_method_name());
+  EXPECT_EQ("[]", mock.last_msg());
   mock.Reset();
 
   mock.Method1(10);
-  EXPECT_EQ("[\"TestRpcClass\",\"Method1\",10]", mock.get_log());
+  EXPECT_EQ("TestRpcClass", mock.last_class_name());
+  EXPECT_EQ("Method1", mock.last_method_name());
+  EXPECT_EQ("[10]", mock.last_msg());
   mock.Reset();
 
   mock.Method2(20, "foo");
-  EXPECT_EQ("[\"TestRpcClass\",\"Method2\",20,\"foo\"]", mock.get_log());
+  EXPECT_EQ("TestRpcClass", mock.last_class_name());
+  EXPECT_EQ("Method2", mock.last_method_name());
+  EXPECT_EQ("[20,\"foo\"]", mock.last_msg());
   mock.Reset();
 
   StringValue value("bar");
   mock.Method3(30, "foo", value);
-  EXPECT_EQ("[\"TestRpcClass\",\"Method3\",30,\"foo\",\"bar\"]",
-      mock.get_log());
+  EXPECT_EQ("TestRpcClass", mock.last_class_name());
+  EXPECT_EQ("Method3", mock.last_method_name());
+  EXPECT_EQ("[30,\"foo\",\"bar\"]", mock.last_msg());
   mock.Reset();
 }
 
@@ -82,7 +89,8 @@ TEST_F(DevToolsRpcTests, TestDispatch) {
   remote.Method0();
   remote.Replay();
 
-  TestRpcClassDispatch::Dispatch(&remote, local.get_log());
+  TestRpcClassDispatch::Dispatch(&remote, local.last_class_name(),
+                                 local.last_method_name(), local.last_msg());
   remote.Verify();
 
   // Call 2.
@@ -91,7 +99,8 @@ TEST_F(DevToolsRpcTests, TestDispatch) {
   remote.Reset();
   remote.Method1(10);
   remote.Replay();
-  TestRpcClassDispatch::Dispatch(&remote, local.get_log());
+  TestRpcClassDispatch::Dispatch(&remote, local.last_class_name(),
+                                 local.last_method_name(), local.last_msg());
   remote.Verify();
 
   // Call 3.
@@ -101,7 +110,8 @@ TEST_F(DevToolsRpcTests, TestDispatch) {
   remote.Method2(20, "foo");
 
   remote.Replay();
-  TestRpcClassDispatch::Dispatch(&remote, local.get_log());
+  TestRpcClassDispatch::Dispatch(&remote, local.last_class_name(),
+                                 local.last_method_name(), local.last_msg());
   remote.Verify();
 
   // Call 4.
@@ -112,7 +122,8 @@ TEST_F(DevToolsRpcTests, TestDispatch) {
   remote.Method3(30, "foo", value);
 
   remote.Replay();
-  TestRpcClassDispatch::Dispatch(&remote, local.get_log());
+  TestRpcClassDispatch::Dispatch(&remote, local.last_class_name(),
+                                 local.last_method_name(), local.last_msg());
   remote.Verify();
 }
 

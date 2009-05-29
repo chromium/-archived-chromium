@@ -15,12 +15,12 @@ goog.require('devtools.DomAgent');
 
 /**
  * Dispatches raw message from the host.
+ * @param {string} remoteName
+ * @prama {string} methodName
  * @param {Object} msg Message to dispatch.
  */
-devtools.dispatch = function(msg) {
-  var delegate = msg[0];
-  var methodName = msg[1];
-  var remoteName = 'Remote' + delegate.substring(0, delegate.length - 8);
+devtools.dispatch = function(remoteName, methodName, msg) {
+  remoteName = 'Remote' + remoteName.substring(0, remoteName.length - 8);
   var agent = window[remoteName];
   if (!agent) {
     debugPrint('No remote agent "' + remoteName + '" found.');
@@ -31,7 +31,7 @@ devtools.dispatch = function(msg) {
     debugPrint('No method "' + remoteName + '.' + methodName + '" found.');
     return;
   }
-  method.apply(this, msg.slice(2));
+  method.apply(this, msg);
 };
 
 

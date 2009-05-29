@@ -22,31 +22,67 @@ class DevToolsMockRpc : public DevToolsRpc::Delegate {
   DevToolsMockRpc() {}
   ~DevToolsMockRpc() {}
 
-  virtual void SendRpcMessage(const std::string& msg) {
+  virtual void SendRpcMessage(const std::string& class_name,
+                              const std::string& method_name,
+                              const std::string& msg) {
+    last_class_name_ = class_name;
+    last_method_name_ = method_name;
+    last_msg_ = msg;
+
     if (!log_.length()) {
-      log_ = msg;
+      log_ = StringPrintf("%s %s %s", class_name.c_str(),
+                          method_name.c_str(), msg.c_str());;
     } else {
-      log_ = StringPrintf("%s\n%s", log_.c_str(), msg.c_str());
+      log_ = StringPrintf("%s\n%s %s %s", log_.c_str(), class_name.c_str(),
+                          method_name.c_str(), msg.c_str());
     }
   }
 
   void Replay() {
+    ref_last_class_name_ = last_class_name_;
+    last_class_name_ = "";
+    ref_last_method_name_ = last_method_name_;
+    last_method_name_ = "";
+    ref_last_msg_ = last_msg_;
+    last_msg_ = "";
+
     ref_log_ = log_;
     log_ = "";
   }
 
   void Verify() {
+    ASSERT_EQ(ref_last_class_name_, last_class_name_);
+    ASSERT_EQ(ref_last_method_name_, last_method_name_);
+    ASSERT_EQ(ref_last_msg_, last_msg_);
     ASSERT_EQ(ref_log_, log_);
   }
 
   void Reset() {
+    last_class_name_ = "";
+    last_method_name_ = "";
+    last_msg_ = "";
+
+    ref_last_class_name_ = "";
+    ref_last_method_name_ = "";
+    ref_last_msg_ = "";
+
     ref_log_ = "";
     log_ = "";
   }
 
-  const std::string &get_log() { return log_; }
+  const std::string& last_class_name() { return last_class_name_; }
+  const std::string& last_method_name() { return last_method_name_; }
+  const std::string& last_msg() { return last_msg_; }
 
  private:
+  std::string last_class_name_;
+  std::string last_method_name_;
+  std::string last_msg_;
+
+  std::string ref_last_class_name_;
+  std::string ref_last_method_name_;
+  std::string ref_last_msg_;
+
   std::string log_;
   std::string ref_log_;
   DISALLOW_COPY_AND_ASSIGN(DevToolsMockRpc);

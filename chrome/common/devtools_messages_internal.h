@@ -49,8 +49,10 @@
 IPC_BEGIN_MESSAGES(DevToolsClient)
 
   // Sends glue-level Rpc message to the client.
-  IPC_MESSAGE_CONTROL1(DevToolsClientMsg_RpcMessage,
-                       std::string  /* raw_msg */)
+  IPC_MESSAGE_CONTROL3(DevToolsClientMsg_RpcMessage,
+                       std::string /* class_name */,
+                       std::string /* method_name */,
+                       std::string /* raw_msg */)
 
 IPC_END_MESSAGES(DevToolsClient)
 
@@ -67,8 +69,10 @@ IPC_BEGIN_MESSAGES(DevToolsAgent)
   IPC_MESSAGE_CONTROL0(DevToolsAgentMsg_Detach)
 
   // Sends glue-level Rpc message to the agent.
-  IPC_MESSAGE_CONTROL1(DevToolsAgentMsg_RpcMessage,
-                       std::string  /* raw_msg */)
+  IPC_MESSAGE_CONTROL3(DevToolsAgentMsg_RpcMessage,
+                       std::string /* class_name */,
+                       std::string /* method_name */,
+                       std::string /* raw_msg */)
 
   // Send debugger command to the debugger agent. Debugger commands should
   // be handled on IO thread(while all other devtools messages are handled in

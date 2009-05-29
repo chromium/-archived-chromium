@@ -58,11 +58,15 @@ class WebDevToolsAgentImpl
   // WebDevToolsAgent implementation.
   virtual void Attach();
   virtual void Detach();
-  virtual void DispatchMessageFromClient(const std::string& raw_msg);
+  virtual void DispatchMessageFromClient(const std::string& class_name,
+                                         const std::string& method_name,
+                                         const std::string& raw_msg);
   virtual void InspectElement(int x, int y);
 
   // DevToolsRpc::Delegate implementation.
-  void SendRpcMessage(const std::string& raw_msg);
+  void SendRpcMessage(const std::string& class_name,
+                      const std::string& method_name,
+                      const std::string& raw_msg);
 
   // Methods called by the glue.
   void SetMainFrameDocumentReady(bool ready);

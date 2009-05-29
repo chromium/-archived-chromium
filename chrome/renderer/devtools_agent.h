@@ -30,7 +30,9 @@ class DevToolsAgent : public WebDevToolsAgentDelegate {
   virtual bool OnMessageReceived(const IPC::Message& message);
 
   // WebDevToolsAgentDelegate implementation
-  virtual void SendMessageToClient(const std::string& raw_msg);
+  virtual void SendMessageToClient(const std::string& class_name,
+                                   const std::string& method_name,
+                                   const std::string& raw_msg);
   virtual int GetHostId();
   virtual void ForceRepaint();
 
@@ -46,7 +48,9 @@ class DevToolsAgent : public WebDevToolsAgentDelegate {
 
   void OnAttach();
   void OnDetach();
-  void OnRpcMessage(const std::string& raw_msg);
+  void OnRpcMessage(const std::string& class_name,
+                    const std::string& method_name,
+                    const std::string& raw_msg);
   void OnInspectElement(int x, int y);
 
   static std::map<int, DevToolsAgent*> agent_for_routing_id_;

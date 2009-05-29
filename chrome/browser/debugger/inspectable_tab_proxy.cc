@@ -36,7 +36,9 @@ void DevToolsClientHostImpl::SendMessageToClient(
   IPC_END_MESSAGE_MAP()
 }
 
-void DevToolsClientHostImpl::OnRpcMessage(const std::string& msg) {
+void DevToolsClientHostImpl::OnRpcMessage(const std::string& class_name,
+                                          const std::string& message_name,
+                                          const std::string& msg) {
   static const std::string kDebuggerAgentDelegate = "DebuggerAgentDelegate";
   static const std::string kToolsAgentDelegate = "ToolsAgentDelegate";
   static const std::string kDebuggerOutput = "DebuggerOutput";
@@ -48,18 +50,14 @@ void DevToolsClientHostImpl::OnRpcMessage(const std::string& msg) {
     return;
   }
   ListValue* list_msg = static_cast<ListValue*>(message.get());
-  std::string class_name;
-  list_msg->GetString(0, &class_name);
-  std::string message_name;
-  list_msg->GetString(1, &message_name);
   if (class_name == kDebuggerAgentDelegate && message_name == kDebuggerOutput) {
     std::string str;
-    list_msg->GetString(2, &str);
+    list_msg->GetString(0, &str);
     DebuggerOutput(str);
   } else if (class_name == kToolsAgentDelegate &&
              message_name == kFrameNavigate) {
     std::string url;
-    list_msg->GetString(2, &url);
+    list_msg->GetString(0, &url);
     FrameNavigate(url);
   }
 }
