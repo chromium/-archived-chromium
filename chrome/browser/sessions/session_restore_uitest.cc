@@ -84,8 +84,6 @@ class SessionRestoreUITest : public UITest {
   DISALLOW_COPY_AND_ASSIGN(SessionRestoreUITest);
 };
 
-}  // namespace
-
 TEST_F(SessionRestoreUITest, Basic) {
   NavigateToURL(url1_);
   NavigateToURL(url2_);
@@ -414,3 +412,5 @@ TEST_F(SessionRestoreUITest, ShareProcessesOnRestore) {
   ASSERT_EQ(expected_process_count, GetBrowserProcessCount());
 }
 #endif
+
+}  // namespace
