@@ -420,6 +420,10 @@ void NativeTextfieldWin::OnKeyDown(TCHAR key, UINT repeat_count, UINT flags) {
       return;
 
     case VK_INSERT:
+      // Ignore insert by itself, so we don't turn overtype mode on/off.
+      if (!(flags & KF_ALTDOWN) && (GetKeyState(VK_SHIFT) >= 0) &&
+          (GetKeyState(VK_CONTROL) >= 0))
+        return;
     case 'V':
       if ((flags & KF_ALTDOWN) ||
           (GetKeyState((key == 'V') ? VK_CONTROL : VK_SHIFT) >= 0))
