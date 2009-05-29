@@ -104,10 +104,10 @@ class Widget {
   // Get the theme provider.
   virtual ThemeProvider* GetThemeProvider() const { return NULL; }
 
-  // Get the dialog theme provider; this is necessary for when a dialog has
-  // no profile (and ThemeProvider) associated with it. The dialog theme
-  // provider provides a default set of bitmaps that such dialogs can use.
-  virtual ThemeProvider* GetDialogThemeProvider() { return NULL; }
+  // Get the default theme provider; this is necessary for when a widget has
+  // no profile (and ThemeProvider) associated with it. The default theme
+  // provider provides a default set of bitmaps that such widgets can use.
+  virtual ThemeProvider* GetDefaultThemeProvider() { return NULL; }
 };
 
 }  // namespace views

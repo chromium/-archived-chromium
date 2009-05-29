@@ -396,7 +396,13 @@ TooltipManager* WidgetWin::GetTooltipManager() {
 ThemeProvider* WidgetWin::GetThemeProvider() const {
   Widget* widget = GetRootWidget();
   if (widget) {
-    ThemeProvider* provider = widget->GetDialogThemeProvider();
+    // Attempt to get the theme provider, and fall back to the default theme
+    // provider if not found.
+    ThemeProvider* provider = widget->GetThemeProvider();
+    if (provider)
+      return provider;
+
+    provider = widget->GetDefaultThemeProvider();
     if (provider)
       return provider;
   }
