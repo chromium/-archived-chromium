@@ -119,9 +119,8 @@ void WidgetGtk::Init(GtkWidget* parent,
                    G_CALLBACK(CallButtonPress), NULL);
   g_signal_connect(G_OBJECT(child_widget_parent_), "button_release_event",
                    G_CALLBACK(CallButtonRelease), NULL);
-  // TODO(sky): this crashes, fix it!
-  //  g_signal_connect(G_OBJECT(child_widget_parent_), "grab_broke_event",
-  // G_CALLBACK(CallGrabBrokeEvent), NULL);
+  g_signal_connect(G_OBJECT(child_widget_parent_), "grab_broken_event",
+                   G_CALLBACK(CallGrabBrokeEvent), NULL);
   g_signal_connect(G_OBJECT(child_widget_parent_), "grab_notify",
                    G_CALLBACK(CallGrabNotify), NULL);
   g_signal_connect(G_OBJECT(child_widget_parent_), "focus_out_event",
