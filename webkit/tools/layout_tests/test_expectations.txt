@@ -2572,12 +2572,8 @@ BUG11613 WIN : LayoutTests/http/tests/navigation/javascriptlink-frames.html = FA
 // These ones seem to be mask/opacity-related:
 BUG12002 WIN LINUX : LayoutTests/fast/reflections/reflection-masks-opacity.html = FAIL
 BUG12002 WIN LINUX : LayoutTests/fast/reflections/reflection-masks.html = FAIL
-BUG12002 WIN LINUX : LayoutTests/svg/W3C-SVG-1.1/pservers-grad-16-b.svg = FAIL
-BUG12002 WIN : LayoutTests/svg/custom/gradient-stop-corner-cases.svg = FAIL
 BUG12002 WIN DEBUG : LayoutTests/svg/custom/grayscale-gradient-mask.svg = FAIL
 BUG12002 LINUX : LayoutTests/svg/custom/circular-marker-reference-3.svg = FAIL
-// This one seems to have patterned stroke issues:
-BUG12003 WIN : LayoutTests/svg/custom/js-late-gradient-and-object-creation.svg = FAIL
 // This one is flaky on Linux
 BUG12004 LINUX : LayoutTests/svg/custom/js-late-marker-creation.svg = FAIL PASS
 
@@ -2660,3 +2656,22 @@ BUG12477 : LayoutTests/http/tests/security/drag-over-remote-content-iframe.html 
 BUG12753 : LayoutTests/fast/dynamic/window-resize-scrollbars-test.html = FAIL
 BUG12753 : LayoutTests/fast/dynamic/window-scrollbars-test.html = FAIL
 
+// WebKit 44202:44252 introduced new crashes
+BUG12860 : LayoutTests/http/tests/security/cross-frame-access-document-direct.html = CRASH
+BUG12860 : LayoutTests/http/tests/security/listener/xss-window-onclick-shortcut.html = CRASH
+BUG12860 : LayoutTests/http/tests/xmlhttprequest/event-listener-gc.html = CRASH
+BUG12860 : LayoutTests/http/tests/xmlhttprequest/infoOnProgressEvent.html = CRASH
+BUG12860 : LayoutTests/http/tests/xmlhttprequest/uri-resolution-opera-open-007.html = CRASH
+BUG12860 : LayoutTests/http/tests/xmlhttprequest/web-apps/003.html = CRASH
+
+// WebKit 44202:44252 introduced new tests
+BUG12881 : LayoutTests/fast/js/string-replace-exception-crash.html = FAIL
+BUG12881 : LayoutTests/fast/forms/isindex-placeholder.html = FAIL
+BUG12881 : LayoutTests/fast/box-shadow/border-radius-big.html = FAIL
+BUG12881 : LayoutTests/fast/borders/border-radius-constraints.html = FAIL
+BUG12881 : LayoutTests/fast/borders/border-radius-huge-assert.html = FAIL
+BUG12881 : LayoutTests/fast/borders/border-radius-split-inline.html = FAIL
+
+// WebKit 44202:44252 introduced new failures (old tests)
+BUG12882 : LayoutTests/fast/dom/HTMLObjectElement/object-as-frame.html = FAIL
+BUG12882 : LayoutTests/fast/box-shadow/basic-shadows.html = FAIL
