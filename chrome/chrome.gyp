@@ -3405,32 +3405,10 @@
       ],
     }],
     ['OS=="mac"',
-      # On Mac only, add a project target called "package_app" that only
-      # runs a shell script (package_chrome.sh).
       # On Mac only, add a project target called "build_app_dmg" that only
       # builds a DMG out of the App (eventually will completely replace
       # "package_app").
       { 'targets': [
-        {
-          'target_name': 'package_app',
-          # do NOT place this in the 'all' list; most won't want it.
-          # In gyp, booleans are 0/1 not True/False.
-          'suppress_wildcard': 1,
-          'type': 'none',
-          'dependencies': [
-            'app',
-            '../breakpad/breakpad.gyp:dump_syms',
-            '../breakpad/breakpad.gyp:symupload',
-          ],
-          'actions': [
-            {
-              'inputs': [],
-              'outputs': [],
-              'action_name': 'package_chrome',
-              'action': ['tools/mac/package_chrome.sh' ],
-            },
-          ],  # 'actions'
-        },
         {
           'target_name': 'build_app_dmg',
           # do NOT place this in the 'all' list; most won't want it.
