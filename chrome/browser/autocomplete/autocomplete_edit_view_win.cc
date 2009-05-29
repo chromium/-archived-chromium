@@ -1665,7 +1665,8 @@ bool AutocompleteEditViewWin::OnKeyDownOnlyWritable(TCHAR key,
       // FALL THROUGH
     case VK_UP:
     case VK_DOWN:
-      if (flags & KF_ALTDOWN)
+      // Ignore alt + numpad, but treat alt + (non-numpad) like (non-numpad).
+      if ((flags & KF_ALTDOWN) && !(flags & KF_EXTENDED))
         return false;
 
       model_->OnUpOrDownKeyPressed(((key == VK_PRIOR) || (key == VK_UP)) ?
