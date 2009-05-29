@@ -159,12 +159,22 @@ void Textfield::SyncText() {
 
 // static
 bool Textfield::IsKeystrokeEnter(const Keystroke& key) {
+#if defined(OS_WIN)
   return key.key == VK_RETURN;
+#else
+  NOTIMPLEMENTED();
+  return false;
+#endif
 }
 
 // static
 bool Textfield::IsKeystrokeEscape(const Keystroke& key) {
+#if defined(OS_WIN)
   return key.key == VK_ESCAPE;
+#else
+  NOTIMPLEMENTED();
+  return false;
+#endif
 }
 
 ////////////////////////////////////////////////////////////////////////////////
