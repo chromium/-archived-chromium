@@ -32,13 +32,12 @@
 """Unit tests for Crocodile."""
 
 import os
-import re
-import sys
 import StringIO
 import unittest
 import croc
 
 #------------------------------------------------------------------------------
+
 
 class TestCoverageStats(unittest.TestCase):
   """Tests for croc.CoverageStats."""
@@ -53,23 +52,24 @@ class TestCoverageStats(unittest.TestCase):
     # Add items
     c['a'] = 1
     c['b'] = 0
-    self.assertEqual(c, {'a':1, 'b':0})
+    self.assertEqual(c, {'a': 1, 'b': 0})
 
     # Add dict with non-overlapping items
-    c.Add({'c':5})
-    self.assertEqual(c, {'a':1, 'b':0, 'c':5})
+    c.Add({'c': 5})
+    self.assertEqual(c, {'a': 1, 'b': 0, 'c': 5})
 
     # Add dict with overlapping items
-    c.Add({'a':4, 'd':3})
-    self.assertEqual(c, {'a':5, 'b':0, 'c':5, 'd':3})
+    c.Add({'a': 4, 'd': 3})
+    self.assertEqual(c, {'a': 5, 'b': 0, 'c': 5, 'd': 3})
 
 #------------------------------------------------------------------------------
+
 
 class TestCoveredFile(unittest.TestCase):
   """Tests for croc.CoveredFile."""
 
   def setUp(self):
-    self.cov_file = croc.CoveredFile('bob.cc', 'source', 'C++')
+    self.cov_file = croc.CoveredFile('bob.cc', group='source', language='C++')
 
   def testInit(self):
     """Test init."""
@@ -77,62 +77,75 @@ class TestCoveredFile(unittest.TestCase):
 
     # Check initial values
     self.assertEqual(f.filename, 'bob.cc')
-    self.assertEqual(f.group, 'source')
-    self.assertEqual(f.language, 'C++')
+    self.assertEqual(f.attrs, {'group': 'source', 'language': 'C++'})
     self.assertEqual(f.lines, {})
     self.assertEqual(f.stats, {})
+    self.assertEqual(f.local_path, None)
+    self.assertEqual(f.in_lcov, False)
 
   def testUpdateCoverageEmpty(self):
     """Test updating coverage when empty."""
     f = self.cov_file
     f.UpdateCoverage()
     self.assertEqual(f.stats, {
-        'lines_executable':0,
-        'lines_instrumented':0,
-        'lines_covered':0,
-        'files_executable':1,
+        'lines_executable': 0,
+        'lines_instrumented': 0,
+        'lines_covered': 0,
+        'files_executable': 1,
     })
 
   def testUpdateCoverageExeOnly(self):
     """Test updating coverage when no lines are instrumented."""
     f = self.cov_file
-    f.lines = {1:None, 2:None, 4:None}
+    f.lines = {1: None, 2: None, 4: None}
     f.UpdateCoverage()
     self.assertEqual(f.stats, {
-        'lines_executable':3,
-        'lines_instrumented':0,
-        'lines_covered':0,
-        'files_executable':1,
+        'lines_executable': 3,
+        'lines_instrumented': 0,
+        'lines_covered': 0,
+        'files_executable': 1,
+    })
+
+    # Now mark the file instrumented via in_lcov
+    f.in_lcov = True
+    f.UpdateCoverage()
+    self.assertEqual(f.stats, {
+        'lines_executable': 3,
+        'lines_instrumented': 0,
+        'lines_covered': 0,
+        'files_executable': 1,
+        'files_instrumented': 1,
     })
 
   def testUpdateCoverageExeAndInstr(self):
     """Test updating coverage when no lines are covered."""
     f = self.cov_file
-    f.lines = {1:None, 2:None, 4:0, 5:0, 7:None}
+    f.lines = {1: None, 2: None, 4: 0, 5: 0, 7: None}
     f.UpdateCoverage()
     self.assertEqual(f.stats, {
-        'lines_executable':5,
-        'lines_instrumented':2,
-        'lines_covered':0,
-        'files_executable':1,
-        'files_instrumented':1,
+        'lines_executable': 5,
+        'lines_instrumented': 2,
+        'lines_covered': 0,
+        'files_executable': 1,
+        'files_instrumented': 1,
     })
 
   def testUpdateCoverageWhenCovered(self):
     """Test updating coverage when lines are covered."""
     f = self.cov_file
-    f.lines = {1:None, 2:None, 3:1, 4:0, 5:0, 6:1, 7:None}
+    f.lines = {1: None, 2: None, 3: 1, 4: 0, 5: 0, 6: 1, 7: None}
     f.UpdateCoverage()
     self.assertEqual(f.stats, {
-        'lines_executable':7,
-        'lines_instrumented':4,
-        'lines_covered':2,
-        'files_executable':1,
-        'files_instrumented':1,
-        'files_covered':1,
+        'lines_executable': 7,
+        'lines_instrumented': 4,
+        'lines_covered': 2,
+        'files_executable': 1,
+        'files_instrumented': 1,
+        'files_covered': 1,
     })
 
 #------------------------------------------------------------------------------
+
 
 class TestCoveredDir(unittest.TestCase):
   """Tests for croc.CoveredDir."""
@@ -148,12 +161,12 @@ class TestCoveredDir(unittest.TestCase):
     self.assertEqual(d.dirpath, '/a/b/c')
     self.assertEqual(d.files, {})
     self.assertEqual(d.subdirs, {})
-    self.assertEqual(d.stats_by_group, {'all':{}})
+    self.assertEqual(d.stats_by_group, {'all': {}})
 
   def testGetTreeEmpty(self):
     """Test getting empty tree."""
     d = self.cov_dir
-    self.assertEqual(d.GetTree(), '/a/b/c/')
+    self.assertEqual(d.GetTree(), 'c/')
 
   def testGetTreeStats(self):
     """Test getting tree with stats."""
@@ -165,8 +178,9 @@ class TestCoveredDir(unittest.TestCase):
     d.stats_by_group['foo'] = croc.CoverageStats(
         lines_executable=33, lines_instrumented=22, lines_covered=11)
     # 'bar' group is skipped because it has no executable lines
-    self.assertEqual(d.GetTree(),
-        '/a/b/c/                          all:20/30/50   foo:11/22/33')
+    self.assertEqual(
+        d.GetTree(),
+        'c/                               all:20/30/50   foo:11/22/33')
 
   def testGetTreeSubdir(self):
     """Test getting tree with subdirs."""
@@ -175,12 +189,12 @@ class TestCoveredDir(unittest.TestCase):
     d3 = self.cov_dir = croc.CoveredDir('/a/c')
     d4 = self.cov_dir = croc.CoveredDir('/a/b/d')
     d5 = self.cov_dir = croc.CoveredDir('/a/b/e')
-    d1.subdirs = {'/a/b':d2, '/a/c':d3}
-    d2.subdirs = {'/a/b/d':d4, '/a/b/e':d5}
-    self.assertEqual(d1.GetTree(),
-                     '/a/\n  /a/b/\n    /a/b/d/\n    /a/b/e/\n  /a/c/')
+    d1.subdirs = {'/a/b': d2, '/a/c': d3}
+    d2.subdirs = {'/a/b/d': d4, '/a/b/e': d5}
+    self.assertEqual(d1.GetTree(), 'a/\n  b/\n    d/\n    e/\n  c/')
 
 #------------------------------------------------------------------------------
+
 
 class TestCoverage(unittest.TestCase):
   """Tests for croc.Coverage."""
@@ -197,8 +211,24 @@ class TestCoverage(unittest.TestCase):
     self.mock_walk_calls.append(src_dir)
     return self.mock_walk_return
 
+  def MockScanFile(self, filename, language):
+    """Mock for croc_scan.ScanFile().
+
+    Args:
+      filename: Path to file to scan.
+      language: Language for file.
+
+    Returns:
+      A list of executable lines.
+    """
+    self.mock_scan_calls.append([filename, language])
+    if filename in self.mock_scan_return:
+      return self.mock_scan_return[filename]
+    else:
+      return self.mock_scan_return['default']
+
   def setUp(self):
-    """Per-test setup"""
+    """Per-test setup."""
 
     # Empty coverage object
     self.cov = croc.Coverage()
@@ -207,13 +237,17 @@ class TestCoverage(unittest.TestCase):
     self.cov_minimal = croc.Coverage()
     self.cov_minimal.AddRoot('/src')
     self.cov_minimal.AddRoot('c:\\source')
-    self.cov_minimal.AddRule('^#/', include=1, group='my')
+    self.cov_minimal.AddRule('^_/', include=1, group='my')
     self.cov_minimal.AddRule('.*\\.c$', language='C')
-    self.cov_minimal.AddRule('.*\\.c##$', language='C##') # sharper than thou
+    self.cov_minimal.AddRule('.*\\.c##$', language='C##')  # sharper than thou
 
     # Data for MockWalk()
     self.mock_walk_calls = []
     self.mock_walk_return = []
+
+    # Data for MockScanFile()
+    self.mock_scan_calls = []
+    self.mock_scan_return = {'default': [1]}
 
   def testInit(self):
     """Test init."""
@@ -221,12 +255,7 @@ class TestCoverage(unittest.TestCase):
     self.assertEqual(c.files, {})
     self.assertEqual(c.root_dirs, [])
     self.assertEqual(c.print_stats, [])
-
-    # Check for the initial subdir rule
-    self.assertEqual(len(c.rules), 1)
-    r0 = c.rules[0]
-    self.assertEqual(r0[0].pattern, '.*/$')
-    self.assertEqual(r0[1:], [None, None, 'subdir'])
+    self.assertEqual(c.rules, [])
 
   def testAddRoot(self):
     """Test AddRoot() and CleanupFilename()."""
@@ -255,90 +284,107 @@ class TestCoverage(unittest.TestCase):
                      c.CleanupFilename(os.path.abspath('../../a/b/c')))
 
     # Replace alt roots
-    c.AddRoot('foo', '#')
-    self.assertEqual(c.CleanupFilename('foo'), '#')
-    self.assertEqual(c.CleanupFilename('foo/bar/baz'), '#/bar/baz')
+    c.AddRoot('foo')
+    self.assertEqual(c.CleanupFilename('foo'), '_')
+    self.assertEqual(c.CleanupFilename('foo/bar/baz'), '_/bar/baz')
     self.assertEqual(c.CleanupFilename('aaa/foo'), 'aaa/foo')
 
     # Alt root replacement is applied for all roots
-    c.AddRoot('foo/bar', '#B')
-    self.assertEqual(c.CleanupFilename('foo/bar/baz'), '#B/baz')
+    c.AddRoot('foo/bar', '_B')
+    self.assertEqual(c.CleanupFilename('foo/bar/baz'), '_B/baz')
 
     # Can use previously defined roots in cleanup
-    c.AddRoot('#/nom/nom/nom', '#CANHAS')
+    c.AddRoot('_/nom/nom/nom', '_CANHAS')
     self.assertEqual(c.CleanupFilename('foo/nom/nom/nom/cheezburger'),
-                     '#CANHAS/cheezburger')
+                     '_CANHAS/cheezburger')
 
     # Verify roots starting with UNC paths or drive letters work, and that
     # more than one root can point to the same alt_name
-    c.AddRoot('/usr/local/foo', '#FOO')
-    c.AddRoot('D:\\my\\foo', '#FOO')
-    self.assertEqual(c.CleanupFilename('/usr/local/foo/a/b'), '#FOO/a/b')
-    self.assertEqual(c.CleanupFilename('D:\\my\\foo\\c\\d'), '#FOO/c/d')
+    c.AddRoot('/usr/local/foo', '_FOO')
+    c.AddRoot('D:\\my\\foo', '_FOO')
+    self.assertEqual(c.CleanupFilename('/usr/local/foo/a/b'), '_FOO/a/b')
+    self.assertEqual(c.CleanupFilename('D:\\my\\foo\\c\\d'), '_FOO/c/d')
+
+    # Cannot specify a blank alt_name
+    self.assertRaises(ValueError, c.AddRoot, 'some_dir', '')
 
   def testAddRule(self):
     """Test AddRule() and ClassifyFile()."""
     c = self.cov
 
     # With only the default rule, nothing gets kept
-    self.assertEqual(c.ClassifyFile('#/src/'), (None, None))
-    self.assertEqual(c.ClassifyFile('#/src/a.c'), (None, None))
+    self.assertEqual(c.ClassifyFile('_/src/'), {})
+    self.assertEqual(c.ClassifyFile('_/src/a.c'), {})
 
     # Add rules to include a tree and set a default group
-    c.AddRule('^#/src/', include=1, group='source')
-    # Now the subdir matches, but source doesn't, since no languages are
-    # defined yet
-    self.assertEqual(c.ClassifyFile('#/src/'), ('source', 'subdir'))
-    self.assertEqual(c.ClassifyFile('#/notsrc/'), (None, None))
-    self.assertEqual(c.ClassifyFile('#/src/a.c'), (None, None))
+    c.AddRule('^_/src/', include=1, group='source')
+    self.assertEqual(c.ClassifyFile('_/src/'),
+                     {'include': 1, 'group': 'source'})
+    self.assertEqual(c.ClassifyFile('_/notsrc/'), {})
+    self.assertEqual(c.ClassifyFile('_/src/a.c'),
+                     {'include': 1, 'group': 'source'})
 
     # Define some languages and groups
     c.AddRule('.*\\.(c|h)$', language='C')
     c.AddRule('.*\\.py$', language='Python')
     c.AddRule('.*_test\\.', group='test')
-    self.assertEqual(c.ClassifyFile('#/src/a.c'), ('source', 'C'))
-    self.assertEqual(c.ClassifyFile('#/src/a.h'), ('source', 'C'))
-    self.assertEqual(c.ClassifyFile('#/src/a.cpp'), (None, None))
-    self.assertEqual(c.ClassifyFile('#/src/a_test.c'), ('test', 'C'))
-    self.assertEqual(c.ClassifyFile('#/src/test_a.c'), ('source', 'C'))
-    self.assertEqual(c.ClassifyFile('#/src/foo/bar.py'), ('source', 'Python'))
-    self.assertEqual(c.ClassifyFile('#/src/test.py'), ('source', 'Python'))
+    self.assertEqual(c.ClassifyFile('_/src/a.c'),
+                     {'include': 1, 'group': 'source', 'language': 'C'})
+    self.assertEqual(c.ClassifyFile('_/src/a.h'),
+                     {'include': 1, 'group': 'source', 'language': 'C'})
+    self.assertEqual(c.ClassifyFile('_/src/a.cpp'),
+                     {'include': 1, 'group': 'source'})
+    self.assertEqual(c.ClassifyFile('_/src/a_test.c'),
+                     {'include': 1, 'group': 'test', 'language': 'C'})
+    self.assertEqual(c.ClassifyFile('_/src/test_a.c'),
+                     {'include': 1, 'group': 'source', 'language': 'C'})
+    self.assertEqual(c.ClassifyFile('_/src/foo/bar.py'),
+                     {'include': 1, 'group': 'source', 'language': 'Python'})
+    self.assertEqual(c.ClassifyFile('_/src/test.py'),
+                     {'include': 1, 'group': 'source', 'language': 'Python'})
 
     # Exclude a path (for example, anything in a build output dir)
     c.AddRule('.*/build/', include=0)
     # But add back in a dir which matched the above rule but isn't a build
     # output dir
-    c.AddRule('#/src/tools/build/', include=1)
-    self.assertEqual(c.ClassifyFile('#/src/build.c'), ('source', 'C'))
-    self.assertEqual(c.ClassifyFile('#/src/build/'), (None, None))
-    self.assertEqual(c.ClassifyFile('#/src/build/a.c'), (None, None))
-    self.assertEqual(c.ClassifyFile('#/src/tools/build/'), ('source', 'subdir'))
-    self.assertEqual(c.ClassifyFile('#/src/tools/build/t.c'), ('source', 'C'))
+    c.AddRule('_/src/tools/build/', include=1)
+    self.assertEqual(c.ClassifyFile('_/src/build.c').get('include'), 1)
+    self.assertEqual(c.ClassifyFile('_/src/build/').get('include'), 0)
+    self.assertEqual(c.ClassifyFile('_/src/build/a.c').get('include'), 0)
+    self.assertEqual(c.ClassifyFile('_/src/tools/build/').get('include'), 1)
+    self.assertEqual(c.ClassifyFile('_/src/tools/build/t.c').get('include'), 1)
 
   def testGetCoveredFile(self):
     """Test GetCoveredFile()."""
     c = self.cov_minimal
 
     # Not currently any covered files
-    self.assertEqual(c.GetCoveredFile('#/a.c'), None)
+    self.assertEqual(c.GetCoveredFile('_/a.c'), None)
 
     # Add some files
-    a_c = c.GetCoveredFile('#/a.c', add=True)
-    b_c = c.GetCoveredFile('#/b.c##', add=True)
-    self.assertEqual(a_c.filename, '#/a.c')
-    self.assertEqual(a_c.group, 'my')
-    self.assertEqual(a_c.language, 'C')
-    self.assertEqual(b_c.filename, '#/b.c##')
-    self.assertEqual(b_c.group, 'my')
-    self.assertEqual(b_c.language, 'C##')
+    a_c = c.GetCoveredFile('_/a.c', add=True)
+    b_c = c.GetCoveredFile('_/b.c##', add=True)
+    self.assertEqual(a_c.filename, '_/a.c')
+    self.assertEqual(a_c.attrs, {'include': 1, 'group': 'my', 'language': 'C'})
+    self.assertEqual(b_c.filename, '_/b.c##')
+    self.assertEqual(b_c.attrs,
+                     {'include': 1, 'group': 'my', 'language': 'C##'})
 
     # Specifying the same filename should return the existing object
-    self.assertEqual(c.GetCoveredFile('#/a.c'), a_c)
-    self.assertEqual(c.GetCoveredFile('#/a.c', add=True), a_c)
+    self.assertEqual(c.GetCoveredFile('_/a.c'), a_c)
+    self.assertEqual(c.GetCoveredFile('_/a.c', add=True), a_c)
 
     # Filenames get cleaned on the way in, as do root paths
     self.assertEqual(c.GetCoveredFile('/src/a.c'), a_c)
     self.assertEqual(c.GetCoveredFile('c:\\source\\a.c'), a_c)
+
+    # TODO: Make sure that covered files require language, group, and include
+    # (since that checking is now done in GetCoveredFile() rather than
+    # ClassifyFile())
+
+  def testRemoveCoveredFile(self):
+    """Test RemoveCoveredFile()."""
+    # TODO: TEST ME!
 
   def testParseLcov(self):
     """Test ParseLcovData()."""
@@ -350,7 +396,7 @@ class TestCoverage(unittest.TestCase):
         'SF:/src/a.c',
         'DA:10,1',
         'DA:11,0',
-        'DA:12,1   \n', # Trailing whitespace should get stripped
+        'DA:12,1   \n',  # Trailing whitespace should get stripped
         'end_of_record',
         # File we should ignore
         'SF:/not_src/a.c',
@@ -368,13 +414,16 @@ class TestCoverage(unittest.TestCase):
         'SF:/src/b.c',
         'DA:50,0',
         'end_of_record',
+        # Empty file (instrumented but no executable lines)
+        'SF:c:\\source\\c.c',
+        'end_of_record',
     ])
 
-    # We should know about two files
-    self.assertEqual(sorted(c.files), ['#/a.c', '#/b.c'])
+    # We should know about three files
+    self.assertEqual(sorted(c.files), ['_/a.c', '_/b.c', '_/c.c'])
 
     # Check expected contents
-    a_c = c.GetCoveredFile('#/a.c')
+    a_c = c.GetCoveredFile('_/a.c')
     self.assertEqual(a_c.lines, {10: 1, 11: 0, 12: 1, 30: 1})
     self.assertEqual(a_c.stats, {
         'files_executable': 1,
@@ -384,7 +433,9 @@ class TestCoverage(unittest.TestCase):
         'lines_executable': 4,
         'lines_covered': 3,
     })
-    b_c = c.GetCoveredFile('#/b.c')
+    self.assertEqual(a_c.in_lcov, True)
+
+    b_c = c.GetCoveredFile('_/b.c')
     self.assertEqual(b_c.lines, {50: 0})
     self.assertEqual(b_c.stats, {
         'files_executable': 1,
@@ -393,6 +444,23 @@ class TestCoverage(unittest.TestCase):
         'lines_executable': 1,
         'lines_covered': 0,
     })
+    self.assertEqual(b_c.in_lcov, True)
+
+    c_c = c.GetCoveredFile('_/c.c')
+    self.assertEqual(c_c.lines, {})
+    self.assertEqual(c_c.stats, {
+        'files_executable': 1,
+        'files_instrumented': 1,
+        'lines_instrumented': 0,
+        'lines_executable': 0,
+        'lines_covered': 0,
+    })
+    self.assertEqual(c_c.in_lcov, True)
+
+    # TODO: Test that files are marked as instrumented if they come from lcov,
+    # even if they don't have any instrumented lines.  (and that in_lcov is set
+    # for those files - probably should set that via some method rather than
+    # directly...)
 
   def testGetStat(self):
     """Test GetStat() and PrintStat()."""
@@ -413,10 +481,10 @@ class TestCoverage(unittest.TestCase):
     }
 
     # Test missing stats and groups
-    self.assertRaises(croc.CoverageStatError, c.GetStat, 'nosuch')
-    self.assertRaises(croc.CoverageStatError, c.GetStat, 'baz')
-    self.assertRaises(croc.CoverageStatError, c.GetStat, 'foo', group='tests')
-    self.assertRaises(croc.CoverageStatError, c.GetStat, 'foo', group='nosuch')
+    self.assertRaises(croc.CrocStatError, c.GetStat, 'nosuch')
+    self.assertRaises(croc.CrocStatError, c.GetStat, 'baz')
+    self.assertRaises(croc.CrocStatError, c.GetStat, 'foo', group='tests')
+    self.assertRaises(croc.CrocStatError, c.GetStat, 'foo', group='nosuch')
 
     # Test returning defaults
     self.assertEqual(c.GetStat('nosuch', default=13), 13)
@@ -434,13 +502,13 @@ class TestCoverage(unittest.TestCase):
     self.assertEqual(c.GetStat('100.0 * count_a / count_b', group='tests'),
                      40.0)
     # Should catch eval errors
-    self.assertRaises(croc.CoverageStatError, c.GetStat, '100 / 0')
-    self.assertRaises(croc.CoverageStatError, c.GetStat, 'count_a -')
+    self.assertRaises(croc.CrocStatError, c.GetStat, '100 / 0')
+    self.assertRaises(croc.CrocStatError, c.GetStat, 'count_a -')
 
     # Test nested stats via S()
     self.assertEqual(c.GetStat('count_a - S("count_a", group="tests")'), 8)
-    self.assertRaises(croc.CoverageStatError, c.GetStat, 'S()')
-    self.assertRaises(croc.CoverageStatError, c.GetStat, 'S("nosuch")')
+    self.assertRaises(croc.CrocStatError, c.GetStat, 'S()')
+    self.assertRaises(croc.CrocStatError, c.GetStat, 'S("nosuch")')
 
     # Test PrintStat()
     # We won't see the first print, but at least verify it doesn't assert
@@ -476,14 +544,14 @@ GetStat('nosuch') = 42
     c.AddConfig("""{
         'roots' : [
           {'root' : '/foo'},
-          {'root' : '/bar', 'altname' : '#BAR'},
+          {'root' : '/bar', 'altname' : 'BAR'},
         ],
         'rules' : [
-          {'regexp' : '^#', 'group' : 'apple'},
+          {'regexp' : '^_/', 'group' : 'apple'},
           {'regexp' : 're2', 'include' : 1, 'language' : 'elvish'},
         ],
         'lcov_files' : ['a.lcov', 'b.lcov'],
-        'add_files' : ['/src', '#BAR/doo'],
+        'add_files' : ['/src', 'BAR/doo'],
         'print_stats' : [
           {'stat' : 'count_a'},
           {'stat' : 'count_b', 'group' : 'tests'},
@@ -492,8 +560,8 @@ GetStat('nosuch') = 42
     }""", lcov_queue=lcov_queue, addfiles_queue=addfiles_queue)
 
     self.assertEqual(lcov_queue, ['a.lcov', 'b.lcov'])
-    self.assertEqual(addfiles_queue, ['/src', '#BAR/doo'])
-    self.assertEqual(c.root_dirs, [['/foo', '#'], ['/bar', '#BAR']])
+    self.assertEqual(addfiles_queue, ['/src', 'BAR/doo'])
+    self.assertEqual(c.root_dirs, [['/foo', '_'], ['/bar', 'BAR']])
     self.assertEqual(c.print_stats, [
         {'stat': 'count_a'},
         {'stat': 'count_b', 'group': 'tests'},
@@ -501,30 +569,35 @@ GetStat('nosuch') = 42
     # Convert compiled re's back to patterns for comparison
     rules = [[r[0].pattern] + r[1:] for r in c.rules]
     self.assertEqual(rules, [
-        ['.*/$', None, None, 'subdir'],
-        ['^#', None, 'apple', None],
-        ['re2', 1, None, 'elvish'],
+        ['^_/', {'group': 'apple'}],
+        ['re2', {'include': 1, 'language': 'elvish'}],
     ])
 
   def testAddFilesSimple(self):
     """Test AddFiles() simple call."""
     c = self.cov_minimal
     c.add_files_walk = self.MockWalk
+    c.scan_file = self.MockScanFile
+
     c.AddFiles('/a/b/c')
     self.assertEqual(self.mock_walk_calls, ['/a/b/c'])
+    self.assertEqual(self.mock_scan_calls, [])
     self.assertEqual(c.files, {})
 
   def testAddFilesRootMap(self):
     """Test AddFiles() with root mappings."""
     c = self.cov_minimal
     c.add_files_walk = self.MockWalk
-    c.AddRoot('#/subdir', '#SUBDIR')
+    c.scan_file = self.MockScanFile
 
-    # AddFiles() should replace the '#SUBDIR' alt_name, then match both
-    # possible roots for the '#' alt_name.
-    c.AddFiles('#SUBDIR/foo')
+    c.AddRoot('_/subdir', 'SUBDIR')
+
+    # AddFiles() should replace the 'SUBDIR' alt_name, then match both
+    # possible roots for the '_' alt_name.
+    c.AddFiles('SUBDIR/foo')
     self.assertEqual(self.mock_walk_calls,
                      ['/src/subdir/foo', 'c:/source/subdir/foo'])
+    self.assertEqual(self.mock_scan_calls, [])
     self.assertEqual(c.files, {})
 
   def testAddFilesNonEmpty(self):
@@ -532,16 +605,20 @@ GetStat('nosuch') = 42
 
     c = self.cov_minimal
     c.add_files_walk = self.MockWalk
+    c.scan_file = self.MockScanFile
 
     # Add a rule to exclude a subdir
-    c.AddRule('^#/proj1/excluded/', include=0)
+    c.AddRule('^_/proj1/excluded/', include=0)
 
-    # Set data for mock walk
+    # Add a rule to exclude adding some fiels
+    c.AddRule('.*noscan.c$', add_if_missing=0)
+
+    # Set data for mock walk and scan
     self.mock_walk_return = [
         [
             '/src/proj1',
             ['excluded', 'subdir'],
-            ['a.c', 'no.f', 'yes.c'],
+            ['a.c', 'no.f', 'yes.c', 'noexe.c', 'bob_noscan.c'],
         ],
         [
             '/src/proj1/subdir',
@@ -550,15 +627,24 @@ GetStat('nosuch') = 42
         ],
     ]
 
+    # Add a file with no executable lines; it should be scanned but not added
+    self.mock_scan_return['/src/proj1/noexe.c'] = []
+
     c.AddFiles('/src/proj1')
 
     self.assertEqual(self.mock_walk_calls, ['/src/proj1'])
+    self.assertEqual(self.mock_scan_calls, [
+        ['/src/proj1/a.c', 'C'],
+        ['/src/proj1/yes.c', 'C'],
+        ['/src/proj1/noexe.c', 'C'],
+        ['/src/proj1/subdir/cherry.c', 'C'],
+    ])
 
     # Include files from the main dir and subdir
     self.assertEqual(sorted(c.files), [
-        '#/proj1/a.c',
-        '#/proj1/subdir/cherry.c',
-        '#/proj1/yes.c'])
+        '_/proj1/a.c',
+        '_/proj1/subdir/cherry.c',
+        '_/proj1/yes.c'])
 
     # Excluded dir should have been pruned from the mock walk data dirnames.
     # In the real os.walk() call this prunes the walk.
@@ -568,9 +654,6 @@ GetStat('nosuch') = 42
     """Test UpdateTreeStats()."""
 
     c = self.cov_minimal
-
-
-
     c.AddRule('.*_test', group='test')
 
     # Fill the files list
@@ -593,7 +676,7 @@ GetStat('nosuch') = 42
     t = c.tree
     self.assertEqual(t.dirpath, '')
     self.assertEqual(sorted(t.files), [])
-    self.assertEqual(sorted(t.subdirs), ['#'])
+    self.assertEqual(sorted(t.subdirs), ['_'])
     self.assertEqual(t.stats_by_group, {
         'all': {
             'files_covered': 3,
@@ -621,8 +704,8 @@ GetStat('nosuch') = 42
         },
     })
 
-    t = t.subdirs['#']
-    self.assertEqual(t.dirpath, '#')
+    t = t.subdirs['_']
+    self.assertEqual(t.dirpath, '_')
     self.assertEqual(sorted(t.files), ['a.c', 'a_test.c'])
     self.assertEqual(sorted(t.subdirs), ['foo'])
     self.assertEqual(t.stats_by_group, {
@@ -653,7 +736,7 @@ GetStat('nosuch') = 42
     })
 
     t = t.subdirs['foo']
-    self.assertEqual(t.dirpath, 'foo')
+    self.assertEqual(t.dirpath, '_/foo')
     self.assertEqual(sorted(t.files), ['b.c', 'b_test.c'])
     self.assertEqual(sorted(t.subdirs), [])
     self.assertEqual(t.stats_by_group, {

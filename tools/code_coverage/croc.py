@@ -31,16 +31,19 @@
 
 """Crocodile - compute coverage numbers for Chrome coverage dashboard."""
 
+import optparse
 import os
 import re
 import sys
-from optparse import OptionParser
+import croc_html
+import croc_scan
 
 
-class CoverageError(Exception):
+class CrocError(Exception):
   """Coverage error."""
 
-class CoverageStatError(CoverageError):
+
+class CrocStatError(CrocError):
   """Error evaluating coverage stat."""
 
 #------------------------------------------------------------------------------
@@ -57,7 +60,7 @@ class CoverageStats(dict):
     """
     for k, v in coverage_stats.iteritems():
       if k in self:
-        self[k] = self[k] + v
+        self[k] += v
       else:
         self[k] = v
 
@@ -67,17 +70,19 @@ class CoverageStats(dict):
 class CoveredFile(object):
   """Information about a single covered file."""
 
-  def __init__(self, filename, group, language):
+  def __init__(self, filename, **kwargs):
     """Constructor.
 
     Args:
       filename: Full path to file, '/'-delimited.
-      group: Group file belongs to.
-      language: Language for file.
+      kwargs: Keyword args are attributes for file.
     """
     self.filename = filename
-    self.group = group
-    self.language = language
+    self.attrs = dict(kwargs)
+
+    # Move these to attrs?
+    self.local_path = None      # Local path to file
+    self.in_lcov = False        # Is file instrumented?
 
     # No coverage data for file yet
     self.lines = {}     # line_no -> None=executable, 0=instrumented, 1=covered
@@ -102,9 +107,8 @@ class CoveredFile(object):
     # Add conditional stats
     if cov:
       self.stats['files_covered'] = 1
-    if instr:
+    if instr or self.in_lcov:
       self.stats['files_instrumented'] = 1
-
 
 #------------------------------------------------------------------------------
 
@@ -128,7 +132,7 @@ class CoveredDir(object):
     self.subdirs = {}
 
     # Dict of CoverageStats objects summarizing all children, indexed by group
-    self.stats_by_group = {'all':CoverageStats()}
+    self.stats_by_group = {'all': CoverageStats()}
     # TODO: by language
 
   def GetTree(self, indent=''):
@@ -154,7 +158,8 @@ class CoveredDir(object):
           s.get('lines_executable', 0)))
 
     outline = '%s%-30s   %s' % (indent,
-                                self.dirpath + '/', '   '.join(groupstats))
+                                os.path.split(self.dirpath)[1] + '/',
+                                '   '.join(groupstats))
     dest.append(outline.rstrip())
 
     for d in sorted(self.subdirs):
@@ -172,17 +177,13 @@ class Coverage(object):
     """Constructor."""
     self.files = {}             # Map filename --> CoverageFile
     self.root_dirs = []         # (root, altname)
-    self.rules = []             # (regexp, include, group, language)
+    self.rules = []             # (regexp, dict of RHS attrs)
     self.tree = CoveredDir('')
     self.print_stats = []       # Dicts of args to PrintStat()
 
-    self.add_files_walk = os.walk       # Walk function for AddFiles()
-
-    # Must specify subdir rule, or AddFiles() won't find any files because it
-    # will prune out all the subdirs.  Since subdirs never match any code,
-    # they won't be reported in other stats, so this is ok.
-    self.AddRule('.*/$', language='subdir')
-
+    # Functions which need to be replaced for unit testing
+    self.add_files_walk = os.walk         # Walk function for AddFiles()
+    self.scan_file = croc_scan.ScanFile   # Source scanner for AddFiles()
 
   def CleanupFilename(self, filename):
     """Cleans up a filename.
@@ -208,8 +209,8 @@ class Coverage(object):
 
     # Replace alternate roots
     for root, alt_name in self.root_dirs:
-        filename = re.sub('^' + re.escape(root) + '(?=(/|$))',
-                          alt_name, filename)
+      filename = re.sub('^' + re.escape(root) + '(?=(/|$))',
+                        alt_name, filename)
     return filename
 
   def ClassifyFile(self, filename):
@@ -219,29 +220,17 @@ class Coverage(object):
       filename: Input filename.
 
     Returns:
-      (None, None) if the file is not included or has no group or has no
-          language.  Otherwise, a 2-tuple containing:
-      The group for the file (for example, 'source' or 'test').
-      The language of the file.
+      A dict of attributes for the file, accumulated from the right hand sides
+          of rules which fired.
     """
-    include = False
-    group = None
-    language = None
+    attrs = {}
 
     # Process all rules
-    for regexp, rule_include, rule_group, rule_language in self.rules:
+    for regexp, rhs_dict in self.rules:
       if regexp.match(filename):
-        # include/exclude source
-        if rule_include is not None:
-          include = rule_include
-        if rule_group is not None:
-          group = rule_group
-        if rule_language is not None:
-          language = rule_language
+        attrs.update(rhs_dict)
 
-    # TODO: Should have a debug mode which prints files which aren't excluded
-    # and why (explicitly excluded, no type, no language, etc.)
-
+    return attrs
     # TODO: Files can belong to multiple groups?
     #   (test/source)
     #   (mac/pc/win)
@@ -249,36 +238,43 @@ class Coverage(object):
     #   (small/med/large)
     # How to handle that?
 
-    # Return classification if the file is included and has a group and
-    # language
-    if include and group and language:
-      return group, language
-    else:
-      return None, None
-
-  def AddRoot(self, root_path, alt_name='#'):
+  def AddRoot(self, root_path, alt_name='_'):
     """Adds a root directory.
 
     Args:
       root_path: Root directory to add.
-      alt_name: If specified, name of root dir
+      alt_name: If specified, name of root dir.  Otherwise, defaults to '_'.
+
+    Raises:
+      ValueError: alt_name was blank.
     """
+    # Alt name must not be blank.  If it were, there wouldn't be a way to
+    # reverse-resolve from a root-replaced path back to the local path, since
+    # '' would always match the beginning of the candidate filename, resulting
+    # in an infinite loop.
+    if not alt_name:
+      raise ValueError('AddRoot alt_name must not be blank.')
+
     # Clean up root path based on existing rules
     self.root_dirs.append([self.CleanupFilename(root_path), alt_name])
 
-  def AddRule(self, path_regexp, include=None, group=None, language=None):
+  def AddRule(self, path_regexp, **kwargs):
     """Adds a rule.
 
     Args:
       path_regexp: Regular expression to match for filenames.  These are
           matched after root directory replacement.
+      kwargs: Keyword arguments are attributes to set if the rule applies.
+
+    Keyword arguments currently supported:
       include: If True, includes matches; if False, excludes matches.  Ignored
           if None.
       group: If not None, sets group to apply to matches.
       language: If not None, sets file language to apply to matches.
     """
+
     # Compile regexp ahead of time
-    self.rules.append([re.compile(path_regexp), include, group, language])
+    self.rules.append([re.compile(path_regexp), dict(kwargs)])
 
   def GetCoveredFile(self, filename, add=False):
     """Gets the CoveredFile object for the filename.
@@ -303,17 +299,28 @@ class Coverage(object):
     if not add:
       return None
 
-    # Check rules to see if file can be added
-    group, language = self.ClassifyFile(filename)
-    if not group:
+    # Check rules to see if file can be added.  Files must be included and
+    # have a group and language.
+    attrs = self.ClassifyFile(filename)
+    if not (attrs.get('include')
+            and attrs.get('group')
+            and attrs.get('language')):
       return None
 
     # Add the file
-    f = CoveredFile(filename, group, language)
+    f = CoveredFile(filename, **attrs)
     self.files[filename] = f
 
     # Return the newly covered file
     return f
+
+  def RemoveCoveredFile(self, cov_file):
+    """Removes the file from the covered file list.
+
+    Args:
+      cov_file: A file object returned by GetCoveredFile().
+    """
+    self.files.pop(cov_file.filename)
 
   def ParseLcovData(self, lcov_data):
     """Adds coverage from LCOV-formatted data.
@@ -331,6 +338,7 @@ class Coverage(object):
         cov_file = self.GetCoveredFile(line[3:], add=True)
         if cov_file:
           cov_lines = cov_file.lines
+          cov_file.in_lcov = True       # File was instrumented
       elif not cov_file:
         # Inside data for a file we don't care about - so skip it
         pass
@@ -372,13 +380,13 @@ class Coverage(object):
       group: File group to match; if 'all', matches all groups.
       default: Value to return if there was an error evaluating the stat.  For
           example, if the stat does not exist.  If None, raises
-          CoverageStatError.
+          CrocStatError.
 
     Returns:
       The evaluated stat, or None if error.
 
     Raises:
-      CoverageStatError: Error evaluating stat.
+      CrocStatError: Error evaluating stat.
     """
     # TODO: specify a subdir to get the stat from, then walk the tree to
     # print the stats from just that subdir
@@ -386,16 +394,16 @@ class Coverage(object):
     # Make sure the group exists
     if group not in self.tree.stats_by_group:
       if default is None:
-        raise CoverageStatError('Group %r not found.' % group)
+        raise CrocStatError('Group %r not found.' % group)
       else:
         return default
 
     stats = self.tree.stats_by_group[group]
     try:
-      return eval(stat, {'__builtins__':{'S':self.GetStat}}, stats)
+      return eval(stat, {'__builtins__': {'S': self.GetStat}}, stats)
     except Exception, e:
       if default is None:
-        raise CoverageStatError('Error evaluating stat %r: %s' % (stat, e))
+        raise CrocStatError('Error evaluating stat %r: %s' % (stat, e))
       else:
         return default
 
@@ -426,7 +434,7 @@ class Coverage(object):
       src_dir: Directory on disk at which to start search.  May be a relative
           path on disk starting with '.' or '..', or an absolute path, or a
           path relative to an alt_name for one of the roots
-          (for example, '#/src').  If the alt_name matches more than one root,
+          (for example, '_/src').  If the alt_name matches more than one root,
           all matches will be attempted.
 
     Note that dirs not underneath one of the root dirs and covered by an
@@ -451,8 +459,8 @@ class Coverage(object):
         # Add trailing '/' to directory names so dir-based regexps can match
         # '/' instead of needing to specify '(/|$)'.
         dpath = self.CleanupFilename(dirpath + '/' + d) + '/'
-        group, language = self.ClassifyFile(dpath)
-        if not group:
+        attrs = self.ClassifyFile(dpath)
+        if not attrs.get('include'):
           # Directory has been excluded, so don't traverse it
           # TODO: Document the slight weirdness caused by this: If you
           # AddFiles('./A'), and the rules include 'A/B/C/D' but not 'A/B',
@@ -463,12 +471,33 @@ class Coverage(object):
           dirnames.remove(d)
 
       for f in filenames:
-        covf = self.GetCoveredFile(dirpath + '/' + f, add=True)
-        # TODO: scan files for executable lines.  Add these to the file as
-        # 'executable', but not 'instrumented' or 'covered'.
-        # TODO: if a file has no executable lines, don't add it.
-        if covf:
+        local_path = dirpath + '/' + f
+
+        covf = self.GetCoveredFile(local_path, add=True)
+        if not covf:
+          continue
+
+        # Save where we found the file, for generating line-by-line HTML output
+        covf.local_path = local_path
+
+        if covf.in_lcov:
+          # File already instrumented and doesn't need to be scanned
+          continue
+
+        if not covf.attrs.get('add_if_missing', 1):
+          # Not allowed to add the file
+          self.RemoveCoveredFile(covf)
+          continue
+
+        # Scan file to find potentially-executable lines
+        lines = self.scan_file(covf.local_path, covf.attrs.get('language'))
+        if lines:
+          for l in lines:
+            covf.lines[l] = None
           covf.UpdateCoverage()
+        else:
+          # File has no executable lines, so don't count it
+          self.RemoveCoveredFile(covf)
 
   def AddConfig(self, config_data, lcov_queue=None, addfiles_queue=None):
     """Adds JSON-ish config data.
@@ -481,16 +510,14 @@ class Coverage(object):
           processing them immediately.
     """
     # TODO: All manner of error checking
-    cfg = eval(config_data, {'__builtins__':{}}, {})
+    cfg = eval(config_data, {'__builtins__': {}}, {})
 
     for rootdict in cfg.get('roots', []):
-      self.AddRoot(rootdict['root'], alt_name=rootdict.get('altname', '#'))
+      self.AddRoot(rootdict['root'], alt_name=rootdict.get('altname', '_'))
 
     for ruledict in cfg.get('rules', []):
-      self.AddRule(ruledict['regexp'],
-                   include=ruledict.get('include'),
-                   group=ruledict.get('group'),
-                   language=ruledict.get('language'))
+      regexp = ruledict.pop('regexp')
+      self.AddRule(regexp, **ruledict)
 
     for add_lcov in cfg.get('lcov_files', []):
       if lcov_queue is not None:
@@ -511,6 +538,7 @@ class Coverage(object):
 
     Args:
       filename: Config filename.
+      kwargs: Additional parameters to pass to AddConfig().
     """
     # TODO: All manner of error checking
     f = None
@@ -519,10 +547,18 @@ class Coverage(object):
       # Need to strip CR's from CRLF-terminated lines or posix systems can't
       # eval the data.
       config_data = f.read().replace('\r\n', '\n')
-      # TODO: some sort of include syntax.  Needs to be done at string-time
-      # rather than at eval()-time, so that it's possible to include parts of
-      # dicts.  Path from a file to its include should be relative to the dir
-      # containing the file.
+      # TODO: some sort of include syntax.
+      #
+      # Needs to be done at string-time rather than at eval()-time, so that
+      # it's possible to include parts of dicts.  Path from a file to its
+      # include should be relative to the dir containing the file.
+      #
+      # Or perhaps it could be done after eval.  In that case, there'd be an
+      # 'include' section with a list of files to include.  Those would be
+      # eval()'d and recursively pre- or post-merged with the including file.
+      #
+      # Or maybe just don't worry about it, since multiple configs can be
+      # specified on the command line.
       self.AddConfig(config_data, **kwargs)
     finally:
       if f:
@@ -531,17 +567,20 @@ class Coverage(object):
   def UpdateTreeStats(self):
     """Recalculates the tree stats from the currently covered files.
 
-    Also calculates coverage summary for files."""
+    Also calculates coverage summary for files.
+    """
     self.tree = CoveredDir('')
     for cov_file in self.files.itervalues():
       # Add the file to the tree
-      # TODO: Don't really need to create the tree unless we're creating HTML
       fdirs = cov_file.filename.split('/')
       parent = self.tree
       ancestors = [parent]
       for d in fdirs[:-1]:
         if d not in parent.subdirs:
-          parent.subdirs[d] = CoveredDir(d)
+          if parent.dirpath:
+            parent.subdirs[d] = CoveredDir(parent.dirpath + '/' + d)
+          else:
+            parent.subdirs[d] = CoveredDir(d)
         parent = parent.subdirs[d]
         ancestors.append(parent)
       # Final subdir actually contains the file
@@ -553,9 +592,10 @@ class Coverage(object):
         a.stats_by_group['all'].Add(cov_file.stats)
 
         # Add to group file belongs to
-        if cov_file.group not in a.stats_by_group:
-          a.stats_by_group[cov_file.group] = CoverageStats()
-        cbyg = a.stats_by_group[cov_file.group]
+        group = cov_file.attrs.get('group')
+        if group not in a.stats_by_group:
+          a.stats_by_group[group] = CoverageStats()
+        cbyg = a.stats_by_group[group]
         cbyg.Add(cov_file.stats)
 
   def PrintTree(self):
@@ -577,7 +617,7 @@ def Main(argv):
     exit code, 0 for normal exit.
   """
   # Parse args
-  parser = OptionParser()
+  parser = optparse.OptionParser()
   parser.add_option(
       '-i', '--input', dest='inputs', type='string', action='append',
       metavar='FILE',
@@ -600,6 +640,9 @@ def Main(argv):
   parser.add_option(
       '-u', '--uninstrumented', dest='uninstrumented', action='store_true',
       help='list uninstrumented files')
+  parser.add_option(
+      '-m', '--html', dest='html_out', type='string', metavar='PATH',
+      help='write HTML output to PATH')
 
   parser.set_defaults(
       inputs=[],
@@ -607,9 +650,10 @@ def Main(argv):
       configs=[],
       addfiles=[],
       tree=False,
+      html_out=None,
   )
 
-  (options, args) = parser.parse_args()
+  options = parser.parse_args(args=argv)[0]
 
   cov = Coverage()
 
@@ -647,9 +691,9 @@ def Main(argv):
     print 'Uninstrumented files:'
     for f in sorted(cov.files):
       covf = cov.files[f]
-      if not covf.stats.get('lines_instrumented'):
-        print '  %-6s %-6s %s' % (covf.group, covf.language, f)
-
+      if not covf.in_lcov:
+        print '  %-6s %-6s %s' % (covf.attrs.get('group'),
+                                  covf.attrs.get('language'), f)
 
   # Print tree stats
   if options.tree:
@@ -658,6 +702,11 @@ def Main(argv):
   # Print stats
   for ps_args in cov.print_stats:
     cov.PrintStat(**ps_args)
+
+  # Generate HTML
+  if options.html_out:
+    html = croc_html.CrocHtml(cov, options.html_out)
+    html.Write()
 
   # Normal exit
   return 0
