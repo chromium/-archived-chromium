@@ -6,7 +6,9 @@
 
 #include "chrome/browser/browsing_instance.h"
 #include "chrome/browser/extensions/extension_host.h"
+#if defined(OS_WIN)
 #include "chrome/browser/extensions/extension_view.h"
+#endif
 #include "chrome/browser/extensions/extensions_service.h"
 #include "chrome/browser/profile.h"
 #include "chrome/browser/tab_contents/site_instance.h"
@@ -40,12 +42,14 @@ ExtensionProcessManager::~ExtensionProcessManager() {
     delete *iter;
 }
 
+#if defined(OS_WIN)
 ExtensionView* ExtensionProcessManager::CreateView(Extension* extension,
                                                    const GURL& url,
                                                    Browser* browser) {
   return new ExtensionView(
       new ExtensionHost(extension, GetSiteInstanceForURL(url)), browser, url);
 }
+#endif
 
 void ExtensionProcessManager::CreateBackgroundHost(Extension* extension,
                                                    const GURL& url) {

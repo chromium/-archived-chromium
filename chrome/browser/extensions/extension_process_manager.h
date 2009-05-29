@@ -14,7 +14,9 @@ class Browser;
 class BrowsingInstance;
 class Extension;
 class ExtensionHost;
+#if defined(OS_WIN)
 class ExtensionView;
+#endif
 class GURL;
 class Profile;
 class SiteInstance;
@@ -26,11 +28,13 @@ class ExtensionProcessManager : public NotificationObserver {
   ExtensionProcessManager(Profile* profile);
   ~ExtensionProcessManager();
 
+#if defined(OS_WIN)
   // Creates a new ExtensionView, grouping it in the appropriate SiteInstance
   // (and therefore process) based on the URL and profile.
   ExtensionView* CreateView(Extension* extension,
                             const GURL& url,
                             Browser* browser);
+#endif
 
   // Creates a new UI-less extension instance.  Like CreateView, but not
   // displayed anywhere.

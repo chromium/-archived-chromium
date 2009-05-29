@@ -83,6 +83,7 @@ void ExtensionView::DidContentsPreferredWidthChange(const int pref_width) {
 void ExtensionView::ViewHierarchyChanged(bool is_add,
                                          views::View *parent,
                                          views::View *child) {
+  NativeViewHost::ViewHierarchyChanged(is_add, parent, child);
   if (is_add && GetWidget() && !initialized_) {
     initialized_ = true;
 
