@@ -325,7 +325,11 @@ void Firefox3Importer::GetSearchEnginesXMLFiles(
   scoped_ptr_malloc<sqlite3, DBClose> db(sqlite);
 
   SQLStatement s;
-  const char* stmt = "SELECT engineid FROM engine_data ORDER BY value ASC";
+  const char* stmt = "SELECT engineid FROM engine_data "
+                     "WHERE engineid NOT IN "
+                     "(SELECT engineid FROM engine_data "
+                     "WHERE name='hidden') "
+                     "ORDER BY value ASC";
 
   if (s.prepare(db.get(), stmt) != SQLITE_OK)
     return;
@@ -335,31 +339,48 @@ void Firefox3Importer::GetSearchEnginesXMLFiles(
   std::wstring profile_path = source_path_;
   file_util::AppendToPath(&profile_path, L"searchplugins");
 
-  const std::wstring kAppPrefix = L"[app]/";
-  const std::wstring kProfilePrefix = L"[profile]/";
-  while (s.step() == SQLITE_ROW && !cancelled()) {
-    std::wstring file;
-    std::wstring engine = UTF8ToWide(s.column_string(0));
-    // The string contains [app]/<name>.xml or [profile]/<name>.xml where the
-    // [app] and [profile] need to be replaced with the actual app or profile
-    // path.
-    size_t index = engine.find(kAppPrefix);
-    if (index != std::wstring::npos) {
-      file = app_path;
-      file_util::AppendToPath(
-          &file,
-          engine.substr(index + kAppPrefix.length()));  // Remove '[app]/'.
-    } else if ((index = engine.find(kProfilePrefix)) != std::wstring::npos) {
-      file = profile_path;
-      file_util::AppendToPath(
-          &file,
-          engine.substr(index + kProfilePrefix.length()));  // Remove
-                                                            // '[profile]/'.
-    } else {
-      NOTREACHED() << "Unexpected Firefox 3 search engine id";
-      continue;
+  // Firefox doesn't store any search engines in its sqlite database unless
+  // the user has changed the standard set of engines.  If we find that the
+  // database is empty, get the standard Firefox set from the app folder.
+  if (s.step() != SQLITE_ROW) {
+    file_util::FileEnumerator engines(FilePath::FromWStringHack(app_path),
+                                      false,
+                                      file_util::FileEnumerator::FILES);
+    for (FilePath engine_path = engines.Next(); !engine_path.value().empty();
+         engine_path = engines.Next()) {
+      std::wstring enginew = engine_path.ToWStringHack();
+      files->push_back(enginew);
     }
-    files->push_back(file);
+  } else {
+    const std::wstring kAppPrefix = L"[app]/";
+    const std::wstring kProfilePrefix = L"[profile]/";
+    do {
+      std::wstring file;
+      std::wstring engine = UTF8ToWide(s.column_string(0));
+
+      // The string contains [app]/<name>.xml or [profile]/<name>.xml where
+      // the [app] and [profile] need to be replaced with the actual app or
+      // profile path.
+      size_t index = engine.find(kAppPrefix);
+      if (index != std::wstring::npos) {
+        // Remove '[app]/'.
+        file = app_path;
+        file_util::AppendToPath(
+            &file,
+            engine.substr(index + kAppPrefix.length()));
+      } else if ((index = engine.find(kProfilePrefix)) !=
+                  std::wstring::npos) {
+        // Remove '[profile]/'.
+        file = profile_path;
+        file_util::AppendToPath(
+            &file,
+            engine.substr(index + kProfilePrefix.length()));
+      } else {
+        NOTREACHED() << "Unexpected Firefox 3 search engine id";
+        continue;
+      }
+      files->push_back(file);
+    } while (s.step() == SQLITE_ROW && !cancelled());
   }
 }
 
