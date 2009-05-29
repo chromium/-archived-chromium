@@ -67,11 +67,6 @@ const int kButtonHEdgeMargin = 7;
 const int kRelatedButtonHSpacing = 6;
 
 // Creates a GridLayout with kPanel*Margin insets.
-static views::GridLayout* CreatePanelGridLayout(views::View* host) {
-  views::GridLayout* layout = new views::GridLayout(host);
-  layout->SetInsets(kPanelVertMargin, kPanelHorizMargin,
-                    kPanelVertMargin, kPanelHorizMargin);
-  return layout;
-}
+views::GridLayout* CreatePanelGridLayout(views::View* host);
 
 #endif  // VIEWS_STANDARD_LAYOUT_H_

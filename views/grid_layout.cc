@@ -7,6 +7,7 @@
 #include <algorithm>
 
 #include "base/logging.h"
+#include "views/standard_layout.h"
 #include "views/view.h"
 
 namespace views {
@@ -1011,3 +1012,11 @@ ColumnSet* GridLayout::GetLastValidColumnSet() {
 }
 
 }  // namespace views
+
+views::GridLayout* CreatePanelGridLayout(views::View* host) {
+  views::GridLayout* layout = new views::GridLayout(host);
+  layout->SetInsets(kPanelVertMargin, kPanelHorizMargin,
+                    kPanelVertMargin, kPanelHorizMargin);
+  return layout;
+}
+

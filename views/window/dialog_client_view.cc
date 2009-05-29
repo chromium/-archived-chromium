@@ -4,19 +4,26 @@
 
 #include "views/window/dialog_client_view.h"
 
+#if defined(OS_WIN)
 #include <windows.h>
 #include <uxtheme.h>
 #include <vsstyle.h>
+#endif
 
 #include "app/gfx/canvas.h"
 #include "app/gfx/font.h"
 #include "app/l10n_util.h"
 #include "app/resource_bundle.h"
+#if defined(OS_WIN)
 #include "base/gfx/native_theme.h"
+#endif
 #include "grit/app_strings.h"
 #include "views/controls/button/native_button.h"
 #include "views/standard_layout.h"
 #include "views/window/dialog_delegate.h"
+#if !defined(OS_WIN)
+#include "views/window/hit_test.h"
+#endif
 #include "views/window/window.h"
 
 namespace views {
@@ -34,11 +41,13 @@ void UpdateButtonHelper(NativeButton* button_view,
   button_view->SetVisible(delegate->IsDialogButtonVisible(button));
 }
 
+#if defined(OS_WIN)
 void FillViewWithSysColor(gfx::Canvas* canvas, View* view, COLORREF color) {
   SkColor sk_color =
       SkColorSetRGB(GetRValue(color), GetGValue(color), GetBValue(color));
   canvas->FillRectInt(sk_color, 0, 0, view->width(), view->height());
 }
+#endif
 
 // DialogButton ----------------------------------------------------------------
 
@@ -93,9 +102,9 @@ DialogClientView::DialogClientView(Window* owner, View* contents_view)
     : ClientView(owner, contents_view),
       ok_button_(NULL),
       cancel_button_(NULL),
+      default_button_(NULL),
       extra_view_(NULL),
-      accepted_(false),
-      default_button_(NULL) {
+      accepted_(false) {
   InitClass();
 }
 
@@ -118,8 +127,13 @@ void DialogClientView::ShowDialogButtons() {
     ok_button_->SetGroup(kButtonGroup);
     if (is_default_button)
       default_button_ = ok_button_;
+#if defined(OS_WIN)
     if (!(buttons & MessageBoxFlags::DIALOGBUTTON_CANCEL))
       ok_button_->AddAccelerator(Accelerator(VK_ESCAPE, false, false, false));
+#else
+    NOTIMPLEMENTED();
+    // TODO(port): add accelerators
+#endif
     AddChildView(ok_button_);
   }
   if (buttons & MessageBoxFlags::DIALOGBUTTON_CANCEL && !cancel_button_) {
@@ -139,7 +153,12 @@ void DialogClientView::ShowDialogButtons() {
                                       MessageBoxFlags::DIALOGBUTTON_CANCEL,
                                       label, is_default_button);
     cancel_button_->SetGroup(kButtonGroup);
+#if defined(OS_WIN)
     cancel_button_->AddAccelerator(Accelerator(VK_ESCAPE, false, false, false));
+#else
+    NOTIMPLEMENTED();
+    // TODO(port): add accelerators
+#endif
     if (is_default_button)
       default_button_ = ok_button_;
     AddChildView(cancel_button_);
@@ -147,7 +166,12 @@ void DialogClientView::ShowDialogButtons() {
   if (!buttons) {
     // Register the escape key as an accelerator which will close the window
     // if there are no dialog buttons.
+#if defined(OS_WIN)
     AddAccelerator(Accelerator(VK_ESCAPE, false, false, false));
+#else
+    NOTIMPLEMENTED();
+    // TODO(port): add accelerators
+#endif
   }
 }
 
@@ -251,7 +275,12 @@ int DialogClientView::NonClientHitTest(const gfx::Point& point) {
 // DialogClientView, View overrides:
 
 void DialogClientView::Paint(gfx::Canvas* canvas) {
+#if defined(OS_WIN)
   FillViewWithSysColor(canvas, this, GetSysColor(COLOR_3DFACE));
+#else
+  NOTIMPLEMENTED();
+  // TODO(port): paint dialog background color
+#endif
 }
 
 void DialogClientView::PaintChildren(gfx::Canvas* canvas) {
@@ -326,7 +355,12 @@ gfx::Size DialogClientView::GetPreferredSize() {
 }
 
 bool DialogClientView::AcceleratorPressed(const Accelerator& accelerator) {
+#if defined(OS_WIN)
   DCHECK(accelerator.GetKeyCode() == VK_ESCAPE);  // We only expect Escape key.
+#else
+  NOTIMPLEMENTED();
+  // TODO(port): add accelerators
+#endif
   Close();
   return true;
 }
@@ -350,6 +384,7 @@ void DialogClientView::ButtonPressed(Button* sender) {
 void DialogClientView::PaintSizeBox(gfx::Canvas* canvas) {
   if (window()->GetDelegate()->CanResize() ||
       window()->GetDelegate()->CanMaximize()) {
+#if defined(OS_WIN)
     HDC dc = canvas->beginPlatformPaint();
     SIZE gripper_size = { 0, 0 };
     gfx::NativeTheme::instance()->GetThemePartSize(
@@ -367,6 +402,10 @@ void DialogClientView::PaintSizeBox(gfx::Canvas* canvas) {
     gfx::NativeTheme::instance()->PaintStatusGripper(
         dc, SP_PANE, 1, 0, &native_bounds);
     canvas->endPlatformPaint();
+#else
+    NOTIMPLEMENTED();
+    // TODO(port): paint size box
+#endif
   }
 }
 

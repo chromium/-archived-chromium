@@ -259,7 +259,6 @@
             'widget/aero_tooltip_manager.cc',
             'widget/root_view_drop_target.cc',
             'widget/tooltip_manager.cc',
-            'window/dialog_client_view.cc',
             'window/hit_test.cc',
             'window/native_frame_view.cc',
             'widget/widget_win.cc',
