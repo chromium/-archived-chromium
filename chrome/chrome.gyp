@@ -3519,7 +3519,7 @@
           'target_name': 'pull_in_all',
           'type': 'none',
           'dependencies': [
-            'app/locales.gyp:*',
+            'app/locales/locales.gyp:*',
             'installer/installer.gyp:*',
             '../app/app.gyp:*',
             '../base/base.gyp:*',
