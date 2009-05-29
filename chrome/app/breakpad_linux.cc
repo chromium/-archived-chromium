@@ -332,13 +332,15 @@ pid_t UploadCrashDump(const char* filename, const char* crash_url,
     const pid_t child = sys_fork();
     if (child) {
       sys_close(fds[1]);
-      char buf[17];
-      HANDLE_EINTR(read(fds[0], buf, sizeof(buf) - 1));
-      buf[sizeof(buf) - 1] = 0;
-      static const char msg[] = "\nCrash dump id: ";
-      sys_write(2, msg, sizeof(msg) - 1);
-      sys_write(2, buf, my_strlen(buf));
-      sys_write(2, "\n", 1);
+      char id_buf[17];
+      const int len = HANDLE_EINTR(read(fds[0], id_buf, sizeof(id_buf) - 1));
+      if (len > 0) {
+        id_buf[len] = 0;
+        static const char msg[] = "\nCrash dump id: ";
+        sys_write(2, msg, sizeof(msg) - 1);
+        sys_write(2, id_buf, my_strlen(buf));
+        sys_write(2, "\n", 1);
+      }
       sys_unlink(filename);
       sys_unlink(buf);
       sys__exit(0);
