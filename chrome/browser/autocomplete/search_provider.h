@@ -260,11 +260,6 @@ class SearchProvider : public AutocompleteProvider,
                                       int relevance,
                                       bool is_keyword);
 
-  // Trims "http:" and up to two subsequent slashes from |url|.  Returns the
-  // number of characters that were trimmed.
-  // TODO(kochi): this is duplicate from history_autocomplete
-  static size_t TrimHttpPrefix(std::wstring* url);
-
   // Should we query for suggest results immediately? This is normally false,
   // but may be set to true during testing.
   static bool query_suggest_immediately_;

@@ -24,6 +24,7 @@
 #include "chrome/common/url_constants.h"
 #include "googleurl/src/gurl.h"
 #include "googleurl/src/url_canon_ip.h"
+#include "googleurl/src/url_util.h"
 #include "grit/generated_resources.h"
 #include "net/base/net_util.h"
 #include "net/base/registry_controlled_domain.h"
@@ -472,6 +473,26 @@ void AutocompleteProvider::SetProfile(Profile* profile) {
   DCHECK(profile);
   Stop();  // It makes no sense to continue running a query from an old profile.
   profile_ = profile;
+}
+
+// static
+size_t AutocompleteProvider::TrimHttpPrefix(std::wstring* url) {
+  url_parse::Component scheme;
+  if (!url_util::FindAndCompareScheme(WideToUTF8(*url), chrome::kHttpScheme,
+                                      &scheme))
+    return 0;  // Not "http".
+
+  // Erase scheme plus up to two slashes.
+  size_t prefix_len = scheme.end() + 1;  // "http:"
+  const size_t after_slashes = std::min(url->length(),
+                                        static_cast<size_t>(scheme.end() + 3));
+  while ((prefix_len < after_slashes) && ((*url)[prefix_len] == L'/'))
+    ++prefix_len;
+  if (prefix_len == url->length())
+    url->clear();
+  else
+    url->erase(url->begin(), url->begin() + prefix_len);
+  return prefix_len;
 }
 
 void AutocompleteProvider::UpdateStarredStateOfMatches() {

@@ -9,6 +9,8 @@
 #include "chrome/browser/bookmarks/bookmark_model.h"
 #include "chrome/browser/history/query_parser.h"
 #include "chrome/browser/profile.h"
+#include "chrome/common/url_constants.h"
+#include "googleurl/src/url_util.h"
 #include "net/base/net_util.h"
 
 using base::TimeTicks;
@@ -72,6 +74,8 @@ void HistoryContentsProvider::Start(const AutocompleteInput& input,
   // Change input type and reset relevance counters, so matches will be marked
   // up properly.
   input_type_ = input.type();
+  trim_http_ = !url_util::FindAndCompareScheme(WideToUTF8(input.text()),
+                                               chrome::kHttpScheme, NULL);
   star_title_count_ = star_contents_count_ = title_count_ = contents_count_ = 0;
 
   // Decide what to do about any previous query/results.
@@ -198,6 +202,8 @@ AutocompleteMatch HistoryContentsProvider::ResultToMatch(
   match.fill_into_edit = StringForURLDisplay(result.url(), true);
   match.destination_url = result.url();
   match.contents = match.fill_into_edit;
+  if (trim_http_)
+    TrimHttpPrefix(&match.contents);
   match.contents_class.push_back(
       ACMatchClassification(0, ACMatchClassification::URL));
   match.description = result.title();

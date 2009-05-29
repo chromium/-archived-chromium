@@ -532,6 +532,10 @@ class AutocompleteProvider
   static size_t max_matches() { return max_matches_; }
 
  protected:
+  // Trims "http:" and up to two subsequent slashes from |url|.  Returns the
+  // number of characters that were trimmed.
+  static size_t TrimHttpPrefix(std::wstring* url);
+
   // Updates the starred state of each of the matches in matches_ from the
   // profile's bookmark bar model.
   void UpdateStarredStateOfMatches();

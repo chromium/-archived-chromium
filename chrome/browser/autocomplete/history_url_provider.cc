@@ -372,10 +372,9 @@ std::wstring HistoryURLProvider::FixupUserInput(
   std::wstring output(UTF8ToWide(canonical_gurl_str));
   // Don't prepend a scheme when the user didn't have one.  Since the fixer
   // upper only prepends the "http" scheme, that's all we need to check for.
-  url_parse::Component scheme;
   if (canonical_gurl.SchemeIs(chrome::kHttpScheme) &&
       !url_util::FindAndCompareScheme(WideToUTF8(input_text),
-                                      chrome::kHttpScheme, &scheme))
+                                      chrome::kHttpScheme, NULL))
     TrimHttpPrefix(&output);
 
   // Make the number of trailing slashes on the output exactly match the input.
@@ -405,26 +404,6 @@ std::wstring HistoryURLProvider::FixupUserInput(
     output.erase(output.length() - num_output_slashes + num_input_slashes);
 
   return output;
-}
-
-// static
-size_t HistoryURLProvider::TrimHttpPrefix(std::wstring* url) {
-  url_parse::Component scheme;
-  if (!url_util::FindAndCompareScheme(WideToUTF8(*url), chrome::kHttpScheme,
-                                      &scheme))
-    return 0;  // Not "http".
-
-  // Erase scheme plus up to two slashes.
-  size_t prefix_len = scheme.end() + 1;  // "http:"
-  const size_t after_slashes = std::min(url->length(),
-                                        static_cast<size_t>(scheme.end() + 3));
-  while ((prefix_len < after_slashes) && ((*url)[prefix_len] == L'/'))
-    ++prefix_len;
-  if (prefix_len == url->length())
-    url->clear();
-  else
-    url->erase(url->begin(), url->begin() + prefix_len);
-  return prefix_len;
 }
 
 // static

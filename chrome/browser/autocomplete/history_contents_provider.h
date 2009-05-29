@@ -80,6 +80,9 @@ class HistoryContentsProvider : public AutocompleteProvider {
   // Current autocomplete input type.
   AutocompleteInput::Type input_type_;
 
+  // Whether we should trim "http://" from results.
+  bool trim_http_;
+
   // Results from most recent query. These are cached so we don't have to
   // re-issue queries for "minor changes" (which don't affect this provider).
   history::QueryResults results_;

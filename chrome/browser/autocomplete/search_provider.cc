@@ -748,9 +748,8 @@ AutocompleteMatch SearchProvider::NavigationToMatch(
                           AutocompleteMatch::NAVSUGGEST);
   match.destination_url = navigation.url;
   match.contents = StringForURLDisplay(navigation.url, true);
-  // TODO(kochi): Consider moving HistoryURLProvider::TrimHttpPrefix() to some
-  // public utility function.
-  if (!url_util::FindAndCompareScheme(WideToUTF8(input_text), "http", NULL))
+  if (!url_util::FindAndCompareScheme(WideToUTF8(input_text),
+                                      chrome::kHttpScheme, NULL))
     TrimHttpPrefix(&match.contents);
   AutocompleteMatch::ClassifyMatchInString(input_text, match.contents,
                                            ACMatchClassification::URL,
@@ -771,25 +770,4 @@ AutocompleteMatch SearchProvider::NavigationToMatch(
   // inline-autocompletable?
 
   return match;
-}
-
-// TODO(kochi): This is duplicate from HistoryURLProvider.
-// static
-size_t SearchProvider::TrimHttpPrefix(std::wstring* url) {
-  url_parse::Component scheme;
-  if (!url_util::FindAndCompareScheme(WideToUTF8(*url), chrome::kHttpScheme,
-                                      &scheme))
-    return 0;  // Not "http".
-
-  // Erase scheme plus up to two slashes.
-  size_t prefix_len = scheme.end() + 1;  // "http:"
-  const size_t after_slashes = std::min(url->length(),
-                                        static_cast<size_t>(scheme.end() + 3));
-  while ((prefix_len < after_slashes) && ((*url)[prefix_len] == L'/'))
-    ++prefix_len;
-  if (prefix_len == url->length())
-    url->clear();
-  else
-    url->erase(url->begin(), url->begin() + prefix_len);
-  return prefix_len;
 }
