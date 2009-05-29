@@ -15,28 +15,47 @@ MockKeyboardDriverWin::MockKeyboardDriverWin() {
   // should save the layout and status here to restore when this instance is
   // destroyed.
   original_keyboard_layout_ = GetKeyboardLayout(0);
+  active_keyboard_layout_ = original_keyboard_layout_;
   GetKeyboardState(&original_keyboard_states_[0]);
 
-  keyboard_handle_ = NULL;
+  const UINT num_keyboard_layouts = GetKeyboardLayoutList(0, NULL);
+  DCHECK(num_keyboard_layouts > 0);
+
+  orig_keyboard_layouts_list_.resize(num_keyboard_layouts);
+  GetKeyboardLayoutList(num_keyboard_layouts, &orig_keyboard_layouts_list_[0]);
+
   memset(&keyboard_states_[0], 0, sizeof(keyboard_states_));
 }
 
 MockKeyboardDriverWin::~MockKeyboardDriverWin() {
   // Unload the keyboard-layout driver, restore the keyboard state, and reset
   // the keyboard layout for succeeding tests.
-  if (keyboard_handle_)
-    UnloadKeyboardLayout(keyboard_handle_);
+  MaybeUnloadActiveLayout();
   SetKeyboardState(&original_keyboard_states_[0]);
   ActivateKeyboardLayout(original_keyboard_layout_, KLF_RESET);
+}
+
+void MockKeyboardDriverWin::MaybeUnloadActiveLayout() {
+  // Workaround for http://crbug.com/12093
+  // Only unload a keyboard layout if it was loaded by this mock driver.
+  // Contrary to the documentation on MSDN unloading a keyboard layout
+  // previously loaded by the system causes that layout to stop working.
+  // We have confirmation of this behavior on XP & Vista.
+  for (size_t i = 0; i < orig_keyboard_layouts_list_.size(); ++i) {
+    if (orig_keyboard_layouts_list_[i] == active_keyboard_layout_)
+      return;
+  }
+
+  // If we got here, this keyboard layout wasn't loaded by the system so it's
+  // safe to unload it ourselve's.
+  UnloadKeyboardLayout(active_keyboard_layout_);
+  active_keyboard_layout_ = original_keyboard_layout_;
 }
 
 bool MockKeyboardDriverWin::SetLayout(int layout) {
   // Unload the current keyboard-layout driver and load a new keyboard-layout
   // driver for mapping a virtual key-code to a Unicode character.
-  if (keyboard_handle_) {
-    UnloadKeyboardLayout(keyboard_handle_);
-    keyboard_handle_ = NULL;
-  }
+  MaybeUnloadActiveLayout();
 
   // Scan the mapping table and retrieve a Language ID for the input layout.
   // Load the keyboard-layout driver when we find a Language ID.
@@ -81,11 +100,16 @@ bool MockKeyboardDriverWin::SetLayout(int layout) {
 
   for (size_t i = 0; i < ARRAYSIZE_UNSAFE(kLanguageIDs); ++i) {
     if (layout == kLanguageIDs[i].keyboard_layout) {
-      keyboard_handle_ = LoadKeyboardLayout(kLanguageIDs[i].language,
-                                            KLF_ACTIVATE);
-      if (!keyboard_handle_)
-        return false;
-      return true;
+      HKL new_keyboard_layout = LoadKeyboardLayout(kLanguageIDs[i].language,
+                                                   KLF_ACTIVATE);
+      // loaded_keyboard_layout_ must always have a valid keyboard handle
+      // so we only assign upon success.
+      if (new_keyboard_layout) {
+        active_keyboard_layout_ = new_keyboard_layout;
+        return true;
+      }
+
+      return false;
     }
   }
 
@@ -133,7 +157,7 @@ int MockKeyboardDriverWin::GetCharacters(int key_code,
   int length = ToUnicodeEx(key_code, MapVirtualKey(key_code, 0),
                            &keyboard_states_[0], &code[0],
                            ARRAYSIZE_UNSAFE(code), 0,
-                           keyboard_handle_);
+                           active_keyboard_layout_);
   if (length > 0)
     output->assign(code);
   return length;

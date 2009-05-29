@@ -8,7 +8,7 @@
 #include <windows.h>
 
 #include <string>
-
+#include <vector>
 #include "base/basictypes.h"
 
 // Implements the platform-dependent part of a pseudo keyboard device for
@@ -23,10 +23,16 @@ class MockKeyboardDriverWin {
   int GetCharacters(int key_code, std::wstring* code);
 
  private:
+  void MaybeUnloadActiveLayout();
+
+  // The list of keyboard drivers that are installed on this machine.
+  std::vector<HKL> orig_keyboard_layouts_list_;
+  // The active keyboard driver at the time the Ctor was called.
   HKL original_keyboard_layout_;
+  // The currently active driver.
+  HKL active_keyboard_layout_;
   BYTE original_keyboard_states_[256];
 
-  HKL keyboard_handle_;
   BYTE keyboard_states_[256];
 
   DISALLOW_COPY_AND_ASSIGN(MockKeyboardDriverWin);
