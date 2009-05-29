@@ -17,6 +17,7 @@
       '../printing/printing.gyp:printing',
       '../webkit/webkit.gyp:inspector_resources',
     ],
+    'grit_out_dir': '<(SHARED_INTERMEDIATE_DIR)/chrome',
   },
   'includes': [
     '../build/common.gypi',
@@ -173,7 +174,6 @@
       'type': 'none',
       'variables': {
         'grit_path': '../tools/grit/grit.py',
-        'grit_out_dir': '<(SHARED_INTERMEDIATE_DIR)/chrome',
       },
       'actions': [
         {
@@ -426,6 +426,9 @@
         'common/x11_util.h',
         'common/x11_util_internal.h',
         'third_party/xdg_user_dirs/xdg_user_dir_lookup.cc',
+
+        'tools/build/win/precompiled.cc',
+        'tools/build/win/precompiled.h',
       ],
       'direct_dependent_settings': {
         'include_dirs': [
@@ -435,6 +438,12 @@
       'export_dependent_settings': [
         '../app/app.gyp:app_base',
       ],
+      'configurations': {
+        'Debug': {
+          'msvs_precompiled_header': 'tools/build/win/precompiled.h',
+          'msvs_precompiled_source': 'tools/build/win/precompiled.cc',
+        },
+      },
       'conditions': [
         ['OS=="linux"', {
           'dependencies': [
@@ -1871,7 +1880,16 @@
         'plugin/webplugin_delegate_stub.h',
         'plugin/webplugin_proxy.cc',
         'plugin/webplugin_proxy.h',
+
+        'tools/build/win/precompiled.cc',
+        'tools/build/win/precompiled.h',
       ],
+      'configurations': {
+        'Debug': {
+          'msvs_precompiled_header': 'tools/build/win/precompiled.h',
+          'msvs_precompiled_source': 'tools/build/win/precompiled.cc',
+        },
+      },
       # These are layered in conditionals in the event other platforms
       # end up using this module as well.
       'conditions': [
@@ -1991,11 +2009,20 @@
         'renderer/webplugin_delegate_proxy.h',
         'renderer/webworker_proxy.cc',
         'renderer/webworker_proxy.h',
+
+        'tools/build/win/precompiled_wtl.cc',
+        'tools/build/win/precompiled_wtl.h',
       ],
       'link_settings': {
         'mac_bundle_resources': [
           'renderer/renderer.sb',
         ],
+      },
+      'configurations': {
+        'Debug': {
+          'msvs_precompiled_header': 'tools/build/win/precompiled_wtl.h',
+          'msvs_precompiled_source': 'tools/build/win/precompiled_wtl.cc',
+        },
       },
       'conditions': [
         # Linux-specific rules.
@@ -2908,9 +2935,11 @@
         'chrome_strings',
         'test_support_unit',
         '../app/app.gyp:app_resources',
+        '../net/net.gyp:net_resources',
         '../net/net.gyp:net_test_support',
         '../printing/printing.gyp:printing',
         '../webkit/webkit.gyp:webkit',
+        '../webkit/webkit.gyp:webkit_resources',
         '../skia/skia.gyp:skia',
         '../testing/gtest.gyp:gtest',
         '../third_party/icu38/icu38.gyp:icui18n',
@@ -3030,6 +3059,8 @@
         'browser/net/dns_host_info_unittest.cc',
         'browser/net/dns_master_unittest.cc',
         'browser/net/resolve_proxy_msg_helper_unittest.cc',
+        'browser/net/test_url_fetcher_factory.cc',
+        'browser/net/test_url_fetcher_factory.h',
         'browser/net/url_fetcher_unittest.cc',
         'browser/net/url_fixer_upper_unittest.cc',
         'browser/password_manager/encryptor_unittest.cc',
@@ -3126,6 +3157,9 @@
         '../views/focus/focus_manager_unittest.cc',
         '../views/grid_layout_unittest.cc',
         '../views/view_unittest.cc',
+
+        'tools/build/win/precompiled_wtl.h',
+        'tools/build/win/precompiled_wtl.cc',
       ],
       'conditions': [
         ['OS=="linux"', {
@@ -3190,6 +3224,8 @@
           ],
           'configurations': {
             'Debug': {
+              'msvs_precompiled_header': 'tools/build/win/precompiled_wtl.h',
+              'msvs_precompiled_source': 'tools/build/win/precompiled_wtl.cc',
               'msvs_settings': {
                 'VCLinkerTool': {
                   'LinkIncremental': '1',       # /INCREMENTAL:NO
@@ -3280,6 +3316,7 @@
         'app',
         'chrome_resources',
         'chrome_strings',
+        'test_support_common',
         'test_support_ui',
         '../base/base.gyp:base',
         '../skia/skia.gyp:skia',
@@ -3482,6 +3519,7 @@
           'type': 'none',
           'dependencies': [
             'app/locales.gyp:*',
+            'installer/installer.gyp:*',
             '../app/app.gyp:*',
             '../base/base.gyp:*',
             '../media/media.gyp:*',
@@ -3840,6 +3878,7 @@
             'test_support_common',
             'test_support_ui',
             'third_party/hunspell/hunspell.gyp:hunspell',
+            '../net/net.gyp:net_resources',
             '../skia/skia.gyp:skia',
             '../third_party/ffmpeg/ffmpeg.gyp:ffmpeg',
             '../third_party/icu38/icu38.gyp:icui18n',
@@ -3849,6 +3888,7 @@
             '../testing/gtest.gyp:gtest',
             '../third_party/npapi/npapi.gyp:npapi',
             '../views/views.gyp:views',
+            '../webkit/webkit.gyp:webkit_resources',
           ],
           'include_dirs': [
             '..',
@@ -4061,15 +4101,26 @@
             'test_support_common',
             'test_support_ui',
             'theme_resources',
+            '../net/net.gyp:net',
             '../skia/skia.gyp:skia',
             '../testing/gtest.gyp:gtest',
           ],
           'include_dirs': [
             '..',
+            'third_party/wtl/include',
           ],
           'sources': [
             'test/url_fetch_test/url_fetch_test.cc',
+
+            'tools/build/win/precompiled_wtl.cc',
+            'tools/build/win/precompiled_wtl.h',
           ],
+          'configurations': {
+            'Debug': {
+              'msvs_precompiled_header': 'tools/build/win/precompiled_wtl.h',
+              'msvs_precompiled_source': 'tools/build/win/precompiled_wtl.cc',
+            },
+          },
         },
         {
           'target_name': 'worker',
