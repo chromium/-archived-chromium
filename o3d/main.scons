@@ -82,7 +82,6 @@ base_env.ApplySConscript(['svn_paths.scons'])
 
 base_env.Append(
     # Some derived paths
-    NACL_IMC_SOURCE_DIR = '$NACL_DIR/intermodule_comm',
     NACL_NRD_XFER_SOURCE_DIR = '$NACL_DIR/src/trusted/desc',
     NACL_PLUGIN_SOURCE_DIR = '$NACL_DIR/npapi_plugin',
     DOCS_DIR = '$DESTINATION_ROOT/docs',
@@ -92,7 +91,8 @@ base_env.Append(
         '$SCONSTRUCT_DIR',
         '$CHROME_SRC_DIR',
         '$GTEST_DIR/include',
-        '$EXPERIMENTAL_O3D_DIR'
+        '$EXPERIMENTAL_O3D_DIR',
+        '$NACL_DIR/..',
     ],
     LIBPATH = '$LIBS_DIR',
     RENDERER_INCLUDE_PATH = [
@@ -105,7 +105,7 @@ base_env.Append(
     RENDERER_LIBS = [
         'libjpeg',
         'libpng',
-        'zlib'
+        'zlib',
         ],
 
     CPPDEFINES = [
@@ -231,8 +231,7 @@ def AddNaclBuildCommand(env, variant, platforms):
              for f in build_libs]
   nacl_build_tool = '$PYTHON $SCONS_DIR/scons.py'
   env.Command(targets,
-              ['$NACL_IMC_SOURCE_DIR', '$NACL_NRD_XFER_SOURCE_DIR',
-               '$NACL_PLUGIN_SOURCE_DIR'],
+              ['$NACL_NRD_XFER_SOURCE_DIR', '$NACL_PLUGIN_SOURCE_DIR'],
               nacl_build_tool + ' '
               'MODE=$NACL_VARIANT '
               'naclsdk_validate=0 '

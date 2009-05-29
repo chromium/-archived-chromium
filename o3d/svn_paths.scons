@@ -33,7 +33,7 @@ import sys
 
 Import('env')
 env.Replace(
-    GOOGLECLIENT = '$SCONSTRUCT_DIR/..',
+    GOOGLECLIENT = '$SCONSTRUCT_DIR',
     THIRD_PARTY = '$GOOGLECLIENT/third_party',
 
     # A whole bunch of third-party and internal dependencies
@@ -56,7 +56,9 @@ env.Replace(
     # Set this to run an hermetic version of Firefox with Selenium on the Mac.
     # See tests/build.scons
     MAC_HERMETIC_FIREFOX_DIR = None,
-    NACL_DIR = '$GOOGLECLIENT/native_client',
+    # NACL has to be in this weird directory because it looks for
+    # googleclient two levels above it.
+    NACL_DIR = '$THIRD_PARTY/native_client/googleclient/native_client',
     NIXYSA_DIR = '$THIRD_PARTY/nixysa/files',
     NPAPI_DIR = '$THIRD_PARTY/npapi/files',
     PDIFF_DIR = '$THIRD_PARTY/pdiff/files',

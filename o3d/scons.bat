@@ -28,5 +28,4 @@ REM THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 REM (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 REM OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-
-"%~dp0\..\third_party\python_24\python" -O -OO "%~dp0\..\third_party\scons\scons.py" -f main.scons %*
+"%~dp0\third_party\python_24\python" -O -OO "%~dp0\third_party\scons\scons.py" -f main.scons %*
