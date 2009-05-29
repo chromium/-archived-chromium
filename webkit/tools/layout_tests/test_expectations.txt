@@ -2672,5 +2672,5 @@ BUG12881 : LayoutTests/fast/borders/border-radius-huge-assert.html = FAIL
 BUG12881 : LayoutTests/fast/borders/border-radius-split-inline.html = FAIL
 
 // WebKit 44202:44252 introduced new failures (old tests)
-BUG12882 : LayoutTests/fast/dom/HTMLObjectElement/object-as-frame.html = FAIL
-BUG12882 : LayoutTests/fast/box-shadow/basic-shadows.html = FAIL
+BUG12882 WIN : LayoutTests/fast/dom/HTMLObjectElement/object-as-frame.html = FAIL
+BUG12882 WIN : LayoutTests/fast/box-shadow/basic-shadows.html = FAIL
