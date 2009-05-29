@@ -13,14 +13,18 @@
           'target_name': 'rlz',
           'type': 'none',
           'msvs_guid': 'BF4F447B-72B5-4059-BE1B-F94337B1F385',
-          'copies': [
-            {
-              'destination': '<(PRODUCT_DIR)',
-              'files': [
-                'binaries/rlz.dll',
-                'binaries/rlz_dll.pdb',
+          'conditions': [
+            ['branding == "Chrome"', {
+              'copies': [
+                {
+                  'destination': '<(PRODUCT_DIR)',
+                  'files': [
+                    'binaries/rlz.dll',
+                    'binaries/rlz_dll.pdb',
+                  ],
+                },
               ],
-            },
+            }],
           ],
         },
       ],
