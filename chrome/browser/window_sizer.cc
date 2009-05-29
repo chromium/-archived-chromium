@@ -233,6 +233,13 @@ bool WindowSizer::PositionIsOffscreen(int position, Edge edge) const {
   return true;
 }
 
+namespace {
+  // Minimum height of the visible part of a window.
+  static const int kMinVisibleHeight = 30;
+  // Minimum width of the visible part of a window.
+  static const int kMinVisibleWidth = 30;
+}
+
 void WindowSizer::AdjustBoundsToBeVisibleOnMonitorContaining(
     const gfx::Rect& other_bounds, gfx::Rect* bounds) const {
   DCHECK(bounds);
@@ -251,36 +258,15 @@ void WindowSizer::AdjustBoundsToBeVisibleOnMonitorContaining(
   if (bounds->width() <= 0)
     bounds->set_width(default_bounds.width());
 
-  // First determine which screen edge(s) the window is offscreen on.
-  monitor_info_provider_->UpdateWorkAreas();
-  bool top_offscreen = PositionIsOffscreen(bounds->y(), TOP);
-  bool left_offscreen = PositionIsOffscreen(bounds->x(), LEFT);
-  bool bottom_offscreen = PositionIsOffscreen(bounds->bottom(), BOTTOM);
-  bool right_offscreen = PositionIsOffscreen(bounds->right(), RIGHT);
+  // Ensure the minimum height and width.
+  bounds->set_height(std::max(kMinVisibleHeight, bounds->height()));
+  bounds->set_width(std::max(kMinVisibleWidth, bounds->width()));
 
-  // Bump the window back onto the screen in the direction that it's offscreen.
-  int min_x = work_area.x() + kWindowTilePixels;
-  int min_y = work_area.y() + kWindowTilePixels;
-  if (bottom_offscreen) {
-    bounds->set_y(std::max(
-        work_area.bottom() - kWindowTilePixels - bounds->height(), min_y));
-  }
-  if (right_offscreen) {
-    bounds->set_x(std::max(
-        work_area.right() - kWindowTilePixels - bounds->width(), min_x));
-  }
-  if (top_offscreen)
-    bounds->set_y(min_y);
-  if (left_offscreen)
-    bounds->set_x(min_x);
-
-  // Now that we've tried to correct the x/y position to something reasonable,
-  // see if the window is still too tall or wide to fit, and resize it if need
-  // be.
-  if ((bottom_offscreen || top_offscreen) &&
-      bounds->bottom() > work_area.bottom())
-    bounds->set_height(work_area.height() - 2 * kWindowTilePixels);
-  if ((left_offscreen || right_offscreen) &&
-      bounds->right() > work_area.right())
-    bounds->set_width(work_area.width() - 2 * kWindowTilePixels);
+  // Ensure at least kMinVisibleWidth * kMinVisibleHeight is visible.
+  const int min_y = work_area.y() + kMinVisibleHeight - bounds->height();
+  const int min_x = work_area.x() + kMinVisibleWidth - bounds->width();
+  const int max_y = work_area.bottom() - kMinVisibleHeight;
+  const int max_x = work_area.right() - kMinVisibleWidth;
+  bounds->set_y(std::max(min_y, std::min(max_y, bounds->y())));
+  bounds->set_x(std::max(min_x, std::min(max_x, bounds->x())));
 }

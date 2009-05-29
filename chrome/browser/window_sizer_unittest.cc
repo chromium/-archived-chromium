@@ -252,7 +252,6 @@ TEST(WindowSizerTest, DefaultSizeCase) {
 // Test that the next opened window is positioned appropriately given the
 // bounds of an existing window of the same type.
 TEST(WindowSizerTest, LastWindowBoundsCase) {
-
   { // normal, in the middle of the screen somewhere.
     gfx::Rect window_bounds;
     bool maximized = false;
@@ -262,6 +261,18 @@ TEST(WindowSizerTest, LastWindowBoundsCase) {
     EXPECT_FALSE(maximized);
     EXPECT_EQ(gfx::Rect(20, 20, 500, 400), window_bounds);
   }
+
+  { // too small to satisify the minimum visibility condition.
+    gfx::Rect window_bounds;
+    bool maximized = false;
+    GetWindowBounds(tentwentyfour, tentwentyfour, gfx::Rect(),
+                    gfx::Rect(10, 10, 29, 29), false, LAST_ACTIVE,
+                    &window_bounds, &maximized);
+    EXPECT_FALSE(maximized);
+    EXPECT_EQ(gfx::Rect(20, 20, 30 /* not 29 */, 30 /* not 29 */),
+              window_bounds);
+  }
+
 
   { // normal, but maximized
     gfx::Rect window_bounds;
@@ -273,34 +284,60 @@ TEST(WindowSizerTest, LastWindowBoundsCase) {
     EXPECT_EQ(gfx::Rect(20, 20, 500, 400), window_bounds);
   }
 
-  { // offset would put the new window offscreen at the bottom
+  { // offset would put the new window offscreen at the bottom but the minimum
+    // visibility condition is barely satisfied without relocation.
     gfx::Rect window_bounds;
     bool maximized = false;
     GetWindowBounds(tentwentyfour, tentwentyfour, gfx::Rect(),
-                    gfx::Rect(10, 360, 500, 400), false, LAST_ACTIVE,
+                    gfx::Rect(10, 728, 500, 400), false, LAST_ACTIVE,
                     &window_bounds, &maximized);
     EXPECT_FALSE(maximized);
-    EXPECT_EQ(gfx::Rect(20, 358, 500, 400), window_bounds);
+    EXPECT_EQ(gfx::Rect(20, 738, 500, 400), window_bounds);
   }
 
-  { // offset would put the new window offscreen at the right
+  { // offset would put the new window offscreen at the bottom and the minimum
+    // visibility condition is satisified by relocation.
     gfx::Rect window_bounds;
     bool maximized = false;
     GetWindowBounds(tentwentyfour, tentwentyfour, gfx::Rect(),
-                    gfx::Rect(520, 10, 500, 400), false, LAST_ACTIVE,
+                    gfx::Rect(10, 729, 500, 400), false, LAST_ACTIVE,
                     &window_bounds, &maximized);
     EXPECT_FALSE(maximized);
-    EXPECT_EQ(gfx::Rect(514, 20, 500, 400), window_bounds);
+    EXPECT_EQ(gfx::Rect(20, 738 /* not 739 */, 500, 400), window_bounds);
   }
 
-  { // offset would put the new window offscreen at the bottom right
+  { // offset would put the new window offscreen at the right but the minimum
+    // visibility condition is barely satisfied without relocation.
     gfx::Rect window_bounds;
     bool maximized = false;
     GetWindowBounds(tentwentyfour, tentwentyfour, gfx::Rect(),
-                    gfx::Rect(520, 360, 500, 400), false, LAST_ACTIVE,
+                    gfx::Rect(984, 10, 500, 400), false, LAST_ACTIVE,
                     &window_bounds, &maximized);
     EXPECT_FALSE(maximized);
-    EXPECT_EQ(gfx::Rect(514, 358, 500, 400), window_bounds);
+    EXPECT_EQ(gfx::Rect(994, 20, 500, 400), window_bounds);
+  }
+
+  { // offset would put the new window offscreen at the right and the minimum
+    // visibility condition is satisified by relocation.
+    gfx::Rect window_bounds;
+    bool maximized = false;
+    GetWindowBounds(tentwentyfour, tentwentyfour, gfx::Rect(),
+                    gfx::Rect(985, 10, 500, 400), false, LAST_ACTIVE,
+                    &window_bounds, &maximized);
+    EXPECT_FALSE(maximized);
+    EXPECT_EQ(gfx::Rect(994 /* not 995 */, 20, 500, 400), window_bounds);
+  }
+
+  { // offset would put the new window offscreen at the bottom right and the
+    // minimum visibility condition is satisified by relocation.
+    gfx::Rect window_bounds;
+    bool maximized = false;
+    GetWindowBounds(tentwentyfour, tentwentyfour, gfx::Rect(),
+                    gfx::Rect(985, 729, 500, 400), false, LAST_ACTIVE,
+                    &window_bounds, &maximized);
+    EXPECT_FALSE(maximized);
+    EXPECT_EQ(gfx::Rect(994 /* not 995 */, 738 /* not 739 */, 500, 400),
+              window_bounds);
   }
 }
 
@@ -353,160 +390,148 @@ TEST(WindowSizerTest, PersistedBoundsCase) {
     EXPECT_EQ(initial_bounds, window_bounds);
   }
 
-  { // a little off the left
+  { // off the left but the minimum visibility condition is barely satisfied
+    // without relocaiton.
+    gfx::Rect initial_bounds(-470, 50, 500, 400);
+    
     gfx::Rect window_bounds;
     bool maximized;
     GetWindowBounds(tentwentyfour, tentwentyfour, gfx::Rect(),
-                    gfx::Rect(-10, 50, 500, 400), false, PERSISTED,
+                    initial_bounds, false, PERSISTED,
                     &window_bounds, &maximized);
-    EXPECT_FALSE(maximized);
-    EXPECT_EQ(gfx::Rect(10, 50, 500, 400), window_bounds);
-  }
-
-  { // a little off the top
-    gfx::Rect window_bounds;
-    bool maximized;
-    GetWindowBounds(tentwentyfour, tentwentyfour, gfx::Rect(),
-                    gfx::Rect(50, -10, 500, 400), false, PERSISTED,
-                    &window_bounds, &maximized);
-    EXPECT_FALSE(maximized);
-    EXPECT_EQ(gfx::Rect(50, 10, 500, 400), window_bounds);
-  }
-
-  { // a little off the right
-    gfx::Rect window_bounds;
-    bool maximized;
-    GetWindowBounds(tentwentyfour, tentwentyfour, gfx::Rect(),
-                    gfx::Rect(534, 50, 500, 400), false, PERSISTED,
-                    &window_bounds, &maximized);
-    EXPECT_FALSE(maximized);
-    EXPECT_EQ(gfx::Rect(514, 50, 500, 400), window_bounds);
-  }
-
-  { // a little off the bottom
-    gfx::Rect window_bounds;
-    bool maximized;
-    GetWindowBounds(tentwentyfour, tentwentyfour, gfx::Rect(),
-                    gfx::Rect(50, 378, 500, 400), false, PERSISTED,
-                    &window_bounds, &maximized);
-    EXPECT_FALSE(maximized);
-    EXPECT_EQ(gfx::Rect(50, 358, 500, 400), window_bounds);
-  }
-
-  { // a little off the topleft
-    gfx::Rect window_bounds;
-    bool maximized;
-    GetWindowBounds(tentwentyfour, tentwentyfour, gfx::Rect(),
-                    gfx::Rect(-10, -10, 500, 400), false, PERSISTED,
-                    &window_bounds, &maximized);
-    EXPECT_FALSE(maximized);
-    EXPECT_EQ(gfx::Rect(10, 10, 500, 400), window_bounds);
-  }
-
-  { // a little off the topright
-    gfx::Rect window_bounds;
-    bool maximized;
-    GetWindowBounds(tentwentyfour, tentwentyfour, gfx::Rect(),
-                    gfx::Rect(534, -10, 500, 400), false, PERSISTED,
-                    &window_bounds, &maximized);
-    EXPECT_FALSE(maximized);
-    EXPECT_EQ(gfx::Rect(514, 10, 500, 400), window_bounds);
-  }
-
-  { // a little off the bottomleft
-    gfx::Rect window_bounds;
-    bool maximized;
-    GetWindowBounds(tentwentyfour, tentwentyfour, gfx::Rect(),
-                    gfx::Rect(-10, 378, 500, 400), false, PERSISTED,
-                    &window_bounds, &maximized);
-    EXPECT_FALSE(maximized);
-    EXPECT_EQ(gfx::Rect(10, 358, 500, 400), window_bounds);
-  }
-
-  { // a little off the bottomright
-    gfx::Rect window_bounds;
-    bool maximized;
-    GetWindowBounds(tentwentyfour, tentwentyfour, gfx::Rect(),
-                    gfx::Rect(534, 378, 500, 400), false, PERSISTED,
-                    &window_bounds, &maximized);
-    EXPECT_FALSE(maximized);
-    EXPECT_EQ(gfx::Rect(514, 358, 500, 400), window_bounds);
-  }
-
-  { // split across two, bias right
-    gfx::Rect initial_bounds(-50, 50, 500, 400);
-    gfx::Rect window_bounds;
-    bool maximized;
-    GetWindowBounds(tentwentyfour, tentwentyfour, left_nonprimary,
-                    initial_bounds, false, PERSISTED, &window_bounds,
-                    &maximized);
-    EXPECT_FALSE(maximized);
-    EXPECT_EQ(initial_bounds, window_bounds);
-
-    initial_bounds.Offset(tentwentyfour.width(), 0);
-    GetWindowBounds(tentwentyfour, tentwentyfour, right_nonprimary,
-                    initial_bounds, false, PERSISTED, &window_bounds,
-                    &maximized);
     EXPECT_FALSE(maximized);
     EXPECT_EQ(initial_bounds, window_bounds);
   }
 
-  { // split across two, bias left
-    gfx::Rect initial_bounds(-450, 50, 500, 400);
+  { // off the left and the minimum visibility condition is satisfied by
+    // relocation.
     gfx::Rect window_bounds;
     bool maximized;
-    GetWindowBounds(tentwentyfour, tentwentyfour, left_nonprimary,
-                    initial_bounds, false, PERSISTED, &window_bounds,
-                    &maximized);
+    GetWindowBounds(tentwentyfour, tentwentyfour, gfx::Rect(),
+                    gfx::Rect(-471, 50, 500, 400), false, PERSISTED,
+                    &window_bounds, &maximized);
+    EXPECT_FALSE(maximized);
+    EXPECT_EQ(gfx::Rect(-470 /* not -471 */, 50, 500, 400), window_bounds);
+  }
+
+  { // off the top but the minimum visibility condition is barely satisified
+    // without relocation.
+    gfx::Rect initial_bounds(50, -370, 500, 400);
+
+    gfx::Rect window_bounds;
+    bool maximized;
+    GetWindowBounds(tentwentyfour, tentwentyfour, gfx::Rect(),
+                    initial_bounds, false, PERSISTED,
+                    &window_bounds, &maximized);
     EXPECT_FALSE(maximized);
     EXPECT_EQ(initial_bounds, window_bounds);
+  }
 
-    initial_bounds.Offset(tentwentyfour.width(), 0);
-    GetWindowBounds(tentwentyfour, tentwentyfour, right_nonprimary,
-                    initial_bounds, false, PERSISTED, &window_bounds,
-                    &maximized);
+  { // off the top and the minimum visibility condition is satisified by
+    // relocation.
+    gfx::Rect window_bounds;
+    bool maximized;
+    GetWindowBounds(tentwentyfour, tentwentyfour, gfx::Rect(),
+                    gfx::Rect(50, -371, 500, 400), false, PERSISTED,
+                    &window_bounds, &maximized);
+    EXPECT_FALSE(maximized);
+    EXPECT_EQ(gfx::Rect(50, -370 /* not -371 */, 500, 400), window_bounds);
+  }
+
+  { // off the right but the minimum visibility condition is barely satisified
+    // without relocation.
+    gfx::Rect initial_bounds(994, 50, 500, 400);
+
+    gfx::Rect window_bounds;
+    bool maximized;
+    GetWindowBounds(tentwentyfour, tentwentyfour, gfx::Rect(),
+                    initial_bounds, false, PERSISTED,
+                    &window_bounds, &maximized);
     EXPECT_FALSE(maximized);
     EXPECT_EQ(initial_bounds, window_bounds);
   }
 
-  { // split across two, a little off left
+  { // off the right and the minimum visibility condition is satisified by
+    // relocation.
     gfx::Rect window_bounds;
     bool maximized;
-    GetWindowBounds(tentwentyfour, tentwentyfour, top_nonprimary,
-                    gfx::Rect(-50, -50, 500, 400), false, PERSISTED,
+    GetWindowBounds(tentwentyfour, tentwentyfour, gfx::Rect(),
+                    gfx::Rect(995, 50, 500, 400), false, PERSISTED,
                     &window_bounds, &maximized);
     EXPECT_FALSE(maximized);
-    EXPECT_EQ(gfx::Rect(10, -50, 500, 400), window_bounds);
+    EXPECT_EQ(gfx::Rect(994 /* not 995 */, 50, 500, 400), window_bounds);
   }
 
-  { // split across two, a little off right
+  { // off the bottom but the minimum visibility condition is barely satisified
+    // without relocation.
+    gfx::Rect initial_bounds(50, 738, 500, 400);
+
     gfx::Rect window_bounds;
     bool maximized;
-    GetWindowBounds(tentwentyfour, tentwentyfour, top_nonprimary,
-                    gfx::Rect(534, -50, 500, 400), false, PERSISTED,
+    GetWindowBounds(tentwentyfour, tentwentyfour, gfx::Rect(),
+                    initial_bounds, false, PERSISTED,
                     &window_bounds, &maximized);
     EXPECT_FALSE(maximized);
-    EXPECT_EQ(gfx::Rect(514, -50, 500, 400), window_bounds);
+    EXPECT_EQ(initial_bounds, window_bounds);
   }
 
-  { // split across two, a little off top
+  { // off the bottom and the minimum visibility condition is satisified by
+    // relocation.
     gfx::Rect window_bounds;
     bool maximized;
-    GetWindowBounds(tentwentyfour, tentwentyfour, left_nonprimary,
-                    gfx::Rect(-50, -50, 500, 400), false, PERSISTED,
+    GetWindowBounds(tentwentyfour, tentwentyfour, gfx::Rect(),
+                    gfx::Rect(50, 739, 500, 400), false, PERSISTED,
                     &window_bounds, &maximized);
     EXPECT_FALSE(maximized);
-    EXPECT_EQ(gfx::Rect(-50, 10, 500, 400), window_bounds);
+    EXPECT_EQ(gfx::Rect(50, 738 /* not 739 */, 500, 400), window_bounds);
   }
 
-  { // split across two, a little off bottom
+  { // off the topleft and the minimum visibility condition is satisified by
+    // relocation.
     gfx::Rect window_bounds;
     bool maximized;
-    GetWindowBounds(tentwentyfour, tentwentyfour, left_nonprimary,
-                    gfx::Rect(-50, 378, 500, 400), false, PERSISTED,
+    GetWindowBounds(tentwentyfour, tentwentyfour, gfx::Rect(),
+                    gfx::Rect(-471, -371, 500, 400), false, PERSISTED,
                     &window_bounds, &maximized);
     EXPECT_FALSE(maximized);
-    EXPECT_EQ(gfx::Rect(-50, 358, 500, 400), window_bounds);
+    EXPECT_EQ(gfx::Rect(-470 /* not -471 */, -370 /* not -371 */, 500, 400),
+              window_bounds);
+  }
+
+  { // off the topright and the minimum visibility condition is satisified by
+    // relocation.
+    gfx::Rect window_bounds;
+    bool maximized;
+    GetWindowBounds(tentwentyfour, tentwentyfour, gfx::Rect(),
+                    gfx::Rect(995, -371, 500, 400), false, PERSISTED,
+                    &window_bounds, &maximized);
+    EXPECT_FALSE(maximized);
+    EXPECT_EQ(gfx::Rect(994 /* not 995 */, -370 /* not -371 */, 500, 400),
+                        window_bounds);
+  }
+
+  { // off the bottomleft and the minimum visibility condition is satisified by
+    // relocation.
+    gfx::Rect window_bounds;
+    bool maximized;
+    GetWindowBounds(tentwentyfour, tentwentyfour, gfx::Rect(),
+                    gfx::Rect(-471, 739, 500, 400), false, PERSISTED,
+                    &window_bounds, &maximized);
+    EXPECT_FALSE(maximized);
+    EXPECT_EQ(gfx::Rect(-470 /* not -471 */, 738 /* not 739 */, 500, 400),
+                        window_bounds);
+  }
+
+  { // off the bottomright and the minimum visibility condition is satisified by
+    // relocation.
+    gfx::Rect window_bounds;
+    bool maximized;
+    GetWindowBounds(tentwentyfour, tentwentyfour, gfx::Rect(),
+                    gfx::Rect(995, 739, 500, 400), false, PERSISTED,
+                    &window_bounds, &maximized);
+    EXPECT_FALSE(maximized);
+    EXPECT_EQ(gfx::Rect(994 /* not 995 */, 738 /* not 739 */, 500, 400),
+                        window_bounds);
   }
 
   { // entirely off left (monitor was detached since last run)
@@ -516,7 +541,7 @@ TEST(WindowSizerTest, PersistedBoundsCase) {
                     gfx::Rect(-700, 50, 500, 400), false, PERSISTED,
                     &window_bounds, &maximized);
     EXPECT_FALSE(maximized);
-    EXPECT_EQ(gfx::Rect(10, 50, 500, 400), window_bounds);
+    EXPECT_EQ(gfx::Rect(-470 /* not -700 */, 50, 500, 400), window_bounds);
   }
 
   { // entirely off top (monitor was detached since last run)
@@ -526,7 +551,7 @@ TEST(WindowSizerTest, PersistedBoundsCase) {
                     gfx::Rect(50, -500, 500, 400), false, PERSISTED,
                     &window_bounds, &maximized);
     EXPECT_FALSE(maximized);
-    EXPECT_EQ(gfx::Rect(50, 10, 500, 400), window_bounds);
+    EXPECT_EQ(gfx::Rect(50, -370 /* not -500 */, 500, 400), window_bounds);
   }
 
   { // entirely off right (monitor was detached since last run)
@@ -536,7 +561,7 @@ TEST(WindowSizerTest, PersistedBoundsCase) {
                     gfx::Rect(1200, 50, 500, 400), false, PERSISTED,
                     &window_bounds, &maximized);
     EXPECT_FALSE(maximized);
-    EXPECT_EQ(gfx::Rect(514, 50, 500, 400), window_bounds);
+    EXPECT_EQ(gfx::Rect(994 /* not 1200 */, 50, 500, 400), window_bounds);
   }
 
   { // entirely off bottom (monitor was detached since last run)
@@ -546,44 +571,17 @@ TEST(WindowSizerTest, PersistedBoundsCase) {
                     gfx::Rect(50, 800, 500, 400), false, PERSISTED,
                     &window_bounds, &maximized);
     EXPECT_FALSE(maximized);
-    EXPECT_EQ(gfx::Rect(50, 358, 500, 400), window_bounds);
+    EXPECT_EQ(gfx::Rect(50, 738 /* not 800 */, 500, 400), window_bounds);
   }
 
-  { // width and height too large (monitor screen resolution changed since last
-    // run)
+  { // width and height too small
     gfx::Rect window_bounds;
     bool maximized;
     GetWindowBounds(tentwentyfour, tentwentyfour, gfx::Rect(),
-                    gfx::Rect(10, 10, 1200, 900), false, PERSISTED,
+                    gfx::Rect(10, 10, 29, 29), false, PERSISTED,
                     &window_bounds, &maximized);
     EXPECT_FALSE(maximized);
-    EXPECT_EQ(gfx::Rect(10, 10, 1004, 748), window_bounds);
-  }
-
-  { // Handles taskbar offset on the top.
-    gfx::Rect initial_bounds(10, 10, 500, 400);
-
-    gfx::Rect window_bounds;
-    bool maximized;
-    GetWindowBounds(tentwentyfour, taskbar_top_work_area, gfx::Rect(),
-                    initial_bounds, false, PERSISTED, &window_bounds,
-                    &maximized);
-    EXPECT_FALSE(maximized);
-    initial_bounds.Offset(taskbar_top_work_area.x(), taskbar_top_work_area.y());
-    EXPECT_EQ(initial_bounds, window_bounds);
-  }
-
-  { // Handles taskbar offset on the left.
-    gfx::Rect initial_bounds(10, 10, 500, 400);
-
-    gfx::Rect window_bounds;
-    bool maximized;
-    GetWindowBounds(tentwentyfour, taskbar_left_work_area, gfx::Rect(),
-                    initial_bounds, false, PERSISTED, &window_bounds,
-                    &maximized);
-    EXPECT_FALSE(maximized);
-    initial_bounds.Offset(taskbar_left_work_area.x(),
-                          taskbar_left_work_area.y());
-    EXPECT_EQ(initial_bounds, window_bounds);
+    EXPECT_EQ(gfx::Rect(10, 10, 30 /* not 29 */, 30 /* not 29 */),
+              window_bounds);
   }
 }
