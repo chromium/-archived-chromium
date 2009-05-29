@@ -9,7 +9,7 @@
 #include "views/controls/native_view_host_gtk.h"
 
 class NativeTabContentsContainerGtk : public NativeTabContentsContainer,
-                                      public views::NativeViewHostGtk {
+                                      public views::NativeViewHost {
  public:
   explicit NativeTabContentsContainerGtk(TabContentsContainer* container);
   virtual ~NativeTabContentsContainerGtk();

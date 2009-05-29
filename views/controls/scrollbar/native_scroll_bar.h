@@ -11,7 +11,7 @@
 
 namespace views {
 
-class HWNDView;
+class NativeViewHost;
 class ScrollBarContainer;
 
 /////////////////////////////////////////////////////////////////////////////
@@ -53,7 +53,7 @@ class NativeScrollBar : public ScrollBar {
 #if defined(OS_WIN)
   // The sb_view_ takes care of keeping sb_container in sync with the
   // view hierarchy
-  HWNDView* sb_view_;
+  NativeViewHost* sb_view_;
 #endif  // defined(OS_WIN)
 
   // sb_container_ is a custom hwnd that we use to wrap the real

@@ -15,8 +15,8 @@
 
 class Profile;
 namespace views {
+class NativeViewHost;
 class TextButton;
-class HWNDView;
 }  // namespace views
 
 class AboutIPCDialog : public views::DialogDelegate,
@@ -59,7 +59,7 @@ class AboutIPCDialog : public views::DialogDelegate,
   views::TextButton* track_toggle_;
   views::TextButton* clear_button_;
   views::TextButton* filter_button_;
-  views::HWNDView* table_;
+  views::NativeViewHost* table_;
 
   // Set to true when we're tracking network status.
   bool tracking_;

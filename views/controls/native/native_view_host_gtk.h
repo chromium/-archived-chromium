@@ -8,50 +8,47 @@
 #include <gtk/gtk.h>
 #include <string>
 
-#include "views/controls/native_view_host.h"
+#include "base/logging.h"
+#include "views/controls/native/native_view_host_wrapper.h"
 
 namespace views {
 
-class NativeViewHostGtk : public NativeViewHost {
+class View;
+
+class NativeViewHostGtk : public NativeViewHostWrapper {
  public:
-  NativeViewHostGtk();
+  explicit NativeViewHostGtk(NativeViewHost* host);
   virtual ~NativeViewHostGtk();
 
   // Sets and retrieves the View associated with a particular widget.
+  // TODO(beng): move to NativeViewHost, and have take gfx::NativeViews.
   static View* GetViewForNative(GtkWidget* widget);
   static void SetViewForNative(GtkWidget* widget, View* view);
 
-  // Attach a widget to this View, making the window it represents
-  // subject to sizing according to this View's parent container's Layout
-  // Manager's sizing heuristics.
-  //
-  // This object should be added to the view hierarchy before calling this
-  // function, which will expect the parent to be valid.
-
-  // TODO: figure out ownership!
-  void Attach(gfx::NativeView w);
-
-  // Detach the attached widget handle. It will no longer be updated
-  void Detach();
-
- protected:
-  virtual void ViewHierarchyChanged(bool is_add, View *parent, View *child);
-
-  virtual void Focus();
-
-  // NativeHostView overrides.
+  // Overridden from NativeViewHostWrapper:
+  virtual void NativeViewAttached();
+  virtual void NativeViewDetaching();
+  virtual void AddedToWidget();
+  virtual void RemovedFromWidget();
   virtual void InstallClip(int x, int y, int w, int h);
+  virtual bool HasInstalledClip();
   virtual void UninstallClip();
   virtual void ShowWidget(int x, int y, int w, int h);
   virtual void HideWidget();
+  virtual void SetFocus();
 
  private:
+  // Our associated NativeViewHost.
+  NativeViewHost* host_;
+
+  // Have we installed a region on the gfx::NativeView used to clip to only the
+  // visible portion of the gfx::NativeView ?
+  bool installed_clip_;
+
   // Signal handle id for 'destroy' signal.
   gulong destroy_signal_id_;
 
   // Invoked from the 'destroy' signal.
-  void OnDestroy();
-
   static void CallDestroy(GtkObject* object);
 
   DISALLOW_COPY_AND_ASSIGN(NativeViewHostGtk);
@@ -60,3 +57,4 @@ class NativeViewHostGtk : public NativeViewHost {
 }  // namespace views
 
 #endif  // VIEWS_CONTROLS_NATIVE_HOST_VIEW_GTK_H_
+

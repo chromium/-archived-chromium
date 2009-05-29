@@ -23,11 +23,11 @@ WNDPROC NativeControlWin::original_wndproc_ = NULL;
 ////////////////////////////////////////////////////////////////////////////////
 // NativeControlWin, public:
 
-NativeControlWin::NativeControlWin() : HWNDView() {
+NativeControlWin::NativeControlWin() {
 }
 
 NativeControlWin::~NativeControlWin() {
-  HWND hwnd = GetHWND();
+  HWND hwnd = native_view();
   if (hwnd) {
     // Destroy the hwnd if it still exists. Otherwise we won't have shut things
     // down correctly, leading to leaking and crashing if another message
@@ -47,7 +47,7 @@ bool NativeControlWin::ProcessMessage(UINT message, WPARAM w_param,
     case WM_CTLCOLORBTN:
     case WM_CTLCOLORSTATIC:
       *result = GetControlColor(message, reinterpret_cast<HDC>(w_param),
-                                GetHWND());
+                                native_view());
       return true;
   }
   return false;
@@ -59,37 +59,37 @@ bool NativeControlWin::ProcessMessage(UINT message, WPARAM w_param,
 void NativeControlWin::SetEnabled(bool enabled) {
   if (IsEnabled() != enabled) {
     View::SetEnabled(enabled);
-    if (GetHWND())
-      EnableWindow(GetHWND(), IsEnabled());
+    if (native_view())
+      EnableWindow(native_view(), IsEnabled());
   }
 }
 
 void NativeControlWin::ViewHierarchyChanged(bool is_add, View* parent,
                                             View* child) {
+  // Call the base class to hide the view if we're being removed.
+  NativeViewHost::ViewHierarchyChanged(is_add, parent, child);
+
   // Create the HWND when we're added to a valid Widget. Many controls need a
   // parent HWND to function properly.
-  if (is_add && GetWidget() && !GetHWND())
+  if (is_add && GetWidget() && !native_view())
     CreateNativeControl();
-
-  // Call the base class to hide the view if we're being removed.
-  HWNDView::ViewHierarchyChanged(is_add, parent, child);
 }
 
 void NativeControlWin::VisibilityChanged(View* starting_from, bool is_visible) {
   if (!is_visible) {
     // We destroy the child control HWND when we become invisible because of the
     // performance cost of maintaining many HWNDs.
-    HWND hwnd = GetHWND();
+    HWND hwnd = native_view();
     Detach();
     DestroyWindow(hwnd);
-  } else if (!GetHWND()) {
+  } else if (!native_view()) {
     CreateNativeControl();
   }
 }
 
 void NativeControlWin::Focus() {
-  DCHECK(GetHWND());
-  SetFocus(GetHWND());
+  DCHECK(native_view());
+  SetFocus(native_view());
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -123,13 +123,13 @@ void NativeControlWin::NativeControlCreated(HWND native_control) {
   SetProp(native_control, kNativeControlOriginalWndProcKey, original_wndproc_);
 
   Attach(native_control);
-  // GetHWND() is now valid.
+  // native_view() is now valid.
 
   // Update the newly created HWND with any resident enabled state.
-  EnableWindow(GetHWND(), IsEnabled());
+  EnableWindow(native_view(), IsEnabled());
 
   // This message ensures that the focus border is shown.
-  SendMessage(GetHWND(), WM_CHANGEUISTATE,
+  SendMessage(native_view(), WM_CHANGEUISTATE,
               MAKEWPARAM(UIS_CLEAR, UISF_HIDEFOCUS), 0);
 }
 

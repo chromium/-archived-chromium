@@ -17,7 +17,7 @@
 
 namespace views {
 
-class HWNDView;
+class NativeViewHost;
 class Textfield;
 
 static const int kDefaultEditStyle = WS_CHILD | WS_VISIBLE;
@@ -192,7 +192,7 @@ class NativeTextfieldWin
   int ime_composition_length_;
 
   // TODO(beng): remove this when we are a subclass of NativeControlWin.
-  HWNDView* container_view_;
+  NativeViewHost* container_view_;
 
   COLORREF bg_color_;
 

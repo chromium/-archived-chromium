@@ -4,7 +4,7 @@
 
 #include "views/controls/separator.h"
 
-#include "views/controls/hwnd_view.h"
+#include "views/controls/native/native_view_host.h"
 
 namespace views {
 

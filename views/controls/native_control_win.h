@@ -5,12 +5,12 @@
 #ifndef VIEWS_CONTROLS_NATIVE_CONTROL_WIN_H_
 #define VIEWS_CONTROLS_NATIVE_CONTROL_WIN_H_
 
-#include "views/controls/hwnd_view.h"
+#include "views/controls/native/native_view_host.h"
 
 namespace views {
 
 // A View that hosts a native Windows control.
-class NativeControlWin : public HWNDView {
+class NativeControlWin : public NativeViewHost {
  public:
   static const wchar_t* kNativeControlWinKey;
 
@@ -60,7 +60,7 @@ class NativeControlWin : public HWNDView {
 
   // MUST be called by the subclass implementation of |CreateNativeControl|
   // immediately after creating the control HWND, otherwise it won't be attached
-  // to the HWNDView and will be effectively orphaned.
+  // to the NativeViewHost and will be effectively orphaned.
   virtual void NativeControlCreated(HWND native_control);
 
   // Returns additional extended style flags. When subclasses call

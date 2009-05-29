@@ -30,7 +30,7 @@ void NativeTabContentsContainerGtk::AttachContents(TabContents* contents) {
   // We need to register the tab contents window with the BrowserContainer so
   // that the BrowserContainer is the focused view when the focus is on the
   // TabContents window (for the TabContents case).
-  SetAssociatedFocusView(this);
+  set_focus_view(this);
 
   Attach(contents->GetNativeView());
 
@@ -45,7 +45,7 @@ void NativeTabContentsContainerGtk::AttachContents(TabContents* contents) {
 void NativeTabContentsContainerGtk::DetachContents(TabContents* contents) {
   // TODO(port): figure out focus interception
 #if defined(OS_WIN)
-  // TODO(brettw) should this move to HWNDView::Detach which is called below?
+  // TODO(brettw) should this move to NativeViewHost::Detach which is called below?
   // It needs cleanup regardless.
   HWND container_hwnd = contents->GetNativeView();
 

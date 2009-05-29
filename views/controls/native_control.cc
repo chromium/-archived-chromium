@@ -15,7 +15,7 @@
 #include "base/win_util.h"
 #include "views/background.h"
 #include "views/border.h"
-#include "views/controls/hwnd_view.h"
+#include "views/controls/native/native_view_host.h"
 #include "views/focus/focus_manager.h"
 #include "views/widget/widget.h"
 #include "base/gfx/native_theme.h"
@@ -182,7 +182,7 @@ NativeControl::~NativeControl() {
 
 void NativeControl::ValidateNativeControl() {
   if (hwnd_view_ == NULL) {
-    hwnd_view_ = new HWNDView();
+    hwnd_view_ = new NativeViewHost;
     AddChildView(hwnd_view_);
   }
 
@@ -202,7 +202,7 @@ void NativeControl::ValidateNativeControl() {
 
 void NativeControl::ViewHierarchyChanged(bool is_add, View *parent,
                                          View *child) {
-  if (is_add && GetWidget()) {
+  if (is_add && child == this && GetWidget()) {
     ValidateNativeControl();
     Layout();
   }

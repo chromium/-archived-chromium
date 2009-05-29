@@ -10,14 +10,14 @@
 
 #include "base/scoped_ptr.h"
 #include "googleurl/src/gurl.h"
-#include "views/controls/hwnd_view.h"
+#include "views/controls/native/native_view_host.h"
 #include "views/event.h"
 
 class Profile;
 class SiteInstance;
 class TabContents;
 
-class DOMView : public views::HWNDView {
+class DOMView : public views::NativeViewHost {
  public:
   // Construct a DOMView to display the given data: URL.
   explicit DOMView();

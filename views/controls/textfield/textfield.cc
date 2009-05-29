@@ -162,6 +162,7 @@ bool Textfield::IsKeystrokeEnter(const Keystroke& key) {
 #if defined(OS_WIN)
   return key.key == VK_RETURN;
 #else
+  // TODO(port): figure out VK_constants
   NOTIMPLEMENTED();
   return false;
 #endif
@@ -172,6 +173,7 @@ bool Textfield::IsKeystrokeEscape(const Keystroke& key) {
 #if defined(OS_WIN)
   return key.key == VK_ESCAPE;
 #else
+  // TODO(port): figure out VK_constants
   NOTIMPLEMENTED();
   return false;
 #endif

@@ -14,7 +14,6 @@ class ConstrainedTabContentsWindowDelegate;
 class ConstrainedWindowAnimation;
 class ConstrainedWindowFrameView;
 namespace views {
-class HWNDView;
 class WindowDelegate;
 }
 

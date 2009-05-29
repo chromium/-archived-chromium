@@ -31,7 +31,6 @@
 #include "grit/theme_resources.h"
 #include "net/base/net_util.h"
 #include "views/controls/button/image_button.h"
-#include "views/controls/hwnd_view.h"
 #include "views/focus/focus_manager.h"
 #include "views/window/client_view.h"
 #include "views/window/non_client_view.h"

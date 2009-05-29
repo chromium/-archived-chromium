@@ -138,22 +138,22 @@ void LocationBarView::Init() {
                                                     profile_, command_updater_,
                                                     popup_window_mode_,
                                                     popup_positioner_));
-  location_entry_view_ = new views::HWNDView;
 #else
   location_entry_.reset(new AutocompleteEditViewGtk(this, model_, profile_,
                                                     command_updater_,
                                                     popup_positioner_));
-  location_entry_view_ = new views::NativeViewHostGtk;
 #endif
-  DCHECK(location_entry_view_) << "LocationBarView::Init - OOM!";
+  location_entry_view_ = new views::NativeViewHost;
   location_entry_view_->SetID(VIEW_ID_AUTOCOMPLETE);
   AddChildView(location_entry_view_);
-  location_entry_view_->SetAssociatedFocusView(this);
+  location_entry_view_->set_focus_view(this);
+  location_entry_view_->Attach(
 #if defined(OS_WIN)
-  location_entry_view_->Attach(location_entry_->m_hWnd);
+                               location_entry_->m_hWnd
 #else
-  location_entry_view_->Attach(location_entry_->widget());
+                               location_entry_->widget()
 #endif
+                               );
 
   AddChildView(&selected_keyword_view_);
   selected_keyword_view_.SetFont(font_);

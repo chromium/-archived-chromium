@@ -15,7 +15,7 @@ class CPoint;
 
 namespace views {
 
-class HWNDView;
+class NativeViewHost;
 class NativeControlContainer;
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -111,7 +111,7 @@ class NativeControl : public View {
   // This variable is protected to provide subclassers direct access. However
   // subclassers should always check for NULL since this variable is only
   // initialized in ValidateNativeControl().
-  HWNDView* hwnd_view_;
+  NativeViewHost* hwnd_view_;
 
   // Fixed size information.  -1 for a size means no fixed size.
   int fixed_width_;

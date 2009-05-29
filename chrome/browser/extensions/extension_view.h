@@ -11,14 +11,7 @@
 #include "chrome/browser/extensions/extension_host.h"
 #include "googleurl/src/gurl.h"
 #include "third_party/skia/include/core/SkBitmap.h"
-
-// TODO(port): Port these files.
-#if defined(OS_WIN)
-#include "views/controls/hwnd_view.h"
-#else
-#include "views/view.h"
-#include "chrome/common/temp_scaffolding_stubs.h"
-#endif
+#include "views/controls/native/native_view_host.h"
 
 class Browser;
 class Extension;
@@ -33,7 +26,7 @@ class ExtensionContainer {
 };
 
 // This handles the display portion of an ExtensionHost.
-class ExtensionView : public views::HWNDView {
+class ExtensionView : public views::NativeViewHost {
  public:
   ExtensionView(ExtensionHost* host, Browser* browser, const GURL& content_url);
   ~ExtensionView();
@@ -54,7 +47,7 @@ class ExtensionView : public views::HWNDView {
   // Sets the container for this view.
   void SetContainer(ExtensionContainer* container) { container_ = container; }
 
-  // views::HWNDView
+  // Overridden from views::NativeViewHost:
   virtual void SetVisible(bool is_visible);
   virtual void DidChangeBounds(const gfx::Rect& previous,
                                const gfx::Rect& current);

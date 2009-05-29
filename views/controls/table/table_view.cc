@@ -21,7 +21,7 @@
 #include "skia/ext/skia_utils_win.h"
 #include "third_party/skia/include/core/SkBitmap.h"
 #include "third_party/skia/include/core/SkColorFilter.h"
-#include "views/controls/hwnd_view.h"
+#include "views/controls/native/native_view_host.h"
 
 namespace views {
 

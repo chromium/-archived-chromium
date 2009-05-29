@@ -23,7 +23,7 @@ NativeButtonWin::NativeButtonWin(NativeButton* native_button)
   // Associates the actual HWND with the native_button so the native_button is
   // the one considered as having the focus (not the wrapper) when the HWND is
   // focused directly (with a click for example).
-  SetAssociatedFocusView(native_button);
+  set_focus_view(native_button);
 }
 
 NativeButtonWin::~NativeButtonWin() {
@@ -33,11 +33,11 @@ NativeButtonWin::~NativeButtonWin() {
 // NativeButtonWin, NativeButtonWrapper implementation:
 
 void NativeButtonWin::UpdateLabel() {
-  SetWindowText(GetHWND(), native_button_->label().c_str());
+  SetWindowText(native_view(), native_button_->label().c_str());
 }
 
 void NativeButtonWin::UpdateFont() {
-  SendMessage(GetHWND(), WM_SETFONT,
+  SendMessage(native_view(), WM_SETFONT,
               reinterpret_cast<WPARAM>(native_button_->font().hfont()),
               FALSE);
 }
@@ -48,7 +48,7 @@ void NativeButtonWin::UpdateEnabled() {
 
 void NativeButtonWin::UpdateDefault() {
   if (!IsCheckbox()) {
-    SendMessage(GetHWND(), BM_SETSTYLE,
+    SendMessage(native_view(), BM_SETSTYLE,
                 native_button_->is_default() ? BS_DEFPUSHBUTTON : BS_PUSHBUTTON,
                 true);
   }
@@ -68,7 +68,7 @@ void NativeButtonWin::SetFocus() {
 
 gfx::Size NativeButtonWin::GetPreferredSize() {
   SIZE sz = {0};
-  SendMessage(GetHWND(), BCM_GETIDEALSIZE, 0, reinterpret_cast<LPARAM>(&sz));
+  SendMessage(native_view(), BCM_GETIDEALSIZE, 0, reinterpret_cast<LPARAM>(&sz));
 
   return gfx::Size(sz.cx, sz.cy);
 }
@@ -142,12 +142,12 @@ gfx::Size NativeCheckboxWin::GetPreferredSize() {
 // NativeCheckboxWin, NativeButtonWrapper implementation:
 
 void NativeCheckboxWin::UpdateChecked() {
-  SendMessage(GetHWND(), BM_SETCHECK,
+  SendMessage(native_view(), BM_SETCHECK,
               checkbox_->checked() ? BST_CHECKED : BST_UNCHECKED, 0);
 }
 
 void NativeCheckboxWin::SetPushed(bool pushed) {
-  SendMessage(GetHWND(), BM_SETSTATE, pushed, 0);
+  SendMessage(native_view(), BM_SETSTATE, pushed, 0);
 }
 
 bool NativeCheckboxWin::OnKeyDown(int vkey) {

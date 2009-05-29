@@ -29,7 +29,7 @@
 // focus. This is used in NativeControl for example, where a View wraps an
 // actual native window.
 // This is already done for you if you subclass the NativeControl class or if
-// you use the HWNDView class.
+// you use the NativeViewHost class.
 //
 // When creating a top window, if it derives from WidgetWin, the
 // |has_own_focus_manager| of the Init method lets you specify whether that

@@ -17,14 +17,13 @@
 #include "chrome/browser/views/info_bubble.h"
 #include "views/controls/image_view.h"
 #include "views/controls/label.h"
+#include "views/controls/native/native_view_host.h"
 #include "views/painter.h"
 
 #if defined(OS_WIN)
 #include "chrome/browser/autocomplete/autocomplete_edit_view_win.h"
-#include "views/controls/hwnd_view.h"
 #else
 #include "chrome/browser/autocomplete/autocomplete_edit_view_gtk.h"
-#include "views/controls/native_view_host_gtk.h"
 #endif
 
 class AutocompletePopupPositioner;
@@ -467,11 +466,7 @@ class LocationBarView : public LocationBar,
   gfx::Font font_;
 
   // Location_entry view wrapper
-#if defined(OS_WIN)
-  views::HWNDView* location_entry_view_;
-#else
-  views::NativeViewHostGtk* location_entry_view_;
-#endif
+  views::NativeViewHost* location_entry_view_;
 
   // The following views are used to provide hints and remind the user as to
   // what is going in the edit. They are all added a children of the

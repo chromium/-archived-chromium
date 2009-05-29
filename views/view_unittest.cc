@@ -713,7 +713,7 @@ class ButtonTest : public NativeButton {
   }
 
   HWND GetHWND() {
-    return static_cast<NativeButtonWin*>(native_wrapper_)->GetHWND();
+    return static_cast<NativeButtonWin*>(native_wrapper_)->native_view();
   }
 };
 
@@ -723,7 +723,7 @@ class CheckboxTest : public Checkbox {
   }
 
   HWND GetHWND() {
-    return static_cast<NativeCheckboxWin*>(native_wrapper_)->GetHWND();
+    return static_cast<NativeCheckboxWin*>(native_wrapper_)->native_view();
   }
 };
 

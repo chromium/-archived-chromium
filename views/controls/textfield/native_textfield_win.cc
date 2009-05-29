@@ -12,8 +12,8 @@
 #include "base/win_util.h"
 #include "grit/app_strings.h"
 #include "skia/ext/skia_utils_win.h"
-#include "views/controls/hwnd_view.h"
 #include "views/controls/menu/menu_win.h"
+#include "views/controls/native/native_view_host.h"
 #include "views/controls/textfield/native_textfield_win.h"
 #include "views/controls/textfield/textfield.h"
 #include "views/focus/focus_util_win.h"
@@ -111,9 +111,9 @@ NativeTextfieldWin::NativeTextfieldWin(Textfield* textfield)
       IDS_APP_SELECT_ALL,
       l10n_util::GetString(IDS_APP_SELECT_ALL));
 
-  container_view_ = new HWNDView;
+  container_view_ = new NativeViewHost;
   textfield_->AddChildView(container_view_);
-  container_view_->SetAssociatedFocusView(textfield_);
+  container_view_->set_focus_view(textfield_);
   container_view_->Attach(m_hWnd);
 }
 

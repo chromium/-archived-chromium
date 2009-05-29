@@ -423,28 +423,4 @@ class OSExchangeData {
 class BaseDragSource {
 };
 
-//---------------------------------------------------------------------------
-// These stubs are for extensions
-
-namespace views {
-class HWNDView {
- public:
-  int width() { NOTIMPLEMENTED(); return 0; }
-  int height() { NOTIMPLEMENTED(); return 0; }
-  void InitHidden() { NOTIMPLEMENTED(); }
-  void SetPreferredSize(const gfx::Size& size) { NOTIMPLEMENTED(); }
-  virtual void SetBackground(const SkBitmap&) { NOTIMPLEMENTED(); }
-  virtual void SetVisible(bool flag) { NOTIMPLEMENTED(); }
-  void SizeToPreferredSize() { NOTIMPLEMENTED(); }
-  bool IsVisible() const { NOTIMPLEMENTED(); return false; }
-  void Layout() { NOTIMPLEMENTED(); }
-  void SchedulePaint() { NOTIMPLEMENTED(); }
-  HWNDView* GetParent() const { NOTIMPLEMENTED(); return NULL; }
-  virtual gfx::Size GetPreferredSize() { NOTIMPLEMENTED(); return gfx::Size(); }
-  gfx::NativeWindow GetHWND() { NOTIMPLEMENTED(); return 0; }
-  void Detach() { NOTIMPLEMENTED(); }
-  gfx::Widget* GetWidget() { NOTIMPLEMENTED(); return NULL; }
-};
-}  // namespace views
-
 #endif  // CHROME_COMMON_TEMP_SCAFFOLDING_STUBS_H_

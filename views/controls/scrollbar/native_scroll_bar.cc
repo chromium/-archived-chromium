@@ -13,7 +13,7 @@
 #include <string>
 
 #include "base/message_loop.h"
-#include "views/controls/hwnd_view.h"
+#include "views/controls/native/native_view_host.h"
 #include "views/widget/widget.h"
 
 namespace views {
@@ -231,7 +231,7 @@ void NativeScrollBar::ViewHierarchyChanged(bool is_add, View *parent,
                                            View *child) {
   Widget* widget;
   if (is_add && (widget = GetWidget()) && !sb_view_) {
-    sb_view_ = new HWNDView();
+    sb_view_ = new NativeViewHost;
     AddChildView(sb_view_);
     sb_container_ = new ScrollBarContainer(this);
     sb_view_->Attach(*sb_container_);

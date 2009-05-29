@@ -29,7 +29,7 @@
 #include "net/url_request/url_request_job_tracker.h"
 #include "views/grid_layout.h"
 #include "views/controls/button/text_button.h"
-#include "views/controls/hwnd_view.h"
+#include "views/controls/native/native_view_host.h"
 #include "views/standard_layout.h"
 #include "views/widget/root_view.h"
 #include "views/widget/widget.h"
@@ -316,7 +316,7 @@ void AboutIPCDialog::SetupControls() {
   clear_button_ = new views::TextButton(this, kClearLabel);
   filter_button_ = new views::TextButton(this, kFilterLabel);
 
-  table_ = new views::HWNDView();
+  table_ = new views::NativeViewHost;
 
   static const int first_column_set = 1;
   views::ColumnSet* column_set = layout->AddColumnSet(first_column_set);

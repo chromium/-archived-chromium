@@ -20,13 +20,13 @@ ExtensionView::ExtensionView(ExtensionHost* host, Browser* browser,
 }
 
 ExtensionView::~ExtensionView() {
-  if (GetHWND())
+  if (native_view())
     Detach();
 }
 
 void ExtensionView::SetVisible(bool is_visible) {
   if (is_visible != IsVisible()) {
-    HWNDView::SetVisible(is_visible);
+    NativeViewHost::SetVisible(is_visible);
 
     // Also tell RenderWidgetHostView the new visibility. Despite its name, it
     // is not part of the View heirarchy and does not know about the change
@@ -47,7 +47,7 @@ void ExtensionView::DidChangeBounds(const gfx::Rect& previous,
   if (render_view_host()->view() && !current.IsEmpty())
     render_view_host()->view()->SetSize(gfx::Size(width(), height()));
   // Layout is where the HWND is properly positioned.
-  // TODO(erikkay) - perhaps this should be in HWNDView
+  // TODO(erikkay) - perhaps this should be in NativeViewHost
   Layout();
 }
 

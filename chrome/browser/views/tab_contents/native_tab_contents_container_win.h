@@ -6,10 +6,10 @@
 #define CHROME_BROWSER_VIEWS_TAB_CONTENTS_NATIVE_TAB_CONTENTS_CONTAINER_WIN_H_
 
 #include "chrome/browser/views/tab_contents/native_tab_contents_container.h"
-#include "views/controls/hwnd_view.h"
+#include "views/controls/native/native_view_host.h"
 
 class NativeTabContentsContainerWin : public NativeTabContentsContainer,
-                                      public views::HWNDView {
+                                      public views::NativeViewHost {
  public:
   explicit NativeTabContentsContainerWin(TabContentsContainer* container);
   virtual ~NativeTabContentsContainerWin();

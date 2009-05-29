@@ -5,12 +5,12 @@
 #ifndef VIEWS_CONTROLS_NATIVE_CONTROL_GTK_H_
 #define VIEWS_CONTROLS_NATIVE_CONTROL_GTK_H_
 
-#include "views/controls/native_view_host_gtk.h"
+#include "views/controls/native/native_view_host.h"
 
 namespace views {
 
 // A View that hosts a native control.
-class NativeControlGtk : public NativeViewHostGtk {
+class NativeControlGtk : public NativeViewHost {
  public:
   NativeControlGtk();
   virtual ~NativeControlGtk();

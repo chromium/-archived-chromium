@@ -11,6 +11,7 @@
 #include "views/controls/button/checkbox.h"
 #include "views/controls/button/native_button.h"
 #include "views/controls/button/radio_button.h"
+#include "views/controls/native/native_view_host_gtk.h"
 #include "views/widget/widget.h"
 
 namespace views {
@@ -21,7 +22,7 @@ NativeButtonGtk::NativeButtonGtk(NativeButton* native_button)
   // Associates the actual GtkWidget with the native_button so the native_button
   // is the one considered as having the focus (not the wrapper) when the
   // GtkWidget is focused directly (with a click for example).
-  SetAssociatedFocusView(native_button);
+  set_focus_view(native_button);
 }
 
 NativeButtonGtk::~NativeButtonGtk() {
@@ -90,7 +91,7 @@ void NativeButtonGtk::NativeControlCreated(GtkWidget* widget) {
 
 // static
 void NativeButtonGtk::CallClicked(GtkButton* widget) {
-  View* view = GetViewForNative(GTK_WIDGET(widget));
+  View* view = NativeViewHostGtk::GetViewForNative(GTK_WIDGET(widget));
   if (view)
     static_cast<NativeButtonGtk*>(view)->OnClicked();
 }

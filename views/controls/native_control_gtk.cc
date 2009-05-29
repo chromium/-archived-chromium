@@ -10,7 +10,7 @@
 
 namespace views {
 
-NativeControlGtk::NativeControlGtk() : NativeViewHostGtk() {
+NativeControlGtk::NativeControlGtk() {
 }
 
 NativeControlGtk::~NativeControlGtk() {
@@ -38,7 +38,7 @@ void NativeControlGtk::ViewHierarchyChanged(bool is_add, View* parent,
     CreateNativeControl();
 
   // Call the base class to hide the view if we're being removed.
-  NativeViewHostGtk::ViewHierarchyChanged(is_add, parent, child);
+  NativeViewHost::ViewHierarchyChanged(is_add, parent, child);
 }
 
 void NativeControlGtk::VisibilityChanged(View* starting_from, bool is_visible) {
