@@ -445,6 +445,7 @@ class Browser : public TabStripModelDelegate,
                              bool foreground);
   virtual void TabClosingAt(TabContents* contents, int index);
   virtual void TabDetachedAt(TabContents* contents, int index);
+  virtual void TabDeselectedAt(TabContents* contents, int index);
   virtual void TabSelectedAt(TabContents* old_contents,
                              TabContents* new_contents,
                              int index,

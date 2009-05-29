@@ -239,6 +239,7 @@ class BrowserView : public BrowserWindow,
 
   // Overridden from TabStripModelObserver:
   virtual void TabDetachedAt(TabContents* contents, int index);
+  virtual void TabDeselectedAt(TabContents* contents, int index);
   virtual void TabSelectedAt(TabContents* old_contents,
                              TabContents* new_contents,
                              int index,

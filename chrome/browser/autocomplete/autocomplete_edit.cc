@@ -71,8 +71,18 @@ const AutocompleteEditModel::State
   // Like typing, switching tabs "accepts" the temporary text as the user
   // text, because it makes little sense to have temporary text when the
   // popup is closed.
-  if (user_input_in_progress_)
-    InternalSetUserText(UserTextFromDisplayText(view_->GetText()));
+  if (user_input_in_progress_) {
+    // Weird edge case to match other browsers: if the edit is empty, revert to
+    // the permanent text (so the user can get it back easily) but select it (so
+    // on switching back, typing will "just work").
+    const std::wstring user_text(UserTextFromDisplayText(view_->GetText()));
+    if (user_text.empty()) {
+      view_->RevertAll();
+      view_->SelectAll(true);
+    } else {
+      InternalSetUserText(user_text);
+    }
+  }
 
   return State(user_input_in_progress_, user_text_, keyword_, is_keyword_hint_,
       keyword_ui_state_, show_search_hint_);

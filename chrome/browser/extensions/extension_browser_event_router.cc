@@ -81,14 +81,15 @@ ExtensionBrowserEventRouter* ExtensionBrowserEventRouter::GetInstance() {
   return Singleton<ExtensionBrowserEventRouter>::get();
 }
 
-static void DispatchEvent(Profile *profile,
+static void DispatchEvent(Profile* profile,
                           const char* event_name,
                           const std::string json_args) {
   ExtensionMessageService::GetInstance(profile->GetRequestContext())->
       DispatchEventToRenderers(event_name, json_args);
 }
 
-static void DispatchSimpleBrowserEvent(Profile *profile, const int window_id,
+static void DispatchSimpleBrowserEvent(Profile* profile,
+                                       const int window_id,
                                        const char* event_name) {
   ListValue args;
   args.Append(Value::CreateIntegerValue(window_id));
@@ -165,7 +166,7 @@ void ExtensionBrowserEventRouter::TabInsertedAt(TabContents* contents,
   ListValue args;
   args.Append(Value::CreateIntegerValue(tab_id));
 
-  DictionaryValue *object_args = new DictionaryValue();
+  DictionaryValue* object_args = new DictionaryValue();
   object_args->Set(tab_keys::kNewWindowIdKey, Value::CreateIntegerValue(
       ExtensionTabUtil::GetWindowIdOfTab(contents)));
   object_args->Set(tab_keys::kNewPositionKey, Value::CreateIntegerValue(
@@ -189,7 +190,7 @@ void ExtensionBrowserEventRouter::TabDetachedAt(TabContents* contents,
   ListValue args;
   args.Append(Value::CreateIntegerValue(tab_id));
 
-  DictionaryValue *object_args = new DictionaryValue();
+  DictionaryValue* object_args = new DictionaryValue();
   object_args->Set(tab_keys::kOldWindowIdKey, Value::CreateIntegerValue(
       ExtensionTabUtil::GetWindowIdOfTab(contents)));
   object_args->Set(tab_keys::kOldPositionKey, Value::CreateIntegerValue(
@@ -229,7 +230,7 @@ void ExtensionBrowserEventRouter::TabSelectedAt(TabContents* old_contents,
   args.Append(Value::CreateIntegerValue(
       ExtensionTabUtil::GetTabId(new_contents)));
 
-  DictionaryValue *object_args = new DictionaryValue();
+  DictionaryValue* object_args = new DictionaryValue();
   object_args->Set(tab_keys::kWindowIdKey, Value::CreateIntegerValue(
       ExtensionTabUtil::GetWindowIdOfTab(new_contents)));
   args.Append(object_args);
@@ -247,7 +248,7 @@ void ExtensionBrowserEventRouter::TabMoved(TabContents* contents,
   ListValue args;
   args.Append(Value::CreateIntegerValue(ExtensionTabUtil::GetTabId(contents)));
 
-  DictionaryValue *object_args = new DictionaryValue();
+  DictionaryValue* object_args = new DictionaryValue();
   object_args->Set(tab_keys::kWindowIdKey, Value::CreateIntegerValue(
       ExtensionTabUtil::GetWindowIdOfTab(contents)));
   object_args->Set(tab_keys::kFromIndexKey, Value::CreateIntegerValue(
@@ -309,15 +310,15 @@ void ExtensionBrowserEventRouter::TabChangedAt(TabContents* contents,
 
 void ExtensionBrowserEventRouter::TabStripEmpty() { }
 
-void ExtensionBrowserEventRouter::PageActionExecuted(Profile *profile,
+void ExtensionBrowserEventRouter::PageActionExecuted(Profile* profile,
                                                      std::string page_action_id,
                                                      int tab_id,
                                                      std::string url) {
   ListValue args;
-  DictionaryValue *object_args = new DictionaryValue();
+  DictionaryValue* object_args = new DictionaryValue();
   object_args->Set(tab_keys::kPageActionIdKey,
                    Value::CreateStringValue(page_action_id));
-  DictionaryValue *data = new DictionaryValue();
+  DictionaryValue* data = new DictionaryValue();
   data->Set(tab_keys::kTabIdKey, Value::CreateIntegerValue(tab_id));
   data->Set(tab_keys::kTabUrlKey, Value::CreateStringValue(url));
   object_args->Set(tab_keys::kDataKey, data);

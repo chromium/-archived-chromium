@@ -1583,6 +1583,12 @@ void Browser::TabDetachedAt(TabContents* contents, int index) {
                     Source<TabContents>(contents));
 }
 
+void Browser::TabDeselectedAt(TabContents* contents, int index) {
+  // Save what the user's currently typing, so it can be restored when we
+  // switch back to this tab.
+  window_->GetLocationBar()->SaveStateToContents(contents);
+}
+
 void Browser::TabSelectedAt(TabContents* old_contents,
                             TabContents* new_contents,
                             int index,
@@ -1592,12 +1598,6 @@ void Browser::TabSelectedAt(TabContents* old_contents,
   // If we have any update pending, do it now.
   if (!chrome_updater_factory_.empty() && old_contents)
     ProcessPendingUIUpdates();
-
-  if (old_contents) {
-    // Save what the user's currently typing, so it can be restored when we
-    // switch back to this tab.
-    window_->GetLocationBar()->SaveStateToContents(old_contents);
-  }
 
   // Propagate the profile to the location bar.
   UpdateToolbar(true);

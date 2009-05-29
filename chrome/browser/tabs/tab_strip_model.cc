@@ -561,9 +561,14 @@ void TabStripModel::ChangeSelectedContentsFrom(
   TabContents* new_contents = GetContentsAt(to_index);
   if (old_contents == new_contents)
     return;
-  TabContents* last_selected_contents = old_contents;
-  selected_index_ = to_index;
 
+  TabContents* last_selected_contents = old_contents;
+  if (last_selected_contents) {
+    FOR_EACH_OBSERVER(TabStripModelObserver, observers_,
+                      TabDeselectedAt(last_selected_contents, selected_index_));
+  }
+
+  selected_index_ = to_index;
   FOR_EACH_OBSERVER(TabStripModelObserver, observers_,
       TabSelectedAt(last_selected_contents, new_contents, selected_index_,
                     user_gesture));

@@ -58,6 +58,11 @@ class TabStripModelObserver {
   // action is necessary to deal with the TabContents no longer being present.
   virtual void TabDetachedAt(TabContents* contents, int index) { }
 
+  // The selected TabContents is about to change from |old_contents| at |index|.
+  // This gives observers a chance to prepare for an impending switch before it
+  // happens.
+  virtual void TabDeselectedAt(TabContents* contents, int index) { }
+
   // The selected TabContents changed from |old_contents| to |new_contents| at
   // |index|. |user_gesture| specifies whether or not this was done by a user
   // input event (e.g. clicking on a tab, keystroke) or as a side-effect of

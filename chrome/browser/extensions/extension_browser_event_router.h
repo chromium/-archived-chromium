@@ -49,7 +49,7 @@ class ExtensionBrowserEventRouter : public TabStripModelObserver,
   void TabStripEmpty();
 
   // PageActions.
-  void PageActionExecuted(Profile *profile,
+  void PageActionExecuted(Profile* profile,
                           std::string page_action_id,
                           int tab_id,
                           std::string url);
@@ -64,7 +64,7 @@ class ExtensionBrowserEventRouter : public TabStripModelObserver,
 
   // Internal processing of tab updated events. Is called by both TabChangedAt
   // and Observe/NAV_ENTRY_COMMITTED.
-  void TabUpdated(TabContents *contents, bool did_navigate);
+  void TabUpdated(TabContents* contents, bool did_navigate);
 
   ExtensionBrowserEventRouter();
   friend struct DefaultSingletonTraits<ExtensionBrowserEventRouter>;

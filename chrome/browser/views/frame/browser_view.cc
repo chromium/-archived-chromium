@@ -920,17 +920,19 @@ void BrowserView::TabDetachedAt(TabContents* contents, int index) {
   }
 }
 
+void BrowserView::TabDeselectedAt(TabContents* contents, int index) {
+  // We do not store the focus when closing the tab to work-around bug 4633.
+  // Some reports seem to show that the focus manager and/or focused view can
+  // be garbage at that point, it is not clear why.
+  if (!contents->is_being_destroyed())
+    contents->view()->StoreFocus();
+}
+
 void BrowserView::TabSelectedAt(TabContents* old_contents,
                                 TabContents* new_contents,
                                 int index,
                                 bool user_gesture) {
   DCHECK(old_contents != new_contents);
-
-  // We do not store the focus when closing the tab to work-around bug 4633.
-  // Some reports seem to show that the focus manager and/or focused view can
-  // be garbage at that point, it is not clear why.
-  if (old_contents && !old_contents->is_being_destroyed())
-    old_contents->view()->StoreFocus();
 
   // Update various elements that are interested in knowing the current
   // TabContents.
