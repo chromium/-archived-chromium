@@ -1470,7 +1470,7 @@ BUG10384 MAC : LayoutTests/fast/canvas/linearGradient-infinite-values.html = CRA
 BUG10384 MAC : LayoutTests/fast/css/acid2-pixel.html = CRASH PASS
 BUG10384 MAC : LayoutTests/fast/canvas/gradient-with-clip.html = CRASH PASS
 BUG10384 MAC LINUX : LayoutTests/fast/css/acid2.html = CRASH PASS
-BUG10384 RELEASE MAC : LayoutTests/fast/dom/HTMLObjectElement/object-as-frame.html = TIMEOUT FAIL PASS
+BUG10384 MAC : LayoutTests/fast/dom/HTMLObjectElement/object-as-frame.html = TIMEOUT FAIL PASS
 BUG10384 DEBUG MAC : LayoutTests/editing/selection/drag-to-contenteditable-iframe.html = FAIL PASS
 // These next few passes like 1 in 20 times, but it could be from corruption
 // from previous tests that is causing the problems.
@@ -2667,6 +2667,9 @@ BUG12860 : LayoutTests/http/tests/xmlhttprequest/uri-resolution-opera-open-006.h
 BUG12860 : LayoutTests/http/tests/xmlhttprequest/web-apps/002-simple.html = CRASH PASS
 BUG12860 : LayoutTests/fast/frames/iframe-name-and-id.html = CRASH PASS
 BUG12860 LINUX : LayoutTests/http/tests/security/cross-frame-access-delete.html = CRASH
+BUG12860 LINUX : LayoutTests/fast/frames/iframe-double-attach.html = CRASH
+BUG12860 MAC : LayoutTests/fast/frames/frameElement-frame.html = CRASH
+BUG12860 MAC : LayoutTests/fast/frames/iframe-no-src-set-location.html = CRASH
 
 // WebKit 44202:44252 introduced new tests
 BUG12881 : LayoutTests/fast/js/string-replace-exception-crash.html = FAIL
