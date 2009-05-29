@@ -1135,12 +1135,10 @@ void Browser::OpenPasswordManager() {
 }
 #endif
 
-#if defined(OS_WIN) || defined(OS_LINUX)
 void Browser::OpenImportSettingsDialog() {
   UserMetrics::RecordAction(L"Import_ShowDlg", profile_);
   window_->ShowImportDialog();
 }
-#endif
 
 void Browser::OpenAboutChromeDialog() {
   UserMetrics::RecordAction(L"AboutChrome", profile_);
@@ -1359,10 +1357,8 @@ void Browser::ExecuteCommandWithDisposition(
     case IDC_EDIT_SEARCH_ENGINES:   OpenKeywordEditor();           break;
     case IDC_VIEW_PASSWORDS:        OpenPasswordManager();         break;
 #endif
-#if defined(OS_WIN) || defined(OS_LINUX)
     case IDC_CLEAR_BROWSING_DATA:   OpenClearBrowsingDataDialog(); break;
     case IDC_IMPORT_SETTINGS:       OpenImportSettingsDialog();    break;
-#endif
     case IDC_ABOUT:                 OpenAboutChromeDialog();       break;
     case IDC_HELP_PAGE:             OpenHelpTab();                 break;
 

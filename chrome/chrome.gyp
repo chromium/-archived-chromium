@@ -672,6 +672,8 @@
         'browser/cocoa/browser_window_cocoa.mm',
         'browser/cocoa/browser_window_controller.h',
         'browser/cocoa/browser_window_controller.mm',
+        'browser/cocoa/clear_browsing_data_controller.h',
+        'browser/cocoa/clear_browsing_data_controller.mm',
         'browser/cocoa/cocoa_test_helper.h',
         'browser/cocoa/command_observer_bridge.h',
         'browser/cocoa/command_observer_bridge.mm',
@@ -2107,6 +2109,7 @@
         # them.
         'app/nibs/en.lproj/About.xib',
         'app/nibs/en.lproj/BrowserWindow.xib',
+        'app/nibs/en.lproj/ClearBrowsingData.xib',
         'app/nibs/en.lproj/FindBar.xib',
         'app/nibs/en.lproj/FirstRunDialog.xib',
         'app/nibs/en.lproj/MainMenu.xib',
@@ -2875,8 +2878,11 @@
             'browser/download/save_page_uitest.cc',
             'browser/login_prompt_uitest.cc',
             'browser/metrics/metrics_service_uitest.cc',
+            # leaves an extra window on screen after test completes.
             'browser/sessions/session_restore_uitest.cc',
+            # hangs indefinitely but doesn't crash.
             'browser/tab_restore_uitest.cc',
+            # puts up modal dialogs.
             'browser/unload_uitest.cc',
             'test/reliability/page_load_test.cc',
             'test/ui/layout_plugin_uitest.cc',

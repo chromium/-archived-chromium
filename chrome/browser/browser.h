@@ -376,9 +376,7 @@ class Browser : public TabStripModelDelegate,
   void OpenKeywordEditor();
   void OpenPasswordManager();
 #endif
-#if defined(OS_WIN) || defined(OS_LINUX)
   void OpenImportSettingsDialog();
-#endif
   void OpenAboutChromeDialog();
   void OpenHelpTab();
 

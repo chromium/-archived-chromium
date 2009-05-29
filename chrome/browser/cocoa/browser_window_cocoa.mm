@@ -7,7 +7,8 @@
 #include "base/sys_string_conversions.h"
 #include "chrome/browser/bookmarks/bookmark_utils.h"
 #include "chrome/browser/cocoa/browser_window_cocoa.h"
-#include "chrome/browser/cocoa/browser_window_controller.h"
+#import "chrome/browser/cocoa/browser_window_controller.h"
+#import "chrome/browser/cocoa/clear_browsing_data_controller.h"
 #include "chrome/browser/browser.h"
 #include "chrome/common/notification_service.h"
 #include "chrome/common/pref_names.h"
@@ -186,7 +187,10 @@ void BrowserWindowCocoa::ShowReportBugDialog() {
 }
 
 void BrowserWindowCocoa::ShowClearBrowsingDataDialog() {
-  NOTIMPLEMENTED();
+  scoped_nsobject<ClearBrowsingDataController> controller(
+      [[ClearBrowsingDataController alloc]
+          initWithProfile:browser_->profile()]);
+  [controller runModalDialog];
 }
 
 void BrowserWindowCocoa::ShowImportDialog() {

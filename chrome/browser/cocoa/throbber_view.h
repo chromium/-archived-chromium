@@ -32,6 +32,10 @@
 // the width. Takes ownership of |image|.
 - (id)initWithFrame:(NSRect)frame image:(NSImage*)image;
 
+// Allows changing the image once the view has been created, such as when the
+// view is loaded from a nib. The same restrictions as above apply.
+- (void)setImage:(NSImage*)image;
+
 @end
 
 #endif  // CHROME_BROWSER_COCOA_THROBBER_VIEW_H_

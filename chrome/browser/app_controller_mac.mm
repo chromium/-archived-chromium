@@ -14,6 +14,7 @@
 #include "chrome/browser/browser_shutdown.h"
 #import "chrome/browser/cocoa/about_window_controller.h"
 #import "chrome/browser/cocoa/bookmark_menu_bridge.h"
+#import "chrome/browser/cocoa/clear_browsing_data_controller.h"
 #import "chrome/browser/cocoa/encoding_menu_controller_delegate_mac.h"
 #import "chrome/browser/cocoa/menu_localizer.h"
 #import "chrome/browser/cocoa/preferences_window_controller.h"
@@ -289,20 +290,27 @@
 // command is supported and doesn't check, otherwise it would have been disabled
 // in the UI in validateUserInterfaceItem:.
 - (void)commandDispatch:(id)sender {
-  Profile* default_profile = [self defaultProfile];
+  Profile* defaultProfile = [self defaultProfile];
 
   NSInteger tag = [sender tag];
   switch (tag) {
     case IDC_NEW_WINDOW:
-      Browser::OpenEmptyWindow(default_profile);
+      Browser::OpenEmptyWindow(defaultProfile);
       break;
     case IDC_NEW_INCOGNITO_WINDOW:
-      Browser::OpenURLOffTheRecord(default_profile, GURL());
+      Browser::OpenURLOffTheRecord(defaultProfile, GURL());
       break;
     case IDC_OPEN_FILE:
-      Browser::OpenEmptyWindow(default_profile);
+      Browser::OpenEmptyWindow(defaultProfile);
       BrowserList::GetLastActive()->
           ExecuteCommandWithDisposition(IDC_OPEN_FILE, CURRENT_TAB);
+      break;
+    case IDC_CLEAR_BROWSING_DATA:
+      // There may not be a browser open, so use the default profile.
+      scoped_nsobject<ClearBrowsingDataController> controller(
+          [[ClearBrowsingDataController alloc]
+              initWithProfile:defaultProfile]);
+      [controller runModalDialog];
       break;
   };
 }
@@ -330,6 +338,7 @@
   menuState_->UpdateCommandEnabled(IDC_NEW_WINDOW, true);
   menuState_->UpdateCommandEnabled(IDC_NEW_INCOGNITO_WINDOW, true);
   menuState_->UpdateCommandEnabled(IDC_OPEN_FILE, true);
+  menuState_->UpdateCommandEnabled(IDC_CLEAR_BROWSING_DATA, true);
   // TODO(pinkerton): ...more to come...
 }
 

@@ -39,48 +39,7 @@ const float kAnimationIntervalSeconds = 0.03;  // 30ms, same as windows
 
 - (id)initWithFrame:(NSRect)frame image:(NSImage*)image {
   if ((self = [super initWithFrame:frame])) {
-    // Ensure that the height divides evenly into the width. Cache the
-    // number of frames in the animation for later.
-    NSSize imageSize = [image size];
-    DCHECK(imageSize.height && imageSize.width);
-    if (!imageSize.height)
-      return nil;
-    DCHECK((int)imageSize.width % (int)imageSize.height == 0);
-    numFrames_ = (int)imageSize.width / (int)imageSize.height;
-    DCHECK(numFrames_);
-
-    // First check if we have a bitmap image rep and use it, otherwise fall
-    // back to creating one.
-    NSBitmapImageRep* rep = [[image representations] objectAtIndex:0];
-    if (![rep isKindOfClass:[NSBitmapImageRep class]]) {
-      [image lockFocus];
-      NSRect imageRect = NSMakeRect(0, 0, imageSize.width, imageSize.height);
-      rep = [[[NSBitmapImageRep alloc] initWithFocusedViewRect:imageRect]
-                autorelease];
-      [image unlockFocus];
-    }
-    image_.reset([[CIImage alloc] initWithBitmapImageRep:rep]);
-
-#if 0
-// TODO(pinkerton): The invalidation of the view to trigger re-draw causes
-// the entire title-bar to redraw (you can see it with QuartzDebug). For some
-// reason, setting isOpaque on this view, or any of its parent views, doesn't
-// help. As a result, enabling this timer causes new tab to take a very long
-// time on a loaded machine, crushing our perf bot when it's under load. For
-// now, I'm disabling the timer so we draw the first frame of the animation,
-// but nothing more. There are a couple of ways we can fix this:
-// 1) Try to figure out why the invalidate is invalidating the entire title bar
-// 2) Find some way to draw only the pixels we want and nothing else, but I
-// don't know how we'd do that.
-    // Start a timer for the animation frames.
-    target_.reset([[TimerTarget alloc] initWithThrobber:self]);
-    timer_ =
-        [NSTimer scheduledTimerWithTimeInterval:kAnimationIntervalSeconds
-                                         target:target_.get()
-                                       selector:@selector(animate:)
-                                       userInfo:nil
-                                        repeats:YES];
-#endif
+    [self setImage:image];
   }
   return self;
 }
@@ -114,6 +73,62 @@ const float kAnimationIntervalSeconds = 0.03;  // 30ms, same as windows
              fromRect:sourceImageRect
             operation:NSCompositeSourceOver
              fraction:1.0];
+}
+
+// Stores the internal representation of the image from |image|. We use
+// CoreImage for speed (though this doesn't seem to help perf issues). We
+// validate that the image is of the appropriate ratio. If the image has more
+// than one frame, restarts the timer.
+- (void)setImage:(NSImage*)image {
+  // Reset the animation counter so there's no chance we are off the end.
+  animationFrame_ = 0;
+  [timer_ invalidate];
+  timer_ = nil;
+
+  // Ensure that the height divides evenly into the width. Cache the
+  // number of frames in the animation for later.
+  NSSize imageSize = [image size];
+  DCHECK(imageSize.height && imageSize.width);
+  if (!imageSize.height)
+    return;
+  DCHECK((int)imageSize.width % (int)imageSize.height == 0);
+  numFrames_ = (int)imageSize.width / (int)imageSize.height;
+  DCHECK(numFrames_);
+
+  // First check if we have a bitmap image rep and use it, otherwise fall
+  // back to creating one.
+  NSBitmapImageRep* rep = [[image representations] objectAtIndex:0];
+  if (![rep isKindOfClass:[NSBitmapImageRep class]]) {
+    [image lockFocus];
+    NSRect imageRect = NSMakeRect(0, 0, imageSize.width, imageSize.height);
+    rep = [[[NSBitmapImageRep alloc] initWithFocusedViewRect:imageRect]
+              autorelease];
+    [image unlockFocus];
+  }
+  image_.reset([[CIImage alloc] initWithBitmapImageRep:rep]);
+
+#if 0
+// TODO(pinkerton): The invalidation of the view to trigger re-draw causes
+// the entire title-bar to redraw (you can see it with QuartzDebug). For some
+// reason, setting isOpaque on this view, or any of its parent views, doesn't
+// help. As a result, enabling this timer causes new tab to take a very long
+// time on a loaded machine, crushing our perf bot when it's under load. For
+// now, I'm disabling the timer so we draw the first frame of the animation,
+// but nothing more. There are a couple of ways we can fix this:
+// 1) Try to figure out why the invalidate is invalidating the entire title bar
+// 2) Find some way to draw only the pixels we want and nothing else, but I
+// don't know how we'd do that.
+    if (numFrames_ > 1) {
+      // Start a timer for the animation frames.
+      target_.reset([[TimerTarget alloc] initWithThrobber:self]);
+      timer_ =
+          [NSTimer scheduledTimerWithTimeInterval:kAnimationIntervalSeconds
+                                           target:target_.get()
+                                         selector:@selector(animate:)
+                                         userInfo:nil
+                                          repeats:YES];
+    }
+#endif
 }
 
 @end
