@@ -93,6 +93,27 @@ void DeleteChromeShortcuts(bool system_uninstall) {
   }
 }
 
+// Deletes empty parent & empty grandparent dir of given path.
+bool DeleteEmptyParentDir(const std::wstring& path) {
+  bool ret = true;
+  std::wstring parent_dir = file_util::GetDirectoryFromPath(path);
+  if (!parent_dir.empty() && file_util::IsDirectoryEmpty(parent_dir)) {
+    if (!file_util::Delete(parent_dir, true)) {
+      ret = false;
+      LOG(ERROR) << "Failed to delete folder: " << parent_dir;
+    }
+
+    parent_dir = file_util::GetDirectoryFromPath(parent_dir);
+    if (!parent_dir.empty() && file_util::IsDirectoryEmpty(parent_dir)) {
+      if (!file_util::Delete(parent_dir, true)) {
+        ret = false;
+        LOG(ERROR) << "Failed to delete folder: " << parent_dir;
+      }
+    }
+  }
+  return ret;
+}
+
 // Deletes all installed files of Chromium and Folders. Before deleting it
 // needs to move setup.exe in a temp folder because the current process
 // is using that file. It returns false when it can not get the path to
@@ -142,21 +163,12 @@ bool DeleteFilesAndFolders(const std::wstring& exe_path, bool system_uninstall,
     if (!file_util::Delete(user_local_state, true))
       LOG(ERROR) << "Failed to delete user profle dir: "
                  << user_local_state.value();
+    DeleteEmptyParentDir(user_local_state.value());
   }
 
   // Now check and delete if the parent directories are empty
   // For example Google\Chrome or Chromium
-  std::wstring parent_dir = file_util::GetDirectoryFromPath(install_path);
-  if (!parent_dir.empty() && file_util::IsDirectoryEmpty(parent_dir)) {
-    if (!file_util::Delete(parent_dir, true))
-      LOG(ERROR) << "Failed to delete folder: " << parent_dir;
-    parent_dir = file_util::GetDirectoryFromPath(parent_dir);
-    if (!parent_dir.empty() &&
-        file_util::IsDirectoryEmpty(parent_dir)) {
-      if (!file_util::Delete(parent_dir, true))
-        LOG(ERROR) << "Failed to delete folder: " << parent_dir;
-    }
-  }
+  DeleteEmptyParentDir(install_path);
   return true;
 }
 
@@ -165,7 +177,8 @@ bool DeleteFilesAndFolders(const std::wstring& exe_path, bool system_uninstall,
 // otherwise false.
 bool DeleteRegistryKey(RegKey& key, const std::wstring& key_path) {
   LOG(INFO) << "Deleting registry key " << key_path;
-  if (!key.DeleteKey(key_path.c_str())) {
+  if (!key.DeleteKey(key_path.c_str()) &&
+      ::GetLastError() != ERROR_MOD_NOT_FOUND) {
     LOG(ERROR) << "Failed to delete registry key: " << key_path;
     return false;
   }
@@ -179,7 +192,8 @@ bool DeleteRegistryValue(HKEY reg_root, const std::wstring& key_path,
                          const std::wstring& value_name) {
   RegKey key(reg_root, key_path.c_str(), KEY_ALL_ACCESS);
   LOG(INFO) << "Deleting registry value " << value_name;
-  if (!key.DeleteValue(value_name.c_str())) {
+  if (key.ValueExists(value_name.c_str()) &&
+      !key.DeleteValue(value_name.c_str())) {
     LOG(ERROR) << "Failed to delete registry value: " << value_name;
     return false;
   }
