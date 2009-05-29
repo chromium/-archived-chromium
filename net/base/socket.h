@@ -6,9 +6,10 @@
 #define NET_BASE_SOCKET_H_
 
 #include "net/base/completion_callback.h"
-#include "net/base/io_buffer.h"
 
 namespace net {
+
+class IOBuffer;
 
 // Represents a read/write socket.
 class Socket {

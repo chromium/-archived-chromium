@@ -5,7 +5,6 @@
 #ifndef NET_BASE_UPLOAD_DATA_H_
 #define NET_BASE_UPLOAD_DATA_H_
 
-#include <string>
 #include <vector>
 
 #include "base/file_path.h"

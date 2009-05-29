@@ -6,6 +6,7 @@
 
 #include "base/string_util.h"
 #include "net/base/escape.h"
+#include "net/base/io_buffer.h"
 #include "net/disk_cache/disk_cache.h"
 #include "net/http/http_cache.h"
 #include "net/http/http_response_headers.h"

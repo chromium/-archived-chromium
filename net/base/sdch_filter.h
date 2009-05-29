@@ -15,10 +15,8 @@
 #define NET_BASE_SDCH_FILTER_H_
 
 #include <string>
-#include <vector>
 
 #include "base/scoped_ptr.h"
-#include "base/time.h"
 #include "net/base/filter.h"
 #include "net/base/sdch_manager.h"
 

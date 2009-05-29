@@ -24,9 +24,9 @@
 
 #include "base/hash_tables.h"
 #include "net/url_request/url_request.h"
-#include "net/url_request/url_request_job.h"
 
 class GURL;
+class URLRequestJob;
 
 class URLRequestFilter {
  public:

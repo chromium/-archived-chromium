@@ -10,6 +10,7 @@
 #include "base/singleton.h"
 #include "base/string_util.h"
 #include "net/base/connection_type_histograms.h"
+#include "net/base/io_buffer.h"
 #include "net/base/net_errors.h"
 #include "net/base/ssl_info.h"
 

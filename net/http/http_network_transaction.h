@@ -13,6 +13,7 @@
 #include "net/base/address_list.h"
 #include "net/base/client_socket_handle.h"
 #include "net/base/host_resolver.h"
+#include "net/base/io_buffer.h"
 #include "net/base/ssl_config_service.h"
 #include "net/http/http_auth.h"
 #include "net/http/http_auth_handler.h"

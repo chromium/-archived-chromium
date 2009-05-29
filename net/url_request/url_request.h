@@ -9,7 +9,6 @@
 #include <string>
 #include <vector>
 
-#include "base/file_path.h"
 #include "base/linked_ptr.h"
 #include "base/logging.h"
 #include "base/ref_counted.h"
@@ -29,6 +28,7 @@ class UploadData;
 class X509Certificate;
 }  // namespace net
 
+class FilePath;
 class URLRequestContext;
 class URLRequestJob;
 

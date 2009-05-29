@@ -5,6 +5,7 @@
 #include "net/base/upload_data_stream.h"
 
 #include "base/logging.h"
+#include "net/base/io_buffer.h"
 #include "net/base/net_errors.h"
 
 namespace net {

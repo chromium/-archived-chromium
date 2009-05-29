@@ -5,6 +5,7 @@
 #include "net/url_request/url_request_simple_job.h"
 
 #include "base/message_loop.h"
+#include "net/base/io_buffer.h"
 #include "net/base/net_errors.h"
 #include "net/url_request/url_request_status.h"
 

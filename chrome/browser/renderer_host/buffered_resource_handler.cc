@@ -7,6 +7,7 @@
 #include "base/histogram.h"
 #include "base/string_util.h"
 #include "net/base/mime_sniffer.h"
+#include "net/base/net_errors.h"
 #include "chrome/browser/renderer_host/download_throttling_resource_handler.h"
 #include "chrome/browser/renderer_host/resource_dispatcher_host.h"
 #include "chrome/common/url_constants.h"

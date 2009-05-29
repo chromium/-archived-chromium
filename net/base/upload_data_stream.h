@@ -6,10 +6,11 @@
 #define NET_BASE_UPLOAD_DATA_STREAM_H_
 
 #include "net/base/file_stream.h"
-#include "net/base/io_buffer.h"
 #include "net/base/upload_data.h"
 
 namespace net {
+
+class IOBuffer;
 
 class UploadDataStream {
  public:

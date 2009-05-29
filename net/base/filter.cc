@@ -8,6 +8,7 @@
 #include "base/string_util.h"
 #include "net/base/gzip_filter.h"
 #include "net/base/bzip2_filter.h"
+#include "net/base/io_buffer.h"
 #include "net/base/sdch_filter.h"
 
 namespace {

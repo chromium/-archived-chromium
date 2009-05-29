@@ -13,6 +13,7 @@
 #include "net/base/auth.h"
 #include "net/base/escape.h"
 #include "net/base/load_flags.h"
+#include "net/base/net_errors.h"
 #include "net/base/net_util.h"
 #include "net/base/wininet_util.h"
 #include "net/url_request/url_request.h"

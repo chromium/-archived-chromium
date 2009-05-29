@@ -7,6 +7,7 @@
 #include "base/basictypes.h"
 #include "net/base/address_list.h"
 #include "net/base/host_resolver.h"
+#include "net/base/io_buffer.h"
 #include "net/base/listen_socket.h"
 #include "net/base/net_errors.h"
 #include "net/base/test_completion_callback.h"

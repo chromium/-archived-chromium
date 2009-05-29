@@ -33,11 +33,16 @@
 #include <vector>
 
 #include "base/basictypes.h"
+#include "base/ref_counted.h"
 #include "base/scoped_ptr.h"
 #include "base/time.h"
-#include "net/base/io_buffer.h"
-#include "googleurl/src/gurl.h"
 #include "testing/gtest/include/gtest/gtest_prod.h"
+
+class GURL;
+
+namespace net {
+class IOBuffer;
+}
 
 //------------------------------------------------------------------------------
 // Define an interface class that allows access to contextual information

@@ -40,6 +40,7 @@
 #include "net/base/cookie_monster.h"
 #include "net/base/io_buffer.h"
 #include "net/base/load_flags.h"
+#include "net/base/net_errors.h"
 #include "net/base/net_util.h"
 #include "net/base/upload_data.h"
 #include "net/http/http_response_headers.h"

@@ -18,6 +18,7 @@
 #include "chrome/plugin/plugin_thread.h"
 #include "chrome/plugin/webplugin_proxy.h"
 #include "net/base/data_url.h"
+#include "net/base/io_buffer.h"
 #include "net/base/upload_data.h"
 #include "net/http/http_response_headers.h"
 #include "webkit/glue/plugins/plugin_instance.h"

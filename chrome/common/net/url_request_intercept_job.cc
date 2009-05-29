@@ -12,6 +12,7 @@
 #include "base/string_util.h"
 #include "chrome/common/chrome_plugin_lib.h"
 #include "chrome/common/notification_service.h"
+#include "net/base/io_buffer.h"
 #include "net/base/net_errors.h"
 #include "net/http/http_response_headers.h"
 #include "net/url_request/url_request.h"

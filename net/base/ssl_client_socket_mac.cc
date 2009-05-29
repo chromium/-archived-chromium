@@ -6,6 +6,7 @@
 
 #include "base/singleton.h"
 #include "base/string_util.h"
+#include "net/base/io_buffer.h"
 #include "net/base/net_errors.h"
 #include "net/base/ssl_info.h"
 

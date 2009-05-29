@@ -7,6 +7,7 @@
 #include "base/file_version_info.h"
 #include "base/message_loop.h"
 #include "net/base/escape.h"
+#include "net/base/net_errors.h"
 #include "net/base/net_util.h"
 #include "net/ftp/ftp_directory_parser.h"
 #include "net/ftp/ftp_response_info.h"

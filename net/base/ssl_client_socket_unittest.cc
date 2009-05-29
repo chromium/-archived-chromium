@@ -5,6 +5,7 @@
 #include "net/base/address_list.h"
 #include "net/base/client_socket_factory.h"
 #include "net/base/host_resolver.h"
+#include "net/base/io_buffer.h"
 #include "net/base/net_errors.h"
 #include "net/base/ssl_client_socket.h"
 #include "net/base/ssl_config_service.h"

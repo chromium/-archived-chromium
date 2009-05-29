@@ -12,6 +12,7 @@
 #include "base/scoped_ptr.h"
 #include "net/base/filter.h"
 #include "net/base/filter_unittest.h"
+#include "net/base/io_buffer.h"
 #include "net/base/sdch_filter.h"
 #include "net/url_request/url_request_http_job.cc"
 #include "testing/gtest/include/gtest/gtest.h"

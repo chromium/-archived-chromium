@@ -16,6 +16,8 @@
 #include "chrome/common/ref_counted_util.h"
 #include "chrome/common/url_constants.h"
 #include "googleurl/src/url_util.h"
+#include "net/base/io_buffer.h"
+#include "net/base/net_errors.h"
 #include "net/url_request/url_request.h"
 #include "net/url_request/url_request_file_job.h"
 #include "net/url_request/url_request_job.h"

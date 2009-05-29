@@ -10,6 +10,7 @@
 #include "base/string_util.h"
 #include "base/sys_info.h"
 #include "base/trace_event.h"
+#include "net/base/io_buffer.h"
 #include "net/base/net_errors.h"
 #include "net/base/winsock_init.h"
 

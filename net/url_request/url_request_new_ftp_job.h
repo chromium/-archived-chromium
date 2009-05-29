@@ -6,7 +6,6 @@
 #define NET_URL_REQUEST_URL_REQUEST_NEW_FTP_JOB_H_
 
 #include <string>
-#include <vector>
 
 #include "net/base/auth.h"
 #include "net/base/completion_callback.h"

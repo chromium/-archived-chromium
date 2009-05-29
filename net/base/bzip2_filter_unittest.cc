@@ -10,6 +10,7 @@
 #include "base/scoped_ptr.h"
 #include "net/base/bzip2_filter.h"
 #include "net/base/filter_unittest.h"
+#include "net/base/io_buffer.h"
 #include "testing/gtest/include/gtest/gtest.h"
 #include "testing/platform_test.h"
 #include "third_party/bzip2/bzlib.h"

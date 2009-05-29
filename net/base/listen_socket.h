@@ -11,6 +11,8 @@
 #ifndef NET_BASE_LISTEN_SOCKET_H_
 #define NET_BASE_LISTEN_SOCKET_H_
 
+#include "build/build_config.h"
+
 #if defined(OS_WIN)
 #include <winsock2.h>
 #endif
@@ -19,8 +21,6 @@
 #include "base/object_watcher.h"
 #elif defined(OS_POSIX)
 #include "base/message_loop.h"
-#include "net/base/net_util.h"
-#include "net/base/net_errors.h"
 #endif
 
 #include "base/basictypes.h"

@@ -15,7 +15,7 @@
 
 #include <string>
 
-#include "googleurl/src/gurl.h"
+class GURL;
 
 namespace net {
 

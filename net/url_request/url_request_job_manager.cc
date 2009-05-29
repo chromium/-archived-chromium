@@ -9,6 +9,7 @@
 #include "build/build_config.h"
 #include "base/string_util.h"
 #include "net/base/load_flags.h"
+#include "net/base/net_errors.h"
 #include "net/url_request/url_request_about_job.h"
 #include "net/url_request/url_request_error_job.h"
 #include "net/url_request/url_request_file_job.h"

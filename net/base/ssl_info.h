@@ -6,7 +6,6 @@
 #define NET_BASE_SSL_INFO_H_
 
 #include "net/base/cert_status_flags.h"
-#include "net/base/net_errors.h"
 #include "net/base/x509_certificate.h"
 
 namespace net {

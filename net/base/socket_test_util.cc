@@ -7,6 +7,7 @@
 #include "base/basictypes.h"
 #include "base/compiler_specific.h"
 #include "base/message_loop.h"
+#include "net/base/io_buffer.h"
 #include "net/base/socket.h"
 #include "net/base/ssl_client_socket.h"
 #include "net/base/ssl_info.h"

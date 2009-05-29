@@ -8,12 +8,15 @@
 #include <string>
 
 #include "base/file_path.h"
-#include "base/file_util.h"
 #include "net/base/completion_callback.h"
 #include "net/base/file_stream.h"
 #include "net/http/http_byte_range.h"
 #include "net/url_request/url_request.h"
 #include "net/url_request/url_request_job.h"
+
+namespace file_util {
+struct FileInfo;
+}
 
 // A request job that handles reading file URLs
 class URLRequestFileJob : public URLRequestJob {

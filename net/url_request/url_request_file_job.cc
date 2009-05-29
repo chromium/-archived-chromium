@@ -25,6 +25,7 @@
 #include "base/string_util.h"
 #include "base/worker_pool.h"
 #include "googleurl/src/gurl.h"
+#include "net/base/io_buffer.h"
 #include "net/base/load_flags.h"
 #include "net/base/mime_util.h"
 #include "net/base/net_errors.h"

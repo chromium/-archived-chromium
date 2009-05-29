@@ -10,10 +10,11 @@
 #ifndef NET_BASE_FILE_STREAM_H_
 #define NET_BASE_FILE_STREAM_H_
 
-#include "base/file_path.h"
 #include "base/platform_file.h"
 #include "base/scoped_ptr.h"
 #include "net/base/completion_callback.h"
+
+class FilePath;
 
 namespace net {
 

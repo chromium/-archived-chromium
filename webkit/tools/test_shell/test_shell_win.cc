@@ -12,6 +12,7 @@
 #include <wininet.h>  // For INTERNET_MAX_URL_LENGTH
 
 #include "base/command_line.h"
+#include "base/file_util.h"
 #include "base/memory_debug.h"
 #include "base/message_loop.h"
 #include "base/path_service.h"
