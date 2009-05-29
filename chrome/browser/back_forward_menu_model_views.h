@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CHROME_BROWSER_BACK_FORWARD_MENU_MODEL_WIN_H_
-#define CHROME_BROWSER_BACK_FORWARD_MENU_MODEL_WIN_H_
+#ifndef CHROME_BROWSER_BACK_FORWARD_MENU_MODEL_VIEWS_H_
+#define CHROME_BROWSER_BACK_FORWARD_MENU_MODEL_VIEWS_H_
 
 #include "base/basictypes.h"
 
@@ -12,10 +12,10 @@
 
 class SkBitmap;
 
-class BackForwardMenuModelWin : public BackForwardMenuModel,
-                                public views::Menu::Delegate {
+class BackForwardMenuModelViews : public BackForwardMenuModel,
+                                  public views::Menu::Delegate {
  public:
-  BackForwardMenuModelWin(Browser* browser, ModelType model_type);
+  BackForwardMenuModelViews(Browser* browser, ModelType model_type);
 
   // Menu::Delegate
   virtual std::wstring GetLabel(int menu_id) const;
@@ -29,7 +29,7 @@ class BackForwardMenuModelWin : public BackForwardMenuModel,
   virtual int GetItemCount() const;
 
  private:
-  DISALLOW_COPY_AND_ASSIGN(BackForwardMenuModelWin);
+  DISALLOW_COPY_AND_ASSIGN(BackForwardMenuModelViews);
 };
 
-#endif  // CHROME_BROWSER_BACK_FORWARD_MENU_MODEL_WIN_H_
+#endif  // CHROME_BROWSER_BACK_FORWARD_MENU_MODEL_VIEWS_H_

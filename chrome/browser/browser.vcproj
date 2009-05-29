@@ -716,11 +716,11 @@
 				>
 			</File>
 			<File
-				RelativePath=".\back_forward_menu_model_win.cc"
+				RelativePath=".\back_forward_menu_model_views.cc"
 				>
 			</File>
 			<File
-				RelativePath=".\back_forward_menu_model_win.h"
+				RelativePath=".\back_forward_menu_model_views.h"
 				>
 			</File>
 			<File

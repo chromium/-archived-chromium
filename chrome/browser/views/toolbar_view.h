@@ -9,7 +9,6 @@
 
 #include "base/ref_counted.h"
 #include "base/scoped_ptr.h"
-#include "chrome/browser/back_forward_menu_model_win.h"
 #include "chrome/browser/command_updater.h"
 #include "chrome/browser/encoding_menu_controller_delegate.h"
 #include "chrome/browser/user_data_manager.h"
@@ -22,6 +21,7 @@
 #include "views/controls/menu/view_menu_delegate.h"
 #include "views/view.h"
 
+class BackForwardMenuModelViews;
 class Browser;
 class Profile;
 class ToolbarStarToggle;
@@ -171,8 +171,8 @@ class BrowserToolbarView : public views::View,
     return display_mode_ == DISPLAYMODE_NORMAL;
   }
 
-  scoped_ptr<BackForwardMenuModelWin> back_menu_model_;
-  scoped_ptr<BackForwardMenuModelWin> forward_menu_model_;
+  scoped_ptr<BackForwardMenuModelViews> back_menu_model_;
+  scoped_ptr<BackForwardMenuModelViews> forward_menu_model_;
 
   // The model that contains the security level, text, icon to display...
   ToolbarModel* model_;

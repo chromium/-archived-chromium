@@ -15,6 +15,7 @@
 #include "base/logging.h"
 #include "base/path_service.h"
 #include "chrome/app/chrome_dll_resource.h"
+#include "chrome/browser/back_forward_menu_model_views.h"
 #include "chrome/browser/bookmarks/bookmark_model.h"
 #include "chrome/browser/browser.h"
 #include "chrome/browser/browser_process.h"
@@ -102,9 +103,9 @@ BrowserToolbarView::BrowserToolbarView(Browser* browser)
   browser_->command_updater()->AddCommandObserver(IDC_RELOAD, this);
   browser_->command_updater()->AddCommandObserver(IDC_HOME, this);
   browser_->command_updater()->AddCommandObserver(IDC_STAR, this);
-  back_menu_model_.reset(new BackForwardMenuModelWin(
+  back_menu_model_.reset(new BackForwardMenuModelViews(
       browser, BackForwardMenuModel::BACKWARD_MENU_DELEGATE));
-  forward_menu_model_.reset(new BackForwardMenuModelWin(
+  forward_menu_model_.reset(new BackForwardMenuModelViews(
       browser, BackForwardMenuModel::FORWARD_MENU_DELEGATE));
   if (browser->type() == Browser::TYPE_NORMAL)
     display_mode_ = DISPLAYMODE_NORMAL;
