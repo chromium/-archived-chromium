@@ -340,7 +340,6 @@ ShelfItemDialog::ShelfItemDialog(ShelfItemDialogDelegate* delegate,
 
   layout->AddPaddingRow(0, kRelatedControlVerticalSpacing);
 
-  AddAccelerator(views::Accelerator(VK_ESCAPE, false, false, false));
   AddAccelerator(views::Accelerator(VK_RETURN, false, false, false));
 }
 
@@ -436,6 +435,12 @@ bool ShelfItemDialog::Accept() {
   }
   PerformModelChange();
   return true;
+}
+
+int ShelfItemDialog::GetDefaultDialogButton() const {
+  // Don't set a default button, this view already has an accelerator for the
+  // enter key.
+  return MessageBoxFlags::DIALOGBUTTON_NONE;
 }
 
 bool ShelfItemDialog::IsDialogButtonEnabled(
