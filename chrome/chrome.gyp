@@ -1579,6 +1579,8 @@
           ],
           'sources!': [
             'browser/debugger/debugger_shell_stubs.cc',
+            'browser/extensions/extension_shelf.cc',
+            'browser/extensions/extension_shelf.h',
             'browser/extensions/extension_view.cc',
             'browser/extensions/extension_view.h',
                     # Windows-specific files.
@@ -1625,6 +1627,8 @@
             'browser/bookmarks/bookmark_context_menu.cc',
             'browser/bookmarks/bookmark_drop_info.cc',
             'browser/debugger/debugger_shell_stubs.cc',
+            'browser/extensions/extension_shelf.cc',
+            'browser/extensions/extension_shelf.h',
             'browser/extensions/extension_view.cc',
             'browser/extensions/extension_view.h',
           ],
