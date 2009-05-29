@@ -328,12 +328,18 @@
             # used during computation does not change depending on how the
             # compiler optimized the code, since the value is always kept
             # in its specified precision.
+            'conditions': [
+              ['branding=="Chromium"', {
+                'cflags': [
+                  '-march=pentium4',
+                  '-msse2',
+                  '-mfpmath=sse',
+                ],
+              }],
+            ],
             'cflags': [
               '-m32',
-              '-march=pentium4',
               '-fno-exceptions',
-              '-msse2',
-              '-mfpmath=sse',
               '-Wall',
             ],
             'ldflags': [
