@@ -29,7 +29,7 @@ deps = {
     "http://gyp.googlecode.com/svn/trunk@505",
 
   "src/v8":
-    "http://v8.googlecode.com/svn/trunk@2080",
+    "http://v8.googlecode.com/svn/trunk@2084",
 
   "src/third_party/skia":
     "http://skia.googlecode.com/svn/trunk@171",
