@@ -255,7 +255,7 @@ void WidgetWin::GetBounds(gfx::Rect* out, bool including_frame) const {
 
 void WidgetWin::SetBounds(const gfx::Rect& bounds) {
   SetWindowPos(NULL, bounds.x(), bounds.y(), bounds.width(), bounds.height(),
-               SWP_NOACTIVATE);
+               SWP_NOACTIVATE | SWP_NOZORDER);
 }
 
 void WidgetWin::Close() {
