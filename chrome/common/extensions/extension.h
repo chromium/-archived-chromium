@@ -13,6 +13,7 @@
 #include "base/values.h"
 #include "base/version.h"
 #include "chrome/common/extensions/user_script.h"
+#include "chrome/browser/extensions/user_script_master.h"
 #include "chrome/common/extensions/url_pattern.h"
 #include "chrome/common/page_action.h"
 #include "googleurl/src/gurl.h"
@@ -97,12 +98,13 @@ class Extension {
   static const char* kInvalidThemeImagesError;
   static const char* kInvalidThemeColorsError;
   static const char* kInvalidThemeTintsError;
+  static const char* kThemesCannotContainExtensionsError;
   static const char* kMissingFileError;
 
   // The number of bytes in a legal id.
   static const size_t kIdSize;
 
-  Extension() : location_(INVALID) {}
+  Extension() : location_(INVALID), is_theme_(false) {}
   explicit Extension(const FilePath& path);
   virtual ~Extension();
 
@@ -174,6 +176,10 @@ class Extension {
   PageAction* LoadPageActionHelper(const DictionaryValue* page_action,
                                    int definition_index,
                                    std::string* error);
+
+  // Figures out if a source contains keys not associated with themes - we
+  // don't want to allow scripts and such to be bundled with themes.
+  bool ContainsNonThemeKeys(const DictionaryValue& source);
 
   // The absolute path to the directory the extension is stored in.
   FilePath path_;

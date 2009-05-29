@@ -45,6 +45,16 @@ const char* Extension::kRunAtDocumentEndValue = "document_end";
 const char* Extension::kPageActionTypeTab = "tab";
 const char* Extension::kPageActionTypePermanent = "permanent";
 
+// A list of all the keys allowed by themes.
+static const wchar_t* kValidThemeKeys[] = {
+  Extension::kDescriptionKey,
+  Extension::kIconPathKey,
+  Extension::kIdKey,
+  Extension::kNameKey,
+  Extension::kThemeKey,
+  Extension::kVersionKey,
+  Extension::kZipHashKey
+};
 
 // Extension-related error messages. Some of these are simple patterns, where a
 // '*' is replaced at runtime with a specific value. This is used instead of
@@ -122,6 +132,8 @@ const char* Extension::kInvalidThemeColorsError =
     "Invalid value for theme colors - colors must be integers";
 const char* Extension::kInvalidThemeTintsError =
     "Invalid value for theme images - tints must be decimal numbers.";
+const char* Extension::kThemesCannotContainExtensionsError =
+    "A theme cannot contain extensions code.";
 
 const size_t Extension::kIdSize = 20;  // SHA1 (160 bits) == 20 bytes
 
@@ -153,62 +165,6 @@ const PageAction* Extension::GetPageAction(std::string id) const {
     return NULL;
 
   return it->second;
-}
-
-// static
-FilePath Extension::GetResourcePath(const FilePath& extension_path,
-                                    const std::string& relative_path) {
-  // Build up a file:// URL and convert that back to a FilePath.  This avoids
-  // URL encoding and path separator issues.
-
-  // Convert the extension's root to a file:// URL.
-  GURL extension_url = net::FilePathToFileURL(extension_path);
-  if (!extension_url.is_valid())
-    return FilePath();
-
-  // Append the requested path.
-  GURL::Replacements replacements;
-  std::string new_path(extension_url.path());
-  new_path += "/";
-  new_path += relative_path;
-  replacements.SetPathStr(new_path);
-  GURL file_url = extension_url.ReplaceComponents(replacements);
-  if (!file_url.is_valid())
-    return FilePath();
-
-  // Convert the result back to a FilePath.
-  FilePath ret_val;
-  if (!net::FileURLToFilePath(file_url, &ret_val))
-    return FilePath();
-
-  // Double-check that the path we ended up with is actually inside the
-  // extension root. We can do this with a simple prefix match because:
-  // a) We control the prefix on both sides, and they should match.
-  // b) GURL normalizes things like "../" and "//" before it gets to us.
-  if (ret_val.value().find(extension_path.value() +
-                           FilePath::kSeparators[0]) != 0)
-    return FilePath();
-
-  return ret_val;
-}
-
-Extension::Extension(const FilePath& path) {
-  DCHECK(path.IsAbsolute());
-  location_ = INVALID;
-
-#if defined(OS_WIN)
-  // Normalize any drive letter to upper-case. We do this for consistency with
-  // net_utils::FilePathToFileURL(), which does the same thing, to make string
-  // comparisons simpler.
-  std::wstring path_str = path.value();
-  if (path_str.size() >= 2 && path_str[0] >= L'a' && path_str[0] <= L'z' &&
-      path_str[1] == ':')
-    path_str[0] += ('A' - 'a');
-
-  path_ = FilePath(path_str);
-#else
-  path_ = path;
-#endif
 }
 
 // Helper method that loads a UserScript object from a dictionary in the
@@ -393,6 +349,86 @@ PageAction* Extension::LoadPageActionHelper(
   return result.release();
 }
 
+bool Extension::ContainsNonThemeKeys(const DictionaryValue& source) {
+  // Generate a map of allowable keys
+  static std::map<std::wstring, bool> theme_keys;
+  static bool theme_key_mapped = false;
+  if (!theme_key_mapped) {
+    for (size_t i = 0; i < arraysize(kValidThemeKeys); ++i) {
+      theme_keys[kValidThemeKeys[i]] = true;
+    }
+    theme_key_mapped = true;
+  }
+
+  // Go through all the root level keys and verify that they're in the map
+  // of keys allowable by themes. If they're not, then make a not of it for
+  // later.
+  DictionaryValue::key_iterator iter = source.begin_keys();
+  while (iter != source.end_keys()) {
+    std::wstring key = (*iter);
+    if (theme_keys.find(key) == theme_keys.end())
+      return true;
+    ++iter;
+  }
+  return false;
+}
+
+// static
+FilePath Extension::GetResourcePath(const FilePath& extension_path,
+                                    const std::string& relative_path) {
+  // Build up a file:// URL and convert that back to a FilePath.  This avoids
+  // URL encoding and path separator issues.
+
+  // Convert the extension's root to a file:// URL.
+  GURL extension_url = net::FilePathToFileURL(extension_path);
+  if (!extension_url.is_valid())
+    return FilePath();
+
+  // Append the requested path.
+  GURL::Replacements replacements;
+  std::string new_path(extension_url.path());
+  new_path += "/";
+  new_path += relative_path;
+  replacements.SetPathStr(new_path);
+  GURL file_url = extension_url.ReplaceComponents(replacements);
+  if (!file_url.is_valid())
+    return FilePath();
+
+  // Convert the result back to a FilePath.
+  FilePath ret_val;
+  if (!net::FileURLToFilePath(file_url, &ret_val))
+    return FilePath();
+
+  // Double-check that the path we ended up with is actually inside the
+  // extension root. We can do this with a simple prefix match because:
+  // a) We control the prefix on both sides, and they should match.
+  // b) GURL normalizes things like "../" and "//" before it gets to us.
+  if (ret_val.value().find(extension_path.value() +
+                           FilePath::kSeparators[0]) != 0)
+    return FilePath();
+
+  return ret_val;
+}
+
+Extension::Extension(const FilePath& path) {
+  DCHECK(path.IsAbsolute());
+  location_ = INVALID;
+
+#if defined(OS_WIN)
+  // Normalize any drive letter to upper-case. We do this for consistency with
+  // net_utils::FilePathToFileURL(), which does the same thing, to make string
+  // comparisons simpler.
+  std::wstring path_str = path.value();
+  if (path_str.size() >= 2 && path_str[0] >= L'a' && path_str[0] <= L'z' &&
+      path_str[1] == ':')
+    path_str[0] += ('A' - 'a');
+
+  path_ = FilePath(path_str);
+#else
+  path_ = path;
+#endif
+}
+
 bool Extension::InitFromValue(const DictionaryValue& source, bool require_id,
                               std::string* error) {
   // Initialize id.
@@ -466,13 +502,15 @@ bool Extension::InitFromValue(const DictionaryValue& source, bool require_id,
     }
   }
 
-  // Initialize themes. If a theme is included, no other items may be processed
-  // (we currently don't want people bundling themes and extension stuff
-  // together).
-  //
-  // TODO(glen): Error if other items *are* included.
+  // Initialize themes.
   is_theme_ = false;
   if (source.HasKey(kThemeKey)) {
+    // Themes cannot contain extension keys.
+    if (ContainsNonThemeKeys(source)) {
+      *error = kThemesCannotContainExtensionsError;
+      return false;
+    }
+
     DictionaryValue* theme_value;
     if (!source.GetDictionary(kThemeKey, &theme_value)) {
       *error = kInvalidThemeError;
@@ -538,6 +576,7 @@ bool Extension::InitFromValue(const DictionaryValue& source, bool require_id,
       theme_tints_.reset(
           static_cast<DictionaryValue*>(tints_value->DeepCopy()));
     }
+
     return true;
   }
 

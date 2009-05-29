@@ -9,11 +9,13 @@
 #include <string>
 #include <vector>
 
+#include "base/command_line.h"
 #include "base/file_path.h"
 #include "base/message_loop.h"
 #include "base/ref_counted.h"
 #include "base/task.h"
 #include "base/values.h"
+#include "chrome/common/chrome_switches.h"
 
 class Browser;
 class Extension;
@@ -64,6 +66,16 @@ class ExtensionsService
   // The name of the file that the current active version number is stored in.
   static const char* kCurrentVersionFileName;
 
+  void set_extensions_enabled(bool enabled) { extensions_enabled_ = enabled; }
+  void set_show_extensions_disabled_notification(bool enabled) {
+    show_extensions_disabled_notification_ = enabled;
+  }
+
+  bool extensions_enabled() { return extensions_enabled_; }
+  bool show_extensions_disabled_notification() {
+    return show_extensions_disabled_notification_;
+  }
+
  private:
   // For OnExtensionLoaded, OnExtensionInstalled, and
   // OnExtensionVersionReinstalled.
@@ -74,7 +86,7 @@ class ExtensionsService
 
   // Called by the backend when an extensoin hsa been installed.
   void OnExtensionInstalled(Extension* extension, bool is_update);
-  
+
   // Called by the backend when an extension has been reinstalled.
   void OnExtensionVersionReinstalled(const std::string& id);
 
@@ -93,6 +105,13 @@ class ExtensionsService
 
   // The full path to the directory where extensions are installed.
   FilePath install_directory_;
+
+  // Whether or not extensions are enabled.
+  bool extensions_enabled_;
+
+  // Whether to notify users when they attempt to install an extension without
+  // the flag being enabled.
+  bool show_extensions_disabled_notification_;
 
   // The backend that will do IO on behalf of this instance.
   scoped_refptr<ExtensionsServiceBackend> backend_;
@@ -195,6 +214,10 @@ class ExtensionsServiceBackend
 
   // Notify the frontend that the extension had already been installed.
   void ReportExtensionVersionReinstalled(const std::string& id);
+
+  // Read the manifest from the front of the extension file.
+  // Caller takes ownership of return value.
+  DictionaryValue* ReadManifest(const FilePath& extension_path);
 
   // Reads the Current Version file from |dir| into |version_string|.
   bool ReadCurrentVersion(const FilePath& dir, std::string* version_string);

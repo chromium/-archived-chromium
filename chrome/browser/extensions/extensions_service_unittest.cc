@@ -16,6 +16,7 @@
 #include "chrome/common/extensions/extension.h"
 #include "chrome/common/extensions/url_pattern.h"
 #include "chrome/common/chrome_paths.h"
+#include "chrome/common/chrome_switches.h"
 #include "chrome/common/extensions/extension_error_reporter.h"
 #include "chrome/common/json_value_serializer.h"
 #include "chrome/common/notification_registrar.h"
@@ -68,6 +69,8 @@ class ExtensionsServiceTest
                    NotificationService::AllSources());
     registrar_.Add(this, NotificationType::EXTENSION_INSTALLED,
                    NotificationService::AllSources());
+    registrar_.Add(this, NotificationType::THEME_INSTALLED,
+                   NotificationService::AllSources());
 
     // Create a temporary area in the registry to test external extensions.
     registry_path_ = "Software\\Google\\Chrome\\ExtensionsServiceTest_";
@@ -77,6 +80,8 @@ class ExtensionsServiceTest
     profile_.reset(new TestingProfile());
     service_ = new ExtensionsService(profile_.get(), &loop_, &loop_,
                                      registry_path_);
+    service_->set_extensions_enabled(true);
+    service_->set_show_extensions_disabled_notification(false);
     total_successes_ = 0;
   }
 
@@ -109,15 +114,17 @@ class ExtensionsServiceTest
         break;
 
       case NotificationType::EXTENSION_INSTALLED:
+      case NotificationType::THEME_INSTALLED:
         installed_ = Details<Extension>(details).ptr();
         break;
-
-      // TODO(glen): Add tests for themes.
-      // See: http://code.google.com/p/chromium/issues/detail?id=12231
 
       default:
         DCHECK(false);
     }
+  }
+
+  void SetExtensionsEnabled(bool enabled) {
+    service_->set_extensions_enabled(enabled);
   }
 
   void TestInstallExtension(const FilePath& path,
@@ -134,7 +141,10 @@ class ExtensionsServiceTest
       EXPECT_EQ(0u, errors.size()) << path.value();
       EXPECT_EQ(total_successes_, service_->extensions()->size()) <<
           path.value();
-      EXPECT_TRUE(service_->GetExtensionByID(loaded_[0]->id())) << path.value();
+      if (loaded_.size() > 0) {
+        EXPECT_TRUE(service_->GetExtensionByID(loaded_[0]->id())) << 
+            path.value();
+      }
       for (std::vector<std::string>::iterator err = errors.begin();
         err != errors.end(); ++err) {
         LOG(ERROR) << *err;
@@ -291,7 +301,7 @@ TEST_F(ExtensionsServiceTest, CleanupOnStartup) {
 
   // We should have only gotten two extensions now.
   EXPECT_EQ(2u, loaded_.size());
-  
+
   // And extension1 dir should now be toast.
   dest_path = dest_path.DirName();
   ASSERT_FALSE(file_util::PathExists(dest_path));
@@ -303,14 +313,16 @@ TEST_F(ExtensionsServiceTest, InstallExtension) {
   ASSERT_TRUE(PathService::Get(chrome::DIR_TEST_DATA, &extensions_path));
   extensions_path = extensions_path.AppendASCII("extensions");
 
-  // A simple extension that should install without error.
+  // Extensions not enabled.
+  SetExtensionsEnabled(false);
   FilePath path = extensions_path.AppendASCII("good.crx");
+  TestInstallExtension(path, false);
+  SetExtensionsEnabled(true);
+
+  // A simple extension that should install without error.
+  path = extensions_path.AppendASCII("good.crx");
   TestInstallExtension(path, true);
   // TODO(erikkay): verify the contents of the installed extension.
-
-  // An extension with theme images.
-  path = extensions_path.AppendASCII("theme.crx");
-  TestInstallExtension(path, true);
 
   // An extension with page actions.
   path = extensions_path.AppendASCII("page_action.crx");
@@ -334,6 +346,26 @@ TEST_F(ExtensionsServiceTest, InstallExtension) {
 
   // TODO(erikkay): add more tests for many of the failure cases.
   // TODO(erikkay): add tests for upgrade cases.
+}
+
+TEST_F(ExtensionsServiceTest, InstallTheme) {
+  FilePath extensions_path;
+  ASSERT_TRUE(PathService::Get(chrome::DIR_TEST_DATA, &extensions_path));
+  extensions_path = extensions_path.AppendASCII("extensions");
+
+  // A theme.
+  FilePath path = extensions_path.AppendASCII("theme.crx");
+  TestInstallExtension(path, true);
+
+  // A theme when extensions are disabled.
+  SetExtensionsEnabled(false);
+  path = extensions_path.AppendASCII("theme2.crx");
+  TestInstallExtension(path, true);
+  SetExtensionsEnabled(true);
+
+  // A theme with extension elements.
+  path = extensions_path.AppendASCII("theme_with_extension.crx");
+  TestInstallExtension(path, false);
 }
 
 // Test that when an extension version is reinstalled, nothing happens.
@@ -494,7 +526,7 @@ TEST_F(ExtensionsServiceTest, ExternalInstall) {
   loop_.RunAllPending();
   ASSERT_EQ(0u, GetErrors().size());
   ASSERT_EQ(1u, loaded_.size());
-  
+
   // Now update the extension with a new version. We should get upgraded.
   source_path = source_path.DirName().AppendASCII("good2.crx");
   ASSERT_TRUE(key.WriteValue(L"path", source_path.ToWStringHack().c_str()));

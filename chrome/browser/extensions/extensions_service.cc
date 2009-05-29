@@ -4,6 +4,8 @@
 
 #include "chrome/browser/extensions/extensions_service.h"
 
+#include "app/l10n_util.h"
+#include "base/command_line.h"
 #include "base/file_util.h"
 #include "base/gfx/png_encoder.h"
 #include "base/scoped_handle.h"
@@ -22,6 +24,7 @@
 #include "chrome/browser/extensions/extension_process_manager.h"
 #include "chrome/browser/profile.h"
 #include "chrome/browser/utility_process_host.h"
+#include "chrome/common/chrome_switches.h"
 #include "chrome/common/extensions/extension.h"
 #include "chrome/common/extensions/extension_error_reporter.h"
 #include "chrome/common/extensions/extension_unpacker.h"
@@ -30,10 +33,14 @@
 #include "chrome/common/pref_service.h"
 #include "chrome/common/unzip.h"
 #include "chrome/common/url_constants.h"
+#include "grit/chromium_strings.h"
+#include "grit/generated_resources.h"
 #include "third_party/skia/include/core/SkBitmap.h"
 
 #if defined(OS_WIN)
+#include "app/win_util.h"
 #include "base/registry.h"
+#include "base/win_util.h"
 #endif
 
 // ExtensionsService
@@ -212,6 +219,10 @@ ExtensionsService::ExtensionsService(Profile* profile,
     : prefs_(profile->GetPrefs()),
       backend_loop_(backend_loop),
       install_directory_(profile->GetPath().AppendASCII(kInstallDirectoryName)),
+      extensions_enabled_(
+          CommandLine::ForCurrentProcess()->
+          HasSwitch(switches::kEnableExtensions)),
+      show_extensions_disabled_notification_(true),
       backend_(new ExtensionsServiceBackend(
           install_directory_, g_browser_process->resource_dispatcher_host(),
           frontend_loop, registry_path)) {
@@ -720,6 +731,22 @@ void ExtensionsServiceBackend::OnExtensionUnpacked(
     return;
   }
 
+  if (!frontend_->extensions_enabled() && !extension.IsTheme()) {
+#if defined(OS_WIN)
+    if (frontend_->show_extensions_disabled_notification()) {
+      win_util::MessageBox(GetActiveWindow(),
+          L"Extensions are not enabled. Add --enable-extensions to the "
+          L"command-line to enable extensions.\n\n"
+          L"This is a temporary message and it will be removed when extensions "
+          L"UI is finalized.",
+          l10n_util::GetString(IDS_PRODUCT_NAME).c_str(), MB_OK);
+    }
+#endif
+    ReportExtensionInstallError(extension_path,
+        "Extensions are not enabled.");
+    return;
+  }
+
   // If an expected id was provided, make sure it matches.
   if (!expected_id.empty() && expected_id != extension.id()) {
     ReportExtensionInstallError(extension_path,
@@ -869,7 +896,7 @@ void ExtensionsServiceBackend::CheckForExternalUpdates(
   HKEY reg_root = HKEY_LOCAL_MACHINE;
   RegistryKeyIterator iterator(reg_root, ASCIIToWide(registry_path_).c_str());
   while (iterator.Valid()) {
-    // Fold 
+    // Fold
     std::string id = StringToLowerASCII(WideToASCII(iterator.Name()));
     if (ids_to_ignore.find(id) != ids_to_ignore.end()) {
       LOG(INFO) << "Skipping uninstalled external extension " << id;
