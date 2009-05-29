@@ -506,6 +506,7 @@ TEST_F(SpellCheckTest, GetAutoCorrectionWord_EN_US) {
     const wchar_t* expected_result;
   } kTestCases[] = {
     {L"teh", L"the"},
+    {L"TEH", L""},
     {L"moer", L"more"},
     {L"watre", L"water"},
     {L"noen", L""},
