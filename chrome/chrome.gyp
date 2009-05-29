@@ -1714,6 +1714,8 @@
                 ['include', '^browser/views/find_bar_view.h'],
                 ['include', '^browser/views/find_bar_win.cc'],
                 ['include', '^browser/views/find_bar_win.h'],
+                ['include', '^browser/views/go_button.cc'],
+                ['include', '^browser/views/go_button.h'],
                 ['include', '^browser/views/toolbar_star_toggle.h'],
                 ['include', '^browser/views/toolbar_star_toggle.cc'],
                 ['include', '^browser/views/frame/browser_view.cc'],

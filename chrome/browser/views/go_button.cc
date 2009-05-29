@@ -5,6 +5,7 @@
 #include "chrome/browser/views/go_button.h"
 
 #include "app/l10n_util.h"
+#include "base/compiler_specific.h"
 #include "base/message_loop.h"
 #include "chrome/app/chrome_dll_resource.h"
 #include "chrome/browser/browser.h"
@@ -17,12 +18,12 @@
 
 GoButton::GoButton(LocationBarView* location_bar, Browser* browser)
     : ToggleImageButton(this),
+      button_delay_(0),
+      ALLOW_THIS_IN_INITIALIZER_LIST(stop_timer_(this)),
       location_bar_(location_bar),
       browser_(browser),
       intended_mode_(MODE_GO),
-      visible_mode_(MODE_GO),
-      button_delay_(NULL),
-      stop_timer_(this) {
+      visible_mode_(MODE_GO) {
   DCHECK(location_bar_);
   set_triggerable_event_flags(views::Event::EF_LEFT_BUTTON_DOWN |
                            views::Event::EF_MIDDLE_BUTTON_DOWN);
@@ -61,8 +62,14 @@ void GoButton::ButtonPressed(views::Button* button) {
     browser_->Go(event_utils::DispositionFromEventFlags(mouse_event_flags()));
 
     // Figure out the system double-click time.
-    if (button_delay_ == NULL)
+    if (button_delay_ == 0) {
+#if defined(OS_WIN)
       button_delay_ = GetDoubleClickTime();
+#else
+      NOTIMPLEMENTED();
+      button_delay_ = 500;
+#endif
+    }
 
     // Stop any existing timers.
     stop_timer_.RevokeAll();
