@@ -25,6 +25,11 @@ bool SimpleWebMimeRegistryImpl::supportsJavaScriptMIMEType(
   return net::IsSupportedJavascriptMimeType(UTF16ToASCII(mime_type).c_str());
 }
 
+bool SimpleWebMimeRegistryImpl::supportsMediaMIMEType(
+    const WebString& mime_type) {
+  return net::IsSupportedMediaMimeType(UTF16ToASCII(mime_type).c_str());
+}
+
 bool SimpleWebMimeRegistryImpl::supportsNonImageMIMEType(
     const WebString& mime_type) {
   return net::IsSupportedNonImageMimeType(UTF16ToASCII(mime_type).c_str());

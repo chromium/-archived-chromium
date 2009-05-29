@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
+// Copyright (c) 2006-2009 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
@@ -26,6 +26,7 @@ class MimeUtil : public PlatformMimeUtil {
                            std::string* mime_type) const;
 
   bool IsSupportedImageMimeType(const char* mime_type) const;
+  bool IsSupportedMediaMimeType(const char* mime_type) const;
   bool IsSupportedNonImageMimeType(const char* mime_type) const;
   bool IsSupportedJavascriptMimeType(const char* mime_type) const;
 
@@ -47,6 +48,7 @@ private:
 
   typedef base::hash_set<std::string> MimeMappings;
   MimeMappings image_map_;
+  MimeMappings media_map_;
   MimeMappings non_image_map_;
   MimeMappings javascript_map_;
   MimeMappings view_source_map_;
@@ -166,6 +168,28 @@ static const char* const supported_image_types[] = {
   "image/x-xbitmap"  // xbm
 };
 
+// TODO(hclam): Integrate this list with |secondary_mappings| above.
+static const char* const supported_media_types[] = {
+  // Ogg.
+  "audio/ogg",
+  "video/ogg",
+
+  // MPEG-4.
+  "application/mp4",
+  "audio/mp4",
+  "audio/x-m4a",
+  "video/mp4",
+  "video/x-m4v",
+
+  // MP3.
+  // TODO(hclam): may add "audio/mpeg" and "audio/x-mp3".
+  "audio/mp3",
+
+  // AAC.
+  "audio/aac",
+  "audio/x-aac"
+};
+
 // Note: does not include javascript types list (see supported_javascript_types)
 static const char* const supported_non_image_types[] = {
   "text/html",
@@ -217,11 +241,17 @@ void MimeUtil::InitializeMimeTypeMaps() {
   for (size_t i = 0; i < arraysize(supported_image_types); ++i)
     image_map_.insert(supported_image_types[i]);
 
-  // Initialize the supported non-image types
+  // Initialize the supported non-image types.
   for (size_t i = 0; i < arraysize(supported_non_image_types); ++i)
     non_image_map_.insert(supported_non_image_types[i]);
   for (size_t i = 0; i < arraysize(supported_javascript_types); ++i)
     non_image_map_.insert(supported_javascript_types[i]);
+  for (size_t i = 0; i < arraysize(supported_media_types); ++i)
+    non_image_map_.insert(supported_media_types[i]);
+
+  // Initialize the supported media types.
+  for (size_t i = 0; i < arraysize(supported_media_types); ++i)
+    media_map_.insert(supported_media_types[i]);
 
   for (size_t i = 0; i < arraysize(supported_javascript_types); ++i)
     javascript_map_.insert(supported_javascript_types[i]);
@@ -232,6 +262,10 @@ void MimeUtil::InitializeMimeTypeMaps() {
 
 bool MimeUtil::IsSupportedImageMimeType(const char* mime_type) const {
   return image_map_.find(mime_type) != image_map_.end();
+}
+
+bool MimeUtil::IsSupportedMediaMimeType(const char* mime_type) const {
+  return media_map_.find(mime_type) != media_map_.end();
 }
 
 bool MimeUtil::IsSupportedNonImageMimeType(const char* mime_type) const {
@@ -314,6 +348,10 @@ bool GetPreferredExtensionForMimeType(const std::string& mime_type,
 
 bool IsSupportedImageMimeType(const char* mime_type) {
   return GetMimeUtil()->IsSupportedImageMimeType(mime_type);
+}
+
+bool IsSupportedMediaMimeType(const char* mime_type) {
+  return GetMimeUtil()->IsSupportedMediaMimeType(mime_type);
 }
 
 bool IsSupportedNonImageMimeType(const char* mime_type) {

@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
+// Copyright (c) 2006-2009 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
@@ -28,6 +28,7 @@ bool GetPreferredExtensionForMimeType(const std::string& mime_type,
 
 // Check to see if a particular MIME type is in our list.
 bool IsSupportedImageMimeType(const char* mime_type);
+bool IsSupportedMediaMimeType(const char* mime_type);
 bool IsSupportedNonImageMimeType(const char* mime_type);
 bool IsSupportedJavascriptMimeType(const char* mime_type);
 

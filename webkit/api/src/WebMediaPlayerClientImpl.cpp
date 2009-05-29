@@ -13,6 +13,7 @@
 #include "WebKit.h"
 #include "WebKitClient.h"
 #include "WebMediaPlayer.h"
+#include "WebMimeRegistry.h"
 #include "WebRect.h"
 #include "WebSize.h"
 #include "WebString.h"
@@ -326,16 +327,17 @@ MediaPlayerPrivateInterface* WebMediaPlayerClientImpl::create(MediaPlayer* playe
 
 void WebMediaPlayerClientImpl::getSupportedTypes(HashSet<String>& supportedTypes)
 {
-    // FIXME: decide what to do here, we should fill in the HashSet about
-    // codecs that we support.
+    // FIXME: integrate this list with WebMediaPlayerClientImpl::supportsType.
     notImplemented();
 }
 
 MediaPlayer::SupportsType WebMediaPlayerClientImpl::supportsType(const String& type,
                                                                  const String& codecs)
 {
-    // FIXME: implement this properly.
-    return MediaPlayer::IsSupported;
+    // FIXME: respect codecs, now we only check for mime-type.
+    if (webKitClient()->mimeRegistry()->supportsMediaMIMEType(type))
+        return MediaPlayer::IsSupported;
+    return MediaPlayer::IsNotSupported;
 }
 
 WebMediaPlayerClientImpl::WebMediaPlayerClientImpl()

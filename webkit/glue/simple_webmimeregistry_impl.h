@@ -14,6 +14,7 @@ class SimpleWebMimeRegistryImpl : public WebKit::WebMimeRegistry {
   // WebMimeRegistry methods:
   virtual bool supportsImageMIMEType(const WebKit::WebString&);
   virtual bool supportsJavaScriptMIMEType(const WebKit::WebString&);
+  virtual bool supportsMediaMIMEType(const WebKit::WebString&);
   virtual bool supportsNonImageMIMEType(const WebKit::WebString&);
   virtual WebKit::WebString mimeTypeForExtension(const WebKit::WebString&);
   virtual WebKit::WebString mimeTypeFromFile(const WebKit::WebString&);

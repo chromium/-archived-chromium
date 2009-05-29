@@ -40,6 +40,7 @@ namespace WebKit {
     public:
         virtual bool supportsImageMIMEType(const WebString& mimeType) = 0;
         virtual bool supportsJavaScriptMIMEType(const WebString& mimeType) = 0;
+        virtual bool supportsMediaMIMEType(const WebString& mimeType) = 0;
         virtual bool supportsNonImageMIMEType(const WebString& mimeType) = 0;
 
         virtual WebString mimeTypeForExtension(const WebString& fileExtension) = 0;
