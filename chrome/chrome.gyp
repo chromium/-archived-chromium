@@ -3144,6 +3144,8 @@
         'renderer/renderer_main_unittest.cc',
         'test/browser_with_test_window_test.cc',
         'test/browser_with_test_window_test.h',
+        'test/file_test_utils.h',
+        'test/file_test_utils.cc',
         'test/render_view_test.cc',
         'test/render_view_test.h',
         'test/test_notification_tracker.cc',
