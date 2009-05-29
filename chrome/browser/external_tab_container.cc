@@ -130,7 +130,7 @@ void ExternalTabContainer::SetInitialFocus(bool reverse) {
 bool ExternalTabContainer::IsExternalTabContainer(HWND window) {
   if (GetProp(window, kWindowObjectKey) != NULL)
     return true;
-  
+
   return false;
 }
 
@@ -186,7 +186,8 @@ void ExternalTabContainer::AddNewContents(TabContents* source,
                             WindowOpenDisposition disposition,
                             const gfx::Rect& initial_pos,
                             bool user_gesture) {
-  if (disposition == NEW_POPUP || disposition == NEW_WINDOW) {
+  if (disposition == NEW_POPUP || disposition == NEW_WINDOW ||
+      disposition == NEW_FOREGROUND_TAB || disposition == NEW_BACKGROUND_TAB) {
     Browser::BuildPopupWindowHelper(source, new_contents, initial_pos,
                                     Browser::TYPE_POPUP,
                                     tab_contents_->profile(), true);
@@ -235,7 +236,7 @@ void ExternalTabContainer::ToolbarSizeChanged(TabContents* source,
 void ExternalTabContainer::ForwardMessageToExternalHost(
     const std::string& message, const std::string& origin,
     const std::string& target) {
-  if(automation_) {
+  if (automation_) {
     automation_->Send(
         new AutomationMsg_ForwardMessageToExternalHost(0, tab_handle_,
             message, origin, target));
