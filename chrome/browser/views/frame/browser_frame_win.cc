@@ -90,7 +90,7 @@ ThemeProvider* BrowserFrameWin::GetThemeProvider() const {
   return profile_->GetThemeProvider();
 }
 
-ThemeProvider* BrowserFrameWin::GetDefaultThemeProvider() const {
+ThemeProvider* BrowserFrameWin::GetDialogThemeProvider() const {
   return profile_->GetThemeProvider();
 }
 
