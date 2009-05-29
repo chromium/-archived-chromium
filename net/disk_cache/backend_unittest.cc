@@ -1310,18 +1310,15 @@ TEST_F(DiskCacheTest, MultipleInstances) {
   ScopedTestCache store2(L"cache_test2");
   ScopedTestCache store3(L"cache_test3");
 
-  const int kNumberOfCaches = 3;
+  const int kNumberOfCaches = 2;
   scoped_ptr<disk_cache::Backend> cache[kNumberOfCaches];
 
   cache[0].reset(disk_cache::CreateCacheBackend(store1.path_wstring(), false, 0,
                                                 net::DISK_CACHE));
   cache[1].reset(disk_cache::CreateCacheBackend(store2.path_wstring(), false, 0,
                                                 net::MEDIA_CACHE));
-  cache[2].reset(disk_cache::CreateCacheBackend(store3.path_wstring(), false, 0,
-                                                net::TEMP_MEDIA_CACHE));
 
-  ASSERT_TRUE(cache[0].get() != NULL && cache[1].get() != NULL &&
-              cache[2].get() != NULL);
+  ASSERT_TRUE(cache[0].get() != NULL && cache[1].get() != NULL);
 
   std::string key("the first key");
   disk_cache::Entry* entry;

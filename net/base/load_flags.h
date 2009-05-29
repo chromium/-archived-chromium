@@ -37,11 +37,6 @@ enum {
   // If present, upload progress messages should be provided to initiator.
   LOAD_ENABLE_UPLOAD_PROGRESS = 1 << 6,
 
-  // If present, try to download the resource to a standalone file.
-  // This hint tells the http cache to provide a native file handle
-  // of the cached file to the renderer process.
-  LOAD_ENABLE_DOWNLOAD_FILE = 1 << 7,
-
   // If present, ignores certificate mismatches with the domain name.
   // (The default behavior is to trigger an OnSSLCertificateError callback.)
   LOAD_IGNORE_CERT_COMMON_NAME_INVALID = 1 << 8,

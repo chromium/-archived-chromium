@@ -12,7 +12,6 @@ enum CacheType {
   DISK_CACHE,  // Disk is used as the backing storage.
   MEMORY_CACHE,  // Data is stored only in memory.
   MEDIA_CACHE,  // Optimized to handle media files.
-  TEMP_MEDIA_CACHE  // Optimized for media files while off the record.
 };
 
 }  // namespace disk_cache

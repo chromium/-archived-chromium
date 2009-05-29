@@ -81,7 +81,6 @@ EntryImpl::EntryImpl(BackendImpl* backend, Addr address)
   backend_ = backend;
   for (int i = 0; i < NUM_STREAMS; i++) {
     unreported_size_[i] = 0;
-    need_file_[i] = false;
   }
 }
 
@@ -303,9 +302,7 @@ int EntryImpl::WriteData(int index, int offset, net::IOBuffer* buf, int buf_len,
 
   backend_->OnEvent(Stats::WRITE_DATA);
 
-  // If we have prepared the cache as an external file, we should never use
-  // user_buffers_ and always write to file directly.
-  if (!need_file_[index] && user_buffers_[index].get()) {
+  if (user_buffers_[index].get()) {
     // Complete the operation locally.
     if (!buf_len)
       return 0;
@@ -352,43 +349,6 @@ int EntryImpl::WriteData(int index, int offset, net::IOBuffer* buf, int buf_len,
   if (backend_->cache_type() == net::DISK_CACHE)
     stats.AddTime(Time::Now() - start);
   return (completed || !completion_callback) ? buf_len : net::ERR_IO_PENDING;
-}
-
-base::PlatformFile EntryImpl::UseExternalFile(int index) {
-  DCHECK(index >= 0 && index < NUM_STREAMS);
-
-  Addr address(entry_.Data()->data_addr[index]);
-
-  // We will not prepare the cache file since the entry is already initialized,
-  // just return the platform file backing the cache.
-  if (address.is_initialized())
-    return GetPlatformFile(index);
-
-  if (!backend_->CreateExternalFile(&address))
-    return base::kInvalidPlatformFileValue;
-
-  entry_.Data()->data_addr[index] = address.value();
-  entry_.Store();
-
-  // Set the flag for this stream so we never use user_buffer_.
-  // TODO(hclam): do we need to save this information to EntryStore?
-  need_file_[index] = true;
-
-  return GetPlatformFile(index);
-}
-
-base::PlatformFile EntryImpl::GetPlatformFile(int index) {
-  DCHECK(index >= 0 && index < NUM_STREAMS);
-
-  Addr address(entry_.Data()->data_addr[index]);
-  if (!address.is_initialized() || !address.is_separate_file())
-    return base::kInvalidPlatformFileValue;
-
-  return base::CreatePlatformFile(backend_->GetFileName(address),
-                                  base::PLATFORM_FILE_OPEN |
-                                      base::PLATFORM_FILE_READ |
-                                  base::PLATFORM_FILE_ASYNC,
-                                  NULL);
 }
 
 uint32 EntryImpl::GetHash() {
@@ -674,15 +634,6 @@ File* EntryImpl::GetExternalFile(Addr address, int index) {
 bool EntryImpl::PrepareTarget(int index, int offset, int buf_len,
                               bool truncate) {
   Addr address(entry_.Data()->data_addr[index]);
-
-  // If we are instructed to use an external file, we should never buffer when
-  // writing. We are done with preparation of the target automatically, since
-  // we have already created the external file for writing.
-  if (need_file_[index]) {
-    // Make sure the stream is initialized and is kept in an external file.
-    DCHECK(address.is_initialized() && address.is_separate_file());
-    return true;
-  }
 
   if (address.is_initialized() || user_buffers_[index].get())
     return GrowUserBuffer(index, offset, buf_len, truncate);

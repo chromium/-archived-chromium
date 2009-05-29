@@ -358,14 +358,11 @@ URLRequestContext* ResourceMessageFilter::GetRequestContext(
     uint32 request_id,
     const ViewHostMsg_Resource_Request& request_data) {
   URLRequestContext* request_context = request_context_;
-  // If the request has resource type of ResourceType::MEDIA and
-  // LOAD_ENABLE_DOWNLOAD_FILE is set as a load flag, we use a request context
-  // specific to media for handling it because these resources have specific
-  // needs for caching and data passing.
-  if (request_data.resource_type == ResourceType::MEDIA &&
-      (request_data.load_flags & net::LOAD_ENABLE_DOWNLOAD_FILE)) {
+  // If the request has resource type of ResourceType::MEDIA, we use a request
+  // context specific to media for handling it because these resources have
+  // specific needs for caching.
+  if (request_data.resource_type == ResourceType::MEDIA)
     request_context = media_request_context_;
-  }
   return request_context;
 }
 

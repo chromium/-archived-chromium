@@ -184,24 +184,6 @@ bool URLRequestFileJob::GetMimeType(std::string* mime_type) const {
   return net::GetMimeTypeFromFile(file_path_, mime_type);
 }
 
-void URLRequestFileJob::GetResponseInfo(net::HttpResponseInfo* info) {
-  DCHECK(request_);
-
-  // If we have enabled downloading the file, the requester expects to receive
-  // a file handle to the file. Since we are serving file:/// url requests we
-  // can provide such a handle if the file exists.
-  bool created;
-  if ((request_->load_flags() & net::LOAD_ENABLE_DOWNLOAD_FILE) &&
-      stream_.IsOpen()) {
-        info->response_data_file =
-            base::CreatePlatformFile(file_path_.ToWStringHack(),
-                                     base::PLATFORM_FILE_OPEN |
-                                     base::PLATFORM_FILE_READ |
-                                     base::PLATFORM_FILE_ASYNC,
-                                     &created);
-  }
-}
-
 void URLRequestFileJob::SetExtraRequestHeaders(const std::string& headers) {
   // We only care about "Range" header here.
   std::vector<net::HttpByteRange> ranges;

@@ -26,7 +26,6 @@
 #include "chrome/browser/renderer_host/buffered_resource_handler.h"
 #include "chrome/browser/renderer_host/cross_site_resource_handler.h"
 #include "chrome/browser/renderer_host/download_resource_handler.h"
-#include "chrome/browser/renderer_host/media_resource_handler.h"
 #include "chrome/browser/renderer_host/render_view_host.h"
 #include "chrome/browser/renderer_host/resource_request_details.h"
 #include "chrome/browser/renderer_host/safe_browsing_resource_handler.h"
@@ -231,7 +230,6 @@ bool ResourceDispatcherHost::OnMessageReceived(const IPC::Message& message,
     IPC_MESSAGE_HANDLER(ViewHostMsg_RequestResource, OnRequestResource)
     IPC_MESSAGE_HANDLER_DELAY_REPLY(ViewHostMsg_SyncLoad, OnSyncLoad)
     IPC_MESSAGE_HANDLER(ViewHostMsg_DataReceived_ACK, OnDataReceivedACK)
-    IPC_MESSAGE_HANDLER(ViewHostMsg_DownloadProgress_ACK, OnDownloadProgressACK)
     IPC_MESSAGE_HANDLER(ViewHostMsg_UploadProgress_ACK, OnUploadProgressACK)
     IPC_MESSAGE_HANDLER(ViewHostMsg_CancelRequest, OnCancelRequest)
     IPC_MESSAGE_HANDLER(ViewHostMsg_ClosePage_ACK, OnClosePageACK)
@@ -313,17 +311,6 @@ void ResourceDispatcherHost::BeginRequest(
                                        receiver_->handle(),
                                        request_data.url,
                                        this);
-    // If the resource type is ResourceType::MEDIA and LOAD_ENABLE_DOWNLOAD_FILE
-    // is enabled we insert a media resource handler.
-    if (request_data.resource_type == ResourceType::MEDIA &&
-        (request_data.load_flags & net::LOAD_ENABLE_DOWNLOAD_FILE)) {
-      handler = new MediaResourceHandler(handler,
-                                         receiver_,
-                                         process_id,
-                                         route_id,
-                                         receiver_->handle(),
-                                         this);
-    }
   }
 
   if (HandleExternalProtocol(request_id, process_id, route_id,
@@ -433,10 +420,6 @@ void ResourceDispatcherHost::DataReceivedACK(int process_id, int request_id) {
     // Resume the request.
     PauseRequest(process_id, request_id, false);
   }
-}
-
-void ResourceDispatcherHost::OnDownloadProgressACK(int request_id) {
-  // TODO(hclam): do something to help rate limiting the message.
 }
 
 void ResourceDispatcherHost::OnUploadProgressACK(int request_id) {
@@ -915,16 +898,6 @@ bool ResourceDispatcherHost::CompleteResponseStarted(URLRequest* request) {
   response->response_head.content_length = request->GetExpectedContentSize();
   response->response_head.app_cache_id = WebAppCacheContext::kNoAppCacheId;
   request->GetMimeType(&response->response_head.mime_type);
-
-  // Make sure we don't get a file handle if LOAD_ENABLE_DOWNLOAD_FILE is not
-  // set.
-  DCHECK((request->load_flags() & net::LOAD_ENABLE_DOWNLOAD_FILE) ||
-         request->response_data_file() == base::kInvalidPlatformFileValue);
-#if defined(OS_POSIX)
-  response->response_head.response_data_file.fd = request->response_data_file();
-#elif defined(OS_WIN)
-  response->response_head.response_data_file = request->response_data_file();
-#endif
 
   if (request->ssl_info().cert) {
     int cert_id =

@@ -47,10 +47,6 @@ class ChromeURLRequestContext : public URLRequestContext,
   // called on the UI thread.
   static ChromeURLRequestContext* CreateOffTheRecord(Profile* profile);
 
-  // Create an instance of request context for OTR profile for media resources.
-  static ChromeURLRequestContext* CreateOffTheRecordForMedia(Profile* profile,
-      const FilePath& disk_cache_path);
-
   // Create an instance of request context for OTR profile for extensions.
   static ChromeURLRequestContext* CreateOffTheRecordForExtensions(
       Profile* profile);

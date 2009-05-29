@@ -15,12 +15,6 @@ namespace webkit_glue {
 ResourceLoaderBridge::ResponseInfo::ResponseInfo() {
   content_length = -1;
   app_cache_id = WebAppCacheContext::kNoAppCacheId;
-#if defined(OS_WIN)
-  response_data_file = base::kInvalidPlatformFileValue;
-#elif defined(OS_POSIX)
-  response_data_file.fd = base::kInvalidPlatformFileValue;
-  response_data_file.auto_close = false;
-#endif
 }
 
 ResourceLoaderBridge::ResponseInfo::~ResponseInfo() {

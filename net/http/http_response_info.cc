@@ -8,7 +8,7 @@
 namespace net {
 
 HttpResponseInfo::HttpResponseInfo()
-    : was_cached(false), response_data_file(base::kInvalidPlatformFileValue) {
+    : was_cached(false) {
 }
 
 HttpResponseInfo::~HttpResponseInfo() {

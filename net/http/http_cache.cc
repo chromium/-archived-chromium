@@ -587,15 +587,6 @@ void HttpCache::Transaction::SetRequest(const HttpRequestInfo* request) {
   if (cache_->mode() == RECORD)
     effective_load_flags_ |= LOAD_BYPASS_CACHE;
 
-  // If HttpCache has type MEDIA make sure LOAD_ENABLE_DOWNLOAD_FILE is set,
-  // otherwise make sure LOAD_ENABLE_DOWNLOAD_FILE is not set when HttpCache
-  // has type other than MEDIA.
-  if (cache_->type() == MEDIA_CACHE) {
-    DCHECK(effective_load_flags_ & LOAD_ENABLE_DOWNLOAD_FILE);
-  } else {
-    DCHECK(!(effective_load_flags_ & LOAD_ENABLE_DOWNLOAD_FILE));
-  }
-
   // Some headers imply load flags.  The order here is significant.
   //
   //   LOAD_DISABLE_CACHE   : no cache read or write
@@ -786,14 +777,6 @@ int HttpCache::Transaction::ReadResponseInfoFromEntry() {
 
   if (!HttpCache::ReadResponseInfo(entry_->disk_entry, &response_))
     return ERR_CACHE_READ_FAILURE;
-
-  // If the cache object is used for media file, we want the file handle of
-  // response data.
-  if (cache_->type() == MEDIA_CACHE) {
-    response_.response_data_file =
-        entry_->disk_entry->GetPlatformFile(kResponseContentIndex);
-  }
-
   return OK;
 }
 
@@ -853,20 +836,6 @@ void HttpCache::Transaction::AppendResponseDataToEntry(IOBuffer* data,
 void HttpCache::Transaction::TruncateResponseData() {
   if (!entry_)
     return;
-
-  // If the cache is for media files, we try to prepare the response data
-  // file as an external file and truncate it afterwards.
-  // Recipient of ResponseInfo should judge from |response_.response_data_file|
-  // to tell whether an external file of response data is available for reading
-  // or not.
-  // TODO(hclam): we should prepare the target stream as extern file only
-  // if we get a valid response from server, i.e. 200. We don't want empty
-  // cache files for redirection or external files for erroneous requests.
-  response_.response_data_file = base::kInvalidPlatformFileValue;
-  if (cache_->type() == MEDIA_CACHE) {
-    response_.response_data_file =
-        entry_->disk_entry->UseExternalFile(kResponseContentIndex);
-  }
 
   // Truncate the stream.
   WriteToEntry(kResponseContentIndex, 0, NULL, 0);

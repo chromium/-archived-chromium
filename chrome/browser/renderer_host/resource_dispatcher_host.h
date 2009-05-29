@@ -490,7 +490,6 @@ class ResourceDispatcherHost : public URLRequest::Delegate {
                     IPC::Message* sync_result,  // only valid for sync
                     int route_id);  // only valid for async
   void OnDataReceivedACK(int request_id);
-  void OnDownloadProgressACK(int request_id);
   void OnUploadProgressACK(int request_id);
   void OnCancelRequest(int request_id);
 

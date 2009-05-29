@@ -2598,8 +2598,6 @@ TEST_F(HttpNetworkTransactionTest, ResetStateForRestart) {
   EXPECT_EQ(NULL, trans->response_.auth_challenge.get());
   EXPECT_EQ(NULL, trans->response_.headers.get());
   EXPECT_EQ(false, trans->response_.was_cached);
-  EXPECT_EQ(base::kInvalidPlatformFileValue,
-            trans->response_.response_data_file);
   EXPECT_EQ(0, trans->response_.ssl_info.cert_status);
   EXPECT_FALSE(trans->response_.vary_data.is_valid());
 }

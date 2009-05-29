@@ -197,16 +197,6 @@ ChromeURLRequestContext* ChromeURLRequestContext::CreateOffTheRecord(
 }
 
 // static
-ChromeURLRequestContext* ChromeURLRequestContext::CreateOffTheRecordForMedia(
-  Profile* profile, const FilePath& disk_cache_path) {
-  // TODO(hclam): since we don't have an implementation of disk cache backend
-  // for media files in OTR mode, we create a request context just like the
-  // original one.
-  DCHECK(profile->IsOffTheRecord());
-  return CreateRequestContextForMedia(profile, disk_cache_path, true);
-}
-
-// static
 ChromeURLRequestContext*
 ChromeURLRequestContext::CreateOffTheRecordForExtensions(Profile* profile) {
   DCHECK(profile->IsOffTheRecord());
@@ -233,8 +223,7 @@ ChromeURLRequestContext* ChromeURLRequestContext::CreateRequestContextForMedia(
   // Also share the cookie store of the common profile.
   context->cookie_store_ = original_context->cookie_store();
 
-  // Create a media cache with maximum size of ~1.8GB, which is a
-  // size cache backend won't complain.
+  // Create a media cache with default size.
   // TODO(hclam): make the maximum size of media cache configurable.
   net::HttpCache* original_cache =
       original_context->http_transaction_factory()->GetCache();
@@ -248,21 +237,15 @@ ChromeURLRequestContext* ChromeURLRequestContext::CreateRequestContextForMedia(
     net::HttpNetworkLayer* original_network_layer =
         static_cast<net::HttpNetworkLayer*>(original_cache->network_layer());
     cache = new net::HttpCache(original_network_layer->GetSession(),
-        disk_cache_path.ToWStringHack(), kint32max - kint32max / 10 - 1);
+                               disk_cache_path.ToWStringHack(), 0);
   } else {
     // If original HttpCache doesn't exist, simply construct one with a whole
     // new set of network stack.
     cache = new net::HttpCache(original_context->proxy_service(),
-        disk_cache_path.ToWStringHack(), kint32max - kint32max / 10 - 1);
+                               disk_cache_path.ToWStringHack(), 0);
   }
 
-  // Set the cache type to media.
-  if (off_the_record) {
-    cache->set_type(net::TEMP_MEDIA_CACHE);
-  } else {
-    cache->set_type(net::MEDIA_CACHE);
-  }
-
+  cache->set_type(net::MEDIA_CACHE);
   context->http_transaction_factory_ = cache;
   return context;
 }

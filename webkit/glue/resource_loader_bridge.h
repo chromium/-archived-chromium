@@ -70,20 +70,6 @@ class ResourceLoaderBridge {
 
     // The appcache this response was loaded from, or kNoAppCacheId.
     int64 app_cache_id;
-
-    // A platform specific handle for a file that carries response data. This
-    // entry is used if the resource request is of type ResourceType::MEDIA and
-    // the underlying cache layer keeps the response data in a standalone file.
-#if defined(OS_POSIX)
-    // If the response data file is available, the file handle is stored in
-    // response_data_file.fd, its value is base::kInvalidPlatformFileValue
-    // otherwise.
-    base::FileDescriptor response_data_file;
-#elif defined(OS_WIN)
-    // An asynchronous file handle to the response data file, its value is
-    // base::kInvalidPlatformFileValue if the file is not available.
-    base::PlatformFile response_data_file;
-#endif
   };
 
   // See the SyncLoad method declared below.  (The name of this struct is not
@@ -113,13 +99,6 @@ class ResourceLoaderBridge {
   class Peer {
    public:
     virtual ~Peer() {}
-
-    // Called as download progress is made.
-    // note: only for requests with LOAD_ENABLE_DOWNLOAD_FILE set and the
-    // resource is downloaded to a standalone file and the file handle to it is
-    // passed in ResponseInfo during OnReceivedResponse. Note that size may be
-    // unknown and |size| will be kuint64max in that case.
-    virtual void OnDownloadProgress(uint64 position, uint64 size) {}
 
     // Called as upload progress is made.
     // note: only for requests with LOAD_ENABLE_UPLOAD_PROGRESS set

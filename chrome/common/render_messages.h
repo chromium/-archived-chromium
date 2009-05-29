@@ -1319,7 +1319,6 @@ struct ParamTraits<webkit_glue::ResourceLoaderBridge::ResponseInfo> {
     WriteParam(m, p.security_info);
     WriteParam(m, p.content_length);
     WriteParam(m, p.app_cache_id);
-    WriteParam(m, p.response_data_file);
   }
   static bool Read(const Message* m, void** iter, param_type* r) {
     return
@@ -1330,8 +1329,7 @@ struct ParamTraits<webkit_glue::ResourceLoaderBridge::ResponseInfo> {
       ReadParam(m, iter, &r->charset) &&
       ReadParam(m, iter, &r->security_info) &&
       ReadParam(m, iter, &r->content_length) &&
-      ReadParam(m, iter, &r->app_cache_id) &&
-      ReadParam(m, iter, &r->response_data_file);
+      ReadParam(m, iter, &r->app_cache_id);
   }
   static void Log(const param_type& p, std::wstring* l) {
     l->append(L"(");

@@ -100,7 +100,6 @@ class OffTheRecordProfileImpl : public Profile,
  public:
   explicit OffTheRecordProfileImpl(Profile* real_profile)
       : profile_(real_profile),
-        media_request_context_(NULL),
         extensions_request_context_(NULL),
         start_time_(Time::Now()) {
     request_context_ = ChromeURLRequestContext::CreateOffTheRecord(this);
@@ -117,7 +116,6 @@ class OffTheRecordProfileImpl : public Profile,
 
   virtual ~OffTheRecordProfileImpl() {
     CleanupRequestContext(request_context_);
-    CleanupRequestContext(media_request_context_);
     CleanupRequestContext(extensions_request_context_);
   }
 
@@ -237,26 +235,8 @@ class OffTheRecordProfileImpl : public Profile,
   }
 
   virtual URLRequestContext* GetRequestContextForMedia() {
-    if (!media_request_context_) {
-      FilePath cache_path = GetPath();
-
-      // Override the cache location if specified by the user.
-      const std::wstring user_cache_dir(
-          CommandLine::ForCurrentProcess()->GetSwitchValue(
-              switches::kDiskCacheDir));
-      if (!user_cache_dir.empty()) {
-        cache_path = FilePath::FromWStringHack(user_cache_dir);
-      }
-
-      cache_path = cache_path.Append(chrome::kOffTheRecordMediaCacheDirname);
-      media_request_context_ =
-          ChromeURLRequestContext::CreateOffTheRecordForMedia(
-              this, cache_path);
-      media_request_context_->AddRef();
-
-      DCHECK(media_request_context_->cookie_store());
-    }
-    return media_request_context_;
+    // In OTR mode, media request context is the same as the original one.
+    return request_context_;
   }
 
   URLRequestContext* GetRequestContextForExtensions() {
@@ -376,9 +356,6 @@ class OffTheRecordProfileImpl : public Profile,
 
   // The context to use for requests made from this OTR session.
   ChromeURLRequestContext* request_context_;
-
-  // The context for requests for media resources.
-  ChromeURLRequestContext* media_request_context_;
 
   ChromeURLRequestContext* extensions_request_context_;
 
