@@ -44,6 +44,7 @@
                   'destination': '<(PRODUCT_DIR)/installer/common/',
                   'files': [
                     'linux/internal/common/apt.include',
+                    'linux/internal/common/repo.cron',
                     'linux/internal/common/wrapper',
                     'linux/internal/common/updater',
                     'linux/internal/common/desktop.template',
