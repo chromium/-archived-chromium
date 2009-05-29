@@ -167,6 +167,8 @@ gboolean TabGtk::OnMousePress(GtkWidget* widget, GdkEventButton* event,
     if (just_selected) {
       tab->delegate_->SelectTab(tab);
     }
+  } else if (event->button == 3) {
+    tab->ShowContextMenu();
   }
 
   return TRUE;
@@ -177,8 +179,6 @@ gboolean TabGtk::OnMouseRelease(GtkWidget* widget, GdkEventButton* event,
                                 TabGtk* tab) {
   if (event->button == 2) {
     tab->delegate_->CloseTab(tab);
-  } else if (event->button == 3) {
-    tab->ShowContextMenu();
   }
 
   return TRUE;
