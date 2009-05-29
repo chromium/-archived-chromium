@@ -70,6 +70,11 @@ AVCodec* avcodec_find_decoder(enum CodecID id) {
   return avcodec_find_decoder_ptr(id);
 }
 
+void (*avcodec_flush_buffers_ptr)(AVCodecContext *avctx) = NULL;
+void avcodec_flush_buffers(AVCodecContext *avctx) {
+  avcodec_flush_buffers_ptr(avctx);
+}
+
 void (*avcodec_init_ptr)(void) = NULL;
 void avcodec_init(void) {
   avcodec_init_ptr();
@@ -230,6 +235,9 @@ bool InitializeMediaLibrary(const FilePath& module_dir) {
   avcodec_find_decoder_ptr =
       reinterpret_cast<AVCodec* (*)(enum CodecID)>(
           dlsym(libs[FILE_LIBAVCODEC], "avcodec_find_decoder"));
+  avcodec_flush_buffers_ptr =
+      reinterpret_cast<void (*)(AVCodecContext*)>(
+          dlsym(libs[FILE_LIBAVCODEC], "avcodec_flush_buffers"));
   avcodec_init_ptr =
       reinterpret_cast<void (*)(void)>(
           dlsym(libs[FILE_LIBAVCODEC], "avcodec_init"));
@@ -282,6 +290,7 @@ bool InitializeMediaLibrary(const FilePath& module_dir) {
       avcodec_decode_audio3_ptr &&
       avcodec_decode_video2_ptr &&
       avcodec_find_decoder_ptr &&
+      avcodec_flush_buffers_ptr &&
       avcodec_init_ptr &&
       avcodec_open_ptr &&
       avcodec_thread_init_ptr &&

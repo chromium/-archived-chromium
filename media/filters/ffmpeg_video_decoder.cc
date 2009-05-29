@@ -71,9 +71,21 @@ bool FFmpegVideoDecoder::OnInitialize(DemuxerStream* demuxer_stream) {
   return true;
 }
 
+void FFmpegVideoDecoder::OnSeek(base::TimeDelta time) {
+  // Everything in the time queue is invalid, clear the queue.
+  while (!time_queue_.empty())
+    time_queue_.pop();
+}
+
 void FFmpegVideoDecoder::OnDecode(Buffer* buffer) {
   // Check for end of stream.
   // TODO(scherkus): check for end of stream.
+
+  // Check for discontinuous buffer. If we receive a discontinuous buffer here,
+  // flush the internal buffer of FFmpeg.
+  if (buffer->IsDiscontinuous()) {
+    avcodec_flush_buffers(codec_context_);
+  }
 
   // Queue the incoming timestamp.
   TimeTuple times;

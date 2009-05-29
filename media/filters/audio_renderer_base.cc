@@ -42,6 +42,22 @@ void AudioRendererBase::Stop() {
   stopped_ = true;
 }
 
+void AudioRendererBase::Seek(base::TimeDelta time) {
+  AutoLock auto_lock(lock_);
+  last_fill_buffer_time_ = base::TimeDelta();
+
+  // Clear the queue of decoded packets and release the buffers. Fire as many
+  // reads as buffers released. It is safe to schedule reads here because
+  // demuxer and decoders should have received the seek signal.
+  // TODO(hclam): we should preform prerolling again after each seek to avoid
+  // glitch or clicking of audio.
+  while (!queue_.empty()) {
+    queue_.front()->Release();
+    queue_.pop_front();
+    ScheduleRead();
+  }
+}
+
 bool AudioRendererBase::Initialize(AudioDecoder* decoder) {
   DCHECK(decoder);
   decoder_ = decoder;
@@ -82,84 +98,107 @@ void AudioRendererBase::OnReadComplete(Buffer* buffer_in) {
 // TODO(scherkus): clean up FillBuffer().. it's overly complex!!
 size_t AudioRendererBase::FillBuffer(uint8* dest, size_t dest_len,
                                      float rate) {
-  // Update the pipeline's time if it was set last time.
-  if (last_fill_buffer_time_.InMicroseconds() > 0) {
-    host_->SetTime(last_fill_buffer_time_);
-    last_fill_buffer_time_ = base::TimeDelta();
-  }
-
   size_t buffers_released = 0;
   size_t dest_written = 0;
+  base::TimeDelta last_fill_buffer_time;
+  {
+    AutoLock auto_lock(lock_);
 
-  AutoLock auto_lock(lock_);
-  // Loop until the buffer has been filled.
-  while (dest_len > 0 && !queue_.empty()) {
-    Buffer* buffer = queue_.front();
+    // Save a local copy of last fill buffer time and reset the member.
+    last_fill_buffer_time = last_fill_buffer_time_;
+    last_fill_buffer_time_ = base::TimeDelta();
 
-    // Determine how much to copy.
-    const uint8* data = buffer->GetData() + data_offset_;
-    size_t data_len = buffer->GetDataSize() - data_offset_;
+    // Loop until the buffer has been filled.
+    while (dest_len > 0 && !queue_.empty()) {
+      Buffer* buffer = queue_.front();
 
-    // New scaled packet size aligned to 16 to ensure its on a
-    // channel/sample boundary.  Only guaranteed to works for power of 2
-    // number of channels and sample size.
-    size_t scaled_data_len = (rate <= 0.0f) ? 0 :
-      static_cast<size_t>(data_len / rate) & ~15;
-    if (scaled_data_len > dest_len) {
-      data_len = (data_len * dest_len / scaled_data_len) & ~15;
-      scaled_data_len = dest_len;
-    }
+      // Determine how much to copy.
+      const uint8* data = buffer->GetData() + data_offset_;
+      size_t data_len = buffer->GetDataSize() - data_offset_;
 
-    if (rate >= 1.0f) {  // Speed up.
-      memcpy(dest, data, scaled_data_len);
-    } else if (rate >= 0.5) {  // Slow down.
-      memcpy(dest, data, data_len);
-      memcpy(dest + data_len, data, scaled_data_len - data_len);
-    } else {  // Pause.
-      memset(dest, 0, data_len);
-    }
-    dest += scaled_data_len;
-    dest_len -= scaled_data_len;
-    dest_written += scaled_data_len;
-
-    data_offset_ += data_len;
-
-    if (rate == 0.0f)
-      return 0;
-
-    // Check to see if we're finished with the front buffer.
-    if (buffer->GetDataSize() - data_offset_ < 16) {
-      // Update the time.  If this is the last buffer in the queue, we'll
-      // drop out of the loop before len == 0, so we need to always update
-      // the time here.
-      if (buffer->GetTimestamp().InMicroseconds() > 0) {
-        last_fill_buffer_time_ = buffer->GetTimestamp() + buffer->GetDuration();
+      // New scaled packet size aligned to 16 to ensure it's on a
+      // channel/sample boundary.  Only guaranteed to work for power of 2
+      // number of channels and sample size.
+      size_t scaled_data_len = (rate <= 0.0f) ? 0 :
+          static_cast<size_t>(data_len / rate) & ~15;
+      if (scaled_data_len > dest_len) {
+        data_len = (data_len * dest_len / scaled_data_len) & ~15;
+        scaled_data_len = dest_len;
       }
 
-      // Dequeue the buffer.
-      queue_.pop_front();
-      buffer->Release();
-      ++buffers_released;
-
-      // Reset our offset into the front buffer.
-      data_offset_ = 0;
-    } else {
-      // If we're done with the read, compute the time.
-      // Integer divide so multiply before divide to work properly.
-      int64 us_written = (buffer->GetDuration().InMicroseconds() *
-                          data_offset_) / buffer->GetDataSize();
-
-      if (buffer->GetTimestamp().InMicroseconds() > 0) {
-        last_fill_buffer_time_ = buffer->GetTimestamp() +
-            base::TimeDelta::FromMicroseconds(us_written);
+      // Handle playback rate in three different cases:
+      // 1. If rate >= 1.0
+      //    Speed up the playback, we copy partial amount of decoded samples
+      //    into target buffer.
+      // 2. If 0.5 <= rate < 1.0
+      //    Slow down the playback, duplicate the decoded samples to fill a
+      //    larger size of target buffer.
+      // 3. If rate < 0.5
+      //    Playback is too slow, simply mute the audio.
+      // TODO(hclam): the logic for handling playback rate is too complex and
+      // is not careful enough. I should do some bounds checking and even better
+      // replace this with a better/clearer implementation.
+      if (rate >= 1.0f) {
+        memcpy(dest, data, scaled_data_len);
+      } else if (rate >= 0.5) {
+        memcpy(dest, data, data_len);
+        memcpy(dest + data_len, data, scaled_data_len - data_len);
+      } else {
+        memset(dest, 0, data_len);
       }
+      dest += scaled_data_len;
+      dest_len -= scaled_data_len;
+      dest_written += scaled_data_len;
+
+      data_offset_ += data_len;
+
+      if (rate == 0.0f) {
+        dest_written = 0;
+        break;
+      }
+
+      // Check to see if we're finished with the front buffer.
+      if (buffer->GetDataSize() - data_offset_ < 16) {
+        // Update the time.  If this is the last buffer in the queue, we'll
+        // drop out of the loop before len == 0, so we need to always update
+        // the time here.
+        if (buffer->GetTimestamp().InMicroseconds() > 0) {
+          last_fill_buffer_time_ = buffer->GetTimestamp() +
+                                   buffer->GetDuration();
+        }
+
+        // Dequeue the buffer.
+        queue_.pop_front();
+        buffer->Release();
+        ++buffers_released;
+
+        // Reset our offset into the front buffer.
+        data_offset_ = 0;
+      } else {
+        // If we're done with the read, compute the time.
+        // Integer divide so multiply before divide to work properly.
+        int64 us_written = (buffer->GetDuration().InMicroseconds() *
+                            data_offset_) / buffer->GetDataSize();
+
+        if (buffer->GetTimestamp().InMicroseconds() > 0) {
+          last_fill_buffer_time_ =
+              buffer->GetTimestamp() +
+              base::TimeDelta::FromMicroseconds(us_written);
+        }
+      }
+    }
+
+    // If we've released any buffers, read more buffers from the decoder.
+    for (size_t i = 0; i < buffers_released; ++i) {
+      ScheduleRead();
     }
   }
 
-  // If we've released any buffers, read more buffers from the decoder.
-  for (size_t i = 0; i < buffers_released; ++i) {
-    ScheduleRead();
+  // Update the pipeline's time if it was set last time.
+  if (last_fill_buffer_time.InMicroseconds() > 0) {
+    host_->SetTime(last_fill_buffer_time);
   }
+
   return dest_written;
 }
 

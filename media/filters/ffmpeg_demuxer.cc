@@ -195,6 +195,10 @@ void FFmpegDemuxer::Stop() {
 }
 
 void FFmpegDemuxer::Seek(base::TimeDelta time) {
+  // TODO(hclam): by returning from this method, it is assumed that the seek
+  // operation is completed and filters behind the demuxer is good to issue
+  // more reads, but we are posting a task here, which makes the seek operation
+  // asynchronous, should change how seek works to make it fully asynchronous.
   thread_.message_loop()->PostTask(FROM_HERE,
       NewRunnableMethod(this, &FFmpegDemuxer::SeekTask, time));
 }

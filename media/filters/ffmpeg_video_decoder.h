@@ -26,6 +26,8 @@ class FFmpegVideoDecoder : public DecoderBase<VideoDecoder, VideoFrame> {
 
   virtual bool OnInitialize(DemuxerStream* demuxer_stream);
 
+  virtual void OnSeek(base::TimeDelta time);
+
   virtual void OnDecode(Buffer* buffer);
 
  private:

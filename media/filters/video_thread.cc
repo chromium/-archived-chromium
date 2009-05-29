@@ -75,7 +75,15 @@ void VideoThread::SetPlaybackRate(float playback_rate) {
 }
 
 void VideoThread::Seek(base::TimeDelta time) {
-  // Do nothing.
+  AutoLock auto_lock(lock_);
+  // We need the first frame in |frames_| to run the VideoThread main loop, but
+  // we don't need decoded frames after the first frame since we are at a new
+  // time. We should get some new frames so issue reads to compensate for those
+  // discarded.
+  while (frames_.size() > 1) {
+    frames_.pop_back();
+    ScheduleRead();
+  }
 }
 
 bool VideoThread::Initialize(VideoDecoder* decoder) {

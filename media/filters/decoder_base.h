@@ -35,9 +35,31 @@ class DecoderBase : public Decoder {
       }
       DiscardQueues();
     }
+
     // Because decode_thread_ is a scoped_ptr this will destroy the thread,
     // if there was one, which causes it to be shut down in an orderly way.
     decode_thread_.reset();
+  }
+
+  virtual void Seek(base::TimeDelta time) {
+    // Delegate to the subclass first.
+    OnSeek(time);
+    {
+      AutoLock auto_lock(lock_);
+
+      // Flush the result queue.
+      result_queue_.clear();
+
+      // Flush the input queue. This will trigger more reads from the demuxer.
+      input_queue_.clear();
+
+      // Turn on the seeking flag so that we can discard buffers until a
+      // discontinuous buffer is received.
+      seeking_ = true;
+    }
+    // ScheduleProcessTask to trigger more reads and keep the process loop
+    // rolling.
+    ScheduleProcessTask();
   }
 
   // Decoder implementation.
@@ -76,7 +98,18 @@ class DecoderBase : public Decoder {
   void OnReadComplete(Buffer* buffer) {
     AutoLock auto_lock(lock_);
     if (IsRunning()) {
-      input_queue_.push_back(buffer);
+      // Once the |seeking_| flag is set we ignore every buffers here
+      // until we receive a discontinuous buffer and we will turn off the
+      // |seeking_| flag.
+      if (buffer->IsDiscontinuous()) {
+        // TODO(hclam): put a DCHECK here to assert |seeking_| being true.
+        // I cannot do this now because seek operation is not fully
+        // asynchronous. There may be pending seek requests even before the
+        // previous was finished.
+        seeking_ = false;
+      }
+      if (!seeking_)
+        input_queue_.push_back(buffer);
       --pending_reads_;
       ScheduleProcessTask();
     }
@@ -92,7 +125,8 @@ class DecoderBase : public Decoder {
         demuxer_stream_(NULL),
         decode_thread_(thread_name ? new base::Thread(thread_name) : NULL),
         pending_reads_(0),
-        process_task_(NULL) {
+        process_task_(NULL),
+        seeking_(false) {
   }
 
   virtual ~DecoderBase() {
@@ -119,9 +153,13 @@ class DecoderBase : public Decoder {
   virtual bool OnInitialize(DemuxerStream* demuxer_stream) = 0;
 
   // Method that may be implemented by the derived class if desired.  It will
-  // be called from within the MediaFilter::Stop method prior to stopping the
+  // be called from within the MediaFilter::Stop() method prior to stopping the
   // base class.
   virtual void OnStop() {}
+
+  // Derived class can implement this method and perform seeking logic prior
+  // to the base class.
+  virtual void OnSeek(base::TimeDelta time) {}
 
   // Method that must be implemented by the derived class.  If the decode
   // operation produces one or more outputs, the derived class should call
@@ -277,6 +315,11 @@ class DecoderBase : public Decoder {
   // Queue of callbacks supplied by the renderer through the Read() method.
   typedef std::deque<ReadCallback*> ReadQueue;
   ReadQueue read_queue_;
+
+  // An internal state of the decoder that indicates that are waiting for seek
+  // to complete. We expect to receive a discontinuous frame/packet from the
+  // demuxer to signal that seeking is completed.
+  bool seeking_;
 
   DISALLOW_COPY_AND_ASSIGN(DecoderBase);
 };

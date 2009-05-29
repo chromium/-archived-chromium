@@ -488,6 +488,15 @@ void PipelineThread::SeekTask(base::TimeDelta time,
        ++iter) {
     (*iter)->media_filter()->Seek(time);
   }
+
+  // TODO(hclam): we should set the time when the above seek operations were all
+  // successful and first frame/packet at the desired time is decoded. I'm
+  // setting the time here because once we do the callback the user can ask for
+  // current time immediately, which is the old time. In order to get rid this
+  // little glitch, we either assume the seek was successful and time is updated
+  // immediately here or we set time and do callback when we have new
+  // frames/packets.
+  SetTime(time);
   if (seek_callback) {
     seek_callback->Run(true);
     delete seek_callback;

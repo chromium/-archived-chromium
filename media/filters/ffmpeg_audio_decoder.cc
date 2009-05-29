@@ -74,6 +74,12 @@ void FFmpegAudioDecoder::OnStop() {
 }
 
 void FFmpegAudioDecoder::OnDecode(Buffer* input) {
+  // Check for discontinuous buffer. If we receive a discontinuous buffer here,
+  // flush the internal buffer of FFmpeg.
+  if (input->IsDiscontinuous()) {
+    avcodec_flush_buffers(codec_context_);
+  }
+
   // Due to FFmpeg API changes we no longer have const read-only pointers.
   AVPacket packet;
   av_init_packet(&packet);

@@ -32,6 +32,8 @@ class AudioRendererBase : public AudioRenderer {
   // MediaFilter implementation.
   virtual void Stop();
 
+  virtual void Seek(base::TimeDelta time);
+
   // AudioRenderer implementation.
   virtual bool Initialize(AudioDecoder* decoder);
 
