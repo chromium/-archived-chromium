@@ -470,6 +470,8 @@ const wchar_t kSimpleDataSource[]              = L"simple-data-source";
 const wchar_t kForceFieldTestNameAndValue[]    = L"force-fieldtest";
 
 // Enables the prototype of the next version of the New Tab page.
+// This can be empty in which case the default prototype resource is used or it
+// can be a file path, in which case the file will be used as the new tab page.
 const wchar_t kNewNewTabPage[]                 = L"new-new-tab-page";
 
 }  // namespace switches

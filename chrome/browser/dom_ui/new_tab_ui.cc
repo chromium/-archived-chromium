@@ -9,6 +9,7 @@
 #include "app/l10n_util.h"
 #include "app/resource_bundle.h"
 #include "base/command_line.h"
+#include "base/file_util.h"
 #include "base/histogram.h"
 #include "base/string_piece.h"
 #include "chrome/browser/bookmarks/bookmark_model.h"
@@ -199,6 +200,11 @@ class NewTabHTMLSource : public ChromeURLDataManager::DataSource {
   static bool first_view() { return first_view_; }
 
  private:
+  // In case a file path to the new new tab page was provided this tries to load
+  // the file and returns the file content if successful. This returns an empty
+  // string in case of failure.
+  static std::string GetNewNewTabFromCommandLine();
+
   // Whether this is the is the first viewing of the new tab page and
   // we think it is the user's startup page.
   static bool first_view_;
@@ -283,10 +289,27 @@ void NewTabHTMLSource::StartDataRequest(const std::string& path,
 #ifdef CHROME_PERSONALIZATION
   localized_strings.SetString(L"p13nsrc", Personalization::GetNewTabSource());
 #endif
-  static const StringPiece new_tab_html(
-      ResourceBundle::GetSharedInstance().GetRawDataResource(
-          NewTabUI::EnableNewNewTabPage() ?
-              IDR_NEW_NEW_TAB_HTML : IDR_NEW_TAB_HTML));
+
+  // In case we have the new new tab page enabled we first try to read the file
+  // provided on the command line. If that fails we just get the resource from
+  // the resource bundle.
+  StringPiece new_tab_html;
+  std::string new_tab_html_str;
+  if (NewTabUI::EnableNewNewTabPage()) {
+    new_tab_html_str = GetNewNewTabFromCommandLine();
+
+    if (!new_tab_html_str.empty()) {
+      new_tab_html = StringPiece(new_tab_html_str);
+    } else {
+      // Use the new new tab page from the resource bundle.
+      new_tab_html = ResourceBundle::GetSharedInstance().GetRawDataResource(
+              IDR_NEW_NEW_TAB_HTML);
+    }
+  } else {
+    // Use the default new tab page resource.
+    new_tab_html = ResourceBundle::GetSharedInstance().GetRawDataResource(
+        IDR_NEW_TAB_HTML);
+  }
 
   const std::string full_html = jstemplate_builder::GetTemplateHtml(
       new_tab_html, &localized_strings, "t" /* template root node id */);
@@ -296,6 +319,27 @@ void NewTabHTMLSource::StartDataRequest(const std::string& path,
   std::copy(full_html.begin(), full_html.end(), html_bytes->data.begin());
 
   SendResponse(request_id, html_bytes);
+}
+
+// static
+std::string NewTabHTMLSource::GetNewNewTabFromCommandLine() {
+  const CommandLine* command_line = CommandLine::ForCurrentProcess();
+  const std::wstring file_path_wstring = command_line->GetSwitchValue(
+      switches::kNewNewTabPage);
+
+#if defined(OS_WIN)
+  const FilePath::StringType file_path = file_path_wstring;
+#else
+  const FilePath::StringType file_path = WideToASCII(file_path_wstring);
+#endif
+
+  if (!file_path.empty()) {
+    std::string file_contents;
+    if (file_util::ReadFileToString(FilePath(file_path), &file_contents))
+      return file_contents;
+  }
+
+  return std::string();
 }
 
 ///////////////////////////////////////////////////////////////////////////////
