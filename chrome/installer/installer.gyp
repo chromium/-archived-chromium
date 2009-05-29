@@ -9,422 +9,521 @@
   ],
   'targets': [
     {
-      'target_name': 'gcapi_dll',
-      'type': 'loadable_module',
-      'msvs_guid': 'B802A2FE-E4E2-4F5A-905A-D5128875C954',
-      'dependencies': [
-        '../../google_update/google_update.gyp:google_update',
-      ],
-      'include_dirs': [
-        '../..',
-      ],
-      'sources': [
-        'gcapi/gcapi.cc',
-        'gcapi/gcapi.h',
-      ],
-    },
-    {
-      'target_name': 'gcapi_lib',
-      'type': 'static_library',
-      'msvs_guid': 'CD2FD73A-6AAB-4886-B887-760D18E8B635', 
-      'dependencies': [
-        '../../google_update/google_update.gyp:google_update',
-      ],
-      'include_dirs': [
-        '../..',
-      ],
-      'sources': [
-        'gcapi/gcapi.cc',
-        'gcapi/gcapi.h',
-      ],
-    },
-    {
-      'target_name': 'gcapi_test',
-      'type': 'executable',
-      'msvs_guid': 'B64B396B-8EF1-4B6B-A07E-48D40EB961AB',
-      'dependencies': [
-        'gcapi_dll',
-        'gcapi_lib',
-      ],
-      'include_dirs': [
-        '../..',
-      ],
-      'sources': [
-        'gcapi/gcapi_test.cc',
-        'gcapi/gcapi_test.rc',
-        'gcapi/resource.h',
-      ],
-    },
-    {
-      'target_name': 'installer_unittests',
-      'type': 'executable',
-      'msvs_guid': '903F8C1E-537A-4C9E-97BE-075147CBE769',
-      'dependencies': [
-        'installer_util',
-        'installer_util_strings',
-        '../../base/base.gyp:base',
-        '../../testing/gtest.gyp:gtest',
-      ],
-      'include_dirs': [
-        '../..',
-      ],
-      'sources': [
-        'setup/compat_checks_unittest.cc',
-        'setup/setup_constants.cc',
-        'util/copy_tree_work_item_unittest.cc',
-        'util/create_dir_work_item_unittest.cc',
-        'util/create_reg_key_work_item_unittest.cc',
-        'util/delete_reg_value_work_item_unittest.cc',
-        'util/delete_tree_work_item_unittest.cc',
-        'util/google_chrome_distribution_unittest.cc',
-        'util/helper_unittest.cc',
-        'util/installer_unittests.rc',
-        'util/installer_unittests_resource.h',
-        'util/move_tree_work_item_unittest.cc',
-        'util/run_all_unittests.cc',
-        'util/set_reg_value_work_item_unittest.cc',
-        'util/work_item_list_unittest.cc',
-      ],
-    },
-    {
       'target_name': 'installer_util',
-      'type': '<(library)',
-      'msvs_guid': 'EFBB1436-A63F-4CD8-9E99-B89226E782EC',
-      'dependencies': [
-        'installer_util_strings',
-        '../chrome.gyp:common',
-        '../chrome.gyp:chrome_resources',
-        '../chrome.gyp:chrome_strings',
-        '../../net/net.gyp:net_resources',
-        '../../media/media.gyp:media',
-        '../../skia/skia.gyp:skia',
-        '../../third_party/icu38/icu38.gyp:icui18n',
-        '../../third_party/icu38/icu38.gyp:icuuc',
-        '../../third_party/libxml/libxml.gyp:libxml',
-        '../../third_party/lzma_sdk/lzma_sdk.gyp:lzma_sdk',
-        '../../third_party/npapi/npapi.gyp:npapi',
-        '../third_party/hunspell/hunspell.gyp:hunspell',
-      ],
-      'include_dirs': [
-        '../..',
-      ],
-      'sources': [
-        'util/browser_distribution.cc',
-        'util/browser_distribution.h',
-        'util/compat_checks.cc',
-        'util/compat_checks.h',
-        'util/copy_tree_work_item.cc',
-        'util/copy_tree_work_item.h',
-        'util/create_dir_work_item.cc',
-        'util/create_dir_work_item.h',
-        'util/create_reg_key_work_item.cc',
-        'util/create_reg_key_work_item.h',
-        'util/delete_reg_value_work_item.cc',
-        'util/delete_reg_value_work_item.h',
-        'util/delete_tree_work_item.cc',
-        'util/delete_tree_work_item.h',
-        'util/google_chrome_distribution.cc',
-        'util/google_chrome_distribution.h',
-        'util/google_update_constants.cc',
-        'util/google_update_constants.h',
-        'util/google_update_settings.cc',
-        'util/google_update_settings.h',
-        'util/helper.cc',
-        'util/helper.h',
-        'util/html_dialog.h',
-        'util/html_dialog_impl.cc',
-        'util/install_util.cc',
-        'util/install_util.h',
-        'util/l10n_string_util.cc',
-        'util/l10n_string_util.h',
-        'util/logging_installer.cc',
-        'util/logging_installer.h',
-        'util/lzma_util.cc',
-        'util/lzma_util.h',
-        'util/master_preferences.cc',
-        'util/master_preferences.h',
-        'util/move_tree_work_item.cc',
-        'util/move_tree_work_item.h',
-        'util/self_reg_work_item.cc',
-        'util/self_reg_work_item.h',
-        'util/set_reg_value_work_item.cc',
-        'util/set_reg_value_work_item.h',
-        'util/shell_util.cc',
-        'util/shell_util.h',
-        'util/util_constants.cc',
-        'util/util_constants.h',
-        'util/version.cc',
-        'util/version.h',
-        'util/work_item.cc',
-        'util/work_item.h',
-        'util/work_item_list.cc',
-        'util/work_item_list.h',
-      ],
-    },
-    {
-      'target_name': 'installer_util_strings',
-      'type': 'none',
-      'msvs_guid': '0026A376-C4F1-4575-A1BA-578C69F07013',
-      'actions': [
-        {
-          # TODO(sgk):  Clean this up so that we pass in the
-          # file names to the script instead of having it hard-code
-          # matching path names internally.
-          'action_name': 'installer_util_strings',
-          'inputs': [
-            'util/prebuild/create_string_rc.py',
-            '../app/generated_resources.grd',
+      'conditions': [
+        ['OS=="linux"', {
+          'type': 'none',
+          # Add these files to the build output so the build archives will be
+          # "hermetic" for packaging. This is only for branding="Chrome" since
+          # we only create packages for official builds.
+          'conditions': [
+            ['branding=="Chrome"', {
+              'variables': {
+                'branding_path': 'google_chrome',
+                'lib32_dir': '<!(if uname -m | egrep -q "x86_64"; then echo lib32; else echo lib; fi)',
+              },
+              'copies': [
+                # Copy tools for generating packages from the build archive.
+                {
+                  'destination': '<(PRODUCT_DIR)/installer/',
+                  'files': [
+                    'linux/internal/build_from_archive.sh',
+                  ]
+                },
+                {
+                  'destination': '<(PRODUCT_DIR)/installer/debian/',
+                  'files': [
+                    'linux/internal/debian/changelog.template',
+                    'linux/internal/debian/postinst',
+                    'linux/internal/debian/prerm',
+                    'linux/internal/debian/build.sh',
+                    'linux/internal/debian/control.template',
+                  ]
+                },
+                {
+                  'destination': '<(PRODUCT_DIR)/installer/common/',
+                  'files': [
+                    'linux/internal/common/apt.include',
+                    'linux/internal/common/wrapper',
+                    'linux/internal/common/updater',
+                    'linux/internal/common/desktop.template',
+                    'linux/internal/common/google-chrome/google-chrome.info',
+                  ]
+                },
+                # System libs needed for 64-bit package building.
+                {
+                  'destination': '<(PRODUCT_DIR)/installer/lib32/',
+                  'files': [
+                    '/usr/<(lib32_dir)/libsqlite3.so.0',
+                    '/usr/<(lib32_dir)/libsqlite3.so.0.8.6',
+                    '/usr/<(lib32_dir)/libnspr4.so.0d',
+                    '/usr/<(lib32_dir)/libplds4.so.0d',
+                    '/usr/<(lib32_dir)/libplc4.so.0d',
+                    '/usr/<(lib32_dir)/libssl3.so.1d',
+                    '/usr/<(lib32_dir)/libnss3.so.1d',
+                    '/usr/<(lib32_dir)/libsmime3.so.1d',
+                    '/usr/<(lib32_dir)/libnssutil3.so.1d',
+                    '/usr/<(lib32_dir)/nss/libfreebl3.so',
+                    '/usr/<(lib32_dir)/nss/libsoftokn3.chk',
+                    '/usr/<(lib32_dir)/nss/libsoftokn3.so',
+                    '/usr/<(lib32_dir)/nss/libnssckbi.so',
+                    '/usr/<(lib32_dir)/nss/libnssdbm3.so',
+                    '/usr/<(lib32_dir)/nss/libfreebl3.chk',
+                  ],
+                },
+                # Additional theme resources needed for package building.
+                {
+                  'destination': '<(PRODUCT_DIR)/installer/theme/',
+                  'files': [
+                    '../app/theme/<(branding_path)/product_logo_16.png',
+                    '../app/theme/<(branding_path)/product_logo_32.png',
+                    '../app/theme/<(branding_path)/product_logo_48.png',
+                    '../app/theme/<(branding_path)/product_logo_256.png',
+                    '../app/theme/<(branding_path)/BRANDING',
+                  ],
+                },
+              ],
+              'actions': [
+                {
+                  'action_name': 'save_build_info',
+                  'inputs': [
+                    '<(BRANDING)',
+                    '<(VERSION)',
+                  ],
+                  'outputs': [
+                    '<(PRODUCT_DIR)/installer/version.txt',
+                  ],
+                  # Jst output the default version info variables.
+                  'action': ['python', '<(version_py)', '-f',
+                             '<(BRANDING)', '-f', '<(VERSION)',
+                             '-o', '<@(_outputs)'],
+                },
+              ],
+            }],
           ],
-          'outputs': [
-            '<(SHARED_INTERMEDIATE_DIR)/installer_util_strings/installer_util_strings.rc',
-            '<(SHARED_INTERMEDIATE_DIR)/installer_util_strings/installer_util_strings.h',
+        }],
+        ['OS=="win"', {
+          'type': '<(library)',
+          'msvs_guid': 'EFBB1436-A63F-4CD8-9E99-B89226E782EC',
+          'dependencies': [
+            'installer_util_strings',
+            '../chrome.gyp:common',
+            '../chrome.gyp:chrome_resources',
+            '../chrome.gyp:chrome_strings',
+            '../../net/net.gyp:net_resources',
+            '../../media/media.gyp:media',
+            '../../skia/skia.gyp:skia',
+            '../../third_party/icu38/icu38.gyp:icui18n',
+            '../../third_party/icu38/icu38.gyp:icuuc',
+            '../../third_party/libxml/libxml.gyp:libxml',
+            '../../third_party/lzma_sdk/lzma_sdk.gyp:lzma_sdk',
+            '../../third_party/npapi/npapi.gyp:npapi',
+            '../third_party/hunspell/hunspell.gyp:hunspell',
           ],
-          'action': [
-            # The create_string_rc.py script requires the checked-in
-            # python.exe that has google modules installed, and
-            # a PYTHONPATH pointing to grit so it can import FP.
-            # TODO:  clean this up
-            'set PYTHONPATH=../../tools/grit/grit/extern', '&&',
-            '../../third_party/python_24/python.exe',
-            'util/prebuild/create_string_rc.py',
-            '<(SHARED_INTERMEDIATE_DIR)/installer_util_strings'
+          'include_dirs': [
+            '../..',
           ],
-          'msvs_cygwin_shell': 0,
-        },
-      ],
-      'direct_dependent_settings': {
-        'include_dirs': [
-           '<(SHARED_INTERMEDIATE_DIR)/installer_util_strings',
-        ],
-      },
-    },
-    {
-      'target_name': 'mini_installer',
-      'type': 'executable',
-      'msvs_guid': '24A5AC7C-280B-4899-9153-6BA570A081E7',
-      'dependencies': [
-        '../chrome.gyp:app',
-        '../chrome.gyp:chrome_dll',
-      ],
-      'include_dirs': [
-        '../..',
-        '<(PRODUCT_DIR)',
-        '<(INTERMEDIATE_DIR)',
-      ],
-      'sources': [
-        'mini_installer/chrome.release',
-        'mini_installer/mini_installer.cc',
-        'mini_installer/mini_installer.h',
-        'mini_installer/mini_installer.ico',
-        'mini_installer/mini_installer.rc',
-        'mini_installer/mini_installer_exe_version.rc.version',
-        'mini_installer/mini_installer_resource.h',
-        'mini_installer/pe_resource.cc',
-        'mini_installer/pe_resource.h',
-      ],
-      'msvs_settings': {
-        'VCLinkerTool': {
-          'SubSystem': '2',     # Set /SUBSYSTEM:WINDOWS
-        },
-      },
-      'rules': [
-        {
-          'rule_name': 'mini_installer_version',
-          'extension': 'version',
-          'variables': {
-            'template_input_path': 'mini_installer/mini_installer_exe_version.rc.version',
-            'template_output_path':
-            '<(INTERMEDIATE_DIR)/mini_installer_exe_version.rc',
-          },
-          'inputs': [
-            '<(template_input_path)',
-            '<(VERSION)',
-            '<(BRANDING)',
+          'sources': [
+            'util/browser_distribution.cc',
+            'util/browser_distribution.h',
+            'util/compat_checks.cc',
+            'util/compat_checks.h',
+            'util/copy_tree_work_item.cc',
+            'util/copy_tree_work_item.h',
+            'util/create_dir_work_item.cc',
+            'util/create_dir_work_item.h',
+            'util/create_reg_key_work_item.cc',
+            'util/create_reg_key_work_item.h',
+            'util/delete_reg_value_work_item.cc',
+            'util/delete_reg_value_work_item.h',
+            'util/delete_tree_work_item.cc',
+            'util/delete_tree_work_item.h',
+            'util/google_chrome_distribution.cc',
+            'util/google_chrome_distribution.h',
+            'util/google_update_constants.cc',
+            'util/google_update_constants.h',
+            'util/google_update_settings.cc',
+            'util/google_update_settings.h',
+            'util/helper.cc',
+            'util/helper.h',
+            'util/html_dialog.h',
+            'util/html_dialog_impl.cc',
+            'util/install_util.cc',
+            'util/install_util.h',
+            'util/l10n_string_util.cc',
+            'util/l10n_string_util.h',
+            'util/logging_installer.cc',
+            'util/logging_installer.h',
+            'util/lzma_util.cc',
+            'util/lzma_util.h',
+            'util/master_preferences.cc',
+            'util/master_preferences.h',
+            'util/move_tree_work_item.cc',
+            'util/move_tree_work_item.h',
+            'util/self_reg_work_item.cc',
+            'util/self_reg_work_item.h',
+            'util/set_reg_value_work_item.cc',
+            'util/set_reg_value_work_item.h',
+            'util/shell_util.cc',
+            'util/shell_util.h',
+            'util/util_constants.cc',
+            'util/util_constants.h',
+            'util/version.cc',
+            'util/version.h',
+            'util/work_item.cc',
+            'util/work_item.h',
+            'util/work_item_list.cc',
+            'util/work_item_list.h',
           ],
-          'outputs': [
-            # Use a non-existant output so this action always runs and
-            # generates version information, e.g. to capture revision
-            # changes, which aren't captured by file dependencies.
-            '<(INTERMEDIATE_DIR)/mini_installer_version.bogus',
-
-            # And this is the real output, so that the build system knows
-            # what action generates it.
-            '<(template_output_path)',
-          ],
-          'action': [
-            'python',
-            '<(version_py)',
-            '-f', '<(VERSION)',
-            '-f', '<(BRANDING)',
-            '<(template_input_path)',
-            '<(template_output_path)',
-          ],
-          'process_outputs_as_sources': 1,
-          'message': 'Generating version information'
-        },
-        {
-          'rule_name': 'installer_archive',
-          'extension': 'release',
-          'variables': {
-            'create_installer_archive_py_path':
-              '../tools/build/win/create_installer_archive.py',
-            'template_output_path':
-              '<(INTERMEDIATE_DIR)/mini_installer_exe_version.rc',
-          },
-          'inputs': [
-            '<(create_installer_archive_py_path)',
-            '<(PRODUCT_DIR)/chrome.exe',
-            '<(PRODUCT_DIR)/chrome.dll',
-            '<(PRODUCT_DIR)/locales/en-US.dll',
-            '<(PRODUCT_DIR)/icudt38.dll',
-          ],
-          'outputs': [
-            'xxx.out',
-            '<(PRODUCT_DIR)/<(RULE_INPUT_NAME).7z',
-            '<(PRODUCT_DIR)/<(RULE_INPUT_NAME).packed.7z',
-            '<(PRODUCT_DIR)/setup.ex_',
-            '<(PRODUCT_DIR)/packed_files.txt',
-          ],
-          'action': [
-            'python',
-            '<(create_installer_archive_py_path)',
-            '--output_dir=<(PRODUCT_DIR)',
-            '--input_file=<(RULE_INPUT_PATH)',
-            # TODO(sgk):  may just use environment variables
-            #'--distribution=$(CHROMIUM_BUILD)',
-            '--distribution=_google_chrome',
-          ],
-        },
-      ],
-    },
-    {
-      'target_name': 'mini_installer_test',
-      'type': 'executable',
-      'msvs_guid': '4B6E199A-034A-49BD-AB93-458DD37E45B1',
-      'dependencies': [
-        'installer_util',
-        '../../base/base.gyp:base',
-        '../../testing/gtest.gyp:gtest',
-      ],
-      'include_dirs': [
-        '../..',
-      ],
-      'sources': [
-        'setup/setup_constants.cc',
-        'util/run_all_unittests.cc',
-        '../test/mini_installer_test/chrome_mini_installer.cc',
-        '../test/mini_installer_test/chrome_mini_installer.h',
-        '../test/mini_installer_test/mini_installer_test_constants.cc',
-        '../test/mini_installer_test/mini_installer_test_constants.h',
-        '../test/mini_installer_test/test.cc',
-      ],
-    },
-    {
-      'target_name': 'setup',
-      'type': 'executable',
-      'msvs_guid': '21C76E6E-8B38-44D6-8148-B589C13B9554',
-      'dependencies': [
-        'installer_util',
-        'installer_util_strings',
-        '../chrome.gyp:app',
-        '../chrome.gyp:chrome_dll',
-        '../../build/win/system.gyp:cygwin',
-        '../../courgette/courgette.gyp:courgette_lib',
-        '../../third_party/bspatch/bspatch.gyp:bspatch',
-      ],
-      'include_dirs': [
-        '../..',
-        '<(INTERMEDIATE_DIR)',
-        '<(SHARED_INTERMEDIATE_DIR)',
-      ],
-      'sources': [
-        'mini_installer/chrome.release',
-        'setup/install.cc',
-        'setup/main.cc',
-        'setup/setup.cc',
-        'setup/setup.h',
-        'setup/setup.ico',
-        'setup/setup.rc',
-        'setup/setup_constants.cc',
-        'setup/setup_constants.h',
-        'setup/setup_exe_version.rc.version',
-        'setup/setup_resource.h',
-        'setup/uninstall.cc',
-        'setup/uninstall.h',
-      ],
-      'msvs_settings': {
-        'VCLinkerTool': {
-          'SubSystem': '2',     # Set /SUBSYSTEM:WINDOWS
-        },
-      },
-      'rules': [
-        {
-          'rule_name': 'setup_version',
-          'extension': 'version',
-          'variables': {
-            'version_py': '../../chrome/tools/build/version.py',
-            'VERSION': '../../chrome/VERSION',
-            'template_input_path': 'setup/setup_exe_version.rc.version',
-            'template_output_path':
-            '<(SHARED_INTERMEDIATE_DIR)/setup_exe_version.rc',
-          },
-          'inputs': [
-            '<(template_input_path)',
-            '<(VERSION)',
-            '<(BRANDING)',
-          ],
-          'outputs': [
-            # Use a non-existant output so this action always runs and
-            # generates version information, e.g. to capture revision
-            # changes, which aren't captured by file dependencies.
-            '<(SHARED_INTERMEDIATE_DIR)/setup_exe_version.bogus',
-
-            # And this is the real output, so that the build system knows
-            # what action generates it.
-            '<(template_output_path)',
-          ],
-          'action': [
-            'python',
-            '<(version_py)',
-            '-f', '<(VERSION)',
-            '-f', '<(BRANDING)',
-            '<(template_input_path)',
-            '<(template_output_path)',
-          ],
-          'process_outputs_as_sources': 1,
-          'message': 'Generating version information'
-        },
-        {
-          'rule_name': 'server_dlls',
-          'extension': 'release',
-          'variables': {
-            'scan_server_dlls_py' : '../tools/build/win/scan_server_dlls.py',
-          },
-          'inputs': [
-            '<scan_server_dlls_py)',
-            '<(PRODUCT_DIR)/chrome.exe',
-            '<(PRODUCT_DIR)/chrome.dll',
-            '<(PRODUCT_DIR)/locales/en-US.dll',
-            '<(PRODUCT_DIR)/icudt38.dll',
-          ],
-          'outputs': [
-            '<(INTERMEDIATE_DIR)/registered_dlls.h',
-          ],
-          'action': [
-            'python',
-            '<(scan_server_dlls_py)',
-            '--output_dir=<(INTERMEDIATE_DIR)',
-            '--input_file=<(RULE_INPUT_PATH)',
-            '--header_output_dir=<(INTERMEDIATE_DIR)',
-            # TODO(sgk):  may just use environment variables
-            #'--distribution=$(CHROMIUM_BUILD)',
-            '--distribution=_google_chrome',
-          ],
-        },
+        }],
       ],
     },
   ],
   'conditions': [
+    ['OS=="win"', {
+      'targets': [
+        {
+          'target_name': 'gcapi_dll',
+          'type': 'loadable_module',
+          'msvs_guid': 'B802A2FE-E4E2-4F5A-905A-D5128875C954',
+          'dependencies': [
+            '../../google_update/google_update.gyp:google_update',
+          ],
+          'include_dirs': [
+            '../..',
+          ],
+          'sources': [
+            'gcapi/gcapi.cc',
+            'gcapi/gcapi.h',
+          ],
+        },
+        {
+          'target_name': 'gcapi_lib',
+          'type': 'static_library',
+          'msvs_guid': 'CD2FD73A-6AAB-4886-B887-760D18E8B635',
+          'dependencies': [
+            '../../google_update/google_update.gyp:google_update',
+          ],
+          'include_dirs': [
+            '../..',
+          ],
+          'sources': [
+            'gcapi/gcapi.cc',
+            'gcapi/gcapi.h',
+          ],
+        },
+        {
+          'target_name': 'gcapi_test',
+          'type': 'executable',
+          'msvs_guid': 'B64B396B-8EF1-4B6B-A07E-48D40EB961AB',
+          'dependencies': [
+            'gcapi_dll',
+            'gcapi_lib',
+          ],
+          'include_dirs': [
+            '../..',
+          ],
+          'sources': [
+            'gcapi/gcapi_test.cc',
+            'gcapi/gcapi_test.rc',
+            'gcapi/resource.h',
+          ],
+        },
+        {
+          'target_name': 'installer_unittests',
+          'type': 'executable',
+          'msvs_guid': '903F8C1E-537A-4C9E-97BE-075147CBE769',
+          'dependencies': [
+            'installer_util',
+            'installer_util_strings',
+            '../../base/base.gyp:base',
+            '../../testing/gtest.gyp:gtest',
+          ],
+          'include_dirs': [
+            '../..',
+          ],
+          'sources': [
+            'setup/compat_checks_unittest.cc',
+            'setup/setup_constants.cc',
+            'util/copy_tree_work_item_unittest.cc',
+            'util/create_dir_work_item_unittest.cc',
+            'util/create_reg_key_work_item_unittest.cc',
+            'util/delete_reg_value_work_item_unittest.cc',
+            'util/delete_tree_work_item_unittest.cc',
+            'util/google_chrome_distribution_unittest.cc',
+            'util/helper_unittest.cc',
+            'util/installer_unittests.rc',
+            'util/installer_unittests_resource.h',
+            'util/move_tree_work_item_unittest.cc',
+            'util/run_all_unittests.cc',
+            'util/set_reg_value_work_item_unittest.cc',
+            'util/work_item_list_unittest.cc',
+          ],
+        },
+        {
+          'target_name': 'installer_util_strings',
+          'type': 'none',
+          'msvs_guid': '0026A376-C4F1-4575-A1BA-578C69F07013',
+          'actions': [
+            {
+              # TODO(sgk):  Clean this up so that we pass in the
+              # file names to the script instead of having it hard-code
+              # matching path names internally.
+              'action_name': 'installer_util_strings',
+              'inputs': [
+                'util/prebuild/create_string_rc.py',
+                '../app/generated_resources.grd',
+              ],
+              'outputs': [
+                '<(SHARED_INTERMEDIATE_DIR)/installer_util_strings/installer_util_strings.rc',
+                '<(SHARED_INTERMEDIATE_DIR)/installer_util_strings/installer_util_strings.h',
+              ],
+              'action': [
+                # The create_string_rc.py script requires the checked-in
+                # python.exe that has google modules installed, and
+                # a PYTHONPATH pointing to grit so it can import FP.
+                # TODO:  clean this up
+                'set PYTHONPATH=../../tools/grit/grit/extern', '&&',
+                '../../third_party/python_24/python.exe',
+                'util/prebuild/create_string_rc.py',
+                '<(SHARED_INTERMEDIATE_DIR)/installer_util_strings'
+              ],
+              'msvs_cygwin_shell': 0,
+            },
+          ],
+          'direct_dependent_settings': {
+            'include_dirs': [
+               '<(SHARED_INTERMEDIATE_DIR)/installer_util_strings',
+            ],
+          },
+        },
+        {
+          'target_name': 'mini_installer',
+          'type': 'executable',
+          'msvs_guid': '24A5AC7C-280B-4899-9153-6BA570A081E7',
+          'dependencies': [
+            '../chrome.gyp:app',
+            '../chrome.gyp:chrome_dll',
+          ],
+          'include_dirs': [
+            '../..',
+            '<(PRODUCT_DIR)',
+            '<(INTERMEDIATE_DIR)',
+          ],
+          'sources': [
+            'mini_installer/chrome.release',
+            'mini_installer/mini_installer.cc',
+            'mini_installer/mini_installer.h',
+            'mini_installer/mini_installer.ico',
+            'mini_installer/mini_installer.rc',
+            'mini_installer/mini_installer_exe_version.rc.version',
+            'mini_installer/mini_installer_resource.h',
+            'mini_installer/pe_resource.cc',
+            'mini_installer/pe_resource.h',
+          ],
+          'msvs_settings': {
+            'VCLinkerTool': {
+              'SubSystem': '2',     # Set /SUBSYSTEM:WINDOWS
+            },
+          },
+          'rules': [
+            {
+              'rule_name': 'mini_installer_version',
+              'extension': 'version',
+              'variables': {
+                'template_input_path': 'mini_installer/mini_installer_exe_version.rc.version',
+                'template_output_path':
+                '<(INTERMEDIATE_DIR)/mini_installer_exe_version.rc',
+              },
+              'inputs': [
+                '<(template_input_path)',
+                '<(VERSION)',
+                '<(BRANDING)',
+              ],
+              'outputs': [
+                # Use a non-existant output so this action always runs and
+                # generates version information, e.g. to capture revision
+                # changes, which aren't captured by file dependencies.
+                '<(INTERMEDIATE_DIR)/mini_installer_version.bogus',
+
+                # And this is the real output, so that the build system knows
+                # what action generates it.
+                '<(template_output_path)',
+              ],
+              'action': [
+                'python',
+                '<(version_py)',
+                '-f', '<(VERSION)',
+                '-f', '<(BRANDING)',
+                '<(template_input_path)',
+                '<(template_output_path)',
+              ],
+              'process_outputs_as_sources': 1,
+              'message': 'Generating version information'
+            },
+            {
+              'rule_name': 'installer_archive',
+              'extension': 'release',
+              'variables': {
+                'create_installer_archive_py_path':
+                  '../tools/build/win/create_installer_archive.py',
+                'template_output_path':
+                  '<(INTERMEDIATE_DIR)/mini_installer_exe_version.rc',
+              },
+              'inputs': [
+                '<(create_installer_archive_py_path)',
+                '<(PRODUCT_DIR)/chrome.exe',
+                '<(PRODUCT_DIR)/chrome.dll',
+                '<(PRODUCT_DIR)/locales/en-US.dll',
+                '<(PRODUCT_DIR)/icudt38.dll',
+              ],
+              'outputs': [
+                'xxx.out',
+                '<(PRODUCT_DIR)/<(RULE_INPUT_NAME).7z',
+                '<(PRODUCT_DIR)/<(RULE_INPUT_NAME).packed.7z',
+                '<(PRODUCT_DIR)/setup.ex_',
+                '<(PRODUCT_DIR)/packed_files.txt',
+              ],
+              'action': [
+                'python',
+                '<(create_installer_archive_py_path)',
+                '--output_dir=<(PRODUCT_DIR)',
+                '--input_file=<(RULE_INPUT_PATH)',
+                # TODO(sgk):  may just use environment variables
+                #'--distribution=$(CHROMIUM_BUILD)',
+                '--distribution=_google_chrome',
+              ],
+            },
+          ],
+        },
+        {
+          'target_name': 'mini_installer_test',
+          'type': 'executable',
+          'msvs_guid': '4B6E199A-034A-49BD-AB93-458DD37E45B1',
+          'dependencies': [
+            'installer_util',
+            '../../base/base.gyp:base',
+            '../../testing/gtest.gyp:gtest',
+          ],
+          'include_dirs': [
+            '../..',
+          ],
+          'sources': [
+            'setup/setup_constants.cc',
+            'util/run_all_unittests.cc',
+            '../test/mini_installer_test/chrome_mini_installer.cc',
+            '../test/mini_installer_test/chrome_mini_installer.h',
+            '../test/mini_installer_test/mini_installer_test_constants.cc',
+            '../test/mini_installer_test/mini_installer_test_constants.h',
+            '../test/mini_installer_test/test.cc',
+          ],
+        },
+        {
+          'target_name': 'setup',
+          'type': 'executable',
+          'msvs_guid': '21C76E6E-8B38-44D6-8148-B589C13B9554',
+          'dependencies': [
+            'installer_util',
+            'installer_util_strings',
+            '../chrome.gyp:app',
+            '../chrome.gyp:chrome_dll',
+            '../../build/win/system.gyp:cygwin',
+            '../../courgette/courgette.gyp:courgette_lib',
+            '../../third_party/bspatch/bspatch.gyp:bspatch',
+          ],
+          'include_dirs': [
+            '../..',
+            '<(INTERMEDIATE_DIR)',
+            '<(SHARED_INTERMEDIATE_DIR)',
+          ],
+          'sources': [
+            'mini_installer/chrome.release',
+            'setup/install.cc',
+            'setup/main.cc',
+            'setup/setup.cc',
+            'setup/setup.h',
+            'setup/setup.ico',
+            'setup/setup.rc',
+            'setup/setup_constants.cc',
+            'setup/setup_constants.h',
+            'setup/setup_exe_version.rc.version',
+            'setup/setup_resource.h',
+            'setup/uninstall.cc',
+            'setup/uninstall.h',
+          ],
+          'msvs_settings': {
+            'VCLinkerTool': {
+              'SubSystem': '2',     # Set /SUBSYSTEM:WINDOWS
+            },
+          },
+          'rules': [
+            {
+              'rule_name': 'setup_version',
+              'extension': 'version',
+              'variables': {
+                'version_py': '../../chrome/tools/build/version.py',
+                'VERSION': '../../chrome/VERSION',
+                'template_input_path': 'setup/setup_exe_version.rc.version',
+                'template_output_path':
+                '<(SHARED_INTERMEDIATE_DIR)/setup_exe_version.rc',
+              },
+              'inputs': [
+                '<(template_input_path)',
+                '<(VERSION)',
+                '<(BRANDING)',
+              ],
+              'outputs': [
+                # Use a non-existant output so this action always runs and
+                # generates version information, e.g. to capture revision
+                # changes, which aren't captured by file dependencies.
+                '<(SHARED_INTERMEDIATE_DIR)/setup_exe_version.bogus',
+
+                # And this is the real output, so that the build system knows
+                # what action generates it.
+                '<(template_output_path)',
+              ],
+              'action': [
+                'python',
+                '<(version_py)',
+                '-f', '<(VERSION)',
+                '-f', '<(BRANDING)',
+                '<(template_input_path)',
+                '<(template_output_path)',
+              ],
+              'process_outputs_as_sources': 1,
+              'message': 'Generating version information'
+            },
+            {
+              'rule_name': 'server_dlls',
+              'extension': 'release',
+              'variables': {
+                'scan_server_dlls_py' : '../tools/build/win/scan_server_dlls.py',
+              },
+              'inputs': [
+                '<scan_server_dlls_py)',
+                '<(PRODUCT_DIR)/chrome.exe',
+                '<(PRODUCT_DIR)/chrome.dll',
+                '<(PRODUCT_DIR)/locales/en-US.dll',
+                '<(PRODUCT_DIR)/icudt38.dll',
+              ],
+              'outputs': [
+                '<(INTERMEDIATE_DIR)/registered_dlls.h',
+              ],
+              'action': [
+                'python',
+                '<(scan_server_dlls_py)',
+                '--output_dir=<(INTERMEDIATE_DIR)',
+                '--input_file=<(RULE_INPUT_PATH)',
+                '--header_output_dir=<(INTERMEDIATE_DIR)',
+                # TODO(sgk):  may just use environment variables
+                #'--distribution=$(CHROMIUM_BUILD)',
+                '--distribution=_google_chrome',
+              ],
+            },
+          ],
+        },
+      ],
+    }],
     [ 'branding == "Chrome"', {
       'variables': {
          'BRANDING': '../../chrome/app/theme/google_chrome/BRANDING',

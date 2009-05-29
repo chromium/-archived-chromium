@@ -2268,6 +2268,15 @@
             },
           ],
         }],
+        ['OS=="linux"', {
+          'conditions': [
+            ['branding=="Chrome"', {
+              'dependencies': [
+                'installer/installer.gyp:installer_util',
+              ],
+            }],
+          ],
+        }],
         ['OS=="win"', {
           'dependencies': [
             # On Windows, make sure we've built chrome.dll, which

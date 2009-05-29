@@ -1,0 +1,9 @@
+chrome
+chrome.pak
+locales/en-US.pak
+locales/da.pak
+locales/he.pak
+locales/zh-TW.pak
+themes/default.pak
+resources
+installer
