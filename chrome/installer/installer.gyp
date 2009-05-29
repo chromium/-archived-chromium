@@ -396,6 +396,24 @@
               ],
             },
           ],
+          # TODO(mark):  <(BRANDING) should be defined by the
+          # global condition block at the bottom of the file, but
+          # this doesn't work due to the following issue:
+          #
+          #   http://code.google.com/p/gyp/issues/detail?id=22
+          #
+          # Remove this block once the above issue is fixed.
+          'conditions': [
+            [ 'branding == "Chrome"', {
+              'variables': {
+                 'BRANDING': '../../chrome/app/theme/google_chrome/BRANDING',
+              },
+            }, { # else branding!="Chrome"
+              'variables': {
+                 'BRANDING': '../../chrome/app/theme/chromium/BRANDING',
+              },
+            }],
+          ],
         },
         {
           'target_name': 'mini_installer_test',
@@ -521,6 +539,24 @@
                 '--distribution=_google_chrome',
               ],
             },
+          ],
+          # TODO(mark):  <(BRANDING) should be defined by the
+          # global condition block at the bottom of the file, but
+          # this doesn't work due to the following issue:
+          #
+          #   http://code.google.com/p/gyp/issues/detail?id=22
+          #
+          # Remove this block once the above issue is fixed.
+          'conditions': [
+            [ 'branding == "Chrome"', {
+              'variables': {
+                 'BRANDING': '../../chrome/app/theme/google_chrome/BRANDING',
+              },
+            }, { # else branding!="Chrome"
+              'variables': {
+                 'BRANDING': '../../chrome/app/theme/chromium/BRANDING',
+              },
+            }],
           ],
         },
       ],
