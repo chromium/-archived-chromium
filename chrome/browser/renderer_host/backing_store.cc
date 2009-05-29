@@ -4,9 +4,7 @@
 
 #include "chrome/browser/renderer_host/backing_store.h"
 
-#include "base/sys_info.h"
 #include "chrome/browser/renderer_host/render_widget_host.h"
-#include "chrome/common/chrome_constants.h"
 
 namespace {
 
@@ -14,20 +12,11 @@ typedef OwningMRUCache<RenderWidgetHost*, BackingStore*> BackingStoreCache;
 static BackingStoreCache* cache = NULL;
 
 // Returns the size of the backing store cache.
+// TODO(iyengar) Make this dynamic, i.e. based on the available resources
+// on the machine.
 static int GetBackingStoreCacheSize() {
-  // This uses a similar approach to GetMaxRendererProcessCount.  The goal
-  // is to reduce memory pressure and swapping on low-resource machines.
-  static const int kMaxDibCountByRamTier[] = {
-    2,  // less than 256MB
-    3,  // 256MB
-    4,  // 512MB
-    5   // 768MB and above
-  };
-
-  static int max_size = kMaxDibCountByRamTier[
-          std::max(base::SysInfo::AmountOfPhysicalMemoryMB() / 256,
-                   static_cast<int>(arraysize(kMaxDibCountByRamTier)) - 1)];
-  return max_size;
+  const int kMaxSize = 5;
+  return kMaxSize;
 }
 
 // Creates the backing store for the host based on the dimensions passed in.
