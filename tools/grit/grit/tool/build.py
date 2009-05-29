@@ -54,6 +54,9 @@ Options:
                     value VAL (defaults to 1) which will be used to control
                     conditional inclusion of resources.
 
+  -E NAME=VALUE     Set environment variable NAME to VALUE (within grit).
+
+
 Conditional inclusion of resources only affects the output of files which
 control which resources get linked into a binary, e.g. it affects .rc files
 meant for compilation but it does not affect resource header files (that define
@@ -66,13 +69,17 @@ are exported to translation interchange files (e.g. XMB files), etc.
 
   def Run(self, opts, args):
     self.output_directory = '.'
-    (own_opts, args) = getopt.getopt(args, 'o:D:')
+    (own_opts, args) = getopt.getopt(args, 'o:D:E:')
     for (key, val) in own_opts:
       if key == '-o':
         self.output_directory = val
       elif key == '-D':
         name, val = ParseDefine(val)
         self.defines[name] = val
+      elif key == '-E':
+        (env_name, env_value) = val.split('=')
+        os.environ[env_name] = env_value
+
     if len(args):
       print "This tool takes no tool-specific arguments."
       return 2
@@ -224,4 +231,3 @@ are exported to translation interchange files (e.g. XMB files), etc.
       print warnings
     if self.res.UberClique().HasMissingTranslations():
       sys.exit(-1)
-
