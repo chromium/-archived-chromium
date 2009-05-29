@@ -1,8 +1,8 @@
 Index header:
 num_entries: 2
 num_bytes: 27
-this_id: 1
-table_len: 64k
+this_id: 2
+table_len: 128k
 
 head: 0x90000001
 tail: 0x90000000
