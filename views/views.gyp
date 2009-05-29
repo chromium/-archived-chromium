@@ -237,7 +237,6 @@
             'accessibility/view_accessibility.cc',
             'accessibility/view_accessibility_wrapper.cc',
             'controls/scrollbar/bitmap_scroll_bar.cc',
-            'controls/button/button_dropdown.cc',
             'controls/button/radio_button.cc',
             'controls/combo_box.cc',
             'controls/hwnd_view.cc',

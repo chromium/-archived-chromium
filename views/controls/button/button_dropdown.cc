@@ -81,15 +81,10 @@ bool ButtonDropDown::OnMouseDragged(const MouseEvent& e) {
   bool result = ImageButton::OnMouseDragged(e);
 
   if (!show_menu_factory_.empty()) {
-    // SM_CYDRAG is a pixel value for minimum dragging distance before operation
-    // counts as a drag, and not just as a click and accidental move of a mouse.
-    // See http://msdn2.microsoft.com/en-us/library/ms724385.aspx for details.
-    int dragging_threshold = GetSystemMetrics(SM_CYDRAG);
-
     // If the mouse is dragged to a y position lower than where it was when
     // clicked then we should not wait for the menu to appear but show
     // it immediately.
-    if (e.y() > y_position_on_lbuttondown_ + dragging_threshold) {
+    if (e.y() > y_position_on_lbuttondown_ + GetHorizontalDragThreshold()) {
       show_menu_factory_.RevokeAll();
       ShowDropDownMenu(GetWidget()->GetNativeView());
     }
@@ -133,7 +128,12 @@ void ButtonDropDown::ShowDropDownMenu(gfx::NativeView window) {
 
     View::ConvertPointToScreen(this, &menu_position);
 
+#if defined(OS_WIN)
     int left_bound = GetSystemMetrics(SM_XVIRTUALSCREEN);
+#else
+    int left_bound = 0;
+    NOTIMPLEMENTED();
+#endif
     if (menu_position.x() < left_bound)
       menu_position.set_x(left_bound);
 

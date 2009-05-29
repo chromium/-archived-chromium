@@ -1020,6 +1020,12 @@ class View : public AcceleratorTarget {
   // by us.
   bool InDrag();
 
+  // Returns how much the mouse needs to move in one direction to start a
+  // drag. These methods cache in a platform-appropriate way. These values are
+  // used by the public static method ExceededDragThreshold().
+  static int GetHorizontalDragThreshold();
+  static int GetVerticalDragThreshold();
+
   // Whether this view is enabled.
   bool enabled_;
 
@@ -1050,12 +1056,6 @@ class View : public AcceleratorTarget {
     int start_x;
     int start_y;
   };
-
-  // Returns how much the mouse needs to move in one direction to start a
-  // drag. These methods cache in a platform-appropriate way. These values are
-  // used by the public static method ExceededDragThreshold().
-  static int GetHorizontalDragThreshold();
-  static int GetVerticalDragThreshold();
 
   // RootView invokes these. These in turn invoke the appropriate OnMouseXXX
   // method. If a drag is detected, DoDrag is invoked.
