@@ -4,6 +4,8 @@
 
 #include "chrome/browser/tab_contents/render_view_context_menu_gtk.h"
 
+#include <gtk/gtk.h>
+
 #include "base/string_util.h"
 #include "webkit/glue/context_menu.h"
 
@@ -79,6 +81,15 @@ void RenderViewContextMenuGtk::FinishSubMenu() {
   DoneMakingMenu(&submenu_);
   menu_[menu_.size() - 1].submenu = submenu_.data();
   making_submenu_ = false;
+}
+
+// When a URL is copied from a render view context menu (via "copy link
+// location", for example), we additionally stick it in the X clipboard. This
+// matches other linux browsers.
+void RenderViewContextMenuGtk::DidWriteURLToClipboard(
+    const std::string& url) {
+  GtkClipboard* x_clipboard = gtk_clipboard_get(GDK_SELECTION_PRIMARY);
+  gtk_clipboard_set_text(x_clipboard, url.c_str(), url.length());
 }
 
 void RenderViewContextMenuGtk::AppendItem(

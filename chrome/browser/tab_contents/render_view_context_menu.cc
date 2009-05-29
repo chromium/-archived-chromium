@@ -642,16 +642,15 @@ void RenderViewContextMenu::WriteTextToClipboard(
 }
 
 void RenderViewContextMenu::WriteURLToClipboard(const GURL& url) {
-  if (url.SchemeIs(chrome::kMailToScheme)) {
-    WriteTextToClipboard(UTF8ToUTF16(url.path()));
-  } else {
-    std::wstring languages =
-        profile_->GetPrefs()->GetString(prefs::kAcceptLanguages);
-    // Unescaping path and query is not a good idea because other
-    // applications may not enocode non-ASCII characters in UTF-8.
-    // So the 4th parameter of net::FormatUrl() should be false.
-    // See crbug.com/2820.
-    WriteTextToClipboard(WideToUTF16(
-        net::FormatUrl(url, languages, false, false, NULL, NULL)));
-  }
+  std::string utf8_text = url.SchemeIs(chrome::kMailToScheme) ? url.path() :
+      // Unescaping path and query is not a good idea because other
+      // applications may not enocode non-ASCII characters in UTF-8.
+      // So the 4th parameter of net::FormatUrl() should be false.
+      // See crbug.com/2820.
+      WideToUTF8(net::FormatUrl(
+                 url, profile_->GetPrefs()->GetString(prefs::kAcceptLanguages),
+                 false, false, NULL, NULL));
+
+  WriteTextToClipboard(UTF8ToUTF16(utf8_text));
+  DidWriteURLToClipboard(utf8_text);
 }

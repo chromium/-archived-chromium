@@ -43,6 +43,7 @@ class RenderViewContextMenuGtk : public RenderViewContextMenu,
   virtual void AppendSeparator();
   virtual void StartSubMenu(int id, const std::wstring& label);
   virtual void FinishSubMenu();
+  virtual void DidWriteURLToClipboard(const std::string& url);
 
  private:
   void AppendItem(int id, const std::wstring& label, MenuItemType type);
