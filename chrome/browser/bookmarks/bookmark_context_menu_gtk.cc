@@ -15,17 +15,11 @@ void BookmarkContextMenu::CreateMenuObject() {
 }
 
 void BookmarkContextMenu::AppendItem(int id) {
-  menu_->AppendMenuItemWithLabel(
-      id,
-      MenuGtk::ConvertAcceleratorsFromWindowsStyle(
-          l10n_util::GetStringUTF8(id)));
+  menu_->AppendMenuItemWithLabel(id, l10n_util::GetStringUTF8(id));
 }
 
 void BookmarkContextMenu::AppendItem(int id, int localization_id) {
-  menu_->AppendMenuItemWithLabel(
-      id,
-      MenuGtk::ConvertAcceleratorsFromWindowsStyle(
-          l10n_util::GetStringUTF8(localization_id)));
+  menu_->AppendMenuItemWithLabel(id, l10n_util::GetStringUTF8(localization_id));
 }
 
 void BookmarkContextMenu::AppendSeparator() {
@@ -33,8 +27,5 @@ void BookmarkContextMenu::AppendSeparator() {
 }
 
 void BookmarkContextMenu::AppendCheckboxItem(int id) {
-  menu_->AppendCheckMenuItemWithLabel(
-      id,
-      MenuGtk::ConvertAcceleratorsFromWindowsStyle(
-          l10n_util::GetStringUTF8(id)));
+  menu_->AppendCheckMenuItemWithLabel(id, l10n_util::GetStringUTF8(id));
 }
