@@ -98,7 +98,8 @@ class ExtensionsServiceBackend::UnpackerClient
                  const std::string& expected_id,
                  bool from_external)
     : backend_(backend), extension_path_(extension_path),
-      expected_id_(expected_id), from_external_(from_external) {
+      expected_id_(expected_id), from_external_(from_external),
+      got_response_(false) {
   }
 
   // Starts the unpack task.  We call back to the backend when the task is done,
@@ -143,7 +144,11 @@ class ExtensionsServiceBackend::UnpackerClient
  private:
   // UtilityProcessHost::Client
   virtual void OnProcessCrashed() {
-    OnUnpackExtensionFailed("Chrome crashed while trying to install");
+    // Don't report crashes if they happen after we got a response.
+    if (got_response_)
+      return;
+
+    OnUnpackExtensionFailed("Chrome crashed while trying to install.");
   }
 
   virtual void OnUnpackExtensionSucceeded(
@@ -165,6 +170,10 @@ class ExtensionsServiceBackend::UnpackerClient
 
   // Cleans up our temp directory.
   void Cleanup() {
+    if (got_response_)
+      return;
+
+    got_response_ = true;
     file_util::Delete(temp_extension_path_.DirName(), true);
     Release();  // balanced in Run()
   }
@@ -190,6 +199,10 @@ class ExtensionsServiceBackend::UnpackerClient
 
   // True if this is being installed from an external source.
   bool from_external_;
+
+  // True if we got a response from the utility process and have cleaned up
+  // already.
+  bool got_response_;
 };
 
 ExtensionsService::ExtensionsService(Profile* profile,
