@@ -252,12 +252,12 @@ FilePath FilePath::Append(const FilePath& component) const {
   return Append(component.value());
 }
 
-FilePath FilePath::AppendASCII(const std::string& component) const {
+FilePath FilePath::AppendASCII(const StringPiece& component) const {
   DCHECK(IsStringASCII(component));
 #if defined(OS_WIN)
   return Append(ASCIIToWide(component));
 #elif defined(OS_POSIX)
-  return Append(component);
+  return Append(component.as_string());
 #endif
 }
 

@@ -174,9 +174,9 @@ std::wstring CollapseWhitespace(const std::wstring& text,
 
 // These convert between ASCII (7-bit) and Wide/UTF16 strings.
 std::string WideToASCII(const std::wstring& wide);
-std::wstring ASCIIToWide(const std::string& ascii);
+std::wstring ASCIIToWide(const StringPiece& ascii);
 std::string UTF16ToASCII(const string16& utf16);
-string16 ASCIIToUTF16(const std::string& ascii);
+string16 ASCIIToUTF16(const StringPiece& ascii);
 
 // These convert between UTF-8, -16, and -32 strings. They are potentially slow,
 // so avoid unnecessary conversions. The low-level versions return a boolean
@@ -252,7 +252,7 @@ bool IsString8Bit(const std::wstring& str);
 bool IsStringUTF8(const std::string& str);
 bool IsStringWideUTF8(const std::wstring& str);
 bool IsStringASCII(const std::wstring& str);
-bool IsStringASCII(const std::string& str);
+bool IsStringASCII(const StringPiece& str);
 bool IsStringASCII(const string16& str);
 
 // ASCII-specific tolower.  The standard library's tolower is locale sensitive,

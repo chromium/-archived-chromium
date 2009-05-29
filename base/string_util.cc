@@ -466,7 +466,7 @@ std::string WideToASCII(const std::wstring& wide) {
   return std::string(wide.begin(), wide.end());
 }
 
-std::wstring ASCIIToWide(const std::string& ascii) {
+std::wstring ASCIIToWide(const StringPiece& ascii) {
   DCHECK(IsStringASCII(ascii));
   return std::wstring(ascii.begin(), ascii.end());
 }
@@ -476,7 +476,7 @@ std::string UTF16ToASCII(const string16& utf16) {
   return std::string(utf16.begin(), utf16.end());
 }
 
-string16 ASCIIToUTF16(const std::string& ascii) {
+string16 ASCIIToUTF16(const StringPiece& ascii) {
   DCHECK(IsStringASCII(ascii));
   return string16(ascii.begin(), ascii.end());
 }
@@ -523,7 +523,7 @@ bool IsStringASCII(const string16& str) {
 }
 #endif
 
-bool IsStringASCII(const std::string& str) {
+bool IsStringASCII(const StringPiece& str) {
   return DoIsStringASCII(str);
 }
 

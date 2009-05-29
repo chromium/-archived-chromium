@@ -70,6 +70,7 @@
 #include "base/basictypes.h"
 #include "base/compiler_specific.h"
 #include "base/hash_tables.h"
+#include "base/string_piece.h"  // For implicit conversions.
 
 // Windows-style drive letter support and pathname separator characters can be
 // enabled and disabled independently, to aid testing.  These #defines are
@@ -199,7 +200,7 @@ class FilePath {
   // On Linux, although it can use any 8-bit encoding for paths, we assume that
   // ASCII is a valid subset, regardless of the encoding, since many operating
   // system paths will always be ASCII.
-  FilePath AppendASCII(const std::string& component) const WARN_UNUSED_RESULT;
+  FilePath AppendASCII(const StringPiece& component) const WARN_UNUSED_RESULT;
 
   // Returns true if this FilePath contains an absolute path.  On Windows, an
   // absolute path begins with either a drive letter specification followed by
