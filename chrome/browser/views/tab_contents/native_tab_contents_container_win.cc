@@ -161,18 +161,6 @@ bool NativeTabContentsContainerWin::GetAccessibleRole(
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-// NativeTabContentsContainerWin, views::FocusTraversable overrides:
-
-views::FocusTraversable*
-    NativeTabContentsContainerWin::GetFocusTraversableParent() {
-  return GetRootView();
-}
-
-views::View* NativeTabContentsContainerWin::GetFocusTraversableParentView() {
-  return this;
-}
-
-////////////////////////////////////////////////////////////////////////////////
 // NativeTabContentsContainer, public:
 
 // static

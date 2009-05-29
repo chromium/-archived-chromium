@@ -31,10 +31,6 @@ class NativeTabContentsContainerWin : public NativeTabContentsContainer,
   virtual void AboutToRequestFocusFromTabTraversal(bool reverse);
   virtual bool GetAccessibleRole(AccessibilityTypes::Role* role);
 
-  // Overridden from HWNDView:
-  virtual views::FocusTraversable* GetFocusTraversableParent();
-  virtual views::View* GetFocusTraversableParentView();
-
  private:
   TabContentsContainer* container_;
 

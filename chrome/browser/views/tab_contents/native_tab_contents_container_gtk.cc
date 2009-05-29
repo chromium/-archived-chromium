@@ -177,18 +177,6 @@ bool NativeTabContentsContainerGtk::GetAccessibleRole(
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-// NativeTabContentsContainerGtk, views::FocusTraversable overrides:
-
-views::FocusTraversable*
-    NativeTabContentsContainerGtk::GetFocusTraversableParent() {
-  return GetRootView();
-}
-
-views::View* NativeTabContentsContainerGtk::GetFocusTraversableParentView() {
-  return this;
-}
-
-////////////////////////////////////////////////////////////////////////////////
 // NativeTabContentsContainer, public:
 
 // static
