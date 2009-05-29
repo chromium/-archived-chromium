@@ -104,7 +104,8 @@ void AppModalDialog::CreateAndShowDialog() {
       message_type, buttons, "%s", WideToUTF8(message_text_).c_str());
   gtk_window_set_title(GTK_WINDOW(dialog_), WideToUTF8(title_).c_str());
 
-  // Adjust content area as needed.
+  // Adjust content area as needed.  Set up the prompt text entry or
+  // suppression check box.
   if (MessageBoxFlags::kIsJavascriptPrompt == dialog_flags_) {
     // TODO(tc): Replace with gtk_dialog_get_content_area() when using GTK 2.14+
     GtkWidget* contents_vbox = GTK_DIALOG(dialog_)->vbox;
@@ -113,6 +114,7 @@ void AppModalDialog::CreateAndShowDialog() {
                        WideToUTF8(default_prompt_text_).c_str());
     gtk_box_pack_start(GTK_BOX(contents_vbox), text_box, TRUE, TRUE, 0);
     g_object_set_data(G_OBJECT(dialog_), kPromptTextId, text_box);
+    gtk_entry_set_activates_default(GTK_ENTRY(text_box), TRUE);
   }
 
   if (display_suppress_checkbox_) {
