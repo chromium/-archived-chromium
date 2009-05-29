@@ -332,7 +332,7 @@ be available for now. -->
         Access the Internet
       </message>
       <message name="IDS_UNINSTALL_DELETE_PROFILE" desc="Text to show user to ask whether to delete all the profile data also during uninstallation.">
-        Delete all profile data
+        Also delete your browsing data?
       </message>
       <message name="IDS_DEFAULT_BROWSER_INFOBAR_TEXT" desc="Text to show in the default browser query infobar.">
         Hooray, you're back! But Chromium isn't your default browser.
