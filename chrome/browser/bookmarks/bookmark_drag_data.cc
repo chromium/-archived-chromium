@@ -132,6 +132,15 @@ bool BookmarkDragData::Read(const OSExchangeData& data) {
 
   return is_valid();
 }
+#elif defined(TOOLKIT_VIEWS)
+void BookmarkDragData::Write(Profile* profile, OSExchangeData* data) const {
+  NOTIMPLEMENTED();
+}
+
+bool BookmarkDragData::Read(const OSExchangeData& data) {
+  NOTIMPLEMENTED();
+  return false;
+}
 #endif
 
 void BookmarkDragData::WriteToPickle(Profile* profile, Pickle* pickle) const {
