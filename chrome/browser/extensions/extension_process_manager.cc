@@ -6,7 +6,7 @@
 
 #include "chrome/browser/browsing_instance.h"
 #include "chrome/browser/extensions/extension_host.h"
-#if defined(OS_WIN)
+#if defined(TOOLKIT_VIEWS)
 #include "chrome/browser/extensions/extension_view.h"
 #endif
 #include "chrome/browser/extensions/extensions_service.h"
@@ -42,7 +42,7 @@ ExtensionProcessManager::~ExtensionProcessManager() {
     delete *iter;
 }
 
-#if defined(OS_WIN)
+#if defined(TOOLKIT_VIEWS)
 ExtensionView* ExtensionProcessManager::CreateView(Extension* extension,
                                                    const GURL& url,
                                                    Browser* browser) {

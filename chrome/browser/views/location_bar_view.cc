@@ -26,7 +26,6 @@
 #include "chrome/browser/tab_contents/navigation_entry.h"
 #include "chrome/browser/view_ids.h"
 #include "chrome/browser/views/info_bubble.h"
-#include "chrome/browser/views/first_run_bubble.h"
 #include "chrome/common/extensions/extension.h"
 #include "chrome/common/page_action.h"
 #include "grit/generated_resources.h"
@@ -39,6 +38,7 @@
 
 #if defined(OS_WIN)
 #include "app/win_util.h"
+#include "chrome/browser/views/first_run_bubble.h"
 #include "chrome/browser/views/page_info_window.h"
 #endif
 
@@ -1003,7 +1003,11 @@ void LocationBarView::ShowFirstRunBubbleInternal(bool use_OEM_bubble) {
   if (UILayoutIsRightToLeft())
     bounds.set_x(location.x() - 20);
 
+#if defined(OS_WIN)
   FirstRunBubble::Show(profile_, GetWindow(), bounds, use_OEM_bubble);
+#else
+  NOTIMPLEMENTED();
+#endif
 }
 
 // LocationBarImageView---------------------------------------------------------

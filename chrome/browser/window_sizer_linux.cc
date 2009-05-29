@@ -8,6 +8,7 @@
 
 #include "base/logging.h"
 #include "chrome/browser/browser.h"
+#include "chrome/browser/browser_list.h"
 
 // How much horizontal and vertical offset there is between newly
 // opened windows. We don't care on Linux since the window manager generally
@@ -101,4 +102,27 @@ class DefaultMonitorInfoProvider : public WindowSizer::MonitorInfoProvider {
 WindowSizer::MonitorInfoProvider*
 WindowSizer::CreateDefaultMonitorInfoProvider() {
   return new DefaultMonitorInfoProvider();
+}
+
+// static
+gfx::Point WindowSizer::GetDefaultPopupOrigin(const gfx::Size& size) {
+  scoped_ptr<MonitorInfoProvider> provider(CreateDefaultMonitorInfoProvider());
+  gfx::Rect monitor_bounds = provider->GetPrimaryMonitorWorkArea();
+  gfx::Point corner(monitor_bounds.x(), monitor_bounds.y());
+  if (Browser* browser = BrowserList::GetLastActive()) {
+    GtkWindow* window =
+        reinterpret_cast<GtkWindow*>(browser->window()->GetNativeHandle());
+    int x = 0, y = 0;
+    gtk_window_get_position(window, &x, &y);
+    // Limit to not overflow the work area right and bottom edges.
+    gfx::Point limit(
+        std::min(x + kWindowTilePixels, monitor_bounds.right() - size.width()),
+        std::min(y + kWindowTilePixels, monitor_bounds.bottom() - size.height()));
+    // Adjust corner to now overflow the work area left and top edges, so
+    // that if a popup does not fit the title-bar is remains visible.
+    corner = gfx::Point(
+        std::max(corner.x(), limit.x()),
+        std::max(corner.y(), limit.y()));
+  }
+  return corner;
 }

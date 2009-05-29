@@ -56,13 +56,16 @@
 #include "grit/theme_resources.h"
 #include "grit/webkit_resources.h"
 #include "views/controls/menu/menu.h"
-#include "views/controls/scrollbar/native_scroll_bar.h"
 #include "views/fill_layout.h"
 #include "views/view.h"
 #include "views/widget/root_view.h"
 #include "views/window/dialog_delegate.h"
 #include "views/window/non_client_view.h"
 #include "views/window/window.h"
+
+#if defined(OS_WIN)
+#include "views/controls/scrollbar/native_scroll_bar.h"
+#endif
 
 using base::TimeDelta;
 
@@ -406,7 +409,12 @@ gfx::Rect BrowserView::GetFindBarBoundingBox() const {
 
   // Finally decrease the width of the bounding box by the width of the vertical
   // scroll bar.
+#if defined(OS_WIN)
   int scrollbar_width = views::NativeScrollBar::GetVerticalScrollBarWidth();
+#else
+  // This matches the value in ScrollbarThemeChromium::scrollbarThickness.
+  int scrollbar_width = 15;
+#endif
   bounding_box.set_width(std::max(0, bounding_box.width() - scrollbar_width));
   if (UILayoutIsRightToLeft())
     bounding_box.set_x(bounding_box.x() + scrollbar_width);

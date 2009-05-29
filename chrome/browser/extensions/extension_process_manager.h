@@ -14,7 +14,7 @@ class Browser;
 class BrowsingInstance;
 class Extension;
 class ExtensionHost;
-#if defined(OS_WIN)
+#if defined(TOOLKIT_VIEWS)
 class ExtensionView;
 #endif
 class GURL;
@@ -28,7 +28,7 @@ class ExtensionProcessManager : public NotificationObserver {
   ExtensionProcessManager(Profile* profile);
   ~ExtensionProcessManager();
 
-#if defined(OS_WIN)
+#if defined(TOOLKIT_VIEWS)
   // Creates a new ExtensionView, grouping it in the appropriate SiteInstance
   // (and therefore process) based on the URL and profile.
   ExtensionView* CreateView(Extension* extension,

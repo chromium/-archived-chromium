@@ -15,7 +15,7 @@ namespace views {
 ////////////////////////////////////////////////////////////////////////////////
 // NativeViewHostGtk, public:
 
-NativeViewHostWin::NativeViewHostWin(NativeViewHost* host)
+NativeViewHostGtk::NativeViewHostGtk(NativeViewHost* host)
     : host_(host),
       installed_clip_(false),
       destroy_signal_id_(0) {

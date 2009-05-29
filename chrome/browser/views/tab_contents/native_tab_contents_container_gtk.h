@@ -6,7 +6,7 @@
 #define CHROME_BROWSER_VIEWS_TAB_CONTENTS_NATIVE_TAB_CONTENTS_CONTAINER_GTK_H_
 
 #include "chrome/browser/views/tab_contents/native_tab_contents_container.h"
-#include "views/controls/native_view_host_gtk.h"
+#include "views/controls/native/native_view_host.h"
 
 class NativeTabContentsContainerGtk : public NativeTabContentsContainer,
                                       public views::NativeViewHost {

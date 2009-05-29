@@ -336,6 +336,7 @@ void BookmarkContextMenu::ExecuteCommand(int id) {
       }
 
       if (selection_[0]->is_url()) {
+#if defined(OS_WIN)
         BookmarkEditor::Configuration editor_config;
         if (configuration_ == BOOKMARK_BAR)
           editor_config = BookmarkEditor::SHOW_TREE;
@@ -343,6 +344,9 @@ void BookmarkContextMenu::ExecuteCommand(int id) {
           editor_config = BookmarkEditor::NO_TREE;
         BookmarkEditor::Show(wnd_, profile_, NULL, selection_[0],
                              editor_config, NULL);
+#else
+        NOTIMPLEMENTED();
+#endif
       } else {
         EditFolderController::Show(profile_, wnd_, selection_[0], false,
                                    false);
@@ -364,21 +368,21 @@ void BookmarkContextMenu::ExecuteCommand(int id) {
     case IDS_BOOMARK_BAR_ADD_NEW_BOOKMARK: {
       UserMetrics::RecordAction(L"BookmarkBar_ContextMenu_Add", profile_);
 
+#if defined(OS_WIN)
       BookmarkEditor::Configuration editor_config;
       BookmarkEditor::Handler* handler = NULL;
       if (configuration_ == BOOKMARK_BAR) {
         editor_config = BookmarkEditor::SHOW_TREE;
       } else {
         editor_config = BookmarkEditor::NO_TREE;
-#if defined(OS_WIN)
         // This is owned by the BookmarkEditorView.
         handler = new SelectOnCreationHandler(profile_);
-#else
-        NOTIMPLEMENTED() << "Custom SelectOnCreationHandler not implemented";
-#endif
       }
       BookmarkEditor::Show(wnd_, profile_, GetParentForNewNodes(), NULL,
                            editor_config, handler);
+#else
+      NOTIMPLEMENTED();
+#endif
       break;
     }
 

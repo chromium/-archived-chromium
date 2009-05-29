@@ -27,7 +27,7 @@ class ExtensionHost : public RenderViewHostDelegate,
   ExtensionHost(Extension* extension, SiteInstance* site_instance);
   ~ExtensionHost();
 
-#if defined(OS_WIN)
+#if defined(TOOLKIT_VIEWS)
   void set_view(ExtensionView* view) { view_ = view; }
   ExtensionView* view() const { return view_; }
 #endif
@@ -86,7 +86,7 @@ class ExtensionHost : public RenderViewHostDelegate,
   // The extension that we're hosting in this view.
   Extension* extension_;
 
-#if defined(OS_WIN)
+#if defined(TOOLKIT_VIEWS)
   // Optional view that shows the rendered content in the UI.
   ExtensionView* view_;
 #endif
