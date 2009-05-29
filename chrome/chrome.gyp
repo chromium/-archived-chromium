@@ -1579,7 +1579,9 @@
           ],
           'sources!': [
             'browser/debugger/debugger_shell_stubs.cc',
-            # Windows-specific files.
+            'browser/extensions/extension_view.cc',
+            'browser/extensions/extension_view.h',
+                    # Windows-specific files.
           ],
           'conditions': [
             ['linux_breakpad==1', {
@@ -1623,6 +1625,8 @@
             'browser/bookmarks/bookmark_context_menu.cc',
             'browser/bookmarks/bookmark_drop_info.cc',
             'browser/debugger/debugger_shell_stubs.cc',
+            'browser/extensions/extension_view.cc',
+            'browser/extensions/extension_view.h',
           ],
           'sources': [
             # Build the necessary GTM sources
