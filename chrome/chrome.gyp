@@ -1764,6 +1764,8 @@
                 ['include', '^browser/views/tab_contents/native_tab_contents_container_gtk.h'],
                 ['include', '^browser/views/tab_contents/tab_contents_container.cc'],
                 ['include', '^browser/views/tab_contents/tab_contents_container.h'],
+                ['include', '^browser/views/tab_icon_view.cc'],
+                ['include', '^browser/views/tab_icon_view.h'],
                 ['include', '^browser/views/tabs/dragged_tab_view.cc'],
                 ['include', '^browser/views/tabs/dragged_tab_view.h'],
                 ['include', '^browser/views/tabs/tab.cc'],

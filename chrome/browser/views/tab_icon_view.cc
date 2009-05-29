@@ -4,19 +4,25 @@
 
 #include "chrome/browser/views/tab_icon_view.h"
 
+#if defined(OS_WIN)
 #include <windows.h>
 #include <shellapi.h>
+#endif
 
 #include "app/gfx/canvas.h"
 #include "app/gfx/favicon_size.h"
-#include "app/gfx/icon_util.h"
 #include "app/resource_bundle.h"
 #include "base/file_util.h"
+#include "base/logging.h"
 #include "base/path_service.h"
 #include "chrome/app/chrome_dll_resource.h"
 #include "chrome/browser/tab_contents/tab_contents.h"
 #include "grit/app_resources.h"
 #include "grit/theme_resources.h"
+
+#if defined(OS_WIN)
+#include "app/gfx/icon_util.h"
+#endif
 
 static bool g_initialized = false;
 static SkBitmap* g_default_fav_icon = NULL;
@@ -29,6 +35,7 @@ void TabIconView::InitializeIfNeeded() {
   if (!g_initialized) {
     ResourceBundle &rb = ResourceBundle::GetSharedInstance();
 
+#if defined(OS_WIN)
     // The default window icon is the application icon, not the default
     // favicon.
     std::wstring exe_path;
@@ -38,6 +45,9 @@ void TabIconView::InitializeIfNeeded() {
     g_default_fav_icon =
         IconUtil::CreateSkBitmapFromHICON(app_icon, gfx::Size(16, 16));
     DestroyIcon(app_icon);
+#else
+    NOTIMPLEMENTED();
+#endif
 
     g_throbber_frames = rb.GetBitmapNamed(IDR_THROBBER);
     g_throbber_frames_light = rb.GetBitmapNamed(IDR_THROBBER_LIGHT);
@@ -53,8 +63,8 @@ void TabIconView::InitializeIfNeeded() {
 
 TabIconView::TabIconView(TabIconViewModel* model)
     : model_(model),
-      is_light_(false),
       throbber_running_(false),
+      is_light_(false),
       throbber_frame_(0) {
   InitializeIfNeeded();
 }
