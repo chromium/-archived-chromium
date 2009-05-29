@@ -1645,6 +1645,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "test_shell_common", "..\web
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "utility", "utility\utility.vcproj", "{4D2B38E6-65FF-4F97-B88A-E441DF54EBF7}"
+EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "gmock", "..\testing\gmock.vcproj", "{F9D886ED-B09F-4B74-932F-D8E4691E6B7F}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "gmockmain", "..\testing\gmockmain.vcproj", "{1B231A30-92B6-A027-DDBA-A0682336765E}"
