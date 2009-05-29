@@ -92,6 +92,7 @@ OptionsWindowGtk::OptionsWindowGtk(Profile* profile)
       GTK_STOCK_CLOSE,
       GTK_RESPONSE_CLOSE,
       NULL);
+  gtk_window_set_default_size(GTK_WINDOW(dialog_), 500, -1);
   gtk_box_set_spacing(GTK_BOX(GTK_DIALOG(dialog_)->vbox), 18);
 
   notebook_ = gtk_notebook_new();
@@ -118,9 +119,16 @@ OptionsWindowGtk::OptionsWindowGtk(Profile* profile)
   }
 #endif
 
-  GtkWidget* metrics_vbox = gtk_vbox_new(FALSE, 5);
-  GtkWidget* metrics = gtk_check_button_new_with_label(
+  GtkWidget* metrics_vbox = gtk_vbox_new(FALSE, 6);
+  gtk_container_set_border_width(GTK_CONTAINER(metrics_vbox), 12);
+
+  GtkWidget* metrics = gtk_check_button_new();
+  GtkWidget* metrics_label = gtk_label_new(
       l10n_util::GetStringUTF8(IDS_OPTIONS_ENABLE_LOGGING).c_str());
+  gtk_label_set_line_wrap(GTK_LABEL(metrics_label), TRUE);
+  // TODO(evanm): make the label wrap at the appropriate width.
+  gtk_widget_set_size_request(metrics_label, 475, -1);
+  gtk_container_add(GTK_CONTAINER(metrics), metrics_label);
   gtk_box_pack_start(GTK_BOX(metrics_vbox), metrics, FALSE, FALSE, 0);
   gtk_box_pack_start(GTK_BOX(metrics_vbox),
                      gtk_label_new("TODO rest of the advanced options"),
