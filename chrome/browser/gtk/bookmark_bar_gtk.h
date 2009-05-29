@@ -10,6 +10,7 @@
 #include <string>
 #include <vector>
 
+#include "app/slide_animation.h"
 #include "chrome/common/owned_widget_gtk.h"
 #include "chrome/browser/bookmarks/bookmark_model.h"
 
@@ -21,7 +22,8 @@ class NineBox;
 class PageNavigator;
 class Profile;
 
-class BookmarkBarGtk : public BookmarkModelObserver {
+class BookmarkBarGtk : public AnimationDelegate,
+                       public BookmarkModelObserver {
  public:
   explicit BookmarkBarGtk(Profile* proifle, Browser* browser);
   virtual ~BookmarkBarGtk();
@@ -57,6 +59,10 @@ class BookmarkBarGtk : public BookmarkModelObserver {
 
   // Returns true if the bookmarks bar preference is set to 'always show'.
   bool IsAlwaysShown();
+
+  // AnimationDelegate implementation ------------------------------------------
+  virtual void AnimationProgressed(const Animation* animation);
+  virtual void AnimationEnded(const Animation* animation);
 
  private:
   // Helper function that sets visual properties of GtkButton |button| to the
@@ -225,6 +231,8 @@ class BookmarkBarGtk : public BookmarkModelObserver {
 
   // Paints the background for our bookmark bar.
   scoped_ptr<NineBox> background_ninebox_;
+
+  scoped_ptr<SlideAnimation> slide_animation_;
 };
 
 #endif  // CHROME_BROWSER_GTK_BOOKMARK_BAR_GTK_H_

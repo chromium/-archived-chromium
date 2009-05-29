@@ -30,6 +30,9 @@
 
 namespace {
 
+// The height of the bar.
+const int kBookmarkBarHeight = 33;
+
 // Maximum number of characters on a bookmark button.
 const size_t kMaxCharsOnAButton = 15;
 
@@ -42,6 +45,12 @@ const char kBookmarkNode[] = "bookmark-node";
 
 // Mime types for DnD. Used to synchronize across applications.
 const char kInternalURIType[] = "application/x-chrome-bookmark-item";
+
+// Left-padding for the instructional text.
+const int kInstructionsPadding = 6;
+
+// Color of the instructional text.
+const GdkColor kInstructionsColor = GDK_COLOR_RGB(128, 128, 142);
 
 // Table of the mime types that we accept with their options.
 const GtkTargetEntry kTargetTable[] = {
@@ -110,10 +119,17 @@ void BookmarkBarGtk::Init(Profile* profile) {
 
   bookmark_hbox_.Own(gtk_hbox_new(FALSE, 0));
 
-  instructions_ = gtk_label_new(
+  instructions_ = gtk_alignment_new(0.0, 0.0, 1.0, 1.0);
+  gtk_alignment_set_padding(GTK_ALIGNMENT(instructions_), 0, 0,
+                            kInstructionsPadding, 0);
+  GtkWidget* instructions_label = gtk_label_new(
       l10n_util::GetStringUTF8(IDS_BOOKMARKS_NO_ITEMS).c_str());
+  gtk_widget_modify_fg(instructions_label, GTK_STATE_NORMAL,
+                       &kInstructionsColor);
+  gtk_container_add(GTK_CONTAINER(instructions_), instructions_label);
   gtk_box_pack_start(GTK_BOX(bookmark_hbox_.get()), instructions_,
                      FALSE, FALSE, 0);
+
   gtk_widget_set_app_paintable(bookmark_hbox_.get(), TRUE);
   g_signal_connect(G_OBJECT(bookmark_hbox_.get()), "expose-event",
                    G_CALLBACK(&OnHBoxExpose), this);
@@ -152,6 +168,9 @@ void BookmarkBarGtk::Init(Profile* profile) {
 
   gtk_box_pack_start(GTK_BOX(bookmark_hbox_.get()), other_bookmarks_button_,
                      FALSE, FALSE, 0);
+  gtk_widget_set_size_request(bookmark_hbox_.get(), -1, 0);
+
+  slide_animation_.reset(new SlideAnimation(this));
 }
 
 void BookmarkBarGtk::AddBookmarkbarToBox(GtkWidget* box) {
@@ -160,6 +179,7 @@ void BookmarkBarGtk::AddBookmarkbarToBox(GtkWidget* box) {
 
 void BookmarkBarGtk::Show() {
   gtk_widget_show_all(bookmark_hbox_.get());
+  slide_animation_->Show();
 
   // Maybe show the instructions
   if (show_instructions_) {
@@ -170,7 +190,12 @@ void BookmarkBarGtk::Show() {
 }
 
 void BookmarkBarGtk::Hide() {
-  gtk_widget_hide_all(bookmark_hbox_.get());
+  // Sometimes we get called without a matching call to open. If that happens
+  // then force hide.
+  if (slide_animation_->IsShowing())
+    slide_animation_->Hide();
+  else
+    gtk_widget_hide(bookmark_hbox_.get());
 }
 
 bool BookmarkBarGtk::OnNewTabPage() {
@@ -283,7 +308,7 @@ void BookmarkBarGtk::CreateAllBookmarkButtons(BookmarkNode* node) {
 void BookmarkBarGtk::SetInstructionState(BookmarkNode* boomarks_bar_node) {
   show_instructions_ = (boomarks_bar_node->GetChildCount() == 0);
   if (show_instructions_) {
-    gtk_widget_show(instructions_);
+    gtk_widget_show_all(instructions_);
   } else {
     gtk_widget_hide(instructions_);
   }
@@ -303,6 +328,21 @@ int BookmarkBarGtk::GetBookmarkButtonCount() {
 
 bool BookmarkBarGtk::IsAlwaysShown() {
   return profile_->GetPrefs()->GetBoolean(prefs::kShowBookmarkBar);
+}
+
+void BookmarkBarGtk::AnimationProgressed(const Animation* animation) {
+  DCHECK_EQ(animation, slide_animation_.get());
+
+  gtk_widget_set_size_request(bookmark_hbox_.get(), -1,
+                              animation->GetCurrentValue() *
+                              kBookmarkBarHeight);
+}
+
+void BookmarkBarGtk::AnimationEnded(const Animation* animation) {
+  DCHECK_EQ(animation, slide_animation_.get());
+
+  if (!slide_animation_->IsShowing())
+    gtk_widget_hide(bookmark_hbox_.get());
 }
 
 void BookmarkBarGtk::ConfigureButtonForNode(BookmarkNode* node,
@@ -372,8 +412,6 @@ GtkWidget* BookmarkBarGtk::CreateBookmarkButton(
     // TODO(erg): This button can also be a drop target.
     ConnectFolderButtonEvents(button);
   }
-
-  GTK_WIDGET_UNSET_FLAGS(button, GTK_CAN_FOCUS);
 
   return button;
 }
