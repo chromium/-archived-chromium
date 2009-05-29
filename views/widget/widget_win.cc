@@ -314,7 +314,7 @@ static BOOL CALLBACK EnumChildProcForRedraw(HWND hwnd, LPARAM lparam) {
   GetWindowRect(hwnd, &window_rect);
   invalid_rect.Offset(-window_rect.left, -window_rect.top);
 
-  int flags = RDW_INVALIDATE | RDW_NOCHILDREN;
+  int flags = RDW_INVALIDATE | RDW_NOCHILDREN | RDW_FRAME;
   if (process_id == GetCurrentProcessId())
     flags |= RDW_UPDATENOW;
   RedrawWindow(hwnd, &invalid_rect.ToRECT(), NULL, flags);
