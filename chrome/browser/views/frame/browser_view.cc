@@ -1441,10 +1441,10 @@ void BrowserView::LayoutStatusBubble(int top) {
   // frame.
   int overlap = StatusBubbleViews::kShadowThickness +
       (IsMaximized() ? 0 : views::NonClientFrameView::kClientEdgeThickness);
-  gfx::Point origin(-overlap, top - kStatusBubbleHeight + overlap);
+  int height = status_bubble_->GetPreferredSize().height();
+  gfx::Point origin(-overlap, top - height + overlap);
   ConvertPointToView(this, GetParent(), &origin);
-  status_bubble_->SetBounds(origin.x(), origin.y(), width() / 3,
-                            kStatusBubbleHeight);
+  status_bubble_->SetBounds(origin.x(), origin.y(), width() / 3, height);
 }
 
 int BrowserView::LayoutExtensionShelf() {

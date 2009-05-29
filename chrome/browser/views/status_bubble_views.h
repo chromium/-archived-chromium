@@ -23,15 +23,22 @@ class StatusBubbleViews : public StatusBubble {
   // How wide the bubble's shadow is.
   static const int kShadowThickness;
 
+  // The combined vertical padding above and below the text.
+  static const int kTotalVerticalPadding = 7;
+
   explicit StatusBubbleViews(views::Widget* frame);
   ~StatusBubbleViews();
-
-  // Set the bounds of the bubble relative to the browser window.
-  void SetBounds(int x, int y, int w, int h);
 
   // Reposition the bubble - as we are using a WS_POPUP for the bubble,
   // we have to manually position it when the browser window moves.
   void Reposition();
+
+  // The bubble only has a preferred height: the sum of the height of
+  // the font and kTotalVerticalPadding.
+  gfx::Size GetPreferredSize();
+
+  // Set the bounds of the bubble relative to the browser window.
+  void SetBounds(int x, int y, int w, int h);
 
   // Overridden from StatusBubble:
   virtual void SetStatus(const std::wstring& status);

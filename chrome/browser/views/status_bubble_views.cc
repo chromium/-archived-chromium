@@ -492,6 +492,38 @@ void StatusBubbleViews::Init() {
   }
 }
 
+void StatusBubbleViews::Reposition() {
+  if (popup_.get()) {
+    gfx::Point top_left;
+    views::View::ConvertPointToScreen(frame_->GetRootView(), &top_left);
+
+    popup_->SetBounds(gfx::Rect(top_left.x() + position_.x(),
+                                top_left.y() + position_.y(),
+                                size_.width(), size_.height()));
+  }
+}
+
+gfx::Size StatusBubbleViews::GetPreferredSize() {
+  return gfx::Size(0, ResourceBundle::GetSharedInstance().GetFont(
+      ResourceBundle::BaseFont).height() + kTotalVerticalPadding);
+}
+
+void StatusBubbleViews::SetBounds(int x, int y, int w, int h) {
+  // If the UI layout is RTL, we need to mirror the position of the bubble
+  // relative to the parent.
+  if (l10n_util::GetTextDirection() == l10n_util::RIGHT_TO_LEFT) {
+    gfx::Rect frame_bounds;
+    frame_->GetBounds(&frame_bounds, false);
+    int mirrored_x = frame_bounds.width() - x - w;
+    position_.SetPoint(mirrored_x, y);
+  } else {
+    position_.SetPoint(x, y);
+  }
+
+  size_.SetSize(w, h);
+  Reposition();
+}
+
 void StatusBubbleViews::SetStatus(const std::wstring& status_text) {
   if (status_text_ == status_text)
     return;
@@ -660,29 +692,3 @@ void StatusBubbleViews::AvoidMouse() {
   }
 }
 
-void StatusBubbleViews::Reposition() {
-  if (popup_.get()) {
-    gfx::Point top_left;
-    views::View::ConvertPointToScreen(frame_->GetRootView(), &top_left);
-
-    popup_->SetBounds(gfx::Rect(top_left.x() + position_.x(),
-                                top_left.y() + position_.y(),
-                                size_.width(), size_.height()));
-  }
-}
-
-void StatusBubbleViews::SetBounds(int x, int y, int w, int h) {
-  // If the UI layout is RTL, we need to mirror the position of the bubble
-  // relative to the parent.
-  if (l10n_util::GetTextDirection() == l10n_util::RIGHT_TO_LEFT) {
-    gfx::Rect frame_bounds;
-    frame_->GetBounds(&frame_bounds, false);
-    int mirrored_x = frame_bounds.width() - x - w;
-    position_.SetPoint(mirrored_x, y);
-  } else {
-    position_.SetPoint(x, y);
-  }
-
-  size_.SetSize(w, h);
-  Reposition();
-}
