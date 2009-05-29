@@ -197,7 +197,10 @@ void DraggedTabView::Layout() {
     int left = 0;
     if (UILayoutIsRightToLeft())
       left = GetPreferredSize().width() - attached_tab_size_.width();
-    renderer_->SetBounds(left, 0, left + attached_tab_size_.width(),
+    // The renderer_'s width should be attached_tab_size_.width() in both LTR
+    // and RTL locales. Wrong width will cause the wrong positioning of the tab
+    // view in dragging. Please refer to http://crbug.com/6223 for details.
+    renderer_->SetBounds(left, 0, attached_tab_size_.width(),
                          attached_tab_size_.height());
   }
 }
