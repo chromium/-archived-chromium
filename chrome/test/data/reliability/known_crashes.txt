@@ -66,3 +66,5 @@ PREFIX : webcore::renderobject::localtoabsolute___webcore::layoutstate::layoutst
 # 8033
 SUBSTRING : windowdragresponsetask::run___messageloop::runtask___messageloop::dowork
 
+# 12926
+PREFIX : webcore::frame::settings___webcore::v8proxy::isenabled___webcore::v8proxy::retrieve
