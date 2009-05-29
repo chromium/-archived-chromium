@@ -2,8 +2,55 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+// This file includes code GetDefaultCertNickname(), derived from
+// nsNSSCertificate::defaultServerNickName()
+// in mozilla/security/manager/ssl/src/nsNSSCertificate.cpp
+// and SSLClientSocketNSS::OwnAuthCertHandler() derived from
+// AuthCertificateCallback() in
+// mozilla/security/manager/ssl/src/nsNSSCallbacks.cpp.
+
+/* ***** BEGIN LICENSE BLOCK *****
+ * Version: MPL 1.1/GPL 2.0/LGPL 2.1
+ *
+ * The contents of this file are subject to the Mozilla Public License Version
+ * 1.1 (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
+ * http://www.mozilla.org/MPL/
+ *
+ * Software distributed under the License is distributed on an "AS IS" basis,
+ * WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
+ * for the specific language governing rights and limitations under the
+ * License.
+ *
+ * The Original Code is the Netscape security libraries.
+ *
+ * The Initial Developer of the Original Code is
+ * Netscape Communications Corporation.
+ * Portions created by the Initial Developer are Copyright (C) 2000
+ * the Initial Developer. All Rights Reserved.
+ *
+ * Contributor(s):
+ *   Ian McGreer <mcgreer@netscape.com>
+ *   Javier Delgadillo <javi@netscape.com>
+ *   Kai Engert <kengert@redhat.com>
+ *
+ * Alternatively, the contents of this file may be used under the terms of
+ * either the GNU General Public License Version 2 or later (the "GPL"), or
+ * the GNU Lesser General Public License Version 2.1 or later (the "LGPL"),
+ * in which case the provisions of the GPL or the LGPL are applicable instead
+ * of those above. If you wish to allow use of your version of this file only
+ * under the terms of either the GPL or the LGPL, and not to allow others to
+ * use your version of this file under the terms of the MPL, indicate your
+ * decision by deleting the provisions above and replace them with the notice
+ * and other provisions required by the GPL or the LGPL. If you do not delete
+ * the provisions above, a recipient may use your version of this file under
+ * the terms of any one of the MPL, the GPL or the LGPL.
+ *
+ * ***** END LICENSE BLOCK ***** */
+
 #include "net/base/ssl_client_socket_nss.h"
 
+#include <certdb.h>
 #include <nspr.h>
 #include <nss.h>
 #include <secerr.h>
@@ -46,6 +93,48 @@ namespace net {
 #endif
 
 namespace {
+
+// Gets default certificate nickname from cert.
+// Derived from nsNSSCertificate::defaultServerNickname
+// in mozilla/security/manager/ssl/src/nsNSSCertificate.cpp.
+std::string GetDefaultCertNickname(
+    net::X509Certificate::OSCertHandle cert) {
+  if (cert == NULL)
+    return "";
+
+  char* name = CERT_GetCommonName(&cert->subject);
+  if (!name) {
+    // Certs without common names are strange, but they do exist...
+    // Let's try to use another string for the nickname
+    name = CERT_GetOrgUnitName(&cert->subject);
+    if (!name)
+      name = CERT_GetOrgName(&cert->subject);
+    if (!name)
+      name = CERT_GetLocalityName(&cert->subject);
+    if (!name)
+      name = CERT_GetStateName(&cert->subject);
+    if (!name)
+      name = CERT_GetCountryName(&cert->subject);
+    if (!name)
+      return "";
+  }
+  int count = 1;
+  std::string nickname;
+  while (1) {
+    if (count == 1) {
+      nickname = name;
+    } else {
+      nickname = StringPrintf("%s #%d", name, count);
+    }
+    PRBool conflict = SEC_CertNicknameConflict(
+        const_cast<char*>(nickname.c_str()), &cert->derSubject, cert->dbhandle);
+    if (!conflict)
+      break;
+    count++;
+  }
+  PR_FREEIF(name);
+  return nickname;
+}
 
 int NetErrorFromNSPRError(PRErrorCode err) {
   // TODO(port): fill this out as we learn what's important
@@ -108,6 +197,7 @@ SSLClientSocketNSS::SSLClientSocketNSS(ClientSocket* transport_socket,
       user_callback_(NULL),
       user_buf_len_(0),
       server_cert_error_(0),
+      cert_list_(NULL),
       completed_handshake_(false),
       next_state_(STATE_NONE),
       nss_fd_(NULL),
@@ -270,15 +360,6 @@ void SSLClientSocketNSS::InvalidateSessionIfBadCertificate() {
 void SSLClientSocketNSS::Disconnect() {
   EnterFunction("");
 
-  // Reset object state
-  transport_send_busy_ = false;
-  transport_recv_busy_ = false;
-  user_buf_            = NULL;
-  user_buf_len_        = 0;
-  server_cert_error_   = OK;
-  completed_handshake_ = false;
-  nss_bufs_            = NULL;
-
   // TODO(wtc): Send SSL close_notify alert.
   if (nss_fd_ != NULL) {
     InvalidateSessionIfBadCertificate();
@@ -287,6 +368,21 @@ void SSLClientSocketNSS::Disconnect() {
   }
 
   transport_->Disconnect();
+
+  // Reset object state
+  transport_send_busy_ = false;
+  transport_recv_busy_ = false;
+  user_buf_            = NULL;
+  user_buf_len_        = 0;
+  server_cert_         = NULL;
+  server_cert_error_   = OK;
+  if (cert_list_) {
+    CERT_DestroyCertList(cert_list_);
+    cert_list_ = NULL;
+  }
+  completed_handshake_ = false;
+  nss_bufs_            = NULL;
+
   LeaveFunction("");
 }
 
@@ -364,6 +460,9 @@ X509Certificate *SSLClientSocketNSS::UpdateServerCert() {
     if (nss_cert) {
       server_cert_ = X509Certificate::CreateFromHandle(
           nss_cert, X509Certificate::SOURCE_FROM_NETWORK);
+      DCHECK(!cert_list_);
+      cert_list_ = CERT_GetCertChainFromCert(
+          nss_cert, PR_Now(), certUsageSSLCA);
     }
   }
   return server_cert_;
@@ -552,6 +651,8 @@ int SSLClientSocketNSS::DoLoop(int last_io_result) {
 
 // static
 // NSS calls this if an incoming certificate needs to be verified.
+// Derived from AuthCertificateCallback() in
+// mozilla/source/security/manager/ssl/src/nsNSSCallbacks.cpp.
 SECStatus SSLClientSocketNSS::OwnAuthCertHandler(void* arg,
                                                  PRFileDesc* socket,
                                                  PRBool checksig,
@@ -560,10 +661,39 @@ SECStatus SSLClientSocketNSS::OwnAuthCertHandler(void* arg,
 
   // Remember the certificate as it will no longer be accessible if the
   // handshake fails.
-  that->UpdateServerCert();
+  scoped_refptr<X509Certificate> cert = that->UpdateServerCert();
 
-  return SSL_AuthCertificate(CERT_GetDefaultCertDB(), socket, checksig,
+  SECStatus rv = SSL_AuthCertificate(CERT_GetDefaultCertDB(), socket, checksig,
                              is_server);
+  if (rv == SECSuccess && that->cert_list_) {
+    // Remember the intermediate CA certs if the server sends them to us.
+    for (CERTCertListNode* node = CERT_LIST_HEAD(that->cert_list_);
+         !CERT_LIST_END(node, that->cert_list_);
+         node = CERT_LIST_NEXT(node)) {
+      if (node->cert->slot || node->cert->isRoot || node->cert->isperm ||
+          node->cert == cert->os_cert_handle()) {
+        // Some certs we don't want to remember are:
+        // - found on a token.
+        // - the root cert.
+        // - already stored in perm db.
+        // - the server cert itself.
+        continue;
+      }
+
+      // We have found a CA cert that we want to remember.
+      std::string nickname(GetDefaultCertNickname(node->cert));
+      if (!nickname.empty()) {
+        PK11SlotInfo* slot = PK11_GetInternalKeySlot();
+        if (slot) {
+          PK11_ImportCert(slot, node->cert, CK_INVALID_HANDLE,
+                          const_cast<char*>(nickname.c_str()), PR_FALSE);
+          PK11_FreeSlot(slot);
+        }
+      }
+    }
+  }
+
+  return rv;
 }
 
 // static

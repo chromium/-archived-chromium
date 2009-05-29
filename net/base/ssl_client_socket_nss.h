@@ -5,6 +5,11 @@
 #ifndef NET_BASE_SSL_CLIENT_SOCKET_NSS_H_
 #define NET_BASE_SSL_CLIENT_SOCKET_NSS_H_
 
+// Work around https://bugzilla.mozilla.org/show_bug.cgi?id=455424
+// until NSS 3.12.2 comes out and we update to it.
+#define Lock FOO_NSS_Lock
+#include <certt.h>
+#undef Lock
 #include <nspr.h>
 #include <nss.h>
 #include <string>
@@ -90,6 +95,8 @@ class SSLClientSocketNSS : public SSLClientSocket {
 
   // Set during handshake.
   scoped_refptr<X509Certificate> server_cert_;
+  // Certificate chain.
+  CERTCertList* cert_list_;
 
   bool completed_handshake_;
 
