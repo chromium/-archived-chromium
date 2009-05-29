@@ -12,6 +12,7 @@
 #include "base/thread.h"
 #include "base/time.h"
 #include "base/time_format.h"
+#include "base/values.h"
 #include "chrome/browser/bookmarks/bookmark_model.h"
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/dom_ui/dom_ui_favicon_source.h"

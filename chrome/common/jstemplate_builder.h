@@ -15,8 +15,7 @@
 
 #include <string>
 
-#include "base/values.h"
-
+class DictionaryValue;
 class StringPiece;
 
 namespace jstemplate_builder {

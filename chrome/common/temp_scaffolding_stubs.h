@@ -12,13 +12,11 @@
 #include <string>
 
 #include "base/basictypes.h"
-#include "base/file_path.h"
 #include "base/logging.h"
 #include "base/ref_counted.h"
 #include "base/string16.h"
 #include "base/gfx/native_widget_types.h"
 #include "build/build_config.h"
-#include "chrome/browser/cancelable_request.h"
 #include "chrome/browser/dom_ui/html_dialog_ui.h"
 #include "chrome/browser/tab_contents/navigation_entry.h"
 #include "googleurl/src/gurl.h"

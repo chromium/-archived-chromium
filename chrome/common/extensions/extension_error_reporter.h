@@ -8,7 +8,7 @@
 #include <string>
 #include <vector>
 
-#include "base/message_loop.h"
+class MessageLoop;
 
 // Exposes an easy way for the various components of the extension system to
 // report errors. This is a singleton that lives on the UI thread, with the

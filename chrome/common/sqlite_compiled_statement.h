@@ -8,9 +8,10 @@
 #include <map>
 #include <string>
 
-#include "chrome/common/sqlite_utils.h"
+#include "base/basictypes.h"
 
-#include "third_party/sqlite/preprocessed/sqlite3.h"
+struct sqlite3;
+class SQLStatement;
 
 // Stores a list of precompiled sql statements for a database. Each statement
 // is given a unique name by the caller.

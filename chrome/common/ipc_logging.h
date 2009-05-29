@@ -9,13 +9,12 @@
 
 #ifdef IPC_MESSAGE_LOG_ENABLED
 
-#include "base/lock.h"
+#include <vector>
+
 #include "base/message_loop.h"
+#include "base/scoped_ptr.h"
 #include "base/singleton.h"
 #include "base/waitable_event_watcher.h"
-#include "chrome/common/ipc_message_utils.h"
-
-class MessageLoop;
 
 namespace IPC {
 

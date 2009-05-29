@@ -7,18 +7,15 @@
 
 #include <string>
 #include <vector>
-#include <map>
 
 #include "base/file_path.h"
 #include "base/scoped_ptr.h"
-#include "base/string16.h"
 #include "base/values.h"
 #include "base/version.h"
 #include "chrome/common/extensions/user_script.h"
 #include "chrome/common/extensions/url_pattern.h"
 #include "chrome/common/page_action.h"
 #include "googleurl/src/gurl.h"
-#include "third_party/skia/include/core/SkColor.h"
 
 // Represents a Chromium extension.
 class Extension {

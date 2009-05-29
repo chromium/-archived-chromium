@@ -9,7 +9,6 @@
 
 #include "base/scoped_ptr.h"
 #include "net/url_request/url_request_job.h"
-#include "chrome/browser/chrome_plugin_host.h"
 #include "chrome/common/chrome_plugin_api.h"
 #include "chrome/common/chrome_plugin_util.h"
 #include "chrome/common/notification_registrar.h"

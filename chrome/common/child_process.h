@@ -5,15 +5,11 @@
 #ifndef CHROME_COMMON_CHILD_PROCESS_H__
 #define CHROME_COMMON_CHILD_PROCESS_H__
 
-#include <string>
-#include <vector>
 #include "base/basictypes.h"
-#include "base/message_loop.h"
 #include "base/scoped_ptr.h"
 #include "base/waitable_event.h"
 
 class ChildThread;
-
 
 // Base class for child processes of the browser process (i.e. renderer and
 // plugin host). This is a singleton object for each child process.

@@ -8,7 +8,6 @@
 #define CHROME_COMMON_RESOURCE_DISPATCHER_H__
 
 #include <deque>
-#include <queue>
 #include <string>
 
 #include "base/hash_tables.h"

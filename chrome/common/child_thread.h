@@ -5,6 +5,8 @@
 #ifndef CHROME_COMMON_CHILD_THREAD_H_
 #define CHROME_COMMON_CHILD_THREAD_H_
 
+#include "base/basictypes.h"
+#include "base/scoped_ptr.h"
 #include "base/thread.h"
 #include "chrome/common/ipc_sync_channel.h"
 #include "chrome/common/message_router.h"
@@ -85,7 +87,7 @@ class ChildThread : public IPC::Channel::Listener,
   // that would addref it.
   bool check_with_browser_before_shutdown_;
 
-  DISALLOW_EVIL_CONSTRUCTORS(ChildThread);
+  DISALLOW_COPY_AND_ASSIGN(ChildThread);
 };
 
 #endif  // CHROME_COMMON_CHILD_THREAD_H_

@@ -11,11 +11,12 @@
 #include <vector>
 
 #include "base/ref_counted.h"
-#include "base/message_loop.h"
 #include "chrome/browser/meta_table_helper.h"
 #include "net/base/cookie_monster.h"
 
 struct sqlite3;
+
+class MessageLoop;
 
 class SQLitePersistentCookieStore
     : public net::CookieMonster::PersistentCookieStore {

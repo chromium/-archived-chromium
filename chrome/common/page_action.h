@@ -9,7 +9,6 @@
 #include <map>
 
 #include "base/file_path.h"
-#include "googleurl/src/gurl.h"
 
 class PageAction {
  public:

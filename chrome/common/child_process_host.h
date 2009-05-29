@@ -5,15 +5,13 @@
 #ifndef CHROME_COMMON_CHILD_PROCESS_HOST_H_
 #define CHROME_COMMON_CHILD_PROCESS_HOST_H_
 
-#include "build/build_config.h"
-
 #include <list>
+#include <string>
 
 #include "base/basictypes.h"
 #include "base/scoped_ptr.h"
 #include "base/waitable_event_watcher.h"
 #include "chrome/browser/renderer_host/resource_dispatcher_host.h"
-#include "chrome/common/child_process_info.h"
 #include "chrome/common/ipc_channel.h"
 
 class NotificationType;

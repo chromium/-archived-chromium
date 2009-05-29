@@ -4,9 +4,13 @@
 
 #include "chrome/common/extensions/extension_error_reporter.h"
 
+#include "build/build_config.h"
+
 #if defined(OS_WIN)
 #include "app/win_util.h"
 #endif
+#include "base/logging.h"
+#include "base/message_loop.h"
 #include "base/string_util.h"
 
 // No AddRef required when using ExtensionErrorReporter with RunnableMethod.

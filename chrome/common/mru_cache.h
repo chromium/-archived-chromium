@@ -21,7 +21,7 @@
 #include <utility>
 
 #include "base/basictypes.h"
-#include "chrome/common/logging_chrome.h"
+#include "base/logging.h"
 
 // MRUCacheBase ----------------------------------------------------------------
 

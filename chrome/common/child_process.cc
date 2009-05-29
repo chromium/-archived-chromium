@@ -4,8 +4,7 @@
 
 #include "chrome/common/child_process.h"
 
-#include "base/basictypes.h"
-#include "base/string_util.h"
+#include "base/message_loop.h"
 #include "chrome/common/child_thread.h"
 
 ChildProcess* ChildProcess::child_process_;

@@ -8,6 +8,7 @@
 #include "base/basictypes.h"
 #include "chrome/browser/history/history_types.h"
 #include "chrome/browser/search_engines/template_url.h"
+#include "chrome/common/sqlite_utils.h"
 
 // Temporary until DBCloseScoper moves elsewhere.
 #include "chrome/common/sqlite_compiled_statement.h"

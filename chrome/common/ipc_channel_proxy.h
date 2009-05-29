@@ -6,7 +6,7 @@
 #define CHROME_COMMON_IPC_CHANNEL_PROXY_H__
 
 #include <vector>
-#include "base/lock.h"
+
 #include "base/ref_counted.h"
 #include "chrome/common/ipc_channel.h"
 
