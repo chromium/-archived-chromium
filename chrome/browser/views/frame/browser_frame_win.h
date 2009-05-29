@@ -44,7 +44,7 @@ class BrowserFrameWin : public BrowserFrame, public views::WindowWin {
 
   // Overridden from views::Widget.
   virtual ThemeProvider* GetThemeProvider() const;
-  virtual ThemeProvider* GetDialogThemeProvider() const;
+  virtual ThemeProvider* GetDefaultThemeProvider() const;
 
   BrowserView* browser_view() const { return browser_view_; }
 
