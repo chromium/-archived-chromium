@@ -6,6 +6,7 @@
 
 #include "base/compiler_specific.h"
 #include "views/fill_layout.h"
+#include "views/widget/default_theme_provider.h"
 #include "views/widget/root_view.h"
 #include "views/widget/tooltip_manager_gtk.h"
 #include "views/window/window_gtk.h"
@@ -76,6 +77,8 @@ void WidgetGtk::Init(GtkWidget* parent,
   // Force creation of the RootView if it hasn't been created yet.
   GetRootView();
 
+  default_theme_provider_.reset(new DefaultThemeProvider());
+
   // Make container here.
   CreateGtkWidget();
 
@@ -116,8 +119,9 @@ void WidgetGtk::Init(GtkWidget* parent,
                    G_CALLBACK(CallButtonPress), NULL);
   g_signal_connect(G_OBJECT(child_widget_parent_), "button_release_event",
                    G_CALLBACK(CallButtonRelease), NULL);
-  g_signal_connect(G_OBJECT(child_widget_parent_), "grab_broke_event",
-                   G_CALLBACK(CallGrabBrokeEvent), NULL);
+  // TODO(sky): this crashes, fix it!
+  //  g_signal_connect(G_OBJECT(child_widget_parent_), "grab_broke_event",
+  // G_CALLBACK(CallGrabBrokeEvent), NULL);
   g_signal_connect(G_OBJECT(child_widget_parent_), "grab_notify",
                    G_CALLBACK(CallGrabNotify), NULL);
   g_signal_connect(G_OBJECT(child_widget_parent_), "focus_out_event",
@@ -318,6 +322,10 @@ Window* WidgetGtk::GetWindow() {
 
 const Window* WidgetGtk::GetWindow() const {
   return GetWindowImpl(widget_);
+}
+
+ThemeProvider* WidgetGtk::GetThemeProvider() const {
+  return default_theme_provider_.get();
 }
 
 ////////////////////////////////////////////////////////////////////////////////

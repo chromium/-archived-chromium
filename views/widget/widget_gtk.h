@@ -16,6 +16,7 @@ class Rect;
 
 namespace views {
 
+class DefaultThemeProvider;
 class TooltipManagerGtk;
 class View;
 class WindowGtk;
@@ -78,6 +79,7 @@ class WidgetGtk : public Widget, public MessageLoopForUI::Observer {
   virtual bool GetAccelerator(int cmd_id, Accelerator* accelerator);
   virtual Window* GetWindow();
   virtual const Window* GetWindow() const;
+  virtual ThemeProvider* GetThemeProvider() const;
 
   // MessageLoopForUI::Observer.
   virtual void WillProcessEvent(GdkEvent* event) {}
@@ -197,6 +199,8 @@ class WidgetGtk : public Widget, public MessageLoopForUI::Observer {
 
   // See description above setter.
   bool delete_on_destroy_;
+
+  scoped_ptr<DefaultThemeProvider> default_theme_provider_;
 
   DISALLOW_COPY_AND_ASSIGN(WidgetGtk);
 };

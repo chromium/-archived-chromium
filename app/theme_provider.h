@@ -34,7 +34,7 @@ class ThemeProvider {
   // Get the color specified by |id|.
   virtual SkColor GetColor(int id) = 0;
 
-#if defined(OS_LINUX)
+#if defined(OS_LINUX) && !defined(TOOLKIT_VIEWS)
   // Gets the GdkPixbuf with the specified |id|.  Returns a pointer to a shared
   // instance of the GdkPixbuf.  This shared GdkPixbuf is owned by the theme
   // provider and should not be freed.
