@@ -377,8 +377,10 @@ Extension* ExtensionsService::GetExtensionByID(std::string id) {
 ExtensionsServiceBackend::ExtensionsServiceBackend(
     const FilePath& install_directory, ResourceDispatcherHost* rdh,
     MessageLoop* frontend_loop, const std::string& registry_path)
-        : install_directory_(install_directory),
+        : frontend_(NULL),
+          install_directory_(install_directory),
           resource_dispatcher_host_(rdh),
+          alert_on_error_(false),
           frontend_loop_(frontend_loop),
           registry_path_(registry_path) {
   // Default the registry path if unspecified.
