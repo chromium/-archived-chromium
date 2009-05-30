@@ -201,7 +201,6 @@ void InfoBar::AnimationEnded(const Animation* animation) {
 void InfoBar::InfoBarAdded() {
   // The container_ pointer must be set before adding to the view hierarchy.
   DCHECK(container_);
-#if defined(OS_WIN)
   // When we're added to a view hierarchy within a widget, we create an
   // external focus tracker to track what was focused in case we obtain
   // focus so that we can restore focus when we're removed.
@@ -211,7 +210,6 @@ void InfoBar::InfoBarAdded() {
         new views::ExternalFocusTracker(this,
             views::FocusManager::GetFocusManager(widget->GetNativeView())));
   }
-#endif
 }
 
 void InfoBar::InfoBarRemoved() {

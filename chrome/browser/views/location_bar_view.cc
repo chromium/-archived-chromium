@@ -155,7 +155,6 @@ void LocationBarView::Init() {
   location_entry_.reset(new AutocompleteEditViewGtk(this, model_, profile_,
                                                     command_updater_,
                                                     popup_positioner_));
-  location_entry_->Init();
 #endif
   location_entry_view_ = new views::NativeViewHost;
   location_entry_view_->SetID(VIEW_ID_AUTOCOMPLETE);
