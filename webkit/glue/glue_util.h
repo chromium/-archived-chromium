@@ -17,9 +17,7 @@ class IntPoint;
 class IntRect;
 class IntSize;
 class KURL;
-class ResourceResponse;
 class String;
-struct ResourceRequest;
 }
 
 namespace WebKit {
@@ -27,8 +25,6 @@ class WebCString;
 class WebDragData;
 class WebString;
 class WebURL;
-class WebURLRequest;
-class WebURLResponse;
 struct WebPoint;
 struct WebRect;
 struct WebSize;
@@ -72,10 +68,6 @@ WebCore::String WebStringToString(const WebKit::WebString& str);
 WebKit::WebCString CStringToWebCString(const WebCore::CString& str);
 WebCore::CString WebCStringToCString(const WebKit::WebCString& str);
 
-// std::string <-> WebString.  Conversion to/from UTF-8.
-WebKit::WebString StdStringToWebString(const std::string& str);
-std::string WebStringToStdString(const WebKit::WebString& str);
-
 FilePath::StringType StringToFilePathString(const WebCore::String& str);
 WebCore::String FilePathStringToString(const FilePath::StringType& str);
 
@@ -106,18 +98,6 @@ WebKit::WebDragData ChromiumDataObjectToWebDragData(
     const WTF::PassRefPtr<WebCore::ChromiumDataObject>&);
 WTF::PassRefPtr<WebCore::ChromiumDataObject> WebDragDataToChromiumDataObject(
     const WebKit::WebDragData&);
-
-// Exposes the ResourceRequest contained by a WebURLRequest
-WebCore::ResourceRequest* WebURLRequestToMutableResourceRequest(
-    WebKit::WebURLRequest* req);
-const WebCore::ResourceRequest* WebURLRequestToResourceRequest(
-    const WebKit::WebURLRequest* req);
-
-// Exposes the ResourceResponse contained by a WebURLResponse
-WebCore::ResourceResponse* WebURLResponseToMutableResourceResponse(
-    WebKit::WebURLResponse* resp);
-const WebCore::ResourceResponse* WebURLResponseToResourceResponse(
-    const WebKit::WebURLResponse* resp);
 
 }  // namespace webkit_glue
 

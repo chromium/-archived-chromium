@@ -31,17 +31,14 @@
 #ifndef WebURLRequest_h
 #define WebURLRequest_h
 
+#error "This header file is still a work in progress; do not include!"
+
 #include "WebCommon.h"
 #include "WebHTTPBody.h"
-
-#if defined(WEBKIT_IMPLEMENTATION)
-namespace WebCore { struct ResourceRequest; }
-#endif
 
 namespace WebKit {
     class WebCString;
     class WebHTTPBody;
-    class WebHTTPHeaderVisitor;
     class WebString;
     class WebURL;
     class WebURLRequestPrivate;
@@ -69,75 +66,58 @@ namespace WebKit {
         WebURLRequest(const WebURLRequest& r) : m_private(0) { assign(r); }
         WebURLRequest& operator=(const WebURLRequest& r) { assign(r); return *this; }
 
-        explicit WebURLRequest(const WebURL& url) : m_private(0)
-        {
-            initialize();
-            setURL(url);
-        }
-
         WEBKIT_API void initialize();
         WEBKIT_API void reset();
         WEBKIT_API void assign(const WebURLRequest&);
 
         bool isNull() const { return m_private == 0; }
 
-        WEBKIT_API WebURL url() const;
-        WEBKIT_API void setURL(const WebURL&);
+        WEBKIT_API WebURL url() const = 0;
+        WEBKIT_API void setURL(const WebURL&) = 0;
 
         // Used to implement third-party cookie blocking.
-        WEBKIT_API WebURL firstPartyForCookies() const;
-        WEBKIT_API void setFirstPartyForCookies(const WebURL&);
+        WEBKIT_API WebURL firstPartyForCookies() const = 0;
+        WEBKIT_API void setFirstPartyForCookies(const WebURL&) = 0;
 
-        WEBKIT_API CachePolicy cachePolicy() const;
-        WEBKIT_API void setCachePolicy(CachePolicy);
+        WEBKIT_API CachePolicy cachePolicy() const = 0;
+        WEBKIT_API void setCachePolicy(CachePolicy) = 0;
 
-        WEBKIT_API WebString httpMethod() const;
-        WEBKIT_API void setHTTPMethod(const WebString&);
+        WEBKIT_API WebString httpMethod() const = 0;
+        WEBKIT_API void setHTTPMethod(const WebString&) = 0;
 
-        WEBKIT_API WebString httpHeaderField(const WebString& name) const;
-        WEBKIT_API void setHTTPHeaderField(const WebString& name, const WebString& value);
-        WEBKIT_API void addHTTPHeaderField(const WebString& name, const WebString& value);
-        WEBKIT_API void clearHTTPHeaderField(const WebString& name);
-        WEBKIT_API void visitHTTPHeaderFields(WebHTTPHeaderVisitor*) const;
+        WEBKIT_API WebString httpHeaderField(const WebString& name) const = 0;
+        WEBKIT_API void setHTTPHeaderField(const WebString& name, const WebString& value) = 0;
+        WEBKIT_API void addHTTPHeaderField(const WebString& name, const WebString& value) = 0;
+        WEBKIT_API void clearHTTPHeaderField(const WebString& name) = 0;
 
-        WEBKIT_API const WebHTTPBody& httpBody() const;
-        WEBKIT_API void setHTTPBody(const WebHTTPBody&);
-
+        WEBKIT_API bool hasHTTPBody() const = 0;
+        WEBKIT_API void httpBody(WebHTTPBody&) const = 0;
+        WEBKIT_API void setHTTPBody(const WebHTTPBody&) = 0;
+        WEBKIT_API void appendToHTTPBody(const WebHTTPBody::Element&) = 0;
+        
         // Controls whether upload progress events are generated when a request
         // has a body.
-        WEBKIT_API bool reportUploadProgress() const;
-        WEBKIT_API void setReportUploadProgress(bool);
+        WEBKIT_API bool reportUploadProgress() const = 0;
+        WEBKIT_API void setReportUploadProgress(bool) = 0;
 
-        WEBKIT_API TargetType targetType() const;
-        WEBKIT_API void setTargetType(TargetType);
+        WEBKIT_API TargetType targetType() const = 0;
+        WEBKIT_API void setTargetType(const TargetType&) = 0;
 
         // A consumer controlled value intended to be used to identify the
         // requestor.
-        WEBKIT_API int requestorID() const;
-        WEBKIT_API void setRequestorID(int);
+        WEBKIT_API int requestorID() const = 0;
+        WEBKIT_API void setRequestorID(int) = 0;
 
         // A consumer controlled value intended to be used to identify the
         // process of the requestor.
-        WEBKIT_API int requestorProcessID() const;
-        WEBKIT_API void setRequestorProcessID(int);
-
-        // Allows the request to be matched up with its app cache context.
-        WEBKIT_API int appCacheContextID() const;
-        WEBKIT_API void setAppCacheContextID(int id);
+        WEBKIT_API int requestorProcessID() const = 0;
+        WEBKIT_API void setRequestorProcessID(int) = 0;
 
         // A consumer controlled value intended to be used to record opaque
         // security info related to this request.
         // FIXME: This really doesn't belong here!
-        WEBKIT_API WebCString securityInfo() const;
-        WEBKIT_API void setSecurityInfo(const WebCString&);
-
-#if defined(WEBKIT_IMPLEMENTATION)
-        WebCore::ResourceRequest& toMutableResourceRequest();
-        const WebCore::ResourceRequest& toResourceRequest() const;
-#endif
-
-    protected:
-        void assign(WebURLRequestPrivate*);
+        WEBKIT_API WebCString securityInfo() const = 0;
+        WEBKIT_API void setSecurityInfo(const WebCString&) = 0;
 
     private:
         WebURLRequestPrivate* m_private;

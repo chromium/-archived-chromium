@@ -1,10 +1,11 @@
-// Copyright (c) 2006-2009 The Chromium Authors. All rights reserved.
+// Copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 //
-// A delegate class of WebURLLoaderImpl that handles multipart/x-mixed-replace
-// data.  We special case multipart/x-mixed-replace because WebCore expects a
-// separate didReceiveResponse for each new message part.
+// A delegate class of ResourceHandleInternal (resource_handle_win) that
+// handles multipart/x-mixed-replace data.  We special case
+// multipart/x-mixed-replace because WebCore expects a separate
+// didReceiveResponse for each new message part.
 //
 // Most of the logic and edge case handling are based on the Mozilla's
 // implementation in netwerk/streamconv/converters/nsMultiMixedConv.cpp.
@@ -46,28 +47,28 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-#ifndef WEBKIT_GLUE_MULTIPART_RESPONSE_DELEGATE_H_
-#define WEBKIT_GLUE_MULTIPART_RESPONSE_DELEGATE_H_
-
 #include <string>
 
-#include "webkit/api/public/WebURLResponse.h"
+#include "config.h"
 
-namespace WebKit {
-class WebURLLoader;
-class WebURLLoaderClient;
+#include "base/compiler_specific.h"
+
+MSVC_PUSH_WARNING_LEVEL(0);
+#include "ResourceResponse.h"
+MSVC_POP_WARNING();
+
+namespace WebCore {
+  class ResourceHandle;
+  class ResourceHandleClient;
 }
 
-namespace webkit_glue {
-
-// Used by unit tests to access private members.
-class MultipartResponseDelegateTester;
-
 class MultipartResponseDelegate {
+  friend class MultipartResponseTest_Functions_Test;  // For unittests.
+
  public:
-  MultipartResponseDelegate(WebKit::WebURLLoaderClient* client,
-                            WebKit::WebURLLoader* loader,
-                            const WebKit::WebURLResponse& response,
+  MultipartResponseDelegate(WebCore::ResourceHandleClient* client,
+                            WebCore::ResourceHandle* job,
+                            const WebCore::ResourceResponse& response,
                             const std::string& boundary);
 
   // Passed through from ResourceHandleInternal
@@ -77,27 +78,25 @@ class MultipartResponseDelegate {
   // Returns the multi part boundary string from the Content-type header
   // in the response.
   // Returns true on success.
-  static bool ReadMultipartBoundary(const WebKit::WebURLResponse& response,
+  static bool ReadMultipartBoundary(const WebCore::ResourceResponse& response,
                                     std::string* multipart_boundary);
 
   // Returns the lower and higher content ranges from an individual multipart
   // in a multipart response.
   // Returns true on success.
-  static bool ReadContentRanges(const WebKit::WebURLResponse& response,
+  static bool ReadContentRanges(const WebCore::ResourceResponse& response,
                                 int* content_range_lower_bound,
                                 int* content_range_upper_bound);
 
  private:
-  friend class MultipartResponseDelegateTester;  // For unittests.
-
-  // Pointers to the client and associated loader so we can make callbacks as
-  // we parse pieces of data.
-  WebKit::WebURLLoaderClient* client_;
-  WebKit::WebURLLoader* loader_;
+  // Pointers back to our owning object so we can make callbacks as we parse
+  // pieces of data.
+  WebCore::ResourceHandleClient* client_;
+  WebCore::ResourceHandle* job_;
 
   // The original resource response for this request.  We use this as a
   // starting point for each parts response.
-  WebKit::WebURLResponse original_response_;
+  WebCore::ResourceResponse original_response_;
 
   // Checks to see if data[pos] character is a line break; handles crlf, lflf,
   // lf, or cr. Returns the number of characters to skip over (0, 1 or 2).
@@ -129,7 +128,3 @@ class MultipartResponseDelegate {
   // processing AddData requests.
   bool stop_sending_;
 };
-
-}  // namespace webkit_glue
-
-#endif

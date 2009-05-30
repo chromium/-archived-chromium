@@ -31,61 +31,22 @@
 #ifndef WebHTTPBody_h
 #define WebHTTPBody_h
 
-#include "WebData.h"
-#include "WebNonCopyable.h"
-#include "WebString.h"
+#error "This header file is still a work in progress; do not include!"
 
-#if WEBKIT_IMPLEMENTATION
-namespace WebCore { class FormData; }
-namespace WTF { template <typename T> class PassRefPtr; }
-#endif
+#include "WebData.h"
+#include "WebString.h"
+#include "WebVector.h"
 
 namespace WebKit {
-    class WebHTTPBodyPrivate;
 
-    class WebHTTPBody : public WebNonCopyable {
-    public:
+    struct WebHTTPBody {
         struct Element {
             enum { TypeData, TypeFile } type;
             WebData data;
-            WebString filePath;
+            WebString fileName;
         };
-
-        ~WebHTTPBody() { reset(); }
-
-        WebHTTPBody() : m_private(0) { }
-
-        bool isNull() const { return m_private == 0; }
-
-        WEBKIT_API void initialize();
-        WEBKIT_API void reset();
-
-        // Returns the number of elements comprising the http body.
-        WEBKIT_API size_t elementCount() const;
-
-        // Sets the values of the element at the given index.  Returns false if
-        // index is out of bounds.
-        WEBKIT_API bool elementAt(size_t index, Element&) const;
-
-        // Append to the list of elements.
-        WEBKIT_API void appendData(const WebData&);
-        WEBKIT_API void appendFile(const WebString&);
-
-        // Identifies a particular form submission instance.  A value of 0 is
-        // used to indicate an unspecified identifier.
-        WEBKIT_API long long identifier() const;
-        WEBKIT_API void setIdentifier(long long);
-
-#if WEBKIT_IMPLEMENTATION
-        void rebind(WTF::PassRefPtr<WebCore::FormData>);
-        operator WTF::PassRefPtr<WebCore::FormData>() const;
-#endif
-
-    private:
-        void assign(WebHTTPBodyPrivate*);
-        WebHTTPBodyPrivate* m_private;
+        WebVector<Element> elements;
     };
-
 
 } // namespace WebKit
 

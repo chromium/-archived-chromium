@@ -4,104 +4,71 @@
 
 #include <vector>
 
+#include "config.h"
+
+#include "base/compiler_specific.h"
+
+MSVC_PUSH_WARNING_LEVEL(0);
+#include "KURL.h"
+#include "ResourceResponse.h"
+#include "ResourceHandle.h"
+#include "ResourceHandleClient.h"
+MSVC_POP_WARNING();
+
 #include "base/basictypes.h"
-#include "webkit/api/public/WebString.h"
-#include "webkit/api/public/WebURL.h"
-#include "webkit/api/public/WebURLLoaderClient.h"
-#include "webkit/api/public/WebURLResponse.h"
 #include "webkit/glue/glue_util.h"
 #include "webkit/glue/multipart_response_delegate.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
-using std::string;
-using WebKit::WebString;
-using WebKit::WebURL;
-using WebKit::WebURLError;
-using WebKit::WebURLLoader;
-using WebKit::WebURLLoaderClient;
-using WebKit::WebURLRequest;
-using WebKit::WebURLResponse;
-using webkit_glue::MultipartResponseDelegate;
-using webkit_glue::MultipartResponseDelegateTester;
-
-namespace webkit_glue {
-
-class MultipartResponseDelegateTester {
- public:
-  MultipartResponseDelegateTester(MultipartResponseDelegate* delegate)
-      : delegate_(delegate) {
-  }
-
-  int PushOverLine(const std::string& data, size_t pos) {
-    return delegate_->PushOverLine(data, pos);
-  } 
-  bool ParseHeaders() { return delegate_->ParseHeaders(); }
-  size_t FindBoundary() { return delegate_->FindBoundary(); }
-  std::string& boundary() { return delegate_->boundary_; }
-  std::string& data() { return delegate_->data_; }
-
- private:
-  MultipartResponseDelegate* delegate_;
-};
-
-}  // namespace webkit_glue
+using namespace WebCore;
+using namespace std;
 
 namespace {
 
 class MultipartResponseTest : public testing::Test {
 };
 
-class MockWebURLLoaderClient : public WebURLLoaderClient {
+class MockResourceHandleClient : public ResourceHandleClient {
  public:
-  MockWebURLLoaderClient() { Reset(); }
+  MockResourceHandleClient() { Reset(); }
 
-  virtual void willSendRequest(
-      WebURLLoader*, WebURLRequest&, const WebURLResponse&) {}
-  virtual void didSendData(
-      WebURLLoader*, unsigned long long, unsigned long long) {}
-
-  virtual void didReceiveResponse(WebURLLoader* loader,
-                                  const WebURLResponse& response) {
+  virtual void didReceiveResponse(ResourceHandle* handle,
+                                  const ResourceResponse& response) {
     ++received_response_;
-    response_ = response;
+    resource_response_ = response;
     data_.clear();
   }
-  virtual void didReceiveData(WebURLLoader* loader,
+  virtual void didReceiveData(ResourceHandle* handle,
                               const char* data, int data_length,
-                              long long length_received) {
+                              int length_received) {
     ++received_data_;
     data_.append(data, data_length);
   }
 
-  virtual void didFinishLoading(WebURLLoader*) {}
-  virtual void didFail(WebURLLoader*, const WebURLError&) {}
-
   void Reset() {
     received_response_ = received_data_ = 0;
     data_.clear();
-    response_.reset();
+    resource_response_ = ResourceResponse();
   }
 
   int received_response_, received_data_;
   string data_;
-  WebURLResponse response_;
+  ResourceResponse resource_response_;
 };
+
+}  // namespace
 
 // We can't put this in an anonymous function because it's a friend class for
 // access to private members.
 TEST(MultipartResponseTest, Functions) {
   // PushOverLine tests
 
-  WebURLResponse response;
-  response.initialize();
-  response.setMIMEType(WebString::fromUTF8("multipart/x-mixed-replace"));
-  response.setHTTPHeaderField(WebString::fromUTF8("Foo"),
-                              WebString::fromUTF8("Bar"));
-  response.setHTTPHeaderField(WebString::fromUTF8("Content-type"),
-                              WebString::fromUTF8("text/plain"));
-  MockWebURLLoaderClient client;
+  ResourceResponse response(KURL(), "multipart/x-mixed-replace", 0, "en-US",
+                            String());
+  response.setHTTPHeaderField(String("Foo"), String("Bar"));
+  response.setHTTPHeaderField(String("Content-type"), String("text/plain"));
+  MockResourceHandleClient client;
   MultipartResponseDelegate delegate(&client, NULL, response, "bound");
-  MultipartResponseDelegateTester delegate_tester(&delegate);
 
   struct {
     const char* input;
@@ -123,8 +90,8 @@ TEST(MultipartResponseTest, Functions) {
   };
   for (size_t i = 0; i < ARRAYSIZE_UNSAFE(line_tests); ++i) {
     EXPECT_EQ(line_tests[i].expected,
-              delegate_tester.PushOverLine(line_tests[i].input,
-                                           line_tests[i].position));
+              delegate.PushOverLine(line_tests[i].input,
+                                    line_tests[i].position));
   }
 
   // ParseHeaders tests
@@ -145,33 +112,33 @@ TEST(MultipartResponseTest, Functions) {
   };
   for (size_t i = 0; i < ARRAYSIZE_UNSAFE(header_tests); ++i) {
     client.Reset();
-    delegate_tester.data().assign(header_tests[i].data);
+    delegate.data_.assign(header_tests[i].data);
     EXPECT_EQ(header_tests[i].rv,
-              delegate_tester.ParseHeaders());
+              delegate.ParseHeaders());
     EXPECT_EQ(header_tests[i].received_response_calls,
               client.received_response_);
     EXPECT_EQ(string(header_tests[i].newdata),
-              delegate_tester.data());
+              delegate.data_);
   }
   // Test that the resource response is filled in correctly when parsing
   // headers.
   client.Reset();
   string test_header("content-type: image/png\ncontent-length: 10\n\n");
-  delegate_tester.data().assign(test_header);
-  EXPECT_TRUE(delegate_tester.ParseHeaders());
-  EXPECT_TRUE(delegate_tester.data().length() == 0);
-  EXPECT_EQ(webkit_glue::WebStringToStdString(
-              client.response_.httpHeaderField(
-                WebString::fromUTF8("Content-Type"))),
-            string("image/png"));
-  EXPECT_EQ(webkit_glue::WebStringToStdString(
-              client.response_.httpHeaderField(
-                WebString::fromUTF8("content-length"))),
-            string("10"));
+  delegate.data_.assign(test_header);
+  EXPECT_TRUE(delegate.ParseHeaders());
+  EXPECT_TRUE(delegate.data_.length() == 0);
+  EXPECT_EQ(webkit_glue::StringToStdWString(
+              client.resource_response_.httpHeaderField(
+                String("Content-Type"))),
+            wstring(L"image/png"));
+  EXPECT_EQ(webkit_glue::StringToStdWString(
+              client.resource_response_.httpHeaderField(
+                String("content-length"))),
+            wstring(L"10"));
   // This header is passed from the original request.
-  EXPECT_EQ(webkit_glue::WebStringToStdString(
-              client.response_.httpHeaderField(WebString::fromUTF8("foo"))),
-            string("Bar"));
+  EXPECT_EQ(webkit_glue::StringToStdWString(
+              client.resource_response_.httpHeaderField(String("foo"))),
+            wstring(L"Bar"));
 
   // FindBoundary tests
   struct {
@@ -187,22 +154,21 @@ TEST(MultipartResponseTest, Functions) {
     { "bound", "--boundbound", 0 },
   };
   for (size_t i = 0; i < ARRAYSIZE_UNSAFE(boundary_tests); ++i) {
-    delegate_tester.boundary().assign(boundary_tests[i].boundary);
-    delegate_tester.data().assign(boundary_tests[i].data);
+    delegate.boundary_.assign(boundary_tests[i].boundary);
+    delegate.data_.assign(boundary_tests[i].data);
     EXPECT_EQ(boundary_tests[i].position,
-              delegate_tester.FindBoundary());
+              delegate.FindBoundary());
   }
 }
 
+namespace {
+
 TEST(MultipartResponseTest, MissingBoundaries) {
-  WebURLResponse response;
-  response.initialize();
-  response.setMIMEType(WebString::fromUTF8("multipart/x-mixed-replace"));
-  response.setHTTPHeaderField(WebString::fromUTF8("Foo"),
-                              WebString::fromUTF8("Bar"));
-  response.setHTTPHeaderField(WebString::fromUTF8("Content-type"),
-                              WebString::fromUTF8("text/plain"));
-  MockWebURLLoaderClient client;
+  ResourceResponse response(KURL(), "multipart/x-mixed-replace", 0, "en-US",
+                            String());
+  response.setHTTPHeaderField(String("Foo"), String("Bar"));
+  response.setHTTPHeaderField(String("Content-type"), String("text/plain"));
+  MockResourceHandleClient client;
   MultipartResponseDelegate delegate(&client, NULL, response, "bound");
 
   // No start boundary
@@ -262,14 +228,11 @@ TEST(MultipartResponseTest, MissingBoundaries) {
 TEST(MultipartResponseTest, MalformedBoundary) {
   // Some servers send a boundary that is prefixed by "--".  See bug 5786.
 
-  WebURLResponse response;
-  response.initialize();
-  response.setMIMEType(WebString::fromUTF8("multipart/x-mixed-replace"));
-  response.setHTTPHeaderField(WebString::fromUTF8("Foo"),
-                              WebString::fromUTF8("Bar"));
-  response.setHTTPHeaderField(WebString::fromUTF8("Content-type"),
-                              WebString::fromUTF8("text/plain"));
-  MockWebURLLoaderClient client;
+  ResourceResponse response(KURL(), "multipart/x-mixed-replace", 0, "en-US",
+                            String());
+  response.setHTTPHeaderField(String("Foo"), String("Bar"));
+  response.setHTTPHeaderField(String("Content-type"), String("text/plain"));
+  MockResourceHandleClient client;
   MultipartResponseDelegate delegate(&client, NULL, response, "--bound");
 
   string data(
@@ -309,14 +272,13 @@ void VariousChunkSizesTest(const TestChunk chunks[], int chunks_size, int respon
     "foofoofoofoofoo"              // 86-100
     "--bound--");                  // 101-109
 
-  WebURLResponse response;
-  response.initialize();
-  response.setMIMEType(WebString::fromUTF8("multipart/x-mixed-replace"));
-  MockWebURLLoaderClient client;
+  ResourceResponse response(KURL(), "multipart/x-mixed-replace", 0, "en-US",
+                            String());
+  MockResourceHandleClient client;
   MultipartResponseDelegate delegate(&client, NULL, response, "bound");
 
   for (int i = 0; i < chunks_size; ++i) {
-    ASSERT_TRUE(chunks[i].start_pos < chunks[i].end_pos);
+    ASSERT(chunks[i].start_pos < chunks[i].end_pos);
     string chunk = data.substr(chunks[i].start_pos,
                                chunks[i].end_pos - chunks[i].start_pos);
     delegate.OnReceivedData(chunk.c_str(), static_cast<int>(chunk.length()));
@@ -423,10 +385,9 @@ TEST(MultipartResponseTest, BreakInData) {
 
 TEST(MultipartResponseTest, MultipleBoundaries) {
   // Test multiple boundaries back to back
-  WebURLResponse response;
-  response.initialize();
-  response.setMIMEType(WebString::fromUTF8("multipart/x-mixed-replace"));
-  MockWebURLLoaderClient client;
+  ResourceResponse response(KURL(), "multipart/x-mixed-replace", 0, "en-US",
+                            String());
+  MockResourceHandleClient client;
   MultipartResponseDelegate delegate(&client, NULL, response, "bound");
 
   string data("--bound\r\n\r\n--bound\r\n\r\nfoofoo--bound--");
@@ -441,14 +402,12 @@ TEST(MultipartResponseTest, MultipleBoundaries) {
 
 TEST(MultipartResponseTest, MultipartByteRangeParsingTest) {
   // Test multipart/byteranges based boundary parsing.
-  WebURLResponse response1;
-  response1.initialize();
-  response1.setMIMEType(WebString::fromUTF8("multipart/x-mixed-replace"));
-  response1.setHTTPHeaderField(WebString::fromUTF8("Content-Length"),
-                               WebString::fromUTF8("200"));
+  ResourceResponse response1(KURL(), "multipart/byteranges", 0, "en-US",
+                            String());
+  response1.setHTTPHeaderField(String("Content-Length"), String("200"));
   response1.setHTTPHeaderField(
-      WebString::fromUTF8("Content-type"),
-      WebString::fromUTF8("multipart/byteranges; boundary=--bound--"));
+      String("Content-type"),
+      String("multipart/byteranges; boundary=--bound--"));
 
   std::string multipart_boundary;
   bool result = MultipartResponseDelegate::ReadMultipartBoundary(
@@ -457,39 +416,35 @@ TEST(MultipartResponseTest, MultipartByteRangeParsingTest) {
   EXPECT_EQ(string("--bound--"),
             multipart_boundary);
 
-  WebURLResponse response2;
-  response2.initialize();
-  response2.setMIMEType(WebString::fromUTF8("image/png"));
+  ResourceResponse response2(KURL(), "image/png", 0, "en-US",
+                            String());
 
-  response2.setHTTPHeaderField(WebString::fromUTF8("Content-Length"),
-                               WebString::fromUTF8("300"));
+  response2.setHTTPHeaderField(String("Content-Length"), String("300"));
   response2.setHTTPHeaderField(
-      WebString::fromUTF8("Last-Modified"),
-      WebString::fromUTF8("Mon, 04 Apr 2005 20:36:01 GMT"));
+      String("Last-Modified"),
+      String("Mon, 04 Apr 2005 20:36:01 GMT"));
   response2.setHTTPHeaderField(
-      WebString::fromUTF8("Date"),
-      WebString::fromUTF8("Thu, 11 Sep 2008 18:21:42 GMT"));
+      String("Date"),
+      String("Thu, 11 Sep 2008 18:21:42 GMT"));
 
   multipart_boundary.clear();
   result = MultipartResponseDelegate::ReadMultipartBoundary(
       response2, &multipart_boundary);
   EXPECT_EQ(result, false);
 
-  WebURLResponse response3;
-  response3.initialize();
-  response3.setMIMEType(WebString::fromUTF8("multipart/byteranges"));
+  ResourceResponse response3(KURL(), "multipart/byteranges", 0, "en-US",
+                            String());
 
-  response3.setHTTPHeaderField(WebString::fromUTF8("Content-Length"),
-                               WebString::fromUTF8("300"));
+  response3.setHTTPHeaderField(String("Content-Length"), String("300"));
   response3.setHTTPHeaderField(
-      WebString::fromUTF8("Last-Modified"),
-      WebString::fromUTF8("Mon, 04 Apr 2005 20:36:01 GMT"));
+      String("Last-Modified"),
+      String("Mon, 04 Apr 2005 20:36:01 GMT"));
   response3.setHTTPHeaderField(
-      WebString::fromUTF8("Date"),
-      WebString::fromUTF8("Thu, 11 Sep 2008 18:21:42 GMT"));
+      String("Date"),
+      String("Thu, 11 Sep 2008 18:21:42 GMT"));
   response3.setHTTPHeaderField(
-      WebString::fromUTF8("Content-type"),
-      WebString::fromUTF8("multipart/byteranges"));
+      String("Content-type"),
+      String("multipart/byteranges"));
 
   multipart_boundary.clear();
   result = MultipartResponseDelegate::ReadMultipartBoundary(
@@ -497,15 +452,12 @@ TEST(MultipartResponseTest, MultipartByteRangeParsingTest) {
   EXPECT_EQ(result, false);
   EXPECT_EQ(multipart_boundary.length(), 0U);
 
-  WebURLResponse response4;
-  response4.initialize();
-  response4.setMIMEType(WebString::fromUTF8("multipart/byteranges"));
-  response4.setHTTPHeaderField(WebString::fromUTF8("Content-Length"),
-                               WebString::fromUTF8("200"));
+  ResourceResponse response4(KURL(), "multipart/byteranges", 0, "en-US",
+                             String());
+  response4.setHTTPHeaderField(String("Content-Length"), String("200"));
   response4.setHTTPHeaderField(
-      WebString::fromUTF8("Content-type"),
-      WebString::fromUTF8(
-          "multipart/byteranges; boundary=--bound--; charSet=utf8"));
+      String("Content-type"),
+      String("multipart/byteranges; boundary=--bound--; charSet=utf8"));
 
   multipart_boundary.clear();
 
@@ -514,15 +466,12 @@ TEST(MultipartResponseTest, MultipartByteRangeParsingTest) {
   EXPECT_EQ(result, true);
   EXPECT_EQ(string("--bound--"), multipart_boundary);
 
-  WebURLResponse response5;
-  response5.initialize();
-  response5.setMIMEType(WebString::fromUTF8("multipart/byteranges"));
-  response5.setHTTPHeaderField(WebString::fromUTF8("Content-Length"),
-                               WebString::fromUTF8("200"));
+  ResourceResponse response5(KURL(), "multipart/byteranges", 0, "en-US",
+                             String());
+  response5.setHTTPHeaderField(String("Content-Length"), String("200"));
   response5.setHTTPHeaderField(
-      WebString::fromUTF8("Content-type"),
-      WebString::fromUTF8(
-          "multipart/byteranges; boundary=\"--bound--\"; charSet=utf8"));
+      String("Content-type"),
+      String("multipart/byteranges; boundary=\"--bound--\"; charSet=utf8"));
 
   multipart_boundary.clear();
 
@@ -533,14 +482,12 @@ TEST(MultipartResponseTest, MultipartByteRangeParsingTest) {
 }
 
 TEST(MultipartResponseTest, MultipartContentRangesTest) {
-  WebURLResponse response1;
-  response1.initialize();
-  response1.setMIMEType(WebString::fromUTF8("application/pdf"));
-  response1.setHTTPHeaderField(WebString::fromUTF8("Content-Length"),
-                               WebString::fromUTF8("200"));
+  ResourceResponse response1(KURL(), "application/pdf", 0, "en-US",
+                            String());
+  response1.setHTTPHeaderField(String("Content-Length"), String("200"));
   response1.setHTTPHeaderField(
-      WebString::fromUTF8("Content-Range"),
-      WebString::fromUTF8("bytes 1000-1050/5000"));
+      String("Content-Range"),
+      String("bytes 1000-1050/5000"));
 
   int content_range_lower_bound = 0;
   int content_range_upper_bound = 0;
@@ -553,14 +500,12 @@ TEST(MultipartResponseTest, MultipartContentRangesTest) {
   EXPECT_EQ(content_range_lower_bound, 1000);
   EXPECT_EQ(content_range_upper_bound, 1050);
 
-  WebURLResponse response2;
-  response2.initialize();
-  response2.setMIMEType(WebString::fromUTF8("application/pdf"));
-  response2.setHTTPHeaderField(WebString::fromUTF8("Content-Length"),
-                               WebString::fromUTF8("200"));
+  ResourceResponse response2(KURL(), "application/pdf", 0, "en-US",
+                            String());
+  response2.setHTTPHeaderField(String("Content-Length"), String("200"));
   response2.setHTTPHeaderField(
-      WebString::fromUTF8("Content-Range"),
-      WebString::fromUTF8("bytes 1000/1050"));
+      String("Content-Range"),
+      String("bytes 1000/1050"));
 
   content_range_lower_bound = 0;
   content_range_upper_bound = 0;

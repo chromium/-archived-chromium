@@ -42,7 +42,6 @@ namespace WebKit {
     class WebString;
     class WebThemeEngine;
     class WebURL;
-    class WebURLLoader;
     struct WebPluginInfo;
     template <typename T> class WebVector;
 
@@ -81,9 +80,6 @@ namespace WebKit {
 
         // A suggestion to prefetch IP information for the given hostname.
         virtual void prefetchHostName(const WebString&) = 0;
-
-        // Returns a new WebURLLoader instance.
-        virtual WebURLLoader* createURLLoader() = 0;
 
 
         // Plugins -------------------------------------------------------------

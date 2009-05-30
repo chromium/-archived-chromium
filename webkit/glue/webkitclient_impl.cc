@@ -14,12 +14,10 @@
 #include "webkit/api/public/WebString.h"
 #include "webkit/glue/webkit_glue.h"
 #include "webkit/glue/webplugininfo.h"
-#include "webkit/glue/weburlloader_impl.h"
 
 using WebKit::WebData;
 using WebKit::WebPluginListBuilder;
 using WebKit::WebThemeEngine;
-using WebKit::WebURLLoader;
 
 namespace webkit_glue {
 
@@ -34,10 +32,6 @@ WebThemeEngine* WebKitClientImpl::themeEngine() {
 #else
   return NULL;
 #endif
-}
-
-WebURLLoader* WebKitClientImpl::createURLLoader() {
-  return new WebURLLoaderImpl();
 }
 
 void WebKitClientImpl::getPluginList(bool refresh,

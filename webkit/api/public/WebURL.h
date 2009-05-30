@@ -128,7 +128,7 @@ namespace WebKit {
 
         operator GURL() const
         {
-            return isNull() ? GURL() : GURL(m_spec.data(), m_spec.length(), m_parsed, m_isValid);
+            return GURL(m_spec.data(), m_spec.length(), m_parsed, m_isValid);
         }
 #endif
 

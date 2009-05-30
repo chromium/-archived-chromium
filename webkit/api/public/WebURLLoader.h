@@ -31,14 +31,16 @@
 #ifndef WebURLLoader_h
 #define WebURLLoader_h
 
+#error "This header file is still a work in progress; do not include!"
+
 #include "WebCommon.h"
 
 namespace WebKit {
-    class WebData;
+    class WebCString;
+    class WebURLError;
     class WebURLLoaderClient;
     class WebURLRequest;
     class WebURLResponse;
-    struct WebURLError;
 
     class WebURLLoader {
     public:
@@ -48,7 +50,7 @@ namespace WebKit {
         // caller upon completion.  There is no mechanism to interrupt a
         // synchronous load!!
         virtual void loadSynchronously(const WebURLRequest&,
-            WebURLResponse&, WebURLError&, WebData& data) = 0;
+            WebURLResponse&, WebURLError&, WebCString& data) = 0;
 
         // Load the request asynchronously, sending notifications to the given
         // client.  The client will receive no further notifications if the

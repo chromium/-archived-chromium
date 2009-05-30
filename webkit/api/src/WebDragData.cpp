@@ -53,7 +53,10 @@ void WebDragData::initialize()
 
 void WebDragData::reset()
 {
-    assign(0);
+    if (m_private) {
+        m_private->deref();
+        m_private = 0;
+    }
 }
 
 void WebDragData::assign(const WebDragData& other)
