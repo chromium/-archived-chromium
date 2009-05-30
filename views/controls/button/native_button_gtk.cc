@@ -69,6 +69,8 @@ void NativeButtonGtk::SetFocus() {
 }
 
 gfx::Size NativeButtonGtk::GetPreferredSize() {
+  if (!native_view())
+    return gfx::Size();
   GtkRequisition size_request = { 0, 0 };
   gtk_widget_size_request(native_view(), &size_request);
   return gfx::Size(size_request.width, size_request.height);

@@ -1704,6 +1704,8 @@
                 ['include', '^browser/views/download_item_view.h'],
                 ['include', '^browser/views/download_shelf_view.cc'],
                 ['include', '^browser/views/download_shelf_view.h'],
+                ['include', '^browser/views/dragged_tab_controller.cc'],
+                ['include', '^browser/views/dragged_tab_controller.h'],
                 ['include', '^browser/views/event_utils.cc'],
                 ['include', '^browser/views/event_utils.h'],
                 ['include', '^browser/views/find_bar_view.cc'],

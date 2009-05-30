@@ -74,6 +74,8 @@ void NativeViewHostGtk::NativeViewDetaching() {
 }
 
 void NativeViewHostGtk::AddedToWidget() {
+  if (!host_->native_view())
+    return;
   WidgetGtk* parent_widget = static_cast<WidgetGtk*>(host_->GetWidget());
   GtkWidget* widget_parent = gtk_widget_get_parent(host_->native_view());
   GtkWidget* parent_widget_widget = parent_widget->child_widget_parent();
@@ -112,7 +114,7 @@ void NativeViewHostGtk::InstallClip(int x, int y, int w, int h) {
     // widget in a GtkFixed with a window. We have to do this as not all widgets
     // support turning on GTK_NO_WINDOW (for example, buttons don't appear to
     // draw anything when they have a window).
-    NOTREACHED();
+    // NOTREACHED();
     return;
   }
   DCHECK(has_window);

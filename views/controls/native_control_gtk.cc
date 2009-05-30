@@ -32,13 +32,13 @@ void NativeControlGtk::SetEnabled(bool enabled) {
 
 void NativeControlGtk::ViewHierarchyChanged(bool is_add, View* parent,
                                             View* child) {
+  // Call the base class to hide the view if we're being removed.
+  NativeViewHost::ViewHierarchyChanged(is_add, parent, child);
+
   // Create the widget when we're added to a valid Widget. Many controls need a
   // parent widget to function properly.
   if (is_add && GetWidget() && !native_view())
     CreateNativeControl();
-
-  // Call the base class to hide the view if we're being removed.
-  NativeViewHost::ViewHierarchyChanged(is_add, parent, child);
 }
 
 void NativeControlGtk::VisibilityChanged(View* starting_from, bool is_visible) {
