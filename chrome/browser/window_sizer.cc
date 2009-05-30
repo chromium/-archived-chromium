@@ -111,6 +111,11 @@ void WindowSizer::GetBrowserWindowBounds(const std::wstring& app_name,
                                          Browser* browser,
                                          gfx::Rect* window_bounds,
                                          bool* maximized) {
+#if defined(TOOLKIT_VIEWS)
+  *window_bounds = gfx::Rect(20, 20, 500, 500);
+  *maximized = false;
+  return;  
+#endif
   const WindowSizer sizer(new DefaultStateProvider(app_name, browser),
                           CreateDefaultMonitorInfoProvider());
   sizer.DetermineWindowBounds(specified_bounds, window_bounds, maximized);
