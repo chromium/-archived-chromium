@@ -399,9 +399,7 @@ void BrowserWindowGtk::Close() {
   if (!CanClose())
     return;
 
-  // TODO(tc): We should store the window position, perhaps using
-  // gtk_window_set_role.
-  // SaveWindowPosition();
+  SaveWindowPosition();
 
   GtkWidget* window = GTK_WIDGET(window_);
   // To help catch bugs in any event handlers that might get fired during the
@@ -694,10 +692,12 @@ void BrowserWindowGtk::DestroyBrowser() {
 
 void BrowserWindowGtk::OnBoundsChanged(const gfx::Rect& bounds) {
   bounds_ = bounds;
+  SaveWindowPosition();
 }
 
 void BrowserWindowGtk::OnStateChanged(GdkWindowState state) {
   state_ = state;
+  SaveWindowPosition();
 }
 
 bool BrowserWindowGtk::CanClose() const {
@@ -751,8 +751,11 @@ void BrowserWindowGtk::SetGeometryHints() {
   else
     gtk_window_unmaximize(window_);
 
-  gfx::Rect rect = browser_->GetSavedWindowBounds();
-  SetBounds(rect);
+  gfx::Rect bounds = browser_->GetSavedWindowBounds();
+  // Note that calling SetBounds() here is incorrect, as that sets a forced
+  // position on the window and we intentionally *don't* do that.  We tested
+  // many programs and none of them restored their position on Linux.
+  gtk_window_resize(window_, bounds.width(), bounds.height());
 }
 
 void BrowserWindowGtk::SetWindowIcon() {
@@ -789,6 +792,31 @@ void BrowserWindowGtk::SetCustomFrame(bool custom_frame) {
   } else {
     gtk_container_set_border_width(GTK_CONTAINER(window_vbox_), 0);
   }
+}
+
+void BrowserWindowGtk::SaveWindowPosition() {
+  // Browser::SaveWindowPlacement is used for session restore.
+  if (browser_->ShouldSaveWindowPlacement())
+    browser_->SaveWindowPlacement(bounds_, IsMaximized());
+
+  // We also need to save the placement for startup.
+  // This is a web of calls between views and delegates on Windows, but the
+  // crux of the logic follows.  See also cocoa/browser_window_controller.mm.
+  if (!g_browser_process->local_state())
+    return;
+
+  std::wstring window_name = browser_->GetWindowPlacementKey();
+  DictionaryValue* window_preferences =
+      g_browser_process->local_state()->GetMutableDictionary(
+          window_name.c_str());
+  // Note that we store left/top for consistency with Windows, but that we
+  // *don't* obey them; we only use them for computing width/height.  See
+  // comments in SetGeometryHints().
+  window_preferences->SetInteger(L"left", bounds_.x());
+  window_preferences->SetInteger(L"top", bounds_.y());
+  window_preferences->SetInteger(L"right", bounds_.right());
+  window_preferences->SetInteger(L"bottom", bounds_.bottom());
+  window_preferences->SetBoolean(L"maximized", IsMaximized());
 }
 
 // static

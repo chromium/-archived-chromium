@@ -139,6 +139,9 @@ class BrowserWindowGtk : public BrowserWindow,
   // Triggers relayout of the content.
   void SetCustomFrame(bool custom_frame);
 
+  // Save the window position in the prefs.
+  void SaveWindowPosition();
+
   // Callback for when the "content area" vbox needs to be redrawn.
   // The content area includes the toolbar and web page but not the tab strip.
   // It has a soft gray border when we have a custom frame.

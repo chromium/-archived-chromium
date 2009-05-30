@@ -11,11 +11,6 @@
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
 
-// TODO(port): Port this to Linux.
-// This requires creating window_sizer_linux.cc, creating a subclass
-// of WindowSizer::MonitorInfoProvider, and providing implementations
-// of GetDefaultMonitorInfoProvider() and GetDefaultPopupOrigin().
-
 ///////////////////////////////////////////////////////////////////////////////
 // An implementation of WindowSizer::StateProvider that gets the last active
 // and persistent state from the browser window and the user's profile.
