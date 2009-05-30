@@ -111,7 +111,7 @@ void WindowSizer::GetBrowserWindowBounds(const std::wstring& app_name,
                                          Browser* browser,
                                          gfx::Rect* window_bounds,
                                          bool* maximized) {
-#if defined(TOOLKIT_VIEWS)
+#if !defined(OS_WIN) && defined(TOOLKIT_VIEWS)
   *window_bounds = gfx::Rect(20, 20, 500, 500);
   *maximized = false;
   return;  

@@ -621,7 +621,7 @@ BrowserWindowTesting* BrowserView::GetBrowserWindowTesting() {
 }
 
 StatusBubble* BrowserView::GetStatusBubble() {
-#if !defined(TOOLKIT_VIEWS)
+#if defined(OS_WIN)
   return status_bubble_.get();
 #else
   return NULL;
