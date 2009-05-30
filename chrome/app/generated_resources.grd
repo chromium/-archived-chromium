@@ -2985,16 +2985,16 @@ each locale. -->
         <ph name="PRODUCT_NAME">$1<ex>Google Chrome</ex></ph> Options
       </message>
       <message name="IDS_OPTIONS_GENERAL_TAB_LABEL" desc="The title of the General tab">
-        Basics
+        General
       </message>
-      <message name="IDS_OPTIONS_CONTENT_TAB_LABEL" desc="The title of the Tweaks tab">
-        Minor Tweaks
+      <message name="IDS_OPTIONS_CONTENT_TAB_LABEL" desc="The title of the User Data tab">
+        User Data
       </message>
       <message name="IDS_OPTIONS_USER_DATA_TAB_LABEL" desc="The title of the User Data tab">
         User Data
       </message>
       <message name="IDS_OPTIONS_ADVANCED_TAB_LABEL" desc="The title of the Advanced tab">
-        Under the Hood
+        Advanced
       </message>
       <message name="IDS_OPTIONS_LEARN_MORE_LABEL" desc="In the options dialog, we have links to the support web pages where the user can learn more about a feature.">
         Learn more
@@ -3063,7 +3063,7 @@ each locale. -->
       </message>
 
       <message name="IDS_OPTIONS_DOWNLOADLOCATION_GROUP_NAME" desc="The title of the download location group">
-        Download location:
+        Downloads
       </message>
       <message name="IDS_OPTIONS_DOWNLOADLOCATION_BROWSE_BUTTON" desc="The label of the 'Browse...' button">
         Br&amp;owse...
