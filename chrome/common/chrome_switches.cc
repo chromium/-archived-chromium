@@ -263,6 +263,9 @@ extern const wchar_t kDnsPrefetchDisable[]     = L"dns-prefetch-disable";
 // Enables support to debug printing subsystem.
 const wchar_t kDebugPrint[]                    = L"debug-print";
 
+// Prints the pages on the screen.
+const wchar_t kPrint[] = L"print";
+
 // Allow initialization of all activex controls. This is only to help website
 // developers test their controls to see if they are compatible in Chrome.
 // Note there's a duplicate value in activex_shared.cc (to avoid

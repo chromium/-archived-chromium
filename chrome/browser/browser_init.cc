@@ -424,6 +424,13 @@ bool BrowserInit::LaunchWithProfile::Launch(Profile* profile,
     RecordLaunchModeHistogram(LM_AS_WEBAPP);
   }
 
+  // Print the selected page if the command line switch exists. Note that the
+  // current selected tab would be the page which will be printed.
+  if (command_line_.HasSwitch(switches::kPrint)) {
+    Browser* browser = BrowserList::GetLastActive();
+    browser->Print();
+  }
+
   // If we're recording or playing back, startup the EventRecorder now
   // unless otherwise specified.
   if (!command_line_.HasSwitch(switches::kNoEvents)) {

@@ -84,6 +84,7 @@ extern const wchar_t kProxyAutoDetect[];
 extern const wchar_t kProxyPacUrl[];
 extern const wchar_t kWinHttpProxyResolver[];
 extern const wchar_t kDebugPrint[];
+extern const wchar_t kPrint[];
 
 extern const wchar_t kDnsLogDetails[];
 extern const wchar_t kDnsPrefetchDisable[];
