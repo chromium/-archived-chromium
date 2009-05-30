@@ -2,32 +2,64 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "config.h"
-#include <string>
+#include "webkit/glue/multipart_response_delegate.h"
 
-#include "base/compiler_specific.h"
-
-MSVC_PUSH_WARNING_LEVEL(0);
-#include "HTTPHeaderMap.h"
-#include "ResourceHandle.h"
-#include "ResourceHandleClient.h"
-#include "PlatformString.h"
-MSVC_POP_WARNING();
-
-#undef LOG
 #include "base/logging.h"
 #include "base/string_util.h"
-#include "webkit/glue/multipart_response_delegate.h"
-#include "webkit/glue/glue_util.h"
 #include "net/base/net_util.h"
+#include "webkit/api/public/WebHTTPHeaderVisitor.h"
+#include "webkit/api/public/WebString.h"
+#include "webkit/api/public/WebURL.h"
+#include "webkit/api/public/WebURLLoaderClient.h"
+#include "webkit/glue/glue_util.h"
+
+using WebKit::WebHTTPHeaderVisitor;
+using WebKit::WebString;
+using WebKit::WebURLLoader;
+using WebKit::WebURLLoaderClient;
+using WebKit::WebURLResponse;
+
+namespace webkit_glue {
+
+namespace {
+
+// The list of response headers that we do not copy from the original
+// response when generating a WebURLResponse for a MIME payload.
+const char* kReplaceHeaders[] = {
+  "content-type",
+  "content-length",
+  "content-disposition",
+  "content-range",
+  "range",
+  "set-cookie"
+};
+
+class HeaderCopier : public WebHTTPHeaderVisitor {
+ public:
+  HeaderCopier(WebURLResponse* response)
+      : response_(response) {
+  }
+  virtual void visitHeader(const WebString& name, const WebString& value) {
+    const std::string& name_utf8 = WebStringToStdString(name);
+    for (size_t i = 0; i < arraysize(kReplaceHeaders); ++i) {
+      if (LowerCaseEqualsASCII(name_utf8, kReplaceHeaders[i]))
+        return;
+    }
+    response_->setHTTPHeaderField(name, value);
+  }
+ private:
+  WebURLResponse* response_;
+};
+
+}  // namespace
 
 MultipartResponseDelegate::MultipartResponseDelegate(
-    WebCore::ResourceHandleClient* client,
-    WebCore::ResourceHandle* job,
-    const WebCore::ResourceResponse& response,
+    WebURLLoaderClient* client,
+    WebURLLoader* loader,
+    const WebURLResponse& response,
     const std::string& boundary)
     : client_(client),
-      job_(job),
+      loader_(loader),
       original_response_(response),
       boundary_("--"),
       first_received_data_(true),
@@ -41,7 +73,8 @@ MultipartResponseDelegate::MultipartResponseDelegate(
   }
 }
 
-void MultipartResponseDelegate::OnReceivedData(const char* data, int data_len) {
+void MultipartResponseDelegate::OnReceivedData(const char* data,
+                                               int data_len) {
   // stop_sending_ means that we've already received the final boundary token.
   // The server should stop sending us data at this point, but if it does, we
   // just throw it away.
@@ -49,8 +82,7 @@ void MultipartResponseDelegate::OnReceivedData(const char* data, int data_len) {
     return;
 
   // TODO(tc): Figure out what to use for length_received.  Maybe we can just
-  // pass the value on from our caller.  See note in
-  // resource_handle_win.cc:ResourceHandleInternal::OnReceivedData.
+  // pass the value on from our caller.
   int length_received = -1;
 
   data_.append(data, data_len);
@@ -98,8 +130,10 @@ void MultipartResponseDelegate::OnReceivedData(const char* data, int data_len) {
   while ((boundary_pos = FindBoundary()) != std::string::npos) {
     if (boundary_pos > 0) {
       // Send the last data chunk.
-      client_->didReceiveData(job_, data_.substr(0, boundary_pos).data(),
-                              static_cast<int>(boundary_pos), length_received);
+      client_->didReceiveData(loader_,
+                              data_.substr(0, boundary_pos).data(),
+                              static_cast<int>(boundary_pos),
+                              length_received);
     }
     size_t boundary_end_pos = boundary_pos + boundary_.length();
     if (boundary_end_pos < data_.length() && '-' == data_[boundary_end_pos]) {
@@ -128,12 +162,15 @@ void MultipartResponseDelegate::OnCompletedRequest() {
     // TODO(tc): Figure out what to use for length_received.  Maybe we can just
     // pass the value on from our caller.
     int length_received = -1;
-    client_->didReceiveData(job_, data_.data(),
-                            static_cast<int>(data_.length()), length_received);
+    client_->didReceiveData(loader_,
+                            data_.data(),
+                            static_cast<int>(data_.length()),
+                            length_received);
   }
 }
 
-int MultipartResponseDelegate::PushOverLine(const std::string& data, size_t pos) {
+int MultipartResponseDelegate::PushOverLine(const std::string& data,
+                                            size_t pos) {
   int offset = 0;
   if (pos < data.length() && (data[pos] == '\r' || data[pos] == '\n')) {
     ++offset;
@@ -175,47 +212,28 @@ bool MultipartResponseDelegate::ParseHeaders() {
   headers.append(data_.substr(0, line_end_pos));
   data_ = data_.substr(line_end_pos);
 
-  // Create a ResourceResponse based on the original set of headers + the
+  // Create a WebURLResponse based on the original set of headers + the
   // replacement headers.  We only replace the same few headers that gecko
   // does.  See netwerk/streamconv/converters/nsMultiMixedConv.cpp.
   std::string mime_type = net::GetSpecificHeader(headers, "content-type");
   std::string charset = net::GetHeaderParamValue(mime_type, "charset");
-  WebCore::ResourceResponse response(original_response_.url(),
-      webkit_glue::StdStringToString(mime_type.c_str()),
-      -1,
-      charset.c_str(),
-      WebCore::String());
-  const WebCore::HTTPHeaderMap& orig_headers =
-      original_response_.httpHeaderFields();
-  for (WebCore::HTTPHeaderMap::const_iterator it = orig_headers.begin();
-       it != orig_headers.end(); ++it) {
-    if (!(equalIgnoringCase("content-type", it->first) ||
-          equalIgnoringCase("content-length", it->first) ||
-          equalIgnoringCase("content-disposition", it->first) ||
-          equalIgnoringCase("content-range", it->first) ||
-          equalIgnoringCase("range", it->first) ||
-          equalIgnoringCase("set-cookie", it->first))) {
-      response.setHTTPHeaderField(it->first, it->second);
-    }
-  }
-  static const char* replace_headers[] = {
-    "Content-Type",
-    "Content-Length",
-    "Content-Disposition",
-    "Content-Range",
-    "Range",
-    "Set-Cookie"
-  };
-  for (size_t i = 0; i < arraysize(replace_headers); ++i) {
-    std::string name(replace_headers[i]);
+  WebURLResponse response(original_response_.url());
+  response.setMIMEType(StdStringToWebString(mime_type));
+  response.setTextEncodingName(StdStringToWebString(charset));
+
+  HeaderCopier copier(&response);
+  original_response_.visitHTTPHeaderFields(&copier);
+
+  for (size_t i = 0; i < arraysize(kReplaceHeaders); ++i) {
+    std::string name(kReplaceHeaders[i]);
     std::string value = net::GetSpecificHeader(headers, name);
     if (!value.empty()) {
-      response.setHTTPHeaderField(webkit_glue::StdStringToString(name.c_str()),
-          webkit_glue::StdStringToString(value.c_str()));
+      response.setHTTPHeaderField(StdStringToWebString(name),
+                                  StdStringToWebString(value));
     }
   }
   // Send the response!
-  client_->didReceiveResponse(job_, response);
+  client_->didReceiveResponse(loader_, response);
 
   return true;
 }
@@ -239,29 +257,27 @@ size_t MultipartResponseDelegate::FindBoundary() {
 }
 
 bool MultipartResponseDelegate::ReadMultipartBoundary(
-    const WebCore::ResourceResponse& response,
+    const WebURLResponse& response,
     std::string* multipart_boundary) {
-  WebCore::String content_type = response.httpHeaderField("Content-Type");
-  std::string content_type_as_string =
-      webkit_glue::StringToStdString(content_type);
+  std::string content_type = WebStringToStdString(
+      response.httpHeaderField(WebString::fromUTF8("Content-Type")));
 
-  size_t boundary_start_offset = content_type_as_string.find("boundary=");
+  size_t boundary_start_offset = content_type.find("boundary=");
   if (boundary_start_offset == std::wstring::npos) {
     return false;
   }
 
   boundary_start_offset += strlen("boundary=");
 
-  size_t boundary_end_offset =
-      content_type_as_string.find(';', boundary_start_offset);
+  size_t boundary_end_offset = content_type.find(';', boundary_start_offset);
 
   if (boundary_end_offset == std::string::npos)
-    boundary_end_offset = content_type_as_string.length();
+    boundary_end_offset = content_type.length();
 
   size_t boundary_length = boundary_end_offset - boundary_start_offset;
 
   *multipart_boundary =
-      content_type_as_string.substr(boundary_start_offset, boundary_length);
+      content_type.substr(boundary_start_offset, boundary_length);
   // The byte range response can have quoted boundary strings. This is legal
   // as per MIME specifications. Individual data fragements however don't
   // contain quoted boundary strings.
@@ -270,16 +286,14 @@ bool MultipartResponseDelegate::ReadMultipartBoundary(
 }
 
 bool MultipartResponseDelegate::ReadContentRanges(
-    const WebCore::ResourceResponse& response,
+    const WebURLResponse& response,
     int* content_range_lower_bound,
     int* content_range_upper_bound) {
 
-  std::string content_range =
-      webkit_glue::StringToStdString(
-          response.httpHeaderField("Content-Range"));
+  std::string content_range = WebStringToStdString(
+      response.httpHeaderField(WebString::fromUTF8("Content-Range")));
 
-  size_t byte_range_lower_bound_start_offset =
-      content_range.find(" ");
+  size_t byte_range_lower_bound_start_offset = content_range.find(" ");
   if (byte_range_lower_bound_start_offset == std::string::npos) {
     return false;
   }
@@ -321,3 +335,5 @@ bool MultipartResponseDelegate::ReadContentRanges(
     return false;
   return true;
 }
+
+}  // namespace webkit_glue

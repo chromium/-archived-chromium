@@ -21,6 +21,7 @@ class WebKitClientImpl : public WebKit::WebKitClient {
 
   // WebKitClient methods (partial implementation):
   virtual WebKit::WebThemeEngine* themeEngine();
+  virtual WebKit::WebURLLoader* createURLLoader();
   virtual void getPluginList(bool refresh, WebKit::WebPluginListBuilder*);
   virtual void decrementStatsCounter(const char* name);
   virtual void incrementStatsCounter(const char* name);
