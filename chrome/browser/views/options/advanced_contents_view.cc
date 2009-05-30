@@ -1,4 +1,4 @@
-// Copyright (c) 2009 The Chromium Authors. All rights reserved.
+// Copyright (c) 2006-2009 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
@@ -25,44 +25,28 @@
 #include "chrome/browser/metrics/metrics_service.h"
 #include "chrome/browser/net/dns_global.h"
 #include "chrome/browser/safe_browsing/safe_browsing_service.h"
-#include "chrome/browser/shell_dialogs.h"
 #include "chrome/browser/views/options/cookies_view.h"
-#include "chrome/browser/views/options/fonts_languages_window_view.h"
 #include "chrome/browser/views/options/language_combobox_model.h"
 #include "chrome/browser/views/restart_message_box.h"
 #include "chrome/common/filter_policy.h"
 #include "chrome/common/pref_member.h"
 #include "chrome/common/pref_names.h"
-#include "chrome/common/pref_service.h"
 #include "chrome/installer/util/google_update_settings.h"
-#include "grit/app_resources.h"
 #include "grit/chromium_strings.h"
 #include "grit/generated_resources.h"
 #include "grit/locale_settings.h"
 #include "net/base/ssl_config_service.h"
 #include "net/base/cookie_policy.h"
-#include "skia/ext/skia_utils_win.h"
-#include "third_party/skia/include/core/SkBitmap.h"
 #include "views/background.h"
 #include "views/controls/button/checkbox.h"
 #include "views/controls/combo_box.h"
 #include "views/controls/scroll_view.h"
-#include "views/controls/textfield/textfield.h"
 #include "views/grid_layout.h"
 #include "views/standard_layout.h"
 #include "views/widget/widget.h"
 
 using views::GridLayout;
 using views::ColumnSet;
-
-namespace {
-
-const int kFileIconSize = 16;
-const int kFileIconVerticalSpacing = 3;
-const int kFileIconHorizontalSpacing = 3;
-const int kFileIconTextFieldSpacing = 3;
-
-}
 
 namespace {
 
@@ -88,133 +72,6 @@ class ListBackground : public views::Background {
  private:
   DISALLOW_COPY_AND_ASSIGN(ListBackground);
 };
-
-
-
-////////////////////////////////////////////////////////////////////////////////
-// FileDisplayArea
-
-class FileDisplayArea : public views::View {
- public:
-  FileDisplayArea();
-  virtual ~FileDisplayArea();
-
-  void SetFile(const FilePath& file_path);
-
-  // views::View overrides:
-  virtual void Paint(gfx::Canvas* canvas);
-  virtual void Layout();
-  virtual gfx::Size GetPreferredSize();
-
- protected:
-  // views::View overrides:
-  virtual void ViewHierarchyChanged(bool is_add,
-                                    views::View* parent,
-                                    views::View* child);
-
- private:
-  void Init();
-
-  views::Textfield* text_field_;
-  SkColor text_field_background_color_;
-
-  gfx::Rect icon_bounds_;
-
-  bool initialized_;
-
-  static void InitClass();
-  static SkBitmap default_folder_icon_;
-
-  DISALLOW_EVIL_CONSTRUCTORS(FileDisplayArea);
-};
-
-// static
-SkBitmap FileDisplayArea::default_folder_icon_;
-
-FileDisplayArea::FileDisplayArea()
-    : text_field_(new views::Textfield),
-      text_field_background_color_(0),
-      initialized_(false) {
-  InitClass();
-}
-
-FileDisplayArea::~FileDisplayArea() {
-}
-
-void FileDisplayArea::SetFile(const FilePath& file_path) {
-  // Force file path to have LTR directionality.
-  if (l10n_util::GetTextDirection() == l10n_util::RIGHT_TO_LEFT) {
-    string16 localized_file_path;
-    l10n_util::WrapPathWithLTRFormatting(file_path, &localized_file_path);
-    text_field_->SetText(UTF16ToWide(localized_file_path));
-  } else {
-    text_field_->SetText(file_path.ToWStringHack());
-  }
-}
-
-void FileDisplayArea::Paint(gfx::Canvas* canvas) {
-  HDC dc = canvas->beginPlatformPaint();
-  RECT rect = { 0, 0, width(), height() };
-  gfx::NativeTheme::instance()->PaintTextField(
-      dc, EP_EDITTEXT, ETS_READONLY, 0, &rect,
-      skia::SkColorToCOLORREF(text_field_background_color_), true, true);
-  canvas->endPlatformPaint();
-  // Mirror left point for icon_bounds_ to draw icon in RTL locales correctly.
-  canvas->DrawBitmapInt(default_folder_icon_,
-                        MirroredLeftPointForRect(icon_bounds_),
-                        icon_bounds_.y());
-}
-
-void FileDisplayArea::Layout() {
-  icon_bounds_.SetRect(kFileIconHorizontalSpacing, kFileIconVerticalSpacing,
-                       kFileIconSize, kFileIconSize);
-  gfx::Size ps = text_field_->GetPreferredSize();
-  text_field_->SetBounds(icon_bounds_.right() + kFileIconTextFieldSpacing,
-                         (height() - ps.height()) / 2,
-                         width() - icon_bounds_.right() -
-                             kFileIconHorizontalSpacing -
-                             kFileIconTextFieldSpacing, ps.height());
-}
-
-gfx::Size FileDisplayArea::GetPreferredSize() {
-  return gfx::Size(kFileIconSize + 2 * kFileIconVerticalSpacing,
-                   kFileIconSize + 2 * kFileIconHorizontalSpacing);
-}
-
-void FileDisplayArea::ViewHierarchyChanged(bool is_add,
-                                           views::View* parent,
-                                           views::View* child) {
-  if (!initialized_ && is_add && GetWidget())
-    Init();
-}
-
-void FileDisplayArea::Init() {
-  initialized_ = true;
-  AddChildView(text_field_);
-  text_field_background_color_ =
-      gfx::NativeTheme::instance()->GetThemeColorWithDefault(
-          gfx::NativeTheme::TEXTFIELD, EP_EDITTEXT, ETS_READONLY,
-          TMT_FILLCOLOR, COLOR_3DFACE);
-  text_field_->SetReadOnly(true);
-  text_field_->RemoveBorder();
-  text_field_->SetBackgroundColor(text_field_background_color_);
-}
-
-// static
-void FileDisplayArea::InitClass() {
-  static bool initialized = false;
-  if (!initialized) {
-    // We'd prefer to use UILayoutIsRightToLeft() to perform the RTL
-    // environment check, but it's nonstatic, so, instead, we check whether the
-    // locale is RTL.
-    bool ui_is_rtl = l10n_util::GetTextDirection() == l10n_util::RIGHT_TO_LEFT;
-    ResourceBundle& rb = ResourceBundle::GetSharedInstance();
-    default_folder_icon_ = *rb.GetBitmapNamed(ui_is_rtl ?
-                                              IDR_FOLDER_CLOSED_RTL :
-                                              IDR_FOLDER_CLOSED);
-    initialized = true;
-  }
-}
 
 ////////////////////////////////////////////////////////////////////////////////
 // AdvancedSection
@@ -789,8 +646,6 @@ class WebContentSection : public AdvancedSection,
 
  private:
   // Controls for this section:
-  views::Label* fonts_and_languages_label_;
-  views::NativeButton* change_content_fonts_button_;
   views::Label* gears_label_;
   views::NativeButton* gears_settings_button_;
 
@@ -798,9 +653,7 @@ class WebContentSection : public AdvancedSection,
 };
 
 WebContentSection::WebContentSection(Profile* profile)
-    : fonts_and_languages_label_(NULL),
-      change_content_fonts_button_(NULL),
-      gears_label_(NULL),
+    : gears_label_(NULL),
       gears_settings_button_(NULL),
       AdvancedSection(profile,
           l10n_util::GetString(IDS_OPTIONS_ADVANCED_SECTION_TITLE_CONTENT)) {
@@ -810,11 +663,6 @@ void WebContentSection::ButtonPressed(views::Button* sender) {
   if (sender == gears_settings_button_) {
     UserMetricsRecordAction(L"Options_GearsSettings", NULL);
     GearsSettingsPressed(GetAncestor(GetWidget()->GetNativeView(), GA_ROOT));
-  } else if (sender == change_content_fonts_button_) {
-    views::Window::CreateChromeWindow(
-        GetWindow()->GetNativeWindow(),
-        gfx::Rect(),
-        new FontsLanguagesWindowView(profile()))->Show();
   }
 }
 
@@ -836,34 +684,15 @@ void WebContentSection::InitControlLayout() {
   gears_settings_button_ = new views::NativeButton(
       this,
       l10n_util::GetString(IDS_OPTIONS_GEARSSETTINGS_CONFIGUREGEARS_BUTTON));
-  fonts_and_languages_label_ = new views::Label(
-      l10n_util::GetString(IDS_OPTIONS_FONTSETTINGS_INFO));
-
-  change_content_fonts_button_ = new views::NativeButton(
-      this,
-      l10n_util::GetString(IDS_OPTIONS_FONTSETTINGS_CONFIGUREFONTS_BUTTON));
 
   GridLayout* layout = new GridLayout(contents_);
   contents_->SetLayoutManager(layout);
 
-  const int single_column_view_set_id = 0;
-  AddWrappingColumnSet(layout, single_column_view_set_id);
-  const int indented_column_set_id = 1;
-  AddIndentedColumnSet(layout, indented_column_set_id);
-  const int single_double_column_set = 2;
-  AddTwoColumnSet(layout, single_double_column_set);
+  const int col_id = 0;
+  AddTwoColumnSet(layout, col_id);
 
-  // Fonts and Languages.
-  AddWrappingLabelRow(layout, fonts_and_languages_label_,
-                      single_column_view_set_id,
-                      true);
-  AddLeadingControl(layout, change_content_fonts_button_,
-                    indented_column_set_id,
-                    false);
-
-  // Gears.
   AddTwoColumnRow(layout, gears_label_, gears_settings_button_, false,
-                  single_double_column_set, false);
+                  col_id, false);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -929,6 +758,8 @@ class SecuritySection : public AdvancedSection,
 
  private:
   // Controls for this section:
+  views::Label* reset_file_handlers_label_;
+  views::NativeButton* reset_file_handlers_button_;
   views::Label* ssl_info_label_;
   views::Checkbox* enable_ssl2_checkbox_;
   views::Checkbox* check_for_cert_revocation_checkbox_;
@@ -940,13 +771,16 @@ class SecuritySection : public AdvancedSection,
   // The contents of the mixed content combobox.
   scoped_ptr<MixedContentComboModel> mixed_content_model_;
 
+  StringPrefMember auto_open_files_;
   IntegerPrefMember filter_mixed_content_;
 
   DISALLOW_COPY_AND_ASSIGN(SecuritySection);
 };
 
 SecuritySection::SecuritySection(Profile* profile)
-    : ssl_info_label_(NULL),
+    : reset_file_handlers_label_(NULL),
+      reset_file_handlers_button_(NULL),
+      ssl_info_label_(NULL),
       enable_ssl2_checkbox_(NULL),
       check_for_cert_revocation_checkbox_(NULL),
       mixed_content_info_label_(NULL),
@@ -958,7 +792,11 @@ SecuritySection::SecuritySection(Profile* profile)
 }
 
 void SecuritySection::ButtonPressed(views::Button* sender) {
-  if (sender == enable_ssl2_checkbox_) {
+  if (sender == reset_file_handlers_button_) {
+    profile()->GetDownloadManager()->ResetAutoOpenFiles();
+    UserMetricsRecordAction(L"Options_ResetAutoOpenFiles",
+                            profile()->GetPrefs());
+  } else if (sender == enable_ssl2_checkbox_) {
     bool enabled = enable_ssl2_checkbox_->checked();
     if (enabled) {
       UserMetricsRecordAction(L"Options_SSL2_Enable", NULL);
@@ -1005,6 +843,10 @@ void SecuritySection::ItemChanged(views::ComboBox* sender,
 void SecuritySection::InitControlLayout() {
   AdvancedSection::InitControlLayout();
 
+  reset_file_handlers_label_ = new views::Label(
+    l10n_util::GetString(IDS_OPTIONS_AUTOOPENFILETYPES_INFO));
+  reset_file_handlers_button_ = new views::NativeButton(
+    this, l10n_util::GetString(IDS_OPTIONS_AUTOOPENFILETYPES_RESETTODEFAULT));
   ssl_info_label_ = new views::Label(
       l10n_util::GetString(IDS_OPTIONS_SSL_GROUP_DESCRIPTION));
   enable_ssl2_checkbox_ = new views::Checkbox(
@@ -1038,6 +880,12 @@ void SecuritySection::InitControlLayout() {
   const int indented_view_set_id = 4;
   AddIndentedColumnSet(layout, indented_view_set_id);
 
+  // File Handlers.
+  AddWrappingLabelRow(layout, reset_file_handlers_label_,
+                      single_column_view_set_id, true);
+  AddLeadingControl(layout, reset_file_handlers_button_, indented_view_set_id,
+                    false);
+
   // SSL connection controls and Certificates.
   AddWrappingLabelRow(layout, manage_certificates_label_,
                       single_column_view_set_id, true);
@@ -1057,12 +905,20 @@ void SecuritySection::InitControlLayout() {
                     indented_column_set_id, false);
 
   // Init member prefs so we can update the controls if prefs change.
+  auto_open_files_.Init(prefs::kDownloadExtensionsToOpen, profile()->GetPrefs(),
+                        this);
   filter_mixed_content_.Init(prefs::kMixedContentFiltering,
                              profile()->GetPrefs(), this);
 }
 
 // This method is called with a null pref_name when the dialog is initialized.
 void SecuritySection::NotifyPrefChanged(const std::wstring* pref_name) {
+  if (!pref_name || *pref_name == prefs::kDownloadExtensionsToOpen) {
+    bool enabled =
+        profile()->GetDownloadManager()->HasAutoOpenFileTypesRegistered();
+    reset_file_handlers_label_->SetEnabled(enabled);
+    reset_file_handlers_button_->SetEnabled(enabled);
+  }
   if (!pref_name || *pref_name == prefs::kMixedContentFiltering) {
     mixed_content_combobox_->SetSelectedItem(
         MixedContentComboModel::FilterPolicyToIndex(
@@ -1190,199 +1046,6 @@ void NetworkSection::NotifyPrefChanged(const std::wstring* pref_name) {
 }  // namespace
 
 ////////////////////////////////////////////////////////////////////////////////
-// DownloadSection
-
-class DownloadSection : public AdvancedSection,
-                        public views::ButtonListener,
-                        public SelectFileDialog::Listener {
- public:
-  explicit DownloadSection(Profile* profile);
-  virtual ~DownloadSection() {
-    select_file_dialog_->ListenerDestroyed();
-  }
-
-  // Overridden from views::ButtonListener.
-  virtual void ButtonPressed(views::Button* sender);
-
-  // SelectFileDialog::Listener implementation.
-  virtual void FileSelected(const FilePath& path, int index, void* params);
-
-  // OptionsPageView implementation.
-  virtual bool CanClose() const;
-
- protected:
-  // OptionsPageView overrides.
-  virtual void InitControlLayout();
-  virtual void NotifyPrefChanged(const std::wstring* pref_name);
-
- private:
-  // Controls for this section.
-  views::Label* download_file_location_label_;
-  FileDisplayArea* download_default_download_location_display_;
-  views::NativeButton* download_browse_button_;
-  views::Checkbox* download_ask_for_save_location_checkbox_;
-  scoped_refptr<SelectFileDialog> select_file_dialog_;
-  views::Label* reset_file_handlers_label_;
-  views::NativeButton* reset_file_handlers_button_;
-
-  // Pref members.
-  StringPrefMember default_download_location_;
-  BooleanPrefMember ask_for_save_location_;
-
-  // Updates the directory displayed in the default download location view with
-  // the current value of the pref.
-  void UpdateDownloadDirectoryDisplay();
-
-  StringPrefMember auto_open_files_;
-
-  DISALLOW_COPY_AND_ASSIGN(DownloadSection);
-};
-
-DownloadSection::DownloadSection(Profile* profile)
-    : download_file_location_label_(NULL),
-      download_default_download_location_display_(NULL),
-      download_browse_button_(NULL),
-      download_ask_for_save_location_checkbox_(NULL),
-      ALLOW_THIS_IN_INITIALIZER_LIST(
-          select_file_dialog_(SelectFileDialog::Create(this))),
-      reset_file_handlers_label_(NULL),
-      reset_file_handlers_button_(NULL),
-      AdvancedSection(profile,
-          l10n_util::GetString(IDS_OPTIONS_DOWNLOADLOCATION_GROUP_NAME)) {
-}
-
-void DownloadSection::ButtonPressed(views::Button* sender) {
-  if (sender == download_browse_button_) {
-    const std::wstring dialog_title =
-       l10n_util::GetString(IDS_OPTIONS_DOWNLOADLOCATION_BROWSE_TITLE);
-    select_file_dialog_->SelectFile(SelectFileDialog::SELECT_FOLDER,
-                                    dialog_title,
-                                    FilePath::FromWStringHack(
-                                        profile()->GetPrefs()->GetString(
-                                        prefs::kDownloadDefaultDirectory)),
-                                    NULL, 0, std::wstring(),
-                                    GetWindow()->GetNativeWindow(),
-                                    NULL);
-  } else if (sender == download_ask_for_save_location_checkbox_) {
-    bool enabled = download_ask_for_save_location_checkbox_->checked();
-    if (enabled) {
-      UserMetricsRecordAction(L"Options_AskForSaveLocation_Enable",
-                              profile()->GetPrefs());
-    } else {
-      UserMetricsRecordAction(L"Options_AskForSaveLocation_Disable",
-                              profile()->GetPrefs());
-    }
-    ask_for_save_location_.SetValue(enabled);
-  } else if (sender == reset_file_handlers_button_) {
-    profile()->GetDownloadManager()->ResetAutoOpenFiles();
-    UserMetricsRecordAction(L"Options_ResetAutoOpenFiles",
-                            profile()->GetPrefs());
-  }
-}
-
-void DownloadSection::FileSelected(const FilePath& path,
-                                   int index, void* params) {
-  UserMetricsRecordAction(L"Options_SetDownloadDirectory",
-                          profile()->GetPrefs());
-  default_download_location_.SetValue(path.ToWStringHack());
-  // We need to call this manually here since because we're setting the value
-  // through the pref member which avoids notifying the listener that set the
-  // value.
-  UpdateDownloadDirectoryDisplay();
-}
-
-bool DownloadSection::CanClose() const {
-  return !select_file_dialog_->IsRunning(GetWindow()->GetNativeWindow());
-}
-
-void DownloadSection::InitControlLayout() {
-  AdvancedSection::InitControlLayout();
-
-  // Layout the download components.
-  download_file_location_label_ = new views::Label(
-      l10n_util::GetString(IDS_OPTIONS_DOWNLOADLOCATION_BROWSE_TITLE));
-  download_default_download_location_display_ = new FileDisplayArea;
-  download_browse_button_ = new views::NativeButton(
-      this, l10n_util::GetString(IDS_OPTIONS_DOWNLOADLOCATION_BROWSE_BUTTON));
-
-  download_ask_for_save_location_checkbox_ = new views::Checkbox(
-      l10n_util::GetString(IDS_OPTIONS_DOWNLOADLOCATION_ASKFORSAVELOCATION));
-  download_ask_for_save_location_checkbox_->set_listener(this);
-  download_ask_for_save_location_checkbox_->SetMultiLine(true);
-  reset_file_handlers_label_ = new views::Label(
-      l10n_util::GetString(IDS_OPTIONS_AUTOOPENFILETYPES_INFO));
-  reset_file_handlers_button_ = new views::NativeButton(
-      this, l10n_util::GetString(IDS_OPTIONS_AUTOOPENFILETYPES_RESETTODEFAULT));
-
-  GridLayout* layout = new GridLayout(contents_);
-  contents_->SetLayoutManager(layout);
-
-  // Download location label.
-  const int single_column_view_set_id = 0;
-  AddWrappingColumnSet(layout, single_column_view_set_id);
-  AddWrappingLabelRow(layout, download_file_location_label_,
-      single_column_view_set_id, true);
-
-  // Download location control.
-  const int double_column_view_set_id = 1;
-  ColumnSet* column_set = layout->AddColumnSet(double_column_view_set_id);
-  column_set->AddColumn(GridLayout::FILL, GridLayout::CENTER, 1,
-                        GridLayout::USE_PREF, 0, 0);
-  column_set->AddPaddingColumn(0, kRelatedControlHorizontalSpacing);
-  column_set->AddColumn(GridLayout::LEADING, GridLayout::CENTER, 0,
-                        GridLayout::USE_PREF, 0, 0);
-  column_set->AddPaddingColumn(0, kUnrelatedControlHorizontalSpacing);
-  layout->StartRow(0, double_column_view_set_id);
-  layout->AddView(download_default_download_location_display_, 1, 1,
-                  GridLayout::FILL, GridLayout::CENTER);
-  layout->AddView(download_browse_button_);
-  AddSpacing(layout, true);
-
-  // Save location checkbox layout.
-  const int indented_view_set_id = 2;
-  AddIndentedColumnSet(layout, indented_view_set_id);
-  AddWrappingCheckboxRow(layout, download_ask_for_save_location_checkbox_,
-                         indented_view_set_id, false);
-
-  // Reset file handlers layout.
-  AddWrappingLabelRow(layout, reset_file_handlers_label_,
-                      single_column_view_set_id, true);
-  AddLeadingControl(layout, reset_file_handlers_button_,
-                    indented_view_set_id,
-                    false);
-
-  // Init member prefs so we can update the controls if prefs change.
-  default_download_location_.Init(prefs::kDownloadDefaultDirectory,
-                                  profile()->GetPrefs(), this);
-  ask_for_save_location_.Init(prefs::kPromptForDownload,
-                              profile()->GetPrefs(), this);
-  auto_open_files_.Init(prefs::kDownloadExtensionsToOpen, profile()->GetPrefs(),
-                        this);
-}
-
-void DownloadSection::NotifyPrefChanged(const std::wstring* pref_name) {
-  if (!pref_name || *pref_name == prefs::kDownloadDefaultDirectory)
-    UpdateDownloadDirectoryDisplay();
-
-  if (!pref_name || *pref_name == prefs::kPromptForDownload) {
-    download_ask_for_save_location_checkbox_->SetChecked(
-        ask_for_save_location_.GetValue());
-  }
-
-  if (!pref_name || *pref_name == prefs::kDownloadExtensionsToOpen) {
-    bool enabled =
-        profile()->GetDownloadManager()->HasAutoOpenFileTypesRegistered();
-    reset_file_handlers_label_->SetEnabled(enabled);
-    reset_file_handlers_button_->SetEnabled(enabled);
-  }
-}
-
-void DownloadSection::UpdateDownloadDirectoryDisplay() {
-  download_default_download_location_display_->SetFile(
-      FilePath::FromWStringHack(default_download_location_.GetValue()));
-}
-
-////////////////////////////////////////////////////////////////////////////////
 // AdvancedContentsView
 
 class AdvancedContentsView : public OptionsPageView {
@@ -1468,11 +1131,9 @@ void AdvancedContentsView::InitControlLayout() {
                         GridLayout::USE_PREF, 0, 0);
 
   layout->StartRow(0, single_column_view_set_id);
-  layout->AddView(new NetworkSection(profile()));
-  layout->StartRow(0, single_column_view_set_id);
   layout->AddView(new PrivacySection(profile()));
   layout->StartRow(0, single_column_view_set_id);
-  layout->AddView(new DownloadSection(profile()));
+  layout->AddView(new NetworkSection(profile()));
   layout->StartRow(0, single_column_view_set_id);
   layout->AddView(new WebContentSection(profile()));
   layout->StartRow(0, single_column_view_set_id);
