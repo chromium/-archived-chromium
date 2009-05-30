@@ -8,6 +8,7 @@
 
 #include "base/path_service.h"
 #include "base/file_util.h"
+#include "base/scoped_ptr.h"
 #include "base/string_util.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
@@ -27,15 +28,15 @@ class ImageInfoTest : public testing::Test {
   void TearDown() {
   }
 
-  void ExpectExecutable(courgette::PEInfo *info) const;
+  void ExpectExecutable(courgette::PEInfo* info) const;
 
-  std::string FileContents(const char *file_name) const;
+  std::string FileContents(const char* file_name) const;
 
   std::wstring test_dir_;
 };
 
 //  Reads a test file into a string.
-std::string ImageInfoTest::FileContents(const char *file_name) const {
+std::string ImageInfoTest::FileContents(const char* file_name) const {
   std::wstring file_path = test_dir_;
   file_util::AppendToPath(&file_path, UTF8ToWide(file_name));
   std::string file_bytes;
@@ -45,7 +46,7 @@ std::string ImageInfoTest::FileContents(const char *file_name) const {
   return file_bytes;
 }
 
-void ImageInfoTest::ExpectExecutable(courgette::PEInfo *info) const {
+void ImageInfoTest::ExpectExecutable(courgette::PEInfo* info) const {
   EXPECT_TRUE(info->ok());
   EXPECT_TRUE(info->has_text_section());
 }
@@ -53,7 +54,7 @@ void ImageInfoTest::ExpectExecutable(courgette::PEInfo *info) const {
 void ImageInfoTest::TestExe() const {
   std::string file1 = FileContents("setup1.exe");
 
-  courgette::PEInfo *info = new courgette::PEInfo();
+  scoped_ptr<courgette::PEInfo> info(new courgette::PEInfo());
   info->Init(reinterpret_cast<const uint8*>(file1.c_str()), file1.length());
 
   bool can_parse_header = info->ParseHeader();
@@ -62,7 +63,7 @@ void ImageInfoTest::TestExe() const {
   // The executable is the whole file, not 'embedded' with the file
   EXPECT_EQ(file1.length(), info->length());
 
-  ExpectExecutable(info);
+  ExpectExecutable(info.get());
   EXPECT_EQ(449536, info->size_of_code());
   EXPECT_EQ(SectionName(info->RVAToSection(0x00401234 - 0x00400000)),
             std::string(".text"));
@@ -85,7 +86,7 @@ void ImageInfoTest::TestExe() const {
 void ImageInfoTest::TestResourceDll() const {
   std::string file1 = FileContents("en-US.dll");
 
-  courgette::PEInfo *info = new courgette::PEInfo();
+  scoped_ptr<courgette::PEInfo> info(new courgette::PEInfo());
   info->Init(reinterpret_cast<const uint8*>(file1.c_str()), file1.length());
 
   bool can_parse_header = info->ParseHeader();

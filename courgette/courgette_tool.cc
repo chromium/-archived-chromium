@@ -207,7 +207,7 @@ void DisassembleAdjustDiff(const std::wstring& model_file,
     courgette::WriteEncodedProgram(encoded_model, &model_sinks);
   if (write_model_status != courgette::C_OK)
     Problem("Can't serialize encoded model.");
-  courgette::DeleteEncodedProgram(encoded_program);
+  courgette::DeleteEncodedProgram(encoded_model);
 
   for (int i = 0;  ; ++i) {
     courgette::SinkStream* old_stream = model_sinks.stream(i);
