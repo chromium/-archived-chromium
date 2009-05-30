@@ -31,7 +31,6 @@ class ExtensionProcessManager;
 class ExtensionsService;
 class HistoryService;
 class NavigationController;
-class PasswordStore;
 class PrefService;
 class SessionService;
 class SpellChecker;
@@ -157,9 +156,6 @@ class Profile {
   // |access| defines what the caller plans to do with the service. See
   // the ServiceAccessType definition above.
   virtual WebDataService* GetWebDataService(ServiceAccessType access) = 0;
-
-  // Returns the PasswordStore for this profile. This is owned by the Profile.
-  virtual PasswordStore* GetPasswordStore(ServiceAccessType access) = 0;
 
   // Retrieves a pointer to the PrefService that manages the preferences
   // for this user profile.  The PrefService is lazily created the first
@@ -318,7 +314,6 @@ class ProfileImpl : public Profile,
   virtual ExtensionProcessManager* GetExtensionProcessManager();
   virtual HistoryService* GetHistoryService(ServiceAccessType sat);
   virtual WebDataService* GetWebDataService(ServiceAccessType sat);
-  virtual PasswordStore* GetPasswordStore(ServiceAccessType sat);
   virtual PrefService* GetPrefs();
   virtual TemplateURLModel* GetTemplateURLModel();
   virtual TemplateURLFetcher* GetTemplateURLFetcher();
@@ -364,8 +359,6 @@ class ProfileImpl : public Profile,
   void CreateWebDataService();
   FilePath GetPrefFilePath();
 
-  void CreatePasswordStore();
-
   void StopCreateSessionServiceTimer();
 
   void EnsureSessionServiceCreated() {
@@ -408,12 +401,10 @@ class ProfileImpl : public Profile,
   scoped_refptr<DownloadManager> download_manager_;
   scoped_refptr<HistoryService> history_service_;
   scoped_refptr<WebDataService> web_data_service_;
-  scoped_refptr<PasswordStore> password_store_;
   scoped_refptr<SessionService> session_service_;
   scoped_refptr<BrowserThemeProvider> theme_provider_;
   bool history_service_created_;
   bool created_web_data_service_;
-  bool created_password_store_;
   bool created_download_manager_;
   bool created_theme_provider_;
   // Whether or not the last session exited cleanly. This is set only once.

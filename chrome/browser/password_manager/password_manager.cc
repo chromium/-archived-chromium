@@ -8,7 +8,6 @@
 #include "app/resource_bundle.h"
 #include "base/stl_util-inl.h"
 #include "base/string_util.h"
-#include "chrome/browser/password_manager/password_form_manager.h"
 #include "chrome/browser/profile.h"
 #include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/common/notification_registrar.h"
@@ -235,9 +234,8 @@ void PasswordManager::Autofill(
       return;
     }
     default:
-      if (observer_) {
+      if (observer_)
         observer_->OnAutofillDataAvailable(preferred_match->username_value,
                                            preferred_match->password_value);
-      }
   }
 }

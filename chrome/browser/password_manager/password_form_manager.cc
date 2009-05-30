@@ -21,7 +21,7 @@ PasswordFormManager::PasswordFormManager(Profile* profile,
       observed_form_(observed_form),
       is_new_login_(true),
       password_manager_(password_manager),
-      pending_login_query_(0),
+      pending_login_query_(NULL),
       preferred_match_(NULL),
       state_(PRE_MATCHING_PHASE),
       profile_(profile) {
@@ -168,21 +168,25 @@ void PasswordFormManager::FetchMatchingLoginsFromWebDatabase() {
   DCHECK_EQ(state_, PRE_MATCHING_PHASE);
   DCHECK(!pending_login_query_);
   state_ = MATCHING_PHASE;
-  PasswordStore* password_store =
-      profile_->GetPasswordStore(Profile::EXPLICIT_ACCESS);
-  if (!password_store) {
+  WebDataService* web_data_service =
+      profile_->GetWebDataService(Profile::EXPLICIT_ACCESS);
+  if (!web_data_service) {
     NOTREACHED();
     return;
   }
-  pending_login_query_ = password_store->GetLogins(observed_form_, this);
+  pending_login_query_ = web_data_service->GetLogins(observed_form_, this);
 }
 
 bool PasswordFormManager::HasCompletedMatching() {
   return state_ == POST_MATCHING_PHASE;
 }
 
-void PasswordFormManager::OnRequestDone(int handle,
-    const std::vector<PasswordForm*>& logins_result) {
+void PasswordFormManager::OnRequestDone(WebDataService::Handle h,
+    const WDTypedResult* result) {
+  // Get the result from the database into a usable form.
+  const WDResult<std::vector<PasswordForm*> >* r =
+      static_cast<const WDResult<std::vector<PasswordForm*> >*>(result);
+  std::vector<PasswordForm*> logins_result = r->GetValue();
   // Note that the result gets deleted after this call completes, but we own
   // the PasswordForm objects pointed to by the result vector, thus we keep
   // copies to a minimum here.
@@ -235,6 +239,14 @@ void PasswordFormManager::OnRequestDone(int handle,
   // We're done matching now.
   state_ = POST_MATCHING_PHASE;
 
+  if (best_score <= 0) {
+#if defined(OS_WIN)
+    state_ = PRE_MATCHING_PHASE;
+    FetchMatchingIE7LoginFromWebDatabase();
+#endif
+    return;
+  }
+
   for (std::vector<PasswordForm>::const_iterator it = empties.begin();
        it != empties.end(); ++it) {
     // If we don't already have a result with the same username, add the
@@ -260,17 +272,30 @@ void PasswordFormManager::OnRequestDone(int handle,
   }
 }
 
-void PasswordFormManager::OnPasswordStoreRequestDone(
-    int handle, const std::vector<PasswordForm*>& result) {
+void PasswordFormManager::OnWebDataServiceRequestDone(WebDataService::Handle h,
+    const WDTypedResult* result) {
   DCHECK_EQ(state_, MATCHING_PHASE);
-  DCHECK_EQ(pending_login_query_, handle);
+  DCHECK_EQ(pending_login_query_, h);
+  DCHECK(result);
+  pending_login_query_ = NULL;
 
-  if (result.empty()) {
-    state_ = POST_MATCHING_PHASE;
+  if (!result)
     return;
-  }
 
-  OnRequestDone(handle, result);
+  switch (result->GetType()) {
+    case PASSWORD_RESULT: {
+      OnRequestDone(h, result);
+      break;
+    }
+#if defined(OS_WIN)
+    case PASSWORD_IE7_RESULT: {
+      OnIE7RequestDone(h, result);
+      break;
+    }
+#endif
+    default:
+      NOTREACHED();
+  }
 }
 
 bool PasswordFormManager::IgnoreResult(const PasswordForm& form) const {
@@ -297,15 +322,14 @@ void PasswordFormManager::SaveAsNewLogin() {
 
   DCHECK(!profile_->IsOffTheRecord());
 
-  PasswordStore* password_store =
-      profile_->GetPasswordStore(Profile::IMPLICIT_ACCESS);
-  if (!password_store) {
+  WebDataService* web_data_service =
+      profile_->GetWebDataService(Profile::IMPLICIT_ACCESS);
+  if (!web_data_service) {
     NOTREACHED();
     return;
   }
-
   pending_credentials_.date_created = Time::Now();
-  password_store->AddLogin(pending_credentials_);
+  web_data_service->AddLogin(pending_credentials_);
 }
 
 void PasswordFormManager::UpdateLogin() {
@@ -317,9 +341,9 @@ void PasswordFormManager::UpdateLogin() {
   DCHECK(!IsNewLogin() && pending_credentials_.preferred);
   DCHECK(!profile_->IsOffTheRecord());
 
-  PasswordStore* password_store =
-      profile_->GetPasswordStore(Profile::IMPLICIT_ACCESS);
-  if (!password_store) {
+  WebDataService* web_data_service =
+      profile_->GetWebDataService(Profile::IMPLICIT_ACCESS);
+  if (!web_data_service) {
     NOTREACHED();
     return;
   }
@@ -331,7 +355,7 @@ void PasswordFormManager::UpdateLogin() {
          iter->second->preferred) {
       // This wasn't the selected login but it used to be preferred.
       iter->second->preferred = false;
-      password_store->UpdateLogin(*iter->second);
+      web_data_service->UpdateLogin(*iter->second);
     }
   }
   // Update the new preferred login.
@@ -356,20 +380,23 @@ void PasswordFormManager::UpdateLogin() {
     PasswordForm copy(pending_credentials_);
     copy.origin = observed_form_.origin;
     copy.action = observed_form_.action;
-    password_store->AddLogin(copy);
+    web_data_service->AddLogin(copy);
   } else {
-    password_store->UpdateLogin(pending_credentials_);
+    web_data_service->UpdateLogin(pending_credentials_);
   }
 }
 
 void PasswordFormManager::CancelLoginsQuery() {
-  PasswordStore* password_store =
-      profile_->GetPasswordStore(Profile::IMPLICIT_ACCESS);
-  if (!password_store) {
-    // Can be NULL in unit tests.
+  if (!pending_login_query_)
+    return;
+  WebDataService* web_data_service =
+      profile_->GetWebDataService(Profile::EXPLICIT_ACCESS);
+  if (!web_data_service) {
+    NOTREACHED();
     return;
   }
-  password_store->CancelLoginsQuery(pending_login_query_);
+  web_data_service->CancelRequest(pending_login_query_);
+  pending_login_query_ = NULL;
 }
 
 int PasswordFormManager::ScoreResult(const PasswordForm& candidate) const {

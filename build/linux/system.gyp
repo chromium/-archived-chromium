@@ -140,42 +140,5 @@
         ],
       },
     },
-# TODO(evanm): temporarily disabled while we figure out whether to depend
-# on gnome-keyring etc.
-# http://code.google.com/p/chromium/issues/detail?id=12351
-#     {
-#       'target_name': 'gnome-keyring',
-#       'type': 'settings',
-#       'direct_dependent_settings': {
-#         'cflags': [
-#           '<!@(pkg-config --cflags gnome-keyring-1)',
-#         ],
-#       },
-#       'link_settings': {
-#         'ldflags': [
-#           '<!@(pkg-config --libs-only-L --libs-only-other gnome-keyring-1)',
-#         ],
-#         'libraries': [
-#           '<!@(pkg-config --libs-only-l gnome-keyring-1)',
-#         ],
-#       },
-#     },
-#     {
-#       'target_name': 'dbus-glib',
-#       'type': 'settings',
-#       'direct_dependent_settings': {
-#         'cflags': [
-#           '<!@(pkg-config --cflags dbus-glib-1)',
-#         ],
-#       },
-#       'link_settings': {
-#         'ldflags': [
-#           '<!@(pkg-config --libs-only-L --libs-only-other dbus-glib-1)',
-#         ],
-#         'libraries': [
-#           '<!@(pkg-config --libs-only-l dbus-glib-1)',
-#         ],
-#       },
-#     },
   ],
 }

@@ -19,7 +19,6 @@
 #include "chrome/browser/extensions/user_script_master.h"
 #include "chrome/browser/history/history.h"
 #include "chrome/browser/net/chrome_url_request_context.h"
-#include "chrome/browser/password_manager/password_store_default.h"
 #include "chrome/browser/profile_manager.h"
 #include "chrome/browser/renderer_host/render_process_host.h"
 #include "chrome/browser/search_engines/template_url_fetcher.h"
@@ -89,14 +88,6 @@ URLRequestContext* Profile::GetDefaultRequestContext() {
   return default_request_context_;
 }
 
-#if defined(OS_LINUX)
-// Temporarily disabled while we figure some stuff out.
-// http://code.google.com/p/chromium/issues/detail?id=12351
-// #include "chrome/browser/password_manager/password_store_gnome.h"
-// #include "chrome/browser/password_manager/password_store_kwallet.h"
-#elif defined(OS_WIN)
-#include "chrome/browser/password_manager/password_store_win.h"
-#endif
 
 ////////////////////////////////////////////////////////////////////////////////
 //
@@ -192,15 +183,6 @@ class OffTheRecordProfileImpl : public Profile,
   virtual WebDataService* GetWebDataService(ServiceAccessType sat) {
     if (sat == EXPLICIT_ACCESS) {
       return profile_->GetWebDataService(sat);
-    } else {
-      NOTREACHED() << "This profile is OffTheRecord";
-      return NULL;
-    }
-  }
-
-  virtual PasswordStore* GetPasswordStore(ServiceAccessType sat) {
-    if (sat == EXPLICIT_ACCESS) {
-      return profile_->GetPasswordStore(sat);
     } else {
       NOTREACHED() << "This profile is OffTheRecord";
       return NULL;
@@ -407,7 +389,6 @@ ProfileImpl::ProfileImpl(const FilePath& path)
       extensions_request_context_(NULL),
       history_service_created_(false),
       created_web_data_service_(false),
-      created_password_store_(false),
       created_download_manager_(false),
       created_theme_provider_(false),
       start_time_(Time::Now()),
@@ -779,41 +760,6 @@ void ProfileImpl::CreateWebDataService() {
   if (!wds->Init(GetPath()))
     return;
   web_data_service_.swap(wds);
-}
-
-PasswordStore* ProfileImpl::GetPasswordStore(ServiceAccessType sat) {
-  if (!created_password_store_)
-    CreatePasswordStore();
-  return password_store_.get();
-}
-
-void ProfileImpl::CreatePasswordStore() {
-  DCHECK(!created_password_store_ && password_store_.get() == NULL);
-  created_password_store_ = true;
-  scoped_refptr<PasswordStore> ps;
-#if defined(OS_LINUX)
-// Temporarily disabled while we figure some stuff out.
-// http://code.google.com/p/chromium/issues/detail?id=12351
-// if (getenv("KDE_FULL_SESSION")) {
-//   ps = new PasswordStoreKWallet();
-// } else {
-//   ps = new PasswordStoreGnome();
-// }
-  NOTIMPLEMENTED();
-#elif defined(OS_WIN)
-  ps = new PasswordStoreWin(GetWebDataService(Profile::IMPLICIT_ACCESS));
-#else
-  NOTIMPLEMENTED();
-#endif
-  if (!ps || !ps->Init()) {
-    // Try falling back to the default password manager
-    LOG(WARNING) << "Could not initialise native password manager - "
-                    "falling back to default";
-    ps = new PasswordStoreDefault(GetWebDataService(Profile::IMPLICIT_ACCESS));
-    if (!ps->Init())
-      return;
-  }
-  password_store_.swap(ps);
 }
 
 DownloadManager* ProfileImpl::GetDownloadManager() {
