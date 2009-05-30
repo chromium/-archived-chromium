@@ -23,6 +23,7 @@
 #include "build/build_config.h"
 #include "chrome/common/bindings_policy.h"
 #include "chrome/common/chrome_switches.h"
+#include "chrome/common/chrome_constants.h"
 #include "chrome/common/jstemplate_builder.h"
 #include "chrome/common/page_zoom.h"
 #include "chrome/common/render_messages.h"
@@ -1124,8 +1125,13 @@ void RenderView::UpdateURL(WebFrame* frame) {
 // Tell the embedding application that the title of the active page has changed
 void RenderView::UpdateTitle(WebFrame* frame, const std::wstring& title) {
   // Ignore all but top level navigations...
-  if (webview()->GetMainFrame() == frame)
-    Send(new ViewHostMsg_UpdateTitle(routing_id_, page_id_, title));
+  if (webview()->GetMainFrame() == frame) {
+    Send(new ViewHostMsg_UpdateTitle(
+             routing_id_,
+             page_id_,
+             title.length() > chrome::kMaxTitleChars ?
+                 title.substr(0, chrome::kMaxTitleChars) : title));
+  }
 }
 
 void RenderView::UpdateEncoding(WebFrame* frame,

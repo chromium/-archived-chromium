@@ -48,6 +48,10 @@ extern const unsigned int kMaxRendererProcessCount;
 extern const int kStatsMaxThreads;
 extern const int kStatsMaxCounters;
 
+// The maximum number of characters of the document's title that we're willing
+// to send to the browser process.
+extern const size_t kMaxTitleChars;
+
 extern const bool kRecordModeEnabled;
 
 }  // namespace chrome

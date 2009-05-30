@@ -34,6 +34,7 @@
 #include "chrome/common/render_messages.h"
 #include "chrome/common/result_codes.h"
 #include "chrome/common/chrome_switches.h"
+#include "chrome/common/chrome_constants.h"
 #include "chrome/common/thumbnail_score.h"
 #include "chrome/common/url_constants.h"
 #include "net/base/net_util.h"
@@ -952,6 +953,10 @@ void RenderViewHost::OnMsgUpdateState(int32 page_id,
 
 void RenderViewHost::OnMsgUpdateTitle(int32 page_id,
                                       const std::wstring& title) {
+  if (title.length() > chrome::kMaxTitleChars) {
+    NOTREACHED() << "Renderer sent too many characters in title.";
+    return;
+  }
   delegate_->UpdateTitle(this, page_id, title);
 }
 

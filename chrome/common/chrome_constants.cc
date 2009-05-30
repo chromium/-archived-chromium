@@ -82,6 +82,8 @@ const unsigned int kMaxRendererProcessCount = 42;
 const int kStatsMaxThreads = 32;
 const int kStatsMaxCounters = 300;
 
+const size_t kMaxTitleChars = 4 * 1024;
+
 // We don't enable record mode in the released product because users could
 // potentially be tricked into running a product in record mode without
 // knowing it.  Enable in debug builds.  Playback mode is allowed always,
