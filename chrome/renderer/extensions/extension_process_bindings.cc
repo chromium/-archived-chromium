@@ -25,7 +25,6 @@ const char kExtensionName[] = "chrome/ExtensionProcessBindings";
 const char* kExtensionDeps[] = {
   BaseJsV8Extension::kName,
   EventBindings::kName,
-  JsonJsV8Extension::kName,
   JsonSchemaJsV8Extension::kName,
   RendererExtensionBindings::kName,
 };

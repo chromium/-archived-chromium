@@ -4673,7 +4673,6 @@
             'glue/devtools/js/inject.js',
             'glue/devtools/js/inspector_controller.js',
             'glue/devtools/js/inspector_controller_impl.js',
-            'glue/devtools/js/json.js',
             'glue/devtools/js/profiler_processor.js',
             'inspector/debugger.css',
             'inspector/debugger.html',

@@ -35,7 +35,7 @@ var chrome = chrome || {};
   chrome.Event.dispatchJSON_ = function(name, args) {
     if (chrome.Event.attached_[name]) {
       if (args) {
-        args = goog.json.parse(args);
+        args = JSON.parse(args);
       }
       chrome.Event.attached_[name].dispatch.apply(
           chrome.Event.attached_[name], args);

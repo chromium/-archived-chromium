@@ -16,12 +16,6 @@ class BaseJsV8Extension {
   static v8::Extension* Get();
 };
 
-class JsonJsV8Extension {
- public:
-  static const char* kName;
-  static v8::Extension* Get();
-};
-
 class JsonSchemaJsV8Extension {
  public:
   static const char* kName;

@@ -68,7 +68,6 @@ void RenderViewTest::SetUp() {
 
   WebKit::initialize(&webkitclient_);
   WebKit::registerExtension(BaseJsV8Extension::Get());
-  WebKit::registerExtension(JsonJsV8Extension::Get());
   WebKit::registerExtension(JsonSchemaJsV8Extension::Get());
   WebKit::registerExtension(EventBindings::Get());
   WebKit::registerExtension(ExtensionProcessBindings::Get());

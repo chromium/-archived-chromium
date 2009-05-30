@@ -15,16 +15,6 @@ v8::Extension* BaseJsV8Extension::Get() {
                            0, NULL);
 }
 
-// JsonJsV8Extension
-const char* JsonJsV8Extension::kName = "chrome/json";
-v8::Extension* JsonJsV8Extension::Get() {
-  static const char* deps[] = {
-    BaseJsV8Extension::kName
-  };
-  return new v8::Extension(kName, GetStringResource<IDR_DEVTOOLS_JSON_JS>(),
-                           arraysize(deps), deps);
-}
-
 // JsonSchemaJsV8Extension
 const char* JsonSchemaJsV8Extension::kName = "chrome/jsonschema";
 v8::Extension* JsonSchemaJsV8Extension::Get() {

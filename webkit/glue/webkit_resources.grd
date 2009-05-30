@@ -19,7 +19,6 @@
       <include name="IDR_SEARCH_MAGNIFIER_RESULTS" file="resources\search_magnifier_results.png" type="BINDATA" />
       <include name="IDR_TEXTAREA_RESIZER" file="resources\textarea_resize_corner.png" type="BINDATA" />
       <include name="IDR_DEVTOOLS_BASE_JS" file="devtools\js\base.js" type="BINDATA" />
-      <include name="IDR_DEVTOOLS_JSON_JS" file="devtools\js\json.js" type="BINDATA" />
       <include name="IDR_DEVTOOLS_INJECT_DISPATCH_JS" file="devtools\js\inject_dispatch.js" type="BINDATA" />
       <include name="IDR_DEVTOOLS_INJECT_JS" file="devtools\js\inject.js" type="BINDATA" />
       <include name="IDR_MEDIA_PLAY_BUTTON" file="resources\media_play.png" type="BINDATA" />

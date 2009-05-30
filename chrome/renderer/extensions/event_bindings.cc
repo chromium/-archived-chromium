@@ -41,8 +41,6 @@ int EventDecrementListenerCount(const std::string& event_name) {
   return --(data->listener_count[event_name]);
 }
 
-
-const char* kExtensionDeps[] = { JsonJsV8Extension::kName };
 const char* kContextAttachCount = "chromium.attachCount";
 
 class ExtensionImpl : public v8::Extension {
@@ -50,7 +48,7 @@ class ExtensionImpl : public v8::Extension {
   ExtensionImpl()
       : v8::Extension(EventBindings::kName,
                       GetStringResource<IDR_EVENT_BINDINGS_JS>(),
-                      arraysize(kExtensionDeps), kExtensionDeps) {
+                      0, NULL) {
   }
   ~ExtensionImpl() {}
 

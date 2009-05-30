@@ -71,7 +71,7 @@ TEST_F(ExtensionAPIClientTest, CallbackDispatching) {
     "}"
     "function callback(result) {"
     "  assert(typeof result == 'object', 'result not object');"
-    "  assert(goog.json.serialize(result) == '{\"foo\":\"bar\"}', "
+    "  assert(JSON.stringify(result) == '{\"foo\":\"bar\"}', "
     "         'incorrect result');"
     "  console.log('pass')"
     "}"

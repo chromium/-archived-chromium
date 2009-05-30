@@ -86,7 +86,7 @@ var chrome;
       
       if (callbacks[requestId]) {
         if (response) {
-          callbacks[requestId](goog.json.parse(response));
+          callbacks[requestId](JSON.parse(response));
         } else {
           callbacks[requestId]();
         }
@@ -98,7 +98,10 @@ var chrome;
 
   // Send an API request and optionally register a callback.
   function sendRequest(request, args, callback) {
-    var sargs = goog.json.serialize(args);
+    // JSON.stringify doesn't support a root object which is undefined.
+    if (args === undefined)
+      args = null;
+    var sargs = JSON.stringify(args);
     var requestId = GetNextRequestId();
     var hasCallback = false;
     if (callback) {

@@ -345,7 +345,6 @@ void RenderThread::EnsureWebKitInitialized() {
   // only so that we don't have to gate these on --enable-extensions.
   if (command_line.HasSwitch(switches::kEnableExtensions)) {
     WebKit::registerExtension(BaseJsV8Extension::Get());
-    WebKit::registerExtension(JsonJsV8Extension::Get());
     WebKit::registerExtension(JsonSchemaJsV8Extension::Get());
     WebKit::registerExtension(EventBindings::Get());
     WebKit::registerExtension(RendererExtensionBindings::Get());

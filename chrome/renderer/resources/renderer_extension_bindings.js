@@ -33,7 +33,7 @@ var chrome = chrome || {};
   chrome.Port.dispatchOnConnect_ = function(portId, tab) {
     var port = new chrome.Port(portId);
     if (tab) {
-      tab = goog.json.parse(tab);
+      tab = JSON.parse(tab);
     }
     port.tab = tab;
     chrome.Event.dispatch_("channel-connect", [port]);
@@ -44,7 +44,7 @@ var chrome = chrome || {};
     var port = chrome.Port.ports_[portId];
     if (port) {
       if (msg) {
-        msg = goog.json.parse(msg);
+        msg = JSON.parse(msg);
       }
       port.onMessage.dispatch(msg, port);
     }
@@ -53,7 +53,10 @@ var chrome = chrome || {};
   // Sends a message asynchronously to the context on the other end of this
   // port.
   chrome.Port.prototype.postMessage = function(msg) {
-    PostMessage(this.portId_, goog.json.serialize(msg));
+    // JSON.stringify doesn't support a root object which is undefined.
+    if (msg === undefined)
+      msg = null;
+    PostMessage(this.portId_, JSON.stringify(msg));
   };
 
   // Extension object.
