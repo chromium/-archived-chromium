@@ -486,10 +486,6 @@ void SpellChecker::GetAutoCorrectionWord(const std::wstring& word,
   wchar_t misspelled_word[kMaxAutoCorrectWordSize + 1];
   const wchar_t* word_char = word.c_str();
   for (int i = 0; i <= kMaxAutoCorrectWordSize; i++) {
-    // Ignore words having uppercase letter, other that the first letter.
-    if (i > 0 && u_isupper(static_cast<UChar32>(word_char[i])))
-      return;
-
     if (i >= word_length)
       misspelled_word[i] = NULL;
     else
