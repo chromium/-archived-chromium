@@ -14,7 +14,11 @@
 // A mock ThemeSource (so we can override SendResponse to get at its data).
 class MockThemeSource : public DOMUIThemeSource {
  public:
-  explicit MockThemeSource(Profile* profile) : DOMUIThemeSource(profile) { }
+  explicit MockThemeSource(Profile* profile)
+      : DOMUIThemeSource(profile),
+        result_request_id_(-1),
+        result_data_size_(0) { 
+  }
 
   virtual void SendResponse(int request_id, RefCountedBytes* data) {
     result_data_size_ = data ? data->data.size() : 0;
