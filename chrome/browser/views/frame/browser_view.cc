@@ -621,7 +621,11 @@ BrowserWindowTesting* BrowserView::GetBrowserWindowTesting() {
 }
 
 StatusBubble* BrowserView::GetStatusBubble() {
+#if !defined(TOOLKIT_VIEWS)
   return status_bubble_.get();
+#else
+  return NULL;
+#endif
 }
 
 void BrowserView::SelectedTabToolbarSizeChanged(bool is_animating) {
@@ -1333,6 +1337,7 @@ void BrowserView::Init() {
 }
 
 void BrowserView::InitSystemMenu() {
+#if defined(OS_WIN)
   system_menu_.reset(
       views::Menu::GetSystemMenu(frame_->GetWindow()->GetNativeWindow()));
   int insertion_index = std::max(0, system_menu_->ItemCount() - 1);
@@ -1352,6 +1357,7 @@ void BrowserView::InitSystemMenu() {
   } else {
     BuildMenuForTabStriplessWindow(system_menu_.get(), insertion_index);
   }
+#endif
 }
 
 int BrowserView::LayoutTabStrip() {
