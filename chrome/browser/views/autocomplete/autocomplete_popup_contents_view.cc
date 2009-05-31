@@ -15,6 +15,7 @@
 #include "app/l10n_util.h"
 #include "app/resource_bundle.h"
 #include "app/theme_provider.h"
+#include "app/win_util.h"
 #include "chrome/browser/autocomplete/autocomplete_edit_view_win.h"
 #include "chrome/browser/autocomplete/autocomplete_popup_model.h"
 #include "chrome/browser/views/autocomplete/autocomplete_popup_win.h"
@@ -840,7 +841,7 @@ void AutocompletePopupContentsView::MakeContentsPath(
 
 void AutocompletePopupContentsView::UpdateBlurRegion() {
   // We only support background blurring on Vista with Aero-Glass enabled.
-  if (!GetThemeProvider()->ShouldUseNativeFrame() || !GetWidget())
+  if (!win_util::ShouldUseVistaFrame() || !GetWidget())
     return;
 
   // Provide a blurred background effect within the contents region of the
