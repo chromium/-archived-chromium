@@ -12,14 +12,12 @@
 #include "app/gfx/canvas.h"
 #include "app/l10n_util.h"
 #include "app/resource_bundle.h"
-#include "base/command_line.h"
 #include "base/gfx/native_theme.h"
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/views/clear_browsing_data.h"
 #include "chrome/browser/views/importer_view.h"
 #include "chrome/browser/views/options/options_group_view.h"
 #include "chrome/browser/views/options/passwords_exceptions_window_view.h"
-#include "chrome/common/chrome_switches.h"
 #include "chrome/common/pref_names.h"
 #include "grit/generated_resources.h"
 #include "views/controls/button/radio_button.h"
@@ -131,13 +129,10 @@ void ContentPageView::InitControlLayout() {
   layout->AddView(clear_data_group_);
   layout->AddPaddingRow(0, kRelatedControlVerticalSpacing);
 
-  if (CommandLine::ForCurrentProcess()->
-      HasSwitch(switches::kEnableExtensions)) {
-    layout->StartRow(0, single_column_view_set_id);
-    InitThemesGroup();
-    layout->AddView(themes_group_);
-    layout->AddPaddingRow(0, kRelatedControlVerticalSpacing);
-  }
+  layout->StartRow(0, single_column_view_set_id);
+  InitThemesGroup();
+  layout->AddView(themes_group_);
+  layout->AddPaddingRow(0, kRelatedControlVerticalSpacing);
 
   // Init member prefs so we can update the controls if prefs change.
   ask_to_save_passwords_.Init(prefs::kPasswordManagerEnabled,
