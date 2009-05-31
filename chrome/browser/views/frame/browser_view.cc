@@ -880,7 +880,7 @@ void BrowserView::ShowHTMLDialog(HtmlDialogUIDelegate* delegate,
 }
 
 void BrowserView::UserChangedTheme() {
-  frame_->GetWindow()->GetNonClientView()->SetUseNativeFrame(false);
+  frame_->GetWindow()->FrameTypeChanged();
   GetRootView()->ThemeChanged();
   GetRootView()->SchedulePaint();
 }

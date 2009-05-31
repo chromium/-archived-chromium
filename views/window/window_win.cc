@@ -12,6 +12,7 @@
 #include "app/gfx/path.h"
 #include "app/l10n_util.h"
 #include "app/resource_bundle.h"
+#include "app/theme_provider.h"
 #include "app/win_util.h"
 #include "base/win_util.h"
 #include "views/widget/root_view.h"
@@ -180,6 +181,48 @@ int WindowWin::GetShowState() const {
 void WindowWin::ExecuteSystemMenuCommand(int command) {
   if (command)
     SendMessage(GetNativeView(), WM_SYSCOMMAND, command, 0);
+}
+
+namespace {
+static BOOL CALLBACK SendDwmCompositionChanged(HWND window, LPARAM param) {
+  SendMessage(window, WM_DWMCOMPOSITIONCHANGED, 0, 0);
+  return TRUE;
+}
+}  // namespace
+
+void WindowWin::FrameTypeChanged() {
+  // The window may try to paint in SetUseNativeFrame, and as a result it can
+  // get into a state where it is very unhappy with itself - rendering black
+  // behind the entire client area. This is because for some reason the
+  // SkPorterDuff::kClear_mode erase done in the RootView thinks the window is
+  // still opaque. So, to work around this we hide the window as soon as we can
+  // (now), saving off its placement so it can be properly restored once
+  // everything has settled down.
+  WINDOWPLACEMENT saved_window_placement;
+  saved_window_placement.length = sizeof(WINDOWPLACEMENT);
+  GetWindowPlacement(GetNativeView(), &saved_window_placement);
+  Hide();
+
+  // Important step: restore the window first, since our hiding hack doesn't
+  // work for maximized windows! We tell the frame not to allow itself to be
+  // made visible though, which removes the brief flicker.
+  ++force_hidden_count_;
+  ::ShowWindow(GetNativeView(), SW_RESTORE);
+  --force_hidden_count_;
+
+  // We respond to this in response to WM_DWMCOMPOSITIONCHANGED since that is
+  // the only thing we care about - we don't actually respond to WM_THEMECHANGED
+  // messages.
+  non_client_view_->UpdateFrame();
+
+  // Now that we've updated the frame, we'll want to restore our saved placement
+  // since the display should have settled down and we can be properly rendered.
+  SetWindowPlacement(GetNativeView(), &saved_window_placement);
+
+  // WM_DWMCOMPOSITIONCHANGED is only sent to top level windows, however we want
+  // to notify our children too, since we can have MDI child windows who need to
+  // update their appearance.
+  EnumChildWindows(GetNativeView(), &SendDwmCompositionChanged, NULL);
 }
 
 // static
@@ -408,7 +451,7 @@ void WindowWin::SetIsAlwaysOnTop(bool always_on_top) {
 }
 
 NonClientFrameView* WindowWin::CreateFrameViewForWindow() {
-  if (non_client_view_->UseNativeFrame())
+  if (ShouldUseNativeFrame())
     return new NativeFrameView(this);
   return new CustomFrameView(this);
 }
@@ -432,6 +475,13 @@ ClientView* WindowWin::GetClientView() const {
 
 gfx::NativeWindow WindowWin::GetNativeWindow() const {
   return GetNativeView();
+}
+
+bool WindowWin::ShouldUseNativeFrame() const {
+  ThemeProvider* tp = GetThemeProvider();
+  if (!tp)
+    return win_util::ShouldUseVistaFrame();
+  return tp->ShouldUseNativeFrame();
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -564,47 +614,9 @@ void WindowWin::OnDestroy() {
   WidgetWin::OnDestroy();
 }
 
-namespace {
-static BOOL CALLBACK SendDwmCompositionChanged(HWND window, LPARAM param) {
-  SendMessage(window, WM_DWMCOMPOSITIONCHANGED, 0, 0);
-  return TRUE;
-}
-}  // namespace
-
 LRESULT WindowWin::OnDwmCompositionChanged(UINT msg, WPARAM w_param,
                                            LPARAM l_param) {
-  // The window may try to paint in SetUseNativeFrame, and as a result it can
-  // get into a state where it is very unhappy with itself - rendering black
-  // behind the entire client area. This is because for some reason the
-  // SkPorterDuff::kClear_mode erase done in the RootView thinks the window is
-  // still opaque. So, to work around this we hide the window as soon as we can
-  // (now), saving off its placement so it can be properly restored once
-  // everything has settled down.
-  WINDOWPLACEMENT saved_window_placement;
-  saved_window_placement.length = sizeof(WINDOWPLACEMENT);
-  GetWindowPlacement(GetNativeView(), &saved_window_placement);
-  Hide();
-
-  // Important step: restore the window first, since our hiding hack doesn't
-  // work for maximized windows! We tell the frame not to allow itself to be
-  // made visible though, which removes the brief flicker.
-  ++force_hidden_count_;
-  ::ShowWindow(GetNativeView(), SW_RESTORE);
-  --force_hidden_count_;
-
-  // We respond to this in response to WM_DWMCOMPOSITIONCHANGED since that is
-  // the only thing we care about - we don't actually respond to WM_THEMECHANGED
-  // messages.
-  non_client_view_->SetUseNativeFrame(win_util::ShouldUseVistaFrame());
-
-  // Now that we've updated the frame, we'll want to restore our saved placement
-  // since the display should have settled down and we can be properly rendered.
-  SetWindowPlacement(GetNativeView(), &saved_window_placement);
-
-  // WM_DWMCOMPOSITIONCHANGED is only sent to top level windows, however we want
-  // to notify our children too, since we can have MDI child windows who need to
-  // update their appearance.
-  EnumChildWindows(GetNativeView(), &SendDwmCompositionChanged, NULL);
+  FrameTypeChanged();
   return 0;
 }
 

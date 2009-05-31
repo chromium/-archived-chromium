@@ -6,6 +6,10 @@
 
 #include "app/resource_bundle.h"
 
+#if defined(OS_WIN)
+#include "app/win_util.h"
+#endif
+
 namespace views {
 
 SkBitmap* DefaultThemeProvider::GetBitmapNamed(int id) {
@@ -15,6 +19,14 @@ SkBitmap* DefaultThemeProvider::GetBitmapNamed(int id) {
 SkColor DefaultThemeProvider::GetColor(int id)  {
   // Return debugging-blue.
   return 0xff0000ff;
+}
+
+bool DefaultThemeProvider::ShouldUseNativeFrame() {
+#if defined(OS_WIN)
+  return win_util::ShouldUseVistaFrame();
+#else
+  return false;
+#endif
 }
 
 }  // namespace views

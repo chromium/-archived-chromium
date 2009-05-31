@@ -4,15 +4,16 @@
 
 #include "views/window/non_client_view.h"
 
-#if defined(OS_WIN)
-#include "app/win_util.h"
-#endif
+#include "app/theme_provider.h"
 #include "views/widget/root_view.h"
 #include "views/widget/widget.h"
-#if defined(OS_LINUX)
+#include "views/window/window.h"
+
+#if defined(OS_WIN)
+#include "app/win_util.h"
+#else
 #include "views/window/hit_test.h"
 #endif
-#include "views/window/window.h"
 
 namespace views {
 
@@ -31,12 +32,7 @@ static const int kClientViewIndex = 1;
 
 NonClientView::NonClientView(Window* frame)
     : frame_(frame),
-      client_view_(NULL),
-#if defined(OS_WIN)
-      use_native_frame_(win_util::ShouldUseVistaFrame()) {
-#else
-      use_native_frame_(false) {
-#endif
+      client_view_(NULL) {
 }
 
 NonClientView::~NonClientView() {
@@ -63,10 +59,7 @@ void NonClientView::WindowClosing() {
   client_view_->WindowClosing();
 }
 
-void NonClientView::SetUseNativeFrame(bool use_native_frame) {
-  if (use_native_frame == use_native_frame_)
-    return;
-  use_native_frame_ = use_native_frame;
+void NonClientView::UpdateFrame() {
   SetFrameView(frame_->CreateFrameViewForWindow());
   GetRootView()->ThemeChanged();
   Layout();
@@ -76,9 +69,9 @@ void NonClientView::SetUseNativeFrame(bool use_native_frame) {
 
 bool NonClientView::UseNativeFrame() const {
   // The frame view may always require a custom frame, e.g. Constrained Windows.
-  bool always_use_custom_frame =
-      frame_view_.get() && frame_view_->AlwaysUseCustomFrame();
-  return !always_use_custom_frame && use_native_frame_;
+  if (frame_view_.get() && frame_view_->AlwaysUseCustomFrame())
+    return true;
+  return frame_->ShouldUseNativeFrame();
 }
 
 void NonClientView::DisableInactiveRendering(bool disable) {

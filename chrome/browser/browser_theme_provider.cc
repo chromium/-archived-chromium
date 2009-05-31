@@ -22,6 +22,10 @@
 #include "skia/ext/skia_utils.h"
 #include "third_party/skia/include/core/SkBitmap.h"
 
+#if defined(OS_WIN)
+#include "app/win_util.h"
+#endif
+
 // Strings used by themes to identify colors for different parts of our UI.
 static const char* kColorFrame = "frame";
 static const char* kColorFrameInactive = "frame_inactive";
@@ -214,6 +218,16 @@ SkColor BrowserThemeProvider::GetColor(int id) {
 
   // Return a debugging red color.
   return 0xffff0000;
+}
+
+bool BrowserThemeProvider::ShouldUseNativeFrame() {
+  if (images_.find(IDR_THEME_FRAME) != images_.end())
+    return false;
+#if defined(OS_WIN)
+  return win_util::ShouldUseVistaFrame();
+#else
+  return false;
+#endif
 }
 
 void BrowserThemeProvider::SetTheme(Extension* extension) {

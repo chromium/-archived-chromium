@@ -202,7 +202,7 @@ void WidgetWin::Init(HWND parent, const gfx::Rect& bounds,
   // Windows special DWM window frame requires a special tooltip manager so
   // that window controls in Chrome windows don't flicker when you move your
   // mouse over them. See comment in aero_tooltip_manager.h.
-  if (win_util::ShouldUseVistaFrame()) {
+  if (GetThemeProvider()->ShouldUseNativeFrame()) {
     tooltip_manager_.reset(new AeroTooltipManager(this));
   } else {
     tooltip_manager_.reset(new TooltipManagerWin(this));

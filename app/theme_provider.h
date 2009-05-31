@@ -34,6 +34,10 @@ class ThemeProvider {
   // Get the color specified by |id|.
   virtual SkColor GetColor(int id) = 0;
 
+  // Whether we should use the native system frame (typically Aero glass) or
+  // a custom frame.
+  virtual bool ShouldUseNativeFrame() = 0;
+
 #if defined(OS_LINUX) && !defined(TOOLKIT_VIEWS)
   // Gets the GdkPixbuf with the specified |id|.  Returns a pointer to a shared
   // instance of the GdkPixbuf.  This shared GdkPixbuf is owned by the theme

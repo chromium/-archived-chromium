@@ -44,6 +44,10 @@ class WindowWin : public WidgetWin,
   // Executes the specified SC_command.
   void ExecuteSystemMenuCommand(int command);
 
+  // Called when the frame type could possibly be changing (theme change or
+  // DWM composition change).
+  void FrameTypeChanged();
+
   // Accessors and setters for various properties.
   HWND owning_window() const { return owning_hwnd_; }
   void set_focus_on_creation(bool focus_on_creation) {
@@ -81,6 +85,7 @@ class WindowWin : public WidgetWin,
   virtual NonClientView* GetNonClientView() const;
   virtual ClientView* GetClientView() const;
   virtual gfx::NativeWindow GetNativeWindow() const;
+  virtual bool ShouldUseNativeFrame() const;
 
  protected:
   friend Window;

@@ -143,6 +143,12 @@ class Window {
 
   // Retrieves the Window's native window handle.
   virtual gfx::NativeWindow GetNativeWindow() const = 0;
+
+  // Whether we should be using a native frame.
+  virtual bool ShouldUseNativeFrame() const = 0;
+
+  // Tell the window that something caused the frame type to change.
+  virtual void FrameTypeChanged() = 0;
 };
 
 }  // namespace views

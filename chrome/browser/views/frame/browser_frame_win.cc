@@ -235,7 +235,7 @@ int BrowserFrameWin::GetShowState() const {
 }
 
 views::NonClientFrameView* BrowserFrameWin::CreateFrameViewForWindow() {
-  if (GetNonClientView()->UseNativeFrame())
+  if (GetThemeProvider()->ShouldUseNativeFrame())
     browser_frame_view_ = new GlassBrowserFrameView(this, browser_view_);
   else
     browser_frame_view_ = new OpaqueBrowserFrameView(this, browser_view_);

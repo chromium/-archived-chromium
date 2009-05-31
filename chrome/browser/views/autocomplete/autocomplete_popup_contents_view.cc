@@ -14,7 +14,7 @@
 #include "app/gfx/path.h"
 #include "app/l10n_util.h"
 #include "app/resource_bundle.h"
-#include "app/win_util.h"
+#include "app/theme_provider.h"
 #include "chrome/browser/autocomplete/autocomplete_edit_view_win.h"
 #include "chrome/browser/autocomplete/autocomplete_popup_model.h"
 #include "chrome/browser/views/autocomplete/autocomplete_popup_win.h"
@@ -840,7 +840,7 @@ void AutocompletePopupContentsView::MakeContentsPath(
 
 void AutocompletePopupContentsView::UpdateBlurRegion() {
   // We only support background blurring on Vista with Aero-Glass enabled.
-  if (!win_util::ShouldUseVistaFrame() || !GetWidget())
+  if (!GetThemeProvider()->ShouldUseNativeFrame() || !GetWidget())
     return;
 
   // Provide a blurred background effect within the contents region of the
@@ -868,7 +868,7 @@ void AutocompletePopupContentsView::MakeCanvasTransparent(
     gfx::Canvas* canvas) {
   // Allow the window blur effect to show through the popup background.
   SkPaint paint;
-  SkColor transparency = win_util::ShouldUseVistaFrame() ?
+  SkColor transparency = GetThemeProvider()->ShouldUseNativeFrame() ?
       kGlassPopupTransparency : kOpaquePopupTransparency;
   paint.setColor(SkColorSetARGB(transparency, 255, 255, 255));
   paint.setPorterDuffXfermode(SkPorterDuff::kDstIn_Mode);

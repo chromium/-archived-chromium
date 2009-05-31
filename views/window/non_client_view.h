@@ -139,7 +139,7 @@ class NonClientView : public View {
 
   // Changes the frame from native to custom depending on the value of
   // |use_native_frame|.
-  void SetUseNativeFrame(bool use_native_frame);
+  void UpdateFrame();
 
   // Returns true if the native window frame should be used, false if the
   // NonClientView provides its own frame implementation.
@@ -213,9 +213,6 @@ class NonClientView : public View {
   // This object is not owned by the view hierarchy because it can be replaced
   // dynamically as the system settings change.
   scoped_ptr<NonClientFrameView> frame_view_;
-
-  // Whether or not we should use the native frame.
-  bool use_native_frame_;
 
   DISALLOW_COPY_AND_ASSIGN(NonClientView);
 };
