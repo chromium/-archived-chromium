@@ -20,6 +20,10 @@
 #include "grit/theme_resources.h"
 #include "net/base/net_util.h"
 
+#if defined(TOOLKIT_VIEWS)
+#include "views/controls/table/table_model_observer.h"
+#endif
+
 namespace {
 
 // Number of bookmarks shown in recently bookmarked.

@@ -13,6 +13,7 @@
 #include <vssym32.h>
 
 #include "app/gfx/canvas.h"
+#include "app/l10n_util.h"
 #include "app/resource_bundle.h"
 #include "base/file_util.h"
 #include "base/path_service.h"

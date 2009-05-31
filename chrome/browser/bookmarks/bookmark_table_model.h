@@ -5,13 +5,12 @@
 #ifndef CHROME_BROWSER_BOOKMARKS_BOOKMARK_TABLE_MODEL_H_
 #define CHROME_BROWSER_BOOKMARKS_BOOKMARK_TABLE_MODEL_H_
 
+#include "build/build_config.h"
 #include "chrome/browser/bookmarks/bookmark_model.h"
 
-#include "build/build_config.h"
-
-#if defined(OS_WIN)
-#include "views/controls/table/table_view.h"
-#elif defined(OS_POSIX)
+#if defined(TOOLKIT_VIEWS)
+#include "views/controls/table/table_model.h"
+#else
 #include "chrome/common/temp_scaffolding_stubs.h"
 #endif
 

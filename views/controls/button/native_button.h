@@ -99,4 +99,4 @@ class NativeButton : public Button {
 
 }  // namespace views
 
-#endif  // #ifndef VIEWS_CONTROLS_BUTTON_NATIVE_BUTTON_H_
+#endif  // VIEWS_CONTROLS_BUTTON_NATIVE_BUTTON_H_

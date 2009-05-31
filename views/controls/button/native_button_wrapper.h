@@ -53,9 +53,8 @@ class NativeButtonWrapper {
   static NativeButtonWrapper* CreateCheckboxWrapper(Checkbox* checkbox);
   static NativeButtonWrapper* CreateRadioButtonWrapper(
       RadioButton* radio_button);
-
 };
 
 }  // namespace views
 
-#endif  // #ifndef VIEWS_CONTROLS_BUTTON_NATIVE_BUTTON_WRAPPER_H_
+#endif  // VIEWS_CONTROLS_BUTTON_NATIVE_BUTTON_WRAPPER_H_

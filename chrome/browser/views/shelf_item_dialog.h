@@ -8,7 +8,7 @@
 #include "chrome/browser/cancelable_request.h"
 #include "chrome/browser/history/history.h"
 #include "views/controls/button/native_button.h"
-#include "views/controls/table/table_view.h"
+#include "views/controls/table/table_view_observer.h"
 #include "views/controls/textfield/textfield.h"
 #include "views/view.h"
 #include "views/window/dialog_delegate.h"
@@ -17,6 +17,7 @@
 namespace views {
 class Button;
 class Label;
+class TableView;
 }
 
 class PossibleURLModel;

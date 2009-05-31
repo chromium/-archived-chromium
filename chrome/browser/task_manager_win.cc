@@ -4,6 +4,7 @@
 
 #include "chrome/browser/task_manager.h"
 
+#include "app/l10n_util.h"
 #include "base/stats_table.h"
 #include "chrome/app/chrome_dll_resource.h"
 #include "chrome/browser/browser_list.h"
@@ -19,6 +20,7 @@
 #include "views/controls/link.h"
 #include "views/controls/menu/menu.h"
 #include "views/controls/table/group_table_view.h"
+#include "views/controls/table/table_view_observer.h"
 #include "views/standard_layout.h"
 #include "views/widget/widget.h"
 #include "views/window/dialog_delegate.h"

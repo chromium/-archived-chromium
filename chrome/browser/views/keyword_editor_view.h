@@ -10,7 +10,8 @@
 
 #include "chrome/browser/search_engines/template_url_model.h"
 #include "views/controls/button/button.h"
-#include "views/controls/table/table_view.h"
+#include "views/controls/table/table_model.h"
+#include "views/controls/table/table_view_observer.h"
 #include "views/view.h"
 #include "views/window/dialog_delegate.h"
 

@@ -7,6 +7,7 @@
 
 #include "chrome/browser/views/options/options_page_view.h"
 #include "chrome/browser/views/options/passwords_page_view.h"
+#include "views/controls/table/table_view_observer.h"
 
 class Profile;
 

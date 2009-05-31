@@ -8,6 +8,7 @@
 
 #include "app/gfx/canvas.h"
 #include "app/gfx/color_utils.h"
+#include "app/l10n_util.h"
 #include "base/thread.h"
 #include "chrome/browser/bookmarks/bookmark_folder_tree_model.h"
 #include "chrome/browser/bookmarks/bookmark_html_writer.h"

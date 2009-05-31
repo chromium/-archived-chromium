@@ -10,6 +10,7 @@
 #include "chrome/common/pref_member.h"
 #include "views/controls/combo_box.h"
 #include "views/controls/button/button.h"
+#include "views/controls/table/table_view_observer.h"
 #include "views/view.h"
 
 namespace views {

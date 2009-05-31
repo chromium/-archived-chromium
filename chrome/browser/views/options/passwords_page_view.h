@@ -15,6 +15,8 @@
 #include "views/controls/button/native_button.h"
 #include "views/controls/label.h"
 #include "views/controls/table/table_view.h"
+#include "views/controls/table/table_model.h"
+#include "views/controls/table/table_view_observer.h"
 #include "views/window/dialog_delegate.h"
 #include "views/window/window.h"
 #include "webkit/glue/password_form.h"

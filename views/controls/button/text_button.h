@@ -32,8 +32,6 @@ class TextButtonBorder : public Border {
   virtual void GetInsets(gfx::Insets* insets) const;
 
  private:
-  DISALLOW_EVIL_CONSTRUCTORS(TextButtonBorder);
-
   // Images
   struct MBBImageSet {
     SkBitmap* top_left;
@@ -48,6 +46,8 @@ class TextButtonBorder : public Border {
   };
   MBBImageSet hot_set_;
   MBBImageSet pushed_set_;
+
+  DISALLOW_COPY_AND_ASSIGN(TextButtonBorder);
 };
 
 
@@ -130,7 +130,7 @@ class TextButton : public CustomButton {
   // indicates the width is not constrained.
   int max_width_;
 
-  DISALLOW_EVIL_CONSTRUCTORS(TextButton);
+  DISALLOW_COPY_AND_ASSIGN(TextButton);
 };
 
 }  // namespace views

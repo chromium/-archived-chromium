@@ -7,16 +7,20 @@
 
 #include "base/task.h"
 #include "views/controls/button/button.h"
-#include "views/controls/table/table_view.h"
+#include "views/controls/table/table_view_observer.h"
 #include "views/controls/textfield/textfield.h"
 #include "views/view.h"
 #include "views/window/dialog_delegate.h"
 #include "views/window/window.h"
 
 namespace views {
+
 class Label;
 class NativeButton;
-}
+class TableView;
+
+}  // namespace views
+
 class CookieInfoView;
 class CookiesTableModel;
 class CookiesTableView;

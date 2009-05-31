@@ -7,6 +7,7 @@
 #include "base/message_loop.h"
 #include "base/string_util.h"
 #include "testing/gtest/include/gtest/gtest.h"
+#include "views/controls/table/table_model.h"
 #include "views/controls/table/table_view.h"
 #include "views/window/window_delegate.h"
 #include "views/window/window_win.h"

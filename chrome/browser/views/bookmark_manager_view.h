@@ -11,7 +11,7 @@
 #include "chrome/browser/bookmarks/bookmark_model.h"
 #include "chrome/browser/shell_dialogs.h"
 #include "views/controls/menu/view_menu_delegate.h"
-#include "views/controls/table/table_view.h"
+#include "views/controls/table/table_view_observer.h"
 #include "views/controls/textfield/textfield.h"
 #include "views/controls/tree/tree_view.h"
 #include "views/view.h"

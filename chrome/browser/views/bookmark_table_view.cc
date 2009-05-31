@@ -9,6 +9,7 @@
 #include "app/drag_drop_types.h"
 #include "app/gfx/canvas.h"
 #include "app/gfx/font.h"
+#include "app/l10n_util.h"
 #include "app/os_exchange_data.h"
 #include "app/resource_bundle.h"
 #include "base/base_drag_source.h"
@@ -19,6 +20,7 @@
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
 #include "grit/generated_resources.h"
+#include "views/controls/table/table_view_observer.h"
 #include "views/view_constants.h"
 
 namespace {

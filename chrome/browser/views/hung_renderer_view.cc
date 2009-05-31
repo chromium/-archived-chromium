@@ -5,6 +5,7 @@
 #include "chrome/browser/hung_renderer_dialog.h"
 
 #include "app/gfx/canvas.h"
+#include "app/l10n_util.h"
 #include "app/resource_bundle.h"
 #include "chrome/browser/browser_list.h"
 #include "chrome/browser/renderer_host/render_process_host.h"
