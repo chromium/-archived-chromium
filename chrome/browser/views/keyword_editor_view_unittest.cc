@@ -8,6 +8,7 @@
 #include "chrome/browser/views/keyword_editor_view.h"
 #include "chrome/test/testing_profile.h"
 #include "testing/gtest/include/gtest/gtest.h"
+#include "views/controls/table/table_model_observer.h"
 
 // Base class for keyword editor tests. Creates a profile containing an
 // empty TemplateURLModel.

@@ -8,6 +8,7 @@
 #include "chrome/test/testing_profile.h"
 #include "grit/generated_resources.h"
 #include "testing/gtest/include/gtest/gtest.h"
+#include "views/controls/table/table_model_observer.h"
 
 using base::Time;
 using base::TimeDelta;
