@@ -183,6 +183,14 @@ gfx::NativeWindow WindowGtk::GetNativeWindow() const {
   return GTK_WINDOW(GetNativeView());
 }
 
+bool WindowGtk::ShouldUseNativeFrame() const {
+  return false;
+}
+
+void WindowGtk::FrameTypeChanged() {
+  NOTIMPLEMENTED();
+}
+
 WindowGtk::WindowGtk(WindowDelegate* window_delegate)
     : WidgetGtk(TYPE_WINDOW),
       is_modal_(false),

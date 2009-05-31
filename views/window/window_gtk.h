@@ -56,6 +56,8 @@ class WindowGtk : public WidgetGtk, public Window {
   virtual NonClientView* GetNonClientView() const;
   virtual ClientView* GetClientView() const;
   virtual gfx::NativeWindow GetNativeWindow() const;
+  virtual bool ShouldUseNativeFrame() const;
+  virtual void FrameTypeChanged();
 
   virtual Window* AsWindow() { return this; }
   virtual const Window* AsWindow() const { return this; }
