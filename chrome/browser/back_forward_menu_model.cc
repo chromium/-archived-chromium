@@ -157,11 +157,7 @@ void BackForwardMenuModel::ExecuteCommandById(int menu_id) {
   if (menu_id == GetTotalItemCount()) {
     UserMetrics::RecordComputedAction(BuildActionName(L"ShowFullHistory", -1),
                                       controller.profile());
-#if defined(OS_WIN)
     browser_->ShowSingleDOMUITab(GURL(chrome::kChromeUIHistoryURL));
-#else
-    NOTIMPLEMENTED();
-#endif
     return;
   }
 
