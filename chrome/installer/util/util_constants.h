@@ -19,6 +19,7 @@ enum InstallStatus {
   USER_LEVEL_INSTALL_EXISTS, // User level install already exists
   SYSTEM_LEVEL_INSTALL_EXISTS, // Machine level install already exists
   INSTALL_FAILED,        // Install/update failed
+  SETUP_PATCH_FAILED,    // Failed to patch setup.exe
   OS_NOT_SUPPORTED,      // Current OS not supported
   OS_ERROR,              // OS API call failed
   TEMP_DIR_FAILED,       // Unable to get Temp directory
@@ -78,12 +79,14 @@ extern const wchar_t kInstallArchive[];
 extern const wchar_t kInstallerData[];
 extern const wchar_t kLogFile[];
 extern const wchar_t kMakeChromeDefault[];
+extern const wchar_t kNewSetupExe[];
 extern const wchar_t kRegisterChromeBrowser[];
 extern const wchar_t kRenameChromeExe[];
 extern const wchar_t kRemoveChromeRegistration[];
 extern const wchar_t kRunAsAdmin[];
 extern const wchar_t kSystemLevel[];
 extern const wchar_t kUninstall[];
+extern const wchar_t kUpdateSetupExe[];
 extern const wchar_t kVerboseLogging[];
 extern const wchar_t kShowEula[];
 extern const wchar_t kAltDesktopShortcut[];

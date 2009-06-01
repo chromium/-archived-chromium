@@ -1,5 +1,5 @@
 #!/usr/bin/python
-# Copyright 2008 Google Inc.  All rights reserved.
+# Copyright 2009 Google Inc.  All rights reserved.
 
 """This script generates an rc file and header (setup_strings.{rc,h}) to be
 included in setup.exe. The rc file includes translations for strings pulled
@@ -43,6 +43,7 @@ kStringIds = [
   'IDS_INSTALL_USER_LEVEL_EXISTS',
   'IDS_INSTALL_SYSTEM_LEVEL_EXISTS',
   'IDS_INSTALL_FAILED',
+  'IDS_SETUP_PATCH_FAILED',
   'IDS_INSTALL_OS_NOT_SUPPORTED',
   'IDS_INSTALL_OS_ERROR',
   'IDS_INSTALL_TEMP_DIR_FAILED',

@@ -116,8 +116,14 @@ DWORD UnPackArchive(const std::wstring& archive, bool system_install,
     if ((archive_name.size() >= prefix.size()) &&
         (std::equal(prefix.begin(), prefix.end(), archive_name.begin(),
                     CaseInsensitiveCompare<wchar_t>()))) {
-      LOG(INFO) << "Differential patch found. Applying to existing archive.";
       incremental_install = true;
+      LOG(INFO) << "Differential patch found. Applying to existing archive.";
+      // First pre-emptively set flag in registry to get full installer next
+      // time. If the current installer works, this flag will get reset at the
+      // the end of installation.
+      BrowserDistribution* dist = BrowserDistribution::GetDistribution();
+      dist->UpdateDiffInstallStatus(system_install, incremental_install,
+                                    installer_util::INSTALL_FAILED);
       if (!installed_version) {
         LOG(ERROR) << "Can not use differential update when Chrome is not "
                    << "installed on the system.";
@@ -505,7 +511,49 @@ installer_util::InstallStatus ShowEULADialog(const std::wstring& inner_frame) {
 bool HandleNonInstallCmdLineOptions(const CommandLine& cmd_line,
                                     bool system_install,
                                     int& exit_code) {
-  if (cmd_line.HasSwitch(installer_util::switches::kShowEula)) {
+  if (cmd_line.HasSwitch(installer_util::switches::kUpdateSetupExe)) {
+    // First to handle situation where the current process hangs or crashes,
+    // we pre-emptively set a flag in registry to get full installer next time.
+    installer_util::InstallStatus status = installer_util::SETUP_PATCH_FAILED;
+    BrowserDistribution* dist = BrowserDistribution::GetDistribution();
+    dist->UpdateDiffInstallStatus(system_install, true, status);
+
+    // If --update-setup-exe command line option is given, we apply the given
+    // patch to current exe, and store the resulting binary in the path
+    // specified by --new-setup-exe.
+    std::wstring old_setup_exe = cmd_line.program();
+    std::wstring setup_patch = cmd_line.GetSwitchValue(
+        installer_util::switches::kUpdateSetupExe);
+    std::wstring new_setup_exe = cmd_line.GetSwitchValue(
+        installer_util::switches::kNewSetupExe);
+    LOG(INFO) << "Patching " << old_setup_exe << " with patch "
+              << setup_patch << " and creating new exe " << new_setup_exe;
+
+    // Try Courgette first.
+    courgette::Status patch_status = courgette::ApplyEnsemblePatch(
+        old_setup_exe.c_str(), setup_patch.c_str(), new_setup_exe.c_str());
+
+    // If courgette didn't work, try regular bspatch.
+    if (patch_status != courgette::C_OK) {
+      LOG(WARNING) << "setup patch failed using courgette " << patch_status;
+      if (!ApplyBinaryPatch(old_setup_exe.c_str(), setup_patch.c_str(),
+                            new_setup_exe.c_str()))
+        status = installer_util::NEW_VERSION_UPDATED;
+    } else {
+      status = installer_util::NEW_VERSION_UPDATED;
+    }
+
+    // If the current patching worked reset the flag set in the registry
+    dist->UpdateDiffInstallStatus(system_install, true, status);
+
+    exit_code = dist->GetInstallReturnCode(status);
+    if (exit_code) {
+      LOG(WARNING) << "setup.exe patching failed.";
+      InstallUtil::WriteInstallerResult(system_install, status,
+                                        IDS_SETUP_PATCH_FAILED_BASE, NULL);
+    }
+    return true;
+  } else if (cmd_line.HasSwitch(installer_util::switches::kShowEula)) {
     // Check if we need to show the EULA. If it is passed as a command line
     // then the dialog is shown and regardless of the outcome setup exits here.
     std::wstring inner_frame =

@@ -288,6 +288,9 @@ be available for now. -->
       <message name="IDS_INSTALL_FAILED" desc="Error displayed if installation fails due to some unknown error.">
         Installation failed due to unspecified error. If Chromium is currently running, please close it and try again.
       </message>
+      <message name="IDS_SETUP_PATCH_FAILED" desc="Error message when setup.exe fails to patch itself.">
+        Installation failed due to unspecified error. Please download Chromium again.
+      </message>
       <message name="IDS_INSTALL_OS_NOT_SUPPORTED" desc="Error displayed if OS is not supported">
         Chromium requires Windows Vista or Windows XP with SP2 or higher.
       </message>

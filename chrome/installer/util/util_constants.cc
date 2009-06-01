@@ -48,6 +48,10 @@ const wchar_t kLogFile[] = L"log-file";
 // register as default browser only for the current user.
 const wchar_t kMakeChromeDefault[] = L"make-chrome-default";
 
+// Useful only when used with --update-setup-exe, otherwise ignored. It
+// specifies the full path where updated setup.exe will be stored.
+const wchar_t kNewSetupExe[] = L"new-setup-exe";
+
 // Register Chrome as a valid browser on the current sytem. This option
 // requires that setup.exe is running as admin. If this option is specified,
 // options kInstallArchive and kUninstall are ignored.
@@ -69,6 +73,11 @@ const wchar_t kSystemLevel[] = L"system-level";
 
 // If present, setup will uninstall chrome.
 const wchar_t kUninstall[] = L"uninstall";
+
+// Also see --new-setup-exe. This command line option specifies a diff patch
+// that setup.exe will apply to itself and store the resulting binary in the
+// path given by --new-setup-exe.
+const wchar_t kUpdateSetupExe[] = L"update-setup-exe";
 
 // Enable verbose logging (info level).
 const wchar_t kVerboseLogging[] = L"verbose-logging";
