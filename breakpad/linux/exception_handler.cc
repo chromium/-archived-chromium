@@ -79,6 +79,7 @@
 #include <sys/wait.h>
 #include <unistd.h>
 
+#include "breakpad/linux/linux_libc_support.h"
 #include "breakpad/linux/linux_syscall_support.h"
 #include "breakpad/linux/memory.h"
 #include "breakpad/linux/minidump_writer.h"
@@ -266,8 +267,14 @@ bool ExceptionHandler::HandleSignal(int sig, siginfo_t* info, void* uc) {
                                        callback_context_))
     return true;
 
+  static const unsigned kChildStackSize = 8000;
   PageAllocator allocator;
-  void* const stack = allocator.Alloc(8000);
+  uint8_t* stack = (uint8_t*) allocator.Alloc(kChildStackSize);
+  if (!stack)
+    return false;
+  // clone() needs the top-most address. (scrub just to be safe)
+  stack += kChildStackSize;
+  my_memset(stack - 16, 0, 16);
 
   ThreadArgument thread_arg;
   thread_arg.handler = this;
