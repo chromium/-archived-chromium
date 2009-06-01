@@ -25,7 +25,7 @@ class Profile;
 class BookmarkBarGtk : public AnimationDelegate,
                        public BookmarkModelObserver {
  public:
-  explicit BookmarkBarGtk(Profile* proifle, Browser* browser);
+  explicit BookmarkBarGtk(Profile* profile, Browser* browser);
   virtual ~BookmarkBarGtk();
 
   // Resets the profile. This removes any buttons for the current profile and
@@ -56,6 +56,12 @@ class BookmarkBarGtk : public AnimationDelegate,
   // default behaviour).
   void Show();
   void Hide();
+
+  // Get the current height of the bookmark bar.
+  int GetHeight();
+
+  // Returns true if the bookmark bar is showing the close animation.
+  bool IsClosing();
 
   // Returns true if the bookmarks bar preference is set to 'always show'.
   bool IsAlwaysShown();

@@ -103,9 +103,6 @@ class SlideAnimatorGtk : public AnimationDelegate {
   // child widget has been allocated, at which point we will move it, and then
   // set this variable to false to indicate it should not be moved again.
   bool child_needs_move_;
-
-  // Is true IFF Close() was called more recently than Open().
-  bool is_closing_;
 };
 
 #endif  // CHROME_BROWSER_GTK_SLIDE_ANIMATOR_GTK_H_

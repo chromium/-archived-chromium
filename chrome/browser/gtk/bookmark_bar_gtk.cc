@@ -198,6 +198,14 @@ void BookmarkBarGtk::Hide() {
     gtk_widget_hide(bookmark_hbox_.get());
 }
 
+int BookmarkBarGtk::GetHeight() {
+  return bookmark_hbox_.get()->allocation.height;
+}
+
+bool BookmarkBarGtk::IsClosing() {
+  return slide_animation_->IsClosing();
+}
+
 bool BookmarkBarGtk::OnNewTabPage() {
   return (browser_ && browser_->GetSelectedTabContents() &&
           browser_->GetSelectedTabContents()->IsBookmarkBarAlwaysVisible());

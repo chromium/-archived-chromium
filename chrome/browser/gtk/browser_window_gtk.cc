@@ -598,8 +598,10 @@ void BrowserWindowGtk::UserChangedTheme() {
 int BrowserWindowGtk::GetExtraRenderViewHeight() const {
   // The download shelf is controlled by its TabContents, so we don't have to
   // worry about it here.
-  // TODO(estade): take the bookmark bar into account as well.
-  return infobar_container_->TotalHeightOfClosingBars();
+  int sum = infobar_container_->TotalHeightOfClosingBars();
+  if (bookmark_bar_->IsClosing())
+    sum += bookmark_bar_->GetHeight();
+  return sum;
 }
 
 void BrowserWindowGtk::ConfirmBrowserCloseWithPendingDownloads() {
