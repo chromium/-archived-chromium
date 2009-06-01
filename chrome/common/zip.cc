@@ -265,7 +265,7 @@ bool Zip(const FilePath& src_dir, const FilePath& dest_file) {
 #if defined(OS_POSIX)
   std::string dest_file_str = dest_file.value();
   std::string src_dir_str = src_dir.value();
-  zipFile zip_file = zipOpen(src_dir_str.c_str(), APPEND_STATUS_CREATE);
+  zipFile zip_file = zipOpen(dest_file_str.c_str(), APPEND_STATUS_CREATE);
 #elif defined(OS_WIN)
   std::string dest_file_str = WideToUTF8(dest_file.value());
   zipFile zip_file = zipOpen2(dest_file_str.c_str(), APPEND_STATUS_CREATE,
