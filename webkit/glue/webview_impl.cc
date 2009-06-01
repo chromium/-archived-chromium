@@ -70,8 +70,8 @@ MSVC_PUSH_WARNING_LEVEL(0);
 #include "PopupMenuClient.h"
 #if defined(OS_WIN)
 #include "RenderThemeChromiumWin.h"
-#elif defined(OS_LINUX)
-#include "RenderThemeChromiumLinux.h"
+#else
+#include "RenderTheme.h"
 #endif
 #include "RenderView.h"
 #include "ResourceHandle.h"
@@ -156,11 +156,7 @@ class AutocompletePopupMenuClient : public WebCore::PopupMenuClient {
     SetSuggestions(suggestions);
 
     FontDescription font_description;
-#if defined(OS_WIN) || defined(OS_LINUX)
     theme()->systemFont(CSSValueWebkitControl, font_description);
-#else
-    NOTIMPLEMENTED();
-#endif
     // Use a smaller font size to match IE/Firefox.
     // TODO(jcampan): http://crbug.com/7376 use the system size instead of a
     //                fixed font size value.
@@ -202,24 +198,14 @@ class AutocompletePopupMenuClient : public WebCore::PopupMenuClient {
     return 0;
   }
   virtual int clientPaddingLeft() const {
-#if defined(OS_WIN) || defined(OS_LINUX)
     // Bug http://crbug.com/7708 seems to indicate the style can be NULL.
     WebCore::RenderStyle* style = GetTextFieldStyle();
     return style ? theme()->popupInternalPaddingLeft(style) : 0;
-#else
-    NOTIMPLEMENTED();
-    return 0;
-#endif
   }
   virtual int clientPaddingRight() const {
-#if defined(OS_WIN) || defined(OS_LINUX)
     // Bug http://crbug.com/7708 seems to indicate the style can be NULL.
     WebCore::RenderStyle* style = GetTextFieldStyle();
     return style ? theme()->popupInternalPaddingRight(style) : 0;
-#else
-    NOTIMPLEMENTED();
-    return 0;
-#endif
   }
   virtual int listSize() const {
     return suggestions_.size();
