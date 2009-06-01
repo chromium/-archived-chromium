@@ -442,8 +442,8 @@ const wchar_t kAutoSpellCorrect[] = L"auto-spell-correct";
 
 // Enables StatsTable, logging statistics to a global named shared memory table.
 const wchar_t kEnableStatsTable[]              = L"enable-stats-table";
-// Enables the Omnibox2 popup and functionality.
-const wchar_t kEnableOmnibox2[]                = L"enable-omnibox2";
+// Disables the Omnibox2 popup and functionality.
+const wchar_t kDisableOmnibox2[]                = L"disable-omnibox2";
 
 // Replaces the audio IPC layer for <audio> and <video> with a mock audio
 // device, useful when using remote desktop or machines without sound cards.

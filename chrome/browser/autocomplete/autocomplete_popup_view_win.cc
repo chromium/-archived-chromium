@@ -685,9 +685,8 @@ AutocompletePopupView* AutocompletePopupView::CreatePopupView(
     AutocompleteEditModel* edit_model,
     Profile* profile,
     AutocompletePopupPositioner* popup_positioner) {
-  if (CommandLine::ForCurrentProcess()->HasSwitch(switches::kEnableOmnibox2)) {
-    return new AutocompletePopupContentsView(font, edit_view, edit_model,
-                                             profile, popup_positioner);
-  }
-  return new AutocompletePopupViewWin(font, edit_view, edit_model, profile);
+  if (CommandLine::ForCurrentProcess()->HasSwitch(switches::kDisableOmnibox2))
+    return new AutocompletePopupViewWin(font, edit_view, edit_model, profile);
+  return new AutocompletePopupContentsView(font, edit_view, edit_model,
+                                           profile, popup_positioner);
 }

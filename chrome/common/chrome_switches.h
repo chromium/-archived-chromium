@@ -170,7 +170,7 @@ extern const wchar_t kEnableStatsTable[];
 
 extern const wchar_t kAutoSpellCorrect[];
 
-extern const wchar_t kEnableOmnibox2[];
+extern const wchar_t kDisableOmnibox2[];
 
 extern const wchar_t kDisableAudio[];
 extern const wchar_t kSimpleDataSource[];
