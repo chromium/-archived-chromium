@@ -10,12 +10,18 @@ import logging
 import os
 import re
 import sys
+import time
 import path_utils
 import compare_failures
 
 
 # Test expectation and modifier constants.
-(PASS, FAIL, TIMEOUT, CRASH, SKIP, WONTFIX, DEFER, SLOW, NONE) = range(9)
+(PASS, FAIL, TIMEOUT, CRASH, SKIP, WONTFIX, DEFER, SLOW, REBASELINE, NONE) = \
+    range(10)
+
+# Test expectation file update action constants
+(NO_CHANGE, REMOVE_TEST, REMOVE_PLATFORM, ADD_PLATFORMS_EXCEPT_THIS) = range(4)
+
 
 class TestExpectations:
   TEST_LIST = "test_expectations.txt"
@@ -95,6 +101,9 @@ class TestExpectations:
             self._expected_failures.GetTestSet(WONTFIX, CRASH,
                 include_skips=False))
 
+  def GetRebaseliningFailures(self):
+    return self._expected_failures.GetTestSet(REBASELINE, FAIL)
+
   def GetExpectations(self, test):
     if self._expected_failures.Contains(test):
       return self._expected_failures.GetExpectations(test)
@@ -114,6 +123,11 @@ class TestExpectations:
 
   def HasModifier(self, test, modifier):
     return self._expected_failures.HasModifier(test, modifier)
+
+  def RemovePlatformFromFile(self, tests, platform, backup=False):
+    return self._expected_failures.RemovePlatformFromFile(tests,
+                                                          platform,
+                                                          backup)
 
 def StripComments(line):
   """Strips comments from a line and return None if the line is empty
@@ -169,13 +183,14 @@ class TestExpectationsFile:
                    'crash': CRASH }
 
   PLATFORMS = [ 'mac', 'linux', 'win' ]
-  
+
   BUILD_TYPES = [ 'debug', 'release' ]
 
   MODIFIERS = { 'skip': SKIP,
                 'wontfix': WONTFIX,
                 'defer': DEFER,
                 'slow': SLOW,
+                'rebaseline': REBASELINE,
                 'none': NONE }
 
   def __init__(self, path, full_test_list, platform, is_debug_mode):
@@ -188,12 +203,13 @@ class TestExpectationsFile:
     is_debug_mode: Whether we testing a test_shell built debug mode.
     """
 
+    self._path = path
     self._full_test_list = full_test_list
     self._errors = []
     self._non_fatal_errors = []
     self._platform = platform
     self._is_debug_mode = is_debug_mode
-    
+
     # Maps a test to its list of expectations.
     self._test_to_expectations = {}
 
@@ -218,10 +234,10 @@ class TestExpectationsFile:
     else:
       tests = (self._expectation_to_tests[expectation] &
           self._modifier_to_tests[modifier])
-    
+
     if not include_skips:
       tests = tests - self.GetTestSet(SKIP, expectation)
-    
+
     return tests
 
   def HasModifier(self, test, modifier):
@@ -233,9 +249,133 @@ class TestExpectationsFile:
   def Contains(self, test):
     return test in self._test_to_expectations
 
+  def RemovePlatformFromFile(self, tests, platform, backup=False):
+    """Remove the platform option from test expectations file.
+
+    If a test is in the test list and has an option that matches the given
+    platform, remove the matching platform and save the updated test back
+    to the file. If no other platforms remaining after removal, delete the
+    test from the file.
+
+    Args:
+      tests: list of tests that need to update..
+      platform: which platform option to remove.
+      backup: if true, the original test expectations file is saved as
+              [self.TEST_LIST].orig.YYYYMMDDHHMMSS
+
+    Returns:
+      no
+    """
+
+    new_file = self._path + '.new'
+    logging.debug('Original file: "%s"', self._path)
+    logging.debug('New file: "%s"', new_file)
+    f_orig = open(self._path)
+    f_new = open(new_file, 'w')
+
+    tests_removed = 0
+    tests_updated = 0
+    for line in f_orig:
+      action = self._GetPlatformUpdateAction(line, tests, platform)
+      if action == NO_CHANGE:
+        # Save the original line back to the file
+        logging.debug('No change to test: %s', line)
+        f_new.write(line)
+      elif action == REMOVE_TEST:
+        tests_removed += 1
+        logging.info('Test removed: %s', line)
+      elif action == REMOVE_PLATFORM:
+        parts = line.split(':')
+        new_options = parts[0].replace(platform.upper() + ' ', '', 1)
+        new_line = ('%s:%s' % (new_options, parts[1]))
+        f_new.write(new_line)
+        tests_updated += 1
+        logging.info('Test updated: ')
+        logging.info('  old: %s', line)
+        logging.info('  new: %s', new_line)
+      elif action == ADD_PLATFORMS_EXCEPT_THIS:
+        parts = line.split(':')
+        new_options = parts[0]
+        for p in self.PLATFORMS:
+          if not p == platform:
+            new_options += p.upper() + ' '
+        new_line = ('%s:%s' % (new_options, parts[1]))
+        f_new.write(new_line)
+        tests_updated += 1
+        logging.info('Test updated: ')
+        logging.info('  old: %s', line)
+        logging.info('  new: %s', new_line)
+      else:
+        logging.error('Unknown update action: %d; line: %s', action, line)
+
+    logging.info('Total tests removed: %d', tests_removed)
+    logging.info('Total tests updated: %d', tests_updated)
+
+    f_orig.close()
+    f_new.close()
+
+    if backup:
+      date_suffix = time.strftime('%Y%m%d%H%M%S', time.localtime(time.time()))
+      backup_file = ('%s.orig.%s' % (self._path, date_suffix))
+      if os.path.exists(backup_file):
+        os.remove(backup_file)
+      logging.info('Saving original file to "%s"', backup_file)
+      os.rename(self._path, backup_file)
+    else:
+      os.remove(self._path)
+
+    logging.debug('Saving new file to "%s"', self._path)
+    os.rename(new_file, self._path)
+    return True
+
+  def _GetPlatformUpdateAction(self, line, tests, platform):
+    """Check the platform option and return the action needs to be taken.
+
+    Args:
+      line: current line in test expectations file.
+      tests: list of tests that need to update..
+      platform: which platform option to remove.
+
+    Returns:
+      NO_CHANGE: no change to the line (comments, test not in the list etc)
+      REMOVE_TEST: remove the test from file.
+      REMOVE_PLATFORM: remove this platform option from the test.
+      ADD_PLATFORMS_EXCEPT_THIS: add all the platforms except this one.
+    """
+
+    line = StripComments(line)
+    if not line:
+      return NO_CHANGE
+
+    options = []
+    if line.find(':') is -1:
+      test_and_expecation = line.split('=')
+    else:
+      parts = line.split(':')
+      options = self._GetOptionsList(parts[0])
+      test_and_expecation = parts[1].split('=')
+
+    test = test_and_expecation[0].strip()
+    if not test in tests:
+      return NO_CHANGE
+
+    has_any_platform = False
+    for option in options:
+      if option in self.PLATFORMS:
+        has_any_platform = True
+        if not option == platform:
+          return REMOVE_PLATFORM
+
+    # If there is no platform specified, then it means apply to all platforms.
+    # Return the action to add all the platforms except this one.
+    if not has_any_platform:
+      return ADD_PLATFORMS_EXCEPT_THIS
+
+    return REMOVE_TEST
+
   def _HasValidModifiersForCurrentPlatform(self, options, lineno,
       test_and_expectations, modifiers):
-    """ Returns true if the current platform is in the options list or if no
+    """Returns true if the current platform is in the options list or if no
     platforms are listed and if there are no fatal errors in the options list.
 
     Args:
@@ -372,7 +512,7 @@ class TestExpectationsFile:
     for test in self._full_test_list:
       if test.startswith(path): result.append(test)
     return result
-    
+
   def _AddTests(self, tests, expectations, test_list_path, lineno, modifiers):
     for test in tests:
       if self._AlreadySeenTest(test, test_list_path, lineno):
