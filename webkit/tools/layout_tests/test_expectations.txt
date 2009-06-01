@@ -2612,6 +2612,7 @@ BUG11832 LINUX : LayoutTests/http/tests/xmlhttprequest/uri-resolution-opera-open
 // Flaky Windows Tests
 BUG11898 WIN DEBUG : LayoutTests/svg/dom/SVGScriptElement/script-set-href.svg = FAIL PASS
 BUG11898 WIN DEBUG : LayoutTests/http/tests/misc/submit-get-in-utf16be.html = TIMEOUT PASS
+BUG11898 WIN : LayoutTests/http/tests/xmlhttprequest/web-apps/004.html = CRASH PASS
 
 // This test is marked as Slow on other platforms but still times out on Mac debug
 BUG11812 MAC : LayoutTests/http/tests/xmlhttprequest/supported-xml-content-types.html = TIMEOUT
