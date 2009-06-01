@@ -14,8 +14,12 @@ RenderViewContextMenuWin::RenderViewContextMenuWin(
     const ContextMenuParams& params,
     HWND owner)
     : RenderViewContextMenu(tab_contents, params),
-      ALLOW_THIS_IN_INITIALIZER_LIST(menu_(this, views::Menu::TOPLEFT, owner)),
       sub_menu_(NULL) {
+  // anchor_position set per http://crbug.com/10827.
+  views::Menu::AnchorPoint anchor_position = views::Menu::TOPLEFT;
+  if (l10n_util::GetTextDirection() == l10n_util::RIGHT_TO_LEFT)
+    anchor_position = views::Menu::TOPRIGHT;
+  menu_.reset(new views::MenuWin(this, anchor_position, owner));
   InitMenu(params.node);
 }
 
@@ -23,7 +27,7 @@ RenderViewContextMenuWin::~RenderViewContextMenuWin() {
 }
 
 void RenderViewContextMenuWin::RunMenuAt(int x, int y) {
-  menu_.RunMenuAt(x, y);
+  menu_->RunMenuAt(x, y);
 }
 
 void RenderViewContextMenuWin::AppendMenuItem(int id) {
@@ -46,7 +50,7 @@ void RenderViewContextMenuWin::AppendCheckboxMenuItem(int id,
 }
 
 void RenderViewContextMenuWin::AppendSeparator() {
-  views::Menu* menu = sub_menu_ ? sub_menu_ : &menu_;
+  views::Menu* menu = sub_menu_ ? sub_menu_ : menu_.get();
   menu->AppendSeparator();
 }
 
@@ -55,7 +59,7 @@ void RenderViewContextMenuWin::StartSubMenu(int id, const std::wstring& label) {
     NOTREACHED();
     return;
   }
-  sub_menu_ = menu_.AppendSubMenu(id, label);
+  sub_menu_ = menu_->AppendSubMenu(id, label);
 }
 
 void RenderViewContextMenuWin::FinishSubMenu() {
@@ -67,7 +71,7 @@ void RenderViewContextMenuWin::AppendItem(
     int id,
     const std::wstring& label,
     views::Menu::MenuItemType type) {
-  views::Menu* menu = sub_menu_ ? sub_menu_ : &menu_;
+  views::Menu* menu = sub_menu_ ? sub_menu_ : menu_.get();
   menu->AppendMenuItem(id, label, type);
 }
 

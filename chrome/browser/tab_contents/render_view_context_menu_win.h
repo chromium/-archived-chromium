@@ -5,6 +5,7 @@
 #ifndef CHROME_BROWSER_TAB_CONTENTS_RENDER_VIEW_CONTEXT_MENU_WIN_H_
 #define CHROME_BROWSER_TAB_CONTENTS_RENDER_VIEW_CONTEXT_MENU_WIN_H_
 
+#include "base/scoped_ptr.h"
 #include "chrome/browser/tab_contents/render_view_context_menu.h"
 #include "views/accelerator.h"
 #include "views/controls/menu/menu_win.h"
@@ -43,7 +44,7 @@ class RenderViewContextMenuWin : public RenderViewContextMenu,
                   const std::wstring& label,
                   views::Menu::MenuItemType type);
 
-  views::MenuWin menu_;
+  scoped_ptr<views::MenuWin> menu_;
   views::Menu* sub_menu_;
 };
 
