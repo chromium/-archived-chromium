@@ -52,12 +52,16 @@ void DevToolsClientHostImpl::OnRpcMessage(const std::string& class_name,
   ListValue* list_msg = static_cast<ListValue*>(message.get());
   if (class_name == kDebuggerAgentDelegate && message_name == kDebuggerOutput) {
     std::string str;
-    list_msg->GetString(0, &str);
+    if (!list_msg->GetString(0, &str))
+      return;
     DebuggerOutput(str);
   } else if (class_name == kToolsAgentDelegate &&
              message_name == kFrameNavigate) {
     std::string url;
-    list_msg->GetString(0, &url);
+    if (!list_msg->GetString(0, &url)) {
+      NOTREACHED();
+      return;
+    }
     FrameNavigate(url);
   }
 }
