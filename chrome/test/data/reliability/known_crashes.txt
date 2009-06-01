@@ -68,3 +68,6 @@ SUBSTRING : windowdragresponsetask::run___messageloop::runtask___messageloop::do
 
 # 12926
 PREFIX : webcore::frame::settings___webcore::v8proxy::isenabled___webcore::v8proxy::retrieve
+
+# 13078
+SUBSTRING : v8::internal::GlobalHandles::PostGarbageCollectionProcessing
