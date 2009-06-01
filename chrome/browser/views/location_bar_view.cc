@@ -6,6 +6,10 @@
 
 #include "build/build_config.h"
 
+#if defined(OS_LINUX)
+#include <gtk/gtk.h>
+#endif
+
 #include "app/gfx/canvas.h"
 #include "app/gfx/favicon_size.h"
 #include "app/l10n_util.h"
@@ -156,6 +160,12 @@ void LocationBarView::Init() {
                                                     command_updater_,
                                                     popup_positioner_));
   location_entry_->Init();
+  // Make all the children of the widget visible. NOTE: this won't display
+  // anything, it just toggles the visible flag.
+  gtk_widget_show_all(location_entry_->widget());
+  // Hide the widget. NativeViewHostGtk will make it visible again as
+  // necessary.
+  gtk_widget_hide(location_entry_->widget());
 #endif
   location_entry_view_ = new views::NativeViewHost;
   location_entry_view_->SetID(VIEW_ID_AUTOCOMPLETE);
