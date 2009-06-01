@@ -6,6 +6,7 @@
 
 #include "base/histogram.h"
 #include "base/logging.h"
+#include "base/time.h"
 
 namespace net {
 
@@ -190,6 +191,10 @@ X509Certificate::~X509Certificate() {
   X509Certificate::Cache::GetInstance()->Remove(this);
   if (cert_handle_)
     FreeOSCertHandle(cert_handle_);
+}
+
+bool X509Certificate::HasExpired() const {
+  return base::Time::Now() > valid_expiry();
 }
 
 }  // namespace net

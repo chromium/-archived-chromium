@@ -365,11 +365,6 @@ void X509Certificate::GetDNSNames(std::vector<std::string>* dns_names) const {
     dns_names->push_back(subject_.common_name);
 }
 
-bool X509Certificate::HasExpired() const {
-  NOTIMPLEMENTED();
-  return false;
-}
-
 // TODO(ukai): fix to use this method to verify certificate on SSL channel.
 // Note that it's not being used yet.  We need to fix SSLClientSocketNSS to
 // use this method to verify ssl certificate.

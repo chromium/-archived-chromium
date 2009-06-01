@@ -427,10 +427,6 @@ void X509Certificate::GetDNSNames(std::vector<std::string>* dns_names) const {
     dns_names->push_back(subject_.common_name);
 }
 
-bool X509Certificate::HasExpired() const {
-  return Time::Now() > valid_expiry();
-}
-
 int X509Certificate::Verify(const std::string& hostname,
                             bool rev_checking_enabled,
                             CertVerifyResult* verify_result) const {
