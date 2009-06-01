@@ -41,19 +41,33 @@ void NativeViewHostGtk::SetViewForNative(GtkWidget* widget, View* view) {
 void NativeViewHostGtk::NativeViewAttached() {
   DCHECK(host_->native_view());
 
-  // Adds a mapping between the GtkWidget and us.
-  SetViewForNative(host_->native_view(), host_);
+  GtkWidget* current_parent = gtk_widget_get_parent(host_->native_view());
+  GtkWidget* new_parent = host_->GetWidget()->GetNativeView();
+  // Only adjust the parent if the parent actually changed.
+  if (current_parent != new_parent) {
+    // First hide the new window. We don't want anything to draw (like sub-hwnd
+    // borders), when we change the parent below.
+    gtk_widget_hide(host_->native_view());
 
-  destroy_signal_id_ = g_signal_connect(G_OBJECT(host_->native_view()),
-                                        "destroy", G_CALLBACK(CallDestroy),
-                                        NULL);
+    if (current_parent) {
+      gtk_container_remove(GTK_CONTAINER(current_parent),
+                           host_->native_view());
+    }
 
-  // First hide the new window. We don't want anything to draw (like sub-hwnd
-  // borders), when we change the parent below.
-  gtk_widget_hide(host_->native_view());
+    // Adds a mapping between the GtkWidget and us.
+    SetViewForNative(host_->native_view(), host_);
 
-  // Set the parent.
-  static_cast<WidgetGtk*>(host_->GetWidget())->AddChild(host_->native_view());
+    if (!destroy_signal_id_) {
+      destroy_signal_id_ = g_signal_connect(G_OBJECT(host_->native_view()),
+                                            "destroy", G_CALLBACK(CallDestroy),
+                                            NULL);
+    }
+
+    // Set the parent.
+    static_cast<WidgetGtk*>(host_->GetWidget())->AddChild(host_->native_view());
+  }
+
+  // Always layout though.
   host_->Layout();
 
   // TODO(port): figure out focus.
@@ -95,6 +109,9 @@ void NativeViewHostGtk::AddedToWidget() {
 }
 
 void NativeViewHostGtk::RemovedFromWidget() {
+  if (!host_->native_view())
+    return;
+
   WidgetGtk* parent_widget = static_cast<WidgetGtk*>(host_->GetWidget());
   gtk_widget_hide(host_->native_view());
   if (parent_widget) {

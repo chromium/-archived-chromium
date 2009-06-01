@@ -39,6 +39,8 @@ void NativeTabContentsContainerGtk::AttachContents(TabContents* contents) {
   HWND contents_hwnd = contents->GetContentNativeView();
   if (contents_hwnd)
     views::FocusManager::InstallFocusSubclass(contents_hwnd, this);
+#else
+  NOTIMPLEMENTED();
 #endif
 }
 
@@ -64,6 +66,8 @@ void NativeTabContentsContainerGtk::DetachContents(TabContents* contents) {
     // displaying the sad tab for example.
     views::FocusManager::UninstallFocusSubclass(hwnd);
   }
+#else
+  gtk_widget_hide(contents->GetNativeView());
 #endif
 
   // Now detach the TabContents.
@@ -94,6 +98,13 @@ void NativeTabContentsContainerGtk::RenderViewHostChanged(
       GetRootView()->GetWidget()->GetNativeView());
   if (focus_manager->GetFocusedView() == this)
     Focus();
+#else
+  // If we are focused, we need to pass the focus to the new RenderViewHost.
+  // TODO: uncomment this once FocusManager has been ported.
+  // views::FocusManager* focus_manager = views::FocusManager::GetFocusManager(
+  // GetRootView()->GetWidget()->GetNativeView());
+  // if (focus_manager->GetFocusedView() == this)
+  // Focus();
 #endif
 }
 
@@ -133,10 +144,7 @@ void NativeTabContentsContainerGtk::Focus() {
       container_->tab_contents()->interstitial_page()->Focus();
       return;
     }
-    // TODO(port): set focus to inner content widget.
-#if defined(OS_WIN)
-    SetFocus(container_->tab_contents()->GetContentNativeView());
-#endif
+    gtk_widget_grab_focus(container_->tab_contents()->GetContentNativeView());
   }
 }
 
