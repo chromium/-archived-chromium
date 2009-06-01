@@ -2,9 +2,9 @@
 <archive type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="7.03">
 	<data>
 		<int key="IBDocument.SystemTarget">1050</int>
-		<string key="IBDocument.SystemVersion">9G55</string>
+		<string key="IBDocument.SystemVersion">9J61</string>
 		<string key="IBDocument.InterfaceBuilderVersion">677</string>
-		<string key="IBDocument.AppKitVersion">949.43</string>
+		<string key="IBDocument.AppKitVersion">949.46</string>
 		<string key="IBDocument.HIToolboxVersion">353.00</string>
 		<object class="NSMutableArray" key="IBDocument.EditedObjectIDs">
 			<bool key="EncodedWithXMLCoder">YES</bool>
@@ -37,7 +37,7 @@
 			<object class="NSWindowTemplate" id="1005">
 				<int key="NSWindowStyleMask">1</int>
 				<int key="NSWindowBacking">2</int>
-				<string key="NSWindowRect">{{196, 316}, {486, 194}}</string>
+				<string key="NSWindowRect">{{196, 240}, {507, 270}}</string>
 				<int key="NSWTFlags">1610613760</int>
 				<string key="NSWindowTitle">Welcome to Google Chrome for Mac OS X</string>
 				<string key="NSWindowClass">NSWindow</string>
@@ -51,16 +51,19 @@
 						<object class="NSTextField" id="502236431">
 							<reference key="NSNextResponder" ref="1006"/>
 							<int key="NSvFlags">268</int>
-							<string key="NSFrame">{{17, 89}, {451, 85}}</string>
+							<string key="NSFrame">{{17, 131}, {483, 119}}</string>
 							<reference key="NSSuperview" ref="1006"/>
 							<bool key="NSEnabled">YES</bool>
 							<object class="NSTextFieldCell" key="NSCell" id="1018548691">
 								<int key="NSCellFlags">67239424</int>
 								<int key="NSCellFlags2">1346371584</int>
 								<string type="base64-UTF8" key="NSContents">V2VsY29tZSB0byBHb29nbGUgQ2hyb21lIGZvciBNYWMgT1MgWCAtIERldmVsb3BlciBSZWxlYXNlIE9u
-bHkKCkJvb2ttYXJrIGFuZCBwYXNzd29yZCBpbXBvcnQgYXJlIHVuYXZhaWxhYmxlIGF0IHRoaXMgdGlt
-ZSwgYW5kIHlvdXIgY3VycmVudCBkZWZhdWx0IGJyb3dzZXIgd2lsbCByZW1haW4gdGhlIGRlZmF1bHQu
-A</string>
+bHkKClRoaXMgcmVsZWFzZSBpcyBub3QgYXBwcm9wcmlhdGUgZm9yIGdlbmVyYWwgY29uc3VtZXIgdXNl
+LiBTZXZlcmFsIGZlYXR1cmVzLCBzdWNoIGFzIGJvb2ttYXJrIGFuZCBwYXNzd29yZCBpbXBvcnQgYW5k
+IGNlcnRhaW4gcHJpdmFjeSBmZWF0dXJlcywgYXJlIHVuYXZhaWxhYmxlIGF0IHRoaXMgdGltZS4gIFBs
+ZWFzZSBzZWUgb3VyIHByaXZhY3kgcG9saWN5IGZvciBmdXJ0aGVyIGRldGFpbHMgOiBodHRwOi8vd3d3
+Lmdvb2dsZS5jb20vY2hyb21lL2ludGwvZW4vcHJpdmFjeV9tYWMuaHRtbCAuICBZb3VyIGRlZmF1bHQg
+YnJvd3NlciB3aWxsIHJlbWFpbiB0aGUgZGVmYXVsdC4</string>
 								<object class="NSFont" key="NSSupport" id="832514646">
 									<string key="NSName">LucidaGrande</string>
 									<double key="NSSize">1.300000e+01</double>
@@ -90,7 +93,7 @@ A</string>
 						<object class="NSButton" id="949645676">
 							<reference key="NSNextResponder" ref="1006"/>
 							<int key="NSvFlags">268</int>
-							<string key="NSFrame">{{18, 58}, {22, 25}}</string>
+							<string key="NSFrame">{{18, 86}, {22, 25}}</string>
 							<reference key="NSSuperview" ref="1006"/>
 							<bool key="NSEnabled">YES</bool>
 							<object class="NSButtonCell" key="NSCell" id="135453653">
@@ -117,7 +120,7 @@ A</string>
 						<object class="NSButton" id="585627708">
 							<reference key="NSNextResponder" ref="1006"/>
 							<int key="NSvFlags">268</int>
-							<string key="NSFrame">{{194, 12}, {96, 32}}</string>
+							<string key="NSFrame">{{201, 12}, {96, 32}}</string>
 							<reference key="NSSuperview" ref="1006"/>
 							<bool key="NSEnabled">YES</bool>
 							<object class="NSButtonCell" key="NSCell" id="515660988">
@@ -147,7 +150,7 @@ A</string>
 										<object class="NSTextView" id="421721722">
 											<reference key="NSNextResponder" ref="193016761"/>
 											<int key="NSvFlags">2322</int>
-											<string key="NSFrameSize">{433, 32}</string>
+											<string key="NSFrameSize">{433, 31}</string>
 											<reference key="NSSuperview" ref="193016761"/>
 											<object class="NSTextContainer" key="NSTextContainer" id="465558439">
 												<object class="NSLayoutManager" key="NSLayoutManager">
@@ -339,7 +342,7 @@ A</string>
 											<nil key="NSDelegate"/>
 										</object>
 									</object>
-									<string key="NSFrameSize">{433, 51}</string>
+									<string key="NSFrameSize">{433, 50}</string>
 									<reference key="NSSuperview" ref="899181073"/>
 									<reference key="NSNextKeyView" ref="421721722"/>
 									<reference key="NSDocView" ref="421721722"/>
@@ -374,7 +377,7 @@ A</string>
 									<double key="NSPercent">9.456522e-01</double>
 								</object>
 							</object>
-							<string key="NSFrame">{{33, 31}, {433, 51}}</string>
+							<string key="NSFrame">{{33, 60}, {433, 50}}</string>
 							<reference key="NSSuperview" ref="1006"/>
 							<reference key="NSNextKeyView" ref="193016761"/>
 							<int key="NSsFlags">0</int>
@@ -383,7 +386,7 @@ A</string>
 							<reference key="NSContentView" ref="193016761"/>
 						</object>
 					</object>
-					<string key="NSFrameSize">{486, 194}</string>
+					<string key="NSFrameSize">{507, 270}</string>
 					<reference key="NSSuperview"/>
 				</object>
 				<string key="NSScreenRect">{{0, 0}, {1680, 1028}}</string>
@@ -588,9 +591,9 @@ A</string>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
-					<string>{{334, 559}, {486, 194}}</string>
+					<string>{{-1478, 664}, {507, 270}}</string>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
-					<string>{{334, 559}, {486, 194}}</string>
+					<string>{{-1478, 664}, {507, 270}}</string>
 					<reference ref="6"/>
 					<string>{196, 240}</string>
 					<string>{{357, 418}, {480, 270}}</string>
