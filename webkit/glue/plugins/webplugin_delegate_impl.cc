@@ -192,6 +192,8 @@ WebPluginDelegateImpl::WebPluginDelegateImpl(
              filename == "nppl3260.dll") {
     quirks_ |= PLUGIN_QUIRK_DONT_CALL_WND_PROC_RECURSIVELY;
   } else if (plugin_info.name.find(L"VLC Multimedia Plugin") !=
+             std::wstring::npos ||
+             plugin_info.name.find(L"VLC Multimedia Plug-in") !=
              std::wstring::npos) {
     // VLC hangs on NPP_Destroy if we call NPP_SetWindow with a null window
     // handle
