@@ -2603,6 +2603,9 @@ BUG11832 LINUX : LayoutTests/svg/custom/circular-marker-reference-4.svg = FAIL P
 BUG11832 LINUX DEBUG : LayoutTests/svg/W3C-SVG-1.1/painting-marker-01-f.svg = FAIL PASS
 BUG11832 LINUX : LayoutTests/fast/css/transition-color-unspecified.html = FAIL PASS
 BUG11832 LINUX : LayoutTests/editing/selection/extend-selection.html = TIMEOUT PASS
+BUG11832 LINUX : LayoutTests/http/tests/xmlhttprequest/request-encoding.html = TIMEOUT PASS
+BUG11832 LINUX : LayoutTests/http/tests/xmlhttprequest/uri-resolution-opera-open-005.html = CRASH PASS
+BUG11832 LINUX : LayoutTests/http/tests/xmlhttprequest/uri-resolution-opera-open-010.html = CRASH PASS
 
 // Flaky Windows Tests
 BUG11898 WIN DEBUG : LayoutTests/svg/dom/SVGScriptElement/script-set-href.svg = FAIL PASS
