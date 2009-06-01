@@ -33,8 +33,6 @@ class ZipTest : public PlatformTest {
     zip_contents_.insert(zip_path);
     zip_contents_.insert(zip_path.AppendASCII("baz.txt"));
     zip_contents_.insert(zip_path.AppendASCII("quux.txt"));
-    zip_path = zip_path.AppendASCII("baz");
-    zip_contents_.insert(zip_path);
   }
 
   virtual void TearDown() {
@@ -78,7 +76,6 @@ class ZipTest : public PlatformTest {
   std::set<FilePath> zip_contents_;
 };
 
-#if 0  // Temporarily disable tests while debugging
 TEST_F(ZipTest, Unzip) {
   TestUnzipFile(FILE_PATH_LITERAL("test.zip"));
 }
@@ -104,6 +101,5 @@ TEST_F(ZipTest, Zip) {
 
   EXPECT_TRUE(file_util::Delete(zip_file, false));
 }
-#endif
 
 }  // namespace
