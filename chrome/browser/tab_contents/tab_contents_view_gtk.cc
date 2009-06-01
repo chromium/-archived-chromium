@@ -62,6 +62,23 @@ gboolean OnMouseMove(GtkWidget* widget, GdkEventMotion* event,
   return FALSE;
 }
 
+// See tab_contents_view_win.cc for discussion of mouse scroll zooming.
+gboolean OnMouseScroll(GtkWidget* widget, GdkEventScroll* event,
+                       TabContents* tab_contents) {
+  if ((event->state & gtk_accelerator_get_default_mod_mask()) ==
+      GDK_CONTROL_MASK) {
+    if (event->direction == GDK_SCROLL_DOWN) {
+      tab_contents->delegate()->ContentsZoomChange(false);
+      return TRUE;
+    } else if (event->direction == GDK_SCROLL_UP) {
+      tab_contents->delegate()->ContentsZoomChange(true);
+      return TRUE;
+    }
+  }
+
+  return FALSE;
+}
+
 // Used with gtk_container_foreach to change the sizes of the children of
 // |fixed_|.
 void SetSizeRequest(GtkWidget* widget, gpointer userdata) {
@@ -124,6 +141,8 @@ RenderWidgetHostView* TabContentsViewGtk::CreateViewForWidget(
                    G_CALLBACK(OnLeaveNotify), tab_contents());
   g_signal_connect(content_view, "motion-notify-event",
                    G_CALLBACK(OnMouseMove), tab_contents());
+  g_signal_connect(content_view, "scroll-event",
+                   G_CALLBACK(OnMouseScroll), tab_contents());
   gtk_widget_add_events(content_view, GDK_LEAVE_NOTIFY_MASK |
                         GDK_POINTER_MOTION_MASK);
   g_signal_connect(content_view, "button-press-event",
