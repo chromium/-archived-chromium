@@ -243,6 +243,10 @@ void UITest::LaunchBrowser(const CommandLine& arguments, bool clear_profile) {
   // No first-run dialogs, please.
   command_line.AppendSwitch(switches::kNoFirstRun);
 
+  // No default browser check, it would create an info-bar (if we are not the
+  // default browser) that could conflicts with some tests expectations.
+  command_line.AppendSwitch(switches::kNoDefaultBrowserCheck);
+
   // We need cookies on file:// for things like the page cycler.
   if (enable_file_cookies_)
     command_line.AppendSwitch(switches::kEnableFileCookies);

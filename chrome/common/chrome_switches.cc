@@ -477,4 +477,8 @@ const wchar_t kForceFieldTestNameAndValue[]    = L"force-fieldtest";
 // can be a file path, in which case the file will be used as the new tab page.
 const wchar_t kNewNewTabPage[]                 = L"new-new-tab-page";
 
+// Disables the default browser check. Useful for UI/browser tests where we want
+// to avoid having the default browser info-bar displayed.
+const wchar_t kNoDefaultBrowserCheck[]         = L"no-default-browser-check";
+
 }  // namespace switches

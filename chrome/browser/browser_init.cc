@@ -419,7 +419,8 @@ bool BrowserInit::LaunchWithProfile::Launch(Profile* profile,
       OpenURLsInBrowser(browser, process_startup, urls_to_open);
     }
     // Check whether we are the default browser.
-    CheckDefaultBrowser(profile);
+    if (!command_line_.HasSwitch(switches::kNoDefaultBrowserCheck))
+      CheckDefaultBrowser(profile);
   } else {
     RecordLaunchModeHistogram(LM_AS_WEBAPP);
   }

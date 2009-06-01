@@ -179,6 +179,8 @@ extern const wchar_t kForceFieldTestNameAndValue[];
 
 extern const wchar_t kNewNewTabPage[];
 
+extern const wchar_t kNoDefaultBrowserCheck[];
+
 }  // namespace switches
 
 #endif  // CHROME_COMMON_CHROME_SWITCHES_H_
