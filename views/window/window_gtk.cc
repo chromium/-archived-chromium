@@ -41,19 +41,10 @@ gfx::Rect WindowGtk::GetNormalBounds() const {
   return GetBounds();
 }
 
-void WindowGtk::SetBounds(const gfx::Rect& bounds) {
-  GtkWindow* gtk_window = GetNativeWindow();
-  // TODO: this may need to set an initial size if not showing.
-  // TODO: need to constrain based on screen size.
-  gtk_window_resize(gtk_window, bounds.width(), bounds.height());
-
-  gtk_window_move(gtk_window, bounds.x(), bounds.y());
-}
-
 void WindowGtk::SetBounds(const gfx::Rect& bounds,
                           gfx::NativeWindow other_window) {
   // TODO: need to deal with other_window.
-  SetBounds(bounds);
+  WidgetGtk::SetBounds(bounds);
 }
 
 void WindowGtk::Show() {
@@ -242,7 +233,7 @@ void WindowGtk::Init(const gfx::Rect& bounds) {
 void WindowGtk::SetInitialBounds(const gfx::Rect& create_bounds) {
   gfx::Rect saved_bounds(create_bounds.ToGdkRectangle());
   if (window_delegate_->GetSavedWindowBounds(&saved_bounds)) {
-    SetBounds(saved_bounds);
+    WidgetGtk::SetBounds(saved_bounds);
   } else {
     if (create_bounds.IsEmpty()) {
       SizeWindowToDefault();

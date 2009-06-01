@@ -27,7 +27,6 @@ class WindowGtk : public WidgetGtk, public Window {
   // Window overrides:
   virtual gfx::Rect GetBounds() const;
   virtual gfx::Rect GetNormalBounds() const;
-  virtual void SetBounds(const gfx::Rect& bounds);
   virtual void SetBounds(const gfx::Rect& bounds,
                          gfx::NativeWindow other_window);
   virtual void Show();
