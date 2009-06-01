@@ -1082,15 +1082,15 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\common\unzip_unittest.cc"
-				>
-			</File>
-			<File
 				RelativePath="..\..\common\extensions\user_script_unittest.cc"
 				>
 			</File>
 			<File
 				RelativePath="..\..\common\worker_thread_ticker_unittest.cc"
+				>
+			</File>
+			<File
+				RelativePath="..\..\common\zip_unittest.cc"
 				>
 			</File>
 		</Filter>

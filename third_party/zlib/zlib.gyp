@@ -18,6 +18,8 @@
         'contrib/minizip/iowin32.h',
         'contrib/minizip/unzip.c',
         'contrib/minizip/unzip.h',
+        'contrib/minizip/zip.c',
+        'contrib/minizip/zip.h',
         'adler32.c',
         'compress.c',
         'crc32.c',

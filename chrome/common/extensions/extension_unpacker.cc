@@ -16,10 +16,10 @@
 #include "chrome/common/extensions/extension.h"
 #include "chrome/common/json_value_serializer.h"
 #include "chrome/common/notification_service.h"
-#include "chrome/common/unzip.h"
 #include "chrome/common/url_constants.h"
 #include "third_party/skia/include/core/SkBitmap.h"
 #include "webkit/glue/image_decoder.h"
+#include "chrome/common/zip.h"
 
 namespace {
 const char kCurrentVersionFileName[] = "Current Version";
@@ -255,7 +255,7 @@ bool ExtensionUnpacker::Run() {
     return false;
   }
 
-  if (!Unzip(extension_path_, temp_install_dir_, NULL)) {
+  if (!Unzip(extension_path_, temp_install_dir_)) {
     SetError("Couldn't unzip extension.");
     return false;
   }

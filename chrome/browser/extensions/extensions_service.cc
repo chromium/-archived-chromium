@@ -31,7 +31,7 @@
 #include "chrome/common/json_value_serializer.h"
 #include "chrome/common/notification_service.h"
 #include "chrome/common/pref_service.h"
-#include "chrome/common/unzip.h"
+#include "chrome/common/zip.h"
 #include "chrome/common/url_constants.h"
 #include "grit/chromium_strings.h"
 #include "grit/generated_resources.h"

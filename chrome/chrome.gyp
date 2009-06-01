@@ -412,8 +412,6 @@
         'common/transport_dib_linux.cc',
         'common/transport_dib_mac.cc',
         'common/transport_dib_win.cc',
-        'common/unzip.cc',  # Requires zlib directly.
-        'common/unzip.h',
         'common/url_constants.cc',
         'common/url_constants.h',
         'common/visitedlink_common.cc',
@@ -426,6 +424,8 @@
         'common/x11_util.cc',
         'common/x11_util.h',
         'common/x11_util_internal.h',
+        'common/zip.cc',  # Requires zlib directly.
+        'common/zip.h',
         'third_party/xdg_user_dirs/xdg_user_dir_lookup.cc',
 
         'tools/build/win/precompiled.cc',
@@ -3182,8 +3182,8 @@
         'common/property_bag_unittest.cc',
         'common/resource_dispatcher_unittest.cc',
         'common/time_format_unittest.cc',
-        'common/unzip_unittest.cc',
         'common/worker_thread_ticker_unittest.cc',
+        'common/zip_unittest.cc',
         'renderer/extensions/extension_api_client_unittest.cc',
         'renderer/extensions/greasemonkey_api_unittest.cc',
         'renderer/extensions/json_schema_unittest.cc',

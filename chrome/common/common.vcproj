@@ -746,14 +746,6 @@
 			>
 		</File>
 		<File
-			RelativePath=".\unzip.cc"
-			>
-		</File>
-		<File
-			RelativePath=".\unzip.h"
-			>
-		</File>
-		<File
 			RelativePath=".\url_constants.cc"
 			>
 		</File>
@@ -787,6 +779,14 @@
 		</File>
 		<File
 			RelativePath=".\worker_thread_ticker.h"
+			>
+		</File>
+		<File
+			RelativePath=".\zip.cc"
+			>
+		</File>
+		<File
+			RelativePath=".\zip.h"
 			>
 		</File>
 	</Files>

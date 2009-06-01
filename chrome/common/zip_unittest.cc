@@ -9,14 +9,14 @@
 #include "base/path_service.h"
 #include "base/string_util.h"
 #include "chrome/common/chrome_paths.h"
-#include "chrome/common/unzip.h"
+#include "chrome/common/zip.h"
 #include "testing/gtest/include/gtest/gtest.h"
 #include "testing/platform_test.h"
 
 namespace {
 
 // Make the test a PlatformTest to setup autorelease pools properly on Mac.
-class UnzipTest : public PlatformTest {
+class ZipTest : public PlatformTest {
  protected:
   virtual void SetUp() {
     PlatformTest::SetUp();
@@ -24,8 +24,7 @@ class UnzipTest : public PlatformTest {
     ASSERT_TRUE(file_util::CreateNewTempDirectory(
         FILE_PATH_LITERAL("unzip_unittest_"), &test_dir_));
 
-    FilePath zip_path(test_dir_.AppendASCII("test"));
-    zip_contents_.insert(zip_path);
+    FilePath zip_path(test_dir_);
     zip_contents_.insert(zip_path.AppendASCII("foo.txt"));
     zip_path = zip_path.AppendASCII("foo");
     zip_contents_.insert(zip_path);
@@ -45,15 +44,16 @@ class UnzipTest : public PlatformTest {
     ASSERT_FALSE(file_util::PathExists(test_dir_));
   }
 
-  void TestZipFile(const FilePath::StringType& filename) {
+  void TestUnzipFile(const FilePath::StringType& filename) {
     FilePath test_dir;
     ASSERT_TRUE(PathService::Get(chrome::DIR_TEST_DATA, &test_dir));
-    test_dir = test_dir.AppendASCII("unzip");
-    FilePath path = test_dir.Append(filename);
+    test_dir = test_dir.AppendASCII("zip");
+    TestUnzipFile(test_dir.Append(filename));
+  }
 
+  void TestUnzipFile(const FilePath& path) {
     ASSERT_TRUE(file_util::PathExists(path)) << "no file " << path.value();
-    std::vector<FilePath> out_files;
-    ASSERT_TRUE(Unzip(path, test_dir_, &out_files));
+    ASSERT_TRUE(Unzip(path, test_dir_));
 
     file_util::FileEnumerator files(test_dir_, true,
         file_util::FileEnumerator::FILES_AND_DIRECTORIES);
@@ -66,12 +66,6 @@ class UnzipTest : public PlatformTest {
       next_path = files.Next();
     }
     EXPECT_EQ(count, zip_contents_.size());
-    EXPECT_EQ(count, out_files.size());
-    std::vector<FilePath>::iterator iter;
-    for (iter = out_files.begin(); iter != out_files.end(); ++iter) {
-      EXPECT_EQ(zip_contents_.count(*iter), 1U) <<
-          "Couldn't find " << (*iter).value();
-    }
   }
 
   // the path to temporary directory used to contain the test operations
@@ -82,12 +76,30 @@ class UnzipTest : public PlatformTest {
 };
 
 
-TEST_F(UnzipTest, Unzip) {
-  TestZipFile(FILE_PATH_LITERAL("test.zip"));
+TEST_F(ZipTest, Unzip) {
+  TestUnzipFile(FILE_PATH_LITERAL("test.zip"));
 }
 
-TEST_F(UnzipTest, UnzipUncompressed) {
-  TestZipFile(FILE_PATH_LITERAL("test_nocompress.zip"));
+TEST_F(ZipTest, UnzipUncompressed) {
+  TestUnzipFile(FILE_PATH_LITERAL("test_nocompress.zip"));
+}
+
+
+TEST_F(ZipTest, Zip) {
+  FilePath src_dir;
+  ASSERT_TRUE(PathService::Get(chrome::DIR_TEST_DATA, &src_dir));
+  src_dir = src_dir.AppendASCII("zip").AppendASCII("test");
+
+  FilePath zip_file;
+  ASSERT_TRUE(file_util::CreateNewTempDirectory(
+      FILE_PATH_LITERAL("unzip_unittest_"), &zip_file));
+  zip_file = zip_file.AppendASCII("out.zip");
+
+  EXPECT_TRUE(Zip(src_dir, zip_file));
+
+  TestUnzipFile(zip_file);
+
+  EXPECT_TRUE(file_util::Delete(zip_file, false));
 }
 
 }  // namespace
