@@ -42,9 +42,11 @@ class MessagePumpForUI : public MessagePump {
   // Internal methods used for processing the pump callbacks.  They are
   // public for simplicity but should not be used directly.  HandlePrepare
   // is called during the prepare step of glib, and returns a timeout that
-  // will be passed to the poll.  HandleDispatch is called after the poll
-  // has completed.
+  // will be passed to the poll. HandleCheck is called after the poll
+  // has completed, and returns whether or not HandleDispatch should be called.
+  // HandleDispatch is called if HandleCheck returned true.
   int HandlePrepare();
+  bool HandleCheck();
   void HandleDispatch();
 
   // Add an Observer, which will start receiving notifications immediately.
@@ -66,9 +68,10 @@ class MessagePumpForUI : public MessagePump {
     // Used to count how many Run() invocations are on the stack.
     int run_depth;
 
-    // Used internally for controlling whether we want a message pump
-    // iteration to be blocking or not.
-    bool more_work_is_plausible;
+    // This keeps the state of whether the pump got signaled that there was new
+    // work to be done. Since we eat the message on the wake up pipe as soon as
+    // we get it, we keep that state here to stay consistent.
+    bool has_work;
   };
 
   // Invoked from EventDispatcher. Notifies all observers we're about to
