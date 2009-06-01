@@ -10,7 +10,7 @@
     [ 'OS=="mac"', {
       'target_defaults': {
         'include_dirs': [
-          'src/',
+          'src',
         ],
         'configurations': {
           'Debug': {
@@ -104,6 +104,10 @@
             'src/common/mac/dump_syms.mm',
             'src/tools/mac/dump_syms/dump_syms_tool.mm',
           ],
+          'xcode_settings': {
+            # The DWARF utilities require -funsigned-char.
+            'GCC_CHAR_IS_UNSIGNED_CHAR': 'YES',
+          },
           'link_settings': {
             'libraries': [
               '$(SDKROOT)/System/Library/Frameworks/Foundation.framework',

@@ -2246,6 +2246,10 @@
             }],
             ['mac_breakpad==1', {
               # Only include breakpad in official builds.
+              'variables': {
+                # A real .dSYM is needed for dump_syms to operate on.
+                'mac_real_dsym': 1,
+              },
               'dependencies': [
                 '../breakpad/breakpad.gyp:breakpad',
                 '../breakpad/breakpad.gyp:dump_syms',
@@ -2257,22 +2261,14 @@
                   'files': ['<(PRODUCT_DIR)/crash_inspector', '<(PRODUCT_DIR)/crash_report_sender.app'],
                 },
               ],
-              'target_conditions': [
-                # We use target_conditions here that is always true to force
-                # this post build to run last.  This lets the strip from
-                # common.gypi go ahead of it, so we can always hit the
-                # upstripped app within the fake dSYM.
-                ['1', {
-                  'postbuilds': [
-                    {
-                      'postbuild_name': 'Dump Symbols',
-                      'action': ['<(DEPTH)/build/mac/dump_app_syms',
-                                 '<(branding)'],
-                    },
-                  ],
-                }],
+              'postbuilds': [
+                {
+                  'postbuild_name': 'Dump Symbols',
+                  'action': ['<(DEPTH)/build/mac/dump_app_syms',
+                             '<(branding)'],
+                },
               ],
-            }], # mac_breakpad
+            }],  # mac_breakpad
             ['mac_keystone==1', {
               'copies': [
                 {
@@ -2280,7 +2276,7 @@
                   'files': ['../third_party/googlemac/Releases/Keystone/KeystoneRegistration.framework'],
                 },
               ],
-            }], # mac_keystone
+            }],  # mac_keystone
           ],
           'product_name': '<(mac_product_name)',
           'xcode_settings': {

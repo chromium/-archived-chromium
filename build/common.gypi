@@ -351,6 +351,12 @@
     }],
     ['OS=="mac"', {
       'target_defaults': {
+        'variables': {
+          # This should be 'mac_real_dsym%', but there seems to be a bug
+          # with % in variables that are intended to be set to different
+          # values in different targets, like this one.
+          'mac_real_dsym': 0,  # Fake .dSYMs are fine in most cases.
+        },
         'mac_bundle': 0,
         'xcode_settings': {
           'ALWAYS_SEARCH_USER_PATHS': 'NO',
@@ -381,17 +387,38 @@
             'xcode_settings': {'OTHER_LDFLAGS': ['-Wl,-ObjC']},
           }],
           ['_type=="executable"', {
-            'postbuilds': [
-              {
-                'variables': {
-                  # Define strip_from_xcode in a variable ending in _path so
-                  # that gyp understands it's a path and performs proper
-                  # relativization during dict merging.
-                  'strip_from_xcode_path': 'mac/strip_from_xcode',
+            'target_conditions': [
+              ['mac_real_dsym == 1', {
+                # To get a real .dSYM bundle produced by dsymutil, set the
+                # debug information format to dwarf-with-dsym.  Since
+                # strip_from_xcode will not be used, set Xcode to do the
+                # stripping as well.
+                'configurations': {
+                  'Release': {
+                    'xcode_settings': {
+                      'DEBUG_INFORMATION_FORMAT': 'dwarf-with-dsym',
+                      'DEPLOYMENT_POSTPROCESSING': 'YES',
+                      'STRIP_INSTALLED_PRODUCT': 'YES',
+                    },
+                  },
                 },
-                'postbuild_name': 'Strip If Needed',
-                'action': ['<(strip_from_xcode_path)'],
-              },
+              }, {  # mac_real_dsym != 1
+                # To get a fast fake .dSYM bundle, use a post-build step to
+                # produce the .dSYM and strip the executable.  strip_from_xcode
+                # only operates in the Release configuration.
+                'postbuilds': [
+                  {
+                    'variables': {
+                      # Define strip_from_xcode in a variable ending in _path
+                      # so that gyp understands it's a path and performs proper
+                      # relativization during dict merging.
+                      'strip_from_xcode_path': 'mac/strip_from_xcode',
+                    },
+                    'postbuild_name': 'Strip If Needed',
+                    'action': ['<(strip_from_xcode_path)'],
+                  },
+                ],
+              }],
             ],
           }],
         ],
