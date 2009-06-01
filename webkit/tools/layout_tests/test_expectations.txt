@@ -2695,3 +2695,6 @@ BUG12882 : LayoutTests/fast/dom/Window/open-existing-pop-up-blocking.html = TIME
 BUG12882 LINUX : LayoutTests/fast/dom/Window/window-early-properties.html = CRASH
 BUG12882 WIN : LayoutTests/http/tests/security/credentials-in-referer.html = TIMEOUT
 BUG12882 LINUX : LayoutTests/fast/frames/iframe-js-url-clientWidth.html = CRASH
+
+// WebKit 44252:44287
+BUG13105 REBASELINE : LayoutTests/fast/backgrounds/body-generated-image-propagated-to-root.html = FAIL
