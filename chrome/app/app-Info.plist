@@ -160,6 +160,8 @@
 	<string>0.1</string>
 	<key>LSFileQuarantineEnabled</key>
 	<true/>
+	<key>LSMinimumSystemVersion</key>
+	<string>10.5</string>
 	<key>LSUIElement</key>
 	<string>1</string>
 	<key>NSMainNibFile</key>
