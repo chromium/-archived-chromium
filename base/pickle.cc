@@ -96,8 +96,8 @@ bool Pickle::ReadInt(void** iter, int* result) const {
   if (!IteratorHasRoomFor(*iter, sizeof(*result)))
     return false;
 
-  // TODO(jar) bug 1129285: Pickle should be cleaned up, and not dependent on
-  // alignment.
+  // TODO(jar): http://crbug.com/13108 Pickle should be cleaned up, and not
+  // dependent on alignment.
   // Next line is otherwise the same as: memcpy(result, *iter, sizeof(*result));
   *result = *reinterpret_cast<int*>(*iter);
 
@@ -113,8 +113,8 @@ bool Pickle::ReadLong(void** iter, long* result) const {
   if (!IteratorHasRoomFor(*iter, sizeof(*result)))
     return false;
 
-  // TODO(jar) bug 1129285: Pickle should be cleaned up, and not dependent on
-  // alignment.
+  // TODO(jar): http://crbug.com/13108 Pickle should be cleaned up, and not
+  // dependent on alignment.
   memcpy(result, *iter, sizeof(*result));
 
   UpdateIter(iter, sizeof(*result));
@@ -135,8 +135,8 @@ bool Pickle::ReadSize(void** iter, size_t* result) const {
   if (!IteratorHasRoomFor(*iter, sizeof(*result)))
     return false;
 
-  // TODO(jar) bug 1129285: Pickle should be cleaned up, and not dependent on
-  // alignment.
+  // TODO(jar): http://crbug.com/13108 Pickle should be cleaned up, and not
+  // dependent on alignment.
   // Next line is otherwise the same as: memcpy(result, *iter, sizeof(*result));
   *result = *reinterpret_cast<size_t*>(*iter);
 
