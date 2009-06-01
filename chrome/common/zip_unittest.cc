@@ -60,7 +60,7 @@ class ZipTest : public PlatformTest {
     FilePath next_path = files.Next();
     size_t count = 0;
     while (!next_path.value().empty()) {
-      if (next_path.value().find(FILE_PATH_LITERAL("/.svn/")) ==
+      if (next_path.value().find(FILE_PATH_LITERAL(".svn")) ==
           FilePath::StringType::npos) {
         EXPECT_EQ(zip_contents_.count(next_path), 1U) <<
             "Couldn't find " << next_path.value();
