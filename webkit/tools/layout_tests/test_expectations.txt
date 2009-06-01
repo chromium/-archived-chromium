@@ -2608,6 +2608,7 @@ BUG11832 LINUX : LayoutTests/editing/selection/extend-selection.html = TIMEOUT P
 BUG11832 LINUX : LayoutTests/http/tests/xmlhttprequest/request-encoding.html = TIMEOUT PASS
 BUG11832 LINUX : LayoutTests/http/tests/xmlhttprequest/uri-resolution-opera-open-005.html = CRASH PASS
 BUG11832 LINUX : LayoutTests/http/tests/xmlhttprequest/uri-resolution-opera-open-010.html = CRASH PASS
+BUG11832 LINUX DEBUG : LayoutTests/http/tests/xmlhttprequest/web-apps/004.html = CRASH PASS
 
 // Flaky Windows Tests
 BUG11898 WIN DEBUG : LayoutTests/svg/dom/SVGScriptElement/script-set-href.svg = FAIL PASS
