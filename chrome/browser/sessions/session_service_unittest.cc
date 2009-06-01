@@ -4,6 +4,7 @@
 
 #include "base/file_util.h"
 #include "base/path_service.h"
+#include "base/scoped_ptr.h"
 #include "base/scoped_vector.h"
 #include "base/stl_util-inl.h"
 #include "base/string_util.h"
@@ -14,6 +15,7 @@
 #include "chrome/browser/sessions/session_types.h"
 #include "chrome/browser/tab_contents/navigation_entry.h"
 #include "chrome/common/chrome_paths.h"
+#include "chrome/test/file_test_utils.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
 class SessionServiceTest : public testing::Test {
@@ -27,6 +29,7 @@ class SessionServiceTest : public testing::Test {
     PathService::Get(base::DIR_TEMP, &path_);
     path_ = path_.Append(FILE_PATH_LITERAL("SessionTestDirs"));
     file_util::CreateDirectory(path_);
+    path_deleter_.reset(new FileAutoDeleter(path_));
     path_ = path_.AppendASCII(b);
 
     SessionService* session_service = new SessionService(path_);
@@ -38,7 +41,7 @@ class SessionServiceTest : public testing::Test {
 
   virtual void TearDown() {
     helper_.set_service(NULL);
-    file_util::Delete(path_, true);
+    path_deleter_.reset();
   }
 
   void UpdateNavigation(const SessionID& window_id,
@@ -78,6 +81,7 @@ class SessionServiceTest : public testing::Test {
 
   // Path used in testing.
   FilePath path_;
+  scoped_ptr<FileAutoDeleter> path_deleter_;
 
   SessionServiceTestHelper helper_;
 };
