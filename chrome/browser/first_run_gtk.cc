@@ -46,9 +46,24 @@ void OpenFirstRunDialog(Profile* profile, ProcessSingleton* process_singleton) {
   // Force a size on the vbox so the labels wrap.
   gtk_widget_set_size_request(vbox, 400, -1);
 
+  GtkWidget* privacy_label = gtk_label_new(
+      "This version of Google Chrome for Linux is not appropriate for "
+      "general consumer use.  Certain privacy features are unavailable "
+      "at this time as described in our privacy policy at");
+  gtk_misc_set_alignment(GTK_MISC(privacy_label), 0, 0);
+  gtk_label_set_line_wrap(GTK_LABEL(privacy_label), TRUE);
+  gtk_box_pack_start(GTK_BOX(vbox), privacy_label, FALSE, FALSE, 0);
+
+  GtkWidget* url_label = gtk_label_new(NULL);
+  gtk_label_set_markup(GTK_LABEL(url_label),
+      "<tt>http://www.google.com/chrome/intl/en/privacy_linux.html</tt>");
+  // Set selectable to allow copy and paste.
+  gtk_label_set_selectable(GTK_LABEL(url_label), TRUE);
+  gtk_box_pack_start(GTK_BOX(vbox), url_label, FALSE, FALSE, 0);
+
   GtkWidget* intro_label = gtk_label_new(
       "This dialog would normally prompt you to import information from other "
-      "browsers, but that is not yet fully implemented.\n\n"
+      "browsers, but that is not yet fully implemented.\n"
       "Instead, we have only one important setting available: Crash dumps. "
       "We cannot fix your crashes without your crash reports, so there's "
       "little reason to run a dev channel build without turning them on.");
