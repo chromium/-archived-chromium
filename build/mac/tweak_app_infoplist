@@ -65,12 +65,11 @@ set -x
 APP_NAME=$("${BRAND_SCRIPT}" "${BUILD_BRANDING}" PRODUCT_FULLNAME)
 SRC_APP_PATH="${BUILT_PRODUCTS_DIR}/${APP_NAME}.app"
 
-# Figure out what version this build corresponds to.  Just use the svn revision
-# for now. Warning: my svnversion returns 10495:10552M. But that's ok since
-# it is just for reference.
-SVN_REVISION=$(svnversion "${SRCROOT}")
+# Visible in the about:version page.
+SVN_REVISION=$(svn info "${SRCROOT}" | grep "Revision:" | cut -d" " -f2-)
 if [ -z "${SVN_REVISION}" ] ; then
-  echo "warning: could not determine svn revision" >&2
+  echo "Could not determine svn revision.  This may be OK." >&2
+  # TODO: check for git, and get the version number from it?
 fi
 
 # Pull in the chrome version number
@@ -94,8 +93,10 @@ TMP_INFO_PLIST="${TMP_INFO_PLIST_DEFAULTS}.plist"
 cp "${SRC_APP_PATH}/${INFO_PLIST_PATH}" "${TMP_INFO_PLIST}"
 
 # Save off the svn version number in case we need it
-defaults write "${TMP_INFO_PLIST_DEFAULTS}" \
+if [ ! -z "${SVN_REVISION}" ] ; then
+  defaults write "${TMP_INFO_PLIST_DEFAULTS}" \
     SVNRevision -string "${SVN_REVISION}"
+fi
 
 # Add public version info so "Get Info" works
 defaults write "${TMP_INFO_PLIST_DEFAULTS}" \

@@ -103,11 +103,15 @@ std::wstring FileVersionInfo::special_build() {
 }
 
 std::wstring FileVersionInfo::last_change() {
-  return L"";
+  return GetStringValue(L"SVNRevision");
 }
 
 bool FileVersionInfo::is_official_build() {
+#if defined (GOOGLE_CHROME_BUILD)
+  return true;
+#else
   return false;
+#endif
 }
 
 bool FileVersionInfo::GetValue(const wchar_t* name, std::wstring* value_str) {
