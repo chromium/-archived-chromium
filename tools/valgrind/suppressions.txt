@@ -14,8 +14,7 @@
 {
    Uninitialized value in deflate
    Memcheck:Cond
-   fun:longest_match
-   fun:deflate_slow
+   ...
    fun:MOZ_Z_deflate
 }
 {

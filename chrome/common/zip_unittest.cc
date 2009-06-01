@@ -75,9 +75,7 @@ class ZipTest : public PlatformTest {
   // hard-coded contents of a known zip file
   std::set<FilePath> zip_contents_;
 };
-// TODO(aa): re-enable this test for Mac (was disabled temporarily to clear
-// valgrind error on mac.
-#if !defined(OS_MACOSX)
+
 TEST_F(ZipTest, Unzip) {
   TestUnzipFile(FILE_PATH_LITERAL("test.zip"));
 }
@@ -103,5 +101,5 @@ TEST_F(ZipTest, Zip) {
 
   EXPECT_TRUE(file_util::Delete(zip_file, false));
 }
-#endif // !defined(OS_MACOSX)
+
 }  // namespace
