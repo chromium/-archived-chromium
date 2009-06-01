@@ -21,7 +21,7 @@ namespace chrome_browser_net {
 
 // Initialize dns prefetching subsystem. Must be called before any other
 // functions.
-void InitDnsPrefetch(PrefService* user_prefs);
+void InitDnsPrefetch(size_t max_concurrent, PrefService* user_prefs);
 
 // Cancel pending lookup requests and don't make new ones. Does nothing
 // if dns prefetching has not been initialized (to simplify its usage).
@@ -58,8 +58,12 @@ void TrimSubresourceReferrers();
 // Helper class to handle global init and shutdown.
 class DnsPrefetcherInit {
  public:
-  explicit DnsPrefetcherInit(PrefService* user_prefs) {
-    InitDnsPrefetch(user_prefs);
+  // Too many concurrent lookups negate benefits of prefetching by trashing the
+  // OS cache before all resource loading is complete.  This is the default.
+  static const size_t kMaxConcurrentLookups;
+
+  explicit DnsPrefetcherInit(size_t max_concurrent, PrefService* user_prefs) {
+    InitDnsPrefetch(max_concurrent, user_prefs);
   }
 
   ~DnsPrefetcherInit() {

@@ -161,12 +161,12 @@ TEST_F(DnsMasterTest, OsCachesLookupsTest) {
 }
 
 TEST_F(DnsMasterTest, StartupShutdownTest) {
-  DnsMaster testing_master;
+  DnsMaster testing_master(DnsPrefetcherInit::kMaxConcurrentLookups);
   testing_master.Shutdown();
 }
 
 TEST_F(DnsMasterTest, BenefitLookupTest) {
-  DnsMaster testing_master;
+  DnsMaster testing_master(DnsPrefetcherInit::kMaxConcurrentLookups);
 
   std::string goog("www.google.com"),
     goog2("gmail.google.com.com"),
@@ -228,7 +228,7 @@ TEST_F(DnsMasterTest, ShutdownWhenResolutionIsPendingTest) {
   scoped_refptr<net::WaitingHostMapper> mapper = new net::WaitingHostMapper();
   net::ScopedHostMapper scoped_mapper(mapper.get());
 
-  DnsMaster testing_master;
+  DnsMaster testing_master(DnsPrefetcherInit::kMaxConcurrentLookups);
 
   std::string localhost("127.0.0.1");
   NameList names;
@@ -250,7 +250,7 @@ TEST_F(DnsMasterTest, ShutdownWhenResolutionIsPendingTest) {
 }
 
 TEST_F(DnsMasterTest, SingleLookupTest) {
-  DnsMaster testing_master;
+  DnsMaster testing_master(DnsPrefetcherInit::kMaxConcurrentLookups);
 
   std::string goog("www.google.com");
 
@@ -270,7 +270,7 @@ TEST_F(DnsMasterTest, SingleLookupTest) {
   EXPECT_GT(testing_master.peak_pending_lookups(), names.size() / 2);
   EXPECT_LE(testing_master.peak_pending_lookups(), names.size());
   EXPECT_LE(testing_master.peak_pending_lookups(),
-            DnsMaster::kMaxConcurrentLookups);
+            DnsPrefetcherInit::kMaxConcurrentLookups);
 
   testing_master.Shutdown();
 }
@@ -278,7 +278,7 @@ TEST_F(DnsMasterTest, SingleLookupTest) {
 TEST_F(DnsMasterTest, ConcurrentLookupTest) {
   mapper_->AddSimulatedFailure("*.notfound");
 
-  DnsMaster testing_master;
+  DnsMaster testing_master(DnsPrefetcherInit::kMaxConcurrentLookups);
 
   std::string goog("www.google.com"),
     goog2("gmail.google.com.com"),
@@ -323,7 +323,7 @@ TEST_F(DnsMasterTest, ConcurrentLookupTest) {
   EXPECT_GT(testing_master.peak_pending_lookups(), names.size() / 2);
   EXPECT_LE(testing_master.peak_pending_lookups(), names.size());
   EXPECT_LE(testing_master.peak_pending_lookups(),
-            DnsMaster::kMaxConcurrentLookups);
+            DnsPrefetcherInit::kMaxConcurrentLookups);
 
   testing_master.Shutdown();
 }
@@ -331,7 +331,7 @@ TEST_F(DnsMasterTest, ConcurrentLookupTest) {
 TEST_F(DnsMasterTest, MassiveConcurrentLookupTest) {
   mapper_->AddSimulatedFailure("*.notfound");
 
-  DnsMaster testing_master;
+  DnsMaster testing_master(DnsPrefetcherInit::kMaxConcurrentLookups);
 
   NameList names;
   for (int i = 0; i < 100; i++)
@@ -347,7 +347,7 @@ TEST_F(DnsMasterTest, MassiveConcurrentLookupTest) {
 
   EXPECT_LE(testing_master.peak_pending_lookups(), names.size());
   EXPECT_LE(testing_master.peak_pending_lookups(),
-            DnsMaster::kMaxConcurrentLookups);
+            DnsPrefetcherInit::kMaxConcurrentLookups);
 
   testing_master.Shutdown();
 }
@@ -434,7 +434,7 @@ int GetLatencyFromSerialization(const std::string& motivation,
 
 // Make sure nil referral lists really have no entries, and no latency listed.
 TEST_F(DnsMasterTest, ReferrerSerializationNilTest) {
-  DnsMaster master;
+  DnsMaster master(DnsPrefetcherInit::kMaxConcurrentLookups);
   ListValue referral_list;
   master.SerializeReferrers(&referral_list);
   EXPECT_EQ(0U, referral_list.GetSize());
@@ -448,7 +448,7 @@ TEST_F(DnsMasterTest, ReferrerSerializationNilTest) {
 // deserialized into the database, and can be extracted back out via
 // serialization without being changed.
 TEST_F(DnsMasterTest, ReferrerSerializationSingleReferrerTest) {
-  DnsMaster master;
+  DnsMaster master(DnsPrefetcherInit::kMaxConcurrentLookups);
   std::string motivation_hostname = "www.google.com";
   std::string subresource_hostname = "icons.google.com";
   const int kLatency = 3;
@@ -471,7 +471,7 @@ TEST_F(DnsMasterTest, ReferrerSerializationSingleReferrerTest) {
 
 // Make sure the Trim() functionality works as expected.
 TEST_F(DnsMasterTest, ReferrerSerializationTrimTest) {
-  DnsMaster master;
+  DnsMaster master(DnsPrefetcherInit::kMaxConcurrentLookups);
   std::string motivation_hostname = "www.google.com";
   std::string icon_subresource_hostname = "icons.google.com";
   std::string img_subresource_hostname = "img.google.com";

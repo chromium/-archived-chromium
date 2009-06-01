@@ -21,9 +21,6 @@
 
 namespace chrome_browser_net {
 
-// static
-const size_t DnsMaster::kMaxConcurrentLookups = 8;
-
 class DnsMaster::LookupRequest {
  public:
   LookupRequest(DnsMaster* master, const std::string& hostname)
@@ -56,7 +53,10 @@ class DnsMaster::LookupRequest {
   DISALLOW_COPY_AND_ASSIGN(LookupRequest);
 };
 
-DnsMaster::DnsMaster() : peak_pending_lookups_(0), shutdown_(false) {
+DnsMaster::DnsMaster(size_t max_concurrent)
+  : peak_pending_lookups_(0),
+    shutdown_(false),
+    max_concurrent_lookups_(max_concurrent) {
 }
 
 DnsMaster::~DnsMaster() {
@@ -369,7 +369,7 @@ DnsHostInfo* DnsMaster::PreLockedResolve(
 
 void DnsMaster::PreLockedScheduleLookups() {
   while (!name_buffer_.empty() &&
-         pending_lookups_.size() < kMaxConcurrentLookups) {
+         pending_lookups_.size() < max_concurrent_lookups_) {
     const std::string hostname(name_buffer_.front());
     name_buffer_.pop();
 
@@ -442,7 +442,7 @@ void DnsMaster::DiscardAllResults() {
       assignees[hostname] = *info;
     }
   }
-  DCHECK(assignees.size() <= kMaxConcurrentLookups);
+  DCHECK(assignees.size() <= max_concurrent_lookups_);
   results_.clear();
   // Put back in the names being worked on.
   for (Results::iterator it = assignees.begin(); assignees.end() != it; ++it) {

@@ -32,11 +32,8 @@ typedef std::map<std::string, DnsHostInfo> Results;
 
 class DnsMaster {
  public:
-  // Too many concurrent lookups negate benefits of prefetching
-  // by trashing the OS cache.
-  static const size_t kMaxConcurrentLookups;
-
-  DnsMaster();
+  // Specify how many concurrent (paralell) prefetches will be performed.
+  DnsMaster(size_t max_concurrent);
   ~DnsMaster();
 
   // Cancel pending requests and prevent new ones from being made.
@@ -168,6 +165,9 @@ class DnsMaster {
   // A map of hosts that were evicted from our cache (after we prefetched them)
   // and before the HTTP stack tried to look them up.
   Results cache_eviction_map_;
+
+  // The number of concurrent lookups currently allowed.
+  const size_t max_concurrent_lookups_;
 
   DISALLOW_COPY_AND_ASSIGN(DnsMaster);
 };

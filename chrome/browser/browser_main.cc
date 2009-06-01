@@ -578,9 +578,20 @@ int BrowserMain(const MainFunctionParams& parameters) {
   FieldTrial::Probability k_PROBABILITY_DISABLED = 0;
   scoped_refptr<FieldTrial> dns_trial = new FieldTrial("DnsImpact", kDIVISOR);
 
+  // First option is to disable prefetching completele.
   dns_trial->AppendGroup("_disabled_prefetch", k_PROBABILITY_PER_GROUP);
+  // Second option is to set parallel prefetch limit to 4 instead of default 8.
+  int parallel_4_prefetch = dns_trial->AppendGroup("_parallel_4_prefetch",
+                                                   k_PROBABILITY_PER_GROUP);
+
   // Don't discard names (erase these lines) yet, as we may use them, and we
   // have histogram data named for these options.
+
+  // Next two options relate to the number of parallel http connections that can
+  // be made to a single host.  The default is currently 6, and we wanted to see
+  // what would happen when we restricted this to 4.  (Historically the limit
+  // was a mere 2, but several browsers including Chromium increased it to 6
+  // recently).
   int disabled_plus_4_connections = dns_trial->AppendGroup(
       "_disabled_prefetch_4_connections", k_PROBABILITY_DISABLED);
   int enabled_plus_4_connections = dns_trial->AppendGroup(
@@ -588,10 +599,16 @@ int BrowserMain(const MainFunctionParams& parameters) {
 
   scoped_ptr<chrome_browser_net::DnsPrefetcherInit> dns_prefetch_init;
   if (dns_trial->group() == FieldTrial::kNotParticipating ||
-      dns_trial->group() == enabled_plus_4_connections) {
+    dns_trial->group() == enabled_plus_4_connections ||
+    dns_trial->group() == parallel_4_prefetch) {
     // Initialize the DNS prefetch system
-    dns_prefetch_init.reset(
-        new chrome_browser_net::DnsPrefetcherInit(user_prefs));
+      if (dns_trial->group() == parallel_4_prefetch)
+        dns_prefetch_init.reset(new chrome_browser_net::DnsPrefetcherInit(
+            4, user_prefs));
+      else
+        dns_prefetch_init.reset(new chrome_browser_net::DnsPrefetcherInit(
+            chrome_browser_net::DnsPrefetcherInit::kMaxConcurrentLookups,
+            user_prefs));
     chrome_browser_net::DnsPrefetchHostNamesAtStartup(user_prefs, local_state);
     chrome_browser_net::RestoreSubresourceReferrers(local_state);
   }
