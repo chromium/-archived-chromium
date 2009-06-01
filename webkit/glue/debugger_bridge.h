@@ -11,9 +11,10 @@
 #include <string>
 
 #include "base/basictypes.h"
-#include "base/message_loop.h"
 #include "base/ref_counted.h"
 #include "v8/include/v8-debug.h"
+
+class MessageLoop;
 
 void V8DebugMessageHandler(const uint16_t* message, int length,
                            v8::Debug::ClientData* client_data);

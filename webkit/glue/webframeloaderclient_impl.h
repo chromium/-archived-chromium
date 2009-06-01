@@ -5,8 +5,6 @@
 #ifndef WEBKIT_GLUE_WEBFRAMELOADERCLIENT_IMPL_H__
 #define WEBKIT_GLUE_WEBFRAMELOADERCLIENT_IMPL_H__
 
-#include <set>
-
 #include "base/compiler_specific.h"
 
 MSVC_PUSH_WARNING_LEVEL(0);
@@ -15,7 +13,6 @@ MSVC_POP_WARNING();
 
 #include "build/build_config.h"
 #include "base/scoped_ptr.h"
-#include "base/time.h"
 #include "googleurl/src/gurl.h"
 #include "webkit/glue/webview_delegate.h"
 #include "webkit/glue/window_open_disposition.h"

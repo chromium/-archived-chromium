@@ -23,7 +23,6 @@ MSVC_POP_WARNING();
 #include "base/basictypes.h"
 #include "webkit/glue/webframe_impl.h"
 #include "webkit/glue/webplugin.h"
-#include "webkit/glue/webplugin_delegate.h"
 
 class WebFrameImpl;
 class WebPluginDelegate;

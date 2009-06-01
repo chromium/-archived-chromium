@@ -16,6 +16,7 @@ MSVC_POP_WARNING();
 #undef LOG
 
 #include "base/logging.h"
+#include "base/string_piece.h"
 #include "grit/webkit_resources.h"
 #include "googleurl/src/gurl.h"
 #include "webkit/glue/glue_util.h"

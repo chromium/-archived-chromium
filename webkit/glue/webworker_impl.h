@@ -9,13 +9,11 @@
 
 #if ENABLE(WORKERS)
 
-#include <vector>
 #include "ScriptExecutionContext.h"
 #include "WorkerObjectProxy.h"
 #include <wtf/RefPtr.h>
 
 namespace WebCore {
-class ScriptExecutionContext;
 class Strng;
 class WorkerThread;
 };

@@ -9,7 +9,6 @@
 #include <vector>
 
 #include "base/basictypes.h"
-#include "base/file_path.h"
 #include "base/gfx/rect.h"
 #include "base/gfx/native_widget_types.h"
 

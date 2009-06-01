@@ -6,10 +6,11 @@
 #define WEBKIT_GLUE_WEBFRAME_H_
 
 #include "base/scoped_ptr.h"
-#include "googleurl/src/gurl.h"
+#include "base/string16.h"
 #include "skia/ext/bitmap_platform_device.h"
 #include "skia/ext/platform_canvas.h"
 
+class GURL;
 class WebAppCacheContext;
 class WebDataSource;
 class WebError;

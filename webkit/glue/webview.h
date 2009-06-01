@@ -9,7 +9,6 @@
 #include <vector>
 
 #include "base/basictypes.h"
-#include "base/string16.h"
 #include "webkit/glue/webwidget.h"
 
 namespace WebKit {

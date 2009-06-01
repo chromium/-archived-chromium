@@ -7,6 +7,7 @@
 #include "webkit/glue/entity_map.h"
 
 #include "base/hash_tables.h"
+#include "base/string_util.h"
 
 namespace webkit_glue {
 

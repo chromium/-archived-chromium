@@ -63,6 +63,7 @@
 #include "webkit/glue/plugins/plugin_host.h"
 #include "webkit/glue/plugins/plugin_instance.h"
 #include "webkit/glue/stacking_order_iterator.h"
+#include "webkit/glue/webplugin_delegate.h"
 #include "webkit/glue/webview_impl.h"
 #include "googleurl/src/gurl.h"
 

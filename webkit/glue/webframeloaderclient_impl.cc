@@ -56,6 +56,7 @@ MSVC_POP_WARNING();
 #include "webkit/glue/weberror_impl.h"
 #include "webkit/glue/webframeloaderclient_impl.h"
 #include "webkit/glue/webkit_glue.h"
+#include "webkit/glue/webplugin_delegate.h"
 #include "webkit/glue/webplugin_impl.h"
 #include "webkit/glue/webresponse_impl.h"
 #include "webkit/glue/webview_delegate.h"

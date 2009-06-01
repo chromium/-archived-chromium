@@ -21,7 +21,6 @@
 #if defined(OS_POSIX)
 #include "base/file_descriptor_posix.h"
 #endif
-#include "base/file_path.h"
 #include "base/platform_file.h"
 #include "base/ref_counted.h"
 #include "base/time.h"
@@ -34,6 +33,8 @@ class WebFrame;
 namespace net {
 class HttpResponseHeaders;
 }
+
+class FilePath;
 
 namespace webkit_glue {
 

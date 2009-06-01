@@ -28,7 +28,6 @@
 
 #include <vector>
 
-#include "base/file_path.h"
 #include "webkit/glue/context_menu.h"
 #include "webkit/glue/webdatasource.h"
 #include "webkit/glue/webwidget_delegate.h"

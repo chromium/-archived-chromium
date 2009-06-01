@@ -6,11 +6,8 @@
 #define WEBKIT_GLUE_WEBWIDGET_IMPL_H__
 
 #include "base/basictypes.h"
-#include "base/compiler_specific.h"
 #include "base/ref_counted.h"
-#include "base/gfx/native_widget_types.h"
 #include "webkit/api/public/WebPoint.h"
-#include "webkit/api/public/WebRect.h"
 #include "webkit/api/public/WebSize.h"
 #include "webkit/glue/webwidget.h"
 
@@ -30,6 +27,7 @@ namespace WebKit {
 class WebKeyboardEvent;
 class WebMouseEvent;
 class WebMouseWheelEvent;
+class WebRect;
 }
 
 struct MenuItem;

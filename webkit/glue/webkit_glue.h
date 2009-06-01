@@ -16,12 +16,11 @@
 
 #include "base/clipboard.h"
 #include "base/file_path.h"
-#include "base/gfx/native_widget_types.h"
 #include "base/string16.h"
-#include "base/string_piece.h"
 
 class GURL;
 class SkBitmap;
+class StringPiece;
 class WebView;
 class WebFrame;
 struct WebPluginInfo;

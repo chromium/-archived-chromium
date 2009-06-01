@@ -7,8 +7,6 @@
 
 #include "BackForwardList.h"
 
-#include "base/ref_counted.h"
-
 class WebViewImpl;
 
 namespace webkit_glue {

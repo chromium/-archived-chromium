@@ -8,7 +8,7 @@
 #include <string>
 
 #include "base/basictypes.h"
-#include "base/string_util.h"
+#include "base/string16.h"
 
 namespace webkit_glue {
 

@@ -89,6 +89,7 @@ MSVC_POP_WARNING();
 #include "webkit/api/public/WebDragData.h"
 #include "webkit/api/public/WebInputEvent.h"
 #include "webkit/api/public/WebPoint.h"
+#include "webkit/api/public/WebRect.h"
 #include "webkit/glue/chrome_client_impl.h"
 #include "webkit/glue/context_menu_client_impl.h"
 #include "webkit/glue/dom_operations.h"
@@ -914,7 +915,7 @@ void WebViewImpl::Close() {
       page_->mainFrame()->loader()->frameDetached();
     page_.reset();
   }
-  
+
   // Should happen after page_.reset().
   devtools_agent_.reset(NULL);
 

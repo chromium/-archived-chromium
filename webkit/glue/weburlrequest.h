@@ -8,8 +8,6 @@
 #include <map>
 #include <string>
 
-#include "base/ref_counted.h"
-
 enum WebRequestCachePolicy {
   WebRequestUseProtocolCachePolicy,
   WebRequestReloadIgnoringCacheData,

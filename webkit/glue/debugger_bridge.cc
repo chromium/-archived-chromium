@@ -3,6 +3,7 @@
 // found in the LICENSE file.
 
 #include "config.h"  // webkit config for V8
+#include "base/message_loop.h"
 #include "base/string_util.h"
 #include "webkit/glue/debugger_bridge.h"
 

@@ -13,6 +13,7 @@
 #include "Page.h"
 #undef LOG
 
+#include "base/string_piece.h"
 #include "grit/webkit_resources.h"
 #include "V8Binding.h"
 #include "V8DOMWindow.h"

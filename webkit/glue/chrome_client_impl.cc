@@ -38,6 +38,7 @@ MSVC_POP_WARNING();
 #include "googleurl/src/gurl.h"
 #include "webkit/api/public/WebInputEvent.h"
 #include "webkit/api/public/WebKit.h"
+#include "webkit/api/public/WebRect.h"
 #include "webkit/glue/glue_util.h"
 #include "webkit/glue/webframe_impl.h"
 #include "webkit/glue/webkit_glue.h"
