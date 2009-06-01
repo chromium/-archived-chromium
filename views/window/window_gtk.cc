@@ -42,12 +42,12 @@ gfx::Rect WindowGtk::GetNormalBounds() const {
 }
 
 void WindowGtk::SetBounds(const gfx::Rect& bounds) {
+  GtkWindow* gtk_window = GetNativeWindow();
   // TODO: this may need to set an initial size if not showing.
   // TODO: need to constrain based on screen size.
-  gtk_window_resize(GTK_WINDOW(GetNativeView()), bounds.width(),
-                    bounds.height());
+  gtk_window_resize(gtk_window, bounds.width(), bounds.height());
 
-  gtk_window_move(GTK_WINDOW(GetNativeView()), bounds.x(), bounds.y());
+  gtk_window_move(gtk_window, bounds.x(), bounds.y());
 }
 
 void WindowGtk::SetBounds(const gfx::Rect& bounds,
@@ -110,20 +110,22 @@ bool WindowGtk::IsVisible() const {
 }
 
 bool WindowGtk::IsMaximized() const {
-  return window_maximized_;
+  return window_state_ & GDK_WINDOW_STATE_MAXIMIZED;
 }
 
 bool WindowGtk::IsMinimized() const {
-  return window_minimized_;
+  return window_state_ & GDK_WINDOW_STATE_ICONIFIED;
 }
 
 void WindowGtk::SetFullscreen(bool fullscreen) {
-  NOTIMPLEMENTED();
+  if (fullscreen)
+    gtk_window_fullscreen(GetNativeWindow());
+  else
+    gtk_window_unfullscreen(GetNativeWindow());
 }
 
 bool WindowGtk::IsFullscreen() const {
-  NOTIMPLEMENTED();
-  return false;
+  return window_state_ & GDK_WINDOW_STATE_FULLSCREEN;
 }
 
 void WindowGtk::EnableClose(bool enable) {
@@ -225,7 +227,7 @@ void WindowGtk::Init(const gfx::Rect& bounds) {
                    G_CALLBACK(CallWindowStateEvent),
                    NULL);
 
-  //  SetInitialBounds(bounds);
+  SetInitialBounds(bounds);
 
   // if (!IsAppWindow()) {
   //   notification_registrar_.Add(
@@ -235,6 +237,25 @@ void WindowGtk::Init(const gfx::Rect& bounds) {
   // }
 
   // ResetWindowRegion(false);
+}
+
+void WindowGtk::SetInitialBounds(const gfx::Rect& create_bounds) {
+  gfx::Rect saved_bounds(create_bounds.ToGdkRectangle());
+  if (window_delegate_->GetSavedWindowBounds(&saved_bounds)) {
+    SetBounds(saved_bounds);
+  } else {
+    if (create_bounds.IsEmpty()) {
+      SizeWindowToDefault();
+    } else {
+      SetBounds(create_bounds, NULL);
+    }
+  }
+}
+
+void WindowGtk::SizeWindowToDefault() {
+  gfx::Size size = non_client_view_->GetPreferredSize();
+  gfx::Rect bounds(size.width(), size.height());
+  SetBounds(bounds, NULL);
 }
 
 void WindowGtk::SaveWindowPosition() {
@@ -249,10 +270,7 @@ void WindowGtk::SaveWindowPosition() {
 void WindowGtk::CallWindowStateEvent(GtkWidget* widget,
                                      GdkEventWindowState* window_state) {
   WindowGtk* window_gtk = GetWindowForNative(widget);
-  window_gtk->window_maximized_ =
-      window_state->new_window_state & GDK_WINDOW_STATE_MAXIMIZED;
-  window_gtk->window_minimized_ =
-      window_state->new_window_state & GDK_WINDOW_STATE_ICONIFIED;
+  window_gtk->window_state_ = window_state->new_window_state;
 }
 
 }  // namespace views

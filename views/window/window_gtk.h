@@ -80,6 +80,9 @@ class WindowGtk : public WidgetGtk, public Window {
   // Asks the delegate if any to save the window's location and size.
   void SaveWindowPosition();
 
+  void SetInitialBounds(const gfx::Rect& bounds);
+  void SizeWindowToDefault();
+
   // Whether or not the window is modal. This comes from the delegate and is
   // cached at Init time to avoid calling back to the delegate from the
   // destructor.
@@ -94,14 +97,10 @@ class WindowGtk : public WidgetGtk, public Window {
   // desired implementation before calling |Init|.
   NonClientView* non_client_view_;
 
+
+  GdkWindowState window_state_;
   // Set to true if the window is in the process of closing.
   bool window_closed_;
-
-  // Set to true if the window is maximized
-  bool window_maximized_;
-
-  // Set to true of the window is minimized
-  bool window_minimized_;
 
   DISALLOW_COPY_AND_ASSIGN(WindowGtk);
 };
