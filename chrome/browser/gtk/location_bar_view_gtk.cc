@@ -137,12 +137,13 @@ void LocationBarViewGtk::OnChanged() {
 }
 
 void LocationBarViewGtk::OnInputInProgress(bool in_progress) {
-  // Here's a comment copied from the Windows code, which propagates this
-  // call up to the toolbar.
-  // "Called by the location bar view when the user starts typing in the edit.
-  // This forces our security style to be UNKNOWN for the duration of the
-  // editing."
-  // http://code.google.com/p/chromium/issues/detail?id=10965
+  // This is identical to the Windows code, except that we don't proxy the call
+  // back through the Toolbar, and just access the model here.
+  // The edit should make sure we're only notified when something changes.
+  DCHECK(toolbar_model_->input_in_progress() != in_progress);
+
+  toolbar_model_->set_input_in_progress(in_progress);
+  Update(NULL);
 }
 
 SkBitmap LocationBarViewGtk::GetFavIcon() const {
