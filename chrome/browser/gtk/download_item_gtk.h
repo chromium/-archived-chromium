@@ -151,6 +151,7 @@ class DownloadItemGtk : public DownloadItem::Observer,
 
   // An hbox for holding components of the dangerous download dialog.
   GtkWidget* dangerous_hbox_;
+  int dangerous_hbox_start_width_;
   int dangerous_hbox_full_width_;
 
   // The ID of the handler for the parent shelf's "size-allocate" event. We save

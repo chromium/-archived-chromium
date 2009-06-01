@@ -301,8 +301,10 @@ DownloadItemGtk::DownloadItemGtk(DownloadShelfGtk* parent_shelf,
     gtk_util::ForceFontSizePixels(dangerous_label, 13.4);
     gtk_label_set_markup(GTK_LABEL(dangerous_label), label_markup);
     gtk_label_set_line_wrap(GTK_LABEL(dangerous_label), TRUE);
+    // We pass TRUE, TRUE so that the label will condense to less than its
+    // request when the animation is going on.
     gtk_box_pack_start(GTK_BOX(dangerous_hbox_), dangerous_label,
-                       FALSE, FALSE, 0);
+                       TRUE, TRUE, 0);
     g_free(label_markup);
 
     // Create the ok button.
@@ -320,19 +322,23 @@ DownloadItemGtk::DownloadItemGtk(DownloadShelfGtk* parent_shelf,
     gtk_util::CenterWidgetInHBox(dangerous_hbox_, dangerous_decline, false, 0);
 
     // Put it in an alignment so that padding will be added on the left and
-    // right, and an event box so that drawing will be clipped correctly.
-    dangerous_prompt_ = gtk_util::CreateGtkBorderBin(dangerous_hbox_, NULL,
+    // right.
+    dangerous_prompt_ = gtk_alignment_new(0.0, 0.0, 1.0, 1.0);
+    gtk_alignment_set_padding(GTK_ALIGNMENT(dangerous_prompt_),
         0, 0, kDangerousElementPadding, kDangerousElementPadding);
+    gtk_container_add(GTK_CONTAINER(dangerous_prompt_), dangerous_hbox_);
     gtk_box_pack_start(GTK_BOX(hbox_), dangerous_prompt_, FALSE, FALSE, 0);
     gtk_widget_set_app_paintable(dangerous_prompt_, TRUE);
     g_signal_connect(dangerous_prompt_, "expose-event",
                      G_CALLBACK(OnDangerousPromptExpose), this);
     gtk_widget_show_all(dangerous_prompt_);
 
-    // The full width will depend on the text.
+    // The width will depend on the text.
     GtkRequisition req;
     gtk_widget_size_request(dangerous_hbox_, &req);
     dangerous_hbox_full_width_ = req.width;
+    gtk_widget_size_request(dangerous_label, &req);
+    dangerous_hbox_start_width_ = dangerous_hbox_full_width_ - req.width;
   }
 
   new_item_animation_->Show();
@@ -404,9 +410,11 @@ void DownloadItemGtk::AnimationProgressed(const Animation* animation) {
     gtk_widget_queue_draw(progress_area_);
   } else {
     if (IsDangerous()) {
-      int showing_width = std::max(kMinDangerousDownloadWidth,
-          static_cast<int>(dangerous_hbox_full_width_ *
-                           new_item_animation_->GetCurrentValue()));
+      int progress = (dangerous_hbox_full_width_ -
+                     dangerous_hbox_start_width_) *
+                     new_item_animation_->GetCurrentValue();
+      int showing_width = dangerous_hbox_start_width_ + progress;
+      showing_width = std::max(kMinDangerousDownloadWidth, showing_width);
       gtk_widget_set_size_request(dangerous_hbox_, showing_width, -1);
     } else {
       DCHECK(animation == new_item_animation_.get());
