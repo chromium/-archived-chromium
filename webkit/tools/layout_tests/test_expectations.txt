@@ -2697,4 +2697,4 @@ BUG12882 WIN : LayoutTests/http/tests/security/credentials-in-referer.html = TIM
 BUG12882 LINUX : LayoutTests/fast/frames/iframe-js-url-clientWidth.html = CRASH
 
 // WebKit 44252:44286
-BUG13105 : LayoutTests/fast/backgrounds/body-generated-image-propagated-to-root.html = FAIL
+BUG13105 REBASELINE : LayoutTests/fast/backgrounds/body-generated-image-propagated-to-root.html = FAIL
