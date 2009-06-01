@@ -960,7 +960,7 @@ bool WebFrameImpl::Find(int request_id,
         if (active_match_index_ + 1 == 0)
           active_match_index_ = last_match_count_ - 1;
       }
-#if defined(OS_WIN)
+#if defined(OS_WIN) || defined(OS_LINUX)
       // TODO(pinkerton): Fix Mac scrolling to be more like Win ScrollView
       if (selection_rect) {
         WebRect rect = webkit_glue::IntRectToWebRect(
@@ -1214,7 +1214,7 @@ void WebFrameImpl::ScopeStringMatches(int request_id,
         // To stop looking for the active tickmark, we set this flag.
         locating_active_rect_ = false;
 
-#if defined(OS_WIN)
+#if defined(OS_WIN) || defined(OS_LINUX)
         // TODO(pinkerton): Fix Mac invalidation to be more like Win ScrollView
         // Notify browser of new location for the selected rectangle.
         result_bounds.move(-frameview()->scrollOffset().width(),

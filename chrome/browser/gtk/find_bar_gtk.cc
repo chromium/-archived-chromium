@@ -215,6 +215,7 @@ void FindBarGtk::SetFocusAndSelection() {
 }
 
 void FindBarGtk::ClearResults(const FindNotificationDetails& results) {
+  UpdateUIForFindResult(results, string16());
 }
 
 void FindBarGtk::StopAnimation() {
@@ -326,6 +327,8 @@ void FindBarGtk::FindEntryTextInContents(bool forward_search) {
   } else {
     // The textbox is empty so we reset.
     tab_contents->StopFinding(true);  // true = clear selection on page.
+    UpdateUIForFindResult(find_bar_controller_->tab_contents()->find_result(),
+                          string16());
   }
 }
 
