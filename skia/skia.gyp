@@ -279,6 +279,7 @@
         '../third_party/skia/src/core/SkScan_Hairline.cpp',
         '../third_party/skia/src/core/SkScan_Path.cpp',
         '../third_party/skia/src/core/SkShader.cpp',
+        '../third_party/skia/src/core/SkShape.cpp',
         '../third_party/skia/src/core/SkSpriteBlitter_ARGB32.cpp',
         '../third_party/skia/src/core/SkSpriteBlitter_RGB16.cpp',
         '../third_party/skia/src/core/SkSinTable.h',

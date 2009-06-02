@@ -1767,7 +1767,6 @@ BUG10434 LINUX : LayoutTests/css1/text_properties/vertical_align.html = FAIL
 BUG10434 LINUX : LayoutTests/fast/repaint/transform-absolute-in-positioned-container.html = FAIL
 // SVG Mask-related tests. Most likely result of http://trac.webkit.org/changeset/41266.
 BUG10434 LINUX : LayoutTests/svg/W3C-SVG-1.1/masking-intro-01-f.svg = FAIL
-BUG10434 LINUX : LayoutTests/svg/custom/grayscale-gradient-mask.svg = FAIL
 
 // Regression from merge 41268:41286
 BUG10435 LINUX : LayoutTests/fast/canvas/canvas-text-alignment.html = FAIL
@@ -2570,9 +2569,6 @@ BUG11613 WIN : LayoutTests/http/tests/navigation/javascriptlink-frames.html = FA
 
 // These tests were broken by skia r171:
 // These ones seem to be mask/opacity-related:
-BUG12002 WIN LINUX : LayoutTests/fast/reflections/reflection-masks-opacity.html = FAIL
-BUG12002 WIN LINUX : LayoutTests/fast/reflections/reflection-masks.html = FAIL
-BUG12002 WIN DEBUG : LayoutTests/svg/custom/grayscale-gradient-mask.svg = FAIL
 BUG12002 LINUX : LayoutTests/svg/custom/circular-marker-reference-3.svg = FAIL
 // This one is flaky on Linux
 BUG12004 LINUX : LayoutTests/svg/custom/js-late-marker-creation.svg = FAIL PASS
