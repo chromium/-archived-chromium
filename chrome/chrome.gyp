@@ -3623,6 +3623,7 @@
             '../tools/memory_watcher/memory_watcher.gyp:*',
             '../webkit/activex_shim/activex_shim.gyp:*',
             '../webkit/activex_shim_dll/activex_shim_dll.gyp:*',
+            '../v8/tools/gyp/v8.gyp:v8_shell',
           ],
         },
         {
