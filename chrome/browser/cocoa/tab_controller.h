@@ -62,4 +62,8 @@
 
 @end
 
+@interface TabController(TestingAPI)
+- (NSString *)toolTip;
+@end  // TabController(TestingAPI)
+
 #endif  // CHROME_BROWSER_COCOA_TAB_CONTROLLER_H_

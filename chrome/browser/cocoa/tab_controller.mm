@@ -56,6 +56,11 @@
   }
 }
 
+- (void)setTitle:(NSString *)title {
+  [backgroundButton_ setToolTip:title];
+  [super setTitle:title];
+}
+
 - (void)setSelected:(BOOL)selected {
   if (selected_ != selected)
     [self internalSetSelected:selected];
@@ -75,6 +80,10 @@
 
 - (NSView*)iconView {
   return iconView_;
+}
+
+- (NSString *)toolTip {
+  return [backgroundButton_ toolTip];
 }
 
 @end

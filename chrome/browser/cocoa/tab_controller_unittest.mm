@@ -107,6 +107,19 @@ TEST_F(TabControllerTest, APISelection) {
   [[controller view] removeFromSuperview];
 }
 
+// Tests that setting the title of a tab sets the tooltip as well.
+TEST_F(TabControllerTest, ToolTip) {
+  NSWindow* window = cocoa_helper_.window();
+
+  scoped_nsobject<TabController> controller([[TabController alloc] init]);
+  [[window contentView] addSubview:[controller view]];
+
+  EXPECT_TRUE([[controller toolTip] length] == 0);
+  NSString *tooltip_string = @"Some text to use as a tab title";
+  [controller setTitle:tooltip_string];
+  EXPECT_TRUE([tooltip_string isEqualToString:[controller toolTip]]);
+}
+
 // Tests setting the |loading| property via code.
 TEST_F(TabControllerTest, Loading) {
   NSWindow* window = cocoa_helper_.window();
