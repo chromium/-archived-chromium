@@ -100,7 +100,7 @@ TEST_F(MiniInstallTest, DISABLED_MiniInstallerOverChromeMetaInstallerTest) {
   installer.OverInstall();
 }
 
-TEST_F(MiniInstallTest, MiniInstallerSystemInstallTest) {
+TEST_F(MiniInstallTest, DISABLED_MiniInstallerSystemInstallTest) {
   if (win_util::GetWinVersion() < win_util::WINVERSION_VISTA) {
     ChromeMiniInstaller installer(mini_installer_constants::kSystemInstall,
                                   mini_installer_constants::kDevChannelBuild);
