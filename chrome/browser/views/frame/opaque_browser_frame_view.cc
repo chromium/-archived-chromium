@@ -758,6 +758,8 @@ void OpaqueBrowserFrameView::PaintRestoredClientEdge(gfx::Canvas* canvas) {
   int client_area_top = frame_->GetWindow()->GetClientView()->y();
 
   gfx::Rect client_area_bounds = CalculateClientAreaBounds(width(), height());
+  SkColor toolbar_color = tp->GetColor(BrowserThemeProvider::COLOR_TOOLBAR);
+
   if (browser_view_->IsToolbarVisible()) {
     // The client edges start below the toolbar or its corner images, whichever
     // is shorter.
@@ -768,18 +770,12 @@ void OpaqueBrowserFrameView::PaintRestoredClientEdge(gfx::Canvas* canvas) {
   } else {
     // The toolbar isn't going to draw a client edge for us, so draw one
     // ourselves.
-    // This next calculation is necessary because the top center bitmap is
-    // shorter than the top left and right bitmaps.  We need their top edges to
-    // line up, and we need the left and right edges to start below the corners'
-    // bottoms.
     SkBitmap* top_left = tp->GetBitmapNamed(IDR_APP_TOP_LEFT);
     SkBitmap* top_center = tp->GetBitmapNamed(IDR_APP_TOP_CENTER);
     SkBitmap* top_right = tp->GetBitmapNamed(IDR_APP_TOP_RIGHT);
     int top_edge_y = client_area_top - top_center->height();
-
-    client_area_top = std::min(top_edge_y + top_left->height(),
-                               height() - NonClientBorderThickness());
     int height = client_area_top - top_edge_y;
+
     canvas->DrawBitmapInt(*top_left, 0, 0, top_left->width(), height,
         client_area_bounds.x() - top_left->width(), top_edge_y,
         top_left->width(), height, false);
@@ -788,6 +784,13 @@ void OpaqueBrowserFrameView::PaintRestoredClientEdge(gfx::Canvas* canvas) {
     canvas->DrawBitmapInt(*top_right, 0, 0, top_right->width(), height,
         client_area_bounds.right(), top_edge_y,
         top_right->width(), height, false);
+
+    // Draw the toolbar color across the top edge.
+    canvas->DrawLineInt(toolbar_color,
+        client_area_bounds.x() - kClientEdgeThickness,
+        client_area_top - kClientEdgeThickness,
+        client_area_bounds.right() + kClientEdgeThickness,
+        client_area_top - kClientEdgeThickness);
   }
 
   int client_area_bottom =
@@ -796,7 +799,6 @@ void OpaqueBrowserFrameView::PaintRestoredClientEdge(gfx::Canvas* canvas) {
 
   // Draw the toolbar color so that the one pixel areas down the sides
   // show the right color even if not covered by the toolbar image.
-  SkColor toolbar_color = tp->GetColor(BrowserThemeProvider::COLOR_TOOLBAR);
   canvas->DrawLineInt(toolbar_color,
       client_area_bounds.x() - kClientEdgeThickness,
       client_area_top,
