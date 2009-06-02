@@ -19,7 +19,7 @@ namespace net {
 //
 // Tracks which hosts have enabled ForceTLS.  After a host enables ForceTLS,
 // then we refuse to talk to the host over HTTP, treat all certificate errors as
-// fatal, and refuses to load any mixed content.
+// fatal, and refuse to load any mixed content.
 //
 class ForceTLSState {
  public:
@@ -34,6 +34,14 @@ class ForceTLSState {
 
   // Returns whether |host| has had ForceTLS enabled.
   bool IsEnabledForHost(const std::string& host);
+
+  // Returns |true| if |value| parses as a valid X-Force-TLS header value.
+  // The values of max-age and and includeSubDomains are returned in |max_age|
+  // and |include_subdomains|, respectively.  The out parameters are not
+  // modified if the function returns |false|.
+  static bool ParseHeader(const std::string& value,
+                          int* max_age,
+                          bool* include_subdomains);
 
  private:
   // The set of hosts that have enabled ForceTLS.
