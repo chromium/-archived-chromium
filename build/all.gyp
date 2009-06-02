@@ -3,15 +3,6 @@
 # found in the LICENSE file.
 
 {
-  'variables': {
-    'conditions': [
-      ['OS!="win"', {
-        'all_gyps%': 1,
-      },{  # else OS=="win"
-        'all_gyps%': 0,
-      }],
-    ],
-  },
   'includes': [
     'common.gypi',
   ],
