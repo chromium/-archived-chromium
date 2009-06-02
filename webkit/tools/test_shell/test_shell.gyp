@@ -29,6 +29,7 @@
       'target_name': 'test_shell_common',
       'type': '<(library)',
       'dependencies': [
+        'npapi_layout_test_plugin',
         '../../../base/base.gyp:base',
         '../../../base/base.gyp:base_gfx',
         '../../../net/net.gyp:net',
@@ -104,7 +105,6 @@
       'conditions': [
         ['OS!="win"', {
           'dependencies': [
-            'npapi_layout_test_plugin',
             'npapi_test_plugin',
           ],
         }],
