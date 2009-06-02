@@ -2114,7 +2114,6 @@
       'target_name': 'utility',
       'type': '<(library)',
       'msvs_guid': '4D2B38E6-65FF-4F97-B88A-E441DF54EBF7',
-      'msvs_existing_vcproj': 'utility/utility.vcproj',
       'dependencies': [
         '../base/base.gyp:base',
         '../skia/skia.gyp:skia',
