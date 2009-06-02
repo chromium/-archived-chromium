@@ -5,7 +5,6 @@
 #include "base/file_util.h"
 #include "base/path_service.h"
 #include "base/stl_util-inl.h"
-#include "chrome/browser/dock_info.h"
 #include "chrome/browser/dom_ui/new_tab_ui.h"
 #include "chrome/browser/profile.h"
 #include "chrome/browser/profile_manager.h"
