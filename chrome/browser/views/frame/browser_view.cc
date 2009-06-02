@@ -206,8 +206,25 @@ class DownloadInProgressConfirmDialogDelegate : public views::DialogDelegate,
       : browser_(browser) {
     int download_count = browser->profile()->GetDownloadManager()->
         in_progress_count();
-    label_ = new views::Label(l10n_util::GetStringF(
-        IDS_DOWNLOAD_REMOVE_CONFIRM_TITLE, download_count));
+
+    std::wstring label_text;
+    if (download_count == 1) {
+      label_text =
+          l10n_util::GetString(IDS_SINGLE_DOWNLOAD_REMOVE_CONFIRM_TITLE);
+      ok_button_text_ = l10n_util::GetString(
+          IDS_SINGLE_DOWNLOAD_REMOVE_CONFIRM_OK_BUTTON_LABEL);
+      cancel_button_text_ = l10n_util::GetString(
+          IDS_SINGLE_DOWNLOAD_REMOVE_CONFIRM_CANCEL_BUTTON_LABEL);
+    } else {
+      label_text =
+          l10n_util::GetStringF(IDS_MULTIPLE_DOWNLOADS_REMOVE_CONFIRM_TITLE,
+                                download_count);
+      ok_button_text_ = l10n_util::GetString(
+          IDS_MULTIPLE_DOWNLOADS_REMOVE_CONFIRM_OK_BUTTON_LABEL);
+      cancel_button_text_ = l10n_util::GetString(
+          IDS_MULTIPLE_DOWNLOADS_REMOVE_CONFIRM_CANCEL_BUTTON_LABEL);
+    }
+    label_ = new views::Label(label_text);
     label_->SetMultiLine(true);
     label_->SetHorizontalAlignment(views::Label::ALIGN_LEFT);
     label_->set_border(views::Border::CreateEmptyBorder(10, 10, 10, 10));
@@ -232,11 +249,10 @@ class DownloadInProgressConfirmDialogDelegate : public views::DialogDelegate,
   virtual std::wstring GetDialogButtonLabel(
       MessageBoxFlags::DialogButton button) const {
     if (button == MessageBoxFlags::DIALOGBUTTON_OK)
-      return l10n_util::GetString(IDS_DOWNLOAD_REMOVE_CONFIRM_OK_BUTTON_LABEL);
+      return ok_button_text_;
 
     DCHECK_EQ(MessageBoxFlags::DIALOGBUTTON_CANCEL, button);
-    return l10n_util::GetString(
-        IDS_DOWNLOAD_REMOVE_CONFIRM_CANCEL_BUTTON_LABEL);
+    return cancel_button_text_;
   }
 
   virtual bool Accept() {
@@ -263,6 +279,9 @@ class DownloadInProgressConfirmDialogDelegate : public views::DialogDelegate,
  private:
   Browser* browser_;
   views::Label* label_;
+
+  std::wstring ok_button_text_;
+  std::wstring cancel_button_text_;
 
   DISALLOW_COPY_AND_ASSIGN(DownloadInProgressConfirmDialogDelegate);
 };

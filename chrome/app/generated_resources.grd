@@ -1605,13 +1605,22 @@ each locale. -->
       </message>
 
       <!-- Remove in-progress downloads confirmation dialog -->
-      <message name="IDS_DOWNLOAD_REMOVE_CONFIRM_TITLE" desc="Title of the dialog asking for user confirmation to close the browser when downloads are in-progress.">
-        You have <ph name="DOWNLOAD_COUNT">$1<ex>3</ex></ph> download(s) in progress. If you close Google Chrome now, these downloads will be canceled.
+      <message name="IDS_SINGLE_DOWNLOAD_REMOVE_CONFIRM_TITLE" desc="Title of the dialog asking for user confirmation to close the browser when one download is in-progress.">
+        You have one download in progress. If you close Google Chrome now, this download will be canceled.
       </message>
-      <message name="IDS_DOWNLOAD_REMOVE_CONFIRM_OK_BUTTON_LABEL" desc="Button text for OKing to close the browser when downloads are in-progress.">
+      <message name="IDS_MULTIPLE_DOWNLOADS_REMOVE_CONFIRM_TITLE" desc="Title of the dialog asking for user confirmation to close the browser when multiple downloads are in-progress.">
+        You have <ph name="DOWNLOAD_COUNT">$1<ex>3</ex></ph> downloads in progress. If you close Google Chrome now, these downloads will be canceled.
+      </message>
+      <message name="IDS_SINGLE_DOWNLOAD_REMOVE_CONFIRM_OK_BUTTON_LABEL" desc="Button text for OKing to close the browser when a single download is in-progress.">
+        Close and cancel download
+      </message>
+      <message name="IDS_MULTIPLE_DOWNLOADS_REMOVE_CONFIRM_OK_BUTTON_LABEL" desc="Button text for OKing to close the browser when multiple downloads are in-progress.">
         Close and cancel downloads
       </message>
-      <message name="IDS_DOWNLOAD_REMOVE_CONFIRM_CANCEL_BUTTON_LABEL" desc="Button text for canceling the closing of the browser when downloads are in-progress.">
+      <message name="IDS_SINGLE_DOWNLOAD_REMOVE_CONFIRM_CANCEL_BUTTON_LABEL" desc="Button text for canceling the closing of the browser when a single download is in-progress.">
+        Wait for download to finish
+      </message>
+      <message name="IDS_MULTIPLE_DOWNLOADS_REMOVE_CONFIRM_CANCEL_BUTTON_LABEL" desc="Button text for canceling the closing of the browser when downloads are in-progress.">
         Wait for downloads to finish
       </message>
 
