@@ -80,7 +80,7 @@ class TabStripModelTest : public RenderViewHostTestHarness {
   // Forwards a URL "load" request through to our dummy TabContents
   // implementation.
   void LoadURL(TabContents* con, const std::wstring& url) {
-    controller().LoadURL(GURL(url), GURL(), PageTransition::LINK);
+    controller().LoadURL(GURL(WideToUTF16(url)), GURL(), PageTransition::LINK);
   }
 
   void GoBack(TabContents* contents) {
@@ -125,9 +125,9 @@ class MockTabStripModelObserver : public TabStripModelObserver {
           dst_contents(a_dst_contents),
           src_index(-1),
           dst_index(a_dst_index),
-          action(a_action),
           user_gesture(false),
-          foreground(false) {
+          foreground(false),
+          action(a_action) {
     }
 
     TabContents* src_contents;
@@ -604,7 +604,6 @@ TEST_F(TabStripModelTest, TestSelectOnClose) {
   EXPECT_TRUE(tabstrip.empty());
 
   TabContents* opener_contents = CreateTabContents();
-  NavigationController* opener = &opener_contents->controller();
   tabstrip.AppendTabContents(opener_contents, true);
 
   TabContents* contents1 = CreateTabContents();
@@ -682,7 +681,6 @@ TEST_F(TabStripModelTest, TestContextMenuCloseCommands) {
   EXPECT_TRUE(tabstrip.empty());
 
   TabContents* opener_contents = CreateTabContents();
-  NavigationController* opener = &opener_contents->controller();
   tabstrip.AppendTabContents(opener_contents, true);
 
   TabContents* contents1 = CreateTabContents();

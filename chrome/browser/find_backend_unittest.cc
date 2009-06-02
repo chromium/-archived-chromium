@@ -23,9 +23,9 @@ TEST_F(FindBackendTest, InternalState) {
   EXPECT_EQ(string16(), contents2.find_prepopulate_text());
   EXPECT_EQ(string16(), contents2.find_text());
 
-  string16 search_term1 = L" I had a 401K    ";
-  string16 search_term2 = L" but the economy ";
-  string16 search_term3 = L" eated it.       ";
+  string16 search_term1 = ASCIIToUTF16(" I had a 401K    ");
+  string16 search_term2 = ASCIIToUTF16(" but the economy ");
+  string16 search_term3 = ASCIIToUTF16(" eated it.       ");
 
   // Start searching in the first TabContents, searching forwards but not case
   // sensitive (as indicated by the last two params).
