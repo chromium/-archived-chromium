@@ -32,6 +32,10 @@ class BrowserFrameGtk : public BrowserFrame,
   virtual void UpdateThrobber(bool running);
   virtual ThemeProvider* GetThemeProviderForFrame() const;
 
+  // Overridden from views::Widget.
+  virtual ThemeProvider* GetThemeProvider() const;
+  virtual ThemeProvider* GetDefaultThemeProvider() const;
+
  protected:
   // WidgetGtk overrides.
   virtual views::RootView* CreateRootView();

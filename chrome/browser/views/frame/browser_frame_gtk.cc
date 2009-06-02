@@ -59,6 +59,16 @@ void BrowserFrameGtk::UpdateThrobber(bool running) {
 }
 
 ThemeProvider* BrowserFrameGtk::GetThemeProviderForFrame() const {
+  // This is implemented for a different interface than GetThemeProvider is,
+  // but they mean the same things.
+  return GetThemeProvider();
+}
+
+ThemeProvider* BrowserFrameGtk::GetThemeProvider() const {
+  return profile_->GetThemeProvider();
+}
+
+ThemeProvider* BrowserFrameGtk::GetDefaultThemeProvider() const {
   return profile_->GetThemeProvider();
 }
 
