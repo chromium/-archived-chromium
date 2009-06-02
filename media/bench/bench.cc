@@ -6,6 +6,8 @@
 // measure decoding performance between different FFmpeg compile and run-time
 // options.  We also use this tool to measure performance regressions when
 // testing newer builds of FFmpeg from trunk.
+//
+// This tool requires FFMPeg DLL's built with --enable-protocol=file.
 
 #include <iomanip>
 #include <iostream>
@@ -26,6 +28,7 @@ const wchar_t kStream[]                 = L"stream";
 const wchar_t kVideoThreads[]           = L"video-threads";
 const wchar_t kFast2[]                  = L"fast2";
 const wchar_t kSkip[]                   = L"skip";
+const wchar_t kFlush[]                  = L"flush";
 }  // namespace switches
 
 int main(int argc, const char** argv) {
@@ -43,8 +46,10 @@ int main(int argc, const char** argv) {
               << "Decode video using N threads\n"
               << "  --fast2                         "
               << "Enable fast2 flag\n"
+              << "  --flush                         "
+              << "Flush last frame\n"
               << "  --skip=[1|2|3]                  "
-              << "1=loop nonref, 2=loop, 3= frame nonref" << std::endl;
+              << "1=loop nonref, 2=loop, 3= frame nonref\n" << std::endl;
     return 1;
   }
 
@@ -86,6 +91,11 @@ int main(int argc, const char** argv) {
     fast2 = true;
   }
 
+  bool flush = false;
+  if (cmd_line->HasSwitch(switches::kFlush)) {
+    flush = true;
+  }
+
   int skip = 0;
   if (cmd_line->HasSwitch(switches::kSkip)) {
     std::wstring skip_opt(cmd_line->GetSwitchValue(switches::kSkip));
@@ -123,9 +133,13 @@ int main(int argc, const char** argv) {
       std::cout << "  ";
     }
 
-    // Print out stream information
-    std::cout << "Stream #" << i << ": " << codec->name << " ("
-              << codec->long_name << ")" << std::endl;
+    if (codec_context->codec_type == CODEC_TYPE_UNKNOWN) {
+      std::cout << "Stream #" << i << ": Unknown" << std::endl;
+    } else {
+      // Print out stream information
+      std::cout << "Stream #" << i << ": " << codec->name << " ("
+                << codec->long_name << ")" << std::endl;
+    }
   }
 
   // Only continue if we found our target stream.
@@ -179,10 +193,22 @@ int main(int argc, const char** argv) {
   // Stats collector.
   std::vector<double> decode_times;
   decode_times.reserve(4096);
-
   // Parse through the entire stream until we hit EOF.
   base::TimeTicks start = base::TimeTicks::HighResNow();
-  while (av_read_frame(format_context, &packet) >= 0) {
+  size_t frames = 0;
+  int read_result = 0;
+  do {
+    read_result = av_read_frame(format_context, &packet);
+
+    if (read_result < 0) {
+      if (flush) {
+        packet.stream_index = target_stream;
+        packet.size = 0;
+      } else {
+        break;
+      }
+    }
+
     // Only decode packets from our target stream.
     if (packet.stream_index == target_stream) {
       int result = -1;
@@ -191,14 +217,23 @@ int main(int argc, const char** argv) {
         int size_out = AVCODEC_MAX_AUDIO_FRAME_SIZE;
         result = avcodec_decode_audio3(codec_context, samples, &size_out,
                                        &packet);
+        if (size_out) {
+          ++frames;
+          read_result = 0;  // Force continuation.
+        }
       } else if (target_codec == CODEC_TYPE_VIDEO) {
         int got_picture = 0;
         result = avcodec_decode_video2(codec_context, frame, &got_picture,
                                        &packet);
+        if (got_picture) {
+          ++frames;
+          read_result = 0;  // Force continuation.
+        }
       } else {
         NOTREACHED();
       }
       base::TimeDelta delta = base::TimeTicks::HighResNow() - decode_start;
+
       decode_times.push_back(delta.InMillisecondsF());
 
       // Make sure our decoding went OK.
@@ -207,45 +242,48 @@ int main(int argc, const char** argv) {
         return 1;
       }
     }
-
     // Free our packet.
     av_free_packet(&packet);
-  }
+  } while (read_result >= 0);
   base::TimeDelta total = base::TimeTicks::HighResNow() - start;
 
-  // Calculate the sum.  The numbers are very consistent and the we're not too
-  // worried about floating point error here.
+  // Calculate the sum of times.  Note that some of these may be zero.
   double sum = 0;
   for (size_t i = 0; i < decode_times.size(); ++i) {
     sum += decode_times[i];
   }
 
-  // Calculate the average.
-  double average = sum / decode_times.size();
-
-  // Calculate the sum of the squared differences.
-  double squared_sum = 0;
-  for (size_t i = 0; i < decode_times.size(); ++i) {
-    double difference = decode_times[i] - average;
-    squared_sum += difference * difference;
-  }
-
-  // Calculate the standard deviation (jitter).
-  double stddev = sqrt(squared_sum / decode_times.size());
-
-    // Print our results.
+  // Print our results.
   std::cout.setf(std::ios::fixed);
   std::cout.precision(3);
   std::cout << std::endl;
-  std::cout << "     Frames:" << std::setw(10) << decode_times.size()
+  std::cout << "     Frames:" << std::setw(10) << frames
             << std::endl;
   std::cout << "      Total:" << std::setw(10) << total.InMillisecondsF()
             << " ms" << std::endl;
   std::cout << "  Summation:" << std::setw(10) << sum
             << " ms" << std::endl;
-  std::cout << "    Average:" << std::setw(10) << average
-            << " ms" << std::endl;
-  std::cout << "     StdDev:" << std::setw(10) << stddev
-            << " ms" << std::endl;
+
+  if (frames > 0u) {
+    // Calculate the average time per frame.
+    double average = sum / frames;
+
+    // Calculate the sum of the squared differences.
+    // Standard deviation will only be accurate if no threads are used.
+    // TODO(fbarchard): Rethink standard deviation calculation.
+    double squared_sum = 0;
+    for (size_t i = 0; i < frames; ++i) {
+      double difference = decode_times[i] - average;
+      squared_sum += difference * difference;
+    }
+
+    // Calculate the standard deviation (jitter).
+    double stddev = sqrt(squared_sum / frames);
+
+    std::cout << "    Average:" << std::setw(10) << average
+              << " ms" << std::endl;
+    std::cout << "     StdDev:" << std::setw(10) << stddev
+              << " ms" << std::endl;
+  }
   return 0;
 }
