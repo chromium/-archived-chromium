@@ -2700,3 +2700,7 @@ BUG13176 SKIP : LayoutTests/fast/workers/worker-close.html = FAIL
 BUG13174 WIN REBASELINE : LayoutTests/transitions/shorthand-border-transitions.html = FAIL
 BUG13174 LINUX REBASELINE : LayoutTests/fast/dynamic/anchor-lock.html = FAIL
 BUG13174 LINUX REBASELINE : LayoutTests/fast/transforms/bounding-rect-zoom.html = FAIL
+
+// Skia 171:196
+BUG13218 LINUX : LayoutTests/fast/reflections/inline-crash.html = FAIL
+BUG13218 LINUX : LayoutTests/svg/custom/grayscale-gradient-mask.svg = FAIL
