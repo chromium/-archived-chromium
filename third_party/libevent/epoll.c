@@ -161,7 +161,7 @@ epoll_recalc(struct event_base *base, void *arg, int max)
 		int nfds;
 
 		nfds = epollop->nfds;
-		while (nfds < max)
+		while (nfds <= max)
 			nfds <<= 1;
 
 		fds = realloc(epollop->fds, nfds * sizeof(struct evepoll));
