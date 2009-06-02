@@ -151,7 +151,9 @@ class WebFrameImpl : public WebFrame, public base::RefCounted<WebFrameImpl> {
   virtual void Undo();
   virtual void Redo();
   virtual void ClearSelection();
+  virtual bool HasSelection();
   virtual std::string GetSelection(bool as_html);
+  virtual std::string GetFullPageHtml();
 
   virtual void SetInViewSourceMode(bool enable);
 

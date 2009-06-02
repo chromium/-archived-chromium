@@ -326,9 +326,16 @@ class WebFrame {
   // Clear any text selection in the frame.
   virtual void ClearSelection() = 0;
 
+  // Checks if there is currently a selected area (indicates that GetSelection
+  // would return a non-empty string).
+  virtual bool HasSelection() = 0;
+
   // Returns the selected text if there is any.  If |as_html| is true, returns
   // the selection as HTML.  The return value is encoded in utf-8.
   virtual std::string GetSelection(bool as_html) = 0;
+
+  // Returns the full HTML of the page.
+  virtual std::string GetFullPageHtml() = 0;
 
   // Paints the contents of this web view in a bitmapped image. This image
   // will not have plugins drawn. Devices are cheap to copy because the data is

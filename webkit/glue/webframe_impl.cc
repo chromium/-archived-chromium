@@ -1416,6 +1416,12 @@ void WebFrameImpl::ClearSelection() {
   frame()->selection()->clear();
 }
 
+bool WebFrameImpl::HasSelection() {
+  // frame()->selection()->isNone() never returns true.
+  return (frame()->selection()->start() !=
+      frame()->selection()->end());
+}
+
 std::string WebFrameImpl::GetSelection(bool as_html) {
   RefPtr<Range> range = frame()->selection()->toNormalizedRange();
   if (!range.get())
@@ -1427,6 +1433,10 @@ std::string WebFrameImpl::GetSelection(bool as_html) {
   } else {
     return webkit_glue::StringToStdString(range->text());
   }
+}
+
+std::string WebFrameImpl::GetFullPageHtml() {
+  return webkit_glue::StringToStdString(createFullMarkup(frame_->document()));
 }
 
 void WebFrameImpl::CreateFrameView() {

@@ -52,3 +52,41 @@ TEST_F(WebFrameTest, GetContentAsPlainText) {
   frame->GetContentAsPlainText(12, &text);
   EXPECT_EQ("Hello world", WideToUTF8(text));
 }
+
+TEST_F(WebFrameTest, GetFullHtmlOfPage) {
+  WebView* view = test_shell_->webView();
+  WebFrame* frame = view->GetMainFrame();
+
+  // Generate a simple test case.
+  const char simple_source[] = "<p>Hello</p><p>World</p>";
+  GURL test_url("http://hello/");
+  frame->LoadHTMLString(simple_source, test_url);
+  test_shell_->WaitTestFinished();
+
+  std::wstring text;
+  frame->GetContentAsPlainText(std::numeric_limits<int>::max(), &text);
+  EXPECT_EQ("Hello\n\nWorld", WideToUTF8(text));
+
+  const std::string html = frame->GetFullPageHtml();
+
+  // Load again with the output html.
+  frame->LoadHTMLString(html, test_url);
+  test_shell_->WaitTestFinished();
+
+  EXPECT_EQ(html, frame->GetFullPageHtml());
+
+  text = L"";
+  frame->GetContentAsPlainText(std::numeric_limits<int>::max(), &text);
+  EXPECT_EQ("Hello\n\nWorld", WideToUTF8(text));
+
+  // Test selection check
+  EXPECT_FALSE(frame->HasSelection());
+  frame->SelectAll();
+  EXPECT_TRUE(frame->HasSelection());
+  frame->ClearSelection();
+  EXPECT_FALSE(frame->HasSelection());
+  std::string selection_html = frame->GetSelection(true);
+  EXPECT_TRUE(selection_html.empty());
+
+}
+
