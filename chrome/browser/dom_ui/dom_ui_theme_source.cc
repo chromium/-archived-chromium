@@ -20,6 +20,10 @@
 #include "grit/generated_resources.h"
 #include "grit/theme_resources.h"
 
+#if defined(OS_WIN)
+#include "chrome/browser/views/bookmark_bar_view.h"
+#endif
+
 // Path for the New Tab CSS. When we get more than a few of these, we should
 // use a resource map rather than hard-coded strings.
 static const char* kNewTabCSSPath = "css/newtab.css";
@@ -85,6 +89,8 @@ void DOMUIThemeSource::SendNewTabCSS(int request_id) {
   DCHECK(tp);
 
   // Get our theme colors
+  SkColor color_background =
+      tp->GetColor(BrowserThemeProvider::COLOR_NTP_BACKGROUND);
   SkColor color_text = tp->GetColor(BrowserThemeProvider::COLOR_NTP_TEXT);
   SkColor color_link = tp->GetColor(BrowserThemeProvider::COLOR_NTP_LINK);
   SkColor color_section =
@@ -98,6 +104,9 @@ void DOMUIThemeSource::SendNewTabCSS(int request_id) {
       base::Time::Now().ToDoubleT()))));
 
   // Colors.
+  subst.push_back(SkColorToRGBAString(color_background));
+  subst.push_back(UTF8ToUTF16(GetNewTabBackgroundCSS(false)));
+  subst.push_back(UTF8ToUTF16(GetNewTabBackgroundCSS(true)));
   subst.push_back(SkColorToRGBAString(color_text));
   subst.push_back(SkColorToRGBAString(color_link));
   subst.push_back(SkColorToRGBAString(color_section));
@@ -134,3 +143,30 @@ void DOMUIThemeSource::SendThemeBitmap(int request_id, int resource_id) {
       new RefCountedBytes(png_bytes);
   SendResponse(request_id, image_data);
 }
+
+std::string DOMUIThemeSource::GetNewTabBackgroundCSS(bool bar_attached) {
+  int alignment;
+  profile_->GetThemeProvider()->GetDisplayProperty(
+      BrowserThemeProvider::NTP_BACKGROUND_ALIGNMENT, &alignment);
+
+  if (bar_attached)
+    return BrowserThemeProvider::AlignmentToString(alignment);
+
+  // The bar is detached, so we must offset the background by the bar size
+  // if it's a top-aligned bar.
+#if defined(OS_WIN)
+  int offset = BookmarkBarView::kNewtabBarHeight;
+#else
+  int offset = 0;
+#endif
+
+  if (alignment & BrowserThemeProvider::ALIGN_TOP) {
+    if (alignment & BrowserThemeProvider::ALIGN_LEFT)
+      return "0% " + IntToString(-offset) + "px";
+    else if (alignment & BrowserThemeProvider::ALIGN_RIGHT)
+      return "100% " + IntToString(-offset) + "px";
+    return IntToString(-offset) + "px";
+  }
+  return BrowserThemeProvider::AlignmentToString(alignment);
+}
+

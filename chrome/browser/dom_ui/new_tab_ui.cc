@@ -185,7 +185,7 @@ class PaintTimer : public RenderWidgetHost::PaintObserver {
 
 class NewTabHTMLSource : public ChromeURLDataManager::DataSource {
  public:
-  NewTabHTMLSource();
+  explicit NewTabHTMLSource(Profile* profile);
 
   // Called when the network layer has requested a resource underneath
   // the path we registered.
@@ -209,13 +209,17 @@ class NewTabHTMLSource : public ChromeURLDataManager::DataSource {
   // we think it is the user's startup page.
   static bool first_view_;
 
+  // The user's profile.
+  Profile* profile_;
+
   DISALLOW_COPY_AND_ASSIGN(NewTabHTMLSource);
 };
 
 bool NewTabHTMLSource::first_view_ = true;
 
-NewTabHTMLSource::NewTabHTMLSource()
-    : DataSource(chrome::kChromeUINewTabHost, MessageLoop::current()) {
+NewTabHTMLSource::NewTabHTMLSource(Profile* profile)
+    : DataSource(chrome::kChromeUINewTabHost, MessageLoop::current()),
+      profile_(profile) {
 }
 
 void NewTabHTMLSource::StartDataRequest(const std::string& path,
@@ -245,6 +249,9 @@ void NewTabHTMLSource::StartDataRequest(const std::string& path,
         profile_name);
   }
   DictionaryValue localized_strings;
+  localized_strings.SetString(L"bookmarkbarattached",
+      profile_->GetPrefs()->GetBoolean(prefs::kShowBookmarkBar) ?
+      "true" : "false");
   localized_strings.SetString(L"title", title);
   localized_strings.SetString(L"mostvisited", most_visited);
   localized_strings.SetString(L"searches",
@@ -1226,7 +1233,7 @@ NewTabUI::NewTabUI(TabContents* contents)
               &ChromeURLDataManager::AddDataSource,
               new DOMUIThemeSource(GetProfile())));
 
-      NewTabHTMLSource* html_source = new NewTabHTMLSource();
+      NewTabHTMLSource* html_source = new NewTabHTMLSource(GetProfile());
       g_browser_process->io_thread()->message_loop()->PostTask(FROM_HERE,
           NewRunnableMethod(&chrome_url_data_manager,
               &ChromeURLDataManager::AddDataSource,
@@ -1236,6 +1243,9 @@ NewTabUI::NewTabUI(TabContents* contents)
 
   // Listen for theme installation.
   registrar_.Add(this, NotificationType::THEME_INSTALLED,
+                 NotificationService::AllSources());
+  // Listen for bookmark bar visibility changes.
+  registrar_.Add(this, NotificationType::BOOKMARK_BAR_VISIBILITY_PREF_CHANGED,
                  NotificationService::AllSources());
 }
 
@@ -1247,6 +1257,11 @@ void NewTabUI::Observe(NotificationType type,
                        const NotificationDetails& details) {
   if (NotificationType::THEME_INSTALLED == type) {
     CallJavascriptFunction(L"themeChanged");
+  } else if (NotificationType::BOOKMARK_BAR_VISIBILITY_PREF_CHANGED) {
+    if (GetProfile()->GetPrefs()->GetBoolean(prefs::kShowBookmarkBar))
+      CallJavascriptFunction(L"bookmarkBarAttached");
+    else
+      CallJavascriptFunction(L"bookmarkBarDetached");
   }
 }
 

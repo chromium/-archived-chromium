@@ -20,6 +20,7 @@ class DefaultThemeProvider : public ThemeProvider {
   // Overridden from ThemeProvider.
   virtual SkBitmap* GetBitmapNamed(int id);
   virtual SkColor GetColor(int id);
+  virtual bool GetDisplayProperty(int id, int* result);
   virtual bool ShouldUseNativeFrame();
 
  private:

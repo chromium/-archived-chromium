@@ -21,6 +21,9 @@ SkColor DefaultThemeProvider::GetColor(int id)  {
   return 0xff0000ff;
 }
 
+bool DefaultThemeProvider::GetDisplayProperty(int id, int* result) {
+  return false;
+}
 bool DefaultThemeProvider::ShouldUseNativeFrame() {
 #if defined(OS_WIN)
   return win_util::ShouldUseVistaFrame();
@@ -28,5 +31,4 @@ bool DefaultThemeProvider::ShouldUseNativeFrame() {
   return false;
 #endif
 }
-
 }  // namespace views

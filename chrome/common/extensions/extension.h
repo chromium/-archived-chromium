@@ -51,6 +51,7 @@ class Extension {
   static const wchar_t* kThemeImagesKey;
   static const wchar_t* kThemeColorsKey;
   static const wchar_t* kThemeTintsKey;
+  static const wchar_t* kThemeDisplayPropertiesKey;
   static const wchar_t* kToolstripsKey;
   static const wchar_t* kTooltipKey;
   static const wchar_t* kTypeKey;
@@ -161,6 +162,9 @@ class Extension {
   DictionaryValue* GetThemeImages() const { return theme_images_.get(); }
   DictionaryValue* GetThemeColors() const { return theme_colors_.get(); }
   DictionaryValue* GetThemeTints() const { return theme_tints_.get(); }
+  DictionaryValue* GetThemeDisplayProperties() const {
+    return theme_display_properties_.get();
+  }
   bool IsTheme() { return is_theme_; }
 
  private:
@@ -237,6 +241,9 @@ class Extension {
 
   // A map of color names to colors.
   scoped_ptr<DictionaryValue> theme_tints_;
+
+  // A map of display properties.
+  scoped_ptr<DictionaryValue> theme_display_properties_;
 
   // Whether the extension is a theme - if it is, certain things are disabled.
   bool is_theme_;

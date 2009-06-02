@@ -68,7 +68,7 @@ static const int kRightMargin = 1;
 static const int kBarHeight = 29;
 
 // Preferred height of the bookmarks bar when only shown on the new tab page.
-static const int kNewtabBarHeight = 57;
+const int BookmarkBarView::kNewtabBarHeight = 57;
 
 // How inset the bookmarks bar is when displayed on the new tab page. This is
 // in addition to the margins above.
@@ -89,11 +89,6 @@ static SkBitmap* kFolderIcon = NULL;
 
 // Border colors for the BookmarBarView.
 static const SkColor kTopBorderColor = SkColorSetRGB(222, 234, 248);
-
-// Background color for when the bookmarks bar is only being displayed on the
-// new tab page - this color should match the background color of the new tab
-// page (white, most likely).
-static const SkColor kNewtabBackgroundColor = SkColorSetRGB(255, 255, 255);
 
 // Border color for the 'new tab' style bookmarks bar.
 static const SkColor kNewtabBorderColor = SkColorSetRGB(195, 206, 224);
@@ -564,7 +559,28 @@ void BookmarkBarView::ViewHierarchyChanged(bool is_add,
 void BookmarkBarView::Paint(gfx::Canvas* canvas) {
   if (IsDetachedStyle()) {
     // Draw the background to match the new tab page.
-    canvas->FillRectInt(kNewtabBackgroundColor, 0, 0, width(), height());
+    ThemeProvider* tp = GetThemeProvider();
+    canvas->FillRectInt(
+        tp->GetColor(BrowserThemeProvider::COLOR_NTP_BACKGROUND),
+        0, 0, width(), height());
+
+    int alignment;
+    if (tp->GetDisplayProperty(BrowserThemeProvider::NTP_BACKGROUND_ALIGNMENT,
+                               &alignment)) {
+      if (alignment & BrowserThemeProvider::ALIGN_TOP) {
+        SkBitmap* ntp_background = tp->GetBitmapNamed(IDR_THEME_NTP_BACKGROUND);
+
+        if (alignment & BrowserThemeProvider::ALIGN_LEFT) {
+          canvas->DrawBitmapInt(*ntp_background, 0, 0);
+        } else if (alignment & BrowserThemeProvider::ALIGN_RIGHT) {
+          canvas->DrawBitmapInt(*ntp_background, width() -
+                                ntp_background->width(), 0);
+        } else {
+          canvas->DrawBitmapInt(*ntp_background, width() / 2-
+                                ntp_background->width() / 2, 0);
+        }
+      }
+    }
 
     // Draw the 'bottom' of the toolbar above our bubble.
     canvas->FillRectInt(ResourceBundle::toolbar_separator_color,

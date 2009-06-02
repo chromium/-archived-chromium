@@ -5,6 +5,8 @@
 #ifndef CHROME_BROWSER_DOM_UI_DOM_UI_THEME_SOURCE_H_
 #define CHROME_BROWSER_DOM_UI_DOM_UI_THEME_SOURCE_H_
 
+#include <string>
+
 #include "chrome/browser/dom_ui/chrome_url_data_manager.h"
 
 class Profile;
@@ -28,6 +30,10 @@ class DOMUIThemeSource : public ChromeURLDataManager::DataSource {
 
   // Fetch and send the theme bitmap.
   void SendThemeBitmap(int request_id, int resource_id);
+
+  // Get the CSS string for the background position on the new tab page for the
+  // states when the bar is attached or detached.
+  std::string GetNewTabBackgroundCSS(bool bar_attached);
 
   Profile* profile_;
   DISALLOW_COPY_AND_ASSIGN(DOMUIThemeSource);

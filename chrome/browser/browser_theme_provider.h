@@ -40,6 +40,7 @@ class BrowserThemeProvider : public base::RefCounted<BrowserThemeProvider>,
     COLOR_TAB_TEXT,
     COLOR_BACKGROUND_TAB_TEXT,
     COLOR_BOOKMARK_TEXT,
+    COLOR_NTP_BACKGROUND,
     COLOR_NTP_TEXT,
     COLOR_NTP_LINK,
     COLOR_NTP_SECTION,
@@ -48,14 +49,25 @@ class BrowserThemeProvider : public base::RefCounted<BrowserThemeProvider>,
     TINT_FRAME_INACTIVE,
     TINT_FRAME_INCOGNITO,
     TINT_FRAME_INCOGNITO_INACTIVE,
-    TINT_BACKGROUND_TAB
+    TINT_BACKGROUND_TAB,
+    NTP_BACKGROUND_ALIGNMENT
   };
+
+  // A bitfield mask for alignments.
+  typedef enum {
+    ALIGN_CENTER = 0x0,
+    ALIGN_LEFT = 0x1,
+    ALIGN_TOP = 0x2,
+    ALIGN_RIGHT = 0x4,
+    ALIGN_BOTTOM = 0x8,
+  } AlignmentMasks;
 
   void Init(Profile* profile);
 
   // ThemeProvider implementation.
   virtual SkBitmap* GetBitmapNamed(int id);
   virtual SkColor GetColor(int id);
+  virtual bool GetDisplayProperty(int id, int* result);
   virtual bool ShouldUseNativeFrame();
 #if defined(OS_LINUX)
   virtual GdkPixbuf* GetPixbufNamed(int id);
@@ -67,10 +79,19 @@ class BrowserThemeProvider : public base::RefCounted<BrowserThemeProvider>,
   // Reset the theme to default.
   void UseDefaultTheme();
 
+  // Convert a bitfield alignment into a string like "top left". Public so that
+  // it can be used to generate CSS values. Takes a bitfield of AlignmentMasks.
+  static std::string AlignmentToString(int alignment);
+
+  // Parse alignments from something like "top left" into a bitfield of
+  // AlignmentMasks
+  static int StringToAlignment(const std::string &alignment);
+
  private:
   typedef std::map<const int, std::string> ImageMap;
   typedef std::map<const std::string, SkColor> ColorMap;
   typedef std::map<const std::string, skia::HSL> TintMap;
+  typedef std::map<const std::string, int> DisplayPropertyMap;
 
   // Loads a bitmap from the theme, which may be tinted or
   // otherwise modified, or an application default.
@@ -94,10 +115,15 @@ class BrowserThemeProvider : public base::RefCounted<BrowserThemeProvider>,
   // constants, and the values are a three-item list containing 8-bit
   // RGB values.
   void SetColorData(DictionaryValue* colors);
+
   // Set tint data for our images and colors. The keys of |tints| are
   // any of the kTint* contstants, and the values are a three-item list
   // containing real numbers in the range 0-1 (and -1 for 'null').
   void SetTintData(DictionaryValue* tints);
+
+  // Set miscellaneous display properties. While these can be defined as
+  // strings, they are currently stored as integers.
+  void SetDisplayPropertyData(DictionaryValue* display_properties);
 
   // Generate any frame colors that weren't specified.
   void GenerateFrameColors();
@@ -114,6 +140,7 @@ class BrowserThemeProvider : public base::RefCounted<BrowserThemeProvider>,
   void SaveImageData(DictionaryValue* images);
   void SaveColorData();
   void SaveTintData();
+  void SaveDisplayPropertyData();
 
   // Let all the browser views know that themes have changed.
   void NotifyThemeChanged();
@@ -143,6 +170,7 @@ class BrowserThemeProvider : public base::RefCounted<BrowserThemeProvider>,
   ImageMap images_;
   ColorMap colors_;
   TintMap tints_;
+  DisplayPropertyMap display_properties_;
 
   DISALLOW_COPY_AND_ASSIGN(BrowserThemeProvider);
 };

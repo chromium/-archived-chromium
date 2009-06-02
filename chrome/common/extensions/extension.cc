@@ -34,6 +34,7 @@ const wchar_t* Extension::kThemeKey = L"theme";
 const wchar_t* Extension::kThemeImagesKey = L"images";
 const wchar_t* Extension::kThemeColorsKey = L"colors";
 const wchar_t* Extension::kThemeTintsKey = L"tints";
+const wchar_t* Extension::kThemeDisplayPropertiesKey = L"properties";
 const wchar_t* Extension::kToolstripsKey = L"toolstrips";
 const wchar_t* Extension::kTooltipKey = L"tooltip";
 const wchar_t* Extension::kTypeKey = L"type";
@@ -575,6 +576,13 @@ bool Extension::InitFromValue(const DictionaryValue& source, bool require_id,
       }
       theme_tints_.reset(
           static_cast<DictionaryValue*>(tints_value->DeepCopy()));
+    }
+
+    DictionaryValue* display_properties_value;
+    if (theme_value->GetDictionary(kThemeDisplayPropertiesKey,
+        &display_properties_value)) {
+      theme_display_properties_.reset(
+          static_cast<DictionaryValue*>(display_properties_value->DeepCopy()));
     }
 
     return true;

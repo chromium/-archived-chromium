@@ -1,5 +1,5 @@
 <!DOCTYPE HTML>
-<html id="t" jsvalues="dir:textdirection;firstview:firstview">
+<html id="t" jsvalues="dir:textdirection;firstview:firstview;bookmarkbarattached:bookmarkbarattached;">
 <!--
  This page is optimized for perceived performance. Our enemies are the time
  taken for the backend to generate our data, and the time taken to parse
@@ -134,9 +134,7 @@ html {
   height:100%;
 }
 body {
-  background-color:white;
   margin:0px;
-  background-repeat:repeat-x;
 }
 html[firstview='true'] #main {
   opacity:0.0;
@@ -440,7 +438,7 @@ document.addEventListener('DOMContentLoaded', handleDOMContentLoaded);
     <iframe id="p13n" frameborder="0" width="100%" scrolling="no" height="0"
             jsdisplay="p13nsrc" style="display:none;"
             jsvalues="src:p13nsrc"></iframe>
-    <div id="searches" class="sidebar">
+    <div id="searches" class="sidebar themed">
       <div class="section-title" jscontent="searches"></div>
       <form onsubmit="chrome.send('searchHistoryPage', [this.search.value]); return false;">
         <input type="text" class="hint"
@@ -935,6 +933,14 @@ function restoreThumbnails() {
 
 function themeChanged() {
   $('themecss').href = 'chrome://theme/css/newtab.css?' + Date.now();
+}
+
+function bookmarkBarAttached() {
+  document.documentElement.setAttribute("bookmarkbarattached", "true");
+}
+
+function bookmarkBarDetached() {
+  document.documentElement.setAttribute("bookmarkbarattached", "false");
 }
 
 function viewLog() {

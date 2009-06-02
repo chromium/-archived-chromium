@@ -36,6 +36,7 @@ static const char* kColorToolbar = "toolbar";
 static const char* kColorTabText = "tab_text";
 static const char* kColorBackgroundTabText = "background_tab_text";
 static const char* kColorBookmarkText = "bookmark_text";
+static const char* kColorNTPBackground = "ntp_background";
 static const char* kColorNTPText = "ntp_text";
 static const char* kColorNTPLink = "ntp_link";
 static const char* kColorNTPSection = "ntp_section";
@@ -51,6 +52,15 @@ static const char* kTintFrameIncognitoInactive =
     "frame_incognito_inactive";
 static const char* kTintBackgroundTab = "background_tab";
 
+// Strings used by themes to identify miscellaneous numerical properties.
+static const char* kDisplayPropertyNTPAlignment = "ntp_background_alignment";
+
+// Strings used in alignment properties.
+static const char* kAlignmentTop = "top";
+static const char* kAlignmentBottom = "bottom";
+static const char* kAlignmentLeft = "left";
+static const char* kAlignmentRight = "right";
+
 // Default colors.
 static const SkColor kDefaultColorFrame = SkColorSetRGB(77, 139, 217);
 static const SkColor kDefaultColorFrameInactive = SkColorSetRGB(152, 188, 233);
@@ -61,6 +71,7 @@ static const SkColor kDefaultColorToolbar = SkColorSetRGB(210, 225, 246);
 static const SkColor kDefaultColorTabText = SkColorSetRGB(0, 0, 0);
 static const SkColor kDefaultColorBackgroundTabText = SkColorSetRGB(64, 64, 64);
 static const SkColor kDefaultColorBookmarkText = SkColorSetRGB(64, 64, 64);
+static const SkColor kDefaultColorNTPBackground = SkColorSetRGB(255, 255, 255);
 static const SkColor kDefaultColorNTPText = SkColorSetRGB(0, 0, 0);
 static const SkColor kDefaultColorNTPLink = SkColorSetRGB(0, 0, 204);
 static const SkColor kDefaultColorNTPSection = SkColorSetRGB(225, 236, 254);
@@ -72,6 +83,10 @@ static const skia::HSL kDefaultTintFrameInactive = { -1, 0.5f, 0.72f };
 static const skia::HSL kDefaultTintFrameIncognito = { -1, 0.2f, 0.35f };
 static const skia::HSL kDefaultTintFrameIncognitoInactive = { -1, 0.3f, 0.6f };
 static const skia::HSL kDefaultTintBackgroundTab = { -1, 0.5, 0.75 };
+
+// Default display properties.
+static const int kDefaultDisplayPropertyNTPAlignment =
+    BrowserThemeProvider::ALIGN_BOTTOM;
 
 // The image resources that will be tinted by the 'button' tint value.
 static const int kToolbarButtonIDs[] = {
@@ -200,6 +215,10 @@ SkColor BrowserThemeProvider::GetColor(int id) {
       return (colors_.find(kColorBookmarkText) != colors_.end()) ?
           colors_[kColorBookmarkText] :
           kDefaultColorBookmarkText;
+    case COLOR_NTP_BACKGROUND:
+      return (colors_.find(kColorNTPBackground) != colors_.end()) ?
+          colors_[kColorNTPBackground] :
+          kDefaultColorNTPBackground;
     case COLOR_NTP_TEXT:
       return (colors_.find(kColorNTPText) != colors_.end()) ?
           colors_[kColorNTPText] :
@@ -218,6 +237,22 @@ SkColor BrowserThemeProvider::GetColor(int id) {
 
   // Return a debugging red color.
   return 0xffff0000;
+}
+
+bool BrowserThemeProvider::GetDisplayProperty(int id, int* result) {
+  switch (id) {
+    case NTP_BACKGROUND_ALIGNMENT:
+      if (display_properties_.find(kDisplayPropertyNTPAlignment) !=
+          display_properties_.end()) {
+        *result = display_properties_[kDisplayPropertyNTPAlignment];
+      } else {
+        *result = kDefaultDisplayPropertyNTPAlignment;
+      }
+      return true;
+    default:
+      NOTREACHED() << "Unknown property requested";
+  }
+  return false;
 }
 
 bool BrowserThemeProvider::ShouldUseNativeFrame() {
@@ -240,12 +275,14 @@ void BrowserThemeProvider::SetTheme(Extension* extension) {
                extension->path());
   SetColorData(extension->GetThemeColors());
   SetTintData(extension->GetThemeTints());
+  SetDisplayPropertyData(extension->GetThemeDisplayProperties());
   GenerateFrameColors();
   GenerateFrameImages();
 
   SaveImageData(extension->GetThemeImages());
   SaveColorData();
   SaveTintData();
+  SaveDisplayPropertyData();
 
   NotifyThemeChanged();
   UserMetrics::RecordAction(L"Themes_Installed", profile_);
@@ -258,12 +295,15 @@ void BrowserThemeProvider::UseDefaultTheme() {
   images_.clear();
   colors_.clear();
   tints_.clear();
+  display_properties_.clear();
 
   SaveImageData(NULL);
   SaveColorData();
   SaveTintData();
+  SaveDisplayPropertyData();
 
   NotifyThemeChanged();
+  UserMetrics::RecordAction(L"Themes_Reset", profile_);
 }
 
 SkBitmap* BrowserThemeProvider::LoadThemeBitmap(int id) {
@@ -355,65 +395,138 @@ void BrowserThemeProvider::SetImageData(DictionaryValue* images_value,
                                         FilePath images_path) {
   images_.clear();
 
-  if (images_value) {
-    DictionaryValue::key_iterator iter = images_value->begin_keys();
-    while (iter != images_value->end_keys()) {
-      std::string val;
-      if (images_value->GetString(*iter, &val)) {
-        int id = ThemeResourcesUtil::GetId(WideToUTF8(*iter));
-        if (id != -1) {
-          if (!images_path.empty()) {
-            images_[id] = WideToUTF8(images_path.AppendASCII(val)
-                .ToWStringHack());
-          } else {
-            images_[id] = val;
-          }
+  if (!images_value)
+    return;
+
+  DictionaryValue::key_iterator iter = images_value->begin_keys();
+  while (iter != images_value->end_keys()) {
+    std::string val;
+    if (images_value->GetString(*iter, &val)) {
+      int id = ThemeResourcesUtil::GetId(WideToUTF8(*iter));
+      if (id != -1) {
+        if (!images_path.empty()) {
+          images_[id] = WideToUTF8(images_path.AppendASCII(val)
+              .ToWStringHack());
+        } else {
+          images_[id] = val;
         }
       }
-      ++iter;
     }
+    ++iter;
   }
 }
 
 void BrowserThemeProvider::SetColorData(DictionaryValue* colors_value) {
   colors_.clear();
 
-  if (colors_value) {
-    DictionaryValue::key_iterator iter = colors_value->begin_keys();
-    while (iter != colors_value->end_keys()) {
-      ListValue* color_list;
-      if (colors_value->GetList(*iter, &color_list) &&
-          color_list->GetSize() == 3) {
-        int r, g, b;
-        color_list->GetInteger(0, &r);
-        color_list->GetInteger(1, &g);
-        color_list->GetInteger(2, &b);
-        colors_[WideToUTF8(*iter)] = SkColorSetRGB(r, g, b);
-      }
-      ++iter;
+  if (!colors_value)
+    return;
+
+  DictionaryValue::key_iterator iter = colors_value->begin_keys();
+  while (iter != colors_value->end_keys()) {
+    ListValue* color_list;
+    if (colors_value->GetList(*iter, &color_list) &&
+        color_list->GetSize() == 3) {
+      int r, g, b;
+      color_list->GetInteger(0, &r);
+      color_list->GetInteger(1, &g);
+      color_list->GetInteger(2, &b);
+      colors_[WideToUTF8(*iter)] = SkColorSetRGB(r, g, b);
     }
+    ++iter;
   }
 }
 
 void BrowserThemeProvider::SetTintData(DictionaryValue* tints_value) {
   tints_.clear();
 
-  if (tints_value) {
-    DictionaryValue::key_iterator iter = tints_value->begin_keys();
-    while (iter != tints_value->end_keys()) {
-      ListValue* tint_list;
-      if (tints_value->GetList(*iter, &tint_list) &&
-          tint_list->GetSize() == 3) {
-        skia::HSL hsl = { -1, -1, -1 };
-        // TODO(glen): Make this work with integer values.
-        tint_list->GetReal(0, &hsl.h);
-        tint_list->GetReal(1, &hsl.s);
-        tint_list->GetReal(2, &hsl.l);
-        tints_[WideToUTF8(*iter)] = hsl;
-      }
-      ++iter;
+  if (!tints_value)
+    return;
+
+  DictionaryValue::key_iterator iter = tints_value->begin_keys();
+  while (iter != tints_value->end_keys()) {
+    ListValue* tint_list;
+    if (tints_value->GetList(*iter, &tint_list) &&
+        tint_list->GetSize() == 3) {
+      skia::HSL hsl = { -1, -1, -1 };
+      // TODO(glen): Make this work with integer values.
+      tint_list->GetReal(0, &hsl.h);
+      tint_list->GetReal(1, &hsl.s);
+      tint_list->GetReal(2, &hsl.l);
+      tints_[WideToUTF8(*iter)] = hsl;
     }
+    ++iter;
   }
+}
+
+void BrowserThemeProvider::SetDisplayPropertyData(
+    DictionaryValue* display_properties_value) {
+  display_properties_.clear();
+
+  if (!display_properties_value)
+    return;
+
+  DictionaryValue::key_iterator iter = display_properties_value->begin_keys();
+  while (iter != display_properties_value->end_keys()) {
+    // New tab page alignment.
+    if (base::strcasecmp(WideToUTF8(*iter).c_str(),
+        kDisplayPropertyNTPAlignment) == 0) {
+      std::string val;
+      if (display_properties_value->GetString(*iter, &val))
+        display_properties_[kDisplayPropertyNTPAlignment] =
+            StringToAlignment(val);
+    }
+    ++iter;
+  }
+}
+
+// static
+int BrowserThemeProvider::StringToAlignment(const std::string& alignment) {
+  std::vector<std::wstring> split;
+  SplitStringAlongWhitespace(UTF8ToWide(alignment), &split);
+
+  std::vector<std::wstring>::iterator alignments = split.begin();
+  int alignment_mask = 0;
+  while (alignments != split.end()) {
+    std::string comp = WideToUTF8(*alignments);
+    const char* component = comp.c_str();
+
+    if (base::strcasecmp(component, kAlignmentTop) == 0)
+      alignment_mask |= BrowserThemeProvider::ALIGN_TOP;
+    else if (base::strcasecmp(component, kAlignmentBottom) == 0)
+      alignment_mask |= BrowserThemeProvider::ALIGN_BOTTOM;
+
+    if (base::strcasecmp(component, kAlignmentLeft) == 0)
+      alignment_mask |= BrowserThemeProvider::ALIGN_LEFT;
+    else if (base::strcasecmp(component, kAlignmentRight) == 0)
+      alignment_mask |= BrowserThemeProvider::ALIGN_RIGHT;
+    alignments++;
+  }
+  return alignment_mask;
+}
+
+// static
+std::string BrowserThemeProvider::AlignmentToString(int alignment) {
+  // Convert from an AlignmentProperty back into a string.
+  std::string vertical_string;
+  std::string horizontal_string;
+
+  if (alignment & BrowserThemeProvider::ALIGN_TOP)
+    vertical_string = kAlignmentTop;
+  else if (alignment & BrowserThemeProvider::ALIGN_BOTTOM)
+    vertical_string = kAlignmentBottom;
+
+  if (alignment & BrowserThemeProvider::ALIGN_LEFT)
+    horizontal_string = kAlignmentLeft;
+  else if (alignment & BrowserThemeProvider::ALIGN_RIGHT)
+    horizontal_string = kAlignmentRight;
+
+  if (!vertical_string.empty() && !horizontal_string.empty())
+    return vertical_string + " " + horizontal_string;
+  else if (vertical_string.empty())
+    return horizontal_string;
+  else
+    return vertical_string;
 }
 
 void BrowserThemeProvider::GenerateFrameColors() {
@@ -495,9 +608,6 @@ SkBitmap* BrowserThemeProvider::GenerateBitmap(int id) {
 }
 
 void BrowserThemeProvider::NotifyThemeChanged() {
-  // TODO(glen): If we're in glass and IDR_THEME_FRAME has been provided,
-  //    swap us back to opaque frame.
-
   // Redraw!
   for (BrowserList::const_iterator browser = BrowserList::begin();
       browser != BrowserList::end(); ++browser) {
@@ -519,6 +629,8 @@ void BrowserThemeProvider::LoadThemePrefs() {
                  FilePath());
     SetColorData(prefs->GetMutableDictionary(prefs::kCurrentThemeColors));
     SetTintData(prefs->GetMutableDictionary(prefs::kCurrentThemeTints));
+    SetDisplayPropertyData(prefs->GetMutableDictionary(
+        prefs::kCurrentThemeDisplayProperties));
     GenerateFrameColors();
     GenerateFrameImages();
     UserMetrics::RecordAction(L"Themes_loaded", profile_);
@@ -578,6 +690,27 @@ void BrowserThemeProvider::SaveTintData() {
       hsl_list->Set(1, Value::CreateRealValue(hsl.s));
       hsl_list->Set(2, Value::CreateRealValue(hsl.l));
       pref_tints->Set(UTF8ToWide((*iter).first), hsl_list);
+      ++iter;
+    }
+  }
+}
+
+void BrowserThemeProvider::SaveDisplayPropertyData() {
+  // Save our display property data.
+  DictionaryValue* pref_display_properties =
+      profile_->GetPrefs()->
+          GetMutableDictionary(prefs::kCurrentThemeDisplayProperties);
+  pref_display_properties->Clear();
+
+  if (display_properties_.size()) {
+    DisplayPropertyMap::iterator iter = display_properties_.begin();
+    while (iter != display_properties_.end()) {
+      if (base::strcasecmp((*iter).first.c_str(),
+                           kDisplayPropertyNTPAlignment) == 0) {
+        pref_display_properties->
+            SetString(UTF8ToWide((*iter).first), AlignmentToString(
+                (*iter).second));
+      }
       ++iter;
     }
   }

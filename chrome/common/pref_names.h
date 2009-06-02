@@ -92,6 +92,7 @@ extern const wchar_t kCurrentThemeID[];
 extern const wchar_t kCurrentThemeImages[];
 extern const wchar_t kCurrentThemeColors[];
 extern const wchar_t kCurrentThemeTints[];
+extern const wchar_t kCurrentThemeDisplayProperties[];
 extern const wchar_t kCheckDefaultBrowser[];
 
 // Local state

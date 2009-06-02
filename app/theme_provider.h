@@ -34,6 +34,10 @@ class ThemeProvider {
   // Get the color specified by |id|.
   virtual SkColor GetColor(int id) = 0;
 
+  // Get the property (e.g. an alignment expressed in an enum, or a width or
+  // height) specified by |id|.
+  virtual bool GetDisplayProperty(int id, int* result) = 0;
+
   // Whether we should use the native system frame (typically Aero glass) or
   // a custom frame.
   virtual bool ShouldUseNativeFrame() = 0;

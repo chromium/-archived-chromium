@@ -67,6 +67,8 @@ class BookmarkBarView : public views::View,
     virtual void ModelChanged() = 0;
   };
 
+  static const int kNewtabBarHeight;
+
   explicit BookmarkBarView(Profile* profile, Browser* browser);
   virtual ~BookmarkBarView();
 
