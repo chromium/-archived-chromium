@@ -30,9 +30,19 @@ FULL_VERSION="${MAJOR}.${MINOR}.${BUILD}.${PATCH}"
 SRC_APP_PATH="${BUILT_PRODUCTS_DIR}/${SRC_APP_NAME}.app"
 # Created by the build/mac/strip_from_xcode script.
 UNSTRIPPED_APP="${SRC_APP_PATH}.dSYM/Contents/Resources/DWARF/${SRC_APP_NAME}"
-SYMBOL_FILE="${BUILT_PRODUCTS_DIR}/${BUILD_BRANDING}-${FULL_VERSION} i386.breakpad"
+SYMBOL_FILE="${BUILT_PRODUCTS_DIR}/${SRC_APP_NAME}-${FULL_VERSION}-i386.breakpad"
 
 # Only run dump_syms if the file has changed since we last did a dump.
 if [ "${UNSTRIPPED_APP}" -nt "${SYMBOL_FILE}" ] ; then
   "${BREAKPAD_DUMP_SYMS}" -a i386 "${UNSTRIPPED_APP}" > "${SYMBOL_FILE}"
+fi
+
+DSYM_NAME="${SRC_APP_NAME}.app.dSYM"
+DSYM_TAR_PATH="${BUILT_PRODUCTS_DIR}/${DSYM_NAME}.tar.bz2"
+
+# Make a .tar.bz2 out of the .dSYM
+if [ "${BUILT_PRODUCTS_DIR}/${DSYM_NAME}" -nt "${DSYM_TAR_PATH}" ] ; then
+  # we do a cd so when building the tar, we don't include the build dir in the
+  # tar paths.
+  (cd "${BUILT_PRODUCTS_DIR}" && tar -jcf "${DSYM_TAR_PATH}" "${DSYM_NAME}")
 fi
