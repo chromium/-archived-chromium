@@ -2242,7 +2242,7 @@
             },
           ],
         }],
-        ['OS=="linux" and toolkit_views==1', {
+        ['OS=="linux" and (toolkit_views==1 or linux2==1)', {
           'dependencies': [
             '../views/views.gyp:views',
           ],

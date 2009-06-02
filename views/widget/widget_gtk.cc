@@ -77,7 +77,9 @@ void WidgetGtk::Init(GtkWidget* parent,
   // Force creation of the RootView if it hasn't been created yet.
   GetRootView();
 
+#if !defined(LINUX2)
   default_theme_provider_.reset(new DefaultThemeProvider());
+#endif
 
   // Make container here.
   CreateGtkWidget();

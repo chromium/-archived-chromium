@@ -64,6 +64,8 @@
     # set the variable GYP_DEFINES to "toolkit_views=1", or modify
     # ~/.gyp/include.gypi .
     'toolkit_views%': 0,
+
+    'linux2%': 0,
   },
   'target_defaults': {
     'conditions': [
@@ -79,6 +81,9 @@
       }],
       ['toolkit_views==1', {
         'defines': ['TOOLKIT_VIEWS=1'],
+      }],
+      ['linux2==1', {
+        'defines': ['LINUX2=1'],
       }],
       ['coverage!=0', {
         'conditions': [
