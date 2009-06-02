@@ -8,6 +8,7 @@
 #include "base/singleton.h"
 #include "base/stl_util-inl.h"
 #include "base/values.h"
+#include "chrome/browser/child_process_security_policy.h"
 #include "chrome/browser/chrome_thread.h"
 #include "chrome/browser/extensions/extension_tabs_module.h"
 #include "chrome/browser/extensions/extension_view.h"
@@ -275,6 +276,12 @@ void ExtensionMessageService::DispatchEventToRenderers(
     RenderProcessHost* renderer = RenderProcessHost::FromID(*pid);
     if (!renderer)
       continue;
+    if (!ChildProcessSecurityPolicy::GetInstance()->
+            HasExtensionBindings(*pid)) {
+      // Don't send browser-level events to unprivileged processes.
+      continue;
+    }
+
     renderer->Send(new ViewMsg_ExtensionHandleEvent(event_name, event_args));
   }
 }

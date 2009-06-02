@@ -2027,7 +2027,8 @@ v8::Persistent<v8::Context> V8Proxy::createNewContext(
         // because we might be currently loading an URL into a blank page.
         // See http://code.google.com/p/chromium/issues/detail?id=10924
         if (it->scheme.length() > 0 &&
-            it->scheme != m_frame->loader()->activeDocumentLoader()->url().protocol())
+            (it->scheme != m_frame->loader()->activeDocumentLoader()->url().protocol() ||
+             it->scheme != m_frame->page()->mainFrame()->loader()->activeDocumentLoader()->url().protocol()))
             continue;
 
         extensionNames[index++] = it->extension->name();

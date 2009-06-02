@@ -2392,6 +2392,10 @@ bool TabContents::CreateRenderViewForRenderManager(
   if (render_manager_.pending_dom_ui())
     render_view_host->AllowDOMUIBindings();
 
+  // Ditto for extension bindings.
+  if (controller().pending_entry()->url().SchemeIs(chrome::kExtensionScheme))
+    render_view_host->AllowExtensionBindings();
+
   RenderWidgetHostView* rwh_view = view_->CreateViewForWidget(render_view_host);
   if (!render_view_host->CreateRenderView())
     return false;

@@ -8,6 +8,7 @@
 #include "base/logging.h"
 #include "base/stl_util-inl.h"
 #include "base/string_util.h"
+#include "chrome/common/bindings_policy.h"
 #include "chrome/common/url_constants.h"
 #include "googleurl/src/gurl.h"
 #include "net/url_request/url_request.h"
@@ -16,7 +17,7 @@
 // information.
 class ChildProcessSecurityPolicy::SecurityState {
  public:
-  SecurityState() : has_dom_ui_bindings_(false) { }
+  SecurityState() : enabled_bindings_(0) { }
   ~SecurityState() {
     scheme_policy_.clear();
   }
@@ -36,8 +37,8 @@ class ChildProcessSecurityPolicy::SecurityState {
     uploadable_files_.insert(file);
   }
 
-  void GrantDOMUIBindings() {
-    has_dom_ui_bindings_ = true;
+  void GrantBindings(int bindings) {
+    enabled_bindings_ |= bindings;
   }
 
   // Determine whether permission has been granted to request url.
@@ -57,7 +58,13 @@ class ChildProcessSecurityPolicy::SecurityState {
     return uploadable_files_.find(file) != uploadable_files_.end();
   }
 
-  bool has_dom_ui_bindings() const { return has_dom_ui_bindings_; }
+  bool has_dom_ui_bindings() const {
+    return BindingsPolicy::is_dom_ui_enabled(enabled_bindings_);
+  }
+
+  bool has_extension_bindings() const {
+    return BindingsPolicy::is_extension_enabled(enabled_bindings_);
+  }
 
  private:
   typedef std::map<std::string, bool> SchemeMap;
@@ -73,7 +80,7 @@ class ChildProcessSecurityPolicy::SecurityState {
   // The set of files the renderer is permited to upload to the web.
   FileSet uploadable_files_;
 
-  bool has_dom_ui_bindings_;
+  int enabled_bindings_;
 
   DISALLOW_COPY_AND_ASSIGN(SecurityState);
 };
@@ -218,13 +225,23 @@ void ChildProcessSecurityPolicy::GrantDOMUIBindings(int renderer_id) {
   if (state == security_state_.end())
     return;
 
-  state->second->GrantDOMUIBindings();
+  state->second->GrantBindings(BindingsPolicy::DOM_UI);
 
   // DOM UI bindings need the ability to request chrome: URLs.
   state->second->GrantScheme(chrome::kChromeUIScheme);
 
   // DOM UI pages can contain links to file:// URLs.
   state->second->GrantScheme(chrome::kFileScheme);
+}
+
+void ChildProcessSecurityPolicy::GrantExtensionBindings(int renderer_id) {
+  AutoLock lock(lock_);
+
+  SecurityStateMap::iterator state = security_state_.find(renderer_id);
+  if (state == security_state_.end())
+    return;
+
+  state->second->GrantBindings(BindingsPolicy::EXTENSION);
 }
 
 bool ChildProcessSecurityPolicy::CanRequestURL(int renderer_id, const GURL& url) {
@@ -287,4 +304,14 @@ bool ChildProcessSecurityPolicy::HasDOMUIBindings(int renderer_id) {
     return false;
 
   return state->second->has_dom_ui_bindings();
+}
+
+bool ChildProcessSecurityPolicy::HasExtensionBindings(int renderer_id) {
+  AutoLock lock(lock_);
+
+  SecurityStateMap::iterator state = security_state_.find(renderer_id);
+  if (state == security_state_.end())
+    return false;
+
+  return state->second->has_extension_bindings();
 }

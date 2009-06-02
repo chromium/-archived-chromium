@@ -145,8 +145,13 @@ bool RenderViewHost::CreateRenderView() {
   DCHECK(process()->channel());
   DCHECK(process()->profile());
 
-  if (enabled_bindings_ & BindingsPolicy::DOM_UI) {
+  if (BindingsPolicy::is_dom_ui_enabled(enabled_bindings_)) {
     ChildProcessSecurityPolicy::GetInstance()->GrantDOMUIBindings(
+        process()->pid());
+  }
+
+  if (BindingsPolicy::is_extension_enabled(enabled_bindings_)) {
+    ChildProcessSecurityPolicy::GetInstance()->GrantExtensionBindings(
         process()->pid());
   }
 
@@ -1424,8 +1429,11 @@ void RenderViewHost::OnExtensionRequest(const std::string& name,
                                         const std::string& args,
                                         int request_id,
                                         bool has_callback) {
-  // TODO(aa): Here is where we can check that this renderer was supposed to be
-  // able to call extension APIs.
+  if (!BindingsPolicy::is_extension_enabled(enabled_bindings_)) {
+    NOTREACHED() << "Blocked unauthorized use of extension bindings.";
+    return;
+  }
+
   DCHECK(extension_function_dispatcher_.get());
   extension_function_dispatcher_->HandleRequest(name, args, request_id,
       has_callback);
