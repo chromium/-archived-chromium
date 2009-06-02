@@ -312,6 +312,7 @@
           'dependencies': [
             '../chrome.gyp:app',
             '../chrome.gyp:chrome_dll',
+            'setup',
           ],
           'include_dirs': [
             '../..',
