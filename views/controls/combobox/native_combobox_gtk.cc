@@ -4,6 +4,7 @@
 
 #include "views/controls/combobox/native_combobox_gtk.h"
 
+#include "base/logging.h"
 #include "views/controls/combobox/combobox.h"
 
 namespace views {

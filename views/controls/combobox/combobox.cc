@@ -4,6 +4,7 @@
 
 #include "views/controls/combobox/combobox.h"
 
+#include "base/logging.h"
 #include "views/controls/combobox/native_combobox_wrapper.h"
 
 namespace views {
