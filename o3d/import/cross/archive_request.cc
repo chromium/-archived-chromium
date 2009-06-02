@@ -1,34 +1,8 @@
-/*
- * Copyright 2009, Google Inc.
- * All rights reserved.
- *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are
- * met:
- *
- *     * Redistributions of source code must retain the above copyright
- * notice, this list of conditions and the following disclaimer.
- *     * Redistributions in binary form must reproduce the above
- * copyright notice, this list of conditions and the following disclaimer
- * in the documentation and/or other materials provided with the
- * distribution.
- *     * Neither the name of Google Inc. nor the names of its
- * contributors may be used to endorse or promote products derived from
- * this software without specific prior written permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
- * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
- * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
- * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
- * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- */
-
+// @@REWRITE(insert c-copyright)
+// @@REWRITE(delete-start)
+// Copyright 2009 Google Inc. All Rights Reserved.
+// Author: crogers@google.com (Chris Rogers)
+// @@REWRITE(delete-end)
 
 // This file contains the definition of the ArchiveRequest class.
 
@@ -106,11 +80,12 @@ int32 ArchiveRequest::WriteCallback(DownloadStream *stream,
       archive_processor_->ProcessCompressedBytes(&memory_stream, length);
 
   if (result != Z_OK && result != Z_STREAM_END) {
-    stream->Cancel();  // tell the browser to stop downloading
     set_success(false);
-    set_error("Invalid tar gz file");
-    if (onreadystatechange())
-      onreadystatechange()->Run();  // javascript callback with failure
+    set_error("Invalid gzipped tar file");
+    stream->Cancel();  // tell the browser to stop downloading
+    // NOTE: Cancel will call NPP_Cancel which in turn will call
+    // ArchiveRequest::FinishedCallback so we don't do anything here since
+    // we may already have been deleted on return.
   }
 
   return length;
@@ -130,9 +105,10 @@ void ArchiveRequest::FinishedCallback(DownloadStream *stream,
   set_success(success);
   if (!success) {
     // I have no idea if an error is already set here but one MUST be set
-    // so let's check
-    set_error("Could not download archive. It could be a permission-related "
-              "issue.");
+    // so let's check.
+    if (error().empty()) {
+      set_error(String("Could not download archive: ") + uri());
+    }
   }
   if (onreadystatechange())
     onreadystatechange()->Run();
