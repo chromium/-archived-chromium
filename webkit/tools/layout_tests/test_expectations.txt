@@ -2703,5 +2703,5 @@ BUG13105 REBASELINE : LayoutTests/fast/backgrounds/body-generated-image-propagat
 // This test crashes the next layout tests, so skip until resolved.
 BUG13176 SKIP : LayoutTests/fast/workers/worker-close.html = FAIL
 BUG13174 WIN REBASELINE : LayoutTests/transitions/shorthand-border-transitions.html = FAIL
-BUG13174 REBASELINE : LayoutTests/fast/dynamic/anchor-lock.html = FAIL
-BUG13174 REBASELINE : LayoutTests/fast/transforms/bounding-rect-zoom.html = FAIL
+BUG13174 LINUX REBASELINE : LayoutTests/fast/dynamic/anchor-lock.html = FAIL
+BUG13174 LINUX REBASELINE : LayoutTests/fast/transforms/bounding-rect-zoom.html = FAIL
