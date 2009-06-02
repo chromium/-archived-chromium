@@ -1093,8 +1093,12 @@ void TabStripGtk::OnSizeAllocate(GtkWidget* widget, GtkAllocation* allocation,
 // static
 gboolean TabStripGtk::OnButtonPress(GtkWidget* widget, GdkEventButton* event,
                                     TabStripGtk* tabstrip) {
-  if (3 == event->button)
+  if (1 == event->button) {
+    gtk_window_begin_move_drag(GTK_WINDOW(gtk_widget_get_toplevel(widget)),
+        event->button, event->x_root, event->y_root, event->time);
+  } else if (3 == event->button) {
     tabstrip->ShowContextMenu();
+  }
 
   return TRUE;
 }
