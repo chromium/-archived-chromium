@@ -831,7 +831,8 @@ TEST_F(SSLUITest, TestRedirectHTTPSToHTTP) {
 
 // Visits a page to which we could not connect (bad port) over http and https
 // and make sure the security style is correct.
-TEST_F(SSLUITest, TestConnectToBadPort) {
+// TODO(jcampan): disabled because flacky (see http://crbugs.com/6584).
+TEST_F(SSLUITest, DISABLED_TestConnectToBadPort) {
   scoped_refptr<TabProxy> tab(GetActiveTabProxy());
 
   GURL http_url("http://localhost:17");
