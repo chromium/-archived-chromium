@@ -1276,7 +1276,7 @@ BUG10356 MAC : LayoutTests/http/tests/security/originHeader/origin-header-for-ht
 // MERGE 38389:38450
 // WebKit regression: https://bugs.webkit.org/show_bug.cgi?id=20342
 // Fails upstream, deferring for now.
-BUG10357 : LayoutTests/fast/dom/cssTarget-crash.html = TIMEOUT
+BUG10357 : LayoutTests/fast/dom/cssTarget-crash.html = TIMEOUT CRASH
 
 // MERGE 38500:39550: New tests
 // Missing expected results
@@ -2698,3 +2698,10 @@ BUG12882 LINUX : LayoutTests/fast/frames/iframe-js-url-clientWidth.html = CRASH
 
 // WebKit 44252:44286
 BUG13105 REBASELINE : LayoutTests/fast/backgrounds/body-generated-image-propagated-to-root.html = FAIL
+
+// WebKit 44286:44342
+// This test crashes the next layout tests, so skip until resolved.
+BUG13176 SKIP : LayoutTests/fast/workers/worker-close.html = FAIL
+BUG13174 WIN REBASELINE : LayoutTests/transitions/shorthand-border-transitions.html = FAIL
+BUG13174 REBASELINE : LayoutTests/fast/dynamic/anchor-lock.html = FAIL
+BUG13174 REBASELINE : LayoutTests/fast/transforms/bounding-rect-zoom.html = FAIL
