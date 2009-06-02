@@ -14,6 +14,8 @@
     'type': 'shared_library',
     'dependencies': [
       '../../chrome.gyp:chrome_strings',
+      '../../../webkit/webkit.gyp:webkit_strings',
+      '../../../app/app.gyp:app_strings',
     ],
     'msvs_settings': {
       'VCLinkerTool': {
