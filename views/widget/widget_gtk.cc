@@ -163,6 +163,10 @@ void WidgetGtk::Init(GtkWidget* parent,
     parent_widget->AddChild(widget_);
     parent_widget->PositionChild(widget_, bounds.x(), bounds.y(),
                                  bounds.width(), bounds.height());
+  } else {
+    if (bounds.width() > 0 && bounds.height() > 0)
+      gtk_window_resize(GTK_WINDOW(widget_), bounds.width(), bounds.height());
+    gtk_window_move(GTK_WINDOW(widget_), bounds.x(), bounds.y());
   }
 }
 
@@ -364,7 +368,6 @@ void WidgetGtk::CreateGtkWidget() {
 
     SetViewForNative(child_widget_parent_, this);
   }
-  gtk_widget_show(widget_);
 }
 
 void WidgetGtk::OnSizeAllocate(GtkWidget* widget, GtkAllocation* allocation) {

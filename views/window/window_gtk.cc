@@ -189,6 +189,7 @@ WindowGtk::WindowGtk(WindowDelegate* window_delegate)
       is_modal_(false),
       window_delegate_(window_delegate),
       non_client_view_(new NonClientView(this)),
+      window_state_(GDK_WINDOW_STATE_WITHDRAWN),
       window_closed_(false) {
   is_window_ = true;
   window_delegate_->window_.reset(this);

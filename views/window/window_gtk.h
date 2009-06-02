@@ -96,8 +96,9 @@ class WindowGtk : public WidgetGtk, public Window {
   // desired implementation before calling |Init|.
   NonClientView* non_client_view_;
 
-
+  // State of the window, such as fullscreen, hidden...
   GdkWindowState window_state_;
+
   // Set to true if the window is in the process of closing.
   bool window_closed_;
 

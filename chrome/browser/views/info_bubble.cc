@@ -9,6 +9,7 @@
 #include "app/resource_bundle.h"
 #include "chrome/browser/browser_window.h"
 #include "chrome/browser/views/frame/browser_view.h"
+#include "chrome/browser/window_sizer.h"
 #include "chrome/common/notification_service.h"
 #include "chrome/common/notification_type.h"
 #include "grit/theme_resources.h"
@@ -16,7 +17,6 @@
 #include "views/window/window.h"
 
 #if defined(OS_WIN)
-#include "app/win_util.h"
 #include "base/win_util.h"
 #endif
 
@@ -83,7 +83,7 @@ InfoBubble* InfoBubble::Show(views::Window* parent,
 #if defined(OS_WIN)
   window->ShowWindow(SW_SHOW);
 #else
-  NOTREACHED();
+  static_cast<WidgetGtk*>(window)->Show();
 #endif
   return window;
 }
@@ -134,6 +134,8 @@ void InfoBubble::Init(views::Window* parent,
 
 #if defined(OS_WIN)
   WidgetWin::Init(parent->GetNativeWindow(), bounds, true);
+#else
+  WidgetGtk::Init(GTK_WIDGET(parent->GetNativeWindow()), bounds, true);
 #endif
   SetContentsView(content_view_);
   // The preferred size may differ when parented. Ask for the bounds again
@@ -148,8 +150,6 @@ void InfoBubble::Init(views::Window* parent,
                  SWP_NOACTIVATE | SWP_NOREDRAW | SWP_NOZORDER);
     // Invoke ChangeSize, otherwise layered window isn't updated correctly.
     ChangeSize(0, CSize(parented_bounds.width(), parented_bounds.height()));
-#else
-    NOTIMPLEMENTED();
 #endif
   }
 
@@ -254,12 +254,10 @@ InfoBubble::ContentView::ContentView(views::View* content, InfoBubble* host)
 
 gfx::Rect InfoBubble::ContentView::CalculateWindowBoundsAndAjust(
     const gfx::Rect& position_relative_to) {
-#if defined(OS_WIN)
-  gfx::Rect monitor_bounds = win_util::GetMonitorBoundsForRect(
-      position_relative_to);
-#else
-  gfx::Rect monitor_bounds;
-#endif
+  scoped_ptr<WindowSizer::MonitorInfoProvider> monitor_provider(
+      WindowSizer::CreateDefaultMonitorInfoProvider());
+  gfx::Rect monitor_bounds(
+      monitor_provider->GetMonitorWorkAreaMatching(position_relative_to));
   // Calculate the bounds using TOP_LEFT (the default).
   gfx::Rect window_bounds = CalculateWindowBounds(position_relative_to);
   if (monitor_bounds.IsEmpty() || monitor_bounds.Contains(window_bounds))
