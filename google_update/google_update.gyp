@@ -9,7 +9,7 @@
   'targets': [
     {
       'target_name': 'google_update',
-      'type': '<(library)',
+      'type': 'none',
       'msvs_guid': '4052059A-D72B-4183-B5C2-9D1B099E9E35',
       'sources': [
         'google_update_idl.idl',
