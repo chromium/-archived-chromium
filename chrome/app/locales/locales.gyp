@@ -6,6 +6,9 @@
     'chrome_grit_out_dir': '$(OutDir)/grit_derived_sources',
     'app_grit_out_dir': '<(SHARED_INTERMEDIATE_DIR)/app',
     'webkit_grit_out_dir': '<(SHARED_INTERMEDIATE_DIR)/webkit',
+
+    # TODO(sgk): eliminate this; see comment in build/common.gypi
+    'msvs_debug_link_incremental': '1',
   },
   'includes': [
     '../../../build/common.gypi',

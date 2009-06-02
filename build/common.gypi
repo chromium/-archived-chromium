@@ -50,6 +50,13 @@
     # Once all vsprops settings are migrated into gyp, this can go away.
     'msvs_use_common_release%': 1,
 
+    # TODO(sgk): eliminate this if possible.
+    # It would be nicer to support this via a setting in 'target_defaults'
+    # in chrome/app/locales/locales.gypi overriding the setting in the
+    # 'Debug' configuration in the 'target_defaults' dict below,
+    # but that doesn't work as we'd like.
+    'msvs_debug_link_incremental%': '2',
+
     # The architecture that we're building on.
     'target_arch%': 'ia32',
 
@@ -130,7 +137,7 @@
                 'RuntimeLibrary': '1',
               },
               'VCLinkerTool': {
-                'LinkIncremental': '2',
+                'LinkIncremental': '<(msvs_debug_link_incremental)',
               },
               'VCResourceCompilerTool': {
                 'PreprocessorDefinitions': ['_DEBUG'],
