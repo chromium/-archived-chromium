@@ -10,6 +10,7 @@
 
 #include "base/basictypes.h"
 #include "base/gfx/rect.h"
+#include "chrome/browser/gtk/menu_gtk.h"
 #include "chrome/browser/gtk/tabs/tab_gtk.h"
 #include "chrome/browser/tabs/tab_strip_model.h"
 #include "chrome/common/owned_widget_gtk.h"
@@ -18,7 +19,8 @@ class CustomDrawButton;
 class DraggedTabControllerGtk;
 
 class TabStripGtk : public TabStripModelObserver,
-                    public TabGtk::TabDelegate {
+                    public TabGtk::TabDelegate,
+                    public MenuGtk::Delegate {
  public:
   class TabAnimation;
 
@@ -123,6 +125,10 @@ class TabStripGtk : public TabStripModelObserver,
   static void OnSizeAllocate(GtkWidget* widget, GtkAllocation* allocation,
                              TabStripGtk* tabstrip);
 
+  // Event handler for context menu popups.
+  static gboolean OnButtonPress(GtkWidget* widget, GdkEventButton* event,
+                                TabStripGtk* tabstrip);
+
   // Handles the clicked signal from the new tab button.
   static void OnNewTabClicked(GtkWidget* widget, TabStripGtk* tabstrip);
 
@@ -178,6 +184,16 @@ class TabStripGtk : public TabStripModelObserver,
   // unselected tabs at the moment this function is called.  The value changes
   // during animations, so we can't use current_unselected_width_.
   void LayoutNewTabButton(double last_tab_right, double unselected_width);
+
+  // -- Context Menu -----------------------------------------------------------
+
+  // On Windows, right clicking in the tab strip background brings up the
+  // system menu.  There's no such thing on linux, so we just show the menu
+  // items we add to the menu.
+  void ShowContextMenu();
+  // MenuGtk::Delegate implementation:
+  virtual bool IsCommandEnabled(int command_id) const;
+  virtual void ExecuteCommand(int command_id);
 
   // -- Animations -------------------------------------------------------------
 
@@ -246,6 +262,9 @@ class TabStripGtk : public TabStripModelObserver,
   // The controller for a drag initiated from a Tab. Valid for the lifetime of
   // the drag session.
   scoped_ptr<DraggedTabControllerGtk> drag_controller_;
+
+  // The context menu.
+  scoped_ptr<MenuGtk> context_menu_;
 
   DISALLOW_COPY_AND_ASSIGN(TabStripGtk);
 };

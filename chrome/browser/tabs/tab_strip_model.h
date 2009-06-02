@@ -420,6 +420,7 @@ class TabStripModel : public NotificationObserver {
     CommandCloseTabsToRight,
     CommandCloseTabsOpenedBy,
     CommandRestoreTab,
+    CommandTaskManager,
     CommandLast
   };
 
