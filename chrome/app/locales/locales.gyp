@@ -13,8 +13,7 @@
   'target_defaults': {
     'type': 'shared_library',
     'dependencies': [
-      # Switch to with chrome.sln landing.
-      #'../../chrome.gyp:chrome_strings',
+      '../../chrome.gyp:chrome_strings',
     ],
     'msvs_settings': {
       'VCLinkerTool': {
