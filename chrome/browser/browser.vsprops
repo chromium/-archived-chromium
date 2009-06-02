@@ -7,7 +7,7 @@
 	>
 	<Tool
 		Name="VCCLCompilerTool"
-		AdditionalIncludeDirectories="&quot;$(IntDir)\..\browser&quot;;&quot;$(OutDir)\webkit&quot;;..\third_party\webkit\out;&quot;$(IntDir)\..\google_update&quot;"
+		AdditionalIncludeDirectories="&quot;$(IntDir)\..\browser&quot;;&quot;$(OutDir)\webkit&quot;;..\third_party\webkit\out"
 		PreprocessorDefinitions="_CRT_SECURE_NO_DEPRECATE"
 	/>
 	<Tool
