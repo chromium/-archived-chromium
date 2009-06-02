@@ -431,9 +431,6 @@ void ProfileImpl::InitExtensions() {
   bool user_scripts_enabled =
       command_line->HasSwitch(switches::kEnableUserScripts) ||
       prefs->GetBoolean(prefs::kEnableUserScripts);
-  bool extensions_enabled =
-      command_line->HasSwitch(switches::kEnableExtensions) ||
-      prefs->GetBoolean(prefs::kEnableExtensions);
 
   FilePath script_dir;
   if (user_scripts_enabled) {
@@ -449,18 +446,14 @@ void ProfileImpl::InitExtensions() {
 
   ExtensionErrorReporter::Init(true);  // allow noisy errors.
   user_script_master_ = new UserScriptMaster(
-      g_browser_process->file_thread()->message_loop(), script_dir);
+      g_browser_process->file_thread()->message_loop(),
+      script_dir);
   extensions_service_ = new ExtensionsService(
       this, MessageLoop::current(),
       g_browser_process->file_thread()->message_loop(),
       std::string());  // Use default registry path
 
-  // If we have extensions, the extension service will kick off the first scan
-  // after extensions are loaded. Otherwise, we need to do that now.
-  if (extensions_enabled)
-    extensions_service_->Init();
-  else if (user_scripts_enabled)
-    user_script_master_->StartScan();
+  extensions_service_->Init();
 }
 
 ProfileImpl::~ProfileImpl() {

@@ -129,6 +129,18 @@ class ExtensionsServiceTest
 
   void TestInstallExtension(const FilePath& path,
                             bool should_succeed) {
+    InstallExtension(path, should_succeed, false);
+  }
+
+  void TestInstallTheme(const FilePath& path,
+                        bool should_succeed) {
+    InstallExtension(path, should_succeed, true);
+  }
+
+ protected:
+  void InstallExtension(const FilePath& path,
+                        bool should_succeed,
+                        bool is_theme) {
     ASSERT_TRUE(file_util::PathExists(path));
     service_->InstallExtension(path);
     loop_.RunAllPending();
@@ -137,7 +149,13 @@ class ExtensionsServiceTest
       ++total_successes_;
 
       EXPECT_TRUE(installed_) << path.value();
-      EXPECT_EQ(1u, loaded_.size()) << path.value();
+
+      // Themes aren't loaded.
+      if (is_theme)
+        EXPECT_EQ(0u, loaded_.size()) << path.value();
+      else 
+        EXPECT_EQ(1u, loaded_.size()) << path.value();
+
       EXPECT_EQ(0u, errors.size()) << path.value();
       EXPECT_EQ(total_successes_, service_->extensions()->size()) <<
           path.value();
@@ -159,7 +177,6 @@ class ExtensionsServiceTest
     ExtensionErrorReporter::GetInstance()->ClearErrors();
   }
 
- protected:
   scoped_ptr<TestingProfile> profile_;
   scoped_refptr<ExtensionsService> service_;
   size_t total_successes_;
@@ -355,17 +372,17 @@ TEST_F(ExtensionsServiceTest, InstallTheme) {
 
   // A theme.
   FilePath path = extensions_path.AppendASCII("theme.crx");
-  TestInstallExtension(path, true);
+  TestInstallTheme(path, true);
 
   // A theme when extensions are disabled.
   SetExtensionsEnabled(false);
   path = extensions_path.AppendASCII("theme2.crx");
-  TestInstallExtension(path, true);
+  TestInstallTheme(path, true);
   SetExtensionsEnabled(true);
 
   // A theme with extension elements.
   path = extensions_path.AppendASCII("theme_with_extension.crx");
-  TestInstallExtension(path, false);
+  TestInstallTheme(path, false);
 }
 
 // Test that when an extension version is reinstalled, nothing happens.

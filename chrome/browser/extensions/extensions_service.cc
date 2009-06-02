@@ -326,27 +326,40 @@ void ExtensionsService::LoadExtension(const FilePath& extension_path) {
 }
 
 void ExtensionsService::OnExtensionsLoaded(ExtensionList* new_extensions) {
-  extensions_.insert(extensions_.end(), new_extensions->begin(),
-                     new_extensions->end());
-  NotificationService::current()->Notify(
-      NotificationType::EXTENSIONS_LOADED,
-      NotificationService::AllSources(),
-      Details<ExtensionList>(new_extensions));
+  // If extensions aren't enabled, we still want to add themes. However, themes
+  // should not trigger EXTENSIONS_LOADED.
+  // TODO(aa): This can be re-enabled when BUG 13128 is fixed.
+  bool has_extension = false;
+  for (ExtensionList::iterator iter = new_extensions->begin();
+       iter != new_extensions->end(); ++iter) {
+    if (extensions_enabled() || (*iter)->IsTheme()) {
+      extensions_.push_back(*iter);
+      if (!(*iter)->IsTheme())
+        has_extension = true;
+    }
+  }
+
+  if (has_extension) {
+    NotificationService::current()->Notify(
+        NotificationType::EXTENSIONS_LOADED,
+        NotificationService::AllSources(),
+        Details<ExtensionList>(new_extensions));
+  }
   delete new_extensions;
 }
 
 void ExtensionsService::OnExtensionInstalled(Extension* extension,
                                              bool update) {
-  NotificationService::current()->Notify(
-      NotificationType::EXTENSION_INSTALLED,
-      NotificationService::AllSources(),
-      Details<Extension>(extension));
-
   // If the extension is a theme, tell the profile (and therefore ThemeProvider)
   // to apply it.
   if (extension->IsTheme()) {
     NotificationService::current()->Notify(
         NotificationType::THEME_INSTALLED,
+        NotificationService::AllSources(),
+        Details<Extension>(extension));
+  } else {
+    NotificationService::current()->Notify(
+        NotificationType::EXTENSION_INSTALLED,
         NotificationService::AllSources(),
         Details<Extension>(extension));
   }
