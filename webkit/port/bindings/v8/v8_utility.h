@@ -5,6 +5,15 @@
 #ifndef V8_UTILITY_H__
 #define V8_UTILITY_H__
 
+#include "V8Utilities.h"
+
+// To break a cycle dependency during upstreaming this block of code,
+// ifdefing it out based on this #define.
+//
+// TODO(ajwong): After https://bugs.webkit.org/show_bug.cgi?id=25595
+// lands and is rolled down into chromium, migrate all headaers to use
+// the code in V8Utilities.h directly, and then, remove this code.
+#ifndef V8UTILITIES_DEFINED
 namespace WebCore {
 
 class AllowAllocation {
@@ -54,5 +63,6 @@ v8::Local<v8::Object> SafeAllocation::NewInstance(
 }
 
 }  // namespace WebCore
+#endif  // V8UTILITIES_DEFINED
 
 #endif   // V8_UTILITY_H__
