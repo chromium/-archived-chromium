@@ -61,6 +61,8 @@
       # generated headers.
       'target_name': 'chrome_resources',
       'type': 'none',
+      'msvs_guid': 'B95AB527-F7DB-41E9-AD91-EB51EE0F56BE',
+      'msvs_existing_vcproj': 'app/chrome_resources.vcproj',
       'rules': [
         {
           'rule_name': 'grit',
@@ -119,6 +121,8 @@
       # generated headers.
       'target_name': 'chrome_strings',
       'type': 'none',
+      'msvs_guid': 'D9DDAF60-663F-49CC-90DC-3D08CC3D1B28',
+      'msvs_existing_vcproj': 'app/chrome_strings.vcproj',
       'rules': [
         {
           'rule_name': 'grit',
@@ -221,6 +225,8 @@
     {
       'target_name': 'common',
       'type': '<(library)',
+      'msvs_guid': '899F1280-3441-4D1F-BA04-CCD6208D9146',
+      'msvs_existing_vcproj': 'common/common.vcproj',
       'dependencies': [
         'chrome_resources',
         'chrome_strings',
@@ -481,6 +487,8 @@
     {
       'target_name': 'browser',
       'type': '<(library)',
+      'msvs_guid': '5BF908A7-68FB-4A4B-99E3-8C749F1FE4EA',
+      'msvs_existing_vcproj': 'browser/browser.vcproj',
       'dependencies': [
         'common',
         'chrome_resources',
@@ -1649,6 +1657,7 @@
             '../printing/printing.gyp:printing',
             '../views/views.gyp:views',
             '../gears/gears.gyp:gears',
+            'browser_views',
           ],
           'export_dependent_settings': [
             '../views/views.gyp:views',
@@ -1822,6 +1831,8 @@
     {
       'target_name': 'debugger',
       'type': '<(library)',
+      'msvs_guid': '57823D8C-A317-4713-9125-2C91FDFD12D6',
+      'msvs_existing_vcproj': 'browser/debugger/debugger.vcproj',
       'dependencies': [
         'chrome_resources',
         'theme_resources',
@@ -1891,6 +1902,8 @@
     {
       'target_name': 'plugin',
       'type': '<(library)',
+      'msvs_guid': '20A560A0-2CD0-4D9E-A58B-1F24B99C087A',
+      'msvs_existing_vcproj': 'plugin/plugin.vcproj',
       'dependencies': [
         'common',
         'chrome_resources',
@@ -1957,6 +1970,8 @@
     {
       'target_name': 'renderer',
       'type': '<(library)',
+      'msvs_guid': '9301A569-5D2B-4D11-9332-B1E30AEACB8D',
+      'msvs_existing_vcproj': 'renderer/renderer.vcproj',
       'dependencies': [
         'common',
         'plugin',
@@ -2098,6 +2113,8 @@
     {
       'target_name': 'utility',
       'type': '<(library)',
+      'msvs_guid': '4D2B38E6-65FF-4F97-B88A-E441DF54EBF7',
+      'msvs_existing_vcproj': 'utility/utility.vcproj',
       'dependencies': [
         '../base/base.gyp:base',
         '../skia/skia.gyp:skia',
@@ -2131,6 +2148,8 @@
       'target_name': 'app',
       'type': 'executable',
       'mac_bundle': 1,
+      'msvs_guid': '7B219FAA-E360-43C8-B341-804A94EEFFAC',
+      'msvs_existing_vcproj': 'app/chrome_exe.vcproj',
       'sources': [
         # All .cc, .h, .m, and .mm files under app except for tests.
         'app/breakpad_win.cc',
@@ -2616,6 +2635,8 @@
     {
       'target_name': 'image_diff',
       'type': 'executable',
+      'msvs_guid': '50B079C7-CD01-42D3-B8C4-9F8D9322E822',
+      'msvs_existing_vcproj': 'tools/test/image_diff/image_diff.vcproj',
       'dependencies': [
         '../base/base.gyp:base',
         '../base/base.gyp:base_gfx',
@@ -2788,6 +2809,8 @@
     {
       'target_name': 'ipc_tests',
       'type': 'executable',
+      'msvs_guid': 'B92AE829-E1CD-4781-824A-DCB1603A1672',
+      'msvs_existing_vcproj': 'common/ipc_tests.vcproj',
       'dependencies': [
         'common',
         'test_support_unit',
@@ -2816,6 +2839,8 @@
     {
       'target_name': 'ui_tests',
       'type': 'executable',
+      'msvs_guid': '76235B67-1C27-4627-8A33-4B2E1EF93EDE',
+      'msvs_existing_vcproj': 'test/ui/ui_tests.vcproj',
       'dependencies': [
         'app',
         'browser',
@@ -2971,6 +2996,8 @@
     {
       'target_name': 'unit_tests',
       'type': 'executable',
+      'msvs_guid': 'ECFC2BEC-9FC0-4AD9-9649-5F26793F65FC',
+      'msvs_existing_vcproj': 'test/unit/unittests.vcproj',
       'dependencies': [
         'app',
         'browser',
@@ -3328,6 +3355,8 @@
     {
       'target_name': 'startup_tests',
       'type': 'executable',
+      'msvs_guid': 'D3E6C0FD-54C7-4FF2-9AE1-72F2DAFD820C',
+      'msvs_existing_vcproj': 'test/startup/startup_tests.vcproj',
       'dependencies': [
         'app',
         'browser',
@@ -3361,6 +3390,8 @@
     {
       'target_name': 'page_cycler_tests',
       'type': 'executable',
+      'msvs_guid': 'C9E0BD1D-B175-4A91-8380-3FDC81FAB9D7',
+      'msvs_existing_vcproj': 'test/page_cycler/page_cycler_tests.vcproj',
       'dependencies': [
         'app',
         'chrome_resources',
@@ -3429,6 +3460,8 @@
         {
           'target_name': 'convert_dict',
           'type': 'executable',
+          'msvs_guid': '42ECD5EC-722F-41DE-B6B8-83764C8016DF',
+          'msvs_existing_vcproj': 'tools/convert_dict/convert_dict.vcproj',
           'dependencies': [
             '../base/base.gyp:base',
             'third_party/hunspell/hunspell.gyp:hunspell',
@@ -3446,6 +3479,8 @@
         {
           'target_name': 'flush_cache',
           'type': 'executable',
+          'msvs_guid': '4539AFB3-B8DC-47F3-A491-6DAC8FD26657',
+          'msvs_existing_vcproj': 'tools/perf/flush_cache/flush_cache.vcproj',
           'dependencies': [
             '../base/base.gyp:base',
           ],
@@ -3492,6 +3527,8 @@
         {
           'target_name': 'perf_tests',
           'type': 'executable',
+          'msvs_guid': '9055E088-25C6-47FD-87D5-D9DD9FD75C9F',
+          'msvs_existing_vcproj': 'test/perf/perftests.vcproj',
           'dependencies': [
             'browser',
             'common',
@@ -3589,9 +3626,23 @@
           ],
         },
         {
+          'target_name': 'browser_views',
+          'type': '<(library)',
+          'msvs_guid': 'FA537565-7B03-4FFC-AF15-F7A979B72E22',
+          'msvs_existing_vcproj': 'browser/views/browser_views.vcproj',
+        },
+        {
+          'target_name': 'tcmalloc',
+          'type': '<(library)',
+          'msvs_guid': 'C564F145-9172-42C3-BFCB-60FDEA124321',
+          'msvs_existing_vcproj': '../third_party/tcmalloc/tcmalloc.vcproj',
+        },
+        {
           'target_name': 'chrome_dll',
           'type': 'shared_library',
           'product_name': 'chrome',
+          'msvs_guid': 'C0A7EE2C-2A6D-45BE-BA78-6D006FDF52D9',
+          'msvs_existing_vcproj': 'app/chrome_dll.vcproj',
           'include_dirs': [
             'third_party/wtl/include',
           ],
@@ -3605,6 +3656,8 @@
             '../net/net.gyp:net_resources',
             '../views/views.gyp:views',
             '../webkit/webkit.gyp:webkit_resources',
+            '../gears/gears.gyp:gears',
+            'tcmalloc',
           ],
           'rules': [
             {
@@ -3696,6 +3749,8 @@
         {
           'target_name': 'activex_test_control',
           'type': 'shared_library',
+	  'msvs_guid': '414D4D24-5D65-498B-A33F-3A29AD3CDEDC',
+          'msvs_existing_vcproj': 'test/activex_test_control/activex_test_control.vcproj',
           'include_dirs': [
             '..',
             '<(INTERMEDIATE_DIR)',
@@ -3722,6 +3777,8 @@
         {
           'target_name': 'automated_ui_tests',
           'type': 'executable',
+          'msvs_guid': 'D2250C20-3A94-4FB9-AF73-11BC5B73884B',
+          'msvs_existing_vcproj': 'test/automated_ui_tests/automated_ui_tests.vcproj',
           'dependencies': [
             'browser',
             'renderer',
@@ -3755,6 +3812,8 @@
         {
           'target_name': 'automation',
           'type': '<(library)',
+          'msvs_guid': '1556EF78-C7E6-43C8-951F-F6B43AC0DD12',
+          'msvs_existing_vcproj': 'test/automation/automation.vcproj',
           'dependencies': [
             'theme_resources',
             '../skia/skia.gyp:skia',
@@ -3785,6 +3844,8 @@
         {
           'target_name': 'browser_tests',
           'type': 'executable',
+          'msvs_guid': '9B87804D-2502-480B-95AE-5A572CE91809',
+          'msvs_existing_vcproj': 'test/browser/browser_tests_launcher.vcproj',
           'dependencies': [
             'installer/installer.gyp:installer_util',
           ],
@@ -3798,6 +3859,8 @@
         {
           'target_name': 'browser_tests_dll',
           'type': 'shared_library',
+          'msvs_guid': 'D7589D0D-304E-4589-85A4-153B7D84B07F',
+          'msvs_existing_vcproj': 'test/browser/browser_tests_dll.vcproj',
           'product_name': 'browser_tests',
           'dependencies': [
             'browser',
@@ -3856,6 +3919,8 @@
         {
           'target_name': 'convert_dict',
           'type': 'executable',
+          'msvs_guid': '42ECD5EC-722F-41DE-B6B8-83764C8016DF',
+          'msvs_existing_vcproj': 'tools/convert_dict/convert_dict.vcproj',
           'dependencies': [
             '../base/base.gyp:base',
           ],
@@ -3880,6 +3945,8 @@
         {
           'target_name': 'crash_service',
           'type': 'executable',
+          'msvs_guid': '89C1C190-A5D1-4EC4-BD6A-67FF2195C7CC',
+          'msvs_existing_vcproj': 'tools/crash_service/crash_service.vcproj',
           'dependencies': [
             'common',
             '../base/base.gyp:base',
@@ -3903,6 +3970,8 @@
         {
           'target_name': 'flush_cache',
           'type': 'executable',
+          'msvs_guid': '4539AFB3-B8DC-47F3-A491-6DAC8FD26657',
+          'msvs_existing_vcproj': 'tools/perf/flush_cache/flush_cache.vcproj',
           'dependencies': [
             '../base/base.gyp:base',
           ],
@@ -3916,6 +3985,8 @@
         {
           'target_name': 'generate_profile',
           'type': 'executable',
+          'msvs_guid': '2E969AE9-7B12-4EDB-8E8B-48C7AE7BE357',
+          'msvs_existing_vcproj': 'tools/profiles/generate_profile.vcproj',
           'dependencies': [
             'browser',
             'debugger',
@@ -3934,6 +4005,8 @@
         {
           'target_name': 'interactive_ui_tests',
           'type': 'executable',
+          'msvs_guid': '018D4F38-6272-448F-A864-976DA09F05D0',
+          'msvs_existing_vcproj': 'test/interactive_ui/interactive_ui.vcproj',
           'dependencies': [
             'chrome_resources',
             'chrome_strings',
@@ -3984,6 +4057,8 @@
         {
           'target_name': 'memory_test',
           'type': 'executable',
+          'msvs_guid': 'A5F831FD-9B9C-4FEF-9FBA-554817B734CE',
+          'msvs_existing_vcproj': 'test/memory_test/memory_test.vcproj',
           'dependencies': [
             'test_support_common',
             'test_support_ui',
@@ -4001,6 +4076,8 @@
         {
           'target_name': 'plugin_tests',
           'type': 'executable',
+          'msvs_guid': 'A1CAA831-C507-4B2E-87F3-AEC63C9907F9',
+          'msvs_existing_vcproj': 'test/plugin/plugin_tests.vcproj',
           'dependencies': [
             'chrome_resources',
             'chrome_strings',
@@ -4031,6 +4108,8 @@
         {
           'target_name': 'reliability_tests',
           'type': 'executable',
+          'msvs_guid': '8A3E1774-1DE9-445C-982D-3EE37C8A752A',
+          'msvs_existing_vcproj': 'test/reliability/reliability_tests.vcproj',
           'dependencies': [
             'test_support_common',
             'test_support_ui',
@@ -4051,6 +4130,8 @@
         {
           'target_name': 'security_tests',
           'type': 'shared_library',
+          'msvs_guid': 'E750512D-FC7C-4C98-BF04-0A0DAF882055',
+          'msvs_existing_vcproj': 'test/security_tests/security_tests.vcproj',
           'include_dirs': [
             '..',
           ],
@@ -4066,6 +4147,8 @@
         {
           'target_name': 'selenium_tests',
           'type': 'executable',
+          'msvs_guid': 'E3749617-BA3D-4230-B54C-B758E56D9FA5',
+          'msvs_existing_vcproj': 'test/selenium/selenium_tests.vcproj',
           'dependencies': [
             'chrome_resources',
             'chrome_strings',
@@ -4093,6 +4176,8 @@
         {
           'target_name': 'tab_switching_test',
           'type': 'executable',
+          'msvs_guid': 'A34770EA-A574-43E8-9327-F79C04770E98',
+          'msvs_existing_vcproj': 'test/tab_switching/tab_switching.vcproj',
           'dependencies': [
             'test_support_common',
             'test_support_ui',
@@ -4110,6 +4195,8 @@
         {
           'target_name': 'test_chrome_plugin',
           'type': 'shared_library',
+          'msvs_guid': '7F0A70F6-BE3F-4C19-B435-956AB8F30BA4',
+          'msvs_existing_vcproj': 'test/chrome_plugin/test_chrome_plugin.vcproj',
           'dependencies': [
             '../base/base.gyp:base',
             '../build/temp_gyp/googleurl.gyp:googleurl',
@@ -4131,6 +4218,8 @@
         {
           'target_name': 'theme_dll',
           'type': 'shared_library',
+          'msvs_guid': 'FD683DD6-D9BF-4B1B-AB6D-A3AC03EDAA4D',
+          'msvs_existing_vcproj': 'app/theme/theme_dll.vcproj',
           'product_name': 'default',
           'dependencies': [
             'theme_resources',
@@ -4188,6 +4277,8 @@
         {
           'target_name': 'worker',
           'type': '<(library)',
+          'msvs_guid': 'C78D02D0-A366-4EC6-A248-AA8E64C4BA18',
+          'msvs_existing_vcproj': 'worker/worker.vcproj',
           'dependencies': [
             '../base/base.gyp:base',
             '../webkit/webkit.gyp:webkit',

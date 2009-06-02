@@ -10,6 +10,8 @@
     {
       'target_name': 'hunspell',
       'type': '<(library)',
+      'msvs_guid': 'D5E8DCB2-9C61-446F-8BEE-B18CA0E0936E',
+      'msvs_existing_vcproj': 'hunspell.vcproj',
       'dependencies': [
         '../../../base/base.gyp:base',
         '../../../third_party/icu38/icu38.gyp:icuuc',

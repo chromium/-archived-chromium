@@ -23,6 +23,7 @@
       'dependencies': [
         '../app/app.gyp:*',
         '../base/base.gyp:*',
+        '../chrome/chrome.gyp:*',
         '../media/media.gyp:*',
         '../net/net.gyp:*',
         '../printing/printing.gyp:*',
@@ -82,11 +83,6 @@
         ['OS=="win" or (OS=="linux" and toolkit_views==1)', {
           'dependencies': [
             '../views/views.gyp:*',
-          ],
-        }],
-        ['all_gyps', {
-          'dependencies': [
-            '../chrome/chrome.gyp:*',
           ],
         }],
       ],

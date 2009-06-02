@@ -106,6 +106,7 @@
         ['OS=="win"', {
           'type': '<(library)',
           'msvs_guid': 'EFBB1436-A63F-4CD8-9E99-B89226E782EC',
+          'msvs_existing_vcproj': 'util/util.vcproj',
           'dependencies': [
             'installer_util_strings',
             '../chrome.gyp:common',
@@ -187,6 +188,7 @@
           'target_name': 'gcapi_dll',
           'type': 'loadable_module',
           'msvs_guid': 'B802A2FE-E4E2-4F5A-905A-D5128875C954',
+          'msvs_existing_vcproj': 'gcapi/gcapi_dll.vcproj',
           'dependencies': [
             '../../google_update/google_update.gyp:google_update',
           ],
@@ -202,6 +204,7 @@
           'target_name': 'gcapi_lib',
           'type': 'static_library',
           'msvs_guid': 'CD2FD73A-6AAB-4886-B887-760D18E8B635',
+          'msvs_existing_vcpj': 'gcapi/gcapi_lib.vcproj',
           'dependencies': [
             '../../google_update/google_update.gyp:google_update',
           ],
@@ -217,6 +220,7 @@
           'target_name': 'gcapi_test',
           'type': 'executable',
           'msvs_guid': 'B64B396B-8EF1-4B6B-A07E-48D40EB961AB',
+          'msvs_existing_vcproj': 'gcapi/gcapi_test.vcproj',
           'dependencies': [
             'gcapi_dll',
             'gcapi_lib',
@@ -234,6 +238,7 @@
           'target_name': 'installer_unittests',
           'type': 'executable',
           'msvs_guid': '903F8C1E-537A-4C9E-97BE-075147CBE769',
+          'msvs_existing_vcproj': 'util/installer_unittests.vcproj',
           'dependencies': [
             'installer_util',
             'installer_util_strings',
@@ -265,6 +270,7 @@
           'target_name': 'installer_util_strings',
           'type': 'none',
           'msvs_guid': '0026A376-C4F1-4575-A1BA-578C69F07013',
+          'msvs_existing_vcproj': 'util/prebuild/util_prebuild.vcproj',
           'actions': [
             {
               # TODO(sgk):  Clean this up so that we pass in the
@@ -302,6 +308,7 @@
           'target_name': 'mini_installer',
           'type': 'executable',
           'msvs_guid': '24A5AC7C-280B-4899-9153-6BA570A081E7',
+          'msvs_existing_vcproj': 'mini_installer/mini_installer.vcproj',
           'dependencies': [
             '../chrome.gyp:app',
             '../chrome.gyp:chrome_dll',
@@ -419,6 +426,7 @@
           'target_name': 'mini_installer_test',
           'type': 'executable',
           'msvs_guid': '4B6E199A-034A-49BD-AB93-458DD37E45B1',
+          'msvs_existing_vcproj': '../test/mini_installer_test/mini_installer_test.vcproj',
           'dependencies': [
             'installer_util',
             '../../base/base.gyp:base',
@@ -441,6 +449,7 @@
           'target_name': 'setup',
           'type': 'executable',
           'msvs_guid': '21C76E6E-8B38-44D6-8148-B589C13B9554',
+          'msvs_existing_vcproj': 'setup/setup.vcproj',
           'dependencies': [
             'installer_util',
             'installer_util_strings',
