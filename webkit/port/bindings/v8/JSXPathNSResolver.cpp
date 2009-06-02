@@ -82,7 +82,7 @@ String JSXPathNSResolver::lookupNamespaceURI(const String& prefix) {
     return String();
   }
 
-  return ToWebCoreString(retval);
+  return valueToStringWithNullCheck(retval);
 }
 
 }
