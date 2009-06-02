@@ -611,6 +611,22 @@ devtools.DebuggerAgent.prototype.didIsProfilingStarted_ = function(
   if (is_started && !this.isProfilingStarted_) {
     // Start to query log data.
     RemoteDebuggerAgent.GetLogLines(this.lastProfileLogPosition_);
+  } else if (!is_started && this.isProfilingStarted_) {
+    // Display a temporary icon / message indicating that the profile
+    // is being processed.
+    var processingIcon = new WebInspector.SidebarTreeElement(
+        "profile-sidebar-tree-item", "Processing...", "", null, false);
+    var profilesSidebar = WebInspector.panels.profiles.sidebarTree;
+    profilesSidebar.appendChild(processingIcon);
+    var profilerProcessor = this.profilerProcessor_;
+    // Set a callback for adding a profile that removes the temporary element
+    // and restores plain "addProfile" callback.
+    profilerProcessor.setNewProfileCallback(function (profile) {
+      profilesSidebar.removeChild(processingIcon);
+      WebInspector.addProfile(profile);
+      profilerProcessor.setNewProfileCallback(
+          goog.bind(WebInspector.addProfile, WebInspector));
+    });
   }
   this.isProfilingStarted_ = is_started;
   // Update button.

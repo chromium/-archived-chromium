@@ -21,16 +21,32 @@ goog.inherits(devtools.profiler.JsProfile, devtools.profiler.Profile);
 
 
 /**
+ * RegExp that leaves only JS functions.
  * @type {RegExp}
  */
 devtools.profiler.JsProfile.JS_FUNC_RE = /^(LazyCompile|Function|Script):/;
+
+/**
+ * RegExp that filters out native code (ending with "native src.js:xxx").
+ * @type {RegExp}
+ */
+devtools.profiler.JsProfile.JS_NATIVE_FUNC_RE = /\ native\ \w+\.js:\d+$/;
+
+/**
+ * RegExp that filters out native scripts.
+ * @type {RegExp}
+ */
+devtools.profiler.JsProfile.JS_NATIVE_SCRIPT_RE = /^Script:\ native/;
 
 
 /**
  * @override
  */
 devtools.profiler.JsProfile.prototype.skipThisFunction = function(name) {
-  return !devtools.profiler.JsProfile.JS_FUNC_RE.test(name);
+  return !devtools.profiler.JsProfile.JS_FUNC_RE.test(name) ||
+      // To profile V8's natives comment out two lines below and '||' above.
+      devtools.profiler.JsProfile.JS_NATIVE_FUNC_RE.test(name) ||
+      devtools.profiler.JsProfile.JS_NATIVE_SCRIPT_RE.test(name);
 };
 
 
@@ -43,7 +59,8 @@ devtools.profiler.JsProfile.prototype.skipThisFunction = function(name) {
  */
 devtools.profiler.Processor = function(newProfileCallback) {
   /**
-   *
+   * Callback that adds a new profile to view.
+   * @type {function(devtools.profiler.ProfileView)}
    */
   this.newProfileCallback_ = newProfileCallback;
 
@@ -94,6 +111,16 @@ devtools.profiler.Processor.RecordsDispatch_ = {
   'code-allocate': null,
   'begin-code-region': null,
   'end-code-region': null
+};
+
+
+/**
+ * Sets new profile callback.
+ * @param {function(devtools.profiler.ProfileView)} callback Callback function.
+ */
+devtools.profiler.Processor.prototype.setNewProfileCallback = function(
+    callback) {
+  this.newProfileCallback_ = callback;
 };
 
 

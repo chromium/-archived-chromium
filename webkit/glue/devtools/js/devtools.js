@@ -3,7 +3,7 @@
 // found in the LICENSE file.
 
 /**
- * @fileoverview Tools is a main class that wires all components of the 
+ * @fileoverview Tools is a main class that wires all components of the
  * DevTools frontend together. It is also responsible for overriding existing
  * WebInspector functionality while it is getting upstreamed into WebCore.
  */
@@ -60,7 +60,7 @@ devtools.ToolsAgent = function() {
 devtools.ToolsAgent.prototype.reset = function() {
   this.domAgent_.reset();
   this.debuggerAgent_.reset();
-  
+
   this.domAgent_.getDocumentElementAsync();
 };
 
@@ -154,10 +154,10 @@ devtools.ToolsAgent.prototype.evaluate = function(expr) {
 /**
  * Asynchronously queries for the resource content.
  * @param {number} identifier Resource identifier.
- * @param {function(string):undefined} opt_callback Callback to call when 
+ * @param {function(string):undefined} opt_callback Callback to call when
  *     result is available.
  */
-devtools.ToolsAgent.prototype.getResourceContentAsync = function(identifier, 
+devtools.ToolsAgent.prototype.getResourceContentAsync = function(identifier,
     opt_callback) {
   var resource = WebInspector.resources[identifier];
   if (!resource) {
@@ -241,12 +241,12 @@ WebInspector.ElementsPanel.prototype.performSearchCallback_ = function(nodes) {
     if (treeElement)
       treeElement.highlighted = true;
   }
-  
+
   if (nodes.length) {
     this.currentSearchResultIndex_ = 0;
     this.focusedDOMNode = nodes[0];
   }
-  
+
   this.searchResultCount_ = nodes.length;
 };
 
@@ -361,7 +361,7 @@ WebInspector.ElementsPanel.prototype.invokeWithStyleSet_ =
   var node = this.focusedDOMNode;
   if (node && node.nodeType === Node.TEXT_NODE && node.parentNode)
     node = node.parentNode;
-  
+
   if (node && node.nodeType == Node.ELEMENT_NODE) {
     var callback = function(stylesStr) {
       var styles = JSON.parse(stylesStr);
@@ -425,9 +425,9 @@ WebInspector.PropertiesSidebarPane.prototype.update = function(object) {
     return;
   }
 
-  
+
   var self = this;
-  devtools.tools.getDomAgent().getNodePrototypesAsync(object.id_, 
+  devtools.tools.getDomAgent().getNodePrototypesAsync(object.id_,
       function(json) {
         // Get array of prototype user-friendly names.
         var prototypes = JSON.parse(json);
@@ -497,7 +497,7 @@ WebInspector.SidebarObjectPropertyTreeElement.prototype.onpopulate =
   var nodeId = this.parentObject.devtools$$nodeId_;
   var path = this.parentObject.devtools$$path_.slice(0);
   path.push(this.propertyName);
-  devtools.tools.getDomAgent().getNodePropertiesAsync(nodeId, path, -1, 
+  devtools.tools.getDomAgent().getNodePropertiesAsync(nodeId, path, -1,
       goog.partial(
           WebInspector.didGetNodePropertiesAsync_,
           this,
@@ -550,7 +550,7 @@ WebInspector.ScriptView.prototype.setupSourceFrameIfNeeded = function() {
   }
 
   this.attach();
-  
+
   if (this.script.source) {
     this.didResolveScriptSource_();
   } else {
@@ -918,6 +918,26 @@ WebInspector.ProfileDataGridNode.prototype._populate = function(event) {
      }
      return new originalDataGrid(columns);
    };
+})();
+
+
+// WebKit's profiler displays milliseconds with high resolution (shows
+// three digits after the decimal point). We never have such resolution,
+// as our minimal sampling rate is 1 ms. So we are disabling high resolution
+// to avoid visual clutter caused by meaningless ".000" parts.
+(function InterceptTimeDisplayInProfiler() {
+   var originalDataGetter =
+       WebInspector.ProfileDataGridNode.prototype.__lookupGetter__('data');
+   WebInspector.ProfileDataGridNode.prototype.__defineGetter__('data',
+     function() {
+       var oldNumberSecondsToString = Number.secondsToString;
+       Number.secondsToString = function(seconds, formatterFunction) {
+         return oldNumberSecondsToString(seconds, formatterFunction, false);
+       };
+       var data = originalDataGetter.call(this);
+       Number.secondsToString = oldNumberSecondsToString;
+       return data;
+     });
 })();
 
 
