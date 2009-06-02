@@ -100,7 +100,7 @@ TEST_F(MiniInstallTest, DISABLED_MiniInstallerOverChromeMetaInstallerTest) {
   installer.OverInstall();
 }
 
-TEST_F(MiniInstallTest, DISABLED_MiniInstallerSystemInstallTest) {
+TEST_F(MiniInstallTest, MiniInstallerSystemInstallTest) {
   if (win_util::GetWinVersion() < win_util::WINVERSION_VISTA) {
     ChromeMiniInstaller installer(mini_installer_constants::kSystemInstall,
                                   mini_installer_constants::kDevChannelBuild);
@@ -108,7 +108,7 @@ TEST_F(MiniInstallTest, DISABLED_MiniInstallerSystemInstallTest) {
   }
 }
 
-TEST_F(MiniInstallTest, DISABLED_MiniInstallerUserInstallTest) {
+TEST_F(MiniInstallTest, MiniInstallerUserInstallTest) {
   if (win_util::GetWinVersion() < win_util::WINVERSION_VISTA) {
     ChromeMiniInstaller installer(mini_installer_constants::kUserInstall,
                                   mini_installer_constants::kDevChannelBuild);
