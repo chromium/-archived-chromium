@@ -177,7 +177,7 @@ BookmarkManagerView::BookmarkManagerView(Profile* profile)
   SetLayoutManager(layout);
   const int top_id = 1;
   const int split_cs_id = 2;
-  layout->SetInsets(2, 0, 0, 0); // 2px padding above content.
+  layout->SetInsets(2, 0, 0, 0);  // 2px padding above content.
   views::ColumnSet* column_set = layout->AddColumnSet(top_id);
   column_set->AddColumn(views::GridLayout::LEADING, views::GridLayout::CENTER,
                         0, views::GridLayout::USE_PREF, 0, 0);
@@ -189,7 +189,7 @@ BookmarkManagerView::BookmarkManagerView(Profile* profile)
   column_set->AddPaddingColumn(0, kRelatedControlHorizontalSpacing);
   column_set->AddColumn(views::GridLayout::TRAILING, views::GridLayout::CENTER,
                         0, views::GridLayout::USE_PREF, 0, 0);
-  column_set->AddPaddingColumn(0, 3); // 3px padding at end of row.
+  column_set->AddPaddingColumn(0, 3);  // 3px padding at end of row.
 
   column_set = layout->AddColumnSet(split_cs_id);
   column_set->AddColumn(views::GridLayout::FILL, views::GridLayout::FILL, 1,
@@ -202,7 +202,7 @@ BookmarkManagerView::BookmarkManagerView(Profile* profile)
       l10n_util::GetString(IDS_BOOKMARK_MANAGER_SEARCH_TITLE)));
   layout->AddView(search_tf_);
 
-  layout->AddPaddingRow(0, 3); // 3px padding between rows.
+  layout->AddPaddingRow(0, 3);  // 3px padding between rows.
 
   layout->StartRow(1, split_cs_id);
   layout->AddView(split_view_);
@@ -583,8 +583,10 @@ BookmarkTableModel* BookmarkManagerView::CreateSearchTableModel() {
   std::wstring search_text = search_tf_->text();
   if (search_text.empty())
     return NULL;
-  return BookmarkTableModel::CreateSearchTableModel(GetBookmarkModel(),
-                                                    search_text);
+  std::wstring languages =
+      profile_->GetPrefs()->GetString(prefs::kAcceptLanguages);
+  return BookmarkTableModel::CreateSearchTableModel(
+      GetBookmarkModel(), search_text, languages);
 }
 
 void BookmarkManagerView::SetTableModel(BookmarkTableModel* new_table_model,

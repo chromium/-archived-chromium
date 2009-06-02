@@ -12,6 +12,8 @@
 #include "chrome/browser/extensions/extension_bookmarks_module_constants.h"
 #include "chrome/browser/extensions/extension_message_service.h"
 #include "chrome/browser/profile.h"
+#include "chrome/common/pref_names.h"
+#include "chrome/common/pref_service.h"
 
 namespace keys = extension_bookmarks_module_constants;
 
@@ -284,8 +286,9 @@ bool SearchBookmarksFunction::RunImpl() {
 
   BookmarkModel* model = profile()->GetBookmarkModel();
   ListValue* json = new ListValue();
+  std::wstring lang = profile()->GetPrefs()->GetString(prefs::kAcceptLanguages);
   std::vector<BookmarkNode*> nodes;
-  bookmark_utils::GetBookmarksContainingText(model, query, 50, &nodes);
+  bookmark_utils::GetBookmarksContainingText(model, query, 50, lang, &nodes);
   std::vector<BookmarkNode*>::iterator i = nodes.begin();
   for (; i != nodes.end(); ++i) {
     BookmarkNode* node = *i;

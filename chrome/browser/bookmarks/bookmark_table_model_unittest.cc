@@ -33,7 +33,7 @@ class BookmarkTableModelTest : public testing::Test,
         item_changed_count_(0),
         added_count_(0),
         removed_count_(0) {
-   }
+  }
 
   virtual void SetUp() {
     profile_.reset(new TestingProfile());
@@ -248,7 +248,8 @@ TEST_F(BookmarkTableModelTest, ChangeRecentlyBookmarked) {
 
 // Verifies search finds the correct bookmarks.
 TEST_F(BookmarkTableModelTest, Search) {
-  SetModel(BookmarkTableModel::CreateSearchTableModel(bookmark_model(), L"c"));
+  SetModel(BookmarkTableModel::CreateSearchTableModel(
+      bookmark_model(), L"c", std::wstring()));
   ASSERT_EQ(1, model_->RowCount());
   EXPECT_TRUE(bookmark_model()->other_node()->GetChild(2) ==
               model_->GetNodeForRow(0));
@@ -259,7 +260,8 @@ TEST_F(BookmarkTableModelTest, Search) {
 
 // Verifies adding an item to search notifies observers.
 TEST_F(BookmarkTableModelTest, AddToSearch) {
-  SetModel(BookmarkTableModel::CreateSearchTableModel(bookmark_model(), L"c"));
+  SetModel(BookmarkTableModel::CreateSearchTableModel(
+      bookmark_model(), L"c", std::wstring()));
   BookmarkNode* new_node =
       bookmark_model()->AddURL(bookmark_model()->other_node(), 0, L"c", url1_);
   // Should have gotten notification of the add.
@@ -281,7 +283,8 @@ TEST_F(BookmarkTableModelTest, AddToSearch) {
 
 // Verifies removing an item updates search.
 TEST_F(BookmarkTableModelTest, RemoveFromSearch) {
-  SetModel(BookmarkTableModel::CreateSearchTableModel(bookmark_model(), L"c"));
+  SetModel(BookmarkTableModel::CreateSearchTableModel(
+      bookmark_model(), L"c", std::wstring()));
   bookmark_model()->Remove(bookmark_model()->other_node(), 2);
   // Should have gotten notification of the remove.
   VerifyAndClearOberserverCounts(0, 0, 0, 1);
@@ -298,7 +301,8 @@ TEST_F(BookmarkTableModelTest, RemoveFromSearch) {
 
 // Verifies changing an item in search notifies observer.
 TEST_F(BookmarkTableModelTest, ChangeSearch) {
-  SetModel(BookmarkTableModel::CreateSearchTableModel(bookmark_model(), L"c"));
+  SetModel(BookmarkTableModel::CreateSearchTableModel(bookmark_model(),
+      L"c", std::wstring()));
   bookmark_model()->SetTitle(bookmark_model()->other_node()->GetChild(2),
                              L"new");
   // Should have gotten notification of the change.

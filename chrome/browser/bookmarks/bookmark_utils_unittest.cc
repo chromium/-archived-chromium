@@ -21,21 +21,57 @@ TEST_F(BookmarkUtilsTest, GetBookmarksContainingText) {
   model.AddGroup(model.other_node(), 0, L"foo");
 
   std::vector<BookmarkNode*> nodes;
-  bookmark_utils::GetBookmarksContainingText(&model, L"foo", 100, &nodes);
+  bookmark_utils::GetBookmarksContainingText(
+      &model, L"foo", 100, std::wstring(), &nodes);
   ASSERT_EQ(1U, nodes.size());
   EXPECT_TRUE(nodes[0] == n1);
-  EXPECT_TRUE(bookmark_utils::DoesBookmarkContainText(n1, L"foo"));
+  EXPECT_TRUE(bookmark_utils::DoesBookmarkContainText(
+      n1, L"foo", std::wstring()));
   nodes.clear();
 
-  bookmark_utils::GetBookmarksContainingText(&model, L"cnn", 100, &nodes);
+  bookmark_utils::GetBookmarksContainingText(
+      &model, L"cnn", 100, std::wstring(), &nodes);
   ASSERT_EQ(1U, nodes.size());
   EXPECT_TRUE(nodes[0] == n2);
-  EXPECT_TRUE(bookmark_utils::DoesBookmarkContainText(n2, L"cnn"));
+  EXPECT_TRUE(bookmark_utils::DoesBookmarkContainText(
+      n2, L"cnn", std::wstring()));
   nodes.clear();
 
-  bookmark_utils::GetBookmarksContainingText(&model, L"foo bar", 100, &nodes);
+  bookmark_utils::GetBookmarksContainingText(
+      &model, L"foo bar", 100, std::wstring(), &nodes);
   ASSERT_EQ(1U, nodes.size());
   EXPECT_TRUE(nodes[0] == n1);
-  EXPECT_TRUE(bookmark_utils::DoesBookmarkContainText(n1, L"foo bar"));
+  EXPECT_TRUE(bookmark_utils::DoesBookmarkContainText(
+      n1, L"foo bar", std::wstring()));
   nodes.clear();
 }
+
+TEST_F(BookmarkUtilsTest, DoesBookmarkContainText) {
+  BookmarkModel model(NULL);
+  BookmarkNode* node = model.AddURL(model.other_node(), 0, L"foo bar",
+                                    GURL("http://www.google.com"));
+  // Matches to the title.
+  ASSERT_TRUE(bookmark_utils::DoesBookmarkContainText(
+      node, L"ar", std::wstring()));
+  // Matches to the URL
+  ASSERT_TRUE(bookmark_utils::DoesBookmarkContainText(
+      node, L"www", std::wstring()));
+  // No match.
+  ASSERT_FALSE(bookmark_utils::DoesBookmarkContainText(
+      node, L"cnn", std::wstring()));
+
+  // Tests for a Japanese IDN.
+  const wchar_t* kDecodedIdn = L"\x30B0\x30FC\x30B0\x30EB";
+  node = model.AddURL(model.other_node(), 0, L"foo bar",
+                      GURL("http://xn--qcka1pmc.jp"));
+  // Unicode query doesn't match if languages have no "ja".
+  ASSERT_FALSE(bookmark_utils::DoesBookmarkContainText(
+      node, kDecodedIdn, L"en"));
+  // Unicode query matches if languages have "ja".
+  ASSERT_TRUE(bookmark_utils::DoesBookmarkContainText(
+      node, kDecodedIdn, L"ja"));
+  // Punycode query also matches as ever.
+  ASSERT_TRUE(bookmark_utils::DoesBookmarkContainText(
+      node, L"qcka1pmc", L"ja"));
+}
+

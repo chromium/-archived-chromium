@@ -24,13 +24,16 @@ class BookmarkTableModel : public views::TableModel,
  public:
   // Methods for creating the various BookmarkTableModels. Ownership passes
   // to the caller.
+  // |languages| is the kAcceptLanguages value of the user preference. It is
+  // used to decode IDN.
   static BookmarkTableModel* CreateRecentlyBookmarkedModel(
       BookmarkModel* model);
   static BookmarkTableModel* CreateBookmarkTableModelForFolder(
       BookmarkModel* model, BookmarkNode* node);
   static BookmarkTableModel* CreateSearchTableModel(
       BookmarkModel* model,
-      const std::wstring& text);
+      const std::wstring& text,
+      const std::wstring& languages);
 
   explicit BookmarkTableModel(BookmarkModel* model);
   virtual ~BookmarkTableModel();

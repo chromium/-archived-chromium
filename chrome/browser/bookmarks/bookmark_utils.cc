@@ -29,6 +29,7 @@
 #include "chrome/common/pref_service.h"
 #include "grit/chromium_strings.h"
 #include "grit/generated_resources.h"
+#include "net/base/net_util.h"
 #include "views/event.h"
 
 using base::Time;
@@ -177,12 +178,16 @@ bool DoesBookmarkTextContainWords(const std::wstring& text,
 }
 
 // Returns true if |node|s title or url contains the strings in |words|.
+// |languages| argument is user's accept-language setting to decode IDN.
 bool DoesBookmarkContainWords(BookmarkNode* node,
-                              const std::vector<std::wstring>& words) {
+                              const std::vector<std::wstring>& words,
+                              const std::wstring& languages) {
   return
       DoesBookmarkTextContainWords(
           l10n_util::ToLower(node->GetTitle()), words) ||
-      DoesBookmarkTextContainWords(UTF8ToWide(node->GetURL().spec()), words);
+      DoesBookmarkTextContainWords(UTF8ToWide(node->GetURL().spec()), words) ||
+      DoesBookmarkTextContainWords(net::FormatUrl(
+          node->GetURL(), languages, false, true, NULL, NULL), words);
 }
 
 }  // namespace
@@ -478,6 +483,7 @@ bool MoreRecentlyAdded(BookmarkNode* n1, BookmarkNode* n2) {
 void GetBookmarksContainingText(BookmarkModel* model,
                                 const std::wstring& text,
                                 size_t max_count,
+                                const std::wstring& languages,
                                 std::vector<BookmarkNode*>* nodes) {
   std::vector<std::wstring> words;
   QueryParser parser;
@@ -488,7 +494,7 @@ void GetBookmarksContainingText(BookmarkModel* model,
   TreeNodeIterator<BookmarkNode> iterator(model->root_node());
   while (iterator.has_next()) {
     BookmarkNode* node = iterator.Next();
-    if (node->is_url() && DoesBookmarkContainWords(node, words)) {
+    if (node->is_url() && DoesBookmarkContainWords(node, words, languages)) {
       nodes->push_back(node);
       if (nodes->size() == max_count)
         return;
@@ -496,14 +502,16 @@ void GetBookmarksContainingText(BookmarkModel* model,
   }
 }
 
-bool DoesBookmarkContainText(BookmarkNode* node, const std::wstring& text) {
+bool DoesBookmarkContainText(BookmarkNode* node,
+                             const std::wstring& text,
+                             const std::wstring& languages) {
   std::vector<std::wstring> words;
   QueryParser parser;
   parser.ExtractQueryWords(l10n_util::ToLower(text), &words);
   if (words.empty())
     return false;
 
-  return (node->is_url() && DoesBookmarkContainWords(node, words));
+  return (node->is_url() && DoesBookmarkContainWords(node, words, languages));
 }
 
 void ApplyEditsWithNoGroupChange(BookmarkModel* model,

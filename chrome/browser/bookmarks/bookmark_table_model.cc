@@ -225,18 +225,22 @@ class RecentlyBookmarkedTableModel : public VectorBackedBookmarkTableModel {
 class BookmarkSearchTableModel : public VectorBackedBookmarkTableModel {
  public:
   BookmarkSearchTableModel(BookmarkModel* model,
-                           const std::wstring& search_text)
+                           const std::wstring& search_text,
+                           const std::wstring& languages)
       : VectorBackedBookmarkTableModel(model),
-        search_text_(search_text) {
+        search_text_(search_text),
+        languages_(languages) {
     bookmark_utils::GetBookmarksContainingText(
-        model, search_text, std::numeric_limits<int>::max(), &nodes());
+        model, search_text, std::numeric_limits<int>::max(),
+        languages, &nodes());
   }
 
   virtual void BookmarkNodeAdded(BookmarkModel* model,
                                  BookmarkNode* parent,
                                  int index) {
     BookmarkNode* node = parent->GetChild(index);
-    if (bookmark_utils::DoesBookmarkContainText(node, search_text_)) {
+    if (bookmark_utils::DoesBookmarkContainText(
+        node, search_text_, languages_)) {
       nodes().push_back(node);
       if (observer())
         observer()->OnItemsAdded(static_cast<int>(nodes().size() - 1), 1);
@@ -258,6 +262,7 @@ class BookmarkSearchTableModel : public VectorBackedBookmarkTableModel {
 
  private:
   const std::wstring search_text_;
+  const std::wstring languages_;
 
   DISALLOW_COPY_AND_ASSIGN(BookmarkSearchTableModel);
 };
@@ -281,8 +286,9 @@ BookmarkTableModel* BookmarkTableModel::CreateBookmarkTableModelForFolder(
 // static
 BookmarkTableModel* BookmarkTableModel::CreateSearchTableModel(
     BookmarkModel* model,
-    const std::wstring& text) {
-  return new BookmarkSearchTableModel(model, text);
+    const std::wstring& text,
+    const std::wstring& languages) {
+  return new BookmarkSearchTableModel(model, text, languages);
 }
 
 BookmarkTableModel::BookmarkTableModel(BookmarkModel* model)

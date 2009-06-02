@@ -39,17 +39,17 @@ int BookmarkDragOperation(BookmarkNode* node);
 // |parent| is the parent node the drop is to occur on and |index| the index the
 // drop is over.
 int BookmarkDropOperation(Profile* profile,
-			  const views::DropTargetEvent& event,
-			  const BookmarkDragData& data,
-			  BookmarkNode* parent,
-			  int index);
+                          const views::DropTargetEvent& event,
+                          const BookmarkDragData& data,
+                          BookmarkNode* parent,
+                          int index);
 
 // Performs a drop of bookmark data onto |parent_node| at |index|. Returns the
 // type of drop the resulted.
 int PerformBookmarkDrop(Profile* profile,
-			const BookmarkDragData& data,
-			BookmarkNode* parent_node,
-			int index);
+                        const BookmarkDragData& data,
+                        BookmarkNode* parent_node,
+                        int index);
 
 // Returns true if the bookmark data can be dropped on |drop_parent| at
 // |index|. A drop from a separate profile is always allowed, where as
@@ -127,14 +127,19 @@ struct TitleMatch {
 bool MoreRecentlyAdded(BookmarkNode* n1, BookmarkNode* n2);
 
 // Returns up to |max_count| bookmarks from |model| whose url or title contains
-// the text |text|.
+// the text |text|.  |languages| is user's accept-language setting to decode
+// IDN.
 void GetBookmarksContainingText(BookmarkModel* model,
                                 const std::wstring& text,
                                 size_t max_count,
+                                const std::wstring& languages,
                                 std::vector<BookmarkNode*>* nodes);
 
 // Returns true if |node|'s url or title contains the string |text|.
-bool DoesBookmarkContainText(BookmarkNode* node, const std::wstring& text);
+// |languages| is user's accept-language setting to decode IDN.
+bool DoesBookmarkContainText(BookmarkNode* node,
+                             const std::wstring& text,
+                             const std::wstring& languages);
 
 // Modifies a bookmark node (assuming that there's no magic that needs to be
 // done regarding moving from one folder to another).
