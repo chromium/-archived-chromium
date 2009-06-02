@@ -3477,7 +3477,6 @@
           'target_name': 'flush_cache',
           'type': 'executable',
           'msvs_guid': '4539AFB3-B8DC-47F3-A491-6DAC8FD26657',
-          'msvs_existing_vcproj': 'tools/perf/flush_cache/flush_cache.vcproj',
           'dependencies': [
             '../base/base.gyp:base',
           ],
