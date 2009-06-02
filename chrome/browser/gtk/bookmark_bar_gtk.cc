@@ -49,8 +49,19 @@ const char kInternalURIType[] = "application/x-chrome-bookmark-item";
 // Left-padding for the instructional text.
 const int kInstructionsPadding = 6;
 
+// Color of the button text, taken from TextButtonView.
+const GdkColor kEnabledColor = GDK_COLOR_RGB(6, 45, 117);
+const GdkColor kDisabledColor = GDK_COLOR_RGB(161, 161, 146);
+// TextButtonView uses 255, 255, 255 with opacity of 200. We don't support
+// transparent text though, so just use a slightly lighter version of
+// kEnabledColor.
+const GdkColor kHighlightColor = GDK_COLOR_RGB(56, 95, 167);
+
 // Color of the instructional text.
 const GdkColor kInstructionsColor = GDK_COLOR_RGB(128, 128, 142);
+
+// Only used for the background of the drag widget.
+const GdkColor kBackgroundColor = GDK_COLOR_RGB(0xe6, 0xed, 0xf4);
 
 // Table of the mime types that we accept with their options.
 const GtkTargetEntry kTargetTable[] = {
@@ -60,6 +71,30 @@ const GtkTargetEntry kTargetTable[] = {
 };
 
 const int kTargetTableSize = G_N_ELEMENTS(kTargetTable);
+
+// Recursively search for label among the children of |widget|.
+void SearchForLabel(GtkWidget* widget, gpointer data) {
+  if (GTK_IS_LABEL(widget)) {
+    *reinterpret_cast<GtkWidget**>(data) = widget;
+  } else if (GTK_IS_CONTAINER(widget)) {
+    gtk_container_foreach(GTK_CONTAINER(widget), SearchForLabel, data);
+  }
+}
+
+// This function is a temporary hack to fix fonts on dark system themes.
+// NOTE: this makes assumptions about GtkButton internals. Also, it only works
+// if you call it after the last time you edit the button.
+// TODO(estade): remove this function.
+void SetButtonTextColors(GtkWidget* button) {
+  GtkWidget* label;
+  gtk_container_foreach(GTK_CONTAINER(button), SearchForLabel, &label);
+  if (label) {
+    gtk_widget_modify_fg(label, GTK_STATE_NORMAL, &kEnabledColor);
+    gtk_widget_modify_fg(label, GTK_STATE_ACTIVE, &kEnabledColor);
+    gtk_widget_modify_fg(label, GTK_STATE_PRELIGHT, &kHighlightColor);
+    gtk_widget_modify_fg(label, GTK_STATE_INSENSITIVE, &kDisabledColor);
+  }
+}
 
 }  // namespace
 
@@ -165,6 +200,8 @@ void BookmarkBarGtk::Init(Profile* profile) {
       l10n_util::GetStringUTF8(IDS_BOOMARK_BAR_OTHER_BOOKMARKED).c_str());
   gtk_button_set_image(GTK_BUTTON(other_bookmarks_button_),
                        gtk_image_new_from_pixbuf(folder_icon));
+  // Set the proper text colors.
+  SetButtonTextColors(other_bookmarks_button_);
 
   gtk_box_pack_start(GTK_BOX(bookmark_hbox_.get()), other_bookmarks_button_,
                      FALSE, FALSE, 0);
@@ -385,6 +422,7 @@ void BookmarkBarGtk::ConfigureButtonForNode(BookmarkNode* node,
                            gtk_image_new_from_pixbuf(default_bookmark_icon));
   }
 
+  SetButtonTextColors(button);
   g_object_set_data(G_OBJECT(button), kBookmarkNode,
                     reinterpret_cast<void*>(node));
 }
@@ -581,6 +619,7 @@ void BookmarkBarGtk::OnButtonDragBegin(GtkWidget* button,
 
   // Build a windowed representation for our button.
   GtkWidget* window = gtk_window_new(GTK_WINDOW_POPUP);
+  gtk_widget_modify_bg(window, GTK_STATE_NORMAL, &kBackgroundColor);
   gtk_widget_realize(window);
 
   GtkWidget* frame = gtk_frame_new(NULL);
