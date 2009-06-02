@@ -7,6 +7,8 @@
 
 #import <Cocoa/Cocoa.h>
 
+#include "base/scoped_nsobject.h"
+
 @class TabController, TabWindowController;
 
 // A view that handles the event tracking (clicking and dragging) for a tab
@@ -19,6 +21,9 @@
   // TODO(rohitrao): Add this button to a CoreAnimation layer so we can fade it
   // in and out on mouseovers.
   IBOutlet NSButton* closeButton_;
+
+  // Tracking area for close button mouseover images.
+  scoped_nsobject<NSTrackingArea> trackingArea_;
 
   // All following variables are valid for the duration of a drag.
   // These are released on mouseUp:

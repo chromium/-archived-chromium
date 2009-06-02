@@ -17,8 +17,23 @@
   return self;
 }
 
+- (void)awakeFromNib {
+  // Set up the tracking rect for the close button mouseover.  Add it
+  // to the |closeButton_| view, but we'll handle the message ourself.
+  // The mouseover is always enabled, because the close button works
+  // regardless of key/main/active status.
+  trackingArea_.reset(
+      [[NSTrackingArea alloc] initWithRect:[closeButton_ bounds]
+                                   options:NSTrackingMouseEnteredAndExited |
+                                           NSTrackingActiveAlways
+                                     owner:self
+                                  userInfo:nil]);
+  [closeButton_ addTrackingArea:trackingArea_.get()];
+}
+
 - (void)dealloc {
   // [self gtm_unregisterForThemeNotifications];
+  [closeButton_ removeTrackingArea:trackingArea_.get()];
   [super dealloc];
 }
 
@@ -27,6 +42,18 @@
 // leave the background button for display purposes only.
 - (BOOL)acceptsFirstMouse:(NSEvent *)theEvent {
   return YES;
+}
+
+- (void)mouseEntered:(NSEvent *)theEvent {
+  // We only set up one tracking area, so we know any mouseEntered:
+  // messages are for close button mouseovers.
+  [closeButton_ setImage:[NSImage imageNamed:@"close_bar_h"]];
+}
+
+- (void)mouseExited:(NSEvent *)theEvent {
+  // We only set up one tracking area, so we know any mouseExited:
+  // messages are for close button mouseovers.
+  [closeButton_ setImage:[NSImage imageNamed:@"close_bar"]];
 }
 
 // Determines which view a click in our frame actually hit. It's either this
