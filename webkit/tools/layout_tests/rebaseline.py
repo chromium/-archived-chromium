@@ -348,19 +348,21 @@ class Rebaseliner(object):
       False otherwise.
     """
 
-    output = RunShell(['svn', 'status', filename], False)
-    logging.debug('  Svn status output: "%s"', output)
+    status_output = RunShell(['svn', 'status', filename], False)
+    output = status_output.upper()
     if output.startswith('A') or output.startswith('M'):
       logging.info('  File already added to SVN: "%s"', filename)
       return True
 
-    output = RunShell(['svn', 'add', filename], True)
-    logging.debug('  Svn add output: "%s"', output)
-    if output.startswith('A') and output.endswith(filename):
+    add_output = RunShell(['svn', 'add', filename], True)
+    output = add_output.upper().rstrip()
+    if output.startswith('A') and output.endswith(filename.upper()):
       logging.info('  Added new file: "%s"', filename)
       return True
 
     logging.warn('  Failed to add file to SVN: "%s"', filename)
+    logging.warn('  Svn status output: "%s"', status_output)
+    logging.warn('  Svn add output: "%s"', add_output)
     return False
 
 

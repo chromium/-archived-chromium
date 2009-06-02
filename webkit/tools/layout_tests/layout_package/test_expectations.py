@@ -121,6 +121,9 @@ class TestExpectations:
   def IsIgnored(self, test):
     return self._expected_failures.HasModifier(test, WONTFIX)
 
+  def IsRebaselining(self, test):
+    return self._expected_failures.HasModifier(test, REBASELINE)
+
   def HasModifier(self, test, modifier):
     return self._expected_failures.HasModifier(test, modifier)
 

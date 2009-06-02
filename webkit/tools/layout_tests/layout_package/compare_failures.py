@@ -137,7 +137,9 @@ class CompareFailures:
         if not test_expectations.CRASH in expectations: crashes.add(test)
       elif is_hang:
         if not test_expectations.TIMEOUT in expectations: hangs.add(test)
-      elif is_missing:
+      # Do not add to the missing list if a test is rebaselining and missing
+      # expected files.
+      elif is_missing and not self._expectations.IsRebaselining(test):
         missing.add(test)
       elif is_failure:
         if not test_expectations.FAIL in expectations: failures.add(test)
