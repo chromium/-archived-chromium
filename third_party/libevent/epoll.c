@@ -94,7 +94,7 @@ const struct eventop epollops = {
 #define FD_CLOSEONEXEC(x)
 #endif
 
-#define NEVENT	32000
+#define NEVENT	32
 
 /* On Linux kernels at least up to 2.6.24.4, epoll can't handle timeout
  * values bigger than (LONG_MAX - 999ULL)/HZ.  HZ in the wild can be
@@ -114,16 +114,6 @@ epoll_init(struct event_base *base)
 	/* Disable epollueue when this environment variable is set */
 	if (getenv("EVENT_NOEPOLL"))
 		return (NULL);
-
-	if (getrlimit(RLIMIT_NOFILE, &rl) == 0 &&
-	    rl.rlim_cur != RLIM_INFINITY) {
-		/*
-		 * Solaris is somewhat retarded - it's important to drop
-		 * backwards compatibility when making changes.  So, don't
-		 * dare to put rl.rlim_cur here.
-		 */
-		nfiles = rl.rlim_cur - 1;
-	}
 
 	/* Initalize the kernel queue */
 
@@ -226,7 +216,7 @@ epoll_dispatch(struct event_base *base, void *arg, struct timeval *tv)
 		struct event *evread = NULL, *evwrite = NULL;
 		int fd = events[i].data.fd;
 
-		if (fd < 0 && fd >= epollop->nfds)
+		if (fd < 0 || fd >= epollop->nfds)
 			continue;
 		evep = &epollop->fds[fd];
 
