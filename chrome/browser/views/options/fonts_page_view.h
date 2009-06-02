@@ -8,7 +8,7 @@
 #include "chrome/browser/views/options/options_page_view.h"
 #include "chrome/browser/shell_dialogs.h"
 #include "chrome/common/pref_member.h"
-#include "views/controls/combo_box.h"
+#include "views/controls/combobox/combobox.h"
 #include "views/controls/button/button.h"
 #include "views/view.h"
 
@@ -28,7 +28,7 @@ class DefaultEncodingComboboxModel;
 // FontsPageView
 
 class FontsPageView : public OptionsPageView,
-                      public views::ComboBox::Listener,
+                      public views::Combobox::Listener,
                       public SelectFontDialog::Listener,
                       public views::ButtonListener {
  public:
@@ -38,8 +38,8 @@ class FontsPageView : public OptionsPageView,
   // views::ButtonListener implementation:
   virtual void ButtonPressed(views::Button* sender);
 
-  // views::ComboBox::Listener implementation:
-  virtual void ItemChanged(views::ComboBox* combo_box,
+  // views::Combobox::Listener implementation:
+  virtual void ItemChanged(views::Combobox* combo_box,
                            int prev_index,
                            int new_index);
 
@@ -117,7 +117,7 @@ class FontsPageView : public OptionsPageView,
   // Default Encoding.
   scoped_ptr<DefaultEncodingComboboxModel> default_encoding_combobox_model_;
   views::Label* default_encoding_combobox_label_;
-  views::ComboBox* default_encoding_combobox_;
+  views::Combobox* default_encoding_combobox_;
   std::wstring default_encoding_selected_;
   bool default_encoding_changed_;
 

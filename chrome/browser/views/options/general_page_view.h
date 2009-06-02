@@ -8,7 +8,7 @@
 #include "chrome/browser/views/options/options_page_view.h"
 #include "chrome/browser/views/shelf_item_dialog.h"
 #include "chrome/common/pref_member.h"
-#include "views/controls/combo_box.h"
+#include "views/controls/combobox/combobox.h"
 #include "views/controls/button/button.h"
 #include "views/controls/table/table_view_observer.h"
 #include "views/view.h"
@@ -31,7 +31,7 @@ class SearchEngineListModel;
 // GeneralPageView
 
 class GeneralPageView : public OptionsPageView,
-                        public views::ComboBox::Listener,
+                        public views::Combobox::Listener,
                         public views::ButtonListener,
                         public views::Textfield::Controller,
                         public ShelfItemDialogDelegate,
@@ -44,8 +44,8 @@ class GeneralPageView : public OptionsPageView,
   // views::ButtonListener implementation:
   virtual void ButtonPressed(views::Button* sender);
 
-  // views::ComboBox::Listener implementation:
-  virtual void ItemChanged(views::ComboBox* combo_box,
+  // views::Combobox::Listener implementation:
+  virtual void ItemChanged(views::Combobox* combobox,
                            int prev_index,
                            int new_index);
 
@@ -141,7 +141,7 @@ class GeneralPageView : public OptionsPageView,
 
   // Controls for the Default Search group
   OptionsGroupView* default_search_group_;
-  views::ComboBox* default_search_engine_combobox_;
+  views::Combobox* default_search_engine_combobox_;
   views::NativeButton* default_search_manage_engines_button_;
   scoped_ptr<SearchEngineListModel> default_search_engines_model_;
 

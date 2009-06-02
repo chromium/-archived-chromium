@@ -382,19 +382,19 @@ CustomHomePagesTableModel::Entry*
 ///////////////////////////////////////////////////////////////////////////////
 // SearchEngineListModel
 
-class SearchEngineListModel : public views::ComboBox::Model,
+class SearchEngineListModel : public views::Combobox::Model,
                               public TemplateURLModelObserver {
  public:
   explicit SearchEngineListModel(Profile* profile);
   virtual ~SearchEngineListModel();
 
-  // Sets the ComboBox. SearchEngineListModel needs a handle to the ComboBox
+  // Sets the Combobox. SearchEngineListModel needs a handle to the Combobox
   // so that when the TemplateURLModel changes the combobox can be updated.
-  void SetComboBox(views::ComboBox* combo_box);
+  void SetCombobox(views::Combobox* combobox);
 
-  // views::ComboBox::Model overrides:
-  virtual int GetItemCount(views::ComboBox* source);
-  virtual std::wstring GetItemAt(views::ComboBox* source, int index);
+  // views::Combobox::Model overrides:
+  virtual int GetItemCount(views::Combobox* source);
+  virtual std::wstring GetItemAt(views::Combobox* source, int index);
 
   // Returns the TemplateURL at the specified index.
   const TemplateURL* GetTemplateURLAt(int index);
@@ -410,12 +410,12 @@ class SearchEngineListModel : public views::ComboBox::Model,
 
   // Resets the selection of the combobox based on the users selected search
   // engine.
-  void ChangeComboBoxSelection();
+  void ChangeComboboxSelection();
 
   TemplateURLModel* template_url_model_;
 
   // The combobox hosting us.
-  views::ComboBox* combo_box_;
+  views::Combobox* combobox_;
 
   // The TemplateURLs we're showing.
   typedef std::vector<const TemplateURL*> TemplateURLs;
@@ -426,7 +426,7 @@ class SearchEngineListModel : public views::ComboBox::Model,
 
 SearchEngineListModel::SearchEngineListModel(Profile* profile)
     : template_url_model_(profile->GetTemplateURLModel()),
-      combo_box_(NULL) {
+      combobox_(NULL) {
   if (template_url_model_) {
     template_url_model_->Load();
     template_url_model_->AddObserver(this);
@@ -439,21 +439,21 @@ SearchEngineListModel::~SearchEngineListModel() {
     template_url_model_->RemoveObserver(this);
 }
 
-void SearchEngineListModel::SetComboBox(views::ComboBox* combo_box) {
-  combo_box_ = combo_box;
+void SearchEngineListModel::SetCombobox(views::Combobox* combobox) {
+  combobox_ = combobox;
   if (template_url_model_ && template_url_model_->loaded())
-    ChangeComboBoxSelection();
+    ChangeComboboxSelection();
   else
-    combo_box_->SetEnabled(false);
+    combobox_->SetEnabled(false);
 }
 
-int SearchEngineListModel::GetItemCount(views::ComboBox* source) {
+int SearchEngineListModel::GetItemCount(views::Combobox* source) {
   return static_cast<int>(template_urls_.size());
 }
 
-std::wstring SearchEngineListModel::GetItemAt(views::ComboBox* source,
+std::wstring SearchEngineListModel::GetItemAt(views::Combobox* source,
                                               int index) {
-  DCHECK(index < GetItemCount(combo_box_));
+  DCHECK(index < GetItemCount(combobox_));
   return template_urls_[index]->short_name();
 }
 
@@ -476,15 +476,15 @@ void SearchEngineListModel::ResetContents() {
       template_urls_.push_back(model_urls[i]);
   }
 
-  if (combo_box_) {
-    combo_box_->ModelChanged();
-    ChangeComboBoxSelection();
+  if (combobox_) {
+    combobox_->ModelChanged();
+    ChangeComboboxSelection();
   }
 }
 
-void SearchEngineListModel::ChangeComboBoxSelection() {
+void SearchEngineListModel::ChangeComboboxSelection() {
   if (template_urls_.size()) {
-    combo_box_->SetEnabled(true);
+    combobox_->SetEnabled(true);
 
     const TemplateURL* default_search_provider =
         template_url_model_->GetDefaultSearchProvider();
@@ -493,12 +493,12 @@ void SearchEngineListModel::ChangeComboBoxSelection() {
           find(template_urls_.begin(), template_urls_.end(),
                default_search_provider);
       if (i != template_urls_.end()) {
-        combo_box_->SetSelectedItem(
+        combobox_->SetSelectedItem(
             static_cast<int>(i - template_urls_.begin()));
       }
     }
   } else {
-    combo_box_->SetEnabled(false);
+    combobox_->SetEnabled(false);
   }
 }
 
@@ -595,11 +595,11 @@ void GeneralPageView::ButtonPressed(views::Button* sender) {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-// GeneralPageView, views::ComboBox::Listener implementation:
+// GeneralPageView, views::Combobox::Listener implementation:
 
-void GeneralPageView::ItemChanged(views::ComboBox* combo_box,
+void GeneralPageView::ItemChanged(views::Combobox* combobox,
                                   int prev_index, int new_index) {
-  if (combo_box == default_search_engine_combobox_) {
+  if (combobox == default_search_engine_combobox_) {
     SetDefaultSearchProvider();
     UserMetricsRecordAction(L"Options_SearchEngineChanged", NULL);
   }
@@ -920,9 +920,9 @@ void GeneralPageView::InitHomepageGroup() {
 void GeneralPageView::InitDefaultSearchGroup() {
   default_search_engines_model_.reset(new SearchEngineListModel(profile()));
   default_search_engine_combobox_ =
-      new views::ComboBox(default_search_engines_model_.get());
-  default_search_engines_model_->SetComboBox(default_search_engine_combobox_);
-  default_search_engine_combobox_->SetListener(this);
+      new views::Combobox(default_search_engines_model_.get());
+  default_search_engines_model_->SetCombobox(default_search_engine_combobox_);
+  default_search_engine_combobox_->set_listener(this);
 
   default_search_manage_engines_button_ = new views::NativeButton(
       this,
@@ -1087,7 +1087,7 @@ void GeneralPageView::EnableHomepageURLField(bool enabled) {
 }
 
 void GeneralPageView::SetDefaultSearchProvider() {
-  const int index = default_search_engine_combobox_->GetSelectedItem();
+  const int index = default_search_engine_combobox_->selected_item();
   default_search_engines_model_->model()->SetDefaultSearchProvider(
       default_search_engines_model_->GetTemplateURLAt(index));
 }

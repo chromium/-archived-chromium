@@ -7,7 +7,7 @@
 
 #include "chrome/browser/views/first_run_view_base.h"
 #include "views/controls/button/button.h"
-#include "views/controls/combo_box.h"
+#include "views/controls/combobox/combobox.h"
 #include "views/view.h"
 #include "views/window/dialog_delegate.h"
 
@@ -26,7 +26,7 @@ class Profile;
 // some simple customizations during the first run.
 class FirstRunCustomizeView : public FirstRunViewBase,
                               public views::ButtonListener,
-                              public views::ComboBox::Model {
+                              public views::Combobox::Model {
  public:
   class CustomizeViewObserver {
    public:
@@ -53,9 +53,9 @@ class FirstRunCustomizeView : public FirstRunViewBase,
   // Overridden form views::ButtonListener.
   virtual void ButtonPressed(views::Button* sender);
 
-  // Overridden form views::ComboBox::Model.
-  virtual int GetItemCount(views::ComboBox* source);
-  virtual std::wstring GetItemAt(views::ComboBox* source, int index);
+  // Overridden form views::Combobox::Model.
+  virtual int GetItemCount(views::Combobox* source);
+  virtual std::wstring GetItemAt(views::Combobox* source, int index);
 
   // Overridden from views::WindowDelegate.
   virtual std::wstring GetWindowTitle() const;
@@ -73,7 +73,7 @@ class FirstRunCustomizeView : public FirstRunViewBase,
 
   views::Label* main_label_;
   views::Checkbox* import_cbox_;
-  views::ComboBox* import_from_combo_;
+  views::Combobox* import_from_combo_;
   views::Label* shortcuts_label_;
   views::Checkbox* desktop_shortcut_cbox_;
   views::Checkbox* quick_shortcut_cbox_;

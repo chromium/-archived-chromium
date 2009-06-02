@@ -7,7 +7,7 @@
 
 #include "chrome/browser/importer/importer.h"
 #include "views/controls/button/native_button.h"
-#include "views/controls/combo_box.h"
+#include "views/controls/combobox/combobox.h"
 #include "views/view.h"
 #include "views/window/dialog_delegate.h"
 
@@ -25,8 +25,8 @@ class Profile;
 //       So now use dialog as a placeholder.
 class ImporterView : public views::View,
                      public views::DialogDelegate,
-                     public views::ComboBox::Model,
-                     public views::ComboBox::Listener,
+                     public views::Combobox::Model,
+                     public views::Combobox::Listener,
                      public ImportObserver {
  public:
   explicit ImporterView(Profile* profile);
@@ -44,12 +44,12 @@ class ImporterView : public views::View,
   virtual bool Accept();
   virtual views::View* GetContentsView();
 
-  // Overridden from views::ComboBox::Model.
-  virtual int GetItemCount(views::ComboBox* source);
-  virtual std::wstring GetItemAt(views::ComboBox* source, int index);
+  // Overridden from views::Combobox::Model.
+  virtual int GetItemCount(views::Combobox* source);
+  virtual std::wstring GetItemAt(views::Combobox* source, int index);
 
-  // Overridden from ChromeViews::ComboBox::Listener
-  virtual void ItemChanged(views::ComboBox* combo_box,
+  // Overridden from ChromeViews::Combobox::Listener
+  virtual void ItemChanged(views::Combobox* combobox,
                            int prev_index,
                            int new_index);
 
@@ -74,7 +74,7 @@ class ImporterView : public views::View,
   void SetCheckedItems(uint16 items);
 
   views::Label* import_from_label_;
-  views::ComboBox* profile_combobox_;
+  views::Combobox* profile_combobox_;
   views::Label* import_items_label_;
   views::Checkbox* history_checkbox_;
   views::Checkbox* favorites_checkbox_;

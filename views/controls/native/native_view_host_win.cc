@@ -51,6 +51,8 @@ void NativeViewHostWin::NativeViewDetaching() {
 }
 
 void NativeViewHostWin::AddedToWidget() {
+  if (!IsWindow(host_->native_view()))
+    return;
   HWND parent_hwnd = GetParent(host_->native_view());
   HWND widget_hwnd = host_->GetWidget()->GetNativeView();
   if (parent_hwnd != widget_hwnd)
@@ -63,6 +65,8 @@ void NativeViewHostWin::AddedToWidget() {
 }
 
 void NativeViewHostWin::RemovedFromWidget() {
+  if (!IsWindow(host_->native_view()))
+    return;
   ShowWindow(host_->native_view(), SW_HIDE);
   SetParent(host_->native_view(), NULL);
 }

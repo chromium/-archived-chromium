@@ -51,8 +51,8 @@ void ImporterView::SetupControl() {
   import_from_label_ =
       new views::Label(l10n_util::GetString(IDS_IMPORT_FROM_LABEL));
 
-  profile_combobox_ = new views::ComboBox(this);
-  profile_combobox_->SetListener(this);
+  profile_combobox_ = new views::Combobox(this);
+  profile_combobox_->set_listener(this);
 
   import_items_label_ =
       new views::Label(l10n_util::GetString(IDS_IMPORT_ITEMS_LABEL));
@@ -135,7 +135,7 @@ bool ImporterView::Accept() {
   uint16 items = GetCheckedItems();
 
   Browser* browser = BrowserList::GetLastActive();
-  int selected_index = profile_combobox_->GetSelectedItem();
+  int selected_index = profile_combobox_->selected_item();
   HWND parent_hwnd =
       reinterpret_cast<HWND>(browser->window()->GetNativeHandle());
   StartImportingWithUI(parent_hwnd, items, importer_host_.get(),
@@ -151,7 +151,7 @@ views::View* ImporterView::GetContentsView() {
   return this;
 }
 
-int ImporterView::GetItemCount(views::ComboBox* source) {
+int ImporterView::GetItemCount(views::Combobox* source) {
   DCHECK(source == profile_combobox_);
   DCHECK(importer_host_.get());
   int item_count = importer_host_->GetAvailableProfileCount();
@@ -160,15 +160,15 @@ int ImporterView::GetItemCount(views::ComboBox* source) {
   return item_count;
 }
 
-std::wstring ImporterView::GetItemAt(views::ComboBox* source, int index) {
+std::wstring ImporterView::GetItemAt(views::Combobox* source, int index) {
   DCHECK(source == profile_combobox_);
   DCHECK(importer_host_.get());
   return importer_host_->GetSourceProfileNameAt(index);
 }
 
-void ImporterView::ItemChanged(views::ComboBox* combo_box,
+void ImporterView::ItemChanged(views::Combobox* combobox,
                                int prev_index, int new_index) {
-  DCHECK(combo_box);
+  DCHECK(combobox);
   DCHECK(checkbox_items_.size() >=
       static_cast<size_t>(importer_host_->GetAvailableProfileCount()));
 

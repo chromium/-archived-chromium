@@ -15,7 +15,7 @@
 #include "base/ref_counted.h"
 #include "chrome/browser/shell_dialogs.h"
 #include "chrome/browser/user_data_manager.h"
-#include "views/controls/combo_box.h"
+#include "views/controls/combobox/combobox.h"
 #include "views/window/dialog_delegate.h"
 
 class SelectProfileDialogHelper;
@@ -28,7 +28,7 @@ class Window;
 class SelectProfileDialog
     : public views::DialogDelegate,
       public views::View,
-      public views::ComboBox::Model,
+      public views::Combobox::Model,
       public GetProfilesHelper::Delegate {
  public:
   // Creates and runs the dialog.
@@ -54,9 +54,9 @@ class SelectProfileDialog
   virtual std::wstring GetWindowTitle() const;
   virtual bool IsModal() const { return false; }
 
-  // views::ComboBox::Model methods.
-  virtual int GetItemCount(views::ComboBox* source);
-  virtual std::wstring GetItemAt(views::ComboBox* source, int index);
+  // views::Combobox::Model methods.
+  virtual int GetItemCount(views::Combobox* source);
+  virtual std::wstring GetItemAt(views::Combobox* source, int index);
 
   // GetProfilesHelper::Delegate method.
   virtual void OnGetProfilesDone(const std::vector<std::wstring>& profiles);
@@ -68,7 +68,7 @@ class SelectProfileDialog
   void SetupControls();
 
   // UI controls.
-  views::ComboBox* profile_combobox_;
+  views::Combobox* profile_combobox_;
   views::Label* select_profile_label_;
 
   std::vector<std::wstring> profiles_;

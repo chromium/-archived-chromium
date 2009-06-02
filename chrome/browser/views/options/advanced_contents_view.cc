@@ -46,7 +46,7 @@
 #include "third_party/skia/include/core/SkBitmap.h"
 #include "views/background.h"
 #include "views/controls/button/checkbox.h"
-#include "views/controls/combo_box.h"
+#include "views/controls/combobox/combobox.h"
 #include "views/controls/scroll_view.h"
 #include "views/controls/textfield/textfield.h"
 #include "views/grid_layout.h"
@@ -421,16 +421,16 @@ void AdvancedSection::InitControlLayout() {
 ////////////////////////////////////////////////////////////////////////////////
 // PrivacySection
 
-class CookieBehaviorComboModel : public views::ComboBox::Model {
+class CookieBehaviorComboModel : public views::Combobox::Model {
  public:
   CookieBehaviorComboModel() {}
 
   // Return the number of items in the combo box.
-  virtual int GetItemCount(views::ComboBox* source) {
+  virtual int GetItemCount(views::Combobox* source) {
     return 3;
   }
 
-  virtual std::wstring GetItemAt(views::ComboBox* source, int index) {
+  virtual std::wstring GetItemAt(views::Combobox* source, int index) {
     const int kStringIDs[] = {
       IDS_OPTIONS_COOKIES_ACCEPT_ALL_COOKIES,
       IDS_OPTIONS_COOKIES_RESTRICT_THIRD_PARTY_COOKIES,
@@ -461,7 +461,7 @@ class CookieBehaviorComboModel : public views::ComboBox::Model {
 
 class PrivacySection : public AdvancedSection,
                        public views::ButtonListener,
-                       public views::ComboBox::Listener,
+                       public views::Combobox::Listener,
                        public views::LinkController {
  public:
   explicit PrivacySection(Profile* profile);
@@ -470,8 +470,8 @@ class PrivacySection : public AdvancedSection,
   // Overridden from views::ButtonListener:
   virtual void ButtonPressed(views::Button* sender);
 
-  // Overridden from views::ComboBox::Listener:
-  virtual void ItemChanged(views::ComboBox* sender,
+  // Overridden from views::Combobox::Listener:
+  virtual void ItemChanged(views::Combobox* sender,
                            int prev_index,
                            int new_index);
 
@@ -496,7 +496,7 @@ class PrivacySection : public AdvancedSection,
   views::Checkbox* reporting_enabled_checkbox_;
   views::Link* learn_more_link_;
   views::Label* cookie_behavior_label_;
-  views::ComboBox* cookie_behavior_combobox_;
+  views::Combobox* cookie_behavior_combobox_;
   views::NativeButton* show_cookies_button_;
 
   // Dummy for now. Used to populate cookies models.
@@ -604,7 +604,7 @@ void PrivacySection::Layout() {
   View::Layout();
 }
 
-void PrivacySection::ItemChanged(views::ComboBox* sender,
+void PrivacySection::ItemChanged(views::Combobox* sender,
                                  int prev_index,
                                  int new_index) {
   if (sender == cookie_behavior_combobox_) {
@@ -652,9 +652,9 @@ void PrivacySection::InitControlLayout() {
   cookie_behavior_label_ = new views::Label(
       l10n_util::GetString(IDS_OPTIONS_COOKIES_ACCEPT_LABEL));
   allow_cookies_model_.reset(new CookieBehaviorComboModel);
-  cookie_behavior_combobox_ = new views::ComboBox(
+  cookie_behavior_combobox_ = new views::Combobox(
       allow_cookies_model_.get());
-  cookie_behavior_combobox_->SetListener(this);
+  cookie_behavior_combobox_->set_listener(this);
   show_cookies_button_ = new views::NativeButton(
       this, l10n_util::GetString(IDS_OPTIONS_COOKIES_SHOWCOOKIES));
 
@@ -868,16 +868,16 @@ void WebContentSection::InitControlLayout() {
 ////////////////////////////////////////////////////////////////////////////////
 // SecuritySection
 
-class MixedContentComboModel : public views::ComboBox::Model {
+class MixedContentComboModel : public views::Combobox::Model {
  public:
   MixedContentComboModel() {}
 
   // Return the number of items in the combo box.
-  virtual int GetItemCount(views::ComboBox* source) {
+  virtual int GetItemCount(views::Combobox* source) {
     return 3;
   }
 
-  virtual std::wstring GetItemAt(views::ComboBox* source, int index) {
+  virtual std::wstring GetItemAt(views::Combobox* source, int index) {
     const int kStringIDs[] = {
       IDS_OPTIONS_INCLUDE_MIXED_CONTENT,
       IDS_OPTIONS_INCLUDE_MIXED_CONTENT_IMAGE_ONLY,
@@ -908,7 +908,7 @@ class MixedContentComboModel : public views::ComboBox::Model {
 
 class SecuritySection : public AdvancedSection,
                         public views::ButtonListener,
-                        public views::ComboBox::Listener {
+                        public views::Combobox::Listener {
  public:
   explicit SecuritySection(Profile* profile);
   virtual ~SecuritySection() {}
@@ -916,8 +916,8 @@ class SecuritySection : public AdvancedSection,
   // Overridden from views::ButtonListener:
   virtual void ButtonPressed(views::Button* sender);
 
-  // Overridden from views::ComboBox::Listener:
-  virtual void ItemChanged(views::ComboBox* sender,
+  // Overridden from views::Combobox::Listener:
+  virtual void ItemChanged(views::Combobox* sender,
                            int prev_index,
                            int new_index);
 
@@ -932,7 +932,7 @@ class SecuritySection : public AdvancedSection,
   views::Checkbox* enable_ssl2_checkbox_;
   views::Checkbox* check_for_cert_revocation_checkbox_;
   views::Label* mixed_content_info_label_;
-  views::ComboBox* mixed_content_combobox_;
+  views::Combobox* mixed_content_combobox_;
   views::Label* manage_certificates_label_;
   views::NativeButton* manage_certificates_button_;
 
@@ -982,7 +982,7 @@ void SecuritySection::ButtonPressed(views::Button* sender) {
   }
 }
 
-void SecuritySection::ItemChanged(views::ComboBox* sender,
+void SecuritySection::ItemChanged(views::Combobox* sender,
                                   int prev_index,
                                   int new_index) {
   if (sender == mixed_content_combobox_) {
@@ -1015,9 +1015,9 @@ void SecuritySection::InitControlLayout() {
   mixed_content_info_label_ = new views::Label(
       l10n_util::GetString(IDS_OPTIONS_MIXED_CONTENT_LABEL));
   mixed_content_model_.reset(new MixedContentComboModel);
-  mixed_content_combobox_ = new views::ComboBox(
+  mixed_content_combobox_ = new views::Combobox(
       mixed_content_model_.get());
-  mixed_content_combobox_->SetListener(this);
+  mixed_content_combobox_->set_listener(this);
   manage_certificates_label_ = new views::Label(
       l10n_util::GetString(IDS_OPTIONS_CERTIFICATES_LABEL));
   manage_certificates_button_ = new views::NativeButton(

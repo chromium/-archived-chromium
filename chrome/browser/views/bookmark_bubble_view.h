@@ -9,7 +9,7 @@
 #include "chrome/browser/views/info_bubble.h"
 #include "googleurl/src/gurl.h"
 #include "views/controls/button/button.h"
-#include "views/controls/combo_box.h"
+#include "views/controls/combobox/combobox.h"
 #include "views/controls/link.h"
 #include "views/view.h"
 
@@ -30,7 +30,7 @@ class Textfield;
 class BookmarkBubbleView : public views::View,
                            public views::LinkController,
                            public views::ButtonListener,
-                           public views::ComboBox::Listener,
+                           public views::Combobox::Listener,
                            public InfoBubbleDelegate {
  public:
    static void Show(views::Window* window,
@@ -60,13 +60,13 @@ class BookmarkBubbleView : public views::View,
   // Model for the combobox showing the list of folders to choose from. The
   // list always contains the bookmark bar, other node and parent. The list
   // also contains an extra item that shows the text 'Choose another folder...'.
-  class RecentlyUsedFoldersModel : public views::ComboBox::Model {
+  class RecentlyUsedFoldersModel : public views::Combobox::Model {
    public:
     RecentlyUsedFoldersModel(BookmarkModel* bb_model, BookmarkNode* node);
 
-    // ComboBox::Model methods. Call through to nodes_.
-    virtual int GetItemCount(views::ComboBox* source);
-    virtual std::wstring GetItemAt(views::ComboBox* source, int index);
+    // Combobox::Model methods. Call through to nodes_.
+    virtual int GetItemCount(views::Combobox* source);
+    virtual std::wstring GetItemAt(views::Combobox* source, int index);
 
     // Returns the node at the specified index.
     BookmarkNode* GetNodeAt(int index);
@@ -104,8 +104,8 @@ class BookmarkBubbleView : public views::View,
   // ButtonListener method, closes the bubble or opens the edit dialog.
   virtual void ButtonPressed(views::Button* sender);
 
-  // ComboBox::Listener method. Changes the parent of the bookmark.
-  virtual void ItemChanged(views::ComboBox* combo_box,
+  // Combobox::Listener method. Changes the parent of the bookmark.
+  virtual void ItemChanged(views::Combobox* combobox,
                            int prev_index,
                            int new_index);
 
@@ -158,9 +158,9 @@ class BookmarkBubbleView : public views::View,
   // Textfield showing the title of the bookmark.
   views::Textfield* title_tf_;
 
-  // ComboBox showing a handful of folders the user can choose from, including
+  // Combobox showing a handful of folders the user can choose from, including
   // the current parent.
-  views::ComboBox* parent_combobox_;
+  views::Combobox* parent_combobox_;
 
   // When the destructor is invoked should the bookmark be removed?
   bool remove_bookmark_;

@@ -14,7 +14,6 @@
 #include "grit/chromium_strings.h"
 #include "grit/generated_resources.h"
 #include "grit/locale_settings.h"
-#include "views/controls/combo_box.h"
 #include "views/controls/label.h"
 #include "views/controls/message_box_view.h"
 #include "views/grid_layout.h"
@@ -84,7 +83,7 @@ std::wstring SelectProfileDialog::GetWindowTitle() const {
 }
 
 bool SelectProfileDialog::Accept() {
-  int index = profile_combobox_->GetSelectedItem();
+  int index = profile_combobox_->selected_item();
   if (index < 0) {
     NOTREACHED();
     return true;
@@ -110,13 +109,13 @@ views::View* SelectProfileDialog::GetContentsView() {
   return this;
 }
 
-int SelectProfileDialog::GetItemCount(views::ComboBox* source) {
+int SelectProfileDialog::GetItemCount(views::Combobox* source) {
   // Always show one more item in the combo box that allows the user to select
   // <New Profile>.
   return profiles_.size() + 1;
 }
 
-std::wstring SelectProfileDialog::GetItemAt(views::ComboBox* source,
+std::wstring SelectProfileDialog::GetItemAt(views::Combobox* source,
                                             int index) {
   DCHECK(source == profile_combobox_);
   DCHECK(index >= 0 && index <= static_cast<int>(profiles_.size()));
@@ -136,7 +135,7 @@ void SelectProfileDialog::SetupControls() {
   // Adds all controls.
   select_profile_label_ = new views::Label(
       l10n_util::GetString(IDS_SELECT_PROFILE_DIALOG_LABEL_TEXT));
-  profile_combobox_ = new views::ComboBox(this);
+  profile_combobox_ = new views::Combobox(this);
 
   // Arranges controls by using GridLayout.
   const int column_set_id = 0;

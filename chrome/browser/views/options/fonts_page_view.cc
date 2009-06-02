@@ -38,7 +38,7 @@ static std::vector<CharacterEncoding::EncodingInfo> sorted_encoding_list;
 
 }  // namespace
 
-class DefaultEncodingComboboxModel : public views::ComboBox::Model {
+class DefaultEncodingComboboxModel : public views::Combobox::Model {
  public:
   DefaultEncodingComboboxModel() {
     canonical_encoding_names_length_ =
@@ -58,11 +58,11 @@ class DefaultEncodingComboboxModel : public views::ComboBox::Model {
   virtual ~DefaultEncodingComboboxModel() {}
 
   // Overridden from views::Combobox::Model.
-  virtual int GetItemCount(views::ComboBox* source) {
+  virtual int GetItemCount(views::Combobox* source) {
     return canonical_encoding_names_length_;
   }
 
-  virtual std::wstring GetItemAt(views::ComboBox* source, int index) {
+  virtual std::wstring GetItemAt(views::Combobox* source, int index) {
     DCHECK(index >= 0 && canonical_encoding_names_length_ > index);
     return sorted_encoding_list[index].encoding_display_name;
   }
@@ -253,7 +253,7 @@ void FontsPageView::ButtonPressed(views::Button* sender) {
   select_font_dialog_->SelectFont(owning_hwnd, NULL, font_name, font_size);
 }
 
-void FontsPageView::ItemChanged(views::ComboBox* combo_box,
+void FontsPageView::ItemChanged(views::Combobox* combo_box,
                                 int prev_index, int new_index) {
   if (combo_box == default_encoding_combobox_) {
     if (prev_index != new_index) {  // Default-Encoding has been changed.
@@ -463,14 +463,14 @@ void FontsPageView::InitEncodingLayout() {
       l10n_util::GetString(
           IDS_FONT_LANGUAGE_SETTING_FONT_DEFAULT_ENCODING_SELECTOR_LABEL));
   default_encoding_combobox_model_.reset(new DefaultEncodingComboboxModel);
-  default_encoding_combobox_ = new views::ComboBox(
+  default_encoding_combobox_ = new views::Combobox(
       default_encoding_combobox_model_.get());
   int selected_encoding_index = default_encoding_combobox_model_->
       GetSelectedEncodingIndex(profile());
   default_encoding_combobox_->SetSelectedItem(selected_encoding_index);
   default_encoding_selected_ = default_encoding_combobox_model_->
       GetEncodingCharsetByIndex(selected_encoding_index);
-  default_encoding_combobox_->SetListener(this);
+  default_encoding_combobox_->set_listener(this);
 
   // Now add the views.
   using views::GridLayout;
@@ -489,7 +489,7 @@ void FontsPageView::InitEncodingLayout() {
   column_set->AddColumn(GridLayout::FILL, GridLayout::FILL, 1,
                         GridLayout::USE_PREF, 0, 0);
 
-  // Add Encoding ComboBox.
+  // Add Encoding Combobox.
   layout->StartRow(0, double_column_view_set_id);
   layout->AddView(default_encoding_combobox_label_);
   layout->AddView(default_encoding_combobox_, 1, 1, GridLayout::FILL,

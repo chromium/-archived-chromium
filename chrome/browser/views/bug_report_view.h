@@ -7,7 +7,7 @@
 
 #include "chrome/browser/net/url_fetcher.h"
 #include "googleurl/src/gurl.h"
-#include "views/controls/combo_box.h"
+#include "views/controls/combobox/combobox.h"
 #include "views/controls/textfield/textfield.h"
 #include "views/view.h"
 #include "views/window/dialog_delegate.h"
@@ -34,7 +34,7 @@ class BugReportComboBoxModel;
 //       So now use dialog as a placeholder.
 class BugReportView : public views::View,
                       public views::DialogDelegate,
-                      public views::ComboBox::Listener,
+                      public views::Combobox::Listener,
                       public views::Textfield::Controller {
  public:
   explicit BugReportView(Profile* profile, TabContents* tab);
@@ -54,8 +54,8 @@ class BugReportView : public views::View,
   virtual bool HandleKeystroke(views::Textfield* sender,
                                const views::Textfield::Keystroke& key);
 
-  // views::ComboBox::Listener implementation:
-  virtual void ItemChanged(views::ComboBox* combo_box, int prev_index,
+  // views::Combobox::Listener implementation:
+  virtual void ItemChanged(views::Combobox* combobox, int prev_index,
                            int new_index);
 
   // Overridden from views::DialogDelegate:
@@ -88,7 +88,7 @@ class BugReportView : public views::View,
   void ReportPhishing();
 
   views::Label* bug_type_label_;
-  views::ComboBox* bug_type_combo_;
+  views::Combobox* bug_type_combo_;
   views::Label* page_title_label_;
   views::Label* page_title_text_;
   views::Label* page_url_label_;

@@ -113,10 +113,10 @@ void ClearBrowsingDataView::Init() {
   AddChildView(time_period_label_);
 
   // Add the combo box showing how far back in time we want to delete.
-  time_period_combobox_ = new views::ComboBox(this);
+  time_period_combobox_ = new views::Combobox(this);
   time_period_combobox_->SetSelectedItem(profile_->GetPrefs()->GetInteger(
                                          prefs::kDeleteTimePeriod));
-  time_period_combobox_->SetListener(this);
+  time_period_combobox_->set_listener(this);
   AddChildView(time_period_combobox_);
 }
 
@@ -311,14 +311,14 @@ views::View* ClearBrowsingDataView::GetContentsView() {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-// ClearBrowsingDataView, views::ComboBox::Model implementation:
+// ClearBrowsingDataView, views::Combobox::Model implementation:
 
-int ClearBrowsingDataView::GetItemCount(views::ComboBox* source) {
+int ClearBrowsingDataView::GetItemCount(views::Combobox* source) {
   DCHECK(source == time_period_combobox_);
   return 4;
 }
 
-std::wstring ClearBrowsingDataView::GetItemAt(views::ComboBox* source,
+std::wstring ClearBrowsingDataView::GetItemAt(views::Combobox* source,
                                               int index) {
   DCHECK(source == time_period_combobox_);
   switch (index) {
@@ -334,7 +334,7 @@ std::wstring ClearBrowsingDataView::GetItemAt(views::ComboBox* source,
 ////////////////////////////////////////////////////////////////////////////////
 // ClearBrowsingDataView, views::ComboBoxListener implementation:
 
-void ClearBrowsingDataView::ItemChanged(views::ComboBox* sender,
+void ClearBrowsingDataView::ItemChanged(views::Combobox* sender,
                                         int prev_index, int new_index) {
   if (sender == time_period_combobox_ && prev_index != new_index)
     profile_->GetPrefs()->SetInteger(prefs::kDeleteTimePeriod, new_index);
@@ -409,7 +409,7 @@ static bool IsCheckBoxEnabledAndSelected(views::Checkbox* cb) {
 }
 
 void ClearBrowsingDataView::OnDelete() {
-  int period_selected = time_period_combobox_->GetSelectedItem();
+  int period_selected = time_period_combobox_->selected_item();
 
   int remove_mask = 0;
   if (IsCheckBoxEnabledAndSelected(del_history_checkbox_))

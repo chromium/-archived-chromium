@@ -14,7 +14,6 @@
 #include "grit/locale_settings.h"
 #include "grit/theme_resources.h"
 #include "views/controls/button/checkbox.h"
-#include "views/controls/combo_box.h"
 #include "views/controls/image_view.h"
 #include "views/controls/label.h"
 #include "views/controls/throbber.h"
@@ -65,7 +64,7 @@ void FirstRunCustomizeView::SetupControls() {
 
   import_cbox_ = MakeCheckBox(IDS_FR_CUSTOMIZE_IMPORT);
 
-  import_from_combo_ = new views::ComboBox(this);
+  import_from_combo_ = new views::Combobox(this);
   AddChildView(import_from_combo_);
 
   shortcuts_label_ =
@@ -160,11 +159,11 @@ void FirstRunCustomizeView::ButtonPressed(views::Button* sender) {
   }
 }
 
-int FirstRunCustomizeView::GetItemCount(views::ComboBox* source) {
+int FirstRunCustomizeView::GetItemCount(views::Combobox* source) {
   return importer_host_->GetAvailableProfileCount();
 }
 
-std::wstring FirstRunCustomizeView::GetItemAt(views::ComboBox* source,
+std::wstring FirstRunCustomizeView::GetItemAt(views::Combobox* source,
                                               int index) {
   return importer_host_->GetSourceProfileNameAt(index);
 }
@@ -198,7 +197,7 @@ bool FirstRunCustomizeView::Accept() {
   if (!import_cbox_->checked()) {
     UserMetrics::RecordAction(L"FirstRunCustom_No_Import", profile_);
   } else {
-    int browser_selected = import_from_combo_->GetSelectedItem();
+    int browser_selected = import_from_combo_->selected_item();
     FirstRun::ImportSettings(profile_,
         importer_host_->GetSourceProfileInfoAt(browser_selected).browser_type,
         GetDefaultImportItems(), window()->GetNativeWindow());

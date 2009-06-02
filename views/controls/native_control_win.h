@@ -24,9 +24,9 @@ class NativeControlWin : public NativeViewHost {
   // Returns true if the message was handled, with a valid result in |result|.
   // Returns false if the message was not handled.
   virtual bool ProcessMessage(UINT message,
-                                 WPARAM w_param,
-                                 LPARAM l_param,
-                                 LRESULT* result);
+                              WPARAM w_param,
+                              LPARAM l_param,
+                              LRESULT* result);
 
   // Called by our subclassed window procedure when a WM_KEYDOWN message is
   // received by the HWND created by an object derived from NativeControlWin.

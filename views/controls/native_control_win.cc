@@ -114,13 +114,20 @@ void NativeControlWin::ShowContextMenu(const gfx::Point& location) {
 void NativeControlWin::NativeControlCreated(HWND native_control) {
   // Associate this object with the control's HWND so that WidgetWin can find
   // this object when it receives messages from it.
+  // Note that we never unset this property. We don't have to.
   SetProp(native_control, kNativeControlWinKey, this);
 
-  // Subclass the window so we can monitor for key presses.
-  original_wndproc_ =
-      win_util::SetWindowProc(native_control,
-                              &NativeControlWin::NativeControlWndProc);
-  SetProp(native_control, kNativeControlOriginalWndProcKey, original_wndproc_);
+  // Subclass the window so we can monitor for key presses. It's important that
+  // we *only* do this if the derived class wants to intercept keypresses,
+  // because otherwise the subclass can mysteriously interfere with certain
+  // other controls, like the combobox, and cause weird effects.
+  if (NotifyOnKeyDown()) {
+    original_wndproc_ =
+        win_util::SetWindowProc(native_control,
+                                &NativeControlWin::NativeControlWndProc);
+    SetProp(native_control, kNativeControlOriginalWndProcKey,
+            original_wndproc_);
+  }
 
   Attach(native_control);
   // native_view() is now valid.
@@ -188,7 +195,6 @@ LRESULT NativeControlWin::NativeControlWndProc(HWND window,
       return 0;
   } else if (message == WM_DESTROY) {
     win_util::SetWindowProc(window, native_control->original_wndproc_);
-    RemoveProp(window, kNativeControlWinKey);
   }
 
   return CallWindowProc(native_control->original_wndproc_, window, message,

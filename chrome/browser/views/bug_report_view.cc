@@ -45,7 +45,7 @@ static const int kDescriptionLines = 5;
 static const char kReportPhishingUrl[] =
     "http://www.google.com/safebrowsing/report_phish/";
 
-class BugReportComboBoxModel : public views::ComboBox::Model {
+class BugReportComboBoxModel : public views::Combobox::Model {
  public:
   BugReportComboBoxModel() {}
 
@@ -60,12 +60,12 @@ class BugReportComboBoxModel : public views::ComboBox::Model {
     OTHER_PROBLEM
   };
 
-  // views::ComboBox::Model interface.
-  virtual int GetItemCount(views::ComboBox* source) {
+  // views::Combobox::Model interface.
+  virtual int GetItemCount(views::Combobox* source) {
     return OTHER_PROBLEM + 1;
   }
 
-  virtual std::wstring GetItemAt(views::ComboBox* source, int index) {
+  virtual std::wstring GetItemAt(views::Combobox* source, int index) {
     return GetItemAtIndex(index);
   }
 
@@ -191,8 +191,8 @@ void BugReportView::SetupControl() {
   // Adds all controls.
   bug_type_label_ = new views::Label(
       l10n_util::GetString(IDS_BUGREPORT_BUG_TYPE));
-  bug_type_combo_ = new views::ComboBox(bug_type_model_.get());
-  bug_type_combo_->SetListener(this);
+  bug_type_combo_ = new views::Combobox(bug_type_model_.get());
+  bug_type_combo_->set_listener(this);
 
   page_title_label_ = new views::Label(
       l10n_util::GetString(IDS_BUGREPORT_REPORT_PAGE_TITLE));
@@ -272,7 +272,7 @@ gfx::Size BugReportView::GetPreferredSize() {
       IDS_BUGREPORT_DIALOG_HEIGHT_LINES));
 }
 
-void BugReportView::ItemChanged(views::ComboBox* combo_box,
+void BugReportView::ItemChanged(views::Combobox* combobox,
                                 int prev_index,
                                 int new_index) {
   if (new_index == prev_index)

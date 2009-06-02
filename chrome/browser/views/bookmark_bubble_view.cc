@@ -21,7 +21,7 @@
 #include "views/controls/button/native_button.h"
 #include "views/controls/textfield/textfield.h"
 
-using views::ComboBox;
+using views::Combobox;
 using views::ColumnSet;
 using views::GridLayout;
 using views::Label;
@@ -106,12 +106,12 @@ BookmarkBubbleView::RecentlyUsedFoldersModel::RecentlyUsedFoldersModel(
 }
 
 int BookmarkBubbleView::RecentlyUsedFoldersModel::GetItemCount(
-    ComboBox* source) {
+    Combobox* source) {
   return static_cast<int>(nodes_.size() + 1);
 }
 
 std::wstring BookmarkBubbleView::RecentlyUsedFoldersModel::GetItemAt(
-    ComboBox* source, int index) {
+    Combobox* source, int index) {
   if (index == nodes_.size())
     return l10n_util::GetString(IDS_BOOMARK_BUBBLE_CHOOSER_ANOTHER_FOLDER);
   return nodes_[index]->GetTitle();
@@ -234,9 +234,9 @@ void BookmarkBubbleView::Init() {
   close_button_ = new NativeButton(this, l10n_util::GetString(IDS_CLOSE));
   close_button_->SetIsDefault(true);
 
-  parent_combobox_ = new ComboBox(&parent_model_);
+  parent_combobox_ = new Combobox(&parent_model_);
   parent_combobox_->SetSelectedItem(parent_model_.node_parent_index());
-  parent_combobox_->SetListener(this);
+  parent_combobox_->set_listener(this);
 
   Label* title_label = new Label(l10n_util::GetString(
       newly_bookmarked_ ? IDS_BOOMARK_BUBBLE_PAGE_BOOKMARKED :
@@ -334,7 +334,7 @@ void BookmarkBubbleView::LinkActivated(Link* source, int event_flags) {
   Close();
 }
 
-void BookmarkBubbleView::ItemChanged(ComboBox* combo_box,
+void BookmarkBubbleView::ItemChanged(Combobox* combobox,
                                      int prev_index,
                                      int new_index) {
   if (new_index + 1 == parent_model_.GetItemCount(parent_combobox_)) {
@@ -417,10 +417,10 @@ void BookmarkBubbleView::ApplyEdits() {
                                 profile_);
     }
     // Last index means 'Choose another folder...'
-    if (parent_combobox_->GetSelectedItem() <
+    if (parent_combobox_->selected_item() <
         parent_model_.GetItemCount(parent_combobox_) - 1) {
       BookmarkNode* new_parent =
-          parent_model_.GetNodeAt(parent_combobox_->GetSelectedItem());
+          parent_model_.GetNodeAt(parent_combobox_->selected_item());
       if (new_parent != node->GetParent()) {
         UserMetrics::RecordAction(L"BookmarkBubble_ChangeParent", profile_);
         model->Move(node, new_parent, new_parent->GetChildCount());

@@ -7,7 +7,7 @@
 
 #include "chrome/browser/views/options/options_page_view.h"
 #include "chrome/common/pref_member.h"
-#include "views/controls/combo_box.h"
+#include "views/controls/combobox/combobox.h"
 #include "views/controls/button/button.h"
 #include "views/controls/table/table_view_observer.h"
 #include "views/view.h"
@@ -30,7 +30,7 @@ class AddLanguageView;
 class LanguagesPageView : public OptionsPageView,
                           public views::ButtonListener,
                           public views::TableViewObserver,
-                          public views::ComboBox::Listener {
+                          public views::Combobox::Listener {
  public:
   explicit LanguagesPageView(Profile* profile);
   virtual ~LanguagesPageView();
@@ -53,8 +53,8 @@ class LanguagesPageView : public OptionsPageView,
   virtual void InitControlLayout();
   virtual void NotifyPrefChanged(const std::wstring* pref_name);
 
-  // views::ComboBox::Listener implementation:
-  virtual void ItemChanged(views::ComboBox* sender,
+  // views::Combobox::Listener implementation:
+  virtual void ItemChanged(views::Combobox* sender,
                            int prev_index,
                            int new_index);
 
@@ -76,8 +76,8 @@ class LanguagesPageView : public OptionsPageView,
   views::NativeButton* remove_button_;
   views::Label* language_info_label_;
   views::Label* ui_language_label_;
-  views::ComboBox* change_ui_language_combobox_;
-  views::ComboBox* change_dictionary_language_combobox_;
+  views::Combobox* change_ui_language_combobox_;
+  views::Combobox* change_dictionary_language_combobox_;
   views::Checkbox* enable_spellchecking_checkbox_;
   views::Label* dictionary_language_label_;
 

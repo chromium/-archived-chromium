@@ -7,7 +7,7 @@
 
 #include "chrome/browser/browsing_data_remover.h"
 #include "views/controls/button/button.h"
-#include "views/controls/combo_box.h"
+#include "views/controls/combobox/combobox.h"
 #include "views/controls/label.h"
 #include "views/view.h"
 #include "views/window/dialog_delegate.h"
@@ -31,9 +31,9 @@ class MessageLoop;
 ////////////////////////////////////////////////////////////////////////////////
 class ClearBrowsingDataView : public views::View,
                               public views::DialogDelegate,
-                              public views::ComboBox::Model,
                               public views::ButtonListener,
-                              public views::ComboBox::Listener,
+                              public views::Combobox::Model,
+                              public views::Combobox::Listener,
                               public BrowsingDataRemover::Observer {
  public:
   explicit ClearBrowsingDataView(Profile* profile);
@@ -62,16 +62,16 @@ class ClearBrowsingDataView : public views::View,
   virtual bool Accept();
   virtual views::View* GetContentsView();
 
-  // Overridden from views::ComboBox::Model:
-  virtual int GetItemCount(views::ComboBox* source);
-  virtual std::wstring GetItemAt(views::ComboBox* source, int index);
+  // Overridden from views::Combobox::Model:
+  virtual int GetItemCount(views::Combobox* source);
+  virtual std::wstring GetItemAt(views::Combobox* source, int index);
+
+  // Overridden from views::Combobox::Listener:
+  virtual void ItemChanged(views::Combobox* sender, int prev_index,
+                           int new_index);
 
   // Overridden from views::ButtonListener:
   virtual void ButtonPressed(views::Button* sender);
-
-   // Overridden from views::ComboBox::Listener:
-  virtual void ItemChanged(views::ComboBox* sender, int prev_index,
-                           int new_index);
 
  private:
   // Adds a new check-box as a child to the view.
@@ -100,7 +100,7 @@ class ClearBrowsingDataView : public views::View,
   views::Checkbox* del_passwords_checkbox_;
   views::Checkbox* del_form_data_checkbox_;
   views::Label* time_period_label_;
-  views::ComboBox* time_period_combobox_;
+  views::Combobox* time_period_combobox_;
 
   // Used to signal enabled/disabled state for controls in the UI.
   bool delete_in_progress_;

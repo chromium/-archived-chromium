@@ -29,7 +29,6 @@
 #include "third_party/skia/include/core/SkBitmap.h"
 #include "unicode/uloc.h"
 #include "views/controls/button/radio_button.h"
-#include "views/controls/combo_box.h"
 #include "views/controls/tabbed_pane.h"
 #include "views/controls/table/table_model.h"
 #include "views/controls/table/table_model_observer.h"
@@ -179,7 +178,7 @@ static const char* const accept_language_list[] = {
 // This opens another window from where a new accept language can be selected.
 //
 class AddLanguageWindowView : public views::View,
-                              public views::ComboBox::Listener,
+                              public views::Combobox::Listener,
                               public views::DialogDelegate {
  public:
   AddLanguageWindowView(LanguagesPageView* language_delegate, Profile* profile);
@@ -196,8 +195,8 @@ class AddLanguageWindowView : public views::View,
   virtual bool IsModal() const { return true; }
   virtual views::View* GetContentsView() { return this; }
 
-  // views::ComboBox::Listener implementation:
-  virtual void ItemChanged(views::ComboBox* combo_box,
+  // views::Combobox::Listener implementation:
+  virtual void ItemChanged(views::Combobox* combobox,
                            int prev_index,
                            int new_index);
 
@@ -221,7 +220,7 @@ class AddLanguageWindowView : public views::View,
 
   // Combobox and its corresponding model.
   scoped_ptr<LanguageComboboxModel> accept_language_combobox_model_;
-  views::ComboBox* accept_language_combobox_;
+  views::Combobox* accept_language_combobox_;
 
   // The Profile associated with this window.
   Profile* profile_;
@@ -257,7 +256,7 @@ bool AddLanguageWindowView::Accept() {
   return true;
 }
 
-void AddLanguageWindowView::ItemChanged(views::ComboBox* combo_box,
+void AddLanguageWindowView::ItemChanged(views::Combobox* combobox,
                                   int prev_index,
                                   int new_index) {
   accept_language_selected_ = accept_language_combobox_model_->
@@ -306,10 +305,10 @@ void AddLanguageWindowView::Init() {
   }
   accept_language_combobox_model_.reset(new LanguageComboboxModel(
     profile_, locale_codes));
-  accept_language_combobox_ = new views::ComboBox(
+  accept_language_combobox_ = new views::Combobox(
       accept_language_combobox_model_.get());
   accept_language_combobox_->SetSelectedItem(0);
-  accept_language_combobox_->SetListener(this);
+  accept_language_combobox_->set_listener(this);
   AddChildView(accept_language_combobox_);
 }
 
@@ -619,8 +618,8 @@ void LanguagesPageView::InitControlLayout() {
   ui_language_label_->SetHorizontalAlignment(views::Label::ALIGN_LEFT);
   ui_language_model_.reset(new LanguageComboboxModel);
   change_ui_language_combobox_ =
-      new views::ComboBox(ui_language_model_.get());
-  change_ui_language_combobox_->SetListener(this);
+      new views::Combobox(ui_language_model_.get());
+  change_ui_language_combobox_->set_listener(this);
   dictionary_language_label_ = new views::Label(
       l10n_util::GetString(IDS_OPTIONS_CHROME_DICTIONARY_LANGUAGE));
   dictionary_language_label_->SetHorizontalAlignment(
@@ -636,8 +635,8 @@ void LanguagesPageView::InitControlLayout() {
   dictionary_language_model_.reset(new LanguageComboboxModel(profile(),
       spell_check_languages));
   change_dictionary_language_combobox_ =
-      new views::ComboBox(dictionary_language_model_.get());
-  change_dictionary_language_combobox_->SetListener(this);
+      new views::Combobox(dictionary_language_model_.get());
+  change_dictionary_language_combobox_->set_listener(this);
 
   // SpellCheck language settings.
   layout->StartRow(0, single_column_view_set_id);
@@ -730,7 +729,7 @@ void LanguagesPageView::NotifyPrefChanged(const std::wstring* pref_name) {
   }
 }
 
-void LanguagesPageView::ItemChanged(views::ComboBox* sender,
+void LanguagesPageView::ItemChanged(views::Combobox* sender,
                                     int prev_index,
                                     int new_index) {
   if (prev_index == new_index)
