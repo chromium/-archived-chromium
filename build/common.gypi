@@ -444,7 +444,7 @@
           'CERT_CHAIN_PARA_HAS_EXTRA_FIELDS',
           'WIN32_LEAN_AND_MEAN',
           '_SECURE_ATL',
-          '_HAS_TR1=0',
+          '_HAS_TR1=1',
         ],
         'include_dirs': [
           '<(DEPTH)/third_party/platformsdk_win2008_6_1/files/Include',
