@@ -5,40 +5,30 @@
 #ifndef VIEWS_CONTROLS_SEPARATOR_H_
 #define VIEWS_CONTROLS_SEPARATOR_H_
 
-#include <string>
-
-#include "views/view.h"
+#include "views/controls/native_control.h"
 
 namespace views {
 
 // The Separator class is a view that shows a line used to visually separate
 // other views.  The current implementation is only horizontal.
 
-class Separator : public View {
+class Separator : public NativeControl {
  public:
-  // The separator's class name.
-  static const char kViewClassName[];
-
   Separator();
   virtual ~Separator();
 
-  // Overridden from View:
-  virtual void Layout();
+  // NativeControl overrides:
+  virtual HWND CreateNativeControl(HWND parent_container);
+  virtual LRESULT OnNotify(int w_param, LPNMHDR l_param);
+
+  // View overrides:
   virtual gfx::Size GetPreferredSize();
- protected:
-  virtual void ViewHierarchyChanged(bool is_add, View* parent,
-                                    View* child);
-  virtual std::string GetClassName() const;
 
  private:
-  void CreateNativeWrapper();
 
-  // The native view.
-  View* native_wrapper_;
-
-  DISALLOW_COPY_AND_ASSIGN(Separator);
+  DISALLOW_EVIL_CONSTRUCTORS(Separator);
 };
 
 }  // namespace views
 
-#endif  // VIEWS_CONTROLS_SEPARATOR_H_
+#endif  // #define VIEWS_CONTROLS_SEPARATOR_H_
