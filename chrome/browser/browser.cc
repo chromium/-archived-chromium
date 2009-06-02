@@ -713,9 +713,9 @@ void Browser::Home(WindowOpenDisposition disposition) {
 void Browser::OpenCurrentURL() {
   UserMetrics::RecordAction(L"LoadURL", profile_);
   LocationBar* location_bar = window_->GetLocationBar();
-  OpenURL(GURL(WideToUTF8(location_bar->GetInputString())), GURL(),
-          location_bar->GetWindowOpenDisposition(),
-          location_bar->GetPageTransition());
+  OpenURLAtIndex(NULL, GURL(WideToUTF8(location_bar->GetInputString())), GURL(),
+                 location_bar->GetWindowOpenDisposition(),
+                 location_bar->GetPageTransition(), -1, true);
 }
 
 void Browser::Go(WindowOpenDisposition disposition) {
@@ -1669,99 +1669,11 @@ void Browser::OpenURL(const GURL& url, const GURL& referrer,
 // Browser, TabContentsDelegate implementation:
 
 void Browser::OpenURLFromTab(TabContents* source,
-                             const GURL& url, const GURL& referrer,
+                             const GURL& url,
+                             const GURL& referrer,
                              WindowOpenDisposition disposition,
                              PageTransition::Type transition) {
-  // TODO(beng): Move all this code into a separate helper that has unit tests.
-
-  // No code for these yet
-  DCHECK((disposition != NEW_POPUP) && (disposition != SAVE_TO_DISK));
-
-  TabContents* current_tab = source ? source : GetSelectedTabContents();
-  bool source_tab_was_frontmost = (current_tab == GetSelectedTabContents());
-  TabContents* new_contents = NULL;
-
-  // If the URL is part of the same web site, then load it in the same
-  // SiteInstance (and thus the same process).  This is an optimization to
-  // reduce process overhead; it is not necessary for compatibility.  (That is,
-  // the new tab will not have script connections to the previous tab, so it
-  // does not need to be part of the same SiteInstance or BrowsingInstance.)
-  // Default to loading in a new SiteInstance and BrowsingInstance.
-  // TODO(creis): should this apply to applications?
-  SiteInstance* instance = NULL;
-  // Don't use this logic when "--process-per-tab" is specified.
-  if (!CommandLine::ForCurrentProcess()->HasSwitch(switches::kProcessPerTab)) {
-    if (current_tab) {
-      const GURL& current_url = current_tab->GetURL();
-      if (SiteInstance::IsSameWebSite(current_url, url))
-        instance = current_tab->GetSiteInstance();
-    }
-  }
-
-  // If this is not a normal window (such as a popup or an application), we can
-  // only have one tab so a new tab always goes into a tabbed browser window.
-  if (disposition != NEW_WINDOW && type_ != TYPE_NORMAL) {
-    // If the disposition is OFF_THE_RECORD we don't want to create a new
-    // browser that will itself create another OTR browser. This will result in
-    // a browser leak (and crash below because no tab is created or selected).
-    if (disposition == OFF_THE_RECORD) {
-      OpenURLOffTheRecord(profile_, url);
-      return;
-    }
-
-    Browser* b = GetOrCreateTabbedBrowser();
-    DCHECK(b);
-
-    // If we have just created a new browser window, make sure we select the
-    // tab.
-    if (b->tab_count() == 0 && disposition == NEW_BACKGROUND_TAB)
-      disposition = NEW_FOREGROUND_TAB;
-
-    b->OpenURL(url, referrer, disposition, transition);
-    b->window()->Show();
-    return;
-  }
-
-  if (profile_->IsOffTheRecord() && disposition == OFF_THE_RECORD)
-    disposition = NEW_FOREGROUND_TAB;
-
-  if (disposition == SINGLETON_TAB) {
-    ShowSingleDOMUITab(url);
-    return;
-  } else if (disposition == NEW_WINDOW) {
-    Browser* browser = Browser::Create(profile_);
-    new_contents = browser->AddTabWithURL(url, referrer, transition, true, -1,
-                                          false, instance);
-    browser->window()->Show();
-  } else if ((disposition == CURRENT_TAB) && current_tab) {
-    tabstrip_model_.TabNavigating(current_tab, transition);
-
-    current_tab->controller().LoadURL(url, referrer, transition);
-    new_contents = current_tab;
-    if (GetStatusBubble())
-      GetStatusBubble()->Hide();
-
-    // Update the location bar. This is synchronous. We specfically don't update
-    // the load state since the load hasn't started yet and updating it will put
-    // it out of sync with the actual state like whether we're displaying a
-    // favicon, which controls the throbber. If we updated it here, the throbber
-    // will show the default favicon for a split second when navigating away
-    // from the new tab page.
-    ScheduleUIUpdate(current_tab, TabContents::INVALIDATE_URL);
-  } else if (disposition == OFF_THE_RECORD) {
-    OpenURLOffTheRecord(profile_, url);
-    return;
-  } else if (disposition != SUPPRESS_OPEN) {
-    new_contents = AddTabWithURL(url, referrer, transition,
-                                 disposition != NEW_BACKGROUND_TAB, -1, false,
-                                 instance);
-  }
-
-  if (disposition != NEW_BACKGROUND_TAB && source_tab_was_frontmost) {
-    // Give the focus to the newly navigated tab, if the source tab was
-    // front-most.
-    new_contents->Focus();
-  }
+  OpenURLAtIndex(source, url, referrer, disposition, transition, -1, false);
 }
 
 void Browser::NavigationStateChanged(const TabContents* source,
@@ -2574,6 +2486,104 @@ Browser* Browser::GetOrCreateTabbedBrowser() {
   if (!browser)
     browser = Browser::Create(profile_);
   return browser;
+}
+
+void Browser::OpenURLAtIndex(TabContents* source,
+                             const GURL& url,
+                             const GURL& referrer,
+                             WindowOpenDisposition disposition,
+                             PageTransition::Type transition,
+                             int index,
+                             bool force_index) {
+  // TODO(beng): Move all this code into a separate helper that has unit tests.
+
+  // No code for these yet
+  DCHECK((disposition != NEW_POPUP) && (disposition != SAVE_TO_DISK));
+
+  TabContents* current_tab = source ? source : GetSelectedTabContents();
+  bool source_tab_was_frontmost = (current_tab == GetSelectedTabContents());
+  TabContents* new_contents = NULL;
+
+  // If the URL is part of the same web site, then load it in the same
+  // SiteInstance (and thus the same process).  This is an optimization to
+  // reduce process overhead; it is not necessary for compatibility.  (That is,
+  // the new tab will not have script connections to the previous tab, so it
+  // does not need to be part of the same SiteInstance or BrowsingInstance.)
+  // Default to loading in a new SiteInstance and BrowsingInstance.
+  // TODO(creis): should this apply to applications?
+  SiteInstance* instance = NULL;
+  // Don't use this logic when "--process-per-tab" is specified.
+  if (!CommandLine::ForCurrentProcess()->HasSwitch(switches::kProcessPerTab)) {
+    if (current_tab) {
+      const GURL& current_url = current_tab->GetURL();
+      if (SiteInstance::IsSameWebSite(current_url, url))
+        instance = current_tab->GetSiteInstance();
+    }
+  }
+
+  // If this is not a normal window (such as a popup or an application), we can
+  // only have one tab so a new tab always goes into a tabbed browser window.
+  if (disposition != NEW_WINDOW && type_ != TYPE_NORMAL) {
+    // If the disposition is OFF_THE_RECORD we don't want to create a new
+    // browser that will itself create another OTR browser. This will result in
+    // a browser leak (and crash below because no tab is created or selected).
+    if (disposition == OFF_THE_RECORD) {
+      OpenURLOffTheRecord(profile_, url);
+      return;
+    }
+
+    Browser* b = GetOrCreateTabbedBrowser();
+    DCHECK(b);
+
+    // If we have just created a new browser window, make sure we select the
+    // tab.
+    if (b->tab_count() == 0 && disposition == NEW_BACKGROUND_TAB)
+      disposition = NEW_FOREGROUND_TAB;
+
+    b->OpenURL(url, referrer, disposition, transition);
+    b->window()->Show();
+    return;
+  }
+
+  if (profile_->IsOffTheRecord() && disposition == OFF_THE_RECORD)
+    disposition = NEW_FOREGROUND_TAB;
+
+  if (disposition == SINGLETON_TAB) {
+    ShowSingleDOMUITab(url);
+    return;
+  } else if (disposition == NEW_WINDOW) {
+    Browser* browser = Browser::Create(profile_);
+    new_contents = browser->AddTabWithURL(url, referrer, transition, true,
+                                          index, force_index, instance);
+    browser->window()->Show();
+  } else if ((disposition == CURRENT_TAB) && current_tab) {
+    tabstrip_model_.TabNavigating(current_tab, transition);
+
+    current_tab->controller().LoadURL(url, referrer, transition);
+    new_contents = current_tab;
+    if (GetStatusBubble())
+      GetStatusBubble()->Hide();
+
+    // Update the location bar. This is synchronous. We specfically don't update
+    // the load state since the load hasn't started yet and updating it will put
+    // it out of sync with the actual state like whether we're displaying a
+    // favicon, which controls the throbber. If we updated it here, the throbber
+    // will show the default favicon for a split second when navigating away
+    // from the new tab page.
+    ScheduleUIUpdate(current_tab, TabContents::INVALIDATE_URL);
+  } else if (disposition == OFF_THE_RECORD) {
+    OpenURLOffTheRecord(profile_, url);
+    return;
+  } else if (disposition != SUPPRESS_OPEN) {
+    new_contents = AddTabWithURL(url, referrer, transition,
+        disposition != NEW_BACKGROUND_TAB, index, force_index, instance);
+  }
+
+  if (disposition != NEW_BACKGROUND_TAB && source_tab_was_frontmost) {
+    // Give the focus to the newly navigated tab, if the source tab was
+    // front-most.
+    new_contents->Focus();
+  }
 }
 
 void Browser::BuildPopupWindow(TabContents* source,

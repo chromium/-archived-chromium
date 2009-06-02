@@ -220,12 +220,15 @@ class Browser : public TabStripModelDelegate,
 
   // Add a new tab with the specified URL. If instance is not null, its process
   // will be used to render the tab. |force_index| is passed through to
-  // TabStripModel::AddTabContents and it's meaning is documented with it's
+  // TabStripModel::AddTabContents and its meaning is documented with its
   // declaration.
-  TabContents* AddTabWithURL(
-      const GURL& url, const GURL& referrer,
-      PageTransition::Type transition, bool foreground, int index,
-      bool force_index, SiteInstance* instance);
+  TabContents* AddTabWithURL(const GURL& url,
+                             const GURL& referrer,
+                             PageTransition::Type transition,
+                             bool foreground,
+                             int index,
+                             bool force_index,
+                             SiteInstance* instance);
 
   // Add a new tab, given a NavigationController. A TabContents appropriate to
   // display the last committed entry is created and returned.
@@ -425,13 +428,12 @@ class Browser : public TabStripModelDelegate,
   virtual int GetDragActions() const;
   // Construct a TabContents for a given URL, profile and transition type.
   // If instance is not null, its process will be used to render the tab.
-  virtual TabContents* CreateTabContentsForURL(
-      const GURL& url,
-      const GURL& referrer,
-      Profile* profile,
-      PageTransition::Type transition,
-      bool defer_load,
-      SiteInstance* instance) const;
+  virtual TabContents* CreateTabContentsForURL(const GURL& url,
+                                               const GURL& referrer,
+                                               Profile* profile,
+                                               PageTransition::Type transition,
+                                               bool defer_load,
+                                               SiteInstance* instance) const;
   virtual bool CanDuplicateContentsAt(int index);
   virtual void DuplicateContentsAt(int index);
   virtual void CloseFrameAfterDragSession();
@@ -457,9 +459,10 @@ class Browser : public TabStripModelDelegate,
 
   // Overridden from TabContentsDelegate:
   virtual void OpenURLFromTab(TabContents* source,
-                             const GURL& url, const GURL& referrer,
-                             WindowOpenDisposition disposition,
-                             PageTransition::Type transition);
+                              const GURL& url,
+                              const GURL& referrer,
+                              WindowOpenDisposition disposition,
+                              PageTransition::Type transition);
   virtual void NavigationStateChanged(const TabContents* source,
                                       unsigned changed_flags);
   virtual void AddNewContents(TabContents* source,
@@ -610,6 +613,17 @@ class Browser : public TabStripModelDelegate,
   // Retrieve the last active tabbed browser with the same profile as the
   // receiving Browser. Creates a new Browser if none are available.
   Browser* GetOrCreateTabbedBrowser();
+
+  // The low-level function that other OpenURL...() functions call.  This
+  // determines the appropriate SiteInstance to pass to AddTabWithURL(), focuses
+  // the newly created tab as needed, and does other miscellaneous housekeeping.
+  void OpenURLAtIndex(TabContents* source,
+                      const GURL& url,
+                      const GURL& referrer,
+                      WindowOpenDisposition disposition,
+                      PageTransition::Type transition,
+                      int index,
+                      bool force_index);
 
   // Creates a new popup window with its own Browser object with the
   // incoming sizing information. |initial_pos|'s origin() is the
