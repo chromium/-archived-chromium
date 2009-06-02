@@ -82,10 +82,11 @@ void RenderCrashHandlerHostLinux::OnFileCanReadWithoutBlocking(int fd) {
   static const unsigned kCrashContextSize =
       sizeof(google_breakpad::ExceptionHandler::CrashContext);
   static const unsigned kMaxActiveURLSize = 1024;
+  static const unsigned kGuidSize = 32;  // 128 bits = 32 chars in hex.
 
   struct msghdr msg = {0};
   struct iovec iov;
-  char context[kCrashContextSize + kMaxActiveURLSize];
+  char context[kCrashContextSize + kMaxActiveURLSize + kGuidSize];
   char control[kControlMsgSize];
   iov.iov_base = context;
   iov.iov_len = sizeof(context);
@@ -116,10 +117,12 @@ void RenderCrashHandlerHostLinux::OnFileCanReadWithoutBlocking(int fd) {
     return;
   }
 
-  // Anything in the message contents after the crash context is the crashing
-  // URL.
-  const char* const crash_url = &context[kCrashContextSize];
-  const unsigned crash_url_len = n - kCrashContextSize;
+  // After the message contents we have the guid.
+  const char* const guid = &context[kCrashContextSize];
+
+  // Anything in the guid after the crash context is the crashing URL.
+  const char* const crash_url = &context[kCrashContextSize + kGuidSize];
+  const unsigned crash_url_len = n - kCrashContextSize - kGuidSize;
 
   // Walk the control payload an extract the file descriptor and validated pid.
   pid_t crashing_pid = -1;
@@ -179,7 +182,9 @@ void RenderCrashHandlerHostLinux::OnFileCanReadWithoutBlocking(int fd) {
   HANDLE_EINTR(sendmsg(signal_fd, &msg, MSG_DONTWAIT | MSG_NOSIGNAL));
   HANDLE_EINTR(close(signal_fd));
 
-  UploadCrashDump(minidump_filename.c_str(), crash_url, crash_url_len);
+  UploadCrashDump(minidump_filename.c_str(),
+                  crash_url, crash_url_len,
+                  guid, kGuidSize);
 }
 
 void RenderCrashHandlerHostLinux::WillDestroyCurrentMessageLoop() {

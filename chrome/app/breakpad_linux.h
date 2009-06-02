@@ -6,7 +6,10 @@
 #define CHROME_APP_BREAKPAD_LINUX_H_
 
 extern void InitCrashReporter();
-extern int UploadCrashDump(const char* filename, const char* crash_url,
-                           unsigned crash_url_length);
+extern int UploadCrashDump(const char* filename,
+                           const char* crash_url,
+                           unsigned crash_url_length,
+                           const char* guid,
+                           unsigned guid_length);
 
 #endif  // CHROME_APP_BREAKPAD_LINUX_H_

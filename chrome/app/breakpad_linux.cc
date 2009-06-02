@@ -36,8 +36,11 @@ static void write_uint64_hex(char* output, uint64_t v) {
   }
 }
 
-pid_t UploadCrashDump(const char* filename, const char* crash_url,
-                      unsigned crash_url_length) {
+pid_t UploadCrashDump(const char* filename,
+                      const char* crash_url,
+                      unsigned crash_url_length,
+                      const char* guid,
+                      unsigned guid_length) {
   // WARNING: this code runs in a compromised context. It may not call into
   // libc nor allocate memory normally.
 
@@ -128,6 +131,9 @@ pid_t UploadCrashDump(const char* filename, const char* crash_url,
   //   Content-Disposition: form-data; name="ver" \r\n \r\n (11..15)
   //   1.2.3.4 \r\n (16, 17)
   //   BOUNDARY \r\n (18, 19)
+  //   Content-Disposition: form-data; name="guid" \r\n \r\n (20..24)
+  //   1.2.3.4 \r\n (25, 26)
+  //   BOUNDARY \r\n (27, 28)
   //
   //   zero or more:
   //   Content-Disposition: form-data; name="url-chunk-1" \r\n \r\n (0..5)
@@ -145,13 +151,14 @@ pid_t UploadCrashDump(const char* filename, const char* crash_url,
   static const char quote_msg[] = {'"'};
   static const char chrome_linux_msg[] = "Chrome_Linux";
   static const char ver_msg[] = "ver";
+  static const char guid_msg[] = "guid";
   static const char dashdash_msg[] = {'-', '-'};
   static const char dump_msg[] = "upload_file_minidump\"; filename=\"dump\"";
   static const char content_type_msg[] =
       "Content-Type: application/octet-stream";
   static const char url_chunk_msg[] = "url-chunk-";
 
-  struct kernel_iovec iov[20];
+  struct kernel_iovec iov[29];
   iov[0].iov_base = mime_boundary;
   iov[0].iov_len = sizeof(mime_boundary) - 1;
   iov[1].iov_base = const_cast<char*>(rn);
@@ -199,7 +206,28 @@ pid_t UploadCrashDump(const char* filename, const char* crash_url,
   iov[19].iov_base = const_cast<char*>(rn);
   iov[19].iov_len = sizeof(rn);
 
-  sys_writev(fd, iov, 20);
+  iov[20].iov_base = const_cast<char*>(form_data_msg);
+  iov[20].iov_len = sizeof(form_data_msg) - 1;
+  iov[21].iov_base = const_cast<char*>(guid_msg);
+  iov[21].iov_len = sizeof(guid_msg) - 1;
+  iov[22].iov_base = const_cast<char*>(quote_msg);
+  iov[22].iov_len = sizeof(quote_msg);
+  iov[23].iov_base = const_cast<char*>(rn);
+  iov[23].iov_len = sizeof(rn);
+  iov[24].iov_base = const_cast<char*>(rn);
+  iov[24].iov_len = sizeof(rn);
+
+  iov[25].iov_base = const_cast<char*>(guid);
+  iov[25].iov_len = guid_length;
+  iov[26].iov_base = const_cast<char*>(rn);
+  iov[26].iov_len = sizeof(rn);
+
+  iov[27].iov_base = mime_boundary;
+  iov[27].iov_len = sizeof(mime_boundary) - 1;
+  iov[28].iov_base = const_cast<char*>(rn);
+  iov[28].iov_len = sizeof(rn);
+
+  sys_writev(fd, iov, 29);
 
   if (crash_url_length) {
     unsigned i = 0, done = 0;
@@ -338,7 +366,7 @@ pid_t UploadCrashDump(const char* filename, const char* crash_url,
         id_buf[len] = 0;
         static const char msg[] = "\nCrash dump id: ";
         sys_write(2, msg, sizeof(msg) - 1);
-        sys_write(2, id_buf, my_strlen(buf));
+        sys_write(2, id_buf, my_strlen(id_buf));
         sys_write(2, "\n", 1);
       }
       sys_unlink(filename);
@@ -369,6 +397,13 @@ pid_t UploadCrashDump(const char* filename, const char* crash_url,
   return child;
 }
 
+// This is defined in chrome/browser/google_update_settings_linux.cc, it's the
+// static string containing the user's unique GUID. We send this in the crash
+// report.
+namespace google_update {
+extern std::string linux_guid;
+}
+
 static bool CrashDone(const char* dump_path,
                       const char* minidump_id,
                       void* context,
@@ -390,7 +425,8 @@ static bool CrashDone(const char* dump_path,
   memcpy(path + dump_path_len + 1 + minidump_id_len, ".dmp", 4);
   path[dump_path_len + 1 + minidump_id_len + 4] = 0;
 
-  UploadCrashDump(path, NULL, 0);
+  UploadCrashDump(path, NULL, 0, google_update::linux_guid.data(),
+                  google_update::linux_guid.length());
 
   return true;
 }
@@ -425,14 +461,16 @@ RendererCrashHandler(const void* crash_context, size_t crash_context_size,
     struct msghdr sys_msg;
   };
   my_memset(&msg, 0, sizeof(struct kernel_msghdr));
-  struct kernel_iovec iov[2];
+  struct kernel_iovec iov[3];
   iov[0].iov_base = const_cast<void*>(crash_context);
   iov[0].iov_len = crash_context_size;
-  iov[1].iov_base = const_cast<char*>(renderer_logging::active_url.data());
-  iov[1].iov_len = renderer_logging::active_url.size();
+  iov[1].iov_base = const_cast<char*>(google_update::linux_guid.data());
+  iov[1].iov_len = google_update::linux_guid.size();
+  iov[2].iov_base = const_cast<char*>(renderer_logging::active_url.data());
+  iov[2].iov_len = renderer_logging::active_url.size();
 
   msg.msg_iov = iov;
-  msg.msg_iovlen = 2;
+  msg.msg_iovlen = 3;
   char cmsg[kControlMsgSize];
   memset(cmsg, 0, kControlMsgSize);
   msg.msg_control = cmsg;
