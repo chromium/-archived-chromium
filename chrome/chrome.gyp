@@ -3473,17 +3473,6 @@
             'tools/convert_dict/hunspell_reader.h',
           ],
         },
-        {
-          'target_name': 'flush_cache',
-          'type': 'executable',
-          'msvs_guid': '4539AFB3-B8DC-47F3-A491-6DAC8FD26657',
-          'dependencies': [
-            '../base/base.gyp:base',
-          ],
-          'sources': [
-            'tools/perf/flush_cache/flush_cache.cc',
-          ],
-        },
       ],
     }],
     ['OS=="mac"',
@@ -3520,6 +3509,17 @@
       ]
     }, { # else: OS != "mac"
       'targets': [
+        {
+          'target_name': 'flush_cache',
+          'type': 'executable',
+          'msvs_guid': '4539AFB3-B8DC-47F3-A491-6DAC8FD26657',
+          'dependencies': [
+            '../base/base.gyp:base',
+          ],
+          'sources': [
+            'tools/perf/flush_cache/flush_cache.cc',
+          ],
+        },
         {
           'target_name': 'perf_tests',
           'type': 'executable',
@@ -3965,21 +3965,6 @@
               'SubSystem': '2',         # Set /SUBSYSTEM:WINDOWS
             },
           },
-        },
-        {
-          'target_name': 'flush_cache',
-          'type': 'executable',
-          'msvs_guid': '4539AFB3-B8DC-47F3-A491-6DAC8FD26657',
-          'msvs_existing_vcproj': 'tools/perf/flush_cache/flush_cache.vcproj',
-          'dependencies': [
-            '../base/base.gyp:base',
-          ],
-          'include_dirs': [
-            '..',
-          ],
-          'sources': [
-            'tools/perf/flush_cache/flush_cache.cc',
-          ],
         },
         {
           'target_name': 'generate_profile',
