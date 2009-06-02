@@ -77,10 +77,10 @@ devtools.profiler.Processor = function(newProfileCallback) {
   this.currentProfile_ = null;
 
   /**
-   * Builder of profile views.
+   * Builder of profile views. Created during "profiler,begin" event processing.
    * @type {devtools.profiler.ViewBuilder}
    */
-  this.viewBuilder_ = new devtools.profiler.ViewBuilder(1);
+  this.viewBuilder_ = null;
 
   /**
    * Next profile id.
@@ -103,7 +103,7 @@ devtools.profiler.Processor.RecordsDispatch_ = {
                    processor: 'processCodeDelete_', needsProfile: true },
   'tick': { parsers: [parseInt, parseInt, parseInt, 'var-args'],
             processor: 'processTick_', needsProfile: true },
-  'profiler': { parsers: [null], processor: 'processProfiler_',
+  'profiler': { parsers: [null, 'var-args'], processor: 'processProfiler_',
                 needsProfile: false },
   // Not used in DevTools Profiler.
   'shared-library': null,
@@ -111,6 +111,15 @@ devtools.profiler.Processor.RecordsDispatch_ = {
   'code-allocate': null,
   'begin-code-region': null,
   'end-code-region': null
+};
+
+
+/**
+ * Returns whether a profile is currently processed.
+ * @return {boolean}
+ */
+devtools.profiler.Processor.prototype.isProcessingProfile = function() {
+  return this.currentProfile_ != null;
 };
 
 
@@ -197,11 +206,13 @@ devtools.profiler.Processor.prototype.dispatchLogRow_ = function(fields) {
 };
 
 
-devtools.profiler.Processor.prototype.processProfiler_ = function(state) {
+devtools.profiler.Processor.prototype.processProfiler_ = function(state, params) {
   switch (state) {
     case "resume":
-      this.currentProfile_ = new devtools.profiler.JsProfile();
-      this.profiles_.push(this.currentProfile_);
+      if (this.currentProfile_ == null) {
+        this.currentProfile_ = new devtools.profiler.JsProfile();
+        this.profiles_.push(this.currentProfile_);
+      }
       break;
     case "pause":
       if (this.currentProfile_ != null) {
@@ -209,8 +220,17 @@ devtools.profiler.Processor.prototype.processProfiler_ = function(state) {
         this.currentProfile_ = null;
       }
       break;
-    // These events are valid but are not used.
-    case "begin": break;
+    case "begin":
+      var samplingRate = NaN;
+      if (params.length > 0) {
+        samplingRate = parseInt(params[0]);
+      }
+      if (isNaN(samplingRate)) {
+        samplingRate = 1;
+      }
+      this.viewBuilder_ = new devtools.profiler.ViewBuilder(samplingRate);
+      break;
+    // This event is valid but isn't used.
     case "end": break;
     default:
       throw new Error("unknown profiler state: " + state);

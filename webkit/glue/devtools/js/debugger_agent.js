@@ -611,7 +611,8 @@ devtools.DebuggerAgent.prototype.didIsProfilingStarted_ = function(
   if (is_started && !this.isProfilingStarted_) {
     // Start to query log data.
     RemoteDebuggerAgent.GetLogLines(this.lastProfileLogPosition_);
-  } else if (!is_started && this.isProfilingStarted_) {
+  } else if (!is_started && this.isProfilingStarted_ &&
+             this.profilerProcessor_.isProcessingProfile()) {
     // Display a temporary icon / message indicating that the profile
     // is being processed.
     var processingIcon = new WebInspector.SidebarTreeElement(
