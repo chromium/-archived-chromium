@@ -30,6 +30,7 @@ class Profile;
   Profile* profile_;  // weak ref
   PrefService* prefs_;  // weak ref - Obtained from profile_ for convenience.
   scoped_ptr<PrefObserverBridge> observer_;  // Watches for pref changes.
+  IBOutlet NSTabView* tabView_;
 
   // Basics panel
   IntegerPrefMember restoreOnStartup_;
@@ -39,9 +40,13 @@ class Profile;
   BooleanPrefMember showHomeButton_;
   BooleanPrefMember showPageOptionButtons_;
 
-  // Minor Tweaks panel
+  // User Data panel
+  BooleanPrefMember askSavePasswords_;
+  BooleanPrefMember formAutofill_;
 
   // Under the hood panel
+  IBOutlet NSView* advancedView_;
+  IBOutlet NSScrollView* advancedScroller_;
 }
 
 // Designated initializer. |profile| should not be NULL.
@@ -54,6 +59,12 @@ class Profile;
 
 // Basics panel
 - (IBAction)makeDefaultBrowser:(id)sender;
+
+// User Data panel
+- (IBAction)showSavedPasswords:(id)sender;
+- (IBAction)importData:(id)sender;
+- (IBAction)clearData:(id)sender;
+- (IBAction)resetTheme:(id)sender;
 
 @end
 

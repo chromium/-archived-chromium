@@ -8,6 +8,7 @@
 #include "base/mac_util.h"
 #include "base/string_util.h"
 #include "base/sys_string_conversions.h"
+#import "chrome/browser/cocoa/clear_browsing_data_controller.h"
 #include "chrome/browser/metrics/user_metrics.h"
 #include "chrome/browser/net/url_fixer_upper.h"
 #include "chrome/browser/profile.h"
@@ -62,12 +63,14 @@ std::wstring GetNewTabUIURLString() {
 - (void)unregisterPrefObservers;
 
 // KVC setter methods.
-- (void)setNewTabPageIsHomePage:(NSInteger)val;
+- (void)setNewTabPageIsHomePageIndex:(NSInteger)val;
 - (void)setHomepageURL:(NSString*)urlString;
 - (void)setRestoreOnStartupIndex:(NSInteger)type;
 - (void)setShowHomeButton:(BOOL)value;
 - (void)setShowPageOptionsButtons:(BOOL)value;
 - (void)setDefaultBrowser:(BOOL)value;
+- (void)setPasswordManagerEnabledIndex:(NSInteger)value;
+- (void)setFormAutofillEnabledIndex:(NSInteger)value;
 @end
 
 // A C++ class registered for changes in preferences. Bridges the
@@ -114,7 +117,14 @@ class PrefObserverBridge : public NotificationObserver {
   // TODO(pinkerton): save/restore size based on prefs.
   [[self window] center];
 
-  // TODO(pinkerton): Ensure the "basics" tab is selected.
+  // Put the advanced view into the scroller and scroll it to the top.
+  [advancedScroller_ setDocumentView:advancedView_];
+  NSInteger height = [advancedView_ bounds].size.height;
+  [advancedView_ scrollPoint:NSMakePoint(0, height)];
+
+  // Ensure the "basics" tab is selected regardless of what is the selected
+  // tab in the nib.
+  [tabView_ selectFirstTabViewItem:self];
 }
 
 - (void)dealloc {
@@ -138,6 +148,11 @@ class PrefObserverBridge : public NotificationObserver {
                               observer_.get());
   // TODO(pinkerton): Register Default search.
 
+  // UserData panel
+  askSavePasswords_.Init(prefs::kPasswordManagerEnabled, 
+                         prefs_, observer_.get());
+  formAutofill_.Init(prefs::kFormAutofillEnabled, prefs_, observer_.get());
+
   // TODO(pinkerton): do other panels...
 }
 
@@ -149,6 +164,9 @@ class PrefObserverBridge : public NotificationObserver {
   // Basics
   prefs_->RemovePrefObserver(prefs::kURLsToRestoreOnStartup, observer_.get());
 
+  // User Data panel
+  // Nothing to do here.
+  
   // TODO(pinkerton): do other panels...
 }
 
@@ -223,7 +241,7 @@ class PrefObserverBridge : public NotificationObserver {
 
   if (*prefName == prefs::kHomePageIsNewTabPage) {
     NSInteger useNewTabPage = newTabPageIsHomePage_.GetValue() ? 0 : 1;
-    [self setNewTabPageIsHomePage:useNewTabPage];
+    [self setNewTabPageIsHomePageIndex:useNewTabPage];
   }
   if (*prefName == prefs::kHomePage) {
     NSString* value = base::SysWideToNSString(homepage_.GetValue());
@@ -397,12 +415,81 @@ enum { kHomepageNewTabPage, kHomepageURL };
 }
 
 //-------------------------------------------------------------------------
-// Minor Tweaks panel
+// User Data panel
+
+// Since passwords and forms are radio groups, 'enabled' is index 0 and
+// 'disabled' is index 1. Yay.
+const int kEnabledIndex = 0;
+const int kDisabledIndex = 1;
 
 // Callback when preferences are changed. |prefName| is the name of the
 // pref that has changed, or |NULL| if all prefs should be updated.
 // Handles prefs for the "Minor Tweaks" panel.
-- (void)minorTweaksPrefChanged:(std::wstring*)prefName {
+- (void)userDataPrefChanged:(std::wstring*)prefName {
+  if (*prefName == prefs::kPasswordManagerEnabled) {
+    [self setPasswordManagerEnabledIndex:askSavePasswords_.GetValue() ?
+        kEnabledIndex : kDisabledIndex];
+  }
+  if (*prefName == prefs::kFormAutofillEnabled) {
+    [self setFormAutofillEnabledIndex:formAutofill_.GetValue() ?
+        kEnabledIndex : kDisabledIndex];
+  }
+}
+
+// Called to launch the Keychain Access app to show the user's stored
+// passwords.
+- (IBAction)showSavedPasswords:(id)sender {
+  NSString* const kKeychainBundleId = @"com.apple.keychainaccess";
+  [self recordUserAction:L"Options_ShowPasswordsExceptions"];
+  [[NSWorkspace sharedWorkspace] 
+      launchAppWithBundleIdentifier:kKeychainBundleId
+                            options:0L 
+     additionalEventParamDescriptor:nil
+                   launchIdentifier:nil];
+}
+
+// Called to import data from other browsers (Safari, Firefox, etc).
+- (IBAction)importData:(id)sender {
+  NOTIMPLEMENTED();
+}
+
+// Called to clear user's browsing data. This puts up an application-modal
+// dialog to guide the user through clearing the data.
+- (IBAction)clearData:(id)sender {
+  scoped_nsobject<ClearBrowsingDataController> controller(
+      [[ClearBrowsingDataController alloc]
+          initWithProfile:profile_]);
+  [controller runModalDialog];
+}
+
+// Called to reset the theming info back to the defaults.
+- (IBAction)resetTheme:(id)sender {
+  [self recordUserAction:L"Options_ThemesReset"];
+  NOTIMPLEMENTED();
+}
+
+- (void)setPasswordManagerEnabledIndex:(NSInteger)value {
+  if (value == kEnabledIndex)
+    [self recordUserAction:L"Options_PasswordManager_Enable"];
+  else
+    [self recordUserAction:L"Options_PasswordManager_Disable"];
+  askSavePasswords_.SetValue(value == kEnabledIndex ? true : false);
+}
+
+- (NSInteger)passwordManagerEnabledIndex {
+  return askSavePasswords_.GetValue() ? kEnabledIndex : kDisabledIndex;
+}
+
+- (void)setFormAutofillEnabledIndex:(NSInteger)value {
+  if (value == kEnabledIndex)
+    [self recordUserAction:L"Options_FormAutofill_Enable"];
+  else
+    [self recordUserAction:L"Options_FormAutofill_Disable"];
+  formAutofill_.SetValue(value == kEnabledIndex ? true : false);
+}
+
+- (NSInteger)formAutofillEnabledIndex {
+  return formAutofill_.GetValue() ? kEnabledIndex : kDisabledIndex;
 }
 
 //-------------------------------------------------------------------------
@@ -422,7 +509,7 @@ enum { kHomepageNewTabPage, kHomepageURL };
   DCHECK(prefName);
   if (!prefName) return;
   [self basicsPrefChanged:prefName];
-  [self minorTweaksPrefChanged:prefName];
+  [self userDataPrefChanged:prefName];
   [self underHoodPrefChanged:prefName];
 }
 
