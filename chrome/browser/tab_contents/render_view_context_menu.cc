@@ -22,6 +22,7 @@
 #include "chrome/common/pref_service.h"
 #include "chrome/common/url_constants.h"
 #include "grit/generated_resources.h"
+#include "net/base/escape.h"
 #include "net/base/net_util.h"
 
 #if defined(OS_WIN)
@@ -649,7 +650,7 @@ void RenderViewContextMenu::WriteURLToClipboard(const GURL& url) {
       // See crbug.com/2820.
       WideToUTF8(net::FormatUrl(
                  url, profile_->GetPrefs()->GetString(prefs::kAcceptLanguages),
-                 false, false, NULL, NULL));
+                 false, UnescapeRule::NONE, NULL, NULL));
 
   WriteTextToClipboard(UTF8ToUTF16(utf8_text));
   DidWriteURLToClipboard(utf8_text);

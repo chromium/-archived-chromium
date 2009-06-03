@@ -18,6 +18,7 @@
 #include "grit/app_resources.h"
 #include "grit/generated_resources.h"
 #include "grit/theme_resources.h"
+#include "net/base/escape.h"
 #include "net/base/net_util.h"
 
 #if defined(TOOLKIT_VIEWS)
@@ -326,7 +327,8 @@ std::wstring BookmarkTableModel::GetText(int row, int column_id) {
           ? model_->profile()->GetPrefs()->GetString(prefs::kAcceptLanguages)
           : std::wstring();
       std::wstring url_text =
-          net::FormatUrl(node->GetURL(), languages, false, true, NULL, NULL);
+          net::FormatUrl(node->GetURL(), languages, false, UnescapeRule::SPACES,
+          NULL, NULL);
       if (l10n_util::GetTextDirection() == l10n_util::RIGHT_TO_LEFT)
         l10n_util::WrapStringWithLTRFormatting(&url_text);
       return url_text;

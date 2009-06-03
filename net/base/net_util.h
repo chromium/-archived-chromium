@@ -14,6 +14,7 @@
 #include <string>
 
 #include "base/basictypes.h"
+#include "net/base/escape.h"
 
 struct addrinfo;
 class FilePath;
@@ -184,23 +185,25 @@ void AppendFormattedHost(const GURL& url, const std::wstring& languages,
 // Creates a string representation of |url|. The IDN host name may
 // be in Unicode if |languages| accepts the Unicode representation.
 // If |omit_username_password| is true, the username and the password are
-// omitted. If |unescape| is true and the path part and the query part seem to
-// be encoded in %-encoded UTF-8, decodes %-encoding and UTF-8.
-// |new_parsed| will have parsing parameters of the resultant URL. |prefix_end|
-// will be the length before the hostname of the resultant URL. |new_parsed|
-// and |prefix_end| may be NULL.
+// omitted. |unescape_rules| defines how to clean the URL for human readability.
+// You will generally want |UnescapeRule::SPACES| for display to the user if you
+// can handle spaces, or |UnescapeRule::NORMAL| if not. If the path part and the
+// query part seem to be encoded in %-encoded UTF-8, decodes %-encoding and
+// UTF-8. |new_parsed| will have parsing parameters of the resultant URL.
+// |prefix_end| will be the length before the hostname of the resultant URL.
+// |new_parsed| and |prefix_end| may be NULL.
 std::wstring FormatUrl(const GURL& url,
                        const std::wstring& languages,
                        bool omit_username_password,
-                       bool unescape,
+                       UnescapeRule::Type unescape_rules,
                        url_parse::Parsed* new_parsed,
                        size_t* prefix_end);
 
 // Creates a string representation of |url| for display to the user.
 // This is a shorthand of the above function with omit_username_password=true,
-// unescape=true, new_parsed=NULL, and prefix_end=NULL.
+// unescape=SPACES, new_parsed=NULL, and prefix_end=NULL.
 inline std::wstring FormatUrl(const GURL& url, const std::wstring& languages) {
-  return FormatUrl(url, languages, true, true, NULL, NULL);
+  return FormatUrl(url, languages, true, UnescapeRule::SPACES, NULL, NULL);
 }
 
 }  // namespace net

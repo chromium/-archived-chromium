@@ -18,9 +18,13 @@
 #include "chrome/browser/tab_contents/site_instance.h"
 #include "chrome/common/navigation_types.h"
 #include "chrome/common/notification_service.h"
+#include "chrome/common/pref_names.h"
+#include "chrome/common/pref_service.h"
 #include "chrome/common/render_messages.h"
 #include "chrome/common/url_constants.h"
 #include "grit/app_resources.h"
+#include "net/base/escape.h"
+#include "net/base/net_util.h"
 #include "webkit/glue/webkit_glue.h"
 
 #if defined(OS_WIN)
@@ -354,8 +358,10 @@ NavigationEntry* NavigationController::CreateNavigationEntry(
   entry->set_display_url(url);
   entry->set_user_typed_url(url);
   if (url.SchemeIsFile()) {
+    std::wstring languages = profile()->GetPrefs()->GetString(
+        prefs::kAcceptLanguages);
     entry->set_title(WideToUTF16Hack(
-        file_util::GetFilenameFromPath(UTF8ToWide(url.host() + url.path()))));
+        file_util::GetFilenameFromPath(net::FormatUrl(url, languages))));
   }
   return entry;
 }

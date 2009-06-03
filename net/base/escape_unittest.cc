@@ -114,6 +114,8 @@ TEST(Escape, UnescapeURLComponent) {
     {"%%%%%%", UnescapeRule::NORMAL, "%%%%%%"},
     {"Don't escape anything", UnescapeRule::NORMAL, "Don't escape anything"},
     {"Invalid %escape %2", UnescapeRule::NORMAL, "Invalid %escape %2"},
+    {"Some%20random text %25%3bOK", UnescapeRule::NONE,
+     "Some%20random text %25%3bOK"},
     {"Some%20random text %25%3bOK", UnescapeRule::NORMAL,
      "Some%20random text %25;OK"},
     {"Some%20random text %25%3bOK", UnescapeRule::SPACES,

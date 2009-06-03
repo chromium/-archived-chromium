@@ -508,7 +508,7 @@ void ShelfItemDialog::OnSelectionChanged() {
     // username:password and escaped path and query.
     std::wstring formatted = net::FormatUrl(
         url_table_model_->GetURL(selection), languages,
-        false, false, NULL, NULL);
+        false, UnescapeRule::NONE, NULL, NULL);
     url_field_->SetText(formatted);
     if (title_field_)
       title_field_->SetText(url_table_model_->GetTitle(selection));

@@ -107,6 +107,10 @@ const char kUrlUnescape[128] = {
 
 std::string UnescapeURLImpl(const std::string& escaped_text,
                             UnescapeRule::Type rules) {
+  // Do not unescape anything, return the |escaped_text| text.
+  if (rules == UnescapeRule::NONE)
+    return escaped_text;
+
   // The output of the unescaping is always smaller than the input, so we can
   // reserve the input size to make sure we have enough buffer and don't have
   // to allocate in the loop below.

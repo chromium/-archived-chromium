@@ -33,7 +33,7 @@ std::wstring ElideUrl(const GURL& url,
   // Get a formatted string and corresponding parsing of the url.
   url_parse::Parsed parsed;
   std::wstring url_string =
-      net::FormatUrl(url, languages, true, true, &parsed, NULL);
+      net::FormatUrl(url, languages, true, UnescapeRule::SPACES, &parsed, NULL);
   if (available_pixel_width <= 0)
     return url_string;
 
@@ -329,7 +329,7 @@ SortedDisplayURL::SortedDisplayURL(const GURL& url,
   string16 host_minus_www = WideToUTF16Hack(net::StripWWW(host));
   url_parse::Parsed parsed;
   display_url_ = WideToUTF16Hack(net::FormatUrl(url, languages,
-      true, true, &parsed, &prefix_end_));
+      true, UnescapeRule::SPACES, &parsed, &prefix_end_));
   if (sort_host_.length() > host_minus_www.length()) {
     prefix_end_ += sort_host_.length() - host_minus_www.length();
     sort_host_.swap(host_minus_www);

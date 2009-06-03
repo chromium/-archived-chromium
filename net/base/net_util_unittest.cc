@@ -7,6 +7,7 @@
 #include "base/string_util.h"
 #include "base/time.h"
 #include "googleurl/src/gurl.h"
+#include "net/base/escape.h"
 #include "net/base/net_util.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
@@ -342,7 +343,7 @@ struct UrlTestData {
   const char* input;
   const std::wstring languages;
   bool omit;
-  bool unescape;
+  UnescapeRule::Type escape_rules;
   const std::wstring output;
   size_t prefix_len;
 };
@@ -1021,81 +1022,90 @@ TEST(NetUtilTest, GetHostName) {
 
 TEST(NetUtilTest, FormatUrl) {
   const UrlTestData tests[] = {
-    {"Empty URL", "", L"", true, true, L"", 0},
+    {"Empty URL", "", L"", true, UnescapeRule::NORMAL, L"", 0},
 
     {"Simple URL",
-     "http://www.google.com/", L"", true, true,
+     "http://www.google.com/", L"", true, UnescapeRule::NORMAL,
      L"http://www.google.com/", 7},
 
     {"With a port number and a reference",
-     "http://www.google.com:8080/#\xE3\x82\xB0", L"", true, true,
+     "http://www.google.com:8080/#\xE3\x82\xB0", L"", true,
+     UnescapeRule::NORMAL,
      L"http://www.google.com:8080/#\x30B0", 7},
 
     // -------- IDN tests --------
     {"Japanese IDN with ja",
-     "http://xn--l8jvb1ey91xtjb.jp", L"ja", true, true,
+     "http://xn--l8jvb1ey91xtjb.jp", L"ja", true, UnescapeRule::NORMAL,
      L"http://\x671d\x65e5\x3042\x3055\x3072.jp/", 7},
 
     {"Japanese IDN with en",
-     "http://xn--l8jvb1ey91xtjb.jp", L"en", true, true,
+     "http://xn--l8jvb1ey91xtjb.jp", L"en", true, UnescapeRule::NORMAL,
      L"http://xn--l8jvb1ey91xtjb.jp/", 7},
 
     {"Japanese IDN without any languages",
-     "http://xn--l8jvb1ey91xtjb.jp", L"", true, true,
+     "http://xn--l8jvb1ey91xtjb.jp", L"", true, UnescapeRule::NORMAL,
      // Single script is safe for empty languages.
      L"http://\x671d\x65e5\x3042\x3055\x3072.jp/", 7},
 
     {"mailto: with Japanese IDN",
-     "mailto:foo@xn--l8jvb1ey91xtjb.jp", L"ja", true, true,
+     "mailto:foo@xn--l8jvb1ey91xtjb.jp", L"ja", true, UnescapeRule::NORMAL,
      // GURL doesn't assume an email address's domain part as a host name.
      L"mailto:foo@xn--l8jvb1ey91xtjb.jp", 7},
 
     {"file: with Japanese IDN",
-     "file://xn--l8jvb1ey91xtjb.jp/config.sys", L"ja", true, true,
+     "file://xn--l8jvb1ey91xtjb.jp/config.sys", L"ja", true,
+     UnescapeRule::NORMAL,
      L"file://\x671d\x65e5\x3042\x3055\x3072.jp/config.sys", 7},
 
     {"ftp: with Japanese IDN",
-     "ftp://xn--l8jvb1ey91xtjb.jp/config.sys", L"ja", true, true,
+     "ftp://xn--l8jvb1ey91xtjb.jp/config.sys", L"ja", true,
+     UnescapeRule::NORMAL,
      L"ftp://\x671d\x65e5\x3042\x3055\x3072.jp/config.sys", 6},
 
     // -------- omit_username_password flag tests --------
     {"With username and password, omit_username_password=false",
-     "http://user:passwd@example.com/foo", L"", false, true,
+     "http://user:passwd@example.com/foo", L"", false, UnescapeRule::NORMAL,
      L"http://user:passwd@example.com/foo", 19},
 
     {"With username and password, omit_username_password=true",
-     "http://user:passwd@example.com/foo", L"", true, true,
+     "http://user:passwd@example.com/foo", L"", true, UnescapeRule::NORMAL,
      L"http://example.com/foo", 7},
 
     {"With username and no password",
-     "http://user@example.com/foo", L"", true, true,
+     "http://user@example.com/foo", L"", true, UnescapeRule::NORMAL,
      L"http://example.com/foo", 7},
 
     {"Just '@' without username and password",
-     "http://@example.com/foo", L"", true, true,
+     "http://@example.com/foo", L"", true, UnescapeRule::NORMAL,
      L"http://example.com/foo", 7},
 
     // GURL doesn't think local-part of an email address is username for URL.
     {"mailto:, omit_username_password=true",
-     "mailto:foo@example.com", L"", true, true,
+     "mailto:foo@example.com", L"", true, UnescapeRule::NORMAL,
      L"mailto:foo@example.com", 7},
 
     // -------- unescape flag tests --------
-    {"unescape=false",
+    {"Do not unescape",
      "http://%E3%82%B0%E3%83%BC%E3%82%B0%E3%83%AB.jp/"
      "%E3%82%B0%E3%83%BC%E3%82%B0%E3%83%AB"
-     "?q=%E3%82%B0%E3%83%BC%E3%82%B0%E3%83%AB", L"en", true, false,
+     "?q=%E3%82%B0%E3%83%BC%E3%82%B0%E3%83%AB", L"en", true,
+     UnescapeRule::NONE,
      // GURL parses %-encoded hostnames into Punycode.
      L"http://xn--qcka1pmc.jp/%E3%82%B0%E3%83%BC%E3%82%B0%E3%83%AB"
      L"?q=%E3%82%B0%E3%83%BC%E3%82%B0%E3%83%AB", 7},
 
-    {"unescape=true",
+    {"Unescape normally",
      "http://%E3%82%B0%E3%83%BC%E3%82%B0%E3%83%AB.jp/"
      "%E3%82%B0%E3%83%BC%E3%82%B0%E3%83%AB"
-     "?q=%E3%82%B0%E3%83%BC%E3%82%B0%E3%83%AB", L"en", true, true,
+     "?q=%E3%82%B0%E3%83%BC%E3%82%B0%E3%83%AB", L"en", true,
+     UnescapeRule::NORMAL,
      L"http://xn--qcka1pmc.jp/\x30B0\x30FC\x30B0\x30EB"
      L"?q=\x30B0\x30FC\x30B0\x30EB", 7},
 
+    {"Unescape normally including unescape spaces",
+     "http://www.google.com/search?q=Hello%20World", L"en", true,
+     UnescapeRule::SPACES,
+     L"http://www.google.com/search?q=Hello World", 7}
     /*
     {"unescape=true with some special characters",
     "http://user%3A:%40passwd@example.com/foo%3Fbar?q=b%26z", L"", false, true,
@@ -1108,7 +1118,7 @@ TEST(NetUtilTest, FormatUrl) {
     size_t prefix_len;
     std::wstring formatted = net::FormatUrl(
         GURL(tests[i].input), tests[i].languages, tests[i].omit,
-        tests[i].unescape, NULL, &prefix_len);
+        tests[i].escape_rules, NULL, &prefix_len);
     EXPECT_EQ(tests[i].output, formatted) << tests[i].description;
     EXPECT_EQ(tests[i].prefix_len, prefix_len) << tests[i].description;
   }
@@ -1120,7 +1130,7 @@ TEST(NetUtilTest, FormatUrlParsed) {
   std::wstring formatted = net::FormatUrl(
       GURL("http://\xE3\x82\xB0:\xE3\x83\xBC@xn--qcka1pmc.jp:8080/"
            "%E3%82%B0/?q=%E3%82%B0#\xE3\x82\xB0"),
-      L"ja", false, false, &parsed, NULL);
+      L"ja", false, UnescapeRule::NONE, &parsed, NULL);
   EXPECT_EQ(L"http://%E3%82%B0:%E3%83%BC@\x30B0\x30FC\x30B0\x30EB.jp:8080"
       L"/%E3%82%B0/?q=%E3%82%B0#\x30B0", formatted);
   EXPECT_EQ(L"%E3%82%B0",
@@ -1140,7 +1150,7 @@ TEST(NetUtilTest, FormatUrlParsed) {
   formatted = net::FormatUrl(
       GURL("http://\xE3\x82\xB0:\xE3\x83\xBC@xn--qcka1pmc.jp:8080/"
            "%E3%82%B0/?q=%E3%82%B0#\xE3\x82\xB0"),
-      L"ja", false, true, &parsed, NULL);
+      L"ja", false, UnescapeRule::NORMAL, &parsed, NULL);
   EXPECT_EQ(L"http://\x30B0:\x30FC@\x30B0\x30FC\x30B0\x30EB.jp:8080"
       L"/\x30B0/?q=\x30B0#\x30B0", formatted);
   EXPECT_EQ(L"\x30B0",
@@ -1159,7 +1169,7 @@ TEST(NetUtilTest, FormatUrlParsed) {
   formatted = net::FormatUrl(
       GURL("http://\xE3\x82\xB0:\xE3\x83\xBC@xn--qcka1pmc.jp:8080/"
            "%E3%82%B0/?q=%E3%82%B0#\xE3\x82\xB0"),
-      L"ja", true, true, &parsed, NULL);
+      L"ja", true, UnescapeRule::NORMAL, &parsed, NULL);
   EXPECT_EQ(L"http://\x30B0\x30FC\x30B0\x30EB.jp:8080"
       L"/\x30B0/?q=\x30B0#\x30B0", formatted);
   EXPECT_FALSE(parsed.username.is_valid());

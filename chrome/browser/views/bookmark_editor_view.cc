@@ -257,7 +257,8 @@ void BookmarkEditorView::Init() {
     // The following URL is user-editable.  We specify omit_username_password=
     // false and unescape=false to show the original URL except IDN.
     url_text =
-        net::FormatUrl(node_->GetURL(), languages, false, false, NULL, NULL);
+        net::FormatUrl(node_->GetURL(), languages, false, UnescapeRule::NONE,
+        NULL, NULL);
   }
   url_tf_.SetText(url_text);
   url_tf_.SetController(this);
