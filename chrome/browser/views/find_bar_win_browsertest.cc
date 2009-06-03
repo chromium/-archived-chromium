@@ -563,7 +563,7 @@ IN_PROC_BROWSER_TEST_F(FindInPageControllerTest, AcceleratorRestoring) {
   // See where Escape is registered.
   views::Accelerator escape(VK_ESCAPE, false, false, false);
   views::AcceleratorTarget* old_target =
-      focus_manager->GetTargetForAccelerator(escape);
+      focus_manager->GetCurrentTargetForAccelerator(escape);
   EXPECT_TRUE(old_target != NULL);
 
   // Open the Find box.
@@ -571,7 +571,7 @@ IN_PROC_BROWSER_TEST_F(FindInPageControllerTest, AcceleratorRestoring) {
 
   // Our Find bar should be the new target.
   views::AcceleratorTarget* new_target =
-      focus_manager->GetTargetForAccelerator(escape);
+      focus_manager->GetCurrentTargetForAccelerator(escape);
 
   EXPECT_TRUE(new_target != NULL);
   EXPECT_NE(new_target, old_target);
@@ -580,5 +580,5 @@ IN_PROC_BROWSER_TEST_F(FindInPageControllerTest, AcceleratorRestoring) {
   browser()->find_bar()->EndFindSession();
 
   // The accelerator for Escape should be back to what it was before.
-  EXPECT_EQ(old_target, focus_manager->GetTargetForAccelerator(escape));
+  EXPECT_EQ(old_target, focus_manager->GetCurrentTargetForAccelerator(escape));
 }

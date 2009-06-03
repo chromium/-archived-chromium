@@ -166,9 +166,8 @@ class FindBarWin : public views::AcceleratorTarget,
   // The focus manager we register with to keep track of focus changes.
   views::FocusManager* focus_manager_;
 
-  // Stores the previous accelerator target for the Escape key, so that we can
-  // restore the state once we loose focus.
-  views::AcceleratorTarget* old_accel_target_for_esc_;
+  // True if the accelerator target for Esc key is registered.
+  bool esc_accel_target_registered_;
 
   // Tracks and stores the last focused view which is not the FindBarView
   // or any of its children. Used to restore focus once the FindBarView is

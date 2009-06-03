@@ -10,6 +10,7 @@
 #endif
 #include <vector>
 #include <map>
+#include <list>
 
 #include "base/basictypes.h"
 #include "base/gfx/native_widget_types.h"
@@ -242,17 +243,17 @@ class FocusManager {
   // their own FocusManager and need to return focus to the browser when closed.
   FocusManager* GetParentFocusManager() const;
 
-  // Register a keyboard accelerator for the specified target.  If an
-  // AcceleratorTarget is already registered for that accelerator, it is
-  // returned.
+  // Register a keyboard accelerator for the specified target. If multiple
+  // targets are registered for an accelerator, a target registered later has
+  // higher priority.
   // Note that we are currently limited to accelerators that are either:
   // - a key combination including Ctrl or Alt
   // - the escape key
   // - the enter key
   // - any F key (F1, F2, F3 ...)
   // - any browser specific keys (as available on special keyboards)
-  AcceleratorTarget* RegisterAccelerator(const Accelerator& accelerator,
-                                         AcceleratorTarget* target);
+  void RegisterAccelerator(const Accelerator& accelerator,
+                           AcceleratorTarget* target);
 
   // Unregister the specified keyboard accelerator for the specified target.
   void UnregisterAccelerator(const Accelerator& accelerator,
@@ -261,7 +262,11 @@ class FocusManager {
   // Unregister all keyboard accelerator for the specified target.
   void UnregisterAccelerators(AcceleratorTarget* target);
 
-  // Activate the target associated with the specified accelerator if any.
+  // Activate the target associated with the specified accelerator.
+  // First, AcceleratorPressed handler of the most recently registered target
+  // is called, and if that handler processes the event (i.e. returns true),
+  // this method immediately returns. If not, we do the same thing on the next
+  // target, and so on.
   // Returns true if an accelerator was activated.
   bool ProcessAccelerator(const Accelerator& accelerator);
 
@@ -281,9 +286,8 @@ class FocusManager {
   // Returns the AcceleratorTarget that should be activated for the specified
   // keyboard accelerator, or NULL if no view is registered for that keyboard
   // accelerator.
-  // TODO(finnur): http://b/1307173 Make this private once the bug is fixed.
-  AcceleratorTarget* GetTargetForAccelerator(
-      const Accelerator& accelerator) const;
+  AcceleratorTarget* GetCurrentTargetForAccelerator(
+      const Accelerator& accelertor) const;
 
   // Convenience method that returns true if the passed |key_event| should
   // trigger tab traversal (if it is a TAB key press with or without SHIFT
@@ -329,7 +333,8 @@ class FocusManager {
   bool ignore_set_focus_msg_;
 
   // The accelerators and associated targets.
-  typedef std::map<Accelerator, AcceleratorTarget*> AcceleratorMap;
+  typedef std::list<AcceleratorTarget*> AcceleratorTargetList;
+  typedef std::map<Accelerator, AcceleratorTargetList> AcceleratorMap;
   AcceleratorMap accelerators_;
 
   // The list of registered keystroke listeners

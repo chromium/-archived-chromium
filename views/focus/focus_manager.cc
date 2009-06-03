@@ -638,67 +638,73 @@ View* FocusManager::FindFocusableView(FocusTraversable* focus_traversable,
   return v;
 }
 
-AcceleratorTarget* FocusManager::RegisterAccelerator(
+void FocusManager::RegisterAccelerator(
     const Accelerator& accelerator,
     AcceleratorTarget* target) {
-  AcceleratorMap::const_iterator iter = accelerators_.find(accelerator);
-  AcceleratorTarget* previous_target = NULL;
-  if (iter != accelerators_.end())
-    previous_target = iter->second;
-
-  accelerators_[accelerator] = target;
-
-  return previous_target;
+  AcceleratorTargetList& targets = accelerators_[accelerator];
+  // TODO(yutak): View::RegisterAccelerators() seems to register the same target
+  // multiple times. Should uncomment below after View is fixed.
+  // DCHECK(std::find(targets.begin(), targets.end(), target) == targets.end())
+  //     << "Registering the same target multiple times";
+  targets.push_front(target);
 }
 
 void FocusManager::UnregisterAccelerator(const Accelerator& accelerator,
                                          AcceleratorTarget* target) {
-  AcceleratorMap::iterator iter = accelerators_.find(accelerator);
-  if (iter == accelerators_.end()) {
+  AcceleratorMap::iterator map_iter = accelerators_.find(accelerator);
+  if (map_iter == accelerators_.end()) {
     NOTREACHED() << "Unregistering non-existing accelerator";
     return;
   }
 
-  if (iter->second != target) {
+  AcceleratorTargetList* targets = &map_iter->second;
+  AcceleratorTargetList::iterator target_iter =
+      std::find(targets->begin(), targets->end(), target);
+  if (target_iter == targets->end()) {
     NOTREACHED() << "Unregistering accelerator for wrong target";
     return;
   }
 
-  accelerators_.erase(iter);
+  targets->erase(target_iter);
 }
 
 void FocusManager::UnregisterAccelerators(AcceleratorTarget* target) {
-  for (AcceleratorMap::iterator iter = accelerators_.begin();
-       iter != accelerators_.end();) {
-    if (iter->second == target)
-      accelerators_.erase(iter++);
-    else
-      ++iter;
+  for (AcceleratorMap::iterator map_iter = accelerators_.begin();
+       map_iter != accelerators_.end(); ++map_iter) {
+    AcceleratorTargetList* targets = &map_iter->second;
+    targets->remove(target);
   }
 }
 
 bool FocusManager::ProcessAccelerator(const Accelerator& accelerator) {
-  FocusManager* focus_manager = this;
-  do {
-    AcceleratorTarget* target =
-        focus_manager->GetTargetForAccelerator(accelerator);
-    if (target && target->AcceleratorPressed(accelerator))
-      return true;
+  AcceleratorMap::iterator map_iter = accelerators_.find(accelerator);
+  if (map_iter != accelerators_.end()) {
+    // We have to copy the target list here, because an AcceleratorPressed
+    // event handler may modify the list.
+    AcceleratorTargetList targets(map_iter->second);
+    for (AcceleratorTargetList::iterator iter = targets.begin();
+         iter != targets.end(); ++iter) {
+      if ((*iter)->AcceleratorPressed(accelerator))
+        return true;
+    }
+  }
 
-    // When dealing with child windows that have their own FocusManager (such
-    // as ConstrainedWindow), we still want the parent FocusManager to process
-    // the accelerator if the child window did not process it.
-    focus_manager = focus_manager->GetParentFocusManager();
-  } while (focus_manager);
+  // When dealing with child windows that have their own FocusManager (such
+  // as ConstrainedWindow), we still want the parent FocusManager to process
+  // the accelerator if the child window did not process it.
+  FocusManager* parent_focus_manager = GetParentFocusManager();
+  if (parent_focus_manager)
+    return parent_focus_manager->ProcessAccelerator(accelerator);
+
   return false;
 }
 
-AcceleratorTarget* FocusManager::GetTargetForAccelerator(
-    const Accelerator& accelerator) const {
-  AcceleratorMap::const_iterator iter = accelerators_.find(accelerator);
-  if (iter != accelerators_.end())
-    return iter->second;
-  return NULL;
+AcceleratorTarget* FocusManager::GetCurrentTargetForAccelerator(
+    const views::Accelerator& accelerator) const {
+  AcceleratorMap::const_iterator map_iter = accelerators_.find(accelerator);
+  if (map_iter == accelerators_.end() || map_iter->second.empty())
+    return NULL;
+  return map_iter->second.front();
 }
 
 // static

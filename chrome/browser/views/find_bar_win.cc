@@ -90,7 +90,7 @@ FindBarWin::FindBarWin(BrowserView* browser_view)
     : browser_view_(browser_view),
       find_dialog_animation_offset_(0),
       focus_manager_(NULL),
-      old_accel_target_for_esc_(NULL),
+      esc_accel_target_registered_(false),
       find_bar_controller_(NULL) {
   gfx::NativeView parent_view = browser_view->GetWidget()->GetNativeView();
 
@@ -574,7 +574,7 @@ void FindBarWin::SetFocusChangeListener(gfx::NativeView parent_view) {
   // FocusManager, which means we need to clean up old listener and start a new
   // one with the new FocusManager.
   if (focus_manager_) {
-    if (old_accel_target_for_esc_)
+    if (esc_accel_target_registered_)
       UnregisterEscAccelerator();
     focus_manager_->RemoveFocusChangeListener(this);
   }
@@ -603,15 +603,10 @@ FindBarTesting* FindBarWin::GetFindBarTesting() {
 
 void FindBarWin::RegisterEscAccelerator() {
 #if defined(OS_WIN)
+  DCHECK(!esc_accel_target_registered_);
   views::Accelerator escape(VK_ESCAPE, false, false, false);
-
-  // TODO(finnur): Once we fix issue 1307173 we should not remember any old
-  // accelerator targets and just Register and Unregister when needed.
-  views::AcceleratorTarget* old_target =
-      focus_manager_->RegisterAccelerator(escape, this);
-
-  if (!old_accel_target_for_esc_)
-    old_accel_target_for_esc_ = old_target;
+  focus_manager_->RegisterAccelerator(escape, this);
+  esc_accel_target_registered_ = true;
 #else
   NOTIMPLEMENTED();
 #endif
@@ -619,14 +614,10 @@ void FindBarWin::RegisterEscAccelerator() {
 
 void FindBarWin::UnregisterEscAccelerator() {
 #if defined(OS_WIN)
-  // TODO(finnur): Once we fix issue 1307173 we should not remember any old
-  // accelerator targets and just Register and Unregister when needed.
-  DCHECK(old_accel_target_for_esc_ != NULL);
+  DCHECK(esc_accel_target_registered_);
   views::Accelerator escape(VK_ESCAPE, false, false, false);
-  views::AcceleratorTarget* current_target =
-      focus_manager_->GetTargetForAccelerator(escape);
-  if (current_target == this)
-    focus_manager_->RegisterAccelerator(escape, old_accel_target_for_esc_);
+  focus_manager_->UnregisterAccelerator(escape, this);
+  esc_accel_target_registered_ = false;
 #else
   NOTIMPLEMENTED();
 #endif

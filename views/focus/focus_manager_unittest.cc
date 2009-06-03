@@ -682,4 +682,168 @@ TEST_F(FocusManagerTest, TraversalWithNonEnabledViews) {
   */
 }
 
+// Counts accelerator calls.
+class TestAcceleratorTarget : public views::AcceleratorTarget {
+ public:
+  explicit TestAcceleratorTarget(bool process_accelerator)
+      : accelerator_count_(0), process_accelerator_(process_accelerator) {}
+
+  virtual bool AcceleratorPressed(const views::Accelerator& accelerator) {
+    ++accelerator_count_;
+    return process_accelerator_;
+  }
+
+  int accelerator_count() const { return accelerator_count_; }
+
+ private:
+  int accelerator_count_;  // number of times that the accelerator is activated
+  bool process_accelerator_;  // return value of AcceleratorPressed
+
+  DISALLOW_COPY_AND_ASSIGN(TestAcceleratorTarget);
+};
+
+TEST_F(FocusManagerTest, CallsNormalAcceleratorTarget) {
+  views::FocusManager* focus_manager =
+      views::FocusManager::GetFocusManager(test_window_->GetNativeView());
+  views::Accelerator return_accelerator(VK_RETURN, false, false, false);
+  views::Accelerator escape_accelerator(VK_ESCAPE, false, false, false);
+
+  TestAcceleratorTarget return_target(true);
+  TestAcceleratorTarget escape_target(true);
+  EXPECT_EQ(return_target.accelerator_count(), 0);
+  EXPECT_EQ(escape_target.accelerator_count(), 0);
+  EXPECT_EQ(NULL,
+            focus_manager->GetCurrentTargetForAccelerator(return_accelerator));
+  EXPECT_EQ(NULL,
+            focus_manager->GetCurrentTargetForAccelerator(escape_accelerator));
+
+  // Register targets.
+  focus_manager->RegisterAccelerator(return_accelerator, &return_target);
+  focus_manager->RegisterAccelerator(escape_accelerator, &escape_target);
+
+  // Checks if the correct target is registered.
+  EXPECT_EQ(&return_target,
+            focus_manager->GetCurrentTargetForAccelerator(return_accelerator));
+  EXPECT_EQ(&escape_target,
+            focus_manager->GetCurrentTargetForAccelerator(escape_accelerator));
+
+  // Hitting the return key.
+  EXPECT_TRUE(focus_manager->ProcessAccelerator(return_accelerator));
+  EXPECT_EQ(return_target.accelerator_count(), 1);
+  EXPECT_EQ(escape_target.accelerator_count(), 0);
+
+  // Hitting the escape key.
+  EXPECT_TRUE(focus_manager->ProcessAccelerator(escape_accelerator));
+  EXPECT_EQ(return_target.accelerator_count(), 1);
+  EXPECT_EQ(escape_target.accelerator_count(), 1);
+
+  // Register another target for the return key.
+  TestAcceleratorTarget return_target2(true);
+  EXPECT_EQ(return_target2.accelerator_count(), 0);
+  focus_manager->RegisterAccelerator(return_accelerator, &return_target2);
+  EXPECT_EQ(&return_target2,
+            focus_manager->GetCurrentTargetForAccelerator(return_accelerator));
+
+  // Hitting the return key; return_target2 has the priority.
+  EXPECT_TRUE(focus_manager->ProcessAccelerator(return_accelerator));
+  EXPECT_EQ(return_target.accelerator_count(), 1);
+  EXPECT_EQ(return_target2.accelerator_count(), 1);
+
+  // Register a target that does not process the accelerator event.
+  TestAcceleratorTarget return_target3(false);
+  EXPECT_EQ(return_target3.accelerator_count(), 0);
+  focus_manager->RegisterAccelerator(return_accelerator, &return_target3);
+  EXPECT_EQ(&return_target3,
+            focus_manager->GetCurrentTargetForAccelerator(return_accelerator));
+
+  // Hitting the return key.
+  // Since the event handler of return_target3 returns false, return_target2
+  // should be called too.
+  EXPECT_TRUE(focus_manager->ProcessAccelerator(return_accelerator));
+  EXPECT_EQ(return_target.accelerator_count(), 1);
+  EXPECT_EQ(return_target2.accelerator_count(), 2);
+  EXPECT_EQ(return_target3.accelerator_count(), 1);
+
+  // Unregister return_target2.
+  focus_manager->UnregisterAccelerator(return_accelerator, &return_target2);
+  EXPECT_EQ(&return_target3,
+            focus_manager->GetCurrentTargetForAccelerator(return_accelerator));
+
+  // Hitting the return key. return_target3 and return_target should be called.
+  EXPECT_TRUE(focus_manager->ProcessAccelerator(return_accelerator));
+  EXPECT_EQ(return_target.accelerator_count(), 2);
+  EXPECT_EQ(return_target2.accelerator_count(), 2);
+  EXPECT_EQ(return_target3.accelerator_count(), 2);
+
+  // Unregister targets.
+  focus_manager->UnregisterAccelerator(return_accelerator, &return_target);
+  focus_manager->UnregisterAccelerator(return_accelerator, &return_target3);
+  focus_manager->UnregisterAccelerator(escape_accelerator, &escape_target);
+
+  // Now there is no target registered.
+  EXPECT_EQ(NULL,
+            focus_manager->GetCurrentTargetForAccelerator(return_accelerator));
+  EXPECT_EQ(NULL,
+            focus_manager->GetCurrentTargetForAccelerator(escape_accelerator));
+
+  // Hitting the return key and the escape key. Nothing should happen.
+  EXPECT_FALSE(focus_manager->ProcessAccelerator(return_accelerator));
+  EXPECT_EQ(return_target.accelerator_count(), 2);
+  EXPECT_EQ(return_target2.accelerator_count(), 2);
+  EXPECT_EQ(return_target3.accelerator_count(), 2);
+  EXPECT_FALSE(focus_manager->ProcessAccelerator(escape_accelerator));
+  EXPECT_EQ(escape_target.accelerator_count(), 1);
 }
+
+// Unregisters itself when its accelerator is invoked.
+class SelfUnregisteringAcceleratorTarget : public views::AcceleratorTarget {
+ public:
+  SelfUnregisteringAcceleratorTarget(views::Accelerator accelerator,
+                                     views::FocusManager* focus_manager)
+      : accelerator_(accelerator),
+        focus_manager_(focus_manager),
+        accelerator_count_(0) {
+  }
+
+  virtual bool AcceleratorPressed(const views::Accelerator& accelerator) {
+    ++accelerator_count_;
+    focus_manager_->UnregisterAccelerator(accelerator, this);
+    return true;
+  }
+
+  int accelerator_count() const { return accelerator_count_; }
+
+ private:
+  views::Accelerator accelerator_;
+  views::FocusManager* focus_manager_;
+  int accelerator_count_;
+
+  DISALLOW_COPY_AND_ASSIGN(SelfUnregisteringAcceleratorTarget);
+};
+
+TEST_F(FocusManagerTest, CallsSelfDeletingAcceleratorTarget) {
+  views::FocusManager* focus_manager =
+      views::FocusManager::GetFocusManager(test_window_->GetNativeView());
+  views::Accelerator return_accelerator(VK_RETURN, false, false, false);
+  SelfUnregisteringAcceleratorTarget target(return_accelerator, focus_manager);
+  EXPECT_EQ(target.accelerator_count(), 0);
+  EXPECT_EQ(NULL,
+            focus_manager->GetCurrentTargetForAccelerator(return_accelerator));
+
+  // Register the target.
+  focus_manager->RegisterAccelerator(return_accelerator, &target);
+  EXPECT_EQ(&target,
+            focus_manager->GetCurrentTargetForAccelerator(return_accelerator));
+
+  // Hitting the return key. The target will be unregistered.
+  EXPECT_TRUE(focus_manager->ProcessAccelerator(return_accelerator));
+  EXPECT_EQ(target.accelerator_count(), 1);
+  EXPECT_EQ(NULL,
+            focus_manager->GetCurrentTargetForAccelerator(return_accelerator));
+
+  // Hitting the return key again; nothing should happen.
+  EXPECT_FALSE(focus_manager->ProcessAccelerator(return_accelerator));
+  EXPECT_EQ(target.accelerator_count(), 1);
+}
+
+}  // anonymous namespace
