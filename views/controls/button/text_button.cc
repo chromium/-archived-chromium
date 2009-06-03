@@ -156,6 +156,9 @@ TextButton::TextButton(ButtonListener* listener, const std::wstring& text)
       font_(ResourceBundle::GetSharedInstance().GetFont(
           ResourceBundle::BaseFont)),
       color_(kEnabledColor),
+      color_enabled_(kEnabledColor),
+      color_disabled_(kDisabledColor),
+      color_highlight_(kHighlightColor),
       max_width_(0) {
   SetText(text);
   set_border(new TextButtonBorder);
@@ -176,6 +179,20 @@ void TextButton::SetText(const std::wstring& text) {
 
 void TextButton::SetIcon(const SkBitmap& icon) {
   icon_ = icon;
+}
+
+void TextButton::SetEnabledColor(SkColor color) {
+  color_enabled_ = color;
+  UpdateColor();
+}
+
+void TextButton::SetDisabledColor(SkColor color) {
+  color_disabled_ = color;
+  UpdateColor();
+}
+
+void TextButton::SetHighlightColor(SkColor color) {
+  color_highlight_ = color;
 }
 
 void TextButton::ClearMaxTextSize() {
@@ -245,7 +262,7 @@ void TextButton::Paint(gfx::Canvas* canvas, bool for_drag) {
 #if defined(OS_WIN)
       // TODO(erg): Either port DrawStringWithHalo to linux or find an
       // alternative here.
-      canvas->DrawStringWithHalo(text_, font_, color_, kHighlightColor,
+      canvas->DrawStringWithHalo(text_, font_, color_, color_highlight_,
                                  text_bounds.x(),
                                  text_bounds.y(),
                                  text_bounds.width(),
@@ -256,7 +273,7 @@ void TextButton::Paint(gfx::Canvas* canvas, bool for_drag) {
       // Draw bevel highlight
       canvas->DrawStringInt(text_,
                             font_,
-                            kHighlightColor,
+                            color_highlight_,
                             text_bounds.x() + 1,
                             text_bounds.y() + 1,
                             text_bounds.width(),
@@ -280,6 +297,10 @@ void TextButton::Paint(gfx::Canvas* canvas, bool for_drag) {
     icon_bounds.set_x(MirroredLeftPointForRect(icon_bounds));
     canvas->DrawBitmapInt(icon_, icon_bounds.x(), icon_bounds.y());
   }
+}
+
+void TextButton::UpdateColor() {
+  color_ = IsEnabled() ? color_enabled_ : color_disabled_;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -310,7 +331,7 @@ void TextButton::SetEnabled(bool enabled) {
   if (enabled == IsEnabled())
     return;
   CustomButton::SetEnabled(enabled);
-  color_ = enabled ? kEnabledColor : kDisabledColor;
+  UpdateColor();
   SchedulePaint();
 }
 
