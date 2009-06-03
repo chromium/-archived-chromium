@@ -2044,6 +2044,8 @@
         'renderer/localized_error.h',
         'renderer/plugin_channel_host.cc',
         'renderer/plugin_channel_host.h',
+        'renderer/print_web_view_helper.cc',
+        'renderer/print_web_view_helper.h',
         'renderer/render_process.cc',
         'renderer/render_process.h',
         'renderer/render_thread.cc',
