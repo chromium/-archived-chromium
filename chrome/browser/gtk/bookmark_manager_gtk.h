@@ -58,18 +58,31 @@ class BookmarkManagerGtk : public BookmarkModelObserver {
   GtkWidget* MakeRightPane();
 
   // Pack the data from the bookmark model into the stores. This does not
-  // create the stores, which is done in Make{Left,Right}Pane(). These should
-  // only be called once (when the bookmark model is loaded).
+  // create the stores, which is done in Make{Left,Right}Pane().
+  // This one should only be called once (when the bookmark model is loaded).
   void BuildLeftStore();
+  // This one clears the old right pane and refills it with the contents of
+  // whatever folder is selected on the left.
   void BuildRightStore();
+
+  GtkTreeSelection* left_selection() {
+    return gtk_tree_view_get_selection(GTK_TREE_VIEW(left_tree_view_));
+  }
+
+  static void OnLeftSelectionChanged(GtkTreeSelection* selection,
+                                     BookmarkManagerGtk* bookmark_manager);
 
   GtkWidget* window_;
   Profile* profile_;
   BookmarkModel* model_;
+  GtkWidget* left_tree_view_;
+  GtkWidget* right_tree_view_;
 
   enum {
+    RIGHT_PANE_PIXBUF,
     RIGHT_PANE_TITLE,
     RIGHT_PANE_URL,
+    RIGHT_PANE_ID,
     RIGHT_PANE_NUM
   };
   GtkTreeStore* left_store_;

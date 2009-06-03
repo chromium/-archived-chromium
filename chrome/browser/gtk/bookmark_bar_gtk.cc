@@ -409,12 +409,12 @@ void BookmarkBarGtk::ConfigureButtonForNode(BookmarkNode* node,
                            gtk_image_new_from_pixbuf(pixbuf));
       g_object_unref(pixbuf);
     } else {
-        gtk_button_set_image(GTK_BUTTON(button),
-            gtk_image_new_from_pixbuf(bookmark_utils::GetFolderIcon()));
-    }
-  } else {
       gtk_button_set_image(GTK_BUTTON(button),
           gtk_image_new_from_pixbuf(bookmark_utils::GetDefaultFavicon()));
+    }
+  } else {
+    gtk_button_set_image(GTK_BUTTON(button),
+        gtk_image_new_from_pixbuf(bookmark_utils::GetFolderIcon()));
   }
 
   SetButtonTextColors(button);

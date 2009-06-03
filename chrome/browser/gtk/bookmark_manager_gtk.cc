@@ -4,6 +4,7 @@
 
 #include "chrome/browser/gtk/bookmark_manager_gtk.h"
 
+#include "app/gfx/gtk_util.h"
 #include "app/l10n_util.h"
 #include "chrome/browser/bookmarks/bookmark_manager.h"
 #include "chrome/browser/gtk/bookmark_tree_model.h"
@@ -148,18 +149,17 @@ GtkWidget* BookmarkManagerGtk::MakeLeftPane() {
       "", gtk_cell_renderer_text_new(), "text", bookmark_utils::FOLDER_NAME,
        NULL);
 
-  GtkWidget* tree_view =
-      gtk_tree_view_new_with_model(GTK_TREE_MODEL(left_store_));
+  left_tree_view_ = gtk_tree_view_new_with_model(GTK_TREE_MODEL(left_store_));
   // Let |tree_view| own the store.
   g_object_unref(left_store_);
-  gtk_tree_view_set_headers_visible(GTK_TREE_VIEW(tree_view), FALSE);
-  gtk_tree_view_append_column(GTK_TREE_VIEW(tree_view), icon_column);
-  gtk_tree_view_append_column(GTK_TREE_VIEW(tree_view), name_column);
+  gtk_tree_view_set_headers_visible(GTK_TREE_VIEW(left_tree_view_), FALSE);
+  gtk_tree_view_append_column(GTK_TREE_VIEW(left_tree_view_), icon_column);
+  gtk_tree_view_append_column(GTK_TREE_VIEW(left_tree_view_), name_column);
 
   GtkWidget* scrolled = gtk_scrolled_window_new(NULL, NULL);
   gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrolled),
                                  GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
-  gtk_container_add(GTK_CONTAINER(scrolled), tree_view);
+  gtk_container_add(GTK_CONTAINER(scrolled), left_tree_view_);
 
   GtkWidget* frame = gtk_frame_new(NULL);
   gtk_frame_set_shadow_type(GTK_FRAME(frame), GTK_SHADOW_ETCHED_IN);
@@ -170,26 +170,34 @@ GtkWidget* BookmarkManagerGtk::MakeLeftPane() {
 
 GtkWidget* BookmarkManagerGtk::MakeRightPane() {
   right_store_ = gtk_list_store_new(RIGHT_PANE_NUM,
-                                    G_TYPE_STRING, G_TYPE_STRING);
+                                    GDK_TYPE_PIXBUF, G_TYPE_STRING,
+                                    G_TYPE_STRING, G_TYPE_INT);
 
-  GtkTreeViewColumn* title_column = gtk_tree_view_column_new_with_attributes(
-      l10n_util::GetStringUTF8(IDS_BOOKMARK_TABLE_TITLE).c_str(),
-      gtk_cell_renderer_text_new(), "text", RIGHT_PANE_TITLE, NULL);
+  GtkTreeViewColumn* title_column = gtk_tree_view_column_new();
+  GtkCellRenderer* image_renderer = gtk_cell_renderer_pixbuf_new();
+  gtk_tree_view_column_pack_start(title_column, image_renderer, FALSE);
+  gtk_tree_view_column_add_attribute(title_column, image_renderer,
+                                     "pixbuf", RIGHT_PANE_PIXBUF);
+  GtkCellRenderer* text_renderer = gtk_cell_renderer_text_new();
+  gtk_tree_view_column_pack_start(title_column, text_renderer, TRUE);
+  gtk_tree_view_column_add_attribute(title_column, text_renderer,
+                                     "text", RIGHT_PANE_TITLE);
   GtkTreeViewColumn* url_column = gtk_tree_view_column_new_with_attributes(
       l10n_util::GetStringUTF8(IDS_BOOKMARK_TABLE_URL).c_str(),
       gtk_cell_renderer_text_new(), "text", RIGHT_PANE_URL, NULL);
 
-  GtkWidget* tree_view =
-      gtk_tree_view_new_with_model(GTK_TREE_MODEL(right_store_));
+  right_tree_view_ = gtk_tree_view_new_with_model(GTK_TREE_MODEL(right_store_));
   // Let |tree_view| own the store.
   g_object_unref(right_store_);
-  gtk_tree_view_append_column(GTK_TREE_VIEW(tree_view), title_column);
-  gtk_tree_view_append_column(GTK_TREE_VIEW(tree_view), url_column);
+  gtk_tree_view_append_column(GTK_TREE_VIEW(right_tree_view_), title_column);
+  gtk_tree_view_append_column(GTK_TREE_VIEW(right_tree_view_), url_column);
+  g_signal_connect(left_selection(), "changed",
+                   G_CALLBACK(OnLeftSelectionChanged), this);
 
   GtkWidget* scrolled = gtk_scrolled_window_new(NULL, NULL);
   gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrolled),
                                  GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
-  gtk_container_add(GTK_CONTAINER(scrolled), tree_view);
+  gtk_container_add(GTK_CONTAINER(scrolled), right_tree_view_);
 
   GtkWidget* frame = gtk_frame_new(NULL);
   gtk_frame_set_shadow_type(GTK_FRAME(frame), GTK_SHADOW_ETCHED_IN);
@@ -199,14 +207,58 @@ GtkWidget* BookmarkManagerGtk::MakeRightPane() {
 }
 
 void BookmarkManagerGtk::BuildLeftStore() {
-  bookmark_utils::AddToTreeStore(model_, 0, left_store_, NULL);
+  GtkTreeIter select_iter;
+  bookmark_utils::AddToTreeStore(model_,
+      model_->GetBookmarkBarNode()->id(), left_store_, &select_iter);
+  gtk_tree_selection_select_iter(left_selection(), &select_iter);
+
   // TODO(estade): Add recently bookmarked node and search node.
 }
 
 void BookmarkManagerGtk::BuildRightStore() {
-  // TODO(estade): Implement.
+  GtkTreeModel* model;
   GtkTreeIter iter;
-  gtk_list_store_append(right_store_, &iter);
-  gtk_list_store_set(right_store_, &iter, RIGHT_PANE_TITLE, "Not implemented",
-                     -1);
+  GValue value = { 0, };
+  if (!gtk_tree_selection_get_selected(left_selection(), &model, &iter))
+    return;
+  gtk_tree_model_get_value(model, &iter, bookmark_utils::ITEM_ID, &value);
+  int id = g_value_get_int(&value);
+  g_value_unset(&value);
+
+  gtk_list_store_clear(right_store_);
+  BookmarkNode* node = model_->GetNodeByID(id);
+  // TODO(estade): eventually we may hit a fake node here (recently bookmarked
+  // or search), but until then we require that node != NULL.
+  DCHECK(node);
+
+  for (int i = 0; i < node->GetChildCount(); ++i) {
+    BookmarkNode* child = node->GetChild(i);
+    GdkPixbuf* pixbuf;
+
+    if (child->is_url()) {
+      if (model_->GetFavIcon(node).width() != 0) {
+        gfx::GdkPixbufFromSkBitmap(&model_->GetFavIcon(node));
+      } else {
+        pixbuf = bookmark_utils::GetDefaultFavicon();
+        g_object_ref(pixbuf);
+      }
+    } else {
+      pixbuf = bookmark_utils::GetFolderIcon();
+      g_object_ref(pixbuf);
+    }
+
+    gtk_list_store_append(right_store_, &iter);
+    gtk_list_store_set(right_store_, &iter,
+                       RIGHT_PANE_PIXBUF, pixbuf,
+                       RIGHT_PANE_TITLE, WideToUTF8(child->GetTitle()).c_str(),
+                       RIGHT_PANE_URL, child->GetURL().spec().c_str(),
+                       RIGHT_PANE_ID, child->id(), -1);
+    g_object_unref(pixbuf);
+  }
 }
+
+void BookmarkManagerGtk::OnLeftSelectionChanged(GtkTreeSelection* selection,
+    BookmarkManagerGtk* bookmark_manager) {
+  bookmark_manager->BuildRightStore();
+}
+
