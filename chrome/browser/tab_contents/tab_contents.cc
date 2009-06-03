@@ -52,6 +52,7 @@
 #include "grit/locale_settings.h"
 #include "net/base/mime_util.h"
 #include "net/base/net_errors.h"
+#include "net/base/net_util.h"
 #include "net/base/registry_controlled_domain.h"
 
 #if defined(OS_WIN)
@@ -2286,7 +2287,11 @@ void TabContents::RendererResponsive(RenderViewHost* render_view_host) {
 void TabContents::LoadStateChanged(const GURL& url,
                                    net::LoadState load_state) {
   load_state_ = load_state;
-  load_state_host_ = UTF8ToWide(url.host());
+  std::wstring languages =
+      profile()->GetPrefs()->GetString(prefs::kAcceptLanguages);
+  load_state_host_.clear();
+  std::string host = url.host();
+  net::IDNToUnicode(host.c_str(), host.size(), languages, &load_state_host_);
   if (load_state_ == net::LOAD_STATE_READING_RESPONSE)
     SetNotWaitingForResponse();
   if (is_loading())
