@@ -5,6 +5,7 @@
 #include "app/l10n_util.h"
 #include "base/command_line.h"
 #include "chrome/browser/browser.h"
+#include "chrome/browser/browser_window.h"
 #include "chrome/browser/debugger/devtools_client_host.h"
 #include "chrome/browser/debugger/devtools_manager.h"
 #include "chrome/browser/debugger/devtools_window.h"
@@ -30,7 +31,7 @@ DevToolsWindow::DevToolsWindow(Profile* profile)
 
     PrefService* prefs = g_browser_process->local_state();
     prefs->RegisterDictionaryPref(g_wp_key.c_str());
-    
+
     const DictionaryValue* wp_pref = prefs->GetDictionary(g_wp_key.c_str());
     if (!wp_pref) {
       DictionaryValue* defaults = prefs->GetMutableDictionary(
@@ -61,7 +62,7 @@ void DevToolsWindow::Show() {
 }
 
 DevToolsWindow* DevToolsWindow::AsDevToolsWindow() {
-  return this; 
+  return this;
 }
 
 RenderViewHost* DevToolsWindow::GetRenderViewHost() const {

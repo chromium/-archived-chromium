@@ -14,6 +14,7 @@
 #include "chrome/browser/extensions/extension_message_service.h"
 #include "chrome/browser/profile.h"
 #include "chrome/browser/renderer_host/render_view_host.h"
+#include "chrome/test/automation/automation_messages.h"
 
 // TODO(siggi): Find a more structured way to read and write JSON messages.
 

@@ -4,6 +4,7 @@
 
 #include "base/message_loop.h"
 #include "chrome/browser/browser.h"
+#include "chrome/browser/browser_window.h"
 #include "chrome/browser/find_bar_controller.h"
 #include "chrome/browser/find_notification_details.h"
 #include "chrome/browser/renderer_host/render_view_host.h"

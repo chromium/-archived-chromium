@@ -6,7 +6,6 @@
 #define CHROME_BROWSER_CHARACTER_ENCODING_H__
 
 #include <string>
-#include <utility>
 #include <vector>
 
 #include "base/basictypes.h"

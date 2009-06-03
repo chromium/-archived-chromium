@@ -9,6 +9,7 @@
 #include "chrome/app/chrome_dll_resource.h"
 #include "chrome/browser/browser_list.h"
 #include "chrome/browser/browser_process.h"
+#include "chrome/browser/browser_window.h"
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
 #include "grit/chromium_strings.h"

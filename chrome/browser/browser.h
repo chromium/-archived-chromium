@@ -10,8 +10,9 @@
 #include <set>
 #include <vector>
 
+#include "base/gfx/rect.h"
+#include "base/scoped_ptr.h"
 #include "chrome/browser/browser_process.h"
-#include "chrome/browser/browser_window.h"
 #include "chrome/browser/command_updater.h"
 #include "chrome/browser/extensions/extension_function_dispatcher.h"
 #include "chrome/browser/sessions/session_id.h"
@@ -22,9 +23,6 @@
 #include "chrome/browser/toolbar_model.h"
 #include "chrome/common/notification_registrar.h"
 #include "chrome/common/pref_member.h"
-#include "base/gfx/rect.h"
-#include "base/scoped_ptr.h"
-#include "base/task.h"
 #include "third_party/skia/include/core/SkBitmap.h"
 
 class BrowserIdleTimer;

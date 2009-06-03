@@ -6,8 +6,11 @@
 #define CHROME_BROWSER_AUTOCOMPLETE_HISTORY_CONTENTS_PROVIDER_H_
 
 #include "chrome/browser/autocomplete/autocomplete.h"
-#include "chrome/browser/bookmarks/bookmark_utils.h"
 #include "chrome/browser/history/history.h"
+
+namespace bookmark_utils {
+struct TitleMatch;
+}
 
 // HistoryContentsProvider is an AutocompleteProvider that provides results from
 // the contents (body and/or title) of previously visited pages.

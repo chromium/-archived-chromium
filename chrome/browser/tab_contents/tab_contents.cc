@@ -31,6 +31,7 @@
 #include "chrome/browser/load_notification_details.h"
 #include "chrome/browser/password_manager/password_manager.h"
 #include "chrome/browser/plugin_installer.h"
+#include "chrome/browser/profile.h"
 #include "chrome/browser/renderer_host/render_widget_host_view.h"
 #include "chrome/browser/renderer_host/web_cache_manager.h"
 #include "chrome/browser/tab_contents/infobar_delegate.h"

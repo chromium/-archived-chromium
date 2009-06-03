@@ -9,8 +9,11 @@
 
 #include "base/basictypes.h"
 #include "chrome/common/ipc_message.h"
+#include "chrome/common/notification_observer.h"
 #include "chrome/common/notification_registrar.h"
-#include "chrome/common/notification_service.h"
+#include "chrome/common/notification_type.h"
+
+template <class T> class Source;
 
 // Template trick so that AutomationResourceTracker can be used with non-pointer
 // types.

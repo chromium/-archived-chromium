@@ -13,10 +13,8 @@
 #include <string>
 
 #include "base/basictypes.h"
-#include "base/command_line.h"
 #include "base/message_loop.h"
 #include "base/non_thread_safe.h"
-#include "base/ref_counted.h"
 #include "base/scoped_ptr.h"
 #include "chrome/browser/automation/automation_provider_list.h"
 #include "chrome/browser/browser_process.h"

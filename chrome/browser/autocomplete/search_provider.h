@@ -20,7 +20,8 @@
 #include <vector>
 
 #include "chrome/browser/autocomplete/autocomplete.h"
-#include "chrome/browser/history/history.h"
+#include "chrome/browser/cancelable_request.h"
+#include "chrome/browser/history/history_types.h"
 #include "chrome/browser/net/url_fetcher.h"
 #include "chrome/browser/search_engines/template_url.h"
 
@@ -179,7 +180,7 @@ class SearchProvider : public AutocompleteProvider,
   void StopSuggest();
 
   // Schedules a history query requesting past searches against the engine
-  // whose id is |search_id| and whose text starts with |text|. 
+  // whose id is |search_id| and whose text starts with |text|.
   void ScheduleHistoryQuery(TemplateURL::IDType search_id,
                             const std::wstring& text);
 

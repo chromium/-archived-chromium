@@ -10,7 +10,6 @@
 #define CHROME_BROWSER_AUTOMATION_URL_REQUEST_MOCK_NET_ERROR_H__
 
 #include "chrome/browser/automation/url_request_mock_http_job.h"
-#include "net/base/net_errors.h"
 
 class URLRequestMockNetErrorJob : public URLRequestMockHTTPJob {
  public:

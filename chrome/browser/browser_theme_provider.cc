@@ -8,6 +8,7 @@
 #include "base/string_util.h"
 #include "base/values.h"
 #include "chrome/browser/browser_list.h"
+#include "chrome/browser/browser_window.h"
 #include "chrome/browser/metrics/user_metrics.h"
 #include "chrome/browser/profile.h"
 #include "chrome/browser/theme_resources_util.h"

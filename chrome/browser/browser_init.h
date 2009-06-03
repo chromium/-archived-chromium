@@ -139,7 +139,7 @@ class BrowserInit {
                                  bool process_startup, Profile* profile,
                                  int* return_code, BrowserInit* browser_init);
 
-  // Additional tabs to open during first run. 
+  // Additional tabs to open during first run.
   std::vector<GURL> first_run_tabs_;
 
   DISALLOW_COPY_AND_ASSIGN(BrowserInit);

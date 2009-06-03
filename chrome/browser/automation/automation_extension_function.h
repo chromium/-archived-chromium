@@ -9,7 +9,6 @@
 
 #include <string>
 
-#include "base/singleton.h"
 #include "chrome/browser/extensions/extension_function.h"
 
 class RenderViewHost;

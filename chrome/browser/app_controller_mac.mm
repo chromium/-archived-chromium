@@ -12,6 +12,7 @@
 #include "chrome/browser/browser_init.h"
 #include "chrome/browser/browser_list.h"
 #include "chrome/browser/browser_shutdown.h"
+#include "chrome/browser/browser_window.h"
 #import "chrome/browser/cocoa/about_window_controller.h"
 #import "chrome/browser/cocoa/bookmark_menu_bridge.h"
 #import "chrome/browser/cocoa/clear_browsing_data_controller.h"
@@ -65,7 +66,7 @@
   // window changes.
   NSNotificationCenter* notificationCenter =
       [NSNotificationCenter defaultCenter];
-  [notificationCenter 
+  [notificationCenter
       addObserver:self
          selector:@selector(windowLayeringDidChange:)
              name:NSWindowDidBecomeKeyNotification
@@ -161,7 +162,7 @@
 // update the UI based on the new main window.
 - (void)windowLayeringDidChange:(NSNotification*)notify {
   [self delayedFixCloseMenuItemKeyEquivalents];
-  
+
   // TODO(pinkerton): If we have other things here, such as inspector panels
   // that follow the contents of the selected webpage, we would update those
   // here.
@@ -366,7 +367,7 @@
   // if no browser window exists then create one with no tabs to be filled in
   if (!browser) {
     browser = Browser::Create([self defaultProfile]);
-    browser->window()->Show();    
+    browser->window()->Show();
   }
 
   CommandLine dummy((std::wstring()));

@@ -7,6 +7,7 @@
 #include "app/l10n_util.h"
 #include "app/message_box_flags.h"
 #include "chrome/browser/browser_list.h"
+#include "chrome/browser/browser_window.h"
 #include "chrome/browser/tab_contents/navigation_controller.h"
 #include "chrome/common/notification_service.h"
 #include "grit/generated_resources.h"

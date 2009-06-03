@@ -19,6 +19,7 @@
 #include "chrome/browser/bookmarks/bookmark_model.h"
 #include "chrome/browser/browser.h"
 #include "chrome/browser/browser_process.h"
+#include "chrome/browser/browser_window.h"
 #include "chrome/browser/character_encoding.h"
 #include "chrome/browser/metrics/user_metrics.h"
 #include "chrome/browser/profile.h"
@@ -96,7 +97,7 @@ BrowserToolbarView::BrowserToolbarView(Browser* browser)
       profile_(NULL),
       browser_(browser),
       tab_(NULL),
-      profiles_menu_(NULL),      
+      profiles_menu_(NULL),
       profiles_helper_(new GetProfilesHelper(this)) {
   browser_->command_updater()->AddCommandObserver(IDC_BACK, this);
   browser_->command_updater()->AddCommandObserver(IDC_FORWARD, this);
@@ -868,7 +869,7 @@ void BrowserToolbarView::WriteDragData(views::View* sender,
       GetDragOperations(sender, press_x, press_y) != DragDropTypes::DRAG_NONE);
 
   UserMetrics::RecordAction(L"Toolbar_DragStar", profile_);
-  
+
 #if defined(OS_WIN)
   // If there is a bookmark for the URL, add the bookmark drag data for it. We
   // do this to ensure the bookmark is moved, rather than creating an new

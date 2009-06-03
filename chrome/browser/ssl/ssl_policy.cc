@@ -12,6 +12,7 @@
 #include "base/string_piece.h"
 #include "base/string_util.h"
 #include "chrome/browser/cert_store.h"
+#include "chrome/browser/profile.h"
 #include "chrome/browser/renderer_host/render_view_host.h"
 #include "chrome/browser/ssl/ssl_cert_error_handler.h"
 #include "chrome/browser/ssl/ssl_error_info.h"

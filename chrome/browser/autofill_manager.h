@@ -5,7 +5,6 @@
 #ifndef CHROME_BROWSER_AUTOFILL_MANAGER_H_
 #define CHROME_BROWSER_AUTOFILL_MANAGER_H_
 
-#include <map>
 #include <string>
 
 #include "chrome/browser/webdata/web_data_service.h"

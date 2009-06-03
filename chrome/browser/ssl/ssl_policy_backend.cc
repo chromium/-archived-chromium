@@ -5,6 +5,7 @@
 #include "chrome/browser/ssl/ssl_policy_backend.h"
 
 #include "app/resource_bundle.h"
+#include "chrome/browser/profile.h"
 #include "chrome/browser/ssl/ssl_host_state.h"
 #include "chrome/browser/tab_contents/infobar_delegate.h"
 #include "chrome/browser/tab_contents/navigation_controller.h"

@@ -9,6 +9,7 @@
 #include "base/logging.h"
 #include "chrome/browser/browser.h"
 #include "chrome/browser/browser_list.h"
+#include "chrome/browser/browser_window.h"
 
 // How much horizontal and vertical offset there is between newly
 // opened windows. We don't care on Linux since the window manager generally

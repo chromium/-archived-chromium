@@ -9,6 +9,7 @@
 #include "base/gfx/native_widget_types.h"
 #include "base/logging.h"
 #include "chrome/browser/browser_list.h"
+#include "chrome/browser/browser_window.h"
 
 // static
 DockInfo DockInfo::GetDockInfoAtPoint(const gfx::Point& screen_point,

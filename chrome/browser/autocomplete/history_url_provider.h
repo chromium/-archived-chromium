@@ -5,21 +5,18 @@
 #ifndef CHROME_BROWSER_AUTOCOMPLETE_HISTORY_URL_PROVIDER_H_
 #define CHROME_BROWSER_AUTOCOMPLETE_HISTORY_URL_PROVIDER_H_
 
-#include <map>
 #include <vector>
 #include <deque>
 
 #include "chrome/browser/autocomplete/autocomplete.h"
-#include "chrome/browser/history/history_database.h"
-#include "chrome/browser/profile.h"
+#include "chrome/browser/history/history_types.h"
 
 class HistoryService;
 class MessageLoop;
+class Profile;
 
 namespace history {
-
 class HistoryBackend;
-
 }  // namespace history
 
 

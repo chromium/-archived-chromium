@@ -33,6 +33,7 @@
 #include "chrome/browser/autocomplete/history_url_provider.h"
 #include "chrome/browser/browser_list.h"
 #include "chrome/browser/browser_process.h"
+#include "chrome/browser/browser_window.h"
 #include "chrome/browser/chrome_thread.h"
 #include "chrome/browser/history/download_types.h"
 #include "chrome/browser/history/history_backend.h"

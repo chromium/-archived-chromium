@@ -5,6 +5,7 @@
 #include "chrome/browser/gtk/tabs/dragged_tab_controller_gtk.h"
 
 #include "chrome/browser/browser.h"
+#include "chrome/browser/browser_window.h"
 #include "chrome/browser/gtk/tabs/dragged_tab_gtk.h"
 #include "chrome/browser/gtk/tabs/tab_strip_gtk.h"
 #include "chrome/browser/tabs/tab_strip_model.h"

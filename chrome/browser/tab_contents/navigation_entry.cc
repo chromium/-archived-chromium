@@ -5,6 +5,7 @@
 #include "chrome/browser/tab_contents/navigation_entry.h"
 
 #include "app/resource_bundle.h"
+#include "chrome/browser/profile.h"
 #include "chrome/browser/tab_contents/navigation_controller.h"
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"

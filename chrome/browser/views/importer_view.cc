@@ -6,6 +6,7 @@
 
 #include "app/l10n_util.h"
 #include "chrome/browser/browser_list.h"
+#include "chrome/browser/browser_window.h"
 #include "grit/generated_resources.h"
 #include "grit/locale_settings.h"
 #include "views/controls/button/checkbox.h"

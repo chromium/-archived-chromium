@@ -26,6 +26,7 @@
 #include "chrome/browser/extensions/extension_shelf.h"
 #include "chrome/browser/find_bar.h"
 #include "chrome/browser/find_bar_controller.h"
+#include "chrome/browser/profile.h"
 #include "chrome/browser/view_ids.h"
 #include "chrome/browser/views/bookmark_bar_view.h"
 #include "chrome/browser/views/browser_bubble.h"

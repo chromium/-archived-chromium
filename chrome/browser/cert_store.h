@@ -5,7 +5,6 @@
 #ifndef CHROME_BROWSER_CERT_STORE_H_
 #define CHROME_BROWSER_CERT_STORE_H_
 
-#include <vector>
 #include <map>
 
 #include "base/lock.h"
@@ -77,7 +76,7 @@ class CertStore : public NotificationObserver {
   //                     cert_to_id_.
   Lock cert_lock_;
 
-  DISALLOW_EVIL_CONSTRUCTORS(CertStore);
+  DISALLOW_COPY_AND_ASSIGN(CertStore);
 };
 
 #endif  // CHROME_BROWSER_CERT_STORE_H_

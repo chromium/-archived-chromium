@@ -9,7 +9,6 @@
 
 #include "base/basictypes.h"
 #include "base/scoped_ptr.h"
-#include "chrome/browser/autocomplete/autocomplete.h"
 #include "chrome/browser/autocomplete/autocomplete_edit_view.h"
 #include "chrome/browser/toolbar_model.h"
 #include "chrome/common/owned_widget_gtk.h"
@@ -23,7 +22,6 @@ class AutocompletePopupViewGtk;
 class CommandUpdater;
 class Profile;
 class TabContents;
-class ToolbarModel;
 
 class AutocompleteEditViewGtk : public AutocompleteEditView {
  public:

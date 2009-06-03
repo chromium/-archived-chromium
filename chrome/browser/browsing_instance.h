@@ -6,9 +6,11 @@
 #define CHROME_BROWSER_BROWSING_INSTANCE_H__
 
 #include "base/hash_tables.h"
-#include "chrome/browser/profile.h"
-#include "googleurl/src/gurl.h"
+#include "base/logging.h"
+#include "base/ref_counted.h"
 
+class GURL;
+class Profile;
 class SiteInstance;
 
 ///////////////////////////////////////////////////////////////////////////////

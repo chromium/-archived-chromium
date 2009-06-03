@@ -5,7 +5,6 @@
 #ifndef CHROME_BROWSER_BROWSER_LIST_H__
 #define CHROME_BROWSER_BROWSER_LIST_H__
 
-#include <algorithm>
 #include <vector>
 
 #include "chrome/browser/browser.h"

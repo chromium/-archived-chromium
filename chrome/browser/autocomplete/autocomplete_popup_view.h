@@ -11,6 +11,8 @@
 #ifndef CHROME_BROWSER_AUTOCOMPLETE_AUTOCOMPLETE_POPUP_VIEW_H_
 #define CHROME_BROWSER_AUTOCOMPLETE_AUTOCOMPLETE_POPUP_VIEW_H_
 
+#include "build/build_config.h"
+
 class AutocompleteEditView;
 class AutocompletePopupModel;
 namespace gfx {

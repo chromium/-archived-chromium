@@ -8,7 +8,6 @@
 #include <string>
 
 #include "base/basictypes.h"
-#include "base/ref_counted.h"
 #include "chrome/common/ipc_message.h"
 
 class AutomationProvider;

@@ -6,6 +6,7 @@
 
 #include "app/l10n_util.h"
 #include "chrome/browser/cert_store.h"
+#include "chrome/browser/profile.h"
 #include "chrome/browser/ssl/ssl_error_info.h"
 #include "chrome/browser/tab_contents/navigation_controller.h"
 #include "chrome/browser/tab_contents/navigation_entry.h"

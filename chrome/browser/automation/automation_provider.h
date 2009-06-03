@@ -24,9 +24,9 @@
 #include "chrome/browser/history/history.h"
 #include "chrome/browser/tab_contents/navigation_entry.h"
 #include "chrome/common/ipc_message.h"
-#include "chrome/common/ipc_sync_channel.h"
+#include "chrome/common/ipc_channel.h"
 #include "chrome/common/notification_registrar.h"
-#include "chrome/test/automation/automation_messages.h"
+#include "chrome/test/automation/automation_constants.h"
 #if defined(OS_WIN)
 #include "views/event.h"
 #endif  // defined(OS_WIN)
@@ -34,8 +34,13 @@
 #if defined(OS_WIN)
 // TODO(port): enable these.
 #include "chrome/browser/automation/automation_constrained_window_tracker.h"
-enum AutomationMsg_NavigationResponseValues;
 #endif
+
+struct AutomationMsg_Find_Params;
+
+namespace IPC {
+struct Reposition_Params;
+}
 
 class LoginHandler;
 class NavigationControllerRestoredObserver;
