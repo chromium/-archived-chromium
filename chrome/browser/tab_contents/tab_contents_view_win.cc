@@ -570,7 +570,7 @@ void TabContentsViewWin::WasSized(const gfx::Size& size) {
     tab_contents()->render_widget_host_view()->SetSize(size);
 
   // TODO(brettw) this function can probably be moved to this class.
-  tab_contents()->RepositionSupressedPopupsToFit();
+  tab_contents()->RepositionSupressedPopupsToFit(size);
 }
 
 bool TabContentsViewWin::ScrollZoom(int scroll_type) {

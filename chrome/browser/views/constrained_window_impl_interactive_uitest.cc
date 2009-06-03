@@ -132,6 +132,14 @@ TEST_F(InteractiveConstrainedWindowTest, DontSpawnEndlessPopups) {
   scoped_refptr<TabProxy> popup_tab(popup_browser->GetTab(0));
   ASSERT_TRUE(popup_tab.get());
 
+  int constrained_window_count = 0;
+  ASSERT_TRUE(popup_tab->WaitForChildWindowCountToChange(
+                  0, &constrained_window_count, 10000));
+  ASSERT_EQ(1, constrained_window_count);
+  scoped_refptr<ConstrainedWindowProxy> constrained_window(
+      popup_tab->GetConstrainedWindow(0));
+  ASSERT_TRUE(constrained_window.get());
+
   // And now we spin, waiting to make sure that we don't spawn popup
   // windows endlessly. The current limit is 25, so allowing for possible race
   // conditions and one off errors, don't break out until we go over 30 popup
@@ -143,7 +151,9 @@ TEST_F(InteractiveConstrainedWindowTest, DontSpawnEndlessPopups) {
   int times_slept = 0;
   bool continuing = true;
   while (continuing && popup_window_count < kMaxPopupWindows) {
-    ASSERT_TRUE(popup_tab->GetBlockedPopupCount(&new_popup_window_count));
+    std::wstring title;
+    ASSERT_TRUE(constrained_window->GetTitle(&title));
+    ASSERT_TRUE(ParseCountOutOfTitle(title, &new_popup_window_count));
     if (new_popup_window_count == popup_window_count) {
       if (times_slept == 10) {
         continuing = false;
@@ -170,6 +180,8 @@ TEST_F(InteractiveConstrainedWindowTest, WindowOpenWindowClosePopup) {
 
   ASSERT_TRUE(automation()->WaitForWindowCountToBecome(2, 5000));
 
+  PlatformThread::Sleep(1000);
+
   // Make sure we have a blocked popup notification
   scoped_refptr<BrowserProxy> popup_browser(automation()->GetBrowserWindow(1));
   ASSERT_TRUE(popup_browser.get());
@@ -177,7 +189,14 @@ TEST_F(InteractiveConstrainedWindowTest, WindowOpenWindowClosePopup) {
   ASSERT_TRUE(popup_window.get());
   scoped_refptr<TabProxy> popup_tab(popup_browser->GetTab(0));
   ASSERT_TRUE(popup_tab.get());
-  ASSERT_TRUE(popup_tab->WaitForBlockedPopupCountToChangeTo(1, 1000));
+  scoped_refptr<ConstrainedWindowProxy> popup_notification(
+      popup_tab->GetConstrainedWindow(0));
+  ASSERT_TRUE(popup_notification.get());
+  std::wstring title;
+  ASSERT_TRUE(popup_notification->GetTitle(&title));
+  int count = 0;
+  ASSERT_TRUE(ParseCountOutOfTitle(title, &count));
+  ASSERT_EQ(1, count);
 
   // Ensure we didn't close the first popup window.
   ASSERT_FALSE(automation()->WaitForWindowCountToBecome(1, 3000));
@@ -195,8 +214,13 @@ TEST_F(InteractiveConstrainedWindowTest, BlockAlertFromBlockedPopup) {
   ASSERT_EQ(1, browser_window_count);
 
   // Ensure one blocked popup window: the popup didn't escape.
+  scoped_refptr<ConstrainedWindowProxy> popup_notification(
+      tab_->GetConstrainedWindow(0));
+  ASSERT_TRUE(popup_notification.get());
+  std::wstring title;
+  ASSERT_TRUE(popup_notification->GetTitle(&title));
   int popup_count = 0;
-  ASSERT_TRUE(tab_->GetBlockedPopupCount(&popup_count));
+  ASSERT_TRUE(ParseCountOutOfTitle(title, &popup_count));
   ASSERT_EQ(1, popup_count);
 }
 

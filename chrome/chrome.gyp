@@ -588,8 +588,6 @@
         'browser/back_forward_menu_model.h',
         'browser/back_forward_menu_model_views.cc',
         'browser/back_forward_menu_model_views.h',
-        'browser/blocked_popup_container.cc',
-        'browser/blocked_popup_container.h',
         'browser/bookmarks/bookmark_codec.cc',
         'browser/bookmarks/bookmark_codec.h',
         'browser/bookmarks/bookmark_context_menu_gtk.cc',

@@ -621,9 +621,48 @@ TEST_F(AutomationProxyTest, ConstrainedWindowTest) {
 
   ASSERT_TRUE(tab->NavigateToURL(net::FilePathToFileURL(filename)));
 
-  ASSERT_TRUE(tab->WaitForBlockedPopupCountToChangeTo(2, 5000));
+  int count;
+  ASSERT_TRUE(tab->WaitForChildWindowCountToChange(0, &count, 5000));
+
+  ASSERT_EQ(1, count);
+
+  scoped_refptr<ConstrainedWindowProxy> cwindow = tab->GetConstrainedWindow(0);
+  ASSERT_TRUE(cwindow.get());
+
+  std::wstring title;
+  ASSERT_TRUE(cwindow->GetTitle(&title));
+  std::wstring window_title = L"Pop-ups Blocked: 2";
+  ASSERT_STREQ(window_title.c_str(), title.c_str());
 }
 
+TEST_F(AutomationProxyTest, CantEscapeByOnloadMoveto) {
+  scoped_refptr<BrowserProxy> window(automation()->GetBrowserWindow(0));
+  ASSERT_TRUE(window.get());
+
+  scoped_refptr<TabProxy> tab(window->GetTab(0));
+  ASSERT_TRUE(tab.get());
+
+  FilePath filename(test_data_directory_);
+  filename = filename.AppendASCII("constrained_files");
+  filename = filename.AppendASCII("constrained_window_onload_moveto.html");
+
+  ASSERT_TRUE(tab->NavigateToURL(net::FilePathToFileURL(filename)));
+
+  int count;
+  ASSERT_TRUE(tab->WaitForChildWindowCountToChange(0, &count, 5000));
+
+  ASSERT_EQ(1, count);
+
+  scoped_refptr<ConstrainedWindowProxy> cwindow = tab->GetConstrainedWindow(0);
+  ASSERT_TRUE(cwindow.get());
+
+  gfx::Rect rect;
+  bool is_timeout = false;
+  ASSERT_TRUE(cwindow->GetBoundsWithTimeout(&rect, 1000, &is_timeout));
+  ASSERT_FALSE(is_timeout);
+  ASSERT_NE(20, rect.x());
+  ASSERT_NE(20, rect.y());
+}
 #endif  // defined(OS_WIN)
 
 // TODO(port): Remove HWND if possible
