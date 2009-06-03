@@ -42,16 +42,18 @@ void NativeTabContentsContainerWin::DetachContents(TabContents* contents) {
   // TODO(brettw) should this move to NativeViewHost::Detach which is called below?
   // It needs cleanup regardless.
   HWND container_hwnd = contents->GetNativeView();
+  if (container_hwnd) {
+    // Hide the contents before adjusting its parent to avoid a full desktop
+    // flicker.
+    ShowWindow(container_hwnd, SW_HIDE);
 
-  // Hide the contents before adjusting its parent to avoid a full desktop
-  // flicker.
-  ShowWindow(container_hwnd, SW_HIDE);
+    // Reset the parent to NULL to ensure hidden tabs don't receive messages.
+    ::SetParent(container_hwnd, NULL);
 
-  // Reset the parent to NULL to ensure hidden tabs don't receive messages.
-  ::SetParent(container_hwnd, NULL);
+    // Unregister the tab contents window from the FocusManager.
+    views::FocusManager::UninstallFocusSubclass(container_hwnd);
+  }
 
-  // Unregister the tab contents window from the FocusManager.
-  views::FocusManager::UninstallFocusSubclass(container_hwnd);
   HWND hwnd = contents->GetContentNativeView();
   if (hwnd) {
     // We may not have an HWND anymore, if the renderer crashed and we are

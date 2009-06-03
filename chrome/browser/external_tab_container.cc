@@ -59,10 +59,6 @@ bool ExternalTabContainer::Init(Profile* profile,
   // is the same as the lifetime of the window
   SetProp(GetNativeView(), kWindowObjectKey, this);
 
-  views::FocusManager* focus_manager =
-      views::FocusManager::GetFocusManager(GetNativeView());
-  focus_manager->AddKeystrokeListener(this);
-
   tab_contents_ = new TabContents(profile, NULL, MSG_ROUTING_NONE, NULL);
   tab_contents_->set_delegate(this);
   tab_contents_->render_view_host()->AllowExternalHostBindings();
@@ -250,14 +246,8 @@ ExtensionFunctionDispatcher* ExternalTabContainer::
 
 bool ExternalTabContainer::TakeFocus(bool reverse) {
   if (automation_) {
-    views::FocusManager* focus_manager =
-        views::FocusManager::GetFocusManager(GetNativeView());
-    DCHECK(focus_manager);
-    if (focus_manager) {
-      focus_manager->ClearFocus();
-      automation_->Send(new AutomationMsg_TabbedOut(0, tab_handle_,
-          win_util::IsShiftPressed()));
-    }
+    automation_->Send(new AutomationMsg_TabbedOut(0, tab_handle_,
+        win_util::IsShiftPressed()));
   }
 
   return true;
@@ -378,13 +368,6 @@ bool ExternalTabContainer::ProcessKeyStroke(HWND window, UINT message,
 // ExternalTabContainer, private:
 
 void ExternalTabContainer::Uninitialize(HWND window) {
-  if (::IsWindow(window)) {
-    views::FocusManager* focus_manager =
-        views::FocusManager::GetFocusManager(window);
-    if (focus_manager)
-      focus_manager->RemoveKeystrokeListener(this);
-  }
-
   if (tab_contents_) {
     NotificationService::current()->Notify(
         NotificationType::EXTERNAL_TAB_CLOSED,
