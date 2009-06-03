@@ -32,9 +32,6 @@ ToolbarStarToggleGtk::~ToolbarStarToggleGtk() {
 
 void ToolbarStarToggleGtk::ShowStarBubble(const GURL& url,
                                           bool newly_bookmarked) {
-// TODO(erg): Temporarily disabling the implementation of the bookmark bubble.
-// http://crbug.com/12259
-#if 0
   GtkWidget* widget = widget_.get();
   gint x, y;
   gdk_window_get_origin(widget->window, &x, &y);
@@ -43,11 +40,11 @@ void ToolbarStarToggleGtk::ShowStarBubble(const GURL& url,
   gint width = widget->allocation.width;
   gint height = widget->allocation.height;
 
-  BookmarkBubbleGtk::Show(gfx::Rect(x, y, width, height),
+  BookmarkBubbleGtk::Show(GTK_WINDOW(gtk_widget_get_toplevel(widget)),
+                          gfx::Rect(x, y, width, height),
                           NULL,
                           url,
                           newly_bookmarked);
-#endif
 }
 
 void ToolbarStarToggleGtk::SetStarred(bool starred) {

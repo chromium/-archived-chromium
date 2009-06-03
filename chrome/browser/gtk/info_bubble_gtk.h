@@ -39,7 +39,8 @@ class InfoBubbleGtk {
   // An infobubble will try to fit on the screen, so it can point to any edge
   // of |rect|.  The bubble will host the |content| widget.  The |delegate|
   // will be notified when things like closing are happening.
-  static InfoBubbleGtk* Show(const gfx::Rect& rect,
+  static InfoBubbleGtk* Show(GtkWindow* transient_toplevel,
+                             const gfx::Rect& rect,
                              GtkWidget* content,
                              InfoBubbleGtkDelegate* delegate);
 
@@ -52,7 +53,9 @@ class InfoBubbleGtk {
   virtual ~InfoBubbleGtk();
 
   // Creates the InfoBubble.
-  void Init(const gfx::Rect& rect, GtkWidget* content);
+  void Init(GtkWindow* transient_toplevel,
+            const gfx::Rect& rect,
+            GtkWidget* content);
 
   // Sets the delegate.
   void set_delegate(InfoBubbleGtkDelegate* delegate) { delegate_ = delegate; }

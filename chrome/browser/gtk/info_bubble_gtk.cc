@@ -116,11 +116,12 @@ gboolean HandleExpose(GtkWidget* widget,
 }  // namespace
 
 // static
-InfoBubbleGtk* InfoBubbleGtk::Show(const gfx::Rect& rect,
+InfoBubbleGtk* InfoBubbleGtk::Show(GtkWindow* transient_toplevel,
+                                   const gfx::Rect& rect,
                                    GtkWidget* content,
                                    InfoBubbleGtkDelegate* delegate) {
   InfoBubbleGtk* bubble = new InfoBubbleGtk();
-  bubble->Init(rect, content);
+  bubble->Init(transient_toplevel, rect, content);
   bubble->set_delegate(delegate);
   return bubble;
 }
@@ -130,18 +131,21 @@ InfoBubbleGtk::InfoBubbleGtk()
       window_(NULL),
       screen_x_(0),
       screen_y_(0) {
-      
+
 }
 
 InfoBubbleGtk::~InfoBubbleGtk() {
 }
 
-void InfoBubbleGtk::Init(const gfx::Rect& rect, GtkWidget* content) {
+void InfoBubbleGtk::Init(GtkWindow* transient_toplevel,
+                         const gfx::Rect& rect,
+                         GtkWidget* content) {
   DCHECK(!window_);
   screen_x_ = rect.x() + (rect.width() / 2) - kArrowX;
   screen_y_ = rect.y() + rect.height() + kArrowToContentPadding;
 
   window_ = gtk_window_new(GTK_WINDOW_TOPLEVEL);
+  gtk_window_set_transient_for(GTK_WINDOW(window_), transient_toplevel);
   gtk_window_set_decorated(GTK_WINDOW(window_), FALSE);
   gtk_window_set_resizable(GTK_WINDOW(window_), FALSE);
   gtk_widget_set_app_paintable(window_, TRUE);

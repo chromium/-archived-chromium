@@ -26,7 +26,8 @@ class Rect;
 class BookmarkBubbleGtk : public InfoBubbleGtkDelegate {
  public:
   // Shows the bookmark bubble, pointing at |rect|.
-  static void Show(const gfx::Rect& rect,
+  static void Show(GtkWindow* transient_toplevel,
+                   const gfx::Rect& rect,
                    Profile* profile,
                    const GURL& url,
                    bool newly_bookmarked);
@@ -38,7 +39,8 @@ class BookmarkBubbleGtk : public InfoBubbleGtkDelegate {
                                  bool closed_by_escape);
 
  private:
-  BookmarkBubbleGtk(const gfx::Rect& rect,
+  BookmarkBubbleGtk(GtkWindow* transient_toplevel,
+                    const gfx::Rect& rect,
                     Profile* profile,
                     const GURL& url,
                     bool newly_bookmarked);
