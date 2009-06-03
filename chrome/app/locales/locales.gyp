@@ -1,9 +1,7 @@
 {
   'variables': {
     'chromium_code': 1,
-    # Switch to with chrome.sln landing.
-    #'chrome_grit_out_dir': '<(SHARED_INTERMEDIATE_DIR)/chrome',
-    'chrome_grit_out_dir': '$(OutDir)/grit_derived_sources',
+    'chrome_grit_out_dir': '<(SHARED_INTERMEDIATE_DIR)/chrome',
     'app_grit_out_dir': '<(SHARED_INTERMEDIATE_DIR)/app',
     'webkit_grit_out_dir': '<(SHARED_INTERMEDIATE_DIR)/webkit',
 
