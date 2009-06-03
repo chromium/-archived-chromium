@@ -84,7 +84,7 @@ class AudioRendererBase : public AudioRenderer {
   size_t max_queue_size_;
 
   // Queued audio data.
-  typedef std::deque<Buffer*> BufferQueue;
+  typedef std::deque< scoped_refptr<Buffer> > BufferQueue;
   BufferQueue queue_;
   Lock lock_;
 

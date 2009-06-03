@@ -35,10 +35,7 @@ void AudioRendererBase::Stop() {
   OnStop();
 
   AutoLock auto_lock(lock_);
-  while (!queue_.empty()) {
-    queue_.front()->Release();
-    queue_.pop_front();
-  }
+  queue_.clear();
   stopped_ = true;
 }
 
@@ -52,7 +49,6 @@ void AudioRendererBase::Seek(base::TimeDelta time) {
   // TODO(hclam): we should preform prerolling again after each seek to avoid
   // glitch or clicking of audio.
   while (!queue_.empty()) {
-    queue_.front()->Release();
     queue_.pop_front();
     ScheduleRead();
   }
@@ -76,7 +72,6 @@ void AudioRendererBase::OnReadComplete(Buffer* buffer_in) {
   {
     AutoLock auto_lock(lock_);
     if (!stopped_) {
-      buffer_in->AddRef();
       queue_.push_back(buffer_in);
       DCHECK(queue_.size() <= max_queue_size_);
     }
@@ -110,7 +105,7 @@ size_t AudioRendererBase::FillBuffer(uint8* dest, size_t dest_len,
 
     // Loop until the buffer has been filled.
     while (dest_len > 0 && !queue_.empty()) {
-      Buffer* buffer = queue_.front();
+      scoped_refptr<Buffer> buffer = queue_.front();
 
       // Determine how much to copy.
       const uint8* data = buffer->GetData() + data_offset_;
@@ -169,7 +164,6 @@ size_t AudioRendererBase::FillBuffer(uint8* dest, size_t dest_len,
 
         // Dequeue the buffer.
         queue_.pop_front();
-        buffer->Release();
         ++buffers_released;
 
         // Reset our offset into the front buffer.
