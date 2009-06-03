@@ -3,6 +3,7 @@
 // found in the LICENSE file.
 
 #include "base/time.h"
+#include "build/build_config.h"
 #include "chrome/browser/autocomplete/search_provider.h"
 #include "chrome/browser/history/history.h"
 #include "chrome/browser/net/test_url_fetcher_factory.h"
@@ -139,7 +140,11 @@ void SearchProviderTest::RunTillProviderDone() {
     return;
 
   quit_when_done_ = true;
+#if defined(OS_WIN)
   message_loop_.Run(NULL);
+#elif defined(OS_POSIX)
+  message_loop_.Run();
+#endif
 }
 
 void SearchProviderTest::QueryForInput(const std::wstring& text) {

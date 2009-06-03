@@ -15,16 +15,16 @@ class PasswordFormManagerTest : public testing::Test {
   PasswordFormManagerTest() {
   }
   virtual void SetUp() {
-    observed_form_.origin = GURL(L"http://www.google.com/a/LoginAuth");
-    observed_form_.action = GURL(L"http://www.google.com/a/Login");
+    observed_form_.origin = GURL("http://www.google.com/a/LoginAuth");
+    observed_form_.action = GURL("http://www.google.com/a/Login");
     observed_form_.username_element = L"Email";
     observed_form_.password_element = L"Passwd";
     observed_form_.submit_element = L"signIn";
     observed_form_.signon_realm = "http://www.google.com";
 
     saved_match_ = observed_form_;
-    saved_match_.origin = GURL(L"http://www.google.com/a/ServiceLoginAuth");
-    saved_match_.action = GURL(L"http://www.google.com/a/ServiceLogin");
+    saved_match_.origin = GURL("http://www.google.com/a/ServiceLoginAuth");
+    saved_match_.action = GURL("http://www.google.com/a/ServiceLogin");
     saved_match_.preferred = true;
     saved_match_.username_value = L"test@gmail.com";
     saved_match_.password_value = L"test1";
@@ -168,8 +168,8 @@ TEST_F(PasswordFormManagerTest, TestIgnoreResult) {
 
   saved_match()->ssl_valid = false;
   // Different paths for action / origin are okay.
-  saved_match()->action = GURL(L"http://www.google.com/b/Login");
-  saved_match()->origin = GURL(L"http://www.google.com/foo");
+  saved_match()->action = GURL("http://www.google.com/b/Login");
+  saved_match()->origin = GURL("http://www.google.com/foo");
   EXPECT_FALSE(IgnoredResult(manager, saved_match()));
 
   // Done.

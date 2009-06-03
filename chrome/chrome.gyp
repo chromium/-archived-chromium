@@ -3316,13 +3316,14 @@
           },
         }, { # else: OS != "win"
           'sources!': [
-            'browser/autocomplete/search_provider_unittest.cc',
             'browser/bookmarks/bookmark_codec_unittest.cc',
             'browser/bookmarks/bookmark_drag_data_unittest.cc',
             'browser/bookmarks/bookmark_folder_tree_model_unittest.cc',
             'browser/bookmarks/bookmark_table_model_unittest.cc',
+            # Need to port browser_with_test_window_test.* first
             'browser/browser_commands_unittest.cc',
             'browser/browser_unittest.cc',
+            # Need to port browser/automation/ui_controls.h
             'browser/debugger/devtools_sanity_unittest.cc',
             'browser/extensions/extension_process_manager_unittest.cc',
             'browser/extensions/extension_view_unittest.cc',
@@ -3330,7 +3331,6 @@
             'browser/importer/firefox_importer_unittest.cc',
             'browser/importer/importer_unittest.cc',
             'browser/login_prompt_unittest.cc',
-            'browser/password_manager/password_form_manager_unittest.cc',
             'browser/printing/page_number_unittest.cc',
             'browser/printing/page_overlays_unittest.cc',
             'browser/printing/print_job_unittest.cc',
