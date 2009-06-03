@@ -11,6 +11,6 @@
 	/>
 	<Tool
 		Name="VCResourceCompilerTool"
-                AdditionalIncludeDirectories="$(OutDir)\obj\global_intermediate\webkit;$(OutDir)\obj\global_intermediate\chrome"
+                AdditionalIncludeDirectories="$(OutDir)\obj\global_intermediate\webkit;$(OutDir)\grit_derived_sources"
 	/>
 </VisualStudioPropertySheet>

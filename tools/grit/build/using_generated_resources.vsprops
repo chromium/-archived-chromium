@@ -6,6 +6,6 @@
 	>
 	<Tool
 		Name="VCCLCompilerTool"
-                AdditionalIncludeDirectories="&quot;$(OutDir)\obj\global_intermediate\chrome&quot;;&quot;$(SolutionDir)\$(configurationName)\obj\global_intermediate\chrome&quot;;&quot;$(OutDir)\obj\global_intermediate\net&quot;;&quot;$(OutDir)\obj\global_intermediate\webkit&quot;"
+                AdditionalIncludeDirectories="&quot;$(OutDir)\grit_derived_sources&quot;;&quot;$(SolutionDir)\$(configurationName)\grit_derived_sources&quot;;&quot;$(OutDir)\obj\global_intermediate\net&quot;;&quot;$(OutDir)\obj\global_intermediate\webkit&quot;"
 	/>
 </VisualStudioPropertySheet>

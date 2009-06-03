@@ -2765,7 +2765,7 @@
 			>
 		</File>
 		<File
-			RelativePath="$(OutDir)\obj\global_intermediate\chrome\grit\theme_resources_map.cc"
+			RelativePath="$(OutDir)\grit_derived_sources\grit\theme_resources_map.cc"
 			>
 		</File>
 		<File

@@ -318,7 +318,7 @@
 				>
 			</File>
 			<File
-				RelativePath="$(OutDir)\obj\global_intermediate\chrome\browser_resources.rc"
+				RelativePath="$(OutDir)\grit_derived_sources\browser_resources.rc"
 				>
 			</File>
 			<File
@@ -342,7 +342,7 @@
 				>
 			</File>
 			<File
-				RelativePath="$(OutDir)\obj\global_intermediate\chrome\common_resources.rc"
+				RelativePath="$(OutDir)\grit_derived_sources\common_resources.rc"
 				>
 			</File>
 			<File
@@ -350,7 +350,7 @@
 				>
 			</File>
 			<File
-				RelativePath="$(OutDir)\obj\global_intermediate\chrome\debugger_resources.rc"
+				RelativePath="$(OutDir)\grit_derived_sources\debugger_resources.rc"
 				>
 			</File>
 			<File
@@ -358,7 +358,7 @@
 				>
 			</File>
 			<File
-				RelativePath="$(OutDir)\obj\global_intermediate\chrome\renderer_resources.rc"
+				RelativePath="$(OutDir)\grit_derived_sources\renderer_resources.rc"
 				>
 			</File>
 			<File
