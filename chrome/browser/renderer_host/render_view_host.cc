@@ -732,6 +732,8 @@ void RenderViewHost::OnMessageReceived(const IPC::Message& msg) {
     IPC_MESSAGE_HANDLER(ViewHostMsg_UpdateEncoding, OnMsgUpdateEncoding)
     IPC_MESSAGE_HANDLER(ViewHostMsg_UpdateTargetURL, OnMsgUpdateTargetURL)
     IPC_MESSAGE_HANDLER(ViewHostMsg_Thumbnail, OnMsgThumbnail)
+    IPC_MESSAGE_HANDLER(ViewHostMsg_UpdateInspectorSettings,
+                        OnUpdateInspectorSettings);
     IPC_MESSAGE_HANDLER(ViewHostMsg_Close, OnMsgClose)
     IPC_MESSAGE_HANDLER(ViewHostMsg_RequestMove, OnMsgRequestMove)
     IPC_MESSAGE_HANDLER(ViewHostMsg_DidStartLoading, OnMsgDidStartLoading)
@@ -982,6 +984,11 @@ void RenderViewHost::OnMsgThumbnail(const GURL& url,
                                     const ThumbnailScore& score,
                                     const SkBitmap& bitmap) {
   delegate_->UpdateThumbnail(url, bitmap, score);
+}
+
+void RenderViewHost::OnUpdateInspectorSettings(
+    const std::wstring& raw_settings) {
+  delegate_->UpdateInspectorSettings(raw_settings);
 }
 
 void RenderViewHost::OnMsgClose() {

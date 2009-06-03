@@ -291,6 +291,8 @@ class RenderView : public RenderWidget,
 
   virtual void DownloadUrl(const GURL& url, const GURL& referrer);
 
+  virtual void UpdateInspectorSettings(const std::wstring& raw_settings);
+
   virtual WebDevToolsAgentDelegate* GetWebDevToolsAgentDelegate();
 
   virtual void PasteFromSelectionClipboard();

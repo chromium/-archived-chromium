@@ -12,13 +12,17 @@ MSVC_PUSH_WARNING_LEVEL(0);
 #include "InspectorController.h"
 #include "Page.h"
 #include "Settings.h"
+#include <wtf/Vector.h>
 MSVC_POP_WARNING();
 
 #undef LOG
 #include "base/logging.h"
 #include "base/gfx/rect.h"
+#include "base/string_util.h"
 #include "webkit/api/public/WebRect.h"
+#include "webkit/glue/glue_util.h"
 #include "webkit/glue/inspector_client_impl.h"
+#include "webkit/glue/webdevtoolsagent_impl.h"
 #include "webkit/glue/webkit_glue.h"
 #include "webkit/glue/weburlrequest.h"
 #include "webkit/glue/webview_impl.h"
@@ -188,15 +192,107 @@ String WebInspectorClient::hiddenPanels() {
 }
 
 void WebInspectorClient::populateSetting(
-    const String& key, InspectorController::Setting&) {
-  NOTIMPLEMENTED();
+    const String& key,
+    InspectorController::Setting& setting) {
+  LoadSettings();
+  if (settings_->contains(key))
+    setting = settings_->get(key);
 }
 
 void WebInspectorClient::storeSetting(
-    const String& key, const InspectorController::Setting&) {
-  NOTIMPLEMENTED();
+    const String& key,
+    const InspectorController::Setting& setting) {
+  LoadSettings();
+  settings_->set(key, setting);
+  SaveSettings();
 }
 
 void WebInspectorClient::removeSetting(const String& key) {
-  NOTIMPLEMENTED();
+  LoadSettings();
+  settings_->remove(key);
+  SaveSettings();
+}
+
+void WebInspectorClient::LoadSettings() {
+  if (settings_)
+    return;
+
+  settings_.set(new SettingsMap);
+  String data = webkit_glue::StdWStringToString(
+      inspected_web_view_->GetPreferences().inspector_settings);
+  if (data.isEmpty())
+    return;
+
+  Vector<String> entries;
+  data.split("\n", entries);
+  for (Vector<String>::iterator it = entries.begin();
+       it != entries.end(); ++it) {
+    Vector<String> tokens;
+    it->split(":", tokens);
+    if (tokens.size() != 3)
+      continue;
+
+    String name = decodeURLEscapeSequences(tokens[0]);
+    String type = tokens[1];
+    InspectorController::Setting setting;
+    bool ok = true;
+    if (type == "string")
+      setting.set(decodeURLEscapeSequences(tokens[2]));
+    else if (type == "double")
+      setting.set(tokens[2].toDouble(&ok));
+    else if (type == "integer")
+      setting.set(static_cast<long>(tokens[2].toInt(&ok)));
+    else if (type == "boolean")
+      setting.set(tokens[2] == "true");
+    else
+      continue;
+
+    if (ok)
+      settings_->set(name, setting);
+  }
+}
+
+void WebInspectorClient::SaveSettings() {
+  String data;
+  for (SettingsMap::iterator it = settings_->begin(); it != settings_->end();
+       ++it) {
+    String entry;
+    InspectorController::Setting value = it->second;
+    String name = encodeWithURLEscapeSequences(it->first);
+    switch (value.type()) {
+      case InspectorController::Setting::StringType:
+        entry = String::format(
+            "%s:string:%s",
+            name.utf8().data(),
+            encodeWithURLEscapeSequences(value.string())).utf8().data();
+        break;
+      case InspectorController::Setting::DoubleType:
+        entry = String::format(
+            "%s:double:%f",
+            name.utf8().data(),
+            value.doubleValue());
+        break;
+      case InspectorController::Setting::IntegerType:
+        entry = String::format(
+            "%s:integer:%d",
+            name.utf8().data(),
+            value.integerValue());
+        break;
+      case InspectorController::Setting::BooleanType:
+        entry = String::format("%s:boolean:%s",
+                               name.utf8().data(),
+                               value.booleanValue() ? "true" : "false");
+        break;
+      case InspectorController::Setting::StringVectorType:
+        NOTIMPLEMENTED();
+        break;
+      default:
+        NOTREACHED();
+        break;
+    }
+    data.append(entry);
+    data.append("\n");
+  }
+  inspected_web_view_->delegate()->UpdateInspectorSettings(
+      webkit_glue::StringToStdWString(data));
 }

@@ -44,6 +44,7 @@ extern const wchar_t kWebKitPluginsEnabled[];
 extern const wchar_t kWebKitDomPasteEnabled[];
 extern const wchar_t kWebKitShrinksStandaloneImagesToFit[];
 extern const wchar_t kWebKitDeveloperExtrasEnabled[];
+extern const wchar_t kWebKitInspectorSettings[];
 extern const wchar_t kWebKitUsesUniversalDetector[];
 extern const wchar_t kWebKitTextAreasAreResizable[];
 extern const wchar_t kWebKitJavaEnabled[];

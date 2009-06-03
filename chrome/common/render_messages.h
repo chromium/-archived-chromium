@@ -1523,6 +1523,7 @@ struct ParamTraits<WebPreferences> {
     WriteParam(m, p.plugins_enabled);
     WriteParam(m, p.dom_paste_enabled);
     WriteParam(m, p.developer_extras_enabled);
+    WriteParam(m, p.inspector_settings);
     WriteParam(m, p.shrinks_standalone_images_to_fit);
     WriteParam(m, p.uses_universal_detector);
     WriteParam(m, p.text_areas_are_resizable);
@@ -1552,6 +1553,7 @@ struct ParamTraits<WebPreferences> {
         ReadParam(m, iter, &p->plugins_enabled) &&
         ReadParam(m, iter, &p->dom_paste_enabled) &&
         ReadParam(m, iter, &p->developer_extras_enabled) &&
+        ReadParam(m, iter, &p->inspector_settings) &&
         ReadParam(m, iter, &p->shrinks_standalone_images_to_fit) &&
         ReadParam(m, iter, &p->uses_universal_detector) &&
         ReadParam(m, iter, &p->text_areas_are_resizable) &&

@@ -6,6 +6,9 @@
 #define WEBKIT_GLUE_INSPECTOR_CLIENT_IMPL_H__
 
 #include "InspectorClient.h"
+#include "InspectorController.h"
+#include <wtf/OwnPtr.h>
+
 #include "base/ref_counted.h"
 
 class WebNodeHighlight;
@@ -36,16 +39,25 @@ public:
   virtual void inspectedURLChanged(const WebCore::String& newURL);
 
   virtual void populateSetting(
-      const WebCore::String& key, WebCore::InspectorController::Setting&);
+      const WebCore::String& key,
+      WebCore::InspectorController::Setting&);
   virtual void storeSetting(
-      const WebCore::String& key, const WebCore::InspectorController::Setting&);
+      const WebCore::String& key,
+      const WebCore::InspectorController::Setting&);
   virtual void removeSetting(const WebCore::String& key);
 
 private:
   ~WebInspectorClient();
 
+  void LoadSettings();
+  void SaveSettings();
+
   // The WebViewImpl of the page being inspected; gets passed to the constructor
   scoped_refptr<WebViewImpl> inspected_web_view_;
+
+  typedef HashMap<WebCore::String, WebCore::InspectorController::Setting>
+      SettingsMap;
+  OwnPtr<SettingsMap> settings_;
 
   // The WebView of the Inspector popup window
   WebViewImpl* inspector_web_view_;

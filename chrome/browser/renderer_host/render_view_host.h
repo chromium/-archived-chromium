@@ -527,6 +527,7 @@ class RenderViewHost : public RenderWidgetHost {
                              const std::wstring& source_id);
   void OnDebuggerOutput(const std::wstring& output);
   void DidDebugAttach();
+  void OnUpdateInspectorSettings(const std::wstring& raw_settings);
   void OnForwardToDevToolsAgent(const IPC::Message& message);
   void OnForwardToDevToolsClient(const IPC::Message& message);
   void OnUserMetricsRecordAction(const std::wstring& action);

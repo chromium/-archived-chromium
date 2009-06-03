@@ -142,6 +142,8 @@ WebPreferences RenderViewHostDelegateHelper::GetWebkitPrefs(
       prefs->GetBoolean(prefs::kWebKitDomPasteEnabled);
   web_prefs.shrinks_standalone_images_to_fit =
       prefs->GetBoolean(prefs::kWebKitShrinksStandaloneImagesToFit);
+  web_prefs.inspector_settings =
+      prefs->GetString(prefs::kWebKitInspectorSettings);
 
   {  // Command line switches are used for preferences with no user interface.
     const CommandLine& command_line = *CommandLine::ForCurrentProcess();

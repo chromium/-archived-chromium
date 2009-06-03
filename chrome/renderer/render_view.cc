@@ -2539,6 +2539,10 @@ void RenderView::DownloadUrl(const GURL& url, const GURL& referrer) {
   Send(new ViewHostMsg_DownloadUrl(routing_id_, url, referrer));
 }
 
+void RenderView::UpdateInspectorSettings(const std::wstring& raw_settings) {
+  Send(new ViewHostMsg_UpdateInspectorSettings(routing_id_, raw_settings));
+}
+
 WebDevToolsAgentDelegate* RenderView::GetWebDevToolsAgentDelegate() {
   return devtools_agent_.get();
 }

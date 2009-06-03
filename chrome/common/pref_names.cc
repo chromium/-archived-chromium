@@ -117,6 +117,8 @@ const wchar_t kWebKitShrinksStandaloneImagesToFit[] =
     L"webkit.webprefs.shrinks_standalone_images_to_fit";
 const wchar_t kWebKitDeveloperExtrasEnabled[] =
     L"webkit.webprefs.developer_extras_enabled";
+const wchar_t kWebKitInspectorSettings[] =
+    L"webkit.webprefs.inspector_settings";
 const wchar_t kWebKitUsesUniversalDetector[] =
     L"webkit.webprefs.uses_universal_detector";
 const wchar_t kWebKitTextAreasAreResizable[] =

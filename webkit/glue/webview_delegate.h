@@ -745,6 +745,10 @@ class WebViewDelegate : virtual public WebWidgetDelegate {
 
   virtual void DownloadUrl(const GURL& url, const GURL& referrer) { }
 
+  // InspectorClient ---------------------------------------------------------
+
+  virtual void UpdateInspectorSettings(const std::wstring& raw_settings) { }
+
   // DevTools ----------------------------------------------------------------
 
   virtual WebDevToolsAgentDelegate* GetWebDevToolsAgentDelegate() {

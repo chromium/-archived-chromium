@@ -364,6 +364,8 @@ void TabContents::RegisterUserPrefs(PrefService* prefs) {
                              pref_defaults.shrinks_standalone_images_to_fit);
   prefs->RegisterBooleanPref(prefs::kWebKitDeveloperExtrasEnabled,
                              pref_defaults.developer_extras_enabled);
+  prefs->RegisterStringPref(prefs::kWebKitInspectorSettings,
+                            pref_defaults.inspector_settings);
   prefs->RegisterBooleanPref(prefs::kWebKitTextAreasAreResizable,
                              pref_defaults.text_areas_are_resizable);
   prefs->RegisterBooleanPref(prefs::kWebKitJavaEnabled,
@@ -1772,6 +1774,11 @@ void TabContents::UpdateThumbnail(const GURL& url,
       (hs = profile()->GetHistoryService(Profile::IMPLICIT_ACCESS))) {
     hs->SetPageThumbnail(url, bitmap, score);
   }
+}
+
+void TabContents::UpdateInspectorSettings(const std::wstring& raw_settings) {
+  profile()->GetPrefs()->SetString(prefs::kWebKitInspectorSettings,
+                                   raw_settings);
 }
 
 void TabContents::Close(RenderViewHost* rvh) {
