@@ -1,9 +1,9 @@
-// Copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
+// Copyright (c) 2006-2009 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CHROME_INSTALLER_MINI_INSTALLER_PE_RESOURCE__
-#define CHROME_INSTALLER_MINI_INSTALLER_PE_RESOURCE__
+#ifndef CHROME_INSTALLER_MINI_INSTALLER_PE_RESOURCE_
+#define CHROME_INSTALLER_MINI_INSTALLER_PE_RESOURCE_
 
 #include <windows.h>
 
@@ -38,4 +38,4 @@ class PEResource {
   HMODULE module_;
 };
 
-#endif  // CHROME_INSTALLER_MINI_INSTALLER_PE_RESOURCE__
+#endif  // CHROME_INSTALLER_MINI_INSTALLER_PE_RESOURCE_

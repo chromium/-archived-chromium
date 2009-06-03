@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
+// Copyright (c) 2006-2009 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
@@ -10,7 +10,7 @@ PEResource::PEResource(HRSRC resource, HMODULE module)
 
 PEResource::PEResource(const wchar_t* name, const wchar_t* type, HMODULE module)
     : resource_(NULL), module_(module) {
-  resource_ = ::FindResourceW(module, name, type);
+  resource_ = ::FindResource(module, name, type);
 }
 
 bool PEResource::IsValid() {
@@ -33,7 +33,7 @@ bool PEResource::WriteToDisk(const wchar_t* full_path) {
     return false;
   }
   size_t resource_size = Size();
-  HANDLE out_file = ::CreateFileW(full_path, GENERIC_WRITE, 0, NULL,
+  HANDLE out_file = ::CreateFile(full_path, GENERIC_WRITE, 0, NULL,
                                   CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
   if (INVALID_HANDLE_VALUE == out_file) {
     return false;
