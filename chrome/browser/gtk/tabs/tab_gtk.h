@@ -81,6 +81,7 @@ class TabGtk : public TabRendererGtk {
   virtual bool IsVisible() const;
   virtual void SetVisible(bool visible) const;
   virtual void CloseButtonClicked();
+  virtual void UpdateData(TabContents* contents, bool loading_only);
 
   // The callback that is called for every gdk event.  We use it to inspect for
   // drag-motion events when the drag is outside of the source tab.

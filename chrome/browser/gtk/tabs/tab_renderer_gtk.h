@@ -77,7 +77,7 @@ class TabRendererGtk : public AnimationDelegate {
   // TabContents. If only the loading state was updated, the loading_only flag
   // should be specified. If other things change, set this flag to false to
   // update everything.
-  void UpdateData(TabContents* contents, bool loading_only);
+  virtual void UpdateData(TabContents* contents, bool loading_only);
 
   // Updates the display to reflect the contents of this TabRenderer's model.
   void UpdateFromModel();

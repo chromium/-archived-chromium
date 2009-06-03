@@ -270,6 +270,20 @@ void TabGtk::CloseButtonClicked() {
   delegate_->CloseTab(this);
 }
 
+void TabGtk::UpdateData(TabContents* contents, bool loading_only) {
+  TabRendererGtk::UpdateData(contents, loading_only);
+  std::wstring title = GetTitle();
+  if (!title.empty()) {
+    // Only show the tooltip if the title is truncated.
+    gfx::Font font;
+    if (font.GetStringWidth(title) > title_bounds().width()) {
+      gtk_widget_set_tooltip_text(widget(), WideToUTF8(title).c_str());
+    } else {
+      gtk_widget_set_has_tooltip(widget(), FALSE);
+    }
+  }
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 // TabGtk, private:
 
