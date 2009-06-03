@@ -73,7 +73,8 @@ gfx::Size Separator::GetPreferredSize() {
 
 void Separator::Layout() {
   if (native_wrapper_) {
-    native_wrapper_->SetBounds(0, 0, width(), height());
+    int y = static_cast<int>((height() - kSeparatorSize) / 2);
+    native_wrapper_->SetBounds(0, y, width(), kSeparatorSize);
     native_wrapper_->Layout();
   }
 }
