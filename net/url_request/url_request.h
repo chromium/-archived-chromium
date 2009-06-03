@@ -377,7 +377,9 @@ class URLRequest {
 
   // This method may be called at any time after Start() has been called to
   // cancel the request.  This method may be called many times, and it has
-  // no effect once the response has completed.
+  // no effect once the response has completed.  It is guaranteed that no
+  // methods of the delegate will be called after the request has been
+  // cancelled, including during the call to Cancel itself.
   void Cancel();
 
   // Cancels the request and sets the error to |os_error| (see net_error_list.h
@@ -396,8 +398,8 @@ class URLRequest {
   // If data is available, Read will return true, and the data and length will
   // be returned immediately.  If data is not available, Read returns false,
   // and an asynchronous Read is initiated.  The Read is finished when
-  // the caller receives the OnReadComplete callback.  OnReadComplete will be
-  // always be called, even if there was a failure.
+  // the caller receives the OnReadComplete callback.  Unless the request was
+  // cancelled, OnReadComplete will always be called, even if the read failed.
   //
   // The buf parameter is a buffer to receive the data.  If the operation
   // completes asynchronously, the implementation will reference the buffer

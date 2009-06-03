@@ -1000,7 +1000,7 @@ void ResourceDispatcherHost::BeginRequestInternal(URLRequest* request) {
   // If enqueing/starting this request will exceed our per-process memory
   // bound, abort it right away.
   if (memory_cost > max_outstanding_requests_cost_per_process_) {
-    // We call "CancelWithError()" as a way of setting the URLRequest's
+    // We call "SimulateError()" as a way of setting the URLRequest's
     // status -- it has no effect beyond this, since the request hasn't started.
     request->SimulateError(net::ERR_INSUFFICIENT_RESOURCES);
 
