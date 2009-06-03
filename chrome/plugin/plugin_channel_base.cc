@@ -47,12 +47,13 @@ PluginChannelBase::PluginChannelBase()
       peer_pid_(0),
       in_remove_route_(false),
       channel_valid_(false),
-      in_dispatch_(0),
       send_unblocking_only_during_dispatch_(false) {
 }
 
 PluginChannelBase::~PluginChannelBase() {
 }
+
+int PluginChannelBase::in_dispatch_ = 0;
 
 void PluginChannelBase::CleanupChannels() {
   // Make a copy of the references as we can't iterate the map since items will

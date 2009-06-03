@@ -110,7 +110,7 @@ class PluginChannelBase : public IPC::Channel::Listener,
 
   // Track whether we're within a dispatch; works like a refcount, 0 when we're
   // not.
-  int in_dispatch_;
+  static int in_dispatch_;
 
   // If true, sync messages will only be marked as unblocking if the channel is
   // in the middle of dispatching a message.

@@ -8,10 +8,15 @@
 
 namespace NPAPIClient {
 
+// Remember the first plugin instance for tests involving multiple instances
+WindowlessPluginTest* g_other_instance = NULL;
+
 WindowlessPluginTest::WindowlessPluginTest(
     NPP id, NPNetscapeFuncs *host_functions, const std::string& test_name)
   : PluginTest(id, host_functions),
     test_name_(test_name) {
+  if (!g_other_instance)
+    g_other_instance = this;
 }
 
 int16 WindowlessPluginTest::HandleEvent(void* event) {
@@ -28,8 +33,7 @@ int16 WindowlessPluginTest::HandleEvent(void* event) {
   }
 
   NPEvent* np_event = reinterpret_cast<NPEvent*>(event);
-  if (WM_PAINT == np_event->event &&
-      test_name_ == "execute_script_delete_in_paint") {
+  if (WM_PAINT == np_event->event) {
     HDC paint_dc = reinterpret_cast<HDC>(np_event->wParam);
     if (paint_dc == NULL) {
       SetError("Invalid Window DC passed to HandleEvent for WM_PAINT");
@@ -47,39 +51,57 @@ int16 WindowlessPluginTest::HandleEvent(void* event) {
 
     DeleteObject(clipping_region);
 
-    NPUTF8* urlString = "javascript:DeletePluginWithinScript()";
-    NPUTF8* targetString = NULL;
-    browser->geturl(id(), urlString, targetString);
-    SignalTestCompleted();
+    if (test_name_ == "execute_script_delete_in_paint") {
+      ExecuteScriptDeleteInPaint(browser);
+    } else if (test_name_ == "multiple_instances_sync_calls") {
+      MultipleInstanceSyncCalls(browser);
+    }
+
   } else if (WM_MOUSEMOVE == np_event->event &&
              test_name_ == "execute_script_delete_in_mouse_move") {
-    std::string script = "javascript:DeletePluginWithinScript()";
-    NPString script_string;
-    script_string.UTF8Characters = script.c_str();
-    script_string.UTF8Length = static_cast<unsigned int>(script.length());
-
-    NPObject *window_obj = NULL;
-    browser->getvalue(id(), NPNVWindowNPObject, &window_obj);
-    NPVariant result_var;
-    NPError result = browser->evaluate(id(), window_obj,
-                                       &script_string, &result_var);
+    ExecuteScript(browser, id(), "DeletePluginWithinScript();", NULL);
     SignalTestCompleted();
   } else if (WM_LBUTTONUP == np_event->event &&
             test_name_ == "delete_frame_test") {
-    std::string script =
-        "javascript:parent.document.getElementById('frame').outerHTML = ''";
-    NPString script_string;
-    script_string.UTF8Characters = script.c_str();
-    script_string.UTF8Length = static_cast<unsigned int>(script.length());
-
-    NPObject *window_obj = NULL;
-    browser->getvalue(id(), NPNVWindowNPObject, &window_obj);
-    NPVariant result_var;
-    NPError result = browser->evaluate(id(), window_obj,
-                                       &script_string, &result_var);
+    ExecuteScript(
+        browser, id(),
+        "parent.document.getElementById('frame').outerHTML = ''", NULL);
   }
   // If this test failed, then we'd have crashed by now.
   return PluginTest::HandleEvent(event);
+}
+
+NPError WindowlessPluginTest::ExecuteScript(NPNetscapeFuncs* browser, NPP id,
+    const std::string& script, NPVariant* result) {
+  std::string script_url = "javascript:";
+  script_url += script;
+
+  NPString script_string = { script_url.c_str(), script_url.length() };
+  NPObject *window_obj = NULL;
+  browser->getvalue(id, NPNVWindowNPObject, &window_obj);
+
+  NPVariant unused_result;
+  if (!result)
+    result = &unused_result;
+
+  return browser->evaluate(id, window_obj, &script_string, result);
+}
+
+void WindowlessPluginTest::ExecuteScriptDeleteInPaint(
+    NPNetscapeFuncs* browser) {
+  NPUTF8* urlString = "javascript:DeletePluginWithinScript()";
+  NPUTF8* targetString = NULL;
+  browser->geturl(id(), urlString, targetString);
+  SignalTestCompleted();
+}
+
+void WindowlessPluginTest::MultipleInstanceSyncCalls(NPNetscapeFuncs* browser) {
+  if (this == g_other_instance)
+    return;
+
+  DCHECK(g_other_instance);
+  ExecuteScript(browser, g_other_instance->id(), "TestCallback();", NULL);
+  SignalTestCompleted();
 }
 
 } // namespace NPAPIClient

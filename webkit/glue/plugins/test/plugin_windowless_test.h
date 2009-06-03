@@ -19,6 +19,12 @@ class WindowlessPluginTest : public PluginTest {
   // NPAPI HandleEvent handler
   virtual int16 HandleEvent(void* event);
 
+ protected:
+  NPError ExecuteScript(NPNetscapeFuncs* browser, NPP id,
+      const std::string& script, NPVariant* result);
+  void ExecuteScriptDeleteInPaint(NPNetscapeFuncs* browser);
+  void MultipleInstanceSyncCalls(NPNetscapeFuncs* browser);
+
  private:
   std::string test_name_;
 };

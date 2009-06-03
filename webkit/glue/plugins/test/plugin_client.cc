@@ -109,7 +109,8 @@ NPError NPP_New(NPMIMEType pluginType, NPP instance, uint16 mode,
   // TODO(port): plugin_windowless_test.*.
   } else if (test_name == "execute_script_delete_in_paint" ||
              test_name == "execute_script_delete_in_mouse_move" ||
-             test_name == "delete_frame_test") {
+             test_name == "delete_frame_test" ||
+             test_name == "multiple_instances_sync_calls") {
     new_test = new NPAPIClient::WindowlessPluginTest(instance,
       NPAPIClient::PluginClient::HostFunctions(), test_name);
     windowless_plugin = true;

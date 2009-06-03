@@ -284,3 +284,16 @@ TEST_F(NPAPIIncognitoTester, PrivateEnabled) {
   WaitForFinish("private", "1", url, kTestCompleteCookie,
                 kTestCompleteSuccess, kShortWaitTimeout);
 }
+
+// Test a browser hang due to special case of multiple
+// plugin instances indulged in sync calls across renderer.
+TEST_F(NPAPIVisiblePluginTester, MultipleInstancesSyncCalls) {
+  if (UITest::in_process_renderer())
+    return;
+
+  GURL url = GetTestUrl(L"npapi", L"multiple_instances_sync_calls.html");
+  NavigateToURL(url);
+  WaitForFinish("multiple_instances_sync_calls", "1", url, kTestCompleteCookie,
+                kTestCompleteSuccess, kShortWaitTimeout);
+}
+
