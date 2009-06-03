@@ -9,9 +9,9 @@ namespace installer {
 const wchar_t kWowHelperExe[] = L"wow_helper.exe";
 const wchar_t kDictionaries[] = L"Dictionaries";
 const wchar_t kChromeArchive[] = L"chrome.7z";
-const wchar_t kChromePatchArchive[] = L"patch.7z";
+const wchar_t kChromeArchivePatch[] = L"chrome_patch.diff";
 const wchar_t kChromeCompressedArchive[] = L"chrome.packed.7z";
-const wchar_t kChromeCompressedPatchArchivePrefix[] = L"patch";
+const wchar_t kChromeCompressedPatchArchivePrefix[] = L"chrome_patch";
 
 // Sub directory of install source package under install temporary directory.
 const wchar_t kInstallSourceDir[] = L"source";
@@ -19,4 +19,6 @@ const wchar_t kInstallSourceChromeDir[] = L"Chrome-bin";
 
 const wchar_t kMediaPlayerRegPath[] =
     L"Software\\Microsoft\\MediaPlayer\\ShimInclusionList";
+
+const wchar_t kSetupExePatch[] = L"setup_patch.diff";
 }  // namespace installer

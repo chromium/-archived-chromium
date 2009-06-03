@@ -52,7 +52,7 @@ int PatchArchiveFile(bool system_install, const std::wstring& archive_path,
   file_util::AppendToPath(&existing_archive, installer::kChromeArchive);
 
   std::wstring patch_archive(archive_path);
-  file_util::AppendToPath(&patch_archive, installer::kChromePatchArchive);
+  file_util::AppendToPath(&patch_archive, installer::kChromeArchivePatch);
 
   LOG(INFO) << "Applying patch " << patch_archive
             << " to file " << existing_archive
@@ -81,8 +81,8 @@ int PatchArchiveFile(bool system_install, const std::wstring& archive_path,
 //
 // This method first uncompresses archive specified by parameter "archive"
 // and assumes that it will result in an uncompressed full archive file
-// (chrome.7z) or uncompressed patch archive file (patch.7z). If it is patch
-// archive file, the patch is applied to the old archive file that should be
+// (chrome.7z) or uncompressed archive patch file (chrome_patch.diff). If it
+// is patch file, it is applied to the old archive file that should be
 // present on the system already. As the final step the new archive file
 // is unpacked in the path specified by parameter "path".
 DWORD UnPackArchive(const std::wstring& archive, bool system_install,
@@ -107,11 +107,12 @@ DWORD UnPackArchive(const std::wstring& archive, bool system_install,
     if (ret != NO_ERROR)
       return ret;
 
-    std::wstring archive_name = file_util::GetFilenameFromPath(archive);
     std::wstring uncompressed_archive(temp_path);
     file_util::AppendToPath(&uncompressed_archive, installer::kChromeArchive);
+
     // Check if this is differential update and if it is, patch it to the
     // installer archive that should already be on the machine.
+    std::wstring archive_name = file_util::GetFilenameFromPath(archive);
     std::wstring prefix = installer::kChromeCompressedPatchArchivePrefix;
     if ((archive_name.size() >= prefix.size()) &&
         (std::equal(prefix.begin(), prefix.end(), archive_name.begin(),
@@ -520,27 +521,58 @@ bool HandleNonInstallCmdLineOptions(const CommandLine& cmd_line,
 
     // If --update-setup-exe command line option is given, we apply the given
     // patch to current exe, and store the resulting binary in the path
-    // specified by --new-setup-exe.
-    std::wstring old_setup_exe = cmd_line.program();
-    std::wstring setup_patch = cmd_line.GetSwitchValue(
-        installer_util::switches::kUpdateSetupExe);
-    std::wstring new_setup_exe = cmd_line.GetSwitchValue(
-        installer_util::switches::kNewSetupExe);
-    LOG(INFO) << "Patching " << old_setup_exe << " with patch "
-              << setup_patch << " and creating new exe " << new_setup_exe;
-
-    // Try Courgette first.
-    courgette::Status patch_status = courgette::ApplyEnsemblePatch(
-        old_setup_exe.c_str(), setup_patch.c_str(), new_setup_exe.c_str());
-
-    // If courgette didn't work, try regular bspatch.
-    if (patch_status != courgette::C_OK) {
-      LOG(WARNING) << "setup patch failed using courgette " << patch_status;
-      if (!ApplyBinaryPatch(old_setup_exe.c_str(), setup_patch.c_str(),
-                            new_setup_exe.c_str()))
-        status = installer_util::NEW_VERSION_UPDATED;
+    // specified by --new-setup-exe. But we need to first unpack the file
+    // given in --update-setup-exe.
+    std::wstring temp_path;
+    if (!file_util::CreateNewTempDirectory(std::wstring(L"chrome_"),
+                                           &temp_path)) {
+      LOG(ERROR) << "Could not create temporary path.";
+      status = installer_util::SETUP_PATCH_FAILED;
     } else {
-      status = installer_util::NEW_VERSION_UPDATED;
+      std::wstring setup_patch = cmd_line.GetSwitchValue(
+          installer_util::switches::kUpdateSetupExe);
+      LOG(INFO) << "Opening archive " << setup_patch;
+      DWORD ret = NO_ERROR;
+      installer::LzmaUtil util;
+      if ((ret = util.OpenArchive(setup_patch)) != NO_ERROR) {
+        LOG(ERROR) << "Unable to open install archive: " << setup_patch;
+      } else {
+        LOG(INFO) << "Uncompressing archive to path " << temp_path;
+        if ((ret = util.UnPack(temp_path)) != NO_ERROR) {
+          LOG(ERROR) << "Error during uncompression: " << ret;
+        }
+        util.CloseArchive();
+      }
+
+      if (ret != NO_ERROR) {
+        status = installer_util::SETUP_PATCH_FAILED;
+      } else {
+        std::wstring old_setup_exe = cmd_line.program();
+        std::wstring uncompressed_setup_patch(temp_path);
+        file_util::AppendToPath(&uncompressed_setup_patch,
+                                installer::kSetupExePatch);
+        std::wstring new_setup_exe = cmd_line.GetSwitchValue(
+            installer_util::switches::kNewSetupExe);
+        LOG(INFO) << "Patching " << old_setup_exe
+                  << " with patch " << uncompressed_setup_patch
+                  << " and creating new exe " << new_setup_exe;
+
+        // Try Courgette first.
+        courgette::Status patch_status = courgette::ApplyEnsemblePatch(
+            old_setup_exe.c_str(), uncompressed_setup_patch.c_str(),
+            new_setup_exe.c_str());
+
+        // If courgette didn't work, try regular bspatch.
+        if (patch_status != courgette::C_OK) {
+          LOG(WARNING) << "setup patch failed using courgette " << patch_status;
+          if (!ApplyBinaryPatch(old_setup_exe.c_str(),
+                                uncompressed_setup_patch.c_str(),
+                                new_setup_exe.c_str()))
+            status = installer_util::NEW_VERSION_UPDATED;
+        } else {
+          status = installer_util::NEW_VERSION_UPDATED;
+        }
+      }
     }
 
     // If the current patching worked reset the flag set in the registry
