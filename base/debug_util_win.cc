@@ -7,6 +7,8 @@
 #include <windows.h>
 #include <dbghelp.h>
 
+#include <iostream>
+
 #include "base/basictypes.h"
 #include "base/lock.h"
 #include "base/logging.h"
@@ -130,7 +132,7 @@ class SymbolContext {
 
   // Returns the process this was initialized for.  This should only be
   // called if Init() has been called.  We LOG(ERROR) in this situation.
-  // LOG(FATAL) is not used because this code is might be triggered 
+  // LOG(FATAL) is not used because this code is might be triggered
   // by a LOG(FATAL) itself.
   HANDLE process() {
     if (!initialized_) {
@@ -146,7 +148,7 @@ class SymbolContext {
   // to the ostream os.  The format for each line of the backtrace is:
   //
   //    <tab>SymbolName[0xAddress+Offset] (FileName:LineNo)
-  // 
+  //
   // This function should only be called if Init() has been called.  We do not
   // LOG(FATAL) here because this code is called might be triggered by a
   // LOG(FATAL) itself.

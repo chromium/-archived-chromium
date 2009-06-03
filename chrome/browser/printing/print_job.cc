@@ -5,6 +5,7 @@
 #include "chrome/browser/printing/print_job.h"
 
 #include "base/message_loop.h"
+#include "base/timer.h"
 #include "chrome/browser/printing/print_job_worker.h"
 #include "chrome/browser/printing/printed_document.h"
 #include "chrome/browser/printing/printed_page.h"

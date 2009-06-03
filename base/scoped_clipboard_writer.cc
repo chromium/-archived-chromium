@@ -8,6 +8,7 @@
 // base/clipboard.h.
 #include "base/scoped_clipboard_writer.h"
 
+#include "base/gfx/size.h"
 #include "base/string_util.h"
 
 ScopedClipboardWriter::ScopedClipboardWriter(Clipboard* clipboard)

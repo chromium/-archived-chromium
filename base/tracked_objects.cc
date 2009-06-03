@@ -6,6 +6,7 @@
 
 #include <math.h>
 
+#include "base/message_loop.h"
 #include "base/string_util.h"
 
 using base::TimeDelta;

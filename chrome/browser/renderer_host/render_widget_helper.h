@@ -5,6 +5,8 @@
 #ifndef CHROME_BROWSER_RENDEDER_HOST_RENDER_WIDGET_HELPER_H_
 #define CHROME_BROWSER_RENDEDER_HOST_RENDER_WIDGET_HELPER_H_
 
+#include <map>
+
 #include "base/atomic_sequence_num.h"
 #include "base/hash_tables.h"
 #include "base/process.h"

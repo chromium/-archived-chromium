@@ -6,6 +6,7 @@
 
 #include "base/basictypes.h"
 #include "base/clipboard.h"
+#include "base/gfx/size.h"
 #include "base/message_loop.h"
 #include "base/scoped_clipboard_writer.h"
 #include "base/string_util.h"

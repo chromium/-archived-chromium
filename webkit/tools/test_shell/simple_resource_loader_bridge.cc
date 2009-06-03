@@ -35,6 +35,7 @@
 #include "base/message_loop.h"
 #include "base/ref_counted.h"
 #include "base/time.h"
+#include "base/timer.h"
 #include "base/thread.h"
 #include "base/waitable_event.h"
 #include "net/base/cookie_monster.h"

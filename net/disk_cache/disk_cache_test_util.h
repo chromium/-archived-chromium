@@ -10,6 +10,7 @@
 #include "base/file_path.h"
 #include "base/message_loop.h"
 #include "base/task.h"
+#include "base/timer.h"
 
 // Re-creates a given test file inside the cache test folder.
 bool CreateCacheTestFile(const wchar_t* name);

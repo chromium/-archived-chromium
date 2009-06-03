@@ -18,6 +18,7 @@
 #include <deque>
 
 #include "base/condition_variable.h"
+#include "base/lock.h"
 #include "media/base/filters.h"
 
 namespace media {

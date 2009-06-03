@@ -9,6 +9,7 @@
 #include <vector>
 
 #include "base/condition_variable.h"
+#include "base/lock.h"
 #include "base/logging.h"
 #include "base/platform_thread.h"
 #include "base/scoped_ptr.h"

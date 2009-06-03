@@ -7,6 +7,7 @@
 
 #include <string>
 
+#include "base/scoped_ptr.h"
 #include "base/waitable_event.h"
 #include "media/base/buffers.h"
 #include "media/base/factory.h"

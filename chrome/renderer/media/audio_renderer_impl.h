@@ -91,6 +91,7 @@
 #ifndef CHROME_RENDERER_MEDIA_AUDIO_RENDERER_IMPL_H_
 #define CHROME_RENDERER_MEDIA_AUDIO_RENDERER_IMPL_H_
 
+#include "base/scoped_ptr.h"
 #include "base/lock.h"
 #include "base/shared_memory.h"
 #include "base/waitable_event.h"

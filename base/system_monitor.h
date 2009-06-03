@@ -5,8 +5,7 @@
 #ifndef BASE_SYSTEM_MONITOR_H_
 #define BASE_SYSTEM_MONITOR_H_
 
-#include "base/observer_list_threadsafe.h"
-#include "base/singleton.h"
+#include "build/build_config.h"
 
 // Windows HiRes timers drain the battery faster so we need to know the battery
 // status.  This isn't true for other platforms.
@@ -15,6 +14,12 @@
 #else
 #undef ENABLE_BATTERY_MONITORING
 #endif  // !OS_WIN
+
+#include "base/observer_list_threadsafe.h"
+#include "base/singleton.h"
+#if defined(ENABLE_BATTERY_MONITORING)
+#include "base/timer.h"
+#endif  // defined(ENABLE_BATTERY_MONITORING)
 
 namespace base {
 

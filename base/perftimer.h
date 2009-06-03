@@ -6,9 +6,11 @@
 #define BASE_PERFTIMER_H_
 
 #include <string>
+
 #include "base/basictypes.h"
-#include "base/file_path.h"
 #include "base/time.h"
+
+class FilePath;
 
 // ----------------------------------------------------------------------
 // Initializes and finalizes the perf log. These functions should be

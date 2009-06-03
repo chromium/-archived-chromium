@@ -14,12 +14,9 @@
 #if defined(OS_POSIX)
 #include <list>
 #include <utility>
-#include "base/condition_variable.h"
 #include "base/lock.h"
 #include "base/ref_counted.h"
 #endif
-
-#include "base/message_loop.h"
 
 namespace base {
 

@@ -5,10 +5,8 @@
 #ifndef BASE_MESSAGE_LOOP_H_
 #define BASE_MESSAGE_LOOP_H_
 
-#include <deque>
 #include <queue>
 #include <string>
-#include <vector>
 
 #include "base/histogram.h"
 #include "base/message_pump.h"
@@ -16,7 +14,6 @@
 #include "base/ref_counted.h"
 #include "base/scoped_ptr.h"
 #include "base/task.h"
-#include "base/timer.h"
 
 #if defined(OS_WIN)
 // We need this to declare base::MessagePumpWin::Dispatcher, which we should

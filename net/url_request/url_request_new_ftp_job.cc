@@ -4,6 +4,7 @@
 
 #include "net/url_request/url_request_new_ftp_job.h"
 
+#include "base/compiler_specific.h"
 #include "base/file_version_info.h"
 #include "base/message_loop.h"
 #include "net/base/escape.h"

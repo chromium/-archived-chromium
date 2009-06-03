@@ -48,6 +48,7 @@
 #include "base/observer_list.h"
 #include "base/ref_counted.h"
 #include "base/time.h"
+#include "base/timer.h"
 #include "chrome/browser/cancelable_request.h"
 #include "chrome/browser/history/download_types.h"
 #include "chrome/browser/history/history.h"

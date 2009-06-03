@@ -36,6 +36,7 @@
 #include <map>
 #include <deque>
 
+#include "base/lock.h"
 #include "base/process.h"
 #include "base/ref_counted.h"
 #include "base/shared_memory.h"
@@ -44,7 +45,6 @@
 #include "media/audio/audio_output.h"
 
 class AudioManager;
-class Lock;
 class MessageLoop;
 struct ViewHostMsg_Audio_CreateStream;
 

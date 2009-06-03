@@ -65,6 +65,15 @@
 #ifndef BASE_CONDITION_VARIABLE_H_
 #define BASE_CONDITION_VARIABLE_H_
 
+#include "build/build_config.h"
+
+#if defined(OS_WIN)
+#include <windows.h>
+#elif defined(OS_POSIX)
+#include <pthread.h>
+#endif
+
+#include "base/basictypes.h"
 #include "base/lock.h"
 
 namespace base {

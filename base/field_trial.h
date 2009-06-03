@@ -66,7 +66,6 @@
 #include <string>
 
 #include "base/lock.h"
-#include "base/non_thread_safe.h"
 #include "base/ref_counted.h"
 #include "base/time.h"
 

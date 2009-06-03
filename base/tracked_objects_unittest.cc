@@ -5,6 +5,8 @@
 // Test of classes in the tracked_objects.h classes.
 
 #include "base/tracked_objects.h"
+
+#include "base/message_loop.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
 namespace tracked_objects {

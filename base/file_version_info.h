@@ -8,7 +8,6 @@
 #include <string>
 
 #include "base/basictypes.h"
-#include "base/file_path.h"
 #include "base/scoped_ptr.h"
 
 #if defined(OS_WIN)
@@ -21,6 +20,8 @@ typedef tagVS_FIXEDFILEINFO VS_FIXEDFILEINFO;
 class NSBundle;
 #endif
 #endif
+
+class FilePath;
 
 // Provides a way to access the version information for a file.
 // This is the information you access when you select a file in the Windows

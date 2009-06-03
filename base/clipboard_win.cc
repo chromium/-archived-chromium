@@ -11,6 +11,8 @@
 #include <shellapi.h>
 
 #include "base/clipboard_util.h"
+#include "base/file_path.h"
+#include "base/gfx/size.h"
 #include "base/lock.h"
 #include "base/logging.h"
 #include "base/message_loop.h"

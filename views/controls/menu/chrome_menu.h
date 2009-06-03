@@ -15,6 +15,7 @@
 #include "base/gfx/rect.h"
 #include "base/message_loop.h"
 #include "base/task.h"
+#include "base/timer.h"
 #include "third_party/skia/include/core/SkBitmap.h"
 #include "views/controls/menu/controller.h"
 #include "views/event.h"

@@ -9,10 +9,14 @@
 #include <string>
 #include <vector>
 
-#include "base/file_path.h"
 #include "base/process.h"
 #include "base/string16.h"
-#include "base/gfx/size.h"
+
+namespace gfx {
+class Size;
+}
+
+class FilePath;
 
 class Clipboard {
  public:

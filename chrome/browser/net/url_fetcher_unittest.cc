@@ -4,6 +4,7 @@
 
 #include "base/thread.h"
 #include "base/time.h"
+#include "base/timer.h"
 #include "chrome/browser/net/url_fetcher.h"
 #include "chrome/browser/net/url_fetcher_protect.h"
 #include "chrome/common/chrome_plugin_lib.h"

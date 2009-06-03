@@ -4,6 +4,7 @@
 
 #include "base/clipboard.h"
 
+#include "base/gfx/size.h"
 #include "base/logging.h"
 
 namespace {

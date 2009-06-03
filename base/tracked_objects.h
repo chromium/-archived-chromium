@@ -5,16 +5,16 @@
 #ifndef BASE_TRACKED_OBJECTS_H_
 #define BASE_TRACKED_OBJECTS_H_
 
-//------------------------------------------------------------------------------
 #include <map>
 #include <string>
 #include <vector>
 
 #include "base/lock.h"
-#include "base/message_loop.h"
+#include "base/task.h"
 #include "base/thread_local_storage.h"
 #include "base/tracked.h"
 
+class MessageLoop;
 
 namespace tracked_objects {
 

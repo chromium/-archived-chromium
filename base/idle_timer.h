@@ -33,7 +33,6 @@
 #endif
 
 #include "base/basictypes.h"
-#include "base/task.h"
 #include "base/timer.h"
 
 namespace base {
