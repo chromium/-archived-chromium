@@ -237,7 +237,7 @@ void BookmarkManagerGtk::BuildRightStore() {
 
     if (child->is_url()) {
       if (model_->GetFavIcon(node).width() != 0) {
-        gfx::GdkPixbufFromSkBitmap(&model_->GetFavIcon(node));
+        pixbuf = gfx::GdkPixbufFromSkBitmap(&model_->GetFavIcon(node));
       } else {
         pixbuf = bookmark_utils::GetDefaultFavicon();
         g_object_ref(pixbuf);
