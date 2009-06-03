@@ -3454,27 +3454,6 @@
           },
         }],
       ],
-      'targets': [
-        {
-          'target_name': 'convert_dict',
-          'type': 'executable',
-          'msvs_guid': '42ECD5EC-722F-41DE-B6B8-83764C8016DF',
-          'msvs_existing_vcproj': 'tools/convert_dict/convert_dict.vcproj',
-          'dependencies': [
-            '../base/base.gyp:base',
-            'third_party/hunspell/hunspell.gyp:hunspell',
-          ],
-          'sources': [
-            'tools/convert_dict/aff_reader.cc',
-            'tools/convert_dict/aff_reader.h',
-            'tools/convert_dict/convert_dict.cc',
-            'tools/convert_dict/dic_reader.cc',
-            'tools/convert_dict/dic_reader.h',
-            'tools/convert_dict/hunspell_reader.cc',
-            'tools/convert_dict/hunspell_reader.h',
-          ],
-        },
-      ],
     }],
     ['OS=="mac"',
       # On Mac only, add a project target called "build_app_dmg" that only
@@ -3510,6 +3489,24 @@
       ]
     }, { # else: OS != "mac"
       'targets': [
+        {
+          'target_name': 'convert_dict',
+          'type': 'executable',
+          'msvs_guid': '42ECD5EC-722F-41DE-B6B8-83764C8016DF',
+          'dependencies': [
+            '../base/base.gyp:base',
+            'third_party/hunspell/hunspell.gyp:hunspell',
+          ],
+          'sources': [
+            'tools/convert_dict/aff_reader.cc',
+            'tools/convert_dict/aff_reader.h',
+            'tools/convert_dict/convert_dict.cc',
+            'tools/convert_dict/dic_reader.cc',
+            'tools/convert_dict/dic_reader.h',
+            'tools/convert_dict/hunspell_reader.cc',
+            'tools/convert_dict/hunspell_reader.h',
+          ],
+        },
         {
           'target_name': 'flush_cache',
           'type': 'executable',
@@ -3915,32 +3912,6 @@
         #    },
         #  },
         #},
-        {
-          'target_name': 'convert_dict',
-          'type': 'executable',
-          'msvs_guid': '42ECD5EC-722F-41DE-B6B8-83764C8016DF',
-          'msvs_existing_vcproj': 'tools/convert_dict/convert_dict.vcproj',
-          'dependencies': [
-            '../base/base.gyp:base',
-          ],
-          'include_dirs': [
-            '..',
-          ],
-          'sources': [
-            'third_party/hunspell/google/bdict.h',
-            'third_party/hunspell/google/bdict_reader.cc',
-            'third_party/hunspell/google/bdict_reader.h',
-            'third_party/hunspell/google/bdict_writer.cc',
-            'third_party/hunspell/google/bdict_writer.h',
-            'tools/convert_dict/aff_reader.cc',
-            'tools/convert_dict/aff_reader.h',
-            'tools/convert_dict/convert_dict.cc',
-            'tools/convert_dict/dic_reader.cc',
-            'tools/convert_dict/dic_reader.h',
-            'tools/convert_dict/hunspell_reader.cc',
-            'tools/convert_dict/hunspell_reader.h',
-          ],
-        },
         {
           'target_name': 'crash_service',
           'type': 'executable',
