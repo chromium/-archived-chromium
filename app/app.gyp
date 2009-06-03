@@ -77,8 +77,6 @@
         'gfx/color_utils.cc',
         'gfx/color_utils.h',
         'gfx/favicon_size.h',
-        'gfx/gtk_util.cc',
-        'gfx/gtk_util.h',
         'gfx/icon_util.cc',
         'gfx/icon_util.h',
         'gfx/insets.h',

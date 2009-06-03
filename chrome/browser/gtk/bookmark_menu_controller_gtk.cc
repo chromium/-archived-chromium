@@ -6,9 +6,9 @@
 
 #include <gtk/gtk.h>
 
-#include "app/gfx/gtk_util.h"
 #include "app/l10n_util.h"
 #include "app/resource_bundle.h"
+#include "base/gfx/gtk_util.h"
 #include "base/string_util.h"
 #include "chrome/browser/bookmarks/bookmark_context_menu.h"
 #include "chrome/browser/gtk/menu_gtk.h"

@@ -7,7 +7,7 @@
 #include <gdk/gdk.h>
 
 #include "app/gfx/canvas.h"
-#include "app/gfx/gtk_util.h"
+#include "base/gfx/gtk_util.h"
 #include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/browser/tabs/tab_strip_model.h"
 #include "chrome/browser/gtk/tabs/tab_renderer_gtk.h"

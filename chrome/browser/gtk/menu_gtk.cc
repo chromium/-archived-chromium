@@ -4,8 +4,8 @@
 
 #include "chrome/browser/gtk/menu_gtk.h"
 
-#include "app/gfx/gtk_util.h"
 #include "app/l10n_util.h"
+#include "base/gfx/gtk_util.h"
 #include "base/logging.h"
 #include "base/stl_util-inl.h"
 #include "base/string_util.h"

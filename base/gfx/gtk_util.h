@@ -13,7 +13,10 @@
 #include "base/scoped_ptr.h"
 
 typedef struct _GdkColor GdkColor;
+typedef struct _GdkPixbuf GdkPixbuf;
 typedef struct _GdkRegion GdkRegion;
+
+class SkBitmap;
 
 // Define a macro for creating GdkColors from RGB values.  This is a macro to
 // allow static construction of literals, etc.  Use this like:
@@ -27,6 +30,10 @@ class Rect;
 extern const GdkColor kGdkWhite;
 extern const GdkColor kGdkBlack;
 extern const GdkColor kGdkGreen;
+
+// Convert and copy a SkBitmap to a GdkPixbuf. NOTE: this uses BGRAToRGBA, so
+// it is an expensive operation.
+GdkPixbuf* GdkPixbufFromSkBitmap(const SkBitmap* bitmap);
 
 // Modify the given region by subtracting the given rectangles.
 void SubtractRectanglesFromRegion(GdkRegion* region,

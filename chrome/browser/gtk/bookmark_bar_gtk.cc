@@ -4,7 +4,6 @@
 
 #include "chrome/browser/gtk/bookmark_bar_gtk.h"
 
-#include "app/gfx/gtk_util.h"
 #include "app/gfx/text_elider.h"
 #include "app/l10n_util.h"
 #include "app/resource_bundle.h"

@@ -6,9 +6,9 @@
 
 #include <gtk/gtk.h>
 
-#include "app/gfx/gtk_util.h"
 #include "app/l10n_util.h"
 #include "app/resource_bundle.h"
+#include "base/gfx/gtk_util.h"
 #include "base/process_util.h"
 #include "chrome/browser/browser_list.h"
 #include "chrome/common/logging_chrome.h"

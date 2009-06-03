@@ -4,7 +4,7 @@
 
 #include "chrome/browser/browser_theme_provider.h"
 
-#include "app/gfx/gtk_util.h"
+#include "base/gfx/gtk_util.h"
 #include "base/logging.h"
 
 GdkPixbuf* BrowserThemeProvider::GetPixbufNamed(int id) {
