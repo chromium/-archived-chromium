@@ -2390,6 +2390,7 @@
             '../sandbox/sandbox.gyp:sandbox',
             '../views/views.gyp:views',
             'worker',
+            'app/locales/locales.gyp:*',
           ],
           'msvs_settings': {
             'VCLinkerTool': {
@@ -3579,7 +3580,6 @@
           'target_name': 'pull_in_all',
           'type': 'none',
           'dependencies': [
-            'app/locales/locales.gyp:*',
             'installer/installer.gyp:*',
             '../app/app.gyp:*',
             '../base/base.gyp:*',
