@@ -3945,7 +3945,6 @@
           'target_name': 'crash_service',
           'type': 'executable',
           'msvs_guid': '89C1C190-A5D1-4EC4-BD6A-67FF2195C7CC',
-          'msvs_existing_vcproj': 'tools/crash_service/crash_service.vcproj',
           'dependencies': [
             'common',
             '../base/base.gyp:base',
@@ -3970,7 +3969,6 @@
           'target_name': 'generate_profile',
           'type': 'executable',
           'msvs_guid': '2E969AE9-7B12-4EDB-8E8B-48C7AE7BE357',
-          'msvs_existing_vcproj': 'tools/profiles/generate_profile.vcproj',
           'dependencies': [
             'browser',
             'debugger',
