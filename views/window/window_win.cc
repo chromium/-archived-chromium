@@ -191,6 +191,13 @@ static BOOL CALLBACK SendDwmCompositionChanged(HWND window, LPARAM param) {
 }  // namespace
 
 void WindowWin::FrameTypeChanged() {
+  // If we're not on Aero Glass, we don't care doing any of the DWM stuff. Just 
+  // tell the NCV to update and leave it there.
+  if (!win_util::ShouldUseVistaFrame()) {
+    non_client_view_->UpdateFrame();
+    return;
+  }
+
   // The window may try to paint in SetUseNativeFrame, and as a result it can
   // get into a state where it is very unhappy with itself - rendering black
   // behind the entire client area. This is because for some reason the
