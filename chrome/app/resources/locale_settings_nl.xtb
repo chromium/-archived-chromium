@@ -28,7 +28,7 @@
 <translation id="IDS_BUGREPORT_DIALOG_WIDTH_CHARS">85</translation>
 <translation id="IDS_BUGREPORT_DIALOG_HEIGHT_LINES">17</translation>
 <translation id="IDS_CLEARDATA_DIALOG_WIDTH_CHARS">67</translation>
-<translation id="IDS_CLEARDATA_DIALOG_HEIGHT_LINES">15.5</translation>
+<translation id="IDS_CLEARDATA_DIALOG_HEIGHT_LINES">16</translation>
 <translation id="IDS_IMPORT_DIALOG_WIDTH_CHARS">60</translation>
 <translation id="IDS_IMPORT_DIALOG_HEIGHT_LINES">14</translation>
 <translation id="IDS_ABOUT_DIALOG_WIDTH_CHARS">83</translation>

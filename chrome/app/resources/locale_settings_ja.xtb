@@ -28,9 +28,7 @@
 <translation id="IDS_BUGREPORT_DIALOG_WIDTH_CHARS">85</translation>
 <translation id="IDS_BUGREPORT_DIALOG_HEIGHT_LINES">17</translation>
 <translation id="IDS_CLEARDATA_DIALOG_WIDTH_CHARS">68</translation>
-
 <translation id="IDS_CLEARDATA_DIALOG_HEIGHT_LINES">17</translation>
-
 <translation id="IDS_IMPORT_DIALOG_WIDTH_CHARS">60</translation>
 <translation id="IDS_IMPORT_DIALOG_HEIGHT_LINES">14</translation>
 <translation id="IDS_ABOUT_DIALOG_WIDTH_CHARS">83</translation>
@@ -59,9 +57,7 @@
 <translation id="IDS_FIRSTRUNBUBBLE_DIALOG_WIDTH_CHARS">93</translation>
 <translation id="IDS_FIRSTRUNBUBBLE_DIALOG_HEIGHT_LINES">12</translation>
 <translation id="IDS_FIRSTRUNOEMBUBBLE_DIALOG_WIDTH_CHARS">70</translation>
-
 <translation id="IDS_FIRSTRUNOEMBUBBLE_DIALOG_HEIGHT_LINES">4</translation>
-
 <translation id="IDS_STATIC_ENCODING_LIST">Shift_JIS,EUC-JP,ISO-2022-JP</translation>
 <translation id="IDS_BOOKMARK_MANAGER_DIALOG_WIDTH_CHARS">150</translation>
 <translation id="IDS_BOOKMARK_MANAGER_DIALOG_HEIGHT_LINES">40</translation>
