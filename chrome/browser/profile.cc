@@ -98,6 +98,9 @@ URLRequestContext* Profile::GetDefaultRequestContext() {
 // #include "chrome/browser/password_manager/password_store_kwallet.h"
 #elif defined(OS_WIN)
 #include "chrome/browser/password_manager/password_store_win.h"
+#elif defined(OS_MACOSX)
+#include "chrome/browser/keychain_mac.h"
+#include "chrome/browser/password_manager/password_store_mac.h"
 #endif
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -799,6 +802,8 @@ void ProfileImpl::CreatePasswordStore() {
   NOTIMPLEMENTED();
 #elif defined(OS_WIN)
   ps = new PasswordStoreWin(GetWebDataService(Profile::IMPLICIT_ACCESS));
+#elif defined(OS_MACOSX)
+  ps = new PasswordStoreMac(new MacKeychain());
 #else
   NOTIMPLEMENTED();
 #endif
