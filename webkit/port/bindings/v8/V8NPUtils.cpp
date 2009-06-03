@@ -99,7 +99,7 @@ v8::Handle<v8::Value> convertNPVariantToV8Object(const NPVariant* variant, NPObj
         NPObject* obj = NPVARIANT_TO_OBJECT(*variant);
         if (obj->_class == npScriptObjectClass)
             return reinterpret_cast<V8NPObject*>(obj)->v8Object;
-        return CreateV8ObjectForNPObject(obj, npobject);
+        return createV8ObjectForNPObject(obj, npobject);
     }
     return v8::Undefined();
 }

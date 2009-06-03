@@ -411,7 +411,7 @@ void _NPN_UnregisterObject(NPObject* obj) {
             g_live_objects.remove(sub_object);
 
             // Remove the JS references to the object.
-            ForgetV8ObjectForNPObject(sub_object);
+            forgetV8ObjectForNPObject(sub_object);
 
             ASSERT(set->size() < size);
         }
@@ -427,7 +427,7 @@ void _NPN_UnregisterObject(NPObject* obj) {
     }
 
     g_live_objects.remove(obj);
-    ForgetV8ObjectForNPObject(obj);
+    forgetV8ObjectForNPObject(obj);
 }
 
 bool _NPN_IsAlive(NPObject* obj) {
