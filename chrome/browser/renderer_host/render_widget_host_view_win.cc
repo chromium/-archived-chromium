@@ -1025,7 +1025,18 @@ LRESULT RenderWidgetHostViewWin::OnMouseEvent(UINT message, WPARAM wparam,
         // Give the TabContents first crack at the message. It may want to
         // prevent forwarding to the renderer if some higher level browser
         // functionality is invoked.
-        if (SendMessage(GetParent(), message, wparam, lparam) != 0)
+        LPARAM parent_msg_lparam = lparam;
+        if (message != WM_MOUSELEAVE) {
+          // For the messages except WM_MOUSELEAVE, before forwarding them to
+          // parent window, we should adjust cursor position from client
+          // coordinates in current window to client coordinates in its parent
+          // window.
+          CPoint cursor_pos(GET_X_LPARAM(lparam), GET_Y_LPARAM(lparam));
+          ClientToScreen(&cursor_pos);
+          GetParent().ScreenToClient(&cursor_pos);
+          parent_msg_lparam = MAKELPARAM(cursor_pos.x, cursor_pos.y);
+        }
+        if (SendMessage(GetParent(), message, wparam, parent_msg_lparam) != 0)
           return 1;
       }
     }
