@@ -52,7 +52,7 @@ deps = {
     "http://o3d.googlecode.com/svn/trunk/googleclient/third_party/skia@" + Var("o3d_code_rev"),
 
   "o3d/third_party/v8":
-    "http://o3d.googlecode.com/svn/trunk/googleclient/third_party/v8@" + Var("o3d_code_rev"),
+    "http://v8.googlecode.com/svn/trunk@2055",
 
   "o3d/third_party/vectormath":
     "http://o3d.googlecode.com/svn/trunk/googleclient/third_party/vectormath@" + Var("o3d_code_rev"),
@@ -72,7 +72,7 @@ deps = {
     "http://nativeclient.googlecode.com/svn/trunk/nacl/googleclient/native_client@188",
 
   "o3d/third_party/breakpad/files":
-    "http://google-breakpad.googlecode.com/svn/trunk/@329",
+    "http://google-breakpad.googlecode.com/svn/trunk@339",
 
   "o3d/third_party/nixysa/files":
     "http://nixysa.googlecode.com/svn/trunk/nixysa@" + Var("nixysa_rev"),
@@ -87,7 +87,7 @@ deps = {
     "http://google-gflags.googlecode.com/svn/trunk@30",
 
   "o3d/third_party/gtest/files":
-    "http://googletest.googlecode.com/svn/tags/release-1.2.1",
+    "http://googletest.googlecode.com/svn/trunk@243",
 
   "o3d/third_party/gmock/files":
     "http://googlemock.googlecode.com/svn/tags/release-1.0.0",
