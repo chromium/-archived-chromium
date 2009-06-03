@@ -38,6 +38,8 @@ class TestCompletionCallback : public CallbackRunner< Tuple1<int> > {
     return result_;
   }
 
+  bool have_result() const { return have_result_; }
+
  private:
   virtual void RunWithParams(const Tuple1<int>& params) {
     result_ = params.a;

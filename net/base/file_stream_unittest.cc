@@ -184,10 +184,14 @@ TEST_F(FileStreamTest, AsyncRead_EarlyClose) {
   char buf[4];
   rv = stream.Read(buf, arraysize(buf), &callback);
   stream.Close();
-  if (rv == net::ERR_IO_PENDING)
-    rv = callback.WaitForResult();
-  ASSERT_LE(0, rv);
-  EXPECT_EQ(std::string(kTestData, rv), std::string(buf, rv));
+  if (rv < 0) {
+    EXPECT_EQ(net::ERR_IO_PENDING, rv);
+    // The callback should not be called if the request is cancelled.
+    MessageLoop::current()->RunAllPending();
+    EXPECT_FALSE(callback.have_result());
+  } else {
+    EXPECT_EQ(std::string(kTestData, rv), std::string(buf, rv));
+  }
 }
 
 TEST_F(FileStreamTest, BasicRead_FromOffset) {
@@ -360,12 +364,16 @@ TEST_F(FileStreamTest, AsyncWrite_EarlyClose) {
                     kTestDataSize - total_bytes_written,
                     &callback);
   stream.Close();
-  if (rv == net::ERR_IO_PENDING)
-    rv = callback.WaitForResult();
-  ASSERT_LT(0, rv);
-  ok = file_util::GetFileSize(temp_file_path(), &file_size);
-  EXPECT_TRUE(ok);
-  EXPECT_EQ(file_size, rv);
+  if (rv < 0) {
+    EXPECT_EQ(net::ERR_IO_PENDING, rv);
+    // The callback should not be called if the request is cancelled.
+    MessageLoop::current()->RunAllPending();
+    EXPECT_FALSE(callback.have_result());
+  } else {
+    ok = file_util::GetFileSize(temp_file_path(), &file_size);
+    EXPECT_TRUE(ok);
+    EXPECT_EQ(file_size, rv);
+  }
 }
 
 TEST_F(FileStreamTest, BasicWrite_FromOffset) {
