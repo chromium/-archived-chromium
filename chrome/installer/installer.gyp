@@ -188,7 +188,6 @@
           'target_name': 'gcapi_dll',
           'type': 'loadable_module',
           'msvs_guid': 'B802A2FE-E4E2-4F5A-905A-D5128875C954',
-          'msvs_existing_vcproj': 'gcapi/gcapi_dll.vcproj',
           'dependencies': [
             '../../google_update/google_update.gyp:google_update',
           ],
@@ -204,7 +203,6 @@
           'target_name': 'gcapi_lib',
           'type': 'static_library',
           'msvs_guid': 'CD2FD73A-6AAB-4886-B887-760D18E8B635',
-          'msvs_existing_vcpj': 'gcapi/gcapi_lib.vcproj',
           'dependencies': [
             '../../google_update/google_update.gyp:google_update',
           ],
@@ -220,7 +218,6 @@
           'target_name': 'gcapi_test',
           'type': 'executable',
           'msvs_guid': 'B64B396B-8EF1-4B6B-A07E-48D40EB961AB',
-          'msvs_existing_vcproj': 'gcapi/gcapi_test.vcproj',
           'dependencies': [
             'gcapi_dll',
             'gcapi_lib',
