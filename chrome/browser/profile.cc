@@ -70,6 +70,7 @@ void Profile::RegisterUserPrefs(PrefService* prefs) {
   prefs->RegisterLocalizedStringPref(prefs::kSpellCheckDictionary,
       IDS_SPELLCHECK_DICTIONARY);
   prefs->RegisterBooleanPref(prefs::kEnableSpellCheck, true);
+  prefs->RegisterBooleanPref(prefs::kEnableAutoSpellCorrect, true);
   prefs->RegisterBooleanPref(prefs::kEnableUserScripts, false);
   prefs->RegisterStringPref(prefs::kCurrentThemeID, L"");
   prefs->RegisterDictionaryPref(prefs::kCurrentThemeImages);
@@ -406,6 +407,7 @@ ProfileImpl::ProfileImpl(const FilePath& path)
   PrefService* prefs = GetPrefs();
   prefs->AddPrefObserver(prefs::kSpellCheckDictionary, this);
   prefs->AddPrefObserver(prefs::kEnableSpellCheck, this);
+  prefs->AddPrefObserver(prefs::kEnableAutoSpellCorrect, this);
 
 #ifdef CHROME_PERSONALIZATION
   if (!CommandLine::ForCurrentProcess()->HasSwitch(switches::kDisableP13n))
@@ -477,6 +479,7 @@ ProfileImpl::~ProfileImpl() {
   PrefService* prefs = GetPrefs();
   prefs->RemovePrefObserver(prefs::kSpellCheckDictionary, this);
   prefs->RemovePrefObserver(prefs::kEnableSpellCheck, this);
+  prefs->RemovePrefObserver(prefs::kEnableAutoSpellCorrect, this);
 
 #ifdef CHROME_PERSONALIZATION
   personalization_.reset();
@@ -924,6 +927,12 @@ void ProfileImpl::InitializeSpellChecker(bool need_to_broadcast) {
     spellchecker_ = NULL;
   }
 
+  // Set auto spell correct status for spellchecker.
+  if (spellchecker_) {
+    spellchecker_->EnableAutoSpellCorrect(
+        prefs->GetBoolean(prefs::kEnableAutoSpellCorrect));
+  }
+
   if (need_to_broadcast && io_thread) {  // Notify resource message filters.
     SpellcheckerReinitializedDetails scoped_spellchecker;
     scoped_spellchecker.spellchecker = spellchecker_;
@@ -971,7 +980,8 @@ void ProfileImpl::Observe(NotificationType type,
     PrefService* prefs = Source<PrefService>(source).ptr();
     DCHECK(pref_name_in && prefs);
     if (*pref_name_in == prefs::kSpellCheckDictionary ||
-        *pref_name_in == prefs::kEnableSpellCheck) {
+        *pref_name_in == prefs::kEnableSpellCheck ||
+        *pref_name_in == prefs::kEnableAutoSpellCorrect) {
       InitializeSpellChecker(true);
     }
   } else if (NotificationType::THEME_INSTALLED == type) {

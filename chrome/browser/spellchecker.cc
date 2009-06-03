@@ -392,6 +392,7 @@ SpellChecker::SpellChecker(const FilePath& dict_dir,
       file_loop_(NULL),
       url_request_context_(request_context),
       dic_is_downloading_(false),
+      auto_spell_correct_turned_on_(false),
       ALLOW_THIS_IN_INITIALIZER_LIST(
           dic_download_state_changer_factory_(this)) {
   // Remember UI loop to later use this as a proxy to get IO loop.
@@ -414,7 +415,7 @@ SpellChecker::SpellChecker(const FilePath& dict_dir,
   }
 
   // Use this dictionary language as the default one of the
-  // SpecllcheckCharAttribute object.
+  // SpellcheckCharAttribute object.
   character_attributes_.SetDefaultLanguage(language);
 }
 
@@ -479,6 +480,9 @@ bool SpellChecker::Initialize() {
 void SpellChecker::GetAutoCorrectionWord(const std::wstring& word,
                                          std::wstring* autocorrect_word) {
   autocorrect_word->clear();
+  if (!auto_spell_correct_turned_on_)
+    return;
+
   int word_length = static_cast<int>(word.size());
   if (word_length < 2 || word_length > kMaxAutoCorrectWordSize)
     return;
@@ -517,6 +521,10 @@ void SpellChecker::GetAutoCorrectionWord(const std::wstring& word,
     // Restore the swapped characters.
     std::swap(misspelled_word[i], misspelled_word[i + 1]);
   }
+}
+
+void SpellChecker::EnableAutoSpellCorrect(bool turn_on) {
+  auto_spell_correct_turned_on_ = turn_on;
 }
 
 void SpellChecker::AddCustomWordsToHunspell() {

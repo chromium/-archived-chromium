@@ -78,6 +78,7 @@ class LanguagesPageView : public OptionsPageView,
   views::Label* ui_language_label_;
   views::Combobox* change_ui_language_combobox_;
   views::Combobox* change_dictionary_language_combobox_;
+  views::Checkbox* enable_autospellcorrect_checkbox_;
   views::Checkbox* enable_spellchecking_checkbox_;
   views::Label* dictionary_language_label_;
 
@@ -98,6 +99,9 @@ class LanguagesPageView : public OptionsPageView,
   // SpellChecker enable pref.
   BooleanPrefMember enable_spellcheck_;
 
+  // Auto spell correction pref.
+  BooleanPrefMember enable_autospellcorrect_;
+
   // This is assigned the new index of spellcheck language if the language
   // is changed. Otherwise, it remains -1, and pref members are not updated.
   int spellcheck_language_index_selected_;
@@ -106,6 +110,7 @@ class LanguagesPageView : public OptionsPageView,
   bool language_table_edited_;
   bool language_warning_shown_;
   bool enable_spellcheck_checkbox_clicked_;
+  bool enable_autospellcorrect_checkbox_clicked_;
 
   DISALLOW_EVIL_CONSTRUCTORS(LanguagesPageView);
 };

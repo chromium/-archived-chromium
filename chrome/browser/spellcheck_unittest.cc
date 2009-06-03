@@ -517,6 +517,7 @@ TEST_F(SpellCheckTest, GetAutoCorrectionWord_EN_US) {
 
   scoped_refptr<SpellChecker> spell_checker(new SpellChecker(
       hunspell_directory, "en-US", NULL, FilePath()));
+  spell_checker->EnableAutoSpellCorrect(true);
 
   for (size_t i = 0; i < ARRAYSIZE_UNSAFE(kTestCases); ++i) {
     std::wstring misspelled_word(kTestCases[i].input);

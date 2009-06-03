@@ -3666,6 +3666,9 @@ each locale. -->
       <message name="IDS_OPTIONS_ENABLE_SPELLCHECK" desc="The documentation string of the 'Enable spellcheck' option">
         Check spelling:
       </message>
+      <message name="IDS_OPTIONS_ENABLE_AUTO_SPELL_CORRECTION" desc="The documentation string of the 'Enable auto spell correction' option">
+        Correct spelling automatically:
+      </message>
       
       <message name="IDS_OPTIONS_RESET" desc="The label of the 'Reset all settings to defaults' button">
         Reset to defaults

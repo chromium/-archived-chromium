@@ -241,6 +241,9 @@ const wchar_t kBookmarkManagerSplitLocation[] =
 // Boolean pref to define the default values for using spellchecker.
 const wchar_t kEnableSpellCheck[] = L"browser.enable_spellchecking";
 
+// Boolean pref to define the default values for using auto spell correct.
+const wchar_t kEnableAutoSpellCorrect[] = L"browser.enable_autospellcorrect";
+
 // String pref to define the default values for print overlays.
 const wchar_t kPrintingPageHeaderLeft[] = L"printing.page.header.left";
 const wchar_t kPrintingPageHeaderCenter[] = L"printing.page.header.center";

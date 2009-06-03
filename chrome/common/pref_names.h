@@ -82,6 +82,7 @@ extern const wchar_t kBookmarkTablePathWidth[];
 extern const wchar_t kBookmarkManagerPlacement[];
 extern const wchar_t kBookmarkManagerSplitLocation[];
 extern const wchar_t kEnableSpellCheck[];
+extern const wchar_t kEnableAutoSpellCorrect[];
 extern const wchar_t kDeleteTimePeriod[];
 extern const wchar_t kPrintingPageHeaderLeft[];
 extern const wchar_t kPrintingPageHeaderCenter[];

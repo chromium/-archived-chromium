@@ -12,6 +12,7 @@
 #include "app/gfx/font.h"
 #include "app/l10n_util.h"
 #include "app/resource_bundle.h"
+#include "base/command_line.h"
 #include "base/file_util.h"
 #include "base/string_util.h"
 #include "base/gfx/native_theme.h"
@@ -21,6 +22,7 @@
 #include "chrome/browser/spellchecker.h"
 #include "chrome/browser/views/options/language_combobox_model.h"
 #include "chrome/browser/views/restart_message_box.h"
+#include "chrome/common/chrome_switches.h"
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
 #include "grit/chromium_strings.h"
@@ -477,17 +479,21 @@ LanguagesPageView::LanguagesPageView(Profile* profile)
       change_ui_language_combobox_(NULL),
       change_dictionary_language_combobox_(NULL),
       enable_spellchecking_checkbox_(NULL),
+      enable_autospellcorrect_checkbox_(NULL),
       dictionary_language_label_(NULL),
       OptionsPageView(profile),
       language_table_edited_(false),
       language_warning_shown_(false),
       enable_spellcheck_checkbox_clicked_(false),
+      enable_autospellcorrect_checkbox_clicked_(false),
       spellcheck_language_index_selected_(-1),
       ui_language_index_selected_(-1),
       starting_ui_language_index_(-1) {
   accept_languages_.Init(prefs::kAcceptLanguages,
       profile->GetPrefs(), NULL);
   enable_spellcheck_.Init(prefs::kEnableSpellCheck,
+      profile->GetPrefs(), NULL);
+  enable_autospellcorrect_.Init(prefs::kEnableAutoSpellCorrect,
       profile->GetPrefs(), NULL);
 }
 
@@ -513,7 +519,9 @@ void LanguagesPageView::ButtonPressed(views::Button* sender) {
         new AddLanguageWindowView(this, profile()))->Show();
     language_table_edited_ = true;
   } else if (sender == enable_spellchecking_checkbox_) {
-      enable_spellcheck_checkbox_clicked_ = true;
+    enable_spellcheck_checkbox_clicked_ = true;
+  } else if (sender == enable_autospellcorrect_checkbox_) {
+    enable_autospellcorrect_checkbox_clicked_ = true;
   }
 }
 
@@ -626,6 +634,12 @@ void LanguagesPageView::InitControlLayout() {
       views::Label::ALIGN_LEFT);
   enable_spellchecking_checkbox_ = new views::Checkbox(
       l10n_util::GetString(IDS_OPTIONS_ENABLE_SPELLCHECK));
+  const CommandLine& command_line = *CommandLine::ForCurrentProcess();
+  if (command_line.HasSwitch(switches::kAutoSpellCorrect)) {
+    enable_autospellcorrect_checkbox_ = new views::Checkbox(
+        l10n_util::GetString(IDS_OPTIONS_ENABLE_AUTO_SPELL_CORRECTION));
+    enable_autospellcorrect_checkbox_->set_listener(this);
+  }
   enable_spellchecking_checkbox_->set_listener(this);
   enable_spellchecking_checkbox_->SetMultiLine(true);
 
@@ -642,6 +656,11 @@ void LanguagesPageView::InitControlLayout() {
   layout->StartRow(0, single_column_view_set_id);
   layout->AddView(enable_spellchecking_checkbox_);
   layout->AddPaddingRow(0, kRelatedControlVerticalSpacing);
+  if (command_line.HasSwitch(switches::kAutoSpellCorrect)) {
+    layout->StartRow(0, single_column_view_set_id);
+    layout->AddView(enable_autospellcorrect_checkbox_);
+    layout->AddPaddingRow(0, kRelatedControlVerticalSpacing);
+  }
   const int double_column_view_set_2_id = 2;
   column_set = layout->AddColumnSet(double_column_view_set_2_id);
   column_set->AddColumn(GridLayout::FILL, GridLayout::FILL, 0,
@@ -726,6 +745,13 @@ void LanguagesPageView::NotifyPrefChanged(const std::wstring* pref_name) {
   if (!pref_name || *pref_name == prefs::kEnableSpellCheck) {
     enable_spellchecking_checkbox_->SetChecked(
         enable_spellcheck_.GetValue());
+  }
+  if (!pref_name || *pref_name == prefs::kEnableAutoSpellCorrect) {
+    const CommandLine& command_line = *CommandLine::ForCurrentProcess();
+    if (command_line.HasSwitch(switches::kAutoSpellCorrect)) {
+      enable_autospellcorrect_checkbox_->SetChecked(
+          enable_autospellcorrect_.GetValue());
+    }
   }
 }
 
@@ -846,4 +872,9 @@ void LanguagesPageView::SaveChanges() {
 
   if (enable_spellcheck_checkbox_clicked_)
     enable_spellcheck_.SetValue(enable_spellchecking_checkbox_->checked());
+
+  if (enable_autospellcorrect_checkbox_clicked_) {
+    enable_autospellcorrect_.SetValue(
+        enable_autospellcorrect_checkbox_->checked());
+  }
 }
