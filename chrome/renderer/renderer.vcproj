@@ -342,6 +342,14 @@
 			>
 		</File>
 		<File
+			RelativePath=".\print_web_view_helper.cc"
+			>
+		</File>
+		<File
+			RelativePath=".\print_web_view_helper.h"
+			>
+		</File>
+		<File
 			RelativePath=".\render_process.cc"
 			>
 		</File>

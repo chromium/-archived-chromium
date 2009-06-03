@@ -46,6 +46,7 @@ class DebugMessageHandler;
 class DevToolsAgent;
 class DevToolsClient;
 class FilePath;
+class PrintWebViewHelper;
 class GURL;
 class RenderThread;
 class ResourceDispatcher;
@@ -58,7 +59,6 @@ struct FindInPageRequest;
 struct ThumbnailScore;
 struct ViewMsg_Navigate_Params;
 struct ViewMsg_PrintPage_Params;
-struct ViewMsg_PrintPages_Params;
 struct ViewMsg_Print_Params;
 struct ViewMsg_UploadFile_Params;
 struct WebDropData;
@@ -588,14 +588,6 @@ class RenderView : public RenderWidget,
   // a custom background.
   void OnSetBackground(const SkBitmap& background);
 
-  // Prints the page listed in |params|.
-  void PrintPage(const ViewMsg_PrintPage_Params& params,
-                 const gfx::Size& canvas_size,
-                 WebFrame* frame);
-
-  // Prints all the pages listed in |params|.
-  void PrintPages(const ViewMsg_PrintPages_Params& params, WebFrame* frame);
-
   // Attempt to upload the file that we are trying to process if any.
   // Reset the pending file upload data if the form was successfully
   // posted.
@@ -811,6 +803,9 @@ class RenderView : public RenderWidget,
   // to the new navigation is created.  See DidCreateDataSource.
   class NavigationState;
   scoped_ptr<NavigationState> pending_navigation_state_;
+
+  // Need for printing
+  scoped_ptr<PrintWebViewHelper> print_render_view_;
 
   DISALLOW_COPY_AND_ASSIGN(RenderView);
 };
