@@ -318,8 +318,6 @@ void TaskManagerViewImpl::Init() {
       l10n_util::GetString(IDS_TASK_MANAGER_ABOUT_MEMORY_LINK)));
   about_memory_link_->SetController(this);
 
-  AddChildView(tab_table_);
-
   // Makes sure our state is consistent.
   OnSelectionChanged();
 }
@@ -359,6 +357,8 @@ void TaskManagerViewImpl::ViewHierarchyChanged(bool is_add,
     if (is_add) {
       parent->AddChildView(kill_button_.get());
       parent->AddChildView(about_memory_link_.get());
+      if (tab_table_->GetParent() != this)
+        AddChildView(tab_table_);
     } else {
       parent->RemoveChildView(kill_button_.get());
       parent->RemoveChildView(about_memory_link_.get());
