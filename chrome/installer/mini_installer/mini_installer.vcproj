@@ -27,10 +27,11 @@
 			InheritedPropertySheets=".\mini_installer_debug.vsprops;$(SolutionDir)..\testing\using_gtest.vsprops"
 			>
 			<Tool
-				Name="create installer archive"
+				Name="Create Installer Archive"
 				LastChromeInstaller="$(LAST_CHROME_INSTALLER)"
-				LastChromeVersion="$(LAST_CHROME_VERSION)"
 				SkipRebuildArchive="$(SKIP_REBUILD_CHROME_ARCHIVE)"
+				SetupExeFormat="$(SETUP_EXE_FORMAT)"
+				DiffAlgorithm="$(DIFF_ALGORITHM)"
 			/>
 			<Tool
 				Name="Version"
@@ -54,10 +55,11 @@
 			InheritedPropertySheets=".\mini_installer_release.vsprops;$(SolutionDir)..\testing\using_gtest.vsprops"
 			>
 			<Tool
-				Name="create installer archive"
+				Name="Create Installer Archive"
 				LastChromeInstaller="$(LAST_CHROME_INSTALLER)"
-				LastChromeVersion="$(LAST_CHROME_VERSION)"
 				SkipRebuildArchive="$(SKIP_REBUILD_CHROME_ARCHIVE)"
+				SetupExeFormat="$(SETUP_EXE_FORMAT)"
+				DiffAlgorithm="$(DIFF_ALGORITHM)"
 			/>
 			<Tool
 				Name="Version"
