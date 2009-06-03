@@ -2168,11 +2168,15 @@
 				>
 			</File>
 			<File
-				RelativePath=".\renderer_host\backing_store.cc"
+				RelativePath=".\renderer_host\backing_store.h"
 				>
 			</File>
 			<File
-				RelativePath=".\renderer_host\backing_store.h"
+				RelativePath=".\renderer_host\backing_store_manager.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\renderer_host\backing_store_manager.h"
 				>
 			</File>
 			<File
