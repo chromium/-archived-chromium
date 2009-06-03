@@ -89,9 +89,6 @@ class TextButton : public CustomButton {
   void ClearMaxTextSize();
 
   void set_max_width(int max_width) { max_width_ = max_width; }
-  void SetEnabledColor(SkColor color);
-  void SetDisabledColor(SkColor color);
-  void SetHighlightColor(SkColor color);
 
   // Paint the button into the specified canvas. If |for_drag| is true, the
   // function paints a drag image representation into the canvas.
@@ -105,10 +102,6 @@ class TextButton : public CustomButton {
  protected:
   virtual bool OnMousePressed(const MouseEvent& e);
   virtual void Paint(gfx::Canvas* canvas);
-
-  // Called when enabled or disabled state changes, or the colors for those
-  // states change.
-  virtual void UpdateColor();
 
  private:
   // The text string that is displayed in the button.
@@ -129,11 +122,6 @@ class TextButton : public CustomButton {
 
   // Text color.
   SkColor color_;
-
-  // State colors.
-  SkColor color_enabled_;
-  SkColor color_disabled_;
-  SkColor color_highlight_;
 
   // An icon displayed with the text.
   SkBitmap icon_;

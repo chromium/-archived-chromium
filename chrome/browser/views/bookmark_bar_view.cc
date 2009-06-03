@@ -381,10 +381,11 @@ BookmarkBarView::BookmarkBarView(Profile* profile, Browser* browser)
   Init();
   SetProfile(profile);
 
-  if (IsAlwaysShown())
+  if (IsAlwaysShown()) {
     size_animation_->Reset(1);
-  else
+  } else {
     size_animation_->Reset(0);
+  }
 }
 
 BookmarkBarView::~BookmarkBarView() {
@@ -934,15 +935,6 @@ void BookmarkBarView::Loaded(BookmarkModel* model) {
   // Create a button for each of the children on the bookmark bar.
   for (int i = 0; i < node->GetChildCount(); ++i)
     AddChildView(i, CreateBookmarkButton(node->GetChild(i)));
-
-  // This button is normally created too early to get access to the theme
-  // provider, so we change its color here; this also makes color changes from
-  // profile swaps work.
-  if (GetThemeProvider()) {
-    other_bookmarked_button_->SetEnabledColor(GetThemeProvider()->
-        GetColor(BrowserThemeProvider::COLOR_BOOKMARK_TEXT));
-  }
-
   other_bookmarked_button_->SetEnabled(true);
 
   Layout();
@@ -1256,9 +1248,6 @@ views::View* BookmarkBarView::CreateBookmarkButton(BookmarkNode* node) {
 void BookmarkBarView::ConfigureButton(BookmarkNode* node,
                                       views::TextButton* button) {
   button->SetText(node->GetTitle());
-  DCHECK(GetThemeProvider());
-  button->SetEnabledColor(GetThemeProvider()->GetColor(
-      BrowserThemeProvider::COLOR_BOOKMARK_TEXT));
   button->ClearMaxTextSize();
   button->SetContextMenuController(this);
   button->SetDragController(this);
