@@ -374,6 +374,7 @@
           'ALWAYS_SEARCH_USER_PATHS': 'NO',
           'GCC_C_LANGUAGE_STANDARD': 'c99',
           'GCC_CW_ASM_SYNTAX': 'NO',
+          'GCC_DYNAMIC_NO_PIC': 'NO',
           'GCC_ENABLE_PASCAL_STRINGS': 'NO',
           'GCC_INLINES_ARE_PRIVATE_EXTERN': 'YES',
           'GCC_OBJC_CALL_CXX_CDTORS': 'YES',
