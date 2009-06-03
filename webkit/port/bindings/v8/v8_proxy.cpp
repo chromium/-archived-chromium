@@ -1827,6 +1827,9 @@ void V8Proxy::clearForClose()
 
 void V8Proxy::clearForNavigation()
 {
+    // disconnect all event listeners
+    DisconnectEventListeners();
+
     if (!m_context.IsEmpty()) {
         v8::HandleScope handle;
         ClearDocumentWrapper();
@@ -1838,9 +1841,6 @@ void V8Proxy::clearForNavigation()
             LookupDOMWrapper(V8ClassIndex::DOMWINDOW, m_global);
         ASSERT(!wrapper.IsEmpty());
         wrapper->TurnOnAccessCheck();
-
-        // disconnect all event listeners
-        DisconnectEventListeners();
 
         // Separate the context from its global object.
         m_context->DetachGlobal();
