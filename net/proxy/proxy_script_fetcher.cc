@@ -12,6 +12,7 @@
 #include "net/base/io_buffer.h"
 #include "net/base/load_flags.h"
 #include "net/base/net_errors.h"
+#include "net/http/http_response_headers.h"
 #include "net/url_request/url_request.h"
 
 // TODO(eroman):
@@ -152,7 +153,10 @@ void ProxyScriptFetcherImpl::Fetch(const GURL& url,
 
   // Make sure that the PAC script is downloaded using a direct connection,
   // to avoid circular dependencies (fetching is a part of proxy resolution).
-  cur_request_->set_load_flags(LOAD_BYPASS_PROXY);
+  // Also disable the use of the disk cache. The cache is disabled so that if
+  // the user switches networks we don't potentially use the cached response
+  // from old network when we should in fact be re-fetching on the new network.
+  cur_request_->set_load_flags(LOAD_BYPASS_PROXY | LOAD_DISABLE_CACHE);
 
   // Save the caller's info for notification on completion.
   callback_ = callback;
@@ -214,6 +218,8 @@ void ProxyScriptFetcherImpl::OnResponseStarted(URLRequest* request) {
     // NOTE about status codes: We are like Firefox 3 in this respect.
     // {IE 7, Safari 3, Opera 9.5} do not care about the status code.
     if (request->GetResponseCode() != 200) {
+      LOG(INFO) << "Fetched PAC script had (bad) status line: "
+                << request->response_headers()->GetStatusLine();
       result_code_ = ERR_PAC_STATUS_NOT_OK;
       request->Cancel();
       return;
@@ -222,13 +228,11 @@ void ProxyScriptFetcherImpl::OnResponseStarted(URLRequest* request) {
     // NOTE about mime types: We do not enforce mime types on PAC files.
     // This is for compatibility with {IE 7, Firefox 3, Opera 9.5}. We will
     // however log mismatches to help with debugging.
-    if (logging::GetMinLogLevel() <= logging::LOG_INFO) {
-      std::string mime_type;
-      cur_request_->GetMimeType(&mime_type);
-      if (!IsPacMimeType(mime_type)) {
-        LOG(INFO) << "Fetched PAC script does not have a proper mime type: "
-                  << mime_type;
-      }
+    std::string mime_type;
+    cur_request_->GetMimeType(&mime_type);
+    if (!IsPacMimeType(mime_type)) {
+      LOG(INFO) << "Fetched PAC script does not have a proper mime type: "
+                << mime_type;
     }
   }
 

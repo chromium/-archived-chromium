@@ -8,6 +8,8 @@
 #include "base/compiler_specific.h"
 #include "base/path_service.h"
 #include "net/base/net_util.h"
+#include "net/disk_cache/disk_cache.h"
+#include "net/http/http_cache.h"
 #include "net/url_request/url_request_unittest.h"
 #include "testing/gtest/include/gtest/gtest.h"
 #include "testing/platform_test.h"
@@ -29,8 +31,10 @@ class RequestContext : public URLRequestContext {
   RequestContext() {
     net::ProxyConfig no_proxy;
     proxy_service_ = net::ProxyService::CreateFixed(no_proxy);
-    http_transaction_factory_ = net::HttpNetworkLayer::CreateFactory(
-        proxy_service_);
+
+    http_transaction_factory_ =
+        new net::HttpCache(net::HttpNetworkLayer::CreateFactory(proxy_service_),
+                           disk_cache::CreateInMemoryCacheBackend(0));
   }
   ~RequestContext() {
     delete http_transaction_factory_;
@@ -238,6 +242,30 @@ TEST_F(ProxyScriptFetcherTest, ContentDisposition) {
   FetchResult result = pac_fetcher.Fetch(url);
   EXPECT_EQ(net::OK, result.code);
   EXPECT_EQ("-downloadable.pac-\n", result.bytes);
+}
+
+TEST_F(ProxyScriptFetcherTest, NoCache) {
+  scoped_refptr<HTTPTestServer> server =
+      HTTPTestServer::CreateServer(kDocRoot, NULL);
+  ASSERT_TRUE(NULL != server.get());
+  SynchFetcher pac_fetcher;
+
+  // Fetch a PAC script whose HTTP headers make it cacheable for 1 hour.
+  GURL url = server->TestServerPage("files/cacheable_1hr.pac");
+  FetchResult result = pac_fetcher.Fetch(url);
+  EXPECT_EQ(net::OK, result.code);
+  EXPECT_EQ("-cacheable_1hr.pac-\n", result.bytes);
+
+  // Now kill the HTTP server.
+  server->SendQuit();
+  EXPECT_TRUE(server->WaitToFinish(20000));
+  server = NULL;
+
+  // Try to fetch the file again -- if should fail, since the server is not
+  // running anymore. (If it were instead being loaded from cache, we would
+  // get a success.
+  result = pac_fetcher.Fetch(url);
+  EXPECT_EQ(net::ERR_CONNECTION_REFUSED, result.code);
 }
 
 TEST_F(ProxyScriptFetcherTest, TooLarge) {
