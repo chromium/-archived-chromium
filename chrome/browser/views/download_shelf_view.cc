@@ -10,6 +10,7 @@
 #include "app/l10n_util.h"
 #include "app/resource_bundle.h"
 #include "base/logging.h"
+#include "chrome/browser/browser_theme_provider.h"
 #include "chrome/browser/download/download_item_model.h"
 #include "chrome/browser/download/download_manager.h"
 #include "chrome/browser/tab_contents/navigation_entry.h"
@@ -42,9 +43,6 @@ static const int kTopBottomPadding = 2;
 
 // Padding between the icon and 'show all downloads' link
 static const int kDownloadsTitlePadding = 4;
-
-// Default background color for the shelf.
-static const SkColor kBackgroundColor = SkColorSetRGB(230, 237, 244);
 
 // Border color.
 static const SkColor kBorderColor = SkColorSetRGB(214, 214, 214);
@@ -101,7 +99,6 @@ void DownloadShelfView::Init() {
   close_button_->SetImage(views::CustomButton::BS_PUSHED,
                           rb.GetBitmapNamed(IDR_CLOSE_BAR_P));
   AddChildView(close_button_);
-  set_background(views::Background::CreateSolidBackground(kBackgroundColor));
 
   new_item_animation_.reset(new SlideAnimation(this));
   new_item_animation_->SetSlideDuration(kNewItemAnimationDurationMs);
@@ -204,6 +201,12 @@ void DownloadShelfView::Layout() {
   // the NativeControlContainer ctor tries to use the Container.
   if (!GetWidget())
     return;
+
+  // Now that we know we have a parent, we can safely set our theme colors.
+  show_all_view_->SetColor(
+      GetThemeProvider()->GetColor(BrowserThemeProvider::COLOR_BOOKMARK_TEXT));
+  set_background(views::Background::CreateSolidBackground(
+      GetThemeProvider()->GetColor(BrowserThemeProvider::COLOR_TOOLBAR)));
 
   // Let our base class layout our child views
   views::View::Layout();
