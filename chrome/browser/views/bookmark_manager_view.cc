@@ -12,6 +12,7 @@
 #include "base/thread.h"
 #include "chrome/browser/bookmarks/bookmark_folder_tree_model.h"
 #include "chrome/browser/bookmarks/bookmark_html_writer.h"
+#include "chrome/browser/bookmarks/bookmark_manager.h"
 #include "chrome/browser/bookmarks/bookmark_model.h"
 #include "chrome/browser/bookmarks/bookmark_table_model.h"
 #include "chrome/browser/bookmarks/bookmark_utils.h"
@@ -35,7 +36,6 @@
 #include "views/standard_layout.h"
 #include "views/widget/widget.h"
 #include "views/window/window.h"
-
 
 // If non-null, there is an open editor and this is the window it is contained
 // in it.
@@ -143,6 +143,19 @@ void ShowBookmarkManagerView(Profile* profile) {
 
 }  // namespace browser
 
+// BookmarkManager -------------------------------------------------------------
+
+void BookmarkManager::SelectInTree(Profile* profile, BookmarkNode* node) {
+  if (manager && manager->profile() == profile)
+    manager->SelectInTree(node);
+}
+
+void BookmarkManager::Show(Profile* profile) {
+  BookmarkManagerView::Show(profile);
+}
+
+// -----------------------------------------------------------------------------
+
 BookmarkManagerView::BookmarkManagerView(Profile* profile)
     : profile_(profile->GetOriginalProfile()),
       table_view_(NULL),
@@ -232,11 +245,6 @@ BookmarkManagerView::~BookmarkManagerView() {
   open_window = NULL;
 }
 
-// static
-void BookmarkManagerView::RegisterPrefs(PrefService* prefs) {
-  prefs->RegisterDictionaryPref(prefs::kBookmarkManagerPlacement);
-  prefs->RegisterIntegerPref(prefs::kBookmarkManagerSplitLocation, -1);
-}
 
 // static
 void BookmarkManagerView::Show(Profile* profile) {

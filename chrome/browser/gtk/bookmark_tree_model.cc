@@ -6,8 +6,12 @@
 
 #include <gtk/gtk.h>
 
+#include "app/resource_bundle.h"
 #include "base/string_util.h"
 #include "chrome/browser/bookmarks/bookmark_model.h"
+#include "grit/app_resources.h"
+#include "grit/generated_resources.h"
+#include "grit/theme_resources.h"
 
 namespace {
 
@@ -22,9 +26,13 @@ void RecursiveInsert(BookmarkNode* node, int selected_id,
     BookmarkNode* child = node->GetChild(i);
     if (child->is_folder()) {
       gtk_tree_store_append(store, &iter, parent);
+      // TODO(estade): we should show the folder open when it's expanded.
       gtk_tree_store_set(store, &iter,
-                         0, WideToUTF8(child->GetTitle()).c_str(),
-                         1, child->id(),
+                         bookmark_utils::FOLDER_ICON,
+                         bookmark_utils::GetFolderIcon(),
+                         bookmark_utils::FOLDER_NAME,
+                         WideToUTF8(child->GetTitle()).c_str(),
+                         bookmark_utils::ITEM_ID, child->id(),
                          -1);
       if (selected_id && child->id() == selected_id) {
         // Save the iterator. Since we're using a GtkTreeStore, we're
@@ -84,10 +92,14 @@ void RecursiveResolve(BookmarkModel* bb_model, BookmarkNode* bb_node,
 
 namespace bookmark_utils {
 
-void BuildTreeStoreFrom(BookmarkModel* model, int selected_id,
-                        GtkTreeStore** store, GtkTreeIter* selected_iter) {
-  *store = gtk_tree_store_new(2, G_TYPE_STRING, G_TYPE_INT);
-  RecursiveInsert(model->root_node(), selected_id, *store, selected_iter, NULL);
+GtkTreeStore* MakeFolderTreeStore() {
+  return gtk_tree_store_new(FOLDER_STORE_NUM_COLUMNS, GDK_TYPE_PIXBUF,
+                            G_TYPE_STRING, G_TYPE_INT);
+}
+
+void AddToTreeStore(BookmarkModel* model, int selected_id,
+                    GtkTreeStore* store, GtkTreeIter* selected_iter) {
+  RecursiveInsert(model->root_node(), selected_id, store, selected_iter, NULL);
 }
 
 BookmarkNode* CommitTreeStoreDifferencesBetween(
@@ -134,7 +146,7 @@ BookmarkNode* CommitTreeStoreDifferencesBetween(
 int GetIdFromTreeIter(GtkTreeModel* model, GtkTreeIter* iter) {
   GValue value = { 0, };
   int ret_val = -1;
-  gtk_tree_model_get_value(model, iter, 1, &value);
+  gtk_tree_model_get_value(model, iter, ITEM_ID, &value);
   if (G_VALUE_HOLDS_INT(&value))
     ret_val = g_value_get_int(&value);
   else
@@ -146,7 +158,7 @@ int GetIdFromTreeIter(GtkTreeModel* model, GtkTreeIter* iter) {
 std::wstring GetTitleFromTreeIter(GtkTreeModel* model, GtkTreeIter* iter) {
   GValue value = { 0, };
   std::wstring ret_val;
-  gtk_tree_model_get_value(model, iter, 0, &value);
+  gtk_tree_model_get_value(model, iter, FOLDER_NAME, &value);
   if (G_VALUE_HOLDS_STRING(&value)) {
     const gchar* utf8str = g_value_get_string(&value);
     ret_val = UTF8ToWide(utf8str);
@@ -156,6 +168,20 @@ std::wstring GetTitleFromTreeIter(GtkTreeModel* model, GtkTreeIter* iter) {
   }
 
   return ret_val;
+}
+
+GdkPixbuf* GetFolderIcon() {
+  ResourceBundle& rb = ResourceBundle::GetSharedInstance();
+  static GdkPixbuf* default_folder_icon = rb.GetPixbufNamed(
+      IDR_BOOKMARK_BAR_FOLDER);
+  return default_folder_icon;
+}
+
+GdkPixbuf* GetDefaultFavicon() {
+  ResourceBundle& rb = ResourceBundle::GetSharedInstance();
+  static GdkPixbuf* default_bookmark_icon = rb.GetPixbufNamed(
+      IDR_DEFAULT_FAVICON);
+  return default_bookmark_icon;
 }
 
 }  // namespace bookmark_utils

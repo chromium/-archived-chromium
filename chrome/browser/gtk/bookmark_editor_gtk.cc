@@ -168,17 +168,25 @@ void BookmarkEditorGtk::Init(GtkWindow* parent_window) {
   if (show_tree_) {
     GtkTreeIter selected_iter;
     int selected_id = node_ ? node_->GetParent()->id() : 0;
-    bookmark_utils::BuildTreeStoreFrom(bb_model_, selected_id, &tree_store_,
-                                       &selected_iter);
+    tree_store_ = bookmark_utils::MakeFolderTreeStore();
+    bookmark_utils::AddToTreeStore(bb_model_, selected_id,
+                                   tree_store_, &selected_iter);
 
-    // TODO(erg): Figure out how to place icons here.
+    GtkTreeViewColumn* icon_column =
+        gtk_tree_view_column_new_with_attributes(
+            "", gtk_cell_renderer_pixbuf_new(), "pixbuf",
+             bookmark_utils::FOLDER_ICON, NULL);
     GtkTreeViewColumn* name_column =
         gtk_tree_view_column_new_with_attributes(
-            "Folder", gtk_cell_renderer_text_new(), "text", 0, NULL);
+            "", gtk_cell_renderer_text_new(), "text",
+             bookmark_utils::FOLDER_NAME, NULL);
 
     tree_view_ = gtk_tree_view_new_with_model(GTK_TREE_MODEL(tree_store_));
+    // Let |tree_view| own the store.
+    g_object_unref(tree_store_);
     gtk_tree_view_set_headers_visible(GTK_TREE_VIEW(tree_view_), FALSE);
-    gtk_tree_view_insert_column(GTK_TREE_VIEW(tree_view_), name_column, -1);
+    gtk_tree_view_append_column(GTK_TREE_VIEW(tree_view_), icon_column);
+    gtk_tree_view_append_column(GTK_TREE_VIEW(tree_view_), name_column);
     gtk_widget_set_size_request(tree_view_, kTreeWidth, kTreeHeight);
 
     tree_selection_ = gtk_tree_view_get_selection(GTK_TREE_VIEW(tree_view_));
@@ -330,8 +338,11 @@ void BookmarkEditorGtk::AddNewGroup(GtkTreeIter* parent, GtkTreeIter* child) {
   gtk_tree_store_append(tree_store_, child, parent);
   gtk_tree_store_set(
       tree_store_, child,
-      0, l10n_util::GetStringUTF8(IDS_BOOMARK_EDITOR_NEW_FOLDER_NAME).c_str(),
-      1, 0,
+      bookmark_utils::FOLDER_ICON,
+      bookmark_utils::GetFolderIcon(),
+      bookmark_utils::FOLDER_NAME,
+      l10n_util::GetStringUTF8(IDS_BOOMARK_EDITOR_NEW_FOLDER_NAME).c_str(),
+      bookmark_utils::ITEM_ID, 0,
       -1);
 }
 

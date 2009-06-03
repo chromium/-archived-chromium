@@ -608,6 +608,13 @@ void ToggleWhenVisible(Profile* profile) {
       NotificationService::NoDetails());
 }
 
+// static
+void RegisterPrefs(PrefService* prefs) {
+  prefs->RegisterDictionaryPref(prefs::kBookmarkManagerPlacement);
+  prefs->RegisterIntegerPref(prefs::kBookmarkManagerSplitLocation, -1);
+}
+
+// static
 void RegisterUserPrefs(PrefService* prefs) {
   // Formerly in BookmarkBarView
   prefs->RegisterBooleanPref(prefs::kShowBookmarkBar, false);

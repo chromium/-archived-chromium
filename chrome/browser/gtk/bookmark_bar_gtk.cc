@@ -15,6 +15,7 @@
 #include "chrome/browser/bookmarks/bookmark_utils.h"
 #include "chrome/browser/browser.h"
 #include "chrome/browser/gtk/bookmark_menu_controller_gtk.h"
+#include "chrome/browser/gtk/bookmark_tree_model.h"
 #include "chrome/browser/gtk/custom_button.h"
 #include "chrome/browser/gtk/dnd_registry.h"
 #include "chrome/browser/gtk/gtk_chrome_button.h"
@@ -408,18 +409,12 @@ void BookmarkBarGtk::ConfigureButtonForNode(BookmarkNode* node,
                            gtk_image_new_from_pixbuf(pixbuf));
       g_object_unref(pixbuf);
     } else {
-      ResourceBundle& rb = ResourceBundle::GetSharedInstance();
-      static GdkPixbuf* default_bookmark_icon = rb.GetPixbufNamed(
-          IDR_DEFAULT_FAVICON);
-      gtk_button_set_image(GTK_BUTTON(button),
-                           gtk_image_new_from_pixbuf(default_bookmark_icon));
+        gtk_button_set_image(GTK_BUTTON(button),
+            gtk_image_new_from_pixbuf(bookmark_utils::GetFolderIcon()));
     }
   } else {
-      ResourceBundle& rb = ResourceBundle::GetSharedInstance();
-      static GdkPixbuf* default_bookmark_icon = rb.GetPixbufNamed(
-          IDR_BOOKMARK_BAR_FOLDER);
       gtk_button_set_image(GTK_BUTTON(button),
-                           gtk_image_new_from_pixbuf(default_bookmark_icon));
+          gtk_image_new_from_pixbuf(bookmark_utils::GetDefaultFavicon()));
   }
 
   SetButtonTextColors(button);

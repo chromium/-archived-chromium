@@ -26,7 +26,6 @@
 #if defined(OS_WIN)  // TODO(port): whittle this down as we port
 #include "chrome/browser/task_manager.h"
 #include "chrome/browser/views/blocked_popup_container.h"
-#include "chrome/browser/views/bookmark_manager_view.h"
 #include "chrome/browser/views/frame/browser_view.h"
 #include "chrome/browser/views/keyword_editor_view.h"
 #include "chrome/browser/views/page_info_window.h"
@@ -45,8 +44,8 @@ void RegisterAllPrefs(PrefService* user_prefs, PrefService* local_state) {
   SafeBrowsingService::RegisterPrefs(local_state);
   browser_shutdown::RegisterPrefs(local_state);
   chrome_browser_net::RegisterPrefs(local_state);
+  bookmark_utils::RegisterPrefs(local_state);
 #if defined(OS_WIN)  // TODO(port): whittle this down as we port
-  BookmarkManagerView::RegisterPrefs(local_state);
   BrowserView::RegisterBrowserViewPrefs(local_state);
   PageInfoWindow::RegisterPrefs(local_state);
   TaskManager::RegisterPrefs(local_state);

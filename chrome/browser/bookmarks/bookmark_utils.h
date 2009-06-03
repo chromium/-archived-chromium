@@ -163,6 +163,9 @@ void ApplyEditsWithPossibleGroupChange(BookmarkModel* model,
 // all tabs.  This is a preference modifier, not a visual modifier.
 void ToggleWhenVisible(Profile* profile);
 
+// Register local state prefs for bookmark bar view.
+void RegisterPrefs(PrefService* prefs);
+
 // Register user prefs for BookmarkBar, BookmarkView, ...
 void RegisterUserPrefs(PrefService* prefs);
 

@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
+// Copyright (c) 2009 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
@@ -7,6 +7,7 @@
 #include "app/l10n_util.h"
 #include "base/compiler_specific.h"
 #include "chrome/browser/bookmarks/bookmark_editor.h"
+#include "chrome/browser/bookmarks/bookmark_manager.h"
 #include "chrome/browser/bookmarks/bookmark_model.h"
 #include "chrome/browser/bookmarks/bookmark_utils.h"
 #include "chrome/browser/browser.h"
@@ -22,7 +23,6 @@
 // TODO(port): Port these files.
 #if defined(OS_WIN)
 #include "chrome/browser/tab_contents/tab_contents.h"
-#include "chrome/browser/views/bookmark_manager_view.h"
 #include "views/window/window.h"
 #endif
 
@@ -106,12 +106,10 @@ class EditFolderController : public InputWindowDialog::Delegate,
       ALLOW_UNUSED BookmarkNode* node =
           model_->AddGroup(node_, node_->GetChildCount(), text);
       if (show_in_manager_) {
-#if defined(OS_WIN)
-        BookmarkManagerView* manager = BookmarkManagerView::current();
-        if (manager && manager->profile() == profile_)
-          manager->SelectInTree(node);
+#if defined(OS_WIN) || defined(OS_LINUX)
+        BookmarkManager::SelectInTree(profile_, node);
 #else
-        NOTIMPLEMENTED() << "BookmarkManagerView not yet implemented";
+        NOTIMPLEMENTED() << "BookmarkManager not yet implemented";
 #endif
       }
     } else {
@@ -195,11 +193,7 @@ class SelectOnCreationHandler : public BookmarkEditor::Handler {
   }
 
   virtual void NodeCreated(BookmarkNode* new_node) {
-    BookmarkManagerView* manager = BookmarkManagerView::current();
-    if (!manager || manager->profile() != profile_)
-      return;  // Manager no longer showing, or showing a different profile.
-
-    manager->SelectInTree(new_node);
+    BookmarkManager::SelectInTree(profile_, new_node);
   }
 
  private:
@@ -336,7 +330,7 @@ void BookmarkContextMenu::ExecuteCommand(int id) {
       }
 
       if (selection_[0]->is_url()) {
-#if defined(OS_WIN)
+#if defined(OS_WIN) || defined(OS_LINUX)
         BookmarkEditor::Configuration editor_config;
         if (configuration_ == BOOKMARK_BAR)
           editor_config = BookmarkEditor::SHOW_TREE;
@@ -407,9 +401,8 @@ void BookmarkContextMenu::ExecuteCommand(int id) {
         return;
       }
 
-#if defined(OS_WIN)
-      if (BookmarkManagerView::current())
-        BookmarkManagerView::current()->SelectInTree(selection_[0]);
+#if defined(OS_WIN) || defined(OS_LINUX)
+      BookmarkManager::SelectInTree(profile_, selection_[0]);
 #else
       NOTIMPLEMENTED() << "Bookmark Manager not implemented";
 #endif
@@ -417,8 +410,8 @@ void BookmarkContextMenu::ExecuteCommand(int id) {
 
     case IDS_BOOKMARK_MANAGER:
       UserMetrics::RecordAction(L"ShowBookmarkManager", profile_);
-#if defined(OS_WIN)
-      BookmarkManagerView::Show(profile_);
+#if defined(OS_WIN) || defined(OS_LINUX)
+      BookmarkManager::Show(profile_);
 #else
       NOTIMPLEMENTED() << "Bookmark Manager not implemented";
 #endif

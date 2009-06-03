@@ -22,7 +22,6 @@ class BookmarkFolderTreeModel;
 class BookmarkFolderTreeView;
 class BookmarkTableModel;
 class BookmarkTableView;
-class PrefService;
 class Profile;
 
 namespace views {
@@ -54,8 +53,6 @@ class BookmarkManagerView : public views::View,
 
   explicit BookmarkManagerView(Profile* profile);
   virtual ~BookmarkManagerView();
-
-  static void RegisterPrefs(PrefService* prefs);
 
   // Shows the bookmark manager. Only one bookmark manager exists.
   static void Show(Profile* profile);
