@@ -75,62 +75,6 @@ class AutomationMessageFilter : public IPC::ChannelProxy::MessageFilter {
   AutomationProxy* server_;
 };
 
-class TabProxyNotificationMessageFilter
-    : public IPC::ChannelProxy::MessageFilter {
- public:
-  TabProxyNotificationMessageFilter(AutomationHandleTracker* tracker)
-      : tracker_ (tracker) {
-  }
-
-  virtual bool OnMessageReceived(const IPC::Message& message) {
-    if (message.is_sync())
-      return false;
-
-    if (message.is_reply())
-      return false;
-
-    bool tab_message = IsTabNotifyMessage(message);
-    if (tab_message == false)
-      return false;
-
-    // Read tab handle from the message.
-    int tab_handle = 0;
-    void* iter = NULL;
-    if (!message.ReadInt(&iter, &tab_handle))
-      return false;
-
-    // Get AddRef-ed pointer to corresponding TabProxy object
-    TabProxy* tab = static_cast<TabProxy*>(tracker_->GetResource(tab_handle));
-    if (tab) {
-      tab->OnMessageReceived(message);
-      tab->Release();
-    }
-    return true;
-  }
-
-  static bool IsTabNotifyMessage(const IPC::Message& message) {
-    bool tab_message = true;
-    IPC_BEGIN_MESSAGE_MAP(TabProxyNotificationMessageFilter, message)
-      IPC_MESSAGE_HANDLER_GENERIC(AutomationMsg_NavigationStateChanged, )
-      IPC_MESSAGE_HANDLER_GENERIC(AutomationMsg_UpdateTargetUrl, )
-#if defined(OS_WIN)
-      IPC_MESSAGE_HANDLER_GENERIC(AutomationMsg_HandleAccelerator, )
-#endif
-      IPC_MESSAGE_HANDLER_GENERIC(AutomationMsg_TabbedOut, )
-      IPC_MESSAGE_HANDLER_GENERIC(AutomationMsg_OpenURL, )
-      IPC_MESSAGE_HANDLER_GENERIC(AutomationMsg_DidNavigate, )
-      IPC_MESSAGE_HANDLER_GENERIC(AutomationMsg_NavigationFailed, )
-      IPC_MESSAGE_HANDLER_GENERIC(AutomationMsg_TabLoaded, )
-      IPC_MESSAGE_HANDLER_GENERIC(AutomationMsg_ForwardMessageToExternalHost, )
-
-      IPC_MESSAGE_UNHANDLED(tab_message = false);
-    IPC_END_MESSAGE_MAP()
-    return tab_message;
-  }
-
- private:
-  AutomationHandleTracker* tracker_;
-};
 }  // anonymous namespace
 
 

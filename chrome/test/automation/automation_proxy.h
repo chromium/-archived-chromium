@@ -215,7 +215,7 @@ class AutomationProxy : public IPC::Channel::Listener,
     perform_version_check_ = perform_version_check;
   }
 
- private:
+ protected:
   template <class T> scoped_refptr<T> ProxyObjectFromHandle(int handle);
   void InitializeChannelID();
   void InitializeThread();
