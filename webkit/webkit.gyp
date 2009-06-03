@@ -4746,6 +4746,7 @@
             '../third_party/WebKit/WebCore/inspector/front-end/Images/profilesIcon.png',
             '../third_party/WebKit/WebCore/inspector/front-end/Images/profileSmallIcon.png',
             '../third_party/WebKit/WebCore/inspector/front-end/Images/profilesSilhouette.png',
+            '../third_party/WebKit/WebCore/inspector/front-end/Images/radioDot.png',
             '../third_party/WebKit/WebCore/inspector/front-end/Images/recordButtons.png',
             '../third_party/WebKit/WebCore/inspector/front-end/Images/reloadButtons.png',
             '../third_party/WebKit/WebCore/inspector/front-end/Images/resourceCSSIcon.png',

@@ -244,6 +244,32 @@ devtools.InspectorController.prototype.debuggerEnabled = function() {
 
 
 /**
+ * Enables resource tracking.
+ */
+devtools.InspectorController.prototype.enableResourceTracking = function() {
+  this.resourceTrackingEnabled_ = true;
+  WebInspector.resourceTrackingWasEnabled();
+};
+
+
+/**
+ * Disables resource tracking.
+ */
+devtools.InspectorController.prototype.disableResourceTracking = function() {
+  this.resourceTrackingEnabled_ = false;
+  WebInspector.resourceTrackingWasDisabled();
+};
+
+
+/**
+ * @return {boolean} True iff resource tracking is enabled.
+ */
+devtools.InspectorController.prototype.resourceTrackingEnabled = function() { 
+  return this.resourceTrackingEnabled_;
+};
+
+
+/**
  * Enables debugger.
  */
 devtools.InspectorController.prototype.enableDebugger = function() {

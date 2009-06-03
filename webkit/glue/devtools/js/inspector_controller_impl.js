@@ -76,6 +76,24 @@ devtools.InspectorControllerImpl.prototype.inspectedWindow = function() {
 
 
 /**
+ * {@inheritDoc}.
+ */
+devtools.InspectorController.prototype.enableResourceTracking =
+    function(always) {
+  devtools.tools.setResourceTrackingEnabled(true, always);
+}
+
+
+/**
+ * {@inheritDoc}.
+ */
+devtools.InspectorController.prototype.disableResourceTracking =
+    function(always) {
+  devtools.tools.setResourceTrackingEnabled(false, always);
+};
+
+
+/**
  * @override
  */
 devtools.InspectorControllerImpl.prototype.debuggerEnabled = function() {

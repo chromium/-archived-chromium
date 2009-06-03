@@ -92,6 +92,11 @@ void WebDevToolsAgentImpl::Attach() {
     web_inspector_stub_->Build();
 
     InspectorController* ic = web_view_impl_->page()->inspectorController();
+
+    // Unhide resources panel if necessary.
+    tools_agent_delegate_stub_->SetResourcesPanelEnabled(
+        ic->resourceTrackingEnabled());
+
     v8::HandleScope scope;
     ic->setFrontendProxyObject(
         scriptStateFromPage(web_view_impl_->page()),
@@ -227,6 +232,20 @@ void WebDevToolsAgentImpl::GetResourceContent(
   if (resource.get()) {
     tools_agent_delegate_stub_->DidGetResourceContent(call_id,
         resource->sourceString());
+  }
+}
+
+void WebDevToolsAgentImpl::SetResourceTrackingEnabled(
+    bool enabled,
+    bool always) {
+  // Hide / unhide resources panel if necessary.
+  tools_agent_delegate_stub_->SetResourcesPanelEnabled(enabled);
+
+  InspectorController* ic = web_view_impl_->page()->inspectorController();
+  if (enabled) {
+    ic->enableResourceTracking(always);
+  } else {
+    ic->disableResourceTracking(always);
   }
 }
 

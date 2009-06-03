@@ -233,6 +233,16 @@ RemoteToolsAgentStub.prototype.ClearConsoleMessages = function() {
 };
 
 
+RemoteToolsAgentStub.prototype.SetResourceTrackingEnabled = function(enabled, always) {
+  RemoteToolsAgent.SetResourcesPanelEnabled(enabled);
+  if (enabled) {
+    WebInspector.resourceTrackingWasEnabled();
+  } else {
+    WebInspector.resourceTrackingWasDisabled();
+  }
+};
+
+
 RemoteDebuggerAgentStub.ProfilerLogBuffer =
   'profiler,resume\n' +
   'code-creation,LazyCompile,0x1000,256,"test1 http://aaa.js:1"\n' +

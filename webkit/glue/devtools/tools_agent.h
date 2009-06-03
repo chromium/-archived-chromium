@@ -26,9 +26,13 @@
   \
   /* Clears cached console messages. */ \
   METHOD0(ClearConsoleMessages) \
+  \
   /* Requests that the agent sends content of the resource with given id to the
      delegate. */ \
-  METHOD2(GetResourceContent, int /* call_id */, int /* identifier */)
+  METHOD2(GetResourceContent, int /* call_id */, int /* identifier */) \
+  \
+  /* Turns resource tracking on / off. */ \
+  METHOD2(SetResourceTrackingEnabled, bool /* enabled */, bool /* always */)
 
 DEFINE_RPC_CLASS(ToolsAgent, TOOLS_AGENT_STRUCT)
 
@@ -51,7 +55,10 @@ DEFINE_RPC_CLASS(ToolsAgent, TOOLS_AGENT_STRUCT)
   METHOD1(DispatchOnClient, String /* data */) \
   \
   /* Response to the async call. */ \
-  METHOD2(DidGetResourceContent, int /* call_id */, String /* content */)
+  METHOD2(DidGetResourceContent, int /* call_id */, String /* content */) \
+  \
+  /* Tells frontend if resources panel should be enabled in the UI. */ \
+  METHOD1(SetResourcesPanelEnabled, bool /* enabled. */)
 
 DEFINE_RPC_CLASS(ToolsAgentDelegate, TOOLS_AGENT_DELEGATE_STRUCT)
 
