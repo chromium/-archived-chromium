@@ -31,11 +31,12 @@ void BreakpadRelease(BreakpadRef ref) {
   NOTREACHED();
 }
 
-void BreakpadSetKeyValue(BreakpadRef ref, NSString *key, NSString *value) {
+void BreakpadAddUploadParameter(BreakpadRef ref, NSString *key,
+                                NSString *value) {
   NOTREACHED();
 }
 
-void BreakpadRemoveKeyValue(BreakpadRef ref, NSString *key) {
+void BreakpadRemoveUploadParameter(BreakpadRef ref, NSString *key) {
   NOTREACHED();
 }
 
@@ -140,7 +141,7 @@ void SetCrashKeyValue(NSString* key, NSString* value) {
     return;
   }
 
-  BreakpadSetKeyValue(gBreakpadRef, key, value);
+  BreakpadAddUploadParameter(gBreakpadRef, key, value);
 }
 
 void ClearCrashKeyValue(NSString* key) {
@@ -148,5 +149,5 @@ void ClearCrashKeyValue(NSString* key) {
     return;
   }
 
-  BreakpadRemoveKeyValue(gBreakpadRef, key);
+  BreakpadRemoveUploadParameter(gBreakpadRef, key);
 }
