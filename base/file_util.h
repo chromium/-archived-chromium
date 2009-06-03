@@ -13,9 +13,10 @@
 #if defined(OS_WIN)
 #include <windows.h>
 #elif defined(OS_POSIX)
-#include <fts.h>
-#include <sys/stat.h>
+// Keep the order as in fts(3): fts.h requires types defined in sys/types.h
 #include <sys/types.h>
+#include <sys/stat.h>
+#include <fts.h>
 #endif
 
 #include <stdio.h>
