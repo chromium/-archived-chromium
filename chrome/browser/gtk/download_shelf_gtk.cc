@@ -11,7 +11,7 @@
 #include "chrome/browser/download/download_util.h"
 #include "chrome/browser/gtk/custom_button.h"
 #include "chrome/browser/gtk/download_item_gtk.h"
-#include "chrome/browser/gtk/link_button_gtk.h"
+#include "chrome/browser/gtk/gtk_chrome_link_button.h"
 #include "chrome/browser/gtk/slide_animator_gtk.h"
 #include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/common/gtk_util.h"
@@ -95,12 +95,13 @@ DownloadShelfGtk::DownloadShelfGtk(TabContents* tab_contents)
   // Create the "Show all downloads..." link and connect to the click event.
   std::string link_text =
       l10n_util::GetStringUTF8(IDS_SHOW_ALL_DOWNLOADS);
-  link_button_.reset(new LinkButtonGtk(link_text.c_str()));
-  g_signal_connect(link_button_->widget(), "clicked",
+  GtkWidget* link_button = gtk_chrome_link_button_new(link_text.c_str());
+  g_signal_connect(link_button, "clicked",
                    G_CALLBACK(OnButtonClick), this);
   // Until we switch to vector graphics, force the font size.
   // 13.4px == 10pt @ 96dpi
-  gtk_util::ForceFontSizePixels(link_button_->label(), 13.4);
+  gtk_util::ForceFontSizePixels(GTK_CHROME_LINK_BUTTON(link_button)->label,
+                                13.4);
 
   // Make the download arrow icon.
   ResourceBundle& rb = ResourceBundle::GetSharedInstance();
@@ -110,7 +111,7 @@ DownloadShelfGtk::DownloadShelfGtk(TabContents* tab_contents)
   // Pack the link and the icon in an hbox.
   link_hbox_ = gtk_hbox_new(FALSE, 5);
   gtk_util::CenterWidgetInHBox(link_hbox_, download_image, false, 0);
-  gtk_util::CenterWidgetInHBox(link_hbox_, link_button_->widget(), false, 0);
+  gtk_util::CenterWidgetInHBox(link_hbox_, link_button, false, 0);
   gtk_box_pack_end(GTK_BOX(hbox_), link_hbox_, FALSE, FALSE, 0);
 
   slide_widget_.reset(new SlideAnimatorGtk(shelf_.get(),

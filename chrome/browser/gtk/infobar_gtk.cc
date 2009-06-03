@@ -10,8 +10,8 @@
 #include "base/gfx/gtk_util.h"
 #include "base/string_util.h"
 #include "chrome/browser/gtk/custom_button.h"
+#include "chrome/browser/gtk/gtk_chrome_link_button.h"
 #include "chrome/browser/gtk/infobar_container_gtk.h"
-#include "chrome/browser/gtk/link_button_gtk.h"
 #include "chrome/common/gtk_util.h"
 
 namespace {
@@ -148,14 +148,15 @@ class LinkInfoBar : public InfoBar {
     std::wstring link_text = delegate->GetLinkText();
 
     // Create the link button.
-    link_button_.reset(new LinkButtonGtk(WideToUTF8(link_text).c_str()));
-    g_signal_connect(link_button_->widget(), "clicked",
+    GtkWidget* link_button =
+        gtk_chrome_link_button_new(WideToUTF8(link_text).c_str());
+    g_signal_connect(link_button, "clicked",
                      G_CALLBACK(OnLinkClick), this);
 
     // If link_offset is npos, we right-align the link instead of embedding it
     // in the text.
     if (link_offset == std::wstring::npos) {
-      gtk_box_pack_end(GTK_BOX(hbox_), link_button_->widget(), FALSE, FALSE, 0);
+      gtk_box_pack_end(GTK_BOX(hbox_), link_button, FALSE, FALSE, 0);
       GtkWidget* label = gtk_label_new(WideToUTF8(display_text).c_str());
       gtk_widget_modify_fg(label, GTK_STATE_NORMAL, &gfx::kGdkBlack);
       gtk_box_pack_start(GTK_BOX(hbox_), label, FALSE, FALSE, 0);
@@ -172,7 +173,7 @@ class LinkInfoBar : public InfoBar {
       // this hbox that doesn't use kElementPadding.
       GtkWidget* hbox = gtk_hbox_new(FALSE, 0);
       gtk_box_pack_start(GTK_BOX(hbox), initial_label, FALSE, FALSE, 0);
-      gtk_util::CenterWidgetInHBox(hbox, link_button_->widget(), false, 0);
+      gtk_util::CenterWidgetInHBox(hbox, link_button, false, 0);
       gtk_box_pack_start(GTK_BOX(hbox), trailing_label, FALSE, FALSE, 0);
       gtk_box_pack_start(GTK_BOX(hbox_), hbox, FALSE, FALSE, 0);
     }
@@ -188,9 +189,6 @@ class LinkInfoBar : public InfoBar {
       link_info_bar->RemoveInfoBar();
     }
   }
-
-  // The clickable link text.
-  scoped_ptr<LinkButtonGtk> link_button_;
 };
 
 // ConfirmInfoBar --------------------------------------------------------------

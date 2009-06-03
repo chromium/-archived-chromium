@@ -16,7 +16,6 @@
 class BaseDownloadItemModel;
 class CustomDrawButton;
 class DownloadItemGtk;
-class LinkButtonGtk;
 class SlideAnimatorGtk;
 
 class DownloadShelfGtk : public DownloadShelf {
@@ -55,9 +54,6 @@ class DownloadShelfGtk : public DownloadShelf {
   // This hbox holds the link text and download icon. It also holds the
   // distinction of being the leftmost non-download item widget on the shelf.
   GtkWidget* link_hbox_;
-
-  // The clickable "Show all downloads..." link text.
-  scoped_ptr<LinkButtonGtk> link_button_;
 
   // The 'x' that the user can press to hide the download shelf.
   scoped_ptr<CustomDrawButton> close_button_;

@@ -25,18 +25,17 @@ G_BEGIN_DECLS
                                           GtkChromeButtonPrivate))
 typedef struct _GtkChromeButtonPrivate GtkChromeButtonPrivate;
 
-struct _GtkChromeButtonPrivate
-{
+struct _GtkChromeButtonPrivate {
   int paint_state;
 };
 
-G_DEFINE_TYPE (GtkChromeButton, gtk_chrome_button, GTK_TYPE_BUTTON)
+G_DEFINE_TYPE(GtkChromeButton, gtk_chrome_button, GTK_TYPE_BUTTON)
 static gboolean gtk_chrome_button_expose(GtkWidget* widget,
                                          GdkEventExpose* event);
 
-static void gtk_chrome_button_class_init(GtkChromeButtonClass *button_class) {
-  GObjectClass *gobject_class = G_OBJECT_CLASS(button_class);
-  GtkWidgetClass* widget_class = (GtkWidgetClass*)button_class;
+static void gtk_chrome_button_class_init(GtkChromeButtonClass* button_class) {
+  GObjectClass* gobject_class = G_OBJECT_CLASS(button_class);
+  GtkWidgetClass* widget_class = reinterpret_cast<GtkWidgetClass*>(button_class);
   widget_class->expose_event = gtk_chrome_button_expose;
 
   g_nine_box_prelight = new NineBox(
@@ -65,7 +64,7 @@ static void gtk_chrome_button_class_init(GtkChromeButtonClass *button_class) {
 }
 
 static void gtk_chrome_button_init(GtkChromeButton* button) {
-  GtkChromeButtonPrivate *priv = GTK_CHROME_BUTTON_GET_PRIVATE(button);
+  GtkChromeButtonPrivate* priv = GTK_CHROME_BUTTON_GET_PRIVATE(button);
   priv->paint_state = -1;
 
   gtk_widget_set_app_paintable(GTK_WIDGET(button), TRUE);
@@ -120,4 +119,3 @@ void gtk_chrome_button_unset_paint_state(GtkChromeButton* button) {
 }
 
 G_END_DECLS
-
