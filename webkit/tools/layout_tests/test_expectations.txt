@@ -2704,3 +2704,8 @@ BUG13174 LINUX REBASELINE : LayoutTests/fast/transforms/bounding-rect-zoom.html 
 // Skia 171:196
 BUG13218 LINUX : LayoutTests/fast/reflections/inline-crash.html = FAIL
 BUG13218 LINUX : LayoutTests/svg/custom/grayscale-gradient-mask.svg = FAIL
+
+// Flaky tests (not clear when they got introduced)
+BUG13267 LINUX : LayoutTests/fast/overflow/overflow-rtl-inline-scrollbar.html = PASS FAIL
+BUG13267 LINUX : LayoutTests/svg/custom/mask-inside-defs.svg = PASS FAIL
+BUG13267 LINUX : LayoutTests/svg/custom/stroked-pattern.svg = PASS FAIL
