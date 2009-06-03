@@ -5,6 +5,7 @@
 #include "base/compiler_specific.h"
 #include "base/lock.h"
 #include "base/platform_thread.h"
+#include "base/scoped_ptr.h"
 #include "base/simple_thread.h"
 #include "base/thread_collision_warner.h"
 #include "testing/gtest/include/gtest/gtest.h"
