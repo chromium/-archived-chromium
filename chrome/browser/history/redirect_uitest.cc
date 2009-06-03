@@ -71,6 +71,19 @@ TEST_F(RedirectTest, Client) {
 
   ASSERT_EQ(1U, redirects.size());
   EXPECT_EQ(final_url.spec(), redirects[0].spec());
+
+  // The address bar should display the final URL.
+  GURL tab_url;
+  EXPECT_TRUE(tab_proxy->GetCurrentURL(&tab_url));
+  EXPECT_TRUE(final_url == tab_url);
+
+  // Navigate one more time.
+  NavigateToURL(first_url);
+  PlatformThread::Sleep(action_timeout_ms());
+
+  // The address bar should still display the final URL.
+  EXPECT_TRUE(tab_proxy->GetCurrentURL(&tab_url));
+  EXPECT_TRUE(final_url == tab_url);
 }
 
 TEST_F(RedirectTest, ClientEmptyReferer) {

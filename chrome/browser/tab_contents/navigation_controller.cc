@@ -552,10 +552,8 @@ NavigationType::Type NavigationController::ClassifyNavigation(
   NavigationEntry* existing_entry = entries_[existing_entry_index].get();
 
   if (pending_entry_ &&
-      pending_entry_->url() == params.url &&
       existing_entry != pending_entry_ &&
-      pending_entry_->page_id() == -1 &&
-      pending_entry_->url() == existing_entry->url()) {
+      pending_entry_->page_id() == -1) {
     // In this case, we have a pending entry for a URL but WebCore didn't do a
     // new navigation. This happens when you press enter in the URL bar to
     // reload. We will create a pending entry, but WebKit will convert it to
@@ -667,6 +665,9 @@ void NavigationController::RendererDidNavigateToSamePage(
   // always the result of a user action, we want to dismiss infobars, etc. like
   // a regular user-initiated navigation.
   existing_entry->set_unique_id(pending_entry_->unique_id());
+
+  // The URL may have changed due to redirects.
+  existing_entry->set_url(params.url);
 
   DiscardNonCommittedEntries();
 }
@@ -961,7 +962,7 @@ void NavigationController::DiscardNonCommittedEntriesInternal() {
 void NavigationController::DiscardTransientEntry() {
   if (transient_entry_index_ == -1)
     return;
-  entries_.erase(entries_.begin() + transient_entry_index_ );
+  entries_.erase(entries_.begin() + transient_entry_index_);
   transient_entry_index_ = -1;
 }
 
