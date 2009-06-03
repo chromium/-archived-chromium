@@ -4,6 +4,7 @@
 
 #include "base/mime_util.h"
 
+#include <gtk/gtk.h>
 #include <sys/time.h>
 #include <time.h>
 
@@ -41,7 +42,7 @@ class MimeUtilConstants {
   // Store loaded icon_theme.
   std::map<std::string, IconTheme*>* icon_themes;
 
-  static const size_t kDefaultThemeNum = 5;
+  static const size_t kDefaultThemeNum = 4;
 
   // The default theme.
   IconTheme* default_themes[kDefaultThemeNum];
@@ -473,32 +474,40 @@ void InitDefaultThemes() {
   for (size_t i = 0; i < MimeUtilConstants::kDefaultThemeNum; ++i)
     default_themes[i] = NULL;
 
-  // TODO(thestig): There is no standard way to know about the current icon
-  // theme. So just make a guess. We may be able to do this better. If so,
-  // upstream fix to Google Gadgets for Linux.
-  char* env = getenv("GGL_ICON_THEME");
-  if (env)
-    default_themes[0] = IconTheme::LoadTheme(env);
-  else
+  char* env = getenv("KDE_FULL_SESSION");
+  if (env) {
+    // KDE
+    std::string kde_default_theme;
+    std::string kde_fallback_theme;
+
+    // TODO(thestig): Figure out how to get the current icon theme on KDE.
+    // Setting stored in ~/.kde/share/config/kdeglobals under Icons -> Theme.
     default_themes[0] = NULL;
 
-  env = getenv("KDE_FULL_SESSION");
-  if (env) {
+    // Try some reasonable defaults for KDE.
     env = getenv("KDE_SESSION_VERSION");
     if (!env || env[0] != '4') {
-      default_themes[1] = IconTheme::LoadTheme("crystalsvg");   // KDE3
-      default_themes[2] = IconTheme::LoadTheme("oxygen");       // KDE4
+      // KDE 3
+      kde_default_theme = "default.kde";
+      kde_fallback_theme = "crystalsvg";
     } else {
-      default_themes[1] = IconTheme::LoadTheme("oxygen");       // KDE4
-      default_themes[2] = IconTheme::LoadTheme("crystalsvg");   // KDE3
+      // KDE 4
+      kde_default_theme = "default.kde4";
+      kde_fallback_theme = "oxygen";
     }
-    default_themes[3] = IconTheme::LoadTheme("gnome");
-  } else {  // Assume it's Gnome.
-    default_themes[1] = IconTheme::LoadTheme("gnome");
-    default_themes[2] = IconTheme::LoadTheme("crystalsvg");   // KDE3
-    default_themes[3] = IconTheme::LoadTheme("oxygen");       // KDE4
+    default_themes[1] = IconTheme::LoadTheme(kde_default_theme);
+    default_themes[2] = IconTheme::LoadTheme(kde_fallback_theme);
+  } else {
+    // Assume it's Gnome and use GTK to figure out the theme.
+    gchar* gtk_theme_name;
+    g_object_get(gtk_settings_get_default(),
+                 "gtk-icon-theme-name",
+                 &gtk_theme_name, NULL);
+    default_themes[1] = IconTheme::LoadTheme(gtk_theme_name);
+    default_themes[2] = IconTheme::LoadTheme("gnome");
   }
-  default_themes[4] = IconTheme::LoadTheme("hicolor");
+  // hicolor needs to be last per icon theme spec.
+  default_themes[3] = IconTheme::LoadTheme("hicolor");
 }
 
 // Try to find an icon with the name |icon_name| that's |size| pixels.
@@ -556,6 +565,10 @@ FilePath GetMimeIcon(const std::string& mime_type, size_t size) {
   icon_names.push_back(icon_name);
   // Also try gnome-mime-text-plain.
   icon_names.push_back("gnome-mime-" + icon_name);
+
+  // Try "deb" for "application/x-deb" in KDE 3.
+  icon_name = mime_type.substr(mime_type.find("/x-") + 3);
+  icon_names.push_back(icon_name);
 
   // Try generic name like text-x-generic.
   icon_name = mime_type.substr(0, mime_type.find('/')) + "-x-generic";
