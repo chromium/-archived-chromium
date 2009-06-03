@@ -736,10 +736,12 @@ class AutocompleteController : public ACProviderListener {
   // all providers will be done immediately.
   //
   // The controller will fire
-  // NOTIFY_AUTOCOMPLETE_CONTROLLER_SYNCHRONOUS_RESULTS_AVAILABLE from inside
-  // this call, and unless the query is stopped, will fire at least one (and
-  // prehaps more) NOTIFY_AUTOCOMPLETE_CONTROLLER_RESULTS_UPDATED later as more
-  // results come in (even if the query completes synchronously).
+  // AUTOCOMPLETE_CONTROLLER_SYNCHRONOUS_MATCHES_AVAILABLE from inside this
+  // call, and unless the query is stopped, will fire at least one (and perhaps
+  // more) AUTOCOMPLETE_CONTROLLER_RESULT_UPDATED later as more results come in
+  // (even if the query completes synchronously).  Listeners should use the
+  // result set provided in the accompanying Details object to update
+  // themselves.
   void Start(const std::wstring& text,
              const std::wstring& desired_tld,
              bool prevent_inline_autocomplete,

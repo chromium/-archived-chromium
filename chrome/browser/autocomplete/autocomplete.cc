@@ -765,10 +765,10 @@ void AutocompleteController::UpdateLatestResult(bool is_synchronous_pass) {
           this, &AutocompleteController::CommitResult);
     }
 
-    result_.CopyFrom(latest_result_);
     NotificationService::current()->Notify(
         NotificationType::AUTOCOMPLETE_CONTROLLER_SYNCHRONOUS_MATCHES_AVAILABLE,
-        Source<AutocompleteController>(this), NotificationService::NoDetails());
+        Source<AutocompleteController>(this),
+        Details<const AutocompleteResult>(&latest_result_));
   }
 
   if (done_) {
@@ -796,7 +796,8 @@ void AutocompleteController::CommitResult() {
   result_.CopyFrom(latest_result_);
   NotificationService::current()->Notify(
       NotificationType::AUTOCOMPLETE_CONTROLLER_RESULT_UPDATED,
-      Source<AutocompleteController>(this), NotificationService::NoDetails());
+      Source<AutocompleteController>(this),
+      Details<const AutocompleteResult>(&result_));
 }
 
 ACMatches AutocompleteController::GetMatchesNotInLatestResult(

@@ -493,11 +493,14 @@ class NotificationType {
 
     // Sent by the autocomplete controller at least once per query, each time
     // new matches are available, subject to rate-limiting/coalescing to reduce
-    // the number of updates.  There are no details.
+    // the number of updates.  The details hold the AutocompleteResult that
+    // observers should use if they want to see the updated matches.
     AUTOCOMPLETE_CONTROLLER_RESULT_UPDATED,
 
     // Sent by the autocomplete controller once per query, immediately after
-    // synchronous matches become available.  There are no details.
+    // synchronous matches become available.  The details hold the
+    // AutocompleteResult that observers should use if they want to see the
+    // synchronous matches.
     AUTOCOMPLETE_CONTROLLER_SYNCHRONOUS_MATCHES_AVAILABLE,
 
     // This is sent when an item of the Omnibox popup is selected. The source

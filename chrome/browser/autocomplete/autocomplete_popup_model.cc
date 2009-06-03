@@ -250,7 +250,7 @@ void AutocompletePopupModel::Move(int count) {
   if (IsOpen() && !controller_->done()) {
     Observe(NotificationType::AUTOCOMPLETE_CONTROLLER_RESULT_UPDATED,
             Source<AutocompleteController>(controller_.get()),
-            NotificationService::NoDetails());
+            Details<const AutocompleteResult>(&controller_->result()));
   }
 
   const AutocompleteResult& result = controller_->result();
@@ -296,15 +296,16 @@ void AutocompletePopupModel::Observe(NotificationType type,
   if (inside_synchronous_query_)
     return;
 
-  const AutocompleteResult& result = controller_->result();
+  const AutocompleteResult* result =
+      Details<const AutocompleteResult>(details).ptr();
   switch (type.value) {
     case NotificationType::AUTOCOMPLETE_CONTROLLER_RESULT_UPDATED: {
-      selected_line_ = (result.default_match() == result.end()) ?
-          kNoMatch : (result.default_match() - result.begin());
+      selected_line_ = (result->default_match() == result->end()) ?
+          kNoMatch : (result->default_match() - result->begin());
       // If we're going to trim the window size to no longer include the hovered
       // line, turn hover off.  Practically, this shouldn't happen, but it
       // doesn't hurt to be defensive.
-      if ((hovered_line_ != kNoMatch) && (result.size() <= hovered_line_))
+      if ((hovered_line_ != kNoMatch) && (result->size() <= hovered_line_))
         SetHoveredLine(kNoMatch);
 
       view_->UpdatePopupAppearance();
@@ -321,8 +322,8 @@ void AutocompletePopupModel::Observe(NotificationType type,
       std::wstring keyword;
       bool is_keyword_hint = false;
       AutocompleteMatch::Type type = AutocompleteMatch::SEARCH_WHAT_YOU_TYPED;
-      const AutocompleteResult::const_iterator match(result.default_match());
-      if (match != result.end()) {
+      const AutocompleteResult::const_iterator match(result->default_match());
+      if (match != result->end()) {
         if ((match->inline_autocomplete_offset != std::wstring::npos) &&
             (match->inline_autocomplete_offset <
                 match->fill_into_edit.length())) {
