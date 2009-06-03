@@ -42,13 +42,11 @@ void ExtensionView::SetVisible(bool is_visible) {
 
 void ExtensionView::DidChangeBounds(const gfx::Rect& previous,
                                     const gfx::Rect& current) {
+  View::DidChangeBounds(previous, current);
   // Propagate the new size to RenderWidgetHostView.
   // We can't send size zero because RenderWidget DCHECKs that.
   if (render_view_host()->view() && !current.IsEmpty())
     render_view_host()->view()->SetSize(gfx::Size(width(), height()));
-  // Layout is where the HWND is properly positioned.
-  // TODO(erikkay) - perhaps this should be in NativeViewHost
-  Layout();
 }
 
 void ExtensionView::ShowIfCompletelyLoaded() {
@@ -86,9 +84,8 @@ void ExtensionView::ViewHierarchyChanged(bool is_add,
   NativeViewHost::ViewHierarchyChanged(is_add, parent, child);
   if (is_add && GetWidget() && !initialized_) {
     initialized_ = true;
-
-    RenderWidgetHostView* view = RenderWidgetHostView::CreateViewForWidget(
-        render_view_host());
+    RenderWidgetHostView* view =
+        RenderWidgetHostView::CreateViewForWidget(render_view_host());
 
     // TODO(mpcomplete): RWHV needs a cross-platform Init function.
 #if defined(OS_WIN)

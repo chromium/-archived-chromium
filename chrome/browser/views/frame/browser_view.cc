@@ -567,7 +567,9 @@ void BrowserView::AttachBrowserBubble(BrowserBubble* bubble) {
 }
 
 void BrowserView::DetachBrowserBubble(BrowserBubble* bubble) {
-  browser_bubbles_.erase(bubble);
+  BubbleSet::iterator it = browser_bubbles_.find(bubble);
+  if (it != browser_bubbles_.end())
+    browser_bubbles_.erase(it);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

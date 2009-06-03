@@ -10,33 +10,28 @@
 #include "views/window/window.h"
 
 void BrowserBubble::InitPopup() {
-  gfx::NativeView native_view = frame_->GetNativeView();
   gfx::NativeWindow native_window = frame_->GetWindow()->GetNativeWindow();
   views::WidgetWin* pop = new views::WidgetWin();
   pop->set_delete_on_destroy(false);
   pop->set_window_style(WS_POPUP);
+#if 0
+  // TODO(erikkay) Layered windows don't draw child windows.
+  // Apparently there's some tricks you can do to handle that.
+  // Do the research so we can use this.
   pop->set_window_ex_style(WS_EX_LAYERED |
-                           WS_EX_TOOLWINDOW |
                            l10n_util::GetExtendedTooltipStyles());
   pop->SetOpacity(0xFF);
-  pop->Init(native_view, bounds_, false);
+#endif
+  // A focus manager is necessary if you want to be able to handle various
+  // mouse events properly.
+  pop->Init(frame_native_view_,
+            bounds_,
+            true);  // Give the widget a focus manager.
   pop->SetContentsView(view_);
   popup_.reset(pop);
   Reposition();
 
-  BrowserView* browser_view =
-      BrowserView::GetBrowserViewForNativeWindow(native_window);
-  DCHECK(browser_view);
-  if (browser_view)
-    browser_view->AttachBrowserBubble(this);
-}
-
-void BrowserBubble::DestroyPopup() {
-  gfx::NativeWindow native_window = frame_->GetWindow()->GetNativeWindow();
-  BrowserView* browser_view =
-      BrowserView::GetBrowserViewForNativeWindow(native_window);
-  if (browser_view)
-    browser_view->DetachBrowserBubble(this);
+  AttachToBrowser();
 }
 
 void BrowserBubble::MovePopup(int x, int y, int w, int h) {

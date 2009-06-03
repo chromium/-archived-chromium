@@ -55,6 +55,11 @@ class ExtensionShelf : public views::View,
   virtual void BubbleBrowserWindowMoved(BrowserBubble* bubble);
   virtual void BubbleBrowserWindowClosed(BrowserBubble* bubble);
 
+  // Dragging toolstrips
+  void DragExtension();
+  void DropExtension(const gfx::Point& pt, bool cancel);
+  void DragHandleTo(const gfx::Point& pt);
+
  protected:
   // View
   virtual void ChildPreferredSizeChanged(View* child);
@@ -95,6 +100,9 @@ class ExtensionShelf : public views::View,
 
   // Timers for tracking mouse hovering.
   ScopedRunnableMethodFactory<ExtensionShelf> timer_factory_;
+
+  // A placeholder for a pending drag
+  View* drag_placeholder_view_;
 
   DISALLOW_COPY_AND_ASSIGN(ExtensionShelf);
 };
