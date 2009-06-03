@@ -439,22 +439,21 @@ class PageLoadTest : public UITest {
     }
   }
 
-  std::wstring ConstructSavedDebugLogPath(const std::wstring& debug_log_path,
-                                          int index) {
-    std::wstring saved_debug_log_path(debug_log_path);
+  FilePath ConstructSavedDebugLogPath(const FilePath& debug_log_path,
+                                      int index) {
     std::wstring suffix(L"_");
     suffix.append(IntToWString(index));
-    file_util::InsertBeforeExtension(&saved_debug_log_path, suffix);
-    return saved_debug_log_path;
+    return debug_log_path.InsertBeforeExtension(suffix);
   }
 
   void SaveDebugLog(const std::wstring& log_path, const std::wstring& log_id,
                     std::ofstream& log_file, int index) {
     if (!log_path.empty()) {
-      std::wstring saved_log_path =
-          ConstructSavedDebugLogPath(log_path, index);
-      if (file_util::Move(log_path, saved_log_path)) {
-        log_file << " " << log_id << "=" << saved_log_path;
+      FilePath log_file_path(log_path);
+      FilePath saved_log_file_path =
+          ConstructSavedDebugLogPath(log_file_path, index);
+      if (file_util::Move(log_file_path, saved_log_file_path)) {
+        log_file << " " << log_id << "=" << saved_log_file_path.value();
       }
     }
   }

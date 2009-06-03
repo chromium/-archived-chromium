@@ -475,21 +475,23 @@ void IEImporter::ParseFavoritesFolder(const FavoritesInfo& info,
   std::wstring ie_folder = l10n_util::GetString(IDS_BOOKMARK_GROUP_FROM_IE);
   BookmarkVector toolbar_bookmarks;
   FilePath file;
-  std::vector<std::wstring> file_list;
+  std::vector<FilePath::StringType> file_list;
+  FilePath favorites_path(info.path);
+  // Favorites path length.  Make sure it doesn't include the trailing \.
+  size_t favorites_path_len =
+      favorites_path.StripTrailingSeparators().value().size();
   file_util::FileEnumerator file_enumerator(
-      FilePath::FromWStringHack(info.path), true,
-      file_util::FileEnumerator::FILES);
+      favorites_path, true, file_util::FileEnumerator::FILES);
   while (!(file = file_enumerator.Next()).value().empty() && !cancelled())
-    file_list.push_back(file.ToWStringHack());
+    file_list.push_back(file.value());
 
   // Keep the bookmarks in alphabetical order.
   std::sort(file_list.begin(), file_list.end());
 
-  for (std::vector<std::wstring>::iterator it = file_list.begin();
+  for (std::vector<FilePath::StringType>::iterator it = file_list.begin();
        it != file_list.end(); ++it) {
-    std::wstring filename = file_util::GetFilenameFromPath(*it);
-    std::wstring extension = file_util::GetFileExtensionFromPath(filename);
-    if (!LowerCaseEqualsASCII(extension, "url"))
+    FilePath shortcut(*it);
+    if (!LowerCaseEqualsASCII(shortcut.Extension(), ".url"))
       continue;
 
     // Skip the bookmark with invalid URL.
@@ -497,13 +499,19 @@ void IEImporter::ParseFavoritesFolder(const FavoritesInfo& info,
     if (!url.is_valid())
       continue;
 
-    // Remove the dot and the file extension, and the directory path.
-    std::wstring relative_path = it->substr(info.path.size(),
-        it->size() - filename.size() - info.path.size());
-    TrimString(relative_path, L"\\", &relative_path);
+    // Make the relative path from the Favorites folder, without the basename.
+    // ex. Suppose that the Favorites folder is C:\Users\Foo\Favorites.
+    //   C:\Users\Foo\Favorites\Foo.url -> ""
+    //   C:\Users\Foo\Favorites\Links\Bar\Baz.url -> "Links\Bar"
+    FilePath::StringType relative_string =
+        shortcut.DirName().value().substr(favorites_path_len);
+    if (relative_string.size() > 0 && FilePath::IsSeparator(relative_string[0]))
+      relative_string = relative_string.substr(1);
+    FilePath relative_path(relative_string);
 
     ProfileWriter::BookmarkEntry entry;
-    entry.title = filename.substr(0, filename.size() - (extension.size() + 1));
+    // Remove the dot, the file extension, and the directory path.
+    entry.title = shortcut.RemoveExtension().BaseName().value();
     entry.url = url;
     entry.creation_time = GetFileCreationTime(*it);
     if (!relative_path.empty())

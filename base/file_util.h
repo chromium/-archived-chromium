@@ -40,11 +40,6 @@ namespace file_util {
 // Returns a vector of all of the components of the provided path.
 void PathComponents(const FilePath& path,
                     std::vector<FilePath::StringType>* components);
-#if defined(OS_WIN)
-// Deprecated temporary compatibility function.
-void PathComponents(const std::wstring& path,
-                    std::vector<std::wstring>* components);
-#endif
 
 // Returns true if the given path ends with a path separator character.
 bool EndsWithSeparator(const FilePath& path);
@@ -111,12 +106,6 @@ void InsertBeforeExtension(FilePath* path, const FilePath::StringType& suffix);
 // Deprecated compatibility function.  Use FilePath::ReplaceExtension.
 void ReplaceExtension(FilePath* file_name,
                       const FilePath::StringType& extension);
-
-#if defined(OS_WIN)
-// Deprecated temporary compatibility functions.
-void InsertBeforeExtension(std::wstring* path, const std::wstring& suffix);
-void ReplaceExtension(std::wstring* file_name, const std::wstring& extension);
-#endif
 
 // Replaces characters in 'file_name' that are illegal for file names with
 // 'replace_char'. 'file_name' must not be a full or relative path, but just the

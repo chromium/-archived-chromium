@@ -809,21 +809,4 @@ void MemoryMappedFile::CloseHandles() {
   length_ = INVALID_FILE_SIZE;
 }
 
-// Deprecated functions ----------------------------------------------------
-
-void InsertBeforeExtension(std::wstring* path_str,
-                           const std::wstring& suffix) {
-  FilePath path(*path_str);
-  InsertBeforeExtension(&path, suffix);
-  path_str->assign(path.value());
-}
-void PathComponents(const std::wstring& path,
-                    std::vector<std::wstring>* components) {
-  PathComponents(FilePath(path), components);
-}
-void ReplaceExtension(std::wstring* file_name, const std::wstring& extension) {
-  FilePath path(*file_name);
-  ReplaceExtension(&path, extension);
-  file_name->assign(path.value());
-}
 }  // namespace file_util
