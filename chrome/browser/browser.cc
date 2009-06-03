@@ -833,19 +833,19 @@ void Browser::BookmarkCurrentPage() {
   UserMetrics::RecordAction(L"Star", profile_);
 
   TabContents* contents = GetSelectedTabContents();
+  if (!contents->ShouldDisplayURL())
+    return;
+  const GURL& url = contents->GetURL();
+  if (url.is_empty() || !url.is_valid())
+    return;
+  std::wstring title = UTF16ToWideHack(contents->GetTitle());
+
   BookmarkModel* model = contents->profile()->GetBookmarkModel();
   if (!model || !model->IsLoaded())
     return;  // Ignore requests until bookmarks are loaded.
 
-  NavigationEntry* entry = contents->controller().GetActiveEntry();
-  if (!entry)
-    return;  // Can't star if there is no URL.
-  const GURL& url = entry->display_url();
-  if (url.is_empty() || !url.is_valid())
-    return;
-
   bool was_bookmarked = model->IsBookmarked(url);
-  model->SetURLStarred(url, UTF16ToWideHack(entry->title()), true);
+  model->SetURLStarred(url, title, true);
   if (window_->IsActive()) {
     // Only show the bubble if the window is active, otherwise we may get into
     // weird situations were the bubble is deleted as soon as it is shown.

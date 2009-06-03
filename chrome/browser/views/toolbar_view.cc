@@ -849,8 +849,7 @@ void BrowserToolbarView::ShowContextMenu(int x, int y, bool is_mouse_gesture) {
 
 int BrowserToolbarView::GetDragOperations(views::View* sender, int x, int y) {
   DCHECK(sender == star_);
-  if (model_->input_in_progress() || !tab_ || !tab_->ShouldDisplayURL() ||
-      !tab_->GetURL().is_valid()) {
+  if (!tab_ || !tab_->ShouldDisplayURL() || !tab_->GetURL().is_valid()) {
     return DragDropTypes::DRAG_NONE;
   }
   if (profile_ && profile_->GetBookmarkModel() &&
