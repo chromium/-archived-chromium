@@ -908,11 +908,13 @@ function enterEditMode() {
     crossImageDiv.style.display = 'inline';
   }
   document.getElementById('main').className = 'visible edit-mode';
+  window.onunload = cancelEdits;
 }
 
 function exitEditMode() {
   document.getElementById('main').className = 'visible';
   blacklistedURLs = [];
+  window.onunload = null;
 }
 
 function cancelEdits() {
