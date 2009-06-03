@@ -2709,3 +2709,4 @@ BUG13218 LINUX : LayoutTests/svg/custom/grayscale-gradient-mask.svg = FAIL
 BUG13267 LINUX : LayoutTests/fast/overflow/overflow-rtl-inline-scrollbar.html = PASS FAIL
 BUG13267 LINUX : LayoutTests/svg/custom/mask-inside-defs.svg = PASS FAIL
 BUG13267 LINUX : LayoutTests/svg/custom/stroked-pattern.svg = PASS FAIL
+BUG13267 LINUX : LayoutTests/editing/selection/5131716-3.html = PASS FAIL
