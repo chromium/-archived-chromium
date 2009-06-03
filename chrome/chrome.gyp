@@ -4262,7 +4262,6 @@
           'target_name': 'worker',
           'type': '<(library)',
           'msvs_guid': 'C78D02D0-A366-4EC6-A248-AA8E64C4BA18',
-          'msvs_existing_vcproj': 'worker/worker.vcproj',
           'dependencies': [
             '../base/base.gyp:base',
             '../webkit/webkit.gyp:webkit',
