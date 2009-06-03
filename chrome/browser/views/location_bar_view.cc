@@ -912,7 +912,11 @@ bool LocationBarView::SkipDefaultKeyEventProcessing(const views::KeyEvent& e) {
     return true;
   }
 
+#if defined(OS_WIN)
   return location_entry_->SkipDefaultKeyEventProcessing(e);
+#else
+  return false;
+#endif
 }
 
 // ShowInfoBubbleTask-----------------------------------------------------------

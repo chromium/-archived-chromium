@@ -106,7 +106,7 @@ class EditFolderController : public InputWindowDialog::Delegate,
       ALLOW_UNUSED BookmarkNode* node =
           model_->AddGroup(node_, node_->GetChildCount(), text);
       if (show_in_manager_) {
-#if defined(OS_WIN) || defined(OS_LINUX)
+#if defined(OS_WIN) || (defined(OS_LINUX) && !defined(TOOLKIT_VIEWS))
         BookmarkManager::SelectInTree(profile_, node);
 #else
         NOTIMPLEMENTED() << "BookmarkManager not yet implemented";
@@ -330,7 +330,7 @@ void BookmarkContextMenu::ExecuteCommand(int id) {
       }
 
       if (selection_[0]->is_url()) {
-#if defined(OS_WIN) || defined(OS_LINUX)
+#if defined(OS_WIN) || (defined(OS_LINUX) && !defined(TOOLKIT_VIEWS))
         BookmarkEditor::Configuration editor_config;
         if (configuration_ == BOOKMARK_BAR)
           editor_config = BookmarkEditor::SHOW_TREE;
@@ -401,7 +401,7 @@ void BookmarkContextMenu::ExecuteCommand(int id) {
         return;
       }
 
-#if defined(OS_WIN) || defined(OS_LINUX)
+#if defined(OS_WIN) || (defined(OS_LINUX) && !defined(TOOLKIT_VIEWS))
       BookmarkManager::SelectInTree(profile_, selection_[0]);
 #else
       NOTIMPLEMENTED() << "Bookmark Manager not implemented";
@@ -410,7 +410,7 @@ void BookmarkContextMenu::ExecuteCommand(int id) {
 
     case IDS_BOOKMARK_MANAGER:
       UserMetrics::RecordAction(L"ShowBookmarkManager", profile_);
-#if defined(OS_WIN) || defined(OS_LINUX)
+#if defined(OS_WIN) || (defined(OS_LINUX) && !defined(TOOLKIT_VIEWS))
       BookmarkManager::Show(profile_);
 #else
       NOTIMPLEMENTED() << "Bookmark Manager not implemented";

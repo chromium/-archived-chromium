@@ -173,7 +173,9 @@ class LocalProcessWindowFinder : public BaseWindowFinder {
   DISALLOW_COPY_AND_ASSIGN(LocalProcessWindowFinder);
 };
 
+#if !defined(TOOLKIT_VIEWS)
 DockInfo::Factory* DockInfo::factory_ = NULL;
+#endif
 
 // static
 DockInfo DockInfo::GetDockInfoAtPoint(const gfx::Point& screen_point,
@@ -192,9 +194,13 @@ GtkWindow* DockInfo::GetLocalProcessWindowAtPoint(
   if (factory_)
     return factory_->GetLocalProcessWindowAtPoint(screen_point, ignore);
 
+#if !defined(TOOLKIT_VIEWS)
   XID xid =
-    LocalProcessWindowFinder::GetProcessWindowAtPoint(screen_point, ignore);
+      LocalProcessWindowFinder::GetProcessWindowAtPoint(screen_point, ignore);
   return BrowserWindowGtk::GetBrowserWindowForXID(xid);
+#else
+  return NULL;
+#endif
 }
 
 bool DockInfo::GetWindowBounds(gfx::Rect* bounds) const {
