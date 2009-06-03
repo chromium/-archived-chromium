@@ -115,6 +115,8 @@ void BackingStore::PaintRectWithoutXrender(TransportDIB* bitmap,
     // slow path anyway, we do it slowly.
 
     uint8_t* bitmap24 = static_cast<uint8_t*>(malloc(3 * width * height));
+    if (!bitmap24)
+      return;
     const uint32_t* bitmap_in = static_cast<const uint32_t*>(bitmap->memory());
     for (int y = 0; y < height; ++y) {
       for (int x = 0; x < width; ++x) {
@@ -141,6 +143,8 @@ void BackingStore::PaintRectWithoutXrender(TransportDIB* bitmap,
     // doesn't include Xrender.
 
     uint16_t* bitmap16 = static_cast<uint16_t*>(malloc(2 * width * height));
+    if (!bitmap16)
+      return;
     uint16_t* const orig_bitmap16 = bitmap16;
     const uint32_t* bitmap_in = static_cast<const uint32_t*>(bitmap->memory());
     for (int y = 0; y < height; ++y) {
@@ -189,11 +193,17 @@ void BackingStore::PaintRect(base::ProcessHandle process,
   if (bitmap_rect.IsEmpty())
     return;
 
+  const int width = bitmap_rect.width();
+  const int height = bitmap_rect.height();
+  // Assume that somewhere along the line, someone will do width * height * 4
+  // with signed numbers. If the maximum value is 2**31, then 2**31 / 4 =
+  // 2**29 and floor(sqrt(2**29)) = 23170.
+  if (width > 23170 || height > 23170)
+    return;
+
   if (!use_render_)
     return PaintRectWithoutXrender(bitmap, bitmap_rect);
 
-  const int width = bitmap_rect.width();
-  const int height = bitmap_rect.height();
   Picture picture;
   Pixmap pixmap;
 
