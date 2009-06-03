@@ -350,7 +350,8 @@ struct UrlTestData {
 
 // Returns an addrinfo for the given 32-bit address (IPv4.)
 // The result lives in static storage, so don't delete it.
-const struct addrinfo* GetIPv4Address(const uint8 bytes[4]) {
+// |bytes| should be an array of length 4.
+const struct addrinfo* GetIPv4Address(const uint8* bytes) {
   static struct addrinfo static_ai;
   static struct sockaddr_in static_addr4;
 
@@ -365,7 +366,7 @@ const struct addrinfo* GetIPv4Address(const uint8 bytes[4]) {
   memset(addr4, 0, sizeof(static_addr4));
   addr4->sin_port = htons(80);
   addr4->sin_family = ai->ai_family;
-  memcpy(&addr4->sin_addr, bytes, sizeof(bytes));
+  memcpy(&addr4->sin_addr, bytes, 4);
 
   ai->ai_addr = (sockaddr*)addr4;
   return ai;
@@ -373,7 +374,8 @@ const struct addrinfo* GetIPv4Address(const uint8 bytes[4]) {
 
 // Returns a addrinfo for the given 128-bit address (IPv6.)
 // The result lives in static storage, so don't delete it.
-const struct addrinfo* GetIPv6Address(const uint8 bytes[16]) {
+// |bytes| should be an array of length 16.
+const struct addrinfo* GetIPv6Address(const uint8* bytes) {
   static struct addrinfo static_ai;
   static struct sockaddr_in6 static_addr6;
 
@@ -388,7 +390,7 @@ const struct addrinfo* GetIPv6Address(const uint8 bytes[16]) {
   memset(addr6, 0, sizeof(static_addr6));
   addr6->sin6_port = htons(80);
   addr6->sin6_family = ai->ai_family;
-  memcpy(&addr6->sin6_addr, bytes, sizeof(bytes));
+  memcpy(&addr6->sin6_addr, bytes, 16);
 
   ai->ai_addr = (sockaddr*)addr6;
   return ai;
@@ -994,8 +996,7 @@ TEST(NetUtilTest, NetAddressToString_IPv4) {
   }
 }
 
-// TODO(eroman): On windows this is failing with WSAEINVAL (10022).
-TEST(NetUtilTest, DISABLED_NetAddressToString_IPv6) {
+TEST(NetUtilTest, NetAddressToString_IPv6) {
   const struct {
     uint8 addr[16];
     const char* result;
@@ -1008,7 +1009,10 @@ TEST(NetUtilTest, DISABLED_NetAddressToString_IPv6) {
   for (size_t i = 0; i < ARRAYSIZE_UNSAFE(tests); ++i) {
     const addrinfo* ai = GetIPv6Address(tests[i].addr);
     std::string result = net::NetAddressToString(ai);
-    EXPECT_EQ(std::string(tests[i].result), result);
+    // Allow NetAddressToString() to fail, in case the system doesn't
+    // support IPv6.
+    if (!result.empty())
+      EXPECT_EQ(std::string(tests[i].result), result);
   }
 }
 
