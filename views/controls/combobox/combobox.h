@@ -60,7 +60,7 @@ class Combobox : public View {
   virtual gfx::Size GetPreferredSize();
   virtual void Layout();
   virtual void SetEnabled(bool enabled);
-  virtual bool OverrideAccelerator(const Accelerator& accelerator);
+  virtual bool SkipDefaultKeyEventProcessing(const KeyEvent& e);
 
  protected:
   virtual void Focus();

@@ -509,15 +509,6 @@ class View : public AcceleratorTarget {
     return false;
   }
 
-  // Called on a view (if it is has focus) before an Accelerator is processed.
-  // Views that want to override an accelerator should override this method to
-  // perform the required action and return true, to indicate that the
-  // accelerator should not be processed any further (in which case the key
-  // event is eaten).
-  virtual bool OverrideAccelerator(const Accelerator& accelerator) {
-    return false;
-  }
-
   // Returns whether this view currently has the focus.
   virtual bool HasFocus();
 

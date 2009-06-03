@@ -139,7 +139,7 @@ class AutocompleteEditViewWin
 
   // Called before an accelerator is processed to give us a chance to override
   // it.
-  bool OverrideAccelerator(const views::Accelerator& accelerator);
+  bool SkipDefaultKeyEventProcessing(const views::KeyEvent& e);
 
   // Handler for external events passed in to us.  The View that owns us may
   // send us events that we should treat as if they were events on us.

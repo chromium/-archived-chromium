@@ -4,6 +4,7 @@
 
 #include "views/controls/combobox/combobox.h"
 
+#include "base/keyboard_codes.h"
 #include "base/logging.h"
 #include "views/controls/combobox/native_combobox_wrapper.h"
 
@@ -69,14 +70,11 @@ void Combobox::SetEnabled(bool flag) {
 
 // VK_ESCAPE should be handled by this view when the drop down list is active.
 // In other words, the list should be closed instead of the dialog.
-bool Combobox::OverrideAccelerator(const Accelerator& accelerator) {
-#if defined(OS_WIN)
-  if (accelerator != Accelerator(VK_ESCAPE, false, false, false))
+bool Combobox::SkipDefaultKeyEventProcessing(const KeyEvent& e) {
+  if (e.GetCharacter() != base::VKEY_ESCAPE ||
+      e.IsShiftDown() || e.IsControlDown() || e.IsAltDown()) {
     return false;
-#else
-  NOTIMPLEMENTED();
-  // TODO(port): figure out VK_keys
-#endif
+  }
   return native_wrapper_ && native_wrapper_->IsDropdownOpen();
 }
 

@@ -115,7 +115,7 @@ class LocationBarView : public LocationBar,
   bool GetAccessibleRole(AccessibilityTypes::Role* role);
 
   // Overridden from views::View:
-  virtual bool OverrideAccelerator(const views::Accelerator& accelerator);
+  virtual bool SkipDefaultKeyEventProcessing(const views::KeyEvent& e);
 
   // Overridden from LocationBar:
   virtual void ShowFirstRunBubble(bool use_OEM_bubble);
@@ -138,9 +138,6 @@ class LocationBarView : public LocationBar,
 
  protected:
   void Focus();
-
-  // Overridden from Chrome::View.
-  virtual bool SkipDefaultKeyEventProcessing(const views::KeyEvent& event);
 
  private:
   // View used when the user has selected a keyword.

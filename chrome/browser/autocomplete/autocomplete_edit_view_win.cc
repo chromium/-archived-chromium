@@ -887,14 +887,50 @@ void AutocompleteEditViewWin::PasteAndGo(const std::wstring& text) {
     model_->PasteAndGo();
 }
 
-bool AutocompleteEditViewWin::OverrideAccelerator(
-    const views::Accelerator& accelerator) {
-  // Only override <esc>.
-  if ((accelerator.GetKeyCode() != VK_ESCAPE) || accelerator.IsAltDown())
-    return false;
+bool AutocompleteEditViewWin::SkipDefaultKeyEventProcessing(
+    const views::KeyEvent& e) {  
+  int c = e.GetCharacter();
+  // We don't process ALT + numpad digit as accelerators, they are used for
+  // entering special characters.  We do translate alt-home.
+  if (e.IsAltDown() && (c != VK_HOME) &&
+      win_util::IsNumPadDigit(c, e.IsExtendedKey()))
+    return true;
 
-  ScopedFreeze freeze(this, GetTextObjectModel());
-  return model_->OnEscapeKeyPressed();
+  // Skip accelerators for key combinations omnibox wants to crack. This list
+  // should be synced with OnKeyDownOnlyWritable() (but for tab which is dealt
+  // with above in LocationBarView::SkipDefaultKeyEventProcessing).
+  //
+  // We cannot return true for all keys because we still need to handle some
+  // accelerators (e.g., F5 for reload the page should work even when the
+  // Omnibox gets focused).
+  switch (c) {
+    case VK_ESCAPE: {
+      ScopedFreeze freeze(this, GetTextObjectModel());
+      return model_->OnEscapeKeyPressed();
+    }
+
+    case VK_RETURN:
+      return true;
+
+    case VK_UP:
+    case VK_DOWN:
+      return !e.IsAltDown();
+
+    case VK_DELETE:
+    case VK_INSERT:
+      return !e.IsAltDown() && e.IsShiftDown() && !e.IsControlDown();
+
+    case 'X':
+    case 'V':
+      return !e.IsAltDown() && e.IsControlDown();
+
+    case VK_BACK:
+    case 0xbb:
+      return true;
+
+    default:
+      return false;
+  }
 }
 
 void AutocompleteEditViewWin::HandleExternalMsg(UINT msg,

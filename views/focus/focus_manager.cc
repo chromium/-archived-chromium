@@ -316,10 +316,7 @@ bool FocusManager::OnKeyDown(HWND window, UINT message, WPARAM wparam,
                                       win_util::IsShiftPressed(),
                                       win_util::IsCtrlPressed(),
                                       win_util::IsAltPressed()));
-  // We give a chance to the focused view to override the accelerator before
-  // processing it.
-  if ((focused_view_ && focused_view_->OverrideAccelerator(accelerator)) ||
-      ProcessAccelerator(accelerator)) {
+  if (ProcessAccelerator(accelerator)) {
     // If a shortcut was activated for this keydown message, do not propagate
     // the message further.
     return false;

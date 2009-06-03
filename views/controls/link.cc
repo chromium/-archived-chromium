@@ -127,10 +127,10 @@ bool Link::OnKeyPressed(const KeyEvent& e) {
   return false;
 }
 
-bool Link::OverrideAccelerator(const Accelerator& accelerator) {
+bool Link::SkipDefaultKeyEventProcessing(const KeyEvent& e) {
 #if defined(OS_WIN)
-  return (accelerator.GetKeyCode() == VK_SPACE) ||
-         (accelerator.GetKeyCode() == VK_RETURN);
+  // Make sure we don't process space or enter as accelerators.
+  return (e.GetCharacter() == VK_SPACE) || (e.GetCharacter() == VK_RETURN);
 #else
   NOTIMPLEMENTED();
   return false;
