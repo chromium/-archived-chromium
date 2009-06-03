@@ -8,8 +8,172 @@
 
 #include "base/gfx/native_widget_types.h"
 #include "base/logging.h"
+#include "base/task.h"
 #include "chrome/browser/browser_list.h"
 #include "chrome/browser/browser_window.h"
+#include "chrome/browser/gtk/browser_window_gtk.h"
+#include "chrome/common/x11_util.h"
+
+////////////////////////////////////////////////////////////////////////////////
+// BaseWindowFinder
+//
+// Base class used to locate a window. A subclass need only override
+// ShouldStopIterating to determine when iteration should stop.
+class BaseWindowFinder : public x11_util::EnumerateWindowsDelegate {
+ public:
+  explicit BaseWindowFinder(const std::set<GtkWidget*>& ignore) {
+    std::set<GtkWidget*>::iterator iter;
+    for (iter = ignore.begin(); iter != ignore.end(); iter++) {
+      XID xid = x11_util::GetX11WindowFromGtkWidget(*iter);
+      ignore_.insert(xid);
+    }
+  }
+
+  virtual ~BaseWindowFinder() {}
+
+ protected:
+  // Returns true if iteration should stop, false otherwise.
+  virtual bool ShouldStopIterating(XID window) {
+    return (ignore_.find(window) != ignore_.end());
+  }
+
+ private:
+  std::set<XID> ignore_;
+
+  DISALLOW_COPY_AND_ASSIGN(BaseWindowFinder);
+};
+
+////////////////////////////////////////////////////////////////////////////////
+// TopMostFinder
+//
+// Helper class to determine if a particular point of a window is not obscured
+// by another window.
+class TopMostFinder : public BaseWindowFinder {
+ public:
+  // Returns true if |window| is not obscured by another window at the
+  // location |screen_loc|, not including the windows in |ignore|.
+  static bool IsTopMostWindowAtPoint(XID window,
+                                     const gfx::Point& screen_loc,
+                                     const std::set<GtkWidget*>& ignore) {
+    TopMostFinder finder(window, screen_loc, ignore);
+    return finder.is_top_most_;
+  }
+
+ protected:
+  virtual bool ShouldStopIterating(XID window) {
+    if (BaseWindowFinder::ShouldStopIterating(window))
+      return true;
+
+    if (window == target_) {
+      // Window is topmost, stop iterating.
+      is_top_most_ = true;
+      return true;
+    }
+
+    if (x11_util::IsWindowVisible(window)) {
+      // The window isn't visible, keep iterating.
+      return false;
+    }
+
+    gfx::Rect rect;
+    if (x11_util::GetWindowRect(window, &rect) && rect.Contains(screen_loc_)) {
+      // At this point we haven't found our target window, so this window is
+      // higher in the z-order than the target window.  If this window contains
+      // the point, then we can stop the search now because this window is
+      // obscuring the target window at this point.
+      return true;
+    }
+
+    return false;
+  }
+
+ private:
+  TopMostFinder(XID window,
+                const gfx::Point& screen_loc,
+                const std::set<GtkWidget*>& ignore)
+    : BaseWindowFinder(ignore),
+      target_(window),
+      screen_loc_(screen_loc),
+      is_top_most_(false) {
+    XID root = x11_util::GetX11RootWindow();
+    x11_util::EnumerateChildWindows(root, this);
+  }
+
+  // The window we're looking for.
+  XID target_;
+
+  // Location of window to find.
+  gfx::Point screen_loc_;
+
+  // Is target_ the top most window? This is initially false but set to true
+  // in ShouldStopIterating if target_ is passed in.
+  bool is_top_most_;
+
+  DISALLOW_COPY_AND_ASSIGN(TopMostFinder);
+};
+
+////////////////////////////////////////////////////////////////////////////////
+// LocalProcessWindowFinder
+//
+// Helper class to determine if a particular point of a window from our process
+// is not obscured by another window.
+class LocalProcessWindowFinder : public BaseWindowFinder {
+ public:
+  // Returns the XID from our process at screen_loc that is not obscured by
+  // another window. Returns 0 otherwise.
+  static XID GetProcessWindowAtPoint(const gfx::Point& screen_loc,
+                                     const std::set<GtkWidget*>& ignore) {
+    LocalProcessWindowFinder finder(screen_loc, ignore);
+    if (finder.result_ &&
+        TopMostFinder::IsTopMostWindowAtPoint(finder.result_, screen_loc,
+                                              ignore)) {
+      return finder.result_;
+    }
+    return 0;
+  }
+
+ protected:
+  virtual bool ShouldStopIterating(XID window) {
+    if (BaseWindowFinder::ShouldStopIterating(window))
+      return true;
+
+    // Check if this window is in our process.
+    if (!BrowserWindowGtk::GetBrowserWindowForXID(window))
+      return false;
+
+    if (!x11_util::IsWindowVisible(window))
+      return false;
+
+    gfx::Rect rect;
+    if (x11_util::GetWindowRect(window, &rect) && rect.Contains(screen_loc_)) {
+      result_ = window;
+      return true;
+    }
+
+    return false;
+  }
+
+ private:
+  LocalProcessWindowFinder(const gfx::Point& screen_loc,
+                           const std::set<GtkWidget*>& ignore)
+    : BaseWindowFinder(ignore),
+      screen_loc_(screen_loc),
+      result_(0) {
+    XID root = x11_util::GetX11RootWindow();
+    x11_util::EnumerateChildWindows(root, this);
+  }
+
+  // Position of the mouse.
+  gfx::Point screen_loc_;
+
+  // The resulting window. This is initially null but set to true in
+  // ShouldStopIterating if an appropriate window is found.
+  XID result_;
+
+  DISALLOW_COPY_AND_ASSIGN(LocalProcessWindowFinder);
+};
+
+DockInfo::Factory* DockInfo::factory_ = NULL;
 
 // static
 DockInfo DockInfo::GetDockInfoAtPoint(const gfx::Point& screen_point,
@@ -21,29 +185,16 @@ DockInfo DockInfo::GetDockInfoAtPoint(const gfx::Point& screen_point,
   return DockInfo();
 }
 
+// static
 GtkWindow* DockInfo::GetLocalProcessWindowAtPoint(
     const gfx::Point& screen_point,
     const std::set<GtkWidget*>& ignore) {
   if (factory_)
     return factory_->GetLocalProcessWindowAtPoint(screen_point, ignore);
 
-  // Iterate over the browserlist to find the window at the specified point.
-  // This is technically not correct as it doesn't take into account other
-  // windows that may be on top of a browser window at the same point, but is
-  // good enough for now.
-  for (BrowserList::const_iterator i = BrowserList::begin();
-       i != BrowserList::end(); ++i) {
-    Browser* browser = *i;
-    GtkWindow* window = browser->window()->GetNativeHandle();
-    if (ignore.count(GTK_WIDGET(window)) == 0) {
-      int x, y, w, h;
-      gtk_window_get_position(window, &x, &y);
-      gtk_window_get_size(window, &w, &h);
-      if (gfx::Rect(x, y, w, h).Contains(screen_point))
-        return window;
-    }
-  }
-  return NULL;
+  XID xid =
+    LocalProcessWindowFinder::GetProcessWindowAtPoint(screen_point, ignore);
+  return BrowserWindowGtk::GetBrowserWindowForXID(xid);
 }
 
 bool DockInfo::GetWindowBounds(gfx::Rect* bounds) const {

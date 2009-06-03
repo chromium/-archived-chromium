@@ -592,20 +592,48 @@ void TabStripGtk::TabInsertedAt(TabContents* contents,
   if (active_animation_.get())
     active_animation_->Stop();
 
-  TabGtk* tab = new TabGtk(this);
+  bool contains_tab = false;
+  TabGtk* tab = NULL;
+  // First see if this Tab is one that was dragged out of this TabStrip and is
+  // now being dragged back in. In this case, the DraggedTabController actually
+  // has the Tab already constructed and we can just insert it into our list
+  // again.
+  if (IsDragSessionActive()) {
+    tab = drag_controller_->GetDragSourceTabForContents(contents);
+    if (tab) {
+      // If the Tab was detached, it would have been animated closed but not
+      // removed, so we need to reset this property.
+      tab->set_closing(false);
+      tab->ValidateLoadingAnimation(TabRendererGtk::ANIMATION_NONE);
+      tab->SetVisible(true);
+    }
 
-  // Only insert if we're not already in the list.
-  if (index == TabStripModel::kNoTab) {
-    TabData d = { tab, gfx::Rect() };
-    tab_data_.push_back(d);
-    tab->UpdateData(contents, false);
-  } else {
-    TabData d = { tab, gfx::Rect() };
-    tab_data_.insert(tab_data_.begin() + index, d);
-    tab->UpdateData(contents, false);
+    // See if we're already in the list. We don't want to add ourselves twice.
+    std::vector<TabData>::const_iterator iter = tab_data_.begin();
+    for (; iter != tab_data_.end() && !contains_tab; ++iter) {
+      if (iter->tab == tab)
+        contains_tab = true;
+    }
   }
 
-  gtk_fixed_put(GTK_FIXED(tabstrip_.get()), tab->widget(), 0, 0);
+  if (!tab)
+    tab = new TabGtk(this);
+
+  // Only insert if we're not already in the list.
+  if (!contains_tab) {
+    if (index == TabStripModel::kNoTab) {
+      TabData d = { tab, gfx::Rect() };
+      tab_data_.push_back(d);
+      tab->UpdateData(contents, false);
+    } else {
+      TabData d = { tab, gfx::Rect() };
+      tab_data_.insert(tab_data_.begin() + index, d);
+      tab->UpdateData(contents, false);
+    }
+  }
+
+  if (gtk_widget_get_parent(tab->widget()) != tabstrip_.get())
+    gtk_fixed_put(GTK_FIXED(tabstrip_.get()), tab->widget(), 0, 0);
 
   // Don't animate the first tab; it looks weird.
   if (GetTabCount() > 1) {

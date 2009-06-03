@@ -1795,11 +1795,6 @@
                 ['exclude', '^browser/bookmarks/bookmark_context_menu_gtk.cc'],
               ],
             }],
-            ['toolkit_views==0',{
-              'sources/': [
-                ['exclude', '^browser/dock_info_gtk.cc'],
-              ],
-            }],
           ],
           # Exclude files that should be excluded for all non-Windows platforms.
           'sources!': [

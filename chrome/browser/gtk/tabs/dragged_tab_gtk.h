@@ -49,6 +49,8 @@ class DraggedTabGtk : public AnimationDelegate {
   // to determine where to place the tab in the attached tabstrip.
   gfx::Size attached_tab_size() const { return attached_tab_size_; }
 
+  GtkWidget* widget() const { return container_; }
+
  private:
   // Overridden from AnimationDelegate:
   virtual void AnimationProgressed(const Animation* animation);

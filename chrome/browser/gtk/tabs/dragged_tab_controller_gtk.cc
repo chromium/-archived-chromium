@@ -5,7 +5,7 @@
 #include "chrome/browser/gtk/tabs/dragged_tab_controller_gtk.h"
 
 #include "chrome/browser/browser.h"
-#include "chrome/browser/browser_window.h"
+#include "chrome/browser/gtk/browser_window_gtk.h"
 #include "chrome/browser/gtk/tabs/dragged_tab_gtk.h"
 #include "chrome/browser/gtk/tabs/tab_strip_gtk.h"
 #include "chrome/browser/tabs/tab_strip_model.h"
@@ -73,6 +73,13 @@ void DraggedTabControllerGtk::Drag() {
 
 bool DraggedTabControllerGtk::EndDrag(bool canceled) {
   return EndDragImpl(canceled ? CANCELED : NORMAL);
+}
+
+TabGtk* DraggedTabControllerGtk::GetDragSourceTabForContents(
+    TabContents* contents) const {
+  if (attached_tabstrip_ == source_tabstrip_)
+    return contents == dragged_contents_ ? source_tab_ : NULL;
+  return NULL;
 }
 
 bool DraggedTabControllerGtk::IsDragSourceTab(TabGtk* tab) const {
@@ -266,8 +273,22 @@ void DraggedTabControllerGtk::MoveTab(const gfx::Point& screen_point) {
 
 TabStripGtk* DraggedTabControllerGtk::GetTabStripForPoint(
     const gfx::Point& screen_point) {
-  // TODO(jhawkins): Actually get the correct tabstrip under |screen_point|.
-  return GetTabStripIfItContains(source_tabstrip_, screen_point);
+  GtkWidget* dragged_window = dragged_tab_->widget();
+  dock_windows_.insert(dragged_window);
+  gfx::NativeWindow local_window =
+      DockInfo::GetLocalProcessWindowAtPoint(screen_point, dock_windows_);
+  dock_windows_.erase(dragged_window);
+  if (!local_window)
+    return NULL;
+
+  BrowserWindowGtk* browser =
+      BrowserWindowGtk::GetBrowserWindowForNativeWindow(local_window);
+  if (!browser)
+    return NULL;
+
+  TabStripGtk* other_tabstrip = browser->tabstrip();
+  // TODO(jhawkins): Make sure the tabstrips are compatible.
+  return GetTabStripIfItContains(other_tabstrip, screen_point);
 }
 
 TabStripGtk* DraggedTabControllerGtk::GetTabStripIfItContains(

@@ -11,6 +11,9 @@
 // we use a void* for Visual*). The Xlib headers are highly polluting so we try
 // hard to limit their spread into the rest of the code.
 
+#include "base/gfx/rect.h"
+#include "base/task.h"
+
 typedef struct _GdkDrawable GdkWindow;
 typedef struct _GtkWidget GtkWidget;
 typedef unsigned long XID;
@@ -45,13 +48,29 @@ int GetDefaultScreen(Display* display);
 // Get the X window id for the default root window
 XID GetX11RootWindow();
 // Get the X window id for the given GTK widget.
-XID GetX11WindowFromGtkWidget(GtkWidget*);
-XID GetX11WindowFromGdkWindow(GdkWindow*);
+XID GetX11WindowFromGtkWidget(GtkWidget* widget);
+XID GetX11WindowFromGdkWindow(GdkWindow* window);
 // Get a Visual from the given widget. Since we don't include the Xlib
 // headers, this is returned as a void*.
-void* GetVisualFromGtkWidget(GtkWidget*);
+void* GetVisualFromGtkWidget(GtkWidget* widget);
 // Return the number of bits-per-pixel for a pixmap of the given depth
-int BitsPerPixelForPixmapDepth(Display*, int depth);
+int BitsPerPixelForPixmapDepth(Display* display, int depth);
+// Returns true if |window| is visible.
+bool IsWindowVisible(XID window);
+// Returns the bounds of |window|.
+bool GetWindowRect(XID window, gfx::Rect* rect);
+
+// Implementers of this interface receive a notification for every X window of
+// the main display.
+class EnumerateWindowsDelegate {
+ public:
+  // |xid| is the X Window ID of the enumerated window.  Return true to stop
+  // further iteration.
+  virtual bool ShouldStopIterating(XID xid) = 0;
+};
+
+// Enumerates the child windows of |root|.
+bool EnumerateChildWindows(XID root, EnumerateWindowsDelegate* delegate);
 
 // Return a handle to a server side pixmap. |shared_memory_key| is a SysV
 // IPC key. The shared memory region must contain 32-bit pixels.

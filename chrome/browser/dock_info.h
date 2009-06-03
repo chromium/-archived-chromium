@@ -34,7 +34,7 @@ class DockInfo {
         const std::set<gfx::NativeView>& ignore) = 0;
   };
 
-   // Possible dock positions.
+  // Possible dock positions.
   enum Type {
     // Indicates there is no valid dock position for the current location.
     NONE,

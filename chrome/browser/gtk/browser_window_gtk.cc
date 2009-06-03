@@ -46,6 +46,8 @@ const int kLoadingAnimationFrameTimeMs = 30;
 
 const GdkColor kBorderColor = GDK_COLOR_RGB(0xbe, 0xc8, 0xd4);
 
+const char* kBrowserWindowKey = "__BROWSER_WINDOW_GTK__";
+
 gboolean MainWindowConfigured(GtkWindow* window, GdkEventConfigure* event,
                               BrowserWindowGtk* browser_win) {
   gfx::Rect bounds = gfx::Rect(event->x, event->y, event->width, event->height);
@@ -273,6 +275,8 @@ gboolean OnFocusIn(GtkWidget* widget, GdkEventFocus* event, Browser* browser) {
 
 }  // namespace
 
+std::map<XID, GtkWindow*> BrowserWindowGtk::xid_map_;
+
 // TODO(estade): Break up this constructor into helper functions to improve
 // readability.
 BrowserWindowGtk::BrowserWindowGtk(Browser* browser)
@@ -283,7 +287,6 @@ BrowserWindowGtk::BrowserWindowGtk(Browser* browser)
   window_ = GTK_WINDOW(gtk_window_new(GTK_WINDOW_TOPLEVEL));
   SetWindowIcon();
   SetGeometryHints();
-  g_object_set_data(G_OBJECT(window_), "browser_window_gtk", this);
   g_signal_connect(window_, "delete-event",
                    G_CALLBACK(MainWindowDeleteEvent), this);
   g_signal_connect(window_, "destroy",
@@ -292,12 +295,17 @@ BrowserWindowGtk::BrowserWindowGtk(Browser* browser)
                    G_CALLBACK(MainWindowConfigured), this);
   g_signal_connect(window_, "window-state-event",
                    G_CALLBACK(MainWindowStateChanged), this);
+  g_signal_connect(window_, "map",
+                   G_CALLBACK(MainWindowMapped), this);
+  g_signal_connect(window_, "unmap",
+                     G_CALLBACK(MainWindowUnMapped), this);
   g_signal_connect(window_, "key-press-event",
                    G_CALLBACK(OnKeyPress), browser_.get());
   g_signal_connect(window_, "button-press-event",
                    G_CALLBACK(OnButtonPressEvent), browser_.get());
   g_signal_connect(window_, "focus-in-event",
                    G_CALLBACK(OnFocusIn), browser_.get());
+  g_object_set_data(G_OBJECT(window_), kBrowserWindowKey, this);
   ConnectAccelerators();
   bounds_ = GetInitialWindowBounds(window_);
 
@@ -741,6 +749,22 @@ void BrowserWindowGtk::AddFindBar(FindBarGtk* findbar) {
   gtk_box_reorder_child(GTK_BOX(render_area_vbox_), findbar->widget(), 0);
 }
 
+// static
+BrowserWindowGtk* BrowserWindowGtk::GetBrowserWindowForNativeWindow(
+    gfx::NativeWindow window) {
+  if (window) {
+    return static_cast<BrowserWindowGtk*>(
+        g_object_get_data(G_OBJECT(window), kBrowserWindowKey));
+  }
+
+  return NULL;
+}
+
+// static
+GtkWindow* BrowserWindowGtk::GetBrowserWindowForXID(XID xid) {
+  return BrowserWindowGtk::xid_map_.find(xid)->second;
+}
+
 void BrowserWindowGtk::SetGeometryHints() {
   // Allow the user to resize us arbitrarily small.
   GdkGeometry geometry;
@@ -831,6 +855,23 @@ gboolean BrowserWindowGtk::OnGtkAccelerator(GtkAccelGroup* accel_group,
   browser_window->ExecuteBrowserCommand(command_id);
 
   return TRUE;
+}
+
+// static
+void BrowserWindowGtk::MainWindowMapped(GtkWidget* widget,
+                                        BrowserWindowGtk* window) {
+  // Map the X Window ID of the window to our window.
+  XID xid = x11_util::GetX11WindowFromGtkWidget(widget);
+  BrowserWindowGtk::xid_map_.insert(
+      std::pair<XID, GtkWindow*>(xid, GTK_WINDOW(widget)));
+}
+
+// static
+void BrowserWindowGtk::MainWindowUnMapped(GtkWidget* widget,
+                                          BrowserWindowGtk* window) {
+  // Unmap the X Window ID.
+  XID xid = x11_util::GetX11WindowFromGtkWidget(widget);
+  BrowserWindowGtk::xid_map_.erase(xid);
 }
 
 void BrowserWindowGtk::ExecuteBrowserCommand(int id) {

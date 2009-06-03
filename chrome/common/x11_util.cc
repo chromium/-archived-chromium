@@ -6,9 +6,7 @@
 // ported from XCB since we can't use XCB on Ubuntu while its 32-bit support
 // remains woefully incomplete.
 
-#include "base/thread.h"
 #include "chrome/common/x11_util.h"
-#include "chrome/common/x11_util_internal.h"
 
 #include <string.h>
 
@@ -21,6 +19,8 @@
 
 #include "base/logging.h"
 #include "base/gfx/size.h"
+#include "base/thread.h"
+#include "chrome/common/x11_util_internal.h"
 
 namespace x11_util {
 
@@ -135,6 +135,44 @@ int BitsPerPixelForPixmapDepth(Display* dpy, int depth) {
 
   XFree(formats);
   return bits_per_pixel;
+}
+
+bool IsWindowVisible(XID window) {
+  XWindowAttributes win_attributes;
+  XGetWindowAttributes(GetXDisplay(), window, &win_attributes);
+  return (win_attributes.map_state == IsViewable);
+}
+
+bool GetWindowRect(XID window, gfx::Rect* rect) {
+  Window root_window;
+  int x, y;
+  unsigned int width, height;
+  unsigned int border_width, depth;
+
+  if (!XGetGeometry(GetXDisplay(), window, &root_window, &x, &y,
+                    &width, &height, &border_width, &depth))
+    return false;
+
+  *rect = gfx::Rect(x, y, width, height);
+  return true;
+}
+
+bool EnumerateChildWindows(XID root, EnumerateWindowsDelegate* delegate) {
+  XID parent;
+  XID* children;
+  unsigned int num_children;
+  int status = XQueryTree(GetXDisplay(), root, &root, &parent,
+                          &children, &num_children);
+  if (status == 0)
+    return false;
+
+  for (unsigned int i = 0; i < num_children; i++) {
+    if (delegate->ShouldStopIterating(children[i]))
+      break;
+  }
+
+  XFree(children);
+  return true;
 }
 
 XRenderPictFormat* GetRenderVisualFormat(Display* dpy, Visual* visual) {

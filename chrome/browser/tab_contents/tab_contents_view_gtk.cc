@@ -255,8 +255,8 @@ void TabContentsViewGtk::HandleKeyboardEvent(
     return;
   }
 
-  BrowserWindowGtk* browser_window = static_cast<BrowserWindowGtk*>(
-      g_object_get_data(G_OBJECT(window), "browser_window_gtk"));
+  BrowserWindowGtk* browser_window =
+      BrowserWindowGtk::GetBrowserWindowForNativeWindow(window);
   DCHECK(browser_window);
   browser_window->HandleAccelerator(event.os_event->keyval,
       static_cast<GdkModifierType>(event.os_event->state));

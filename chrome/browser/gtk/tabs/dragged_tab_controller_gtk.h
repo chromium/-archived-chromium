@@ -7,11 +7,14 @@
 
 #include <gtk/gtk.h>
 
+#include <set>
+
 #include "base/scoped_ptr.h"
 #include "base/timer.h"
 #include "chrome/browser/dock_info.h"
 #include "chrome/browser/tab_contents/tab_contents_delegate.h"
 #include "chrome/common/notification_registrar.h"
+#include "chrome/common/x11_util.h"
 
 class DraggedTabGtk;
 class TabGtk;
@@ -38,6 +41,11 @@ class DraggedTabControllerGtk : public NotificationObserver,
   // is true so the helper can revert the state to the world before the drag
   // begun. Returns whether the tab has been destroyed.
   bool EndDrag(bool canceled);
+
+  // Retrieve the source tab if the TabContents specified matches the one being
+  // dragged by this controller, or NULL if the specified TabContents is not
+  // the same as the one being dragged.
+  TabGtk* GetDragSourceTabForContents(TabContents* contents) const;
 
   // Returns true if the specified tab matches the tab being dragged.
   bool IsDragSourceTab(TabGtk* tab) const;
@@ -224,6 +232,9 @@ class DraggedTabControllerGtk : public NotificationObserver,
 
   // DockInfo for the tabstrip.
   DockInfo dock_info_;
+
+  typedef std::set<GtkWidget*> DockWindows;
+  DockWindows dock_windows_;
 
   // Timer used to bring the window under the cursor to front. If the user
   // stops moving the mouse for a brief time over a browser window, it is

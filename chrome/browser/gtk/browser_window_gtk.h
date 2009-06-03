@@ -7,12 +7,15 @@
 
 #include <gtk/gtk.h>
 
+#include <map>
+
 #include "base/gfx/rect.h"
 #include "base/scoped_ptr.h"
 #include "base/timer.h"
 #include "chrome/browser/browser_window.h"
 #include "chrome/browser/tabs/tab_strip_model.h"
 #include "chrome/common/notification_registrar.h"
+#include "chrome/common/x11_util.h"
 
 class BookmarkBarGtk;
 class BrowserToolbarGtk;
@@ -94,6 +97,9 @@ class BrowserWindowGtk : public BrowserWindow,
                              bool user_gesture);
   virtual void TabStripEmpty();
 
+  // Accessor for the tab strip.
+  TabStripGtk* tabstrip() const { return tabstrip_.get(); }
+
   void MaybeShowBookmarkBar(TabContents* contents);
   void UpdateUIForContents(TabContents* contents);
 
@@ -108,6 +114,14 @@ class BrowserWindowGtk : public BrowserWindow,
 
   // Add the find bar widget to the window hierarchy.
   void AddFindBar(FindBarGtk* findbar);
+
+  // Returns the BrowserWindowGtk registered with |window|.
+  static BrowserWindowGtk* GetBrowserWindowForNativeWindow(
+      gfx::NativeWindow window);
+
+  // Retrieves the GtkWindow associated with |xid|, which is the X Window
+  // ID of the top-level X window of this object.
+  static GtkWindow* GetBrowserWindowForXID(XID xid);
 
  protected:
   virtual void DestroyBrowser();
@@ -153,6 +167,10 @@ class BrowserWindowGtk : public BrowserWindow,
                                    guint keyval,
                                    GdkModifierType modifier,
                                    BrowserWindowGtk* browser_window);
+
+  // Maps and Unmaps the xid of |widget| to |window|.
+  static void MainWindowMapped(GtkWidget* widget, BrowserWindowGtk* window);
+  static void MainWindowUnMapped(GtkWidget* widget, BrowserWindowGtk* window);
 
   // A small shim for browser_->ExecuteCommand.
   void ExecuteBrowserCommand(int id);
@@ -204,6 +222,9 @@ class BrowserWindowGtk : public BrowserWindow,
 
   // The timer used to update frames for the Loading Animation.
   base::RepeatingTimer<BrowserWindowGtk> loading_animation_timer_;
+
+  // A map which translates an X Window ID into its respective GtkWindow.
+  static std::map<XID, GtkWindow*> xid_map_;
 
   DISALLOW_COPY_AND_ASSIGN(BrowserWindowGtk);
 };
