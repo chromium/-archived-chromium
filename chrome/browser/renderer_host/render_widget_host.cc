@@ -77,9 +77,9 @@ RenderWidgetHost::~RenderWidgetHost() {
   process_->Release(routing_id_);
 }
 
-gfx::NativeViewId RenderWidgetHost::GetPluginNativeViewId() {
+gfx::NativeViewId RenderWidgetHost::GetNativeViewId() {
   if (view_)
-    return gfx::IdFromNativeView(view_->GetPluginNativeView());
+    return gfx::IdFromNativeView(view_->GetNativeView());
   return NULL;
 }
 
@@ -89,7 +89,7 @@ void RenderWidgetHost::Init() {
   renderer_initialized_ = true;
 
   // Send the ack along with the information on placement.
-  Send(new ViewMsg_CreatingNew_ACK(routing_id_, GetPluginNativeViewId()));
+  Send(new ViewMsg_CreatingNew_ACK(routing_id_, GetNativeViewId()));
   WasResized();
 }
 

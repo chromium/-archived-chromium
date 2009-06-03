@@ -64,7 +64,7 @@ class RenderWidgetHostViewMac : public RenderWidgetHostView {
   virtual void DidBecomeSelected();
   virtual void WasHidden();
   virtual void SetSize(const gfx::Size& size);
-  virtual gfx::NativeView GetPluginNativeView();
+  virtual gfx::NativeView GetNativeView();
   virtual void MovePluginWindows(
       const std::vector<WebPluginGeometry>& plugin_window_moves);
   virtual void Focus();

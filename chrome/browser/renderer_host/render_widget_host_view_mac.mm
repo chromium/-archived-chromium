@@ -63,7 +63,7 @@ RenderWidgetHostViewMac::~RenderWidgetHostViewMac() {
 void RenderWidgetHostViewMac::InitAsPopup(
     RenderWidgetHostView* parent_host_view,
     const gfx::Rect& pos) {
-  [parent_host_view->GetPluginNativeView() addSubview:cocoa_view_];
+  [parent_host_view->GetNativeView() addSubview:cocoa_view_];
   [cocoa_view_ setCloseOnDeactivate:YES];
   [cocoa_view_ setCanBeKeyView:activatable_ ? YES : NO];
 
@@ -124,7 +124,7 @@ void RenderWidgetHostViewMac::SetSize(const gfx::Size& size) {
   // the size upon creation. http://crbug.com/8285.
 }
 
-gfx::NativeView RenderWidgetHostViewMac::GetPluginNativeView() {
+gfx::NativeView RenderWidgetHostViewMac::GetNativeView() {
   return native_view();
 }
 

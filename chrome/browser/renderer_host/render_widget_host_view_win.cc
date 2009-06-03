@@ -223,7 +223,7 @@ RenderWidgetHostViewWin::~RenderWidgetHostViewWin() {
 
 void RenderWidgetHostViewWin::InitAsPopup(
     RenderWidgetHostView* parent_host_view, const gfx::Rect& pos) {
-  parent_hwnd_ = parent_host_view->GetPluginNativeView();
+  parent_hwnd_ = parent_host_view->GetNativeView();
   close_on_deactivate_ = true;
   Create(parent_hwnd_, NULL, NULL, WS_POPUP, WS_EX_TOOLWINDOW);
   MoveWindow(pos.x(), pos.y(), pos.width(), pos.height(), TRUE);
@@ -277,7 +277,7 @@ void RenderWidgetHostViewWin::SetSize(const gfx::Size& size) {
   EnsureTooltip();
 }
 
-gfx::NativeView RenderWidgetHostViewWin::GetPluginNativeView() {
+gfx::NativeView RenderWidgetHostViewWin::GetNativeView() {
   return m_hWnd;
 }
 

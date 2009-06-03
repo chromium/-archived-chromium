@@ -219,7 +219,7 @@ void RenderWidgetHostViewGtk::InitAsChild() {
 void RenderWidgetHostViewGtk::InitAsPopup(
     RenderWidgetHostView* parent_host_view, const gfx::Rect& pos) {
   parent_host_view_ = parent_host_view;
-  parent_ = parent_host_view->GetPluginNativeView();
+  parent_ = parent_host_view->GetNativeView();
   GtkWidget* popup = gtk_window_new(GTK_WINDOW_POPUP);
   view_.Own(RenderWidgetHostViewGtkWidget::CreateNewWidget(this));
   gtk_container_add(GTK_CONTAINER(popup), view_.get());
@@ -289,10 +289,7 @@ void RenderWidgetHostViewGtk::SetSize(const gfx::Size& size) {
     gtk_widget_set_size_request(view_.get(), size.width(), size.height());
 }
 
-gfx::NativeView RenderWidgetHostViewGtk::GetPluginNativeView() {
-  // TODO(port): We need to pass some widget pointer out here because the
-  // renderer echos it back to us when it asks for GetScreenInfo. However, we
-  // should probably be passing the top-level window or some such instead.
+gfx::NativeView RenderWidgetHostViewGtk::GetNativeView() {
   return view_.get();
 }
 

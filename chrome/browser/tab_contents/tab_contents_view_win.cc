@@ -106,7 +106,7 @@ gfx::NativeView TabContentsViewWin::GetNativeView() const {
 gfx::NativeView TabContentsViewWin::GetContentNativeView() const {
   if (!tab_contents()->render_widget_host_view())
     return NULL;
-  return tab_contents()->render_widget_host_view()->GetPluginNativeView();
+  return tab_contents()->render_widget_host_view()->GetNativeView();
 }
 
 gfx::NativeWindow TabContentsViewWin::GetTopLevelNativeWindow() const {
@@ -213,7 +213,7 @@ void TabContentsViewWin::SetPageTitle(const std::wstring& title) {
     // TODO(brettw) this call seems messy the way it reaches into the widget
     // view, and I'm not sure it's necessary. Maybe we should just remove it.
     ::SetWindowText(
-        tab_contents()->render_widget_host_view()->GetPluginNativeView(),
+        tab_contents()->render_widget_host_view()->GetNativeView(),
         title.c_str());
   }
 }
@@ -483,7 +483,7 @@ void TabContentsViewWin::OnSetFocus(HWND window) {
   // messages during the destruction process after it has been destroyed.
   if (tab_contents()->render_widget_host_view()) {
     HWND inner_hwnd =
-        tab_contents()->render_widget_host_view()->GetPluginNativeView();
+        tab_contents()->render_widget_host_view()->GetNativeView();
     if (::IsWindow(inner_hwnd))
       ::SetFocus(inner_hwnd);
   }

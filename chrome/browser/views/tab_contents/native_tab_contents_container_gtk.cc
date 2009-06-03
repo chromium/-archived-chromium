@@ -85,12 +85,12 @@ void NativeTabContentsContainerGtk::RenderViewHostChanged(
 #if defined(OS_WIN)
   if (old_host && old_host->view()) {
     views::FocusManager::UninstallFocusSubclass(
-        old_host->view()->GetPluginNativeView());
+        old_host->view()->GetNativeView());
   }
 
   if (new_host && new_host->view()) {
     views::FocusManager::InstallFocusSubclass(
-        new_host->view()->GetPluginNativeView(), this);
+        new_host->view()->GetNativeView(), this);
   }
 
   // If we are focused, we need to pass the focus to the new RenderViewHost.

@@ -39,7 +39,7 @@ class RenderWidgetHostViewGtk : public RenderWidgetHostView {
   void DidBecomeSelected();
   void WasHidden();
   void SetSize(const gfx::Size& size);
-  gfx::NativeView GetPluginNativeView();
+  gfx::NativeView GetNativeView();
   void MovePluginWindows(
       const std::vector<WebPluginGeometry>& plugin_window_moves);
   void Focus();
@@ -86,7 +86,7 @@ class RenderWidgetHostViewGtk : public RenderWidgetHostView {
   // Our parent widget.
   RenderWidgetHostView* parent_host_view_;
   // The native view of our parent, equivalent to
-  // parent_host_view_->GetPluginNativeView().
+  // parent_host_view_->GetNativeView().
   GtkWidget* parent_;
   // This is true when we are currently painting and thus should handle extra
   // paint requests by expanding the invalid rect rather than actually

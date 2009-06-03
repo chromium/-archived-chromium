@@ -268,8 +268,9 @@ class RenderWidgetHost : public IPC::Channel::Listener {
   // consistent if a new renderer is created.
   void RendererExited();
 
-  // Retrieves the native view used to contain plugins.
-  gfx::NativeViewId GetPluginNativeViewId();
+  // Retrieves an id the renderer can use to refer to its view.
+  // This is used for various IPC messages, including plugins.
+  gfx::NativeViewId GetNativeViewId();
 
   // Called when we an InputEvent was not processed by the renderer. This is
   // overridden by RenderView to send upwards to its delegate.

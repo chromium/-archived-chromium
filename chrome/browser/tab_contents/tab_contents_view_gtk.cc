@@ -159,7 +159,7 @@ gfx::NativeView TabContentsViewGtk::GetNativeView() const {
 gfx::NativeView TabContentsViewGtk::GetContentNativeView() const {
   if (!tab_contents()->render_widget_host_view())
     return NULL;
-  return tab_contents()->render_widget_host_view()->GetPluginNativeView();
+  return tab_contents()->render_widget_host_view()->GetNativeView();
 }
 
 

@@ -46,7 +46,7 @@ class TestRenderWidgetHostView : public RenderWidgetHostView {
   virtual void DidBecomeSelected() {}
   virtual void WasHidden() {}
   virtual void SetSize(const gfx::Size& size) {}
-  virtual gfx::NativeView GetPluginNativeView() { return NULL; }
+  virtual gfx::NativeView GetNativeView() { return NULL; }
   virtual void MovePluginWindows(
     const std::vector<WebPluginGeometry>& plugin_window_moves) {}
 #if defined(OS_WIN)
