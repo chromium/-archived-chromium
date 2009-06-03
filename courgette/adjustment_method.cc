@@ -686,7 +686,7 @@ AdjustmentMethod* AdjustmentMethod::MakeNullAdjustmentMethod() {
   return new NullAdjustmentMethod();
 }
 
-AdjustmentMethod* AdjustmentMethod::MakeProductionAdjustmentMethod() {
+AdjustmentMethod* AdjustmentMethod::MakeTrieAdjustmentMethod() {
   return new GraphAdjuster();
 }
 

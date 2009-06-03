@@ -16,11 +16,20 @@ class AdjustmentMethod {
   // Factory methods for making adjusters.
 
   // Returns the adjustment method used in production.
-  static AdjustmentMethod* MakeProductionAdjustmentMethod();
+  static AdjustmentMethod* MakeProductionAdjustmentMethod() {
+    return MakeShingleAdjustmentMethod();
+  }
 
   // Returns and adjustement method that makes no adjustments.
   static AdjustmentMethod* MakeNullAdjustmentMethod();
 
+  // Returns the original adjustment method.
+  static AdjustmentMethod* MakeTrieAdjustmentMethod();
+
+  // Returns the new shingle tiling adjustment method.
+  static AdjustmentMethod* MakeShingleAdjustmentMethod();
+
+  // AdjustmentMethod interface:
 
   // Adjusts |program| to increase similarity to |model|.  |program| can be
   // changed in any way provided that it still produces the same output when

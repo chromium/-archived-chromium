@@ -20,6 +20,7 @@
       'msvs_guid': '9A72A362-E617-4205-B9F2-43C6FB280FA1',
       'sources': [
         'adjustment_method.cc',
+        'adjustment_method_2.cc',
         'adjustment_method.h',
         'assembly_program.cc',
         'assembly_program.h',
