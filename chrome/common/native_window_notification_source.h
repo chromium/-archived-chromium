@@ -8,8 +8,10 @@
 #include "base/gfx/native_widget_types.h"
 #include "chrome/common/notification_source.h"
 
-// Specialization of the Source class for HWND.  This is needed as the Source
-// class expects a pointer type.
+// Specialization of the Source class for native windows.  On Windows, these are
+// HWNDs rather than pointers, and since the Source class expects a pointer
+// type, this is necessary.  On Mac/Linux, these are pointers, so this is
+// unnecessary but harmless.
 template<>
 class Source<gfx::NativeWindow> : public NotificationSource {
  public:
@@ -19,7 +21,9 @@ class Source<gfx::NativeWindow> : public NotificationSource {
       : NotificationSource(other) {}
 
   gfx::NativeWindow operator->() const { return ptr(); }
-  gfx::NativeWindow ptr() const { return static_cast<gfx::NativeWindow>(ptr_); }
+  gfx::NativeWindow ptr() const {
+    return static_cast<gfx::NativeWindow>(const_cast<void*>(ptr_));
+  }
 };
 
 #endif  // CHROME_COMMON_NATIVE_WINDOW_NOTIFICATION_SOURCE_H_

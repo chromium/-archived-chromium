@@ -8,26 +8,7 @@
 #include "base/gfx/native_widget_types.h"
 #include "build/build_config.h"
 #include "chrome/browser/automation/automation_resource_tracker.h"
-
-#if defined(OS_WIN)
-// Since HWNDs aren't pointers, we can't have NativeWindow
-// be directly a pointer and so must explicitly declare the Source types
-// for it.
 #include "chrome/common/native_window_notification_source.h"
-#elif defined(OS_LINUX) || defined(OS_MACOSX)
-// But on Linux and Mac, it is a pointer so this definition suffices.
-template<>
-class Source<gfx::NativeWindow> : public NotificationSource {
- public:
-  explicit Source(gfx::NativeWindow win) : NotificationSource(win) {}
-
-  explicit Source(const NotificationSource& other)
-      : NotificationSource(other) {}
-
-  gfx::NativeWindow operator->() const { return ptr(); }
-  gfx::NativeWindow ptr() const { return static_cast<gfx::NativeWindow>(ptr_); }
-};
-#endif
 
 class AutomationWindowTracker
     : public AutomationResourceTracker<gfx::NativeWindow> {

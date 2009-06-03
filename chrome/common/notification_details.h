@@ -33,9 +33,11 @@ class NotificationDetails {
   }
 
  protected:
-  NotificationDetails(void* ptr) : ptr_(ptr) {}
+  NotificationDetails(const void* ptr) : ptr_(ptr) {}
 
-  void* ptr_;
+  // Declaring this const allows Details<T> to be used with both T = Foo and
+  // T = const Foo.
+  const void* ptr_;
 };
 
 template <class T>
@@ -46,7 +48,8 @@ class Details : public NotificationDetails {
     : NotificationDetails(other) {}
 
   T* operator->() const { return ptr(); }
-  T* ptr() const { return static_cast<T*>(ptr_); }
+  // The casts here allow this to compile with both T = Foo and T = const Foo.
+  T* ptr() const { return static_cast<T*>(const_cast<void*>(ptr_)); }
 };
 
 #endif  // CHROME_COMMON_NOTIFICATION_DETAILS_H__
