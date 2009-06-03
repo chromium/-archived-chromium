@@ -1063,10 +1063,23 @@ extern "C" {
     default_display.set_cgl_context(obj->mac_cgl_context_);
 
     obj->CreateRenderer(default_display);
+
+    // if the renderer cannot be created (maybe the features are not supported)
+    // then we can proceed no further
+    if (!obj->renderer()) {
+      if (obj->mac_agl_context_) {
+        ::aglDestroyContext(obj->mac_agl_context_);
+        obj->mac_agl_context_ = NULL;
+      }
+      return NPERR_NO_ERROR;
+    }
+
     obj->client()->Init();
     obj->client()->SetRenderOnDemandCallback(
         new RenderOnDemandCallbackHandler(obj));
 
+      
+      
     obj->renderer()->SetClientOriginOffset(gl_x_origin, gl_y_origin);
     obj->Resize(window->width, window->height);
 
