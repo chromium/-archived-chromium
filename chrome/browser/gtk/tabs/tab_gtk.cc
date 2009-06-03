@@ -140,9 +140,6 @@ TabGtk::~TabGtk() {
   }
 
   gtk_widget_destroy(event_box_);
-
-  // Reset the user data pointer for our event handler.
-  gdk_event_handler_set(TabGtk::GdkEventHandler, NULL, NULL);
 }
 
 // static
