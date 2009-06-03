@@ -207,6 +207,13 @@ class TabProxy : public AutomationResourceProxy {
   bool WaitForChildWindowCountToChange(int count, int* new_count,
       int wait_timeout);
 
+  // Gets the number of popups blocked from this tab.
+  bool GetBlockedPopupCount(int* count) const;
+
+  // Blocks the thread until the number of blocked popup is equal to
+  // |target_count|.
+  bool WaitForBlockedPopupCountToChangeTo(int target_count, int wait_timeout);
+
   bool GetDownloadDirectory(std::wstring* download_directory);
 
   // Shows an interstitial page.  Blocks until the interstitial page

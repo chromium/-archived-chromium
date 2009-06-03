@@ -21,6 +21,7 @@
 #include "chrome/browser/automation/url_request_failed_dns_job.h"
 #include "chrome/browser/automation/url_request_mock_http_job.h"
 #include "chrome/browser/automation/url_request_slow_download_job.h"
+#include "chrome/browser/blocked_popup_container.h"
 #include "chrome/browser/browser_window.h"
 #include "chrome/browser/dom_operation_notification_details.h"
 #include "chrome/browser/download/download_manager.h"
@@ -1082,6 +1083,7 @@ void AutomationProvider::OnMessageReceived(const IPC::Message& message) {
     IPC_MESSAGE_HANDLER(AutomationMsg_WindowTitle, GetWindowTitle)
     IPC_MESSAGE_HANDLER(AutomationMsg_SetEnableExtensionAutomation,
                         SetEnableExtensionAutomation)
+    IPC_MESSAGE_HANDLER(AutomationMsg_BlockedPopupCount, GetBlockedPopupCount)
   IPC_END_MESSAGE_MAP()
 }
 
@@ -2985,4 +2987,23 @@ void AutomationProvider::OnTabReposition(
 void AutomationProvider::GetWindowTitle(int handle, string16* text) {
   gfx::NativeWindow window = window_tracker_->GetResource(handle);
   text->assign(platform_util::GetWindowTitle(window));
+}
+
+void AutomationProvider::GetBlockedPopupCount(int handle, int* count) {
+  *count = -1;  // -1 is the error code
+  if (tab_tracker_->ContainsHandle(handle)) {
+      NavigationController* nav_controller = tab_tracker_->GetResource(handle);
+      TabContents* tab_contents = nav_controller->tab_contents();
+      if (tab_contents) {
+        BlockedPopupContainer* container =
+            tab_contents->blocked_popup_container();
+        if (container) {
+          *count = static_cast<int>(container->GetBlockedPopupCount());
+        } else {
+          // If we don't have a container, we don't have any blocked popups to
+          // contain!
+          *count = 0;
+        }
+      }
+  }
 }

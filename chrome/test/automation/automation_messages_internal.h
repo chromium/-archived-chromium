@@ -927,4 +927,11 @@ IPC_BEGIN_MESSAGES(Automation)
   IPC_SYNC_MESSAGE_ROUTED1_0(AutomationMsg_SetProxyConfig,
                              std::string /* proxy_config_json_string */)
 
+  // This message requests the number of blocked popups in a certain tab with
+  // the given handle. The return value is the number of blocked popups, or -1
+  // if this request failed.
+  IPC_SYNC_MESSAGE_ROUTED1_1(AutomationMsg_BlockedPopupCount,
+                             int /* tab_handle */,
+                             int /* blocked_popup_count */)
+
 IPC_END_MESSAGES(Automation)

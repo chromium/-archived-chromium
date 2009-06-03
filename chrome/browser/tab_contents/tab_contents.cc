@@ -11,6 +11,7 @@
 #include "base/string16.h"
 #include "base/time.h"
 #include "chrome/browser/autofill_manager.h"
+#include "chrome/browser/blocked_popup_container.h"
 #include "chrome/browser/bookmarks/bookmark_model.h"
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/cert_store.h"
@@ -57,7 +58,6 @@
 #if defined(OS_WIN)
 // TODO(port): some of these headers should be ported.
 #include "chrome/browser/modal_html_dialog_delegate.h"
-#include "chrome/browser/views/blocked_popup_container.h"
 #include "views/controls/scrollbar/native_scroll_bar.h"
 #endif
 
@@ -314,6 +314,9 @@ TabContents::~TabContents() {
     if (window)
       window->CloseConstrainedWindow();
   }
+
+  if (blocked_popups_)
+    blocked_popups_->Destroy();
 
   // Notify any observer that have a reference on this tab contents.
   NotificationService::current()->Notify(
@@ -824,12 +827,10 @@ void TabContents::AddNewContents(TabContents* new_contents,
 #endif
 }
 
-#if defined(OS_WIN)
 void TabContents::CloseAllSuppressedPopups() {
   if (blocked_popups_)
     blocked_popups_->CloseAll();
 }
-#endif
 
 void TabContents::PopupNotificationVisibilityChanged(bool visible) {
   render_view_host()->PopupNotificationVisibilityChanged(visible);
@@ -1006,18 +1007,12 @@ void TabContents::WillClose(ConstrainedWindow* window) {
       find(child_windows_.begin(), child_windows_.end(), window);
   if (it != child_windows_.end())
     child_windows_.erase(it);
+}
 
-#if defined(OS_WIN)
-  if (window == blocked_popups_)
-    blocked_popups_ = NULL;
-
-  if (::IsWindow(GetNativeView())) {
-    CRect client_rect;
-    GetClientRect(GetNativeView(), &client_rect);
-    RepositionSupressedPopupsToFit(
-        gfx::Size(client_rect.Width(), client_rect.Height()));
-  }
-#endif
+void TabContents::WillCloseBlockedPopupContainer(
+    BlockedPopupContainer* container) {
+  DCHECK(blocked_popups_ == container);
+  blocked_popups_ = NULL;
 }
 
 void TabContents::DidMoveOrResize(ConstrainedWindow* window) {
@@ -1181,7 +1176,6 @@ void TabContents::CreateBlockedPopupContainerIfNecessary() {
       client_rect.Height());
   blocked_popups_ = BlockedPopupContainer::Create(this, profile(),
                                                   anchor_position);
-  child_windows_.push_back(blocked_popups_);
 }
 
 void TabContents::AddPopup(TabContents* new_contents,
@@ -1190,28 +1184,18 @@ void TabContents::AddPopup(TabContents* new_contents,
   CreateBlockedPopupContainerIfNecessary();
   blocked_popups_->AddTabContents(new_contents, initial_pos, host);
 }
+#endif
 
 // TODO(brettw) This should be on the TabContentsView.
-void TabContents::RepositionSupressedPopupsToFit(const gfx::Size& new_size) {
-  // TODO(erg): There's no way to detect whether scroll bars are
-  // visible, so for beta, we're just going to assume that the
-  // vertical scroll bar is visible, and not care about covering up
-  // the horizontal scroll bar. Fixing this is half of
-  // http://b/1118139.
-  gfx::Point anchor_position(
-      new_size.width() -
-          views::NativeScrollBar::GetVerticalScrollBarWidth(),
-      new_size.height());
-
+void TabContents::RepositionSupressedPopupsToFit() {
   if (blocked_popups_)
-    blocked_popups_->RepositionConstrainedWindowTo(anchor_position);
+    blocked_popups_->RepositionBlockedPopupContainer(GetNativeView());
 }
 
 bool TabContents::ShowingBlockedPopupNotification() const {
   return blocked_popups_ != NULL &&
       blocked_popups_->GetBlockedPopupCount() != 0;
 }
-#endif  // defined(OS_WIN)
 
 namespace {
 bool TransitionIsReload(PageTransition::Type transition) {

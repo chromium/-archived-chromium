@@ -432,6 +432,9 @@ class TabContents : public PageNavigator,
   // Called when a ConstrainedWindow we own is about to be closed.
   void WillClose(ConstrainedWindow* window);
 
+  // Called when a BlockedPopupContainer we own is about to be closed.
+  void WillCloseBlockedPopupContainer(BlockedPopupContainer* container);
+
   // Called when a ConstrainedWindow we own is moved or resized.
   void DidMoveOrResize(ConstrainedWindow* window);
 
@@ -574,6 +577,10 @@ class TabContents : public PageNavigator,
     render_view_host()->WindowMoveOrResizeStarted();
   }
 
+  BlockedPopupContainer* blocked_popup_container() const {
+    return blocked_popups_;
+  }
+
  private:
   friend class NavigationController;
   // Used to access the child_windows_ (ConstrainedWindowList) for testing
@@ -634,7 +641,7 @@ class TabContents : public PageNavigator,
   // Called by a derived class when the TabContents is resized, causing
   // suppressed constrained web popups to be repositioned to the new bounds
   // if necessary.
-  void RepositionSupressedPopupsToFit(const gfx::Size& new_size);
+  void RepositionSupressedPopupsToFit();
 
   // Whether we have a notification AND the notification owns popups windows.
   // (We keep the notification object around even when it's not shown since it
@@ -999,8 +1006,7 @@ class TabContents : public PageNavigator,
   bool shelf_visible_;
 
   // ConstrainedWindow with additional methods for managing blocked
-  // popups. This pointer also goes in |child_windows_| for ownership,
-  // repositioning, etc.
+  // popups.
   BlockedPopupContainer* blocked_popups_;
 
   // Delegates for InfoBars associated with this TabContents.
