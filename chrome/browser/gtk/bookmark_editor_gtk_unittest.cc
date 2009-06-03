@@ -200,8 +200,6 @@ TEST_F(BookmarkEditorGtkTest, ChangeParentAndURL) {
   ASSERT_TRUE(node_time == other_node->GetChild(2)->date_added());
 }
 
-// TODO(tc): Test failing. Can't use DISABLED_ because of FRIEND_TEST.
-#if 0
 // Creates a new folder and moves a node to it.
 TEST_F(BookmarkEditorGtkTest, MoveToNewParent) {
   BookmarkEditorGtk editor(NULL, profile_.get(), NULL, GetNode("a"),
@@ -247,7 +245,6 @@ TEST_F(BookmarkEditorGtkTest, MoveToNewParent) {
   ASSERT_EQ(1, mf21->GetChildCount());
   ASSERT_EQ(L"F211", mf21->GetChild(0)->GetTitle());
 }
-#endif
 
 // Brings up the editor, creating a new URL on the bookmark bar.
 TEST_F(BookmarkEditorGtkTest, NewURL) {
