@@ -35,17 +35,20 @@ class PasswordStore : public base::RefCountedThreadSafe<PasswordStore> {
   // Reimplement this to add custom initialization. Always call this too.
   virtual bool Init();
 
+  // TODO(stuartmorgan): These are only virtual to support the shim version of
+  // password_store_default; once that is fixed, they can become non-virtual.
+
   // Adds the given PasswordForm to the secure password store asynchronously.
-  void AddLogin(const PasswordForm& form);
+  virtual void AddLogin(const PasswordForm& form);
   // Updates the matching PasswordForm in the secure password store (async).
-  void UpdateLogin(const PasswordForm& form);
+  virtual void UpdateLogin(const PasswordForm& form);
   // Removes the matching PasswordForm from the secure password store (async).
-  void RemoveLogin(const PasswordForm& form);
+  virtual void RemoveLogin(const PasswordForm& form);
   // Searches for a matching PasswordForm and returns a handle so the async
   // request can be tracked. Implement the PasswordStoreConsumer interface to
   // be notified on completion.
-  int GetLogins(const PasswordForm& form,
-                PasswordStoreConsumer* consumer);
+  virtual int GetLogins(const PasswordForm& form,
+                        PasswordStoreConsumer* consumer);
 
   // Cancels a previous GetLogins query (async)
   virtual void CancelLoginsQuery(int handle);

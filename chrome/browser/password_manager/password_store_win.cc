@@ -21,12 +21,13 @@ void PasswordStoreWin::OnWebDataServiceRequestDone(
     WebDataService::Handle h, const WDTypedResult *result) {
   // Look up this handle in our request map to get the original
   // GetLoginsRequest.
-  GetLoginsRequest* request = GetLoginsRequestForWebDataServiceRequest(h);
-  DCHECK(request);
-  // Remove our pending request, but make sure that we won't be destroyed until
-  // we're done with this function.
-  scoped_refptr<PasswordStoreWin> life_preserver(this);
-  RemovePendingWebDataServiceRequest(h);
+  PendingRequestMap::iterator it(pending_requests_.find(h));
+  // If the request was cancelled, we are done.
+  if (it == pending_requests_.end())
+    return;
+
+  scoped_ptr<GetLoginsRequest> request(it->second);
+  pending_requests_.erase(it);
 
   DCHECK(result);
   if (!result)
@@ -41,7 +42,8 @@ void PasswordStoreWin::OnWebDataServiceRequestDone(
 
       if (result_value.size()) {
         // If we found some results then return them now.
-        NotifyConsumer(request, result_value);
+        request->consumer->OnPasswordStoreRequestDone(request->handle,
+                                                      result_value);
         return;
       } else {
         // Otherwise try finding IE7 logins.
@@ -52,7 +54,8 @@ void PasswordStoreWin::OnWebDataServiceRequestDone(
         if (web_data_service_->IsRunning()) {
           WebDataService::Handle web_data_handle =
               web_data_service_->GetIE7Login(info, this);
-          AddPendingWebDataServiceRequest(web_data_handle, request);
+          pending_requests_.insert(PendingRequestMap::value_type(
+              web_data_handle, request.release()));
         }
       }
       break;
@@ -66,7 +69,8 @@ void PasswordStoreWin::OnWebDataServiceRequestDone(
       if (ie7_form)
         forms.push_back(ie7_form);
 
-      NotifyConsumer(request, forms);
+      request->consumer->OnPasswordStoreRequestDone(request->handle,
+                                                    forms);
       break;
     }
   }

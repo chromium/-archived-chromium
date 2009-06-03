@@ -25,7 +25,16 @@ class PasswordStoreDefault : public PasswordStore,
                              public WebDataServiceConsumer {
  public:
   explicit PasswordStoreDefault(WebDataService* web_data_service);
-  virtual ~PasswordStoreDefault() {}
+  virtual ~PasswordStoreDefault();
+
+  // Overridden to bypass the threading logic in PasswordStore, since
+  // WebDataService's API is not threadsafe.
+  virtual void AddLogin(const PasswordForm& form);
+  virtual void UpdateLogin(const PasswordForm& form);
+  virtual void RemoveLogin(const PasswordForm& form);
+  virtual int GetLogins(const PasswordForm& form,
+                        PasswordStoreConsumer* consumer);
+  virtual void CancelLoginsQuery(int handle);
 
  protected:
   // Implements PasswordStore interface.
@@ -35,32 +44,18 @@ class PasswordStoreDefault : public PasswordStore,
   void GetLoginsImpl(GetLoginsRequest* request);
 
   // Called when a WebDataService method finishes.
-  // Overrides must call RemovePendingWebDataServiceRequest.
   virtual void OnWebDataServiceRequestDone(WebDataService::Handle h,
                                            const WDTypedResult* result);
 
-  // Keeps track of a pending WebDataService request, and the original
-  // GetLogins request it is associated with.
-  // Increases the reference count of |this|, so must be balanced with a
-  // call to RemovePendingWebDataServiceRequest.
-  void AddPendingWebDataServiceRequest(WebDataService::Handle handle,
-                                       GetLoginsRequest* request);
-  // Removes a WebDataService request from the list of pending requests,
-  // and reduces the reference count of |this|.
-  void RemovePendingWebDataServiceRequest(WebDataService::Handle handle);
-  // Returns the GetLoginsRequest associated with |handle|.
-  GetLoginsRequest* GetLoginsRequestForWebDataServiceRequest(
-      WebDataService::Handle handle);
-
   scoped_refptr<WebDataService> web_data_service_;
 
- private:
   // Methods in this class call async WebDataService methods.  This mapping
   // remembers which WebDataService request corresponds to which PasswordStore
   // request.
   typedef std::map<WebDataService::Handle, GetLoginsRequest*> PendingRequestMap;
   PendingRequestMap pending_requests_;
 
+ private:
   DISALLOW_COPY_AND_ASSIGN(PasswordStoreDefault);
 };
 
