@@ -570,6 +570,16 @@ Extension* ExtensionsServiceBackend::LoadExtension(
     }
   }
 
+  for (size_t i = 0; i < extension->plugins().size(); ++i) {
+    const Extension::PluginInfo& plugin = extension->plugins()[i];
+    if (!file_util::PathExists(plugin.path)) {
+      ReportExtensionLoadError(extension_path,
+          StringPrintf("Could not load '%s' for plugin.",
+          WideToUTF8(plugin.path.ToWStringHack()).c_str()));
+      return NULL;
+    }
+  }
+
   // Validate icon location for page actions.
   const PageActionMap& page_actions = extension->page_actions();
   for (PageActionMap::const_iterator i(page_actions.begin());

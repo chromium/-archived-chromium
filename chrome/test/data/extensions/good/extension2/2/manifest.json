@@ -2,6 +2,9 @@
   "id": "10123456789ABCDEF0123456789ABCDEF0123456",
   "version": "1.0.0.0",
   "name": "My extension 2",
-  "plugins_dir": "npapi",
+  "plugins": [
+    { "path": "content_plugin.dll", "public": true },
+    { "path": "extension_plugin.dll" }
+  ],
   "background_page": "background.html"
 }

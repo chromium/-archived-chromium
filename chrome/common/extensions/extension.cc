@@ -27,7 +27,9 @@ const wchar_t* Extension::kMatchesKey = L"matches";
 const wchar_t* Extension::kNameKey = L"name";
 const wchar_t* Extension::kPageActionsKey = L"page_actions";
 const wchar_t* Extension::kPermissionsKey = L"permissions";
-const wchar_t* Extension::kPluginsDirKey = L"plugins_dir";
+const wchar_t* Extension::kPluginsKey = L"plugins";
+const wchar_t* Extension::kPluginsPathKey = L"path";
+const wchar_t* Extension::kPluginsPublicKey = L"public";
 const wchar_t* Extension::kBackgroundKey = L"background_page";
 const wchar_t* Extension::kRunAtKey = L"run_at";
 const wchar_t* Extension::kThemeKey = L"theme";
@@ -107,8 +109,12 @@ const char* Extension::kInvalidPermissionError =
 const char* Extension::kInvalidPermissionSchemeError =
     "Invalid scheme for 'permissions[*]'. Only 'http' and 'https' are "
     "allowed.";
-const char* Extension::kInvalidPluginsDirError =
-    "Invalid value for 'plugins_dir'.";
+const char* Extension::kInvalidPluginsError =
+    "Invalid value for 'plugins'.";
+const char* Extension::kInvalidPluginsPathError =
+    "Invalid value for 'plugins[*].path'.";
+const char* Extension::kInvalidPluginsPublicError =
+    "Invalid value for 'plugins[*].public'.";
 const char* Extension::kInvalidBackgroundError =
     "Invalid value for 'background'.";
 const char* Extension::kInvalidRunAtError =
@@ -588,14 +594,44 @@ bool Extension::InitFromValue(const DictionaryValue& source, bool require_id,
     return true;
   }
 
-  // Initialize plugins dir (optional).
-  if (source.HasKey(kPluginsDirKey)) {
-    std::string plugins_dir;
-    if (!source.GetString(kPluginsDirKey, &plugins_dir)) {
-      *error = kInvalidPluginsDirError;
+  // Initialize plugins (optional).
+  if (source.HasKey(kPluginsKey)) {
+    ListValue* list_value;
+    if (!source.GetList(kPluginsKey, &list_value)) {
+      *error = kInvalidPluginsError;
       return false;
     }
-    plugins_dir_ = path_.AppendASCII(plugins_dir);
+
+    for (size_t i = 0; i < list_value->GetSize(); ++i) {
+      DictionaryValue* plugin_value;
+      std::string path;
+      bool is_public = false;
+
+      if (!list_value->GetDictionary(i, &plugin_value)) {
+        *error = kInvalidPluginsError;
+        return false;
+      }
+
+      // Get plugins[i].path.
+      if (!plugin_value->GetString(kPluginsPathKey, &path)) {
+        *error = ExtensionErrorUtils::FormatErrorMessage(
+            kInvalidPluginsPathError, IntToString(i));
+        return false;
+      }
+
+      // Get plugins[i].content (optional).
+      if (plugin_value->HasKey(kPluginsPublicKey)) {
+        if (!plugin_value->GetBoolean(kPluginsPublicKey, &is_public)) {
+          *error = ExtensionErrorUtils::FormatErrorMessage(
+              kInvalidPluginsPublicError, IntToString(i));
+          return false;
+        }
+      }
+
+      plugins_.push_back(PluginInfo());
+      plugins_.back().path = path_.AppendASCII(path);
+      plugins_.back().is_public = is_public;
+    }
   }
 
   // Initialize background url (optional).

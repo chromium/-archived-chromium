@@ -18,7 +18,7 @@
 #include "chrome/common/page_action.h"
 #include "googleurl/src/gurl.h"
 
-// Represents a Chromium extension.
+// Represents a Chrome extension.
 class Extension {
  public:
   // What an extension was loaded from.
@@ -28,6 +28,12 @@ class Extension {
     EXTERNAL,  // A crx file from an external directory (via eg the registry
                // on Windows).
     LOAD  // --load-extension.
+  };
+
+  // An NPAPI plugin included in the extension.
+  struct PluginInfo {
+    FilePath path;  // Path to the plugin.
+    bool is_public;  // False if only this extension can load this plugin.
   };
 
   // The name of the manifest inside an extension.
@@ -44,7 +50,10 @@ class Extension {
   static const wchar_t* kNameKey;
   static const wchar_t* kPageActionsKey;
   static const wchar_t* kPermissionsKey;
-  static const wchar_t* kPluginsDirKey;
+  static const wchar_t* kPluginsKey;
+  static const wchar_t* kPluginsPathKey;
+  static const wchar_t* kPluginsPublicKey;
+
   static const wchar_t* kBackgroundKey;
   static const wchar_t* kRunAtKey;
   static const wchar_t* kThemeKey;
@@ -78,7 +87,10 @@ class Extension {
   static const char* kInvalidMatchError;
   static const char* kInvalidMatchesError;
   static const char* kInvalidNameError;
-  static const char* kInvalidPluginsDirError;
+  static const char* kInvalidPluginsError;
+  static const char* kInvalidPluginsPathError;
+  static const char* kInvalidPluginsPublicError;
+
   static const char* kInvalidBackgroundError;
   static const char* kInvalidRunAtError;
   static const char* kInvalidToolstripError;
@@ -149,11 +161,10 @@ class Extension {
   const std::string& description() const { return description_; }
   const UserScriptList& content_scripts() const { return content_scripts_; }
   const PageActionMap& page_actions() const { return page_actions_; }
-  const FilePath& plugins_dir() const { return plugins_dir_; }
+  const std::vector<PluginInfo>& plugins() const { return plugins_; }
   const GURL& background_url() const { return background_url_; }
   const std::vector<std::string>& toolstrips() const { return toolstrips_; }
-  const std::vector<URLPattern>& permissions() const {
-      return permissions_; }
+  const std::vector<URLPattern>& permissions() const { return permissions_; }
 
   // Retrieves a page action by |id|.
   const PageAction* GetPageAction(std::string id) const;
@@ -217,9 +228,8 @@ class Extension {
   // A list of page actions.
   PageActionMap page_actions_;
 
-  // Optional absolute path to the directory of NPAPI plugins that the extension
-  // contains.
-  FilePath plugins_dir_;
+  // Optional list of NPAPI plugins and associated properties.
+  std::vector<PluginInfo> plugins_;
 
   // Optional URL to a master page of which a single instance should be always
   // loaded in the background.

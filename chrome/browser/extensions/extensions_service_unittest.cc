@@ -235,7 +235,7 @@ TEST_F(ExtensionsServiceTest, LoadAllExtensionsFromDirectorySuccess) {
             scripts[0].js_scripts()[0].path().value());
   EXPECT_EQ(extension->path().AppendASCII("script2.js").value(),
             scripts[0].js_scripts()[1].path().value());
-  EXPECT_TRUE(extension->plugins_dir().empty());
+  EXPECT_TRUE(extension->plugins().empty());
   EXPECT_EQ(1u, scripts[1].url_patterns().size());
   EXPECT_EQ("http://*.news.com/*", scripts[1].url_patterns()[0].GetAsString());
   EXPECT_EQ(extension->path().AppendASCII("js_files").AppendASCII("script3.js")
@@ -252,11 +252,16 @@ TEST_F(ExtensionsServiceTest, LoadAllExtensionsFromDirectorySuccess) {
             loaded_[1]->id());
   EXPECT_EQ(std::string("My extension 2"), loaded_[1]->name());
   EXPECT_EQ(std::string(""), loaded_[1]->description());
-  EXPECT_EQ(loaded_[1]->path().AppendASCII("npapi").value(),
-            loaded_[1]->plugins_dir().value());
   EXPECT_EQ(loaded_[1]->GetResourceURL("background.html"),
             loaded_[1]->background_url());
   EXPECT_EQ(0u, loaded_[1]->content_scripts().size());
+  EXPECT_EQ(2u, loaded_[1]->plugins().size());
+  EXPECT_EQ(loaded_[1]->path().AppendASCII("content_plugin.dll").value(),
+            loaded_[1]->plugins()[0].path.value());
+  EXPECT_TRUE(loaded_[1]->plugins()[0].is_public);
+  EXPECT_EQ(loaded_[1]->path().AppendASCII("extension_plugin.dll").value(),
+            loaded_[1]->plugins()[1].path.value());
+  EXPECT_FALSE(loaded_[1]->plugins()[1].is_public);
   EXPECT_EQ(Extension::INTERNAL, loaded_[1]->location());
 
   EXPECT_EQ(std::string("20123456789abcdef0123456789abcdef0123456"),

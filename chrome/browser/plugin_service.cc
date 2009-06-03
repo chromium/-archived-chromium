@@ -96,12 +96,6 @@ const FilePath& PluginService::GetChromePluginDataDir() {
   return chrome_plugin_data_dir_;
 }
 
-void PluginService::AddExtraPluginDir(const FilePath& plugin_dir) {
-  AutoLock lock(lock_);
-  NPAPI::PluginList::ResetPluginsLoaded();
-  NPAPI::PluginList::AddExtraPluginDir(plugin_dir);
-}
-
 const std::wstring& PluginService::GetUILocale() {
   return ui_locale_;
 }
@@ -233,11 +227,18 @@ void PluginService::Observe(NotificationType type,
       // cache of the plugin list when we inject user scripts, since it could
       // have a stale version by the time extensions are loaded.
       // See: http://code.google.com/p/chromium/issues/detail?id=12306
+
       ExtensionList* extensions = Details<ExtensionList>(details).ptr();
       for (ExtensionList::iterator extension = extensions->begin();
-           extension != extensions->end(); ++extension)
-        if (!(*extension)->plugins_dir().empty())
-          AddExtraPluginDir((*extension)->plugins_dir());
+           extension != extensions->end(); ++extension) {
+        for (size_t i = 0; i < (*extension)->plugins().size(); ++i ) {
+          const Extension::PluginInfo& plugin = (*extension)->plugins()[i];
+          // TODO(mpcomplete): pass through plugin.is_public
+          AutoLock lock(lock_);
+          NPAPI::PluginList::ResetPluginsLoaded();
+          NPAPI::PluginList::AddExtraPluginPath(plugin.path);
+        }
+      }
       break;
     }
 
