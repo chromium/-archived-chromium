@@ -823,7 +823,7 @@ NPObject* WebFrameImpl::GetWindowNPObject() {
 
 void WebFrameImpl::InvalidateArea(AreaToInvalidate area) {
   ASSERT(frame() && frame()->view());
-#if defined(OS_WIN)
+#if defined(OS_WIN) || defined(OS_LINUX)
   // TODO(pinkerton): Fix Mac invalidation to be more like Win ScrollView
   FrameView* view = frame()->view();
 
