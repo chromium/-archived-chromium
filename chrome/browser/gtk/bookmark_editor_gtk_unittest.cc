@@ -219,10 +219,12 @@ TEST_F(BookmarkEditorGtkTest, MoveToNewParent) {
   // Create two nodes: "F21" as a child of "F2" and "F211" as a child of "F21".
   GtkTreeIter f21_iter;
   editor.AddNewGroup(&f2_iter, &f21_iter);
-  gtk_tree_store_set(editor.tree_store_, &f21_iter, 0, "F21", -1);
+  gtk_tree_store_set(editor.tree_store_, &f21_iter,
+                     bookmark_utils::FOLDER_NAME, "F21", -1);
   GtkTreeIter f211_iter;
   editor.AddNewGroup(&f21_iter, &f211_iter);
-  gtk_tree_store_set(editor.tree_store_, &f211_iter, 0, "F211", -1);
+  gtk_tree_store_set(editor.tree_store_, &f211_iter,
+                     bookmark_utils::FOLDER_NAME, "F211", -1);
 
   ASSERT_EQ(1, gtk_tree_model_iter_n_children(store, &f2_iter));
 
