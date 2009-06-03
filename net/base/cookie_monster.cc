@@ -74,8 +74,8 @@ namespace net {
 // going through the garbage collection process less often.
 static const size_t kNumCookiesPerHost      = 70;  // ~50 cookies
 static const size_t kNumCookiesPerHostPurge = 20;
-static const size_t kNumCookiesTotal        = 1100;  // ~1000 cookies
-static const size_t kNumCookiesTotalPurge   = 100;
+static const size_t kNumCookiesTotal        = 3300;  // ~3000 cookies
+static const size_t kNumCookiesTotalPurge   = 300;
 
 // Default minimum delay after updating a cookie's LastAccessDate before we
 // will update it again.

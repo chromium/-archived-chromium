@@ -854,7 +854,7 @@ TEST(CookieMonsterTest, TestTotalGarbageCollection) {
   net::CookieMonster cm(kLastAccessThresholdSeconds);
   // Add a bunch of cookies on a bunch of host, some should get purged.
   const GURL sticky_cookie("http://a0000.izzle");
-  for (int i = 0; i < 2000; ++i) {
+  for (int i = 0; i < 4000; ++i) {
     GURL url(StringPrintf("http://a%04d.izzle", i));
     EXPECT_TRUE(cm.SetCookie(url, "a=b"));
     EXPECT_EQ("a=b", cm.GetCookies(url));
@@ -869,12 +869,12 @@ TEST(CookieMonsterTest, TestTotalGarbageCollection) {
   }
 
   // Check that cookies that still exist.
-  for (int i = 0; i < 2000; ++i) {
+  for (int i = 0; i < 4000; ++i) {
     GURL url(StringPrintf("http://a%04d.izzle", i));
-    if ((i == 0) || (i > 1101)) {
+    if ((i == 0) || (i > 1001)) {
       // Cookies should still be around.
       EXPECT_FALSE(cm.GetCookies(url).empty());
-    } else if (i < 901) {
+    } else if (i < 701) {
       // Cookies should have gotten purged.
       EXPECT_TRUE(cm.GetCookies(url).empty());
     }
