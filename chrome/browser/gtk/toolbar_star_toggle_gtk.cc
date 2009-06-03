@@ -7,10 +7,12 @@
 #include "app/resource_bundle.h"
 #include "base/gfx/rect.h"
 #include "chrome/browser/gtk/bookmark_bubble_gtk.h"
+#include "chrome/browser/gtk/browser_toolbar_gtk.h"
 #include "grit/theme_resources.h"
 
-ToolbarStarToggleGtk::ToolbarStarToggleGtk()
-    : widget_(gtk_button_new()),
+ToolbarStarToggleGtk::ToolbarStarToggleGtk(BrowserToolbarGtk* host)
+    : host_(host),
+      widget_(gtk_button_new()),
       is_starred_(false),
       unstarred_(IDR_STAR, IDR_STAR_P, IDR_STAR_H, IDR_STAR_D),
       starred_(IDR_STARRED, IDR_STARRED_P, IDR_STARRED_H, 0) {
@@ -42,7 +44,7 @@ void ToolbarStarToggleGtk::ShowStarBubble(const GURL& url,
 
   BookmarkBubbleGtk::Show(GTK_WINDOW(gtk_widget_get_toplevel(widget)),
                           gfx::Rect(x, y, width, height),
-                          NULL,
+                          host_->profile(),
                           url,
                           newly_bookmarked);
 }

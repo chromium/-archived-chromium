@@ -64,6 +64,7 @@ class BrowserToolbarGtk : public CommandUpdater::CommandObserver,
                const NotificationSource& source,
                const NotificationDetails& details);
 
+  Profile* profile() { return profile_; }
   void SetProfile(Profile* profile);
 
   // Message that we should react to a state change.

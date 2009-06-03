@@ -292,7 +292,7 @@ CustomDrawButton* BrowserToolbarGtk::BuildToolbarButton(
 
 ToolbarStarToggleGtk* BrowserToolbarGtk::BuildStarButton(
     const std::string& localized_tooltip) {
-  ToolbarStarToggleGtk* button = new ToolbarStarToggleGtk;
+  ToolbarStarToggleGtk* button = new ToolbarStarToggleGtk(this);
 
   gtk_widget_set_tooltip_text(button->widget(),
                               localized_tooltip.c_str());

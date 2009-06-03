@@ -53,20 +53,56 @@ class BookmarkBubbleGtk : public InfoBubbleGtkDelegate {
   }
   // Notified when |content_| is destroyed so we can delete our instance.
   gboolean HandleDestroy();
-  
+
+  static void HandleNameActivateThunk(GtkWidget* widget,
+                                      gpointer user_data) {
+    return reinterpret_cast<BookmarkBubbleGtk*>(user_data)->
+        HandleNameActivate();
+  }
+  void HandleNameActivate();
+
+  static void HandleCloseButtonThunk(GtkWidget* widget,
+                                     gpointer user_data) {
+    return reinterpret_cast<BookmarkBubbleGtk*>(user_data)->
+        HandleCloseButton();
+  }
+  void HandleCloseButton();
+
+  static void HandleRemoveButtonThunk(GtkWidget* widget,
+                                      gpointer user_data) {
+    return reinterpret_cast<BookmarkBubbleGtk*>(user_data)->
+        HandleRemoveButton();
+  }
+  void HandleRemoveButton();
+
+  // Update the bookmark with any edits that have been made.
+  void ApplyEdits();
+
+  // Return the UTF8 encoded title for the current |url_|.
+  std::string GetTitle();
+
   // The URL of the bookmark.
   GURL url_;
   // Our current profile (used to access the bookmark system).
   Profile* profile_;
-  // Whether the bubble is creating or editing an existing bookmark.
-  bool newly_bookmarked_;
 
   // We let the InfoBubble own our content, and then we delete ourself
   // when the widget is destroyed (when the InfoBubble is destroyed).
   GtkWidget* content_;
 
+  // The GtkEntry for editing the bookmark name / title.
+  GtkWidget* name_entry_;
+
   // The combo box for selecting the bookmark folder.
-  GtkWidget* combo_;
+  GtkWidget* folder_combo_;
+
+  InfoBubbleGtk* bubble_;
+
+  // Whether the bubble is creating or editing an existing bookmark.
+  bool newly_bookmarked_;
+  // When closing the window, whether we should update or remove the bookmark.
+  bool apply_edits_;
+  bool remove_bookmark_;
 
   DISALLOW_COPY_AND_ASSIGN(BookmarkBubbleGtk);
 };
