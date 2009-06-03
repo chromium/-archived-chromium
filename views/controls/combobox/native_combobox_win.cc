@@ -26,6 +26,10 @@ static const int kComboboxExtraPaddingX = 6;
 NativeComboboxWin::NativeComboboxWin(Combobox* combobox)
     : combobox_(combobox),
       content_width_(0) {
+  // Associates the actual HWND with the combobox so it is the one considered as
+  // having the focus (not the wrapper) when the HWND is focused directly (with
+  // a click for example).
+  set_focus_view(combobox);
 }
 
 NativeComboboxWin::~NativeComboboxWin() {

@@ -10,12 +10,14 @@
 
 #include "app/resource_bundle.h"
 #include "base/gfx/rect.h"
+#include "base/string_util.h"
 #include "third_party/skia/include/core/SkColor.h"
 #include "views/background.h"
 #include "views/border.h"
 #include "views/controls/button/checkbox.h"
 #include "views/controls/button/native_button.h"
 #include "views/controls/button/radio_button.h"
+#include "views/controls/combobox/combobox.h"
 #include "views/controls/label.h"
 #include "views/controls/link.h"
 #include "views/controls/scroll_view.h"
@@ -48,44 +50,45 @@ static const int kKiwiLabelID = count++;
 static const int kKiwiTextfieldID = count++; // 10
 static const int kFruitButtonID = count++;
 static const int kFruitCheckBoxID = count++;
+static const int kComboboxID = count++;
 
 static const int kRightContainerID = count++;
-static const int kAsparagusButtonID = count++;
-static const int kBroccoliButtonID = count++;  // 15
+static const int kAsparagusButtonID = count++;  // 15
+static const int kBroccoliButtonID = count++;
 static const int kCauliflowerButtonID = count++;
 
 static const int kInnerContainerID = count++;
 static const int kScrollViewID = count++;
-static const int kScrollContentViewID = count++;
-static const int kRosettaLinkID = count++;  // 20
+static const int kScrollContentViewID = count++;  // 20
+static const int kRosettaLinkID = count++;
 static const int kStupeurEtTremblementLinkID = count++;
 static const int kDinerGameLinkID = count++;
 static const int kRidiculeLinkID = count++;
-static const int kClosetLinkID = count++;
-static const int kVisitingLinkID = count++;  // 25
+static const int kClosetLinkID = count++;  // 25
+static const int kVisitingLinkID = count++;
 static const int kAmelieLinkID = count++;
 static const int kJoyeuxNoelLinkID = count++;
 static const int kCampingLinkID = count++;
-static const int kBriceDeNiceLinkID = count++;
-static const int kTaxiLinkID = count++;  // 30
+static const int kBriceDeNiceLinkID = count++;  // 30
+static const int kTaxiLinkID = count++;
 static const int kAsterixLinkID = count++;
 
 static const int kOKButtonID = count++;
 static const int kCancelButtonID = count++;
-static const int kHelpButtonID = count++;
+static const int kHelpButtonID = count++;  // 35
 
-static const int kStyleContainerID = count++;  // 35
+static const int kStyleContainerID = count++;
 static const int kBoldCheckBoxID = count++;
 static const int kItalicCheckBoxID = count++;
 static const int kUnderlinedCheckBoxID = count++;
 
-static const int kSearchContainerID = count++;
-static const int kSearchTextfieldID = count++;  // 40
+static const int kSearchContainerID = count++;  // 40
+static const int kSearchTextfieldID = count++;
 static const int kSearchButtonID = count++;
 static const int kHelpLinkID = count++;
 
 static const int kThumbnailContainerID = count++;
-static const int kThumbnailStarID = count++;
+static const int kThumbnailStarID = count++;  // 45
 static const int kThumbnailSuperStarID = count++;
 
 class FocusManagerTest;
@@ -165,7 +168,16 @@ private:
   View* child_;
   views::WidgetWin* widget_;
 
-  DISALLOW_EVIL_CONSTRUCTORS(BorderView);
+  DISALLOW_COPY_AND_ASSIGN(BorderView);
+};
+
+class DummyComboboxModel : public views::Combobox::Model {
+ public:
+  virtual int GetItemCount(views::Combobox* source) { return 10; }
+
+  virtual std::wstring GetItemAt(views::Combobox* source, int index) {
+    return L"Item " + IntToWString(index);
+  }
 };
 
 class TestViewWindow : public views::WidgetWin {
@@ -176,7 +188,6 @@ class TestViewWindow : public views::WidgetWin {
   void Init();
 
   views::View* contents() const { return contents_; }
-
 
   // Return the ID of the component that currently has the focus.
   int GetFocusedComponentID();
@@ -204,7 +215,9 @@ class TestViewWindow : public views::WidgetWin {
 
   FocusManagerTest* test_;
 
-  DISALLOW_EVIL_CONSTRUCTORS(TestViewWindow);
+  DummyComboboxModel combobox_model_;
+
+  DISALLOW_COPY_AND_ASSIGN(TestViewWindow);
 };
 
 class FocusManagerTest : public testing::Test {
@@ -325,9 +338,15 @@ void TestViewWindow::Init() {
   y += 40;
 
   cb =  new views::Checkbox(L"This is another check box");
-  cb->SetBounds(label_x + label_width + 5, y, 100, 20);
+  cb->SetBounds(label_x + label_width + 5, y, 150, 20);
   cb->SetID(kFruitCheckBoxID);
   left_container->AddChildView(cb);
+  y += 20;
+  
+  views::Combobox* combobox =  new views::Combobox(&combobox_model_);
+  combobox->SetBounds(label_x + label_width + 5, y, 150, 20);
+  combobox->SetID(kComboboxID);
+  left_container->AddChildView(combobox);
 
   views::View* right_container = new views::View();
   right_container->set_border(
@@ -536,8 +555,8 @@ void FocusManagerTest::TearDown() {
 TEST_F(FocusManagerTest, NormalTraversal) {
   const int kTraversalIDs[] = { kTopCheckBoxID,  kAppleTextfieldID,
       kOrangeTextfieldID, kBananaTextfieldID, kKiwiTextfieldID,
-      kFruitButtonID, kFruitCheckBoxID, kAsparagusButtonID, kRosettaLinkID,
-      kStupeurEtTremblementLinkID,
+      kFruitButtonID, kFruitCheckBoxID, kComboboxID, kAsparagusButtonID,
+      kRosettaLinkID, kStupeurEtTremblementLinkID,
       kDinerGameLinkID, kRidiculeLinkID, kClosetLinkID, kVisitingLinkID,
       kAmelieLinkID, kJoyeuxNoelLinkID, kCampingLinkID, kBriceDeNiceLinkID,
       kTaxiLinkID, kAsterixLinkID, kOKButtonID, kCancelButtonID, kHelpButtonID,
@@ -547,7 +566,7 @@ TEST_F(FocusManagerTest, NormalTraversal) {
 
   // Uncomment the following line if you want to test manually the UI of this
   // test.
-  // MessageLoop::current()->Run(new views::AcceleratorHandler());
+  // MessageLoopForUI::current()->Run(new views::AcceleratorHandler());
 
   views::FocusManager* focus_manager =
       views::FocusManager::GetFocusManager(test_window_->GetNativeView());
@@ -585,7 +604,7 @@ TEST_F(FocusManagerTest, NormalTraversal) {
 
 TEST_F(FocusManagerTest, TraversalWithNonEnabledViews) {
   const int kMainContentsDisabledIDs[] = {
-      kBananaTextfieldID, kFruitCheckBoxID, kAsparagusButtonID,
+      kBananaTextfieldID, kFruitCheckBoxID, kComboboxID, kAsparagusButtonID,
       kCauliflowerButtonID, kClosetLinkID, kVisitingLinkID, kBriceDeNiceLinkID,
       kTaxiLinkID, kAsterixLinkID, kHelpButtonID };
 
