@@ -41,6 +41,7 @@ class ResultCodes {
     KILLED_BAD_MESSAGE,         // A bad message caused the process termination.
     IMPORTER_CANCEL,            // The user canceled the browser import.
     IMPORTER_HUNG,              // Browser import hung and was killed.
+    RESPAWN_FAILED,             // Trying to restrart the browser we crashed.
     EXIT_LAST_CODE              // Last return code (keep it last).
   };
 };
