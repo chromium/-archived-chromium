@@ -157,6 +157,36 @@ TEST(StringUtilTest, CollapseWhitespace) {
   }
 }
 
+static const struct collapse_case_ascii {
+  const char* input;
+  const bool trim;
+  const char* output;
+} collapse_cases_ascii[] = {
+  {" Google Video ", false, "Google Video"},
+  {"Google Video", false, "Google Video"},
+  {"", false, ""},
+  {"  ", false, ""},
+  {"\t\rTest String\n", false, "Test String"},
+  {"    Test     \n  \t String    ", false, "Test String"},
+  {"   Test String", false, "Test String"},
+  {"Test String    ", false, "Test String"},
+  {"Test String", false, "Test String"},
+  {"", true, ""},
+  {"\n", true, ""},
+  {"  \r  ", true, ""},
+  {"\nFoo", true, "Foo"},
+  {"\r  Foo  ", true, "Foo"},
+  {" Foo bar ", true, "Foo bar"},
+  {"  \tFoo  bar  \n", true, "Foo bar"},
+  {" a \r b\n c \r\n d \t\re \t f \n ", true, "abcde f"},
+};
+
+TEST(StringUtilTest, CollapseWhitespaceASCII) {
+  for (size_t i = 0; i < arraysize(collapse_cases_ascii); ++i) {
+    const collapse_case_ascii& value = collapse_cases_ascii[i];
+    EXPECT_EQ(value.output, CollapseWhitespaceASCII(value.input, value.trim));
+  }
+}
 
 TEST(StringUtilTest, IsStringUTF8) {
   EXPECT_TRUE(IsStringUTF8("abc"));

@@ -420,9 +420,10 @@ TrimPositions TrimWhitespace(const std::string& input,
   return TrimWhitespaceASCII(input, positions, output);
 }
 
-std::wstring CollapseWhitespace(const std::wstring& text,
-                                bool trim_sequences_with_line_breaks) {
-  std::wstring result;
+template<typename STR>
+STR CollapseWhitespaceT(const STR& text,
+                        bool trim_sequences_with_line_breaks) {
+  STR result;
   result.resize(text.size());
 
   // Set flags to pretend we're already in a trimmed whitespace sequence, so we
@@ -431,7 +432,7 @@ std::wstring CollapseWhitespace(const std::wstring& text,
   bool already_trimmed = true;
 
   int chars_written = 0;
-  for (std::wstring::const_iterator i(text.begin()); i != text.end(); ++i) {
+  for (typename STR::const_iterator i(text.begin()); i != text.end(); ++i) {
     if (IsWhitespace(*i)) {
       if (!in_whitespace) {
         // Reduce all whitespace sequences to a single space.
@@ -459,6 +460,16 @@ std::wstring CollapseWhitespace(const std::wstring& text,
 
   result.resize(chars_written);
   return result;
+}
+
+std::wstring CollapseWhitespace(const std::wstring& text,
+                                bool trim_sequences_with_line_breaks) {
+  return CollapseWhitespaceT(text, trim_sequences_with_line_breaks);
+}
+
+std::string CollapseWhitespaceASCII(const std::string& text,
+                                    bool trim_sequences_with_line_breaks) {
+  return CollapseWhitespaceT(text, trim_sequences_with_line_breaks);
 }
 
 std::string WideToASCII(const std::wstring& wide) {
