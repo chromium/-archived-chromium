@@ -3696,7 +3696,6 @@
                 'version_py': 'tools/build/version.py',
                 'version_path': 'VERSION',
                 'template_input_path': 'app/chrome_dll_version.rc.version',
-                'template_output_path': '<(grit_out_dir)/chrome_dll_version.rc',
               },
               'conditions': [
                 [ 'branding == "Chrome"', {
@@ -3716,14 +3715,7 @@
                 '<(lastchange_path)',
               ],
               'outputs': [
-                # Use a non-existant output so this action always runs and
-                # generates version information, e.g. to capture revision
-                # changes, which aren't captured by file dependencies.
-                '<(grit_out_dir)/chrome_dll_version.always',
-
-                # And this is the real output, so that the build system knows
-                # what action generates it.
-                '<(template_output_path)',
+                '<(grit_out_dir)/chrome_dll_version.rc',
               ],
               'action': [
                 'python',
@@ -3732,10 +3724,10 @@
                 '-f', '<(branding_path)',
                 '-f', '<(lastchange_path)',
                 '<(template_input_path)',
-                '<(template_output_path)',
+                '<@(_outputs)',
               ],
               'process_outputs_as_sources': 1,
-              'message': 'Generating version information in <(template_output_path)'
+              'message': 'Generating version information in <(_outputs)'
             },
           ],
           'sources': [

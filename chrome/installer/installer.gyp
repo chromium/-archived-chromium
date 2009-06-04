@@ -1,8 +1,8 @@
 {
   'variables': {
     'version_py': '../../chrome/tools/build/version.py',
-    'VERSION': '../../chrome/VERSION',
-    # 'BRANDING' is set in the 'conditions' section at the bottom.
+    'version_path': '../../chrome/VERSION',
+    # 'branding_dir' is set in the 'conditions' section at the bottom.
   },
   'includes': [
     '../../build/common.gypi',
@@ -19,7 +19,6 @@
           'conditions': [
             ['branding=="Chrome"', {
               'variables': {
-                'branding_path': 'google_chrome',
                 'lib32_dir': '<!(if uname -m | egrep -q "x86_64"; then echo lib32; else echo lib; fi)',
               },
               'copies': [
@@ -76,11 +75,11 @@
                 {
                   'destination': '<(PRODUCT_DIR)/installer/theme/',
                   'files': [
-                    '../app/theme/<(branding_path)/product_logo_16.png',
-                    '../app/theme/<(branding_path)/product_logo_32.png',
-                    '../app/theme/<(branding_path)/product_logo_48.png',
-                    '../app/theme/<(branding_path)/product_logo_256.png',
-                    '../app/theme/<(branding_path)/BRANDING',
+                    '<(branding_dir)/product_logo_16.png',
+                    '<(branding_dir)/product_logo_32.png',
+                    '<(branding_dir)/product_logo_48.png',
+                    '<(branding_dir)/product_logo_256.png',
+                    '<(branding_dir)/BRANDING',
                   ],
                 },
               ],
@@ -88,16 +87,19 @@
                 {
                   'action_name': 'save_build_info',
                   'inputs': [
-                    '<(BRANDING)',
-                    '<(VERSION)',
+                    '<(branding_dir)/BRANDING',
+                    '<(version_path)',
                   ],
                   'outputs': [
                     '<(PRODUCT_DIR)/installer/version.txt',
                   ],
-                  # Jst output the default version info variables.
-                  'action': ['python', '<(version_py)', '-f',
-                             '<(BRANDING)', '-f', '<(VERSION)',
-                             '-o', '<@(_outputs)'],
+                  # Just output the default version info variables.
+                  'action': [
+                    'python', '<(version_py)',
+                    '-f', '<(branding_dir)/BRANDING',
+                    '-f', '<(version_path)',
+                    '-o', '<@(_outputs)'
+                  ],
                 },
               ],
             }],
@@ -338,31 +340,21 @@
               'extension': 'version',
               'variables': {
                 'template_input_path': 'mini_installer/mini_installer_exe_version.rc.version',
-                'template_output_path':
-                '<(INTERMEDIATE_DIR)/mini_installer_exe_version.rc',
               },
               'inputs': [
                 '<(template_input_path)',
-                '<(VERSION)',
-                '<(BRANDING)',
+                '<(version_path)',
+                '<(branding_dir)/BRANDING',
               ],
               'outputs': [
-                # Use a non-existant output so this action always runs and
-                # generates version information, e.g. to capture revision
-                # changes, which aren't captured by file dependencies.
-                '<(INTERMEDIATE_DIR)/mini_installer_version.bogus',
-
-                # And this is the real output, so that the build system knows
-                # what action generates it.
-                '<(template_output_path)',
+                '<(INTERMEDIATE_DIR)/mini_installer_exe_version.rc',
               ],
               'action': [
-                'python',
-                '<(version_py)',
-                '-f', '<(VERSION)',
-                '-f', '<(BRANDING)',
+                'python', '<(version_py)',
+                '-f', '<(version_path)',
+                '-f', '<(branding_dir)/BRANDING',
                 '<(template_input_path)',
-                '<(template_output_path)',
+                '<@(_outputs)',
               ],
               'process_outputs_as_sources': 1,
               'message': 'Generating version information'
@@ -373,8 +365,6 @@
               'variables': {
                 'create_installer_archive_py_path':
                   '../tools/build/win/create_installer_archive.py',
-                'template_output_path':
-                  '<(INTERMEDIATE_DIR)/mini_installer_exe_version.rc',
               },
               'inputs': [
                 '<(create_installer_archive_py_path)',
@@ -401,7 +391,7 @@
               ],
             },
           ],
-          # TODO(mark):  <(BRANDING) should be defined by the
+          # TODO(mark):  <(branding_dir) should be defined by the
           # global condition block at the bottom of the file, but
           # this doesn't work due to the following issue:
           #
@@ -411,11 +401,11 @@
           'conditions': [
             [ 'branding == "Chrome"', {
               'variables': {
-                 'BRANDING': '../../chrome/app/theme/google_chrome/BRANDING',
+                 'branding_dir': '../app/theme/google_chrome',
               },
             }, { # else branding!="Chrome"
               'variables': {
-                 'BRANDING': '../../chrome/app/theme/chromium/BRANDING',
+                 'branding_dir': '../app/theme/chromium',
               },
             }],
           ],
@@ -488,33 +478,22 @@
               'extension': 'version',
               'variables': {
                 'version_py': '../../chrome/tools/build/version.py',
-                'VERSION': '../../chrome/VERSION',
                 'template_input_path': 'setup/setup_exe_version.rc.version',
-                'template_output_path':
-                '<(SHARED_INTERMEDIATE_DIR)/setup_exe_version.rc',
               },
               'inputs': [
                 '<(template_input_path)',
-                '<(VERSION)',
-                '<(BRANDING)',
+                '<(version_path)',
+                '<(branding_dir)/BRANDING',
               ],
               'outputs': [
-                # Use a non-existant output so this action always runs and
-                # generates version information, e.g. to capture revision
-                # changes, which aren't captured by file dependencies.
-                '<(SHARED_INTERMEDIATE_DIR)/setup_exe_version.bogus',
-
-                # And this is the real output, so that the build system knows
-                # what action generates it.
-                '<(template_output_path)',
+                '<(SHARED_INTERMEDIATE_DIR)/setup_exe_version.rc',
               ],
               'action': [
-                'python',
-                '<(version_py)',
-                '-f', '<(VERSION)',
-                '-f', '<(BRANDING)',
+                'python', '<(version_py)',
+                '-f', '<(version_path)',
+                '-f', '<(branding_dir)/BRANDING',
                 '<(template_input_path)',
-                '<(template_output_path)',
+                '<@(_outputs)',
               ],
               'process_outputs_as_sources': 1,
               'message': 'Generating version information'
@@ -547,7 +526,7 @@
               ],
             },
           ],
-          # TODO(mark):  <(BRANDING) should be defined by the
+          # TODO(mark):  <(branding_dir) should be defined by the
           # global condition block at the bottom of the file, but
           # this doesn't work due to the following issue:
           #
@@ -557,11 +536,11 @@
           'conditions': [
             [ 'branding == "Chrome"', {
               'variables': {
-                 'BRANDING': '../../chrome/app/theme/google_chrome/BRANDING',
+                 'branding_dir': '../app/theme/google_chrome',
               },
             }, { # else branding!="Chrome"
               'variables': {
-                 'BRANDING': '../../chrome/app/theme/chromium/BRANDING',
+                 'branding_dir': '../app/theme/chromium',
               },
             }],
           ],
@@ -570,11 +549,11 @@
     }],
     [ 'branding == "Chrome"', {
       'variables': {
-         'BRANDING': '../../chrome/app/theme/google_chrome/BRANDING',
+         'branding_dir': '../app/theme/google_chrome',
       },
     }, { # else branding!="Chrome"
       'variables': {
-         'BRANDING': '../../chrome/app/theme/chromium/BRANDING',
+         'branding_dir': '../app/theme/chromium',
       },
     }],
   ],

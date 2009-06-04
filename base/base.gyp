@@ -367,8 +367,6 @@
                   'version_py_path': '../chrome/tools/build/version.py',
                   'version_path': '../chrome/VERSION',
                   'template_input_path': 'file_version_info_linux.h.version',
-                  'template_output_path':
-                    '<(SHARED_INTERMEDIATE_DIR)/base/file_version_info_linux.h',
                 },
                 'conditions': [
                   [ 'branding == "Chrome"', {
@@ -390,14 +388,7 @@
                   '<(lastchange_path)',
                 ],
                 'outputs': [
-                  # Use a non-existant output so this action always runs and
-                  # generates version information, e.g. to capture revision
-                  # changes, which aren't captured by file dependencies.
-                  '<(SHARED_INTERMEDIATE_DIR)/base/file_version_info_linux.always',
-
-                  # And this is the real output, so that the build system knows
-                  # what action generates it.
-                  '<(template_output_path)',
+                  '<(SHARED_INTERMEDIATE_DIR)/base/file_version_info_linux.h',
                 ],
                 'action': [
                   'python',
@@ -406,7 +397,7 @@
                   '-f', '<(branding_path)',
                   '-f', '<(lastchange_path)',
                   '<(template_input_path)',
-                  '<(template_output_path)',
+                  '<@(_outputs)',
                 ],
                 'message': 'Generating version information',
               },
