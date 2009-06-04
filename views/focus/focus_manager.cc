@@ -350,9 +350,8 @@ bool FocusManager::OnPostActivate(HWND window,
 
 void FocusManager::ValidateFocusedView() {
   if (focused_view_) {
-    if (!ContainsView(focused_view_)) {
-      focused_view_ = NULL;
-    }
+    if (!ContainsView(focused_view_))
+      ClearFocus();
   }
 }
 
@@ -554,7 +553,7 @@ void FocusManager::StoreFocusedView() {
   view_storage->StoreView(stored_focused_view_storage_id_, focused_view_);
 
   View* v = focused_view_;
-  focused_view_ = NULL;
+  ClearFocus();
 
   if (v)
     v->SchedulePaint();  // Remove focus border.
@@ -716,7 +715,7 @@ bool FocusManager::IsTabTraversalKeyEvent(const KeyEvent& key_event) {
 
 void FocusManager::ViewRemoved(View* parent, View* removed) {
   if (focused_view_ && focused_view_ == removed)
-    focused_view_ = NULL;
+    ClearFocus();
 }
 
 void FocusManager::AddKeystrokeListener(KeystrokeListener* listener) {
