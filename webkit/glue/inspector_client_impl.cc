@@ -264,7 +264,7 @@ void WebInspectorClient::SaveSettings() {
         entry = String::format(
             "%s:string:%s",
             name.utf8().data(),
-            encodeWithURLEscapeSequences(value.string())).utf8().data();
+            encodeWithURLEscapeSequences(value.string()).utf8().data());
         break;
       case InspectorController::Setting::DoubleType:
         entry = String::format(
