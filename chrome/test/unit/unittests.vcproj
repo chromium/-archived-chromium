@@ -462,6 +462,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\browser\browser_theme_provider_unittest.cc"
+				>
+			</File>
+			<File
 				RelativePath="..\..\browser\browser_unittest.cc"
 				>
 			</File>

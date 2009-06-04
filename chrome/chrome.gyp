@@ -3070,6 +3070,7 @@
         'browser/autocomplete/keyword_provider_unittest.cc',
         'browser/autocomplete/search_provider_unittest.cc',
         'browser/back_forward_menu_model_unittest.cc',
+        'browser/base/browser_theme_provider_unittest.cc',
         'browser/bookmarks/bookmark_codec_unittest.cc',
         'browser/bookmarks/bookmark_context_menu_test.cc',
         'browser/bookmarks/bookmark_drag_data_unittest.cc',
