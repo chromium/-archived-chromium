@@ -181,10 +181,8 @@ void DownloadShelfView::AnimationProgressed(const Animation *animation) {
 }
 
 void DownloadShelfView::AnimationEnded(const Animation *animation) {
-  if (animation == shelf_animation_.get()) {
-    if (download_views_.empty())
-      parent_->SetDownloadShelfVisible(shelf_animation_->IsShowing());
-  }
+  if (animation == shelf_animation_.get())
+    parent_->SetDownloadShelfVisible(shelf_animation_->IsShowing());
 }
 
 void DownloadShelfView::Layout() {
