@@ -198,12 +198,7 @@ bool KillProcessById(ProcessId process_id, int exit_code, bool wait) {
   return ret;
 }
 
-bool GetAppOutput(const std::wstring& cmd_line, std::string* output) {
-  if (!output) {
-    NOTREACHED();
-    return false;
-  }
-
+bool GetAppOutput(const CommandLine& cl, std::string* output) {
   HANDLE out_read = NULL;
   HANDLE out_write = NULL;
 
@@ -241,7 +236,9 @@ bool GetAppOutput(const std::wstring& cmd_line, std::string* output) {
   start_info.dwFlags |= STARTF_USESTDHANDLES;
 
   // Create the child process.
-  if (!CreateProcess(NULL, const_cast<wchar_t*>(cmd_line.c_str()), NULL, NULL,
+  if (!CreateProcess(NULL,
+                     const_cast<wchar_t*>(cl.command_line_string().c_str()),
+                     NULL, NULL,
                      TRUE,  // Handles are inherited.
                      0, NULL, NULL, &start_info, &proc_info)) {
     NOTREACHED() << "Failed to start process";

@@ -146,20 +146,21 @@ TEST_F(ProcessUtilTest, GetAppOutput) {
                                  .Append(FILE_PATH_LITERAL("python_24"))
                                  .Append(FILE_PATH_LITERAL("python.exe"));
 
-  // You have to put every parameter between quotes, otherwise this won't work,
-  // don't ask me why.
-  std::wstring cmd_line = L"\"" + python_runtime.value() + L"\" " +
-      L"\"-c\" \"import sys; sys.stdout.write('" + ASCIIToWide(message) +
-      L"');\"";
+  CommandLine cmd_line(python_runtime.value());
+  cmd_line.AppendLooseValue(L"-c");
+  cmd_line.AppendLooseValue(L"\"import sys; sys.stdout.write('" +
+      ASCIIToWide(message) + L"');\"");
   std::string output;
   ASSERT_TRUE(base::GetAppOutput(cmd_line, &output));
   EXPECT_EQ(message, output);
 
   // Let's make sure stderr is ignored.
-  cmd_line = L"\"" + python_runtime.value() + L"\" " +
-      L"\"-c\" \"import sys; sys.stderr.write('Hello!');\"";
+  CommandLine other_cmd_line(python_runtime.value());
+  other_cmd_line.AppendLooseValue(L"-c");
+  other_cmd_line.AppendLooseValue(
+      L"\"import sys; sys.stderr.write('Hello!');\"");
   output.clear();
-  ASSERT_TRUE(base::GetAppOutput(cmd_line, &output));
+  ASSERT_TRUE(base::GetAppOutput(other_cmd_line, &output));
   EXPECT_EQ("", output);
 }
 #endif  // defined(OS_WIN)
