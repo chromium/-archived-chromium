@@ -57,16 +57,18 @@
 #include "grit/theme_resources.h"
 #include "grit/webkit_resources.h"
 #include "views/controls/menu/menu.h"
+#if defined(OS_WIN)
+#include "views/controls/scrollbar/native_scroll_bar.h"
+#endif
 #include "views/fill_layout.h"
 #include "views/view.h"
 #include "views/widget/root_view.h"
 #include "views/window/dialog_delegate.h"
+#if !defined(OS_WIN)
+#include "views/window/hit_test.h"
+#endif
 #include "views/window/non_client_view.h"
 #include "views/window/window.h"
-
-#if defined(OS_WIN)
-#include "views/controls/scrollbar/native_scroll_bar.h"
-#endif
 
 using base::TimeDelta;
 
@@ -1177,7 +1179,6 @@ bool BrowserView::CanClose() const {
 }
 
 int BrowserView::NonClientHitTest(const gfx::Point& point) {
-#if defined(OS_WIN)
   // Since the TabStrip only renders in some parts of the top of the window,
   // the un-obscured area is considered to be part of the non-client caption
   // area of the window. So we need to treat hit-tests in these regions as
@@ -1185,6 +1186,7 @@ int BrowserView::NonClientHitTest(const gfx::Point& point) {
 
   if (!frame_->GetWindow()->IsMaximized() &&
       !frame_->GetWindow()->IsFullscreen()) {
+#if defined(OS_WIN)
     CRect client_rect;
     ::GetClientRect(frame_->GetWindow()->GetNativeWindow(), &client_rect);
     gfx::Size resize_corner_size = ResizeCorner::GetSize();
@@ -1199,6 +1201,7 @@ int BrowserView::NonClientHitTest(const gfx::Point& point) {
         return HTBOTTOMLEFT;
       return HTBOTTOMRIGHT;
     }
+#endif
   }
 
   // Determine if the TabStrip exists and is capable of being clicked on. We
@@ -1254,10 +1257,6 @@ int BrowserView::NonClientHitTest(const gfx::Point& point) {
 
   // If the point is somewhere else, delegate to the default implementation.
   return views::ClientView::NonClientHitTest(point);
-#else
-  NOTIMPLEMENTED();
-  return 0;
-#endif
 }
 
 gfx::Size BrowserView::GetMinimumSize() {

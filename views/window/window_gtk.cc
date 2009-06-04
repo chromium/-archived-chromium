@@ -7,9 +7,70 @@
 #include "app/gfx/path.h"
 #include "app/l10n_util.h"
 #include "base/gfx/rect.h"
+#include "views/widget/root_view.h"
 #include "views/window/custom_frame_view.h"
+#include "views/window/hit_test.h"
 #include "views/window/non_client_view.h"
 #include "views/window/window_delegate.h"
+
+namespace {
+
+// Converts a Windows-style hit test result code into a GDK window edge.
+GdkWindowEdge HitTestCodeToGDKWindowEdge(int hittest_code) {
+  switch (hittest_code) {
+    case HTBOTTOM:
+      return GDK_WINDOW_EDGE_SOUTH;
+    case HTBOTTOMLEFT:
+      return GDK_WINDOW_EDGE_SOUTH_WEST;
+    case HTBOTTOMRIGHT:
+    case HTGROWBOX:
+      return GDK_WINDOW_EDGE_SOUTH_EAST;
+    case HTLEFT:
+      return GDK_WINDOW_EDGE_WEST;
+    case HTRIGHT:
+      return GDK_WINDOW_EDGE_EAST;
+    case HTTOP:
+      return GDK_WINDOW_EDGE_NORTH;
+    case HTTOPLEFT:
+      return GDK_WINDOW_EDGE_NORTH_WEST;
+    case HTTOPRIGHT:
+      return GDK_WINDOW_EDGE_NORTH_EAST;
+    default:
+      NOTREACHED();
+      break;
+  }
+  // Default to something defaultish.
+  return HitTestCodeToGDKWindowEdge(HTGROWBOX);
+}
+
+// Converts a Windows-style hit test result code into a GDK cursor type.
+GdkCursorType HitTestCodeToGdkCursorType(int hittest_code) {
+  switch (hittest_code) {
+    case HTBOTTOM:
+      return GDK_BOTTOM_SIDE;
+    case HTBOTTOMLEFT:
+      return GDK_BOTTOM_LEFT_CORNER;
+    case HTBOTTOMRIGHT:
+    case HTGROWBOX:
+      return GDK_BOTTOM_RIGHT_CORNER;
+    case HTLEFT:
+      return GDK_LEFT_SIDE;
+    case HTRIGHT:
+      return GDK_RIGHT_SIDE;
+    case HTTOP:
+      return GDK_TOP_SIDE;
+    case HTTOPLEFT:
+      return GDK_TOP_LEFT_CORNER;
+    case HTTOPRIGHT:
+      return GDK_TOP_RIGHT_CORNER;
+    default:
+      break;
+  }
+  // Default to something defaultish.
+  return GDK_ARROW;
+}
+
+}  // namespace
 
 namespace views {
 
@@ -187,6 +248,54 @@ void WindowGtk::FrameTypeChanged() {
 
 ////////////////////////////////////////////////////////////////////////////////
 // WindowGtk, WidgetGtk overrides:
+
+gboolean WindowGtk::OnButtonPress(GtkWidget* widget, GdkEventButton* event) {
+  int hittest_code =
+      non_client_view_->NonClientHitTest(gfx::Point(event->x, event->y));
+  switch (hittest_code) {
+    case HTCAPTION: {
+      gfx::Point screen_point(event->x, event->y);
+      View::ConvertPointToScreen(GetRootView(), &screen_point);
+      gtk_window_begin_move_drag(GetNativeWindow(), event->button,
+                                 screen_point.x(), screen_point.y(),
+                                 event->time);
+      return TRUE;
+    }
+    case HTBOTTOM:
+    case HTBOTTOMLEFT:
+    case HTBOTTOMRIGHT:
+    case HTGROWBOX:
+    case HTLEFT:
+    case HTRIGHT:
+    case HTTOP:
+    case HTTOPLEFT:
+    case HTTOPRIGHT: {
+      gfx::Point screen_point(event->x, event->y);
+      View::ConvertPointToScreen(GetRootView(), &screen_point);
+      gtk_window_begin_resize_drag(GetNativeWindow(),
+                                   HitTestCodeToGDKWindowEdge(hittest_code),
+                                   event->button, screen_point.x(),
+                                   screen_point.y(), event->time);
+      return TRUE;
+    }
+    default:
+      // Everything else falls into standard client event handling...
+      break;
+  }
+  return WidgetGtk::OnButtonPress(widget, event);
+}
+
+gboolean WindowGtk::OnMotionNotify(GtkWidget* widget, GdkEventMotion* event) {
+  // Update the cursor for the screen edge.
+  int hittest_code =
+      non_client_view_->NonClientHitTest(gfx::Point(event->x, event->y));
+  GdkCursorType cursor_type = HitTestCodeToGdkCursorType(hittest_code);
+  GdkCursor* cursor = gdk_cursor_new(cursor_type);
+  gdk_window_set_cursor(widget->window, cursor);
+  gdk_cursor_destroy(cursor);
+
+  return WidgetGtk::OnMotionNotify(widget, event);
+}
 
 void WindowGtk::OnSizeAllocate(GtkWidget* widget, GtkAllocation* allocation) {
   WidgetGtk::OnSizeAllocate(widget, allocation);

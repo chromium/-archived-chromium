@@ -62,6 +62,8 @@ class WindowGtk : public WidgetGtk, public Window {
   virtual const Window* AsWindow() const { return this; }
 
   // Overridden from WidgetGtk:
+  virtual gboolean OnButtonPress(GtkWidget* widget, GdkEventButton* event);
+  virtual gboolean OnMotionNotify(GtkWidget* widget, GdkEventMotion* event);
   virtual void OnSizeAllocate(GtkWidget* widget, GtkAllocation* allocation);
 
  protected:
