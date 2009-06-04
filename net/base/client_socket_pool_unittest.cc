@@ -382,7 +382,7 @@ TEST_F(ClientSocketPoolTest, TwoRequestsCancelOne) {
   MessageLoop::current()->RunAllPending();
 }
 
-TEST_F(ClientSocketPoolTest, ConnectCancelConnect) {
+TEST_F(ClientSocketPoolTest, DISABLED_ConnectCancelConnect) {
   client_socket_factory_.set_client_socket_type(
       MockClientSocketFactory::MOCK_PENDING_CLIENT_SOCKET);
   TestSocketRequest req(pool_.get(), &request_order_);
