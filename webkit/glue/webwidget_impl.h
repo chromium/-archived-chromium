@@ -27,7 +27,7 @@ namespace WebKit {
 class WebKeyboardEvent;
 class WebMouseEvent;
 class WebMouseWheelEvent;
-class WebRect;
+struct WebRect;
 }
 
 struct MenuItem;

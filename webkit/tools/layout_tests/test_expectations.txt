@@ -2710,3 +2710,7 @@ BUG13267 LINUX : LayoutTests/fast/overflow/overflow-rtl-inline-scrollbar.html = 
 BUG13267 LINUX : LayoutTests/svg/custom/mask-inside-defs.svg = PASS FAIL
 BUG13267 LINUX : LayoutTests/svg/custom/stroked-pattern.svg = PASS FAIL
 BUG13267 LINUX : LayoutTests/editing/selection/5131716-3.html = PASS FAIL
+
+// WebKit change http://trac.webkit.org/changeset/44375
+// added this test. Needs a baseline for Linux
+BUG13305 LINUX : LayoutTests/editing/execCommand/list-wrapping-image-crash.html = FAIL
