@@ -1436,7 +1436,8 @@ void RenderViewHost::OnExtensionRequest(const std::string& name,
                                         const std::string& args,
                                         int request_id,
                                         bool has_callback) {
-  if (!BindingsPolicy::is_extension_enabled(enabled_bindings_)) {
+  if (!ChildProcessSecurityPolicy::GetInstance()->
+          HasExtensionBindings(process()->pid())) {
     NOTREACHED() << "Blocked unauthorized use of extension bindings.";
     return;
   }
