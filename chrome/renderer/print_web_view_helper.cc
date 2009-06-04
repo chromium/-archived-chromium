@@ -21,6 +21,69 @@
 #include "skia/ext/vector_canvas.h"
 #endif
 
+namespace {
+
+// Class that calls the Begin and End print functions on the frame and changes
+// the size of the view temporarily to support full page printing..
+// Do not serve any events in the time between construction and destruction of
+// this class because it will cause flicker.
+class PrepareFrameAndViewForPrint {
+ public:
+  PrepareFrameAndViewForPrint(const ViewMsg_Print_Params& print_params,
+                              WebFrame* frame,
+                              WebView* web_view)
+      : frame_(frame),
+        web_view_(web_view),
+        expected_pages_count_(0) {
+    print_canvas_size_.set_width(
+        printing::ConvertUnit(print_params.printable_size.width(),
+        static_cast<int>(print_params.dpi),
+        print_params.desired_dpi));
+    print_canvas_size_.set_height(
+        printing::ConvertUnit(print_params.printable_size.height(),
+        static_cast<int>(print_params.dpi),
+        print_params.desired_dpi));
+
+    // Layout page according to printer page size. Since WebKit shrinks the
+    // size of the page automatically (from 125% to 200%) we trick it to
+    // think the page is 125% larger so the size of the page is correct for
+    // minimum (default) scaling.
+    // This is important for sites that try to fill the page.
+    gfx::Size print_layout_size(print_canvas_size_);
+    print_layout_size.set_height(static_cast<int>(
+        static_cast<double>(print_layout_size.height()) * 1.25));
+
+    prev_view_size_ = web_view->GetSize();
+
+    web_view->Resize(print_layout_size);
+
+    frame->BeginPrint(print_canvas_size_, &expected_pages_count_);
+  }
+
+  int GetExpectedPageCount() const {
+    return expected_pages_count_;
+  }
+
+  gfx::Size GetPrintCanvasSize() const {
+    return print_canvas_size_;
+  }
+
+  ~PrepareFrameAndViewForPrint() {
+    frame_->EndPrint();
+    web_view_->Resize(prev_view_size_);
+  }
+
+ private:
+  WebFrame* frame_;
+  WebView* web_view_;
+  gfx::Size print_canvas_size_;
+  gfx::Size prev_view_size_;
+  int expected_pages_count_;
+
+  DISALLOW_COPY_AND_ASSIGN(PrepareFrameAndViewForPrint);
+};
+
+}  // namespace
 
 void PrintWebViewHelper::SyncPrint(WebFrame* frame) {
 #if defined(OS_WIN)
@@ -44,18 +107,16 @@ void PrintWebViewHelper::SyncPrint(WebFrame* frame) {
     // Continue only if the settings are valid.
     if (default_settings.dpi && default_settings.document_cookie) {
       int expected_pages_count = 0;
-      gfx::Size canvas_size;
-      canvas_size.set_width(
-          printing::ConvertUnit(default_settings.printable_size.width(),
-          static_cast<int>(default_settings.dpi),
-          default_settings.desired_dpi));
-      canvas_size.set_height(
-          printing::ConvertUnit(default_settings.printable_size.height(),
-          static_cast<int>(default_settings.dpi),
-          default_settings.desired_dpi));
-      frame->BeginPrint(canvas_size, &expected_pages_count);
-      DCHECK(expected_pages_count);
-      frame->EndPrint();
+
+      // Prepare once to calculate the estimated page count.  This must be in
+      // a scope for itself (see comments on PrepareFrameAndViewForPrint).
+      {
+        PrepareFrameAndViewForPrint prep_frame_view(default_settings,
+                                                    frame,
+                                                    frame->GetView());
+        expected_pages_count = prep_frame_view.GetExpectedPageCount();
+        DCHECK(expected_pages_count);
+      }
 
       // Ask the browser to show UI to retrieve the final print settings.
       ViewMsg_PrintPages_Params print_settings;
@@ -101,17 +162,11 @@ void PrintWebViewHelper::SyncPrint(WebFrame* frame) {
 
 void PrintWebViewHelper::PrintPages(const ViewMsg_PrintPages_Params& params,
                                  WebFrame* frame) {
-  int page_count = 0;
-  gfx::Size canvas_size;
-  canvas_size.set_width(
-      printing::ConvertUnit(params.params.printable_size.width(),
-                            static_cast<int>(params.params.dpi),
-                            params.params.desired_dpi));
-  canvas_size.set_height(
-      printing::ConvertUnit(params.params.printable_size.height(),
-                            static_cast<int>(params.params.dpi),
-                            params.params.desired_dpi));
-  frame->BeginPrint(canvas_size, &page_count);
+  PrepareFrameAndViewForPrint prep_frame_view(params.params,
+                                              frame,
+                                              frame->GetView());
+  int page_count = prep_frame_view.GetExpectedPageCount();
+
   Send(new ViewHostMsg_DidGetPrintedPagesCount(routing_id(),
                                                params.params.document_cookie,
                                                page_count));
@@ -121,16 +176,15 @@ void PrintWebViewHelper::PrintPages(const ViewMsg_PrintPages_Params& params,
     if (params.pages.empty()) {
       for (int i = 0; i < page_count; ++i) {
         page_params.page_number = i;
-        PrintPage(page_params, canvas_size, frame);
+        PrintPage(page_params, prep_frame_view.GetPrintCanvasSize(), frame);
       }
     } else {
       for (size_t i = 0; i < params.pages.size(); ++i) {
         page_params.page_number = params.pages[i];
-        PrintPage(page_params, canvas_size, frame);
+        PrintPage(page_params, prep_frame_view.GetPrintCanvasSize(), frame);
       }
     }
   }
-  frame->EndPrint();
 }
 
 void PrintWebViewHelper::PrintPage(const ViewMsg_PrintPage_Params& params,
