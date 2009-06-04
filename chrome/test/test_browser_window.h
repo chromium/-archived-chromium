@@ -52,6 +52,8 @@ class TestBrowserWindow : public BrowserWindow {
   virtual void ShowAboutChromeDialog() {}
   virtual void ShowBookmarkManager() {}
   virtual void ShowBookmarkBubble(const GURL& url, bool already_bookmarked) {}
+  virtual bool IsDownloadShelfVisible() const { return false; }
+  virtual DownloadShelf* GetDownloadShelf() { return NULL; }
   virtual void ShowReportBugDialog() {}
   virtual void ShowClearBrowsingDataDialog() {}
   virtual void ShowImportDialog() {}

@@ -42,19 +42,6 @@ bool TabProxy::GetTabIndex(int* index) const {
   return sender_->Send(new AutomationMsg_TabIndex(0, handle_, index));
 }
 
-bool TabProxy::IsShelfVisible(bool* is_visible) {
-  if (!is_valid())
-    return false;
-
-  if (!is_visible) {
-    NOTREACHED();
-    return false;
-  }
-
-  return sender_->Send(new AutomationMsg_ShelfVisibility(0, handle_,
-                                                         is_visible));
-}
-
 int TabProxy::FindInPage(const std::wstring& search_string,
                          FindInPageDirection forward,
                          FindInPageCase match_case,
@@ -347,7 +334,7 @@ scoped_refptr<ConstrainedWindowProxy> TabProxy::GetConstrainedWindow(
                                                         window_index,
                                                         &handle)))
     return NULL;
-  
+
   if (handle == 0)
     return NULL;
 

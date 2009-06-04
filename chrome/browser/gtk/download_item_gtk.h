@@ -11,6 +11,7 @@
 #include "base/scoped_ptr.h"
 #include "chrome/browser/download/download_manager.h"
 #include "chrome/browser/icon_manager.h"
+#include "chrome/common/owned_widget_gtk.h"
 
 class BaseDownloadItemModel;
 class DownloadShelfContextMenuGtk;
@@ -26,8 +27,7 @@ class DownloadItemGtk : public DownloadItem::Observer,
   DownloadItemGtk(DownloadShelfGtk* parent_shelf,
                   BaseDownloadItemModel* download_item_model);
 
-  // We put |hbox_| in |parent_shelf| and rely on |parent_shelf| recursively
-  // destroying its children. Hence we do nothing in the destructor.
+  // Destroys all widgets belonging to this DownloadItemGtk.
   ~DownloadItemGtk();
 
   // DownloadItem::Observer implementation.
@@ -109,11 +109,11 @@ class DownloadItemGtk : public DownloadItem::Observer,
   DownloadShelfGtk* parent_shelf_;
 
   // The widget that contains the body and menu dropdown.
-  GtkWidget* hbox_;
+  OwnedWidgetGtk hbox_;
 
   // The widget that contains the name of the download and the progress
   // animation.
-  GtkWidget* body_;
+  OwnedWidgetGtk body_;
 
   // The GtkLabel that holds the download title text.
   GtkWidget* name_label_;
@@ -130,7 +130,7 @@ class DownloadItemGtk : public DownloadItem::Observer,
 
   // The widget that contains the animation progress and the file's icon
   // (as well as the complete animation).
-  GtkWidget* progress_area_;
+  OwnedWidgetGtk progress_area_;
 
   // In degrees. Only used for downloads with no known total size.
   int progress_angle_;

@@ -505,16 +505,25 @@ void UITest::NavigateToURL(const GURL& url) {
   ASSERT_FALSE(is_timeout) << url.spec();
 }
 
-bool UITest::WaitForDownloadShelfVisible(TabProxy* tab) {
+bool UITest::WaitForDownloadShelfVisible(BrowserProxy* browser) {
+  return WaitForDownloadShelfVisibilityChange(browser, true);
+}
+
+bool UITest::WaitForDownloadShelfInvisible(BrowserProxy* browser) {
+  return WaitForDownloadShelfVisibilityChange(browser, false);
+}
+
+bool UITest::WaitForDownloadShelfVisibilityChange(BrowserProxy* browser,
+                                                  bool wait_for_open) {
   const int kCycles = 10;
   for (int i = 0; i < kCycles; i++) {
     // Give it a chance to catch up.
     PlatformThread::Sleep(sleep_timeout_ms() / kCycles);
 
-    bool visible = false;
-    if (!tab->IsShelfVisible(&visible))
+    bool visible = !wait_for_open;
+    if (!browser->IsShelfVisible(&visible))
       continue;
-    if (visible)
+    if (visible == wait_for_open)
       return true;  // Got the download shelf.
   }
   return false;

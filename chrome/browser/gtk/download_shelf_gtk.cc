@@ -7,8 +7,10 @@
 #include "app/l10n_util.h"
 #include "app/resource_bundle.h"
 #include "base/gfx/gtk_util.h"
+#include "chrome/browser/browser.h"
 #include "chrome/browser/download/download_item_model.h"
 #include "chrome/browser/download/download_util.h"
+#include "chrome/browser/gtk/browser_window_gtk.h"
 #include "chrome/browser/gtk/custom_button.h"
 #include "chrome/browser/gtk/download_item_gtk.h"
 #include "chrome/browser/gtk/gtk_chrome_link_button.h"
@@ -47,13 +49,8 @@ const int kShelfAnimationDurationMs = 120;
 
 }  // namespace
 
-// static
-DownloadShelf* DownloadShelf::Create(TabContents* tab_contents) {
-  return new DownloadShelfGtk(tab_contents);
-}
-
-DownloadShelfGtk::DownloadShelfGtk(TabContents* tab_contents)
-    : DownloadShelf(tab_contents),
+DownloadShelfGtk::DownloadShelfGtk(Browser* browser, GtkWidget* parent)
+    : DownloadShelf(browser),
       is_showing_(false) {
   // Logically, the shelf is a vbox that contains two children: a one pixel
   // tall event box, which serves as the top border, and an hbox, which holds
@@ -69,8 +66,8 @@ DownloadShelfGtk::DownloadShelfGtk(TabContents* tab_contents)
   gtk_widget_modify_bg(top_border, GTK_STATE_NORMAL, &kBorderColor);
 
   // Create |hbox_|.
-  hbox_ = gtk_hbox_new(FALSE, kDownloadItemPadding);
-  gtk_widget_set_size_request(hbox_, -1, kDownloadItemHeight);
+  hbox_.Own(gtk_hbox_new(FALSE, kDownloadItemPadding));
+  gtk_widget_set_size_request(hbox_.get(), -1, kDownloadItemHeight);
 
   // Get the padding and background color for |hbox_| right.
   GtkWidget* padding = gtk_alignment_new(0, 0, 1, 1);
@@ -79,7 +76,7 @@ DownloadShelfGtk::DownloadShelfGtk(TabContents* tab_contents)
       kTopBottomPadding - 1, kTopBottomPadding, kLeftPadding, kRightPadding);
   GtkWidget* padding_bg = gtk_event_box_new();
   gtk_container_add(GTK_CONTAINER(padding_bg), padding);
-  gtk_container_add(GTK_CONTAINER(padding), hbox_);
+  gtk_container_add(GTK_CONTAINER(padding), hbox_.get());
   gtk_widget_modify_bg(padding_bg, GTK_STATE_NORMAL, &kBackgroundColor);
 
   shelf_.Own(gtk_vbox_new(FALSE, 0));
@@ -88,7 +85,7 @@ DownloadShelfGtk::DownloadShelfGtk(TabContents* tab_contents)
 
   // Create and pack the close button.
   close_button_.reset(CustomDrawButton::CloseButton());
-  gtk_util::CenterWidgetInHBox(hbox_, close_button_->widget(), true, 0);
+  gtk_util::CenterWidgetInHBox(hbox_.get(), close_button_->widget(), true, 0);
   g_signal_connect(close_button_->widget(), "clicked",
                    G_CALLBACK(OnButtonClick), this);
 
@@ -112,16 +109,16 @@ DownloadShelfGtk::DownloadShelfGtk(TabContents* tab_contents)
   link_hbox_ = gtk_hbox_new(FALSE, 5);
   gtk_util::CenterWidgetInHBox(link_hbox_, download_image, false, 0);
   gtk_util::CenterWidgetInHBox(link_hbox_, link_button, false, 0);
-  gtk_box_pack_end(GTK_BOX(hbox_), link_hbox_, FALSE, FALSE, 0);
+  gtk_box_pack_end(GTK_BOX(hbox_.get()), link_hbox_, FALSE, FALSE, 0);
 
   slide_widget_.reset(new SlideAnimatorGtk(shelf_.get(),
                                            SlideAnimatorGtk::UP,
                                            kShelfAnimationDurationMs,
                                            false, NULL));
   gtk_widget_show_all(shelf_.get());
-  // Stick ourselves at the bottom of the parent tab contents.
-  GtkWidget* parent_contents = tab_contents->GetNativeView();
-  gtk_box_pack_end(GTK_BOX(parent_contents), slide_widget_->widget(),
+
+  // Stick ourselves at the bottom of the parent browser.
+  gtk_box_pack_end(GTK_BOX(parent), slide_widget_->widget(),
                    FALSE, FALSE, 0);
   slide_widget_->Open();
 }
@@ -133,11 +130,12 @@ DownloadShelfGtk::~DownloadShelfGtk() {
   }
 
   shelf_.Destroy();
+  hbox_.Destroy();
 }
 
 void DownloadShelfGtk::AddDownload(BaseDownloadItemModel* download_model_) {
   download_items_.push_back(new DownloadItemGtk(this, download_model_));
-  slide_widget_->Open();
+  Show();
 }
 
 bool DownloadShelfGtk::IsShowing() const {
@@ -146,6 +144,21 @@ bool DownloadShelfGtk::IsShowing() const {
 
 bool DownloadShelfGtk::IsClosing() const {
   return slide_widget_->IsClosing();
+}
+
+void DownloadShelfGtk::Show() {
+  slide_widget_->Open();
+}
+
+void DownloadShelfGtk::Close() {
+  slide_widget_->Close();
+
+  // TODO(estade): Remove. The status bubble should query its window instead.
+  browser_->UpdateDownloadShelfVisibility(false);
+}
+
+int DownloadShelfGtk::GetHeight() const {
+  return slide_widget_->widget()->allocation.height;
 }
 
 void DownloadShelfGtk::RemoveDownloadItem(DownloadItemGtk* download_item) {
@@ -157,7 +170,9 @@ void DownloadShelfGtk::RemoveDownloadItem(DownloadItemGtk* download_item) {
   delete download_item;
   if (download_items_.empty()) {
     slide_widget_->CloseWithoutAnimation();
-    tab_contents_->SetDownloadShelfVisible(false);
+
+    // TODO(estade): Remove. The status bubble should query its window instead.
+    browser_->UpdateDownloadShelfVisibility(false);
   }
 }
 
@@ -166,15 +181,14 @@ GtkWidget* DownloadShelfGtk::GetRightBoundingWidget() const {
 }
 
 GtkWidget* DownloadShelfGtk::GetHBox() const {
-  return hbox_;
+  return hbox_.get();
 }
 
 // static
 void DownloadShelfGtk::OnButtonClick(GtkWidget* button,
                                      DownloadShelfGtk* shelf) {
   if (button == shelf->close_button_->widget()) {
-    shelf->slide_widget_->Close();
-    shelf->tab_contents_->SetDownloadShelfVisible(false);
+    shelf->Close();
   } else {
     // The link button was clicked.
     shelf->ShowAllDownloads();

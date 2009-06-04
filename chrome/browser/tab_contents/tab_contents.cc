@@ -21,8 +21,6 @@
 #include "chrome/browser/download/download_item_model.h"
 #include "chrome/browser/download/download_manager.h"
 #include "chrome/browser/download/download_request_manager.h"
-#include "chrome/browser/download/download_shelf.h"
-#include "chrome/browser/download/download_started_animation.h"
 #include "chrome/browser/gears_integration.h"
 #include "chrome/browser/google_util.h"
 #include "chrome/browser/hung_renderer_dialog.h"
@@ -43,7 +41,6 @@
 #include "chrome/common/chrome_switches.h"
 #include "chrome/common/notification_service.h"
 #include "chrome/common/page_action.h"
-#include "chrome/common/platform_util.h"
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
 #include "chrome/common/render_messages.h"
@@ -114,10 +111,6 @@ const int kSyncWaitDelay = 40;
 // dismissed, display an option to suppress future message boxes from this
 // contents.
 const int kJavascriptMessageExpectedDelay = 1000;
-
-// Minimum amount of time in ms that has to elapse since the download shelf was
-// shown for us to hide it when navigating away from the current page.
-const int kDownloadShelfHideDelay = 5000;
 
 const char kLinkDoctorBaseURL[] =
     "http://linkhelp.clients.google.com/tbproxy/lh/fixurl";
@@ -235,11 +228,8 @@ TabContents::TabContents(Profile* profile,
       is_starred_(false),
       contents_mime_type_(),
       encoding_(),
-      download_shelf_(),
-      shelf_visible_(false),
       blocked_popups_(NULL),
       infobar_delegates_(),
-      last_download_shelf_show_(),
       find_ui_active_(false),
       find_op_aborted_(false),
       current_find_request_id_(find_request_id_counter_++),
@@ -926,32 +916,6 @@ bool TabContents::IsBookmarkBarAlwaysVisible() {
   return false;  // Default.
 }
 
-void TabContents::SetDownloadShelfVisible(bool visible) {
-  if (shelf_visible_ != visible) {
-    if (visible) {
-      // Invoke GetDownloadShelf to force the shelf to be created.
-      GetDownloadShelf(true);
-    }
-    shelf_visible_ = visible;
-
-    NotifyNavigationStateChanged(INVALIDATE_TAB);
-
-    if (delegate())
-      delegate()->UpdateDownloadShelfVisibility(visible);
-  }
-
-  // SetShelfVisible can force-close the shelf, so make sure we lay out
-  // everything correctly, as if the animation had finished. This doesn't
-  // matter for showing the shelf, as the show animation will do it.
-  ToolbarSizeChanged(false);
-
-  if (visible) {
-    // Always set this value as it reflects the last time the download shelf
-    // was made visible (even if it was already visible).
-    last_download_shelf_show_ = base::TimeTicks::Now();
-  }
-}
-
 void TabContents::ToolbarSizeChanged(bool is_animating) {
   TabContentsDelegate* d = delegate();
   if (d)
@@ -964,42 +928,8 @@ void TabContents::OnStartDownload(DownloadItem* download) {
   // Download in a constrained popup is shown in the tab that opened it.
   TabContents* tab_contents = delegate()->GetConstrainingContents(this);
 
-  // GetDownloadShelf creates the download shelf if it was not yet created.
-  tab_contents->GetDownloadShelf(true)->AddDownload(
-      new DownloadItemModel(download));
-  tab_contents->SetDownloadShelfVisible(true);
-
-// TODO(port): port for mac.
-#if defined(OS_WIN) || defined(OS_LINUX)
-  // We make this check for the case of minimized windows, unit tests, etc.
-  if (platform_util::IsVisible(GetNativeView())) {
-    DownloadStartedAnimation::Show(tab_contents);
-  }
-#endif
-}
-
-DownloadShelf* TabContents::GetDownloadShelf(bool create) {
-  if (!download_shelf_.get() && create)
-    download_shelf_.reset(DownloadShelf::Create(this));
-  return download_shelf_.get();
-}
-
-void TabContents::MigrateShelfFrom(TabContents* tab_contents) {
-  download_shelf_.reset(tab_contents->GetDownloadShelf(true));
-  download_shelf_->ChangeTabContents(tab_contents, this);
-  tab_contents->ReleaseDownloadShelf();
-}
-
-void TabContents::ReleaseDownloadShelf() {
-  download_shelf_.release();
-}
-
-// static
-void TabContents::MigrateShelf(TabContents* from, TabContents* to) {
-  bool was_shelf_visible = from->IsDownloadShelfVisible();
-  if (was_shelf_visible)
-    to->MigrateShelfFrom(from);
-  to->SetDownloadShelfVisible(was_shelf_visible);
+  if (tab_contents && tab_contents->delegate())
+    tab_contents->delegate()->OnStartDownload(download);
 }
 
 void TabContents::WillClose(ConstrainedWindow* window) {
@@ -1296,27 +1226,6 @@ DOMUI* TabContents::GetDOMUIForCurrentState() {
 void TabContents::DidNavigateMainFramePostCommit(
     const NavigationController::LoadCommittedDetails& details,
     const ViewHostMsg_FrameNavigate_Params& params) {
-  // Hide the download shelf if all the following conditions are true:
-  // - there are no active downloads.
-  // - this is a navigation to a different TLD.
-  // - at least 5 seconds have elapsed since the download shelf was shown.
-  // TODO(jcampan): bug 1156075 when user gestures are reliable, they should
-  //                 be used to ensure we are hiding only on user initiated
-  //                 navigations.
-  DownloadManager* download_manager = profile()->GetDownloadManager();
-  // download_manager can be NULL in unit test context.
-  if (download_manager && download_manager->in_progress_count() == 0 &&
-      !details.previous_url.is_empty() &&
-      !net::RegistryControlledDomainService::SameDomainOrHost(
-          details.previous_url, details.entry->url())) {
-    base::TimeDelta time_delta(
-        base::TimeTicks::Now() - last_download_shelf_show_);
-    if (time_delta >
-        base::TimeDelta::FromMilliseconds(kDownloadShelfHideDelay)) {
-      SetDownloadShelfVisible(false);
-    }
-  }
-
   if (details.is_user_initiated_main_frame_load()) {
     // Clear the status bubble. This is a workaround for a bug where WebKit
     // doesn't let us know that the cursor left an element during a

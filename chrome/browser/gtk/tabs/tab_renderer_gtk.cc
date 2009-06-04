@@ -91,9 +91,6 @@ TabRendererGtk::TabImage TabRendererGtk::tab_alpha = {0};
 TabRendererGtk::TabImage TabRendererGtk::tab_hover_ = {0};
 gfx::Font* TabRendererGtk::title_font_ = NULL;
 int TabRendererGtk::title_font_height_ = 0;
-SkBitmap* TabRendererGtk::download_icon_ = NULL;
-int TabRendererGtk::download_icon_width_ = 0;
-int TabRendererGtk::download_icon_height_ = 0;
 int TabRendererGtk::close_button_width_ = 0;
 int TabRendererGtk::close_button_height_ = 0;
 
@@ -173,7 +170,6 @@ class TabRendererGtk::FavIconCrashAnimation : public Animation,
 
 TabRendererGtk::TabRendererGtk()
     : showing_icon_(false),
-      showing_download_icon_(false),
       showing_close_button_(false),
       fav_icon_hiding_offset_(0),
       should_display_crashed_favicon_(false),
@@ -200,7 +196,6 @@ void TabRendererGtk::UpdateData(TabContents* contents, bool loading_only) {
   if (!loading_only) {
     data_.title = UTF16ToWideHack(contents->GetTitle());
     data_.off_the_record = contents->profile()->IsOffTheRecord();
-    data_.show_download_icon = contents->IsDownloadShelfVisible();
     data_.crashed = contents->is_crashed();
     data_.favicon = contents->GetFavIcon();
   }
@@ -303,10 +298,6 @@ void TabRendererGtk::LoadTabImages() {
 
   close_button_width_ = rb.GetBitmapNamed(IDR_TAB_CLOSE)->width();
   close_button_height_ = rb.GetBitmapNamed(IDR_TAB_CLOSE)->height();
-
-  download_icon_ = rb.GetBitmapNamed(IDR_DOWNLOAD_ICON);
-  download_icon_width_ = download_icon_->width();
-  download_icon_height_ = download_icon_->height();
 }
 
 void TabRendererGtk::SetBounds(const gfx::Rect& bounds) {
@@ -378,10 +369,8 @@ void TabRendererGtk::Paint(gfx::Canvas* canvas) {
 
   // See if the model changes whether the icons should be painted.
   const bool show_icon = ShouldShowIcon();
-  const bool show_download_icon = data_.show_download_icon;
   const bool show_close_button = ShouldShowCloseBox();
   if (show_icon != showing_icon_ ||
-      show_download_icon != showing_download_icon_ ||
       show_close_button != showing_close_button_)
     Layout();
 
@@ -416,11 +405,6 @@ void TabRendererGtk::Paint(gfx::Canvas* canvas) {
       }
       canvas->restore();
     }
-  }
-
-  if (show_download_icon) {
-    canvas->DrawBitmapInt(*download_icon_,
-                          download_icon_bounds_.x(), download_icon_bounds_.y());
   }
 
   // Paint the Title.
@@ -475,15 +459,6 @@ void TabRendererGtk::Layout() {
     favicon_bounds_.SetRect(local_bounds.x(), local_bounds.y(), 0, 0);
   }
 
-  // Size the download icon.
-  showing_download_icon_ = data_.show_download_icon;
-  if (showing_download_icon_) {
-    int icon_top = kTopPadding + (content_height - download_icon_height_) / 2;
-    download_icon_bounds_.SetRect(local_bounds.width() - download_icon_width_,
-                                  icon_top, download_icon_width_,
-                                  download_icon_height_);
-  }
-
   // Size the Close button.
   showing_close_button_ = ShouldShowCloseBox();
   if (showing_close_button_) {
@@ -518,8 +493,6 @@ void TabRendererGtk::Layout() {
   } else {
     title_width = std::max(local_bounds.width() - title_left, 0);
   }
-  if (data_.show_download_icon)
-    title_width = std::max(title_width - download_icon_width_, 0);
   title_bounds_.SetRect(title_left, title_top, title_width, title_font_height_);
 
   // TODO(jhawkins): Handle RTL layout.

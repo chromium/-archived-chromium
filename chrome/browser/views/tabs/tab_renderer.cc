@@ -65,9 +65,6 @@ static SkBitmap* crashed_fav_icon = NULL;
 static int loading_animation_frame_count = 0;
 static int waiting_animation_frame_count = 0;
 static int waiting_to_loading_frame_count_ratio = 0;
-static SkBitmap* download_icon = NULL;
-static int download_icon_width = 0;
-static int download_icon_height = 0;
 
 TabRenderer::TabImage TabRenderer::tab_alpha = {0};
 TabRenderer::TabImage TabRenderer::tab_active = {0};
@@ -137,10 +134,6 @@ void InitResources() {
       waiting_to_loading_frame_count_ratio = 5;
 
     crashed_fav_icon = rb.GetBitmapNamed(IDR_SAD_FAVICON);
-
-    download_icon = rb.GetBitmapNamed(IDR_DOWNLOAD_ICON);
-    download_icon_width = download_icon->width();
-    download_icon_height = download_icon->height();
 
     initialized = true;
   }
@@ -237,7 +230,6 @@ TabRenderer::TabRenderer()
     : animation_state_(ANIMATION_NONE),
       animation_frame_(0),
       showing_icon_(false),
-      showing_download_icon_(false),
       showing_close_button_(false),
       fav_icon_hiding_offset_(0),
       crash_animation_(NULL),
@@ -286,7 +278,6 @@ void TabRenderer::UpdateData(TabContents* contents, bool loading_only) {
   if (!loading_only) {
     data_.title = UTF16ToWideHack(contents->GetTitle());
     data_.off_the_record = contents->profile()->IsOffTheRecord();
-    data_.show_download_icon = contents->IsDownloadShelfVisible();
     data_.crashed = contents->is_crashed();
     data_.favicon = contents->GetFavIcon();
   }
@@ -400,10 +391,8 @@ void TabRenderer::Paint(gfx::Canvas* canvas) {
 
   // See if the model changes whether the icons should be painted.
   const bool show_icon = ShouldShowIcon();
-  const bool show_download_icon = data_.show_download_icon;
   const bool show_close_button = ShouldShowCloseBox();
   if (show_icon != showing_icon_ ||
-      show_download_icon != showing_download_icon_ ||
       show_close_button != showing_close_button_)
     Layout();
 
@@ -440,11 +429,6 @@ void TabRenderer::Paint(gfx::Canvas* canvas) {
       }
       canvas->restore();
     }
-  }
-
-  if (show_download_icon) {
-    canvas->DrawBitmapInt(*download_icon,
-                          download_icon_bounds_.x(), download_icon_bounds_.y());
   }
 
   // Paint the Title.
@@ -487,14 +471,6 @@ void TabRenderer::Layout() {
     favicon_bounds_.SetRect(lb.x(), lb.y(), 0, 0);
   }
 
-  // Size the download icon.
-  showing_download_icon_ = data_.show_download_icon;
-  if (showing_download_icon_) {
-    int icon_top = kTopPadding + (content_height - download_icon_height) / 2;
-    download_icon_bounds_.SetRect(lb.width() - download_icon_width, icon_top,
-                                  download_icon_width, download_icon_height);
-  }
-
   // Size the Close button.
   showing_close_button_ = ShouldShowCloseBox();
   if (showing_close_button_) {
@@ -530,21 +506,17 @@ void TabRenderer::Layout() {
   } else {
     title_width = std::max(lb.width() - title_left, 0);
   }
-  if (data_.show_download_icon)
-    title_width = std::max(title_width - download_icon_width, 0);
   title_bounds_.SetRect(title_left, title_top, title_width, title_font_height);
 
-  // Certain UI elements within the Tab (the favicon, the download icon, etc.)
-  // are not represented as child Views (which is the preferred method).
-  // Instead, these UI elements are drawn directly on the canvas from within
-  // Tab::Paint(). The Tab's child Views (for example, the Tab's close button
-  // which is a views::Button instance) are automatically mirrored by the
-  // mirroring infrastructure in views. The elements Tab draws directly
-  // on the canvas need to be manually mirrored if the View's layout is
-  // right-to-left.
+  // Certain UI elements within the Tab (the favicon, etc.) are not represented
+  // as child Views (which is the preferred method).  Instead, these UI elements
+  // are drawn directly on the canvas from within Tab::Paint(). The Tab's child
+  // Views (for example, the Tab's close button which is a views::Button
+  // instance) are automatically mirrored by the mirroring infrastructure in
+  // views. The elements Tab draws directly on the canvas need to be manually
+  // mirrored if the View's layout is right-to-left.
   favicon_bounds_.set_x(MirroredLeftPointForRect(favicon_bounds_));
   title_bounds_.set_x(MirroredLeftPointForRect(title_bounds_));
-  download_icon_bounds_.set_x(MirroredLeftPointForRect(download_icon_bounds_));
 }
 
 void TabRenderer::OnMouseEntered(const views::MouseEvent& e) {

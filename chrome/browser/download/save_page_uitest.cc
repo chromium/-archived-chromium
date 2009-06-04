@@ -85,7 +85,8 @@ TEST_F(SavePageTest, SaveHTMLOnly) {
 
   EXPECT_TRUE(tab->SavePage(full_file_name.ToWStringHack(), dir.ToWStringHack(),
                             SavePackage::SAVE_AS_ONLY_HTML));
-  EXPECT_TRUE(WaitForDownloadShelfVisible(tab.get()));
+  scoped_refptr<BrowserProxy> browser(automation()->GetBrowserWindow(0));
+  EXPECT_TRUE(WaitForDownloadShelfVisible(browser.get()));
 
   CheckFile(full_file_name, FilePath::FromWStringHack(UTF8ToWide(file_name)),
             true);
@@ -105,7 +106,8 @@ TEST_F(SavePageTest, SaveCompleteHTML) {
 
   EXPECT_TRUE(tab->SavePage(full_file_name.ToWStringHack(), dir.ToWStringHack(),
                             SavePackage::SAVE_AS_COMPLETE_HTML));
-  EXPECT_TRUE(WaitForDownloadShelfVisible(tab.get()));
+  scoped_refptr<BrowserProxy> browser(automation()->GetBrowserWindow(0));
+  EXPECT_TRUE(WaitForDownloadShelfVisible(browser.get()));
 
   CheckFile(dir.AppendASCII("1.png"), FilePath(FILE_PATH_LITERAL("1.png")),
                             true);
@@ -128,7 +130,8 @@ TEST_F(SavePageTest, NoSave) {
   EXPECT_FALSE(tab->SavePage(full_file_name.ToWStringHack(),
                              dir.ToWStringHack(),
                              SavePackage::SAVE_AS_ONLY_HTML));
-  EXPECT_FALSE(WaitForDownloadShelfVisible(tab.get()));
+  scoped_refptr<BrowserProxy> browser(automation()->GetBrowserWindow(0));
+  EXPECT_FALSE(WaitForDownloadShelfVisible(browser.get()));
 }
 
 TEST_F(SavePageTest, FilenameFromPageTitle) {
@@ -148,7 +151,7 @@ TEST_F(SavePageTest, FilenameFromPageTitle) {
   scoped_refptr<BrowserProxy> browser(automation()->GetBrowserWindow(0));
   automation()->SavePackageShouldPromptUser(false);
   EXPECT_TRUE(browser->RunCommandAsync(IDC_SAVE_PAGE));
-  EXPECT_TRUE(WaitForDownloadShelfVisible(tab.get()));
+  EXPECT_TRUE(WaitForDownloadShelfVisible(browser.get()));
   automation()->SavePackageShouldPromptUser(true);
 
   CheckFile(dir.AppendASCII("1.png"), FilePath(FILE_PATH_LITERAL("1.png")),
@@ -180,7 +183,7 @@ TEST_F(SavePageTest, CleanFilenameFromPageTitle) {
   scoped_refptr<BrowserProxy> browser(automation()->GetBrowserWindow(0));
   automation()->SavePackageShouldPromptUser(false);
   EXPECT_TRUE(browser->RunCommandAsync(IDC_SAVE_PAGE));
-  EXPECT_TRUE(WaitForDownloadShelfVisible(tab.get()));
+  EXPECT_TRUE(WaitForDownloadShelfVisible(browser.get()));
   automation()->SavePackageShouldPromptUser(true);
 
   CheckFile(full_file_name, FilePath::FromWStringHack(UTF8ToWide(file_name)),

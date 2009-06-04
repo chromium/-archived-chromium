@@ -28,6 +28,7 @@ class BookmarkBarView;
 class Browser;
 class BrowserBubble;
 class BrowserToolbarView;
+class DownloadShelfView;
 class EncodingMenuControllerDelegate;
 class ExtensionShelf;
 class FullscreenExitBubble;
@@ -215,6 +216,9 @@ class BrowserView : public BrowserWindow,
   virtual void ShowAboutChromeDialog();
   virtual void ShowBookmarkManager();
   virtual void ShowBookmarkBubble(const GURL& url, bool already_bookmarked);
+  virtual void SetDownloadShelfVisible(bool visible);
+  virtual bool IsDownloadShelfVisible() const;
+  virtual DownloadShelf* GetDownloadShelf();
   virtual void ShowReportBugDialog();
   virtual void ShowClearBrowsingDataDialog();
   virtual void ShowImportDialog();
@@ -317,12 +321,6 @@ class BrowserView : public BrowserWindow,
   // |contents| can be NULL.
   bool MaybeShowInfoBar(TabContents* contents);
 
-  // Prepare to show a Download Shelf for the specified TabContents. Returns
-  // true if there is a Download Shelf to show and one is supported for this
-  // Browser type, and there should be a subsequent re-layout to show it.
-  // |contents| can be NULL.
-  bool MaybeShowDownloadShelf(TabContents* contents);
-
   // Updates various optional child Views, e.g. Bookmarks Bar, Info Bar or the
   // Download Shelf in response to a change notification from the specified
   // |contents|. |contents| can be NULL. In this case, all optional UI will be
@@ -365,7 +363,6 @@ class BrowserView : public BrowserWindow,
   // active_bookmark_bar_ is either NULL, if the bookmark bar isn't showing,
   // or is bookmark_bar_view_ if the bookmark bar is showing.
   views::View* active_bookmark_bar_;
-  views::View* active_download_shelf_;
 
   // The TabStrip.
   TabStrip* tabstrip_;
@@ -375,6 +372,9 @@ class BrowserView : public BrowserWindow,
 
   // The Bookmark Bar View for this window. Lazily created.
   scoped_ptr<BookmarkBarView> bookmark_bar_view_;
+
+  // The download shelf view (view at the bottom of the page).
+  DownloadShelfView* download_shelf_;
 
   // The InfoBarContainer that contains InfoBars for the current tab.
   InfoBarContainer* infobar_container_;

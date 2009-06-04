@@ -10,12 +10,13 @@
 #include "app/l10n_util.h"
 #include "app/resource_bundle.h"
 #include "base/logging.h"
+#include "chrome/browser/browser.h"
 #include "chrome/browser/browser_theme_provider.h"
 #include "chrome/browser/download/download_item_model.h"
 #include "chrome/browser/download/download_manager.h"
 #include "chrome/browser/tab_contents/navigation_entry.h"
-#include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/browser/views/download_item_view.h"
+#include "chrome/browser/views/frame/browser_view.h"
 #include "grit/generated_resources.h"
 #include "grit/theme_resources.h"
 #include "views/background.h"
@@ -70,13 +71,9 @@ int CenterPosition(int size, int target_size) {
 
 }  // namespace
 
-// static
-DownloadShelf* DownloadShelf::Create(TabContents* tab_contents) {
-  return new DownloadShelfView(tab_contents);
-}
-
-DownloadShelfView::DownloadShelfView(TabContents* tab_contents)
-    : DownloadShelf(tab_contents) {
+DownloadShelfView::DownloadShelfView(Browser* browser, BrowserView* parent)
+    : DownloadShelf(browser), parent_(parent) {
+  parent->AddChildView(this);
   Init();
 }
 
@@ -105,14 +102,11 @@ void DownloadShelfView::Init() {
 
   shelf_animation_.reset(new SlideAnimation(this));
   shelf_animation_->SetSlideDuration(kShelfAnimationDurationMs);
-  shelf_animation_->Show();
-
-  // The download shelf view is always owned by its tab contents.
-  SetParentOwned(false);
+  Show();
 }
 
 void DownloadShelfView::AddDownloadView(View* view) {
-  shelf_animation_->Show();
+  Show();
 
   DCHECK(view);
   download_views_.push_back(view);
@@ -139,7 +133,7 @@ void DownloadShelfView::RemoveDownloadView(View* view) {
   RemoveChildView(view);
   delete view;
   if (download_views_.empty())
-    tab_contents_->SetDownloadShelfVisible(false);
+    Close();
   Layout();
   SchedulePaint();
 }
@@ -182,26 +176,18 @@ void DownloadShelfView::AnimationProgressed(const Animation *animation) {
     // otherwise leave blank white areas where the shelf was and where the
     // user's eye is. Thankfully bottom-resizing is a lot faster than
     // top-resizing.
-    tab_contents_->ToolbarSizeChanged(shelf_animation_->IsShowing());
+    parent_->SelectedTabToolbarSizeChanged(shelf_animation_->IsShowing());
   }
 }
 
 void DownloadShelfView::AnimationEnded(const Animation *animation) {
   if (animation == shelf_animation_.get()) {
-    tab_contents_->SetDownloadShelfVisible(shelf_animation_->IsShowing());
+    if (download_views_.empty())
+      parent_->SetDownloadShelfVisible(shelf_animation_->IsShowing());
   }
 }
 
 void DownloadShelfView::Layout() {
-  // When the download shelf is not visible it is not parented to anything,
-  // which means it is not safe to lay out the controls, so we return early.
-  // Otherwise, we can have problems when for example the user switches to
-  // another tab (that doesn't have a download shelf) _before_ the download
-  // has started and we'll crash when calling SetVisible() below because
-  // the NativeControlContainer ctor tries to use the Container.
-  if (!GetWidget())
-    return;
-
   // Now that we know we have a parent, we can safely set our theme colors.
   show_all_view_->SetColor(
       GetThemeProvider()->GetColor(BrowserThemeProvider::COLOR_BOOKMARK_TEXT));
@@ -301,7 +287,7 @@ void DownloadShelfView::LinkActivated(views::Link* source, int event_flags) {
 }
 
 void DownloadShelfView::ButtonPressed(views::Button* button) {
-  shelf_animation_->Hide();
+  Close();
 }
 
 bool DownloadShelfView::IsShowing() const {
@@ -311,4 +297,13 @@ bool DownloadShelfView::IsShowing() const {
 bool DownloadShelfView::IsClosing() const {
   // TODO(estade): This is never called. For now just return false.
   return false;
+}
+
+void DownloadShelfView::Show() {
+  shelf_animation_->Show();
+}
+
+void DownloadShelfView::Close() {
+  parent_->SetDownloadShelfVisible(false);
+  shelf_animation_->Hide();
 }

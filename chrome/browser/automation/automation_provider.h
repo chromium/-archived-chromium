@@ -215,6 +215,7 @@ class AutomationProvider : public base::RefCounted<AutomationProvider>,
                          const std::wstring& script,
                          IPC::Message* reply_message);
   void GetShelfVisibility(int handle, bool* visible);
+  void SetShelfVisibility(int handle, bool visible);
   void SetFilteredInet(const IPC::Message& message, bool enabled);
   void SetProxyConfig(const std::string& new_proxy_config);
 

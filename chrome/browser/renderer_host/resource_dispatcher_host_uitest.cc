@@ -68,11 +68,8 @@ TEST_F(ResourceDispatcherTest, SniffNoContentTypeNoData) {
 
   // Make sure the download shelf is not showing.
   scoped_refptr<BrowserProxy> browser(automation()->GetBrowserWindow(0));
-  scoped_refptr<TabProxy> dl_tab(browser->GetTab(0));
-  ASSERT_TRUE(dl_tab.get());
-
   bool visible = false;
-  ASSERT_TRUE(dl_tab->IsShelfVisible(&visible));
+  ASSERT_TRUE(browser->IsShelfVisible(&visible));
   EXPECT_FALSE(visible);
 }
 
@@ -155,10 +152,12 @@ TEST_F(ResourceDispatcherTest, SyncXMLHttpRequest_DuringUnload) {
   EXPECT_FALSE(timed_out);
 
   // Check that the new page got loaded, and that no download was triggered.
-  bool shelf_is_visible = false;
   EXPECT_TRUE(tab->GetTabTitle(&tab_title));
-  EXPECT_TRUE(tab->IsShelfVisible(&shelf_is_visible));
   EXPECT_EQ(L"Title Of Awesomeness", tab_title);
+
+  bool shelf_is_visible = false;
+  scoped_refptr<BrowserProxy> browser(automation()->GetBrowserWindow(0));
+  EXPECT_TRUE(browser->IsShelfVisible(&shelf_is_visible));
   EXPECT_FALSE(shelf_is_visible);
 }
 

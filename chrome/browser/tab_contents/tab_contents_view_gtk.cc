@@ -98,12 +98,10 @@ TabContentsView* TabContentsView::Create(TabContents* tab_contents) {
 
 TabContentsViewGtk::TabContentsViewGtk(TabContents* tab_contents)
     : TabContentsView(tab_contents),
-      vbox_(gtk_vbox_new(FALSE, 0)) {
-  fixed_ = gtk_fixed_new();
-  gtk_box_pack_start(GTK_BOX(vbox_.get()), fixed_, TRUE, TRUE, 0);
-  g_signal_connect(fixed_, "size-allocate",
+      fixed_(gtk_fixed_new()) {
+  g_signal_connect(fixed_.get(), "size-allocate",
                    G_CALLBACK(OnSizeAllocate), this);
-  gtk_widget_show(fixed_);
+  gtk_widget_show(fixed_.get());
   registrar_.Add(this, NotificationType::TAB_CONTENTS_CONNECTED,
                  Source<TabContents>(tab_contents));
   registrar_.Add(this, NotificationType::TAB_CONTENTS_DISCONNECTED,
@@ -111,7 +109,7 @@ TabContentsViewGtk::TabContentsViewGtk(TabContents* tab_contents)
 }
 
 TabContentsViewGtk::~TabContentsViewGtk() {
-  vbox_.Destroy();
+  fixed_.Destroy();
 }
 
 void TabContentsViewGtk::CreateView() {
@@ -153,7 +151,7 @@ RenderWidgetHostView* TabContentsViewGtk::CreateViewForWidget(
 }
 
 gfx::NativeView TabContentsViewGtk::GetNativeView() const {
-  return vbox_.get();
+  return fixed_.get();
 }
 
 gfx::NativeView TabContentsViewGtk::GetContentNativeView() const {
@@ -175,10 +173,10 @@ void TabContentsViewGtk::GetContainerBounds(gfx::Rect* out) const {
   // animation.
   int x = 0;
   int y = 0;
-  if (vbox_.get()->window)
-    gdk_window_get_origin(vbox_.get()->window, &x, &y);
-  out->SetRect(x + vbox_.get()->allocation.x, y + vbox_.get()->allocation.y,
-               vbox_.get()->allocation.width, vbox_.get()->allocation.height);
+  if (fixed_.get()->window)
+    gdk_window_get_origin(fixed_.get()->window, &x, &y);
+  out->SetRect(x + fixed_.get()->allocation.x, y + fixed_.get()->allocation.y,
+               fixed_.get()->allocation.width, fixed_.get()->allocation.height);
 }
 
 void TabContentsViewGtk::OnContentsDestroy() {
@@ -304,7 +302,7 @@ void TabContentsViewGtk::StartDragging(const WebDropData& drop_data) {
 }
 
 void TabContentsViewGtk::InsertIntoContentArea(GtkWidget* widget) {
-  gtk_fixed_put(GTK_FIXED(fixed_), widget, 0, 0);
+  gtk_fixed_put(GTK_FIXED(fixed_.get()), widget, 0, 0);
 }
 
 gboolean TabContentsViewGtk::OnMouseDown(GtkWidget* widget,
@@ -317,9 +315,7 @@ gboolean TabContentsViewGtk::OnSizeAllocate(GtkWidget* widget,
                                             GtkAllocation* allocation,
                                             TabContentsViewGtk* view) {
   int width = allocation->width;
-  DownloadShelf* shelf = view->tab_contents()->GetDownloadShelf(false);
-  int height = shelf && shelf->IsClosing() ?
-               widget->parent->allocation.height : allocation->height;
+  int height = allocation->height;
   height += view->tab_contents()->delegate()->GetExtraRenderViewHeight();
   gfx::Size size(width, height);
   gtk_container_foreach(GTK_CONTAINER(widget), SetSizeRequest, &size);

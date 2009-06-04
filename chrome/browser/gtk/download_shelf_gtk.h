@@ -9,18 +9,20 @@
 
 #include <vector>
 
+#include "base/gfx/native_widget_types.h"
 #include "base/scoped_ptr.h"
 #include "chrome/browser/download/download_shelf.h"
 #include "chrome/common/owned_widget_gtk.h"
 
 class BaseDownloadItemModel;
+class Browser;
 class CustomDrawButton;
 class DownloadItemGtk;
 class SlideAnimatorGtk;
 
 class DownloadShelfGtk : public DownloadShelf {
  public:
-  explicit DownloadShelfGtk(TabContents* tab_contents);
+  explicit DownloadShelfGtk(Browser* browser, gfx::NativeView view);
 
   ~DownloadShelfGtk();
 
@@ -28,6 +30,11 @@ class DownloadShelfGtk : public DownloadShelf {
   virtual void AddDownload(BaseDownloadItemModel* download_model);
   virtual bool IsShowing() const;
   virtual bool IsClosing() const;
+  virtual void Show();
+  virtual void Close();
+
+  // Returns the current height of the shelf.
+  int GetHeight() const;
 
  private:
   // Remove |download_item| from the download shelf and delete it.
@@ -45,7 +52,7 @@ class DownloadShelfGtk : public DownloadShelf {
   scoped_ptr<SlideAnimatorGtk> slide_widget_;
 
   // |hbox_| holds the download items and buttons of the shelf.
-  GtkWidget* hbox_;
+  OwnedWidgetGtk hbox_;
 
   // |shelf_| is the second highest level widget. See the constructor
   // for an explanation of the widget layout.

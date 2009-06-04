@@ -18,10 +18,13 @@
 #include "chrome/browser/bookmarks/bookmark_utils.h"
 #include "chrome/browser/browser.h"
 #include "chrome/browser/browser_list.h"
+#include "chrome/browser/download/download_item_model.h"
+#include "chrome/browser/download/download_manager.h"
 #include "chrome/browser/gtk/about_chrome_dialog.h"
 #include "chrome/browser/gtk/bookmark_bar_gtk.h"
 #include "chrome/browser/gtk/browser_toolbar_gtk.h"
 #include "chrome/browser/gtk/clear_browsing_data_dialog_gtk.h"
+#include "chrome/browser/gtk/download_shelf_gtk.h"
 #include "chrome/browser/gtk/go_button_gtk.h"
 #include "chrome/browser/gtk/import_dialog_gtk.h"
 #include "chrome/browser/gtk/infobar_container_gtk.h"
@@ -566,6 +569,17 @@ void BrowserWindowGtk::ShowBookmarkBubble(const GURL& url,
   toolbar_->star()->ShowStarBubble(url, !already_bookmarked);
 }
 
+bool BrowserWindowGtk::IsDownloadShelfVisible() const {
+  return download_shelf_.get() && download_shelf_->IsShowing();
+}
+
+DownloadShelf* BrowserWindowGtk::GetDownloadShelf() {
+  if (!download_shelf_.get())
+    download_shelf_.reset(new DownloadShelfGtk(browser_.get(),
+                                               render_area_vbox_));
+  return download_shelf_.get();
+}
+
 void BrowserWindowGtk::ShowReportBugDialog() {
   NOTIMPLEMENTED();
 }
@@ -604,11 +618,12 @@ void BrowserWindowGtk::UserChangedTheme() {
 }
 
 int BrowserWindowGtk::GetExtraRenderViewHeight() const {
-  // The download shelf is controlled by its TabContents, so we don't have to
-  // worry about it here.
   int sum = infobar_container_->TotalHeightOfClosingBars();
   if (bookmark_bar_->IsClosing())
     sum += bookmark_bar_->GetHeight();
+  if (download_shelf_.get() && download_shelf_->IsClosing()) {
+    sum += download_shelf_->GetHeight();
+  }
   return sum;
 }
 

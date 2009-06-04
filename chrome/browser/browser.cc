@@ -18,7 +18,10 @@
 #include "chrome/browser/character_encoding.h"
 #include "chrome/browser/debugger/debugger_host.h"
 #include "chrome/browser/debugger/devtools_manager.h"
+#include "chrome/browser/download/download_item_model.h"
 #include "chrome/browser/download/download_manager.h"
+#include "chrome/browser/download/download_shelf.h"
+#include "chrome/browser/download/download_started_animation.h"
 #include "chrome/browser/find_bar.h"
 #include "chrome/browser/find_bar_controller.h"
 #include "chrome/browser/location_bar.h"
@@ -42,6 +45,7 @@
 #include "chrome/common/extensions/extension.h"
 #include "chrome/common/notification_service.h"
 #include "chrome/common/page_transition_types.h"
+#include "chrome/common/platform_util.h"
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
 #include "chrome/common/url_constants.h"
@@ -1151,6 +1155,25 @@ void Browser::OpenHelpTab() {
   GURL help_url(WideToASCII(l10n_util::GetString(IDS_HELP_CONTENT_URL)));
   AddTabWithURL(help_url, GURL(), PageTransition::AUTO_BOOKMARK, true, -1,
                 false, NULL);
+}
+
+void Browser::OnStartDownload(DownloadItem* download) {
+  if (!window())
+    return;
+
+  // GetDownloadShelf creates the download shelf if it was not yet created.
+  window()->GetDownloadShelf()->AddDownload(new DownloadItemModel(download));
+
+// TODO(port): port for mac.
+#if defined(OS_WIN) || defined(OS_LINUX)
+  // Don't show the animation for "Save file" downloads.
+  if (download->total_bytes() > 0) {
+    TabContents* current_tab = GetSelectedTabContents();
+    // We make this check for the case of minimized windows, unit tests, etc.
+    if (platform_util::IsVisible(current_tab->GetNativeView()))
+      DownloadStartedAnimation::Show(current_tab);
+  }
+#endif
 }
 
 ///////////////////////////////////////////////////////////////////////////////

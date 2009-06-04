@@ -7,47 +7,48 @@
 
 #include <string>
 
+#include "base/logging.h"
 #include "base/basictypes.h"
 
 class BaseDownloadItemModel;
+class Browser;
 class DownloadItem;
-class TabContents;
 
 // DownloadShelf is an interface for platform-specific download shelves to
 // implement. It also contains some shared logic. This class should not be
 // instantiated directly, but rather created via a call to Create().
+// It is a view object.
 class DownloadShelf {
  public:
-  explicit DownloadShelf(TabContents* tab_contents)
-      : tab_contents_(tab_contents) { }
+  explicit DownloadShelf(Browser* browser)
+      : browser_(browser) { DCHECK(browser_); }
 
   virtual ~DownloadShelf() { }
 
-  // Creates a platform-specific DownloadShelf, passing ownership to the caller.
-  static DownloadShelf* Create(TabContents* tab_contents);
-
   // A new download has started, so add it to our shelf. This object will
-  // take ownership of |download_model|.
+  // take ownership of |download_model|. Also make the shelf visible.
   virtual void AddDownload(BaseDownloadItemModel* download_model) = 0;
 
   // Invoked when the user clicks the 'show all downloads' link button.
   void ShowAllDownloads();
 
-  // Invoked when the download shelf is migrated from one tab contents to a new
-  // one.
-  void ChangeTabContents(TabContents* old_contents, TabContents* new_contents);
-
   // The browser view needs to know when we are going away to properly return
   // the resize corner size to WebKit so that we don't draw on top of it.
-  // This returns the showing state of our animation which is set to false at
-  // the beginning Show and true at the beginning of a Hide.
+  // This returns the showing state of our animation which is set to true at
+  // the beginning Show and false at the beginning of a Hide.
   virtual bool IsShowing() const = 0;
 
   // Returns whether the download shelf is showing the close animation.
   virtual bool IsClosing() const = 0;
 
+  // Opens the shelf.
+  virtual void Show() = 0;
+
+  // Closes the shelf.
+  virtual void Close() = 0;
+
  protected:
-  TabContents* tab_contents_;
+  Browser* browser_;
 
  private:
   DISALLOW_COPY_AND_ASSIGN(DownloadShelf);

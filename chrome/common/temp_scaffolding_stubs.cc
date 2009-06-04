@@ -21,11 +21,6 @@
 #include "chrome/browser/shell_integration.h"
 #include "chrome/common/process_watcher.h"
 
-#if defined(OS_MACOSX)
-#include "chrome/browser/download/download_item_model.h"
-#include "chrome/browser/download/download_shelf.h"
-#endif
-
 #if defined(OS_LINUX)
 #include "chrome/browser/dock_info.h"
 #endif
@@ -215,26 +210,6 @@ bool RLZTracker::RecordProductEvent(Product product, AccessPoint point,
   // http://code.google.com/p/chromium/issues/detail?id=8152
   return false;
 }
-
-//--------------------------------------------------------------------------
-
-#if defined(OS_MACOSX)
-
-class DownloadShelfMac : public DownloadShelf {
- public:
-  explicit DownloadShelfMac(TabContents* tab_contents)
-      : DownloadShelf(tab_contents) { }
-  virtual void AddDownload(BaseDownloadItemModel* download_model) { }
-  virtual bool IsShowing() const { return false; }
-  virtual bool IsClosing() const { return false; }
-};
-
-// static
-DownloadShelf* DownloadShelf::Create(TabContents* tab_contents) {
-  return new DownloadShelfMac(tab_contents);
-}
-
-#endif
 
 //--------------------------------------------------------------------------
 

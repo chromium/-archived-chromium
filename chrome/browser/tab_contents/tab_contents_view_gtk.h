@@ -74,12 +74,9 @@ class TabContentsViewGtk : public TabContentsView,
                                  GtkAllocation* config,
                                  TabContentsViewGtk* view);
 
-  // The native widget for the tab.
-  OwnedWidgetGtk vbox_;
-
   // This container holds the tab's web page views. It is a GtkFixed so that we
   // can control the size of the web pages.
-  GtkWidget* fixed_;
+  OwnedWidgetGtk fixed_;
 
   // The context menu is reset every time we show it, but we keep a pointer to
   // between uses so that it won't go out of scope before we're done with it.

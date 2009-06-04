@@ -327,6 +327,27 @@ bool BrowserProxy::GetBookmarkBarVisibility(bool* is_visible,
       0, handle_, is_visible, is_animating));
 }
 
+bool BrowserProxy::IsShelfVisible(bool* is_visible) {
+  if (!is_valid())
+    return false;
+
+  if (!is_visible) {
+    NOTREACHED();
+    return false;
+  }
+
+  return sender_->Send(new AutomationMsg_ShelfVisibility(0, handle_,
+                                                         is_visible));
+}
+
+bool BrowserProxy::SetShelfVisible(bool is_visible) {
+  if (!is_valid())
+    return false;
+
+  return sender_->Send(new AutomationMsg_SetShelfVisibility(0, handle_,
+                                                            is_visible));
+}
+
 bool BrowserProxy::SetIntPreference(const std::wstring& name, int value) {
   if (!is_valid())
     return false;
@@ -414,7 +435,7 @@ scoped_refptr<AutocompleteEditProxy> BrowserProxy::GetAutocompleteEdit() {
 
   AutocompleteEditProxy* p = static_cast<AutocompleteEditProxy*>(
         tracker_->GetResource(autocomplete_edit_handle));
-  
+
   if (!p) {
     p = new AutocompleteEditProxy(sender_, tracker_, autocomplete_edit_handle);
     p->AddRef();

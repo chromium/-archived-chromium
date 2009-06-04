@@ -177,18 +177,18 @@ DownloadItemGtk::DownloadItemGtk(DownloadShelfGtk* parent_shelf,
   InitNineBoxes();
   LoadIcon();
 
-  body_ = gtk_button_new();
-  gtk_widget_set_app_paintable(body_, TRUE);
-  g_signal_connect(body_, "expose-event",
+  body_.Own(gtk_button_new());
+  gtk_widget_set_app_paintable(body_.get(), TRUE);
+  g_signal_connect(body_.get(), "expose-event",
                    G_CALLBACK(OnExpose), this);
-  g_signal_connect(body_, "clicked",
+  g_signal_connect(body_.get(), "clicked",
                    G_CALLBACK(OnClick), this);
-  GTK_WIDGET_UNSET_FLAGS(body_, GTK_CAN_FOCUS);
+  GTK_WIDGET_UNSET_FLAGS(body_.get(), GTK_CAN_FOCUS);
   // Remove internal padding on the button.
   GtkRcStyle* no_padding_style = gtk_rc_style_new();
   no_padding_style->xthickness = 0;
   no_padding_style->ythickness = 0;
-  gtk_widget_modify_style(body_, no_padding_style);
+  gtk_widget_modify_style(body_.get(), no_padding_style);
   g_object_unref(no_padding_style);
 
   name_label_ = gtk_label_new(NULL);
@@ -221,18 +221,18 @@ DownloadItemGtk::DownloadItemGtk(DownloadShelfGtk* parent_shelf,
 
   // We use a GtkFixed because we don't want it to have its own window.
   // This choice of widget is not critically important though.
-  progress_area_ = gtk_fixed_new();
-  gtk_widget_set_size_request(progress_area_,
+  progress_area_.Own(gtk_fixed_new());
+  gtk_widget_set_size_request(progress_area_.get(),
       download_util::kSmallProgressIconSize,
       download_util::kSmallProgressIconSize);
-  gtk_widget_set_app_paintable(progress_area_, TRUE);
-  g_signal_connect(progress_area_, "expose-event",
+  gtk_widget_set_app_paintable(progress_area_.get(), TRUE);
+  g_signal_connect(progress_area_.get(), "expose-event",
                    G_CALLBACK(OnProgressAreaExpose), this);
 
   // Put the download progress icon on the left of the labels.
   GtkWidget* body_hbox = gtk_hbox_new(FALSE, 0);
-  gtk_container_add(GTK_CONTAINER(body_), body_hbox);
-  gtk_box_pack_start(GTK_BOX(body_hbox), progress_area_, FALSE, FALSE, 0);
+  gtk_container_add(GTK_CONTAINER(body_.get()), body_hbox);
+  gtk_box_pack_start(GTK_BOX(body_hbox), progress_area_.get(), FALSE, FALSE, 0);
   gtk_box_pack_start(GTK_BOX(body_hbox), text_stack, TRUE, TRUE, 0);
 
   menu_button_ = gtk_button_new();
@@ -247,12 +247,12 @@ DownloadItemGtk::DownloadItemGtk(DownloadShelfGtk* parent_shelf,
   gtk_widget_set_size_request(menu_button_, kMenuButtonWidth, 0);
 
   GtkWidget* shelf_hbox = parent_shelf->GetHBox();
-  hbox_ = gtk_hbox_new(FALSE, 0);
-  gtk_box_pack_start(GTK_BOX(hbox_), body_, FALSE, FALSE, 0);
-  gtk_box_pack_start(GTK_BOX(hbox_), menu_button_, FALSE, FALSE, 0);
-  gtk_box_pack_start(GTK_BOX(shelf_hbox), hbox_, FALSE, FALSE, 0);
+  hbox_.Own(gtk_hbox_new(FALSE, 0));
+  gtk_box_pack_start(GTK_BOX(hbox_.get()), body_.get(), FALSE, FALSE, 0);
+  gtk_box_pack_start(GTK_BOX(hbox_.get()), menu_button_, FALSE, FALSE, 0);
+  gtk_box_pack_start(GTK_BOX(shelf_hbox), hbox_.get(), FALSE, FALSE, 0);
   // Insert as the leftmost item.
-  gtk_box_reorder_child(GTK_BOX(shelf_hbox), hbox_, 1);
+  gtk_box_reorder_child(GTK_BOX(shelf_hbox), hbox_.get(), 1);
 
   resize_handler_id_ = g_signal_connect(G_OBJECT(shelf_hbox), "size-allocate",
                                         G_CALLBACK(OnShelfResized), this);
@@ -261,11 +261,11 @@ DownloadItemGtk::DownloadItemGtk(DownloadShelfGtk* parent_shelf,
 
   new_item_animation_.reset(new SlideAnimation(this));
   new_item_animation_->SetSlideDuration(kNewItemAnimationDurationMs);
-  gtk_widget_show_all(hbox_);
+  gtk_widget_show_all(hbox_.get());
 
   if (IsDangerous()) {
     // Hide the download item components for now.
-    gtk_widget_hide(body_);
+    gtk_widget_hide(body_.get());
     gtk_widget_hide(menu_button_);
 
     // Create an hbox to hold it all.
@@ -327,7 +327,7 @@ DownloadItemGtk::DownloadItemGtk(DownloadShelfGtk* parent_shelf,
     gtk_alignment_set_padding(GTK_ALIGNMENT(dangerous_prompt_),
         0, 0, kDangerousElementPadding, kDangerousElementPadding);
     gtk_container_add(GTK_CONTAINER(dangerous_prompt_), dangerous_hbox_);
-    gtk_box_pack_start(GTK_BOX(hbox_), dangerous_prompt_, FALSE, FALSE, 0);
+    gtk_box_pack_start(GTK_BOX(hbox_.get()), dangerous_prompt_, FALSE, FALSE, 0);
     gtk_widget_set_app_paintable(dangerous_prompt_, TRUE);
     g_signal_connect(dangerous_prompt_, "expose-event",
                      G_CALLBACK(OnDangerousPromptExpose), this);
@@ -346,9 +346,23 @@ DownloadItemGtk::DownloadItemGtk(DownloadShelfGtk* parent_shelf,
 
 DownloadItemGtk::~DownloadItemGtk() {
   StopDownloadProgress();
-  g_signal_handler_disconnect(parent_shelf_->GetHBox(), resize_handler_id_);
-  gtk_widget_destroy(hbox_);
+
+  // If the top-level window was already destroyed, the signal handler was
+  // already disconnected. Disconnect if that's not the case.
+  if (g_signal_handler_find(parent_shelf_->GetHBox(),
+                            G_SIGNAL_MATCH_ID,
+                            resize_handler_id_,
+                            0,
+                            NULL,
+                            NULL,
+                            NULL) != 0) {
+    g_signal_handler_disconnect(parent_shelf_->GetHBox(), resize_handler_id_);
+  }
   get_download()->RemoveObserver(this);
+
+  hbox_.Destroy();
+  progress_area_.Destroy();
+  body_.Destroy();
 }
 
 void DownloadItemGtk::OnDownloadUpdated(DownloadItem* download) {
@@ -357,7 +371,7 @@ void DownloadItemGtk::OnDownloadUpdated(DownloadItem* download) {
   if (dangerous_prompt_ != NULL &&
       download->safety_state() == DownloadItem::DANGEROUS_BUT_VALIDATED) {
     // We have been approved.
-    gtk_widget_show_all(hbox_);
+    gtk_widget_show_all(hbox_.get());
     gtk_widget_destroy(dangerous_prompt_);
     dangerous_prompt_ = NULL;
   }
@@ -407,7 +421,7 @@ void DownloadItemGtk::OnDownloadUpdated(DownloadItem* download) {
 
 void DownloadItemGtk::AnimationProgressed(const Animation* animation) {
   if (animation == complete_animation_.get()) {
-    gtk_widget_queue_draw(progress_area_);
+    gtk_widget_queue_draw(progress_area_.get());
   } else {
     if (IsDangerous()) {
       int progress = (dangerous_hbox_full_width_ -
@@ -424,7 +438,7 @@ void DownloadItemGtk::AnimationProgressed(const Animation* animation) {
                            download_util::kSmallProgressIconSize) *
                            new_item_animation_->GetCurrentValue()));
       showing_width = std::max(showing_width, kMinDownloadItemWidth);
-      gtk_widget_set_size_request(body_, showing_width, -1);
+      gtk_widget_set_size_request(body_.get(), showing_width, -1);
     }
   }
 }
@@ -443,7 +457,7 @@ void DownloadItemGtk::UpdateDownloadProgress() {
   progress_angle_ = (progress_angle_ +
                      download_util::kUnknownIncrementDegrees) %
                     download_util::kMaxDegrees;
-  gtk_widget_queue_draw(progress_area_);
+  gtk_widget_queue_draw(progress_area_.get());
 }
 
 void DownloadItemGtk::StartDownloadProgress() {
@@ -463,7 +477,7 @@ void DownloadItemGtk::StopDownloadProgress() {
 void DownloadItemGtk::OnLoadIconComplete(IconManager::Handle handle,
                                          SkBitmap* icon_bitmap) {
   icon_ = icon_bitmap;
-  gtk_widget_queue_draw(progress_area_);
+  gtk_widget_queue_draw(progress_area_.get());
 }
 
 void DownloadItemGtk::LoadIcon() {
@@ -543,7 +557,7 @@ gboolean DownloadItemGtk::OnExpose(GtkWidget* widget, GdkEventExpose* e,
                                    DownloadItemGtk* download_item) {
   NineBox* nine_box = NULL;
   // If true, this widget is |body_|, otherwise it is |menu_button_|.
-  bool is_body = widget == download_item->body_;
+  bool is_body = widget == download_item->body_.get();
   if (GTK_WIDGET_STATE(widget) == GTK_STATE_PRELIGHT)
     nine_box = is_body ? body_nine_box_prelight_ : menu_nine_box_prelight_;
   else if (GTK_WIDGET_STATE(widget) == GTK_STATE_ACTIVE)
@@ -641,11 +655,11 @@ gboolean DownloadItemGtk::OnMenuButtonPressEvent(GtkWidget* button,
 void DownloadItemGtk::OnShelfResized(GtkWidget *widget,
                                      GtkAllocation *allocation,
                                      DownloadItemGtk* item) {
-  if (item->hbox_->allocation.x + item->hbox_->allocation.width >
+  if (item->hbox_.get()->allocation.x + item->hbox_.get()->allocation.width >
       item->bounding_widget_->allocation.x)
-    gtk_widget_hide(item->hbox_);
+    gtk_widget_hide(item->hbox_.get());
   else
-    gtk_widget_show(item->hbox_);
+    gtk_widget_show(item->hbox_.get());
 }
 
 // static

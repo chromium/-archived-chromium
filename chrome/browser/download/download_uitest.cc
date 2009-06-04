@@ -131,9 +131,7 @@ class DownloadTest : public UITest {
       // TODO(tc): check download status text
 
       // Make sure the download shelf is showing.
-      scoped_refptr<TabProxy> dl_tab(window->GetTab(0));
-      ASSERT_TRUE(dl_tab.get());
-      EXPECT_TRUE(WaitForDownloadShelfVisible(dl_tab.get()));
+      EXPECT_TRUE(WaitForDownloadShelfVisible(window.get()));
     }
 
     FilePath filename;
@@ -170,9 +168,9 @@ TEST_F(DownloadTest, DownloadMimeType) {
 
   CleanUpDownload(file);
 
-  scoped_refptr<TabProxy> tab_proxy(GetActiveTab());
-  ASSERT_TRUE(tab_proxy.get());
-  EXPECT_TRUE(WaitForDownloadShelfVisible(tab_proxy.get()));
+  scoped_refptr<BrowserProxy> browser(automation()->GetBrowserWindow(0));
+  ASSERT_TRUE(browser.get());
+  EXPECT_TRUE(WaitForDownloadShelfVisible(browser.get()));
 }
 
 // Access a file with a viewable mime-type, verify that a download
@@ -196,9 +194,9 @@ TEST_F(DownloadTest, NoDownload) {
   if (file_util::PathExists(file_path))
     ASSERT_TRUE(file_util::Delete(file_path, false));
 
-  scoped_refptr<TabProxy> tab_proxy(GetActiveTab());
-  ASSERT_TRUE(tab_proxy.get());
-  EXPECT_FALSE(WaitForDownloadShelfVisible(tab_proxy.get()));
+  scoped_refptr<BrowserProxy> browser(automation()->GetBrowserWindow(0));
+  ASSERT_TRUE(browser.get());
+  EXPECT_FALSE(WaitForDownloadShelfVisible(browser.get()));
 }
 
 // Download a 0-size file with a content-disposition header, verify that the
@@ -218,11 +216,53 @@ TEST_F(DownloadTest, ContentDisposition) {
 
   CleanUpDownload(download_file, file);
 
-  // Ensure the download shelf is visible on the current tab.
-  scoped_refptr<TabProxy> tab_proxy(GetActiveTab());
-  ASSERT_TRUE(tab_proxy.get());
-  EXPECT_TRUE(WaitForDownloadShelfVisible(tab_proxy.get()));
+  // Ensure the download shelf is visible on the window.
+  scoped_refptr<BrowserProxy> browser(automation()->GetBrowserWindow(0));
+  ASSERT_TRUE(browser.get());
+  EXPECT_TRUE(WaitForDownloadShelfVisible(browser.get()));
 }
+
+// Test that the download shelf is per-window by starting a download in one
+// tab, opening a second tab, closing the shelf, going back to the first tab,
+// and checking that the shelf is closed.
+TEST_F(DownloadTest, PerWindowShelf) {
+  FilePath file(FILE_PATH_LITERAL("download-test3.gif"));
+  FilePath download_file(FILE_PATH_LITERAL("download-test3-attachment.gif"));
+
+  EXPECT_EQ(1, GetTabCount());
+
+  NavigateToURL(URLRequestMockHTTPJob::GetMockUrl(file.ToWStringHack()));
+  WaitUntilTabCount(1);
+
+  // Wait until the file is downloaded.
+  PlatformThread::Sleep(action_timeout_ms());
+
+  CleanUpDownload(download_file, file);
+
+  // Ensure the download shelf is visible on the window.
+  scoped_refptr<BrowserProxy> browser(automation()->GetBrowserWindow(0));
+  ASSERT_TRUE(browser.get());
+  EXPECT_TRUE(WaitForDownloadShelfVisible(browser.get()));
+
+  // Open a second tab
+  browser->AppendTab(GURL(""));
+  WaitUntilTabCount(2);
+
+  // Hide shelf
+  browser->SetShelfVisible(false);
+  EXPECT_TRUE(WaitForDownloadShelfInvisible(browser.get()));
+
+  // Go to first tab
+  EXPECT_TRUE(browser->ActivateTab(0));
+  int tab_count;
+  EXPECT_TRUE(browser->GetTabCount(&tab_count));
+  ASSERT_EQ(2, tab_count);
+
+  bool shelf_visible;
+  EXPECT_TRUE(browser->IsShelfVisible(&shelf_visible));
+  ASSERT_FALSE(shelf_visible);
+}
+
 
 // UnknownSize and KnownSize are tests which depend on
 // URLRequestSlowDownloadJob to serve content in a certain way. Data will be

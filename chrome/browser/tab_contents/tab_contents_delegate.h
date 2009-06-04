@@ -11,6 +11,7 @@
 #include "chrome/common/page_transition_types.h"
 #include "webkit/glue/window_open_disposition.h"
 
+class DownloadItem;
 class ExtensionFunctionDispatcher;
 class RenderViewHost;
 class TabContents;
@@ -88,9 +89,6 @@ class TabContentsDelegate {
 
   // Notification that the target URL has changed
   virtual void UpdateTargetURL(TabContents* source, const GURL& url) = 0;
-
-  // Notification that the download shelf visibility state has been toggled.
-  virtual void UpdateDownloadShelfVisibility(bool visible) { }
 
   // Notification that there was a mouse event
   virtual void ContentsMouseEvent(TabContents* source, bool motion) { }
@@ -176,6 +174,9 @@ class TabContentsDelegate {
   // This is used to make painting look smoother.
   virtual int GetExtraRenderViewHeight() const {
     return 0;
+  }
+
+  virtual void OnStartDownload(DownloadItem* download) {
   }
 
  protected:

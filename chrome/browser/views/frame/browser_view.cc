@@ -300,9 +300,9 @@ BrowserView::BrowserView(Browser* browser)
       frame_(NULL),
       browser_(browser),
       active_bookmark_bar_(NULL),
-      active_download_shelf_(NULL),
       tabstrip_(NULL),
       toolbar_(NULL),
+      download_shelf_(NULL),
       infobar_container_(NULL),
       find_bar_y_(0),
       contents_container_(NULL),
@@ -818,11 +818,8 @@ gfx::Rect BrowserView::GetRootWindowResizerRect() const {
   // shelf, so we don't want others to do it for us in this case.
   // Currently, the only visible bottom shelf is the download shelf.
   // Other tests should be added here if we add more bottom shelves.
-  TabContents* current_tab = browser_->GetSelectedTabContents();
-  if (current_tab && current_tab->IsDownloadShelfVisible()) {
-    DownloadShelf* download_shelf = current_tab->GetDownloadShelf(true);
-    if (download_shelf && download_shelf->IsShowing())
-      return gfx::Rect();
+  if (download_shelf_ && download_shelf_->IsShowing()) {
+    return gfx::Rect();
   }
 
   gfx::Rect client_rect = contents_container_->bounds();
@@ -852,6 +849,32 @@ void BrowserView::ShowBookmarkManager() {
 
 void BrowserView::ShowBookmarkBubble(const GURL& url, bool already_bookmarked) {
   toolbar_->star_button()->ShowStarBubble(url, !already_bookmarked);
+}
+
+void BrowserView::SetDownloadShelfVisible(bool visible) {
+  if (IsDownloadShelfVisible() != visible) {
+    if (visible) {
+      // Invoke GetDownloadShelf to force the shelf to be created.
+      GetDownloadShelf();
+    }
+
+    browser_->UpdateDownloadShelfVisibility(visible);
+  }
+
+  // SetDownloadShelfVisible can force-close the shelf, so make sure we lay out
+  // everything correctly, as if the animation had finished. This doesn't
+  // matter for showing the shelf, as the show animation will do it.
+  SelectedTabToolbarSizeChanged(false);
+}
+
+bool BrowserView::IsDownloadShelfVisible() const {
+  return download_shelf_ && download_shelf_->IsShowing();
+}
+
+DownloadShelf* BrowserView::GetDownloadShelf() {
+  if (!download_shelf_)
+    download_shelf_ = new DownloadShelfView(browser_.get(), this);
+  return download_shelf_;
 }
 
 void BrowserView::ShowReportBugDialog() {
@@ -1451,14 +1474,14 @@ void BrowserView::LayoutTabContents(int top, int bottom) {
 }
 
 int BrowserView::LayoutDownloadShelf(int bottom) {
-  if (active_download_shelf_) {
+  if (IsDownloadShelfVisible()) {
     bool visible = browser_->SupportsWindowFeature(
         Browser::FEATURE_DOWNLOADSHELF);
-    int height =
-        visible ? active_download_shelf_->GetPreferredSize().height() : 0;
-    active_download_shelf_->SetVisible(visible);
-    active_download_shelf_->SetBounds(0, bottom - height, width(), height);
-    active_download_shelf_->Layout();
+    DCHECK(download_shelf_);
+    int height = visible ? download_shelf_->GetPreferredSize().height() : 0;
+    download_shelf_->SetVisible(visible);
+    download_shelf_->SetBounds(0, bottom - height, width(), height);
+    download_shelf_->Layout();
     bottom -= height;
   }
   return bottom;
@@ -1514,21 +1537,9 @@ bool BrowserView::MaybeShowInfoBar(TabContents* contents) {
   return true;
 }
 
-bool BrowserView::MaybeShowDownloadShelf(TabContents* contents) {
-  views::View* new_shelf = NULL;
-  if (contents && contents->IsDownloadShelfVisible()) {
-    new_shelf =
-        static_cast<DownloadShelfView*>(contents->GetDownloadShelf(true));
-    if (new_shelf != active_download_shelf_)
-      new_shelf->AddChildView(new ResizeCorner());
-  }
-  return UpdateChildViewAndLayout(new_shelf, &active_download_shelf_);
-}
-
 void BrowserView::UpdateUIForContents(TabContents* contents) {
   bool needs_layout = MaybeShowBookmarkBar(contents);
   needs_layout |= MaybeShowInfoBar(contents);
-  needs_layout |= MaybeShowDownloadShelf(contents);
   if (needs_layout)
     Layout();
 }

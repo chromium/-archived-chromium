@@ -135,7 +135,6 @@ class TabRenderer : public views::View,
 
   // The bounds of various sections of the display.
   gfx::Rect favicon_bounds_;
-  gfx::Rect download_icon_bounds_;
   gfx::Rect title_bounds_;
 
   // Current state of the animation.
@@ -163,7 +162,6 @@ class TabRenderer : public views::View,
     bool crashed;
     bool off_the_record;
     bool show_icon;
-    bool show_download_icon;
   };
   TabData data_;
 
@@ -182,9 +180,6 @@ class TabRenderer : public views::View,
   // Whether we're showing the icon. It is cached so that we can detect when it
   // changes and layout appropriately.
   bool showing_icon_;
-
-  // Whether we are showing the download icon. Comes from the model.
-  bool showing_download_icon_;
 
   // Whether we are showing the close button. It is cached so that we can
   // detect when it changes and layout appropriately.

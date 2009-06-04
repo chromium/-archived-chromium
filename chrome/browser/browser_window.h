@@ -10,6 +10,8 @@
 class Browser;
 class BrowserList;
 class BrowserWindowTesting;
+class DownloadItem;
+class DownloadShelf;
 class FindBar;
 class GURL;
 class LocationBar;
@@ -142,6 +144,12 @@ class BrowserWindow {
   // Shows the Bookmark bubble. |url| is the URL being bookmarked,
   // |already_bookmarked| is true if the url is already bookmarked.
   virtual void ShowBookmarkBubble(const GURL& url, bool already_bookmarked) = 0;
+
+  // Whether or not the shelf view is visible.
+  virtual bool IsDownloadShelfVisible() const = 0;
+
+  // Returns the DownloadShelf.
+  virtual DownloadShelf* GetDownloadShelf() = 0;
 
   // Shows the Report a Bug dialog box.
   virtual void ShowReportBugDialog() = 0;

@@ -174,11 +174,6 @@ class TabProxy : public AutomationResourceProxy {
   // auth.
   bool NeedsAuth() const;
 
-  // Fills |*is_visible| with whether the tab's download shelf is currently
-  // visible. The return value indicates success. On failure, |*is_visible| is
-  // unchanged.
-  bool IsShelfVisible(bool* is_visible);
-
   // Starts a search within the current tab. The parameter |search_string|
   // specifies what string to search for, |forward| specifies whether to search
   // in forward direction, and |match_case| specifies case sensitivity

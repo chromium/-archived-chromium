@@ -252,9 +252,7 @@ bool SavePackage::Init() {
       FilePath(), Time::Now(), 0, -1, -1, false);
   download_->set_manager(tab_contents_->profile()->GetDownloadManager());
 #if !defined(OS_MACOSX)
-  DownloadShelf* shelf = tab_contents_->GetDownloadShelf(true);
-  shelf->AddDownload(new SavePageModel(this, download_));
-  tab_contents_->SetDownloadShelfVisible(true);
+  tab_contents_->OnStartDownload(download_);
 #else
   // TODO(port): Create a download shelf for mac.
   NOTIMPLEMENTED();

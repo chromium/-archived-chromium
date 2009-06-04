@@ -24,6 +24,7 @@
 #include "chrome/browser/browser_window.h"
 #include "chrome/browser/dom_operation_notification_details.h"
 #include "chrome/browser/download/download_manager.h"
+#include "chrome/browser/download/download_shelf.h"
 #include "chrome/browser/find_bar.h"
 #include "chrome/browser/find_bar_controller.h"
 #include "chrome/browser/find_notification_details.h"
@@ -1082,6 +1083,7 @@ void AutomationProvider::OnMessageReceived(const IPC::Message& message) {
     IPC_MESSAGE_HANDLER(AutomationMsg_WindowTitle, GetWindowTitle)
     IPC_MESSAGE_HANDLER(AutomationMsg_SetEnableExtensionAutomation,
                         SetEnableExtensionAutomation)
+    IPC_MESSAGE_HANDLER(AutomationMsg_SetShelfVisibility, SetShelfVisibility)
   IPC_END_MESSAGE_MAP()
 }
 
@@ -1956,10 +1958,26 @@ void AutomationProvider::ExecuteJavascript(int handle,
 void AutomationProvider::GetShelfVisibility(int handle, bool* visible) {
   *visible = false;
 
-  TabContents* tab_contents = GetTabContentsForHandle(handle, NULL);
-  if (tab_contents)
-    *visible = tab_contents->IsDownloadShelfVisible();
+  if (browser_tracker_->ContainsHandle(handle)) {
+    Browser* browser = browser_tracker_->GetResource(handle);
+    if (browser) {
+      *visible = browser->window()->IsDownloadShelfVisible();
+    }
+  }
 }
+
+void AutomationProvider::SetShelfVisibility(int handle, bool visible) {
+  if (browser_tracker_->ContainsHandle(handle)) {
+    Browser* browser = browser_tracker_->GetResource(handle);
+    if (browser) {
+      if (visible)
+        browser->window()->GetDownloadShelf()->Show();
+      else
+        browser->window()->GetDownloadShelf()->Close();
+    }
+  }
+}
+
 
 void AutomationProvider::GetConstrainedWindowCount(int handle, int* count) {
   *count = -1;  // -1 is the error code

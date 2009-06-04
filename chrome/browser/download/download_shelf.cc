@@ -6,11 +6,11 @@
 
 #include "app/l10n_util.h"
 #include "base/file_util.h"
+#include "chrome/browser/browser.h"
 #include "chrome/browser/dom_ui/downloads_ui.h"
 #include "chrome/browser/download/download_item_model.h"
 #include "chrome/browser/download/download_manager.h"
 #include "chrome/browser/metrics/user_metrics.h"
-#include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/common/url_constants.h"
 #include "grit/generated_resources.h"
 
@@ -22,17 +22,11 @@
 // DownloadShelf ---------------------------------------------------------------
 
 void DownloadShelf::ShowAllDownloads() {
-  Profile* profile = tab_contents_->profile();
+  Profile* profile = browser_->profile();
   if (profile)
     UserMetrics::RecordAction(L"ShowDownloads", profile);
-  tab_contents_->OpenURL(GURL(chrome::kChromeUIDownloadsURL), GURL(),
-                         SINGLETON_TAB, PageTransition::AUTO_BOOKMARK);
-}
-
-void DownloadShelf::ChangeTabContents(TabContents* old_contents,
-                                      TabContents* new_contents) {
-  DCHECK(old_contents == tab_contents_);
-  tab_contents_ = new_contents;
+  browser_->OpenURL(GURL(chrome::kChromeUIDownloadsURL), GURL(),
+                    NEW_FOREGROUND_TAB, PageTransition::AUTO_BOOKMARK);
 }
 
 // DownloadShelfContextMenu ----------------------------------------------------

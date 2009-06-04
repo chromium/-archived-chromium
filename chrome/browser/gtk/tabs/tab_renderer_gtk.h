@@ -161,7 +161,6 @@ class TabRendererGtk : public AnimationDelegate {
     bool crashed;
     bool off_the_record;
     bool show_icon;
-    bool show_download_icon;
   };
 
   // TODO(jhawkins): Move into TabResources class.
@@ -238,7 +237,6 @@ class TabRendererGtk : public AnimationDelegate {
 
   // The bounds of various sections of the display.
   gfx::Rect favicon_bounds_;
-  gfx::Rect download_icon_bounds_;
   gfx::Rect title_bounds_;
   gfx::Rect close_button_bounds_;
 
@@ -252,10 +250,6 @@ class TabRendererGtk : public AnimationDelegate {
   static gfx::Font* title_font_;
   static int title_font_height_;
 
-  static SkBitmap* download_icon_;
-  static int download_icon_width_;
-  static int download_icon_height_;
-
   static int close_button_width_;
   static int close_button_height_;
 
@@ -265,9 +259,6 @@ class TabRendererGtk : public AnimationDelegate {
   // Whether we're showing the icon. It is cached so that we can detect when it
   // changes and layout appropriately.
   bool showing_icon_;
-
-  // Whether we are showing the download icon. Comes from the model.
-  bool showing_download_icon_;
 
   // Whether we are showing the close button. It is cached so that we can
   // detect when it changes and layout appropriately.

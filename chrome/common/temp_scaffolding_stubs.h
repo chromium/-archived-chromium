@@ -22,6 +22,12 @@
 #include "googleurl/src/gurl.h"
 #include "third_party/skia/include/core/SkBitmap.h"
 
+#if defined(OS_MACOSX)
+#include "chrome/browser/download/download_item_model.h"
+#include "chrome/browser/download/download_shelf.h"
+#endif
+
+
 class BookmarkContextMenu;
 class BookmarkNode;
 class Browser;
@@ -420,5 +426,49 @@ class OSExchangeData {
 
 class BaseDragSource {
 };
+
+//--------------------------------------------------------------------------
+
+#if defined(OS_MACOSX)
+
+class DownloadShelfMac : public DownloadShelf {
+ public:
+  explicit DownloadShelfMac(Browser* browser)
+      : DownloadShelf(browser), visible_(false) { }
+  virtual void AddDownload(BaseDownloadItemModel* download_model)
+  { NOTIMPLEMENTED(); visible_ = true; }
+  virtual bool IsShowing() const { NOTIMPLEMENTED(); return visible_; }
+  virtual bool IsClosing() const { NOTIMPLEMENTED(); return visible_; }
+  virtual void Show() { NOTIMPLEMENTED(); visible_ = true; }
+  virtual void Close() { NOTIMPLEMENTED(); visible_ = false; }
+ private:
+  bool visible_;
+};
+
+#endif
+
+//---------------------------------------------------------------------------
+// These stubs are for extensions
+
+namespace views {
+class HWNDView {
+ public:
+  int width() { NOTIMPLEMENTED(); return 0; }
+  int height() { NOTIMPLEMENTED(); return 0; }
+  void InitHidden() { NOTIMPLEMENTED(); }
+  void SetPreferredSize(const gfx::Size& size) { NOTIMPLEMENTED(); }
+  virtual void SetBackground(const SkBitmap&) { NOTIMPLEMENTED(); }
+  virtual void SetVisible(bool flag) { NOTIMPLEMENTED(); }
+  void SizeToPreferredSize() { NOTIMPLEMENTED(); }
+  bool IsVisible() const { NOTIMPLEMENTED(); return false; }
+  void Layout() { NOTIMPLEMENTED(); }
+  void SchedulePaint() { NOTIMPLEMENTED(); }
+  HWNDView* GetParent() const { NOTIMPLEMENTED(); return NULL; }
+  virtual gfx::Size GetPreferredSize() { NOTIMPLEMENTED(); return gfx::Size(); }
+  gfx::NativeWindow GetHWND() { NOTIMPLEMENTED(); return 0; }
+  void Detach() { NOTIMPLEMENTED(); }
+  gfx::Widget* GetWidget() { NOTIMPLEMENTED(); return NULL; }
+};
+}  // namespace views
 
 #endif  // CHROME_COMMON_TEMP_SCAFFOLDING_STUBS_H_

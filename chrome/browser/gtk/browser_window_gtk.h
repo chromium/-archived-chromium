@@ -19,6 +19,7 @@
 
 class BookmarkBarGtk;
 class BrowserToolbarGtk;
+class DownloadShelfGtk;
 class FindBarGtk;
 class InfoBarContainerGtk;
 class LocationBar;
@@ -71,6 +72,8 @@ class BrowserWindowGtk : public BrowserWindow,
   virtual void ShowAboutChromeDialog();
   virtual void ShowBookmarkManager();
   virtual void ShowBookmarkBubble(const GURL& url, bool already_bookmarked);
+  virtual bool IsDownloadShelfVisible() const;
+  virtual DownloadShelf* GetDownloadShelf();
   virtual void ShowReportBugDialog();
   virtual void ShowClearBrowsingDataDialog();
   virtual void ShowImportDialog();
@@ -135,6 +138,9 @@ class BrowserWindowGtk : public BrowserWindow,
   GtkWidget* render_area_vbox_;
 
   scoped_ptr<Browser> browser_;
+
+  // The download shelf view (view at the bottom of the page).
+  scoped_ptr<DownloadShelfGtk> download_shelf_;
 
  private:
   // Sets the default size for the window and the the way the user is allowed to

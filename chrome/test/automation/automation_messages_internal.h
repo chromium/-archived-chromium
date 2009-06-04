@@ -232,9 +232,9 @@ IPC_BEGIN_MESSAGES(Automation)
                                             // containing the result of a
                                             // javascript execution
 
-  // Is the Download Shelf visible for the specified tab?
+  // Is the Download Shelf visible for the specified browser?
   IPC_SYNC_MESSAGE_ROUTED1_1(AutomationMsg_ShelfVisibility,
-                             int /* tab_handle */,
+                             int /* browser_handle */,
                              bool /* is_visible */)
 
   // This message requests the number of constrained windows in the tab with
@@ -926,5 +926,10 @@ IPC_BEGIN_MESSAGES(Automation)
   // string are defined in automation_constants.h.
   IPC_SYNC_MESSAGE_ROUTED1_0(AutomationMsg_SetProxyConfig,
                              std::string /* proxy_config_json_string */)
+
+  // Sets Download Shelf visibility for the specified browser.
+  IPC_SYNC_MESSAGE_ROUTED2_0(AutomationMsg_SetShelfVisibility,
+                             int /* browser_handle */,
+                             bool /* is_visible */)
 
 IPC_END_MESSAGES(Automation)

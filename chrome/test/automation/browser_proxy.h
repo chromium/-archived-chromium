@@ -186,6 +186,14 @@ class BrowserProxy : public AutomationResourceProxy {
   // it into position. Returns false on failure.
   bool GetBookmarkBarVisibility(bool* is_visible, bool* is_animating);
 
+  // Fills |*is_visible| with whether the browser's download shelf is currently
+  // visible. The return value indicates success. On failure, |*is_visible| is
+  // unchanged.
+  bool IsShelfVisible(bool* is_visible);
+
+  // Shows or hides the download shelf.
+  bool SetShelfVisible(bool is_visible);
+
   // Sets the int value of the specified preference.
   bool SetIntPreference(const std::wstring& name, int value);
 

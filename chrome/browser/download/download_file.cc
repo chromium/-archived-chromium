@@ -536,17 +536,18 @@ void DownloadFileManager::OnShowDownloadInShell(const FilePath& full_path) {
 void DownloadFileManager::OnOpenDownloadInShell(const FilePath& full_path,
                                                 const GURL& url,
                                                 gfx::NativeView parent_window) {
-  DCHECK(MessageLoop::current() == file_loop_);
-
 #if defined(OS_WIN)
-  if (NULL != parent_window) {
-    win_util::SaferOpenItemViaShell(parent_window, L"", full_path,
-                                    UTF8ToWide(url.spec()));
-    return;
-  }
+    DCHECK(MessageLoop::current() == file_loop_);
+    if (NULL != parent_window) {
+      win_util::SaferOpenItemViaShell(parent_window, L"", full_path,
+                                      UTF8ToWide(url.spec()));
+    } else {
+      win_util::OpenItemViaShell(full_path);
+    }
+#else
+  // TODO(port) implement me.
+  NOTIMPLEMENTED();
 #endif
-
-  platform_util::OpenItem(full_path);
 }
 
 // The DownloadManager in the UI thread has provided a final name for the

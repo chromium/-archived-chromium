@@ -10,15 +10,20 @@
 #import "chrome/browser/cocoa/browser_window_controller.h"
 #import "chrome/browser/cocoa/clear_browsing_data_controller.h"
 #include "chrome/browser/browser.h"
+#include "chrome/browser/download/download_shelf.h"
 #include "chrome/common/notification_service.h"
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
+#include "chrome/common/temp_scaffolding_stubs.h"
 #include "chrome/browser/profile.h"
 
 BrowserWindowCocoa::BrowserWindowCocoa(Browser* browser,
                                        BrowserWindowController* controller,
                                        NSWindow* window)
-  : window_(window), browser_(browser), controller_(controller) {
+  : window_(window),
+    browser_(browser),
+    controller_(controller),
+    download_shelf_() {
   // This pref applies to all windows, so all must watch for it.
   registrar_.Add(this, NotificationType::BOOKMARK_BAR_VISIBILITY_PREF_CHANGED,
                  NotificationService::AllSources());
@@ -180,6 +185,18 @@ void BrowserWindowCocoa::ShowBookmarkManager() {
 void BrowserWindowCocoa::ShowBookmarkBubble(const GURL& url,
                                             bool already_bookmarked) {
   NOTIMPLEMENTED();
+}
+
+bool BrowserWindowCocoa::IsDownloadShelfVisible() const {
+  return download_shelf_ != NULL && download_shelf_->IsShowing();
+}
+
+DownloadShelf* BrowserWindowCocoa::GetDownloadShelf() {
+  NOTIMPLEMENTED();
+  if (!download_shelf_.get()) {
+    download_shelf_.reset(new DownloadShelfMac(browser_));
+  }
+  return download_shelf_.get();
 }
 
 void BrowserWindowCocoa::ShowReportBugDialog() {

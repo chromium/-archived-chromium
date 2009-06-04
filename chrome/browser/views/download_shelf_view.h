@@ -16,7 +16,8 @@ class ImageView;
 }
 
 class BaseDownloadItemModel;
-class TabContents;
+class Browser;
+class BrowserView;
 
 class DownloadAnimation;
 
@@ -33,7 +34,7 @@ class DownloadShelfView : public DownloadShelf,
                           public views::LinkController,
                           public AnimationDelegate {
  public:
-  explicit DownloadShelfView(TabContents* tab_contents);
+  explicit DownloadShelfView(Browser* browser, BrowserView* parent);
 
   // Implementation of View.
   virtual gfx::Size GetPreferredSize();
@@ -57,6 +58,8 @@ class DownloadShelfView : public DownloadShelf,
   virtual void AddDownload(BaseDownloadItemModel* download_model);
   virtual bool IsShowing() const;
   virtual bool IsClosing() const;
+  virtual void Show();
+  virtual void Close();
 
   // Removes a specified download view. The supplied view is deleted after
   // it's removed.
@@ -96,6 +99,9 @@ class DownloadShelfView : public DownloadShelf,
   // Button for closing the downloads. This is contained as a child, and
   // deleted by View.
   views::ImageButton* close_button_;
+
+  // The window this shelf belongs to.
+  BrowserView* parent_;
 
   DISALLOW_COPY_AND_ASSIGN(DownloadShelfView);
 };

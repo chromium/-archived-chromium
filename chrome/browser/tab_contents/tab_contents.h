@@ -66,7 +66,6 @@ class BlockedPopupContainer;
 class DOMUI;
 class DOMUIContents;
 class DownloadItem;
-class DownloadShelf;
 class LoadNotificationDetails;
 class PageAction;
 class PasswordManager;
@@ -405,29 +404,11 @@ class TabContents : public PageNavigator,
   // Returns whether the bookmark bar should be visible.
   virtual bool IsBookmarkBarAlwaysVisible();
 
-  // Whether or not the shelf view is visible.
-  virtual void SetDownloadShelfVisible(bool visible);
-  bool IsDownloadShelfVisible() { return shelf_visible_; }
+  // Notifies the delegate that a download started.
+  void OnStartDownload(DownloadItem* download);
 
   // Notify our delegate that some of our content has animated.
   void ToolbarSizeChanged(bool is_animating);
-
-  // Displays the download shelf and animation when a download occurs.
-  void OnStartDownload(DownloadItem* download);
-
-  // Returns the DownloadShelf. If the shelf doesn't exist and |create| is true,
-  // this function will create the shelf.
-  DownloadShelf* GetDownloadShelf(bool create);
-
-  // Transfer the shelf view from |tab_contents| to the receiving TabContents.
-  // |tab_contents| no longer owns the shelf after this call. The shelf is owned
-  // by the receiving TabContents.
-  void MigrateShelfFrom(TabContents* tab_contents);
-
-  // Migrate the shelf view between 2 TabContents. This helper function is
-  // currently called by NavigationController::DiscardPendingEntry. We may
-  // want to generalize this if we need to migrate some other state.
-  static void MigrateShelf(TabContents* from, TabContents* to);
 
   // Called when a ConstrainedWindow we own is about to be closed.
   void WillClose(ConstrainedWindow* window);
@@ -640,9 +621,6 @@ class TabContents : public PageNavigator,
   // (We keep the notification object around even when it's not shown since it
   // determines whether to show itself).
   bool ShowingBlockedPopupNotification() const;
-
-  // Releases the download shelf. This method is used by MigrateShelfFrom.
-  void ReleaseDownloadShelf();
 
   // Called by derived classes to indicate that we're no longer waiting for a
   // response. This won't actually update the throbber, but it will get picked
@@ -992,12 +970,6 @@ class TabContents : public PageNavigator,
 
   // Data for shelves and stuff ------------------------------------------------
 
-  // The download shelf view (view at the bottom of the page).
-  scoped_ptr<DownloadShelf> download_shelf_;
-
-  // Whether the shelf view is visible.
-  bool shelf_visible_;
-
   // ConstrainedWindow with additional methods for managing blocked
   // popups. This pointer also goes in |child_windows_| for ownership,
   // repositioning, etc.
@@ -1005,9 +977,6 @@ class TabContents : public PageNavigator,
 
   // Delegates for InfoBars associated with this TabContents.
   std::vector<InfoBarDelegate*> infobar_delegates_;
-
-  // The last time that the download shelf was made visible.
-  base::TimeTicks last_download_shelf_show_;
 
   // Data for find in page -----------------------------------------------------
 
