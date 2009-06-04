@@ -284,9 +284,9 @@ std::map<XID, GtkWindow*> BrowserWindowGtk::xid_map_;
 // readability.
 BrowserWindowGtk::BrowserWindowGtk(Browser* browser)
     :  browser_(browser),
-       // TODO(port): make this a pref.
-       custom_frame_(false),
        full_screen_(false) {
+  use_custom_frame_.Init(prefs::kUseCustomChromeFrame,
+      browser_->profile()->GetPrefs(), this);
   window_ = GTK_WINDOW(gtk_window_new(GTK_WINDOW_TOPLEVEL));
   SetWindowIcon();
   SetGeometryHints();
@@ -354,8 +354,7 @@ BrowserWindowGtk::BrowserWindowGtk(Browser* browser)
 
   // Note that calling this the first time is necessary to get the
   // proper control layout.
-  // TODO(port): make this a pref.
-  SetCustomFrame(false);
+  UpdateCustomFrame();
 
   GtkWidget* event_box = gtk_event_box_new();
   gtk_container_add(GTK_CONTAINER(event_box), render_area_vbox_);
@@ -387,7 +386,7 @@ void BrowserWindowGtk::HandleAccelerator(guint keyval,
 gboolean BrowserWindowGtk::OnContentAreaExpose(GtkWidget* widget,
                                                GdkEventExpose* e,
                                                BrowserWindowGtk* window) {
-  if (window->custom_frame_) {
+  if (window->use_custom_frame_.GetValue()) {
     NOTIMPLEMENTED() << " needs custom drawing for the custom frame.";
     return FALSE;
   }
@@ -640,6 +639,13 @@ void BrowserWindowGtk::Observe(NotificationType type,
                                const NotificationDetails& details) {
   if (type == NotificationType::BOOKMARK_BAR_VISIBILITY_PREF_CHANGED) {
     MaybeShowBookmarkBar(browser_->GetSelectedTabContents());
+  } else if (type == NotificationType::PREF_CHANGED) {
+    std::wstring* pref_name = Details<std::wstring>(details).ptr();
+    if (*pref_name == prefs::kUseCustomChromeFrame) {
+      UpdateCustomFrame();
+    } else {
+      NOTREACHED() << "Got a pref change notification we didn't register for!";
+    }
   } else {
     NOTREACHED() << "Got a notification we didn't register for!";
   }
@@ -827,11 +833,12 @@ void BrowserWindowGtk::ConnectAccelerators() {
   }
 }
 
-void BrowserWindowGtk::SetCustomFrame(bool custom_frame) {
-  custom_frame_ = custom_frame;
-  if (custom_frame_) {
-    gtk_container_set_border_width(GTK_CONTAINER(window_vbox_), 2);
-    // TODO(port): all the crazy blue title bar, etc.
+void BrowserWindowGtk::UpdateCustomFrame() {
+  gtk_window_set_decorated(window_,
+                           !use_custom_frame_.GetValue());
+  if (use_custom_frame_.GetValue()) {
+    // TODO(port): The taller title bar and custom window border.
+    gtk_container_set_border_width(GTK_CONTAINER(window_vbox_), 0);
     NOTIMPLEMENTED();
   } else {
     gtk_container_set_border_width(GTK_CONTAINER(window_vbox_), 0);

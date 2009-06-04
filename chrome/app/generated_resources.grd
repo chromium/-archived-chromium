@@ -3846,6 +3846,10 @@ each locale. -->
         Don't ask again
       </message>
 
+      <message name="IDS_SHOW_WINDOW_DECORATIONS" desc="The menu entry text in the tab strip context menu.  This toggles the system title bar and window borders (window decorations) on linux.">
+        Use system title bar and borders
+      </message>
+
       <message name="IDS_RGBA_CSS_FORMAT_STRING" translateable="false" desc="The format string to use when converting colors to CSS rgba().">
         rgba($1, $2, $3, $4)
       </message>

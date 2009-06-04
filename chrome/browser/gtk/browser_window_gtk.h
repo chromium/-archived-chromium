@@ -15,6 +15,7 @@
 #include "chrome/browser/browser_window.h"
 #include "chrome/browser/tabs/tab_strip_model.h"
 #include "chrome/common/notification_registrar.h"
+#include "chrome/common/pref_member.h"
 #include "chrome/common/x11_util.h"
 
 class BookmarkBarGtk;
@@ -157,7 +158,7 @@ class BrowserWindowGtk : public BrowserWindow,
   // Change whether we're showing the custom blue frame.
   // Must be called once at startup.
   // Triggers relayout of the content.
-  void SetCustomFrame(bool custom_frame);
+  void UpdateCustomFrame();
 
   // Save the window position in the prefs.
   void SaveWindowPosition();
@@ -199,9 +200,6 @@ class BrowserWindowGtk : public BrowserWindow,
   gfx::Rect bounds_;
   GdkWindowState state_;
 
-  // Whether we're drawing the custom Chrome frame (including title bar).
-  bool custom_frame_;
-
   // Whether we are full screen. Since IsFullscreen() gets called before
   // OnStateChanged(), we can't rely on |state_| & GDK_WINDOW_STATE_FULLSCREEN.
   bool full_screen_;
@@ -228,6 +226,10 @@ class BrowserWindowGtk : public BrowserWindow,
 
   // The timer used to update frames for the Loading Animation.
   base::RepeatingTimer<BrowserWindowGtk> loading_animation_timer_;
+
+  // Whether we're showing the custom chrome frame or the window manager
+  // decorations.
+  BooleanPrefMember use_custom_frame_;
 
   // A map which translates an X Window ID into its respective GtkWindow.
   static std::map<XID, GtkWindow*> xid_map_;

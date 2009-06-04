@@ -16,6 +16,8 @@
 #include "chrome/browser/gtk/tabs/dragged_tab_controller_gtk.h"
 #include "chrome/browser/profile.h"
 #include "chrome/browser/tab_contents/tab_contents.h"
+#include "chrome/common/pref_names.h"
+#include "chrome/common/pref_service.h"
 #include "grit/app_resources.h"
 #include "grit/generated_resources.h"
 #include "grit/theme_resources.h"
@@ -35,6 +37,9 @@ const int kHorizontalMoveThreshold = 16;  // pixels
 // The horizontal offset from one tab to the next,
 // which results in overlapping tabs.
 const int kTabHOffset = -16;
+
+// A linux specific menu item for toggling window decorations.
+const int kShowWindowDecorationsCommand = 200;
 
 inline int Round(double x) {
   return static_cast<int>(x + 0.5);
@@ -1175,6 +1180,12 @@ void TabStripGtk::ShowContextMenu() {
     context_menu_->AppendMenuItemWithLabel(
         TabStripModel::CommandTaskManager,
         l10n_util::GetStringUTF8(IDS_TASK_MANAGER));
+
+    context_menu_->AppendSeparator();
+
+    context_menu_->AppendCheckMenuItemWithLabel(
+        kShowWindowDecorationsCommand,
+        l10n_util::GetStringUTF8(IDS_SHOW_WINDOW_DECORATIONS));
   }
 
   context_menu_->PopupAsContext(gtk_get_current_event_time());
@@ -1183,6 +1194,7 @@ void TabStripGtk::ShowContextMenu() {
 bool TabStripGtk::IsCommandEnabled(int command_id) const {
   switch (command_id) {
     case TabStripModel::CommandNewTab:
+    case kShowWindowDecorationsCommand:
       return true;
 
     case TabStripModel::CommandRestoreTab:
@@ -1196,6 +1208,12 @@ bool TabStripGtk::IsCommandEnabled(int command_id) const {
       NOTREACHED();
   }
   return false;
+}
+
+bool TabStripGtk::IsItemChecked(int command_id) const {
+  DCHECK(command_id == kShowWindowDecorationsCommand);
+  PrefService* prefs = model_->profile()->GetPrefs();
+  return !prefs->GetBoolean(prefs::kUseCustomChromeFrame);
 }
 
 void TabStripGtk::ExecuteCommand(int command_id) {
@@ -1212,6 +1230,14 @@ void TabStripGtk::ExecuteCommand(int command_id) {
       // TODO(tc): This needs to be implemented in the TabStripModelDelegate.
       NOTIMPLEMENTED();
       break;
+
+    case kShowWindowDecorationsCommand:
+    {
+      PrefService* prefs = model_->profile()->GetPrefs();
+      prefs->SetBoolean(prefs::kUseCustomChromeFrame,
+                        !prefs->GetBoolean(prefs::kUseCustomChromeFrame));
+      break;
+    }
 
     default:
       NOTREACHED();

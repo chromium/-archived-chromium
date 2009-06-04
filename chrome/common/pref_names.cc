@@ -262,6 +262,10 @@ const wchar_t kCurrentThemeDisplayProperties[] =
 // on start-up.
 const wchar_t kCheckDefaultBrowser[] = L"browser.check_default_browser";
 
+// Boolean that is false if we should show window manager decorations.  If
+// true, we draw a custom chrome frame (thicker title bar and blue border).
+const wchar_t kUseCustomChromeFrame[] = L"browser.custom_chrome_frame";
+
 // *************** LOCAL STATE ***************
 // These are attached to the machine/installation
 

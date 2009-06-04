@@ -193,6 +193,7 @@ class TabStripGtk : public TabStripModelObserver,
   void ShowContextMenu();
   // MenuGtk::Delegate implementation:
   virtual bool IsCommandEnabled(int command_id) const;
+  virtual bool IsItemChecked(int command_id) const;
   virtual void ExecuteCommand(int command_id);
 
   // -- Animations -------------------------------------------------------------
