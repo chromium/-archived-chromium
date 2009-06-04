@@ -150,6 +150,20 @@ int MemEntryImpl::WriteData(int index, int offset, net::IOBuffer* buf,
   return buf_len;
 }
 
+int MemEntryImpl::ReadSparseData(int64 offset, net::IOBuffer* buf, int buf_len,
+                                 net::CompletionCallback* completion_callback) {
+  return net::ERR_CACHE_OPERATION_NOT_SUPPORTED;
+}
+
+int MemEntryImpl::WriteSparseData(int64 offset, net::IOBuffer* buf, int buf_len,
+    net::CompletionCallback* completion_callback) {
+  return net::ERR_CACHE_OPERATION_NOT_SUPPORTED;
+}
+
+int MemEntryImpl::GetAvailableRange(int64 offset, int len, int64* start) {
+  return net::ERR_CACHE_OPERATION_NOT_SUPPORTED;
+}
+
 void MemEntryImpl::PrepareTarget(int index, int offset, int buf_len) {
   int entry_size = GetDataSize(index);
 

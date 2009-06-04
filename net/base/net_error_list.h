@@ -250,5 +250,8 @@ NET_ERROR(CACHE_READ_FAILURE, -401)
 // transaction.
 NET_ERROR(CACHE_CANNOT_CREATE_NETWORK_TRANSACTION, -402)
 
+// The operation is not supported for this entry.
+NET_ERROR(CACHE_OPERATION_NOT_SUPPORTED, -403)
+
 // The server's response was insecure (e.g. there was a cert error).
 NET_ERROR(INSECURE_RESPONSE, -501)

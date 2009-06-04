@@ -33,6 +33,11 @@ class EntryImpl : public Entry, public base::RefCounted<EntryImpl> {
   virtual int WriteData(int index, int offset, net::IOBuffer* buf, int buf_len,
                         net::CompletionCallback* completion_callback,
                         bool truncate);
+  virtual int ReadSparseData(int64 offset, net::IOBuffer* buf, int buf_len,
+                             net::CompletionCallback* completion_callback);
+  virtual int WriteSparseData(int64 offset, net::IOBuffer* buf, int buf_len,
+                              net::CompletionCallback* completion_callback);
+  virtual int GetAvailableRange(int64 offset, int len, int64* start);
 
   inline CacheEntryBlock* entry() {
     return &entry_;

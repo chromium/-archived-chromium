@@ -27,11 +27,11 @@ class MockDiskEntry : public disk_cache::Entry,
                       public base::RefCounted<MockDiskEntry> {
  public:
   MockDiskEntry()
-      : test_mode_(0), doomed_(false) {
+      : test_mode_(0), doomed_(false), sparse_(false) {
   }
 
   MockDiskEntry(const std::string& key)
-      : key_(key), doomed_(false) {
+      : key_(key), doomed_(false), sparse_(false) {
     //
     // 'key' is prefixed with an identifier if it corresponds to a cached POST.
     // Skip past that to locate the actual URL.
@@ -116,6 +116,80 @@ class MockDiskEntry : public disk_cache::Entry,
     return buf_len;
   }
 
+  virtual int ReadSparseData(int64 offset, net::IOBuffer* buf, int buf_len,
+                             net::CompletionCallback* completion_callback) {
+    if (!sparse_)
+      return net::ERR_CACHE_OPERATION_NOT_SUPPORTED;
+    if (offset < 0)
+      return net::ERR_FAILED;
+
+    DCHECK(offset < kint32max);
+    int real_offset = static_cast<int>(offset);
+    if (!buf_len)
+      return 0;
+
+    int num = std::min(static_cast<int>(data_[1].size()) - real_offset,
+                       buf_len);
+    memcpy(buf->data(), &data_[1][real_offset], num);
+
+    if (!completion_callback || (test_mode_ & TEST_MODE_SYNC_CACHE_READ))
+      return num;
+
+    CallbackLater(completion_callback, num);
+    return net::ERR_IO_PENDING;
+  }
+
+  virtual int WriteSparseData(int64 offset, net::IOBuffer* buf, int buf_len,
+                              net::CompletionCallback* completion_callback) {
+    if (!sparse_) {
+      if (data_[1].size())
+        return net::ERR_CACHE_OPERATION_NOT_SUPPORTED;
+      sparse_ = true;
+    }
+    if (offset < 0)
+      return net::ERR_FAILED;
+    if (!buf_len)
+      return 0;
+
+    DCHECK(offset < kint32max);
+    int real_offset = static_cast<int>(offset);
+
+    if (static_cast<int>(data_[1].size()) < real_offset + buf_len)
+      data_[1].resize(real_offset + buf_len);
+
+    memcpy(&data_[1][real_offset], buf->data(), buf_len);
+    return buf_len;
+  }
+
+  virtual int GetAvailableRange(int64 offset, int len, int64* start) {
+    if (!sparse_)
+      return net::ERR_CACHE_OPERATION_NOT_SUPPORTED;
+    if (offset < 0)
+      return net::ERR_FAILED;
+
+    *start = offset;
+    DCHECK(offset < kint32max);
+    int real_offset = static_cast<int>(offset);
+    if (static_cast<int>(data_[1].size()) < real_offset)
+      return 0;
+
+    int num = std::min(static_cast<int>(data_[1].size()) - real_offset, len);
+    int count = 0;
+    for (; num > 0; num--, real_offset++) {
+      if (!count) {
+        if (data_[1][real_offset]) {
+          count++;
+          *start = real_offset;
+        }
+      } else {
+        if (!data_[1][real_offset])
+          break;
+        count++;
+      }
+    }
+    return count;
+  }
+
  private:
   // Unlike the callbacks for MockHttpTransaction, we want this one to run even
   // if the consumer called Close on the MockDiskEntry.  We achieve that by
@@ -132,6 +206,7 @@ class MockDiskEntry : public disk_cache::Entry,
   std::vector<char> data_[2];
   int test_mode_;
   bool doomed_;
+  bool sparse_;
 };
 
 class MockDiskCache : public disk_cache::Backend {

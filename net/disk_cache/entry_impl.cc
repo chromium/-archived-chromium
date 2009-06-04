@@ -351,6 +351,20 @@ int EntryImpl::WriteData(int index, int offset, net::IOBuffer* buf, int buf_len,
   return (completed || !completion_callback) ? buf_len : net::ERR_IO_PENDING;
 }
 
+int EntryImpl::ReadSparseData(int64 offset, net::IOBuffer* buf, int buf_len,
+                              net::CompletionCallback* completion_callback) {
+  return net::ERR_CACHE_OPERATION_NOT_SUPPORTED;
+}
+
+int EntryImpl::WriteSparseData(int64 offset, net::IOBuffer* buf, int buf_len,
+                               net::CompletionCallback* completion_callback) {
+  return net::ERR_CACHE_OPERATION_NOT_SUPPORTED;
+}
+
+int EntryImpl::GetAvailableRange(int64 offset, int len, int64* start) {
+  return net::ERR_CACHE_OPERATION_NOT_SUPPORTED;
+}
+
 uint32 EntryImpl::GetHash() {
   return entry_.Data()->hash;
 }
