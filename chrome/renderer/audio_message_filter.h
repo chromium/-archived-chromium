@@ -14,6 +14,7 @@
 #include "base/shared_memory.h"
 #include "chrome/common/ipc_channel_proxy.h"
 #include "media/audio/audio_output.h"
+#include "testing/gtest/include/gtest/gtest_prod.h"
 
 class AudioMessageFilter : public IPC::ChannelProxy::MessageFilter {
  public:
@@ -48,6 +49,9 @@ class AudioMessageFilter : public IPC::ChannelProxy::MessageFilter {
   MessageLoop* message_loop() { return message_loop_; }
 
  private:
+  FRIEND_TEST(AudioMessageFilterTest, Basic);
+  FRIEND_TEST(AudioMessageFilterTest, Delegates);
+
   // IPC::ChannelProxy::MessageFilter override. Called on IO thread.
   virtual bool OnMessageReceived(const IPC::Message& message);
   virtual void OnFilterAdded(IPC::Channel* channel);

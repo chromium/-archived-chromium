@@ -926,6 +926,10 @@
 			Name="renderer"
 			>
 			<File
+				RelativePath="..\..\renderer\audio_message_filter_unittest.cc"
+				>
+			</File>
+			<File
 				RelativePath="..\..\renderer\extensions\extension_api_client_unittest.cc"
 				>
 			</File>
