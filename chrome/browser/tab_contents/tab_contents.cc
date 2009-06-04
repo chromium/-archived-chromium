@@ -55,6 +55,7 @@
 
 #if defined(OS_WIN)
 // For CRect
+#include <atlapp.h>
 #include <atlmisc.h>
 // TODO(port): some of these headers should be ported.
 #include "chrome/browser/modal_html_dialog_delegate.h"
