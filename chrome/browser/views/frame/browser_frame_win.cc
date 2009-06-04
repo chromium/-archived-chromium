@@ -257,7 +257,8 @@ views::RootView* BrowserFrameWin::CreateRootView() {
 
 void BrowserFrameWin::UpdateDWMFrame() {
   // Nothing to do yet.
-  if (!GetClientView() || !browser_view_->IsBrowserTypeNormal())
+  if (!GetClientView() || !browser_view_->IsBrowserTypeNormal() ||
+      !win_util::ShouldUseVistaFrame())
     return;
 
   // In fullscreen mode, we don't extend glass into the client area at all,
