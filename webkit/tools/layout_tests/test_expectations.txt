@@ -2711,10 +2711,6 @@ BUG13267 LINUX : LayoutTests/svg/custom/mask-inside-defs.svg = PASS FAIL
 BUG13267 LINUX : LayoutTests/svg/custom/stroked-pattern.svg = PASS FAIL
 BUG13267 LINUX : LayoutTests/editing/selection/5131716-3.html = PASS FAIL
 
-// WebKit change http://trac.webkit.org/changeset/44375
-// added this test with wrong expected file. Will fix upstream and enable.
-BUG13305 : LayoutTests/editing/execCommand/list-wrapping-image-crash.html = FAIL
-
 // WebKit 44372:44405
 // Due to change http://trac.webkit.org/changeset/44401 Linux renders scrollbars differently.
 // The following tests failed and need rebaseline.
