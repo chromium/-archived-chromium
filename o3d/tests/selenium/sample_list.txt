@@ -50,6 +50,16 @@
 #       environment(s) where the test should be skipped.
 #       Default = ""
 #
+#   colorfactor(0 to 1) : Determines how important color is for comparison. A
+#       value of 1 means they must be exactly the same; a value of 0 means it
+#       won't factor in at all.
+#
+#   downsample(number_of_times_to_halve_resolution) : The resolution will be
+#       cut in half this number of times before comparing. It is useful for
+#       eliminating aliasing artifacts since such differences are less
+#       noticeable at the lower resolution. Be careful with using this parameter
+#       as it may mask other problems.
+#
 # NOTE! ----------------------------------------------------------------------
 #
 # Read the sample guidelines
