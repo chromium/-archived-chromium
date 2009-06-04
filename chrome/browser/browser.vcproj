@@ -2689,6 +2689,14 @@
 			</File>
 		</Filter>
 		<File
+			RelativePath=".\blocked_popup_container.cc"
+			>
+		</File>
+		<File
+			RelativePath=".\blocked_popup_container.h"
+			>
+		</File>
+		<File
 			RelativePath=".\browser_trial.cc"
 			>
 		</File>

@@ -364,6 +364,33 @@ bool TabProxy::WaitForChildWindowCountToChange(int count, int* new_count,
   return false;
 }
 
+bool TabProxy::GetBlockedPopupCount(int* count) const {
+  if (!is_valid())
+    return false;
+
+  if (!count) {
+    NOTREACHED();
+    return false;
+  }
+
+  return sender_->Send(new AutomationMsg_BlockedPopupCount(
+      0, handle_, count));
+}
+
+bool TabProxy::WaitForBlockedPopupCountToChangeTo(int target_count,
+                                                  int wait_timeout) {
+  int intervals = std::min(wait_timeout/automation::kSleepTime, 1);
+  for (int i = 0; i < intervals; ++i) {
+    PlatformThread::Sleep(automation::kSleepTime);
+    int new_count = -1;
+    bool succeeded = GetBlockedPopupCount(&new_count);
+    if (!succeeded) return false;
+    if (target_count == new_count) return true;
+  }
+  // Constrained Window count did not change, return false.
+  return false;
+}
+
 bool TabProxy::GetCookies(const GURL& url, std::string* cookies) {
   if (!is_valid())
     return false;

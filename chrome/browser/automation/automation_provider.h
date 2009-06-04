@@ -452,6 +452,9 @@ class AutomationProvider : public base::RefCounted<AutomationProvider>,
 
   void GetWindowTitle(int handle, string16* text);
 
+  // Returns the number of blocked popups in the tab |handle|.
+  void GetBlockedPopupCount(int handle, int* count);
+
   // Convert a tab handle into a TabContents. If |tab| is non-NULL a pointer
   // to the tab is also returned. Returns NULL in case of failure or if the tab
   // is not of the TabContents type.
