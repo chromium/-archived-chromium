@@ -12,11 +12,8 @@
 #include "base/time.h"
 #include "net/base/address_list.h"
 #include "net/base/client_socket_handle.h"
-#include "net/base/client_socket_pool.h"
 #include "net/base/host_resolver.h"
 #include "net/base/io_buffer.h"
-#include "net/base/load_flags.h"
-#include "net/base/load_states.h"
 #include "net/base/ssl_config_service.h"
 #include "net/http/http_auth.h"
 #include "net/http/http_auth_handler.h"
@@ -91,26 +88,6 @@ class HttpNetworkTransaction : public HttpTransaction {
     scoped_ptr_malloc<char> headers_;
   };
 
-  enum State {
-    STATE_RESOLVE_PROXY,
-    STATE_RESOLVE_PROXY_COMPLETE,
-    STATE_INIT_CONNECTION,
-    STATE_INIT_CONNECTION_COMPLETE,
-    STATE_SSL_CONNECT,
-    STATE_SSL_CONNECT_COMPLETE,
-    STATE_WRITE_HEADERS,
-    STATE_WRITE_HEADERS_COMPLETE,
-    STATE_WRITE_BODY,
-    STATE_WRITE_BODY_COMPLETE,
-    STATE_READ_HEADERS,
-    STATE_READ_HEADERS_COMPLETE,
-    STATE_READ_BODY,
-    STATE_READ_BODY_COMPLETE,
-    STATE_DRAIN_BODY_FOR_AUTH_RESTART,
-    STATE_DRAIN_BODY_FOR_AUTH_RESTART_COMPLETE,
-    STATE_NONE
-  };
-
   void DoCallback(int result);
   void OnIOComplete(int result);
 
@@ -125,6 +102,10 @@ class HttpNetworkTransaction : public HttpTransaction {
   int DoResolveProxyComplete(int result);
   int DoInitConnection();
   int DoInitConnectionComplete(int result);
+  int DoResolveHost();
+  int DoResolveHostComplete(int result);
+  int DoTCPConnect();
+  int DoTCPConnectComplete(int result);
   int DoSSLConnect();
   int DoSSLConnectComplete(int result);
   int DoWriteHeaders();
@@ -382,7 +363,29 @@ class HttpNetworkTransaction : public HttpTransaction {
   // The time the host resolution started (if it indeed got started).
   base::Time host_resolution_start_time_;
 
-  // The next state in the state machine.
+  enum State {
+    STATE_RESOLVE_PROXY,
+    STATE_RESOLVE_PROXY_COMPLETE,
+    STATE_INIT_CONNECTION,
+    STATE_INIT_CONNECTION_COMPLETE,
+    STATE_RESOLVE_HOST,
+    STATE_RESOLVE_HOST_COMPLETE,
+    STATE_TCP_CONNECT,
+    STATE_TCP_CONNECT_COMPLETE,
+    STATE_SSL_CONNECT,
+    STATE_SSL_CONNECT_COMPLETE,
+    STATE_WRITE_HEADERS,
+    STATE_WRITE_HEADERS_COMPLETE,
+    STATE_WRITE_BODY,
+    STATE_WRITE_BODY_COMPLETE,
+    STATE_READ_HEADERS,
+    STATE_READ_HEADERS_COMPLETE,
+    STATE_READ_BODY,
+    STATE_READ_BODY_COMPLETE,
+    STATE_DRAIN_BODY_FOR_AUTH_RESTART,
+    STATE_DRAIN_BODY_FOR_AUTH_RESTART_COMPLETE,
+    STATE_NONE
+  };
   State next_state_;
 };
 

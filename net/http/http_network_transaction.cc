@@ -177,7 +177,7 @@ int HttpNetworkTransaction::RestartIgnoringLastError(
   if (connection_.socket()->IsConnected()) {
     next_state_ = STATE_WRITE_HEADERS;
   } else {
-    connection_.socket()->Disconnect();
+    connection_.set_socket(NULL);
     connection_.Reset();
     next_state_ = STATE_INIT_CONNECTION;
   }
@@ -301,7 +301,7 @@ void HttpNetworkTransaction::DidDrainBodyForAuthRestart(bool keep_alive) {
     reused_socket_ = true;
   } else {
     next_state_ = STATE_INIT_CONNECTION;
-    connection_.socket()->Disconnect();
+    connection_.set_socket(NULL);
     connection_.Reset();
   }
 
@@ -351,8 +351,10 @@ LoadState HttpNetworkTransaction::GetLoadState() const {
   switch (next_state_) {
     case STATE_RESOLVE_PROXY_COMPLETE:
       return LOAD_STATE_RESOLVING_PROXY_FOR_URL;
-    case STATE_INIT_CONNECTION_COMPLETE:
-      return connection_.GetLoadState();
+    case STATE_RESOLVE_HOST_COMPLETE:
+      return LOAD_STATE_RESOLVING_HOST;
+    case STATE_TCP_CONNECT_COMPLETE:
+      return LOAD_STATE_CONNECTING;
     case STATE_WRITE_HEADERS_COMPLETE:
     case STATE_WRITE_BODY_COMPLETE:
       return LOAD_STATE_SENDING_REQUEST;
@@ -373,10 +375,10 @@ uint64 HttpNetworkTransaction::GetUploadProgress() const {
 }
 
 HttpNetworkTransaction::~HttpNetworkTransaction() {
-  // If we still have an open socket, then make sure to disconnect it so we
-  // don't try to reuse it later on.
+  // If we still have an open socket, then make sure to close it so we don't
+  // try to reuse it later on.
   if (connection_.is_initialized())
-    connection_.socket()->Disconnect();
+    connection_.set_socket(NULL);
 
   if (pac_request_)
     session_->proxy_service()->CancelPacRequest(pac_request_);
@@ -423,6 +425,24 @@ int HttpNetworkTransaction::DoLoop(int result) {
       case STATE_INIT_CONNECTION_COMPLETE:
         rv = DoInitConnectionComplete(rv);
         TRACE_EVENT_END("http.init_conn", request_, request_->url.spec());
+        break;
+      case STATE_RESOLVE_HOST:
+        DCHECK_EQ(OK, rv);
+        TRACE_EVENT_BEGIN("http.resolve_host", request_, request_->url.spec());
+        rv = DoResolveHost();
+        break;
+      case STATE_RESOLVE_HOST_COMPLETE:
+        rv = DoResolveHostComplete(rv);
+        TRACE_EVENT_END("http.resolve_host", request_, request_->url.spec());
+        break;
+      case STATE_TCP_CONNECT:
+        DCHECK_EQ(OK, rv);
+        TRACE_EVENT_BEGIN("http.connect", request_, request_->url.spec());
+        rv = DoTCPConnect();
+        break;
+      case STATE_TCP_CONNECT_COMPLETE:
+        rv = DoTCPConnectComplete(rv);
+        TRACE_EVENT_END("http.connect", request_, request_->url.spec());
         break;
       case STATE_SSL_CONNECT:
         DCHECK_EQ(OK, rv);
@@ -532,43 +552,84 @@ int HttpNetworkTransaction::DoInitConnection() {
   using_tunnel_ = !proxy_info_.is_direct() && using_ssl_;
 
   // Build the string used to uniquely identify connections of this type.
-  // Determine the host and port to connect to.
   std::string connection_group;
-  std::string host;
-  int port;
-  if (using_proxy_ || using_tunnel_) {
-    ProxyServer proxy_server = proxy_info_.proxy_server();
-    connection_group = "proxy/" + proxy_server.ToURI() + "/";
-    host = proxy_server.HostNoBrackets();
-    port = proxy_server.port();
-  } else {
-    host = request_->url.HostNoBrackets();
-    port = request_->url.EffectiveIntPort();
-  }
+  if (using_proxy_ || using_tunnel_)
+    connection_group = "proxy/" + proxy_info_.proxy_server().ToURI() + "/";
   if (!using_proxy_)
     connection_group.append(request_->url.GetOrigin().spec());
 
   DCHECK(!connection_group.empty());
-  int rv = connection_.Init(connection_group, host, port, request_->priority,
-                            &io_callback_);
-  return rv;
+  return connection_.Init(connection_group, request_->priority, &io_callback_);
 }
 
 int HttpNetworkTransaction::DoInitConnectionComplete(int result) {
   if (result < 0)
-    return ReconsiderProxyAfterError(result);
+    return result;
 
   DCHECK(connection_.is_initialized());
 
   // Set the reused_socket_ flag to indicate that we are using a keep-alive
   // connection.  This flag is used to handle errors that occur while we are
   // trying to reuse a keep-alive connection.
-  reused_socket_ = connection_.is_reused();
+  reused_socket_ = (connection_.socket() != NULL);
   if (reused_socket_) {
     next_state_ = STATE_WRITE_HEADERS;
   } else {
-    // Now we have a TCP connected socket.  Perform other connection setup as
-    // needed.
+    next_state_ = STATE_RESOLVE_HOST;
+  }
+  return OK;
+}
+
+int HttpNetworkTransaction::DoResolveHost() {
+  next_state_ = STATE_RESOLVE_HOST_COMPLETE;
+
+  std::string host;
+  int port;
+
+  // Determine the host and port to connect to.
+  if (using_proxy_ || using_tunnel_) {
+    ProxyServer proxy_server = proxy_info_.proxy_server();
+    host = proxy_server.HostNoBrackets();
+    port = proxy_server.port();
+  } else {
+    // Direct connection
+    host = request_->url.HostNoBrackets();
+    port = request_->url.EffectiveIntPort();
+  }
+
+  host_resolution_start_time_ = base::Time::Now();
+
+  DidStartDnsResolution(host, this);
+  return resolver_.Resolve(host, port, &addresses_, &io_callback_);
+}
+
+int HttpNetworkTransaction::DoResolveHostComplete(int result) {
+  bool ok = (result == OK);
+  DidFinishDnsResolutionWithStatus(ok, request_->referrer, this);
+  if (ok) {
+    next_state_ = STATE_TCP_CONNECT;
+  } else {
+    result = ReconsiderProxyAfterError(result);
+  }
+  return result;
+}
+
+int HttpNetworkTransaction::DoTCPConnect() {
+  next_state_ = STATE_TCP_CONNECT_COMPLETE;
+
+  DCHECK(!connection_.socket());
+
+  connect_start_time_ = base::Time::Now();
+
+  ClientSocket* s = socket_factory_->CreateTCPClientSocket(addresses_);
+  connection_.set_socket(s);
+  return connection_.socket()->Connect(&io_callback_);
+}
+
+int HttpNetworkTransaction::DoTCPConnectComplete(int result) {
+  // If we are using a direct SSL connection, then go ahead and establish the
+  // SSL connection, now.  Otherwise, we need to first issue a CONNECT request.
+  if (result == OK) {
     LogTCPConnectedMetrics();
     if (using_ssl_ && !using_tunnel_) {
       next_state_ = STATE_SSL_CONNECT;
@@ -577,8 +638,10 @@ int HttpNetworkTransaction::DoInitConnectionComplete(int result) {
       if (using_tunnel_)
         establishing_tunnel_ = true;
     }
+  } else {
+    result = ReconsiderProxyAfterError(result);
   }
-  return OK;
+  return result;
 }
 
 int HttpNetworkTransaction::DoSSLConnect() {
@@ -879,7 +942,7 @@ int HttpNetworkTransaction::DoReadBodyComplete(int result) {
   if (done) {
     LogTransactionMetrics();
     if (!keep_alive)
-      connection_.socket()->Disconnect();
+      connection_.set_socket(NULL);
     connection_.Reset();
     // The next Read call will return 0 (EOF).
   }
@@ -951,6 +1014,15 @@ int HttpNetworkTransaction::DoDrainBodyForAuthRestartComplete(int result) {
 }
 
 void HttpNetworkTransaction::LogTCPConnectedMetrics() const {
+  DCHECK(connect_start_time_ != base::Time());
+  base::TimeDelta connect_duration =
+      base::Time::Now() - connect_start_time_;
+
+  UMA_HISTOGRAM_CLIPPED_TIMES(FieldTrial::MakeName(
+      "Net.TCP_Connection_Latency", "DnsImpact").data(), connect_duration,
+      base::TimeDelta::FromMilliseconds(1), base::TimeDelta::FromMinutes(10),
+      100);
+
   base::TimeDelta host_resolution_and_tcp_connection_latency =
       base::Time::Now() - host_resolution_start_time_;
 
@@ -1223,7 +1295,7 @@ int HttpNetworkTransaction::HandleSSLHandshakeError(int error) {
         // This could be a TLS-intolerant server or an SSL 3.0 server that
         // chose a TLS-only cipher suite.  Turn off TLS 1.0 and retry.
         ssl_config_.tls1_enabled = false;
-        connection_.socket()->Disconnect();
+        connection_.set_socket(NULL);
         connection_.Reset();
         next_state_ = STATE_INIT_CONNECTION;
         error = OK;
@@ -1286,7 +1358,7 @@ bool HttpNetworkTransaction::ShouldResendRequest() const {
 }
 
 void HttpNetworkTransaction::ResetConnectionAndRequestForResend() {
-  connection_.socket()->Disconnect();
+  connection_.set_socket(NULL);
   connection_.Reset();
   // There are two reasons we need to clear request_headers_.  1) It contains
   // the real request headers, but we may need to resend the CONNECT request
@@ -1331,7 +1403,7 @@ int HttpNetworkTransaction::ReconsiderProxyAfterError(int error) {
   int rv = session_->proxy_service()->ReconsiderProxyAfterError(
       request_->url, &proxy_info_, &io_callback_, &pac_request_);
   if (rv == OK || rv == ERR_IO_PENDING) {
-    connection_.socket()->Disconnect();
+    connection_.set_socket(NULL);
     connection_.Reset();
     DCHECK(!request_headers_bytes_sent_);
     next_state_ = STATE_RESOLVE_PROXY_COMPLETE;

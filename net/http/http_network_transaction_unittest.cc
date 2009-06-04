@@ -36,9 +36,8 @@ ProxyService* CreateFixedProxyService(const std::string& proxy) {
 }
 
 
-HttpNetworkSession* CreateSession(ProxyService* proxy_service,
-                                  ClientSocketFactory* client_socket_factory) {
-  return new HttpNetworkSession(proxy_service, client_socket_factory);
+HttpNetworkSession* CreateSession(ProxyService* proxy_service) {
+  return new HttpNetworkSession(proxy_service);
 }
 
 class HttpNetworkTransactionTest : public PlatformTest {
@@ -62,10 +61,8 @@ class HttpNetworkTransactionTest : public PlatformTest {
     SimpleGetHelperResult out;
 
     scoped_ptr<ProxyService> proxy_service(CreateNullProxyService());
-    scoped_ptr<HttpTransaction> trans(
-        new HttpNetworkTransaction(
-            CreateSession(proxy_service.get(), &mock_socket_factory_),
-            &mock_socket_factory_));
+    scoped_ptr<HttpTransaction> trans(new HttpNetworkTransaction(
+        CreateSession(proxy_service.get()), &mock_socket_factory_));
 
     HttpRequestInfo request;
     request.method = "GET";
@@ -153,10 +150,8 @@ std::string MockGetHostName() {
 
 TEST_F(HttpNetworkTransactionTest, Basic) {
   scoped_ptr<ProxyService> proxy_service(CreateNullProxyService());
-  scoped_ptr<HttpTransaction> trans(
-      new HttpNetworkTransaction(
-          CreateSession(proxy_service.get(), &mock_socket_factory_),
-          &mock_socket_factory_));
+  scoped_ptr<HttpTransaction> trans(new HttpNetworkTransaction(
+      CreateSession(proxy_service.get()), &mock_socket_factory_));
 }
 
 TEST_F(HttpNetworkTransactionTest, SimpleGET) {
@@ -266,10 +261,8 @@ TEST_F(HttpNetworkTransactionTest, StopsReading204) {
 // message body (since HEAD has none).
 TEST_F(HttpNetworkTransactionTest, Head) {
   scoped_ptr<ProxyService> proxy_service(CreateNullProxyService());
-  scoped_ptr<HttpTransaction> trans(
-      new HttpNetworkTransaction(
-          CreateSession(proxy_service.get(), &mock_socket_factory_),
-          &mock_socket_factory_));
+  scoped_ptr<HttpTransaction> trans(new HttpNetworkTransaction(
+      CreateSession(proxy_service.get()), &mock_socket_factory_));
 
   HttpRequestInfo request;
   request.method = "HEAD";
@@ -330,7 +323,7 @@ TEST_F(HttpNetworkTransactionTest, Head) {
 TEST_F(HttpNetworkTransactionTest, ReuseConnection) {
   scoped_ptr<ProxyService> proxy_service(CreateNullProxyService());
   scoped_refptr<HttpNetworkSession> session =
-      CreateSession(proxy_service.get(), &mock_socket_factory_);
+      CreateSession(proxy_service.get());
 
   MockRead data_reads[] = {
     MockRead("HTTP/1.1 200 OK\r\nContent-Length: 5\r\n\r\n"),
@@ -379,10 +372,8 @@ TEST_F(HttpNetworkTransactionTest, ReuseConnection) {
 
 TEST_F(HttpNetworkTransactionTest, Ignores100) {
   scoped_ptr<ProxyService> proxy_service(CreateNullProxyService());
-  scoped_ptr<HttpTransaction> trans(
-      new HttpNetworkTransaction(
-          CreateSession(proxy_service.get(), &mock_socket_factory_),
-          &mock_socket_factory_));
+  scoped_ptr<HttpTransaction> trans(new HttpNetworkTransaction(
+      CreateSession(proxy_service.get()), &mock_socket_factory_));
 
   HttpRequestInfo request;
   request.method = "POST";
@@ -426,10 +417,8 @@ TEST_F(HttpNetworkTransactionTest, Ignores100) {
 // HTTP/1.1.
 TEST_F(HttpNetworkTransactionTest, Ignores1xx) {
   scoped_ptr<ProxyService> proxy_service(CreateNullProxyService());
-  scoped_ptr<HttpTransaction> trans(
-      new HttpNetworkTransaction(
-          CreateSession(proxy_service.get(), &mock_socket_factory_),
-          &mock_socket_factory_));
+  scoped_ptr<HttpTransaction> trans(new HttpNetworkTransaction(
+      CreateSession(proxy_service.get()), &mock_socket_factory_));
 
   HttpRequestInfo request;
   request.method = "GET";
@@ -472,7 +461,7 @@ void HttpNetworkTransactionTest::KeepAliveConnectionResendRequestTest(
     const MockRead& read_failure) {
   scoped_ptr<ProxyService> proxy_service(CreateNullProxyService());
   scoped_refptr<HttpNetworkSession> session =
-      CreateSession(proxy_service.get(), &mock_socket_factory_);
+      CreateSession(proxy_service.get());
 
   HttpRequestInfo request;
   request.method = "GET";
@@ -538,10 +527,8 @@ TEST_F(HttpNetworkTransactionTest, KeepAliveConnectionEOF) {
 
 TEST_F(HttpNetworkTransactionTest, NonKeepAliveConnectionReset) {
   scoped_ptr<ProxyService> proxy_service(CreateNullProxyService());
-  scoped_ptr<HttpTransaction> trans(
-      new HttpNetworkTransaction(
-          CreateSession(proxy_service.get(), &mock_socket_factory_),
-          &mock_socket_factory_));
+  scoped_ptr<HttpTransaction> trans(new HttpNetworkTransaction(
+      CreateSession(proxy_service.get()), &mock_socket_factory_));
 
   HttpRequestInfo request;
   request.method = "GET";
@@ -594,10 +581,8 @@ TEST_F(HttpNetworkTransactionTest, NonKeepAliveConnectionEOF) {
 // (basic auth is the easiest to mock, because it has no randomness).
 TEST_F(HttpNetworkTransactionTest, BasicAuth) {
   scoped_ptr<ProxyService> proxy_service(CreateNullProxyService());
-  scoped_ptr<HttpTransaction> trans(
-      new HttpNetworkTransaction(
-          CreateSession(proxy_service.get(), &mock_socket_factory_),
-          &mock_socket_factory_));
+  scoped_ptr<HttpTransaction> trans(new HttpNetworkTransaction(
+      CreateSession(proxy_service.get()), &mock_socket_factory_));
 
   HttpRequestInfo request;
   request.method = "GET";
@@ -685,10 +670,8 @@ TEST_F(HttpNetworkTransactionTest, BasicAuth) {
 // connection.
 TEST_F(HttpNetworkTransactionTest, BasicAuthKeepAlive) {
   scoped_ptr<ProxyService> proxy_service(CreateNullProxyService());
-  scoped_ptr<HttpTransaction> trans(
-      new HttpNetworkTransaction(
-          CreateSession(proxy_service.get(), &mock_socket_factory_),
-          &mock_socket_factory_));
+  scoped_ptr<HttpTransaction> trans(new HttpNetworkTransaction(
+      CreateSession(proxy_service.get()), &mock_socket_factory_));
 
   HttpRequestInfo request;
   request.method = "GET";
@@ -763,10 +746,8 @@ TEST_F(HttpNetworkTransactionTest, BasicAuthKeepAlive) {
 // connection and with no response body to drain.
 TEST_F(HttpNetworkTransactionTest, BasicAuthKeepAliveNoBody) {
   scoped_ptr<ProxyService> proxy_service(CreateNullProxyService());
-  scoped_ptr<HttpTransaction> trans(
-      new HttpNetworkTransaction(
-          CreateSession(proxy_service.get(), &mock_socket_factory_),
-          &mock_socket_factory_));
+  scoped_ptr<HttpTransaction> trans(new HttpNetworkTransaction(
+      CreateSession(proxy_service.get()), &mock_socket_factory_));
 
   HttpRequestInfo request;
   request.method = "GET";
@@ -844,10 +825,8 @@ TEST_F(HttpNetworkTransactionTest, BasicAuthKeepAliveNoBody) {
 // connection and with a large response body to drain.
 TEST_F(HttpNetworkTransactionTest, BasicAuthKeepAliveLargeBody) {
   scoped_ptr<ProxyService> proxy_service(CreateNullProxyService());
-  scoped_ptr<HttpTransaction> trans(
-      new HttpNetworkTransaction(
-          CreateSession(proxy_service.get(), &mock_socket_factory_),
-          &mock_socket_factory_));
+  scoped_ptr<HttpTransaction> trans(new HttpNetworkTransaction(
+      CreateSession(proxy_service.get()), &mock_socket_factory_));
 
   HttpRequestInfo request;
   request.method = "GET";
@@ -932,7 +911,7 @@ TEST_F(HttpNetworkTransactionTest, BasicAuthProxyKeepAlive) {
       CreateFixedProxyService("myproxy:70"));
 
   scoped_refptr<HttpNetworkSession> session(
-      CreateSession(proxy_service.get(), &mock_socket_factory_));
+      CreateSession(proxy_service.get()));
 
   scoped_ptr<HttpTransaction> trans(new HttpNetworkTransaction(
       session.get(), &mock_socket_factory_));
@@ -1032,7 +1011,7 @@ TEST_F(HttpNetworkTransactionTest, BasicAuthProxyCancelTunnel) {
       CreateFixedProxyService("myproxy:70"));
 
   scoped_refptr<HttpNetworkSession> session(
-      CreateSession(proxy_service.get(), &mock_socket_factory_));
+      CreateSession(proxy_service.get()));
 
   scoped_ptr<HttpTransaction> trans(new HttpNetworkTransaction(
       session.get(), &mock_socket_factory_));
@@ -1089,7 +1068,7 @@ void HttpNetworkTransactionTest::ConnectStatusHelperWithExpectedStatus(
       CreateFixedProxyService("myproxy:70"));
 
   scoped_refptr<HttpNetworkSession> session(
-      CreateSession(proxy_service.get(), &mock_socket_factory_));
+      CreateSession(proxy_service.get()));
 
   scoped_ptr<HttpTransaction> trans(new HttpNetworkTransaction(
       session.get(), &mock_socket_factory_));
@@ -1304,7 +1283,7 @@ TEST_F(HttpNetworkTransactionTest, BasicAuthProxyThenServer) {
 
   // Configure against proxy server "myproxy:70".
   scoped_ptr<HttpTransaction> trans(new HttpNetworkTransaction(
-      CreateSession(proxy_service.get(), &mock_socket_factory_),
+      CreateSession(proxy_service.get()),
       &mock_socket_factory_));
 
   HttpRequestInfo request;
@@ -1441,10 +1420,8 @@ TEST_F(HttpNetworkTransactionTest, NTLMAuth1) {
                                                          MockGetHostName);
 
   scoped_ptr<ProxyService> proxy_service(CreateNullProxyService());
-  scoped_ptr<HttpTransaction> trans(
-      new HttpNetworkTransaction(
-          CreateSession(proxy_service.get(), &mock_socket_factory_),
-          &mock_socket_factory_));
+  scoped_ptr<HttpTransaction> trans(new HttpNetworkTransaction(
+      CreateSession(proxy_service.get()), &mock_socket_factory_));
 
   HttpRequestInfo request;
   request.method = "GET";
@@ -1569,10 +1546,8 @@ TEST_F(HttpNetworkTransactionTest, NTLMAuth2) {
                                                          MockGetHostName);
 
   scoped_ptr<ProxyService> proxy_service(CreateNullProxyService());
-  scoped_ptr<HttpTransaction> trans(
-      new HttpNetworkTransaction(
-          CreateSession(proxy_service.get(), &mock_socket_factory_),
-          &mock_socket_factory_));
+  scoped_ptr<HttpTransaction> trans(new HttpNetworkTransaction(
+      CreateSession(proxy_service.get()), &mock_socket_factory_));
 
   HttpRequestInfo request;
   request.method = "GET";
@@ -1777,10 +1752,8 @@ TEST_F(HttpNetworkTransactionTest, NTLMAuth2) {
 // fail with ERR_RESPONSE_HEADERS_TOO_BIG.
 TEST_F(HttpNetworkTransactionTest, LargeHeadersNoBody) {
   scoped_ptr<ProxyService> proxy_service(CreateNullProxyService());
-  scoped_ptr<HttpTransaction> trans(
-      new HttpNetworkTransaction(
-          CreateSession(proxy_service.get(), &mock_socket_factory_),
-          &mock_socket_factory_));
+  scoped_ptr<HttpTransaction> trans(new HttpNetworkTransaction(
+      CreateSession(proxy_service.get()), &mock_socket_factory_));
 
   HttpRequestInfo request;
   request.method = "GET";
@@ -1822,7 +1795,7 @@ TEST_F(HttpNetworkTransactionTest, DontRecycleTCPSocketForSSLTunnel) {
       CreateFixedProxyService("myproxy:70"));
 
   scoped_refptr<HttpNetworkSession> session(
-      CreateSession(proxy_service.get(), &mock_socket_factory_));
+      CreateSession(proxy_service.get()));
 
   scoped_ptr<HttpTransaction> trans(new HttpNetworkTransaction(
       session.get(), &mock_socket_factory_));
@@ -1880,7 +1853,7 @@ TEST_F(HttpNetworkTransactionTest, DontRecycleTCPSocketForSSLTunnel) {
 TEST_F(HttpNetworkTransactionTest, RecycleSocket) {
   scoped_ptr<ProxyService> proxy_service(CreateNullProxyService());
   scoped_refptr<HttpNetworkSession> session(
-      CreateSession(proxy_service.get(), &mock_socket_factory_));
+      CreateSession(proxy_service.get()));
 
   scoped_ptr<HttpTransaction> trans(new HttpNetworkTransaction(
       session.get(), &mock_socket_factory_));
@@ -1939,7 +1912,7 @@ TEST_F(HttpNetworkTransactionTest, RecycleSocket) {
 TEST_F(HttpNetworkTransactionTest, RecycleSocketAfterZeroContentLength) {
   scoped_ptr<ProxyService> proxy_service(CreateNullProxyService());
   scoped_refptr<HttpNetworkSession> session(
-      CreateSession(proxy_service.get(), &mock_socket_factory_));
+      CreateSession(proxy_service.get()));
 
   scoped_ptr<HttpTransaction> trans(new HttpNetworkTransaction(
       session.get(), &mock_socket_factory_));
@@ -2013,7 +1986,7 @@ TEST_F(HttpNetworkTransactionTest, ResendRequestOnWriteBodyError) {
 
   scoped_ptr<ProxyService> proxy_service(CreateNullProxyService());
   scoped_refptr<HttpNetworkSession> session =
-      CreateSession(proxy_service.get(), &mock_socket_factory_);
+      CreateSession(proxy_service.get());
 
   // The first socket is used for transaction 1 and the first attempt of
   // transaction 2.
@@ -2089,10 +2062,8 @@ TEST_F(HttpNetworkTransactionTest, ResendRequestOnWriteBodyError) {
 // it fails the identity from the URL is used to answer the challenge.
 TEST_F(HttpNetworkTransactionTest, AuthIdentityInUrl) {
   scoped_ptr<ProxyService> proxy_service(CreateNullProxyService());
-  scoped_ptr<HttpTransaction> trans(
-      new HttpNetworkTransaction(
-          CreateSession(proxy_service.get(), &mock_socket_factory_),
-          &mock_socket_factory_));
+  scoped_ptr<HttpTransaction> trans(new HttpNetworkTransaction(
+      CreateSession(proxy_service.get()), &mock_socket_factory_));
 
   HttpRequestInfo request;
   request.method = "GET";
@@ -2169,7 +2140,7 @@ TEST_F(HttpNetworkTransactionTest, AuthIdentityInUrl) {
 TEST_F(HttpNetworkTransactionTest, BasicAuthCacheAndPreauth) {
   scoped_ptr<ProxyService> proxy_service(CreateNullProxyService());
   scoped_refptr<HttpNetworkSession> session =
-      CreateSession(proxy_service.get(), &mock_socket_factory_);
+      CreateSession(proxy_service.get());
 
   // Transaction 1: authenticate (foo, bar) on MyRealm1
   {
@@ -2578,10 +2549,8 @@ TEST_F(HttpNetworkTransactionTest, BasicAuthCacheAndPreauth) {
 TEST_F(HttpNetworkTransactionTest, ResetStateForRestart) {
   // Create a transaction (the dependencies aren't important).
   scoped_ptr<ProxyService> proxy_service(CreateNullProxyService());
-  scoped_ptr<HttpNetworkTransaction> trans(
-      new HttpNetworkTransaction(
-          CreateSession(proxy_service.get(), &mock_socket_factory_),
-          &mock_socket_factory_));
+  scoped_ptr<HttpNetworkTransaction> trans(new HttpNetworkTransaction(
+      CreateSession(proxy_service.get()), &mock_socket_factory_));
 
   // Setup some state (which we expect ResetStateForRestart() will clear).
   trans->header_buf_->Realloc(10);
@@ -2636,10 +2605,8 @@ TEST_F(HttpNetworkTransactionTest, ResetStateForRestart) {
 // Test HTTPS connections to a site with a bad certificate
 TEST_F(HttpNetworkTransactionTest, HTTPSBadCertificate) {
   scoped_ptr<ProxyService> proxy_service(CreateNullProxyService());
-  scoped_ptr<HttpTransaction> trans(
-      new HttpNetworkTransaction(
-          CreateSession(proxy_service.get(), &mock_socket_factory_),
-          &mock_socket_factory_));
+  scoped_ptr<HttpTransaction> trans(new HttpNetworkTransaction(
+      CreateSession(proxy_service.get()), &mock_socket_factory_));
 
   HttpRequestInfo request;
   request.method = "GET";
@@ -2741,10 +2708,8 @@ TEST_F(HttpNetworkTransactionTest, HTTPSBadCertificateViaProxy) {
   for (int i = 0; i < 2; i++) {
     mock_socket_factory_.ResetNextMockIndexes();
 
-    scoped_ptr<HttpTransaction> trans(
-        new HttpNetworkTransaction(
-            CreateSession(proxy_service.get(), &mock_socket_factory_),
-            &mock_socket_factory_));
+    scoped_ptr<HttpTransaction> trans(new HttpNetworkTransaction(
+        CreateSession(proxy_service.get()), &mock_socket_factory_));
 
     int rv = trans->Start(&request, &callback);
     EXPECT_EQ(ERR_IO_PENDING, rv);
@@ -2767,10 +2732,8 @@ TEST_F(HttpNetworkTransactionTest, HTTPSBadCertificateViaProxy) {
 
 TEST_F(HttpNetworkTransactionTest, BuildRequest_UserAgent) {
   scoped_ptr<ProxyService> proxy_service(CreateNullProxyService());
-  scoped_ptr<HttpTransaction> trans(
-      new HttpNetworkTransaction(
-          CreateSession(proxy_service.get(), &mock_socket_factory_),
-          &mock_socket_factory_));
+  scoped_ptr<HttpTransaction> trans(new HttpNetworkTransaction(
+      CreateSession(proxy_service.get()), &mock_socket_factory_));
 
   HttpRequestInfo request;
   request.method = "GET";
@@ -2808,10 +2771,8 @@ TEST_F(HttpNetworkTransactionTest, BuildRequest_UserAgent) {
 
 TEST_F(HttpNetworkTransactionTest, BuildRequest_Referer) {
   scoped_ptr<ProxyService> proxy_service(CreateNullProxyService());
-  scoped_ptr<HttpTransaction> trans(
-      new HttpNetworkTransaction(
-          CreateSession(proxy_service.get(), &mock_socket_factory_),
-          &mock_socket_factory_));
+  scoped_ptr<HttpTransaction> trans(new HttpNetworkTransaction(
+      CreateSession(proxy_service.get()), &mock_socket_factory_));
 
   HttpRequestInfo request;
   request.method = "GET";
@@ -2850,10 +2811,8 @@ TEST_F(HttpNetworkTransactionTest, BuildRequest_Referer) {
 
 TEST_F(HttpNetworkTransactionTest, BuildRequest_PostContentLengthZero) {
   scoped_ptr<ProxyService> proxy_service(CreateNullProxyService());
-  scoped_ptr<HttpTransaction> trans(
-      new HttpNetworkTransaction(
-          CreateSession(proxy_service.get(), &mock_socket_factory_),
-          &mock_socket_factory_));
+  scoped_ptr<HttpTransaction> trans(new HttpNetworkTransaction(
+      CreateSession(proxy_service.get()), &mock_socket_factory_));
 
   HttpRequestInfo request;
   request.method = "POST";
@@ -2890,10 +2849,8 @@ TEST_F(HttpNetworkTransactionTest, BuildRequest_PostContentLengthZero) {
 
 TEST_F(HttpNetworkTransactionTest, BuildRequest_PutContentLengthZero) {
   scoped_ptr<ProxyService> proxy_service(CreateNullProxyService());
-  scoped_ptr<HttpTransaction> trans(
-      new HttpNetworkTransaction(
-          CreateSession(proxy_service.get(), &mock_socket_factory_),
-          &mock_socket_factory_));
+  scoped_ptr<HttpTransaction> trans(new HttpNetworkTransaction(
+      CreateSession(proxy_service.get()), &mock_socket_factory_));
 
   HttpRequestInfo request;
   request.method = "PUT";
@@ -2930,10 +2887,8 @@ TEST_F(HttpNetworkTransactionTest, BuildRequest_PutContentLengthZero) {
 
 TEST_F(HttpNetworkTransactionTest, BuildRequest_HeadContentLengthZero) {
   scoped_ptr<ProxyService> proxy_service(CreateNullProxyService());
-  scoped_ptr<HttpTransaction> trans(
-      new HttpNetworkTransaction(
-          CreateSession(proxy_service.get(), &mock_socket_factory_),
-          &mock_socket_factory_));
+  scoped_ptr<HttpTransaction> trans(new HttpNetworkTransaction(
+      CreateSession(proxy_service.get()), &mock_socket_factory_));
 
   HttpRequestInfo request;
   request.method = "HEAD";
@@ -2970,10 +2925,8 @@ TEST_F(HttpNetworkTransactionTest, BuildRequest_HeadContentLengthZero) {
 
 TEST_F(HttpNetworkTransactionTest, BuildRequest_CacheControlNoCache) {
   scoped_ptr<ProxyService> proxy_service(CreateNullProxyService());
-  scoped_ptr<HttpTransaction> trans(
-      new HttpNetworkTransaction(
-          CreateSession(proxy_service.get(), &mock_socket_factory_),
-          &mock_socket_factory_));
+  scoped_ptr<HttpTransaction> trans(new HttpNetworkTransaction(
+      CreateSession(proxy_service.get()), &mock_socket_factory_));
 
   HttpRequestInfo request;
   request.method = "GET";
@@ -3013,10 +2966,8 @@ TEST_F(HttpNetworkTransactionTest, BuildRequest_CacheControlNoCache) {
 TEST_F(HttpNetworkTransactionTest,
        BuildRequest_CacheControlValidateCache) {
   scoped_ptr<ProxyService> proxy_service(CreateNullProxyService());
-  scoped_ptr<HttpTransaction> trans(
-      new HttpNetworkTransaction(
-          CreateSession(proxy_service.get(), &mock_socket_factory_),
-          &mock_socket_factory_));
+  scoped_ptr<HttpTransaction> trans(new HttpNetworkTransaction(
+      CreateSession(proxy_service.get()), &mock_socket_factory_));
 
   HttpRequestInfo request;
   request.method = "GET";
@@ -3054,10 +3005,8 @@ TEST_F(HttpNetworkTransactionTest,
 
 TEST_F(HttpNetworkTransactionTest, BuildRequest_ExtraHeaders) {
   scoped_ptr<ProxyService> proxy_service(CreateNullProxyService());
-  scoped_ptr<HttpTransaction> trans(
-      new HttpNetworkTransaction(
-          CreateSession(proxy_service.get(), &mock_socket_factory_),
-          &mock_socket_factory_));
+  scoped_ptr<HttpTransaction> trans(new HttpNetworkTransaction(
+      CreateSession(proxy_service.get()), &mock_socket_factory_));
 
   HttpRequestInfo request;
   request.method = "GET";
