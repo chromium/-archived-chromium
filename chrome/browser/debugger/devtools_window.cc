@@ -10,6 +10,8 @@
 #include "chrome/browser/debugger/devtools_manager.h"
 #include "chrome/browser/debugger/devtools_window.h"
 #include "chrome/browser/profile.h"
+#include "chrome/browser/tab_contents/navigation_controller.h"
+#include "chrome/browser/tab_contents/navigation_entry.h"
 #include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/browser/tab_contents/tab_contents_view.h"
 #include "chrome/common/chrome_switches.h"
@@ -51,6 +53,11 @@ DevToolsWindow::DevToolsWindow(Profile* profile)
                           -1, false, NULL);
   tab_contents_ = browser_->GetSelectedTabContents();
   browser_->tabstrip_model()->AddObserver(this);
+
+  // Wipe out page icon so that the default application icon is used.
+  NavigationEntry* entry = tab_contents_->controller().GetActiveEntry();
+  entry->favicon().set_bitmap(SkBitmap());
+  entry->favicon().set_is_valid(true);
 }
 
 DevToolsWindow::~DevToolsWindow() {
