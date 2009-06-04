@@ -138,6 +138,7 @@ class WidgetGtk : public Widget, public MessageLoopForUI::Observer {
   static void SetRootViewForWidget(GtkWidget* widget, RootView* root_view);
 
   // A set of static signal handlers that bridge
+  // TODO(beng): alphabetize!
   static void CallSizeAllocate(GtkWidget* widget, GtkAllocation* allocation);
   static gboolean CallPaint(GtkWidget* widget, GdkEventExpose* event);
   static gboolean CallEnterNotify(GtkWidget* widget, GdkEventCrossing* event);

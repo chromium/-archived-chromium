@@ -63,8 +63,12 @@ class WindowGtk : public WidgetGtk, public Window {
 
   // Overridden from WidgetGtk:
   virtual gboolean OnButtonPress(GtkWidget* widget, GdkEventButton* event);
+  virtual gboolean OnConfigureEvent(GtkWidget* widget,
+                                    GdkEventConfigure* event);
   virtual gboolean OnMotionNotify(GtkWidget* widget, GdkEventMotion* event);
   virtual void OnSizeAllocate(GtkWidget* widget, GtkAllocation* allocation);
+  virtual gboolean OnWindowStateEvent(GtkWidget* widget,
+                                      GdkEventWindowState* event);
 
  protected:
   // For  the constructor.
@@ -77,9 +81,12 @@ class WindowGtk : public WidgetGtk, public Window {
   void Init(const gfx::Rect& bounds);
 
  private:
-  // Used to track window state changes
-  static void CallWindowStateEvent(GtkWidget* widget,
-                                   GdkEventWindowState* window_state);
+  static gboolean CallConfigureEvent(GtkWidget* widget,
+                                     GdkEventConfigure* event,
+                                     WindowGtk* window_gtk);
+  static gboolean CallWindowStateEvent(GtkWidget* widget,
+                                       GdkEventWindowState* event,
+                                       WindowGtk* window_gtk);
 
   // Asks the delegate if any to save the window's location and size.
   void SaveWindowPosition();

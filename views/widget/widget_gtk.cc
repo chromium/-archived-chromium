@@ -241,7 +241,6 @@ void WidgetGtk::SetBounds(const gfx::Rect& bounds) {
     // TODO: this may need to set an initial size if not showing.
     // TODO: need to constrain based on screen size.
     gtk_window_resize(gtk_window, bounds.width(), bounds.height());
-
     gtk_window_move(gtk_window, bounds.x(), bounds.y());
   }
 }

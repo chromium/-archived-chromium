@@ -136,7 +136,6 @@ void WindowGtk::Close() {
   }
 
   if (non_client_view_->CanClose()) {
-    SaveWindowPosition();
     WidgetGtk::Close();
     window_closed_ = true;
   }
@@ -272,6 +271,8 @@ gboolean WindowGtk::OnButtonPress(GtkWidget* widget, GdkEventButton* event) {
     case HTTOPRIGHT: {
       gfx::Point screen_point(event->x, event->y);
       View::ConvertPointToScreen(GetRootView(), &screen_point);
+      // TODO(beng): figure out how to get a good minimum size.
+      gtk_widget_set_size_request(GetNativeView(), 100, 100);
       gtk_window_begin_resize_drag(GetNativeWindow(),
                                    HitTestCodeToGDKWindowEdge(hittest_code),
                                    event->button, screen_point.x(),
@@ -283,6 +284,12 @@ gboolean WindowGtk::OnButtonPress(GtkWidget* widget, GdkEventButton* event) {
       break;
   }
   return WidgetGtk::OnButtonPress(widget, event);
+}
+
+gboolean WindowGtk::OnConfigureEvent(GtkWidget* widget,
+                                     GdkEventConfigure* event) {
+  SaveWindowPosition();
+  return FALSE;
 }
 
 gboolean WindowGtk::OnMotionNotify(GtkWidget* widget, GdkEventMotion* event) {
@@ -310,6 +317,14 @@ void WindowGtk::OnSizeAllocate(GtkWidget* widget, GtkAllocation* allocation) {
   gdk_region_destroy(mask_region);
 }
 
+gboolean WindowGtk::OnWindowStateEvent(GtkWidget* widget,
+                                       GdkEventWindowState* event) {
+  window_state_ = event->new_window_state;
+  if (!(window_state_ & GDK_WINDOW_STATE_WITHDRAWN))
+    SaveWindowPosition();
+  return FALSE;
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 // WindowGtk, protected:
 
@@ -335,20 +350,17 @@ void WindowGtk::Init(const gfx::Rect& bounds) {
 
   WidgetGtk::Init(NULL, bounds, true);
 
+  g_signal_connect(G_OBJECT(GetNativeWindow()), "configure-event",
+                   G_CALLBACK(CallConfigureEvent), this);
+  g_signal_connect(G_OBJECT(GetNativeWindow()), "window-state-event",
+                   G_CALLBACK(CallWindowStateEvent), this);
+
   // Create the ClientView, add it to the NonClientView and add the
   // NonClientView to the RootView. This will cause everything to be parented.
   non_client_view_->set_client_view(window_delegate_->CreateClientView(this));
   WidgetGtk::SetContentsView(non_client_view_);
 
   UpdateWindowTitle();
-
-  GtkWindow* gtk_window = GetNativeWindow();
-
-  g_signal_connect(G_OBJECT(gtk_window),
-                   "window-state-event",
-                   G_CALLBACK(CallWindowStateEvent),
-                   NULL);
-
   SetInitialBounds(bounds);
 
   // if (!IsAppWindow()) {
@@ -359,6 +371,34 @@ void WindowGtk::Init(const gfx::Rect& bounds) {
   // }
 
   // ResetWindowRegion(false);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// WindowGtk, private:
+
+// static
+gboolean WindowGtk::CallConfigureEvent(GtkWidget* widget,
+                                       GdkEventConfigure* event,
+                                       WindowGtk* window_gtk) {
+  return window_gtk->OnConfigureEvent(widget, event);
+}
+
+// static
+gboolean WindowGtk::CallWindowStateEvent(GtkWidget* widget,
+                                         GdkEventWindowState* event,
+                                         WindowGtk* window_gtk) {
+  return window_gtk->OnWindowStateEvent(widget, event);
+}
+
+void WindowGtk::SaveWindowPosition() {
+  // The delegate may have gone away on us.
+  if (!window_delegate_)
+    return;
+
+  bool maximized = window_state_ & GDK_WINDOW_STATE_MAXIMIZED;
+  gfx::Rect bounds;
+  WidgetGtk::GetBounds(&bounds, true);
+  window_delegate_->SaveWindowPlacement(bounds, maximized);
 }
 
 void WindowGtk::SetInitialBounds(const gfx::Rect& create_bounds) {
@@ -378,21 +418,6 @@ void WindowGtk::SizeWindowToDefault() {
   gfx::Size size = non_client_view_->GetPreferredSize();
   gfx::Rect bounds(size.width(), size.height());
   SetBounds(bounds, NULL);
-}
-
-void WindowGtk::SaveWindowPosition() {
-  // The delegate may have gone away on us.
-  if (!window_delegate_)
-    return;
-
-  NOTIMPLEMENTED();
-}
-
-// static
-void WindowGtk::CallWindowStateEvent(GtkWidget* widget,
-                                     GdkEventWindowState* window_state) {
-  WindowGtk* window_gtk = GetWindowForNative(widget);
-  window_gtk->window_state_ = window_state->new_window_state;
 }
 
 }  // namespace views
