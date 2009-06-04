@@ -201,29 +201,36 @@ bool PNGEncoder::EncodeBGRASkBitmap(const SkBitmap& input,
   // This only works with images with four bytes per pixel.
   static const int bbp = 4;
 
-  DCHECK(input.empty() || input.bytesPerPixel() == bbp);
+  DCHECK(!input.empty());
+  DCHECK(input.bytesPerPixel() == bbp);
+  DCHECK(input.config() == SkBitmap::kARGB_8888_Config);
 
   // SkBitmaps are premultiplied, we need to unpremultiply them.
   scoped_array<unsigned char> divided(
       new unsigned char[input.width() * input.height() * bbp]);
 
   SkAutoLockPixels lock_input(input);
+
   int i = 0;
   for (int y = 0; y < input.height(); y++) {
     uint32* src_row = input.getAddr32(0, y);
+
     for (int x = 0; x < input.width(); x++) {
-      int alpha = SkColorGetA(src_row[x]);
+      uint32 pixel = src_row[x];
+      int alpha = SkColorGetA(pixel);
+
       if (alpha != 0 && alpha != 255) {
-        divided[i + 0] = (SkColorGetR(src_row[x]) << 8) / alpha;
-        divided[i + 1] = (SkColorGetG(src_row[x]) << 8) / alpha;
-        divided[i + 2] = (SkColorGetB(src_row[x]) << 8) / alpha;
+        divided[i + 0] = (SkColorGetR(pixel) << 8) / alpha;
+        divided[i + 1] = (SkColorGetG(pixel) << 8) / alpha;
+        divided[i + 2] = (SkColorGetB(pixel) << 8) / alpha;
         divided[i + 3] = alpha;
       } else {
-        divided[i + 0] = SkColorGetR(src_row[x]);
-        divided[i + 1] = SkColorGetG(src_row[x]);
-        divided[i + 2] = SkColorGetB(src_row[x]);
-        divided[i + 3] = SkColorGetA(src_row[x]);
+        divided[i + 0] = SkColorGetR(pixel);
+        divided[i + 1] = SkColorGetG(pixel);
+        divided[i + 2] = SkColorGetB(pixel);
+        divided[i + 3] = SkColorGetA(pixel);
       }
+
       i += bbp;
     }
   }
