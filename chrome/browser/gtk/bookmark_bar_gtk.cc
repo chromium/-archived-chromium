@@ -104,6 +104,8 @@ BookmarkBarGtk::BookmarkBarGtk(Profile* profile, Browser* browser)
       browser_(browser),
       model_(NULL),
       instructions_(NULL),
+      dragged_node_(NULL),
+      toolbar_drop_item_(NULL),
       show_instructions_(true) {
   Init(profile);
   SetProfile(profile);
@@ -609,7 +611,6 @@ void BookmarkBarGtk::OnButtonDragBegin(GtkWidget* button,
   DCHECK(node);
 
   bar->dragged_node_ = node;
-  bar->toolbar_drop_item_ = NULL;
 
   // Build a windowed representation for our button.
   GtkWidget* window = gtk_window_new(GTK_WINDOW_POPUP);
@@ -736,16 +737,22 @@ gboolean BookmarkBarGtk::OnToolbarDragMotion(GtkToolbar* toolbar,
     return FALSE;
   }
 
-  if (!bar->toolbar_drop_item_) {
+  // TODO(estade): Improve support for drags from outside this particular
+  // bookmark bar.
+  if (!bar->toolbar_drop_item_ && bar->dragged_node_) {
     bar->toolbar_drop_item_ = bar->CreateBookmarkToolItem(bar->dragged_node_);
     g_object_ref_sink(GTK_OBJECT(bar->toolbar_drop_item_));
   }
 
+  if (bar->toolbar_drop_item_) {
+    gint index = gtk_toolbar_get_drop_index(toolbar, x, y);
+    gtk_toolbar_set_drop_highlight_item(toolbar,
+                                        GTK_TOOL_ITEM(bar->toolbar_drop_item_),
+                                        index);
+  }
+
   gdk_drag_status(context, GDK_ACTION_MOVE, time);
-  gint index = gtk_toolbar_get_drop_index(toolbar, x, y);
-  gtk_toolbar_set_drop_highlight_item(toolbar,
-                                      GTK_TOOL_ITEM(bar->toolbar_drop_item_),
-                                      index);
+
   return TRUE;
 }
 
