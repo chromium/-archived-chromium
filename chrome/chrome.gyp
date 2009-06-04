@@ -3677,6 +3677,7 @@
             'chrome_resources',
             'installer/installer.gyp:installer_util_strings',
             'worker',
+            '../build/util/build_util.gyp:lastchange',
             '../net/net.gyp:net_resources',
             '../views/views.gyp:views',
             '../webkit/webkit.gyp:webkit_resources',
@@ -3688,35 +3689,35 @@
               'rule_name': 'win_version',
               'extension': 'version',
               'variables': {
-                'version_py': '../chrome/tools/build/version.py',
-                'VERSION': '../chrome/VERSION',
+                'lastchange_path':
+                  '<(SHARED_INTERMEDIATE_DIR)/build/LASTCHANGE',
+                'version_py': 'tools/build/version.py',
+                'version_path': 'VERSION',
                 'template_input_path': 'app/chrome_dll_version.rc.version',
-                'template_output_path':
-                '<(grit_out_dir)/chrome_dll_version.rc',
+                'template_output_path': '<(grit_out_dir)/chrome_dll_version.rc',
               },
               'conditions': [
                 [ 'branding == "Chrome"', {
                   'variables': {
-                     'BRANDING':
-                       '../chrome/app/theme/google_chrome/BRANDING',
+                     'branding_path': 'app/theme/google_chrome/BRANDING',
                   },
                 }, { # else branding!="Chrome"
                   'variables': {
-                     'BRANDING':
-                       '../chrome/app/theme/chromium/BRANDING',
+                     'branding_path': 'app/theme/chromium/BRANDING',
                   },
                 }],
               ],
               'inputs': [
                 '<(template_input_path)',
-                '<(VERSION)',
-                '<(BRANDING)',
+                '<(version_path)',
+                '<(branding_path)',
+                '<(lastchange_path)',
               ],
               'outputs': [
                 # Use a non-existant output so this action always runs and
                 # generates version information, e.g. to capture revision
                 # changes, which aren't captured by file dependencies.
-                '<(grit_out_dir)/chrome_dll_version.bogus',
+                '<(grit_out_dir)/chrome_dll_version.always',
 
                 # And this is the real output, so that the build system knows
                 # what action generates it.
@@ -3725,13 +3726,14 @@
               'action': [
                 'python',
                 '<(version_py)',
-                '-f', '<(VERSION)',
-                '-f', '<(BRANDING)',
+                '-f', '<(version_path)',
+                '-f', '<(branding_path)',
+                '-f', '<(lastchange_path)',
                 '<(template_input_path)',
                 '<(template_output_path)',
               ],
               'process_outputs_as_sources': 1,
-              'message': 'Generating version information'
+              'message': 'Generating version information in <(template_output_path)'
             },
           ],
           'sources': [

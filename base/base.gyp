@@ -362,11 +362,13 @@
               {
                 'action_name': 'linux_version',
                 'variables': {
+                  'lastchange_path':
+                    '<(SHARED_INTERMEDIATE_DIR)/build/LASTCHANGE',
                   'version_py_path': '../chrome/tools/build/version.py',
                   'version_path': '../chrome/VERSION',
                   'template_input_path': 'file_version_info_linux.h.version',
                   'template_output_path':
-                  '<(SHARED_INTERMEDIATE_DIR)/base/file_version_info_linux.h',
+                    '<(SHARED_INTERMEDIATE_DIR)/base/file_version_info_linux.h',
                 },
                 'conditions': [
                   [ 'branding == "Chrome"', {
@@ -385,22 +387,24 @@
                   '<(template_input_path)',
                   '<(version_path)',
                   '<(branding_path)',
+                  '<(lastchange_path)',
                 ],
                 'outputs': [
                   # Use a non-existant output so this action always runs and
                   # generates version information, e.g. to capture revision
                   # changes, which aren't captured by file dependencies.
-                  '<(SHARED_INTERMEDIATE_DIR)/base/file_version_info_linux.bogus',
+                  '<(SHARED_INTERMEDIATE_DIR)/base/file_version_info_linux.always',
 
                   # And this is the real output, so that the build system knows
                   # what action generates it.
-                  '<(SHARED_INTERMEDIATE_DIR)/base/file_version_info_linux.h',
+                  '<(template_output_path)',
                 ],
                 'action': [
                   'python',
                   '<(version_py_path)',
                   '-f', '<(version_path)',
                   '-f', '<(branding_path)',
+                  '-f', '<(lastchange_path)',
                   '<(template_input_path)',
                   '<(template_output_path)',
                 ],
@@ -419,6 +423,7 @@
               'idle_timer.cc',
             ],
             'dependencies': [
+              '../build/util/build_util.gyp:lastchange',
               '../build/linux/system.gyp:gtk',
               '../build/linux/system.gyp:nss',
             ],

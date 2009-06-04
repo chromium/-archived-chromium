@@ -19,50 +19,6 @@ class Usage(Exception):
     self.msg = msg
 
 
-def svn_fetch_revision():
-  """
-  Fetch the Subversion revision for the local tree.
-
-  Errors are swallowed.
-  """
-  try:
-    p = subprocess.Popen(['svn', 'info'],
-                         stdout=subprocess.PIPE,
-                         stderr=subprocess.PIPE)
-  except OSError:
-    # 'svn' is apparently either not installed or not executable.
-    return None
-  revision = None
-  if p:
-    svn_re = re.compile('^Revision:\s+(\S+)$', re.M)
-    m = svn_re.search(p.stdout.read())
-    if m:
-      revision = m.group(1)
-  return revision
-
-
-def git_fetch_id():
-  """
-  Fetch the GIT identifier for the local tree.
-
-  Errors are swallowed.
-  """
-  try:
-    p = subprocess.Popen(['git', 'log', '-1'],
-                         stdout=subprocess.PIPE,
-                         stderr=subprocess.PIPE)
-  except OSError:
-    # 'git' is apparently either not installed or not executable.
-    return None
-  id = None
-  if p:
-    git_re = re.compile('^\s*git-svn-id:\s+(\S+)@(\d+)', re.M)
-    m = git_re.search(p.stdout.read())
-    if m:
-      id = m.group(1)
-  return id
-
-
 def fetch_values_from_file(values_dict, file_name):
   """
   Fetches KEYWORD=VALUE settings from the specified file.
@@ -83,17 +39,10 @@ def fetch_values(file_list):
   Returns a dictionary of values to be used for substitution, populating
   the dictionary with KEYWORD=VALUE settings from the files in 'file_list'.
 
-  Explicitly adds the following values from internal calculations:
+  Explicitly adds the following value from internal calculations:
 
-    LASTCHANGE  (the SVN revision, or GIT id of the local tree)
     OFFICIAL_BUILD
   """
-  change = svn_fetch_revision()
-  if not change and sys.platform in ('linux2',):
-    change = git_fetch_id()
-  if not change:
-    change = '0'
-
   CHROME_BUILD_TYPE = os.environ.get('CHROME_BUILD_TYPE')
   if CHROME_BUILD_TYPE == '_official':
     official_build = '1'
@@ -101,7 +50,6 @@ def fetch_values(file_list):
     official_build = '0'
 
   values = dict(
-    LASTCHANGE = change,
     OFFICIAL_BUILD = official_build,
   )
 
