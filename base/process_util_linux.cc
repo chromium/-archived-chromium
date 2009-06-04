@@ -60,11 +60,6 @@ bool LaunchApp(const std::vector<std::string>& argv,
 
     CloseSuperfluousFds(fd_shuffle);
 
-    // If we are using the SUID sandbox, it sets a magic environment variable
-    // ("SBX_D"), so we remove that variable from the environment here on the
-    // off chance that it's already set.
-    unsetenv("SBX_D");
-
     scoped_array<char*> argv_cstr(new char*[argv.size() + 1]);
     for (size_t i = 0; i < argv.size(); i++)
       argv_cstr[i] = const_cast<char*>(argv[i].c_str());

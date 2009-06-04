@@ -399,6 +399,20 @@ int ChromeMain(int argc, const char** argv) {
   InitCrashReporter();
 #endif
 
+#if defined(OS_POSIX)
+  // Bug 11776: we mistakenly created directories world-readable.
+  // Fix old instances of these directories manually.
+  // TODO(evanm): remove this code in a month or two.
+  if (user_data_dir.empty()) {
+    FilePath fix_dir;
+    CHECK(PathService::Get(chrome::DIR_USER_DATA, &fix_dir));
+    struct stat statbuf;
+    CHECK(stat(fix_dir.value().c_str(), &statbuf) == 0);
+    if ((statbuf.st_mode & 0077) != 0)
+      CHECK(chmod(fix_dir.value().c_str(), 0700) == 0);
+  }
+#endif
+
   bool single_process =
 #if defined (GOOGLE_CHROME_BUILD)
     // This is an unsupported and not fully tested mode, so don't enable it for

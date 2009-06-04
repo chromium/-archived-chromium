@@ -64,7 +64,6 @@
 
 #if defined(OS_LINUX)
 #include "chrome/app/breakpad_linux.h"
-#include "chrome/browser/renderer_host/render_sandbox_host_linux.h"
 #endif
 
 // TODO(port): several win-only methods have been pulled out of this, but
@@ -219,8 +218,6 @@ void AddFirstRunNewTabs(BrowserInit* browser_init,
 
 }  // namespace
 
-extern void SkiaFontConfigUseDirectImplementation();
-
 // Main routine for running as the Browser process.
 int BrowserMain(const MainFunctionParams& parameters) {
   const CommandLine& parsed_command_line = parameters.command_line_;
@@ -247,14 +244,6 @@ int BrowserMain(const MainFunctionParams& parameters) {
   memset(&action, 0, sizeof(action));
   action.sa_handler = SIGCHLDHandler;
   CHECK(sigaction(SIGCHLD, &action, NULL) == 0);
-#endif
-
-#if defined(OS_LINUX)
-  // Construct the sandbox host on the UI thread.
-  Singleton<RenderSandboxHostLinux>::get();
-
-  // Configure Skia in this process to use fontconfig directly.
-  SkiaFontConfigUseDirectImplementation();
 #endif
 
   // Do platform-specific things (such as finishing initializing Cocoa)
