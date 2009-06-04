@@ -84,12 +84,14 @@ class BrowserToolbarGtk : public CommandUpdater::CommandObserver,
                                        int active_id,
                                        int highlight_id,
                                        int depressed_id,
-                                       const std::string& localized_tooltip,
-                                       int spacing);
+                                       const std::string& localized_tooltip);
 
+  // Create the star button given the tooltip.  Returns the widget created.
   ToolbarStarToggleGtk* BuildStarButton(const std::string& localized_tooltip);
 
-  void BuildToolbarMenuButton(
+  // Create a menu for the toolbar given the icon id and tooltip.  Returns the
+  // widget created.
+  GtkWidget* BuildToolbarMenuButton(
       int icon_id,
       const std::string& localized_tooltip,
       OwnedWidgetGtk* owner);
@@ -110,9 +112,6 @@ class BrowserToolbarGtk : public CommandUpdater::CommandObserver,
   static gboolean OnMenuButtonPressEvent(GtkWidget* button,
                                          GdkEventButton* event,
                                          BrowserToolbarGtk* toolbar);
-
-  // Construct the Home button.
-  CustomDrawButton* MakeHomeButton();
 
   // Initialize the background NineBox.
   void InitNineBox();

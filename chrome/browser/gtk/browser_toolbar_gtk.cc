@@ -37,8 +37,8 @@ namespace {
 // Height of the toolbar in pixels.
 const int kToolbarHeight = 37;
 
-// Interior spacing between toolbar buttons (for those that have any spacing).
-const int kButtonSpacing = 6;
+// Interior spacing between toolbar widgets.
+const int kToolbarWidgetSpacing = 6;
 
 // The amount of space between the bottom of the star and the top of the
 // Omnibox results popup window.  We want a two pixel space between the bottom
@@ -87,7 +87,7 @@ void BrowserToolbarGtk::Init(Profile* profile,
 
   show_home_button_.Init(prefs::kShowHomeButton, profile->GetPrefs(), this);
 
-  toolbar_ = gtk_hbox_new(FALSE, 0);
+  toolbar_ = gtk_hbox_new(FALSE, kToolbarWidgetSpacing);
   gtk_container_set_border_width(GTK_CONTAINER(toolbar_), 4);
   // Demand we're always at least kToolbarHeight tall.
   // -1 for width means "let GTK do its normal sizing".
@@ -103,18 +103,24 @@ void BrowserToolbarGtk::Init(Profile* profile,
   accel_group_ = gtk_accel_group_new();
   gtk_window_add_accel_group(top_level_window, accel_group_);
 
+  // Group back and forward into an hbox so there's no spacing between them.
+  GtkWidget* back_forward_hbox_ = gtk_hbox_new(FALSE, 0);
+
   back_.reset(new BackForwardButtonGtk(browser_, false));
-  gtk_box_pack_start(GTK_BOX(toolbar_), back_->widget(), FALSE, FALSE, 0);
+  gtk_box_pack_start(GTK_BOX(back_forward_hbox_), back_->widget(), FALSE,
+                     FALSE, 0);
   AddAcceleratorToButton(back_->widget(), GDK_Left, GDK_MOD1_MASK);
   AddAcceleratorToButton(back_->widget(), GDK_BackSpace, 0);
 
   forward_.reset(new BackForwardButtonGtk(browser_, true));
-  gtk_box_pack_start(GTK_BOX(toolbar_), forward_->widget(), FALSE, FALSE, 0);
+  gtk_box_pack_start(GTK_BOX(back_forward_hbox_), forward_->widget(), FALSE,
+                     FALSE, 0);
   AddAcceleratorToButton(forward_->widget(), GDK_Right, GDK_MOD1_MASK);
   AddAcceleratorToButton(forward_->widget(), GDK_BackSpace, GDK_SHIFT_MASK);
+  gtk_box_pack_start(GTK_BOX(toolbar_), back_forward_hbox_, FALSE, FALSE, 0);
 
   reload_.reset(BuildToolbarButton(IDR_RELOAD, IDR_RELOAD_P, IDR_RELOAD_H, 0,
-      l10n_util::GetStringUTF8(IDS_TOOLTIP_RELOAD), kButtonSpacing));
+      l10n_util::GetStringUTF8(IDS_TOOLTIP_RELOAD)));
   AddAcceleratorToButton(reload_->widget(),
                          GDK_r, GDK_CONTROL_MASK);
   // Any modifier except alt can be combined with f5 (this matches windows
@@ -122,35 +128,47 @@ void BrowserToolbarGtk::Init(Profile* profile,
   AddAcceleratorToButton(reload_->widget(),
                          GDK_F5, GDK_MODIFIER_MASK & ~GDK_MOD1_MASK);
 
-  // TODO(port): we need to dynamically react to changes in show_home_button_
-  // and hide/show home appropriately.  But we don't have a UI for it yet.
-  if (*show_home_button_)
-    home_.reset(MakeHomeButton());
+  home_.reset(BuildToolbarButton(IDR_HOME, IDR_HOME_P, IDR_HOME_H, 0,
+                                 l10n_util::GetStringUTF8(IDS_TOOLTIP_HOME)));
 
+  // Group the start, omnibox, and go button into an hbox.
+  GtkWidget* omnibox_hbox_ = gtk_hbox_new(FALSE, 0);
   star_.reset(BuildStarButton(l10n_util::GetStringUTF8(IDS_TOOLTIP_STAR)));
+  gtk_box_pack_start(GTK_BOX(omnibox_hbox_), star_->widget(), FALSE, FALSE, 0);
 
   location_bar_->Init();
-  gtk_box_pack_start(GTK_BOX(toolbar_), location_bar_->widget(), TRUE, TRUE, 0);
+  gtk_box_pack_start(GTK_BOX(omnibox_hbox_), location_bar_->widget(), TRUE,
+                     TRUE, 0);
 
   go_.reset(new GoButtonGtk(location_bar_.get(), browser_));
-  gtk_box_pack_start(GTK_BOX(toolbar_), go_->widget(), FALSE, FALSE, 0);
+  gtk_box_pack_start(GTK_BOX(omnibox_hbox_), go_->widget(), FALSE, FALSE, 0);
 
-  GtkWidget* spacing = gtk_label_new("");
-  gtk_widget_set_size_request(spacing, kButtonSpacing, -1);
-  gtk_box_pack_start(GTK_BOX(toolbar_), spacing, FALSE, FALSE, 0);
+  gtk_box_pack_start(GTK_BOX(toolbar_), omnibox_hbox_, TRUE, TRUE, 0);
 
-  BuildToolbarMenuButton(IDR_MENU_PAGE,
+  // Group the menu buttons together in an hbox.
+  GtkWidget* menus_hbox_ = gtk_hbox_new(FALSE, 0);
+  GtkWidget* page_menu = BuildToolbarMenuButton(IDR_MENU_PAGE,
       l10n_util::GetStringUTF8(IDS_PAGEMENU_TOOLTIP),
       &page_menu_button_);
   page_menu_.reset(new MenuGtk(this, GetStandardPageMenu(), accel_group_));
+  gtk_box_pack_start(GTK_BOX(menus_hbox_), page_menu, FALSE, FALSE, 0);
 
-  BuildToolbarMenuButton(IDR_MENU_CHROME,
+  GtkWidget* chrome_menu = BuildToolbarMenuButton(IDR_MENU_CHROME,
       l10n_util::GetStringFUTF8(IDS_APPMENU_TOOLTIP,
           WideToUTF16(l10n_util::GetString(IDS_PRODUCT_NAME))),
       &app_menu_button_);
   app_menu_.reset(new MenuGtk(this, GetStandardAppMenu(), accel_group_));
+  gtk_box_pack_start(GTK_BOX(menus_hbox_), chrome_menu, FALSE, FALSE, 0);
+
+  gtk_box_pack_start(GTK_BOX(toolbar_), menus_hbox_, FALSE, FALSE, 0);
 
   gtk_widget_show_all(toolbar_);
+
+  if (show_home_button_.GetValue()) {
+    gtk_widget_show(home_->widget());
+  } else {
+    gtk_widget_hide(home_->widget());
+  }
 }
 
 void BrowserToolbarGtk::AddToolbarToBox(GtkWidget* box) {
@@ -232,8 +250,11 @@ void BrowserToolbarGtk::Observe(NotificationType type,
   if (type == NotificationType::PREF_CHANGED) {
     std::wstring* pref_name = Details<std::wstring>(details).ptr();
     if (*pref_name == prefs::kShowHomeButton) {
-      // TODO(port): add/remove home button.
-      NOTIMPLEMENTED();
+      if (show_home_button_.GetValue()) {
+        gtk_widget_show(home_->widget());
+      } else {
+        gtk_widget_hide(home_->widget());
+      }
     }
   }
 }
@@ -276,7 +297,7 @@ gfx::Rect BrowserToolbarGtk::GetPopupBounds() const {
 
 CustomDrawButton* BrowserToolbarGtk::BuildToolbarButton(
     int normal_id, int active_id, int highlight_id, int depressed_id,
-    const std::string& localized_tooltip, int spacing) {
+    const std::string& localized_tooltip) {
   CustomDrawButton* button = new CustomDrawButton(normal_id, active_id,
       highlight_id, depressed_id);
 
@@ -285,8 +306,7 @@ CustomDrawButton* BrowserToolbarGtk::BuildToolbarButton(
   g_signal_connect(button->widget(), "clicked",
                    G_CALLBACK(OnButtonClick), this);
 
-  gtk_box_pack_start(GTK_BOX(toolbar_), button->widget(), FALSE, FALSE,
-                     spacing);
+  gtk_box_pack_start(GTK_BOX(toolbar_), button->widget(), FALSE, FALSE, 0);
   return button;
 }
 
@@ -299,11 +319,10 @@ ToolbarStarToggleGtk* BrowserToolbarGtk::BuildStarButton(
   g_signal_connect(button->widget(), "clicked",
                    G_CALLBACK(OnButtonClick), this);
 
-  gtk_box_pack_start(GTK_BOX(toolbar_), button->widget(), FALSE, FALSE, 0);
   return button;
 }
 
-void BrowserToolbarGtk::BuildToolbarMenuButton(
+GtkWidget* BrowserToolbarGtk::BuildToolbarMenuButton(
     int icon_id,
     const std::string& localized_tooltip,
     OwnedWidgetGtk* owner) {
@@ -320,7 +339,7 @@ void BrowserToolbarGtk::BuildToolbarMenuButton(
                    G_CALLBACK(OnMenuButtonPressEvent), this);
   GTK_WIDGET_UNSET_FLAGS(button, GTK_CAN_FOCUS);
 
-  gtk_box_pack_start(GTK_BOX(toolbar_), button, FALSE, FALSE, 0);
+  return button;
 }
 
 // static
@@ -380,11 +399,6 @@ void BrowserToolbarGtk::AddAcceleratorToButton(
   gtk_widget_add_accelerator(
       widget, "clicked", accel_group_, accelerator,
       GdkModifierType(accelerator_mod), GtkAccelFlags(0));
-}
-
-CustomDrawButton* BrowserToolbarGtk::MakeHomeButton() {
-  return BuildToolbarButton(IDR_HOME, IDR_HOME_P, IDR_HOME_H, 0,
-                            l10n_util::GetStringUTF8(IDS_TOOLTIP_HOME), 0);
 }
 
 void BrowserToolbarGtk::InitNineBox() {

@@ -320,12 +320,13 @@ BrowserWindowGtk::BrowserWindowGtk(Browser* browser)
   tabstrip_->Init(bounds_.width(), browser_->profile());
   tabstrip_->AddTabStripToBox(window_vbox_);
 
-  // This vbox surrounds the "content": toolbar+page.
+  // The content_vbox_ surrounds the "content": toolbar+bookmarks bar+page.
   content_vbox_ = gtk_vbox_new(FALSE, 0);
   gtk_widget_set_app_paintable(content_vbox_, TRUE);
   gtk_widget_set_double_buffered(content_vbox_, FALSE);
   g_signal_connect(G_OBJECT(content_vbox_), "expose-event",
                    G_CALLBACK(&OnContentAreaExpose), this);
+  gtk_widget_show(content_vbox_);
 
   toolbar_.reset(new BrowserToolbarGtk(browser_.get()));
   toolbar_->Init(browser_->profile(), window_);
@@ -349,6 +350,7 @@ BrowserWindowGtk::BrowserWindowGtk(Browser* browser)
 
   contents_container_.reset(new TabContentsContainerGtk(status_bubble_.get()));
   contents_container_->AddContainerToBox(render_area_vbox_);
+  gtk_widget_show_all(render_area_vbox_);
 
   // Note that calling this the first time is necessary to get the
   // proper control layout.
@@ -357,10 +359,11 @@ BrowserWindowGtk::BrowserWindowGtk(Browser* browser)
 
   GtkWidget* event_box = gtk_event_box_new();
   gtk_container_add(GTK_CONTAINER(event_box), render_area_vbox_);
+  gtk_widget_show(event_box);
   gtk_container_add(GTK_CONTAINER(content_vbox_), event_box);
   gtk_container_add(GTK_CONTAINER(window_vbox_), content_vbox_);
   gtk_container_add(GTK_CONTAINER(window_), window_vbox_);
-  gtk_widget_show_all(window_vbox_);
+  gtk_widget_show(window_vbox_);
   browser_->tabstrip_model()->AddObserver(this);
 
   HideUnsupportedWindowFeatures();
