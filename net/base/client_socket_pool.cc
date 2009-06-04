@@ -4,10 +4,16 @@
 
 #include "net/base/client_socket_pool.h"
 
+#include "base/compiler_specific.h"
+#include "base/field_trial.h"
 #include "base/message_loop.h"
-#include "net/base/client_socket.h"
+#include "base/time.h"
+#include "base/stl_util-inl.h"
+#include "net/base/client_socket_factory.h"
 #include "net/base/client_socket_handle.h"
+#include "net/base/dns_resolution_observer.h"
 #include "net/base/net_errors.h"
+#include "net/base/tcp_client_socket.h"
 
 using base::TimeDelta;
 
@@ -28,8 +34,116 @@ const int kIdleTimeout = 300;  // 5 minutes.
 
 namespace net {
 
-ClientSocketPool::ClientSocketPool(int max_sockets_per_group)
-    : idle_socket_count_(0),
+ClientSocketPool::ConnectingSocket::ConnectingSocket(
+    const std::string& group_name,
+    const ClientSocketHandle* handle,
+    ClientSocketFactory* client_socket_factory,
+    ClientSocketPool* pool)
+    : group_name_(group_name),
+      handle_(handle),
+      client_socket_factory_(client_socket_factory),
+      ALLOW_THIS_IN_INITIALIZER_LIST(
+          callback_(this,
+                    &ClientSocketPool::ConnectingSocket::OnIOComplete)),
+      pool_(pool) {}
+
+ClientSocketPool::ConnectingSocket::~ConnectingSocket() {}
+
+int ClientSocketPool::ConnectingSocket::Connect(
+    const std::string& host,
+    int port,
+    CompletionCallback* callback) {
+  DidStartDnsResolution(host, this);
+  int rv = resolver_.Resolve(host, port, &addresses_, &callback_);
+  if (rv == OK) {
+    // TODO(willchan): This code is broken.  It should be fixed, but the code
+    // path is impossible in the current implementation since the host resolver
+    // always dumps the request to a worker pool, so it cannot complete
+    // synchronously.
+    NOTREACHED();
+    connect_start_time_ = base::Time::Now();
+    rv = socket_->Connect(&callback_);
+  }
+  return rv;
+}
+
+ClientSocket* ClientSocketPool::ConnectingSocket::ReleaseSocket() {
+  return socket_.release();
+}
+
+void ClientSocketPool::ConnectingSocket::OnIOComplete(int result) {
+  DCHECK_NE(result, ERR_IO_PENDING);
+
+  GroupMap::iterator group_it = pool_->group_map_.find(group_name_);
+  if (group_it == pool_->group_map_.end()) {
+    // The request corresponding to this ConnectingSocket has been canceled.
+    // Stop bothering with it.
+    delete this;
+    return;
+  }
+
+  Group& group = group_it->second;
+
+  RequestMap* request_map = &group.connecting_requests;
+  RequestMap::iterator it = request_map->find(handle_);
+  if (it == request_map->end()) {
+    // The request corresponding to this ConnectingSocket has been canceled.
+    // Stop bothering with it.
+    delete this;
+    return;
+  }
+
+  if (result == OK) {
+    if (it->second.load_state == LOAD_STATE_RESOLVING_HOST) {
+      it->second.load_state = LOAD_STATE_CONNECTING;
+      socket_.reset(client_socket_factory_->CreateTCPClientSocket(addresses_));
+      connect_start_time_ = base::Time::Now();
+      result = socket_->Connect(&callback_);
+      if (result == ERR_IO_PENDING)
+        return;
+    } else {
+      DCHECK(connect_start_time_ != base::Time());
+      base::TimeDelta connect_duration =
+          base::Time::Now() - connect_start_time_;
+
+      UMA_HISTOGRAM_CLIPPED_TIMES(
+          FieldTrial::MakeName(
+              "Net.TCP_Connection_Latency", "DnsImpact").data(),
+          connect_duration,
+          base::TimeDelta::FromMilliseconds(1),
+          base::TimeDelta::FromMinutes(10),
+          100);
+    }
+  }
+
+  // Now, we either succeeded at Connect()'ing, or we failed at host resolution
+  // or Connect()'ing.  Either way, we'll run the callback to alert the client.
+
+  Request request = it->second;
+  request_map->erase(it);
+
+  if (result == OK) {
+    request.handle->set_socket(socket_.release());
+    request.handle->set_is_reused(false);
+  } else {
+    group.active_socket_count--;
+
+    // Delete group if no longer needed.
+    if (group.active_socket_count == 0 && group.idle_sockets.empty()) {
+      DCHECK(group.pending_requests.empty());
+      DCHECK(group.connecting_requests.empty());
+      pool_->group_map_.erase(group_it);
+    }
+  }
+
+  request.callback->Run(result);
+  delete this;
+}
+
+ClientSocketPool::ClientSocketPool(int max_sockets_per_group,
+                                   ClientSocketFactory* client_socket_factory)
+    : client_socket_factory_(client_socket_factory),
+      idle_socket_count_(0),
       max_sockets_per_group_(max_sockets_per_group) {
 }
 
@@ -54,10 +168,15 @@ void ClientSocketPool::InsertRequestIntoQueue(const Request& r,
   pending_requests->insert(it, r);
 }
 
-int ClientSocketPool::RequestSocket(ClientSocketHandle* handle,
+int ClientSocketPool::RequestSocket(const std::string& group_name,
+                                    const std::string& host,
+                                    int port,
                                     int priority,
+                                    ClientSocketHandle* handle,
                                     CompletionCallback* callback) {
-  Group& group = group_map_[handle->group_name_];
+  DCHECK(!host.empty());
+  DCHECK_GE(priority, 0);
+  Group& group = group_map_[group_name];
 
   // Can we make another active socket now?
   if (group.active_socket_count == max_sockets_per_group_) {
@@ -66,6 +185,9 @@ int ClientSocketPool::RequestSocket(ClientSocketHandle* handle,
     DCHECK(callback);
     r.callback = callback;
     r.priority = priority;
+    r.host = host;
+    r.port = port;
+    r.load_state = LOAD_STATE_IDLE;
     InsertRequestIntoQueue(r, &group.pending_requests);
     return ERR_IO_PENDING;
   }
@@ -73,49 +195,92 @@ int ClientSocketPool::RequestSocket(ClientSocketHandle* handle,
   // OK, we are going to activate one.
   group.active_socket_count++;
 
-  // Use idle sockets in LIFO order because they're more likely to be
-  // still reusable.
   while (!group.idle_sockets.empty()) {
     IdleSocket idle_socket = group.idle_sockets.back();
     group.idle_sockets.pop_back();
     DecrementIdleCount();
-    if ((*idle_socket.ptr)->IsConnectedAndIdle()) {
+    if (idle_socket.socket->IsConnectedAndIdle()) {
       // We found one we can reuse!
-      handle->socket_ = idle_socket.ptr;
+      handle->set_socket(idle_socket.socket);
+      handle->set_is_reused(true);
       return OK;
     }
-    delete idle_socket.ptr;
+    delete idle_socket.socket;
   }
 
-  handle->socket_ = new ClientSocketPtr();
-  return OK;
+  // We couldn't find a socket to reuse, so allocate and connect a new one.
+  scoped_ptr<ConnectingSocket> connecting_socket(
+      new ConnectingSocket(group_name, handle, client_socket_factory_, this));
+  int rv = connecting_socket->Connect(host, port, callback);
+  if (rv == OK) {
+    NOTREACHED();
+    handle->set_socket(connecting_socket->ReleaseSocket());
+    handle->set_is_reused(false);
+  } else if (rv == ERR_IO_PENDING) {
+    // The ConnectingSocket will delete itself.
+    connecting_socket.release();
+    Request r;
+    r.handle = handle;
+    DCHECK(callback);
+    r.callback = callback;
+    r.priority = priority;
+    r.host = host;
+    r.port = port;
+    r.load_state = LOAD_STATE_RESOLVING_HOST;
+    group_map_[group_name].connecting_requests[handle] = r;
+  } else {
+    group.active_socket_count--;
+
+    // Delete group if no longer needed.
+    if (group.active_socket_count == 0 && group.idle_sockets.empty()) {
+      DCHECK(group.pending_requests.empty());
+      DCHECK(group.connecting_requests.empty());
+      group_map_.erase(group_name);
+    }
+  }
+
+  return rv;
 }
 
-void ClientSocketPool::CancelRequest(ClientSocketHandle* handle) {
-  Group& group = group_map_[handle->group_name_];
+void ClientSocketPool::CancelRequest(const std::string& group_name,
+                                     const ClientSocketHandle* handle) {
+  DCHECK(ContainsKey(group_map_, group_name));
 
-  // In order for us to be canceling a pending request, we must have active
-  // sockets equaling the limit.  NOTE: The correctness of the code doesn't
-  // require this assertion.
-  DCHECK(group.active_socket_count == max_sockets_per_group_);
+  Group& group = group_map_[group_name];
 
   // Search pending_requests for matching handle.
-  std::deque<Request>::iterator it = group.pending_requests.begin();
+  RequestQueue::iterator it = group.pending_requests.begin();
   for (; it != group.pending_requests.end(); ++it) {
     if (it->handle == handle) {
       group.pending_requests.erase(it);
-      break;
+      return;
+    }
+  }
+
+  // It's invalid to cancel a non-existent request.
+  DCHECK(ContainsKey(group.connecting_requests, handle));
+
+  RequestMap::iterator map_it = group.connecting_requests.find(handle);
+  if (map_it != group.connecting_requests.end()) {
+    group.connecting_requests.erase(map_it);
+    group.active_socket_count--;
+
+    // Delete group if no longer needed.
+    if (group.active_socket_count == 0 && group.idle_sockets.empty()) {
+      DCHECK(group.pending_requests.empty());
+      DCHECK(group.connecting_requests.empty());
+      group_map_.erase(group_name);
     }
   }
 }
 
-void ClientSocketPool::ReleaseSocket(ClientSocketHandle* handle) {
+void ClientSocketPool::ReleaseSocket(const std::string& group_name,
+                                     ClientSocket* socket) {
   // Run this asynchronously to allow the caller to finish before we let
   // another to begin doing work.  This also avoids nasty recursion issues.
   // NOTE: We cannot refer to the handle argument after this method returns.
   MessageLoop::current()->PostTask(FROM_HERE, NewRunnableMethod(
-      this, &ClientSocketPool::DoReleaseSocket, handle->group_name_,
-      handle->socket_));
+      this, &ClientSocketPool::DoReleaseSocket, group_name, socket));
 }
 
 void ClientSocketPool::CloseIdleSockets() {
@@ -130,10 +295,42 @@ int ClientSocketPool::IdleSocketCountInGroup(
   return i->second.idle_sockets.size();
 }
 
+LoadState ClientSocketPool::GetLoadState(
+    const std::string& group_name,
+    const ClientSocketHandle* handle) const {
+  DCHECK(ContainsKey(group_map_, group_name)) << group_name;
+
+  // Can't use operator[] since it is non-const.
+  const Group& group = group_map_.find(group_name)->second;
+
+  // Search connecting_requests for matching handle.
+  RequestMap::const_iterator map_it = group.connecting_requests.find(handle);
+  if (map_it != group.connecting_requests.end()) {
+    const LoadState load_state = map_it->second.load_state;
+    DCHECK(load_state == LOAD_STATE_RESOLVING_HOST ||
+           load_state == LOAD_STATE_CONNECTING);
+    return load_state;
+  }
+
+  // Search pending_requests for matching handle.
+  RequestQueue::const_iterator it = group.pending_requests.begin();
+  for (; it != group.pending_requests.end(); ++it) {
+    if (it->handle == handle) {
+      DCHECK_EQ(LOAD_STATE_IDLE, it->load_state);
+      // TODO(wtc): Add a state for being on the wait list.
+      // See http://www.crbug.com/5077.
+      return LOAD_STATE_IDLE;
+    }
+  }
+
+  NOTREACHED();
+  return LOAD_STATE_IDLE;
+}
+
 bool ClientSocketPool::IdleSocket::ShouldCleanup(base::TimeTicks now) const {
   bool timed_out = (now - start_time) >=
       base::TimeDelta::FromSeconds(kIdleTimeout);
-  return timed_out || !(*ptr)->IsConnectedAndIdle();
+  return timed_out || !socket->IsConnectedAndIdle();
 }
 
 void ClientSocketPool::CleanupIdleSockets(bool force) {
@@ -151,7 +348,7 @@ void ClientSocketPool::CleanupIdleSockets(bool force) {
     std::deque<IdleSocket>::iterator j = group.idle_sockets.begin();
     while (j != group.idle_sockets.end()) {
       if (force || j->ShouldCleanup(now)) {
-        delete j->ptr;
+        delete j->socket;
         j = group.idle_sockets.erase(j);
         DecrementIdleCount();
       } else {
@@ -162,6 +359,7 @@ void ClientSocketPool::CleanupIdleSockets(bool force) {
     // Delete group if no longer needed.
     if (group.active_socket_count == 0 && group.idle_sockets.empty()) {
       DCHECK(group.pending_requests.empty());
+      DCHECK(group.connecting_requests.empty());
       group_map_.erase(i++);
     } else {
       ++i;
@@ -181,40 +379,43 @@ void ClientSocketPool::DecrementIdleCount() {
 }
 
 void ClientSocketPool::DoReleaseSocket(const std::string& group_name,
-                                       ClientSocketPtr* ptr) {
+                                       ClientSocket* socket) {
   GroupMap::iterator i = group_map_.find(group_name);
   DCHECK(i != group_map_.end());
 
   Group& group = i->second;
 
-  DCHECK(group.active_socket_count > 0);
+  DCHECK_GT(group.active_socket_count, 0);
   group.active_socket_count--;
 
-  bool can_reuse = ptr->get() && (*ptr)->IsConnectedAndIdle();
+  const bool can_reuse = socket->IsConnectedAndIdle();
   if (can_reuse) {
     IdleSocket idle_socket;
-    idle_socket.ptr = ptr;
+    idle_socket.socket = socket;
     idle_socket.start_time = base::TimeTicks::Now();
 
     group.idle_sockets.push_back(idle_socket);
     IncrementIdleCount();
   } else {
-    delete ptr;
+    delete socket;
   }
 
   // Process one pending request.
   if (!group.pending_requests.empty()) {
     Request r = group.pending_requests.front();
     group.pending_requests.pop_front();
-    int rv = RequestSocket(r.handle, r.priority, NULL);
-    DCHECK(rv == OK);
-    r.callback->Run(rv);
+
+    int rv = RequestSocket(
+        group_name, r.host, r.port, r.priority, r.handle, r.callback);
+    if (rv != ERR_IO_PENDING)
+      r.callback->Run(rv);
     return;
   }
 
   // Delete group if no longer needed.
   if (group.active_socket_count == 0 && group.idle_sockets.empty()) {
     DCHECK(group.pending_requests.empty());
+    DCHECK(group.connecting_requests.empty());
     group_map_.erase(i);
   }
 }

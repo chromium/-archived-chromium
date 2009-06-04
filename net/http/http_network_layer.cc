@@ -66,7 +66,8 @@ void HttpNetworkLayer::Suspend(bool suspend) {
 HttpNetworkSession* HttpNetworkLayer::GetSession() {
   if (!session_) {
     DCHECK(proxy_service_);
-    session_ = new HttpNetworkSession(proxy_service_);
+    session_ = new HttpNetworkSession(proxy_service_,
+                                      ClientSocketFactory::GetDefaultFactory());
   }
   return session_;
 }
