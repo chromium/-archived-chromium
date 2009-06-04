@@ -344,6 +344,11 @@ private:
 
     // Dump the stats table counters on exit.
     bool dump_stats_table_on_exit_;
+
+#if defined(OS_LINUX)
+    // The height of the non-rendering area of the main window, in pixels.
+    int top_chrome_height_;
+#endif
 };
 
 #endif // WEBKIT_TOOLS_TEST_SHELL_TEST_SHELL_H_
