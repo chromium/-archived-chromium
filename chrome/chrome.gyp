@@ -2839,7 +2839,6 @@
       'target_name': 'ipc_tests',
       'type': 'executable',
       'msvs_guid': 'B92AE829-E1CD-4781-824A-DCB1603A1672',
-      'msvs_existing_vcproj': 'common/ipc_tests.vcproj',
       'dependencies': [
         'common',
         'test_support_unit',
@@ -3774,8 +3773,7 @@
         {
           'target_name': 'activex_test_control',
           'type': 'shared_library',
-	  'msvs_guid': '414D4D24-5D65-498B-A33F-3A29AD3CDEDC',
-          'msvs_existing_vcproj': 'test/activex_test_control/activex_test_control.vcproj',
+          'msvs_guid': '414D4D24-5D65-498B-A33F-3A29AD3CDEDC',
           'include_dirs': [
             '..',
             '<(INTERMEDIATE_DIR)',
@@ -3803,7 +3801,6 @@
           'target_name': 'automated_ui_tests',
           'type': 'executable',
           'msvs_guid': 'D2250C20-3A94-4FB9-AF73-11BC5B73884B',
-          'msvs_existing_vcproj': 'test/automated_ui_tests/automated_ui_tests.vcproj',
           'dependencies': [
             'browser',
             'renderer',
@@ -4042,7 +4039,6 @@
           'target_name': 'memory_test',
           'type': 'executable',
           'msvs_guid': 'A5F831FD-9B9C-4FEF-9FBA-554817B734CE',
-          'msvs_existing_vcproj': 'test/memory_test/memory_test.vcproj',
           'dependencies': [
             'test_support_common',
             'test_support_ui',
@@ -4093,7 +4089,6 @@
           'target_name': 'reliability_tests',
           'type': 'executable',
           'msvs_guid': '8A3E1774-1DE9-445C-982D-3EE37C8A752A',
-          'msvs_existing_vcproj': 'test/reliability/reliability_tests.vcproj',
           'dependencies': [
             'test_support_common',
             'test_support_ui',
@@ -4132,7 +4127,6 @@
           'target_name': 'selenium_tests',
           'type': 'executable',
           'msvs_guid': 'E3749617-BA3D-4230-B54C-B758E56D9FA5',
-          'msvs_existing_vcproj': 'test/selenium/selenium_tests.vcproj',
           'dependencies': [
             'chrome_resources',
             'chrome_strings',
@@ -4161,7 +4155,6 @@
           'target_name': 'tab_switching_test',
           'type': 'executable',
           'msvs_guid': 'A34770EA-A574-43E8-9327-F79C04770E98',
-          'msvs_existing_vcproj': 'test/tab_switching/tab_switching.vcproj',
           'dependencies': [
             'test_support_common',
             'test_support_ui',
@@ -4233,6 +4226,7 @@
         {
           'target_name': 'url_fetch_test',
           'type': 'executable',
+          'msvs_guid': '7EFD0C91-198E-4043-9E71-4A4C7879B929',
           'dependencies': [
             'test_support_common',
             'test_support_ui',
