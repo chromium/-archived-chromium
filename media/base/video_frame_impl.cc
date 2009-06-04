@@ -47,6 +47,11 @@ void VideoFrameImpl::CreateFrame(VideoSurface::Format format,
   *frame_out = alloc_worked ? frame : NULL;
 }
 
+// static
+void VideoFrameImpl::CreateEmptyFrame(scoped_refptr<VideoFrame>* frame_out) {
+  *frame_out = new VideoFrameImpl(VideoSurface::EMPTY, 0, 0);
+}
+
 static inline size_t RoundUp(size_t value, size_t alignment) {
   // Check that |alignment| is a power of 2.
   DCHECK((alignment + (alignment - 1)) == (alignment | (alignment - 1)));
@@ -122,6 +127,7 @@ VideoFrameImpl::~VideoFrameImpl() {
 
 bool VideoFrameImpl::Lock(VideoSurface* surface) {
   DCHECK(!locked_);
+  DCHECK_NE(surface_.format, VideoSurface::EMPTY);
   if (locked_) {
     memset(surface, 0, sizeof(*surface));
     return false;
@@ -134,7 +140,12 @@ bool VideoFrameImpl::Lock(VideoSurface* surface) {
 
 void VideoFrameImpl::Unlock() {
   DCHECK(locked_);
+  DCHECK_NE(surface_.format, VideoSurface::EMPTY);
   locked_ = false;
+}
+
+bool VideoFrameImpl::IsEndOfStream() const {
+  return surface_.format == VideoSurface::EMPTY;
 }
 
 }  // namespace media

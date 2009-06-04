@@ -71,22 +71,30 @@ void AudioRendererBase::OnReadComplete(Buffer* buffer_in) {
   bool initialization_complete = false;
   {
     AutoLock auto_lock(lock_);
-    if (!stopped_) {
+    // If we have stopped don't enqueue, same for end of stream buffer since
+    // it has no data.
+    if (!stopped_ && !buffer_in->IsEndOfStream()) {
       queue_.push_back(buffer_in);
       DCHECK(queue_.size() <= max_queue_size_);
     }
 
-    // See if we're finally initialized.
-    // TODO(scherkus): handle end of stream cases where we'll never reach max
-    // queue size.
-    if (!initialized_ && queue_.size() == max_queue_size_) {
-      initialization_complete = true;
+    if (!initialized_) {
+      // We have completed the initialization when we preroll enough and hit
+      // the target queue size or the stream has ended.
+      if (queue_.size() == max_queue_size_ || buffer_in->IsEndOfStream())
+        initialization_complete = true;
     }
   }
 
   if (initialization_complete) {
-    initialized_ = true;
-    host_->InitializationComplete();
+    if (queue_.empty()) {
+      // If we say we have initialized but buffer queue is empty, raise an
+      // error.
+      host_->Error(PIPELINE_ERROR_NO_DATA);
+    } else {
+      initialized_ = true;
+      host_->InitializationComplete();
+    }
   }
 }
 

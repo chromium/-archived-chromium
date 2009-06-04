@@ -99,10 +99,11 @@ void FFmpegAudioDecoder::OnDecode(Buffer* input) {
       output_buffer_size < 0 ||
       static_cast<size_t>(output_buffer_size) > kOutputBufferSize) {
     host_->Error(PIPELINE_ERROR_DECODE);
-  } else if (result == 0) {
-    // TODO(scherkus): does this mark EOS? Do we want to fulfill a read request
-    // with zero size?
-  } else {
+    return;
+  }
+
+  // If we have decoded something, enqueue the result.
+  if (output_buffer_size) {
     DataBuffer* result_buffer = new DataBuffer();
     memcpy(result_buffer->GetWritableData(output_buffer_size),
            output_buffer, output_buffer_size);
@@ -118,6 +119,18 @@ void FFmpegAudioDecoder::OnDecode(Buffer* input) {
     // Copy over the timestamp.
     result_buffer->SetTimestamp(input->GetTimestamp());
 
+    EnqueueResult(result_buffer);
+    return;
+  }
+
+  // Three conditions to meet to declare end of stream for this decoder:
+  // 1. FFmpeg didn't read anything.
+  // 2. FFmpeg didn't output anything.
+  // 3. An end of stream buffer is received.
+  if (result == 0 && output_buffer_size == 0 && input->IsEndOfStream()) {
+    DataBuffer* result_buffer = new DataBuffer();
+    result_buffer->SetTimestamp(input->GetTimestamp());
+    result_buffer->SetDuration(input->GetDuration());
     EnqueueResult(result_buffer);
   }
 }

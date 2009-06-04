@@ -45,10 +45,10 @@ class StreamSample : public base::RefCountedThreadSafe<StreamSample> {
     return duration_;
   }
 
-  // Indicates that the sample is the last one in the stream.
-  bool IsEndOfStream() const {
-    return end_of_stream_;
-  }
+  // Indicates that the sample is the last one in the stream. This method is
+  // pure virtual so implementors can decide when to declare end of stream
+  // depending on specific data.
+  virtual bool IsEndOfStream() const = 0;
 
   // Indicates that this sample is discontinuous from the previous one, for
   // example, following a seek.
@@ -66,11 +66,6 @@ class StreamSample : public base::RefCountedThreadSafe<StreamSample> {
     duration_ = duration;
   }
 
-  // Sets the value returned by IsEndOfStream().
-  void SetEndOfStream(bool end_of_stream) {
-    end_of_stream_ = end_of_stream;
-  }
-
   // Sets the value returned by IsDiscontinuous().
   void SetDiscontinuous(bool discontinuous) {
     discontinuous_ = discontinuous;
@@ -79,14 +74,12 @@ class StreamSample : public base::RefCountedThreadSafe<StreamSample> {
  protected:
   friend class base::RefCountedThreadSafe<StreamSample>;
   StreamSample()
-      : end_of_stream_(false),
-        discontinuous_(false) {
+      : discontinuous_(false) {
   }
   virtual ~StreamSample() {}
 
   base::TimeDelta timestamp_;
   base::TimeDelta duration_;
-  bool end_of_stream_;
   bool discontinuous_;
 
  private:
@@ -101,6 +94,9 @@ class Buffer : public StreamSample {
 
   // Returns the size of valid data in bytes.
   virtual size_t GetDataSize() const = 0;
+
+  // If there's no data in this buffer, it represents end of stream.
+  virtual bool IsEndOfStream() const { return GetData() == NULL; }
 };
 
 
@@ -143,6 +139,7 @@ struct VideoSurface {
     RGBA,        // 32bpp RGBA packed 8:8:8:8
     YV12,        // 12bpp YVU planar 1x1 Y, 2x2 VU samples
     YV16,        // 16bpp YVU planar 1x1 Y, 2x1 VU samples
+    EMPTY,       // An empty frame.
   };
 
   // Surface format.
@@ -176,6 +173,8 @@ class VideoFrame : public StreamSample {
   // Unlocks the underlying surface, the VideoSurface acquired from Lock is no
   // longer guaranteed to be valid.
   virtual void Unlock() = 0;
+
+  virtual bool IsEndOfStream() const = 0;
 };
 
 }  // namespace media

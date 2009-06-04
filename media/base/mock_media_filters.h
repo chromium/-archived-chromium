@@ -459,10 +459,11 @@ class MockVideoDecoder : public VideoDecoder {
       } else {
         mock_frame_time_ += config_->frame_duration;
         if (mock_frame_time_ >= config_->media_duration) {
-          frame->SetEndOfStream(true);
+          VideoFrameImpl::CreateEmptyFrame(&frame);
+        } else {
+          InitializeYV12Frame(frame, (mock_frame_time_.InSecondsF() /
+                                      config_->media_duration.InSecondsF()));
         }
-        InitializeYV12Frame(frame, (mock_frame_time_.InSecondsF() /
-                                    config_->media_duration.InSecondsF()));
         callback->Run(frame);
       }
     }

@@ -20,7 +20,6 @@ class AVPacketBuffer : public Buffer {
   AVPacketBuffer(AVPacket* packet, const base::TimeDelta& timestamp,
                  const base::TimeDelta& duration)
       : packet_(packet) {
-    DCHECK(packet);
     SetTimestamp(timestamp);
     SetDuration(duration);
   }
@@ -318,9 +317,9 @@ void FFmpegDemuxer::DemuxTask() {
   scoped_ptr<AVPacket> packet(new AVPacket());
   int result = av_read_frame(format_context_.get(), packet.get());
   if (result < 0) {
-    // TODO(scherkus): handle end of stream by marking Buffer with the end
-    // of stream flag.
-    NOTIMPLEMENTED();
+    // If we have reached the end of stream, tell the downstream filters about
+    // the event.
+    StreamHasEnded();
     return;
   }
 
@@ -371,6 +370,15 @@ bool FFmpegDemuxer::StreamsHavePendingReads() {
     }
   }
   return false;
+}
+
+void FFmpegDemuxer::StreamHasEnded() {
+  StreamVector::iterator iter;
+  for (iter = streams_.begin(); iter != streams_.end(); ++iter) {
+    AVPacket* packet = new AVPacket();
+    memset(packet, 0, sizeof(*packet));
+    (*iter)->EnqueuePacket(packet);
+  }
 }
 
 AVPacket* FFmpegDemuxer::ClonePacket(AVPacket* packet) {

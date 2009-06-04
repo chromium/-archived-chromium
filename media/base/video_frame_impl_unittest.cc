@@ -91,9 +91,6 @@ TEST(VideoFrameImpl, Basic) {
   frame->SetDuration(kDurationB);
   EXPECT_TRUE(kTimestampB == frame->GetTimestamp());
   EXPECT_TRUE(kDurationB == frame->GetDuration());
-  frame->SetEndOfStream(true);
-  EXPECT_TRUE(frame->IsEndOfStream());
-  frame->SetEndOfStream(false);
   EXPECT_FALSE(frame->IsEndOfStream());
   frame->SetDiscontinuous(true);
   EXPECT_TRUE(frame->IsDiscontinuous());
@@ -105,4 +102,8 @@ TEST(VideoFrameImpl, Basic) {
   ExpectFrameColor(frame, 0xFF000000);
   media::MockVideoDecoder::InitializeYV12Frame(frame, 1.0f);
   ExpectFrameColor(frame, 0xFFFFFFFF);
+
+  // Test an empty frame.
+  media::VideoFrameImpl::CreateEmptyFrame(&frame);
+  EXPECT_TRUE(frame->IsEndOfStream());
 }

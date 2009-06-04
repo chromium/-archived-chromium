@@ -181,7 +181,10 @@ void VideoRendererBase::ReadComplete(VideoFrame* video_frame) {
       if (video_frame->IsDiscontinuous()) {
         DiscardAllFrames();
       }
-      if (UpdateQueue(host_->GetPipelineStatus()->GetInterpolatedTime(),
+      // If this is not an end of stream frame, update the queue with it.
+      // An end of stream of frame has no data.
+      if (!video_frame->IsEndOfStream() &&
+          UpdateQueue(host_->GetPipelineStatus()->GetInterpolatedTime(),
                       video_frame)) {
         request_repaint = preroll_complete_;
       }

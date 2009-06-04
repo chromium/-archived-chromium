@@ -142,6 +142,9 @@ class FFmpegDemuxer : public Demuxer {
   // Safe to call on any thread.
   bool StreamsHavePendingReads();
 
+  // Signal all FFmpegDemuxerStream that the stream has ended.
+  void StreamHasEnded();
+
   // Helper function to deep copy an AVPacket's data, size and timestamps.
   // Returns NULL if a packet could not be cloned (i.e., out of memory).
   AVPacket* ClonePacket(AVPacket* packet);

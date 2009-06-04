@@ -87,12 +87,6 @@ void FFmpegVideoDecoder::OnDecode(Buffer* buffer) {
     avcodec_flush_buffers(codec_context_);
   }
 
-  // Queue the incoming timestamp.
-  TimeTuple times;
-  times.timestamp = buffer->GetTimestamp();
-  times.duration = buffer->GetDuration();
-  time_queue_.push(times);
-
   // Create a packet for input data.
   // Due to FFmpeg API changes we no longer have const read-only pointers.
   AVPacket packet;
@@ -121,8 +115,25 @@ void FFmpegVideoDecoder::OnDecode(Buffer* buffer) {
   // Check for a decoded frame instead of checking the return value of
   // avcodec_decode_video(). We don't need to stop the pipeline on
   // decode errors.
-  if (!decoded)
+  if (decoded == 0) {
+    // Three conditions to meet to declare end of stream for this decoder:
+    // 1. FFmpeg didn't read anything.
+    // 2. FFmpeg didn't output anything.
+    // 3. An end of stream buffer is received.
+    if (result == 0 && buffer->IsEndOfStream()) {
+      // Create an empty video frame and queue it.
+      scoped_refptr<VideoFrame> video_frame;
+      VideoFrameImpl::CreateEmptyFrame(&video_frame);
+      EnqueueResult(video_frame);
+    }
     return;
+  }
+
+  // Queue the incoming timestamp only if we can decode the frame successfully.
+  TimeTuple times;
+  times.timestamp = buffer->GetTimestamp();
+  times.duration = buffer->GetDuration();
+  time_queue_.push(times);
 
   // J (Motion JPEG) versions of YUV are full range 0..255.
   // Regular (MPEG) YUV is 16..240.

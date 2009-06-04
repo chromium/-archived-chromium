@@ -620,9 +620,10 @@ TEST_F(FFmpegDemuxerTest, ReadAndSeek) {
   reader = new TestReader();
   reader->Read(audio_stream);
   pipeline_->RunAllTasks();
-  EXPECT_FALSE(reader->WaitForRead());
-  EXPECT_FALSE(reader->called());
-  EXPECT_FALSE(reader->buffer());
+  EXPECT_TRUE(reader->WaitForRead());
+  EXPECT_TRUE(reader->called());
+  ASSERT_TRUE(reader->buffer());
+  EXPECT_TRUE(reader->buffer()->IsEndOfStream());
 
   // Manually release buffer, which should release any remaining AVPackets.
   reader = NULL;

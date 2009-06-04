@@ -228,17 +228,26 @@ void VideoThread::GetCurrentFrame(scoped_refptr<media::VideoFrame>* frame_out) {
 
 void VideoThread::OnReadComplete(VideoFrame* frame) {
   AutoLock auto_lock(lock_);
-  frames_.push_back(frame);
-  DCHECK_LE(frames_.size(), kMaxFrames);
-
-  // Check for our initialization condition.
-  if (state_ == INITIALIZING && frames_.size() == kMaxFrames) {
-    state_ = INITIALIZED;
-    current_frame_ = frames_.front();
-    host_->InitializationComplete();
+  // If this is an end of stream frame, don't enqueue it since it has no data.
+  if (!frame->IsEndOfStream()) {
+    frames_.push_back(frame);
+    DCHECK_LE(frames_.size(), kMaxFrames);
+    frame_available_.Signal();
   }
 
-  frame_available_.Signal();
+  // Check for our initialization condition.
+  if (state_ == INITIALIZING &&
+      (frames_.size() == kMaxFrames || frame->IsEndOfStream())) {
+    if (frames_.empty()) {
+      // We should have initialized but there's no decoded frames in the queue.
+      // Raise an error.
+      host_->Error(PIPELINE_ERROR_NO_DATA);
+    } else {
+      state_ = INITIALIZED;
+      current_frame_ = frames_.front();
+      host_->InitializationComplete();
+    }
+  }
 }
 
 void VideoThread::ScheduleRead() {

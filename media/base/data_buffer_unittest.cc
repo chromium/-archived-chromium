@@ -28,17 +28,14 @@ TEST(DataBufferTest, Basic) {
   buffer->SetDuration(kDurationA);
   EXPECT_TRUE(kTimestampA == buffer->GetTimestamp());
   EXPECT_TRUE(kDurationA == buffer->GetDuration());
-  EXPECT_FALSE(buffer->IsEndOfStream());
+  EXPECT_TRUE(buffer->IsEndOfStream());
+  EXPECT_FALSE(buffer->GetData());
   EXPECT_FALSE(buffer->IsDiscontinuous());
   buffer->SetTimestamp(kTimestampB);
   buffer->SetDuration(kDurationB);
   EXPECT_TRUE(kTimestampB == buffer->GetTimestamp());
   EXPECT_TRUE(kDurationB == buffer->GetDuration());
 
-  buffer->SetEndOfStream(true);
-  EXPECT_TRUE(buffer->IsEndOfStream());
-  buffer->SetEndOfStream(false);
-  EXPECT_FALSE(buffer->IsEndOfStream());
   buffer->SetDiscontinuous(true);
   EXPECT_TRUE(buffer->IsDiscontinuous());
   buffer->SetDiscontinuous(false);
@@ -53,6 +50,7 @@ TEST(DataBufferTest, Basic) {
   const uint8* read_only_data = buffer->GetData();
   ASSERT_EQ(data, read_only_data);
   ASSERT_EQ(0, memcmp(read_only_data, kData, kDataSize));
+  EXPECT_FALSE(buffer->IsEndOfStream());
 
   data = buffer->GetWritableData(kNewDataSize + 10);
   ASSERT_TRUE(data);
