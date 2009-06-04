@@ -1042,21 +1042,7 @@ void TabStrip::DidProcessMessage(const MSG& msg) {
     case WM_MOUSEMOVE:
     case WM_MOUSELEAVE:
     case WM_NCMOUSELEAVE:
-      if (!IsCursorInTabStripZone()) {
-        // Mouse moved outside the tab slop zone, start a timer to do a resize
-        // layout after a short while...
-        if (resize_layout_factory_.empty()) {
-          MessageLoop::current()->PostDelayedTask(FROM_HERE,
-              resize_layout_factory_.NewRunnableMethod(
-                  &TabStrip::ResizeLayoutTabs),
-              kResizeTabsTimeMs);
-        }
-      } else {
-        // Mouse moved quickly out of the tab strip and then into it again, so
-        // cancel the timer so that the strip doesn't move when the mouse moves
-        // back over it.
-        resize_layout_factory_.RevokeAll();
-      }
+      HandleGlobalMouseMoveEvent();
       break;
   }
 }
@@ -1065,7 +1051,14 @@ void TabStrip::WillProcessEvent(GdkEvent* event) {
 }
 
 void TabStrip::DidProcessEvent(GdkEvent* event) {
-  NOTIMPLEMENTED();
+  switch (event->type) {
+    case GDK_MOTION_NOTIFY:
+    case GDK_LEAVE_NOTIFY:
+      HandleGlobalMouseMoveEvent();
+      break;
+    default:
+      break;
+  }
 }
 #endif
 
@@ -1219,10 +1212,12 @@ bool TabStrip::IsCursorInTabStripZone() {
   CPoint cursor_point_c;
   GetCursorPos(&cursor_point_c);
   gfx::Point cursor_point(cursor_point_c);
-#else
+#elif defined(OS_LINUX)
   // TODO: make sure this is right with multiple monitors.
+  GdkScreen* screen = gdk_screen_get_default();
+  GdkDisplay* display = gdk_screen_get_display(screen);
   gint x, y;
-  gdk_display_get_pointer(NULL, NULL, &x, &y, NULL);
+  gdk_display_get_pointer(display, NULL, &x, &y, NULL);
   gfx::Point cursor_point(x, y);
 #endif
 
@@ -1556,5 +1551,23 @@ void TabStrip::RemoveTabAt(int index) {
   if (!IsDragSessionActive() || !drag_controller_->IsDragSourceTab(removed)) {
     removed->GetParent()->RemoveChildView(removed);
     delete removed;
+  }
+}
+
+void TabStrip::HandleGlobalMouseMoveEvent() {
+  if (!IsCursorInTabStripZone()) {
+    // Mouse moved outside the tab slop zone, start a timer to do a resize
+    // layout after a short while...
+    if (resize_layout_factory_.empty()) {
+      MessageLoop::current()->PostDelayedTask(FROM_HERE,
+          resize_layout_factory_.NewRunnableMethod(
+              &TabStrip::ResizeLayoutTabs),
+          kResizeTabsTimeMs);
+    }
+  } else {
+    // Mouse moved quickly out of the tab strip and then into it again, so
+    // cancel the timer so that the strip doesn't move when the mouse moves
+    // back over it.
+    resize_layout_factory_.RevokeAll();
   }
 }

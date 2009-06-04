@@ -277,6 +277,10 @@ class TabStrip : public views::View,
   // called from the tab animation code and is not a general-purpose method.
   void RemoveTabAt(int index);
 
+  // Called from the message loop observer when a mouse movement has occurred
+  // anywhere over our containing window.
+  void HandleGlobalMouseMoveEvent();
+
   // -- Member Variables ------------------------------------------------------
 
   // Our model.
