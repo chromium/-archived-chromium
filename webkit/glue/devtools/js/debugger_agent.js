@@ -1034,7 +1034,7 @@ devtools.CallFrame.prototype.evaluate = function(expression) {
 devtools.CallFrame.handleEvaluateResponse_ = function(response) {
   var body = response.getBody();
   var value = devtools.DebuggerAgent.formatObjectReference_(body);
-  WebInspector.addMessageToConsole(new WebInspector.ConsoleCommandResult(
+  WebInspector.console.addMessage(new WebInspector.ConsoleCommandResult(
       value, false /* exception */, null /* commandMessage */));
 };
 
