@@ -41,7 +41,7 @@ class ChildThread : public IPC::Channel::Listener,
   bool Run();
 
   // Overrides the channel name.  Used for --single-process mode.
-  void SetChannelName(const std::wstring& name) { channel_name_ = name; }
+  void SetChannelName(const std::string& name) { channel_name_ = name; }
 
   // Called when the process refcount is 0.
   void OnProcessFinalRelease();
@@ -69,7 +69,7 @@ class ChildThread : public IPC::Channel::Listener,
   // The message loop used to run tasks on the thread that started this thread.
   MessageLoop* owner_loop_;
 
-  std::wstring channel_name_;
+  std::string channel_name_;
   scoped_ptr<IPC::SyncChannel> channel_;
 
   // Used only on the background render thread to implement message routing

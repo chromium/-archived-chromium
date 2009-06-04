@@ -241,7 +241,7 @@ bool ClientConnectToFifo(const std::string &pipe_name, int* client_socket) {
 }  // namespace
 //------------------------------------------------------------------------------
 
-Channel::ChannelImpl::ChannelImpl(const std::wstring& channel_id, Mode mode,
+Channel::ChannelImpl::ChannelImpl(const std::string& channel_id, Mode mode,
                                   Listener* listener)
     : mode_(mode),
       is_blocked_on_write_(false),
@@ -263,7 +263,7 @@ Channel::ChannelImpl::ChannelImpl(const std::wstring& channel_id, Mode mode,
   }
 }
 
-bool Channel::ChannelImpl::CreatePipe(const std::wstring& channel_id,
+bool Channel::ChannelImpl::CreatePipe(const std::string& channel_id,
                                       Mode mode) {
   DCHECK(server_listen_pipe_ == -1 && pipe_ == -1);
 
@@ -272,7 +272,7 @@ bool Channel::ChannelImpl::CreatePipe(const std::wstring& channel_id,
     // TODO(playmobil): We shouldn't need to create fifos on disk.
     // TODO(playmobil): If we do, they should be in the user data directory.
     // TODO(playmobil): Cleanup any stale fifos.
-    pipe_name_ = "/var/tmp/chrome_" + WideToASCII(channel_id);
+    pipe_name_ = "/var/tmp/chrome_" + channel_id;
     if (mode == MODE_SERVER) {
       if (!CreateServerFifo(pipe_name_, &server_listen_pipe_)) {
         return false;
@@ -285,7 +285,7 @@ bool Channel::ChannelImpl::CreatePipe(const std::wstring& channel_id,
     }
   } else {
     // socketpair()
-    pipe_name_ = WideToASCII(channel_id);
+    pipe_name_ = channel_id;
     if (mode == MODE_SERVER) {
       int pipe_fds[2];
       if (socketpair(AF_UNIX, SOCK_STREAM, 0, pipe_fds) != 0) {
@@ -657,7 +657,7 @@ bool Channel::ChannelImpl::Send(Message* message) {
 #endif
 
 #ifdef IPC_MESSAGE_LOG_ENABLED
-  Logging::current()->OnSendMessage(message, L"");
+  Logging::current()->OnSendMessage(message, "");
 #endif
 
   output_queue_.push(message);
@@ -778,7 +778,7 @@ void Channel::ChannelImpl::Close() {
 
 //------------------------------------------------------------------------------
 // Channel's methods simply call through to ChannelImpl.
-Channel::Channel(const std::wstring& channel_id, Mode mode,
+Channel::Channel(const std::string& channel_id, Mode mode,
                  Listener* listener)
     : channel_impl_(new ChannelImpl(channel_id, mode, listener)) {
 }

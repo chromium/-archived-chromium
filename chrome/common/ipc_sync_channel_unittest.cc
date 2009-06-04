@@ -42,13 +42,13 @@ class Worker : public Channel::Listener, public Message::Sender {
         shutdown_event_(true, false) { }
 
   // Will create a named channel and use this name for the threads' name.
-  Worker(const std::wstring& channel_name, Channel::Mode mode)
+  Worker(const std::string& channel_name, Channel::Mode mode)
       : done_(new WaitableEvent(false, false)),
         channel_created_(new WaitableEvent(false, false)),
         channel_name_(channel_name),
         mode_(mode),
-        ipc_thread_((WideToUTF8(channel_name) + "_ipc").c_str()),
-        listener_thread_((WideToUTF8(channel_name) + "_listener").c_str()),
+        ipc_thread_((channel_name + "_ipc").c_str()),
+        listener_thread_((channel_name + "_listener").c_str()),
         overrided_thread_(NULL),
         shutdown_event_(true, false) { }
 
@@ -189,7 +189,7 @@ class Worker : public Channel::Listener, public Message::Sender {
 
   scoped_ptr<WaitableEvent> done_;
   scoped_ptr<WaitableEvent> channel_created_;
-  std::wstring channel_name_;
+  std::string channel_name_;
   Channel::Mode mode_;
   scoped_ptr<SyncChannel> channel_;
   base::Thread ipc_thread_;
@@ -528,7 +528,7 @@ namespace {
 class MultipleServer1 : public Worker {
  public:
   MultipleServer1(bool pump_during_send)
-    : Worker(L"test_channel1", Channel::MODE_SERVER),
+    : Worker("test_channel1", Channel::MODE_SERVER),
       pump_during_send_(pump_during_send) { }
 
   void Run() {
@@ -543,7 +543,7 @@ class MultipleClient1 : public Worker {
  public:
   MultipleClient1(WaitableEvent* client1_msg_received,
                   WaitableEvent* client1_can_reply) :
-      Worker(L"test_channel1", Channel::MODE_CLIENT),
+      Worker("test_channel1", Channel::MODE_CLIENT),
       client1_msg_received_(client1_msg_received),
       client1_can_reply_(client1_can_reply) { }
 
@@ -560,7 +560,7 @@ class MultipleClient1 : public Worker {
 
 class MultipleServer2 : public Worker {
  public:
-  MultipleServer2() : Worker(L"test_channel2", Channel::MODE_SERVER) { }
+  MultipleServer2() : Worker("test_channel2", Channel::MODE_SERVER) { }
 
   void OnAnswer(int* result) {
     *result = 42;
@@ -573,7 +573,7 @@ class MultipleClient2 : public Worker {
   MultipleClient2(
     WaitableEvent* client1_msg_received, WaitableEvent* client1_can_reply,
     bool pump_during_send)
-    : Worker(L"test_channel2", Channel::MODE_CLIENT),
+    : Worker("test_channel2", Channel::MODE_CLIENT),
       client1_msg_received_(client1_msg_received),
       client1_can_reply_(client1_can_reply),
       pump_during_send_(pump_during_send) { }
@@ -642,7 +642,7 @@ namespace {
 class QueuedReplyServer1 : public Worker {
  public:
   QueuedReplyServer1(bool pump_during_send)
-    : Worker(L"test_channel1", Channel::MODE_SERVER),
+    : Worker("test_channel1", Channel::MODE_SERVER),
       pump_during_send_(pump_during_send) { }
   void Run() {
     SendDouble(pump_during_send_, true);
@@ -656,7 +656,7 @@ class QueuedReplyClient1 : public Worker {
  public:
   QueuedReplyClient1(WaitableEvent* client1_msg_received,
                      WaitableEvent* server2_can_reply) :
-      Worker(L"test_channel1", Channel::MODE_CLIENT),
+      Worker("test_channel1", Channel::MODE_CLIENT),
       client1_msg_received_(client1_msg_received),
       server2_can_reply_(server2_can_reply) { }
 
@@ -674,7 +674,7 @@ class QueuedReplyClient1 : public Worker {
 class QueuedReplyServer2 : public Worker {
  public:
   explicit QueuedReplyServer2(WaitableEvent* server2_can_reply) :
-      Worker(L"test_channel2", Channel::MODE_SERVER),
+      Worker("test_channel2", Channel::MODE_SERVER),
       server2_can_reply_(server2_can_reply) { }
 
   void OnAnswer(int* result) {
@@ -694,7 +694,7 @@ class QueuedReplyClient2 : public Worker {
  public:
   explicit QueuedReplyClient2(
     WaitableEvent* client1_msg_received, bool pump_during_send)
-    : Worker(L"test_channel2", Channel::MODE_CLIENT),
+    : Worker("test_channel2", Channel::MODE_CLIENT),
       client1_msg_received_(client1_msg_received),
       pump_during_send_(pump_during_send){ }
 

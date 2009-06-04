@@ -14,8 +14,8 @@
 
 PluginChannel* PluginChannel::GetPluginChannel(MessageLoop* ipc_message_loop) {
   static int next_id;
-  std::wstring channel_name = StringPrintf(
-      L"%d.r%d", base::GetCurrentProcId(), ++next_id);
+  std::string channel_name = StringPrintf(
+      "%d.r%d", base::GetCurrentProcId(), ++next_id);
 
   return static_cast<PluginChannel*>(PluginChannelBase::GetChannel(
       channel_name,

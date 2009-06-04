@@ -60,7 +60,7 @@ class AutomationProvider : public base::RefCounted<AutomationProvider>,
   // Establishes a connection to an automation client, if present.
   // An AutomationProxy should be established (probably in a different process)
   // before calling this.
-  void ConnectToChannel(const std::wstring& channel_id);
+  void ConnectToChannel(const std::string& channel_id);
 
   // Sets the number of tabs that we expect; when this number of tabs has
   // loaded, an AutomationMsg_InitialLoadsComplete message is sent.

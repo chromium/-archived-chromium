@@ -815,7 +815,7 @@ struct ParamTraits<WebCursor> {
 };
 
 struct LogData {
-  std::wstring channel;
+  std::string channel;
   int32 routing_id;
   uint16 type;
   std::wstring flags;
@@ -1233,7 +1233,7 @@ class ParamDeserializer : public MessageReplyDeserializer {
 };
 
 // defined in ipc_logging.cc
-void GenerateLogData(const std::wstring& channel, const Message& message,
+void GenerateLogData(const std::string& channel, const Message& message,
                      LogData* data);
 
 // Used for synchronous messages.
@@ -1318,7 +1318,7 @@ class MessageWithReply : public SyncMessage {
         // output parameters at that point.  Instead, save its data and log it
         // with the outgoing reply message when it's sent.
         LogData* data = new LogData;
-        GenerateLogData(L"", *msg, data);
+        GenerateLogData("", *msg, data);
         msg->set_dont_log();
         reply->set_sync_log_data(data);
       }

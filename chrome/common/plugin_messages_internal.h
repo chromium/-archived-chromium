@@ -39,7 +39,7 @@ IPC_END_MESSAGES(PluginProcess)
 IPC_BEGIN_MESSAGES(PluginProcessHost)
   // Response to a PluginProcessMsg_CreateChannel message.
   IPC_MESSAGE_CONTROL1(PluginProcessHostMsg_ChannelCreated,
-                       std::wstring /* channel_name */)
+                       std::string /* channel_name */)
 
   IPC_SYNC_MESSAGE_CONTROL0_1(PluginProcessHostMsg_GetPluginFinderUrl,
                               std::string /* plugin finder URL */)

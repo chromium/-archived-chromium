@@ -48,7 +48,8 @@ bool UtilityProcessHost::StartProcess(const FilePath& exposed_dir) {
   CommandLine cmd_line(exe_path);
   cmd_line.AppendSwitchWithValue(switches::kProcessType,
                                  switches::kUtilityProcess);
-  cmd_line.AppendSwitchWithValue(switches::kProcessChannelID, channel_id());
+  cmd_line.AppendSwitchWithValue(switches::kProcessChannelID,
+                                 ASCIIToWide(channel_id()));
 
   base::ProcessHandle process;
 #if defined(OS_WIN)

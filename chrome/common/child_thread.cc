@@ -22,8 +22,9 @@ ChildThread::ChildThread(Thread::Options options)
       options_(options),
       check_with_browser_before_shutdown_(false) {
   DCHECK(owner_loop_);
-  channel_name_ = CommandLine::ForCurrentProcess()->GetSwitchValue(
-      switches::kProcessChannelID);
+  channel_name_ = WideToASCII(
+      CommandLine::ForCurrentProcess()->GetSwitchValue(
+          switches::kProcessChannelID));
 
   if (CommandLine::ForCurrentProcess()->HasSwitch(switches::kUserAgent)) {
     webkit_glue::SetUserAgent(WideToUTF8(

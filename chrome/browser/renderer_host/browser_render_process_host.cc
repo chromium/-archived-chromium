@@ -79,7 +79,7 @@ using WebKit::WebCache;
 // single-process mode.  It's not used in multi-process mode.
 class RendererMainThread : public base::Thread {
  public:
-  explicit RendererMainThread(const std::wstring& channel_id)
+  explicit RendererMainThread(const std::string& channel_id)
       : base::Thread("Chrome_InProcRendererThread"),
         channel_id_(channel_id),
         render_process_(NULL) {
@@ -113,7 +113,7 @@ class RendererMainThread : public base::Thread {
   }
 
  private:
-  std::wstring channel_id_;
+  std::string channel_id_;
   // Deleted in CleanUp() on the renderer thread, so don't use a smart pointer.
   RenderProcess* render_process_;
 };
@@ -200,7 +200,7 @@ bool BrowserRenderProcessHost::Init() {
   const CommandLine& browser_command_line = *CommandLine::ForCurrentProcess();
 
   // setup IPC channel
-  const std::wstring channel_id =
+  const std::string channel_id =
       ChildProcessInfo::GenerateRandomChannelID(this);
   channel_.reset(
       new IPC::SyncChannel(channel_id, IPC::Channel::MODE_SERVER, this,
@@ -304,7 +304,7 @@ bool BrowserRenderProcessHost::Init() {
                                  switches::kRendererProcess);
 
   cmd_line.AppendSwitchWithValue(switches::kProcessChannelID,
-                                 channel_id);
+                                 ASCIIToWide(channel_id));
 
   const std::wstring& profile_path =
       browser_command_line.GetSwitchValue(switches::kUserDataDir);

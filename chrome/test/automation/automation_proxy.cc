@@ -112,9 +112,9 @@ void AutomationProxy::InitializeChannelID() {
   // wasn't getting freed up in time for the next test.)
   static int channel_counter = 0;
 
-  std::wostringstream buf;
-  buf << L"ChromeTestingInterface:" << base::GetCurrentProcId() <<
-         L"." << ++channel_counter;
+  std::ostringstream buf;
+  buf << "ChromeTestingInterface:" << base::GetCurrentProcId() <<
+         "." << ++channel_counter;
   channel_id_ = buf.str();
 }
 

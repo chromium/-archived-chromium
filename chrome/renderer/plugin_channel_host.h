@@ -15,7 +15,7 @@ class IsListeningFilter;
 class PluginChannelHost : public PluginChannelBase {
  public:
   static PluginChannelHost* GetPluginChannelHost(
-      const std::wstring& channel_name, MessageLoop* ipc_message_loop);
+      const std::string& channel_name, MessageLoop* ipc_message_loop);
 
   ~PluginChannelHost();
 

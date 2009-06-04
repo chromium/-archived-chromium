@@ -35,7 +35,7 @@ class PluginChannelBase : public IPC::Channel::Listener,
   virtual bool Send(IPC::Message* msg);
 
   int peer_pid() { return peer_pid_; }
-  std::wstring channel_name() const { return channel_name_; }
+  std::string channel_name() const { return channel_name_; }
 
   // Returns the number of open plugin channels in this process.
   static int Count();
@@ -60,7 +60,7 @@ class PluginChannelBase : public IPC::Channel::Listener,
   // must still ref count the returned value.  When there are no more routes
   // on the channel and its ref count is 0, the object deletes itself.
   static PluginChannelBase* GetChannel(
-      const std::wstring& channel_name, IPC::Channel::Mode mode,
+      const std::string& channel_name, IPC::Channel::Mode mode,
       PluginChannelFactory factory, MessageLoop* ipc_message_loop,
       bool create_pipe_now);
 
@@ -88,7 +88,7 @@ class PluginChannelBase : public IPC::Channel::Listener,
  private:
 
   IPC::Channel::Mode mode_;
-  std::wstring channel_name_;
+  std::string channel_name_;
   int plugin_count_;
   int peer_pid_;
 

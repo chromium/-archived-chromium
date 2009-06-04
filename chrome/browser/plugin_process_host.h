@@ -65,7 +65,7 @@ class PluginProcessHost : public ChildProcessHost,
   // Sends the reply to an open channel request to the renderer with the given
   // channel name.
   static void ReplyToRenderer(ResourceMessageFilter* renderer_message_filter,
-                              const std::wstring& channel,
+                              const std::string& channel,
                               const FilePath& plugin_path,
                               IPC::Message* reply_msg);
 
@@ -96,7 +96,7 @@ class PluginProcessHost : public ChildProcessHost,
                             const std::string& mime_type,
                             IPC::Message* reply_msg);
   // Message handlers.
-  void OnChannelCreated(const std::wstring& channel_name);
+  void OnChannelCreated(const std::string& channel_name);
   void OnGetPluginFinderUrl(std::string* plugin_finder_url);
   void OnGetCookies(uint32 request_context, const GURL& url,
                     std::string* cookies);

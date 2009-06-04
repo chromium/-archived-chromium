@@ -19,9 +19,9 @@ enum ChildType {
 };
 
 // The different channel names for the child processes.
-extern const wchar_t kTestClientChannel[];
-extern const wchar_t kReflectorChannel[];
-extern const wchar_t kFuzzerChannel[];
+extern const char kTestClientChannel[];
+extern const char kReflectorChannel[];
+extern const char kFuzzerChannel[];
 
 class MessageLoopForIO;
 namespace IPC {

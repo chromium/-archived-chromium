@@ -380,7 +380,8 @@ bool PluginProcessHost::Init(const WebPluginInfo& info,
   cmd_line.AppendSwitchWithValue(switches::kProcessType,
                                  switches::kPluginProcess);
 
-  cmd_line.AppendSwitchWithValue(switches::kProcessChannelID, channel_id());
+  cmd_line.AppendSwitchWithValue(switches::kProcessChannelID,
+                                 ASCIIToWide(channel_id()));
 
   cmd_line.AppendSwitchWithValue(switches::kPluginPath,
                                  info.path.ToWStringHack());
@@ -449,7 +450,7 @@ void PluginProcessHost::OnChannelConnected(int32 peer_pid) {
 void PluginProcessHost::OnChannelError() {
   for (size_t i = 0; i < pending_requests_.size(); ++i) {
     ReplyToRenderer(pending_requests_[i].renderer_message_filter_.get(),
-                    std::wstring(),
+                    std::string(),
                     FilePath(),
                     pending_requests_[i].reply_msg);
   }
@@ -501,7 +502,7 @@ void PluginProcessHost::OnResolveProxyCompleted(IPC::Message* reply_msg,
 
 void PluginProcessHost::ReplyToRenderer(
     ResourceMessageFilter* renderer_message_filter,
-    const std::wstring& channel, const FilePath& plugin_path,
+    const std::string& channel, const FilePath& plugin_path,
     IPC::Message* reply_msg) {
   ViewHostMsg_OpenChannelToPlugin::WriteReplyParams(reply_msg, channel,
                                                     plugin_path);
@@ -529,12 +530,12 @@ void PluginProcessHost::RequestPluginChannel(
     sent_requests_.push(ChannelRequest(
         renderer_message_filter, mime_type, reply_msg));
   } else {
-    ReplyToRenderer(renderer_message_filter, std::wstring(), FilePath(),
+    ReplyToRenderer(renderer_message_filter, std::string(), FilePath(),
                     reply_msg);
   }
 }
 
-void PluginProcessHost::OnChannelCreated(const std::wstring& channel_name) {
+void PluginProcessHost::OnChannelCreated(const std::string& channel_name) {
   ReplyToRenderer(sent_requests_.front().renderer_message_filter_.get(),
                   channel_name,
                   info_.path,

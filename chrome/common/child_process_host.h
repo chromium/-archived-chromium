@@ -70,7 +70,7 @@ class ChildProcessHost : public ResourceDispatcherHost::Receiver,
   virtual void OnChannelError() { }
 
   bool opening_channel() { return opening_channel_; }
-  const std::wstring& channel_id() { return channel_id_; }
+  const std::string& channel_id() { return channel_id_; }
 
   const IPC::Channel& channel() const { return *channel_; }
 
@@ -105,7 +105,7 @@ class ChildProcessHost : public ResourceDispatcherHost::Receiver,
   scoped_ptr<IPC::Channel> channel_;
 
   // IPC Channel's id.
-  std::wstring channel_id_;
+  std::string channel_id_;
 
   // Used to watch the child process handle.
   base::WaitableEventWatcher watcher_;

@@ -8,14 +8,14 @@
 #include "chrome/common/child_process.h"
 #include "chrome/common/ipc_sync_message.h"
 
-typedef base::hash_map<std::wstring, scoped_refptr<PluginChannelBase> >
+typedef base::hash_map<std::string, scoped_refptr<PluginChannelBase> >
     PluginChannelMap;
 
 static PluginChannelMap g_plugin_channels_;
 
 
 PluginChannelBase* PluginChannelBase::GetChannel(
-    const std::wstring& channel_name, IPC::Channel::Mode mode,
+    const std::string& channel_name, IPC::Channel::Mode mode,
     PluginChannelFactory factory, MessageLoop* ipc_message_loop,
     bool create_pipe_now) {
   scoped_refptr<PluginChannelBase> channel;

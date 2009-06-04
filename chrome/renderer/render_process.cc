@@ -42,7 +42,7 @@ RenderProcess::RenderProcess()
   Init();
 }
 
-RenderProcess::RenderProcess(const std::wstring& channel_name)
+RenderProcess::RenderProcess(const std::string& channel_name)
     : ChildProcess(new RenderThread(channel_name)),
       ALLOW_THIS_IN_INITIALIZER_LIST(shared_mem_cache_cleaner_(
           base::TimeDelta::FromSeconds(5),

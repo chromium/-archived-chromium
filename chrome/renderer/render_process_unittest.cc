@@ -10,7 +10,7 @@
 
 namespace {
 
-static const wchar_t kThreadName[] = L"render_process_unittest";
+static const char kThreadName[] = "render_process_unittest";
 
 class RenderProcessTest : public testing::Test {
  public:

@@ -219,7 +219,7 @@ bool WebPluginDelegateProxy::Initialize(const GURL& url, char** argn,
                                         char** argv, int argc,
                                         WebPlugin* plugin,
                                         bool load_manually) {
-  std::wstring channel_name;
+  std::string channel_name;
   FilePath plugin_path;
   if (!RenderThread::current()->Send(new ViewHostMsg_OpenChannelToPlugin(
           url, mime_type_, clsid_, webkit_glue::GetWebKitLocale(),

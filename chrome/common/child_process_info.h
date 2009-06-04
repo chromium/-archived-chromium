@@ -82,7 +82,7 @@ class ChildProcessInfo {
 
   // Generates a unique channel name for a child renderer/plugin process.
   // The "instance" pointer value is baked into the channel id.
-  static std::wstring GenerateRandomChannelID(void* instance);
+  static std::string GenerateRandomChannelID(void* instance);
 
  protected:
   void set_type(ProcessType type) { type_ = type; }

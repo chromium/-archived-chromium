@@ -826,7 +826,7 @@ AutomationProvider::~AutomationProvider() {
     delete observer;
 }
 
-void AutomationProvider::ConnectToChannel(const std::wstring& channel_id) {
+void AutomationProvider::ConnectToChannel(const std::string& channel_id) {
   channel_.reset(
     new IPC::SyncChannel(channel_id, IPC::Channel::MODE_CLIENT, this, NULL,
                          g_browser_process->io_thread()->message_loop(),

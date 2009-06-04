@@ -336,7 +336,7 @@ void SyncChannel::SyncContext::OnWaitableEventSignaled(WaitableEvent* event) {
 
 
 SyncChannel::SyncChannel(
-    const std::wstring& channel_id, Channel::Mode mode,
+    const std::string& channel_id, Channel::Mode mode,
     Channel::Listener* listener, MessageFilter* filter,
     MessageLoop* ipc_message_loop, bool create_pipe_now,
     WaitableEvent* shutdown_event)

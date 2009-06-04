@@ -658,8 +658,8 @@ bool BrowserInit::ProcessCmdLineImpl(const CommandLine& command_line,
 
     // Look for the testing channel ID ONLY during process startup
     if (command_line.HasSwitch(switches::kTestingChannelID)) {
-      std::wstring testing_channel_id =
-          command_line.GetSwitchValue(switches::kTestingChannelID);
+      std::string testing_channel_id = WideToASCII(
+          command_line.GetSwitchValue(switches::kTestingChannelID));
       // TODO(sanjeevr) Check if we need to make this a singleton for
       // compatibility with the old testing code
       // If there are any loose parameters, we expect each one to generate a
@@ -686,8 +686,8 @@ bool BrowserInit::ProcessCmdLineImpl(const CommandLine& command_line,
 
   bool silent_launch = false;
   if (command_line.HasSwitch(switches::kAutomationClientChannelID)) {
-    std::wstring automation_channel_id =
-        command_line.GetSwitchValue(switches::kAutomationClientChannelID);
+    std::string automation_channel_id = WideToASCII(
+        command_line.GetSwitchValue(switches::kAutomationClientChannelID));
     // If there are any loose parameters, we expect each one to generate a
     // new tab; if there are none then we have no tabs
     size_t expected_tabs =
@@ -728,7 +728,7 @@ bool BrowserInit::ProcessCmdLineImpl(const CommandLine& command_line,
 }
 
 template <class AutomationProviderClass>
-void BrowserInit::CreateAutomationProvider(const std::wstring& channel_id,
+void BrowserInit::CreateAutomationProvider(const std::string& channel_id,
                                            Profile* profile,
                                            size_t expected_tabs) {
   scoped_refptr<AutomationProviderClass> automation =

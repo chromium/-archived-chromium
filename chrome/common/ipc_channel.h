@@ -57,7 +57,7 @@ class Channel : public Message::Sender {
   // |listener| receives a callback on the current thread for each newly
   // received message.
   //
-  Channel(const std::wstring& channel_id, Mode mode, Listener* listener);
+  Channel(const std::string& channel_id, Mode mode, Listener* listener);
 
   ~Channel();
 

@@ -75,7 +75,8 @@ bool WorkerProcessHost::Init() {
   CommandLine cmd_line(exe_path);
   cmd_line.AppendSwitchWithValue(switches::kProcessType,
                                  switches::kWorkerProcess);
-  cmd_line.AppendSwitchWithValue(switches::kProcessChannelID, channel_id());
+  cmd_line.AppendSwitchWithValue(switches::kProcessChannelID,
+                                 ASCIIToWide(channel_id()));
 
   if (CommandLine::ForCurrentProcess()->HasSwitch(
           switches::kWebWorkerShareProcesses)) {

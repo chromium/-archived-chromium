@@ -49,10 +49,10 @@ class Logging : public base::WaitableEventWatcher::Delegate,
   // received.
   void OnReceivedLoggingMessage(const Message& message);
 
-  void OnSendMessage(Message* message, const std::wstring& channel_id);
+  void OnSendMessage(Message* message, const std::string& channel_id);
   void OnPreDispatchMessage(const Message& message);
   void OnPostDispatchMessage(const Message& message,
-                             const std::wstring& channel_id);
+                             const std::string& channel_id);
 
   // Returns the name of the logging enabled/disabled events so that the
   // sandbox can add them to to the policy.  If true, gets the name of the

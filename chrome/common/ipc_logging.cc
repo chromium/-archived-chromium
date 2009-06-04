@@ -186,7 +186,7 @@ void Logging::OnReceivedLoggingMessage(const Message& message) {
   }
 }
 
-void Logging::OnSendMessage(Message* message, const std::wstring& channel_id) {
+void Logging::OnSendMessage(Message* message, const std::string& channel_id) {
   if (!Enabled())
     return;
 
@@ -199,7 +199,7 @@ void Logging::OnSendMessage(Message* message, const std::wstring& channel_id) {
     // of the output parameters, add it to the LogData that was earlier stashed
     // with the reply, and log the result.
     data->channel = channel_id;
-    GenerateLogData(L"", *message, data);
+    GenerateLogData("", *message, data);
     Log(*data);
     delete data;
     message->set_sync_log_data(NULL);
@@ -216,7 +216,7 @@ void Logging::OnPreDispatchMessage(const Message& message) {
 }
 
 void Logging::OnPostDispatchMessage(const Message& message,
-                                    const std::wstring& channel_id) {
+                                    const std::string& channel_id) {
   if (!Enabled() ||
 #if defined(OS_WIN)
       !message.sent_time() ||
@@ -269,7 +269,7 @@ void Logging::Log(const LogData& data) {
 #elif defined(OS_POSIX)
   // On POSIX, for now, we just dump the log to stderr
   fprintf(stderr, "ipc %s %d %d %s %s %s\n",
-          WideToUTF8(data.channel).c_str(),
+          data.channel.c_str(),
           data.routing_id,
           data.type,
           WideToUTF8(data.flags).c_str(),
@@ -278,7 +278,7 @@ void Logging::Log(const LogData& data) {
 #endif
 }
 
-void GenerateLogData(const std::wstring& channel, const Message& message,
+void GenerateLogData(const std::string& channel, const Message& message,
                      LogData* data) {
   if (message.is_reply()) {
     // "data" should already be filled in.

@@ -25,7 +25,7 @@ ChannelProxy::Context::Context(Channel::Listener* listener,
     filters_.push_back(filter);
 }
 
-void ChannelProxy::Context::CreateChannel(const std::wstring& id,
+void ChannelProxy::Context::CreateChannel(const std::string& id,
                                           const Channel::Mode& mode) {
   DCHECK(channel_ == NULL);
   channel_id_ = id;
@@ -205,21 +205,21 @@ void ChannelProxy::Context::OnDispatchError() {
 
 //-----------------------------------------------------------------------------
 
-ChannelProxy::ChannelProxy(const std::wstring& channel_id, Channel::Mode mode,
+ChannelProxy::ChannelProxy(const std::string& channel_id, Channel::Mode mode,
                            Channel::Listener* listener, MessageFilter* filter,
                            MessageLoop* ipc_thread)
     : context_(new Context(listener, filter, ipc_thread)) {
   Init(channel_id, mode, ipc_thread, true);
 }
 
-ChannelProxy::ChannelProxy(const std::wstring& channel_id, Channel::Mode mode,
+ChannelProxy::ChannelProxy(const std::string& channel_id, Channel::Mode mode,
                            MessageLoop* ipc_thread, Context* context,
                            bool create_pipe_now)
     : context_(context) {
   Init(channel_id, mode, ipc_thread, create_pipe_now);
 }
 
-void ChannelProxy::Init(const std::wstring& channel_id, Channel::Mode mode,
+void ChannelProxy::Init(const std::string& channel_id, Channel::Mode mode,
                         MessageLoop* ipc_thread_loop, bool create_pipe_now) {
   if (create_pipe_now) {
     // Create the channel immediately.  This effectively sets up the

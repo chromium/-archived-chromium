@@ -170,7 +170,7 @@ class AutomationProxy : public IPC::Channel::Listener,
 
   // Returns the ID of the automation IPC channel, so that it can be
   // passed to the app as a launch parameter.
-  const std::wstring& channel_id() const { return channel_id_; }
+  const std::string& channel_id() const { return channel_id_; }
 
 #if defined(OS_POSIX)
   base::file_handle_mapping_vector fds_to_map() const;
@@ -222,7 +222,7 @@ class AutomationProxy : public IPC::Channel::Listener,
   void InitializeChannel();
   void InitializeHandleTracker();
 
-  std::wstring channel_id_;
+  std::string channel_id_;
   scoped_ptr<base::Thread> thread_;
   scoped_ptr<IPC::SyncChannel> channel_;
   scoped_ptr<AutomationHandleTracker> tracker_;

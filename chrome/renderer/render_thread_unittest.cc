@@ -11,7 +11,7 @@
 
 namespace {
 
-const wchar_t kThreadName[] = L"render_thread_unittest";
+const char kThreadName[] = "render_thread_unittest";
 
 class RenderThreadTest : public testing::Test {
  public:

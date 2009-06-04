@@ -31,8 +31,8 @@ Channel::ChannelImpl::State::~State() {
 
 //------------------------------------------------------------------------------
 
-Channel::ChannelImpl::ChannelImpl(const std::wstring& channel_id, Mode mode,
-                              Listener* listener)
+Channel::ChannelImpl::ChannelImpl(const std::string& channel_id, Mode mode,
+                                  Listener* listener)
     : ALLOW_THIS_IN_INITIALIZER_LIST(input_state_(this)),
       ALLOW_THIS_IN_INITIALIZER_LIST(output_state_(this)),
       pipe_(INVALID_HANDLE_VALUE),
@@ -92,7 +92,7 @@ bool Channel::ChannelImpl::Send(Message* message) {
 #endif
 
 #ifdef IPC_MESSAGE_LOG_ENABLED
-  Logging::current()->OnSendMessage(message, L"");
+  Logging::current()->OnSendMessage(message, "");
 #endif
 
   output_queue_.push(message);
@@ -108,14 +108,14 @@ bool Channel::ChannelImpl::Send(Message* message) {
 }
 
 const std::wstring Channel::ChannelImpl::PipeName(
-    const std::wstring& channel_id) const {
+    const std::string& channel_id) const {
   std::wostringstream ss;
   // XXX(darin): get application name from somewhere else
-  ss << L"\\\\.\\pipe\\chrome." << channel_id;
+  ss << L"\\\\.\\pipe\\chrome." << ASCIIToWide(channel_id);
   return ss.str();
 }
 
-bool Channel::ChannelImpl::CreatePipe(const std::wstring& channel_id,
+bool Channel::ChannelImpl::CreatePipe(const std::string& channel_id,
                                       Mode mode) {
   DCHECK(pipe_ == INVALID_HANDLE_VALUE);
   const std::wstring pipe_name = PipeName(channel_id);
@@ -413,7 +413,7 @@ void Channel::ChannelImpl::OnIOCompleted(MessageLoopForIO::IOContext* context,
 
 //------------------------------------------------------------------------------
 // Channel's methods simply call through to ChannelImpl.
-Channel::Channel(const std::wstring& channel_id, Mode mode,
+Channel::Channel(const std::string& channel_id, Mode mode,
                  Listener* listener)
     : channel_impl_(new ChannelImpl(channel_id, mode, listener)) {
 }

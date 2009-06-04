@@ -87,7 +87,7 @@ class ChannelProxy : public Message::Sender {
   // on the background thread.  Any message not handled by the filter will be
   // dispatched to the listener.  The given message loop indicates where the
   // IPC::Channel should be created.
-  ChannelProxy(const std::wstring& channel_id, Channel::Mode mode,
+  ChannelProxy(const std::string& channel_id, Channel::Mode mode,
                Channel::Listener* listener, MessageFilter* filter,
                MessageLoop* ipc_thread_loop);
 
@@ -129,7 +129,7 @@ class ChannelProxy : public Message::Sender {
   // A subclass uses this constructor if it needs to add more information
   // to the internal state.  If create_pipe_now is true, the pipe is created
   // immediately.  Otherwise it's created on the IO thread.
-  ChannelProxy(const std::wstring& channel_id, Channel::Mode mode,
+  ChannelProxy(const std::string& channel_id, Channel::Mode mode,
                MessageLoop* ipc_thread_loop, Context* context,
                bool create_pipe_now);
 
@@ -141,7 +141,7 @@ class ChannelProxy : public Message::Sender {
             MessageLoop* ipc_thread);
     virtual ~Context() { }
     MessageLoop* ipc_message_loop() const { return ipc_message_loop_; }
-    const std::wstring& channel_id() const { return channel_id_; }
+    const std::string& channel_id() const { return channel_id_; }
 
     // Dispatches a message on the listener thread.
     void OnDispatchMessage(const Message& message);
@@ -171,7 +171,7 @@ class ChannelProxy : public Message::Sender {
    private:
     friend class ChannelProxy;
     // Create the Channel
-    void CreateChannel(const std::wstring& id, const Channel::Mode& mode);
+    void CreateChannel(const std::string& id, const Channel::Mode& mode);
 
     // Methods called via InvokeLater:
     void OnSendMessage(Message* message_ptr);
@@ -187,7 +187,7 @@ class ChannelProxy : public Message::Sender {
     std::vector<scoped_refptr<MessageFilter> > filters_;
     MessageLoop* ipc_message_loop_;
     Channel* channel_;
-    std::wstring channel_id_;
+    std::string channel_id_;
     int peer_pid_;
     bool channel_connected_called_;
   };
@@ -195,7 +195,7 @@ class ChannelProxy : public Message::Sender {
   Context* context() { return context_; }
 
  private:
-  void Init(const std::wstring& channel_id, Channel::Mode mode,
+  void Init(const std::string& channel_id, Channel::Mode mode,
             MessageLoop* ipc_thread_loop, bool create_pipe_now);
 
   // By maintaining this indirection (ref-counted) to our internal state, we

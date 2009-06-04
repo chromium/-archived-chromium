@@ -15,7 +15,7 @@
 
 using base::ProcessHandle;
 
-const std::wstring kRendererTestChannelName(L"test");
+const char kRendererTestChannelName[] = "test";
 
 extern int RendererMain(const MainFunctionParams& parameters);
 
@@ -80,7 +80,7 @@ MULTIPROCESS_TEST_MAIN(SimpleRenderer) {
   SandboxInitWrapper dummy_sandbox_init;
   CommandLine cl(*CommandLine::ForCurrentProcess());
   cl.AppendSwitchWithValue(switches::kProcessChannelID,
-                                     kRendererTestChannelName);
+                           ASCIIToWide(kRendererTestChannelName));
 
   MainFunctionParams dummy_params(cl, dummy_sandbox_init, NULL);
   return RendererMain(dummy_params);

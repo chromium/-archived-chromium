@@ -34,9 +34,9 @@
 // Define to enable IPC performance testing instead of the regular unit tests
 // #define PERFORMANCE_TEST
 
-const wchar_t kTestClientChannel[] = L"T1";
-const wchar_t kReflectorChannel[] = L"T2";
-const wchar_t kFuzzerChannel[] = L"F3";
+const char kTestClientChannel[] = "T1";
+const char kReflectorChannel[] = "T2";
+const char kFuzzerChannel[] = "F3";
 
 const size_t kLongMessageStringNumBytes = 50000;
 

@@ -61,7 +61,7 @@ void PluginChannelHost::SetListening(bool flag) {
 }
 
 PluginChannelHost* PluginChannelHost::GetPluginChannelHost(
-    const std::wstring& channel_name, MessageLoop* ipc_message_loop) {
+    const std::string& channel_name, MessageLoop* ipc_message_loop) {
   PluginChannelHost* result =
       static_cast<PluginChannelHost*>(PluginChannelBase::GetChannel(
           channel_name,

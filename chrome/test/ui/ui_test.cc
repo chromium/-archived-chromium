@@ -262,10 +262,10 @@ void UITest::LaunchBrowser(const CommandLine& arguments, bool clear_profile) {
       // I decided to keep using the old switch in the existing use case to
       // minimize changes in behavior.
       command_line.AppendSwitchWithValue(switches::kAutomationClientChannelID,
-                                         server_->channel_id());
+                                         ASCIIToWide(server_->channel_id()));
     } else {
       command_line.AppendSwitchWithValue(switches::kTestingChannelID,
-                                         server_->channel_id());
+                                         ASCIIToWide(server_->channel_id()));
     }
   }
 

@@ -919,7 +919,7 @@ IPC_BEGIN_MESSAGES(ViewHost)
                               std::string /* mime_type */,
                               std::string /* clsid */,
                               std::wstring /* locale */,
-                              std::wstring /* channel_name */,
+                              std::string /* channel_name */,
                               FilePath /* plugin_path */)
 
   // Clipboard IPC messages

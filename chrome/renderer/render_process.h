@@ -24,7 +24,7 @@ class RenderProcess : public ChildProcess {
   // This constructor grabs the channel name from the command line arguments.
   RenderProcess();
   // This constructor uses the given channel name.
-  RenderProcess(const std::wstring& channel_name);
+  RenderProcess(const std::string& channel_name);
 
   ~RenderProcess();
 

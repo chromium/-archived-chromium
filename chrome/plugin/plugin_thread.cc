@@ -98,7 +98,7 @@ void PluginThread::CleanUp() {
 }
 
 void PluginThread::OnCreateChannel(bool off_the_record) {
-  std::wstring channel_name;
+  std::string channel_name;
   scoped_refptr<PluginChannel> channel =
       PluginChannel::GetPluginChannel(owner_loop());
   if (channel.get()) {

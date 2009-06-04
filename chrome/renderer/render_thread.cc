@@ -67,7 +67,7 @@ RenderThread::RenderThread()
       plugin_refresh_allowed_(true) {
 }
 
-RenderThread::RenderThread(const std::wstring& channel_name)
+RenderThread::RenderThread(const std::string& channel_name)
     : ChildThread(
           base::Thread::Options(RenderProcess::InProcessPlugins() ?
               MessageLoop::TYPE_UI : MessageLoop::TYPE_DEFAULT, kV8StackSize)),

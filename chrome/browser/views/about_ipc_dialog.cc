@@ -402,7 +402,8 @@ void AboutIPCDialog::Log(const IPC::LogData& data) {
   int index = message_list_.InsertItem(count, sent_str.c_str());
 
   message_list_.SetItemText(index, kTimeColumn, sent_str.c_str());
-  message_list_.SetItemText(index, kChannelColumn, data.channel.c_str());
+  message_list_.SetItemText(index, kChannelColumn,
+                            ASCIIToWide(data.channel).c_str());
 
   std::wstring message_name;
   IPC::Logging::GetMessageText(data.type, &message_name, NULL, NULL);

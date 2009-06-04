@@ -23,7 +23,7 @@ namespace IPC {
 class Channel::ChannelImpl : public MessageLoopForIO::Watcher {
  public:
   // Mirror methods of Channel, see ipc_channel.h for description.
-  ChannelImpl(const std::wstring& channel_id, Mode mode, Listener* listener);
+  ChannelImpl(const std::string& channel_id, Mode mode, Listener* listener);
   ~ChannelImpl() { Close(); }
   bool Connect();
   void Close();
@@ -32,7 +32,7 @@ class Channel::ChannelImpl : public MessageLoopForIO::Watcher {
   void GetClientFileDescriptorMapping(int *src_fd, int *dest_fd) const;
 
  private:
-  bool CreatePipe(const std::wstring& channel_id, Mode mode);
+  bool CreatePipe(const std::string& channel_id, Mode mode);
 
   bool ProcessIncomingMessages();
   bool ProcessOutgoingMessages();

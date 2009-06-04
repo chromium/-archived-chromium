@@ -19,15 +19,15 @@ namespace IPC {
 class Channel::ChannelImpl : public MessageLoopForIO::IOHandler {
  public:
   // Mirror methods of Channel, see ipc_channel.h for description.
-  ChannelImpl(const std::wstring& channel_id, Mode mode, Listener* listener);
+  ChannelImpl(const std::string& channel_id, Mode mode, Listener* listener);
   ~ChannelImpl() { Close(); }
   bool Connect();
   void Close();
   void set_listener(Listener* listener) { listener_ = listener; }
   bool Send(Message* message);
  private:
-  const std::wstring PipeName(const std::wstring& channel_id) const;
-  bool CreatePipe(const std::wstring& channel_id, Mode mode);
+  const std::wstring PipeName(const std::string& channel_id) const;
+  bool CreatePipe(const std::string& channel_id, Mode mode);
 
   bool ProcessConnection();
   bool ProcessIncomingMessages(MessageLoopForIO::IOContext* context,
