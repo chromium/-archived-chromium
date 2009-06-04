@@ -260,7 +260,13 @@ TaskManagerViewImpl::TaskManagerViewImpl(TaskManager* task_manager,
     : task_manager_(task_manager),
       model_(model),
       is_always_on_top_(false) {
-  Init();
+  kill_button_.reset(new views::NativeButton(
+      this, l10n_util::GetString(IDS_TASK_MANAGER_KILL)));
+  kill_button_->AddAccelerator(views::Accelerator('E', false, false, false));
+  kill_button_->SetAccessibleKeyboardShortcut(L"E");
+  about_memory_link_.reset(new views::Link(
+      l10n_util::GetString(IDS_TASK_MANAGER_ABOUT_MEMORY_LINK)));
+  about_memory_link_->SetController(this);
 }
 
 TaskManagerViewImpl::~TaskManagerViewImpl() {
@@ -296,6 +302,7 @@ void TaskManagerViewImpl::Init() {
   tab_table_ = new views::GroupTableView(table_model_.get(), columns_,
                                          views::ICON_AND_TEXT, false, true,
                                          true);
+  AddChildView(tab_table_);
 
   // Hide some columns by default
   tab_table_->SetColumnVisibility(IDS_TASK_MANAGER_PROCESS_ID_COLUMN, false);
@@ -310,13 +317,6 @@ void TaskManagerViewImpl::Init() {
   tab_table_->AddColumn(col);
   tab_table_->SetObserver(this);
   SetContextMenuController(this);
-  kill_button_.reset(new views::NativeButton(
-      this, l10n_util::GetString(IDS_TASK_MANAGER_KILL)));
-  kill_button_->AddAccelerator(views::Accelerator('E', false, false, false));
-  kill_button_->SetAccessibleKeyboardShortcut(L"E");
-  about_memory_link_.reset(new views::Link(
-      l10n_util::GetString(IDS_TASK_MANAGER_ABOUT_MEMORY_LINK)));
-  about_memory_link_->SetController(this);
 
   // Makes sure our state is consistent.
   OnSelectionChanged();
@@ -357,8 +357,7 @@ void TaskManagerViewImpl::ViewHierarchyChanged(bool is_add,
     if (is_add) {
       parent->AddChildView(kill_button_.get());
       parent->AddChildView(about_memory_link_.get());
-      if (tab_table_->GetParent() != this)
-        AddChildView(tab_table_);
+      Init();
     } else {
       parent->RemoveChildView(kill_button_.get());
       parent->RemoveChildView(about_memory_link_.get());
