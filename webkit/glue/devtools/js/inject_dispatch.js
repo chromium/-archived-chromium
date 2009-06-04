@@ -48,7 +48,8 @@ var dispatch = function(method, var_args) {
   // Serialize objects here.
   if (method == 'addMessageToConsole') {
     // Skip first argument since it is serializable.
-    for (var i = 1; i < args.length; ++i) {
+    // Method has index 0, first argument has index 1. Skip both.
+    for (var i = 2; i < args.length; ++i) {
       var type = typeof args[i];
       if (type == 'object') {
         args[i] = Object.prototype.toString(args[i]);
