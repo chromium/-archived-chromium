@@ -36,6 +36,7 @@
 #include "chrome/browser/profile.h"
 #if defined(OS_LINUX)
 #include "chrome/browser/renderer_host/render_crash_handler_host_linux.h"
+#include "chrome/browser/renderer_host/render_sandbox_host_linux.h"
 #endif
 #include "chrome/browser/renderer_host/render_view_host.h"
 #include "chrome/browser/renderer_host/render_widget_helper.h"
@@ -345,6 +346,10 @@ bool BrowserRenderProcessHost::Init() {
         Singleton<RenderCrashHandlerHostLinux>()->GetDeathSignalSocket();
     if (crash_signal_fd >= 0)
       fds_to_map.push_back(std::make_pair(crash_signal_fd, 4));
+    const int sandbox_ipc_fd =
+        Singleton<RenderSandboxHostLinux>()->GetRendererSocket();
+    if (sandbox_ipc_fd >= 0)
+      fds_to_map.push_back(std::make_pair(sandbox_ipc_fd, 5));
 #endif
     base::LaunchApp(cmd_line.argv(), fds_to_map, false, &process);
 #endif
