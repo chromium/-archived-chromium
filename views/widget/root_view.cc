@@ -915,12 +915,9 @@ void RootView::SetActiveCursor(gfx::NativeCursor cursor) {
     previous_cursor_ = NULL;
   }
 #elif defined(OS_LINUX)
-  if (cursor) {
-    gdk_window_set_cursor(GetWidget()->GetNativeView()->window, cursor);
+  gdk_window_set_cursor(GetWidget()->GetNativeView()->window, cursor);
+  if (cursor)
     gdk_cursor_destroy(cursor);
-  } else {
-    gdk_window_set_cursor(GetWidget()->GetNativeView()->window, NULL);
-  }
 #endif
 }
 
