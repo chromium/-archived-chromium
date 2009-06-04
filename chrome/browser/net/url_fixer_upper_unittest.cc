@@ -108,6 +108,48 @@ static const segment_case segment_cases[] = {
     url_parse::Component(), // query
     url_parse::Component(), // ref
   },
+  // Incomplete IPv6 addresses (will not canonicalize).
+  { "[2001:4860:", "http",
+    url_parse::Component(), // scheme
+    url_parse::Component(), // username
+    url_parse::Component(), // password
+    url_parse::Component(0, 11), // host
+    url_parse::Component(), // port
+    url_parse::Component(), // path
+    url_parse::Component(), // query
+    url_parse::Component(), // ref
+  },
+  { "[2001:4860:/foo", "http",
+    url_parse::Component(), // scheme
+    url_parse::Component(), // username
+    url_parse::Component(), // password
+    url_parse::Component(0, 11), // host
+    url_parse::Component(), // port
+    url_parse::Component(11, 4), // path
+    url_parse::Component(), // query
+    url_parse::Component(), // ref
+  },
+  { "http://:b005::68]", "http",
+    url_parse::Component(0, 4), // scheme
+    url_parse::Component(), // username
+    url_parse::Component(), // password
+    url_parse::Component(7, 10), // host
+    url_parse::Component(), // port
+    url_parse::Component(), // path
+    url_parse::Component(), // query
+    url_parse::Component(), // ref
+  },
+  // Can't do anything useful with this.
+  { ":b005::68]", "",
+    url_parse::Component(0, 0), // scheme
+    url_parse::Component(), // username
+    url_parse::Component(), // password
+    url_parse::Component(), // host
+    url_parse::Component(), // port
+    url_parse::Component(), // path
+    url_parse::Component(), // query
+    url_parse::Component(), // ref
+  },
 };
 
 TEST(URLFixerUpperTest, SegmentURL) {
