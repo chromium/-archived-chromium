@@ -55,6 +55,7 @@
 
 #if defined(OS_WIN)
 // For CRect
+#include <atlbase.h>
 #include <atlapp.h>
 #include <atlmisc.h>
 // TODO(port): some of these headers should be ported.
