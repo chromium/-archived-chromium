@@ -391,8 +391,6 @@ gboolean AutocompleteEditViewGtk::HandleKeyPress(GtkWidget* widget,
       }
     }
     return TRUE;  // Don't propagate into GtkTextView.
-  } else if (event->keyval == GDK_Control_L || event->keyval == GDK_Control_R) {
-    model_->OnControlKeyChanged(true);
   }
 
   return FALSE;  // Propagate into GtkTextView.
@@ -400,10 +398,6 @@ gboolean AutocompleteEditViewGtk::HandleKeyPress(GtkWidget* widget,
 
 gboolean AutocompleteEditViewGtk::HandleKeyRelease(GtkWidget* widget,
                                                    GdkEventKey* event) {
-  if (event->keyval == GDK_Control_L || event->keyval == GDK_Control_R) {
-    model_->OnControlKeyChanged(false);
-  }
-
   // Even though we handled the press ourselves, let GtkTextView handle the
   // release.  It shouldn't do anything particularly interesting, but it will
   // handle the IME work for us.
@@ -442,10 +436,7 @@ gboolean AutocompleteEditViewGtk::HandleViewButtonPress(GdkEventButton* event) {
 }
 
 gboolean AutocompleteEditViewGtk::HandleViewFocusIn() {
-  GdkModifierType modifiers;
-  gdk_window_get_pointer(text_view_->window, NULL, NULL, &modifiers);
-
-  model_->OnSetFocus(modifiers & GDK_CONTROL_MASK);
+  model_->OnSetFocus(false);
   // TODO(deanm): Some keyword hit business, etc here.
 
   return FALSE;  // Continue propagation.
