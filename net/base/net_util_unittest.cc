@@ -1109,13 +1109,24 @@ TEST(NetUtilTest, FormatUrl) {
     {"Unescape normally including unescape spaces",
      "http://www.google.com/search?q=Hello%20World", L"en", true,
      UnescapeRule::SPACES,
-     L"http://www.google.com/search?q=Hello World", 7}
+     L"http://www.google.com/search?q=Hello World", 7},
+
     /*
     {"unescape=true with some special characters",
     "http://user%3A:%40passwd@example.com/foo%3Fbar?q=b%26z", L"", false, true,
     L"http://user%3A:%40passwd@example.com/foo%3Fbar?q=b%26z", 25},
     */
     // Disabled: the resultant URL becomes "...user%253A:%2540passwd...".
+
+    // -------- view-source: --------
+    {"view-source",
+     "view-source:http://xn--qcka1pmc.jp/", L"ja", true, UnescapeRule::NORMAL,
+     L"view-source:http://\x30B0\x30FC\x30B0\x30EB.jp/", 12 + 7},
+
+    {"view-source of view-source",
+     "view-source:view-source:http://xn--qcka1pmc.jp/", L"ja", true,
+     UnescapeRule::NORMAL,
+     L"view-source:view-source:http://xn--qcka1pmc.jp/", 12},
   };
 
   for (size_t i = 0; i < arraysize(tests); ++i) {
@@ -1185,4 +1196,19 @@ TEST(NetUtilTest, FormatUrlParsed) {
   EXPECT_EQ(L"q=\x30B0",
       formatted.substr(parsed.query.begin, parsed.query.len));
   EXPECT_EQ(L"\x30B0", formatted.substr(parsed.ref.begin, parsed.ref.len));
+
+  // View-source case.
+  formatted = net::FormatUrl(
+      GURL("view-source:http://user:passwd@host:81/path?query#ref"),
+      L"", true, UnescapeRule::NORMAL, &parsed, NULL);
+  EXPECT_EQ(L"view-source:http://host:81/path?query#ref", formatted);
+  EXPECT_EQ(L"view-source:http",
+      formatted.substr(parsed.scheme.begin, parsed.scheme.len));
+  EXPECT_FALSE(parsed.username.is_valid());
+  EXPECT_FALSE(parsed.password.is_valid());
+  EXPECT_EQ(L"host", formatted.substr(parsed.host.begin, parsed.host.len));
+  EXPECT_EQ(L"81", formatted.substr(parsed.port.begin, parsed.port.len));
+  EXPECT_EQ(L"/path", formatted.substr(parsed.path.begin, parsed.path.len));
+  EXPECT_EQ(L"query", formatted.substr(parsed.query.begin, parsed.query.len));
+  EXPECT_EQ(L"ref", formatted.substr(parsed.ref.begin, parsed.ref.len));
 }

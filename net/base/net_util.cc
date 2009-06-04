@@ -651,6 +651,49 @@ void IDNToUnicodeOneComponent(const char16* comp,
     (*out)[host_begin_in_output + i] = comp[i];
 }
 
+// Helper for FormatUrl().
+std::wstring FormatViewSourceUrl(const GURL& url,
+                                 const std::wstring& languages,
+                                 bool omit_username_password,
+                                 UnescapeRule::Type unescape_rules,
+                                 url_parse::Parsed* new_parsed,
+                                 size_t* prefix_end) {
+  DCHECK(new_parsed);
+  const wchar_t* const kWideViewSource = L"view-source:";
+  const size_t kViewSourceLengthPlus1 = 12;
+
+  GURL real_url(url.possibly_invalid_spec().substr(kViewSourceLengthPlus1));
+  std::wstring result = net::FormatUrl(real_url, languages,
+      omit_username_password, unescape_rules, new_parsed, prefix_end);
+  result.insert(0, kWideViewSource);
+
+  // Adjust position values.
+  if (prefix_end)
+    *prefix_end += kViewSourceLengthPlus1;
+  if (new_parsed->scheme.is_nonempty()) {
+    // Assume "view-source:real-scheme" as a scheme.
+    new_parsed->scheme.len += kViewSourceLengthPlus1;
+  } else {
+    new_parsed->scheme.begin = 0;
+    new_parsed->scheme.len = kViewSourceLengthPlus1 - 1;
+  }
+  if (new_parsed->username.is_nonempty())
+    new_parsed->username.begin += kViewSourceLengthPlus1;
+  if (new_parsed->password.is_nonempty())
+    new_parsed->password.begin += kViewSourceLengthPlus1;
+  if (new_parsed->host.is_nonempty())
+    new_parsed->host.begin += kViewSourceLengthPlus1;
+  if (new_parsed->port.is_nonempty())
+    new_parsed->port.begin += kViewSourceLengthPlus1;
+  if (new_parsed->path.is_nonempty())
+    new_parsed->path.begin += kViewSourceLengthPlus1;
+  if (new_parsed->query.is_nonempty())
+    new_parsed->query.begin += kViewSourceLengthPlus1;
+  if (new_parsed->ref.is_nonempty())
+    new_parsed->ref.begin += kViewSourceLengthPlus1;
+  return result;
+}
+
 }  // namespace
 
 namespace net {
@@ -1121,6 +1164,17 @@ std::wstring FormatUrl(const GURL& url,
     if (prefix_end)
       *prefix_end = 0;
     return url_string;
+  }
+
+  // Special handling for view-source:.  Don't use chrome::kViewSourceScheme
+  // because this library shouldn't depend on chrome.
+  const char* const kViewSource = "view-source";
+  const char* const kViewSourceTwice = "view-source:view-source:";
+  // Rejects view-source:view-source:... to avoid deep recursive call.
+  if (url.SchemeIs(kViewSource) &&
+      !StartsWithASCII(url.possibly_invalid_spec(), kViewSourceTwice, false)) {
+    return FormatViewSourceUrl(url, languages, omit_username_password,
+        unescape_rules, new_parsed, prefix_end);
   }
 
   // We handle both valid and invalid URLs (this will give us the spec
