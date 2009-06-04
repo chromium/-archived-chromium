@@ -1269,11 +1269,31 @@ BOOL WINAPI WebPluginDelegateImpl::TrackPopupMenuPatch(
           ::SetFocus(g_current_plugin_instance->dummy_window_for_activation_);
     }
   }
-  
+
   BOOL result = TrackPopupMenu(menu, flags, x, y, reserved, window, rect);
 
   if (IsWindow(last_focus_window)) {
-    ::SetFocus(last_focus_window);
+    // The Flash plugin at times sets focus to its hidden top level window
+    // with class name SWFlash_PlaceholderX. This causes the chrome browser
+    // window to receive a WM_ACTIVATEAPP message as a top level window from
+    // another thread is now active. We end up in a state where the chrome
+    // browser window is not active even though the user clicked on it.
+    // Our workaround for this is to send over a raw
+    // WM_LBUTTONDOWN/WM_LBUTTONUP combination to the last focus window, which
+    // does the trick.
+    if (g_current_plugin_instance->dummy_window_for_activation_ !=
+        ::GetFocus()) {
+      INPUT input_info = {0};
+      input_info.type = INPUT_MOUSE;
+      input_info.mi.dwFlags = MOUSEEVENTF_LEFTDOWN;
+      ::SendInput(1, &input_info, sizeof(INPUT));
+
+      input_info.type = INPUT_MOUSE;
+      input_info.mi.dwFlags = MOUSEEVENTF_LEFTUP;
+      ::SendInput(1, &input_info, sizeof(INPUT));
+    } else {
+      ::SetFocus(last_focus_window);
+    }
   }
 
   return result;
