@@ -94,6 +94,7 @@ MSVC_PUSH_WARNING_LEVEL(0);
 #include "GraphicsContext.h"
 #include "HTMLCollection.h"
 #include "HTMLHeadElement.h"
+#include "HTMLFrameOwnerElement.h"
 #include "HTMLLinkElement.h"
 #include "HTMLNames.h"
 #include "HistoryItem.h"
@@ -184,7 +185,6 @@ using WebCore::FrameLoadType;
 using WebCore::FrameTree;
 using WebCore::FrameView;
 using WebCore::HistoryItem;
-using WebCore::HTMLFrameElementBase;
 using WebCore::IntRect;
 using WebCore::KURL;
 using WebCore::Node;
@@ -1455,12 +1455,12 @@ void WebFrameImpl::CreateFrameView() {
 
   WebViewImpl* web_view = GetWebViewImpl();
 
-  WebCore::FrameView* view;
+  RefPtr<WebCore::FrameView> view;
   if (is_main_frame) {
     IntSize size = webkit_glue::WebSizeToIntSize(web_view->size());
-    view = new FrameView(frame_, size);
+    view = FrameView::create(frame_, size);
   } else {
-    view = new FrameView(frame_);
+    view = FrameView::create(frame_);
   }
 
   frame_->setView(view);
@@ -1471,7 +1471,7 @@ void WebFrameImpl::CreateFrameView() {
   // TODO(darin): The Mac code has a comment about this possibly being
   // unnecessary.  See installInFrame in WebCoreFrameBridge.mm
   if (frame_->ownerRenderer())
-    frame_->ownerRenderer()->setWidget(view);
+    frame_->ownerRenderer()->setWidget(view.get());
 
   if (HTMLFrameOwnerElement* owner = frame_->ownerElement()) {
     view->setCanHaveScrollbars(
@@ -1480,10 +1480,6 @@ void WebFrameImpl::CreateFrameView() {
 
   if (is_main_frame)
     view->setParentVisible(true);
-
-  // FrameViews are created with a refcount of 1 so it needs releasing after we
-  // assign it to a RefPtr.
-  view->deref();
 }
 
 // static

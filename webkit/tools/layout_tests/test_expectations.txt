@@ -2710,3 +2710,31 @@ BUG13267 LINUX : LayoutTests/fast/overflow/overflow-rtl-inline-scrollbar.html = 
 BUG13267 LINUX : LayoutTests/svg/custom/mask-inside-defs.svg = PASS FAIL
 BUG13267 LINUX : LayoutTests/svg/custom/stroked-pattern.svg = PASS FAIL
 BUG13267 LINUX : LayoutTests/editing/selection/5131716-3.html = PASS FAIL
+
+// WebKit change http://trac.webkit.org/changeset/44375
+// added this test with wrong expected file. Will fix upstream and enable.
+BUG13305 : LayoutTests/editing/execCommand/list-wrapping-image-crash.html = FAIL
+
+// WebKit 44372:44405
+// Due to change http://trac.webkit.org/changeset/44401 Linux renders scrollbars differently.
+// The following tests failed and need rebaseline.
+BUG13313 LINUX REBASELINE : LayoutTests/fast/css/line-height-overflow.html = FAIL
+BUG13313 LINUX REBASELINE : LayoutTests/fast/flexbox/009.html = FAIL
+BUG13313 LINUX REBASELINE : LayoutTests/fast/frames/invalid.html = FAIL
+BUG13313 LINUX REBASELINE : LayoutTests/fast/frames/valid.html = FAIL
+BUG13313 LINUX REBASELINE : LayoutTests/fast/overflow/unreachable-overflow-rtl-bug.html = FAIL
+BUG13313 LINUX REBASELINE : LayoutTests/fast/repaint/overflow-scroll-delete.html = FAIL
+BUG13313 LINUX REBASELINE : LayoutTests/svg/hixie/links/003-broken.xml = FAIL
+BUG13313 LINUX REBASELINE : LayoutTests/tables/mozilla/bugs/bug113235-1.html = FAIL
+BUG13313 LINUX REBASELINE : LayoutTests/tables/mozilla/core/cell_heights.html = FAIL
+BUG13313 LINUX REBASELINE : LayoutTests/fast/css/line-height-overflow.html = FAIL
+BUG13313 LINUX REBASELINE : LayoutTests/fast/flexbox/009.html = FAIL
+BUG13313 LINUX REBASELINE : LayoutTests/fast/frames/invalid.html = FAIL
+BUG13313 LINUX REBASELINE : LayoutTests/fast/frames/valid.html = FAIL
+  
+// WebKit 44372:44405
+// New Linux crashes.
+BUG13314 LINUX : LayoutTests/css2.1/atrule_longest_match.html = CRASH
+BUG13314 LINUX : LayoutTests/editing/deleting/25322-1.html = CRASH
+BUG13314 LINUX : LayoutTests/platform/mac/accessibility/accesskey.html = CRASH
+BUG13314 LINUX : LayoutTests/svg/W3C-SVG-1.1/animate-elem-02-t.svg = CRASH

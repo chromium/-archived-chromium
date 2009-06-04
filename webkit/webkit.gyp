@@ -2624,8 +2624,6 @@
         '../third_party/WebKit/WebCore/platform/mac/WebCoreObjCExtras.mm',
         '../third_party/WebKit/WebCore/platform/mac/WebCoreSystemInterface.h',
         '../third_party/WebKit/WebCore/platform/mac/WebCoreSystemInterface.mm',
-        '../third_party/WebKit/WebCore/platform/mac/WebCoreTextRenderer.h',
-        '../third_party/WebKit/WebCore/platform/mac/WebCoreTextRenderer.mm',
         '../third_party/WebKit/WebCore/platform/mac/WebCoreView.h',
         '../third_party/WebKit/WebCore/platform/mac/WebCoreView.m',
         '../third_party/WebKit/WebCore/platform/mac/WebFontCache.h',

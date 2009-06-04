@@ -1,2 +1,0 @@
-CONSOLE MESSAGE: line 9: Uncaught Error: HIERARCHY_REQUEST_ERR: DOM Exception 3
-
