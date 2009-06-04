@@ -96,17 +96,20 @@ class Sampler : ParamObject {
   [getter, setter] AddressMode address_mode_w_;
 
   %[
-    The magnification filter.
+    The magnification filter.  Valid values for the mag filter are: POINT and
+    LINEAR.
   %]
   [getter, setter] FilterType mag_filter_;
 
   %[
-    The minification filter.
+    The minification filter. Valid values for the min filter are: POINT, LINEAR
+    and ANISOTROPIC.
   %]
   [getter, setter] FilterType min_filter_;
 
   %[
-    The mipmap filter used during minification.
+    The mipmap filter used during minification.  Valid values for the mip filter
+    are: NONE, POINT and LINEAR.
   %]
   [getter, setter] FilterType mip_filter_;
 

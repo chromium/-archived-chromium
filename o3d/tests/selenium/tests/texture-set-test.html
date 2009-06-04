@@ -158,8 +158,8 @@ function initStep2(clientElements) {
 
       var sampler = g_pack.createObject('Sampler');
       samplerParam.value = sampler;
-      sampler.magFilter = g_o3d.Sampler.NONE;
-      sampler.minFilter = g_o3d.Sampler.NONE;
+      sampler.magFilter = g_o3d.Sampler.POINT;
+      sampler.minFilter = g_o3d.Sampler.POINT;
       sampler.mipFilter = g_o3d.Sampler.NONE;
       sampler.addressModeU = g_o3d.Sampler.CLAMP;
       sampler.addressModeV = g_o3d.Sampler.CLAMP;

@@ -130,7 +130,7 @@ namespace o3d {
   %]
   RenderSurface? GetRenderSurface(int mip_level, Pack pack);
 
-  // TODO: Add Get, GetRect, SetRect and/or expose Bitmap.
+  // TODO: Add Get, GetRect and/or expose Bitmap.
   %[
     Sets the values of the data stored in the texture.
 
@@ -166,16 +166,16 @@ namespace o3d {
 
     Does clipping. In other words if you pass in a 10x10 pixel array
     and give it destination of (-5, -5) it will only use the bottom 5x5
-    pixels of the array you passed in to set to set the top 5x5 pixels of the
+    pixels of the array you passed in to set the top 5x5 pixels of the
     texture.
 
     See o3d.Texture2D.set for details on formats.
 
     \param level the mip level to update.
-    \param destination_x The x coordinate of the area in the texture to effect.
-    \param destination_y The y coordinate of the area in the texture to effect.
+    \param destination_x The x coordinate of the area in the texture to affect.
+    \param destination_y The y coordinate of the area in the texture to affect.
     \param source_width The width of the area to effect. The height is
-        determined bythe size of the array passed in.
+        determined by the size of the array passed in.
     \param values Values to be stored in the buffer.
     \see o3d.Texture2D.set
   %]
