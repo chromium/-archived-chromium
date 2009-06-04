@@ -5,6 +5,7 @@
 #include "base/basictypes.h"
 #include "base/gfx/png_encoder.h"
 #include "base/logging.h"
+#include "base/scoped_ptr.h"
 #include "third_party/skia/include/core/SkBitmap.h"
 
 extern "C" {
@@ -197,9 +198,37 @@ bool PNGEncoder::Encode(const unsigned char* input, ColorFormat format,
 bool PNGEncoder::EncodeBGRASkBitmap(const SkBitmap& input,
                                     bool discard_transparency,
                                     std::vector<unsigned char>* output) {
-  SkAutoLockPixels input_lock(input);
-  DCHECK(input.empty() || input.bytesPerPixel() == 4);
-  return Encode(static_cast<unsigned char*>(input.getPixels()),
-                PNGEncoder::FORMAT_BGRA, input.width(), input.height(),
+  // This only works with images with four bytes per pixel.
+  static const int bbp = 4;
+
+  DCHECK(input.empty() || input.bytesPerPixel() == bbp);
+
+  // SkBitmaps are premultiplied, we need to unpremultiply them.
+  scoped_ptr<unsigned char> divided;
+  divided.reset(new unsigned char[input.width() * input.height() * bbp]);
+
+  SkAutoLockPixels lock_input(input);
+  int i = 0;
+  for (int y = 0; y < input.height(); y++) {
+    uint32* src_row = input.getAddr32(0, y);
+    for (int x = 0; x < input.width(); x++) {
+      int alpha = SkColorGetA(src_row[x]);
+      if (alpha != 0 && alpha != 255) {
+        divided.get()[i + 0] = (SkColorGetR(src_row[x]) << 8) / alpha;
+        divided.get()[i + 1] = (SkColorGetG(src_row[x]) << 8) / alpha;
+        divided.get()[i + 2] = (SkColorGetB(src_row[x]) << 8) / alpha;
+        divided.get()[i + 3] = alpha;
+      } else {
+        divided.get()[i + 0] = SkColorGetR(src_row[x]);
+        divided.get()[i + 1] = SkColorGetG(src_row[x]);
+        divided.get()[i + 2] = SkColorGetB(src_row[x]);
+        divided.get()[i + 3] = SkColorGetA(src_row[x]);
+      }
+      i += bbp;
+    }
+  }
+
+  return Encode(divided.release(),
+                PNGEncoder::FORMAT_RGBA, input.width(), input.height(),
                 input.rowBytes(), discard_transparency, output);
 }
