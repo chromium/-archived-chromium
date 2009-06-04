@@ -44,6 +44,8 @@ class BrowserThemeProvider : public base::RefCounted<BrowserThemeProvider>,
     COLOR_NTP_TEXT,
     COLOR_NTP_LINK,
     COLOR_NTP_SECTION,
+    COLOR_CONTROL_BACKGROUND,
+    COLOR_BUTTON_BACKGROUND,
     TINT_BUTTONS,
     TINT_FRAME,
     TINT_FRAME_INACTIVE,
@@ -147,6 +149,8 @@ class BrowserThemeProvider : public base::RefCounted<BrowserThemeProvider>,
 
   // Load theme data from preferences.
   void LoadThemePrefs();
+
+  SkColor FindColor(const char* id, SkColor default_color);
 
   // Frees generated images and clears the image cache.
   void FreeImages();

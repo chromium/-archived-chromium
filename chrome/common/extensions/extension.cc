@@ -549,14 +549,27 @@ bool Extension::InitFromValue(const DictionaryValue& source, bool require_id,
         std::string val;
         int color = 0;
         ListValue* color_list;
-        if (!colors_value->GetList(*iter, &color_list) ||
-            color_list->GetSize() != 3 ||
-            !color_list->GetInteger(0, &color) ||
-            !color_list->GetInteger(1, &color) ||
-            !color_list->GetInteger(2, &color)) {
-          *error = kInvalidThemeColorsError;
-          return false;
+        if (colors_value->GetList(*iter, &color_list)) {
+          if (color_list->GetSize() == 3 ||
+              color_list->GetSize() == 4) {
+            if (color_list->GetInteger(0, &color) &&
+                color_list->GetInteger(1, &color) &&
+                color_list->GetInteger(2, &color)) {
+              if (color_list->GetSize() == 4) {
+                double alpha;
+                if (color_list->GetReal(3, &alpha)) {
+                  ++iter;
+                  continue;
+                }
+              } else {
+                ++iter;
+                continue;
+              }
+            }
+          }
         }
+        *error = kInvalidThemeColorsError;
+        return false;
         ++iter;
       }
       theme_colors_.reset(

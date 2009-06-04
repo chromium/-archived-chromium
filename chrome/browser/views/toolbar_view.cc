@@ -239,37 +239,51 @@ void BrowserToolbarView::CreateRightSideControls(Profile* profile) {
 void BrowserToolbarView::LoadLeftSideControlsImages() {
   ThemeProvider* tp = GetThemeProvider();
 
+  SkColor color = tp->GetColor(BrowserThemeProvider::COLOR_BUTTON_BACKGROUND);
+  SkBitmap* background = tp->GetBitmapNamed(IDR_THEME_BUTTON_BACKGROUND);
+
   back_->SetImage(views::CustomButton::BS_NORMAL, tp->GetBitmapNamed(IDR_BACK));
   back_->SetImage(views::CustomButton::BS_HOT, tp->GetBitmapNamed(IDR_BACK_H));
   back_->SetImage(views::CustomButton::BS_PUSHED,
-    tp->GetBitmapNamed(IDR_BACK_P));
+      tp->GetBitmapNamed(IDR_BACK_P));
   back_->SetImage(views::CustomButton::BS_DISABLED,
-    tp->GetBitmapNamed(IDR_BACK_D));
+      tp->GetBitmapNamed(IDR_BACK_D));
+  back_->SetBackground(color, background,
+      tp->GetBitmapNamed(IDR_BACK_MASK));
 
   forward_->SetImage(views::CustomButton::BS_NORMAL,
-    tp->GetBitmapNamed(IDR_FORWARD));
+      tp->GetBitmapNamed(IDR_FORWARD));
   forward_->SetImage(views::CustomButton::BS_HOT,
-    tp->GetBitmapNamed(IDR_FORWARD_H));
+      tp->GetBitmapNamed(IDR_FORWARD_H));
   forward_->SetImage(views::CustomButton::BS_PUSHED,
-    tp->GetBitmapNamed(IDR_FORWARD_P));
+      tp->GetBitmapNamed(IDR_FORWARD_P));
   forward_->SetImage(views::CustomButton::BS_DISABLED,
-    tp->GetBitmapNamed(IDR_FORWARD_D));
+      tp->GetBitmapNamed(IDR_FORWARD_D));
+  forward_->SetBackground(color, background,
+      tp->GetBitmapNamed(IDR_FORWARD_MASK));
 
   reload_->SetImage(views::CustomButton::BS_NORMAL,
-    tp->GetBitmapNamed(IDR_RELOAD));
+      tp->GetBitmapNamed(IDR_RELOAD));
   reload_->SetImage(views::CustomButton::BS_HOT,
-    tp->GetBitmapNamed(IDR_RELOAD_H));
+      tp->GetBitmapNamed(IDR_RELOAD_H));
   reload_->SetImage(views::CustomButton::BS_PUSHED,
-    tp->GetBitmapNamed(IDR_RELOAD_P));
+      tp->GetBitmapNamed(IDR_RELOAD_P));
+  reload_->SetBackground(color, background,
+      tp->GetBitmapNamed(IDR_BUTTON_MASK));
 
   home_->SetImage(views::CustomButton::BS_NORMAL, tp->GetBitmapNamed(IDR_HOME));
   home_->SetImage(views::CustomButton::BS_HOT, tp->GetBitmapNamed(IDR_HOME_H));
   home_->SetImage(views::CustomButton::BS_PUSHED,
-    tp->GetBitmapNamed(IDR_HOME_P));
+      tp->GetBitmapNamed(IDR_HOME_P));
+  home_->SetBackground(color, background,
+      tp->GetBitmapNamed(IDR_BUTTON_MASK));
 }
 
 void BrowserToolbarView::LoadCenterStackImages() {
   ThemeProvider* tp = GetThemeProvider();
+
+  SkColor color = tp->GetColor(BrowserThemeProvider::COLOR_BUTTON_BACKGROUND);
+  SkBitmap* background = tp->GetBitmapNamed(IDR_THEME_BUTTON_BACKGROUND);
 
   star_->SetImage(views::CustomButton::BS_NORMAL, tp->GetBitmapNamed(IDR_STAR));
   star_->SetImage(views::CustomButton::BS_HOT, tp->GetBitmapNamed(IDR_STAR_H));
@@ -283,6 +297,8 @@ void BrowserToolbarView::LoadCenterStackImages() {
       tp->GetBitmapNamed(IDR_STARRED_H));
   star_->SetToggledImage(views::CustomButton::BS_PUSHED,
       tp->GetBitmapNamed(IDR_STARRED_P));
+  star_->SetBackground(color, background,
+      tp->GetBitmapNamed(IDR_STAR_MASK));
 
   go_->SetImage(views::CustomButton::BS_NORMAL, tp->GetBitmapNamed(IDR_GO));
   go_->SetImage(views::CustomButton::BS_HOT, tp->GetBitmapNamed(IDR_GO_H));
@@ -293,6 +309,8 @@ void BrowserToolbarView::LoadCenterStackImages() {
       tp->GetBitmapNamed(IDR_STOP_H));
   go_->SetToggledImage(views::CustomButton::BS_PUSHED,
       tp->GetBitmapNamed(IDR_STOP_P));
+  go_->SetBackground(color, background,
+      tp->GetBitmapNamed(IDR_GO_MASK));
 }
 
 void BrowserToolbarView::LoadRightSideControlsImages() {

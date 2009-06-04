@@ -19,7 +19,8 @@ static const int kDefaultHeight = 14;  // Default button height if no theme.
 ImageButton::ImageButton(ButtonListener* listener)
     : CustomButton(listener),
       h_alignment_(ALIGN_LEFT),
-      v_alignment_(ALIGN_TOP) {
+      v_alignment_(ALIGN_TOP),
+      background_image_(NULL) {
   // By default, we request that the gfx::Canvas passed to our View::Paint()
   // implementation is flipped horizontally so that the button's bitmaps are
   // mirrored when the UI directionality is right-to-left.
@@ -31,6 +32,16 @@ ImageButton::~ImageButton() {
 
 void ImageButton::SetImage(ButtonState aState, SkBitmap* anImage) {
   images_[aState] = anImage ? *anImage : SkBitmap();
+}
+
+void ImageButton::SetBackground(SkColor color,
+                                SkBitmap* image,
+                                SkBitmap* mask) {
+  if (!color && !image)
+    background_image_ = NULL;
+
+  background_image_ = new SkBitmap(
+      skia::ImageOperations::CreateButtonBackground(color, *image, *mask));
 }
 
 void ImageButton::SetImageAlignment(HorizontalAlignment h_align,
@@ -68,6 +79,8 @@ void ImageButton::Paint(gfx::Canvas* canvas) {
     else if (v_alignment_ == ALIGN_BOTTOM)
       y = height() - img.height();
 
+    if (background_image_)
+      canvas->DrawBitmapInt(*background_image_, x, y);
     canvas->DrawBitmapInt(img, x, y);
   }
   PaintFocusBorder(canvas);

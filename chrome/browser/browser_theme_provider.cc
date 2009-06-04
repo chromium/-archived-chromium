@@ -41,6 +41,8 @@ static const char* kColorNTPBackground = "ntp_background";
 static const char* kColorNTPText = "ntp_text";
 static const char* kColorNTPLink = "ntp_link";
 static const char* kColorNTPSection = "ntp_section";
+static const char* kColorControlBackground = "control_background";
+static const char* kColorButtonBackground = "button_background";
 
 // Strings used by themes to identify tints to apply to different parts of
 // our UI. The frame tints apply to the frame color and produce the
@@ -76,6 +78,8 @@ static const SkColor kDefaultColorNTPBackground = SkColorSetRGB(255, 255, 255);
 static const SkColor kDefaultColorNTPText = SkColorSetRGB(0, 0, 0);
 static const SkColor kDefaultColorNTPLink = SkColorSetRGB(0, 0, 204);
 static const SkColor kDefaultColorNTPSection = SkColorSetRGB(225, 236, 254);
+static const SkColor kDefaultColorControlBackground = NULL;
+static const SkColor kDefaultColorButtonBackground = NULL;
 
 // Default tints.
 static const skia::HSL kDefaultTintButtons = { -1, -1, -1 };
@@ -190,48 +194,36 @@ SkColor BrowserThemeProvider::GetColor(int id) {
   // TODO(glen): Figure out if we need to tint these. http://crbug.com/11578
   switch (id) {
     case COLOR_FRAME:
-      return (colors_.find(kColorFrame) != colors_.end()) ?
-          colors_[kColorFrame] : kDefaultColorFrame;
+      return FindColor(kColorFrame, kDefaultColorFrame);
     case COLOR_FRAME_INACTIVE:
-      return (colors_.find(kColorFrameInactive) != colors_.end()) ?
-          colors_[kColorFrameInactive] : kDefaultColorFrameInactive;
+      return FindColor(kColorFrameInactive, kDefaultColorFrameInactive);
     case COLOR_FRAME_INCOGNITO:
-      return (colors_.find(kColorFrameIncognito) != colors_.end()) ?
-          colors_[kColorFrameIncognito] : kDefaultColorFrameIncognito;
+      return FindColor(kColorFrameIncognito, kDefaultColorFrameIncognito);
     case COLOR_FRAME_INCOGNITO_INACTIVE:
-      return (colors_.find(kColorFrameIncognitoInactive) != colors_.end()) ?
-          colors_[kColorFrameIncognitoInactive] :
-          kDefaultColorFrameIncognitoInactive;
+      return FindColor(kColorFrameIncognitoInactive,
+                       kDefaultColorFrameIncognitoInactive);
     case COLOR_TOOLBAR:
-      return (colors_.find(kColorToolbar) != colors_.end()) ?
-          colors_[kColorToolbar] : kDefaultColorToolbar;
+      return FindColor(kColorToolbar, kDefaultColorToolbar);
     case COLOR_TAB_TEXT:
-      return (colors_.find(kColorTabText) != colors_.end()) ?
-          colors_[kColorTabText] : kDefaultColorTabText;
+      return FindColor(kColorTabText, kDefaultColorTabText);
     case COLOR_BACKGROUND_TAB_TEXT:
-      return (colors_.find(kColorBackgroundTabText) != colors_.end()) ?
-          colors_[kColorBackgroundTabText] :
-          kDefaultColorBackgroundTabText;
+      return FindColor(kColorBackgroundTabText, kDefaultColorBackgroundTabText);
     case COLOR_BOOKMARK_TEXT:
-      return (colors_.find(kColorBookmarkText) != colors_.end()) ?
-          colors_[kColorBookmarkText] :
-          kDefaultColorBookmarkText;
+      return FindColor(kColorBookmarkText, kDefaultColorBookmarkText);
     case COLOR_NTP_BACKGROUND:
       return (colors_.find(kColorNTPBackground) != colors_.end()) ?
           colors_[kColorNTPBackground] :
           kDefaultColorNTPBackground;
     case COLOR_NTP_TEXT:
-      return (colors_.find(kColorNTPText) != colors_.end()) ?
-          colors_[kColorNTPText] :
-          kDefaultColorNTPText;
+      return FindColor(kColorNTPText, kDefaultColorNTPText);
     case COLOR_NTP_LINK:
-      return (colors_.find(kColorNTPLink) != colors_.end()) ?
-          colors_[kColorNTPLink] :
-          kDefaultColorNTPLink;
+      return FindColor(kColorNTPLink, kDefaultColorNTPLink);
     case COLOR_NTP_SECTION:
-      return (colors_.find(kColorNTPSection) != colors_.end()) ?
-          colors_[kColorNTPSection] :
-          kDefaultColorNTPSection;
+      return FindColor(kColorNTPSection, kDefaultColorNTPSection);
+    case COLOR_CONTROL_BACKGROUND:
+      return FindColor(kColorControlBackground, kDefaultColorControlBackground);
+    case COLOR_BUTTON_BACKGROUND:
+      return FindColor(kColorButtonBackground, kDefaultColorButtonBackground);
     default:
       NOTREACHED() << "Unknown color requested";
   }
@@ -427,12 +419,19 @@ void BrowserThemeProvider::SetColorData(DictionaryValue* colors_value) {
   while (iter != colors_value->end_keys()) {
     ListValue* color_list;
     if (colors_value->GetList(*iter, &color_list) &&
-        color_list->GetSize() == 3) {
+        (color_list->GetSize() == 3 || color_list->GetSize() == 4)) {
       int r, g, b;
       color_list->GetInteger(0, &r);
       color_list->GetInteger(1, &g);
       color_list->GetInteger(2, &b);
-      colors_[WideToUTF8(*iter)] = SkColorSetRGB(r, g, b);
+      if (color_list->GetSize() == 4) {
+        double alpha;
+        color_list->GetReal(3, &alpha);
+        colors_[WideToUTF8(*iter)] = SkColorSetARGB(
+            static_cast<int>(alpha * 255), r, g, b);
+      } else {
+        colors_[WideToUTF8(*iter)] = SkColorSetRGB(r, g, b);
+      }
     }
     ++iter;
   }
@@ -608,36 +607,6 @@ SkBitmap* BrowserThemeProvider::GenerateBitmap(int id) {
   return NULL;
 }
 
-void BrowserThemeProvider::NotifyThemeChanged() {
-  // Redraw!
-  for (BrowserList::const_iterator browser = BrowserList::begin();
-      browser != BrowserList::end(); ++browser) {
-    (*browser)->window()->UserChangedTheme();
-  }
-}
-
-void BrowserThemeProvider::LoadThemePrefs() {
-  PrefService* prefs = profile_->GetPrefs();
-
-  // TODO(glen): Figure out if any custom prefs were loaded, and if so
-  //    UMA-log the fact that a theme was loaded.
-  if (prefs->HasPrefPath(prefs::kCurrentThemeImages) ||
-      prefs->HasPrefPath(prefs::kCurrentThemeColors) ||
-      prefs->HasPrefPath(prefs::kCurrentThemeTints)) {
-    // Our prefs already have the extension path baked in, so we don't need
-    // to provide it.
-    SetImageData(prefs->GetMutableDictionary(prefs::kCurrentThemeImages),
-                 FilePath());
-    SetColorData(prefs->GetMutableDictionary(prefs::kCurrentThemeColors));
-    SetTintData(prefs->GetMutableDictionary(prefs::kCurrentThemeTints));
-    SetDisplayPropertyData(prefs->GetMutableDictionary(
-        prefs::kCurrentThemeDisplayProperties));
-    GenerateFrameColors();
-    GenerateFrameImages();
-    UserMetrics::RecordAction(L"Themes_loaded", profile_);
-  }
-}
-
 void BrowserThemeProvider::SaveImageData(DictionaryValue* images_value) {
   // Save our images data.
   DictionaryValue* pref_images =
@@ -715,6 +684,42 @@ void BrowserThemeProvider::SaveDisplayPropertyData() {
       ++iter;
     }
   }
+}
+
+void BrowserThemeProvider::NotifyThemeChanged() {
+  // TODO(glen): If we're in glass and IDR_THEME_FRAME has been provided,
+  //    swap us back to opaque frame.
+
+  // Redraw!
+  for (BrowserList::const_iterator browser = BrowserList::begin();
+      browser != BrowserList::end(); ++browser) {
+    (*browser)->window()->UserChangedTheme();
+  }
+}
+
+void BrowserThemeProvider::LoadThemePrefs() {
+  PrefService* prefs = profile_->GetPrefs();
+
+  // TODO(glen): Figure out if any custom prefs were loaded, and if so
+  //    UMA-log the fact that a theme was loaded.
+  if (prefs->HasPrefPath(prefs::kCurrentThemeImages) ||
+      prefs->HasPrefPath(prefs::kCurrentThemeColors) ||
+      prefs->HasPrefPath(prefs::kCurrentThemeTints)) {
+    // Our prefs already have the extension path baked in, so we don't need
+    // to provide it.
+    SetImageData(prefs->GetMutableDictionary(prefs::kCurrentThemeImages),
+                 FilePath());
+    SetColorData(prefs->GetMutableDictionary(prefs::kCurrentThemeColors));
+    SetTintData(prefs->GetMutableDictionary(prefs::kCurrentThemeTints));
+    GenerateFrameColors();
+    GenerateFrameImages();
+    UserMetrics::RecordAction(L"Themes_loaded", profile_);
+  }
+}
+
+SkColor BrowserThemeProvider::FindColor(const char* id,
+                                        SkColor default_color) {
+  return (colors_.find(id) != colors_.end()) ? colors_[id] : default_color;
 }
 
 void BrowserThemeProvider::FreeImages() {

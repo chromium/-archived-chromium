@@ -19,6 +19,9 @@ class ImageButton : public CustomButton {
   // Set the image the button should use for the provided state.
   virtual void SetImage(ButtonState aState, SkBitmap* anImage);
 
+  // Set the background details.
+  virtual void SetBackground(SkColor color, SkBitmap* image, SkBitmap* mask);
+
   enum HorizontalAlignment { ALIGN_LEFT = 0,
                              ALIGN_CENTER,
                              ALIGN_RIGHT, };
@@ -42,6 +45,9 @@ class ImageButton : public CustomButton {
 
   // The images used to render the different states of this button.
   SkBitmap images_[BS_COUNT];
+
+  // The background image.
+  SkBitmap* background_image_;
 
  private:
   // Image alignment.

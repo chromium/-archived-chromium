@@ -61,6 +61,15 @@ class ImageOperations {
   static SkBitmap CreateMaskedBitmap(const SkBitmap& first,
                                      const SkBitmap& alpha);
 
+  // We create a button background image by compositing the color and image 
+  // together, then applying the mask. This is a highly specialized composite 
+  // operation that is the equivalent of drawing a background in |color|, 
+  // tiling |image| over the top, and then masking the result out with |mask|.
+  // The images must use kARGB_8888_Config config.
+  static SkBitmap CreateButtonBackground(SkColor color,
+                                         const SkBitmap& image,
+                                         const SkBitmap& mask);
+
   // Blur a bitmap using an average-blur algorithm over the rectangle defined
   // by |blur_amount|. The blur will wrap around image edges.
   static SkBitmap CreateBlurredBitmap(const SkBitmap& bitmap, int blur_amount);

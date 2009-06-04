@@ -407,6 +407,59 @@ SkBitmap ImageOperations::CreateMaskedBitmap(const SkBitmap& rgb,
   return masked;
 }
 
+// static
+SkBitmap ImageOperations::CreateButtonBackground(SkColor color,
+                                                 const SkBitmap& image,
+                                                 const SkBitmap& mask) {
+  DCHECK(image.config() == SkBitmap::kARGB_8888_Config);
+  DCHECK(mask.config() == SkBitmap::kARGB_8888_Config);
+
+  SkBitmap background;
+  background.setConfig(SkBitmap::kARGB_8888_Config,
+                       mask.width(),
+                       mask.height(), 0);
+  background.allocPixels();
+
+  int bg_a = SkColorGetA(color);
+  int bg_r = SkColorGetR(color);
+  int bg_g = SkColorGetG(color);
+  int bg_b = SkColorGetB(color);
+
+  SkAutoLockPixels lock_mask(mask);
+  SkAutoLockPixels lock_image(image);
+  SkAutoLockPixels lock_background(background);
+
+  for (int y = 0; y < mask.height(); y++) {
+    uint32* dst_row = background.getAddr32(0, y);
+    uint32* image_row = image.getAddr32(0, y % image.height());
+    uint32* mask_row = mask.getAddr32(0, y);
+
+    for (int x = 0; x < mask.width(); x++) {
+      uint32 mask_pixel = mask_row[x];
+      uint32 image_pixel = image_row[x % image.width()];
+
+      int img_a = SkColorGetA(image_pixel);
+      int img_r = SkColorGetR(image_pixel);
+      int img_g = SkColorGetG(image_pixel);
+      int img_b = SkColorGetB(image_pixel);
+
+      double img_alpha = static_cast<double>(img_a) / 255.0;
+      double img_inv = 1 - img_alpha;
+
+      double mask_a = static_cast<double>(SkColorGetA(mask_pixel)) / 255.0;
+
+      dst_row[x] = SkColorSetARGB(
+          static_cast<int>(std::min(255, bg_a + img_a) * mask_a),
+          static_cast<int>((bg_r * img_inv + img_r * img_alpha) * mask_a),
+          static_cast<int>((bg_g * img_inv + img_g * img_alpha) * mask_a),
+          static_cast<int>((bg_b * img_inv + img_b * img_alpha) * mask_a));
+    }
+  }
+
+  return background;
+}
+
+
 SkBitmap ImageOperations::CreateBlurredBitmap(const SkBitmap& bitmap,
                                               int blur_amount ) {
   DCHECK(bitmap.config() == SkBitmap::kARGB_8888_Config);
