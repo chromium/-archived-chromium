@@ -232,14 +232,19 @@ void HttpNetworkTransaction::PrepareForAuthRestart(HttpAuth::Target target) {
   // If auth_identity_[target].source is HttpAuth::IDENT_SRC_NONE,
   // auth_identity_[target] contains no identity because identity is not
   // required yet.
-  if (auth_identity_[target].source != HttpAuth::IDENT_SRC_NONE) {
+  bool has_auth_identity =
+      auth_identity_[target].source != HttpAuth::IDENT_SRC_NONE;
+  if (has_auth_identity) {
     session_->auth_cache()->Add(AuthOrigin(target), auth_handler_[target],
         auth_identity_[target].username, auth_identity_[target].password,
         AuthPath(target));
   }
 
   bool keep_alive = false;
-  if (response_.headers->IsKeepAlive()) {
+  // If the auth scheme is connection-based but the proxy/server mistakenly
+  // marks the connection as non-keep-alive, we still keep it alive.
+  if (response_.headers->IsKeepAlive() ||
+      (auth_handler_[target]->is_connection_based() && has_auth_identity)) {
     // If there is a response body of known length, we need to drain it first.
     if (response_body_length_ > 0 || chunked_decoder_.get()) {
       next_state_ = STATE_DRAIN_BODY_FOR_AUTH_RESTART;
@@ -251,43 +256,8 @@ void HttpNetworkTransaction::PrepareForAuthRestart(HttpAuth::Target target) {
       keep_alive = true;
     // response_body_length_ is -1 and we're not using chunked encoding. We
     // don't know the length of the response body, so we can't reuse this
-    // connection even though the server says it's keep-alive.
-  }
-
-  // If the auth scheme is connection-based but the proxy/server mistakenly
-  // marks the connection as not keep-alive, the auth is going to fail, so log
-  // an error message.
-  if (!keep_alive && auth_handler_[target]->is_connection_based() &&
-      auth_identity_[target].source != HttpAuth::IDENT_SRC_NONE) {
-    LOG(ERROR) << "Can't perform " << auth_handler_[target]->scheme()
-               << " auth to the " << AuthTargetString(target) << " "
-               << AuthOrigin(target) << " over a non-keep-alive connection";
-
-    HttpVersion http_version = response_.headers->GetHttpVersion();
-    LOG(ERROR) << "  HTTP version is " << http_version.major_value() << "."
-               << http_version.minor_value();
-
-    std::string header_val;
-    void* iter = NULL;
-    while (response_.headers->EnumerateHeader(&iter, "connection",
-                                              &header_val)) {
-      LOG(ERROR) << "  Has header Connection: " << header_val;
-    }
-
-    iter = NULL;
-    while (response_.headers->EnumerateHeader(&iter, "proxy-connection",
-                                              &header_val)) {
-      LOG(ERROR) << "  Has header Proxy-Connection: " << header_val;
-    }
-
-    // RFC 4559 requires that a proxy indicate its support of NTLM/Negotiate
-    // authentication with a "Proxy-Support: Session-Based-Authentication"
-    // response header.
-    iter = NULL;
-    while (response_.headers->EnumerateHeader(&iter, "proxy-support",
-                                              &header_val)) {
-      LOG(ERROR) << "  Has header Proxy-Support: " << header_val;
-    }
+    // connection even though the server says it's keep-alive or we need to
+    // keep it alive for authentication.
   }
 
   // We don't need to drain the response body, so we act as if we had drained
@@ -919,10 +889,13 @@ int HttpNetworkTransaction::DoDrainBodyForAuthRestartComplete(int result) {
     }
   }
 
-  bool done = false, keep_alive = false;
+  // keep_alive defaults to true because the very reason we're draining the
+  // response body is to reuse the connection for auth restart.
+  bool done = false, keep_alive = true;
   if (result < 0) {
     // Error while reading the socket.
     done = true;
+    keep_alive = false;
   } else {
     response_body_read_ += result;
     if (unfiltered_eof ||
@@ -930,7 +903,6 @@ int HttpNetworkTransaction::DoDrainBodyForAuthRestartComplete(int result) {
          response_body_read_ >= response_body_length_) ||
         (chunked_decoder_.get() && chunked_decoder_->reached_eof())) {
       done = true;
-      keep_alive = response_.headers->IsKeepAlive();
       // We can't reuse the connection if we read more than the advertised
       // content length.
       if (unfiltered_eof ||
