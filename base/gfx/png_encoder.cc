@@ -204,8 +204,8 @@ bool PNGEncoder::EncodeBGRASkBitmap(const SkBitmap& input,
   DCHECK(input.empty() || input.bytesPerPixel() == bbp);
 
   // SkBitmaps are premultiplied, we need to unpremultiply them.
-  scoped_ptr<unsigned char> divided;
-  divided.reset(new unsigned char[input.width() * input.height() * bbp]);
+  scoped_array<unsigned char> divided(
+      new unsigned char[input.width() * input.height() * bbp]);
 
   SkAutoLockPixels lock_input(input);
   int i = 0;
@@ -214,15 +214,15 @@ bool PNGEncoder::EncodeBGRASkBitmap(const SkBitmap& input,
     for (int x = 0; x < input.width(); x++) {
       int alpha = SkColorGetA(src_row[x]);
       if (alpha != 0 && alpha != 255) {
-        divided.get()[i + 0] = (SkColorGetR(src_row[x]) << 8) / alpha;
-        divided.get()[i + 1] = (SkColorGetG(src_row[x]) << 8) / alpha;
-        divided.get()[i + 2] = (SkColorGetB(src_row[x]) << 8) / alpha;
-        divided.get()[i + 3] = alpha;
+        divided[i + 0] = (SkColorGetR(src_row[x]) << 8) / alpha;
+        divided[i + 1] = (SkColorGetG(src_row[x]) << 8) / alpha;
+        divided[i + 2] = (SkColorGetB(src_row[x]) << 8) / alpha;
+        divided[i + 3] = alpha;
       } else {
-        divided.get()[i + 0] = SkColorGetR(src_row[x]);
-        divided.get()[i + 1] = SkColorGetG(src_row[x]);
-        divided.get()[i + 2] = SkColorGetB(src_row[x]);
-        divided.get()[i + 3] = SkColorGetA(src_row[x]);
+        divided[i + 0] = SkColorGetR(src_row[x]);
+        divided[i + 1] = SkColorGetG(src_row[x]);
+        divided[i + 2] = SkColorGetB(src_row[x]);
+        divided[i + 3] = SkColorGetA(src_row[x]);
       }
       i += bbp;
     }
