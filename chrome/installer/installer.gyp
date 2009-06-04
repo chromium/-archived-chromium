@@ -2,6 +2,7 @@
   'variables': {
     'version_py': '../../chrome/tools/build/version.py',
     'version_path': '../../chrome/VERSION',
+    'lastchange_path': '<(SHARED_INTERMEDIATE_DIR)/build/LASTCHANGE',
     # 'branding_dir' is set in the 'conditions' section at the bottom.
   },
   'includes': [
@@ -89,6 +90,7 @@
                   'inputs': [
                     '<(branding_dir)/BRANDING',
                     '<(version_path)',
+                    '<(lastchange_path)',
                   ],
                   'outputs': [
                     '<(PRODUCT_DIR)/installer/version.txt',
@@ -98,6 +100,7 @@
                     'python', '<(version_py)',
                     '-f', '<(branding_dir)/BRANDING',
                     '-f', '<(version_path)',
+                    '-f', '<(lastchange_path)',
                     '-o', '<@(_outputs)'
                   ],
                 },
@@ -344,6 +347,7 @@
               'inputs': [
                 '<(template_input_path)',
                 '<(version_path)',
+                '<(lastchange_path)',
                 '<(branding_dir)/BRANDING',
               ],
               'outputs': [
@@ -352,6 +356,7 @@
               'action': [
                 'python', '<(version_py)',
                 '-f', '<(version_path)',
+                '-f', '<(lastchange_path)',
                 '-f', '<(branding_dir)/BRANDING',
                 '<(template_input_path)',
                 '<@(_outputs)',
@@ -483,6 +488,7 @@
               'inputs': [
                 '<(template_input_path)',
                 '<(version_path)',
+                '<(lastchange_path)',
                 '<(branding_dir)/BRANDING',
               ],
               'outputs': [
@@ -491,6 +497,7 @@
               'action': [
                 'python', '<(version_py)',
                 '-f', '<(version_path)',
+                '-f', '<(lastchange_path)',
                 '-f', '<(branding_dir)/BRANDING',
                 '<(template_input_path)',
                 '<@(_outputs)',
