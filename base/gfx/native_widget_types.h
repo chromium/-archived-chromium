@@ -66,6 +66,7 @@ typedef NSView* NativeView;
 typedef NSWindow* NativeWindow;
 typedef NSTextField* NativeEditView;
 typedef CGContext* NativeDrawingContext;
+typedef void* NativeCursor;
 #elif defined(OS_LINUX)
 typedef GtkWidget* NativeView;
 typedef GtkWindow* NativeWindow;
