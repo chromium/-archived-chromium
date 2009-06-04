@@ -703,7 +703,7 @@ BUG10284 RELEASE : LayoutTests/svg/custom/path-bad-data.svg = FAIL
 BUG10285 WIN LINUX : LayoutTests/svg/custom/foreignObject-crash-on-hover.xml = FAIL
 
 // Merge 39744:39913? - regressions
-BUG10286 : LayoutTests/svg/W3C-SVG-1.1/animate-elem-02-t.svg = FAIL PASS
+BUG10286 : LayoutTests/svg/W3C-SVG-1.1/animate-elem-02-t.svg = FAIL PASS CRASH
 
 BUG10287 WIN LINUX : LayoutTests/svg/W3C-SVG-1.1/coords-units-01-b.svg = FAIL PASS
 
@@ -2727,14 +2727,9 @@ BUG13313 LINUX REBASELINE : LayoutTests/fast/repaint/overflow-scroll-delete.html
 BUG13313 LINUX REBASELINE : LayoutTests/svg/hixie/links/003-broken.xml = FAIL
 BUG13313 LINUX REBASELINE : LayoutTests/tables/mozilla/bugs/bug113235-1.html = FAIL
 BUG13313 LINUX REBASELINE : LayoutTests/tables/mozilla/core/cell_heights.html = FAIL
-BUG13313 LINUX REBASELINE : LayoutTests/fast/css/line-height-overflow.html = FAIL
-BUG13313 LINUX REBASELINE : LayoutTests/fast/flexbox/009.html = FAIL
-BUG13313 LINUX REBASELINE : LayoutTests/fast/frames/invalid.html = FAIL
-BUG13313 LINUX REBASELINE : LayoutTests/fast/frames/valid.html = FAIL
   
 // WebKit 44372:44405
 // New Linux crashes.
 BUG13314 LINUX : LayoutTests/css2.1/atrule_longest_match.html = CRASH
 BUG13314 LINUX : LayoutTests/editing/deleting/25322-1.html = CRASH
 BUG13314 LINUX : LayoutTests/platform/mac/accessibility/accesskey.html = CRASH
-BUG13314 LINUX : LayoutTests/svg/W3C-SVG-1.1/animate-elem-02-t.svg = CRASH
