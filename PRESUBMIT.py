@@ -87,7 +87,7 @@ def LocalChecks(input_api, output_api, max_cols=80):
 
     # Need to read the file ourselves since AffectedFile.NewContents()
     # will normalize line endings.
-    contents = ReadFile(path)
+    contents = ReadFile(f.AbsoluteLocalPath())
     if '\r' in contents:
       cr_files.append(path)
 
