@@ -121,8 +121,8 @@ class TaskManager {
   void OnWindowClosed();
 
  private:
-  FRIEND_TEST(TaskManagerTest, DISABLED_Basic);
-  FRIEND_TEST(TaskManagerTest, DISABLED_Resources);
+  FRIEND_TEST(TaskManagerTest, Basic);
+  FRIEND_TEST(TaskManagerTest, Resources);
 
   // Obtain an instance via GetInstance().
   TaskManager();

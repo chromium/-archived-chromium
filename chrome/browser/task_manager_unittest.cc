@@ -30,16 +30,14 @@ class TestResource : public TaskManager::Resource {
 class TaskManagerTest : public testing::Test {
 };
 
-TEST_F(TaskManagerTest, DISABLED_Basic) {
+TEST_F(TaskManagerTest, Basic) {
   TaskManager task_manager;
   TaskManagerModel* model = task_manager.model_;
-  TaskManager::Open();
   EXPECT_FALSE(task_manager.BrowserProcessIsSelected());
   EXPECT_EQ(0, model->ResourceCount());
-  TaskManager::Close();
 }
 
-TEST_F(TaskManagerTest, DISABLED_Resources) {
+TEST_F(TaskManagerTest, Resources) {
   TaskManager task_manager;
   TaskManagerModel* model = task_manager.model_;
 

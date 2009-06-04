@@ -235,7 +235,7 @@ class TaskManagerViewImpl : public TaskManagerView,
 
   scoped_ptr<views::NativeButton> kill_button_;
   scoped_ptr<views::Link> about_memory_link_;
-  views::GroupTableView* tab_table_;
+  scoped_ptr<views::GroupTableView> tab_table_;
 
   TaskManager* task_manager_;
 
@@ -293,9 +293,10 @@ void TaskManagerViewImpl::Init() {
                                         views::TableColumn::RIGHT, -1, 0));
   columns_.back().sortable = true;
 
-  tab_table_ = new views::GroupTableView(table_model_.get(), columns_,
-                                         views::ICON_AND_TEXT, false, true,
-                                         true);
+  tab_table_.reset(new views::GroupTableView(table_model_.get(), columns_,
+                                             views::ICON_AND_TEXT, false, true,
+                                             true));
+  tab_table_->SetParentOwned(false);
 
   // Hide some columns by default
   tab_table_->SetColumnVisibility(IDS_TASK_MANAGER_PROCESS_ID_COLUMN, false);
@@ -357,8 +358,7 @@ void TaskManagerViewImpl::ViewHierarchyChanged(bool is_add,
     if (is_add) {
       parent->AddChildView(kill_button_.get());
       parent->AddChildView(about_memory_link_.get());
-      if (tab_table_->GetParent() != this)
-        AddChildView(tab_table_);
+      AddChildView(tab_table_.get());
     } else {
       parent->RemoveChildView(kill_button_.get());
       parent->RemoveChildView(about_memory_link_.get());
