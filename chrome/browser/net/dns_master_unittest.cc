@@ -541,4 +541,67 @@ TEST_F(DnsMasterTest, ReferrerSerializationTrimTest) {
   master.Shutdown();
 }
 
+
+TEST_F(DnsMasterTest, PriorityQueuePushPopTest) {
+  DnsMaster::HostNameQueue queue;
+
+  // First check high priority queue FIFO functionality.
+  EXPECT_TRUE(queue.IsEmpty());
+  queue.Push("a", DnsHostInfo::LEARNED_REFERAL_MOTIVATED);
+  EXPECT_FALSE(queue.IsEmpty());
+  queue.Push("b", DnsHostInfo::MOUSE_OVER_MOTIVATED);
+  EXPECT_FALSE(queue.IsEmpty());
+  EXPECT_EQ(queue.Pop(), "a");
+  EXPECT_FALSE(queue.IsEmpty());
+  EXPECT_EQ(queue.Pop(), "b");
+  EXPECT_TRUE(queue.IsEmpty());
+
+  // Then check low priority queue FIFO functionality.
+  queue.IsEmpty();
+  queue.Push("a", DnsHostInfo::PAGE_SCAN_MOTIVATED);
+  EXPECT_FALSE(queue.IsEmpty());
+  queue.Push("b", DnsHostInfo::OMNIBOX_MOTIVATED);
+  EXPECT_FALSE(queue.IsEmpty());
+  EXPECT_EQ(queue.Pop(), "a");
+  EXPECT_FALSE(queue.IsEmpty());
+  EXPECT_EQ(queue.Pop(), "b");
+  EXPECT_TRUE(queue.IsEmpty());
+}
+
+TEST_F(DnsMasterTest, PriorityQueueReorderTest) {
+  DnsMaster::HostNameQueue queue;
+
+  // Push all the low priority items.
+  EXPECT_TRUE(queue.IsEmpty());
+  queue.Push("scan", DnsHostInfo::PAGE_SCAN_MOTIVATED);
+  queue.Push("unit", DnsHostInfo::UNIT_TEST_MOTIVATED);
+  queue.Push("lmax", DnsHostInfo::LINKED_MAX_MOTIVATED);
+  queue.Push("omni", DnsHostInfo::OMNIBOX_MOTIVATED);
+  queue.Push("startup", DnsHostInfo::STARTUP_LIST_MOTIVATED);
+  queue.Push("omni", DnsHostInfo::OMNIBOX_MOTIVATED);
+
+  // Push all the high prority items
+  queue.Push("learned", DnsHostInfo::LEARNED_REFERAL_MOTIVATED);
+  queue.Push("refer", DnsHostInfo::STATIC_REFERAL_MOTIVATED);
+  queue.Push("mouse", DnsHostInfo::MOUSE_OVER_MOTIVATED);
+
+  // Check that high priority stuff comes out first, and in FIFO order.
+  EXPECT_EQ(queue.Pop(), "learned");
+  EXPECT_EQ(queue.Pop(), "refer");
+  EXPECT_EQ(queue.Pop(), "mouse");
+
+  // ...and then low priority strings.
+  EXPECT_EQ(queue.Pop(), "scan");
+  EXPECT_EQ(queue.Pop(), "unit");
+  EXPECT_EQ(queue.Pop(), "lmax");
+  EXPECT_EQ(queue.Pop(), "omni");
+  EXPECT_EQ(queue.Pop(), "startup");
+  EXPECT_EQ(queue.Pop(), "omni");
+
+  EXPECT_TRUE(queue.IsEmpty());
+}
+
+
+
+
 }  // namespace chrome_browser_net
