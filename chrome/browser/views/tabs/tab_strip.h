@@ -87,6 +87,9 @@ class TabStrip : public views::View,
   // Updates loading animations for the TabStrip.
   void UpdateLoadingAnimations();
 
+  // Set the background offset used by inactive tabs to match the frame image.
+  void SetBackgroundOffset(gfx::Point offset);
+
   // views::View overrides:
   virtual void PaintChildren(gfx::Canvas* canvas);
   virtual views::View* GetViewByID(int id) const;

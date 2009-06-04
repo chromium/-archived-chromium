@@ -60,6 +60,12 @@ class TabRenderer : public views::View,
   void StartPulse();
   void StopPulse();
 
+  // Set the background offset used to match the image in the inactive tab
+  // to the frame image.
+  void SetBackgroundOffset(gfx::Point offset) {
+    background_offset_ = offset;
+  }
+
   // Set the theme provider - because we get detached, we are frequently
   // outside of a hierarchy with a theme provider at the top. This should be
   // called whenever we're detached or attached to a hierarchy.
@@ -137,6 +143,9 @@ class TabRenderer : public views::View,
   gfx::Rect favicon_bounds_;
   gfx::Rect title_bounds_;
 
+  // The offset used to paint the inactive background image.
+  gfx::Point background_offset_;
+
   // Current state of the animation.
   AnimationState animation_state_;
 
@@ -162,6 +171,7 @@ class TabRenderer : public views::View,
     bool crashed;
     bool off_the_record;
     bool show_icon;
+    int background_vertical_offset;
   };
   TabData data_;
 

@@ -588,6 +588,12 @@ void TabStrip::UpdateLoadingAnimations() {
   }
 }
 
+void TabStrip::SetBackgroundOffset(gfx::Point offset) {
+  int tab_count = GetTabCount();
+  for (int i = 0; i < tab_count; ++i)
+    GetTabAt(i)->SetBackgroundOffset(offset);
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 // TabStrip, views::View overrides:
 
@@ -653,6 +659,7 @@ void TabStrip::Layout() {
   GenerateIdealBounds();
   int tab_count = GetTabCount();
   int tab_right = 0;
+
   for (int i = 0; i < tab_count; ++i) {
     const gfx::Rect& bounds = tab_data_.at(i).ideal_bounds;
     GetTabAt(i)->SetBounds(bounds.x(), bounds.y(), bounds.width(),

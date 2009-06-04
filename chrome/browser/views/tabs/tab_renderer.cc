@@ -584,10 +584,8 @@ void TabRenderer::PaintInactiveTabBackground(gfx::Canvas* canvas) {
   // The tab image needs to be lined up with the background image
   // so that it feels partially transparent.  These offsets represent the tab
   // position within the frame background image.
-  int offset = GetX(views::View::APPLY_MIRRORING_TRANSFORMATION) + 1;
-  // TODO(glen): http://crbug.com/12761  This should use
-  // BrowserView::GetTabstripBounds() instead of a hardcoded constant.
-  int offset_y = 20;
+  int offset = GetX(views::View::APPLY_MIRRORING_TRANSFORMATION) +
+      background_offset_.x();
 
   int tab_id;
   if (GetWidget() &&
@@ -603,7 +601,7 @@ void TabRenderer::PaintInactiveTabBackground(gfx::Canvas* canvas) {
   // Draw left edge.  Don't draw over the toolbar, as we're not the foreground
   // tab.
   SkBitmap tab_l = skia::ImageOperations::CreateTiledBitmap(
-      *tab_bg, offset, offset_y,
+      *tab_bg, offset, background_offset_.y(),
       tab_active.l_width, height());
   SkBitmap theme_l = skia::ImageOperations::CreateMaskedBitmap(
       tab_l, *tab_alpha.image_l);
@@ -615,7 +613,7 @@ void TabRenderer::PaintInactiveTabBackground(gfx::Canvas* canvas) {
   // Draw right edge.  Again, don't draw over the toolbar.
   SkBitmap tab_r = skia::ImageOperations::CreateTiledBitmap(
       *tab_bg,
-      offset + width() - tab_active.r_width, offset_y,
+      offset + width() - tab_active.r_width, background_offset_.y(),
       tab_active.r_width, height());
   SkBitmap theme_r = skia::ImageOperations::CreateMaskedBitmap(
       tab_r, *tab_alpha.image_r);
@@ -628,7 +626,7 @@ void TabRenderer::PaintInactiveTabBackground(gfx::Canvas* canvas) {
   // by incrementing by kDropShadowHeight, since it's a simple rectangle.  And
   // again, don't draw over the toolbar.
   canvas->TileImageInt(*tab_bg,
-     offset + tab_active.l_width, offset_y + kDropShadowHeight,
+     offset + tab_active.l_width, background_offset_.y() + kDropShadowHeight,
      tab_active.l_width, kDropShadowHeight,
      width() - tab_active.l_width - tab_active.r_width,
      height() - kDropShadowHeight - kToolbarOverlap);
@@ -644,7 +642,8 @@ void TabRenderer::PaintInactiveTabBackground(gfx::Canvas* canvas) {
 }
 
 void TabRenderer::PaintActiveTabBackground(gfx::Canvas* canvas) {
-  int offset = GetX(views::View::APPLY_MIRRORING_TRANSFORMATION) + 1;
+  int offset = GetX(views::View::APPLY_MIRRORING_TRANSFORMATION) +
+      background_offset_.x();
   ThemeProvider* tp = GetThemeProvider();
   if (!tp)
     NOTREACHED() << "Unable to get theme provider";
