@@ -202,8 +202,8 @@ void AutocompleteEditViewMac::Update(
   // that the field isn't always updated correctly.  Figure out why
   // this is.  Maybe this method should be refactored into more
   // specific cases.
-  const std::wstring text = toolbar_model_->GetText();
-  const bool user_visible = model_->UpdatePermanentText(text);
+  const bool user_visible =
+      model_->UpdatePermanentText(toolbar_model_->GetText());
 
   if (tab_for_state_restoring) {
     RevertAll();
@@ -237,9 +237,13 @@ void AutocompleteEditViewMac::Update(
     // we're getting the selection and popup right.
 
   } else {
-    // TODO(shess): Figure out how this case is used, to make sure
-    // we're getting the selection and popup right.
-    UpdateAndStyleText(text);
+    // TODO(shess): This corresponds to _win and _gtk, except those
+    // guard it with a test for whether the security level changed.
+    // But AFAICT, that can only change if the text changed, and that
+    // code compares the toolbar_model_ security level with the local
+    // security level.  Dig in and figure out why this isn't a no-op
+    // that should go away.
+    UpdateAndStyleText(GetText());
   }
 }
 
@@ -320,6 +324,10 @@ void AutocompleteEditViewMac::RevertAll() {
   ClosePopup();
   model_->Revert();
 
+  // TODO(shess): This should be a no-op, the results from GetText()
+  // could only get there via UpdateAndStyleText() in the first place.
+  // Dig into where this code can be called from and see if this line
+  // can be removed.
   UpdateAndStyleText(GetText());
   controller_->OnChanged();
 }
