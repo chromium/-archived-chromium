@@ -4,6 +4,10 @@
 
 #include "views/controls/link.h"
 
+#if defined(OS_LINUX)
+#include <gdk/gdk.h>
+#endif
+
 #include "app/gfx/font.h"
 #include "base/logging.h"
 #include "views/event.h"
@@ -184,17 +188,19 @@ void Link::SetEnabled(bool f) {
   }
 }
 
-#if defined(OS_WIN)
-HCURSOR Link::GetCursorForPoint(Event::EventType event_type, int x, int y) {
+gfx::NativeCursor Link::GetCursorForPoint(Event::EventType event_type, int x,
+                                          int y) {
   if (enabled_) {
-    if (!g_hand_cursor) {
+#if defined(OS_WIN)
+    if (!g_hand_cursor)
       g_hand_cursor = LoadCursor(NULL, IDC_HAND);
-    }
     return g_hand_cursor;
+#elif defined(OS_LINUX)
+    return gdk_cursor_new(GDK_HAND2);
+#endif
   } else {
     return NULL;
   }
 }
-#endif
 
 }  // namespace views

@@ -22,7 +22,7 @@ class SingleSplitView : public views::View {
   virtual gfx::Size GetPreferredSize();
 
   // Overriden to return a resize cursor when over the divider.
-  virtual HCURSOR GetCursorForPoint(Event::EventType event_type, int x, int y);
+  virtual gfx::NativeCursor GetCursorForPoint(Event::EventType event_type, int x, int y);
 
   void set_divider_x(int divider_x) { divider_x_ = divider_x; }
   int divider_x() { return divider_x_; }

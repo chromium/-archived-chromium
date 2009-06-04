@@ -54,9 +54,8 @@ class Link : public Label {
   // Set whether the link is enabled.
   virtual void SetEnabled(bool f);
 
-#if defined(OS_WIN)
-  virtual HCURSOR GetCursorForPoint(Event::EventType event_type, int x, int y);
-#endif
+  virtual gfx::NativeCursor GetCursorForPoint(Event::EventType event_type,
+                                              int x, int y);
 
   virtual std::string GetClassName() const;
 

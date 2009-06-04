@@ -467,29 +467,13 @@ void RootView::OnMouseMoved(const MouseEvent& e) {
                            0);
     mouse_move_handler_->OnMouseMoved(moved_event);
 
-#if defined(OS_WIN)
-    HCURSOR cursor = mouse_move_handler_->GetCursorForPoint(
+    gfx::NativeCursor cursor = mouse_move_handler_->GetCursorForPoint(
         moved_event.GetType(), moved_event.x(), moved_event.y());
-    if (cursor) {
-      previous_cursor_ = ::SetCursor(cursor);
-    } else if (previous_cursor_) {
-      ::SetCursor(previous_cursor_);
-      previous_cursor_ = NULL;
-    }
-#else
-    NOTIMPLEMENTED();
-#endif
+    SetActiveCursor(cursor);
   } else if (mouse_move_handler_ != NULL) {
     MouseEvent exited_event(Event::ET_MOUSE_EXITED, 0, 0, 0);
     mouse_move_handler_->OnMouseExited(exited_event);
-#if defined(OS_WIN)
-    if (previous_cursor_) {
-      ::SetCursor(previous_cursor_);
-      previous_cursor_ = NULL;
-    }
-#else
-    NOTIMPLEMENTED();
-#endif
+    SetActiveCursor(NULL);
   }
 }
 
@@ -920,6 +904,24 @@ void RootView::SetAccessibleName(const std::wstring& name) {
 
 View* RootView::GetDragView() {
   return drag_view_;
+}
+
+void RootView::SetActiveCursor(gfx::NativeCursor cursor) {
+#if defined(OS_WIN)
+  if (cursor) {
+    previous_cursor_ = ::SetCursor(cursor);
+  } else if (previous_cursor_) {
+    ::SetCursor(previous_cursor_);
+    previous_cursor_ = NULL;
+  }
+#elif defined(OS_LINUX)
+  if (cursor) {
+    gdk_window_set_cursor(GetWidget()->GetNativeView()->window, cursor);
+    gdk_cursor_destroy(cursor);
+  } else {
+    gdk_window_set_cursor(GetWidget()->GetNativeView()->window, NULL);
+  }
+#endif
 }
 
 }  // namespace views

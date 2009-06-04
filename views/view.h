@@ -12,6 +12,7 @@
 #include <string>
 #include <vector>
 
+#include "base/gfx/native_widget_types.h"
 #include "base/gfx/rect.h"
 #include "base/scoped_ptr.h"
 #include "views/accelerator.h"
@@ -811,14 +812,15 @@ class View : public AcceleratorTarget {
   // insets is returned.
   virtual gfx::Insets GetInsets() const;
 
-#if defined(OS_WIN)
-  // TODO(port): Make GetCursorForPoint portable.
-
   // Return the cursor that should be used for this view or NULL if
   // the default cursor should be used. The provided point is in the
-  // receiver's coordinate system.
-  virtual HCURSOR GetCursorForPoint(Event::EventType event_type, int x, int y);
-#endif  // defined(OS_WIN)
+  // receiver's coordinate system. The caller is responsible for managing the
+  // lifetime of the returned object, though that lifetime may vary from
+  // platform to platform. On Windows, the cursor is a shared resource but in
+  // Gtk, the framework destroys the returned cursor after setting it.
+  virtual gfx::NativeCursor GetCursorForPoint(Event::EventType event_type,
+                                              int x,
+                                              int y);
 
   // Convenience to test whether a point is within this view's bounds
   virtual bool HitTest(const gfx::Point& l) const;

@@ -47,6 +47,7 @@ class NSWindow;
 class NSTextField;
 #endif  // __OBJC__
 #elif defined(OS_LINUX)
+typedef struct _GdkCursor GdkCursor;
 typedef struct _GtkWidget GtkWidget;
 typedef struct _GtkWindow GtkWindow;
 typedef struct _cairo_surface cairo_surface_t;
@@ -59,6 +60,7 @@ typedef HWND NativeView;
 typedef HWND NativeWindow;
 typedef HWND NativeEditView;
 typedef HDC NativeDrawingContext;
+typedef HCURSOR NativeCursor;
 #elif defined(OS_MACOSX)
 typedef NSView* NativeView;
 typedef NSWindow* NativeWindow;
@@ -69,6 +71,7 @@ typedef GtkWidget* NativeView;
 typedef GtkWindow* NativeWindow;
 typedef GtkWidget* NativeEditView;
 typedef cairo_surface_t* NativeDrawingContext;
+typedef GdkCursor* NativeCursor;
 #endif
 
 // Note: for test_shell we're packing a pointer into the NativeViewId. So, if

@@ -269,6 +269,9 @@ class RootView : public View,
   // If a view is dragging, this returns it. Otherwise returns NULL.
   View* GetDragView();
 
+  // Sets the current cursor, or resets it to the last one if NULL is provided.
+  void SetActiveCursor(gfx::NativeCursor cursor);
+
   // The view currently handing down - drag - up
   View* mouse_pressed_handler_;
 
@@ -299,10 +302,8 @@ class RootView : public View,
   // true if mouse_handler_ has been explicitly set
   bool explicit_mouse_handler_;
 
-#if defined(OS_WIN)
   // Previous cursor
-  HCURSOR previous_cursor_;
-#endif
+  gfx::NativeCursor previous_cursor_;
 
   // Default keyboard handler
   View* default_keyboard_handler_;

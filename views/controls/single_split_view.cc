@@ -4,6 +4,10 @@
 
 #include "views/controls/single_split_view.h"
 
+#if defined(OS_LINUX)
+#include <gdk/gdk.h>
+#endif
+
 #include "app/gfx/canvas.h"
 #include "skia/ext/skia_utils_win.h"
 #include "views/background.h"
@@ -55,12 +59,15 @@ gfx::Size SingleSplitView::GetPreferredSize() {
   return gfx::Size(width, height);
 }
 
-HCURSOR SingleSplitView::GetCursorForPoint(Event::EventType event_type,
-                                           int x,
-                                           int y) {
+gfx::NativeCursor SingleSplitView::GetCursorForPoint(Event::EventType event_type,
+                                                     int x, int y) {
   if (IsPointInDivider(x)) {
+#if defined(OS_WIN)
     static HCURSOR resize_cursor = LoadCursor(NULL, IDC_SIZEWE);
     return resize_cursor;
+#elif defined(OS_LINUX)
+    return gdk_cursor_new(GDK_SB_H_DOUBLE_ARROW);
+#endif
   }
   return NULL;
 }

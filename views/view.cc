@@ -397,6 +397,11 @@ gfx::Insets View::GetInsets() const {
   return insets;
 }
 
+gfx::NativeCursor View::GetCursorForPoint(Event::EventType event_type, int x,
+                                          int y) {
+  return NULL;
+}
+
 void View::SetContextMenuController(ContextMenuController* menu_controller) {
   context_menu_controller_ = menu_controller;
 }

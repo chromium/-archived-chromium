@@ -66,10 +66,6 @@ bool View::HitTest(const gfx::Point& l) const {
   return false;
 }
 
-HCURSOR View::GetCursorForPoint(Event::EventType event_type, int x, int y) {
-  return NULL;
-}
-
 void View::Focus() {
   // Set the native focus to the root view window so it receives the keyboard
   // messages.
