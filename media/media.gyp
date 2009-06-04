@@ -145,6 +145,7 @@
       'sources': [
         'audio/win/audio_output_win_unittest.cc',
         'audio/mac/audio_output_mac_unittest.cc',
+        'audio/simple_sources_unittest.cc',
         'base/data_buffer_unittest.cc',
         'base/pipeline_impl_unittest.cc',
         'base/run_all_unittests.cc',

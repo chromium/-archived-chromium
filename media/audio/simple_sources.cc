@@ -50,7 +50,9 @@ void SineWaveAudioSource::OnError(AudioOutputStream* stream, int code) {
 // PushSource implementation.
 
 PushSource::PushSource(size_t packet_size)
-    : packet_size_(packet_size), buffered_bytes_(0) {
+    : packet_size_(packet_size),
+      buffered_bytes_(0),
+      front_buffer_consumed_(0) {
 }
 
 PushSource::~PushSource() {
@@ -59,20 +61,29 @@ PushSource::~PushSource() {
 
 size_t PushSource::OnMoreData(AudioOutputStream* stream,
                               void* dest, size_t max_size) {
-  Packet packet;
-  {
+  size_t copied = 0;
+  while (copied < max_size) {
     AutoLock auto_lock(lock_);
+
     // Under lock processing in this scope.
     if (!packets_.size())
-      return 0;
-    packet = packets_.front();
-    packets_.pop_front();
-    buffered_bytes_ -= packet.size;
+      break;
+    Packet packet = packets_.front();
+    size_t size = std::min(max_size - copied,
+                           packet.size - front_buffer_consumed_);
+    memcpy(static_cast<char*>(dest) + copied,
+           packet.buffer + front_buffer_consumed_,
+           size);
+    front_buffer_consumed_ += size;
+    buffered_bytes_ -= size;
+    copied += size;
+    if (front_buffer_consumed_ == packet.size) {
+      delete [] packet.buffer;
+      packets_.pop_front();
+      front_buffer_consumed_ = 0;
+    }
   }
-  size_t size = std::min(max_size, packet.size);
-  memcpy(dest, packet.buffer, size);
-  delete [] packet.buffer;
-  return size;
+  return copied;
 }
 
 void PushSource::OnClose(AudioOutputStream* stream) {
@@ -85,7 +96,7 @@ void PushSource::OnError(AudioOutputStream* stream, int code) {
 
 // TODO(cpu): Manage arbitrary large sizes.
 bool PushSource::Write(const void *data, size_t len) {
-  if ((len == 0) || (len > packet_size_)) {
+  if (len == 0) {
     NOTREACHED();
     return false;
   }
