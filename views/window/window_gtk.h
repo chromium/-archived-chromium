@@ -24,7 +24,7 @@ class WindowGtk : public WidgetGtk, public Window {
  public:
   virtual ~WindowGtk();
 
-  // Window overrides:
+  // Overridden from Window:
   virtual gfx::Rect GetBounds() const;
   virtual gfx::Rect GetNormalBounds() const;
   virtual void SetBounds(const gfx::Rect& bounds,
@@ -60,6 +60,9 @@ class WindowGtk : public WidgetGtk, public Window {
 
   virtual Window* AsWindow() { return this; }
   virtual const Window* AsWindow() const { return this; }
+
+  // Overridden from WidgetGtk:
+  virtual void OnSizeAllocate(GtkWidget* widget, GtkAllocation* allocation);
 
  protected:
   // For  the constructor.

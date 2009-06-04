@@ -370,6 +370,10 @@ void WidgetGtk::CreateGtkWidget() {
 
     SetViewForNative(child_widget_parent_, this);
   }
+
+  // The widget needs to be realized before handlers like size-allocate can
+  // function properly.
+  gtk_widget_realize(widget_);
 }
 
 void WidgetGtk::OnSizeAllocate(GtkWidget* widget, GtkAllocation* allocation) {

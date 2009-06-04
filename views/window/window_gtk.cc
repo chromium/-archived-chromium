@@ -4,6 +4,7 @@
 
 #include "views/window/window_gtk.h"
 
+#include "app/gfx/path.h"
 #include "app/l10n_util.h"
 #include "base/gfx/rect.h"
 #include "views/window/custom_frame_view.h"
@@ -184,6 +185,25 @@ void WindowGtk::FrameTypeChanged() {
   NOTIMPLEMENTED();
 }
 
+////////////////////////////////////////////////////////////////////////////////
+// WindowGtk, WidgetGtk overrides:
+
+void WindowGtk::OnSizeAllocate(GtkWidget* widget, GtkAllocation* allocation) {
+  WidgetGtk::OnSizeAllocate(widget, allocation);
+
+  // The Window's NonClientView may provide a custom shape for the Window.
+  gfx::Path window_mask;
+  non_client_view_->GetWindowMask(gfx::Size(allocation->width,
+                                            allocation->height),
+                                  &window_mask);
+  GdkRegion* mask_region = window_mask.CreateGdkRegion();
+  gdk_window_shape_combine_region(GetNativeView()->window, mask_region, 0, 0);
+  gdk_region_destroy(mask_region);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// WindowGtk, protected:
+
 WindowGtk::WindowGtk(WindowDelegate* window_delegate)
     : WidgetGtk(TYPE_WINDOW),
       is_modal_(false),
@@ -214,6 +234,7 @@ void WindowGtk::Init(const gfx::Rect& bounds) {
   UpdateWindowTitle();
 
   GtkWindow* gtk_window = GetNativeWindow();
+
   g_signal_connect(G_OBJECT(gtk_window),
                    "window-state-event",
                    G_CALLBACK(CallWindowStateEvent),
