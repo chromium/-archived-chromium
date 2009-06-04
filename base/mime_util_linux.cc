@@ -398,18 +398,21 @@ void EnableSvgIcon(bool enable) {
 // Add all the xdg icon directories.
 void InitIconDir() {
   Singleton<MimeUtilConstants>::get()->icon_dirs->clear();
-  std::string xdg_data_dirs;
-  char* env = getenv("XDG_DATA_HOME");
-  if (!env) {
-    env = getenv("HOME");
-    if (env) {
-      FilePath local_data_dir(env);
-      local_data_dir = local_data_dir.AppendASCII(".local");
-      local_data_dir = local_data_dir.AppendASCII("share");
-      AddXDGDataDir(local_data_dir);
-    }
-  } else {
+  const char* home = getenv("HOME");
+  if (home) {
+      FilePath legacy_data_dir(home);
+      legacy_data_dir = legacy_data_dir.AppendASCII(".icons");
+      if (file_util::DirectoryExists(legacy_data_dir))
+        TryAddIconDir(legacy_data_dir);
+  }
+  const char* env = getenv("XDG_DATA_HOME");
+  if (env) {
     AddXDGDataDir(FilePath(env));
+  } else if (home) {
+    FilePath local_data_dir(home);
+    local_data_dir = local_data_dir.AppendASCII(".local");
+    local_data_dir = local_data_dir.AppendASCII("share");
+    AddXDGDataDir(local_data_dir);
   }
 
   env = getenv("XDG_DATA_DIRS");
