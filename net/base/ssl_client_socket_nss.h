@@ -15,6 +15,8 @@
 #include <string>
 
 #include "base/scoped_ptr.h"
+#include "net/base/cert_verifier.h"
+#include "net/base/cert_verify_result.h"
 #include "net/base/completion_callback.h"
 #include "net/base/nss_memio.h"
 #include "net/base/ssl_client_socket.h"
@@ -57,6 +59,8 @@ class SSLClientSocketNSS : public SSLClientSocket {
 
   int DoLoop(int last_io_result);
   int DoHandshakeRead();
+  int DoVerifyCert(int result);
+  int DoVerifyCertComplete(int result);
   int DoPayloadRead();
   int DoPayloadWrite();
   int Init();
@@ -69,9 +73,9 @@ class SSLClientSocketNSS : public SSLClientSocket {
   // argument.
   static SECStatus OwnAuthCertHandler(void* arg, PRFileDesc* socket,
                                       PRBool checksig, PRBool is_server);
-
-  // NSS calls this on error.  We pass 'this' as the first argument.
-  static SECStatus OwnBadCertHandler(void* arg, PRFileDesc* socket);
+  // NSS calls this when handshake is completed.  We pass 'this' as the second
+  // argument.
+  static void HandshakeCallback(PRFileDesc* socket, void* arg);
 
   CompletionCallbackImpl<SSLClientSocketNSS> buffer_send_callback_;
   CompletionCallbackImpl<SSLClientSocketNSS> buffer_recv_callback_;
@@ -90,20 +94,21 @@ class SSLClientSocketNSS : public SSLClientSocket {
   scoped_refptr<IOBuffer> user_buf_;
   int user_buf_len_;
 
-  // Set when handshake finishes.  Value is net error code, see net_errors.h
-  int server_cert_error_;
-
-  // Set during handshake.
+  // Set when handshake finishes.
   scoped_refptr<X509Certificate> server_cert_;
+  CertVerifyResult server_cert_verify_result_;
   // Certificate chain.
   CERTCertList* cert_list_;
+
+  CertVerifier verifier_;
 
   bool completed_handshake_;
 
   enum State {
     STATE_NONE,
     STATE_HANDSHAKE_READ,
-    // No STATE_HANDSHAKE_READ_COMPLETE needed, go to STATE_NONE instead.
+    STATE_VERIFY_CERT,
+    STATE_VERIFY_CERT_COMPLETE,
     STATE_PAYLOAD_WRITE,
     STATE_PAYLOAD_READ,
   };

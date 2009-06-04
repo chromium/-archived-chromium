@@ -5,7 +5,7 @@
 // This file includes code GetDefaultCertNickname(), derived from
 // nsNSSCertificate::defaultServerNickName()
 // in mozilla/security/manager/ssl/src/nsNSSCertificate.cpp
-// and SSLClientSocketNSS::OwnAuthCertHandler() derived from
+// and SSLClientSocketNSS::DoVerifyCertComplete() derived from
 // AuthCertificateCallback() in
 // mozilla/security/manager/ssl/src/nsNSSCallbacks.cpp.
 
@@ -197,7 +197,6 @@ SSLClientSocketNSS::SSLClientSocketNSS(ClientSocket* transport_socket,
       ssl_config_(ssl_config),
       user_callback_(NULL),
       user_buf_len_(0),
-      server_cert_error_(0),
       cert_list_(NULL),
       completed_handshake_(false),
       next_state_(STATE_NONE),
@@ -332,9 +331,9 @@ int SSLClientSocketNSS::Connect(CompletionCallback* callback) {
   if (rv != SECSuccess)
      return ERR_UNEXPECTED;
 
-  rv = SSL_BadCertHook(nss_fd_, OwnBadCertHandler, this);
+  rv = SSL_HandshakeCallback(nss_fd_, HandshakeCallback, this);
   if (rv != SECSuccess)
-     return ERR_UNEXPECTED;
+    return ERR_UNEXPECTED;
 
   // Tell SSL the hostname we're trying to connect to.
   SSL_SetURL(nss_fd_, hostname_.c_str());
@@ -376,11 +375,11 @@ void SSLClientSocketNSS::Disconnect() {
   user_buf_            = NULL;
   user_buf_len_        = 0;
   server_cert_         = NULL;
-  server_cert_error_   = OK;
   if (cert_list_) {
     CERT_DestroyCertList(cert_list_);
     cert_list_ = NULL;
   }
+  server_cert_verify_result_.Reset();
   completed_handshake_ = false;
   nss_bufs_            = NULL;
 
@@ -462,6 +461,7 @@ X509Certificate *SSLClientSocketNSS::UpdateServerCert() {
       server_cert_ = X509Certificate::CreateFromHandle(
           nss_cert, X509Certificate::SOURCE_FROM_NETWORK);
       DCHECK(!cert_list_);
+      // TODO(ukai): don't need to copy cert list.
       cert_list_ = CERT_GetCertChainFromCert(
           nss_cert, PR_Now(), certUsageSSLCA);
     }
@@ -472,6 +472,9 @@ X509Certificate *SSLClientSocketNSS::UpdateServerCert() {
 void SSLClientSocketNSS::GetSSLInfo(SSLInfo* ssl_info) {
   EnterFunction("");
   ssl_info->Reset();
+  if (!server_cert_)
+    return;
+
   SSLChannelInfo channel_info;
   SECStatus ok = SSL_GetChannelInfo(nss_fd_,
                                     &channel_info, sizeof(channel_info));
@@ -490,8 +493,7 @@ void SSLClientSocketNSS::GetSSLInfo(SSLInfo* ssl_info) {
     }
     UpdateServerCert();
   }
-  if (server_cert_error_ != net::OK)
-    ssl_info->SetCertError(server_cert_error_);
+  ssl_info->cert_status = server_cert_verify_result_.cert_status;
   DCHECK(server_cert_ != NULL);
   ssl_info->cert = server_cert_;
   LeaveFunction("");
@@ -626,6 +628,13 @@ int SSLClientSocketNSS::DoLoop(int last_io_result) {
       case STATE_HANDSHAKE_READ:
         rv = DoHandshakeRead();
         break;
+      case STATE_VERIFY_CERT:
+        DCHECK(rv == OK);
+        rv = DoVerifyCert(rv);
+        break;
+      case STATE_VERIFY_CERT_COMPLETE:
+        rv = DoVerifyCertComplete(rv);
+        break;
       case STATE_PAYLOAD_READ:
         rv = DoPayloadRead();
         break;
@@ -652,27 +661,73 @@ int SSLClientSocketNSS::DoLoop(int last_io_result) {
 
 // static
 // NSS calls this if an incoming certificate needs to be verified.
-// Derived from AuthCertificateCallback() in
-// mozilla/source/security/manager/ssl/src/nsNSSCallbacks.cpp.
+// Do nothing but return SECSuccess.
+// This is called only in full handshake mode.
+// Peer certificate is retrieved in HandshakeCallback() later, which is called
+// in full handshake mode or in resumption handshake mode.
 SECStatus SSLClientSocketNSS::OwnAuthCertHandler(void* arg,
                                                  PRFileDesc* socket,
                                                  PRBool checksig,
                                                  PRBool is_server) {
+  // Tell NSS to not verify the certificate.
+  return SECSuccess;
+}
+
+// static
+// NSS calls this when handshake is completed.
+// After the SSL handshake is finished, use CertVerifier to verify
+// the saved server certificate.
+void SSLClientSocketNSS::HandshakeCallback(PRFileDesc* socket,
+                                           void* arg) {
   SSLClientSocketNSS* that = reinterpret_cast<SSLClientSocketNSS*>(arg);
 
-  // Remember the certificate as it will no longer be accessible if the
-  // handshake fails.
-  scoped_refptr<X509Certificate> cert = that->UpdateServerCert();
+  that->UpdateServerCert();
+}
 
-  SECStatus rv = SSL_AuthCertificate(CERT_GetDefaultCertDB(), socket, checksig,
-                             is_server);
-  if (rv == SECSuccess && that->cert_list_) {
+int SSLClientSocketNSS::DoHandshakeRead() {
+  EnterFunction("");
+  int net_error = net::OK;
+  int rv = SSL_ForceHandshake(nss_fd_);
+
+  if (rv == SECSuccess) {
+    // SSL handshake is completed.  Let's verify the certificate.
+    GotoState(STATE_VERIFY_CERT);
+    // Done!
+  } else {
+    PRErrorCode prerr = PR_GetError();
+    net_error = NetErrorFromNSPRError(prerr);
+
+    // If not done, stay in this state
+    if (net_error == ERR_IO_PENDING) {
+      GotoState(STATE_HANDSHAKE_READ);
+    } else {
+      LOG(ERROR) << "handshake failed; NSS error code " << prerr
+                 << ", net_error " << net_error;
+    }
+  }
+
+  LeaveFunction("");
+  return net_error;
+}
+
+int SSLClientSocketNSS::DoVerifyCert(int result) {
+  DCHECK(server_cert_);
+  GotoState(STATE_VERIFY_CERT_COMPLETE);
+  return verifier_.Verify(server_cert_, hostname_,
+                          ssl_config_.rev_checking_enabled,
+                          &server_cert_verify_result_, &io_callback_);
+}
+
+// Derived from AuthCertificateCallback() in
+// mozilla/source/security/manager/ssl/src/nsNSSCallbacks.cpp.
+int SSLClientSocketNSS::DoVerifyCertComplete(int result) {
+  if (result == OK && cert_list_) {
     // Remember the intermediate CA certs if the server sends them to us.
-    for (CERTCertListNode* node = CERT_LIST_HEAD(that->cert_list_);
-         !CERT_LIST_END(node, that->cert_list_);
+    for (CERTCertListNode* node = CERT_LIST_HEAD(cert_list_);
+         !CERT_LIST_END(node, cert_list_);
          node = CERT_LIST_NEXT(node)) {
       if (node->cert->slot || node->cert->isRoot || node->cert->isperm ||
-          node->cert == cert->os_cert_handle()) {
+          node->cert == server_cert_->os_cert_handle()) {
         // Some certs we don't want to remember are:
         // - found on a token.
         // - the root cert.
@@ -694,58 +749,25 @@ SECStatus SSLClientSocketNSS::OwnAuthCertHandler(void* arg,
     }
   }
 
-  return rv;
-}
-
-// static
-// NSS calls this if an incoming certificate is invalid.
-SECStatus SSLClientSocketNSS::OwnBadCertHandler(void* arg,
-                                                PRFileDesc* socket) {
-  SSLClientSocketNSS* that = reinterpret_cast<SSLClientSocketNSS*>(arg);
-
-  if (that->server_cert_ &&
-      that->ssl_config_.allowed_bad_certs_.count(that->server_cert_)) {
+  // If we have been explicitly told to accept this certificate, override the
+  // result of verifier_.Verify.
+  // Eventually, we should cache the cert verification results so that we don't
+  // need to call verifier_.Verify repeatedly.  But for now we need to do this.
+  // Alternatively, we might be able to store the cert's status along with
+  // the cert in the allowed_bad_certs_ set.
+  if (IsCertificateError(result) &&
+      ssl_config_.allowed_bad_certs_.count(server_cert_)) {
     LOG(INFO) << "accepting bad SSL certificate, as user told us to";
-
-    return SECSuccess;
-  }
-  PRErrorCode prerr = PR_GetError();
-  that->server_cert_error_ = NetErrorFromNSPRError(prerr);
-  LOG(INFO) << "server certificate is invalid; NSS error code " << prerr
-            << ", net error " << that->server_cert_error_;
-
-  return SECFailure;
-}
-
-int SSLClientSocketNSS::DoHandshakeRead() {
-  EnterFunction("");
-  int net_error = net::OK;
-  int rv = SSL_ForceHandshake(nss_fd_);
-
-  if (rv == SECSuccess) {
-    DCHECK(server_cert_error_ == net::OK);
-
-    InvalidateSessionIfBadCertificate();
-
-    // there's a callback for this, too
-    completed_handshake_ = true;
-    // Done!
-  } else {
-    PRErrorCode prerr = PR_GetError();
-    net_error = NetErrorFromNSPRError(prerr);
-
-    // If not done, stay in this state
-    if (net_error == ERR_IO_PENDING) {
-      GotoState(STATE_HANDSHAKE_READ);
-    } else {
-      server_cert_error_ = net_error;
-      LOG(ERROR) << "handshake failed; NSS error code " << prerr
-                 << ", net_error " << net_error;
-    }
+    result = OK;
   }
 
-  LeaveFunction("");
-  return net_error;
+  completed_handshake_ = true;
+  // TODO(ukai): we may not need this call because it is now harmless to have an
+  // session with a bad cert.
+  InvalidateSessionIfBadCertificate();
+  // Exit DoLoop and return the result to the caller to Connect.
+  DCHECK(next_state_ == STATE_NONE);
+  return result;
 }
 
 int SSLClientSocketNSS::DoPayloadRead() {
