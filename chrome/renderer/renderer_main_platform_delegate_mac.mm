@@ -8,7 +8,6 @@
 
 #import <Foundation/Foundation.h>
 #import <ApplicationServices/ApplicationServices.h>
-#import <Carbon/Carbon.h>
 #import <Cocoa/Cocoa.h>
 extern "C" {
 #include <sandbox.h>
@@ -39,8 +38,7 @@ RendererMainPlatformDelegate::~RendererMainPlatformDelegate() {
 void SandboxWarmup() {
   base::ScopedNSAutoreleasePool scoped_pool;
 
-  { // CGColorSpaceCreateWithName(), CGBitmapContextCreate(),
-    // scaled CoreUI controls - 10.5.6
+  { // CGColorSpaceCreateWithName(), CGBitmapContextCreate() - 10.5.6
     CGColorSpaceRef rgb_colorspace =
         CGColorSpaceCreateWithName(kCGColorSpaceGenericRGB);
 
@@ -51,38 +49,6 @@ void SandboxWarmup() {
                                              kCGImageAlphaPremultipliedFirst |
                                              kCGBitmapByteOrder32Host);
 
-    // Draw scaled controls - http://crbug.com/11325 . The scaled CoreUI
-    // controls seem to be cached somewhere, so if you change this and
-    // everything still seems to work, it's possible that you broke something
-    // and just didn't notice it yet. See bug for details.
-    CGContextScaleCTM(tmp, 1.1, 1.1);  // Anything != 1.0 will do.
-    HIThemeButtonDrawInfo btnInfo = {0};
-    CGRect rect = CGRectMake(0, 0, 1, 1);
-
-    ThemeButtonKind buttonKinds[] = {
-      kThemePushButton,
-      kThemeCheckBox,
-      kThemeRadioButton
-    };
-
-    ThemeDrawState buttonStates[] = {
-      kThemeStateInactive,
-      kThemeStateActive,
-      kThemeStatePressed
-    };
-
-    for (size_t i = 0; i < arraysize(buttonKinds); ++i) {
-      btnInfo.kind = buttonKinds[i];
-      for (size_t j = 0; j < arraysize(buttonKinds); ++j) {
-        btnInfo.state = buttonStates[j];
-        HIThemeDrawButton(&rect,
-                          &btnInfo,
-                          tmp,
-                          kHIThemeOrientationNormal,
-                          NULL);
-      }
-    }
-                                             
     CGColorSpaceRelease(rgb_colorspace);
     CGContextRelease(tmp);
   }
@@ -151,6 +117,9 @@ bool RendererMainPlatformDelegate::InitSandboxTests(bool no_sandbox) {
 }
 
 bool RendererMainPlatformDelegate::EnableSandbox() {
+
+  // TODO(jeremy): Remove BeingDebugged() and CacheSysInfo() calls. They are
+  // no longer required since the sandbox now allows sysctl() reads.
 
   // This call doesn't work when the sandbox is enabled, the implementation
   // caches it's return value so we call it here and then future calls will
