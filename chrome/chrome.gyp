@@ -2663,7 +2663,6 @@
       'target_name': 'image_diff',
       'type': 'executable',
       'msvs_guid': '50B079C7-CD01-42D3-B8C4-9F8D9322E822',
-      'msvs_existing_vcproj': 'tools/test/image_diff/image_diff.vcproj',
       'dependencies': [
         '../base/base.gyp:base',
         '../base/base.gyp:base_gfx',
@@ -3383,7 +3382,6 @@
       'target_name': 'startup_tests',
       'type': 'executable',
       'msvs_guid': 'D3E6C0FD-54C7-4FF2-9AE1-72F2DAFD820C',
-      'msvs_existing_vcproj': 'test/startup/startup_tests.vcproj',
       'dependencies': [
         'app',
         'browser',
@@ -3418,7 +3416,6 @@
       'target_name': 'page_cycler_tests',
       'type': 'executable',
       'msvs_guid': 'C9E0BD1D-B175-4A91-8380-3FDC81FAB9D7',
-      'msvs_existing_vcproj': 'test/page_cycler/page_cycler_tests.vcproj',
       'dependencies': [
         'app',
         'chrome_resources',
@@ -4049,7 +4046,6 @@
           'target_name': 'plugin_tests',
           'type': 'executable',
           'msvs_guid': 'A1CAA831-C507-4B2E-87F3-AEC63C9907F9',
-          'msvs_existing_vcproj': 'test/plugin/plugin_tests.vcproj',
           'dependencies': [
             'chrome_resources',
             'chrome_strings',
@@ -4102,7 +4098,6 @@
           'target_name': 'security_tests',
           'type': 'shared_library',
           'msvs_guid': 'E750512D-FC7C-4C98-BF04-0A0DAF882055',
-          'msvs_existing_vcproj': 'test/security_tests/security_tests.vcproj',
           'include_dirs': [
             '..',
           ],
@@ -4165,7 +4160,6 @@
           'target_name': 'test_chrome_plugin',
           'type': 'shared_library',
           'msvs_guid': '7F0A70F6-BE3F-4C19-B435-956AB8F30BA4',
-          'msvs_existing_vcproj': 'test/chrome_plugin/test_chrome_plugin.vcproj',
           'dependencies': [
             '../base/base.gyp:base',
             '../build/temp_gyp/googleurl.gyp:googleurl',
@@ -4188,7 +4182,6 @@
           'target_name': 'theme_dll',
           'type': 'shared_library',
           'msvs_guid': 'FD683DD6-D9BF-4B1B-AB6D-A3AC03EDAA4D',
-          'msvs_existing_vcproj': 'app/theme/theme_dll.vcproj',
           'product_name': 'default',
           'dependencies': [
             'theme_resources',
